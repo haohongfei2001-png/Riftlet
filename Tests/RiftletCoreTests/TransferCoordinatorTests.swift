@@ -136,6 +136,32 @@ final class TransferCoordinatorTests: XCTestCase {
         XCTAssertEqual(records.filter { $0.status == .used }.count, 3)
     }
 
+    func testSlowerFirstTargetResolutionCannotReorderClicks() async throws {
+        let store = try makeStore()
+        let a = try await makeAsset(in: store)
+        let b = try await makeAsset(in: store)
+        let started = expectation(description: "A target capture reached controlled gate")
+        let adapter = CoordinatorFixtureAdapter(holdFirstCapture: true, captureStarted: started)
+        let coordinator = makeCoordinator(store: store, adapter: adapter)
+        let first = Task { try await coordinator.select(a.id) }
+
+        await fulfillment(of: [started], timeout: 3)
+        // B resolves first. The earlier unresolved click must reserve its place
+        // before any async target resolution, so neither image can dispatch yet.
+        try await coordinator.select(b.id)
+        let whileHeld = await adapter.snapshot()
+        XCTAssertEqual(whileHeld.captureCount, 2)
+        XCTAssertTrue(whileHeld.appendedAssets.isEmpty)
+
+        await adapter.releaseFirstCapture()
+        try await first.value
+        let calls = await adapter.snapshot()
+        let records = try await store.assets(includeUsed: true)
+        XCTAssertEqual(calls.appendedAssets, [a.id, b.id])
+        XCTAssertEqual(calls.appendPhases, [.dispatchIntent, .dispatchIntent])
+        XCTAssertEqual(records.filter { $0.status == .used }.count, 2)
+    }
+
     func testAdapterReceivesCommittedDispatchIntentAndExistingPrivateFile() async throws {
         let store = try makeStore()
         let asset = try await makeAsset(in: store)
@@ -170,8 +196,12 @@ private actor CoordinatorFixtureAdapter: AttachmentAdapter {
     private let appendThrows: Bool
     private let holdFirstAppend: Bool
     private let appendStarted: XCTestExpectation?
+    private let holdFirstCapture: Bool
+    private let captureStarted: XCTestExpectation?
     private var appendGate: CheckedContinuation<Void, Never>?
     private var appendReleased = false
+    private var captureGate: CheckedContinuation<Void, Never>?
+    private var captureReleased = false
     private var captureCount = 0
     private var validationCount = 0
     private var appendedAssets: [UUID] = []
@@ -181,15 +211,24 @@ private actor CoordinatorFixtureAdapter: AttachmentAdapter {
     private var privateFileExists: [Bool] = []
 
     init(targetStillValid: Bool = true, appendThrows: Bool = false,
-         holdFirstAppend: Bool = false, appendStarted: XCTestExpectation? = nil) {
+         holdFirstAppend: Bool = false, appendStarted: XCTestExpectation? = nil,
+         holdFirstCapture: Bool = false, captureStarted: XCTestExpectation? = nil) {
         self.targetStillValid = targetStillValid
         self.appendThrows = appendThrows
         self.holdFirstAppend = holdFirstAppend
         self.appendStarted = appendStarted
+        self.holdFirstCapture = holdFirstCapture
+        self.captureStarted = captureStarted
     }
 
     func captureTarget() async throws -> TargetLease {
         captureCount += 1
+        if captureCount == 1 {
+            captureStarted?.fulfill()
+            if holdFirstCapture && !captureReleased {
+                await withCheckedContinuation { captureGate = $0 }
+            }
+        }
         return TargetLease(adapterID: id, surface: .webChat,
             applicationID: "synthetic.fixture.browser", sessionID: "fixture-session",
             windowID: "fixture-window", tabID: "fixture-tab", documentID: "fixture-document",
@@ -225,6 +264,12 @@ private actor CoordinatorFixtureAdapter: AttachmentAdapter {
         appendReleased = true
         appendGate?.resume()
         appendGate = nil
+    }
+
+    func releaseFirstCapture() {
+        captureReleased = true
+        captureGate?.resume()
+        captureGate = nil
     }
 
     func snapshot() -> CoordinatorFixtureSnapshot {
