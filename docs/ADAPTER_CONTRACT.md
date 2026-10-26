@@ -22,7 +22,7 @@ The coordinator commits `dispatchIntent` first and passes that durable operation
 
 The request's immutable file URL is beneath the app's private media root. The adapter should recheck its bytes/hash before transmission, use an operation-specific upload name with the real encoding extension, and enforce target size/type limits without silent lossy conversion. It never reads/sends chat history, replaces composer text, deletes pre-existing attachments or sends a message.
 
-`verifiedReady` names Riftlet’s admitted product completion result. It does not require a private field literally named READY. A product-level ATTACHED criterion may be mapped to it only after its exact-image/original-draft semantics and abnormal cases pass the agreed real validation; the current candidate has not passed that gate.
+`verifiedReady` names Riftlet’s admitted product completion result. It does not require a private field literally named READY. The user reports the product-level ATTACHED criterion passed the other session's scoped abnormal tests. This branch still needs the corresponding source and full evidence reviewed before admitting its mapping; it does not relabel that report as an unpassed experiment or as already-admitted production behavior.
 
 ## Receipt fields and admission
 
@@ -49,11 +49,21 @@ Web Chat and Work get separate profiles. If a positive result cannot be associat
 
 Implement only one production candidate path at a time. Consider MV3 when specific observed failures justify the change; lack of a final report alone is not a reason to build both. Independent technical review and the lead's evidence-based admission replace routine user approvals; production registries remain empty until the gate actually passes.
 
+### Implemented boundary in this branch
+
+`RiftletAdapters` now contains `ObservationDecoder`/`ObservationNormalizer` and `WebAttachmentAdapter`/`ChromeAppleEventsExecutor`. The version-1 observation is bounded to 64 KiB and rejects unknown fields, including nested identity/lease fields. Incoming data cannot supply an admission profile or positive-ready/safe-retry policy. Code-owned mapping is followed by the existing Core policy.
+
+The native executor uses one shared serial utility queue for AppleScript, leaving AppKit snapshots on MainActor. It transfers 64 KiB chunks from a verified private descriptor, checks operation/attempt/chunk acknowledgements, rechecks the complete file hash before a single commit and only observes after uncertain input. The App still uses `UnavailableAdapter`; the Web adapter's only non-disabled mode accepts synthetic assets. There is no real page function bundled yet.
+
+The reviewed page function must supply capture/validate/begin/chunk/commit/observe/discard semantics. Commit checks the full original lease and assembled bytes in the same page execution as input; discard only clears temporary bytes. A foreground PID/launch check does not prove which Chrome tab was foreground before queued Apple Events executed. W2 must cover same-browser tab changes during target capture as well as navigation during input. Passing fake transport tests does not discharge that real target-selection requirement.
+
 ## Mac implementation path
 
 Separate adapter targets for new Mac Chat, new Mac Work and Classic, keyed by bundle/version/surface. M0 can now implement the target/receipt boundary, system pasteboard data representations and clipboard-ownership state machine using test doubles; it does not depend on a ready AX snapshot. M1 gathers real composer-scoped AX baseline/adding/uploading/ready/real-error snapshots and validates actual input before enabling that surface. Prefer unique real-codec fileURL; independently test PNG representation and selection preservation. AX menu Paste is the first candidate; events are a separately validated alternative. Bind PID plus AX window/composer/draft, not PID alone. Do not invent an AX selector from an unobserved app version.
 
 Clipboards are restored only after proved consumption and only if marker/changeCount still belongs to this operation; never overwrite a later user copy or restore an old entire draft. Fixed 300 ms restoration is not accepted. Permission/privacy behavior is part of the real test. No Accessibility request is made by the current disabled adapter.
+
+M0 now implements `MacTargetSession`, `ClipboardSnapshot`/`ClipboardOwnershipLease` and `MacAttachmentAdapter` against injected `MacAttachmentExecutor`/`ClipboardTransactionDriver`. Nineteen synthetic tests exercise PID/launch, window/composer/draft/surface binding, the actual write→paste→observe→conditional-restore orchestration, concurrent user copies and separately admitted failure. A terminal failure may release the input lease for a later explicit retry; it does not trigger paste or claim clipboard consumption. Native AX/NSPasteboard implementations are still absent. Before M1 enablement, add real same-fragment file/target/owner validation and global clipboard coordination across adapter instances and process recovery. The current single-adapter in-memory pending lease does not prove those native/global properties.
 
 ## Incoming validation handoff
 

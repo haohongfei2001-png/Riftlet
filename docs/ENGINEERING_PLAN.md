@@ -4,7 +4,7 @@
 
 **当前执行方式：负责人自主决策、分模块并行、持续集成，不设日常用户审批环节。** 总体架构与产品要求不变；本次修订拆开实现、验证、启用的依赖。可直接领取的任务、唯一写入责任和解锁条件见 [EXECUTION_BOARD.md](EXECUTION_BOARD.md)。
 
-**2026-10-27 实施增量：** C1/U1/W0已启动三个独立执行者，负责人同步编写Core可靠性与接线代码。用户报告另一Codex本轮产品级ATTACHED异常验证在其测试范围内通过，允许W1实际集成；源码与完整证据尚未取得，生产成功/安全重试仍分别准入。本次沿用v2架构，只更新实现与验证状态，后续证据按E06/I07接入。
+**2026-10-27 实施增量：** C1/U1/W0由三个独立执行者实际并行，负责人同步实现Core可靠性与App接线；随后自动完成U2/W1/D1/C2/M0及审查修复。四批代码已提交到Draft PR #1，分别通过63/98/127/**134**项macOS测试、release/app打包和合成自检，精确SHA见[验证记录](VERIFICATION.md)。用户报告另一Codex本轮产品级ATTACHED异常验证在其测试范围内通过，允许W1实际集成；源码与完整证据尚未取得，生产成功/安全重试仍分别准入。沿用v2架构，后续证据按E06/I07接入。
 
 ## 1. 授权、范围和最小交付
 
@@ -28,7 +28,11 @@
 | `RiftletCapture/FolderWatcher.swift` | 目录事件、FD取消关闭、失效、带最大延迟的事件合并 | Dispatch、Darwin |
 | `RiftletCapture/PrivateAssetImporter.swift` | staging→manifest→media→DB；源前后复核，SHA256和恢复 | Core + FileValidation |
 | `RiftletCapture/CaptureService.swift` | 先watch后扫描、首次baseline、共享稳定窗、有限重试、唤醒/目录重建 | Watcher + Importer |
+| `RiftletCapture/CaptureSourceBinding.swift` | 可注入来源、系统偏好文件/父目录事件、自动重新绑定；epoch和旧目录未完文件持久交接 | CaptureService + FolderWatcher |
+| `RiftletCapture/StorageUsage.swift` | 按需、非递归、无内容读取的私有存储计量；明确partial/unknown | Foundation、Darwin |
 | `RiftletUI` | 配置、纯布局、下采样缓存、小NSPanel、连续编号和状态动画 | AppKit、ImageIO、QuartzCore、Core |
+| `RiftletAdapters` | 有界观察归一化、禁用的Web原生传输、独立Mac剪贴板/目标基础；无生产profile | Core、系统原生框架 |
+| `RiftletGUIAcceptance` | 独立2/3/12合成场景、焦点/下层点击/asset身份观察；不连接ChatGPT | UI + Core；非常驻组件 |
 | `RiftletApp` | 菜单栏、独立实例锁、组合以上模块、配置加载、开发模拟和self-check | 三个库target |
 
 只有 App 组合模块；Capture 不依赖上传，UI 不写数据库、不执行上传、不删除文件。不引入第三方 Swift package 或常驻 helper。需要浏览器扩展时再增加一个 stdio native host，不预建两套生产 transport。
@@ -55,7 +59,7 @@ Asset可见状态：pending、transferring、unknown、failed、missing；used�
 
 当前生产成功/失败准入表均为空，没有通过配置文件跳过验证的开关。演示仅在simulation store + synthetic asset + simulation target + simulation-v1四重条件下通过。
 
-`verifiedReady`是获准的产品完成语义，不要求读取名为READY的私有内部字段。经真实异常验证合格的产品级ATTACHED可以映射到它；当前候选尚未通过，仍不能吞噬。
+`verifiedReady`是获准的产品完成语义，不要求读取名为READY的私有内部字段。用户已报告产品级ATTACHED通过另一会话本轮测试范围；本分支仍需取得并审查对应源码、完整证据和映射，才可准入吞噬。成功与安全重试分别判断。
 
 详见 [ADAPTER_CONTRACT.md](ADAPTER_CONTRACT.md)。
 
@@ -76,20 +80,20 @@ Asset可见状态：pending、transferring、unknown、failed、missing；used�
 | 阶段 | 实现前置条件 | 可交付物 / 通过条件 | 当前状态 |
 | --- | --- | --- | --- |
 | F0 工程与协议 | 本轮授权 | SwiftPM、系统SQLite、模块边界、可运行test/build入口 | 本轮完成；Mac构建通过 |
-| F1 资产与恢复 | F0模型 | 完整图片→私有副本→持久队列；半图拒绝、原件不动、重启补漏、孤儿恢复、同图事件去重 | 已有代码/CI通过；来源自动切换与故障边界继续开发；真实系统捕获待验 |
+| F1 资产与恢复 | F0模型 | 完整图片→私有副本→持久队列；半图拒绝、原件不动、重启补漏、孤儿恢复、同图事件去重 | 自动来源切换/持久交接、C2故障回归、特殊文件拒绝和按需计量已通过CI；真实系统捕获待验 |
 | F2 状态与协调 | F0；不依赖真实ChatGPT | 操作intent、防重、目标锁、unknown不重传、成功/失败分开准入、used持久 | 已有代码/CI通过；新增适配器继续用同一契约回归 |
-| F3 原生裂缝 | F0/F1输出；F2状态 | 参数化小panel、2/3/12项、模拟三态；确定性布局测试及GUI验收辅助程序 | 已有代码/CI通过；辅助程序/边界用例可继续；GUI待验 |
-| W0 Web证据与契约测试 | F2现有接口 | 将去隐私观察映射到版本化fixture；覆盖错图/错草稿/导航/迟到/模糊失败 | 可立即开发，不等完整异常报告 |
-| W1 Web候选实现 | F2；使用W0的fixture契约 | 先做Apple Events单一路径的禁用适配器、可替换transport、synthetic harness；同一目标复核和一次append | 可与W0并行开工；现有INPUT事实支持候选选型，不构成准入；缺具体页面证据只暂缓该小段 |
-| W2 Web真实验证与准入 | W1实际路径 + 真实INPUT/IDENTITY/完成/RECOVERY证据 | 原文/旧附件保留；失败/导航/并发不误判；成功与safe-retry分别准入 | 等待的只是相应surface验证和启用，不阻塞W0/W1/F1/F3 |
-| M0 Mac独立基础 | F2接口；系统pasteboard类型 | 目标身份边界、fileURL/PNG表示、剪贴板所有权/恢复状态机及测试；AX观察入口 | 可独立开发；测试替身不算真实AX结果 |
+| F3 原生裂缝 | F0/F1输出；F2状态 | 参数化小panel、2/3/12项、模拟三态；确定性布局测试及GUI验收辅助程序 | 辅助程序、7项配置/重排/屏幕策略边界已通过CI；真实GUI待验 |
+| W0 Web证据与契约测试 | F2现有接口 | 将去隐私观察映射到版本化fixture；覆盖错图/错草稿/导航/迟到/模糊失败 | 已实现，14项合成契约测试通过；可接真实去隐私fixture |
+| W1 Web候选实现 | F2；使用W0的fixture契约 | Apple Events单一路径的禁用适配器、可替换transport、synthetic harness；同一目标复核和一次append | 原生串行执行器、分块/双hash/ACK/仅观察恢复已实现，9项测试通过；具体页面函数缺源码，正式App仍禁用 |
+| W2 Web真实验证与准入 | W1实际路径 + 真实INPUT/IDENTITY/完成/RECOVERY证据 | 原文/旧附件保留；失败/导航/并发不误判；成功与safe-retry分别准入 | 待真实页面源码/完整证据、program接入及对应surface验证/准入；不阻塞其他已完成模块 |
+| M0 Mac独立基础 | F2接口；系统pasteboard类型 | 目标身份边界、fileURL/PNG表示、剪贴板所有权/恢复状态机及测试；AX观察入口 | 已实现19项合成流程/所有权测试，默认禁用；真实AX/NSPasteboard后端与跨实例/重启协调仍在M1接入范围 |
 | M1 Mac真实验证与准入 | M0 + 特定bundle/version/surface的真实AX/输入证据 | composer绑定、正向逐图完成、明确失败、不会覆盖用户后续复制；按surface准入 | 新版Chat/Work与Classic各自验证，未通过的继续禁用 |
 | R0 可重复工程构建 | F0及当前已集成模块 | 每个有意义的代码增量可测试、可打包、可下载；ad-hoc构建/合成smoke | 已有CI通过；持续维护，不等证书/Logo/完整适配器 |
 | R1 发行候选 | 对应功能验收 + 至少Web Chat W2 | 真机全链路、资源/延迟测量、权限体验、正式签名/公证/安装验证 | 发布阶段；缺条件只停相应发行动作，不停开发 |
 
 依赖关系的关键变化：F1/F2/F3、W0/W1、M0、R0可以独立推进；W2/M1的真实证据只控制对应能力的验收/启用。W1不再以“收到完整异常研究包”为整个任务的开工前提。Apple Events先作为可替换的开发候选；有具体阻断证据时才切换MV3，不同时建设两套生产transport。
 
-**最近一批可领取工作**：来源自动重新绑定（C1）、原生点击/焦点验收辅助程序（U1）、证据fixture与回放（W0）；负责人同时维护Core与集成。C2故障恢复、U2布局边界、W1和M0依赖满足即自动补位。具体范围/验收见执行队列；列为READY不等于已经开始或通过。
+**当前续做入口**：C1/U1/W0完成后已自动完成U2/W1/D1/C2/M0及具体审查修复；实际提交、验收范围和下一条动作见执行队列。N1/W2/M1保留各自真实系统/页面证据和native backend的接入工作，不把已完成实现重新列为未开工，也不把接口测试写成真实接入通过。
 
 ## 7. 验收与执行责任
 
@@ -126,7 +130,7 @@ Asset可见状态：pending、transferring、unknown、failed、missing；used�
 
 收到Codex真实结果后只做：(1)归档去隐私环境/用例/receipt profile；(2)补充W0已经建立的fixture；(3)校准W1候选adapter的观察/输入细节；(4)针对surface/build分别审查成功/安全失败profile；(5)协调器回归及真实合成图全链路通过；(6)在App组合层启用对应adapter/profile。证据不成立则仅保留观察/UNKNOWN，或根据具体问题调整transport。Capture、SQLite身份、RiftPanel、动画不因READY判据变化而重构。
 
-不将“严格内部READY尚未证实”无限泛化成所有工作阻塞，也不把当前ATTACHED候选晋升为可自动吞噬的生产结论。
+不将“严格内部READY尚未证实”泛化成所有工作阻塞，也不把尚未取得源码和完整证据的范围性报告直接当作生产准入。
 
 ## 10. 原始依据与变更记录
 

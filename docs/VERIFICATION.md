@@ -15,19 +15,20 @@
 | --- | --- | --- |
 | Library handoff PACKAGE_INDEX | PASS 16/16 | Exact byte lengths and SHA-256; original archive SHA-256 in engineering plan |
 | Repository baseline + working branch | VERIFIED | main pinned, independent feature branch; no merge |
-| Swift / macOS GUI in authoring environment | UNAVAILABLE | Linux; no local Swift toolchain. Mac Actions is the planned compile/test executor |
+| Swift / macOS GUI in authoring environment | UNAVAILABLE | Linux; no local Swift toolchain. Actual native tests/builds run on GitHub macOS Actions |
 | Authored-source `git diff --check` | PASS | Authored code/docs only. Exact upstream licenses/research retain their original whitespace. |
-| macOS Swift tests | PASS 40/40 | Capture12 + QueueStore12 + Coordinator6 + Layout/Pointer10; real macOS runner |
+| macOS Swift tests | PASS 134/134 | Capture48 + Core27 + UI17 + Adapters42 at `e76e7985`; actual macOS runner |
 | Release build + `.app` + ad-hoc signature verification | PASS | ARM64 development application, not notarized or publicly released |
 | Packaged executable `--self-check` | PASS | Actual built executable; synthetic private import→queue→receipt→restart, no GUI or ChatGPT |
+| GUI acceptance helper fixture `--self-check` | PASS | 12 generated PNGs, 2/3/12 scenes and layout/state checks; explicitly `GUI_NOT_RUN` |
 | Inherited Oracle offline cases | REPRODUCED 4/4 | Node24.22.1/Linux; source fixture counterexamples only |
 | First-click focus / transparent hit / fullscreen / multi-monitor | NOT_RUN | Requires authorized real Mac GUI |
 | Real system screenshot latency and idle resources | NOT_RUN | No fabricated measurements |
-| Real ChatGPT completion / anomaly matrix | NOT_RUN in this branch | Parallel Codex session owns current real validation; current App adapter disabled |
+| Real ChatGPT completion / anomaly matrix | USER_REPORTED_SCOPED_PASS; NOT_RUN here | E06 reports product ATTACHED passed the other session's scope; source/full evidence still not obtained; App adapter disabled |
 
 Production successful-completion and safe-retry profiles are both empty. Real screenshot automatic consumption is not enabled.
 
-## Actual macOS run
+## Original foundation macOS run — historical evidence
 
 - [Successful workflow](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40377481770), job `121764396954`, completed 2026-10-27 02:25:32 Beijing.
 - Tested source head: `2f60f01657cc29e7a4cabe41792c6ccd558d6974`. PR's temporary integration commit: `88119b980c8546079129626877b8057709934f3c`. This temporary test merge is **not** a merge into main.
@@ -38,16 +39,48 @@ Production successful-completion and safe-retry profiles are both empty. Real sc
 
 The first run exposed nested weak-reference capture concurrency errors; these were fixed in the tested source commit. The successful run compiles all native targets and runs all40 tests, not only a stub. The final evidence/documentation commit changes no source/build/test files, so it does not repeat this completed gate.
 
+## Continuous delivery — actual code and native execution
+
+| Tested source commit | Native test count | Successful workflow | Included increment |
+| --- | --- | --- | --- |
+| `94df78c74e75cf79b7832e62a228c6fd37913cf9` | 63 | [40386356404](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40386356404) | Q1/Core recovery, W0 normalization and U1 helper |
+| `3e7b8eac6c3bd235f4e376172d6085ab0d5b4426` | 98 | [40387437225](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40387437225) | C1 source binding, U2 layout, W1 transport and D1 storage |
+| `1afd849a9b2d2cfada0d01cd47b5f1ee31f83d37` | 127 | [40388958638](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40388958638) | C2 faults/recovery and M0 injected Mac flow |
+| `e76e7985c05197c487dd4e7f585dc028ed64b1af` | **134** | [40389753080](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40389753080) | C1 review fixes and nonblocking special-file rejection |
+
+All four runs completed successfully on macOS14.8.9 arm64 / Apple Swift5.10. Each ran `swift test --parallel`, release build, actual ad-hoc `.app` packaging/signature verification, packaged App self-check and the separate GUI helper fixture self-check. The final run's job is `121807449326`; its temporary PR test merge `847471105ad2520e897a0d32e3a3e8337e5db0e1` is not a merge into main.
+
+The [latest source-verified artifact](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40389753080/artifacts/12682330742) includes `Riftlet-macOS-development.zip`, `Riftlet-GUI-Acceptance.zip` and test/build/self-check logs. Outer artifact SHA-256: `5f7c9eb727e8fb751c569b0b2e6e67254e7bf01f63d327b928f439dd62179d19`. Artifacts expire after14days; source, workflow and the durable evidence records remain in git.
+
+Permanent records: [machine-readable run/review/scope data](../engineering/evidence/2026-10-27/continuous-verification.json) and [native log excerpts](../engineering/evidence/2026-10-27/continuous-ci-excerpt.txt). Documentation/checkpoint commits after the final source commit change no native source, tests, dependencies, resources or build entry points. PR-wide path matching may trigger another automatic run; such a run is separate, not predeclared successful.
+
+### Independent review and concrete fixes
+
+The root integrated and implemented Core, App wiring, part of C2 and the special-file fix. Three independent agents actually ran C1/U1/W0 concurrently, then took C2/U2/W1/D1/M0 or reviewed another author's code. This was one shared workspace with disjoint ownership, not three separate Mac machines or an unattended background coding service.
+
+- Core/Q1 was reviewed by `ui_u1` and `adapter_w0`; the root's missing-media recovery fix and transaction rollback tests were independently checked.
+- U1/U2/D1 modules were reviewed by root; C1/D1 App wiring was reviewed by `ui_u1`. The GUI helper no longer logs key codes, and large configured insets no longer move fitted rows outside narrow screens.
+- W0/W1 were reviewed by root and `ui_u1`. Nested unknown observation fields are rejected, and AppleScript runs on a shared serial utility queue rather than blocking MainActor.
+- C1's initial CI pass did not close its later review findings. `ui_u1` identified the handoff-await arrival gap, stale start after stop and unreadable terminal-enumeration gap. The author fixed these and added five targeted tests; the final134-case run covers them.
+- C2 was authored by `capture_c1` and root and reviewed by `ui_u1`. Journal rename transfers ownership before directory sync; stage-directory ordering, persistent SQL locks, recovery IO errors, unreadable journals, malformed JSON isolation and used-record preservation are tested. The author also independently read root's additions.
+- M0 was reviewed by root and `ui_u1`. A separately admitted terminal failure now releases the local input lease for a later explicit retry, while retaining clipboard bytes; UNKNOWN and unadmitted failures do not unlock or paste again.
+- Root fixed the FIFO open-before-fstat issue found by `ui_u1`; the reviewer also caught and helped bound the regression harness's rescue path. The two tests use actual `mkfifo` files and pass on the native runner.
+
+Review here means non-author technical review by distinct execution agents. It is not a human GitHub approval or authorization to merge/publish. The branch and PR remain isolated and draft.
+
 ## Material remaining limits
 
-- Collection is event-driven for the configured local directory. Live source preference changes currently refresh on wake or the developer menu; fully automatic preference rebinding and one-time bookmark/permission UX remain work.
+- C1 now automatically rebinds from preference-file/parent events, with durable old-directory handoff and startup generation guards. Temporary-file watcher cases are automated; actual Screenshot.app propagation, TCC/permission UX and real sleep remain system acceptance.
 - Delayed metadata/partial writes get five bounded retries; a later event/wake/rescan can retry again. No indefinite polling is used. Real-system coverage must establish whether a supplementary metadata observer is needed.
 - Used media and journals are retained because archive/delete semantics are undecided. Unjournaled staging fragments are not auto-imported or auto-deleted. Retention/recovery cleanup remains a scoped follow-up.
+- Recovery preserves journal ownership across IO/SQL failures and never labels an unreadable journal as safely discarded. A storage IO error conservatively stops that recovery call; startup may therefore remain paused until access is restored. Malformed JSON is isolated from unrelated valid journals. These are distinct behaviors, not a claim that every IO failure is isolated per image.
+- C2 interruptions use real temporary files/SQLite and deterministic in-process fault hooks plus reopening; no SIGKILL, OS crash or power-loss test is claimed. `fsync` ordering was reviewed and executed, not certified as hardware power-loss protection.
 - The current build is ARM64 on the verified runner. Intel and the user's newer macOS build are not claimed tested.
 - Transparent minimum-hit rectangles, fullscreen behavior and exclusion from Apple's own screenshots are not established by pure layout tests.
 - Developer simulation is not an upload adapter, and the production build intentionally retains real images.
+- Web page source and complete real evidence remain missing. W1's native transport is compiled and fake-tested; foreground process identity alone does not establish click-time tab identity during queued Apple Events. Mac has only injected platform drivers; cross-instance/restart clipboard coordination remains required before native enablement.
 
-## Autonomous execution plan v2 — 2026-10-27
+## Autonomous execution plan v2 — historical documentation increment
 
 The follow-up authorization was recorded in AGENTS, decision entries P12/P13 and the v2 engineering plan, with a concrete execution board and PR template. Web/Mac implementation is separated from real-evidence admission. Reuse provenance was rechecked; Oracle's archive count is now described precisely as six source/fixture files plus LICENSE.
 

@@ -28,6 +28,19 @@ The built app has an ad-hoc development signature. This is build validation, not
 
 Record OS/build/chip, toolchain, screen scale/visibleFrame, source destination and preview setting once. Use only synthetic fixtures in public logs. Actual screenshots remain local. The source path's system permission may need one-time authorization; do not ask for full-disk/screen-recording/AX permissions that this collection-only build does not use.
 
-The app reloads the system screenshot destination on wake or the developer menu's reload action. Live preference-change notification/bookmark onboarding is a remaining integration task; a menu reload is not asserted as the completed product's everyday workflow.
+The app now subscribes to screenshot preference file/parent events and automatically rebinds through `CaptureSourceBinding`; synthetic plist replacement, parent recreation, old-folder partial files and restart cases pass macOS CI. Actual Screenshot.app preference propagation remains N01/N02 acceptance, together with any one-time permission/bookmark onboarding. Wake and menu reload are recovery paths rather than the claimed ordinary workflow.
+
+## Synthetic GUI acceptance helper
+
+`RiftletGUIAcceptance` is a separate executable, not a resident service or production upload adapter. CI archives it as `Riftlet-GUI-Acceptance.zip`. From source on an authorized interactive Mac:
+
+```bash
+swift run RiftletGUIAcceptance --self-check
+swift run RiftletGUIAcceptance > /tmp/riftlet-gui-observations.jsonl
+```
+
+The first command verifies generated image bytes/hash/dimensions and layout/state fixtures; its marker explicitly says `GUI_NOT_RUN`. The second opens actual 2/3/12 synthetic scenes. Use the helper's underlying click probe and focus field for N04/N05, then repeat with a separate application for cross-app focus. Use delayed reorder while holding a thumbnail for N07; compare recorded asset IDs rather than changing row numbers. Success/failure/unknown controls are clearly simulated; they supply no ChatGPT receipt evidence.
+
+JSONL records synthetic IDs, event counts, geometry and focus observations; typed text and key codes are not logged. No automatic GUI PASS is emitted. Record the exact tested source SHA, OS/screens and the observed N04–N07 outcomes. Missing physical screens or an interactive session leave only the relevant cases untested.
 
 Real ChatGPT tests are separate and use [the inherited W00–W07/M00–M06 procedure](../research/technical-decision-2026-10-26/03_MAC_VALIDATION.md). Build/test/animation success never substitutes for that evidence.
