@@ -1,2 +1,31 @@
 # Riftlet
-A minimal screen-edge interface for screenshots and clipboard content, built around spatial memory and one-click insertion across apps.
+
+**Riftlet** is a proposed tiny, native macOS screenshot-to-chat bridge: **take a system screenshot, then click its micro-thumbnail once**. The intended result is an image appended to the correct ChatGPT draft—not a sent message.
+
+**Status (2026-10-26): Pre-development design/research.** There is no approved final design, no proven real-ChatGPT end-to-end attachment/ready chain, and no shipped Riftlet app. This public repository archives decisions and research; it is not an invitation to start implementation.
+
+## The distinctive interaction
+- Extremely fine vertical **spatial rift** at the screen edge; tiny, aspect-ratio-preserving, roughly coin-sized screenshots protrude partly from it.
+- Oldest at top. Everyday pending queue is normally **2–3 images**, occasionally 10+; each screenshot shows only the image and a simple number.
+- Normal use takes **exactly two user actions**: macOS screenshot; click its thumbnail. No upload shortcut, drag-and-drop, file picker, extra confirmation or manual paste.
+- Only a **verified ready attachment in the correct draft** triggers final swallow and queue shift. A definitive failure reverses/recreates the thumbnail; an unknown result preserves it and never blindly re-uploads.
+- Never automatically send a ChatGPT message.
+
+The **Screenshot Rift** name appears in the dated original studies; **Riftlet** is the present repository name. Initial repository wording about clipboard content and arbitrary applications is not an approved V1 requirement; those are potential later extensions.
+
+## Start here
+
+| Subject | Document |
+| --- | --- |
+| User product requirements | [docs/PRODUCT.md](docs/PRODUCT.md) |
+| Decided vs. proposed | [docs/DECISIONS.md](docs/DECISIONS.md) |
+| Current visual design brief | [docs/DESIGN_BRIEF.md](docs/DESIGN_BRIEF.md) |
+| Platform and upload research | [docs/TECHNICAL_BASELINE.md](docs/TECHNICAL_BASELINE.md) |
+| Reusable source research | [docs/REUSE_CANDIDATES.md](docs/REUSE_CANDIDATES.md) |
+| Questions that remain | [docs/OPEN_QUESTIONS.md](docs/OPEN_QUESTIONS.md) |
+| Full Pro response | [research/PRO_REVIEW_REPLY_2026-10-26.md](research/PRO_REVIEW_REPLY_2026-10-26.md) |
+| Full 23-page Pro PDF **text extraction** | [research/PRO_REVIEW_PDF_TEXT_2026-10-26.txt](research/PRO_REVIEW_PDF_TEXT_2026-10-26.txt) |
+| Codex first experiment evidence | [research/CODEX_EXPERIMENT_STATUS_2026-10-26.md](research/CODEX_EXPERIMENT_STATUS_2026-10-26.md) |
+| Original sources, limits | [research/SOURCES.md](research/SOURCES.md) |
+
+**Next stage is visual/interaction design, not production development.** Please do not commit real user screenshots, private chats, credentials, unrelated project files or test browser profiles to this public repository.

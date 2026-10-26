@@ -1,0 +1,1371 @@
+23-page original Pro PDF text extraction, 2026-10-26. TEXT ONLY, not a copy of the original PDF layout. Source PDF SHA-256 6c8d31bd1609f9d5d9f0a5e6d94b093c071d2d74bfe50548a797eeb21dad9b76.
+
+<PARSED TEXT FOR PAGE: 1 / 23>
+MAC SCREENSHOT RIFT / INDEPENDENT REVIEW                                     2026-10-26
+
+
+
+
+ Mac Screenshot Rift
+ 独立产品、平台技术与开源复用审查
+ 研究截止：2026-10-26｜开发前技术裁决｜研究版 1.0
+
+
+ 推荐方向：独立 Swift / AppKit 应用，配套轻量 Chromium 扩展，选择性复用底层代码。
+
+ 网页端具备值得进入最小实证验证的技术路线。Mac 客户端具备模拟输入的成熟手段，但“特定图片已在当前草
+ 稿准备就绪”的可观测性尚未证实。若首发必须同时严格覆盖网页、新版 Mac 桌面和 ChatGPT Classic，目前尚
+ 不具备直接开始完整产品开发的条件。
+
+ 这不是“做不出来”的判断。它意味着最难的问题必须在做完整裂缝 UI 之前得到答案：能否正确识别当前草稿、
+ 只附加这张图、保留用户内容，并取得足以消除队列项的真实回执。
+
+ 本报告的证据边界
+ 本轮实际阅读了公开产品资料、Apple / Chrome / OpenAI 官方文档，以及固定提交版本的开源实现和部分测试。
+ 源码快照已经核对；没有在 macOS 真机运行这些项目，没有执行真实 ChatGPT 附件注入，也没有发送消息、
+ 访问私人对话、创建产品仓库或修改既有项目。
+
+ 全文区分四种证据：文档事实、源码证据、工程判断、待实测门槛。交互尺寸、时间、资源预算和通过标准均
+ 为建议规格，除特别说明外，不是本轮测量结果。
+
+ 核心裁决
+
+  场景                两次操作的判断                成功确认能力                  当前放行状态
+
+
+  普通 ChatGPT 网      有明确实现路径；仍须验证当前         可观察实际 composer 与附件状态，   有条件 GO，先通过输入与就
+  页＋原生应用＋           页面接收方式                 最有希望做严格判定               绪验证
+  扩展
+
+
+  网页＋纯原生系           可候选使用粘贴 / AX；浏览器脚      比扩展难以绑定具体附件，且会碰剪        备用方案，不推荐默认
+  统自动化              本另需设置与权限               贴板与焦点问题
+
+
+  新版 ChatGPT        粘贴动作可实现；当前草稿定位         取决于实际 AX 树是否暴露附件及完      严格版尚未放行
+  Mac 桌面            与图片消费需实测               成状态
+
+
+  ChatGPT Classic   必须独立核验，不能继承新版结         同上，不能把出现卡片视作已上传完        严格版尚未放行
+  Mac               论                      成
+
+
+  OpenAI 官方         有真实草稿接口，但入口、线程         返回值不等同特定附件 ready 回执     候选研究路线，不能替代主方
+  MCP 草稿扩展          和平台有边界                                         案
+
+
+ “两次操作”指完成一次性安装、权限与来源设置后的日常使用：系统截图，然后点击已收录的缩略图。 它不应
+ 被偷换为每次手动选择会话、按快捷键或打开文件选择器。失败后的主动重试和浏览无限历史属于另外的操作
+ 情形。
+
+
+
+
+研究资料与源码审查；待实测项不代表已通过                                                                 1
+<PARSED TEXT FOR PAGE: 2 / 23>
+MAC SCREENSHOT RIFT / INDEPENDENT REVIEW                           2026-10-26
+
+
+
+
+ 1. 先定义“成功”，再设计吞噬
+ 1.1 五种结果必须分开
+ 本产品真正的事务不是“发了一个粘贴事件”，而是“指定截图进入了用户点击时所指的草稿，而且附件已具备发
+ 送条件”。此处 ready 只指当前草稿接受该图并完成所需处理，不保证用户以后一定发送、服务端永久保存或模
+ 型一定使用该图。
+
+  状态                足够说明什么                 不能据此声称什么       裂缝行为
+
+
+  INPUT_TRIGGERE    输入动作已派发                页面已接受图片        留下在途占位，禁止重复派发
+  D
+
+
+  ATTACHMENT_PR     指定草稿出现了可关联的新附件         上传和后续处理已完成     保留在途状态
+  ESENT
+
+
+  READY             实测有效的完成判据确认该附件         消息已发出或未来必然可用   完成吞噬，从待用队列移除
+                    可发送
+
+
+  FAILED            明确的格式、大小、上传等错误         所有超时都是失败       原位恢复；保留本地原图
+                    ，或确定尚未触发的前置失败
+
+
+  UNKNOWN           超时、导航、观察丢失、崩溃等         可安全重新上传        保留并标记待核对；下次先对
+                    使结果不确定                                账
+
+
+ 文件输入控件中已经有文件名、发送按钮 enabled、网络请求返回 200、一个 spinner 消失，都不是通用的独立
+ 成功证据。已有文字可以让发送按钮提前可用；模型正在回答也可能使按钮不可用；HTTP 成功后仍可能有附件
+ 处理；占位卡片可能在传输前已经出现。
+
+
+ 1.2 为一次点击建立完整身份
+ 每次操作应至少包含：assetId、operationId、attemptId、点击时的目标应用 / 浏览器会话、windowId、
+ tabId / AXWindow、页面 document 或草稿代次、composer 身份，以及触发前的附件集合基线。
+
+ 截图身份、输入操作身份与文件内容 hash 是三件事。相同像素的两次系统截图可以是两个有意条目；一次截图
+ 的多个文件事件应合并；用户从档案主动再次使用同一图则应建立新操作。不能让全局内容去重误删用户的连
+ 续截图。
+
+ 目标在点击时固定，并在真正输入前再次核对。用户切换到另一对话，不应把排队的图悄悄改投新对话。触发
+ 前变更可取消或等待；触发后变更通常应进入核对 / UNKNOWN，不能假装失败再重放。
+
+
+ 1.3 重试、并发与恢复
+ 同一条目在途时的连续点击合并为同一操作。不同图片可以快速点击排队，但同一个草稿的注入必须串行，至
+ 少串行到能够唯一关联新附件。原生剪贴板路径还需要跨窗口的全局串行，避免不同图片覆盖同一个系统剪贴
+ 板。
+
+ 建议 15 秒作为柔性的等待提示，60 秒作为一档停止积极等待、转入 UNKNOWN 的阈值；这些是待测 UX 参数
+ ，不是上传必然失败的时间界线。迟到的 ready 只可作用于匹配的 attemptId，不能吞掉后来重试中的另一项。
+
+
+研究资料与源码审查；待实测项不代表已通过                                                       2
+<PARSED TEXT FOR PAGE: 3 / 23>
+MAC SCREENSHOT RIFT / INDEPENDENT REVIEW                                            2026-10-26
+
+
+
+
+ 进程在“已触发、未记录回执”之间退出时，重启后必须核对，不能自动重播。没有目标端幂等键时，本地日志无
+ 法保证严格的远端 exactly-once；正确做法是避免盲目重试和误删，而不是做虚假的保证。
+
+ 失败恢复不应重建用户全部草稿，也不应清空所有附件。对于已出现的错误卡片，只有在能够可靠对应本次操
+ 作时，才可使用该卡片自己的重试机制。用户主动删掉一个已经就绪的附件，是新的用户行为；Rift 不应自动
+ 不断补回。
+
+
+ 1.4 本地档案与待用队列分离
+ 成功吞噬意味着从待用队列消费，不意味着删除用户截图文件。建议保留不可变的本地副本和独立档案，原生
+ 截图源文件不移动、不删除。用户以后可在主窗口主动再次使用、导出或删除。
+
+ 图片复制与索引提交应在可恢复的本地事务中完成，再让缩略图可点击。任何导入失败、权限中断、进程退出
+ ，都不能产生“看似可用、实际文件不存在”的条目。
+
+
+
+
+ 2. ChatGPT 网页版：最值得验证的主链路
+ 2.1 浏览器能力的真实边界
+ OpenAI 官方说明图片可以通过添加、拖放或剪贴板进入 ChatGPT，支持 PNG、JPEG、非动画 GIF，并列出每
+ 张图片 20 MB 的限制。这说明产品具备图片输入能力，不意味着第三方程序拥有稳定的外部附件 API。[S01]
+
+  手段                       平台允许的部分                      本项目必须核验的限制
+
+
+  File / Blob              用应用已经取得的字节构造网页文件对象           传入路径字符串不会读取本地文件；没有任意磁盘权
+                                                        限
+
+
+  input.files              HTML 标准允许赋予合适的 FileList      必须找到真正的草稿文件输入；赋值不等于页面状态
+                                                        更新
+
+
+  input.value              不能用任意非空路径设置文件选择              不能拿路径字符串模拟用户选文件
+
+
+  DataTransfer             可承载 File 并提供 FileList        不是系统级拖放或用户激活；还需页面处理器接受
+
+
+  合成 change / input        可调用页面事件处理逻辑                  isTrusted 为 false；ChatGPT 是否接受及是否追加必
+                                                        须实测
+
+
+  合成 paste                 页面自己的 paste handler 可能读取数据   W3C 明确它不执行真实剪贴板粘贴的默认动作
+
+
+  合成 drop                  站点 handler 可能接受文件            不保证等同真实拖入，不可当全站通用上传机制
+
+
+  navigator.clipboard      在权限、焦点和用户激活条件下可读写            原生面板的一次点击不当然成为页面的 transient
+                                                        activation
+
+
+ 这些区别来自 HTML 与 Clipboard 标准，以及 Chrome 的扩展隔离机制。[S03][S04][S05] 正式适配器应优先使
+ 用标准 FileList setter 和经过验证的实际 composer handler，避免修改 React 私有对象、伪造 DOM getter 或把
+ 图片塞进与草稿无关的新 input。
+
+
+
+
+研究资料与源码审查；待实测项不代表已通过                                                                        3
+<PARSED TEXT FOR PAGE: 4 / 23>
+MAC SCREENSHOT RIFT / INDEPENDENT REVIEW                                           2026-10-26
+
+
+
+
+ 2.2 推荐链路
+ 原生应用负责读取自己的图片副本；已连接的 Native Messaging host 将内容交给扩展 service worker；扩展把
+ 字节发送给当前目标页面的 content script；content script 定位实际 composer 的附件输入，建立 File /
+ DataTransfer，调用经过实测的接收路径；随后只观察该 composer 的新增附件和就绪状态。
+
+ 这条路径使用用户现有 ChatGPT 页面自己的登录态与正常上传处理，不读取 cookies、不抽取 token、不调用
+ 逆向私有上传接口，也不引入 AI API 或自建云服务。
+
+ 现有隐藏 input 可能在菜单打开前尚未挂载。适配器必须验证页面原本的挂载方式，不能随意新增一个 input
+ 就认为 ChatGPT 会接收；也不能为了打开文件选择器而破坏两次操作的目标。
+
+ 文件 input 的 FileList 赋值是替换该控件的当前选择。它是否由页面作为“追加附件”处理，必须实测。不要盲目
+ 把历史 FileList 合并进去，旧文件可能被再次上传。保留用户文本与已有附件应通过只调用追加路径实现，绝不
+ 使用 Cmd+A、innerHTML 替换或清空附件容器。
+
+
+ 2.3 一次点击如何找到“当前对话”
+ 只知道 chatgpt.com 标签页存在是不够的。Chrome 的 active / lastFocusedWindow 仅表达一个浏览器上下文
+ 内的状态，不等于全系统正在使用的窗口；多个 Chrome profile、多个浏览器、普通网页与 Work 页面并存时
+ 尤其容易错投。[S08]
+
+ 建议原生应用只接受点击前确实在前台的受支持目标。扩展为每个页面报告 browser/profile 会话、windowId、
+ tabId、frame / documentId、URL / 路由、可见 composer 和焦点状态；应用与扩展共同建立短期目标绑定。
+ 若只能得到多个可能目标，就保持截图并显示“目标未就绪”，不能自动选择最近打开的后台对话。
+
+ 不能仅靠 URL。SPA 可以在同一文档中换对话；新聊天的路径也可能复用。必须同时记录草稿代次和
+ composer 的实际元素身份，导航和替换后重新验证。
+
+ 点击裂缝不应把 Rift 变成前台应用。Web 主路径也不要求先激活扩展图标。Chrome 的 activeTab 权限需要扩
+ 展 action、context menu、command、omnibox 等规定的用户调用，外部原生面板点击不会自动获得它。
+ [S06] 因而更合适的是一次授权、仅针对 https://chatgpt.com/* 的站点访问；不申请所有站点权限。
+
+
+ 2.4 成功回执：需要“具体附件”的证据
+ 建立基线后，查找当前 composer 新出现的附件控件，并用文件名、附件标识、操作携带的可用元数据和
+ DOM 身份关联本次输入。数量加一不够：用户可能同时手动添加文件；同名文件也不一定是同一个对象。
+
+ 对关联的附件，使用当前版本经过验证的复合 ready 判据：存在正向完成状态、所需进度 / pending 已结束、
+ 没有该附件错误，并且仍在原目标草稿中。MutationObserver 只观察必要的 composer 子树，变化后局部重新
+ 核对；不高频扫描整个页面。
+
+ 网页 DOM 不属于公开稳定契约。因此不能承诺仅靠一条 CSS selector 永远有效。应把定位、插入和完成判断
+ 封装成小型、可替换的版本适配器，优先使用语义角色、可访问名称、元素关系和结构化状态；为不同语言和
+ 布局维护小型页面夹具。检测到不认识的界面时保留图片并停止注入，不能退回猜坐标。
+
+
+ 2.5 已有源码证据：Oracle 值得借鉴，但不能整段照搬
+ 实际核查 steipete/oracle 的提交 fde96271db1611c0287fcfde3053c19325280d10，许可证 MIT。[C07]
+
+
+
+
+研究资料与源码审查；待实测项不代表已通过                                                                       4
+<PARSED TEXT FOR PAGE: 5 / 23>
+MAC SCREENSHOT RIFT / INDEPENDENT REVIEW                                             2026-10-26
+
+
+
+
+ • src/browser/actions/attachmentDataTransfer.ts：把真实字节转为 Blob / File / DataTransfer，给文件输入
+   设置 files，再派发 change。这里确实有完整输入构造，不只是 README 宣称。
+
+ • attachmentEvidence.ts：记录新增前的删除控件集合，要求一个未被认领的新控件，关联真实 DOM 节点和
+   composer；节点移除或 composer 更换会使证据失效。
+
+ • attachmentProgress.ts：限定在 composer 附近检查 uploading / pending / aria-busy / progressbar，排除编
+   辑器文本和无关隐藏元素。
+
+ • attachmentContext.ts：导航前后对比上下文，对不明确的输入归属避免再次派发。
+
+ • composerRoot.ts：从可见编辑器识别其真正容器，避免选择无关表单。
+
+ • attachments.ts 及对应测试中仍存在 input-only fallback：文件名稳定一段时间、发送按钮 ready 或缺失，可
+   以被当成完成。这不足以达到本产品严格成功契约，不能继承。
+
+ • 该项目还包含清理既有附件、暂存提示词、发送等不同用途的代码，必须排除。读取测试不代表本轮已执行
+   测试。
+
+ 建议借用附件基线、节点回执、导航保护和局部进度判定的小模块，适配为扩展环境；不要引入整个 CLI / CDP
+ 自动化系统，也不要采用伪造 getter 的兜底来掩盖 setter 失败。
+
+
+ 2.6 Native Messaging 不能省略的工程细节
+ Chrome 文档规定 host 通过 stdin / stdout 交换带 32 位长度前缀的 UTF-8 JSON。host → Chrome 单条消息上
+ 限 1 MiB，反向上限 64 MiB。[S07] 一张高分辨率截图经 base64 后常常超过前者，不能把整张图直接装进一个
+ JSON。
+
+ 建议使用 192-256 KiB 原始字节的分块，附 operationId、序号、总量上限、校验和、ack 与背压。图片拼装有
+ 内存预算，失败及时释放；host 的 stdout 只写协议，诊断写其他通道。
+
+ 浏览器启动独立的、签名的最小 host；host 通过受限本地 IPC 与主程序连接，可选 XPC 或仅当前用户可访问的
+ Unix socket。扩展通过 runtime.connectNative 建立端口，原生点击才有可达的接收端；不能假设原生应用可
+ 直接调用浏览器扩展。
+
+ Manifest 中 allowed_origins 限定自身扩展 ID；IPC 验证本地调用者与操作边界。持久真相留在原生进程的本地
+ 日志，service worker 断开、重启或浏览器退出不能丢事务。Chrome 的 worker 生命周期和 Native Messaging
+ 保活规则可利用，但不应依赖常驻全局变量。[S07][S09]
+
+ CDP 可用于隔离的开发验证，不建议作为用户日常主链路。Chrome 已限制默认用户数据目录上的
+ remote-debugging-port / pipe，常规方案还会要求特殊启动或另一用户数据目录，损害用户现有会话体验。
+ [S10]
+
+
+
+
+研究资料与源码审查；待实测项不代表已通过                                                                           5
+
+<PARSED TEXT FOR PAGE: 6 / 23>
+MAC SCREENSHOT RIFT / INDEPENDENT REVIEW                                         2026-10-26
+
+
+
+
+ 3. ChatGPT Mac 客户端：输入可行，严格回执待证
+ 3.1 先确认实际产品与版本
+ 官方 2026-07-09 发布说明已把此前 Mac 应用称为 ChatGPT Classic；官方迁移文档说明原 Codex app 更新为新
+ 的 ChatGPT desktop app，包含 Chat、Work、Codex，两者可能并存。[S11][S12]
+
+ Codex 团队成员 Romain Huet 的第一人称说明确认 Codex app 使用 Electron。结合官方迁移关系，可以推断新
+ 版桌面应用有该架构来源；这不是对用户当前 bundle、composer 或 AX 树的直接检查。[S13] 不能沿用“所有
+ ChatGPT Mac 客户端都是纯 SwiftUI”的假设，也不能从“Electron”推导出普通 Chrome 扩展可注入它。
+
+ 应分别记录实际安装的 bundle identifier、version、build 和窗口类型。新版 Chat、Work、Classic 正常窗口、
+ 快捷小窗可能需要不同适配；未核验的窗口类型不应默认为已支持。
+
+
+ 3.2 最接近目标的原生候选
+ 一次点击不激活的 NSPanel → 固定前台应用 / AXWindow / composer → 校验并聚焦正确编辑器 → 写入
+ NSPasteboard 图片 → 通过菜单 AX 动作或 CGEvent 执行粘贴 → 观察对应附件 → ready 后消费队列。
+
+ 用户不需要自行按快捷键；内部使用系统事件不违反两次操作。但发送 Cmd+V 之前必须知道焦点在正确的输入
+ 框，不能把 URL 栏、聊天搜索、设置窗口或选中的回答当成草稿。
+
+ NSPanel 使用 nonactivatingPanel，canBecomeKey / canBecomeMain 为 false，点击视图接受 first mouse。
+ 主应用作为 accessory / 菜单栏应用运行，不通过 makeKeyAndOrderFront 抢焦点。AX 只调用目标实际支持的
+ 属性和动作；拒绝固定屏幕坐标。[S14][S15]
+
+ 图片表示可候选 PNG / TIFF；fileURL 是否被具体客户端接收要单独测试。多种表示属于同一张图片时放在一个
+ pasteboard item，避免变成多个附件；多图的 item 行为另行测试。不提供路径 plain text 兜底，否则会把路径
+ 写入用户草稿。
+
+
+ 3.3 用户原文与选择区域是实际风险
+ 无选择的输入框与正在选中一段文字的输入框，粘贴图片的行为不一定相同。若图片粘贴会替换选区，应在确
+ 实支持的 AX 接口下安全折叠选区，并验证没有并发编辑。不能靠出错后重新写回全文“恢复”：那会覆盖用户刚
+ 输入的新内容。
+
+ 原生适配的最小通过条件必须包含：已有中文和 emoji、多段文字、选中文字、已有图片、正在生成回复等场
+ 景。仅在空白输入框粘贴成功，远不足以承诺可商用的一键附加。
+
+
+ 3.4 AX 是观察机制，不是附件语义保证
+ Apple 提供 AX 元素属性、动作和通知，但应用决定暴露什么。AXObserver 可以监听支持的通知，再局部复核
+ composer 子树；notificationUnsupported、attributeUnsupported 或 cannotComplete 只能说明观察失败，
+ 不能说上传失败。[S14]
+
+ 如果实际 AX 树暴露文件名、附件节点、进度、错误和完成状态，可建立与网页相似的回执。如果只有一个没有
+ 状态的图片占位符，则严格 ready 尚不可判断。不能以“延时两秒”“窗口仍在”“发送按钮启用”补足证据。
+
+
+
+
+研究资料与源码审查；待实测项不代表已通过                                                                      6
+<PARSED TEXT FOR PAGE: 7 / 23>
+MAC SCREENSHOT RIFT / INDEPENDENT REVIEW                                        2026-10-26
+
+
+
+
+ OCR / 屏幕截图可在已确定的控件范围内提供辅助证据，但增加屏幕录制权限、资源成本和误判，无法靠“没识
+ 别到 spinner”严格证明 ready。它不应作为掩盖 AX 不足的默认架构。
+
+
+ 3.5 剪贴板恢复必须单独设计
+ Apple 的 changeCount 可以帮助判断剪贴板所有权是否已经变化，但不存在供本应用使用的跨进程原子
+ compare-and-swap。[S16]
+
+ 建议先记录可物化的旧 items / types / data，读前后检查 changeCount；写入图片及自己的操作 marker；确认
+ 目标已消费必要图片字节之后，仅当剪贴板仍属于本次操作时谨慎恢复。用户期间复制新内容，立即让出，绝
+ 不覆盖。
+
+ “被请求 data provider”不代表 ChatGPT 消费了图片，可能是剪贴板管理器读取。出现附件卡片是否足以证明字
+ 节已读完，也需要按 PNG 与 fileURL 方式分别验证。图片已经被安全接收后即可恢复，不必一直等网络上传完
+ 成。
+
+ 固定 50、100 或 300 ms 后恢复会有晚读竞态。旧 lazy provider、file promise、动态数据和 Universal
+ Clipboard 语义也无法仅靠字节快照完整重建。不得宣传“100% 无扰动剪贴板恢复”。
+
+ 若无法可靠判断消费时刻，较诚实的兼容方式是在首次说明的原生模式中让该图片留在系统剪贴板，用户下一
+ 次复制立即取得所有权；这仍然是两次操作，却有明确剪贴板副作用。若产品要求剪贴板完全保全，就不能将
+ 此模式当作已通过的正式方案。
+
+ 现行 AppKit 已文档化 NSPasteboard.AccessBehavior 中的 ask / allow / deny 等行为；API 可用版本不等同所
+ 有 OS 上的具体强制实施时点。后台读剪贴板和截图监听应按目标 macOS 核验授权，不能假定永久免权限。
+ [S17]
+
+
+ 3.6 可复用代码与不应误用的部分
+ Maccy 的 Maccy/Clipboard.swift 已实际阅读，提交 54fb9f00b828a4ec367e706c0e276df90febe76a，MIT。
+ [C08] 可参考多种图片表示、不可持久化类型过滤、来源标记、键盘布局适配和 CGEvent 投递；保留其继承自
+ Clipy 的归属说明。
+
+ Sukurini 的 LatestScreenshotPaster.swift 有快照、TransientType 和 changeCount 条件恢复，值得借鉴；但固
+ 定 300 ms 恢复、缺少目标绑定和 ready 回执，不能直接成为正式上传模块。[C02]
+
+ Mac 端放行结论：能否严格满足本产品，取决于实机状态暴露与输入保全。公开证据不足以放行，也不足以断
+ 言不可实现。
+
+
+ 3.7 新的官方路线：MCP 草稿接口
+ OpenAI MCP Extensions 的实际源码已经提供 ui/message 的 send:false，支持 image / resource 等内容，
+ target:active 可追加草稿。[C09] 不能再笼统声称 OpenAI 完全没有官方草稿能力。
+
+ 但该接口有关键边界：它是已初始化 MCP App view 与 host 之间的协议；Web 支持矩阵指 Work browser，不
+ 包括 classic ChatGPT；global 入口的 active 是它自己的线程，不能偷换成用户原先任意前台对话。thread 入口
+ 依赖具体会话中的实例，且生命周期不保证永远后台存在。
+
+ 返回的 isError 并不包含具体附件 ID 或 ready 时刻。相关 ui/update-model-context 的 updateId / 回读机制也
+ 有平台和“替换同一 App 上下文”的语义，不能直接冒充上传文件追加回执。
+
+
+
+研究资料与源码审查；待实测项不代表已通过                                                                    7
+<PARSED TEXT FOR PAGE: 8 / 23>
+MAC SCREENSHOT RIFT / INDEPENDENT REVIEW                             2026-10-26
+
+
+
+
+ 任何候选都必须显式固定 send:false，因为默认值是 true。若将来实测证明无需逐会话打开、目标映射准确、
+ 隐藏后仍可接收、图片草稿语义和回执足够可靠，这可能成为比 UI 适配更理想的第四路线；本轮证据尚不支持
+ 以它替代主线。
+
+
+
+
+ 4. 原生截图无感收录：先尊重系统生命周期
+ 4.1 系统截图并不在按键后立即落盘
+ 定义 T0 为用户完成选区 / 触发瞬时截图的时刻；系统生成像素后，可能先显示浮动缩略图；用户还可悬停、进
+ 入标记或改变保存去向；之后才产生可读取文件。T1 是独立探针首次确认源图完整可读的时刻，T2 是 Rift 的私
+ 有副本与索引提交完成、缩略图可点击的时刻。
+
+ Apple 官方描述了浮动缩略图及稍后保存行为；Dropover 的官方排障资料也明确其会造成几秒等待，并建议关
+ 闭该选项以获得及时收录。[S18][S19] 因而不能把 T0 到 T1 的系统等待归咎于监听速度，也不能承诺开启浮动
+ 缩略图时始终亚秒收录。
+
+ 建议保留用户正常的系统截图方式，在一次设置中说明可以关闭“显示浮动缩略图”。不静默改写系统截图目录、
+ 保存目标或缩略图偏好。用户保留该功能时，Rift 在最终保存后收录；进入标记并尚未保存的图片不会被提前
+ 当作最终版本。
+
+ 本轮未找到覆盖所有原生截图入口、稳定公开且直接携带结果像素的第三方回调。Spotlight、键盘监听、系统
+ 进程观察都不能普遍提供尚未落盘的最终图片。此结论是公开可用路径的边界，不是对所有私有或未来技术作“
+ 不可能”判断。
+
+
+ 4.2 推荐混合收录机制
+ 低延迟主路径是目录 DispatchSource；可靠性来自完整性检查、有限重试和状态重扫。FSEvents / Spotlight 作
+ 为补漏与重建辅助，而不是把它们误当成每张截图都实时独立发出的消息。[S20][C05]
+
+ 目录事件只说明“目录可能变化”，不保证一事件对应一文件。处理 write / rename / delete / revoke，监测目录
+ 失效与重建；启动时先设监听再扫描，扫描期间变脏则补扫；唤醒、文件事件丢失、根目录变更后重新核对。
+ 首次安装建立已有文件基线，新截图自动入队，既有历史由用户主动导入；后续重启依据持久化检查点补齐遗
+ 漏，不把所有旧图重新入队。
+
+ 对候选文件，比较 size / mtime / 文件身份，检查 ImageIO complete，以短退避等待写入结束。复制前后再次
+ 检查源版本，写临时文件后原子改名并提交本地索引。不要每张图串行睡 150 ms，使十连拍累积成 1.5 秒以上
+ 的人工延迟。
+
+ 截图标识优先参考截图元数据和来源，再辅以本地化文件名；不能只认 English “Screenshot”。直接读取
+ com.apple.metadata:kMDItemIsScreenCapture 可以作为兼容性探针，但 xattr 的具体存储方式不应承诺为稳
+ 定公共 ABI。Spotlight 查询可补充分类，但受到索引、通知批处理与卷配置影响。
+
+
+ 4.3 目录变化与权限
+ 系统截图目录配置可通过 com.apple.screencapture 偏好作兼容性读取；其中具体 key 不是应写死为永久契约
+ 的公共截图 SDK。启动、唤醒、设置变化线索和有限周期核验时重新读取；发现变更后短期同时监测新旧目录
+ ，处理晚到文件。
+
+
+
+研究资料与源码审查；待实测项不代表已通过                                                         8
+<PARSED TEXT FOR PAGE: 9 / 23>
+MAC SCREENSHOT RIFT / INDEPENDENT REVIEW                        2026-10-26
+
+
+
+
+ 用户把截图目录改到一个未授权的受保护目录时，本应用不能无声越过 macOS 权限。一次性来源授权可以接受
+ ；每次截图弹文件选择器不可接受。沙盒版本还需要 security-scoped bookmark 和访问生命周期；相关
+ Screeen 文档已有示例。[C05]
+
+ 对网络卷、iCloud 按需下载或不可读文件，要显示来源状态并保持 pending。低延迟指标只能针对本地已可用
+ 数据，不能把远程下载时间隐藏在“收录成功”之外。
+
+
+ 4.4 剪贴板截图是可选来源，不能虚报完整支持
+ 按 Control 保存到剪贴板不会生成普通目标文件。可通过 NSPasteboard changeCount 轮询检测新图，但每次
+ 只能取得当时的数据；两次轮询之间连续截图覆盖旧图后，changeCount 不能追回被覆盖的图片。
+
+ 因此，剪贴板模式只能作为用户开启的兼容来源。它无法保证所有高速连拍零遗漏，也难以区分“原生截图”和“
+ 从网页复制的任意图片”。应过滤自身 marker、TransientType / ConcealedType 等，避免输入链路重新进入截
+ 图队列；不默认收集用户整个剪贴板历史。[C03][C08]
+
+ 系统截图直接发往 Preview、Mail 等目标，也不等于磁盘来源已产生可观察文件。产品需明确支持的保存去向
+ ，而不是悄悄实现另一套截图引擎。
+
+
+ 4.5 格式、排序、去重与恢复
+ 保留源图片原始编码；用 ImageIO 生成显示缩略图。macOS 的截图格式 / HDR 选项会影响输出，现行 Apple
+ 资料包含 HEIF / HDR 情形；ChatGPT 的图片格式列表没有覆盖所有这些来源。[S01][S18]
+
+ 上传前可生成派生 PNG / JPEG，但必须真正解码、处理方向和色彩，HDR 明确映射到 SDR / sRGB，并检查大
+ 小；不能改扩展名冒充转换。默认优先保留文字细节；超限时说明原因并保留原件，不无条件强压缩到看不清。
+
+ 快速连拍与多显示器截图可能产生多个文件。尽可能以可信捕获时间加稳定递增序号维持顺序；时间缺失或相
+ 同则按持久化收录序号排序。文件事件到达顺序不等于严格的用户截图顺序；延后保存、标记编辑和多屏输出
+ 交错时，仅凭文件事件不能始终还原绝对捕获顺序。不要把 firstSeenAt 冒称 capturedAt，也不要编造同一操作
+ 的分组。
+
+ 用卷与源文件资源身份及版本合并重复观察，不能只靠可能复用的 inode；内容 hash 用于完整性或存储共享，
+ 不自动合并两个独立捕获条目。剪贴板与文件两路也不能只凭时间接近就合并。休眠唤醒补扫，显示器变化更
+ 新窗口，异常退出恢复 pending / UNKNOWN，不自动重试已触发上传。
+
+
+
+
+研究资料与源码审查；待实测项不代表已通过                                                    9
+<PARSED TEXT FOR PAGE: 10 / 23>
+MAC SCREENSHOT RIFT / INDEPENDENT REVIEW                                    2026-10-26
+
+
+
+
+ 4.6 可验证的延迟与资源目标
+
+  指标                       建议目标，不是本轮实测                测量边界
+
+
+  T1 → T2                  p95 ≤ 300 ms               本地可读、常用大小 / 格式、已授权、应用 warm；
+                                                      包含监听、完整性检查、私有副本及索引
+
+
+  T0 → T2                  关闭浮动缩略图后，探索 p95 ≤ 500 ms   必须实机测系统保存耗时，不能作为全场景硬承诺
+
+
+  开启浮动缩略图                  T1 后尽快达到同一收录目标             系统显示 / 悬停 / 标记时间不在应用控制内
+
+
+  空闲资源                     文件事件驱动，避免持续图像解码和高频全        目标空闲 CPU 接近零；用实际基线量化，而非声称
+                           量扫描                        已达成
+
+
+  缩略图缓存                    初始建议 32 MiB 上限，优先可见项       按窗口与主浏览器实测调整，不解码全部原尺寸历史
+                                                      图
+
+
+ T1 必须由独立测试探针定义，不能从 watcher 回调才开始计时，否则把监听延迟藏掉。“持久化”在此指私有副
+ 本和索引提交后可从进程异常退出恢复；突然断电耐久与 fsync 成本另测。样本应分 1080p、4K、多显示器、
+ 长图、HEIF / HDR 和远程卷，不用一个平均数掩盖慢路径。
+
+
+ 4.7 裂缝被截进去：独立的交付风险
+ 当前 Apple 对 NSWindow.SharingType.none 的说明已将该属性视为旧机制，不可再据此承诺窗口会从截图中
+ 消失。[S21] ScreenCaptureKit 对自身捕获设置 excludingWindows，也不能替第三方控制 Apple 的系统截图结
+ 果。
+
+ 可研究在已识别系统截图快捷键触发前临时隐藏裂缝，但 Cmd+Shift+3 是瞬时操作，全局事件观察可能太晚；
+ 截图工具栏、菜单、定时截图和改键又是不同入口。截获、延后并重新投递系统快捷键的方案值得单独验证，
+ 却会增加权限与行为风险，不能当成免费解决。
+
+ 正式承诺应基于每个受支持 macOS 和截图入口的实测矩阵。如果无法覆盖所有入口，要明确限定“经过验证的
+ 原生快捷键”，不能宣称全系统永久不可截图。区域截图避开边缘只是自然减少碰撞，不是技术保证。
+
+
+
+
+研究资料与源码审查；待实测项不代表已通过                                                               10
+
+<PARSED TEXT FOR PAGE: 11 / 23>
+MAC SCREENSHOT RIFT / INDEPENDENT REVIEW                                             2026-10-26
+
+
+
+
+ 5. 竞品与源码：复用小模块，不整体 fork
+ 5.1 产品层面的真实发现
+
+  产品                        已证实的相关能力                     对本产品的价值与边界
+
+
+  Screenshoss               自动收录、边缘 shelf、文件稳定性与本地库      可借完整性检测和几何；会移动源文件、识别范围偏
+                            源码                           窄
+
+
+  Screenshot Shelf / Bert   监测系统或自选截图目录，边缘排列、拖到          是交互参考；未取得该产品可验证开源代码，不能套
+  Devriese                  AI 工具、自动隐藏设置                 用同名项目许可
+
+
+  Screenshot Shelf /        另一个 MIT 项目，快捷键打开、拖出最近截       只有面板打开时每 2 秒扫描；不是立即常驻收录底座
+  KanishkVashisht           图
+
+
+  Dropover                  从 4.15 起提供截图自动 shelf、连续追加；   官方资料直接证明浮动缩略图延迟；不证明当前
+                            依赖保存文件                       ChatGPT 一键 ready
+
+
+  ScreenFloat               自身截图、浮图、跨 Space / 全屏、Shots   参考窗口品质和完整浏览；不能推断被动捕获所有系
+                            Browser 与导入                  统截图
+
+
+  Shottr                    自有快速截图、无边框 pin、标注与 S3 上传     其宣传速度不等于本项目系统截图收录速度；上传
+                                                         S3 不等于附加当前草稿
+
+
+  Sukurini                  源码含目录恢复、缩略图队列和最近截图粘          收录模块价值高；粘贴完成语义不足
+                            贴
+
+
+  Tendedero                 极细线条、截图悬挂、非激活面板与剪贴板          形态接近；私有全屏 API、容量淘汰和删除语义必须
+                            来源                           排除
+
+
+ 官网资料依据 [S19][S23][S24][S25]；源码依据 [C01]-[C06]。本轮没有运行这些 Mac 产品。未取得公开源码不
+ 等于证明绝对闭源，但意味着不能把其内部机制或许可证当作可复用证据。
+
+ 没有找到这批截图工具已经解决“附加到正确 ChatGPT 草稿，并确认该特定附件准备就绪”的源码。省下自动收
+ 录和缩略图开发，不会自动省下最难的上传事务。
+
+
+ 5.2 Screenshoss：完整性检查值得借，产品假设不适合继承
+ 仓库：https://github.com/m0ztop/Screenshoss 核查提交：8ef6ef7cf721a2eb29f76a94815e6992d3d3a1ac。
+ 许可证 MIT。[C01]
+
+ • Sources/ShossApp/ScreenshotLibrary.swift：监测 Desktop 与内部目录，DispatchSource，200 ms
+   debounce，generation 和扫描中变脏标记。
+
+ • ScreenshotImportService.swift：size / mtime 两次比较，中间约 150 ms，并检查 CGImageSource
+   statusComplete；随后 moveItem。
+
+ • ScreenshotItem.swift：主要是 English screenshot / screen shot 前缀，不能直接覆盖中文“截屏”或自定义命
+   名。
+
+
+
+
+研究资料与源码审查；待实测项不代表已通过                                                                        11
+<PARSED TEXT FOR PAGE: 12 / 23>
+MAC SCREENSHOT RIFT / INDEPENDENT REVIEW                                                   2026-10-26
+
+
+
+
+ • ScreenshotStorageService.swift：根目录加一层扫描、跳过 symlink、按创建时间倒序，重名用后缀规避；不
+   是 hash 去重。
+
+ • ShelfPanelController.swift：nonactivatingPanel、全 Space / 全屏辅助与显示器几何，但展开时可以成为 key。
+   Rift 必须改掉这点。
+
+ • Tests/ShossTests/ScreenshotFilesystemIntegrationTests.swift：实际阅读了稳定文件、写入中、重名、
+   symlink、导入和恢复等测试，没有执行。
+
+ 推荐复用完整性判定和相关测试案例；重做来源识别、私有副本策略、FIFO 和上传状态。不能因看起来接近就
+ 整体继承移动桌面文件的行为。
+
+
+ 5.3 Sukurini：本轮最值得抽取的收录模块
+ 仓库：https://github.com/ssut/Sukurini 核查提交：c74210f81347a1df4ef407523361e7a45c12ab3e。
+ Apache-2.0，存在 NOTICE。[C02]
+
+ • Sources/Sukurini/Core/FolderWatcher.swift：O_EVTONLY，write / delete / rename / revoke；F_GETPATH
+   处理重命名，onFolderLost 和 cancel handler 关闭 FD。
+
+ • ScreenshotStore.swift：120 ms watcher debounce，100 / 300 / 600 / 1200 ms settle 重试，25 ms batch，
+   慢重试、目录丢失恢复与远程卷轮询、过期 generation 丢弃。应保留恢复思想，并用 ImageIO 完整性补强
+   单纯 size 稳定。
+
+ • ThumbnailLoader.swift：ImageIO 下采样、最多四个 worker、同 key 请求合并、NSCache 成本、内存压力
+   清理和预取取消。原预算 192 MiB / 1500 项不适合照搬到极小裂缝。
+
+ • LatestScreenshotPaster.swift：剪贴板快照、TransientType、键盘布局、changeCount 条件恢复；固定 300
+   ms 恢复且无 target / ready 检测。
+
+ • ScreencaptureDefaults.swift：可参考设置兼容性，但不静默写系统偏好。
+
+ 最有价值的是 watcher 生命周期和 thumbnail loader，不是整个包含转换、OCR、组织功能的大型 store。
+
+
+ 5.4 Tendedero：窗口形态最接近，但有危险继承项
+ 仓库：https://github.com/alejandrobujan/tendedero 核查提交：
+ 32a3e47187fdea7b2fd43b3ab5a913f0ed33724a。代码 MIT；名称、图标作品（包括 scripts/make-icon.swift
+ 绘制的图标）和 docs 图像另有明确限制。限制针对图标作品，不能概括为脚本源代码不受 MIT 覆盖。[C03]
+
+ • Sources/Tendedero/LinePanel.swift：borderless + nonactivatingPanel，canBecomeKey / Main 为 false，
+   无阴影，全 Space / 全屏辅助。这是良好的小窗口参考。
+
+ • ScreenshotWatcher.swift：先 watch 后扫描，扫描中记录 missed 并补扫；读取截图偏好和 xattr。但仅判断
+   tag 存在、缺少完整性等待，可能漏掉晚到标记或首次解码失败。
+
+ • ClipboardWatcher.swift：0.5 秒轮询、过滤 transient / concealed / 文本 / fileURL，PNG / TIFF 与后台检查；
+   它收的是纯图，不保证全是系统截图。
+
+ • Inbox.swift：可改系统目录、目标与浮动缩略图，退出时恢复。不能静默继承这种接管。
+
+ • FullScreen.swift：使用 CGSMainConnectionID / CGSCopyManagedDisplaySpaces 私有 API，不推荐进入正
+   式核心。
+
+
+
+
+研究资料与源码审查；待实测项不代表已通过                                                                                12
+<PARSED TEXT FOR PAGE: 13 / 23>
+MAC SCREENSHOT RIFT / INDEPENDENT REVIEW                                                2026-10-26
+
+
+
+
+ • Line.swift：默认容量八项，溢出 letGo；对自有 inbox 可调用 trashItem。这与“保留直到真正成功”冲突。风
+   吹摇摆动效和声效也不适合本产品。
+
+ 复用非激活窗口的结构，不复用私有全屏检测、自动淘汰 / 删除或悬停展开作为必经路径。
+
+
+ 5.5 其他值得知道的源码
+ KanishkVashisht/screenshot-shelf 的提交 7dbc39f55fbb6830ecfcdab94f5ec45da2254ee3，MIT。
+ Sources/ScreenshotStore.swift 有元数据加多语言前缀、480 px ImageIO 缩略图和小缓存；AppDelegate.swift
+ 只有打开面板期间每两秒扫描；ShelfWindow.swift 是 640×552 的较大可 key 面板。[C04]
+
+ Clipy/Screeen 的提交 f8f4bfa6cb38cb69ec1ee104fb5ad949a92b2ae3，MIT。
+ Lib/Screeen/ScreenShotObserver.swift 使用 NSMetadataQuery 的 kMDItemIsScreenCapture=1 与 added /
+ changed / removed 更新；初始 scopes 包含配置目录和 Desktop，但不自动追踪所有后续目录变更。
+ Documentation/SANDBOX.md 有目录授权参考。适合补扫，不是零延迟截图回调。[C05]
+
+ DeveshSt/Shelf 的 Sources/DropWindow.swift 是约 220×220 的拖放区域，核心不解决原生截图及草稿回执，
+ 复用优先级低。[C06]
+
+ hboon/shotpath 的 Sources/main.swift 有 0.1 秒 FSEvents 与文件名模式；当前读取的 tree 没有独立 LICENSE
+ ，README 声称 MIT 不足以让我优先推荐直接商用复制。补全授权前只研究思想，不纳入默认依赖。[C10]
+
+
+ 5.6 许可与整体 fork 裁决
+ MIT 模块通常可以用于商业及闭源软件，需保留版权和许可。Apache-2.0 同样可商业复用，应保留许可证、适
+ 用 NOTICE，并按要求标记修改；商标、品牌素材和第三方依赖不是自动随代码授权。Tendedero 的素材例外
+ 必须单独处理。
+
+ 最终采用哪些源码，要按实际复制的固定版本记录归属和修改，而不是列一个模糊“用了开源”的名单。若只借鉴
+ 公开机制、自行实现，不应假称整个项目是依赖。
+
+ 不建议完整 fork。候选项目分别深埋了移动文件、倒序图库、悬停展开、拖放成功、容量删除、OCR 编辑等假
+ 设；将其改成永久队列、正确草稿和可验证的附件事务，会改到核心数据模型。独立的小应用加少量可审计模
+ 块，长期成本更低。
+
+
+
+
+ 6. 空间裂缝：可直接用于产品讨论的交互规格
+ 本节为独立设计判断，尺寸和时间是初始规格，需用真实显示器与输入设备校准。Apple 的可访问性建议提供
+ 基础约束，但并不要求所有 macOS 点击目标都固定为 44 pt；本报告采用较大命中区是为了边缘快速点击。
+ [S26][S27]
+
+
+ 6.1 形态裁决：大部分露出，轻微遮挡，不靠悬停展开
+ 保留裂缝吞噬的空间隐喻，但不推荐只露出一道很窄的图片切片。那会降低识别和命中面积，迫使用户先靠近、
+ 等展开、重新定位，再点击。悬停虽然不是鼠标按键，却仍是额外的动作阶段。
+
+ 建议缩略图始终保持可直接点击的位置和大小，约 90% 以上图像可见，边缘仅遮住 4-6 pt 或图宽的约 6%-10%
+ ，取更小值。极窄竖图不能被固定遮挡吃掉。遮挡是表现层 mask，原图和缩略图的缩放本身不做方形裁切。
+
+
+研究资料与源码审查；待实测项不代表已通过                                                                            13
+<PARSED TEXT FOR PAGE: 14 / 23>
+MAC SCREENSHOT RIFT / INDEPENDENT REVIEW                                    2026-10-26
+
+
+
+
+ 6.2 尺寸、材料、编号与命中
+
+  项目                       建议初始规格                      设计理由
+
+
+  裂缝                       1 pt 核心线，最多约 2 pt 总光学厚度     有存在感，无发光光柱或大玻璃底板
+
+
+  位置                       主显示器可见区的右侧外缘内约 4-6 pt；可     避免 Dock 与外屏拼接缝冲突，不随鼠标追着移动
+                           一次选择左边
+
+
+  材料                       浅 / 深背景下都可见的中性线及极轻局部阴       不让高透明细线在壁纸上完全消失
+                           影
+
+
+  图片                       最长边 48 pt，等比 fit            横图、竖图、长图均保持比例，不强制正方形
+
+
+  命中区                      固定 48×48 pt；行距约 56 pt       图很薄也可点，命中区不跨到相邻行
+
+
+  编号                       10-11 pt 等宽数字，局部高对比底        稳定识别和失败恢复，不把小图当细节预览
+
+
+  队列容量展示                   初始最多八行，并受 visibleFrame 限制   不把屏幕变成完整文件管理侧栏
+
+
+ 图片缩放可写为 s = min(48/W, 48/H)，W、H 为源图尺寸；显示尺寸为 sW、sH。极端长宽比图像确实会很薄
+ ，编号和轻微 hover 命中底色补足可发现性，不通过拉伸或裁切伪装成方块。
+
+ “硬币大小”只能作为感觉参考。逻辑点不是固定毫米；显示器物理尺寸、分辨率、缩放和观看距离都会改变感受。
+ 可提供 40 / 48 / 56 pt 三档一次设置，默认 48 pt，再在 MacBook 与外接屏校准。[S27]
+
+ 编号应是稳定的短队列序号，不因上方成功而给全部条目重新编号。新条目递增；成功产生空号是可接受的。
+ 完整时间和文件名只在主窗口或可选 tooltip 中出现。
+
+
+ 6.3 局部露出不等于无限透明命中
+ 透明窗口仍可能截获鼠标。NSView.hitTest 返回 nil 只解决窗口内部的视图选择，不自动把点击交给另一个应用。
+ 不能用一张大透明 NSPanel 覆盖整条屏幕边缘，然后假定空白都穿透。[S28]
+
+ 建议装饰线使用 ignoresMouseEvents=true 的窄窗口；每个可见截图使用边界明确的小面板或经过验证的命中
+ 结构，行间空隙不放接收输入的窗口。固定 48 pt 格子内的空白可为该条目命中，格子外应穿透。
+
+ 可见项数量有限，面板复用；不为全部历史各开一个窗口。窗口级鼠标开关如果依据 move 动态切换，需要验
+ 证首次点击是否丢失。小面板方案也要测 WindowServer 成本，不能只因代码简单就无限扩张。
+
+
+ 6.4 吞噬、在途与重生
+ 点击后立刻给出轻微响应，建议首次反馈不晚于约 80 ms；100-140 ms 内向裂缝内移约 6 pt，随后留下细小在
+ 途标记并保留队列槽位。网络上传期间不循环夸张吸入，不显示虚构进度百分比。
+
+ 收到真实 ready 后再用 180-240 ms 完成裁切 / 压缩式吞噬，随后下方自然上移。明确失败则 160-220 ms 反向
+ 恢复原图；UNKNOWN 使用安静的状态点和说明“未确认，截图已保留”，不能画成明确红色失败。
+
+ 成功后的重排建议约 140-180 ms，但指针悬停或鼠标按下时要保护目标。鼠标按下捕获 assetId，直到释放都
+ 不能换成下一张。新增图、失败恢复、溢出切换、屏幕变化，也不能让另一张图在点击中途顶到原位置。
+
+
+
+
+研究资料与源码审查；待实测项不代表已通过                                                               14
+<PARSED TEXT FOR PAGE: 15 / 23>
+MAC SCREENSHOT RIFT / INDEPENDENT REVIEW                                    2026-10-26
+
+
+
+
+ 减少动态效果启用时使用淡入淡出；不需要声音、弹簧、碎片或持续波纹。动效服务于事务状态，不能先演完
+ 成功再等网络决定是否“复活”。
+
+
+ 6.5 FIFO 与无限历史的空间矛盾
+ 数量能全部容纳时，最早在上，新图在下。成功后删除队列成员，保留其他项相对顺序。
+
+ 超过可见行数后，有限边缘不可能同时呈现无限历史和所有最新项。建议保持“最早一项＋中间隐藏数量标记＋
+ 最新若干项”，所有可见图仍按时间升序，最新图始终直接可点；隐藏的中间历史通过滚动或主窗口访问。
+
+ 这个方案保留即时复用的两次操作，但不能宣称任意历史图也永远只需直接一击。不要自动删除最旧截图、把
+ 全部缩小到不可点，或让滚动永远停在过去导致新图不可见。行的布局变化仍须遵守指针稳定规则。
+
+
+ 6.6 全屏、Space、多显示器与静止策略
+ 窗口采用 nonactivatingPanel，按系统版本核验 canJoinAllSpaces、canJoinAllApplications、
+ fullScreenAuxiliary、stationary 等行为。Apple DTS 在 2026 年公开案例中给出特定窗口级别和 flags，在
+ macOS 26 的部分全屏应用中验证可见；这只是该案例的实测，不是本产品覆盖所有应用的证明。[S22]
+
+ 默认固定在一块显示器的外缘，用户可一次设置镜像到其他显示器；镜像共享同一队列和操作 ID，不复制上传。
+ 使用稳定显示器标识，处理 scale、visibleFrame、菜单栏、Dock、拔屏和合盖变化。拔屏后迁移到有效主屏，
+ 不依据数组下标误认显示器。
+
+ 选择能通过实际矩阵的最低窗口层级，不用 screenSaver 级别强压所有系统界面。锁屏、系统授权和安全界面
+ 应让出；普通全屏应用的覆盖需单独验证。避免依赖私有 CGS Space 查询。
+
+ 有待用截图时保持静止，不因短暂鼠标离开隐藏；空队列只留约 12-20 pt 的安静线段或由用户关闭。点击非
+ ChatGPT 场景不偷投后台上次会话，而是保留条目并说明目标未就绪。
+
+
+ 6.7 主程序完整浏览
+ 主窗口提供按日期分组的截图网格、全图预览、待用 / 已使用状态和主动再次加入队列。内部存储使用唯一 ID
+ ，显示名称可为“2026-10-26 14.32.18 - 003”；同秒多张用序号区分，保留来源时间和首次发现时间。
+
+ 这不是额外的日常上传步骤，而是处理完整历史、重复使用和明确删除的地方。首版不需要 OCR 搜索、标签体
+ 系、AI 命名、编辑器、收藏工作流或云同步。用户删除源文件不会使已完成导入的私有档案突然失效。
+
+
+
+
+研究资料与源码审查；待实测项不代表已通过                                                               15
+
+<PARSED TEXT FOR PAGE: 16 / 23>
+MAC SCREENSHOT RIFT / INDEPENDENT REVIEW                                                        2026-10-26
+
+
+
+
+ 7. 工程路线比较与推荐架构
+ 7.1 四条路线的真实取舍
+
+  维度            A 纯原生＋系统自动化                B 原生＋浏览器扩展           C 整体 fork 截图项目      D 官方 MCP 草稿能力
+
+
+  两次操作          可候选；依赖 AX / 焦点 /           网页最有希望；一次设置          收录 UI 省事，上传难题       入口已挂载且线程正确才
+                剪贴板                        后无额外点击               仍在                  可能
+
+
+  ready 验证      受目标 AX 暴露限制                可直接观察 composer 附     没有现成严格回执可继承         返回 isError 不等于附件
+                                           件；仍需实测                                   ready
+
+
+  初始复杂度         小演示低，可靠产品高                 中等：应用、host、扩展        表面低，改核心与删除无         协议简单，入口 / 生命周
+                                           三个小组件                关功能较高               期匹配复杂
+
+
+  长期维护          OS / 客户端 AX 双重变化           网站适配与扩展生命周期          上游改动与自身重构冲突         官方接口更有潜力，但覆
+                                           ，边界可隔离                                   盖有限
+
+
+  性能            事件驱动可很低；AX 轮               局部 observer、按需传图     受原项目 OCR / 索引 / 图   依赖 host 与 App 实例生
+                询需限频                       ；可很低                 库影响                 命周期
+
+
+  权限与隐私         来源文件＋辅助功能；可                来源文件＋限定站点＋           随原项目而异，容易多带         当前平台及 App 安装 / 能
+                能剪贴板权限                     nativeMessaging；不必   权限                  力授权
+                                           默认 AX
+
+
+  商业许可          自有代码＋小型许可依赖                同左；Chrome 商店与签       必须逐项审 LICENSE /     协议 SDK Apache-2.0；仍
+                                           名分发另处理               NOTICE / 素材         需平台适配
+
+
+  更新风险          目标焦点 / AX 结构 /             ChatGPT DOM、浏览器      上述风险叠加 fork 差异      平台矩阵、线程语义和
+                macOS 行为                   协议 / 权限                                  host 生命周期
+
+
+ C 描述的是源码起点，A / B 描述的是上传通道，两者并不互斥：在开源项目基础上只复用底层模块，完全可以
+ 叠加于 B。表中 C 重点比较的是整体 fork 后重构的成本，不能把“已有截图项目”误当成第三种已经解决上传的
+ 技术。
+
+ 推荐 B 作为普通网页主方案，A 作为 Mac 条件适配器，小模块复用作为所有方案的共用原则。C 不推荐完整
+ fork；D 作为真实存在但暂未覆盖需求的候选，不立即另建一整套系统。
+
+
+ 7.2 最小而完整的模块边界
+ 原生进程只需要六类职责：来源监测与完整性检查、不可变图片档案、FIFO 队列与事务日志、极小 AppKit 面
+ 板、目标路由、上传适配器。可使用本地 SQLite 处理条目、队列和操作状态，不引入云数据库；图片作为独立
+ 文件保存。
+
+ WebAdapter 通过最小 Native Messaging host 通信。content script 负责页面定位、输入和证据收集；service
+ worker 负责路由与传输，不成为唯一状态存储。
+
+ MacAdapter 负责 AX 定位、图片粘贴与 AX 回执；只在验证通过的客户端 / 窗口上启用严格模式。两者都返回
+ 同一类结构化状态，UI 不应知道某一条 CSS selector 或某一种 CGEvent 细节。
+
+
+
+
+研究资料与源码审查；待实测项不代表已通过                                                                                   16
+<PARSED TEXT FOR PAGE: 17 / 23>
+MAC SCREENSHOT RIFT / INDEPENDENT REVIEW                                2026-10-26
+
+
+
+
+ 持久数据可包括 assetId、源文件身份与版本、capturedAt、firstSeenAt、序号、原始 / 派生路径、hash、
+ queueState、operation / attempt、目标绑定与回执摘要。没有必要先引入分布式消息系统或通用自动化框架。
+
+
+ 7.3 权限与分发选择
+ Web 主路径不需要为了上传而读取整屏，不需要 Accessibility、不需要 clipboardRead / clipboardWrite，也不
+ 需要 debugger。来源目录按实际 macOS 授权处理；扩展只申请必要的 ChatGPT host 与 nativeMessaging。
+
+ Mac 自动化需要 Accessibility，剪贴板行为按 OS 核验。全局截图快捷键拦截若被证实必要，会引入另一组权限
+ 和复杂度，应作为独立取舍，而非所有用户默认承受的前提。
+
+ 初期更适合评估 Developer ID 签名、notarization 的直接分发，以减少 Native Messaging host 安装、跨进程
+ IPC 与沙盒组合约束。是否进入 Mac App Store 需要单独检查具体分发设计，不能凭“Swift 原生”推断天然可上
+ 架，也不应笼统断言绝对不能。
+
+ 日志默认只存操作 ID、状态、版本和必要错误码，不记录截图内容、草稿文字、会话正文或 cookies。没有必
+ 要把图片发往任何第三方服务；唯一外发是用户主动点击后走 ChatGPT 正常附件通道。
+
+
+ 7.4 为更新留足边界，但不要过度建设
+ 每个上传适配器有自己的能力声明、版本标识和观察规则；UI 仅接收 READY / FAILED / UNKNOWN 等状态。
+ 可以本地更新适配器版本和页面夹具，不需要首版构建远程热更新脚本平台。
+
+ 没有正向识别到熟悉 composer 时停止，保存截图；有明确版本变更时提示兼容状态。不要在适配失败后自动
+ 升级到更广权限、私有 API 或固定坐标点击。
+
+ 最大的工程投入应留给“可关联输入和回执”，不是把所有截图工具功能重新造一遍。
+
+
+
+
+研究资料与源码审查；待实测项不代表已通过                                                           17
+<PARSED TEXT FOR PAGE: 18 / 23>
+MAC SCREENSHOT RIFT / INDEPENDENT REVIEW                                       2026-10-26
+
+
+
+
+ 8. 风险排序与开发前最小实证
+ 8.1 按是否阻断产品排序
+
+  等级                风险                      为什么重要                   判定门槛
+
+
+  P0                无法证明特定附件 ready          成功吞噬会丢失待办，失败重试会重        每种首发目标都必须有经验证
+                                            复                       的正向完成证据
+
+
+  P0                错对话 / 错窗口 / 改写用户草稿      直接违背“当前草稿”并可能泄露图片       目标绑定、并发切换与已有内
+                                                                    容测试零错投
+
+
+  P0 / 范围条件         裂缝被系统截图捕获               自身 UI 污染截图，连续截图会递归出     声称支持的 OS 与截图入口逐
+                                            现                       项通过
+
+
+  P0 / 范围条件         系统浮动缩略图等待               若坚持任何设置下亚秒收录，目标与        允许一次关闭提示，或明确接
+                                            生命周期冲突                  受保存后收录
+
+
+  P1                剪贴板消费 / 恢复竞态            附图丢失、旧内容恢复覆盖用户新复        所有权与消费证据；不能达成
+                                            制                       时诚实兼容模式
+
+
+  P1                UNKNOWN 后盲重试            双附件、错误消失、崩溃重复上传         对账先于重试，迟到回执绑定
+                                                                    attempt
+
+
+  P1                目录权限 / 换目录 / 剪贴板连拍遗     原生截图来源不是恒定单一目录          来源状态与补扫；明确不保证
+                    漏                                               不可恢复来源
+
+
+  P1                网页 / 客户端更新              DOM / AX 并非第三方稳定契约      小适配器、夹具、停止猜测的
+                                                                    失败行为
+
+
+  P2                小目标、重排、透明窗口拦截           误点邻图、阻碍其他应用             指针稳定、可见面积和穿透真
+                                                                    机验证
+
+
+  P2                许可证 / 品牌素材继承            商业使用的合规与归属风险            固定版本授权清单；不拷贝排
+                                                                    除素材
+
+
+ P0 的意义是不能靠更多界面开发补救。若其中一个目标平台未通过，可明确缩小首发范围；不能将兼容模式包
+ 装成原始严格承诺。
+
+
+ 8.2 最小验证清单：七项足以作下一次决策
+ 这是一份技术放行清单，不是正式开发排期。使用合成的带编号 PNG 和隔离空白草稿，不发送消息、不读取私
+ 人对话。执行前明确测试账号 / 环境范围；本轮没有进行这些操作。
+
+  验证                       最小样本与动作                     通过条件
+
+
+  V1 网页真实输入                当前稳定 Chrome、普通 Chat 页面；空草稿、 一次只新增所选图，保留原内容，无 file picker、无
+                           已有文字、已有附件；标准 files＋事件       发送
+
+
+
+
+研究资料与源码审查；待实测项不代表已通过                                                                  18
+<PARSED TEXT FOR PAGE: 19 / 23>
+MAC SCREENSHOT RIFT / INDEPENDENT REVIEW                                               2026-10-26
+
+
+
+
+  验证                       最小样本与动作                         通过条件
+
+
+  V2 网页 ready / error      正常、限速、离线、超限 / 不支持、输入前           PRESENT 与 READY 可区分；明确错误和
+                           后导航                             UNKNOWN 不混淆；无错误成功回执
+
+
+  V3 Mac 可观测性              分别检查新版 / Classic 实际 AX 树；PNG、   能定位正确 composer，内容保全；有可关联附件及
+                           TIFF、fileURL；选中文字               完成信号，或明确判为不通过
+
+
+  V4 目标与并发                 同图连点、十张不同图、两窗口 / profile /      无错投、无自动重复；未知可核对；已派发任务不追
+                           对话、快速切换、崩溃前后                    随新前台
+
+
+  V5 截图生命周期                开关浮动缩略图、中文文件名、改目录、快             以独立 T1 测延迟；无损私有副本；不移动源文件；
+                           速连拍、HEIF、多显示器、唤醒                未知格式保留
+
+
+  V6 窗口与截图污染               每个支持 OS；全屏、Space、左右 Dock、       首次点击有效、不抢焦点、空隙穿透；对声称支持入
+                           混合缩放、Cmd+Shift+3/4/5 等入口        口不截入自身
+
+
+  V7 剪贴板与失效恢复              粘贴中用户复制、第三方 clipboard           不覆盖新复制；恢复有证据；无可靠消费时不做定时
+                           manager、延迟消费、目标退出、权限撤销          成功；原图仍在
+
+
+ V1-V3 决定产品能否按当前定义成立；V4 决定是否会把用户图片发到错误位置或重复附加；V5-V7 决定能否达
+ 到原生消费软件质量。
+
+ 可给输入链路安排一批每场景至少 30 次、切换与连点压力累计 100 次以上的初始验证，要求零错投、零错误
+ READY、零破坏原文；这只是一轮放行门槛，不能用“100 次没失败”证明生产零故障。录制状态时间线和目标标
+ 识，避免仅凭肉眼“看起来成功”。
+
+ 最先应看的是原生 AX 是否给得出必要证据，而不是完整实现数据库、裂缝动画和偏好界面后再发现观测不到
+ ready。
+
+
+
+
+ 9. 独立产品改进与最终裁决
+ 9.1 应保留
+ 保留系统截图习惯、极细边缘形态、等比小图、最早在上、一次点击进入当前草稿、绝不自动发送。保留明确
+ 成功后的吞噬和失败后的原序恢复。保留全本地处理与少权限原则。
+
+ 这些约束具有辨识度，也能控制产品范围。现有 shelf 产品已证明“截图在屏幕边缘暂存”不稀奇，真正能形成差
+ 异的是无需拖放、可靠附加、正确回执和用户内容保全。
+
+
+ 9.2 应修正
+ 明确点击后的动画语义是“立即响应，在途可见，ready 后消失”，避免提前表现成功。建议采用“大部分固定露
+ 出，小面积遮挡”，而不是必须靠近展开的小切片。明确系统保存前后的延迟，以及各类截图来源的能力与权限
+ 边界，不把未知情形包装成全覆盖。
+
+ 明确成功仅消费待用队列，原图与本地档案继续保留。超时进入 UNKNOWN 并先对账；最新与可见队列直接点
+ 击，完整历史由主窗口承接。有限边缘面积无法让无限历史都同时保持一击可达。
+
+
+
+研究资料与源码审查；待实测项不代表已通过                                                                          19
+<PARSED TEXT FOR PAGE: 20 / 23>
+MAC SCREENSHOT RIFT / INDEPENDENT REVIEW                                2026-10-26
+
+
+
+
+ 把“统一支持 Mac 客户端”改为版本和窗口类型的能力矩阵；用户无需理解实现细节，但产品不能在内部把不同
+ 应用混作同一目标。
+
+
+ 9.3 应删除或推迟
+ 删除固定坐标、固定延时宣告成功、私有 CGS 作为核心、清空用户草稿、自动重放未知操作、自动删最旧文件、
+ 默认全剪贴板收集和全站扩展权限。
+
+ 首版推迟 OCR、AI 标签、编辑器、复杂搜索、云同步、账户系统、通用多目标上传平台、远程脚本热更新、夸
+ 张动效和声音。它们不会帮助证明最关键的两次操作，反而增加安装、权限、性能和维护成本。
+
+
+ 9.4 四个明确回答
+ 现在是否具备进入正式开发的条件？ 已具备进入有界最小技术验证的条件；尚不具备无条件投入完整产品开发
+ 的条件。网页主方案须通过实际输入与 ready 门槛；Mac 严格支持须取得实际 AX 或更可靠官方路径的回执证
+ 据；截图自身排除和系统缩略图延迟也需要明确支持边界。
+
+ 哪些现成技术值得直接复用？ Sukurini 的 FolderWatcher 与 ThumbnailLoader 机制，Screenshoss 的完整文件
+ 检测与测试案例，Tendedero 的非激活小窗口结构，Maccy 的键盘布局 / pasteboard 表示，Oracle 的附件基线、
+ DOM 身份回执和导航保护。使用固定版本的小模块并重写与产品契约不符的部分。
+
+ 哪个环节最可能使项目长期无法交付？ 跨版本识别“这张图已经在这一草稿准备就绪”，尤其 Mac 客户端。如果
+ 一直只证明粘贴已发送，就会陷入误报成功、超时重试、重复附件与焦点补丁循环。第二个危险是把自身窗口
+ 不可被所有系统截图捕获当成一个现成 API 开关。
+
+ 怎样以最少工作做出真正稳定、精致而不同的产品？ 先证明目标绑定、附加与回执；选一个通过门槛的平台发
+ 布严格体验；用独立 AppKit 小外壳整合成熟底层模块；只做档案、FIFO、精确状态和克制动效。若 Mac 回执
+ 未过门，保留清晰的兼容边界，不让网页体验为了统一实现而退化成盲粘贴。差异来自可信的一次点击，而不
+ 是更多截图工具功能。
+
+
+
+
+研究资料与源码审查；待实测项不代表已通过                                                           20
+
+<PARSED TEXT FOR PAGE: 21 / 23>
+MAC SCREENSHOT RIFT / INDEPENDENT REVIEW                                                                             2026-10-26
+
+
+
+
+ 10. 资料与源码索引
+ 检索及源码审查截止 2026-10-26。以下链接为原始资料；代码条目固定到本轮阅读的提交。公开文档可能继续变化。源码证
+ 据表示已阅读对应实现，不表示已在本轮运行或通过测试。
+
+
+ 官方平台与产品资料
+ [S01] OpenAI：ChatGPT Image Inputs FAQ。格式、输入方式、图片限制。
+ https://help.openai.com/en/articles/8400551-chatgpt-image-inputs-faq
+
+ [S02] OpenAI：ChatGPT macOS app file uploads and photos。官方客户端上传入口。
+ https://help.openai.com/en/articles/9295234-chatgpt-macos-app-file-uploads-and-photos
+
+ [S03] WHATWG HTML：文件输入与 files setter；DataTransfer。
+ https://html.spec.whatwg.org/multipage/input.html
+
+ https://html.spec.whatwg.org/multipage/dnd.html
+
+ [S04] W3C Clipboard API and events。合成 paste 与真实默认动作边界。
+ https://www.w3.org/TR/clipboard-apis/
+
+ [S05] Chrome Extensions：Content scripts。隔离 world 与页面 DOM。
+ https://developer.chrome.com/docs/extensions/develop/concepts/content-scripts
+
+ [S06] Chrome Extensions：activeTab。权限的用户调用前提。
+ https://developer.chrome.com/docs/extensions/develop/concepts/activeTab
+
+ [S07] Chrome Extensions：Native messaging。消息协议、尺寸与 host。
+ https://developer.chrome.com/docs/extensions/develop/concepts/native-messaging
+
+ [S08] Chrome Extensions：Tabs / Windows API。活动窗口与标签页范围。
+ https://developer.chrome.com/docs/extensions/reference/api/tabs
+
+ https://developer.chrome.com/docs/extensions/reference/api/windows
+
+ [S09] Chrome Extensions：Extension service worker lifecycle。
+ https://developer.chrome.com/docs/extensions/develop/concepts/service-workers/lifecycle
+
+ [S10] Chrome：Changes to remote debugging switches to improve security。
+ https://developer.chrome.com/blog/remote-debugging-port
+
+ [S11] OpenAI：ChatGPT macOS app release notes。2026-07-09 Classic 条目。
+ https://help.openai.com/en/articles/9703738-chatgpt-macos-app-release-notes
+
+ [S12] OpenAI：Moving to the new ChatGPT desktop app。
+ https://help.openai.com/en/articles/20001276-moving-to-the-new-chatgpt-desktop-app
+
+ [S13] Romain Huet 在 Hacker News 的团队第一人称说明，涉及 Codex app 的 Electron 架构。仅作为该团队声明来源，不代
+ 表本轮检查了安装包。
+ https://news.ycombinator.com/item?id=46859673
+
+ [S14] Apple：macOS Accessibility programming model / AXUIElement。
+ https://developer.apple.com/library/archive/documentation/Accessibility/Conceptual/AccessibilityMacOSX/OSXAXmodel.html
+
+ https://developer.apple.com/documentation/applicationservices/1462085-axuielementcopyattributevalue
+
+
+
+
+研究资料与源码审查；待实测项不代表已通过                                                                                                        21
+<PARSED TEXT FOR PAGE: 22 / 23>
+MAC SCREENSHOT RIFT / INDEPENDENT REVIEW                                                                              2026-10-26
+
+
+
+
+ [S15] Apple：NSView acceptsFirstMouse。
+ https://developer.apple.com/documentation/appkit/nsview/acceptsfirstmouse(for:)
+
+ [S16] Apple：NSPasteboard changeCount / Pasteboard Programming Guide。
+ https://developer.apple.com/documentation/appkit/nspasteboard/changecount
+
+ https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/PasteboardGuide106/Articles/pbReading.html
+
+ [S17] Apple：NSPasteboard AccessBehavior / AppKit updates。
+ https://developer.apple.com/documentation/appkit/nspasteboard/accessbehavior-swift.enum
+
+ https://developer.apple.com/documentation/updates/appkit
+
+ [S18] Apple Support：Take a screenshot on Mac。
+ https://support.apple.com/en-us/102646
+
+ [S19] Dropover：Screenshots 官方说明。
+ https://dropoverapp.com/kb/screenshots
+
+ [S20] Apple：File System Events Programming Guide。
+ https://developer.apple.com/library/archive/documentation/Darwin/Conceptual/FSEvents_ProgGuide/Introduction/Introduction.html
+
+ [S21] Apple：NSWindow SharingType.none。当前说明不支持据此隐藏截图。
+ https://developer.apple.com/documentation/appkit/nswindow/sharingtype-swift.enum/none
+
+ [S22] Apple Developer Forums：DTS 关于全屏辅助窗口的具体案例。案例来源与本文“所有组合仍需实测”的结论应一并阅读。
+ https://developer.apple.com/forums/thread/826308
+
+ [S23] Screenshot Shelf / Bert Devriese：官方产品页。不要与同名 GitHub 项目混淆。
+ https://brtdv.com/en/screenshot-shelf/
+
+ [S24] ScreenFloat：官方产品页。
+ https://eternalstorms.at/ScreenFloat/
+
+ [S25] Shottr：官方产品页。
+ https://shottr.cc/
+
+ [S26] Apple HIG：Accessibility。
+ https://developer.apple.com/design/human-interface-guidelines/accessibility
+
+ [S27] Apple：High Resolution Guidelines / CGDisplayScreenSize。
+ https://developer.apple.com/library/archive/documentation/GraphicsAnimation/Conceptual/HighResolutionOSX/Explained/Explained.
+ html
+
+ https://developer.apple.com/documentation/coregraphics/1455517-cgdisplayscreensize
+
+ [S28] Apple：NSWindow ignoresMouseEvents / NSView hitTest。
+ https://developer.apple.com/documentation/appkit/nswindow/ignoresmouseevents
+
+ https://developer.apple.com/documentation/appkit/nsview/hittest(_:)
+
+
+
+ 固定版本开源证据
+ [C01] Screenshoss · MIT
+ https://github.com/m0ztop/Screenshoss/tree/8ef6ef7cf721a2eb29f76a94815e6992d3d3a1ac
+
+ 已读：Sources/ShossApp/ScreenshotLibrary.swift；ScreenshotImportService.swift；ScreenshotItem.swift；
+ ScreenshotStorageService.swift；ShelfPanelController.swift；Tests/ShossTests/ScreenshotFilesystemIntegrationTests.swift
+ ；LICENSE。
+
+
+
+
+研究资料与源码审查；待实测项不代表已通过                                                                                                             22
+<PARSED TEXT FOR PAGE: 23 / 23>
+MAC SCREENSHOT RIFT / INDEPENDENT REVIEW                                                                   2026-10-26
+
+
+
+
+ [C02] Sukurini · Apache-2.0 + NOTICE
+ https://github.com/ssut/Sukurini/tree/c74210f81347a1df4ef407523361e7a45c12ab3e
+
+ 已读：Sources/Sukurini/Core/FolderWatcher.swift；ScreenshotStore.swift；ThumbnailLoader.swift；
+ ScreencaptureDefaults.swift；LatestScreenshotPaster.swift；Sources/Sukurini/Gallery/GalleryPanel.swift；LICENSE；
+ NOTICE。
+
+ [C03] Tendedero · MIT 代码，特定品牌与素材除外
+ https://github.com/alejandrobujan/tendedero/tree/32a3e47187fdea7b2fd43b3ab5a913f0ed33724a
+
+ 已读：Sources/Tendedero/LinePanel.swift；ScreenshotWatcher.swift；ClipboardWatcher.swift；Inbox.swift；
+ FullScreen.swift；Line.swift；LICENSE。
+
+ [C04] Screenshot Shelf / KanishkVashisht · MIT
+ https://github.com/KanishkVashisht/screenshot-shelf/tree/7dbc39f55fbb6830ecfcdab94f5ec45da2254ee3
+
+ 已读：Sources/ScreenshotStore.swift；AppDelegate.swift；ShelfWindow.swift；LICENSE。
+
+ [C05] Clipy/Screeen · MIT
+ https://github.com/Clipy/Screeen/tree/f8f4bfa6cb38cb69ec1ee104fb5ad949a92b2ae3
+
+ 已读：Lib/Screeen/ScreenShotObserver.swift；Documentation/SANDBOX.md；LICENSE。
+
+ [C06] DeveshSt/Shelf · MIT
+ https://github.com/DeveshSt/Shelf/tree/0a0b7ee43ad3673851604a035da08ff812011be5
+
+ 已读：Sources/DropWindow.swift；LICENSE。
+
+ [C07] steipete/oracle · MIT
+ https://github.com/steipete/oracle/tree/fde96271db1611c0287fcfde3053c19325280d10
+
+ 已读：src/browser/actions/attachmentDataTransfer.ts；attachmentEvidence.ts；attachmentContext.ts；
+ attachmentProgress.ts；composerRoot.ts；attachments.ts；tests/browser/attachmentsCompletion.test.ts；
+ attachmentDispatchSafety.test.ts；LICENSE。
+
+ [C08] Maccy · MIT
+ https://github.com/p0deje/Maccy/tree/54fb9f00b828a4ec367e706c0e276df90febe76a
+
+ 已读：Maccy/Clipboard.swift；LICENSE。注意粘贴实现中 Clipy 的继承归属。
+
+ [C09] OpenAI MCP Extensions · Apache-2.0
+ https://github.com/openai/mcp-extensions/tree/36f8b38df179144b44d157133bbc5f7c6e353ace
+
+ 已读：docs/spec.md；CHANGELOG.md；typescript/src/app/message.ts；model-context.ts；extensions.ts；
+ typescript/tests/sdk-app.test.ts；plugins/bits-and-bolts/src/app/controller.ts；docs/patterns.md；LICENSE。
+
+ 配套传输 / schema 源码：
+ https://github.com/modelcontextprotocol/ext-apps/tree/266a9e3b70dbd4a4f0546dda95da2a2c1a8be4b7
+
+ 已读：src/message-transport.ts；src/app.ts；src/generated/schema.ts；specification/2026-01-26/apps.mdx。
+
+ [C10] hboon/shotpath · 本轮未取得独立 LICENSE，商用复制待核验
+ https://github.com/hboon/shotpath/tree/53b2d1706aa4c050f66ac2f8063c41801ca3fac2
+
+ 已读：Sources/main.swift；README.md；当前 tree。仅作机制参考，不列首选可直接复制代码。
+
+
+
+
+研究资料与源码审查；待实测项不代表已通过                                                                                              23
