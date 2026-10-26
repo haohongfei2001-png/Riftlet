@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "artifact_id": "riftlet-art-direction-2026-10-26",
+  "title": "Riftlet — 留在手边 · 视觉方向研究",
+  "source_date": "2026-10-26",
+  "status": "archived_research_candidate",
+  "authorization": "User requested archiving this existing version to GitHub; no final design approval, deployment or production implementation implied.",
+  "base_commit": "3c988ddaff2922594fa6c6ed7d0fe24bad9d7ada",
+  "files": [
+    {
+      "path": "Riftlet_Art_Direction.html",
+      "role": "complete self-contained visual study and offline interactive simulation",
+      "bytes": 33282,
+      "sha256": "66d20eb3a0a40cce6c646b90c51ff46cab80cc3b5da86f6c48b91748d3640fd2",
+      "git_blob_sha": "900d0b13f076aae9fd2e2d00c32f5984aa4ee796",
+      "source_name": "Riftlet_Art_Direction.html",
+      "source_bytes": 33283,
+      "source_sha256": "1bb9c7084593de6c1fe79d899aa15e6cb398fc87f2ea7e4c13cda5f44a5724d2",
+      "transformation": "Removed one trailing LF only; all other bytes unchanged."
+    },
+    {
+      "path": "preview.webp",
+      "role": "compressed repository browsing thumbnail derived from the original preview PNG",
+      "bytes": 15032,
+      "width": 720,
+      "height": 500,
+      "sha256": "d68c02dbcd4d4973c250a5b00197505c205b404ff943c1d615897cd6f13d9720",
+      "git_blob_sha": "91bf9990afcf7fb904ccabb0b35e5d0a306dee78",
+      "source_name": "Riftlet_Art_Direction_Preview.png",
+      "source_bytes": 117625,
+      "source_width": 1440,
+      "source_height": 1000,
+      "source_sha256": "abdccbaaf64e0f4fbb2cd801b655cafd371766f75e1d081b8962a3eb4d28d5f9",
+      "transformation": "Lanczos resize to 720x500; WebP quality 85, method 6. Not lossless and not intended for pixel/color measurement.",
+      "original_png_included": false
+    }
+  ],
+  "checks_this_archive": {
+    "source_html_complete": true,
+    "html_git_blob_matches_original_without_final_lf": true,
+    "preview_git_blob_matches_local_derivative": true,
+    "inline_javascript_node_syntax": "PASS",
+    "duplicate_html_ids": 0,
+    "external_runtime_asset_references": 0,
+    "outbound_calls_found_in_static_source_scan": [],
+    "external_reference_links": "Manual outbound links remain in the footer; they are not runtime asset dependencies.",
+    "browser_gui_tests": "NOT_RUN_THIS_ARCHIVE",
+    "native_platform_tests": "NOT_RUN",
+    "real_chatgpt_upload_or_ready_tests": "NOT_RUN",
+    "user_testing": "NOT_RUN"
+  },
+  "scope": {
+    "synthetic_example_content_only": true,
+    "font_files_included": false,
+    "final_logo_approved": false,
+    "final_palette_frozen": false,
+    "production_source_added": false,
+    "deployment_created": false,
+    "prior_design_rounds_replaced": false
+  }
+}

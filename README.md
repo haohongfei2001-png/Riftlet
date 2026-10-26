@@ -20,6 +20,8 @@ The **Screenshot Rift** name appears in the dated original studies; **Riftlet** 
 | User product requirements | [docs/PRODUCT.md](docs/PRODUCT.md) |
 | Decided vs. proposed | [docs/DECISIONS.md](docs/DECISIONS.md) |
 | Current visual design brief | [docs/DESIGN_BRIEF.md](docs/DESIGN_BRIEF.md) |
+| Archived art direction and offline visual sample | [design/explorations/art-direction-2026-10-26/README.md](design/explorations/art-direction-2026-10-26/README.md) |
+| All archived visual studies | [design/README.md](design/README.md) |
 | Platform and upload research | [docs/TECHNICAL_BASELINE.md](docs/TECHNICAL_BASELINE.md) |
 | Reusable source research | [docs/REUSE_CANDIDATES.md](docs/REUSE_CANDIDATES.md) |
 | Questions that remain | [docs/OPEN_QUESTIONS.md](docs/OPEN_QUESTIONS.md) |
