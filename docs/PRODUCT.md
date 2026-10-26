@@ -1,6 +1,6 @@
 # Riftlet — user-approved product specification
 
-**Phase:** design/research only. Exact appearance and full technical feasibility are not yet frozen.
+**Phase (2026-10-27):** formal engineering authorized; foundation implementation in progress. Exact appearance and attachment admission remain unfrozen. This phase update supersedes the old research-only restriction without changing the product contract below.
 
 ## Product
 An independent macOS tool that automatically collects the result of the **existing system screenshot**, places a tiny thumbnail at the screen edge, and transfers it to the currently intended ChatGPT composer on **one click**. It appends an **unsent attachment**, not a message.

@@ -9,7 +9,9 @@
 The Pro report is a technical recommendation, not full product approval. Codex's first test **did not validate real ChatGPT attachment insertion or ready**.
 
 ## Phase
-The user has explicitly kept Riftlet in **pre-development research and visual design**. Unless a new request authorizes it: **no new app source, prototype extension, release, hosting, CI, issues, PRs, or GUI tests**. Do not convert open questions into a development task list without user authorization.
+**2026-10-27: the user explicitly authorized formal engineering, implementation, tests, CI and a Draft PR.** This supersedes the previous pre-development restriction (P07), which is retained as historical context in the decision register. Work on an isolated feature branch; do not overwrite main, merge unreviewed work, publish a release, approve visual candidates or enable unvalidated attachment completion.
+
+Read `docs/ENGINEERING_PLAN.md`, `docs/ADAPTER_CONTRACT.md` and `docs/VERIFICATION.md`. Production success and safe-retry profiles remain empty until independently reviewed real evidence is admitted. Simulation must be isolated and synthetic-only.
 
 ## Core contract
 macOS screenshot → automatic collection → click tiny thumbnail once → append to intended ChatGPT draft → only upon verified ready, swallow. Definitive failure reverses. Unknown preserves the item and checks before any retry. No automatic chat send, drag/drop, picker or daily new shortcut.

@@ -1,0 +1,58 @@
+name: Native foundation
+on:
+  pull_request:
+    paths:
+      - 'Sources/**'
+      - 'Tests/**'
+      - 'Resources/**'
+      - 'ThirdPartyNotices/**'
+      - 'Package.swift'
+      - 'scripts/**'
+      - '.github/workflows/native-foundation.yml'
+  push:
+    branches: ['codex/engineering-foundation-20261027']
+    paths:
+      - 'Sources/**'
+      - 'Tests/**'
+      - 'Resources/**'
+      - 'ThirdPartyNotices/**'
+      - 'Package.swift'
+      - 'scripts/**'
+      - '.github/workflows/native-foundation.yml'
+permissions:
+  contents: read
+concurrency:
+  group: native-foundation-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  macos:
+    runs-on: macos-14
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Record compiler and OS
+        run: |
+          swift --version
+          sw_vers
+          uname -m
+      - name: Native unit and integration tests
+        run: |
+          set -o pipefail
+          mkdir -p test-results
+          swift test --parallel 2>&1 | tee test-results/swift-test.log
+      - name: Package native application
+        run: |
+          set -o pipefail
+          bash scripts/build-macos.sh 2>&1 | tee test-results/build.log
+      - name: Run packaged executable with synthetic data
+        run: build/Riftlet.app/Contents/MacOS/Riftlet --self-check | tee test-results/self-check.log
+      - name: Archive evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: native-foundation-${{ github.sha }}
+          path: |
+            test-results/
+            build/Riftlet.app/
+          if-no-files-found: ignore
+          retention-days: 14

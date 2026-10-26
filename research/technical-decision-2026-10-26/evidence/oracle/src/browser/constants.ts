@@ -1,0 +1,131 @@
+import type { BrowserModelStrategy } from "./types.js";
+
+export const CHATGPT_URL = "https://chatgpt.com/";
+export const DEFAULT_MODEL_TARGET = "Pro";
+export const DEFAULT_MODEL_STRATEGY: BrowserModelStrategy = "select";
+export const COOKIE_URLS = [
+  "https://chatgpt.com",
+  "https://chat.openai.com",
+  "https://atlas.openai.com",
+];
+
+export const INPUT_SELECTORS = [
+  'form[data-chatgpt-composer] [contenteditable="true"][role="textbox"]',
+  'textarea[data-id="prompt-textarea"]',
+  'textarea[placeholder*="Send a message"]',
+  'textarea[aria-label="Chat with ChatGPT"]',
+  'textarea[aria-label="Message ChatGPT"]',
+  "textarea:not([disabled]):not(#pending-home-input)",
+  'textarea[name="prompt-textarea"]',
+  "#prompt-textarea",
+  ".ProseMirror",
+  '[contenteditable="true"][role="textbox"]',
+  '[contenteditable="true"][data-virtualkeyboard="true"]',
+];
+
+export const ANSWER_SELECTORS = [
+  'article[data-testid^="conversation-turn"]:is([data-message-author-role="assistant"], [data-content-search-unit-key$=":assistant"], [data-chatgpt-search-unit-key$=":assistant"])',
+  'article[data-testid^="conversation-turn"][data-turn="assistant"]',
+  'article[data-testid^="conversation-turn"] :is([data-message-author-role="assistant"], [data-content-search-unit-key$=":assistant"], [data-chatgpt-search-unit-key$=":assistant"])',
+  'article[data-testid^="conversation-turn"] [data-turn="assistant"]',
+  'article[data-testid^="conversation-turn"] .markdown',
+  ':is([data-message-author-role="assistant"], [data-content-search-unit-key$=":assistant"], [data-chatgpt-search-unit-key$=":assistant"]) .markdown',
+  '[data-turn="assistant"] .markdown',
+  ':is([data-message-author-role="assistant"], [data-content-search-unit-key$=":assistant"], [data-chatgpt-search-unit-key$=":assistant"])',
+  '[data-turn="assistant"]',
+];
+
+export const CONVERSATION_TURN_SELECTOR =
+  "[data-turn-key], " +
+  'article[data-testid^="conversation-turn"], div[data-testid^="conversation-turn"], section[data-testid^="conversation-turn"], ' +
+  "article:is([data-message-author-role], [data-content-search-unit-key], [data-chatgpt-search-unit-key]), div:is([data-message-author-role], [data-content-search-unit-key], [data-chatgpt-search-unit-key]), section:is([data-message-author-role], [data-content-search-unit-key], [data-chatgpt-search-unit-key]), " +
+  "article[data-turn], div[data-turn], section[data-turn]";
+export const CONVERSATION_TURN_CONTAINER_SELECTOR =
+  '[data-turn-key], [data-testid^="conversation-turn"], [data-content-search-unit-key], [data-chatgpt-search-unit-key]';
+export const ASSISTANT_ROLE_SELECTOR =
+  ':is([data-message-author-role="assistant"], [data-content-search-unit-key$=":assistant"], [data-chatgpt-search-unit-key$=":assistant"]), [data-turn="assistant"]';
+export const CONVERSATION_UNIT_SELECTOR =
+  "[data-content-search-unit-key], [data-chatgpt-search-unit-key]";
+export const CONVERSATION_EXCHANGE_SELECTOR = "[data-content-search-turn-key], [data-turn-key]";
+export const PRE_HYDRATION_PROMPT_SELECTOR = "#pending-home-input";
+export const CLOUDFLARE_SCRIPT_SELECTOR = 'script[src*="/challenge-platform/"]';
+export const CLOUDFLARE_TITLE = "just a moment";
+export const PROMPT_PRIMARY_SELECTOR =
+  '#prompt-textarea, form[data-chatgpt-composer] [contenteditable="true"][role="textbox"]';
+export const PROMPT_FALLBACK_SELECTOR = 'textarea[name="prompt-textarea"]';
+export const FILE_INPUT_SELECTORS = [
+  'form input[type="file"]:not([accept])',
+  'input[type="file"][multiple]:not([accept])',
+  'input[type="file"][multiple]',
+  'input[type="file"]:not([accept])',
+  'form input[type="file"][accept]',
+  'input[type="file"][accept]',
+  'input[type="file"]',
+  'input[type="file"][data-testid*="file"]',
+];
+// Legacy single selectors kept for compatibility with older call-sites
+export const FILE_INPUT_SELECTOR = FILE_INPUT_SELECTORS[0];
+export const GENERIC_FILE_INPUT_SELECTOR = FILE_INPUT_SELECTORS[3];
+export const MENU_CONTAINER_SELECTOR = '[role="menu"], [data-radix-collection-root]';
+export const MENU_ITEM_SELECTOR =
+  'button, [role="menuitem"], [role="menuitemradio"], [data-testid*="model-switcher-"]';
+export const UPLOAD_STATUS_SELECTORS = [
+  '[data-testid*="upload"]',
+  '[data-testid*="attachment"]',
+  '[data-testid*="progress"]',
+  '[data-state="loading"]',
+  '[data-state="uploading"]',
+  '[data-state="pending"]',
+  '[aria-live="polite"]',
+  '[aria-live="assertive"]',
+];
+
+export const STOP_BUTTON_SELECTOR = '[data-testid="stop-button"]';
+// The aria-label fallback exists for data-testid drift, but a document-wide match makes ANY
+// visible "stop" control (read-aloud, voice/dictation) read as "still generating", which blocks
+// completion until the response timeout. Scope it to the composer form and exclude the known
+// non-generation stop controls that legitimately live there.
+export const STOP_BUTTON_SELECTORS = [
+  STOP_BUTTON_SELECTOR,
+  '[data-testid="composer-stop-button"]',
+  'form button[aria-label*="stop" i]:not([aria-label*="dictat" i]):not([aria-label*="voice" i]):not([aria-label*="read" i])',
+];
+export const SEND_BUTTON_SELECTORS = [
+  'button[data-testid="send-button"]',
+  'button[data-testid*="composer-send"]',
+  'form button[type="submit"]',
+  'button[type="submit"][data-testid*="send"]',
+  'button[aria-label*="Send"]',
+];
+export const SEND_BUTTON_SELECTOR = SEND_BUTTON_SELECTORS[0];
+export const MODEL_BUTTON_SELECTOR =
+  'button[aria-label="Select ChatGPT model"], ' +
+  'button[data-codex-intelligence-trigger="true"], ' +
+  '[data-testid="model-switcher-dropdown-button"], button.__composer-pill[aria-haspopup="menu"]';
+export const COMPOSER_MODEL_SIGNAL_SELECTOR = '[data-testid="composer-footer-actions"]';
+export const COPY_BUTTON_SELECTOR = 'button[data-testid="copy-turn-action-button"]';
+export const ACTION_BAR_COPY_BUTTON_SELECTOR = [
+  '.turn-action-controls button:is([aria-label="Copy"], [aria-label="コピーする"], [aria-label="复制"])',
+  // Shared consumers query this selector directly, without the turn-action locator's guards.
+  '[data-talvt-turn-state] button:is([aria-label="Copy"], [aria-label="コピーする"], [aria-label="复制"]):not(pre button, code button, [data-user-message-bubble] button, [data-message-author-role="user"] button, [data-content-search-unit-key$=":user"] button, [data-chatgpt-search-unit-key$=":user"] button)',
+].join(", ");
+// Action buttons that only appear once a turn has finished rendering.
+export const DEEP_RESEARCH_PLUS_BUTTON = '[data-testid="composer-plus-btn"]';
+export const DEEP_RESEARCH_DROPDOWN_ITEM_TEXT = "Deep research";
+export const DEEP_RESEARCH_PILL_LABEL = "Deep research";
+export const DEEP_RESEARCH_POLL_INTERVAL_MS = 5_000;
+export const DEEP_RESEARCH_AUTO_CONFIRM_WAIT_MS = 70_000;
+export const DEEP_RESEARCH_DEFAULT_TIMEOUT_MS = 2_400_000;
+// Turn action labels are localized and have no data-testid in the Chat/Work layout.
+// ja-JP observed 2026-10-03: Copy -> コピーする, Regenerate response -> 回答を再生成.
+// The user bubble's copy control reads メッセージをコピーする, so exact matches stay assistant-only.
+export const FINISHED_ACTIONS_SELECTOR = [
+  ACTION_BAR_COPY_BUTTON_SELECTOR,
+  '.turn-action-controls button[aria-label="Rate response"], .turn-action-controls button[aria-label="Regenerate response"], .turn-action-controls button[aria-label="回答を再生成"], button[data-testid="copy-turn-action-button"], button[data-testid="good-response-turn-action-button"], button[data-testid="bad-response-turn-action-button"], button[aria-label="Share"]',
+].join(", ");
+// Text of ChatGPT's polite live region once a turn finishes, per UI language.
+export const RESPONSE_COMPLETE_ANNOUNCEMENTS = [
+  "Response complete",
+  "回答が完了しました",
+  "回答已完成",
+];

@@ -1,0 +1,515 @@
+{
+  "researchDate": "2026-10-26",
+  "baselineCommit": "3c988ddaff2922594fa6c6ed7d0fe24bad9d7ada",
+  "baselineRecheckedUnchangedBeforeDelivery": true,
+  "scope": "Read-only source and public documentation; one isolated offline Oracle fixture experiment. No GitHub changes, real ChatGPT upload, message, product app/extension or macOS GUI test.",
+  "repositories": [
+    {
+      "repository": "haohongfei2001-png/Riftlet",
+      "commit": "3c988ddaff2922594fa6c6ed7d0fe24bad9d7ada",
+      "license_or_reuse_scope": "baseline",
+      "status": "SOURCE-VERIFIED; target-platform runtime not tested",
+      "files": [
+        {
+          "path": "AGENTS.md",
+          "url": "https://github.com/haohongfei2001-png/Riftlet/blob/3c988ddaff2922594fa6c6ed7d0fe24bad9d7ada/AGENTS.md"
+        },
+        {
+          "path": "docs/DECISIONS.md",
+          "url": "https://github.com/haohongfei2001-png/Riftlet/blob/3c988ddaff2922594fa6c6ed7d0fe24bad9d7ada/docs/DECISIONS.md"
+        },
+        {
+          "path": "docs/OPEN_QUESTIONS.md",
+          "url": "https://github.com/haohongfei2001-png/Riftlet/blob/3c988ddaff2922594fa6c6ed7d0fe24bad9d7ada/docs/OPEN_QUESTIONS.md"
+        },
+        {
+          "path": "docs/PRODUCT.md",
+          "url": "https://github.com/haohongfei2001-png/Riftlet/blob/3c988ddaff2922594fa6c6ed7d0fe24bad9d7ada/docs/PRODUCT.md"
+        },
+        {
+          "path": "docs/REUSE_CANDIDATES.md",
+          "url": "https://github.com/haohongfei2001-png/Riftlet/blob/3c988ddaff2922594fa6c6ed7d0fe24bad9d7ada/docs/REUSE_CANDIDATES.md"
+        },
+        {
+          "path": "docs/TECHNICAL_BASELINE.md",
+          "url": "https://github.com/haohongfei2001-png/Riftlet/blob/3c988ddaff2922594fa6c6ed7d0fe24bad9d7ada/docs/TECHNICAL_BASELINE.md"
+        },
+        {
+          "path": "research/CODEX_EXPERIMENT_STATUS_2026-10-26.md",
+          "url": "https://github.com/haohongfei2001-png/Riftlet/blob/3c988ddaff2922594fa6c6ed7d0fe24bad9d7ada/research/CODEX_EXPERIMENT_STATUS_2026-10-26.md"
+        },
+        {
+          "path": "research/PRO_REVIEW_PDF_TEXT_2026-10-26.txt",
+          "url": "https://github.com/haohongfei2001-png/Riftlet/blob/3c988ddaff2922594fa6c6ed7d0fe24bad9d7ada/research/PRO_REVIEW_PDF_TEXT_2026-10-26.txt"
+        },
+        {
+          "path": "research/PRO_REVIEW_REPLY_2026-10-26.md",
+          "url": "https://github.com/haohongfei2001-png/Riftlet/blob/3c988ddaff2922594fa6c6ed7d0fe24bad9d7ada/research/PRO_REVIEW_REPLY_2026-10-26.md"
+        }
+      ]
+    },
+    {
+      "repository": "ssut/Sukurini",
+      "commit": "c74210f81347a1df4ef407523361e7a45c12ab3e",
+      "license_or_reuse_scope": "Apache-2.0 + NOTICE",
+      "status": "SOURCE-VERIFIED; target-platform runtime not tested",
+      "files": [
+        {
+          "path": "LICENSE",
+          "url": "https://github.com/ssut/Sukurini/blob/c74210f81347a1df4ef407523361e7a45c12ab3e/LICENSE"
+        },
+        {
+          "path": "NOTICE",
+          "url": "https://github.com/ssut/Sukurini/blob/c74210f81347a1df4ef407523361e7a45c12ab3e/NOTICE"
+        },
+        {
+          "path": "Package.swift",
+          "url": "https://github.com/ssut/Sukurini/blob/c74210f81347a1df4ef407523361e7a45c12ab3e/Package.swift"
+        },
+        {
+          "path": "Sources/Sukurini/Core/FolderWatcher.swift",
+          "url": "https://github.com/ssut/Sukurini/blob/c74210f81347a1df4ef407523361e7a45c12ab3e/Sources/Sukurini/Core/FolderWatcher.swift"
+        },
+        {
+          "path": "Sources/Sukurini/Core/LatestScreenshotPaster.swift",
+          "url": "https://github.com/ssut/Sukurini/blob/c74210f81347a1df4ef407523361e7a45c12ab3e/Sources/Sukurini/Core/LatestScreenshotPaster.swift"
+        },
+        {
+          "path": "Sources/Sukurini/Core/ScreencaptureDefaults.swift",
+          "url": "https://github.com/ssut/Sukurini/blob/c74210f81347a1df4ef407523361e7a45c12ab3e/Sources/Sukurini/Core/ScreencaptureDefaults.swift"
+        },
+        {
+          "path": "Sources/Sukurini/Core/ScreenshotStore.swift",
+          "url": "https://github.com/ssut/Sukurini/blob/c74210f81347a1df4ef407523361e7a45c12ab3e/Sources/Sukurini/Core/ScreenshotStore.swift"
+        },
+        {
+          "path": "Sources/Sukurini/Core/ThumbnailLoader.swift",
+          "url": "https://github.com/ssut/Sukurini/blob/c74210f81347a1df4ef407523361e7a45c12ab3e/Sources/Sukurini/Core/ThumbnailLoader.swift"
+        }
+      ]
+    },
+    {
+      "repository": "m0ztop/Screenshoss",
+      "commit": "8ef6ef7cf721a2eb29f76a94815e6992d3d3a1ac",
+      "license_or_reuse_scope": "MIT",
+      "status": "SOURCE-VERIFIED; target-platform runtime not tested",
+      "files": [
+        {
+          "path": "LICENSE",
+          "url": "https://github.com/m0ztop/Screenshoss/blob/8ef6ef7cf721a2eb29f76a94815e6992d3d3a1ac/LICENSE"
+        },
+        {
+          "path": "Package.swift",
+          "url": "https://github.com/m0ztop/Screenshoss/blob/8ef6ef7cf721a2eb29f76a94815e6992d3d3a1ac/Package.swift"
+        },
+        {
+          "path": "Sources/ShossApp/ScreenshotImportService.swift",
+          "url": "https://github.com/m0ztop/Screenshoss/blob/8ef6ef7cf721a2eb29f76a94815e6992d3d3a1ac/Sources/ShossApp/ScreenshotImportService.swift"
+        },
+        {
+          "path": "Sources/ShossApp/ScreenshotItem.swift",
+          "url": "https://github.com/m0ztop/Screenshoss/blob/8ef6ef7cf721a2eb29f76a94815e6992d3d3a1ac/Sources/ShossApp/ScreenshotItem.swift"
+        },
+        {
+          "path": "Sources/ShossApp/ScreenshotLibrary.swift",
+          "url": "https://github.com/m0ztop/Screenshoss/blob/8ef6ef7cf721a2eb29f76a94815e6992d3d3a1ac/Sources/ShossApp/ScreenshotLibrary.swift"
+        },
+        {
+          "path": "Sources/ShossApp/ScreenshotStorageService.swift",
+          "url": "https://github.com/m0ztop/Screenshoss/blob/8ef6ef7cf721a2eb29f76a94815e6992d3d3a1ac/Sources/ShossApp/ScreenshotStorageService.swift"
+        },
+        {
+          "path": "Tests/ShossTests/ScreenshotFilesystemIntegrationTests.swift",
+          "url": "https://github.com/m0ztop/Screenshoss/blob/8ef6ef7cf721a2eb29f76a94815e6992d3d3a1ac/Tests/ShossTests/ScreenshotFilesystemIntegrationTests.swift"
+        }
+      ]
+    },
+    {
+      "repository": "alejandrobujan/tendedero",
+      "commit": "32a3e47187fdea7b2fd43b3ab5a913f0ed33724a",
+      "license_or_reuse_scope": "MIT source; artwork excluded",
+      "status": "SOURCE-VERIFIED; target-platform runtime not tested",
+      "files": [
+        {
+          "path": "LICENSE",
+          "url": "https://github.com/alejandrobujan/tendedero/blob/32a3e47187fdea7b2fd43b3ab5a913f0ed33724a/LICENSE"
+        },
+        {
+          "path": "Sources/Tendedero/AppDelegate.swift",
+          "url": "https://github.com/alejandrobujan/tendedero/blob/32a3e47187fdea7b2fd43b3ab5a913f0ed33724a/Sources/Tendedero/AppDelegate.swift"
+        },
+        {
+          "path": "Sources/Tendedero/CaptureFlight.swift",
+          "url": "https://github.com/alejandrobujan/tendedero/blob/32a3e47187fdea7b2fd43b3ab5a913f0ed33724a/Sources/Tendedero/CaptureFlight.swift"
+        },
+        {
+          "path": "Sources/Tendedero/FullScreen.swift",
+          "url": "https://github.com/alejandrobujan/tendedero/blob/32a3e47187fdea7b2fd43b3ab5a913f0ed33724a/Sources/Tendedero/FullScreen.swift"
+        },
+        {
+          "path": "Sources/Tendedero/GrabArea.swift",
+          "url": "https://github.com/alejandrobujan/tendedero/blob/32a3e47187fdea7b2fd43b3ab5a913f0ed33724a/Sources/Tendedero/GrabArea.swift"
+        },
+        {
+          "path": "Sources/Tendedero/Line.swift",
+          "url": "https://github.com/alejandrobujan/tendedero/blob/32a3e47187fdea7b2fd43b3ab5a913f0ed33724a/Sources/Tendedero/Line.swift"
+        },
+        {
+          "path": "Sources/Tendedero/LinePanel.swift",
+          "url": "https://github.com/alejandrobujan/tendedero/blob/32a3e47187fdea7b2fd43b3ab5a913f0ed33724a/Sources/Tendedero/LinePanel.swift"
+        },
+        {
+          "path": "Sources/Tendedero/LineView.swift",
+          "url": "https://github.com/alejandrobujan/tendedero/blob/32a3e47187fdea7b2fd43b3ab5a913f0ed33724a/Sources/Tendedero/LineView.swift"
+        },
+        {
+          "path": "Sources/Tendedero/PeggedView.swift",
+          "url": "https://github.com/alejandrobujan/tendedero/blob/32a3e47187fdea7b2fd43b3ab5a913f0ed33724a/Sources/Tendedero/PeggedView.swift"
+        },
+        {
+          "path": "Sources/Tendedero/ScreenshotWatcher.swift",
+          "url": "https://github.com/alejandrobujan/tendedero/blob/32a3e47187fdea7b2fd43b3ab5a913f0ed33724a/Sources/Tendedero/ScreenshotWatcher.swift"
+        }
+      ]
+    },
+    {
+      "repository": "steipete/oracle",
+      "commit": "fde96271db1611c0287fcfde3053c19325280d10",
+      "license_or_reuse_scope": "MIT",
+      "status": "SOURCE-VERIFIED; target-platform runtime not tested",
+      "files": [
+        {
+          "path": "LICENSE",
+          "url": "https://github.com/steipete/oracle/blob/fde96271db1611c0287fcfde3053c19325280d10/LICENSE"
+        },
+        {
+          "path": "package.json",
+          "url": "https://github.com/steipete/oracle/blob/fde96271db1611c0287fcfde3053c19325280d10/package.json"
+        },
+        {
+          "path": "src/browser/actions/attachmentContext.ts",
+          "url": "https://github.com/steipete/oracle/blob/fde96271db1611c0287fcfde3053c19325280d10/src/browser/actions/attachmentContext.ts"
+        },
+        {
+          "path": "src/browser/actions/attachmentDataTransfer.ts",
+          "url": "https://github.com/steipete/oracle/blob/fde96271db1611c0287fcfde3053c19325280d10/src/browser/actions/attachmentDataTransfer.ts"
+        },
+        {
+          "path": "src/browser/actions/attachmentEvidence.ts",
+          "url": "https://github.com/steipete/oracle/blob/fde96271db1611c0287fcfde3053c19325280d10/src/browser/actions/attachmentEvidence.ts"
+        },
+        {
+          "path": "src/browser/actions/attachmentProgress.ts",
+          "url": "https://github.com/steipete/oracle/blob/fde96271db1611c0287fcfde3053c19325280d10/src/browser/actions/attachmentProgress.ts"
+        },
+        {
+          "path": "src/browser/actions/attachments.ts",
+          "url": "https://github.com/steipete/oracle/blob/fde96271db1611c0287fcfde3053c19325280d10/src/browser/actions/attachments.ts"
+        },
+        {
+          "path": "src/browser/actions/composerRoot.ts",
+          "url": "https://github.com/steipete/oracle/blob/fde96271db1611c0287fcfde3053c19325280d10/src/browser/actions/composerRoot.ts"
+        },
+        {
+          "path": "src/browser/constants.ts",
+          "url": "https://github.com/steipete/oracle/blob/fde96271db1611c0287fcfde3053c19325280d10/src/browser/constants.ts"
+        },
+        {
+          "path": "tests/browser/attachmentContext.test.ts",
+          "url": "https://github.com/steipete/oracle/blob/fde96271db1611c0287fcfde3053c19325280d10/tests/browser/attachmentContext.test.ts"
+        },
+        {
+          "path": "tests/browser/attachmentDispatchSafety.test.ts",
+          "url": "https://github.com/steipete/oracle/blob/fde96271db1611c0287fcfde3053c19325280d10/tests/browser/attachmentDispatchSafety.test.ts"
+        },
+        {
+          "path": "tests/browser/attachmentEvidence.test.ts",
+          "url": "https://github.com/steipete/oracle/blob/fde96271db1611c0287fcfde3053c19325280d10/tests/browser/attachmentEvidence.test.ts"
+        },
+        {
+          "path": "tests/browser/attachmentProgress.test.ts",
+          "url": "https://github.com/steipete/oracle/blob/fde96271db1611c0287fcfde3053c19325280d10/tests/browser/attachmentProgress.test.ts"
+        },
+        {
+          "path": "tests/browser/attachmentsCompletion.test.ts",
+          "url": "https://github.com/steipete/oracle/blob/fde96271db1611c0287fcfde3053c19325280d10/tests/browser/attachmentsCompletion.test.ts"
+        },
+        {
+          "path": "tests/browser/domFixture.ts",
+          "url": "https://github.com/steipete/oracle/blob/fde96271db1611c0287fcfde3053c19325280d10/tests/browser/domFixture.ts"
+        }
+      ]
+    },
+    {
+      "repository": "p0deje/Maccy",
+      "commit": "54fb9f00b828a4ec367e706c0e276df90febe76a",
+      "license_or_reuse_scope": "MIT; preserve Clipy provenance for derived paste code",
+      "status": "SOURCE-VERIFIED; target-platform runtime not tested",
+      "files": [
+        {
+          "path": "LICENSE",
+          "url": "https://github.com/p0deje/Maccy/blob/54fb9f00b828a4ec367e706c0e276df90febe76a/LICENSE"
+        },
+        {
+          "path": "Maccy/Clipboard.swift",
+          "url": "https://github.com/p0deje/Maccy/blob/54fb9f00b828a4ec367e706c0e276df90febe76a/Maccy/Clipboard.swift"
+        }
+      ]
+    },
+    {
+      "repository": "Clipy/Screeen",
+      "commit": "f8f4bfa6cb38cb69ec1ee104fb5ad949a92b2ae3",
+      "license_or_reuse_scope": "MIT",
+      "status": "SOURCE-VERIFIED; target-platform runtime not tested",
+      "files": [
+        {
+          "path": "Documentation/SANDBOX.md",
+          "url": "https://github.com/Clipy/Screeen/blob/f8f4bfa6cb38cb69ec1ee104fb5ad949a92b2ae3/Documentation/SANDBOX.md"
+        },
+        {
+          "path": "LICENSE",
+          "url": "https://github.com/Clipy/Screeen/blob/f8f4bfa6cb38cb69ec1ee104fb5ad949a92b2ae3/LICENSE"
+        },
+        {
+          "path": "Lib/Screeen/ScreenShotObserver.swift",
+          "url": "https://github.com/Clipy/Screeen/blob/f8f4bfa6cb38cb69ec1ee104fb5ad949a92b2ae3/Lib/Screeen/ScreenShotObserver.swift"
+        }
+      ]
+    },
+    {
+      "repository": "chromium/chromium",
+      "commit": "db9f85854cec51a4bc8903d978f4cfe89b45b656",
+      "license_or_reuse_scope": "Evidence only; no source adoption proposed",
+      "status": "SOURCE-VERIFIED; target-platform runtime not tested",
+      "files": [
+        {
+          "path": "chrome/browser/extensions/api/debugger/debugger_api.cc",
+          "url": "https://github.com/chromium/chromium/blob/db9f85854cec51a4bc8903d978f4cfe89b45b656/chrome/browser/extensions/api/debugger/debugger_api.cc"
+        },
+        {
+          "path": "chrome/browser/ui/browser_commands_mac.mm",
+          "url": "https://github.com/chromium/chromium/blob/db9f85854cec51a4bc8903d978f4cfe89b45b656/chrome/browser/ui/browser_commands_mac.mm"
+        },
+        {
+          "path": "chrome/browser/ui/cocoa/applescript/tab_applescript.mm",
+          "url": "https://github.com/chromium/chromium/blob/db9f85854cec51a4bc8903d978f4cfe89b45b656/chrome/browser/ui/cocoa/applescript/tab_applescript.mm"
+        },
+        {
+          "path": "chrome/browser/ui/cocoa/applescript/window_applescript.mm",
+          "url": "https://github.com/chromium/chromium/blob/db9f85854cec51a4bc8903d978f4cfe89b45b656/chrome/browser/ui/cocoa/applescript/window_applescript.mm"
+        },
+        {
+          "path": "content/browser/devtools/protocol/dom_handler.cc",
+          "url": "https://github.com/chromium/chromium/blob/db9f85854cec51a4bc8903d978f4cfe89b45b656/content/browser/devtools/protocol/dom_handler.cc"
+        },
+        {
+          "path": "third_party/blink/renderer/core/inspector/inspector_dom_agent.cc",
+          "url": "https://github.com/chromium/chromium/blob/db9f85854cec51a4bc8903d978f4cfe89b45b656/third_party/blink/renderer/core/inspector/inspector_dom_agent.cc"
+        }
+      ]
+    },
+    {
+      "repository": "openai/codex",
+      "commit": "970111f6cb62cc02fe36a82ea7d71b37a2889c97",
+      "license_or_reuse_scope": "Apache-2.0 + NOTICE; mechanism evidence only",
+      "status": "SOURCE-VERIFIED; no live host or upload tested",
+      "files": [
+        {
+          "path": "LICENSE",
+          "url": "https://github.com/openai/codex/blob/970111f6cb62cc02fe36a82ea7d71b37a2889c97/LICENSE"
+        },
+        {
+          "path": "NOTICE",
+          "url": "https://github.com/openai/codex/blob/970111f6cb62cc02fe36a82ea7d71b37a2889c97/NOTICE"
+        },
+        {
+          "path": "codex-rs/codex-api/src/files.rs",
+          "url": "https://github.com/openai/codex/blob/970111f6cb62cc02fe36a82ea7d71b37a2889c97/codex-rs/codex-api/src/files.rs"
+        },
+        {
+          "path": "codex-rs/core/src/mcp_openai_file.rs",
+          "url": "https://github.com/openai/codex/blob/970111f6cb62cc02fe36a82ea7d71b37a2889c97/codex-rs/core/src/mcp_openai_file.rs"
+        },
+        {
+          "path": "codex-rs/protocol/src/user_input.rs",
+          "url": "https://github.com/openai/codex/blob/970111f6cb62cc02fe36a82ea7d71b37a2889c97/codex-rs/protocol/src/user_input.rs"
+        },
+        {
+          "path": "codex-rs/codex-api/src/images.rs",
+          "url": "https://github.com/openai/codex/blob/970111f6cb62cc02fe36a82ea7d71b37a2889c97/codex-rs/codex-api/src/images.rs"
+        },
+        {
+          "path": "codex-rs/codex-api/src/endpoint/images.rs",
+          "url": "https://github.com/openai/codex/blob/970111f6cb62cc02fe36a82ea7d71b37a2889c97/codex-rs/codex-api/src/endpoint/images.rs"
+        }
+      ]
+    },
+    {
+      "repository": "openai/mcp-extensions",
+      "commit": "36f8b38df179144b44d157133bbc5f7c6e353ace",
+      "license_or_reuse_scope": "Protocol evidence only; no code adoption proposed",
+      "status": "SOURCE-VERIFIED; no live host or upload tested",
+      "files": [
+        {
+          "path": "docs/spec.md",
+          "url": "https://github.com/openai/mcp-extensions/blob/36f8b38df179144b44d157133bbc5f7c6e353ace/docs/spec.md"
+        },
+        {
+          "path": "typescript/src/app/message.ts",
+          "url": "https://github.com/openai/mcp-extensions/blob/36f8b38df179144b44d157133bbc5f7c6e353ace/typescript/src/app/message.ts"
+        },
+        {
+          "path": "typescript/src/app/extensions.ts",
+          "url": "https://github.com/openai/mcp-extensions/blob/36f8b38df179144b44d157133bbc5f7c6e353ace/typescript/src/app/extensions.ts"
+        },
+        {
+          "path": "typescript/src/app/model-context.ts",
+          "url": "https://github.com/openai/mcp-extensions/blob/36f8b38df179144b44d157133bbc5f7c6e353ace/typescript/src/app/model-context.ts"
+        },
+        {
+          "path": "typescript/tests/sdk-app.test.ts",
+          "url": "https://github.com/openai/mcp-extensions/blob/36f8b38df179144b44d157133bbc5f7c6e353ace/typescript/tests/sdk-app.test.ts"
+        }
+      ]
+    },
+    {
+      "repository": "modelcontextprotocol/ext-apps",
+      "commit": "266a9e3b70dbd4a4f0546dda95da2a2c1a8be4b7",
+      "license_or_reuse_scope": "Protocol evidence only; no code adoption proposed",
+      "status": "SOURCE-VERIFIED; no live host or upload tested",
+      "files": [
+        {
+          "path": "src/app.ts",
+          "url": "https://github.com/modelcontextprotocol/ext-apps/blob/266a9e3b70dbd4a4f0546dda95da2a2c1a8be4b7/src/app.ts"
+        },
+        {
+          "path": "src/generated/schema.ts",
+          "url": "https://github.com/modelcontextprotocol/ext-apps/blob/266a9e3b70dbd4a4f0546dda95da2a2c1a8be4b7/src/generated/schema.ts"
+        },
+        {
+          "path": "src/message-transport.ts",
+          "url": "https://github.com/modelcontextprotocol/ext-apps/blob/266a9e3b70dbd4a4f0546dda95da2a2c1a8be4b7/src/message-transport.ts"
+        }
+      ]
+    }
+  ],
+  "officialDocumentation": [
+    {
+      "title": "Chromium AppleScript",
+      "url": "https://www.chromium.org/developers/applescript/",
+      "status": "Document evidence; not a Riftlet runtime test"
+    },
+    {
+      "title": "Chrome Native Messaging",
+      "url": "https://developer.chrome.com/docs/extensions/develop/concepts/native-messaging",
+      "status": "Document evidence; not a Riftlet runtime test"
+    },
+    {
+      "title": "Chrome worker lifecycle",
+      "url": "https://developer.chrome.com/docs/extensions/develop/concepts/service-workers/lifecycle",
+      "status": "Document evidence; not a Riftlet runtime test"
+    },
+    {
+      "title": "Chrome activeTab",
+      "url": "https://developer.chrome.com/docs/extensions/develop/concepts/activeTab",
+      "status": "Document evidence; not a Riftlet runtime test"
+    },
+    {
+      "title": "Chrome isolated content scripts",
+      "url": "https://developer.chrome.com/docs/extensions/develop/concepts/content-scripts",
+      "status": "Document evidence; not a Riftlet runtime test"
+    },
+    {
+      "title": "Chrome windows",
+      "url": "https://developer.chrome.com/docs/extensions/reference/api/windows",
+      "status": "Document evidence; not a Riftlet runtime test"
+    },
+    {
+      "title": "Chrome tabs",
+      "url": "https://developer.chrome.com/docs/extensions/reference/api/tabs",
+      "status": "Document evidence; not a Riftlet runtime test"
+    },
+    {
+      "title": "Chrome runtime MessageSender",
+      "url": "https://developer.chrome.com/docs/extensions/reference/api/runtime",
+      "status": "Document evidence; not a Riftlet runtime test"
+    },
+    {
+      "title": "Chrome debugger",
+      "url": "https://developer.chrome.com/docs/extensions/reference/api/debugger",
+      "status": "Document evidence; not a Riftlet runtime test"
+    },
+    {
+      "title": "New ChatGPT desktop vs Classic",
+      "url": "https://help.openai.com/en/articles/20001276-moving-to-the-new-chatgpt-desktop-app",
+      "status": "Document evidence; not a Riftlet runtime test"
+    },
+    {
+      "title": "ChatGPT macOS release notes",
+      "url": "https://help.openai.com/en/articles/9703738-chatgpt-macos-app-release-notes",
+      "status": "Document evidence; not a Riftlet runtime test"
+    },
+    {
+      "title": "Official widget APIs",
+      "url": "https://developers.openai.com/plugins/reference",
+      "status": "Document evidence; not a Riftlet runtime test"
+    },
+    {
+      "title": "Desktop deep links",
+      "url": "https://learn.chatgpt.com/docs/reference/commands",
+      "status": "Document evidence; not a Riftlet runtime test"
+    },
+    {
+      "title": "Desktop MCP",
+      "url": "https://learn.chatgpt.com/docs/extend/mcp",
+      "status": "Document evidence; not a Riftlet runtime test"
+    },
+    {
+      "title": "Transparent-point hit testing",
+      "url": "https://developer.apple.com/documentation/appkit/nswindow/windownumber(at:belowwindowwithwindownumber:)",
+      "status": "Document evidence; not a Riftlet runtime test"
+    },
+    {
+      "title": "Nonactivating panel",
+      "url": "https://developer.apple.com/documentation/appkit/nswindow/stylemask-swift.struct/nonactivatingpanel",
+      "status": "Document evidence; not a Riftlet runtime test"
+    },
+    {
+      "title": "First mouse",
+      "url": "https://developer.apple.com/documentation/appkit/nsview/acceptsfirstmouse(for:)",
+      "status": "Document evidence; not a Riftlet runtime test"
+    },
+    {
+      "title": "Join applications",
+      "url": "https://developer.apple.com/documentation/appkit/nswindow/collectionbehavior-swift.struct/canjoinallapplications",
+      "status": "Document evidence; not a Riftlet runtime test"
+    },
+    {
+      "title": "DTS fullscreen case",
+      "url": "https://developer.apple.com/forums/thread/826308",
+      "status": "Document evidence; not a Riftlet runtime test"
+    },
+    {
+      "title": "SharingType.none",
+      "url": "https://developer.apple.com/documentation/appkit/nswindow/sharingtype-swift.enum/none",
+      "status": "Document evidence; not a Riftlet runtime test"
+    },
+    {
+      "title": "Pasteboard privacy",
+      "url": "https://developer.apple.com/documentation/appkit/nspasteboard/accessbehavior-swift.enum/alwaysdeny",
+      "status": "Document evidence; not a Riftlet runtime test"
+    },
+    {
+      "title": "Apple system screenshots",
+      "url": "https://support.apple.com/en-us/102646",
+      "status": "Document evidence; not a Riftlet runtime test"
+    },
+    {
+      "title": "Dropover screenshot file timing",
+      "url": "https://dropoverapp.com/kb/screenshots",
+      "status": "Document evidence; not a Riftlet runtime test"
+    }
+  ],
+  "includedOriginalSourceIndex": "evidence/oracle/source-index.json",
+  "verifiedExperimentResults": "evidence/oracle/offline-adversarial-results.json"
+}

@@ -25,3 +25,20 @@
 | E03 | NOT_TESTED | End-to-end screenshot capture-to-rift latency and screen capture exclusion on real Mac. |
 
 **Pro's numeric suggestions (48 pt thumb, 1 pt line, >90% exposed) are design starting points, not a user's final choice.**
+
+
+## 2026-10-27 — formal engineering authorization (append-only phase change)
+
+P07 records the earlier explicit research-only decision. **P09 below now supersedes its phase restriction; P07 remains historical evidence.** No visual approval or upload proof is implied.
+
+| ID | Status | Statement |
+| --- | --- | --- |
+| P09 | USER | Start formal engineering now: executable plan, native foundations, tests, independent branch and Draft PR. Do not wait for unrelated upload anomaly verification. Do not merge unreviewed changes or modify other projects. |
+| P10 | USER | R2 01 «直截» may be the initial adjustable implementation baseline; not final Approved. Rejected round-1 B/C remain excluded; independent logo work does not block engineering. |
+| P11 | USER | Separate destination/input/identity/completion/queue boundaries. Unvalidated ATTACHED conditions may not automatically swallow real screenshots. |
+| E04 | USER_REPORTED | Chrome Apple Events JavaScript added a synthetic image to actual ChatGPT and produced INPUT/target/image association; ATTACHED candidate exists. Raw current anomaly/READY evidence is not delivered to this branch. |
+| E05 | OPEN | Strict READY, real failure, abnormal switching/concurrency and newer Mac client admission remain unproven. The technical ZIP is an earlier research snapshot, not contradictory fresh runtime evidence. |
+| I01 | IMPLEMENTATION | SwiftPM/AppKit/Foundation/ImageIO/system SQLite; no external runtime package. Engineering plan and verification record govern this foundation branch. |
+| I02 | IMPLEMENTATION | Production completion and retry-safe profile registries are empty. Simulation uses an isolated database and only synthetic assets. |
+
+See [engineering plan](ENGINEERING_PLAN.md) and [adapter contract](ADAPTER_CONTRACT.md).

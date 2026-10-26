@@ -2,7 +2,7 @@
 
 **Riftlet** is a proposed tiny, native macOS screenshot-to-chat bridge: **take a system screenshot, then click its micro-thumbnail once**. The intended result is an image appended to the correct ChatGPT draft—not a sent message.
 
-**Status (2026-10-26): Pre-development design/research.** There is no approved final design, no proven real-ChatGPT end-to-end attachment/ready chain, and no shipped Riftlet app. This public repository archives decisions and research; it is not an invitation to start implementation.
+**Status (2026-10-27): Formal engineering started.** This branch contains the native capture/queue/rift foundation and an isolated synthetic demo. There is no approved final visual design or admitted production ChatGPT attachment adapter yet. Read [the executable engineering plan](docs/ENGINEERING_PLAN.md) and [actual verification record](docs/VERIFICATION.md).
 
 ## The distinctive interaction
 - Extremely fine vertical **spatial rift** at the screen edge; tiny, aspect-ratio-preserving, roughly coin-sized screenshots protrude partly from it.
@@ -30,7 +30,18 @@ The **Screenshot Rift** name appears in the dated original studies; **Riftlet** 
 | Codex first experiment evidence | [research/CODEX_EXPERIMENT_STATUS_2026-10-26.md](research/CODEX_EXPERIMENT_STATUS_2026-10-26.md) |
 | Original sources, limits | [research/SOURCES.md](research/SOURCES.md) |
 
-**Next stage is visual/interaction design, not production development.** Please do not commit real user screenshots, private chats, credentials, unrelated project files or test browser profiles to this public repository.
+**Engineering proceeds on an isolated Draft PR; no unreviewed merge or release.** Please do not commit real user screenshots, private chats, credentials, unrelated project files or test browser profiles to this public repository.
+
+## Build the native foundation (macOS 13+)
+
+```bash
+swift test --parallel
+bash scripts/build-macos.sh
+build/Riftlet.app/Contents/MacOS/Riftlet --self-check
+open build/Riftlet.app --args --simulate
+```
+
+Simulation uses only synthetic images in its own data directory and never connects to ChatGPT. Run without `--simulate` to collect actual system screenshot files; the production upload adapter remains disabled, so clicks retain the screenshot. This is an engineering build with an ad-hoc signature, not a notarized release. [Real Mac acceptance](docs/MAC_ACCEPTANCE.md) lists the remaining GUI checks.
 
 
 ## Prelaunch website (2026-10-27)
