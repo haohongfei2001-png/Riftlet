@@ -23,7 +23,7 @@ final class SQLiteDatabase {
         try execute("PRAGMA foreign_keys = ON")
         try execute("PRAGMA journal_mode = WAL")
         try execute("PRAGMA synchronous = FULL")
-        let version = try rows("PRAGMA user_version").first?.first ?? "0"
+        let version = try rows("PRAGMA user_version").first?[0] ?? "0"
         guard version == "0" || version == "1" else {
             throw RiftletError.database("Unsupported schema version \(version); database preserved")
         }

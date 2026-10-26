@@ -76,7 +76,7 @@ public actor QueueStore {
             guard mode != .simulation || (target.surface == .simulation && target.adapterID == "simulation") else { throw RiftletError.modeMismatch }
             guard mode != .production || target.surface != .simulation else { throw RiftletError.modeMismatch }
             let count = try database.rows("SELECT COALESCE(MAX(attempt),0) FROM operations WHERE asset_id=?", [assetID.uuidString]).first?[0] ?? "0"
-            let next = (Int(count ?? "0") ?? 0) + 1
+            let next = (Int(count) ?? 0) + 1
             let id = UUID(); let now = String(Date().timeIntervalSince1970)
             try database.execute("INSERT INTO operations(id,asset_id,attempt,target_key,target_json,phase,created_at,updated_at) VALUES(?,?,?,?,?,'prepared',?,?)", [
                 id.uuidString, assetID.uuidString, String(next), target.stableKey, try json(target), now, now

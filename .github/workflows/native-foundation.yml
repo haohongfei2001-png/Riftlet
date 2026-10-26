@@ -9,16 +9,6 @@ on:
       - 'Package.swift'
       - 'scripts/**'
       - '.github/workflows/native-foundation.yml'
-  push:
-    branches: ['codex/engineering-foundation-20261027']
-    paths:
-      - 'Sources/**'
-      - 'Tests/**'
-      - 'Resources/**'
-      - 'ThirdPartyNotices/**'
-      - 'Package.swift'
-      - 'scripts/**'
-      - '.github/workflows/native-foundation.yml'
 permissions:
   contents: read
 concurrency:
@@ -45,7 +35,10 @@ jobs:
           set -o pipefail
           bash scripts/build-macos.sh 2>&1 | tee test-results/build.log
       - name: Run packaged executable with synthetic data
-        run: build/Riftlet.app/Contents/MacOS/Riftlet --self-check | tee test-results/self-check.log
+        run: |
+          set -o pipefail
+          build/Riftlet.app/Contents/MacOS/Riftlet --self-check 2>&1 | tee test-results/self-check.log
+          ditto -c -k --sequesterRsrc --keepParent build/Riftlet.app build/Riftlet-macOS-development.zip
       - name: Archive evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
@@ -53,6 +46,6 @@ jobs:
           name: native-foundation-${{ github.sha }}
           path: |
             test-results/
-            build/Riftlet.app/
+            build/Riftlet-macOS-development.zip
           if-no-files-found: ignore
           retention-days: 14

@@ -69,7 +69,8 @@ public actor CaptureService {
             let token = generation
             wakeObserver = NSWorkspace.shared.notificationCenter.addObserver(
                 forName: NSWorkspace.didWakeNotification, object: nil, queue: nil) { [weak self] _ in
-                    Task(priority: .utility) { await self?.wake(generation: token) }
+                    guard let service = self else { return }
+                    Task(priority: .utility) { await service.wake(generation: token) }
                 }
             initializing = false
             try await rescan()
@@ -196,8 +197,14 @@ public actor CaptureService {
     private func attachWatcher() async throws {
         let token = generation
         let next = FolderWatcher(url: sourceDirectory,
-            onDirty: { [weak self] in Task(priority: .utility) { await self?.event(generation: token, lost: false) } },
-            onLost: { [weak self] in Task(priority: .utility) { await self?.event(generation: token, lost: true) } })
+            onDirty: { [weak self] in
+                guard let service = self else { return }
+                Task(priority: .utility) { await service.event(generation: token, lost: false) }
+            },
+            onLost: { [weak self] in
+                guard let service = self else { return }
+                Task(priority: .utility) { await service.event(generation: token, lost: true) }
+            })
         try await next.start()
         watcher?.cancel(); watcher = next
         parentWatcher?.cancel(); parentWatcher = nil
@@ -211,8 +218,14 @@ public actor CaptureService {
             watcher?.cancel(); watcher = nil
             await reportIssue("The screenshot folder became unavailable. Captured private copies remain available.")
             let parent = FolderWatcher(url: sourceDirectory.deletingLastPathComponent(),
-                onDirty: { [weak self] in Task(priority: .utility) { await self?.wake(generation: token) } },
-                onLost: { [weak self] in Task(priority: .utility) { await self?.reportIssue("The screenshot folder needs access again.") } })
+                onDirty: { [weak self] in
+                    guard let service = self else { return }
+                    Task(priority: .utility) { await service.wake(generation: token) }
+                },
+                onLost: { [weak self] in
+                    guard let service = self else { return }
+                    Task(priority: .utility) { await service.reportIssue("The screenshot folder needs access again.") }
+                })
             do { try await parent.start(); parentWatcher = parent }
             catch { await reportIssue("The screenshot folder needs access again.") }
             return

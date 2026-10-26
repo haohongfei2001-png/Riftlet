@@ -181,7 +181,8 @@ public final class RiftPanelController {
 
     private func observe(_ name: Notification.Name, center: NotificationCenter) {
         let token = center.addObserver(forName: name, object: nil, queue: .main) { [weak self] _ in
-            DispatchQueue.main.async { self?.reflow() }
+            guard let self else { return }
+            DispatchQueue.main.async { [self] in self.reflow() }
         }
         observers.append((center, token))
     }

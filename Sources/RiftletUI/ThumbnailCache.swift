@@ -31,6 +31,7 @@ final class ThumbnailCache {
         pending[key] = [completion]
         let url = directory.appendingPathComponent(asset.fileName)
         queue.async { [weak self] in
+            guard let self else { return }
             let options: [CFString: Any] = [kCGImageSourceShouldCache: false]
             var image: CGImage?
             if let source = CGImageSourceCreateWithURL(url as CFURL, options as CFDictionary),
@@ -44,8 +45,7 @@ final class ThumbnailCache {
                 image = CGImageSourceCreateThumbnailAtIndex(source, 0, thumbnailOptions as CFDictionary)
             }
             let renderedImage = image
-            DispatchQueue.main.async {
-                guard let self else { return }
+            DispatchQueue.main.async { [self] in
                 if let renderedImage {
                     self.cache.setObject(ThumbnailBox(renderedImage), forKey: key as NSString,
                                          cost: renderedImage.bytesPerRow * renderedImage.height)

@@ -97,7 +97,10 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
             try await service.start()
             statusLine?.title = "Capture active · ChatGPT adapter pending validation"
             wakeObserver = NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.didWakeNotification,
-                object: nil, queue: .main) { [weak self] _ in Task { @MainActor in await self?.reloadSource() } }
+                object: nil, queue: .main) { [weak self] _ in
+                    guard let controller = self else { return }
+                    Task { @MainActor in await controller.reloadSource() }
+                }
         }
         await refresh()
     }
