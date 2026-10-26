@@ -14,6 +14,26 @@ private struct ImportManifest: Codable {
     let image: ImportedAsset
 }
 
+/// Internal deterministic fault seams. Production construction leaves the hook nil.
+/// Tests reopen real files/SQLite after an interruption; this does not simulate power loss.
+enum ImportBoundary: CaseIterable, Hashable, Sendable {
+    case stageOpened, stageSynced, journalRenamed, journalSynced
+    case mediaRenamed, mediaSynced, databaseCommitted
+}
+
+struct ImportBoundaryContext: Sendable {
+    let boundary: ImportBoundary
+    let stageURL: URL
+    let journalURL: URL?
+    let mediaURL: URL?
+}
+
+struct SimulatedImportInterruption: Error, Equatable {
+    let boundary: ImportBoundary
+}
+
+typealias ImportFaultHook = @Sendable (ImportBoundaryContext) throws -> Void
+
 /// Files and metadata use a recoverable ordering, not a fictitious cross-filesystem/SQL transaction.
 /// Durable staging -> durable manifest -> atomic media rename -> SQLite insert.
 /// The original screenshot is never moved, modified or deleted.
@@ -24,6 +44,8 @@ public actor PrivateAssetImporter {
     private let stagingDirectory: URL
     private let journalDirectory: URL
     private var importing = Set<String>()
+    private var journaledSources = Set<String>()
+    private let fault: ImportFaultHook?
 
     public init(privateRoot: URL, store: QueueStore) {
         self.privateRoot = privateRoot.standardizedFileURL
@@ -31,6 +53,16 @@ public actor PrivateAssetImporter {
         mediaDirectory = privateRoot.appendingPathComponent("media", isDirectory: true)
         stagingDirectory = privateRoot.appendingPathComponent("staging", isDirectory: true)
         journalDirectory = privateRoot.appendingPathComponent("journal", isDirectory: true)
+        fault = nil
+    }
+
+    init(privateRoot: URL, store: QueueStore, fault: @escaping ImportFaultHook) {
+        self.privateRoot = privateRoot.standardizedFileURL
+        self.store = store
+        mediaDirectory = privateRoot.appendingPathComponent("media", isDirectory: true)
+        stagingDirectory = privateRoot.appendingPathComponent("staging", isDirectory: true)
+        journalDirectory = privateRoot.appendingPathComponent("journal", isDirectory: true)
+        self.fault = fault
     }
 
     /// Convenience entry point for an explicit candidate. The directory collector instead
@@ -54,7 +86,17 @@ public actor PrivateAssetImporter {
         importing.insert(signature.sourceKey)
         defer { importing.remove(signature.sourceKey) }
         if let existing = try await store.asset(sourceKey: signature.sourceKey) {
+            journaledSources.remove(signature.sourceKey)
             return existing
+        }
+        // An earlier IO/SQL failure may already own a durable private copy. Reconcile it
+        // before allocating another UUID/file for the same source event.
+        if journaledSources.contains(signature.sourceKey) {
+            _ = try await recover()
+            if let existing = try await store.asset(sourceKey: signature.sourceKey) {
+                journaledSources.remove(signature.sourceKey)
+                return existing
+            }
         }
         try ensureDirectories()
         let descriptor = Darwin.open(url.path, O_RDONLY | O_NOFOLLOW | O_CLOEXEC)
@@ -69,32 +111,54 @@ public actor PrivateAssetImporter {
         let id = UUID()
         let stageURL = stagingDirectory.appendingPathComponent(id.uuidString.lowercased() + ".part")
         var hasManifest = false
+        var simulatedAbruptExit = false
         defer {
             // Only an uncommitted file made by this attempt, inside the private staging directory.
             // Once the durable manifest exists, recovery owns it even if DB/promote fails.
-            if !hasManifest { try? FileManager.default.removeItem(at: stageURL) }
+            if !hasManifest && !simulatedAbruptExit { try? FileManager.default.removeItem(at: stageURL) }
         }
-        let hash = try PrivateFiles.copyAndHash(sourceDescriptor: descriptor, destination: stageURL,
-                                                maximumBytes: ValidatedImage.maximumBytes)
-        guard try FileSignature.read(descriptor: descriptor) == signature,
-              try FileSignature.read(at: url) == signature else { throw CaptureError.unstableFile }
-        if origin == .systemScreenshot, try !CaptureSource.isScreenshot(descriptor: descriptor) {
-            throw CaptureError.notScreenshot
+        do {
+            let hook = fault
+            let copyProbe: ((ImportBoundary) throws -> Void)? = hook.map { callback in
+                { boundary in try callback(ImportBoundaryContext(boundary: boundary, stageURL: stageURL,
+                                                                 journalURL: nil, mediaURL: nil)) }
+            }
+            let hash = try PrivateFiles.copyAndHash(sourceDescriptor: descriptor, destination: stageURL,
+                                                    maximumBytes: ValidatedImage.maximumBytes, probe: copyProbe)
+            guard try FileSignature.read(descriptor: descriptor) == signature,
+                  try FileSignature.read(at: url) == signature else { throw CaptureError.unstableFile }
+            if origin == .systemScreenshot, try !CaptureSource.isScreenshot(descriptor: descriptor) {
+                throw CaptureError.notScreenshot
+            }
+            let result = try ValidatedImage.inspect(stageURL, byteCount: signature.size)
+            let fileName = id.uuidString.lowercased() + "." + result.fileExtension
+            let image = ImportedAsset(id: id, sourceKey: signature.sourceKey, fileName: fileName,
+                                      sha256: hash, byteCount: signature.size, pixelWidth: result.width,
+                                      pixelHeight: result.height, mediaType: result.mimeType,
+                                      capturedAt: nil, firstSeenAt: firstSeenAt, origin: origin)
+            // File birthtime is useful for scan order, but is not mislabeled as capture time.
+            let manifest = ImportManifest(version: 1, image: image)
+            let manifestURL = journalDirectory.appendingPathComponent(id.uuidString.lowercased() + ".json")
+            let mediaURL = mediaDirectory.appendingPathComponent(fileName)
+            let commitProbe: ((ImportBoundary) throws -> Void)? = hook.map { callback in
+                { boundary in try callback(ImportBoundaryContext(boundary: boundary, stageURL: stageURL,
+                                                                 journalURL: manifestURL, mediaURL: mediaURL)) }
+            }
+            try PrivateFiles.atomicPrivateWrite(try JSONEncoder().encode(manifest), to: manifestURL,
+                didRename: { hasManifest = true }, probe: commitProbe)
+            journaledSources.insert(signature.sourceKey)
+            try PrivateFiles.promote(stageURL, to: mediaURL, probe: commitProbe)
+            let record = try await store.importAsset(image)
+            journaledSources.remove(signature.sourceKey)
+            try commitProbe?(.databaseCommitted)
+            return record
+        } catch {
+            // A renamed journal owns staging even if its directory fsync subsequently fails.
+            // Deleting that stage would break recovery from an otherwise valid journal.
+            if hasManifest { journaledSources.insert(signature.sourceKey) }
+            if error is SimulatedImportInterruption { simulatedAbruptExit = true }
+            throw error
         }
-        let result = try ValidatedImage.inspect(stageURL, byteCount: signature.size)
-        let fileName = id.uuidString.lowercased() + "." + result.fileExtension
-        let image = ImportedAsset(id: id, sourceKey: signature.sourceKey, fileName: fileName,
-                                  sha256: hash, byteCount: signature.size, pixelWidth: result.width,
-                                  pixelHeight: result.height, mediaType: result.mimeType,
-                                  capturedAt: nil, firstSeenAt: firstSeenAt, origin: origin)
-        // File birthtime is useful for scan order, but is not mislabeled as capture time.
-        let manifest = ImportManifest(version: 1, image: image)
-        let manifestURL = journalDirectory.appendingPathComponent(id.uuidString.lowercased() + ".json")
-        try PrivateFiles.atomicPrivateWrite(try JSONEncoder().encode(manifest), to: manifestURL)
-        hasManifest = true
-        let mediaURL = mediaDirectory.appendingPathComponent(fileName)
-        try PrivateFiles.promote(stageURL, to: mediaURL)
-        return try await store.importAsset(image)
     }
 
     /// Adopt only journaled, identity-checked private copies. Unjournaled staging fragments
@@ -144,7 +208,13 @@ public actor PrivateAssetImporter {
                 let image = try ValidatedImage.inspect(candidate, byteCount: signature.size)
                 guard image.width == asset.pixelWidth, image.height == asset.pixelHeight,
                       image.mimeType == asset.mediaType else { throw CaptureError.invalidManifest }
-                if candidate == stageURL { try PrivateFiles.promote(stageURL, to: mediaURL) }
+                if candidate == stageURL {
+                    let probe: ((ImportBoundary) throws -> Void)? = fault.map { callback in
+                        { boundary in try callback(ImportBoundaryContext(boundary: boundary, stageURL: stageURL,
+                                                                         journalURL: url, mediaURL: mediaURL)) }
+                    }
+                    try PrivateFiles.promote(stageURL, to: mediaURL, probe: probe)
+                }
                 _ = try await store.importAsset(asset)
                 report.adopted += 1
             } catch let error as RiftletError {
@@ -152,6 +222,13 @@ public actor PrivateAssetImporter {
                 // an invalid image and silently skipped.
                 throw error
             } catch {
+                // A valid journal still owns its copy when storage is temporarily
+                // unavailable. Do not turn IO failure into "invalid" and let a caller
+                // allocate another private identity on every collection retry.
+                if let capture = error as? CaptureError, case .io = capture { throw capture }
+                let native = error as NSError
+                if !(error is DecodingError),
+                   native.domain == NSCocoaErrorDomain || native.domain == NSPOSIXErrorDomain { throw error }
                 // One damaged journal entry cannot prevent unrelated valid captures recovering.
                 if let id = parsedID ?? UUID(uuidString: url.deletingPathExtension().lastPathComponent) {
                     report.invalid.append(id)
@@ -194,10 +271,12 @@ enum PrivateFiles {
         guard chmod(url.path, 0o700) == 0 else { throw CaptureError.io("private-directory-permissions", errno) }
     }
 
-    static func copyAndHash(sourceDescriptor: Int32, destination: URL, maximumBytes: Int64) throws -> String {
+    static func copyAndHash(sourceDescriptor: Int32, destination: URL, maximumBytes: Int64,
+                            probe: ((ImportBoundary) throws -> Void)? = nil) throws -> String {
         let target = Darwin.open(destination.path, O_WRONLY | O_CREAT | O_EXCL | O_NOFOLLOW | O_CLOEXEC, 0o600)
         guard target >= 0 else { throw CaptureError.io("create-private-copy", errno) }
         defer { Darwin.close(target) }
+        try probe?(.stageOpened)
         var hash = SHA256()
         var buffer = [UInt8](repeating: 0, count: 64 * 1024)
         var total: Int64 = 0
@@ -215,6 +294,10 @@ enum PrivateFiles {
             try writeAll(chunk, descriptor: target)
         }
         guard fsync(target) == 0 else { throw CaptureError.io("sync-private-copy", errno) }
+        // The manifest must not become durable before the stage's directory entry.
+        // Syncing only the file data does not establish that ordering for its new name.
+        try syncDirectory(destination.deletingLastPathComponent())
+        try probe?(.stageSynced)
         return hash.finalize().map { String(format: "%02x", $0) }.joined()
     }
 
@@ -244,7 +327,9 @@ enum PrivateFiles {
         return hash.finalize().map { String(format: "%02x", $0) }.joined()
     }
 
-    static func atomicPrivateWrite(_ data: Data, to destination: URL) throws {
+    static func atomicPrivateWrite(_ data: Data, to destination: URL,
+                                   didRename: () -> Void = {},
+                                   probe: ((ImportBoundary) throws -> Void)? = nil) throws {
         let temporary = destination.deletingLastPathComponent().appendingPathComponent("." + UUID().uuidString + ".tmp")
         let descriptor = Darwin.open(temporary.path, O_WRONLY | O_CREAT | O_EXCL | O_NOFOLLOW | O_CLOEXEC, 0o600)
         guard descriptor >= 0 else { throw CaptureError.io("create-import-journal", errno) }
@@ -252,16 +337,22 @@ enum PrivateFiles {
         try writeAll(data, descriptor: descriptor)
         guard fsync(descriptor) == 0 else { throw CaptureError.io("sync-import-journal", errno) }
         guard Darwin.rename(temporary.path, destination.path) == 0 else { throw CaptureError.io("commit-import-journal", errno) }
+        didRename()
+        try probe?(.journalRenamed)
         try syncDirectory(destination.deletingLastPathComponent())
+        try probe?(.journalSynced)
     }
 
-    static func promote(_ source: URL, to destination: URL) throws {
+    static func promote(_ source: URL, to destination: URL,
+                        probe: ((ImportBoundary) throws -> Void)? = nil) throws {
         // EXCL prevents overwriting an unrelated (even same-named) private file.
         guard renamex_np(source.path, destination.path, UInt32(RENAME_EXCL)) == 0 else {
             throw CaptureError.io("promote-private-copy", errno)
         }
+        try probe?(.mediaRenamed)
         try syncDirectory(destination.deletingLastPathComponent())
         try syncDirectory(source.deletingLastPathComponent())
+        try probe?(.mediaSynced)
     }
 
     static func syncDirectory(_ url: URL) throws {
