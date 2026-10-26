@@ -1,41 +1,41 @@
-# Riftlet website — first prelaunch candidate
+# Riftlet website — original art direction restored
 
-Date: 2026-10-27. Status: **design preview / not a released product**.
+Date: 2026-10-27. Status: **prelaunch design preview; not a released client**.
 
-## Purpose
+## Current visual source
 
-A self-contained, static editorial landing page built around the product's priority: **spatial memory > content outline > labels**. It shows three small screenshots held at a consistent screen edge and demonstrates simulated one-click insertion into an unsent chat draft.
+The user explicitly asked to restore the design they had previously requested be archived, rather than continue redesigning the first published landing page.
 
-The site can be hosted without a server build, database, login, form handler, analytics, or external fonts. Root assets: `index.html`, `site.css`, `site.js`, `favicon.svg`, `site.webmanifest`, `robots.txt`, `sitemap.xml`, `CNAME`, `.nojekyll`.
+Source: [`design/explorations/art-direction-2026-10-26/Riftlet_Art_Direction.html`](../design/explorations/art-direction-2026-10-26/Riftlet_Art_Direction.html), original Git blob `900d0b13f076aae9fd2e2d00c32f5984aa4ee796`.
 
-## Visual choices — not final brand approval
+The root `index.html` now derives directly from that original HTML, not from the alternate composition introduced in `5a3ab5d`.
 
-Near-white `#F7F8F4`, ink `#26312D`, teal `#19B7A4`, interaction teal `#087C70`, pale teal `#D6EBE1`, and apricot `#F1CDB5`. The page takes direction from the archived 2026-10-26 exploration without freezing that exploration as approved Logo or UI.
+Restored: the capitalized Riftlet wordmark and gap-shaped R study; off-white background and dark/teal Chinese serif headline; original left/right proportions and whitespace; pale teal curved plane; original apricot print, white note and teal card; the vertical occluding plane and “A little space.”; original section order, colour study and small-scale interaction demo.
 
-All screenshot art is synthetic SVG drawn in source. The R-like mark is a temporary design study, **not the approved app icon**. Fonts come from local system stacks and may render differently across systems.
+The four original SVG symbols, hero-art DOM and inline demo script are unchanged. CSS declarations and responsive media queries match the original; one adjacent `.principle p` colour declaration is regrouped without changing its value or cascade. No screenshot is substituted for real page markup.
 
-## Honest status
+## Publication adaptations
 
-- Riftlet app **not yet released**. No actual download buttons are shown.
-- ChatGPT integration, system screenshot capture, per-file READY evidence, Windows support, clipboard history, and other targets are **not demonstrated** by this website.
-- The demo is browser-local; it cannot read the system screenshot folder, clipboard, or real chat. It never sends messages or performs network requests.
-- READY / FAILED / UNKNOWN are simulated. UNKNOWN retains the item; simulated READY alone removes it from the pending edge. Previously typed draft text is left unchanged by simulated attachment insertion.
-- Normal preview starts with three samples; new samples may be added and the demo reset. This is not a shipped product UI specification.
+Only the publication title/SEO metadata, favicon reference, honest prelaunch notices, development link and footer language switch are added or adjusted. `website-locale.js` is a text-only Chinese/English enhancement; it does not replace the artwork, reset the simulation or modify the editable draft. Chinese is the initial language to preserve the supplied reference.
 
-## Deployment via GitHub Pages (no Vercel/Cloudflare)
+The restored stylesheet and simulation are inline in `index.html`, just as in the archived source. The previous root `site.css` and `site.js` are retained for history but **not loaded** by the current page. Do not reattach them: their selectors and layout belong to the superseded composition.
 
-1. In the `Riftlet` repository, open **Settings → Pages**.
-2. Under **Build and deployment**, choose **Deploy from a branch**, branch **main**, folder **/(root)**, then Save.
-3. In **Custom domain**, add `riftlet.com` and Save (verify the domain on GitHub beforehand where available).
-4. At the Tencent Cloud DNS provider, add GitHub Pages apex A records according to [current GitHub documentation](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site). Configure `www` only if desired, using the official CNAME target and avoiding wildcard records.
-5. After DNS is valid, enable **Enforce HTTPS** in GitHub Pages settings and verify the actual public content.
+Fonts remain local system stacks. No font files are copied, bundled or uploaded. Rendering can differ across operating systems. The R mark remains a design study rather than a final application icon.
 
-The `CNAME` file is provided as the intended branch-source domain, but **it does not by itself activate Pages, update DNS, or prove deployment success**.
+## Product and privacy boundaries
 
-## Verification performed / not performed
+The website demonstrates intended screenshots/clipboard positioning, not shipped capabilities. The client is not available for download. The interactive demo uses three synthetic images and simulated ready/failure/unknown outcomes. It does not connect to ChatGPT, inspect the system clipboard, collect real screenshots or send messages. A simulated ready consumes an item, failure restores it, unknown preserves it without replay. Existing draft text is not overwritten.
 
-Performed offline: HTML parse, unique IDs, linked asset existence, CSS top-level token parse, JavaScript syntax parse, translation key coverage, and static project scope review.
+No app source, product requirements, archived designs, DNS, CNAME, Pages settings or hosting provider are changed by this restoration.
 
-**Not performed**: Chromium/Playwright GUI checks. The execution environment blocked both local HTTP and file URL navigation with `ERR_BLOCKED_BY_ADMINISTRATOR`. Do not treat static validation as browser/visual acceptance. Once Pages is enabled, test 1440×900 and 390×844, actual demo click states, existing draft preservation, keyboard focus, reduced motion, and overflow.
+## Validation and limits
 
-Sources: [Riftlet product specification](../docs/PRODUCT.md), [visual exploration archive](../design/explorations/art-direction-2026-10-26/README.md).
+Performed: source hash check against the archived HTML; original SVG/hero-art/demo comparisons; stylesheet declaration equivalence; HTML parse, unique IDs and internal anchor checks; JavaScript syntax checks; Node VM tests using a minimal DOM stand-in for duplicate clicks, ready-only consumption, held positions, compaction, draft preservation, failure retry, unknown replay prevention, serial processing and reset-generation isolation; translation pure-function checks.
+
+**Not performed:** screenshot comparison of the newly rendered site, real-browser interaction tests, mobile-device visual acceptance, or real ChatGPT insertion. Chromium local-file navigation returned `ERR_BLOCKED_BY_ADMINISTRATOR`; no policy or browser-security changes were attempted. The public web reader also could not access the domain during this task. Static and simulated-DOM checks are not browser visual acceptance.
+
+See [the restoration receipt](RESTORE_ART_DIRECTION_2026-10-27.md).
+
+## Existing deployment
+
+Continue the already configured GitHub Pages publication from `main`, repository root, with `riftlet.com`. Do not repeat DNS setup or provision another platform. A main-branch commit may trigger the existing Pages workflow; confirm its result separately from whether the current public page has been independently read back.
