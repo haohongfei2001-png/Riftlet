@@ -16,3 +16,19 @@
 9. Meaning of UNKNOWN and user-visible feedback without adding an interaction step.
 
 Historical phase at this list's creation: formal development was not yet approved. **Superseded by P09 on 2026-10-27**; native foundations now proceed in parallel with scoped validation. Visual candidates and upload admission are still not final.
+
+## 2026-10-27 — autonomous execution treatment
+
+P12/P13 authorize routine decisions and parallel work without the user's participation. The questions above are not a queue of questions to send back to the user. The lead uses these conservative defaults and continues the [execution board](EXECUTION_BOARD.md):
+
+| Unresolved item | Work that proceeds now | Waiting condition applies only to |
+| --- | --- | --- |
+| Web abnormal completion/failure evidence | W0 fixtures, W1 single disabled candidate adapter and transport tests | W2 real verification and specific success/retry profile enablement |
+| Mac client AX/input evidence | M0 target/pasteboard ownership logic and synthetic tests | M1 actual input/AX completion and per-surface support |
+| Real first-click, transparency, Spaces/displays/self-inclusion | U1 helper, U2 deterministic tests, Capture recovery fixes | The specific N1 GUI/system acceptance claim |
+| Final geometry/animation/Logo | Adjustable R2 01 defaults; no final approval label | Visual/brand finishing |
+| Overflow and UNKNOWN presentation | Keep all images, continuous numbers, current configurable window/unknown marker; refine within the two-action product contract | Evidence-based refinement of those mechanisms, not unrelated implementation |
+| Archive/delete/management window | Preserve originals and used private copies; implement accounting and storage-error behavior | Automatic cleanup or extra management UI |
+| Signing/public release prerequisites | Repeatable ad-hoc app, CI evidence and permission/install documentation | Formal distribution |
+
+Known correctness defects are handled immediately within their affected changes. Waiting for a machine or proof never becomes permission to claim a test passed, lower the swallow threshold, overwrite another draft or auto-retry UNKNOWN. Record an exact resumption trigger and move to another READY task; do not repeatedly recheck an unavailable environment or ask the user for the same decision.

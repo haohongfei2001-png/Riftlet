@@ -46,3 +46,11 @@ The first run exposed nested weak-reference capture concurrency errors; these we
 - The current build is ARM64 on the verified runner. Intel and the user's newer macOS build are not claimed tested.
 - Transparent minimum-hit rectangles, fullscreen behavior and exclusion from Apple's own screenshots are not established by pure layout tests.
 - Developer simulation is not an upload adapter, and the production build intentionally retains real images.
+
+## Autonomous execution plan v2 — 2026-10-27
+
+The follow-up authorization was recorded in AGENTS, decision entries P12/P13 and the v2 engineering plan, with a concrete execution board and PR template. Web/Mac implementation is separated from real-evidence admission. Reuse provenance was rechecked; Oracle's archive count is now described precisely as six source/fixture files plus LICENSE.
+
+This increment changes documentation and the PR template only. Native sources, tests, resources, licenses, `Package.swift`, build scripts and the native workflow are unchanged relative to the tested source head above. The macOS run was read back as completed/success at that exact SHA; that existing evidence is not relabeled as a new validation. No extra manual native run is needed for the documentation, but the existing PR-wide path trigger may automatically run CI again; any such result belongs to its own SHA/run and is not predeclared passed. New plan packets marked READY are not claimed implemented.
+
+Validation for this increment: authored `git diff --check`, relative Markdown target checks, conflict-marker/whitespace checks, non-author execution-plan review and a separate actual-reuse/license audit. The audit confirmed the two adaptations, independently implemented Tendedero-informed panels, reference-only Oracle/Maccy status and license packaging. Main was observed at `6dfba79f9ccef295cc0234580a3adc99f0757e09`; its additional website-only change was inspected and left untouched.

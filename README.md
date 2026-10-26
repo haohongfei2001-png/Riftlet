@@ -4,6 +4,8 @@
 
 **Status (2026-10-27): Formal engineering started.** This branch contains the native capture/queue/rift foundation and an isolated synthetic demo. There is no approved final visual design or admitted production ChatGPT attachment adapter yet. **40 native tests, release build, app packaging/signature check and packaged synthetic self-check passed on macOS14 ARM64.** Read [the executable engineering plan](docs/ENGINEERING_PLAN.md) and [actual verification record](docs/VERIFICATION.md).
 
+**Execution update:** routine engineering now proceeds autonomously with parallel module ownership and independent technical review; no per-increment user approval is required. The [v2 dependency plan](docs/ENGINEERING_PLAN.md) separates implementation from real-evidence admission, and the [live execution board](docs/EXECUTION_BOARD.md) identifies ready work, scoped waits and the next concrete actions. Production attachment profiles remain disabled until their evidence gates pass.
+
 ## The distinctive interaction
 - Extremely fine vertical **spatial rift** at the screen edge; tiny, aspect-ratio-preserving, roughly coin-sized screenshots protrude partly from it.
 - Oldest at top. Everyday pending queue is normally **2–3 images**, occasionally 10+; each screenshot shows only the image and a simple number.
@@ -19,6 +21,10 @@ The **Screenshot Rift** name appears in the dated original studies; **Riftlet** 
 | --- | --- |
 | User product requirements | [docs/PRODUCT.md](docs/PRODUCT.md) |
 | Decided vs. proposed | [docs/DECISIONS.md](docs/DECISIONS.md) |
+| Executable engineering plan | [docs/ENGINEERING_PLAN.md](docs/ENGINEERING_PLAN.md) |
+| Autonomous parallel work queue | [docs/EXECUTION_BOARD.md](docs/EXECUTION_BOARD.md) |
+| Exact implemented reuse and licenses | [docs/REUSE_IMPLEMENTATION.md](docs/REUSE_IMPLEMENTATION.md) |
+| Code, CI and remaining acceptance evidence | [docs/VERIFICATION.md](docs/VERIFICATION.md) |
 | Current visual design brief | [docs/DESIGN_BRIEF.md](docs/DESIGN_BRIEF.md) |
 | Archived art direction and offline visual sample | [design/explorations/art-direction-2026-10-26/README.md](design/explorations/art-direction-2026-10-26/README.md) |
 | All archived visual studies | [design/README.md](design/README.md) |

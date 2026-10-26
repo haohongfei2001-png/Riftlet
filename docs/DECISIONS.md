@@ -42,3 +42,18 @@ P07 records the earlier explicit research-only decision. **P09 below now superse
 | I02 | IMPLEMENTATION | Production completion and retry-safe profile registries are empty. Simulation uses an isolated database and only synthetic assets. |
 
 See [engineering plan](ENGINEERING_PLAN.md) and [adapter contract](ADAPTER_CONTRACT.md).
+
+## 2026-10-27 — autonomous parallel engineering authorization (append-only)
+
+The user asked to adjust the development plan for sustained high-speed parallel work without their approvals or participation, defer interruptions, and preserve development quality. This extends P09's execution model; it does not turn unverified evidence into a pass or approve visual candidates.
+
+| ID | Status | Statement |
+| --- | --- | --- |
+| P12 | USER | Continue engineering autonomously and in parallel. The lead owns routine technical decisions, sequencing, implementation, integration, fixes, tests and review; do not require the user's approval or participation for each increment. |
+| P13 | USER | Defer interrupting dependencies without reducing quality. Apply waiting conditions only to the affected work; continue other independent implementation. |
+| I03 | IMPLEMENTATION | Split implementation, verification and production enablement. W0/W1 isolated Web code/fixtures and M0 Mac foundations can proceed before complete anomaly/AX proof; real completion and safe-retry admission still require evidence and non-author technical review. |
+| I04 | IMPLEMENTATION | Use one integration lead plus at most three parallel execution/review roles with exclusive write paths; maintain a live execution board and source-linked evidence. Shared Core/App/Package/CI and remote integration remain the lead's responsibility. |
+| I05 | IMPLEMENTATION | Reversible defaults: adjustable R2 01 geometry; conservative preservation instead of automatic deletion; Apple Events as the first disabled Web development candidate; ad-hoc engineering builds while release prerequisites are deferred. No final visual approval or public release is implied. |
+| I06 | IMPLEMENTATION | A blocked environment/credential/evidence task is parked with an exact resumption trigger; select another READY task. Existing CI performs tests/builds, not continuous autonomous coding. Persist checkpoints for subsequent authorized execution sessions without claiming an unprovisioned background service. |
+
+The original feature-branch/Draft-PR and review requirements remain. User absence is not an engineering approval gate. Known data-loss, wrong-target, false-consumption, unknown-replay, simulation-isolation and licensing defects still block the affected change from integration or enablement.
