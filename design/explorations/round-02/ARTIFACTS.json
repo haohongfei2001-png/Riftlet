@@ -1,0 +1,75 @@
+{
+  "status": "unapproved review candidate",
+  "files": [
+    {
+      "name": "README.md",
+      "bytes": 4205,
+      "sha256": "2791777d677e025001b0929f341448017421d7424bc484c46ed18a5f6766756a"
+    },
+    {
+      "name": "Riftlet_R2_01_Seam_72.png",
+      "bytes": 131040,
+      "sha256": "3ea55ed0f8a03a6416de1237b1e0fa3b7b187b99284c5de6baa248a22d7a2a85"
+    },
+    {
+      "name": "Riftlet_R2_01_Seam_72.svg",
+      "bytes": 227433,
+      "sha256": "0ab362b7716db3f4c541d7a91d0e8b9586c2bf6ab3f9535f8cfa2bf5a45f636c"
+    },
+    {
+      "name": "Riftlet_R2_01_Seam_Motion.mp4",
+      "bytes": 219822,
+      "sha256": "d9f615525cead3ba5770be646c87cf140b8e90e3ed70f2679511d62d1352d1f2"
+    },
+    {
+      "name": "Riftlet_R2_02_Passage_72.png",
+      "bytes": 132020,
+      "sha256": "82362c2ac76f0c584b53722ce4b8522cf7d814b3f90ccd03c101e11fd93b1821"
+    },
+    {
+      "name": "Riftlet_R2_02_Passage_72.svg",
+      "bytes": 227762,
+      "sha256": "5ed4392eba276dd92d4d8ac719b2bb9f6924411d1d26513414efa50eaf6c3088"
+    },
+    {
+      "name": "Riftlet_R2_02_Passage_Motion.mp4",
+      "bytes": 222751,
+      "sha256": "c8c2116a5511b6adbe38a5ab9375c3b5c80ee5e0ffddfefce9d0b618cc4e801b"
+    },
+    {
+      "name": "Riftlet_R2_Context_Check.png",
+      "bytes": 535188,
+      "sha256": "fee47902de05d361a31555c8bc05207d873bbb98db4e24c7fde8da018edb0e3b"
+    },
+    {
+      "name": "Riftlet_R2_Motion_Keyframes.png",
+      "bytes": 110015,
+      "sha256": "b31c77b2f67ccc75fca1682283f66036b61fe27530dc8a75b06096805c8d0838"
+    },
+    {
+      "name": "Riftlet_R2_Size_54.png",
+      "bytes": 129414,
+      "sha256": "ef7844c78438224c4e5d4d96dc1af4d856def9e6ce9b2b51c2132ee962203413"
+    },
+    {
+      "name": "Riftlet_R2_Size_90.png",
+      "bytes": 133116,
+      "sha256": "caf143bddb69ff21236610aed543b457601b4d43fd84120d2eb0ba4ad6e2e60c"
+    },
+    {
+      "name": "Riftlet_R2_Size_Comparison.png",
+      "bytes": 143718,
+      "sha256": "da738d9e502dfd80a4109773b8fedc07c47991034fc13a0cbbd4826d8b35b77b"
+    },
+    {
+      "name": "Riftlet_R2_Size_Stress.mp4",
+      "bytes": 145450,
+      "sha256": "9e711d47a4e5514afca986d09dbd3cc61b3b10edceec87461c5d603ae062f238"
+    },
+    {
+      "name": "Riftlet_R2_Spec.json",
+      "bytes": 4112,
+      "sha256": "9dca63b32a4eb7b1f43668aee2fcaf89b83fb3a4e97b40492378e2d2debdd750"
+    }
+  ]
+}

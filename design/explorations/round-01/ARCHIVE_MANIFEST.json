@@ -1,0 +1,497 @@
+{
+  "project": "Riftlet",
+  "round": "01",
+  "kind": "Historical exploration archive; no candidate approved",
+  "original_source_commit": "a773d19e93ced206d0b87b41b6d8dd504535ecfe",
+  "figma_url": "https://www.figma.com/design/ALMiLuDJ8em0BXPxJ9XIXG",
+  "current_user_disposition": {
+    "A": "requires improvement; not approved",
+    "B": "eliminated; not approved",
+    "C": "eliminated; not approved"
+  },
+  "preservation": {
+    "review_manifest_preserved_byte_for_byte": true,
+    "review_manifest_size_bytes": 3808,
+    "review_manifest_sha256": "2032658af075b44400f123d9309a841c3c261c56f18025d0329ff42743061d44",
+    "original_zip_preserved_byte_for_byte": true,
+    "original_zip_member_count": 47,
+    "original_zip_png_count": 43,
+    "binary_files_in_github": 8,
+    "archive_mode": "Original bytes committed: four representative PNGs, user-received PDF, two MP4 films, and the unchanged original ZIP. Full 43 PNGs remain inside the ZIP rather than duplicated as 43 separate repository files.",
+    "library_access": "Personal ChatGPT Library links require access through the owning account. This public repository does not make those files publicly downloadable.",
+    "figma_access": "Figma access follows that file permissions; linked, not exported or changed in this archival step.",
+    "original_pdf_recommendations": "Historical first-round judgments only. Any recommendation to retain B/C is superseded by CURRENT_DISPOSITION.md.",
+    "pdf_variants": {
+      "preferred_original": "User-received PDF, provided again as an attachment in the current review request.",
+      "user_received": {
+        "size_bytes": 3632891,
+        "sha256": "f51f1fe3f10c8df3f3fcf6cdc3d9755e143e6c4f4ecf844b98c54ec448142601"
+      },
+      "inside_original_zip": {
+        "size_bytes": 3607899,
+        "sha256": "6f842474ed1c792fc7e07b0208016898c653935c913484b114a2cdf7a4e7d368"
+      },
+      "statement": "These PDF bytes differ. Both are retained in their original sources. No claim of byte equality or cause of the difference is made; the original ZIP was not rebuilt."
+    },
+    "github_original_bytes_verified_by": "Each API-returned Git blob SHA-1 exactly matches the local original Git blob SHA-1; SHA-256 retained in this manifest."
+  },
+  "original_delivered_files": [
+    {
+      "filename": "Riftlet_Review_Package.zip",
+      "source": "original delivered local artifact",
+      "size_bytes": 9643564,
+      "sha256": "77f199f936287dee5c2df830443e76be47ecb6047e8f1a523c750f45d4212e73",
+      "library_url": "https://chatgpt.com/library?file_id=libfile_110498c36da48191b610601c4fa1fd3a&account_id=personal",
+      "library_version": 0,
+      "binary_committed_to_github": false
+    },
+    {
+      "filename": "Riftlet_Design_Review.pdf",
+      "source": "user-provided original PDF attachment",
+      "size_bytes": 3632891,
+      "sha256": "f51f1fe3f10c8df3f3fcf6cdc3d9755e143e6c4f4ecf844b98c54ec448142601",
+      "library_url": "https://chatgpt.com/library?file_id=libfile_575eba89074081918a8eca1776101bc8&account_id=personal",
+      "library_version": 0,
+      "binary_committed_to_github": false
+    },
+    {
+      "filename": "Riftlet_Directions.png",
+      "source": "original delivered local artifact",
+      "size_bytes": 148116,
+      "sha256": "7fdbedcbf4694c62e456701db96a6383ff66c18bc8f7ba29e548d5b399c687e6",
+      "library_url": "https://chatgpt.com/library?file_id=libfile_3f6beaedcbe88191819a90cc11187a38&account_id=personal",
+      "library_version": 0,
+      "binary_committed_to_github": false
+    },
+    {
+      "filename": "Riftlet_A_Cut_1440.png",
+      "source": "original delivered local artifact",
+      "size_bytes": 143969,
+      "sha256": "1fee82e9b7afef43c945fdc07e143231e3ca95ec493884d9757e57fa7872f5aa",
+      "library_url": "https://chatgpt.com/library?file_id=libfile_6177e8a65e348191a3e714765a264ace&account_id=personal",
+      "library_version": 0,
+      "binary_committed_to_github": false
+    },
+    {
+      "filename": "Riftlet_B_Hinge_1440.png",
+      "source": "original delivered local artifact",
+      "size_bytes": 144879,
+      "sha256": "5300343f5698e435ba6c4b4b3e2d824e86c2908fca475de13aa4dcb277422889",
+      "library_url": "https://chatgpt.com/library?file_id=libfile_e32156fa2ab88191b9ef1a92130e6132&account_id=personal",
+      "library_version": 0,
+      "binary_committed_to_github": false
+    },
+    {
+      "filename": "Riftlet_C_Aperture_1440.png",
+      "source": "original delivered local artifact",
+      "size_bytes": 144807,
+      "sha256": "58b390a4401d11df17a3ae34a4717c6c611b6da47ee1f5c748f968b8521acab2",
+      "library_url": "https://chatgpt.com/library?file_id=libfile_d58e1db9dd5881919b0d2e456f9e8a26&account_id=personal",
+      "library_version": 0,
+      "binary_committed_to_github": false
+    },
+    {
+      "filename": "Riftlet_Interaction_Keyframes.png",
+      "source": "original delivered local artifact",
+      "size_bytes": 145460,
+      "sha256": "df8e998913e4b178e14d7e4cf0967888589f97fdb439689693d75f3a1277bb8a",
+      "library_url": "https://chatgpt.com/library?file_id=libfile_c8a891ff51c4819181d703e4a1be8b1f&account_id=personal",
+      "library_version": 0,
+      "binary_committed_to_github": false
+    },
+    {
+      "filename": "Riftlet_Manager_History.png",
+      "source": "original delivered local artifact",
+      "size_bytes": 101657,
+      "sha256": "9e6c723bf4ebfd8329f2b99bdb0abaa6cd4931f90ab41531846f91a2b6dba948",
+      "library_url": "https://chatgpt.com/library?file_id=libfile_059fc1c650d48191b4b23f2adcad4dc8&account_id=personal",
+      "library_version": 0,
+      "binary_committed_to_github": false
+    },
+    {
+      "filename": "Riftlet_Manager_Settings.png",
+      "source": "original delivered local artifact",
+      "size_bytes": 67606,
+      "sha256": "0d01c37ac25636e9f507b799ca11ca5cc899f0e023bd6eacd7f944b1c63d85a5",
+      "library_url": "https://chatgpt.com/library?file_id=libfile_02bb7e2c2a748191b313e2205057266f&account_id=personal",
+      "library_version": 0,
+      "binary_committed_to_github": false
+    },
+    {
+      "filename": "Riftlet_Geometry.png",
+      "source": "original delivered local artifact",
+      "size_bytes": 170070,
+      "sha256": "b4bac3eb6c31ddd7578ec73fa82092c0aac9791c2f59f6f676eb8693bc9d858c",
+      "library_url": "https://chatgpt.com/library?file_id=libfile_e924a3ed24f48191b43708a13c461377&account_id=personal",
+      "library_version": 0,
+      "binary_committed_to_github": false
+    },
+    {
+      "filename": "Riftlet_Display_Scale.png",
+      "source": "original delivered local artifact",
+      "size_bytes": 177119,
+      "sha256": "407336d77e63c2f5d085a1de95f06df35ebcfc1945bb352566499f540825abd3",
+      "library_url": "https://chatgpt.com/library?file_id=libfile_94d2c87ca3f88191b1a1729bc82f80ff&account_id=personal",
+      "library_version": 0,
+      "binary_committed_to_github": false
+    },
+    {
+      "filename": "Riftlet_A_1470x956_12.png",
+      "source": "original delivered local artifact",
+      "size_bytes": 117130,
+      "sha256": "fea39d2f177eedc4bb11f5bebe019bd1e0f7e2bfe4716f7b0a972d2b20ac99bd",
+      "library_url": "https://chatgpt.com/library?file_id=libfile_0c41da38c3b08191a1110103e2c9dfbb&account_id=personal",
+      "library_version": 0,
+      "binary_committed_to_github": false
+    },
+    {
+      "filename": "Riftlet_A_2560x1440_12.png",
+      "source": "original delivered local artifact",
+      "size_bytes": 130077,
+      "sha256": "1b36ea83acdc3b0389587257b568d15f3d7124f5608b68c19d3dae7a77d40ba5",
+      "library_url": "https://chatgpt.com/library?file_id=libfile_48b1dc8d471c81919ef9882244d8cc7c&account_id=personal",
+      "library_version": 0,
+      "binary_committed_to_github": false
+    },
+    {
+      "filename": "Riftlet_Material_Study.png",
+      "source": "original delivered local artifact",
+      "size_bytes": 84408,
+      "sha256": "8c8d876a3ee88b83191bf56f0354847fe22927e6fdaa15072f8c1fccfecf1551",
+      "library_url": "https://chatgpt.com/library?file_id=libfile_001722082e208191a5839f518cad0780&account_id=personal",
+      "library_version": 0,
+      "binary_committed_to_github": false
+    },
+    {
+      "filename": "Riftlet_Dependencies.png",
+      "source": "original delivered local artifact",
+      "size_bytes": 333627,
+      "sha256": "0f67a74c4d353466a4094c9f9bd4bb6aa6fad02617d3372ebc30d449dd769ee3",
+      "library_url": "https://chatgpt.com/library?file_id=libfile_70e799a249fc81919575921fa3b01a9d&account_id=personal",
+      "library_version": 0,
+      "binary_committed_to_github": false
+    },
+    {
+      "filename": "Riftlet_Evaluation.png",
+      "source": "original delivered local artifact",
+      "size_bytes": 329228,
+      "sha256": "eee7c54cf41d97006982c2dda652423fc4adef35f1eb5a778918cc4da4ad1751",
+      "library_url": "https://chatgpt.com/library?file_id=libfile_2781f62062c88191937b39e07e89df82&account_id=personal",
+      "library_version": 0,
+      "binary_committed_to_github": false
+    },
+    {
+      "filename": "Riftlet_A_Interaction_Film.mp4",
+      "source": "original delivered local artifact",
+      "size_bytes": 309259,
+      "sha256": "2f5e801d0797ac6bda81792381689d592db42bdd768a909c24a2e1956cdbe241",
+      "library_url": "https://chatgpt.com/library?file_id=libfile_1f916b1376048191805d8d9895262a5a&account_id=personal",
+      "library_version": 0,
+      "binary_committed_to_github": false
+    },
+    {
+      "filename": "Riftlet_Direction_Motion_Comparison.mp4",
+      "source": "original delivered local artifact",
+      "size_bytes": 188676,
+      "sha256": "b0fbcb0560b3e60ee17229a5aacab93c87d7b9739d3d1782b160649c67cddb51",
+      "library_url": "https://chatgpt.com/library?file_id=libfile_d02990135a408191ac62294646e91e28&account_id=personal",
+      "library_version": 0,
+      "binary_committed_to_github": false
+    }
+  ],
+  "original_zip_members": [
+    {
+      "path_in_original_zip": "Riftlet_Review/REVIEW_MANIFEST.json",
+      "size_bytes": 3808,
+      "sha256": "2032658af075b44400f123d9309a841c3c261c56f18025d0329ff42743061d44"
+    },
+    {
+      "path_in_original_zip": "Riftlet_Review/Riftlet_A_1470x956_12.png",
+      "size_bytes": 117130,
+      "sha256": "fea39d2f177eedc4bb11f5bebe019bd1e0f7e2bfe4716f7b0a972d2b20ac99bd"
+    },
+    {
+      "path_in_original_zip": "Riftlet_Review/Riftlet_A_2560x1440_12.png",
+      "size_bytes": 130077,
+      "sha256": "1b36ea83acdc3b0389587257b568d15f3d7124f5608b68c19d3dae7a77d40ba5"
+    },
+    {
+      "path_in_original_zip": "Riftlet_Review/Riftlet_A_Cut_1440.png",
+      "size_bytes": 143969,
+      "sha256": "1fee82e9b7afef43c945fdc07e143231e3ca95ec493884d9757e57fa7872f5aa"
+    },
+    {
+      "path_in_original_zip": "Riftlet_Review/Riftlet_A_Interaction_Film.mp4",
+      "size_bytes": 309259,
+      "sha256": "2f5e801d0797ac6bda81792381689d592db42bdd768a909c24a2e1956cdbe241"
+    },
+    {
+      "path_in_original_zip": "Riftlet_Review/Riftlet_B_Hinge_1440.png",
+      "size_bytes": 144879,
+      "sha256": "5300343f5698e435ba6c4b4b3e2d824e86c2908fca475de13aa4dcb277422889"
+    },
+    {
+      "path_in_original_zip": "Riftlet_Review/Riftlet_C_Aperture_1440.png",
+      "size_bytes": 144807,
+      "sha256": "58b390a4401d11df17a3ae34a4717c6c611b6da47ee1f5c748f968b8521acab2"
+    },
+    {
+      "path_in_original_zip": "Riftlet_Review/Riftlet_Capacity.png",
+      "size_bytes": 188968,
+      "sha256": "f144b917c2533b4819f72b1a928eb8be383a621e24f7f428b60587a286853ec8"
+    },
+    {
+      "path_in_original_zip": "Riftlet_Review/Riftlet_Cover.png",
+      "size_bytes": 113450,
+      "sha256": "e2211dc69fcf4e39f0a66de62b82263fece17090b4efe5fa75894eaf3e7e660c"
+    },
+    {
+      "path_in_original_zip": "Riftlet_Review/Riftlet_Dependencies.png",
+      "size_bytes": 333627,
+      "sha256": "0f67a74c4d353466a4094c9f9bd4bb6aa6fad02617d3372ebc30d449dd769ee3"
+    },
+    {
+      "path_in_original_zip": "Riftlet_Review/Riftlet_Design_Review.pdf",
+      "size_bytes": 3607899,
+      "sha256": "6f842474ed1c792fc7e07b0208016898c653935c913484b114a2cdf7a4e7d368"
+    },
+    {
+      "path_in_original_zip": "Riftlet_Review/Riftlet_Direction_Motion_Comparison.mp4",
+      "size_bytes": 188676,
+      "sha256": "b0fbcb0560b3e60ee17229a5aacab93c87d7b9739d3d1782b160649c67cddb51"
+    },
+    {
+      "path_in_original_zip": "Riftlet_Review/Riftlet_Directions.png",
+      "size_bytes": 148116,
+      "sha256": "7fdbedcbf4694c62e456701db96a6383ff66c18bc8f7ba29e548d5b399c687e6"
+    },
+    {
+      "path_in_original_zip": "Riftlet_Review/Riftlet_Display_Scale.png",
+      "size_bytes": 177119,
+      "sha256": "407336d77e63c2f5d085a1de95f06df35ebcfc1945bb352566499f540825abd3"
+    },
+    {
+      "path_in_original_zip": "Riftlet_Review/Riftlet_Evaluation.png",
+      "size_bytes": 329228,
+      "sha256": "eee7c54cf41d97006982c2dda652423fc4adef35f1eb5a778918cc4da4ad1751"
+    },
+    {
+      "path_in_original_zip": "Riftlet_Review/Riftlet_Geometry.png",
+      "size_bytes": 170070,
+      "sha256": "b4bac3eb6c31ddd7578ec73fa82092c0aac9791c2f59f6f676eb8693bc9d858c"
+    },
+    {
+      "path_in_original_zip": "Riftlet_Review/Riftlet_Implementation_Notes.png",
+      "size_bytes": 195938,
+      "sha256": "0ffdd97dd785fca0d558e72f6556fc1c7a0ae3eb974592d314917e2e471166d6"
+    },
+    {
+      "path_in_original_zip": "Riftlet_Review/Riftlet_Interaction_Keyframes.png",
+      "size_bytes": 145460,
+      "sha256": "df8e998913e4b178e14d7e4cf0967888589f97fdb439689693d75f3a1277bb8a"
+    },
+    {
+      "path_in_original_zip": "Riftlet_Review/Riftlet_Manager_History.png",
+      "size_bytes": 101657,
+      "sha256": "9e6c723bf4ebfd8329f2b99bdb0abaa6cd4931f90ab41531846f91a2b6dba948"
+    },
+    {
+      "path_in_original_zip": "Riftlet_Review/Riftlet_Manager_History_Desktop.png",
+      "size_bytes": 195442,
+      "sha256": "46f92f461130189aae7f233a87aed2e1ecef5d36f9257adbd99c40fc286199ce"
+    },
+    {
+      "path_in_original_zip": "Riftlet_Review/Riftlet_Manager_Settings.png",
+      "size_bytes": 67606,
+      "sha256": "0d01c37ac25636e9f507b799ca11ca5cc899f0e023bd6eacd7f944b1c63d85a5"
+    },
+    {
+      "path_in_original_zip": "Riftlet_Review/Riftlet_Manager_Settings_Desktop.png",
+      "size_bytes": 160236,
+      "sha256": "5b06a6d011e55f7a9b6ae59079680ade1ca44728948ccd554088e5156b502cbf"
+    },
+    {
+      "path_in_original_zip": "Riftlet_Review/Riftlet_Material_Study.png",
+      "size_bytes": 84408,
+      "sha256": "8c8d876a3ee88b83191bf56f0354847fe22927e6fdaa15072f8c1fccfecf1551"
+    },
+    {
+      "path_in_original_zip": "Riftlet_Review/states/A/empty.png",
+      "size_bytes": 140062,
+      "sha256": "0a082ad71c411cce0b574005867d0dd28be7a58c8cbdb0fb96a3dae7212d8bde"
+    },
+    {
+      "path_in_original_zip": "Riftlet_Review/states/A/one.png",
+      "size_bytes": 141649,
+      "sha256": "628aaa77e18cac0c9dbc389cae8c12de1b88e9d30371ef9f6923cd6456519717"
+    },
+    {
+      "path_in_original_zip": "Riftlet_Review/states/A/reborn.png",
+      "size_bytes": 144169,
+      "sha256": "f792812bc824def3cc056be9ff624328e25fcdd93bc60aa3e5dec437bbc27b96"
+    },
+    {
+      "path_in_original_zip": "Riftlet_Review/states/A/swallowing.png",
+      "size_bytes": 143301,
+      "sha256": "4fe3b2f8f6ed42d0db5e72ffbc6fdcb3a5ea3f8408fd89a7946b37494dbf46a3"
+    },
+    {
+      "path_in_original_zip": "Riftlet_Review/states/A/three.png",
+      "size_bytes": 143969,
+      "sha256": "1fee82e9b7afef43c945fdc07e143231e3ca95ec493884d9757e57fa7872f5aa"
+    },
+    {
+      "path_in_original_zip": "Riftlet_Review/states/A/twelve.png",
+      "size_bytes": 155776,
+      "sha256": "b905ee6d0c6e2968fd6ef9d7cd62d9def84de062129d5429af87add52097ec6a"
+    },
+    {
+      "path_in_original_zip": "Riftlet_Review/states/A/unknown.png",
+      "size_bytes": 143933,
+      "sha256": "393d672092f99c6af91a590ec94bf1515d65761ec17cc8280d9e4deb9c4cc554"
+    },
+    {
+      "path_in_original_zip": "Riftlet_Review/states/A/waiting.png",
+      "size_bytes": 144501,
+      "sha256": "c3c4315cda94d99badb5016f3267a925c78f90fc59ee61829a1d87746ff593fe"
+    },
+    {
+      "path_in_original_zip": "Riftlet_Review/states/B/empty.png",
+      "size_bytes": 140062,
+      "sha256": "0a082ad71c411cce0b574005867d0dd28be7a58c8cbdb0fb96a3dae7212d8bde"
+    },
+    {
+      "path_in_original_zip": "Riftlet_Review/states/B/one.png",
+      "size_bytes": 142011,
+      "sha256": "139890d3cdc1938bcbce5db604fe9ca0542b78a8128489d16f4a748703aa571c"
+    },
+    {
+      "path_in_original_zip": "Riftlet_Review/states/B/reborn.png",
+      "size_bytes": 145060,
+      "sha256": "e4ec7753f09e11c2eb148f046f8ab5e5b43c58618c1ea490be73668f1c9feacd"
+    },
+    {
+      "path_in_original_zip": "Riftlet_Review/states/B/swallowing.png",
+      "size_bytes": 144551,
+      "sha256": "bc971f825f18268221d6822a10b299c8abb34c1c6f92015aeb8197b75a3f8115"
+    },
+    {
+      "path_in_original_zip": "Riftlet_Review/states/B/three.png",
+      "size_bytes": 144879,
+      "sha256": "5300343f5698e435ba6c4b4b3e2d824e86c2908fca475de13aa4dcb277422889"
+    },
+    {
+      "path_in_original_zip": "Riftlet_Review/states/B/twelve.png",
+      "size_bytes": 158727,
+      "sha256": "1a2bfa7aecf68fd9083d2ebd9b72f0680f39a65592dbc269b8ffd0d5070bd817"
+    },
+    {
+      "path_in_original_zip": "Riftlet_Review/states/B/unknown.png",
+      "size_bytes": 145046,
+      "sha256": "f7d08806dbb65a417c00cc8a1b9f4fdc86b20d94f3075dfc63eddae8af18fec0"
+    },
+    {
+      "path_in_original_zip": "Riftlet_Review/states/B/waiting.png",
+      "size_bytes": 145581,
+      "sha256": "57d4c977c2c70f39c71dc870e702c6ead03cba04b2945f1f72de038238e36c58"
+    },
+    {
+      "path_in_original_zip": "Riftlet_Review/states/C/empty.png",
+      "size_bytes": 139956,
+      "sha256": "c31e3c57576753e4344a777fae8b7edfcc5a9a121682069a4f37a8d958e48d14"
+    },
+    {
+      "path_in_original_zip": "Riftlet_Review/states/C/one.png",
+      "size_bytes": 141908,
+      "sha256": "ba1aaf70ffc7e13f1cdb113e6e2cca6371eaafe3f463de421eb641183fd5ca11"
+    },
+    {
+      "path_in_original_zip": "Riftlet_Review/states/C/reborn.png",
+      "size_bytes": 145024,
+      "sha256": "5281b04009b899896f6b1efce15afe50a003795aff5a7e00baeca0a9080d35df"
+    },
+    {
+      "path_in_original_zip": "Riftlet_Review/states/C/swallowing.png",
+      "size_bytes": 144091,
+      "sha256": "d72ff161a49c4bcf01a653aea84e77ed6fb286ed5a12f4b925e7f1b41d5f130f"
+    },
+    {
+      "path_in_original_zip": "Riftlet_Review/states/C/three.png",
+      "size_bytes": 144807,
+      "sha256": "58b390a4401d11df17a3ae34a4717c6c611b6da47ee1f5c748f968b8521acab2"
+    },
+    {
+      "path_in_original_zip": "Riftlet_Review/states/C/twelve.png",
+      "size_bytes": 158665,
+      "sha256": "904373304dce34be906cf127094c2b90b0cb37af0b76f22fcfbb6ddbf09a6ac8"
+    },
+    {
+      "path_in_original_zip": "Riftlet_Review/states/C/unknown.png",
+      "size_bytes": 144733,
+      "sha256": "6458150131b770500ab21ee0eadba562a62078256bf8df9e4d4b52d3a3bbbaaa"
+    },
+    {
+      "path_in_original_zip": "Riftlet_Review/states/C/waiting.png",
+      "size_bytes": 145303,
+      "sha256": "be779b966151a55e115e195351aa48e801ac27fa004c71a4805fff2e1219c70c"
+    }
+  ],
+  "github_original_assets": [
+    {
+      "name": "Riftlet_Directions.png",
+      "repository_path": "design/explorations/round-01/Riftlet_Directions.png",
+      "size_bytes": 148116,
+      "sha256": "7fdbedcbf4694c62e456701db96a6383ff66c18bc8f7ba29e548d5b399c687e6",
+      "git_blob_sha": "aa51a82e9d84d4a677bd0a51ec10777790e34854"
+    },
+    {
+      "name": "Riftlet_A_Cut_1440.png",
+      "repository_path": "design/explorations/round-01/Riftlet_A_Cut_1440.png",
+      "size_bytes": 143969,
+      "sha256": "1fee82e9b7afef43c945fdc07e143231e3ca95ec493884d9757e57fa7872f5aa",
+      "git_blob_sha": "08fea894a8042067301d5e8f61070d67e36dcbdc"
+    },
+    {
+      "name": "Riftlet_B_Hinge_1440.png",
+      "repository_path": "design/explorations/round-01/Riftlet_B_Hinge_1440.png",
+      "size_bytes": 144879,
+      "sha256": "5300343f5698e435ba6c4b4b3e2d824e86c2908fca475de13aa4dcb277422889",
+      "git_blob_sha": "2964defe692edbf47e0acd89cf1fe3a6a107a18d"
+    },
+    {
+      "name": "Riftlet_C_Aperture_1440.png",
+      "repository_path": "design/explorations/round-01/Riftlet_C_Aperture_1440.png",
+      "size_bytes": 144807,
+      "sha256": "58b390a4401d11df17a3ae34a4717c6c611b6da47ee1f5c748f968b8521acab2",
+      "git_blob_sha": "90124caf5e1d4c9f8b3791b6c1771a2ab374c278"
+    },
+    {
+      "name": "Riftlet_Design_Review.pdf",
+      "repository_path": "design/explorations/round-01/Riftlet_Design_Review.pdf",
+      "size_bytes": 3632891,
+      "sha256": "f51f1fe3f10c8df3f3fcf6cdc3d9755e143e6c4f4ecf844b98c54ec448142601",
+      "git_blob_sha": "cb90763b98920af49b5f024c77ee7412505ac5af"
+    },
+    {
+      "name": "Riftlet_A_Interaction_Film.mp4",
+      "repository_path": "design/explorations/round-01/Riftlet_A_Interaction_Film.mp4",
+      "size_bytes": 309259,
+      "sha256": "2f5e801d0797ac6bda81792381689d592db42bdd768a909c24a2e1956cdbe241",
+      "git_blob_sha": "fe6985d05dc1e35c391ed60cb1685e966243da10"
+    },
+    {
+      "name": "Riftlet_Direction_Motion_Comparison.mp4",
+      "repository_path": "design/explorations/round-01/Riftlet_Direction_Motion_Comparison.mp4",
+      "size_bytes": 188676,
+      "sha256": "b0fbcb0560b3e60ee17229a5aacab93c87d7b9739d3d1782b160649c67cddb51",
+      "git_blob_sha": "4aeb312298e7110b8cb9aa527a97fa7c421b5e7b"
+    },
+    {
+      "name": "Riftlet_Review_Package.zip",
+      "repository_path": "design/explorations/round-01/Riftlet_Review_Package.zip",
+      "size_bytes": 9643564,
+      "sha256": "77f199f936287dee5c2df830443e76be47ecb6047e8f1a523c750f45d4212e73",
+      "git_blob_sha": "a136984a84bad5fcf758cca0d7f2dbb25747815d"
+    }
+  ]
+}

@@ -1,0 +1,125 @@
+{
+  "project": "Riftlet",
+  "stage": "Visual and interaction candidates, not approved final",
+  "source_commit": "a773d19e93ced206d0b87b41b6d8dd504535ecfe",
+  "figma_file": "https://www.figma.com/design/ALMiLuDJ8em0BXPxJ9XIXG",
+  "made_on": "2026-10-26 Asia/Shanghai",
+  "scope": "Independent design assets only; no app, extension, real upload test, repository change or deployment",
+  "scenes": "Synthetic desktop and image content; not screenshots of running Riftlet",
+  "typography": "Editable Figma: Inter + Noto Sans SC; intended AppKit system font metrics require later calibration; raster review captions use bundled CJK fallback glyphs.",
+  "motion": "Synthetic result timing; no measured network latency",
+  "units": "One exported image pixel is one logical pt for the full-scale PNGs, independent of physical monitor dimensions",
+  "dimensions": {
+    "fit_box_pt": [
+      54,
+      42
+    ],
+    "occlusion": "min(0.22 * displayed_width, 12 pt)",
+    "hitbox_pt": {
+      "width_range": [
+        36,
+        64
+      ],
+      "height": 44
+    },
+    "row_pitch_pt": 48,
+    "number_font_pt": 10.5,
+    "first_center_1440x900_pt": 243,
+    "rift_edge_offset_pt": 6,
+    "outer_click_through_pt": 8,
+    "source_aspects": [
+      "3:2",
+      "2:3",
+      "3:1"
+    ],
+    "number_to_image_gap_pt": 6
+  },
+  "timing_ms": {
+    "emerge": 220,
+    "click": 90,
+    "click_inward_pt": 3,
+    "wait": "event-driven, indefinite",
+    "verified_swallow": 230,
+    "queue_up": 200,
+    "definitive_failure_return": 190,
+    "reduced_motion_fade": 100
+  },
+  "contracts": [
+    "Only verified ready consumes pending item",
+    "No automatic message send",
+    "Original screenshot file remains",
+    "Pointer-down locks image identity",
+    "Unknown preserves attempt and reconciles before re-dispatch",
+    "History window requeues images, never guesses a background draft"
+  ],
+  "open_design_items": [
+    "13+ overflow beyond the illustrated 12 directly accessible slots",
+    "On-device physical scale and error-rate validation",
+    "Final local archive retention policy",
+    "Verified system capture self-exclusion and per-draft attachment receipts"
+  ],
+  "editable_scope": "Figma contains native spatial-direction artwork; review boards and motion films are independent rendered design artifacts.",
+  "deliverables": {
+    "review_pdf": "Riftlet_Design_Review.pdf",
+    "static_state_count": 24,
+    "full_viewport_pt": [
+      1440,
+      900
+    ],
+    "management_window_pt": [
+      880,
+      600
+    ],
+    "films": [
+      {
+        "name": "Riftlet_A_Interaction_Film.mp4",
+        "duration_s": 14,
+        "fps": 60,
+        "frame_px": [
+          1440,
+          978
+        ],
+        "viewport_pt": [
+          1440,
+          900
+        ]
+      },
+      {
+        "name": "Riftlet_Direction_Motion_Comparison.mp4",
+        "duration_s": 6,
+        "fps": 60,
+        "detail_scale": 4
+      }
+    ]
+  },
+  "state_filename_mapping": {
+    "empty": "空裂缝",
+    "one": "一张",
+    "three": "三张",
+    "twelve": "十二张",
+    "waiting": "等待真实附件结果",
+    "swallowing": "已确认后的吞噬中段",
+    "reborn": "明确失败后重生",
+    "unknown": "结果未确认，保留"
+  },
+  "review_order": [
+    "Riftlet_Directions.png",
+    "Riftlet_Direction_Motion_Comparison.mp4",
+    "Riftlet_A_Cut_1440.png",
+    "Riftlet_A_Interaction_Film.mp4",
+    "Riftlet_Manager_History.png",
+    "Riftlet_Design_Review.pdf"
+  ],
+  "source_files_read": [
+    "README.md",
+    "AGENTS.md",
+    "docs/PRODUCT.md",
+    "docs/DECISIONS.md",
+    "docs/DESIGN_BRIEF.md",
+    "docs/TECHNICAL_BASELINE.md",
+    "docs/REUSE_CANDIDATES.md",
+    "docs/OPEN_QUESTIONS.md",
+    "research/PRO_REVIEW_REPLY_2026-10-26.md",
+    "research/PRO_REVIEW_PDF_TEXT_2026-10-26.txt"
+  ]
+}

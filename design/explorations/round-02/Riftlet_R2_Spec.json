@@ -1,0 +1,116 @@
+{
+  "project": "Riftlet",
+  "round": 2,
+  "status": "Review candidate; no final design approval",
+  "date": "2026-10-26 Asia/Shanghai",
+  "round1_disposition": {
+    "A": "Research basis only; needs refinement",
+    "B": "Rejected",
+    "C": "Rejected; no reuse of waves/curves/opening language"
+  },
+  "viewport_logical_pt": [
+    1440,
+    900
+  ],
+  "recommended_candidate": "01 Seam / 直截",
+  "alternative": "02 Passage / 后界: six-pt continuation after entry, weaker value at actual size",
+  "geometry": {
+    "comparison_fit_boxes_pt": [
+      [
+        54,
+        42
+      ],
+      [
+        72,
+        56
+      ],
+      [
+        90,
+        70
+      ]
+    ],
+    "recommended_fit_box_pt": [
+      72,
+      56
+    ],
+    "preserve_source_aspect": true,
+    "hidden_fraction": 0.25,
+    "occlusion_cap_pt": null,
+    "edge_x_pt": 1432,
+    "passage_end_x_pt": 1438,
+    "passage_depth_pt": 6,
+    "first_center_y_pt": 180,
+    "row_pitch_pt": 60,
+    "row_pitch_by_size": {
+      "54": 48,
+      "72": 60,
+      "90": 74
+    },
+    "number_font_pt": 11,
+    "number_gap_pt": 6,
+    "line_width_pt": 0.7,
+    "line_extension_from_first_last_image_pt": 8,
+    "empty_trace_length_pt": 24,
+    "hit_min_height_pt": 44,
+    "hit_max_height_pt": 56,
+    "hit_left_padding_pt": 4,
+    "hit_right_x_pt": 1432,
+    "outer_click_through_pt": 8,
+    "max_portrait_row12_bottom_pt": 868,
+    "slit_bottom_worst_case_pt": 876,
+    "hit_min_width_pt": 44,
+    "hit_width_for_current_examples_pt": [
+      44,
+      77
+    ]
+  },
+  "numbering": {
+    "visible": "Current queue position 1..n",
+    "after_success": "Renumber once after movement settles; no rolling-digit animation",
+    "during_attempt": "Hold position and number through wait, failure, unknown",
+    "internal": "Immutable screenshot and operation identities separate from display numbers",
+    "pointer": "Bind image on pointer down; defer reorder while held; suppress continuation of the old double-click on the next row"
+  },
+  "motion_ms": {
+    "arrival": 220,
+    "press": 80,
+    "inward_pt": 2.5,
+    "wait": "Receipt driven; no fake completion",
+    "verified_swallow": 240,
+    "queue_shift": 180,
+    "definitive_failure_return": 180,
+    "reduced_motion": 100
+  },
+  "motion_easing": {
+    "arrival_press_return_shift": "ease-out cubic",
+    "swallow": "smoothstep; no bounce or deformation"
+  },
+  "waiting_feedback": "short static underline under number + subtle 8pt contact-edge activity; no blue ring",
+  "unknown_feedback": "stationary double underline; item and original operation retained; reconcile before retry",
+  "capacity": {
+    "12_at_72": "All visible and directly clickable in the specified 900pt scene; fixed 60pt pitch",
+    "90_proportional_scale": "12 tallest images need 884pt before system clearances; with y180 last bottom1029; not recommended",
+    "54": "12 tallest images need572pt; lowest interference but little portrait recognition area",
+    "90_stress_film": "9 second 54/72/90 comparison at 12 portrait images. At 90pt, only 10 are fully visible, 11 partially, 12 outside the viewport. No artificial fit."
+  },
+  "context_assumptions": [
+    "1440x900 logical canvas, not a measured physical display",
+    "Normal hero shows system scrollbar hidden at rest; context sheet includes a visible scrollbar case",
+    "Dock auto-hidden; right-side Dock and smaller visibleFrame require separate layout adaptation",
+    "No real screenshot capture, upload, fullscreen, click-through, or READY validation"
+  ],
+  "source_assets": "All synthetic, authored during rounds 1 and 2; no personal screenshot, private chat, credential, or real account data.",
+  "scope": "Design artifacts only. No app, extension, prototype project, product code, deployment, or new formal decision.",
+  "deliverables": {
+    "png_count": 7,
+    "films": {
+      "Riftlet_R2_01_Seam_Motion.mp4": "12s / 60fps",
+      "Riftlet_R2_02_Passage_Motion.mp4": "12s / 60fps",
+      "Riftlet_R2_Size_Stress.mp4": "9s / 30fps"
+    },
+    "editable_vectors": [
+      "Riftlet_R2_01_Seam_72.svg",
+      "Riftlet_R2_02_Passage_72.svg"
+    ]
+  }
+}
