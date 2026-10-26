@@ -8,9 +8,11 @@ public actor QueueStore {
     public init(databaseURL: URL, mode: StoreMode = .production) throws {
         self.mode = mode
         let db = try SQLiteDatabase(url: databaseURL)
-        let storedMode = try db.rows("SELECT value FROM metadata WHERE key='mode'").first?.first ?? nil
-        if let storedMode, storedMode != mode.rawValue { throw RiftletError.modeMismatch }
-        try db.execute("INSERT OR IGNORE INTO metadata(key,value) VALUES('mode',?)", [mode.rawValue])
+        try db.transaction {
+            let storedMode = try db.rows("SELECT value FROM metadata WHERE key='mode'").first?.first ?? nil
+            if let storedMode, storedMode != mode.rawValue { throw RiftletError.modeMismatch }
+            try db.execute("INSERT OR IGNORE INTO metadata(key,value) VALUES('mode',?)", [mode.rawValue])
+        }
         self.database = db
     }
 
@@ -88,6 +90,16 @@ public actor QueueStore {
 
     public func operation(id: UUID) throws -> TransferOperation? {
         try database.rows("SELECT id,asset_id,attempt,target_json,phase,created_at,updated_at FROM operations WHERE id=?", [id.uuidString]).first.map(decodeOperation)
+    }
+
+    /// The last admitted or nonterminal observation is committed with the queue state.
+    /// Adapters may use its attachment identity for observation after restart, never replay input.
+    public func receipt(for operationID: UUID) throws -> TransferReceipt? {
+        guard let row = try database.rows("SELECT receipt_json FROM operations WHERE id=?", [operationID.uuidString]).first else {
+            throw RiftletError.operationNotFound
+        }
+        guard let raw = row[0] else { return nil }
+        return try JSONDecoder().decode(TransferReceipt.self, from: Data(raw.utf8))
     }
 
     public func unresolvedOperations() throws -> [TransferOperation] {
@@ -195,7 +207,11 @@ public actor QueueStore {
 
     private func update(_ op: TransferOperation, phase: OperationPhase, status: QueueStatus, reason: String) throws {
         try database.execute("UPDATE operations SET phase=?,updated_at=?,reason=? WHERE id=?", [phase.rawValue, String(Date().timeIntervalSince1970), String(reason.prefix(512)), op.id.uuidString])
-        try database.execute("UPDATE assets SET status=? WHERE id=?", [status.rawValue, op.assetID.uuidString])
+        // Missing bytes are independent of an operation's progress. Recovery or a failed
+        // observation must not make an unavailable file clickable. A verified remote
+        // success may still commit used; only verified file recovery clears other cases.
+        try database.execute("UPDATE assets SET status=CASE WHEN status='missing' AND ? != 'used' THEN 'missing' ELSE ? END WHERE id=?",
+                             [status.rawValue, status.rawValue, op.assetID.uuidString])
     }
 
     private func requiredOperation(_ id: UUID) throws -> TransferOperation {

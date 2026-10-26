@@ -4,6 +4,10 @@ public struct TransferRequest: Sendable {
     public let operation: TransferOperation
     public let asset: ImportedAsset
     public let fileURL: URL
+
+    public init(operation: TransferOperation, asset: ImportedAsset, fileURL: URL) {
+        self.operation = operation; self.asset = asset; self.fileURL = fileURL
+    }
 }
 
 /// No send-message method exists. A transport must revalidate the immutable target

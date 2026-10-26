@@ -178,6 +178,56 @@ final class TransferCoordinatorTests: XCTestCase {
         XCTAssertEqual(operation?.phase, .succeeded)
         XCTAssertEqual(record?.status, .used)
     }
+
+    func testStartupReconcilesOnlyDispatchedOriginalOperationWithoutCapturingNewTarget() async throws {
+        let store = try makeStore()
+        let a = try await makeAsset(in: store)
+        let b = try await makeAsset(in: store)
+        let adapter = CoordinatorFixtureAdapter()
+        let original = try await adapter.captureTarget()
+        let dispatched = try await store.prepare(assetID: a.id, target: original)
+        try await store.markDispatchIntent(dispatched.id)
+        let prepared = try await store.prepare(assetID: b.id, target: original)
+        let before = await adapter.snapshot()
+        let coordinator = makeCoordinator(store: store, adapter: adapter)
+
+        try await coordinator.recover()
+
+        let calls = await adapter.snapshot()
+        let recovered = try await store.operation(id: dispatched.id)
+        let cancelled = try await store.operation(id: prepared.id)
+        let saved = try await store.receipt(for: dispatched.id)
+        XCTAssertEqual(calls.captureCount, before.captureCount)
+        XCTAssertTrue(calls.appendedAssets.isEmpty)
+        XCTAssertEqual(calls.reconciledAssets, [a.id])
+        XCTAssertEqual(recovered?.phase, .unknown)
+        XCTAssertEqual(cancelled?.phase, .failed)
+        XCTAssertEqual(saved?.target, original)
+        XCTAssertEqual(saved?.operationID, dispatched.id)
+    }
+
+    func testRecoveryDoesNotFallbackToDifferentAdapter() async throws {
+        let store = try makeStore()
+        let asset = try await makeAsset(in: store)
+        let oldTarget = TargetLease(adapterID: "old-adapter", surface: .webChat,
+            applicationID: "original.browser", sessionID: "old-session", windowID: "old-window",
+            tabID: "old-tab", documentID: "old-document", composerID: "old-composer", draftGeneration: "1")
+        let op = try await store.prepare(assetID: asset.id, target: oldTarget)
+        try await store.markDispatchIntent(op.id)
+        let adapter = CoordinatorFixtureAdapter()
+        let coordinator = makeCoordinator(store: store, adapter: adapter)
+
+        try await coordinator.recover()
+
+        let calls = await adapter.snapshot()
+        let record = try await store.asset(id: asset.id)
+        let unresolved = try await store.unresolvedOperations()
+        XCTAssertEqual(calls.captureCount, 0)
+        XCTAssertTrue(calls.appendedAssets.isEmpty)
+        XCTAssertTrue(calls.reconciledAssets.isEmpty)
+        XCTAssertEqual(record?.status, .unknown)
+        XCTAssertEqual(unresolved.map(\.target), [oldTarget])
+    }
 }
 
 private struct CoordinatorFixtureSnapshot: Sendable {

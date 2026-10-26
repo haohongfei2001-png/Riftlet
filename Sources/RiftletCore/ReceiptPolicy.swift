@@ -1,7 +1,8 @@
 import Foundation
 
 /// Reviewed, versioned profiles only. Shipping production registry is deliberately empty.
-/// Do not add a profile on the strength of INPUT/ATTACHED, a timeout, or send-button state.
+/// A label (INPUT/ATTACHED), timeout or send-button state alone is insufficient.
+/// Product ATTACHED may qualify only with independently reviewed, scoped evidence.
 public struct ReceiptPolicy: Sendable {
     public let admittedProfiles: [String: TargetSurface]
     public let retrySafeProfiles: [String: TargetSurface]

@@ -39,6 +39,13 @@ jobs:
           set -o pipefail
           build/Riftlet.app/Contents/MacOS/Riftlet --self-check 2>&1 | tee test-results/self-check.log
           ditto -c -k --sequesterRsrc --keepParent build/Riftlet.app build/Riftlet-macOS-development.zip
+      - name: Validate and archive synthetic GUI acceptance helper
+        run: |
+          set -o pipefail
+          riftlet_bin_dir="$(swift build -c release --show-bin-path)"
+          "$riftlet_bin_dir/RiftletGUIAcceptance" --self-check 2>&1 | tee test-results/gui-helper-self-check.log
+          cp "$riftlet_bin_dir/RiftletGUIAcceptance" build/RiftletGUIAcceptance
+          ditto -c -k --keepParent build/RiftletGUIAcceptance build/Riftlet-GUI-Acceptance.zip
       - name: Archive evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
@@ -47,5 +54,6 @@ jobs:
           path: |
             test-results/
             build/Riftlet-macOS-development.zip
+            build/Riftlet-GUI-Acceptance.zip
           if-no-files-found: ignore
           retention-days: 14

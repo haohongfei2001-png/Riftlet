@@ -2,7 +2,7 @@
 
 ## Current admission
 
-No production adapter is enabled. The user's latest report establishes a real Chrome Apple Events synthetic INPUT/target/image association and an ATTACHED candidate; its anomaly evidence has not yet been delivered here. This is more recent than the archived technical package's NOT_TESTED state, but does not prove strict READY, terminal failure, or all concurrency/navigation cases. Keep these categories separate.
+No production adapter is enabled. On 2026-10-27 the user reports that another Codex session's product-level ATTACHED criterion passed abnormal validation within that round's scope, authorizing actual Web adapter integration. The actual source, environment/case matrix and full evidence have not yet been obtained here. This supersedes the earlier candidate-only report, without claiming independent inspection or coverage beyond that round. Success and safe-retry profiles still require their respective evidence admission; a successful ATTACHED report alone does not admit retry-safe failure semantics.
 
 ## API
 

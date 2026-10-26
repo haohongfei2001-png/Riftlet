@@ -57,3 +57,13 @@ The user asked to adjust the development plan for sustained high-speed parallel 
 | I06 | IMPLEMENTATION | A blocked environment/credential/evidence task is parked with an exact resumption trigger; select another READY task. Existing CI performs tests/builds, not continuous autonomous coding. Persist checkpoints for subsequent authorized execution sessions without claiming an unprovisioned background service. |
 
 The original feature-branch/Draft-PR and review requirements remain. User absence is not an engineering approval gate. Known data-loss, wrong-target, false-consumption, unknown-replay, simulation-isolation and licensing defects still block the affected change from integration or enablement.
+
+## 2026-10-27 — implementation resumed and new Web validation report
+
+| ID | Status | Statement |
+| --- | --- | --- |
+| P14 | USER | Execute C1/U1/W0 in actual parallel workers with the lead advancing Core. Test, obtain non-author review, fix and integrate into Draft PR #1, then take the next READY packet. Preserve main and designs; no merge or release. |
+| E06 | USER_REPORTED | Another Codex session reports that product-level ATTACHED passed abnormal validation within that round's test scope. Actual Web adapter integration may begin. This is newer than E04/E05; it is not yet an independently inspected source/evidence handoff in this branch. |
+| I07 | IMPLEMENTATION | Obtain the actual source and complete scoped evidence before production success or safe-retry admission. A versioned observation normalizer may support product ATTACHED as a code-selected completion signal, while Core admission remains separate and empty in the shipping composition. |
+
+The current repository branches and available recent Library file inventory were checked for the new Web handoff. No matching new source/evidence package was resolved; the already archived technical ZIP is the older snapshot. Continue implementation with explicit synthetic fixtures and a disabled transport/program boundary; only the page-specific source integration and production admission wait for the missing handoff.
