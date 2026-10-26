@@ -193,11 +193,16 @@ public final class RiftPanelController {
     }
 
     private var screen: NSScreen? {
-        if let preferred = configuration.preferredDisplayID,
-           let selected = NSScreen.screens.first(where: {
-               ($0.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.uint32Value == preferred
-           }) { return selected }
-        return NSScreen.main ?? NSScreen.screens.first
+        let screens = NSScreen.screens
+        let ids = screens.compactMap {
+            ($0.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.uint32Value
+        }
+        let mainID = (NSScreen.main?.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.uint32Value
+        guard let selected = RiftDisplaySelection.choose(preferred: configuration.preferredDisplayID,
+                                                          main: mainID, available: ids) else { return screens.first }
+        return screens.first {
+            ($0.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.uint32Value == selected
+        }
     }
 
     /// Pass the latest records including newly used records. Historical used records are not replayed.

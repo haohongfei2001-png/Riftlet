@@ -30,15 +30,16 @@ enum RiftletMain {
 private final class ApplicationController: NSObject, NSApplicationDelegate {
     private var statusItem: NSStatusItem?
     private var statusLine: NSMenuItem?
+    private var storageLine: NSMenuItem?
+    private var storageMeasurement: Task<Void, Never>?
     private var store: QueueStore?
     private var capture: CaptureService?
+    private var sourceBinding: CaptureSourceBinding?
     private var transfer: TransferCoordinator?
     private var rift: RiftPanelController?
     private var root: URL!
-    private var source: URL?
     private var visibleIDs = Set<UUID>()
     private var instanceDescriptor: Int32 = -1
-    private var wakeObserver: NSObjectProtocol?
     private let simulation = CommandLine.arguments.contains("--simulate")
 
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -48,7 +49,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
 
     func applicationWillTerminate(_ notification: Notification) {
         rift?.close()
-        if let wakeObserver { NSWorkspace.shared.notificationCenter.removeObserver(wakeObserver) }
+        if let sourceBinding { Task { await sourceBinding.stop() } }
         if instanceDescriptor >= 0 { flock(instanceDescriptor, LOCK_UN); Darwin.close(instanceDescriptor) }
     }
 
@@ -89,18 +90,15 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
             try await seedSimulation(store: store)
             statusLine?.title = "SIMULATION · synthetic images only · no ChatGPT input"
         } else {
-            source = CaptureSource.defaultDirectory()
-            let service = CaptureService(store: store, privateRoot: root, sourceDirectory: source!,
+            let service = CaptureService(store: store, privateRoot: root, sourceDirectory: CaptureSource.defaultDirectory(),
                                          onChange: { [weak self] in await self?.refresh() },
                                          onIssue: { [weak self] message in await self?.showIssue(message) })
             capture = service
-            try await service.start()
+            let binding = CaptureSourceBinding(service: service,
+                onIssue: { [weak self] message in await self?.showIssue(message) })
+            sourceBinding = binding
+            try await binding.start()
             statusLine?.title = "Capture active · ChatGPT adapter pending validation"
-            wakeObserver = NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.didWakeNotification,
-                object: nil, queue: .main) { [weak self] _ in
-                    guard let controller = self else { return }
-                    Task { @MainActor in await controller.reloadSource() }
-                }
         }
         await refresh()
     }
@@ -145,6 +143,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
         add(menu, "Show oldest screenshot", #selector(showOldest))
         add(menu, "Reload source and geometry", #selector(reload))
         add(menu, "Open adjustable geometry file", #selector(openGeometry))
+        add(menu, "Check local storage", #selector(checkStorage))
+        let storage = NSMenuItem(title: "Retained files: not measured", action: nil, keyEquivalent: "")
+        menu.addItem(storage); storageLine = storage
         menu.addItem(.separator())
         add(menu, "Quit Riftlet", #selector(quit), key: "q")
         item.menu = menu; statusItem = item
@@ -160,6 +161,28 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
     @objc private func openGeometry() {
         guard let root else { return }; NSWorkspace.shared.open(root.appendingPathComponent("rift-configuration.json"))
     }
+    @objc private func checkStorage() {
+        guard let root, storageMeasurement == nil else { return }
+        storageLine?.title = "Measuring retained files…"
+        // Metadata work stays off MainActor and runs only after this explicit menu action.
+        storageMeasurement = Task { [weak self] in
+            defer { self?.storageMeasurement = nil }
+            do {
+                let usage = try await Task.detached(priority: .utility) {
+                    try PrivateStorageUsage.measure(privateRoot: root)
+                }.value
+                let size: String
+                if let bytes = usage.logicalBytes, bytes <= UInt64(Int64.max) {
+                    size = ByteCountFormatter.string(fromByteCount: Int64(bytes), countStyle: .file)
+                } else { size = "size unavailable" }
+                let scope = usage.isComplete ? "" : " · partial count"
+                self?.storageLine?.title = "Retained files: \(size) · \(usage.regularFileCount) files\(scope)"
+                self?.storageLine?.toolTip = "Logical size includes used images, import journals and the database; files are preserved."
+            } catch {
+                self?.storageLine?.title = "Storage unavailable; files preserved"
+            }
+        }
+    }
     @objc private func reload() {
         Task {
             await reloadSource()
@@ -171,11 +194,10 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
         }
     }
     private func reloadSource() async {
-        guard !simulation, let capture else { return }
+        guard !simulation, let capture, let sourceBinding else { return }
         do {
-            let next = CaptureSource.defaultDirectory()
-            if next != source { try await capture.setSourceDirectory(next); source = next }
-            else { try await capture.rescan() }
+            await sourceBinding.refresh()
+            try await capture.rescan()
         } catch { showIssue("Screenshot folder needs access; existing copies retained.") }
     }
 }
@@ -220,6 +242,12 @@ private enum SelfCheck {
               try await reopened.asset(id: record.id)?.status == .used,
               FileManager.default.fileExists(atPath: source.path),
               FileManager.default.fileExists(atPath: privateRoot.appendingPathComponent("media").appendingPathComponent(record.image.fileName).path) else {
+            throw RiftletError.invalidTransition
+        }
+        let usage = try PrivateStorageUsage.measure(privateRoot: privateRoot)
+        guard usage.isComplete,
+              usage.areas.first(where: { $0.area == .media })?.regularFileCount == 1,
+              (usage.logicalBytes ?? 0) >= UInt64(record.image.byteCount) else {
             throw RiftletError.invalidTransition
         }
     }

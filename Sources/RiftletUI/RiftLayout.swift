@@ -24,6 +24,28 @@ public struct RiftLayoutResult: Equatable, Sendable {
 
 /// Deterministic geometry, independent of NSWindow and of upload semantics.
 public enum RiftLayout {
+    private struct RowMetrics {
+        let record: AssetRecord
+        let ordinal: Int
+        let fitted: CGSize
+        let exposed: Double
+        let numberWidth: Double
+        let width: Double
+        let height: Double
+    }
+
+    private static func metrics(for record: AssetRecord, ordinal: Int,
+                                configuration c: RiftConfiguration) -> RowMetrics {
+        let fitted = fit(pixelWidth: record.image.pixelWidth,
+                         pixelHeight: record.image.pixelHeight, configuration: c)
+        let exposed = Double(fitted.width) * (1 - c.hiddenFraction)
+        let numberWidth = Double(String(ordinal).count) * c.numberFontSize * 0.65
+        return RowMetrics(record: record, ordinal: ordinal, fitted: fitted, exposed: exposed,
+                          numberWidth: numberWidth,
+                          width: max(c.minimumHitWidth, exposed + c.numberGap + numberWidth + c.leftPadding),
+                          height: max(c.minimumHitHeight, Double(fitted.height)))
+    }
+
     public static func fit(pixelWidth: Int, pixelHeight: Int, configuration c: RiftConfiguration) -> CGSize {
         guard pixelWidth > 0, pixelHeight > 0 else { return .zero }
         let ratio = min(c.fitWidth / Double(pixelWidth), c.fitHeight / Double(pixelHeight))
@@ -40,22 +62,28 @@ public enum RiftLayout {
         let capacity = available >= height ? max(1, Int(floor((available - height) / pitch)) + 1) : 0
         let index = min(max(0, firstVisibleIndex), max(0, active.count - capacity))
         let count = min(capacity, max(0, active.count - index))
-        let edgeX = max(Double(visibleFrame.minX), Double(visibleFrame.maxX) - c.outerInset)
+        let fittedRows = (0..<count).map { offset in
+            metrics(for: active[index + offset], ordinal: index + offset + 1, configuration: c)
+        }
+        // Experimental insets must not push otherwise fitting input windows off a
+        // narrow/rotated display. All visible rows still share one fixed rift edge.
+        let minimumEdgeX = min(Double(visibleFrame.maxX),
+                               Double(visibleFrame.minX) + (fittedRows.map(\.width).max() ?? 0))
+        let edgeX = max(minimumEdgeX, Double(visibleFrame.maxX) - c.outerInset)
         let topLimit = Double(visibleFrame.maxY) - c.screenPadding - height / 2
         let bottomLimit = Double(visibleFrame.minY) + c.screenPadding + height / 2
         let preferred = Double(visibleFrame.maxY) - c.firstCenterFromTop
         let needed = bottomLimit + Double(max(0, count - 1)) * pitch
         let firstCenter = min(topLimit, max(preferred, needed))
         var rows: [RiftRowLayout] = []
-        for offset in 0..<count {
-            let ordinal = index + offset + 1
-            let record = active[index + offset]
-            let fitted = fit(pixelWidth: record.image.pixelWidth,
-                             pixelHeight: record.image.pixelHeight, configuration: c)
-            let exposed = Double(fitted.width) * (1 - c.hiddenFraction)
-            let numberWidth = Double(String(ordinal).count) * c.numberFontSize * 0.65
-            let width = max(c.minimumHitWidth, exposed + c.numberGap + numberWidth + c.leftPadding)
-            let rowHeight = max(c.minimumHitHeight, Double(fitted.height))
+        for (offset, item) in fittedRows.enumerated() {
+            let ordinal = item.ordinal
+            let record = item.record
+            let fitted = item.fitted
+            let exposed = item.exposed
+            let numberWidth = item.numberWidth
+            let width = item.width
+            let rowHeight = item.height
             let center = firstCenter - Double(offset) * pitch
             let imageX = width - exposed
             let imageY = (rowHeight - Double(fitted.height)) / 2

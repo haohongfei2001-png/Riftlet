@@ -11,12 +11,15 @@ final class FolderWatcher: @unchecked Sendable {
     private let queue = DispatchQueue(label: "com.riftlet.capture.folder", qos: .utility)
     private let onDirty: @Sendable () -> Void
     private let onLost: @Sendable () -> Void
+    private let expectsDirectory: Bool
     private var source: DispatchSourceFileSystemObject?
     private var pending: DispatchWorkItem?
     private var cancelled = false
 
-    init(url: URL, onDirty: @escaping @Sendable () -> Void, onLost: @escaping @Sendable () -> Void) {
-        self.url = url; self.onDirty = onDirty; self.onLost = onLost
+    init(url: URL, expectsDirectory: Bool = true,
+         onDirty: @escaping @Sendable () -> Void, onLost: @escaping @Sendable () -> Void) {
+        self.url = url; self.expectsDirectory = expectsDirectory
+        self.onDirty = onDirty; self.onLost = onLost
     }
 
     func start() async throws {
@@ -30,7 +33,8 @@ final class FolderWatcher: @unchecked Sendable {
                     continuation.resume(throwing: CaptureError.io("watch-directory", errno)); return
                 }
                 var info = stat()
-                guard fstat(fd, &info) == 0, info.st_mode & mode_t(S_IFMT) == mode_t(S_IFDIR) else {
+                let expectedType = self.expectsDirectory ? S_IFDIR : S_IFREG
+                guard fstat(fd, &info) == 0, info.st_mode & mode_t(S_IFMT) == mode_t(expectedType) else {
                     Darwin.close(fd)
                     continuation.resume(throwing: CaptureError.notRegularFile); return
                 }

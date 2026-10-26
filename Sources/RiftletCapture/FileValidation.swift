@@ -21,6 +21,7 @@ public enum CaptureError: Error, Equatable, Sendable {
     case invalidManifest
     case privatePathUnsafe
     case importInProgress
+    case invalidLocationPreference
 }
 
 struct FileSignature: Codable, Equatable, Sendable {
