@@ -5,5 +5,13 @@
   "start_url": "./",
   "display": "browser",
   "background_color": "#F7F8F4",
-  "theme_color": "#F7F8F4"
+  "theme_color": "#F7F8F4",
+  "icons": [
+    {
+      "src": "favicon.svg?v=product-1",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
 }
