@@ -2,7 +2,7 @@
 
 **Riftlet** is a proposed tiny, native macOS screenshot-to-chat bridge: **take a system screenshot, then click its micro-thumbnail once**. The intended result is an image appended to the correct ChatGPT draft—not a sent message.
 
-**Status (2026-10-27): Formal engineering started.** This branch contains the native capture/queue/rift foundation and an isolated synthetic demo. There is no approved final visual design or admitted production ChatGPT attachment adapter yet. Read [the executable engineering plan](docs/ENGINEERING_PLAN.md) and [actual verification record](docs/VERIFICATION.md).
+**Status (2026-10-27): Formal engineering started.** This branch contains the native capture/queue/rift foundation and an isolated synthetic demo. There is no approved final visual design or admitted production ChatGPT attachment adapter yet. **40 native tests, release build, app packaging/signature check and packaged synthetic self-check passed on macOS14 ARM64.** Read [the executable engineering plan](docs/ENGINEERING_PLAN.md) and [actual verification record](docs/VERIFICATION.md).
 
 ## The distinctive interaction
 - Extremely fine vertical **spatial rift** at the screen edge; tiny, aspect-ratio-preserving, roughly coin-sized screenshots protrude partly from it.

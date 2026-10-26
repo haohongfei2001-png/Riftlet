@@ -51,6 +51,8 @@ Asset可见状态：pending、transferring、unknown、failed、missing；used�
 
 当前生产成功/失败准入表均为空，没有通过配置文件跳过验证的开关。演示仅在simulation store + synthetic asset + simulation target + simulation-v1四重条件下通过。
 
+`verifiedReady`是获准的产品完成语义，不要求读取名为READY的私有内部字段。经真实异常验证合格的产品级ATTACHED可以映射到它；当前候选尚未通过，仍不能吞噬。
+
 详见 [ADAPTER_CONTRACT.md](ADAPTER_CONTRACT.md)。
 
 ## 5. 微型窗口的实施边界
@@ -67,10 +69,10 @@ Asset可见状态：pending、transferring、unknown、failed、missing；used�
 
 | 阶段 | 前置条件 | 可交付物 / 通过条件 | 当前状态 |
 | --- | --- | --- | --- |
-| F0 工程与协议 | 本轮授权 | SwiftPM、系统SQLite、模块边界、可运行test/build入口 | 本轮实施 |
-| F1 资产与恢复 | F0模型 | 完整图片→私有副本→持久队列；半图拒绝、原件不动、重启补漏、孤儿恢复、同图事件去重 | 本轮实施；真系统捕获待Mac |
-| F2 状态与协调 | F0；不依赖真实ChatGPT | 操作intent、防重、目标锁、unknown不重传、成功/失败分开准入、used持久 | 本轮实施；XCTest见验证记录 |
-| F3 原生裂缝 | F0/F1输出；F2状态 | 2/3/12项、比例/遮挡/编号、模拟三态、非激活panel；真实命中和显示器验收 | 本轮实施；GUI待真机 |
+| F0 工程与协议 | 本轮授权 | SwiftPM、系统SQLite、模块边界、可运行test/build入口 | 本轮完成；Mac构建通过 |
+| F1 资产与恢复 | F0模型 | 完整图片→私有副本→持久队列；半图拒绝、原件不动、重启补漏、孤儿恢复、同图事件去重 | 代码与文件集成测试完成；真系统捕获待Mac |
+| F2 状态与协调 | F0；不依赖真实ChatGPT | 操作intent、防重、目标锁、unknown不重传、成功/失败分开准入、used持久 | 本轮完成；macOS XCTest通过 |
+| F3 原生裂缝 | F0/F1输出；F2状态 | 2/3/12项、比例/遮挡/编号、模拟三态、非激活panel；真实命中和显示器验收 | 代码与布局测试完成；GUI待真机 |
 | W1 Web接入 | 另一个Codex真实异常证据 + F2接口 | 同一adapter绑定真实目标、一次append、可回查；仅选一生产transport | 并行验证，不阻塞F1/F3 |
 | W2 Web准入 | W1 INPUT/IDENTITY/READY/RECOVERY证据齐备 | 正常追加不破坏原文/旧附件；失败/导航/并发不误判；通过profile方可开启真实吞噬 | 真正阻塞完整Web交付 |
 | M1 Mac独立接入 | 针对新版/Classic的AX实际证据 | fileURL/PNG表示、窗口/composer绑定、逐图ready；剪贴板安全恢复 | 与W1并行，未启用 |

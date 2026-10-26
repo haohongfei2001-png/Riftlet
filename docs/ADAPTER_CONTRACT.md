@@ -22,6 +22,8 @@ The coordinator commits `dispatchIntent` first and passes that durable operation
 
 The request's immutable file URL is beneath the app's private media root. The adapter should recheck its bytes/hash before transmission, use an operation-specific upload name with the real encoding extension, and enforce target size/type limits without silent lossy conversion. It never reads/sends chat history, replaces composer text, deletes pre-existing attachments or sends a message.
 
+`verifiedReady` names Riftlet’s admitted product completion result. It does not require a private field literally named READY. A product-level ATTACHED criterion may be mapped to it only after its exact-image/original-draft semantics and abnormal cases pass the agreed real validation; the current candidate has not passed that gate.
+
 ## Receipt fields and admission
 
 Identity must equal operationId, assetId, attempt, content hash and every TargetLease field. Attachment ID must be a target-observed, uniquely correlated identity, not merely a locally generated UUID or the sole newly observed removal button. The adapter asserts this only after its profile has passed actual identity tests. Stale/wrong replies are rejected without changing another operation.

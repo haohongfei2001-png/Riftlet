@@ -1,6 +1,6 @@
 # Source-level technology reuse index
 
-Pro independently reviewed these repository versions; **no open-source code has been copied into Riftlet**. Licenses must be checked again at actual integration time, and relevant copyright/NOTICE retained. Not all artwork/brands inherit source-code licenses.
+Historical 2026-10-26 research inventory. **Engineering update 2026-10-27:** selected watcher/validation mechanisms are now adapted with preserved licenses; see [REUSE_IMPLEMENTATION.md](REUSE_IMPLEMENTATION.md). At the time of the original Pro review no open-source code had been copied into Riftlet. Licenses must be checked again at actual integration time, and relevant copyright/NOTICE retained. Not all artwork/brands inherit source-code licenses.
 
 | Project (pinned source) | Main files / modules | Candidate value | Exclude / caveat |
 | --- | --- | --- | --- |
