@@ -27,6 +27,30 @@ private actor TestLocationProvider: CaptureLocationProviding {
     func lateChange(to directory: URL) async { self.directory = directory; await retiredHandler?() }
 }
 
+private actor CaptureLifecycleGate {
+    private var entered = false
+    private var released = false
+    private var enteredWaiter: CheckedContinuation<Void, Never>?
+    private var releaseWaiter: CheckedContinuation<Void, Never>?
+
+    func pause() async {
+        entered = true
+        enteredWaiter?.resume(); enteredWaiter = nil
+        guard !released else { return }
+        await withCheckedContinuation { releaseWaiter = $0 }
+    }
+
+    func waitUntilEntered() async {
+        guard !entered else { return }
+        await withCheckedContinuation { enteredWaiter = $0 }
+    }
+
+    func release() {
+        released = true
+        releaseWaiter?.resume(); releaseWaiter = nil
+    }
+}
+
 final class CaptureSourceBindingTests: XCTestCase {
     private struct Fixture: Sendable {
         let root: URL
@@ -281,5 +305,149 @@ final class CaptureSourceBindingTests: XCTestCase {
         try preference(prefs, location: f.privateRoot.path)
         await fulfillment(of: [recreated], timeout: 3)
         await provider.stop()
+    }
+
+    func testOldSourceArrivalDuringAwaitedHandoffIsDurablyCollected() async throws {
+        let f = try Fixture(); defer { f.close() }
+        let clock = SourceTestClock()
+        let service = CaptureService(store: f.store, privateRoot: f.privateRoot, sourceDirectory: f.first,
+                                     now: { clock.read() })
+        try await service.start()
+        let gate = CaptureLifecycleGate()
+        await service.setLifecycleProbe { point in
+            if point == .departureRecorded { await gate.pause() }
+        }
+        let changing = Task { try await service.setSourceDirectory(f.second) }
+        await gate.waitUntilEntered()
+        // This file did not exist in any snapshot taken before the awaited persistence.
+        let lateOld = f.first.appendingPathComponent("arrived-during-handoff.png")
+        try png().write(to: lateOld); try mark(lateOld)
+        await gate.release()
+        try await changing.value
+        clock.advance()
+        try await service.rescan()
+        let records = try await f.store.assets()
+        XCTAssertEqual(records.count, 1)
+        XCTAssertEqual(records.first?.image.sourceKey, try FileSignature.read(at: lateOld).sourceKey)
+        XCTAssertTrue(FileManager.default.fileExists(atPath: lateOld.path))
+        await service.stop()
+    }
+
+    func testFilesCreatedAfterOldWatcherRetirementAreOutsideOldSourceScope() async throws {
+        let f = try Fixture(); defer { f.close() }
+        let clock = SourceTestClock()
+        let service = CaptureService(store: f.store, privateRoot: f.privateRoot, sourceDirectory: f.first,
+                                     now: { clock.read() })
+        try await service.start()
+        let gate = CaptureLifecycleGate()
+        await service.setLifecycleProbe { point in
+            if point == .watcherRetired { await gate.pause() }
+        }
+        let changing = Task { try await service.setSourceDirectory(f.second) }
+        await gate.waitUntilEntered()
+        let tooLate = f.first.appendingPathComponent("old-source-after-retirement.png")
+        let current = f.second.appendingPathComponent("new-source.png")
+        try png().write(to: tooLate); try mark(tooLate)
+        try png().write(to: current); try mark(current)
+        await gate.release()
+        try await changing.value
+        clock.advance()
+        try await service.rescan()
+        let records = try await f.store.assets()
+        XCTAssertEqual(records.count, 1)
+        XCTAssertEqual(records.first?.image.sourceKey, try FileSignature.read(at: current).sourceKey)
+        XCTAssertTrue(FileManager.default.fileExists(atPath: tooLate.path))
+        await service.stop()
+    }
+
+    func testInterruptedDepartureIntentRecoversFileAbsentFromEarlySnapshot() async throws {
+        let f = try Fixture(); defer { f.close() }
+        let clock = SourceTestClock()
+        let service = CaptureService(store: f.store, privateRoot: f.privateRoot, sourceDirectory: f.first,
+                                     now: { clock.read() })
+        try await service.start()
+        let gate = CaptureLifecycleGate()
+        await service.setLifecycleProbe { point in
+            if point == .departureRecorded { await gate.pause() }
+        }
+        let changing = Task { try await service.setSourceDirectory(f.second) }
+        await gate.waitUntilEntered()
+        let lateOld = f.first.appendingPathComponent("durable-departure.png")
+        try png().write(to: lateOld); try mark(lateOld)
+        await service.stop()
+        await gate.release()
+        try await changing.value
+
+        let reopenedStore = try QueueStore(databaseURL: f.privateRoot.appendingPathComponent("queue.sqlite"))
+        let restarted = CaptureService(store: reopenedStore, privateRoot: f.privateRoot, sourceDirectory: f.second,
+                                       now: { clock.read() })
+        try await restarted.start()
+        clock.advance()
+        try await restarted.rescan()
+        let records = try await reopenedStore.assets()
+        XCTAssertEqual(records.count, 1)
+        XCTAssertEqual(records.first?.image.sourceKey, try FileSignature.read(at: lateOld).sourceKey)
+        await restarted.stop()
+    }
+
+    func testStopInvalidatesStartSuspendedBeforeStoreModeRead() async throws {
+        let f = try Fixture(); defer { f.close() }
+        let clock = SourceTestClock()
+        let service = CaptureService(store: f.store, privateRoot: f.privateRoot, sourceDirectory: f.first,
+                                     now: { clock.read() })
+        let gate = CaptureLifecycleGate()
+        await service.setLifecycleProbe { point in
+            if point == .beforeModeRead { await gate.pause() }
+        }
+        let starting = Task { try await service.start() }
+        await gate.waitUntilEntered()
+        await service.stop()
+        await gate.release()
+        try await starting.value
+        let image = f.first.appendingPathComponent("after-stop.png")
+        try png().write(to: image); try mark(image)
+        try await service.rescan()
+        clock.advance()
+        try await service.rescan()
+        let records = try await f.store.assets()
+        XCTAssertTrue(records.isEmpty, "A stale start must not restart the stopped watcher")
+    }
+
+    func testUnreadableLateCandidateKeepsDepartureUntilAccessReturns() async throws {
+        guard geteuid() != 0 else { throw XCTSkip("Permission denial requires a non-root test user") }
+        let f = try Fixture(); defer { f.close() }
+        let clock = SourceTestClock()
+        let service = CaptureService(store: f.store, privateRoot: f.privateRoot, sourceDirectory: f.first,
+                                     now: { clock.read() })
+        try await service.start()
+        let gate = CaptureLifecycleGate()
+        await service.setLifecycleProbe { point in
+            if point == .departureRecorded { await gate.pause() }
+        }
+        let changing = Task { try await service.setSourceDirectory(f.second) }
+        await gate.waitUntilEntered()
+        let hidden = f.first.appendingPathComponent("temporarily-unreadable.png")
+        let readable = f.first.appendingPathComponent("readable-neighbor.png")
+        try png().write(to: hidden); try mark(hidden)
+        try png().write(to: readable); try mark(readable)
+        XCTAssertEqual(chmod(hidden.path, 0), 0)
+        await gate.release()
+        try await changing.value
+        clock.advance()
+        try await service.rescan()
+        let before = try await f.store.assets()
+        XCTAssertEqual(before.count, 1, "One unreadable entry must not hold a readable neighbor")
+        XCTAssertEqual(before.first?.image.sourceKey, try FileSignature.read(at: readable).sourceKey)
+        XCTAssertEqual(chmod(hidden.path, 0o600), 0)
+        // There is no old watcher now. A normal active-source reconciliation must use the
+        // saved departure instead of permanently forgetting this transiently unreadable file.
+        clock.advance()
+        try await service.rescan()
+        clock.advance()
+        try await service.rescan()
+        let recovered = try await f.store.assets()
+        XCTAssertEqual(recovered.count, 2)
+        XCTAssertTrue(recovered.contains { $0.image.sourceKey == (try? FileSignature.read(at: hidden).sourceKey) })
+        await service.stop()
     }
 }

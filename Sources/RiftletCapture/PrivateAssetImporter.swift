@@ -99,7 +99,7 @@ public actor PrivateAssetImporter {
             }
         }
         try ensureDirectories()
-        let descriptor = Darwin.open(url.path, O_RDONLY | O_NOFOLLOW | O_CLOEXEC)
+        let descriptor = Darwin.open(url.path, O_RDONLY | O_NONBLOCK | O_NOFOLLOW | O_CLOEXEC)
         guard descriptor >= 0 else { throw CaptureError.io("open-source", errno) }
         defer { Darwin.close(descriptor) }
         guard try FileSignature.read(descriptor: descriptor) == signature else { throw CaptureError.unstableFile }
@@ -302,7 +302,7 @@ enum PrivateFiles {
     }
 
     static func hashFile(_ url: URL) throws -> String {
-        let descriptor = Darwin.open(url.path, O_RDONLY | O_NOFOLLOW | O_CLOEXEC)
+        let descriptor = Darwin.open(url.path, O_RDONLY | O_NONBLOCK | O_NOFOLLOW | O_CLOEXEC)
         guard descriptor >= 0 else { throw CaptureError.io("open-private-copy", errno) }
         defer { Darwin.close(descriptor) }
         let initial = try FileSignature.read(descriptor: descriptor)

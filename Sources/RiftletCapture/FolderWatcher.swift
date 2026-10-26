@@ -53,6 +53,17 @@ final class FolderWatcher: @unchecked Sendable {
         queue.async { self.cancelOnQueue() }
     }
 
+    /// Establishes a retirement boundary after all earlier work on the watch queue. Once
+    /// acknowledged, no later dirty callback can be emitted by this watcher.
+    func cancelAndWait() async -> Date {
+        await withCheckedContinuation { continuation in
+            queue.async {
+                self.cancelOnQueue()
+                continuation.resume(returning: Date())
+            }
+        }
+    }
+
     deinit { source?.cancel() }
 
     private func handleEvent() {

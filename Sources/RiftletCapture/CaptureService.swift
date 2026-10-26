@@ -1,6 +1,7 @@
 import Foundation
 import AppKit
 import CryptoKit
+import Darwin
 import RiftletCore
 
 private struct SourceCheckpoint: Codable {
@@ -25,6 +26,25 @@ private struct PendingSourceCapture: Codable, Sendable {
 private struct CaptureEpoch: Codable {
     let version: Int
     let beganAt: Date
+}
+
+private struct DepartingCaptureSource: Codable, Sendable {
+    let id: UUID
+    let directory: URL
+    let baselineKeys: Set<String>
+    let collectionBeganAt: Date
+    let knownCandidates: [PendingSourceCapture]
+    var retiredAt: Date?
+}
+
+private struct CaptureHandoffCheckpoint: Codable {
+    let version: Int
+    let candidates: [PendingSourceCapture]
+    let departures: [DepartingCaptureSource]
+}
+
+enum CaptureLifecycleCheckpoint: Equatable, Sendable {
+    case beforeModeRead, departureRecorded, watcherRetired
 }
 
 /// Directory events request reconciliation; they are not one-event/one-image assertions.
@@ -54,6 +74,9 @@ public actor CaptureService {
     private var reportedIssues = Set<String>()
     private var pendingHandoffs: [String: PendingSourceCapture] = [:]
     private var drainingHandoffs = false
+    private var departingSources: [UUID: DepartingCaptureSource] = [:]
+    private var departuresInProgress = Set<UUID>()
+    private var lifecycleProbe: (@Sendable (CaptureLifecycleCheckpoint) async -> Void)?
     private static let handoffCheckpoint = "capture-pending-handoffs-v1"
     private static let epochCheckpoint = "capture-collection-epoch-v1"
     private let retryDelays: [UInt64] = [150_000_000, 350_000_000, 800_000_000, 2_000_000_000, 5_000_000_000]
@@ -71,8 +94,10 @@ public actor CaptureService {
 
     public func start() async throws {
         guard !running else { return }
+        let requestedGeneration = generation
+        await lifecycleProbe?(.beforeModeRead)
         guard await store.mode == .production else { throw RiftletError.modeMismatch }
-        guard !running else { return }
+        guard !running, generation == requestedGeneration else { return }
         running = true
         initializing = true
         installationStart = now()
@@ -96,8 +121,20 @@ public actor CaptureService {
             guard running, generation == token else { return }
             if let data = try await store.checkpoint(for: Self.handoffCheckpoint) {
                 guard running, generation == token else { return }
-                let restored = try JSONDecoder().decode([PendingSourceCapture].self, from: data)
-                pendingHandoffs = Dictionary(restored.map { ($0.signature.sourceKey, $0) }, uniquingKeysWith: { first, _ in first })
+                let decoder = JSONDecoder()
+                if let checkpoint = try? decoder.decode(CaptureHandoffCheckpoint.self, from: data) {
+                    guard checkpoint.version == 2 else { throw CaptureError.invalidManifest }
+                    pendingHandoffs = Dictionary(checkpoint.candidates.map { ($0.signature.sourceKey, $0) },
+                        uniquingKeysWith: { first, _ in first })
+                    departingSources = Dictionary(checkpoint.departures.map { ($0.id, $0) },
+                        uniquingKeysWith: { first, _ in first })
+                } else {
+                    // The first C1 build stored only a candidate array. Preserve that data.
+                    let restored = try decoder.decode([PendingSourceCapture].self, from: data)
+                    pendingHandoffs = Dictionary(restored.map { ($0.signature.sourceKey, $0) },
+                        uniquingKeysWith: { first, _ in first })
+                    departingSources.removeAll()
+                }
             }
             if !report.missing.isEmpty { await reportIssue("Some private copies are missing; their queue records are preserved.") }
             if !report.invalid.isEmpty { await reportIssue("Some import journals need recovery; valid captures remain available.") }
@@ -128,6 +165,7 @@ public actor CaptureService {
         generation = UUID()
         rebindRequest = UUID()
         scanningGeneration = nil
+        departuresInProgress.removeAll()
         watcher?.cancel(); watcher = nil
         parentWatcher?.cancel(); parentWatcher = nil
         retryTask?.cancel(); retryTask = nil
@@ -136,6 +174,11 @@ public actor CaptureService {
     }
 
     public func currentSourceDirectory() -> URL { sourceDirectory }
+
+    /// Internal controlled scheduling seam; production has no hook or configuration entry.
+    func setLifecycleProbe(_ probe: @escaping @Sendable (CaptureLifecycleCheckpoint) async -> Void) {
+        lifecycleProbe = probe
+    }
 
     /// Rebind only to a directory already selected by the system/user. Prepare the new
     /// descriptor and checkpoint before releasing the old watch. No access is granted here.
@@ -169,27 +212,25 @@ public actor CaptureService {
             }
             guard running, generation == originalGeneration, rebindRequest == request else { next.cancel(); return }
 
-            // Journal unresolved old-source candidates before closing its descriptor. A
-            // partial screenshot can then complete after the switch or after a restart.
-            let departingCandidates = ((try? candidateFiles(in: sourceDirectory)) ?? [])
-                + observations.values.map { ($0.url, $0.signature) }
-            for (url, signature) in departingCandidates {
-                guard baseline?.contains(signature.sourceKey) != true else { continue }
-                if baseline == nil, signature.createdAt < installationStart { continue }
-                if try await store.containsSource(key: signature.sourceKey) { continue }
-                guard running, generation == originalGeneration, rebindRequest == request else { next.cancel(); return }
-                if pendingHandoffs[signature.sourceKey] == nil {
-                    let observed = observations[signature.sourceKey]
-                    pendingHandoffs[signature.sourceKey] = PendingSourceCapture(url: url, signature: signature,
-                        firstSeenAt: observed?.firstSeenAt ?? now(), stableSince: observed?.stableSince ?? now())
-                }
-            }
+            // Persist the directory, not a finite early file list: captures may still arrive
+            // while SQLite awaits. An interrupted handoff can therefore enumerate it later.
+            let departure = DepartingCaptureSource(id: request, directory: sourceDirectory,
+                baselineKeys: baseline ?? [], collectionBeganAt: installationStart,
+                knownCandidates: observations.values.map {
+                    PendingSourceCapture(url: $0.url, signature: $0.signature,
+                                         firstSeenAt: $0.firstSeenAt, stableSince: $0.stableSince)
+                }, retiredAt: nil)
+            departingSources[request] = departure
+            departuresInProgress.insert(request)
+            defer { departuresInProgress.remove(request) }
             try await saveHandoffs()
+            await lifecycleProbe?(.departureRecorded)
             guard running, generation == originalGeneration, rebindRequest == request else { next.cancel(); return }
 
             // No await between invalidating old callbacks and publishing the prepared watch.
+            let oldWatcher = watcher
             generation = nextGeneration
-            watcher?.cancel(); watcher = next
+            watcher = next
             parentWatcher?.cancel(); parentWatcher = nil
             retryTask?.cancel(); retryTask = nil
             sourceDirectory = destination
@@ -198,6 +239,18 @@ public actor CaptureService {
             initializing = false
             // Retain installationStart: a screenshot saved into the newly selected folder
             // before its preference notification arrives must not become historical baseline.
+            let retirement = await oldWatcher?.cancelAndWait() ?? Date()
+            guard running, generation == nextGeneration, rebindRequest == request else { return }
+            if var saved = departingSources[request] {
+                saved.retiredAt = retirement
+                departingSources[request] = saved
+            }
+            await lifecycleProbe?(.watcherRetired)
+            guard running, generation == nextGeneration, rebindRequest == request else { return }
+            // Final enumeration occurs only after retirement acknowledgement. There is no
+            // await between enumeration/filtering and recording the complete candidate set.
+            try? finishDeparture(request)
+            try await saveHandoffs()
             try await rescan()
         } catch {
             if generation != nextGeneration { next.cancel() }
@@ -218,7 +271,10 @@ public actor CaptureService {
             dirty = false
             try await scanOnce()
             guard running, generation == token else { return }
-            if try await drainHandoffs() { scheduleRetry() }
+            try await recoverDepartures()
+            guard running, generation == token else { return }
+            let needsHandoffRetry = try await drainHandoffs()
+            if generation == token, needsHandoffRetry || !departingSources.isEmpty { scheduleRetry() }
             passes += 1
         } while dirty && running && generation == token && passes < 2
         if dirty, generation == token { scheduleRetry() }
@@ -296,7 +352,7 @@ public actor CaptureService {
         if needsRetry, generation == token { scheduleRetry() }
     }
 
-    private func candidateFiles(in directory: URL) throws -> [(URL, FileSignature)] {
+    private func candidateFiles(in directory: URL, onUnreadable: (() -> Void)? = nil) throws -> [(URL, FileSignature)] {
         let urls = try FileManager.default.contentsOfDirectory(at: directory,
             includingPropertiesForKeys: [.isRegularFileKey, .isSymbolicLinkKey], options: [.skipsHiddenFiles])
         var candidates: [(URL, FileSignature)] = []
@@ -307,7 +363,13 @@ public actor CaptureService {
                 let signature = try FileSignature.read(at: url)
                 candidates.append((url, signature))
             } catch CaptureError.notRegularFile { continue }
-            catch { continue } // transient rename/unreadable candidates never become known/consumed
+            catch CaptureError.io(_, let code) where code == ELOOP { continue } // symlinks are never candidates
+            catch {
+                // A retired source has no future watcher event to repair a silently skipped
+                // file. Keep its durable directory intent until the complete snapshot works.
+                onUnreadable?()
+                continue
+            }
         }
         candidates.sort {
             if $0.1.createdAt != $1.1.createdAt { return $0.1.createdAt < $1.1.createdAt }
@@ -318,7 +380,53 @@ public actor CaptureService {
 
     private func saveHandoffs() async throws {
         let values = pendingHandoffs.values.sorted { $0.signature.sourceKey < $1.signature.sourceKey }
-        try await store.saveCheckpoint(try JSONEncoder().encode(values), for: Self.handoffCheckpoint)
+        let departures = departingSources.values.sorted { $0.id.uuidString < $1.id.uuidString }
+        let checkpoint = CaptureHandoffCheckpoint(version: 2, candidates: values, departures: departures)
+        try await store.saveCheckpoint(try JSONEncoder().encode(checkpoint), for: Self.handoffCheckpoint)
+    }
+
+    private func finishDeparture(_ id: UUID) throws {
+        guard var departure = departingSources[id] else { return }
+        // On interrupted handoff, conservatively retain screenshots through this recovery
+        // snapshot. Future old-directory writes are excluded once this snapshot is saved.
+        if departure.retiredAt == nil {
+            departure.retiredAt = Date()
+            departingSources[id] = departure
+        }
+        let cutoff = departure.retiredAt!
+        var complete = true
+        let candidates = try candidateFiles(in: departure.directory, onUnreadable: { complete = false })
+        for (url, signature) in candidates {
+            guard signature.createdAt >= departure.collectionBeganAt,
+                  signature.createdAt <= cutoff, !departure.baselineKeys.contains(signature.sourceKey) else { continue }
+            let previous = departure.knownCandidates.first { $0.signature.sourceKey == signature.sourceKey }
+            let pending = pendingHandoffs[signature.sourceKey]
+            let stableSince: Date
+            if let pending, pending.signature == signature { stableSince = pending.stableSince }
+            else if let previous, previous.signature == signature { stableSince = previous.stableSince }
+            else { stableSince = now() }
+            pendingHandoffs[signature.sourceKey] = PendingSourceCapture(url: url, signature: signature,
+                firstSeenAt: pending?.firstSeenAt ?? previous?.firstSeenAt ?? now(),
+                stableSince: stableSince)
+        }
+        for candidate in departure.knownCandidates where pendingHandoffs[candidate.signature.sourceKey] == nil {
+            guard !departure.baselineKeys.contains(candidate.signature.sourceKey),
+                  candidate.signature.createdAt <= cutoff else { continue }
+            pendingHandoffs[candidate.signature.sourceKey] = candidate
+        }
+        if complete { departingSources.removeValue(forKey: id) }
+    }
+
+    private func recoverDepartures() async throws {
+        var changed = false
+        for id in departingSources.keys.sorted(by: { $0.uuidString < $1.uuidString }) {
+            guard !departuresInProgress.contains(id), let departure = departingSources[id] else { continue }
+            // An interrupted request that never switched away is still the active source.
+            guard departure.directory != sourceDirectory || departure.retiredAt != nil else { continue }
+            do { try finishDeparture(id); changed = true }
+            catch { /* Keep the durable directory intent; access/next event can recover it. */ }
+        }
+        if changed { try await saveHandoffs() }
     }
 
     private func drainHandoffs() async throws -> Bool {

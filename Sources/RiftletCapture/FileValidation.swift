@@ -39,7 +39,8 @@ struct FileSignature: Codable, Equatable, Sendable {
     }
 
     static func read(at url: URL) throws -> FileSignature {
-        let fd = Darwin.open(url.path, O_RDONLY | O_NOFOLLOW | O_CLOEXEC)
+        // Reject a FIFO/device via fstat without waiting for a writer before validation.
+        let fd = Darwin.open(url.path, O_RDONLY | O_NONBLOCK | O_NOFOLLOW | O_CLOEXEC)
         guard fd >= 0 else { throw CaptureError.io("open-source", errno) }
         defer { Darwin.close(fd) }
         return try read(descriptor: fd)

@@ -38,7 +38,7 @@ public actor SystemCaptureLocationProvider: CaptureLocationProviding {
         // Reading the observed file avoids a long-lived UserDefaults process cache. A
         // malformed/partial plist must not silently switch collection back to Desktop.
         guard FileManager.default.fileExists(atPath: preferencesFile.path) else { return fallbackDirectory }
-        let descriptor = Darwin.open(preferencesFile.path, O_RDONLY | O_NOFOLLOW | O_CLOEXEC)
+        let descriptor = Darwin.open(preferencesFile.path, O_RDONLY | O_NONBLOCK | O_NOFOLLOW | O_CLOEXEC)
         guard descriptor >= 0 else { throw CaptureError.io("read-location-preference", errno) }
         let handle = FileHandle(fileDescriptor: descriptor, closeOnDealloc: true)
         defer { try? handle.close() }

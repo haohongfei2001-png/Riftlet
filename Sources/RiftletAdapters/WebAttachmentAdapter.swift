@@ -204,7 +204,7 @@ private final class PrivateUploadFile {
               url.deletingLastPathComponent().resolvingSymlinksInPath() == mediaDirectory.resolvingSymlinksInPath(),
               !url.pathExtension.isEmpty, request.asset.byteCount > 0,
               request.asset.byteCount <= 128 * 1024 * 1024 else { throw WebAdapterError.invalidPrivateFile }
-        let descriptor = open(url.path, O_RDONLY | O_NOFOLLOW | O_CLOEXEC)
+        let descriptor = open(url.path, O_RDONLY | O_NONBLOCK | O_NOFOLLOW | O_CLOEXEC)
         guard descriptor >= 0 else { throw WebAdapterError.invalidPrivateFile }
         var info = stat()
         guard fstat(descriptor, &info) == 0, (info.st_mode & mode_t(S_IFMT)) == mode_t(S_IFREG),
