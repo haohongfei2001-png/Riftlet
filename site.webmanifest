@@ -1,0 +1,9 @@
+{
+  "name": "Riftlet",
+  "short_name": "Riftlet",
+  "description": "A little space at the edge of your screen.",
+  "start_url": "./",
+  "display": "browser",
+  "background_color": "#F7F8F4",
+  "theme_color": "#F7F8F4"
+}

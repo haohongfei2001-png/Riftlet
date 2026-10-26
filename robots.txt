@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://riftlet.com/sitemap.xml

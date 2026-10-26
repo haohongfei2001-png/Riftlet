@@ -31,3 +31,10 @@ The **Screenshot Rift** name appears in the dated original studies; **Riftlet** 
 | Original sources, limits | [research/SOURCES.md](research/SOURCES.md) |
 
 **Next stage is visual/interaction design, not production development.** Please do not commit real user screenshots, private chats, credentials, unrelated project files or test browser profiles to this public repository.
+
+
+## Prelaunch website (2026-10-27)
+
+The first prelaunch brand site has been prepared as a static GitHub Pages candidate: [index.html](index.html). It contains a wholly **simulated** screenshot-to-draft interaction. The website does **not** upload real screenshots, connect to ChatGPT, or offer a working app download. Neither the visual direction nor the product adapter has final user acceptance.
+
+See [website/README.md](website/README.md) for publication instructions and evidence boundaries. GitHub Pages and the custom domain `riftlet.com` must be configured through repository settings and the domain's DNS provider; committing files alone does not prove a live site.

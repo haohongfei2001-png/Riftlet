@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#F7F8F4">
+  <meta name="color-scheme" content="light">
+  <meta name="description" content="Riftlet 是一个关于空间记忆的微小桌面工具。截图留在屏幕边缘，记住位置，轻点取用。设计中，尚未发布。">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Riftlet">
+  <meta property="og:title" content="Riftlet — 不必找。就在那儿。">
+  <meta property="og:description" content="给刚刚截下的内容，留一个熟悉的位置。Riftlet 是一个正在设计中的屏幕边缘工具。">
+  <meta property="og:url" content="https://riftlet.com/">
+  <link rel="canonical" href="https://riftlet.com/">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="manifest" href="site.webmanifest">
+  <link rel="stylesheet" href="site.css">
+  <title>Riftlet — 不必找。就在那儿。</title>
+</head>
+<body>
+  <a href="#main" class="skip-link" data-t="skip">跳转到正文</a>
+  <div class="page-shell">
+    <header class="topbar wrap" aria-label="Riftlet navigation">
+      <a class="brand" href="#top" aria-label="Riftlet 首页">
+        <svg class="brand-mark" viewBox="0 0 42 45" fill="none" aria-hidden="true">
+          <path d="M7 6h13.5c6.9 0 12 4.4 12 11.2 0 5.7-3.5 9.1-8.1 10.8l9.2 11H23.1L14.6 27h-1.3v12H7V6Z" fill="currentColor"/>
+          <path d="M21 2v41" stroke="var(--paper)" stroke-width="3.8"/>
+        </svg><span>riftlet<span class="brand-period">.</span></span>
+      </a>
+      <nav class="nav-links" aria-label="章节">
+        <a href="#experience" data-t="navExperience">体验</a>
+        <a href="#thinking" data-t="navIdea">设计理念</a>
+        <a href="#future" data-t="navFuture">未来</a>
+      </nav>
+      <div class="nav-actions">
+        <button class="language-switch" id="lang-switch" type="button" aria-label="Switch to English">EN</button>
+        <a class="nav-cta" href="#experience"><span data-t="navTry">体验一下</span><span aria-hidden="true">↗</span></a>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="hero wrap" id="top" aria-labelledby="hero-heading">
+        <div class="hero-copy">
+          <div class="meta-line"><span class="meta-dot"></span><span data-t="heroEyebrow">一个藏在屏幕边缘的小空间</span><span class="meta-index">01 / RIFTLET</span></div>
+          <h1 id="hero-heading" data-t-html="heroTitle">不必找。<br><em>就在那儿。</em></h1>
+          <p class="hero-lead" data-t="heroDesc">用系统原来的方式截图。那张图在屏幕边缘露出小小一角。记住它的位置，点一下，图片便进入正在使用的对话草稿。</p>
+          <div class="hero-actions">
+            <a class="primary-cta" href="#experience"><span data-t="heroButton">亲手试一下</span><span class="circle-arrow" aria-hidden="true">↗</span></a>
+            <a class="text-cta" href="#thinking"><span data-t="heroSecondary">为什么要这么小</span><span aria-hidden="true">↘</span></a>
+          </div>
+          <div class="hero-notice"><span class="tiny-spark" aria-hidden="true">✳</span><span data-t="heroNote">产品仍在设计中 · 下面是可操作的模拟体验</span></div>
+        </div>
+        <div class="hero-art" role="img" aria-label="三张长宽各异的内容片段被屏幕边缘遮挡，仅露出小部分。">
+          <div class="art-field"></div>
+          <span class="art-hairline h1"></span><span class="art-hairline h2"></span>
+          <div class="art-slice s1"><svg viewBox="0 0 270 184" aria-hidden="true" preserveAspectRatio="xMidYMid slice"><rect width="270" height="184" fill="#9FBCB4"/><circle cx="161" cy="52" r="75" fill="#D1D4A1"/><path d="M-10 164C55 86 83 172 140 109S229 134 290 42" fill="none" stroke="#416B62" stroke-width="35"/><path d="M-10 164C55 86 83 172 140 109S229 134 290 42" fill="none" stroke="#E3D5C2" stroke-width="2"/></svg></div>
+          <div class="art-slice s2"><svg viewBox="0 0 310 165" aria-hidden="true" preserveAspectRatio="xMidYMid slice"><rect width="310" height="165" fill="#E8BD9F"/><path d="M0 130C70 88 130 65 200 86c50 15 68 9 110-31V165H0Z" fill="#C87D64"/><path d="M0 159C75 113 127 114 178 128c58 16 93 0 132-28V165H0Z" fill="#8D4D44"/><circle cx="211" cy="42" r="22" fill="#F7EBD7"/></svg></div>
+          <div class="art-slice s3"><svg viewBox="0 0 190 265" aria-hidden="true" preserveAspectRatio="xMidYMid slice"><rect width="190" height="265" fill="#C6D5E6"/><rect x="15" y="17" width="160" height="230" rx="3" fill="#F7F7F1"/><path d="M32 48h107M32 62h82M32 90h124M32 104h115M32 118h100" stroke="#96A8B6" stroke-width="4" stroke-linecap="round"/><path d="M33 154h125v57H33z" fill="#A5C4B9"/><path d="m33 211 58-55 45 55" fill="#426F65"/></svg></div>
+          <div class="art-overlap"><span class="art-overlap-label">somewhere<br><i>just beyond.</i></span><span class="art-overlap-index">RIFTLET / STUDY № 01</span></div>
+          <div class="art-seam"></div>
+          <span class="art-side-note" data-t="heroArtNote">只露出一点。<br>就足以想起来。</span>
+        </div>
+        <div class="hero-bottom"><span data-t="heroBottom">截图之后，它始终有一个位置。</span><span class="hero-bottom-arrow">↓</span></div>
+      </section>
+
+      <section class="manifesto" id="thinking" aria-labelledby="manifesto-heading">
+        <div class="wrap manifesto-inner">
+          <span class="section-label">THE THOUGHT / 02</span>
+          <div class="manifesto-grid">
+            <h2 id="manifesto-heading" data-t-html="manifestoTitle">先记得<span class="serif-accent">位置。</span><br>再看见内容。</h2>
+            <div class="manifesto-aside"><span class="hairline-arrow">↗</span><p data-t="manifestoDesc">刚刚截了什么，你本来就知道。你需要的不是另一张清晰的预览卡，也不是给每个东西取名字。它只要在熟悉的位置，就够了。</p><p class="manifesto-foot" data-t="manifestoFoot">空间记忆 ＞ 内容轮廓 ＞ 文件名称</p></div>
+          </div>
+          <div class="manifesto-track" aria-hidden="true"><span></span><span></span><span></span><i></i><span></span><span></span></div>
+        </div>
+      </section>
+
+      <section class="experience" id="experience" aria-labelledby="experience-heading">
+        <div class="wrap">
+          <div class="section-top"><div><span class="section-label">TRY THE INTERACTION / 03</span><h2 id="experience-heading" data-t-html="experienceTitle">这一点点空间，<br><em>真的能用。</em></h2></div><p class="section-side" data-t="experienceDesc">这是一段可点击的离线演示。先添加一张模拟截图，再点屏幕右侧的小片段；它会进入草稿。全过程不会发送任何消息。</p></div>
+          <div class="experience-frame">
+            <div class="frame-top"><span class="frame-led"><i></i><i></i><i></i></span><span data-t="frameTop">一块普通的桌面 · 模拟</span><span>RIFTLET / DEMO</span></div>
+            <div class="desktop" id="desktop">
+              <div class="desk-aura" aria-hidden="true"></div>
+              <div class="mock-app">
+                <div class="mock-app-nav"><div class="fake-app-icon">✳</div><span data-t="mockAppTitle">聊天草稿</span><div class="fake-window-tools"><span></span><span></span></div></div>
+                <div class="mock-app-content"><div class="empty-center"><span class="empty-glyph" aria-hidden="true">✣</span><span data-t="mockContent">正在写的事情，不需要被打断。</span></div>
+                  <div class="composer" id="composer"><div id="attachments" class="attachments" aria-label="模拟添加的附件"></div><label class="sr-only" for="draft" data-t="draftLabel">模拟草稿文字</label><textarea id="draft" spellcheck="false">请帮我看看这几张截图。</textarea><div class="composer-foot"><span data-t="draftNote">文字保留 · 只附加不发送</span><span class="mock-send" aria-hidden="true">↑</span></div></div>
+                </div>
+              </div>
+              <div class="seam-zone" id="seam-zone"><div class="seam-items" id="seam-items" role="group" aria-label="模拟截图队列"></div><div class="seam-line" aria-hidden="true"></div></div>
+              <div class="demo-tag" data-t="demoTag">一条边缘，几个位置。</div>
+            </div>
+            <div class="demo-control-panel">
+              <div class="demo-actions"><button type="button" class="demo-add" id="add-shot"><span class="plus" aria-hidden="true">+</span><span data-t="addShot">模拟截一张图</span></button><button type="button" class="demo-reset" id="reset-demo" data-t="resetDemo">重置</button></div>
+              <div class="demo-result"><label for="demo-mode" data-t="demoModeLabel">下一次点击的结果</label><select id="demo-mode"><option value="ready" data-t="outcomeReady">确认成功</option><option value="failed" data-t="outcomeFailed">明确失败</option><option value="unknown" data-t="outcomeUnknown">结果未知</option></select></div>
+            </div>
+            <div class="demo-status-row"><span class="status-orbit" aria-hidden="true"></span><p id="demo-status" aria-live="polite" data-t="statusInitial">点击右侧缩略图，或再添加一张模拟截图。</p></div>
+          </div>
+          <p class="demo-disclaimer" data-t="demoDisclaimer">演示使用合成图像与本地脚本，不会读取系统截图、连接 ChatGPT 或上传真实文件。Riftlet 目前仍未发布。</p>
+        </div>
+      </section>
+
+      <section class="two-actions" aria-labelledby="two-heading">
+        <div class="wrap">
+          <span class="section-label">JUST TWO MOVEMENTS / 04</span>
+          <h2 id="two-heading" data-t-html="twoTitle">它需要你做的，<br><em>只有两件事。</em></h2>
+          <div class="two-grid">
+            <div class="action-card"><div class="card-header"><span>01</span><span class="card-dash">/ CAPTURE</span></div><div class="capture-art" aria-hidden="true"><div class="capture-outline"><div class="capture-corner c1"></div><div class="capture-corner c2"></div><div class="capture-corner c3"></div><div class="capture-corner c4"></div><div class="capture-land"><span class="capture-sun"></span><span class="capture-hill"></span></div></div></div><h3 data-t="step1Title">照常截图。</h3><p data-t="step1Desc">使用系统原本的截图方式。不用学习新的快捷键，也不用打开另一个截图软件。</p></div>
+            <div class="action-card"><div class="card-header"><span>02</span><span class="card-dash">/ PLACE</span></div><div class="place-art" aria-hidden="true"><div class="place-paper"></div><div class="place-edge"></div><div class="place-composer"><div></div><div></div><span>+</span></div><span class="place-pointer">↖</span></div><h3 data-t="step2Title">点击它。</h3><p data-t="step2Desc">图片进入你正在使用的对话草稿；确认准备就绪后，才从裂缝中消失。不会替你发送消息。</p></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="future" id="future" aria-labelledby="future-heading"><div class="wrap future-grid"><div class="future-copy"><span class="section-label">A SMALL BEGINNING / 05</span><h2 id="future-heading" data-t-html="futureTitle">从截图开始。<br><em>不止于截图。</em></h2><p data-t="futureDesc">第一步是让 Mac 上的截图变得顺手。以后，这条熟悉的边缘也可能容纳复制的文字与图片，并走向 Windows 与更多应用。空间记忆，始终是第一位。</p><div class="future-tags"><span data-t="tagScreenshot">截图 · 首先探索</span><span data-t="tagClipboard">剪贴板 · 未来方向</span><span data-t="tagWindows">Windows · 未来方向</span></div></div><div class="future-visual" aria-hidden="true"><div class="future-shadow"></div><div class="future-line"></div><div class="future-peek f1"></div><div class="future-peek f2"><i></i><i></i><i></i></div><div class="future-peek f3"></div><span>THE SAME EDGE.<br>NEW POSSIBILITIES.</span></div></div></section>
+
+      <section class="closing wrap"><span class="section-label">RIFTLET / IN THE MAKING</span><div class="closing-inner"><h2 data-t-html="closingTitle">有些好工具，<br>不需要占据你的注意。</h2><div class="closing-side"><p data-t="closingDesc">Riftlet 目前处于设计和技术验证阶段。正式下载尚未开放。在发布之前，这里会继续展示它真正的样子。</p><a class="github-link" href="https://github.com/haohongfei2001-png/Riftlet" target="_blank" rel="noopener noreferrer"><span data-t="githubButton">查看开发进展</span><span aria-hidden="true">↗</span></a></div></div></section>
+    </main>
+    <footer class="footer"><div class="wrap footer-inner"><a class="footer-brand" href="#top">riftlet<span>.</span></a><span data-t="footerStatus">独立桌面软件 · 设计中 · 尚未开放下载</span><span>© 2026 Riftlet</span></div></footer>
+  </div>
+  <script src="site.js" defer></script>
+</body>
+</html>
