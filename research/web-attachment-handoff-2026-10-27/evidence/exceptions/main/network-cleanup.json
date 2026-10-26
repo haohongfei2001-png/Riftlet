@@ -1,0 +1,130 @@
+{
+  "event": "stop-network-bridge",
+  "windowId": "lab-a5751d2f2e80b75b",
+  "tabId": "lab-993adfb969d1b514",
+  "monotonicSeconds": 394493.310590041,
+  "exitCode": 0,
+  "error": null,
+  "result": {
+    "state": "STOPPED",
+    "sessionId": "lab-e97fedc0d3ff4c52",
+    "mainWorldBridge": true,
+    "active": {
+      "label": "POST100",
+      "mode": "POST100",
+      "faultInjected": true,
+      "ui100": true,
+      "deadlineReached": true
+    },
+    "events": [
+      {
+        "sequence": 1,
+        "monotonicMs": 1411756.800000012,
+        "event": "bridge_installed",
+        "operationId": null,
+        "scope": "this document only",
+        "oneAbortPerCase": true,
+        "requestsInitiatedByBridge": 0
+      },
+      {
+        "sequence": 2,
+        "monotonicMs": 1432532.199999988,
+        "event": "fault_case_armed",
+        "operationId": "8faf739d-4752-4774-bd8a-2ff0a1c25a06",
+        "label": "POST100",
+        "name": "Riftlet_d383da2a-aeca-464b-81ca-2cef97d5d52b.png",
+        "mode": "POST100"
+      },
+      {
+        "sequence": 3,
+        "monotonicMs": 1432758.4000000358,
+        "event": "native_request_started",
+        "operationId": "8faf739d-4752-4774-bd8a-2ff0a1c25a06",
+        "requestLocalId": 1,
+        "transport": "fetch",
+        "kind": "create-exact-name"
+      },
+      {
+        "sequence": 4,
+        "monotonicMs": 1433045.300000012,
+        "event": "native_response",
+        "operationId": "8faf739d-4752-4774-bd8a-2ff0a1c25a06",
+        "requestLocalId": 1,
+        "status": 200,
+        "kind": "create-exact-name"
+      },
+      {
+        "sequence": 5,
+        "monotonicMs": 1433047,
+        "event": "own_creation_linkage_observed",
+        "operationId": "8faf739d-4752-4774-bd8a-2ff0a1c25a06",
+        "idCount": 1,
+        "urlCount": 1
+      },
+      {
+        "sequence": 6,
+        "monotonicMs": 1433049.6000000238,
+        "event": "native_request_started",
+        "operationId": "8faf739d-4752-4774-bd8a-2ff0a1c25a06",
+        "requestLocalId": 2,
+        "transport": "xhr",
+        "kind": "bytes-observed-upload-url"
+      },
+      {
+        "sequence": 7,
+        "monotonicMs": 1433294.9000000358,
+        "event": "own_ui_progress100",
+        "operationId": "8faf739d-4752-4774-bd8a-2ff0a1c25a06"
+      },
+      {
+        "sequence": 8,
+        "monotonicMs": 1433295,
+        "event": "native_abort_requested",
+        "operationId": "8faf739d-4752-4774-bd8a-2ff0a1c25a06",
+        "requestLocalId": 2,
+        "transport": "xhr",
+        "kind": "bytes-observed-upload-url",
+        "trigger": "own_ui_progress100",
+        "ui100": true,
+        "loaded": null,
+        "total": null
+      },
+      {
+        "sequence": 9,
+        "monotonicMs": 1433295.199999988,
+        "event": "native_abort_event",
+        "operationId": "8faf739d-4752-4774-bd8a-2ff0a1c25a06",
+        "requestLocalId": 2,
+        "kind": "bytes-observed-upload-url"
+      },
+      {
+        "sequence": 10,
+        "monotonicMs": 1433295.300000012,
+        "event": "native_loadend",
+        "operationId": "8faf739d-4752-4774-bd8a-2ff0a1c25a06",
+        "requestLocalId": 2,
+        "status": 0,
+        "kind": "bytes-observed-upload-url"
+      },
+      {
+        "sequence": 11,
+        "monotonicMs": 1433307.4000000358,
+        "event": "native_upload_progress",
+        "operationId": "8faf739d-4752-4774-bd8a-2ff0a1c25a06",
+        "requestLocalId": 2,
+        "loaded": 25265,
+        "total": 25265,
+        "lengthComputable": true
+      },
+      {
+        "sequence": 12,
+        "monotonicMs": 1493123.699999988,
+        "event": "case_deadline",
+        "operationId": "8faf739d-4752-4774-bd8a-2ff0a1c25a06",
+        "faultInjected": true,
+        "pendingRequests": 0
+      }
+    ],
+    "requestsInitiatedByBridge": 0
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "sessionId": "lab-e97fedc0d3ff4c52",
+  "windowId": "lab-a5751d2f2e80b75b",
+  "tabId": "lab-993adfb969d1b514",
+  "oldActiveTabId": "lab-1f19a21b32710a72",
+  "fixtures": [
+    {
+      "label": "IDENTITY",
+      "assetId": "09c8657c-3f0e-4767-85fa-54cd7739edc0",
+      "operationId": "9c83606b-b715-46c1-90b1-dcd8062c1eac",
+      "name": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+      "path": "fixtures/synthetic-noise.png",
+      "bytes": 4802523,
+      "sha256": "18b581acd175f5954ef8cb262428f7fd63d41fe93eaa94087b7f8dbc730c930d",
+      "mime": "image/png"
+    },
+    {
+      "label": "OTHER",
+      "assetId": "356d1f73-8c73-48d7-b9fc-c473ff49f33d",
+      "operationId": "c98e7246-5ff0-4bd1-a773-c894f94e8920",
+      "name": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+      "path": "fixtures/synthetic-orange.png",
+      "bytes": 25265,
+      "sha256": "cd8e74e10dad315581a0fe53b88090e0de40eac0dfa4f3ea6a4d685304e644f8",
+      "mime": "image/png"
+    },
+    {
+      "label": "SWITCH",
+      "assetId": "39b31e60-5865-4e1f-bf47-4c613936cca7",
+      "operationId": "21b957cd-b754-45fa-bd1a-124f4f3a6628",
+      "name": "Riftlet_39b31e60-5865-4e1f-bf47-4c613936cca7.png",
+      "path": "fixtures/synthetic-noise.png",
+      "bytes": 4802523,
+      "sha256": "18b581acd175f5954ef8cb262428f7fd63d41fe93eaa94087b7f8dbc730c930d",
+      "mime": "image/png"
+    },
+    {
+      "label": "MID",
+      "assetId": "00f035f4-e3fe-44ba-9bef-c44782282b45",
+      "operationId": "da3a4bb9-20f4-4702-a149-6080e55ac10d",
+      "name": "Riftlet_00f035f4-e3fe-44ba-9bef-c44782282b45.png",
+      "path": "fixtures/synthetic-noise.png",
+      "bytes": 4802523,
+      "sha256": "18b581acd175f5954ef8cb262428f7fd63d41fe93eaa94087b7f8dbc730c930d",
+      "mime": "image/png"
+    },
+    {
+      "label": "POST100",
+      "assetId": "d383da2a-aeca-464b-81ca-2cef97d5d52b",
+      "operationId": "8faf739d-4752-4774-bd8a-2ff0a1c25a06",
+      "name": "Riftlet_d383da2a-aeca-464b-81ca-2cef97d5d52b.png",
+      "path": "fixtures/synthetic-orange.png",
+      "bytes": 25265,
+      "sha256": "cd8e74e10dad315581a0fe53b88090e0de40eac0dfa4f3ea6a4d685304e644f8",
+      "mime": "image/png"
+    }
+  ],
+  "abandonedTabId": "lab-cdabf7e358af6ec8"
+}

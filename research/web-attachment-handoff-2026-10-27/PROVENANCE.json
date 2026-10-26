@@ -1,0 +1,248 @@
+[
+  {
+    "published": "evidence/input/ae-observations.ndjson",
+    "source": "outputs/Riftlet-Mac-Validation-2026-10-26/evidence/ae-observations.ndjson",
+    "sourceSHA256": "7e70b39ab33d2da2acadf3a1ce3afc1415b33c9689d727f5925dd952b27f0cf6",
+    "transformation": "public projection: aliased browser identity; DOM attributes allowlist; UI text/HTML/paths/profile omitted; semantics and sequence retained"
+  },
+  {
+    "published": "evidence/input/final-composer-snapshot.json",
+    "source": "outputs/Riftlet-Mac-Validation-2026-10-26/evidence/final-composer-snapshot.json",
+    "sourceSHA256": "c6a0f2085f220f675bc46fb7742ffc828124839e21475a4e8f49061c49444423",
+    "transformation": "public projection: aliased browser identity; DOM attributes allowlist; UI text/HTML/paths/profile omitted; semantics and sequence retained"
+  },
+  {
+    "published": "evidence/input/replay-guard-event.json",
+    "source": "outputs/Riftlet-Mac-Validation-2026-10-26/evidence/replay-guard-event.json",
+    "sourceSHA256": "9849c4eafee6004931069f54aef8810fa052f38dab3bf9dcbd6a8901b13fe2b3",
+    "transformation": "public projection: aliased browser identity; DOM attributes allowlist; UI text/HTML/paths/profile omitted; semantics and sequence retained"
+  },
+  {
+    "published": "evidence/input/fixtures-original.json",
+    "source": "work/riftlet-validation-20261026/fixtures/manifest.json",
+    "sourceSHA256": "a49382db7d95c739e886c7c4551dcebdbe030385b1f41fd0a4c2fea8ab139a51",
+    "transformation": "public projection: aliased browser identity; DOM attributes allowlist; UI text/HTML/paths/profile omitted; semantics and sequence retained"
+  },
+  {
+    "published": "evidence/normal/classifier-input.json",
+    "source": "outputs/Riftlet-ATTACHED-2026-10-27/evidence/classifier-input.json",
+    "sourceSHA256": "fce1804aeb4e588bc2f04aed4dc979f54be1ff5965da51a51daa9fc773b2f71c",
+    "transformation": "public projection: aliased browser identity; DOM attributes allowlist; UI text/HTML/paths/profile omitted; semantics and sequence retained"
+  },
+  {
+    "published": "evidence/normal/events.ndjson",
+    "source": "outputs/Riftlet-READY-R27C-2026-10-27/events.ndjson",
+    "sourceSHA256": "a6a51355a2e360ad15b56ea025df9cf94c5a4704a2d8efde5ba72237334cb5d0",
+    "transformation": "public projection: aliased browser identity; DOM attributes allowlist; UI text/HTML/paths/profile omitted; semantics and sequence retained"
+  },
+  {
+    "published": "evidence/normal/receipt-profile-historical.json",
+    "source": "outputs/Riftlet-READY-R27C-2026-10-27/receipt-profile.json",
+    "sourceSHA256": "92bcb75eb0e345ac304c3b12cb40672d1230163d059e8b34e28b75a521c3f66c",
+    "transformation": "public projection: aliased browser identity; DOM attributes allowlist; UI text/HTML/paths/profile omitted; semantics and sequence retained"
+  },
+  {
+    "published": "evidence/normal/trace-checks.json",
+    "source": "outputs/Riftlet-READY-R27C-2026-10-27/evidence/trace-checks.json",
+    "sourceSHA256": "7b91df0159e9f3fae712bd00f398c116efb6eb3aae1a935436cd1ada29781e06",
+    "transformation": "public projection: aliased browser identity; DOM attributes allowlist; UI text/HTML/paths/profile omitted; semantics and sequence retained"
+  },
+  {
+    "published": "evidence/exceptions/main/config.json",
+    "source": "work/riftlet-exceptions-20261027/run/config.json",
+    "sourceSHA256": "2b96161dddd4299180215a306c728511a244d7355c22486a29885f1e88d1a870",
+    "transformation": "public projection: aliased browser identity; DOM attributes allowlist; UI text/HTML/paths/profile omitted; semantics and sequence retained"
+  },
+  {
+    "published": "evidence/exceptions/main/identity-observation.json",
+    "source": "work/riftlet-exceptions-20261027/run/identity-observation.json",
+    "sourceSHA256": "91eebc6a2028dcf6d22bb9f64756df251911c64c40edf3ce8493cced7210c31c",
+    "transformation": "public projection: aliased browser identity; DOM attributes allowlist; UI text/HTML/paths/profile omitted; semantics and sequence retained"
+  },
+  {
+    "published": "evidence/exceptions/main/concurrent-preview-proof.json",
+    "source": "work/riftlet-exceptions-20261027/run/concurrent-preview-proof.json",
+    "sourceSHA256": "9f2ebd62af2fe6474eab24d8bf62f4d26671d29a0b2635b6306f5e168470cae0",
+    "transformation": "public projection: aliased browser identity; DOM attributes allowlist; UI text/HTML/paths/profile omitted; semantics and sequence retained"
+  },
+  {
+    "published": "evidence/exceptions/main/pixel-proof.json",
+    "source": "work/riftlet-exceptions-20261027/run/pixel-proof.json",
+    "sourceSHA256": "3d65244141de046e8cc388fdca89084c679d13fe6c0a6f4c97b0b117ee038401",
+    "transformation": "public projection: aliased browser identity; DOM attributes allowlist; UI text/HTML/paths/profile omitted; semantics and sequence retained"
+  },
+  {
+    "published": "evidence/exceptions/main/mid-final-before-bridge-refinement.json",
+    "source": "work/riftlet-exceptions-20261027/run/mid-final-before-bridge-refinement.json",
+    "sourceSHA256": "8f25eba911727c5d2a369118731dddfa481c938c5f0038f70d94d77a2a7d365f",
+    "transformation": "public projection: aliased browser identity; DOM attributes allowlist; UI text/HTML/paths/profile omitted; semantics and sequence retained"
+  },
+  {
+    "published": "evidence/exceptions/main/post100-final.json",
+    "source": "work/riftlet-exceptions-20261027/run/post100-final.json",
+    "sourceSHA256": "71b26508ff00321c8cfa91efbedbaa78982e65294e5701cc98b2a2ed09d31eed",
+    "transformation": "public projection: aliased browser identity; DOM attributes allowlist; UI text/HTML/paths/profile omitted; semantics and sequence retained"
+  },
+  {
+    "published": "evidence/exceptions/main/network-cleanup.json",
+    "source": "work/riftlet-exceptions-20261027/run/network-cleanup.json",
+    "sourceSHA256": "3a5071c77e6d8b549dfcdfad8ed4923d912465dfd90acd13d029a8ea29c5fb71",
+    "transformation": "public projection: aliased browser identity; DOM attributes allowlist; UI text/HTML/paths/profile omitted; semantics and sequence retained"
+  },
+  {
+    "published": "evidence/exceptions/main/final-observation.json",
+    "source": "work/riftlet-exceptions-20261027/run/final-observation.json",
+    "sourceSHA256": "92f001f98047f6ce3ef33b8aa4491e0f8b1a88491a13e1dfc5e0233e58fa8c70",
+    "transformation": "public projection: aliased browser identity; DOM attributes allowlist; UI text/HTML/paths/profile omitted; semantics and sequence retained"
+  },
+  {
+    "published": "evidence/exceptions/main/recovery-verification.json",
+    "source": "work/riftlet-exceptions-20261027/run/recovery-verification.json",
+    "sourceSHA256": "c84f6a109e5142882c5d8878d1d1c43b308be66854eff48186bba55f6f13efaf",
+    "transformation": "public projection: aliased browser identity; DOM attributes allowlist; UI text/HTML/paths/profile omitted; semantics and sequence retained"
+  },
+  {
+    "published": "evidence/exceptions/main/attached-exception-audit.json",
+    "source": "work/riftlet-exceptions-20261027/run/attached-exception-audit.json",
+    "sourceSHA256": "e8f7d3d539b335c09f649dd7eadbad5c326a94f02d21c609c0312aabf20a1216",
+    "transformation": "public projection: aliased browser identity; DOM attributes allowlist; UI text/HTML/paths/profile omitted; semantics and sequence retained"
+  },
+  {
+    "published": "evidence/exceptions/transition/config.json",
+    "source": "work/riftlet-tab-switch-20261027/run/config.json",
+    "sourceSHA256": "bec71d4d28502da4c92e8f2e829bb931bc580dbe589923919c1871651d6b6f2c",
+    "transformation": "public projection: aliased browser identity; DOM attributes allowlist; UI text/HTML/paths/profile omitted; semantics and sequence retained"
+  },
+  {
+    "published": "evidence/exceptions/transition/transition-final.json",
+    "source": "work/riftlet-tab-switch-20261027/run/transition-final.json",
+    "sourceSHA256": "1a9f0ca1f5fc1be4f4fdd46548d8b29ba657d0fd1bc1d577a902e1396a4f402b",
+    "transformation": "public projection: aliased browser identity; DOM attributes allowlist; UI text/HTML/paths/profile omitted; semantics and sequence retained"
+  },
+  {
+    "published": "src/input/shared-adapter.js",
+    "source": "work/riftlet-validation-20261026/src/shared-adapter.js",
+    "sourceSHA256": "1a9b9ab8735e3416b07c2cb7b8fe609ce60b2995a53d1229f01020d297a8ddef",
+    "transformation": "unchanged"
+  },
+  {
+    "published": "src/input/web-evaluate.applescript",
+    "source": "work/riftlet-validation-20261026/src/web-evaluate.applescript",
+    "sourceSHA256": "987be005e37ce5889237af0124eb273deb9a577a0e0c8132987484ccadbb6a29",
+    "transformation": "unchanged"
+  },
+  {
+    "published": "src/input/dispatch_fixture.py",
+    "source": "work/riftlet-validation-20261026/src/dispatch_fixture.py",
+    "sourceSHA256": "e2b95ec6e5cdb54011605bb3c5ab1b5bf390da4c5399e11767ed46e1ebbe7ff2",
+    "transformation": "unchanged"
+  },
+  {
+    "published": "src/input/ae_probe.py",
+    "source": "work/riftlet-validation-20261026/src/ae_probe.py",
+    "sourceSHA256": "9e36277667ae21307b362d9144c9c3b768b7e22c730e5db624b72337de1a648c",
+    "transformation": "unchanged"
+  },
+  {
+    "published": "src/input/recovery-query.js",
+    "source": "work/riftlet-validation-20261026/src/recovery-query.js",
+    "sourceSHA256": "e6f084e58c9e88806f34e035d992de4cdec06374f65f1fd9672ba8e78b873ec9",
+    "transformation": "unchanged"
+  },
+  {
+    "published": "src/observers/normal-bound-observer.template.js",
+    "source": "work/riftlet-ready-binding-20261027/src/bound-observer.template.js",
+    "sourceSHA256": "23140bfbcd1d43a82b569565bc40a4f8f45b7da9f1d038e63ade593522433600",
+    "transformation": "unchanged"
+  },
+  {
+    "published": "src/observers/exception-observer.template.js",
+    "source": "work/riftlet-exceptions-20261027/src/observer.template.js",
+    "sourceSHA256": "c37f26642f4f7d8bccef2a58e03a6462d549cb0cf5c4337b58149f5a86b505f1",
+    "transformation": "unchanged"
+  },
+  {
+    "published": "src/observers/error-observer.js",
+    "source": "work/riftlet-exceptions-20261027/src/error-observer.js",
+    "sourceSHA256": "21db45dc717cc5d1430a1285893c8231e96a15490a86a603662e299d5b3207dd",
+    "transformation": "unchanged"
+  },
+  {
+    "published": "src/observers/check-concurrent-preview-bytes.js",
+    "source": "work/riftlet-exceptions-20261027/src/check-concurrent-preview-bytes.js",
+    "sourceSHA256": "78194c94812b7c86fd6fc2cc1fddf626c087b19d49d5bb981cf689c81e02f128",
+    "transformation": "unchanged"
+  },
+  {
+    "published": "src/observers/hash-final-preview.template.js",
+    "source": "work/riftlet-attached-20261027/src/hash-final-preview.js",
+    "sourceSHA256": "05c3fa237b12ffd47efdfdcf702c7d8e26e17620bfe46ef7783cc38d8bd1542f",
+    "transformation": "offline package paths or explicit lab placeholder only; no runtime semantics changed; not revalidated live"
+  },
+  {
+    "published": "src/lab-only/network-fault-bridge-v1.template.js",
+    "source": "work/riftlet-exceptions-20261027/src/network-fault-bridge.js",
+    "sourceSHA256": "6b7fdc8a13d7a0afac4274f71436a9a724b5b335b31b6737be5fca04cc35e73e",
+    "transformation": "offline package paths or explicit lab placeholder only; no runtime semantics changed; not revalidated live"
+  },
+  {
+    "published": "src/lab-only/network-fault-bridge-v2.template.js",
+    "source": "work/riftlet-exceptions-20261027/src/network-fault-bridge-v2.js",
+    "sourceSHA256": "01065c14756e139a17763261215116c3c9b5e9bc335dbc8641df3f5f1bf6b70f",
+    "transformation": "offline package paths or explicit lab placeholder only; no runtime semantics changed; not revalidated live"
+  },
+  {
+    "published": "src/lab-only/javascript-url-probe.applescript",
+    "source": "work/riftlet-exceptions-20261027/src/javascript-url-probe.applescript",
+    "sourceSHA256": "302d1414cb8e18304388a28a86b3dd74ed843a2032f4d4795e204802000dc4e4",
+    "transformation": "unchanged"
+  },
+  {
+    "published": "src/lab-only/dispatch-case.py",
+    "source": "work/riftlet-exceptions-20261027/src/dispatch-case.py",
+    "sourceSHA256": "7252e93735a202bec8167ce4f396b03da0a0e77e24afc860a1afeaa620ae3656",
+    "transformation": "unchanged"
+  },
+  {
+    "published": "src/lab-only/run.py",
+    "source": "work/riftlet-exceptions-20261027/src/run.py",
+    "sourceSHA256": "58d5e866b9710ca6502b9aa2e3f832cd8ba0573940ddb32cf6bdc56918229d39",
+    "transformation": "unchanged"
+  },
+  {
+    "published": "src/lab-only/prepare-transition.js",
+    "source": "work/riftlet-tab-switch-20261027/src/prepare-transition.js",
+    "sourceSHA256": "7d1e43a188e3b2c978a09bc19cf1d6acb02051987fe42186e7d8a44d7243e1d7",
+    "transformation": "unchanged"
+  },
+  {
+    "published": "src/lab-only/stop-network-bridge.js",
+    "source": "work/riftlet-exceptions-20261027/src/stop-network-bridge.js",
+    "sourceSHA256": "86a379502f884e9a629937311134485f53f9ca44e1875af2cc69852a4e20c771",
+    "transformation": "unchanged"
+  },
+  {
+    "published": "src/attached/attached-verdict-v1.cjs",
+    "source": "work/riftlet-attached-20261027/src/attached-verdict.cjs",
+    "sourceSHA256": "bd053dda20a58128dcd8d472f336008559dc31432e7ac0b5603ccf0a4a395e65",
+    "transformation": "unchanged"
+  },
+  {
+    "published": "src/attached/test-attached-v1.cjs",
+    "source": "work/riftlet-attached-20261027/src/test-attached.cjs",
+    "sourceSHA256": "5f11d2017b85c91e9d03c695a671df121873cb62dfe908e4c0b942367a977906",
+    "transformation": "offline package paths or explicit lab placeholder only; no runtime semantics changed; not revalidated live"
+  },
+  {
+    "published": "src/attached/attached_exception_audit.py",
+    "source": "work/riftlet-exceptions-20261027/src/attached-exception-audit.py",
+    "sourceSHA256": "a4238ad9a6a721defcff767f17d2198c68405944cb635519fc4ee536ad632791",
+    "transformation": "offline package paths or explicit lab placeholder only; no runtime semantics changed; not revalidated live"
+  },
+  {
+    "published": "src/observers/compare-source-preview-pixels.template.js",
+    "source": "work/riftlet-exceptions-20261027/run/compare-source-preview-pixels.js",
+    "sourceSHA256": "7a3d9c5fee3cb52a169891d65ee7f089a3622320f9f46cef2fae904159def204",
+    "transformation": "synthetic source base64 replaced with explicit __SYNTHETIC_SOURCE_BASE64__; hash proof retained"
+  }
+]

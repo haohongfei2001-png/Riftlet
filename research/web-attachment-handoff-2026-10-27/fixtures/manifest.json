@@ -1,0 +1,39 @@
+[
+  {
+    "path": "fixtures/synthetic-blue.png",
+    "bytes": 24795,
+    "sha256": "e0790e10337de9671fdc074480dae16eb974e0552dda43010a3708e70da34d8e",
+    "pngChunks": [
+      "IDAT",
+      "IEND",
+      "IHDR",
+      "eXIf",
+      "sRGB"
+    ],
+    "syntheticOnly": true
+  },
+  {
+    "path": "fixtures/synthetic-orange.png",
+    "bytes": 25265,
+    "sha256": "cd8e74e10dad315581a0fe53b88090e0de40eac0dfa4f3ea6a4d685304e644f8",
+    "pngChunks": [
+      "IDAT",
+      "IEND",
+      "IHDR",
+      "eXIf",
+      "sRGB"
+    ],
+    "syntheticOnly": true
+  },
+  {
+    "path": "fixtures/synthetic-noise.png",
+    "bytes": 4802523,
+    "sha256": "18b581acd175f5954ef8cb262428f7fd63d41fe93eaa94087b7f8dbc730c930d",
+    "pngChunks": [
+      "IDAT",
+      "IEND",
+      "IHDR"
+    ],
+    "syntheticOnly": true
+  }
+]

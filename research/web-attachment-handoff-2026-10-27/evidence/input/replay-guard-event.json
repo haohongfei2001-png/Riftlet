@@ -1,0 +1,7 @@
+{
+  "event": "restart_replay_guard",
+  "monotonicSeconds": 383192.393722541,
+  "exitCode": 1,
+  "result": "UNRESOLVED_OR_PRIOR_OPERATION: NO_REPLAY",
+  "fileInputDispatched": false
+}

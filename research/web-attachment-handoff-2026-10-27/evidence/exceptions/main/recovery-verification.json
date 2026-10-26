@@ -1,0 +1,74 @@
+{
+  "duplicateAttempts": [
+    {
+      "label": "MID",
+      "exitCode": 1,
+      "refusedBeforeBrowser": true,
+      "reason": "DURABLE_INTENT_ALREADY_EXISTS"
+    },
+    {
+      "label": "POST100",
+      "exitCode": 1,
+      "refusedBeforeBrowser": true,
+      "reason": "DURABLE_INTENT_ALREADY_EXISTS"
+    }
+  ],
+  "transportUnchanged": true,
+  "retained": [
+    {
+      "label": "IDENTITY",
+      "name": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+      "exists": true,
+      "bytes": 4802523,
+      "sha256": "18b581acd175f5954ef8cb262428f7fd63d41fe93eaa94087b7f8dbc730c930d",
+      "matches": true,
+      "durableIntentExists": true
+    },
+    {
+      "label": "OTHER",
+      "name": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+      "exists": true,
+      "bytes": 25265,
+      "sha256": "cd8e74e10dad315581a0fe53b88090e0de40eac0dfa4f3ea6a4d685304e644f8",
+      "matches": true,
+      "durableIntentExists": true
+    },
+    {
+      "label": "SWITCH",
+      "name": "Riftlet_39b31e60-5865-4e1f-bf47-4c613936cca7.png",
+      "exists": true,
+      "bytes": 4802523,
+      "sha256": "18b581acd175f5954ef8cb262428f7fd63d41fe93eaa94087b7f8dbc730c930d",
+      "matches": true,
+      "durableIntentExists": true
+    },
+    {
+      "label": "MID",
+      "name": "Riftlet_00f035f4-e3fe-44ba-9bef-c44782282b45.png",
+      "exists": true,
+      "bytes": 4802523,
+      "sha256": "18b581acd175f5954ef8cb262428f7fd63d41fe93eaa94087b7f8dbc730c930d",
+      "matches": true,
+      "durableIntentExists": true
+    },
+    {
+      "label": "POST100",
+      "name": "Riftlet_d383da2a-aeca-464b-81ca-2cef97d5d52b.png",
+      "exists": true,
+      "bytes": 25265,
+      "sha256": "cd8e74e10dad315581a0fe53b88090e0de40eac0dfa4f3ea6a4d685304e644f8",
+      "matches": true,
+      "durableIntentExists": true
+    },
+    {
+      "label": "TAB_SWITCH",
+      "name": "Riftlet_50bab4f5-2595-438d-aa75-17efba91234d.png",
+      "exists": true,
+      "bytes": 4802523,
+      "sha256": "18b581acd175f5954ef8cb262428f7fd63d41fe93eaa94087b7f8dbc730c930d",
+      "matches": true,
+      "durableIntentExists": true
+    }
+  ],
+  "automaticRetryAllowed": false
+}

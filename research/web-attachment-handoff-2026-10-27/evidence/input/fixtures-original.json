@@ -1,0 +1,34 @@
+[
+  {
+    "label": "A",
+    "assetId": "0f8175c3-2a90-4929-b204-d37efc3e8a65",
+    "name": "Riftlet_0f8175c3-2a90-4929-b204-d37efc3e8a65.png",
+    "mime": "image/png",
+    "bytes": 24795,
+    "sha256": "e0790e10337de9671fdc074480dae16eb974e0552dda43010a3708e70da34d8e"
+  },
+  {
+    "label": "B",
+    "assetId": "a581b949-f791-487f-ac97-933eaf8b3ad9",
+    "name": "Riftlet_a581b949-f791-487f-ac97-933eaf8b3ad9.png",
+    "mime": "image/png",
+    "bytes": 25265,
+    "sha256": "cd8e74e10dad315581a0fe53b88090e0de40eac0dfa4f3ea6a4d685304e644f8"
+  },
+  {
+    "label": "A2",
+    "assetId": "0a5e6a3b-524e-49ab-8f12-23f889edc899",
+    "name": "Riftlet_0a5e6a3b-524e-49ab-8f12-23f889edc899.png",
+    "mime": "image/png",
+    "bytes": 24795,
+    "sha256": "e0790e10337de9671fdc074480dae16eb974e0552dda43010a3708e70da34d8e"
+  },
+  {
+    "label": "LARGE",
+    "assetId": "d5f53906-1e72-4bc7-9241-c44700534478",
+    "name": "Riftlet_d5f53906-1e72-4bc7-9241-c44700534478.png",
+    "mime": "image/png",
+    "bytes": 4802523,
+    "sha256": "18b581acd175f5954ef8cb262428f7fd63d41fe93eaa94087b7f8dbc730c930d"
+  }
+]
