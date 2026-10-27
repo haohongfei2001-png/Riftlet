@@ -77,6 +77,7 @@
   }
   function append(button) {
     if(button.dataset.state!=='available')return;
+    button.classList.remove('is-arriving'); // Release entrance animation before pending/exit transitions.
     button.dataset.state='queued';button.setAttribute('aria-busy','true');queue.push(button);void drain();
   }
   async function drain() {
