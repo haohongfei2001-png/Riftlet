@@ -104,6 +104,62 @@ final class AcceptedSelectionQueueTests: XCTestCase {
         XCTAssertEqual(bOp.phase, .failed); XCTAssertEqual(inputs, [a.id])
     }
 
+    func testAcceptedReclickChecksPermissionBeforeObservingOriginalUnknown() async throws {
+        let s = try store(), image = try await asset(s), adapter = ParkAdapter()
+        let original = try await s.prepare(assetID: image.id, target: target())
+        try await s.markDispatchIntent(original.id)
+        try await s.markUnknown(original.id, reason: "Original input has no conclusive receipt")
+        let before = try await operation(image, s), record = try await s.asset(id: image.id)
+        let reason = try await s.operationReason(for: original.id)
+        let denied = coordinator(s, adapter, validator: { _ in false })
+        let refusedClick = token(image)
+        do { try await denied.select(refusedClick); XCTFail("Revoked permission observed the old operation") }
+        catch RiftletError.invalidTransition { }
+        XCTAssertFalse(refusedClick.isValid())
+        let after = try await operation(image, s), unchanged = try await s.asset(id: image.id)
+        let afterReason = try await s.operationReason(for: original.id)
+        let observations = await adapter.observations, inputs = await adapter.inputs(), captures = await adapter.captures
+        XCTAssertEqual(after, before); XCTAssertEqual(unchanged, record); XCTAssertEqual(afterReason, reason)
+        XCTAssertEqual(observations, 0); XCTAssertEqual(inputs, []); XCTAssertEqual(captures, 0)
+
+        // A later genuine click with fresh permission may observe the same
+        // operation. It neither revives the cancelled token nor inputs again.
+        let allowed = coordinator(s, adapter)
+        await adapter.complete(image.id)
+        try await allowed.select(token(image))
+        let completed = try await operation(image, s), finalInputs = await adapter.inputs()
+        let finalObservations = await adapter.observations
+        XCTAssertEqual(completed.id, original.id); XCTAssertEqual(completed.attempt, 1)
+        XCTAssertEqual(completed.phase, .succeeded); XCTAssertEqual(finalInputs, [])
+        XCTAssertEqual(finalObservations, 1); XCTAssertFalse(refusedClick.isValid())
+    }
+
+    func testAcceptedReclickCannotBorrowAnotherProcessPermissionForOldObservation() async throws {
+        let s = try store(), image = try await asset(s), adapter = ParkAdapter()
+        let original = try await s.prepare(assetID: image.id, target: target())
+        try await s.markDispatchIntent(original.id)
+        try await s.markUnknown(original.id, reason: "Original process still has an unresolved input")
+        let before = try await operation(image, s), record = try await s.asset(id: image.id)
+        let reason = try await s.operationReason(for: original.id)
+        let anotherProcess = TargetLease(adapterID: adapter.id, surface: .webChat,
+            applicationID: "com.google.Chrome", sessionID: "another-running-process",
+            windowID: "1", tabID: "2", documentID: "another-document",
+            composerID: "another-composer", draftGeneration: "another-generation")
+        let currentProcessPermission = coordinator(s, adapter, validator: { _ in
+            XCTFail("An unrelated process should not even be checked for the old operation")
+            return true
+        })
+        do {
+            try await currentProcessPermission.select(token(image, target: anotherProcess))
+            XCTFail("A different process authorized original observation")
+        } catch RiftletError.invalidTransition { }
+        let after = try await operation(image, s), unchanged = try await s.asset(id: image.id)
+        let afterReason = try await s.operationReason(for: original.id)
+        let observations = await adapter.observations, inputs = await adapter.inputs(), captures = await adapter.captures
+        XCTAssertEqual(after, before); XCTAssertEqual(unchanged, record); XCTAssertEqual(afterReason, reason)
+        XCTAssertEqual(observations, 0); XCTAssertEqual(inputs, []); XCTAssertEqual(captures, 0)
+    }
+
     func testRemovedOrHiddenWaitingSelectionDoesNotDispatchAfterACompletes() async throws {
         for remove in [true, false] {
             let sub = directory.appendingPathComponent(UUID().uuidString)
@@ -294,6 +350,7 @@ private actor ParkAdapter: AttachmentAdapter {
     private var targetValid = true
     private var validationGate: ParkGate?
     private(set) var captures = 0
+    private(set) var observations = 0
     func captureTarget() throws -> TargetLease { captures += 1; throw RiftletError.invalidTransition }
     func validate(_ target: TargetLease) async -> Bool {
         if let gate = validationGate { validationGate = nil; await gate.pause() }
@@ -309,7 +366,7 @@ private actor ParkAdapter: AttachmentAdapter {
         inputObserver?(request.asset.id)
         return receipt(request)
     }
-    func reconcile(_ request: TransferRequest) -> TransferReceipt { receipt(request) }
+    func reconcile(_ request: TransferRequest) -> TransferReceipt { observations += 1; return receipt(request) }
     private func receipt(_ request: TransferRequest) -> TransferReceipt {
         let ready = finished.contains(request.asset.id)
         return TransferReceipt(operationID: wrong.contains(request.asset.id) ? UUID() : request.operation.id,

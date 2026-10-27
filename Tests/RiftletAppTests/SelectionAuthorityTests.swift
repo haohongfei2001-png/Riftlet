@@ -2,7 +2,6 @@ import XCTest
 import RiftletCore
 @testable import RiftletApp
 
-@MainActor
 final class SelectionAuthorityTests: XCTestCase {
     private let epoch = UUID()
     private let target = TargetLease(adapterID: "fixture", surface: .webChat,
@@ -14,14 +13,14 @@ final class SelectionAuthorityTests: XCTestCase {
             acceptedUptime: accepted, visibilityRevision: 7, deadlineUptime: accepted + 30,
             captureRequestID: UUID(), armAttemptID: UUID())
     }
-    private func permits(_ authority: SelectionAuthority, _ value: AcceptedSelection,
+    @MainActor private func permits(_ authority: SelectionAuthority, _ value: AcceptedSelection,
                          at: Double = 3, epoch: UUID? = nil, session: String = "original-process",
                          hidden: Bool = false, terminating: Bool = false) -> Bool {
         authority.permits(value, epoch: epoch ?? self.epoch, foregroundSession: session,
             hidden: hidden, terminating: terminating, now: at)
     }
 
-    func testOriginalIdentityIsRetainedAndEveryCancellationBoundaryRefuses() {
+    @MainActor func testOriginalIdentityIsRetainedAndEveryCancellationBoundaryRefuses() {
         let authority = SelectionAuthority(), original = token()
         XCTAssertTrue(authority.insert(original, now: 2))
         XCTAssertTrue(permits(authority, original))
@@ -35,7 +34,7 @@ final class SelectionAuthorityTests: XCTestCase {
         XCTAssertFalse(permits(authority, original))
     }
 
-    func testLateCompletionCannotRemoveNewSelectionAndForgedEqualFieldsHaveNoAuthority() {
+    @MainActor func testLateCompletionCannotRemoveNewSelectionAndForgedEqualFieldsHaveNoAuthority() {
         let authority = SelectionAuthority(), original = token()
         XCTAssertTrue(authority.insert(original, now: 2))
         authority.cancel()
@@ -48,7 +47,7 @@ final class SelectionAuthorityTests: XCTestCase {
         XCTAssertFalse(permits(authority, copied))
     }
 
-    func testUnpublishedTargetCannotBeTurnedIntoAcceptedSelectionAfterEvent() {
+    @MainActor func testUnpublishedTargetCannotBeTurnedIntoAcceptedSelectionAfterEvent() {
         let late = ArmedTarget(target: target, acknowledgedUptime: 1.1, hostSession: epoch)
         XCTAssertNil(late.freeze(eventUptime: 1, nowUptime: 2, hostSession: epoch, foregroundSession: target.sessionID))
         let earlier = ArmedTarget(target: target, acknowledgedUptime: 0.9, hostSession: epoch)
@@ -56,7 +55,7 @@ final class SelectionAuthorityTests: XCTestCase {
             foregroundSession: target.sessionID), target)
     }
 
-    func testBoundedAuthorityRejectsDuplicatesAndCapacityThenReclaimsExpiredTokens() {
+    @MainActor func testBoundedAuthorityRejectsDuplicatesAndCapacityThenReclaimsExpiredTokens() {
         let authority = SelectionAuthority(), original = token()
         XCTAssertTrue(authority.insert(original, now: 2))
         XCTAssertFalse(authority.insert(token(asset: original.assetID), now: 2))

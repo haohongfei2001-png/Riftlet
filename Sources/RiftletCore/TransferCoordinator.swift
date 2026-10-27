@@ -154,8 +154,31 @@ public actor TransferCoordinator {
         var settled = false
         do {
             guard let record = try await store.asset(id: assetID) else { throw RiftletError.assetNotFound }
+            let originalOperation: TransferOperation?
             if let activeID = record.activeOperationID,
                let op = try await store.operation(id: activeID), op.phase.isUnresolved {
+                originalOperation = op
+            } else { originalOperation = nil }
+            // A click may observe an existing UNKNOWN instead of preparing new
+            // input. It still needs the original selection's fresh permission
+            // and host checks before any transport call.
+            if let accepted {
+                if let originalOperation {
+                    // The App checks permission for the selection's exact
+                    // process. That result cannot authorize observation in a
+                    // different still-running browser session. Leave that old
+                    // operation to its independent read-only recovery path.
+                    guard accepted.target.adapterID == originalOperation.target.adapterID,
+                          accepted.target.applicationID == originalOperation.target.applicationID,
+                          accepted.target.sessionID == originalOperation.target.sessionID else {
+                        throw RiftletError.invalidTransition
+                    }
+                }
+                guard accepted.isValid(), await validateAcceptedSelection(accepted), accepted.isValid() else {
+                    throw RiftletError.invalidTransition
+                }
+            }
+            if let op = originalOperation {
                 if op.phase == .unknown || op.phase == .compensated { try await reconcile(op) }
                 await onChange()
                 selecting.remove(assetID); ownsSelection = false; settled = true
@@ -164,11 +187,6 @@ public actor TransferCoordinator {
                 skippedTickets.insert(ticket)
                 try await drain()
                 return
-            }
-            if let accepted {
-                guard accepted.isValid(), await validateAcceptedSelection(accepted), accepted.isValid() else {
-                    throw RiftletError.invalidTransition
-                }
             }
             try await store.reserveSelection(assetID, visibilityRevision: visibilityRevision)
             reserved = true
