@@ -71,6 +71,7 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
     private let batchID = UUID()
     private var targetRefreshTask: Task<Void, Never>?
     private var targetRows: [RiftDiagnosticRow] = []
+    private var softwareProbeAligned = false
     private var softwareProbeTask: Task<Void, Never>?
     private var softwareProbeBatchUsed = false
     private var softwareProbeReceipt: SoftwarePointerProbe.Receipt?
@@ -476,6 +477,26 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
         scheduleTargetRefresh()
     }
 
+    private func actualRowScreen(_ snapshot: RiftDiagnosticSnapshot) -> NSScreen? {
+        guard let row = snapshot.rows.first else { return nil }
+        if let rowWindow = NSApp.windows.first(where: { $0.windowNumber == row.windowNumber }),
+           let screen = rowWindow.screen, screen.frame.intersects(row.frame) { return screen }
+        return NSScreen.screens.first { $0.frame.contains(CGPoint(x: row.frame.midX, y: row.frame.midY)) }
+    }
+
+    private func alignProbeControlToActualRows() {
+        guard let window, let snapshot = rift?.diagnosticSnapshot,
+              !snapshot.isHolding, !snapshot.isTransitioning, let screen = actualRowScreen(snapshot) else { return }
+        let before = window.frame
+        let proposed = SoftwarePointerProbe.probeControlFrame(current: before, visibleScreen: screen.visibleFrame)
+        window.setFrame(proposed, display: true)
+        record("probe_control_alignment", ["before": rectFields(before), "requested": rectFields(proposed),
+            "immediateActual": rectFields(window.frame), "rowScreenFrame": rectFields(screen.frame),
+            "rowScreenID": (screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.uint32Value ?? 0,
+            "productPanelsMoved": false, "focusRequested": false, "eventsPosted": false,
+            "acceptanceOnly": true])
+    }
+
     @objc private func dumpCoordinates() { refreshTargets() }
 
     private func quartzFields(_ point: CGPoint) -> [String: CGFloat] {
@@ -520,6 +541,13 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
                 self.resetScene(count: 3)
                 let scene = self.sceneGeneration
                 do { try await Task.sleep(nanoseconds: 1_000_000_000) } catch { return }
+                // One explicit helper-window alignment per batch, based on the
+                // real row screen. Never move a Riftlet row to fit this probe.
+                if !self.softwareProbeAligned {
+                    self.softwareProbeAligned = true
+                    self.alignProbeControlToActualRows()
+                    do { try await Task.sleep(nanoseconds: 650_000_000) } catch { return }
+                }
                 self.refreshTargets()
                 if let reason = self.softwareProbeUnavailable() {
                     results[name] = "NOT_RUN"
@@ -617,7 +645,7 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
     }
 
     private func refreshTargets() {
-        guard let rift, let window, let screen = window.screen else { return }
+        guard let rift, let window else { return }
         let snapshot = rift.diagnosticSnapshot
         guard !snapshot.isHolding, !snapshot.isTransitioning else {
             probe.targets = []; probe.needsDisplay = true
@@ -625,11 +653,17 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
             return
         }
         targetRows = snapshot.rows
-        probe.targets = ProbeTarget.make(snapshot: snapshot, screen: screen.visibleFrame).filter { target in
+        let screen = actualRowScreen(snapshot)
+        let candidates = screen.map { ProbeTarget.make(snapshot: snapshot, screen: $0.visibleFrame) } ?? []
+        func exclusion(_ target: ProbeTarget) -> String? {
             let point = probe.convert(window.convertPoint(fromScreen: target.screenPoint), from: nil)
-            // Only real empty probe surface can receive an underlying test click.
-            return probe.bounds.contains(point) && !probe.subviews.contains { $0.frame.contains(point) }
+            if !probe.bounds.contains(point) { return "outsideProbeContent" }
+            if probe.subviews.contains(where: { $0.frame.contains(point) }) { return "coveredByControlSubview" }
+            return nil
         }
+        // Preserve candidate positions even when no underlying probe can receive
+        // them. Missing coverage is a helper setup result, not a product verdict.
+        probe.targets = candidates.filter { exclusion($0) == nil }
         probe.needsDisplay = true
         record("probe_targets", ["targets": probe.targets.map { target in
             let rowWindow = snapshot.rows.first(where: { $0.frame.contains(target.screenPoint) })?.windowNumber ?? 0
@@ -640,7 +674,16 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
              "predictedUnderlyingWindow": underneath,
              "underlyingProbePredicted": underneath == window.windowNumber,
              "predictedWindow": NSWindow.windowNumber(at: target.screenPoint, belowWindowWithWindowNumber: 0)] as [String: Any]
-        }, "rows": snapshot.rows.map { row in
+        }, "candidateTargets": candidates.map { target in
+            ["name": target.name, "x": target.screenPoint.x, "y": target.screenPoint.y,
+             "quartzPoint": quartzFields(target.screenPoint), "exclusion": exclusion(target) ?? "none"] as [String: Any]
+        }, "probeContentFrameOnScreen": rectFields(window.convertToScreen(probe.convert(probe.bounds, to: nil))),
+        "screens": NSScreen.screens.map { item in
+            let id = (item.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.uint32Value ?? 0
+            return ["id": id, "frame": rectFields(item.frame), "visibleFrame": rectFields(item.visibleFrame),
+                    "backingScaleFactor": item.backingScaleFactor, "rotationDegrees": CGDisplayRotation(id)] as [String: Any]
+        }, "rowScreenID": (screen?.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.uint32Value ?? 0,
+        "rows": snapshot.rows.map { row in
             ["assetID": row.assetID.uuidString, "ordinal": row.ordinal, "window": row.windowNumber,
              "frame": rectFields(row.frame), "image": rectFields(row.imageClipFrame),
              "number": rectFields(row.numberFrame)] as [String: Any]

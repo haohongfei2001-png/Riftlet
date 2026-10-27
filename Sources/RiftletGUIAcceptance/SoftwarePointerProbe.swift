@@ -9,12 +9,33 @@ enum SoftwarePointerProbe {
         CGPoint(x: point.x, y: primaryFrame.maxY - point.y)
     }
 
+    /// Reposition only the existing helper control/probe window. Use actual
+    /// AppKit screen frames; a portrait or negative-origin display needs no scale.
+    static func probeControlFrame(current: CGRect, visibleScreen: CGRect) -> CGRect {
+        let width = min(current.width, visibleScreen.width)
+        let height = min(current.height, visibleScreen.height)
+        return CGRect(x: visibleScreen.maxX - width,
+                      y: min(max(current.minY, visibleScreen.minY), visibleScreen.maxY - height),
+                      width: width, height: height)
+    }
+
     static func selfCheck() throws {
         enum Failure: Error { case geometry, verdict }
         let primary = CGRect(x: 0, y: 0, width: 1440, height: 900)
         guard quartzPoint(CGPoint(x: 20, y: 850), primaryFrame: primary) == CGPoint(x: 20, y: 50),
               quartzPoint(CGPoint(x: -50, y: 950), primaryFrame: primary) == CGPoint(x: -50, y: -50) else {
             throw Failure.geometry
+        }
+        let narrowed = CGRect(x: 223, y: 0, width: 1474, height: 1080)
+        let fitted = probeControlFrame(current: narrowed, visibleScreen: CGRect(x: 0, y: 0, width: 1920, height: 1080))
+        guard fitted == CGRect(x: 446, y: 0, width: 1474, height: 1080),
+              fitted.contains(CGPoint(x: 1884.15, y: 900)),
+              !narrowed.contains(CGPoint(x: 1884.15, y: 900)) else { throw Failure.geometry }
+        for screen in [CGRect(x: -1080, y: 0, width: 1080, height: 1920),
+                       CGRect(x: 1920, y: -900, width: 900, height: 1440),
+                       CGRect(x: 0, y: 1080, width: 1920, height: 1080)] {
+            let frame = probeControlFrame(current: narrowed, visibleScreen: screen)
+            guard screen.contains(frame), frame.maxX == screen.maxX else { throw Failure.geometry }
         }
         let row = Receipt(name: "IMAGE", expectedAsset: UUID(), expectedWindow: 11,
                           expectedPoint: CGPoint(x: 20, y: 30), radius: 2)

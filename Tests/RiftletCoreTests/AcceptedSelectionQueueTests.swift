@@ -170,13 +170,17 @@ final class AcceptedSelectionQueueTests: XCTestCase {
         let s = try store(), a = try await asset(s), b = try await asset(s), adapter = ParkAdapter(), gate = ParkChangeGate()
         let coordinator = coordinator(s, adapter, change: { await gate.changed() })
         try await coordinator.select(token(a))
+        let resumedInput = expectation(description: "Original B input resumes after reentrant terminal receipt")
+        await adapter.observeInputs { id in if id == b.id { resumedInput.fulfill() } }
         await gate.blockAfterChanges(2) // preparation refresh, then targetBusy refresh
         let selection = Task { try await coordinator.select(self.token(b)) }
         await gate.waitForEntry()
         await adapter.complete(a.id)
         try await coordinator.observePending() // drain re-enters while its previous onChange awaits
         await gate.release(); try await selection.value
-        for _ in 0..<1000 { if await adapter.inputs().contains(b.id) { break }; await Task.yield() }
+        // Task.yield is not a scheduling/completion fence under parallel CI.
+        // Await the actual resumed append event, with a bounded failure timeout.
+        await fulfillment(of: [resumedInput], timeout: 5)
         let inputs = await adapter.inputs(); XCTAssertEqual(inputs, [a.id, b.id])
     }
 
@@ -283,6 +287,8 @@ private actor ParkChangeGate {
 private actor ParkAdapter: AttachmentAdapter {
     nonisolated let id = "accepted-fixture"
     private var appended: [UUID] = []
+    private var inputObserver: (@Sendable (UUID) -> Void)?
+    func observeInputs(_ observer: @escaping @Sendable (UUID) -> Void) { inputObserver = observer }
     private var finished = Set<UUID>()
     private var wrong = Set<UUID>()
     private var targetValid = true
@@ -298,7 +304,11 @@ private actor ParkAdapter: AttachmentAdapter {
     func complete(_ asset: UUID) { finished.insert(asset) }
     func wrongIdentity(_ asset: UUID) { wrong.insert(asset) }
     func inputs() -> [UUID] { appended }
-    func append(_ request: TransferRequest) -> TransferReceipt { appended.append(request.asset.id); return receipt(request) }
+    func append(_ request: TransferRequest) -> TransferReceipt {
+        appended.append(request.asset.id)
+        inputObserver?(request.asset.id)
+        return receipt(request)
+    }
     func reconcile(_ request: TransferRequest) -> TransferReceipt { receipt(request) }
     private func receipt(_ request: TransferRequest) -> TransferReceipt {
         let ready = finished.contains(request.asset.id)

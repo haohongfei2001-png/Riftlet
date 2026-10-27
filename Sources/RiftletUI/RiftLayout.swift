@@ -10,6 +10,12 @@ public struct RiftRowLayout: Equatable, Sendable {
     public let imageFrame: CGRect
     public let imageClipFrame: CGRect
     public let numberFrame: CGRect
+
+    /// Selection eligibility only; rejecting padding does not forward an event
+    /// through this row's rectangular native window to another application.
+    func containsSelectionPoint(_ localPoint: CGPoint) -> Bool {
+        imageClipFrame.contains(localPoint) || numberFrame.contains(localPoint)
+    }
 }
 
 public struct RiftLayoutResult: Equatable, Sendable {

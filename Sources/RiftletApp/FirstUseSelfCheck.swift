@@ -13,6 +13,13 @@ enum FirstUseSelfCheck {
 
     static func run() async throws {
         try await SelectionFlowSelfCheck.run()
+        var trace = AcceptanceTraceDeduplicator<Int, String>(capacity: 2)
+        guard trace.shouldRecord("visible", for: 1), !trace.shouldRecord("visible", for: 1),
+              trace.shouldRecord("swallowed", for: 1), trace.shouldRecord("used", for: 2),
+              trace.shouldRecord("new", for: 3), trace.count == 2,
+              trace.shouldRecord("swallowed", for: 1), trace.count == 2 else {
+            throw RiftletError.invalidTransition
+        }
         let probe = UnexpectedPermissionProbe()
         let gate = AutomationPermissionGate(requiresChrome: false, checker: probe)
         let inspected = await gate.inspect(), requested = await gate.requestFromUserAction()

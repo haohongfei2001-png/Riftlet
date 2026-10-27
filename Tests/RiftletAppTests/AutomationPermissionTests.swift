@@ -13,6 +13,16 @@ private actor PermissionProbe: AutomationPermissionChecking {
     func calls() -> [Bool] { requests }
 }
 
+private actor BoundPermissionProbe: AutomationPermissionChecking {
+    var sessions: [String?] = []
+    func check(askUserIfNeeded: Bool) -> AutomationPermissionState { .unavailable }
+    func check(askUserIfNeeded: Bool, expectedSession: String?) -> AutomationPermissionState {
+        sessions.append(expectedSession)
+        return .granted
+    }
+    func recorded() -> [String?] { sessions }
+}
+
 final class AutomationPermissionTests: XCTestCase {
     func testOrdinaryCaptureCannotProbeOrRequestChrome() async {
         let probe = PermissionProbe([.granted])
@@ -42,6 +52,16 @@ final class AutomationPermissionTests: XCTestCase {
             let calls = await probe.calls()
             XCTAssertEqual(status, result); XCTAssertEqual(calls, [false])
         }
+    }
+
+    func testEveryDispatchPermissionCheckUsesOriginalSessionWithoutCaching() async {
+        let probe = BoundPermissionProbe()
+        let gate = AutomationPermissionGate(requiresChrome: true, checker: probe)
+        let first = await gate.inspect(expectedSession: "original-process")
+        let second = await gate.inspect(expectedSession: "original-process")
+        let sessions = await probe.recorded()
+        XCTAssertEqual(first, .granted); XCTAssertEqual(second, .granted)
+        XCTAssertEqual(sessions, ["original-process", "original-process"])
     }
 
     func testMultipleChromeInstancesSelectExactOriginalSessionOrForegroundNeverFirst() {

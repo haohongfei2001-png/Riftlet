@@ -139,6 +139,8 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private var activationObserver: NSObjectProtocol?
     private var lastForegroundSession: String?
     private var diagnosticEvents = 0
+    private var visibilityTrace = AcceptanceTraceDeduplicator<UUID, [String]>()
+    private var readyTrace = AcceptanceTraceDeduplicator<UUID, [String]>()
     private var pendingArmReason = "startup"
     private var chromeActivity: ChromeActivityObserver?
     private var armedTarget: ArmedTarget?
@@ -1001,6 +1003,10 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 if refreshRequested { continue }
                 if mode == .webAcceptance, CommandLine.arguments.contains("--acceptance-trace") {
                     for record in snapshot {
+                        let signature = [record.status.rawValue, record.visibility.rawValue,
+                            record.visibilityReason.rawValue, String(record.visibilityRevision),
+                            record.activeOperationID?.uuidString ?? "none"]
+                        guard visibilityTrace.shouldRecord(signature, for: record.id) else { continue }
                         var fields: [String: Any] = ["event": "committed_visibility_observed",
                             "assetID": record.id.uuidString, "status": record.status.rawValue,
                             "visibility": record.visibility.rawValue, "visibilityReason": record.visibilityReason.rawValue,
@@ -1010,6 +1016,8 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                         recordAcceptance(fields)
                     }
                     for operation in successful {
+                        let signature = [operation.assetID.uuidString, String(operation.attempt), operation.phase.rawValue]
+                        guard readyTrace.shouldRecord(signature, for: operation.id) else { continue }
                         recordAcceptance(["event": "ready_persistence_observed", "assetID": operation.assetID.uuidString,
                             "operationID": operation.id.uuidString, "attempt": operation.attempt,
                             "phase": operation.phase.rawValue, "commitUpperBoundUptime": snapshotObservedUptime,
