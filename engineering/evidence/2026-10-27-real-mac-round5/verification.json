@@ -1,0 +1,44 @@
+{
+  "sourceSHA": "1f9dec2dec9cf6ef61f36776a6e4f7c3439f4f8a",
+  "formalBaseline": "e89d49f763036781c90618422da256e03cbca2ac",
+  "branch": "codex/riftlet-real-mac-round5-20261027",
+  "ci": {
+    "runID": 40487032921,
+    "status": "PASS",
+    "nativeDiscoveredAndExecuted": 312,
+    "pageTests": 61,
+    "legacyTests": 25,
+    "lifecycleDetailedPassed": 13,
+    "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/40487032921"
+  },
+  "local": {
+    "os": "macOS 27.0 (26A428)",
+    "architecture": "arm64",
+    "swift": "6.4",
+    "releaseBuild": "PASS",
+    "pageTests": 61,
+    "legacyTests": 25,
+    "overlayApplyCheck": "PASS",
+    "overlayApplied": false
+  },
+  "scope": {
+    "realUploadStart": "NOT_RUN",
+    "actualFastSwallow": "NOT_RUN",
+    "coldFirstClickWithoutACK": "NOT_RUN",
+    "realMID": "NOT_EXERCISED",
+    "productionScreenshotsEnabled": false,
+    "safeRetryEnabled": false,
+    "syntheticStartRegistryEnabled": false
+  },
+  "runtime": {
+    "mode": "web-acceptance",
+    "databaseSchema": 3,
+    "newSyntheticAssetID": "029C66A3-178B-4184-8A0E-3060AA8C83C7",
+    "inputObserved": false,
+    "pendingAction": "single click on second noise thumbnail; automation only exposes first independent panel"
+  },
+  "review": {
+    "reviewer": "independent late_failure role",
+    "result": "PASS for code scope, no new permissions/reinput path; not real-browser admission"
+  }
+}

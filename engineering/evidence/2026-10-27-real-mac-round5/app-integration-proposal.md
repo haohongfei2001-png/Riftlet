@@ -1,14 +1,16 @@
 # 第五轮 App 快速吞噬接入与诊断建议（交 Pro）
 
-2026-10-27；只读核对 `361e0919e89e7af14eb751d336236a305f41317e`，包含正式 SQLite v3 与第四轮两项源码 cherry-pick。本文件是待协调接口及补丁建议，**未修改 Core/UI/App、未运行 GUI、未应用或测试以下补丁，不构成生产准入**。依据：`docs/UPLOAD_STARTED_CONTRACT_V1.md`。
+2026-10-27；最新只读核对 HEAD `1f9dec2dec9cf6ef61f36776a6e4f7c3439f4f8a`，已合并 Pro 正式提交 `e89d49f763036781c90618422da256e03cbca2ac`，并保留第五轮 adapter 工作。`git diff e89d49f -- Sources/RiftletCore Sources/RiftletUI Sources/RiftletApp` 为空，确认这三处正式源码与 Pro 一致。下列行号按此 HEAD 的未应用 overlay 源码定位。本文件是待协调接口及补丁建议，**未修改 Core/UI/App、未运行 GUI、未应用或测试以下补丁，不构成生产准入**。依据：`docs/UPLOAD_STARTED_CONTRACT_V1.md`。
 
 ## 当前接线与阻断
 
-1. `RiftletMain.swift:177–235` 已将原选择冻结、selection boundary、交互锁、Coordinator.onChange→refresh 接入实际 App。`refresh():421` 将仍有 row 的 retired asset 纳入 snapshot，因此已吞噬记录可以送到 UI。
+1. `RiftletMain.swift:180–238` 已将原选择冻结、selection boundary、交互锁、Coordinator.onChange→refresh 接入实际 App。`refresh():493` 将仍有 row 的 retired asset 纳入 snapshot，因此已吞噬记录可以送到 UI。
 2. `QueueStore.apply:330–337` 对获准 `.uploadStarted` 在同事务中存第一份 `upload_starts`、设 `.swallowed/.uploadStarted`，阶段保持未决（通常 `.inputTriggered`）。`RiftPanelController.render:382–419` 见到 visible→该状态才启动短动画；默认配置 0.120 秒，实际遵循减少动态效果。最终 READY 不重复吞噬；只有 READY 的旧适配器走 `legacyCompletion` 静默退出。
-3. **实际 Web App 尚缺 start 策略接线。** `RiftletMain.swift:231` 只有 `syntheticAcceptanceProfiles`；start registry 默认空。即便 adapter 返回合法 start，当前 Core 也会按未准入设 UNKNOWN，不能据此验收快吞噬。普通 capture 模式仍为 `UnavailableAdapter`，不是生产系统截图上传模式。
-4. **同草稿 different asset 仍阻断。** `QueueStore.markDispatchIntent:254–264` 检查全部非 prepared 未决操作；`Models.swift:136–143` 相同 logical ID 冲突，没有 asset 例外。第一图 start 后仍未决，第二图无法持久 dispatch intent。`TransferCoordinator.drain:156–160` 捕获 `targetBusy` 后 `cancelIfPrepared`，不等待旧上传、不自动继续该次点击。这不是重复选同图的防抖。
-5. `completionWatch:243–250` Web 每 5 秒最多观察 4 个 pending；早返回后，后端成功较晚被 Core 看见是可能的。必须区分页面真实 READY、adapter 观察到 READY、Core 持久 READY，不把轮询间隔算作上传耗时。
+3. **实际 Web App 尚缺 start 策略接线。** `RiftletMain.swift:234` 只有 `syntheticAcceptanceProfiles`；start registry 默认空。即便 adapter 返回合法 start，当前 Core 也会按未准入设 UNKNOWN，不能据此验收快吞噬。普通 capture 模式仍为 `UnavailableAdapter`，不是生产系统截图上传模式。
+4. **同草稿 different asset 仍阻断。** `QueueStore.markDispatchIntent:254–264` 检查全部非 prepared 未决操作；`Models.swift:145–152` 相同 logical ID 冲突，没有 asset 例外。第一图 start 后仍未决，第二图无法持久 dispatch intent。`TransferCoordinator.drain:156–160` 捕获 `targetBusy` 后 `cancelIfPrepared`，不等待旧上传、不自动继续该次点击。这不是重复选同图的防抖。
+5. `completionWatch:246–253` Web 每 5 秒最多观察 4 个 pending；早返回后，后端成功较晚被 Core 看见是可能的。必须区分页面真实 READY、adapter 观察到 READY、Core 持久 READY，不把轮询间隔算作上传耗时。
+
+新版 Pro 的 capture publication 接线已正式存在（App:357–424）：每次 arm 生成 `CaptureInvocationContext`，调用 `captureTargetWithDiagnostics`，串起 requestID / armAttemptID / hostEpoch / targetDigest / adapterValidatedUptime；在 scheduler 完成且 epoch、前台 session 可接受后记录 `mainPublishedUptime` 与 publicationResult。相同 target 复用时保留原 effective ACK 与对应 capture identity，新 publication 时间不改写原 ACK。App:306–322 的 freeze 仍仅使用已发布 ArmedTarget 和原 NSEvent 时间，native 诊断早到不授予点击权限；App:438–463 已记录原事件、handler、冻结结果/拒绝理由、effective/in-flight request ID。这些是**现有正式源码接线事实**，不是本报告新加功能或本轮运行 PASS。它们不解除第 4 点的同草稿未决锁。
 
 第 4 点与现有上传开始契约 §3.3 一致：“相同/不明草稿锁不因开始而解除”。若产品要求第一图尚未 READY 就连续点击第二图进入同草稿，这是当前明确未达成项，需要 Pro 单独裁决。不能只排除所有 `.inputTriggered` 或按 swallowed 跳过锁；这会影响 UNKNOWN、未获准开始、旧操作迟到副作用与附件关联安全。本报告不提出未经审查的锁放宽补丁。`InteractionLifecycleTests.testRunnableSimulationSeparatesEarlyExitFinalSuccessFailureAndUnknown` 和 `SimulationAdapter.captureTarget` 使用独立 synthetic draft，不能替代同草稿连续输入测试。
 
@@ -29,13 +31,13 @@
 
 ## 实际 App 最小事件链与 overlay 范围
 
-已生成 [app-acceptance-overlay.patch](app-acceptance-overlay.patch)，`git apply --check` 通过，独立范围审查通过；截至本次文档修订，补丁**未应用、未构建、未完成运行验收，候选 start 未准入**。它不是 Pro 正式 App 源码改动或生产启用。补丁只包含 App 的 synthetic start registry、UI 默认空诊断回调与 App 日志接线，不修改 Core 事务。下表中的 Core 精确 commit hook 与 Coordinator prepared hook 仍是后续协调建议，均不在该 overlay 内。
+已生成 [app-acceptance-overlay.patch](app-acceptance-overlay.patch)，在新 HEAD `1f9dec2dec9cf6ef61f36776a6e4f7c3439f4f8a` 上再次执行 `git apply --check` 通过，独立范围审查通过；截至本次文档修订，补丁**未应用、未构建、未完成运行验收，候选 start 未准入**。它不是 Pro 正式 App 源码改动或生产启用。补丁保留原 hunk 行号，由 git 按上下文适配新位置；本次未重制 patch。补丁只包含 App 的 synthetic start registry、UI 默认空诊断回调与 App 日志接线，不修改 Core 事务。下表中的 Core 精确 commit hook 与 Coordinator prepared hook 仍是后续协调建议，均不在该 overlay 内。
 
 复用 `--acceptance-trace` 与 `recordAcceptance` 的有界单行 JSON sink，不新建 GUI 工具、不轮询屏幕、不靠动画配置值猜完成时间。建议共享字段：runID、assetID、operationID、attempt、visibilityRevision、process systemUptime；target 和 attachment 仅记录本轮盐化摘要。原图、草稿文字、URL、文件路径、认证资料和完整 React props 不进入 trace。日志 cap 命中需要一个闭集 `trace_truncated` 标记，此后该批不可宣称完整时序。
 
 | 事件 | 精确采样点 / 语义 |
 | --- | --- |
-| `selection_boundary` | 复用 App:380 的原 `eventUptime` 与 callbackUptime、source；mouse 表示 AppKit 路由，不证明真人。追加现有 boundary.windowNumber/clickCount 即可，不读 `NSApp.currentEvent`。按住取消的 boundary 不算已派发选择。 |
+| `selection_boundary` | 复用 App:438 的原 `eventUptime` 与 callbackUptime、source；mouse 表示 AppKit 路由，不证明真人。追加现有 boundary.windowNumber/clickCount 即可，不读 `NSApp.currentEvent`。按住取消的 boundary 不算已派发选择。 |
 | `selection_prepared` | Coordinator.prepare 返回后，记录 asset→operation/attempt 的连接及原选择序号；只读诊断，不另 capture。重点击可能同 asset 不同 attempt，不能仅按 asset 拼接。 |
 | `adapter_start_observed` | adapter 归一化首次可信 start 后采样；包含闭集 signal、code-owned profile 与 evidence/attachment 摘要、inputCount。页面 progress 时间只能用页面时钟局部差值，不能直接减 native uptime。 |
 | `receipt_commit_returned` | `QueueStore.apply` 的 transaction 成功返回后、尚未离开 actor 同步函数时采样；记录 outcome、result.visibility/reason/revision、firstStartInserted、result.status。必须失败不发成功事件、拒绝 start 不记 `start_persisted`。这是 COMMIT 返回后的采样，不声称存储硬件落盘精确瞬间。 |

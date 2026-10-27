@@ -219,3 +219,5 @@ Next READY task or next concrete action:
 ## 第五轮本地真实 uploadStarted · ACTIVE
 
 独立分支 codex/riftlet-real-mac-round5-20261027，从 SQLite v3 正式 b84892071d7711177bb856051251a337f2c2c4f5 起步，仅继承第四轮适配器源码增量。Web v9/schema2 原操作进度证据、native归一化和append早返回由本地Codex负责；旧v6/v7/v8只观察、不补造start。Core/UI/App保持Pro所有权，synthetic start策略接线单独提出最小补丁并待真实证据审查；生产及安全重试不启用。
+
+第五轮源码检查点 `1f9dec2dec9cf6ef61f36776a6e4f7c3439f4f8a` 已继承正式 `e89d49f` 的 capture publication 及 persisted identity 接线；完整 CI 40487032921 PASS（312 native / 61 page / 25 legacy / 13 lifecycle detailed）。v9/schema2、原进度 start 证明、append 早返回及 v6/v7/v8只读恢复已实现；现有Web数据已安全迁移v3，原11媒体/17操作/3补偿保留。真实新图首次点击尚未发生；自动化仅能访问首个旧UNKNOWN微窗，已请求最小人工点击第2张新噪点图。synthetic start准入及AppKit快吞噬仍NOT_RUN，overlay未应用，生产和retry关闭。下一动作是读取这次原操作真实证据后再独立审查synthetic start准入；详见[第五轮检查点](../engineering/evidence/2026-10-27-real-mac-round5/README.md)。

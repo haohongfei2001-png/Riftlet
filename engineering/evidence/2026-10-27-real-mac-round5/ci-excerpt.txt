@@ -1,0 +1,11 @@
+macos	Exercise integrated page program with synthetic DOM	2026-10-27T10:15:27.0285270Z # tests 61
+macos	Exercise integrated page program with synthetic DOM	2026-10-27T10:15:27.0285790Z # pass 61
+macos	Exercise integrated page program with synthetic DOM	2026-10-27T10:15:27.2556960Z # tests 25
+macos	Exercise integrated page program with synthetic DOM	2026-10-27T10:15:27.2557200Z # pass 25
+macos	Native unit and integration tests	2026-10-27T10:16:04.8566740Z [312/312] Testing RiftletCoreTests.WebTargetLockTests/testUnknownBlocksSameTabAfterRearmWindowMoveAndDocumentReplacement
+macos	Report software panel lifecycle outcomes	2026-10-27T10:16:06.3993650Z 	 Executed 13 tests, with 0 failures (0 unexpected) in 0.847 (0.847) seconds
+macos	Report software panel lifecycle outcomes	2026-10-27T10:16:06.3994600Z 	 Executed 13 tests, with 0 failures (0 unexpected) in 0.847 (0.847) seconds
+macos	Report software panel lifecycle outcomes	2026-10-27T10:16:06.3995450Z 	 Executed 13 tests, with 0 failures (0 unexpected) in 0.847 (0.848) seconds
+macos	Run packaged executable with synthetic data	2026-10-27T10:16:28.3712930Z RIFTLET_SELF_CHECK_PASS: private import, durable upload-start visibility, delayed synthetic completion, restart
+macos	Run packaged executable with synthetic data	2026-10-27T10:16:28.4189980Z RIFTLET_WEB_ACCEPTANCE_SELF_CHECK_PASS: bundled page source, synthetic-only policy, isolated modes; CHROME_NOT_RUN; GUI_NOT_RUN
+macos	Validate and archive synthetic GUI acceptance helper	2026-10-27T10:16:28.7256310Z RIFTLET_GUI_HELPER_SELF_CHECK_PASS: 12 synthetic PNGs; scenes 2/3/12; layout/status fixtures; GUI_NOT_RUN
