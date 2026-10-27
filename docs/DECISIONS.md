@@ -143,3 +143,11 @@ Following direct user confirmation of the earlier product-usability review, thes
 落实 App 集成请求为 host-only invocation diagnostics：同requestID贯穿native接收/验证/返回、adapter验证、App接受/发布及原事件。相同target保留有效旧ACK身份；诊断context不进页面JSON，不替代完整lease，不修改ArmedTarget时间/epoch规则。现有证据不足以实现ACK邮箱、回填时间或重放冷点击，因此仅补可验证的测量接线。
 
 保留v6/v7原操作只读观察，缺原registry/proof时UNKNOWN，不能安装旧输入代码或清库。生产上传、真实开始吞噬与安全重试继续禁用；下一步按既有uploadStarted v1由本地Codex实现真实观察、严格归一化、早返回及v3 App真机验收，root独立审查后集成。
+
+## I15 — 首次使用、权限与发行基础体验的最小实现（2026-10-27）
+
+落实P33的独立部分：原生首次使用窗口只在首次普通启动自动显示，后续菜单重开；状态明确分离系统来源、实际目录访问、暂停、隐藏、无图、UNKNOWN和未启用的附件能力。正常成功不弹提示；不将生产关闭伪称权限问题，不宣传Mac/其他浏览器已支持。基础设置无需终端或JSON。
+
+系统截图偏好只读，文件夹面板只授权重新核对的实际来源；取消/错目录不改系统设置。Chrome权限仅在明确Web验收模式使用，被动检查不请求授权；只有用户明确设置动作请求，拒绝提供系统设置恢复，OS授权与Chrome JavaScript开关分开。权限不授予生产上传/成功/安全重试，也不改变原事件完整目标身份。新增检查时延必须由下一轮真实Mac实测。
+
+新复制空间预检的4MiB元数据余量是可调整工程保护，不是用户批准的保留配额、磁盘预留或删除策略；已有journal仍可恢复。原字节/hash/颜色/方向与原始编码尺寸保留，不能以重编码修复缩略图比例而破坏资产身份。打包仅准备可验证的ad-hoc开发App；未签Developer ID、公证、发行或实现自动更新。真实权限/物理GUI、支持版本矩阵仍逐项验收，生产注册表保持关闭。实际源码、CI与非作者审查见[首用交付](../engineering/evidence/2026-10-27-release-ux/README.md)。

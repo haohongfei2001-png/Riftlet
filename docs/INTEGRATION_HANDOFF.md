@@ -1,4 +1,28 @@
-# 正式工程集成交接 · 第四轮 Web 与新版生命周期合流 · 2026-10-27
+# 正式工程集成交接 · 首次使用与发行基础体验 · 2026-10-27
+
+## 当前检查点：首用与本地可靠性已实现，Web 真机继续独立推进
+
+正式起点 `e89d49f763036781c90618422da256e03cbca2ac`；实现 `4e080aa`，已测源码 **`2449d40a88225acba9d413cc6a4cb5d84fcae6a1`**。本页所在的后续文档检查点保留同一源码/测试/构建输入；确切正式 HEAD、可运行制品及交接评论见 [Draft PR #1](https://github.com/haohongfei2001-png/Riftlet/pull/1)。本轮是实际 App/Capture/UI/打包开发，没有重订计划或访问本地 Codex 的 Mac。
+
+**实际完成：** 原生「开始使用与运行状态」首次显示/菜单重开，真实来源和权限诊断，独立隐藏/暂停/无图/UNKNOWN/能力状态；原生文件夹授权只接受系统实际截图位置；Chrome 按需授权/拒绝恢复；来源重检与暂停互斥；写入失败的持久提示；原字节/颜色/方向保护及新复制空间预检；可重复开发 App 打包与校验。基础设置不需终端或配置文件，正常成功没有通知。详情与可运行入口见 [FIRST_USE_ACCEPTANCE](FIRST_USE_ACCEPTANCE.md)。
+
+[macOS CI 40508109228](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40508109228) / job122202566296 于 **21:00:40 北京时间**记录成功：344 原生（Core117 / Adapters102 / Capture63 / UI48 / App14），生命周期13/首用窗口3/Capture15详细复跑全部 passed/0skip，Python包装12、页面48/legacy14、原回放/故障/probe、Release/签名/四个自检通过。38项新增测试已包含在344内。首轮编译失败、两处 `try` 修复、非作者源码审查与实际日志复核见 [永久证据](../engineering/evidence/2026-10-27-release-ux/README.md)。
+
+### 本地 Codex 合流时必须保留的最小边界
+
+1. **Web/Chrome、Core/SQLite v3、页面测试、第四轮原证据及 `UPLOAD_STARTED_CONTRACT_V1.md` 与起点逐字一致。** 继续按原契约实现真实开始、严格归一化与早返回。本轮没有新 profile、生产开关或真实浏览器证据。
+2. App 的 `AutomationPermissionChecking` 只在 Web 验收模式使用；普通收录/模拟完全不调用。arm、明确点击、后台只读观察前用 PID+launchDate 复核权限；只有明确设置动作请求权限，不自动启动 Chrome、换目标或重放拒绝点击。保持原鼠标事件冻结的完整 lease，不能为通过新权限检查而重新捕获活动草稿。
+3. 原操作本地恢复与已完成记录查询成功后才安装一次 armer/watch；无权限仍保留/恢复本地事务，获得权限后再只读核对。不要清 UNKNOWN、替换 profile、降级 v3 或绕过旧锁。
+4. 新被动权限检查属于 App 路径，**需要重新计入原事件→输入/开始延迟**；此前 3.40 ms callback 不能代表新路径。Web 验收启动不自动弹首用窗口；需要时菜单明确打开，关闭后再做物理点击验收。
+5. 新 Capture 诊断/存储余量不改上传资产原尺寸/hash，已有 journal 恢复不被新复制空间预检阻止。目录重检、暂停、书签和隐藏均由 App 控制，不在 Web provider 增加重复设置逻辑。
+
+[Development App/helper/日志](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40508109228/artifacts/12735493443) 可直接运行首次窗口并从菜单打开隔离合成演示；这是 ad-hoc ARM64 工程制品。真实 TCC/目录授权/书签重启、Finder 首装、物理辅助功能、HDR/EXIF 命中及新权限路径时延均 NOT_RUN，直接使用 [真机表](FIRST_USE_ACCEPTANCE.md#真实-mac-专项全部保留-not_run) 留证。
+
+本地 Codex 正在进行的真实开始、冷首击、业务 ABA、原正文/附件/选区、MID、物理 GUI、自包含和系统截图两操作闭环继续原任务；无需停止设备执行来重复本包。取得其分支后由唯一集成负责人解决 App 交叉差异。生产输入/开始/安全重试继续关闭；不合 main、不发布、不自动发消息。
+
+---
+
+## 第四轮 Web 与新版生命周期合流（历史来源，保留）
 
 正式分支仍为 `codex/engineering-foundation-20261027` / [Draft PR #1](https://github.com/haohongfei2001-png/Riftlet/pull/1)。合流父基线为 `b84892071d7711177bb856051251a337f2c2c4f5` 与 `03a67cc41e542a7db6dc128b27da8f108efc9896`，保留 `35e9851` / `c9c68a6` 原源码及全部11份第四轮证据。main、网站、设计、旧数据库/媒体均不改动；本会话没有操作本地 Mac。
 

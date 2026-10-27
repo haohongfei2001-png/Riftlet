@@ -15,6 +15,14 @@
 
 ## 1. 当前检查点
 
+### 首次使用与发行基础体验 · 代码、macOS CI 和非作者审查 DONE
+
+正式起点 `e89d49f`；实现 `4e080aa`，已测修复 `2449d40a88225acba9d413cc6a4cb5d84fcae6a1`。root 与三个独立执行者实际并行完成原生首用/状态窗口、按需权限恢复、Capture 诊断/原字节保真/空间预检及 App 打包保护；没有改 Web/Chrome、Core、SQLite v3 或上传开始契约。普通用户基础设置不需终端或 JSON；普通收录模式不请求 Chrome 权限，生产能力未启用与权限问题明确区分。隐藏、暂停、空队列和待核实分开；没有成功 Toast。
+
+[实际 macOS CI 40508109228](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40508109228) 完成成功：344 个原生测试（新增 38 已计入），详细生命周期 13 / 首用软件窗口 3 / Capture 15 全部 passed、0 skipped，Python 包装 12、页面 48 / legacy 14、原回放/故障/probe、Release、ad-hoc 签名及四个 App/helper 自检通过。首轮两处缺少 `try` 的真实编译失败、修复和非作者独立读日志复核均保留在 [本轮证据](../engineering/evidence/2026-10-27-release-ux/README.md)。
+
+**直接续做：** 本地 Codex 继续既有真实 `uploadStarted`、一次点击、草稿身份和物理验收；不重复本包、不占用其设备。合流 App 时保留新增被动权限检查及原冻结目标，在新完整路径上测量点击时延。真实 TCC、书签/目录授权、Finder 首启、物理辅助功能等仅阻塞 [首用真机验收表](FIRST_USE_ACCEPTANCE.md#真实-mac-专项全部保留-not_run)，不能用本轮 CI 宣称通过。签名/公证/自动更新没有凭据时保持独立未发行项。确切正式 HEAD 以 PR #1 的本轮最终交接为准；以下历史增量保留。
+
 ### 第四轮 Web 合流 · DONE；真实开始接入 · 本地 Codex READY
 
 正式起点 `b848920`；保留本地 Codex `35e9851` / `c9c68a6` / `03a67cc` 全部历史与11份原证据，合流到现有 SQLite v3 / Core / UI / App。root 实现最小 persisted-profile 识别及 host-only request→App publication 诊断，非作者已审查源码；完整合流已测 `c85020b` 的 [macOS CI40484855920](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40484855920) 通过：306原生、48页面、14legacy、13生命周期逐项passed/0skip、既有离线回放/故障/probe、Release/签名/三个自检；证据和首轮编译修复见 [VERIFICATION](VERIFICATION.md) 与正式交接。生产上传/开始/安全重试均未开放。

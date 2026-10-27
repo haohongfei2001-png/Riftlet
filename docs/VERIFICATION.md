@@ -9,7 +9,17 @@
 - macOS CI compilation/tests/package smoke do not prove interactive focus, click-through, Spaces or real upload.
 - No real user screenshots, chats or browser sessions are used in automated tests.
 
-## Round-four Web + v3 lifecycle — current integrated source
+## First-use and release foundations — current tested source
+
+已测 **`2449d40a88225acba9d413cc6a4cb5d84fcae6a1`**，[run40508109228](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40508109228) / job122202566296 completed/success，2026-10-27 **21:00:40 北京时间**。344 原生：Core117 / Adapters102 / Capture63 / UI48 / App14。新增38项已包含在总数；详细复跑生命周期13、首用窗口3、Capture15全部 passed/0 skipped，HEIC和受控 POSIX 权限拒绝均明确执行。Python包装12，页面48/legacy14，原55文件/19用例/89轨迹前缀/2明确SIMULATED迟到错误，故障8/probe12、Release/签名及四个 App/helper 自检全部通过。
+
+完整测试名、实际阶段、Git 对象、制品及范围见 [verification.json](../engineering/evidence/2026-10-27-release-ux/verification.json)；非作者分别从 GitHub 读取实际日志复核，见 [review.json](../engineering/evidence/2026-10-27-release-ux/review.json) 与 [原日志摘录](../engineering/evidence/2026-10-27-release-ux/ci-excerpt.txt)。macOS14.8.9/23J631/ARM64/Swift5.10；实际临时checkout `f3531dfc6143bdf95816c8d77ff17af3fb8cf2c8`，父为实际main `eba1a4f`和已测2449d40；12组构建/测试输入与正式源码相同，未合并main。
+
+[可运行开发 App/helper/日志](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40508109228/artifacts/12735493443) 1,585,247 bytes，GitHub SHA-256 `edb3bf6742907d35bdbbf37e260c65a13839067f41e280ac439027873e7a9412`；保存至2026-11-10 21:00:36北京时间。首轮4e080aa的run40507790526在两处测试自动闭包缺少try时编译失败，native NOT_RUN、后续Release等SKIPPED；2449d40只补两个try后完整重跑，未改断言/策略。失败制品只有日志，不当成可运行App。
+
+真实 TCC、文件夹书签、Finder/Gatekeeper、物理VoiceOver/窗口/屏幕、真实HDR/EXIF命中及新增权限查询的实际Web点击时延仍NOT_RUN。自检保留PERMISSIONS_NOT_REQUESTED/CHROME_NOT_RUN/GUI_NOT_RUN/GATEKEEPER_NOT_RUN。Core/SQLite v3与Web源保持起点e89d49f不变，原迁移/UNKNOWN/补偿回归包含在完整CI中；本次没有新增真实上传证据，不改变生产准入。直接入口见 [FIRST_USE_ACCEPTANCE](FIRST_USE_ACCEPTANCE.md)。
+
+## Round-four Web + v3 lifecycle — preceding integrated source
 
 **完整合流 macOS CI 与独立复核已通过：** 已测源码 [`c85020b`](https://github.com/haohongfei2001-png/Riftlet/commit/c85020b0ae250eaa37f7ed812c3c43587dca5a91)，[run40484855920](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40484855920) / job122123985228，于2026-10-27 **17:59:57北京时间**记录完成成功。**306项原生**（Core117 / Adapters102 / Capture48 / UI39），48页面VM、14旧观察器VM、8故障离线组、12只读probe组、55文件/19用例/89轨迹前缀/2明确模拟迟到错误回放全部通过。生命周期详细13 passed /0 skipped，包含7项软件面板测试，未重复计入306。Release、ad-hoc签名、三个App/helper自检通过，CHROME_NOT_RUN/GUI_NOT_RUN保留。
 

@@ -20,6 +20,8 @@
 
 **新版交互实现增量（本轮）：** root 负责 Core/SQLite/Coordinator/App 接线，三个独立执行者实际并行完成 AppKit 生命周期、内部历史和非作者 Core 回归/审查；共同文件保持单写入者。新增 schema v3 可见性、独立 upload-start 审计、安全失败重生、持久隐藏、单张/批量移除、交互保护归档和原生分页历史；不重建 Capture/Web/M1。精确共享接口、模拟运行方式和下一次 Codex 合流范围见 [UPLOAD_STARTED_CONTRACT_V1.md](UPLOAD_STARTED_CONTRACT_V1.md)。已测 `d834a3a` 的完整 macOS CI 通过，含287项原生、13项生命周期逐项passed/0 skipped、Release及三个自检；精确证据在 [VERIFICATION](VERIFICATION.md)。真实开始、冷首击、草稿连续性及物理 N1 仍由本地 Codex 提供，不能从合成结果准入生产。
 
+**首用与发行基础体验实际增量（当前）：** 在e89d49f上并行完成原生首用/状态窗口、按需权限恢复、准确Capture诊断/字节保真/空间保护和开发App打包。已测2449d40的完整macOS CI：344原生、12包装、页面/旧观察/回放、Release/签名及四个自检通过，非作者审查完成；[实际实现及真机入口](FIRST_USE_ACCEPTANCE.md)和[永久证据](../engineering/evidence/2026-10-27-release-ux/README.md)已落地。真实权限/物理首用仅阻塞对应验收，本地Codex继续Web闭环；不改Core/Web/上传开始契约，不将本包扩大为生产启用或公开发行。
+
 ## 1. 授权、范围和最小交付
 
 **第四轮合流增量：** `c9c68a6` 的 v8 可用 composer / persisted UUID / v6-v7 原操作只读观察及 `03a67cc` 原证据接入 `b848920` 生命周期。最小 Core 格式识别和 App 诊断关联落实，不改变完整目标相等、跨 profile 锁、原始事件授权或生产准入。下一包直接由本地 Codex 按 [uploadStarted v1](UPLOAD_STARTED_CONTRACT_V1.md#7-第四轮合流后的直接接入要求) 实现真实开始观察/归一化/早返回并验收；不重复已有模块。当前 CI 与精确 checkpoint 见 [正式交接](INTEGRATION_HANDOFF.md)。
