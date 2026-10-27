@@ -418,6 +418,54 @@ test('observed current thread fiber exposes logical identity independently from 
   assert.equal(fixture().target().logicalDraftIdentity,undefined);
 });
 
+test('observed persisted thread preserves its exact bare UUID under a separate profile', async () => {
+  const f=fixture({thread:true}),id=f.businessID.slice('local-chatgpt:'.length);
+  threadCommit(f,id);
+  const op=f.bind();
+  assert.equal(op.target.logicalDraftIdentity.profileID,'chatgpt-composer-react-persisted-20261027-v1');
+  assert.equal(op.target.logicalDraftIdentity.id,id);assert.ok(!f.context.location.href.includes(id));
+  threadCommit(f,id);assert.equal(f.call({action:'validate',target:op.target}).valid,true);
+  f.stage(op);f.commit(op);await f.settle();const view=f.makeCard(op);f.finish(view);await f.settle();
+  assert.equal(f.observe(op).state,'attached');assert.equal(f.input.inputCount,1);
+});
+
+test('persisted identity refuses non-UUID formats and inconsistent complete property groups', () => {
+  const id='12345678-1234-1234-1234-123456789ABC';
+  for(const invalid of ['not-a-uuid',id+'x',' '+id,id+'\n','chatgpt:'+id,'LOCAL-CHATGPT:'+id,id.replaceAll('-','')]) {
+    const f=fixture({thread:true});threadCommit(f,invalid);
+    assert.throws(()=>f.target(),/UNPROVEN_THREAD_IDENTITY/);assert.equal(f.input.inputCount,0);
+  }
+  for(const change of [
+    props=>{props.draftKey='local-chatgpt:'+id;},
+    props=>{props.draftKey=id.toLowerCase();},
+    props=>{props.conversationId='00000000-0000-0000-0000-000000000000';}
+  ]) {
+    const f=fixture({thread:true}),next=threadCommit(f,id);change(next.draftFiber.memoizedProps);
+    assert.throws(()=>f.target(),/UNPROVEN_THREAD_IDENTITY/);assert.equal(f.input.inputCount,0);
+  }
+});
+
+test('local and persisted profile transitions revoke original leases and cannot forge continuity', async () => {
+  for(const startsPersisted of [false,true]) {
+    const f=fixture({thread:true}),local=f.businessID,persisted=local.slice('local-chatgpt:'.length);
+    const originalID=startsPersisted?persisted:local,nextID=startsPersisted?local:persisted;
+    threadCommit(f,originalID);const op=f.bind();f.stage(op);f.commit(op);await f.settle();
+    const view=f.makeCard(op);f.finish(view);await f.settle();assert.equal(f.observe(op).state,'attached');
+    threadCommit(f,nextID);
+    assert.equal(f.call({action:'validate',target:op.target}).valid,false);
+    assert.equal(f.observe(op).state,'invalidated');assert.equal(f.observe(op).belongsToOriginalDraft,false);
+    const next=f.target();assert.notEqual(next.logicalDraftIdentity.profileID,op.target.logicalDraftIdentity.profileID);
+    assert.notEqual(next.draftGeneration,op.target.draftGeneration);
+    const forged={...op.target,logicalDraftIdentity:next.logicalDraftIdentity};
+    assert.equal(f.call({action:'validate',target:forged}).valid,false);
+    assert.equal(f.call({action:'observe',target:forged,identity:{...op.identity,target:forged}}).observation.state,'invalidated');
+    threadCommit(f,originalID);
+    assert.equal(f.call({action:'validate',target:op.target}).valid,false);
+    assert.equal(f.call({action:'validate',target:next}).valid,false);
+    assert.equal(f.observe(op).state,'invalidated');assert.equal(f.input.inputCount,1);
+  }
+});
+
 test('thread mode/identity is strict: absent, partial, inconsistent, Work, temporary and readonly refuse', () => {
   const changes=[
     f=>delete f.form.__reactFiber$fixture,
