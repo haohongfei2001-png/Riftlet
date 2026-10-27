@@ -14,7 +14,9 @@
 <link rel="icon" type="image/svg+xml" href="favicon.svg?v=product-1">
 <link rel="manifest" href="site.webmanifest?v=product-1">
 <link rel="stylesheet" href="website-product.css?v=product-1">
+<link rel="stylesheet" href="website-hero.css?v=hero-1">
 <script src="website-product.js?v=product-1" defer></script>
+<script src="website-hero.js?v=hero-1" defer></script>
 </head>
 <body>
 <a class="skip-link" href="#main" data-en="Skip to content">跳转到正文</a>
@@ -23,6 +25,7 @@
 <symbol id="capture-a" viewBox="0 0 240 160"><rect width="240" height="160" fill="#F1CDB5"/><path d="M147 0h93v160h-93z" fill="#E0AA87"/><path d="M153 0C65 41 56 120 117 160H48C-2 99 21 28 88 0Z" fill="#314F45"/><path d="M183 0C105 50 99 108 152 160h27c-49-59-38-110 33-160Z" fill="#FAEEE2"/><text x="18" y="26" font-family="Georgia,serif" font-size="16" fill="#314F45">a place between</text><text x="18" y="146" font-family="sans-serif" font-size="7" letter-spacing="2" fill="#314F45">FORM / SPACE / INTERVAL</text></symbol>
 <symbol id="capture-b" viewBox="0 0 240 170"><rect width="240" height="170" fill="#FDFCF8"/><rect x="0" width="240" height="18" fill="#E8ECE6"/><circle cx="10" cy="9" r="2" fill="#9BAB9A"/><circle cx="17" cy="9" r="2" fill="#9BAB9A"/><circle cx="24" cy="9" r="2" fill="#9BAB9A"/><text x="21" y="47" font-size="17" font-family="Georgia,serif" fill="#304E3D">Keep the interval.</text><text x="21" y="63" font-size="6" letter-spacing="1" font-family="sans-serif" fill="#657C6B">EXCERPT FROM A DESIGN NOTE</text><path d="M21 83h176M21 93h165M21 103h188M21 113h154" stroke="#B5C4B5" stroke-width="2"/><rect x="21" y="131" width="42" height="19" rx="2" fill="#A5CEC1"/><rect x="68" y="131" width="42" height="19" rx="2" fill="#F1CDB5"/><rect x="115" y="131" width="42" height="19" rx="2" fill="#D5DBEB"/><rect x="162" y="131" width="42" height="19" rx="2" fill="#26312D"/></symbol>
 <symbol id="capture-c" viewBox="0 0 110 160"><rect width="110" height="160" fill="#19B7A4"/><path d="M66 0v160" stroke="#0D6F63" stroke-width="1"/><path d="M38 0v160" stroke="#88D7C7" stroke-width="1"/><ellipse cx="68" cy="77" rx="39" ry="55" fill="#D5EEE1"/><path d="M68 22v110C18 131 18 22 68 22Z" fill="#0E5B4F"/><text x="9" y="150" font-size="7" letter-spacing="1" font-family="sans-serif" fill="#103D32">CLOSE AT HAND</text></symbol>
+<symbol id="hero-page-art" viewBox="0 0 288 150"><rect width="288" height="150" rx="2" fill="#F8F8F2"/><rect width="106" height="150" fill="#F1CDB5"/><path d="M90 14C28 39 21 95 62 138H31C-4 95 8 36 60 14Z" fill="#314F45"/><path d="M106 45C77 60 73 104 101 138h5" fill="#FAEEE2"/><text x="122" y="25" font-family="sans-serif" font-size="9" letter-spacing="1" fill="#087C70">HOMEPAGE / 01</text><text x="122" y="52" font-family="Georgia,serif" font-size="20" fill="#26312D">Less, but closer.</text><path d="M123 70h144M123 79h128" stroke="#B7C6B7" stroke-width="2"/><rect x="123" y="95" width="9" height="9" rx="2" fill="#19B7A4"/><path d="m125 99 2 2 3-4" stroke="#102A27" fill="none"/><path d="M140 100h95" stroke="#93AB98" stroke-width="2"/><rect x="123" y="115" width="9" height="9" rx="2" fill="none" stroke="#A1B4A2"/><path d="M140 120h111" stroke="#B7C6B7" stroke-width="2"/></symbol>
 </defs></svg>
 <div class="wrap" id="top">
 <header class="nav">
@@ -30,10 +33,50 @@
 <nav class="navlinks" aria-label="Navigation"><a href="#experience" data-en="Try it">体验</a><a class="nav-idea" href="#idea" data-en="Why Riftlet">理念</a><a class="nav-release" href="#availability" data-en="Get Riftlet">进展</a><button class="language-toggle" id="language-toggle" type="button" aria-label="Switch to English">EN</button></nav>
 </header>
 <main id="main">
-<section class="hero" aria-labelledby="hero-title">
-<div class="hero-copy"><div class="kicker" data-en="A LITTLE SPACE AT YOUR SCREEN’S EDGE">截图 · 剪贴板 · 屏幕边缘</div><h1 id="hero-title" data-en="No searching.<br><span>Right there.</span>">不必找。<br><span>就在那儿。</span></h1><p data-en="Riftlet keeps what you just captured at the edge of your screen. Remember the place. Click it into your draft.">Riftlet 把刚刚截下的内容，留在屏幕边缘。<br>记住位置，轻点放入对话草稿。</p><div class="actions"><a class="main-action" href="#experience"><span data-en="Try Riftlet">体验 Riftlet</span><span aria-hidden="true">↘</span></a><a class="quiet-link" href="#availability" data-en="What’s coming">了解发布计划</a></div><p class="hero-note" data-en="The first macOS release is in the works. Not yet available to download.">首个 macOS 版本正在准备中，暂未开放下载。</p></div>
-<div class="sculpture" role="img" aria-label="Riftlet 的屏幕边缘意象：三个内容片段从边界后露出。"><div class="plane"></div><div class="plane-shadow"></div><div class="art-stack"><div class="art-piece one"><svg><use href="#capture-a"/></svg></div><div class="art-piece two"><svg><use href="#capture-b"/></svg></div><div class="art-piece three"><svg><use href="#capture-c"/></svg></div></div><div class="screen-plane"></div><div class="seam-color"></div><div class="sculpture-note">A little<br>space.<small data-en="A familiar place<br>for what you just captured.">为刚刚的内容，<br>留一个熟悉的位置。</small></div><div class="art-caption" data-en="A little space at the edge of your screen.">屏幕边缘，多一个熟悉的位置。</div></div>
-
+<section class="hero hero-product" aria-labelledby="hero-title">
+  <div class="hero-copy">
+    <div class="kicker" data-en="SYSTEM SCREENSHOTS. ONE CLICK AWAY.">系统截图 · 一点即用</div>
+    <h1 id="hero-title" data-en="No searching.<br><span>Right there.</span>">不必找。<br><span>就在那儿。</span></h1>
+    <p data-en="Take a screenshot as usual. Click its place at the screen’s edge. Your image is in the ChatGPT draft. Nothing is sent.">照常截图，点一下屏幕边缘。<br>图片进入 ChatGPT 草稿，发送仍由你。</p>
+    <div class="actions">
+      <button class="main-action" id="hero-play" type="button"><span data-hero-copy="play">看一次完整操作</span><span aria-hidden="true">↗</span></button>
+      <a class="quiet-link" href="#experience" data-en="Try it yourself">自己试一试</a>
+    </div>
+    <p class="hero-note" data-en="The first macOS release is in the works. Not yet available to download.">首个 macOS 版本正在准备中，暂未开放下载。</p>
+  </div>
+  <div class="hero-scene" id="hero-scene" data-phase="idle" aria-label="截图进入草稿的网页演示">
+    <div class="hero-halo" aria-hidden="true"></div>
+    <div class="hero-scene-heading"><span data-en="YOUR DESKTOP, A LITTLE LESS INTERRUPTED.">你的桌面，少一点打断。</span><span class="hero-demo-label" data-en="Web demo">网页演示</span></div>
+    <div class="hero-desktop">
+      <div class="hero-desktop-bar" aria-hidden="true"><span class="hero-dots"><i></i><i></i><i></i></span><span data-en="A familiar workspace">熟悉的工作空间</span></div>
+      <div class="hero-source">
+        <div class="hero-source-bar"><span data-en="Homepage notes">首页笔记</span><button id="hero-capture" type="button" aria-label="模拟截取示例内容"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5M8 8h8v8H8z"/></svg><span data-hero-copy="capture">模拟截图</span></button></div>
+        <div class="hero-capture-region">
+          <svg class="hero-source-art" viewBox="0 0 288 150" role="img" aria-label="合成的页面排版与修改笔记"><use href="#hero-page-art"/></svg>
+          <span class="hero-selection" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+        </div>
+      </div>
+      <div class="hero-connector" aria-hidden="true"><span></span></div>
+      <div class="hero-composer">
+        <div class="hero-composer-title"><span class="hero-chat-glyph" aria-hidden="true">↳</span><span data-en="ChatGPT · Demo draft">ChatGPT · 草稿演示</span></div>
+        <div id="hero-attachments" class="hero-attachments" aria-label="首屏演示附件"></div>
+        <label class="sr-only" for="hero-draft" data-en="Editable demo draft. Nothing will be sent.">可编辑的演示草稿，不会发送</label>
+        <textarea id="hero-draft" rows="2" spellcheck="false">帮我看看这个页面，还能如何改进？</textarea>
+        <div class="hero-composer-bottom"><span aria-hidden="true">＋</span><span data-en="In your draft. Never auto-sent.">只放进草稿，不替你发送</span><span class="hero-send" aria-hidden="true">↑</span></div>
+      </div>
+      <div class="hero-edge" id="hero-edge" aria-label="首屏截图队列">
+        <span class="hero-edge-line" aria-hidden="true"></span>
+        <button class="hero-shot" type="button" data-shot="1" data-state="available" style="--slot:0;--shot-width:48px;--shot-height:32px" aria-label="把截图 1 放入演示草稿"><span class="hero-shot-mask"><svg viewBox="0 0 240 160" aria-hidden="true"><use href="#capture-a"/></svg></span><span class="hero-shot-number">1</span></button>
+        <button class="hero-shot" type="button" data-shot="2" data-state="available" style="--slot:1;--shot-width:33px;--shot-height:48px" aria-label="把截图 2 放入演示草稿"><span class="hero-shot-mask"><svg viewBox="0 0 110 160" aria-hidden="true"><use href="#capture-c"/></svg></span><span class="hero-shot-number">2</span></button>
+        <button class="hero-shot" type="button" data-shot="3" data-state="absent" style="--slot:2;--shot-width:48px;--shot-height:25px" aria-label="把新截图放入演示草稿" disabled><span class="hero-shot-mask"><svg viewBox="0 0 288 150" aria-hidden="true"><use href="#hero-page-art"/></svg></span><span class="hero-shot-number">3</span></button>
+        <span class="hero-cursor" aria-hidden="true"><svg viewBox="0 0 25 30"><path d="M3 2v23l6-6 5 9 4-2-5-9h9Z"/></svg></span>
+      </div>
+      <div class="hero-edge-hint"><span data-hero-copy="hint">你的截图，在这里</span><span aria-hidden="true">↗</span></div>
+    </div>
+    <div class="hero-sequence" aria-label="使用过程"><span data-step="capture"><b>01</b><span data-en="Capture as usual">照常截图</span></span><i aria-hidden="true">→</i><span data-step="click"><b>02</b><span data-en="Click the edge">点击边缘</span></span><i aria-hidden="true">→</i><span data-step="ready" data-en="In your draft">进入草稿</span></div>
+    <div class="hero-scene-foot"><p id="hero-status" aria-live="polite" aria-atomic="true" data-hero-copy="idle">两次操作，回到你的思路。</p><button id="hero-pause" type="button" hidden data-hero-copy="pause">暂停演示</button></div>
+    <p class="hero-local-note" data-en="Illustrated web demo. No screen access, uploads or messages.">网页示意演示，不读取屏幕、不上传、不发送。</p>
+  </div>
 </section>
 <section class="principle" id="idea" aria-labelledby="idea-title"><h2 id="idea-title" data-en="Let the place be the clue.<br>Let the interface step aside.">让位置成为线索，<br>让界面退到边缘。</h2><p data-en="No filenames to read. No panel to unfold.<br>Just enough of what you captured to recognise its place.<br>Keep working. It stays close at hand.">不必读文件名，也不用展开一整块面板。<br>刚刚的内容，只露出一点，就足够找到。<br>你继续工作，它安静地留在手边。</p></section>
 <section class="section" id="experience" aria-labelledby="experience-title">
