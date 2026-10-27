@@ -1,0 +1,189 @@
+{
+  "sourceSHA": "c9c68a66c4b6ff55ffe8048cff6f1cf781600519",
+  "formalBaseline": "a441c70f3c4071069bd594513ecf16600bbb0ab8",
+  "contractSHA": "90a04883160032fc6354fb4f3d3f7d56fede2947",
+  "environment": {
+    "macOS": "27.0 (26A428)",
+    "arch": "arm64",
+    "Chrome": "156.0.8078.48",
+    "Swift": "6.4",
+    "mode": "webAcceptance; syntheticDevelopment only"
+  },
+  "verdict": "PASS",
+  "notColdClick": true,
+  "clickProvenance": "User explicitly reported clicking once; native source mouse, eventNumber retained; no tool click on this asset",
+  "setup": "Programmatic editor.blur in native MAIN diagnostic; not a verified human body/sidebar click",
+  "baselineTextNonempty": false,
+  "baselineAttachmentCount": 0,
+  "selectionPreservationVerdict": "NOT_RUN: baseline recorded before blur/setup; difference at change cannot identify upload causality",
+  "selectionBoundary": {
+    "ackUptime": 447580.12647812505,
+    "armInFlight": false,
+    "assetID": "00782EA1-E0D5-48E8-A438-015862440088",
+    "callbackUptime": 447588.49007475004,
+    "event": "selection_boundary",
+    "eventNumber": 27520,
+    "eventUptime": 447588.486673291,
+    "foregroundSessionMatches": true,
+    "frozen": true,
+    "hostEpochMatches": true,
+    "source": "mouse"
+  },
+  "completeACKAroundOriginalPublication": [
+    {
+      "accepted": true,
+      "authority": "DIAGNOSTIC_ONLY_NOT_APP_PUBLICATION",
+      "event": "capture_ack",
+      "phase": "native_validated",
+      "receivedUptime": 447580.1074071667,
+      "recordedUptime": 447580.12567745836,
+      "requestID": "D9C3F2F3-7B57-4EE9-8248-04039042A928",
+      "targetDigest": "d061d4605ae1461deca3ba169078bb1d49fa1b3aed0dea5210b73f594207968f"
+    },
+    {
+      "accepted": true,
+      "authority": "DIAGNOSTIC_ONLY_NOT_APP_PUBLICATION",
+      "event": "capture_ack",
+      "phase": "main_actor_return",
+      "receivedUptime": 447580.1074071667,
+      "recordedUptime": 447580.1262022917,
+      "requestID": "D9C3F2F3-7B57-4EE9-8248-04039042A928",
+      "targetDigest": "d061d4605ae1461deca3ba169078bb1d49fa1b3aed0dea5210b73f594207968f"
+    }
+  ],
+  "inputNativeTrace": [
+    {
+      "action": "validate",
+      "endedUptime": 447588.5367808334,
+      "event": "native_bridge",
+      "executionMS": 40.909500035922974,
+      "phase": "complete",
+      "queuedUptime": 447588.495851,
+      "queueMS": 0.02033333294093609,
+      "requestID": "BC524C80-B43C-4C5A-A139-27A78DC950AB",
+      "startedUptime": 447588.49587133335,
+      "transportSucceeded": true
+    },
+    {
+      "action": "begin",
+      "endedUptime": 447588.58677675005,
+      "event": "native_bridge",
+      "executionMS": 43.1081666611135,
+      "phase": "complete",
+      "queuedUptime": 447588.54365220835,
+      "queueMS": 0.016375037375837564,
+      "requestID": "C38B72F9-8CDA-47D8-B600-17157E693AA1",
+      "startedUptime": 447588.5436685834,
+      "transportSucceeded": true
+    },
+    {
+      "action": "commit",
+      "endedUptime": 447591.4147741667,
+      "event": "native_bridge",
+      "executionMS": 107.96641669003293,
+      "phase": "complete",
+      "queuedUptime": 447591.3067966667,
+      "queueMS": 0.011083320714533329,
+      "requestID": "2295195A-9898-42BC-800A-D5B55AB5A263",
+      "startedUptime": 447591.30680775,
+      "transportSucceeded": true
+    }
+  ],
+  "selectionCallbackDelayMS": 3.4014590200968087,
+  "nativeCommitCalls": 1,
+  "pageResult": {
+    "pageFocused": true,
+    "editorFocused": false,
+    "textPreserved": true,
+    "cardsPreserved": true,
+    "fileEvents": [
+      {
+        "type": "change",
+        "t": 933205.5,
+        "isTrusted": false,
+        "files": 1,
+        "editorFocused": false,
+        "pageFocused": true,
+        "textPreserved": true,
+        "cardsPreserved": true,
+        "selectionPreserved": false
+      }
+    ],
+    "generations": [
+      {
+        "profile": "chatgpt-composer-react-persisted-20261027-v1",
+        "events": {
+          "outsideInteraction": 3,
+          "navigate": 0,
+          "currententrychange": 0
+        },
+        "ops": [
+          {
+            "operationID": "6EA2B7E1-1C6E-468D-9F96-BC01011A518B",
+            "inputCount": 1,
+            "committed": true,
+            "invalid": false,
+            "error": false,
+            "uploading": false,
+            "started": 3,
+            "ended": 52,
+            "hundred": 43,
+            "loaded": 53,
+            "hasProof": true
+          }
+        ]
+      }
+    ],
+    "network": {
+      "schemaVersion": 1,
+      "sessionId": "round4-firstclick-mid-20261027",
+      "operationID": null,
+      "uploadName": null,
+      "mode": "DIAGNOSTIC_ONLY",
+      "state": "STOPPED",
+      "inputCount": 0,
+      "changeHashOK": false,
+      "exactNameRequestCandidates": 0,
+      "requestsObserved": 0,
+      "retainedRequestCandidates": 0,
+      "cloneReaders": 0,
+      "requestsInitiatedByProbe": 0,
+      "abortsInitiatedByProbe": 0,
+      "retryConclusion": "NOT_ESTABLISHED",
+      "originalsRestored": true
+    }
+  },
+  "newVisualContract": "NOT_RUN: Pro fast-swallow lifecycle not in this baseline; no uploadStarted visual claim",
+  "scope": "One prebound physical first click with unfocused editor; generated PNG; ordinary persisted Chat thread",
+  "allTraceSelectionBoundaryCalls": 3,
+  "thisAssetSelectionBoundaryCalls": 1,
+  "otherAssetSelectionBoundaries": [
+    {
+      "ackUptime": 447901.06006475,
+      "armInFlight": false,
+      "assetID": "467D5079-CE8D-4072-A18D-3647E3BD0320",
+      "callbackUptime": 447903.538831625,
+      "event": "selection_boundary",
+      "eventNumber": 27547,
+      "eventUptime": 447903.535205375,
+      "foregroundSessionMatches": true,
+      "frozen": true,
+      "hostEpochMatches": true,
+      "source": "mouse"
+    },
+    {
+      "ackUptime": 447901.06006475,
+      "armInFlight": false,
+      "assetID": "467D5079-CE8D-4072-A18D-3647E3BD0320",
+      "callbackUptime": 447904.09499187506,
+      "event": "selection_boundary",
+      "eventNumber": 27548,
+      "eventUptime": 447904.092018208,
+      "foregroundSessionMatches": true,
+      "frozen": true,
+      "hostEpochMatches": true,
+      "source": "mouse"
+    }
+  ],
+  "otherSelectionScope": "Two later mouse boundaries on an existing UNKNOWN asset, not another input to the new asset; whole trace commit count remains one."
+}

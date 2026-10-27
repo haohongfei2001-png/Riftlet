@@ -201,3 +201,8 @@ Next READY task or next concrete action:
 ## 第三轮本地候选交付（历史，现已正式合流）
 
 源码 `159b3ef3e6c87ea468ba334dff64ad8db640d80c` 在独立 `codex/riftlet-real-mac-round3-20261027`。CI 228 Swift / 38 page / 12 新 probe groups 与打包自检 PASS；AX 唤醒及真实 root commit 监视局部有证据。UX-01 全场景、真实业务 ABA、物理 GUI 与 MID 仍未准入；系统截图自包含仍 FAIL。生产真实截图上传和 retry 保持关闭。详见[第三轮交接](../engineering/evidence/2026-10-27-real-mac-round3/README.md)。本段不覆盖上方正式版本状态。
+
+
+## 第五轮本地真实 uploadStarted · ACTIVE
+
+独立分支 codex/riftlet-real-mac-round5-20261027，从 SQLite v3 正式 b84892071d7711177bb856051251a337f2c2c4f5 起步，仅继承第四轮适配器源码增量。Web v9/schema2 原操作进度证据、native归一化和append早返回由本地Codex负责；旧v6/v7/v8只观察、不补造start。Core/UI/App保持Pro所有权，synthetic start策略接线单独提出最小补丁并待真实证据审查；生产及安全重试不启用。
