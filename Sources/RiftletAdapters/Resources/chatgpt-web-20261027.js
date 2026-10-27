@@ -9,9 +9,9 @@
  */
 function riftletWebAcceptance(command, native) {
   'use strict';
-  // v10 permits initial missing progress to wait on its original node without start evidence.
+  // v11 handles native MutationRecord NodeLists so event observation survives early return.
   // Its old native requests remain UNKNOWN instead of acquiring a new lease.
-  const KEY = '__riftletWebAcceptance20261027v10';
+  const KEY = '__riftletWebAcceptance20261027v11';
   const MAX_GENERATIONS = 32;
   const MAX_BYTES = 8 * 1024 * 1024, MAX_PIXELS = 16 * 1024 * 1024;
   const TARGET_KEYS = ['adapterID', 'surface', 'applicationID', 'sessionID', 'windowID', 'tabID', 'documentID', 'composerID', 'draftGeneration'];
@@ -491,7 +491,7 @@ function riftletWebAcceptance(command, native) {
                 || (Number.isFinite(previousOldValue) && oldValue < previousOldValue)) op.startDisqualified = true;
             progressOldValues.set(op, record.oldValue === null ? null : oldValue);
           }
-          if ((record.removedNodes || []).some(node => containsNode(node, op.progressNode))
+          if ([...(record.removedNodes || [])].some(node => containsNode(node, op.progressNode))
               || (record.type === 'attributes' && record.target === op.progressNode
                 && ['aria-label', 'role'].includes(record.attributeName))) op.startDisqualified = true;
           if (record.type === 'attributes' && ((record.target === op.card && record.attributeName === 'aria-label')
