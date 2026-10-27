@@ -32,3 +32,18 @@ P12/P13 authorize routine decisions and parallel work without the user's partici
 | Signing/public release prerequisites | Repeatable ad-hoc app, CI evidence and permission/install documentation | Formal distribution |
 
 Known correctness defects are handled immediately within their affected changes. Waiting for a machine or proof never becomes permission to claim a test passed, lower the swallow threshold, overwrite another draft or auto-retry UNKNOWN. Record an exact resumption trigger and move to another READY task; do not repeatedly recheck an unavailable environment or ask the user for the same decision.
+
+## 2026-10-27 — fast-swallow product decision: resolved principles and remaining evidence
+
+See the authoritative [interaction contract](INTERACTION_CONTRACT_2026-10-27.md) and USER decisions P16–P22 in [DECISIONS.md](DECISIONS.md).
+
+**Decided:** click once; click-time **current** supported ChatGPT draft, not fixed or guessed; actual upload start triggers **very fast visual swallow**, before READY; only explicit/extremely high-confidence actual failure rebirths; UNKNOWN after start stays hidden in internal local history; no auto re-upload; stale visible screenshots auto-archive and can be singly/bulk removed; no visible screenshots means **no trace of the slit**.
+
+**Still unapproved/unverified:**
+1. Per-surface *positive* upload-start observation and timing; neither an issued click nor a placeholder counts automatically; W2/M1 still need measured evidence.
+2. Objective, replayable conditions for **extremely high-confidence actual failure**, late errors, user-initiated attachment deletion, and safe explicit retry without duplicates.
+3. Durable queue/UI state split: visible vs swallowed/unknown/used/archived; no indefinite same-draft blocker for **other distinct images** while preserving original operation observation and wrong-target protections.
+4. Archive idle duration and UI; single/bulk remove behavior and private media lifecycle; how to view/restore hidden uncertain images. No invented automatic deletion policy.
+5. Real first-click/current-window capture, speed of swallow animation, no slit when empty, visible queue rebirth after delayed failure, restart and multi-Space evidence.
+
+**Engineering scope:** this documentation update does not implement those state-machine migrations, revise production evidence registries, or validate macOS/Chrome behavior. Existing CI and past ATTACHED/READY results remain scoped to the old implementation.
