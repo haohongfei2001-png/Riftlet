@@ -68,3 +68,9 @@ Latest **resolved product behavior** is in [INTERACTION_CONTRACT_2026-10-27.md](
 **Requires independent feasibility research:** Do existing Apple public APIs or tested mechanisms allow the ordinary macOS system Screenshot.app to omit Riftlet's own floating thumbnails across all supported shortcuts/modes? Existing Round 2 observations suggest self-inclusion; ScreenCaptureKit's client-local window exclusion must not be mistaken for a system-wide guarantee. See [Pro brief](PRO_FEASIBILITY_REVIEW_BRIEF_2026-10-27.md).
 
 **Tests still pending:** Web and Mac clients must prove focusless click in existing drafts, including sidebar/text selection and first-click races; screenshot inclusion must be investigated per OS/capture source/permission without timing guesses. Hover/press archive suppression is implementation work, not a previously verified feature.
+
+## 2026-10-27 — Pro feasibility study received
+
+The independently supplied Pro review concludes Web composer **unfocused field** attachment is **conditionally feasible**, with outstanding click-time authority and cold first-click timing; Mac native remains unproved; no supported universal exclusion of Riftlet from Apple's ordinary system screenshots has been established. Invalid-click press/reset and non-interrupting archive are low-/medium-complexity candidates. The precise engineering handoff and source/evidence limits are recorded in [PRO_FEASIBILITY_REVIEW_FINDINGS_2026-10-27.md](PRO_FEASIBILITY_REVIEW_FINDINGS_2026-10-27.md).
+
+**Do not relabel this as PASS.** The PDF referenced in the user-pasted Pro response was not uploaded into the present tool session. Web physical cold first-click, native-client AX attachment, self-capture source isolation, production uploadStarted swallow and archive-interaction cases remain pending real-environment validation. Do not reopen the settled user product choices, or force a new screenshot shortcut/engine for window exclusion.
