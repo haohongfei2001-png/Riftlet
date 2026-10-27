@@ -91,3 +91,9 @@ The existing W2 instruction to **keep the draft input focused** is a historical 
 | N15 archive-interaction race | Artificially expire a visible screenshot while hovering, mouse down, reorder, upload-start boundary, after wake/clock change; no tile disappears from under the user's active pointer. Reborn failed screenshots retain the normal lifecycle and archiving behavior. |
 
 These are **not yet PASS**. Screenshots and records remain local/synthetic where appropriate. The current production adapters stay disabled until independently reviewed evidence and the established actual Screenshot→Click→Draft acceptance.
+
+## Fourth-round scoped update — source c9c68a6
+
+See [round4 evidence](../engineering/evidence/2026-10-27-real-mac-round4/README.md). **PASS:** one human physical first click in a prebound ordinary persisted Chat thread while its editor was unfocused; one synthetic input, original-target proof and durable used. The baseline text/cards were empty; selection baseline preceded setup, so nonempty draft/selection preservation remains NOT_RUN. Cold page before ACK, real business A→B→A, same-URL replacement, browser restart/window moves, complete N1 and three-boundary capture timing remain NOT_RUN. The unobservable ABA counterexample remains a documented FAIL, not hidden by the new positive tests. MID is NOT_EXERCISED because the diagnostic probe expired before this input and restored its hooks; no fault/retry PASS is claimed.
+
+PR #4 contract requires rapid visual exit after positively established uploadStarted, not final READY. The new lifecycle is owned by Pro and not tested by this baseline. Source/policy gates stay closed. v8 monitor timing is a bounded real observation (312 commits/checks, 47.1 ms total, 1.8 ms maximum), not proof that a business draft transition occurred or a whole-App resource benchmark. Current system Screenshot.app self-exclusion still has no supported all-entry-point guarantee; the prior real failure is retained.

@@ -42,7 +42,7 @@ public final class ChromeActivityObserver {
         }, &next)
         guard result == .success, let next else { return false }
         let element = AXUIElementCreateApplication(app.processIdentifier)
-        AXUIElementSetMessagingTimeout(element, 0.05)
+        guard AXUIElementSetMessagingTimeout(element, 0.05) == .success else { return false }
         observer = next; application = element; pid = app.processIdentifier; launchDate = launched
         let pointer = Unmanaged.passUnretained(self).toOpaque()
         var registrations = 0
@@ -78,7 +78,7 @@ public final class ChromeActivityObserver {
         guard AXUIElementCopyAttributeValue(application, kAXFocusedWindowAttribute as CFString, &raw) == .success,
               let raw, CFGetTypeID(raw) == AXUIElementGetTypeID() else { return }
         let window = raw as! AXUIElement
-        AXUIElementSetMessagingTimeout(window, 0.05)
+        guard AXUIElementSetMessagingTimeout(window, 0.05) == .success else { return }
         focusedWindow = window
         AXObserverAddNotification(observer, window, kAXTitleChangedNotification as CFString,
                                   Unmanaged.passUnretained(self).toOpaque())

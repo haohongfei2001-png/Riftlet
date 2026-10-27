@@ -29,13 +29,21 @@ public struct WebBridgeCommand: Encodable, Sendable {
     public let byteCount: Int64?
     public let chunkIndex: Int?
     public let chunkBase64: String?
+    /// Host diagnostics only, deliberately excluded from the page payload.
+    public let captureInvocation: CaptureInvocationContext?
+
+    private enum CodingKeys: String, CodingKey {
+        case action, target, identity, uploadName, mediaType, byteCount, chunkIndex, chunkBase64
+    }
 
     init(action: WebBridgeAction, target: TargetLease? = nil, identity: ObservationIdentity? = nil,
          uploadName: String? = nil, mediaType: String? = nil, byteCount: Int64? = nil,
-         chunkIndex: Int? = nil, chunkBase64: String? = nil) {
+         chunkIndex: Int? = nil, chunkBase64: String? = nil,
+         captureInvocation: CaptureInvocationContext? = nil) {
         self.action = action; self.target = target; self.identity = identity
         self.uploadName = uploadName; self.mediaType = mediaType; self.byteCount = byteCount
         self.chunkIndex = chunkIndex; self.chunkBase64 = chunkBase64
+        self.captureInvocation = captureInvocation
     }
 }
 
@@ -74,7 +82,18 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
     }
 
     public func captureTarget() async throws -> TargetLease {
-        let data = try await perform(.init(action: .captureTarget))
+        try await captureTarget(invocation: nil)
+    }
+
+    /// Optional diagnostic seam. Ordinary AttachmentAdapter and executor APIs
+    /// are unchanged; this performs exactly the same single capture and checks.
+    public func captureTargetWithDiagnostics(context: CaptureInvocationContext) async throws -> CapturedTargetDiagnostics {
+        let target = try await captureTarget(invocation: context)
+        return try CapturedTargetDiagnostics(context: context, target: target)
+    }
+
+    private func captureTarget(invocation: CaptureInvocationContext?) async throws -> TargetLease {
+        let data = try await perform(.init(action: .captureTarget, captureInvocation: invocation))
         let target = try decode(TargetLease.self, from: data)
         try check(target)
         return target

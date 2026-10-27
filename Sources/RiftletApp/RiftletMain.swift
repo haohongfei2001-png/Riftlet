@@ -106,7 +106,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
     private var pendingArmReason = "startup"
     private var chromeActivity: ChromeActivityObserver?
     private var armedTarget: ArmedTarget?
-    private var frozenPress: (id: UUID, target: TargetLease?)?
+    private var armedCaptureDiagnostics: CapturedTargetDiagnostics?
+    private var activeCaptureInvocation: CaptureInvocationContext?
+    private var frozenPress: (id: UUID, target: TargetLease?, refusalReason: String)?
     private var armSession = UUID()
     private var wakeObserver: NSObjectProtocol?
     private var watchedCompletions = Set<UUID>()
@@ -127,6 +129,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
         archiveTask?.cancel()
         targetArmer?.cancel()
         armScheduler.stop(); armedTarget = nil; frozenPress = nil
+        armedCaptureDiagnostics = nil
         chromeActivity?.stop()
         if let wakeObserver { NSWorkspace.shared.notificationCenter.removeObserver(wakeObserver) }
         if let activationObserver { NSWorkspace.shared.notificationCenter.removeObserver(activationObserver) }
@@ -301,9 +304,22 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
     }
 
     private func freezePress(_ id: UUID, timestamp: TimeInterval) {
-        let target = armedTarget?.freeze(eventUptime: timestamp, nowUptime: ProcessInfo.processInfo.systemUptime,
+        let now = ProcessInfo.processInfo.systemUptime
+        let target = armedTarget?.freeze(eventUptime: timestamp, nowUptime: now,
             hostSession: armSession, foregroundSession: foregroundChromeSession)
-        frozenPress = (id, target)
+        // Classification is diagnostic only. ArmedTarget.freeze remains the sole
+        // timing/epoch gate; no native diagnostic time supplies click authority.
+        let refusal: String
+        if target != nil { refusal = "none" }
+        else if let armed = armedTarget {
+            if armed.hostSession != armSession { refusal = "hostEpochMismatch" }
+            else if armed.target.sessionID != foregroundChromeSession { refusal = "foregroundSessionMismatch" }
+            else if !armed.acknowledgedUptime.isFinite || !timestamp.isFinite || !now.isFinite || armed.acknowledgedUptime < 0 {
+                refusal = "invalidClock"
+            } else if armed.acknowledgedUptime >= timestamp { refusal = "ackNotBeforeOriginalEvent" }
+            else { refusal = "originalEventInFuture" }
+        } else { refusal = "noPublishedTarget" }
+        frozenPress = (id, target, refusal)
     }
 
     private func startArming(adapter: any AttachmentAdapter) {
@@ -334,7 +350,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
 
     private func requestArm(reason: String = "fallback", invalidate: Bool = false) {
         pendingArmReason = reason
-        if invalidate { armedTarget = nil; frozenPress = nil }
+        if invalidate { armedTarget = nil; armedCaptureDiagnostics = nil; frozenPress = nil }
         let wake = armScheduler.request(invalidateEpoch: invalidate)
         armSession = armScheduler.epoch
         if wake { performPendingArm() }
@@ -346,26 +362,67 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
         targetArmer = nil
         let reason = pendingArmReason
         let started = ProcessInfo.processInfo.systemUptime
+        let invocation = CaptureInvocationContext(armAttemptID: attempt.id, hostEpoch: attempt.epoch)
+        activeCaptureInvocation = invocation
         Task { [weak self] in
             guard let self else { return }
             var result: TargetLease?
+            var diagnostics: CapturedTargetDiagnostics?
             var errorCode = "browserNotFrontmost"
             if self.foregroundChromeSession != nil {
-                do { result = try await adapter.captureTarget(); errorCode = "none" }
+                do {
+                    if let web = adapter as? WebAttachmentAdapter {
+                        diagnostics = try await web.captureTargetWithDiagnostics(context: invocation)
+                        result = diagnostics?.target
+                    } else { result = try await adapter.captureTarget() }
+                    errorCode = "none"
+                }
                 catch { errorCode = (error as? WebAdapterError).map { String(describing: $0) } ?? "unclassified" }
             }
-            guard let completion = self.armScheduler.complete(attempt) else { return }
+            if self.activeCaptureInvocation == invocation { self.activeCaptureInvocation = nil }
+            guard let completion = self.armScheduler.complete(attempt) else {
+                self.recordAcceptance(["event": "arm_completion", "captureRequestID": invocation.requestID.uuidString,
+                    "armAttemptID": attempt.id.uuidString, "hostEpoch": attempt.epoch.uuidString,
+                    "publicationResult": "rejectedUnmatchedAttempt", "epochAccepted": false])
+                return
+            }
+            var publication: TimeInterval?
+            var reused = false
+            var publicationResult = "rejectedEpochOrStopped"
             if completion.acceptsAcknowledgement {
                 if let target = result, target.sessionID == self.foregroundChromeSession {
-                    if self.armedTarget?.target != target {
+                    reused = self.armedTarget?.target == target
+                    if !reused {
                         self.armedTarget = ArmedTarget(target: target,
                             acknowledgedUptime: ProcessInfo.processInfo.systemUptime, hostSession: attempt.epoch)
+                        self.armedCaptureDiagnostics = diagnostics
                     }
-                } else { self.armedTarget = nil }
+                    // Actual acceptance on MainActor, never the earlier native
+                    // arrival. Reused targets keep their original effective ACK.
+                    publication = ProcessInfo.processInfo.systemUptime
+                    publicationResult = reused ? "acceptedExistingTarget" : "publishedNewTarget"
+                } else {
+                    self.armedTarget = nil; self.armedCaptureDiagnostics = nil
+                    publicationResult = result == nil ? "captureFailed" : "foregroundSessionChanged"
+                }
             }
-            self.recordAcceptance(["event": "arm_completion", "reason": reason, "startedUptime": started,
+            var fields: [String: Any] = ["event": "arm_completion", "reason": reason, "startedUptime": started,
                 "endedUptime": ProcessInfo.processInfo.systemUptime, "error": errorCode,
-                "epochAccepted": completion.acceptsAcknowledgement, "armed": self.armedTarget != nil])
+                "captureRequestID": invocation.requestID.uuidString, "armAttemptID": attempt.id.uuidString,
+                "hostEpoch": attempt.epoch.uuidString, "publicationResult": publicationResult,
+                "reusedExistingArmedTarget": reused,
+                "epochAccepted": completion.acceptsAcknowledgement, "armed": self.armedTarget != nil]
+            if let diagnostics {
+                fields["targetDigest"] = diagnostics.targetDigest
+                fields["adapterValidatedUptime"] = diagnostics.adapterValidatedUptime
+            }
+            if let publication { fields["mainPublishedUptime"] = publication }
+            if let armed = self.armedTarget { fields["effectiveAckUptime"] = armed.acknowledgedUptime }
+            if let effective = self.armedCaptureDiagnostics {
+                fields["effectiveCaptureRequestID"] = effective.context.requestID.uuidString
+                fields["effectiveArmAttemptID"] = effective.context.armAttemptID.uuidString
+            }
+            self.recordAcceptance(fields)
             if completion.shouldWake { self.performPendingArm() }
             else if self.armScheduler.isRunning {
                 self.targetArmer = Task { [weak self] in
@@ -379,10 +436,25 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
     }
 
     private func recordSelection(_ boundary: RiftSelectionBoundary) {
+        let now = ProcessInfo.processInfo.systemUptime
         var fields: [String: Any] = ["event": "selection_boundary", "source": boundary.source.rawValue,
             "assetID": boundary.assetID.uuidString, "eventUptime": boundary.eventUptime,
-            "callbackUptime": ProcessInfo.processInfo.systemUptime,
+            "originalEventUptime": boundary.eventUptime, "callbackUptime": now, "selectionHandlerUptime": now,
+            "hostEpoch": armSession.uuidString,
             "frozen": frozenPress?.id == boundary.assetID && frozenPress?.target != nil]
+        if let frozen = frozenPress, frozen.id == boundary.assetID {
+            fields["freezeResult"] = frozen.target == nil ? "refused" : "accepted"
+            fields["refusalReason"] = frozen.refusalReason
+        }
+        if let effective = armedCaptureDiagnostics {
+            fields["effectiveCaptureRequestID"] = effective.context.requestID.uuidString
+            fields["effectiveArmAttemptID"] = effective.context.armAttemptID.uuidString
+            fields["targetDigest"] = effective.targetDigest
+        }
+        if let pending = activeCaptureInvocation {
+            fields["inFlightCaptureRequestID"] = pending.requestID.uuidString
+            fields["inFlightArmAttemptID"] = pending.armAttemptID.uuidString
+        }
         fields["armInFlight"] = armScheduler.inFlight != nil
         fields["hostEpochMatches"] = armedTarget?.hostSession == armSession
         fields["foregroundSessionMatches"] = armedTarget?.target.sessionID == foregroundChromeSession

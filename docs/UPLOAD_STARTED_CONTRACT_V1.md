@@ -83,3 +83,20 @@ SQLite schema v3 保留 v1/v2 资产、原操作、回执、补偿、顺序和�
 ## 6. 当前已验证工程输入
 
 `d834a3a4a76cacedd0cb763044085c9c2093680c` / [完整 macOS CI](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40479556833)：287项原生，生命周期详细13 passed /0 skipped，Release/签名/三个自检通过。可运行制品见[artifact](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40479556833/artifacts/12721893223)；完整来源与失败修复见[本轮记录](../engineering/evidence/2026-10-27-interaction-lifecycle/README.md)。本页所在的后续文档检查点保持该构建输入不变，最新正式HEAD由PR #1指向。真实start/安全终止仍待本地Codex，未因CI准入。
+
+## 7. 第四轮合流后的直接接入要求
+
+第四轮 `c9c68a6` / `03a67cc` 已与 `b848920` 的生命周期合流；最新完整工程验证及正式检查点见 [INTEGRATION_HANDOFF](INTEGRATION_HANDOFF.md)。第6节保留此前测试来源，不代表第四轮源码已由该旧运行验证。当前捆绑页面是 v8，保留 v6/v7 **只读原操作**观察；新 Core 识别独立 persisted UUID profile，但 local/persisted 跨 profile、旧 nil/未知身份仍锁同 tab。所有旧 UNKNOWN、媒体、回执及补偿保留。没有新增生产或 synthetic 开始准入。
+
+本地 Codex 从 PR #1 最新正式 HEAD 建独立分支，直接修改自己的 Web 页面程序、版本化 observation/严格 decoder/normalizer 和 `WebAttachmentAdapter` 的观察循环，不重新实现 Core/UI/App：
+
+1. 用原输入的 asset/operation/attempt/hash/完整 target 与唯一 attachment 身份，证明实际 progress 或实际字节请求属于该输入。提供真实源码、开始之前的反例、唯一 input=1、开始→最终 ATTACHED 时序；`inputTriggered`、files/change/占位图不能改名成开始。
+2. 新观察结构采用显式版本，严格拒绝缺字段、未知字段/枚举、错身份、伪造或不完整开始，保留现有 v1 及旧 v6/v7 原操作只读恢复。start profile 由已审查 native 代码持有，页面不能自行授予信任。现有 v1 `started` 计数不是本契约的回执。
+3. 一旦归一化得到可供策略评估的 `.uploadStarted`，`append` 立即返回该回执，不能继续等原来的最终完成轮询。后续仅 `reconcile` 原操作；不重发 begin/commit、不新捕获目标。正常/UNKNOWN/迟到失败均保留第一份开始事实。先提交拟用的 synthetic-only start profile 与实际依据，由 root 审查组合；不要争写 App 准入注册表。
+4. 在合流后的 v3 App 上实际记录一次输入、获准开始、持久隐藏、可见消失、较晚 ATTACHED/UNKNOWN，证明早返回没有造成重复输入。真实开始与安全终止分别提供证据；成功不授予重试。旧 absence-only 或单独 POST100 abort 不足以重生。
+
+用于同时测量首击的最小诊断接口已经落地：`WebAttachmentAdapter.captureTargetWithDiagnostics(context:)` 返回原 target、完整 target 的 sorted-key JSON SHA-256、`adapterValidatedUptime`；`CaptureInvocationContext` 的 requestID / armAttemptID / hostEpoch 只在宿主传递，**不编码进页面命令**。native 日志按同一 requestID 给出 received / validated / MainActor-return，App 记录实际 publication、effective 原 ACK、是否复用和原始选择事件；native 时刻不直接随返回对象传递，也不能靠重复 digest 拼接不同请求。
+
+保持 `--web-acceptance --acceptance-trace` 显式生成图验收。只有 scheduler 接受当前 epoch/session 后才发布；同 lease 保留有效旧 ACK 的 requestID。`effectiveAckUptime` 与 `mainPublishedUptime` 是赋值前后分别采样的观测边界，其极小间隔本身不是 publication race 证据。未实现 mailbox，不等待/回放冷点击，不改变严格 ACK 先于原事件规则。
+
+第四轮真实成功只是**已预绑定、空正文/零附件、编辑器未聚焦的一个普通已有会话**。冷首击、业务 ABA（含已保留的无可观察反例）、非空正文/旧附件/选区保留、MID、物理 GUI、系统截图自包含与完整延迟继续开放。普通捕获仍不使用 Web 上传；新版快吞噬的真实验收尚待这一接入。

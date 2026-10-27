@@ -1,0 +1,21 @@
+{
+  "present": true,
+  "keys": [
+    "rootMonitors",
+    "stopRootMonitors"
+  ],
+  "monitors": [
+    {
+      "diagnostics": {
+        "commits": 312,
+        "checks": 312,
+        "elapsedMs": 47.099999725818634,
+        "maxElapsedMs": 1.800000011920929,
+        "stopped": false,
+        "restored": false,
+        "reason": null
+      }
+    }
+  ],
+  "generations": 1
+}

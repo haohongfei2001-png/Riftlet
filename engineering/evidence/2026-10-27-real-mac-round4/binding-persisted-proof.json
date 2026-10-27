@@ -1,0 +1,1176 @@
+{
+  "formCount": 1,
+  "ancestorLimit": 512,
+  "siblingLimit": 512,
+  "focused": true,
+  "visible": true,
+  "branches": [
+    {
+      "branch": 0,
+      "leafPresent": true,
+      "leafStateNodeMatchesForm": true,
+      "depth": 380,
+      "chainReasons": [],
+      "membershipFailures": [],
+      "modeCandidates": 1,
+      "draftCandidates": 1,
+      "partialCandidates": 21,
+      "candidateShapes": [
+        {
+          "depth": 3,
+          "tag": 0,
+          "keys": [
+            "conversationId",
+            "isHome",
+            "isWork",
+            "readOnly"
+          ],
+          "types": {
+            "conversationId": "string",
+            "isHome": "boolean",
+            "isWork": "boolean",
+            "readOnly": "boolean"
+          },
+          "completeMode": true,
+          "completeDraft": false,
+          "conversationFormatValid": true,
+          "conversationLength": 36,
+          "draftLength": null,
+          "draftEqualsConversation": false,
+          "modeValuesMatch": true,
+          "draftValuesMatch": false,
+          "surfaceKindType": null,
+          "surfaceKindIsThread": false,
+          "sameIDAsFirstCompleteCandidate": null
+        },
+        {
+          "depth": 8,
+          "tag": 0,
+          "keys": [
+            "conversationId",
+            "readOnly",
+            "draftKey",
+            "isWorkConversation",
+            "isTemporaryChat",
+            "surfacePlacement"
+          ],
+          "types": {
+            "conversationId": "string",
+            "readOnly": "boolean",
+            "draftKey": "string",
+            "isWorkConversation": "boolean",
+            "isTemporaryChat": "boolean",
+            "surfacePlacement": "object"
+          },
+          "completeMode": false,
+          "completeDraft": true,
+          "conversationFormatValid": true,
+          "conversationLength": 36,
+          "draftLength": 36,
+          "draftEqualsConversation": true,
+          "modeValuesMatch": false,
+          "draftValuesMatch": true,
+          "surfaceKindType": "string",
+          "surfaceKindIsThread": true,
+          "sameIDAsFirstCompleteCandidate": true
+        },
+        {
+          "depth": 9,
+          "tag": 0,
+          "keys": [
+            "conversationId",
+            "readOnly",
+            "draftKey",
+            "isTemporaryChat",
+            "surfacePlacement"
+          ],
+          "types": {
+            "conversationId": "string",
+            "readOnly": "boolean",
+            "draftKey": "string",
+            "isTemporaryChat": "boolean",
+            "surfacePlacement": "object"
+          },
+          "completeMode": false,
+          "completeDraft": false,
+          "conversationFormatValid": true,
+          "conversationLength": 36,
+          "draftLength": 36,
+          "draftEqualsConversation": true,
+          "modeValuesMatch": false,
+          "draftValuesMatch": false,
+          "surfaceKindType": null,
+          "surfaceKindIsThread": false,
+          "sameIDAsFirstCompleteCandidate": true
+        },
+        {
+          "depth": 12,
+          "tag": 0,
+          "keys": [
+            "conversationId",
+            "readOnly",
+            "draftKey",
+            "isTemporaryChat",
+            "surfacePlacement"
+          ],
+          "types": {
+            "conversationId": "string",
+            "readOnly": "boolean",
+            "draftKey": "string",
+            "isTemporaryChat": "boolean",
+            "surfacePlacement": "object"
+          },
+          "completeMode": false,
+          "completeDraft": false,
+          "conversationFormatValid": true,
+          "conversationLength": 36,
+          "draftLength": 36,
+          "draftEqualsConversation": true,
+          "modeValuesMatch": false,
+          "draftValuesMatch": false,
+          "surfaceKindType": null,
+          "surfaceKindIsThread": false,
+          "sameIDAsFirstCompleteCandidate": true
+        },
+        {
+          "depth": 13,
+          "tag": 0,
+          "keys": [
+            "conversationId",
+            "isTemporaryChat"
+          ],
+          "types": {
+            "conversationId": "string",
+            "isTemporaryChat": "boolean"
+          },
+          "completeMode": false,
+          "completeDraft": false,
+          "conversationFormatValid": true,
+          "conversationLength": 36,
+          "draftLength": null,
+          "draftEqualsConversation": false,
+          "modeValuesMatch": false,
+          "draftValuesMatch": false,
+          "surfaceKindType": null,
+          "surfaceKindIsThread": false,
+          "sameIDAsFirstCompleteCandidate": true
+        },
+        {
+          "depth": 15,
+          "tag": 0,
+          "keys": [
+            "conversationId"
+          ],
+          "types": {
+            "conversationId": "string"
+          },
+          "completeMode": false,
+          "completeDraft": false,
+          "conversationFormatValid": true,
+          "conversationLength": 36,
+          "draftLength": null,
+          "draftEqualsConversation": false,
+          "modeValuesMatch": false,
+          "draftValuesMatch": false,
+          "surfaceKindType": null,
+          "surfaceKindIsThread": false,
+          "sameIDAsFirstCompleteCandidate": true
+        },
+        {
+          "depth": 23,
+          "tag": 0,
+          "keys": [
+            "conversationId"
+          ],
+          "types": {
+            "conversationId": "string"
+          },
+          "completeMode": false,
+          "completeDraft": false,
+          "conversationFormatValid": true,
+          "conversationLength": 36,
+          "draftLength": null,
+          "draftEqualsConversation": false,
+          "modeValuesMatch": false,
+          "draftValuesMatch": false,
+          "surfaceKindType": null,
+          "surfaceKindIsThread": false,
+          "sameIDAsFirstCompleteCandidate": true
+        },
+        {
+          "depth": 25,
+          "tag": 0,
+          "keys": [
+            "conversationId"
+          ],
+          "types": {
+            "conversationId": "string"
+          },
+          "completeMode": false,
+          "completeDraft": false,
+          "conversationFormatValid": true,
+          "conversationLength": 36,
+          "draftLength": null,
+          "draftEqualsConversation": false,
+          "modeValuesMatch": false,
+          "draftValuesMatch": false,
+          "surfaceKindType": null,
+          "surfaceKindIsThread": false,
+          "sameIDAsFirstCompleteCandidate": true
+        },
+        {
+          "depth": 31,
+          "tag": 0,
+          "keys": [
+            "conversationId"
+          ],
+          "types": {
+            "conversationId": "string"
+          },
+          "completeMode": false,
+          "completeDraft": false,
+          "conversationFormatValid": true,
+          "conversationLength": 36,
+          "draftLength": null,
+          "draftEqualsConversation": false,
+          "modeValuesMatch": false,
+          "draftValuesMatch": false,
+          "surfaceKindType": null,
+          "surfaceKindIsThread": false,
+          "sameIDAsFirstCompleteCandidate": true
+        },
+        {
+          "depth": 32,
+          "tag": 0,
+          "keys": [
+            "conversationId"
+          ],
+          "types": {
+            "conversationId": "string"
+          },
+          "completeMode": false,
+          "completeDraft": false,
+          "conversationFormatValid": true,
+          "conversationLength": 36,
+          "draftLength": null,
+          "draftEqualsConversation": false,
+          "modeValuesMatch": false,
+          "draftValuesMatch": false,
+          "surfaceKindType": null,
+          "surfaceKindIsThread": false,
+          "sameIDAsFirstCompleteCandidate": true
+        },
+        {
+          "depth": 33,
+          "tag": 0,
+          "keys": [
+            "conversationId",
+            "draftKey"
+          ],
+          "types": {
+            "conversationId": "string",
+            "draftKey": "string"
+          },
+          "completeMode": false,
+          "completeDraft": false,
+          "conversationFormatValid": true,
+          "conversationLength": 36,
+          "draftLength": 36,
+          "draftEqualsConversation": true,
+          "modeValuesMatch": false,
+          "draftValuesMatch": false,
+          "surfaceKindType": null,
+          "surfaceKindIsThread": false,
+          "sameIDAsFirstCompleteCandidate": true
+        },
+        {
+          "depth": 34,
+          "tag": 0,
+          "keys": [
+            "conversationId",
+            "readOnly",
+            "draftKey",
+            "isTemporaryChat",
+            "surfacePlacement"
+          ],
+          "types": {
+            "conversationId": "string",
+            "readOnly": "boolean",
+            "draftKey": "string",
+            "isTemporaryChat": "boolean",
+            "surfacePlacement": "object"
+          },
+          "completeMode": false,
+          "completeDraft": false,
+          "conversationFormatValid": true,
+          "conversationLength": 36,
+          "draftLength": 36,
+          "draftEqualsConversation": true,
+          "modeValuesMatch": false,
+          "draftValuesMatch": false,
+          "surfaceKindType": null,
+          "surfaceKindIsThread": false,
+          "sameIDAsFirstCompleteCandidate": true
+        },
+        {
+          "depth": 107,
+          "tag": 0,
+          "keys": [
+            "conversationId",
+            "isWorkConversation",
+            "isTemporaryChat"
+          ],
+          "types": {
+            "conversationId": "string",
+            "isWorkConversation": "boolean",
+            "isTemporaryChat": "boolean"
+          },
+          "completeMode": false,
+          "completeDraft": false,
+          "conversationFormatValid": true,
+          "conversationLength": 36,
+          "draftLength": null,
+          "draftEqualsConversation": false,
+          "modeValuesMatch": false,
+          "draftValuesMatch": false,
+          "surfaceKindType": null,
+          "surfaceKindIsThread": false,
+          "sameIDAsFirstCompleteCandidate": true
+        },
+        {
+          "depth": 110,
+          "tag": 0,
+          "keys": [
+            "draftKey"
+          ],
+          "types": {
+            "draftKey": "string"
+          },
+          "completeMode": false,
+          "completeDraft": false,
+          "conversationFormatValid": false,
+          "conversationLength": null,
+          "draftLength": 36,
+          "draftEqualsConversation": false,
+          "modeValuesMatch": false,
+          "draftValuesMatch": false,
+          "surfaceKindType": null,
+          "surfaceKindIsThread": false,
+          "sameIDAsFirstCompleteCandidate": false
+        },
+        {
+          "depth": 111,
+          "tag": 0,
+          "keys": [
+            "conversationId",
+            "isWorkConversation",
+            "isTemporaryChat"
+          ],
+          "types": {
+            "conversationId": "string",
+            "isWorkConversation": "boolean",
+            "isTemporaryChat": "boolean"
+          },
+          "completeMode": false,
+          "completeDraft": false,
+          "conversationFormatValid": true,
+          "conversationLength": 36,
+          "draftLength": null,
+          "draftEqualsConversation": false,
+          "modeValuesMatch": false,
+          "draftValuesMatch": false,
+          "surfaceKindType": null,
+          "surfaceKindIsThread": false,
+          "sameIDAsFirstCompleteCandidate": true
+        },
+        {
+          "depth": 123,
+          "tag": 0,
+          "keys": [
+            "conversationId",
+            "isWorkConversation",
+            "isTemporaryChat"
+          ],
+          "types": {
+            "conversationId": "string",
+            "isWorkConversation": "boolean",
+            "isTemporaryChat": "boolean"
+          },
+          "completeMode": false,
+          "completeDraft": false,
+          "conversationFormatValid": true,
+          "conversationLength": 36,
+          "draftLength": null,
+          "draftEqualsConversation": false,
+          "modeValuesMatch": false,
+          "draftValuesMatch": false,
+          "surfaceKindType": null,
+          "surfaceKindIsThread": false,
+          "sameIDAsFirstCompleteCandidate": true
+        },
+        {
+          "depth": 132,
+          "tag": 0,
+          "keys": [
+            "conversationId",
+            "isTemporaryChat"
+          ],
+          "types": {
+            "conversationId": "string",
+            "isTemporaryChat": "boolean"
+          },
+          "completeMode": false,
+          "completeDraft": false,
+          "conversationFormatValid": true,
+          "conversationLength": 36,
+          "draftLength": null,
+          "draftEqualsConversation": false,
+          "modeValuesMatch": false,
+          "draftValuesMatch": false,
+          "surfaceKindType": null,
+          "surfaceKindIsThread": false,
+          "sameIDAsFirstCompleteCandidate": true
+        },
+        {
+          "depth": 142,
+          "tag": 0,
+          "keys": [
+            "conversationId",
+            "isWorkConversation"
+          ],
+          "types": {
+            "conversationId": "string",
+            "isWorkConversation": "boolean"
+          },
+          "completeMode": false,
+          "completeDraft": false,
+          "conversationFormatValid": true,
+          "conversationLength": 36,
+          "draftLength": null,
+          "draftEqualsConversation": false,
+          "modeValuesMatch": false,
+          "draftValuesMatch": false,
+          "surfaceKindType": null,
+          "surfaceKindIsThread": false,
+          "sameIDAsFirstCompleteCandidate": true
+        },
+        {
+          "depth": 143,
+          "tag": 0,
+          "keys": [
+            "conversationId",
+            "isTemporaryChat"
+          ],
+          "types": {
+            "conversationId": "string",
+            "isTemporaryChat": "boolean"
+          },
+          "completeMode": false,
+          "completeDraft": false,
+          "conversationFormatValid": true,
+          "conversationLength": 36,
+          "draftLength": null,
+          "draftEqualsConversation": false,
+          "modeValuesMatch": false,
+          "draftValuesMatch": false,
+          "surfaceKindType": null,
+          "surfaceKindIsThread": false,
+          "sameIDAsFirstCompleteCandidate": true
+        },
+        {
+          "depth": 145,
+          "tag": 0,
+          "keys": [
+            "conversationId"
+          ],
+          "types": {
+            "conversationId": "string"
+          },
+          "completeMode": false,
+          "completeDraft": false,
+          "conversationFormatValid": true,
+          "conversationLength": 36,
+          "draftLength": null,
+          "draftEqualsConversation": false,
+          "modeValuesMatch": false,
+          "draftValuesMatch": false,
+          "surfaceKindType": null,
+          "surfaceKindIsThread": false,
+          "sameIDAsFirstCompleteCandidate": true
+        },
+        {
+          "depth": 158,
+          "tag": 0,
+          "keys": [
+            "conversationId",
+            "isWorkConversation"
+          ],
+          "types": {
+            "conversationId": "string",
+            "isWorkConversation": "null"
+          },
+          "completeMode": false,
+          "completeDraft": false,
+          "conversationFormatValid": true,
+          "conversationLength": 36,
+          "draftLength": null,
+          "draftEqualsConversation": false,
+          "modeValuesMatch": false,
+          "draftValuesMatch": false,
+          "surfaceKindType": null,
+          "surfaceKindIsThread": false,
+          "sameIDAsFirstCompleteCandidate": true
+        },
+        {
+          "depth": 159,
+          "tag": 0,
+          "keys": [
+            "conversationId"
+          ],
+          "types": {
+            "conversationId": "string"
+          },
+          "completeMode": false,
+          "completeDraft": false,
+          "conversationFormatValid": true,
+          "conversationLength": 36,
+          "draftLength": null,
+          "draftEqualsConversation": false,
+          "modeValuesMatch": false,
+          "draftValuesMatch": false,
+          "surfaceKindType": null,
+          "surfaceKindIsThread": false,
+          "sameIDAsFirstCompleteCandidate": true
+        },
+        {
+          "depth": 163,
+          "tag": 0,
+          "keys": [
+            "conversationId"
+          ],
+          "types": {
+            "conversationId": "string"
+          },
+          "completeMode": false,
+          "completeDraft": false,
+          "conversationFormatValid": true,
+          "conversationLength": 36,
+          "draftLength": null,
+          "draftEqualsConversation": false,
+          "modeValuesMatch": false,
+          "draftValuesMatch": false,
+          "surfaceKindType": null,
+          "surfaceKindIsThread": false,
+          "sameIDAsFirstCompleteCandidate": true
+        }
+      ],
+      "shapeTruncated": false,
+      "allCandidateIDsEqual": true,
+      "modeSeen": true,
+      "draftSeen": true,
+      "firstStrictStopDepth": null,
+      "rootReached": true,
+      "ancestorLimitReached": false,
+      "cycleDetected": false,
+      "rootTag": 3,
+      "hostRootCurrentMatches": true,
+      "rootDescriptor": {
+        "data": true,
+        "getter": false,
+        "setter": false,
+        "configurable": true,
+        "writable": true
+      },
+      "strictChainValid": true,
+      "profileValuesValid": true
+    },
+    {
+      "branch": 1,
+      "leafPresent": true,
+      "leafStateNodeMatchesForm": true,
+      "depth": 380,
+      "chainReasons": [
+        "NOT_CURRENT_HOST_ROOT"
+      ],
+      "membershipFailures": [],
+      "modeCandidates": 1,
+      "draftCandidates": 1,
+      "partialCandidates": 21,
+      "candidateShapes": [
+        {
+          "depth": 3,
+          "tag": 0,
+          "keys": [
+            "conversationId",
+            "isHome",
+            "isWork",
+            "readOnly"
+          ],
+          "types": {
+            "conversationId": "string",
+            "isHome": "boolean",
+            "isWork": "boolean",
+            "readOnly": "boolean"
+          },
+          "completeMode": true,
+          "completeDraft": false,
+          "conversationFormatValid": true,
+          "conversationLength": 36,
+          "draftLength": null,
+          "draftEqualsConversation": false,
+          "modeValuesMatch": true,
+          "draftValuesMatch": false,
+          "surfaceKindType": null,
+          "surfaceKindIsThread": false,
+          "sameIDAsFirstCompleteCandidate": null
+        },
+        {
+          "depth": 8,
+          "tag": 0,
+          "keys": [
+            "conversationId",
+            "readOnly",
+            "draftKey",
+            "isWorkConversation",
+            "isTemporaryChat",
+            "surfacePlacement"
+          ],
+          "types": {
+            "conversationId": "string",
+            "readOnly": "boolean",
+            "draftKey": "string",
+            "isWorkConversation": "boolean",
+            "isTemporaryChat": "boolean",
+            "surfacePlacement": "object"
+          },
+          "completeMode": false,
+          "completeDraft": true,
+          "conversationFormatValid": true,
+          "conversationLength": 36,
+          "draftLength": 36,
+          "draftEqualsConversation": true,
+          "modeValuesMatch": false,
+          "draftValuesMatch": true,
+          "surfaceKindType": "string",
+          "surfaceKindIsThread": true,
+          "sameIDAsFirstCompleteCandidate": true
+        },
+        {
+          "depth": 9,
+          "tag": 0,
+          "keys": [
+            "conversationId",
+            "readOnly",
+            "draftKey",
+            "isTemporaryChat",
+            "surfacePlacement"
+          ],
+          "types": {
+            "conversationId": "string",
+            "readOnly": "boolean",
+            "draftKey": "string",
+            "isTemporaryChat": "boolean",
+            "surfacePlacement": "object"
+          },
+          "completeMode": false,
+          "completeDraft": false,
+          "conversationFormatValid": true,
+          "conversationLength": 36,
+          "draftLength": 36,
+          "draftEqualsConversation": true,
+          "modeValuesMatch": false,
+          "draftValuesMatch": false,
+          "surfaceKindType": null,
+          "surfaceKindIsThread": false,
+          "sameIDAsFirstCompleteCandidate": true
+        },
+        {
+          "depth": 12,
+          "tag": 0,
+          "keys": [
+            "conversationId",
+            "readOnly",
+            "draftKey",
+            "isTemporaryChat",
+            "surfacePlacement"
+          ],
+          "types": {
+            "conversationId": "string",
+            "readOnly": "boolean",
+            "draftKey": "string",
+            "isTemporaryChat": "boolean",
+            "surfacePlacement": "object"
+          },
+          "completeMode": false,
+          "completeDraft": false,
+          "conversationFormatValid": true,
+          "conversationLength": 36,
+          "draftLength": 36,
+          "draftEqualsConversation": true,
+          "modeValuesMatch": false,
+          "draftValuesMatch": false,
+          "surfaceKindType": null,
+          "surfaceKindIsThread": false,
+          "sameIDAsFirstCompleteCandidate": true
+        },
+        {
+          "depth": 13,
+          "tag": 0,
+          "keys": [
+            "conversationId",
+            "isTemporaryChat"
+          ],
+          "types": {
+            "conversationId": "string",
+            "isTemporaryChat": "boolean"
+          },
+          "completeMode": false,
+          "completeDraft": false,
+          "conversationFormatValid": true,
+          "conversationLength": 36,
+          "draftLength": null,
+          "draftEqualsConversation": false,
+          "modeValuesMatch": false,
+          "draftValuesMatch": false,
+          "surfaceKindType": null,
+          "surfaceKindIsThread": false,
+          "sameIDAsFirstCompleteCandidate": true
+        },
+        {
+          "depth": 15,
+          "tag": 0,
+          "keys": [
+            "conversationId"
+          ],
+          "types": {
+            "conversationId": "string"
+          },
+          "completeMode": false,
+          "completeDraft": false,
+          "conversationFormatValid": true,
+          "conversationLength": 36,
+          "draftLength": null,
+          "draftEqualsConversation": false,
+          "modeValuesMatch": false,
+          "draftValuesMatch": false,
+          "surfaceKindType": null,
+          "surfaceKindIsThread": false,
+          "sameIDAsFirstCompleteCandidate": true
+        },
+        {
+          "depth": 23,
+          "tag": 0,
+          "keys": [
+            "conversationId"
+          ],
+          "types": {
+            "conversationId": "string"
+          },
+          "completeMode": false,
+          "completeDraft": false,
+          "conversationFormatValid": true,
+          "conversationLength": 36,
+          "draftLength": null,
+          "draftEqualsConversation": false,
+          "modeValuesMatch": false,
+          "draftValuesMatch": false,
+          "surfaceKindType": null,
+          "surfaceKindIsThread": false,
+          "sameIDAsFirstCompleteCandidate": true
+        },
+        {
+          "depth": 25,
+          "tag": 0,
+          "keys": [
+            "conversationId"
+          ],
+          "types": {
+            "conversationId": "string"
+          },
+          "completeMode": false,
+          "completeDraft": false,
+          "conversationFormatValid": true,
+          "conversationLength": 36,
+          "draftLength": null,
+          "draftEqualsConversation": false,
+          "modeValuesMatch": false,
+          "draftValuesMatch": false,
+          "surfaceKindType": null,
+          "surfaceKindIsThread": false,
+          "sameIDAsFirstCompleteCandidate": true
+        },
+        {
+          "depth": 31,
+          "tag": 0,
+          "keys": [
+            "conversationId"
+          ],
+          "types": {
+            "conversationId": "string"
+          },
+          "completeMode": false,
+          "completeDraft": false,
+          "conversationFormatValid": true,
+          "conversationLength": 36,
+          "draftLength": null,
+          "draftEqualsConversation": false,
+          "modeValuesMatch": false,
+          "draftValuesMatch": false,
+          "surfaceKindType": null,
+          "surfaceKindIsThread": false,
+          "sameIDAsFirstCompleteCandidate": true
+        },
+        {
+          "depth": 32,
+          "tag": 0,
+          "keys": [
+            "conversationId"
+          ],
+          "types": {
+            "conversationId": "string"
+          },
+          "completeMode": false,
+          "completeDraft": false,
+          "conversationFormatValid": true,
+          "conversationLength": 36,
+          "draftLength": null,
+          "draftEqualsConversation": false,
+          "modeValuesMatch": false,
+          "draftValuesMatch": false,
+          "surfaceKindType": null,
+          "surfaceKindIsThread": false,
+          "sameIDAsFirstCompleteCandidate": true
+        },
+        {
+          "depth": 33,
+          "tag": 0,
+          "keys": [
+            "conversationId",
+            "draftKey"
+          ],
+          "types": {
+            "conversationId": "string",
+            "draftKey": "string"
+          },
+          "completeMode": false,
+          "completeDraft": false,
+          "conversationFormatValid": true,
+          "conversationLength": 36,
+          "draftLength": 36,
+          "draftEqualsConversation": true,
+          "modeValuesMatch": false,
+          "draftValuesMatch": false,
+          "surfaceKindType": null,
+          "surfaceKindIsThread": false,
+          "sameIDAsFirstCompleteCandidate": true
+        },
+        {
+          "depth": 34,
+          "tag": 0,
+          "keys": [
+            "conversationId",
+            "readOnly",
+            "draftKey",
+            "isTemporaryChat",
+            "surfacePlacement"
+          ],
+          "types": {
+            "conversationId": "string",
+            "readOnly": "boolean",
+            "draftKey": "string",
+            "isTemporaryChat": "boolean",
+            "surfacePlacement": "object"
+          },
+          "completeMode": false,
+          "completeDraft": false,
+          "conversationFormatValid": true,
+          "conversationLength": 36,
+          "draftLength": 36,
+          "draftEqualsConversation": true,
+          "modeValuesMatch": false,
+          "draftValuesMatch": false,
+          "surfaceKindType": null,
+          "surfaceKindIsThread": false,
+          "sameIDAsFirstCompleteCandidate": true
+        },
+        {
+          "depth": 107,
+          "tag": 0,
+          "keys": [
+            "conversationId",
+            "isWorkConversation",
+            "isTemporaryChat"
+          ],
+          "types": {
+            "conversationId": "string",
+            "isWorkConversation": "boolean",
+            "isTemporaryChat": "boolean"
+          },
+          "completeMode": false,
+          "completeDraft": false,
+          "conversationFormatValid": true,
+          "conversationLength": 36,
+          "draftLength": null,
+          "draftEqualsConversation": false,
+          "modeValuesMatch": false,
+          "draftValuesMatch": false,
+          "surfaceKindType": null,
+          "surfaceKindIsThread": false,
+          "sameIDAsFirstCompleteCandidate": true
+        },
+        {
+          "depth": 110,
+          "tag": 0,
+          "keys": [
+            "draftKey"
+          ],
+          "types": {
+            "draftKey": "string"
+          },
+          "completeMode": false,
+          "completeDraft": false,
+          "conversationFormatValid": false,
+          "conversationLength": null,
+          "draftLength": 36,
+          "draftEqualsConversation": false,
+          "modeValuesMatch": false,
+          "draftValuesMatch": false,
+          "surfaceKindType": null,
+          "surfaceKindIsThread": false,
+          "sameIDAsFirstCompleteCandidate": false
+        },
+        {
+          "depth": 111,
+          "tag": 0,
+          "keys": [
+            "conversationId",
+            "isWorkConversation",
+            "isTemporaryChat"
+          ],
+          "types": {
+            "conversationId": "string",
+            "isWorkConversation": "boolean",
+            "isTemporaryChat": "boolean"
+          },
+          "completeMode": false,
+          "completeDraft": false,
+          "conversationFormatValid": true,
+          "conversationLength": 36,
+          "draftLength": null,
+          "draftEqualsConversation": false,
+          "modeValuesMatch": false,
+          "draftValuesMatch": false,
+          "surfaceKindType": null,
+          "surfaceKindIsThread": false,
+          "sameIDAsFirstCompleteCandidate": true
+        },
+        {
+          "depth": 123,
+          "tag": 0,
+          "keys": [
+            "conversationId",
+            "isWorkConversation",
+            "isTemporaryChat"
+          ],
+          "types": {
+            "conversationId": "string",
+            "isWorkConversation": "boolean",
+            "isTemporaryChat": "boolean"
+          },
+          "completeMode": false,
+          "completeDraft": false,
+          "conversationFormatValid": true,
+          "conversationLength": 36,
+          "draftLength": null,
+          "draftEqualsConversation": false,
+          "modeValuesMatch": false,
+          "draftValuesMatch": false,
+          "surfaceKindType": null,
+          "surfaceKindIsThread": false,
+          "sameIDAsFirstCompleteCandidate": true
+        },
+        {
+          "depth": 132,
+          "tag": 0,
+          "keys": [
+            "conversationId",
+            "isTemporaryChat"
+          ],
+          "types": {
+            "conversationId": "string",
+            "isTemporaryChat": "boolean"
+          },
+          "completeMode": false,
+          "completeDraft": false,
+          "conversationFormatValid": true,
+          "conversationLength": 36,
+          "draftLength": null,
+          "draftEqualsConversation": false,
+          "modeValuesMatch": false,
+          "draftValuesMatch": false,
+          "surfaceKindType": null,
+          "surfaceKindIsThread": false,
+          "sameIDAsFirstCompleteCandidate": true
+        },
+        {
+          "depth": 142,
+          "tag": 0,
+          "keys": [
+            "conversationId",
+            "isWorkConversation"
+          ],
+          "types": {
+            "conversationId": "string",
+            "isWorkConversation": "boolean"
+          },
+          "completeMode": false,
+          "completeDraft": false,
+          "conversationFormatValid": true,
+          "conversationLength": 36,
+          "draftLength": null,
+          "draftEqualsConversation": false,
+          "modeValuesMatch": false,
+          "draftValuesMatch": false,
+          "surfaceKindType": null,
+          "surfaceKindIsThread": false,
+          "sameIDAsFirstCompleteCandidate": true
+        },
+        {
+          "depth": 143,
+          "tag": 0,
+          "keys": [
+            "conversationId",
+            "isTemporaryChat"
+          ],
+          "types": {
+            "conversationId": "string",
+            "isTemporaryChat": "boolean"
+          },
+          "completeMode": false,
+          "completeDraft": false,
+          "conversationFormatValid": true,
+          "conversationLength": 36,
+          "draftLength": null,
+          "draftEqualsConversation": false,
+          "modeValuesMatch": false,
+          "draftValuesMatch": false,
+          "surfaceKindType": null,
+          "surfaceKindIsThread": false,
+          "sameIDAsFirstCompleteCandidate": true
+        },
+        {
+          "depth": 145,
+          "tag": 0,
+          "keys": [
+            "conversationId"
+          ],
+          "types": {
+            "conversationId": "string"
+          },
+          "completeMode": false,
+          "completeDraft": false,
+          "conversationFormatValid": true,
+          "conversationLength": 36,
+          "draftLength": null,
+          "draftEqualsConversation": false,
+          "modeValuesMatch": false,
+          "draftValuesMatch": false,
+          "surfaceKindType": null,
+          "surfaceKindIsThread": false,
+          "sameIDAsFirstCompleteCandidate": true
+        },
+        {
+          "depth": 158,
+          "tag": 0,
+          "keys": [
+            "conversationId",
+            "isWorkConversation"
+          ],
+          "types": {
+            "conversationId": "string",
+            "isWorkConversation": "null"
+          },
+          "completeMode": false,
+          "completeDraft": false,
+          "conversationFormatValid": true,
+          "conversationLength": 36,
+          "draftLength": null,
+          "draftEqualsConversation": false,
+          "modeValuesMatch": false,
+          "draftValuesMatch": false,
+          "surfaceKindType": null,
+          "surfaceKindIsThread": false,
+          "sameIDAsFirstCompleteCandidate": true
+        },
+        {
+          "depth": 159,
+          "tag": 0,
+          "keys": [
+            "conversationId"
+          ],
+          "types": {
+            "conversationId": "string"
+          },
+          "completeMode": false,
+          "completeDraft": false,
+          "conversationFormatValid": true,
+          "conversationLength": 36,
+          "draftLength": null,
+          "draftEqualsConversation": false,
+          "modeValuesMatch": false,
+          "draftValuesMatch": false,
+          "surfaceKindType": null,
+          "surfaceKindIsThread": false,
+          "sameIDAsFirstCompleteCandidate": true
+        },
+        {
+          "depth": 163,
+          "tag": 0,
+          "keys": [
+            "conversationId"
+          ],
+          "types": {
+            "conversationId": "string"
+          },
+          "completeMode": false,
+          "completeDraft": false,
+          "conversationFormatValid": true,
+          "conversationLength": 36,
+          "draftLength": null,
+          "draftEqualsConversation": false,
+          "modeValuesMatch": false,
+          "draftValuesMatch": false,
+          "surfaceKindType": null,
+          "surfaceKindIsThread": false,
+          "sameIDAsFirstCompleteCandidate": true
+        }
+      ],
+      "shapeTruncated": false,
+      "allCandidateIDsEqual": true,
+      "modeSeen": true,
+      "draftSeen": true,
+      "firstStrictStopDepth": null,
+      "rootReached": true,
+      "ancestorLimitReached": false,
+      "cycleDetected": false,
+      "rootTag": 3,
+      "hostRootCurrentMatches": false,
+      "rootDescriptor": {
+        "data": true,
+        "getter": false,
+        "setter": false,
+        "configurable": true,
+        "writable": true
+      },
+      "strictChainValid": false,
+      "profileValuesValid": true
+    }
+  ],
+  "editorCount": 1,
+  "fileInputCount": 1,
+  "fiberKeyCount": 1,
+  "fiberPropertyIsData": true,
+  "strictCurrentBranchCount": 1,
+  "wouldReadBinding": true,
+  "reason": "BINDING_PROVED"
+}

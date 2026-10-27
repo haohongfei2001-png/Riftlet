@@ -244,7 +244,23 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
         // Record only the occurrence of a key event and focus, never its identity.
         if event.type != .keyDown, let eventWindow = event.window {
             fields["eventNumber"] = event.eventNumber
+            fields["eventWindowLocalPoint"] = ["x": event.locationInWindow.x, "y": event.locationInWindow.y]
+            fields["eventWindowFrame"] = rectFields(eventWindow.frame)
+            fields["eventWindowBackingScaleFactor"] = eventWindow.backingScaleFactor
+            if let screen = eventWindow.screen { fields["eventWindowScreenFrame"] = rectFields(screen.frame) }
+            if let rawCGPoint = event.cgEvent?.location {
+                // Raw coordinate space only: never rescale or substitute it for
+                // the original NSEvent location, and never infer physical input.
+                fields["rawCGEventLocation"] = ["x": rawCGPoint.x, "y": rawCGPoint.y]
+            }
             let point = eventWindow.convertPoint(toScreen: event.locationInWindow)
+            fields["pointWithinEventWindow"] = eventWindow.frame.contains(point)
+            if let content = eventWindow.contentView {
+                fields["eventContentBounds"] = rectFields(content.bounds)
+                let contentPoint = content.convert(event.locationInWindow, from: nil)
+                fields["eventContentPoint"] = ["x": contentPoint.x, "y": contentPoint.y]
+                fields["pointWithinEventContent"] = content.bounds.contains(contentPoint)
+            }
             fields["screenX"] = point.x
             fields["screenY"] = point.y
             fields["clickCount"] = event.clickCount
