@@ -1,4 +1,28 @@
-# 正式工程集成交接 · 第五轮真实开始与首次使用合流 · 2026-10-27
+# 正式工程集成交接 · 第六轮性能与目标识别 · 2026-10-27
+
+## 当前正式组合
+
+已测源码 **`81b6a61b4e648a1b8d6ccf4b569fd6d727a0cc76`**。双亲为正式1246c4a与第六轮交接65f7d54，共同祖先3bb13999；保留7878de3/c000cc1/65f7d54三个独有提交，未重复合入第五轮。后续仅文档/证据检查点保持源码、测试、构建输入不变，精确正式HEAD见 [PR #1](https://github.com/haohongfei2001-png/Riftlet/pull/1) 最终交接评论。
+
+v12最多256KiB传输与严格Chrome身份读取已与现有App合流；原64KiB通用默认、逐块ACK、两遍文件hash、唯一input、完整目标与v6–v11只读恢复保留。首次使用/权限预检/PassivePermissionResume/Core/UI/SQLite v3没有回退或新增第二套Coordinator。普通收录不上传；Web只准入隔离生成图片开始/完成，生产和安全重试保持关闭。
+
+[组合CI40523594732](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40523594732) 于 **22:44:24北京时间**完成成功：380原生、72页面/54legacy、七详细组13/3/15/4/5/8/5全部passed、0skip，原回放/故障/probe/helper/包装、Release/签名和四自检通过。非作者源码/权限/原证据/实际完整日志审查PASS。[永久证据](../engineering/evidence/2026-10-27-integration-round6/README.md)保存原13文件hash、来源CI325与组合CI380的区别、实际checkout输入核对。
+
+## 第七轮直接继承的边界
+
+1. 本地Codex保持第七轮独立实现与真机工作，不要求中断当前包；本会话没有读取或合入进行中源码。正式交接后由root整合共享Core/App改动，不用旧e89 App覆盖首用和权限。
+2. 既有 `AttachmentAdapter` / `TransferReceipt` / `UploadStartEvidence` 不变。新增排队按[顺序调度共享边界v1](ADAPTER_CONTRACT.md#第七轮顺序调度共享边界-v1实现待正式交接)映射接口：App同步接受时、权限await前固定顺序；只保留原完整token/lease；唯一drain、被动非capture preflight、所有序号结束、有界实际期限、不丢解除锁唤醒。
+3. 原 `markDispatchIntent` 事务仍是最后门。start不解锁同草稿/UNKNOWN/跨profile；无intent取消不等于真实上传失败，新的实际点击可再次选择；intent后只有原操作核对，不重放。纯Python模型仅提案，不是已实现队列或真实双图通过。
+4. [开发App/helper/日志](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40523594732/artifacts/12743890195)可直接运行 `Riftlet.app/Contents/MacOS/Riftlet --web-acceptance --acceptance-trace`。沿用原隔离数据根和旧UNKNOWN/审计/media，只有新的生成图片可用于新选择，不重输旧未决。
+5. 实测关联原事件→permissionRequestID→原ACK/完整target→active_identity route→一次input→start→持久观察→AppKit→最终proof。正式新增权限前置没有在原性能样本中运行，需要实际测量；权限授权与目标身份不能相互替代。
+6. 7878de3+overlay的5.51→3.67秒仅单次旧对照，非页面上传加速、像素测量或分位数；c000cc1仅三次只读capture/六次fast read，无新输入，fallback尚未真机覆盖。无ACK冷首击仍FAIL安全拒绝，第二图targetBusy仍FAIL，不能用读取改善关闭它们。
+7. 新业务ABA/同URL、正文/附件/选区完整矩阵、MID、安全失败、物理穿透/多屏/全屏、自包含和新权限恢复/时延继续独立验收。公开保存记录不是本环境独立重算私有DB/media；本地继续保留私有基准和比较产物，无需公开私有内容。
+
+PR #1保持Draft，main/网站/品牌/设计不改、不发布。以下全部是原检查点的历史记录，当前状态以上方第六轮为准。
+
+---
+
+## 第五轮正式集成交接（历史来源）
 
 ## 当前检查点：第五轮独立合流已完成
 

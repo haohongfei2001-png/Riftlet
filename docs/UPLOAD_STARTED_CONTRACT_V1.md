@@ -118,3 +118,10 @@ Swift `TransferReceipt` / `UploadStartEvidence` v1接口不变，Core/SQLite v3�
 新App保留arm/selection/background被动Automation检查，原冻结lease不变；增加Chrome激活/唤醒恢复入口以补初次不可用后的空缺，没有轮询/缓存授权/重放点击。`permission_check`记录purpose、起止uptime及asset或capture request/attempt/epoch，不能当成ACK或上传开始。新路径真实延迟/TCC仍NOT_RUN；原v11真实证据基于e89+overlay、预绑定聚焦空草稿和软件AX，不能扩大为新二进制冷首击。
 
 完整369原生/68页面/45legacy/数据库恢复/Release/自检及非作者审查见[正式证据](../engineering/evidence/2026-10-27-integration-round5/README.md)。本地Codex第六轮继续独立工作，不重写已有接口；正式交接后由root处理共享App差异。保留全部旧v3/UNKNOWN/补偿/media，原未决只能只读observe。不要为了演示清库、换profile解锁或重试旧图。
+
+
+## 9. 第六轮稳定传输与严格身份读取合流
+
+已测81b6a61保留第8节首用/权限/受限开始组合，更新为页面v12/schema2、最多256KiB且逐块ACK的传输与严格Chrome绝对descriptor读取；通用/旧程序64KiB，原两遍文件hash、唯一input及完整目标不变。旧v6–v11只读schema1恢复不重建start或重新输入，现有TransferReceipt/UploadStartEvidence v1和SQLite v3不变。
+
+[完整组合CI及审查](../engineering/evidence/2026-10-27-integration-round6/README.md)已通过380原生/72页面/54legacy及Release/四自检。原5.51→3.67秒仅7878de3+overlay单次对照，c000cc1三次只读capture不等于再做完整上传；正式权限前置组合真实时延和无ACK冷首击仍未通过。唯一共享的新工作边界见[第七轮顺序调度契约](ADAPTER_CONTRACT.md#第七轮顺序调度共享边界-v1实现待正式交接)，只有待实现接口与审查要求，没有新增Coordinator/锁豁免/生产或safe-retry准入。保留旧UNKNOWN/补偿/媒体，不重输未决。

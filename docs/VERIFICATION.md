@@ -9,7 +9,17 @@
 - macOS CI compilation/tests/package smoke do not prove interactive focus, click-through, Spaces or real upload.
 - No real user screenshots, chats or browser sessions are used in automated tests.
 
-## Round-five Web start with first-use — current tested source
+## Round-six transfer and identity with first-use — current tested source
+
+已测 **`81b6a61b4e648a1b8d6ccf4b569fd6d727a0cc76`**，双亲1246c4a/65f7d54。[CI40523594732](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40523594732) /job122256992376 completed/success，2026-10-27 **22:44:24北京时间**。380原生：Core117/Adapters121/Capture63/UI52/App27；72页面/54legacy；原回放19、故障8/probe12、第五轮helper9/4/2、包装12、Release/签名与四自检通过。生命周期13/首用3/Capture15/呈现4/Web组合5/权限恢复8/严格descriptor5均详细passed、0skip，全部包含在380内。
+
+[永久验证](../engineering/evidence/2026-10-27-integration-round6/verification.json)记录所有测试名、迁移/原操作恢复、原13文件hash、16个未改对象及13个CI输入；[非作者审查](../engineering/evidence/2026-10-27-integration-round6/review.json)另独立取完整192,634字符日志。实际checkout ba63e76由main eba1a4f与81b6a61临时组合；原生/构建/回放对象一致，完整tree含网站差异，不宣称整个tree相同，未合main。来源c000cc1的CI40513086114另独立确认325原生通过，原queued记录保留为历史。
+
+[开发制品](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40523594732/artifacts/12743890195)1,656,810bytes，GitHub元数据SHA-256 `471f46ba8b32e14d0a7335a240e180c796ac16d29fd85233a91862769389b554`，保存至2026-11-10 22:44:17北京时间。未声称本地下载重算。macOS14.8.9/23J631/arm64/Swift5.10；真实Mac27.0/Swift6.4的证据另列。
+
+5.51→3.67秒是7878de3+overlay单次对照；c000cc1仅真实只读capture，无新上传。新正式权限前置/时延、fallback、物理GUI等NOT_RUN，冷首击与第二图targetBusy产品FAIL，生产/安全重试未开放。第七轮只有[共享审查边界](ADAPTER_CONTRACT.md#第七轮顺序调度共享边界-v1实现待正式交接)，没有本轮队列实现或双图准入。
+
+## Round-five Web start with first-use — preceding tested source
 
 已测 **`caa6a65b69c6038154a2fff65f2fb1157125bb7e`**，双亲e655b1e/3bb13999，[macOS CI40515643640](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40515643640) /job122228775354 completed/success，2026-10-27 **21:53:30北京时间**。369原生（Core117/Adapters110/Capture63/UI52/App27），页面68/legacy45，第五轮离线helper9/4/2，包装12，旧55文件/19用例/89轨迹前缀/2明确SIMULATED迟到错误、故障8/probe12，Release/bundle/签名与四项App/helper自检全部通过。
 

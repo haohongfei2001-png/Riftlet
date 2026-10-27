@@ -159,3 +159,10 @@ Following direct user confirmation of the earlier product-usability review, thes
 权限不作为上传证据或捕获新目标的授权。保留原点击冻结lease和ACK规则；修复初次Chrome不可用后没有宿主事件恢复入口，采用仅Web的Chrome激活/唤醒被动检查、合并事件、代际/取消保护及原安装latch，不提示授权、不缓存grant、不回放点击。实际新时延/TCC由后续真机测量，原v11基于e89+overlay的5.51秒不能复制为新二进制结论。
 
 第五轮一图软件AX成功不批准冷首击、业务ABA、复杂草稿、物理GUI、网络安全重试或生产系统截图。保留旧UNKNOWN/首start/补偿/媒体，不重新输入旧未决图。第六轮进行中源码不纳入本轮，之后由唯一负责人根据正式交接合流。[实际验证及范围](../engineering/evidence/2026-10-27-integration-round5/README.md)。
+
+
+## I17 — 第六轮稳定优化与第七轮顺序调度边界（2026-10-27）
+
+正式以1246c4a双亲合流65f7d54，仅纳入共同祖先3bb13999之后的三个提交。接受代码所有的v12最多256KiB、严格绝对descriptor及原fallback；原完整身份、ACK<event、逐块ACK/文件hash/唯一input与未知原操作保护不变。原证据和失败状态保留，325来源CI与380组合CI分开记录，生产/安全重试准入不变。
+
+第七轮由本地Codex在既有Coordinator上实现无intent原选择的有界顺序等待。本轮仅固定[共享接口和审查标准](ADAPTER_CONTRACT.md#第七轮顺序调度共享边界-v1实现待正式交接)：顺序先于权限await，原完整token不回填，fresh passive preflight不capture/不请求授权，取消结束序号/允许新点击，原事务重检，期限与唤醒真实有效；intent后仍不重放。未准入start后同草稿另一图，也未以Python提案模型宣布实现。原性能单次对照和c000只读优化不能批准冷首击或当前权限组合时延。

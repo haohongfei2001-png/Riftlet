@@ -18,7 +18,16 @@
 
 ## 1. 当前检查点
 
-### 第五轮真实开始 + 首次使用正式合流 · DONE；第六轮真机保持独立
+### 第六轮稳定成果正式合流 · DONE；第七轮顺序调度与真机独立推进
+
+已测组合 **`81b6a61b4e648a1b8d6ccf4b569fd6d727a0cc76`**，双亲1246c4a/65f7d54，共祖3bb13999。仅整合7878de3、c000cc1、65f7d54三个独有提交，保留13份原证据与双方历史；没有重复cherry-pick第五轮。v12最多256KiB、逐块ACK/双遍文件hash/唯一input、严格Chrome绝对descriptor及fallback、v6–v11只读恢复已合入。正式App/Core/UI/Capture/SQLite v3/首用/PassivePermissionResume均未改动，生产与Web安全重试仍关闭。
+
+[完整macOS CI40523594732](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40523594732) completed/success于2026-10-27 **22:44:24北京时间**：380原生，72页面/54legacy，原回放/故障/probe/helper/包装、Release/签名/四自检全部通过；七个详细suite13/3/15/4/5/8/5均passed、0skip，包含在380内。源码、权限组合、原证据、共享契约和完整实际CI日志由非作者审查通过。[永久证据](../engineering/evidence/2026-10-27-integration-round6/README.md)记录对象/原hash/全部测试名。
+
+**第七轮直接接入：** 本地Codex独占安全排队及真机实现，本会话未读取其进行中分支。按[最小共享边界](ADAPTER_CONTRACT.md#第七轮顺序调度共享边界-v1实现待正式交接)固定权限await前的原选择序号、无capture被动preflight、唯一drain/有界等待/不丢唤醒和原事务门。未实现或准入同草稿start后第二图输入，不另建Coordinator。冷首击产品FAIL、安全拒绝有效；同草稿第二张targetBusy产品FAIL。5.51→3.67秒是旧overlay二进制单次对照，不是当前权限前置组合的实测。确切最终文档HEAD见PR #1交接；以下保留历史。
+
+
+### 第五轮真实开始 + 首次使用正式合流（历史检查点）
 
 合流已测 **`caa6a65b69c6038154a2fff65f2fb1157125bb7e`**，双亲 `e655b1e` / `3bb13999`，保留第五轮53ebcc4的全部源代码与27份原证据。v11/schema2开始观察、严格归一化/早返回、v6–v10只读、两个允许的App/UI最小overlay已进入同一正式App；只有隔离生成图片Web模式的start profile获准，生产及安全重试保持关闭。失败CUA窗口排序只存档，不应用；原Core/SQLite v3/Capture/历史/首次使用保护保留。
 
@@ -94,7 +103,7 @@
 
 流程为 `READY → ACTIVE → REVIEW → DONE`；检查失败回ACTIVE修复。无法执行的场景保持WAITING，不用模拟结果填PASS。每次结束一个包或发现局部阻塞后，立即选下一个依赖满足的READY项；没有有效工作时保存事实状态，不循环空提交。
 
-**当前续做入口：** 第四轮已与新版v3生命周期合流并通过完整CI；本地Codex直接按uploadStarted v1接入实际开始观察/严格归一化/早返回及真机快吞噬，再推进仍开放的冷首击/业务ABA/内容保留/MID/物理GUI/自包含。root保持唯一正式集成负责人；M1真实客户端准入独立，完整生产闭环未完成。
+**当前续做入口：** 第六轮已经正式合流并通过完整CI；本地Codex第七轮在既有Coordinator上实现原点击安全等待并继续真机验证。共享边界见[顺序调度接口](ADAPTER_CONTRACT.md#第七轮顺序调度共享边界-v1实现待正式交接)，交接后由root统一集成；不得照搬lab或放开UNKNOWN/start锁。冷首击、业务转换、MID、物理GUI、自包含与真实权限时延仍分别验收，生产未开放。
 
 ## 3. 并行所有权
 

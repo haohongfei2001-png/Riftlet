@@ -22,7 +22,9 @@
 
 **首用与发行基础体验实际增量（历史来源）：** 在e89d49f上并行完成原生首用/状态窗口、按需权限恢复、准确Capture诊断/字节保真/空间保护和开发App打包。已测2449d40的完整macOS CI：344原生、12包装、页面/旧观察/回放、Release/签名及四个自检通过，非作者审查完成；[实际实现及真机入口](FIRST_USE_ACCEPTANCE.md)和[永久证据](../engineering/evidence/2026-10-27-release-ux/README.md)已落地。真实权限/物理首用仅阻塞对应验收，本地Codex继续Web闭环；不改Core/Web/上传开始契约，不将本包扩大为生产启用或公开发行。
 
-**第五轮正式合流增量（当前）：** e655b1e首用与3bb13999/53ebcc4 Web v11合为已测caa6a65；只在独立生成图片Web模式准入已审查start，保留Core/SQLite v3/首用及旧UNKNOWN。修复初始Chrome不可用后的被动权限恢复，保留原目标并增加可选时延边界。[macOS CI40515643640](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40515643640) 369原生、68页面/45legacy、Release/签名/四自检与非作者审查通过，[第五轮合流证据](../engineering/evidence/2026-10-27-integration-round5/README.md)固定范围。第五轮旧实测不包含新权限前置；第六轮继续独立真机，不重新开发架构或合入未交接成果。
+**第五轮正式合流增量（历史来源）：** e655b1e首用与3bb13999/53ebcc4 Web v11合为已测caa6a65；只在独立生成图片Web模式准入已审查start，保留Core/SQLite v3/首用及旧UNKNOWN。修复初始Chrome不可用后的被动权限恢复，保留原目标并增加可选时延边界。[macOS CI40515643640](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40515643640) 369原生、68页面/45legacy、Release/签名/四自检与非作者审查通过，[第五轮合流证据](../engineering/evidence/2026-10-27-integration-round5/README.md)固定范围。第五轮旧实测不包含新权限前置；第六轮继续独立真机，不重新开发架构或合入未交接成果。
+
+**第六轮稳定成果正式合流（当前）：** 1246c4a与65f7d54按共同祖先3bb13999合流为81b6a61，v12传输/严格Chrome读取与首用权限组合完整CI通过：380原生、72页面/54legacy、Release/四自检，非作者审查完成。[永久证据](../engineering/evidence/2026-10-27-integration-round6/README.md)固定真实单样本/只读/冷拒绝/targetBusy边界。第七轮独占安全排队与真机，按[最小共享接口](ADAPTER_CONTRACT.md#第七轮顺序调度共享边界-v1实现待正式交接)交接，不重做架构或开发第二套Coordinator。
 
 ## 1. 授权、范围和最小交付
 
