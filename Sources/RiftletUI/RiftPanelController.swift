@@ -30,10 +30,15 @@ public struct RiftSelectionBoundary: Equatable, Sendable {
 public struct RiftDiagnosticRow: Equatable, Sendable {
     public let assetID: UUID
     public let ordinal: Int
+    /// Original visual/AX window; it always ignores mouse events.
     public let windowNumber: Int
     public let frame: CGRect
     public let imageClipFrame: CGRect
     public let numberFrame: CGRect
+    public let imageInputWindowNumber: Int
+    public let numberInputWindowNumber: Int
+    public let imageInputFrame: CGRect
+    public let numberInputFrame: CGRect
 }
 
 public struct RiftDiagnosticSnapshot: Sendable {
@@ -223,9 +228,84 @@ private final class RiftRowView: NSView, NSMenuDelegate {
     override func accessibilityPerformPress() -> Bool { onAccessiblePress?() ?? false }
 }
 
+/// Native input islands. The original row remains the sole drawing and AX
+/// owner; no synthetic event is posted or forwarded to another application.
+private final class RiftInputView: NSView {
+    weak var rowView: RiftRowView?
+    private var approachTracking: NSTrackingArea?
+
+    init(rowView: RiftRowView) {
+        self.rowView = rowView
+        super.init(frame: .zero)
+        setAccessibilityElement(false)
+        setAccessibilityHidden(true)
+    }
+
+    required init?(coder: NSCoder) { fatalError("init(coder:) is not used") }
+    override var acceptsFirstResponder: Bool { false }
+    override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
+
+    private func isInsideOriginalRow(_ event: NSEvent) -> Bool {
+        guard let eventWindow = event.window, eventWindow === window,
+              eventWindow.isVisible, let rowView, let visualWindow = rowView.window,
+              visualWindow.isVisible else { return false }
+        let screenPoint = eventWindow.convertPoint(toScreen: event.locationInWindow)
+        let localPoint = rowView.convert(visualWindow.convertPoint(fromScreen: screenPoint), from: nil)
+        return rowView.geometry.containsSelectionPoint(localPoint)
+    }
+
+    override func mouseDown(with event: NSEvent) {
+        guard bounds.contains(convert(event.locationInWindow, from: nil)), isInsideOriginalRow(event) else { return }
+        _ = rowView?.onDown?(event)
+    }
+    override func mouseUp(with event: NSEvent) {
+        // AppKit routes release to the original down window even outside its
+        // bounds. Test the union of this original asset's two regions, never a
+        // replacement row under the release point.
+        rowView?.onUp?(isInsideOriginalRow(event))
+    }
+    override func scrollWheel(with event: NSEvent) { rowView?.onScroll?(event.scrollingDeltaY) }
+    override func menu(for event: NSEvent) -> NSMenu? { rowView?.menu(for: event) }
+    override func updateTrackingAreas() {
+        super.updateTrackingAreas()
+        if let approachTracking { removeTrackingArea(approachTracking) }
+        let area = NSTrackingArea(rect: .zero, options: [.mouseEnteredAndExited, .activeAlways, .inVisibleRect],
+                                  owner: self, userInfo: nil)
+        approachTracking = area; addTrackingArea(area)
+    }
+    override func mouseEntered(with event: NSEvent) { rowView?.onHover?(true); rowView?.onApproach?() }
+    override func mouseExited(with event: NSEvent) { rowView?.onHover?(false) }
+}
+
 private struct RowWindow {
     let panel: RiftPanel
     let view: RiftRowView
+    let imageInput: RiftPanel
+    let numberInput: RiftPanel
+
+    var panels: [RiftPanel] { [panel, imageInput, numberInput] }
+
+    init(record: AssetRecord, geometry: RiftRowLayout, configuration: RiftConfiguration) {
+        panel = RiftPanel(frame: geometry.frame, decorative: true)
+        view = RiftRowView(record: record, geometry: geometry, configuration: configuration)
+        panel.contentView = view
+        imageInput = RiftPanel(frame: .zero)
+        numberInput = RiftPanel(frame: .zero)
+        for input in [imageInput, numberInput] {
+            input.contentView = RiftInputView(rowView: view)
+            input.setAccessibilityHidden(true)
+        }
+        syncInputFrames()
+    }
+
+    func syncInputFrames() {
+        imageInput.setFrame(panel.convertToScreen(view.convert(view.geometry.imageClipFrame, to: nil)), display: true)
+        numberInput.setFrame(panel.convertToScreen(view.convert(view.geometry.numberFrame, to: nil)), display: true)
+        for input in [imageInput, numberInput] { input.contentView?.toolTip = view.toolTip }
+    }
+
+    func close() { panels.forEach { $0.close() } }
+    func orderOut() { panels.forEach { $0.orderOut(nil) } }
 }
 
 /// Optional acceptance diagnostics only. These times describe AppKit code paths,
@@ -282,7 +362,10 @@ public final class RiftPanelController {
             RiftDiagnosticRow(assetID: id, ordinal: row.view.ordinal,
                 windowNumber: row.panel.windowNumber, frame: row.panel.frame,
                 imageClipFrame: row.panel.convertToScreen(row.view.convert(row.view.geometry.imageClipFrame, to: nil)),
-                numberFrame: row.panel.convertToScreen(row.view.convert(row.view.geometry.numberFrame, to: nil)))
+                numberFrame: row.panel.convertToScreen(row.view.convert(row.view.geometry.numberFrame, to: nil)),
+                imageInputWindowNumber: row.imageInput.windowNumber,
+                numberInputWindowNumber: row.numberInput.windowNumber,
+                imageInputFrame: row.imageInput.frame, numberInputFrame: row.numberInput.frame)
         }.sorted { $0.ordinal < $1.ordinal }
         return RiftDiagnosticSnapshot(rows: rows, lineFrame: decoration.isVisible ? decoration.frame : .zero,
                                       isHolding: gate.isHolding, isTransitioning: transitioning)
@@ -390,6 +473,9 @@ public final class RiftPanelController {
     public func setFeedback(_ reason: String?, for assetID: UUID) {
         rowWindows[assetID]?.view.feedback = reason.map { String($0.prefix(256)) }
         rowWindows[assetID]?.view.updateDescription()
+        if let row = rowWindows[assetID] {
+            for input in [row.imageInput, row.numberInput] { input.contentView?.toolTip = row.view.toolTip }
+        }
     }
 
     /// App persists this independent intent. No new image, wake, reflow or late
@@ -451,14 +537,14 @@ public final class RiftPanelController {
             window.view.animateImage(to: window.view.geometry.imageClipFrame.width + 2, duration: swallowTime)
             NSAnimationContext.runAnimationGroup { context in
                 context.duration = swallowTime
-                window.panel.animator().alphaValue = 0
+                window.panels.forEach { $0.animator().alphaValue = 0 }
             }
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + swallowTime) { [weak self] in
             guard let self, !self.closed, !self.userHidden, self.generation == token else { return }
             for record in swallowed {
                 if let window = self.rowWindows.removeValue(forKey: record.id) {
-                    window.panel.close()
+                    window.close()
                     self.recordPresentation(.swallowClose, record: record, duration: swallowTime)
                 }
             }
@@ -473,7 +559,7 @@ public final class RiftPanelController {
         guard !closed else { return }
         guard !userHidden else { lastRecords = records; return }
         guard let screen else {
-            rowWindows.values.forEach { $0.panel.orderOut(nil) }
+            rowWindows.values.forEach { $0.orderOut() }
             decoration.orderOut(nil); lastRecords = records; return
         }
         let oldIDs = Set(lastRecords.filter { $0.visibility == .visible }.map(\.id))
@@ -491,7 +577,7 @@ public final class RiftPanelController {
         visibleRange = firstVisibleIndex..<(firstVisibleIndex + layout.rows.count)
         let visibleIDs = Set(layout.rows.map(\.assetID))
         for id in Array(rowWindows.keys) where !visibleIDs.contains(id) {
-            rowWindows.removeValue(forKey: id)?.panel.close()
+            rowWindows.removeValue(forKey: id)?.close()
         }
         let byID = Dictionary(records.map { ($0.id, $0) }, uniquingKeysWith: { _, latest in latest })
         let shouldShift = animateShift && !layout.rows.isEmpty
@@ -504,10 +590,7 @@ public final class RiftPanelController {
             let isNew: Bool
             if let existing = rowWindows[record.id] { window = existing; isNew = false }
             else {
-                let panel = RiftPanel(frame: geometry.frame)
-                let view = RiftRowView(record: record, geometry: geometry, configuration: configuration)
-                panel.contentView = view
-                window = RowWindow(panel: panel, view: view)
+                window = RowWindow(record: record, geometry: geometry, configuration: configuration)
                 rowWindows[record.id] = window
                 wire(window, id: record.id)
                 isNew = true
@@ -523,24 +606,34 @@ public final class RiftPanelController {
             if shouldShift && !isNew {
                 let origin = CGPoint(x: geometry.frame.maxX - window.panel.frame.width,
                                      y: geometry.frame.midY - window.panel.frame.height / 2)
+                let delta = CGPoint(x: origin.x - window.panel.frame.minX,
+                                    y: origin.y - window.panel.frame.minY)
+                let destinations = window.panels.map { item in
+                    CGPoint(x: item.frame.minX + delta.x, y: item.frame.minY + delta.y)
+                }
                 NSAnimationContext.runAnimationGroup { context in
                     context.duration = shiftTime
                     context.timingFunction = CAMediaTimingFunction(name: .easeOut)
-                    window.panel.animator().setFrameOrigin(origin)
+                    for (item, destination) in zip(window.panels, destinations) {
+                        item.animator().setFrameOrigin(destination)
+                    }
                 }
-            } else { window.panel.setFrame(geometry.frame, display: true) }
-            present(window.panel)
+            } else {
+                window.panel.setFrame(geometry.frame, display: true)
+                window.syncInputFrames()
+            }
+            window.panels.forEach { present($0) }
             // The press response ends independently of upload completion. A
             // pre-start UNKNOWN is retained without a perpetual pressed pose.
             let expectedOffset: CGFloat = 0
             if isNew {
-                window.panel.alphaValue = 0
+                window.panels.forEach { $0.alphaValue = 0 }
                 window.view.animateImage(to: expectedOffset, duration: 0)
                 let arrivalTime = duration(configuration.arrivalDuration)
                 trackAnimation(arrivalTime)
                 NSAnimationContext.runAnimationGroup { context in
                     context.duration = arrivalTime
-                    window.panel.animator().alphaValue = 1
+                    window.panels.forEach { $0.animator().alphaValue = 1 }
                 }
             } else if oldStatus != record.status || window.view.imageOffset != expectedOffset {
                 window.view.animateImage(to: expectedOffset, duration: duration(
@@ -566,6 +659,7 @@ public final class RiftPanelController {
                     let view = row?.view
                     view?.updateGeometry(geometry)
                     view?.ordinal = geometry.ordinal; view?.updateDescription(); view?.needsDisplay = true
+                    row?.syncInputFrames()
                 }
                 self.setTransitioning(false)
                 self.refreshHoverFromPointer()
@@ -579,7 +673,9 @@ public final class RiftPanelController {
         // stationary pointer. This is not a global mouse polling timer.
         let point = NSEvent.mouseLocation
         hoveredIDs = userHidden ? [] : Set(rowWindows.compactMap { id, row in
-            row.panel.isVisible && row.panel.frame.contains(point) ? id : nil
+            row.panel.isVisible && [row.imageInput, row.numberInput].contains(where: {
+                $0.isVisible && $0.frame.contains(point)
+            }) ? id : nil
         })
         mutateInteraction { $0.setHovered(hoveredIDs) }
     }
@@ -594,8 +690,9 @@ public final class RiftPanelController {
     private func wire(_ window: RowWindow, id: UUID) {
         window.view.onHover = { [weak self] inside in
             guard let self, !self.userHidden, !self.closed else { return }
-            if inside { self.hoveredIDs.insert(id) } else { self.hoveredIDs.remove(id) }
-            self.mutateInteraction { $0.setHovered(self.hoveredIDs) }
+            // Use both input islands so an exit from one cannot clear a hover
+            // already inside the other. Event-driven only; no polling timer.
+            self.refreshHoverFromPointer()
             self.flushDeferred()
         }
         window.view.onApproach = { [weak self] in
@@ -612,10 +709,12 @@ public final class RiftPanelController {
                   !self.userHidden, self.selectionVersions[id] == nil else { return }
             self.onRemove(id)
         }
+        let inputWindowNumbers: Set<Int> = [window.imageInput.windowNumber, window.numberInput.windowNumber]
         window.view.onDown = { [weak self, weak view = window.view] event in
-            guard let self, let view else { return false }
-            let point = view.window?.convertPoint(toScreen: event.locationInWindow) ?? .zero
-            let accepts = !self.userHidden && !self.transitioning && self.selectionVersions[id] == nil
+            guard let self, let view, let eventWindow = event.window,
+                  inputWindowNumbers.contains(eventWindow.windowNumber) else { return false }
+            let point = eventWindow.convertPoint(toScreen: event.locationInWindow)
+            let accepts = !self.closed && !self.userHidden && !self.transitioning && self.selectionVersions[id] == nil
                 && view.record.visibility == .visible && view.record.status != .transferring
                 && view.record.status != .used
             let accepted = self.gate.begin(assetID: id, screenPoint: point, timestamp: event.timestamp,
@@ -636,7 +735,7 @@ public final class RiftPanelController {
             return accepted
         }
         window.view.onUp = { [weak self] inside in
-            guard let self else { return }
+            guard let self, !self.closed, self.interaction.heldID == id else { return }
             let held = self.interaction.heldID
             let selected = self.gate.end(inside: inside)
             self.mutateInteraction { $0.releasePointer(accepted: selected != nil) }
@@ -733,7 +832,7 @@ public final class RiftPanelController {
         deferredRecords = nil
         hoveredIDs.removeAll()
         mutateInteraction { $0.resetPresentation() }
-        rowWindows.values.forEach { $0.panel.close() }
+        rowWindows.values.forEach { $0.close() }
         rowWindows.removeAll()
         visibleRange = 0..<0
         decoration.orderOut(nil)
@@ -758,7 +857,7 @@ public final class RiftPanelController {
         selectionVersions.removeAll(); hoveredIDs.removeAll()
         mutateInteraction { $0.close() }
         observers.forEach { $0.0.removeObserver($0.1) }; observers.removeAll()
-        rowWindows.values.forEach { $0.panel.close() }; rowWindows.removeAll()
+        rowWindows.values.forEach { $0.close() }; rowWindows.removeAll()
         decoration.close(); cache.clear()
     }
 
