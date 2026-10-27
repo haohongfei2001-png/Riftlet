@@ -1,6 +1,6 @@
 import Foundation
 
-/// Routes observation of a retained v6/v7/v8/v9/v10 operation to its original observer.
+/// Routes observation of a retained v6/v7/v8/v9/v10/v11 operation to its original observer.
 /// Every input-side action uses the current program. Missing historical state
 /// remains unknown; this wrapper cannot reconstruct leases or cleared proofs.
 public enum LegacyWebObservationProgram {
@@ -27,7 +27,8 @@ public enum LegacyWebObservationProgram {
         """
         guard source.utf8.count <= 128 * 1024 else { throw WebAdapterError.programUnavailable }
         // Keep the current input program's public source identifier. Historical
-        // observation responses carry their own explicit v6/v7/v8/v9/v10 evidence IDs.
-        return WebPageProgram(sourceID: current.sourceID, functionSource: source)
+        // observation responses carry their own explicit v6/v7/v8/v9/v10/v11 evidence IDs.
+        return WebPageProgram(sourceID: current.sourceID, functionSource: source,
+                              maximumChunkBytes: current.maximumChunkBytes)
     }
 }
