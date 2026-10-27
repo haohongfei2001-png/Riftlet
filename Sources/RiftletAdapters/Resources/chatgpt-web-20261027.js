@@ -59,7 +59,7 @@ function riftletWebAcceptance(command, native) {
     }
     if (chains.length !== 1) return null;
     const own = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
-    let modeSeen = false, draftSeen = false, identity = null;
+    let modeSeen = false, draftSeen = false, identity = null, profileID = null;
     for (const fiber of chains[0]) {
       const props = fiber.memoizedProps;
       if (!props || typeof props !== 'object') continue;
@@ -67,9 +67,12 @@ function riftletWebAcceptance(command, native) {
       const draft = ['conversationId', 'draftKey', 'isWorkConversation', 'isTemporaryChat', 'readOnly', 'surfacePlacement'].every(k => own(props, k));
       if (!mode && !draft) continue;
       const id = props.conversationId;
-      if (typeof id !== 'string' || !/^local-chatgpt:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/.test(id)
-          || (identity !== null && identity !== id)) return null;
+      // Both exact forms were observed in current committed ordinary-thread props.
+      // Preserve the full value; a local-to-persisted transition is a new binding.
+      const format = typeof id === 'string' && /^(local-chatgpt:)?[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/.exec(id);
+      if (!format || (identity !== null && identity !== id)) return null;
       identity = id;
+      profileID = format[1] ? 'chatgpt-composer-react-20261027-v1' : 'chatgpt-composer-react-persisted-20261027-v1';
       if (mode) {
         if (props.isHome !== false || props.isWork !== false || props.readOnly !== false) return null;
         modeSeen = true;
@@ -80,7 +83,7 @@ function riftletWebAcceptance(command, native) {
         draftSeen = true;
       }
     }
-    return modeSeen && draftSeen ? {logical: {profileID: 'chatgpt-composer-react-20261027-v1', id: identity},
+    return modeSeen && draftSeen ? {logical: {profileID, id: identity},
       root: chains[0][chains[0].length - 1].stateNode} : null;
   }
 
