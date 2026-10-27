@@ -9,7 +9,21 @@
 - macOS CI compilation/tests/package smoke do not prove interactive focus, click-through, Spaces or real upload.
 - No real user screenshots, chats or browser sessions are used in automated tests.
 
-## Current execution
+## M1 independent native backend — current increment
+
+The user's local Codex owns real-Mac W2/N1/Web acceptance. This session did not access that device or general pasteboard. Its isolated branch `codex/m1-native-backend-20261027` / [Draft PR #3](https://github.com/haohongfei2001-png/Riftlet/pull/3) targets the PR #1 engineering branch; no integration/main merge has occurred.
+
+- Tested head [`7dfa8ecbd221095f6c99d289aba794b51ce37e95`](https://github.com/haohongfei2001-png/Riftlet/commit/7dfa8ecbd221095f6c99d289aba794b51ce37e95), based on485fa87. [Run40446467852](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40446467852), job121998836427, completed/success2026-10-27 11:52:40Beijing; temporary PR test mergec1ef59f3f9d014987aa1f7e1731de028d9649f79 is not a branch merge.
+- **173/173 native tests:** Capture48/Core30/UI17/Adapters78. **9/9 inherited page VM tests**; archived replay unchanged. Release build, App/ad-hoc signature and all three existing self-checks passed. CHROME_NOT_RUN/GUI_NOT_RUN remain explicit.
+- New34 M1 cases cover eight actual unique named NSPasteboard tests, native local AX object/GetPid primitives plus injected AX scenarios, actual file/journal/two-instance/separate-process flock, and SQLite/native-coordination recovery. They do not query the real ChatGPT client or prove actual menu Paste, selection preservation or per-image completion.
+- Initial run40446176770 compiled but had two pasteboard fixture failures: an OS-generated UTF-16 representation and invalid legacy promise UTI setup. The reviewed test-only correction retains full materialized snapshot restoration and uses a modern type reported by AppKit. The successful run above is the final execution evidence.
+- [Artifact12707859277](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40446467852/artifacts/12707859277): 1005479bytes, SHA256`fc9da0dc19092ae6e09da94817b63a282f14ccf87cb3c4382a9deeb304b59c3c`, expires2026-11-10. Contains development App/helper/logs, no release or notarization.
+- [Permanent verification](../engineering/evidence/2026-10-27/m1-native-verification.json), [CI excerpt](../engineering/evidence/2026-10-27/m1-native-ci-excerpt.txt), [non-author review](../engineering/evidence/2026-10-27/m1-native-review.json) and [M1 interface/scope](M1_NATIVE_BACKEND.md).
+
+Root authored coordinator/M0 integration/recovery tests; native AX and pasteboard authors worked concurrently; m1_review independently read all nine files and final CI, with cross-review by the other authors. Findings fixed nil-read classification, resolution-before-Core-commit recovery and coordination-error receipt admission. Native Mac profiles remain empty and disabled; App/Core/Web paths did not change. The docs/evidence checkpoint after7dfa8ec does not alter tested native/build inputs.
+
+## Inherited PR #1 execution at485fa87
+
 
 | Check | State | Scope |
 | --- | --- | --- |
@@ -93,7 +107,7 @@ Review here means non-author technical review by distinct execution agents. It i
 - The current build is ARM64 on the verified runner. Intel and the user's newer macOS build are not claimed tested.
 - Transparent minimum-hit rectangles, fullscreen behavior and exclusion from Apple's own screenshots are not established by pure layout tests.
 - Developer simulation is not an upload adapter, and the production build intentionally retains real images.
-- Web page source and scoped real evidence are now imported and adapted. The new combined program is compiled/offline-tested, not live-tested; foreground/window/tab guards still do not establish click-time tab identity before queued Apple Events. Scope is currently Home Chat/Chinese labels/PNG, not arbitrary existing conversations. Same-URL draft changes and production post-consumption late-failure revival remain unresolved. Mac has only injected platform drivers; cross-instance/restart clipboard coordination remains required before native enablement.
+- Web page source and scoped real evidence are now imported and adapted. The new combined program is compiled/offline-tested, not live-tested; foreground/window/tab guards still do not establish click-time tab identity before queued Apple Events. Scope is currently Home Chat/Chinese labels/PNG, not arbitrary existing conversations. Same-URL draft changes and production post-consumption late-failure revival remain unresolved. Mac now has the independent M1 native drivers and cross-instance/restart coordination above; actual version/surface AX binding, input, selection and completion evidence remain required before client enablement.
 
 ## Autonomous execution plan v2 — historical documentation increment
 

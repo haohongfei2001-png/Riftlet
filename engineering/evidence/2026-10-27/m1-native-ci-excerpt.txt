@@ -1,0 +1,58 @@
+Source: https://github.com/haohongfei2001-png/Riftlet/actions/runs/40446467852
+Job: 121998836427; head: 7dfa8ecbd221095f6c99d289aba794b51ce37e95
+Scope: native CI, named pasteboards, process/file/SQLite and injected AX; real ChatGPT Mac NOT_RUN.
+
+2026-10-27T03:51:22.7880480Z HEAD is now at c1ef59f Merge 7dfa8ecbd221095f6c99d289aba794b51ce37e95 into 485fa87a31140f9d2e428db69ec5e0599b1f96ae
+2026-10-27T03:51:26.3241610Z Apple Swift version 5.10 (swiftlang-5.10.0.13 clang-1500.3.9.4)
+2026-10-27T03:51:26.3242850Z Target: arm64-apple-macosx14.0
+2026-10-27T03:51:26.3482370Z ProductVersion:		14.8.9
+2026-10-27T03:51:26.3482840Z BuildVersion:		23J631
+2026-10-27T03:51:27.4042840Z # tests 19
+2026-10-27T03:51:27.4043280Z # pass 19
+2026-10-27T03:51:27.4043480Z # fail 0
+2026-10-27T03:51:27.7255250Z # tests 9
+2026-10-27T03:51:27.7255680Z # pass 9
+2026-10-27T03:51:27.7255870Z # fail 0
+2026-10-27T03:51:56.1311990Z Build complete! (26.75s)
+2026-10-27T03:52:00.8654400Z [58/173] Testing RiftletAdaptersTests.MacClipboardCoordinatorTests/testCorruptJournalAndSpecialFilesFailClosedWithoutOverwriting
+2026-10-27T03:52:00.9402060Z [59/173] Testing RiftletAdaptersTests.MacClipboardCoordinatorTests/testActualLockExcludesAnotherInstanceAndASeparateProcessUntilRelease
+2026-10-27T03:52:00.9444740Z [60/173] Testing RiftletAdaptersTests.MacClipboardCoordinatorTests/testFailureAfterIntentRenameRetainsExclusionAndDurableUncertainty
+2026-10-27T03:52:01.0282760Z [61/173] Testing RiftletAdaptersTests.MacClipboardCoordinatorTests/testJournalCapacityNeverEvictsOldInputOrCancellationTombstones
+2026-10-27T03:52:01.0358580Z [62/173] Testing RiftletAdaptersTests.MacClipboardCoordinatorTests/testOnlySeparateAdmissionResolvesAndTheLockOutlivesResolutionUntilSettlement
+2026-10-27T03:52:01.1259080Z [63/173] Testing RiftletAdaptersTests.MacClipboardCoordinatorTests/testOwnerAndReceiptIdentityMismatchCannotAdvanceOrRelease
+2026-10-27T03:52:01.1366150Z [64/173] Testing RiftletAdaptersTests.MacClipboardCoordinatorTests/testRecoveredPrewriteReservationCancelsOnlyItselfWithoutReplaying
+2026-10-27T03:52:01.2024720Z [65/173] Testing RiftletAdaptersTests.MacClipboardCoordinatorTests/testResolvedTombstoneCanReobserveAfterCrashBeforeQueueReceiptCommit
+2026-10-27T03:52:01.2111870Z [66/173] Testing RiftletAdaptersTests.MacClipboardCoordinatorTests/testRestartKeepsInputIntentAndNeverAuthorizesAnotherPaste
+2026-10-27T03:52:01.2873970Z [67/173] Testing RiftletAdaptersTests.MacCoordinatedAdapterTests/testClipboardMutationErrorPersistsUnknownAndCannotBorrowRemoteProof
+2026-10-27T03:52:01.3059350Z [68/173] Testing RiftletAdaptersTests.MacClipboardCoordinatorTests/testWriteIntentAndOwnedButUnprovedClipboardStayConservativeAfterRestart
+2026-10-27T03:52:01.3640290Z [69/173] Testing RiftletAdaptersTests.MacCoordinatedAdapterTests/testCopyBeforeWriteCancelsReservationAndDoesNotLockUnrelatedWork
+2026-10-27T03:52:01.3732630Z [70/173] Testing RiftletAdaptersTests.MacCoordinatedAdapterTests/testNativeCompositionMustShareExactCoordinatorBeforeAnyClipboardRead
+2026-10-27T03:52:01.4457690Z [71/173] Testing RiftletAdaptersTests.MacCoordinatedAdapterTests/testResolutionIOFailureReturnsUnknownUntilOriginalProofCanBeReobserved
+2026-10-27T03:52:01.4569340Z [72/173] Testing RiftletAdaptersTests.MacCoordinatedAdapterTests/testResolvedBeforeCoreCommitReopensAndSettlesQueueWithoutClipboardOrPaste
+2026-10-27T03:52:01.5426110Z [73/173] Testing RiftletAdaptersTests.MacCoordinatedAdapterTests/testUnknownRestartObservesOriginalAndDoesNotReconstructOldClipboard
+2026-10-27T03:52:01.5439570Z [74/173] Testing RiftletAdaptersTests.NativeMacAXDriverTests/testAXCannotCompleteKeepsUnknownAndNeverFallsBackOrRepeats
+2026-10-27T03:52:01.6268570Z [75/173] Testing RiftletAdaptersTests.NativeMacAXDriverTests/testBindingRejectsLaunchVersionWindowComposerDraftAndUnadvertisedAction
+2026-10-27T03:52:01.6723580Z [76/173] Testing RiftletAdaptersTests.NativeMacAXDriverTests/testChangedBytesSymlinkAndFIFOAreRejectedWithoutAXInput
+2026-10-27T03:52:01.7106790Z [77/173] Testing RiftletAdaptersTests.NativeMacAXDriverTests/testDisabledMissingProfileAndPermissionNeverReachProviderOrInput
+2026-10-27T03:52:01.7649870Z [78/173] Testing RiftletAdaptersTests.NativeMacAXDriverTests/testFinalDraftChangeAfterFirstCheckAndIntentDoesNotPasteOrRetry
+2026-10-27T03:52:01.8163940Z [79/173] Testing RiftletAdaptersTests.NativeMacAXDriverTests/testInputRequiresDurableReservationAndExactCurrentClipboardOwner
+2026-10-27T03:52:01.8280260Z [80/173] Testing RiftletAdaptersTests.NativeMacAXDriverTests/testNativePrimitiveConfigurationAndOpaqueObjectsWithoutPermissionPrompt
+2026-10-27T03:52:01.8886580Z [81/173] Testing RiftletAdaptersTests.NativeMacAXDriverTests/testObserveLostBindingAndWrongIdentityCannotAttachOrPaste
+2026-10-27T03:52:01.9188440Z [82/173] Testing RiftletAdaptersTests.NativeMacAXDriverTests/testOneAXActionIsUnknownAndRepeatedExecutorCannotRepeatDurableIntent
+2026-10-27T03:52:01.9572900Z [83/173] Testing RiftletAdaptersTests.NativeMacAXDriverTests/testRealScreenshotOriginIsRefusedByNativeExecutor
+2026-10-27T03:52:02.0088380Z [84/173] Testing RiftletAdaptersTests.NativePasteboardDriverTests/testAmbiguousOrMalformedMarkersNeverBecomeAnOwner
+2026-10-27T03:52:02.0521100Z [85/173] Testing RiftletAdaptersTests.NativePasteboardDriverTests/testEmptyBoardCanBeRestoredAfterOwnedWrite
+2026-10-27T03:52:02.0849450Z [86/173] Testing RiftletAdaptersTests.NativePasteboardDriverTests/testInterveningCopyAndForgedSameMarkerCannotAuthorizeRestoration
+2026-10-27T03:52:02.1222980Z [87/173] Testing RiftletAdaptersTests.NativePasteboardDriverTests/testInterveningCopyPreventsAttachmentWriteAndLeavesNewCopy
+2026-10-27T03:52:02.1441030Z [88/173] Testing RiftletAdaptersTests.NativePasteboardDriverTests/testInvalidBoundsAndUnownedRestoreDoNotReadOrWriteClipboard
+2026-10-27T03:52:02.2176100Z [89/173] Testing RiftletAdaptersTests.NativePasteboardDriverTests/testNativeRoundTripPreservesEveryMaterializedItemAndRepresentation
+2026-10-27T03:52:02.2232690Z [90/173] Testing RiftletAdaptersTests.NativePasteboardDriverTests/testOversizedOrPromiseRestorePreparationCannotClearOwnedPayload
+2026-10-27T03:52:02.2746280Z [91/173] Testing RiftletAdaptersTests.NativePasteboardDriverTests/testUnreadablePromisedAndOversizedCaptureDeclineBeforeMutation
+2026-10-27T03:52:08.7242570Z [173/173] Testing RiftletCaptureTests.ImportFaultTests/testRealSQLiteWriterLockLeavesJournalAndCanResumeSameIdentity
+2026-10-27T03:52:33.0395610Z Build complete! (23.81s)
+2026-10-27T03:52:34.2619190Z RIFTLET_SELF_CHECK_PASS: private import, durable queue, synthetic receipt, restart
+2026-10-27T03:52:34.3137540Z RIFTLET_WEB_ACCEPTANCE_SELF_CHECK_PASS: bundled page source, synthetic-only policy, isolated modes; CHROME_NOT_RUN; GUI_NOT_RUN
+2026-10-27T03:52:34.6885390Z RIFTLET_GUI_HELPER_SELF_CHECK_PASS: 12 synthetic PNGs; scenes 2/3/12; layout/status fixtures; GUI_NOT_RUN
+2026-10-27T03:52:36.3039760Z SHA256 digest of uploaded artifact zip is fc9da0dc19092ae6e09da94817b63a282f14ccf87cb3c4382a9deeb304b59c3c
+2026-10-27T03:52:36.8104320Z Artifact native-foundation-c1ef59f3f9d014987aa1f7e1731de028d9649f79.zip successfully finalized. Artifact ID 12707859277
+2026-10-27T03:52:36.8106750Z Artifact native-foundation-c1ef59f3f9d014987aa1f7e1731de028d9649f79 has been successfully uploaded! Final size is 1005479 bytes. Artifact ID is 12707859277
