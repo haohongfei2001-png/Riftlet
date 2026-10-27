@@ -1,0 +1,144 @@
+{
+  "sourceSHA": "1909771d45ad00290dffe245b9a42e6e9f55203c",
+  "scope": "Native scene selection 3,12,2,3; main window reopen; not hit-through certification",
+  "observations": [
+    {
+      "event": "scene_reset",
+      "count": 3,
+      "assetIDs": [
+        "00000000-0000-4000-8000-000000000001",
+        "00000000-0000-4000-8000-000000000002",
+        "00000000-0000-4000-8000-000000000003"
+      ],
+      "selectionCount": 0,
+      "underlyingClickCount": 0,
+      "probeEditorFocused": true,
+      "helperActive": false,
+      "keyWindow": -1,
+      "mainWindow": -1,
+      "uptime": 429853.81715404167,
+      "syntheticOnly": true
+    },
+    {
+      "event": "helper_started",
+      "selectionCount": 0,
+      "underlyingClickCount": 0,
+      "probeEditorFocused": true,
+      "helperActive": false,
+      "keyWindow": -1,
+      "mainWindow": -1,
+      "uptime": 429853.82307491667,
+      "syntheticOnly": true,
+      "guiVerdict": "NOT_ASSESSED"
+    },
+    {
+      "event": "focus_changed",
+      "selectionCount": 0,
+      "underlyingClickCount": 0,
+      "probeEditorFocused": true,
+      "helperActive": true,
+      "keyWindow": -1,
+      "mainWindow": -1,
+      "uptime": 429853.94257137505,
+      "notification": "NSApplicationDidBecomeActiveNotification",
+      "syntheticOnly": true
+    },
+    {
+      "event": "focus_changed",
+      "selectionCount": 0,
+      "underlyingClickCount": 0,
+      "probeEditorFocused": true,
+      "helperActive": false,
+      "keyWindow": -1,
+      "mainWindow": -1,
+      "uptime": 429854.2890317917,
+      "notification": "NSApplicationDidResignActiveNotification",
+      "syntheticOnly": true
+    },
+    {
+      "event": "focus_changed",
+      "selectionCount": 0,
+      "underlyingClickCount": 0,
+      "probeEditorFocused": true,
+      "helperActive": true,
+      "keyWindow": -1,
+      "mainWindow": -1,
+      "uptime": 429861.2934975,
+      "notification": "NSApplicationDidBecomeActiveNotification",
+      "syntheticOnly": true
+    },
+    {
+      "event": "focus_changed",
+      "selectionCount": 0,
+      "underlyingClickCount": 0,
+      "probeEditorFocused": true,
+      "helperActive": true,
+      "keyWindow": 46199,
+      "mainWindow": 46199,
+      "uptime": 429861.3613284167,
+      "notification": "NSWindowDidBecomeKeyNotification",
+      "syntheticOnly": true
+    },
+    {
+      "event": "scene_reset",
+      "count": 12,
+      "assetIDs": [
+        "00000000-0000-4000-8000-000000000001",
+        "00000000-0000-4000-8000-000000000002",
+        "00000000-0000-4000-8000-000000000003",
+        "00000000-0000-4000-8000-000000000004",
+        "00000000-0000-4000-8000-000000000005",
+        "00000000-0000-4000-8000-000000000006",
+        "00000000-0000-4000-8000-000000000007",
+        "00000000-0000-4000-8000-000000000008",
+        "00000000-0000-4000-8000-000000000009",
+        "00000000-0000-4000-8000-000000000010",
+        "00000000-0000-4000-8000-000000000011",
+        "00000000-0000-4000-8000-000000000012"
+      ],
+      "selectionCount": 0,
+      "underlyingClickCount": 0,
+      "probeEditorFocused": true,
+      "helperActive": true,
+      "keyWindow": 46199,
+      "mainWindow": 46199,
+      "uptime": 429906.746534375,
+      "syntheticOnly": true
+    },
+    {
+      "event": "scene_reset",
+      "count": 2,
+      "assetIDs": [
+        "00000000-0000-4000-8000-000000000001",
+        "00000000-0000-4000-8000-000000000002"
+      ],
+      "selectionCount": 0,
+      "underlyingClickCount": 0,
+      "probeEditorFocused": true,
+      "helperActive": true,
+      "keyWindow": 46199,
+      "mainWindow": 46199,
+      "uptime": 430046.51617745834,
+      "syntheticOnly": true
+    },
+    {
+      "event": "scene_reset",
+      "count": 3,
+      "assetIDs": [
+        "00000000-0000-4000-8000-000000000001",
+        "00000000-0000-4000-8000-000000000002",
+        "00000000-0000-4000-8000-000000000003"
+      ],
+      "selectionCount": 0,
+      "underlyingClickCount": 0,
+      "probeEditorFocused": true,
+      "helperActive": true,
+      "keyWindow": 46199,
+      "mainWindow": 46199,
+      "uptime": 430051.38650375005,
+      "syntheticOnly": true
+    }
+  ],
+  "buildProvenance": "The helper binary was built from the working source subsequently committed unchanged as 1909771; its run began before that commit. Source/tree equality was checked at handoff; this is not a second post-commit run.",
+  "helperBinarySHA256": "d032ae24eb0966c3d5497969b2950aad49305011c9f68e7e3899d4a9095f251d"
+}

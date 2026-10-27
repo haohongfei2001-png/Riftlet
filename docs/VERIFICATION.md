@@ -9,7 +9,15 @@
 - macOS CI compilation/tests/package smoke do not prove interactive focus, click-through, Spaces or real upload.
 - No real user screenshots, chats or browser sessions are used in automated tests.
 
-## Current execution
+## Latest local Mac execution
+
+Source `1909771d45ad00290dffe245b9a42e6e9f55203c`, isolated acceptance branch, successful [run40449181125](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40449181125). See the [real Mac handoff](../engineering/evidence/2026-10-27-real-mac/README.md), [sanitized live evidence](../engineering/evidence/2026-10-27-real-mac/live-evidence.json) and [checks](../engineering/evidence/2026-10-27-real-mac/verification.json).
+
+Five integrated generated-image inputs reached verifiedReady on real Chinese Home Chat. Identity-correlated late DOM failure restored the queue, persisted across restart and did not re-upload; real tab A→B→A revoked the old lease; v4 blocked a new input on a compensated tab after rearming. Three native system window captures imported exactly once with matching private bytes; helper 2/3/12 scenes ran. Full existing-thread/network anomaly/physical GUI acceptance and the production two-operation loop remain unaccepted. Ordinary mode is capture-only; production completion and safe retry remain disabled.
+
+Local Swift 6.4 CLT builds and actual SQLite smokes passed; local XCTest was unavailable. CI is a distinct macOS runner. No real screenshot or private conversation content was committed. The following earlier execution record is historical and does not describe the current local Mac availability.
+
+## Previous integration execution (historical)
 
 | Check | State | Scope |
 | --- | --- | --- |
@@ -31,7 +39,7 @@
 
 Production successful-completion and safe-retry profiles are both empty. Real screenshot automatic consumption is not enabled.
 
-## W2 actual source integration — current native evidence
+## W2 prior source integration — historical native evidence
 
 - Source commit: [`97f10b0bf03fbd9421083a15eefec0eb22ead606`](https://github.com/haohongfei2001-png/Riftlet/commit/97f10b0bf03fbd9421083a15eefec0eb22ead606), parentb5958d1; same Draft PR #1, no main merge/release.
 - [Successful run40437937532](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40437937532), job`121971048580`; completed2026-10-27 10:22:41Beijing. Runner macOS14.8.9/build23J631/arm64/Swift5.10, Node22.23.2. Temporary PR test merge`26fcd175e60ad144f8a7ad4d279c454632cf8542` is not a merge into main.
@@ -41,7 +49,7 @@ Production successful-completion and safe-retry profiles are both empty. Real sc
 
 Actual parallel ownership: root implemented App/Core policy/resources/build integration; `w2_implementation` implemented the page/adapter; `w2_evidence_review` independently audited source and inherited traces; `n1_native_acceptance` checked the authorized Mac and reviewed root's integration after finding it offline. Review fixed original-node equality, transient removal/source restoration, proof provenance, bounded invalid buffers and post-journal-recovery synthetic isolation. These distinct agents are technical non-authors, not human GitHub approvers or extra Macs.
 
-The only real uploads in the imported evidence are the other Codex session's recorded experiments. New NodeVM cases and Swift fake transport tests do not add real uploads. The integrated acceptance mode can exercise generated-image consumption with its own profile, but cannot consume real screenshots or grant retry. Production late-failure revival is still absent. [MAC_ACCEPTANCE](MAC_ACCEPTANCE.md) supplies the direct live continuation steps; no extra planning or module rebuild is needed.
+The only real uploads in the imported evidence are the other Codex session's recorded experiments. New NodeVM cases and Swift fake transport tests do not add real uploads. The integrated acceptance mode can exercise generated-image consumption with its own profile, but cannot consume real screenshots or grant retry. At that historical checkpoint, production late-failure revival was still absent. [MAC_ACCEPTANCE](MAC_ACCEPTANCE.md) supplies the direct live continuation steps; no extra planning or module rebuild is needed.
 
 ## Original foundation macOS run — historical evidence
 
@@ -90,10 +98,10 @@ Review here means non-author technical review by distinct execution agents. It i
 - Used media and journals are retained because archive/delete semantics are undecided. Unjournaled staging fragments are not auto-imported or auto-deleted. Retention/recovery cleanup remains a scoped follow-up.
 - Recovery preserves journal ownership across IO/SQL failures and never labels an unreadable journal as safely discarded. A storage IO error conservatively stops that recovery call; startup may therefore remain paused until access is restored. Malformed JSON is isolated from unrelated valid journals. These are distinct behaviors, not a claim that every IO failure is isolated per image.
 - C2 interruptions use real temporary files/SQLite and deterministic in-process fault hooks plus reopening; no SIGKILL, OS crash or power-loss test is claimed. `fsync` ordering was reviewed and executed, not certified as hardware power-loss protection.
-- The current build is ARM64 on the verified runner. Intel and the user's newer macOS build are not claimed tested.
+- ARM64 macOS CI and local macOS 27 / Apple M5 compilation and scoped live acceptance ran. Intel and other OS versions remain unverified; local results do not establish the entire GUI matrix.
 - Transparent minimum-hit rectangles, fullscreen behavior and exclusion from Apple's own screenshots are not established by pure layout tests.
 - Developer simulation is not an upload adapter, and the production build intentionally retains real images.
-- Web page source and scoped real evidence are now imported and adapted. The new combined program is compiled/offline-tested, not live-tested; foreground/window/tab guards still do not establish click-time tab identity before queued Apple Events. Scope is currently Home Chat/Chinese labels/PNG, not arbitrary existing conversations. Same-URL draft changes and production post-consumption late-failure revival remain unresolved. Mac has only injected platform drivers; cross-instance/restart clipboard coordination remains required before native enablement.
+- The integrated Web program now has scoped live Home/Chinese/PNG success and controlled late-DOM-error compensation/restart evidence. Prearmed target freezing and page epoch revocation address queued capture, but unarmed first-click availability, the complete race matrix, same-URL business-draft replacement and actual network-failure behavior remain unaccepted. Exact Chinese Chat/Work mode identification is implemented; arbitrary existing conversations remain unsupported. Production remains disabled. Mac has only injected platform drivers; cross-instance/restart clipboard coordination remains required before native enablement.
 
 ## Autonomous execution plan v2 — historical documentation increment
 
