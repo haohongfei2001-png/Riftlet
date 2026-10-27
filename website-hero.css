@@ -60,3 +60,4 @@
 @media(prefers-reduced-motion:reduce){.hero-scene *,.hero-scene *:before,.hero-scene *:after{animation:none!important;transition:none!important}}
 
 .hero-connector{display:none}#hero-capture:disabled{cursor:default;color:#708a77}
+@media(max-width:1100px){.hero-edge-hint{display:none}}
