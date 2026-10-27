@@ -20,7 +20,15 @@
 
 ## 1. 当前检查点
 
-### 第七轮成果正式合流 · DONE；下一轮直接基于本检查点真机增量
+### 系统截图 Web 内部候选 · 源码、正式组合 CI 与审查 DONE；真实准入等待对应证据
+
+基于正式b839230在独立分支 `codex/system-capture-candidate-20261028` 实现3da1288，截止浮点边界修复后已测 **4d352c28dcb70e8f6dc42ef93d9df46042a9215d**，经非作者审查后快进PR #1。复用Capture/SQLite v3/单一Coordinator/Chrome v12，新增本地preflight、独立真实来源/profile、checkpoint首观察、共享App组合和菜单入口；页面/Chrome源与第八轮工作树未动。普通capture不上传，候选start/completion/safe-failure三份表均空。
+
+[候选CI40551804340](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40551804340) 433原生、72页面/54legacy、迁移/UNKNOWN/权限/等待、Release/签名及五自检通过；14详细组100项已含433、0skip。首次候选CI失败和确定性截止边界修复不隐藏；[正式组合CI40553084871](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40553084871)于2026-10-28 01:54:27北京时间completed/success，17步骤/433原生/五自检完整通过。非作者审查及精确最终checkpoint见[永久证据](../engineering/evidence/2026-10-28-system-screenshot-candidate/README.md)和PR #1交接。
+
+**下一项可直接执行：** 本地Codex第八轮适当完成并按正式交接合流后，以最新PR #1 SHA运行 `--system-screenshot-candidate --acceptance-trace` 或原生菜单入口，只对新真实PNG取得SC-INPUT/START/COMPLETE/ANOMALY/FAILURE/UX证据；[格式矩阵、精确身份与准入接口](SYSTEM_SCREENSHOT_WEB_CANDIDATE.md)已经落地，不重做传输。当前候选输入后保持未准入UNKNOWN且可见，同草稿锁仍保守；不要清库、重传旧图或把候选观察当作生产吞噬。真实开始审查通过后仅接入对应start policy，完成和safe retry分别验收。第八轮进行中成果没有读取/合并/写入，不要求本地执行者中断当前工作。
+
+### 第七轮成果正式合流（历史检查点）
 
 正式基础e3175f3，双亲合流2aaaadb保留第七轮3b089b2及其历史，追加权限接收进程修复后已测 **`595142d0345adc0d06f54371f50406879310610d`**。App同步ordinal、runtime AcceptedSelection、既有Coordinator有界prepared等待/取消/唤醒、原目标与权限重检、重启不恢复旧点击及CLEAR防误选已实际集成；v12/首用/PassivePermissionResume/v3/旧UNKNOWN和原证据保留，没有重复第五、六轮。
 
@@ -113,7 +121,7 @@
 
 流程为 `READY → ACTIVE → REVIEW → DONE`；检查失败回ACTIVE修复。无法执行的场景保持WAITING，不用模拟结果填PASS。每次结束一个包或发现局部阻塞后，立即选下一个依赖满足的READY项；没有有效工作时保存事实状态，不循环空提交。
 
-**当前续做入口：** 第七轮实现和固定证据已正式集成，详见上方当前检查点；本地Codex直接继承最新正式SHA推进冷首击、CLEAR实际穿透/物理GUI、真实业务转换、MID、安全失败和自包含，修复后权限/多进程时延分别实测。沿用已集成原选择FIFO，不再复制提案模型、不放开UNKNOWN/start锁。只有正式交接后的成果由root统一合流；生产仍未开放。
+**当前续做入口：** 第七轮和本次真实截图候选代码已经进入正式工程，详见上方当前检查点。本地Codex继续既有第八轮工作，root不争写；待其正式交接统一合流后，直接使用[真实截图候选](SYSTEM_SCREENSHOT_WEB_CANDIDATE.md)取得SC-INPUT/START/COMPLETE/ANOMALY/FAILURE/UX证据，同时保留冷首击、CLEAR物理透传、ABA/MID/安全失败、自包含及权限/时延各自范围。沿用原选择FIFO，不复制调度、不放开UNKNOWN锁，开始/完成/重试分别审查；普通生产仍未开放。
 
 ## 3. 并行所有权
 
@@ -151,7 +159,7 @@ C2/U2是同一角色的后续包，不能因为表内READY就同时写相同文�
 | **W0 · DONE（下述实现范围） · A** | 现有TargetLease/ReceiptPolicy | 建立最小版本化观察fixture与回放，直接喂现有receipt/store；先加入身份不匹配、迟到、上传中、导航、模糊失败用例 | 不发起网络/真实输入；非准入ATTACHED不消费；错误不能凭safeToRetry一个bool变成可重传；每个fixture注明synthetic/真实去隐私来源 |
 | **W1 · DONE（下述实现范围） · A（W0后优先；可拆给空闲角色）** | 现有AttachmentAdapter；已有用户报告的Apple Events INPUT事实；不等完整异常包 | 实现默认禁用的Apple Events候选桥接与fake transport测试；以现有契约接线，具体页面注入/身份观察只取已取得源码/DOM证据，不凭空猜选择器 | 无Send；dispatchIntent先于外部输入；同目标片段复核；超时/断链保留unknown；reconcile只观察；正式App仍禁用；真实结果在W2验证 |
 | **M0 · DONE（下述实现范围） · A（Web小包后补位）** | 现有接口/系统pasteboard类型 | 实现独立Mac adapter基础：fileURL/PNG表示、PID+window/composer身份接口、剪贴板所有权/恢复状态机与fake pasteboard测试；实际AX选择器待证据 | 后续用户复制后绝不恢复覆盖；不以固定延迟证明消耗；不宣称已验证Chat/Work/Classic；无额外真实权限申请或真实粘贴 |
-| **W2 · WAITING_EVIDENCE（第三轮局部实测；第四轮续做） · A/I** | 159b3ef/6344eb0与AX启动身份修复已集成 | AX/hover唤醒、ACK复核、v7 commit monitor完成开发增量；下一步真实首击/业务ABA、旧版本只读恢复与MID | 没有新真实上传/中段abort；保留v6历史结果，生产和safe-retry不启用 |
+| **W2 · 候选代码DONE；真实截图WAITING_EVIDENCE · A/I** | 第七轮v12/FIFO与本次4d352c2候选已集成；第八轮由本地Codex独立进行 | 不重复第三/四轮或顺序调度；第八轮正式交接后按SC证据门运行新真实PNG、原目标一次输入/开始/完成与异常保留 | 候选/普通生产start、completion、safe retry均空；旧生成图限定PASS不准入真实截图。真实两操作快吞噬、冷首击/ABA/MID/物理GUI等待对应证据 |
 | **M1 · 原生后端DONE；客户端WAITING_EVIDENCE · I/A** | 已完成M0；原生后端不等客户端结构 | PR #3已合入工程分支且本轮五个后端文件未改；原生AX/NSPasteboard、全局协调及完成后只读观察随本轮完整原生CI复验；接下来只按真实版本/surface证据补MacAXBindingProvider/profile | 后端范围见[M1交接](M1_NATIVE_BACKEND.md)；实际M00–M06、选区/旧附件/逐图完成仍未验。默认禁用、内置profile空，不借用Web结论 |
 
 W0不是通用证据平台，只是现有协议的可回归小fixture集合。W1的transport外壳可以和W0并行；若当前三角色已满则顺序补位，不能通过重复实现Core或同时堆两套Web transport制造并行度。
@@ -160,8 +168,8 @@ W0不是通用证据平台，只是现有协议的可回归小fixture集合。W1
 
 | ID / 状态 | 当前已有/可先做 | 精确解锁条件与届时动作 |
 | --- | --- | --- |
-| **N1 · WAITING_EVIDENCE；自包含FAIL** | 第三轮capture-only十分钟资源/单次CLI收录有范围通过；helper自动化GAP仅单点。实际App无helper仍进入截图 | 准确CLEAR/GAP、held reorder/替换行双击、键盘焦点/屏幕变化；解决自包含并补完整T0/T1/T2。探索未冻结源码与预测命中不作物理PASS |
-| **R0 · DONE（正式合流构建，见上方CI）** | aa4fd2b完整原生/page/归档/8fault/12probe、release/签名和三个自检；历史CI保留来源 | 实际MacPID复用未跑，不虚报；Intel/其他OS/物理GUI保持各自验收范围 |
+| **N1 · WAITING_EVIDENCE；自包含FAIL** | 第三轮capture-only资源/单次CLI收录、第七轮CLEAR防误选仅有范围通过；CLEAR底层透传仍FAIL，GAP仅软件。第八轮本地进行中不预判 | 真实CLEAR/GAP、held reorder/替换行双击、键盘焦点/屏幕变化、系统截图自包含及T0/T1/T2；候选首次菜单/权限/真实收录亦保留NOT_RUN |
+| **R0 · DONE（开发构建范围，精确组合结果见上方CI）** | 当前候选433原生、page/旧观察/回放/fault/probe/helper/包装、Release/签名和五自检；原aa4fd2b等历史CI保留 | ARM64/ad-hoc仅工程制品；Intel/其他OS/物理GUI/Gatekeeper/签名公证继续独立验收，不把CI当真实系统截图通过 |
 | **R1 · DEFERRED_RELEASE** | 保持工程制品、安装/权限说明草稿；不等证书或Logo才构建 | 必需功能的W2/N1及发行检查满足，且签名/公证凭据可用时推进对应发布工作；不为发行等待暂停开发 |
 | **V1 · DEFERRED_RELEASE** | R2 01所有几何/动画参数可调；品牌Logo独立进行 | 有后续明确视觉结论时替换参数/资源并验收，不重建原生模块；候选不标Approved |
 | **D2 · DEFERRED_RELEASE** | 原件/used私有媒体保留，D1先做空间诊断 | 收尾时制定并测试安全清理语义；本任务未实现前不得悄悄删除图片，不要求用户现在决策 |

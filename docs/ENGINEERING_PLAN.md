@@ -26,7 +26,9 @@
 
 **第六轮稳定成果正式合流（历史来源）：** 1246c4a与65f7d54按共同祖先3bb13999合流为81b6a61，v12传输/严格Chrome读取与首用权限组合完整CI通过：380原生、72页面/54legacy、Release/四自检，非作者审查完成。[永久证据](../engineering/evidence/2026-10-27-integration-round6/README.md)固定真实单样本/只读/冷拒绝/targetBusy边界。第七轮独占安全排队与真机，按[最小共享接口](ADAPTER_CONTRACT.md#第七轮顺序调度共享边界-v1实现待正式交接)交接，不重做架构或开发第二套Coordinator。
 
-**第七轮正式集成增量（当前，2026-10-28）：** e3175f3与固定交接3b089b2保留双亲历史，真实双图源码f6417c6、最终来源9de6a85及15份原证据完整保留。原AcceptedSelection/App同步提交、同一Coordinator有界等待和CLEAR防误选已接入；负责人修复已有UNKNOWN再点击的权限前置与接收进程绑定，没有重开发调度。已测595142d的[组合CI](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40543025253)：410原生、72页面/54legacy、迁移/UNKNOWN/补偿、Release/四自检通过，非作者审查完成。[实际接口](ADAPTER_CONTRACT.md#第七轮已集成的原选择等待)与[验证范围](../engineering/evidence/2026-10-28-integration-round7/README.md)可直接继承。真实双图只通过等待A最终成功后输入B；冷首击、CLEAR透传、业务ABA、MID、安全失败、物理GUI、自包含与生产准入仍独立开放。
+**第七轮正式集成增量（历史来源，2026-10-28）：** e3175f3与固定交接3b089b2保留双亲历史，真实双图源码f6417c6、最终来源9de6a85及15份原证据完整保留。原AcceptedSelection/App同步提交、同一Coordinator有界等待和CLEAR防误选已接入；负责人修复已有UNKNOWN再点击的权限前置与接收进程绑定，没有重开发调度。已测595142d的[组合CI](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40543025253)：410原生、72页面/54legacy、迁移/UNKNOWN/补偿、Release/四自检通过，非作者审查完成。[实际接口](ADAPTER_CONTRACT.md#第七轮已集成的原选择等待)与[验证范围](../engineering/evidence/2026-10-28-integration-round7/README.md)可直接继承。真实双图只通过等待A最终成功后输入B；冷首击、CLEAR透传、业务ABA、MID、安全失败、物理GUI、自包含与生产准入仍独立开放。
+
+**系统截图内部候选实际增量（当前，2026-10-28）：** 在b839230独立分支实现3da1288，修复原AcceptedSelection浮点边界为4d352c2；复用当前Capture/SQLite v3/单一Coordinator/Chrome v12，将普通系统截图收录与显式候选输入接通。新增本地preflight、独立origin/profile与有界原始观察持久化、共用App组合/菜单入口和保真回归；未改页面JS、Chrome或Schema，没有新传输系统或图片转码。普通capture仍UnavailableAdapter，候选开始/完成/安全失败均空，真实截图正向观察不借用生成图权限。源码、CI、非作者审查及精确缺证据见[候选交付](SYSTEM_SCREENSHOT_WEB_CANDIDATE.md)和[永久证据](../engineering/evidence/2026-10-28-system-screenshot-candidate/README.md)。本地Codex第八轮继续独立执行；只等待真实截图SC-INPUT/START/COMPLETE/ANOMALY/FAILURE/UX的对应准入，不重订架构或争用其环境。
 
 ## 1. 授权、范围和最小交付
 
@@ -55,7 +57,7 @@
 | `RiftletCapture/CaptureSourceBinding.swift` | 可注入来源、系统偏好文件/父目录事件、自动重新绑定；epoch和旧目录未完文件持久交接 | CaptureService + FolderWatcher |
 | `RiftletCapture/StorageUsage.swift` | 按需、非递归、无内容读取的私有存储计量；明确partial/unknown | Foundation、Darwin |
 | `RiftletUI` | 配置、纯布局、下采样缓存、小NSPanel、连续编号和状态动画 | AppKit、ImageIO、QuartzCore、Core |
-| `RiftletAdapters` | 有界观察归一化、Web原生传输及捆绑实测输入派生程序、独立Mac基础；Web仅生成图片验收，生产profile为空 | Core、系统原生框架；内置JS资源，无外部包 |
+| `RiftletAdapters` | 有界观察归一化、Web原生传输及捆绑实测输入派生程序、独立Mac基础；生成图验收与显式真实PNG候选隔离，生产profile为空 | Core、系统原生框架；内置JS资源，无外部包 |
 | `RiftletGUIAcceptance` | 独立2/3/12合成场景、焦点/下层点击/asset身份观察；不连接ChatGPT | UI + Core；非常驻组件 |
 | `RiftletApp` | 菜单栏、独立实例锁、组合以上模块、配置加载、离线模拟/真实Web合成验收和self-check | Core、Capture、UI、Adapters |
 
@@ -63,7 +65,7 @@
 
 ## 3. 本地资产与事务
 
-- `Application Support/Riftlet/` 为真实截图根；`Riftlet-Simulation/` 保存离线演示；`Riftlet-Web-Acceptance/` 保存真实Web生成图片验收，后者在journal恢复后再次核验所有来源。目录0700、媒体/数据库0600；实例锁防止同时打开同一App数据目录。系统截图源保持不动。
+- `Application Support/Riftlet/` 为普通真实截图根；`Riftlet-Simulation/` 保存离线演示；`Riftlet-Web-Acceptance/` 保存真实Web生成图片验收；`Riftlet-System-Screenshot-Candidate/` 保存显式真实截图候选。Web两种模式在journal恢复后核验各自完整来源，不能互换队列或生成图片准入。目录0700、媒体/数据库0600；实例锁防止同时打开同一App数据目录。系统截图源保持不动。
 - 默认只读 `com.apple.screencapture` 的保存位置，缺失则Desktop。识别读取 `com.apple.metadata:kMDItemIsScreenCapture` 的实际bool；不靠中英文名字，不把普通自定义目录中的全部图片当截图。剪贴板/Preview目标暂不支持文件路径收录。
 - 首次启动建立原有文件baseline；监听先于扫描，扫描期间变脏补扫。后续重启/唤醒收录未处理的新来源。事件只意味着重扫，不意味着图片完整。元数据迟到、部分写入分别有限重试。
 - 文件事件身份与内容hash分开。sourceKey来自稳定文件身份；两个独立截图即使字节相同也各有 UUID。显示编号不是身份。capturedAt不可证时保留nil；firstSeenAt不冒充捕获时刻。
@@ -77,11 +79,11 @@
 
 SQLite v3 的 `AssetRecord.visibility`（visible/swallowed/archived/removed）与 QueueStatus/OperationPhase 分开持久化；可见原因、修订号和闲置锚点用于动画、选择与归档竞态控制。`upload_starts` 保留第一份获准开始证据。Operation仍使用prepared、dispatchIntent、inputTriggered、attachmentPresent、unknown、compensated、failed、succeeded，不为视觉新增外部完成阶段。compensated保留原成功与迟到错误，未获准安全终止时内部隐藏、只观察；安全失败才可恢复普通可点击图片。用户主动remove/archive优先于自动重生。
 
-`AttachmentAdapter`只有 `captureTarget / validate / append / reconcile`，没有Send。`TargetLease`包含adapter/surface/app/session/window/tab/document/composer/draftGeneration。adapter必须在同一目标执行片段内复核lease并追加，不以之前一次validate替代临界区验证。
+`AttachmentAdapter`沿用 `captureTarget / validate / append / reconcile`，新增默认空实现的本地 `preflight(asset:fileURL:)`，没有Send。原UNKNOWN恢复优先；仅新输入在prepare之前本地拒绝不支持的图片，不联系Chrome或制造操作。`TargetLease`包含adapter/surface/app/session/window/tab/document/composer/draftGeneration。adapter必须在同一目标执行片段内复核lease并追加，不以之前一次validate替代临界区验证。
 
 回执绑定operationId、assetId、attempt、hash、完整lease及profile版本。INPUT和ATTACHED仅观察状态；verifiedReady仍须已准入profile、正向ready、原草稿成员关系、准确attachmentId、无error/上传中。明确失败还须**独立的retrySafeProfiles准入**、无残留自动重试；否则保持UNKNOWN。晚到/错草稿/错attempt回执不得消费另一条。
 
-当前生产开始/成功/安全失败准入表均为空，没有通过配置文件跳过验证的开关。离线演示仍要求simulation store + synthetic asset + simulation target + simulation-v1；显式Web验收则使用独立目录、仅synthetic的adapter、拒绝真实来源的integratedDevelopment观察及Core合成来源专属profile。该权限不能给真实截图或safe-retry使用。
+当前生产开始/成功/安全失败准入表均为空，没有通过配置文件跳过验证的开关。离线演示仍要求simulation store + synthetic asset + simulation target + simulation-v1；显式Web验收继续使用独立目录、仅synthetic的adapter及Core合成来源专属profile。默认归一化拒绝真实来源development观察；只有显式真实截图候选的独立scope/profile可记录原integratedDevelopment候选观察，且三份准入仍空。生成图权限不能给真实截图或safe-retry使用，UNKNOWN不能自动输入或吞噬。
 
 `verifiedReady`是获准的产品完成语义，不要求读取名为READY的私有内部字段。对应真实源码和范围证据现已独立审查；新合并程序仍需独立真实目标/开始/完成/恢复证据才可启用对应生产能力。现已实现事务化迟到失败补偿，并有活跃原卡片DOM故障/重启证据；这不等于真实网络异常或后台旧草稿恢复通过。成功与安全重试分别判断。
 

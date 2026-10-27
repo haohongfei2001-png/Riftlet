@@ -1,0 +1,132 @@
+{
+  "evidence_schema_version": 1,
+  "scope": "Independent AI non-author technical review; not human GitHub approval or production/real-Mac acceptance",
+  "base_sha": "b83923068064f6d82f2d253a3c177661fdabc294",
+  "source_sha": "4d352c28dcb70e8f6dc42ef93d9df46042a9215d",
+  "source_tree": "c7a25f27976b47604fdec7c41097e9aec3cea3ce",
+  "concurrency": "Root plus three independent review tasks actually ran; one integration writer. No round-eight branch or Mac access.",
+  "source_review": [
+    {
+      "reviewer": "/root/candidate_final_core_review",
+      "role": "non-author, read-only",
+      "result": "PASS",
+      "scope": [
+        "Core local preflight ordering and cancellation",
+        "SQLite first-write checkpoint transaction and persisted identity",
+        "candidate profile and normalization scope",
+        "existing original-operation recovery and file-integrity gates",
+        "exact AcceptedSelection deadline boundary"
+      ],
+      "performed": [
+        "read source and relevant tests",
+        "git diff --check",
+        "independent IEEE-754 counterexample and boundary checks",
+        "baseline/current protected-file comparison"
+      ],
+      "limits": [
+        "No local Swift/macOS execution",
+        "No real browser or system screenshot",
+        "source ID is a composition identifier, not cryptographic certification"
+      ]
+    },
+    {
+      "reviewer": "/root/candidate_final_app_review",
+      "role": "non-author, read-only",
+      "result": "PASS",
+      "scope": [
+        "App mode/composition and unchanged ordinary upload-disabled default",
+        "real candidate store and source isolation",
+        "permissions, original ACK and single Coordinator wiring",
+        "GUI launcher preserves ordinary instance",
+        "accurate unsupported-upload messaging",
+        "Capture fidelity tests and CI/self-check boundaries"
+      ],
+      "performed": [
+        "read App/UI/Info.plist/workflow/new tests",
+        "cross-check docs against actual code"
+      ],
+      "limits": [
+        "GUI launcher and TCC are NOT_RUN",
+        "fidelity fixtures do not prove service-side colour/HDR",
+        "existing generic background permission checks are not a new real multi-process acceptance claim"
+      ]
+    },
+    {
+      "reviewer": "/root/candidate_ci_review",
+      "role": "non-author, read-only",
+      "result": "PASS_CANDIDATE_AND_FORMAL_COMBINED_CI",
+      "scope": [
+        "independent full candidate CI logs/run/job/artifact",
+        "first failed run preserved",
+        "13 PR merge build/test input objects compared"
+      ],
+      "candidate_run": 40551804340,
+      "candidate_job": 122357244974,
+      "formal_ci_review": {
+        "result": "PASS",
+        "run": 40553084871,
+        "job": 122361764858,
+        "source": "4d352c28dcb70e8f6dc42ef93d9df46042a9215d",
+        "checkout": "d3a1143ed9ff9e799f44819eecb0ec571ee0834d",
+        "log_characters": 228373,
+        "native_unique": 433,
+        "detailed_already_in_total": 100,
+        "input_objects_independently_compared": 13,
+        "limitation": "CI/fake bridge/generated files only; real screenshot/Chrome/physical GUI NOT_RUN"
+      }
+    }
+  ],
+  "resolved_findings": [
+    {
+      "finding": "NSWorkspace launch callback is not readiness and must not stop ordinary collection",
+      "resolution": "Candidate launch keeps ordinary instance alive; initialization failure cannot disable ordinary collection",
+      "source_commit": "3da1288f8b16fbf46082ebf78eab92a1e2089d22",
+      "rechecked_by": "/root/candidate_final_app_review"
+    },
+    {
+      "finding": "Subtractive 30-second deadline comparison can refuse an App-constructed valid boundary",
+      "resolution": "Compare deadline <= accepted + 30, no epsilon; exact/nextUp/expiry regression",
+      "source_commit": "4d352c28dcb70e8f6dc42ef93d9df46042a9215d",
+      "rechecked_by": "/root/candidate_final_core_review",
+      "causal_limit": "First failed CI did not record runtime uptime; deterministic numerical reproduction is not the observed first-run value"
+    },
+    {
+      "finding": "Documentation implied actual input before an integrity-related UNKNOWN",
+      "resolution": "Say after durable intent; input may not yet have occurred",
+      "rechecked_by": "/root/candidate_final_app_review"
+    },
+    {
+      "finding": "Execution board current row and first-use mode wording could misdirect the next executor",
+      "resolution": "Use current candidate/round-eight handoff; distinguish generated Web startup from candidate first-use guide",
+      "recheck": "PASS",
+      "rechecked_by": "/root/candidate_final_app_review"
+    }
+  ],
+  "admission": {
+    "ordinary_capture": "UnavailableAdapter",
+    "candidate_input": "explicit isolated internal test only",
+    "candidate_upload_start": "CLOSED",
+    "candidate_completion": "CLOSED",
+    "candidate_safe_failure": "CLOSED",
+    "synthetic_permissions_for_real_assets": "FORBIDDEN"
+  },
+  "final_document_review": {
+    "result": "PASS",
+    "reviewer": "/root/candidate_final_app_review",
+    "scope": [
+      "source/CI/checkout/artifact/count consistency",
+      "genuine evidence and admission limits",
+      "first failed run preserved",
+      "no missing added relative links or unresolved placeholders",
+      "no source changes requested"
+    ]
+  },
+  "not_run": [
+    "real system screenshot input into ChatGPT",
+    "real start/final/safe-failure evidence for system screenshots",
+    "real GUI launcher and TCC",
+    "physical mouse/click-through/screens",
+    "round-eight cold click/ABA/MID acceptance",
+    "notarization/Gatekeeper/public release"
+  ]
+}

@@ -1,6 +1,35 @@
-# 正式工程集成交接 · 第七轮顺序调度 · 2026-10-28
+# 正式工程集成交接 · 真实系统截图内部候选 · 2026-10-28
 
-## 当前正式组合：第七轮已集成并验证
+## 当前正式组合：系统截图候选接线已实现，生产准入仍关闭
+
+正式基线 **b83923068064f6d82f2d253a3c177661fdabc294**；独立分支 `codex/system-capture-candidate-20261028`。实现 **3da1288f8b16fbf46082ebf78eab92a1e2089d22**，已测边界修复 **4d352c28dcb70e8f6dc42ef93d9df46042a9215d**；审查后以快进方式接入PR #1，全部既有历史保留。最终文档/证据HEAD以PR #1本轮交接评论为准；它与此已测源码的构建/测试输入必须相同。
+
+候选把真实系统截图收录与现有Web v12输入接通，保持原Capture/私有副本、SQLite v3、单一Coordinator、AcceptedSelection/FIFO/权限、MAIN和后台原操作观察。新增本地图片preflight（prepare之前）、独立origin/profile、原SQLite六类首观察journal、共用App组合与原生菜单入口；没有新建Web系统或修改页面/Chrome源。截止判断修复与App原 `acceptedUptime + 30` 一致，不放宽ACK/到期/取消门。
+
+当前候选允许受限真实PNG输入，但**开始/完成/安全失败三份映射均空**，没有生成图准入可借。候选start/attached会保存在私有checkpoint，队列仍UNKNOWN且可见，不自动吞噬、不记成功、不释放同草稿未决锁供盲重传。普通capture继续UnavailableAdapter；这份候选是下一步真实取证入口，不宣称普通产品已可用。[确切接口、格式矩阵与SC证据门](SYSTEM_SCREENSHOT_WEB_CANDIDATE.md)。
+
+[候选macOS CI40551804340](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40551804340)已通过433原生、72当前页面/54legacy、迁移/UNKNOWN/补偿/权限/调度、Release/签名和五自检，100个详细复跑已含433。正式PR组合CI为[40553084871](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40553084871)，于2026-10-28 01:54:27北京时间completed/success，17步骤/433原生/五自检再次通过。合成/真实范围、首次失败、源码与完整日志非作者审查记录在[永久证据](../engineering/evidence/2026-10-28-system-screenshot-candidate/README.md)。不能用候选push或旧第七轮CI替代正式组合结果。
+
+## 下一次真实Mac直接入口
+
+本地Codex继续独占第八轮冷首击/CLEAR/身份工作。本包未读取、合并或写入第八轮分支/工作树，未操作其Mac。待现有工作适当完成并正式交接后，由root统一合流；本地执行者从PR #1最新正式SHA新建worktree，保留原工作树与所有数据，不用旧595142d重新起步。
+
+运行现有构建脚本，或者从本轮CI取得开发App。原生菜单「打开真实截图内部候选…」提供不需终端的显式入口；工程验收可直接执行：
+
+```bash
+bash scripts/build-macos.sh
+./build/Riftlet.app/Contents/MacOS/Riftlet --system-screenshot-candidate --acceptance-trace
+```
+
+确认 `Riftlet REAL TEST` 和 `Application Support/Riftlet-System-Screenshot-Candidate`；不要使用生成图队列或给截图改origin。普通实例继续收录，NSWorkspace启动回调不当作候选ready；确认候选正常后可按需退出普通实例避免两组裂缝。完成实际来源/Chrome权限设置后，只使用新的受支持系统PNG及原点击，保留原图/私有图/hash/完整target/原operation/attempt/inputCount与正向开始/完成观察。候选菜单/TCC/真实文件/物理点击当前NOT_RUN，不能用自检替代。
+
+取证先走现有闭准入路径；要验证真实快吞噬，必须先交付同一真实截图的SC-START证据并独立审查，再受限登记候选start profile，继续原Core/UI，不把completion或retry同时打开。SC-COMPLETE、原正文/附件/选区、SC-ANOMALY和SC-FAILURE分别取得原证据；缺证据时UNKNOWN只读，不清库或重传旧未决。快吞噬的真实时延需在最终组合二进制上重新测，不能复制第五/六/七轮生成图数字。
+
+继续保留无ACK冷首击、业务ABA/同URL、真实多进程权限、MID、CLEAR物理透传、按住补位/屏幕切换、系统截图自包含及系统延迟的原开放结果。第七轮双图仅为A最终合法完成之后B输入一次；不扩大为start后并行。PR #1保持Draft，不合main、不发布、不改网站品牌，不自动Send。
+
+---
+
+## 上一正式组合：第七轮已集成并验证（历史）
 
 正式基础e3175f3；双亲merge **`2aaaadb1c3461f93f268f1f93b0b08854745aa5f`** 保留固定交接3b089b2与双方历史，最终已测源码 **`595142d0345adc0d06f54371f50406879310610d`** 补齐权限接收进程保护。只整合第七轮两项源码增量及原15文件，没有重复挑选第五、六轮。确切最终文档HEAD见PR #1本轮交接评论；后续文档提交保持本源码/测试/构建输入不变。
 
@@ -18,7 +47,7 @@
 - 9de6a85的CLEAR软件误选修复通过，但底层0次仍FAIL；GAP/IMAGE/NUMBER仅限定CGEvent批次PASS_SOFTWARE_ROUTING，初批GAP未投递仍NOT_RUN。物理输入、跨应用持续焦点、按住补位/双击、多屏/Spaces未通过。
 - 所有公开证据保留原hash/提交；审查没有重新访问私有DB/media/raw日志。旧UNKNOWN/补偿/开始审计及原媒体由本地执行器继续保留，绝不为演示清库或重传。
 
-## 下一次真实Mac直接入口
+## 第七轮真实Mac入口（历史，保留生成图片模式）
 
 从本轮PR #1最终交接SHA新建独立worktree，保留原round7和所有旧数据；无需重做顺序调度。可使用[当前开发App/helper/日志制品](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40543025253/artifacts/12751661331)（ARM64/ad-hoc，到期2026-11-11 00:41:12北京时间），或现有 `scripts/build-macos.sh`。普通App首启仍显示首次使用；Web现场沿用明确隔离的入口：
 

@@ -174,3 +174,13 @@ Following direct user confirmation of the earlier product-usability review, thes
 独立审查发现 accepted 再点击既有UNKNOWN时跳过权限preflight，以及可能检查当前进程却观察另一旧进程。负责人在2aaaadb/595142d落实前置校验、adapter/application/session一致性及两项定向回归；原UNKNOWN/asset/reason保持。后台generic预检接口不在本次修复范围，不能宣传其真实多进程权限矩阵已验收。
 
 真实双图限定PASS仅属于f6417c6的隔离生成PNG/software AX样本：B等待A最终合法完成后，各输入一次，同一非空草稿文字/选区/三个旧附件保留。9de6a85的CLEAR防误选修复可集成，但CLEAR底层透传仍FAIL，GAP/IMAGE/NUMBER只有软件事件通过。没有批准start后并行、无ACK冷首击、业务ABA、真实安全失败/重试、MID、物理GUI或截图自包含。原证据与失败记录保留；正式组合CI与后续真机证据分开，生产与安全重试仍关闭。详见[实际接口](ADAPTER_CONTRACT.md#第七轮已集成的原选择等待)和[本轮验证](../engineering/evidence/2026-10-28-integration-round7/README.md)。
+
+## I19 — 真实系统截图 Web 内部候选与独立准入（2026-10-28）
+
+用户授权在b839230基础上完成普通系统截图候选接线，取得真实证据前保持生产准入关闭；本地Codex独立继续第八轮。实现采用显式 `--system-screenshot-candidate` / 原生菜单入口和独立真实来源目录，复用既有Capture、SQLite v3、Coordinator、Chrome Apple Events/MAIN/v12，不安装浏览器扩展、不另建上传系统、不强制聚焦编辑器或发送消息。普通capture继续UnavailableAdapter。
+
+候选仅原始PNG、≤8MiB/≤16,777,216像素；JPEG、HEIC/HEIF、TIFF及本地可收录的超限PNG原样保留，输入前本地拒绝，不静默压缩/缩放/转码。格式门是当前程序限制，不当作ChatGPT服务通用上限。Capture原字节与ICC/方向/位深保真不等于服务器显示或HDR已验收。
+
+独立candidate scope/profile保留原integratedDevelopment来源，永不把真实资产改成synthetic或借用生成图准入。未准入观察在现有checkpoints按原asset/operation/attempt/hash/fulltarget保留六类首值；该审计不等于upload_starts，不触发吞噬/succeeded/安全重试。开始、最终完成、安全失败各自为空且源码持有；未来只以对应真实截图证据独立审查准入。UNKNOWN重启/再点击只观察原操作；旧原件、媒体、补偿和历史不删除。
+
+初次候选CI的invalidTransition促成独立可确定复现的30秒截止边界修复：验证与App同用accepted+30，不用反减和epsilon，不延长期限或回填ACK。初次运行没有记录实际uptime，不宣称捕获了其具体浮点值。后续完整CI与非作者审查见[永久证据](../engineering/evidence/2026-10-28-system-screenshot-candidate/README.md)。新候选取证能力不等于普通模式、真实快吞噬、冷首击/ABA/MID/GUI、安全重试或公开发行通过。

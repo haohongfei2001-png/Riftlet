@@ -9,7 +9,17 @@
 - macOS CI compilation/tests/package smoke do not prove interactive focus, click-through, Spaces or real upload.
 - No real user screenshots, chats or browser sessions are used in automated tests.
 
-## Round-seven accepted-selection integration — current tested source
+## System-screenshot internal candidate — current tested source
+
+正式基线b839230；实现3da1288，已测修复 **4d352c28dcb70e8f6dc42ef93d9df46042a9215d**。独立候选push [CI40551804340](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40551804340) / job122357244974于2026-10-28 **01:36:14北京时间** completed/success，actual checkout为同一4d352c2：**433原生**（Core135/Adapters136/Capture65/UI53/App44，52 suites），72页面/54legacy、原55files/19case/89prefix/2明确SIMULATED迟到错误回放、8fault/12probe/9+4+2helper/12包装、Release/签名与五自检。14组详细复跑100项passed、0skip，已计入433；未用复跑数增加总数。
+
+原v1→v2→v3/v2→v3、rollback/未来版本、UNKNOWN/旧观察/补偿/跨profile锁、权限乱序/等待/取消/唤醒/旧点击不恢复本次完整执行。新候选仅生成PNG/人工截图metadata/fake bridge；16-bit P3与>8MiB原字节保存是本地保真证据。候选可执行自检明确输出GENERATED_FIXTURE/CHROME_NOT_RUN/SYSTEM_SCREENSHOT_NOT_RUN/GUI_NOT_RUN，不能准入真实截图开始、最终完成或安全重试。
+
+正式PR #1的独立组合运行是[CI40553084871](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40553084871)，于2026-10-28 01:54:27北京时间completed/success，17步骤全部通过，433唯一原生与候选集合相同，100详细项0fail/0skip，原页面/回放/迁移恢复/Release/五自检通过。actual checkout d3a1143与4d352c2的13组原生/构建输入对象一致（非整个tree一致）；228,373字符完整日志、artifact、hash与非作者审查保存在[本轮永久证据](../engineering/evidence/2026-10-28-system-screenshot-candidate/README.md)。候选push与正式PR运行分别记录，不互相冒充；最终文档HEAD见PR #1交接，并核对原生/构建/回放输入未变。
+
+首次[CI40551210402](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40551210402)确实失败：432项中候选App自检在AcceptedSelection初始guard报告invalidTransition，后续Release/自检跳过。修复原先 `deadline-accepted<=30` 的可确定复现浮点误拒，使其与App原 `accepted+30` 同式验证；新增exact/nextUp/到期回归。未记录失败时uptime，不声称首轮日志证明了具体浮点值。修复后重新完整运行通过，不把原失败隐藏或计为通过。
+
+## Round-seven accepted-selection integration — preceding tested source
 
 已测 **`595142d0345adc0d06f54371f50406879310610d`**，在双亲合流2aaaadb（e3175f3 / 3b089b2）上补齐原UNKNOWN点击的权限接收进程保护。[完整macOS CI40543025253](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40543025253) / job122326159138于2026-10-28 **00:41:17北京时间** completed/success，17步骤全部成功。**410原生**：Core134 / Adapters121 / Capture63 / UI53 / App39；页面72/legacy54，原回放55文件/19case/89prefix/2明确模拟迟到错误、8fault/12probe/9+4+2helper/12包装，Release/签名及四自检通过。
 

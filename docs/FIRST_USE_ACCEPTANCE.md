@@ -1,5 +1,7 @@
 # 首次使用与发行基础体验：实现及验收入口
 
+> **2026-10-28 系统截图候选补记：** 普通模式和下方原始真机NOT_RUN表不变。新增菜单「打开真实截图内部候选…」显式启动 `Riftlet REAL TEST`，使用独立真实来源目录和相同首用/权限/隐藏/暂停/历史入口；一次说明不替代系统权限，也不会退出普通收录实例。候选可测试符合上限的原始PNG输入，但开始/完成/安全失败均未准入；不支持格式明确显示“已保存，未上传/未转换”。Chrome权限仅在显式的生成图Web或真实截图候选模式有需要，不能将普通模式自动改成可上传。菜单实际启动、权限界面和真实输入仍NOT_RUN；[入口与范围](SYSTEM_SCREENSHOT_WEB_CANDIDATE.md)。以下首用首批源码/CI作为历史保留。
+
 > **第五轮合流补记：** 首用入口及以下真机NOT_RUN表保留。最新组合已把v11与受限synthetic start接入同一App，修复初次Chrome不可用后的激活/唤醒被动恢复，并保留权限检查；不新增日常设置操作、不重放旧点击。新完整CI和非作者审查见[第五轮合流证据](../engineering/evidence/2026-10-27-integration-round5/README.md)。该组合的真实TCC/事件恢复/实际点击时延仍待本地Mac，不能继承第五轮旧App的性能数字。
 
 2026-10-27 用户授权的独立实现包，基于正式 `e89d49f`；不等待或替代本地 Codex 的真实 Web `uploadStarted`。本页记录实际接线和可运行入口，不重新制定产品计划。已测源码 `2449d40a88225acba9d413cc6a4cb5d84fcae6a1` 的 [完整 macOS CI](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40508109228) 与非作者审查已通过：344 原生测试、12 包装测试、原页面/回放、Release/签名与四个自检。详细首用窗口 3 / Capture 15 / 生命周期 13 均 passed、0 skipped，已包含在原生总数；HEIC 与 POSIX 拒绝明确执行。[永久证据与可运行制品](../engineering/evidence/2026-10-27-release-ux/README.md)记录首轮编译修复和真机未测范围。
@@ -21,13 +23,13 @@
 
 普通模式仍是本地收录，`UnavailableAdapter`、生产开始/完成/安全重试准入保持关闭。窗口明确说明 **授权不会开启未启用的真实截图附加**。ChatGPT Mac、其他浏览器及 Work 不宣传为已支持。
 
-仅既有独立 `--web-acceptance` 模式需要 Chrome：启动先调用 `AEDeterminePermissionToAutomateTarget(..., false)`，没有权限则只恢复本地操作事实，不发页面观察、捕获或新输入。只有窗口中的明确权限动作可在状态为未请求时调用 `true`；已拒绝时提供「隐私与安全性 → 自动化 → Riftlet → Google Chrome」恢复路径，绝不重置 TCC。Chrome 未运行时不启动或激活它。权限检查按已观察的 PID + launchDate 复核，不按 bundle ID 启动其他实例。
+只有独立 `--web-acceptance` 或 `--system-screenshot-candidate` 模式需要 Chrome：启动先调用 `AEDeterminePermissionToAutomateTarget(..., false)`，没有权限则只恢复本地操作事实，不发页面观察、捕获或新输入。只有窗口中的明确权限动作可在状态为未请求时调用 `true`；已拒绝时提供「隐私与安全性 → 自动化 → Riftlet → Google Chrome」恢复路径，绝不重置 TCC。Chrome 未运行时不启动或激活它。权限检查按已观察的 PID + launchDate 复核，不按 bundle ID 启动其他实例。
 
 Chrome 自身「显示 → 开发者 → 允许来自 Apple 事件的 JavaScript」是另一个条件；此实现只解释，不代改、不把 OS 授权当成该设置已开启。是否能读取实际页面仍由现有 Web 实现与证据决定。
 
-**与本地 Codex 的最小边界：** 所有 Web/Chrome 源文件、页面协议、正常化器、uploadStarted 判据、profile、Core/SQLite v3、旧 UNKNOWN 与补偿记录保持原样。App 在 Web arm、用户点击选择、后台观察之前新增只读权限检查；鼠标原事件冻结的完整 lease 原封不动通过检查，不重捕获、不延迟重放被拒点击、不新发旧 UNKNOWN。恢复及完成记录读取成功后，才安装一次 armer/watch。这些检查增加了 App 阶段耗时，必须在下一轮原始点击→输入/开始延迟中实际测量，不能沿用此前 3.40 ms callback 当新路径时延。
+**首用原增量与本地 Codex 的最小边界（历史）：** 当时所有 Web/Chrome 源文件、页面协议、正常化器、uploadStarted 判据、profile、Core/SQLite v3、旧 UNKNOWN 与补偿记录保持原样。App 在 Web arm、用户点击选择、后台观察之前新增只读权限检查；鼠标原事件冻结的完整 lease 原封不动通过检查，不重捕获、不延迟重放被拒点击、不新发旧 UNKNOWN。恢复及完成记录读取成功后，才安装一次 armer/watch。这些检查增加了 App 阶段耗时，必须在下一轮原始点击→输入/开始延迟中实际测量，不能沿用此前 3.40 ms callback 当新路径时延。后续候选归一化scope与本地preflight变化见上方最新契约，不影响这些权限约束。
 
-首次设置窗口不会在 Web 验收启动时自动抢焦点；本地 Codex 可从菜单明确打开权限状态入口。后续生产准入是另一项独立集成决定，此包没有可绕过生产限制的配置开关。
+首次设置窗口不会在生成图 `--web-acceptance` 启动时自动抢焦点；本地Codex可从菜单明确打开权限状态入口。真实截图 `--system-screenshot-candidate` 与普通capture一样，首次自动显示一次设置引导，后续日常截图/点击不重开。首次配置不是冷点击验收；完成设置后须重新按实际原点击目标测量。生产准入是另一项独立集成决定，没有可绕过生产限制的配置开关。
 
 ## 收录与存储保护
 
