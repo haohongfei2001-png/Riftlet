@@ -3,7 +3,7 @@ on:
   push:
     branches:
       - 'codex/riftlet-real-mac-acceptance-*'
-      - 'codex/riftlet-real-mac-round2-*'
+      - 'codex/riftlet-real-mac-round*'
     paths:
       - 'Sources/**'
       - 'Tests/**'
@@ -11,6 +11,7 @@ on:
       - 'Package.swift'
       - 'scripts/**'
       - '.github/workflows/native-foundation.yml'
+      - 'engineering/evidence/2026-10-27-real-mac-round2/network-fault.*'
   pull_request:
     paths:
       - 'Sources/**'
@@ -21,6 +22,7 @@ on:
       - 'Package.swift'
       - 'scripts/**'
       - '.github/workflows/native-foundation.yml'
+      - 'engineering/evidence/2026-10-27-real-mac-round2/network-fault.*'
 permissions:
   contents: read
 concurrency:
@@ -47,6 +49,10 @@ jobs:
         run: |
           set -o pipefail
           node Tests/WebPageProgram/acceptance-program.test.cjs 2>&1 | tee test-results/web-page-program.log
+      - name: Exercise round-two fault harness offline
+        run: |
+          set -o pipefail
+          node engineering/evidence/2026-10-27-real-mac-round2/network-fault.test.cjs 2>&1 | tee test-results/round2-network-fault-fixture.log
       - name: Native unit and integration tests
         run: |
           set -o pipefail
