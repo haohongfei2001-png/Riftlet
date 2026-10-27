@@ -59,7 +59,16 @@ final class NativePasteboardDriverTests: XCTestCase {
         try write(old, to: board)
         let driver = try NativePasteboardDriver(pasteboard: board)
         let before = try await driver.capture()
-        XCTAssertEqual(before.snapshot.items, old)
+        // AppKit can materialize extra representations (the native runner added
+        // UTF-16 text for RTF). Preserve every supplied byte and every advertised
+        // native type, then compare restoration with that complete snapshot.
+        let nativeItems = try XCTUnwrap(board.pasteboardItems)
+        XCTAssertEqual(before.snapshot.items.count, old.count)
+        XCTAssertEqual(nativeItems.count, old.count)
+        for index in old.indices {
+            for (type, data) in old[index] { XCTAssertEqual(before.snapshot.items[index][type], data) }
+            XCTAssertEqual(Set(before.snapshot.items[index].keys), Set(nativeItems[index].types.map(\.rawValue)))
+        }
         let payload = try await payload()
         let written = try await driver.writeIfUnchanged(payload, expectedChangeCount: before.changeCount)
         let owner = try XCTUnwrap(written)
@@ -142,7 +151,12 @@ final class NativePasteboardDriverTests: XCTestCase {
         catch NativePasteboardError.unreadableRepresentation {}
         XCTAssertEqual(board.changeCount, count)
 
-        try write([[NSPasteboard.PasteboardType.filePromise.rawValue: Data([1])]], to: board)
+        // The legacy filePromise constant is not a UTI accepted by
+        // NSPasteboardItem.setData. Use the real modern receiver-advertised type.
+        let promiseType = try XCTUnwrap(NSFilePromiseReceiver.readableDraggedTypes.first {
+            $0 != NSPasteboard.PasteboardType.filePromise.rawValue
+        })
+        try write([[promiseType: Data([1])]], to: board)
         count = board.changeCount
         do { _ = try await driver.capture(); XCTFail("File promise treated as materialized data") }
         catch NativePasteboardError.promisedRepresentation {}
