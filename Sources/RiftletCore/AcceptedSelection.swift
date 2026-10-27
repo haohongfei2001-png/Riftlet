@@ -41,7 +41,9 @@ public final class AcceptedSelection: @unchecked Sendable {
             && deadlineUptime.isFinite && uptime.isFinite && acknowledgedUptime >= 0
             && acknowledgedUptime < eventUptime
             && eventUptime <= acceptedUptime && acceptedUptime <= uptime
-            && deadlineUptime > acceptedUptime && deadlineUptime - acceptedUptime <= 30
+            // Match the App's acceptedUptime + 30 construction. Subtraction
+            // can round a valid boundary to 30.000000000000007 and refuse it.
+            && deadlineUptime > acceptedUptime && deadlineUptime <= acceptedUptime + 30
             && uptime < deadlineUptime && visibilityRevision >= 0
     }
 

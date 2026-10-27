@@ -62,6 +62,20 @@ final class AcceptedSelectionQueueTests: XCTestCase {
         XCTAssertTrue(prior.isValid(at: now))
     }
 
+    func testThirtySecondDeadlineUsesAppConstructionWithoutSubtractiveRoundingRefusal() {
+        let accepted = 64.0.nextDown, deadline = accepted + 30
+        XCTAssertGreaterThan(deadline - accepted, 30, "Fixture must reproduce the floating-point boundary")
+        func selection(_ end: TimeInterval) -> AcceptedSelection {
+            AcceptedSelection(assetID: UUID(), target: target(), hostEpoch: UUID(),
+                acknowledgedUptime: accepted - 0.2, eventUptime: accepted - 0.1, acceptedUptime: accepted,
+                visibilityRevision: 0, deadlineUptime: end)
+        }
+        XCTAssertTrue(selection(deadline).isValid(at: accepted))
+        XCTAssertTrue(selection(deadline).isValid(at: deadline.nextDown))
+        XCTAssertFalse(selection(deadline).isValid(at: deadline))
+        XCTAssertFalse(selection(deadline.nextUp).isValid(at: accepted))
+    }
+
     func testSameDraftParksVisibleThenReconcileReleasesOriginalFIFOWithoutCapture() async throws {
         let s = try store(), a = try await asset(s), b = try await asset(s), c = try await asset(s)
         let adapter = ParkAdapter(), coordinator = coordinator(s, adapter)
