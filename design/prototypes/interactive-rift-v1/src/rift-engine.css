@@ -1,0 +1,14 @@
+/* Source-derived Riftlet geometry. No thumbnail border, corner radius, shadow,
+   hover enlargement, invented surface, or progress spinner is added here. */
+.rift-engine-layer{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:70;--rift-secondary:rgba(0,0,0,.5);--rift-line:rgba(0,0,0,.48);--rift-status:rgba(0,0,0,.7)}
+.rift-engine-layer[data-theme=dark]{--rift-secondary:rgba(255,255,255,.55);--rift-line:rgba(255,255,255,.48);--rift-status:rgba(255,255,255,.7)}
+.rift-seam{position:absolute;z-index:2;pointer-events:none;background:var(--rift-line);padding:0;border:0;box-shadow:none}
+.rift-row{position:absolute;z-index:1;box-sizing:border-box;pointer-events:auto;background:none;border:0;border-radius:0;box-shadow:none;padding:0;margin:0;user-select:none;touch-action:none;cursor:default;outline:none;overflow:visible}
+.rift-row:focus-visible{outline:1px dashed var(--rift-secondary);outline-offset:2px}
+.rift-clip{position:absolute;overflow:hidden;pointer-events:none;border:0;border-radius:0;box-shadow:none}
+.rift-image{display:block;position:absolute;left:0;top:0;max-width:none;max-height:none;pointer-events:none;user-select:none;border:0;border-radius:0;box-shadow:none;transform-origin:0 0;will-change:transform}
+.rift-number{position:absolute;font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;font-size:11px;font-weight:400;font-variant-numeric:tabular-nums;line-height:13px;letter-spacing:0;color:var(--rift-secondary);text-align:left;pointer-events:none;white-space:nowrap}
+.rift-underline{position:absolute;height:.7px;pointer-events:none;background:var(--rift-status);display:none}
+.rift-row[data-status=transferring] .rift-underline.first,.rift-row[data-status=unknown] .rift-underline{display:block}
+.rift-engine-layer[data-hit-areas=true] .rift-row{outline:1px dashed rgba(40,128,170,.75);outline-offset:-1px;background:rgba(40,128,170,.09)}
+.rift-engine-layer[data-hit-areas=true] .rift-clip{outline:1px solid rgba(204,117,49,.8);outline-offset:-1px}

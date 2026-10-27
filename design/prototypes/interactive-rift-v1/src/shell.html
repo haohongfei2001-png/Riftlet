@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="description" content="Riftlet 当前工程界面的真实比例交互还原。合成截图、可操作状态、独立评审环境。">
+  <title>Riftlet · 当前工程交互还原</title>
+  <style>/*__STYLES__*/</style>
+</head>
+<body>
+<div class="review-app" id="reviewApp">
+  <header class="review-header">
+    <div class="review-brand"><span class="review-mark" aria-hidden="true"><i></i><i></i></span><strong>Riftlet</strong><span class="review-divider"></span><span>当前工程交互还原</span><span class="review-version">v1</span></div>
+    <div class="review-header-right"><span class="review-provenance">源码 <a href="https://github.com/haohongfei2001-png/Riftlet/tree/485fa87a31140f9d2e428db69ec5e0599b1f96ae" target="_blank" rel="noopener">485fa87</a> · 合成状态模拟</span><button id="detailsToggle" class="review-button review-subtle" aria-expanded="false">还原说明</button><button id="immersive" class="review-button">沉浸体验 <span>↗</span></button></div>
+  </header>
+  <section class="review-tools" aria-label="独立评审工具，不属于 Riftlet 界面">
+    <div class="review-tools-main">
+      <button id="addCapture" class="review-button review-primary"><span aria-hidden="true">＋</span> 生成截图</button>
+      <div class="review-presets" aria-label="替换测试队列"><span class="review-tool-label">队列</span><button data-count="0">0</button><button data-count="2">2</button><button data-count="3" class="is-selected">3</button><button data-count="5">5</button><button data-count="8">8</button><button data-count="12">12</button><button data-count="20">20</button></div>
+      <span class="review-tool-separator"></span>
+      <label class="review-select-label">点击结果<select id="outcome"><option value="success">成功 · 确认后吞噬</option><option value="failure">明确失败 · 回退</option><option value="waiting">持续等待 · 手动结算</option><option value="unknown">UNKNOWN · 保留</option><option value="target-change">上传中切换对话</option><option value="capture-during">上传中产生新截图</option><option value="native-disabled">普通工程模式 · 适配器未启用</option></select></label>
+      <label class="review-select-label review-latency">模拟上传<select id="latency"><option value="450">0.45 秒</option><option value="1200" selected>1.2 秒</option><option value="3000">3 秒</option><option value="8000">8 秒</option></select></label>
+      <div class="review-resolve"><span>注入测试回执</span><button data-resolve="success" title="向原操作注入确认，允许吞噬">确认</button><button data-resolve="failure">失败</button><button data-resolve="unknown">未知</button></div>
+    </div>
+    <div class="review-tools-env">
+      <label class="review-select-label">屏幕<select id="screenSize"><option value="current">当前可视区域</option><option value="1470x956">13″ Air 参考 · 1470 × 956</option><option value="1440x900">标准参考 · 1440 × 900</option><option value="2560x1440">外接显示器 · 2560 × 1440</option></select></label>
+      <label class="review-select-label">环境<select id="scene"><option value="chrome">Chrome / ChatGPT</option><option value="workspace">多窗口工作台</option><option value="desktop">macOS 桌面</option></select></label>
+      <div class="review-segment" aria-label="背景主题"><button data-theme="light" class="is-selected">浅色</button><button data-theme="dark">深色</button></div>
+      <label class="review-select-label">窗口<select id="windowMode"><option value="normal">普通</option><option value="maximized">最大化</option></select></label>
+      <label class="review-width">宽度 <input id="windowWidth" type="range" min="0.45" max="0.97" step="0.01" value="0.82" aria-label="Chrome 窗口宽度"></label>
+      <span class="review-tool-separator"></span>
+      <div class="review-segment" aria-label="查看比例"><button data-scale="actual" class="is-selected">100% 真实比例</button><button data-scale="fit">缩小总览</button></div>
+      <button id="panRight" class="review-button review-subtle" title="100% 比例时将画布定位到右上角">定位右缘 →</button>
+    </div>
+  </section>
+  <main class="review-workbench">
+    <div class="review-stage-heading"><div><span class="review-stage-dot"></span><span id="sceneLabel">Chrome / ChatGPT</span><span class="review-stage-meta" id="geometryLabel"></span></div><span id="scaleLabel">1 CSS px = 1 逻辑点 · 请保持浏览器缩放 100%</span></div>
+    <div class="review-viewport" id="viewport" tabindex="-1" aria-label="模拟 macOS 桌面，可直接操作">
+      <div class="review-canvas-holder" id="canvasHolder"><div id="screen" class="review-screen"><div id="desktopRoot"></div><div id="riftLayer"></div></div></div>
+    </div>
+    <div class="review-statusbar"><div><span id="queueSummary">3 张待处理</span><span class="review-status-separator">·</span><span id="eventSummary" aria-live="polite">点击屏幕右缘的微型截图，开始体验。</span></div><div class="review-status-actions"><button id="oldest" title="源码提供的队首查看动作；这里是评审入口">最早</button><button id="latest">最新</button><button id="reviewToggle" aria-expanded="false">状态与测量 <span>⌄</span></button></div></div>
+  </main>
+  <aside class="review-panel" id="reviewPanel" hidden>
+    <section><div class="review-panel-title"><h2>当前状态</h2><label><input id="hitAreas" type="checkbox"> 显示真实点击矩形</label><label><input id="reducedMotion" type="checkbox"> 减少动态效果</label></div><p class="review-small">彩色矩形仅用于测量；关闭后，桌面上只保留源码中的图片、数字和裂缝。滚轮放在微图或数字区域，可逐行查看溢出队列。</p><div id="queueTable" class="review-queue-table"></div></section>
+    <section class="review-events"><div class="review-panel-title"><h2>交互记录</h2><button id="clearEvents" class="review-button review-subtle">清空记录</button></div><ol id="eventLog"></ol></section>
+  </aside>
+  <section class="review-explanation" id="explanation" hidden>
+    <div><h2>A · 当前工程还原</h2><p>按 PR #1 的 <code>485fa87</code> 原生源码重建几何与动画：72 × 56 pt 拟合、右侧遮挡 25%、0.7 pt 裂缝、11 pt 编号、60 pt 行距。新图淡入 220 ms；按下 80 ms；确认后吞噬 240 ms；补位 180 ms；失败回退 180 ms。</p><p>第一行中心距<strong>可用屏幕区域</strong>顶部 180 pt。菜单栏与 Dock 占用空间已计入；队列变长时首行会向上移动。图片保留原始比例，没有额外圆角、边框或阴影。</p></div>
+    <div><h2>合成环境与证据边界</h2><p>桌面、Chrome、ChatGPT 和所有截图均为本地合成内容。默认回执由评审程序注入；上传时长是测试参数。附件占位符、进度 100% 和完成确认是三个不同阶段。</p><p>当前普通工程版真实适配器未启用，已提供对应模式。浏览器不能证明 AppKit 首击、非激活、系统点击穿透、Spaces、多显示器或真实上传通过。系统字体、动态灰度与亚像素绘制仍可能与实际 Mac 略有差别。</p></div>
+    <div><h2>B · 留给你的第一轮判断</h2><p>先试 3 张，再试 12 张；看竖图能否辨认、数字是否清晰、微图是否容易点中。切到深色和最大化窗口，感受裂缝是否打扰工作。再试等待与 UNKNOWN：极细单线和双线是否足以表达状态？</p><p>本轮未调整原生参数，也未冻结设计。后续优化可以在同一模型中加入独立对照，保留这一版基线。</p></div>
+  </section>
+  <footer class="review-footer"><span>独立评审模型 · 不连接账户 · 不发送聊天 · 未修改正式 App</span><div><a href="./Riftlet-Interactive-v1.html" download="Riftlet-Interactive-v1.html" id="downloadHTML">下载独立 HTML</a><a href="./Riftlet-Interactive-v1-Source.zip" download id="downloadSource">完整可编辑源码</a></div></footer>
+</div>
+<dialog id="assetDialog" class="review-asset-dialog"><header><div><strong id="assetTitle"></strong><span id="assetDimensions"></span></div><button id="closeAsset" aria-label="关闭原图">×</button></header><div class="review-asset-scroll"><img id="assetImage" alt="合成测试截图原图"></div><p>这是评审工具中的原图查看器，不属于 Riftlet 正式界面。</p></dialog>
+<div id="immersiveHint" class="review-immersive-hint" hidden>按 Esc 返回评审工具 · ⌥ / Alt + Shift + N 生成合成截图</div>
+<script>/*__SCRIPTS__*/</script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import vm from 'node:vm';
+const root=path.dirname(new URL(import.meta.url).pathname);
+const read=p=>fs.readFileSync(path.join(root,p),'utf8');
+const scripts=['assets.js','desktop.js','rift-engine.js','app.js'].map(p=>{const s=read('src/'+p);new vm.Script(s,{filename:p});return s;}).join('\n;\n');
+const styles=['review.css','desktop.css','rift-engine.css'].map(p=>read('src/'+p)).join('\n');
+let html=read('src/shell.html').replace('/*__STYLES__*/',styles).replace('/*__SCRIPTS__*/',()=>scripts);
+fs.mkdirSync(path.join(root,'dist'),{recursive:true});
+fs.writeFileSync(path.join(root,'dist/index.html'),html);
+fs.writeFileSync(path.join(root,'dist/Riftlet-Interactive-v1.html'),html);
+console.log(JSON.stringify({built:true,bytes:Buffer.byteLength(html),dependencies:0,externalAssets:0}));
