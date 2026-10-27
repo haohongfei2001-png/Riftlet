@@ -210,7 +210,7 @@ final class ObservationNormalizerTests: XCTestCase {
         XCTAssertFalse(noFailureMapping.safeToRetry)
     }
 
-    func testFailureRequiresSeparateCoreAdmissionAndOldAttemptCannotAffectRetry() async throws {
+    func testLegacyAbsenceFailureCannotGrantRetryEvenWithSeparateProfileAdmission() async throws {
         let (store, request) = try await fixture()
         let packet = try envelope(request, state: .failed, changes: [
             "hasError": true, "attachmentAbsent": true, "attachmentID": NSNull(), "automaticRetryExcluded": true
@@ -218,18 +218,17 @@ final class ObservationNormalizerTests: XCTestCase {
         let normalizer = profile(failure: .terminalErrorAndNoResidual)
         let receipt = try normalizer.receipt(from: packet, for: request)
         XCTAssertEqual(receipt.outcome, .definitiveFailure)
+        XCTAssertNil(receipt.attachmentID, "Legacy absence proof cannot identify a safely retired original attachment")
         let unknown = try await store.apply(receipt, policy: .init(admittedProfiles: [profileID: .webChat]))
         XCTAssertEqual(unknown.status, .unknown)
-        let failed = try await store.apply(receipt, policy: .init(retrySafeProfiles: [profileID: .webChat]))
-        XCTAssertEqual(failed.status, .failed)
-        let retry = try await store.prepare(assetID: request.asset.id, target: request.operation.target)
-        try await store.markDispatchIntent(retry.id)
-        let operation = try await store.operation(id: retry.id)
-        let next = TransferRequest(operation: try XCTUnwrap(operation), asset: request.asset, fileURL: request.fileURL)
-        XCTAssertEqual(next.operation.attempt, 2)
-        XCTAssertThrowsError(try normalizer.receipt(from: packet, for: next)) {
-            XCTAssertEqual($0 as? ObservationError, .identityMismatch)
-        }
+        let stillUnknown = try await store.apply(receipt, policy: .init(retrySafeProfiles: [profileID: .webChat]))
+        XCTAssertEqual(stillUnknown.status, .unknown)
+        let retained = try await store.prepare(assetID: request.asset.id, target: request.operation.target)
+        XCTAssertEqual(retained.id, request.operation.id)
+        XCTAssertEqual(retained.attempt, 1)
+        XCTAssertEqual(retained.phase, .unknown)
+        // Safe, identified termination and stale-attempt isolation are exercised
+        // separately in Core. Do not fabricate that proof in this v1 observer.
     }
 
     func testDevelopmentProvenanceCannotDriveARealScreenshotOperation() async throws {

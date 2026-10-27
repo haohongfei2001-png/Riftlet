@@ -226,7 +226,7 @@ final class MacAttachmentAdapterTests: XCTestCase {
         XCTAssertEqual(trace.events().filter { $0 == "target.paste" }.count, 1)
     }
 
-    func testSeparatelyAdmittedFailureAllowsExplicitRetryWithoutRestoreOrAutomaticPaste() async throws {
+    func testAbsenceOnlyFailureCannotReleaseClipboardOrRetryEvenWithProfileAdmission() async throws {
         let target = try session()
         let trace = MacFlowTrace()
         let board = try FakeMacPasteboard(trace: trace)
@@ -234,20 +234,19 @@ final class MacAttachmentAdapterTests: XCTestCase {
         let client = adapter(executor, board, admitRetry: true)
         let (store, request) = try await makeRequest(target)
         let failure = try await client.append(request)
-        let failed = try await store.apply(failure, policy: .init(retrySafeProfiles: [profileID: .macChat]))
-        XCTAssertEqual(failed.status, .failed)
+        XCTAssertNil(failure.attachmentID, "The legacy observer proves absence, not original attachment retirement")
+        let unresolved = try await store.apply(failure, policy: .init(retrySafeProfiles: [profileID: .macChat]))
+        XCTAssertEqual(unresolved.status, .unknown)
         let canRetry = try await client.validate(target.target)
-        XCTAssertTrue(canRetry)
+        XCTAssertFalse(canRetry)
         XCTAssertFalse(trace.events().contains("clipboard.owner"))
         XCTAssertFalse(trace.events().contains("clipboard.restore"))
         XCTAssertEqual(trace.events().filter { $0 == "target.paste" }.count, 1)
-        let retry = try await store.prepare(assetID: request.asset.id, target: target.target)
-        try await store.markDispatchIntent(retry.id)
-        let committed = try await store.operation(id: retry.id)
-        let next = TransferRequest(operation: try XCTUnwrap(committed), asset: request.asset, fileURL: request.fileURL)
-        XCTAssertEqual(next.operation.attempt, 2)
-        _ = try await client.append(next) // Explicit caller action, never triggered by failure handling.
-        XCTAssertEqual(trace.events().filter { $0 == "target.paste" }.count, 2)
+        let retained = try await store.prepare(assetID: request.asset.id, target: target.target)
+        XCTAssertEqual(retained.id, request.operation.id)
+        XCTAssertEqual(retained.attempt, 1)
+        _ = try await client.reconcile(request) // Observe only; never a second paste.
+        XCTAssertEqual(trace.events().filter { $0 == "target.paste" }.count, 1)
         XCTAssertFalse(trace.events().contains("clipboard.restore"))
     }
 

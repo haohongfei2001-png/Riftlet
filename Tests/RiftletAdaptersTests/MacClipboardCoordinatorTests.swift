@@ -50,7 +50,9 @@ final class MacClipboardCoordinatorTests: XCTestCase {
         TransferReceipt(operationID: request.operation.id, assetID: request.asset.id,
             attempt: request.operation.attempt, assetSHA256: request.asset.sha256, target: request.operation.target,
             outcome: failure ? .definitiveFailure : .verifiedReady, profileID: profileID,
-            attachmentID: failure ? nil : "synthetic-own-attachment", positiveReady: !failure,
+            // This direct policy fixture explicitly proves the same retired
+            // attachment. The legacy absence-only observer cannot supply it.
+            attachmentID: "synthetic-own-\(request.operation.id)", positiveReady: !failure,
             belongsToOriginalDraft: true, hasError: failure, safeToRetry: failure)
     }
 
