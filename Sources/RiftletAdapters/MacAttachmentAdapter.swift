@@ -37,14 +37,13 @@ public struct ClipboardCapturedState: Sendable {
     }
 }
 
-public struct ClipboardOwnerState: Equatable, Sendable {
+public struct ClipboardOwnerState: Codable, Equatable, Sendable {
     public let changeCount: Int
     public let marker: String?
     public init(changeCount: Int, marker: String?) { self.changeCount = changeCount; self.marker = marker }
 }
 
-/// No general-pasteboard implementation is enabled in this increment. A future
-/// native driver must check ownership again inside its final synchronous write
+/// A native driver checks ownership again inside its final synchronous write
 /// fragment; this interface does not assert an OS-level atomic compare-and-swap.
 public protocol ClipboardTransactionDriver: Sendable {
     func capture() async throws -> ClipboardCapturedState
@@ -65,6 +64,12 @@ public protocol MacAttachmentExecutor: Sendable {
     func observe(_ request: TransferRequest) async throws -> Data
 }
 
+/// Native composition must share this exact coordinator with the adapter. The
+/// adapter rejects a mismatched/missing coordinator before any clipboard access.
+public protocol CoordinatedMacAttachmentExecutor: MacAttachmentExecutor {
+    var clipboardCoordinator: MacClipboardCoordinator { get }
+}
+
 /// Executable session/ownership foundation with injected platform operations.
 /// ReceiptPolicy and QueueStore remain the admission and queue authorities.
 public actor MacAttachmentAdapter: AttachmentAdapter {
@@ -75,18 +80,20 @@ public actor MacAttachmentAdapter: AttachmentAdapter {
     private let mode: MacAdapterMode
     private let normalizer: ObservationNormalizer
     private let policy: ReceiptPolicy
+    private let coordinator: MacClipboardCoordinator?
     private let onIssue: @Sendable (String) async -> Void
-    private var appending = false
+    private var performing = false
     private var pending: (operationID: UUID, lease: ClipboardOwnershipLease)?
 
     public init(applicationID: String, executor: any MacAttachmentExecutor,
                 clipboard: any ClipboardTransactionDriver, profile: ObservationProfile,
                 policy: ReceiptPolicy = .init(), mode: MacAdapterMode = .disabled,
+                coordinator: MacClipboardCoordinator? = nil,
                 onIssue: @escaping @Sendable (String) async -> Void = { _ in }) {
         id = profile.adapterID; self.applicationID = applicationID
         self.executor = executor; self.clipboard = clipboard
         normalizer = ObservationNormalizer(profile: profile)
-        self.policy = policy; self.mode = mode; self.onIssue = onIssue
+        self.policy = policy; self.mode = mode; self.coordinator = coordinator; self.onIssue = onIssue
     }
 
     public func captureTarget() async throws -> TargetLease {
@@ -100,7 +107,8 @@ public actor MacAttachmentAdapter: AttachmentAdapter {
         try requireEnabled(); try check(target)
         // An uncertain paste may still need the current clipboard. Do not replace
         // its bytes for another image while an original consumption is unproved.
-        guard pending == nil, !appending else { return false }
+        guard pending == nil, !performing else { return false }
+        if let coordinator, try !coordinator.canReserve() { return false }
         return try await executor.inspectTarget(target)?.target == target
     }
 
@@ -109,24 +117,38 @@ public actor MacAttachmentAdapter: AttachmentAdapter {
         guard request.asset.origin == .synthetic else { throw MacAdapterError.syntheticAssetsOnly }
         guard request.operation.phase == .dispatchIntent,
               request.operation.assetID == request.asset.id else { throw MacAdapterError.invalidRequest }
-        guard pending == nil, !appending else { throw MacAdapterError.clipboardBusy }
-        appending = true
-        defer { appending = false }
+        guard pending == nil, !performing else { throw MacAdapterError.clipboardBusy }
+        performing = true
+        defer { performing = false }
         guard try await executor.inspectTarget(request.operation.target)?.target == request.operation.target else {
             throw MacAdapterError.invalidTarget
         }
-        let before = try await clipboard.capture()
-        let payload = try ClipboardAttachmentPayload(request: request)
-        guard let written = try await clipboard.writeIfUnchanged(payload, expectedChangeCount: before.changeCount),
-              written.marker == payload.marker,
-              written.changeCount > before.changeCount else { throw MacAdapterError.clipboardChanged }
-        let lease = try ClipboardOwnershipLease(request: request, previous: before.snapshot,
-            payload: payload, writtenChangeCount: written.changeCount)
-        pending = (request.operation.id, lease)
-        let data = try await executor.paste(request, owner: written)
-        let receipt = try normalizer.receipt(from: ObservationDecoder.decode(data), for: request)
-        await settleClipboardAfterObservation(receipt, request: request)
-        return receipt
+        try coordinator?.reserve(request)
+        var clipboardMayHaveChanged = false
+        do {
+            let before = try await clipboard.capture()
+            let payload = try ClipboardAttachmentPayload(request: request)
+            try coordinator?.markClipboardWriteIntent(for: request)
+            clipboardMayHaveChanged = true
+            guard let written = try await clipboard.writeIfUnchanged(payload, expectedChangeCount: before.changeCount) else {
+                // The driver contract returns nil only before any mutation.
+                clipboardMayHaveChanged = false
+                throw MacAdapterError.clipboardChanged
+            }
+            guard written.marker == payload.marker, written.changeCount > before.changeCount else {
+                throw MacAdapterError.clipboardChanged
+            }
+            let lease = try ClipboardOwnershipLease(request: request, previous: before.snapshot,
+                payload: payload, writtenChangeCount: written.changeCount)
+            pending = (request.operation.id, lease)
+            try coordinator?.clipboardWritten(for: request, owner: written)
+            let data = try await executor.paste(request, owner: written)
+            let receipt = try normalizer.receipt(from: ObservationDecoder.decode(data), for: request)
+            return await settleClipboardAfterObservation(receipt, request: request)
+        } catch {
+            if !clipboardMayHaveChanged { try? coordinator?.cancelBeforeClipboardMutation(request) }
+            throw error
+        }
     }
 
     public func reconcile(_ request: TransferRequest) async throws -> TransferReceipt {
@@ -134,28 +156,71 @@ public actor MacAttachmentAdapter: AttachmentAdapter {
         guard request.asset.origin == .synthetic else { throw MacAdapterError.syntheticAssetsOnly }
         guard request.operation.phase.isUnresolved, request.operation.phase != .prepared,
               request.operation.assetID == request.asset.id else { throw MacAdapterError.invalidRequest }
+        guard !performing else { throw MacAdapterError.clipboardBusy }
+        performing = true
+        defer { performing = false }
+        if let recovered = try coordinator?.recoverForObservation(request) {
+            if recovered.phase != .inputIntent && recovered.phase != .resolved {
+                // No durable native input intent exists. Never borrow a remote
+                // card as proof for a clipboard-only or pre-write operation.
+                return TransferReceipt(operationID: request.operation.id, assetID: request.asset.id,
+                    attempt: request.operation.attempt, assetSHA256: request.asset.sha256,
+                    target: request.operation.target, outcome: .unknown, profileID: normalizer.profile.profileID,
+                    reason: "mac-native:recovered-without-input-intent")
+            }
+        }
         guard try await executor.inspectTarget(request.operation.target)?.target == request.operation.target else {
             throw MacAdapterError.invalidTarget
         }
         let data = try await executor.observe(request)
         let receipt = try normalizer.receipt(from: ObservationDecoder.decode(data), for: request)
-        await settleClipboardAfterObservation(receipt, request: request)
-        return receipt
+        return await settleClipboardAfterObservation(receipt, request: request)
     }
 
-    private func settleClipboardAfterObservation(_ receipt: TransferReceipt, request: TransferRequest) async {
-        guard let pending, pending.operationID == request.operation.id, pending.lease.matches(receipt) else { return }
+    private func settleClipboardAfterObservation(_ receipt: TransferReceipt, request: TransferRequest) async -> TransferReceipt {
+        // performing stays true across every await, including onIssue. A late
+        // reconcile cannot restore/release a newer operation's clipboard lease.
+        if let coordinator {
+            do {
+                guard let resolution = try coordinator.authorizeSettlement(receipt, request: request, policy: policy) else { return receipt }
+                if resolution == .consumed, let pending, pending.operationID == request.operation.id,
+                   pending.lease.matches(receipt) {
+                    await restoreClipboardIfStillOwned(pending.lease, receipt: receipt)
+                }
+                // A recovered operation has no snapshot: settle without restore.
+                // A separately admitted failure also never restores or re-pastes.
+                try coordinator.finishSettlement(request)
+                if pending?.operationID == request.operation.id { pending = nil }
+            } catch {
+                await onIssue("Clipboard coordination retained; no attachment was replayed")
+                // Journal identity/phase/persistence is part of the native
+                // admission boundary. Do not let Core consume/retry a receipt
+                // that this boundary refused, even if the observer was positive.
+                return TransferReceipt(operationID: receipt.operationID, assetID: receipt.assetID,
+                    attempt: receipt.attempt, assetSHA256: receipt.assetSHA256, target: receipt.target,
+                    outcome: .unknown, profileID: receipt.profileID,
+                    reason: "mac-native:coordination-unresolved")
+            }
+            return receipt
+        }
+        guard let pending, pending.operationID == request.operation.id, pending.lease.matches(receipt) else { return receipt }
         if policy.allowsRetry(receipt: receipt, asset: request.asset, mode: .production) {
             // A separately admitted terminal failure permits a future EXPLICIT
             // retry. It does not prove pasteboard consumption or authorize restoring
             // the old clipboard. Leave present bytes untouched; do not paste again.
             self.pending = nil
-            return
+            return receipt
         }
-        guard policy.allowsConsumption(receipt: receipt, asset: request.asset, mode: .production) else { return }
+        guard policy.allowsConsumption(receipt: receipt, asset: request.asset, mode: .production) else { return receipt }
+        await restoreClipboardIfStillOwned(pending.lease, receipt: receipt)
+        if self.pending?.operationID == request.operation.id { self.pending = nil }
+        return receipt
+    }
+
+    private func restoreClipboardIfStillOwned(_ lease: ClipboardOwnershipLease, receipt: TransferReceipt) async {
         do {
             let current = try await clipboard.owner()
-            if let snapshot = pending.lease.restoration(currentChangeCount: current.changeCount,
+            if let snapshot = lease.restoration(currentChangeCount: current.changeCount,
                 currentMarker: current.marker, receipt: receipt, policy: policy) {
                 // Recheck inside the driver too: a user copy may occur after owner().
                 _ = try await clipboard.restoreIfOwned(snapshot, expectedOwner: current)
@@ -165,11 +230,12 @@ public actor MacAttachmentAdapter: AttachmentAdapter {
             // completion. Never retry input to make restoration look successful.
             await onIssue("Clipboard restoration unavailable; no attachment was replayed")
         }
-        if self.pending?.operationID == request.operation.id { self.pending = nil }
     }
 
     private func requireEnabled() throws {
         guard case .syntheticDevelopment = mode else { throw MacAdapterError.disabled }
+        if let native = executor as? any CoordinatedMacAttachmentExecutor,
+           coordinator !== native.clipboardCoordinator { throw MacAdapterError.invalidRequest }
     }
 
     private func check(_ target: TargetLease) throws {
