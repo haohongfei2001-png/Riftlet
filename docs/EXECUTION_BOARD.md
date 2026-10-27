@@ -216,8 +216,10 @@ Next READY task or next concrete action:
 源码 `c9c68a66c4b6ff55ffe8048cff6f1cf781600519`，CI 235 native / 48 page / 14 legacy PASS。真实普通已保存对话（裸 UUID）发言框未聚焦、已有预绑定 ACK 的一次人工物理点击：单次 input、完整 proof、used，局部 PASS。冷首击无 ACK、真实 ABA、非空原草稿/选区保留、完整 N1 和 MID 仍未通过；生产与重传保持关闭。新 persisted profile 在 Core 尚未识别，继续保守整 tab 锁，最小 Core 补丁交 Pro。见[第四轮完整交接](../engineering/evidence/2026-10-27-real-mac-round4/README.md)。下一项优先原始点击/ACK 发布边界与真实业务转换，不重复普通成功样本。
 
 
-## 第五轮本地真实 uploadStarted · ACTIVE
+## 第五轮本地真实 uploadStarted · 候选完成，交 Pro 集成
 
-独立分支 codex/riftlet-real-mac-round5-20261027，从 SQLite v3 正式 b84892071d7711177bb856051251a337f2c2c4f5 起步，仅继承第四轮适配器源码增量。Web v9/schema2 原操作进度证据、native归一化和append早返回由本地Codex负责；旧v6/v7/v8只观察、不补造start。Core/UI/App保持Pro所有权，synthetic start策略接线单独提出最小补丁并待真实证据审查；生产及安全重试不启用。
+独立分支 `codex/riftlet-real-mac-round5-20261027`；最终已测源码 `53ebcc4da4b0df508edc11f6ead9ea4d8a843dad`，正式基线 `e89d49f763036781c90618422da256e03cbca2ac`。完整 CI [40497953468](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40497953468) PASS：314 native / 68 page / 45 legacy / 13 lifecycle detailed。Web v11/schema2 保留 v6–v10 原操作只读；修复真实初始无数值进度误拒绝，以及真实 MutationRecord NodeList 没有 `.some()` 导致 start 早返回后观察中断。
 
-第五轮源码检查点 `1f9dec2dec9cf6ef61f36776a6e4f7c3439f4f8a` 已继承正式 `e89d49f` 的 capture publication 及 persisted identity 接线；完整 CI 40487032921 PASS（312 native / 61 page / 25 legacy / 13 lifecycle detailed）。v9/schema2、原进度 start 证明、append 早返回及 v6/v7/v8只读恢复已实现；现有Web数据已安全迁移v3，原11媒体/17操作/3补偿保留。真实新图首次点击尚未发生；自动化仅能访问首个旧UNKNOWN微窗，已请求最小人工点击第2张新噪点图。synthetic start准入及AppKit快吞噬仍NOT_RUN，overlay未应用，生产和retry关闭。下一动作是读取这次原操作真实证据后再独立审查synthetic start准入；详见[第五轮检查点](../engineering/evidence/2026-10-27-real-mac-round5/README.md)。
+实际生成图片的 **一次 helper AX → 真实递增上传开始 → AppKit 快吞噬 → 后台独立最终成功 PASS（限定）**。原 input=1、完整 target/attachment、首份 start 审计、较晚 final proof 和 persisted succeeded 对齐；开始后约59–322ms调用动画，动画段约253ms，窗口关闭早于最终证明约4.89–5.16s。不是物理鼠标或无ACK冷首击；原保留配置swallowDuration=.24，不是点击到关闭仅253ms。
+
+Core/UI/App正式源码未改；两份最小临时overlay供Pro接入synthetic start策略及诊断/AX元数据。生产、safe retry仍关闭。原11 Web资产/17操作/3补偿及所有原私有媒体哈希保留，新增5图各input1，其中2图未决保持原样；未发送消息。详见[第五轮完整交接](../engineering/evidence/2026-10-27-real-mac-round5/README.md)。本段替代此前“等待人工点第2张”的准备检查点；无需再请求该动作。下一项为Pro集成限定synthetic补丁，其后继续冷首击、业务转换、同草稿多图与物理N1，MID及安全终止分别准入。

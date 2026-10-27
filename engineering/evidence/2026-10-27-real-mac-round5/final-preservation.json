@@ -1,0 +1,32 @@
+{
+  "assets": {
+    "before": 11,
+    "after": 16,
+    "originalImmutableRowsPreserved": true
+  },
+  "operations": {
+    "before": 17,
+    "after": 22,
+    "originalImmutableRowsPreserved": true
+  },
+  "compensations": {
+    "before": 3,
+    "after": 3,
+    "originalImmutableRowsPreserved": true
+  },
+  "privateMedia": [
+    {
+      "store": "Riftlet",
+      "originalFiles": 6,
+      "hashesPreserved": true
+    },
+    {
+      "store": "Riftlet-Web-Acceptance",
+      "originalFiles": 11,
+      "hashesPreserved": true
+    }
+  ],
+  "schema": 3,
+  "quickCheck": "ok",
+  "uploadStarts": 2
+}

@@ -1,44 +1,52 @@
 {
-  "sourceSHA": "1f9dec2dec9cf6ef61f36776a6e4f7c3439f4f8a",
+  "sourceSHA": "53ebcc4da4b0df508edc11f6ead9ea4d8a843dad",
   "formalBaseline": "e89d49f763036781c90618422da256e03cbca2ac",
   "branch": "codex/riftlet-real-mac-round5-20261027",
   "ci": {
-    "runID": 40487032921,
+    "runID": 40497953468,
     "status": "PASS",
-    "nativeDiscoveredAndExecuted": 312,
-    "pageTests": 61,
-    "legacyTests": 25,
+    "nativeDiscoveredAndExecuted": 314,
+    "pageTests": 68,
+    "legacyTests": 45,
     "lifecycleDetailedPassed": 13,
-    "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/40487032921"
+    "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/40497953468"
   },
   "local": {
     "os": "macOS 27.0 (26A428)",
     "architecture": "arm64",
     "swift": "6.4",
+    "chrome": "156.0.8078.48",
     "releaseBuild": "PASS",
-    "pageTests": 61,
-    "legacyTests": 25,
-    "overlayApplyCheck": "PASS",
-    "overlayApplied": false
+    "overlayAppliedInTemporaryBuildOnly": true,
+    "formalCoreUIAppDiffEmpty": true,
+    "testedExecutableSHA256": "30fa313bc0aee80176263dfcb8f09f7575c35018cac5a579c62543ab12d97268"
   },
   "scope": {
-    "realUploadStart": "NOT_RUN",
-    "actualFastSwallow": "NOT_RUN",
+    "realUploadStart": "PASS_SYNTHETIC_ONLY",
+    "actualAppKitFastSwallow": "PASS_CODE_PATH_ONLY",
+    "independentFinalReady": "PASS",
+    "pixelPresentation": "NOT_RUN",
+    "physicalMouse": "NOT_RUN",
     "coldFirstClickWithoutACK": "NOT_RUN",
     "realMID": "NOT_EXERCISED",
     "productionScreenshotsEnabled": false,
     "safeRetryEnabled": false,
-    "syntheticStartRegistryEnabled": false
+    "formalSyntheticStartRegistryEnabled": false,
+    "temporarySyntheticStartRegistryEnabled": true
   },
   "runtime": {
     "mode": "web-acceptance",
     "databaseSchema": 3,
-    "newSyntheticAssetID": "029C66A3-178B-4184-8A0E-3060AA8C83C7",
-    "inputObserved": false,
-    "pendingAction": "single click on second noise thumbnail; automation only exposes first independent panel"
+    "finalAssetID": "A69D72AA-1616-4D12-BC70-8FA5A77B8AE0",
+    "finalOperationID": "D53F7E0E-871B-4118-84DB-FB00772E1FE7",
+    "inputCount": 1,
+    "finalPhase": "succeeded",
+    "visibility": "swallowed",
+    "visibilityReason": "uploadStarted",
+    "testAppExited": true
   },
   "review": {
     "reviewer": "independent late_failure role",
-    "result": "PASS for code scope, no new permissions/reinput path; not real-browser admission"
+    "result": "PASS within reported synthetic real-environment scope; production/retry unchanged"
   }
 }

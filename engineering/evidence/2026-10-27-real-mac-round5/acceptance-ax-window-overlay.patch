@@ -1,0 +1,196 @@
+diff --git a/Sources/RiftletUI/RiftPanelController.swift b/Sources/RiftletUI/RiftPanelController.swift
+--- a/Sources/RiftletUI/RiftPanelController.swift
++++ b/Sources/RiftletUI/RiftPanelController.swift
+@@ -222,6 +222,9 @@
+     public private(set) var userHidden = false
+     private let cache: ThumbnailCache
+     private let onSelect: (UUID) -> Void
++    private let diagnosticInitialPanelID: UUID?
++    private var diagnosticInitialCreationAttempted = false
++    public private(set) var diagnosticInitialPanelWindowNumber: Int?
+     private let onPress: (UUID, TimeInterval) -> Void
+     private let onSelectionBoundary: (RiftSelectionBoundary) -> Void
+     private let onApproach: () -> Void
+@@ -256,6 +259,7 @@
+     }
+ 
+     public init(mediaDirectory: URL, configuration: RiftConfiguration = .init(),
++                diagnosticInitialPanelID: UUID? = nil,
+                 onPress: @escaping (UUID, TimeInterval) -> Void = { _, _ in },
+                 onSelectionBoundary: @escaping (RiftSelectionBoundary) -> Void = { _ in },
+                 onApproach: @escaping () -> Void = {},
+@@ -268,6 +272,7 @@
+         // Defensive fallback prevents malformed geometry from positioning windows off-screen.
+         self.configuration = (try? configuration.validate()) != nil ? configuration : RiftConfiguration()
+         self.onSelect = onSelect
++        self.diagnosticInitialPanelID = diagnosticInitialPanelID
+         self.onPress = onPress
+         self.onSelectionBoundary = onSelectionBoundary
+         self.onApproach = onApproach
+@@ -447,11 +452,32 @@
+         let shiftTime = shouldShift ? duration(configuration.shiftDuration) : 0
+         let token = generation
+         if shouldShift { setTransitioning(true) }
++        var diagnosticPrecreatedID: UUID?
++        // Acceptance overlay: change only initial allocation order. The normal
++        // layout loop below still owns geometry, ordinal, arrival and presentation.
++        if !diagnosticInitialCreationAttempted, !layout.rows.isEmpty {
++            diagnosticInitialCreationAttempted = true
++            if rowWindows.isEmpty, let preferred = diagnosticInitialPanelID,
++               let geometry = layout.rows.first(where: { $0.assetID == preferred }),
++               let record = byID[preferred], record.visibility == .visible,
++               record.image.origin == .synthetic {
++                let panel = RiftPanel(frame: geometry.frame)
++                let view = RiftRowView(record: record, geometry: geometry, configuration: configuration)
++                panel.contentView = view
++                let window = RowWindow(panel: panel, view: view)
++                rowWindows[preferred] = window
++                wire(window, id: preferred)
++                diagnosticPrecreatedID = preferred
++                diagnosticInitialPanelWindowNumber = panel.windowNumber
++            }
++        }
+         for geometry in layout.rows {
+             guard let record = byID[geometry.assetID] else { continue }
+             let window: RowWindow
+             let isNew: Bool
+-            if let existing = rowWindows[record.id] { window = existing; isNew = false }
++            if let existing = rowWindows[record.id] {
++                window = existing; isNew = record.id == diagnosticPrecreatedID
++            }
+             else {
+                 let panel = RiftPanel(frame: geometry.frame)
+                 let view = RiftRowView(record: record, geometry: geometry, configuration: configuration)
+@@ -641,6 +667,14 @@
+         apply(lastRecords, animateShift: false)
+     }
+ 
++    /// Acceptance-overlay lookup only: never creates, reveals or selects a row.
++    public func acceptanceExistingPanel(for assetID: UUID) -> NSWindow? {
++        guard !closed, !userHidden, let row = rowWindows[assetID],
++              row.panel.isVisible, row.view.record.visibility == .visible,
++              row.view.record.image.origin == .synthetic else { return nil }
++        return row.panel
++    }
++
+     public func showLatest() {
+         guard !userHidden, !gate.isHolding, !transitioning, !interaction.snapshot.isSelecting else { return }
+         firstVisibleIndex = lastRecords.filter { $0.visibility == .visible }.count
+diff --git a/Sources/RiftletApp/RiftletMain.swift b/Sources/RiftletApp/RiftletMain.swift
+--- a/Sources/RiftletApp/RiftletMain.swift
++++ b/Sources/RiftletApp/RiftletMain.swift
+@@ -56,11 +56,91 @@
+     }
+ 
+     @MainActor private static func runApplication(mode: ApplicationMode) {
+-        let application = NSApplication.shared
++        let arguments = CommandLine.arguments
++        let indices = arguments.indices.filter { arguments[$0] == "--acceptance-ax-asset" }
++        let requestedAsset: UUID?
++        if mode == .webAcceptance, arguments.contains("--acceptance-trace"),
++           indices.count == 1, let index = indices.first, index + 1 < arguments.count {
++            requestedAsset = UUID(uuidString: arguments[index + 1])
++        } else { requestedAsset = nil }
++        let application: NSApplication
++        if let requestedAsset {
++            // Never silently claim a subclass overlay if shared was already created.
++            if let existing = NSApp, !(existing is AcceptanceAXApplication) {
++                AcceptanceAXApplication.record(["event": "acceptance_ax_initialization",
++                    "enabled": false, "reason": "applicationAlreadyInitialized",
++                    "actualClass": String(describing: type(of: existing))])
++                exit(2)
++            }
++            application = AcceptanceAXApplication.shared
++            guard let acceptance = application as? AcceptanceAXApplication else {
++                AcceptanceAXApplication.record(["event": "acceptance_ax_initialization",
++                    "enabled": false, "reason": "unexpectedApplicationClass",
++                    "actualClass": String(describing: type(of: application))])
++                exit(2)
++            }
++            acceptance.requestedAssetID = requestedAsset
++            AcceptanceAXApplication.record(["event": "acceptance_ax_initialization", "enabled": true,
++                "actualClass": String(describing: type(of: application)),
++                "assetID": requestedAsset.uuidString, "directSelection": false])
++        } else { application = NSApplication.shared }
+         let delegate = ApplicationController(mode: mode)
+         application.delegate = delegate
+         application.setActivationPolicy(.accessory)
+         withExtendedLifetime(delegate) { application.run() }
++    }
++}
++
++/// Temporary acceptance-only AX view of existing windows. No new AX root,
++/// focus claims, retained window snapshots, selection actions or upload grants.
++@MainActor
++private final class AcceptanceAXApplication: NSApplication {
++    var requestedAssetID: UUID?
++    private weak var preferredPanel: NSWindow?
++    private(set) var panelAssigned = false
++
++    private func reordered(_ elements: [Any]?) -> [Any]? {
++        guard let panel = preferredPanel, panel.isVisible,
++              var items = elements,
++              let index = items.firstIndex(where: { ($0 as? NSWindow) === panel })
++        else { return elements }
++        if index != 0 { items.insert(items.remove(at: index), at: 0) }
++        return items
++    }
++
++    override func accessibilityWindows() -> [Any]? {
++        reordered(super.accessibilityWindows())
++    }
++
++    override func accessibilityChildren() -> [Any]? {
++        reordered(super.accessibilityChildren())
++    }
++
++    func prioritizeExistingPanel(_ panel: NSWindow, assetID: UUID, initialWindowNumber: Int?) {
++        guard !panelAssigned, requestedAssetID == assetID, panel.isVisible else { return }
++        panelAssigned = true
++        preferredPanel = panel
++        let before = super.accessibilityWindows() ?? []
++        let children = super.accessibilityChildren() ?? []
++        panel.orderFrontRegardless()
++        let after = accessibilityWindows() ?? []
++        Self.record(["event": "acceptance_ax_panel_priority", "assetID": assetID.uuidString,
++            "windowNumber": panel.windowNumber, "actualClass": String(describing: type(of: self)),
++            "initialPreferredWindowNumber": initialWindowNumber ?? -1,
++            "initialPreferredPanelCreated": initialWindowNumber == panel.windowNumber,
++            "beforeAXWindowNumbers": before.compactMap { ($0 as? NSWindow)?.windowNumber },
++            "afterAXWindowNumbers": after.compactMap { ($0 as? NSWindow)?.windowNumber },
++            "beforeAXElementCount": before.count, "afterAXElementCount": after.count,
++            "candidateInAXWindows": before.contains { ($0 as? NSWindow) === panel },
++            "candidateInAXChildren": children.contains { ($0 as? NSWindow) === panel },
++            "uptime": ProcessInfo.processInfo.systemUptime, "directSelection": false,
++            "physicalInputClaim": false, "uploadStartGrant": false])
++    }
++
++    static func record(_ fields: [String: Any]) {
++        // At most startup plus one priority event. Never log from AX getters.
++        guard let data = try? JSONSerialization.data(withJSONObject: fields, options: [.sortedKeys]) else { return }
++        try? FileHandle.standardError.write(contentsOf: data + Data([10]))
+     }
+ }
+ 
+@@ -178,6 +258,7 @@
+         } else { try JSONEncoder().encode(lifecycleSettings).write(to: lifecycleURL, options: .atomic) }
+         try lifecycleSettings.validate()
+         rift = RiftPanelController(mediaDirectory: root.appendingPathComponent("media"), configuration: configuration,
++            diagnosticInitialPanelID: (NSApp as? AcceptanceAXApplication)?.requestedAssetID,
+             onPress: { [weak self] id, timestamp in self?.freezePress(id, timestamp: timestamp) },
+             onSelectionBoundary: { [weak self] boundary in self?.recordSelection(boundary) },
+             onApproach: { [weak self] in self?.requestArm(reason: "pointerApproach") },
+@@ -517,6 +598,13 @@
+                 watchedCompletions.formUnion(successful.map(\.id))
+                 if hasNewImages && mode == .webAcceptance { requestArm(reason: "newImages") }
+                 rift?.render(snapshot)
++                if mode == .webAcceptance, CommandLine.arguments.contains("--acceptance-trace"),
++                   let application = NSApp as? AcceptanceAXApplication,
++                   !application.panelAssigned, let assetID = application.requestedAssetID,
++                   let panel = rift?.acceptanceExistingPanel(for: assetID) {
++                    application.prioritizeExistingPanel(panel, assetID: assetID,
++                        initialWindowNumber: rift?.diagnosticInitialPanelWindowNumber)
++                }
+                 switch mode {
+                 case .capture:
+                     statusItem?.button?.toolTip = "Riftlet · \(active.count) visible screenshots\(userHidden ? " · hidden" : "")"

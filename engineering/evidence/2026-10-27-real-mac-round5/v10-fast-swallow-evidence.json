@@ -1,0 +1,444 @@
+{
+  "schemaVersion": 1,
+  "verdict": "SCOPED_START_AND_APPKIT_CODEPATH_OBSERVED_FINAL_UNRESOLVED",
+  "runtimeSourceSHA": "0659e1cc603b1963367a2ba3a032414eeb5ad2ed",
+  "pageSourceID": "chatgpt-web-zh-20261027-integrated-v10",
+  "runtimeExecutableSHA256": "51c999a20bbbd70c955058fb1162a4b18a5f8dd421d1a03517a7dfe5cec75998",
+  "runtimeProvenance": "source and executable recorded by coordinator for actual run",
+  "temporaryOverlays": [
+    {
+      "name": "acceptance-synthetic-identifier-overlay.patch",
+      "sha256": "d9638001fc0afb8bfbc13ad9b9f36a66ebc8289121c71b07d75058fd7b3ca7f0"
+    },
+    {
+      "name": "app-acceptance-overlay.patch",
+      "sha256": "f686da6cf50b0f1c4e10d0d952b0ab88a4489a0120aefb9e7a4a27a9b0dbfea6"
+    }
+  ],
+  "productionAdmission": false,
+  "syntheticUploadStartGrant": true,
+  "assetID": "A484A063-19CD-4294-9EB0-0ED8F1A8A790",
+  "operationID": "3DBE58C7-B04D-4566-A252-BED937799A95",
+  "attempt": 1,
+  "assetSHA256": "494d7d015dc1a91073b356e1d6d64a546497aab37f8c47c4f82c630d7033f5bb",
+  "generatedAsset": true,
+  "inputCount": 1,
+  "targetDigest": "b688315f0ac079978d72ea2490b5462bab2720c10846d6f955df8d800ec6a975",
+  "completeTargetPublic": false,
+  "rawSources": [
+    {
+      "name": "riftlet-round5-fast-press.json",
+      "sha256": "215e137d081a587cabc40598bb33d9fe4811a5b26fec176a908d1da23b694334"
+    },
+    {
+      "name": "riftlet-round5-fast.jsonl",
+      "sha256": "b8a5ec8b80c7d231e273bec6c70abf92e553ef74255df5805b70620f27b4bf32"
+    },
+    {
+      "name": "riftlet-round5-fast-store-private.jsonl",
+      "sha256": "acf2c61cc291c309dd28008e63d2e511df750cf2513d42762b2ca9823815637a"
+    },
+    {
+      "name": "riftlet-round5-fast-first.json",
+      "sha256": "90dabfc8c029894ef86004ad5af36c7d0a4c504bcae3f1808c7cf59f517634ee"
+    },
+    {
+      "name": "riftlet-round5-fast-final.json",
+      "sha256": "f7f0a96c78ec1d054acb2b03d3d9c25309381011cb37db86071a11dcaffa3093"
+    },
+    {
+      "name": "riftlet-round5-fast-progress.json",
+      "sha256": "1654fc8471dfade4d4a56ccaaaf9f39e2f91d9a08dc85105ddbf5d3a9e197e0c"
+    },
+    {
+      "name": "riftlet-round5-native-nodelist.json",
+      "sha256": "c6f860273eb3810f7e0a8c063a3443e4318e1e2c93d055323115d70c8aaff9c5"
+    }
+  ],
+  "sourceHashScope": "read-time byte snapshots; later appended log bytes are not included",
+  "input": {
+    "source": "helperAX",
+    "physical": false,
+    "axActionAttempted": true,
+    "axErrorCode": 0,
+    "result": "axPressReturnedSuccess",
+    "foregroundPIDUnchanged": true,
+    "identityChecksAllTrue": true,
+    "buttonChecksAllTrue": true,
+    "windowChecksAllTrue": true,
+    "selectionSource": "accessibility",
+    "freezeResult": "accepted",
+    "effectiveACKPrecedesOriginalBoundary": true,
+    "fileChangeEventCount": 1
+  },
+  "pageStart": {
+    "version": 1,
+    "signal": "correlatedProgress",
+    "evidenceID": "c852b572-8689-47a4-bbeb-d28d0937f5bc",
+    "inputCount": 1,
+    "inputSequence": 2,
+    "startSequence": 15,
+    "previousProgress": 4.5378966329499795,
+    "currentProgress": 8.622003602604961,
+    "sincePageInputObservedMS": 2531.300000011921
+  },
+  "persistentStartAudit": {
+    "readOnlyQuery": true,
+    "table": "upload_starts",
+    "matchingRows": 1,
+    "identityMatchesOriginalOperation": true,
+    "targetDigestMatchesSelection": true,
+    "startEvidenceIDMatchesPage": true,
+    "outcome": "uploadStarted",
+    "profileID": "chatgpt-web-zh-attached-development-20261027-v2",
+    "positiveReady": false,
+    "isUploading": true,
+    "hasError": false,
+    "belongsToOriginalDraft": true,
+    "safeToRetry": false,
+    "uploadStartEvidence": {
+      "profileID": "chatgpt-web-zh-progress-start-development-20261027-v1",
+      "inputCount": 1,
+      "version": 1,
+      "signal": "correlatedProgress",
+      "evidenceID": "c852b572-8689-47a4-bbeb-d28d0937f5bc"
+    }
+  },
+  "storeObservations": [
+    {
+      "sinceAXActionMS": -48369.78583369637,
+      "status": "pending",
+      "visibility": "visible",
+      "visibilityReason": "capture",
+      "visibilityRevision": 0,
+      "operationID": null,
+      "phase": null,
+      "latestReceiptOutcome": null
+    },
+    {
+      "sinceAXActionMS": 23.57937430497259,
+      "status": "transferring",
+      "visibility": "visible",
+      "visibilityReason": "capture",
+      "visibilityRevision": 0,
+      "operationID": "3DBE58C7-B04D-4566-A252-BED937799A95",
+      "phase": "prepared",
+      "latestReceiptOutcome": null
+    },
+    {
+      "sinceAXActionMS": 124.75483329035342,
+      "status": "transferring",
+      "visibility": "visible",
+      "visibilityReason": "capture",
+      "visibilityRevision": 0,
+      "operationID": "3DBE58C7-B04D-4566-A252-BED937799A95",
+      "phase": "dispatchIntent",
+      "latestReceiptOutcome": null
+    },
+    {
+      "sinceAXActionMS": 5604.306874272879,
+      "status": "transferring",
+      "visibility": "swallowed",
+      "visibilityReason": "uploadStarted",
+      "visibilityRevision": 1,
+      "operationID": "3DBE58C7-B04D-4566-A252-BED937799A95",
+      "phase": "inputTriggered",
+      "latestReceiptOutcome": "uploadStarted"
+    },
+    {
+      "sinceAXActionMS": 35113.63370827166,
+      "status": "transferring",
+      "visibility": "swallowed",
+      "visibilityReason": "uploadStarted",
+      "visibilityRevision": 1,
+      "operationID": "3DBE58C7-B04D-4566-A252-BED937799A95",
+      "phase": "inputTriggered",
+      "latestReceiptOutcome": "inputTriggered"
+    },
+    {
+      "sinceAXActionMS": 60299.40066632116,
+      "status": "transferring",
+      "visibility": "swallowed",
+      "visibilityReason": "uploadStarted",
+      "visibilityRevision": 1,
+      "operationID": "3DBE58C7-B04D-4566-A252-BED937799A95",
+      "phase": "inputTriggered",
+      "latestReceiptOutcome": "inputTriggered"
+    },
+    {
+      "sinceAXActionMS": 146436.31745828316,
+      "status": "transferring",
+      "visibility": "swallowed",
+      "visibilityReason": "uploadStarted",
+      "visibilityRevision": 1,
+      "operationID": "3DBE58C7-B04D-4566-A252-BED937799A95",
+      "phase": "inputTriggered",
+      "latestReceiptOutcome": "inputTriggered"
+    },
+    {
+      "sinceAXActionMS": 171766.63124928018,
+      "status": "transferring",
+      "visibility": "swallowed",
+      "visibilityReason": "uploadStarted",
+      "visibilityRevision": 1,
+      "operationID": "3DBE58C7-B04D-4566-A252-BED937799A95",
+      "phase": "inputTriggered",
+      "latestReceiptOutcome": "inputTriggered"
+    }
+  ],
+  "coreLatestReadPhase": "inputTriggered",
+  "presentation": {
+    "measurement": "instrumented AppKit code boundaries, not pixels or physical input",
+    "events": [
+      {
+        "phase": "swallowScheduled",
+        "sinceAXActionMS": 5561.274291656446,
+        "visibilityRevision": 1,
+        "generation": 0,
+        "requestedAnimationSeconds": 0.24,
+        "pixelPresentationMeasured": false
+      },
+      {
+        "phase": "swallowActualStart",
+        "sinceAXActionMS": 5561.3114583538845,
+        "visibilityRevision": 1,
+        "generation": 0,
+        "requestedAnimationSeconds": 0.24,
+        "pixelPresentationMeasured": false
+      },
+      {
+        "phase": "swallowClose",
+        "sinceAXActionMS": 5814.455625019036,
+        "visibilityRevision": 1,
+        "generation": 0,
+        "requestedAnimationSeconds": 0.24,
+        "pixelPresentationMeasured": false
+      }
+    ],
+    "snapshotCommitUpperBoundAfterAXMS": 5561.007416632492,
+    "exactCommitMeasured": false,
+    "scheduledToCloseMS": 253.18133336259052,
+    "actualStartToCloseMS": 253.14416666515172,
+    "snapshotUpperBoundToActualStartMS": 0.3040417213924229
+  },
+  "finalPage": {
+    "hasProof": false,
+    "committed": true,
+    "invalid": false,
+    "error": false,
+    "uploading": false,
+    "startDisqualified": true
+  },
+  "firstPageHasProof": false,
+  "finalPreservation": {
+    "textPreserved": true,
+    "oldCardsPreserved": true,
+    "pageFocused": true,
+    "editorFocused": true
+  },
+  "selectionPreservedAtInput": true,
+  "progressProbe": {
+    "mode": "PROGRESS_DIAGNOSTIC_ONLY",
+    "state": "STOPPED",
+    "samples": [
+      {
+        "sequence": 1,
+        "batchID": null,
+        "event": "original_input",
+        "inputCount": 1,
+        "inputSequence": 2,
+        "hashVerified": false,
+        "adapterStartDisqualified": false,
+        "hasAdapterStart": false,
+        "hasAdapterProof": false,
+        "cardCount": 0,
+        "cardIsOriginal": false,
+        "progressCount": 0,
+        "nodeIsOriginal": false,
+        "exactProgressLabel": false,
+        "valueKind": "no-node",
+        "value": null,
+        "imageCount": 0,
+        "imageIsOriginal": false,
+        "sinceProbeOriginalInputMS": 0.0
+      },
+      {
+        "sequence": 2,
+        "batchID": 1,
+        "event": "mutation_snapshot",
+        "inputCount": 1,
+        "inputSequence": 2,
+        "hashVerified": false,
+        "adapterStartDisqualified": false,
+        "hasAdapterStart": false,
+        "hasAdapterProof": false,
+        "cardCount": 1,
+        "cardIsOriginal": true,
+        "progressCount": 1,
+        "nodeIsOriginal": true,
+        "exactProgressLabel": true,
+        "valueKind": "missing",
+        "value": null,
+        "imageCount": 1,
+        "imageIsOriginal": true,
+        "sinceProbeOriginalInputMS": 42.10000002384186
+      },
+      {
+        "sequence": 7,
+        "batchID": 3,
+        "event": "mutation_snapshot",
+        "inputCount": 1,
+        "inputSequence": 2,
+        "hashVerified": true,
+        "adapterStartDisqualified": false,
+        "hasAdapterStart": false,
+        "hasAdapterProof": false,
+        "cardCount": 1,
+        "cardIsOriginal": true,
+        "progressCount": 1,
+        "nodeIsOriginal": true,
+        "exactProgressLabel": true,
+        "valueKind": "finite",
+        "value": 4.5378966329499795,
+        "imageCount": 1,
+        "imageIsOriginal": true,
+        "sinceProbeOriginalInputMS": 2171.600000023842
+      },
+      {
+        "sequence": 11,
+        "batchID": 5,
+        "event": "mutation_snapshot",
+        "inputCount": 1,
+        "inputSequence": 2,
+        "hashVerified": true,
+        "adapterStartDisqualified": false,
+        "hasAdapterStart": false,
+        "hasAdapterProof": false,
+        "cardCount": 1,
+        "cardIsOriginal": true,
+        "progressCount": 1,
+        "nodeIsOriginal": true,
+        "exactProgressLabel": true,
+        "valueKind": "finite",
+        "value": 8.622003602604961,
+        "imageCount": 1,
+        "imageIsOriginal": true,
+        "sinceProbeOriginalInputMS": 2482.5
+      },
+      {
+        "sequence": 29,
+        "batchID": 14,
+        "event": "mutation_snapshot",
+        "inputCount": 1,
+        "inputSequence": 2,
+        "hashVerified": true,
+        "adapterStartDisqualified": false,
+        "hasAdapterStart": true,
+        "hasAdapterProof": false,
+        "cardCount": 1,
+        "cardIsOriginal": true,
+        "progressCount": 1,
+        "nodeIsOriginal": true,
+        "exactProgressLabel": true,
+        "valueKind": "finite",
+        "value": 100,
+        "imageCount": 1,
+        "imageIsOriginal": true,
+        "sinceProbeOriginalInputMS": 3628.800000011921
+      },
+      {
+        "sequence": 30,
+        "batchID": 14,
+        "event": "progress_attribute",
+        "attribute": "value",
+        "nodeIsOriginal": true,
+        "underOriginalCard": true,
+        "exactProgressLabel": true,
+        "oldValueKind": "finite",
+        "oldValue": 71.24497713731466,
+        "valueKind": "finite",
+        "value": 100,
+        "sinceProbeOriginalInputMS": 3628.800000011921
+      },
+      {
+        "sequence": 31,
+        "batchID": 15,
+        "event": "mutation_snapshot",
+        "inputCount": 1,
+        "inputSequence": 2,
+        "hashVerified": true,
+        "adapterStartDisqualified": false,
+        "hasAdapterStart": true,
+        "hasAdapterProof": false,
+        "cardCount": 1,
+        "cardIsOriginal": true,
+        "progressCount": 0,
+        "nodeIsOriginal": false,
+        "exactProgressLabel": false,
+        "valueKind": "no-node",
+        "value": null,
+        "imageCount": 1,
+        "imageIsOriginal": true,
+        "sinceProbeOriginalInputMS": 6248.300000011921
+      },
+      {
+        "sequence": 32,
+        "batchID": 15,
+        "event": "original_progress_membership",
+        "removed": true,
+        "added": false,
+        "underOriginalCard": false,
+        "valueKind": "finite",
+        "value": 100,
+        "sinceProbeOriginalInputMS": 6248.300000011921
+      },
+      {
+        "sequence": 33,
+        "batchID": null,
+        "event": "original_image_load",
+        "imageIsOriginal": true,
+        "underOriginalCard": true,
+        "exactImageLabel": true,
+        "complete": true,
+        "naturalWidth": 1024,
+        "naturalHeight": 1024,
+        "sourceKind": "data-png",
+        "sinceProbeOriginalInputMS": 6277.199999988079
+      }
+    ],
+    "hundredBatchID": 14,
+    "removedBatchID": 15,
+    "hundredToRemovalMS": 2619.5,
+    "sameBatchHypothesisForThisRun": false
+  },
+  "nativeNodeList": {
+    "nodeListInstance": true,
+    "isArray": false,
+    "someType": "undefined",
+    "iteratorType": "function",
+    "prototypeSomeType": "undefined"
+  },
+  "defect": {
+    "sourcePath": "Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js",
+    "sourceLine": 494,
+    "unsupportedCall": "(record.removedNodes || []).some(...)",
+    "finding": "Native NodeList is truthy and has no some method; fallback does not convert it. Executing this branch can throw before mutation sampleAll at line 507.",
+    "causalLimit": "Source/API defect is established; these records do not include an exception stack or a repaired-run comparison proving it is the sole cause of missing final proof."
+  },
+  "logCompleteness": {
+    "appAcceptanceEventCount": 2048,
+    "appAcceptanceCap": 2048,
+    "appAcceptanceCapReached": true,
+    "targetPresentationEventCount": 3,
+    "readyPersistenceEventsForThisOperation": 0,
+    "absenceOfReadyLogIsNotCompletionProof": true
+  },
+  "limits": [
+    "No final verifiedReady or succeeded for this operation in inspected page/store evidence.",
+    "The approximately 253 ms interval is animation code-path start to row close, not click-to-upload or pixel disappearance.",
+    "One software AX input; not physical-human acceptance.",
+    "Synthetic-only start admission and temporary overlays do not admit production screenshots.",
+    "Synchronous diagnostic logging affects timing; separate page/native clocks were not subtracted.",
+    "No replay, new attempt or success was inferred from the retained start audit."
+  ]
+}

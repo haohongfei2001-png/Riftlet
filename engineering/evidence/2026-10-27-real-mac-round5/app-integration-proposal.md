@@ -1,8 +1,8 @@
 # 第五轮 App 快速吞噬接入与诊断建议（交 Pro）
 
-2026-10-27；最新只读核对 HEAD `1f9dec2dec9cf6ef61f36776a6e4f7c3439f4f8a`，已合并 Pro 正式提交 `e89d49f763036781c90618422da256e03cbca2ac`，并保留第五轮 adapter 工作。`git diff e89d49f -- Sources/RiftletCore Sources/RiftletUI Sources/RiftletApp` 为空，确认这三处正式源码与 Pro 一致。下列行号按此 HEAD 的未应用 overlay 源码定位。本文件是待协调接口及补丁建议，**未修改 Core/UI/App、未运行 GUI、未应用或测试以下补丁，不构成生产准入**。依据：`docs/UPLOAD_STARTED_CONTRACT_V1.md`。
+2026-10-27；最新只读核对 HEAD `1f9dec2dec9cf6ef61f36776a6e4f7c3439f4f8a`，已合并 Pro 正式提交 `e89d49f763036781c90618422da256e03cbca2ac`，并保留第五轮 adapter 工作。`git diff e89d49f -- Sources/RiftletCore Sources/RiftletUI Sources/RiftletApp` 为空，确认这三处正式源码与 Pro 一致。下列行号按此 HEAD 的未应用 overlay 源码定位。本文件前期提案现已有更新：正式 Core/UI/App 源码仍未修改；两个独立临时构建已应用补丁，最终 53ebcc4 的真实 synthetic start→AppKit close→独立最终成功通过，详见 [最终报告](README.md)。本文件下文保留提案时的接口分析，不构成生产准入。依据：`docs/UPLOAD_STARTED_CONTRACT_V1.md`。
 
-## 当前接线与阻断
+## 原提案接线与阻断（以下为前期设计记录）
 
 1. `RiftletMain.swift:180–238` 已将原选择冻结、selection boundary、交互锁、Coordinator.onChange→refresh 接入实际 App。`refresh():493` 将仍有 row 的 retired asset 纳入 snapshot，因此已吞噬记录可以送到 UI。
 2. `QueueStore.apply:330–337` 对获准 `.uploadStarted` 在同事务中存第一份 `upload_starts`、设 `.swallowed/.uploadStarted`，阶段保持未决（通常 `.inputTriggered`）。`RiftPanelController.render:382–419` 见到 visible→该状态才启动短动画；默认配置 0.120 秒，实际遵循减少动态效果。最终 READY 不重复吞噬；只有 READY 的旧适配器走 `legacyCompletion` 静默退出。
