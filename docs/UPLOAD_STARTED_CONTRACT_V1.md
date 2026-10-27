@@ -44,7 +44,7 @@ TransferReceipt(
 | 最终成功 | `admittedProfiles` | `syntheticAcceptanceProfiles` |
 | 安全失败/可再次点击 | `retrySafeProfiles` | `syntheticRetrySafeProfiles` |
 
-普通收录模式仍使用 `UnavailableAdapter`。现有 `--web-acceptance` 只保留已审查的生成图片**完成** profile，没有自动增加开始或安全失败 profile。离线 `--simulate` 另要求 simulation store、synthetic asset、simulation target/adapter、`simulation-v1` 以及 `simulation-upload-start-v1`；这些标签不能用于真实 Web 或系统截图。
+普通收录模式仍使用 `UnavailableAdapter`。第五轮正式合流后，显式 `--web-acceptance` 组合已审查的生成图片**完成与开始** profile，见第8节；Core默认registry仍空，没有增加生产或安全失败profile。离线 `--simulate` 另要求 simulation store、synthetic asset、simulation target/adapter、`simulation-v1` 以及 `simulation-upload-start-v1`；这些标签不能用于真实 Web 或系统截图。
 
 有效开始必须是**原操作唯一一次图片输入已经进入原目标上传流程**的正向事实。单独 click、dispatch intent、`input.files`、`change`、占位图、删除按钮、普通 DOM 变化或 `isUploading` 布尔均不够。所选 progress 或 byte-request 判据需要真实源码、图片/目标身份链、相邻反例和精确范围。Core 不通过等待时长推导开始、成功或安全终止。
 
@@ -82,9 +82,13 @@ SQLite schema v3 保留 v1/v2 资产、原操作、回执、补偿、顺序和�
 
 ## 6. 当前已验证工程输入
 
+> 历史来源：以下保留初版生命周期的验证记录，当前合流源码与准入状态见第8节。
+
 `d834a3a4a76cacedd0cb763044085c9c2093680c` / [完整 macOS CI](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40479556833)：287项原生，生命周期详细13 passed /0 skipped，Release/签名/三个自检通过。可运行制品见[artifact](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40479556833/artifacts/12721893223)；完整来源与失败修复见[本轮记录](../engineering/evidence/2026-10-27-interaction-lifecycle/README.md)。本页所在的后续文档检查点保持该构建输入不变，最新正式HEAD由PR #1指向。真实start/安全终止仍待本地Codex，未因CI准入。
 
 ## 7. 第四轮合流后的直接接入要求
+
+> 历史起点：以下描述第四轮结束时的页面与待办状态；第五轮已经完成的部分及剩余限制见第8节。
 
 第四轮 `c9c68a6` / `03a67cc` 已与 `b848920` 的生命周期合流；最新完整工程验证及正式检查点见 [INTEGRATION_HANDOFF](INTEGRATION_HANDOFF.md)。第6节保留此前测试来源，不代表第四轮源码已由该旧运行验证。当前捆绑页面是 v8，保留 v6/v7 **只读原操作**观察；新 Core 识别独立 persisted UUID profile，但 local/persisted 跨 profile、旧 nil/未知身份仍锁同 tab。所有旧 UNKNOWN、媒体、回执及补偿保留。没有新增生产或 synthetic 开始准入。
 
@@ -102,3 +106,15 @@ SQLite schema v3 保留 v1/v2 资产、原操作、回执、补偿、顺序和�
 第四轮真实成功只是**已预绑定、空正文/零附件、编辑器未聚焦的一个普通已有会话**。冷首击、业务 ABA（含已保留的无可观察反例）、非空正文/旧附件/选区保留、MID、物理 GUI、系统截图自包含与完整延迟继续开放。普通捕获仍不使用 Web 上传；新版快吞噬的真实验收尚待这一接入。
 
 第四轮合流验证补记：`c85020b` 的 [完整macOS CI40484855920](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40484855920) 已通过306原生、48页面/14legacy、13生命周期逐项passed及Release/签名/三个自检；完整来源见[当前集成记录](../engineering/evidence/2026-10-27-integration-round4/README.md)。这是工程接线验证，真实Web start与快吞噬仍未运行。
+
+## 8. 第五轮正式合流：受限开始准入与下一真机入口
+
+Swift `TransferReceipt` / `UploadStartEvidence` v1接口不变，Core/SQLite v3不变。已测caa6a65将53ebcc4/3bb13999的页面v11/schema2观察、严格解码/正常化、append早返回和v6–v10 schema1只读路由与e655首用合流。旧操作不补写start、不修复旧闭包、不重建registry或重新输入。
+
+经源码/真实生成图证据/反例审查，只在 `ApplicationMode.webAcceptance` 中由 `WebAcceptanceConfiguration.receiptPolicy` 注册 `syntheticUploadStartProfiles[ChatGPTWebPageProgram.acceptanceUploadStartProfileID] = .webChat`。代码持有常量为 `chatgpt-web-zh-progress-start-development-20261027-v1`，不能由页面提供。默认/production start、production completion、所有真实及synthetic retry表仍空；adapter仍只接受synthetic资产，App在真实transport创建前及journal恢复后复核隔离来源。授予开始不授予最终成功或重试。
+
+两个最小验收overlay的允许部分已正式接线：AppKit scheduled/start/close、持久查询观察上界、仅可见synthetic AX标识。不存在失败CUA窗口排序。仅 `--web-acceptance --acceptance-trace` 输出验收日志；`pixelPresentationMeasured=false` / `exactCommitMeasured=false`，不得将回调时间等同像素完成或精确COMMIT。普通收录保留首用流程；安全失败重生仍需独立准入。
+
+新App保留arm/selection/background被动Automation检查，原冻结lease不变；增加Chrome激活/唤醒恢复入口以补初次不可用后的空缺，没有轮询/缓存授权/重放点击。`permission_check`记录purpose、起止uptime及asset或capture request/attempt/epoch，不能当成ACK或上传开始。新路径真实延迟/TCC仍NOT_RUN；原v11真实证据基于e89+overlay、预绑定聚焦空草稿和软件AX，不能扩大为新二进制冷首击。
+
+完整369原生/68页面/45legacy/数据库恢复/Release/自检及非作者审查见[正式证据](../engineering/evidence/2026-10-27-integration-round5/README.md)。本地Codex第六轮继续独立工作，不重写已有接口；正式交接后由root处理共享App差异。保留全部旧v3/UNKNOWN/补偿/media，原未决只能只读observe。不要为了演示清库、换profile解锁或重试旧图。

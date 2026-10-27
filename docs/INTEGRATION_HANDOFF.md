@@ -1,6 +1,29 @@
-# 正式工程集成交接 · 首次使用与发行基础体验 · 2026-10-27
+# 正式工程集成交接 · 第五轮真实开始与首次使用合流 · 2026-10-27
 
-## 当前检查点：首用与本地可靠性已实现，Web 真机继续独立推进
+## 当前检查点：第五轮独立合流已完成
+
+已测源码 **`caa6a65b69c6038154a2fff65f2fb1157125bb7e`**，双亲为正式首用 `e655b1e04241990ec35acbb79b5b6bc8ee95b960` 与第五轮交接 `3bb13999b0f444c7748804eef1976e179a52a85e`。本页后续文档检查点保持相同源码/测试/构建输入；精确正式HEAD见 [PR #1](https://github.com/haohongfei2001-png/Riftlet/pull/1) 最终交接评论。
+
+v11/schema2真实开始、严格正常化、早返回、v6–v10旧操作只读兼容和原27份证据已完整进入正式工程。两个允许overlay仅用于生成图片开始准入、AppKit观察及synthetic AX标识；失败CUA窗口排序没有应用。运行时和打包自检共用 `WebAcceptanceConfiguration.receiptPolicy`，普通捕获仍UnavailableAdapter，生产及所有真实安全重试关闭。Core/SQLite v3、Capture、历史、首次使用与权限保护保留。
+
+新增被动权限恢复修复初次Chrome不可用后没有自动重启观察的问题；仅Chrome激活/唤醒触发，不轮询、不缓存grant、不补发点击。新 `permission_check` 诊断给出purpose、permissionRequestID、起止uptime，选择关联asset、arm关联capture request/attempt/epoch。权限返回不是ACK，不能更换原完整冻结lease。`startAttachmentObservationIfPermitted` 在恢复/查询await后检查取消与终止，再单次安装。
+
+[macOS CI40515643640](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40515643640) / job122228775354于 **21:53:30北京时间**记录成功：369原生，68页面/45legacy，helper9/4/2、包装12、既有回放/故障/probe、Release/签名/四自检；六个详细suite13/3/15/4/5/8均passed/0skip。独立源码/原证据/完整日志复核通过；[第五轮合流证据](../engineering/evidence/2026-10-27-integration-round5/README.md)包含原文件hash、输入对象和具体范围。
+
+### 本地 Codex 第六轮成果的接入边界
+
+- 第六轮正在独立推进，本次未读取/合并其未交接源码，不要求中断当前真机小包。提供正式分支/已测SHA/交接后由root合流。
+- Web接口沿用 [uploadStarted v1](UPLOAD_STARTED_CONTRACT_V1.md#8-第五轮正式合流受限开始准入与下一真机入口)；原UI和Core不用重写。保留本包policy隔离、权限恢复和首用，不用旧e89版App覆盖共享文件。
+- 运行本次 [开发App/helper](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40515643640/artifacts/12739217183)，显式 `--web-acceptance --acceptance-trace`，保留现有v3/私有media/旧UNKNOWN/补偿；只用新的生成图片与明确选择，原未决只能observe。
+- 测原事件→permission check→原ACK/target→input→start→持久状态观察→AppKit调用/close→最终proof。第五轮基于e89+overlay，预绑定24.42秒、聚焦空草稿、软件AX一图；其5.51秒点击→close、59–322ms start→UI、26.869秒Core成功首次观察均不能当作新合流二进制性能。
+- Chrome未运行后启动、系统外部授权后返回Chrome、仍拒绝、停止/重启期间迟到返回、普通capture零Chrome探测，按 [首用验收](FIRST_USE_ACCEPTANCE.md) 测真实TCC与事件接线。当前仅软件回归通过，真机仍NOT_RUN。多Chrome实例的权限检查对象范围仍待证据，输入/观察完整目标校验未放宽。
+- 冷首击、真实业务ABA/同URL、正文/附件/选区、MID、物理点击/穿透/多屏及截图自包含继续原任务；软件AX不能替代物理鼠标，observer异常不能替代网络失败或重试终止证据。
+
+PR #1保持Draft；main、网站、品牌未修改。以下保留此前首用与第四轮来源，当前状态以上方第五轮增量为准。
+
+---
+
+## 首次使用与本地可靠性检查点（历史来源）
 
 正式起点 `e89d49f763036781c90618422da256e03cbca2ac`；实现 `4e080aa`，已测源码 **`2449d40a88225acba9d413cc6a4cb5d84fcae6a1`**。本页所在的后续文档检查点保留同一源码/测试/构建输入；确切正式 HEAD、可运行制品及交接评论见 [Draft PR #1](https://github.com/haohongfei2001-png/Riftlet/pull/1)。本轮是实际 App/Capture/UI/打包开发，没有重订计划或访问本地 Codex 的 Mac。
 

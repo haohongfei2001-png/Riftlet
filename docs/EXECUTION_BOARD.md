@@ -15,6 +15,16 @@
 
 ## 1. 当前检查点
 
+### 第五轮真实开始 + 首次使用正式合流 · DONE；第六轮真机保持独立
+
+合流已测 **`caa6a65b69c6038154a2fff65f2fb1157125bb7e`**，双亲 `e655b1e` / `3bb13999`，保留第五轮53ebcc4的全部源代码与27份原证据。v11/schema2开始观察、严格归一化/早返回、v6–v10只读、两个允许的App/UI最小overlay已进入同一正式App；只有隔离生成图片Web模式的start profile获准，生产及安全重试保持关闭。失败CUA窗口排序只存档，不应用；原Core/SQLite v3/Capture/历史/首次使用保护保留。
+
+实际修复初次Chrome不可用导致以后缺少自动恢复入口：仅Web模式由Chrome激活/唤醒触发被动重检，合并事件并拒绝旧代际；安装前保留取消/latch保护，原点击目标不换、不等较晚ACK、不回放。新permission_check时钟诊断仅在验收trace中记录，不缓存权限或代替开始证据。
+
+[macOS CI40515643640](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40515643640) completed/success于 **21:53:30北京时间**：369原生（Core117/Adapters110/Capture63/UI52/App27），页面68/legacy45，第五轮helper9/4/2、包装12、原回放/故障/probe、Release/签名及四自检全部通过。原生命周期13/首用3/Capture15、新呈现4/Web组合5/权限恢复8详细复跑均passed/0skip，已含在369内。源码、原证据与实际完整日志非作者审查通过，见[第五轮合流证据](../engineering/evidence/2026-10-27-integration-round5/README.md)。
+
+**直接续做边界：** 本地Codex第六轮继续其独立工作；本会话未读取/合并进行中成果。交接后由root整合，不重复v11或首用。第五轮真实一图只证明预绑定、聚焦、空草稿、软件AX的受限链路；该App不含新权限前置，5.51秒点击→close不能冒称新二进制时延。新权限/单击/时延、冷首击/业务ABA/草稿保留/MID/物理GUI/自包含继续真实验收。确切最终文档HEAD见PR #1最终交接；旧检查点作为历史保留。
+
 ### 首次使用与发行基础体验 · 代码、macOS CI 和非作者审查 DONE
 
 正式起点 `e89d49f`；实现 `4e080aa`，已测修复 `2449d40a88225acba9d413cc6a4cb5d84fcae6a1`。root 与三个独立执行者实际并行完成原生首用/状态窗口、按需权限恢复、Capture 诊断/原字节保真/空间预检及 App 打包保护；没有改 Web/Chrome、Core、SQLite v3 或上传开始契约。普通用户基础设置不需终端或 JSON；普通收录模式不请求 Chrome 权限，生产能力未启用与权限问题明确区分。隐藏、暂停、空队列和待核实分开；没有成功 Toast。

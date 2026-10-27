@@ -1,5 +1,7 @@
 # 首次使用与发行基础体验：实现及验收入口
 
+> **第五轮合流补记：** 首用入口及以下真机NOT_RUN表保留。最新组合已把v11与受限synthetic start接入同一App，修复初次Chrome不可用后的激活/唤醒被动恢复，并保留权限检查；不新增日常设置操作、不重放旧点击。新完整CI和非作者审查见[第五轮合流证据](../engineering/evidence/2026-10-27-integration-round5/README.md)。该组合的真实TCC/事件恢复/实际点击时延仍待本地Mac，不能继承第五轮旧App的性能数字。
+
 2026-10-27 用户授权的独立实现包，基于正式 `e89d49f`；不等待或替代本地 Codex 的真实 Web `uploadStarted`。本页记录实际接线和可运行入口，不重新制定产品计划。已测源码 `2449d40a88225acba9d413cc6a4cb5d84fcae6a1` 的 [完整 macOS CI](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40508109228) 与非作者审查已通过：344 原生测试、12 包装测试、原页面/回放、Release/签名与四个自检。详细首用窗口 3 / Capture 15 / 生命周期 13 均 passed、0 skipped，已包含在原生总数；HEIC 与 POSIX 拒绝明确执行。[永久证据与可运行制品](../engineering/evidence/2026-10-27-release-ux/README.md)记录首轮编译修复和真机未测范围。
 
 ## 普通用户入口

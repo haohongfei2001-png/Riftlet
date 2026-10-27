@@ -9,7 +9,19 @@
 - macOS CI compilation/tests/package smoke do not prove interactive focus, click-through, Spaces or real upload.
 - No real user screenshots, chats or browser sessions are used in automated tests.
 
-## First-use and release foundations — current tested source
+## Round-five Web start with first-use — current tested source
+
+已测 **`caa6a65b69c6038154a2fff65f2fb1157125bb7e`**，双亲e655b1e/3bb13999，[macOS CI40515643640](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40515643640) /job122228775354 completed/success，2026-10-27 **21:53:30北京时间**。369原生（Core117/Adapters110/Capture63/UI52/App27），页面68/legacy45，第五轮离线helper9/4/2，包装12，旧55文件/19用例/89轨迹前缀/2明确SIMULATED迟到错误、故障8/probe12，Release/bundle/签名与四项App/helper自检全部通过。
+
+生命周期13、首用窗口3、Capture15、新呈现边界4、Web组件组合5、被动权限恢复8详细复跑全部passed/0skip；均已包含在369内。真实SQLite v1→v2→v3/v2→v3、回滚/未来拒绝、UNKNOWN重开/旧锁/补偿回归实际执行。新Web组合使用真实adapter/normalizer/Core/App policy及假桥/假权限，不是Chrome/TCC或网络验收。
+
+[第五轮合流证据](../engineering/evidence/2026-10-27-integration-round5/README.md)记录完整测试名、原27文件hash和18个未变保护对象；[非作者审查](../engineering/evidence/2026-10-27-integration-round5/review.json)由各作者之外的执行者完成，实际CI另独立从GitHub取证。实际临时checkout ed5397665b6586729237244211a9fbcc0ef175c5的13组输入与正式源码相同，父为实际main eba1a4f和caa6a65；未合main。macOS14.8.9/23J631/ARM64/Swift5.10。
+
+[开发App/helper/日志](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40515643640/artifacts/12739217183) 1,650,427bytes，SHA-256 `98bb5f342e02d4196b6ec8acd8cf56835c6eaf5e1179c7d84761b2d889369d4d`，保存至2026-11-10 21:52:28北京时间。原27份证据字节保持；raw patch的原上下文空白不改写，作者源码格式检查通过。
+
+第五轮真实v11限一个预绑定/聚焦空草稿/software AX生成图，并非本合流二进制权限/时延验收。新真实TCC、权限恢复、冷首击/业务转换/网络故障/物理GUI仍未通过；生产和safe retry未准入。第六轮进行中源码未读取或合并。
+
+## First-use and release foundations — preceding tested source
 
 已测 **`2449d40a88225acba9d413cc6a4cb5d84fcae6a1`**，[run40508109228](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40508109228) / job122202566296 completed/success，2026-10-27 **21:00:40 北京时间**。344 原生：Core117 / Adapters102 / Capture63 / UI48 / App14。新增38项已包含在总数；详细复跑生命周期13、首用窗口3、Capture15全部 passed/0 skipped，HEIC和受控 POSIX 权限拒绝均明确执行。Python包装12，页面48/legacy14，原55文件/19用例/89轨迹前缀/2明确SIMULATED迟到错误，故障8/probe12、Release/签名及四个 App/helper 自检全部通过。
 

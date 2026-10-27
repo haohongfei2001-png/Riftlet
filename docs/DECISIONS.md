@@ -151,3 +151,11 @@ Following direct user confirmation of the earlier product-usability review, thes
 系统截图偏好只读，文件夹面板只授权重新核对的实际来源；取消/错目录不改系统设置。Chrome权限仅在明确Web验收模式使用，被动检查不请求授权；只有用户明确设置动作请求，拒绝提供系统设置恢复，OS授权与Chrome JavaScript开关分开。权限不授予生产上传/成功/安全重试，也不改变原事件完整目标身份。新增检查时延必须由下一轮真实Mac实测。
 
 新复制空间预检的4MiB元数据余量是可调整工程保护，不是用户批准的保留配额、磁盘预留或删除策略；已有journal仍可恢复。原字节/hash/颜色/方向与原始编码尺寸保留，不能以重编码修复缩略图比例而破坏资产身份。打包仅准备可验证的ad-hoc开发App；未签Developer ID、公证、发行或实现自动更新。真实权限/物理GUI、支持版本矩阵仍逐项验收，生产注册表保持关闭。实际源码、CI与非作者审查见[首用交付](../engineering/evidence/2026-10-27-release-ux/README.md)。
+
+## I16 — 第五轮开始证据的受限正式组合与权限恢复（2026-10-27）
+
+保留53ebcc4/3bb13999原源代码与证据。独立审查v11原进度、一次输入、完整身份、开始先于最终证明及AppKit调用后，只在显式隔离生成图片Web验收模式组合 `chatgpt-web-zh-progress-start-development-20261027-v1`；生产start/completion/retry和synthetic retry仍空。运行时及自检共用策略。接受两个最小overlay的诊断/标识/策略部分，不接受已失败的CUA窗口排序。
+
+权限不作为上传证据或捕获新目标的授权。保留原点击冻结lease和ACK规则；修复初次Chrome不可用后没有宿主事件恢复入口，采用仅Web的Chrome激活/唤醒被动检查、合并事件、代际/取消保护及原安装latch，不提示授权、不缓存grant、不回放点击。实际新时延/TCC由后续真机测量，原v11基于e89+overlay的5.51秒不能复制为新二进制结论。
+
+第五轮一图软件AX成功不批准冷首击、业务ABA、复杂草稿、物理GUI、网络安全重试或生产系统截图。保留旧UNKNOWN/首start/补偿/媒体，不重新输入旧未决图。第六轮进行中源码不纳入本轮，之后由唯一负责人根据正式交接合流。[实际验证及范围](../engineering/evidence/2026-10-27-integration-round5/README.md)。
