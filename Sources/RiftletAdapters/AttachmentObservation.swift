@@ -35,7 +35,22 @@ public struct ObservationIdentity: Codable, Equatable, Sendable {
 
 /// These are observer facts, not queue states or admission decisions.
 public enum AttachmentObservedState: String, Codable, Sendable {
-    case inputTriggered, attached, ready, failed, unknown, invalidated
+    case inputTriggered, uploadStarted, attached, ready, failed, unknown, invalidated
+}
+
+/// Page facts only. Identity and attachment are supplied by the enclosing
+/// observation; a trusted start profile is chosen by native code, never JSON.
+public struct ObservedUploadStart: Codable, Equatable, Sendable {
+    public let version: Int
+    public let signal: UploadStartSignal
+    public let evidenceID: String
+    public let inputCount: Int
+    public let inputSequence: Int
+    public let startSequence: Int
+    public let previousProgress: Double
+    public let currentProgress: Double
+    public let inputObservedAtMS: Double
+    public let startObservedAtMS: Double
 }
 
 public struct AttachmentObservation: Codable, Equatable, Sendable {
@@ -49,18 +64,20 @@ public struct AttachmentObservation: Codable, Equatable, Sendable {
     public let isUploading: Bool
     public let attachmentAbsent: Bool
     public let automaticRetryExcluded: Bool
+    public let uploadStart: ObservedUploadStart?
 
     public init(identity: ObservationIdentity, state: AttachmentObservedState,
                 attachmentID: String? = nil, exactImageIdentity: Bool = false,
                 belongsToOriginalDraft: Bool = false, hasError: Bool = false,
                 isUploading: Bool = false, attachmentAbsent: Bool = false,
-                automaticRetryExcluded: Bool = false) {
+                automaticRetryExcluded: Bool = false, uploadStart: ObservedUploadStart? = nil) {
         self.identity = identity; self.state = state; self.attachmentID = attachmentID
         self.exactImageIdentity = exactImageIdentity
         self.belongsToOriginalDraft = belongsToOriginalDraft
         self.hasError = hasError; self.isUploading = isUploading
         self.attachmentAbsent = attachmentAbsent
         self.automaticRetryExcluded = automaticRetryExcluded
+        self.uploadStart = uploadStart
     }
 }
 
@@ -69,8 +86,8 @@ public struct AttachmentObservationEnvelope: Codable, Equatable, Sendable {
     public let provenance: ObservationProvenance
     public let observation: AttachmentObservation
 
-    public init(provenance: ObservationProvenance, observation: AttachmentObservation) {
-        schemaVersion = 1; self.provenance = provenance; self.observation = observation
+    public init(schemaVersion: Int = 1, provenance: ObservationProvenance, observation: AttachmentObservation) {
+        self.schemaVersion = schemaVersion; self.provenance = provenance; self.observation = observation
     }
 }
 
@@ -96,7 +113,7 @@ public enum ObservationDecoder {
                   Set(observation.keys).isSubset(of: Set([
                     "identity", "state", "attachmentID", "exactImageIdentity",
                     "belongsToOriginalDraft", "hasError", "isUploading",
-                    "attachmentAbsent", "automaticRetryExcluded"
+                    "attachmentAbsent", "automaticRetryExcluded", "uploadStart"
                   ])),
                   let identity = observation["identity"] as? [String: Any],
                   Set(identity.keys) == Set(["operationID", "assetID", "attempt", "assetSHA256", "target"]),
@@ -109,6 +126,12 @@ public enum ObservationDecoder {
                 guard let fields = logical as? [String: Any],
                       Set(fields.keys) == Set(["profileID", "id"]) else { throw ObservationError.invalidPayload }
             }
+            if let rawStart = observation["uploadStart"] {
+                guard let fields = rawStart as? [String: Any], Set(fields.keys) == Set([
+                    "version", "signal", "evidenceID", "inputCount", "inputSequence", "startSequence",
+                    "previousProgress", "currentProgress", "inputObservedAtMS", "startObservedAtMS"
+                ]) else { throw ObservationError.invalidPayload }
+            }
             let envelope = try JSONDecoder().decode(AttachmentObservationEnvelope.self, from: data)
             try validate(envelope)
             return envelope
@@ -117,8 +140,28 @@ public enum ObservationDecoder {
     }
 
     static func validate(_ envelope: AttachmentObservationEnvelope) throws {
-        guard envelope.schemaVersion == 1 else { throw ObservationError.unsupportedSchema(envelope.schemaVersion) }
+        guard [1, 2].contains(envelope.schemaVersion) else { throw ObservationError.unsupportedSchema(envelope.schemaVersion) }
         let item = envelope.observation
+        if envelope.schemaVersion == 1, item.uploadStart != nil || item.state == .uploadStarted {
+            throw ObservationError.invalidField("legacy upload start")
+        }
+        if item.state == .uploadStarted {
+            guard envelope.schemaVersion == 2, let start = item.uploadStart,
+                  start.version == 1, start.signal == .correlatedProgress,
+                  start.evidenceID.utf8.count == 36, UUID(uuidString: start.evidenceID) != nil,
+                  start.inputCount == 1, start.inputSequence > 0, start.startSequence > start.inputSequence,
+                  start.previousProgress.isFinite, start.currentProgress.isFinite,
+                  start.previousProgress >= 0, start.currentProgress > start.previousProgress,
+                  start.currentProgress < 100,
+                  start.inputObservedAtMS.isFinite, start.startObservedAtMS.isFinite,
+                  start.inputObservedAtMS >= 0, start.startObservedAtMS > start.inputObservedAtMS,
+                  item.attachmentID != nil, item.exactImageIdentity, item.belongsToOriginalDraft,
+                  item.isUploading, !item.hasError, !item.attachmentAbsent, !item.automaticRetryExcluded else {
+                throw ObservationError.invalidField("upload start")
+            }
+        } else if item.uploadStart != nil {
+            throw ObservationError.invalidField("unexpected upload start")
+        }
         guard validToken(envelope.provenance.evidenceID) else { throw ObservationError.invalidField("evidenceID") }
         guard item.identity.attempt > 0,
               item.identity.assetSHA256.utf8.count == 64,

@@ -38,6 +38,34 @@ final class WebAttachmentAdapterTests: XCTestCase {
             program: withProgram ? program : nil, mode: mode, polling: .disabled)
     }
 
+    func testPositiveStartReturnsBeforeFinalAndReconcileNeverReinputs() async throws {
+        let (store, request, _) = try await fixture()
+        let executor = FakeWebBridge(behavior: .startedThenAttached)
+        let profile = ObservationProfile(adapterID: "chatgpt-web", surface: .webChat,
+            profileID: "test-completion", completionSignal: .attached, uploadStartProfileID: "test-start")
+        let client = WebAttachmentAdapter(mediaDirectory: directory, executor: executor, program: program,
+            mode: .syntheticDevelopment, profile: profile, polling: .init(timeout: 5, interval: 0.01))
+        let start = try await client.append(request)
+        XCTAssertEqual(start.outcome, .uploadStarted)
+        XCTAssertFalse(start.positiveReady); XCTAssertFalse(start.safeToRetry)
+        let before = await executor.recordedActions()
+        XCTAssertEqual(before, [.begin, .chunk, .chunk, .commit], "append waited for final observation")
+        let policy = ReceiptPolicy(syntheticAcceptanceProfiles: ["test-completion": .webChat],
+                                   syntheticUploadStartProfiles: ["test-start": .webChat])
+        let hidden = try await store.apply(start, policy: policy)
+        XCTAssertEqual(hidden.visibility, .swallowed); XCTAssertNotEqual(hidden.status, .used)
+        let saved = try await store.operation(id: request.operation.id)
+        let original = TransferRequest(operation: try XCTUnwrap(saved), asset: request.asset, fileURL: request.fileURL)
+        let ready = try await client.reconcile(original)
+        XCTAssertEqual(ready.outcome, .verifiedReady)
+        let complete = try await store.apply(ready, policy: policy)
+        XCTAssertEqual(complete.status, .used); XCTAssertEqual(complete.visibility, .swallowed)
+        let after = await executor.recordedActions()
+        XCTAssertEqual(after, before + [.observe])
+        let audit = try await store.uploadStartReceipt(for: request.operation.id)
+        XCTAssertEqual(audit, start)
+    }
+
     func testDefaultDisabledAndMissingProgramDoNotExecuteAnyBrowserCommand() async throws {
         let executor = FakeWebBridge()
         let disabled = WebAttachmentAdapter(mediaDirectory: directory, executor: executor, program: program)
@@ -217,7 +245,7 @@ final class WebAttachmentAdapterTests: XCTestCase {
 
 private actor FakeWebBridge: WebBridgeExecutor {
     enum Behavior: Sendable {
-        case normal, wrongChunkIdentity, throwOnCommit, changedValidationTarget, pendingThenAttached, alwaysPending, lateError
+        case startedThenAttached, normal, wrongChunkIdentity, throwOnCommit, changedValidationTarget, pendingThenAttached, alwaysPending, lateError
         case replaceBytesAfterBegin(URL, Int)
     }
     static let target = TargetLease(adapterID: "chatgpt-web", surface: .webChat,
@@ -254,11 +282,13 @@ private actor FakeWebBridge: WebBridgeExecutor {
             received.append(try XCTUnwrap(Data(base64Encoded: try XCTUnwrap(command.chunkBase64))))
             return try acknowledgement(command, next: try XCTUnwrap(command.chunkIndex) + 1)
         case .commit:
+            if case .startedThenAttached = behavior { return try observation(command, state: .uploadStarted) }
             if case .throwOnCommit = behavior { throw WebAdapterError.nativeExecutionFailed }
             if case .pendingThenAttached = behavior { return try observation(command, state: .inputTriggered) }
             if case .alwaysPending = behavior { return try observation(command, state: .unknown) }
             return try observation(command, state: .attached)
         case .observe:
+            if case .startedThenAttached = behavior { return try observation(command, state: .attached) }
             if case .lateError = behavior { return try observation(command, state: .invalidated) }
             if case .pendingThenAttached = behavior { return try observation(command, state: .attached) }
             return try observation(command, state: .unknown)
@@ -278,10 +308,14 @@ private actor FakeWebBridge: WebBridgeExecutor {
 
     private func observation(_ command: WebBridgeCommand, state: AttachmentObservedState) throws -> Data {
         let identity = try XCTUnwrap(command.identity)
+        let start: ObservedUploadStart? = state == .uploadStarted ? .init(version: 1,
+            signal: .correlatedProgress, evidenceID: UUID().uuidString, inputCount: 1,
+            inputSequence: 1, startSequence: 4, previousProgress: 20, currentProgress: 40,
+            inputObservedAtMS: 10, startObservedAtMS: 25) : nil
         let item = AttachmentObservation(identity: identity, state: state,
             attachmentID: "synthetic-attachment", exactImageIdentity: true, belongsToOriginalDraft: true,
-            hasError: state == .invalidated)
-        return try JSONEncoder().encode(AttachmentObservationEnvelope(
+            hasError: state == .invalidated, isUploading: start != nil, uploadStart: start)
+        return try JSONEncoder().encode(AttachmentObservationEnvelope(schemaVersion: start == nil ? 1 : 2,
             provenance: .init(source: .syntheticFixture, evidenceID: "W1-fake-bridge"), observation: item))
     }
 }

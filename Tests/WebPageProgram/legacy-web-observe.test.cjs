@@ -7,7 +7,8 @@ const native = {applicationID:'com.google.Chrome', sessionID:'4242:1', windowID:
 function fixture(version, options) {
   // Keep the historical fixture independent of the current page's evolving ABI.
   const original = fs.readFileSync(path.join(__dirname, '../RiftletAdaptersTests/Fixtures/LegacyWeb', version+'.js'), 'utf8');
-  const f = require('./legacy-dom-fixture.cjs')(original, version, options);
+  const make = version === 'v8' ? require('../RiftletAdaptersTests/Fixtures/LegacyWeb/v8-dom-fixture.cjs') : require('./legacy-dom-fixture.cjs');
+  const f = make(original, version, options);
   f.legacy = vm.runInContext('('+legacy+')', f.context);
   f.read = op => f.legacy(op.command('observe'), native);
   f.registry = () => f.context['__riftletWebAcceptance20261027'+version];
@@ -18,14 +19,27 @@ async function ready(version, options) {
   const view=f.makeCard(op); f.finish(view); await f.settle();
   assert.equal(f.observe(op).state,'attached'); return {f,op,view};
 }
-for (const version of ['v6','v7']) {
+for (const version of ['v6','v7','v8']) {
+  test(version+' historical positive progress never becomes schema2 or uploadStarted', async () => {
+    const f=fixture(version),op=f.bind();f.stage(op);f.commit(op);await f.settle();f.makeCard(op);
+    const stored=f.registry().head.operations.get(op.identity.operationID);
+    assert.ok(stored.started>0);assert.equal(stored.inputCount,1);
+    // Even accidental new fields on retained state cannot upgrade old evidence.
+    stored.uploadStarted=true;stored.uploadStartEvidence={version:1,inputCount:1};
+    const result=f.read(op), observation=result.observation;
+    assert.equal(result.schemaVersion,1);assert.equal(observation.state,'inputTriggered');
+    assert.equal(observation.isUploading,true);assert.equal(observation.exactImageIdentity,false);
+    assert.deepEqual(Object.keys(observation).sort(),['identity','state','exactImageIdentity','belongsToOriginalDraft',
+      'hasError','isUploading','attachmentAbsent','automaticRetryExcluded','attachmentID'].sort());
+    assert.equal(f.input.inputCount,1);
+  });
   test(version+' original committed proof survives background and rearm without new input', async () => {
     const {f,op}=await ready(version,{thread:true}), before=f.observe(op);
     f.windowEvent('blur'); f.focus(false); f.document.visibilityState='hidden';
     const background=f.read(op);
     assert.equal(background.observation.state,'attached');
     assert.equal(background.observation.attachmentID,before.attachmentID);
-    assert.equal(background.provenance.evidenceID,'W4-legacy-'+version+'-original-observer');
+    assert.equal(background.provenance.evidenceID,(version==='v8'?'W5':'W4')+'-legacy-'+version+'-original-observer');
     f.focus(true); f.document.visibilityState='visible'; const fresh=f.target();
     assert.notEqual(fresh.draftGeneration,op.target.draftGeneration);
     assert.equal(f.read(op).observation.state,'attached'); assert.equal(f.input.inputCount,1);
@@ -95,6 +109,31 @@ test('v7 stopped root remains invalidated; original proof cannot be reconstructe
     assert.equal(result.exactImageIdentity,false);
   }
   assert.equal(state.operations.get(op.identity.operationID).proof,null);assert.equal(f.input.inputCount,1);
+});
+test('v8 persisted operation keeps original proof and identity without restoring stopped monitors', async () => {
+  const f=fixture('v8',{thread:true}),id=f.businessID.slice('local-chatgpt:'.length);
+  const next=f.makeFibers(id);f.form.__reactFiber$fixture=next.leaf;
+  const op=f.bind();f.stage(op);f.commit(op);await f.settle();const view=f.makeCard(op);f.finish(view);await f.settle();
+  const before=JSON.stringify(op.identity), result=f.read(op);
+  assert.equal(op.target.logicalDraftIdentity.profileID,'chatgpt-composer-react-persisted-20261027-v1');
+  assert.equal(result.schemaVersion,1);assert.equal(result.observation.state,'attached');
+  assert.equal(JSON.stringify(result.observation.identity),before);
+  assert.equal(result.provenance.evidenceID,'W5-legacy-v8-original-observer');
+  f.registry().stopRootMonitors();
+  for(let i=0;i<3;i++) {
+    const invalid=f.read(op);assert.equal(invalid.schemaVersion,1);
+    assert.equal(invalid.observation.state,'invalidated');assert.equal(invalid.observation.exactImageIdentity,false);
+    assert.equal(invalid.observation.belongsToOriginalDraft,false);
+  }
+  assert.equal(f.registry().head.operations.get(op.identity.operationID).proof,null);
+  assert.equal(JSON.stringify(op.identity),before);assert.equal(f.input.inputCount,1);
+});
+test('v8 duplicate frozen target in an older registry cannot borrow authority', async () => {
+  const {f,op}=await ready('v8');
+  f.context.__riftletWebAcceptance20261027v6={head:f.registry().head};
+  const result=f.read(op);assert.equal(result.schemaVersion,1);
+  assert.equal(result.observation.state,'invalidated');assert.equal(result.observation.exactImageIdentity,false);
+  assert.equal(f.input.inputCount,1);
 });
 test('broken historical callback and ambiguous duplicate registries fail closed', async () => {
   const {f,op}=await ready('v6'), state=f.registry().head;

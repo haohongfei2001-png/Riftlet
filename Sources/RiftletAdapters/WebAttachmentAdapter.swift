@@ -165,9 +165,12 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
         while true {
             let envelope = try ObservationDecoder.decode(response)
             let receipt = try normalizer.receipt(from: envelope, for: request)
+            // Positive start returns without waiting for completion. Core policy
+            // independently admits visual exit; subsequent calls only observe.
+            if receipt.outcome == .uploadStarted { return receipt }
             switch envelope.observation.state {
             case .attached, .ready, .failed, .invalidated: return receipt
-            case .inputTriggered, .unknown: break
+            case .inputTriggered, .uploadStarted, .unknown: break
             }
             let remaining = deadline - ProcessInfo.processInfo.systemUptime
             guard remaining > 0 else { return receipt }
