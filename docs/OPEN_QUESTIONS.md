@@ -60,3 +60,11 @@ Latest **resolved product behavior** is in [INTERACTION_CONTRACT_2026-10-27.md](
 - Press-and-hold drag is **CONSIDERATION_ONLY**, pending interaction and AppKit testing; not approved for launch.
 
 **Still a technical validation question, not an invitation to reinterpret the user decision:** classify explicit/extremely high-confidence failure precisely enough that **reborn images are clickable for a genuine new user attempt** while the UNKNOWN class does not produce unwanted duplicates. Tests should include late success/late failure, composer absent or lost, burst clicks, and clearing during a started upload.
+
+## 2026-10-27 — release UX feasibility follow-up (user-confirmed scope)
+
+**No longer a product-choice question:** a usable current ChatGPT composer must accept **one Riftlet click without pre-focusing the text field**. No composer/unsupported surface must not swallow, but must give small press/reset feedback. Auto-archive must defer during hover/press/transition. Other consumer usability/maintenance goals are confirmed in [RELEASE_UX_REQUIREMENTS](RELEASE_UX_REQUIREMENTS_2026-10-27.md).
+
+**Requires independent feasibility research:** Do existing Apple public APIs or tested mechanisms allow the ordinary macOS system Screenshot.app to omit Riftlet's own floating thumbnails across all supported shortcuts/modes? Existing Round 2 observations suggest self-inclusion; ScreenCaptureKit's client-local window exclusion must not be mistaken for a system-wide guarantee. See [Pro brief](PRO_FEASIBILITY_REVIEW_BRIEF_2026-10-27.md).
+
+**Tests still pending:** Web and Mac clients must prove focusless click in existing drafts, including sidebar/text selection and first-click races; screenshot inclusion must be investigated per OS/capture source/permission without timing guesses. Hover/press archive suppression is implementation work, not a previously verified feature.
