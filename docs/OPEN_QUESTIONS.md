@@ -47,3 +47,16 @@ See the authoritative [interaction contract](INTERACTION_CONTRACT_2026-10-27.md)
 5. Real first-click/current-window capture, speed of swallow animation, no slit when empty, visible queue rebirth after delayed failure, restart and multi-Space evidence.
 
 **Engineering scope:** this documentation update does not implement those state-machine migrations, revise production evidence registries, or validate macOS/Chrome behavior. Existing CI and past ATTACHED/READY results remain scoped to the old implementation.
+
+## 2026-10-27 — additional decisions: corrections to outstanding product questions
+
+Latest **resolved product behavior** is in [INTERACTION_CONTRACT_2026-10-27.md](INTERACTION_CONTRACT_2026-10-27.md) and [DECISIONS.md](DECISIONS.md) P23–P28:
+
+- Faster near-consecutive multi-image clicking is an optimization **only without sacrificing experience or stability**, not an unconditional parallel-upload requirement.
+- No success toast; the actual ChatGPT draft attachment communicates progress/completion to the user, who chooses when to send.
+- Once failure qualifies for rebirth it is an **ordinary immediately clickable** screenshot with normal remove/archive lifecycle. Do not substitute non-clickable failed rows or suppress rebirth due solely to elapsed time/context change.
+- No usable current composer/attachment entry means **no swallow/no disappearance**; once uploaded to the draft, the image stays hidden from the rift unless genuine failure qualifies for rebirth. Original macOS screenshot and local Riftlet history are retrieval paths.
+- Clearing the visible queue does not remove attachments from ChatGPT.
+- Press-and-hold drag is **CONSIDERATION_ONLY**, pending interaction and AppKit testing; not approved for launch.
+
+**Still a technical validation question, not an invitation to reinterpret the user decision:** classify explicit/extremely high-confidence failure precisely enough that **reborn images are clickable for a genuine new user attempt** while the UNKNOWN class does not produce unwanted duplicates. Tests should include late success/late failure, composer absent or lost, burst clicks, and clearing during a started upload.
