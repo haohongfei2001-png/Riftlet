@@ -1,0 +1,50 @@
+Selected actual log lines from run40453748396 / job122022173576.
+Source76a8385be063bf225248c057262eb8d57e4be43f; temporary PR checkout21600647f30a2d6da1ca109f1f7db55c3e81bf6c.
+201 native execution records counted; distribution Capture48/Core54/UI17/Adapters82. Job and all steps completed successfully.
+The excerpt is not a live Mac/ChatGPT result. Full logs are in the linked GitHub run and artifact.
+
+2026-10-27T05:10:07.9009470Z Apple Swift version 5.10 (swiftlang-5.10.0.13 clang-1500.3.9.4)
+2026-10-27T05:10:07.9194170Z ProductVersion:		14.8.9
+2026-10-27T05:10:07.9194880Z BuildVersion:		23J631
+2026-10-27T05:10:07.9226630Z arm64
+2026-10-27T05:10:08.9497750Z # fail 0
+2026-10-27T05:10:09.2173790Z # tests 20
+2026-10-27T05:10:09.2174600Z # pass 20
+2026-10-27T05:10:09.2174990Z # fail 0
+2026-10-27T05:10:32.3502230Z Build complete! (21.97s)
+2026-10-27T05:11:03.3355590Z Build complete! (16.99s)
+2026-10-27T05:11:04.4360190Z RIFTLET_SELF_CHECK_PASS: private import, durable queue, synthetic receipt, restart
+2026-10-27T05:11:04.4936600Z RIFTLET_WEB_ACCEPTANCE_SELF_CHECK_PASS: bundled page source, synthetic-only policy, isolated modes; CHROME_NOT_RUN; GUI_NOT_RUN
+2026-10-27T05:11:04.9613300Z RIFTLET_GUI_HELPER_SELF_CHECK_PASS: 12 synthetic PNGs; scenes 2/3/12; layout/status fixtures; GUI_NOT_RUN
+
+2026-10-27T05:10:35.6245670Z [46/201] Testing RiftletCoreTests.LateFailureCompensationTests/testCompensationCoexistsWithNewerInFlightImageAndBlocksFurtherDispatch
+2026-10-27T05:10:35.6538110Z [47/201] Testing RiftletCoreTests.LateFailureCompensationTests/testCompensationTransactionFailurePreservesSuccessAndCanBeRetriedOnce
+2026-10-27T05:10:35.6855780Z [48/201] Testing RiftletCoreTests.LateFailureCompensationTests/testCompletedObservationCompensatesOnlyMatchingAssetWithoutNewInput
+2026-10-27T05:10:35.7063090Z [49/201] Testing RiftletCoreTests.LateFailureCompensationTests/testCompletedObservationTransportFailurePreservesTerminalSuccess
+2026-10-27T05:10:35.7423070Z [50/201] Testing RiftletCoreTests.LateFailureCompensationTests/testCompletedObservationWithoutOriginalDraftMembershipDoesNotRevive
+2026-10-27T05:10:35.7648870Z [51/201] Testing RiftletCoreTests.LateFailureCompensationTests/testCorrelatedLateErrorRestoresOriginalQueuePositionAndPersistsBothFacts
+2026-10-27T05:10:35.7957240Z [52/201] Testing RiftletCoreTests.LateFailureCompensationTests/testMigrationFailureRollsBackSchemaReceiptsAndVersion
+2026-10-27T05:10:35.8144750Z [53/201] Testing RiftletCoreTests.LateFailureCompensationTests/testMissingRestoredBytesStayMissingAcrossObservationAndRestart
+2026-10-27T05:10:35.8547430Z [54/201] Testing RiftletCoreTests.LateFailureCompensationTests/testRepeatedFailureAndStaleSuccessCannotConsumeCompensationOrReplaceAudit
+2026-10-27T05:10:35.9085470Z [55/201] Testing RiftletCoreTests.LateFailureCompensationTests/testRestartWatchQueryIsBoundedAndExcludesInactiveSuccesses
+2026-10-27T05:10:35.9595450Z [56/201] Testing RiftletCoreTests.LateFailureCompensationTests/testSelectingAndRecoveringCompensationOnlyObservesOriginalOperation
+2026-10-27T05:10:35.9748640Z [57/201] Testing RiftletCoreTests.LateFailureCompensationTests/testRestartWatchCapsCallerRequestedLimitAt64
+2026-10-27T05:10:36.0223670Z [58/201] Testing RiftletCoreTests.LateFailureCompensationTests/testVersionOneMigrationPreservesReceiptsOrderAndLocks
+2026-10-27T05:10:36.0275210Z [59/201] Testing RiftletCoreTests.LateFailureCompensationTests/testWrongAttachmentProfileDraftAndNonErrorCannotRestoreUsedImage
+2026-10-27T05:10:36.4743280Z [74/201] Testing RiftletAdaptersTests.MacClipboardCoordinatorTests/testConsumedObservationRequiresExactTombstoneAndNeverDisplacesAnotherOwner
+2026-10-27T05:10:36.8629470Z [86/201] Testing RiftletAdaptersTests.MacCoordinatedAdapterTests/testCompletedMacObservationCompensatesAndRecoversWithoutReacquiringClipboard
+2026-10-27T05:10:36.9104700Z [88/201] Testing RiftletAdaptersTests.MacCoordinatedAdapterTests/testResolutionIOFailureReturnsUnknownUntilOriginalProofCanBeReobserved
+2026-10-27T05:10:36.9521400Z [89/201] Testing RiftletAdaptersTests.MacCoordinatedAdapterTests/testResolvedBeforeCoreCommitReopensAndSettlesQueueWithoutClipboardOrPaste
+2026-10-27T05:10:37.0623010Z [93/201] Testing RiftletAdaptersTests.NativeMacAXDriverTests/testCompletedAndCompensatedObserveNeverAcquireClipboardOrPermitPaste
+2026-10-27T05:10:38.1538610Z [136/201] Testing RiftletCoreTests.RecoveryBoundaryTests/testAssetWriteFailureRollsBackOperationAndReceiptTogether
+2026-10-27T05:10:38.1628760Z [137/201] Testing RiftletCoreTests.RecoveryBoundaryTests/testEveryIdentityMismatchLeavesOriginalOperationAndEvidenceUntouched
+2026-10-27T05:10:38.2085900Z [138/201] Testing RiftletCoreTests.RecoveryBoundaryTests/testFailedObservationKeepsMissingMediaButRemoteSuccessCanFinish
+2026-10-27T05:10:38.2103330Z [139/201] Testing RiftletCoreTests.RecoveryBoundaryTests/testOldSuccessfulReceiptCannotConsumeNewAttemptAfterProvedFailure
+2026-10-27T05:10:38.2641880Z [140/201] Testing RiftletCoreTests.RecoveryBoundaryTests/testReceiptBeforeIntentRollsBackWithoutSavingEvidence
+2026-10-27T05:10:38.2737410Z [141/201] Testing RiftletCoreTests.RecoveryBoundaryTests/testRestartKeepsMissingMediaAndUnknownTargetLockUntilVerifiedRestore
+2026-10-27T05:10:38.3189060Z [143/201] Testing RiftletCoreTests.RecoveryBoundaryTests/testTerminalSuccessCannotBeReversedByUncorrelatedLateObservation
+2026-10-27T05:10:40.2617880Z [196/201] Testing RiftletCoreTests.WebTargetLockTests/testCompensatedSameTabRearmRemainsLockedAcrossRestart
+2026-10-27T05:10:40.3157890Z [197/201] Testing RiftletCoreTests.WebTargetLockTests/testPreparedLeaseDoesNotLockDispatchOfAnotherAsset
+2026-10-27T05:10:40.3318490Z [198/201] Testing RiftletCoreTests.WebTargetLockTests/testOtherSurfacesAndUnidentifiedChromeTabsKeepExactTargetLock
+2026-10-27T05:10:40.3674460Z [199/201] Testing RiftletCoreTests.WebTargetLockTests/testUnknownBlocksSameTabAfterRearmWindowMoveAndDocumentReplacement
+2026-10-27T05:10:40.3790260Z [200/201] Testing RiftletCoreTests.WebTargetLockTests/testUnknownDoesNotLockAnotherTabOrBrowserSession

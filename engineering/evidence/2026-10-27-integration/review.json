@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "sourceSHA": "76a8385be063bf225248c057262eb8d57e4be43f",
+  "scope": "Independent technical review, not a human GitHub approval or production admission",
+  "reviewers": [
+    {
+      "role": "integration_web_review",
+      "scope": "Four immutable Codex commits, Web/Apple Events/selection/App/UI safety and shared Web docs",
+      "result": "PASS after correcting the attribution of five live successes across source revisions",
+      "execution": "Exact1909771 page program and tests independently replayed20/20 on Linux; no live Mac/browser"
+    },
+    {
+      "role": "integration_core_review",
+      "scope": "Four source commits' Core/SQLite changes, M1 interface, root's six-file compatibility fix",
+      "result": "PASS; one integration defect fixed; retry-identity contract remains an explicit disabled-admission dependency",
+      "execution": "Actual extracted migration SQL with8 controlled rollback boundaries/reopen; source review of three new tests, not local XCTest"
+    },
+    {
+      "role": "integration_evidence_review",
+      "scope": "All six live handoff files; predecessor CI/artifact; root fix, shared docs and combined CI",
+      "result": "PASS after small historical/current document corrections",
+      "execution": "Independently fetched CI40453748396/job122022173576/log/artifact;201native/20page/build/signature/self-checks confirmed"
+    }
+  ],
+  "actualConcurrency": {
+    "peak": 4,
+    "roles": [
+      "root integration author",
+      "Web source reviewer",
+      "Core source reviewer",
+      "evidence and compatibility reviewer"
+    ],
+    "sharedLiveMacUsed": false
+  },
+  "findings": [
+    {
+      "id": "INT-01",
+      "status": "FIXED",
+      "problem": "New Core completed observations were rejected by M1; simply broadening guards would reclaim a resolved clipboard lock on UNKNOWN",
+      "fix": "Exact consumed-tombstone read under transient lock; completed/compensated path bypasses recovery/settlement; Paste still dispatchIntent-only",
+      "author": "root",
+      "reviewers": [
+        "integration_core_review",
+        "integration_evidence_review"
+      ],
+      "tests": [
+        "MacCoordinatedAdapterTests/testCompletedMacObservationCompensatesAndRecoversWithoutReacquiringClipboard",
+        "MacClipboardCoordinatorTests/testConsumedObservationRequiresExactTombstoneAndNeverDisplacesAnotherOwner",
+        "NativeMacAXDriverTests/testCompletedAndCompensatedObserveNeverAcquireClipboardOrPermitPaste"
+      ]
+    },
+    {
+      "id": "DOC-01",
+      "status": "FIXED",
+      "problem": "Conflicting historical/current branch status, missing compensated in plan, old M1 test distribution and ambiguous five-success source attribution",
+      "fix": "Preserve both histories; label prior runs explicitly; attach current combined evidence and OPEN UX defects",
+      "reviewers": [
+        "integration_web_review",
+        "integration_evidence_review"
+      ]
+    }
+  ],
+  "remainingAdmissionDependencies": [
+    {
+      "id": "UX-01",
+      "status": "OPEN",
+      "decision": "Automatic event/import prearming; cold intent may resume only with identity continuity proven across original click; no post-click recapture or extra user action"
+    },
+    {
+      "id": "UX-02",
+      "status": "OPEN",
+      "decision": "Prove stable logical draft identity separately from input-focus epoch; only a proven different draft may escape old UNKNOWN lock; retain whole-tab fallback for unknown identity"
+    },
+    {
+      "id": "RETRY-01",
+      "status": "WAITING_EVIDENCE_AND_CONTRACT",
+      "decision": "Prove retirement/no residual retry of the original nonempty attachment identity before admitting compensated retry; never treat nil as wildcard"
+    }
+  ],
+  "gates": {
+    "productionEnabled": false,
+    "realNetworkFailurePassed": false,
+    "completeN1Passed": false,
+    "realChatGPTMacPassed": false,
+    "mainMerged": false
+  }
+}

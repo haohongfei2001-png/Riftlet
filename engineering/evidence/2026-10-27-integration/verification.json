@@ -1,0 +1,189 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-27",
+  "timeZone": "Asia/Shanghai",
+  "integration": {
+    "branch": "codex/engineering-foundation-20261027",
+    "pullRequest": 1,
+    "sourceSHA": "76a8385be063bf225248c057262eb8d57e4be43f",
+    "treeSHA": "7129ace3875711e7dcc4e96fdfd63857cb7bf72a",
+    "parents": [
+      "f075b8fe97eddf04d868e9e5fe589c51c9d12ad5",
+      "88f9e362d7e1610929eeb42e77b3d7652477bd1f"
+    ],
+    "previousEngineeringSHA": "485fa87a31140f9d2e428db69ec5e0599b1f96ae",
+    "mainBeforeAndAfter": "3f5248d6b1c0d32ad80141cbdee4ee16945e6f7b",
+    "mainMerged": false,
+    "pr1Draft": true,
+    "pr3MergedInto": "codex/engineering-foundation-20261027",
+    "originalContributionsPreserved": true,
+    "releasePublished": false
+  },
+  "ci": {
+    "runID": 40453748396,
+    "jobID": 122022173576,
+    "event": "pull_request",
+    "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/40453748396",
+    "sourceSHA": "76a8385be063bf225248c057262eb8d57e4be43f",
+    "checkoutSHA": "21600647f30a2d6da1ca109f1f7db55c3e81bf6c",
+    "conclusion": "success",
+    "completedUTC": "2026-10-27T05:11:09Z",
+    "completedBeijing": "2026-10-27 13:11:09 +08:00",
+    "environment": {
+      "macOS": "14.8.9",
+      "build": "23J631",
+      "architecture": "arm64",
+      "swift": "5.10",
+      "compiler": "swiftlang-5.10.0.13 clang-1500.3.9.4"
+    },
+    "nativeTests": 201,
+    "nativeDistribution": {
+      "RiftletCaptureTests": 48,
+      "RiftletCoreTests": 54,
+      "RiftletAdaptersTests": 82,
+      "RiftletUITests": 17
+    },
+    "pageVMTests": 20,
+    "archivedReplay": {
+      "files": 55,
+      "historicalCases": 19,
+      "realTracePrefixes": 89,
+      "lateErrors": 2,
+      "lateErrorScope": "SIMULATED, not actual network failure"
+    },
+    "buildSeconds": {
+      "debugAndTest": 21.97,
+      "release": 16.99
+    },
+    "checks": [
+      "native XCTest --parallel",
+      "actual SQLite v1-to-v2 preservation",
+      "migration failure rollback",
+      "compensation transaction rollback",
+      "UNKNOWN and compensated recovery/tab locks",
+      "M1 completed observation without reacquiring clipboard",
+      "release build",
+      "ad-hoc App signature",
+      "packaged --self-check",
+      "relocated --web-acceptance-self-check",
+      "GUI helper --self-check"
+    ],
+    "artifact": {
+      "id": 12711707097,
+      "name": "native-foundation-21600647f30a2d6da1ca109f1f7db55c3e81bf6c",
+      "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/40453748396/artifacts/12711707097",
+      "bytes": 1068262,
+      "digest": "sha256:11d788d77e8e23fac3c01ce2583c1e6c0eb94648664a8cd0b37f9cc5b36b6c24",
+      "expiresUTC": "2026-11-10T05:11:05Z"
+    },
+    "selfCheckMarkers": [
+      "RIFTLET_SELF_CHECK_PASS: private import, durable queue, synthetic receipt, restart",
+      "RIFTLET_WEB_ACCEPTANCE_SELF_CHECK_PASS: bundled page source, synthetic-only policy, isolated modes; CHROME_NOT_RUN; GUI_NOT_RUN",
+      "RIFTLET_GUI_HELPER_SELF_CHECK_PASS: 12 synthetic PNGs; scenes 2/3/12; layout/status fixtures; GUI_NOT_RUN"
+    ],
+    "independentlyVerifiedBy": [
+      "root",
+      "integration_evidence_review"
+    ]
+  },
+  "local": {
+    "environment": "Linux authoring container; no local Swift/macOS runtime",
+    "pageVM": "20/20 PASS on combined tree",
+    "archiveReplay": "55 manifest files /19 historical cases /89 real trace prefixes /2 simulated late-error vetoes PASS",
+    "reviewerSQLite": {
+      "executor": "integration_core_review",
+      "environment": "Python SQLite 3.53.1/Linux",
+      "source": "1909771d45ad00290dffe245b9a42e6e9f55203c",
+      "result": "Extracted all 8 migration SQL statements; preservation, explicit rollback at each boundary, reopen, foreign-key/index and compensated/in-flight coexistence PASS",
+      "scope": "SQL execution, not Swift XCTest or process/power failure"
+    },
+    "authoredDiffCheck": "PASS",
+    "fullMacGUI": "NOT_RUN by integration session",
+    "realMacDeviceAccessed": false
+  },
+  "sourceInputTrees": {
+    "Sources": "ece61eac36eb6a0bfb38ef3fa8f1dced2a43ff32",
+    "Tests": "eebe185ea3be5e23866d369b3969167ce379dcb6",
+    "Package.swift": "e2922249ef542b8fe87bbec707902273222d895e",
+    "Resources": "71756b3e005d14389a128cc24ac8787b5743009c",
+    "scripts": "3622f05613859995857a4286cfada6888cfa1467",
+    ".github/workflows": "017f87922c2a7339db488b3628c5a6475fef8331",
+    "ThirdPartyNotices": "89a07e01c183f61fca6bc7d7127322b00fa03ded"
+  },
+  "m1SourceAndTestSHA256": {
+    "Sources/RiftletAdapters/MacAttachmentAdapter.swift": "6d6d922668ca25290630c5d94df1aa05ef23a5779e54eca3906ebb06fe4e5956",
+    "Sources/RiftletAdapters/MacClipboardCoordinator.swift": "69cfb1bd1a0d6352aed517236ec12a76f43bb22bcc5738acef20b66ea58efab3",
+    "Sources/RiftletAdapters/NativeMacAXDriver.swift": "03f3ba0d919e581d6b1a4c86ad62aee9163fa1e9f4cca2c7beb3fe0d3344554d",
+    "Sources/RiftletAdapters/NativeMacAttachmentExecutor.swift": "671dea9059700048e9da323800c31ea1380b7cbde2d6fe57eff533bc493704a1",
+    "Sources/RiftletAdapters/NativePasteboardDriver.swift": "e0911ca17de563f2b15f3f7e8cc056850b5c04f95d8400d13e7596e259869014",
+    "Tests/RiftletAdaptersTests/MacClipboardCoordinatorTests.swift": "46e6cf35a74237da755478604d4cc04e611767d5795a3e73bd96235e1bd3a150",
+    "Tests/RiftletAdaptersTests/MacCoordinatedAdapterTests.swift": "d8f5df2924b9444c28ee3a9deeed6399972dad9e0f2048334dd562dcf7c53460",
+    "Tests/RiftletAdaptersTests/NativeMacAXDriverTests.swift": "c29af0d727482d0aa8e47b48deac2709c0b5d0447603f274f0dc8ab23da65453",
+    "Tests/RiftletAdaptersTests/NativePasteboardDriverTests.swift": "6d203d8580277e4bcb553a86ac49c06302ad77e7aa37afcbf8231f24d2c7dd56"
+  },
+  "targetedTests": [
+    "RiftletCoreTests.LateFailureCompensationTests/testCompensationCoexistsWithNewerInFlightImageAndBlocksFurtherDispatch",
+    "RiftletCoreTests.LateFailureCompensationTests/testCompensationTransactionFailurePreservesSuccessAndCanBeRetriedOnce",
+    "RiftletCoreTests.LateFailureCompensationTests/testCompletedObservationCompensatesOnlyMatchingAssetWithoutNewInput",
+    "RiftletCoreTests.LateFailureCompensationTests/testCompletedObservationTransportFailurePreservesTerminalSuccess",
+    "RiftletCoreTests.LateFailureCompensationTests/testCompletedObservationWithoutOriginalDraftMembershipDoesNotRevive",
+    "RiftletCoreTests.LateFailureCompensationTests/testCorrelatedLateErrorRestoresOriginalQueuePositionAndPersistsBothFacts",
+    "RiftletCoreTests.LateFailureCompensationTests/testMigrationFailureRollsBackSchemaReceiptsAndVersion",
+    "RiftletCoreTests.LateFailureCompensationTests/testMissingRestoredBytesStayMissingAcrossObservationAndRestart",
+    "RiftletCoreTests.LateFailureCompensationTests/testRepeatedFailureAndStaleSuccessCannotConsumeCompensationOrReplaceAudit",
+    "RiftletCoreTests.LateFailureCompensationTests/testRestartWatchQueryIsBoundedAndExcludesInactiveSuccesses",
+    "RiftletCoreTests.LateFailureCompensationTests/testSelectingAndRecoveringCompensationOnlyObservesOriginalOperation",
+    "RiftletCoreTests.LateFailureCompensationTests/testRestartWatchCapsCallerRequestedLimitAt64",
+    "RiftletCoreTests.LateFailureCompensationTests/testVersionOneMigrationPreservesReceiptsOrderAndLocks",
+    "RiftletCoreTests.LateFailureCompensationTests/testWrongAttachmentProfileDraftAndNonErrorCannotRestoreUsedImage",
+    "RiftletAdaptersTests.MacClipboardCoordinatorTests/testConsumedObservationRequiresExactTombstoneAndNeverDisplacesAnotherOwner",
+    "RiftletAdaptersTests.MacCoordinatedAdapterTests/testCompletedMacObservationCompensatesAndRecoversWithoutReacquiringClipboard",
+    "RiftletAdaptersTests.MacCoordinatedAdapterTests/testResolutionIOFailureReturnsUnknownUntilOriginalProofCanBeReobserved",
+    "RiftletAdaptersTests.MacCoordinatedAdapterTests/testResolvedBeforeCoreCommitReopensAndSettlesQueueWithoutClipboardOrPaste",
+    "RiftletAdaptersTests.NativeMacAXDriverTests/testCompletedAndCompensatedObserveNeverAcquireClipboardOrPermitPaste",
+    "RiftletCoreTests.RecoveryBoundaryTests/testAssetWriteFailureRollsBackOperationAndReceiptTogether",
+    "RiftletCoreTests.RecoveryBoundaryTests/testEveryIdentityMismatchLeavesOriginalOperationAndEvidenceUntouched",
+    "RiftletCoreTests.RecoveryBoundaryTests/testFailedObservationKeepsMissingMediaButRemoteSuccessCanFinish",
+    "RiftletCoreTests.RecoveryBoundaryTests/testOldSuccessfulReceiptCannotConsumeNewAttemptAfterProvedFailure",
+    "RiftletCoreTests.RecoveryBoundaryTests/testReceiptBeforeIntentRollsBackWithoutSavingEvidence",
+    "RiftletCoreTests.RecoveryBoundaryTests/testRestartKeepsMissingMediaAndUnknownTargetLockUntilVerifiedRestore",
+    "RiftletCoreTests.RecoveryBoundaryTests/testTerminalSuccessCannotBeReversedByUncorrelatedLateObservation",
+    "RiftletCoreTests.WebTargetLockTests/testCompensatedSameTabRearmRemainsLockedAcrossRestart",
+    "RiftletCoreTests.WebTargetLockTests/testPreparedLeaseDoesNotLockDispatchOfAnotherAsset",
+    "RiftletCoreTests.WebTargetLockTests/testOtherSurfacesAndUnidentifiedChromeTabsKeepExactTargetLock",
+    "RiftletCoreTests.WebTargetLockTests/testUnknownBlocksSameTabAfterRearmWindowMoveAndDocumentReplacement",
+    "RiftletCoreTests.WebTargetLockTests/testUnknownDoesNotLockAnotherTabOrBrowserSession"
+  ],
+  "evidenceBoundary": {
+    "localCodexArchive": "engineering/evidence/2026-10-27-real-mac",
+    "archiveHead": "f075b8fe97eddf04d868e9e5fe589c51c9d12ad5",
+    "archiveUnchanged": true,
+    "originalLiveSource": "1909771d45ad00290dffe245b9a42e6e9f55203c",
+    "fiveLiveSuccesses": "Across 268e70b/0100f46/f58b227/1909771; generated PNGs in controlled Chinese Home Chat",
+    "lateError": "Controlled alert in original attachment card, NOT a network failure",
+    "realNetworkFailure": "NOT_PROVEN; attempted POST100 hook intercepted no upload request or abort",
+    "productionScreenshotTwoActionLoop": "NOT_RUN",
+    "completeW2": "FAIL / not fully accepted",
+    "completeN1": "NOT_RUN as a complete suite",
+    "realChatGPTMac": "NOT_RUN",
+    "combinedBinaryLiveMac": "NOT_RUN"
+  },
+  "admission": {
+    "productionUploadEnabled": false,
+    "productionConsumptionProfiles": [],
+    "safeRetryProfiles": [],
+    "macBuiltInProfiles": [],
+    "macAppEntryEnabled": false,
+    "syntheticWebAcceptanceOnly": true,
+    "noAutomaticSend": true,
+    "noBlindRetry": true
+  },
+  "openDefects": [
+    "UX-01 cold first-click prebinding",
+    "UX-02 whole-tab UNKNOWN blocks proven-new drafts until stable draft identity is evidenced",
+    "Focus epoch currently revokes completed Web observation",
+    "Compensated retry requires retired original attachment identity absent from current absence-only normalizer",
+    "Bounded development generation/watch/journal capacity"
+  ],
+  "nextAction": "Local Codex starts from the newest PR #1 engineering checkpoint without deleting queues/media/journals; run existing Mac acceptance against combined source, obtain real network/ordinary-thread/draft-identity evidence and complete physical N1."
+}

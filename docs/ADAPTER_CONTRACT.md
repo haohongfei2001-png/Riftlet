@@ -2,7 +2,7 @@
 
 ## Current admission
 
-No production adapter is enabled. The original [Web handoff](../research/web-attachment-handoff-2026-10-27/README.md) at6f415698 and the new [local Mac handoff](../engineering/evidence/2026-10-27-real-mac/README.md) atf075b8f are independently reviewed and retained separately. The local acceptance sequence ending at source1909771 recorded five generated-image successes on controlled Chinese Home Chat, exact-card DOM late-error compensation/restart and specific tab-revocation/lock evidence. This is not real network-failure validation, arbitrary-thread support, complete N1 or the production screenshot loop. The combined engineering tree must pass its own CI and subsequent live acceptance; [integration scope and known defects](INTEGRATION_HANDOFF.md) apply. Both production registries remain empty.
+No production adapter is enabled. The original [Web handoff](../research/web-attachment-handoff-2026-10-27/README.md) at6f415698 and the new [local Mac handoff](../engineering/evidence/2026-10-27-real-mac/README.md) atf075b8f are independently reviewed and retained separately. The local acceptance sequence ending at source1909771 recorded five generated-image successes on controlled Chinese Home Chat, exact-card DOM late-error compensation/restart and specific tab-revocation/lock evidence. This is not real network-failure validation, arbitrary-thread support, complete N1 or the production screenshot loop. The combined engineering tree passed its own201-test native/20-case page CI; subsequent live acceptance remains pending; [integration scope and known defects](INTEGRATION_HANDOFF.md) apply. Both production registries remain empty.
 
 ## API
 

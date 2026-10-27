@@ -7,7 +7,7 @@
 ## 1. 当前检查点
 
 <!-- INTEGRATION_STATUS -->
-**正式集成候选：** root在独立worktree合流本地真机`f075b8f`（已测1909771）和M1`88f9e36`。四个Codex源码提交/证据、M1后端及只读完成后观察修复已通过非作者审查；本合流树完整macOS CI待提交后执行，不能沿用两分支各自的测试数冒充通过。唯一正式分支和评审入口仍为PR #1；本地Codex继续负责真实Mac，当前会话未访问设备。详细来源、接口修复、准入及直接续做命令见[正式集成交接](INTEGRATION_HANDOFF.md)。
+**正式集成已完成（代码/CI/非作者审查范围）：** 合流源码[`76a8385`](https://github.com/haohongfei2001-png/Riftlet/commit/76a8385be063bf225248c057262eb8d57e4be43f)保留本地真机`f075b8f`及M1`88f9e36`的完整祖先。[整合macOS CI40453748396](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40453748396) **201/201原生、20/20页面VM、release/签名和三个自检通过**；v1→v2迁移/回滚、补偿/UNKNOWN及M1恢复均重新执行。后续本检查点仅文档/证据，代码输入不变。PR #1仍Draft且main未合并；PR #3已由GitHub记为合入工程分支。root仍为唯一正式集成负责人，本地Codex继续真实Mac验收；本会话未访问设备。来源、确切证据、缺陷及直接续做命令见[正式集成交接](INTEGRATION_HANDOFF.md)。
 <!-- END_INTEGRATION_STATUS -->
 
 **实际产品缺陷：UX-01预绑定首击限制、UX-02整标签UNKNOWN阻塞均OPEN。** 工程已决定自动触发目标预绑定、在有证据时分离逻辑草稿身份与输入焦点代际，保持原操作只观察；方案与真机验收写入[交接](INTEGRATION_HANDOFF.md#已确认的产品体验缺陷与自主修复决策)。不增加用户确认、重点击或手工清锁，不凭空放宽当前锁。
@@ -72,7 +72,7 @@
 | **U1 · DONE（下述实现范围） · U** | 已有RiftPanel；只需合成数据 | 新建最小原生验收辅助程序/场景，记录焦点、下层点击计数、触发assetID；先接2/3/12图固定场景，I加入构建入口 | 工具在Mac CI编译；无真实截图/ChatGPT连接；能观察N04/N05/N07；实际焦点/穿透结果仍留N1，不把“工具编译”当GUI通过 |
 | **U2 · DONE（下述实现范围） · U（U1后优先）** | 已有纯布局/指针模型 | 针对配置更新、长队列可见区、屏幕消失回退、按下期间重排补确定性边界用例，修复发现的具体缺陷 | 比例/连续编号/asset身份不回归；最新图可达；无自动丢弃；reduced-motion和尺寸参数仍可调；物理显示器结果留N1 |
 | **Q1 · DONE（下述实现范围） · I** | 已有QueueStore/Coordinator | 扩充崩溃intent边界、晚到回执与原target锁的交叉用例；只补真实未覆盖风险，不重写现有数据库 | 恢复只查询原操作；旧attempt/wrong lease不能消费；unknown不盲重传；used与操作回执原子持久；有失败就先修该Core改动 |
-| **I1 · ACTIVE（本轮合流CI）；前轮DONE · I** | 任一代码增量到达 | 审查跨模块契约，集成小变更，触发对应macOS CI，维护SHA/日志/制品/剩余验收 | 相关测试、release构建、app签名/self-check通过；非作者审查有结论；未测GUI/上传状态准确；无需用户逐次确认 |
+| **I1 · DONE（本轮合流/CI/审查）；持续职责 · I** | 任一代码增量到达 | 审查跨模块契约，集成小变更，触发对应macOS CI，维护SHA/日志/制品/剩余验收 | 相关测试、release构建、app签名/self-check通过；非作者审查有结论；未测GUI/上传状态准确；无需用户逐次确认 |
 | **D1 · DONE（下述实现范围） · 空闲C/I** | 已有私有目录布局 | 增加按需磁盘用量与空间不足诊断，路径/内容不写公开日志；先做可测试的计量边界 | 无空闲轮询、无全量缩略图解码、无自动删除；存储失败不损原件/已用记录；性能测量留N1 |
 
 C2/U2是同一角色的后续包，不能因为表内READY就同时写相同文件。若C1只剩真实设置通知证据，已完成的代码按验证范围提交，C线转C2；若U1只剩交互Mac，U线转U2。
@@ -85,7 +85,7 @@ C2/U2是同一角色的后续包，不能因为表内READY就同时写相同文�
 | **W1 · DONE（下述实现范围） · A（W0后优先；可拆给空闲角色）** | 现有AttachmentAdapter；已有用户报告的Apple Events INPUT事实；不等完整异常包 | 实现默认禁用的Apple Events候选桥接与fake transport测试；以现有契约接线，具体页面注入/身份观察只取已取得源码/DOM证据，不凭空猜选择器 | 无Send；dispatchIntent先于外部输入；同目标片段复核；超时/断链保留unknown；reconcile只观察；正式App仍禁用；真实结果在W2验证 |
 | **M0 · DONE（下述实现范围） · A（Web小包后补位）** | 现有接口/系统pasteboard类型 | 实现独立Mac adapter基础：fileURL/PNG表示、PID+window/composer身份接口、剪贴板所有权/恢复状态机与fake pasteboard测试；实际AX选择器待证据 | 后续用户复制后绝不恢复覆盖；不以固定延迟证明消耗；不宣称已验证Chat/Work/Classic；无额外真实权限申请或真实粘贴 |
 | **W2 · WAITING_EVIDENCE（本地部分实测，完整验收未达标） · A/I** | 1909771源码/CI/非作者审查及受控Home实测完成 | 基于实际页面完善普通对话Chat判别，完成真实网络中断/100%后失败、延迟点击/多窗口/业务草稿变更与恢复矩阵 | 保留已验证的生成图片成功、持久补偿和观察-only；生产成功与safe-retry仍需独立准入，不重做Core/截图/UI基础 |
-| **M1 · 原生后端DONE；客户端WAITING_EVIDENCE · I/A** | 已完成M0；原生后端不等客户端结构 | 独立PR #3已实现实际AX/NSPasteboard、共享flock/持久意图与恢复，173项CI通过；接下来只按真实版本/surface证据补MacAXBindingProvider/profile | 后端范围见[M1交接](M1_NATIVE_BACKEND.md)；实际M00–M06、选区/旧附件/逐图完成仍未验。默认禁用、内置profile空，不借用Web结论 |
+| **M1 · 原生后端DONE；客户端WAITING_EVIDENCE · I/A** | 已完成M0；原生后端不等客户端结构 | PR #3已合入工程分支；原生AX/NSPasteboard、全局协调及完成后只读观察随201项整合CI通过；接下来只按真实版本/surface证据补MacAXBindingProvider/profile | 后端范围见[M1交接](M1_NATIVE_BACKEND.md)；实际M00–M06、选区/旧附件/逐图完成仍未验。默认禁用、内置profile空，不借用Web结论 |
 
 W0不是通用证据平台，只是现有协议的可回归小fixture集合。W1的transport外壳可以和W0并行；若当前三角色已满则顺序补位，不能通过重复实现Core或同时堆两套Web transport制造并行度。
 
@@ -94,7 +94,7 @@ W0不是通用证据平台，只是现有协议的可回归小fixture集合。W1
 | ID / 状态 | 当前已有/可先做 | 精确解锁条件与届时动作 |
 | --- | --- | --- |
 | **N1 · WAITING_EVIDENCE（本地部分实测）** | N01/N02系统窗口截图子集与2/3/12场景已实测；Mac及两块显示器可用，详见真机交接 | 完成物理N05/N07、热键、自包含、Spaces/全屏/热插拔/睡眠及资源/端到端延迟测量，不把子集当完整PASS |
-| **R0 · 前轮DONE；当前合流待CI** | 历史97f10b0为139 native/9页面VM；两条待合流分支分别164/20和173/9。当前组合必须重新构建/测试 | 后续修改由I1持续验证；Intel/其他OS若未测只注明，不虚构全平台支持 |
+| **R0 · DONE（当前合流工程构建）** | 76a8385通过201 native/20页面VM、release/app签名和三个自检；原分支CI仅保留历史 | 后续修改由I1持续验证；Intel/其他OS若未测只注明，不虚构全平台支持 |
 | **R1 · DEFERRED_RELEASE** | 保持工程制品、安装/权限说明草稿；不等证书或Logo才构建 | 必需功能的W2/N1及发行检查满足，且签名/公证凭据可用时推进对应发布工作；不为发行等待暂停开发 |
 | **V1 · DEFERRED_RELEASE** | R2 01所有几何/动画参数可调；品牌Logo独立进行 | 有后续明确视觉结论时替换参数/资源并验收，不重建原生模块；候选不标Approved |
 | **D2 · DEFERRED_RELEASE** | 原件/used私有媒体保留，D1先做空间诊断 | 收尾时制定并测试安全清理语义；本任务未实现前不得悄悄删除图片，不要求用户现在决策 |

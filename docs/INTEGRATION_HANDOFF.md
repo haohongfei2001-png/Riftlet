@@ -14,7 +14,9 @@
 采用合流提交保留两侧完整祖先，不 squash 或覆盖贡献分支。源码/构建没有文本冲突；`EXECUTION_BOARD.md`、`VERIFICATION.md` 两处共享文档文件的冲突按两侧证据合并，旧状态标为历史。main、网站、设计和品牌资产没有加入本轮变更。
 
 <!-- INTEGRATION_STATUS -->
-**集成候选验证状态：** 四个本地源码提交及证据独立审查通过；M1兼容修复已通过两位非作者源码审查。当前合流树页面VM20/20和原归档回放通过；完整macOS CI尚待本合流提交触发，不能借用分支上各自的164/173项结果当整体验证。
+**正式集成已验证：** 已测合流源码 [`76a8385be063bf225248c057262eb8d57e4be43f`](https://github.com/haohongfei2001-png/Riftlet/commit/76a8385be063bf225248c057262eb8d57e4be43f)。[macOS CI40453748396](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40453748396) / job122022173576于2026-10-27 13:11:09北京时间全部成功：**201/201原生测试、20/20页面VM、release/签名、三个自检**。v1→v2迁移/迁移回滚/补偿回滚/UNKNOWN恢复及三项新增M1回归均在完整执行日志中核对。root与非作者分别读取了run、job、完整日志和制品。
+
+[永久验证](../engineering/evidence/2026-10-27-integration/verification.json)、[非作者审查](../engineering/evidence/2026-10-27-integration/review.json)、[实际CI摘录](../engineering/evidence/2026-10-27-integration/ci-excerpt.txt)及[工程App/helper/日志制品12711707097](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40453748396/artifacts/12711707097)。当前检查点在76a8385之上只保存这些文档/证据，源码、测试和构建输入未变；不要把它当作另一次真机验收。
 <!-- END_INTEGRATION_STATUS -->
 
 ## 实际接口修复

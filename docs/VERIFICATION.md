@@ -12,7 +12,11 @@
 ## Formal integration — current increment
 
 <!-- INTEGRATION_STATUS -->
-The combined candidate preserves f075b8f (tested1909771) and M1 88f9e36 ancestry. Independent Web/Core/evidence reviews passed; root's three-file M1 completed-observation fix and three focused tests passed two non-author source reviews. The combined tree's page VM20/20 and archived replay passed on Linux. Full integrated macOS CI is pending; predecessor runs below are not its result. See [integration handoff](INTEGRATION_HANDOFF.md).
+Tested combined source [`76a8385be063bf225248c057262eb8d57e4be43f`](https://github.com/haohongfei2001-png/Riftlet/commit/76a8385be063bf225248c057262eb8d57e4be43f) preserves both f075b8f and88f9e36 as parents. [Run40453748396](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40453748396) / job122022173576 completed successfully2026-10-27 13:11:09Beijing: **201/201 native** (Capture48/Core54/UI17/Adapters82), **20/20 page VM**, archived replay55files/19cases/89prefixes/2simulated late-error vetoes, release/ad-hoc signature and all three packaged self-checks. The actual CI checkout21600647f30a2d6da1ca109f1f7db55c3e81bf6c is a temporary PR test merge, not a main merge.
+
+Actual XCTest logs include v1→v2 data/receipt/order/lock preservation, migration rollback, compensation rollback and recovery, UNKNOWN/compensated tab serialization and the three new M1 completed-observation regressions. Both root and the non-author reviewer independently verified the logs. [Machine verification](../engineering/evidence/2026-10-27-integration/verification.json), [review](../engineering/evidence/2026-10-27-integration/review.json), [selected actual log lines](../engineering/evidence/2026-10-27-integration/ci-excerpt.txt) and [integration handoff](INTEGRATION_HANDOFF.md) preserve exact input trees, code hashes, scope and next actions.
+
+[Artifact12711707097](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40453748396/artifacts/12711707097):1068262bytes, SHA256`11d788d77e8e23fac3c01ce2583c1e6c0eb94648664a8cd0b37f9cc5b36b6c24`, expires2026-11-10. No real GUI/ChatGPT is exercised by CI; CHROME_NOT_RUN/GUI_NOT_RUN remain explicit. This documentation/evidence checkpoint leaves tested source/build inputs unchanged. The local live evidence and predecessor CIs below remain their own historical results.
 <!-- END_INTEGRATION_STATUS -->
 
 ## Latest local Mac execution
