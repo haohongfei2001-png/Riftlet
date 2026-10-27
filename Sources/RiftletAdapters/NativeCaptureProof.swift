@@ -15,6 +15,10 @@ enum NativeCaptureProof {
               !target.documentID.isEmpty, !target.composerID.isEmpty, !target.draftGeneration.isEmpty else {
             throw WebAdapterError.invalidTarget
         }
+        return try digest(target)
+    }
+
+    static func digest(_ target: TargetLease) throws -> String {
         let encoder = JSONEncoder(); encoder.outputFormatting = [.sortedKeys]
         return SHA256.hash(data: try encoder.encode(target)).map { String(format: "%02x", $0) }.joined()
     }

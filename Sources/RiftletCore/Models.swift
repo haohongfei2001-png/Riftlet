@@ -84,9 +84,18 @@ public struct LogicalDraftIdentity: Codable, Equatable, Hashable, Sendable {
     public init(profileID: String, id: String) { self.profileID = profileID; self.id = id }
 
     public var isRecognized: Bool {
-        guard profileID == "chatgpt-composer-react-20261027-v1",
-              id.utf8.count == 50, id.hasPrefix("local-chatgpt:") else { return false }
-        return UUID(uuidString: String(id.dropFirst(14))) != nil
+        switch profileID {
+        case "chatgpt-composer-react-20261027-v1":
+            guard id.utf8.count == 50, id.hasPrefix("local-chatgpt:") else { return false }
+            return UUID(uuidString: String(id.dropFirst(14))) != nil
+        case "chatgpt-composer-react-persisted-20261027-v1":
+            // Preserve the exact observed value and its independent profile.
+            // Recognition never maps a local draft to a persisted conversation.
+            guard id.utf8.count == 36 else { return false }
+            return UUID(uuidString: id) != nil
+        default:
+            return false
+        }
     }
 }
 

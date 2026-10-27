@@ -135,3 +135,11 @@ Following direct user confirmation of the earlier product-usability review, thes
 明确工程默认：归档24小时可在菜单/JSON调整或关闭，是开发起点而非固定产品裁决；每批最多3张、唤醒/时钟跳变至少30秒安静期；history每页200条/搜索当前页。模拟每次用独立synthetic草稿，不能证明真实同草稿并发。原 Capture/SQLite/target/receipt 防重及生产禁用仍保持。
 
 真实 Web 开始和安全失败分别依据 [UPLOAD_STARTED_CONTRACT_V1.md](UPLOAD_STARTED_CONTRACT_V1.md) 后续由本地 Codex 提供，研究建议及本轮合成 CI 不构成生产准入。没有批准品牌、发布、main合并、拖拽新交互或远端删除。
+
+## I14 — 第四轮合流的最小身份与诊断修复（2026-10-27）
+
+基于 c9c68a6 的当前已提交 composer ancestry 证据，Core 闭集识别 `chatgpt-composer-react-persisted-20261027-v1` 的36字符裸UUID；保留原值，不trim、不从URL取值、不与local profile合并、不回填旧行。同profile且不同合法UUID才缩小冲突；相同UUID大小写、旧nil/未知/畸形、跨profile、旧UNKNOWN与补偿仍保守。格式识别不是页面业务ABA连续性或生产准入。
+
+落实 App 集成请求为 host-only invocation diagnostics：同requestID贯穿native接收/验证/返回、adapter验证、App接受/发布及原事件。相同target保留有效旧ACK身份；诊断context不进页面JSON，不替代完整lease，不修改ArmedTarget时间/epoch规则。现有证据不足以实现ACK邮箱、回填时间或重放冷点击，因此仅补可验证的测量接线。
+
+保留v6/v7原操作只读观察，缺原registry/proof时UNKNOWN，不能安装旧输入代码或清库。生产上传、真实开始吞噬与安全重试继续禁用；下一步按既有uploadStarted v1由本地Codex实现真实观察、严格归一化、早返回及v3 App真机验收，root独立审查后集成。

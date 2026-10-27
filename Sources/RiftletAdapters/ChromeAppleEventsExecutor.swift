@@ -45,7 +45,8 @@ public final class ChromeAppleEventsExecutor: WebBridgeExecutor {
         }
         let commandJSON = String(decoding: try JSONEncoder().encode(command), as: UTF8.self)
         let sessionJSON = String(decoding: try JSONEncoder().encode(session), as: UTF8.self)
-        let requestID = UUID().uuidString
+        let captureContext = command.action == .captureTarget ? command.captureInvocation : nil
+        let requestID = captureContext?.requestID.uuidString ?? UUID().uuidString
         let enqueued = ProcessInfo.processInfo.systemUptime
         let trace = self.trace
         let delivery: ChromeDelivery = try await withCheckedThrowingContinuation { continuation in
@@ -109,15 +110,16 @@ public final class ChromeAppleEventsExecutor: WebBridgeExecutor {
                             guard active == selected else { throw WebAdapterError.nativeSelectionChanged }
                         }
                         phase = "complete"
+                        let validated = ProcessInfo.processInfo.systemUptime
                         if let targetDigest {
                             trace.capture(requestID: requestID, phase: "native_validated", digest: targetDigest,
-                                          received: received, accepted: true)
+                                          received: received, validated: validated, context: captureContext, accepted: true)
                         }
-                        return ChromeDelivery(data: bytes, targetDigest: targetDigest, received: received)
+                        return ChromeDelivery(data: bytes, targetDigest: targetDigest, received: received, validated: validated)
                     }
                 }
                 trace.record(requestID: requestID, action: command.action.rawValue, phase: phase, enqueued: enqueued, started: started,
-                             succeeded: (try? result.get()) != nil)
+                             context: captureContext, succeeded: (try? result.get()) != nil)
                 continuation.resume(with: result)
             }
         }
@@ -125,12 +127,15 @@ public final class ChromeAppleEventsExecutor: WebBridgeExecutor {
             guard let frontmost = NSWorkspace.shared.frontmostApplication,
                   frontmost.processIdentifier == pid, frontmost.launchDate == launched else {
                 if let digest = delivery.targetDigest {
-                    trace.capture(requestID: requestID, phase: "main_actor_return", digest: digest, received: delivery.received, accepted: false)
+                    trace.capture(requestID: requestID, phase: "main_actor_return", digest: digest, received: delivery.received,
+                                  validated: delivery.validated, context: captureContext, accepted: false)
                 }
                 throw WebAdapterError.browserNotFrontmost
             }
+            let returned = ProcessInfo.processInfo.systemUptime
             if let digest = delivery.targetDigest {
-                trace.capture(requestID: requestID, phase: "main_actor_return", digest: digest, received: delivery.received, accepted: true)
+                trace.capture(requestID: requestID, phase: "main_actor_return", digest: digest, received: delivery.received,
+                              validated: delivery.validated, context: captureContext, accepted: true, mainReturned: returned)
             }
         }
         return delivery.data
@@ -141,6 +146,7 @@ private struct ChromeDelivery: Sendable {
     let data: Data
     let targetDigest: String?
     let received: TimeInterval
+    let validated: TimeInterval
 }
 
 /// Local opt-in timing only; opaque digest, never raw source/URL/identity/payload.
@@ -149,29 +155,43 @@ private final class ChromeBridgeTrace: @unchecked Sendable {
     private let lock = NSLock()
     private var count = 0
     init(enabled: Bool) { self.enabled = enabled }
-    func capture(requestID: String, phase: String, digest: String, received: TimeInterval, accepted: Bool) {
+    func capture(requestID: String, phase: String, digest: String, received: TimeInterval,
+                 validated: TimeInterval, context: CaptureInvocationContext?, accepted: Bool,
+                 mainReturned: TimeInterval? = nil) {
         guard enabled else { return }
         lock.lock(); defer { lock.unlock() }
         guard count < 2048 else { return }; count += 1
-        let fields: [String: Any] = ["event": "capture_ack", "requestID": requestID, "phase": phase,
-            "targetDigest": digest, "receivedUptime": received,
-            "recordedUptime": ProcessInfo.processInfo.systemUptime, "accepted": accepted,
+        let now = ProcessInfo.processInfo.systemUptime
+        var fields: [String: Any] = ["event": "capture_ack", "requestID": requestID, "phase": phase,
+            "targetDigest": digest, "receivedUptime": received, "nativeReceivedUptime": received,
+            "nativeValidatedUptime": validated, "recordedUptime": now, "accepted": accepted,
             "authority": "DIAGNOSTIC_ONLY_NOT_APP_PUBLICATION"]
+        if let mainReturned, accepted { fields["executorMainReturnedUptime"] = mainReturned }
+        addContext(context, to: &fields)
         if let data = try? JSONSerialization.data(withJSONObject: fields, options: [.sortedKeys]) {
             try? FileHandle.standardError.write(contentsOf: data + Data([10]))
         }
     }
-    func record(requestID: String, action: String, phase: String, enqueued: TimeInterval, started: TimeInterval, succeeded: Bool) {
+    func record(requestID: String, action: String, phase: String, enqueued: TimeInterval, started: TimeInterval,
+                context: CaptureInvocationContext?, succeeded: Bool) {
         guard enabled else { return }
         lock.lock(); defer { lock.unlock() }
         guard count < 2048 else { return }; count += 1
         let end = ProcessInfo.processInfo.systemUptime
-        let fields: [String: Any] = ["event": "native_bridge", "requestID": requestID, "action": action, "phase": phase,
+        var fields: [String: Any] = ["event": "native_bridge", "requestID": requestID, "action": action, "phase": phase,
             "queuedUptime": enqueued, "startedUptime": started, "endedUptime": end,
             "queueMS": (started - enqueued) * 1000, "executionMS": (end - started) * 1000, "transportSucceeded": succeeded]
+        addContext(context, to: &fields)
         if let data = try? JSONSerialization.data(withJSONObject: fields, options: [.sortedKeys]) {
             try? FileHandle.standardError.write(contentsOf: data + Data([10]))
         }
+    }
+
+    private func addContext(_ context: CaptureInvocationContext?, to fields: inout [String: Any]) {
+        guard let context else { return }
+        fields["captureRequestID"] = context.requestID.uuidString
+        fields["armAttemptID"] = context.armAttemptID.uuidString
+        fields["hostEpoch"] = context.hostEpoch.uuidString
     }
 }
 

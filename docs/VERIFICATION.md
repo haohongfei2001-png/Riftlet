@@ -9,7 +9,22 @@
 - macOS CI compilation/tests/package smoke do not prove interactive focus, click-through, Spaces or real upload.
 - No real user screenshots, chats or browser sessions are used in automated tests.
 
-## Approved interaction lifecycle — current implementation
+## Round-four Web + v3 lifecycle — current integrated source
+
+**完整合流 macOS CI 与独立复核已通过：** 已测源码 [`c85020b`](https://github.com/haohongfei2001-png/Riftlet/commit/c85020b0ae250eaa37f7ed812c3c43587dca5a91)，[run40484855920](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40484855920) / job122123985228，于2026-10-27 **17:59:57北京时间**记录完成成功。**306项原生**（Core117 / Adapters102 / Capture48 / UI39），48页面VM、14旧观察器VM、8故障离线组、12只读probe组、55文件/19用例/89轨迹前缀/2明确模拟迟到错误回放全部通过。生命周期详细13 passed /0 skipped，包含7项软件面板测试，未重复计入306。Release、ad-hoc签名、三个App/helper自检通过，CHROME_NOT_RUN/GUI_NOT_RUN保留。
+
+[验证与11份原证据清单](../engineering/evidence/2026-10-27-integration-round4/verification.json) · [非作者审查及首轮编译修复](../engineering/evidence/2026-10-27-integration-round4/review.json) · [实际日志摘录](../engineering/evidence/2026-10-27-integration-round4/ci-excerpt.txt) · [development App/helper/日志](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40484855920/artifacts/12724099125)。本页所在的最终文档检查点与c85020b的12组源码/测试/构建/回放输入对象相同，确切正式HEAD以PR #1最终交接记录为准；不能把c9c68a6或b848920的旧运行冒充本次验证。
+
+SQLite真实冻结schema的v1→v2→v3/v2→v3、迁移整体回滚、未来版本拒绝，以及UNKNOWN、旧nil/cross-profile锁、补偿重开、迟到错回执、M1恢复均在本次原生执行中。新增12项只针对本轮身份和精确诊断，不代表增加真实GUI或网络样本。
+
+最初2ddd406的run40484533371在新增测试227行缺少右括号处编译失败，native未运行、后续Release/selfchecks跳过；c85020b仅补1字符后重跑完整pipeline成功。静态审查漏掉该语法错误与后续非作者复核都保留于review记录。生产/安全重试策略未调整。
+
+实际CI临时checkout为8d0a1aa17b181951f2b45ea3a8f6e5a4e8ba0b3b，父为当时实际main eba1a4f和c85020b。root读取Git对象逐项核对12组构建输入与正式源码相同。GitHub run所附PR base元数据仍报告5a3ab5d，不能替代实际checkout来源；本轮没有写main。Artifact12724099125为1,469,787bytes，GitHub SHA-256 `95d2aad5719216772f2925275354684cb14e9355e90f71cbb59edbceb124497b`，2026-11-10到期。runner为macOS14.8.9/23J631/arm64/Swift5.10。
+
+真实证据只保留第四轮一次预绑定、空草稿、editor未聚焦的生成图片物理首击。旧v6直接只读观察input3→3，但结果invalidated/exactfalse；不等于App重启或livev7恢复通过。无可观察ABA反例仍FAIL，冷首击、原非空正文/附件/选区、MID、物理GUI、自包含、实际uploadStarted快吞噬均不被本次CI关闭。
+
+## Approved interaction lifecycle — preceding implementation
+
 
 **本轮完整 macOS CI 与非作者审查通过：** 已测输入 [`d834a3a4a76cacedd0cb763044085c9c2093680c`](https://github.com/haohongfei2001-png/Riftlet/commit/d834a3a4a76cacedd0cb763044085c9c2093680c)，[run 40479556833](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40479556833) / job 122106130530。**287 项原生**（Core 110 / Capture 48 / UI 39 / Adapters 90）、38 项页面 VM、8 组故障工具、12 组只读 probe、历史回放 55 文件 / 19 用例 / 89 trace 前缀 / 2 明确模拟迟到错误全部通过。Release、ad-hoc 签名和三个 App/helper 自检通过。新增逐项输出确认 **13/13 生命周期测试 passed，0 skipped**，其中 7 项实际 AppKit 面板软件测试；重复报告这 13 项没有增加测试总数。
 
