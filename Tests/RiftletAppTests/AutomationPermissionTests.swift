@@ -44,6 +44,17 @@ final class AutomationPermissionTests: XCTestCase {
         }
     }
 
+    func testMultipleChromeInstancesSelectExactOriginalSessionOrForegroundNeverFirst() {
+        let first = PermissionBrowserIdentity(pid: 11, launched: Date(timeIntervalSince1970: 1))
+        let second = PermissionBrowserIdentity(pid: 22, launched: Date(timeIntervalSince1970: 2))
+        XCTAssertEqual(PermissionBrowserIdentity.select([first, second], foregroundPID: 22, expectedSession: nil), second)
+        XCTAssertEqual(PermissionBrowserIdentity.select([first, second], foregroundPID: 11, expectedSession: second.session), second)
+        XCTAssertNil(PermissionBrowserIdentity.select([first, second], foregroundPID: 33, expectedSession: nil))
+        XCTAssertNil(PermissionBrowserIdentity.select([first, second], foregroundPID: 22, expectedSession: "22:1.0"))
+        XCTAssertNil(PermissionBrowserIdentity.select([second, second], foregroundPID: 22, expectedSession: second.session))
+        XCTAssertEqual(PermissionBrowserIdentity.select([first], foregroundPID: nil, expectedSession: nil), first)
+    }
+
     func testNativePermissionCodesNeverConflateDenialWithUnavailable() {
         XCTAssertEqual(NativeAutomationPermissionChecker.classify(noErr), .granted)
         XCTAssertEqual(NativeAutomationPermissionChecker.classify(OSStatus(errAEEventNotPermitted)), .denied)

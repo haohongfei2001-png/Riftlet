@@ -7,6 +7,28 @@ enum AutomationPermissionState: Equatable, Sendable {
 
 protocol AutomationPermissionChecking: Sendable {
     func check(askUserIfNeeded: Bool) async -> AutomationPermissionState
+    func check(askUserIfNeeded: Bool, expectedSession: String?) async -> AutomationPermissionState
+}
+
+extension AutomationPermissionChecking {
+    func check(askUserIfNeeded: Bool, expectedSession: String?) async -> AutomationPermissionState {
+        await check(askUserIfNeeded: askUserIfNeeded)
+    }
+}
+
+struct PermissionBrowserIdentity: Equatable, Sendable {
+    let pid: pid_t
+    let launched: Date
+    var session: String { "\(pid):\(launched.timeIntervalSince1970)" }
+
+    static func select(_ candidates: [Self], foregroundPID: pid_t?, expectedSession: String?) -> Self? {
+        if let expectedSession {
+            let matches = candidates.filter { $0.session == expectedSession }
+            return matches.count == 1 ? matches[0] : nil
+        }
+        if let foregroundPID, let foreground = candidates.first(where: { $0.pid == foregroundPID }) { return foreground }
+        return candidates.count == 1 ? candidates[0] : nil
+    }
 }
 
 /// A status check sends no page program and never launches/activates Chrome.
@@ -15,27 +37,37 @@ struct NativeAutomationPermissionChecker: AutomationPermissionChecking {
     private static let queue = DispatchQueue(label: "Riftlet.permission", qos: .userInitiated)
 
     func check(askUserIfNeeded: Bool) async -> AutomationPermissionState {
-        let availability: (AutomationPermissionState?, pid_t?, Date?) = await MainActor.run {
+        await check(askUserIfNeeded: askUserIfNeeded, expectedSession: nil)
+    }
+
+    func check(askUserIfNeeded: Bool, expectedSession: String?) async -> AutomationPermissionState {
+        let availability: (AutomationPermissionState?, PermissionBrowserIdentity?) = await MainActor.run {
             guard NSWorkspace.shared.urlForApplication(withBundleIdentifier: "com.google.Chrome") != nil else {
-                return (.browserNotInstalled, nil, nil)
+                return (.browserNotInstalled, nil)
             }
-            guard let running = NSRunningApplication.runningApplications(withBundleIdentifier: "com.google.Chrome")
-                .first(where: { !$0.isTerminated }) else { return (.browserNotRunning, nil, nil) }
-            return (nil, running.processIdentifier, running.launchDate)
+            let candidates = NSRunningApplication.runningApplications(withBundleIdentifier: "com.google.Chrome")
+                .compactMap { app -> PermissionBrowserIdentity? in
+                    guard !app.isTerminated, let launch = app.launchDate else { return nil }
+                    return .init(pid: app.processIdentifier, launched: launch)
+                }
+            guard !candidates.isEmpty else { return (.browserNotRunning, nil) }
+            let chosen = PermissionBrowserIdentity.select(candidates,
+                foregroundPID: NSWorkspace.shared.frontmostApplication?.processIdentifier, expectedSession: expectedSession)
+            return (chosen == nil ? .unavailable : nil, chosen)
         }
         if let status = availability.0 { return status }
-        guard let pid = availability.1, let launched = availability.2 else { return .unavailable }
+        guard let identity = availability.1 else { return .unavailable }
         return await withCheckedContinuation { continuation in
             Self.queue.async {
-                guard let running = NSRunningApplication(processIdentifier: pid), !running.isTerminated,
-                      running.bundleIdentifier == "com.google.Chrome", running.launchDate == launched else {
-                    continuation.resume(returning: .browserNotRunning); return
+                func stillSameProcess() -> Bool {
+                    guard let running = NSRunningApplication(processIdentifier: identity.pid) else { return false }
+                    return !running.isTerminated && running.bundleIdentifier == "com.google.Chrome"
+                        && running.launchDate == identity.launched
                 }
-                // A PID address cannot launch an app if it exited between the
-                // availability check and this queue turn. It grants no target lease.
-                let address = NSAppleEventDescriptor(processIdentifier: pid)
+                guard stillSameProcess() else { continuation.resume(returning: .browserNotRunning); return }
+                let address = NSAppleEventDescriptor(processIdentifier: identity.pid)
                 let code = AEDeterminePermissionToAutomateTarget(address.aeDesc, typeWildCard, typeWildCard, askUserIfNeeded)
-                continuation.resume(returning: Self.classify(code))
+                continuation.resume(returning: stillSameProcess() ? Self.classify(code) : .browserNotRunning)
             }
         }
     }
@@ -61,17 +93,17 @@ struct AutomationPermissionGate: Sendable {
         self.requiresChrome = requiresChrome; self.checker = checker
     }
 
-    func inspect() async -> AutomationPermissionState {
+    func inspect(expectedSession: String? = nil) async -> AutomationPermissionState {
         guard requiresChrome else { return .notNeeded }
-        return await checker.check(askUserIfNeeded: false)
+        return await checker.check(askUserIfNeeded: false, expectedSession: expectedSession)
     }
 
     /// Called only by an explicit setup button. Denial goes to System Settings;
     /// repeatedly issuing requests cannot override a previous user decision.
-    func requestFromUserAction() async -> AutomationPermissionState {
+    func requestFromUserAction(expectedSession: String? = nil) async -> AutomationPermissionState {
         guard requiresChrome else { return .notNeeded }
-        let current = await checker.check(askUserIfNeeded: false)
+        let current = await checker.check(askUserIfNeeded: false, expectedSession: expectedSession)
         guard current == .notRequested else { return current }
-        return await checker.check(askUserIfNeeded: true)
+        return await checker.check(askUserIfNeeded: true, expectedSession: expectedSession)
     }
 }

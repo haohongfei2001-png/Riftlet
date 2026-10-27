@@ -12,6 +12,7 @@ enum FirstUseSelfCheck {
     }
 
     static func run() async throws {
+        try await SelectionFlowSelfCheck.run()
         let probe = UnexpectedPermissionProbe()
         let gate = AutomationPermissionGate(requiresChrome: false, checker: probe)
         let inspected = await gate.inspect(), requested = await gate.requestFromUserAction()
