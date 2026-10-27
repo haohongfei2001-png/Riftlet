@@ -12,3 +12,5 @@ SHA-256: `v6.js` = `956c138cb79e5b3905687b1d7ce126281ee097c6d0f897b8cafcc6391ab8
 They are test resources, not fallback input programs. The application bundles only the small read-only compatibility observer. These synthetic tests establish no new live ChatGPT or physical interaction admission.
 
 All historical observations remain schema 1. Their original completion/late-error proof may continue to be read, but none may mint schema-2 uploadStarted evidence, rewrite old identity or regain input authority.
+
+- `v9.js`: exact commit `1f9dec2dec9cf6ef61f36776a6e4f7c3439f4f8a`, same public page source; SHA-256 `a79216b283fb8a32ab76fd177dd0fab371f011c8067cc6984e8028424057ef43`. `v9-dom-fixture.cjs` retains the round5 synthetic DOM helper, adding a null initial-progress option to represent a missing `aria-valuenow`. Original v9 start evidence is never copied: retained operations are read through their original closures and normalized to schema 1, including original final proof and late error only.

@@ -9,9 +9,9 @@
  */
 function riftletWebAcceptance(command, native) {
   'use strict';
-  // v9 adds bounded, operation-correlated progress evidence for upload start.
+  // v10 permits initial missing progress to wait on its original node without start evidence.
   // Its old native requests remain UNKNOWN instead of acquiring a new lease.
-  const KEY = '__riftletWebAcceptance20261027v9';
+  const KEY = '__riftletWebAcceptance20261027v10';
   const MAX_GENERATIONS = 32;
   const MAX_BYTES = 8 * 1024 * 1024, MAX_PIXELS = 16 * 1024 * 1024;
   const TARGET_KEYS = ['adapterID', 'surface', 'applicationID', 'sessionID', 'windowID', 'tabID', 'documentID', 'composerID', 'draftGeneration'];
@@ -386,11 +386,18 @@ function riftletWebAcceptance(command, native) {
       }
       const node = progress[0];
       if (op.progressNode && op.progressNode !== node) { op.startDisqualified = true; return; }
-      const value = progressNumber(node.getAttribute('aria-valuenow'));
-      if (!Number.isFinite(value) || value < 0 || value > 100 || !op.inputSequence
-          || now <= op.inputSequence || !Number.isFinite(op.inputObservedAtMS) || op.inputObservedAtMS < 0) {
+      if (!op.inputSequence || now <= op.inputSequence
+          || !Number.isFinite(op.inputObservedAtMS) || op.inputObservedAtMS < 0) {
         op.startDisqualified = true; return;
       }
+      // Real initial indeterminate progress has no aria-valuenow. Bind that
+      // exact node now so removal/replacement during the wait cannot be hidden.
+      // Missing is allowed only before any finite sample; it proves no start.
+      op.progressNode = node;
+      const raw = node.getAttribute('aria-valuenow');
+      if (raw === null && op.progressValue === null) return;
+      const value = progressNumber(raw);
+      if (!Number.isFinite(value)) { op.startDisqualified = true; return; }
       const previous = op.progressValue;
       if (previous !== null && value < previous) { op.startDisqualified = true; return; }
       op.progressNode = node; op.progressValue = value;
@@ -471,12 +478,18 @@ function riftletWebAcceptance(command, native) {
             // oldValue records retain intermediate changes hidden by the final
             // DOM snapshot. Check both record order and every old-to-final edge;
             // 20 -> 80 -> 10 -> 90 must not look like one safe 20 -> 90 advance.
-            const oldValue = progressNumber(record.oldValue);
-            const currentValue = progressNumber(record.target.getAttribute('aria-valuenow'));
+            const currentRaw = record.target.getAttribute('aria-valuenow');
+            const oldValue = progressNumber(record.oldValue), currentValue = progressNumber(currentRaw);
             const previousOldValue = progressOldValues.get(op);
-            if (!Number.isFinite(oldValue) || !Number.isFinite(currentValue) || oldValue > currentValue
-                || (previousOldValue !== undefined && oldValue < previousOldValue)) op.startDisqualified = true;
-            progressOldValues.set(op, oldValue);
+            // Initial missing -> first finite is only a baseline transition.
+            // A finite oldValue anywhere in this batch ends the missing-value
+            // allowance, including null -> finite -> null -> finite round trips.
+            if (record.oldValue === null) {
+              if (op.progressValue !== null || Number.isFinite(previousOldValue)
+                  || (currentRaw !== null && !Number.isFinite(currentValue))) op.startDisqualified = true;
+            } else if (!Number.isFinite(oldValue) || !Number.isFinite(currentValue) || oldValue > currentValue
+                || (Number.isFinite(previousOldValue) && oldValue < previousOldValue)) op.startDisqualified = true;
+            progressOldValues.set(op, record.oldValue === null ? null : oldValue);
           }
           if ((record.removedNodes || []).some(node => containsNode(node, op.progressNode))
               || (record.type === 'attributes' && record.target === op.progressNode

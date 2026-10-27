@@ -7,7 +7,7 @@ const native = {applicationID:'com.google.Chrome', sessionID:'4242:1', windowID:
 function fixture(version, options) {
   // Keep the historical fixture independent of the current page's evolving ABI.
   const original = fs.readFileSync(path.join(__dirname, '../RiftletAdaptersTests/Fixtures/LegacyWeb', version+'.js'), 'utf8');
-  const make = version === 'v8' ? require('../RiftletAdaptersTests/Fixtures/LegacyWeb/v8-dom-fixture.cjs') : require('./legacy-dom-fixture.cjs');
+  const make = ['v8','v9'].includes(version) ? require('../RiftletAdaptersTests/Fixtures/LegacyWeb/'+version+'-dom-fixture.cjs') : require('./legacy-dom-fixture.cjs');
   const f = make(original, version, options);
   f.legacy = vm.runInContext('('+legacy+')', f.context);
   f.read = op => f.legacy(op.command('observe'), native);
@@ -19,7 +19,7 @@ async function ready(version, options) {
   const view=f.makeCard(op); f.finish(view); await f.settle();
   assert.equal(f.observe(op).state,'attached'); return {f,op,view};
 }
-for (const version of ['v6','v7','v8']) {
+for (const version of ['v6','v7','v8','v9']) {
   test(version+' historical positive progress never becomes schema2 or uploadStarted', async () => {
     const f=fixture(version),op=f.bind();f.stage(op);f.commit(op);await f.settle();f.makeCard(op);
     const stored=f.registry().head.operations.get(op.identity.operationID);
@@ -39,7 +39,7 @@ for (const version of ['v6','v7','v8']) {
     const background=f.read(op);
     assert.equal(background.observation.state,'attached');
     assert.equal(background.observation.attachmentID,before.attachmentID);
-    assert.equal(background.provenance.evidenceID,(version==='v8'?'W5':'W4')+'-legacy-'+version+'-original-observer');
+    assert.equal(background.provenance.evidenceID,(['v8','v9'].includes(version)?'W5':'W4')+'-legacy-'+version+'-original-observer');
     f.focus(true); f.document.visibilityState='visible'; const fresh=f.target();
     assert.notEqual(fresh.draftGeneration,op.target.draftGeneration);
     assert.equal(f.read(op).observation.state,'attached'); assert.equal(f.input.inputCount,1);
@@ -143,4 +143,53 @@ test('broken historical callback and ambiguous duplicate registries fail closed'
   f.context.__riftletWebAcceptance20261027v7={head:state};
   assert.equal(f.read(op).observation.exactImageIdentity,false);
   assert.equal(f.input.inputCount,1);
+});
+
+test('v9 genuine stored start is downgraded to schema1 while original completion and late error survive', async () => {
+  const f=fixture('v9'),op=f.bind();f.stage(op);f.commit(op);await f.settle();const view=f.makeCard(op);
+  view.progress.attrs['aria-valuenow']='40';
+  f.mutate([{type:'attributes',target:view.progress,attributeName:'aria-valuenow',oldValue:'20'}]);
+  const original=f.observe(op);assert.equal(original.state,'uploadStarted');assert.ok(original.uploadStart);
+  const stored=f.registry().head.operations.get(op.identity.operationID), start=JSON.stringify(stored.uploadStart);
+  for(let i=0;i<3;i++) {
+    const result=f.read(op);assert.equal(result.schemaVersion,1);assert.equal(result.observation.state,'inputTriggered');
+    assert.equal(result.observation.exactImageIdentity,false);assert.equal(result.observation.automaticRetryExcluded,false);
+    assert.equal(JSON.stringify(result).includes('uploadStart'),false);
+  }
+  assert.equal(JSON.stringify(stored.uploadStart),start);assert.equal(f.input.inputCount,1);
+  f.finish(view);await f.settle();const completed=f.read(op).observation;
+  assert.equal(completed.state,'attached');assert.equal(completed.exactImageIdentity,true);
+  view.card.attrs['data-state']='error';f.queueMutation([{type:'attributes',target:view.card,attributeName:'data-state'}]);
+  const failed=f.read(op).observation;assert.equal(failed.hasError,true);assert.equal(failed.exactImageIdentity,true);
+  assert.equal(failed.attachmentID,completed.attachmentID);assert.equal(failed.automaticRetryExcluded,false);
+  assert.equal(f.input.inputCount,1);
+});
+
+test('v9 indeterminate start rejection stays original but does not block original final proof', async () => {
+  const f=fixture('v9'),op=f.bind();f.stage(op);f.commit(op);await f.settle();
+  const view=f.makeCard(op,null); // Historical v9 rejects a missing initial aria-valuenow permanently.
+  assert.equal(view.progress.getAttribute('aria-valuenow'),null);
+  const stored=f.registry().head.operations.get(op.identity.operationID);
+  assert.equal(stored.startDisqualified,true);
+  for(const value of ['20','40']) {
+    view.progress.attrs['aria-valuenow']=value;
+    f.mutate([{type:'attributes',target:view.progress,attributeName:'aria-valuenow'}]);
+    const result=f.read(op);assert.equal(result.schemaVersion,1);assert.equal(result.observation.state,'inputTriggered');
+    assert.equal(result.observation.uploadStart,undefined);assert.equal(stored.startDisqualified,true);
+  }
+  f.finish(view);await f.settle();assert.equal(f.read(op).observation.state,'attached');assert.equal(f.input.inputCount,1);
+});
+
+test('v9 stopped monitor and ambiguous historical target cannot regain final or start authority', async () => {
+  const {f,op}=await ready('v9',{thread:true}), state=f.registry().head;
+  f.context.__riftletWebAcceptance20261027v8={head:state};
+  assert.equal(f.read(op).observation.exactImageIdentity,false);
+  delete f.context.__riftletWebAcceptance20261027v8;
+  f.registry().stopRootMonitors();
+  for(let i=0;i<3;i++) {
+    const result=f.read(op);assert.equal(result.schemaVersion,1);assert.equal(result.observation.state,'invalidated');
+    assert.equal(result.observation.belongsToOriginalDraft,false);assert.equal(result.observation.exactImageIdentity,false);
+    assert.equal(result.observation.uploadStart,undefined);
+  }
+  assert.equal(state.operations.get(op.identity.operationID).proof,null);assert.equal(f.input.inputCount,1);
 });
