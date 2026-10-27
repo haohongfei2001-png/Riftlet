@@ -1,0 +1,32 @@
+{
+  "scope": "Exploratory local packaged run before final diagnostics-only labels/helper changes; NOT a full UX-01 pass",
+  "pageSourceSHA256": "f8980e524cc62f4fd913d54e9fbe3855c4112737b7f503f9229f215ccd4dfb9a",
+  "armCount": 318,
+  "armedCount": 92,
+  "reasons": {
+    "startup": 1,
+    "chromeFocus": 56,
+    "fallback": 243,
+    "chromeWindowCreated": 6,
+    "chromeTitle": 3,
+    "activation": 9
+  },
+  "errors": {
+    "pageRejected(RiftletAdapters.WebPageRejection.unprovenThread)": 46,
+    "none": 92,
+    "pageRejected(RiftletAdapters.WebPageRejection.unsupportedSurface)": 52,
+    "browserNotFrontmost": 103,
+    "nativeEventFailed(12)": 25
+  },
+  "nativeCommands": 241,
+  "queueMaxMS": 199.63349995668977,
+  "executionMaxMS": 232.07100003492087,
+  "selectionBoundaries": 0,
+  "inputCommands": 0,
+  "browserControl": "CUA existing-tab reads timed out twice; no repeated upload attempts",
+  "runtimePatchDifferenceFrom159b3ef": [
+    "final native trace key transportSucceeded",
+    "three additional closed ROOT_MONITOR labels",
+    "helper-only region/focus diagnostic additions"
+  ]
+}

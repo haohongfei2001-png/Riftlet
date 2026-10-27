@@ -1,0 +1,110 @@
+{
+  "sourceSHA": "159b3ef3e6c87ea468ba334dff64ad8db640d80c",
+  "inputSource": "CUA coordinate automation; NOT physical hardware proof",
+  "status": "PARTIAL",
+  "gap": "PASS_SCOPED: actual target GAP at screen (1884,873), event 4, window 47742, underlying_probe_down and selections=0",
+  "clear": "NOT_RUN: requested screenshot point (3683,400); event reported screen (3681.5,722) outside row 47745; wrong coordinate delivery prevents interpretation",
+  "humanPhysicalVerdict": "NOT_RUN",
+  "events": [
+    {
+      "event": "mouse_down",
+      "eventNumber": 2,
+      "eventTime": 442835.943811791,
+      "namedTargets": [],
+      "probeKeyInputEligible": true,
+      "screenX": 942,
+      "screenY": 976.5,
+      "selectionCount": 0,
+      "targetGeometryCurrent": true,
+      "underlyingClickCount": 0,
+      "window": 47742
+    },
+    {
+      "event": "mouse_up",
+      "eventNumber": 2,
+      "eventTime": 442835.997268333,
+      "namedTargets": [],
+      "probeKeyInputEligible": false,
+      "screenX": 942,
+      "screenY": 976.5,
+      "selectionCount": 0,
+      "targetGeometryCurrent": true,
+      "underlyingClickCount": 0,
+      "window": 47742
+    },
+    {
+      "event": "mouse_down",
+      "eventNumber": 4,
+      "eventTime": 442856.489093166,
+      "namedTargets": [
+        "GAP 间隙"
+      ],
+      "probeKeyInputEligible": false,
+      "screenX": 1884,
+      "screenY": 873,
+      "selectionCount": 0,
+      "targetGeometryCurrent": true,
+      "underlyingClickCount": 0,
+      "window": 47742
+    },
+    {
+      "event": "underlying_probe_down",
+      "eventNumber": 4,
+      "eventTime": 442856.489093166,
+      "namedTargets": [
+        "GAP 间隙"
+      ],
+      "probeKeyInputEligible": false,
+      "screenX": 1884,
+      "screenY": 873,
+      "selectionCount": 0,
+      "targetGeometryCurrent": true,
+      "underlyingClickCount": 1,
+      "window": 47742
+    },
+    {
+      "event": "mouse_up",
+      "eventNumber": 4,
+      "eventTime": 442856.539383208,
+      "namedTargets": [
+        "GAP 间隙"
+      ],
+      "probeKeyInputEligible": false,
+      "screenX": 1884,
+      "screenY": 873,
+      "selectionCount": 0,
+      "targetGeometryCurrent": true,
+      "underlyingClickCount": 1,
+      "window": 47742
+    },
+    {
+      "event": "mouse_down",
+      "eventNumber": 6,
+      "eventTime": 442856.81036075,
+      "namedTargets": [],
+      "probeKeyInputEligible": false,
+      "rowRegion": "outsideRow",
+      "screenX": 3681.5,
+      "screenY": 722,
+      "selectionCount": 0,
+      "targetGeometryCurrent": true,
+      "underlyingClickCount": 1,
+      "window": 47745
+    },
+    {
+      "event": "mouse_up",
+      "eventNumber": 6,
+      "eventTime": 442856.863014208,
+      "namedTargets": [],
+      "probeKeyInputEligible": false,
+      "rowRegion": "outsideRow",
+      "screenX": 3681.5,
+      "screenY": 722,
+      "selectionCount": 0,
+      "targetGeometryCurrent": true,
+      "underlyingClickCount": 1,
+      "window": 47745
+    }
+  ],
+  "packaging": "Existing helper source packaged with existing helper Info.plist; explicit round3 app path used. Name-only CUA initially launched old synthetic-only helper, immediately identified and stopped without action; no real database access."
+}

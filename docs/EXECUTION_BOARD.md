@@ -174,3 +174,7 @@ Next READY task or next concrete action:
 - **CI**：[run40446467852](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40446467852) / job121998836427，macOS14.8.9 arm64 Swift5.10，**173/173**（Capture48/Core30/UI17/Adapters78）+9页面VM，release/app签名及三个自检全部成功。此前首次运行的两处原生命名剪贴板fixture假设失败已修正，原生驱动未放宽。
 - **证据/范围**：[M1接口与恢复说明](M1_NATIVE_BACKEND.md)、[验证记录](../engineering/evidence/2026-10-27/m1-native-verification.json)、[非作者审查](../engineering/evidence/2026-10-27/m1-native-review.json)。命名板是真实系统API，AX目标/动作主要为注入测试；未查询/操作真实客户端或通用剪贴板。
 - **当时下一条动作（历史）**：保留独立成果供负责人整合；已有客户端AX/版本/模式证据到达后，仅实现对应provider并在授权环境完成M00–M06，再单独准入。W2/N1由本地Codex继续，root后续负责统一集成其真机成果。本M1分支没有遗留ACTIVE实现任务；不重复规划、不生成额外后台任务、不把本次CI写成真实Mac客户端通过。
+
+## 第三轮本地候选交付（未正式合流）
+
+源码 `159b3ef3e6c87ea468ba334dff64ad8db640d80c` 在独立 `codex/riftlet-real-mac-round3-20261027`。CI 228 Swift / 38 page / 12 新 probe groups 与打包自检 PASS；AX 唤醒及真实 root commit 监视局部有证据。UX-01 全场景、真实业务 ABA、物理 GUI 与 MID 仍未准入；系统截图自包含仍 FAIL。生产真实截图上传和 retry 保持关闭。详见[第三轮交接](../engineering/evidence/2026-10-27-real-mac-round3/README.md)。本段不覆盖上方正式版本状态。

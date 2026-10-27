@@ -1,0 +1,129 @@
+[
+  {
+    "slot": 0,
+    "present": true,
+    "roots": 0,
+    "before": [],
+    "after": []
+  },
+  {
+    "slot": 1,
+    "present": true,
+    "roots": 0,
+    "before": [],
+    "after": []
+  },
+  {
+    "slot": 2,
+    "present": true,
+    "roots": 0,
+    "before": [],
+    "after": []
+  },
+  {
+    "slot": 3,
+    "present": true,
+    "roots": 1,
+    "before": [
+      {
+        "commits": 474,
+        "checks": 474,
+        "elapsedMs": 132.40000009536743,
+        "maxElapsedMs": 7,
+        "stopped": false,
+        "restored": false,
+        "reason": null
+      }
+    ],
+    "after": [
+      {
+        "commits": 474,
+        "checks": 474,
+        "elapsedMs": 132.40000009536743,
+        "maxElapsedMs": 7,
+        "stopped": true,
+        "restored": true,
+        "reason": "EXPLICIT_STOP"
+      }
+    ]
+  },
+  {
+    "slot": 4,
+    "present": true,
+    "roots": 1,
+    "before": [
+      {
+        "commits": 847,
+        "checks": 847,
+        "elapsedMs": 172.39999878406525,
+        "maxElapsedMs": 11.599999964237213,
+        "stopped": false,
+        "restored": false,
+        "reason": null
+      }
+    ],
+    "after": [
+      {
+        "commits": 847,
+        "checks": 847,
+        "elapsedMs": 172.39999878406525,
+        "maxElapsedMs": 11.599999964237213,
+        "stopped": true,
+        "restored": true,
+        "reason": "EXPLICIT_STOP"
+      }
+    ]
+  },
+  {
+    "slot": 5,
+    "present": true,
+    "roots": 0,
+    "before": [],
+    "after": []
+  },
+  {
+    "slot": 6,
+    "present": true,
+    "roots": 1,
+    "before": [
+      {
+        "commits": 79,
+        "checks": 79,
+        "elapsedMs": 30,
+        "maxElapsedMs": 3.600000023841858,
+        "stopped": false,
+        "restored": false,
+        "reason": null
+      }
+    ],
+    "after": [
+      {
+        "commits": 79,
+        "checks": 79,
+        "elapsedMs": 30,
+        "maxElapsedMs": 3.600000023841858,
+        "stopped": true,
+        "restored": true,
+        "reason": "EXPLICIT_STOP"
+      }
+    ]
+  },
+  {
+    "slot": 7,
+    "present": true,
+    "roots": 0,
+    "before": [],
+    "after": []
+  },
+  {
+    "slot": 8,
+    "present": true,
+    "roots": 0,
+    "before": [],
+    "after": []
+  },
+  {
+    "slot": 9,
+    "readFailed": true
+  }
+]
