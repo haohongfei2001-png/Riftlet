@@ -84,6 +84,8 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
     private var activationObserver: NSObjectProtocol?
     private var lastForegroundSession: String?
     private var diagnosticEvents = 0
+    private var pendingArmReason = "startup"
+    private var chromeActivity: ChromeActivityObserver?
     private var armedTarget: ArmedTarget?
     private var frozenPress: (id: UUID, target: TargetLease?)?
     private var armSession = UUID()
@@ -105,6 +107,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
         completionWatch?.cancel()
         targetArmer?.cancel()
         armScheduler.stop(); armedTarget = nil; frozenPress = nil
+        chromeActivity?.stop()
         if let wakeObserver { NSWorkspace.shared.notificationCenter.removeObserver(wakeObserver) }
         if let activationObserver { NSWorkspace.shared.notificationCenter.removeObserver(activationObserver) }
         rift?.close()
@@ -144,7 +147,8 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
         try configuration.validate()
         rift = RiftPanelController(mediaDirectory: root.appendingPathComponent("media"), configuration: configuration,
             onPress: { [weak self] id, timestamp in self?.freezePress(id, timestamp: timestamp) },
-            onSelectionBoundary: { [weak self] boundary in self?.recordSelection(boundary) }) { [weak self] id in
+            onSelectionBoundary: { [weak self] boundary in self?.recordSelection(boundary) },
+            onApproach: { [weak self] in self?.requestArm(reason: "pointerApproach") }) { [weak self] id in
             guard let self else { return }
             let frozen = self.frozenPress?.id == id ? self.frozenPress?.target : nil
             self.frozenPress = nil
@@ -175,7 +179,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
             adapter = SimulationAdapter(); policy = .init()
         case .webAcceptance:
             adapter = WebAttachmentAdapter(mediaDirectory: root.appendingPathComponent("media"),
-                executor: ChromeAppleEventsExecutor(), program: try ChatGPTWebPageProgram.load(),
+                executor: ChromeAppleEventsExecutor(traceEnabled: CommandLine.arguments.contains("--acceptance-trace")), program: try ChatGPTWebPageProgram.load(),
                 mode: .syntheticDevelopment, profile: ChatGPTWebPageProgram.acceptanceProfile)
             policy = ReceiptPolicy(syntheticAcceptanceProfiles: [ChatGPTWebPageProgram.acceptanceProfile.profileID: .webChat])
         }
@@ -247,10 +251,13 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
         armingAdapter = adapter
         armScheduler.start(); armSession = armScheduler.epoch
         lastForegroundSession = foregroundChromeSession
+        chromeActivity = ChromeActivityObserver { [weak self] reason in self?.requestArm(reason: reason) }
+        let activityAvailable = chromeActivity?.bind(to: NSWorkspace.shared.frontmostApplication) ?? false
+        recordAcceptance(["event": "chrome_activity_binding", "available": activityAvailable])
         wakeObserver = NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.didWakeNotification,
             object: nil, queue: .main) { [weak self] _ in
                 MainActor.assumeIsolated {
-                    self?.requestArm(invalidate: true)
+                    self?.requestArm(reason: "wake", invalidate: true)
                 }
             }
         activationObserver = NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.didActivateApplicationNotification,
@@ -258,13 +265,16 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
                 MainActor.assumeIsolated {
                     guard let self, self.lastForegroundSession != self.foregroundChromeSession else { return }
                     self.lastForegroundSession = self.foregroundChromeSession
-                    self.requestArm(invalidate: true)
+                    let available = self.chromeActivity?.bind(to: NSWorkspace.shared.frontmostApplication) ?? false
+                    self.recordAcceptance(["event": "chrome_activity_binding", "available": available])
+                    self.requestArm(reason: "activation", invalidate: true)
                 }
             }
         performPendingArm()
     }
 
-    private func requestArm(invalidate: Bool = false) {
+    private func requestArm(reason: String = "fallback", invalidate: Bool = false) {
+        pendingArmReason = reason
         if invalidate { armedTarget = nil; frozenPress = nil }
         let wake = armScheduler.request(invalidateEpoch: invalidate)
         armSession = armScheduler.epoch
@@ -275,10 +285,16 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
         guard let adapter = armingAdapter, let attempt = armScheduler.begin() else { return }
         targetArmer?.cancel() // Only the fallback sleep; never an in-flight capture.
         targetArmer = nil
+        let reason = pendingArmReason
+        let started = ProcessInfo.processInfo.systemUptime
         Task { [weak self] in
             guard let self else { return }
             var result: TargetLease?
-            if self.foregroundChromeSession != nil { result = try? await adapter.captureTarget() }
+            var errorCode = "browserNotFrontmost"
+            if self.foregroundChromeSession != nil {
+                do { result = try await adapter.captureTarget(); errorCode = "none" }
+                catch { errorCode = (error as? WebAdapterError).map { String(describing: $0) } ?? "unclassified" }
+            }
             guard let completion = self.armScheduler.complete(attempt) else { return }
             if completion.acceptsAcknowledgement {
                 if let target = result, target.sessionID == self.foregroundChromeSession {
@@ -288,6 +304,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
                     }
                 } else { self.armedTarget = nil }
             }
+            self.recordAcceptance(["event": "arm_completion", "reason": reason, "startedUptime": started,
+                "endedUptime": ProcessInfo.processInfo.systemUptime, "error": errorCode,
+                "epochAccepted": completion.acceptsAcknowledgement, "armed": self.armedTarget != nil])
             if completion.shouldWake { self.performPendingArm() }
             else if self.armScheduler.isRunning {
                 self.targetArmer = Task { [weak self] in
@@ -301,16 +320,23 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
     }
 
     private func recordSelection(_ boundary: RiftSelectionBoundary) {
-        guard mode == .webAcceptance, CommandLine.arguments.contains("--acceptance-trace"), diagnosticEvents < 512 else { return }
-        diagnosticEvents += 1
         var fields: [String: Any] = ["event": "selection_boundary", "source": boundary.source.rawValue,
             "assetID": boundary.assetID.uuidString, "eventUptime": boundary.eventUptime,
             "callbackUptime": ProcessInfo.processInfo.systemUptime,
             "frozen": frozenPress?.id == boundary.assetID && frozenPress?.target != nil]
+        fields["armInFlight"] = armScheduler.inFlight != nil
+        fields["hostEpochMatches"] = armedTarget?.hostSession == armSession
+        fields["foregroundSessionMatches"] = armedTarget?.target.sessionID == foregroundChromeSession
         if let ack = armedTarget?.acknowledgedUptime { fields["ackUptime"] = ack }
         if let number = boundary.eventNumber { fields["eventNumber"] = number }
+        recordAcceptance(fields)
+    }
+
+    private func recordAcceptance(_ fields: [String: Any]) {
+        guard mode == .webAcceptance, CommandLine.arguments.contains("--acceptance-trace"), diagnosticEvents < 2048 else { return }
+        diagnosticEvents += 1
         if let data = try? JSONSerialization.data(withJSONObject: fields, options: [.sortedKeys]) {
-            FileHandle.standardError.write(data); FileHandle.standardError.write(Data([10]))
+            try? FileHandle.standardError.write(contentsOf: data + Data([10]))
         }
     }
 
@@ -350,7 +376,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
                 }
             }
             visibleIDs = activeIDs
-            if hasNewImages && mode == .webAcceptance { requestArm() }
+            if hasNewImages && mode == .webAcceptance { requestArm(reason: "newImages") }
             rift?.render(snapshot)
             switch mode {
             case .capture: statusItem?.button?.toolTip = "Riftlet · \(active.count) retained screenshots"

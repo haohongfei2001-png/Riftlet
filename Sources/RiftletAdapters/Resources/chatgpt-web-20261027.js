@@ -9,9 +9,9 @@
  */
 function riftletWebAcceptance(command, native) {
   'use strict';
-  // v6 adds conservative trusted-interaction and Navigation API continuity revocation.
+  // v7 requires a reversible, root-local commit observer for the thread candidate.
   // Its old native requests remain UNKNOWN instead of acquiring a new lease.
-  const KEY = '__riftletWebAcceptance20261027v6';
+  const KEY = '__riftletWebAcceptance20261027v7';
   const MAX_GENERATIONS = 32;
   const MAX_BYTES = 8 * 1024 * 1024, MAX_PIXELS = 16 * 1024 * 1024;
   const TARGET_KEYS = ['adapterID', 'surface', 'applicationID', 'sessionID', 'windowID', 'tabID', 'documentID', 'composerID', 'draftGeneration'];
@@ -33,7 +33,7 @@ function riftletWebAcceptance(command, native) {
 
   // Pure bounded reader of the observed current committed React ancestry.
   // No pendingProps, endpoint calls, DOM text extraction or alternate guessing.
-  function readThreadIdentity(form) {
+  function readThreadBinding(form) {
     const keys = Object.keys(form).filter(k => k.startsWith('__reactFiber$'));
     if (keys.length !== 1) return null;
     const installed = Object.getOwnPropertyDescriptor(form, keys[0])?.value;
@@ -80,7 +80,95 @@ function riftletWebAcceptance(command, native) {
         draftSeen = true;
       }
     }
-    return modeSeen && draftSeen ? {profileID: 'chatgpt-composer-react-20261027-v1', id: identity} : null;
+    return modeSeen && draftSeen ? {logical: {profileID: 'chatgpt-composer-react-20261027-v1', id: identity},
+      root: chains[0][chains[0].length - 1].stateNode} : null;
+  }
+
+  // This candidate instruments only the proven root's ordinary current writes.
+  // It does not claim coverage of defineProperty bypass-and-restore or in-place
+  // props mutations. No document text, React callback or DOM write is involved.
+  function rootMonitor(registry, root) {
+    const previous = registry.rootMonitors.get(root);
+    if (previous) {
+      if (!previous.intact()) fail('ROOT_MONITOR_LOST');
+      return previous;
+    }
+    if (registry.rootMonitors.size >= 4) fail('ROOT_MONITOR_LIMIT');
+    const original = Object.getOwnPropertyDescriptor(root, 'current');
+    if (!original || !Object.prototype.hasOwnProperty.call(original, 'value')
+        || original.configurable !== true || original.writable !== true) fail('UNOBSERVED_ROOT_DESCRIPTOR');
+    let value = original.value, alive = true, checking = false;
+    const groups = new Map();
+    const diagnostics = {commits: 0, checks: 0, elapsedMs: 0, maxElapsedMs: 0, stopped: false, restored: false, reason: null};
+    const clock = () => { try { return performance.now(); } catch { return 0; } };
+    const invalidateGroup = group => {
+      if (!group.alive) return;
+      group.alive = false;
+      for (const invalidate of group.invalidate) { try { invalidate(); } catch {} }
+    };
+    const disqualify = reason => {
+      alive = false; diagnostics.stopped = true; diagnostics.reason ||= reason;
+      for (const group of groups.values()) invalidateGroup(group);
+    };
+    const get = function() { return value; };
+    const set = function(next) {
+      // React sees its new value even when our diagnostic fails or reenters.
+      // Never restore an earlier tree or throw a diagnostic into React.
+      value = next;
+      if (!alive) return;
+      const started = clock();
+      diagnostics.commits++;
+      if (checking) { disqualify('REENTRANT_COMMIT'); return; }
+      checking = true;
+      try {
+        if (diagnostics.commits > 1000000) { disqualify('COMMIT_BOUND'); return; }
+        for (const group of groups.values()) {
+          if (!group.alive) continue;
+          diagnostics.checks++;
+          if (!group.check()) invalidateGroup(group);
+          if (!alive) break;
+        }
+      } catch { disqualify('CHECK_FAILED'); }
+      finally {
+        checking = false;
+        const elapsed = Math.max(0, clock() - started);
+        diagnostics.elapsedMs += elapsed; diagnostics.maxElapsedMs = Math.max(diagnostics.maxElapsedMs, elapsed);
+      }
+    };
+    const intact = () => {
+      if (!alive) return false;
+      const descriptor = Object.getOwnPropertyDescriptor(root, 'current');
+      if (!descriptor || descriptor.get !== get || descriptor.set !== set
+          || descriptor.configurable !== original.configurable || descriptor.enumerable !== original.enumerable) {
+        disqualify('DESCRIPTOR_LOST'); return false;
+      }
+      return true;
+    };
+    const stop = () => {
+      disqualify('EXPLICIT_STOP');
+      const descriptor = Object.getOwnPropertyDescriptor(root, 'current');
+      if (descriptor?.get === get && descriptor.set === set && descriptor.configurable === true) {
+        try { Object.defineProperty(root, 'current', {...original, value}); diagnostics.restored = true; } catch {}
+      }
+      return {...diagnostics};
+    };
+    const monitor = {intact, stop, diagnostics, bind(form, editor, input, logical, route, check, invalidate) {
+      if (!intact()) fail('ROOT_MONITOR_LOST');
+      let group = groups.get(form);
+      if (group?.alive && (group.editor !== editor || group.input !== input || group.route !== route || !sameLogical(group.logical, logical))) {
+        invalidateGroup(group);
+      }
+      if (!group?.alive) {
+        group = {alive: true, editor, input, logical, route, check, invalidate: new Set()}; groups.set(form, group);
+      }
+      group.invalidate.add(invalidate);
+      return () => intact() && group.alive;
+    }};
+    // A retained failed monitor is a tombstone: descriptor loss cannot rearm it.
+    registry.rootMonitors.set(root, monitor);
+    try { Object.defineProperty(root, 'current', {get, set, enumerable: original.enumerable, configurable: original.configurable}); }
+    catch { disqualify('INSTALL_FAILED'); fail('ROOT_MONITOR_UNAVAILABLE'); }
+    return monitor;
   }
 
   function install(registry) {
@@ -94,7 +182,7 @@ function riftletWebAcceptance(command, native) {
     const threadFormSelector = 'form[data-chatgpt-composer][data-composer-placement=thread][data-thread-find-composer=true]';
     const threadEditorSelector = '[contenteditable=true][role=textbox][aria-label="询问 ChatGPT"]';
     let modeGroup = null, modeHeader = null, chatMode = null, workMode = null;
-    let form, editor, logicalDraftIdentity, modeMatches;
+    let form, editor, logicalDraftIdentity, boundRoot = null, monitorAlive = null, modeMatches;
     if (home) {
       const modeGroups = [...document.querySelectorAll(modeSelector)];
       if (modeGroups.length !== 1 || !modeGroups[0].closest('header')) fail('UNPROVEN_CHAT_MODE');
@@ -122,17 +210,23 @@ function riftletWebAcceptance(command, native) {
       form = forms[0];
       const editors = [...form.querySelectorAll(threadEditorSelector)];
       if (editors.length !== 1) fail('AMBIGUOUS_COMPOSER');
-      editor = editors[0]; logicalDraftIdentity = readThreadIdentity(form);
-      if (!logicalDraftIdentity) fail('UNPROVEN_THREAD_IDENTITY');
+      editor = editors[0];
+      const binding = readThreadBinding(form);
+      if (!binding) fail('UNPROVEN_THREAD_IDENTITY');
+      logicalDraftIdentity = binding.logical; boundRoot = binding.root;
       modeMatches = () => {
         const forms = document.querySelectorAll(threadFormSelector);
-        return forms.length === 1 && forms[0] === form && sameLogical(readThreadIdentity(form), logicalDraftIdentity);
+        const binding = readThreadBinding(form);
+        return forms.length === 1 && forms[0] === form && binding?.root === boundRoot
+          && sameLogical(binding?.logical, logicalDraftIdentity) && (!monitorAlive || monitorAlive());
       };
     }
     if (!modeMatches()) fail('UNPROVEN_CHAT_MODE');
     const inputs = form ? [...form.querySelectorAll('input[type=file][aria-label="附加文件"]')] : [];
     if (!form || inputs.length !== 1) fail('UNOBSERVED_INPUT_STRUCTURE');
     const input = inputs[0], route = location.href, documentID = crypto.randomUUID();
+    // Reject a missing/lost monitor before registering any generation listeners.
+    const monitor = thread ? rootMonitor(registry, boundRoot) : null;
     const ids = new WeakMap(), operations = new Map();
     let nextNode = 0, invalid = false, inputRevoked = false, sequence = 0;
     const nodeID = n => { if (!ids.has(n)) ids.set(n, 'node-' + (++nextNode)); return ids.get(n); };
@@ -368,6 +462,20 @@ function riftletWebAcceptance(command, native) {
         continuityEvents[type]++; invalidate();
       });
     }
+    if (thread) {
+      const checkBinding = () => {
+        const binding = readThreadBinding(form), forms = document.querySelectorAll(threadFormSelector);
+        const editors = form.querySelectorAll(threadEditorSelector);
+        const inputs = form.querySelectorAll('input[type=file][aria-label="附加文件"]');
+        return binding?.root === boundRoot && sameLogical(binding?.logical, logicalDraftIdentity)
+          && forms.length === 1 && forms[0] === form && location.href === route
+          && form.isConnected && editor.isConnected && editor.closest('form') === form
+          && editors.length === 1 && editors[0] === editor && input.isConnected
+          && input.form === form && form.contains(input) && inputs.length === 1 && inputs[0] === input;
+      };
+      monitorAlive = monitor.bind(form, editor, input, logicalDraftIdentity, route, checkBinding, invalidate);
+      if (!checkBinding() || !monitorAlive()) { invalidate(); fail('UNPROVEN_MONITORED_BINDING'); }
+    }
     const state = {target, valid, observationIdentityValid, invalidate, revokeInput, drain, continuityEvents, operations, sample, tick, ownCards, markBad, currentMember,
       currentSource, input, form, nodeID, next: null};
     if (registry.tail) registry.tail.next = state;
@@ -386,7 +494,8 @@ function riftletWebAcceptance(command, native) {
   };
   if (command.action === 'captureTarget') {
     if (!registry) {
-      registry = {head: null, tail: null, count: 0};
+      registry = {head: null, tail: null, count: 0, rootMonitors: new Map()};
+      registry.stopRootMonitors = () => [...registry.rootMonitors.values()].map(monitor => monitor.stop());
       Object.defineProperty(globalThis, KEY, {value: registry, configurable: false, writable: false});
     }
     let current = registry.tail;

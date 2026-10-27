@@ -101,6 +101,7 @@ function fixture({blockedDigest = false, route = 'https://chatgpt.com/', mode = 
     get alt() { return this.attrs.alt || ''; }
   }
   const context = vm.createContext({console, Uint8Array, Map, Set, WeakMap, Promise, File, atob,
+    performance:{now:()=>performance.now()},
     crypto:{randomUUID:() => webcrypto.randomUUID(),subtle:{digest:async(...args) => { await digestGate; return webcrypto.subtle.digest(...args); }}},
     navigation:{addEventListener:(type,fn)=>{if(!navigationEvents.has(type))navigationEvents.set(type,[]);navigationEvents.get(type).push(fn);}},
     location:{href:route}, document, HTMLInputElement:Input, Image:TestImage,
@@ -138,7 +139,7 @@ function fixture({blockedDigest = false, route = 'https://chatgpt.com/', mode = 
     const deadline=Date.now()+2000;
     do {
       await new Promise(resolve=>setTimeout(resolve,1));
-      const ops=[];for(let g=context.__riftletWebAcceptance20261027v6?.head;g;g=g.next) ops.push(...g.operations.values());
+      const ops=[];for(let g=context.__riftletWebAcceptance20261027v7?.head;g;g=g.next) ops.push(...g.operations.values());
       if (ops.every(op=>!op.committed || op.invalid || (op.fileHashVerified && !op.proofPending))) return;
     } while(Date.now()<deadline);
     assert.fail('bounded synthetic async work did not settle');
@@ -301,7 +302,7 @@ test('returning to a tab can bind a fresh lease while original UNKNOWN stays obs
   for(const fn of f.events.get('visibilitychange')||[]) fn();
   f.document.visibilityState='visible';
   for(const fn of f.events.get('visibilitychange')||[]) fn();
-  const registry=f.context.__riftletWebAcceptance20261027v6;
+  const registry=f.context.__riftletWebAcceptance20261027v7;
   assert.equal(registry.count,1);
   assert.equal(f.observe(old).state,'inputTriggered');assert.equal(registry.count,1);
   const fresh=f.bind('33333333-3333-4333-8333-333333333333');
@@ -322,11 +323,11 @@ test('returning to a tab can bind a fresh lease while original UNKNOWN stays obs
 });
 
 test('lease generations are bounded and older state cannot bypass current admission', () => {
-  for(const key of ['__riftletWebAcceptance20261027v1','__riftletWebAcceptance20261027v2','__riftletWebAcceptance20261027v3','__riftletWebAcceptance20261027v4','__riftletWebAcceptance20261027v5']) {
+  for(const key of ['__riftletWebAcceptance20261027v1','__riftletWebAcceptance20261027v2','__riftletWebAcceptance20261027v3','__riftletWebAcceptance20261027v4','__riftletWebAcceptance20261027v5','__riftletWebAcceptance20261027v6']) {
     const legacy=fixture({mode:'missing'});
     legacy.context[key]={valid:()=>true,target:{...native,surface:'webChat'}};
     assert.throws(()=>legacy.target(),/UNPROVEN_CHAT_MODE/);
-    assert.equal(legacy.context.__riftletWebAcceptance20261027v6.count,0);
+    assert.equal(legacy.context.__riftletWebAcceptance20261027v7.count,0);
   }
   const f=fixture();let first;
   for(let i=0;i<32;i++) {
@@ -335,7 +336,7 @@ test('lease generations are bounded and older state cannot bypass current admiss
     f.document.visibilityState='visible';
   }
   assert.throws(()=>f.target(),/LEASE_GENERATION_LIMIT/);
-  const registry=f.context.__riftletWebAcceptance20261027v6;
+  const registry=f.context.__riftletWebAcceptance20261027v7;
   assert.equal(registry.count,32);assert.equal(registry.head.target.documentID,first.documentID);
   assert.equal(f.call({action:'validate',target:first}).valid,false);assert.equal(f.input.inputCount,0);
 });
@@ -510,7 +511,7 @@ test('trusted composer-external interaction revokes input across business ABA bu
     f.form.__reactFiber$fixture=original;
     assert.equal(f.call({action:'validate',target:op.target}).valid,false);
     assert.equal(f.observe(op).attachmentID,ready.attachmentID);assert.equal(f.observe(op).state,'attached');
-    assert.equal(f.context.__riftletWebAcceptance20261027v6.tail.continuityEvents.outsideInteraction,1);
+    assert.equal(f.context.__riftletWebAcceptance20261027v7.tail.continuityEvents.outsideInteraction,1);
     assert.equal(f.input.inputCount,1);
   }
 });
@@ -524,7 +525,7 @@ test('Navigation API events permanently end observation and input despite final 
     f.form.__reactFiber$fixture=original;
     assert.equal(f.call({action:'validate',target:op.target}).valid,false);
     assert.equal(f.observe(op).state,'invalidated');assert.equal(f.observe(op).belongsToOriginalDraft,false);
-    assert.equal(f.context.__riftletWebAcceptance20261027v6.tail.continuityEvents[type],1);
+    assert.equal(f.context.__riftletWebAcceptance20261027v7.tail.continuityEvents[type],1);
     assert.equal(f.input.inputCount,1);
   }
 });
@@ -533,5 +534,96 @@ test('trusted editor typing and untrusted external events do not revoke the inpu
   const f=fixture({thread:true}),t=f.target();
   for(const type of ['pointerdown','click','keydown']){f.documentEvent(type,f.editor);f.documentEvent(type,f.body,false);}
   assert.equal(f.call({action:'validate',target:t}).valid,true);
-  assert.equal(f.context.__riftletWebAcceptance20261027v6.tail.continuityEvents.outsideInteraction,0);
+  assert.equal(f.context.__riftletWebAcceptance20261027v7.tail.continuityEvents.outsideInteraction,0);
+});
+
+function threadCommit(f, id = f.businessID) {
+  const next=f.makeFibers(id),root=f.fibers.root.stateNode;
+  next.root.stateNode=root;f.form.__reactFiber$fixture=next.leaf;
+  root.current=next.root;
+  return next;
+}
+
+test('v7 root setter observes both real assignments in same-DOM business ABA and never revives old lease', () => {
+  const f=fixture({thread:true}),old=f.target(),root=f.fibers.root.stateNode;
+  const descriptor=Object.getOwnPropertyDescriptor(root,'current');assert.equal(typeof descriptor.set,'function');
+  threadCommit(f,'local-chatgpt:00000000-0000-0000-0000-000000000000');
+  threadCommit(f);
+  const registry=f.context.__riftletWebAcceptance20261027v7;
+  assert.equal([...registry.rootMonitors.values()][0].diagnostics.commits,2);
+  assert.equal(f.call({action:'validate',target:old}).valid,false);
+  const fresh=f.target();assert.notEqual(fresh.draftGeneration,old.draftGeneration);
+  assert.equal(fresh.logicalDraftIdentity.id,old.logicalDraftIdentity.id);
+  assert.equal(f.call({action:'validate',target:old}).valid,false);
+});
+
+test('v7 same-ID normal commits preserve input and perform one binding check per form across rearm', () => {
+  const f=fixture({thread:true}),old=f.target();
+  threadCommit(f);assert.equal(f.call({action:'validate',target:old}).valid,true);
+  f.windowEvent('blur');f.windowEvent('focus');const fresh=f.target();
+  const monitor=[...f.context.__riftletWebAcceptance20261027v7.rootMonitors.values()][0],before=monitor.diagnostics.checks;
+  threadCommit(f);assert.equal(monitor.diagnostics.checks-before,1);
+  assert.equal(f.call({action:'validate',target:fresh}).valid,true);
+  assert.equal(f.call({action:'validate',target:old}).valid,false);
+  assert.ok(monitor.diagnostics.elapsedMs>=0);assert.ok(monitor.diagnostics.maxElapsedMs>=0);
+});
+
+test('v7 checker exceptions and reentrant commits cannot escape into React or roll back its new tree', () => {
+  for(const reentrant of [false,true]) {
+    const f=fixture({thread:true}),old=f.target(),root=f.fibers.root.stateNode,next=f.makeFibers();
+    next.root.stateNode=root;f.form.__reactFiber$fixture=next.leaf;
+    const last={tag:3,stateNode:root,return:null};
+    Object.defineProperty(next.modeFiber.memoizedProps,'isWork',{get(){
+      if(reentrant){root.current=last;return false;}
+      throw Error('private-text-must-not-escape');
+    }});
+    assert.doesNotThrow(()=>{root.current=next.root;});
+    assert.equal(root.current,reentrant?last:next.root);
+    const monitor=[...f.context.__riftletWebAcceptance20261027v7.rootMonitors.values()][0];
+    assert.equal(monitor.diagnostics.reason,reentrant?'REENTRANT_COMMIT':'CHECK_FAILED');
+    assert.equal(monitor.diagnostics.stopped,true);
+    delete f.form.__reactFiber$fixture;
+    assert.equal(f.call({action:'validate',target:old}).valid,false);
+  }
+});
+
+test('v7 replaced or frozen root descriptor is permanently disqualified and cannot be reinstalled by capture', () => {
+  for(const freeze of [false,true]) {
+    const f=fixture({thread:true}),old=f.target(),root=f.fibers.root.stateNode,value=root.current;
+    if(freeze)Object.freeze(root);
+    else Object.defineProperty(root,'current',{value,writable:true,configurable:true,enumerable:true});
+    assert.equal(f.call({action:'validate',target:old}).valid,false);
+    assert.throws(()=>f.target(),/ROOT_MONITOR_LOST/);
+    const result=f.context.__riftletWebAcceptance20261027v7.stopRootMonitors();
+    assert.equal(result[0].restored,false);
+    assert.equal(root.current,value);
+  }
+});
+
+test('v7 explicit stop restores only its own descriptor with the latest committed value and cannot rearm old leases', () => {
+  const f=fixture({thread:true}),root=f.fibers.root.stateNode,original=Object.getOwnPropertyDescriptor(root,'current'),old=f.target();
+  const next=threadCommit(f);const result=f.context.__riftletWebAcceptance20261027v7.stopRootMonitors();
+  const restored=Object.getOwnPropertyDescriptor(root,'current');
+  assert.equal(result[0].restored,true);assert.equal(restored.value,next.root);
+  for(const key of ['enumerable','writable','configurable'])assert.equal(restored[key],original[key]);
+  assert.equal(restored.get,undefined);assert.equal(restored.set,undefined);
+  assert.equal(f.call({action:'validate',target:old}).valid,false);assert.throws(()=>f.target(),/ROOT_MONITOR_LOST/);
+});
+
+test('v7 ambiguous or replaced original form binding at commit revokes the original lease', () => {
+  for(const change of [f=>{f.fibers.modeFiber.memoizedProps.isWork=true;},
+    f=>{f.input.formOverride=new f.Node('form');},f=>{f.form.isConnected=false;},
+    f=>{f.fibers.draftFiber.memoizedProps.draftKey='ambiguous';}]) {
+    const f=fixture({thread:true}),old=f.target(),root=f.fibers.root.stateNode;change(f);
+    assert.doesNotThrow(()=>{root.current=root.current;});
+    assert.equal(f.call({action:'validate',target:old}).valid,false);
+  }
+});
+
+test('v7 Home does not instrument React roots; unmodifiable thread descriptors refuse before observer registration', () => {
+  const home=fixture();home.target();assert.equal(home.context.__riftletWebAcceptance20261027v7.rootMonitors.size,0);
+  const f=fixture({thread:true}),root=f.fibers.root.stateNode;
+  Object.defineProperty(root,'current',{value:root.current,writable:false,configurable:false});
+  assert.throws(()=>f.target(),/UNOBSERVED_ROOT_DESCRIPTOR/);
+  assert.equal(f.events.size,0);assert.equal(f.context.__riftletWebAcceptance20261027v7.count,0);
 });

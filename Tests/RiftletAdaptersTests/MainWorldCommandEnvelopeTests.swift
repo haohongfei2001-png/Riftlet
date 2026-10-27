@@ -107,4 +107,17 @@ final class MainWorldCommandEnvelopeTests: XCTestCase {
         XCTAssertEqual(parsed["ok"] as? Bool, false)
         reject(raw, using: command)
     }
+
+    func testOnlyClosedCodeOwnedPageRejectionsAreDecoded() throws {
+        let expected = envelope()
+        let refused = try json(["nonce": expected.nonce, "ok": false, "rejection": "UNPROVEN_THREAD_IDENTITY"])
+        XCTAssertThrowsError(try expected.decode(refused)) {
+            XCTAssertEqual($0 as? WebAdapterError, .pageRejected(.unprovenThread))
+        }
+        for code in ["private-page-detail", "UNPROVEN_THREAD_IDENTITY\n", "", "TOP_SECRET"] {
+            reject(try json(["nonce": expected.nonce, "ok": false, "rejection": code]), using: expected)
+        }
+        reject(try json(["nonce": "other", "ok": false, "rejection": "UNPROVEN_THREAD_IDENTITY"]), using: expected)
+        reject(try json(["nonce": expected.nonce, "ok": false, "rejection": "UNPROVEN_THREAD_IDENTITY", "extra": "detail"]), using: expected)
+    }
 }

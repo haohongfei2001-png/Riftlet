@@ -249,9 +249,17 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
             fields["screenY"] = point.y
             fields["clickCount"] = event.clickCount
             fields["namedTargets"] = probe.targets.filter { $0.contains(point) }.map(\.name)
-            fields["targetGeometryCurrent"] = rift.map {
-                !$0.diagnosticSnapshot.isTransitioning && $0.diagnosticSnapshot.rows == targetRows
-            } ?? false
+            if let snapshot = rift?.diagnosticSnapshot {
+                fields["targetGeometryCurrent"] = !snapshot.isTransitioning && snapshot.rows == targetRows
+                fields["rowGeometryTransitioning"] = snapshot.isTransitioning
+                if let row = snapshot.rows.first(where: { $0.windowNumber == event.windowNumber }) {
+                    fields["rowAssetID"] = row.assetID.uuidString
+                    // Geometry classification, not a pixel-alpha or physical-origin claim.
+                    fields["rowRegion"] = row.imageClipFrame.contains(point) ? "imageRectangle"
+                        : row.numberFrame.contains(point) ? "numberRectangle"
+                        : row.frame.contains(point) ? "rowPadding" : "outsideRow"
+                }
+            } else { fields["targetGeometryCurrent"] = false }
         }
         return fields
     }
@@ -270,6 +278,8 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
         value["mainWindow"] = NSApp.mainWindow?.windowNumber ?? -1
         value["frontmostBundle"] = NSWorkspace.shared.frontmostApplication?.bundleIdentifier ?? "unidentified"
         value["probeEditorFocused"] = editor.currentEditor() != nil && window?.firstResponder === editor.currentEditor()
+        value["probeKeyInputEligible"] = NSApp.isActive && window?.isKeyWindow == true
+            && editor.currentEditor() != nil && window?.firstResponder === editor.currentEditor()
         value["underlyingClickCount"] = underlyingClicks
         value["selectionCount"] = selectionCount
         if let window {
@@ -442,8 +452,12 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
         }
         probe.needsDisplay = true
         record("probe_targets", ["targets": probe.targets.map { target in
-            ["name": target.name, "x": target.screenPoint.x, "y": target.screenPoint.y,
+            let rowWindow = snapshot.rows.first(where: { $0.frame.contains(target.screenPoint) })?.windowNumber ?? 0
+            let underneath = NSWindow.windowNumber(at: target.screenPoint, belowWindowWithWindowNumber: rowWindow)
+            return ["name": target.name, "x": target.screenPoint.x, "y": target.screenPoint.y,
              "radius": target.radius,
+             "predictedUnderlyingWindow": underneath,
+             "underlyingProbePredicted": underneath == window.windowNumber,
              "predictedWindow": NSWindow.windowNumber(at: target.screenPoint, belowWindowWithWindowNumber: 0)] as [String: Any]
         }, "rows": snapshot.rows.map { row in
             ["assetID": row.assetID.uuidString, "ordinal": row.ordinal, "window": row.windowNumber,

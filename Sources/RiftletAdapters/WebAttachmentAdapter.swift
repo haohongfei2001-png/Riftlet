@@ -47,6 +47,7 @@ public enum WebAdapterError: Error, Equatable, Sendable {
     case disabled, programUnavailable, syntheticAssetsOnly, invalidTarget, invalidRequest
     case invalidPrivateFile, inputInFlight, invalidReply, browserNotFrontmost, nativeExecutionFailed
     case nativeEventFailed(Int32)
+    case nativeSelectionChanged, pageRejected(WebPageRejection)
 }
 
 /// Real bridge code can be integrated without enabling real screenshots. There is
@@ -209,6 +210,8 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
                 case .browserNotFrontmost?: label = "browserNotFrontmost"
                 case .nativeExecutionFailed?: label = "nativeExecutionFailed"
                 case .nativeEventFailed(let code)?: label = "nativeEventFailed(\(code))"
+                case .nativeSelectionChanged?: label = "nativeSelectionChanged"
+                case .pageRejected(let code)?: label = "pageRejected(\(code.rawValue))"
                 case nil: label = "unclassifiedTransportError"
                 }
                 let message = "RIFTLET_WEB_DIAGNOSTIC action=\(command.action.rawValue) error=\(label)\n"

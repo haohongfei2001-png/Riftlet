@@ -79,6 +79,8 @@ private final class RiftRowView: NSView {
     var onUp: ((Bool) -> Void)?
     var onScroll: ((CGFloat) -> Void)?
     var onAccessiblePress: (() -> Bool)?
+    var onApproach: (() -> Void)?
+    private var approachTracking: NSTrackingArea?
 
     init(record: AssetRecord, geometry: RiftRowLayout, configuration: RiftConfiguration) {
         self.record = record; self.geometry = geometry; self.configuration = configuration
@@ -99,6 +101,16 @@ private final class RiftRowView: NSView {
     required init?(coder: NSCoder) { fatalError("init(coder:) is not used") }
     override var acceptsFirstResponder: Bool { false }
     override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
+
+    override func updateTrackingAreas() {
+        super.updateTrackingAreas()
+        if let approachTracking { removeTrackingArea(approachTracking) }
+        let area = NSTrackingArea(rect: .zero, options: [.mouseEnteredAndExited, .activeAlways, .inVisibleRect],
+                                  owner: self, userInfo: nil)
+        approachTracking = area; addTrackingArea(area)
+    }
+
+    override func mouseEntered(with event: NSEvent) { onApproach?() }
 
     func updateGeometry(_ geometry: RiftRowLayout) {
         self.geometry = geometry
@@ -194,6 +206,7 @@ public final class RiftPanelController {
     private let onSelect: (UUID) -> Void
     private let onPress: (UUID, TimeInterval) -> Void
     private let onSelectionBoundary: (RiftSelectionBoundary) -> Void
+    private let onApproach: () -> Void
     private let decoration: RiftPanel
     private var rowWindows: [UUID: RowWindow] = [:]
     private var lastRecords: [AssetRecord] = []
@@ -220,6 +233,7 @@ public final class RiftPanelController {
     public init(mediaDirectory: URL, configuration: RiftConfiguration = .init(),
                 onPress: @escaping (UUID, TimeInterval) -> Void = { _, _ in },
                 onSelectionBoundary: @escaping (RiftSelectionBoundary) -> Void = { _ in },
+                onApproach: @escaping () -> Void = {},
                 onSelect: @escaping (UUID) -> Void) {
         // Configuration loaded from user data should be validated before construction.
         // Defensive fallback prevents malformed geometry from positioning windows off-screen.
@@ -227,6 +241,7 @@ public final class RiftPanelController {
         self.onSelect = onSelect
         self.onPress = onPress
         self.onSelectionBoundary = onSelectionBoundary
+        self.onApproach = onApproach
         cache = ThumbnailCache(directory: mediaDirectory)
         decoration = RiftPanel(frame: .zero, decorative: true)
         let line = NSView(frame: .zero)
@@ -386,6 +401,10 @@ public final class RiftPanelController {
     }
 
     private func wire(_ window: RowWindow, id: UUID) {
+        window.view.onApproach = { [weak self] in
+            guard let self, !self.gate.isHolding, !self.transitioning else { return }
+            self.onApproach()
+        }
         window.view.onDown = { [weak self, weak view = window.view] event in
             guard let self, let view else { return false }
             let point = view.window?.convertPoint(toScreen: event.locationInWindow) ?? .zero

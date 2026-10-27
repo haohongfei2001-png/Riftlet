@@ -8,8 +8,9 @@ import RiftletCore
 @MainActor
 public final class ChromeAppleEventsExecutor: WebBridgeExecutor {
     private static let scriptQueue = DispatchQueue(label: "com.riftlet.apple-events", qos: .utility)
+    private let trace: ChromeBridgeTrace
 
-    public init() {}
+    public init(traceEnabled: Bool = false) { trace = ChromeBridgeTrace(enabled: traceEnabled) }
 
     public func execute(_ command: WebBridgeCommand, program: WebPageProgram) async throws -> Data {
         let browserID = "com.google.Chrome"
@@ -44,8 +45,12 @@ public final class ChromeAppleEventsExecutor: WebBridgeExecutor {
         }
         let commandJSON = String(decoding: try JSONEncoder().encode(command), as: UTF8.self)
         let sessionJSON = String(decoding: try JSONEncoder().encode(session), as: UTF8.self)
+        let enqueued = ProcessInfo.processInfo.systemUptime
+        let trace = self.trace
         let data: Data = try await withCheckedThrowingContinuation { continuation in
             Self.scriptQueue.async {
+                let started = ProcessInfo.processInfo.systemUptime
+                var phase = "process"
                 let result: Result<Data, Error> = Result {
                     try autoreleasepool {
                         // Recheck process lifetime after waiting for the shared serial
@@ -55,7 +60,9 @@ public final class ChromeAppleEventsExecutor: WebBridgeExecutor {
                             throw WebAdapterError.invalidTarget
                         }
                         let bridge = ChromePIDEvents(pid: pid)
+                        phase = "foreground"
                         if requiresForeground, try !bridge.frontmost() { throw WebAdapterError.browserNotFrontmost }
+                        phase = "selection"
                         let selected: (window: String, tab: String)
                         if command.action == .captureTarget {
                             selected = try bridge.activeIdentity()
@@ -65,7 +72,7 @@ public final class ChromeAppleEventsExecutor: WebBridgeExecutor {
                             if requiresForeground {
                                 let active = try bridge.activeIdentity()
                                 guard active.window == selected.window, active.tab == selected.tab else {
-                                    throw WebAdapterError.invalidTarget
+                                    throw WebAdapterError.nativeSelectionChanged
                                 }
                             }
                         }
@@ -75,7 +82,9 @@ public final class ChromeAppleEventsExecutor: WebBridgeExecutor {
                         // exactly once, then only read its nonce-bound DOM receipt.
                         let envelope = MainWorldCommandEnvelope(function: program.functionSource,
                             commandJSON: commandJSON, contextJSON: context)
+                        phase = "submit"
                         try bridge.submitMainWorld(envelope.source, window: selected.window, tab: selected.tab)
+                        phase = "receipt"
                         let deadline = ProcessInfo.processInfo.systemUptime + 1
                         var reply = ""
                         repeat {
@@ -86,9 +95,20 @@ public final class ChromeAppleEventsExecutor: WebBridgeExecutor {
                         // Missing/late reply never resubmits an input command.
                         let text = try envelope.decode(reply)
                         guard text.utf8.count <= ObservationDecoder.maximumPayloadBytes else { throw WebAdapterError.invalidReply }
+                        if command.action == .captureTarget {
+                            // Do not publish an ACK already known to be stale:
+                            // selecting another tab while the receipt was pending
+                            // is a different target even in the same Chrome PID.
+                            phase = "capture_return_selection"
+                            let active = try bridge.activeIdentity()
+                            guard active == selected else { throw WebAdapterError.nativeSelectionChanged }
+                        }
+                        phase = "complete"
                         return Data(text.utf8)
                     }
                 }
+                trace.record(action: command.action.rawValue, phase: phase, enqueued: enqueued, started: started,
+                             succeeded: (try? result.get()) != nil)
                 continuation.resume(with: result)
             }
         }
@@ -99,6 +119,26 @@ public final class ChromeAppleEventsExecutor: WebBridgeExecutor {
             }
         }
         return data
+    }
+}
+
+/// Local opt-in timing only; no source, URL, target identity or page payload.
+private final class ChromeBridgeTrace: @unchecked Sendable {
+    private let enabled: Bool
+    private let lock = NSLock()
+    private var count = 0
+    init(enabled: Bool) { self.enabled = enabled }
+    func record(action: String, phase: String, enqueued: TimeInterval, started: TimeInterval, succeeded: Bool) {
+        guard enabled else { return }
+        lock.lock(); defer { lock.unlock() }
+        guard count < 2048 else { return }; count += 1
+        let end = ProcessInfo.processInfo.systemUptime
+        let fields: [String: Any] = ["event": "native_bridge", "action": action, "phase": phase,
+            "queuedUptime": enqueued, "startedUptime": started, "endedUptime": end,
+            "queueMS": (started - enqueued) * 1000, "executionMS": (end - started) * 1000, "transportSucceeded": succeeded]
+        if let data = try? JSONSerialization.data(withJSONObject: fields, options: [.sortedKeys]) {
+            try? FileHandle.standardError.write(contentsOf: data + Data([10]))
+        }
     }
 }
 
