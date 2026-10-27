@@ -16,8 +16,8 @@ final class WebAttachmentAdapterTests: XCTestCase {
 
     override func tearDownWithError() throws { try FileManager.default.removeItem(at: directory) }
 
-    private func fixture(origin: AssetOrigin = .synthetic, dispatch: Bool = true) async throws -> (QueueStore, TransferRequest, Data) {
-        let bytes = Data((0..<70_000).map { UInt8($0 % 251) })
+    private func fixture(origin: AssetOrigin = .synthetic, dispatch: Bool = true, byteCount: Int = 70_000) async throws -> (QueueStore, TransferRequest, Data) {
+        let bytes = Data((0..<byteCount).map { UInt8($0 % 251) })
         let file = directory.appendingPathComponent("\(UUID()).png")
         try bytes.write(to: file)
         let hash = SHA256.hash(data: bytes).map { String(format: "%02x", $0) }.joined()
@@ -214,6 +214,7 @@ final class WebAttachmentAdapterTests: XCTestCase {
     func testBundledProgramAndBoundedObservationReachCompletionWithoutAnotherInput() async throws {
         let bundled = try ChatGPTWebPageProgram.load()
         XCTAssertEqual(bundled.sourceID, ChatGPTWebPageProgram.sourceID)
+        XCTAssertEqual(bundled.maximumChunkBytes, 256 * 1024)
         XCTAssertLessThan(bundled.functionSource.utf8.count, 128 * 1024)
         let (_, request, _) = try await fixture()
         let executor = FakeWebBridge(behavior: .pendingThenAttached)
@@ -224,7 +225,72 @@ final class WebAttachmentAdapterTests: XCTestCase {
         XCTAssertEqual(receipt.outcome, .verifiedReady)
         XCTAssertTrue(receipt.positiveReady)
         let actions = await executor.recordedActions()
-        XCTAssertEqual(actions, [.begin, .chunk, .chunk, .commit, .observe])
+        XCTAssertEqual(actions, [.begin, .chunk, .commit, .observe])
+    }
+
+    func testReviewedLargerChunksPreserveAllBytesAcknowledgementsAndFrozenIdentity() async throws {
+        let (_, request, bytes) = try await fixture(byteCount: 3_147_775)
+        let executor = FakeWebBridge()
+        let client = WebAttachmentAdapter(mediaDirectory: directory, executor: executor,
+            program: WebPageProgram(sourceID: "bounded-large-chunk-fixture", functionSource: program.functionSource,
+                                    maximumChunkBytes: 256 * 1024), mode: .syntheticDevelopment, polling: .disabled)
+        _ = try await client.append(request)
+        let sizes = await executor.sizes(), indices = await executor.indices(), received = await executor.bytes()
+        XCTAssertEqual(sizes, Array(repeating: 256 * 1024, count: 12) + [2_047])
+        XCTAssertEqual(indices, Array(0..<13)); XCTAssertEqual(received, bytes)
+        let identities = await executor.originalIdentities()
+        XCTAssertTrue(identities.allSatisfy { $0.operationID == request.operation.id && $0.assetID == request.asset.id
+            && $0.attempt == request.operation.attempt && $0.assetSHA256 == request.asset.sha256 && $0.target == request.operation.target })
+        let actions = await executor.recordedActions()
+        XCTAssertEqual(actions, [.begin] + Array(repeating: .chunk, count: 13) + [.commit])
+        XCTAssertEqual(program.maximumChunkBytes, 64 * 1024)
+    }
+
+    func testLargeChunkWrongAcknowledgementNeverSendsTheNextChunkOrCommit() async throws {
+        let (_, request, _) = try await fixture(byteCount: 300_000)
+        let executor = FakeWebBridge(behavior: .wrongChunkIdentity)
+        let client = WebAttachmentAdapter(mediaDirectory: directory, executor: executor,
+            program: WebPageProgram(sourceID: "large-chunk-wrong-ack", functionSource: program.functionSource,
+                                    maximumChunkBytes: 256 * 1024), mode: .syntheticDevelopment, polling: .disabled)
+        do { _ = try await client.append(request); XCTFail("Wrong ACK advanced transfer") }
+        catch WebAdapterError.invalidReply {}
+        let actions = await executor.recordedActions(), sizes = await executor.sizes()
+        XCTAssertEqual(actions, [.begin, .chunk, .discard]); XCTAssertEqual(sizes, [256 * 1024])
+    }
+
+    func testLostLargeChunkReplyAndUncertainCommitNeverRetransmitOnReconcile() async throws {
+        for behavior in [FakeWebBridge.Behavior.throwOnChunk, .throwOnCommit] {
+            let (store, request, _) = try await fixture(byteCount: 300_000)
+            let executor = FakeWebBridge(behavior: behavior)
+            let client = WebAttachmentAdapter(mediaDirectory: directory, executor: executor,
+                program: WebPageProgram(sourceID: "large-chunk-uncertain", functionSource: program.functionSource,
+                                        maximumChunkBytes: 256 * 1024), mode: .syntheticDevelopment, polling: .disabled)
+            do { _ = try await client.append(request); XCTFail("Lost response treated as success") }
+            catch WebAdapterError.nativeExecutionFailed {}
+            let before = await executor.recordedActions()
+            if case .throwOnChunk = behavior { XCTAssertEqual(before, [.begin, .chunk, .discard]) }
+            else { XCTAssertEqual(before, [.begin, .chunk, .chunk, .commit]) }
+            try await store.markUnknown(request.operation.id, reason: "Bounded test lost original bridge response")
+            let persisted = try await store.operation(id: request.operation.id)
+            let original = TransferRequest(operation: try XCTUnwrap(persisted), asset: request.asset, fileURL: request.fileURL)
+            _ = try await client.reconcile(original)
+            let after = await executor.recordedActions(); XCTAssertEqual(after, before + [.observe])
+        }
+    }
+
+    func testUnsupportedChunkCapacityAndOverEightMiBFileRefuseBeforeBridgeCommands() async throws {
+        let executor = FakeWebBridge()
+        for size in [0, 256 * 1024 + 1] {
+            let client = WebAttachmentAdapter(mediaDirectory: directory, executor: executor,
+                program: WebPageProgram(sourceID: "invalid-cap", functionSource: program.functionSource,
+                                        maximumChunkBytes: size), mode: .syntheticDevelopment)
+            do { _ = try await client.captureTarget(); XCTFail("Invalid cap accepted") }
+            catch WebAdapterError.programUnavailable {}
+        }
+        let (_, request, _) = try await fixture(byteCount: 8 * 1024 * 1024 + 1)
+        do { _ = try await adapter(executor).append(request); XCTFail("Over-limit file transferred") }
+        catch WebAdapterError.invalidPrivateFile {}
+        let actions = await executor.recordedActions(); XCTAssertTrue(actions.isEmpty)
     }
 
     func testObservationDeadlinePreservesUnknownAndNeverResubmits() async throws {
@@ -245,7 +311,7 @@ final class WebAttachmentAdapterTests: XCTestCase {
 
 private actor FakeWebBridge: WebBridgeExecutor {
     enum Behavior: Sendable {
-        case startedThenAttached, normal, wrongChunkIdentity, throwOnCommit, changedValidationTarget, pendingThenAttached, alwaysPending, lateError
+        case startedThenAttached, normal, wrongChunkIdentity, throwOnChunk, throwOnCommit, changedValidationTarget, pendingThenAttached, alwaysPending, lateError
         case replaceBytesAfterBegin(URL, Int)
     }
     static let target = TargetLease(adapterID: "chatgpt-web", surface: .webChat,
@@ -255,14 +321,21 @@ private actor FakeWebBridge: WebBridgeExecutor {
     private let behavior: Behavior
     private var actions: [WebBridgeAction] = []
     private var received = Data()
+    private var chunkSizes: [Int] = []
+    private var chunkIndices: [Int] = []
+    private var identities: [ObservationIdentity] = []
     private var name: String?
     init(behavior: Behavior = .normal) { self.behavior = behavior }
     func recordedActions() -> [WebBridgeAction] { actions }
     func bytes() -> Data { received }
+    func sizes() -> [Int] { chunkSizes }
+    func indices() -> [Int] { chunkIndices }
+    func originalIdentities() -> [ObservationIdentity] { identities }
     func uploadName() -> String? { name }
 
     func execute(_ command: WebBridgeCommand, program: WebPageProgram) async throws -> Data {
         actions.append(command.action)
+        if let identity = command.identity { identities.append(identity) }
         switch command.action {
         case .captureTarget:
             return try JSONEncoder().encode(Self.target)
@@ -279,7 +352,10 @@ private actor FakeWebBridge: WebBridgeExecutor {
             }
             return try acknowledgement(command, next: 0)
         case .chunk:
-            received.append(try XCTUnwrap(Data(base64Encoded: try XCTUnwrap(command.chunkBase64))))
+            let bytes = try XCTUnwrap(Data(base64Encoded: try XCTUnwrap(command.chunkBase64)))
+            chunkSizes.append(bytes.count); chunkIndices.append(try XCTUnwrap(command.chunkIndex))
+            received.append(bytes)
+            if case .throwOnChunk = behavior { throw WebAdapterError.nativeExecutionFailed }
             return try acknowledgement(command, next: try XCTUnwrap(command.chunkIndex) + 1)
         case .commit:
             if case .startedThenAttached = behavior { return try observation(command, state: .uploadStarted) }

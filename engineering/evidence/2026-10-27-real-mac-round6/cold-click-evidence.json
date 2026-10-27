@@ -1,0 +1,175 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-27",
+  "earlyAndNearPreboundSourceSHA": "7878de3138d1c140369c3cfbe69a28dd2770294c",
+  "classification": "COLD_ONE_CLICK_REQUIREMENT_NOT_PASSED; refusal safety preserved",
+  "execution": "Real GUI actions by integration lead; independent read-only evidence/source review",
+  "samples": [
+    {
+      "sample": "cold",
+      "assetID": "75A829E6-59C6-497F-B9DC-421504857619",
+      "classification": "UNSUPPORTED_SURFACE_SAFETY_REFUSAL",
+      "inputSource": "accessibility",
+      "physical": false,
+      "selectionCountForAsset": 1,
+      "freezeResult": "refused",
+      "refusalReason": "noPublishedTarget",
+      "originalEventIsZeroMS": true,
+      "handlerAfterOriginalEventMS": 0.04570832243189216,
+      "traceSnapshotSHA256": "778cb7903f4a9ae829463e61abb35b9481dcff2f230dffc61ad44db1a0782ee1",
+      "traceSnapshotBytes": 1015792,
+      "captureQueueMS": 0.05562504520639777,
+      "captureEndedRelativeMS": 22.92499999748543,
+      "captureResult": "captureFailed",
+      "supportedPageAtClickProved": false,
+      "captureEvidence": "nearby capture returned unsupportedSurface; later active-tab inspection does not identify exact click-time page",
+      "wholeTraceTransportCounts": {
+        "begin": 0,
+        "chunk": 0,
+        "commit": 0
+      },
+      "readOnlyStoreAtReview": {
+        "status": "pending",
+        "visibility": "visible",
+        "visibilityReason": "capture",
+        "visibilityRevision": 0,
+        "activeOperationID": null,
+        "operations": []
+      },
+      "sourceSHA": "53ebcc4da4b0df508edc11f6ead9ea4d8a843dad",
+      "temporaryOverlays": "same two committed round5 acceptance patches"
+    },
+    {
+      "sample": "valid-cold",
+      "assetID": "D27D5EA6-49ED-45A0-9E6D-CE524C46CDAC",
+      "classification": "UNSUPPORTED_SURFACE_SAFETY_REFUSAL",
+      "inputSource": "accessibility",
+      "physical": false,
+      "selectionCountForAsset": 1,
+      "freezeResult": "refused",
+      "refusalReason": "noPublishedTarget",
+      "originalEventIsZeroMS": true,
+      "handlerAfterOriginalEventMS": 0.05600001895800233,
+      "traceSnapshotSHA256": "d5f1eaf86a155a99d7b311095718c67f9b7d6ed98d9a7989ab76322802a2aef4",
+      "traceSnapshotBytes": 879561,
+      "supportedPageAtClickProved": false,
+      "captureEvidence": "nearby capture returned unsupportedSurface; later active-tab inspection does not identify exact click-time page",
+      "wholeTraceTransportCounts": {
+        "begin": 1,
+        "chunk": 13,
+        "commit": 1
+      },
+      "wholeTraceScopeWarning": "Trace also includes later selections for two other assets; its one begin/commit is not attributable to this refused asset.",
+      "readOnlyStoreAtReview": {
+        "status": "pending",
+        "visibility": "visible",
+        "visibilityReason": "capture",
+        "visibilityRevision": 0,
+        "activeOperationID": null,
+        "operations": []
+      },
+      "sourceSHA": "7878de3138d1c140369c3cfbe69a28dd2770294c",
+      "temporaryOverlays": "same two committed round5 acceptance patches"
+    },
+    {
+      "sample": "cold-boundary",
+      "assetID": "BFB6FAB2-3FEA-41C1-BEE9-7906F673C4D8",
+      "classification": "PREBOUND_NOT_COLD",
+      "inputSource": "accessibility",
+      "physical": false,
+      "selectionCountForAsset": 1,
+      "freezeResult": "accepted",
+      "refusalReason": "none",
+      "originalEventIsZeroMS": true,
+      "handlerAfterOriginalEventMS": 0.18666667165234685,
+      "traceSnapshotSHA256": "e7cb5360b433c6f709678270303213b9cf7b357914e810e6349cd8981d1d7074",
+      "traceSnapshotBytes": 737233,
+      "targetDigest": "b2e52ebc5b753feefda38c29c02c489d3821cbd38aeeec3071e29da4c62f0add",
+      "effectiveACKRelativeMS": -3.355249995365739,
+      "nativeReceivedRelativeMS": -37.08158334484324,
+      "nativeValidatedRelativeMS": -4.387125023640692,
+      "receiptToNativeValidationMS": 32.694458321202546,
+      "captureQueueMS": 31.462708313483745,
+      "captureEndedRelativeMS": -4.1542083490639925,
+      "mainActorReturnRelativeMS": -3.8865000242367387,
+      "captureResult": "publishedNewTarget",
+      "appPublishedRelativeMS": -3.3543333411216736,
+      "wholeTraceTransportCounts": {
+        "begin": 1,
+        "chunk": 13,
+        "commit": 1
+      },
+      "readOnlyStoreAtReview": {
+        "status": "used",
+        "visibility": "swallowed",
+        "visibilityReason": "uploadStarted",
+        "visibilityRevision": 1,
+        "activeOperationID": "22C425BB-C30B-4636-AEF6-F68A541D45CC",
+        "operations": [
+          {
+            "operationID": "22C425BB-C30B-4636-AEF6-F68A541D45CC",
+            "attempt": 1,
+            "phase": "succeeded"
+          }
+        ]
+      },
+      "sourceSHA": "7878de3138d1c140369c3cfbe69a28dd2770294c",
+      "temporaryOverlays": "same two committed round5 acceptance patches"
+    },
+    {
+      "sample": "cold-early",
+      "assetID": "E503EC07-5AA6-48B0-9D11-64B090937D7E",
+      "classification": "VALID_ORDINARY_NO_ACK_REJECTED",
+      "inputSource": "accessibility",
+      "physical": false,
+      "selectionCountForAsset": 1,
+      "freezeResult": "refused",
+      "refusalReason": "noPublishedTarget",
+      "originalEventIsZeroMS": true,
+      "handlerAfterOriginalEventMS": 0.04720833385363221,
+      "traceSnapshotSHA256": "36e3abe367ecd794ec5693d0faebf22f4413aecb0af975370db8f3e545dd0896",
+      "traceSnapshotBytes": 709718,
+      "targetDigest": "87981e99ff6c603c3c44ab0d715b9984229d5e20684ff9f1ff3e95e24512e691",
+      "nativeReceivedRelativeMS": -20.422958303242922,
+      "nativeValidatedRelativeMS": 6.364749977365136,
+      "receiptToNativeValidationMS": 26.787708280608058,
+      "captureQueueMS": 0.022708321921527386,
+      "captureEndedRelativeMS": 6.451291672419757,
+      "mainActorReturnRelativeMS": 6.7103333421982825,
+      "captureResult": "publishedNewTarget",
+      "appPublishedRelativeMS": 7.24725000327453,
+      "wholeTraceTransportCounts": {
+        "begin": 0,
+        "chunk": 0,
+        "commit": 0
+      },
+      "readOnlyStoreAtReview": {
+        "status": "pending",
+        "visibility": "visible",
+        "visibilityReason": "capture",
+        "visibilityRevision": 0,
+        "activeOperationID": null,
+        "operations": []
+      },
+      "pagePostcheck": {
+        "coordinatorReportedUniqueOrdinaryComposer": true,
+        "sameCaptureSuccessfullyValidatedAfterEvent": true,
+        "exactClickTimePageSnapshot": false,
+        "coordinatorReportedInputCount": 0,
+        "coordinatorReportedAppStopped": true
+      },
+      "sourceSHA": "7878de3138d1c140369c3cfbe69a28dd2770294c",
+      "temporaryOverlays": "same two committed round5 acceptance patches"
+    }
+  ],
+  "limits": [
+    "All selection sources are software accessibility, not physical mouse.",
+    "Unsupported-surface samples are not valid ordinary-draft cold-click tests.",
+    "Near-prebound sample really uploaded once; do not relabel it zero-input or cold PASS.",
+    "E503 real no-ACK event was refused with no operation; later ACK does not retroactively authorize it.",
+    "The 80 ms test-script overlap is scheduling of activation and one action, not product delay/replay.",
+    "No private URLs, full targets, session/tab identifiers, chat or media contents are included.",
+    "Receipt-to-validated interval includes decoding/digest plus native selection recheck; substage cost is not separately measured.",
+    "Descriptor optimization is separate and cannot guarantee success before any proof exists."
+  ]
+}
