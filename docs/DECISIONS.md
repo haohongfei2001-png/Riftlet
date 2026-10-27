@@ -81,3 +81,21 @@ The preceding unsuccessful handoff search is historical. The new branch `codex/w
 | I09 | IMPLEMENTATION | Keep UNKNOWN observation-only and safe-retry disabled. The handoff requires reversible handling of post-consumption late failure; retaining used bytes is implemented, but late-failure queue revival and its real evidence are not. Synthetic acceptance animation does not admit production swallow. |
 
 Strict internal READY remains outside this integration target. The remaining gates concern accurate targets, scoped product ATTACHED, recovery and safe consumption of the actual integrated product.
+
+## 2026-10-27 — latest user interaction decisions: supersede READY-only visual behavior
+
+These decisions **override** historical P04’s `verifiedReady → swallow` requirement, historical P11 as applied to **visual disappearance** (not production success admission), the earlier visible-UNKNOWN queue treatment, and round-2 empty-rift trace. Prior rows remain as provenance. Full acceptance detail: [INTERACTION_CONTRACT_2026-10-27.md](INTERACTION_CONTRACT_2026-10-27.md).
+
+| ID | Status | Latest user decision |
+| --- | --- | --- |
+| P16 | USER | The ordinary flow remains native system screenshot + **one direct click**. Current active ChatGPT window/draft at click time is the destination; no fixed or inferred target, no target picker or complicated extra shortcut. |
+| P17 | USER | **As soon as actual upload begins**, use a **very fast swallow/disappear animation**; thumbnail leaves visible rift before verified READY, progress 100%, or final completion. |
+| P18 | USER | Only **explicit or extremely high-confidence actual failure** makes a swallowed thumbnail reappear from the rift. UNKNOWN alone is not grounds for rebirth. |
+| P19 | USER | Swallowed screenshots, including not-yet-verified results, are retained internally/local rather than occupying the visible rift; uncertainty must not permanently obstruct use of other screenshots. No automatic retry. |
+| P20 | USER | **Zero visible screenshots = absolutely no visible rift or slit.** A new screenshot emerges from a newly appearing slit. |
+| P21 | USER | Screenshots do not permanently occupy the visible queue. Users can remove one or clear multiple items; long-unused visible screenshots automatically move into the internal archive. |
+| P22 | USER | Consumption, removal and archiving do not imply deletion of the original system screenshot. Local history/recovery remain separate from visual presence. |
+| I10 | IMPLEMENTATION_REQUIRED | Model visual visibility/uploadStarted separately from `verifiedReady`/safe-retry, maintain original-target/dedup/recovery guarantees, and retest fast swallow + high-confidence late-failure revival. New interaction is **not** implemented or validated merely by this documentation update. |
+| D05 | OPEN | Exact animation timing and evidence profile for per-surface `uploadStarted`; visual failure-confidence admission tests; auto-archive duration, internal history UX and private-copy retention. |
+
+**Clarification:** a button click, queued intent, placeholder or unknown is not automatically reliable proof upload **actually started**. This version's fast animation must be triggered by an independently reviewable upload-start signal, while eventual success and safe retry keep their own stricter evidence. Do not automatically resend the same asset after UNKNOWN or merely because its thumbnail was hidden.
