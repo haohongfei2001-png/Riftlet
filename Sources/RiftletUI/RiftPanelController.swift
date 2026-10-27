@@ -25,6 +25,24 @@ public struct RiftSelectionBoundary: Equatable, Sendable {
     }
 }
 
+/// Read-only native geometry for the standalone acceptance helper. Rectangles
+/// are in screen points; observing this value never changes input or layout.
+public struct RiftDiagnosticRow: Equatable, Sendable {
+    public let assetID: UUID
+    public let ordinal: Int
+    public let windowNumber: Int
+    public let frame: CGRect
+    public let imageClipFrame: CGRect
+    public let numberFrame: CGRect
+}
+
+public struct RiftDiagnosticSnapshot: Sendable {
+    public let rows: [RiftDiagnosticRow]
+    public let lineFrame: CGRect
+    public let isHolding: Bool
+    public let isTransitioning: Bool
+}
+
 /// Minimal native AppKit structure informed by Tendedero's LinePanel, implemented here
 /// without its private CGS calls, pointer polling, capacity eviction or artwork.
 private final class RiftPanel: NSPanel {
@@ -187,6 +205,17 @@ public final class RiftPanelController {
     private var generation: UInt = 0
     private var observers: [(NotificationCenter, NSObjectProtocol)] = []
     private var scrollAccumulator: CGFloat = 0
+
+    public var diagnosticSnapshot: RiftDiagnosticSnapshot {
+        let rows = rowWindows.map { id, row in
+            RiftDiagnosticRow(assetID: id, ordinal: row.view.ordinal,
+                windowNumber: row.panel.windowNumber, frame: row.panel.frame,
+                imageClipFrame: row.panel.convertToScreen(row.view.convert(row.view.geometry.imageClipFrame, to: nil)),
+                numberFrame: row.panel.convertToScreen(row.view.convert(row.view.geometry.numberFrame, to: nil)))
+        }.sorted { $0.ordinal < $1.ordinal }
+        return RiftDiagnosticSnapshot(rows: rows, lineFrame: decoration.frame,
+                                      isHolding: gate.isHolding, isTransitioning: transitioning)
+    }
 
     public init(mediaDirectory: URL, configuration: RiftConfiguration = .init(),
                 onPress: @escaping (UUID, TimeInterval) -> Void = { _, _ in },
