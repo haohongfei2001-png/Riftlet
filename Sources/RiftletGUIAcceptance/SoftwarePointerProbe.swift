@@ -52,6 +52,21 @@ enum SoftwarePointerProbe {
         guard gap.verdict(focusStable: true) == "FAIL" else { throw Failure.verdict }
         gap.selectedAssets = []; gap.coordinatesMatch = false
         guard gap.verdict(focusStable: true) == "INCONCLUSIVE" else { throw Failure.verdict }
+        let held = Receipt(name: "HOLD", expectedAsset: UUID(), expectedWindow: 13,
+                           expectedPoint: CGPoint(x: 20, y: 30), radius: 2)
+        held.downCount = 1; held.upCount = 1; held.receivedWindows = [13, 13]
+        held.acceptedAssets = [held.expectedAsset]; held.selectedAssets = [held.expectedAsset]
+        guard held.holdVerdict(focusStable: true, heldLayoutStable: true, reorderObserved: true,
+                              compactionCorrect: true) == "PASS_SOFTWARE_HOLD",
+              held.holdVerdict(focusStable: true, heldLayoutStable: false, reorderObserved: true,
+                              compactionCorrect: true) == "FAIL",
+              held.holdVerdict(focusStable: true, heldLayoutStable: true, reorderObserved: false,
+                              compactionCorrect: true) == "FAIL",
+              held.holdVerdict(focusStable: true, heldLayoutStable: true, reorderObserved: true,
+                              compactionCorrect: false) == "FAIL" else { throw Failure.verdict }
+        held.selectedAssets.append(held.expectedAsset)
+        guard held.holdVerdict(focusStable: true, heldLayoutStable: true, reorderObserved: true,
+                              compactionCorrect: true) == "FAIL" else { throw Failure.verdict }
     }
 
     final class Receipt {
@@ -96,13 +111,20 @@ enum SoftwarePointerProbe {
 
         func verdict(focusStable: Bool) -> String {
             guard !interference, coordinatesMatch, downCount == 1, upCount == 1, receivedWindows.count == 2 else { return "INCONCLUSIVE" }
-            let selectsRow = name == "IMAGE" || name == "NUMBER"
+            let selectsRow = name == "IMAGE" || name == "NUMBER" || name == "HOLD"
             let routing = selectsRow
                 ? acceptedAssets == [expectedAsset] && selectedAssets == [expectedAsset]
                     && probeDownCount == 0 && probeUpCount == 0 && receivedWindows.allSatisfy { $0 == expectedWindow }
                 : probeDownCount == 1 && probeUpCount == 1 && acceptedAssets.isEmpty && selectedAssets.isEmpty
                     && receivedWindows.allSatisfy { $0 == expectedWindow }
             return routing && focusStable ? "PASS_SOFTWARE_ROUTING" : "FAIL"
+        }
+
+        func holdVerdict(focusStable: Bool, heldLayoutStable: Bool,
+                         reorderObserved: Bool, compactionCorrect: Bool) -> String {
+            let routing = verdict(focusStable: focusStable)
+            guard routing == "PASS_SOFTWARE_ROUTING" else { return routing }
+            return heldLayoutStable && reorderObserved && compactionCorrect ? "PASS_SOFTWARE_HOLD" : "FAIL"
         }
     }
 }

@@ -122,4 +122,35 @@ final class MainWorldCommandEnvelopeTests: XCTestCase {
         reject(try json(["nonce": "other", "ok": false, "rejection": "UNPROVEN_THREAD_IDENTITY"]), using: expected)
         reject(try json(["nonce": expected.nonce, "ok": false, "rejection": "UNPROVEN_THREAD_IDENTITY", "extra": "detail"]), using: expected)
     }
+
+    func testRootBindingRejectionsCrossEnvelopeOnlyAsExactFailureCodes() throws {
+        for code in [WebPageRejection.unobservedRootDescriptor, .unprovenMonitoredBinding] {
+            let context = try XCTUnwrap(JSContext())
+            context.evaluateScript("""
+                var attributes = {}, executions = 0, document = {documentElement:{
+                  setAttribute:function(k,v){attributes[k]=v},getAttribute:function(k){return attributes[k] || null},
+                  removeAttribute:function(k){delete attributes[k]}}};
+                function setTimeout(callback,delay) {}
+                """)
+            let command = MainWorldCommandEnvelope(
+                function: "function(){executions++; throw Error('\(code.rawValue)')}",
+                commandJSON: "{}", contextJSON: "{}")
+            context.evaluateScript(command.source)
+            XCTAssertNil(context.exception)
+            let raw = try XCTUnwrap(context.evaluateScript(command.reader)?.toString())
+            let parsed = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(raw.utf8)) as? [String: Any])
+            XCTAssertEqual(Set(parsed.keys), Set(["nonce", "ok", "rejection"]))
+            XCTAssertEqual(parsed["ok"] as? Bool, false)
+            XCTAssertThrowsError(try command.decode(raw)) {
+                XCTAssertEqual($0 as? WebAdapterError, .pageRejected(code))
+            }
+            XCTAssertEqual(context.evaluateScript(command.reader)?.toString(), "")
+            XCTAssertEqual(context.evaluateScript("executions")?.toInt32(), 1)
+            for altered in [code.rawValue + "\n", code.rawValue + ":private-detail", code.rawValue.lowercased()] {
+                reject(try json(["nonce": command.nonce, "ok": false, "rejection": altered]), using: command)
+            }
+            reject(try json(["nonce": command.nonce, "ok": false, "rejection": code.rawValue,
+                             "detail": "private-detail"]), using: command)
+        }
+    }
 }
