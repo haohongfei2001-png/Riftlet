@@ -15,9 +15,9 @@
 
 ## 1. 当前检查点
 
-### 第四轮 Web 合流与真实开始接入 · 当前执行
+### 第四轮 Web 合流 · DONE；真实开始接入 · 本地 Codex READY
 
-正式起点 `b848920`；保留本地 Codex `35e9851` / `c9c68a6` / `03a67cc` 全部历史与12份原证据，合流到现有 SQLite v3 / Core / UI / App。root 实现最小 persisted-profile 识别及 host-only request→App publication 诊断，非作者已审查源码；完整合流 macOS CI 执行结果将写入 [VERIFICATION](VERIFICATION.md) 与正式交接。生产上传/开始/安全重试均未开放。
+正式起点 `b848920`；保留本地 Codex `35e9851` / `c9c68a6` / `03a67cc` 全部历史与11份原证据，合流到现有 SQLite v3 / Core / UI / App。root 实现最小 persisted-profile 识别及 host-only request→App publication 诊断，非作者已审查源码；完整合流已测 `c85020b` 的 [macOS CI40484855920](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40484855920) 通过：306原生、48页面、14legacy、13生命周期逐项passed/0skip、既有离线回放/故障/probe、Release/签名/三个自检；证据和首轮编译修复见 [VERIFICATION](VERIFICATION.md) 与正式交接。生产上传/开始/安全重试均未开放。
 
 本地 Codex 下一项 READY 工作是 [uploadStarted v1 直接接入](UPLOAD_STARTED_CONTRACT_V1.md#7-第四轮合流后的直接接入要求)：实际开始证据、严格版本归一化、append 早返回及新版 v3 App 真机快吞噬。当前 Web 尚未返回开始回执，不把第四轮旧生命周期的一次预绑定成功当作新版体验通过。冷首击、业务 ABA、原非空正文/附件/选区、MID、物理 GUI、自包含仍保持原未通过范围。以下各历史检查点继续保留，当前工作不重订总体计划。
 
@@ -73,7 +73,7 @@
 
 流程为 `READY → ACTIVE → REVIEW → DONE`；检查失败回ACTIVE修复。无法执行的场景保持WAITING，不用模拟结果填PASS。每次结束一个包或发现局部阻塞后，立即选下一个依赖满足的READY项；没有有效工作时保存事实状态，不循环空提交。
 
-**当前续做入口：** 第三轮已正式合入PR #1；本地Codex继续第四轮首击/业务转换、版本观察兼容、MID及真实GUI/自包含修复，root负责统一合流。详见现行交接；M1真实客户端provider/profile保持独立，完整W2/N1/生产闭环未完成。
+**当前续做入口：** 第四轮已与新版v3生命周期合流并通过完整CI；本地Codex直接按uploadStarted v1接入实际开始观察/严格归一化/早返回及真机快吞噬，再推进仍开放的冷首击/业务ABA/内容保留/MID/物理GUI/自包含。root保持唯一正式集成负责人；M1真实客户端准入独立，完整生产闭环未完成。
 
 ## 3. 并行所有权
 

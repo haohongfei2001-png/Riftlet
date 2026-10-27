@@ -100,3 +100,5 @@ SQLite schema v3 保留 v1/v2 资产、原操作、回执、补偿、顺序和�
 保持 `--web-acceptance --acceptance-trace` 显式生成图验收。只有 scheduler 接受当前 epoch/session 后才发布；同 lease 保留有效旧 ACK 的 requestID。`effectiveAckUptime` 与 `mainPublishedUptime` 是赋值前后分别采样的观测边界，其极小间隔本身不是 publication race 证据。未实现 mailbox，不等待/回放冷点击，不改变严格 ACK 先于原事件规则。
 
 第四轮真实成功只是**已预绑定、空正文/零附件、编辑器未聚焦的一个普通已有会话**。冷首击、业务 ABA（含已保留的无可观察反例）、非空正文/旧附件/选区保留、MID、物理 GUI、系统截图自包含与完整延迟继续开放。普通捕获仍不使用 Web 上传；新版快吞噬的真实验收尚待这一接入。
+
+第四轮合流验证补记：`c85020b` 的 [完整macOS CI40484855920](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40484855920) 已通过306原生、48页面/14legacy、13生命周期逐项passed及Release/签名/三个自检；完整来源见[当前集成记录](../engineering/evidence/2026-10-27-integration-round4/README.md)。这是工程接线验证，真实Web start与快吞噬仍未运行。

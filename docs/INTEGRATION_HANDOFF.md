@@ -1,14 +1,18 @@
 # 正式工程集成交接 · 第四轮 Web 与新版生命周期合流 · 2026-10-27
 
-正式分支仍为 `codex/engineering-foundation-20261027` / [Draft PR #1](https://github.com/haohongfei2001-png/Riftlet/pull/1)。合流父基线为 `b84892071d7711177bb856051251a337f2c2c4f5` 与 `03a67cc41e542a7db6dc128b27da8f108efc9896`，保留 `35e9851` / `c9c68a6` 原源码及全部12份第四轮证据。main、网站、设计、旧数据库/媒体均不改动；本会话没有操作本地 Mac。
+正式分支仍为 `codex/engineering-foundation-20261027` / [Draft PR #1](https://github.com/haohongfei2001-png/Riftlet/pull/1)。合流父基线为 `b84892071d7711177bb856051251a337f2c2c4f5` 与 `03a67cc41e542a7db6dc128b27da8f108efc9896`，保留 `35e9851` / `c9c68a6` 原源码及全部11份第四轮证据。main、网站、设计、旧数据库/媒体均不改动；本会话没有操作本地 Mac。
 
 ## 当前合流实现与下一步
+
+**完整合流 macOS CI 与独立复核已通过：** 已测源码 [`c85020b`](https://github.com/haohongfei2001-png/Riftlet/commit/c85020b0ae250eaa37f7ed812c3c43587dca5a91)，[run40484855920](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40484855920) / job122123985228，于2026-10-27 **17:59:57北京时间**记录完成成功。**306项原生**（Core117 / Adapters102 / Capture48 / UI39），48页面VM、14旧观察器VM、8故障离线组、12只读probe组、55文件/19用例/89轨迹前缀/2明确模拟迟到错误回放全部通过。生命周期详细13 passed /0 skipped，包含7项软件面板测试，未重复计入306。Release、ad-hoc签名、三个App/helper自检通过，CHROME_NOT_RUN/GUI_NOT_RUN保留。
+
+[验证与11份原证据清单](../engineering/evidence/2026-10-27-integration-round4/verification.json) · [非作者审查及首轮编译修复](../engineering/evidence/2026-10-27-integration-round4/review.json) · [实际日志摘录](../engineering/evidence/2026-10-27-integration-round4/ci-excerpt.txt) · [development App/helper/日志](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40484855920/artifacts/12724099125)。本页所在的最终文档检查点与c85020b的12组源码/测试/构建/回放输入对象相同，确切正式HEAD以PR #1最终交接记录为准；不能把c9c68a6或b848920的旧运行冒充本次验证。
 
 - SQLite v3、快速视觉退出/后台最终事实、隐藏/归档/移除/历史保持既有实现；没有回退到第四轮旧schema2 App。
 - Core 只增加精确 persisted UUID profile 格式识别；完整目标相等、旧UNKNOWN、跨profile/nil/未知身份和补偿锁保持原规则。真实SQLite重开回归保留原始target JSON，不回填身份。
 - App/adapter 增加原生request→adapter→实际publication→原事件的host-only诊断。普通协议不变、同次单一capture、重复lease保留旧有效ACK。没有mailbox、ACK回填、冷点击等待或回放。
 - v8页面可用composer/焦点区别与v6/v7原操作只读兼容已合流；现有Web仍只生成最终或未决回执，**尚未返回uploadStarted，真实快吞噬未验收**。
-- 完整合流CI待该源码提交触发后记录，不能沿用c9c68a6的235项或b848920的287项当作新源码通过。非作者Web、Core和App/证据审查已完成，源目录保持独占写入。
+- root及非作者已完成完整源码、实际macOS CI和证据复核；新增7项持久身份/锁与5项诊断回归实际执行。首轮新测试括号语法错误及仅补1字符的修复保留在记录中，没有放宽断言或策略。
 
 本地 Codex 下一次直接从本页所在 PR #1 最新正式 HEAD 建worktree，按 [UPLOAD_STARTED_CONTRACT_V1 §7](UPLOAD_STARTED_CONTRACT_V1.md#7-第四轮合流后的直接接入要求) 实现真实开始观察、严格版本解码/归一化、append早返回，在明确生成图验收模式中记录开始→持久隐藏→最终ATTACHED/UNKNOWN。不要争写Core/UI/App或准入注册表；将拟用start profile及真实证据作为交接，由root审查组合。安全重试保持关闭，原started/POST100日志不能替代新证据。
 
@@ -22,7 +26,7 @@
 
 继续使用 `codex/engineering-foundation-20261027` / [Draft PR #1](https://github.com/haohongfei2001-png/Riftlet/pull/1)。root 是唯一集成写入负责人；本地 Codex 独占第四轮 Web/Chrome 真实执行。本轮没有访问其 Mac、没有改 Web/Chrome/Capture/M1/helper 源码，保留原设计、网站和真实证据。
 
-## 当前唯一续做入口
+## 前一生命周期检查点的续做入口（历史）
 
 **本轮完整 macOS CI 与非作者审查通过：** 已测输入 [`d834a3a4a76cacedd0cb763044085c9c2093680c`](https://github.com/haohongfei2001-png/Riftlet/commit/d834a3a4a76cacedd0cb763044085c9c2093680c)，[run 40479556833](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40479556833) / job 122106130530。**287 项原生**（Core 110 / Capture 48 / UI 39 / Adapters 90）、38 项页面 VM、8 组故障工具、12 组只读 probe、历史回放 55 文件 / 19 用例 / 89 trace 前缀 / 2 明确模拟迟到错误全部通过。Release、ad-hoc 签名和三个 App/helper 自检通过。新增逐项输出确认 **13/13 生命周期测试 passed，0 skipped**，其中 7 项实际 AppKit 面板软件测试；重复报告这 13 项没有增加测试总数。
 
