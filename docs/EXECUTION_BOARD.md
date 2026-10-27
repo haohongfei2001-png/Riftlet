@@ -6,6 +6,8 @@
 
 ## 1. 当前检查点
 
+**第二轮本地真机候选（待 Pro 集成）：** 从 `c1456534fa2f9652f770321f179ff88737edc281` 建独立分支 `codex/riftlet-real-mac-round2-20261027`，已测源码 `fff0e8c090f125211b35a56e7a16abef61109fb1`，[CI 40458148137](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40458148137) 227 原生 + 31 页面测试通过。普通线程生成 PNG、后台原操作观察、真实目标 XHR 的 UI100 后中断和 UNKNOWN 重启保留已有局部 PASS；预绑定调度、逻辑身份冲突与 MAIN 单次回执传输已实现。UX-01 全场景、无可观察事件的业务 A→B→A、真实 MID 字节关联、物理 N1 与生产闭环仍未通过，不能升级为日常可用。两张新系统截图收录/原件私有哈希保留，截图源出现约 61.5 s 延迟待定位。确切证据、状态和续做点见[第二轮交接](../engineering/evidence/2026-10-27-real-mac-round2/README.md)。本段不改写下方正式集成历史，PR #1/main 未被本地会话修改。
+
 <!-- INTEGRATION_STATUS -->
 **正式集成已完成（代码/CI/非作者审查范围）：** 合流源码[`76a8385`](https://github.com/haohongfei2001-png/Riftlet/commit/76a8385be063bf225248c057262eb8d57e4be43f)保留本地真机`f075b8f`及M1`88f9e36`的完整祖先。[整合macOS CI40453748396](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40453748396) **201/201原生、20/20页面VM、release/签名和三个自检通过**；v1→v2迁移/回滚、补偿/UNKNOWN及M1恢复均重新执行。后续本检查点仅文档/证据，代码输入不变。PR #1仍Draft且main未合并；PR #3已由GitHub记为合入工程分支。root仍为唯一正式集成负责人，本地Codex继续真实Mac验收；本会话未访问设备。来源、确切证据、缺陷及直接续做命令见[正式集成交接](INTEGRATION_HANDOFF.md)。
 <!-- END_INTEGRATION_STATUS -->

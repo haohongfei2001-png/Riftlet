@@ -70,3 +70,7 @@ git worktree add -b codex/riftlet-real-mac-round2-20261027 ../Riftlet-real-mac-r
 核对本页及验证记录的已测源码SHA后，执行现有 `scripts/build-macos.sh`、三个已有自检和[MAC_ACCEPTANCE](MAC_ACCEPTANCE.md)。沿用既有SQLite及私有媒体，升级时保留UNKNOWN/补偿审计；不要降级v2数据库给旧v1构建。
 
 下一轮只做实际闭环剩余项：真实请求执行环境中的网络中断/100%后异常、普通线程Chat识别、UX-01/02身份事实及物理N1。M1只接取得真实版本/AX结构证据的provider/profile，独立于Web。每项保留确切源码、一次输入、原目标、原附件、无Send及PASS/FAIL/NOT_RUN，不扩大本轮已取得证据。日常工程决定由负责人和本地Codex自行完成；正式分支统一由root整合，main和发行继续不动。
+
+## 第二轮本地 Mac 候选交接（2026-10-27）
+
+独立分支 `codex/riftlet-real-mac-round2-20261027` 基于本文件正式检查点 c1456534；源码 `fff0e8c090f125211b35a56e7a16abef61109fb1` 已通过完整 CI 227 原生/31 页面测试和真实普通线程、POST100 XHR 中断、原操作后台观察/补偿的局部验收。详见[第二轮报告](../engineering/evidence/2026-10-27-real-mac-round2/README.md)。这是待 Pro 技术集成的候选，不是本文件上方正式分支已经合入的声明。生产与重试仍关闭；尤其无事件的业务身份 A→B→A、UX-01 全场景和物理 N1 未准入。原分支/数据库/媒体/补偿审计保留，不能清理 UNKNOWN 来继续演示。

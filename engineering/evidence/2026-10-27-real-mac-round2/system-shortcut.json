@@ -1,0 +1,47 @@
+{
+  "invocation": "System Events Command-Shift-3; not physical keyboard",
+  "images": [
+    {
+      "assetID": "25D2EA89-8AD8-472E-83FC-62714C25C0CE",
+      "origin": "systemScreenshot",
+      "size": [
+        3840,
+        2160
+      ],
+      "originalMatchCount": 1,
+      "privateHashMatches": true,
+      "originalExists": true,
+      "screenshotMetadata": [
+        "1"
+      ],
+      "fileMTimeAfterShortcutReturnSeconds": [
+        61.495
+      ],
+      "firstSeenAfterShortcutReturnSeconds": 61.567,
+      "importedAfterShortcutReturnSeconds": 61.775
+    },
+    {
+      "assetID": "20D74705-A252-4DEA-8B32-712F2FC3E0D5",
+      "origin": "systemScreenshot",
+      "size": [
+        1600,
+        2560
+      ],
+      "originalMatchCount": 1,
+      "privateHashMatches": true,
+      "originalExists": true,
+      "screenshotMetadata": [
+        "1"
+      ],
+      "fileMTimeAfterShortcutReturnSeconds": [
+        61.508
+      ],
+      "firstSeenAfterShortcutReturnSeconds": 61.567,
+      "importedAfterShortcutReturnSeconds": 61.801
+    }
+  ],
+  "captureToClickableVerdict": "NOT_RUN; no exact capture completion or first-clickable timestamp",
+  "restartRetainedCount": 5,
+  "restartVisibleThumbnailCount": 5,
+  "selfInclusionObservation": "Private visual inspection of the landscape screenshot found Rift-style thumbnails, numbers and line. Both the real App and helper were running; exact window provenance not isolated. No exclusion guarantee."
+}

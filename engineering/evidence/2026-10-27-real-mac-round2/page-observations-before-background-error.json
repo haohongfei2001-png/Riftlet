@@ -1,0 +1,68 @@
+[
+  {
+    "visibility": "hidden",
+    "operations": [
+      {
+        "operationID": "7607529F-4BCD-42DC-88A0-8E7B1510D134",
+        "inputCount": 1,
+        "proof": true,
+        "fileHashVerified": true,
+        "error": false,
+        "invalid": false,
+        "started": 3,
+        "hundred": 36,
+        "ended": 48,
+        "loaded": 49,
+        "originalObservationValid": true
+      },
+      {
+        "operationID": "01FC359F-141D-4FE4-A93F-44FDA2364594",
+        "inputCount": 1,
+        "proof": true,
+        "fileHashVerified": true,
+        "error": false,
+        "invalid": false,
+        "started": 55,
+        "hundred": 69,
+        "ended": 105,
+        "loaded": 107,
+        "originalObservationValid": true
+      },
+      {
+        "operationID": "FF0FFE74-424B-483A-B4D8-7D620E2E9B6C",
+        "inputCount": 1,
+        "proof": false,
+        "fileHashVerified": true,
+        "error": false,
+        "invalid": true,
+        "started": 3,
+        "hundred": 11,
+        "ended": 0,
+        "loaded": 0,
+        "originalObservationValid": true
+      }
+    ],
+    "textPreserved": true,
+    "oldCardsPreserved": true
+  },
+  {
+    "visibility": "visible",
+    "operations": [
+      {
+        "operationID": "3F083AE5-D79D-4F0A-9940-D1EFE00DEE23",
+        "inputCount": 1,
+        "proof": true,
+        "fileHashVerified": true,
+        "error": false,
+        "invalid": false,
+        "started": 3,
+        "hundred": 43,
+        "ended": 62,
+        "loaded": 63,
+        "originalObservationValid": true
+      }
+    ],
+    "textPreserved": true,
+    "oldCardsPreserved": true
+  }
+]

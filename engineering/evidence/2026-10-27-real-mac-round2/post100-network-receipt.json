@@ -1,0 +1,123 @@
+{
+  "schemaVersion": 1,
+  "sessionId": "round2-b6795fd8-0b09-44a4-a3cb-b8c56d564610",
+  "operationID": "FF0FFE74-424B-483A-B4D8-7D620E2E9B6C",
+  "uploadName": "riftlet-FF0FFE74-424B-483A-B4D8-7D620E2E9B6C.png",
+  "bindNextGeneratedInput": true,
+  "state": "STOPPED",
+  "mode": "POST100",
+  "inputCount": 1,
+  "changeHashOK": true,
+  "createCount": 1,
+  "uniqueCreationURL": false,
+  "createHashOK": true,
+  "ui100": true,
+  "faultInjected": true,
+  "pendingRequests": 0,
+  "requestsInitiatedByBridge": 0,
+  "events": [
+    {
+      "sequence": 1,
+      "monotonicMs": 10382763.5,
+      "event": "bridge_installed",
+      "oneAbortMaximum": true,
+      "requestsInitiatedByBridge": 0
+    },
+    {
+      "sequence": 2,
+      "monotonicMs": 10396153.300000012,
+      "event": "own_input_observed",
+      "inputCount": 1,
+      "byteCount": 3137
+    },
+    {
+      "sequence": 3,
+      "monotonicMs": 10396202.600000024,
+      "event": "own_input_hash",
+      "matched": true
+    },
+    {
+      "sequence": 4,
+      "monotonicMs": 10396210.100000024,
+      "event": "own_creation_request",
+      "ordinal": 1,
+      "afterFault": false
+    },
+    {
+      "sequence": 5,
+      "monotonicMs": 10396510.800000012,
+      "event": "own_creation_response",
+      "ordinal": 1,
+      "status": 200
+    },
+    {
+      "sequence": 6,
+      "monotonicMs": 10396511.899999976,
+      "event": "own_creation_linkage",
+      "uniqueURL": true,
+      "inputHashMatched": true
+    },
+    {
+      "sequence": 7,
+      "monotonicMs": 10396514.100000024,
+      "event": "own_bytes_hash",
+      "matched": true
+    },
+    {
+      "sequence": 8,
+      "monotonicMs": 10396514.699999988,
+      "event": "native_bytes_request_started",
+      "requestLocalId": 1,
+      "transport": "xhr",
+      "afterFault": false
+    },
+    {
+      "sequence": 9,
+      "monotonicMs": 10396768.600000024,
+      "event": "own_ui_progress100"
+    },
+    {
+      "sequence": 10,
+      "monotonicMs": 10396768.699999988,
+      "event": "native_abort_requested",
+      "requestLocalId": 1,
+      "transport": "xhr",
+      "trigger": "own_ui_progress100",
+      "ui100": true,
+      "loaded": null,
+      "total": null
+    },
+    {
+      "sequence": 11,
+      "monotonicMs": 10396768.800000012,
+      "event": "native_abort_event",
+      "requestLocalId": 1
+    },
+    {
+      "sequence": 12,
+      "monotonicMs": 10396768.800000012,
+      "event": "native_loadend",
+      "requestLocalId": 1,
+      "transport": "xhr",
+      "status": 0
+    },
+    {
+      "sequence": 13,
+      "monotonicMs": 10396776.399999976,
+      "event": "native_upload_progress",
+      "requestLocalId": 1,
+      "loaded": 3137,
+      "total": 3137,
+      "lengthComputable": true
+    },
+    {
+      "sequence": 14,
+      "monotonicMs": 10442764.699999988,
+      "event": "bridge_stopped",
+      "reason": "DEADLINE_60S",
+      "originalsRestored": true,
+      "faultInjected": true,
+      "pendingRequests": 0
+    }
+  ]
+}
