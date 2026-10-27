@@ -166,3 +166,11 @@ Following direct user confirmation of the earlier product-usability review, thes
 正式以1246c4a双亲合流65f7d54，仅纳入共同祖先3bb13999之后的三个提交。接受代码所有的v12最多256KiB、严格绝对descriptor及原fallback；原完整身份、ACK<event、逐块ACK/文件hash/唯一input与未知原操作保护不变。原证据和失败状态保留，325来源CI与380组合CI分开记录，生产/安全重试准入不变。
 
 第七轮由本地Codex在既有Coordinator上实现无intent原选择的有界顺序等待。本轮仅固定[共享接口和审查标准](ADAPTER_CONTRACT.md#第七轮顺序调度共享边界-v1实现待正式交接)：顺序先于权限await，原完整token不回填，fresh passive preflight不capture/不请求授权，取消结束序号/允许新点击，原事务重检，期限与唤醒真实有效；intent后仍不重放。未准入start后同草稿另一图，也未以Python提案模型宣布实现。原性能单次对照和c000只读优化不能批准冷首击或当前权限组合时延。
+
+## I18 — 第七轮原选择顺序等待正式集成（2026-10-28）
+
+以e3175f3合流固定交接3b089b2，保留继承merge336ecce、两项源码f6417c6/9de6a85及原15份证据。既有v12/首用/PassivePermissionResume/SQLite v3保留；没有重复第五、六轮代码或新建上传Coordinator。App同步分配原点击次序，runtime token最长30秒；原prepared可等待，只有原锁合法解除且原目标/权限仍有效才输入一次。取消、到期、重启不恢复旧点击，也不永久禁止同图的新点击。
+
+独立审查发现 accepted 再点击既有UNKNOWN时跳过权限preflight，以及可能检查当前进程却观察另一旧进程。负责人在2aaaadb/595142d落实前置校验、adapter/application/session一致性及两项定向回归；原UNKNOWN/asset/reason保持。后台generic预检接口不在本次修复范围，不能宣传其真实多进程权限矩阵已验收。
+
+真实双图限定PASS仅属于f6417c6的隔离生成PNG/software AX样本：B等待A最终合法完成后，各输入一次，同一非空草稿文字/选区/三个旧附件保留。9de6a85的CLEAR防误选修复可集成，但CLEAR底层透传仍FAIL，GAP/IMAGE/NUMBER只有软件事件通过。没有批准start后并行、无ACK冷首击、业务ABA、真实安全失败/重试、MID、物理GUI或截图自包含。原证据与失败记录保留；正式组合CI与后续真机证据分开，生产与安全重试仍关闭。详见[实际接口](ADAPTER_CONTRACT.md#第七轮已集成的原选择等待)和[本轮验证](../engineering/evidence/2026-10-28-integration-round7/README.md)。

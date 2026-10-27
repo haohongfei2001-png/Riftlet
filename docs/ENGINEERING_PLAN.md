@@ -24,7 +24,9 @@
 
 **第五轮正式合流增量（历史来源）：** e655b1e首用与3bb13999/53ebcc4 Web v11合为已测caa6a65；只在独立生成图片Web模式准入已审查start，保留Core/SQLite v3/首用及旧UNKNOWN。修复初始Chrome不可用后的被动权限恢复，保留原目标并增加可选时延边界。[macOS CI40515643640](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40515643640) 369原生、68页面/45legacy、Release/签名/四自检与非作者审查通过，[第五轮合流证据](../engineering/evidence/2026-10-27-integration-round5/README.md)固定范围。第五轮旧实测不包含新权限前置；第六轮继续独立真机，不重新开发架构或合入未交接成果。
 
-**第六轮稳定成果正式合流（当前）：** 1246c4a与65f7d54按共同祖先3bb13999合流为81b6a61，v12传输/严格Chrome读取与首用权限组合完整CI通过：380原生、72页面/54legacy、Release/四自检，非作者审查完成。[永久证据](../engineering/evidence/2026-10-27-integration-round6/README.md)固定真实单样本/只读/冷拒绝/targetBusy边界。第七轮独占安全排队与真机，按[最小共享接口](ADAPTER_CONTRACT.md#第七轮顺序调度共享边界-v1实现待正式交接)交接，不重做架构或开发第二套Coordinator。
+**第六轮稳定成果正式合流（历史来源）：** 1246c4a与65f7d54按共同祖先3bb13999合流为81b6a61，v12传输/严格Chrome读取与首用权限组合完整CI通过：380原生、72页面/54legacy、Release/四自检，非作者审查完成。[永久证据](../engineering/evidence/2026-10-27-integration-round6/README.md)固定真实单样本/只读/冷拒绝/targetBusy边界。第七轮独占安全排队与真机，按[最小共享接口](ADAPTER_CONTRACT.md#第七轮顺序调度共享边界-v1实现待正式交接)交接，不重做架构或开发第二套Coordinator。
+
+**第七轮正式集成增量（当前，2026-10-28）：** e3175f3与固定交接3b089b2保留双亲历史，真实双图源码f6417c6、最终来源9de6a85及15份原证据完整保留。原AcceptedSelection/App同步提交、同一Coordinator有界等待和CLEAR防误选已接入；负责人修复已有UNKNOWN再点击的权限前置与接收进程绑定，没有重开发调度。已测595142d的[组合CI](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40543025253)：410原生、72页面/54legacy、迁移/UNKNOWN/补偿、Release/四自检通过，非作者审查完成。[实际接口](ADAPTER_CONTRACT.md#第七轮已集成的原选择等待)与[验证范围](../engineering/evidence/2026-10-28-integration-round7/README.md)可直接继承。真实双图只通过等待A最终成功后输入B；冷首击、CLEAR透传、业务ABA、MID、安全失败、物理GUI、自包含与生产准入仍独立开放。
 
 ## 1. 授权、范围和最小交付
 

@@ -1,0 +1,108 @@
+{
+  "source": "595142d0345adc0d06f54371f50406879310610d",
+  "merge_commit": "2aaaadb1c3461f93f268f1f93b0b08854745aa5f",
+  "status": "PASS_WITH_SCOPED_REAL_EVIDENCE",
+  "actual_concurrency": "Root integration plus three independent non-author reviewers",
+  "authorship": {
+    "original_source": "Local Codex, f6417c6/9de6a85",
+    "integration_and_fixes": "root",
+    "shared_documents_ci_and_formal_ref": "root"
+  },
+  "source_reviews": [
+    {
+      "reviewer": "/root/round7_core_review",
+      "status": "PASS_AFTER_FIXES",
+      "scope": "AcceptedSelection/Core FIFO, expiry/cancellation, intent transaction, restart and UNKNOWN/profile locks; both root permission fixes independently re-reviewed"
+    },
+    {
+      "reviewer": "/root/round7_app_gui_review",
+      "status": "PASS",
+      "scope": "App synchronous ordinal, authority/UI owner, passive permissions, recovery order, CLEAR geometry and guarded helper; root test/workflow and first permission fix re-reviewed"
+    },
+    {
+      "reviewer": "/root/round7_evidence_review",
+      "status": "PASS_SCOPED",
+      "scope": "All 15 raw evidence files, source/binary split, queue/permission/transport timings, GUI/cold limits, source CI full logs and original failed test run"
+    }
+  ],
+  "findings_resolved": [
+    {
+      "id": "R7-I01",
+      "finding": "Accepted UNKNOWN/compensated reclick could reconcile before passive permission validation",
+      "resolution": "Move original validator before existing-operation transport; retain old asset/op/reason on denial",
+      "commit": "2aaaadb1c3461f93f268f1f93b0b08854745aa5f",
+      "regression": "testAcceptedReclickChecksPermissionBeforeObservingOriginalUnknown"
+    },
+    {
+      "id": "R7-I02",
+      "finding": "Current process permission could be reused to observe an old operation in a different still-running process",
+      "resolution": "Before validator require same adapter/application/session; keep original operation for independent read-only recovery",
+      "commit": "595142d0345adc0d06f54371f50406879310610d",
+      "regression": "testAcceptedReclickCannotBorrowAnotherProcessPermissionForOldObservation"
+    },
+    {
+      "id": "R7-I03",
+      "finding": "New XCTest class-level MainActor isolation warnings; fixed-yield scheduling assumptions in three App tests",
+      "resolution": "Method isolation and actual bounded entered/finished/expired expectations; no product queue rewrite or inflated test count",
+      "commit": "2aaaadb1c3461f93f268f1f93b0b08854745aa5f",
+      "ci": "Both isolation warnings absent, tests passed; no claim original App tests had a reproduced failure"
+    },
+    {
+      "id": "R7-I04",
+      "finding": "General recovery-order wording could imply first successful ACK is always published",
+      "resolution": "Current docs say first arm attempt finishes before old-ID recovery; successful ACK-before-observe stays a source-specific real sample"
+    }
+  ],
+  "ci_review": {
+    "reviewer": "/root/round7_evidence_review",
+    "status": "PASS",
+    "run": 40543025253,
+    "job": 122326159138,
+    "log_characters": 209434,
+    "native_unique": 410,
+    "detailed_included": 77,
+    "skipped": 0,
+    "actual_checkout": "1965e22a0f0b845489f9a8c72c90e692802ae027",
+    "independently_compared_tree_roots": [
+      "Sources",
+      "Tests",
+      "Package.swift",
+      "Resources",
+      "scripts",
+      ".github",
+      "ThirdPartyNotices",
+      "engineering",
+      "research"
+    ],
+    "checks": "Exact run source/checkout, complete native and offline logs, migration/UNKNOWN/regressions, Release/four self-checks, artifact metadata and superseded cancellation"
+  },
+  "remaining_scope_limits": [
+    "No reviewer operated the local Mac or performed a new upload",
+    "Source CI408 is distinct from combined CI410",
+    "Raw evidence and private data assertions are not independent re-execution",
+    "Background generic recipient-specific permission matrix remains unchanged and unaccepted",
+    "CLEAR underlying pass-through FAIL, GAP software only, physical GUI NOT_RUN",
+    "Cold click, ABA, MID, safe failure and production gates remain open"
+  ],
+  "not_a_human_github_approval": true,
+  "final_document_review": {
+    "status": "PASS",
+    "reviewer": "/root/round7_evidence_review",
+    "files": {
+      "updated_documents": 7,
+      "new_evidence_files": 4
+    },
+    "checks": [
+      "All 410 native names in exact actual-log order",
+      "77 detailed passed, zero skip/failure, included in 410",
+      "100 exact CI excerpt lines",
+      "13 equal CI inputs; 15 original evidence byte/hash/blob matches; 15 prior directories and 16 protected objects",
+      "Merge ancestry and exact source diffs",
+      "Source and combined CI/artifact metadata, cancellation and Beijing times",
+      "Scoped real-Mac/private-data/permission limitations, first-attempt recovery wording",
+      "Relative paths and key anchors; diff whitespace; no source or build changes after tested source"
+    ],
+    "log_sha256": "cfbe5d4b8e6e765cca8707e6acc66c8a3d30d5f14737dbf20a8d20540b4b6a63",
+    "unresolved_findings": []
+  }
+}

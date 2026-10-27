@@ -20,7 +20,15 @@
 
 ## 1. 当前检查点
 
-### 第六轮稳定成果正式合流 · DONE；第七轮顺序调度与真机独立推进
+### 第七轮成果正式合流 · DONE；下一轮直接基于本检查点真机增量
+
+正式基础e3175f3，双亲合流2aaaadb保留第七轮3b089b2及其历史，追加权限接收进程修复后已测 **`595142d0345adc0d06f54371f50406879310610d`**。App同步ordinal、runtime AcceptedSelection、既有Coordinator有界prepared等待/取消/唤醒、原目标与权限重检、重启不恢复旧点击及CLEAR防误选已实际集成；v12/首用/PassivePermissionResume/v3/旧UNKNOWN和原证据保留，没有重复第五、六轮。
+
+[完整组合CI40543025253](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40543025253)于2026-10-28 **00:41:17北京时间** completed/success：410原生（Core134/Adapters121/Capture63/UI53/App39）、72页面/54legacy、回放/故障/probe/helper/包装、Release/签名/四自检通过。10详细suite共77项passed、0skip，已包含410。三位非作者实际并行审查，权限旁路/跨进程接收对象两项发现已由root修复并复审；完整日志也独立复核。原来源408项CI不替代此组合运行。[永久证据](../engineering/evidence/2026-10-28-integration-round7/README.md)。
+
+**下一次现场入口：** 从PR #1最终交接SHA建新worktree，沿用[现有接口](ADAPTER_CONTRACT.md#第七轮已集成的原选择等待)与[原生验收](INTEGRATION_HANDOFF.md#下一次真实mac直接入口)，不重新开发FIFO、不重传旧UNKNOWN。双图限定PASS为B等待A最终成功后再一次输入；不是start后并行。冷首击FAIL，CLEAR防误选PASS但透传FAIL，GAP仅software。继续真实冷边界、CLEAR/物理GUI、ABA/MID/安全失败、自包含及修复后TCC/多进程复测；生产与重试仍关闭，具体结果独立交接。第七轮分支未被写入，无法从远端断言其本地无未推送工作。
+
+### 第六轮稳定成果正式合流（历史检查点）
 
 已测组合 **`81b6a61b4e648a1b8d6ccf4b569fd6d727a0cc76`**，双亲1246c4a/65f7d54，共祖3bb13999。仅整合7878de3、c000cc1、65f7d54三个独有提交，保留13份原证据与双方历史；没有重复cherry-pick第五轮。v12最多256KiB、逐块ACK/双遍文件hash/唯一input、严格Chrome绝对descriptor及fallback、v6–v11只读恢复已合入。正式App/Core/UI/Capture/SQLite v3/首用/PassivePermissionResume均未改动，生产与Web安全重试仍关闭。
 
@@ -105,7 +113,7 @@
 
 流程为 `READY → ACTIVE → REVIEW → DONE`；检查失败回ACTIVE修复。无法执行的场景保持WAITING，不用模拟结果填PASS。每次结束一个包或发现局部阻塞后，立即选下一个依赖满足的READY项；没有有效工作时保存事实状态，不循环空提交。
 
-**当前续做入口：** 第六轮已经正式合流并通过完整CI；本地Codex第七轮在既有Coordinator上实现原点击安全等待并继续真机验证。共享边界见[顺序调度接口](ADAPTER_CONTRACT.md#第七轮顺序调度共享边界-v1实现待正式交接)，交接后由root统一集成；不得照搬lab或放开UNKNOWN/start锁。冷首击、业务转换、MID、物理GUI、自包含与真实权限时延仍分别验收，生产未开放。
+**当前续做入口：** 第七轮实现和固定证据已正式集成，详见上方当前检查点；本地Codex直接继承最新正式SHA推进冷首击、CLEAR实际穿透/物理GUI、真实业务转换、MID、安全失败和自包含，修复后权限/多进程时延分别实测。沿用已集成原选择FIFO，不再复制提案模型、不放开UNKNOWN/start锁。只有正式交接后的成果由root统一合流；生产仍未开放。
 
 ## 3. 并行所有权
 

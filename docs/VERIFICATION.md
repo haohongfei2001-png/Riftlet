@@ -9,7 +9,19 @@
 - macOS CI compilation/tests/package smoke do not prove interactive focus, click-through, Spaces or real upload.
 - No real user screenshots, chats or browser sessions are used in automated tests.
 
-## Round-six transfer and identity with first-use — current tested source
+## Round-seven accepted-selection integration — current tested source
+
+已测 **`595142d0345adc0d06f54371f50406879310610d`**，在双亲合流2aaaadb（e3175f3 / 3b089b2）上补齐原UNKNOWN点击的权限接收进程保护。[完整macOS CI40543025253](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40543025253) / job122326159138于2026-10-28 **00:41:17北京时间** completed/success，17步骤全部成功。**410原生**：Core134 / Adapters121 / Capture63 / UI53 / App39；页面72/legacy54，原回放55文件/19case/89prefix/2明确模拟迟到错误、8fault/12probe/9+4+2helper/12包装，Release/签名及四自检通过。
+
+新增定向权限回归2项；AcceptedSelectionQueueTests17、SelectionAuthorityTests4、SelectionSubmissionQueueTests3与原7详细组共77项均passed、0skip，已含410。实际冻结v1→v2→v3/v2→v3、回滚/未来版本拒绝、UNKNOWN/重启/原start/补偿/跨profile锁均在完整列表。两项新XCTest类隔离warning已消除，既有filePromise deprecation仍保留。
+
+[永久验证](../engineering/evidence/2026-10-28-integration-round7/verification.json) · [非作者审查](../engineering/evidence/2026-10-28-integration-round7/review.json) · [100行实际日志摘录](../engineering/evidence/2026-10-28-integration-round7/ci-excerpt.txt)。完整日志209,434字符；root核对13组输入，非作者另通过GitHub tree核对9根。实际checkout1965e22为main eba1a4f +595142d的临时组合，原生/构建/测试/回放输入一致，整tree含main网站差异；未合main。macOS14.8.9/23J631/arm64/Swift5.10。
+
+[制品12751661331](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40543025253/artifacts/12751661331)，1,800,286bytes，GitHub metadata SHA-256 `7c490ad62ebdbe588ff16862bd1d5a1a8f7fff92aecab3d0603a36e67ab5fb0e`，到期2026-11-11 **00:41:12北京时间**；未声称本地下载重算。CHROME_NOT_RUN/GUI_NOT_RUN/PERMISSIONS_NOT_REQUESTED/NOT_NOTARIZED保留。2aaaadb的run40542404369被后续源码推送取消，不计通过；来源9de6a85的408项CI40525056642另独立核实。
+
+原15份第七轮证据及此前15目录未改。真实双图与非空草稿保留只属于f6417c6的生成图/software AX样本；CLEAR防误选属于9de6a85软件实击。冷首击仍FAIL，CLEAR透传FAIL，GAP仅software；业务ABA/MID/安全失败/物理GUI/自包含/正式修复后真实权限时延仍独立。不得用本CI批准生产或重传。
+
+## Round-six transfer and identity with first-use — preceding tested source
 
 已测 **`81b6a61b4e648a1b8d6ccf4b569fd6d727a0cc76`**，双亲1246c4a/65f7d54。[CI40523594732](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40523594732) /job122256992376 completed/success，2026-10-27 **22:44:24北京时间**。380原生：Core117/Adapters121/Capture63/UI52/App27；72页面/54legacy；原回放19、故障8/probe12、第五轮helper9/4/2、包装12、Release/签名与四自检通过。生命周期13/首用3/Capture15/呈现4/Web组合5/权限恢复8/严格descriptor5均详细passed、0skip，全部包含在380内。
 

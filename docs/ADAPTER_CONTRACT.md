@@ -12,7 +12,7 @@ Core separates SQLite v3 visibility, upload-start audit and terminal facts. UI c
 
 ## Current admission
 
-No production adapter is enabled. Only explicit isolated generated-image Web acceptance admits the existing reviewed start and completion profiles. [Current integration](INTEGRATION_HANDOFF.md) records the round-six merge, combined-source CI and independent review. Round-six upload/performance evidence belongs to 7878de3 plus the original acceptance overlays; c000cc1 adds three real read-only captures, not a new upload. The formal App permission preflight is absent from those runtime samples. Missing-ACK cold click safely refuses and same-draft second input is still blocked by targetBusy; neither product requirement has passed. Original evidence, including the fourth-round prebound/unfocused ordinary-thread sample, remains unchanged.
+No production adapter is enabled. Only explicit isolated generated-image Web acceptance admits the existing reviewed start and completion profiles. [Current integration](INTEGRATION_HANDOFF.md) records the round-seven merge, reviewed permission fixes and separate combined-source CI. The f6417c6 real sample proves original B waits while A is unresolved, then enters once after A succeeds; each generated image has its own start and final proof. The same sample preserves nonempty text, selection and three old attachments with an unfocused editor. It does not admit concurrent input after start. Missing-ACK cold click still safely refuses and remains a product FAIL. CLEAR rejects erroneous selection but underlying click-through remains FAIL; GAP is software-only. Original evidence and historical round-six performance limits remain unchanged.
 
 Scoped ordinary-thread attachments, background DOM-error compensation and a real POST100 XHR abort are inherited second-round v6 evidence. Third-round v7 has no new real upload/MID abort or full cold-first-click/ABA acceptance. Root-monitor ordinary-commit operation/restoration and native scheduling were observed within explicitly recorded exploratory-source limits. Actual App self-inclusion is now FAIL for the isolated CLI region capture; capture-only ten-minute resources are measurement-only. Production screenshot input/consumption and safe retry remain closed; this integrator did not operate the local Mac.
 
@@ -112,6 +112,28 @@ Required public-safe package: environment version/build/surface and transport; W
 Build the disabled adapter/fixture path before complete evidence is available. On handoff: review new evidence → extend regression fixtures → adjust the narrow adapter/normalizer → exercise proposed profiles in tests → real synthetic draft end-to-end → admit successful-completion and retry-safe profiles separately → scoped production enablement. Admission is the lead engineer's evidence-based decision with independent technical review, not a request for the user to approve every profile. No changes to capture identity, durable queue schema or animation contract should be necessary merely because the final READY signal changes.
 
 
+## 第七轮已集成的原选择等待
+
+实现来源 `f6417c6` / `9de6a85`，正式合流 `2aaaadb`，权限接收进程修复 `595142d`。下方第六轮提案保留为历史；实际接口如下，不再重开发顺序调度。
+
+| 已编译边界 | 当前行为 |
+| --- | --- |
+| `AcceptedSelection` | runtime-only、非 Codable；保留原 asset/full target、host epoch、effective ACK、event/accepted uptime、visibilityRevision、capture/arm ID 和期限。严格 ACK < event，最长30秒，不由重启恢复。 |
+| `SelectionSubmissionQueue.enqueue` | App 同步接受选择时、任何 Task/permission await 前分配单调 ordinal；唯一 consumer 按原顺序调用同一 Coordinator。只负责提交，不写 intent 或调用 append。App最多16个提交、Core最多12个 accepted token，是工程界限而非产品等待承诺。 |
+| `TransferCoordinator.select(AcceptedSelection)` | 复用原 Core ticket、prepared operation/attempt 和唯一 drain；targetBusy 保留原 prepared 槽，未开始不吞噬。有实际 expiry task、精确 token 取消和 `drainRequested` 合并唤醒。 |
+| `validateAcceptedSelection` | App 检查原对象/epoch/前台进程/隐藏/终止/期限，按原 session 新鲜被动检查权限，再复核 authority。无 capture、无请求授权、无缓存 granted。 |
+| 已有 UNKNOWN/compensated 的 accepted 再点击 | 先要求 adapter/application/session 与原 operation 相同，再执行上述 validator，之后才可只读原 operation；不借另一个仍活跃进程的权限，不增加新 attempt。权限拒绝保持旧事实；后台原操作观察仍是独立路径。 |
+| `QueueStore.markDispatchIntent(_:selection:)` | 同一原事务重新检查 prepared、原 asset/target/revision、activeOperation、visible/hidden 与既有 conflictsForDispatch；取得数据库事务后才进入 token 短锁写 intent。start、UNKNOWN、compensated、旧nil及跨profile锁不豁免。 |
+| settle / finish / cancel | UI release 使用 exact token + owner/revision；异步取消只传原 selection ID。旧回调不能取消/释放同图新点击。hide/remove/clear/stop/失权/host失效/到期取消未intent选择；intent之后只观察原操作。 |
+| `recoverOriginalObservations(operationIDs:)` | 本地 v3 恢复和原 ID 快照先完成；首轮预绑定**尝试结束**后开始旧 ID 只读观察，不再次 reset 新 prepared 操作。首轮尝试不保证发布成功 ACK；第七轮实测样本中确实 ACK 先于观察。 |
+
+新选择的权限校验也覆盖 existing-operation 只读分支，这是合流审查发现并修复的实际旁路；跨进程的旧操作不借当前点击授权。既有后台 generic 权限预检没有在本轮改为逐原操作接收进程预检，不宣称这一真实多进程权限矩阵已经通过。其行为仍由原完整目标检查、OS权限和 UNKNOWN 保留约束；后续如需调整，使用最小共享接口独立审查，不借本轮双图证据扩大准入。
+
+真实双图证据绑定 f6417c6，最终 GUI/来源CI绑定9de6a85；正式组合修复以本轮 [CI和非作者审查](../engineering/evidence/2026-10-28-integration-round7/README.md) 为准。组合CI不替代修复后二进制的真实TCC/多进程/冷首击/物理GUI验收。uploadStarted schema、v12页面和v6–v11只读路由未变。
+
+<details>
+<summary>第六轮制定的共享边界与审查要求（历史保留，现已按上表映射实现）</summary>
+
 ## 第七轮顺序调度共享边界 v1（实现待正式交接）
 
 本节固定第七轮实现与非作者审查所需的最小信息和行为，不新增第二套 Coordinator，不声称已经实现或验收。同草稿 B 的真实 `targetBusy` 是**尚未输入就取消**，不是图片上传失败；原证据见[第六轮提案及复现](../engineering/evidence/2026-10-27-real-mac-round6/consecutive-click-proposal.md)。本地 Codex 独占实现和真机验证，root 收到正式交接后统一整合 Core/App 共享改动；不得以旧 App 覆盖本轮首次使用、权限恢复和策略。
@@ -156,3 +178,5 @@ Build the disabled adapter/fixture path before complete evidence is available. O
 原 `lab/consecutive_click_model.py` 的 10 项通过只证明隔离提案模型。它不覆盖正式 App 权限乱序、Swift actor/SQLite 竞态、deadline、完整 lease 或取消后新点击；其 originals 集合取消后不释放，不能照搬为正式资产生命周期。
 
 上述是“等待既有锁合法解除”的第一阶段，不能标为“start 后同草稿连续输入”已准入。若第七轮提出 start 后允许另一资产的能力，需另有默认关闭的精确版本/目标隔离准入、真实双图身份/一次输入/旧卡文字选区/独立最终事实与迟到错误证据；不能借 start、最终成功、读取优化或 timeout 放开 UNKNOWN 或安全重试。
+
+</details>

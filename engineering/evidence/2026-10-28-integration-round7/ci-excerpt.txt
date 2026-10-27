@@ -1,0 +1,101 @@
+Selected exact lines from run 40543025253 / job 122326159138; detailed repeats are included in 410, not additional tests.
+2026-10-27T16:39:22.2879520Z [command]/opt/homebrew/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +1965e22a0f0b845489f9a8c72c90e692802ae027:refs/remotes/pull/1/merge
+2026-10-27T16:39:23.8692220Z  * [new ref]         1965e22a0f0b845489f9a8c72c90e692802ae027 -> pull/1/merge
+2026-10-27T16:39:24.0343000Z 1965e22a0f0b845489f9a8c72c90e692802ae027
+2026-10-27T16:39:26.3389230Z Apple Swift version 5.10 (swiftlang-5.10.0.13 clang-1500.3.9.4)
+2026-10-27T16:39:26.3557530Z ProductVersion:		14.8.9
+2026-10-27T16:39:26.3558650Z BuildVersion:		23J631
+2026-10-27T16:39:27.0685610Z   "packageFilesVerified": 55,
+2026-10-27T16:39:27.0685850Z   "historicalV1Tests": 19,
+2026-10-27T16:39:27.0686060Z   "realExceptionTracePrefixes": 89,
+2026-10-27T16:39:27.0686380Z   "lateErrorChecks": "2 SIMULATED, not actual post-preview failure",
+2026-10-27T16:39:27.0688150Z   "strictInternalREADY": "NOT_PROVEN",
+2026-10-27T16:39:28.7280730Z PASS exact POST100 one-abort, app retry passthrough, deadline restoration
+2026-10-27T16:39:28.7462520Z PASS MID native progress bound
+2026-10-27T16:40:08.6368460Z Build complete! (36.72s)
+2026-10-27T16:40:09.1180690Z [4/410] Testing RiftletCoreTests.AcceptedSelectionQueueTests/testAcceptedReclickCannotBorrowAnotherProcessPermissionForOldObservation
+2026-10-27T16:40:09.1236320Z [5/410] Testing RiftletCoreTests.AcceptedSelectionQueueTests/testAcceptedReclickChecksPermissionBeforeObservingOriginalUnknown
+2026-10-27T16:40:09.1350050Z [6/410] Testing RiftletCoreTests.AcceptedSelectionQueueTests/testAcceptedSettledCallbackCarriesExactTokenAndNeverLegacyAssetOnlyCallback
+2026-10-27T16:40:09.1840500Z [7/410] Testing RiftletCoreTests.AcceptedSelectionQueueTests/testACKMustStrictlyPrecedeOriginalEventAndCannotBeFilledAfterward
+2026-10-27T16:40:09.1979820Z [8/410] Testing RiftletCoreTests.AcceptedSelectionQueueTests/testCancellationDuringSuspendedValidationPreventsIntentEvenWithoutActorCancelDelivery
+2026-10-27T16:40:09.2022030Z [9/410] Testing RiftletCoreTests.AcceptedSelectionQueueTests/testBoundedCapacityRejectsExtraClickBeforePreparationAndStopCancelsWaiting
+2026-10-27T16:40:09.3032930Z [10/410] Testing RiftletCoreTests.AcceptedSelectionQueueTests/testChangedTargetAndRevokedHostPermissionCancelOriginalPrepared
+2026-10-27T16:40:09.3615740Z [11/410] Testing RiftletCoreTests.AcceptedSelectionQueueTests/testIntentDatabaseFailureCannotDowngradeRevokedAcceptedSlotToLegacyDispatch
+2026-10-27T16:40:09.4299060Z [12/410] Testing RiftletCoreTests.AcceptedSelectionQueueTests/testLateCancellationIDsDoNotCancelNewAcceptedClick
+2026-10-27T16:40:09.4975760Z [13/410] Testing RiftletCoreTests.AcceptedSelectionQueueTests/testOriginalRecoverySnapshotDoesNotResetNewPreparedSelection
+2026-10-27T16:40:09.5109390Z [14/410] Testing RiftletCoreTests.AcceptedSelectionQueueTests/testDeadlineCancelsPreparedWhileOriginalUnknownRemainsLocked
+2026-10-27T16:40:09.5216990Z [15/410] Testing RiftletCoreTests.AcceptedSelectionQueueTests/testCompletionDuringParkedOnChangeDoesNotLoseDrainWake
+2026-10-27T16:40:09.5925840Z [16/410] Testing RiftletCoreTests.AcceptedSelectionQueueTests/testRemovedOrHiddenWaitingSelectionDoesNotDispatchAfterACompletes
+2026-10-27T16:40:09.5969920Z [17/410] Testing RiftletCoreTests.AcceptedSelectionQueueTests/testRestartCancelsPreparedWithoutRestoringTokenOrInput
+2026-10-27T16:40:09.6099320Z [18/410] Testing RiftletCoreTests.AcceptedSelectionQueueTests/testSameDraftParksVisibleThenReconcileReleasesOriginalFIFOWithoutCapture
+2026-10-27T16:40:09.6478640Z [19/410] Testing RiftletCoreTests.AcceptedSelectionQueueTests/testStoreChecksRevisionAndExactTargetInsideIntentAndRevokedTokenStaysUnusable
+2026-10-27T16:40:09.6650840Z [21/410] Testing RiftletCoreTests.AcceptedSelectionQueueTests/testUnknownAndWrongIdentityCannotReleaseDraftOrCreateAnotherAttempt
+2026-10-27T16:40:09.7029880Z [22/410] Testing RiftletAppTests.AutomationPermissionTests/testBackgroundInspectionNeverAsksUser
+2026-10-27T16:40:09.7033760Z [23/410] Testing RiftletAppTests.AutomationPermissionTests/testEveryDispatchPermissionCheckUsesOriginalSessionWithoutCaching
+2026-10-27T16:40:09.7148490Z [24/410] Testing RiftletAppTests.AutomationPermissionTests/testDeniedGrantedOrMissingBrowserNeverPromptAgain
+2026-10-27T16:40:09.7673000Z [25/410] Testing RiftletAppTests.AutomationPermissionTests/testNativePermissionCodesNeverConflateDenialWithUnavailable
+2026-10-27T16:40:09.7684420Z [26/410] Testing RiftletAppTests.AutomationPermissionTests/testOnlyExplicitNeedCanRequestAfterPassiveCheck
+2026-10-27T16:40:09.7882690Z [27/410] Testing RiftletAppTests.AutomationPermissionTests/testMultipleChromeInstancesSelectExactOriginalSessionOrForegroundNeverFirst
+2026-10-27T16:40:09.8392910Z [28/410] Testing RiftletAppTests.AutomationPermissionTests/testOrdinaryCaptureCannotProbeOrRequestChrome
+2026-10-27T16:40:16.5471090Z [158/410] Testing RiftletCoreTests.LifecycleMigrationTests/testFrozenVersionOneMigratesAllTheWayAndKeepsUnstartedUnknownVisible
+2026-10-27T16:40:16.6333660Z [159/410] Testing RiftletCoreTests.LifecycleMigrationTests/testLifecycleMigrationFailureRollsBackLegacySchemaAndEveryOriginalFact
+2026-10-27T16:40:16.6335770Z [160/410] Testing RiftletCoreTests.LifecycleMigrationTests/testFrozenVersionTwoMigratesVisibilityWithoutInventingStartOrRewritingFacts
+2026-10-27T16:40:16.7361510Z [161/410] Testing RiftletCoreTests.LogicalDraftIdentityTests/testDifferentAdmittedDraftsInSameTabDoNotConflict
+2026-10-27T16:40:16.7363770Z [162/410] Testing RiftletCoreTests.LifecycleMigrationTests/testUnsupportedFutureVersionPreservesLegacyRows
+2026-10-27T16:40:16.8192450Z [163/410] Testing RiftletCoreTests.LogicalDraftIdentityTests/testLegacyCompensationKeepsWildcardLockAndOriginalAuditAfterReopen
+2026-10-27T16:40:16.8198120Z [164/410] Testing RiftletCoreTests.LogicalDraftIdentityTests/testDifferentTabsRemainIndependentIncludingLegacyFallback
+2026-10-27T16:40:16.8975100Z [165/410] Testing RiftletCoreTests.LogicalDraftIdentityTests/testLegacyJSONDecodesNilWithoutInventingLogicalIdentity
+2026-10-27T16:40:16.8981930Z [166/410] Testing RiftletCoreTests.LogicalDraftIdentityTests/testLegacyNilAndProvedIdentityConflictInBothDirections
+2026-10-27T16:40:16.9920130Z [167/410] Testing RiftletCoreTests.LogicalDraftIdentityTests/testLogicalDraftIdentityDoesNotRelaxReceiptTargetEquality
+2026-10-27T16:40:17.0012850Z [168/410] Testing RiftletCoreTests.LogicalDraftIdentityTests/testLegacyUnknownKeepsWildcardLockAfterDatabaseReopen
+2026-10-27T16:40:17.0581230Z [169/410] Testing RiftletCoreTests.LogicalDraftIdentityTests/testOtherSurfacesAndMissingTabKeepExactStableKeyBehavior
+2026-10-27T16:40:17.0772600Z [170/410] Testing RiftletCoreTests.LogicalDraftIdentityTests/testProvedUnknownAllowsDifferentDraftButStillBlocksSameDraftAfterReopen
+2026-10-27T16:40:17.1074740Z [171/410] Testing RiftletCoreTests.LogicalDraftIdentityTests/testSameLogicalDraftSurvivesRearmWindowMoveAndDocumentChange
+2026-10-27T16:40:17.1290190Z [172/410] Testing RiftletCoreTests.LogicalDraftIdentityTests/testUnknownProfileOrInvalidIDFallsBackToWholeTabConflict
+2026-10-27T16:40:20.1697310Z [255/410] Testing RiftletCoreTests.PersistedLogicalDraftIdentityTests/testCrossProfileNilUnknownAndMalformedIdentitiesRemainConservative
+2026-10-27T16:40:20.2208300Z [256/410] Testing RiftletCoreTests.PersistedLogicalDraftIdentityTests/testFrozenStoredPersistedIdentitySurvivesReopenAndRecoveryWithoutRewritingOriginalFacts
+2026-10-27T16:40:20.2943560Z [257/410] Testing RiftletCoreTests.PersistedLogicalDraftIdentityTests/testLegacyAndCrossProfileCompensationKeepAuditAndLockAfterReopen
+2026-10-27T16:40:20.3652290Z [258/410] Testing RiftletCoreTests.PersistedLogicalDraftIdentityTests/testPersistedDraftConflictIsCaseInsensitiveAcrossRearmWindowAndDocumentChanges
+2026-10-27T16:40:20.4145610Z [259/410] Testing RiftletCoreTests.PersistedLogicalDraftIdentityTests/testOldUnknownRowsKeepWholeTabProtectionAgainstPersistedDraftAfterReopen
+2026-10-27T16:40:20.4421570Z [260/410] Testing RiftletCoreTests.PersistedLogicalDraftIdentityTests/testPersistedIdentityNeverRelaxesFullTargetEqualityForStartOrCompletion
+2026-10-27T16:40:20.4848680Z [261/410] Testing RiftletCoreTests.PersistedLogicalDraftIdentityTests/testRecognitionAcceptsOnlyExactProfileAndUnmodifiedUUIDFormat
+2026-10-27T16:40:24.7427810Z [339/410] Testing RiftletAppTests.SelectionSubmissionQueueTests/testSuspendedFirstPermissionCannotLetLaterSelectionOvertake
+2026-10-27T16:40:24.7429050Z [340/410] Testing RiftletAppTests.SelectionSubmissionQueueTests/testCancellationOnlyRemovesOriginalIDAndQueueHasFiniteCapacity
+2026-10-27T16:40:24.9086950Z [345/410] Testing RiftletAppTests.SelectionSubmissionQueueTests/testUnsubmittedDeadlineExpiresWithoutRunningAndReleasesItsOwnReservation
+2026-10-27T16:40:27.0174950Z [404/410] Testing RiftletCoreTests.WebTargetLockTests/testCompensatedSameTabRearmRemainsLockedAcrossRestart
+2026-10-27T16:40:27.1208090Z [405/410] Testing RiftletCoreTests.WebTargetLockTests/testOtherSurfacesAndUnidentifiedChromeTabsKeepExactTargetLock
+2026-10-27T16:40:27.1833560Z [406/410] Testing RiftletCoreTests.WebTargetLockTests/testPreparedLeaseDoesNotLockDispatchOfAnotherAsset
+2026-10-27T16:40:27.2475910Z [407/410] Testing RiftletCoreTests.WebTargetLockTests/testUnknownBlocksSameTabAfterRearmWindowMoveAndDocumentReplacement
+2026-10-27T16:40:27.2980510Z [408/410] Testing RiftletCoreTests.WebTargetLockTests/testUnknownDoesNotLockAnotherTabOrBrowserSession
+2026-10-27T16:40:30.0942160Z Ran 12 tests in 0.066s
+2026-10-27T16:40:31.8810420Z Test Suite 'RiftLifecycleTests' passed at 2026-10-27 16:40:31.874.
+2026-10-27T16:40:31.8810830Z 	 Executed 13 tests, with 0 failures (0 unexpected) in 0.819 (0.819) seconds
+2026-10-27T16:40:32.3129360Z Test Suite 'RiftSetupControllerTests' passed at 2026-10-27 16:40:32.306.
+2026-10-27T16:40:32.3129890Z 	 Executed 3 tests, with 0 failures (0 unexpected) in 0.109 (0.109) seconds
+2026-10-27T16:40:32.8556180Z Test Suite 'ReleaseCaptureTests' passed at 2026-10-27 16:40:32.850.
+2026-10-27T16:40:32.8556590Z 	 Executed 15 tests, with 0 failures (0 unexpected) in 0.245 (0.246) seconds
+2026-10-27T16:40:33.8432440Z Test Suite 'PresentationBoundaryTests' passed at 2026-10-27 16:40:33.837.
+2026-10-27T16:40:33.8433110Z 	 Executed 4 tests, with 0 failures (0 unexpected) in 0.663 (0.663) seconds
+2026-10-27T16:40:34.2148070Z Test Suite 'WebAcceptanceIntegrationTests' passed at 2026-10-27 16:40:34.211.
+2026-10-27T16:40:34.2149370Z 	 Executed 5 tests, with 0 failures (0 unexpected) in 0.051 (0.052) seconds
+2026-10-27T16:40:34.5495800Z Test Suite 'PassivePermissionResumeTests' passed at 2026-10-27 16:40:34.547.
+2026-10-27T16:40:34.5496260Z 	 Executed 8 tests, with 0 failures (0 unexpected) in 0.003 (0.004) seconds
+2026-10-27T16:40:34.8631530Z Test Suite 'ChromeActiveTabDescriptorTests' passed at 2026-10-27 16:40:34.860.
+2026-10-27T16:40:34.8632010Z 	 Executed 5 tests, with 0 failures (0 unexpected) in 0.004 (0.004) seconds
+2026-10-27T16:40:35.7791970Z Test Case '-[RiftletCoreTests.AcceptedSelectionQueueTests testAcceptedReclickCannotBorrowAnotherProcessPermissionForOldObservation]' passed (0.020 seconds).
+2026-10-27T16:40:35.7794720Z Test Case '-[RiftletCoreTests.AcceptedSelectionQueueTests testAcceptedReclickChecksPermissionBeforeObservingOriginalUnknown]' passed (0.012 seconds).
+2026-10-27T16:40:35.7836390Z Test Suite 'AcceptedSelectionQueueTests' passed at 2026-10-27 16:40:35.777.
+2026-10-27T16:40:35.7836890Z 	 Executed 17 tests, with 0 failures (0 unexpected) in 0.604 (0.605) seconds
+2026-10-27T16:40:36.0853560Z Test Suite 'SelectionAuthorityTests' passed at 2026-10-27 16:40:36.083.
+2026-10-27T16:40:36.0854040Z 	 Executed 4 tests, with 0 failures (0 unexpected) in 0.001 (0.002) seconds
+2026-10-27T16:40:37.4638980Z Test Suite 'SelectionSubmissionQueueTests' passed at 2026-10-27 16:40:37.454.
+2026-10-27T16:40:37.4639510Z 	 Executed 3 tests, with 0 failures (0 unexpected) in 1.061 (1.061) seconds
+2026-10-27T16:41:10.7520460Z Build complete! (33.05s)
+2026-10-27T16:41:11.0771520Z RIFTLET_BUNDLE_CHECK_PASS: layout, permissions text, resources, notices; development 0.1.0; NOT_NOTARIZED; GATEKEEPER_NOT_RUN
+2026-10-27T16:41:11.4718390Z RIFTLET_SELF_CHECK_PASS: private import, durable upload-start visibility, delayed synthetic completion, restart
+2026-10-27T16:41:11.5202970Z RIFTLET_WEB_ACCEPTANCE_SELF_CHECK_PASS: bundled page source, synthetic-only start/completion policy, isolated modes; CHROME_NOT_RUN; GUI_NOT_RUN
+2026-10-27T16:41:11.5510010Z RIFTLET_FIRST_USE_SELF_CHECK_PASS: presentation persistence, disabled-production permission isolation, honest status; PERMISSIONS_NOT_REQUESTED; GUI_NOT_RUN
+2026-10-27T16:41:11.9699120Z RIFTLET_GUI_HELPER_SELF_CHECK_PASS: 12 synthetic PNGs; scenes 2/3/12; layout/status fixtures; GUI_NOT_RUN
+2026-10-27T16:41:12.0523280Z   name: native-foundation-1965e22a0f0b845489f9a8c72c90e692802ae027
+2026-10-27T16:41:13.3633160Z Artifact native-foundation-1965e22a0f0b845489f9a8c72c90e692802ae027.zip successfully finalized. Artifact ID 12751661331
+2026-10-27T16:41:13.3635820Z Artifact native-foundation-1965e22a0f0b845489f9a8c72c90e692802ae027 has been successfully uploaded! Final size is 1800286 bytes. Artifact ID is 12751661331

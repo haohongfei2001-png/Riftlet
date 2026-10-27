@@ -1,10 +1,40 @@
 # 正式工程集成交接 · 第七轮顺序调度 · 2026-10-28
 
-## 第七轮正式合流进行中
+## 当前正式组合：第七轮已集成并验证
 
-正式基础 `e3175f30fb9b92cd12a7c670febbbe3296657da1`；只合入固定交接 `3b089b22449742fe7d9a76e74aa7ac99be37ba8e`。双方历史以 merge 保留，未重复挑选第五、六轮。组合 CI 与独立审查须按本次最终源码重新完成；第七轮独立 CI 不替代组合验证。下列第七轮来稿与既往正式检查点保留为来源。
+正式基础e3175f3；双亲merge **`2aaaadb1c3461f93f268f1f93b0b08854745aa5f`** 保留固定交接3b089b2与双方历史，最终已测源码 **`595142d0345adc0d06f54371f50406879310610d`** 补齐权限接收进程保护。只整合第七轮两项源码增量及原15文件，没有重复挑选第五、六轮。确切最终文档HEAD见PR #1本轮交接评论；后续文档提交保持本源码/测试/构建输入不变。
 
-## 第七轮独立真机交接（未写正式 PR）
+原AcceptedSelection、App同步次序和单一Coordinator已实现有界等待；A未最终终结时B不输入、不假吞噬，原UNKNOWN/跨profile锁不豁免。精确取消/expiry/lost-wake/新点击/restart接口见[已集成契约](ADAPTER_CONTRACT.md#第七轮已集成的原选择等待)。首轮预绑定尝试先结束，再观察启动时原ID快照；不是保证每次先有成功ACK。CLEAR防误选已合入，底层穿透仍FAIL。
+
+负责人实际修复了accepted再点击旧UNKNOWN绕过权限校验，以及当前进程授权被借给另一个旧进程观察的两条路径。现在先核对adapter/application/session，再新鲜被动检查，拒绝时旧事实不变、零观察/输入。后台generic预检接口未改，实际多进程权限矩阵仍需现场验证；不用这项修复假称真实TCC通过。
+
+[完整组合CI40543025253](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40543025253) / job122326159138于2026-10-28 **00:41:17北京时间** completed/success：410原生（Core134/Adapters121/Capture63/UI53/App39）、72页面/54legacy、原回放/故障/probe/helper/包装、实际迁移与UNKNOWN/补偿、Release/签名及四自检全部通过。十组详细77项全部passed/0skip，包含在410中。源码/修复/原证据和完整209,434字符日志均由非作者独立审查。[永久证据](../engineering/evidence/2026-10-28-integration-round7/README.md)。来源9de6a85的408项CI单独保留，不能替代组合CI。
+
+## 精确真机范围
+
+- f6417c6无overlay普通线程中，一组软件AX生成图片A/B通过：原B在A inputTriggered时prepared，A持久succeeded后B才begin，两项各input1/attempt1及独立start/final。非空文字、非折叠选区、三个旧附件在同样本保留，editor未聚焦。不是start后并行或任意草稿矩阵通过。
+- 时延A点击→AppKit close2816.959ms，B12212.578ms（含等待和较慢页面start），动画配置0.24s；不作为本轮修复后二进制新测量或像素完成时间。
+- 冷边界native完整验证晚26.323250ms、AppACK晚26.742000ms；安全拒绝且不重放，产品仍FAIL。不存在把较晚ACK补造为原授权的修复。
+- 9de6a85的CLEAR软件误选修复通过，但底层0次仍FAIL；GAP/IMAGE/NUMBER仅限定CGEvent批次PASS_SOFTWARE_ROUTING，初批GAP未投递仍NOT_RUN。物理输入、跨应用持续焦点、按住补位/双击、多屏/Spaces未通过。
+- 所有公开证据保留原hash/提交；审查没有重新访问私有DB/media/raw日志。旧UNKNOWN/补偿/开始审计及原媒体由本地执行器继续保留，绝不为演示清库或重传。
+
+## 下一次真实Mac直接入口
+
+从本轮PR #1最终交接SHA新建独立worktree，保留原round7和所有旧数据；无需重做顺序调度。可使用[当前开发App/helper/日志制品](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40543025253/artifacts/12751661331)（ARM64/ad-hoc，到期2026-11-11 00:41:12北京时间），或现有 `scripts/build-macos.sh`。普通App首启仍显示首次使用；Web现场沿用明确隔离的入口：
+
+```bash
+./Riftlet.app/Contents/MacOS/Riftlet --web-acceptance --acceptance-trace
+```
+
+原 `Riftlet-Web-Acceptance` 数据根保留，不复用真实截图数据根。只对新生成图片接受新的明确点击，旧未决只能观察。GUI helper保留explicit单批software事件入口，不能把软件结果写成物理通过。四自检和首用权限恢复入口继续可用，不增加用户日常操作。
+
+下一轮增量优先：无ACK冷首击的原时刻身份连续性；CLEAR真正向底层应用穿透与物理按住补位/双击/多屏；真实业务ABA/同URL；修复后二进制权限撤销恢复和多Chrome接收进程；MID真实字节请求识别/中断；真实安全终止后可点击重生；截图自包含及T0/T1/T2。已有双图样本不需为展示重复上传，新增证据按确切源码和操作身份交接。uploadStarted schema和v12/旧只读观察协议未变；不得放宽成功、UNKNOWN、重试或生产准入。
+
+PR #1继续Draft；main、网站/品牌/设计不动，没有发布或Send。本地Codex拥有真实Mac执行/修复/验收；正式ref及共享代码仍由root在正式交接后统一审查集成。
+
+---
+
+## 第七轮独立真机原交接（历史来源，已按上文合流）
 
 分支 `codex/riftlet-real-mac-round7-20261027`，核心实现 `f6417c6faaf8aa21ac587b07f25ea2a159af021f`，最终源码 `9de6a85b0161713833dc25e3b3eb1e1a2f81a558`。完整 [macOS CI 40525056642](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40525056642) 与范围限定非作者审查通过。正式 `81b6a61` 已合第五、六轮，集成本轮两个增量即可，不重复 cherry-pick 历史成果。
 
