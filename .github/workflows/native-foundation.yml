@@ -65,12 +65,18 @@ jobs:
           set -o pipefail
           mkdir -p test-results
           swift test --parallel 2>&1 | tee test-results/swift-test.log
+      - name: Verify packaging rejection paths offline
+        run: |
+          set -o pipefail
+          python3 -m unittest discover -s Tests/Packaging -v 2>&1 | tee test-results/packaging-tests.log
       - name: Report software panel lifecycle outcomes
         run: |
           set -o pipefail
           # Parallel discovery lines do not distinguish passed from XCTSkip.
           # Reuse the build and report only this existing suite in detail.
           swift test --skip-build --filter RiftLifecycleTests 2>&1 | tee test-results/rift-lifecycle-detailed.log
+          swift test --skip-build --filter RiftSetupControllerTests 2>&1 | tee test-results/setup-window-detailed.log
+          swift test --skip-build --filter ReleaseCaptureTests 2>&1 | tee test-results/release-capture-detailed.log
       - name: Package native application
         run: |
           set -o pipefail
@@ -83,6 +89,7 @@ jobs:
           trap 'rm -rf "$riftlet_check_dir"' EXIT
           ditto build/Riftlet.app "$riftlet_check_dir/Riftlet.app"
           "$riftlet_check_dir/Riftlet.app/Contents/MacOS/Riftlet" --web-acceptance-self-check 2>&1 | tee test-results/web-acceptance-self-check.log
+          "$riftlet_check_dir/Riftlet.app/Contents/MacOS/Riftlet" --first-use-self-check 2>&1 | tee test-results/first-use-self-check.log
           ditto -c -k --sequesterRsrc --keepParent build/Riftlet.app build/Riftlet-macOS-development.zip
       - name: Validate and archive synthetic GUI acceptance helper
         run: |

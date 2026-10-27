@@ -30,6 +30,16 @@ private enum ApplicationMode: Equatable {
 @main
 enum RiftletMain {
     @MainActor static func main() {
+        if CommandLine.arguments.contains("--first-use-self-check") {
+            Task {
+                do {
+                    try await FirstUseSelfCheck.run()
+                    print("RIFTLET_FIRST_USE_SELF_CHECK_PASS: presentation persistence, disabled-production permission isolation, honest status; PERMISSIONS_NOT_REQUESTED; GUI_NOT_RUN")
+                    exit(0)
+                } catch { fputs("RIFTLET_FIRST_USE_SELF_CHECK_FAIL\n", stderr); exit(1) }
+            }
+            dispatchMain()
+        }
         if CommandLine.arguments.contains("--self-check") {
             Task {
                 do { try await SelfCheck.run(); print("RIFTLET_SELF_CHECK_PASS: private import, durable upload-start visibility, delayed synthetic completion, restart"); exit(0) }
@@ -65,11 +75,30 @@ enum RiftletMain {
 }
 
 @MainActor
-private final class ApplicationController: NSObject, NSApplicationDelegate {
+private final class ApplicationController: NSObject, NSApplicationDelegate, NSMenuItemValidation {
     private var statusItem: NSStatusItem?
     private var statusLine: NSMenuItem?
     private var storageLine: NSMenuItem?
     private var storageMeasurement: Task<Void, Never>?
+    private var setup: RiftSetupController?
+    private var setupStorage: SetupStorageState = .notMeasured
+    private var setupIssue: SetupIssue?
+    private var visibilitySettingFailed = false
+    private var collectionSettingFailed = false
+    private var captureStatus: CaptureStatusSnapshot?
+    private var captureDiagnostic: CaptureDiagnostic?
+    private var detectedSource: URL?
+    private var pendingResultCount = 0
+    private var initialized = false
+    private var captureControl = CaptureControlGate()
+    private var requestingPermission = false
+    private var automationPermission: AutomationPermissionState = .notNeeded
+    private var attachmentObservationStarted = false
+    private var attachmentObservationStarting = false
+    private let captureLocation = SystemCaptureLocationProvider()
+    private lazy var firstUse = FirstUsePreferences(modeName: mode.directoryName)
+    private lazy var folderAccess = ScreenshotFolderAccess(modeName: mode.directoryName)
+    private var permissionGate: AutomationPermissionGate { .init(requiresChrome: mode == .webAcceptance) }
     private var hideItem: NSMenuItem?
     private var pauseItem: NSMenuItem?
     private var archiveItem: NSMenuItem?
@@ -88,7 +117,6 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
     private var historyOffset = 0
     private var userHidden = false
     private var captureIsPaused = false
-    private var changingCapture = false
     private var changingHidden = false
     private var lifecycleSettings = LifecycleSettings()
     private let interactionFence = QueueInteractionFence()
@@ -121,7 +149,29 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         installMenu()
-        Task { do { try await start() } catch { showIssue("Initialization failed; data preserved. \(error)") } }
+        installSetup()
+        // The first ordinary launch explains collection before its first source
+        // read. Acceptance mode must not steal the test browser's focus.
+        if mode == .capture, firstUse.needsAutomaticPresentation {
+            showSetup(); firstUse.recordPresentation()
+        }
+        Task {
+            do { try await start() }
+            catch {
+                setupIssue = .initializationFailed
+                if CaptureDiagnostic.classify(error, context: .privateStorage).code == .insufficientStorage {
+                    setupStorage = .insufficientSpace; setupIssue = .insufficientSpace
+                }
+                showIssue(setupIssue!.text)
+                updateSetup()
+            }
+        }
+    }
+
+    func applicationDidBecomeActive(_ notification: Notification) {
+        // Explicit return from settings/menu, not an idle timer. Recheck does
+        // not grant permission or re-enable a paused collector.
+        if initialized, setup?.isVisible == true { recheckSetup() }
     }
 
     func applicationWillTerminate(_ notification: Notification) {
@@ -136,6 +186,8 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
         if let archiveWakeObserver { NSWorkspace.shared.notificationCenter.removeObserver(archiveWakeObserver) }
         rift?.close()
         history?.close()
+        setup?.close()
+        folderAccess.stop()
         if let sourceBinding { Task { await sourceBinding.stop() } }
         if instanceDescriptor >= 0 { flock(instanceDescriptor, LOCK_UN); Darwin.close(instanceDescriptor) }
     }
@@ -194,6 +246,14 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
                     return
                 }
                 do {
+                    if self.mode == .webAcceptance {
+                        self.automationPermission = await self.permissionGate.inspect()
+                        guard self.automationPermission == .granted else {
+                            self.rift?.setFeedback("Chrome 附件访问暂不可用；图片保留。请在运行状态中查看原因。", for: id)
+                            self.rift?.finishSelection(id); self.updateSetup()
+                            return
+                        }
+                    }
                     if self.mode == .webAcceptance { try await self.transfer?.select(id, frozenTarget: frozen, visibilityRevision: revision) }
                     else { try await self.transfer?.select(id, visibilityRevision: revision) }
                     if let record = try await self.store?.asset(id: id), record.visibility == .visible,
@@ -203,12 +263,14 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
                     }
                 }
                 catch {
-                    let diagnostic = (error as? WebAdapterError).map { String(describing: $0) } ?? "targetUnavailable"
-                    self.showIssue(self.mode == .webAcceptance
-                        ? "Test image retained. Chrome diagnostic: \(diagnostic)."
-                        : "Screenshot retained. ChatGPT attachment adapter is not enabled in this build.")
-                    self.rift?.setFeedback(self.mode == .capture ? "Attachment support is not enabled; image kept."
-                        : "Current draft could not be verified; image kept.", for: id)
+                    if self.mode == .webAcceptance {
+                        self.setupIssue = ProductStatus.clickIssue(error,
+                            frontmostBundleID: NSWorkspace.shared.frontmostApplication?.bundleIdentifier, webAcceptance: true)
+                        if self.setupIssue == .permissionDenied { self.automationPermission = .denied }
+                    }
+                    self.rift?.setFeedback(self.mode == .capture ? "此版本尚未启用真实截图附加；图片保留。"
+                        : "当前附件目标暂不可用；图片保留，可在运行状态中查看原因。", for: id)
+                    self.updateSetup()
                 }
                 await self.refresh()
             }
@@ -237,58 +299,227 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
             policy: policy, onChange: { [weak self] in await self?.refresh() },
             onSelectionSettled: { [weak self] id in await self?.finishPreparedSelection(id) })
         self.transfer = transfer
-        if mode == .webAcceptance { startArming(adapter: adapter) }
-        // Recovery only observes original unresolved operations. In Web acceptance
-        // this may contact Chrome after restart; it never dispatches a new input.
-        try await transfer.recover()
-        if mode != .capture {
-            watchedCompletions = Set(try await store.successfulOperations().map(\.id))
-            completionWatch = Task { [weak self] in
-                while !Task.isCancelled {
-                    do { try await Task.sleep(nanoseconds: self?.simulation == true ? 400_000_000 : 5_000_000_000) } catch { return }
-                    guard let self else { return }
-                    do { try await transfer.observePending(limit: self.simulation ? 8 : 4) }
-                    catch { self.showIssue("Pending attachment observation unavailable; local records kept.") }
-                    for id in self.watchedCompletions {
-                        if Task.isCancelled { return }
-                        if let backoff = self.observationBackoff[id], backoff.next > Date() { continue }
-                        do {
-                            if try await !transfer.observeCompleted(operationID: id) {
-                                self.watchedCompletions.remove(id)
-                            }
-                            self.observationBackoff.removeValue(forKey: id)
-                        } catch WebAdapterError.invalidTarget {
-                            // The original process/session no longer exists.
-                            self.watchedCompletions.remove(id)
-                            self.observationBackoff.removeValue(forKey: id)
-                        } catch {
-                            // Loss of transport is not proof of a late failure.
-                            // Preserve success; back off observation without input.
-                            let failures = min(6, (self.observationBackoff[id]?.failures ?? 0) + 1)
-                            self.observationBackoff[id] = (failures, Date().addingTimeInterval(min(300, pow(2, Double(failures)) * 5)))
-                        }
-                    }
-                }
-            }
-        }
+        armingAdapter = mode == .webAcceptance ? adapter : nil
+        // Durable crash recovery remains local even when Automation is denied.
+        // No page observation is attempted until a passive check says allowed.
+        try await store.recoverInterruptedOperations()
+        if mode == .webAcceptance { automationPermission = await permissionGate.inspect() }
+        try await startAttachmentObservationIfPermitted()
         if mode != .capture {
             statusLine?.title = simulation ? "SIMULATION · synthetic images only · no ChatGPT input"
                 : "WEB ACCEPTANCE · generated images · real Chrome input"
         } else {
-            let service = CaptureService(store: store, privateRoot: root, sourceDirectory: CaptureSource.defaultDirectory(),
+            do {
+                detectedSource = try await captureLocation.currentDirectory()
+                if let detectedSource { folderAccess.restore(for: detectedSource) }
+            } catch { receiveCaptureDiagnostic(.classify(error, context: .locationPreference)) }
+            let service = CaptureService(store: store, privateRoot: root, sourceDirectory: detectedSource ?? CaptureSource.defaultDirectory(),
                                          onChange: { [weak self] in await self?.refresh() },
-                                         onIssue: { [weak self] message in await self?.showIssue(message) })
+                                         onDiagnostic: { [weak self] value in await self?.receiveCaptureDiagnostic(value) })
             capture = service
-            let binding = CaptureSourceBinding(service: service,
-                onIssue: { [weak self] message in await self?.showIssue(message) })
+            let binding = CaptureSourceBinding(service: service, provider: captureLocation,
+                onDiagnostic: { [weak self] value in await self?.receiveCaptureDiagnostic(value) })
             sourceBinding = binding
-            if !captureIsPaused { try await binding.start() }
-            statusLine?.title = captureIsPaused ? "Capture paused · stored screenshots kept"
-                : "Capture active · ChatGPT adapter pending validation"
+            if !captureIsPaused {
+                do { try await binding.start() }
+                catch { receiveCaptureDiagnostic(.classify(error, context: .source)) }
+            }
+            captureStatus = await service.statusSnapshot()
         }
         updateControlTitles()
         startArchiveScheduler()
+        initialized = true
         await refresh()
+    }
+
+    private func startAttachmentObservationIfPermitted() async throws {
+        guard !attachmentObservationStarted, !attachmentObservationStarting, let transfer, let store,
+              mode != .webAcceptance || automationPermission == .granted else { return }
+        attachmentObservationStarting = true
+        defer { attachmentObservationStarting = false }
+        // Same original-operation recovery as before. No new input is created.
+        try await transfer.recover()
+        let completedIDs = mode != .capture ? Set(try await store.successfulOperations().map(\.id)) : Set<UUID>()
+        // Finish all throwing work before installing tasks/observers. A failed
+        // recovery can then be retried without duplicate watchers or a false latch.
+        if mode == .webAcceptance, let armingAdapter { startArming(adapter: armingAdapter) }
+        watchedCompletions = completedIDs
+        attachmentObservationStarted = true
+        guard mode != .capture else { return }
+        completionWatch = Task { [weak self] in
+            while !Task.isCancelled {
+                do { try await Task.sleep(nanoseconds: self?.simulation == true ? 400_000_000 : 5_000_000_000) } catch { return }
+                guard let self else { return }
+                if self.mode == .webAcceptance {
+                    self.automationPermission = await self.permissionGate.inspect()
+                    self.updateSetup()
+                    guard self.automationPermission == .granted else {
+                        self.armedTarget = nil; self.armedCaptureDiagnostics = nil; self.frozenPress = nil
+                        continue
+                    }
+                }
+                do { try await transfer.observePending(limit: self.simulation ? 8 : 4) }
+                catch { self.showIssue("附件结果暂时无法核实；本机图片与原操作仍保留，不会自动重新附加。") }
+                for id in self.watchedCompletions {
+                    if Task.isCancelled { return }
+                    if let backoff = self.observationBackoff[id], backoff.next > Date() { continue }
+                    do {
+                        if try await !transfer.observeCompleted(operationID: id) { self.watchedCompletions.remove(id) }
+                        self.observationBackoff.removeValue(forKey: id)
+                    } catch WebAdapterError.invalidTarget {
+                        self.watchedCompletions.remove(id); self.observationBackoff.removeValue(forKey: id)
+                    } catch {
+                        let failures = min(6, (self.observationBackoff[id]?.failures ?? 0) + 1)
+                        self.observationBackoff[id] = (failures, Date().addingTimeInterval(min(300, pow(2, Double(failures)) * 5)))
+                    }
+                }
+            }
+        }
+    }
+
+    private func installSetup() {
+        setup = RiftSetupController(onRecheck: { [weak self] in self?.recheckSetup() },
+            onOpenSource: { [weak self] in self?.openScreenshotSource() },
+            onPermission: { [weak self] in self?.requestAutomationPermission() },
+            onDismiss: {},
+            onChooseSourceAccess: mode == .capture ? { [weak self] in self?.chooseSourceAccess() } : nil,
+            onToggleHidden: { [weak self] in self?.toggleHidden() },
+            onToggleCollection: mode == .capture ? { [weak self] in self?.toggleCollection() } : nil,
+            onOpenHistory: { [weak self] in self?.showHistory() })
+        updateSetup()
+    }
+
+    private func updateSetup() {
+        let issue: SetupIssue? = visibilitySettingFailed ? .visibilityPreferenceUnsaved
+            : (collectionSettingFailed ? .collectionPreferenceUnsaved : (captureDiagnostic.map(ProductStatus.issue) ?? setupIssue))
+        let attachment: SetupAttachmentState = simulation ? .offlineSimulation
+            : (mode == .webAcceptance ? .syntheticWeb : .productionDisabled)
+        let source = ProductStatus.sourceState(detectedSource: detectedSource, observation: captureStatus,
+            systemCollection: mode == .capture, paused: captureIsPaused, initialized: initialized)
+        let collection = ProductStatus.collectionState(systemCollection: mode == .capture, paused: captureIsPaused,
+            initialized: initialized, running: captureStatus?.isRunning == true, source: source)
+        let snapshot = SetupSnapshot(sourceLocation: detectedSource?.path, source: source, collection: collection,
+            isHidden: userHidden, visibleCount: visibleIDs.count, pendingCount: pendingResultCount,
+            attachment: attachment, permission: ProductStatus.permission(automationPermission),
+            permissionDetail: mode == .webAcceptance ? ProductStatus.chromeJavaScriptHelp : nil,
+            storage: setupStorage, issue: issue, supportDescription: ProductStatus.supportDescription,
+            isChecking: captureControl.isBusy || requestingPermission || !initialized)
+        if setup?.presentation.snapshot != snapshot { setup?.update(snapshot: snapshot) }
+        let presentation = SetupPresentation(snapshot: snapshot)
+        let summary = presentation.issueText ?? (mode == .capture ? presentation.collectionText : presentation.attachmentText)
+        statusLine?.title = summary
+        // Compact, demand-only feedback; no notification, success Toast or focus change.
+        statusItem?.button?.toolTip = [summary, presentation.riftText, presentation.pendingText].compactMap { $0 }.joined(separator: "\n")
+    }
+
+    private func receiveCaptureDiagnostic(_ value: CaptureDiagnostic) {
+        captureDiagnostic = value
+        switch value.code {
+        case .insufficientStorage: setupStorage = .insufficientSpace
+        case .privateWriteFailed: setupStorage = .writeFailed
+        default: break
+        }
+        updateSetup()
+    }
+
+    @objc private func showSetup() { updateSetup(); setup?.show() }
+
+    @objc private func recheckSetup() {
+        guard initialized, !requestingPermission, let token = captureControl.begin(.recheck) else { return }
+        updateControlTitles()
+        Task {
+            defer { captureControl.finish(token); updateControlTitles() }
+            if mode == .capture, let capture, let binding = sourceBinding {
+                do {
+                    do { detectedSource = try await captureLocation.currentDirectory() }
+                    catch { detectedSource = nil; throw error }
+                    if let detectedSource { folderAccess.restore(for: detectedSource) }
+                    // Recheck cannot undo Pause. A failed first start may be
+                    // stopped; start is idempotent and handles that recovery.
+                    if !captureIsPaused {
+                        try await binding.start()
+                        await binding.refresh()
+                        try await capture.recheck()
+                    }
+                    captureStatus = await capture.statusSnapshot()
+                    acceptCaptureStatus(preferenceIssue: nil)
+                    if setupIssue == .sourceAccess, captureStatus?.sourceAccessible == true { setupIssue = nil }
+                } catch { receiveCaptureDiagnostic(.classify(error, context: .source)) }
+            }
+            automationPermission = await permissionGate.inspect()
+            do { try await startAttachmentObservationIfPermitted() }
+            catch { setupIssue = .targetUnavailable }
+            await refresh()
+            checkStorage()
+        }
+    }
+
+    @objc private func openScreenshotSource() {
+        guard let source = detectedSource else { return }
+        var isDirectory: ObjCBool = false
+        guard FileManager.default.fileExists(atPath: source.path, isDirectory: &isDirectory), isDirectory.boolValue else {
+            setupIssue = .sourceAccess; updateSetup(); return
+        }
+        if !NSWorkspace.shared.open(source) { setupIssue = .sourceAccess; updateSetup() }
+    }
+
+    private func chooseSourceAccess() {
+        guard mode == .capture, !captureControl.isBusy, let source = detectedSource else { return }
+        let panel = NSOpenPanel()
+        panel.title = "允许 Riftlet 读取系统截图位置"
+        panel.message = "请选择下方显示的系统截图文件夹。只授予读取权限，不更改系统保存位置，也不导入其他文件夹。"
+        panel.prompt = "允许读取"
+        panel.canChooseFiles = false; panel.canChooseDirectories = true
+        panel.canCreateDirectories = false; panel.allowsMultipleSelection = false
+        panel.directoryURL = source
+        panel.begin { [weak self] response in
+            guard response == .OK, let selected = panel.url else { return }
+            Task { @MainActor [weak self] in
+                guard let self else { return }
+                do {
+                    let actual = try await self.captureLocation.currentDirectory()
+                    try self.folderAccess.accept(selected, actualSource: actual)
+                    self.recheckSetup()
+                } catch { self.setupIssue = .sourceAccess; self.updateSetup() }
+            }
+        }
+    }
+
+    private func requestAutomationPermission() {
+        guard mode == .webAcceptance, !captureControl.isBusy, !requestingPermission else { return }
+        if automationPermission == .denied { openPrivacySettings(automation: true); return }
+        requestingPermission = true
+        updateSetup()
+        Task {
+            defer { requestingPermission = false; updateSetup() }
+            automationPermission = await permissionGate.requestFromUserAction()
+            if automationPermission == .denied { setupIssue = .permissionDenied }
+            else if automationPermission == .granted {
+                if setupIssue == .permissionDenied { setupIssue = nil }
+                do { try await startAttachmentObservationIfPermitted() }
+                catch { setupIssue = .targetUnavailable }
+            }
+        }
+    }
+
+    @objc private func openFilePrivacySettings() { openPrivacySettings(automation: false) }
+    private func openPrivacySettings(automation: Bool) {
+        let pane = automation ? "Privacy_Automation" : "Privacy_FilesAndFolders"
+        if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?\(pane)"),
+           NSWorkspace.shared.open(url) { return }
+        if let app = NSWorkspace.shared.urlForApplication(withBundleIdentifier: "com.apple.systempreferences") {
+            NSWorkspace.shared.open(app)
+        }
+    }
+
+    @objc private func launchSimulation() {
+        guard mode == .capture, Bundle.main.bundleURL.pathExtension == "app" else { return }
+        let configuration = NSWorkspace.OpenConfiguration()
+        configuration.arguments = ["--simulate"]
+        configuration.createsNewApplicationInstance = true
+        NSWorkspace.shared.openApplication(at: Bundle.main.bundleURL, configuration: configuration) { [weak self] _, error in
+            if error != nil { Task { @MainActor [weak self] in self?.showIssue("暂时无法打开离线演示；现有截图保留。") } }
+        }
     }
 
     private func finishPreparedSelection(_ id: UUID) {
@@ -371,6 +602,8 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
             var errorCode = "browserNotFrontmost"
             if self.foregroundChromeSession != nil {
                 do {
+                    self.automationPermission = await self.permissionGate.inspect()
+                    guard self.automationPermission == .granted else { throw WebAdapterError.disabled }
                     if let web = adapter as? WebAttachmentAdapter {
                         diagnostics = try await web.captureTargetWithDiagnostics(context: invocation)
                         result = diagnostics?.target
@@ -379,6 +612,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
                 }
                 catch { errorCode = (error as? WebAdapterError).map { String(describing: $0) } ?? "unclassified" }
             }
+            self.updateSetup()
             if self.activeCaptureInvocation == invocation { self.activeCaptureInvocation = nil }
             guard let completion = self.armScheduler.complete(attempt) else {
                 self.recordAcceptance(["event": "arm_completion", "captureRequestID": invocation.requestID.uuidString,
@@ -511,9 +745,18 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
                     if let retired = try await store.asset(id: id) { snapshot.append(retired) }
                 }
                 let successful = mode == .webAcceptance ? try await store.successfulOperations() : []
+                let unresolved = try await store.unresolvedOperations()
+                var preferenceIssue: CaptureDiagnostic?
+                if let capture {
+                    captureStatus = await capture.statusSnapshot()
+                    do { detectedSource = try await captureLocation.currentDirectory() }
+                    catch { detectedSource = nil; preferenceIssue = .classify(error, context: .locationPreference) }
+                }
                 if refreshRequested { continue }
                 let hasNewImages = !activeIDs.subtracting(visibleIDs).isEmpty
                 visibleIDs = activeIDs
+                pendingResultCount = Set(unresolved.filter { $0.phase != .prepared }.map(\.assetID)).count
+                acceptCaptureStatus(preferenceIssue: preferenceIssue)
                 watchedCompletions.formUnion(successful.map(\.id))
                 if hasNewImages && mode == .webAcceptance { requestArm(reason: "newImages") }
                 rift?.render(snapshot)
@@ -524,11 +767,29 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
                 case .webAcceptance: statusItem?.button?.toolTip = "Riftlet WEB ACCEPTANCE · \(active.count) visible test images · unresolved records stay in local history"
                 }
                 if history?.isVisible == true { await refreshHistory() }
+                updateSetup()
             } catch { showIssue("Queue read failed; durable data is preserved.") }
         } while refreshRequested
         refreshRunning = false
         let waiters = refreshWaiters; refreshWaiters.removeAll()
         for waiter in waiters { waiter.resume() }
+    }
+
+    private func acceptCaptureStatus(preferenceIssue: CaptureDiagnostic?) {
+        if let preferenceIssue { captureDiagnostic = preferenceIssue; return }
+        guard let captureStatus else { return }
+        if let diagnostic = captureStatus.latestDiagnostic { captureDiagnostic = diagnostic; return }
+        // A paused/not-started service has no read result; nil is not evidence
+        // that a previously denied source or failed write has recovered.
+        if let detectedSource, captureStatus.sourceAccessible,
+           SourceAccessSelection.matches(selected: captureStatus.sourceDirectory, actualSource: detectedSource) {
+            let recovered = captureDiagnostic != nil
+            captureDiagnostic = nil
+            if recovered && (setupStorage == .insufficientSpace || setupStorage == .writeFailed) { setupStorage = .notMeasured }
+        } else if captureDiagnostic?.code == .sourcePreferenceUnreadable {
+            // Only the preference read (not directory access) succeeded above.
+            captureDiagnostic = nil
+        }
     }
 
     private func refreshHistory() async {
@@ -593,12 +854,13 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
     }
 
     private func updateControlTitles() {
-        hideItem?.title = userHidden ? "Show rift" : "Hide rift"
-        pauseItem?.title = captureIsPaused ? "Resume collection" : "Pause collection"
-        pauseItem?.isEnabled = mode == .capture && !changingCapture
+        hideItem?.title = userHidden ? "显示裂缝" : "隐藏裂缝"
+        pauseItem?.title = captureIsPaused ? "继续收录截图" : "暂停收录（保留已有图片）"
+        pauseItem?.isEnabled = mode == .capture && initialized && !captureControl.isBusy
         if let interval = lifecycleSettings.archiveAfterSeconds {
-            archiveItem?.title = String(format: "Idle archive: %.2g hours…", interval / 3600)
-        } else { archiveItem?.title = "Idle archive: off…" }
+            archiveItem?.title = String(format: "闲置归档：%.2g 小时…", interval / 3600)
+        } else { archiveItem?.title = "闲置归档：已关闭…" }
+        updateSetup()
     }
 
     @objc private func toggleHidden() {
@@ -611,36 +873,52 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
             defer { changingHidden = false; updateControlTitles() }
             do {
                 try await store.setUserHidden(requested)
+                visibilitySettingFailed = false
                 userHidden = requested; rift?.setUserHidden(requested)
                 await refresh()
-            } catch { showIssue("The visibility preference could not be saved; the rift stays hidden.") }
+            } catch { visibilitySettingFailed = true; updateSetup() }
         }
     }
 
     @objc private func toggleCollection() {
-        guard mode == .capture, let store, let binding = sourceBinding, !changingCapture else { return }
-        changingCapture = true; updateControlTitles()
+        guard mode == .capture, initialized, let store, let binding = sourceBinding,
+              let token = captureControl.begin(.changeCollection) else { return }
+        updateControlTitles()
         let requested = !captureIsPaused
         Task {
-            defer { changingCapture = false; updateControlTitles() }
+            defer { captureControl.finish(token); updateControlTitles() }
+            if requested { await binding.stop(); captureIsPaused = true }
             do {
-                if requested { await binding.stop(); captureIsPaused = true }
                 try await store.setCapturePaused(requested)
-                if !requested { try await binding.start(); captureIsPaused = false }
-                statusLine?.title = captureIsPaused ? "Capture paused · stored screenshots kept"
-                    : "Capture active · ChatGPT adapter pending validation"
-            } catch { showIssue("Collection preference could not be applied; existing screenshots are preserved.") }
+                collectionSettingFailed = false
+            } catch {
+                if let capture { captureStatus = await capture.statusSnapshot() }
+                collectionSettingFailed = true
+                updateSetup()
+                return
+            }
+            do {
+                // Persisted intent and actual running state are separate. A
+                // failed resume must not be displayed as an explicit Pause.
+                captureIsPaused = requested
+                if !requested { try await binding.start() }
+                if let capture { captureStatus = await capture.statusSnapshot() }
+                await refresh()
+            } catch {
+                if let capture { captureStatus = await capture.statusSnapshot() }
+                receiveCaptureDiagnostic(.classify(error, context: .source))
+            }
         }
     }
 
     @objc private func configureArchive() {
         guard let root else { return }
         let alert = NSAlert()
-        alert.messageText = "Archive idle screenshots"
-        alert.informativeText = "Hours since last use. Enter 0 to turn off. Archiving keeps the files in local history."
+        alert.messageText = "闲置截图归档"
+        alert.informativeText = "距上次使用的小时数。输入 0 关闭；归档保留本机图片，不修改 ChatGPT 附件。时长可随时调整。"
         let field = NSTextField(string: lifecycleSettings.archiveAfterSeconds.map { String($0 / 3600) } ?? "0")
         field.frame = NSRect(x: 0, y: 0, width: 220, height: 24)
-        alert.accessoryView = field; alert.addButton(withTitle: "Save"); alert.addButton(withTitle: "Cancel")
+        alert.accessoryView = field; alert.addButton(withTitle: "保存"); alert.addButton(withTitle: "取消")
         guard alert.runModal() == .alertFirstButtonReturn,
               let hours = Double(field.stringValue), hours.isFinite, hours >= 0 else { return }
         var settings = lifecycleSettings
@@ -694,9 +972,11 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
         let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         item.button?.title = simulation ? "Riftlet SIM" : (mode == .webAcceptance ? "Riftlet WEB TEST" : "Riftlet")
         let menu = NSMenu()
-        let heading = NSMenuItem(title: simulation ? "SIMULATION — no real uploads"
-            : (mode == .webAcceptance ? "WEB ACCEPTANCE — generated images, real uploads" : "Engineering foundation — capture only"), action: nil, keyEquivalent: "")
+        let heading = NSMenuItem(title: simulation ? "离线模拟 · 没有真实上传"
+            : (mode == .webAcceptance ? "Web 验收 · 仅生成图片" : "正在准备本地截图收录…"), action: nil, keyEquivalent: "")
         menu.addItem(heading); statusLine = heading
+        add(menu, "开始使用与运行状态…", #selector(showSetup))
+        if mode == .capture { add(menu, "文件访问设置…", #selector(openFilePrivacySettings)) }
         if mode == .webAcceptance {
             menu.addItem(NSMenuItem(title: "Chrome · ChatGPT Chat · Chinese UI · PNG test images", action: nil, keyEquivalent: ""))
             menu.addItem(NSMenuItem(title: "No message sending · UNKNOWN never retransmits", action: nil, keyEquivalent: ""))
@@ -710,25 +990,38 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
             let pause = NSMenuItem(title: "Pause collection", action: #selector(toggleCollection), keyEquivalent: "")
             pause.target = self; menu.addItem(pause); pauseItem = pause
         }
-        add(menu, "Local screenshot history…", #selector(showHistory))
-        add(menu, "Clear visible queue", #selector(clearVisible))
+        add(menu, "内部截图历史…", #selector(showHistory))
+        add(menu, "清空可见队列（保留文件）", #selector(clearVisible))
         let archive = NSMenuItem(title: "Idle archive…", action: #selector(configureArchive), keyEquivalent: "")
         archive.target = self; menu.addItem(archive); archiveItem = archive
         menu.addItem(.separator())
-        add(menu, "Show latest screenshot", #selector(showLatest))
-        add(menu, "Show oldest screenshot", #selector(showOldest))
-        add(menu, "Reload source and geometry", #selector(reload))
-        add(menu, "Open adjustable geometry file", #selector(openGeometry))
-        add(menu, "Check local storage", #selector(checkStorage))
-        let storage = NSMenuItem(title: "Retained files: not measured", action: nil, keyEquivalent: "")
+        add(menu, "显示最新截图", #selector(showLatest))
+        add(menu, "显示最早截图", #selector(showOldest))
+        add(menu, "重新检查截图来源与权限", #selector(recheckSetup))
+        add(menu, "检查本机存储用量", #selector(checkStorage))
+        let storage = NSMenuItem(title: "私有存储：尚未检查", action: nil, keyEquivalent: "")
         menu.addItem(storage); storageLine = storage
+        if mode == .capture { add(menu, "打开离线合成演示…", #selector(launchSimulation)) }
+        let advanced = NSMenu()
+        add(advanced, "重新载入几何参数", #selector(reload))
+        add(advanced, "打开工程几何参数文件", #selector(openGeometry))
+        let advancedItem = NSMenuItem(title: "工程调校", action: nil, keyEquivalent: "")
+        advancedItem.submenu = advanced; menu.addItem(advancedItem)
         menu.addItem(.separator())
-        add(menu, "Quit Riftlet", #selector(quit), key: "q")
+        add(menu, "退出 Riftlet", #selector(quit), key: "q")
         item.menu = menu; statusItem = item
     }
 
     private func add(_ menu: NSMenu, _ title: String, _ action: Selector, key: String = "") {
         let item = NSMenuItem(title: title, action: action, keyEquivalent: key); item.target = self; menu.addItem(item)
+    }
+    func validateMenuItem(_ item: NSMenuItem) -> Bool {
+        if item.action == #selector(toggleCollection) { return mode == .capture && initialized && !captureControl.isBusy }
+        if item.action == #selector(recheckSetup) || item.action == #selector(reload) {
+            return initialized && !captureControl.isBusy && !requestingPermission
+        }
+        if item.action == #selector(toggleHidden) { return store != nil && !changingHidden }
+        return true
     }
     private func showIssue(_ message: String) { statusLine?.title = message; statusItem?.button?.toolTip = message }
     @objc private func showLatest() { rift?.showLatest() }
@@ -746,10 +1039,11 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
     }
     @objc private func checkStorage() {
         guard let root, storageMeasurement == nil else { return }
-        storageLine?.title = "Measuring retained files…"
+        storageLine?.title = "正在检查私有存储…"
+        setupStorage = .measuring; updateSetup()
         // Metadata work stays off MainActor and runs only after this explicit menu action.
         storageMeasurement = Task { [weak self] in
-            defer { self?.storageMeasurement = nil }
+            defer { self?.storageMeasurement = nil; self?.updateSetup() }
             do {
                 let usage = try await Task.detached(priority: .utility) {
                     try PrivateStorageUsage.measure(privateRoot: root)
@@ -757,31 +1051,26 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
                 let size: String
                 if let bytes = usage.logicalBytes, bytes <= UInt64(Int64.max) {
                     size = ByteCountFormatter.string(fromByteCount: Int64(bytes), countStyle: .file)
-                } else { size = "size unavailable" }
-                let scope = usage.isComplete ? "" : " · partial count"
-                self?.storageLine?.title = "Retained files: \(size) · \(usage.regularFileCount) files\(scope)"
-                self?.storageLine?.toolTip = "Logical size includes used images, import journals and the database; files are preserved."
+                } else { size = "用量不明" }
+                let scope = usage.isComplete ? "" : " · 部分统计"
+                self?.storageLine?.title = "私有存储：\(size) · \(usage.regularFileCount) 个文件\(scope)"
+                self?.storageLine?.toolTip = "文件逻辑大小包括已用图片、恢复记录与数据库；没有删除文件。"
+                if let bytes = usage.logicalBytes { self?.setupStorage = .measured(bytes: bytes, complete: usage.isComplete) }
+                else { self?.setupStorage = .unavailable }
             } catch {
-                self?.storageLine?.title = "Storage unavailable; files preserved"
+                self?.storageLine?.title = "私有存储暂不可读；已有文件保留"
+                self?.setupStorage = .unavailable
             }
         }
     }
     @objc private func reload() {
-        Task {
-            await reloadSource()
-            guard let root else { return }
-            do {
-                let config = try JSONDecoder().decode(RiftConfiguration.self, from: Data(contentsOf: root.appendingPathComponent("rift-configuration.json")))
-                try rift?.updateConfiguration(config)
-            } catch { showIssue("Geometry file is invalid; previous geometry retained.") }
-        }
-    }
-    private func reloadSource() async {
-        guard mode == .capture, !captureIsPaused, let capture, let sourceBinding else { return }
+        // Source changes use the one gated first-use recheck entry. Geometry
+        // reload must not start an untracked task that can outlive Pause.
+        guard let root else { return }
         do {
-            await sourceBinding.refresh()
-            try await capture.rescan()
-        } catch { showIssue("Screenshot folder needs access; existing copies retained.") }
+            let config = try JSONDecoder().decode(RiftConfiguration.self, from: Data(contentsOf: root.appendingPathComponent("rift-configuration.json")))
+            try rift?.updateConfiguration(config)
+        } catch { setupIssue = .configurationUnavailable; updateSetup() }
     }
 }
 

@@ -46,6 +46,7 @@ public actor PrivateAssetImporter {
     private var importing = Set<String>()
     private var journaledSources = Set<String>()
     private let fault: ImportFaultHook?
+    private let capacityCheck: ImportCapacityCheck
 
     public init(privateRoot: URL, store: QueueStore) {
         self.privateRoot = privateRoot.standardizedFileURL
@@ -54,6 +55,7 @@ public actor PrivateAssetImporter {
         stagingDirectory = privateRoot.appendingPathComponent("staging", isDirectory: true)
         journalDirectory = privateRoot.appendingPathComponent("journal", isDirectory: true)
         fault = nil
+        capacityCheck = { try PrivateStorageCapacity.check(directory: $0, copyBytes: $1) }
     }
 
     init(privateRoot: URL, store: QueueStore, fault: @escaping ImportFaultHook) {
@@ -63,6 +65,18 @@ public actor PrivateAssetImporter {
         stagingDirectory = privateRoot.appendingPathComponent("staging", isDirectory: true)
         journalDirectory = privateRoot.appendingPathComponent("journal", isDirectory: true)
         self.fault = fault
+        capacityCheck = { try PrivateStorageCapacity.check(directory: $0, copyBytes: $1) }
+    }
+
+    /// Internal capacity seam: tests can model quota exhaustion without filling a disk.
+    init(privateRoot: URL, store: QueueStore, capacityCheck: @escaping ImportCapacityCheck) {
+        self.privateRoot = privateRoot.standardizedFileURL
+        self.store = store
+        mediaDirectory = privateRoot.appendingPathComponent("media", isDirectory: true)
+        stagingDirectory = privateRoot.appendingPathComponent("staging", isDirectory: true)
+        journalDirectory = privateRoot.appendingPathComponent("journal", isDirectory: true)
+        fault = nil
+        self.capacityCheck = capacityCheck
     }
 
     /// Convenience entry point for an explicit candidate. The directory collector instead
@@ -103,10 +117,11 @@ public actor PrivateAssetImporter {
         guard descriptor >= 0 else { throw CaptureError.io("open-source", errno) }
         defer { Darwin.close(descriptor) }
         guard try FileSignature.read(descriptor: descriptor) == signature else { throw CaptureError.unstableFile }
-        guard signature.size > 0, signature.size <= ValidatedImage.maximumBytes else { throw CaptureError.imageTooLarge }
         if origin == .systemScreenshot, try !CaptureSource.isScreenshot(descriptor: descriptor) {
             throw CaptureError.notScreenshot
         }
+        guard signature.size > 0, signature.size <= ValidatedImage.maximumBytes else { throw CaptureError.imageTooLarge }
+        try capacityCheck(stagingDirectory, signature.size)
 
         let id = UUID()
         let stageURL = stagingDirectory.appendingPathComponent(id.uuidString.lowercased() + ".part")
@@ -192,7 +207,7 @@ public actor PrivateAssetImporter {
                 let existing = try await store.asset(id: asset.id)
                 if let existing, candidate == mediaURL {
                     guard existing.image == asset else { throw CaptureError.invalidManifest }
-                    let current = try FileSignature.read(at: candidate)
+                    let current = try PrivateFiles.privateSignature(at: candidate)
                     guard current.size == asset.byteCount else { throw CaptureError.invalidManifest }
                     // Active copies get byte-integrity validation after restart; already-used
                     // history needs no decode work and is never automatically deleted.
@@ -202,7 +217,7 @@ public actor PrivateAssetImporter {
                     if existing.status == .missing { try await store.restoreMissingAsset(asset.id) }
                     continue
                 }
-                let signature = try FileSignature.read(at: candidate)
+                let signature = try PrivateFiles.privateSignature(at: candidate)
                 guard signature.size == asset.byteCount,
                       try PrivateFiles.hashFile(candidate) == asset.sha256 else { throw CaptureError.invalidManifest }
                 let image = try ValidatedImage.inspect(candidate, byteCount: signature.size)
@@ -261,6 +276,16 @@ public actor PrivateAssetImporter {
 }
 
 enum PrivateFiles {
+    static func privateSignature(at url: URL) throws -> FileSignature {
+        do { return try FileSignature.read(at: url) }
+        catch CaptureError.io(_, let code) { throw CaptureError.io("inspect-private-copy", code) }
+    }
+
+    static func privateSignature(descriptor: Int32) throws -> FileSignature {
+        do { return try FileSignature.read(descriptor: descriptor) }
+        catch CaptureError.io(_, let code) { throw CaptureError.io("stat-private-copy", code) }
+    }
+
     static func ensurePrivateDirectory(_ url: URL) throws {
         try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true,
                                                 attributes: [.posixPermissions: 0o700])
@@ -305,7 +330,7 @@ enum PrivateFiles {
         let descriptor = Darwin.open(url.path, O_RDONLY | O_NONBLOCK | O_NOFOLLOW | O_CLOEXEC)
         guard descriptor >= 0 else { throw CaptureError.io("open-private-copy", errno) }
         defer { Darwin.close(descriptor) }
-        let initial = try FileSignature.read(descriptor: descriptor)
+        let initial = try privateSignature(descriptor: descriptor)
         guard initial.size <= ValidatedImage.maximumBytes else {
             throw CaptureError.imageTooLarge
         }
@@ -323,7 +348,7 @@ enum PrivateFiles {
             guard total <= ValidatedImage.maximumBytes else { throw CaptureError.imageTooLarge }
             hash.update(data: Data(buffer.prefix(count)))
         }
-        guard try FileSignature.read(descriptor: descriptor) == initial else { throw CaptureError.unstableFile }
+        guard try privateSignature(descriptor: descriptor) == initial else { throw CaptureError.unstableFile }
         return hash.finalize().map { String(format: "%02x", $0) }.joined()
     }
 

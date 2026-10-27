@@ -4,12 +4,19 @@
 <key>CFBundleExecutable</key><string>Riftlet</string>
 <key>CFBundleIdentifier</key><string>com.riftlet.app</string>
 <key>CFBundleName</key><string>Riftlet</string>
-<key>CFBundleDisplayName</key><string>Riftlet Engineering</string>
+<key>CFBundleDisplayName</key><string>Riftlet</string>
 <key>CFBundlePackageType</key><string>APPL</string>
 <key>CFBundleShortVersionString</key><string>0.1.0</string>
 <key>CFBundleVersion</key><string>1</string>
 <key>LSMinimumSystemVersion</key><string>13.0</string>
 <key>LSUIElement</key><true/>
 <key>NSHighResolutionCapable</key><true/>
-<key>NSAppleEventsUsageDescription</key><string>The explicit Web acceptance mode can attach generated test images to your current ChatGPT draft in Google Chrome. It never sends a message.</string>
+<key>LSApplicationCategoryType</key><string>public.app-category.utilities</string>
+<key>RiftletBuildChannel</key><string>development</string>
+<key>RiftletDeveloperIDSigned</key><false/>
+<key>RiftletNotarized</key><false/>
+<key>NSAppleEventsUsageDescription</key><string>Riftlet 仅在你主动授权时检查 Google Chrome 的附件连接。此开发版的真实截图上传尚未启用；独立测试仅使用生成图片，绝不自动发送聊天消息。</string>
+<key>NSDesktopFolderUsageDescription</key><string>Riftlet 读取系统保存到桌面的新截图，并在本机保留私有副本；不会删除系统原截图。</string>
+<key>NSDocumentsFolderUsageDescription</key><string>当系统截图保存在文稿中时，Riftlet 读取新截图并在本机保留私有副本；不会删除系统原截图。</string>
+<key>NSDownloadsFolderUsageDescription</key><string>当系统截图保存在下载中时，Riftlet 读取新截图并在本机保留私有副本；不会删除系统原截图。</string>
 </dict></plist>

@@ -56,6 +56,14 @@ public actor CaptureService {
     private var sourceDirectory: URL
     private let onChange: @Sendable () async -> Void
     private let onIssue: @Sendable (String) async -> Void
+    private let onDiagnostic: @Sendable (CaptureDiagnostic) async -> Void
+    private var sourceAccessible = false
+    private var latestDiagnostic: CaptureDiagnostic?
+    // A failed preference switch leaves the last working source active. A scan
+    // of that old source must not erase the unresolved requested-location error.
+    private var locationDiagnostic: CaptureDiagnostic?
+    private var diagnosticSourceKey: String?
+    private var diagnosticRevision = UUID()
     private let now: @Sendable () -> Date
     private var watcher: FolderWatcher?
     private var parentWatcher: FolderWatcher?
@@ -84,11 +92,12 @@ public actor CaptureService {
     public init(store: QueueStore, privateRoot: URL, sourceDirectory: URL,
                 onChange: @escaping @Sendable () async -> Void = {},
                 onIssue: @escaping @Sendable (String) async -> Void = { _ in },
+                onDiagnostic: @escaping @Sendable (CaptureDiagnostic) async -> Void = { _ in },
                 now: @escaping @Sendable () -> Date = { Date() }) {
         self.store = store
         importer = PrivateAssetImporter(privateRoot: privateRoot, store: store)
         self.sourceDirectory = sourceDirectory.standardizedFileURL
-        self.onChange = onChange; self.onIssue = onIssue
+        self.onChange = onChange; self.onIssue = onIssue; self.onDiagnostic = onDiagnostic
         self.now = now
     }
 
@@ -136,8 +145,12 @@ public actor CaptureService {
                     departingSources.removeAll()
                 }
             }
-            if !report.missing.isEmpty { await reportIssue("Some private copies are missing; their queue records are preserved.") }
-            if !report.invalid.isEmpty { await reportIssue("Some import journals need recovery; valid captures remain available.") }
+            if !report.missing.isEmpty { await reportDiagnostic(.init(code: .missingPrivateCopy)) }
+            guard running, generation == token else { return }
+            if !report.invalid.isEmpty { await reportDiagnostic(.init(code: .recoveryRequired)) }
+            guard running, generation == token else { return }
+            if report.missing.isEmpty && report.invalid.isEmpty, let code = latestDiagnostic?.code,
+               [.missingPrivateCopy, .recoveryRequired].contains(code) { clearDiagnostic() }
             let key = checkpointKey
             if let data = try await store.checkpoint(for: key) {
                 guard running, generation == token else { return }
@@ -154,15 +167,20 @@ public actor CaptureService {
             initializing = false
             try await rescan()
         } catch {
-            if generation == token { stop() }
+            if generation == token {
+                await reportDiagnostic(.classify(error, context: .source))
+                if generation == token { stop() }
+            }
             throw error
         }
     }
 
     public func stop() {
         running = false
+        sourceAccessible = false
         initializing = false
         generation = UUID()
+        diagnosticRevision = UUID()
         rebindRequest = UUID()
         scanningGeneration = nil
         departuresInProgress.removeAll()
@@ -174,6 +192,39 @@ public actor CaptureService {
     }
 
     public func currentSourceDirectory() -> URL { sourceDirectory }
+
+    public func statusSnapshot() -> CaptureStatusSnapshot {
+        CaptureStatusSnapshot(sourceDirectory: sourceDirectory, isRunning: running,
+                              sourceAccessible: sourceAccessible, latestDiagnostic: locationDiagnostic ?? latestDiagnostic)
+    }
+
+    /// An explicit setup/menu recheck reopens the watch, so a revoked/regranted directory
+    /// is recoverable even without a new file event. No permission is requested here.
+    public func recheck() async throws {
+        if !running { try await start(); return }
+        let token = generation
+        retryIndex = 0
+        reportedIssues.removeAll()
+        do {
+            try await attachWatcher()
+            guard running, generation == token else { return }
+            try await rescan()
+        } catch {
+            if running, generation == token { await reportDiagnostic(.classify(error, context: .source)) }
+            throw error
+        }
+    }
+
+    func reportLocationFailure(_ diagnostic: CaptureDiagnostic) async {
+        locationDiagnostic = diagnostic
+        await reportDiagnostic(diagnostic)
+    }
+
+    func locationResolved() {
+        let resolved = locationDiagnostic
+        locationDiagnostic = nil
+        if latestDiagnostic == resolved || latestDiagnostic?.code == .sourcePreferenceUnreadable { clearDiagnostic() }
+    }
 
     /// Internal controlled scheduling seam; production has no hook or configuration entry.
     func setLifecycleProbe(_ probe: @escaping @Sendable (CaptureLifecycleCheckpoint) async -> Void) {
@@ -191,6 +242,7 @@ public actor CaptureService {
         }
         guard running else {
             sourceDirectory = destination
+            sourceAccessible = false
             baseline = nil; observations.removeAll()
             try await start()
             return
@@ -234,6 +286,7 @@ public actor CaptureService {
             parentWatcher?.cancel(); parentWatcher = nil
             retryTask?.cancel(); retryTask = nil
             sourceDirectory = destination
+            sourceAccessible = false
             baseline = nextBaseline
             observations.removeAll(); retryIndex = 0; reportedIssues.removeAll()
             initializing = false
@@ -292,7 +345,15 @@ public actor CaptureService {
     private func scanOnce() async throws {
         let token = generation
         let key = checkpointKey
-        let candidates = try candidateFiles(in: sourceDirectory)
+        let candidates: [(URL, FileSignature)]
+        do { candidates = try candidateFiles(in: sourceDirectory) }
+        catch {
+            sourceAccessible = false
+            await reportDiagnostic(.init(code: .sourceUnavailable))
+            throw error
+        }
+        sourceAccessible = true
+        if latestDiagnostic?.code == .sourceUnavailable { clearDiagnostic() }
         if baseline == nil {
             // First installation excludes existing history. A screenshot actually created
             // after watch startup is still new even if it arrives during the initial scan.
@@ -335,17 +396,24 @@ public actor CaptureService {
                 observations.removeValue(forKey: signature.sourceKey)
                 imported = true
                 importedCount += 1
+                if diagnosticSourceKey == signature.sourceKey { clearDiagnostic() }
             } catch CaptureError.notScreenshot {
                 // Present false metadata is not collected and does not keep a timer alive.
             } catch CaptureError.metadataPending { needsRetry = true }
               catch CaptureError.unstableFile { needsRetry = true }
               catch CaptureError.incompleteImage { needsRetry = true }
               catch CaptureError.importInProgress { needsRetry = true }
-              catch CaptureError.unsupportedImage { await reportIssue("A screenshot encoding is not supported; the source remains untouched.") }
-              catch CaptureError.imageTooLarge { await reportIssue("A screenshot exceeds the local decode limit; the source remains untouched.") }
+              catch CaptureError.unsupportedImage {
+                guard running, generation == token else { return }
+                await reportDiagnostic(.init(code: .unsupportedFormat), sourceKey: signature.sourceKey)
+            } catch CaptureError.imageTooLarge {
+                guard running, generation == token else { return }
+                await reportDiagnostic(.init(code: .imageTooLarge), sourceKey: signature.sourceKey)
+            }
               catch {
+                guard running, generation == token else { return }
                 needsRetry = true
-                await reportIssue("A screenshot could not be stored. Check source access and available disk space; the original is preserved.")
+                await reportDiagnostic(.classify(error, context: .privateStorage), sourceKey: signature.sourceKey)
             }
         }
         if imported { await onChange() }
@@ -358,7 +426,7 @@ public actor CaptureService {
         var candidates: [(URL, FileSignature)] = []
         for url in urls {
             // The encoding is validated from bytes later. This only bounds metadata work.
-            guard ["png", "jpg", "jpeg", "heic", "heif", "tif", "tiff"].contains(url.pathExtension.lowercased()) else { continue }
+            guard ["png", "jpg", "jpeg", "heic", "heif", "tif", "tiff", "pdf", "gif", "bmp"].contains(url.pathExtension.lowercased()) else { continue }
             do {
                 let signature = try FileSignature.read(at: url)
                 candidates.append((url, signature))
@@ -495,7 +563,9 @@ public actor CaptureService {
         reportedIssues.removeAll()
         if lost {
             watcher?.cancel(); watcher = nil
-            await reportIssue("The screenshot folder became unavailable. Captured private copies remain available.")
+            sourceAccessible = false
+            await reportDiagnostic(.init(code: .sourceUnavailable))
+            guard running, generation == token else { return }
             let parent = FolderWatcher(url: sourceDirectory.deletingLastPathComponent(),
                 onDirty: { [weak self] in
                     guard let service = self else { return }
@@ -503,18 +573,24 @@ public actor CaptureService {
                 },
                 onLost: { [weak self] in
                     guard let service = self else { return }
-                    Task(priority: .utility) { await service.reportIssue("The screenshot folder needs access again.") }
+                    Task(priority: .utility) { await service.reportLostParent(generation: token) }
                 })
             do {
                 try await parent.start()
                 guard running, generation == token else { parent.cancel(); return }
                 parentWatcher?.cancel(); parentWatcher = parent
             }
-            catch { await reportIssue("The screenshot folder needs access again.") }
+            catch {
+                guard running, generation == token else { return }
+                await reportDiagnostic(.init(code: .sourceUnavailable))
+            }
             return
         }
         do { try await rescan() }
-        catch { await reportIssue("The screenshot directory could not be scanned; existing captures are preserved.") }
+        catch {
+            guard running, generation == token else { return }
+            await reportDiagnostic(.classify(error, context: .source))
+        }
     }
 
     private func wake(generation token: UUID) async {
@@ -523,12 +599,23 @@ public actor CaptureService {
         do {
             // Reopen on wake, including when a prior directory descriptor became stale.
             try await attachWatcher()
+            guard running, generation == token else { return }
             try await rescan()
-        } catch { await reportIssue("The screenshot folder is not currently accessible; retry after restoring access.") }
+        } catch {
+            guard running, generation == token else { return }
+            sourceAccessible = false
+            await reportDiagnostic(.classify(error, context: .source))
+        }
     }
 
     private func refreshAfterWake() async {
         await wake(generation: generation)
+    }
+
+    private func reportLostParent(generation token: UUID) async {
+        guard running, generation == token, watcher == nil else { return }
+        sourceAccessible = false
+        await reportDiagnostic(.init(code: .sourceUnavailable))
     }
 
     private func scheduleRetry() {
@@ -546,11 +633,26 @@ public actor CaptureService {
         guard running, token == generation else { return }
         retryTask = nil
         do { try await rescan() }
-        catch { await reportIssue("A pending screenshot could not be rescanned; its source is preserved.") }
+        catch {
+            guard running, generation == token else { return }
+            await reportDiagnostic(.classify(error, context: .source))
+        }
     }
 
-    private func reportIssue(_ message: String) async {
-        guard reportedIssues.insert(message).inserted else { return }
-        await onIssue(message)
+    private func clearDiagnostic() {
+        latestDiagnostic = nil
+        diagnosticSourceKey = nil
+        diagnosticRevision = UUID()
+    }
+
+    private func reportDiagnostic(_ diagnostic: CaptureDiagnostic, sourceKey: String? = nil) async {
+        latestDiagnostic = diagnostic
+        diagnosticSourceKey = sourceKey
+        diagnosticRevision = UUID()
+        let revision = diagnosticRevision
+        guard reportedIssues.insert(diagnostic.code.rawValue).inserted else { return }
+        await onIssue(diagnostic.userMessage)
+        guard diagnosticRevision == revision else { return }
+        await onDiagnostic(diagnostic)
     }
 }

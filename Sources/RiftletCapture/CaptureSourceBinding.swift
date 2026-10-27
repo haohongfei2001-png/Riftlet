@@ -37,9 +37,14 @@ public actor SystemCaptureLocationProvider: CaptureLocationProviding {
     public func currentDirectory() throws -> URL {
         // Reading the observed file avoids a long-lived UserDefaults process cache. A
         // malformed/partial plist must not silently switch collection back to Desktop.
-        guard FileManager.default.fileExists(atPath: preferencesFile.path) else { return fallbackDirectory }
         let descriptor = Darwin.open(preferencesFile.path, O_RDONLY | O_NONBLOCK | O_NOFOLLOW | O_CLOEXEC)
-        guard descriptor >= 0 else { throw CaptureError.io("read-location-preference", errno) }
+        guard descriptor >= 0 else {
+            let code = errno
+            // fileExists also returns false on denied parent traversal. Only an
+            // actual absent preference permits the system's default location.
+            if code == ENOENT { return fallbackDirectory }
+            throw CaptureError.io("read-location-preference", code)
+        }
         let handle = FileHandle(fileDescriptor: descriptor, closeOnDealloc: true)
         defer { try? handle.close() }
         let signature = try FileSignature.read(descriptor: descriptor)
@@ -168,9 +173,14 @@ public actor SystemCaptureLocationProvider: CaptureLocationProviding {
 /// Serializes/coalesces location changes against one capture service. A failed switch leaves
 /// the last working directory active; late observer callbacks cannot restart a stopped binding.
 public actor CaptureSourceBinding {
+    private struct BindingFailure: Error {
+        let error: Error
+        let context: CaptureDiagnosticContext
+    }
     private let service: CaptureService
     private let provider: any CaptureLocationProviding
     private let onIssue: @Sendable (String) async -> Void
+    private let onDiagnostic: @Sendable (CaptureDiagnostic) async -> Void
     private var generation = UUID()
     private var running = false
     private var starting = false
@@ -179,8 +189,9 @@ public actor CaptureSourceBinding {
 
     public init(service: CaptureService,
                 provider: any CaptureLocationProviding = SystemCaptureLocationProvider(),
-                onIssue: @escaping @Sendable (String) async -> Void = { _ in }) {
-        self.service = service; self.provider = provider; self.onIssue = onIssue
+                onIssue: @escaping @Sendable (String) async -> Void = { _ in },
+                onDiagnostic: @escaping @Sendable (CaptureDiagnostic) async -> Void = { _ in }) {
+        self.service = service; self.provider = provider; self.onIssue = onIssue; self.onDiagnostic = onDiagnostic
     }
 
     public func start() async throws {
@@ -195,8 +206,16 @@ public actor CaptureSourceBinding {
             starting = false
             try await reconcile(token: token)
         } catch {
-            if generation == token { await stop() }
-            throw error
+            let failure = error as? BindingFailure
+            let original = failure?.error ?? error
+            if generation == token {
+                let diagnostic = CaptureDiagnostic.classify(original, context: failure?.context ?? .locationPreference)
+                await service.reportLocationFailure(diagnostic)
+                guard running, generation == token else { throw original }
+                await onDiagnostic(diagnostic)
+                if running, generation == token { await stop() }
+            }
+            throw original
         }
     }
 
@@ -218,7 +237,13 @@ public actor CaptureSourceBinding {
         do { try await reconcile(token: token) }
         catch {
             guard running, generation == token else { return }
-            await onIssue("The screenshot destination is unavailable or its preference is unreadable. The last working source and private captures are preserved.")
+            let failure = error as? BindingFailure
+            let diagnostic = CaptureDiagnostic.classify(failure?.error ?? error, context: failure?.context ?? .locationPreference)
+            await service.reportLocationFailure(diagnostic)
+            guard running, generation == token else { return }
+            await onIssue(diagnostic.userMessage)
+            guard running, generation == token else { return }
+            await onDiagnostic(diagnostic)
         }
     }
 
@@ -228,10 +253,14 @@ public actor CaptureSourceBinding {
         defer { if processingGeneration == token { processingGeneration = nil } }
         repeat {
             dirty = false
-            let next = try await provider.currentDirectory()
+            let next: URL
+            do { next = try await provider.currentDirectory() }
+            catch { throw BindingFailure(error: error, context: .locationPreference) }
             guard running, generation == token else { return }
-            try await service.setSourceDirectory(next)
+            do { try await service.setSourceDirectory(next) }
+            catch { throw BindingFailure(error: error, context: .source) }
             guard running, generation == token else { return }
+            await service.locationResolved()
         } while dirty
     }
 }

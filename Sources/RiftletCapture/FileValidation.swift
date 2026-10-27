@@ -22,6 +22,7 @@ public enum CaptureError: Error, Equatable, Sendable {
     case privatePathUnsafe
     case importInProgress
     case invalidLocationPreference
+    case insufficientStorage
 }
 
 struct FileSignature: Codable, Equatable, Sendable {
@@ -104,16 +105,23 @@ struct ValidatedImage: Sendable {
     static func inspect(_ url: URL, byteCount: Int64) throws -> ValidatedImage {
         guard byteCount > 0, byteCount <= maximumBytes else { throw CaptureError.imageTooLarge }
         let options = [kCGImageSourceShouldCache: false] as CFDictionary
-        guard let source = CGImageSourceCreateWithURL(url as CFURL, options),
-              CGImageSourceGetCount(source) == 1,
-              CGImageSourceGetStatus(source) == .statusComplete,
-              CGImageSourceGetStatusAtIndex(source, 0) == .statusComplete else {
+        guard let source = CGImageSourceCreateWithURL(url as CFURL, options) else {
+            // PDF is a real system screenshot option, but is not a raster image input.
+            // Recognize its file signature rather than trust a misleading extension.
+            if try hasPDFSignature(url) { throw CaptureError.unsupportedImage }
             throw CaptureError.incompleteImage
         }
         guard let typeID = CGImageSourceGetType(source),
               let type = UTType(typeID as String), type.conforms(to: .image),
               let mime = type.preferredMIMEType, let ext = type.preferredFilenameExtension,
-              ["png", "jpeg", "jpg", "heic", "heif", "tiff", "tif"].contains(ext.lowercased()),
+              ["png", "jpeg", "jpg", "heic", "heif", "tiff", "tif"].contains(ext.lowercased()) else {
+            throw CaptureError.unsupportedImage
+        }
+        guard CGImageSourceGetCount(source) <= 1 else { throw CaptureError.unsupportedImage }
+        guard CGImageSourceGetCount(source) == 1,
+              CGImageSourceGetStatus(source) == .statusComplete,
+              CGImageSourceGetStatusAtIndex(source, 0) == .statusComplete else { throw CaptureError.incompleteImage }
+        guard
               let properties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any],
               let width = (properties[kCGImagePropertyPixelWidth] as? NSNumber)?.intValue,
               let height = (properties[kCGImagePropertyPixelHeight] as? NSNumber)?.intValue else {
@@ -131,5 +139,16 @@ struct ValidatedImage: Sendable {
         guard let decoded = CGImageSourceCreateThumbnailAtIndex(source, 0, thumbnailOptions as CFDictionary),
               decoded.width > 0, decoded.height > 0 else { throw CaptureError.incompleteImage }
         return ValidatedImage(width: width, height: height, mimeType: mime, fileExtension: ext.lowercased())
+    }
+
+    private static func hasPDFSignature(_ url: URL) throws -> Bool {
+        let descriptor = Darwin.open(url.path, O_RDONLY | O_NONBLOCK | O_NOFOLLOW | O_CLOEXEC)
+        guard descriptor >= 0 else { throw CaptureError.io("open-private-copy", errno) }
+        defer { Darwin.close(descriptor) }
+        _ = try PrivateFiles.privateSignature(descriptor: descriptor)
+        var header = [UInt8](repeating: 0, count: 5)
+        let count = header.withUnsafeMutableBytes { Darwin.read(descriptor, $0.baseAddress, $0.count) }
+        guard count >= 0 else { throw CaptureError.io("read-private-copy", errno) }
+        return count == header.count && header == Array("%PDF-".utf8)
     }
 }

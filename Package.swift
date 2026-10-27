@@ -20,6 +20,7 @@ let package = Package(
         .testTarget(name: "RiftletCoreTests", dependencies: ["RiftletCore", "CSQLite"]),
         .testTarget(name: "RiftletCaptureTests", dependencies: ["RiftletCapture", "RiftletCore", "CSQLite"]),
         .testTarget(name: "RiftletUITests", dependencies: ["RiftletUI", "RiftletCore"]),
+        .testTarget(name: "RiftletAppTests", dependencies: ["RiftletApp", "RiftletUI", "RiftletCapture", "RiftletAdapters"]),
         .testTarget(name: "RiftletAdaptersTests", dependencies: ["RiftletAdapters", "RiftletCore"],
                     resources: [.process("Fixtures")])
     ]
