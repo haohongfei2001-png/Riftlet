@@ -5,7 +5,8 @@ import RiftletCore
 public enum ObservationSource: String, Codable, Sendable {
     case syntheticFixture, sanitizedReal
     /// Output of the integrated development program; this labels code provenance,
-    /// not a successful live test. It is restricted to generated acceptance assets.
+    /// not a successful live test. Native scopes distinguish generated acceptance
+    /// assets from the explicit original-screenshot candidate; neither label grants admission.
     case integratedDevelopment
 }
 

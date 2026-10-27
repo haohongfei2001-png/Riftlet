@@ -8,29 +8,19 @@ import RiftletCapture
 import RiftletUI
 import RiftletAdapters
 
-private enum ApplicationMode: Equatable {
-    case capture, simulation, webAcceptance
-
-    static func resolve(_ arguments: [String]) throws -> ApplicationMode {
-        guard !(arguments.contains("--simulate") && arguments.contains("--web-acceptance")) else {
-            throw RiftletError.modeMismatch
-        }
-        if arguments.contains("--web-acceptance") { return .webAcceptance }
-        return arguments.contains("--simulate") ? .simulation : .capture
-    }
-
-    var directoryName: String {
-        switch self {
-        case .capture: return "Riftlet"
-        case .simulation: return "Riftlet-Simulation"
-        case .webAcceptance: return "Riftlet-Web-Acceptance"
-        }
-    }
-}
-
 @main
 enum RiftletMain {
     @MainActor static func main() {
+        if CommandLine.arguments.contains("--system-screenshot-candidate-self-check") {
+            Task {
+                do {
+                    try await SystemScreenshotCandidateSelfCheck.run()
+                    print("RIFTLET_SYSTEM_SCREENSHOT_CANDIDATE_SELF_CHECK_PASS: original-byte import, one software input, closed admission, durable candidate observations, read-only restart; GENERATED_FIXTURE; CHROME_NOT_RUN; SYSTEM_SCREENSHOT_NOT_RUN; GUI_NOT_RUN")
+                    exit(0)
+                } catch { fputs("RIFTLET_SYSTEM_SCREENSHOT_CANDIDATE_SELF_CHECK_FAIL\n", stderr); exit(1) }
+            }
+            dispatchMain()
+        }
         if CommandLine.arguments.contains("--first-use-self-check") {
             Task {
                 do {
@@ -103,7 +93,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private let captureLocation = SystemCaptureLocationProvider()
     private lazy var firstUse = FirstUsePreferences(modeName: mode.directoryName)
     private lazy var folderAccess = ScreenshotFolderAccess(modeName: mode.directoryName)
-    private var permissionGate: AutomationPermissionGate { .init(requiresChrome: mode == .webAcceptance) }
+    private var permissionGate: AutomationPermissionGate { .init(requiresChrome: mode.usesWebAdapter) }
     private var hideItem: NSMenuItem?
     private var pauseItem: NSMenuItem?
     private var archiveItem: NSMenuItem?
@@ -167,7 +157,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         installSetup()
         // The first ordinary launch explains collection before its first source
         // read. Acceptance mode must not steal the test browser's focus.
-        if mode == .capture, firstUse.needsAutomaticPresentation {
+        if mode.collectsSystemScreenshots, firstUse.needsAutomaticPresentation {
             showSetup(); firstUse.recordPresentation()
         }
         Task {
@@ -222,7 +212,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         guard instanceDescriptor >= 0, flock(instanceDescriptor, LOCK_EX | LOCK_NB) == 0 else {
             throw RiftletError.database("This data directory already has a running Riftlet instance")
         }
-        let store = try QueueStore(databaseURL: root.appendingPathComponent("queue.sqlite"), mode: simulation ? .simulation : .production)
+        let store = try QueueStore(databaseURL: root.appendingPathComponent("queue.sqlite"), mode: mode.storeMode)
         self.store = store
         userHidden = try await store.userHidden()
         captureIsPaused = try await store.capturePaused()
@@ -235,7 +225,11 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         }
         // Journal recovery may add records. Validate the isolated synthetic store
         // after recovery as well, before any real adapter is constructed.
-        if mode != .capture { try await seedSyntheticImages(store: store) }
+        if mode.generatesSyntheticImages { try await seedSyntheticImages(store: store) }
+        if mode == .systemScreenshotCandidate {
+            _ = try await PrivateAssetImporter(privateRoot: root, store: store).recover()
+            try await SystemScreenshotCandidateConfiguration.validateStore(store)
+        }
         let configurationURL = root.appendingPathComponent("rift-configuration.json")
         let configuration: RiftConfiguration
         if FileManager.default.fileExists(atPath: configurationURL.path) {
@@ -264,7 +258,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             let revision = self.rift?.selectionRevision(for: id)
             self.frozenPress = nil
             var accepted: AcceptedSelection?
-            if self.mode == .webAcceptance, let press, let target = frozen, let revision, let ack = press.acknowledgedUptime {
+            if self.mode.usesWebAdapter, let press, let target = frozen, let revision, let ack = press.acknowledgedUptime {
                 let token = AcceptedSelection(assetID: id, target: target, hostEpoch: press.epoch,
                     acknowledgedUptime: ack, eventUptime: press.eventUptime, acceptedUptime: press.acceptedUptime,
                     visibilityRevision: revision, deadlineUptime: press.acceptedUptime + 30,
@@ -277,14 +271,14 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             let submit: @MainActor (UInt64) async -> Void = { ordinal in
                 self.recordAcceptance(["event": "selection_submission_started", "selectionOrdinal": ordinal,
                     "assetID": id.uuidString, "uptime": ProcessInfo.processInfo.systemUptime])
-                guard self.mode != .webAcceptance || self.watchedCompletions.count < 64 else {
+                guard !self.mode.usesWebAdapter || self.watchedCompletions.count < 64 else {
                     self.showIssue("Acceptance observation limit reached; images retained.")
                     self.cancelOriginalSelection(originalSelection, reason: "observationLimit")
                     self.finishOriginalSelection(id, token: originalSelection, revision: revision, ownerID: selectionOwner)
                     return
                 }
                 do {
-                    if self.mode == .webAcceptance, originalSelection == nil {
+                    if self.mode.usesWebAdapter, originalSelection == nil {
                         self.applyAutomationPermission(await self.inspectAutomationPermission(reason: "selection", assetID: id, expectedSession: frozen?.sessionID))
                         guard self.automationPermission == .granted else {
                             self.rift?.setFeedback("Chrome 附件访问暂不可用；图片保留。请在运行状态中查看原因。", for: id)
@@ -292,7 +286,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                             return
                         }
                     }
-                    if self.mode == .webAcceptance {
+                    if self.mode.usesWebAdapter {
                         if let originalSelection { try await self.transfer?.select(originalSelection) }
                         else {
                             // No original pre-event ACK: the old path may only
@@ -308,13 +302,13 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                     }
                 }
                 catch {
-                    if self.mode == .webAcceptance {
+                    if self.mode.usesWebAdapter {
                         self.setupIssue = ProductStatus.clickIssue(error,
                             frontmostBundleID: NSWorkspace.shared.frontmostApplication?.bundleIdentifier, webAcceptance: true)
                         if self.setupIssue == .permissionDenied { self.applyAutomationPermission(.denied) }
                     }
                     self.rift?.setFeedback(self.mode == .capture ? "此版本尚未启用真实截图附加；图片保留。"
-                        : "当前附件目标暂不可用；图片保留，可在运行状态中查看原因。", for: id)
+                        : (self.setupIssue?.text ?? "当前附件目标暂不可用；图片保留，可在运行状态中查看原因。"), for: id)
                     self.cancelOriginalSelection(originalSelection, reason: "selectionRejected")
                     self.finishOriginalSelection(id, token: originalSelection, revision: revision, ownerID: selectionOwner)
                     self.updateSetup()
@@ -322,7 +316,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 self.finishOriginalSelection(id, token: originalSelection, revision: revision, ownerID: selectionOwner)
                 await self.refresh()
             }
-            guard self.mode == .webAcceptance else {
+            guard self.mode.usesWebAdapter else {
                 Task { await submit(0) }
                 return
             }
@@ -347,19 +341,10 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             onReveal: { [weak self] id in self?.revealHistory(id) },
             onNextPage: { [weak self] in self?.changeHistoryPage(1) },
             onPreviousPage: { [weak self] in self?.changeHistoryPage(-1) })
-        let adapter: any AttachmentAdapter
-        let policy: ReceiptPolicy
-        switch mode {
-        case .capture:
-            adapter = UnavailableAdapter(); policy = .init()
-        case .simulation:
-            adapter = SimulationAdapter(); policy = .init()
-        case .webAcceptance:
-            adapter = WebAttachmentAdapter(mediaDirectory: root.appendingPathComponent("media"),
-                executor: ChromeAppleEventsExecutor(traceEnabled: CommandLine.arguments.contains("--acceptance-trace")), program: try ChatGPTWebPageProgram.load(),
-                mode: .syntheticDevelopment, profile: ChatGPTWebPageProgram.acceptanceProfile)
-            policy = WebAcceptanceConfiguration.receiptPolicy
-        }
+        let composition = try ApplicationAttachmentComposition.make(mode: mode, root: root, store: store,
+            traceEnabled: CommandLine.arguments.contains("--acceptance-trace"))
+        let adapter = composition.adapter
+        let policy = composition.policy
         let transfer = TransferCoordinator(store: store, adapter: adapter, mediaDirectory: root.appendingPathComponent("media"),
             policy: policy, onChange: { [weak self] in await self?.refresh() },
             onSelectionSettled: { [weak self] id in await self?.finishPreparedSelection(id) },
@@ -371,21 +356,21 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 await self?.validateAcceptedSelection(selection) ?? false
             })
         self.transfer = transfer
-        armingAdapter = mode == .webAcceptance ? adapter : nil
+        armingAdapter = mode.usesWebAdapter ? adapter : nil
         // Durable crash recovery remains local even when Automation is denied.
         // No page observation is attempted until a passive check says allowed.
         try await store.recoverInterruptedOperations()
         originalRecoveryIDs = try await store.unresolvedOperations().map(\.id)
         startupCompletedIDs = mode != .capture ? Set(try await store.successfulOperations().map(\.id)) : []
         recordAcceptance(["event": "local_recovery_complete", "uptime": ProcessInfo.processInfo.systemUptime])
-        if mode == .webAcceptance {
+        if mode.usesWebAdapter {
             // Process identity only, not permission or a page/attachment lease.
             lastForegroundSession = foregroundChromeSession
             installPassivePermissionRecovery()
             applyAutomationPermission(await inspectAutomationPermission(reason: "startup"))
         }
         try await startAttachmentObservationIfPermitted()
-        if mode != .capture {
+        if !mode.collectsSystemScreenshots {
             statusLine?.title = simulation ? "SIMULATION · synthetic images only · no ChatGPT input"
                 : "WEB ACCEPTANCE · generated images · real Chrome input"
         } else {
@@ -415,7 +400,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     /// Host lifecycle events can recover an initially unavailable browser without
     /// requiring another settings visit. No click is stored, waited for or replayed.
     private func installPassivePermissionRecovery() {
-        guard mode == .webAcceptance, permissionResumer == nil, !terminating else { return }
+        guard mode.usesWebAdapter, permissionResumer == nil, !terminating else { return }
         let resumer = PassivePermissionResume(inspect: { [weak self] in
             guard let self else { return .unavailable }
             return await self.inspectAutomationPermission(reason: "passiveResume")
@@ -455,7 +440,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                                              expectedSession: String? = nil) async -> AutomationPermissionState {
         let started = ProcessInfo.processInfo.systemUptime
         let result = await permissionGate.inspect(expectedSession: expectedSession)
-        guard mode == .webAcceptance, CommandLine.arguments.contains("--acceptance-trace") else { return result }
+        guard mode.usesWebAdapter, CommandLine.arguments.contains("--acceptance-trace") else { return result }
         var fields: [String: Any] = ["event": "permission_check", "purpose": reason,
             "permissionRequestID": UUID().uuidString, "startedUptime": started,
             "endedUptime": ProcessInfo.processInfo.systemUptime, "result": String(describing: result),
@@ -481,7 +466,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             do {
                 // Recheck permission independently after prebinding. This never
                 // captures a target or replays a previously refused selection.
-                if self.mode == .webAcceptance {
+                if self.mode.usesWebAdapter {
                     self.applyAutomationPermission(await self.inspectAutomationPermission(reason: "originalRecovery"))
                     guard self.automationPermission == .granted else { return }
                 }
@@ -494,7 +479,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
 
     private func startAttachmentObservationIfPermitted() async throws {
         guard !terminating, !attachmentObservationStarted, !attachmentObservationStarting, let transfer,
-              mode != .webAcceptance || automationPermission == .granted else { return }
+              !mode.usesWebAdapter || automationPermission == .granted else { return }
         attachmentObservationStarting = true
         defer { attachmentObservationStarting = false }
         // All local recovery/snapshots completed before any arming or selection.
@@ -503,7 +488,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         guard !terminating else { return }
         watchedCompletions = startupCompletedIDs
         attachmentObservationStarted = true
-        if mode == .webAcceptance, let armingAdapter { startArming(adapter: armingAdapter) }
+        if mode.usesWebAdapter, let armingAdapter { startArming(adapter: armingAdapter) }
         else { startOriginalRecovery() }
         guard mode != .capture else { return }
         completionWatch = Task { [weak self] in
@@ -511,7 +496,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 do { try await Task.sleep(nanoseconds: self?.simulation == true ? 400_000_000 : 5_000_000_000) } catch { return }
                 guard let self else { return }
                 guard self.originalRecoveryTask == nil, self.originalRecoveryIDs == nil else { continue }
-                if self.mode == .webAcceptance {
+                if self.mode.usesWebAdapter {
                     self.applyAutomationPermission(await self.inspectAutomationPermission(reason: "backgroundObservation"))
                     self.updateSetup()
                     guard self.automationPermission == .granted else {
@@ -543,9 +528,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             onOpenSource: { [weak self] in self?.openScreenshotSource() },
             onPermission: { [weak self] in self?.requestAutomationPermission() },
             onDismiss: {},
-            onChooseSourceAccess: mode == .capture ? { [weak self] in self?.chooseSourceAccess() } : nil,
+            onChooseSourceAccess: mode.collectsSystemScreenshots ? { [weak self] in self?.chooseSourceAccess() } : nil,
             onToggleHidden: { [weak self] in self?.toggleHidden() },
-            onToggleCollection: mode == .capture ? { [weak self] in self?.toggleCollection() } : nil,
+            onToggleCollection: mode.collectsSystemScreenshots ? { [weak self] in self?.toggleCollection() } : nil,
             onOpenHistory: { [weak self] in self?.showHistory() })
         updateSetup()
     }
@@ -553,21 +538,20 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private func updateSetup() {
         let issue: SetupIssue? = visibilitySettingFailed ? .visibilityPreferenceUnsaved
             : (collectionSettingFailed ? .collectionPreferenceUnsaved : (captureDiagnostic.map(ProductStatus.issue) ?? setupIssue))
-        let attachment: SetupAttachmentState = simulation ? .offlineSimulation
-            : (mode == .webAcceptance ? .syntheticWeb : .productionDisabled)
+        let attachment = mode.attachmentState
         let source = ProductStatus.sourceState(detectedSource: detectedSource, observation: captureStatus,
-            systemCollection: mode == .capture, paused: captureIsPaused, initialized: initialized)
-        let collection = ProductStatus.collectionState(systemCollection: mode == .capture, paused: captureIsPaused,
+            systemCollection: mode.collectsSystemScreenshots, paused: captureIsPaused, initialized: initialized)
+        let collection = ProductStatus.collectionState(systemCollection: mode.collectsSystemScreenshots, paused: captureIsPaused,
             initialized: initialized, running: captureStatus?.isRunning == true, source: source)
         let snapshot = SetupSnapshot(sourceLocation: detectedSource?.path, source: source, collection: collection,
             isHidden: userHidden, visibleCount: visibleIDs.count, pendingCount: pendingResultCount,
             attachment: attachment, permission: ProductStatus.permission(automationPermission),
-            permissionDetail: mode == .webAcceptance ? ProductStatus.chromeJavaScriptHelp : nil,
+            permissionDetail: mode.usesWebAdapter ? ProductStatus.chromeJavaScriptHelp : nil,
             storage: setupStorage, issue: issue, supportDescription: ProductStatus.supportDescription,
             isChecking: captureControl.isBusy || requestingPermission || !initialized)
         if setup?.presentation.snapshot != snapshot { setup?.update(snapshot: snapshot) }
         let presentation = SetupPresentation(snapshot: snapshot)
-        let summary = presentation.issueText ?? (mode == .capture ? presentation.collectionText : presentation.attachmentText)
+        let summary = presentation.issueText ?? (mode.collectsSystemScreenshots ? presentation.collectionText : presentation.attachmentText)
         statusLine?.title = summary
         // Compact, demand-only feedback; no notification, success Toast or focus change.
         statusItem?.button?.toolTip = [summary, presentation.riftText, presentation.pendingText].compactMap { $0 }.joined(separator: "\n")
@@ -590,7 +574,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         updateControlTitles()
         Task {
             defer { captureControl.finish(token); updateControlTitles() }
-            if mode == .capture, let capture, let binding = sourceBinding {
+            if mode.collectsSystemScreenshots, let capture, let binding = sourceBinding {
                 do {
                     do { detectedSource = try await captureLocation.currentDirectory() }
                     catch { detectedSource = nil; throw error }
@@ -625,7 +609,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     }
 
     private func chooseSourceAccess() {
-        guard mode == .capture, !captureControl.isBusy, let source = detectedSource else { return }
+        guard mode.collectsSystemScreenshots, !captureControl.isBusy, let source = detectedSource else { return }
         let panel = NSOpenPanel()
         panel.title = "允许 Riftlet 读取系统截图位置"
         panel.message = "请选择下方显示的系统截图文件夹。只授予读取权限，不更改系统保存位置，也不导入其他文件夹。"
@@ -647,7 +631,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     }
 
     private func requestAutomationPermission() {
-        guard mode == .webAcceptance, !captureControl.isBusy, !requestingPermission else { return }
+        guard mode.usesWebAdapter, !captureControl.isBusy, !requestingPermission else { return }
         if automationPermission == .denied { openPrivacySettings(automation: true); return }
         requestingPermission = true
         updateSetup()
@@ -674,12 +658,33 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     }
 
     @objc private func launchSimulation() {
-        guard mode == .capture, Bundle.main.bundleURL.pathExtension == "app" else { return }
+        guard mode.collectsSystemScreenshots, Bundle.main.bundleURL.pathExtension == "app" else { return }
         let configuration = NSWorkspace.OpenConfiguration()
         configuration.arguments = ["--simulate"]
         configuration.createsNewApplicationInstance = true
         NSWorkspace.shared.openApplication(at: Bundle.main.bundleURL, configuration: configuration) { [weak self] _, error in
             if error != nil { Task { @MainActor [weak self] in self?.showIssue("暂时无法打开离线演示；现有截图保留。") } }
+        }
+    }
+
+    /// A one-time choice of internal test mode, never a per-screenshot prompt.
+    /// macOS launch acknowledgement is not candidate readiness. Keep the
+    /// ordinary collector and its data intact if candidate initialization fails.
+    @objc private func launchSystemScreenshotCandidate() {
+        guard mode == .capture, Bundle.main.bundleURL.pathExtension == "app" else { return }
+        let alert = NSAlert()
+        alert.messageText = "打开真实截图内部候选？"
+        alert.informativeText = "这是尚未准入的内部验收：新系统截图保存在独立本地目录，点击符合限制的 PNG 会尝试输入当前 ChatGPT 草稿。只使用你愿意附加的截图。开始、成功与重试仍关闭；结果待核实，不自动吞噬或重新上传。普通实例继续保留；请在「Riftlet REAL TEST」菜单查看候选状态，需要时再退出普通实例。"
+        alert.addButton(withTitle: "打开内部候选")
+        alert.addButton(withTitle: "取消")
+        guard alert.runModal() == .alertFirstButtonReturn else { return }
+        let configuration = NSWorkspace.OpenConfiguration()
+        configuration.arguments = ["--system-screenshot-candidate"]
+        configuration.createsNewApplicationInstance = true
+        NSWorkspace.shared.openApplication(at: Bundle.main.bundleURL, configuration: configuration) { [weak self] _, error in
+            Task { @MainActor [weak self] in
+                if error != nil { self?.showIssue("暂时无法打开内部候选；普通收录与已有数据保留。") }
+            }
         }
     }
 
@@ -710,7 +715,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private func applyAutomationPermission(_ state: AutomationPermissionState) {
         let lostPermission = automationPermission == .granted && state != .granted
         automationPermission = state
-        guard mode == .webAcceptance, state != .granted else { return }
+        guard mode.usesWebAdapter, state != .granted else { return }
         cancelSelections(reason: "permissionUnavailable")
         armedTarget = nil; armedCaptureDiagnostics = nil; frozenPress = nil
         if lostPermission {
@@ -747,7 +752,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
 
     private func finishPreparedSelection(_ id: UUID) {
         // Web submissions release only their exact original token/revision owner.
-        guard mode != .webAcceptance else { return }
+        guard !mode.usesWebAdapter else { return }
         // Coordinator awaits committed refresh before this callback. Releasing
         // the UI reservation cannot flush a stale pre-prepare archive snapshot.
         rift?.finishSelection(id)
@@ -906,7 +911,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     }
 
     private func recordPresentation(_ boundary: RiftPresentationBoundary) {
-        guard mode == .webAcceptance, CommandLine.arguments.contains("--acceptance-trace") else { return }
+        guard mode.usesWebAdapter, CommandLine.arguments.contains("--acceptance-trace") else { return }
         var fields: [String: Any] = ["event": "presentation_boundary", "phase": boundary.phase.rawValue,
             "assetID": boundary.assetID.uuidString, "visibilityRevision": boundary.visibilityRevision,
             "generation": boundary.generation, "uptime": boundary.uptime,
@@ -944,7 +949,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     }
 
     private func recordAcceptance(_ fields: [String: Any]) {
-        guard mode == .webAcceptance, CommandLine.arguments.contains("--acceptance-trace"), diagnosticEvents < 2048 else { return }
+        guard mode.usesWebAdapter, CommandLine.arguments.contains("--acceptance-trace"), diagnosticEvents < 2048 else { return }
         diagnosticEvents += 1
         if let data = try? JSONSerialization.data(withJSONObject: fields, options: [.sortedKeys]) {
             try? FileHandle.standardError.write(contentsOf: data + Data([10]))
@@ -952,7 +957,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     }
 
     private func seedSyntheticImages(store: QueueStore, addNewBatch: Bool = false) async throws {
-        guard mode != .capture else { throw RiftletError.modeMismatch }
+        guard mode.generatesSyntheticImages else { throw RiftletError.modeMismatch }
         let importer = PrivateAssetImporter(privateRoot: root, store: store)
         _ = try await importer.recover()
         let recovered = try await store.assets(includeUsed: true)
@@ -990,7 +995,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 for id in visibleIDs.union(panelIDs).subtracting(activeIDs) {
                     if let retired = try await store.asset(id: id) { snapshot.append(retired) }
                 }
-                let successful = mode == .webAcceptance ? try await store.successfulOperations() : []
+                let successful = mode.usesWebAdapter ? try await store.successfulOperations() : []
                 let unresolved = try await store.unresolvedOperations()
                 // Independent reads, not an atomic multi-row snapshot or exact COMMIT.
                 let snapshotObservedUptime = ProcessInfo.processInfo.systemUptime
@@ -1001,7 +1006,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                     catch { detectedSource = nil; preferenceIssue = .classify(error, context: .locationPreference) }
                 }
                 if refreshRequested { continue }
-                if mode == .webAcceptance, CommandLine.arguments.contains("--acceptance-trace") {
+                if mode.usesWebAdapter, CommandLine.arguments.contains("--acceptance-trace") {
                     for record in snapshot {
                         let signature = [record.status.rawValue, record.visibility.rawValue,
                             record.visibilityReason.rawValue, String(record.visibilityRevision),
@@ -1029,12 +1034,13 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 pendingResultCount = Set(unresolved.filter { $0.phase != .prepared }.map(\.assetID)).count
                 acceptCaptureStatus(preferenceIssue: preferenceIssue)
                 watchedCompletions.formUnion(successful.map(\.id))
-                if hasNewImages && mode == .webAcceptance { requestArm(reason: "newImages") }
+                if hasNewImages && mode.usesWebAdapter { requestArm(reason: "newImages") }
                 rift?.render(snapshot)
                 switch mode {
                 case .capture:
                     statusItem?.button?.toolTip = "Riftlet · \(active.count) visible screenshots\(userHidden ? " · hidden" : "")"
                 case .simulation: statusItem?.button?.toolTip = "Riftlet SIMULATION — synthetic only; start then delayed result"
+                case .systemScreenshotCandidate: statusItem?.button?.toolTip = "Riftlet REAL TEST · 原图候选 · 生产准入关闭 · 待核实不重传"
                 case .webAcceptance: statusItem?.button?.toolTip = "Riftlet WEB ACCEPTANCE · \(active.count) visible test images · unresolved records stay in local history"
                 }
                 if history?.isVisible == true { await refreshHistory() }
@@ -1129,7 +1135,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private func updateControlTitles() {
         hideItem?.title = userHidden ? "显示裂缝" : "隐藏裂缝"
         pauseItem?.title = captureIsPaused ? "继续收录截图" : "暂停收录（保留已有图片）"
-        pauseItem?.isEnabled = mode == .capture && initialized && !captureControl.isBusy
+        pauseItem?.isEnabled = mode.collectsSystemScreenshots && initialized && !captureControl.isBusy
         if let interval = lifecycleSettings.archiveAfterSeconds {
             archiveItem?.title = String(format: "闲置归档：%.2g 小时…", interval / 3600)
         } else { archiveItem?.title = "闲置归档：已关闭…" }
@@ -1158,7 +1164,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     }
 
     @objc private func toggleCollection() {
-        guard mode == .capture, initialized, let store, let binding = sourceBinding,
+        guard mode.collectsSystemScreenshots, initialized, let store, let binding = sourceBinding,
               let token = captureControl.begin(.changeCollection) else { return }
         updateControlTitles()
         let requested = !captureIsPaused
@@ -1247,23 +1253,27 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
 
     private func installMenu() {
         let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-        item.button?.title = simulation ? "Riftlet SIM" : (mode == .webAcceptance ? "Riftlet WEB TEST" : "Riftlet")
+        item.button?.title = mode.menuTitle
         let menu = NSMenu()
         let heading = NSMenuItem(title: simulation ? "离线模拟 · 没有真实上传"
             : (mode == .webAcceptance ? "Web 验收 · 仅生成图片" : "正在准备本地截图收录…"), action: nil, keyEquivalent: "")
         menu.addItem(heading); statusLine = heading
         add(menu, "开始使用与运行状态…", #selector(showSetup))
-        if mode == .capture { add(menu, "文件访问设置…", #selector(openFilePrivacySettings)) }
+        if mode.collectsSystemScreenshots { add(menu, "文件访问设置…", #selector(openFilePrivacySettings)) }
         if mode == .webAcceptance {
             menu.addItem(NSMenuItem(title: "Chrome · ChatGPT Chat · Chinese UI · PNG test images", action: nil, keyEquivalent: ""))
             menu.addItem(NSMenuItem(title: "No message sending · UNKNOWN never retransmits", action: nil, keyEquivalent: ""))
             add(menu, "Add 3 generated test images", #selector(addWebTestImages))
         }
+        if mode == .systemScreenshotCandidate {
+            menu.addItem(NSMenuItem(title: "真实截图内部候选 · 未生产准入", action: nil, keyEquivalent: ""))
+            menu.addItem(NSMenuItem(title: "仅原样 PNG · 开始/成功待审 · 不重传", action: nil, keyEquivalent: ""))
+        }
         if simulation { add(menu, "Add 3 synthetic demo images", #selector(addWebTestImages)) }
         menu.addItem(.separator())
         let hide = NSMenuItem(title: "Hide rift", action: #selector(toggleHidden), keyEquivalent: "")
         hide.target = self; menu.addItem(hide); hideItem = hide
-        if mode == .capture {
+        if mode.collectsSystemScreenshots {
             let pause = NSMenuItem(title: "Pause collection", action: #selector(toggleCollection), keyEquivalent: "")
             pause.target = self; menu.addItem(pause); pauseItem = pause
         }
@@ -1278,7 +1288,8 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         add(menu, "检查本机存储用量", #selector(checkStorage))
         let storage = NSMenuItem(title: "私有存储：尚未检查", action: nil, keyEquivalent: "")
         menu.addItem(storage); storageLine = storage
-        if mode == .capture { add(menu, "打开离线合成演示…", #selector(launchSimulation)) }
+        if mode.collectsSystemScreenshots { add(menu, "打开离线合成演示…", #selector(launchSimulation)) }
+        if mode == .capture { add(menu, "打开真实截图内部候选…", #selector(launchSystemScreenshotCandidate)) }
         let advanced = NSMenu()
         add(advanced, "重新载入几何参数", #selector(reload))
         add(advanced, "打开工程几何参数文件", #selector(openGeometry))
@@ -1293,7 +1304,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         let item = NSMenuItem(title: title, action: action, keyEquivalent: key); item.target = self; menu.addItem(item)
     }
     func validateMenuItem(_ item: NSMenuItem) -> Bool {
-        if item.action == #selector(toggleCollection) { return mode == .capture && initialized && !captureControl.isBusy }
+        if item.action == #selector(toggleCollection) { return mode.collectsSystemScreenshots && initialized && !captureControl.isBusy }
         if item.action == #selector(recheckSetup) || item.action == #selector(reload) {
             return initialized && !captureControl.isBusy && !requestingPermission
         }
@@ -1305,7 +1316,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     @objc private func showOldest() { rift?.showOldest() }
     @objc private func quit() { NSApplication.shared.terminate(nil) }
     @objc private func addWebTestImages() {
-        guard mode != .capture, let store else { return }
+        guard mode.generatesSyntheticImages, let store else { return }
         Task {
             do { try await seedSyntheticImages(store: store, addNewBatch: true); await refresh() }
             catch { showIssue("Could not create test images; existing queue preserved.") }

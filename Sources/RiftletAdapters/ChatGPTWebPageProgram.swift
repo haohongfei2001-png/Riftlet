@@ -4,7 +4,8 @@ import RiftletCore
 /// Narrow development profile derived from the archived, real Apple Events
 /// experiments at 6f415698. This resource is an integrated implementation, not
 /// evidence that the integrated app has passed a live test. Production admission
-/// remains separate; only syntheticDevelopment may execute it in this increment.
+/// remains separate. Generated acceptance and the explicitly isolated original-
+/// screenshot candidate use distinct native scopes; page provenance is unchanged.
 public enum ChatGPTWebPageProgram {
     public static let sourceID = "chatgpt-web-zh-20261027-integrated-v12"
     /// Candidate mapping only; ReceiptPolicy start registries remain separate.

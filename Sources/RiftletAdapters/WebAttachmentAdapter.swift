@@ -3,7 +3,7 @@ import CryptoKit
 import Darwin
 import RiftletCore
 
-public enum WebAdapterMode: Sendable { case disabled, syntheticDevelopment }
+public enum WebAdapterMode: Sendable { case disabled, syntheticDevelopment, systemScreenshotCandidate }
 public enum WebBridgeAction: String, Codable, Sendable {
     case captureTarget, validate, begin, chunk, commit, observe, discard
 }
@@ -62,8 +62,8 @@ public enum WebAdapterError: Error, Equatable, Sendable {
     case nativeSelectionChanged, pageRejected(WebPageRejection)
 }
 
-/// Real bridge code can be integrated without enabling real screenshots. There is
-/// deliberately no production-enabling enum case in this unadmitted increment.
+/// The explicit system-screenshot candidate only enables isolated test input.
+/// It does not register a production start/completion/retry profile.
 public actor WebAttachmentAdapter: AttachmentAdapter {
     public nonisolated let id: String
     private let mediaDirectory: URL
@@ -72,17 +72,29 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
     private let mode: WebAdapterMode
     private let normalizer: ObservationNormalizer
     private let polling: WebObservationPolling
+    private let candidateJournal: SystemScreenshotObservationJournal?
     private var inputInFlight = false
 
     public init(mediaDirectory: URL, executor: any WebBridgeExecutor,
                 program: WebPageProgram? = nil, mode: WebAdapterMode = .disabled,
                 profile: ObservationProfile = .init(adapterID: "chatgpt-web", surface: .webChat,
                                                      profileID: "web-unadmitted-v1"),
-                polling: WebObservationPolling = .acceptance) {
+                polling: WebObservationPolling = .acceptance,
+                candidateJournal: SystemScreenshotObservationJournal? = nil) {
         id = profile.adapterID; self.mediaDirectory = mediaDirectory.standardizedFileURL
         self.executor = executor; self.program = program; self.mode = mode
-        normalizer = ObservationNormalizer(profile: profile)
+        if case .systemScreenshotCandidate = mode {
+            normalizer = ObservationNormalizer(profile: profile, developmentScope: .systemScreenshotCandidate)
+        } else { normalizer = ObservationNormalizer(profile: profile) }
         self.polling = polling
+        self.candidateJournal = candidateJournal
+    }
+
+    public func preflight(asset: ImportedAsset, fileURL: URL) async throws {
+        if case .systemScreenshotCandidate = mode {
+            try requireEnabled()
+            try SystemScreenshotWebCandidate.preflight(asset, fileURL: fileURL, mediaDirectory: mediaDirectory)
+        }
     }
 
     public func captureTarget() async throws -> TargetLease {
@@ -113,12 +125,14 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
     public func append(_ request: TransferRequest) async throws -> TransferReceipt {
         try requireEnabled()
         try check(request.operation.target)
-        guard request.asset.origin == .synthetic else { throw WebAdapterError.syntheticAssetsOnly }
+        try checkOrigin(request.asset)
         guard request.operation.assetID == request.asset.id,
               request.operation.phase == .dispatchIntent else { throw WebAdapterError.invalidRequest }
         guard !inputInFlight else { throw WebAdapterError.inputInFlight }
         inputInFlight = true
         defer { inputInFlight = false }
+
+        try await preflight(asset: request.asset, fileURL: request.fileURL)
 
         guard let maximumChunkBytes = program?.maximumChunkBytes else { throw WebAdapterError.programUnavailable }
         // Two passes through the same no-follow descriptor: do not transfer an
@@ -167,7 +181,7 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
     public func reconcile(_ request: TransferRequest) async throws -> TransferReceipt {
         try requireEnabled()
         try check(request.operation.target)
-        guard request.asset.origin == .synthetic else { throw WebAdapterError.syntheticAssetsOnly }
+        try checkOrigin(request.asset)
         guard request.operation.assetID == request.asset.id,
               (request.operation.phase.isUnresolved || request.operation.phase == .succeeded),
               request.operation.phase != .prepared else { throw WebAdapterError.invalidRequest }
@@ -177,7 +191,7 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
         // Successful operations may only be checked for identity-correlated late
         // errors. A single observation does not start another polling/upload loop.
         if request.operation.phase == .succeeded {
-            return try normalizer.receipt(from: ObservationDecoder.decode(data), for: request)
+            return try await normalize(data, for: request)
         }
         return try await observeCompletion(initial: data, identity: identity, request: request)
     }
@@ -188,7 +202,7 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
         var response = initial
         while true {
             let envelope = try ObservationDecoder.decode(response)
-            let receipt = try normalizer.receipt(from: envelope, for: request)
+            let receipt = try await normalize(envelope, for: request)
             // Positive start returns without waiting for completion. Core policy
             // independently admits visual exit; subsequent calls only observe.
             if receipt.outcome == .uploadStarted { return receipt }
@@ -207,10 +221,44 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
     }
 
     private func requireEnabled() throws {
-        guard case .syntheticDevelopment = mode else { throw WebAdapterError.disabled }
+        if case .disabled = mode { throw WebAdapterError.disabled }
         guard let program, !program.sourceID.isEmpty, !program.functionSource.isEmpty,
               program.functionSource.utf8.count <= 128 * 1024,
               (64 * 1024...256 * 1024).contains(program.maximumChunkBytes) else { throw WebAdapterError.programUnavailable }
+        if case .systemScreenshotCandidate = mode {
+            guard program.sourceID == SystemScreenshotWebCandidate.sourceID,
+                  SystemScreenshotWebCandidate.matches(normalizer.profile), candidateJournal != nil else {
+                throw WebAdapterError.programUnavailable
+            }
+        }
+    }
+
+    private func checkOrigin(_ asset: ImportedAsset) throws {
+        switch mode {
+        case .disabled: throw WebAdapterError.disabled
+        case .syntheticDevelopment:
+            guard asset.origin == .synthetic else { throw WebAdapterError.syntheticAssetsOnly }
+        case .systemScreenshotCandidate:
+            guard asset.origin == .systemScreenshot else { throw SystemScreenshotInputError.systemScreenshotsOnly }
+        }
+    }
+
+    private func normalize(_ data: Data, for request: TransferRequest) async throws -> TransferReceipt {
+        try await normalize(ObservationDecoder.decode(data), for: request)
+    }
+
+    private func normalize(_ envelope: AttachmentObservationEnvelope, for request: TransferRequest) async throws -> TransferReceipt {
+        let receipt = try normalizer.receipt(from: envelope, for: request)
+        if case .systemScreenshotCandidate = mode {
+            guard envelope.provenance.source == .integratedDevelopment, let candidateJournal else {
+                throw ObservationError.syntheticEvidenceForRealAsset
+            }
+            // Preserve the first unadmitted positive/negative observations in
+            // SQLite, independently of the latest receipt and admitted starts.
+            // Failure after commit remains UNKNOWN; this never retries input.
+            try await candidateJournal.record(envelope, for: request)
+        }
+        return receipt
     }
 
     private func perform(_ command: WebBridgeCommand) async throws -> Data {

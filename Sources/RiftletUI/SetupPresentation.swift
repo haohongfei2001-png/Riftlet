@@ -3,7 +3,7 @@ import Foundation
 public enum SetupSourceState: Equatable, Sendable { case checking, notChecked, notApplicable, accessible, unavailable, notConfigured }
 public enum SetupCollectionState: Equatable, Sendable { case starting, collecting, waitingForSource, paused, stopped }
 public enum SetupAttachmentState: Equatable, Sendable {
-    case productionDisabled, syntheticWeb, offlineSimulation, available, unsupportedBrowser, targetUnavailable
+    case productionDisabled, syntheticWeb, systemScreenshotCandidate, offlineSimulation, available, unsupportedBrowser, targetUnavailable
 }
 public enum SetupPermissionState: Equatable, Sendable {
     case notNeeded, notChecked, notRequested, granted, denied, notRunning, browserUnavailable, unavailable
@@ -20,9 +20,16 @@ public enum SetupIssue: Equatable, Sendable {
     case unsupportedBrowser, targetUnavailable, permissionDenied, imageUnavailable
     case initializationFailed, configurationUnavailable
     case visibilityPreferenceUnsaved, collectionPreferenceUnsaved
+    case attachmentFormat, attachmentBytes, attachmentPixels
 
     public var text: String {
         switch self {
+        case .attachmentFormat:
+            return "截图已保存在本机。当前真实截图候选只接收原样 PNG；本图未上传、未转换，原文件与私有副本保留。"
+        case .attachmentBytes:
+            return "截图已保存在本机，但超过当前网页候选的 8 MiB 传输上限。本图未上传、未压缩，原文件与私有副本保留。"
+        case .attachmentPixels:
+            return "截图已保存在本机，但超过当前网页候选的 16,777,216 像素上限。本图未上传、未缩放，原文件与私有副本保留。"
         case .sourceAccess:
             return "无法读取截图保存位置。请确认文件夹仍存在，在系统设置「隐私与安全性 → 文件与文件夹」中检查 Riftlet，或允许访问当前截图位置；原截图没有被删除。"
         case .unsupportedFormat:
@@ -141,6 +148,8 @@ public struct SetupPresentation: Equatable, Sendable {
             return "此工程版本尚未启用真实截图附加。截图可以在本机收录与查看；授权不会开启尚未验收的能力。"
         case .syntheticWeb:
             return "当前是独立 Web 验收模式，仅允许生成的测试图片。不会收录或上传真实截图，也不会发送聊天消息。"
+        case .systemScreenshotCandidate:
+            return "真实截图内部候选：点击会尝试把原样 PNG 输入当前 ChatGPT 草稿。开始、成功与安全重试尚未准入；只保存待审观察，不自动吞噬、不宣布成功、不重传，不发送消息。普通模式仍未启用上传。"
         case .offlineSimulation:
             return "当前是离线模拟，仅演示生成图片的显示与状态变化；没有连接 ChatGPT。"
         case .available:
@@ -213,7 +222,7 @@ public struct SetupPresentation: Equatable, Sendable {
     public var collectionActionTitle: String { snapshot.collection == .paused ? "继续收录" : "暂停收录" }
 
     private var hasAutomationCapability: Bool {
-        snapshot.attachment == .syntheticWeb || snapshot.attachment == .available
+        snapshot.attachment == .syntheticWeb || snapshot.attachment == .systemScreenshotCandidate || snapshot.attachment == .available
     }
 
     /// Make the two permitted host strings fit a native local window. Strip

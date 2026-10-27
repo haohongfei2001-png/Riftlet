@@ -14,11 +14,18 @@ public struct TransferRequest: Sendable {
 /// in the same target-side action that appends; a prior validate call alone is insufficient.
 public protocol AttachmentAdapter: Sendable {
     var id: String { get }
+    /// Local-only eligibility checks, before allocating an operation or acquiring
+    /// a target lock. Must never capture a target, contact an app, or input bytes.
+    func preflight(asset: ImportedAsset, fileURL: URL) async throws
     func captureTarget() async throws -> TargetLease
     func validate(_ target: TargetLease) async throws -> Bool
     func append(_ request: TransferRequest) async throws -> TransferReceipt
     /// Observation of the original operation only. Must never dispatch another input.
     func reconcile(_ request: TransferRequest) async throws -> TransferReceipt
+}
+
+public extension AttachmentAdapter {
+    func preflight(asset: ImportedAsset, fileURL: URL) async throws {}
 }
 
 public actor TransferCoordinator {
@@ -188,6 +195,10 @@ public actor TransferCoordinator {
                 try await drain()
                 return
             }
+            // Existing UNKNOWNs above retain their original read-only recovery
+            // even when a newer input profile no longer supports their format.
+            try await adapter.preflight(asset: record.image,
+                fileURL: mediaDirectory.appendingPathComponent(record.image.fileName))
             try await store.reserveSelection(assetID, visibilityRevision: visibilityRevision)
             reserved = true
             let target: TargetLease
@@ -418,7 +429,8 @@ public actor TransferCoordinator {
     }
 }
 
-/// Explicit development boundary: no real screenshot leaves the machine in this build.
+/// Default ordinary-capture boundary. The separately launched internal candidate
+/// composes its own adapter; permissions never enable this unavailable adapter.
 public struct UnavailableAdapter: AttachmentAdapter {
     public let id: String
     public init(id: String = "chatgpt-web") { self.id = id }

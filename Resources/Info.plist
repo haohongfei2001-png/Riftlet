@@ -15,7 +15,7 @@
 <key>RiftletBuildChannel</key><string>development</string>
 <key>RiftletDeveloperIDSigned</key><false/>
 <key>RiftletNotarized</key><false/>
-<key>NSAppleEventsUsageDescription</key><string>Riftlet 仅在你主动授权时检查 Google Chrome 的附件连接。此开发版的真实截图上传尚未启用；独立测试仅使用生成图片，绝不自动发送聊天消息。</string>
+<key>NSAppleEventsUsageDescription</key><string>Riftlet 使用 Google Chrome 向当前 ChatGPT 草稿附加图片，绝不自动发送消息。普通模式尚未启用上传；生成图测试和需明确启动的真实截图内部候选各自隔离，候选只在点击后尝试输入，不代表生产准入。</string>
 <key>NSDesktopFolderUsageDescription</key><string>Riftlet 读取系统保存到桌面的新截图，并在本机保留私有副本；不会删除系统原截图。</string>
 <key>NSDocumentsFolderUsageDescription</key><string>当系统截图保存在文稿中时，Riftlet 读取新截图并在本机保留私有副本；不会删除系统原截图。</string>
 <key>NSDownloadsFolderUsageDescription</key><string>当系统截图保存在下载中时，Riftlet 读取新截图并在本机保留私有副本；不会删除系统原截图。</string>

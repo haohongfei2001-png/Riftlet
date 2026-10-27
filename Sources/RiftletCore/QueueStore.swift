@@ -187,6 +187,21 @@ public actor QueueStore {
         try database.execute("INSERT INTO checkpoints(key,value) VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value", [key, data.base64EncodedString()])
     }
 
+    /// Bounded first-observation storage in the existing v3 database. This is an
+    /// audit checkpoint, never an admitted receipt or an input authorization.
+    /// Returns the first durable value so concurrent/restarted writers can
+    /// validate it without overwriting history. No schema or mode conversion.
+    public func saveCheckpointIfAbsent(_ data: Data, for key: String) throws -> Data {
+        guard !key.isEmpty, key.utf8.count <= 256, data.count <= 64 * 1024 else {
+            throw RiftletError.invalidAsset("Checkpoint exceeds its bounded contract")
+        }
+        return try database.transaction {
+            try database.execute("INSERT OR IGNORE INTO checkpoints(key,value) VALUES(?,?)", [key, data.base64EncodedString()])
+            guard let saved = try checkpoint(for: key) else { throw RiftletError.database("Missing first checkpoint") }
+            return saved
+        }
+    }
+
     /// Duplicate clicks return the unresolved operation instead of allocating a new attempt.
     public func prepare(assetID: UUID, target: TargetLease) throws -> TransferOperation {
         try database.transaction {

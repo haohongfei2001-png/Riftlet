@@ -3,8 +3,12 @@ import RiftletCore
 
 /// A reviewed observer may define product ATTACHED as completion. The mapping is
 /// supplied by application code, not JSON, and does not register a ReceiptPolicy.
-public enum ObservationCompletionSignal: Sendable { case attached, ready }
-public enum ObservationFailureSignal: Sendable { case terminalErrorAndNoResidual }
+public enum ObservationCompletionSignal: Equatable, Sendable { case attached, ready }
+public enum ObservationFailureSignal: Equatable, Sendable { case terminalErrorAndNoResidual }
+
+public enum DevelopmentObservationScope: Sendable {
+    case syntheticOnly, systemScreenshotCandidate
+}
 
 public struct ObservationProfile: Sendable {
     public let adapterID: String
@@ -27,7 +31,10 @@ public struct ObservationProfile: Sendable {
 /// ReceiptPolicy independently controls successful completion and safe retry.
 public struct ObservationNormalizer: Sendable {
     public let profile: ObservationProfile
-    public init(profile: ObservationProfile) { self.profile = profile }
+    private let developmentScope: DevelopmentObservationScope
+    public init(profile: ObservationProfile, developmentScope: DevelopmentObservationScope = .syntheticOnly) {
+        self.profile = profile; self.developmentScope = developmentScope
+    }
 
     public func receipt(from envelope: AttachmentObservationEnvelope,
                         for request: TransferRequest) throws -> TransferReceipt {
@@ -47,9 +54,16 @@ public struct ObservationNormalizer: Sendable {
               profile.surface == operation.target.surface, !profile.profileID.isEmpty else {
             throw ObservationError.profileTargetMismatch
         }
-        if (envelope.provenance.source == .syntheticFixture || envelope.provenance.source == .integratedDevelopment)
-            && request.asset.origin != .synthetic {
+        if envelope.provenance.source == .syntheticFixture && request.asset.origin != .synthetic {
             throw ObservationError.syntheticEvidenceForRealAsset
+        }
+        if envelope.provenance.source == .integratedDevelopment && request.asset.origin != .synthetic {
+            guard case .systemScreenshotCandidate = developmentScope,
+                  SystemScreenshotWebCandidate.matches(profile) else {
+                throw ObservationError.syntheticEvidenceForRealAsset
+            }
+            // Candidate interpretation only. It keeps the original provenance;
+            // ReceiptPolicy separately refuses unadmitted start/success/retry.
         }
 
         var outcome: ReceiptOutcome = .unknown

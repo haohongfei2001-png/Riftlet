@@ -4,6 +4,7 @@ on:
     branches:
       - 'codex/riftlet-real-mac-acceptance-*'
       - 'codex/riftlet-real-mac-round*'
+      - 'codex/system-capture-candidate-20261028'
     paths:
       - 'Sources/**'
       - 'Tests/**'
@@ -96,6 +97,10 @@ jobs:
           swift test --skip-build --filter AcceptedSelectionQueueTests 2>&1 | tee test-results/accepted-selection-queue-detailed.log
           swift test --skip-build --filter SelectionAuthorityTests 2>&1 | tee test-results/selection-authority-detailed.log
           swift test --skip-build --filter SelectionSubmissionQueueTests 2>&1 | tee test-results/selection-submission-detailed.log
+          swift test --skip-build --filter SystemScreenshotWebCandidateTests 2>&1 | tee test-results/system-candidate-input-detailed.log
+          swift test --skip-build --filter SystemScreenshotObservationJournalTests 2>&1 | tee test-results/system-candidate-observations-detailed.log
+          swift test --skip-build --filter SystemScreenshotCandidateIntegrationTests 2>&1 | tee test-results/system-candidate-composition-detailed.log
+          swift test --skip-build --filter SystemScreenshotFidelityTests 2>&1 | tee test-results/system-candidate-fidelity-detailed.log
       - name: Package native application
         run: |
           set -o pipefail
@@ -109,6 +114,7 @@ jobs:
           ditto build/Riftlet.app "$riftlet_check_dir/Riftlet.app"
           "$riftlet_check_dir/Riftlet.app/Contents/MacOS/Riftlet" --web-acceptance-self-check 2>&1 | tee test-results/web-acceptance-self-check.log
           "$riftlet_check_dir/Riftlet.app/Contents/MacOS/Riftlet" --first-use-self-check 2>&1 | tee test-results/first-use-self-check.log
+          "$riftlet_check_dir/Riftlet.app/Contents/MacOS/Riftlet" --system-screenshot-candidate-self-check 2>&1 | tee test-results/system-screenshot-candidate-self-check.log
           ditto -c -k --sequesterRsrc --keepParent build/Riftlet.app build/Riftlet-macOS-development.zip
       - name: Validate and archive synthetic GUI acceptance helper
         run: |
