@@ -9,7 +9,10 @@
  */
 function riftletWebAcceptance(command, native) {
   'use strict';
-  const KEY = '__riftletWebAcceptance20261027v1';
+  // v2 deliberately never trusts/reuses a pre-mode-gate v1 installation.
+  // Its old native requests remain UNKNOWN instead of acquiring a new lease.
+  const KEY = '__riftletWebAcceptance20261027v2';
+  const MAX_GENERATIONS = 32;
   const MAX_BYTES = 8 * 1024 * 1024, MAX_PIXELS = 16 * 1024 * 1024;
   const TARGET_KEYS = ['adapterID', 'surface', 'applicationID', 'sessionID', 'windowID', 'tabID', 'documentID', 'composerID', 'draftGeneration'];
   const sameTarget = (a, b) => !!a && !!b && TARGET_KEYS.every(k => a[k] === b[k]);
@@ -26,7 +29,7 @@ function riftletWebAcceptance(command, native) {
       hasError: false, isUploading: false, attachmentAbsent: false, automaticRetryExcluded: false}
   });
 
-  function install() {
+  function install(registry) {
     // The archive did not establish arbitrary threads, Work, locales or frames.
     if (location.href !== 'https://chatgpt.com/' || globalThis.top !== globalThis
         || document.visibilityState !== 'visible' || !document.hasFocus()) fail('UNSUPPORTED_TEST_SURFACE');
@@ -256,31 +259,50 @@ function riftletWebAcceptance(command, native) {
     for (const type of ['pagehide', 'popstate', 'hashchange']) addEventListener(type, invalidate);
     document.addEventListener('visibilitychange', () => { if (document.visibilityState !== 'visible') invalidate(); });
     const state = {target, valid, invalidate, operations, sample, tick, ownCards, markBad, currentMember,
-      currentSource, input, form, nodeID};
-    Object.defineProperty(globalThis, KEY, {value: state, configurable: false, writable: false});
+      currentSource, input, form, nodeID, next: null};
+    if (registry.tail) registry.tail.next = state;
+    else registry.head = state;
+    registry.tail = state;
+    registry.count++;
     return state;
   }
 
-  let state = globalThis[KEY];
+  let registry = globalThis[KEY];
+  // All non-capture commands resolve the exact historical lease. They never
+  // install/rearm a document, and cannot redirect an old UNKNOWN into a new one.
+  const generations = function* () {
+    let current = registry?.head;
+    for (let i = 0; current && i < MAX_GENERATIONS; i++, current = current.next) yield current;
+  };
   if (command.action === 'captureTarget') {
-    state ||= install();
-    if (!state.valid() || !contextMatches(state.target)) fail('TARGET_INVALID');
-    return state.target;
+    if (!registry) {
+      registry = {head: null, tail: null, count: 0};
+      Object.defineProperty(globalThis, KEY, {value: registry, configurable: false, writable: false});
+    }
+    let current = registry.tail;
+    if (!current || !current.valid() || !contextMatches(current.target)) {
+      if (current) current.invalidate();
+      if (registry.count >= MAX_GENERATIONS) fail('LEASE_GENERATION_LIMIT');
+      current = install(registry);
+    }
+    return current.target;
   }
+  const state = [...generations()].find(generation => sameTarget(command.target, generation.target));
   if (command.action === 'validate') {
-    return {target: command.target, valid: !!state && state.valid() && contextMatches(state.target)
-      && sameTarget(command.target, state.target)};
+    return {target: command.target, valid: !!state && state === registry.tail && state.valid()
+      && contextMatches(state.target)};
   }
   const identity = command.identity;
   if (!identity || !sameTarget(identity.target, command.target)) fail('IDENTITY_REQUIRED');
-  if (!state || !state.valid() || !contextMatches(state.target) || !sameTarget(identity.target, state.target)) {
+  if (!state || !state.valid() || !contextMatches(state.target) || !sameTarget(identity.target, state.target)
+      || (command.action !== 'observe' && state !== registry.tail)) {
     if (command.action === 'observe') return blankObservation(identity);
     fail('TARGET_INVALID');
   }
   const acknowledge = (op, nextChunk) => ({operationID: op.identity.operationID, attempt: op.identity.attempt, nextChunk});
   let op = state.operations.get(identity.operationID);
   if (command.action === 'begin') {
-    if (op || state.operations.size >= 32 || !Number.isSafeInteger(identity.attempt) || identity.attempt < 1
+    if ([...generations()].some(generation => generation.operations.has(identity.operationID)) || state.operations.size >= 32 || !Number.isSafeInteger(identity.attempt) || identity.attempt < 1
         || !/^[a-f0-9]{64}$/.test(identity.assetSHA256)
         || !/^[a-fA-F0-9-]{36}$/.test(identity.operationID) || !/^[a-fA-F0-9-]{36}$/.test(identity.assetID)
         || command.uploadName !== 'riftlet-' + identity.operationID + '.png'

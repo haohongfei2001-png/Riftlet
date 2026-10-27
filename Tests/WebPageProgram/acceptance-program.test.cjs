@@ -14,8 +14,8 @@ const native = {applicationID:'com.google.Chrome', sessionID:'4242:1', windowID:
 
 function fixture({blockedDigest = false, route = 'https://chatgpt.com/', mode = 'chat'} = {}) {
   const events = new Map(), globalEvents = new Map();
-  let mutationCallback, focused = true, releaseDigest;
-  const observations=[];
+  let focused = true, releaseDigest;
+  const mutationObservers=[];
   const digestGate = blockedDigest ? new Promise(resolve => { releaseDigest = resolve; }) : Promise.resolve();
   class Node {
     constructor(tag, attrs = {}) { this.tagName = tag.toUpperCase(); this.attrs = {...attrs}; this.isConnected = true; this.children = []; this.parent = null; this.textContent = ''; }
@@ -67,10 +67,12 @@ function fixture({blockedDigest = false, route = 'https://chatgpt.com/', mode = 
   body.parent = document;
   const mutation = records => {
     if (!records.length) records=[{type:'childList',target:form,removedNodes:[],addedNodes:[]}];
-    const delivered=records.filter(record=>observations.some(({target,options})=>
-      (target===record.target || (options.subtree && target.contains?.(record.target)))
-      && (record.type==='childList' ? options.childList : record.type==='characterData' ? options.characterData : options.attributes)));
-    if(delivered.length) mutationCallback(delivered);
+    for (const observer of mutationObservers) {
+      const delivered=records.filter(record=>observer.observations.some(({target,options})=>
+        (target===record.target || (options.subtree && target.contains?.(record.target)))
+        && (record.type==='childList' ? options.childList : record.type==='characterData' ? options.characterData : options.attributes)));
+      if(delivered.length) observer.fn(delivered);
+    }
   };
   const sharedPixels = new Uint8Array([12,20,30,255,40,50,60,255]);
   class TestImage extends Node {
@@ -85,10 +87,16 @@ function fixture({blockedDigest = false, route = 'https://chatgpt.com/', mode = 
     location:{href:route}, document, HTMLInputElement:Input, Image:TestImage,
     URL:{createObjectURL:()=>'blob:fixture',revokeObjectURL:()=>{}},
     OffscreenCanvas:class { constructor(w,h) { this.width=w;this.height=h; } getContext() { let selected; return {drawImage:i=>{selected=i;},getImageData:()=>({data:selected.rgba})}; } },
-    MutationObserver:class { constructor(fn) { mutationCallback=fn; } observe(target,options) { observations.push({target,options}); } },
+    MutationObserver:class {
+      constructor(fn) { this.entry={fn,observations:[]};mutationObservers.push(this.entry); }
+      observe(target,options) {
+        const prior=this.entry.observations.find(item=>item.target===target);
+        if(prior) prior.options=options; else this.entry.observations.push({target,options});
+      }
+    },
     DataTransfer:class { constructor() { this.files=[];this.items={add:f=>this.files.push(f)}; } },
     Event:class { constructor(type) { this.type=type; } },
-    addEventListener:(type,fn) => globalEvents.set(type,fn)
+    addEventListener:(type,fn) => { if (!globalEvents.has(type)) globalEvents.set(type, []);globalEvents.get(type).push(fn); }
   });
   vm.runInContext('globalThis.top=globalThis', context);
   const program = vm.runInContext('(' + source + ')', context);
@@ -109,7 +117,7 @@ function fixture({blockedDigest = false, route = 'https://chatgpt.com/', mode = 
     const deadline=Date.now()+2000;
     do {
       await new Promise(resolve=>setTimeout(resolve,1));
-      const ops=[...(context.__riftletWebAcceptance20261027v1?.operations.values() || [])];
+      const ops=[];for(let g=context.__riftletWebAcceptance20261027v2?.head;g;g=g.next) ops.push(...g.operations.values());
       if (ops.every(op=>!op.committed || op.invalid || (op.fileHashVerified && !op.proofPending))) return;
     } while(Date.now()<deadline);
     assert.fail('bounded synthetic async work did not settle');
@@ -256,6 +264,52 @@ test('mode switching and replacement permanently revoke the original draft lease
     const f=fixture({blockedDigest:true}),op=f.bind();f.stage(op);f.commit(op);change(f);
     f.chatMode.attrs['aria-pressed']='true';f.workMode.attrs['aria-pressed']='false';
     f.release();await f.settle();assert.equal(f.input.inputCount,0);
-    assert.equal(f.observe(op).state,'invalidated');assert.throws(()=>f.target(),/TARGET_INVALID/);
+    assert.equal(f.observe(op).state,'invalidated');
+    const fresh=f.target();assert.notEqual(fresh.documentID,op.target.documentID);
+    assert.equal(f.call({action:'validate',target:op.target}).valid,false);
   }
+});
+
+test('returning to a tab can bind a fresh lease while original UNKNOWN stays observation-only', async () => {
+  const f=fixture(),old=f.bind();f.stage(old);f.commit(old);await f.settle();
+  assert.equal(f.input.inputCount,1);
+  f.document.visibilityState='hidden';
+  for(const fn of f.events.get('visibilitychange')||[]) fn();
+  f.document.visibilityState='visible';
+  for(const fn of f.events.get('visibilitychange')||[]) fn();
+  const registry=f.context.__riftletWebAcceptance20261027v2;
+  assert.equal(registry.count,1);
+  assert.equal(f.observe(old).state,'invalidated');assert.equal(registry.count,1);
+  const fresh=f.bind('33333333-3333-4333-8333-333333333333');
+  assert.notEqual(fresh.target.documentID,old.target.documentID);
+  assert.notEqual(fresh.target.draftGeneration,old.target.draftGeneration);
+  assert.equal(registry.count,2);assert.equal(registry.head.next,registry.tail);
+  assert.equal(registry.head.operations.size,1);
+  assert.equal(f.call({action:'validate',target:old.target}).valid,false);
+  assert.throws(()=>f.stage(old),/TARGET_INVALID/);assert.throws(()=>f.commit(old),/TARGET_INVALID/);
+  // Even a caller attempting to transplant the old operation ID into a fresh
+  // lease cannot evade the original page input tombstone.
+  const transplanted=f.bind(old.identity.operationID);
+  assert.throws(()=>f.stage(transplanted),/BEGIN_REFUSED/);
+  f.stage(fresh);f.commit(fresh);await f.settle();assert.equal(f.input.inputCount,2);
+  const view=f.makeCard(fresh);f.finish(view);await f.settle();assert.equal(f.observe(fresh).state,'attached');
+  assert.equal(f.observe(old).state,'invalidated');assert.equal(f.input.inputCount,2);
+  assert.equal(registry.count,2);
+});
+
+test('lease generations are bounded and old v1 state cannot bypass the new mode gate', () => {
+  const legacy=fixture({mode:'missing'});
+  legacy.context.__riftletWebAcceptance20261027v1={valid:()=>true,target:{...native,surface:'webChat'}};
+  assert.throws(()=>legacy.target(),/UNPROVEN_CHAT_MODE/);
+  assert.equal(legacy.context.__riftletWebAcceptance20261027v2.count,0);
+  const f=fixture();let first;
+  for(let i=0;i<32;i++) {
+    const target=f.target();first ||= target;
+    f.document.visibilityState='hidden';for(const fn of f.events.get('visibilitychange')||[]) fn();
+    f.document.visibilityState='visible';
+  }
+  assert.throws(()=>f.target(),/LEASE_GENERATION_LIMIT/);
+  const registry=f.context.__riftletWebAcceptance20261027v2;
+  assert.equal(registry.count,32);assert.equal(registry.head.target.documentID,first.documentID);
+  assert.equal(f.call({action:'validate',target:first}).valid,false);assert.equal(f.input.inputCount,0);
 });
