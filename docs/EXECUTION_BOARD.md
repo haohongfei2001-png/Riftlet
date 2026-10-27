@@ -1,5 +1,9 @@
 # Riftlet 自主并行执行队列
 
+> **NEW RELEASE UX REQUIREMENTS P29–P33 (2026-10-27):** [RELEASE_UX_REQUIREMENTS](RELEASE_UX_REQUIREMENTS_2026-10-27.md) confirms focusless composer single-click, subtle invalid-click feedback, interaction-safe archive, and the lean public-release baseline. Screenshot self-inclusion is a **technical feasibility study**, not a guarantee; see [Pro focused research brief](PRO_FEASIBILITY_REVIEW_BRIEF_2026-10-27.md). **Do not disrupt existing W2/N1/M1 implementation or mark release requirements PASS from current synthetic/partial tests.**
+
+
+
 > **2026-10-27 NEW USER PRODUCT DECISION:** [INTERACTION_CONTRACT_2026-10-27.md](INTERACTION_CONTRACT_2026-10-27.md) now governs the final screenshot/rift lifecycle: current target at click; **positive upload start → very fast swallow**, not READY-only; only explicit/extremely high-confidence failure → rebirth; swallowed UNKNOWN stays locally hidden; idle archive, single/bulk removal, and **no slit at zero visible items**. Current source, acceptance and success/failed gates have **not** been revised merely by this note. The integration lead should create/claim a separate implementation+real-acceptance packet without discarding already passing W2/N1/M1 evidence. No unreviewed merge or production enablement. **Additional user rulings P23–P28:** no success Toast; no composer means no swallow; failure-qualified rebirth must be a normal clickable screenshot with ordinary archive/removal; queue clearing never removes ChatGPT attachments; optimize consecutive clicks only when safe. Hold-and-drag remains unapproved. Update product UI/state-machine acceptance accordingly; do not treat these product decisions as already implemented.
 
 2026-10-27（北京时间）。本文件是可续做的工程队列；总体范围见 [ENGINEERING_PLAN.md](ENGINEERING_PLAN.md)。用户不承担日常任务分派、实现取舍或逐项审批。负责人完成一包后自动领取可做的下一包。
