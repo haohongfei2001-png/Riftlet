@@ -6,7 +6,11 @@
 
 **2026-10-27 前轮实施增量：** C1/U1/W0由三个独立执行者实际并行，负责人同步实现Core可靠性与App接线；随后完成U2/W1/D1/C2/M0。四批代码通过63/98/127/**134**项macOS测试并保存在检查点b5958d1；本轮不重做这些模块。
 
-**本轮 W2 增量：** 已取得并原样归档 `6f415698` 的真实Apple Events源码和异常证据，完成独立审查与离线复现。`97f10b0` 将其输入原语、逐图生命周期和内容证明接入现有适配器及原生App；显式 `--web-acceptance` 使用独立生成图片队列，真实传输，合成来源专属消费权限。macOS CI **139项原生测试、9项页面VM回归、release/签名和迁移后的App资源自检通过**。正式模式仍不上传真实截图。已登记Mac离线，集成程序的真实ATTACHED/首击/焦点/吞噬与N1尚未执行；生产准入及safe-retry没有放宽。原架构不变，精确证据和直接恢复入口见[执行队列](EXECUTION_BOARD.md)。
+**前轮 W2 源码集成（历史97f10b0）：** 已取得并原样归档 `6f415698` 的真实Apple Events源码和异常证据，完成独立审查与离线复现。`97f10b0` 将其输入原语、逐图生命周期和内容证明接入现有适配器及原生App；显式 `--web-acceptance` 使用独立生成图片队列，真实传输，合成来源专属消费权限。macOS CI **139项原生测试、9项页面VM回归、release/签名和迁移后的App资源自检通过**。正式模式仍不上传真实截图。已登记Mac离线，集成程序的真实ATTACHED/首击/焦点/吞噬与N1尚未执行；生产准入及safe-retry没有放宽。原架构不变，精确证据和直接恢复入口见[执行队列](EXECUTION_BOARD.md)。
+
+**M1 独立实现记录（历史PR #3）：** 用户将真实 Mac 的 W2/N1 交由本地 Codex独立负责；root在独立PR #3实现实际AX/NSPasteboard后端、跨实例持久协调及恢复，复用M0接口。已测7dfa8ec的173项原生测试与现有构建/自检通过，生产Mac能力默认禁用；真实客户端结构和逐图完成只阻塞对应provider/profile及准入。没有重做架构或修改Web/Core/App。[执行范围与接口](M1_NATIVE_BACKEND.md)。
+
+**正式合流增量：** 本地真机分支f075b8f（已测1909771）与M1的88f9e36由唯一负责人整合到PR #1；保留四个真实源码提交和原始证据，补齐M1在新Core成功/补偿阶段的只读观察。总体架构与依赖顺序不变；当前集成验证、确切源码与剩余UX缺陷见[集成交接](INTEGRATION_HANDOFF.md)和[执行板](EXECUTION_BOARD.md)。本地Mac已经可用；真实网络异常、普通线程、物理N1、首击/UNKNOWN体验和生产准入仍分别待证据，不能称“全部因环境阻塞”。
 
 ## 1. 授权、范围和最小交付
 
@@ -53,7 +57,7 @@
 
 ## 4. 状态与上传接口
 
-Asset可见状态：pending、transferring、unknown、failed、missing；used退出待用队列。Operation区分prepared、dispatchIntent、inputTriggered、attachmentPresent、unknown、failed、succeeded。
+Asset可见状态：pending、transferring、unknown、failed、missing；used退出待用队列。Operation区分prepared、dispatchIntent、inputTriggered、attachmentPresent、unknown、compensated、failed、succeeded；compensated保留原成功与迟到错误、恢复可见性且仅观察，不授予新输入。
 
 `AttachmentAdapter`只有 `captureTarget / validate / append / reconcile`，没有Send。`TargetLease`包含adapter/surface/app/session/window/tab/document/composer/draftGeneration。adapter必须在同一目标执行片段内复核lease并追加，不以之前一次validate替代临界区验证。
 
@@ -61,7 +65,7 @@ Asset可见状态：pending、transferring、unknown、failed、missing；used�
 
 当前生产成功/失败准入表均为空，没有通过配置文件跳过验证的开关。离线演示仍要求simulation store + synthetic asset + simulation target + simulation-v1；显式Web验收则使用独立目录、仅synthetic的adapter、拒绝真实来源的integratedDevelopment观察及Core合成来源专属profile。该权限不能给真实截图或safe-retry使用。
 
-`verifiedReady`是获准的产品完成语义，不要求读取名为READY的私有内部字段。对应真实源码和范围证据现已独立审查；新合并程序还需真实目标/完成/恢复验证才可准入生产吞噬。归档要求的已消费后迟到失败恢复尚未实现，保留used字节不等于具备逆向恢复。成功与安全重试分别判断。
+`verifiedReady`是获准的产品完成语义，不要求读取名为READY的私有内部字段。对应真实源码和范围证据现已独立审查；新合并程序还需真实目标/完成/恢复验证才可准入生产吞噬。现已实现事务化迟到失败补偿，并有活跃原卡片DOM故障/重启证据；这不等于真实网络异常或后台旧草稿恢复通过。成功与安全重试分别判断。
 
 详见 [ADAPTER_CONTRACT.md](ADAPTER_CONTRACT.md)。
 

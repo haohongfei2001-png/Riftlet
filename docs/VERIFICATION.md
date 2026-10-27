@@ -9,15 +9,36 @@
 - macOS CI compilation/tests/package smoke do not prove interactive focus, click-through, Spaces or real upload.
 - No real user screenshots, chats or browser sessions are used in automated tests.
 
+## Formal integration — current increment
+
+<!-- INTEGRATION_STATUS -->
+The combined candidate preserves f075b8f (tested1909771) and M1 88f9e36 ancestry. Independent Web/Core/evidence reviews passed; root's three-file M1 completed-observation fix and three focused tests passed two non-author source reviews. The combined tree's page VM20/20 and archived replay passed on Linux. Full integrated macOS CI is pending; predecessor runs below are not its result. See [integration handoff](INTEGRATION_HANDOFF.md).
+<!-- END_INTEGRATION_STATUS -->
+
 ## Latest local Mac execution
 
 Source `1909771d45ad00290dffe245b9a42e6e9f55203c`, isolated acceptance branch, successful [run40449181125](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40449181125). See the [real Mac handoff](../engineering/evidence/2026-10-27-real-mac/README.md), [sanitized live evidence](../engineering/evidence/2026-10-27-real-mac/live-evidence.json) and [checks](../engineering/evidence/2026-10-27-real-mac/verification.json).
 
-Five integrated generated-image inputs reached verifiedReady on real Chinese Home Chat. Identity-correlated late DOM failure restored the queue, persisted across restart and did not re-upload; real tab A→B→A revoked the old lease; v4 blocked a new input on a compensated tab after rearming. Three native system window captures imported exactly once with matching private bytes; helper 2/3/12 scenes ran. Full existing-thread/network anomaly/physical GUI acceptance and the production two-operation loop remain unaccepted. Ordinary mode is capture-only; production completion and safe retry remain disabled.
+Across the local acceptance source revisions ending at1909771, five integrated generated-image inputs reached verifiedReady on real Chinese Home Chat. Identity-correlated late DOM failure restored the queue, persisted across restart and did not re-upload; real tab A→B→A revoked the old lease; v4 blocked a new input on a compensated tab after rearming. Three native system window captures imported exactly once with matching private bytes; helper 2/3/12 scenes ran. Full existing-thread/network anomaly/physical GUI acceptance and the production two-operation loop remain unaccepted. Ordinary mode is capture-only; production completion and safe retry remain disabled.
 
 Local Swift 6.4 CLT builds and actual SQLite smokes passed; local XCTest was unavailable. CI is a distinct macOS runner. No real screenshot or private conversation content was committed. The following earlier execution record is historical and does not describe the current local Mac availability.
 
-## Previous integration execution (historical)
+
+## M1 predecessor branch — historical CI
+
+The user's local Codex owns real-Mac W2/N1/Web acceptance. This session did not access that device or general pasteboard. Its isolated branch `codex/m1-native-backend-20261027` / [Draft PR #3](https://github.com/haohongfei2001-png/Riftlet/pull/3) targets the PR #1 engineering branch; these are pre-integration checks; current integration status is recorded above. No main merge occurred.
+
+- Tested head [`7dfa8ecbd221095f6c99d289aba794b51ce37e95`](https://github.com/haohongfei2001-png/Riftlet/commit/7dfa8ecbd221095f6c99d289aba794b51ce37e95), based on485fa87. [Run40446467852](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40446467852), job121998836427, completed/success2026-10-27 11:52:40Beijing; temporary PR test mergec1ef59f3f9d014987aa1f7e1731de028d9649f79 is not a branch merge.
+- **173/173 native tests:** Capture48/Core30/UI17/Adapters78. **9/9 inherited page VM tests**; archived replay unchanged. Release build, App/ad-hoc signature and all three existing self-checks passed. CHROME_NOT_RUN/GUI_NOT_RUN remain explicit.
+- New34 M1 cases cover eight actual unique named NSPasteboard tests, native local AX object/GetPid primitives plus injected AX scenarios, actual file/journal/two-instance/separate-process flock, and SQLite/native-coordination recovery. They do not query the real ChatGPT client or prove actual menu Paste, selection preservation or per-image completion.
+- Initial run40446176770 compiled but had two pasteboard fixture failures: an OS-generated UTF-16 representation and invalid legacy promise UTI setup. The reviewed test-only correction retains full materialized snapshot restoration and uses a modern type reported by AppKit. The successful run above is the final execution evidence.
+- [Artifact12707859277](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40446467852/artifacts/12707859277): 1005479bytes, SHA256`fc9da0dc19092ae6e09da94817b63a282f14ccf87cb3c4382a9deeb304b59c3c`, expires2026-11-10. Contains development App/helper/logs, no release or notarization.
+- [Permanent verification](../engineering/evidence/2026-10-27/m1-native-verification.json), [CI excerpt](../engineering/evidence/2026-10-27/m1-native-ci-excerpt.txt), [non-author review](../engineering/evidence/2026-10-27/m1-native-review.json) and [M1 interface/scope](M1_NATIVE_BACKEND.md).
+
+Root authored coordinator/M0 integration/recovery tests; native AX and pasteboard authors worked concurrently; m1_review independently read all nine files and final CI, with cross-review by the other authors. Findings fixed nil-read classification, resolution-before-Core-commit recovery and coordination-error receipt admission. Native Mac profiles remain empty and disabled; App/Core/Web paths did not change. The docs/evidence checkpoint after7dfa8ec does not alter tested native/build inputs.
+
+## Inherited PR #1 execution at485fa87
+
 
 | Check | State | Scope |
 | --- | --- | --- |
@@ -101,7 +122,7 @@ Review here means non-author technical review by distinct execution agents. It i
 - ARM64 macOS CI and local macOS 27 / Apple M5 compilation and scoped live acceptance ran. Intel and other OS versions remain unverified; local results do not establish the entire GUI matrix.
 - Transparent minimum-hit rectangles, fullscreen behavior and exclusion from Apple's own screenshots are not established by pure layout tests.
 - Developer simulation is not an upload adapter, and the production build intentionally retains real images.
-- The integrated Web program now has scoped live Home/Chinese/PNG success and controlled late-DOM-error compensation/restart evidence. Prearmed target freezing and page epoch revocation address queued capture, but unarmed first-click availability, the complete race matrix, same-URL business-draft replacement and actual network-failure behavior remain unaccepted. Exact Chinese Chat/Work mode identification is implemented; arbitrary existing conversations remain unsupported. Production remains disabled. Mac has only injected platform drivers; cross-instance/restart clipboard coordination remains required before native enablement.
+- The integrated Web program now has scoped live Home/Chinese/PNG success and controlled late-DOM-error compensation/restart evidence. Prearmed target freezing and page epoch revocation address queued capture, but unarmed first-click availability, the complete race matrix, same-URL business-draft replacement and actual network-failure behavior remain unaccepted. Exact Chinese Chat/Work mode identification is implemented; arbitrary existing conversations remain unsupported. Production remains disabled. Mac includes the M1 native AX/NSPasteboard drivers and durable cross-instance coordination. Actual version/surface binding, input, selection and completion evidence remain required before client enablement.
 
 ## Autonomous execution plan v2 — historical documentation increment
 

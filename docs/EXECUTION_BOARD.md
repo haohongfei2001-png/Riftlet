@@ -2,7 +2,15 @@
 
 2026-10-27（北京时间）。本文件是可续做的工程队列；总体范围见 [ENGINEERING_PLAN.md](ENGINEERING_PLAN.md)。用户不承担日常任务分派、实现取舍或逐项审批。负责人完成一包后自动领取可做的下一包。
 
+**M1 独立执行记录（历史，合流前）**：用户已将真实 Mac 的 W2/N1 与 Web 两次操作闭环交给本地 Codex；本会话不访问或争用其设备。以下 PR #1 表格及 W2 结果是继承到 `485fa87` 的检查点，不冒充另一会话的新结果。M1 在独立分支 `codex/m1-native-backend-20261027` / [Draft PR #3](https://github.com/haohongfei2001-png/Riftlet/pull/3) 完成原生后端，已测 `7dfa8ec`、173/173 原生测试与非作者审查通过；实际客户端准入仍等待真实证据。唯一正式工程集成负责人保持 root，后续按分支成果整合，不直接争写 PR #1。
+
 ## 1. 当前检查点
+
+<!-- INTEGRATION_STATUS -->
+**正式集成候选：** root在独立worktree合流本地真机`f075b8f`（已测1909771）和M1`88f9e36`。四个Codex源码提交/证据、M1后端及只读完成后观察修复已通过非作者审查；本合流树完整macOS CI待提交后执行，不能沿用两分支各自的测试数冒充通过。唯一正式分支和评审入口仍为PR #1；本地Codex继续负责真实Mac，当前会话未访问设备。详细来源、接口修复、准入及直接续做命令见[正式集成交接](INTEGRATION_HANDOFF.md)。
+<!-- END_INTEGRATION_STATUS -->
+
+**实际产品缺陷：UX-01预绑定首击限制、UX-02整标签UNKNOWN阻塞均OPEN。** 工程已决定自动触发目标预绑定、在有证据时分离逻辑草稿身份与输入焦点代际，保持原操作只观察；方案与真机验收写入[交接](INTEGRATION_HANDOFF.md#已确认的产品体验缺陷与自主修复决策)。不增加用户确认、重点击或手工清锁，不凭空放宽当前锁。
 
 **本地真机增量，2026-10-27：** 独立分支 `codex/riftlet-real-mac-acceptance-20261027`，正式 PR #1 / Pro 集成分支未被覆盖。源码 `1909771d45ad00290dffe245b9a42e6e9f55203c` 已通过 [macOS CI](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40449181125)。本机 macOS 27 / Apple M5 / Chrome 156 实际可用；此前 Mac 离线记录只属历史。
 
@@ -38,7 +46,7 @@
 
 流程为 `READY → ACTIVE → REVIEW → DONE`；检查失败回ACTIVE修复。无法执行的场景保持WAITING，不用模拟结果填PASS。每次结束一个包或发现局部阻塞后，立即选下一个依赖满足的READY项；没有有效工作时保存事实状态，不循环空提交。
 
-**当前续做入口：** 以上述本地真机交接为准。已有受控真实成功和补偿证据；剩余网络故障、普通对话适配、点击/物理 GUI 及生产准入尚未完成。M1 独立推进，不扩大本轮范围。
+**当前续做入口：** 本地Codex继续拥有真实Mac的W2/N1验收；负责人将f075b8f与PR #3的88f9e36整合到PR #1。受控Home成功、DOM迟到错误补偿和截图收录证据保留；网络异常、普通线程、首击和物理GUI仍未完整验收。M1后端已完成，客户端provider/profile仍待真实证据。下一轮只从正式集成检查点续做，不重领已完成基础模块。
 
 ## 3. 并行所有权
 
@@ -64,7 +72,7 @@
 | **U1 · DONE（下述实现范围） · U** | 已有RiftPanel；只需合成数据 | 新建最小原生验收辅助程序/场景，记录焦点、下层点击计数、触发assetID；先接2/3/12图固定场景，I加入构建入口 | 工具在Mac CI编译；无真实截图/ChatGPT连接；能观察N04/N05/N07；实际焦点/穿透结果仍留N1，不把“工具编译”当GUI通过 |
 | **U2 · DONE（下述实现范围） · U（U1后优先）** | 已有纯布局/指针模型 | 针对配置更新、长队列可见区、屏幕消失回退、按下期间重排补确定性边界用例，修复发现的具体缺陷 | 比例/连续编号/asset身份不回归；最新图可达；无自动丢弃；reduced-motion和尺寸参数仍可调；物理显示器结果留N1 |
 | **Q1 · DONE（下述实现范围） · I** | 已有QueueStore/Coordinator | 扩充崩溃intent边界、晚到回执与原target锁的交叉用例；只补真实未覆盖风险，不重写现有数据库 | 恢复只查询原操作；旧attempt/wrong lease不能消费；unknown不盲重传；used与操作回执原子持久；有失败就先修该Core改动 |
-| **I1 · DONE（本轮）；后续持续职责 · I** | 任一代码增量到达 | 审查跨模块契约，集成小变更，触发对应macOS CI，维护SHA/日志/制品/剩余验收 | 相关测试、release构建、app签名/self-check通过；非作者审查有结论；未测GUI/上传状态准确；无需用户逐次确认 |
+| **I1 · ACTIVE（本轮合流CI）；前轮DONE · I** | 任一代码增量到达 | 审查跨模块契约，集成小变更，触发对应macOS CI，维护SHA/日志/制品/剩余验收 | 相关测试、release构建、app签名/self-check通过；非作者审查有结论；未测GUI/上传状态准确；无需用户逐次确认 |
 | **D1 · DONE（下述实现范围） · 空闲C/I** | 已有私有目录布局 | 增加按需磁盘用量与空间不足诊断，路径/内容不写公开日志；先做可测试的计量边界 | 无空闲轮询、无全量缩略图解码、无自动删除；存储失败不损原件/已用记录；性能测量留N1 |
 
 C2/U2是同一角色的后续包，不能因为表内READY就同时写相同文件。若C1只剩真实设置通知证据，已完成的代码按验证范围提交，C线转C2；若U1只剩交互Mac，U线转U2。
@@ -77,7 +85,7 @@ C2/U2是同一角色的后续包，不能因为表内READY就同时写相同文�
 | **W1 · DONE（下述实现范围） · A（W0后优先；可拆给空闲角色）** | 现有AttachmentAdapter；已有用户报告的Apple Events INPUT事实；不等完整异常包 | 实现默认禁用的Apple Events候选桥接与fake transport测试；以现有契约接线，具体页面注入/身份观察只取已取得源码/DOM证据，不凭空猜选择器 | 无Send；dispatchIntent先于外部输入；同目标片段复核；超时/断链保留unknown；reconcile只观察；正式App仍禁用；真实结果在W2验证 |
 | **M0 · DONE（下述实现范围） · A（Web小包后补位）** | 现有接口/系统pasteboard类型 | 实现独立Mac adapter基础：fileURL/PNG表示、PID+window/composer身份接口、剪贴板所有权/恢复状态机与fake pasteboard测试；实际AX选择器待证据 | 后续用户复制后绝不恢复覆盖；不以固定延迟证明消耗；不宣称已验证Chat/Work/Classic；无额外真实权限申请或真实粘贴 |
 | **W2 · WAITING_EVIDENCE（本地部分实测，完整验收未达标） · A/I** | 1909771源码/CI/非作者审查及受控Home实测完成 | 基于实际页面完善普通对话Chat判别，完成真实网络中断/100%后失败、延迟点击/多窗口/业务草稿变更与恢复矩阵 | 保留已验证的生成图片成功、持久补偿和观察-only；生产成功与safe-retry仍需独立准入，不重做Core/截图/UI基础 |
-| **M1 · WAITING_ENVIRONMENT + 实现依赖M0 · A/I** | M0 + 特定Mac客户端/版本/模式的实际执行环境和权限 | 观察AX，再做合成图片输入与逐图完成/异常验证；先单surface完成闭环 | M00–M06适用用例通过；目标/剪贴板/选择保留及逐图完成可证；单独profile准入；其他surface不借用通过结论 |
+| **M1 · 原生后端DONE；客户端WAITING_EVIDENCE · I/A** | 已完成M0；原生后端不等客户端结构 | 独立PR #3已实现实际AX/NSPasteboard、共享flock/持久意图与恢复，173项CI通过；接下来只按真实版本/surface证据补MacAXBindingProvider/profile | 后端范围见[M1交接](M1_NATIVE_BACKEND.md)；实际M00–M06、选区/旧附件/逐图完成仍未验。默认禁用、内置profile空，不借用Web结论 |
 
 W0不是通用证据平台，只是现有协议的可回归小fixture集合。W1的transport外壳可以和W0并行；若当前三角色已满则顺序补位，不能通过重复实现Core或同时堆两套Web transport制造并行度。
 
@@ -86,7 +94,7 @@ W0不是通用证据平台，只是现有协议的可回归小fixture集合。W1
 | ID / 状态 | 当前已有/可先做 | 精确解锁条件与届时动作 |
 | --- | --- | --- |
 | **N1 · WAITING_EVIDENCE（本地部分实测）** | N01/N02系统窗口截图子集与2/3/12场景已实测；Mac及两块显示器可用，详见真机交接 | 完成物理N05/N07、热键、自包含、Spaces/全屏/热插拔/睡眠及资源/端到端延迟测量，不把子集当完整PASS |
-| **R0 · DONE（当前基础版本范围）** | macOS14 ARM64构建、139 tests、9页面VM回归、ad-hoc app、三个合成self-check已通过 | 后续修改由I1持续验证；Intel/其他OS若未测只注明，不虚构全平台支持 |
+| **R0 · 前轮DONE；当前合流待CI** | 历史97f10b0为139 native/9页面VM；两条待合流分支分别164/20和173/9。当前组合必须重新构建/测试 | 后续修改由I1持续验证；Intel/其他OS若未测只注明，不虚构全平台支持 |
 | **R1 · DEFERRED_RELEASE** | 保持工程制品、安装/权限说明草稿；不等证书或Logo才构建 | 必需功能的W2/N1及发行检查满足，且签名/公证凭据可用时推进对应发布工作；不为发行等待暂停开发 |
 | **V1 · DEFERRED_RELEASE** | R2 01所有几何/动画参数可调；品牌Logo独立进行 | 有后续明确视觉结论时替换参数/资源并验收，不重建原生模块；候选不标Approved |
 | **D2 · DEFERRED_RELEASE** | 原件/used私有媒体保留，D1先做空间诊断 | 收尾时制定并测试安全清理语义；本任务未实现前不得悄悄删除图片，不要求用户现在决策 |
@@ -150,7 +158,7 @@ Next READY task or next concrete action:
 
 历史搜索状态（b5958d1时）：原始Library交接ZIP存在，最新Codex实际页面源码与完整异常证据当时未取得。E06保留“用户报告本轮范围通过”的事实，不将“资料未取得”改写成“实测未通过”。该缺源码状态现已被E07和下方W2增量取代。
 
-### W2产品闭环集成 — 当前检查点
+### W2产品闭环集成 — 继承检查点（截至485fa87）
 
 - **代码提交**：`97f10b0bf03fbd9421083a15eefec0eb22ead606`；实际源于b5958d1，完整导入的Web交接固定为6f415698，不合并其余main/网站路径。
 - **交付**：捆绑真实输入原语派生页面程序；完整identity、唯一输入、逐图进度/最终内容证明；超时后只observe；显式`--web-acceptance`原生App生成图片队列与受来源约束的开发吞噬。普通模式仍保留真实截图，不输入ChatGPT。
@@ -158,3 +166,13 @@ Next READY task or next concrete action:
 - **真实环境**：初始设备核实及长时间工具中断后的复核均为离线。没有启动实际Mac命令、系统截图、真实页面输入或GUI；N1/W2实际验收保留等待。中断后先核对远端仍b5958d1，再完成本代码提交，未重推或覆盖他人提交。
 - **下一条动作**：在线Mac可用时按[现成入口](MAC_ACCEPTANCE.md#w2-integrated-web-acceptance-entry)运行生成图片Home Chat路径，并同期执行N1首击/焦点/穿透/系统收录；实际发现即修复。随后扩展当前聊天线程和点击标签切换证据、UNKNOWN恢复与迟到失败处理，满足对应准入后才能让真实截图进入两次操作闭环。
 - **范围控制**：M1保持独立；品牌和发行没有加入关键路径。本轮没有新增无关模块、重做基础工程、修改main/视觉资产、发布或发送聊天消息。没有后台持续编码进程；下次从此检查点续做。
+
+
+### M1 独立原生后端 — 历史88f9e36检查点
+
+- **代码与分支**：起点485fa87；实现7cb9656；已测修订`7dfa8ecbd221095f6c99d289aba794b51ce37e95`。分支`codex/m1-native-backend-20261027`，Draft PR #3目标为PR #1工程分支。没有合并或覆盖PR #1、本地Codex的Web/Core、main、品牌或发行文件。
+- **实际实现**：复用M0协议；ApplicationServices/NSPasteboard后端、精确原目标/私有文件/owner检查、稳定跨进程锁、metadata-only日志和一次输入意图；UNKNOWN只观察；丢失快照不恢复；协调失败不给Core成功/重试回执。
+- **实际并行/审查**：root亲自协调器/M0接线/恢复测试；m1_ax与m1_pasteboard并行实现；m1_review非作者读全部源码，作者再交叉审查。修复nil读取分类、resolved早于Core提交断点和协调失败回执漏洞。
+- **CI**：[run40446467852](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40446467852) / job121998836427，macOS14.8.9 arm64 Swift5.10，**173/173**（Capture48/Core30/UI17/Adapters78）+9页面VM，release/app签名及三个自检全部成功。此前首次运行的两处原生命名剪贴板fixture假设失败已修正，原生驱动未放宽。
+- **证据/范围**：[M1接口与恢复说明](M1_NATIVE_BACKEND.md)、[验证记录](../engineering/evidence/2026-10-27/m1-native-verification.json)、[非作者审查](../engineering/evidence/2026-10-27/m1-native-review.json)。命名板是真实系统API，AX目标/动作主要为注入测试；未查询/操作真实客户端或通用剪贴板。
+- **当时下一条动作（历史）**：保留独立成果供负责人整合；已有客户端AX/版本/模式证据到达后，仅实现对应provider并在授权环境完成M00–M06，再单独准入。W2/N1由本地Codex继续，root后续负责统一集成其真机成果。本M1分支没有遗留ACTIVE实现任务；不重复规划、不生成额外后台任务、不把本次CI写成真实Mac客户端通过。

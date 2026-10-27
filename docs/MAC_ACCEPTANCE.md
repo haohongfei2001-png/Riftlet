@@ -45,6 +45,10 @@ JSONL records synthetic IDs, event counts, geometry and focus observations; type
 
 Real ChatGPT tests are separate and use [the inherited W00–W07/M00–M06 procedure](../research/technical-decision-2026-10-26/03_MAC_VALIDATION.md). Build/test/animation success never substitutes for that evidence.
 
+## Formal combined-source checkpoint
+
+The formal engineering branch now combines the reviewed local1909771/f075b8f changes with M1 88f9e36 and the completed-observation compatibility fix. Use [INTEGRATION_HANDOFF](INTEGRATION_HANDOFF.md) for the exact tested source/checkpoint and new-worktree commands. Keep existing queues/media/journals; v1→v2 migration must retain UNKNOWN and compensation. The local Codex continues real-Mac ownership; Linux/CI integration does not repeat or expand its live verdicts. UX-01 cold-first-click and UX-02 whole-tab UNKNOWN blocking remain actual open product defects with no-extra-user-action solutions and evidence gates recorded there.
+
 ## W2 integrated Web acceptance entry
 
 The actual [source/evidence handoff](../research/web-attachment-handoff-2026-10-27/README.md) is archived at its exact `6f415698` version. The integrated App has now run on the local Mac through source `1909771`: controlled Chinese Home inputs and a DOM-error compensation path passed. The complete W2 matrix and production path remain unaccepted; see the [real Mac record](../engineering/evidence/2026-10-27-real-mac/README.md). The commands below are the current reproduction entry.
