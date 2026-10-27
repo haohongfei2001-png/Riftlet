@@ -9,6 +9,7 @@ public final class ChromeActivityObserver {
     private var application: AXUIElement?
     private var focusedWindow: AXUIElement?
     private var pid: pid_t?
+    private var launchDate: Date?
     private var generation = UUID()
     private var scheduledRefresh: Task<Void, Never>?
     private var needsWindowRefresh = false
@@ -23,10 +24,13 @@ public final class ChromeActivityObserver {
     /// Uses existing OS authorization; never opens a permission prompt itself.
     @discardableResult
     public func bind(to app: NSRunningApplication?) -> Bool {
-        guard let app, app.bundleIdentifier == "com.google.Chrome", AXIsProcessTrusted() else {
+        guard let app, app.bundleIdentifier == "com.google.Chrome",
+              let launched = app.launchDate, AXIsProcessTrusted() else {
             stop(); return false
         }
-        if pid == app.processIdentifier, observer != nil { return true }
+        // A new Chrome process can reuse a PID; its predecessor's observer is
+        // not an event source for the new launch session.
+        if pid == app.processIdentifier, launchDate == launched, observer != nil { return true }
         stop()
         var next: AXObserver?
         let result = AXObserverCreate(app.processIdentifier, { source, _, name, context in
@@ -39,7 +43,7 @@ public final class ChromeActivityObserver {
         guard result == .success, let next else { return false }
         let element = AXUIElementCreateApplication(app.processIdentifier)
         AXUIElementSetMessagingTimeout(element, 0.05)
-        observer = next; application = element; pid = app.processIdentifier
+        observer = next; application = element; pid = app.processIdentifier; launchDate = launched
         let pointer = Unmanaged.passUnretained(self).toOpaque()
         var registrations = 0
         for name in [kAXFocusedWindowChangedNotification, kAXFocusedUIElementChangedNotification, kAXWindowCreatedNotification] {
@@ -63,7 +67,7 @@ public final class ChromeActivityObserver {
             }
             if let focusedWindow { AXObserverRemoveNotification(observer, focusedWindow, kAXTitleChangedNotification as CFString) }
         }
-        observer = nil; application = nil; focusedWindow = nil; pid = nil
+        observer = nil; application = nil; focusedWindow = nil; pid = nil; launchDate = nil
     }
 
     private func observeFocusedWindow() {
