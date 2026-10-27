@@ -65,13 +65,14 @@ function fixture({blockedDigest = false, route = 'https://chatgpt.com/', mode = 
   };
   document.contains = node => node === document || body.contains(node);
   body.parent = document;
-  const mutation = records => {
+  const mutation = (records, deferDelivery = false) => {
     if (!records.length) records=[{type:'childList',target:form,removedNodes:[],addedNodes:[]}];
     for (const observer of mutationObservers) {
       const delivered=records.filter(record=>observer.observations.some(({target,options})=>
         (target===record.target || (options.subtree && target.contains?.(record.target)))
         && (record.type==='childList' ? options.childList : record.type==='characterData' ? options.characterData : options.attributes)));
-      if(delivered.length) observer.fn(delivered);
+      if (deferDelivery) observer.pending.push(...delivered);
+      else if(delivered.length) observer.fn([...observer.pending.splice(0), ...delivered]);
     }
   };
   const sharedPixels = new Uint8Array([12,20,30,255,40,50,60,255]);
@@ -88,17 +89,19 @@ function fixture({blockedDigest = false, route = 'https://chatgpt.com/', mode = 
     URL:{createObjectURL:()=>'blob:fixture',revokeObjectURL:()=>{}},
     OffscreenCanvas:class { constructor(w,h) { this.width=w;this.height=h; } getContext() { let selected; return {drawImage:i=>{selected=i;},getImageData:()=>({data:selected.rgba})}; } },
     MutationObserver:class {
-      constructor(fn) { this.entry={fn,observations:[]};mutationObservers.push(this.entry); }
+      constructor(fn) { this.entry={fn,observations:[],pending:[]};mutationObservers.push(this.entry); }
       observe(target,options) {
         const prior=this.entry.observations.find(item=>item.target===target);
         if(prior) prior.options=options; else this.entry.observations.push({target,options});
       }
+      takeRecords() { return this.entry.pending.splice(0); }
     },
     DataTransfer:class { constructor() { this.files=[];this.items={add:f=>this.files.push(f)}; } },
     Event:class { constructor(type) { this.type=type; } },
     addEventListener:(type,fn) => { if (!globalEvents.has(type)) globalEvents.set(type, []);globalEvents.get(type).push(fn); }
   });
   vm.runInContext('globalThis.top=globalThis', context);
+  const pageWindow = vm.runInContext('globalThis', context);
   const program = vm.runInContext('(' + source + ')', context);
   const call = command => program(command, native);
   const target = () => call({action:'captureTarget'});
@@ -117,7 +120,7 @@ function fixture({blockedDigest = false, route = 'https://chatgpt.com/', mode = 
     const deadline=Date.now()+2000;
     do {
       await new Promise(resolve=>setTimeout(resolve,1));
-      const ops=[];for(let g=context.__riftletWebAcceptance20261027v2?.head;g;g=g.next) ops.push(...g.operations.values());
+      const ops=[];for(let g=context.__riftletWebAcceptance20261027v3?.head;g;g=g.next) ops.push(...g.operations.values());
       if (ops.every(op=>!op.committed || op.invalid || (op.fileHashVerified && !op.proofPending))) return;
     } while(Date.now()<deadline);
     assert.fail('bounded synthetic async work did not settle');
@@ -138,7 +141,8 @@ function fixture({blockedDigest = false, route = 'https://chatgpt.com/', mode = 
     for (const fn of events.get('load')||[]) fn({target:view.image,type:'load'});
   };
   return {Node,Input,document,body,form,editor,input,modeHeader,modeGroup,chatMode,workMode,call,target,bind,stage,commit,observe,settle,makeCard,finish,
-    mutate:records=>mutation(records),release:()=>releaseDigest?.(),focus:v=>{focused=v;},
+    mutate:records=>mutation(records),queueMutation:records=>mutation(records,true),
+    windowEvent:(type,target=pageWindow)=>{for(const fn of globalEvents.get(type)||[]) fn({type,target});},release:()=>releaseDigest?.(),focus:v=>{focused=v;},
     replaceEditor:n=>{currentEditor=n;},events,context};
 }
 
@@ -277,7 +281,7 @@ test('returning to a tab can bind a fresh lease while original UNKNOWN stays obs
   for(const fn of f.events.get('visibilitychange')||[]) fn();
   f.document.visibilityState='visible';
   for(const fn of f.events.get('visibilitychange')||[]) fn();
-  const registry=f.context.__riftletWebAcceptance20261027v2;
+  const registry=f.context.__riftletWebAcceptance20261027v3;
   assert.equal(registry.count,1);
   assert.equal(f.observe(old).state,'invalidated');assert.equal(registry.count,1);
   const fresh=f.bind('33333333-3333-4333-8333-333333333333');
@@ -297,11 +301,13 @@ test('returning to a tab can bind a fresh lease while original UNKNOWN stays obs
   assert.equal(registry.count,2);
 });
 
-test('lease generations are bounded and old v1 state cannot bypass the new mode gate', () => {
-  const legacy=fixture({mode:'missing'});
-  legacy.context.__riftletWebAcceptance20261027v1={valid:()=>true,target:{...native,surface:'webChat'}};
-  assert.throws(()=>legacy.target(),/UNPROVEN_CHAT_MODE/);
-  assert.equal(legacy.context.__riftletWebAcceptance20261027v2.count,0);
+test('lease generations are bounded and older state cannot bypass current admission', () => {
+  for(const key of ['__riftletWebAcceptance20261027v1','__riftletWebAcceptance20261027v2']) {
+    const legacy=fixture({mode:'missing'});
+    legacy.context[key]={valid:()=>true,target:{...native,surface:'webChat'}};
+    assert.throws(()=>legacy.target(),/UNPROVEN_CHAT_MODE/);
+    assert.equal(legacy.context.__riftletWebAcceptance20261027v3.count,0);
+  }
   const f=fixture();let first;
   for(let i=0;i<32;i++) {
     const target=f.target();first ||= target;
@@ -309,7 +315,54 @@ test('lease generations are bounded and old v1 state cannot bypass the new mode 
     f.document.visibilityState='visible';
   }
   assert.throws(()=>f.target(),/LEASE_GENERATION_LIMIT/);
-  const registry=f.context.__riftletWebAcceptance20261027v2;
+  const registry=f.context.__riftletWebAcceptance20261027v3;
   assert.equal(registry.count,32);assert.equal(registry.head.target.documentID,first.documentID);
   assert.equal(f.call({action:'validate',target:first}).valid,false);assert.equal(f.input.inputCount,0);
+});
+
+test('Window focus/blur, pageshow and every visibility transition revoke the epoch', async () => {
+  const triggers=[f=>f.windowEvent('blur'),f=>f.windowEvent('focus'),f=>f.windowEvent('pageshow'),
+    f=>{for(const fn of f.events.get('visibilitychange')||[]) fn();}];
+  for(const trigger of triggers) {
+    const f=fixture({blockedDigest:true}),op=f.bind();f.stage(op);f.commit(op);
+    trigger(f);f.release();await f.settle();
+    assert.equal(f.input.inputCount,0);assert.equal(f.observe(op).state,'invalidated');
+    assert.equal(f.call({action:'validate',target:op.target}).valid,false);
+    assert.notEqual(f.target().draftGeneration,op.target.draftGeneration);
+  }
+});
+
+test('ordinary draft typing and descendant focus events do not revoke the Window epoch', async () => {
+  const f=fixture(),op=f.bind();
+  f.editor.textContent+=' continued typing';
+  f.queueMutation([{type:'characterData',target:f.editor,oldValue:'Existing 中文 draft 👋'}]);
+  f.windowEvent('blur',f.editor);f.windowEvent('focus',f.input);
+  assert.equal(f.call({action:'validate',target:op.target}).valid,true);
+  assert.equal(f.target().draftGeneration,op.target.draftGeneration);
+  f.stage(op);f.commit(op);await f.settle();assert.equal(f.input.inputCount,1);
+  assert.ok(f.editor.textContent.endsWith(' continued typing'));
+});
+
+test('queued transient mutation records are drained before validation and capture reuse', () => {
+  for(const method of ['validate','captureTarget']) {
+    const f=fixture(),old=f.target();
+    f.queueMutation([{type:'attributes',target:f.chatMode,attributeName:'aria-pressed',oldValue:'true'},
+      {type:'attributes',target:f.chatMode,attributeName:'aria-pressed',oldValue:'false'}]);
+    if(method==='validate') assert.equal(f.call({action:method,target:old}).valid,false);
+    else assert.notEqual(f.target().draftGeneration,old.draftGeneration);
+    assert.equal(f.input.inputCount,0);
+  }
+});
+
+test('final input drains pending mode or node round-trips after asynchronous hashing', async () => {
+  const changes=[f=>[{type:'attributes',target:f.chatMode,attributeName:'aria-pressed',oldValue:'true'},
+      {type:'attributes',target:f.chatMode,attributeName:'aria-pressed',oldValue:'false'}],
+    f=>[{type:'childList',target:f.body,removedNodes:[f.form],addedNodes:[f.form]}]];
+  for(const records of changes) {
+    const f=fixture({blockedDigest:true}),op=f.bind();f.stage(op);f.commit(op);
+    // Deliberately withhold the observer callback until the program itself
+    // drains takeRecords. The final DOM snapshot looks completely unchanged.
+    f.queueMutation(records(f));f.release();await f.settle();
+    assert.equal(f.input.inputCount,0);assert.equal(f.observe(op).state,'invalidated');
+  }
 });

@@ -6,7 +6,7 @@ import RiftletCore
 /// evidence that the integrated app has passed a live test. Production admission
 /// remains separate; only syntheticDevelopment may execute it in this increment.
 public enum ChatGPTWebPageProgram {
-    public static let sourceID = "chatgpt-web-home-zh-20261027-integrated-v2"
+    public static let sourceID = "chatgpt-web-home-zh-20261027-integrated-v3"
     public static let acceptanceProfile = ObservationProfile(
         adapterID: "chatgpt-web", surface: .webChat,
         profileID: "chatgpt-web-home-zh-attached-development-20261027-v1",

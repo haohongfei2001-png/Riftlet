@@ -9,9 +9,9 @@
  */
 function riftletWebAcceptance(command, native) {
   'use strict';
-  // v2 deliberately never trusts/reuses a pre-mode-gate v1 installation.
+  // v3 never reuses an older installation missing focus-epoch revocation.
   // Its old native requests remain UNKNOWN instead of acquiring a new lease.
-  const KEY = '__riftletWebAcceptance20261027v2';
+  const KEY = '__riftletWebAcceptance20261027v3';
   const MAX_GENERATIONS = 32;
   const MAX_BYTES = 8 * 1024 * 1024, MAX_PIXELS = 16 * 1024 * 1024;
   const TARGET_KEYS = ['adapterID', 'surface', 'applicationID', 'sessionID', 'windowID', 'tabID', 'documentID', 'composerID', 'draftGeneration'];
@@ -192,7 +192,7 @@ function riftletWebAcceptance(command, native) {
     const sampleAll = (type, image) => { for (const op of operations.values()) sample(op, type, image); };
     const containsNode = (container, node) => !!node && (container === node
       || (typeof container.contains === 'function' && container.contains(node)));
-    const observer = new MutationObserver(records => {
+    const processRecords = records => {
       // Mutation batches can detach/reinsert nodes or change a source and restore
       // it before the callback. A final snapshot alone would hide that gap.
       let relevant = false;
@@ -226,7 +226,15 @@ function riftletWebAcceptance(command, native) {
         }
       }
       if (relevant) sampleAll('mutation');
-    });
+    };
+    const observer = new MutationObserver(processRecords);
+    const drain = () => {
+      // A hash Promise can run before an already queued MutationObserver
+      // callback. Drain synchronously before target admission and final input
+      // so a transient detach or mode round-trip cannot hide in that gap.
+      const pending = observer.takeRecords();
+      if (pending.length) processRecords(pending);
+    };
     observer.observe(form, {subtree: true, childList: true, attributes: true, attributeOldValue: true, characterData: true});
     observer.observe(modeGroup, {subtree: true, childList: true, attributes: true, attributeOldValue: true,
       characterData: true, characterDataOldValue: true});
@@ -256,9 +264,14 @@ function riftletWebAcceptance(command, native) {
     for (const type of ['load', 'error']) document.addEventListener(type, event => {
       if (event.target?.tagName === 'IMG') sampleAll(type, event.target);
     }, true);
-    for (const type of ['pagehide', 'popstate', 'hashchange']) addEventListener(type, invalidate);
-    document.addEventListener('visibilitychange', () => { if (document.visibilityState !== 'visible') invalidate(); });
-    const state = {target, valid, invalidate, operations, sample, tick, ownCards, markBad, currentMember,
+    for (const type of ['pagehide', 'pageshow', 'popstate', 'hashchange']) addEventListener(type, invalidate);
+    // The Window epoch changes across applications/windows even while both
+    // pages remain visible. Input-to-input focus inside this draft is unrelated.
+    for (const type of ['blur', 'focus']) addEventListener(type, event => {
+      if (event.target === globalThis) invalidate();
+    });
+    document.addEventListener('visibilitychange', invalidate);
+    const state = {target, valid, invalidate, drain, operations, sample, tick, ownCards, markBad, currentMember,
       currentSource, input, form, nodeID, next: null};
     if (registry.tail) registry.tail.next = state;
     else registry.head = state;
@@ -280,6 +293,7 @@ function riftletWebAcceptance(command, native) {
       Object.defineProperty(globalThis, KEY, {value: registry, configurable: false, writable: false});
     }
     let current = registry.tail;
+    current?.drain();
     if (!current || !current.valid() || !contextMatches(current.target)) {
       if (current) current.invalidate();
       if (registry.count >= MAX_GENERATIONS) fail('LEASE_GENERATION_LIMIT');
@@ -288,6 +302,7 @@ function riftletWebAcceptance(command, native) {
     return current.target;
   }
   const state = [...generations()].find(generation => sameTarget(command.target, generation.target));
+  state?.drain();
   if (command.action === 'validate') {
     return {target: command.target, valid: !!state && state === registry.tail && state.valid()
       && contextMatches(state.target)};
@@ -341,6 +356,7 @@ function riftletWebAcceptance(command, native) {
     const signature = [137, 80, 78, 71, 13, 10, 26, 10];
     if (!signature.every((n, i) => bytes[i] === n)) { state.markBad(op); }
     else hash(bytes).then(digest => {
+      state.drain();
       if (digest !== op.identity.assetSHA256 || !state.valid() || op.invalid
           || document.visibilityState !== 'visible' || !document.hasFocus()
           || !sameTarget(op.identity.target, state.target) || state.ownCards(op.name).length) {

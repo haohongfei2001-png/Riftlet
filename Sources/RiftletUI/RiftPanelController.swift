@@ -151,6 +151,7 @@ public final class RiftPanelController {
     public private(set) var visibleRange: Range<Int> = 0..<0
     private let cache: ThumbnailCache
     private let onSelect: (UUID) -> Void
+    private let onPress: (UUID, TimeInterval) -> Void
     private let decoration: RiftPanel
     private var rowWindows: [UUID: RowWindow] = [:]
     private var lastRecords: [AssetRecord] = []
@@ -164,11 +165,13 @@ public final class RiftPanelController {
     private var scrollAccumulator: CGFloat = 0
 
     public init(mediaDirectory: URL, configuration: RiftConfiguration = .init(),
+                onPress: @escaping (UUID, TimeInterval) -> Void = { _, _ in },
                 onSelect: @escaping (UUID) -> Void) {
         // Configuration loaded from user data should be validated before construction.
         // Defensive fallback prevents malformed geometry from positioning windows off-screen.
         self.configuration = (try? configuration.validate()) != nil ? configuration : RiftConfiguration()
         self.onSelect = onSelect
+        self.onPress = onPress
         cache = ThumbnailCache(directory: mediaDirectory)
         decoration = RiftPanel(frame: .zero, decorative: true)
         let line = NSView(frame: .zero)
@@ -336,7 +339,9 @@ public final class RiftPanelController {
             let accepted = self.gate.begin(assetID: id, screenPoint: point, timestamp: event.timestamp,
                                           clickCount: event.clickCount, doubleClickInterval: NSEvent.doubleClickInterval,
                                           acceptsSelection: accepts)
-            if accepted { view.animateImage(to: self.configuration.inwardDistance,
+            if accepted {
+                self.onPress(id, event.timestamp)
+                view.animateImage(to: self.configuration.inwardDistance,
                                              duration: self.duration(self.configuration.pressDuration)) }
             return accepted
         }
@@ -363,6 +368,8 @@ public final class RiftPanelController {
         window.view.onAccessiblePress = { [weak self, weak view = window.view] in
             guard let self, let view, !self.transitioning,
                   [.pending, .failed, .unknown].contains(view.record.status) else { return false }
+            // AX has an invocation boundary, not a physical mouse event timestamp.
+            self.onPress(id, ProcessInfo.processInfo.systemUptime)
             self.onSelect(id); return true
         }
     }

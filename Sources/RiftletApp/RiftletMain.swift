@@ -78,6 +78,11 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
     private var root: URL!
     private var visibleIDs = Set<UUID>()
     private var completionWatch: Task<Void, Never>?
+    private var targetArmer: Task<Void, Never>?
+    private var armedTarget: ArmedTarget?
+    private var frozenPress: (id: UUID, target: TargetLease?)?
+    private var armSession = UUID()
+    private var wakeObserver: NSObjectProtocol?
     private var watchedCompletions = Set<UUID>()
     private var observationBackoff: [UUID: (failures: Int, next: Date)] = [:]
     private var instanceDescriptor: Int32 = -1
@@ -93,6 +98,8 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
 
     func applicationWillTerminate(_ notification: Notification) {
         completionWatch?.cancel()
+        targetArmer?.cancel()
+        if let wakeObserver { NSWorkspace.shared.notificationCenter.removeObserver(wakeObserver) }
         rift?.close()
         if let sourceBinding { Task { await sourceBinding.stop() } }
         if instanceDescriptor >= 0 { flock(instanceDescriptor, LOCK_UN); Darwin.close(instanceDescriptor) }
@@ -128,14 +135,20 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
             try encoder.encode(configuration).write(to: configurationURL, options: [.atomic])
         }
         try configuration.validate()
-        rift = RiftPanelController(mediaDirectory: root.appendingPathComponent("media"), configuration: configuration) { [weak self] id in
+        rift = RiftPanelController(mediaDirectory: root.appendingPathComponent("media"), configuration: configuration,
+            onPress: { [weak self] id, timestamp in self?.freezePress(id, timestamp: timestamp) }) { [weak self] id in
             guard let self else { return }
+            let frozen = self.frozenPress?.id == id ? self.frozenPress?.target : nil
+            self.frozenPress = nil
             Task {
                 guard self.mode != .webAcceptance || self.watchedCompletions.count < 64 else {
                     self.showIssue("Acceptance observation limit reached; images retained.")
                     return
                 }
-                do { try await self.transfer?.select(id) }
+                do {
+                    if self.mode == .webAcceptance { try await self.transfer?.select(id, frozenTarget: frozen) }
+                    else { try await self.transfer?.select(id) }
+                }
                 catch {
                     let diagnostic = (error as? WebAdapterError).map { String(describing: $0) } ?? "targetUnavailable"
                     self.showIssue(self.mode == .webAcceptance
@@ -165,6 +178,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
         // this may contact Chrome after restart; it never dispatches a new input.
         try await transfer.recover()
         if mode == .webAcceptance {
+            startArming(adapter: adapter)
             watchedCompletions = Set(try await store.successfulOperations().map(\.id))
             completionWatch = Task { [weak self] in
                 while !Task.isCancelled {
@@ -207,6 +221,47 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
             statusLine?.title = "Capture active · ChatGPT adapter pending validation"
         }
         await refresh()
+    }
+
+    private var foregroundChromeSession: String? {
+        guard let app = NSWorkspace.shared.frontmostApplication,
+              app.bundleIdentifier == "com.google.Chrome", let launch = app.launchDate else { return nil }
+        return "\(app.processIdentifier):\(launch.timeIntervalSince1970)"
+    }
+
+    private func freezePress(_ id: UUID, timestamp: TimeInterval) {
+        let target = armedTarget?.freeze(eventUptime: timestamp, nowUptime: ProcessInfo.processInfo.systemUptime,
+            hostSession: armSession, foregroundSession: foregroundChromeSession)
+        frozenPress = (id, target)
+    }
+
+    private func startArming(adapter: any AttachmentAdapter) {
+        wakeObserver = NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.didWakeNotification,
+            object: nil, queue: .main) { [weak self] _ in
+                MainActor.assumeIsolated {
+                    self?.armSession = UUID(); self?.armedTarget = nil; self?.frozenPress = nil
+                }
+            }
+        // One bounded task checks only the foreground tab while images exist.
+        // No tab enumeration, navigation, upload, or post-click capture fallback.
+        targetArmer = Task { [weak self] in
+            while !Task.isCancelled {
+                guard let self else { return }
+                let session = self.armSession
+                if !self.visibleIDs.isEmpty, self.foregroundChromeSession != nil {
+                    do {
+                        let target = try await adapter.captureTarget()
+                        if session == self.armSession, target.sessionID == self.foregroundChromeSession {
+                            if self.armedTarget?.target != target {
+                                self.armedTarget = ArmedTarget(target: target,
+                                    acknowledgedUptime: ProcessInfo.processInfo.systemUptime, hostSession: session)
+                            }
+                        } else { self.armedTarget = nil }
+                    } catch { self.armedTarget = nil }
+                } else { self.armedTarget = nil }
+                do { try await Task.sleep(nanoseconds: 1_000_000_000) } catch { return }
+            }
+        }
     }
 
     private func seedSyntheticImages(store: QueueStore, addNewBatch: Bool = false) async throws {

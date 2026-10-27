@@ -40,6 +40,94 @@ final class TransferCoordinatorTests: XCTestCase {
             policy: ReceiptPolicy(admittedProfiles: ["coordinator-fixture-ready-v1": .webChat]))
     }
 
+    private func frozenTarget(_ draft: String = "click-time-draft") -> TargetLease {
+        TargetLease(adapterID: "coordinator-fixture", surface: .webChat,
+            applicationID: "synthetic.fixture.browser", sessionID: "frozen-session",
+            windowID: "frozen-window", tabID: "frozen-tab", documentID: "frozen-document",
+            composerID: "frozen-composer", draftGeneration: draft)
+    }
+
+    func testFrozenTargetSelectionUsesClickTimeLeaseWithoutCapturingAgain() async throws {
+        let store = try makeStore(); let asset = try await makeAsset(in: store)
+        let adapter = CoordinatorFixtureAdapter()
+        let coordinator = makeCoordinator(store: store, adapter: adapter)
+        let original = frozenTarget()
+        try await coordinator.select(asset.id, frozenTarget: original)
+        let calls = await adapter.snapshot()
+        let record = try await store.asset(id: asset.id)
+        let operationID = try XCTUnwrap(record?.activeOperationID)
+        let operation = try await store.operation(id: operationID)
+        XCTAssertEqual(calls.captureCount, 0)
+        XCTAssertEqual(calls.appendedAssets, [asset.id])
+        XCTAssertEqual(calls.appendTargets, [original])
+        XCTAssertEqual(operation?.target, original); XCTAssertEqual(record?.status, .used)
+    }
+
+    func testMissingFrozenTargetRejectsPendingWithoutCapturingOrPreparing() async throws {
+        let store = try makeStore(); let asset = try await makeAsset(in: store)
+        let adapter = CoordinatorFixtureAdapter()
+        let coordinator = makeCoordinator(store: store, adapter: adapter)
+        do { try await coordinator.select(asset.id, frozenTarget: nil); XCTFail("Missing click-time lease accepted") }
+        catch {}
+        let calls = await adapter.snapshot()
+        let record = try await store.asset(id: asset.id)
+        let unresolved = try await store.unresolvedOperations()
+        XCTAssertEqual(calls.captureCount, 0); XCTAssertEqual(calls.validationCount, 0)
+        XCTAssertTrue(calls.appendedAssets.isEmpty); XCTAssertTrue(calls.reconciledAssets.isEmpty)
+        XCTAssertEqual(record?.status, .pending); XCTAssertNil(record?.activeOperationID)
+        XCTAssertTrue(unresolved.isEmpty)
+        // The rejected ticket must not stall the next valid click.
+        try await coordinator.select(asset.id, frozenTarget: frozenTarget())
+        let after = await adapter.snapshot()
+        XCTAssertEqual(after.appendedAssets, [asset.id]); XCTAssertEqual(after.captureCount, 0)
+    }
+
+    func testUnknownFrozenSelectionWithNilOrNewLeaseOnlyObservesOriginal() async throws {
+        let store = try makeStore(); let asset = try await makeAsset(in: store)
+        let adapter = CoordinatorFixtureAdapter(appendThrows: true)
+        let coordinator = makeCoordinator(store: store, adapter: adapter)
+        let original = frozenTarget()
+        try await coordinator.select(asset.id, frozenTarget: original)
+        let before = try await store.asset(id: asset.id)
+        let operationID = try XCTUnwrap(before?.activeOperationID)
+        try await coordinator.select(asset.id, frozenTarget: nil)
+        try await coordinator.select(asset.id, frozenTarget: frozenTarget("changed-draft"))
+        let calls = await adapter.snapshot()
+        let after = try await store.asset(id: asset.id)
+        let operation = try await store.operation(id: operationID)
+        let evidence = try await store.receipt(for: operationID)
+        XCTAssertEqual(calls.captureCount, 0); XCTAssertEqual(calls.appendedAssets, [asset.id])
+        XCTAssertEqual(calls.appendTargets, [original]); XCTAssertEqual(calls.reconciledAssets, [asset.id, asset.id])
+        XCTAssertEqual(after?.status, .unknown); XCTAssertEqual(after?.activeOperationID, operationID)
+        XCTAssertEqual(operation?.target, original); XCTAssertEqual(operation?.attempt, 1)
+        XCTAssertEqual(evidence?.target, original)
+    }
+
+    func testCompensatedFrozenSelectionWithNilOnlyObservesOriginal() async throws {
+        let store = try makeStore(); let asset = try await makeAsset(in: store)
+        let adapter = CoordinatorFixtureAdapter()
+        let coordinator = makeCoordinator(store: store, adapter: adapter)
+        let original = frozenTarget()
+        try await coordinator.select(asset.id, frozenTarget: original)
+        let used = try await store.asset(id: asset.id)
+        let operationID = try XCTUnwrap(used?.activeOperationID)
+        let saved = try await store.receipt(for: operationID)
+        let success = try XCTUnwrap(saved)
+        let failure = TransferReceipt(operationID: operationID, assetID: asset.id,
+            attempt: success.attempt, assetSHA256: asset.sha256, target: original,
+            outcome: .unknown, profileID: success.profileID, attachmentID: success.attachmentID,
+            belongsToOriginalDraft: true, hasError: true)
+        _ = try await store.apply(failure)
+        try await coordinator.select(asset.id, frozenTarget: nil)
+        let calls = await adapter.snapshot()
+        let restored = try await store.asset(id: asset.id)
+        let operation = try await store.operation(id: operationID)
+        XCTAssertEqual(calls.captureCount, 0); XCTAssertEqual(calls.appendedAssets, [asset.id])
+        XCTAssertEqual(calls.reconciledAssets, [asset.id]); XCTAssertEqual(calls.appendTargets, [original])
+        XCTAssertEqual(restored?.status, .unknown); XCTAssertEqual(operation?.phase, .compensated)
+        XCTAssertEqual(operation?.target, original); XCTAssertEqual(operation?.attempt, 1)
+    }
+
     func testConcurrentSameAssetSelectionAppendsOnlyOnce() async throws {
         let store = try makeStore()
         let asset = try await makeAsset(in: store)

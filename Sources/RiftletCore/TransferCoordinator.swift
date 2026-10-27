@@ -42,6 +42,16 @@ public actor TransferCoordinator {
 
     /// Starts immediately; callers may await completion without blocking the main run loop.
     public func select(_ assetID: UUID) async throws {
+        try await select(assetID, target: nil, allowCapture: true)
+    }
+
+    /// Web selections freeze a pre-acknowledged target at mouse-down. A missing
+    /// target must never be replaced by whatever tab is active after this await.
+    public func select(_ assetID: UUID, frozenTarget: TargetLease?) async throws {
+        try await select(assetID, target: frozenTarget, allowCapture: false)
+    }
+
+    private func select(_ assetID: UUID, target frozenTarget: TargetLease?, allowCapture: Bool) async throws {
         // Covers reentrancy while captureTarget awaits a transport reply.
         guard selecting.insert(assetID).inserted else { return }
         defer { selecting.remove(assetID) }
@@ -57,7 +67,10 @@ public actor TransferCoordinator {
                 try await drain()
                 return
             }
-            let target = try await adapter.captureTarget()
+            let target: TargetLease
+            if let frozenTarget { target = frozenTarget }
+            else if allowCapture { target = try await adapter.captureTarget() }
+            else { throw RiftletError.adapterUnavailable("No verified target existed at selection; image retained") }
             guard target.adapterID == adapter.id else { throw RiftletError.mismatchedReceipt }
             let op = try await store.prepare(assetID: assetID, target: target)
             waiting[ticket] = op.id
