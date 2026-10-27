@@ -52,7 +52,7 @@ final class RiftLayoutTests: XCTestCase {
         XCTAssertEqual(latest.totalCount, 15)
     }
 
-    func testUsedRecordsOnlyAreExcludedAndOrdinalsAreCurrentPositions() {
+    func testLegacyUsedFixtureDefaultsToSwallowedAndOrdinalsAreCurrentPositions() {
         let input = records(4)
         let changed = [input[0],
                        AssetRecord(image: input[1].image, sequence: input[1].sequence, status: .used),
@@ -66,7 +66,7 @@ final class RiftLayoutTests: XCTestCase {
         XCTAssertEqual(changed[2].sequence, 3)
     }
 
-    func testFailureUnknownAndTransferKeepOriginalGeometry() {
+    func testVisibleFailureUnknownAndTransferKeepOriginalGeometry() {
         let original = records(3)
         let viewport = CGRect(x: 1_920, y: -200, width: 1_440, height: 900)
         let baseline = RiftLayout.make(records: original, visibleFrame: viewport, configuration: .init())

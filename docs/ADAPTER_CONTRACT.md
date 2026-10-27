@@ -1,5 +1,15 @@
 # Attachment adapter boundary v1
 
+> **Latest user product supersession (2026-10-27):** [fast-swallow interaction contract](INTERACTION_CONTRACT_2026-10-27.md). The UI must swallow a screenshot **as soon as its actual upload start is positively evidenced**; it must **not wait for this contract's stricter `verifiedReady` evidence**. The full adapter receipt/retry guarantees below still apply to backend truth and safe retry. No current `inputTriggered`/`attachedCandidate` or placeholder may automatically masquerade as confirmed upload start. Add an independently reviewed per-surface start signal; maintain a separate durable visible/archived state; strong failure may trigger late rebirth while ambiguous outcomes remain hidden internally. This change is **not implemented or production-enabled** by documentation alone.
+
+> **Further user ruling:** classified upload failure must produce **an ordinary clickable reborn image**, not a disabled retry UI. Backend safety should be achieved by improving the evidence boundary for calling something a *failed upload*; cases where the old upload might still complete remain UNKNOWN, not falsely classified as failed. A click on a reborn failure is a user-requested new attempt, never a background automatic replay. A current window with no usable composer/attachment entry never starts upload or swallows; success is visible in the draft itself with **no extra success Toast**. Speed/near-consecutive clicks are optimized only within stability guarantees. This is a product target; the existing production registries remain disabled until real evidence and engineering admission.
+
+
+
+## Current implementation increment — interaction lifecycle
+
+Core now separates SQLite v3 visibility, upload-start audit and terminal facts. UI consumes only committed visibility/reason; admitted start causes the short swallow, later success is silent, unsafe failure/UNKNOWN stays internal. Removal, persistent hide, interaction-protected archive and bounded local history are implemented. Native CI for this increment is recorded in [VERIFICATION](VERIFICATION.md); prior runs do not validate the new source. The exact additive interface and local Codex handoff are [uploadStarted v1](UPLOAD_STARTED_CONTRACT_V1.md). Web/Chrome sources are unchanged in this increment and do not yet emit the new start receipt.
+
 ## Current admission
 
 No production adapter is enabled. The [third-round handoff](../engineering/evidence/2026-10-27-real-mac-round3/README.md) at `6344eb0` (source `159b3ef`) now joins the formal branch with the PID/launch observer-cache fix at `aa4fd2b`. [Current integration](INTEGRATION_HANDOFF.md) records full CI, non-author review and fourth-round actions. The [original Web archive](../research/web-attachment-handoff-2026-10-27/README.md), [first round](../engineering/evidence/2026-10-27-real-mac/README.md) and [second round](../engineering/evidence/2026-10-27-real-mac-round2/README.md) remain unchanged.
@@ -32,13 +42,14 @@ Identity must equal operationId, assetId, attempt, content hash and every Target
 
 | Outcome | Durable meaning |
 | --- | --- |
-| inputTriggered | External input reported; no completion |
+| inputTriggered | External input reported; no start/visual-exit or completion permission |
+| uploadStarted | Independently admitted, original-operation positive start; persist first-start evidence and hide, without success or retry permission |
 | attachedCandidate | Candidate association/attachment appearance; no consumption |
 | verifiedReady | Still subject to versioned successful-completion profile, original-draft membership and positive per-image evidence |
 | definitiveFailure | Retry only with separate versioned failure profile and proof no residual auto-retrying attachment can still complete |
 | unknown | Keep original operation/asset, target lock and recovery query |
 
-Success and failure registration are independent. A normal-flow READY proof does not automatically admit network-failure retry semantics. The shipping default registries are both empty. `ReceiptPolicy` is code-reviewed policy, not a user-editable JSON override. The explicit Web acceptance composition passes a separate `syntheticAcceptanceProfiles` map: it requires synthetic origin, exact surface and the usual positive evidence, and cannot grant retry. The ordinary capture composition passes no development profiles. `integratedDevelopment` provenance is also rejected for system screenshots by the normalizer; it is a code-source label, not a claim of a new live test.
+Start, success and safe-failure registration are independent. A normal-flow READY proof does not automatically admit early visual exit or network-failure retry semantics. All shipping production registries remain empty. `ReceiptPolicy` is code-reviewed policy, not a user-editable JSON override. The explicit Web acceptance composition passes a separate `syntheticAcceptanceProfiles` map: it requires synthetic origin, exact surface and the usual positive evidence, and cannot grant retry by itself. The separate `syntheticUploadStartProfiles` and `syntheticRetrySafeProfiles` also require synthetic origin and matching surface; neither is enabled in the current Web composition. The ordinary capture composition passes no development profiles. `integratedDevelopment` provenance is also rejected for system screenshots by the normalizer; it is a code-source label, not a claim of a new live test.
 
 ## Web implementation path
 
@@ -69,7 +80,7 @@ The page registers a one-shot operation before async hashing, then revalidates o
 
 Post-commit work is bounded observation (default 10 seconds, capped configuration 30 seconds); time only stops work, never proves success. Each native call separately has a five-second Apple Events timeout, so the polling budget is checked between calls rather than being a hard total deadline. Restart/click on UNKNOWN only observes the original operation. Missing document/observer remains UNKNOWN. Page operation tombstones and observation work are bounded; the current development session refuses new work after its limits rather than silently rearming.
 
-Only explicit `--web-acceptance` wires the real Chrome bridge in a separate synthetic-only data root, checking origin before and after importer recovery. Ordinary capture uses `UnavailableAdapter`; `--simulate` remains offline. Fresh acceptance launch makes no input; restart only observes original unresolved/completed operations. SQLite v2 retains original success and correlated late failure atomically as `compensated`, restores original queue position, and forbids stale success from consuming it again. Completed Web watches are bounded.
+Only explicit `--web-acceptance` wires the real Chrome bridge in a separate synthetic-only data root, checking origin before and after importer recovery. Ordinary capture uses `UnavailableAdapter`; `--simulate` remains offline. Fresh acceptance launch makes no input; restart only observes original unresolved/completed operations. SQLite v3 retains original success and correlated late failure atomically as `compensated`, keeps the asset hidden until separately admitted safe termination, and forbids stale success from consuming it again. Safe failure restores the original sequence as an ordinary clickable image unless user remove/archive intent takes precedence. Migration preserves the old v2 operation and compensation evidence. Completed Web watches are bounded.
 
 Focus/visibility/pageshow changes revoke input authority while a still-bound original operation may continue background observation. Route, business identity, Navigation events, original nodes or attachment loss invalidate observation. Trusted interaction outside the form revokes input. These guards do not establish a business transition epoch for an entirely unobservable same-DOM A→B→A; UX-01 and UX-02 remain production gates. Do not retain a refused click and re-authorize it against a later target without evidence spanning the original selection boundary.
 

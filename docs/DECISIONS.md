@@ -81,3 +81,57 @@ The preceding unsuccessful handoff search is historical. The new branch `codex/w
 | I09 | IMPLEMENTATION | Keep UNKNOWN observation-only and safe-retry disabled. The handoff requires reversible handling of post-consumption late failure; retaining used bytes is implemented, but late-failure queue revival and its real evidence are not. Synthetic acceptance animation does not admit production swallow. |
 
 Strict internal READY remains outside this integration target. The remaining gates concern accurate targets, scoped product ATTACHED, recovery and safe consumption of the actual integrated product.
+
+## 2026-10-27 — latest user interaction decisions: supersede READY-only visual behavior
+
+These decisions **override** historical P04’s `verifiedReady → swallow` requirement, historical P11 as applied to **visual disappearance** (not production success admission), the earlier visible-UNKNOWN queue treatment, and round-2 empty-rift trace. Prior rows remain as provenance. Full acceptance detail: [INTERACTION_CONTRACT_2026-10-27.md](INTERACTION_CONTRACT_2026-10-27.md).
+
+| ID | Status | Latest user decision |
+| --- | --- | --- |
+| P16 | USER | The ordinary flow remains native system screenshot + **one direct click**. Current active ChatGPT window/draft at click time is the destination; no fixed or inferred target, no target picker or complicated extra shortcut. |
+| P17 | USER | **As soon as actual upload begins**, use a **very fast swallow/disappear animation**; thumbnail leaves visible rift before verified READY, progress 100%, or final completion. |
+| P18 | USER | Only **explicit or extremely high-confidence actual failure** makes a swallowed thumbnail reappear from the rift. UNKNOWN alone is not grounds for rebirth. |
+| P19 | USER | Swallowed screenshots, including not-yet-verified results, are retained internally/local rather than occupying the visible rift; uncertainty must not permanently obstruct use of other screenshots. No automatic retry. |
+| P20 | USER | **Zero visible screenshots = absolutely no visible rift or slit.** A new screenshot emerges from a newly appearing slit. |
+| P21 | USER | Screenshots do not permanently occupy the visible queue. Users can remove one or clear multiple items; long-unused visible screenshots automatically move into the internal archive. |
+| P22 | USER | Consumption, removal and archiving do not imply deletion of the original system screenshot. Local history/recovery remain separate from visual presence. |
+| I10 | IMPLEMENTATION_REQUIRED | Model visual visibility/uploadStarted separately from `verifiedReady`/safe-retry, maintain original-target/dedup/recovery guarantees, and retest fast swallow + high-confidence late-failure revival. New interaction is **not** implemented or validated merely by this documentation update. |
+| D05 | OPEN | Exact animation timing and evidence profile for per-surface `uploadStarted`; visual failure-confidence admission tests; auto-archive duration, internal history UX and private-copy retention. |
+
+**Clarification:** a button click, queued intent, placeholder or unknown is not automatically reliable proof upload **actually started**. This version's fast animation must be triggered by an independently reviewable upload-start signal, while eventual success and safe retry keep their own stricter evidence. Do not automatically resend the same asset after UNKNOWN or merely because its thumbnail was hidden.
+
+## 2026-10-27 — additional explicit user rulings (latest over P16–P22 where different)
+
+The original P16–P22 remain historical. This section corrects the assistant's prior proposals of unclickable failure thumbnails, late-failure suppression, success Toasts and mandatory burst parallelism. Exact operational contract: [INTERACTION_CONTRACT_2026-10-27.md](INTERACTION_CONTRACT_2026-10-27.md).
+
+| ID | Status | Latest user ruling |
+| --- | --- | --- |
+| P23 | USER | **Optimize speed and approach consecutive clicks on multiple screenshots only when neither experience nor stability suffers**; not an unconditional demand for parallel input. |
+| P24 | USER | **No success popup or success feedback from Riftlet.** Before sending the chat message, the user can inspect whether the attachment uploaded successfully **in the original ChatGPT composer**. Do not invent success Toasts. |
+| P25 | USER | A thumbnail reborn after failed upload returns **as an ordinary screenshot**, with the same clickable, removable, idle-archivable lifecycle; do not suppress rebirth merely because the user has moved to another task. |
+| P26 | USER | If the upload is classified as **failed (explicitly or with extremely high confidence)**, **rebirth is mandatory and the thumbnail must be directly clickable for another user-initiated attempt**. Improve failure-evidence precision; do not solve ambiguity by rendering dead/unclickable reborn thumbnails. UNKNOWN still is not failure. |
+| P27 | USER | With **no usable current message composer/attachment capability**, clicking a thumbnail **does not make it disappear or swallow**. With a valid composer and actual upload start, the screenshot enters that draft and swiftly disappears from the rift; except for real upload failure, it never spontaneously rebirths. Retrieval is via the original macOS screenshot or Riftlet's internal history. |
+| P28 | USER | **Clearing the Riftlet queue changes only Riftlet visibility**, never automatically removes ChatGPT draft attachments. |
+| D06 | CONSIDERATION_ONLY | **Press-and-hold to drag** may be considered later. It is not an approved launch requirement, nor permission to delay ordinary one-click interaction or implement drag code yet. |
+| I11 | IMPLEMENTATION_REQUIRED | Calibrate failure classification and user-clickable rebirth together; distinguish invalid composer, genuine upload start, hidden UNKNOWN, confirmed/very-likely failure and ordinary screenshot lifecycle. Preserve exact-target/operation identity and no automatic retry. The docs commit does not prove implementation. |
+
+## 2026-10-27 — release usability requirements and feasibility boundaries
+
+Following direct user confirmation of the earlier product-usability review, these are new **product requirements** and explicit **research-first constraints**. They do not mean the native/web implementation is already verified. Details and evidence matrix: [RELEASE_UX_REQUIREMENTS_2026-10-27.md](RELEASE_UX_REQUIREMENTS_2026-10-27.md). Independent research handoff: [PRO_FEASIBILITY_REVIEW_BRIEF_2026-10-27.md](PRO_FEASIBILITY_REVIEW_BRIEF_2026-10-27.md).
+
+| ID | Status | Requirement or boundary |
+| --- | --- | --- |
+| P29 | USER | On an unambiguously active, supported ChatGPT draft with a **usable composer and attachment input**, a **single Riftlet thumbnail click must attach without first clicking/focusing the text editor**. No guessing a background target and no overwriting existing text/selection/attachments. Scope Web and Mac surfaces separately. |
+| P30 | USER | Riftlet's own thumbnails/edge may contaminate ordinary macOS system screenshots; **technical difficulty and real feasibility must be studied before imposing a solution**. Preserve standard screenshot habits; do not claim guaranteed exclusion or force a new screenshot engine, shortcut or high-risk timing hack without verified evidence. |
+| P31 | USER | Invalid/no-composer/no-permission clicks retain their thumbnail but provide a **subtle immediate press/reset response** and unobtrusive explanation on demand, not silence and not a success Toast. Normal successful attachment continues without Riftlet success notifications. |
+| P32 | USER | Automatic idle archive must **not steal the thumbnail during hover, mouse-down, click/reorder/transition or an active selection**, including after sleep/wake and for reborn failed images. Move it to internal history after safe interaction boundaries, never deleting the original screenshot or ChatGPT attachment. |
+| P33 | USER | Adopt the release usability baseline in `RELEASE_UX_REQUIREMENTS_2026-10-27.md`: first-run installation/permissions, clearly scoped support, independent pause/hide controls, lightweight local history, format/quality fidelity, private storage management, adaptable/accessibility-aware native UI, feedback/diagnostics, safe update/rollback and limited real-user usability testing. **Prioritize minimal complete workflows, not feature bloat.** |
+| I12 | RESEARCH_REQUIRED | Pro to independently decide real feasibility/least invasive implementation of P29/P30 and verify P31/P32; no source changes, production admission or unconditional screenshot-exclusion promise. Actual platform/source evidence and true pass/fail/untested cases required. |
+
+## I13 — 新版交互工程实现增量（2026-10-27）
+
+落实 P16–P33 的本轮必要部分：SQLite v3 分离可见性与操作事实，独立 first upload-start 审计，快速吞噬、隐藏 UNKNOWN、只在安全终止获准后恢复正常可点击图片，持久隐藏/暂停分离、移除、可调交互保护归档及轻量内部历史。旧 READY-only 可见规则已被批准契约取代，历史证据不改写。兼容旧适配器的最终成功可静默退出，但不能当作早开始体验验收。
+
+明确工程默认：归档24小时可在菜单/JSON调整或关闭，是开发起点而非固定产品裁决；每批最多3张、唤醒/时钟跳变至少30秒安静期；history每页200条/搜索当前页。模拟每次用独立synthetic草稿，不能证明真实同草稿并发。原 Capture/SQLite/target/receipt 防重及生产禁用仍保持。
+
+真实 Web 开始和安全失败分别依据 [UPLOAD_STARTED_CONTRACT_V1.md](UPLOAD_STARTED_CONTRACT_V1.md) 后续由本地 Codex 提供，研究建议及本轮合成 CI 不构成生产准入。没有批准品牌、发布、main合并、拖拽新交互或远端删除。

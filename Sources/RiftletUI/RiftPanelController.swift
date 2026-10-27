@@ -67,7 +67,7 @@ private final class RiftPanel: NSPanel {
     }
 }
 
-private final class RiftRowView: NSView {
+private final class RiftRowView: NSView, NSMenuDelegate {
     var record: AssetRecord
     var geometry: RiftRowLayout
     var configuration: RiftConfiguration
@@ -80,6 +80,10 @@ private final class RiftRowView: NSView {
     var onScroll: ((CGFloat) -> Void)?
     var onAccessiblePress: (() -> Bool)?
     var onApproach: (() -> Void)?
+    var onHover: ((Bool) -> Void)?
+    var onRemove: (() -> Void)?
+    var onMenuVisibility: ((Bool) -> Void)?
+    var feedback: String?
     private var approachTracking: NSTrackingArea?
 
     init(record: AssetRecord, geometry: RiftRowLayout, configuration: RiftConfiguration) {
@@ -110,7 +114,20 @@ private final class RiftRowView: NSView {
         approachTracking = area; addTrackingArea(area)
     }
 
-    override func mouseEntered(with event: NSEvent) { onApproach?() }
+    override func mouseEntered(with event: NSEvent) { onHover?(true); onApproach?() }
+    override func mouseExited(with event: NSEvent) { onHover?(false) }
+
+    override func menu(for event: NSEvent) -> NSMenu? {
+        guard record.visibility == .visible else { return nil }
+        let menu = NSMenu()
+        let remove = NSMenuItem(title: "Remove from Riftlet", action: #selector(removeFromRift(_:)), keyEquivalent: "")
+        remove.target = self; menu.addItem(remove); menu.delegate = self
+        return menu
+    }
+
+    @objc private func removeFromRift(_ sender: NSMenuItem) { onRemove?() }
+    func menuWillOpen(_ menu: NSMenu) { onMenuVisibility?(true) }
+    func menuDidClose(_ menu: NSMenu) { onMenuVisibility?(false) }
 
     func updateGeometry(_ geometry: RiftRowLayout) {
         self.geometry = geometry
@@ -142,7 +159,7 @@ private final class RiftRowView: NSView {
         case .used: suffix = "attachment verified"
         }
         setAccessibilityLabel("Screenshot \(ordinal), \(suffix)")
-        toolTip = "Screenshot \(ordinal) · \(suffix). Scroll for earlier or later captures."
+        toolTip = feedback ?? "Screenshot \(ordinal) · \(suffix). Scroll for earlier or later captures."
     }
 
     override func draw(_ dirtyRect: NSRect) {
@@ -202,11 +219,19 @@ private struct RowWindow {
 public final class RiftPanelController {
     public private(set) var configuration: RiftConfiguration
     public private(set) var visibleRange: Range<Int> = 0..<0
+    public private(set) var userHidden = false
     private let cache: ThumbnailCache
     private let onSelect: (UUID) -> Void
     private let onPress: (UUID, TimeInterval) -> Void
     private let onSelectionBoundary: (RiftSelectionBoundary) -> Void
     private let onApproach: () -> Void
+    private let onRemove: (UUID) -> Void
+    private let onInteractionChange: (RiftInteractionSnapshot) -> Void
+    private let holdsSelectionUntilFinished: Bool
+    private let interactionFence: QueueInteractionFence?
+    private var interaction = RiftInteractionState()
+    private var selectionVersions: [UUID: Int64] = [:]
+    private var hoveredIDs: Set<UUID> = []
     private let decoration: RiftPanel
     private var rowWindows: [UUID: RowWindow] = [:]
     private var lastRecords: [AssetRecord] = []
@@ -220,13 +245,13 @@ public final class RiftPanelController {
     private var scrollAccumulator: CGFloat = 0
 
     public var diagnosticSnapshot: RiftDiagnosticSnapshot {
-        let rows = rowWindows.map { id, row in
+        let rows = rowWindows.filter { $0.value.panel.isVisible }.map { id, row in
             RiftDiagnosticRow(assetID: id, ordinal: row.view.ordinal,
                 windowNumber: row.panel.windowNumber, frame: row.panel.frame,
                 imageClipFrame: row.panel.convertToScreen(row.view.convert(row.view.geometry.imageClipFrame, to: nil)),
                 numberFrame: row.panel.convertToScreen(row.view.convert(row.view.geometry.numberFrame, to: nil)))
         }.sorted { $0.ordinal < $1.ordinal }
-        return RiftDiagnosticSnapshot(rows: rows, lineFrame: decoration.frame,
+        return RiftDiagnosticSnapshot(rows: rows, lineFrame: decoration.isVisible ? decoration.frame : .zero,
                                       isHolding: gate.isHolding, isTransitioning: transitioning)
     }
 
@@ -234,6 +259,10 @@ public final class RiftPanelController {
                 onPress: @escaping (UUID, TimeInterval) -> Void = { _, _ in },
                 onSelectionBoundary: @escaping (RiftSelectionBoundary) -> Void = { _ in },
                 onApproach: @escaping () -> Void = {},
+                holdsSelectionUntilFinished: Bool = false,
+                interactionFence: QueueInteractionFence? = nil,
+                onRemove: @escaping (UUID) -> Void = { _ in },
+                onInteractionChange: @escaping (RiftInteractionSnapshot) -> Void = { _ in },
                 onSelect: @escaping (UUID) -> Void) {
         // Configuration loaded from user data should be validated before construction.
         // Defensive fallback prevents malformed geometry from positioning windows off-screen.
@@ -242,6 +271,10 @@ public final class RiftPanelController {
         self.onPress = onPress
         self.onSelectionBoundary = onSelectionBoundary
         self.onApproach = onApproach
+        self.onRemove = onRemove
+        self.onInteractionChange = onInteractionChange
+        self.holdsSelectionUntilFinished = holdsSelectionUntilFinished
+        self.interactionFence = interactionFence
         cache = ThumbnailCache(directory: mediaDirectory)
         decoration = RiftPanel(frame: .zero, decorative: true)
         let line = NSView(frame: .zero)
@@ -278,41 +311,124 @@ public final class RiftPanelController {
         }
     }
 
-    /// Pass the latest records including newly used records. Historical used records are not replayed.
+    public var interactionSnapshot: RiftInteractionSnapshot { interaction.snapshot }
+
+    /// The displayed version is captured before an asynchronous store call. A
+    /// later archive response must not replace an accepted click with a new row.
+    public func selectionRevision(for assetID: UUID) -> Int64? { selectionVersions[assetID] }
+
+    private func mutateInteraction(_ update: (inout RiftInteractionState) -> Void) {
+        let before = interaction.snapshot
+        update(&interaction)
+        let after = interaction.snapshot
+        guard after != before else { return }
+        // Synchronous fence update precedes callbacks/awaits. The store owns the
+        // second transaction-side revision check; this UI cannot grant upload rights.
+        interactionFence?.update(blocked: after.blocksAutomaticArchive)
+        onInteractionChange(after)
+    }
+
+    private func setTransitioning(_ value: Bool) {
+        transitioning = value
+        mutateInteraction { $0.setTransitioning(value) }
+    }
+
+    private func trackAnimation(_ time: TimeInterval) {
+        guard time > 0 else { return }
+        let token = UUID(), epoch = generation
+        mutateInteraction { $0.beginAnimation(token) }
+        DispatchQueue.main.asyncAfter(deadline: .now() + time) { [weak self] in
+            guard let self, !self.closed, self.generation == epoch else { return }
+            self.mutateInteraction { $0.endAnimation(token) }
+            self.flushDeferred()
+        }
+    }
+
+    /// Called after durable prepare or a definite pre-input cancellation. It is
+    /// intentionally separate from mouseUp so target capture cannot lose its row.
+    public func finishSelection(_ assetID: UUID) {
+        selectionVersions.removeValue(forKey: assetID)
+        mutateInteraction { $0.finishSelection(assetID) }
+        flushDeferred()
+    }
+
+    public func setFeedback(_ reason: String?, for assetID: UUID) {
+        rowWindows[assetID]?.view.feedback = reason.map { String($0.prefix(256)) }
+        rowWindows[assetID]?.view.updateDescription()
+    }
+
+    /// App persists this independent intent. No new image, wake, reflow or late
+    /// animation may reverse it; only an explicit call with false shows the rift.
+    public func setUserHidden(_ hidden: Bool) {
+        guard !closed, hidden != userHidden else { return }
+        userHidden = hidden
+        resetWindows()
+        if !hidden { apply(lastRecords, animateShift: false) }
+    }
+
+    private func present(_ panel: NSPanel) {
+        guard !closed, !userHidden else { panel.orderOut(nil); return }
+        panel.orderFrontRegardless()
+    }
+
+    private func flushDeferred() {
+        guard !gate.isHolding, !transitioning, !interaction.snapshot.isSelecting,
+              let records = deferredRecords else { return }
+        deferredRecords = nil; render(records)
+    }
+
+    /// Supply the committed visibility of newly swallowed records, even while
+    /// their final backend result remains unresolved. READY never triggers UI exit.
     public func render(_ records: [AssetRecord]) {
         guard !closed else { return }
-        if gate.isHolding || transitioning { deferredRecords = records; return }
-        let newlyUsed = records.filter { $0.status == .used && rowWindows[$0.id] != nil }
-        if !newlyUsed.isEmpty {
-            transitioning = true; deferredRecords = records
-            let token = generation
-            let swallowTime = duration(configuration.swallowDuration)
-            for record in newlyUsed {
-                guard let window = rowWindows[record.id] else { continue }
-                window.view.animateImage(to: window.view.geometry.imageClipFrame.width + 2, duration: swallowTime)
-                NSAnimationContext.runAnimationGroup { context in
-                    context.duration = swallowTime
-                    window.panel.animator().alphaValue = 0
-                }
-            }
-            DispatchQueue.main.asyncAfter(deadline: .now() + swallowTime) { [weak self] in
-                guard let self, !self.closed, self.generation == token else { return }
-                for record in newlyUsed { self.rowWindows.removeValue(forKey: record.id)?.panel.close() }
-                self.transitioning = false
-                let next = self.deferredRecords ?? records
-                self.deferredRecords = nil
-                self.apply(next, animateShift: true)
-            }
-            return
+        if userHidden { lastRecords = records; deferredRecords = nil; return }
+        let includesArchive = containsNewArchive(records)
+        if gate.isHolding || transitioning || interaction.snapshot.isSelecting
+            || (includesArchive && interaction.snapshot.blocksAutomaticArchive) {
+            // Also protects the post-commit/pre-render gap: a pointer may arrive
+            // after the store archived a row but before its snapshot reaches UI.
+            deferredRecords = records; return
         }
-        apply(records, animateShift: false)
+        let swallowed = records.filter {
+            $0.visibility == .swallowed && $0.visibilityReason == .uploadStarted
+                && rowWindows[$0.id]?.view.record.visibility == .visible
+        }
+        guard !swallowed.isEmpty else { apply(records, animateShift: false); return }
+        setTransitioning(true); deferredRecords = records
+        let token = generation
+        let swallowTime = duration(configuration.swallowDuration)
+        for record in swallowed {
+            guard let window = rowWindows[record.id] else { continue }
+            // Commit the presentation transition before any pending press-return
+            // timer can run; that timer must never undo the inward exit motion.
+            window.view.record = record
+            window.view.animateImage(to: window.view.geometry.imageClipFrame.width + 2, duration: swallowTime)
+            NSAnimationContext.runAnimationGroup { context in
+                context.duration = swallowTime
+                window.panel.animator().alphaValue = 0
+            }
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + swallowTime) { [weak self] in
+            guard let self, !self.closed, !self.userHidden, self.generation == token else { return }
+            for record in swallowed { self.rowWindows.removeValue(forKey: record.id)?.panel.close() }
+            self.setTransitioning(false)
+            let next = self.deferredRecords ?? records
+            self.deferredRecords = nil
+            self.apply(next, animateShift: true)
+        }
     }
 
     private func apply(_ records: [AssetRecord], animateShift: Bool) {
-        guard let screen, !closed else { lastRecords = records; return }
-        let oldIDs = Set(lastRecords.filter { $0.status != .used }.map(\.id))
-        let activeIDs = Set(records.filter { $0.status != .used }.map(\.id))
-        let hasNewCapture = !activeIDs.subtracting(oldIDs).isEmpty && !lastRecords.isEmpty
+        guard !closed else { return }
+        guard !userHidden else { lastRecords = records; return }
+        guard let screen else {
+            rowWindows.values.forEach { $0.panel.orderOut(nil) }
+            decoration.orderOut(nil); lastRecords = records; return
+        }
+        let oldIDs = Set(lastRecords.filter { $0.visibility == .visible }.map(\.id))
+        let hasNewCapture = !lastRecords.isEmpty && records.contains {
+            $0.visibility == .visible && $0.visibilityReason == .capture && !oldIDs.contains($0.id)
+        }
         var layout = RiftLayout.make(records: records, visibleFrame: screen.visibleFrame,
                                      configuration: configuration, firstVisibleIndex: firstVisibleIndex)
         if hasNewCapture && layout.totalCount > layout.capacity {
@@ -327,9 +443,10 @@ public final class RiftPanelController {
             rowWindows.removeValue(forKey: id)?.panel.close()
         }
         let byID = Dictionary(records.map { ($0.id, $0) }, uniquingKeysWith: { _, latest in latest })
-        let shiftTime = animateShift ? duration(configuration.shiftDuration) : 0
+        let shouldShift = animateShift && !layout.rows.isEmpty
+        let shiftTime = shouldShift ? duration(configuration.shiftDuration) : 0
         let token = generation
-        if animateShift { transitioning = true }
+        if shouldShift { setTransitioning(true) }
         for geometry in layout.rows {
             guard let record = byID[geometry.assetID] else { continue }
             let window: RowWindow
@@ -349,10 +466,10 @@ public final class RiftPanelController {
             window.view.configuration = configuration
             // Keep old label/row widths during the vertical move. Otherwise 10 → 9
             // would first jump the image sideways and clip the old two-digit label.
-            if !animateShift || isNew { window.view.updateGeometry(geometry) }
-            if !animateShift || isNew { window.view.ordinal = geometry.ordinal }
+            if !shouldShift || isNew { window.view.updateGeometry(geometry) }
+            if !shouldShift || isNew { window.view.ordinal = geometry.ordinal }
             window.view.updateDescription()
-            if animateShift && !isNew {
+            if shouldShift && !isNew {
                 let origin = CGPoint(x: geometry.frame.maxX - window.panel.frame.width,
                                      y: geometry.frame.midY - window.panel.frame.height / 2)
                 NSAnimationContext.runAnimationGroup { context in
@@ -361,14 +478,17 @@ public final class RiftPanelController {
                     window.panel.animator().setFrameOrigin(origin)
                 }
             } else { window.panel.setFrame(geometry.frame, display: true) }
-            window.panel.orderFrontRegardless()
-            let expectedOffset: CGFloat = (record.status == .transferring || record.status == .unknown)
-                ? configuration.inwardDistance : 0
+            present(window.panel)
+            // The press response ends independently of upload completion. A
+            // pre-start UNKNOWN is retained without a perpetual pressed pose.
+            let expectedOffset: CGFloat = 0
             if isNew {
                 window.panel.alphaValue = 0
                 window.view.animateImage(to: expectedOffset, duration: 0)
+                let arrivalTime = duration(configuration.arrivalDuration)
+                trackAnimation(arrivalTime)
                 NSAnimationContext.runAnimationGroup { context in
-                    context.duration = duration(configuration.arrivalDuration)
+                    context.duration = arrivalTime
                     window.panel.animator().alphaValue = 1
                 }
             } else if oldStatus != record.status || window.view.imageOffset != expectedOffset {
@@ -382,9 +502,11 @@ public final class RiftPanelController {
         }
         decoration.setFrame(layout.lineFrame, display: true)
         decoration.contentView?.frame = CGRect(origin: .zero, size: layout.lineFrame.size)
-        decoration.orderFrontRegardless()
+        if !layout.rows.isEmpty && !layout.lineFrame.isEmpty { present(decoration) }
+        else { decoration.orderOut(nil) }
         lastRecords = records
-        if animateShift {
+        refreshHoverFromPointer()
+        if shouldShift {
             DispatchQueue.main.asyncAfter(deadline: .now() + shiftTime) { [weak self] in
                 guard let self, !self.closed, self.generation == token else { return }
                 for geometry in layout.rows {
@@ -394,68 +516,124 @@ public final class RiftPanelController {
                     view?.updateGeometry(geometry)
                     view?.ordinal = geometry.ordinal; view?.updateDescription(); view?.needsDisplay = true
                 }
-                self.transitioning = false
-                if let next = self.deferredRecords { self.deferredRecords = nil; self.render(next) }
+                self.setTransitioning(false)
+                self.refreshHoverFromPointer()
+                self.flushDeferred()
             }
         }
     }
 
+    private func refreshHoverFromPointer() {
+        // Event/geometry driven only: also catches a newly shown row underneath a
+        // stationary pointer. This is not a global mouse polling timer.
+        let point = NSEvent.mouseLocation
+        hoveredIDs = userHidden ? [] : Set(rowWindows.compactMap { id, row in
+            row.panel.isVisible && row.panel.frame.contains(point) ? id : nil
+        })
+        mutateInteraction { $0.setHovered(hoveredIDs) }
+    }
+
+    private func returnPress(_ id: UUID) {
+        guard let row = rowWindows[id], !userHidden, row.view.record.visibility == .visible else { return }
+        let time = duration(configuration.returnDuration)
+        trackAnimation(time)
+        row.view.animateImage(to: 0, duration: time)
+    }
+
     private func wire(_ window: RowWindow, id: UUID) {
+        window.view.onHover = { [weak self] inside in
+            guard let self, !self.userHidden, !self.closed else { return }
+            if inside { self.hoveredIDs.insert(id) } else { self.hoveredIDs.remove(id) }
+            self.mutateInteraction { $0.setHovered(self.hoveredIDs) }
+            self.flushDeferred()
+        }
         window.view.onApproach = { [weak self] in
-            guard let self, !self.gate.isHolding, !self.transitioning else { return }
+            guard let self, !self.gate.isHolding, !self.transitioning, !self.userHidden else { return }
             self.onApproach()
+        }
+        window.view.onMenuVisibility = { [weak self] open in
+            guard let self, !self.closed else { return }
+            self.mutateInteraction { $0.setMenu(id, open: open) }
+            if !open { self.flushDeferred() }
+        }
+        window.view.onRemove = { [weak self] in
+            guard let self, !self.gate.isHolding, !self.transitioning,
+                  !self.userHidden, self.selectionVersions[id] == nil else { return }
+            self.onRemove(id)
         }
         window.view.onDown = { [weak self, weak view = window.view] event in
             guard let self, let view else { return false }
             let point = view.window?.convertPoint(toScreen: event.locationInWindow) ?? .zero
-            let accepts = !self.transitioning && view.record.status != .transferring
-                && view.record.status != .used && view.record.status != .missing
+            let accepts = !self.userHidden && !self.transitioning && self.selectionVersions[id] == nil
+                && view.record.visibility == .visible && view.record.status != .transferring
+                && view.record.status != .used
             let accepted = self.gate.begin(assetID: id, screenPoint: point, timestamp: event.timestamp,
                                           clickCount: event.clickCount, doubleClickInterval: NSEvent.doubleClickInterval,
                                           acceptsSelection: accepts)
             if accepted {
+                self.selectionVersions[id] = view.record.visibilityRevision
+                self.mutateInteraction { $0.beginSelection(id, held: true) }
+                view.feedback = nil; view.updateDescription()
                 self.onPress(id, event.timestamp)
                 self.onSelectionBoundary(RiftSelectionBoundary(assetID: id, source: .mouse,
                     eventUptime: event.timestamp, eventNumber: event.eventNumber,
                     windowNumber: event.windowNumber, clickCount: event.clickCount))
-                view.animateImage(to: self.configuration.inwardDistance,
-                                             duration: self.duration(self.configuration.pressDuration)) }
+                let time = self.duration(self.configuration.pressDuration)
+                self.trackAnimation(time)
+                view.animateImage(to: self.configuration.inwardDistance, duration: time)
+            }
             return accepted
         }
-        window.view.onUp = { [weak self, weak view = window.view] inside in
+        window.view.onUp = { [weak self] inside in
             guard let self else { return }
+            let held = self.interaction.heldID
             let selected = self.gate.end(inside: inside)
-            if selected == nil, let view {
-                let retained: CGFloat = view.record.status == .unknown ? self.configuration.inwardDistance : 0
-                view.animateImage(to: retained, duration: self.duration(self.configuration.returnDuration))
+            self.mutateInteraction { $0.releasePointer(accepted: selected != nil) }
+            if let held, selected == nil {
+                self.selectionVersions.removeValue(forKey: held)
+                self.returnPress(held)
             }
-            if let next = self.deferredRecords { self.deferredRecords = nil; self.render(next) }
             if let selected {
                 self.onSelect(selected)
-                // A disabled adapter may leave the persistent state pending. End the press
-                // response in that case; this timer never changes a transfer/queue state.
-                DispatchQueue.main.asyncAfter(deadline: .now() + self.duration(self.configuration.pressDuration) + 0.05) { [weak self] in
-                    guard let self, let row = self.rowWindows[selected],
-                          row.view.record.status == .pending || row.view.record.status == .failed else { return }
-                    row.view.animateImage(to: 0, duration: self.duration(self.configuration.returnDuration))
+                if !self.holdsSelectionUntilFinished { self.finishSelection(selected) }
+                // Presentation only: a rejected or still-awaiting-input click
+                // naturally releases its pressed pose without forging a receipt.
+                let epoch = self.generation
+                DispatchQueue.main.asyncAfter(deadline: .now() + self.duration(self.configuration.pressDuration)) { [weak self] in
+                    guard let self, !self.closed, self.generation == epoch else { return }
+                    self.returnPress(selected)
                 }
             }
+            self.flushDeferred()
         }
         window.view.onScroll = { [weak self] delta in self?.scroll(delta) }
         window.view.onAccessiblePress = { [weak self, weak view = window.view] in
-            guard let self, let view, !self.transitioning, !self.gate.isHolding,
-                  [.pending, .failed, .unknown].contains(view.record.status) else { return false }
-            // AX has an invocation boundary, not a physical mouse event timestamp.
+            guard let self, let view, !self.userHidden, !self.transitioning, !self.gate.isHolding,
+                  self.selectionVersions[id] == nil, view.record.visibility == .visible,
+                  [.pending, .failed, .unknown, .missing].contains(view.record.status) else { return false }
             let invocationUptime = ProcessInfo.processInfo.systemUptime
+            self.selectionVersions[id] = view.record.visibilityRevision
+            self.mutateInteraction { $0.beginSelection(id, held: false) }
+            view.feedback = nil; view.updateDescription()
             self.onPress(id, invocationUptime)
             self.onSelectionBoundary(RiftSelectionBoundary(assetID: id, source: .accessibility,
                 eventUptime: invocationUptime))
-            self.onSelect(id); return true
+            let time = self.duration(self.configuration.pressDuration)
+            self.trackAnimation(time)
+            view.animateImage(to: self.configuration.inwardDistance, duration: time)
+            self.onSelect(id)
+            if !self.holdsSelectionUntilFinished { self.finishSelection(id) }
+            let epoch = self.generation
+            DispatchQueue.main.asyncAfter(deadline: .now() + time) { [weak self] in
+                guard let self, !self.closed, self.generation == epoch else { return }
+                self.returnPress(id)
+            }
+            return true
         }
     }
 
     private func scroll(_ delta: CGFloat) {
-        guard !gate.isHolding, !transitioning else { return }
+        guard !userHidden, !gate.isHolding, !transitioning, !interaction.snapshot.isSelecting else { return }
         scrollAccumulator += delta
         guard abs(scrollAccumulator) >= 8 else { return }
         firstVisibleIndex = max(0, firstVisibleIndex + (scrollAccumulator < 0 ? 1 : -1))
@@ -464,13 +642,23 @@ public final class RiftPanelController {
     }
 
     public func showLatest() {
-        guard !gate.isHolding, !transitioning else { return }
-        firstVisibleIndex = lastRecords.filter { $0.status != .used }.count
+        guard !userHidden, !gate.isHolding, !transitioning, !interaction.snapshot.isSelecting else { return }
+        firstVisibleIndex = lastRecords.filter { $0.visibility == .visible }.count
+        apply(lastRecords, animateShift: false)
+    }
+
+    /// Explicit history restoration may reveal one existing item without
+    /// changing its sort order or reversing the independent user-hidden intent.
+    public func showAsset(_ assetID: UUID) {
+        guard !userHidden, !gate.isHolding, !transitioning, !interaction.snapshot.isSelecting,
+              let index = lastRecords.filter({ $0.visibility == .visible }).firstIndex(where: { $0.id == assetID }) else { return }
+        guard !visibleRange.contains(index) else { return }
+        firstVisibleIndex = index
         apply(lastRecords, animateShift: false)
     }
 
     public func showOldest() {
-        guard !gate.isHolding, !transitioning else { return }
+        guard !userHidden, !gate.isHolding, !transitioning, !interaction.snapshot.isSelecting else { return }
         firstVisibleIndex = 0; apply(lastRecords, animateShift: false)
     }
 
@@ -480,19 +668,44 @@ public final class RiftPanelController {
         reflow()
     }
 
-    private func reflow() {
-        guard !closed else { return }
-        generation &+= 1; transitioning = false; gate.cancel()
-        let records = deferredRecords ?? lastRecords
+    private func containsNewArchive(_ records: [AssetRecord]) -> Bool {
+        let previousVisible = Set(lastRecords.filter { $0.visibility == .visible }.map(\.id))
+        return records.contains { $0.visibility == .archived && previousVisible.contains($0.id) }
+    }
+
+    private func resetWindows() {
+        generation &+= 1; transitioning = false
+        let held = interaction.heldID
+        gate.cancel()
+        if let held { selectionVersions.removeValue(forKey: held) }
+        lastRecords = deferredRecords ?? lastRecords
         deferredRecords = nil
+        hoveredIDs.removeAll()
+        mutateInteraction { $0.resetPresentation() }
         rowWindows.values.forEach { $0.panel.close() }
         rowWindows.removeAll()
-        apply(records, animateShift: false)
+        visibleRange = 0..<0
+        decoration.orderOut(nil)
+    }
+
+    private func reflow() {
+        guard !closed else { return }
+        let pending = deferredRecords
+        let displayed = lastRecords
+        let protectedArchive = pending.map { containsNewArchive($0) && interaction.snapshot.blocksAutomaticArchive } ?? false
+        resetWindows()
+        if protectedArchive && !userHidden { lastRecords = displayed }
+        if !userHidden { apply(lastRecords, animateShift: false) }
+        // A wake/display event must not bypass an archive already deferred for
+        // a pointer or an accepted selection. Recheck after new geometry exists.
+        if protectedArchive, let pending { render(pending) }
     }
 
     public func close() {
         guard !closed else { return }
         closed = true; generation &+= 1; gate.cancel()
+        selectionVersions.removeAll(); hoveredIDs.removeAll()
+        mutateInteraction { $0.close() }
         observers.forEach { $0.0.removeObserver($0.1) }; observers.removeAll()
         rowWindows.values.forEach { $0.panel.close() }; rowWindows.removeAll()
         decoration.close(); cache.clear()

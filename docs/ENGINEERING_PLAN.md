@@ -1,5 +1,7 @@
 # Riftlet 正式工程计划
 
+> **Latest product decision (2026-10-27):** [INTERACTION_CONTRACT_2026-10-27.md](INTERACTION_CONTRACT_2026-10-27.md) supersedes this historical plan's `verifiedReady → swallow`, visible UNKNOWN retention and empty trace assumptions **for product UI**, while keeping real success evidence and safe retry independent. Engineering must implement positive upload-start-triggered **very fast swallow**, high-confidence-failure rebirth, hidden local UNKNOWN/archival, no slit when empty, single/bulk removal, and no indefinite lock of *other* assets. **The Core/UI/App implementation increment is now present; its own CI and real-evidence limits are recorded separately below. Prior CI does not validate this revision.**
+
 2026-10-27（北京时间） · v2 自主并行执行 · 工程启动基线 `5a3ab5d7a761d5397f8bc15b6f40d761b29e58d2`
 
 **当前执行方式：负责人自主决策、分模块并行、持续集成，不设日常用户审批环节。** 总体架构与产品要求不变；本次修订拆开实现、验证、启用的依赖。可直接领取的任务、唯一写入责任和解锁条件见 [EXECUTION_BOARD.md](EXECUTION_BOARD.md)。
@@ -16,9 +18,11 @@
 
 **第三轮正式集成增量：** 11aec04/159b3ef及6344eb0原证据已进入PR #1；root修复AX observer的PID复用缓存，合流输入aa4fd2b。AX/hover预绑定、ACK复核、v7可恢复commit monitor、helper真实几何与只读MID probe沿用现有模块。自包含已隔离为实际App失败，capture-only资源有范围实测；首击/真实业务矩阵/MID/物理N1/跨版本观察仍待实际闭环。第四轮直接动作和CI见[正式交接](INTEGRATION_HANDOFF.md)，不重订架构、不启用生产或重试。
 
+**新版交互实现增量（本轮）：** root 负责 Core/SQLite/Coordinator/App 接线，三个独立执行者实际并行完成 AppKit 生命周期、内部历史和非作者 Core 回归/审查；共同文件保持单写入者。新增 schema v3 可见性、独立 upload-start 审计、安全失败重生、持久隐藏、单张/批量移除、交互保护归档和原生分页历史；不重建 Capture/Web/M1。精确共享接口、模拟运行方式和下一次 Codex 合流范围见 [UPLOAD_STARTED_CONTRACT_V1.md](UPLOAD_STARTED_CONTRACT_V1.md)。当前提交进入新一轮 macOS CI；实际结果在 [VERIFICATION](VERIFICATION.md) 追加。真实开始、冷首击、草稿连续性及物理 N1 仍由本地 Codex 提供，不能从合成结果准入生产。
+
 ## 1. 授权、范围和最小交付
 
-用户本轮明确授权正式开发，取代 P07 的“暂不开发”阶段；历史研究和决策不删除。01「直截」只作可调实现起点，视觉与品牌仍未最终批准。产品契约仍是系统截图、点击微图、正确追加到原 ChatGPT 草稿；不自动发送，只有获准完成证据才吞噬。
+用户本轮明确授权正式开发，取代 P07 的“暂不开发”阶段；历史研究和决策不删除。01「直截」只作可调实现起点，视觉与品牌仍未最终批准。产品契约仍是系统截图、点击微图、正确追加到原 ChatGPT 草稿；不自动发送；具有获准正向上传开始证据才触发快速视觉吞噬，最终完成事实独立核对。旧 READY-only 规则作为历史保留于先前提交，已被本轮批准契约取代。
 
 **最小完整产品**：一个原生常驻 `.app`，自动感知已保存的系统截图，保留原件并收录私有副本，持久 FIFO 队列，极小非激活裂缝，点击追加到已验证的 ChatGPT surface，逐图回执、失败恢复和未知核对，重启/唤醒/多屏可用，一次性权限及安装说明。没有服务器、云数据库、AI API、图库/OCR/编辑器或新截图引擎。
 
@@ -32,7 +36,7 @@
 | --- | --- | --- |
 | `RiftletCore/Models.swift` | 不可变 ImportedAsset、AssetRecord、TargetLease、TransferOperation、TransferReceipt | Foundation |
 | `RiftletCore/QueueStore.swift` | SQLite 唯一写入者、FIFO、source去重、操作状态、checkpoint、恢复 | 系统 SQLite（CSQLite shim） |
-| `RiftletCore/ReceiptPolicy.swift` | 成功准入和安全重试准入分别验证；生产注册表默认空 | Core模型 |
+| `RiftletCore/ReceiptPolicy.swift` | 开始、最终成功和安全重试分别准入；生产注册表默认空 | Core模型 |
 | `RiftletCore/TransferCoordinator.swift` | 点击去重、目标冻结、串行输入、先intent后副作用、UNKNOWN仅reconcile | QueueStore + AttachmentAdapter |
 | `RiftletCapture/FileValidation.swift` | 文件身份/稳定性、截图metadata真值、ImageIO完整性和有限解码 | Foundation、ImageIO、CryptoKit、Darwin |
 | `RiftletCapture/FolderWatcher.swift` | 目录事件、FD取消关闭、失效、带最大延迟的事件合并 | Dispatch、Darwin |
@@ -61,15 +65,15 @@
 
 ## 4. 状态与上传接口
 
-Asset可见状态：pending、transferring、unknown、failed、missing；used退出待用队列。Operation区分prepared、dispatchIntent、inputTriggered、attachmentPresent、unknown、compensated、failed、succeeded；compensated保留原成功与迟到错误、恢复可见性且仅观察，不授予新输入。
+SQLite v3 的 `AssetRecord.visibility`（visible/swallowed/archived/removed）与 QueueStatus/OperationPhase 分开持久化；可见原因、修订号和闲置锚点用于动画、选择与归档竞态控制。`upload_starts` 保留第一份获准开始证据。Operation仍使用prepared、dispatchIntent、inputTriggered、attachmentPresent、unknown、compensated、failed、succeeded，不为视觉新增外部完成阶段。compensated保留原成功与迟到错误，未获准安全终止时内部隐藏、只观察；安全失败才可恢复普通可点击图片。用户主动remove/archive优先于自动重生。
 
 `AttachmentAdapter`只有 `captureTarget / validate / append / reconcile`，没有Send。`TargetLease`包含adapter/surface/app/session/window/tab/document/composer/draftGeneration。adapter必须在同一目标执行片段内复核lease并追加，不以之前一次validate替代临界区验证。
 
 回执绑定operationId、assetId、attempt、hash、完整lease及profile版本。INPUT和ATTACHED仅观察状态；verifiedReady仍须已准入profile、正向ready、原草稿成员关系、准确attachmentId、无error/上传中。明确失败还须**独立的retrySafeProfiles准入**、无残留自动重试；否则保持UNKNOWN。晚到/错草稿/错attempt回执不得消费另一条。
 
-当前生产成功/失败准入表均为空，没有通过配置文件跳过验证的开关。离线演示仍要求simulation store + synthetic asset + simulation target + simulation-v1；显式Web验收则使用独立目录、仅synthetic的adapter、拒绝真实来源的integratedDevelopment观察及Core合成来源专属profile。该权限不能给真实截图或safe-retry使用。
+当前生产开始/成功/安全失败准入表均为空，没有通过配置文件跳过验证的开关。离线演示仍要求simulation store + synthetic asset + simulation target + simulation-v1；显式Web验收则使用独立目录、仅synthetic的adapter、拒绝真实来源的integratedDevelopment观察及Core合成来源专属profile。该权限不能给真实截图或safe-retry使用。
 
-`verifiedReady`是获准的产品完成语义，不要求读取名为READY的私有内部字段。对应真实源码和范围证据现已独立审查；新合并程序还需真实目标/完成/恢复验证才可准入生产吞噬。现已实现事务化迟到失败补偿，并有活跃原卡片DOM故障/重启证据；这不等于真实网络异常或后台旧草稿恢复通过。成功与安全重试分别判断。
+`verifiedReady`是获准的产品完成语义，不要求读取名为READY的私有内部字段。对应真实源码和范围证据现已独立审查；新合并程序仍需独立真实目标/开始/完成/恢复证据才可启用对应生产能力。现已实现事务化迟到失败补偿，并有活跃原卡片DOM故障/重启证据；这不等于真实网络异常或后台旧草稿恢复通过。成功与安全重试分别判断。
 
 详见 [ADAPTER_CONTRACT.md](ADAPTER_CONTRACT.md)。
 
@@ -77,7 +81,9 @@ Asset可见状态：pending、transferring、unknown、failed、missing；used�
 
 01「直截」候选参数来自原始R2 JSON：72×56pt包络、25%遮挡、60pt间距、0.7pt线宽、11pt数字，均在`RiftConfiguration`可调。全部真实图片保持原比例；每图一个nonactivating NSPanel，装饰细线单独忽略鼠标；外侧8pt和行间不设输入窗口。不依赖`hitTest(nil)`宣称下层穿透，不轮询指针。
 
-收录220ms、浅入80ms/2.5pt、成功240ms、补位/失败180ms；reduced-motion缩短有限过渡，无持续空闲动画。只看到持久`.used`才吞噬。mouse-down锁定assetId，按下期间延缓重排，双击后半段不点击补位图片。编号上移结束后统一改成1…n。
+收录220ms、浅入80ms/2.5pt、快速吞噬120ms、补位/失败180ms均可调；reduced-motion缩短有限过渡，无持续空闲动画。只有已提交的visible→swallowed且reason为uploadStarted触发吞噬；晚到READY不重复动画，兼容旧完成只静默移除。零可见图时全部窗口/细线消失。mouse-down锁定assetId，按下期间延缓重排，双击后半段不点击补位图片。编号上移结束后统一改成1…n。
+
+隐藏意图与暂停收录分别持久化；隐藏不阻止收录且新图/唤醒不能解除。单张/批量移除不删除私有文件、系统原件或远端附件。闲置归档参数可调/关闭，默认24小时只是开发起点；hover/按住/选择/动画与提交事务保护归档，唤醒后安静期及小批量避免突发重排。历史按200条分页，仅显式打开激活；查找限定当前页，恢复资格由Core检查，UNKNOWN不能借此重传。
 
 缓存16MiB/32项，ImageIO按目标屏幕scale下采样。布局以配置的displayID锚定，断屏回退main；不用文件保存时鼠标位置猜截图来源。12+小屏使用可滚可见窗口，新图进入可见末端，保留所有条目；这是待评审实现，不是最终视觉裁决。
 

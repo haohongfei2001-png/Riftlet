@@ -17,7 +17,7 @@ let package = Package(
         .target(name: "RiftletAdapters", dependencies: ["RiftletCore"], resources: [.process("Resources")]),
         .executableTarget(name: "RiftletGUIAcceptance", dependencies: ["RiftletUI", "RiftletCore"]),
         .executableTarget(name: "RiftletApp", dependencies: ["RiftletCore", "RiftletCapture", "RiftletUI", "RiftletAdapters"]),
-        .testTarget(name: "RiftletCoreTests", dependencies: ["RiftletCore"]),
+        .testTarget(name: "RiftletCoreTests", dependencies: ["RiftletCore", "CSQLite"]),
         .testTarget(name: "RiftletCaptureTests", dependencies: ["RiftletCapture", "RiftletCore", "CSQLite"]),
         .testTarget(name: "RiftletUITests", dependencies: ["RiftletUI", "RiftletCore"]),
         .testTarget(name: "RiftletAdaptersTests", dependencies: ["RiftletAdapters", "RiftletCore"],

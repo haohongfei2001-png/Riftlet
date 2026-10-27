@@ -39,7 +39,7 @@ final class LateFailureCompensationTests: XCTestCase {
         return op
     }
 
-    func testCorrelatedLateErrorRestoresOriginalQueuePositionAndPersistsBothFacts() async throws {
+    func testCorrelatedLateErrorStaysInternalAndPersistsOriginalOrderAndBothFacts() async throws {
         let db = try store(); let first = asset(1); let middle = asset(2); let last = asset(3)
         _ = try await db.importAsset(first)
         let op = try await consume(db, middle)
@@ -54,7 +54,8 @@ final class LateFailureCompensationTests: XCTestCase {
         let queue = try await reopened.assets()
         let saved = try await reopened.compensation(for: op.id)
         let current = try await reopened.operation(id: op.id)
-        XCTAssertEqual(queue.map(\.id), [first.id, middle.id, last.id])
+        XCTAssertEqual(queue.map(\.id), [first.id, last.id])
+        XCTAssertEqual(restored.visibility, .swallowed)
         XCTAssertEqual(saved?.originalSuccess, receipt(op, middle, success: true))
         XCTAssertEqual(saved?.failure, failure)
         XCTAssertEqual(current?.phase, .compensated)
@@ -146,6 +147,11 @@ final class LateFailureCompensationTests: XCTestCase {
     private func restoreLegacyOperationsSchema() throws -> SQLiteDatabase {
         let legacy = try SQLiteDatabase(url: root.appendingPathComponent("queue.sqlite"))
         try legacy.transaction {
+            try legacy.execute("DROP TABLE upload_starts")
+            try legacy.execute("DROP INDEX visible_queue_order")
+            for column in ["visibility", "visibility_revision", "visibility_reason", "last_interaction_at"] {
+                try legacy.execute("ALTER TABLE assets DROP COLUMN \(column)")
+            }
             try legacy.execute("DROP TABLE compensations")
             try legacy.execute("CREATE TEMP TABLE legacy_rows AS SELECT * FROM operations")
             try legacy.execute("DROP TABLE operations")
@@ -184,11 +190,16 @@ final class LateFailureCompensationTests: XCTestCase {
         let legacy = try restoreLegacyOperationsSchema()
         let oldRows = try legacy.rows("SELECT * FROM operations ORDER BY sequence")
         let reopened = try store()
-        XCTAssertEqual(try legacy.rows("PRAGMA user_version").first?.first, "2")
+        XCTAssertEqual(try legacy.rows("PRAGMA user_version").first?.first, "3")
         XCTAssertEqual(try legacy.rows("SELECT * FROM operations ORDER BY sequence"), oldRows)
         let after = try await reopened.assets(includeUsed: true)
         let saved = try await reopened.receipt(for: success.id)
-        XCTAssertEqual(after, before); XCTAssertEqual(saved, receipt(success, a, success: true))
+        XCTAssertEqual(after.map(\.image), before.map(\.image))
+        XCTAssertEqual(after.map(\.sequence), before.map(\.sequence))
+        XCTAssertEqual(after.map(\.status), before.map(\.status))
+        XCTAssertEqual(after.map(\.activeOperationID), before.map(\.activeOperationID))
+        XCTAssertEqual(after.map(\.visibility), before.map(\.visibility))
+        XCTAssertEqual(saved, receipt(success, a, success: true))
         let next = try await reopened.prepare(assetID: c.id, target: target())
         do { try await reopened.markDispatchIntent(next.id); XCTFail("Migration dropped draft lock") }
         catch RiftletError.targetBusy {}

@@ -32,7 +32,7 @@ enum RiftletMain {
     @MainActor static func main() {
         if CommandLine.arguments.contains("--self-check") {
             Task {
-                do { try await SelfCheck.run(); print("RIFTLET_SELF_CHECK_PASS: private import, durable queue, synthetic receipt, restart"); exit(0) }
+                do { try await SelfCheck.run(); print("RIFTLET_SELF_CHECK_PASS: private import, durable upload-start visibility, delayed synthetic completion, restart"); exit(0) }
                 catch { fputs("RIFTLET_SELF_CHECK_FAIL: \(error)\n", stderr); exit(1) }
             }
             dispatchMain()
@@ -70,6 +70,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
     private var statusLine: NSMenuItem?
     private var storageLine: NSMenuItem?
     private var storageMeasurement: Task<Void, Never>?
+    private var hideItem: NSMenuItem?
+    private var pauseItem: NSMenuItem?
+    private var archiveItem: NSMenuItem?
     private var store: QueueStore?
     private var capture: CaptureService?
     private var sourceBinding: CaptureSourceBinding?
@@ -77,6 +80,22 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
     private var rift: RiftPanelController?
     private var root: URL!
     private var visibleIDs = Set<UUID>()
+    private var refreshRunning = false
+    private var refreshRequested = false
+    private var refreshWaiters: [CheckedContinuation<Void, Never>] = []
+    private var historyGeneration: UInt64 = 0
+    private var history: RiftHistoryController?
+    private var historyOffset = 0
+    private var userHidden = false
+    private var captureIsPaused = false
+    private var changingCapture = false
+    private var changingHidden = false
+    private var lifecycleSettings = LifecycleSettings()
+    private let interactionFence = QueueInteractionFence()
+    private var archiveTask: Task<Void, Never>?
+    private var archiveWakeObserver: NSObjectProtocol?
+    private var archiveNotBefore: TimeInterval = 0
+    private var archiveClock: (wall: Date, uptime: TimeInterval)?
     private var completionWatch: Task<Void, Never>?
     private var targetArmer: Task<Void, Never>?
     private var armScheduler = TargetArmScheduler()
@@ -105,12 +124,15 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
 
     func applicationWillTerminate(_ notification: Notification) {
         completionWatch?.cancel()
+        archiveTask?.cancel()
         targetArmer?.cancel()
         armScheduler.stop(); armedTarget = nil; frozenPress = nil
         chromeActivity?.stop()
         if let wakeObserver { NSWorkspace.shared.notificationCenter.removeObserver(wakeObserver) }
         if let activationObserver { NSWorkspace.shared.notificationCenter.removeObserver(activationObserver) }
+        if let archiveWakeObserver { NSWorkspace.shared.notificationCenter.removeObserver(archiveWakeObserver) }
         rift?.close()
+        history?.close()
         if let sourceBinding { Task { await sourceBinding.stop() } }
         if instanceDescriptor >= 0 { flock(instanceDescriptor, LOCK_UN); Darwin.close(instanceDescriptor) }
     }
@@ -125,6 +147,8 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
         }
         let store = try QueueStore(databaseURL: root.appendingPathComponent("queue.sqlite"), mode: simulation ? .simulation : .production)
         self.store = store
+        userHidden = try await store.userHidden()
+        captureIsPaused = try await store.capturePaused()
         if mode == .webAcceptance {
             // No system collection runs in this mode. Refuse a contaminated test
             // store before constructing the real transport or recovering a request.
@@ -145,31 +169,54 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
             try encoder.encode(configuration).write(to: configurationURL, options: [.atomic])
         }
         try configuration.validate()
+        let lifecycleURL = root.appendingPathComponent("lifecycle-settings.json")
+        if FileManager.default.fileExists(atPath: lifecycleURL.path) {
+            lifecycleSettings = try JSONDecoder().decode(LifecycleSettings.self, from: Data(contentsOf: lifecycleURL))
+        } else { try JSONEncoder().encode(lifecycleSettings).write(to: lifecycleURL, options: .atomic) }
+        try lifecycleSettings.validate()
         rift = RiftPanelController(mediaDirectory: root.appendingPathComponent("media"), configuration: configuration,
             onPress: { [weak self] id, timestamp in self?.freezePress(id, timestamp: timestamp) },
             onSelectionBoundary: { [weak self] boundary in self?.recordSelection(boundary) },
-            onApproach: { [weak self] in self?.requestArm(reason: "pointerApproach") }) { [weak self] id in
+            onApproach: { [weak self] in self?.requestArm(reason: "pointerApproach") },
+            holdsSelectionUntilFinished: true, interactionFence: interactionFence,
+            onRemove: { [weak self] id in self?.removeVisible(id) }) { [weak self] id in
             guard let self else { return }
             let frozen = self.frozenPress?.id == id ? self.frozenPress?.target : nil
+            let revision = self.rift?.selectionRevision(for: id)
             self.frozenPress = nil
             Task {
                 guard self.mode != .webAcceptance || self.watchedCompletions.count < 64 else {
                     self.showIssue("Acceptance observation limit reached; images retained.")
+                    self.rift?.finishSelection(id)
                     return
                 }
                 do {
-                    if self.mode == .webAcceptance { try await self.transfer?.select(id, frozenTarget: frozen) }
-                    else { try await self.transfer?.select(id) }
+                    if self.mode == .webAcceptance { try await self.transfer?.select(id, frozenTarget: frozen, visibilityRevision: revision) }
+                    else { try await self.transfer?.select(id, visibilityRevision: revision) }
+                    if let record = try await self.store?.asset(id: id), record.visibility == .visible,
+                       let operationID = record.activeOperationID, record.status == .failed {
+                        let reason = try await self.store?.operationReason(for: operationID)
+                        self.rift?.setFeedback(reason, for: id)
+                    }
                 }
                 catch {
                     let diagnostic = (error as? WebAdapterError).map { String(describing: $0) } ?? "targetUnavailable"
                     self.showIssue(self.mode == .webAcceptance
                         ? "Test image retained. Chrome diagnostic: \(diagnostic)."
                         : "Screenshot retained. ChatGPT attachment adapter is not enabled in this build.")
+                    self.rift?.setFeedback(self.mode == .capture ? "Attachment support is not enabled; image kept."
+                        : "Current draft could not be verified; image kept.", for: id)
                 }
                 await self.refresh()
             }
         }
+        rift?.setUserHidden(userHidden)
+        history = RiftHistoryController(mediaDirectory: root.appendingPathComponent("media"),
+            onRestore: { [weak self] id in self?.restoreHistory(id) },
+            onRemove: { [weak self] id in self?.removeVisible(id) },
+            onReveal: { [weak self] id in self?.revealHistory(id) },
+            onNextPage: { [weak self] in self?.changeHistoryPage(1) },
+            onPreviousPage: { [weak self] in self?.changeHistoryPage(-1) })
         let adapter: any AttachmentAdapter
         let policy: ReceiptPolicy
         switch mode {
@@ -184,18 +231,21 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
             policy = ReceiptPolicy(syntheticAcceptanceProfiles: [ChatGPTWebPageProgram.acceptanceProfile.profileID: .webChat])
         }
         let transfer = TransferCoordinator(store: store, adapter: adapter, mediaDirectory: root.appendingPathComponent("media"),
-                                           policy: policy, onChange: { [weak self] in await self?.refresh() })
+            policy: policy, onChange: { [weak self] in await self?.refresh() },
+            onSelectionSettled: { [weak self] id in await self?.finishPreparedSelection(id) })
         self.transfer = transfer
         if mode == .webAcceptance { startArming(adapter: adapter) }
         // Recovery only observes original unresolved operations. In Web acceptance
         // this may contact Chrome after restart; it never dispatches a new input.
         try await transfer.recover()
-        if mode == .webAcceptance {
+        if mode != .capture {
             watchedCompletions = Set(try await store.successfulOperations().map(\.id))
             completionWatch = Task { [weak self] in
                 while !Task.isCancelled {
-                    do { try await Task.sleep(nanoseconds: 5_000_000_000) } catch { return }
+                    do { try await Task.sleep(nanoseconds: self?.simulation == true ? 400_000_000 : 5_000_000_000) } catch { return }
                     guard let self else { return }
+                    do { try await transfer.observePending(limit: self.simulation ? 8 : 4) }
+                    catch { self.showIssue("Pending attachment observation unavailable; local records kept.") }
                     for id in self.watchedCompletions {
                         if Task.isCancelled { return }
                         if let backoff = self.observationBackoff[id], backoff.next > Date() { continue }
@@ -229,10 +279,19 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
             let binding = CaptureSourceBinding(service: service,
                 onIssue: { [weak self] message in await self?.showIssue(message) })
             sourceBinding = binding
-            try await binding.start()
-            statusLine?.title = "Capture active · ChatGPT adapter pending validation"
+            if !captureIsPaused { try await binding.start() }
+            statusLine?.title = captureIsPaused ? "Capture paused · stored screenshots kept"
+                : "Capture active · ChatGPT adapter pending validation"
         }
+        updateControlTitles()
+        startArchiveScheduler()
         await refresh()
+    }
+
+    private func finishPreparedSelection(_ id: UUID) {
+        // Coordinator awaits committed refresh before this callback. Releasing
+        // the UI reservation cannot flush a stale pre-prepare archive snapshot.
+        rift?.finishSelection(id)
     }
 
     private var foregroundChromeSession: String? {
@@ -360,32 +419,203 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
     }
 
     private func refresh() async {
-        guard let store else { return }
+        refreshRequested = true
+        if refreshRunning {
+            await withCheckedContinuation { refreshWaiters.append($0) }
+            return
+        }
+        refreshRunning = true
+        repeat {
+            refreshRequested = false
+            guard let store else { break }
+            do {
+                let active = try await store.assets()
+                var snapshot = active
+                let activeIDs = Set(active.map(\.id))
+                // Include windows still visible during a deferred animation or
+                // held selection, not just the previous backend-visible IDs.
+                let panelIDs = Set(rift?.diagnosticSnapshot.rows.map(\.assetID) ?? [])
+                for id in visibleIDs.union(panelIDs).subtracting(activeIDs) {
+                    if let retired = try await store.asset(id: id) { snapshot.append(retired) }
+                }
+                let successful = mode == .webAcceptance ? try await store.successfulOperations() : []
+                if refreshRequested { continue }
+                let hasNewImages = !activeIDs.subtracting(visibleIDs).isEmpty
+                visibleIDs = activeIDs
+                watchedCompletions.formUnion(successful.map(\.id))
+                if hasNewImages && mode == .webAcceptance { requestArm(reason: "newImages") }
+                rift?.render(snapshot)
+                switch mode {
+                case .capture:
+                    statusItem?.button?.toolTip = "Riftlet · \(active.count) visible screenshots\(userHidden ? " · hidden" : "")"
+                case .simulation: statusItem?.button?.toolTip = "Riftlet SIMULATION — synthetic only; start then delayed result"
+                case .webAcceptance: statusItem?.button?.toolTip = "Riftlet WEB ACCEPTANCE · \(active.count) visible test images · unresolved records stay in local history"
+                }
+                if history?.isVisible == true { await refreshHistory() }
+            } catch { showIssue("Queue read failed; durable data is preserved.") }
+        } while refreshRequested
+        refreshRunning = false
+        let waiters = refreshWaiters; refreshWaiters.removeAll()
+        for waiter in waiters { waiter.resume() }
+    }
+
+    private func refreshHistory() async {
+        guard let store, let history else { return }
+        historyGeneration &+= 1
+        let generation = historyGeneration, offset = historyOffset
         do {
-            let active = try await store.assets()
-            var snapshot = active
-            let activeIDs = Set(active.map(\.id))
-            let hasNewImages = !activeIDs.subtracting(visibleIDs).isEmpty
-            // Include only newly consumed rows, rather than loading a growing used-image history.
-            for id in visibleIDs.subtracting(activeIDs) {
-                if let consumed = try await store.asset(id: id), consumed.status == .used {
-                    snapshot.append(consumed)
-                    if mode == .webAcceptance, let operationID = consumed.activeOperationID {
-                        watchedCompletions.insert(operationID)
-                    }
+            let page = try await store.historySnapshot(limit: 201, offset: offset)
+            guard historyGeneration == generation, historyOffset == offset else { return }
+            let entries = page.prefix(200).map {
+                RiftHistoryEntry(record: $0.record, operation: $0.operation, lastReceipt: $0.receipt,
+                                 canRestore: $0.canRestore, detail: $0.reason)
+            }
+            history.update(entries: entries, pageOffset: offset, hasEarlier: page.count > 200)
+        } catch { showIssue("Local history could not be read; data preserved.") }
+    }
+
+    private func changeHistoryPage(_ direction: Int) {
+        historyOffset = max(0, historyOffset + direction * 200)
+        Task { await refreshHistory() }
+    }
+
+    @objc private func showHistory() {
+        guard let history else { return }
+        history.show()
+        Task { await refreshHistory() }
+    }
+
+    private func restoreHistory(_ id: UUID) {
+        guard let store else { return }
+        Task {
+            do {
+                try await store.restoreToQueue(id)
+                await refresh()
+                rift?.showAsset(id)
+            } catch { showIssue("This image cannot safely return to the queue; local history is preserved.") }
+        }
+    }
+
+    private func revealHistory(_ id: UUID) {
+        guard let store, let root else { return }
+        Task {
+            guard let record = try? await store.asset(id: id) else { return }
+            NSWorkspace.shared.activateFileViewerSelecting([root.appendingPathComponent("media").appendingPathComponent(record.image.fileName)])
+        }
+    }
+
+    private func removeVisible(_ id: UUID) {
+        guard let store else { return }
+        Task {
+            do { try await store.removeFromQueue(id); await refresh() }
+            catch { showIssue("Could not remove this image from the rift; files are preserved.") }
+        }
+    }
+
+    @objc private func clearVisible() {
+        guard let store else { return }
+        Task {
+            do { _ = try await store.clearVisibleQueue(); await refresh() }
+            catch { showIssue("Could not clear the visible queue; files and attachments are preserved.") }
+        }
+    }
+
+    private func updateControlTitles() {
+        hideItem?.title = userHidden ? "Show rift" : "Hide rift"
+        pauseItem?.title = captureIsPaused ? "Resume collection" : "Pause collection"
+        pauseItem?.isEnabled = mode == .capture && !changingCapture
+        if let interval = lifecycleSettings.archiveAfterSeconds {
+            archiveItem?.title = String(format: "Idle archive: %.2g hours…", interval / 3600)
+        } else { archiveItem?.title = "Idle archive: off…" }
+    }
+
+    @objc private func toggleHidden() {
+        guard let store, !changingHidden else { return }
+        changingHidden = true
+        let requested = !userHidden
+        // Hide immediately; showing requires the persistent change to succeed.
+        if requested { userHidden = true; rift?.setUserHidden(true); updateControlTitles() }
+        Task {
+            defer { changingHidden = false; updateControlTitles() }
+            do {
+                try await store.setUserHidden(requested)
+                userHidden = requested; rift?.setUserHidden(requested)
+                await refresh()
+            } catch { showIssue("The visibility preference could not be saved; the rift stays hidden.") }
+        }
+    }
+
+    @objc private func toggleCollection() {
+        guard mode == .capture, let store, let binding = sourceBinding, !changingCapture else { return }
+        changingCapture = true; updateControlTitles()
+        let requested = !captureIsPaused
+        Task {
+            defer { changingCapture = false; updateControlTitles() }
+            do {
+                if requested { await binding.stop(); captureIsPaused = true }
+                try await store.setCapturePaused(requested)
+                if !requested { try await binding.start(); captureIsPaused = false }
+                statusLine?.title = captureIsPaused ? "Capture paused · stored screenshots kept"
+                    : "Capture active · ChatGPT adapter pending validation"
+            } catch { showIssue("Collection preference could not be applied; existing screenshots are preserved.") }
+        }
+    }
+
+    @objc private func configureArchive() {
+        guard let root else { return }
+        let alert = NSAlert()
+        alert.messageText = "Archive idle screenshots"
+        alert.informativeText = "Hours since last use. Enter 0 to turn off. Archiving keeps the files in local history."
+        let field = NSTextField(string: lifecycleSettings.archiveAfterSeconds.map { String($0 / 3600) } ?? "0")
+        field.frame = NSRect(x: 0, y: 0, width: 220, height: 24)
+        alert.accessoryView = field; alert.addButton(withTitle: "Save"); alert.addButton(withTitle: "Cancel")
+        guard alert.runModal() == .alertFirstButtonReturn,
+              let hours = Double(field.stringValue), hours.isFinite, hours >= 0 else { return }
+        var settings = lifecycleSettings
+        settings.archiveAfterSeconds = hours == 0 ? nil : hours * 3600
+        do {
+            try settings.validate()
+            try JSONEncoder().encode(settings).write(to: root.appendingPathComponent("lifecycle-settings.json"), options: .atomic)
+            lifecycleSettings = settings; archiveNotBefore = ProcessInfo.processInfo.systemUptime + 30
+            updateControlTitles()
+        } catch { showIssue("Archive setting was not saved; previous setting kept.") }
+    }
+
+    private func startArchiveScheduler() {
+        archiveNotBefore = ProcessInfo.processInfo.systemUptime + 30
+        archiveWakeObserver = NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.didWakeNotification,
+            object: nil, queue: .main) { [weak self] _ in
+                MainActor.assumeIsolated {
+                    self?.archiveNotBefore = ProcessInfo.processInfo.systemUptime + 30
+                    self?.archiveClock = nil
                 }
             }
-            visibleIDs = activeIDs
-            if hasNewImages && mode == .webAcceptance { requestArm(reason: "newImages") }
-            rift?.render(snapshot)
-            switch mode {
-            case .capture: statusItem?.button?.toolTip = "Riftlet · \(active.count) retained screenshots"
-            case .simulation: statusItem?.button?.toolTip = "Riftlet SIMULATION — synthetic only"
-            case .webAcceptance:
-                let unknownCount = active.filter { $0.status == .unknown }.count
-                statusItem?.button?.toolTip = "Riftlet WEB ACCEPTANCE · \(active.count) retained test images · \(unknownCount) UNKNOWN; click UNKNOWN only observes its original operation"
+        archiveTask = Task { [weak self] in
+            while !Task.isCancelled {
+                do { try await Task.sleep(nanoseconds: 30_000_000_000) } catch { return }
+                guard let self else { return }
+                await self.archiveIdleImages()
             }
-        } catch { showIssue("Queue read failed; durable data is preserved.") }
+        }
+    }
+
+    private func archiveIdleImages() async {
+        guard let store, let interval = lifecycleSettings.archiveAfterSeconds else { return }
+        let now = Date(), uptime = ProcessInfo.processInfo.systemUptime
+        if let clock = archiveClock,
+           abs(now.timeIntervalSince(clock.wall) - (uptime - clock.uptime)) > 5 {
+            archiveNotBefore = uptime + 30
+        }
+        archiveClock = (now, uptime)
+        let state = interactionFence.snapshot()
+        guard uptime >= archiveNotBefore, !state.blocked else { return }
+        do {
+            // Small atomic batches after a quiet interval avoid wake-time mass
+            // disappearance. Core and UI both check the interaction boundary.
+            let archived = try await store.archiveIdle(before: now.addingTimeInterval(-interval),
+                fence: interactionFence, revision: state.revision, limit: 3)
+            if !archived.isEmpty { await refresh() }
+        } catch { showIssue("Idle archive deferred; screenshots remain available.") }
     }
 
     private func installMenu() {
@@ -400,6 +630,18 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
             menu.addItem(NSMenuItem(title: "No message sending · UNKNOWN never retransmits", action: nil, keyEquivalent: ""))
             add(menu, "Add 3 generated test images", #selector(addWebTestImages))
         }
+        if simulation { add(menu, "Add 3 synthetic demo images", #selector(addWebTestImages)) }
+        menu.addItem(.separator())
+        let hide = NSMenuItem(title: "Hide rift", action: #selector(toggleHidden), keyEquivalent: "")
+        hide.target = self; menu.addItem(hide); hideItem = hide
+        if mode == .capture {
+            let pause = NSMenuItem(title: "Pause collection", action: #selector(toggleCollection), keyEquivalent: "")
+            pause.target = self; menu.addItem(pause); pauseItem = pause
+        }
+        add(menu, "Local screenshot history…", #selector(showHistory))
+        add(menu, "Clear visible queue", #selector(clearVisible))
+        let archive = NSMenuItem(title: "Idle archive…", action: #selector(configureArchive), keyEquivalent: "")
+        archive.target = self; menu.addItem(archive); archiveItem = archive
         menu.addItem(.separator())
         add(menu, "Show latest screenshot", #selector(showLatest))
         add(menu, "Show oldest screenshot", #selector(showOldest))
@@ -421,7 +663,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
     @objc private func showOldest() { rift?.showOldest() }
     @objc private func quit() { NSApplication.shared.terminate(nil) }
     @objc private func addWebTestImages() {
-        guard mode == .webAcceptance, let store else { return }
+        guard mode != .capture, let store else { return }
         Task {
             do { try await seedSyntheticImages(store: store, addNewBatch: true); await refresh() }
             catch { showIssue("Could not create test images; existing queue preserved.") }
@@ -463,7 +705,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
         }
     }
     private func reloadSource() async {
-        guard mode == .capture, let capture, let sourceBinding else { return }
+        guard mode == .capture, !captureIsPaused, let capture, let sourceBinding else { return }
         do {
             await sourceBinding.refresh()
             try await capture.rescan()
@@ -543,8 +785,12 @@ private enum SelfCheck {
         let store = try QueueStore(databaseURL: databaseURL, mode: .simulation)
         let importer = PrivateAssetImporter(privateRoot: privateRoot, store: store)
         let record = try await importer.importFile(at: source, origin: .synthetic)
-        let coordinator = TransferCoordinator(store: store, adapter: SimulationAdapter(), mediaDirectory: privateRoot.appendingPathComponent("media"))
+        let coordinator = TransferCoordinator(store: store, adapter: SimulationAdapter(settlementDelay: 0), mediaDirectory: privateRoot.appendingPathComponent("media"))
         try await coordinator.select(record.id)
+        guard let started = try await store.asset(id: record.id), started.visibility == .swallowed,
+              started.status != .used, let operationID = started.activeOperationID,
+              try await store.uploadStartReceipt(for: operationID) != nil else { throw RiftletError.invalidTransition }
+        try await coordinator.observePending()
         let reopened = try QueueStore(databaseURL: databaseURL, mode: .simulation)
         try await reopened.recoverInterruptedOperations()
         guard try await reopened.assets().isEmpty,

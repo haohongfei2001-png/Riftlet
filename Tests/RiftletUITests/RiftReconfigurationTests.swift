@@ -73,7 +73,7 @@ final class RiftReconfigurationTests: XCTestCase {
         XCTAssertEqual(reached, Set(input.map(\.id)))
     }
 
-    func testUsedCompactionKeepsHeldSelectionBoundToOriginalAsset() {
+    func testSwallowedCompactionKeepsHeldSelectionBoundToOriginalAsset() {
         let input = records(12)
         let frame = CGRect(x: 0, y: 0, width: 1_440, height: 900)
         let initial = RiftLayout.make(records: input, visibleFrame: frame, configuration: .init())
@@ -84,7 +84,8 @@ final class RiftReconfigurationTests: XCTestCase {
                                  timestamp: 10, clickCount: 1, doubleClickInterval: 0.5, acceptsSelection: true))
         let changed = input.enumerated().map { index, record in
             AssetRecord(image: record.image, sequence: record.sequence,
-                        status: index < 2 ? .used : (index == 8 ? .unknown : .failed))
+                        status: index < 2 ? .transferring : (index == 8 ? .unknown : .failed),
+                        visibility: index < 2 ? .swallowed : .visible)
         }
         let after = RiftLayout.make(records: changed, visibleFrame: frame, configuration: .init())
         XCTAssertEqual(after.rows.map(\.ordinal), Array(1...10))

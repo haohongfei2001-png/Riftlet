@@ -54,7 +54,7 @@ public enum RiftLayout {
 
     public static func make(records: [AssetRecord], visibleFrame: CGRect,
                             configuration c: RiftConfiguration, firstVisibleIndex: Int = 0) -> RiftLayoutResult {
-        let active = records.filter { $0.status != .used }
+        let active = records.filter { $0.visibility == .visible }
         let height = max(c.fitHeight, c.minimumHitHeight)
         // Preserve a genuine empty strip between row windows even for experimental dimensions.
         let pitch = max(c.rowPitch, height + 4)
@@ -102,9 +102,9 @@ public enum RiftLayout {
             let bottom = Double(last.frame.minY) - c.lineExtension
             rawLine = CGRect(x: edgeX - c.lineWidth / 2, y: bottom, width: c.lineWidth, height: top - bottom)
         } else {
-            rawLine = CGRect(x: edgeX - c.lineWidth / 2,
-                             y: min(topLimit, max(bottomLimit, preferred)) - c.emptyTraceLength / 2,
-                             width: c.lineWidth, height: c.emptyTraceLength)
+            // Empty visible queues have no decorative remnant, regardless of
+            // any legacy emptyTraceLength stored by an earlier build.
+            rawLine = .zero
         }
         let line = rawLine.intersection(visibleFrame)
         return RiftLayoutResult(rows: rows, lineFrame: line.isNull ? .zero : line,
@@ -143,4 +143,91 @@ public struct PointerSelectionGate: Sendable {
     }
 
     public mutating func cancel() { heldID = nil; heldPoint = nil; heldTime = nil }
+}
+
+
+/// Main-thread interaction facts used to protect automatic archiving. No upload
+/// or visibility authority is inferred from these transient UI observations.
+public struct RiftInteractionSnapshot: Equatable, Sendable {
+    public let revision: UInt64
+    public let protectedAssetIDs: Set<UUID>
+    public let isHolding: Bool
+    public let isSelecting: Bool
+    public let isTransitioning: Bool
+    public var blocksAutomaticArchive: Bool {
+        !protectedAssetIDs.isEmpty || isHolding || isSelecting || isTransitioning
+    }
+}
+
+/// Value semantics allow the asynchronous selection boundary and animation /
+/// hover protection to be tested without pretending to exercise a physical GUI.
+struct RiftInteractionState: Sendable {
+    private(set) var revision: UInt64 = 0
+    private(set) var heldID: UUID?
+    private var hoveredIDs: Set<UUID> = []
+    private var selectedIDs: Set<UUID> = []
+    private var menuIDs: Set<UUID> = []
+    private var animationTokens: Set<UUID> = []
+    private var layoutTransition = false
+
+    var snapshot: RiftInteractionSnapshot {
+        RiftInteractionSnapshot(revision: revision,
+            protectedAssetIDs: hoveredIDs.union(selectedIDs).union(menuIDs),
+            isHolding: heldID != nil, isSelecting: !selectedIDs.isEmpty,
+            isTransitioning: layoutTransition || !animationTokens.isEmpty)
+    }
+
+    mutating func setHovered(_ ids: Set<UUID>) {
+        guard hoveredIDs != ids else { return }
+        hoveredIDs = ids; revision &+= 1
+    }
+
+    mutating func beginSelection(_ id: UUID, held: Bool) {
+        selectedIDs.insert(id)
+        if held { heldID = id }
+        revision &+= 1
+    }
+
+    mutating func releasePointer(accepted: Bool) {
+        guard let id = heldID else { return }
+        heldID = nil
+        if !accepted { selectedIDs.remove(id) }
+        revision &+= 1
+    }
+
+    mutating func finishSelection(_ id: UUID) {
+        guard selectedIDs.remove(id) != nil else { return }
+        revision &+= 1
+    }
+
+    mutating func setMenu(_ id: UUID, open: Bool) {
+        let old = menuIDs
+        if open { menuIDs.insert(id) } else { menuIDs.remove(id) }
+        if menuIDs != old { revision &+= 1 }
+    }
+
+    mutating func setTransitioning(_ value: Bool) {
+        guard value != layoutTransition else { return }
+        layoutTransition = value; revision &+= 1
+    }
+
+    mutating func beginAnimation(_ token: UUID) {
+        if animationTokens.insert(token).inserted { revision &+= 1 }
+    }
+
+    mutating func endAnimation(_ token: UUID) {
+        if animationTokens.remove(token) != nil { revision &+= 1 }
+    }
+
+    /// Hide/reflow cancels only a pointer still down. A released selection may
+    /// already be awaiting durable prepare, and must keep its protection.
+    mutating func resetPresentation() {
+        if let heldID { selectedIDs.remove(heldID) }
+        heldID = nil; hoveredIDs.removeAll(); menuIDs.removeAll()
+        animationTokens.removeAll(); layoutTransition = false; revision &+= 1
+    }
+
+    mutating func close() {
+        resetPresentation(); selectedIDs.removeAll(); revision &+= 1
+    }
 }

@@ -4,6 +4,8 @@ import Foundation
 public actor QueueStore {
     public let mode: StoreMode
     private let database: SQLiteDatabase
+    private var selectionReservations = Set<UUID>()
+    private let assetColumns = "sequence,image_json,status,active_operation_id,visibility,visibility_revision,visibility_reason,last_interaction_at"
 
     public init(databaseURL: URL, mode: StoreMode = .production) throws {
         self.mode = mode
@@ -28,12 +30,13 @@ public actor QueueStore {
         }
         guard mode != .simulation || image.origin == .synthetic else { throw RiftletError.modeMismatch }
         return try database.transaction {
-            if let row = try database.rows("SELECT sequence,image_json,status,active_operation_id FROM assets WHERE source_key=?", [image.sourceKey]).first {
+            if let row = try database.rows("SELECT \(assetColumns) FROM assets WHERE source_key=?", [image.sourceKey]).first {
                 return try decodeAsset(row)
             }
-            try database.execute("INSERT INTO assets(id,source_key,file_name,sort_at,image_json,status) VALUES(?,?,?,?,?,'pending')", [
+            try database.execute("INSERT INTO assets(id,source_key,file_name,sort_at,image_json,status,last_interaction_at) VALUES(?,?,?,?,?,'pending',?)", [
                 image.id.uuidString, image.sourceKey, image.fileName,
-                String((image.capturedAt ?? image.firstSeenAt).timeIntervalSince1970), try json(image)
+                String((image.capturedAt ?? image.firstSeenAt).timeIntervalSince1970), try json(image),
+                String(image.importedAt.timeIntervalSince1970)
             ])
             guard let inserted = try asset(id: image.id) else { throw RiftletError.assetNotFound }
             return inserted
@@ -45,16 +48,133 @@ public actor QueueStore {
     }
 
     public func assets(includeUsed: Bool = false) throws -> [AssetRecord] {
-        let filter = includeUsed ? "" : "WHERE status != 'used'"
-        return try database.rows("SELECT sequence,image_json,status,active_operation_id FROM assets \(filter) ORDER BY sort_at,sequence").map(decodeAsset)
+        // Retain the old all-history option for capture recovery; the normal
+        // queue is now selected exclusively by durable visibility.
+        let filter = includeUsed ? "" : "WHERE visibility='visible'"
+        return try database.rows("SELECT \(assetColumns) FROM assets \(filter) ORDER BY sort_at,sequence").map(decodeAsset)
     }
 
     public func asset(id: UUID) throws -> AssetRecord? {
-        try database.rows("SELECT sequence,image_json,status,active_operation_id FROM assets WHERE id=?", [id.uuidString]).first.map(decodeAsset)
+        try database.rows("SELECT \(assetColumns) FROM assets WHERE id=?", [id.uuidString]).first.map(decodeAsset)
     }
 
     public func asset(sourceKey: String) throws -> AssetRecord? {
-        try database.rows("SELECT sequence,image_json,status,active_operation_id FROM assets WHERE source_key=?", [sourceKey]).first.map(decodeAsset)
+        try database.rows("SELECT \(assetColumns) FROM assets WHERE source_key=?", [sourceKey]).first.map(decodeAsset)
+    }
+
+    public func history(limit: Int = 200, offset: Int = 0) throws -> [AssetRecord] {
+        try database.rows("SELECT \(assetColumns) FROM assets ORDER BY sort_at DESC,sequence DESC LIMIT ? OFFSET ?",
+                          [String(max(0, min(limit, 201))), String(max(0, offset))]).map(decodeAsset)
+    }
+
+    public func historySnapshot(limit: Int = 200, offset: Int = 0) throws -> [QueueHistoryRecord] {
+        try database.transaction {
+            try history(limit: limit, offset: offset).map { record in
+                let op = try record.activeOperationID.flatMap { try operation(id: $0) }
+                return QueueHistoryRecord(record: record, operation: op,
+                    receipt: try op.flatMap { try receipt(for: $0.id) }, canRestore: try canRestoreToQueue(record.id),
+                    reason: try op.flatMap { try operationReason(for: $0.id) })
+            }
+        }
+    }
+
+    public func userHidden() throws -> Bool { try preference("user_hidden") }
+    public func setUserHidden(_ hidden: Bool) throws { try setPreference("user_hidden", value: hidden) }
+    public func capturePaused() throws -> Bool { try preference("capture_paused") }
+    public func setCapturePaused(_ paused: Bool) throws { try setPreference("capture_paused", value: paused) }
+
+    private func preference(_ name: String) throws -> Bool {
+        try database.rows("SELECT value FROM metadata WHERE key=?", [name]).first?.first == "true"
+    }
+    private func setPreference(_ name: String, value: Bool) throws {
+        try database.execute("INSERT INTO metadata(key,value) VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value", [name, value ? "true" : "false"])
+    }
+
+    /// Reserves an accepted UI selection before target resolution awaits. A
+    /// delayed automatic-archive result cannot override that visible click.
+    public func reserveSelection(_ id: UUID, visibilityRevision: Int64? = nil, now: Date = Date()) throws {
+        guard now.timeIntervalSince1970.isFinite else { throw RiftletError.invalidTransition }
+        try database.transaction {
+            guard let record = try asset(id: id) else { throw RiftletError.assetNotFound }
+            if record.visibility == .archived, record.visibilityReason == .automaticArchive,
+               let revision = visibilityRevision, revision == record.visibilityRevision - 1,
+               try canRestoreToQueue(id) {
+                try setVisibility(record, .visible, reason: .userRestored, now: now)
+            } else {
+                guard record.visibility == .visible,
+                      visibilityRevision == nil || visibilityRevision == record.visibilityRevision else {
+                    throw RiftletError.invalidTransition
+                }
+            }
+            try database.execute("UPDATE assets SET last_interaction_at=? WHERE id=?", [String(now.timeIntervalSince1970), id.uuidString])
+        }
+        selectionReservations.insert(id)
+    }
+
+    public func releaseSelection(_ id: UUID) { selectionReservations.remove(id) }
+
+    public func removeFromQueue(_ id: UUID) throws {
+        try database.transaction {
+            guard let record = try asset(id: id) else { throw RiftletError.assetNotFound }
+            try removeVisible(record)
+        }
+    }
+
+    @discardableResult
+    public func clearVisibleQueue() throws -> Int {
+        try database.transaction {
+            let records = try assets()
+            for record in records { try removeVisible(record) }
+            return records.count
+        }
+    }
+
+    private func removeVisible(_ record: AssetRecord) throws {
+        guard record.visibility == .visible else { return }
+        if let id = record.activeOperationID, let op = try operation(id: id), op.phase == .prepared {
+            try update(op, phase: .failed, status: .failed, reason: "Removed before external input intent")
+        }
+        try setVisibility(record, .removed, reason: .userRemoved)
+    }
+
+    public func canRestoreToQueue(_ id: UUID) throws -> Bool {
+        guard let record = try asset(id: id), record.visibility == .archived || record.visibility == .removed,
+              record.status == .pending || record.status == .failed else { return false }
+        if let id = record.activeOperationID {
+            guard let op = try operation(id: id), op.phase == .failed else { return false }
+        }
+        return true
+    }
+
+    public func restoreToQueue(_ id: UUID) throws {
+        try database.transaction {
+            guard try canRestoreToQueue(id), let record = try asset(id: id) else { throw RiftletError.invalidTransition }
+            try setVisibility(record, .visible, reason: .userRestored)
+        }
+    }
+
+    /// No deadline is a product constant: the App supplies its adjustable cutoff.
+    /// All candidates are checked again in one transaction, under the UI fence.
+    @discardableResult
+    public func archiveIdle(before cutoff: Date, fence: QueueInteractionFence,
+                            revision: UInt64, limit: Int = 32) throws -> [UUID] {
+        guard cutoff.timeIntervalSince1970.isFinite else { throw RiftletError.invalidTransition }
+        return try database.transaction {
+            try fence.withArchivePermit(expectedRevision: revision) {
+                let records = try database.rows("""
+                    SELECT \(assetColumns) FROM assets
+                    WHERE visibility='visible' AND status IN ('pending','failed') AND last_interaction_at<=?
+                    ORDER BY sort_at,sequence LIMIT ?
+                    """, [String(cutoff.timeIntervalSince1970), String(max(0, min(limit, 32)))]).map(decodeAsset)
+                var archived: [UUID] = []
+                for record in records where !selectionReservations.contains(record.id) {
+                    if let id = record.activeOperationID, let op = try operation(id: id), op.phase.isUnresolved { continue }
+                    try setVisibility(record, .archived, reason: .automaticArchive, touch: false)
+                    archived.append(record.id)
+                }
+                return archived
+            } ?? []
+        }
     }
 
     public func checkpoint(for key: String) throws -> Data? {
@@ -74,7 +194,8 @@ public actor QueueStore {
             if let activeID = record.activeOperationID, let existing = try operation(id: activeID), existing.phase.isUnresolved {
                 return existing
             }
-            guard record.status == .pending || record.status == .failed else { throw RiftletError.invalidTransition }
+            guard record.visibility == .visible,
+                  record.status == .pending || record.status == .failed else { throw RiftletError.invalidTransition }
             guard mode != .simulation || (target.surface == .simulation && target.adapterID == "simulation") else { throw RiftletError.modeMismatch }
             guard mode != .production || target.surface != .simulation else { throw RiftletError.modeMismatch }
             let count = try database.rows("SELECT COALESCE(MAX(attempt),0) FROM operations WHERE asset_id=?", [assetID.uuidString]).first?[0] ?? "0"
@@ -102,6 +223,15 @@ public actor QueueStore {
         return try JSONDecoder().decode(TransferReceipt.self, from: Data(raw.utf8))
     }
 
+    public func uploadStartReceipt(for operationID: UUID) throws -> TransferReceipt? {
+        guard let raw = try database.rows("SELECT receipt_json FROM upload_starts WHERE operation_id=?", [operationID.uuidString]).first?.first ?? nil else { return nil }
+        return try JSONDecoder().decode(TransferReceipt.self, from: Data(raw.utf8))
+    }
+
+    public func operationReason(for operationID: UUID) throws -> String? {
+        try database.rows("SELECT reason FROM operations WHERE id=?", [operationID.uuidString]).first?.first ?? nil
+    }
+
     public func compensation(for operationID: UUID) throws -> TransferCompensation? {
         guard let raw = try database.rows("SELECT evidence_json FROM compensations WHERE operation_id=?", [operationID.uuidString]).first?.first ?? nil else { return nil }
         return try JSONDecoder().decode(TransferCompensation.self, from: Data(raw.utf8))
@@ -124,7 +254,7 @@ public actor QueueStore {
     public func markDispatchIntent(_ id: UUID) throws {
         try database.transaction {
             let op = try requiredOperation(id)
-            guard op.phase == .prepared else { throw RiftletError.invalidTransition }
+            guard op.phase == .prepared, try asset(id: op.assetID)?.visibility == .visible else { throw RiftletError.invalidTransition }
             let active = try unresolvedOperations().filter { $0.phase != .prepared }
             guard !active.contains(where: { $0.target.conflictsForDispatch(with: op.target) }) else {
                 throw RiftletError.targetBusy
@@ -157,6 +287,8 @@ public actor QueueStore {
             guard op.assetID == receipt.assetID, op.attempt == receipt.attempt,
                   record.image.sha256 == receipt.assetSHA256, op.target == receipt.target,
                   record.activeOperationID == op.id else { throw RiftletError.mismatchedReceipt }
+            if let started = try uploadStartReceipt(for: op.id), let attachmentID = receipt.attachmentID,
+               attachmentID != started.attachmentID { throw RiftletError.mismatchedReceipt }
             // A positive terminal receipt is not immune to a later, independently
             // identified error. Preserve both facts atomically; never re-upload.
             if op.phase == .succeeded {
@@ -164,18 +296,25 @@ public actor QueueStore {
                       correlatedFailure(receipt, success: success) else { return record }
                 let evidence = TransferCompensation(originalSuccess: success, failure: receipt, createdAt: Date())
                 try database.execute("INSERT INTO compensations(operation_id,evidence_json) VALUES(?,?)", [op.id.uuidString, try json(evidence)])
-                try update(op, phase: .compensated, status: .unknown, reason: "Identity-correlated late failure; observation only")
+                if policy.allowsRetry(receipt: receipt, asset: record.image, mode: mode) {
+                    try update(op, phase: .failed, status: .failed, reason: receipt.reason)
+                    try reviveSafely(record)
+                } else {
+                    try update(op, phase: .compensated, status: .unknown, reason: "Identity-correlated late error; termination not proved")
+                    if record.visibility == .visible { try setVisibility(record, .swallowed, reason: .legacyCompletion) }
+                }
                 try database.execute("UPDATE operations SET receipt_json=? WHERE id=?", [try json(receipt), op.id.uuidString])
                 guard let restored = try asset(id: op.assetID) else { throw RiftletError.assetNotFound }
                 return restored
             }
             if op.phase == .compensated {
-                // Old success/candidate/UNKNOWN replies cannot swallow the restored
-                // image again. Only separate retry admission can release this lock.
+                // Preserve the internal audit and keep observing. Only a separately
+                // admitted safe failure may revive a normal clickable screenshot.
                 guard let evidence = try compensation(for: op.id),
                       correlatedFailure(receipt, success: evidence.originalSuccess),
                       policy.allowsRetry(receipt: receipt, asset: record.image, mode: mode) else { return record }
                 try update(op, phase: .failed, status: .failed, reason: receipt.reason)
+                try reviveSafely(record)
                 try database.execute("UPDATE operations SET receipt_json=? WHERE id=?", [try json(receipt), op.id.uuidString])
                 guard let restored = try asset(id: op.assetID) else { throw RiftletError.assetNotFound }
                 return restored
@@ -188,13 +327,26 @@ public actor QueueStore {
                 if op.phase == .dispatchIntent { phase = .inputTriggered }
             case .attachedCandidate:
                 if op.phase == .dispatchIntent || op.phase == .inputTriggered { phase = .attachmentPresent }
+            case .uploadStarted:
+                if policy.allowsUploadStart(receipt: receipt, asset: record.image, mode: mode) {
+                    // Immutable first-start audit is independent of the latest
+                    // observation, which UNKNOWN/READY may subsequently replace.
+                    try database.execute("INSERT OR IGNORE INTO upload_starts(operation_id,receipt_json,started_at) VALUES(?,?,?)",
+                                         [op.id.uuidString, try json(receipt), String(Date().timeIntervalSince1970)])
+                    if op.phase == .dispatchIntent { phase = .inputTriggered }
+                    if record.visibility == .visible { try setVisibility(record, .swallowed, reason: .uploadStarted) }
+                } else { phase = .unknown; status = .unknown }
             case .verifiedReady:
                 if policy.allowsConsumption(receipt: receipt, asset: record.image, mode: mode) {
                     phase = .succeeded; status = .used
+                    // Legacy adapters may only return final proof. Preserve that
+                    // fact and exit silently; never invent an earlier start event.
+                    if record.visibility == .visible { try setVisibility(record, .swallowed, reason: .legacyCompletion) }
                 } else { phase = .unknown; status = .unknown }
             case .definitiveFailure:
                 if policy.allowsRetry(receipt: receipt, asset: record.image, mode: mode) {
                     phase = .failed; status = .failed
+                    try reviveSafely(record)
                 } else { phase = .unknown; status = .unknown }
             case .unknown:
                 phase = .unknown; status = .unknown
@@ -255,6 +407,23 @@ public actor QueueStore {
             && !(success.attachmentID?.isEmpty ?? true)
     }
 
+    private func reviveSafely(_ record: AssetRecord) throws {
+        // A user removal/archive overrides automatic visibility changes even
+        // though the true failure fact is still recorded in operation history.
+        if record.visibility == .visible || record.visibility == .swallowed {
+            try setVisibility(record, .visible, reason: .safeFailure)
+        }
+    }
+
+    private func setVisibility(_ record: AssetRecord, _ visibility: QueueVisibility,
+                               reason: QueueVisibilityReason, now: Date = Date(), touch: Bool = true) throws {
+        guard now.timeIntervalSince1970.isFinite else { throw RiftletError.invalidTransition }
+        try database.execute("""
+            UPDATE assets SET visibility=?,visibility_reason=?,visibility_revision=visibility_revision+1,
+            last_interaction_at=CASE WHEN ?='true' THEN ? ELSE last_interaction_at END WHERE id=?
+            """, [visibility.rawValue, reason.rawValue, touch ? "true" : "false", String(now.timeIntervalSince1970), record.id.uuidString])
+    }
+
     private func update(_ op: TransferOperation, phase: OperationPhase, status: QueueStatus, reason: String) throws {
         try database.execute("UPDATE operations SET phase=?,updated_at=?,reason=? WHERE id=?", [phase.rawValue, String(Date().timeIntervalSince1970), String(reason.prefix(512)), op.id.uuidString])
         // Missing bytes are independent of an operation's progress. Recovery or a failed
@@ -269,10 +438,16 @@ public actor QueueStore {
     }
 
     private func decodeAsset(_ row: [String?]) throws -> AssetRecord {
-        guard row.count == 4, let sequence = row[0].flatMap(Int64.init), let raw = row[1],
-              let status = row[2].flatMap(QueueStatus.init(rawValue:)) else { throw RiftletError.database("Invalid asset row") }
+        guard row.count == 8, let sequence = row[0].flatMap(Int64.init), let raw = row[1],
+              let status = row[2].flatMap(QueueStatus.init(rawValue:)),
+              let visibility = row[4].flatMap(QueueVisibility.init(rawValue:)),
+              let revision = row[5].flatMap(Int64.init),
+              let reason = row[6].flatMap(QueueVisibilityReason.init(rawValue:)),
+              let interacted = row[7].flatMap(Double.init) else { throw RiftletError.database("Invalid asset row") }
         let image = try JSONDecoder().decode(ImportedAsset.self, from: Data(raw.utf8))
-        return AssetRecord(image: image, sequence: sequence, status: status, activeOperationID: row[3].flatMap(UUID.init(uuidString:)))
+        return AssetRecord(image: image, sequence: sequence, status: status, activeOperationID: row[3].flatMap(UUID.init(uuidString:)),
+                           visibility: visibility, visibilityRevision: revision, visibilityReason: reason,
+                           lastInteractionAt: Date(timeIntervalSince1970: interacted))
     }
 
     private func decodeOperation(_ row: [String?]) throws -> TransferOperation {

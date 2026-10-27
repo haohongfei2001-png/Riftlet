@@ -9,6 +9,7 @@ public struct RiftConfiguration: Codable, Equatable, Sendable {
     public var rowPitch: Double = 60
     public var lineWidth: Double = 0.7
     public var lineExtension: Double = 8
+    /// Decode legacy settings without retaining the retired empty-queue line.
     public var emptyTraceLength: Double = 24
     public var outerInset: Double = 8
     public var firstCenterFromTop: Double = 180
@@ -21,7 +22,8 @@ public struct RiftConfiguration: Codable, Equatable, Sendable {
     public var arrivalDuration: Double = 0.220
     public var pressDuration: Double = 0.080
     public var inwardDistance: Double = 2.5
-    public var swallowDuration: Double = 0.240
+    /// Adjustable engineering starting value, not an approved timing specification.
+    public var swallowDuration: Double = 0.120
     public var shiftDuration: Double = 0.180
     public var returnDuration: Double = 0.180
     public var reducedMotionDuration: Double = 0.100

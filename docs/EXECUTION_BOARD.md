@@ -1,10 +1,29 @@
 # Riftlet 自主并行执行队列
 
+>
+> **Pro research handoff received (2026-10-27):** [read-only technical findings and minimal acceptance tasks](PRO_FEASIBILITY_REVIEW_FINDINGS_2026-10-27.md). Web no-editor-focus one-click is conditionally feasible but cold first click not yet accepted; Mac separate. System Screenshot.app cannot currently be promised universal exclusion; implement robust persistent user hide, isolate source in real N1 before any optional automatic-hide experiments. Prioritize ACK/main-thread/NSEvent timing, authorisation gap, empty-generation retirement, usable-composer gate and UI archive-protection. **No source code, source acceptance or production adapter changed by this document.**
+
+> **NEW RELEASE UX REQUIREMENTS P29–P33 (2026-10-27):** [RELEASE_UX_REQUIREMENTS](RELEASE_UX_REQUIREMENTS_2026-10-27.md) confirms focusless composer single-click, subtle invalid-click feedback, interaction-safe archive, and the lean public-release baseline. Screenshot self-inclusion is a **technical feasibility study**, not a guarantee; see [Pro focused research brief](PRO_FEASIBILITY_REVIEW_BRIEF_2026-10-27.md). **Do not disrupt existing W2/N1/M1 implementation or mark release requirements PASS from current synthetic/partial tests.**
+
+
+
+> **2026-10-27 NEW USER PRODUCT DECISION:** [INTERACTION_CONTRACT_2026-10-27.md](INTERACTION_CONTRACT_2026-10-27.md) now governs the final screenshot/rift lifecycle: current target at click; **positive upload start → very fast swallow**, not READY-only; only explicit/extremely high-confidence failure → rebirth; swallowed UNKNOWN stays locally hidden; idle archive, single/bulk removal, and **no slit at zero visible items**. Current source, acceptance and success/failed gates have **not** been revised merely by this note. The integration lead should create/claim a separate implementation+real-acceptance packet without discarding already passing W2/N1/M1 evidence. No unreviewed merge or production enablement. **Additional user rulings P23–P28:** no success Toast; no composer means no swallow; failure-qualified rebirth must be a normal clickable screenshot with ordinary archive/removal; queue clearing never removes ChatGPT attachments; optimize consecutive clicks only when safe. Hold-and-drag remains unapproved. Update product UI/state-machine acceptance accordingly; do not treat these product decisions as already implemented.
+
 2026-10-27（北京时间）。本文件是可续做的工程队列；总体范围见 [ENGINEERING_PLAN.md](ENGINEERING_PLAN.md)。用户不承担日常任务分派、实现取舍或逐项审批。负责人完成一包后自动领取可做的下一包。
 
 **M1 独立执行记录（历史，合流前）**：用户已将真实 Mac 的 W2/N1 与 Web 两次操作闭环交给本地 Codex；本会话不访问或争用其设备。以下 PR #1 表格及 W2 结果是继承到 `485fa87` 的检查点，不冒充另一会话的新结果。M1 在独立分支 `codex/m1-native-backend-20261027` / [Draft PR #3](https://github.com/haohongfei2001-png/Riftlet/pull/3) 完成原生后端，已测 `7dfa8ec`、173/173 原生测试与非作者审查通过；实际客户端准入仍等待真实证据。唯一正式工程集成负责人保持 root，后续按分支成果整合，不直接争写 PR #1。
 
 ## 1. 当前检查点
+
+### 新版交互代码增量 · 原生已实现，当前提交进入 CI
+
+- 正式起点 `a441c70f3c4071069bd594513ecf16600bbb0ab8`；继承 PR #4 `90a04883160032fc6354fb4f3d3f7d56fede2947` 批准文档及历史，不覆盖网站/设计。
+- root 亲自完成 Core/SQLite v3/Coordinator/App；三个独立执行者实际并行完成 UI、历史、Core 回归与交叉非作者审查。共享源码由负责人单写入。本会话没有操作本地 Codex 的真实 Mac。
+- 已实现：正向开始独立持久化并快速退出、隐藏 UNKNOWN、独立安全失败才重生、零图零裂缝、持久隐藏、单张/批量移除、受交互保护的可调归档、原生分页历史、隔离三态模拟。新的源代码/测试需本轮 CI，旧 228 项结果不能覆盖本增量。
+- [共享契约与可运行演示](UPLOAD_STARTED_CONTRACT_V1.md) 已写入；协调要求已发至 PR #1。Web/Chrome 本轮保持未改，当前真实适配器尚未产出新的开始回执。开始/成功/安全重试三项准入独立且生产默认空。
+- 本地 Codex 下一包：在自己的 Web 分支接入真实开始、早返回/只读 reconcile、独立失败终止证据；继续第四轮冷首击/逻辑草稿/MID/物理 N1 与自包含/延迟。root 在取得真实源码与证据后统一集成，不重做已有模块。
+
+以下第三轮事实及 PR #4 的原交接说明作为来源保留；最新实现/验证以本节、[VERIFICATION](VERIFICATION.md) 和 [uploadStarted v1](UPLOAD_STARTED_CONTRACT_V1.md) 为准。
 
 <!-- ROUND3_INTEGRATION_STATUS -->
 **第三轮正式集成：** 7d6bca6 → 11aec04/159b3ef → d26c6da/6344eb0 → [aa4fd2b9ed64efb83d9b7c8b29102cbd91d03e2b](https://github.com/haohongfei2001-png/Riftlet/commit/aa4fd2b9ed64efb83d9b7c8b29102cbd91d03e2b)。全部原12文件保留；root修复ChromeActivityObserver仅PID缓存为PID+launchDate，非作者已复核。[完整 macOS CI 40471069966](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40471069966) 于 16:06:16 北京时间通过：228 原生 / 38 页面 / 8 故障 / 12 probe 离线组，历史回放、Release/签名及三个自检全部通过；[永久验证与范围](../engineering/evidence/2026-10-27-integration-round3/verification.json)。

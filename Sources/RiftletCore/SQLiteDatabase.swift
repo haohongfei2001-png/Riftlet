@@ -24,11 +24,18 @@ final class SQLiteDatabase {
         try execute("PRAGMA journal_mode = WAL")
         try execute("PRAGMA synchronous = FULL")
         let version = try rows("PRAGMA user_version").first?[0] ?? "0"
-        guard version == "0" || version == "1" || version == "2" else {
+        guard ["0", "1", "2", "3"].contains(version) else {
             throw RiftletError.database("Unsupported schema version \(version); database preserved")
         }
-        if version == "0" { try transaction { try migrate() } }
-        if version != "2" { try transaction { try migrateCompensation() } }
+        if version != "3" {
+            // All pending migrations commit together. A v3 failure must not
+            // leave a v1 store half-upgraded or rewrite its receipt history.
+            try transaction {
+                if version == "0" { try migrate() }
+                if version == "0" || version == "1" { try migrateCompensation() }
+                try migrateVisibility()
+            }
+        }
         guard try rows("PRAGMA quick_check").first?.first == "ok" else {
             throw RiftletError.database("Integrity check failed; database preserved")
         }
@@ -106,6 +113,33 @@ final class SQLiteDatabase {
             )
             """)
         try execute("PRAGMA user_version = 2")
+    }
+
+    private func migrateVisibility() throws {
+        try execute("ALTER TABLE assets ADD COLUMN visibility TEXT NOT NULL DEFAULT 'visible' CHECK(visibility IN ('visible','swallowed','archived','removed'))")
+        try execute("ALTER TABLE assets ADD COLUMN visibility_revision INTEGER NOT NULL DEFAULT 0")
+        try execute("ALTER TABLE assets ADD COLUMN visibility_reason TEXT NOT NULL DEFAULT 'capture'")
+        try execute("ALTER TABLE assets ADD COLUMN last_interaction_at REAL NOT NULL DEFAULT 0")
+        // Completion/compensation history already proves these images left the
+        // old queue. Do not invent a start event for any legacy operation.
+        try execute("""
+            UPDATE assets SET visibility='swallowed',visibility_reason='legacyCompletion'
+            WHERE status='used' OR active_operation_id IN (SELECT id FROM operations WHERE phase='compensated')
+            """)
+        for row in try rows("SELECT id,image_json FROM assets") {
+            guard let id = row[0], let raw = row[1] else { throw RiftletError.database("Invalid legacy asset") }
+            let image = try JSONDecoder().decode(ImportedAsset.self, from: Data(raw.utf8))
+            try execute("UPDATE assets SET last_interaction_at=? WHERE id=?", [String(image.importedAt.timeIntervalSince1970), id])
+        }
+        try execute("CREATE INDEX visible_queue_order ON assets(visibility,sort_at,sequence)")
+        try execute("""
+            CREATE TABLE upload_starts (
+                operation_id TEXT PRIMARY KEY REFERENCES operations(id),
+                receipt_json TEXT NOT NULL,
+                started_at REAL NOT NULL
+            )
+            """)
+        try execute("PRAGMA user_version = 3")
     }
 
     func execute(_ sql: String, _ parameters: [String?] = []) throws {

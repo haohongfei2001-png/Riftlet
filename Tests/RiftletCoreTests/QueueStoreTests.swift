@@ -132,9 +132,9 @@ final class QueueStoreTests: XCTestCase {
         let second = try await db.prepare(assetID: b.id, target: target())
         do { try await db.markDispatchIntent(second.id); XCTFail("Unresolved target was unlocked") }
         catch RiftletError.targetBusy {}
-        let unadmitted = try await db.apply(receipt(first, a, outcome: .definitiveFailure, safeToRetry: true))
+        let unadmitted = try await db.apply(receipt(first, a, outcome: .definitiveFailure, safeToRetry: true, error: true))
         XCTAssertEqual(unadmitted.status, .unknown)
-        _ = try await db.apply(receipt(first, a, outcome: .definitiveFailure, safeToRetry: true),
+        _ = try await db.apply(receipt(first, a, outcome: .definitiveFailure, safeToRetry: true, error: true),
                                policy: .init(retrySafeProfiles: ["fixture-ready-v1": .webChat]))
         try await db.markDispatchIntent(second.id)
         let retry = try await db.prepare(assetID: a.id, target: target())

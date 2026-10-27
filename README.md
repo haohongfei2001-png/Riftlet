@@ -12,7 +12,7 @@
 - Extremely fine vertical **spatial rift** at the screen edge; tiny, aspect-ratio-preserving, roughly coin-sized screenshots protrude partly from it.
 - Oldest at top. Everyday pending queue is normally **2–3 images**, occasionally 10+; each screenshot shows only the image and a simple number.
 - Normal use takes **exactly two user actions**: macOS screenshot; click its thumbnail. No upload shortcut, drag-and-drop, file picker, extra confirmation or manual paste.
-- Only a **verified ready attachment in the correct draft** triggers final swallow and queue shift. A definitive failure reverses/recreates the thumbnail; an unknown result preserves it and never blindly re-uploads.
+- On **positive evidence that this screenshot actually started uploading to the current click-time ChatGPT draft**, it **swallows and disappears very quickly**—without waiting for verified READY. Only explicit or extremely high-confidence actual failure makes it reappear. UNKNOWN after start is retained in internal local history without blind re-upload or indefinite visible queue blockage. Zero visible screenshots means **no visible rift**. Stale screenshots auto-archive; users can remove one or many. This is the latest **desired** behavior, not yet implemented in the engineering build. **Further clarified:** no valid composer/attachment entry means no disappearance; classified failure rebirths as an ordinary clickable screenshot; no extra success Toast because the user sees the attachment in the ChatGPT draft; clearing queue never remotely removes attachments. Faster repeated clicks are conditional on reliability; hold-to-drag is only under consideration.
 - Never automatically send a ChatGPT message.
 
 The **Screenshot Rift** name appears in the dated original studies; **Riftlet** is the present repository name. Initial repository wording about clipboard content and arbitrary applications is not an approved V1 requirement; those are potential later extensions.
@@ -22,6 +22,10 @@ The **Screenshot Rift** name appears in the dated original studies; **Riftlet** 
 | Subject | Document |
 | --- | --- |
 | User product requirements | [docs/PRODUCT.md](docs/PRODUCT.md) |
+| Latest fast-swallow / ephemeral-rift contract | [docs/INTERACTION_CONTRACT_2026-10-27.md](docs/INTERACTION_CONTRACT_2026-10-27.md) |
+| Consumer release UX baseline | [docs/RELEASE_UX_REQUIREMENTS_2026-10-27.md](docs/RELEASE_UX_REQUIREMENTS_2026-10-27.md) |
+| Pro focused feasibility review brief | [docs/PRO_FEASIBILITY_REVIEW_BRIEF_2026-10-27.md](docs/PRO_FEASIBILITY_REVIEW_BRIEF_2026-10-27.md) |
+| Pro feasibility conclusions and implementation handoff (research, not acceptance) | [docs/PRO_FEASIBILITY_REVIEW_FINDINGS_2026-10-27.md](docs/PRO_FEASIBILITY_REVIEW_FINDINGS_2026-10-27.md) |
 | Decided vs. proposed | [docs/DECISIONS.md](docs/DECISIONS.md) |
 | Executable engineering plan | [docs/ENGINEERING_PLAN.md](docs/ENGINEERING_PLAN.md) |
 | Autonomous parallel work queue | [docs/EXECUTION_BOARD.md](docs/EXECUTION_BOARD.md) |
