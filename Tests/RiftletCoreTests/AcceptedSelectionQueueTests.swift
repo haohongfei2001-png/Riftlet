@@ -134,6 +134,32 @@ final class AcceptedSelectionQueueTests: XCTestCase {
         XCTAssertEqual(finalObservations, 1); XCTAssertFalse(refusedClick.isValid())
     }
 
+    func testAcceptedReclickCannotBorrowAnotherProcessPermissionForOldObservation() async throws {
+        let s = try store(), image = try await asset(s), adapter = ParkAdapter()
+        let original = try await s.prepare(assetID: image.id, target: target())
+        try await s.markDispatchIntent(original.id)
+        try await s.markUnknown(original.id, reason: "Original process still has an unresolved input")
+        let before = try await operation(image, s), record = try await s.asset(id: image.id)
+        let reason = try await s.operationReason(for: original.id)
+        let anotherProcess = TargetLease(adapterID: adapter.id, surface: .webChat,
+            applicationID: "com.google.Chrome", sessionID: "another-running-process",
+            windowID: "1", tabID: "2", documentID: "another-document",
+            composerID: "another-composer", draftGeneration: "another-generation")
+        let currentProcessPermission = coordinator(s, adapter, validator: { _ in
+            XCTFail("An unrelated process should not even be checked for the old operation")
+            return true
+        })
+        do {
+            try await currentProcessPermission.select(token(image, target: anotherProcess))
+            XCTFail("A different process authorized original observation")
+        } catch RiftletError.invalidTransition { }
+        let after = try await operation(image, s), unchanged = try await s.asset(id: image.id)
+        let afterReason = try await s.operationReason(for: original.id)
+        let observations = await adapter.observations, inputs = await adapter.inputs(), captures = await adapter.captures
+        XCTAssertEqual(after, before); XCTAssertEqual(unchanged, record); XCTAssertEqual(afterReason, reason)
+        XCTAssertEqual(observations, 0); XCTAssertEqual(inputs, []); XCTAssertEqual(captures, 0)
+    }
+
     func testRemovedOrHiddenWaitingSelectionDoesNotDispatchAfterACompletes() async throws {
         for remove in [true, false] {
             let sub = directory.appendingPathComponent(UUID().uuidString)
