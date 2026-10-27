@@ -1,0 +1,640 @@
+{
+  "schemaVersion": 1,
+  "runtime": {
+    "sourceSHA": "f6417c6faaf8aa21ac587b07f25ea2a159af021f",
+    "executableSHA256": "07453578abcdf96256430380ce3bc5ac6120dc586fba9a880954992e2f8e0089",
+    "overlays": [],
+    "provenance": "Runtime coordinator supplied exact built source/executable; stopped after both succeeded",
+    "productionAdmission": false
+  },
+  "rawSources": [
+    {
+      "name": "riftlet-round7-queue-live.jsonl",
+      "bytes": 605832,
+      "sha256": "a09e5aa3cf910b7a45f146f1734a9dea764810225bb0d27f812fb04f6bc85d28"
+    },
+    {
+      "name": "riftlet-round7-queue-live-sequence.json",
+      "bytes": 8223,
+      "sha256": "515d4854a36a18daddae46d38fc824687048e53ffd461d09fb6ed9f9c5900442"
+    },
+    {
+      "name": "riftlet-round7-fixtures.json",
+      "bytes": 437,
+      "sha256": "620ee8a6ba7ac8cb3e8009ba1fc476ab0b7faf9bc7ab4fd1d774c596a808e86e"
+    },
+    {
+      "name": "riftlet-round7-perf-sequence.json",
+      "bytes": 2616,
+      "sha256": "12b6e27ce169433e910ee70eaac993357031f5d82788fc6f7f052bf9a70ca59c"
+    }
+  ],
+  "generatedFixtures": [
+    {
+      "bytes": 2360847,
+      "sha256": "f7b8c797e52af14b2c07a6726205862eeb7f8ebacfb7f482e7f32265359e6e2c"
+    },
+    {
+      "bytes": 3147775,
+      "sha256": "494d7d015dc1a91073b356e1d6d64a546497aab37f8c47c4f82c630d7033f5bb"
+    },
+    {
+      "bytes": 1770843,
+      "sha256": "e07f92326974632599d0d77be4b7516ed6ea422701567ebbb14c8071a2f11ec6"
+    }
+  ],
+  "operations": [
+    {
+      "label": "A",
+      "assetID": "E4CF6A7D-E1BB-496E-841B-E970EC1130B3",
+      "operationID": "682B6E20-FC6F-46DA-BB6D-7B8ECA820908",
+      "byteCount": 3147775,
+      "metrics": {
+        "ackLeadBeforeOriginalEventMS": 63.14149999525398,
+        "AXToSubmissionStartMS": 0.610958319157362,
+        "AXToFirstTransferringSnapshotMS": 18.64879165077582,
+        "AXToBeginQueuedMS": 81.26187499146909,
+        "beginQueuedToCommitReturnedMS": 529.4558333116584,
+        "chunkSpanMS": 436.39554164838046,
+        "inputCommandExecutionSumMS": 502.21816659905016,
+        "inputCommandQueueSumMS": 0.6580000044777989,
+        "pageInputToStartMS": 1750.6000000238419,
+        "pageStartToProofMS": 5151.0,
+        "AXToSwallowedSnapshotMS": 2573.5575416474603,
+        "AXToCloseMS": 2816.9593749917112,
+        "actualStartToCloseMS": 242.97274998389184,
+        "AXToFirstReadyObservationMS": 9531.960749998689
+      },
+      "permissionChecks": [
+        {
+          "askedUser": false,
+          "assetID": "E4CF6A7D-E1BB-496E-841B-E970EC1130B3",
+          "endedUptime": 467410.0055435,
+          "event": "permission_check",
+          "originalSessionBound": true,
+          "permissionRequestID": "717878B1-4E5D-4738-A6DB-C73C90300DF6",
+          "purpose": "acceptedSelectionValidation",
+          "result": "granted",
+          "startedUptime": 467409.990487875,
+          "durationMS": 15.055625000968575
+        },
+        {
+          "askedUser": false,
+          "assetID": "E4CF6A7D-E1BB-496E-841B-E970EC1130B3",
+          "endedUptime": 467410.0290302917,
+          "event": "permission_check",
+          "originalSessionBound": true,
+          "permissionRequestID": "488BDE31-01BD-4EA7-8E4C-418978F018FE",
+          "purpose": "acceptedSelectionValidation",
+          "result": "granted",
+          "startedUptime": 467410.01064345834,
+          "durationMS": 18.386833369731903
+        },
+        {
+          "askedUser": false,
+          "assetID": "E4CF6A7D-E1BB-496E-841B-E970EC1130B3",
+          "endedUptime": 467410.065533125,
+          "event": "permission_check",
+          "originalSessionBound": true,
+          "permissionRequestID": "C1742554-4143-4BDC-80CE-EB33439B8523",
+          "purpose": "acceptedSelectionValidation",
+          "result": "granted",
+          "startedUptime": 467410.0525855,
+          "durationMS": 12.947625014930964
+        }
+      ],
+      "permissionCheckCount": 3,
+      "permissionDurationSumMS": 46.39008338563144,
+      "inputCommands": [
+        {
+          "action": "begin",
+          "endedUptime": 467410.09177650005,
+          "event": "native_bridge",
+          "executionMS": 20.97487502032891,
+          "phase": "complete",
+          "queuedUptime": 467410.0707885417,
+          "queueMS": 0.013083335943520069,
+          "requestID": "055F7D31-518D-485D-A7AE-613F3A8F6A36",
+          "startedUptime": 467410.070801625,
+          "transportSucceeded": true
+        },
+        {
+          "action": "chunk",
+          "endedUptime": 467410.1311502917,
+          "event": "native_bridge",
+          "executionMS": 37.84674999769777,
+          "phase": "complete",
+          "queuedUptime": 467410.09328725,
+          "queueMS": 0.01629168400540948,
+          "requestID": "3270CD3C-4BA9-43B8-B674-C656A12AD2A9",
+          "startedUptime": 467410.0933035417,
+          "transportSucceeded": true
+        },
+        {
+          "action": "chunk",
+          "endedUptime": 467410.16301725,
+          "event": "native_bridge",
+          "executionMS": 30.46437498414889,
+          "phase": "complete",
+          "queuedUptime": 467410.1325343334,
+          "queueMS": 0.01854164293035865,
+          "requestID": "9B66CE7D-9AAE-405C-B0EA-ED094217B730",
+          "startedUptime": 467410.13255287503,
+          "transportSucceeded": true
+        },
+        {
+          "action": "chunk",
+          "endedUptime": 467410.1956915417,
+          "event": "native_bridge",
+          "executionMS": 30.661125027108938,
+          "phase": "complete",
+          "queuedUptime": 467410.1650089167,
+          "queueMS": 0.021499989088624716,
+          "requestID": "7F6CF9EC-5257-42DE-B204-0963460B4FDB",
+          "startedUptime": 467410.1650304167,
+          "transportSucceeded": true
+        },
+        {
+          "action": "chunk",
+          "endedUptime": 467410.2300032084,
+          "event": "native_bridge",
+          "executionMS": 32.66470838570967,
+          "phase": "complete",
+          "queuedUptime": 467410.19694475003,
+          "queueMS": 0.39374997140839696,
+          "requestID": "45BF45E5-7019-43CC-8037-129E25295C5E",
+          "startedUptime": 467410.1973385,
+          "transportSucceeded": true
+        },
+        {
+          "action": "chunk",
+          "endedUptime": 467410.26287075004,
+          "event": "native_bridge",
+          "executionMS": 31.354500039014965,
+          "phase": "complete",
+          "queuedUptime": 467410.23150262504,
+          "queueMS": 0.013624958228319883,
+          "requestID": "03EE188F-DBF0-44D8-9CB9-AD70C7D1221B",
+          "startedUptime": 467410.23151625,
+          "transportSucceeded": true
+        },
+        {
+          "action": "chunk",
+          "endedUptime": 467410.2961422917,
+          "event": "native_bridge",
+          "executionMS": 30.894749972503632,
+          "phase": "complete",
+          "queuedUptime": 467410.265225625,
+          "queueMS": 0.02191669773310423,
+          "requestID": "ED6E5BA7-FC56-4A24-9371-7D5E00D2323E",
+          "startedUptime": 467410.2652475417,
+          "transportSucceeded": true
+        },
+        {
+          "action": "chunk",
+          "endedUptime": 467410.3291831667,
+          "event": "native_bridge",
+          "executionMS": 30.67637496860698,
+          "phase": "complete",
+          "queuedUptime": 467410.29848533333,
+          "queueMS": 0.021458370611071587,
+          "requestID": "51300510-59FA-4010-A010-D07B04297AEC",
+          "startedUptime": 467410.2985067917,
+          "transportSucceeded": true
+        },
+        {
+          "action": "chunk",
+          "endedUptime": 467410.362202875,
+          "event": "native_bridge",
+          "executionMS": 30.53395834285766,
+          "phase": "complete",
+          "queuedUptime": 467410.33165112505,
+          "queueMS": 0.01779163721948862,
+          "requestID": "A145973A-841E-4C88-991B-5B500BB6C04F",
+          "startedUptime": 467410.3316689167,
+          "transportSucceeded": true
+        },
+        {
+          "action": "chunk",
+          "endedUptime": 467410.395865875,
+          "event": "native_bridge",
+          "executionMS": 31.546124955639243,
+          "phase": "complete",
+          "queuedUptime": 467410.36430112505,
+          "queueMS": 0.018624996300786734,
+          "requestID": "3C1F7F45-FFA3-496E-BE19-D89935E7D9ED",
+          "startedUptime": 467410.36431975005,
+          "transportSucceeded": true
+        },
+        {
+          "action": "chunk",
+          "endedUptime": 467410.42910166667,
+          "event": "native_bridge",
+          "executionMS": 30.489541648421437,
+          "phase": "complete",
+          "queuedUptime": 467410.39859475003,
+          "queueMS": 0.01737498678267002,
+          "requestID": "C6492A8A-FFDD-4909-8CFF-D15842EC3BD2",
+          "startedUptime": 467410.398612125,
+          "transportSucceeded": true
+        },
+        {
+          "action": "chunk",
+          "endedUptime": 467410.46213520836,
+          "event": "native_bridge",
+          "executionMS": 30.70608334382996,
+          "phase": "complete",
+          "queuedUptime": 467410.43140887504,
+          "queueMS": 0.020249979570508003,
+          "requestID": "0948A8ED-2519-4D63-A32F-0EB8B8BB8C37",
+          "startedUptime": 467410.431429125,
+          "transportSucceeded": true
+        },
+        {
+          "action": "chunk",
+          "endedUptime": 467410.496114875,
+          "event": "native_bridge",
+          "executionMS": 30.951374967116863,
+          "phase": "complete",
+          "queuedUptime": 467410.46513620834,
+          "queueMS": 0.027291709557175636,
+          "requestID": "91FE398A-D2ED-4602-BDF0-E31F15ACED51",
+          "startedUptime": 467410.46516350005,
+          "transportSucceeded": true
+        },
+        {
+          "action": "chunk",
+          "endedUptime": 467410.5296827917,
+          "event": "native_bridge",
+          "executionMS": 32.557833299506456,
+          "phase": "complete",
+          "queuedUptime": 467410.49710179167,
+          "queueMS": 0.02316670725122094,
+          "requestID": "E2DB7C4E-5D6B-4887-8FB7-E219B9FB82EB",
+          "startedUptime": 467410.4971249584,
+          "transportSucceeded": true
+        },
+        {
+          "action": "commit",
+          "endedUptime": 467410.600244375,
+          "event": "native_bridge",
+          "executionMS": 69.89579164655879,
+          "phase": "complete",
+          "queuedUptime": 467410.53033525,
+          "queueMS": 0.013333337847143412,
+          "requestID": "A4F242CD-801E-4A3B-9144-E4A5304AB61B",
+          "startedUptime": 467410.53034858336,
+          "transportSucceeded": true
+        }
+      ],
+      "inputCommandCounts": {
+        "begin": 1,
+        "chunk": 13,
+        "commit": 1
+      }
+    },
+    {
+      "label": "B",
+      "assetID": "4D760E58-DB9A-4F6D-965E-A021B58B7E24",
+      "operationID": "F765CD23-ADF3-4B21-856E-A97595E9A661",
+      "byteCount": 1770843,
+      "metrics": {
+        "ackLeadBeforeOriginalEventMS": 3192.312375002075,
+        "AXToSubmissionStartMS": 0.4453333094716072,
+        "AXToFirstTransferringSnapshotMS": 18.520666635595262,
+        "AXToBeginQueuedMS": 6467.855333350599,
+        "beginQueuedToCommitReturnedMS": 368.53141663596034,
+        "chunkSpanMS": 274.83304165070876,
+        "inputCommandExecutionSumMS": 318.17499990575016,
+        "inputCommandQueueSumMS": 38.959916739258915,
+        "pageInputToStartMS": 5127.199999988079,
+        "pageStartToProofMS": 2944.599999964237,
+        "AXToSwallowedSnapshotMS": 11959.083458350506,
+        "AXToCloseMS": 12212.577666679863,
+        "actualStartToCloseMS": 252.75149999652058,
+        "AXToFirstReadyObservationMS": 22387.762499973178
+      },
+      "permissionChecks": [
+        {
+          "askedUser": false,
+          "assetID": "4D760E58-DB9A-4F6D-965E-A021B58B7E24",
+          "endedUptime": 467413.1358055417,
+          "event": "permission_check",
+          "originalSessionBound": true,
+          "permissionRequestID": "9B9AE3A3-88B6-41C7-A7FE-682CAE87C288",
+          "purpose": "acceptedSelectionValidation",
+          "result": "granted",
+          "startedUptime": 467413.119448625,
+          "durationMS": 16.356916690710932
+        },
+        {
+          "askedUser": false,
+          "assetID": "4D760E58-DB9A-4F6D-965E-A021B58B7E24",
+          "endedUptime": 467413.166407625,
+          "event": "permission_check",
+          "originalSessionBound": true,
+          "permissionRequestID": "3AAA8179-0711-4646-9A72-8181F32E8869",
+          "purpose": "acceptedSelectionValidation",
+          "result": "granted",
+          "startedUptime": 467413.13926075003,
+          "durationMS": 27.14687498519197
+        },
+        {
+          "askedUser": false,
+          "assetID": "4D760E58-DB9A-4F6D-965E-A021B58B7E24",
+          "endedUptime": 467413.23608345835,
+          "event": "permission_check",
+          "originalSessionBound": true,
+          "permissionRequestID": "6B97EE16-C5A4-4586-A1DB-CA5D8F372D9A",
+          "purpose": "acceptedSelectionValidation",
+          "result": "granted",
+          "startedUptime": 467413.2214915417,
+          "durationMS": 14.591916638892144
+        },
+        {
+          "askedUser": false,
+          "assetID": "4D760E58-DB9A-4F6D-965E-A021B58B7E24",
+          "endedUptime": 467413.992443625,
+          "event": "permission_check",
+          "originalSessionBound": true,
+          "permissionRequestID": "A06E036E-18AF-4111-9FC7-960979674635",
+          "purpose": "acceptedSelectionValidation",
+          "result": "granted",
+          "startedUptime": 467413.97468383337,
+          "durationMS": 17.75979163357988
+        },
+        {
+          "askedUser": false,
+          "assetID": "4D760E58-DB9A-4F6D-965E-A021B58B7E24",
+          "endedUptime": 467414.03808095836,
+          "event": "permission_check",
+          "originalSessionBound": true,
+          "permissionRequestID": "30FA4633-6E0A-499C-9E40-E0C21942152D",
+          "purpose": "acceptedSelectionValidation",
+          "result": "granted",
+          "startedUptime": 467414.02280520834,
+          "durationMS": 15.275750018190593
+        },
+        {
+          "askedUser": false,
+          "assetID": "4D760E58-DB9A-4F6D-965E-A021B58B7E24",
+          "endedUptime": 467414.07606162503,
+          "event": "permission_check",
+          "originalSessionBound": true,
+          "permissionRequestID": "12BBC734-AB5E-41F0-8C70-AFB788402AFE",
+          "purpose": "acceptedSelectionValidation",
+          "result": "granted",
+          "startedUptime": 467414.0572555417,
+          "durationMS": 18.8060833606869
+        },
+        {
+          "askedUser": false,
+          "assetID": "4D760E58-DB9A-4F6D-965E-A021B58B7E24",
+          "endedUptime": 467414.11869537504,
+          "event": "permission_check",
+          "originalSessionBound": true,
+          "permissionRequestID": "3472E96B-2BC7-4060-B277-E16B81055A36",
+          "purpose": "acceptedSelectionValidation",
+          "result": "granted",
+          "startedUptime": 467414.10540937504,
+          "durationMS": 13.286000001244247
+        },
+        {
+          "askedUser": false,
+          "assetID": "4D760E58-DB9A-4F6D-965E-A021B58B7E24",
+          "endedUptime": 467419.4494634584,
+          "event": "permission_check",
+          "originalSessionBound": true,
+          "permissionRequestID": "0F926988-E138-4743-8FB1-1B7FFAFF970D",
+          "purpose": "acceptedSelectionValidation",
+          "result": "granted",
+          "startedUptime": 467419.42901258334,
+          "durationMS": 20.450875046662986
+        },
+        {
+          "askedUser": false,
+          "assetID": "4D760E58-DB9A-4F6D-965E-A021B58B7E24",
+          "endedUptime": 467419.4959319584,
+          "event": "permission_check",
+          "originalSessionBound": true,
+          "permissionRequestID": "4DDCC93F-6DFE-44B2-A996-27BD9256305C",
+          "purpose": "acceptedSelectionValidation",
+          "result": "granted",
+          "startedUptime": 467419.47996850003,
+          "durationMS": 15.963458339683712
+        },
+        {
+          "askedUser": false,
+          "assetID": "4D760E58-DB9A-4F6D-965E-A021B58B7E24",
+          "endedUptime": 467419.5401058334,
+          "event": "permission_check",
+          "originalSessionBound": true,
+          "permissionRequestID": "76AB28D3-522A-46EA-9ACD-B3FAE76A5154",
+          "purpose": "acceptedSelectionValidation",
+          "result": "granted",
+          "startedUptime": 467419.52584041667,
+          "durationMS": 14.265416713897139
+        },
+        {
+          "askedUser": false,
+          "assetID": "4D760E58-DB9A-4F6D-965E-A021B58B7E24",
+          "endedUptime": 467419.58304679167,
+          "event": "permission_check",
+          "originalSessionBound": true,
+          "permissionRequestID": "859A93BD-BE1B-447D-8D69-00186A97A0A5",
+          "purpose": "acceptedSelectionValidation",
+          "result": "granted",
+          "startedUptime": 467419.5697784584,
+          "durationMS": 13.268333277665079
+        }
+      ],
+      "permissionCheckCount": 11,
+      "permissionDurationSumMS": 187.17141670640558,
+      "inputCommands": [
+        {
+          "action": "begin",
+          "endedUptime": 467419.611404875,
+          "event": "native_bridge",
+          "executionMS": 24.82783328741789,
+          "phase": "complete",
+          "queuedUptime": 467419.58655237505,
+          "queueMS": 0.024666660465300083,
+          "requestID": "88EFE0B3-3B0E-4F0D-AE23-D2960FB14F48",
+          "startedUptime": 467419.5865770417,
+          "transportSucceeded": true
+        },
+        {
+          "action": "chunk",
+          "endedUptime": 467419.69325408334,
+          "event": "native_bridge",
+          "executionMS": 41.65816662134603,
+          "phase": "complete",
+          "queuedUptime": 467419.61277658335,
+          "queueMS": 38.819333363790065,
+          "requestID": "A568D7AB-0D20-4F4D-95E5-731C32119C8B",
+          "startedUptime": 467419.6515959167,
+          "transportSucceeded": true
+        },
+        {
+          "action": "chunk",
+          "endedUptime": 467419.72552512505,
+          "event": "native_bridge",
+          "executionMS": 30.277916695922613,
+          "phase": "complete",
+          "queuedUptime": 467419.6952294584,
+          "queueMS": 0.017749960534274578,
+          "requestID": "FB22459C-06CA-4E15-8315-1893DC16FA07",
+          "startedUptime": 467419.69524720835,
+          "transportSucceeded": true
+        },
+        {
+          "action": "chunk",
+          "endedUptime": 467419.757036625,
+          "event": "native_bridge",
+          "executionMS": 29.819583287462592,
+          "phase": "complete",
+          "queuedUptime": 467419.7271974167,
+          "queueMS": 0.019625003915280104,
+          "requestID": "AEC5C0B9-6934-401C-A95E-7FAE46B09C8C",
+          "startedUptime": 467419.7272170417,
+          "transportSucceeded": true
+        },
+        {
+          "action": "chunk",
+          "endedUptime": 467419.78930887504,
+          "event": "native_bridge",
+          "executionMS": 30.795500031672418,
+          "phase": "complete",
+          "queuedUptime": 467419.75849983335,
+          "queueMS": 0.013541663065552711,
+          "requestID": "30CCAB87-43EB-4F70-8304-8262CB6D916F",
+          "startedUptime": 467419.758513375,
+          "transportSucceeded": true
+        },
+        {
+          "action": "chunk",
+          "endedUptime": 467419.8223890834,
+          "event": "native_bridge",
+          "executionMS": 31.695083365775645,
+          "phase": "complete",
+          "queuedUptime": 467419.79068070836,
+          "queueMS": 0.013291661161929369,
+          "requestID": "CE934644-DED2-40CC-8CDB-A3016C85410D",
+          "startedUptime": 467419.790694,
+          "transportSucceeded": true
+        },
+        {
+          "action": "chunk",
+          "endedUptime": 467419.8572826667,
+          "event": "native_bridge",
+          "executionMS": 33.59270835062489,
+          "phase": "complete",
+          "queuedUptime": 467419.8236755417,
+          "queueMS": 0.014416698832064867,
+          "requestID": "533D9DBA-6102-472E-8E2C-1A14DA83969E",
+          "startedUptime": 467419.8236899584,
+          "transportSucceeded": true
+        },
+        {
+          "action": "chunk",
+          "endedUptime": 467419.887609625,
+          "event": "native_bridge",
+          "executionMS": 28.995999949984252,
+          "phase": "complete",
+          "queuedUptime": 467419.85858812503,
+          "queueMS": 0.025500019546598196,
+          "requestID": "CBF9921C-B33A-418E-9331-B6D3D922005A",
+          "startedUptime": 467419.85861362505,
+          "transportSucceeded": true
+        },
+        {
+          "action": "commit",
+          "endedUptime": 467419.9550837917,
+          "event": "native_bridge",
+          "executionMS": 66.51220831554383,
+          "phase": "complete",
+          "queuedUptime": 467419.88855979167,
+          "queueMS": 0.011791707947850227,
+          "requestID": "F51973F1-E252-48C4-BF3D-485C296A469F",
+          "startedUptime": 467419.8885715834,
+          "transportSucceeded": true
+        }
+      ],
+      "inputCommandCounts": {
+        "begin": 1,
+        "chunk": 7,
+        "commit": 1
+      }
+    }
+  ],
+  "timingRules": [
+    "Host durations use systemUptime; page intervals use performance time within the original page.",
+    "Do not add page and host intervals as a precise synchronized budget.",
+    "Permission and bridge execution spans can overlap other tasks; sums are work totals, not additive wall latency.",
+    "Input bridge rows lack operationID; nonoverlapping begin/commit groups map in FIFO order to the two confirmed page operations.",
+    "Animation request was retained 0.24 seconds, not a measurement of the formal 0.120-second default."
+  ],
+  "nativeBridgeCountsWholeFreshRuntime": {
+    "captureTarget": 43,
+    "observe": 122,
+    "validate": 6,
+    "begin": 2,
+    "chunk": 20,
+    "commit": 2
+  },
+  "permissionDurationsByPurpose": {
+    "acceptedSelectionValidation": {
+      "count": 14,
+      "sumMS": 233.56150009203702
+    },
+    "backgroundObservation": {
+      "count": 7,
+      "sumMS": 181.4104582881555
+    },
+    "originalRecovery": {
+      "count": 1,
+      "sumMS": 16.840624972246587
+    },
+    "startup": {
+      "count": 1,
+      "sumMS": 14.205583313014358
+    },
+    "targetArming": {
+      "count": 43,
+      "sumMS": 967.4112498760223
+    }
+  },
+  "earlierUnsuccessfulPreRun": {
+    "helperPress": {
+      "assetID": "E4CF6A7D-E1BB-496E-841B-E970EC1130B3",
+      "actionUptime": 467247.4029593334,
+      "result": "axPressReturnedSuccess",
+      "source": "helperAX",
+      "physical": false,
+      "axActionAttempted": true,
+      "axErrorCode": 0
+    },
+    "BNotRun": {
+      "stage": "BNotRun",
+      "reason": "NoSwallowCloseInBound",
+      "hostUptime": 467282.416161
+    },
+    "databaseOperationSnapshot": {
+      "stage": "dbState",
+      "state": [],
+      "hostUptime": 467282.42395
+    },
+    "pageInputEventCount": 0,
+    "pageOperationCount": 0,
+    "pageSnapshotHostUptime": 467322.727505875,
+    "limitation": "Earlier runtime App trace cap had been exhausted (coordinator report, consistent with bounded 2048 source logger); missing selection log cannot identify rejection cause. No operation/input observed in this separate pre-run; this is not an UNKNOWN replay."
+  },
+  "logCompleteness": {
+    "appAcceptanceEvents": 1671,
+    "cap": 2048,
+    "capReached": false,
+    "totalJSONRecords": 2062,
+    "presentationEvents": 6
+  },
+  "productionAdmission": false
+}

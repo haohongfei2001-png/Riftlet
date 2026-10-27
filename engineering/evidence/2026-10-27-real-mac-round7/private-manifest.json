@@ -1,0 +1,100 @@
+{
+  "location": "Private round7 backup directory; paths/content are not committed",
+  "records": [
+    {
+      "name": "riftlet-round7-baseline-live.jsonl",
+      "bytes": 38130,
+      "sha256": "47f0a48c669fc812ca2cf80e5c56f83797282127094b5b349d30a434b0c142a0"
+    },
+    {
+      "name": "riftlet-round7-baseline-summary.json",
+      "bytes": 1731,
+      "sha256": "362d519c13babc4b3b11a0fe4fc3706c364c370968c99976789defcbe69b03a8"
+    },
+    {
+      "name": "riftlet-round7-cold.jsonl",
+      "bytes": 883288,
+      "sha256": "389faae1e3b848e71e1bcfb5d392c0ea2d60464cf82dc926705334583d89a28d"
+    },
+    {
+      "name": "riftlet-round7-cold-press.json",
+      "bytes": 1567,
+      "sha256": "61a9b50ac45c13db010a7a045de8ddbd35d7a6c51b3fa05b68e6385b42046222"
+    },
+    {
+      "name": "riftlet-round7-perf-sequence.json",
+      "bytes": 2616,
+      "sha256": "12b6e27ce169433e910ee70eaac993357031f5d82788fc6f7f052bf9a70ca59c"
+    },
+    {
+      "name": "riftlet-round7-queue-live.jsonl",
+      "bytes": 605832,
+      "sha256": "a09e5aa3cf910b7a45f146f1734a9dea764810225bb0d27f812fb04f6bc85d28"
+    },
+    {
+      "name": "riftlet-round7-queue-live-sequence.json",
+      "bytes": 8223,
+      "sha256": "515d4854a36a18daddae46d38fc824687048e53ffd461d09fb6ed9f9c5900442"
+    },
+    {
+      "name": "riftlet-round7-foreground-cold.jsonl",
+      "bytes": 122848,
+      "sha256": "ec9a73346df26bb6338c2f8044b3bf0c0db96d2bc2f16006fc5f19521f9529ae"
+    },
+    {
+      "name": "riftlet-round7-foreground-cold-press.json",
+      "bytes": 1569,
+      "sha256": "d6f36ff54009aa92eb6630d5df5291d29d1b7e4e5b3db1b4c7e897bcff776fe0"
+    },
+    {
+      "name": "riftlet-round7-foreground-cold-result.json",
+      "bytes": 1797,
+      "sha256": "37ec4f1df96d2a11379f90bc5087a9513212e962495473743aa5bdc314ee55bb"
+    },
+    {
+      "name": "riftlet-round7-gui.jsonl",
+      "bytes": 17090,
+      "sha256": "be9f4134ee16d31a07d534429d5ef7ca80b1280eeed36e8d23ee833a6489390d"
+    },
+    {
+      "name": "riftlet-round7-software-gui.jsonl",
+      "bytes": 69726,
+      "sha256": "a73d741a01019d6f1f5547043f524857d845bdb734e46d658651c28d2c8c2a78"
+    },
+    {
+      "name": "riftlet-round7-fixtures.json",
+      "bytes": 437,
+      "sha256": "620ee8a6ba7ac8cb3e8009ba1fc476ab0b7faf9bc7ab4fd1d774c596a808e86e"
+    },
+    {
+      "name": "riftlet-round7-app-sample.txt",
+      "bytes": 139405,
+      "sha256": "569f062dcab8ae14e31e423992117f84ebe3c4b97bfa58ea6dd914783a71e6de"
+    },
+    {
+      "name": "riftlet-round7-ci-failed.txt",
+      "bytes": 104061,
+      "sha256": "434334c2fdac0b2891cf09e827bbffbceb69c6309027a8227b278276d5edc7ca"
+    },
+    {
+      "name": "riftlet-round7-software-gui-after.jsonl",
+      "bytes": 75066,
+      "sha256": "c2acdfb53ffa39530550067d5872cb0045f3fa30982bcdfeb63b4250c99e9408"
+    },
+    {
+      "name": "riftlet-round7-final-ci.log",
+      "bytes": 300796,
+      "sha256": "4e65cf7d046f6df023bb82269fc199afc317cde11584fd09ef176dd96a7b1d0c"
+    },
+    {
+      "name": "riftlet-round7-final-ci.json",
+      "bytes": 3390,
+      "sha256": "b5a51a3ad543d0616418f1821e26fc5a3bde15c9fc71b87ef6faf1d1f993cab6"
+    },
+    {
+      "name": "riftlet-round7-final-build.log",
+      "bytes": 5033,
+      "sha256": "eff9452228c571c0deab433d3e4540b722e56b2a1060504a3b1617cf227dfe21"
+    }
+  ]
+}
