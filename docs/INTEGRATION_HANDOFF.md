@@ -1,3 +1,46 @@
+# 正式工程集成交接 · 新版交互生命周期 · 2026-10-27
+
+继续使用 `codex/engineering-foundation-20261027` / [Draft PR #1](https://github.com/haohongfei2001-png/Riftlet/pull/1)。root 是唯一集成写入负责人；本地 Codex 独占第四轮 Web/Chrome 真实执行。本轮没有访问其 Mac、没有改 Web/Chrome/Capture/M1/helper 源码，保留原设计、网站和真实证据。
+
+## 当前唯一续做入口
+
+**本轮完整 macOS CI 与非作者审查通过：** 已测输入 [`d834a3a4a76cacedd0cb763044085c9c2093680c`](https://github.com/haohongfei2001-png/Riftlet/commit/d834a3a4a76cacedd0cb763044085c9c2093680c)，[run 40479556833](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40479556833) / job 122106130530。**287 项原生**（Core 110 / Capture 48 / UI 39 / Adapters 90）、38 项页面 VM、8 组故障工具、12 组只读 probe、历史回放 55 文件 / 19 用例 / 89 trace 前缀 / 2 明确模拟迟到错误全部通过。Release、ad-hoc 签名和三个 App/helper 自检通过。新增逐项输出确认 **13/13 生命周期测试 passed，0 skipped**，其中 7 项实际 AppKit 面板软件测试；重复报告这 13 项没有增加测试总数。
+
+[永久验证](../engineering/evidence/2026-10-27-interaction-lifecycle/verification.json)、[非作者审查](../engineering/evidence/2026-10-27-interaction-lifecycle/review.json)、[日志摘录](../engineering/evidence/2026-10-27-interaction-lifecycle/ci-excerpt.txt)、[可运行 development App/helper/日志](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40479556833/artifacts/12721893223)。Swift 5.10 / macOS 14.8.9 / ARM64；artifact SHA-256 `cea0daab14fcbbc3b18509e1ec902ec913d776bc07acf19621983b71a37d0122`，保存期限至 `2026-11-10T09:18:09Z`。临时 PR checkout `e0b2688cf99ed83ae949af700dedee58094fa2d1` 与 main `eba1a4fc77648a665e1d5c1f2609df1314c3b079` 的合流只用于 CI；**没有合并 main**。后续文档检查点保持本次已测 Sources/Tests/构建输入不变。
+
+正式集成顺序：`a441c70` → `de56627`（保留 PR #4 `90a0488` 第二父历史并实现交互）→ `15ca4a8`（旧失败 fixture 对齐）→ `a09de4d`（选择 owner 生命周期修复）→ `d834a3a`（软件面板执行结果明确报告）。本页所在的文档检查点不改已测代码；本地 Codex 从 PR #1 当前正式 HEAD 建独立 worktree，记录实际 SHA，不从旧验收分支覆盖正式 Core/UI/App。
+
+## 已落地行为
+
+- `AssetRecord.visibility` / `visibilityReason` / revision / idle anchor 与 QueueStatus、OperationPhase 分开。只有准入的开始回执写入 `upload_starts` 并触发快速视觉退出；最终 READY 在后台写成功，UNKNOWN 保持隐藏且只读观察。
+- 真正安全失败按原顺序恢复普通可点击图；unsafe compensation保留内部审计、不复活。移除/归档意图优先于迟到回执；原 attempt/目标/附件身份保持严格。
+- 无图无裂缝；默认吞噬120ms可调、轻按压恢复、无成功Toast。持久 Hide/Show 与 Pause/Resume 分开；单张/批量移除不删除任何原图或远端附件。
+- 归档在 hover/按住/选择/动画期间延后，SQLite事务/fence/revision保护跨await竞态；每批最多3张，启动/唤醒/时钟跳变有30秒安静期。24小时仅可调工程默认，可在菜单/JSON关闭。
+- 原生历史每页200条、当前页搜索、分类待核实/已吞噬/归档/真正失败/移除；恢复先由Core复核，不能把UNKNOWN、成功或已吞噬图变成重传入口。
+- `--simulate` 显式隔离的三态 App 已构建/自检；旧 GUI helper继续用于其既有N1辅助范围，不把旧 helper 的legacy完成动画当新版真实开始验收。
+
+## 本地 Codex 最小合流契约
+
+实现 [UPLOAD_STARTED_CONTRACT_V1.md](UPLOAD_STARTED_CONTRACT_V1.md) 的 `ReceiptOutcome.uploadStarted` + 可选 `UploadStartEvidence(version:1, profileID, signal, evidenceID, inputCount:1)`。复用完整原 receipt identity，必须有唯一原 attachment ID、原草稿成员、实际 uploading，不能是 ready/error/safeToRetry。start profile在原完成profile之外独立准入；页面本身不能指定信任策略。
+
+`append` 获得真实正向开始后早返回，后续仅 `reconcile` 原操作；Core已持久保存第一份start。不得为了视觉快而把 input.files/change/占位图改名成 start。当前Web只有synthetic完成准入，start与安全失败均未打开。生产所有registries仍空；M1客户端profiles继续独立。
+
+Web/Chrome作者在自己的分支提交真实页面程序、normalizer/严格版本解码、早返回及去隐私证据；不得并行改Core/UI/App。旧absence-only失败没有retired attachment identity，即使给profile也被新Core拒绝为retry；需单独交付同原附件安全终止证据，不是降低hasError/identity条件。root审查、测试并统一集成，不需要重做收录、SQLite或裂缝。
+
+## 真实 Mac 下一步，保留原工作不重复
+
+1. 真实start的唯一输入/图片/目标身份链，start早于最终ATTACHED，未开始反例、UNKNOWN和强失败终止矩阵；按场景明确PASS/NOT_EXERCISED。
+2. UX-01冷首击/目标ACK与有效但未聚焦composer；正常使用不增加等待操作或第二次点击。
+3. UX-02真实A→B→A、同URL草稿和v6/v7原操作观察兼容；真实MID识别/中断，不能用离线fixture补齐。
+4. 实际鼠标穿透、按住补位、全屏/多屏/屏幕切换；隐藏后新图/唤醒/重启不自行显示。
+5. 系统截图自包含与实际延迟；持久隐藏作为当前可运行退路，新版本capture/Web/观察/历史下资源需实测。
+
+旧普通线程、后台观察及POST100 XHR中断仍仅在原证据范围通过。本轮没有新真实网络或物理N1结果。升级保留SQLite/私有媒体/UNKNOWN/clipboard journal，v3不得降级交给旧schema二进制；不清库、不盲重传、不自动发消息、不合main、不发布。
+
+---
+
+## 第三轮及以前交接（历史保留）
+
 # 正式工程集成交接 · 第三轮 · 2026-10-27
 
 北京时间。正式分支 `codex/engineering-foundation-20261027` / [Draft PR #1](https://github.com/haohongfei2001-png/Riftlet/pull/1)。root 负责统一集成；本地 Codex 负责真实 Mac 修复与验收。第三轮代码/证据已接入；日常一次点击和生产准入仍未达标，第四轮直接在现有实现上推进。

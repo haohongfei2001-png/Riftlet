@@ -8,6 +8,8 @@
 
 **Latest functional increment:** the approved interaction contract from PR #4 is implemented in Core/UI/App on top of the third-round engineering baseline. Visual visibility, first positive upload start, final success, UNKNOWN and safe failure are separate durable facts. The isolated `--simulate` App demonstrates quick swallow before delayed completion, ordinary clickable rebirth and hidden UNKNOWN. [Exact interfaces and demo steps](docs/UPLOAD_STARTED_CONTRACT_V1.md) describe the additive local-Codex handoff. The real Mac executor is independently handling fourth-round Web/Chrome evidence and GUI acceptance; this integration session does not access its environment. Production screenshot upload, early swallow and safe retry remain disabled.
 
+**Current tested input:** [`d834a3a`](https://github.com/haohongfei2001-png/Riftlet/commit/d834a3a4a76cacedd0cb763044085c9c2093680c) / [macOS CI](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40479556833): 287 native tests, detailed lifecycle suite 13 passed / 0 skipped, page/replay regressions, Release signing and all three self-checks pass. [Download the isolated development App/helper/logs](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40479556833/artifacts/12721893223); see [demo and controls](docs/UPLOAD_STARTED_CONTRACT_V1.md#5-可直接运行的隔离演示). This does not admit real screenshot upload or physical GUI behavior.
+
 ## The distinctive interaction
 
 - Extremely fine vertical **spatial rift** at the screen edge; tiny, aspect-ratio-preserving, roughly coin-sized screenshots protrude partly from it.

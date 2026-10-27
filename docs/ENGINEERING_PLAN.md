@@ -18,7 +18,7 @@
 
 **第三轮正式集成增量：** 11aec04/159b3ef及6344eb0原证据已进入PR #1；root修复AX observer的PID复用缓存，合流输入aa4fd2b。AX/hover预绑定、ACK复核、v7可恢复commit monitor、helper真实几何与只读MID probe沿用现有模块。自包含已隔离为实际App失败，capture-only资源有范围实测；首击/真实业务矩阵/MID/物理N1/跨版本观察仍待实际闭环。第四轮直接动作和CI见[正式交接](INTEGRATION_HANDOFF.md)，不重订架构、不启用生产或重试。
 
-**新版交互实现增量（本轮）：** root 负责 Core/SQLite/Coordinator/App 接线，三个独立执行者实际并行完成 AppKit 生命周期、内部历史和非作者 Core 回归/审查；共同文件保持单写入者。新增 schema v3 可见性、独立 upload-start 审计、安全失败重生、持久隐藏、单张/批量移除、交互保护归档和原生分页历史；不重建 Capture/Web/M1。精确共享接口、模拟运行方式和下一次 Codex 合流范围见 [UPLOAD_STARTED_CONTRACT_V1.md](UPLOAD_STARTED_CONTRACT_V1.md)。当前提交进入新一轮 macOS CI；实际结果在 [VERIFICATION](VERIFICATION.md) 追加。真实开始、冷首击、草稿连续性及物理 N1 仍由本地 Codex 提供，不能从合成结果准入生产。
+**新版交互实现增量（本轮）：** root 负责 Core/SQLite/Coordinator/App 接线，三个独立执行者实际并行完成 AppKit 生命周期、内部历史和非作者 Core 回归/审查；共同文件保持单写入者。新增 schema v3 可见性、独立 upload-start 审计、安全失败重生、持久隐藏、单张/批量移除、交互保护归档和原生分页历史；不重建 Capture/Web/M1。精确共享接口、模拟运行方式和下一次 Codex 合流范围见 [UPLOAD_STARTED_CONTRACT_V1.md](UPLOAD_STARTED_CONTRACT_V1.md)。已测 `d834a3a` 的完整 macOS CI 通过，含287项原生、13项生命周期逐项passed/0 skipped、Release及三个自检；精确证据在 [VERIFICATION](VERIFICATION.md)。真实开始、冷首击、草稿连续性及物理 N1 仍由本地 Codex 提供，不能从合成结果准入生产。
 
 ## 1. 授权、范围和最小交付
 

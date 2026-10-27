@@ -79,3 +79,7 @@ SQLite schema v3 保留 v1/v2 资产、原操作、回执、补偿、顺序和�
 `Hide rift` / `Show rift` 持久保存隐藏意图；新增图、唤醒和重排不能解除。`Local screenshot history…` 查看分页历史、待核实/已吞噬/归档/真正失败/移除，恢复动作由 Core 复核资格；UNKNOWN 不能借恢复入口重新输入。右键移除、清空可见队列均不删除图片或 ChatGPT 附件。归档时长可在菜单或 `lifecycle-settings.json` 调整/关闭；24 小时仅为明确可调的工程起点，不是新批准的固定产品参数。
 
 软件面板测试可证明状态接线；物理点击穿透、焦点、真实全屏/多屏、系统 Screenshot.app 自包含与实际延迟仍要由本地 Mac 验收。
+
+## 6. 当前已验证工程输入
+
+`d834a3a4a76cacedd0cb763044085c9c2093680c` / [完整 macOS CI](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40479556833)：287项原生，生命周期详细13 passed /0 skipped，Release/签名/三个自检通过。可运行制品见[artifact](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40479556833/artifacts/12721893223)；完整来源与失败修复见[本轮记录](../engineering/evidence/2026-10-27-interaction-lifecycle/README.md)。本页所在的后续文档检查点保持该构建输入不变，最新正式HEAD由PR #1指向。真实start/安全终止仍待本地Codex，未因CI准入。

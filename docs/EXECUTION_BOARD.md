@@ -15,13 +15,17 @@
 
 ## 1. 当前检查点
 
-### 新版交互代码增量 · 原生已实现，当前提交进入 CI
+### 新版交互代码增量 · 代码、完整 CI 与非作者审查通过
 
 - 正式起点 `a441c70f3c4071069bd594513ecf16600bbb0ab8`；继承 PR #4 `90a04883160032fc6354fb4f3d3f7d56fede2947` 批准文档及历史，不覆盖网站/设计。
 - root 亲自完成 Core/SQLite v3/Coordinator/App；三个独立执行者实际并行完成 UI、历史、Core 回归与交叉非作者审查。共享源码由负责人单写入。本会话没有操作本地 Codex 的真实 Mac。
-- 已实现：正向开始独立持久化并快速退出、隐藏 UNKNOWN、独立安全失败才重生、零图零裂缝、持久隐藏、单张/批量移除、受交互保护的可调归档、原生分页历史、隔离三态模拟。新的源代码/测试需本轮 CI，旧 228 项结果不能覆盖本增量。
+- 已实现：正向开始独立持久化并快速退出、隐藏 UNKNOWN、独立安全失败才重生、零图零裂缝、持久隐藏、单张/批量移除、受交互保护的可调归档、原生分页历史、隔离三态模拟。本轮独立 CI 已验证新增源码/测试；结果如下，未借用旧 228 项运行。
 - [共享契约与可运行演示](UPLOAD_STARTED_CONTRACT_V1.md) 已写入；协调要求已发至 PR #1。Web/Chrome 本轮保持未改，当前真实适配器尚未产出新的开始回执。开始/成功/安全重试三项准入独立且生产默认空。
 - 本地 Codex 下一包：在自己的 Web 分支接入真实开始、早返回/只读 reconcile、独立失败终止证据；继续第四轮冷首击/逻辑草稿/MID/物理 N1 与自包含/延迟。root 在取得真实源码与证据后统一集成，不重做已有模块。
+
+**本轮完整 macOS CI 与非作者审查通过：** 已测输入 [`d834a3a4a76cacedd0cb763044085c9c2093680c`](https://github.com/haohongfei2001-png/Riftlet/commit/d834a3a4a76cacedd0cb763044085c9c2093680c)，[run 40479556833](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40479556833) / job 122106130530。**287 项原生**（Core 110 / Capture 48 / UI 39 / Adapters 90）、38 项页面 VM、8 组故障工具、12 组只读 probe、历史回放 55 文件 / 19 用例 / 89 trace 前缀 / 2 明确模拟迟到错误全部通过。Release、ad-hoc 签名和三个 App/helper 自检通过。新增逐项输出确认 **13/13 生命周期测试 passed，0 skipped**，其中 7 项实际 AppKit 面板软件测试；重复报告这 13 项没有增加测试总数。
+
+[永久验证](../engineering/evidence/2026-10-27-interaction-lifecycle/verification.json)、[非作者审查](../engineering/evidence/2026-10-27-interaction-lifecycle/review.json)、[日志摘录](../engineering/evidence/2026-10-27-interaction-lifecycle/ci-excerpt.txt)、[可运行 development App/helper/日志](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40479556833/artifacts/12721893223)。Swift 5.10 / macOS 14.8.9 / ARM64；artifact SHA-256 `cea0daab14fcbbc3b18509e1ec902ec913d776bc07acf19621983b71a37d0122`，保存期限至 `2026-11-10T09:18:09Z`。临时 PR checkout `e0b2688cf99ed83ae949af700dedee58094fa2d1` 与 main `eba1a4fc77648a665e1d5c1f2609df1314c3b079` 的合流只用于 CI；**没有合并 main**。后续文档检查点保持本次已测 Sources/Tests/构建输入不变。
 
 以下第三轮事实及 PR #4 的原交接说明作为来源保留；最新实现/验证以本节、[VERIFICATION](VERIFICATION.md) 和 [uploadStarted v1](UPLOAD_STARTED_CONTRACT_V1.md) 为准。
 
