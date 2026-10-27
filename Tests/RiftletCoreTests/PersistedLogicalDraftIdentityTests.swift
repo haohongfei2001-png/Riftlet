@@ -224,7 +224,7 @@ final class PersistedLogicalDraftIdentityTests: XCTestCase {
             target(identity(draftA), document: "replacement-document"),
             target(identity(draftA), composer: "replacement-composer"),
             target(identity(draftA), generation: "rearmed-generation"),
-            target(identity(draftB)), target(identity("local-chatgpt:\(draftA)", profile: localProfile)]
+            target(identity(draftB)), target(identity("local-chatgpt:\(draftA)", profile: localProfile))]
         for wrongTarget in wrongTargets {
             for outcome in [ReceiptOutcome.uploadStarted, .verifiedReady] {
                 let isStart = outcome == .uploadStarted
