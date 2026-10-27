@@ -232,10 +232,12 @@ final class ObservationNormalizerTests: XCTestCase {
         }
     }
 
-    func testSyntheticProvenanceCannotDriveARealScreenshotOperation() async throws {
+    func testDevelopmentProvenanceCannotDriveARealScreenshotOperation() async throws {
         let (_, request) = try await fixture(origin: .systemScreenshot)
-        XCTAssertThrowsError(try profile(completion: .attached).receipt(from: envelope(request), for: request)) {
-            XCTAssertEqual($0 as? ObservationError, .syntheticEvidenceForRealAsset)
+        for source in [ObservationSource.syntheticFixture, .integratedDevelopment] {
+            XCTAssertThrowsError(try profile(completion: .attached).receipt(from: envelope(request, source: source), for: request)) {
+                XCTAssertEqual($0 as? ObservationError, .syntheticEvidenceForRealAsset)
+            }
         }
     }
 

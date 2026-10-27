@@ -11,4 +11,5 @@
 <key>LSMinimumSystemVersion</key><string>13.0</string>
 <key>LSUIElement</key><true/>
 <key>NSHighResolutionCapable</key><true/>
+<key>NSAppleEventsUsageDescription</key><string>The explicit Web acceptance mode can attach generated test images to your current ChatGPT draft in Google Chrome. It never sends a message.</string>
 </dict></plist>

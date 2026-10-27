@@ -1,0 +1,31 @@
+{
+  "event": "read-concurrent-proof",
+  "windowId": "lab-a5751d2f2e80b75b",
+  "tabId": "lab-993adfb969d1b514",
+  "monotonicSeconds": 393554.772675,
+  "exitCode": 0,
+  "error": null,
+  "result": {
+    "state": "COMPLETE",
+    "receipts": [
+      {
+        "label": "IDENTITY",
+        "name": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+        "sha256": "fc59cbbd1305067b3647a255f5252343f9f092393766e9d774683de15e54e11b",
+        "bytes": 5506018,
+        "match": false,
+        "sameCardAndSrc": true,
+        "targetStillValid": true
+      },
+      {
+        "label": "OTHER",
+        "name": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+        "sha256": "cd8e74e10dad315581a0fe53b88090e0de40eac0dfa4f3ea6a4d685304e644f8",
+        "bytes": 25265,
+        "match": true,
+        "sameCardAndSrc": true,
+        "targetStillValid": true
+      }
+    ]
+  }
+}

@@ -27,9 +27,16 @@ public final class ChromeAppleEventsExecutor: WebBridgeExecutor {
         }
         guard let launched = application.launchDate else { throw WebAdapterError.invalidTarget }
         let session = "\(application.processIdentifier):\(launched.timeIntervalSince1970)"
+        let requiresForeground = command.action != .observe && command.action != .discard
+        if requiresForeground {
+            guard NSWorkspace.shared.frontmostApplication?.processIdentifier == application.processIdentifier else {
+                throw WebAdapterError.browserNotFrontmost
+            }
+        }
         let selection: String
         if command.action == .captureTarget {
             selection = """
+            if frontmost is false then error "Browser no longer foreground"
             if (count of windows) is 0 then error "No browser window"
             set selectedWindow to front window
             set selectedTab to active tab of selectedWindow
@@ -45,6 +52,7 @@ public final class ChromeAppleEventsExecutor: WebBridgeExecutor {
             selection = """
             set selectedWindow to first window whose id is \(windowID)
             set selectedTab to first tab of selectedWindow whose id is \(tabID)
+            \(requiresForeground ? "if frontmost is false then error \"Browser no longer foreground\"\nif (id of front window) is not \(windowID) then error \"Original window no longer foreground\"\nif (id of active tab of selectedWindow) is not \(tabID) then error \"Original tab no longer active\"" : "")
             """
         }
 

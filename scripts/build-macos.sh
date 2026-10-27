@@ -12,6 +12,9 @@ mkdir -p "$riftlet_app/Contents/MacOS" "$riftlet_app/Contents/Resources"
 cp "$riftlet_bin_dir/Riftlet" "$riftlet_app/Contents/MacOS/Riftlet"
 cp Resources/Info.plist "$riftlet_app/Contents/Info.plist"
 cp -R ThirdPartyNotices "$riftlet_app/Contents/Resources/"
+# The page loader resolves this app resource before SwiftPM's build-tree fallback.
+# Keep the reviewed page program in its generated bundle, never an external path.
+cp -R "$riftlet_bin_dir/Riftlet_RiftletAdapters.bundle" "$riftlet_app/Contents/Resources/"
 codesign --force --sign - "$riftlet_app"
 codesign --verify --strict "$riftlet_app"
 echo "Created $riftlet_app (development ad-hoc signature; not notarized)."

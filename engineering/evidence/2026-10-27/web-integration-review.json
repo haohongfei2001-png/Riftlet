@@ -1,0 +1,77 @@
+{
+  "reviewer": "w2_evidence_review",
+  "author": "w2_implementation; root native-foreground guard",
+  "scope": "Actual bundled W2 development program, adapter polling and source provenance; synthetic-only mode with production disabled",
+  "verdict": "PASS_WITHIN_SYNTHETIC_DEVELOPMENT_SCOPE; macOS build and live acceptance separately required",
+  "checks": [
+    {
+      "command": "node Tests/WebPageProgram/acceptance-program.test.cjs",
+      "result": "PASS",
+      "tests": 9,
+      "failed": 0,
+      "environment": "Node24.22.1 / Linux x86_64",
+      "evidenceType": "controlled VM DOM events, not Chrome or GUI"
+    }
+  ],
+  "resolvedFindings": [
+    "Require the sole matching editor and file input to equal the originally bound nodes, and require original native form association",
+    "Direct visibility/focus validation at final async-hash-to-input boundary",
+    "Inspect mutation records for transient card/image/form/ancestor detach-reinsert and post-load src/srcset generation changes; narrow ancestor childList watches avoid page-wide subtree content observation",
+    "Release invalid per-operation byte/file/proof memory",
+    "Use integratedDevelopment provenance and reject it for real-origin assets; do not relabel new runtime code as archived sanitizedReal evidence"
+  ],
+  "verifiedInSource": [
+    "One operation tombstone precedes hash and file-input side effect; second commit refused",
+    "Exact native session/window/tab and page lease checks; no first-tab fallback or new transport",
+    "Input file size/SHA256 uniquely observed once; own lifecycle and exact final bytes or bounded sRGB RGBA dimensions/hash",
+    "Async proof bound to original identity/card/image/source and load sequence; current membership rechecked before attached result",
+    "Poll deadline never proves success; all subsequent bridge actions observe only; lost observer returns invalidated and cannot re-input",
+    "No Send, composer edit, preexisting attachment deletion, fault bridge or private endpoint included; real screenshot mode remains unavailable by root App composition"
+  ],
+  "limitations": [
+    "No new real Mac or ChatGPT acceptance performed; current Mac offline",
+    "Click-time capture before queued Apple Events, full multiple-profile behavior and same-URL same-DOM draft changes remain unproved",
+    "Native AppleScript syntax/behavior and packaged source loading require actual macOS build/execution gate",
+    "Integrated production success/safe-retry profiles remain unadmitted; development source cannot consume systemScreenshot assets",
+    "No real post-preview late-failure sample or production reversible-consumption rollback proved",
+    "Exact tested scope is Chinese-label Chat home and PNG; existing archived PASS does not cover new combined program"
+  ],
+  "files": [
+    {
+      "path": "Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js",
+      "sha256": "d9f04a5526f33bee018f294f8fb3c0b7357816c31aeaef5aaac66730dff83c7f"
+    },
+    {
+      "path": "Sources/RiftletAdapters/ChatGPTWebPageProgram.swift",
+      "sha256": "41256a6fd3802fedaa9a5b1f08f2e45f8c6b1973bc48117ac67524b9843b574f"
+    },
+    {
+      "path": "Sources/RiftletAdapters/WebAttachmentAdapter.swift",
+      "sha256": "f40f45ba5daebb0cd96823fcb6ea81020047526586e6fee5a9c3569c95cbf9b1"
+    },
+    {
+      "path": "Sources/RiftletAdapters/ChromeAppleEventsExecutor.swift",
+      "sha256": "eeac916747e80bb21e5c894ef3c7d959b2c665d4ad6c42aab3ac7706e23a2d51"
+    },
+    {
+      "path": "Sources/RiftletAdapters/AttachmentObservation.swift",
+      "sha256": "6cb1192f8bb03b5afd651c2bfc8e0aa575e3e014547f1261c4de6c8f204cd7d6"
+    },
+    {
+      "path": "Sources/RiftletAdapters/ObservationNormalizer.swift",
+      "sha256": "bc1fa6cd547f76446df69c1ffa73856f862b3bea2d403ba31be581e7b1af02d7"
+    },
+    {
+      "path": "Tests/WebPageProgram/acceptance-program.test.cjs",
+      "sha256": "70f1876fab3540a018d000da1de6e0e0d0ab02dd475e2ab0dad7813be09a2397"
+    },
+    {
+      "path": "Tests/RiftletAdaptersTests/WebAttachmentAdapterTests.swift",
+      "sha256": "e679bec8a533abf5d540fdee9f77b62c15d6c1ee2236503bd3faded7bd9289e5"
+    },
+    {
+      "path": "Tests/RiftletAdaptersTests/ObservationNormalizerTests.swift",
+      "sha256": "959f46464a5fcd0d2f076d5710b016d71a7e0e18022a0cdb534aa50ed1408e4f"
+    }
+  ]
+}

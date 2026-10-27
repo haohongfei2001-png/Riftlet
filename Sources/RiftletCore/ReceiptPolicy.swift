@@ -6,10 +6,15 @@ import Foundation
 public struct ReceiptPolicy: Sendable {
     public let admittedProfiles: [String: TargetSurface]
     public let retrySafeProfiles: [String: TargetSurface]
+    /// Real-transport acceptance with generated images only. These profiles never
+    /// grant consumption or retry permission to a system screenshot.
+    public let syntheticAcceptanceProfiles: [String: TargetSurface]
 
-    public init(admittedProfiles: [String: TargetSurface] = [:], retrySafeProfiles: [String: TargetSurface] = [:]) {
+    public init(admittedProfiles: [String: TargetSurface] = [:], retrySafeProfiles: [String: TargetSurface] = [:],
+                syntheticAcceptanceProfiles: [String: TargetSurface] = [:]) {
         self.admittedProfiles = admittedProfiles
         self.retrySafeProfiles = retrySafeProfiles
+        self.syntheticAcceptanceProfiles = syntheticAcceptanceProfiles
     }
 
     public func allowsConsumption(receipt: TransferReceipt, asset: ImportedAsset, mode: StoreMode) -> Bool {
@@ -22,6 +27,9 @@ public struct ReceiptPolicy: Sendable {
                 && receipt.target.surface == .simulation && receipt.target.adapterID == "simulation"
         }
         guard receipt.target.surface != .simulation, receipt.target.adapterID != "simulation" else { return false }
+        if let surface = syntheticAcceptanceProfiles[receipt.profileID] {
+            return asset.origin == .synthetic && surface == receipt.target.surface
+        }
         return admittedProfiles[receipt.profileID] == receipt.target.surface
     }
 
@@ -34,6 +42,7 @@ public struct ReceiptPolicy: Sendable {
                 && receipt.target.surface == .simulation && receipt.target.adapterID == "simulation"
         }
         guard receipt.target.surface != .simulation, receipt.target.adapterID != "simulation" else { return false }
+        guard syntheticAcceptanceProfiles[receipt.profileID] == nil else { return false }
         return retrySafeProfiles[receipt.profileID] == receipt.target.surface
     }
 }

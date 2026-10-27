@@ -1,0 +1,9 @@
+(() => {
+ const obs=globalThis.__riftletExceptions,q=obs.query();if(!q.snapshot.valid)throw Error('TARGET_INVALID');
+ const name="Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",cs=[...document.querySelectorAll('[role=button][aria-label]')].filter(x=>x.getAttribute('aria-label')===name);if(cs.length!==1)throw Error('NON_UNIQUE_CARD');const img=cs[0].querySelector('img'),before=img.src;
+ if(!img.complete||!before.startsWith('data:image/png'))throw Error('NO_FINAL_PREVIEW');if(globalThis.__riftletPixelProof)return JSON.stringify({started:false,reason:'EXISTING_PROOF'});
+ globalThis.__riftletPixelProof={state:'PENDING'};
+ const original=new Image();original.onload=async()=>{try{
+  async function hashPixels(i){const canvas=new OffscreenCanvas(i.naturalWidth,i.naturalHeight),ctx=canvas.getContext('2d',{colorSpace:'srgb',willReadFrequently:true});ctx.drawImage(i,0,0);const rgba=ctx.getImageData(0,0,canvas.width,canvas.height).data;const h=await crypto.subtle.digest('SHA-256',rgba);return {width:canvas.width,height:canvas.height,rgbaSha256:[...new Uint8Array(h)].map(x=>x.toString(16).padStart(2,'0')).join('')};}
+  const a=await hashPixels(original),b=await hashPixels(img);globalThis.__riftletPixelProof={state:'COMPLETE',name,source:a,preview:b,match:a.width===b.width&&a.height===b.height&&a.rgbaSha256===b.rgbaSha256,sameCardAndSrc:cs[0].isConnected&&img.src===before,targetValid:obs.query().snapshot.valid,networkRequests:0};
+ }catch(e){globalThis.__riftletPixelProof={state:'UNKNOWN',errorName:e.name};}};original.onerror=()=>{globalThis.__riftletPixelProof={state:'UNKNOWN',reason:'SOURCE_DECODE_FAILED'};};original.src='data:image/png;base64,'+__SYNTHETIC_SOURCE_BASE64__;return JSON.stringify({started:true});})();

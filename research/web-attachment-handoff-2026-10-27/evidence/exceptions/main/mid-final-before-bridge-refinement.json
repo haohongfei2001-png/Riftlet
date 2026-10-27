@@ -1,0 +1,5637 @@
+{
+  "event": "query-full",
+  "windowId": "lab-a5751d2f2e80b75b",
+  "tabId": "lab-993adfb969d1b514",
+  "monotonicSeconds": 394175.160200166,
+  "exitCode": 0,
+  "error": null,
+  "result": {
+    "binding": {
+      "sessionId": "lab-e97fedc0d3ff4c52",
+      "documentNonce": "lab-1f89a9e99f3c8b61",
+      "windowId": "lab-a5751d2f2e80b75b",
+      "tabId": "lab-993adfb969d1b514"
+    },
+    "snapshot": {
+      "valid": true,
+      "documentNonce": "lab-1f89a9e99f3c8b61",
+      "routeUnchanged": true,
+      "editorNode": "n1",
+      "formNode": "n2",
+      "textLength": 52,
+      "textIsExpectedSynthetic": true,
+      "cards": [
+        {
+          "name": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+          "cardNode": "n4",
+          "nodes": [
+            {
+              "nodeId": "n4",
+              "tag": "DIV",
+              "attrs": {
+                "role": "button",
+                "aria-label": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+                "data-state": "closed"
+              },
+              "text": null
+            },
+            {
+              "nodeId": "n5",
+              "tag": "SPAN",
+              "attrs": {},
+              "text": null
+            },
+            {
+              "nodeId": "n6",
+              "tag": "IMG",
+              "attrs": {
+                "alt": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png"
+              },
+              "text": "",
+              "image": {
+                "complete": true,
+                "width": 1600,
+                "height": 1000,
+                "sourceKind": "data"
+              }
+            },
+            {
+              "nodeId": "n11",
+              "tag": "SPAN",
+              "attrs": {},
+              "text": ""
+            },
+            {
+              "nodeId": "n12",
+              "tag": "BUTTON",
+              "attrs": {
+                "aria-label": "移除“Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png”"
+              },
+              "text": null
+            },
+            {
+              "nodeId": "n13",
+              "tag": "svg",
+              "attrs": {},
+              "text": null
+            },
+            {
+              "nodeId": "n14",
+              "tag": "use",
+              "attrs": {},
+              "text": ""
+            }
+          ]
+        },
+        {
+          "name": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+          "cardNode": "n15",
+          "nodes": [
+            {
+              "nodeId": "n15",
+              "tag": "DIV",
+              "attrs": {
+                "role": "button",
+                "aria-label": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+                "data-state": "closed"
+              },
+              "text": null
+            },
+            {
+              "nodeId": "n16",
+              "tag": "SPAN",
+              "attrs": {},
+              "text": null
+            },
+            {
+              "nodeId": "n17",
+              "tag": "IMG",
+              "attrs": {
+                "alt": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png"
+              },
+              "text": "",
+              "image": {
+                "complete": true,
+                "width": 800,
+                "height": 450,
+                "sourceKind": "data"
+              }
+            },
+            {
+              "nodeId": "n22",
+              "tag": "SPAN",
+              "attrs": {},
+              "text": ""
+            },
+            {
+              "nodeId": "n23",
+              "tag": "BUTTON",
+              "attrs": {
+                "aria-label": "移除“Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png”"
+              },
+              "text": null
+            },
+            {
+              "nodeId": "n24",
+              "tag": "svg",
+              "attrs": {},
+              "text": null
+            },
+            {
+              "nodeId": "n25",
+              "tag": "use",
+              "attrs": {},
+              "text": ""
+            }
+          ]
+        }
+      ],
+      "active": "MID",
+      "armed": true,
+      "result": "UNKNOWN",
+      "retryAllowed": false
+    },
+    "events": [
+      {
+        "sequence": 1,
+        "monotonicMs": 7528.699999988079,
+        "documentNonce": "lab-1f89a9e99f3c8b61",
+        "windowId": "lab-a5751d2f2e80b75b",
+        "tabId": "lab-993adfb969d1b514",
+        "sessionId": "lab-e97fedc0d3ff4c52",
+        "event": "observer_installed",
+        "state": {
+          "valid": true,
+          "documentNonce": "lab-1f89a9e99f3c8b61",
+          "routeUnchanged": true,
+          "editorNode": "n1",
+          "formNode": "n2",
+          "textLength": 0,
+          "textIsExpectedSynthetic": false,
+          "cards": [],
+          "active": null,
+          "armed": false,
+          "result": "UNKNOWN",
+          "retryAllowed": false
+        }
+      },
+      {
+        "sequence": 2,
+        "monotonicMs": 27790.19999998808,
+        "documentNonce": "lab-1f89a9e99f3c8b61",
+        "windowId": "lab-a5751d2f2e80b75b",
+        "tabId": "lab-993adfb969d1b514",
+        "sessionId": "lab-e97fedc0d3ff4c52",
+        "event": "case_armed",
+        "state": {
+          "label": "IDENTITY_WITH_TYPING_AND_OTHER_FILE"
+        }
+      },
+      {
+        "sequence": 3,
+        "monotonicMs": 45770.60000002384,
+        "documentNonce": "lab-1f89a9e99f3c8b61",
+        "windowId": "lab-a5751d2f2e80b75b",
+        "tabId": "lab-993adfb969d1b514",
+        "sessionId": "lab-e97fedc0d3ff4c52",
+        "event": "dispatch_intent",
+        "state": {
+          "label": "IDENTITY",
+          "operationId": "9c83606b-b715-46c1-90b1-dcd8062c1eac"
+        }
+      },
+      {
+        "sequence": 4,
+        "monotonicMs": 45771.80000001192,
+        "documentNonce": "lab-1f89a9e99f3c8b61",
+        "windowId": "lab-a5751d2f2e80b75b",
+        "tabId": "lab-993adfb969d1b514",
+        "sessionId": "lab-e97fedc0d3ff4c52",
+        "event": "file_entered",
+        "state": {
+          "label": "IDENTITY",
+          "name": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+          "isTrusted": false,
+          "bytes": 4802523,
+          "inputNode": "n3"
+        }
+      },
+      {
+        "sequence": 5,
+        "monotonicMs": 45807.19999998808,
+        "documentNonce": "lab-1f89a9e99f3c8b61",
+        "windowId": "lab-a5751d2f2e80b75b",
+        "tabId": "lab-993adfb969d1b514",
+        "sessionId": "lab-e97fedc0d3ff4c52",
+        "event": "dispatched",
+        "state": {
+          "label": "IDENTITY",
+          "operationId": "9c83606b-b715-46c1-90b1-dcd8062c1eac"
+        }
+      },
+      {
+        "sequence": 6,
+        "monotonicMs": 45813.60000002384,
+        "documentNonce": "lab-1f89a9e99f3c8b61",
+        "windowId": "lab-a5751d2f2e80b75b",
+        "tabId": "lab-993adfb969d1b514",
+        "sessionId": "lab-e97fedc0d3ff4c52",
+        "event": "editor_input",
+        "state": {
+          "isTrusted": true,
+          "inputType": "insertText",
+          "textLength": 52,
+          "snapshot": {
+            "valid": true,
+            "documentNonce": "lab-1f89a9e99f3c8b61",
+            "routeUnchanged": true,
+            "editorNode": "n1",
+            "formNode": "n2",
+            "textLength": 52,
+            "textIsExpectedSynthetic": true,
+            "cards": [
+              {
+                "name": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+                "cardNode": "n4",
+                "nodes": [
+                  {
+                    "nodeId": "n4",
+                    "tag": "DIV",
+                    "attrs": {
+                      "role": "button",
+                      "aria-label": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+                      "data-state": "closed"
+                    },
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n5",
+                    "tag": "SPAN",
+                    "attrs": {},
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n6",
+                    "tag": "IMG",
+                    "attrs": {
+                      "alt": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png"
+                    },
+                    "text": "",
+                    "image": {
+                      "complete": false,
+                      "width": 0,
+                      "height": 0,
+                      "sourceKind": "blob"
+                    }
+                  },
+                  {
+                    "nodeId": "n7",
+                    "tag": "SPAN",
+                    "attrs": {
+                      "role": "progressbar",
+                      "aria-label": "正在上传 Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+                      "aria-valuemin": "0",
+                      "aria-valuemax": "100"
+                    },
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n8",
+                    "tag": "svg",
+                    "attrs": {},
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n9",
+                    "tag": "circle",
+                    "attrs": {},
+                    "text": ""
+                  },
+                  {
+                    "nodeId": "n10",
+                    "tag": "circle",
+                    "attrs": {},
+                    "text": ""
+                  },
+                  {
+                    "nodeId": "n11",
+                    "tag": "SPAN",
+                    "attrs": {},
+                    "text": ""
+                  },
+                  {
+                    "nodeId": "n12",
+                    "tag": "BUTTON",
+                    "attrs": {
+                      "aria-label": "移除“Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png”"
+                    },
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n13",
+                    "tag": "svg",
+                    "attrs": {},
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n14",
+                    "tag": "use",
+                    "attrs": {},
+                    "text": ""
+                  }
+                ]
+              }
+            ],
+            "active": "IDENTITY_WITH_TYPING_AND_OTHER_FILE",
+            "armed": true,
+            "result": "UNKNOWN",
+            "retryAllowed": false
+          }
+        }
+      },
+      {
+        "sequence": 7,
+        "monotonicMs": 45813.90000003576,
+        "documentNonce": "lab-1f89a9e99f3c8b61",
+        "windowId": "lab-a5751d2f2e80b75b",
+        "tabId": "lab-993adfb969d1b514",
+        "sessionId": "lab-e97fedc0d3ff4c52",
+        "event": "typing_action",
+        "state": {
+          "ok": true,
+          "snapshot": {
+            "valid": true,
+            "documentNonce": "lab-1f89a9e99f3c8b61",
+            "routeUnchanged": true,
+            "editorNode": "n1",
+            "formNode": "n2",
+            "textLength": 52,
+            "textIsExpectedSynthetic": true,
+            "cards": [
+              {
+                "name": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+                "cardNode": "n4",
+                "nodes": [
+                  {
+                    "nodeId": "n4",
+                    "tag": "DIV",
+                    "attrs": {
+                      "role": "button",
+                      "aria-label": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+                      "data-state": "closed"
+                    },
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n5",
+                    "tag": "SPAN",
+                    "attrs": {},
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n6",
+                    "tag": "IMG",
+                    "attrs": {
+                      "alt": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png"
+                    },
+                    "text": "",
+                    "image": {
+                      "complete": false,
+                      "width": 0,
+                      "height": 0,
+                      "sourceKind": "blob"
+                    }
+                  },
+                  {
+                    "nodeId": "n7",
+                    "tag": "SPAN",
+                    "attrs": {
+                      "role": "progressbar",
+                      "aria-label": "正在上传 Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+                      "aria-valuemin": "0",
+                      "aria-valuemax": "100"
+                    },
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n8",
+                    "tag": "svg",
+                    "attrs": {},
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n9",
+                    "tag": "circle",
+                    "attrs": {},
+                    "text": ""
+                  },
+                  {
+                    "nodeId": "n10",
+                    "tag": "circle",
+                    "attrs": {},
+                    "text": ""
+                  },
+                  {
+                    "nodeId": "n11",
+                    "tag": "SPAN",
+                    "attrs": {},
+                    "text": ""
+                  },
+                  {
+                    "nodeId": "n12",
+                    "tag": "BUTTON",
+                    "attrs": {
+                      "aria-label": "移除“Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png”"
+                    },
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n13",
+                    "tag": "svg",
+                    "attrs": {},
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n14",
+                    "tag": "use",
+                    "attrs": {},
+                    "text": ""
+                  }
+                ]
+              }
+            ],
+            "active": "IDENTITY_WITH_TYPING_AND_OTHER_FILE",
+            "armed": true,
+            "result": "UNKNOWN",
+            "retryAllowed": false
+          }
+        }
+      },
+      {
+        "sequence": 8,
+        "monotonicMs": 45816.30000001192,
+        "documentNonce": "lab-1f89a9e99f3c8b61",
+        "windowId": "lab-a5751d2f2e80b75b",
+        "tabId": "lab-993adfb969d1b514",
+        "sessionId": "lab-e97fedc0d3ff4c52",
+        "event": "dispatch_intent",
+        "state": {
+          "label": "OTHER",
+          "operationId": "c98e7246-5ff0-4bd1-a773-c894f94e8920"
+        }
+      },
+      {
+        "sequence": 9,
+        "monotonicMs": 45816.5,
+        "documentNonce": "lab-1f89a9e99f3c8b61",
+        "windowId": "lab-a5751d2f2e80b75b",
+        "tabId": "lab-993adfb969d1b514",
+        "sessionId": "lab-e97fedc0d3ff4c52",
+        "event": "file_entered",
+        "state": {
+          "label": "OTHER",
+          "name": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+          "isTrusted": false,
+          "bytes": 25265,
+          "inputNode": "n3"
+        }
+      },
+      {
+        "sequence": 10,
+        "monotonicMs": 45826,
+        "documentNonce": "lab-1f89a9e99f3c8b61",
+        "windowId": "lab-a5751d2f2e80b75b",
+        "tabId": "lab-993adfb969d1b514",
+        "sessionId": "lab-e97fedc0d3ff4c52",
+        "event": "dispatched",
+        "state": {
+          "label": "OTHER",
+          "operationId": "c98e7246-5ff0-4bd1-a773-c894f94e8920"
+        }
+      },
+      {
+        "sequence": 11,
+        "monotonicMs": 45846,
+        "documentNonce": "lab-1f89a9e99f3c8b61",
+        "windowId": "lab-a5751d2f2e80b75b",
+        "tabId": "lab-993adfb969d1b514",
+        "sessionId": "lab-e97fedc0d3ff4c52",
+        "event": "composer_mutation",
+        "state": {
+          "valid": true,
+          "documentNonce": "lab-1f89a9e99f3c8b61",
+          "routeUnchanged": true,
+          "editorNode": "n1",
+          "formNode": "n2",
+          "textLength": 52,
+          "textIsExpectedSynthetic": true,
+          "cards": [
+            {
+              "name": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+              "cardNode": "n4",
+              "nodes": [
+                {
+                  "nodeId": "n4",
+                  "tag": "DIV",
+                  "attrs": {
+                    "role": "button",
+                    "aria-label": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+                    "data-state": "closed"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n5",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n6",
+                  "tag": "IMG",
+                  "attrs": {
+                    "alt": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png"
+                  },
+                  "text": "",
+                  "image": {
+                    "complete": false,
+                    "width": 0,
+                    "height": 0,
+                    "sourceKind": "blob"
+                  }
+                },
+                {
+                  "nodeId": "n7",
+                  "tag": "SPAN",
+                  "attrs": {
+                    "role": "progressbar",
+                    "aria-label": "正在上传 Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+                    "aria-valuemin": "0",
+                    "aria-valuemax": "100"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n8",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n9",
+                  "tag": "circle",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n10",
+                  "tag": "circle",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n11",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n12",
+                  "tag": "BUTTON",
+                  "attrs": {
+                    "aria-label": "移除“Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png”"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n13",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n14",
+                  "tag": "use",
+                  "attrs": {},
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "name": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+              "cardNode": "n15",
+              "nodes": [
+                {
+                  "nodeId": "n15",
+                  "tag": "DIV",
+                  "attrs": {
+                    "role": "button",
+                    "aria-label": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+                    "data-state": "closed"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n16",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n17",
+                  "tag": "IMG",
+                  "attrs": {
+                    "alt": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png"
+                  },
+                  "text": "",
+                  "image": {
+                    "complete": false,
+                    "width": 0,
+                    "height": 0,
+                    "sourceKind": "blob"
+                  }
+                },
+                {
+                  "nodeId": "n18",
+                  "tag": "SPAN",
+                  "attrs": {
+                    "role": "progressbar",
+                    "aria-label": "正在上传 Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+                    "aria-valuemin": "0",
+                    "aria-valuemax": "100"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n19",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n20",
+                  "tag": "circle",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n21",
+                  "tag": "circle",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n22",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n23",
+                  "tag": "BUTTON",
+                  "attrs": {
+                    "aria-label": "移除“Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png”"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n24",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n25",
+                  "tag": "use",
+                  "attrs": {},
+                  "text": ""
+                }
+              ]
+            }
+          ],
+          "active": "IDENTITY_WITH_TYPING_AND_OTHER_FILE",
+          "armed": true,
+          "result": "UNKNOWN",
+          "retryAllowed": false
+        }
+      },
+      {
+        "sequence": 12,
+        "monotonicMs": 45878.30000001192,
+        "documentNonce": "lab-1f89a9e99f3c8b61",
+        "windowId": "lab-a5751d2f2e80b75b",
+        "tabId": "lab-993adfb969d1b514",
+        "sessionId": "lab-e97fedc0d3ff4c52",
+        "event": "input_hash",
+        "state": {
+          "label": "OTHER",
+          "sha256": "cd8e74e10dad315581a0fe53b88090e0de40eac0dfa4f3ea6a4d685304e644f8",
+          "bytes": 25265
+        }
+      },
+      {
+        "sequence": 13,
+        "monotonicMs": 45878.5,
+        "documentNonce": "lab-1f89a9e99f3c8b61",
+        "windowId": "lab-a5751d2f2e80b75b",
+        "tabId": "lab-993adfb969d1b514",
+        "sessionId": "lab-e97fedc0d3ff4c52",
+        "event": "image_load",
+        "state": {
+          "name": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+          "snapshot": {
+            "valid": true,
+            "documentNonce": "lab-1f89a9e99f3c8b61",
+            "routeUnchanged": true,
+            "editorNode": "n1",
+            "formNode": "n2",
+            "textLength": 52,
+            "textIsExpectedSynthetic": true,
+            "cards": [
+              {
+                "name": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+                "cardNode": "n4",
+                "nodes": [
+                  {
+                    "nodeId": "n4",
+                    "tag": "DIV",
+                    "attrs": {
+                      "role": "button",
+                      "aria-label": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+                      "data-state": "closed"
+                    },
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n5",
+                    "tag": "SPAN",
+                    "attrs": {},
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n6",
+                    "tag": "IMG",
+                    "attrs": {
+                      "alt": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png"
+                    },
+                    "text": "",
+                    "image": {
+                      "complete": false,
+                      "width": 1600,
+                      "height": 1000,
+                      "sourceKind": "blob"
+                    }
+                  },
+                  {
+                    "nodeId": "n7",
+                    "tag": "SPAN",
+                    "attrs": {
+                      "role": "progressbar",
+                      "aria-label": "正在上传 Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+                      "aria-valuemin": "0",
+                      "aria-valuemax": "100"
+                    },
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n8",
+                    "tag": "svg",
+                    "attrs": {},
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n9",
+                    "tag": "circle",
+                    "attrs": {},
+                    "text": ""
+                  },
+                  {
+                    "nodeId": "n10",
+                    "tag": "circle",
+                    "attrs": {},
+                    "text": ""
+                  },
+                  {
+                    "nodeId": "n11",
+                    "tag": "SPAN",
+                    "attrs": {},
+                    "text": ""
+                  },
+                  {
+                    "nodeId": "n12",
+                    "tag": "BUTTON",
+                    "attrs": {
+                      "aria-label": "移除“Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png”"
+                    },
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n13",
+                    "tag": "svg",
+                    "attrs": {},
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n14",
+                    "tag": "use",
+                    "attrs": {},
+                    "text": ""
+                  }
+                ]
+              },
+              {
+                "name": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+                "cardNode": "n15",
+                "nodes": [
+                  {
+                    "nodeId": "n15",
+                    "tag": "DIV",
+                    "attrs": {
+                      "role": "button",
+                      "aria-label": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+                      "data-state": "closed"
+                    },
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n16",
+                    "tag": "SPAN",
+                    "attrs": {},
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n17",
+                    "tag": "IMG",
+                    "attrs": {
+                      "alt": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png"
+                    },
+                    "text": "",
+                    "image": {
+                      "complete": true,
+                      "width": 800,
+                      "height": 450,
+                      "sourceKind": "blob"
+                    }
+                  },
+                  {
+                    "nodeId": "n18",
+                    "tag": "SPAN",
+                    "attrs": {
+                      "role": "progressbar",
+                      "aria-label": "正在上传 Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+                      "aria-valuemin": "0",
+                      "aria-valuemax": "100"
+                    },
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n19",
+                    "tag": "svg",
+                    "attrs": {},
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n20",
+                    "tag": "circle",
+                    "attrs": {},
+                    "text": ""
+                  },
+                  {
+                    "nodeId": "n21",
+                    "tag": "circle",
+                    "attrs": {},
+                    "text": ""
+                  },
+                  {
+                    "nodeId": "n22",
+                    "tag": "SPAN",
+                    "attrs": {},
+                    "text": ""
+                  },
+                  {
+                    "nodeId": "n23",
+                    "tag": "BUTTON",
+                    "attrs": {
+                      "aria-label": "移除“Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png”"
+                    },
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n24",
+                    "tag": "svg",
+                    "attrs": {},
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n25",
+                    "tag": "use",
+                    "attrs": {},
+                    "text": ""
+                  }
+                ]
+              }
+            ],
+            "active": "IDENTITY_WITH_TYPING_AND_OTHER_FILE",
+            "armed": true,
+            "result": "UNKNOWN",
+            "retryAllowed": false
+          }
+        }
+      },
+      {
+        "sequence": 14,
+        "monotonicMs": 45894.69999998808,
+        "documentNonce": "lab-1f89a9e99f3c8b61",
+        "windowId": "lab-a5751d2f2e80b75b",
+        "tabId": "lab-993adfb969d1b514",
+        "sessionId": "lab-e97fedc0d3ff4c52",
+        "event": "input_hash",
+        "state": {
+          "label": "IDENTITY",
+          "sha256": "18b581acd175f5954ef8cb262428f7fd63d41fe93eaa94087b7f8dbc730c930d",
+          "bytes": 4802523
+        }
+      },
+      {
+        "sequence": 15,
+        "monotonicMs": 45896.69999998808,
+        "documentNonce": "lab-1f89a9e99f3c8b61",
+        "windowId": "lab-a5751d2f2e80b75b",
+        "tabId": "lab-993adfb969d1b514",
+        "sessionId": "lab-e97fedc0d3ff4c52",
+        "event": "image_load",
+        "state": {
+          "name": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+          "snapshot": {
+            "valid": true,
+            "documentNonce": "lab-1f89a9e99f3c8b61",
+            "routeUnchanged": true,
+            "editorNode": "n1",
+            "formNode": "n2",
+            "textLength": 52,
+            "textIsExpectedSynthetic": true,
+            "cards": [
+              {
+                "name": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+                "cardNode": "n4",
+                "nodes": [
+                  {
+                    "nodeId": "n4",
+                    "tag": "DIV",
+                    "attrs": {
+                      "role": "button",
+                      "aria-label": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+                      "data-state": "closed"
+                    },
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n5",
+                    "tag": "SPAN",
+                    "attrs": {},
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n6",
+                    "tag": "IMG",
+                    "attrs": {
+                      "alt": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png"
+                    },
+                    "text": "",
+                    "image": {
+                      "complete": true,
+                      "width": 1600,
+                      "height": 1000,
+                      "sourceKind": "blob"
+                    }
+                  },
+                  {
+                    "nodeId": "n7",
+                    "tag": "SPAN",
+                    "attrs": {
+                      "role": "progressbar",
+                      "aria-label": "正在上传 Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+                      "aria-valuemin": "0",
+                      "aria-valuemax": "100"
+                    },
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n8",
+                    "tag": "svg",
+                    "attrs": {},
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n9",
+                    "tag": "circle",
+                    "attrs": {},
+                    "text": ""
+                  },
+                  {
+                    "nodeId": "n10",
+                    "tag": "circle",
+                    "attrs": {},
+                    "text": ""
+                  },
+                  {
+                    "nodeId": "n11",
+                    "tag": "SPAN",
+                    "attrs": {},
+                    "text": ""
+                  },
+                  {
+                    "nodeId": "n12",
+                    "tag": "BUTTON",
+                    "attrs": {
+                      "aria-label": "移除“Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png”"
+                    },
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n13",
+                    "tag": "svg",
+                    "attrs": {},
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n14",
+                    "tag": "use",
+                    "attrs": {},
+                    "text": ""
+                  }
+                ]
+              },
+              {
+                "name": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+                "cardNode": "n15",
+                "nodes": [
+                  {
+                    "nodeId": "n15",
+                    "tag": "DIV",
+                    "attrs": {
+                      "role": "button",
+                      "aria-label": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+                      "data-state": "closed"
+                    },
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n16",
+                    "tag": "SPAN",
+                    "attrs": {},
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n17",
+                    "tag": "IMG",
+                    "attrs": {
+                      "alt": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png"
+                    },
+                    "text": "",
+                    "image": {
+                      "complete": true,
+                      "width": 800,
+                      "height": 450,
+                      "sourceKind": "blob"
+                    }
+                  },
+                  {
+                    "nodeId": "n18",
+                    "tag": "SPAN",
+                    "attrs": {
+                      "role": "progressbar",
+                      "aria-label": "正在上传 Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+                      "aria-valuemin": "0",
+                      "aria-valuemax": "100"
+                    },
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n19",
+                    "tag": "svg",
+                    "attrs": {},
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n20",
+                    "tag": "circle",
+                    "attrs": {},
+                    "text": ""
+                  },
+                  {
+                    "nodeId": "n21",
+                    "tag": "circle",
+                    "attrs": {},
+                    "text": ""
+                  },
+                  {
+                    "nodeId": "n22",
+                    "tag": "SPAN",
+                    "attrs": {},
+                    "text": ""
+                  },
+                  {
+                    "nodeId": "n23",
+                    "tag": "BUTTON",
+                    "attrs": {
+                      "aria-label": "移除“Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png”"
+                    },
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n24",
+                    "tag": "svg",
+                    "attrs": {},
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n25",
+                    "tag": "use",
+                    "attrs": {},
+                    "text": ""
+                  }
+                ]
+              }
+            ],
+            "active": "IDENTITY_WITH_TYPING_AND_OTHER_FILE",
+            "armed": true,
+            "result": "UNKNOWN",
+            "retryAllowed": false
+          }
+        }
+      },
+      {
+        "sequence": 16,
+        "monotonicMs": 46586.80000001192,
+        "documentNonce": "lab-1f89a9e99f3c8b61",
+        "windowId": "lab-a5751d2f2e80b75b",
+        "tabId": "lab-993adfb969d1b514",
+        "sessionId": "lab-e97fedc0d3ff4c52",
+        "event": "composer_mutation",
+        "state": {
+          "valid": true,
+          "documentNonce": "lab-1f89a9e99f3c8b61",
+          "routeUnchanged": true,
+          "editorNode": "n1",
+          "formNode": "n2",
+          "textLength": 52,
+          "textIsExpectedSynthetic": true,
+          "cards": [
+            {
+              "name": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+              "cardNode": "n4",
+              "nodes": [
+                {
+                  "nodeId": "n4",
+                  "tag": "DIV",
+                  "attrs": {
+                    "role": "button",
+                    "aria-label": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+                    "data-state": "closed"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n5",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n6",
+                  "tag": "IMG",
+                  "attrs": {
+                    "alt": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png"
+                  },
+                  "text": "",
+                  "image": {
+                    "complete": true,
+                    "width": 1600,
+                    "height": 1000,
+                    "sourceKind": "blob"
+                  }
+                },
+                {
+                  "nodeId": "n7",
+                  "tag": "SPAN",
+                  "attrs": {
+                    "role": "progressbar",
+                    "aria-label": "正在上传 Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+                    "aria-valuemin": "0",
+                    "aria-valuemax": "100"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n8",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n9",
+                  "tag": "circle",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n10",
+                  "tag": "circle",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n11",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n12",
+                  "tag": "BUTTON",
+                  "attrs": {
+                    "aria-label": "移除“Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png”"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n13",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n14",
+                  "tag": "use",
+                  "attrs": {},
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "name": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+              "cardNode": "n15",
+              "nodes": [
+                {
+                  "nodeId": "n15",
+                  "tag": "DIV",
+                  "attrs": {
+                    "role": "button",
+                    "aria-label": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+                    "data-state": "closed"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n16",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n17",
+                  "tag": "IMG",
+                  "attrs": {
+                    "alt": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png"
+                  },
+                  "text": "",
+                  "image": {
+                    "complete": true,
+                    "width": 800,
+                    "height": 450,
+                    "sourceKind": "blob"
+                  }
+                },
+                {
+                  "nodeId": "n18",
+                  "tag": "SPAN",
+                  "attrs": {
+                    "role": "progressbar",
+                    "aria-label": "正在上传 Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+                    "aria-valuemin": "0",
+                    "aria-valuemax": "100",
+                    "aria-valuenow": "100"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n19",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n20",
+                  "tag": "circle",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n21",
+                  "tag": "circle",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n22",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n23",
+                  "tag": "BUTTON",
+                  "attrs": {
+                    "aria-label": "移除“Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png”"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n24",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n25",
+                  "tag": "use",
+                  "attrs": {},
+                  "text": ""
+                }
+              ]
+            }
+          ],
+          "active": "IDENTITY_WITH_TYPING_AND_OTHER_FILE",
+          "armed": true,
+          "result": "UNKNOWN",
+          "retryAllowed": false
+        }
+      },
+      {
+        "sequence": 17,
+        "monotonicMs": 47531.5,
+        "documentNonce": "lab-1f89a9e99f3c8b61",
+        "windowId": "lab-a5751d2f2e80b75b",
+        "tabId": "lab-993adfb969d1b514",
+        "sessionId": "lab-e97fedc0d3ff4c52",
+        "event": "composer_mutation",
+        "state": {
+          "valid": true,
+          "documentNonce": "lab-1f89a9e99f3c8b61",
+          "routeUnchanged": true,
+          "editorNode": "n1",
+          "formNode": "n2",
+          "textLength": 52,
+          "textIsExpectedSynthetic": true,
+          "cards": [
+            {
+              "name": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+              "cardNode": "n4",
+              "nodes": [
+                {
+                  "nodeId": "n4",
+                  "tag": "DIV",
+                  "attrs": {
+                    "role": "button",
+                    "aria-label": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+                    "data-state": "closed"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n5",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n6",
+                  "tag": "IMG",
+                  "attrs": {
+                    "alt": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png"
+                  },
+                  "text": "",
+                  "image": {
+                    "complete": true,
+                    "width": 1600,
+                    "height": 1000,
+                    "sourceKind": "blob"
+                  }
+                },
+                {
+                  "nodeId": "n7",
+                  "tag": "SPAN",
+                  "attrs": {
+                    "role": "progressbar",
+                    "aria-label": "正在上传 Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+                    "aria-valuemin": "0",
+                    "aria-valuemax": "100",
+                    "aria-valuenow": "3.866224193237291"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n8",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n9",
+                  "tag": "circle",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n10",
+                  "tag": "circle",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n11",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n12",
+                  "tag": "BUTTON",
+                  "attrs": {
+                    "aria-label": "移除“Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png”"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n13",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n14",
+                  "tag": "use",
+                  "attrs": {},
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "name": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+              "cardNode": "n15",
+              "nodes": [
+                {
+                  "nodeId": "n15",
+                  "tag": "DIV",
+                  "attrs": {
+                    "role": "button",
+                    "aria-label": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+                    "data-state": "closed"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n16",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n17",
+                  "tag": "IMG",
+                  "attrs": {
+                    "alt": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png"
+                  },
+                  "text": "",
+                  "image": {
+                    "complete": true,
+                    "width": 800,
+                    "height": 450,
+                    "sourceKind": "blob"
+                  }
+                },
+                {
+                  "nodeId": "n18",
+                  "tag": "SPAN",
+                  "attrs": {
+                    "role": "progressbar",
+                    "aria-label": "正在上传 Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+                    "aria-valuemin": "0",
+                    "aria-valuemax": "100",
+                    "aria-valuenow": "100"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n19",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n20",
+                  "tag": "circle",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n21",
+                  "tag": "circle",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n22",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n23",
+                  "tag": "BUTTON",
+                  "attrs": {
+                    "aria-label": "移除“Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png”"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n24",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n25",
+                  "tag": "use",
+                  "attrs": {},
+                  "text": ""
+                }
+              ]
+            }
+          ],
+          "active": "IDENTITY_WITH_TYPING_AND_OTHER_FILE",
+          "armed": true,
+          "result": "UNKNOWN",
+          "retryAllowed": false
+        }
+      },
+      {
+        "sequence": 18,
+        "monotonicMs": 47637.10000002384,
+        "documentNonce": "lab-1f89a9e99f3c8b61",
+        "windowId": "lab-a5751d2f2e80b75b",
+        "tabId": "lab-993adfb969d1b514",
+        "sessionId": "lab-e97fedc0d3ff4c52",
+        "event": "composer_mutation",
+        "state": {
+          "valid": true,
+          "documentNonce": "lab-1f89a9e99f3c8b61",
+          "routeUnchanged": true,
+          "editorNode": "n1",
+          "formNode": "n2",
+          "textLength": 52,
+          "textIsExpectedSynthetic": true,
+          "cards": [
+            {
+              "name": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+              "cardNode": "n4",
+              "nodes": [
+                {
+                  "nodeId": "n4",
+                  "tag": "DIV",
+                  "attrs": {
+                    "role": "button",
+                    "aria-label": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+                    "data-state": "closed"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n5",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n6",
+                  "tag": "IMG",
+                  "attrs": {
+                    "alt": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png"
+                  },
+                  "text": "",
+                  "image": {
+                    "complete": true,
+                    "width": 1600,
+                    "height": 1000,
+                    "sourceKind": "blob"
+                  }
+                },
+                {
+                  "nodeId": "n7",
+                  "tag": "SPAN",
+                  "attrs": {
+                    "role": "progressbar",
+                    "aria-label": "正在上传 Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+                    "aria-valuemin": "0",
+                    "aria-valuemax": "100",
+                    "aria-valuenow": "6.245439081383315"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n8",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n9",
+                  "tag": "circle",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n10",
+                  "tag": "circle",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n11",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n12",
+                  "tag": "BUTTON",
+                  "attrs": {
+                    "aria-label": "移除“Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png”"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n13",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n14",
+                  "tag": "use",
+                  "attrs": {},
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "name": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+              "cardNode": "n15",
+              "nodes": [
+                {
+                  "nodeId": "n15",
+                  "tag": "DIV",
+                  "attrs": {
+                    "role": "button",
+                    "aria-label": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+                    "data-state": "closed"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n16",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n17",
+                  "tag": "IMG",
+                  "attrs": {
+                    "alt": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png"
+                  },
+                  "text": "",
+                  "image": {
+                    "complete": true,
+                    "width": 800,
+                    "height": 450,
+                    "sourceKind": "blob"
+                  }
+                },
+                {
+                  "nodeId": "n18",
+                  "tag": "SPAN",
+                  "attrs": {
+                    "role": "progressbar",
+                    "aria-label": "正在上传 Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+                    "aria-valuemin": "0",
+                    "aria-valuemax": "100",
+                    "aria-valuenow": "100"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n19",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n20",
+                  "tag": "circle",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n21",
+                  "tag": "circle",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n22",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n23",
+                  "tag": "BUTTON",
+                  "attrs": {
+                    "aria-label": "移除“Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png”"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n24",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n25",
+                  "tag": "use",
+                  "attrs": {},
+                  "text": ""
+                }
+              ]
+            }
+          ],
+          "active": "IDENTITY_WITH_TYPING_AND_OTHER_FILE",
+          "armed": true,
+          "result": "UNKNOWN",
+          "retryAllowed": false
+        }
+      },
+      {
+        "sequence": 19,
+        "monotonicMs": 47841.90000003576,
+        "documentNonce": "lab-1f89a9e99f3c8b61",
+        "windowId": "lab-a5751d2f2e80b75b",
+        "tabId": "lab-993adfb969d1b514",
+        "sessionId": "lab-e97fedc0d3ff4c52",
+        "event": "composer_mutation",
+        "state": {
+          "valid": true,
+          "documentNonce": "lab-1f89a9e99f3c8b61",
+          "routeUnchanged": true,
+          "editorNode": "n1",
+          "formNode": "n2",
+          "textLength": 52,
+          "textIsExpectedSynthetic": true,
+          "cards": [
+            {
+              "name": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+              "cardNode": "n4",
+              "nodes": [
+                {
+                  "nodeId": "n4",
+                  "tag": "DIV",
+                  "attrs": {
+                    "role": "button",
+                    "aria-label": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+                    "data-state": "closed"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n5",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n6",
+                  "tag": "IMG",
+                  "attrs": {
+                    "alt": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png"
+                  },
+                  "text": "",
+                  "image": {
+                    "complete": true,
+                    "width": 1600,
+                    "height": 1000,
+                    "sourceKind": "blob"
+                  }
+                },
+                {
+                  "nodeId": "n7",
+                  "tag": "SPAN",
+                  "attrs": {
+                    "role": "progressbar",
+                    "aria-label": "正在上传 Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+                    "aria-valuemin": "0",
+                    "aria-valuemax": "100",
+                    "aria-valuenow": "11.301270718693617"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n8",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n9",
+                  "tag": "circle",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n10",
+                  "tag": "circle",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n11",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n12",
+                  "tag": "BUTTON",
+                  "attrs": {
+                    "aria-label": "移除“Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png”"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n13",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n14",
+                  "tag": "use",
+                  "attrs": {},
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "name": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+              "cardNode": "n15",
+              "nodes": [
+                {
+                  "nodeId": "n15",
+                  "tag": "DIV",
+                  "attrs": {
+                    "role": "button",
+                    "aria-label": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+                    "data-state": "closed"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n16",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n17",
+                  "tag": "IMG",
+                  "attrs": {
+                    "alt": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png"
+                  },
+                  "text": "",
+                  "image": {
+                    "complete": true,
+                    "width": 800,
+                    "height": 450,
+                    "sourceKind": "blob"
+                  }
+                },
+                {
+                  "nodeId": "n18",
+                  "tag": "SPAN",
+                  "attrs": {
+                    "role": "progressbar",
+                    "aria-label": "正在上传 Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+                    "aria-valuemin": "0",
+                    "aria-valuemax": "100",
+                    "aria-valuenow": "100"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n19",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n20",
+                  "tag": "circle",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n21",
+                  "tag": "circle",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n22",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n23",
+                  "tag": "BUTTON",
+                  "attrs": {
+                    "aria-label": "移除“Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png”"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n24",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n25",
+                  "tag": "use",
+                  "attrs": {},
+                  "text": ""
+                }
+              ]
+            }
+          ],
+          "active": "IDENTITY_WITH_TYPING_AND_OTHER_FILE",
+          "armed": true,
+          "result": "UNKNOWN",
+          "retryAllowed": false
+        }
+      },
+      {
+        "sequence": 20,
+        "monotonicMs": 47942.30000001192,
+        "documentNonce": "lab-1f89a9e99f3c8b61",
+        "windowId": "lab-a5751d2f2e80b75b",
+        "tabId": "lab-993adfb969d1b514",
+        "sessionId": "lab-e97fedc0d3ff4c52",
+        "event": "composer_mutation",
+        "state": {
+          "valid": true,
+          "documentNonce": "lab-1f89a9e99f3c8b61",
+          "routeUnchanged": true,
+          "editorNode": "n1",
+          "formNode": "n2",
+          "textLength": 52,
+          "textIsExpectedSynthetic": true,
+          "cards": [
+            {
+              "name": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+              "cardNode": "n4",
+              "nodes": [
+                {
+                  "nodeId": "n4",
+                  "tag": "DIV",
+                  "attrs": {
+                    "role": "button",
+                    "aria-label": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+                    "data-state": "closed"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n5",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n6",
+                  "tag": "IMG",
+                  "attrs": {
+                    "alt": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png"
+                  },
+                  "text": "",
+                  "image": {
+                    "complete": true,
+                    "width": 1600,
+                    "height": 1000,
+                    "sourceKind": "blob"
+                  }
+                },
+                {
+                  "nodeId": "n7",
+                  "tag": "SPAN",
+                  "attrs": {
+                    "role": "progressbar",
+                    "aria-label": "正在上传 Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+                    "aria-valuemin": "0",
+                    "aria-valuemax": "100",
+                    "aria-valuenow": "22.89994329840549"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n8",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n9",
+                  "tag": "circle",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n10",
+                  "tag": "circle",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n11",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n12",
+                  "tag": "BUTTON",
+                  "attrs": {
+                    "aria-label": "移除“Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png”"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n13",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n14",
+                  "tag": "use",
+                  "attrs": {},
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "name": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+              "cardNode": "n15",
+              "nodes": [
+                {
+                  "nodeId": "n15",
+                  "tag": "DIV",
+                  "attrs": {
+                    "role": "button",
+                    "aria-label": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+                    "data-state": "closed"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n16",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n17",
+                  "tag": "IMG",
+                  "attrs": {
+                    "alt": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png"
+                  },
+                  "text": "",
+                  "image": {
+                    "complete": true,
+                    "width": 800,
+                    "height": 450,
+                    "sourceKind": "blob"
+                  }
+                },
+                {
+                  "nodeId": "n18",
+                  "tag": "SPAN",
+                  "attrs": {
+                    "role": "progressbar",
+                    "aria-label": "正在上传 Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+                    "aria-valuemin": "0",
+                    "aria-valuemax": "100",
+                    "aria-valuenow": "100"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n19",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n20",
+                  "tag": "circle",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n21",
+                  "tag": "circle",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n22",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n23",
+                  "tag": "BUTTON",
+                  "attrs": {
+                    "aria-label": "移除“Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png”"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n24",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n25",
+                  "tag": "use",
+                  "attrs": {},
+                  "text": ""
+                }
+              ]
+            }
+          ],
+          "active": "IDENTITY_WITH_TYPING_AND_OTHER_FILE",
+          "armed": true,
+          "result": "UNKNOWN",
+          "retryAllowed": false
+        }
+      },
+      {
+        "sequence": 21,
+        "monotonicMs": 48049.69999998808,
+        "documentNonce": "lab-1f89a9e99f3c8b61",
+        "windowId": "lab-a5751d2f2e80b75b",
+        "tabId": "lab-993adfb969d1b514",
+        "sessionId": "lab-e97fedc0d3ff4c52",
+        "event": "composer_mutation",
+        "state": {
+          "valid": true,
+          "documentNonce": "lab-1f89a9e99f3c8b61",
+          "routeUnchanged": true,
+          "editorNode": "n1",
+          "formNode": "n2",
+          "textLength": 52,
+          "textIsExpectedSynthetic": true,
+          "cards": [
+            {
+              "name": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+              "cardNode": "n4",
+              "nodes": [
+                {
+                  "nodeId": "n4",
+                  "tag": "DIV",
+                  "attrs": {
+                    "role": "button",
+                    "aria-label": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+                    "data-state": "closed"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n5",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n6",
+                  "tag": "IMG",
+                  "attrs": {
+                    "alt": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png"
+                  },
+                  "text": "",
+                  "image": {
+                    "complete": true,
+                    "width": 1600,
+                    "height": 1000,
+                    "sourceKind": "blob"
+                  }
+                },
+                {
+                  "nodeId": "n7",
+                  "tag": "SPAN",
+                  "attrs": {
+                    "role": "progressbar",
+                    "aria-label": "正在上传 Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+                    "aria-valuemin": "0",
+                    "aria-valuemax": "100",
+                    "aria-valuenow": "43.718073569683206"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n8",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n9",
+                  "tag": "circle",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n10",
+                  "tag": "circle",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n11",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n12",
+                  "tag": "BUTTON",
+                  "attrs": {
+                    "aria-label": "移除“Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png”"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n13",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n14",
+                  "tag": "use",
+                  "attrs": {},
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "name": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+              "cardNode": "n15",
+              "nodes": [
+                {
+                  "nodeId": "n15",
+                  "tag": "DIV",
+                  "attrs": {
+                    "role": "button",
+                    "aria-label": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+                    "data-state": "closed"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n16",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n17",
+                  "tag": "IMG",
+                  "attrs": {
+                    "alt": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png"
+                  },
+                  "text": "",
+                  "image": {
+                    "complete": true,
+                    "width": 800,
+                    "height": 450,
+                    "sourceKind": "blob"
+                  }
+                },
+                {
+                  "nodeId": "n18",
+                  "tag": "SPAN",
+                  "attrs": {
+                    "role": "progressbar",
+                    "aria-label": "正在上传 Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+                    "aria-valuemin": "0",
+                    "aria-valuemax": "100",
+                    "aria-valuenow": "100"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n19",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n20",
+                  "tag": "circle",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n21",
+                  "tag": "circle",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n22",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n23",
+                  "tag": "BUTTON",
+                  "attrs": {
+                    "aria-label": "移除“Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png”"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n24",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n25",
+                  "tag": "use",
+                  "attrs": {},
+                  "text": ""
+                }
+              ]
+            }
+          ],
+          "active": "IDENTITY_WITH_TYPING_AND_OTHER_FILE",
+          "armed": true,
+          "result": "UNKNOWN",
+          "retryAllowed": false
+        }
+      },
+      {
+        "sequence": 22,
+        "monotonicMs": 48154.10000002384,
+        "documentNonce": "lab-1f89a9e99f3c8b61",
+        "windowId": "lab-a5751d2f2e80b75b",
+        "tabId": "lab-993adfb969d1b514",
+        "sessionId": "lab-e97fedc0d3ff4c52",
+        "event": "composer_mutation",
+        "state": {
+          "valid": true,
+          "documentNonce": "lab-1f89a9e99f3c8b61",
+          "routeUnchanged": true,
+          "editorNode": "n1",
+          "formNode": "n2",
+          "textLength": 52,
+          "textIsExpectedSynthetic": true,
+          "cards": [
+            {
+              "name": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+              "cardNode": "n4",
+              "nodes": [
+                {
+                  "nodeId": "n4",
+                  "tag": "DIV",
+                  "attrs": {
+                    "role": "button",
+                    "aria-label": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+                    "data-state": "closed"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n5",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n6",
+                  "tag": "IMG",
+                  "attrs": {
+                    "alt": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png"
+                  },
+                  "text": "",
+                  "image": {
+                    "complete": true,
+                    "width": 1600,
+                    "height": 1000,
+                    "sourceKind": "blob"
+                  }
+                },
+                {
+                  "nodeId": "n7",
+                  "tag": "SPAN",
+                  "attrs": {
+                    "role": "progressbar",
+                    "aria-label": "正在上传 Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+                    "aria-valuemin": "0",
+                    "aria-valuemax": "100",
+                    "aria-valuenow": "65.72581128503394"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n8",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n9",
+                  "tag": "circle",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n10",
+                  "tag": "circle",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n11",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n12",
+                  "tag": "BUTTON",
+                  "attrs": {
+                    "aria-label": "移除“Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png”"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n13",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n14",
+                  "tag": "use",
+                  "attrs": {},
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "name": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+              "cardNode": "n15",
+              "nodes": [
+                {
+                  "nodeId": "n15",
+                  "tag": "DIV",
+                  "attrs": {
+                    "role": "button",
+                    "aria-label": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+                    "data-state": "closed"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n16",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n17",
+                  "tag": "IMG",
+                  "attrs": {
+                    "alt": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png"
+                  },
+                  "text": "",
+                  "image": {
+                    "complete": true,
+                    "width": 800,
+                    "height": 450,
+                    "sourceKind": "blob"
+                  }
+                },
+                {
+                  "nodeId": "n18",
+                  "tag": "SPAN",
+                  "attrs": {
+                    "role": "progressbar",
+                    "aria-label": "正在上传 Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+                    "aria-valuemin": "0",
+                    "aria-valuemax": "100",
+                    "aria-valuenow": "100"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n19",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n20",
+                  "tag": "circle",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n21",
+                  "tag": "circle",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n22",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n23",
+                  "tag": "BUTTON",
+                  "attrs": {
+                    "aria-label": "移除“Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png”"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n24",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n25",
+                  "tag": "use",
+                  "attrs": {},
+                  "text": ""
+                }
+              ]
+            }
+          ],
+          "active": "IDENTITY_WITH_TYPING_AND_OTHER_FILE",
+          "armed": true,
+          "result": "UNKNOWN",
+          "retryAllowed": false
+        }
+      },
+      {
+        "sequence": 23,
+        "monotonicMs": 48251.30000001192,
+        "documentNonce": "lab-1f89a9e99f3c8b61",
+        "windowId": "lab-a5751d2f2e80b75b",
+        "tabId": "lab-993adfb969d1b514",
+        "sessionId": "lab-e97fedc0d3ff4c52",
+        "event": "composer_mutation",
+        "state": {
+          "valid": true,
+          "documentNonce": "lab-1f89a9e99f3c8b61",
+          "routeUnchanged": true,
+          "editorNode": "n1",
+          "formNode": "n2",
+          "textLength": 52,
+          "textIsExpectedSynthetic": true,
+          "cards": [
+            {
+              "name": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+              "cardNode": "n4",
+              "nodes": [
+                {
+                  "nodeId": "n4",
+                  "tag": "DIV",
+                  "attrs": {
+                    "role": "button",
+                    "aria-label": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+                    "data-state": "closed"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n5",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n6",
+                  "tag": "IMG",
+                  "attrs": {
+                    "alt": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png"
+                  },
+                  "text": "",
+                  "image": {
+                    "complete": true,
+                    "width": 1600,
+                    "height": 1000,
+                    "sourceKind": "blob"
+                  }
+                },
+                {
+                  "nodeId": "n7",
+                  "tag": "SPAN",
+                  "attrs": {
+                    "role": "progressbar",
+                    "aria-label": "正在上传 Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+                    "aria-valuemin": "0",
+                    "aria-valuemax": "100",
+                    "aria-valuenow": "81.1907080579831"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n8",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n9",
+                  "tag": "circle",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n10",
+                  "tag": "circle",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n11",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n12",
+                  "tag": "BUTTON",
+                  "attrs": {
+                    "aria-label": "移除“Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png”"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n13",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n14",
+                  "tag": "use",
+                  "attrs": {},
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "name": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+              "cardNode": "n15",
+              "nodes": [
+                {
+                  "nodeId": "n15",
+                  "tag": "DIV",
+                  "attrs": {
+                    "role": "button",
+                    "aria-label": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+                    "data-state": "closed"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n16",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n17",
+                  "tag": "IMG",
+                  "attrs": {
+                    "alt": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png"
+                  },
+                  "text": "",
+                  "image": {
+                    "complete": true,
+                    "width": 800,
+                    "height": 450,
+                    "sourceKind": "blob"
+                  }
+                },
+                {
+                  "nodeId": "n18",
+                  "tag": "SPAN",
+                  "attrs": {
+                    "role": "progressbar",
+                    "aria-label": "正在上传 Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+                    "aria-valuemin": "0",
+                    "aria-valuemax": "100",
+                    "aria-valuenow": "100"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n19",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n20",
+                  "tag": "circle",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n21",
+                  "tag": "circle",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n22",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n23",
+                  "tag": "BUTTON",
+                  "attrs": {
+                    "aria-label": "移除“Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png”"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n24",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n25",
+                  "tag": "use",
+                  "attrs": {},
+                  "text": ""
+                }
+              ]
+            }
+          ],
+          "active": "IDENTITY_WITH_TYPING_AND_OTHER_FILE",
+          "armed": true,
+          "result": "UNKNOWN",
+          "retryAllowed": false
+        }
+      },
+      {
+        "sequence": 24,
+        "monotonicMs": 48353.69999998808,
+        "documentNonce": "lab-1f89a9e99f3c8b61",
+        "windowId": "lab-a5751d2f2e80b75b",
+        "tabId": "lab-993adfb969d1b514",
+        "sessionId": "lab-e97fedc0d3ff4c52",
+        "event": "composer_mutation",
+        "state": {
+          "valid": true,
+          "documentNonce": "lab-1f89a9e99f3c8b61",
+          "routeUnchanged": true,
+          "editorNode": "n1",
+          "formNode": "n2",
+          "textLength": 52,
+          "textIsExpectedSynthetic": true,
+          "cards": [
+            {
+              "name": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+              "cardNode": "n4",
+              "nodes": [
+                {
+                  "nodeId": "n4",
+                  "tag": "DIV",
+                  "attrs": {
+                    "role": "button",
+                    "aria-label": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+                    "data-state": "closed"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n5",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n6",
+                  "tag": "IMG",
+                  "attrs": {
+                    "alt": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png"
+                  },
+                  "text": "",
+                  "image": {
+                    "complete": true,
+                    "width": 1600,
+                    "height": 1000,
+                    "sourceKind": "blob"
+                  }
+                },
+                {
+                  "nodeId": "n7",
+                  "tag": "SPAN",
+                  "attrs": {
+                    "role": "progressbar",
+                    "aria-label": "正在上传 Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+                    "aria-valuemin": "0",
+                    "aria-valuemax": "100",
+                    "aria-valuenow": "98.73741785806004"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n8",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n9",
+                  "tag": "circle",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n10",
+                  "tag": "circle",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n11",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n12",
+                  "tag": "BUTTON",
+                  "attrs": {
+                    "aria-label": "移除“Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png”"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n13",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n14",
+                  "tag": "use",
+                  "attrs": {},
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "name": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+              "cardNode": "n15",
+              "nodes": [
+                {
+                  "nodeId": "n15",
+                  "tag": "DIV",
+                  "attrs": {
+                    "role": "button",
+                    "aria-label": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+                    "data-state": "closed"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n16",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n17",
+                  "tag": "IMG",
+                  "attrs": {
+                    "alt": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png"
+                  },
+                  "text": "",
+                  "image": {
+                    "complete": true,
+                    "width": 800,
+                    "height": 450,
+                    "sourceKind": "blob"
+                  }
+                },
+                {
+                  "nodeId": "n18",
+                  "tag": "SPAN",
+                  "attrs": {
+                    "role": "progressbar",
+                    "aria-label": "正在上传 Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+                    "aria-valuemin": "0",
+                    "aria-valuemax": "100",
+                    "aria-valuenow": "100"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n19",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n20",
+                  "tag": "circle",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n21",
+                  "tag": "circle",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n22",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n23",
+                  "tag": "BUTTON",
+                  "attrs": {
+                    "aria-label": "移除“Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png”"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n24",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n25",
+                  "tag": "use",
+                  "attrs": {},
+                  "text": ""
+                }
+              ]
+            }
+          ],
+          "active": "IDENTITY_WITH_TYPING_AND_OTHER_FILE",
+          "armed": true,
+          "result": "UNKNOWN",
+          "retryAllowed": false
+        }
+      },
+      {
+        "sequence": 25,
+        "monotonicMs": 48460.69999998808,
+        "documentNonce": "lab-1f89a9e99f3c8b61",
+        "windowId": "lab-a5751d2f2e80b75b",
+        "tabId": "lab-993adfb969d1b514",
+        "sessionId": "lab-e97fedc0d3ff4c52",
+        "event": "composer_mutation",
+        "state": {
+          "valid": true,
+          "documentNonce": "lab-1f89a9e99f3c8b61",
+          "routeUnchanged": true,
+          "editorNode": "n1",
+          "formNode": "n2",
+          "textLength": 52,
+          "textIsExpectedSynthetic": true,
+          "cards": [
+            {
+              "name": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+              "cardNode": "n4",
+              "nodes": [
+                {
+                  "nodeId": "n4",
+                  "tag": "DIV",
+                  "attrs": {
+                    "role": "button",
+                    "aria-label": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+                    "data-state": "closed"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n5",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n6",
+                  "tag": "IMG",
+                  "attrs": {
+                    "alt": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png"
+                  },
+                  "text": "",
+                  "image": {
+                    "complete": true,
+                    "width": 1600,
+                    "height": 1000,
+                    "sourceKind": "blob"
+                  }
+                },
+                {
+                  "nodeId": "n7",
+                  "tag": "SPAN",
+                  "attrs": {
+                    "role": "progressbar",
+                    "aria-label": "正在上传 Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+                    "aria-valuemin": "0",
+                    "aria-valuemax": "100",
+                    "aria-valuenow": "100"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n8",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n9",
+                  "tag": "circle",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n10",
+                  "tag": "circle",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n11",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n12",
+                  "tag": "BUTTON",
+                  "attrs": {
+                    "aria-label": "移除“Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png”"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n13",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n14",
+                  "tag": "use",
+                  "attrs": {},
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "name": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+              "cardNode": "n15",
+              "nodes": [
+                {
+                  "nodeId": "n15",
+                  "tag": "DIV",
+                  "attrs": {
+                    "role": "button",
+                    "aria-label": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+                    "data-state": "closed"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n16",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n17",
+                  "tag": "IMG",
+                  "attrs": {
+                    "alt": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png"
+                  },
+                  "text": "",
+                  "image": {
+                    "complete": true,
+                    "width": 800,
+                    "height": 450,
+                    "sourceKind": "blob"
+                  }
+                },
+                {
+                  "nodeId": "n18",
+                  "tag": "SPAN",
+                  "attrs": {
+                    "role": "progressbar",
+                    "aria-label": "正在上传 Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+                    "aria-valuemin": "0",
+                    "aria-valuemax": "100",
+                    "aria-valuenow": "100"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n19",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n20",
+                  "tag": "circle",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n21",
+                  "tag": "circle",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n22",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n23",
+                  "tag": "BUTTON",
+                  "attrs": {
+                    "aria-label": "移除“Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png”"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n24",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n25",
+                  "tag": "use",
+                  "attrs": {},
+                  "text": ""
+                }
+              ]
+            }
+          ],
+          "active": "IDENTITY_WITH_TYPING_AND_OTHER_FILE",
+          "armed": true,
+          "result": "UNKNOWN",
+          "retryAllowed": false
+        }
+      },
+      {
+        "sequence": 26,
+        "monotonicMs": 48835.30000001192,
+        "documentNonce": "lab-1f89a9e99f3c8b61",
+        "windowId": "lab-a5751d2f2e80b75b",
+        "tabId": "lab-993adfb969d1b514",
+        "sessionId": "lab-e97fedc0d3ff4c52",
+        "event": "composer_mutation",
+        "state": {
+          "valid": true,
+          "documentNonce": "lab-1f89a9e99f3c8b61",
+          "routeUnchanged": true,
+          "editorNode": "n1",
+          "formNode": "n2",
+          "textLength": 52,
+          "textIsExpectedSynthetic": true,
+          "cards": [
+            {
+              "name": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+              "cardNode": "n4",
+              "nodes": [
+                {
+                  "nodeId": "n4",
+                  "tag": "DIV",
+                  "attrs": {
+                    "role": "button",
+                    "aria-label": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+                    "data-state": "closed"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n5",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n6",
+                  "tag": "IMG",
+                  "attrs": {
+                    "alt": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png"
+                  },
+                  "text": "",
+                  "image": {
+                    "complete": true,
+                    "width": 1600,
+                    "height": 1000,
+                    "sourceKind": "blob"
+                  }
+                },
+                {
+                  "nodeId": "n7",
+                  "tag": "SPAN",
+                  "attrs": {
+                    "role": "progressbar",
+                    "aria-label": "正在上传 Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+                    "aria-valuemin": "0",
+                    "aria-valuemax": "100",
+                    "aria-valuenow": "100"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n8",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n9",
+                  "tag": "circle",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n10",
+                  "tag": "circle",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n11",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n12",
+                  "tag": "BUTTON",
+                  "attrs": {
+                    "aria-label": "移除“Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png”"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n13",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n14",
+                  "tag": "use",
+                  "attrs": {},
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "name": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+              "cardNode": "n15",
+              "nodes": [
+                {
+                  "nodeId": "n15",
+                  "tag": "DIV",
+                  "attrs": {
+                    "role": "button",
+                    "aria-label": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+                    "data-state": "closed"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n16",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n17",
+                  "tag": "IMG",
+                  "attrs": {
+                    "alt": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png"
+                  },
+                  "text": "",
+                  "image": {
+                    "complete": false,
+                    "width": 800,
+                    "height": 450,
+                    "sourceKind": "blob"
+                  }
+                },
+                {
+                  "nodeId": "n22",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n23",
+                  "tag": "BUTTON",
+                  "attrs": {
+                    "aria-label": "移除“Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png”"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n24",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n25",
+                  "tag": "use",
+                  "attrs": {},
+                  "text": ""
+                }
+              ]
+            }
+          ],
+          "active": "IDENTITY_WITH_TYPING_AND_OTHER_FILE",
+          "armed": true,
+          "result": "UNKNOWN",
+          "retryAllowed": false
+        }
+      },
+      {
+        "sequence": 27,
+        "monotonicMs": 48835.80000001192,
+        "documentNonce": "lab-1f89a9e99f3c8b61",
+        "windowId": "lab-a5751d2f2e80b75b",
+        "tabId": "lab-993adfb969d1b514",
+        "sessionId": "lab-e97fedc0d3ff4c52",
+        "event": "image_load",
+        "state": {
+          "name": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+          "snapshot": {
+            "valid": true,
+            "documentNonce": "lab-1f89a9e99f3c8b61",
+            "routeUnchanged": true,
+            "editorNode": "n1",
+            "formNode": "n2",
+            "textLength": 52,
+            "textIsExpectedSynthetic": true,
+            "cards": [
+              {
+                "name": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+                "cardNode": "n4",
+                "nodes": [
+                  {
+                    "nodeId": "n4",
+                    "tag": "DIV",
+                    "attrs": {
+                      "role": "button",
+                      "aria-label": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+                      "data-state": "closed"
+                    },
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n5",
+                    "tag": "SPAN",
+                    "attrs": {},
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n6",
+                    "tag": "IMG",
+                    "attrs": {
+                      "alt": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png"
+                    },
+                    "text": "",
+                    "image": {
+                      "complete": true,
+                      "width": 1600,
+                      "height": 1000,
+                      "sourceKind": "blob"
+                    }
+                  },
+                  {
+                    "nodeId": "n7",
+                    "tag": "SPAN",
+                    "attrs": {
+                      "role": "progressbar",
+                      "aria-label": "正在上传 Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+                      "aria-valuemin": "0",
+                      "aria-valuemax": "100",
+                      "aria-valuenow": "100"
+                    },
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n8",
+                    "tag": "svg",
+                    "attrs": {},
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n9",
+                    "tag": "circle",
+                    "attrs": {},
+                    "text": ""
+                  },
+                  {
+                    "nodeId": "n10",
+                    "tag": "circle",
+                    "attrs": {},
+                    "text": ""
+                  },
+                  {
+                    "nodeId": "n11",
+                    "tag": "SPAN",
+                    "attrs": {},
+                    "text": ""
+                  },
+                  {
+                    "nodeId": "n12",
+                    "tag": "BUTTON",
+                    "attrs": {
+                      "aria-label": "移除“Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png”"
+                    },
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n13",
+                    "tag": "svg",
+                    "attrs": {},
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n14",
+                    "tag": "use",
+                    "attrs": {},
+                    "text": ""
+                  }
+                ]
+              },
+              {
+                "name": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+                "cardNode": "n15",
+                "nodes": [
+                  {
+                    "nodeId": "n15",
+                    "tag": "DIV",
+                    "attrs": {
+                      "role": "button",
+                      "aria-label": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+                      "data-state": "closed"
+                    },
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n16",
+                    "tag": "SPAN",
+                    "attrs": {},
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n17",
+                    "tag": "IMG",
+                    "attrs": {
+                      "alt": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png"
+                    },
+                    "text": "",
+                    "image": {
+                      "complete": true,
+                      "width": 800,
+                      "height": 450,
+                      "sourceKind": "data"
+                    }
+                  },
+                  {
+                    "nodeId": "n22",
+                    "tag": "SPAN",
+                    "attrs": {},
+                    "text": ""
+                  },
+                  {
+                    "nodeId": "n23",
+                    "tag": "BUTTON",
+                    "attrs": {
+                      "aria-label": "移除“Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png”"
+                    },
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n24",
+                    "tag": "svg",
+                    "attrs": {},
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n25",
+                    "tag": "use",
+                    "attrs": {},
+                    "text": ""
+                  }
+                ]
+              }
+            ],
+            "active": "IDENTITY_WITH_TYPING_AND_OTHER_FILE",
+            "armed": true,
+            "result": "UNKNOWN",
+            "retryAllowed": false
+          }
+        }
+      },
+      {
+        "sequence": 28,
+        "monotonicMs": 50432.10000002384,
+        "documentNonce": "lab-1f89a9e99f3c8b61",
+        "windowId": "lab-a5751d2f2e80b75b",
+        "tabId": "lab-993adfb969d1b514",
+        "sessionId": "lab-e97fedc0d3ff4c52",
+        "event": "composer_mutation",
+        "state": {
+          "valid": true,
+          "documentNonce": "lab-1f89a9e99f3c8b61",
+          "routeUnchanged": true,
+          "editorNode": "n1",
+          "formNode": "n2",
+          "textLength": 52,
+          "textIsExpectedSynthetic": true,
+          "cards": [
+            {
+              "name": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+              "cardNode": "n4",
+              "nodes": [
+                {
+                  "nodeId": "n4",
+                  "tag": "DIV",
+                  "attrs": {
+                    "role": "button",
+                    "aria-label": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+                    "data-state": "closed"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n5",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n6",
+                  "tag": "IMG",
+                  "attrs": {
+                    "alt": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png"
+                  },
+                  "text": "",
+                  "image": {
+                    "complete": false,
+                    "width": 1600,
+                    "height": 1000,
+                    "sourceKind": "blob"
+                  }
+                },
+                {
+                  "nodeId": "n11",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n12",
+                  "tag": "BUTTON",
+                  "attrs": {
+                    "aria-label": "移除“Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png”"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n13",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n14",
+                  "tag": "use",
+                  "attrs": {},
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "name": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+              "cardNode": "n15",
+              "nodes": [
+                {
+                  "nodeId": "n15",
+                  "tag": "DIV",
+                  "attrs": {
+                    "role": "button",
+                    "aria-label": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+                    "data-state": "closed"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n16",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n17",
+                  "tag": "IMG",
+                  "attrs": {
+                    "alt": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png"
+                  },
+                  "text": "",
+                  "image": {
+                    "complete": true,
+                    "width": 800,
+                    "height": 450,
+                    "sourceKind": "data"
+                  }
+                },
+                {
+                  "nodeId": "n22",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n23",
+                  "tag": "BUTTON",
+                  "attrs": {
+                    "aria-label": "移除“Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png”"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n24",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n25",
+                  "tag": "use",
+                  "attrs": {},
+                  "text": ""
+                }
+              ]
+            }
+          ],
+          "active": "IDENTITY_WITH_TYPING_AND_OTHER_FILE",
+          "armed": true,
+          "result": "UNKNOWN",
+          "retryAllowed": false
+        }
+      },
+      {
+        "sequence": 29,
+        "monotonicMs": 50437.80000001192,
+        "documentNonce": "lab-1f89a9e99f3c8b61",
+        "windowId": "lab-a5751d2f2e80b75b",
+        "tabId": "lab-993adfb969d1b514",
+        "sessionId": "lab-e97fedc0d3ff4c52",
+        "event": "image_load",
+        "state": {
+          "name": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+          "snapshot": {
+            "valid": true,
+            "documentNonce": "lab-1f89a9e99f3c8b61",
+            "routeUnchanged": true,
+            "editorNode": "n1",
+            "formNode": "n2",
+            "textLength": 52,
+            "textIsExpectedSynthetic": true,
+            "cards": [
+              {
+                "name": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+                "cardNode": "n4",
+                "nodes": [
+                  {
+                    "nodeId": "n4",
+                    "tag": "DIV",
+                    "attrs": {
+                      "role": "button",
+                      "aria-label": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+                      "data-state": "closed"
+                    },
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n5",
+                    "tag": "SPAN",
+                    "attrs": {},
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n6",
+                    "tag": "IMG",
+                    "attrs": {
+                      "alt": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png"
+                    },
+                    "text": "",
+                    "image": {
+                      "complete": true,
+                      "width": 1600,
+                      "height": 1000,
+                      "sourceKind": "data"
+                    }
+                  },
+                  {
+                    "nodeId": "n11",
+                    "tag": "SPAN",
+                    "attrs": {},
+                    "text": ""
+                  },
+                  {
+                    "nodeId": "n12",
+                    "tag": "BUTTON",
+                    "attrs": {
+                      "aria-label": "移除“Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png”"
+                    },
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n13",
+                    "tag": "svg",
+                    "attrs": {},
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n14",
+                    "tag": "use",
+                    "attrs": {},
+                    "text": ""
+                  }
+                ]
+              },
+              {
+                "name": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+                "cardNode": "n15",
+                "nodes": [
+                  {
+                    "nodeId": "n15",
+                    "tag": "DIV",
+                    "attrs": {
+                      "role": "button",
+                      "aria-label": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+                      "data-state": "closed"
+                    },
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n16",
+                    "tag": "SPAN",
+                    "attrs": {},
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n17",
+                    "tag": "IMG",
+                    "attrs": {
+                      "alt": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png"
+                    },
+                    "text": "",
+                    "image": {
+                      "complete": true,
+                      "width": 800,
+                      "height": 450,
+                      "sourceKind": "data"
+                    }
+                  },
+                  {
+                    "nodeId": "n22",
+                    "tag": "SPAN",
+                    "attrs": {},
+                    "text": ""
+                  },
+                  {
+                    "nodeId": "n23",
+                    "tag": "BUTTON",
+                    "attrs": {
+                      "aria-label": "移除“Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png”"
+                    },
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n24",
+                    "tag": "svg",
+                    "attrs": {},
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n25",
+                    "tag": "use",
+                    "attrs": {},
+                    "text": ""
+                  }
+                ]
+              }
+            ],
+            "active": "IDENTITY_WITH_TYPING_AND_OTHER_FILE",
+            "armed": true,
+            "result": "UNKNOWN",
+            "retryAllowed": false
+          }
+        }
+      },
+      {
+        "sequence": 30,
+        "monotonicMs": 133931.90000003576,
+        "documentNonce": "lab-1f89a9e99f3c8b61",
+        "windowId": "lab-a5751d2f2e80b75b",
+        "tabId": "lab-993adfb969d1b514",
+        "sessionId": "lab-e97fedc0d3ff4c52",
+        "event": "query",
+        "state": {
+          "valid": true,
+          "documentNonce": "lab-1f89a9e99f3c8b61",
+          "routeUnchanged": true,
+          "editorNode": "n1",
+          "formNode": "n2",
+          "textLength": 52,
+          "textIsExpectedSynthetic": true,
+          "cards": [
+            {
+              "name": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+              "cardNode": "n4",
+              "nodes": [
+                {
+                  "nodeId": "n4",
+                  "tag": "DIV",
+                  "attrs": {
+                    "role": "button",
+                    "aria-label": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+                    "data-state": "closed"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n5",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n6",
+                  "tag": "IMG",
+                  "attrs": {
+                    "alt": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png"
+                  },
+                  "text": "",
+                  "image": {
+                    "complete": true,
+                    "width": 1600,
+                    "height": 1000,
+                    "sourceKind": "data"
+                  }
+                },
+                {
+                  "nodeId": "n11",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n12",
+                  "tag": "BUTTON",
+                  "attrs": {
+                    "aria-label": "移除“Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png”"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n13",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n14",
+                  "tag": "use",
+                  "attrs": {},
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "name": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+              "cardNode": "n15",
+              "nodes": [
+                {
+                  "nodeId": "n15",
+                  "tag": "DIV",
+                  "attrs": {
+                    "role": "button",
+                    "aria-label": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+                    "data-state": "closed"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n16",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n17",
+                  "tag": "IMG",
+                  "attrs": {
+                    "alt": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png"
+                  },
+                  "text": "",
+                  "image": {
+                    "complete": true,
+                    "width": 800,
+                    "height": 450,
+                    "sourceKind": "data"
+                  }
+                },
+                {
+                  "nodeId": "n22",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n23",
+                  "tag": "BUTTON",
+                  "attrs": {
+                    "aria-label": "移除“Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png”"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n24",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n25",
+                  "tag": "use",
+                  "attrs": {},
+                  "text": ""
+                }
+              ]
+            }
+          ],
+          "active": "IDENTITY_WITH_TYPING_AND_OTHER_FILE",
+          "armed": true,
+          "result": "UNKNOWN",
+          "retryAllowed": false
+        }
+      },
+      {
+        "sequence": 31,
+        "monotonicMs": 1250071.1000000238,
+        "documentNonce": "lab-1f89a9e99f3c8b61",
+        "windowId": "lab-a5751d2f2e80b75b",
+        "tabId": "lab-993adfb969d1b514",
+        "sessionId": "lab-e97fedc0d3ff4c52",
+        "event": "case_armed",
+        "state": {
+          "label": "MID"
+        }
+      },
+      {
+        "sequence": 32,
+        "monotonicMs": 1274325.6000000238,
+        "documentNonce": "lab-1f89a9e99f3c8b61",
+        "windowId": "lab-a5751d2f2e80b75b",
+        "tabId": "lab-993adfb969d1b514",
+        "sessionId": "lab-e97fedc0d3ff4c52",
+        "event": "dispatch_intent",
+        "state": {
+          "label": "MID",
+          "operationId": "da3a4bb9-20f4-4702-a149-6080e55ac10d"
+        }
+      },
+      {
+        "sequence": 33,
+        "monotonicMs": 1274329.4000000358,
+        "documentNonce": "lab-1f89a9e99f3c8b61",
+        "windowId": "lab-a5751d2f2e80b75b",
+        "tabId": "lab-993adfb969d1b514",
+        "sessionId": "lab-e97fedc0d3ff4c52",
+        "event": "file_entered",
+        "state": {
+          "label": "MID",
+          "name": "Riftlet_00f035f4-e3fe-44ba-9bef-c44782282b45.png",
+          "isTrusted": false,
+          "bytes": 4802523,
+          "inputNode": "n3"
+        }
+      },
+      {
+        "sequence": 34,
+        "monotonicMs": 1274336.800000012,
+        "documentNonce": "lab-1f89a9e99f3c8b61",
+        "windowId": "lab-a5751d2f2e80b75b",
+        "tabId": "lab-993adfb969d1b514",
+        "sessionId": "lab-e97fedc0d3ff4c52",
+        "event": "dispatched",
+        "state": {
+          "label": "MID",
+          "operationId": "da3a4bb9-20f4-4702-a149-6080e55ac10d"
+        }
+      },
+      {
+        "sequence": 35,
+        "monotonicMs": 1274337.699999988,
+        "documentNonce": "lab-1f89a9e99f3c8b61",
+        "windowId": "lab-a5751d2f2e80b75b",
+        "tabId": "lab-993adfb969d1b514",
+        "sessionId": "lab-e97fedc0d3ff4c52",
+        "event": "composer_mutation",
+        "state": {
+          "valid": true,
+          "documentNonce": "lab-1f89a9e99f3c8b61",
+          "routeUnchanged": true,
+          "editorNode": "n1",
+          "formNode": "n2",
+          "textLength": 52,
+          "textIsExpectedSynthetic": true,
+          "cards": [
+            {
+              "name": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+              "cardNode": "n4",
+              "nodes": [
+                {
+                  "nodeId": "n4",
+                  "tag": "DIV",
+                  "attrs": {
+                    "role": "button",
+                    "aria-label": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+                    "data-state": "closed"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n5",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n6",
+                  "tag": "IMG",
+                  "attrs": {
+                    "alt": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png"
+                  },
+                  "text": "",
+                  "image": {
+                    "complete": true,
+                    "width": 1600,
+                    "height": 1000,
+                    "sourceKind": "data"
+                  }
+                },
+                {
+                  "nodeId": "n11",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n12",
+                  "tag": "BUTTON",
+                  "attrs": {
+                    "aria-label": "移除“Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png”"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n13",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n14",
+                  "tag": "use",
+                  "attrs": {},
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "name": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+              "cardNode": "n15",
+              "nodes": [
+                {
+                  "nodeId": "n15",
+                  "tag": "DIV",
+                  "attrs": {
+                    "role": "button",
+                    "aria-label": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+                    "data-state": "closed"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n16",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n17",
+                  "tag": "IMG",
+                  "attrs": {
+                    "alt": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png"
+                  },
+                  "text": "",
+                  "image": {
+                    "complete": true,
+                    "width": 800,
+                    "height": 450,
+                    "sourceKind": "data"
+                  }
+                },
+                {
+                  "nodeId": "n22",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n23",
+                  "tag": "BUTTON",
+                  "attrs": {
+                    "aria-label": "移除“Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png”"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n24",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n25",
+                  "tag": "use",
+                  "attrs": {},
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "name": "Riftlet_00f035f4-e3fe-44ba-9bef-c44782282b45.png",
+              "cardNode": "n26",
+              "nodes": [
+                {
+                  "nodeId": "n26",
+                  "tag": "DIV",
+                  "attrs": {
+                    "role": "button",
+                    "aria-label": "Riftlet_00f035f4-e3fe-44ba-9bef-c44782282b45.png",
+                    "data-state": "closed"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n27",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n28",
+                  "tag": "IMG",
+                  "attrs": {
+                    "alt": "Riftlet_00f035f4-e3fe-44ba-9bef-c44782282b45.png"
+                  },
+                  "text": "",
+                  "image": {
+                    "complete": false,
+                    "width": 0,
+                    "height": 0,
+                    "sourceKind": "blob"
+                  }
+                },
+                {
+                  "nodeId": "n29",
+                  "tag": "SPAN",
+                  "attrs": {
+                    "role": "progressbar",
+                    "aria-label": "正在上传 Riftlet_00f035f4-e3fe-44ba-9bef-c44782282b45.png",
+                    "aria-valuemin": "0",
+                    "aria-valuemax": "100"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n30",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n31",
+                  "tag": "circle",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n32",
+                  "tag": "circle",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n33",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n34",
+                  "tag": "BUTTON",
+                  "attrs": {
+                    "aria-label": "移除“Riftlet_00f035f4-e3fe-44ba-9bef-c44782282b45.png”"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n35",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n36",
+                  "tag": "use",
+                  "attrs": {},
+                  "text": ""
+                }
+              ]
+            }
+          ],
+          "active": "MID",
+          "armed": true,
+          "result": "UNKNOWN",
+          "retryAllowed": false
+        }
+      },
+      {
+        "sequence": 36,
+        "monotonicMs": 1274345.9000000358,
+        "documentNonce": "lab-1f89a9e99f3c8b61",
+        "windowId": "lab-a5751d2f2e80b75b",
+        "tabId": "lab-993adfb969d1b514",
+        "sessionId": "lab-e97fedc0d3ff4c52",
+        "event": "composer_mutation",
+        "state": {
+          "valid": true,
+          "documentNonce": "lab-1f89a9e99f3c8b61",
+          "routeUnchanged": true,
+          "editorNode": "n1",
+          "formNode": "n2",
+          "textLength": 52,
+          "textIsExpectedSynthetic": true,
+          "cards": [
+            {
+              "name": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+              "cardNode": "n4",
+              "nodes": [
+                {
+                  "nodeId": "n4",
+                  "tag": "DIV",
+                  "attrs": {
+                    "role": "button",
+                    "aria-label": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+                    "data-state": "closed"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n5",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n6",
+                  "tag": "IMG",
+                  "attrs": {
+                    "alt": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png"
+                  },
+                  "text": "",
+                  "image": {
+                    "complete": true,
+                    "width": 1600,
+                    "height": 1000,
+                    "sourceKind": "data"
+                  }
+                },
+                {
+                  "nodeId": "n11",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n12",
+                  "tag": "BUTTON",
+                  "attrs": {
+                    "aria-label": "移除“Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png”"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n13",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n14",
+                  "tag": "use",
+                  "attrs": {},
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "name": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+              "cardNode": "n15",
+              "nodes": [
+                {
+                  "nodeId": "n15",
+                  "tag": "DIV",
+                  "attrs": {
+                    "role": "button",
+                    "aria-label": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+                    "data-state": "closed"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n16",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n17",
+                  "tag": "IMG",
+                  "attrs": {
+                    "alt": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png"
+                  },
+                  "text": "",
+                  "image": {
+                    "complete": true,
+                    "width": 800,
+                    "height": 450,
+                    "sourceKind": "data"
+                  }
+                },
+                {
+                  "nodeId": "n22",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n23",
+                  "tag": "BUTTON",
+                  "attrs": {
+                    "aria-label": "移除“Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png”"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n24",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n25",
+                  "tag": "use",
+                  "attrs": {},
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "name": "Riftlet_00f035f4-e3fe-44ba-9bef-c44782282b45.png",
+              "cardNode": "n26",
+              "nodes": [
+                {
+                  "nodeId": "n26",
+                  "tag": "DIV",
+                  "attrs": {
+                    "role": "button",
+                    "aria-label": "Riftlet_00f035f4-e3fe-44ba-9bef-c44782282b45.png",
+                    "data-state": "closed"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n27",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n28",
+                  "tag": "IMG",
+                  "attrs": {
+                    "alt": "Riftlet_00f035f4-e3fe-44ba-9bef-c44782282b45.png"
+                  },
+                  "text": "",
+                  "image": {
+                    "complete": true,
+                    "width": 1600,
+                    "height": 1000,
+                    "sourceKind": "blob"
+                  }
+                },
+                {
+                  "nodeId": "n29",
+                  "tag": "SPAN",
+                  "attrs": {
+                    "role": "progressbar",
+                    "aria-label": "正在上传 Riftlet_00f035f4-e3fe-44ba-9bef-c44782282b45.png",
+                    "aria-valuemin": "0",
+                    "aria-valuemax": "100"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n30",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n31",
+                  "tag": "circle",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n32",
+                  "tag": "circle",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n33",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n34",
+                  "tag": "BUTTON",
+                  "attrs": {
+                    "aria-label": "移除“Riftlet_00f035f4-e3fe-44ba-9bef-c44782282b45.png”"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n35",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n36",
+                  "tag": "use",
+                  "attrs": {},
+                  "text": ""
+                }
+              ]
+            }
+          ],
+          "active": "MID",
+          "armed": true,
+          "result": "UNKNOWN",
+          "retryAllowed": false
+        }
+      },
+      {
+        "sequence": 37,
+        "monotonicMs": 1274347.800000012,
+        "documentNonce": "lab-1f89a9e99f3c8b61",
+        "windowId": "lab-a5751d2f2e80b75b",
+        "tabId": "lab-993adfb969d1b514",
+        "sessionId": "lab-e97fedc0d3ff4c52",
+        "event": "image_load",
+        "state": {
+          "name": "Riftlet_00f035f4-e3fe-44ba-9bef-c44782282b45.png",
+          "snapshot": {
+            "valid": true,
+            "documentNonce": "lab-1f89a9e99f3c8b61",
+            "routeUnchanged": true,
+            "editorNode": "n1",
+            "formNode": "n2",
+            "textLength": 52,
+            "textIsExpectedSynthetic": true,
+            "cards": [
+              {
+                "name": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+                "cardNode": "n4",
+                "nodes": [
+                  {
+                    "nodeId": "n4",
+                    "tag": "DIV",
+                    "attrs": {
+                      "role": "button",
+                      "aria-label": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+                      "data-state": "closed"
+                    },
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n5",
+                    "tag": "SPAN",
+                    "attrs": {},
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n6",
+                    "tag": "IMG",
+                    "attrs": {
+                      "alt": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png"
+                    },
+                    "text": "",
+                    "image": {
+                      "complete": true,
+                      "width": 1600,
+                      "height": 1000,
+                      "sourceKind": "data"
+                    }
+                  },
+                  {
+                    "nodeId": "n11",
+                    "tag": "SPAN",
+                    "attrs": {},
+                    "text": ""
+                  },
+                  {
+                    "nodeId": "n12",
+                    "tag": "BUTTON",
+                    "attrs": {
+                      "aria-label": "移除“Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png”"
+                    },
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n13",
+                    "tag": "svg",
+                    "attrs": {},
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n14",
+                    "tag": "use",
+                    "attrs": {},
+                    "text": ""
+                  }
+                ]
+              },
+              {
+                "name": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+                "cardNode": "n15",
+                "nodes": [
+                  {
+                    "nodeId": "n15",
+                    "tag": "DIV",
+                    "attrs": {
+                      "role": "button",
+                      "aria-label": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+                      "data-state": "closed"
+                    },
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n16",
+                    "tag": "SPAN",
+                    "attrs": {},
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n17",
+                    "tag": "IMG",
+                    "attrs": {
+                      "alt": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png"
+                    },
+                    "text": "",
+                    "image": {
+                      "complete": true,
+                      "width": 800,
+                      "height": 450,
+                      "sourceKind": "data"
+                    }
+                  },
+                  {
+                    "nodeId": "n22",
+                    "tag": "SPAN",
+                    "attrs": {},
+                    "text": ""
+                  },
+                  {
+                    "nodeId": "n23",
+                    "tag": "BUTTON",
+                    "attrs": {
+                      "aria-label": "移除“Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png”"
+                    },
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n24",
+                    "tag": "svg",
+                    "attrs": {},
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n25",
+                    "tag": "use",
+                    "attrs": {},
+                    "text": ""
+                  }
+                ]
+              },
+              {
+                "name": "Riftlet_00f035f4-e3fe-44ba-9bef-c44782282b45.png",
+                "cardNode": "n26",
+                "nodes": [
+                  {
+                    "nodeId": "n26",
+                    "tag": "DIV",
+                    "attrs": {
+                      "role": "button",
+                      "aria-label": "Riftlet_00f035f4-e3fe-44ba-9bef-c44782282b45.png",
+                      "data-state": "closed"
+                    },
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n27",
+                    "tag": "SPAN",
+                    "attrs": {},
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n28",
+                    "tag": "IMG",
+                    "attrs": {
+                      "alt": "Riftlet_00f035f4-e3fe-44ba-9bef-c44782282b45.png"
+                    },
+                    "text": "",
+                    "image": {
+                      "complete": true,
+                      "width": 1600,
+                      "height": 1000,
+                      "sourceKind": "blob"
+                    }
+                  },
+                  {
+                    "nodeId": "n29",
+                    "tag": "SPAN",
+                    "attrs": {
+                      "role": "progressbar",
+                      "aria-label": "正在上传 Riftlet_00f035f4-e3fe-44ba-9bef-c44782282b45.png",
+                      "aria-valuemin": "0",
+                      "aria-valuemax": "100"
+                    },
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n30",
+                    "tag": "svg",
+                    "attrs": {},
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n31",
+                    "tag": "circle",
+                    "attrs": {},
+                    "text": ""
+                  },
+                  {
+                    "nodeId": "n32",
+                    "tag": "circle",
+                    "attrs": {},
+                    "text": ""
+                  },
+                  {
+                    "nodeId": "n33",
+                    "tag": "SPAN",
+                    "attrs": {},
+                    "text": ""
+                  },
+                  {
+                    "nodeId": "n34",
+                    "tag": "BUTTON",
+                    "attrs": {
+                      "aria-label": "移除“Riftlet_00f035f4-e3fe-44ba-9bef-c44782282b45.png”"
+                    },
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n35",
+                    "tag": "svg",
+                    "attrs": {},
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n36",
+                    "tag": "use",
+                    "attrs": {},
+                    "text": ""
+                  }
+                ]
+              }
+            ],
+            "active": "MID",
+            "armed": true,
+            "result": "UNKNOWN",
+            "retryAllowed": false
+          }
+        }
+      },
+      {
+        "sequence": 38,
+        "monotonicMs": 1274369.199999988,
+        "documentNonce": "lab-1f89a9e99f3c8b61",
+        "windowId": "lab-a5751d2f2e80b75b",
+        "tabId": "lab-993adfb969d1b514",
+        "sessionId": "lab-e97fedc0d3ff4c52",
+        "event": "input_hash",
+        "state": {
+          "label": "MID",
+          "sha256": "18b581acd175f5954ef8cb262428f7fd63d41fe93eaa94087b7f8dbc730c930d",
+          "bytes": 4802523
+        }
+      },
+      {
+        "sequence": 39,
+        "monotonicMs": 1275378.6000000238,
+        "documentNonce": "lab-1f89a9e99f3c8b61",
+        "windowId": "lab-a5751d2f2e80b75b",
+        "tabId": "lab-993adfb969d1b514",
+        "sessionId": "lab-e97fedc0d3ff4c52",
+        "event": "composer_mutation",
+        "state": {
+          "valid": true,
+          "documentNonce": "lab-1f89a9e99f3c8b61",
+          "routeUnchanged": true,
+          "editorNode": "n1",
+          "formNode": "n2",
+          "textLength": 52,
+          "textIsExpectedSynthetic": true,
+          "cards": [
+            {
+              "name": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+              "cardNode": "n4",
+              "nodes": [
+                {
+                  "nodeId": "n4",
+                  "tag": "DIV",
+                  "attrs": {
+                    "role": "button",
+                    "aria-label": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+                    "data-state": "closed"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n5",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n6",
+                  "tag": "IMG",
+                  "attrs": {
+                    "alt": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png"
+                  },
+                  "text": "",
+                  "image": {
+                    "complete": true,
+                    "width": 1600,
+                    "height": 1000,
+                    "sourceKind": "data"
+                  }
+                },
+                {
+                  "nodeId": "n11",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n12",
+                  "tag": "BUTTON",
+                  "attrs": {
+                    "aria-label": "移除“Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png”"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n13",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n14",
+                  "tag": "use",
+                  "attrs": {},
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "name": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+              "cardNode": "n15",
+              "nodes": [
+                {
+                  "nodeId": "n15",
+                  "tag": "DIV",
+                  "attrs": {
+                    "role": "button",
+                    "aria-label": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+                    "data-state": "closed"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n16",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n17",
+                  "tag": "IMG",
+                  "attrs": {
+                    "alt": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png"
+                  },
+                  "text": "",
+                  "image": {
+                    "complete": true,
+                    "width": 800,
+                    "height": 450,
+                    "sourceKind": "data"
+                  }
+                },
+                {
+                  "nodeId": "n22",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n23",
+                  "tag": "BUTTON",
+                  "attrs": {
+                    "aria-label": "移除“Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png”"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n24",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n25",
+                  "tag": "use",
+                  "attrs": {},
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "name": "Riftlet_00f035f4-e3fe-44ba-9bef-c44782282b45.png",
+              "cardNode": "n26",
+              "nodes": [
+                {
+                  "nodeId": "n26",
+                  "tag": "DIV",
+                  "attrs": {
+                    "role": "button",
+                    "aria-label": "Riftlet_00f035f4-e3fe-44ba-9bef-c44782282b45.png",
+                    "data-state": "closed"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n27",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n28",
+                  "tag": "IMG",
+                  "attrs": {
+                    "alt": "Riftlet_00f035f4-e3fe-44ba-9bef-c44782282b45.png"
+                  },
+                  "text": "",
+                  "image": {
+                    "complete": true,
+                    "width": 1600,
+                    "height": 1000,
+                    "sourceKind": "blob"
+                  }
+                },
+                {
+                  "nodeId": "n29",
+                  "tag": "SPAN",
+                  "attrs": {
+                    "role": "progressbar",
+                    "aria-label": "正在上传 Riftlet_00f035f4-e3fe-44ba-9bef-c44782282b45.png",
+                    "aria-valuemin": "0",
+                    "aria-valuemax": "100",
+                    "aria-valuenow": "1.4870093050912656"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n30",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n31",
+                  "tag": "circle",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n32",
+                  "tag": "circle",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n33",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n34",
+                  "tag": "BUTTON",
+                  "attrs": {
+                    "aria-label": "移除“Riftlet_00f035f4-e3fe-44ba-9bef-c44782282b45.png”"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n35",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n36",
+                  "tag": "use",
+                  "attrs": {},
+                  "text": ""
+                }
+              ]
+            }
+          ],
+          "active": "MID",
+          "armed": true,
+          "result": "UNKNOWN",
+          "retryAllowed": false
+        }
+      },
+      {
+        "sequence": 40,
+        "monotonicMs": 1275388.699999988,
+        "documentNonce": "lab-1f89a9e99f3c8b61",
+        "windowId": "lab-a5751d2f2e80b75b",
+        "tabId": "lab-993adfb969d1b514",
+        "sessionId": "lab-e97fedc0d3ff4c52",
+        "event": "composer_mutation",
+        "state": {
+          "valid": true,
+          "documentNonce": "lab-1f89a9e99f3c8b61",
+          "routeUnchanged": true,
+          "editorNode": "n1",
+          "formNode": "n2",
+          "textLength": 52,
+          "textIsExpectedSynthetic": true,
+          "cards": [
+            {
+              "name": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+              "cardNode": "n4",
+              "nodes": [
+                {
+                  "nodeId": "n4",
+                  "tag": "DIV",
+                  "attrs": {
+                    "role": "button",
+                    "aria-label": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+                    "data-state": "closed"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n5",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n6",
+                  "tag": "IMG",
+                  "attrs": {
+                    "alt": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png"
+                  },
+                  "text": "",
+                  "image": {
+                    "complete": true,
+                    "width": 1600,
+                    "height": 1000,
+                    "sourceKind": "data"
+                  }
+                },
+                {
+                  "nodeId": "n11",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n12",
+                  "tag": "BUTTON",
+                  "attrs": {
+                    "aria-label": "移除“Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png”"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n13",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n14",
+                  "tag": "use",
+                  "attrs": {},
+                  "text": ""
+                }
+              ]
+            },
+            {
+              "name": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+              "cardNode": "n15",
+              "nodes": [
+                {
+                  "nodeId": "n15",
+                  "tag": "DIV",
+                  "attrs": {
+                    "role": "button",
+                    "aria-label": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png",
+                    "data-state": "closed"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n16",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n17",
+                  "tag": "IMG",
+                  "attrs": {
+                    "alt": "Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png"
+                  },
+                  "text": "",
+                  "image": {
+                    "complete": true,
+                    "width": 800,
+                    "height": 450,
+                    "sourceKind": "data"
+                  }
+                },
+                {
+                  "nodeId": "n22",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n23",
+                  "tag": "BUTTON",
+                  "attrs": {
+                    "aria-label": "移除“Riftlet_356d1f73-8c73-48d7-b9fc-c473ff49f33d.png”"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n24",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n25",
+                  "tag": "use",
+                  "attrs": {},
+                  "text": ""
+                }
+              ]
+            }
+          ],
+          "active": "MID",
+          "armed": true,
+          "result": "UNKNOWN",
+          "retryAllowed": false
+        }
+      }
+    ],
+    "network": {
+      "state": "CASE_ARMED",
+      "sessionId": "lab-e97fedc0d3ff4c52",
+      "mainWorldBridge": true,
+      "active": {
+        "label": "MID",
+        "mode": "MID",
+        "faultInjected": true,
+        "ui100": false,
+        "deadlineReached": true
+      },
+      "events": [
+        {
+          "sequence": 1,
+          "monotonicMs": 1183622.6000000238,
+          "event": "bridge_installed",
+          "operationId": null,
+          "scope": "this document only",
+          "oneAbortPerCase": true,
+          "requestsInitiatedByBridge": 0
+        },
+        {
+          "sequence": 2,
+          "monotonicMs": 1210354,
+          "event": "bridge_ping_received",
+          "operationId": null,
+          "challenge": "riftlet-real-fault-probe-1"
+        },
+        {
+          "sequence": 3,
+          "monotonicMs": 1250071,
+          "event": "fault_case_armed",
+          "operationId": "da3a4bb9-20f4-4702-a149-6080e55ac10d",
+          "label": "MID",
+          "name": "Riftlet_00f035f4-e3fe-44ba-9bef-c44782282b45.png",
+          "mode": "MID"
+        },
+        {
+          "sequence": 4,
+          "monotonicMs": 1274402.699999988,
+          "event": "native_request_started",
+          "operationId": "da3a4bb9-20f4-4702-a149-6080e55ac10d",
+          "requestLocalId": 1,
+          "transport": "fetch",
+          "kind": "create-exact-name"
+        },
+        {
+          "sequence": 5,
+          "monotonicMs": 1274721.300000012,
+          "event": "native_response",
+          "operationId": "da3a4bb9-20f4-4702-a149-6080e55ac10d",
+          "requestLocalId": 1,
+          "status": 200,
+          "kind": "create-exact-name"
+        },
+        {
+          "sequence": 6,
+          "monotonicMs": 1274722.9000000358,
+          "event": "own_creation_linkage_observed",
+          "operationId": "da3a4bb9-20f4-4702-a149-6080e55ac10d",
+          "idCount": 1,
+          "urlCount": 1
+        },
+        {
+          "sequence": 7,
+          "monotonicMs": 1274724.800000012,
+          "event": "native_request_started",
+          "operationId": "da3a4bb9-20f4-4702-a149-6080e55ac10d",
+          "requestLocalId": 2,
+          "transport": "xhr",
+          "kind": "bytes-observed-upload-url"
+        },
+        {
+          "sequence": 8,
+          "monotonicMs": 1274796.800000012,
+          "event": "native_request_started",
+          "operationId": "da3a4bb9-20f4-4702-a149-6080e55ac10d",
+          "requestLocalId": 3,
+          "transport": "fetch",
+          "kind": "followup-observed-file-id"
+        },
+        {
+          "sequence": 9,
+          "monotonicMs": 1274811.4000000358,
+          "event": "native_request_rejected",
+          "operationId": "da3a4bb9-20f4-4702-a149-6080e55ac10d",
+          "requestLocalId": 3,
+          "kind": "followup-observed-file-id",
+          "errorName": "TypeError",
+          "abortedByProbe": false
+        },
+        {
+          "sequence": 10,
+          "monotonicMs": 1275378.6000000238,
+          "event": "native_abort_requested",
+          "operationId": "da3a4bb9-20f4-4702-a149-6080e55ac10d",
+          "requestLocalId": 2,
+          "transport": "xhr",
+          "kind": "bytes-observed-upload-url",
+          "trigger": "own_ui_mid_progress",
+          "ui100": false,
+          "loaded": null,
+          "total": null
+        },
+        {
+          "sequence": 11,
+          "monotonicMs": 1275378.800000012,
+          "event": "native_abort_event",
+          "operationId": "da3a4bb9-20f4-4702-a149-6080e55ac10d",
+          "requestLocalId": 2,
+          "kind": "bytes-observed-upload-url"
+        },
+        {
+          "sequence": 12,
+          "monotonicMs": 1275379,
+          "event": "native_loadend",
+          "operationId": "da3a4bb9-20f4-4702-a149-6080e55ac10d",
+          "requestLocalId": 2,
+          "status": 0,
+          "kind": "bytes-observed-upload-url"
+        },
+        {
+          "sequence": 13,
+          "monotonicMs": 1275389,
+          "event": "native_upload_progress",
+          "operationId": "da3a4bb9-20f4-4702-a149-6080e55ac10d",
+          "requestLocalId": 2,
+          "loaded": 81875,
+          "total": 5506018,
+          "lengthComputable": true
+        },
+        {
+          "sequence": 14,
+          "monotonicMs": 1275765.800000012,
+          "event": "native_request_started",
+          "operationId": "da3a4bb9-20f4-4702-a149-6080e55ac10d",
+          "requestLocalId": 4,
+          "transport": "fetch",
+          "kind": "followup-observed-file-id"
+        },
+        {
+          "sequence": 15,
+          "monotonicMs": 1275771.1000000238,
+          "event": "native_request_rejected",
+          "operationId": "da3a4bb9-20f4-4702-a149-6080e55ac10d",
+          "requestLocalId": 4,
+          "kind": "followup-observed-file-id",
+          "errorName": "TypeError",
+          "abortedByProbe": false
+        },
+        {
+          "sequence": 16,
+          "monotonicMs": 1278126.1000000238,
+          "event": "native_request_started",
+          "operationId": "da3a4bb9-20f4-4702-a149-6080e55ac10d",
+          "requestLocalId": 5,
+          "transport": "fetch",
+          "kind": "followup-observed-file-id"
+        },
+        {
+          "sequence": 17,
+          "monotonicMs": 1278134.9000000358,
+          "event": "native_request_rejected",
+          "operationId": "da3a4bb9-20f4-4702-a149-6080e55ac10d",
+          "requestLocalId": 5,
+          "kind": "followup-observed-file-id",
+          "errorName": "TypeError",
+          "abortedByProbe": false
+        },
+        {
+          "sequence": 18,
+          "monotonicMs": 1283123.9000000358,
+          "event": "native_request_started",
+          "operationId": "da3a4bb9-20f4-4702-a149-6080e55ac10d",
+          "requestLocalId": 6,
+          "transport": "fetch",
+          "kind": "followup-observed-file-id"
+        },
+        {
+          "sequence": 19,
+          "monotonicMs": 1283128.300000012,
+          "event": "native_request_rejected",
+          "operationId": "da3a4bb9-20f4-4702-a149-6080e55ac10d",
+          "requestLocalId": 6,
+          "kind": "followup-observed-file-id",
+          "errorName": "TypeError",
+          "abortedByProbe": false
+        },
+        {
+          "sequence": 20,
+          "monotonicMs": 1283132.699999988,
+          "event": "native_request_started",
+          "operationId": "da3a4bb9-20f4-4702-a149-6080e55ac10d",
+          "requestLocalId": 7,
+          "transport": "fetch",
+          "kind": "followup-observed-file-id"
+        },
+        {
+          "sequence": 21,
+          "monotonicMs": 1283133.6000000238,
+          "event": "native_request_started",
+          "operationId": "da3a4bb9-20f4-4702-a149-6080e55ac10d",
+          "requestLocalId": 8,
+          "transport": "fetch",
+          "kind": "followup-observed-file-id"
+        },
+        {
+          "sequence": 22,
+          "monotonicMs": 1283134.300000012,
+          "event": "native_request_rejected",
+          "operationId": "da3a4bb9-20f4-4702-a149-6080e55ac10d",
+          "requestLocalId": 7,
+          "kind": "followup-observed-file-id",
+          "errorName": "TypeError",
+          "abortedByProbe": false
+        },
+        {
+          "sequence": 23,
+          "monotonicMs": 1283134.6000000238,
+          "event": "native_request_rejected",
+          "operationId": "da3a4bb9-20f4-4702-a149-6080e55ac10d",
+          "requestLocalId": 8,
+          "kind": "followup-observed-file-id",
+          "errorName": "TypeError",
+          "abortedByProbe": false
+        },
+        {
+          "sequence": 24,
+          "monotonicMs": 1284125.5,
+          "event": "native_request_started",
+          "operationId": "da3a4bb9-20f4-4702-a149-6080e55ac10d",
+          "requestLocalId": 9,
+          "transport": "fetch",
+          "kind": "followup-observed-file-id"
+        },
+        {
+          "sequence": 25,
+          "monotonicMs": 1284126.699999988,
+          "event": "native_request_started",
+          "operationId": "da3a4bb9-20f4-4702-a149-6080e55ac10d",
+          "requestLocalId": 10,
+          "transport": "fetch",
+          "kind": "followup-observed-file-id"
+        },
+        {
+          "sequence": 26,
+          "monotonicMs": 1284130.4000000358,
+          "event": "native_request_rejected",
+          "operationId": "da3a4bb9-20f4-4702-a149-6080e55ac10d",
+          "requestLocalId": 9,
+          "kind": "followup-observed-file-id",
+          "errorName": "TypeError",
+          "abortedByProbe": false
+        },
+        {
+          "sequence": 27,
+          "monotonicMs": 1284131,
+          "event": "native_request_rejected",
+          "operationId": "da3a4bb9-20f4-4702-a149-6080e55ac10d",
+          "requestLocalId": 10,
+          "kind": "followup-observed-file-id",
+          "errorName": "TypeError",
+          "abortedByProbe": false
+        },
+        {
+          "sequence": 28,
+          "monotonicMs": 1287124.1000000238,
+          "event": "native_request_started",
+          "operationId": "da3a4bb9-20f4-4702-a149-6080e55ac10d",
+          "requestLocalId": 11,
+          "transport": "fetch",
+          "kind": "followup-observed-file-id"
+        },
+        {
+          "sequence": 29,
+          "monotonicMs": 1287125.800000012,
+          "event": "native_request_started",
+          "operationId": "da3a4bb9-20f4-4702-a149-6080e55ac10d",
+          "requestLocalId": 12,
+          "transport": "fetch",
+          "kind": "followup-observed-file-id"
+        },
+        {
+          "sequence": 30,
+          "monotonicMs": 1287128.6000000238,
+          "event": "native_request_rejected",
+          "operationId": "da3a4bb9-20f4-4702-a149-6080e55ac10d",
+          "requestLocalId": 11,
+          "kind": "followup-observed-file-id",
+          "errorName": "TypeError",
+          "abortedByProbe": false
+        },
+        {
+          "sequence": 31,
+          "monotonicMs": 1287130.300000012,
+          "event": "native_request_rejected",
+          "operationId": "da3a4bb9-20f4-4702-a149-6080e55ac10d",
+          "requestLocalId": 12,
+          "kind": "followup-observed-file-id",
+          "errorName": "TypeError",
+          "abortedByProbe": false
+        },
+        {
+          "sequence": 32,
+          "monotonicMs": 1292123.800000012,
+          "event": "native_request_started",
+          "operationId": "da3a4bb9-20f4-4702-a149-6080e55ac10d",
+          "requestLocalId": 13,
+          "transport": "fetch",
+          "kind": "followup-observed-file-id"
+        },
+        {
+          "sequence": 33,
+          "monotonicMs": 1292125.4000000358,
+          "event": "native_request_started",
+          "operationId": "da3a4bb9-20f4-4702-a149-6080e55ac10d",
+          "requestLocalId": 14,
+          "transport": "fetch",
+          "kind": "followup-observed-file-id"
+        },
+        {
+          "sequence": 34,
+          "monotonicMs": 1292138.199999988,
+          "event": "native_request_rejected",
+          "operationId": "da3a4bb9-20f4-4702-a149-6080e55ac10d",
+          "requestLocalId": 13,
+          "kind": "followup-observed-file-id",
+          "errorName": "TypeError",
+          "abortedByProbe": false
+        },
+        {
+          "sequence": 35,
+          "monotonicMs": 1292139.6000000238,
+          "event": "native_request_rejected",
+          "operationId": "da3a4bb9-20f4-4702-a149-6080e55ac10d",
+          "requestLocalId": 14,
+          "kind": "followup-observed-file-id",
+          "errorName": "TypeError",
+          "abortedByProbe": false
+        },
+        {
+          "sequence": 36,
+          "monotonicMs": 1306129,
+          "event": "native_request_started",
+          "operationId": "da3a4bb9-20f4-4702-a149-6080e55ac10d",
+          "requestLocalId": 15,
+          "transport": "fetch",
+          "kind": "followup-observed-file-id"
+        },
+        {
+          "sequence": 37,
+          "monotonicMs": 1306133.300000012,
+          "event": "native_request_rejected",
+          "operationId": "da3a4bb9-20f4-4702-a149-6080e55ac10d",
+          "requestLocalId": 15,
+          "kind": "followup-observed-file-id",
+          "errorName": "TypeError",
+          "abortedByProbe": false
+        },
+        {
+          "sequence": 38,
+          "monotonicMs": 1307125.6000000238,
+          "event": "native_request_started",
+          "operationId": "da3a4bb9-20f4-4702-a149-6080e55ac10d",
+          "requestLocalId": 16,
+          "transport": "fetch",
+          "kind": "followup-observed-file-id"
+        },
+        {
+          "sequence": 39,
+          "monotonicMs": 1307131,
+          "event": "native_request_rejected",
+          "operationId": "da3a4bb9-20f4-4702-a149-6080e55ac10d",
+          "requestLocalId": 16,
+          "kind": "followup-observed-file-id",
+          "errorName": "TypeError",
+          "abortedByProbe": false
+        },
+        {
+          "sequence": 40,
+          "monotonicMs": 1310124.9000000358,
+          "event": "native_request_started",
+          "operationId": "da3a4bb9-20f4-4702-a149-6080e55ac10d",
+          "requestLocalId": 17,
+          "transport": "fetch",
+          "kind": "followup-observed-file-id"
+        },
+        {
+          "sequence": 41,
+          "monotonicMs": 1310126.9000000358,
+          "event": "case_deadline",
+          "operationId": "da3a4bb9-20f4-4702-a149-6080e55ac10d",
+          "faultInjected": true,
+          "pendingRequests": 1
+        },
+        {
+          "sequence": 42,
+          "monotonicMs": 1310129.800000012,
+          "event": "native_request_rejected",
+          "operationId": "da3a4bb9-20f4-4702-a149-6080e55ac10d",
+          "requestLocalId": 17,
+          "kind": "followup-observed-file-id",
+          "errorName": "TypeError",
+          "abortedByProbe": false
+        }
+      ],
+      "requestsInitiatedByBridge": 0
+    },
+    "eventLimitReached": false,
+    "uiErrors": []
+  }
+}

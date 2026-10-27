@@ -5,6 +5,27 @@ import Darwin
 import RiftletCore
 import RiftletCapture
 import RiftletUI
+import RiftletAdapters
+
+private enum ApplicationMode: Equatable {
+    case capture, simulation, webAcceptance
+
+    static func resolve(_ arguments: [String]) throws -> ApplicationMode {
+        guard !(arguments.contains("--simulate") && arguments.contains("--web-acceptance")) else {
+            throw RiftletError.modeMismatch
+        }
+        if arguments.contains("--web-acceptance") { return .webAcceptance }
+        return arguments.contains("--simulate") ? .simulation : .capture
+    }
+
+    var directoryName: String {
+        switch self {
+        case .capture: return "Riftlet"
+        case .simulation: return "Riftlet-Simulation"
+        case .webAcceptance: return "Riftlet-Web-Acceptance"
+        }
+    }
+}
 
 @main
 enum RiftletMain {
@@ -14,12 +35,22 @@ enum RiftletMain {
             catch { fputs("RIFTLET_SELF_CHECK_FAIL: \(error)\n", stderr); exit(1) }
             return
         }
-        await MainActor.run { runApplication() }
+        if CommandLine.arguments.contains("--web-acceptance-self-check") {
+            do {
+                try await WebAcceptanceSelfCheck.run()
+                print("RIFTLET_WEB_ACCEPTANCE_SELF_CHECK_PASS: bundled page source, synthetic-only policy, isolated modes; CHROME_NOT_RUN; GUI_NOT_RUN")
+            } catch { fputs("RIFTLET_WEB_ACCEPTANCE_SELF_CHECK_FAIL: \(error)\n", stderr); exit(1) }
+            return
+        }
+        do {
+            let mode = try ApplicationMode.resolve(CommandLine.arguments)
+            await MainActor.run { runApplication(mode: mode) }
+        } catch { fputs("Riftlet mode conflict; choose one explicit development mode.\n", stderr); exit(2) }
     }
 
-    @MainActor private static func runApplication() {
+    @MainActor private static func runApplication(mode: ApplicationMode) {
         let application = NSApplication.shared
-        let delegate = ApplicationController()
+        let delegate = ApplicationController(mode: mode)
         application.delegate = delegate
         application.setActivationPolicy(.accessory)
         withExtendedLifetime(delegate) { application.run() }
@@ -40,7 +71,10 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
     private var root: URL!
     private var visibleIDs = Set<UUID>()
     private var instanceDescriptor: Int32 = -1
-    private let simulation = CommandLine.arguments.contains("--simulate")
+    private let mode: ApplicationMode
+    private var simulation: Bool { mode == .simulation }
+
+    init(mode: ApplicationMode) { self.mode = mode; super.init() }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         installMenu()
@@ -55,7 +89,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
 
     private func start() async throws {
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-        root = base.appendingPathComponent(simulation ? "Riftlet-Simulation" : "Riftlet", isDirectory: true)
+        root = base.appendingPathComponent(mode.directoryName, isDirectory: true)
         try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true, attributes: [.posixPermissions: 0o700])
         instanceDescriptor = Darwin.open(root.appendingPathComponent("instance.lock").path, O_CREAT | O_RDWR | O_NOFOLLOW, 0o600)
         guard instanceDescriptor >= 0, flock(instanceDescriptor, LOCK_EX | LOCK_NB) == 0 else {
@@ -63,6 +97,16 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
         }
         let store = try QueueStore(databaseURL: root.appendingPathComponent("queue.sqlite"), mode: simulation ? .simulation : .production)
         self.store = store
+        if mode == .webAcceptance {
+            // No system collection runs in this mode. Refuse a contaminated test
+            // store before constructing the real transport or recovering a request.
+            guard try await store.assets(includeUsed: true).allSatisfy({ $0.image.origin == .synthetic }) else {
+                throw RiftletError.modeMismatch
+            }
+        }
+        // Journal recovery may add records. Validate the isolated synthetic store
+        // after recovery as well, before any real adapter is constructed.
+        if mode != .capture { try await seedSyntheticImages(store: store) }
         let configurationURL = root.appendingPathComponent("rift-configuration.json")
         let configuration: RiftConfiguration
         if FileManager.default.fileExists(atPath: configurationURL.path) {
@@ -77,18 +121,36 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
             guard let self else { return }
             Task {
                 do { try await self.transfer?.select(id) }
-                catch { self.showIssue("Screenshot retained. ChatGPT attachment adapter is not enabled in this build.") }
+                catch {
+                    self.showIssue(self.mode == .webAcceptance
+                        ? "Test image retained. Original Chrome draft or Automation access unavailable."
+                        : "Screenshot retained. ChatGPT attachment adapter is not enabled in this build.")
+                }
                 await self.refresh()
             }
         }
-        let adapter: any AttachmentAdapter = simulation ? SimulationAdapter() : UnavailableAdapter()
+        let adapter: any AttachmentAdapter
+        let policy: ReceiptPolicy
+        switch mode {
+        case .capture:
+            adapter = UnavailableAdapter(); policy = .init()
+        case .simulation:
+            adapter = SimulationAdapter(); policy = .init()
+        case .webAcceptance:
+            adapter = WebAttachmentAdapter(mediaDirectory: root.appendingPathComponent("media"),
+                executor: ChromeAppleEventsExecutor(), program: try ChatGPTWebPageProgram.load(),
+                mode: .syntheticDevelopment, profile: ChatGPTWebPageProgram.acceptanceProfile)
+            policy = ReceiptPolicy(syntheticAcceptanceProfiles: [ChatGPTWebPageProgram.acceptanceProfile.profileID: .webChat])
+        }
         let transfer = TransferCoordinator(store: store, adapter: adapter, mediaDirectory: root.appendingPathComponent("media"),
-                                           onChange: { [weak self] in await self?.refresh() })
+                                           policy: policy, onChange: { [weak self] in await self?.refresh() })
         self.transfer = transfer
+        // Recovery only observes original unresolved operations. In Web acceptance
+        // this may contact Chrome after restart; it never dispatches a new input.
         try await transfer.recover()
-        if simulation {
-            try await seedSimulation(store: store)
-            statusLine?.title = "SIMULATION · synthetic images only · no ChatGPT input"
+        if mode != .capture {
+            statusLine?.title = simulation ? "SIMULATION · synthetic images only · no ChatGPT input"
+                : "WEB ACCEPTANCE · generated images · real Chrome input"
         } else {
             let service = CaptureService(store: store, privateRoot: root, sourceDirectory: CaptureSource.defaultDirectory(),
                                          onChange: { [weak self] in await self?.refresh() },
@@ -103,14 +165,20 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
         await refresh()
     }
 
-    private func seedSimulation(store: QueueStore) async throws {
+    private func seedSyntheticImages(store: QueueStore, addNewBatch: Bool = false) async throws {
+        guard mode != .capture else { throw RiftletError.modeMismatch }
         let importer = PrivateAssetImporter(privateRoot: root, store: store)
         _ = try await importer.recover()
-        guard try await store.assets(includeUsed: true).isEmpty else { return }
+        let recovered = try await store.assets(includeUsed: true)
+        guard recovered.allSatisfy({ $0.image.origin == .synthetic }) else { throw RiftletError.modeMismatch }
+        if !addNewBatch {
+            guard recovered.isEmpty else { return }
+        }
         let input = root.appendingPathComponent("synthetic-input", isDirectory: true)
         try FileManager.default.createDirectory(at: input, withIntermediateDirectories: true, attributes: [.posixPermissions: 0o700])
+        let batchID = UUID().uuidString
         for index in 0..<3 {
-            let file = input.appendingPathComponent("demo-\(index).png")
+            let file = input.appendingPathComponent("demo-\(batchID)-\(index).png")
             try SyntheticImage.write(to: file, index: index)
             _ = try await importer.importFile(at: file, origin: .synthetic)
         }
@@ -128,16 +196,28 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
             }
             visibleIDs = activeIDs
             rift?.render(snapshot)
-            statusItem?.button?.toolTip = simulation ? "Riftlet SIMULATION — synthetic only" : "Riftlet · \(active.count) retained screenshots"
+            switch mode {
+            case .capture: statusItem?.button?.toolTip = "Riftlet · \(active.count) retained screenshots"
+            case .simulation: statusItem?.button?.toolTip = "Riftlet SIMULATION — synthetic only"
+            case .webAcceptance:
+                let unknownCount = active.filter { $0.status == .unknown }.count
+                statusItem?.button?.toolTip = "Riftlet WEB ACCEPTANCE · \(active.count) retained test images · \(unknownCount) UNKNOWN; click UNKNOWN only observes its original operation"
+            }
         } catch { showIssue("Queue read failed; durable data is preserved.") }
     }
 
     private func installMenu() {
         let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-        item.button?.title = simulation ? "Riftlet SIM" : "Riftlet"
+        item.button?.title = simulation ? "Riftlet SIM" : (mode == .webAcceptance ? "Riftlet WEB TEST" : "Riftlet")
         let menu = NSMenu()
-        let heading = NSMenuItem(title: simulation ? "SIMULATION — no real uploads" : "Engineering foundation — capture only", action: nil, keyEquivalent: "")
+        let heading = NSMenuItem(title: simulation ? "SIMULATION — no real uploads"
+            : (mode == .webAcceptance ? "WEB ACCEPTANCE — generated images, real uploads" : "Engineering foundation — capture only"), action: nil, keyEquivalent: "")
         menu.addItem(heading); statusLine = heading
+        if mode == .webAcceptance {
+            menu.addItem(NSMenuItem(title: "Chrome · ChatGPT home · Chinese UI · PNG test images", action: nil, keyEquivalent: ""))
+            menu.addItem(NSMenuItem(title: "No message sending · UNKNOWN never retransmits", action: nil, keyEquivalent: ""))
+            add(menu, "Add 3 generated test images", #selector(addWebTestImages))
+        }
         menu.addItem(.separator())
         add(menu, "Show latest screenshot", #selector(showLatest))
         add(menu, "Show oldest screenshot", #selector(showOldest))
@@ -158,6 +238,13 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
     @objc private func showLatest() { rift?.showLatest() }
     @objc private func showOldest() { rift?.showOldest() }
     @objc private func quit() { NSApplication.shared.terminate(nil) }
+    @objc private func addWebTestImages() {
+        guard mode == .webAcceptance, let store else { return }
+        Task {
+            do { try await seedSyntheticImages(store: store, addNewBatch: true); await refresh() }
+            catch { showIssue("Could not create test images; existing queue preserved.") }
+        }
+    }
     @objc private func openGeometry() {
         guard let root else { return }; NSWorkspace.shared.open(root.appendingPathComponent("rift-configuration.json"))
     }
@@ -194,11 +281,51 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
         }
     }
     private func reloadSource() async {
-        guard !simulation, let capture, let sourceBinding else { return }
+        guard mode == .capture, let capture, let sourceBinding else { return }
         do {
             await sourceBinding.refresh()
             try await capture.rescan()
         } catch { showIssue("Screenshot folder needs access; existing copies retained.") }
+    }
+}
+
+/// Checks the packaged development boundary without touching Chrome, the real
+/// capture folder, the pasteboard, or the user's persistent application data.
+private enum WebAcceptanceSelfCheck {
+    static func run() async throws {
+        let program = try ChatGPTWebPageProgram.load()
+        guard !program.sourceID.isEmpty, !program.functionSource.isEmpty,
+              program.functionSource.utf8.count <= 128 * 1024,
+              try ApplicationMode.resolve([]) == .capture,
+              try ApplicationMode.resolve(["--simulate"]) == .simulation,
+              try ApplicationMode.resolve(["--web-acceptance"]) == .webAcceptance,
+              Set([ApplicationMode.capture.directoryName, ApplicationMode.simulation.directoryName,
+                   ApplicationMode.webAcceptance.directoryName]).count == 3 else {
+            throw RiftletError.modeMismatch
+        }
+        do {
+            _ = try ApplicationMode.resolve(["--web-acceptance", "--simulate"])
+            throw RiftletError.invalidTransition
+        } catch RiftletError.modeMismatch {}
+        let profile = ChatGPTWebPageProgram.acceptanceProfile
+        let policy = ReceiptPolicy(syntheticAcceptanceProfiles: [profile.profileID: .webChat])
+        guard policy.admittedProfiles.isEmpty, policy.retrySafeProfiles.isEmpty,
+              ReceiptPolicy().syntheticAcceptanceProfiles.isEmpty else { throw RiftletError.invalidTransition }
+        let target = TargetLease(adapterID: "chatgpt-web", surface: .webChat,
+            applicationID: "com.google.Chrome", sessionID: "self-check", windowID: "1", tabID: "1",
+            documentID: "synthetic-self-check", composerID: "synthetic", draftGeneration: "1")
+        for origin in [AssetOrigin.synthetic, .systemScreenshot] {
+            let image = ImportedAsset(sourceKey: "policy-\(origin.rawValue)", fileName: "self-check.png",
+                sha256: String(repeating: "a", count: 64), byteCount: 1, pixelWidth: 1, pixelHeight: 1,
+                mediaType: "image/png", origin: origin)
+            let receipt = TransferReceipt(operationID: UUID(), assetID: image.id, attempt: 1,
+                assetSHA256: image.sha256, target: target, outcome: .verifiedReady, profileID: profile.profileID,
+                attachmentID: "synthetic-self-check-card", positiveReady: true, belongsToOriginalDraft: true)
+            guard policy.allowsConsumption(receipt: receipt, asset: image, mode: .production) == (origin == .synthetic),
+                  !ReceiptPolicy().allowsConsumption(receipt: receipt, asset: image, mode: .production) else {
+                throw RiftletError.modeMismatch
+            }
+        }
     }
 }
 

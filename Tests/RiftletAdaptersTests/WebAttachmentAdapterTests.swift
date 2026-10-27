@@ -35,7 +35,7 @@ final class WebAttachmentAdapterTests: XCTestCase {
     private func adapter(_ executor: FakeWebBridge, mode: WebAdapterMode = .syntheticDevelopment,
                          withProgram: Bool = true) -> WebAttachmentAdapter {
         WebAttachmentAdapter(mediaDirectory: directory, executor: executor,
-            program: withProgram ? program : nil, mode: mode)
+            program: withProgram ? program : nil, mode: mode, polling: .disabled)
     }
 
     func testDefaultDisabledAndMissingProgramDoNotExecuteAnyBrowserCommand() async throws {
@@ -157,11 +157,42 @@ final class WebAttachmentAdapterTests: XCTestCase {
         let actions = await executor.recordedActions()
         XCTAssertEqual(actions, [.validate])
     }
+
+    func testBundledProgramAndBoundedObservationReachCompletionWithoutAnotherInput() async throws {
+        let bundled = try ChatGPTWebPageProgram.load()
+        XCTAssertEqual(bundled.sourceID, ChatGPTWebPageProgram.sourceID)
+        XCTAssertLessThan(bundled.functionSource.utf8.count, 128 * 1024)
+        let (_, request, _) = try await fixture()
+        let executor = FakeWebBridge(behavior: .pendingThenAttached)
+        let client = WebAttachmentAdapter(mediaDirectory: directory, executor: executor,
+            program: bundled, mode: .syntheticDevelopment, profile: ChatGPTWebPageProgram.acceptanceProfile,
+            polling: WebObservationPolling(timeout: 1, interval: 0.01))
+        let receipt = try await client.append(request)
+        XCTAssertEqual(receipt.outcome, .verifiedReady)
+        XCTAssertTrue(receipt.positiveReady)
+        let actions = await executor.recordedActions()
+        XCTAssertEqual(actions, [.begin, .chunk, .chunk, .commit, .observe])
+    }
+
+    func testObservationDeadlinePreservesUnknownAndNeverResubmits() async throws {
+        let (store, request, _) = try await fixture()
+        let executor = FakeWebBridge(behavior: .alwaysPending)
+        let client = WebAttachmentAdapter(mediaDirectory: directory, executor: executor,
+            program: program, mode: .syntheticDevelopment,
+            polling: WebObservationPolling(timeout: 0.05, interval: 0.01))
+        let receipt = try await client.append(request)
+        XCTAssertEqual(receipt.outcome, .unknown)
+        let record = try await store.apply(receipt)
+        XCTAssertNotEqual(record.status, .used)
+        let actions = await executor.recordedActions()
+        XCTAssertEqual(actions.filter { $0 == .commit }.count, 1)
+        XCTAssertTrue(actions.dropFirst(4).allSatisfy { $0 == .observe })
+    }
 }
 
 private actor FakeWebBridge: WebBridgeExecutor {
     enum Behavior: Sendable {
-        case normal, wrongChunkIdentity, throwOnCommit, changedValidationTarget
+        case normal, wrongChunkIdentity, throwOnCommit, changedValidationTarget, pendingThenAttached, alwaysPending
         case replaceBytesAfterBegin(URL, Int)
     }
     static let target = TargetLease(adapterID: "chatgpt-web", surface: .webChat,
@@ -199,8 +230,11 @@ private actor FakeWebBridge: WebBridgeExecutor {
             return try acknowledgement(command, next: try XCTUnwrap(command.chunkIndex) + 1)
         case .commit:
             if case .throwOnCommit = behavior { throw WebAdapterError.nativeExecutionFailed }
+            if case .pendingThenAttached = behavior { return try observation(command, state: .inputTriggered) }
+            if case .alwaysPending = behavior { return try observation(command, state: .unknown) }
             return try observation(command, state: .attached)
         case .observe:
+            if case .pendingThenAttached = behavior { return try observation(command, state: .attached) }
             return try observation(command, state: .unknown)
         case .discard:
             return Data("{}".utf8)

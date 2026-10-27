@@ -57,15 +57,18 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
     private let program: WebPageProgram?
     private let mode: WebAdapterMode
     private let normalizer: ObservationNormalizer
+    private let polling: WebObservationPolling
     private var inputInFlight = false
 
     public init(mediaDirectory: URL, executor: any WebBridgeExecutor,
                 program: WebPageProgram? = nil, mode: WebAdapterMode = .disabled,
                 profile: ObservationProfile = .init(adapterID: "chatgpt-web", surface: .webChat,
-                                                     profileID: "web-unadmitted-v1")) {
+                                                     profileID: "web-unadmitted-v1"),
+                polling: WebObservationPolling = .acceptance) {
         id = profile.adapterID; self.mediaDirectory = mediaDirectory.standardizedFileURL
         self.executor = executor; self.program = program; self.mode = mode
         normalizer = ObservationNormalizer(profile: profile)
+        self.polling = polling
     }
 
     public func captureTarget() async throws -> TargetLease {
@@ -124,7 +127,7 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
             committing = true
             let response = try await perform(.init(action: .commit, target: identity.target,
                                                    identity: identity, chunkIndex: index))
-            return try normalizer.receipt(from: ObservationDecoder.decode(response), for: request)
+            return try await observeCompletion(initial: response, identity: identity, request: request)
         } catch {
             if began && !committing {
                 _ = try? await perform(.init(action: .discard, target: identity.target, identity: identity))
@@ -145,7 +148,28 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
         let identity = ObservationIdentity(operationID: request.operation.id, assetID: request.asset.id,
             attempt: request.operation.attempt, assetSHA256: request.asset.sha256, target: request.operation.target)
         let data = try await perform(.init(action: .observe, target: identity.target, identity: identity))
-        return try normalizer.receipt(from: ObservationDecoder.decode(data), for: request)
+        return try await observeCompletion(initial: data, identity: identity, request: request)
+    }
+
+    private func observeCompletion(initial: Data, identity: ObservationIdentity,
+                                   request: TransferRequest) async throws -> TransferReceipt {
+        let deadline = ProcessInfo.processInfo.systemUptime + polling.timeout
+        var response = initial
+        while true {
+            let envelope = try ObservationDecoder.decode(response)
+            let receipt = try normalizer.receipt(from: envelope, for: request)
+            switch envelope.observation.state {
+            case .attached, .ready, .failed, .invalidated: return receipt
+            case .inputTriggered, .unknown: break
+            }
+            let remaining = deadline - ProcessInfo.processInfo.systemUptime
+            guard remaining > 0 else { return receipt }
+            try await Task.sleep(nanoseconds: UInt64(min(polling.interval, remaining) * 1_000_000_000))
+            guard ProcessInfo.processInfo.systemUptime < deadline else { return receipt }
+            // Observation after an uncertain result can never cause a second
+            // input. There is deliberately no commit/begin fallback here.
+            response = try await perform(.init(action: .observe, target: identity.target, identity: identity))
+        }
     }
 
     private func requireEnabled() throws {

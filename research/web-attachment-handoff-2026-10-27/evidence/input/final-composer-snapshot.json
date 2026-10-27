@@ -1,0 +1,210 @@
+{
+  "valid": true,
+  "documentNonce": "lab-fdcfe32f1db56b17",
+  "composerNode": "n6",
+  "formNode": "n7",
+  "textUnchanged": true,
+  "signals": [
+    {
+      "nodeId": "n9",
+      "tag": "DIV",
+      "role": "button",
+      "attrs": {
+        "aria-label": {
+          "names": [
+            "Riftlet_0f8175c3-2a90-4929-b204-d37efc3e8a65.png"
+          ]
+        },
+        "data-state": "closed"
+      },
+      "names": [],
+      "css": []
+    },
+    {
+      "nodeId": "n10",
+      "tag": "IMG",
+      "role": null,
+      "attrs": {
+        "alt": {
+          "names": [
+            "Riftlet_0f8175c3-2a90-4929-b204-d37efc3e8a65.png"
+          ]
+        }
+      },
+      "names": [],
+      "css": [],
+      "image": {
+        "complete": true,
+        "naturalWidth": 800,
+        "naturalHeight": 450,
+        "sourceKind": "data"
+      }
+    },
+    {
+      "nodeId": "n12",
+      "tag": "BUTTON",
+      "role": null,
+      "attrs": {
+        "aria-label": {
+          "names": [
+            "Riftlet_0f8175c3-2a90-4929-b204-d37efc3e8a65.png"
+          ]
+        }
+      },
+      "names": [],
+      "css": []
+    },
+    {
+      "nodeId": "n14",
+      "tag": "DIV",
+      "role": "button",
+      "attrs": {
+        "aria-label": {
+          "names": [
+            "Riftlet_a581b949-f791-487f-ac97-933eaf8b3ad9.png"
+          ]
+        },
+        "data-state": "closed"
+      },
+      "names": [],
+      "css": []
+    },
+    {
+      "nodeId": "n15",
+      "tag": "IMG",
+      "role": null,
+      "attrs": {
+        "alt": {
+          "names": [
+            "Riftlet_a581b949-f791-487f-ac97-933eaf8b3ad9.png"
+          ]
+        }
+      },
+      "names": [],
+      "css": [],
+      "image": {
+        "complete": true,
+        "naturalWidth": 800,
+        "naturalHeight": 450,
+        "sourceKind": "data"
+      }
+    },
+    {
+      "nodeId": "n17",
+      "tag": "BUTTON",
+      "role": null,
+      "attrs": {
+        "aria-label": {
+          "names": [
+            "Riftlet_a581b949-f791-487f-ac97-933eaf8b3ad9.png"
+          ]
+        }
+      },
+      "names": [],
+      "css": []
+    },
+    {
+      "nodeId": "n18",
+      "tag": "DIV",
+      "role": "button",
+      "attrs": {
+        "aria-label": {
+          "names": [
+            "Riftlet_0a5e6a3b-524e-49ab-8f12-23f889edc899.png"
+          ]
+        },
+        "data-state": "closed"
+      },
+      "names": [],
+      "css": []
+    },
+    {
+      "nodeId": "n19",
+      "tag": "IMG",
+      "role": null,
+      "attrs": {
+        "alt": {
+          "names": [
+            "Riftlet_0a5e6a3b-524e-49ab-8f12-23f889edc899.png"
+          ]
+        }
+      },
+      "names": [],
+      "css": [],
+      "image": {
+        "complete": true,
+        "naturalWidth": 800,
+        "naturalHeight": 450,
+        "sourceKind": "data"
+      }
+    },
+    {
+      "nodeId": "n21",
+      "tag": "BUTTON",
+      "role": null,
+      "attrs": {
+        "aria-label": {
+          "names": [
+            "Riftlet_0a5e6a3b-524e-49ab-8f12-23f889edc899.png"
+          ]
+        }
+      },
+      "names": [],
+      "css": []
+    },
+    {
+      "nodeId": "n1",
+      "tag": "SPAN",
+      "role": null,
+      "attrs": {
+        "data-state": "closed"
+      },
+      "names": [],
+      "css": []
+    },
+    {
+      "nodeId": "n2",
+      "tag": "BUTTON",
+      "role": null,
+      "attrs": {
+        "data-state": "closed"
+      },
+      "names": [],
+      "css": []
+    },
+    {
+      "nodeId": "n13",
+      "tag": "BUTTON",
+      "role": null,
+      "attrs": {
+        "data-state": "closed"
+      },
+      "names": [],
+      "css": []
+    },
+    {
+      "nodeId": "n3",
+      "tag": "BUTTON",
+      "role": null,
+      "attrs": {
+        "data-state": "closed"
+      },
+      "names": [],
+      "css": []
+    },
+    {
+      "nodeId": "n4",
+      "tag": "BUTTON",
+      "role": null,
+      "attrs": {
+        "data-state": "closed",
+        "aria-busy": "false"
+      },
+      "names": [],
+      "css": []
+    }
+  ],
+  "positiveReady": null,
+  "result": "UNKNOWN",
+  "draftIdentity": "PARTIAL_NO_VERIFIED_DRAFT_EPOCH"
+}

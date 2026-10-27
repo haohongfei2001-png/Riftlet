@@ -1,0 +1,19 @@
+{
+  "windowId": "lab-a5751d2f2e80b75b",
+  "tabId": "lab-3b6bded5bad67957",
+  "oldActiveTabId": "lab-1f19a21b32710a72",
+  "destinationTabId": "lab-993adfb969d1b514",
+  "sessionId": "lab-2fbe865b41ecdfd2",
+  "fixtures": [
+    {
+      "label": "TAB_SWITCH",
+      "assetId": "50bab4f5-2595-438d-aa75-17efba91234d",
+      "operationId": "bb1bc19e-af61-4b2d-9082-14784a348ba9",
+      "mime": "image/png",
+      "name": "Riftlet_50bab4f5-2595-438d-aa75-17efba91234d.png",
+      "path": "fixtures/synthetic-noise.png",
+      "bytes": 4802523,
+      "sha256": "18b581acd175f5954ef8cb262428f7fd63d41fe93eaa94087b7f8dbc730c930d"
+    }
+  ]
+}

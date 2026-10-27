@@ -1,0 +1,15 @@
+{
+  "type": "offline evidence integrity assertions, not new upload or failure tests",
+  "checks": {
+    "transport_success": true,
+    "sequence_contiguous_and_not_truncated": true,
+    "armed_precedes_single_trusted_input": true,
+    "same_tested_native_input": true,
+    "actual_file_bytes_match": true,
+    "one_bound_document_and_operation": true,
+    "baseline_and_text_preserved_in_recorded_snapshots": true,
+    "one_stable_matching_attachment": true
+  },
+  "passed": 8,
+  "positiveREADYAcceptance": "NOT_PASSED"
+}

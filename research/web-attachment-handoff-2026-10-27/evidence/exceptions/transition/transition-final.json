@@ -1,0 +1,1014 @@
+{
+  "exitCode": 0,
+  "error": "",
+  "monotonicSeconds": 395258.6984855,
+  "observedURL": "https://chatgpt.com/?temporary-chat=true",
+  "result": {
+    "transition": {
+      "state": "OBSERVED",
+      "control": "临时聊天",
+      "before": {
+        "binding": {
+          "sessionId": "lab-2fbe865b41ecdfd2",
+          "documentNonce": "lab-2de72586758aabb5",
+          "windowId": "lab-a5751d2f2e80b75b",
+          "tabId": "lab-3b6bded5bad67957"
+        },
+        "snapshot": {
+          "valid": true,
+          "documentNonce": "lab-2de72586758aabb5",
+          "routeUnchanged": true,
+          "editorNode": "n1",
+          "formNode": "n2",
+          "textLength": 0,
+          "textIsExpectedSynthetic": false,
+          "cards": [
+            {
+              "name": "Riftlet_50bab4f5-2595-438d-aa75-17efba91234d.png",
+              "cardNode": "n4",
+              "nodes": [
+                {
+                  "nodeId": "n4",
+                  "tag": "DIV",
+                  "attrs": {
+                    "role": "button",
+                    "aria-label": "Riftlet_50bab4f5-2595-438d-aa75-17efba91234d.png",
+                    "data-state": "closed"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n5",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n6",
+                  "tag": "IMG",
+                  "attrs": {
+                    "alt": "Riftlet_50bab4f5-2595-438d-aa75-17efba91234d.png"
+                  },
+                  "text": "",
+                  "image": {
+                    "complete": false,
+                    "width": 0,
+                    "height": 0,
+                    "sourceKind": "blob"
+                  }
+                },
+                {
+                  "nodeId": "n7",
+                  "tag": "SPAN",
+                  "attrs": {
+                    "role": "progressbar",
+                    "aria-label": "正在上传 Riftlet_50bab4f5-2595-438d-aa75-17efba91234d.png",
+                    "aria-valuemin": "0",
+                    "aria-valuemax": "100"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n8",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n9",
+                  "tag": "circle",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n10",
+                  "tag": "circle",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n11",
+                  "tag": "SPAN",
+                  "attrs": {},
+                  "text": ""
+                },
+                {
+                  "nodeId": "n12",
+                  "tag": "BUTTON",
+                  "attrs": {
+                    "aria-label": "移除“Riftlet_50bab4f5-2595-438d-aa75-17efba91234d.png”"
+                  },
+                  "text": null
+                },
+                {
+                  "nodeId": "n13",
+                  "tag": "svg",
+                  "attrs": {},
+                  "text": null
+                },
+                {
+                  "nodeId": "n14",
+                  "tag": "use",
+                  "attrs": {},
+                  "text": ""
+                }
+              ]
+            }
+          ],
+          "active": "TAB_SWITCH",
+          "armed": true,
+          "result": "UNKNOWN",
+          "retryAllowed": false
+        },
+        "events": [
+          {
+            "sequence": 1,
+            "monotonicMs": 229640.5,
+            "documentNonce": "lab-2de72586758aabb5",
+            "windowId": "lab-a5751d2f2e80b75b",
+            "tabId": "lab-3b6bded5bad67957",
+            "sessionId": "lab-2fbe865b41ecdfd2",
+            "event": "observer_installed",
+            "state": {
+              "valid": true,
+              "documentNonce": "lab-2de72586758aabb5",
+              "routeUnchanged": true,
+              "editorNode": "n1",
+              "formNode": "n2",
+              "textLength": 0,
+              "textIsExpectedSynthetic": false,
+              "cards": [],
+              "active": null,
+              "armed": false,
+              "result": "UNKNOWN",
+              "retryAllowed": false
+            }
+          },
+          {
+            "sequence": 2,
+            "monotonicMs": 266125.3000000119,
+            "documentNonce": "lab-2de72586758aabb5",
+            "windowId": "lab-a5751d2f2e80b75b",
+            "tabId": "lab-3b6bded5bad67957",
+            "sessionId": "lab-2fbe865b41ecdfd2",
+            "event": "composer_mutation",
+            "state": {
+              "valid": true,
+              "documentNonce": "lab-2de72586758aabb5",
+              "routeUnchanged": true,
+              "editorNode": "n1",
+              "formNode": "n2",
+              "textLength": 0,
+              "textIsExpectedSynthetic": false,
+              "cards": [],
+              "active": null,
+              "armed": false,
+              "result": "UNKNOWN",
+              "retryAllowed": false
+            }
+          },
+          {
+            "sequence": 3,
+            "monotonicMs": 286180.90000003576,
+            "documentNonce": "lab-2de72586758aabb5",
+            "windowId": "lab-a5751d2f2e80b75b",
+            "tabId": "lab-3b6bded5bad67957",
+            "sessionId": "lab-2fbe865b41ecdfd2",
+            "event": "case_armed",
+            "state": {
+              "label": "TAB_SWITCH"
+            }
+          },
+          {
+            "sequence": 4,
+            "monotonicMs": 286181.3000000119,
+            "documentNonce": "lab-2de72586758aabb5",
+            "windowId": "lab-a5751d2f2e80b75b",
+            "tabId": "lab-3b6bded5bad67957",
+            "sessionId": "lab-2fbe865b41ecdfd2",
+            "event": "query",
+            "state": {
+              "valid": true,
+              "documentNonce": "lab-2de72586758aabb5",
+              "routeUnchanged": true,
+              "editorNode": "n1",
+              "formNode": "n2",
+              "textLength": 0,
+              "textIsExpectedSynthetic": false,
+              "cards": [],
+              "active": "TAB_SWITCH",
+              "armed": true,
+              "result": "UNKNOWN",
+              "retryAllowed": false
+            }
+          },
+          {
+            "sequence": 5,
+            "monotonicMs": 286727.60000002384,
+            "documentNonce": "lab-2de72586758aabb5",
+            "windowId": "lab-a5751d2f2e80b75b",
+            "tabId": "lab-3b6bded5bad67957",
+            "sessionId": "lab-2fbe865b41ecdfd2",
+            "event": "dispatch_intent",
+            "state": {
+              "label": "TAB_SWITCH",
+              "operationId": "bb1bc19e-af61-4b2d-9082-14784a348ba9"
+            }
+          },
+          {
+            "sequence": 6,
+            "monotonicMs": 286728.8000000119,
+            "documentNonce": "lab-2de72586758aabb5",
+            "windowId": "lab-a5751d2f2e80b75b",
+            "tabId": "lab-3b6bded5bad67957",
+            "sessionId": "lab-2fbe865b41ecdfd2",
+            "event": "file_entered",
+            "state": {
+              "label": "TAB_SWITCH",
+              "name": "Riftlet_50bab4f5-2595-438d-aa75-17efba91234d.png",
+              "isTrusted": false,
+              "bytes": 4802523,
+              "inputNode": "n3"
+            }
+          },
+          {
+            "sequence": 7,
+            "monotonicMs": 286762.10000002384,
+            "documentNonce": "lab-2de72586758aabb5",
+            "windowId": "lab-a5751d2f2e80b75b",
+            "tabId": "lab-3b6bded5bad67957",
+            "sessionId": "lab-2fbe865b41ecdfd2",
+            "event": "dispatched",
+            "state": {
+              "label": "TAB_SWITCH",
+              "operationId": "bb1bc19e-af61-4b2d-9082-14784a348ba9"
+            }
+          },
+          {
+            "sequence": 8,
+            "monotonicMs": 286763.6999999881,
+            "documentNonce": "lab-2de72586758aabb5",
+            "windowId": "lab-a5751d2f2e80b75b",
+            "tabId": "lab-3b6bded5bad67957",
+            "sessionId": "lab-2fbe865b41ecdfd2",
+            "event": "composer_mutation",
+            "state": {
+              "valid": true,
+              "documentNonce": "lab-2de72586758aabb5",
+              "routeUnchanged": true,
+              "editorNode": "n1",
+              "formNode": "n2",
+              "textLength": 0,
+              "textIsExpectedSynthetic": false,
+              "cards": [
+                {
+                  "name": "Riftlet_50bab4f5-2595-438d-aa75-17efba91234d.png",
+                  "cardNode": "n4",
+                  "nodes": [
+                    {
+                      "nodeId": "n4",
+                      "tag": "DIV",
+                      "attrs": {
+                        "role": "button",
+                        "aria-label": "Riftlet_50bab4f5-2595-438d-aa75-17efba91234d.png",
+                        "data-state": "closed"
+                      },
+                      "text": null
+                    },
+                    {
+                      "nodeId": "n5",
+                      "tag": "SPAN",
+                      "attrs": {},
+                      "text": null
+                    },
+                    {
+                      "nodeId": "n6",
+                      "tag": "IMG",
+                      "attrs": {
+                        "alt": "Riftlet_50bab4f5-2595-438d-aa75-17efba91234d.png"
+                      },
+                      "text": "",
+                      "image": {
+                        "complete": false,
+                        "width": 0,
+                        "height": 0,
+                        "sourceKind": "blob"
+                      }
+                    },
+                    {
+                      "nodeId": "n7",
+                      "tag": "SPAN",
+                      "attrs": {
+                        "role": "progressbar",
+                        "aria-label": "正在上传 Riftlet_50bab4f5-2595-438d-aa75-17efba91234d.png",
+                        "aria-valuemin": "0",
+                        "aria-valuemax": "100"
+                      },
+                      "text": null
+                    },
+                    {
+                      "nodeId": "n8",
+                      "tag": "svg",
+                      "attrs": {},
+                      "text": null
+                    },
+                    {
+                      "nodeId": "n9",
+                      "tag": "circle",
+                      "attrs": {},
+                      "text": ""
+                    },
+                    {
+                      "nodeId": "n10",
+                      "tag": "circle",
+                      "attrs": {},
+                      "text": ""
+                    },
+                    {
+                      "nodeId": "n11",
+                      "tag": "SPAN",
+                      "attrs": {},
+                      "text": ""
+                    },
+                    {
+                      "nodeId": "n12",
+                      "tag": "BUTTON",
+                      "attrs": {
+                        "aria-label": "移除“Riftlet_50bab4f5-2595-438d-aa75-17efba91234d.png”"
+                      },
+                      "text": null
+                    },
+                    {
+                      "nodeId": "n13",
+                      "tag": "svg",
+                      "attrs": {},
+                      "text": null
+                    },
+                    {
+                      "nodeId": "n14",
+                      "tag": "use",
+                      "attrs": {},
+                      "text": ""
+                    }
+                  ]
+                }
+              ],
+              "active": "TAB_SWITCH",
+              "armed": true,
+              "result": "UNKNOWN",
+              "retryAllowed": false
+            }
+          }
+        ],
+        "network": {
+          "state": "NOT_INSTALLED"
+        },
+        "eventLimitReached": false
+      },
+      "actionAt": 286763.8000000119,
+      "after": {
+        "binding": {
+          "sessionId": "lab-2fbe865b41ecdfd2",
+          "documentNonce": "lab-2de72586758aabb5",
+          "windowId": "lab-a5751d2f2e80b75b",
+          "tabId": "lab-3b6bded5bad67957"
+        },
+        "snapshot": {
+          "valid": false,
+          "documentNonce": "lab-2de72586758aabb5",
+          "routeUnchanged": false,
+          "editorNode": "n1",
+          "formNode": "n2",
+          "textLength": 0,
+          "textIsExpectedSynthetic": false,
+          "cards": [],
+          "active": "TAB_SWITCH",
+          "armed": true,
+          "result": "UNKNOWN",
+          "retryAllowed": false
+        },
+        "events": [
+          {
+            "sequence": 1,
+            "monotonicMs": 229640.5,
+            "documentNonce": "lab-2de72586758aabb5",
+            "windowId": "lab-a5751d2f2e80b75b",
+            "tabId": "lab-3b6bded5bad67957",
+            "sessionId": "lab-2fbe865b41ecdfd2",
+            "event": "observer_installed",
+            "state": {
+              "valid": true,
+              "documentNonce": "lab-2de72586758aabb5",
+              "routeUnchanged": true,
+              "editorNode": "n1",
+              "formNode": "n2",
+              "textLength": 0,
+              "textIsExpectedSynthetic": false,
+              "cards": [],
+              "active": null,
+              "armed": false,
+              "result": "UNKNOWN",
+              "retryAllowed": false
+            }
+          },
+          {
+            "sequence": 2,
+            "monotonicMs": 266125.3000000119,
+            "documentNonce": "lab-2de72586758aabb5",
+            "windowId": "lab-a5751d2f2e80b75b",
+            "tabId": "lab-3b6bded5bad67957",
+            "sessionId": "lab-2fbe865b41ecdfd2",
+            "event": "composer_mutation",
+            "state": {
+              "valid": true,
+              "documentNonce": "lab-2de72586758aabb5",
+              "routeUnchanged": true,
+              "editorNode": "n1",
+              "formNode": "n2",
+              "textLength": 0,
+              "textIsExpectedSynthetic": false,
+              "cards": [],
+              "active": null,
+              "armed": false,
+              "result": "UNKNOWN",
+              "retryAllowed": false
+            }
+          },
+          {
+            "sequence": 3,
+            "monotonicMs": 286180.90000003576,
+            "documentNonce": "lab-2de72586758aabb5",
+            "windowId": "lab-a5751d2f2e80b75b",
+            "tabId": "lab-3b6bded5bad67957",
+            "sessionId": "lab-2fbe865b41ecdfd2",
+            "event": "case_armed",
+            "state": {
+              "label": "TAB_SWITCH"
+            }
+          },
+          {
+            "sequence": 4,
+            "monotonicMs": 286181.3000000119,
+            "documentNonce": "lab-2de72586758aabb5",
+            "windowId": "lab-a5751d2f2e80b75b",
+            "tabId": "lab-3b6bded5bad67957",
+            "sessionId": "lab-2fbe865b41ecdfd2",
+            "event": "query",
+            "state": {
+              "valid": true,
+              "documentNonce": "lab-2de72586758aabb5",
+              "routeUnchanged": true,
+              "editorNode": "n1",
+              "formNode": "n2",
+              "textLength": 0,
+              "textIsExpectedSynthetic": false,
+              "cards": [],
+              "active": "TAB_SWITCH",
+              "armed": true,
+              "result": "UNKNOWN",
+              "retryAllowed": false
+            }
+          },
+          {
+            "sequence": 5,
+            "monotonicMs": 286727.60000002384,
+            "documentNonce": "lab-2de72586758aabb5",
+            "windowId": "lab-a5751d2f2e80b75b",
+            "tabId": "lab-3b6bded5bad67957",
+            "sessionId": "lab-2fbe865b41ecdfd2",
+            "event": "dispatch_intent",
+            "state": {
+              "label": "TAB_SWITCH",
+              "operationId": "bb1bc19e-af61-4b2d-9082-14784a348ba9"
+            }
+          },
+          {
+            "sequence": 6,
+            "monotonicMs": 286728.8000000119,
+            "documentNonce": "lab-2de72586758aabb5",
+            "windowId": "lab-a5751d2f2e80b75b",
+            "tabId": "lab-3b6bded5bad67957",
+            "sessionId": "lab-2fbe865b41ecdfd2",
+            "event": "file_entered",
+            "state": {
+              "label": "TAB_SWITCH",
+              "name": "Riftlet_50bab4f5-2595-438d-aa75-17efba91234d.png",
+              "isTrusted": false,
+              "bytes": 4802523,
+              "inputNode": "n3"
+            }
+          },
+          {
+            "sequence": 7,
+            "monotonicMs": 286762.10000002384,
+            "documentNonce": "lab-2de72586758aabb5",
+            "windowId": "lab-a5751d2f2e80b75b",
+            "tabId": "lab-3b6bded5bad67957",
+            "sessionId": "lab-2fbe865b41ecdfd2",
+            "event": "dispatched",
+            "state": {
+              "label": "TAB_SWITCH",
+              "operationId": "bb1bc19e-af61-4b2d-9082-14784a348ba9"
+            }
+          },
+          {
+            "sequence": 8,
+            "monotonicMs": 286763.6999999881,
+            "documentNonce": "lab-2de72586758aabb5",
+            "windowId": "lab-a5751d2f2e80b75b",
+            "tabId": "lab-3b6bded5bad67957",
+            "sessionId": "lab-2fbe865b41ecdfd2",
+            "event": "composer_mutation",
+            "state": {
+              "valid": true,
+              "documentNonce": "lab-2de72586758aabb5",
+              "routeUnchanged": true,
+              "editorNode": "n1",
+              "formNode": "n2",
+              "textLength": 0,
+              "textIsExpectedSynthetic": false,
+              "cards": [
+                {
+                  "name": "Riftlet_50bab4f5-2595-438d-aa75-17efba91234d.png",
+                  "cardNode": "n4",
+                  "nodes": [
+                    {
+                      "nodeId": "n4",
+                      "tag": "DIV",
+                      "attrs": {
+                        "role": "button",
+                        "aria-label": "Riftlet_50bab4f5-2595-438d-aa75-17efba91234d.png",
+                        "data-state": "closed"
+                      },
+                      "text": null
+                    },
+                    {
+                      "nodeId": "n5",
+                      "tag": "SPAN",
+                      "attrs": {},
+                      "text": null
+                    },
+                    {
+                      "nodeId": "n6",
+                      "tag": "IMG",
+                      "attrs": {
+                        "alt": "Riftlet_50bab4f5-2595-438d-aa75-17efba91234d.png"
+                      },
+                      "text": "",
+                      "image": {
+                        "complete": false,
+                        "width": 0,
+                        "height": 0,
+                        "sourceKind": "blob"
+                      }
+                    },
+                    {
+                      "nodeId": "n7",
+                      "tag": "SPAN",
+                      "attrs": {
+                        "role": "progressbar",
+                        "aria-label": "正在上传 Riftlet_50bab4f5-2595-438d-aa75-17efba91234d.png",
+                        "aria-valuemin": "0",
+                        "aria-valuemax": "100"
+                      },
+                      "text": null
+                    },
+                    {
+                      "nodeId": "n8",
+                      "tag": "svg",
+                      "attrs": {},
+                      "text": null
+                    },
+                    {
+                      "nodeId": "n9",
+                      "tag": "circle",
+                      "attrs": {},
+                      "text": ""
+                    },
+                    {
+                      "nodeId": "n10",
+                      "tag": "circle",
+                      "attrs": {},
+                      "text": ""
+                    },
+                    {
+                      "nodeId": "n11",
+                      "tag": "SPAN",
+                      "attrs": {},
+                      "text": ""
+                    },
+                    {
+                      "nodeId": "n12",
+                      "tag": "BUTTON",
+                      "attrs": {
+                        "aria-label": "移除“Riftlet_50bab4f5-2595-438d-aa75-17efba91234d.png”"
+                      },
+                      "text": null
+                    },
+                    {
+                      "nodeId": "n13",
+                      "tag": "svg",
+                      "attrs": {},
+                      "text": null
+                    },
+                    {
+                      "nodeId": "n14",
+                      "tag": "use",
+                      "attrs": {},
+                      "text": ""
+                    }
+                  ]
+                }
+              ],
+              "active": "TAB_SWITCH",
+              "armed": true,
+              "result": "UNKNOWN",
+              "retryAllowed": false
+            }
+          },
+          {
+            "sequence": 9,
+            "monotonicMs": 286802.8000000119,
+            "documentNonce": "lab-2de72586758aabb5",
+            "windowId": "lab-a5751d2f2e80b75b",
+            "tabId": "lab-3b6bded5bad67957",
+            "sessionId": "lab-2fbe865b41ecdfd2",
+            "event": "composer_mutation",
+            "state": {
+              "valid": true,
+              "documentNonce": "lab-2de72586758aabb5",
+              "routeUnchanged": true,
+              "editorNode": "n1",
+              "formNode": "n2",
+              "textLength": 0,
+              "textIsExpectedSynthetic": false,
+              "cards": [],
+              "active": "TAB_SWITCH",
+              "armed": true,
+              "result": "UNKNOWN",
+              "retryAllowed": false
+            }
+          },
+          {
+            "sequence": 10,
+            "monotonicMs": 286953.60000002384,
+            "documentNonce": "lab-2de72586758aabb5",
+            "windowId": "lab-a5751d2f2e80b75b",
+            "tabId": "lab-3b6bded5bad67957",
+            "sessionId": "lab-2fbe865b41ecdfd2",
+            "event": "query",
+            "state": {
+              "valid": false,
+              "documentNonce": "lab-2de72586758aabb5",
+              "routeUnchanged": false,
+              "editorNode": "n1",
+              "formNode": "n2",
+              "textLength": 0,
+              "textIsExpectedSynthetic": false,
+              "cards": [],
+              "active": "TAB_SWITCH",
+              "armed": true,
+              "result": "UNKNOWN",
+              "retryAllowed": false
+            }
+          }
+        ],
+        "network": {
+          "state": "NOT_INSTALLED"
+        },
+        "eventLimitReached": false
+      },
+      "route": {
+        "origin": "https://chatgpt.com",
+        "path": "/",
+        "search": "?temporary-chat=true"
+      }
+    },
+    "query": {
+      "binding": {
+        "sessionId": "lab-2fbe865b41ecdfd2",
+        "documentNonce": "lab-2de72586758aabb5",
+        "windowId": "lab-a5751d2f2e80b75b",
+        "tabId": "lab-3b6bded5bad67957"
+      },
+      "snapshot": {
+        "valid": false,
+        "documentNonce": "lab-2de72586758aabb5",
+        "routeUnchanged": false,
+        "editorNode": "n1",
+        "formNode": "n2",
+        "textLength": 0,
+        "textIsExpectedSynthetic": false,
+        "cards": [],
+        "active": "TAB_SWITCH",
+        "armed": true,
+        "result": "UNKNOWN",
+        "retryAllowed": false
+      },
+      "events": [
+        {
+          "sequence": 1,
+          "monotonicMs": 229640.5,
+          "documentNonce": "lab-2de72586758aabb5",
+          "windowId": "lab-a5751d2f2e80b75b",
+          "tabId": "lab-3b6bded5bad67957",
+          "sessionId": "lab-2fbe865b41ecdfd2",
+          "event": "observer_installed",
+          "state": {
+            "valid": true,
+            "documentNonce": "lab-2de72586758aabb5",
+            "routeUnchanged": true,
+            "editorNode": "n1",
+            "formNode": "n2",
+            "textLength": 0,
+            "textIsExpectedSynthetic": false,
+            "cards": [],
+            "active": null,
+            "armed": false,
+            "result": "UNKNOWN",
+            "retryAllowed": false
+          }
+        },
+        {
+          "sequence": 2,
+          "monotonicMs": 266125.3000000119,
+          "documentNonce": "lab-2de72586758aabb5",
+          "windowId": "lab-a5751d2f2e80b75b",
+          "tabId": "lab-3b6bded5bad67957",
+          "sessionId": "lab-2fbe865b41ecdfd2",
+          "event": "composer_mutation",
+          "state": {
+            "valid": true,
+            "documentNonce": "lab-2de72586758aabb5",
+            "routeUnchanged": true,
+            "editorNode": "n1",
+            "formNode": "n2",
+            "textLength": 0,
+            "textIsExpectedSynthetic": false,
+            "cards": [],
+            "active": null,
+            "armed": false,
+            "result": "UNKNOWN",
+            "retryAllowed": false
+          }
+        },
+        {
+          "sequence": 3,
+          "monotonicMs": 286180.90000003576,
+          "documentNonce": "lab-2de72586758aabb5",
+          "windowId": "lab-a5751d2f2e80b75b",
+          "tabId": "lab-3b6bded5bad67957",
+          "sessionId": "lab-2fbe865b41ecdfd2",
+          "event": "case_armed",
+          "state": {
+            "label": "TAB_SWITCH"
+          }
+        },
+        {
+          "sequence": 4,
+          "monotonicMs": 286181.3000000119,
+          "documentNonce": "lab-2de72586758aabb5",
+          "windowId": "lab-a5751d2f2e80b75b",
+          "tabId": "lab-3b6bded5bad67957",
+          "sessionId": "lab-2fbe865b41ecdfd2",
+          "event": "query",
+          "state": {
+            "valid": true,
+            "documentNonce": "lab-2de72586758aabb5",
+            "routeUnchanged": true,
+            "editorNode": "n1",
+            "formNode": "n2",
+            "textLength": 0,
+            "textIsExpectedSynthetic": false,
+            "cards": [],
+            "active": "TAB_SWITCH",
+            "armed": true,
+            "result": "UNKNOWN",
+            "retryAllowed": false
+          }
+        },
+        {
+          "sequence": 5,
+          "monotonicMs": 286727.60000002384,
+          "documentNonce": "lab-2de72586758aabb5",
+          "windowId": "lab-a5751d2f2e80b75b",
+          "tabId": "lab-3b6bded5bad67957",
+          "sessionId": "lab-2fbe865b41ecdfd2",
+          "event": "dispatch_intent",
+          "state": {
+            "label": "TAB_SWITCH",
+            "operationId": "bb1bc19e-af61-4b2d-9082-14784a348ba9"
+          }
+        },
+        {
+          "sequence": 6,
+          "monotonicMs": 286728.8000000119,
+          "documentNonce": "lab-2de72586758aabb5",
+          "windowId": "lab-a5751d2f2e80b75b",
+          "tabId": "lab-3b6bded5bad67957",
+          "sessionId": "lab-2fbe865b41ecdfd2",
+          "event": "file_entered",
+          "state": {
+            "label": "TAB_SWITCH",
+            "name": "Riftlet_50bab4f5-2595-438d-aa75-17efba91234d.png",
+            "isTrusted": false,
+            "bytes": 4802523,
+            "inputNode": "n3"
+          }
+        },
+        {
+          "sequence": 7,
+          "monotonicMs": 286762.10000002384,
+          "documentNonce": "lab-2de72586758aabb5",
+          "windowId": "lab-a5751d2f2e80b75b",
+          "tabId": "lab-3b6bded5bad67957",
+          "sessionId": "lab-2fbe865b41ecdfd2",
+          "event": "dispatched",
+          "state": {
+            "label": "TAB_SWITCH",
+            "operationId": "bb1bc19e-af61-4b2d-9082-14784a348ba9"
+          }
+        },
+        {
+          "sequence": 8,
+          "monotonicMs": 286763.6999999881,
+          "documentNonce": "lab-2de72586758aabb5",
+          "windowId": "lab-a5751d2f2e80b75b",
+          "tabId": "lab-3b6bded5bad67957",
+          "sessionId": "lab-2fbe865b41ecdfd2",
+          "event": "composer_mutation",
+          "state": {
+            "valid": true,
+            "documentNonce": "lab-2de72586758aabb5",
+            "routeUnchanged": true,
+            "editorNode": "n1",
+            "formNode": "n2",
+            "textLength": 0,
+            "textIsExpectedSynthetic": false,
+            "cards": [
+              {
+                "name": "Riftlet_50bab4f5-2595-438d-aa75-17efba91234d.png",
+                "cardNode": "n4",
+                "nodes": [
+                  {
+                    "nodeId": "n4",
+                    "tag": "DIV",
+                    "attrs": {
+                      "role": "button",
+                      "aria-label": "Riftlet_50bab4f5-2595-438d-aa75-17efba91234d.png",
+                      "data-state": "closed"
+                    },
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n5",
+                    "tag": "SPAN",
+                    "attrs": {},
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n6",
+                    "tag": "IMG",
+                    "attrs": {
+                      "alt": "Riftlet_50bab4f5-2595-438d-aa75-17efba91234d.png"
+                    },
+                    "text": "",
+                    "image": {
+                      "complete": false,
+                      "width": 0,
+                      "height": 0,
+                      "sourceKind": "blob"
+                    }
+                  },
+                  {
+                    "nodeId": "n7",
+                    "tag": "SPAN",
+                    "attrs": {
+                      "role": "progressbar",
+                      "aria-label": "正在上传 Riftlet_50bab4f5-2595-438d-aa75-17efba91234d.png",
+                      "aria-valuemin": "0",
+                      "aria-valuemax": "100"
+                    },
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n8",
+                    "tag": "svg",
+                    "attrs": {},
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n9",
+                    "tag": "circle",
+                    "attrs": {},
+                    "text": ""
+                  },
+                  {
+                    "nodeId": "n10",
+                    "tag": "circle",
+                    "attrs": {},
+                    "text": ""
+                  },
+                  {
+                    "nodeId": "n11",
+                    "tag": "SPAN",
+                    "attrs": {},
+                    "text": ""
+                  },
+                  {
+                    "nodeId": "n12",
+                    "tag": "BUTTON",
+                    "attrs": {
+                      "aria-label": "移除“Riftlet_50bab4f5-2595-438d-aa75-17efba91234d.png”"
+                    },
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n13",
+                    "tag": "svg",
+                    "attrs": {},
+                    "text": null
+                  },
+                  {
+                    "nodeId": "n14",
+                    "tag": "use",
+                    "attrs": {},
+                    "text": ""
+                  }
+                ]
+              }
+            ],
+            "active": "TAB_SWITCH",
+            "armed": true,
+            "result": "UNKNOWN",
+            "retryAllowed": false
+          }
+        },
+        {
+          "sequence": 9,
+          "monotonicMs": 286802.8000000119,
+          "documentNonce": "lab-2de72586758aabb5",
+          "windowId": "lab-a5751d2f2e80b75b",
+          "tabId": "lab-3b6bded5bad67957",
+          "sessionId": "lab-2fbe865b41ecdfd2",
+          "event": "composer_mutation",
+          "state": {
+            "valid": true,
+            "documentNonce": "lab-2de72586758aabb5",
+            "routeUnchanged": true,
+            "editorNode": "n1",
+            "formNode": "n2",
+            "textLength": 0,
+            "textIsExpectedSynthetic": false,
+            "cards": [],
+            "active": "TAB_SWITCH",
+            "armed": true,
+            "result": "UNKNOWN",
+            "retryAllowed": false
+          }
+        },
+        {
+          "sequence": 10,
+          "monotonicMs": 286953.60000002384,
+          "documentNonce": "lab-2de72586758aabb5",
+          "windowId": "lab-a5751d2f2e80b75b",
+          "tabId": "lab-3b6bded5bad67957",
+          "sessionId": "lab-2fbe865b41ecdfd2",
+          "event": "query",
+          "state": {
+            "valid": false,
+            "documentNonce": "lab-2de72586758aabb5",
+            "routeUnchanged": false,
+            "editorNode": "n1",
+            "formNode": "n2",
+            "textLength": 0,
+            "textIsExpectedSynthetic": false,
+            "cards": [],
+            "active": "TAB_SWITCH",
+            "armed": true,
+            "result": "UNKNOWN",
+            "retryAllowed": false
+          }
+        },
+        {
+          "sequence": 11,
+          "monotonicMs": 286972.1999999881,
+          "documentNonce": "lab-2de72586758aabb5",
+          "windowId": "lab-a5751d2f2e80b75b",
+          "tabId": "lab-3b6bded5bad67957",
+          "sessionId": "lab-2fbe865b41ecdfd2",
+          "event": "input_hash",
+          "state": {
+            "label": "TAB_SWITCH",
+            "sha256": "18b581acd175f5954ef8cb262428f7fd63d41fe93eaa94087b7f8dbc730c930d",
+            "bytes": 4802523
+          }
+        }
+      ],
+      "network": {
+        "state": "NOT_INSTALLED"
+      },
+      "eventLimitReached": false
+    }
+  }
+}

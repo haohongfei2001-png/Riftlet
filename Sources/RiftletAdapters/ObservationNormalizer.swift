@@ -45,7 +45,8 @@ public struct ObservationNormalizer: Sendable {
               profile.surface == operation.target.surface, !profile.profileID.isEmpty else {
             throw ObservationError.profileTargetMismatch
         }
-        if envelope.provenance.source == .syntheticFixture && request.asset.origin != .synthetic {
+        if (envelope.provenance.source == .syntheticFixture || envelope.provenance.source == .integratedDevelopment)
+            && request.asset.origin != .synthetic {
             throw ObservationError.syntheticEvidenceForRealAsset
         }
 

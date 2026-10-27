@@ -6,6 +6,7 @@ on:
       - 'Tests/**'
       - 'Resources/**'
       - 'ThirdPartyNotices/**'
+      - 'research/web-attachment-handoff-2026-10-27/**'
       - 'Package.swift'
       - 'scripts/**'
       - '.github/workflows/native-foundation.yml'
@@ -25,6 +26,16 @@ jobs:
           swift --version
           sw_vers
           uname -m
+      - name: Replay archived Web evidence offline
+        run: |
+          set -o pipefail
+          mkdir -p test-results
+          node --version
+          python3 research/web-attachment-handoff-2026-10-27/replay.py 2>&1 | tee test-results/web-handoff-replay.log
+      - name: Exercise integrated page program with synthetic DOM
+        run: |
+          set -o pipefail
+          node Tests/WebPageProgram/acceptance-program.test.cjs 2>&1 | tee test-results/web-page-program.log
       - name: Native unit and integration tests
         run: |
           set -o pipefail
@@ -38,6 +49,10 @@ jobs:
         run: |
           set -o pipefail
           build/Riftlet.app/Contents/MacOS/Riftlet --self-check 2>&1 | tee test-results/self-check.log
+          riftlet_check_dir="$(mktemp -d)"
+          trap 'rm -rf "$riftlet_check_dir"' EXIT
+          ditto build/Riftlet.app "$riftlet_check_dir/Riftlet.app"
+          "$riftlet_check_dir/Riftlet.app/Contents/MacOS/Riftlet" --web-acceptance-self-check 2>&1 | tee test-results/web-acceptance-self-check.log
           ditto -c -k --sequesterRsrc --keepParent build/Riftlet.app build/Riftlet-macOS-development.zip
       - name: Validate and archive synthetic GUI acceptance helper
         run: |
