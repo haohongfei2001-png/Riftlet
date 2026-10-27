@@ -6,12 +6,18 @@ import RiftletUI
 @main
 enum AcceptanceMain {
     @MainActor static func main() {
+        let axFlags = ["--press-acceptance-asset", "--app-pid", "--app-path"]
+        if CommandLine.arguments.contains(where: { axFlags.contains($0) }) {
+            exit(AcceptanceAXPress.run(Array(CommandLine.arguments.dropFirst())))
+        }
         if CommandLine.arguments.contains("--help") {
             print("""
             RiftletGUIAcceptance [--self-check]
             GUI: synthetic 2/3/12-image scenes, click/focus observations and delayed reorder.
             JSONL observations go to stdout; typed text is never included.
             --self-check validates fixtures/layout only and does not run GUI acceptance.
+            --press-acceptance-asset UUID --app-pid PID --app-path /exact/Riftlet.app
+              One bounded AXPress on one exact synthetic identifier; existing AX permission only.
             """)
             return
         }

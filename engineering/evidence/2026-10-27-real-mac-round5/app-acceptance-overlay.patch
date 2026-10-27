@@ -1,0 +1,161 @@
+diff --git a/Sources/RiftletUI/RiftPanelController.swift b/Sources/RiftletUI/RiftPanelController.swift
+--- a/Sources/RiftletUI/RiftPanelController.swift
++++ b/Sources/RiftletUI/RiftPanelController.swift
+@@ -212,6 +212,22 @@
+     let view: RiftRowView
+ }
+ 
++/// Acceptance-overlay diagnostics only. These times describe AppKit code paths,
++/// not rendered pixels, SQLite commit time, or human input provenance.
++public enum RiftPresentationPhase: String, Sendable {
++    case swallowScheduled, swallowActualStart, swallowClose
++}
++
++public struct RiftPresentationBoundary: Sendable {
++    public let phase: RiftPresentationPhase
++    public let assetID: UUID
++    public let operationID: UUID?
++    public let visibilityRevision: Int64
++    public let generation: UInt
++    public let uptime: TimeInterval
++    public let actualDuration: TimeInterval
++}
++
+ /// The UI consumes committed state only. It has no adapter, receipt policy or file-deletion API.
+ /// Per-row input windows leave genuine window-free gaps; the entire line is click-through.
+ /// Actual transparent-pixel hit behavior, first-click focus and Spaces require Mac GUI validation.
+@@ -225,6 +241,7 @@
+     private let onPress: (UUID, TimeInterval) -> Void
+     private let onSelectionBoundary: (RiftSelectionBoundary) -> Void
+     private let onApproach: () -> Void
++    private let onPresentationBoundary: (RiftPresentationBoundary) -> Void
+     private let onRemove: (UUID) -> Void
+     private let onInteractionChange: (RiftInteractionSnapshot) -> Void
+     private let holdsSelectionUntilFinished: Bool
+@@ -259,6 +276,7 @@
+                 onPress: @escaping (UUID, TimeInterval) -> Void = { _, _ in },
+                 onSelectionBoundary: @escaping (RiftSelectionBoundary) -> Void = { _ in },
+                 onApproach: @escaping () -> Void = {},
++                onPresentationBoundary: @escaping (RiftPresentationBoundary) -> Void = { _ in },
+                 holdsSelectionUntilFinished: Bool = false,
+                 interactionFence: QueueInteractionFence? = nil,
+                 onRemove: @escaping (UUID) -> Void = { _ in },
+@@ -271,6 +289,7 @@
+         self.onPress = onPress
+         self.onSelectionBoundary = onSelectionBoundary
+         self.onApproach = onApproach
++        self.onPresentationBoundary = onPresentationBoundary
+         self.onRemove = onRemove
+         self.onInteractionChange = onInteractionChange
+         self.holdsSelectionUntilFinished = holdsSelectionUntilFinished
+@@ -377,6 +396,14 @@
+         deferredRecords = nil; render(records)
+     }
+ 
++    private func recordPresentation(_ phase: RiftPresentationPhase, record: AssetRecord,
++                                    duration: TimeInterval) {
++        onPresentationBoundary(RiftPresentationBoundary(phase: phase, assetID: record.id,
++            operationID: record.activeOperationID, visibilityRevision: record.visibilityRevision,
++            generation: generation, uptime: ProcessInfo.processInfo.systemUptime,
++            actualDuration: duration))
++    }
++
+     /// Supply the committed visibility of newly swallowed records, even while
+     /// their final backend result remains unresolved. READY never triggers UI exit.
+     public func render(_ records: [AssetRecord]) {
+@@ -397,11 +424,14 @@
+         setTransitioning(true); deferredRecords = records
+         let token = generation
+         let swallowTime = duration(configuration.swallowDuration)
++        // Scheduling is after existing hold/selection/transition deferral gates.
++        for record in swallowed { recordPresentation(.swallowScheduled, record: record, duration: swallowTime) }
+         for record in swallowed {
+             guard let window = rowWindows[record.id] else { continue }
+             // Commit the presentation transition before any pending press-return
+             // timer can run; that timer must never undo the inward exit motion.
+             window.view.record = record
++            recordPresentation(.swallowActualStart, record: record, duration: swallowTime)
+             window.view.animateImage(to: window.view.geometry.imageClipFrame.width + 2, duration: swallowTime)
+             NSAnimationContext.runAnimationGroup { context in
+                 context.duration = swallowTime
+@@ -410,7 +440,12 @@
+         }
+         DispatchQueue.main.asyncAfter(deadline: .now() + swallowTime) { [weak self] in
+             guard let self, !self.closed, !self.userHidden, self.generation == token else { return }
+-            for record in swallowed { self.rowWindows.removeValue(forKey: record.id)?.panel.close() }
++            for record in swallowed {
++                if let window = self.rowWindows.removeValue(forKey: record.id) {
++                    window.panel.close()
++                    self.recordPresentation(.swallowClose, record: record, duration: swallowTime)
++                }
++            }
+             self.setTransitioning(false)
+             let next = self.deferredRecords ?? records
+             self.deferredRecords = nil
+diff --git a/Sources/RiftletApp/RiftletMain.swift b/Sources/RiftletApp/RiftletMain.swift
+--- a/Sources/RiftletApp/RiftletMain.swift
++++ b/Sources/RiftletApp/RiftletMain.swift
+@@ -178,6 +178,17 @@
+             onPress: { [weak self] id, timestamp in self?.freezePress(id, timestamp: timestamp) },
+             onSelectionBoundary: { [weak self] boundary in self?.recordSelection(boundary) },
+             onApproach: { [weak self] in self?.requestArm(reason: "pointerApproach") },
++            onPresentationBoundary: { [weak self] boundary in
++                guard let self, self.mode == .webAcceptance,
++                      CommandLine.arguments.contains("--acceptance-trace") else { return }
++                var fields: [String: Any] = ["event": "presentation_boundary",
++                    "phase": boundary.phase.rawValue, "assetID": boundary.assetID.uuidString,
++                    "visibilityRevision": boundary.visibilityRevision, "generation": boundary.generation,
++                    "uptime": boundary.uptime, "actualDuration": boundary.actualDuration,
++                    "acceptanceOverlay": true, "pixelPresentationMeasured": false]
++                if let id = boundary.operationID { fields["operationID"] = id.uuidString }
++                self.recordAcceptance(fields)
++            },
+             holdsSelectionUntilFinished: true, interactionFence: interactionFence,
+             onRemove: { [weak self] id in self?.removeVisible(id) }) { [weak self] id in
+             guard let self else { return }
+@@ -228,7 +239,11 @@
+             adapter = WebAttachmentAdapter(mediaDirectory: root.appendingPathComponent("media"),
+                 executor: ChromeAppleEventsExecutor(traceEnabled: CommandLine.arguments.contains("--acceptance-trace")), program: try ChatGPTWebPageProgram.load(),
+                 mode: .syntheticDevelopment, profile: ChatGPTWebPageProgram.acceptanceProfile)
+-            policy = ReceiptPolicy(syntheticAcceptanceProfiles: [ChatGPTWebPageProgram.acceptanceProfile.profileID: .webChat])
++            // Temporary acceptance overlay: candidate start grant is synthetic-only.
++            // This is not a production registry or safe-retry admission.
++            policy = ReceiptPolicy(
++                syntheticAcceptanceProfiles: [ChatGPTWebPageProgram.acceptanceProfile.profileID: .webChat],
++                syntheticUploadStartProfiles: [ChatGPTWebPageProgram.acceptanceUploadStartProfileID: .webChat])
+         }
+         let transfer = TransferCoordinator(store: store, adapter: adapter, mediaDirectory: root.appendingPathComponent("media"),
+             policy: policy, onChange: { [weak self] in await self?.refresh() },
+@@ -439,7 +454,32 @@
+                     if let retired = try await store.asset(id: id) { snapshot.append(retired) }
+                 }
+                 let successful = mode == .webAcceptance ? try await store.successfulOperations() : []
++                // Read completion is a commit upper bound, never exact COMMIT time.
++                // Snapshot reads are separate awaits, not an atomic multi-row snapshot.
++                let snapshotObservedUptime = ProcessInfo.processInfo.systemUptime
+                 if refreshRequested { continue }
++                if mode == .webAcceptance, CommandLine.arguments.contains("--acceptance-trace") {
++                    for record in snapshot {
++                        var fields: [String: Any] = ["event": "committed_visibility_observed",
++                            "assetID": record.id.uuidString, "status": record.status.rawValue,
++                            "visibility": record.visibility.rawValue,
++                            "visibilityReason": record.visibilityReason.rawValue,
++                            "visibilityRevision": record.visibilityRevision,
++                            "commitUpperBoundUptime": snapshotObservedUptime,
++                            "acceptanceOverlay": true, "exactCommitMeasured": false]
++                        if let id = record.activeOperationID { fields["operationID"] = id.uuidString }
++                        recordAcceptance(fields)
++                    }
++                    // A completed swallowed asset can already be absent from UI snapshots.
++                    // These are persisted success observations, not the page's READY time.
++                    for operation in successful {
++                        recordAcceptance(["event": "ready_persistence_observed",
++                            "assetID": operation.assetID.uuidString, "operationID": operation.id.uuidString,
++                            "attempt": operation.attempt, "phase": operation.phase.rawValue,
++                            "commitUpperBoundUptime": snapshotObservedUptime,
++                            "acceptanceOverlay": true, "exactCommitMeasured": false])
++                    }
++                }
+                 let hasNewImages = !activeIDs.subtracting(visibleIDs).isEmpty
+                 visibleIDs = activeIDs
+                 watchedCompletions.formUnion(successful.map(\.id))

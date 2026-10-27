@@ -12,12 +12,14 @@ public struct ObservationProfile: Sendable {
     public let profileID: String
     public let completionSignal: ObservationCompletionSignal?
     public let failureSignal: ObservationFailureSignal?
+    public let uploadStartProfileID: String?
 
     public init(adapterID: String, surface: TargetSurface, profileID: String,
                 completionSignal: ObservationCompletionSignal? = nil,
-                failureSignal: ObservationFailureSignal? = nil) {
+                failureSignal: ObservationFailureSignal? = nil, uploadStartProfileID: String? = nil) {
         self.adapterID = adapterID; self.surface = surface; self.profileID = profileID
         self.completionSignal = completionSignal; self.failureSignal = failureSignal
+        self.uploadStartProfileID = uploadStartProfileID
     }
 }
 
@@ -53,11 +55,22 @@ public struct ObservationNormalizer: Sendable {
         var outcome: ReceiptOutcome = .unknown
         var positiveReady = false
         var safeToRetry = false
+        var uploadStartEvidence: UploadStartEvidence?
         let exactMember = item.exactImageIdentity && item.belongsToOriginalDraft
         let identifiedAttachment = item.attachmentID != nil && !item.attachmentAbsent
         let cleanAttachment = exactMember && identifiedAttachment && !item.hasError && !item.isUploading
 
         switch item.state {
+        case .uploadStarted:
+            if operation.phase != .succeeded && operation.phase != .compensated,
+               let start = item.uploadStart, let startProfile = profile.uploadStartProfileID,
+               !startProfile.isEmpty, startProfile.utf8.count <= 128 {
+                outcome = .uploadStarted
+                uploadStartEvidence = UploadStartEvidence(profileID: startProfile,
+                    signal: start.signal, evidenceID: start.evidenceID, inputCount: start.inputCount)
+            } else if operation.phase != .succeeded && operation.phase != .compensated {
+                outcome = .inputTriggered
+            }
         case .inputTriggered:
             if item.belongsToOriginalDraft && !item.hasError { outcome = .inputTriggered }
         case .attached, .ready:
@@ -87,6 +100,7 @@ public struct ObservationNormalizer: Sendable {
             attachmentID: item.attachmentID, positiveReady: positiveReady,
             belongsToOriginalDraft: item.belongsToOriginalDraft,
             hasError: item.hasError, isUploading: item.isUploading, safeToRetry: safeToRetry,
-            reason: "observer-v1:\(item.state.rawValue):\(envelope.provenance.source.rawValue)")
+            reason: "observer-v\(envelope.schemaVersion):\(item.state.rawValue):\(envelope.provenance.source.rawValue)",
+            uploadStartEvidence: uploadStartEvidence)
     }
 }

@@ -97,3 +97,10 @@ These are **not yet PASS**. Screenshots and records remain local/synthetic where
 See [round4 evidence](../engineering/evidence/2026-10-27-real-mac-round4/README.md). **PASS:** one human physical first click in a prebound ordinary persisted Chat thread while its editor was unfocused; one synthetic input, original-target proof and durable used. The baseline text/cards were empty; selection baseline preceded setup, so nonempty draft/selection preservation remains NOT_RUN. Cold page before ACK, real business A→B→A, same-URL replacement, browser restart/window moves, complete N1 and three-boundary capture timing remain NOT_RUN. The unobservable ABA counterexample remains a documented FAIL, not hidden by the new positive tests. MID is NOT_EXERCISED because the diagnostic probe expired before this input and restored its hooks; no fault/retry PASS is claimed.
 
 PR #4 contract requires rapid visual exit after positively established uploadStarted, not final READY. The new lifecycle is owned by Pro and not tested by this baseline. Source/policy gates stay closed. v8 monitor timing is a bounded real observation (312 commits/checks, 47.1 ms total, 1.8 ms maximum), not proof that a business draft transition occurred or a whole-App resource benchmark. Current system Screenshot.app self-exclusion still has no supported all-entry-point guarantee; the prior real failure is retained.
+
+
+## 第五轮限定实机结果（2026-10-27）
+
+源码 `53ebcc4da4b0df508edc11f6ead9ea4d8a843dad` 加两份公开最小临时验收补丁，在真实 Chrome 普通已有会话中完成生成图片单次软件 AX 输入、真实 progress start、原 AppKit 快吞噬及独立最终成功。正式 Core/UI/App 文件未改，Pro 集成与生产准入不由此自动完成。实际使用已有预绑定 ACK、编辑器聚焦、空文本/零旧附件；AX 不是物理鼠标。
+
+PASS：原身份链、input=1、start早于final、start审计及hidden先提交、动画一次、最终used/succeeded及无重传。NOT_RUN：无ACK冷首击、真实ABA全矩阵、物理穿透/多屏、真实网络UNKNOWN/安全终止重生；MID仍NOT_EXERCISED。旧系统截图自包含FAIL未重测。两次早期v9缺start和两次v10最终观察未决均保留，不改写成最终版本成功样本。完整SHA/补丁/时钟边界/原数据保留见[第五轮证据](../engineering/evidence/2026-10-27-real-mac-round5/README.md)。

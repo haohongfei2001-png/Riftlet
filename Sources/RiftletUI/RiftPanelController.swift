@@ -103,6 +103,19 @@ private final class RiftRowView: NSView, NSMenuDelegate {
     }
 
     required init?(coder: NSCoder) { fatalError("init(coder:) is not used") }
+    // Acceptance identity exists only for a currently visible synthetic row.
+    override func accessibilityIdentifier() -> String {
+        guard record.image.origin == .synthetic, record.visibility == .visible,
+              window?.isVisible == true else { return "" }
+        return "riftlet-synthetic-\(record.id.uuidString)"
+    }
+
+    override func isAccessibilityEnabled() -> Bool {
+        guard record.image.origin == .synthetic else { return super.isAccessibilityEnabled() }
+        return record.visibility == .visible && window?.isVisible == true
+            && [.pending, .failed, .unknown, .missing].contains(record.status)
+    }
+
     override var acceptsFirstResponder: Bool { false }
     override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
 
@@ -212,6 +225,22 @@ private struct RowWindow {
     let view: RiftRowView
 }
 
+/// Optional acceptance diagnostics only. These times describe AppKit code paths,
+/// not rendered pixels, SQLite commit time, or human input provenance.
+public enum RiftPresentationPhase: String, Sendable {
+    case swallowScheduled, swallowActualStart, swallowClose
+}
+
+public struct RiftPresentationBoundary: Sendable {
+    public let phase: RiftPresentationPhase
+    public let assetID: UUID
+    public let operationID: UUID?
+    public let visibilityRevision: Int64
+    public let generation: UInt
+    public let uptime: TimeInterval
+    public let actualDuration: TimeInterval
+}
+
 /// The UI consumes committed state only. It has no adapter, receipt policy or file-deletion API.
 /// Per-row input windows leave genuine window-free gaps; the entire line is click-through.
 /// Actual transparent-pixel hit behavior, first-click focus and Spaces require Mac GUI validation.
@@ -225,6 +254,7 @@ public final class RiftPanelController {
     private let onPress: (UUID, TimeInterval) -> Void
     private let onSelectionBoundary: (RiftSelectionBoundary) -> Void
     private let onApproach: () -> Void
+    private let onPresentationBoundary: (RiftPresentationBoundary) -> Void
     private let onRemove: (UUID) -> Void
     private let onInteractionChange: (RiftInteractionSnapshot) -> Void
     private let holdsSelectionUntilFinished: Bool
@@ -259,6 +289,7 @@ public final class RiftPanelController {
                 onPress: @escaping (UUID, TimeInterval) -> Void = { _, _ in },
                 onSelectionBoundary: @escaping (RiftSelectionBoundary) -> Void = { _ in },
                 onApproach: @escaping () -> Void = {},
+                onPresentationBoundary: @escaping (RiftPresentationBoundary) -> Void = { _ in },
                 holdsSelectionUntilFinished: Bool = false,
                 interactionFence: QueueInteractionFence? = nil,
                 onRemove: @escaping (UUID) -> Void = { _ in },
@@ -271,6 +302,7 @@ public final class RiftPanelController {
         self.onPress = onPress
         self.onSelectionBoundary = onSelectionBoundary
         self.onApproach = onApproach
+        self.onPresentationBoundary = onPresentationBoundary
         self.onRemove = onRemove
         self.onInteractionChange = onInteractionChange
         self.holdsSelectionUntilFinished = holdsSelectionUntilFinished
@@ -377,6 +409,14 @@ public final class RiftPanelController {
         deferredRecords = nil; render(records)
     }
 
+    private func recordPresentation(_ phase: RiftPresentationPhase, record: AssetRecord,
+                                    duration: TimeInterval) {
+        onPresentationBoundary(RiftPresentationBoundary(phase: phase, assetID: record.id,
+            operationID: record.activeOperationID, visibilityRevision: record.visibilityRevision,
+            generation: generation, uptime: ProcessInfo.processInfo.systemUptime,
+            actualDuration: duration))
+    }
+
     /// Supply the committed visibility of newly swallowed records, even while
     /// their final backend result remains unresolved. READY never triggers UI exit.
     public func render(_ records: [AssetRecord]) {
@@ -397,11 +437,14 @@ public final class RiftPanelController {
         setTransitioning(true); deferredRecords = records
         let token = generation
         let swallowTime = duration(configuration.swallowDuration)
+        // Scheduling is after existing hold/selection/transition deferral gates.
+        for record in swallowed { recordPresentation(.swallowScheduled, record: record, duration: swallowTime) }
         for record in swallowed {
             guard let window = rowWindows[record.id] else { continue }
             // Commit the presentation transition before any pending press-return
             // timer can run; that timer must never undo the inward exit motion.
             window.view.record = record
+            recordPresentation(.swallowActualStart, record: record, duration: swallowTime)
             window.view.animateImage(to: window.view.geometry.imageClipFrame.width + 2, duration: swallowTime)
             NSAnimationContext.runAnimationGroup { context in
                 context.duration = swallowTime
@@ -410,7 +453,12 @@ public final class RiftPanelController {
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + swallowTime) { [weak self] in
             guard let self, !self.closed, !self.userHidden, self.generation == token else { return }
-            for record in swallowed { self.rowWindows.removeValue(forKey: record.id)?.panel.close() }
+            for record in swallowed {
+                if let window = self.rowWindows.removeValue(forKey: record.id) {
+                    window.panel.close()
+                    self.recordPresentation(.swallowClose, record: record, duration: swallowTime)
+                }
+            }
             self.setTransitioning(false)
             let next = self.deferredRecords ?? records
             self.deferredRecords = nil

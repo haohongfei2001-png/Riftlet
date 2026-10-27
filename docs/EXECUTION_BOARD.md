@@ -216,8 +216,18 @@ Next READY task or next concrete action:
 
 源码 `159b3ef3e6c87ea468ba334dff64ad8db640d80c` 在独立 `codex/riftlet-real-mac-round3-20261027`。CI 228 Swift / 38 page / 12 新 probe groups 与打包自检 PASS；AX 唤醒及真实 root commit 监视局部有证据。UX-01 全场景、真实业务 ABA、物理 GUI 与 MID 仍未准入；系统截图自包含仍 FAIL。生产真实截图上传和 retry 保持关闭。详见[第三轮交接](../engineering/evidence/2026-10-27-real-mac-round3/README.md)。本段不覆盖上方正式版本状态。
 
+
 ## 第四轮本地候选交付 · 已留检查点（非全部准入）
 
 起点 a441c70f3c4071069bd594513ecf16600bbb0ab8，独立分支 codex/riftlet-real-mac-round4-20261027。Web/Chrome适配器、页面JS、对应测试及验收helper由本地Codex处理；Core/UI/App产品接线由Pro负责。按PR #4契约90a04883160032fc6354fb4f3d3f7d56fede2947执行：实际uploadStarted后快吞噬与最终READY分开，不能将旧READY动画当新版PASS。当前修复正文/侧栏非composer焦点、跨v6/v7原操作只读路由、原生ACK因果诊断；保留所有旧数据，不改变生产与安全重传准入。
 
 源码 `c9c68a66c4b6ff55ffe8048cff6f1cf781600519`，CI 235 native / 48 page / 14 legacy PASS。真实普通已保存对话（裸 UUID）发言框未聚焦、已有预绑定 ACK 的一次人工物理点击：单次 input、完整 proof、used，局部 PASS。冷首击无 ACK、真实 ABA、非空原草稿/选区保留、完整 N1 和 MID 仍未通过；生产与重传保持关闭。新 persisted profile 在 Core 尚未识别，继续保守整 tab 锁，最小 Core 补丁交 Pro。见[第四轮完整交接](../engineering/evidence/2026-10-27-real-mac-round4/README.md)。下一项优先原始点击/ACK 发布边界与真实业务转换，不重复普通成功样本。
+
+
+## 第五轮本地真实 uploadStarted · 候选完成，交 Pro 集成
+
+独立分支 `codex/riftlet-real-mac-round5-20261027`；最终已测源码 `53ebcc4da4b0df508edc11f6ead9ea4d8a843dad`，正式基线 `e89d49f763036781c90618422da256e03cbca2ac`。完整 CI [40497953468](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40497953468) PASS：314 native / 68 page / 45 legacy / 13 lifecycle detailed。Web v11/schema2 保留 v6–v10 原操作只读；修复真实初始无数值进度误拒绝，以及真实 MutationRecord NodeList 没有 `.some()` 导致 start 早返回后观察中断。
+
+实际生成图片的 **一次 helper AX → 真实递增上传开始 → AppKit 快吞噬 → 后台独立最终成功 PASS（限定）**。原 input=1、完整 target/attachment、首份 start 审计、较晚 final proof 和 persisted succeeded 对齐；开始后约59–322ms调用动画，动画段约253ms，窗口关闭早于最终证明约4.89–5.16s。不是物理鼠标或无ACK冷首击；原保留配置swallowDuration=.24，不是点击到关闭仅253ms。
+
+Core/UI/App正式源码未改；两份最小临时overlay供Pro接入synthetic start策略及诊断/AX元数据。生产、safe retry仍关闭。原11 Web资产/17操作/3补偿及所有原私有媒体哈希保留，新增5图各input1，其中2图未决保持原样；未发送消息。详见[第五轮完整交接](../engineering/evidence/2026-10-27-real-mac-round5/README.md)。本段替代此前“等待人工点第2张”的准备检查点；无需再请求该动作。下一项为Pro集成限定synthetic补丁，其后继续冷首击、业务转换、同草稿多图与物理N1，MID及安全终止分别准入。

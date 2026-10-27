@@ -6,11 +6,13 @@ import RiftletCore
 /// evidence that the integrated app has passed a live test. Production admission
 /// remains separate; only syntheticDevelopment may execute it in this increment.
 public enum ChatGPTWebPageProgram {
-    public static let sourceID = "chatgpt-web-zh-20261027-integrated-v8"
+    public static let sourceID = "chatgpt-web-zh-20261027-integrated-v11"
+    /// Candidate mapping only; ReceiptPolicy start registries remain separate.
+    public static let acceptanceUploadStartProfileID = "chatgpt-web-zh-progress-start-development-20261027-v1"
     public static let acceptanceProfile = ObservationProfile(
         adapterID: "chatgpt-web", surface: .webChat,
         profileID: "chatgpt-web-zh-attached-development-20261027-v2",
-        completionSignal: .attached)
+        completionSignal: .attached, uploadStartProfileID: acceptanceUploadStartProfileID)
 
     public static func load() throws -> WebPageProgram {
         let resources: Bundle

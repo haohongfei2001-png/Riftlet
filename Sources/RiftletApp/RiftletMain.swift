@@ -51,7 +51,7 @@ enum RiftletMain {
             Task {
                 do {
                     try await WebAcceptanceSelfCheck.run()
-                    print("RIFTLET_WEB_ACCEPTANCE_SELF_CHECK_PASS: bundled page source, synthetic-only policy, isolated modes; CHROME_NOT_RUN; GUI_NOT_RUN")
+                    print("RIFTLET_WEB_ACCEPTANCE_SELF_CHECK_PASS: bundled page source, synthetic-only start/completion policy, isolated modes; CHROME_NOT_RUN; GUI_NOT_RUN")
                     exit(0)
                 } catch { fputs("RIFTLET_WEB_ACCEPTANCE_SELF_CHECK_FAIL: \(error)\n", stderr); exit(1) }
             }
@@ -95,6 +95,10 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private var automationPermission: AutomationPermissionState = .notNeeded
     private var attachmentObservationStarted = false
     private var attachmentObservationStarting = false
+    private var terminating = false
+    private var permissionResumer: PassivePermissionResume?
+    private var permissionActivationObserver: NSObjectProtocol?
+    private var permissionWakeObserver: NSObjectProtocol?
     private let captureLocation = SystemCaptureLocationProvider()
     private lazy var firstUse = FirstUsePreferences(modeName: mode.directoryName)
     private lazy var folderAccess = ScreenshotFolderAccess(modeName: mode.directoryName)
@@ -175,6 +179,10 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     }
 
     func applicationWillTerminate(_ notification: Notification) {
+        terminating = true
+        permissionResumer?.stop()
+        if let permissionActivationObserver { NSWorkspace.shared.notificationCenter.removeObserver(permissionActivationObserver) }
+        if let permissionWakeObserver { NSWorkspace.shared.notificationCenter.removeObserver(permissionWakeObserver) }
         completionWatch?.cancel()
         archiveTask?.cancel()
         targetArmer?.cancel()
@@ -233,6 +241,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             onPress: { [weak self] id, timestamp in self?.freezePress(id, timestamp: timestamp) },
             onSelectionBoundary: { [weak self] boundary in self?.recordSelection(boundary) },
             onApproach: { [weak self] in self?.requestArm(reason: "pointerApproach") },
+            onPresentationBoundary: { [weak self] boundary in self?.recordPresentation(boundary) },
             holdsSelectionUntilFinished: true, interactionFence: interactionFence,
             onRemove: { [weak self] id in self?.removeVisible(id) }) { [weak self] id in
             guard let self else { return }
@@ -247,7 +256,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 }
                 do {
                     if self.mode == .webAcceptance {
-                        self.automationPermission = await self.permissionGate.inspect()
+                        self.automationPermission = await self.inspectAutomationPermission(reason: "selection", assetID: id)
                         guard self.automationPermission == .granted else {
                             self.rift?.setFeedback("Chrome 附件访问暂不可用；图片保留。请在运行状态中查看原因。", for: id)
                             self.rift?.finishSelection(id); self.updateSetup()
@@ -293,7 +302,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             adapter = WebAttachmentAdapter(mediaDirectory: root.appendingPathComponent("media"),
                 executor: ChromeAppleEventsExecutor(traceEnabled: CommandLine.arguments.contains("--acceptance-trace")), program: try ChatGPTWebPageProgram.load(),
                 mode: .syntheticDevelopment, profile: ChatGPTWebPageProgram.acceptanceProfile)
-            policy = ReceiptPolicy(syntheticAcceptanceProfiles: [ChatGPTWebPageProgram.acceptanceProfile.profileID: .webChat])
+            policy = WebAcceptanceConfiguration.receiptPolicy
         }
         let transfer = TransferCoordinator(store: store, adapter: adapter, mediaDirectory: root.appendingPathComponent("media"),
             policy: policy, onChange: { [weak self] in await self?.refresh() },
@@ -303,7 +312,10 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         // Durable crash recovery remains local even when Automation is denied.
         // No page observation is attempted until a passive check says allowed.
         try await store.recoverInterruptedOperations()
-        if mode == .webAcceptance { automationPermission = await permissionGate.inspect() }
+        if mode == .webAcceptance {
+            installPassivePermissionRecovery()
+            automationPermission = await inspectAutomationPermission(reason: "startup")
+        }
         try await startAttachmentObservationIfPermitted()
         if mode != .capture {
             statusLine?.title = simulation ? "SIMULATION · synthetic images only · no ChatGPT input"
@@ -332,14 +344,71 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         await refresh()
     }
 
+    /// Host lifecycle events can recover an initially unavailable browser without
+    /// requiring another settings visit. No click is stored, waited for or replayed.
+    private func installPassivePermissionRecovery() {
+        guard mode == .webAcceptance, permissionResumer == nil, !terminating else { return }
+        let resumer = PassivePermissionResume(inspect: { [weak self] in
+            guard let self else { return .unavailable }
+            return await self.inspectAutomationPermission(reason: "passiveResume")
+        }, onResult: { [weak self] result in
+            self?.automationPermission = result; self?.updateSetup()
+        }, resume: { [weak self] in
+            guard let self, !self.terminating else { return }
+            do { try await self.startAttachmentObservationIfPermitted() }
+            catch is CancellationError { return }
+            catch { self.setupIssue = .targetUnavailable; self.updateSetup() }
+        })
+        permissionResumer = resumer; resumer.start()
+        permissionActivationObserver = NSWorkspace.shared.notificationCenter.addObserver(
+            forName: NSWorkspace.didActivateApplicationNotification, object: nil, queue: .main) { [weak self] note in
+                MainActor.assumeIsolated {
+                    guard let self, !self.attachmentObservationStarted,
+                          let app = note.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication,
+                          app.bundleIdentifier == "com.google.Chrome" else { return }
+                    self.permissionResumer?.request()
+                }
+            }
+        permissionWakeObserver = NSWorkspace.shared.notificationCenter.addObserver(
+            forName: NSWorkspace.didWakeNotification, object: nil, queue: .main) { [weak self] _ in
+                MainActor.assumeIsolated {
+                    guard let self, !self.attachmentObservationStarted else { return }
+                    self.permissionResumer?.request()
+                }
+            }
+    }
+
+    /// Measure the existing passive check without caching authorization or
+    /// changing its target selection. Only acceptance trace logs these bounds.
+    private func inspectAutomationPermission(reason: String, assetID: UUID? = nil,
+                                             invocation: CaptureInvocationContext? = nil) async -> AutomationPermissionState {
+        let started = ProcessInfo.processInfo.systemUptime
+        let result = await permissionGate.inspect()
+        guard mode == .webAcceptance, CommandLine.arguments.contains("--acceptance-trace") else { return result }
+        var fields: [String: Any] = ["event": "permission_check", "purpose": reason,
+            "permissionRequestID": UUID().uuidString, "startedUptime": started,
+            "endedUptime": ProcessInfo.processInfo.systemUptime, "result": String(describing: result),
+            "askedUser": false]
+        if let assetID { fields["assetID"] = assetID.uuidString }
+        if let invocation {
+            fields["captureRequestID"] = invocation.requestID.uuidString
+            fields["armAttemptID"] = invocation.armAttemptID.uuidString
+            fields["hostEpoch"] = invocation.hostEpoch.uuidString
+        }
+        recordAcceptance(fields)
+        return result
+    }
+
     private func startAttachmentObservationIfPermitted() async throws {
-        guard !attachmentObservationStarted, !attachmentObservationStarting, let transfer, let store,
+        guard !terminating, !attachmentObservationStarted, !attachmentObservationStarting, let transfer, let store,
               mode != .webAcceptance || automationPermission == .granted else { return }
         attachmentObservationStarting = true
         defer { attachmentObservationStarting = false }
         // Same original-operation recovery as before. No new input is created.
         try await transfer.recover()
         let completedIDs = mode != .capture ? Set(try await store.successfulOperations().map(\.id)) : Set<UUID>()
+        try Task.checkCancellation()
+        guard !terminating else { return }
         // Finish all throwing work before installing tasks/observers. A failed
         // recovery can then be retried without duplicate watchers or a false latch.
         if mode == .webAcceptance, let armingAdapter { startArming(adapter: armingAdapter) }
@@ -351,7 +420,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 do { try await Task.sleep(nanoseconds: self?.simulation == true ? 400_000_000 : 5_000_000_000) } catch { return }
                 guard let self else { return }
                 if self.mode == .webAcceptance {
-                    self.automationPermission = await self.permissionGate.inspect()
+                    self.automationPermission = await self.inspectAutomationPermission(reason: "backgroundObservation")
                     self.updateSetup()
                     guard self.automationPermission == .granted else {
                         self.armedTarget = nil; self.armedCaptureDiagnostics = nil; self.frozenPress = nil
@@ -446,7 +515,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                     if setupIssue == .sourceAccess, captureStatus?.sourceAccessible == true { setupIssue = nil }
                 } catch { receiveCaptureDiagnostic(.classify(error, context: .source)) }
             }
-            automationPermission = await permissionGate.inspect()
+            automationPermission = await inspectAutomationPermission(reason: "setupRecheck")
             do { try await startAttachmentObservationIfPermitted() }
             catch { setupIssue = .targetUnavailable }
             await refresh()
@@ -602,7 +671,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             var errorCode = "browserNotFrontmost"
             if self.foregroundChromeSession != nil {
                 do {
-                    self.automationPermission = await self.permissionGate.inspect()
+                    self.automationPermission = await self.inspectAutomationPermission(reason: "targetArming", invocation: invocation)
                     guard self.automationPermission == .granted else { throw WebAdapterError.disabled }
                     if let web = adapter as? WebAttachmentAdapter {
                         diagnostics = try await web.captureTargetWithDiagnostics(context: invocation)
@@ -667,6 +736,16 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 }
             }
         }
+    }
+
+    private func recordPresentation(_ boundary: RiftPresentationBoundary) {
+        guard mode == .webAcceptance, CommandLine.arguments.contains("--acceptance-trace") else { return }
+        var fields: [String: Any] = ["event": "presentation_boundary", "phase": boundary.phase.rawValue,
+            "assetID": boundary.assetID.uuidString, "visibilityRevision": boundary.visibilityRevision,
+            "generation": boundary.generation, "uptime": boundary.uptime,
+            "actualDuration": boundary.actualDuration, "pixelPresentationMeasured": false]
+        if let id = boundary.operationID { fields["operationID"] = id.uuidString }
+        recordAcceptance(fields)
     }
 
     private func recordSelection(_ boundary: RiftSelectionBoundary) {
@@ -746,6 +825,8 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 }
                 let successful = mode == .webAcceptance ? try await store.successfulOperations() : []
                 let unresolved = try await store.unresolvedOperations()
+                // Independent reads, not an atomic multi-row snapshot or exact COMMIT.
+                let snapshotObservedUptime = ProcessInfo.processInfo.systemUptime
                 var preferenceIssue: CaptureDiagnostic?
                 if let capture {
                     captureStatus = await capture.statusSnapshot()
@@ -753,6 +834,23 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                     catch { detectedSource = nil; preferenceIssue = .classify(error, context: .locationPreference) }
                 }
                 if refreshRequested { continue }
+                if mode == .webAcceptance, CommandLine.arguments.contains("--acceptance-trace") {
+                    for record in snapshot {
+                        var fields: [String: Any] = ["event": "committed_visibility_observed",
+                            "assetID": record.id.uuidString, "status": record.status.rawValue,
+                            "visibility": record.visibility.rawValue, "visibilityReason": record.visibilityReason.rawValue,
+                            "visibilityRevision": record.visibilityRevision, "commitUpperBoundUptime": snapshotObservedUptime,
+                            "exactCommitMeasured": false]
+                        if let id = record.activeOperationID { fields["operationID"] = id.uuidString }
+                        recordAcceptance(fields)
+                    }
+                    for operation in successful {
+                        recordAcceptance(["event": "ready_persistence_observed", "assetID": operation.assetID.uuidString,
+                            "operationID": operation.id.uuidString, "attempt": operation.attempt,
+                            "phase": operation.phase.rawValue, "commitUpperBoundUptime": snapshotObservedUptime,
+                            "exactCommitMeasured": false])
+                    }
+                }
                 let hasNewImages = !activeIDs.subtracting(visibleIDs).isEmpty
                 visibleIDs = activeIDs
                 pendingResultCount = Set(unresolved.filter { $0.phase != .prepared }.map(\.assetID)).count
@@ -1093,9 +1191,11 @@ private enum WebAcceptanceSelfCheck {
             throw RiftletError.invalidTransition
         } catch RiftletError.modeMismatch {}
         let profile = ChatGPTWebPageProgram.acceptanceProfile
-        let policy = ReceiptPolicy(syntheticAcceptanceProfiles: [profile.profileID: .webChat])
-        guard policy.admittedProfiles.isEmpty, policy.retrySafeProfiles.isEmpty,
-              ReceiptPolicy().syntheticAcceptanceProfiles.isEmpty else { throw RiftletError.invalidTransition }
+        let policy = WebAcceptanceConfiguration.receiptPolicy
+        guard policy.admittedProfiles.isEmpty, policy.uploadStartProfiles.isEmpty,
+              policy.retrySafeProfiles.isEmpty, policy.syntheticRetrySafeProfiles.isEmpty,
+              ReceiptPolicy().syntheticAcceptanceProfiles.isEmpty,
+              ReceiptPolicy().syntheticUploadStartProfiles.isEmpty else { throw RiftletError.invalidTransition }
         let target = TargetLease(adapterID: "chatgpt-web", surface: .webChat,
             applicationID: "com.google.Chrome", sessionID: "self-check", windowID: "1", tabID: "1",
             documentID: "synthetic-self-check", composerID: "synthetic", draftGeneration: "1")
@@ -1106,7 +1206,14 @@ private enum WebAcceptanceSelfCheck {
             let receipt = TransferReceipt(operationID: UUID(), assetID: image.id, attempt: 1,
                 assetSHA256: image.sha256, target: target, outcome: .verifiedReady, profileID: profile.profileID,
                 attachmentID: "synthetic-self-check-card", positiveReady: true, belongsToOriginalDraft: true)
-            guard policy.allowsConsumption(receipt: receipt, asset: image, mode: .production) == (origin == .synthetic),
+            let start = TransferReceipt(operationID: receipt.operationID, assetID: image.id, attempt: 1,
+                assetSHA256: image.sha256, target: target, outcome: .uploadStarted, profileID: profile.profileID,
+                attachmentID: "synthetic-self-check-card", belongsToOriginalDraft: true, isUploading: true,
+                uploadStartEvidence: UploadStartEvidence(profileID: ChatGPTWebPageProgram.acceptanceUploadStartProfileID,
+                    signal: .correlatedProgress, evidenceID: UUID().uuidString, inputCount: 1))
+            guard policy.allowsUploadStart(receipt: start, asset: image, mode: .production) == (origin == .synthetic),
+                  !ReceiptPolicy().allowsUploadStart(receipt: start, asset: image, mode: .production),
+                  policy.allowsConsumption(receipt: receipt, asset: image, mode: .production) == (origin == .synthetic),
                   !ReceiptPolicy().allowsConsumption(receipt: receipt, asset: image, mode: .production) else {
                 throw RiftletError.modeMismatch
             }

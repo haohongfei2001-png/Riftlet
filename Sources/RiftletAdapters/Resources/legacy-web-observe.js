@@ -1,7 +1,7 @@
-/* Read-only compatibility for existing v6/v7 operation registries.
+/* Read-only compatibility for existing v6/v7/v8/v9/v10 operation registries.
  * Uses each original observer's closures and proofs; never installs, migrates,
  * rearms, grants input, clears a registry or reconstructs missing identity.
- * v7 explicit-stop invalidation remains permanent, including lost proofs.
+ * v7/v8/v9/v10 explicit-stop invalidation remains permanent, including lost proofs.
  */
 function riftletLegacyWebObserve(command, native) {
   'use strict';
@@ -16,13 +16,13 @@ function riftletLegacyWebObserve(command, native) {
   const identity = command.identity;
   if (!identity || !sameTarget(identity.target, command.target)) throw Error('TARGET_INVALID');
   const blank = version => ({schemaVersion: 1,
-    provenance: {source: 'integratedDevelopment', evidenceID: 'W4-legacy-' + version + '-original-observer'},
+    provenance: {source: 'integratedDevelopment', evidenceID: (['v8', 'v9', 'v10'].includes(version) ? 'W5-legacy-' : 'W4-legacy-') + version + '-original-observer'},
     observation: {identity, state: 'invalidated', exactImageIdentity: false, belongsToOriginalDraft: false,
       hasError: false, isUploading: false, attachmentAbsent: false, automaticRetryExcluded: false}});
   let match = null;
   // Exact frozen target selects the historical implementation. A current page
   // installation or equal business ID is not a substitute for that target.
-  for (const version of ['v6', 'v7']) {
+  for (const version of ['v6', 'v7', 'v8', 'v9', 'v10']) {
     const registry = globalThis['__riftletWebAcceptance20261027' + version];
     if (!registry) continue;
     const seen = new Set(); let current = registry.head;

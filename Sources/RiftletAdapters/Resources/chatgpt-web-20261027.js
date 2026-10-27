@@ -9,9 +9,9 @@
  */
 function riftletWebAcceptance(command, native) {
   'use strict';
-  // v8 separates page interaction from an available, identity-bound composer.
+  // v11 handles native MutationRecord NodeLists so event observation survives early return.
   // Its old native requests remain UNKNOWN instead of acquiring a new lease.
-  const KEY = '__riftletWebAcceptance20261027v8';
+  const KEY = '__riftletWebAcceptance20261027v11';
   const MAX_GENERATIONS = 32;
   const MAX_BYTES = 8 * 1024 * 1024, MAX_PIXELS = 16 * 1024 * 1024;
   const TARGET_KEYS = ['adapterID', 'surface', 'applicationID', 'sessionID', 'windowID', 'tabID', 'documentID', 'composerID', 'draftGeneration'];
@@ -25,7 +25,7 @@ function riftletWebAcceptance(command, native) {
   const hash = async bytes => [...new Uint8Array(await crypto.subtle.digest('SHA-256', bytes))]
     .map(n => n.toString(16).padStart(2, '0')).join('');
   const blankObservation = (identity, state = 'invalidated') => ({
-    schemaVersion: 1,
+    schemaVersion: 2,
     provenance: {source: 'integratedDevelopment', evidenceID: 'W2-integrated-page-20261027'},
     observation: {identity, state, exactImageIdentity: false, belongsToOriginalDraft: false,
       hasError: false, isUploading: false, attachmentAbsent: false, automaticRetryExcluded: false}
@@ -364,9 +364,52 @@ function riftletWebAcceptance(command, native) {
           markBad(op); return;
         }
         if (!matched) { markBad(op); return; }
-        op.proof = {identity: op.identity, card, image, source, loadSequence, completed: tick()};
+        // Diagnostic clock only: not exported and never used to admit completion.
+        op.proof = {identity: op.identity, card, image, source, loadSequence, completed: tick(), completedAtMS: performance.now()};
         op.file = null;
       })().catch(() => markBad(op)).finally(() => { op.proofPending = false; });
+    }
+
+    // Start evidence is independent from the final preview proof. Only snapshots
+    // of the same original progress node, after our one file input, can advance
+    // it. Invalid/replaced/regressing progress permanently loses start eligibility;
+    // none of these observations grants retry or changes completion evidence.
+    const progressNumber = raw => {
+      const value = typeof raw === 'string' && /^(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$/.test(raw) ? Number(raw) : NaN;
+      return Number.isFinite(value) && value >= 0 && value <= 100 ? value : NaN;
+    };
+    function sampleStart(op, progress, now) {
+      if (op.startDisqualified) return;
+      if (progress.length !== 1) {
+        if (op.progressNode) op.startDisqualified = true;
+        return;
+      }
+      const node = progress[0];
+      if (op.progressNode && op.progressNode !== node) { op.startDisqualified = true; return; }
+      if (!op.inputSequence || now <= op.inputSequence
+          || !Number.isFinite(op.inputObservedAtMS) || op.inputObservedAtMS < 0) {
+        op.startDisqualified = true; return;
+      }
+      // Real initial indeterminate progress has no aria-valuenow. Bind that
+      // exact node now so removal/replacement during the wait cannot be hidden.
+      // Missing is allowed only before any finite sample; it proves no start.
+      op.progressNode = node;
+      const raw = node.getAttribute('aria-valuenow');
+      if (raw === null && op.progressValue === null) return;
+      const value = progressNumber(raw);
+      if (!Number.isFinite(value)) { op.startDisqualified = true; return; }
+      const previous = op.progressValue;
+      if (previous !== null && value < previous) { op.startDisqualified = true; return; }
+      op.progressNode = node; op.progressValue = value;
+      if (previous !== null && previous < value && value < 100 && op.fileHashVerified && !op.uploadStart) {
+        const observedAt = performance.now();
+        if (!Number.isFinite(observedAt) || observedAt <= op.inputObservedAtMS) { op.startDisqualified = true; return; }
+        // Times are monotonic milliseconds within this document, not Unix time.
+        op.uploadStart = {version: 1, signal: 'correlatedProgress', evidenceID: crypto.randomUUID(),
+          inputCount: 1, inputSequence: op.inputSequence, startSequence: now,
+          previousProgress: previous, currentProgress: value,
+          inputObservedAtMS: op.inputObservedAtMS, startObservedAtMS: observedAt};
+      }
     }
 
     function sample(op, eventType = 'query', eventImage = null) {
@@ -390,6 +433,7 @@ function riftletWebAcceptance(command, native) {
         op.started ||= now;
         if (progress[0].getAttribute('aria-valuenow') === '100') op.hundred ||= now;
       } else if (op.hundred) op.ended ||= now;
+      sampleStart(op, progress, now);
       if (eventType === 'error' && eventImage === image) { markBad(op, true); return; }
       if (eventType === 'load' && eventImage === image && op.ended && now > op.hundred
           && image.complete && image.naturalWidth > 0 && image.naturalHeight > 0
@@ -409,6 +453,7 @@ function riftletWebAcceptance(command, native) {
       // Mutation batches can detach/reinsert nodes or change a source and restore
       // it before the callback. A final snapshot alone would hide that gap.
       let relevant = false;
+      const progressOldValues = new Map(); // At most one entry per bounded operation.
       for (const record of records) {
         if (containsNode(form, record.target)) relevant = true;
         if (modeGroup && containsNode(modeGroup, record.target)) {
@@ -428,6 +473,27 @@ function riftletWebAcceptance(command, native) {
           }
         }
         for (const op of operations.values()) {
+          if (!op.startDisqualified && record.type === 'attributes' && record.target === op.progressNode
+              && record.attributeName === 'aria-valuenow') {
+            // oldValue records retain intermediate changes hidden by the final
+            // DOM snapshot. Check both record order and every old-to-final edge;
+            // 20 -> 80 -> 10 -> 90 must not look like one safe 20 -> 90 advance.
+            const currentRaw = record.target.getAttribute('aria-valuenow');
+            const oldValue = progressNumber(record.oldValue), currentValue = progressNumber(currentRaw);
+            const previousOldValue = progressOldValues.get(op);
+            // Initial missing -> first finite is only a baseline transition.
+            // A finite oldValue anywhere in this batch ends the missing-value
+            // allowance, including null -> finite -> null -> finite round trips.
+            if (record.oldValue === null) {
+              if (op.progressValue !== null || Number.isFinite(previousOldValue)
+                  || (currentRaw !== null && !Number.isFinite(currentValue))) op.startDisqualified = true;
+            } else if (!Number.isFinite(oldValue) || !Number.isFinite(currentValue) || oldValue > currentValue
+                || (Number.isFinite(previousOldValue) && oldValue < previousOldValue)) op.startDisqualified = true;
+            progressOldValues.set(op, record.oldValue === null ? null : oldValue);
+          }
+          if ([...(record.removedNodes || [])].some(node => containsNode(node, op.progressNode))
+              || (record.type === 'attributes' && record.target === op.progressNode
+                && ['aria-label', 'role'].includes(record.attributeName))) op.startDisqualified = true;
           if (record.type === 'attributes' && ((record.target === op.card && record.attributeName === 'aria-label')
               || (record.target === op.image && record.attributeName === 'alt')
               || (op.loaded && record.target === op.image && ['src', 'srcset'].includes(record.attributeName)))) markBad(op);
@@ -467,7 +533,7 @@ function riftletWebAcceptance(command, native) {
         if (!op.committed || !op.expectingInput || op.inputCount !== 1 || file.size !== op.bytes || file.type !== 'image/png') {
           markBad(op); continue;
         }
-        op.inputSequence = tick(); op.file = file;
+        op.inputSequence = tick(); op.inputObservedAtMS = performance.now(); op.file = file;
         file.arrayBuffer().then(hash).then(digest => {
           if (!observationIdentityValid() || op.invalid || digest !== op.identity.assetSHA256 || op.inputCount !== 1) { markBad(op); return; }
           op.fileHashVerified = true; op.hashSequence = tick(); sample(op, 'inputHash');
@@ -572,7 +638,9 @@ function riftletWebAcceptance(command, native) {
         || command.byteCount < 8 || command.byteCount > MAX_BYTES || state.ownCards(command.uploadName).length) fail('BEGIN_REFUSED');
     op = {identity, name: command.uploadName, bytes: command.byteCount, chunks: [], nextChunk: 0, received: 0,
       committed: false, invalid: false, error: false, inputCount: 0, fileHashVerified: false,
-      inputSequence: 0, started: 0, hundred: 0, ended: 0, loaded: 0, uploading: false, proof: null};
+      inputSequence: 0, inputObservedAtMS: null, progressNode: null, progressValue: null,
+      startDisqualified: false, uploadStart: null,
+      started: 0, hundred: 0, ended: 0, loaded: 0, uploading: false, proof: null};
     state.operations.set(identity.operationID, op);
     return acknowledge(op, 0);
   }
@@ -640,6 +708,14 @@ function riftletWebAcceptance(command, native) {
   }
   if (op.inputCount === 1) observation.state = 'inputTriggered';
   if (op.card && op.image) observation.attachmentID = state.target.documentID + ':' + state.nodeID(op.card) + ':' + state.nodeID(op.image);
+  // A stored start is not itself a current upload claim. Completion, errors,
+  // missing/replaced progress, or an invalid original binding cannot replay it.
+  if (op.uploadStart && !op.startDisqualified && !op.error && !op.proof && !op.ended
+      && op.uploading && op.progressValue >= op.uploadStart.currentProgress && op.progressValue < 100
+      && op.fileHashVerified && op.inputCount === 1 && state.currentMember(op)) {
+    observation.state = 'uploadStarted'; observation.exactImageIdentity = true;
+    observation.uploadStart = {...op.uploadStart};
+  }
   const proof = op.proof;
   if (proof && sameIdentity(proof.identity, identity) && proof.completed > op.loaded && op.loaded > op.hundred
       && op.started && op.ended && op.fileHashVerified && op.inputCount === 1 && state.currentMember(op)

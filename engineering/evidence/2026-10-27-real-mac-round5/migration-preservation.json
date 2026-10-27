@@ -1,0 +1,20 @@
+{
+  "assets": {
+    "before": 11,
+    "allOriginalRowsPreserved": true
+  },
+  "operations": {
+    "before": 17,
+    "allOriginalRowsPreserved": true
+  },
+  "compensations": {
+    "before": 3,
+    "allOriginalRowsPreserved": true
+  },
+  "privateMedia": {
+    "before": 11,
+    "allOriginalHashesMatch": true
+  },
+  "schema": 3,
+  "quickCheck": "ok"
+}

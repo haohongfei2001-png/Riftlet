@@ -13,6 +13,8 @@ on:
       - '.github/workflows/native-foundation.yml'
       - 'engineering/evidence/2026-10-27-real-mac-round2/network-fault.*'
       - 'engineering/evidence/2026-10-27-real-mac-round3/network-probe.*'
+      - 'engineering/evidence/2026-10-27-real-mac-round5/*.js'
+      - 'engineering/evidence/2026-10-27-real-mac-round5/*.cjs'
   pull_request:
     paths:
       - 'Sources/**'
@@ -25,6 +27,8 @@ on:
       - '.github/workflows/native-foundation.yml'
       - 'engineering/evidence/2026-10-27-real-mac-round2/network-fault.*'
       - 'engineering/evidence/2026-10-27-real-mac-round3/network-probe.*'
+      - 'engineering/evidence/2026-10-27-real-mac-round5/*.js'
+      - 'engineering/evidence/2026-10-27-real-mac-round5/*.cjs'
 permissions:
   contents: read
 concurrency:
@@ -60,6 +64,14 @@ jobs:
         run: |
           set -o pipefail
           node engineering/evidence/2026-10-27-real-mac-round3/network-probe.test.cjs 2>&1 | tee test-results/round3-network-probe-fixture.log
+      - name: Verify round-five diagnostic evidence helpers offline
+        # Preserved round-five diagnostic scripts run only with synthetic fixtures.
+        # They do not install hooks in Chrome or generate real upload evidence.
+        run: |
+          set -o pipefail
+          node engineering/evidence/2026-10-27-real-mac-round5/page-evidence-helper.test.cjs 2>&1 | tee test-results/round5-page-evidence-helper.log
+          node engineering/evidence/2026-10-27-real-mac-round5/progress-diagnostic-probe.test.cjs 2>&1 | tee test-results/round5-progress-probe.log
+          node engineering/evidence/2026-10-27-real-mac-round5/versioned-progress-diagnostic-probe.test.cjs 2>&1 | tee test-results/round5-versioned-probe.log
       - name: Native unit and integration tests
         run: |
           set -o pipefail
@@ -77,6 +89,9 @@ jobs:
           swift test --skip-build --filter RiftLifecycleTests 2>&1 | tee test-results/rift-lifecycle-detailed.log
           swift test --skip-build --filter RiftSetupControllerTests 2>&1 | tee test-results/setup-window-detailed.log
           swift test --skip-build --filter ReleaseCaptureTests 2>&1 | tee test-results/release-capture-detailed.log
+          swift test --skip-build --filter PresentationBoundaryTests 2>&1 | tee test-results/presentation-boundaries-detailed.log
+          swift test --skip-build --filter WebAcceptanceIntegrationTests 2>&1 | tee test-results/web-composition-detailed.log
+          swift test --skip-build --filter PassivePermissionResumeTests 2>&1 | tee test-results/passive-permission-resume-detailed.log
       - name: Package native application
         run: |
           set -o pipefail

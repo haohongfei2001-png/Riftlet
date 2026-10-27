@@ -1,0 +1,23 @@
+diff --git a/Sources/RiftletUI/RiftPanelController.swift b/Sources/RiftletUI/RiftPanelController.swift
+--- a/Sources/RiftletUI/RiftPanelController.swift
++++ b/Sources/RiftletUI/RiftPanelController.swift
+@@ -103,6 +103,19 @@
+     }
+ 
+     required init?(coder: NSCoder) { fatalError("init(coder:) is not used") }
++    // Temporary acceptance identity exists only for a currently visible synthetic row.
++    override func accessibilityIdentifier() -> String {
++        guard record.image.origin == .synthetic, record.visibility == .visible,
++              window?.isVisible == true else { return "" }
++        return "riftlet-synthetic-\(record.id.uuidString)"
++    }
++
++    override func isAccessibilityEnabled() -> Bool {
++        guard record.image.origin == .synthetic else { return super.isAccessibilityEnabled() }
++        return record.visibility == .visible && window?.isVisible == true
++            && [.pending, .failed, .unknown, .missing].contains(record.status)
++    }
++
+     override var acceptsFirstResponder: Bool { false }
+     override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
+ 

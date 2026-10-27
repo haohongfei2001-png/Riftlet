@@ -12,11 +12,11 @@ const png = Buffer.from([137,80,78,71,13,10,26,10,1,2,3,4,5,6,7,8]);
 const digest = b => createHash('sha256').update(b).digest('hex');
 const native = {applicationID:'com.google.Chrome', sessionID:'4242:1', windowID:'17', tabID:'19'};
 
-function fixture({blockedDigest = false, route = 'https://chatgpt.com/', mode = 'chat', thread = false} = {}) {
+function fixture({blockedDigest = false, blockedInputDigest = false, route = 'https://chatgpt.com/', mode = 'chat', thread = false} = {}) {
   const events = new Map(), globalEvents = new Map(), navigationEvents = new Map();
-  let focused = true, releaseDigest;
+  let focused = true, releaseDigest, digestCalls = 0;
   const mutationObservers=[];
-  const digestGate = blockedDigest ? new Promise(resolve => { releaseDigest = resolve; }) : Promise.resolve();
+  const digestGate = blockedDigest || blockedInputDigest ? new Promise(resolve => { releaseDigest = resolve; }) : Promise.resolve();
   class Node {
     constructor(tag, attrs = {}) { this.nodeType=1;this.tagName = tag.toUpperCase(); this.attrs = {...attrs}; this.isConnected = true; this.children = []; this.parent = null; this.textContent = ''; }
     getAttribute(k) { return this.attrs[k] ?? null; }
@@ -89,8 +89,16 @@ function fixture({blockedDigest = false, route = 'https://chatgpt.com/', mode = 
   };
   document.contains = node => node === document || body.contains(node);
   body.parent = document;
+  // Native MutationRecord node collections are NodeLists, including empty
+  // lists on attribute records. They are iterable, but have no Array.some.
+  class NodeListLike {
+    constructor(nodes) { this.nodes=Array.from(nodes);this.length=this.nodes.length;this.nodes.forEach((node,i)=>{this[i]=node;}); }
+    item(index) { return this.nodes[index] ?? null; }
+    [Symbol.iterator]() { return this.nodes[Symbol.iterator](); }
+  }
   const mutation = (records, deferDelivery = false) => {
     if (!records.length) records=[{type:'childList',target:form,removedNodes:[],addedNodes:[]}];
+    records=records.map(record=>({...record,removedNodes:new NodeListLike(record.removedNodes || []),addedNodes:new NodeListLike(record.addedNodes || [])}));
     for (const observer of mutationObservers) {
       const delivered=records.filter(record=>observer.observations.some(({target,options})=>
         (target===record.target || (options.subtree && target.contains?.(record.target)))
@@ -110,7 +118,7 @@ function fixture({blockedDigest = false, route = 'https://chatgpt.com/', mode = 
   const context = vm.createContext({console, Uint8Array, Map, Set, WeakMap, Promise, File, atob, queueMicrotask,
     getComputedStyle:node=>({display:node.display||'block',visibility:node.visibility||'visible'}),
     performance:{now:()=>performance.now()},
-    crypto:{randomUUID:() => webcrypto.randomUUID(),subtle:{digest:async(...args) => { await digestGate; return webcrypto.subtle.digest(...args); }}},
+    crypto:{randomUUID:() => webcrypto.randomUUID(),subtle:{digest:async(...args) => { digestCalls++; if(blockedDigest || (blockedInputDigest && digestCalls===2)) await digestGate; return webcrypto.subtle.digest(...args); }}},
     navigation:{addEventListener:(type,fn)=>{if(!navigationEvents.has(type))navigationEvents.set(type,[]);navigationEvents.get(type).push(fn);}},
     location:{href:route}, document, HTMLInputElement:Input, Image:TestImage,
     URL:{createObjectURL:()=>'blob:fixture',revokeObjectURL:()=>{}},
@@ -147,15 +155,16 @@ function fixture({blockedDigest = false, route = 'https://chatgpt.com/', mode = 
     const deadline=Date.now()+2000;
     do {
       await new Promise(resolve=>setTimeout(resolve,1));
-      const ops=[];for(let g=context.__riftletWebAcceptance20261027v8?.head;g;g=g.next) ops.push(...g.operations.values());
+      const ops=[];for(let g=context.__riftletWebAcceptance20261027v11?.head;g;g=g.next) ops.push(...g.operations.values());
       if (ops.every(op=>!op.committed || op.invalid || (op.fileHashVerified && !op.proofPending))) return;
     } while(Date.now()<deadline);
     assert.fail('bounded synthetic async work did not settle');
   };
-  const makeCard = op => {
+  const makeCard = (op, initialProgress = 20) => {
     const card = form.append(new Node('div',{role:'button','aria-label':op.name}));
     const image = card.append(new TestImage()); image.attrs.alt=op.name;image.src='blob:upload';
-    const progress = card.append(new Node('div',{role:'progressbar','aria-label':'正在上传 '+op.name,'aria-valuenow':'20'}));
+    const progress = card.append(new Node('div',{role:'progressbar','aria-label':'正在上传 '+op.name,'aria-valuenow':String(initialProgress)}));
+    if(initialProgress===null)delete progress.attrs['aria-valuenow'];
     mutation([]);
     return {card,image,progress};
   };
@@ -310,7 +319,7 @@ test('returning to a tab can bind a fresh lease while original UNKNOWN stays obs
   for(const fn of f.events.get('visibilitychange')||[]) fn();
   f.document.visibilityState='visible';
   for(const fn of f.events.get('visibilitychange')||[]) fn();
-  const registry=f.context.__riftletWebAcceptance20261027v8;
+  const registry=f.context.__riftletWebAcceptance20261027v11;
   assert.equal(registry.count,1);
   assert.equal(f.observe(old).state,'inputTriggered');assert.equal(registry.count,1);
   const fresh=f.bind('33333333-3333-4333-8333-333333333333');
@@ -335,7 +344,7 @@ test('lease generations are bounded and older state cannot bypass current admiss
     const legacy=fixture({mode:'missing'});
     legacy.context[key]={valid:()=>true,target:{...native,surface:'webChat'}};
     assert.throws(()=>legacy.target(),/UNPROVEN_CHAT_MODE/);
-    assert.equal(legacy.context.__riftletWebAcceptance20261027v8.count,0);
+    assert.equal(legacy.context.__riftletWebAcceptance20261027v11.count,0);
   }
   const f=fixture();let first;
   for(let i=0;i<32;i++) {
@@ -344,7 +353,7 @@ test('lease generations are bounded and older state cannot bypass current admiss
     f.document.visibilityState='visible';
   }
   assert.throws(()=>f.target(),/LEASE_GENERATION_LIMIT/);
-  const registry=f.context.__riftletWebAcceptance20261027v8;
+  const registry=f.context.__riftletWebAcceptance20261027v11;
   assert.equal(registry.count,32);assert.equal(registry.head.target.documentID,first.documentID);
   assert.equal(f.call({action:'validate',target:first}).valid,false);assert.equal(f.input.inputCount,0);
 });
@@ -567,7 +576,7 @@ test('trusted composer-external interaction does not hide a committed business A
     threadCommit(f);
     assert.equal(f.call({action:'validate',target:op.target}).valid,false);
     assert.equal(f.observe(op).state,'invalidated');
-    assert.equal(f.context.__riftletWebAcceptance20261027v8.tail.continuityEvents.outsideInteraction,1);
+    assert.equal(f.context.__riftletWebAcceptance20261027v11.tail.continuityEvents.outsideInteraction,1);
     assert.equal(f.input.inputCount,1);
   }
 });
@@ -581,7 +590,7 @@ test('Navigation API events permanently end observation and input despite final 
     f.form.__reactFiber$fixture=original;
     assert.equal(f.call({action:'validate',target:op.target}).valid,false);
     assert.equal(f.observe(op).state,'invalidated');assert.equal(f.observe(op).belongsToOriginalDraft,false);
-    assert.equal(f.context.__riftletWebAcceptance20261027v8.tail.continuityEvents[type],1);
+    assert.equal(f.context.__riftletWebAcceptance20261027v11.tail.continuityEvents[type],1);
     assert.equal(f.input.inputCount,1);
   }
 });
@@ -590,7 +599,7 @@ test('trusted editor typing and untrusted external events do not revoke the inpu
   const f=fixture({thread:true}),t=f.target();
   for(const type of ['pointerdown','click','keydown']){f.documentEvent(type,f.editor);f.documentEvent(type,f.body,false);}
   assert.equal(f.call({action:'validate',target:t}).valid,true);
-  assert.equal(f.context.__riftletWebAcceptance20261027v8.tail.continuityEvents.outsideInteraction,0);
+  assert.equal(f.context.__riftletWebAcceptance20261027v11.tail.continuityEvents.outsideInteraction,0);
 });
 
 function threadCommit(f, id = f.businessID) {
@@ -605,7 +614,7 @@ test('v7 root setter observes both real assignments in same-DOM business ABA and
   const descriptor=Object.getOwnPropertyDescriptor(root,'current');assert.equal(typeof descriptor.set,'function');
   threadCommit(f,'local-chatgpt:00000000-0000-0000-0000-000000000000');
   threadCommit(f);
-  const registry=f.context.__riftletWebAcceptance20261027v8;
+  const registry=f.context.__riftletWebAcceptance20261027v11;
   assert.equal([...registry.rootMonitors.values()][0].diagnostics.commits,2);
   assert.equal(f.call({action:'validate',target:old}).valid,false);
   const fresh=f.target();assert.notEqual(fresh.draftGeneration,old.draftGeneration);
@@ -617,7 +626,7 @@ test('v7 same-ID normal commits preserve input and perform one binding check per
   const f=fixture({thread:true}),old=f.target();
   threadCommit(f);assert.equal(f.call({action:'validate',target:old}).valid,true);
   f.windowEvent('blur');f.windowEvent('focus');const fresh=f.target();
-  const monitor=[...f.context.__riftletWebAcceptance20261027v8.rootMonitors.values()][0],before=monitor.diagnostics.checks;
+  const monitor=[...f.context.__riftletWebAcceptance20261027v11.rootMonitors.values()][0],before=monitor.diagnostics.checks;
   threadCommit(f);assert.equal(monitor.diagnostics.checks-before,1);
   assert.equal(f.call({action:'validate',target:fresh}).valid,true);
   assert.equal(f.call({action:'validate',target:old}).valid,false);
@@ -635,7 +644,7 @@ test('v7 checker exceptions and reentrant commits cannot escape into React or ro
     }});
     assert.doesNotThrow(()=>{root.current=next.root;});
     assert.equal(root.current,reentrant?last:next.root);
-    const monitor=[...f.context.__riftletWebAcceptance20261027v8.rootMonitors.values()][0];
+    const monitor=[...f.context.__riftletWebAcceptance20261027v11.rootMonitors.values()][0];
     assert.equal(monitor.diagnostics.reason,reentrant?'REENTRANT_COMMIT':'CHECK_FAILED');
     assert.equal(monitor.diagnostics.stopped,true);
     delete f.form.__reactFiber$fixture;
@@ -650,7 +659,7 @@ test('v7 replaced or frozen root descriptor is permanently disqualified and cann
     else Object.defineProperty(root,'current',{value,writable:true,configurable:true,enumerable:true});
     assert.equal(f.call({action:'validate',target:old}).valid,false);
     assert.throws(()=>f.target(),/ROOT_MONITOR_LOST/);
-    const result=f.context.__riftletWebAcceptance20261027v8.stopRootMonitors();
+    const result=f.context.__riftletWebAcceptance20261027v11.stopRootMonitors();
     assert.equal(result[0].restored,false);
     assert.equal(root.current,value);
   }
@@ -658,7 +667,7 @@ test('v7 replaced or frozen root descriptor is permanently disqualified and cann
 
 test('v7 explicit stop restores only its own descriptor with the latest committed value and cannot rearm old leases', () => {
   const f=fixture({thread:true}),root=f.fibers.root.stateNode,original=Object.getOwnPropertyDescriptor(root,'current'),old=f.target();
-  const next=threadCommit(f);const result=f.context.__riftletWebAcceptance20261027v8.stopRootMonitors();
+  const next=threadCommit(f);const result=f.context.__riftletWebAcceptance20261027v11.stopRootMonitors();
   const restored=Object.getOwnPropertyDescriptor(root,'current');
   assert.equal(result[0].restored,true);assert.equal(restored.value,next.root);
   for(const key of ['enumerable','writable','configurable'])assert.equal(restored[key],original[key]);
@@ -677,11 +686,11 @@ test('v7 ambiguous or replaced original form binding at commit revokes the origi
 });
 
 test('v7 Home does not instrument React roots; unmodifiable thread descriptors refuse before observer registration', () => {
-  const home=fixture();home.target();assert.equal(home.context.__riftletWebAcceptance20261027v8.rootMonitors.size,0);
+  const home=fixture();home.target();assert.equal(home.context.__riftletWebAcceptance20261027v11.rootMonitors.size,0);
   const f=fixture({thread:true}),root=f.fibers.root.stateNode;
   Object.defineProperty(root,'current',{value:root.current,writable:false,configurable:false});
   assert.throws(()=>f.target(),/UNOBSERVED_ROOT_DESCRIPTOR/);
-  assert.equal(f.events.size,0);assert.equal(f.context.__riftletWebAcceptance20261027v8.count,0);
+  assert.equal(f.events.size,0);assert.equal(f.context.__riftletWebAcceptance20261027v11.count,0);
 });
 
 test('R01 body/sidebar interactions keep the original usable composer without focusing its editor', async () => {
@@ -764,14 +773,291 @@ test('unsupported unobserved business ABA: assert current limitation after ordin
   // Keep this limitation visible alongside the observed-commit ABA rejection.
   for(const type of ['pointerdown','click','keydown']) {
     const f=fixture({thread:true}),target=f.target(),original=f.form.__reactFiber$fixture;
-    const monitor=[...f.context.__riftletWebAcceptance20261027v8.rootMonitors.values()][0];
+    const monitor=[...f.context.__riftletWebAcceptance20261027v11.rootMonitors.values()][0];
     f.documentEvent(type,f.body);
     f.form.__reactFiber$fixture=f.makeFibers('local-chatgpt:00000000-0000-0000-0000-000000000000').leaf;
     f.form.__reactFiber$fixture=original;
     await Promise.resolve(); // The outside-interaction recheck sees only final A.
     assert.equal(monitor.diagnostics.commits,0);
     assert.equal(f.call({action:'validate',target}).valid,true); // Known unsupported transition class.
-    assert.equal(f.context.__riftletWebAcceptance20261027v8.tail.continuityEvents.outsideInteraction,1);
+    assert.equal(f.context.__riftletWebAcceptance20261027v11.tail.continuityEvents.outsideInteraction,1);
     assert.equal(f.input.inputCount,0); // The fixture does not perform an upload.
   }
+});
+
+
+function setProgress(f, view, value) {
+  const oldValue=view.progress.getAttribute('aria-valuenow');
+  if(value===null)delete view.progress.attrs['aria-valuenow'];
+  else view.progress.attrs['aria-valuenow']=String(value);
+  f.mutate([{type:'attributes',target:view.progress,attributeName:'aria-valuenow',oldValue}]);
+}
+
+async function startedFixture(options={}) {
+  const f=fixture(options),op=f.bind();f.stage(op);f.commit(op);await f.settle();
+  const view=f.makeCard(op);setProgress(f,view,40);
+  assert.equal(f.observe(op).state,'uploadStarted');
+  return {f,op,view};
+}
+
+test('v9 correlated progress timeline proves start before independent final ready with exact original identity', async () => {
+  const f=fixture({thread:true}),op=f.bind();f.stage(op);
+  const pending=f.commit(op);assert.equal(pending.schemaVersion,2);assert.equal(pending.observation.uploadStart,undefined);
+  await f.settle();assert.equal(f.observe(op).state,'inputTriggered');
+  const view=f.makeCard(op);assert.equal(f.observe(op).uploadStart,undefined);
+  setProgress(f,view,40);
+  const start=f.observe(op),e=start.uploadStart;
+  assert.equal(start.state,'uploadStarted');assert.equal(start.exactImageIdentity,true);
+  assert.equal(start.belongsToOriginalDraft,true);assert.equal(start.hasError,false);assert.equal(start.isUploading,true);
+  assert.deepEqual(start.identity,op.identity);assert.ok(start.attachmentID);
+  assert.deepEqual(Object.keys(e).sort(),['version','signal','evidenceID','inputCount','inputSequence','startSequence','previousProgress','currentProgress','inputObservedAtMS','startObservedAtMS'].sort());
+  assert.equal(e.version,1);assert.equal(e.signal,'correlatedProgress');assert.equal(e.inputCount,1);
+  assert.match(e.evidenceID,/^[a-f0-9-]{36}$/i);assert.equal(e.previousProgress,20);assert.equal(e.currentProgress,40);
+  assert.ok(e.inputSequence>0 && e.startSequence>e.inputSequence);
+  assert.ok(Number.isFinite(e.inputObservedAtMS) && e.inputObservedAtMS>=0 && e.startObservedAtMS>e.inputObservedAtMS);
+  assert.equal(e.profileID,undefined);assert.equal(e.safeToRetry,undefined);
+  const repeated=f.observe(op);assert.deepEqual(repeated.uploadStart,e);
+  setProgress(f,view,60);assert.deepEqual(f.observe(op).uploadStart,e);
+  setProgress(f,view,100);assert.equal(f.observe(op).uploadStart,undefined);assert.notEqual(f.observe(op).state,'uploadStarted');
+  f.finish(view);await f.settle();const ready=f.observe(op);
+  assert.equal(ready.state,'attached');assert.equal(ready.attachmentID,start.attachmentID);assert.equal(ready.uploadStart,undefined);
+  const internal=f.context.__riftletWebAcceptance20261027v11.tail.operations.get(op.identity.operationID);
+  assert.ok(internal.proof.completed>e.startSequence);assert.equal(f.input.inputCount,1);
+});
+
+test('v9 files/change, placeholder, identical samples and a lone hundred percent never establish start', async () => {
+  const f=fixture(),op=f.bind();f.stage(op);f.commit(op);await f.settle();
+  assert.equal(f.input.files.length,1);assert.equal(f.observe(op).uploadStart,undefined);
+  const view=f.makeCard(op);
+  for(let i=0;i<5;i++){f.mutate([]);assert.equal(f.observe(op).state,'inputTriggered');assert.equal(f.observe(op).uploadStart,undefined);}
+  setProgress(f,view,100);assert.equal(f.observe(op).uploadStart,undefined);
+  f.finish(view);await f.settle();assert.equal(f.observe(op).state,'attached');assert.equal(f.observe(op).uploadStart,undefined);
+  const hundredOnly=fixture(),hundred=hundredOnly.bind();hundredOnly.stage(hundred);hundredOnly.commit(hundred);await hundredOnly.settle();
+  hundredOnly.makeCard(hundred,100);assert.equal(hundredOnly.observe(hundred).uploadStart,undefined);
+  const g=fixture(),other=g.bind();g.stage(other);g.commit(other);await g.settle();const placeholder=g.makeCard(other);
+  placeholder.card.children=placeholder.card.children.filter(n=>n!==placeholder.progress);placeholder.progress.isConnected=false;
+  g.mutate([]);assert.equal(g.observe(other).uploadStart,undefined);
+});
+
+test('v9 both progress samples must follow the original input and exact file hash must already verify', async () => {
+  const before=fixture(),op=before.bind();before.stage(op);const premature=before.makeCard(op);setProgress(before,premature,40);
+  before.commit(op);await before.settle();assert.equal(before.input.inputCount,0);assert.equal(before.observe(op).uploadStart,undefined);
+  const f=fixture({blockedInputDigest:true}),later=f.bind();f.stage(later);f.commit(later);
+  const deadline=Date.now()+1000;
+  while(!f.input.inputCount && Date.now()<deadline)await new Promise(resolve=>setTimeout(resolve,1));
+  assert.equal(f.input.inputCount,1);
+  const view=f.makeCard(later);setProgress(f,view,40);assert.equal(f.observe(later).uploadStart,undefined);
+  f.release();await f.settle();assert.equal(f.observe(later).uploadStart,undefined);
+  setProgress(f,view,60);assert.equal(f.observe(later).state,'uploadStarted');
+});
+
+test('v9 invalid numeric progress or regression permanently disqualifies start without fabricating failure', async () => {
+  for(const value of [null,'','NaN','Infinity','-1','101',' 30','30 ','1e2','0x20',10,100]) {
+    const f=fixture(),op=f.bind();f.stage(op);f.commit(op);await f.settle();const view=f.makeCard(op);
+    setProgress(f,view,value);assert.equal(f.observe(op).uploadStart,undefined);
+    setProgress(f,view,40);const result=f.observe(op);
+    assert.equal(result.uploadStart,undefined);assert.equal(result.hasError,false);assert.equal(f.input.inputCount,1);
+  }
+});
+
+test('v9 progress node replacement, transient detach and changed label cannot inherit start evidence', async () => {
+  for(const change of [
+    (f,v)=>{const replacement=new f.Node('div',{...v.progress.attrs,'aria-valuenow':'40'});v.card.children=v.card.children.filter(n=>n!==v.progress);v.progress.isConnected=false;v.card.append(replacement);v.progress=replacement;f.mutate([]);},
+    (f,v)=>f.mutate([{type:'childList',target:v.card,removedNodes:[v.progress],addedNodes:[v.progress]}]),
+    (f,v)=>f.mutate([{type:'attributes',target:v.progress,attributeName:'aria-label',oldValue:'unrelated'}]),
+    (f,v)=>{v.card.append(new f.Node('div',{...v.progress.attrs}));f.mutate([]);},
+    (f,v)=>{v.progress.attrs['aria-label']='正在上传 another.png';f.mutate([]);}
+  ]) {
+    const f=fixture(),op=f.bind();f.stage(op);f.commit(op);await f.settle();const view=f.makeCard(op);
+    change(f,view);setProgress(f,view,60);assert.equal(f.observe(op).uploadStart,undefined);assert.equal(f.input.inputCount,1);
+  }
+});
+
+test('v9 start disappears on original error, missing progress, navigation, card replacement or repeated input', async () => {
+  for(const change of [
+    (f,o,v)=>{v.card.attrs['data-state']='error';f.mutate([]);},
+    (f,o,v)=>{v.card.children=v.card.children.filter(n=>n!==v.progress);v.progress.isConnected=false;f.mutate([]);},
+    (f,o,v)=>{f.context.location.href='https://chatgpt.com/c/changed';},
+    (f,o,v)=>{f.form.children=f.form.children.filter(n=>n!==v.card);v.card.isConnected=false;f.makeCard(o);},
+    (f,o,v)=>f.documentEvent('change',f.input)
+  ]) {
+    const {f,op,view}=await startedFixture();change(f,op,view);
+    const result=f.observe(op);assert.notEqual(result.state,'uploadStarted');assert.equal(result.uploadStart,undefined);
+    assert.equal(result.automaticRetryExcluded,false);
+  }
+});
+
+test('v9 evidence is bound to full operation/attempt/asset/target and remains observation-only after blur', async () => {
+  const {f,op}=await startedFixture({thread:true});
+  for(const identity of [
+    {...op.identity,attempt:2}, {...op.identity,assetID:'33333333-3333-4333-8333-333333333333'},
+    {...op.identity,assetSHA256:'a'.repeat(64)}, {...op.identity,operationID:'33333333-3333-4333-8333-333333333333'},
+    {...op.identity,target:{...op.target,draftGeneration:'other'}}
+  ])assert.equal(f.call({action:'observe',target:identity.target,identity}).observation.uploadStart,undefined);
+  const start=f.observe(op);f.windowEvent('blur');f.focus(false);
+  assert.equal(f.call({action:'validate',target:op.target}).valid,false);
+  assert.deepEqual(f.observe(op).uploadStart,start.uploadStart);assert.equal(f.input.inputCount,1);
+});
+
+test('v9 registry does not inspect, mutate or stop an existing v8 observer', () => {
+  const f=fixture();let touched=0;
+  const legacy=new Proxy({}, {get(){touched++;throw Error('legacy observer accessed');},set(){touched++;throw Error('legacy observer mutated');}});
+  Object.defineProperty(f.context,'__riftletWebAcceptance20261027v8',{value:legacy,configurable:false,writable:false});
+  assert.ok(f.target());assert.ok(f.context.__riftletWebAcceptance20261027v11);assert.equal(touched,0);
+});
+
+
+test('v9 finite zero-to-fractional progress is valid and later regression cancels start permanently', async () => {
+  const f=fixture(),op=f.bind();f.stage(op);f.commit(op);await f.settle();const view=f.makeCard(op,0);
+  setProgress(f,view,0.5);const start=f.observe(op);
+  assert.equal(start.state,'uploadStarted');assert.equal(start.uploadStart.previousProgress,0);assert.equal(start.uploadStart.currentProgress,0.5);
+  setProgress(f,view,0.25);assert.equal(f.observe(op).uploadStart,undefined);
+  setProgress(f,view,50);assert.equal(f.observe(op).uploadStart,undefined);assert.equal(f.input.inputCount,1);
+});
+
+
+test('v9 equal input/start monotonic timestamps refuse start under the strict chronology contract', async () => {
+  const f=fixture();f.context.performance.now=()=>42;
+  const op=f.bind();f.stage(op);f.commit(op);await f.settle();const view=f.makeCard(op);
+  setProgress(f,view,40);const result=f.observe(op);
+  assert.equal(result.state,'inputTriggered');assert.equal(result.uploadStart,undefined);
+  assert.equal(result.hasError,false);assert.equal(f.input.inputCount,1);
+  f.context.performance.now=()=>43;setProgress(f,view,60);
+  assert.equal(f.observe(op).uploadStart,undefined);
+  f.finish(view);await f.settle();assert.equal(f.observe(op).state,'attached');
+});
+
+
+function queueProgressBatch(f, view, values) {
+  const records=[];
+  for(const value of values) {
+    const oldValue=view.progress.getAttribute('aria-valuenow');
+    if(value===null)delete view.progress.attrs['aria-valuenow'];
+    else view.progress.attrs['aria-valuenow']=String(value);
+    records.push({type:'attributes',target:view.progress,attributeName:'aria-valuenow',oldValue});
+  }
+  f.queueMutation(records);
+}
+
+test('v9 queued progress rollback, hundred-to-lower and illegal intermediate values permanently cancel start', async () => {
+  for(const alreadyStarted of [false,true])for(const values of [[80,10,40],[80,10,90],[100,40],['broken',40],[null,40]]) {
+    const f=fixture(),op=f.bind();f.stage(op);f.commit(op);await f.settle();const view=f.makeCard(op);
+    if(alreadyStarted){setProgress(f,view,30);assert.equal(f.observe(op).state,'uploadStarted');}
+    queueProgressBatch(f,view,values); // Final DOM snapshot alone is above the original 20/30.
+    const result=f.observe(op); // Must drain all oldValue records before publishing.
+    assert.equal(result.uploadStart,undefined);assert.notEqual(result.state,'uploadStarted');
+    assert.equal(result.hasError,false);assert.equal(f.input.inputCount,1);
+    setProgress(f,view,95);assert.equal(f.observe(op).uploadStart,undefined);
+    f.finish(view);await f.settle();assert.equal(f.observe(op).state,'attached');
+  }
+});
+
+test('v9 a monotonic coalesced progress batch retains start eligibility without inventing extra samples', async () => {
+  const f=fixture(),op=f.bind();f.stage(op);f.commit(op);await f.settle();const view=f.makeCard(op);
+  queueProgressBatch(f,view,[20,30,40,60]);const result=f.observe(op);
+  assert.equal(result.state,'uploadStarted');assert.equal(result.uploadStart.previousProgress,20);
+  assert.equal(result.uploadStart.currentProgress,60);assert.equal(result.uploadStart.inputCount,1);
+});
+
+
+test('v9 final proof keeps an internal diagnostic timestamp without adding receipt fields or a new completion gate', async () => {
+  const f=fixture();let clock=10;f.context.performance.now=()=>clock;
+  const op=f.bind();f.stage(op);f.commit(op);await f.settle();const view=f.makeCard(op);
+  clock=20;setProgress(f,view,40);const start=f.observe(op);
+  assert.equal(start.uploadStart.inputObservedAtMS,10);assert.equal(start.uploadStart.startObservedAtMS,20);
+  clock=30;f.finish(view);await f.settle();
+  const envelope=f.call(op.command('observe')),proof=f.context.__riftletWebAcceptance20261027v11.tail.operations.get(op.identity.operationID).proof;
+  assert.equal(envelope.observation.state,'attached');assert.equal(proof.completedAtMS,30);
+  assert.ok(proof.completedAtMS>start.uploadStart.startObservedAtMS);
+  assert.equal(envelope.completedAtMS,undefined);assert.equal(envelope.observation.completedAtMS,undefined);
+  assert.equal(envelope.observation.uploadStart,undefined);assert.equal(JSON.stringify(envelope).includes('completedAtMS'),false);
+  // Diagnostic data is deliberately not an additional ready criterion.
+  proof.completedAtMS=NaN;assert.equal(f.observe(op).state,'attached');
+});
+
+
+test('v10 real initial missing progress waits on its original node and two observed decimals establish start', async () => {
+  const f=fixture();let clock=10;f.context.performance.now=()=>clock;
+  const op=f.bind();f.stage(op);f.commit(op);await f.settle();const view=f.makeCard(op,null);
+  const internal=f.context.__riftletWebAcceptance20261027v11.tail.operations.get(op.identity.operationID);
+  assert.equal(internal.progressNode,view.progress);assert.equal(internal.progressValue,null);assert.equal(internal.startDisqualified,false);
+  for(let i=0;i<3;i++){f.mutate([]);assert.equal(f.observe(op).uploadStart,undefined);}
+  clock=20;setProgress(f,view,4.5378966329499795);
+  assert.equal(f.observe(op).uploadStart,undefined);assert.equal(internal.progressValue,4.5378966329499795);
+  clock=30;setProgress(f,view,9.075793265899959);const start=f.observe(op);
+  assert.equal(start.state,'uploadStarted');assert.equal(start.uploadStart.previousProgress,4.5378966329499795);
+  assert.equal(start.uploadStart.currentProgress,9.075793265899959);
+  assert.equal(start.uploadStart.inputObservedAtMS,10);assert.equal(start.uploadStart.startObservedAtMS,30);
+  assert.equal(f.input.inputCount,1);f.finish(view);await f.settle();assert.equal(f.observe(op).state,'attached');
+});
+
+test('v10 finite-then-missing and coalesced missing round trips permanently disqualify start', async () => {
+  for(const initial of [null,4.5378966329499795])for(const values of [[4.5378966329499795,null,9.075793265899959],[4.5378966329499795,null],[100,null,9.075793265899959],['',9.075793265899959]]) {
+    const f=fixture(),op=f.bind();f.stage(op);f.commit(op);await f.settle();const view=f.makeCard(op,initial);
+    queueProgressBatch(f,view,values);assert.equal(f.observe(op).uploadStart,undefined);
+    const internal=f.context.__riftletWebAcceptance20261027v11.tail.operations.get(op.identity.operationID);
+    assert.equal(internal.startDisqualified,true);
+    setProgress(f,view,20);setProgress(f,view,40);assert.equal(f.observe(op).uploadStart,undefined);assert.equal(f.input.inputCount,1);
+    f.finish(view);await f.settle();assert.equal(f.observe(op).state,'attached');
+  }
+  const f=fixture(),op=f.bind();f.stage(op);f.commit(op);await f.settle();const view=f.makeCard(op,null);
+  setProgress(f,view,4.5378966329499795);setProgress(f,view,null);setProgress(f,view,9.075793265899959);
+  assert.equal(f.observe(op).uploadStart,undefined);
+});
+
+test('v10 initial missing progress cannot survive replacement or transient removal', async () => {
+  for(const replace of [false,true]) {
+    const f=fixture(),op=f.bind();f.stage(op);f.commit(op);await f.settle();const view=f.makeCard(op,null),old=view.progress;
+    if(replace){view.card.children=view.card.children.filter(n=>n!==old);old.isConnected=false;view.progress=view.card.append(new f.Node('div',{role:'progressbar','aria-label':'正在上传 '+op.name}));}
+    f.mutate([{type:'childList',target:view.card,removedNodes:[old],addedNodes:[view.progress]}]);
+    setProgress(f,view,4.5378966329499795);setProgress(f,view,9.075793265899959);
+    assert.equal(f.observe(op).uploadStart,undefined);
+    assert.equal(f.context.__riftletWebAcceptance20261027v11.tail.operations.get(op.identity.operationID).startDisqualified,true);
+  }
+});
+
+test('v10 monotonic coalesced initial missing history cannot invent two sampled finite values', async () => {
+  const f=fixture(),op=f.bind();f.stage(op);f.commit(op);await f.settle();const view=f.makeCard(op,null);
+  queueProgressBatch(f,view,[4.5378966329499795,9.075793265899959]);
+  assert.equal(f.observe(op).uploadStart,undefined);
+  setProgress(f,view,13.61368989884994);const start=f.observe(op);
+  assert.equal(start.state,'uploadStarted');assert.equal(start.uploadStart.previousProgress,9.075793265899959);
+});
+
+test('v10 initial missing exception does not admit malformed numeric placeholders or access the old v9 registry', async () => {
+  for(const invalid of ['', 'NaN', 'Infinity', '-1', '101']) {
+    const f=fixture(),op=f.bind();f.stage(op);f.commit(op);await f.settle();const view=f.makeCard(op,invalid);
+    setProgress(f,view,4.5378966329499795);setProgress(f,view,9.075793265899959);assert.equal(f.observe(op).uploadStart,undefined);
+  }
+  const f=fixture();let touched=0;
+  Object.defineProperty(f.context,'__riftletWebAcceptance20261027v9',{value:new Proxy({}, {get(){touched++;throw Error('old v9 accessed');},set(){touched++;throw Error('old v9 mutated');}})});
+  assert.ok(f.target());assert.equal(touched,0);
+});
+
+
+test('v11 real NodeList-like callbacks finish original upload without any native observe after start', async () => {
+  const f=fixture(),op=f.bind();f.stage(op);f.commit(op);await f.settle();
+  const internal=f.context.__riftletWebAcceptance20261027v11.tail.operations.get(op.identity.operationID);
+  const view=f.makeCard(op,null);
+  setProgress(f,view,4.5378966329499795);assert.equal(internal.uploadStart,null);
+  setProgress(f,view,9.075793265899959);assert.ok(internal.uploadStart);
+  // No f.observe(), captureTarget(), drain(), or query drives progress below.
+  const startSequence=internal.uploadStart.startSequence;
+  setProgress(f,view,100);assert.ok(internal.hundred>startSequence);
+  view.card.children=view.card.children.filter(node=>node!==view.progress);view.progress.isConnected=false;
+  f.mutate([{type:'childList',target:view.card,removedNodes:[view.progress],addedNodes:[]}]);
+  assert.ok(internal.ended>internal.hundred);
+  view.image.src='data:image/png;base64,'+op.bytes.toString('base64');
+  f.mutate([{type:'attributes',target:view.image,attributeName:'src'}]);
+  for(const listener of f.events.get('load')||[])listener({type:'load',target:view.image});
+  await f.settle();assert.ok(internal.loaded>internal.hundred);assert.ok(internal.proof);
+  assert.ok(internal.proof.completed>internal.loaded);assert.equal(f.input.inputCount,1);
+  assert.equal(f.observe(op).state,'attached');
+});
+
+
+test('v11 never mutates or stops a historical v10 observer when installing a new registry', () => {
+  const f=fixture();let touched=0;
+  Object.defineProperty(f.context,'__riftletWebAcceptance20261027v10',{value:new Proxy({}, {get(){touched++;throw Error('old v10 accessed');},set(){touched++;throw Error('old v10 mutated');}})});
+  assert.ok(f.target());assert.equal(touched,0);assert.ok(f.context.__riftletWebAcceptance20261027v11);
 });

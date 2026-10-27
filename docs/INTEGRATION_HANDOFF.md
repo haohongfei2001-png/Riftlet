@@ -322,3 +322,12 @@ git worktree add -b codex/riftlet-real-mac-round2-20261027 ../Riftlet-real-mac-r
 PR #4 的 `90a04883160032fc6354fb4f3d3f7d56fede2947` 是本轮产品依据：实际 uploadStarted 后快速视觉吞噬，最终 READY 与安全重传独立。旧版 used/READY 动画不是新版视觉契约 PASS。详见[第四轮证据与限制](../engineering/evidence/2026-10-27-real-mac-round4/README.md)、[Core persisted profile 最小补丁请求](../engineering/evidence/2026-10-27-real-mac-round4/core-persisted-identity-request.md)和[App ACK 发布接口](../engineering/evidence/2026-10-27-real-mac-round4/app-integration-request.md)。
 
 保留原 SQLite v2、16 个原媒体文件、16 个原操作和 3 个补偿审计；新加 1 图/1 成功操作。原 UNKNOWN 未重放。App 已正常退出，原页面 v8 observer 特意保留以支持可能的原操作迟到失败只读观察；不应 stop/清 registry 来制造新 bind。生产来源、安全重传仍关闭。
+
+
+## 第五轮本地 Mac 候选：真实新版链路已验证，未合入正式分支
+
+独立分支 `codex/riftlet-real-mac-round5-20261027`；最终已测源码 `53ebcc4da4b0df508edc11f6ead9ea4d8a843dad`，正式基线 `e89d49f763036781c90618422da256e03cbca2ac`。完整 CI [40497953468](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40497953468) PASS：314 native / 68 page / 45 legacy / 13 lifecycle detailed。Web v11/schema2 保留 v6–v10 原操作只读；修复真实初始无数值进度误拒绝，以及真实 MutationRecord NodeList 没有 `.some()` 导致 start 早返回后观察中断。
+
+实际生成图片的 **一次 helper AX → 真实递增上传开始 → AppKit 快吞噬 → 后台独立最终成功 PASS（限定）**。原 input=1、完整 target/attachment、首份 start 审计、较晚 final proof 和 persisted succeeded 对齐；开始后约59–322ms调用动画，动画段约253ms，窗口关闭早于最终证明约4.89–5.16s。不是物理鼠标或无ACK冷首击；原保留配置swallowDuration=.24，不是点击到关闭仅253ms。
+
+Core/UI/App正式源码未改；两份最小临时overlay供Pro接入synthetic start策略及诊断/AX元数据。生产、safe retry仍关闭。原11 Web资产/17操作/3补偿及所有原私有媒体哈希保留，新增5图各input1，其中2图未决保持原样；未发送消息。详见[第五轮完整交接](../engineering/evidence/2026-10-27-real-mac-round5/README.md)。本段替代此前“等待人工点第2张”的准备检查点；无需再请求该动作。下一项为Pro集成限定synthetic补丁，其后继续冷首击、业务转换、同草稿多图与物理N1，MID及安全终止分别准入。

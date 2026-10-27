@@ -75,8 +75,8 @@ final class ObservationNormalizerTests: XCTestCase {
     func testDecoderRejectsUnknownVersionOversizeAndPayloadAdmissionFields() async throws {
         let (_, request) = try await fixture()
         let packet = try envelope(request)
-        XCTAssertThrowsError(try mutate(packet) { $0["schemaVersion"] = 2 }) {
-            XCTAssertEqual($0 as? ObservationError, .unsupportedSchema(2))
+        XCTAssertThrowsError(try mutate(packet) { $0["schemaVersion"] = 3 }) {
+            XCTAssertEqual($0 as? ObservationError, .unsupportedSchema(3))
         }
         XCTAssertThrowsError(try ObservationDecoder.decode(Data(repeating: 32, count: 65 * 1024))) {
             XCTAssertEqual($0 as? ObservationError, .oversizedPayload)
