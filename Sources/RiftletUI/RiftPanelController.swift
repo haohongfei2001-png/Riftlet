@@ -212,9 +212,12 @@ private final class RiftRowView: NSView, NSMenuDelegate {
         imageLayer.add(animation, forKey: "rift.translation")
     }
 
-    override func mouseDown(with event: NSEvent) { _ = onDown?(event) }
+    override func mouseDown(with event: NSEvent) {
+        guard geometry.containsSelectionPoint(convert(event.locationInWindow, from: nil)) else { return }
+        _ = onDown?(event)
+    }
     override func mouseUp(with event: NSEvent) {
-        onUp?(bounds.contains(convert(event.locationInWindow, from: nil)))
+        onUp?(geometry.containsSelectionPoint(convert(event.locationInWindow, from: nil)))
     }
     override func scrollWheel(with event: NSEvent) { onScroll?(event.scrollingDeltaY) }
     override func accessibilityPerformPress() -> Bool { onAccessiblePress?() ?? false }

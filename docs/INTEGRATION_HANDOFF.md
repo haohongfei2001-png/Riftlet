@@ -1,4 +1,23 @@
-# 正式工程集成交接 · 第六轮性能与目标识别 · 2026-10-27
+# 正式工程集成交接 · 第七轮顺序调度 · 2026-10-28
+
+## 第七轮正式合流进行中
+
+正式基础 `e3175f30fb9b92cd12a7c670febbbe3296657da1`；只合入固定交接 `3b089b22449742fe7d9a76e74aa7ac99be37ba8e`。双方历史以 merge 保留，未重复挑选第五、六轮。组合 CI 与独立审查须按本次最终源码重新完成；第七轮独立 CI 不替代组合验证。下列第七轮来稿与既往正式检查点保留为来源。
+
+## 第七轮独立真机交接（未写正式 PR）
+
+分支 `codex/riftlet-real-mac-round7-20261027`，核心实现 `f6417c6faaf8aa21ac587b07f25ea2a159af021f`，最终源码 `9de6a85b0161713833dc25e3b3eb1e1a2f81a558`。完整 [macOS CI 40525056642](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40525056642) 与范围限定非作者审查通过。正式 `81b6a61` 已合第五、六轮，集成本轮两个增量即可，不重复 cherry-pick 历史成果。
+
+真实普通线程已验证：B 原点击冻结同目标，A 尚 inputTriggered 时 B 保持 prepared，A succeeded 后才执行 B 唯一输入；两张分别取得开始与最终成功，非空文字、选区和旧附件保留。实现有界 runtime-only AcceptedSelection、原事件 FIFO、exact-token 撤销及 final intent 原子核对；旧 UNKNOWN 不解锁，等待图不假吞噬。预绑定先于旧操作远程恢复，真实 Chrome 进程权限检查不缓存授权。
+
+冷首击完整 ACK 仍晚于原事件 26.323 ms，安全拒绝正确但产品体验 FAIL。CLEAR 软件实击误选已修复，底层透传仍 FAIL；GAP/IMAGE/NUMBER 为软件路由 PASS，人工物理仍 NOT_RUN。真实 Web 样本绑定 f6417c6，最终源码另补诊断和 GUI guard，不混写已测 SHA。生产截图、生产开始 profile 与安全重试仍关闭。
+
+完整原始时序、性能拆分、CI、保留核验及剩余项见 [第七轮 README](../engineering/evidence/2026-10-27-real-mac-round7/README.md)。本分支含用户授权的最小 Core/App/UI 补丁，需 Pro 正式审查合流；没有直接修改正式分支、main 或 PR #1。
+
+
+---
+
+## 第六轮正式检查点（历史来源）
 
 ## 当前正式组合
 

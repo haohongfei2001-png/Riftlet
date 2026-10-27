@@ -1,0 +1,35 @@
+{
+  "schema": 3,
+  "quickCheck": "ok",
+  "countsBefore": {
+    "assets": 22,
+    "operations": 25,
+    "compensations": 3,
+    "upload_starts": 4
+  },
+  "countsAfter": {
+    "assets": 25,
+    "operations": 27,
+    "compensations": 3,
+    "upload_starts": 6
+  },
+  "oldAssetIDsRetained": true,
+  "oldOperationIdentityRowsRetained": true,
+  "oldUnknownAndCompensatedUnchanged": true,
+  "oldUnknownAndCompensatedCount": 6,
+  "compensationAuditRowsUnchanged": true,
+  "oldUploadStartRowsUnchanged": true,
+  "oldCheckpointsUnchanged": true,
+  "oldMedia": {
+    "checked": 22,
+    "allHashesUnchanged": true
+  },
+  "otherPrivateFiles": {
+    "checked": 14,
+    "allHashesUnchanged": true
+  },
+  "coldAssetOperations": 0,
+  "syntheticFixtureOperations": 2,
+  "exclusiveWriterLockHeldForSnapshot": true,
+  "realMediaIncludedInPublicEvidence": false
+}

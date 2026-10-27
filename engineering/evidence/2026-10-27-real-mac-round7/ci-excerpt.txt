@@ -1,0 +1,14 @@
+macos	Record compiler and OS	2026-10-27T14:50:51.7303490Z Apple Swift version 5.10 (swiftlang-5.10.0.13 clang-1500.3.9.4)
+macos	Record compiler and OS	2026-10-27T14:50:51.7470100Z ProductVersion:		14.8.9
+macos	Exercise round-two fault harness offline	2026-10-27T14:50:54.2691470Z PASS exact POST100 one-abort, app retry passthrough, deadline restoration
+macos	Exercise round-two fault harness offline	2026-10-27T14:50:54.2908080Z PASS MID native progress bound
+macos	Native unit and integration tests	2026-10-27T14:51:36.8633930Z Build complete! (38.79s)
+macos	Native unit and integration tests	2026-10-27T14:51:37.7801260Z [9/408] Testing RiftletCoreTests.AcceptedSelectionQueueTests/testCompletionDuringParkedOnChangeDoesNotLoseDrainWake
+macos	Native unit and integration tests	2026-10-27T14:51:50.8050900Z [305/408] Testing RiftletUITests.RiftLayoutTests/testObservedClearPaddingCannotBeginOrCompleteSelection
+macos	Native unit and integration tests	2026-10-27T14:51:56.6205830Z [408/408] Testing RiftletAdaptersTests.WebAttachmentAdapterTests/testUnsupportedChunkCapacityAndOverEightMiBFileRefuseBeforeBridgeCommands
+macos	Package native application	2026-10-27T14:52:36.6314390Z Build complete! (34.41s)
+macos	Package native application	2026-10-27T14:52:36.8878810Z RIFTLET_BUNDLE_CHECK_PASS: layout, permissions text, resources, notices; development 0.1.0; NOT_NOTARIZED; GATEKEEPER_NOT_RUN
+macos	Run packaged executable with synthetic data	2026-10-27T14:52:37.2638130Z RIFTLET_SELF_CHECK_PASS: private import, durable upload-start visibility, delayed synthetic completion, restart
+macos	Run packaged executable with synthetic data	2026-10-27T14:52:37.3125790Z RIFTLET_WEB_ACCEPTANCE_SELF_CHECK_PASS: bundled page source, synthetic-only start/completion policy, isolated modes; CHROME_NOT_RUN; GUI_NOT_RUN
+macos	Run packaged executable with synthetic data	2026-10-27T14:52:37.3231330Z RIFTLET_FIRST_USE_SELF_CHECK_PASS: presentation persistence, disabled-production permission isolation, honest status; PERMISSIONS_NOT_REQUESTED; GUI_NOT_RUN
+macos	Validate and archive synthetic GUI acceptance helper	2026-10-27T14:52:37.7296430Z RIFTLET_GUI_HELPER_SELF_CHECK_PASS: 12 synthetic PNGs; scenes 2/3/12; layout/status fixtures; GUI_NOT_RUN

@@ -251,16 +251,35 @@ public actor QueueStore {
     }
 
     /// Commit intent BEFORE the caller performs any external input.
-    public func markDispatchIntent(_ id: UUID) throws {
+    public func markDispatchIntent(_ id: UUID, selection: AcceptedSelection? = nil) throws {
+        // Acquire SQLite's write transaction before taking the cancellation lock:
+        // a contended BEGIN must not block synchronous MainActor revocation.
         try database.transaction {
-            let op = try requiredOperation(id)
-            guard op.phase == .prepared, try asset(id: op.assetID)?.visibility == .visible else { throw RiftletError.invalidTransition }
-            let active = try unresolvedOperations().filter { $0.phase != .prepared }
-            guard !active.contains(where: { $0.target.conflictsForDispatch(with: op.target) }) else {
-                throw RiftletError.targetBusy
+            let op = try validatedDispatchOperation(id, selection: selection)
+            if let selection {
+                try selection.authorizeDispatch {
+                    try update(op, phase: .dispatchIntent, status: .transferring, reason: "dispatch-intent committed")
+                }
+            } else {
+                try update(op, phase: .dispatchIntent, status: .transferring, reason: "dispatch-intent committed")
             }
-            try update(op, phase: .dispatchIntent, status: .transferring, reason: "dispatch-intent committed")
         }
+    }
+
+    private func validatedDispatchOperation(_ id: UUID, selection: AcceptedSelection?) throws -> TransferOperation {
+        let op = try requiredOperation(id)
+        guard op.phase == .prepared, let record = try asset(id: op.assetID),
+              record.visibility == .visible else { throw RiftletError.invalidTransition }
+        if let selection {
+            guard selection.assetID == op.assetID, selection.target == op.target,
+                  selection.visibilityRevision == record.visibilityRevision,
+                  record.activeOperationID == op.id, try !userHidden() else { throw RiftletError.invalidTransition }
+        }
+        let active = try unresolvedOperations().filter { $0.phase != .prepared }
+        guard !active.contains(where: { $0.target.conflictsForDispatch(with: op.target) }) else {
+            throw RiftletError.targetBusy
+        }
+        return op
     }
 
     public func cancelPrepared(_ id: UUID, reason: String) throws {

@@ -1,0 +1,153 @@
+{
+  "finalSourceSHA": "9de6a85b0161713833dc25e3b3eb1e1a2f81a558",
+  "realWebTestSourceSHA": "f6417c6faaf8aa21ac587b07f25ea2a159af021f",
+  "independentBranch": "codex/riftlet-real-mac-round7-20261027",
+  "initialFormalHEAD": "caa6a65b69c6038154a2fff65f2fb1157125bb7e",
+  "latestObservedFormalHEAD": "81b6a61b4e648a1b8d6ccf4b569fd6d727a0cc76",
+  "formalRuntimeSourcesMatchBaseline336ecce": true,
+  "localEnvironment": {
+    "macOS": "27.0",
+    "build": "26A428",
+    "arch": "arm64",
+    "swift": "6.4",
+    "chrome": "156.0.8078.48"
+  },
+  "localBuild": {
+    "result": "PASS",
+    "sourceSHA": "9de6a85b0161713833dc25e3b3eb1e1a2f81a558",
+    "completeReleaseApp": true,
+    "sourceOverlays": [],
+    "bundleValidation": "PASS",
+    "adHocSignatureVerification": "PASS",
+    "notarization": "NOT_RUN",
+    "releasePublished": false,
+    "executableSHA256": "e29f934d35dffbe49997b03981abd29f60c33fed27250216888ed00562f8a82a",
+    "logSHA256": "eff9452228c571c0deab433d3e4540b722e56b2a1060504a3b1617cf227dfe21"
+  },
+  "selfChecks": {
+    "coreApp": "PASS",
+    "bundledWebAcceptance": "PASS_CHROME_NOT_RUN",
+    "firstUse": "PASS_PERMISSIONS_NOT_REQUESTED_GUI_NOT_RUN",
+    "GUIHelper": "PASS_GUI_NOT_RUN"
+  },
+  "localXCTest": "NOT_RUN: local Command Line Tools lacks XCTest; full XCTest delegated to macOS CI",
+  "standaloneRegressionScope": {
+    "acceptedSelectionTestBodies": 15,
+    "reentrantDrainStressRepeats": 50,
+    "result": "PASS_NOT_XCTEST",
+    "clearHitRegionSourceTest": "PASS_NOT_PHYSICAL_GUI"
+  },
+  "initialCI": {
+    "runID": 40520227401,
+    "headSHA": "f6417c6faaf8aa21ac587b07f25ea2a159af021f",
+    "result": "FAIL",
+    "reason": "Test used 1000 Task.yield calls as a completion fence under parallel execution; original B append had not completed at assertion",
+    "fix": "Wait for actual B append expectation with bounded5s timeout; product source unchanged by this CI fix"
+  },
+  "finalCI": {
+    "runID": 40525056642,
+    "headSHA": "9de6a85b0161713833dc25e3b3eb1e1a2f81a558",
+    "result": "PASS",
+    "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/40525056642",
+    "nativeTestCases": 408,
+    "nativeFailures": 0,
+    "environment": {
+      "macOS": "14.8.9",
+      "swift": "5.10",
+      "arch": "arm64"
+    },
+    "fullJobSteps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "Record compiler and OS",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "Replay archived Web evidence offline",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "Exercise integrated page program with synthetic DOM",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "Exercise round-two fault harness offline",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "Exercise round-three diagnostic probe offline",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "Verify round-five diagnostic evidence helpers offline",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "Native unit and integration tests",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "Verify packaging rejection paths offline",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "Report software panel lifecycle outcomes",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "Package native application",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "Run packaged executable with synthetic data",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "Validate and archive synthetic GUI acceptance helper",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "Archive evidence",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success"
+      }
+    ],
+    "logSHA256": "4e65cf7d046f6df023bb82269fc199afc317cde11584fd09ef176dd96a7b1d0c"
+  },
+  "physicalHumanInput": "NOT_RUN",
+  "productionScreenshotEndToEnd": "NOT_RUN_DISABLED",
+  "productionUploadStart": "DISABLED",
+  "safeRetry": "DISABLED",
+  "oldUnknownReplayed": false
+}

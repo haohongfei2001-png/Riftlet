@@ -1,0 +1,62 @@
+{
+  "sourceSHA": "9de6a85b0161713833dc25e3b3eb1e1a2f81a558",
+  "sourceCommits": [
+    "f6417c6faaf8aa21ac587b07f25ea2a159af021f",
+    "9de6a85b0161713833dc25e3b3eb1e1a2f81a558"
+  ],
+  "scope": "Independent code review, not human product admission or full real-environment acceptance",
+  "reviews": [
+    {
+      "reviewer": "native_gui",
+      "author": "late_failure",
+      "paths": [
+        "Sources/RiftletCore/AcceptedSelection.swift",
+        "Sources/RiftletCore/QueueStore.swift",
+        "Sources/RiftletCore/TransferCoordinator.swift"
+      ],
+      "result": "PASS_AFTER_FIXES",
+      "resolved": [
+        "Retain revoked selection tombstone on drain errors; never fall back to legacy dispatch",
+        "Acquire SQLite transaction/check state before synchronous authorization lock",
+        "Retain drainRequested wake across reentrant onChange"
+      ]
+    },
+    {
+      "reviewer": "late_failure",
+      "author": "web_safety",
+      "paths": [
+        "Sources/RiftletApp/SelectionAuthority.swift",
+        "Sources/RiftletApp/SelectionSubmissionQueue.swift",
+        "Sources/RiftletApp/RiftletMain.swift",
+        "Sources/RiftletApp/AutomationPermission.swift",
+        "Sources/RiftletApp/AcceptanceTraceDeduplicator.swift"
+      ],
+      "result": "PASS_AFTER_FIXES",
+      "resolved": [
+        "FIFO original selection enters synchronously before asynchronous permission checks",
+        "Cancel and release exact token/UI owner, not newer selection by asset",
+        "Snapshot-only original recovery cannot reset newer prepared work",
+        "Bound trace caches and preserve global budget; no product control changes"
+      ]
+    },
+    {
+      "reviewer": "web_safety",
+      "author": "native_gui",
+      "paths": [
+        "Sources/RiftletGUIAcceptance/AcceptanceMain.swift",
+        "Sources/RiftletGUIAcceptance/SoftwarePointerProbe.swift",
+        "Sources/RiftletUI/RiftLayout.swift",
+        "Sources/RiftletUI/RiftPanelController.swift"
+      ],
+      "result": "PASS_SCOPED",
+      "limits": [
+        "Helper alignment changes only its existing control window",
+        "CLEAR guard prevents selection, does not forward events or implement pass-through",
+        "No lifecycle or production admission changes"
+      ]
+    }
+  ],
+  "productionProfileChanges": false,
+  "humanReviewClaimed": false,
+  "formalPRChanged": false
+}
