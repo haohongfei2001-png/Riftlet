@@ -1,5 +1,7 @@
 # Riftlet 正式工程计划
 
+> **Latest product decision (2026-10-27):** [INTERACTION_CONTRACT_2026-10-27.md](INTERACTION_CONTRACT_2026-10-27.md) supersedes this historical plan's `verifiedReady → swallow`, visible UNKNOWN retention and empty trace assumptions **for product UI**, while keeping real success evidence and safe retry independent. Engineering must implement positive upload-start-triggered **very fast swallow**, high-confidence-failure rebirth, hidden local UNKNOWN/archival, no slit when empty, single/bulk removal, and no indefinite lock of *other* assets. **Not yet implemented; prior CI does not validate this revision.**
+
 2026-10-27（北京时间） · v2 自主并行执行 · 工程启动基线 `5a3ab5d7a761d5397f8bc15b6f40d761b29e58d2`
 
 **当前执行方式：负责人自主决策、分模块并行、持续集成，不设日常用户审批环节。** 总体架构与产品要求不变；本次修订拆开实现、验证、启用的依赖。可直接领取的任务、唯一写入责任和解锁条件见 [EXECUTION_BOARD.md](EXECUTION_BOARD.md)。
