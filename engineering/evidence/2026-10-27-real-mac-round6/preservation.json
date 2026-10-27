@@ -1,0 +1,19 @@
+{
+  "schema": 3,
+  "quickCheck": "ok",
+  "originalMediaUnchanged": true,
+  "originalMediaCount": 16,
+  "assets": 22,
+  "assetsOriginalIDsRetained": true,
+  "operations": 25,
+  "operationsOriginalIDsRetained": true,
+  "compensations": 3,
+  "compensationsOriginalRowsUnchanged": true,
+  "upload_starts": 4,
+  "upload_startsOriginalRowsUnchanged": true,
+  "unknownOriginalOperationsRetained": true,
+  "operationIdentityOriginalRowsRetained": true,
+  "assetIdentityOriginalRowsRetained": true,
+  "checkpointsOriginalRowsRetained": true,
+  "metadataOriginalRowsRetained": true
+}

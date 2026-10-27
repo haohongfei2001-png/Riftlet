@@ -1,5 +1,8 @@
 # 正式工程集成交接 · 第四轮 Web 与新版生命周期合流 · 2026-10-27
 
+> **第六轮独立真机增量（2026-10-27）**：Web v12 分块优化真实点击至 AppKit 关闭 5.51→3.67 秒（单次对照），无 ACK 冷首击已真实复现安全拒绝；同草稿第二图明确在 Core targetBusy 被取消、未输入。Core/UI/App 不改，Pro 安装专项不混入。源码/CI/保留核验/顺序调度提案见 [第六轮交接](../engineering/evidence/2026-10-27-real-mac-round6/README.md)。生产截图与安全重试仍关闭；首击与连续点击不标整体验收通过。
+
+
 正式分支仍为 `codex/engineering-foundation-20261027` / [Draft PR #1](https://github.com/haohongfei2001-png/Riftlet/pull/1)。合流父基线为 `b84892071d7711177bb856051251a337f2c2c4f5` 与 `03a67cc41e542a7db6dc128b27da8f108efc9896`，保留 `35e9851` / `c9c68a6` 原源码及全部11份第四轮证据。main、网站、设计、旧数据库/媒体均不改动；本会话没有操作本地 Mac。
 
 ## 当前合流实现与下一步

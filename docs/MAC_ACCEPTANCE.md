@@ -1,5 +1,8 @@
 # Native foundation acceptance on a real Mac
 
+> **第六轮独立真机增量（2026-10-27）**：Web v12 分块优化真实点击至 AppKit 关闭 5.51→3.67 秒（单次对照），无 ACK 冷首击已真实复现安全拒绝；同草稿第二图明确在 Core targetBusy 被取消、未输入。Core/UI/App 不改，Pro 安装专项不混入。源码/CI/保留核验/顺序调度提案见 [第六轮交接](../engineering/evidence/2026-10-27-real-mac-round6/README.md)。生产截图与安全重试仍关闭；首击与连续点击不标整体验收通过。
+
+
 Status: checklist, **not passed GUI evidence**. Commands require macOS 13+ and Xcode Command Line Tools / a compatible Swift toolchain. Do not repeatedly audit installation; run once and record any exact missing prerequisite.
 
 ```bash
