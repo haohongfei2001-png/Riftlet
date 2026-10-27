@@ -1,5 +1,8 @@
 # Attachment adapter boundary v1
 
+> **Latest user product supersession (2026-10-27):** [fast-swallow interaction contract](INTERACTION_CONTRACT_2026-10-27.md). The UI must swallow a screenshot **as soon as its actual upload start is positively evidenced**; it must **not wait for this contract's stricter `verifiedReady` evidence**. The full adapter receipt/retry guarantees below still apply to backend truth and safe retry. No current `inputTriggered`/`attachedCandidate` or placeholder may automatically masquerade as confirmed upload start. Add an independently reviewed per-surface start signal; maintain a separate durable visible/archived state; strong failure may trigger late rebirth while ambiguous outcomes remain hidden internally. This change is **not implemented or production-enabled** by documentation alone.
+
+
 ## Current admission
 
 No production adapter is enabled. The original [Web handoff](../research/web-attachment-handoff-2026-10-27/README.md) at6f415698 and the new [local Mac handoff](../engineering/evidence/2026-10-27-real-mac/README.md) atf075b8f are independently reviewed and retained separately. The local acceptance sequence ending at source1909771 recorded five generated-image successes on controlled Chinese Home Chat, exact-card DOM late-error compensation/restart and specific tab-revocation/lock evidence. This is not real network-failure validation, arbitrary-thread support, complete N1 or the production screenshot loop. The combined engineering tree passed its own201-test native/20-case page CI; subsequent live acceptance remains pending; [integration scope and known defects](INTEGRATION_HANDOFF.md) apply. Both production registries remain empty.
