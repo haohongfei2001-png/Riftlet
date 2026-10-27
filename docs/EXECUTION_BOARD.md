@@ -1,5 +1,8 @@
 # Riftlet 自主并行执行队列
 
+> 
+> **Pro research handoff received (2026-10-27):** [read-only technical findings and minimal acceptance tasks](PRO_FEASIBILITY_REVIEW_FINDINGS_2026-10-27.md). Web no-editor-focus one-click is conditionally feasible but cold first click not yet accepted; Mac separate. System Screenshot.app cannot currently be promised universal exclusion; implement robust persistent user hide, isolate source in real N1 before any optional automatic-hide experiments. Prioritize ACK/main-thread/NSEvent timing, authorisation gap, empty-generation retirement, usable-composer gate and UI archive-protection. **No source code, source acceptance or production adapter changed by this document.**
+
 > **NEW RELEASE UX REQUIREMENTS P29–P33 (2026-10-27):** [RELEASE_UX_REQUIREMENTS](RELEASE_UX_REQUIREMENTS_2026-10-27.md) confirms focusless composer single-click, subtle invalid-click feedback, interaction-safe archive, and the lean public-release baseline. Screenshot self-inclusion is a **technical feasibility study**, not a guarantee; see [Pro focused research brief](PRO_FEASIBILITY_REVIEW_BRIEF_2026-10-27.md). **Do not disrupt existing W2/N1/M1 implementation or mark release requirements PASS from current synthetic/partial tests.**
 
 
