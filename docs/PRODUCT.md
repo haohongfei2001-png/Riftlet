@@ -40,3 +40,15 @@ The only target is the **currently active, unambiguously identified supported Ch
 First discussed destinations: ChatGPT **web and macOS app** (new desktop and Classic may need separate verification). Support for other AI apps, arbitrary app input and generic clipboard collection is **possible future work**, not a fixed launch promise.
 
 No standalone screenshot engine, OCR, image editor, AI tagging, cloud sync, broad file management or automated message sending in the initial concept.
+
+## Release usability addendum (2026-10-27)
+
+**User-approved product behavior:** If a supported **foreground ChatGPT draft has a valid usable composer and attachment entry**, a screenshot must attach after **one Riftlet click even if the text cursor is not inside the composer**. Browser/window focus, actual draft/composer identity and editor text selection are separate concerns. No valid composer/no attachment entry still means **no upload and no swallow**. Preserve unsent text, existing attachments and selection; do not silently force focus changes or pick a background chat.
+
+Invalid operations give an unobtrusive press/reset response and on-demand tooltip/menu cause. Successful normal operations get **no success Toast**; the user checks the attachment in the ChatGPT draft. Never hijack an ongoing mouse click to auto-archive a visible item: defer until hover/press/motion/selection completes; reborn failed screenshots follow the same lifecycle.
+
+**Screenshot self-inclusion:** Minimize edge-thumbnail pollution of normal macOS system screenshots, but assess **platform API and timing feasibility first**. Neither `NSWindow.SharingType.none` nor an `SCContentFilter` controlled by a separate capture client is evidence that Apple's system Screenshot.app will omit Riftlet. Do not promise universal exclusion or replace the user's ordinary screenshot flow without independent evidence.
+
+**Public-release baseline:** first-run permission/onboarding, accurately labeled supported surfaces, independent pause-collection vs hide-rift controls, lightweight local history, common screenshot format/quality protection, privacy/storage controls, a native UI that respects display/accessibility, user-text feedback plus privacy-preserving diagnostics, safe app update/recovery and small-scale real-user acceptance. This is a lean release-quality requirement, not authorization to build a general screenshot editor or AI cloud app.
+
+See [RELEASE_UX_REQUIREMENTS_2026-10-27.md](RELEASE_UX_REQUIREMENTS_2026-10-27.md) and the focused [Pro feasibility brief](PRO_FEASIBILITY_REVIEW_BRIEF_2026-10-27.md). This approval is not a claim that current code supports these cases.
