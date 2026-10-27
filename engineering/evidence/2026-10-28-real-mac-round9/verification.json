@@ -1,0 +1,127 @@
+{
+  "webLiveSourceSHA": "fcb052bfe6fad09af5de3c90d5954259e000a8ef",
+  "finalSourceSHA": "23becda7b5a82beb4634ba3816fde6dac49034d2",
+  "baselineFormalSHA": "b83923068064f6d82f2d253a3c177661fdabc294",
+  "round8MergeSHA": "57157c387ed46b9aeebe86775c38e3d9d53eefb4",
+  "latestObservedFormalSHA": "4d352c28dcb70e8f6dc42ef93d9df46042a9215d",
+  "candidateIntegratedHere": false,
+  "environment": {
+    "os": "macOS27.0 (26A428)",
+    "architecture": "arm64",
+    "compiler": "Apple Swift6.4 swiftlang-6.4.0.34.1",
+    "ChromeProcessesKeptRunning": [
+      59763,
+      93488
+    ],
+    "uploadSource": "one newly generated RGB noise PNG only; no new input occurred"
+  },
+  "checks": {
+    "pageAndLegacyVM": {
+      "status": "PASS",
+      "passed": 144,
+      "page": 83,
+      "legacy": 61,
+      "skipped": 0,
+      "scope": "headless synthetic; no real network or physical input"
+    },
+    "packagingPython": {
+      "status": "PASS",
+      "passed": 12
+    },
+    "fullReleaseBundle": {
+      "status": "PASS",
+      "sources": [
+        "fcb052bfe6fad09af5de3c90d5954259e000a8ef",
+        "23becda7b5a82beb4634ba3816fde6dac49034d2"
+      ],
+      "adHocSignatureVerified": true,
+      "notarized": false
+    },
+    "fourPackagedSelfChecks": {
+      "status": "PASS",
+      "source": "23becda7b5a82beb4634ba3816fde6dac49034d2",
+      "checks": [
+        "core v3 lifecycle",
+        "bundled web synthetic admission",
+        "first use passive isolation",
+        "GUI helper fixture geometry"
+      ]
+    },
+    "localXCTest": {
+      "status": "NOT_RUN_ENVIRONMENT",
+      "attempted": true,
+      "reason": "CommandLineTools installation cannot resolve XCTest module; compile stops before native tests execute. Full application build succeeds."
+    }
+  },
+  "ci": {
+    "final": {
+      "conclusion": "",
+      "headSha": "23becda7b5a82beb4634ba3816fde6dac49034d2",
+      "jobs": [
+        {
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "databaseId": 122371755866,
+          "name": "macos",
+          "startedAt": "2026-10-27T18:00:33Z",
+          "status": "queued",
+          "steps": [],
+          "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/40555899978/job/122371755866"
+        }
+      ],
+      "status": "pending",
+      "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/40555899978"
+    },
+    "finalAssessment": "NOT_RUN_PENDING_ZERO_STEPS at recorded snapshot; not a test PASS or a diagnosed runner failure. No rerun requested.",
+    "superseded": {
+      "runID": 40554102772,
+      "sha": "fcb052bfe6fad09af5de3c90d5954259e000a8ef",
+      "status": "cancelled",
+      "stepsExecuted": 0,
+      "reason": "workflow concurrency automatically superseded after actual helper source fix 23becda, not an unchanged-SHA retry"
+    },
+    "formalOnly": {
+      "runID": 40553084871,
+      "sha": "4d352c28dcb70e8f6dc42ef93d9df46042a9215d",
+      "status": "PASS",
+      "scope": "Pro candidate/formal source, not this branch verification"
+    }
+  },
+  "artifactHashes": {
+    "finalAppExecutable": "c9d98a86b31681db8822a043ada8266e84351d353c30dd4af637df105b61b83b",
+    "finalHelper": "88ddf913e3331b1a70567de4e4daf356cb208ddfa3d69f02079d63e52c232379",
+    "liveAppExecutable": "afbbbcaebfcb2b6d233e99b7385c4453ada7c75ca68f011d6eaf733c8bb8ed90",
+    "pageProgram": "903d6d0b2c13b6b2d10a6eb585f84afabaf8a10fe0047cbd4ac1661812c27988"
+  },
+  "privateLogHashes": {
+    "riftlet-round9-page-tests.log": "bda551ea92a6bd4501fec382a2967175043b4320d1434653cda07bc7ff31280f",
+    "riftlet-round9-full-build.log": "754a0e20a3d24f86d3c23cf19f8c31a4c32ca52aa00b020b7c451f848a5c1b2f",
+    "riftlet-round9-final-build.log": "217164d176c86f3d1057c0059e11b3ee843f75f36a75c9aaf5ee356c0210fac2",
+    "riftlet-round9-native-test.log": "a6037afeffa10e6e1fb609b3c0c6e1cb7108676fcc02d20b6131a6672a6ce9d4",
+    "riftlet-round9-packaging-tests.log": "eb16184d56228af05dcdfbc541f0c1d49c4c40da1f6ac4cf33f834fbca7101df",
+    "riftlet-round9-final-core-selfcheck.log": "9a6cbd54ef6829d86fd7e0cd7ba688aa6387ae15af41a550ffba3e42832b6018",
+    "riftlet-round9-final-web-selfcheck.log": "a47ac0ed870328c9f158b1ee9fed9eec7fd7aa6e4109c3f3017d307f29dbe15d",
+    "riftlet-round9-final-firstuse-selfcheck.log": "b8acde75e6ad2d4b724e61e902d02f587fec4d496696a6a01634842d0faa6494",
+    "riftlet-round9-final-gui-selfcheck.log": "12e12f3b06661fac9aa67d2573b45485f7e37cf3efc23d7c7dced4f5228e8d13"
+  },
+  "generatedImage": {
+    "source": "deterministic generated RGB noise, no screenshot",
+    "width": 1024,
+    "height": 768,
+    "byteCount": 2360847,
+    "sha256": "765aff8410933e70290a77f71941bc9edbcc81adbbfb53175eb340563ccbc32a",
+    "file": "round9-monitor-cold.png"
+  },
+  "review": {
+    "source": "PASS_SCOPED_NONAUTHOR late_failure",
+    "runtimeEvidence": "PASS_SCOPED_NONAUTHOR web_safety and late_failure; helper raw events also author checked",
+    "limitations": [
+      "Historical code-owned MAIN-world registry integrity assumption",
+      "Unobservable business ABA",
+      "Original no-ACK cold events refused",
+      "Physical mouse not run",
+      "Production and safe retry not admitted"
+    ]
+  },
+  "updatedAtUTC": "2026-10-27T18:05:51.895003+00:00"
+}

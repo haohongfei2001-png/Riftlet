@@ -22,3 +22,5 @@
 配对 up 在无 await 的发送函数 defer 中发出，正常终止还有统一清理；不宣称 SIGKILL 能执行清理。第二对的前提不足则不发，保留第一对已执行事实并标 INCONCLUSIVE / secondPair NOT_RUN，不为取得 PASS 再点击。
 
 **clickState=2 由 CGEvent 明确提供**，这验证产品对收到的快速第二击在补位窗口上的处理，不是实际硬件或 WindowServer 自动判定双击的证明。物理真人、跨应用焦点、OS 双击分类均仍 NOT_RUN/NOT_TESTED。源码自检、构建与之后协调者实际 GUI 运行须分别记录确切 SHA；本文不预先写软件运行 PASS。
+
+实测工具修正：逻辑布局提交不代表 WindowServer 已提交补位窗口。在保留原点和原 firstDown 期限的前提下，最多64次、每次5ms yield 的只读采样核对新图原生 frame/窗口栈；截止仍为原 firstDown + 系统双击间隔 −20ms。不是重发第一击或延长双击期限。最终23becda软件样本第二次采样就绪，两对事件间隔124.964ms，A选1、补位B选0；人工及系统硬件双击分类仍未验。

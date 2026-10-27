@@ -1,0 +1,232 @@
+{
+  "sourceSHA": "23becda7b5a82beb4634ba3816fde6dac49034d2",
+  "inputSource": "CGEvent explicit clickState",
+  "physical": "NOT_RUN",
+  "binarySHA256": "88ddf913e3331b1a70567de4e4daf356cb208ddfa3d69f02079d63e52c232379",
+  "result": [
+    {
+      "batchID": "7FBA1856-1982-4F41-BCA1-624F0669A3EA",
+      "controlWindow": {
+        "collectionBehavior": 65536,
+        "frame": {
+          "height": 1080,
+          "width": 800,
+          "x": -800,
+          "y": 0
+        },
+        "miniaturized": false,
+        "number": 51583,
+        "occlusionVisible": true,
+        "onActiveSpace": true,
+        "screenID": 3,
+        "visible": true
+      },
+      "coordinatesMatch": true,
+      "crossApplicationFocusVerdict": "NOT_RUN",
+      "downIntervalSeconds": 0.12496441596886143,
+      "event": "software_double_case",
+      "firstAcceptedAssets": [
+        "00000000-0000-4000-8000-000000000001"
+      ],
+      "firstDownCount": 1,
+      "firstReceivedWindows": [
+        51602,
+        51602
+      ],
+      "firstSelectedAssets": [
+        "00000000-0000-4000-8000-000000000001"
+      ],
+      "firstToken": 184127558694299,
+      "firstUpCount": 1,
+      "firstWindow": 51602,
+      "focusEndpointsStable": true,
+      "frontmostBundle": "unidentified",
+      "frontmostPID": 18361,
+      "geometryStable": true,
+      "helperActive": true,
+      "helperPID": 18361,
+      "inputOrigin": "CGEvent",
+      "interference": false,
+      "keyWindow": 51583,
+      "mainWindow": 51583,
+      "originalAssetID": "00000000-0000-4000-8000-000000000001",
+      "osDoubleClickClassification": "NOT_TESTED",
+      "pairsPosted": 2,
+      "physical": false,
+      "physicalVerdict": "NOT_RUN",
+      "probeEditorFocused": true,
+      "probeKeyInputEligible": true,
+      "replacementAssetID": "00000000-0000-4000-8000-000000000002",
+      "result": "PASS_SOFTWARE_DOUBLE_REPLACEMENT",
+      "sceneID": "0202A6F8-32FD-4AA8-91BE-880F3518D944",
+      "secondAcceptedAssets": [],
+      "secondDownClickCount": 2,
+      "secondDownCount": 1,
+      "secondReceivedWindows": [
+        51605,
+        51605
+      ],
+      "secondSelectedAssets": [],
+      "secondToken": 2841748359319741,
+      "secondUnderlayDownCount": 0,
+      "secondUnderlayUpCount": 0,
+      "secondUpCount": 1,
+      "secondWindow": 51605,
+      "selectionCount": 1,
+      "syntheticOnly": true,
+      "systemDoubleClickInterval": 0.5,
+      "underlyingClickCount": 0,
+      "uptime": 479602.4625470834
+    }
+  ],
+  "logSHA256": "9a35698a8e9649d43fd2e3ca4a8c06ebab0a3d005476c636ff1592133ba4cedd",
+  "nativeWait": [
+    {
+      "batchID": "7FBA1856-1982-4F41-BCA1-624F0669A3EA",
+      "controlWindow": {
+        "collectionBehavior": 65536,
+        "frame": {
+          "height": 1080,
+          "width": 800,
+          "x": -800,
+          "y": 0
+        },
+        "miniaturized": false,
+        "number": 51583,
+        "occlusionVisible": true,
+        "onActiveSpace": true,
+        "screenID": 3,
+        "visible": true
+      },
+      "event": "software_double_replacement_wait",
+      "frontmostBundle": "unidentified",
+      "frontmostPID": 18361,
+      "helperActive": true,
+      "helperPID": 18361,
+      "keyWindow": 51583,
+      "lastNativeSample": {
+        "firstInteractiveWindow": 51605,
+        "modelFrame": {
+          "height": 56,
+          "width": 26,
+          "x": -34,
+          "y": 872
+        },
+        "nativeFrame": {
+          "height": 56,
+          "width": 26,
+          "x": -34,
+          "y": 872
+        },
+        "nativeFrameAvailable": true,
+        "queriedOwnedWindowStack": [
+          51605,
+          51583
+        ],
+        "queriedTopWindow": 51605,
+        "sampleUptime": 479601.922460875
+      },
+      "mainWindow": 51583,
+      "originalFirstDownEventUptime": 479601.804172875,
+      "postingDeadline": 479602.284172875,
+      "probeEditorFocused": true,
+      "probeKeyInputEligible": true,
+      "reason": "ready",
+      "reasonCounts": {
+        "nativeFrameNotAtFrozenPoint": 1
+      },
+      "replacementAssetID": "00000000-0000-4000-8000-000000000002",
+      "replacementWindow": 51605,
+      "samples": 2,
+      "sceneID": "0202A6F8-32FD-4AA8-91BE-880F3518D944",
+      "secondPairPosted": false,
+      "selectionCount": 1,
+      "syntheticOnly": true,
+      "systemDoubleClickInterval": 0.5,
+      "underlyingClickCount": 0,
+      "uptime": 479601.92248550005
+    },
+    {
+      "batchID": "7FBA1856-1982-4F41-BCA1-624F0669A3EA",
+      "controlWindow": {
+        "collectionBehavior": 65536,
+        "frame": {
+          "height": 1080,
+          "width": 800,
+          "x": -800,
+          "y": 0
+        },
+        "miniaturized": false,
+        "number": 51583,
+        "occlusionVisible": true,
+        "onActiveSpace": true,
+        "screenID": 3,
+        "visible": true
+      },
+      "event": "software_double_replacement",
+      "firstDownEventUptime": 479601.804172875,
+      "frontmostBundle": "unidentified",
+      "frontmostPID": 18361,
+      "helperActive": true,
+      "helperPID": 18361,
+      "keyWindow": 51583,
+      "mainWindow": 51583,
+      "originalFirstWindow": 51602,
+      "probeEditorFocused": true,
+      "probeKeyInputEligible": true,
+      "receiptEvidence": false,
+      "removedAssetID": "00000000-0000-4000-8000-000000000001",
+      "replacementAssetID": "00000000-0000-4000-8000-000000000002",
+      "replacementFrame": {
+        "height": 56,
+        "width": 26,
+        "x": -34,
+        "y": 872
+      },
+      "replacementWindow": 51605,
+      "sceneID": "0202A6F8-32FD-4AA8-91BE-880F3518D944",
+      "selectionCount": 1,
+      "syntheticOnly": true,
+      "systemDoubleClickInterval": 0.5,
+      "underlyingClickCount": 0,
+      "uptime": 479601.9248650417
+    }
+  ],
+  "screens": [
+    {
+      "backingScaleFactor": 2,
+      "frame": {
+        "height": 1080,
+        "width": 1920,
+        "x": 0,
+        "y": 0
+      },
+      "id": 2,
+      "rotationDegrees": 0,
+      "visibleFrame": {
+        "height": 1080,
+        "width": 1920,
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "backingScaleFactor": 2,
+      "frame": {
+        "height": 1280,
+        "width": 800,
+        "x": -800,
+        "y": -200
+      },
+      "id": 3,
+      "rotationDegrees": 90,
+      "visibleFrame": {
+        "height": 1280,
+        "width": 800,
+        "x": -800,
+        "y": -200
+      }
+    }
+  ],
+  "scope": "Final helper: two explicitly tagged CGEvent pairs, supplied clickState=1/2. Original A selected once, replacement B received down/up but was never selected. No physical or hardware double-click classification claim."
+}

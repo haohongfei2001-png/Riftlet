@@ -1,0 +1,37 @@
+{
+  "status": "PASS",
+  "schemaBefore": 3,
+  "schemaAfter": 3,
+  "quickCheck": "ok",
+  "countsBefore": {
+    "assets": 25,
+    "operations": 27,
+    "compensations": 3,
+    "upload_starts": 6
+  },
+  "countsAfter": {
+    "assets": 26,
+    "operations": 27,
+    "compensations": 3,
+    "upload_starts": 6
+  },
+  "originalOperationIdentityAndPhaseUnchanged": 27,
+  "originalUnresolvedPhaseUnchanged": 6,
+  "newOperationCount": 0,
+  "oldMutableOperationFieldsChangedCounts": {
+    "updated_at": 5,
+    "reason": 5,
+    "receipt_json": 2
+  },
+  "oldAssetFieldsChangedCounts": {},
+  "oldMediaHashMatches": 25,
+  "otherPrivateFileHashMatches": 14,
+  "compensationAndStartRowsUnchanged": {
+    "compensations": true,
+    "upload_starts": true
+  },
+  "newGeneratedAssetCount": 1,
+  "originalAssetsPreserved": 25,
+  "backupMethod": "SQLite backup API under existing instance flock, before and after retained privately",
+  "databaseBytesClaim": "Not byte-identical: imported one new generated asset, original observation recovery may refresh timestamps/reason/receipt."
+}
