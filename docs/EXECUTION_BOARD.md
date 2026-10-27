@@ -1,5 +1,7 @@
 # Riftlet 自主并行执行队列
 
+> **2026-10-27 NEW USER PRODUCT DECISION:** [INTERACTION_CONTRACT_2026-10-27.md](INTERACTION_CONTRACT_2026-10-27.md) now governs the final screenshot/rift lifecycle: current target at click; **positive upload start → very fast swallow**, not READY-only; only explicit/extremely high-confidence failure → rebirth; swallowed UNKNOWN stays locally hidden; idle archive, single/bulk removal, and **no slit at zero visible items**. Current source, acceptance and success/failed gates have **not** been revised merely by this note. The integration lead should create/claim a separate implementation+real-acceptance packet without discarding already passing W2/N1/M1 evidence. No unreviewed merge or production enablement.
+
 2026-10-27（北京时间）。本文件是可续做的工程队列；总体范围见 [ENGINEERING_PLAN.md](ENGINEERING_PLAN.md)。用户不承担日常任务分派、实现取舍或逐项审批。负责人完成一包后自动领取可做的下一包。
 
 **M1 独立执行记录（历史，合流前）**：用户已将真实 Mac 的 W2/N1 与 Web 两次操作闭环交给本地 Codex；本会话不访问或争用其设备。以下 PR #1 表格及 W2 结果是继承到 `485fa87` 的检查点，不冒充另一会话的新结果。M1 在独立分支 `codex/m1-native-backend-20261027` / [Draft PR #3](https://github.com/haohongfei2001-png/Riftlet/pull/3) 完成原生后端，已测 `7dfa8ec`、173/173 原生测试与非作者审查通过；实际客户端准入仍等待真实证据。唯一正式工程集成负责人保持 root，后续按分支成果整合，不直接争写 PR #1。
