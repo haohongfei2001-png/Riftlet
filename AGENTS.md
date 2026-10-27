@@ -32,3 +32,14 @@ macOS screenshot → thumbnail emerges from a rift (no screenshot = no visible r
 Typical active queue 2–3, occasionally a little over 10. Avoid a general-purpose screenshot manager.
 
 **Public repository:** never commit real screenshots, private chat content, local machine secrets or browser authentication/session data.
+
+## Additional release UX decisions — 2026-10-27
+
+Read [docs/RELEASE_UX_REQUIREMENTS_2026-10-27.md](docs/RELEASE_UX_REQUIREMENTS_2026-10-27.md) and [docs/PRO_FEASIBILITY_REVIEW_BRIEF_2026-10-27.md](docs/PRO_FEASIBILITY_REVIEW_BRIEF_2026-10-27.md) when implementing first-run, native UX or capture/self-inclusion behavior.
+
+- **P29:** A real foreground ChatGPT draft with usable file/composer input must allow direct one-click attachment even when the text editor does not hold keyboard focus. Do not equate `document.hasFocus()` with `editor===document.activeElement`; validate original target, text, selection and cold first click.
+- **P30:** Make self-capture pollution a research and evidence issue, not an impossible universal promise or license for intercepting screenshot shortcuts. Respect ordinary macOS capture methods and permissions.
+- **P31/P32:** No-composer click gets light press/reset (no false swallow); archive waits until hover/mouse press/selection/animation is over, including reborn screenshots and wake.
+- The user also approves a lean public-release UX baseline: honest support matrix, permission onboarding, separate pause/hide, local history, image fidelity, storage safety, flexible/accessibility-aware native controls, text feedback/opt-in diagnostics, safe updates and small real-user acceptance. No automatic scope expansion into AI/OCR/cloud/general clipboard software.
+
+The Pro feasibility brief is **for research only**; it does not grant code changes, production profile enablement or permission changes. Keep existing engineering branch ownership and truthfully scoped tests.
