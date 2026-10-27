@@ -103,8 +103,12 @@ public enum ObservationDecoder {
                   let target = identity["target"] as? [String: Any],
                   Set(target.keys).isSubset(of: Set([
                     "adapterID", "surface", "applicationID", "sessionID", "windowID", "tabID",
-                    "documentID", "composerID", "draftGeneration"
+                    "documentID", "composerID", "draftGeneration", "logicalDraftIdentity"
                   ])) else { throw ObservationError.invalidPayload }
+            if let logical = target["logicalDraftIdentity"] {
+                guard let fields = logical as? [String: Any],
+                      Set(fields.keys) == Set(["profileID", "id"]) else { throw ObservationError.invalidPayload }
+            }
             let envelope = try JSONDecoder().decode(AttachmentObservationEnvelope.self, from: data)
             try validate(envelope)
             return envelope
@@ -122,6 +126,10 @@ public enum ObservationDecoder {
             throw ObservationError.invalidField("image identity")
         }
         let target = item.identity.target
+        if let logical = target.logicalDraftIdentity,
+           !validToken(logical.profileID) || !validToken(logical.id) {
+            throw ObservationError.invalidField("logical draft identity")
+        }
         let tokens = [target.adapterID, target.applicationID, target.sessionID, target.windowID,
                       target.documentID, target.composerID, target.draftGeneration]
         guard tokens.allSatisfy(validToken), target.tabID.map(validToken) ?? true else {

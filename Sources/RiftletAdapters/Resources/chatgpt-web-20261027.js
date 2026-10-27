@@ -3,19 +3,21 @@
  * research/web-attachment-handoff-2026-10-27/src/input/shared-adapter.js,
  * src/observers/{normal-bound-observer,exception-observer}.template.js,
  * src/observers/compare-source-preview-pixels.template.js and the attached classifiers.
- * Narrow observed profile: Chat home, Chinese file-input/progress labels, PNG.
+ * Narrow development candidates: observed Chinese Home/thread Chat, PNG.
  * This integrated program is NOT the archived program or a new live PASS.
  * No send, composer edits, attachment deletion, network hooks or retry command.
  */
 function riftletWebAcceptance(command, native) {
   'use strict';
-  // v4 never reuses an older installation missing current-focus validation.
+  // v6 adds conservative trusted-interaction and Navigation API continuity revocation.
   // Its old native requests remain UNKNOWN instead of acquiring a new lease.
-  const KEY = '__riftletWebAcceptance20261027v4';
+  const KEY = '__riftletWebAcceptance20261027v6';
   const MAX_GENERATIONS = 32;
   const MAX_BYTES = 8 * 1024 * 1024, MAX_PIXELS = 16 * 1024 * 1024;
   const TARGET_KEYS = ['adapterID', 'surface', 'applicationID', 'sessionID', 'windowID', 'tabID', 'documentID', 'composerID', 'draftGeneration'];
-  const sameTarget = (a, b) => !!a && !!b && TARGET_KEYS.every(k => a[k] === b[k]);
+  const sameLogical = (a, b) => (!a && !b) || (!!a && !!b && a.profileID === b.profileID && a.id === b.id);
+  const sameTarget = (a, b) => !!a && !!b && TARGET_KEYS.every(k => a[k] === b[k])
+    && sameLogical(a.logicalDraftIdentity, b.logicalDraftIdentity);
   const sameIdentity = (a, b) => !!a && !!b && a.operationID === b.operationID && a.assetID === b.assetID
     && a.attempt === b.attempt && a.assetSHA256 === b.assetSHA256 && sameTarget(a.target, b.target);
   const contextMatches = t => t && ['applicationID', 'sessionID', 'windowID', 'tabID'].every(k => t[k] === native[k]);
@@ -29,62 +31,141 @@ function riftletWebAcceptance(command, native) {
       hasError: false, isUploading: false, attachmentAbsent: false, automaticRetryExcluded: false}
   });
 
+  // Pure bounded reader of the observed current committed React ancestry.
+  // No pendingProps, endpoint calls, DOM text extraction or alternate guessing.
+  function readThreadIdentity(form) {
+    const keys = Object.keys(form).filter(k => k.startsWith('__reactFiber$'));
+    if (keys.length !== 1) return null;
+    const installed = Object.getOwnPropertyDescriptor(form, keys[0])?.value;
+    const chains = [];
+    for (const leaf of [installed, installed?.alternate]) {
+      if (!leaf || leaf.stateNode !== form) continue;
+      const chain = [], seen = new Set(); let node = leaf, valid = true;
+      // The observed real thread has 373 ancestors; keep a finite 512-node cap.
+      while (node && chain.length < 512 && !seen.has(node)) {
+        seen.add(node); chain.push(node);
+        const parent = node.return;
+        if (!parent) break;
+        let child = parent.child, member = false, siblings = new Set();
+        while (child && siblings.size < 512 && !siblings.has(child)) {
+          if (child === node) { member = true; break; }
+          siblings.add(child); child = child.sibling;
+        }
+        if (!member) { valid = false; break; }
+        node = parent;
+      }
+      const root = chain[chain.length - 1];
+      if (valid && root && !root.return && root.tag === 3 && root.stateNode?.current === root) chains.push(chain);
+    }
+    if (chains.length !== 1) return null;
+    const own = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
+    let modeSeen = false, draftSeen = false, identity = null;
+    for (const fiber of chains[0]) {
+      const props = fiber.memoizedProps;
+      if (!props || typeof props !== 'object') continue;
+      const mode = ['conversationId', 'isHome', 'isWork', 'readOnly'].every(k => own(props, k));
+      const draft = ['conversationId', 'draftKey', 'isWorkConversation', 'isTemporaryChat', 'readOnly', 'surfacePlacement'].every(k => own(props, k));
+      if (!mode && !draft) continue;
+      const id = props.conversationId;
+      if (typeof id !== 'string' || !/^local-chatgpt:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/.test(id)
+          || (identity !== null && identity !== id)) return null;
+      identity = id;
+      if (mode) {
+        if (props.isHome !== false || props.isWork !== false || props.readOnly !== false) return null;
+        modeSeen = true;
+      }
+      if (draft) {
+        if (props.draftKey !== id || props.isWorkConversation !== false || props.isTemporaryChat !== false
+            || props.readOnly !== false || props.surfacePlacement?.kind !== 'thread') return null;
+        draftSeen = true;
+      }
+    }
+    return modeSeen && draftSeen ? {profileID: 'chatgpt-composer-react-20261027-v1', id: identity} : null;
+  }
+
   function install(registry) {
-    // The archive did not establish arbitrary threads, Work, locales or frames.
-    if (location.href !== 'https://chatgpt.com/' || globalThis.top !== globalThis
+    const home = location.href === 'https://chatgpt.com/';
+    const thread = /^https:\/\/chatgpt\.com\/c\/[^/?#]+(?:[?#].*)?$/.test(location.href);
+    if ((!home && !thread) || globalThis.top !== globalThis
         || document.visibilityState !== 'visible' || !document.hasFocus()) fail('UNSUPPORTED_TEST_SURFACE');
     if (native.applicationID !== 'com.google.Chrome' || !native.sessionID
         || !/^\d+$/.test(native.windowID) || !/^\d+$/.test(native.tabID)) fail('NATIVE_CONTEXT_REQUIRED');
-    // Observed on the local Chinese Home header, 2026-10-27. A legacy
-    // account with no explicit mode control is unsupported, not assumed Chat.
     const modeSelector = '[role=group][aria-label="撰写器模式"]';
-    const modeGroups = [...document.querySelectorAll(modeSelector)];
-    if (modeGroups.length !== 1 || !modeGroups[0].closest('header')) fail('UNPROVEN_CHAT_MODE');
-    const modeGroup = modeGroups[0], modeHeader = modeGroup.closest('header');
-    const modeButtons = [...modeGroup.querySelectorAll('button[type=button]')];
-    const chatButtons = modeButtons.filter(n => n.textContent.trim() === '聊天');
-    const workButtons = modeButtons.filter(n => n.textContent.trim() === '工作');
-    if (modeButtons.length !== 2 || chatButtons.length !== 1 || workButtons.length !== 1) fail('UNPROVEN_CHAT_MODE');
-    const chatMode = chatButtons[0], workMode = workButtons[0];
-    const modeMatches = () => {
-      const groups = document.querySelectorAll(modeSelector), buttons = modeGroup.querySelectorAll('button[type=button]');
-      return groups.length === 1 && groups[0] === modeGroup && modeGroup.isConnected && modeHeader.isConnected
-        && modeGroup.closest('header') === modeHeader && chatMode.isConnected && workMode.isConnected
-        && modeGroup.contains(chatMode) && modeGroup.contains(workMode)
-        && buttons.length === 2 && [...buttons].includes(chatMode) && [...buttons].includes(workMode)
-        && chatMode.textContent.trim() === '聊天' && workMode.textContent.trim() === '工作'
-        && chatMode.getAttribute('aria-pressed') === 'true' && workMode.getAttribute('aria-pressed') === 'false';
-    };
+    const threadFormSelector = 'form[data-chatgpt-composer][data-composer-placement=thread][data-thread-find-composer=true]';
+    const threadEditorSelector = '[contenteditable=true][role=textbox][aria-label="询问 ChatGPT"]';
+    let modeGroup = null, modeHeader = null, chatMode = null, workMode = null;
+    let form, editor, logicalDraftIdentity, modeMatches;
+    if (home) {
+      const modeGroups = [...document.querySelectorAll(modeSelector)];
+      if (modeGroups.length !== 1 || !modeGroups[0].closest('header')) fail('UNPROVEN_CHAT_MODE');
+      modeGroup = modeGroups[0]; modeHeader = modeGroup.closest('header');
+      const buttons = [...modeGroup.querySelectorAll('button[type=button]')];
+      const chats = buttons.filter(n => n.textContent.trim() === '聊天');
+      const works = buttons.filter(n => n.textContent.trim() === '工作');
+      if (buttons.length !== 2 || chats.length !== 1 || works.length !== 1) fail('UNPROVEN_CHAT_MODE');
+      chatMode = chats[0]; workMode = works[0];
+      modeMatches = () => {
+        const groups = document.querySelectorAll(modeSelector), current = modeGroup.querySelectorAll('button[type=button]');
+        return groups.length === 1 && groups[0] === modeGroup && modeGroup.isConnected && modeHeader.isConnected
+          && modeGroup.closest('header') === modeHeader && chatMode.isConnected && workMode.isConnected
+          && modeGroup.contains(chatMode) && modeGroup.contains(workMode)
+          && current.length === 2 && [...current].includes(chatMode) && [...current].includes(workMode)
+          && chatMode.textContent.trim() === '聊天' && workMode.textContent.trim() === '工作'
+          && chatMode.getAttribute('aria-pressed') === 'true' && workMode.getAttribute('aria-pressed') === 'false';
+      };
+      const editors = [...document.querySelectorAll('[contenteditable=true][role=textbox]')];
+      if (editors.length !== 1) fail('AMBIGUOUS_COMPOSER');
+      editor = editors[0]; form = editor.closest('form');
+    } else {
+      const forms = [...document.querySelectorAll(threadFormSelector)];
+      if (forms.length !== 1) fail('UNOBSERVED_THREAD_COMPOSER');
+      form = forms[0];
+      const editors = [...form.querySelectorAll(threadEditorSelector)];
+      if (editors.length !== 1) fail('AMBIGUOUS_COMPOSER');
+      editor = editors[0]; logicalDraftIdentity = readThreadIdentity(form);
+      if (!logicalDraftIdentity) fail('UNPROVEN_THREAD_IDENTITY');
+      modeMatches = () => {
+        const forms = document.querySelectorAll(threadFormSelector);
+        return forms.length === 1 && forms[0] === form && sameLogical(readThreadIdentity(form), logicalDraftIdentity);
+      };
+    }
     if (!modeMatches()) fail('UNPROVEN_CHAT_MODE');
-    const editors = [...document.querySelectorAll('[contenteditable=true][role=textbox]')];
-    if (editors.length !== 1) fail('AMBIGUOUS_COMPOSER');
-    const editor = editors[0], form = editor.closest('form');
     const inputs = form ? [...form.querySelectorAll('input[type=file][aria-label="附加文件"]')] : [];
     if (!form || inputs.length !== 1) fail('UNOBSERVED_INPUT_STRUCTURE');
     const input = inputs[0], route = location.href, documentID = crypto.randomUUID();
     const ids = new WeakMap(), operations = new Map();
-    let nextNode = 0, invalid = false, sequence = 0;
+    let nextNode = 0, invalid = false, inputRevoked = false, sequence = 0;
     const nodeID = n => { if (!ids.has(n)) ids.set(n, 'node-' + (++nextNode)); return ids.get(n); };
     const target = {adapterID: 'chatgpt-web', surface: 'webChat', ...native,
-      documentID, composerID: nodeID(editor) + ':' + nodeID(form), draftGeneration: crypto.randomUUID()};
+      documentID, composerID: nodeID(editor) + ':' + nodeID(form), draftGeneration: crypto.randomUUID(),
+      ...(logicalDraftIdentity ? {logicalDraftIdentity} : {})};
     // Existing attachments are never read beyond node membership or changed.
     // If an original card disappears, conservatively invalidate this draft lease.
     const baseline = [...form.querySelectorAll('[role=button][aria-label]')].filter(c => c.querySelector('img'));
-    const valid = () => {
-      const currentEditors = document.querySelectorAll('[contenteditable=true][role=textbox]');
+    const identitySnapshotValid = () => {
+      const currentEditors = home ? document.querySelectorAll('[contenteditable=true][role=textbox]') : form.querySelectorAll(threadEditorSelector);
       const currentInputs = form.querySelectorAll('input[type=file][aria-label="附加文件"]');
-      return !invalid && modeMatches() && location.href === route && document.visibilityState === 'visible'
-        && document.hasFocus() && form.isConnected && editor.isConnected
+      return !invalid && modeMatches() && location.href === route && form.isConnected && editor.isConnected
         && input.isConnected && input.form === form && editor.closest('form') === form && form.contains(input)
         && currentEditors.length === 1 && currentEditors[0] === editor
         && currentInputs.length === 1 && currentInputs[0] === input
         && baseline.every(c => c.isConnected && form.contains(c));
     };
     const tick = () => { if (++sequence > 4096) invalid = true; return sequence; };
+    const revokeInput = () => {
+      inputRevoked = true;
+      for (const op of operations.values()) if (!op.committed) { op.file = null; op.chunks = []; }
+    };
     const invalidate = () => {
-      invalid = true; tick();
+      invalid = true; revokeInput(); tick();
       for (const op of operations.values()) { op.file = null; op.chunks = []; op.proof = null; }
     };
+    const observationIdentityValid = () => {
+      if (!identitySnapshotValid()) { if (!invalid) invalidate(); return false; }
+      return true;
+    };
+    const valid = () => observationIdentityValid() && !inputRevoked
+      && document.visibilityState === 'visible' && document.hasFocus();
     const markBad = (op, error = false) => {
       // Preserve a previously proved, still-bound attachment's identity when its
       // own card/image reports a late error. Navigation, node replacement and
@@ -99,7 +180,7 @@ function riftletWebAcceptance(command, native) {
     const ownCards = name => [...form.querySelectorAll('[role=button][aria-label]')]
       .filter(c => c.getAttribute('aria-label') === name);
     const currentSource = image => image.currentSrc || image.src;
-    const currentMember = op => valid() && !op.invalid && op.card?.isConnected && form.contains(op.card)
+    const currentMember = op => observationIdentityValid() && !op.invalid && op.card?.isConnected && form.contains(op.card)
       && op.image?.isConnected && op.image.closest('[role=button]') === op.card
       && op.card.getAttribute('aria-label') === op.name && op.image.alt === op.name
       && ownCards(op.name).length === 1;
@@ -158,7 +239,7 @@ function riftletWebAcceptance(command, native) {
     }
 
     function sample(op, eventType = 'query', eventImage = null) {
-      if (!valid()) { invalidate(); return; }
+      if (!observationIdentityValid()) return;
       if (op.invalid || !op.committed) return;
       const now = tick(), cards = ownCards(op.name);
       if (cards.length === 0) { if (op.card) markBad(op); return; }
@@ -199,7 +280,7 @@ function riftletWebAcceptance(command, native) {
       let relevant = false;
       for (const record of records) {
         if (containsNode(form, record.target)) relevant = true;
-        if (containsNode(modeGroup, record.target)) {
+        if (modeGroup && containsNode(modeGroup, record.target)) {
           relevant = true;
           // Observe the changes, not only their final value: Chat -> Work ->
           // Chat within one mutation batch permanently revokes this lease.
@@ -237,17 +318,17 @@ function riftletWebAcceptance(command, native) {
       if (pending.length) processRecords(pending);
     };
     observer.observe(form, {subtree: true, childList: true, attributes: true, attributeOldValue: true, characterData: true});
-    observer.observe(modeGroup, {subtree: true, childList: true, attributes: true, attributeOldValue: true,
+    if (modeGroup) observer.observe(modeGroup, {subtree: true, childList: true, attributes: true, attributeOldValue: true,
       characterData: true, characterDataOldValue: true});
     // An entire form/ancestor can be detached and reinserted. Watch each parent
     // child-list only; avoid observing the rest of the page's subtree or text.
-    for (const root of [form, modeGroup]) {
+    for (const root of [form, modeGroup].filter(Boolean)) {
       for (let ancestor = root.parentNode; ancestor; ancestor = ancestor.parentNode) {
         observer.observe(ancestor, {childList: true});
       }
     }
     document.addEventListener('change', event => {
-      if (!valid() || event.target !== input || !(event.target instanceof HTMLInputElement)) return;
+      if (!observationIdentityValid() || event.target !== input || !(event.target instanceof HTMLInputElement)) return;
       for (const file of event.target.files || []) {
         const op = [...operations.values()].find(o => o.name === file.name);
         if (!op) continue; // Other user attachments cannot complete this operation.
@@ -257,7 +338,7 @@ function riftletWebAcceptance(command, native) {
         }
         op.inputSequence = tick(); op.file = file;
         file.arrayBuffer().then(hash).then(digest => {
-          if (!valid() || op.invalid || digest !== op.identity.assetSHA256 || op.inputCount !== 1) { markBad(op); return; }
+          if (!observationIdentityValid() || op.invalid || digest !== op.identity.assetSHA256 || op.inputCount !== 1) { markBad(op); return; }
           op.fileHashVerified = true; op.hashSequence = tick(); sample(op, 'inputHash');
         }).catch(() => markBad(op));
       }
@@ -265,14 +346,29 @@ function riftletWebAcceptance(command, native) {
     for (const type of ['load', 'error']) document.addEventListener(type, event => {
       if (event.target?.tagName === 'IMG') sampleAll(type, event.target);
     }, true);
-    for (const type of ['pagehide', 'pageshow', 'popstate', 'hashchange']) addEventListener(type, invalidate);
+    for (const type of ['pagehide', 'popstate', 'hashchange']) addEventListener(type, invalidate);
+    addEventListener('pageshow', revokeInput);
     // The Window epoch changes across applications/windows even while both
     // pages remain visible. Input-to-input focus inside this draft is unrelated.
     for (const type of ['blur', 'focus']) addEventListener(type, event => {
-      if (event.target === globalThis) invalidate();
+      if (event.target === globalThis) revokeInput();
     });
-    document.addEventListener('visibilitychange', invalidate);
-    const state = {target, valid, invalidate, drain, operations, sample, tick, ownCards, markBad, currentMember,
+    document.addEventListener('visibilitychange', revokeInput);
+    // A current React snapshot does not prove that this business draft stayed
+    // current between commands. Revoke at observable navigation intent without
+    // inspecting key values, outside text, destinations or history payloads.
+    const continuityEvents = {outsideInteraction: 0, navigate: 0, currententrychange: 0};
+    for (const type of ['pointerdown', 'click', 'keydown']) document.addEventListener(type, event => {
+      if (event.isTrusted === true && event.target && !form.contains(event.target)) {
+        continuityEvents.outsideInteraction++; revokeInput();
+      }
+    }, true);
+    if (typeof globalThis.navigation?.addEventListener === 'function') {
+      for (const type of ['navigate', 'currententrychange']) globalThis.navigation.addEventListener(type, () => {
+        continuityEvents[type]++; invalidate();
+      });
+    }
+    const state = {target, valid, observationIdentityValid, invalidate, revokeInput, drain, continuityEvents, operations, sample, tick, ownCards, markBad, currentMember,
       currentSource, input, form, nodeID, next: null};
     if (registry.tail) registry.tail.next = state;
     else registry.head = state;
@@ -296,7 +392,7 @@ function riftletWebAcceptance(command, native) {
     let current = registry.tail;
     current?.drain();
     if (!current || !current.valid() || !contextMatches(current.target)) {
-      if (current) current.invalidate();
+      if (current) current.revokeInput();
       if (registry.count >= MAX_GENERATIONS) fail('LEASE_GENERATION_LIMIT');
       current = install(registry);
     }
@@ -310,7 +406,7 @@ function riftletWebAcceptance(command, native) {
   }
   const identity = command.identity;
   if (!identity || !sameTarget(identity.target, command.target)) fail('IDENTITY_REQUIRED');
-  if (!state || !state.valid() || !contextMatches(state.target) || !sameTarget(identity.target, state.target)
+  if (!state || !(command.action === 'observe' ? state.observationIdentityValid() : state.valid()) || !contextMatches(state.target) || !sameTarget(identity.target, state.target)
       || (command.action !== 'observe' && state !== registry.tail)) {
     if (command.action === 'observe') return blankObservation(identity);
     fail('TARGET_INVALID');
@@ -358,7 +454,7 @@ function riftletWebAcceptance(command, native) {
     if (!signature.every((n, i) => bytes[i] === n)) { state.markBad(op); }
     else hash(bytes).then(digest => {
       state.drain();
-      if (digest !== op.identity.assetSHA256 || !state.valid() || op.invalid
+      if (digest !== op.identity.assetSHA256 || state !== registry.tail || !state.valid() || op.invalid
           || document.visibilityState !== 'visible' || !document.hasFocus()
           || !sameTarget(op.identity.target, state.target) || state.ownCards(op.name).length) {
         state.markBad(op); return;
@@ -378,7 +474,7 @@ function riftletWebAcceptance(command, native) {
 
   state.sample(op);
   const envelope = blankObservation(identity, 'unknown'), observation = envelope.observation;
-  observation.belongsToOriginalDraft = state.valid() && sameTarget(identity.target, state.target);
+  observation.belongsToOriginalDraft = state.observationIdentityValid() && sameTarget(identity.target, state.target);
   observation.hasError = op.error;
   observation.isUploading = op.uploading;
   if (!observation.belongsToOriginalDraft || op.invalid) {

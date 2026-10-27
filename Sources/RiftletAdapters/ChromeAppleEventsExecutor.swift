@@ -70,8 +70,21 @@ public final class ChromeAppleEventsExecutor: WebBridgeExecutor {
                             }
                         }
                         let context = "{applicationID:\"\(browserID)\",sessionID:\(sessionJSON),windowID:\"\(selected.window)\",tabID:\"\(selected.tab)\"}"
-                        let source = "JSON.stringify((\(program.functionSource))(\(commandJSON),\(context)))"
-                        let text = try bridge.execute(source, window: selected.window, tab: selected.tab)
+                        // Chrome's execute-JavaScript event is isolated-world. The
+                        // observed composer business identity lives in MAIN. Submit
+                        // exactly once, then only read its nonce-bound DOM receipt.
+                        let envelope = MainWorldCommandEnvelope(function: program.functionSource,
+                            commandJSON: commandJSON, contextJSON: context)
+                        try bridge.submitMainWorld(envelope.source, window: selected.window, tab: selected.tab)
+                        let deadline = ProcessInfo.processInfo.systemUptime + 1
+                        var reply = ""
+                        repeat {
+                            reply = try bridge.execute(envelope.reader, window: selected.window, tab: selected.tab)
+                            if !reply.isEmpty { break }
+                            Thread.sleep(forTimeInterval: 0.02)
+                        } while ProcessInfo.processInfo.systemUptime < deadline
+                        // Missing/late reply never resubmits an input command.
+                        let text = try envelope.decode(reply)
                         guard text.utf8.count <= ObservationDecoder.maximumPayloadBytes else { throw WebAdapterError.invalidReply }
                         return Data(text.utf8)
                     }
@@ -91,7 +104,8 @@ public final class ChromeAppleEventsExecutor: WebBridgeExecutor {
 
 /// Codes come from Chrome's installed scripting.sdef (Standard/Chromium suites),
 /// not undocumented browser internals. This preserves the existing five-second
-/// per-event timeout and never activates, navigates or sends a ChatGPT message.
+/// per-event timeout and never activates or sends a ChatGPT message. The URL
+/// setter receives only a void JavaScript expression, not a navigation URL.
 private struct ChromePIDEvents {
     let pid: pid_t
     private func code(_ text: String) -> UInt32 { text.utf8.reduce(0) { ($0 << 8) | UInt32($1) } }
@@ -112,11 +126,12 @@ private struct ChromePIDEvents {
     }
 
     private func send(_ suite: String, _ event: String, direct: NSAppleEventDescriptor,
-                      javascript: String? = nil) throws -> NSAppleEventDescriptor {
+                      javascript: String? = nil, value: String? = nil) throws -> NSAppleEventDescriptor {
         let request = NSAppleEventDescriptor(eventClass: code(suite), eventID: code(event),
             targetDescriptor: .init(processIdentifier: pid), returnID: -1, transactionID: 0)
         request.setParam(direct, forKeyword: code("----"))
         if let javascript { request.setParam(.init(string: javascript), forKeyword: code("JvSc")) }
+        if let value { request.setParam(.init(string: value), forKeyword: code("data")) }
         let reply: NSAppleEventDescriptor
         do { reply = try request.sendEvent(options: [.waitForReply], timeout: 5) }
         catch {
@@ -131,7 +146,10 @@ private struct ChromePIDEvents {
         if let error = reply.paramDescriptor(forKeyword: code("errn")), error.int32Value != 0 {
             throw WebAdapterError.nativeEventFailed(error.int32Value)
         }
-        guard let result = reply.paramDescriptor(forKeyword: code("----")) else { throw WebAdapterError.nativeExecutionFailed }
+        guard let result = reply.paramDescriptor(forKeyword: code("----")) else {
+            if value != nil { return .null() }
+            throw WebAdapterError.nativeExecutionFailed
+        }
         return result
     }
 
@@ -163,5 +181,17 @@ private struct ChromePIDEvents {
             throw WebAdapterError.nativeExecutionFailed
         }
         return result
+    }
+
+    func submitMainWorld(_ source: String, window: String, tab: String) throws {
+        let windowObject = try object("cwin", form: "ID  ", key: .init(string: window))
+        let tabObject = try object("CrTb", form: "ID  ", key: .init(string: tab), container: windowObject)
+        // URL parsing strips literal line breaks (which would turn // comments
+        // into the remainder of the program). Encode source before that parser.
+        let allowed = CharacterSet(charactersIn: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._~")
+        guard let encoded = ("void(" + source + ")").addingPercentEncoding(withAllowedCharacters: allowed) else {
+            throw WebAdapterError.invalidRequest
+        }
+        _ = try send("core", "setd", direct: property("URL ", of: tabObject), value: "javascript:" + encoded)
     }
 }

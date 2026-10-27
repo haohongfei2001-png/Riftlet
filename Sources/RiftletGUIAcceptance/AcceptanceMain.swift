@@ -217,6 +217,7 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
         // Physical keycodes can reconstruct typing even without event.characters.
         // Record only the occurrence of a key event and focus, never its identity.
         if event.type != .keyDown, let eventWindow = event.window {
+            fields["eventNumber"] = event.eventNumber
             let point = eventWindow.convertPoint(toScreen: event.locationInWindow)
             fields["screenX"] = point.x
             fields["screenY"] = point.y
@@ -259,11 +260,25 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
         rift?.close()
         var configuration = RiftConfiguration()
         configuration.preferredDisplayID = (window.screen?.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.uint32Value
-        rift = RiftPanelController(mediaDirectory: mediaRoot, configuration: configuration) { [weak self] id in
+        rift = RiftPanelController(mediaDirectory: mediaRoot, configuration: configuration,
+            onSelectionBoundary: { [weak self] boundary in self?.recordPress(boundary) }) { [weak self] id in
             self?.selected(id)
         }
         rift?.render(records)
         record("scene_reset", ["count": count, "assetIDs": records.map { $0.id.uuidString }])
+    }
+
+    private func recordPress(_ boundary: RiftSelectionBoundary) {
+        // Emit only this fresh accepted boundary. Never retain a press and reuse
+        // it for a later selection after a canceled hold, reflow or scene reset.
+        // "mouse" identifies AppKit routing, not physical-human provenance.
+        var fields: [String: Any] = ["assetID": boundary.assetID.uuidString,
+                                    "source": boundary.source.rawValue,
+                                    "eventUptime": boundary.eventUptime]
+        if let eventNumber = boundary.eventNumber { fields["eventNumber"] = eventNumber }
+        if let windowNumber = boundary.windowNumber { fields["windowNumber"] = windowNumber }
+        if let clickCount = boundary.clickCount { fields["clickCount"] = clickCount }
+        record("thumbnail_press", fields)
     }
 
     private func selected(_ id: UUID) {

@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - 'codex/riftlet-real-mac-acceptance-*'
+      - 'codex/riftlet-real-mac-round2-*'
     paths:
       - 'Sources/**'
       - 'Tests/**'

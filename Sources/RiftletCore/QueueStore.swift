@@ -126,7 +126,7 @@ public actor QueueStore {
             let op = try requiredOperation(id)
             guard op.phase == .prepared else { throw RiftletError.invalidTransition }
             let active = try unresolvedOperations().filter { $0.phase != .prepared }
-            guard !active.contains(where: { $0.target.serializationKey == op.target.serializationKey }) else {
+            guard !active.contains(where: { $0.target.conflictsForDispatch(with: op.target) }) else {
                 throw RiftletError.targetBusy
             }
             try update(op, phase: .dispatchIntent, status: .transferring, reason: "dispatch-intent committed")

@@ -2,6 +2,29 @@ import AppKit
 import QuartzCore
 import RiftletCore
 
+/// The AppKit invocation path, not a claim that a human hardware device acted.
+/// Automation can also deliver mouse events through the native event queue.
+public enum RiftSelectionSource: String, Sendable {
+    case mouse, accessibility
+}
+
+/// A fresh observation emitted at an accepted press boundary. Mouse metadata is
+/// taken only from that NSEvent; accessibility invocations have no mouse event.
+public struct RiftSelectionBoundary: Equatable, Sendable {
+    public let assetID: UUID
+    public let source: RiftSelectionSource
+    public let eventUptime: TimeInterval
+    public let eventNumber: Int?
+    public let windowNumber: Int?
+    public let clickCount: Int?
+
+    public init(assetID: UUID, source: RiftSelectionSource, eventUptime: TimeInterval,
+                eventNumber: Int? = nil, windowNumber: Int? = nil, clickCount: Int? = nil) {
+        self.assetID = assetID; self.source = source; self.eventUptime = eventUptime
+        self.eventNumber = eventNumber; self.windowNumber = windowNumber; self.clickCount = clickCount
+    }
+}
+
 /// Minimal native AppKit structure informed by Tendedero's LinePanel, implemented here
 /// without its private CGS calls, pointer polling, capacity eviction or artwork.
 private final class RiftPanel: NSPanel {
@@ -152,6 +175,7 @@ public final class RiftPanelController {
     private let cache: ThumbnailCache
     private let onSelect: (UUID) -> Void
     private let onPress: (UUID, TimeInterval) -> Void
+    private let onSelectionBoundary: (RiftSelectionBoundary) -> Void
     private let decoration: RiftPanel
     private var rowWindows: [UUID: RowWindow] = [:]
     private var lastRecords: [AssetRecord] = []
@@ -166,12 +190,14 @@ public final class RiftPanelController {
 
     public init(mediaDirectory: URL, configuration: RiftConfiguration = .init(),
                 onPress: @escaping (UUID, TimeInterval) -> Void = { _, _ in },
+                onSelectionBoundary: @escaping (RiftSelectionBoundary) -> Void = { _ in },
                 onSelect: @escaping (UUID) -> Void) {
         // Configuration loaded from user data should be validated before construction.
         // Defensive fallback prevents malformed geometry from positioning windows off-screen.
         self.configuration = (try? configuration.validate()) != nil ? configuration : RiftConfiguration()
         self.onSelect = onSelect
         self.onPress = onPress
+        self.onSelectionBoundary = onSelectionBoundary
         cache = ThumbnailCache(directory: mediaDirectory)
         decoration = RiftPanel(frame: .zero, decorative: true)
         let line = NSView(frame: .zero)
@@ -341,6 +367,9 @@ public final class RiftPanelController {
                                           acceptsSelection: accepts)
             if accepted {
                 self.onPress(id, event.timestamp)
+                self.onSelectionBoundary(RiftSelectionBoundary(assetID: id, source: .mouse,
+                    eventUptime: event.timestamp, eventNumber: event.eventNumber,
+                    windowNumber: event.windowNumber, clickCount: event.clickCount))
                 view.animateImage(to: self.configuration.inwardDistance,
                                              duration: self.duration(self.configuration.pressDuration)) }
             return accepted
@@ -369,7 +398,10 @@ public final class RiftPanelController {
             guard let self, let view, !self.transitioning, !self.gate.isHolding,
                   [.pending, .failed, .unknown].contains(view.record.status) else { return false }
             // AX has an invocation boundary, not a physical mouse event timestamp.
-            self.onPress(id, ProcessInfo.processInfo.systemUptime)
+            let invocationUptime = ProcessInfo.processInfo.systemUptime
+            self.onPress(id, invocationUptime)
+            self.onSelectionBoundary(RiftSelectionBoundary(assetID: id, source: .accessibility,
+                eventUptime: invocationUptime))
             self.onSelect(id); return true
         }
     }

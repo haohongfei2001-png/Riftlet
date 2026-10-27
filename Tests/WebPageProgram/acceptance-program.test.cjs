@@ -12,8 +12,8 @@ const png = Buffer.from([137,80,78,71,13,10,26,10,1,2,3,4,5,6,7,8]);
 const digest = b => createHash('sha256').update(b).digest('hex');
 const native = {applicationID:'com.google.Chrome', sessionID:'4242:1', windowID:'17', tabID:'19'};
 
-function fixture({blockedDigest = false, route = 'https://chatgpt.com/', mode = 'chat'} = {}) {
-  const events = new Map(), globalEvents = new Map();
+function fixture({blockedDigest = false, route = 'https://chatgpt.com/', mode = 'chat', thread = false} = {}) {
+  const events = new Map(), globalEvents = new Map(), navigationEvents = new Map();
   let focused = true, releaseDigest;
   const mutationObservers=[];
   const digestGate = blockedDigest ? new Promise(resolve => { releaseDigest = resolve; }) : Promise.resolve();
@@ -28,6 +28,8 @@ function fixture({blockedDigest = false, route = 'https://chatgpt.com/', mode = 
     querySelectorAll(selector) {
       const all = this.children.flatMap(c => [c, ...c.querySelectorAll('*')]);
       if (selector === '*') return all;
+      if (selector === 'form[data-chatgpt-composer][data-composer-placement=thread][data-thread-find-composer=true]') return all.filter(n=>n.tagName==='FORM' && n.attrs['data-chatgpt-composer']!==undefined && n.attrs['data-composer-placement']==='thread' && n.attrs['data-thread-find-composer']==='true');
+      if (selector === '[contenteditable=true][role=textbox][aria-label="询问 ChatGPT"]') return all.filter(n=>n.attrs.contenteditable==='true' && n.attrs.role==='textbox' && n.attrs['aria-label']==='询问 ChatGPT');
       if (selector === '[role=group][aria-label="撰写器模式"]') return all.filter(n => n.attrs.role === 'group' && n.attrs['aria-label'] === '撰写器模式');
       if (selector === 'button[type=button]') return all.filter(n => n.tagName === 'BUTTON' && n.attrs.type === 'button');
       if (selector === 'img') return all.filter(n => n.tagName === 'IMG');
@@ -47,6 +49,21 @@ function fixture({blockedDigest = false, route = 'https://chatgpt.com/', mode = 
     get form() { return this.formOverride || this.closest('form'); }
   }
   const body = new Node('body'), form = body.append(new Node('form')), editor = form.append(new Node('div'));
+  const businessID='local-chatgpt:12345678-1234-1234-1234-123456789ABC';
+  const makeFibers=(id=businessID)=>{
+    const leaf={stateNode:form,memoizedProps:{},return:null};
+    const modeFiber={memoizedProps:{conversationId:id,isHome:false,isWork:false,readOnly:false},child:leaf};leaf.return=modeFiber;
+    const draftFiber={memoizedProps:{conversationId:id,draftKey:id,isWorkConversation:false,isTemporaryChat:false,readOnly:false,surfacePlacement:{kind:'thread'}},child:modeFiber};modeFiber.return=draftFiber;
+    const root={tag:3,child:draftFiber,return:null,stateNode:{}};draftFiber.return=root;root.stateNode.current=root;
+    return {leaf,modeFiber,draftFiber,root};
+  };
+  let fibers;
+  if(thread){
+    if(route==='https://chatgpt.com/')route='https://chatgpt.com/c/url-is-not-business-id';
+    Object.assign(form.attrs,{'data-chatgpt-composer':'','data-composer-placement':'thread','data-thread-find-composer':'true'});
+    Object.assign(editor.attrs,{contenteditable:'true',role:'textbox','aria-label':'询问 ChatGPT'});
+    fibers=makeFibers();form.__reactFiber$fixture=fibers.leaf;
+  }
   const modeHeader = body.append(new Node('header'));
   const modeGroup = modeHeader.append(new Node('div', {role:'group', 'aria-label':'撰写器模式'}));
   const chatMode = modeGroup.append(new Node('button', {type:'button','aria-pressed':mode === 'work' ? 'false' : 'true'}));
@@ -85,6 +102,7 @@ function fixture({blockedDigest = false, route = 'https://chatgpt.com/', mode = 
   }
   const context = vm.createContext({console, Uint8Array, Map, Set, WeakMap, Promise, File, atob,
     crypto:{randomUUID:() => webcrypto.randomUUID(),subtle:{digest:async(...args) => { await digestGate; return webcrypto.subtle.digest(...args); }}},
+    navigation:{addEventListener:(type,fn)=>{if(!navigationEvents.has(type))navigationEvents.set(type,[]);navigationEvents.get(type).push(fn);}},
     location:{href:route}, document, HTMLInputElement:Input, Image:TestImage,
     URL:{createObjectURL:()=>'blob:fixture',revokeObjectURL:()=>{}},
     OffscreenCanvas:class { constructor(w,h) { this.width=w;this.height=h; } getContext() { let selected; return {drawImage:i=>{selected=i;},getImageData:()=>({data:selected.rgba})}; } },
@@ -120,7 +138,7 @@ function fixture({blockedDigest = false, route = 'https://chatgpt.com/', mode = 
     const deadline=Date.now()+2000;
     do {
       await new Promise(resolve=>setTimeout(resolve,1));
-      const ops=[];for(let g=context.__riftletWebAcceptance20261027v4?.head;g;g=g.next) ops.push(...g.operations.values());
+      const ops=[];for(let g=context.__riftletWebAcceptance20261027v6?.head;g;g=g.next) ops.push(...g.operations.values());
       if (ops.every(op=>!op.committed || op.invalid || (op.fileHashVerified && !op.proofPending))) return;
     } while(Date.now()<deadline);
     assert.fail('bounded synthetic async work did not settle');
@@ -140,8 +158,10 @@ function fixture({blockedDigest = false, route = 'https://chatgpt.com/', mode = 
     mutation([{type:'attributes',target:view.image,attributeName:'src'}]);
     for (const fn of events.get('load')||[]) fn({target:view.image,type:'load'});
   };
-  return {Node,Input,document,body,form,editor,input,modeHeader,modeGroup,chatMode,workMode,call,target,bind,stage,commit,observe,settle,makeCard,finish,
+  return {Node,Input,document,body,form,editor,input,businessID,makeFibers,fibers,modeHeader,modeGroup,chatMode,workMode,call,target,bind,stage,commit,observe,settle,makeCard,finish,
     mutate:records=>mutation(records),queueMutation:records=>mutation(records,true),
+    navigationEvent:type=>{for(const fn of navigationEvents.get(type)||[])fn();},
+    documentEvent:(type,target,isTrusted=true)=>{for(const fn of events.get(type)||[])fn({type,target,isTrusted});},
     windowEvent:(type,target=pageWindow)=>{for(const fn of globalEvents.get(type)||[]) fn({type,target});},release:()=>releaseDigest?.(),focus:v=>{focused=v;},
     replaceEditor:n=>{currentEditor=n;},events,context};
 }
@@ -214,7 +234,7 @@ test('wrong operation identity, file bytes, route or an absent original observer
   assert.throws(()=>f.call({...op.command('commit'),identity:{...op.identity,attempt:2},chunkIndex:1}),/ORIGINAL_OPERATION_REQUIRED/);
   assert.equal(f.input.inputCount,0);
   const other=fixture();const missing=other.call(op.command('observe'));assert.equal(missing.observation.state,'invalidated');assert.equal(other.input.inputCount,0);
-  assert.throws(()=>fixture({route:'https://chatgpt.com/c/example'}).target(),/UNSUPPORTED_TEST_SURFACE/);
+  assert.throws(()=>fixture({route:'https://chatgpt.com/c/example'}).target(),/UNOBSERVED_THREAD_COMPOSER/);
   const corrupt=fixture(),bad=corrupt.bind();bad.identity.assetSHA256='0'.repeat(64);corrupt.stage(bad);corrupt.commit(bad);await corrupt.settle();
   assert.equal(corrupt.input.inputCount,0);assert.equal(corrupt.observe(bad).state,'invalidated');
 });
@@ -281,9 +301,9 @@ test('returning to a tab can bind a fresh lease while original UNKNOWN stays obs
   for(const fn of f.events.get('visibilitychange')||[]) fn();
   f.document.visibilityState='visible';
   for(const fn of f.events.get('visibilitychange')||[]) fn();
-  const registry=f.context.__riftletWebAcceptance20261027v4;
+  const registry=f.context.__riftletWebAcceptance20261027v6;
   assert.equal(registry.count,1);
-  assert.equal(f.observe(old).state,'invalidated');assert.equal(registry.count,1);
+  assert.equal(f.observe(old).state,'inputTriggered');assert.equal(registry.count,1);
   const fresh=f.bind('33333333-3333-4333-8333-333333333333');
   assert.notEqual(fresh.target.documentID,old.target.documentID);
   assert.notEqual(fresh.target.draftGeneration,old.target.draftGeneration);
@@ -297,16 +317,16 @@ test('returning to a tab can bind a fresh lease while original UNKNOWN stays obs
   assert.throws(()=>f.stage(transplanted),/BEGIN_REFUSED/);
   f.stage(fresh);f.commit(fresh);await f.settle();assert.equal(f.input.inputCount,2);
   const view=f.makeCard(fresh);f.finish(view);await f.settle();assert.equal(f.observe(fresh).state,'attached');
-  assert.equal(f.observe(old).state,'invalidated');assert.equal(f.input.inputCount,2);
+  assert.equal(f.observe(old).state,'inputTriggered');assert.equal(f.input.inputCount,2);
   assert.equal(registry.count,2);
 });
 
 test('lease generations are bounded and older state cannot bypass current admission', () => {
-  for(const key of ['__riftletWebAcceptance20261027v1','__riftletWebAcceptance20261027v2','__riftletWebAcceptance20261027v3']) {
+  for(const key of ['__riftletWebAcceptance20261027v1','__riftletWebAcceptance20261027v2','__riftletWebAcceptance20261027v3','__riftletWebAcceptance20261027v4','__riftletWebAcceptance20261027v5']) {
     const legacy=fixture({mode:'missing'});
     legacy.context[key]={valid:()=>true,target:{...native,surface:'webChat'}};
     assert.throws(()=>legacy.target(),/UNPROVEN_CHAT_MODE/);
-    assert.equal(legacy.context.__riftletWebAcceptance20261027v4.count,0);
+    assert.equal(legacy.context.__riftletWebAcceptance20261027v6.count,0);
   }
   const f=fixture();let first;
   for(let i=0;i<32;i++) {
@@ -315,7 +335,7 @@ test('lease generations are bounded and older state cannot bypass current admiss
     f.document.visibilityState='visible';
   }
   assert.throws(()=>f.target(),/LEASE_GENERATION_LIMIT/);
-  const registry=f.context.__riftletWebAcceptance20261027v4;
+  const registry=f.context.__riftletWebAcceptance20261027v6;
   assert.equal(registry.count,32);assert.equal(registry.head.target.documentID,first.documentID);
   assert.equal(f.call({action:'validate',target:first}).valid,false);assert.equal(f.input.inputCount,0);
 });
@@ -377,4 +397,141 @@ test('current document focus is required even before blur notification is delive
   const pending=fixture({blockedDigest:true}),later=pending.bind();pending.stage(later);pending.commit(later);
   pending.focus(false);pending.release();await pending.settle();
   assert.equal(pending.input.inputCount,0);assert.equal(pending.observe(later).state,'invalidated');
+});
+
+test('observed current thread fiber exposes logical identity independently from URL and other file inputs', async () => {
+  const f=fixture({thread:true});
+  for(let i=0;i<3;i++){const input=new f.Input();input.attrs['aria-label']='other '+i;f.form.append(input);}
+  const t=f.target();assert.equal(t.logicalDraftIdentity.profileID,'chatgpt-composer-react-20261027-v1');
+  assert.equal(t.logicalDraftIdentity.id,f.businessID);assert.ok(!f.context.location.href.includes(f.businessID));
+  const op=f.bind();f.stage(op);f.commit(op);await f.settle();const view=f.makeCard(op);f.finish(view);await f.settle();
+  assert.equal(f.observe(op).state,'attached');assert.equal(f.input.inputCount,1);
+  assert.equal(fixture().target().logicalDraftIdentity,undefined);
+});
+
+test('thread mode/identity is strict: absent, partial, inconsistent, Work, temporary and readonly refuse', () => {
+  const changes=[
+    f=>delete f.form.__reactFiber$fixture,
+    f=>delete f.fibers.modeFiber.memoizedProps.isWork,
+    f=>delete f.fibers.draftFiber.memoizedProps.draftKey,
+    f=>{f.fibers.modeFiber.memoizedProps.isWork=true;},
+    f=>{f.fibers.modeFiber.memoizedProps.isHome=true;},
+    f=>{f.fibers.modeFiber.memoizedProps.readOnly=true;},
+    f=>{f.fibers.draftFiber.memoizedProps.isWorkConversation=true;},
+    f=>{f.fibers.draftFiber.memoizedProps.isTemporaryChat=true;},
+    f=>{f.fibers.draftFiber.memoizedProps.readOnly=true;},
+    f=>{f.fibers.draftFiber.memoizedProps.surfacePlacement.kind='home';},
+    f=>{f.fibers.draftFiber.memoizedProps.draftKey='different';},
+    f=>{f.fibers.modeFiber.memoizedProps.conversationId='local-chatgpt:00000000-0000-0000-0000-000000000000';},
+    f=>{f.form.__reactFiber$other=f.fibers.leaf;}
+  ];
+  for(const change of changes){const f=fixture({thread:true});change(f);assert.throws(()=>f.target(),/UNPROVEN_THREAD_IDENTITY/);assert.equal(f.input.inputCount,0);}
+});
+
+test('current committed fiber is selected through alternate; stale or ambiguous roots and broken ancestry refuse', () => {
+  const f=fixture({thread:true}), current=f.fibers, stale=f.makeFibers('local-chatgpt:00000000-0000-0000-0000-000000000000');
+  stale.root.stateNode=current.root.stateNode;stale.leaf.alternate=current.leaf;current.leaf.alternate=stale.leaf;
+  f.form.__reactFiber$fixture=stale.leaf;
+  assert.equal(f.target().logicalDraftIdentity.id,f.businessID);
+  stale.modeFiber.memoizedProps.isWork=true;assert.equal(f.target().logicalDraftIdentity.id,f.businessID);
+  const invalids=[
+    g=>{g.fibers.root.stateNode.current={};},
+    g=>{g.fibers.modeFiber.child={};},
+    g=>{g.fibers.leaf.stateNode={};},
+    g=>{g.fibers.root.return=g.fibers.leaf;},
+    g=>{g.fibers.leaf.alternate=g.makeFibers().leaf;}
+  ];
+  for(const change of invalids){const g=fixture({thread:true});change(g);assert.throws(()=>g.target(),/UNPROVEN_THREAD_IDENTITY/);}
+});
+
+test('thread business identity change permanently ends original observation and never relabels its operation', async () => {
+  const f=fixture({thread:true}),old=f.bind();f.stage(old);f.commit(old);await f.settle();const view=f.makeCard(old);f.finish(view);await f.settle();
+  assert.equal(f.observe(old).state,'attached');
+  const freshFibers=f.makeFibers('local-chatgpt:00000000-0000-0000-0000-000000000000');f.form.__reactFiber$fixture=freshFibers.leaf;
+  assert.equal(f.observe(old).state,'invalidated');assert.equal(f.observe(old).belongsToOriginalDraft,false);
+  const fresh=f.target();assert.notEqual(fresh.logicalDraftIdentity.id,old.target.logicalDraftIdentity.id);
+  f.form.__reactFiber$fixture=f.fibers.leaf;
+  assert.equal(f.observe(old).state,'invalidated');assert.equal(f.input.inputCount,1);
+  const forged={...old.target,logicalDraftIdentity:{...old.target.logicalDraftIdentity,id:fresh.logicalDraftIdentity.id}};
+  const result=f.call({action:'observe',target:forged,identity:{...old.identity,target:forged}}).observation;
+  assert.equal(result.state,'invalidated');assert.equal(result.belongsToOriginalDraft,false);
+});
+
+test('background observation retains proof and correlated late error across input epoch rearm', async () => {
+  for(const thread of [false,true]) {
+    const f=fixture({thread}),op=f.bind();f.stage(op);f.commit(op);await f.settle();const view=f.makeCard(op);f.finish(view);await f.settle();
+    const ready=f.observe(op);assert.equal(ready.state,'attached');
+    f.focus(false);f.windowEvent('blur');f.document.visibilityState='hidden';for(const fn of f.events.get('visibilitychange')||[])fn();
+    assert.equal(f.call({action:'validate',target:op.target}).valid,false);
+    assert.equal(f.observe(op).state,'attached');assert.equal(f.observe(op).attachmentID,ready.attachmentID);
+    f.focus(true);f.windowEvent('focus');f.document.visibilityState='visible';for(const fn of f.events.get('visibilitychange')||[])fn();
+    const next=f.target();assert.notEqual(next.draftGeneration,op.target.draftGeneration);
+    assert.equal(next.logicalDraftIdentity?.id,op.target.logicalDraftIdentity?.id);
+    assert.equal(f.observe(op).state,'attached');assert.throws(()=>f.commit(op),/TARGET_INVALID/);
+    view.card.attrs['data-state']='error';f.mutate([{type:'attributes',target:view.card,attributeName:'data-state'}]);
+    const late=f.observe(op);assert.equal(late.hasError,true);assert.equal(late.belongsToOriginalDraft,true);
+    assert.equal(late.attachmentID,ready.attachmentID);assert.equal(late.exactImageIdentity,true);assert.equal(f.input.inputCount,1);
+  }
+});
+
+test('original upload can finish in background but new input cannot start there', async () => {
+  const f=fixture({thread:true}),op=f.bind();f.stage(op);f.commit(op);await f.settle();const view=f.makeCard(op);
+  f.focus(false);f.windowEvent('blur');f.document.visibilityState='hidden';for(const fn of f.events.get('visibilitychange')||[])fn();
+  f.finish(view);await f.settle();assert.equal(f.observe(op).state,'attached');
+  assert.throws(()=>f.target(),/UNSUPPORTED_TEST_SURFACE/);assert.equal(f.input.inputCount,1);
+  view.card.attrs['data-state']='error';f.mutate([{type:'attributes',target:view.card,attributeName:'data-state'}]);
+  assert.equal(f.observe(op).hasError,true);assert.equal(f.observe(op).exactImageIdentity,true);
+});
+
+test('thread business identity changed during async hash prevents input even when DOM nodes remain', async () => {
+  const f=fixture({thread:true,blockedDigest:true}),op=f.bind();f.stage(op);f.commit(op);
+  f.form.__reactFiber$fixture=f.makeFibers('local-chatgpt:00000000-0000-0000-0000-000000000000').leaf;
+  f.release();await f.settle();assert.equal(f.input.inputCount,0);assert.equal(f.observe(op).state,'invalidated');
+});
+
+
+test('observed 373-level current ancestry is accepted but chains above 512 remain refused', () => {
+  for(const count of [373,513]) {
+    const f=fixture({thread:true});let child=f.fibers.draftFiber;
+    for(let i=0;i<count-4;i++){const parent={memoizedProps:{},child,return:null};child.return=parent;child=parent;}
+    child.return=f.fibers.root;f.fibers.root.child=child;
+    if(count===373)assert.equal(f.target().logicalDraftIdentity.id,f.businessID);
+    else assert.throws(()=>f.target(),/UNPROVEN_THREAD_IDENTITY/);
+  }
+});
+
+
+test('trusted composer-external interaction revokes input across business ABA but preserves old observation', async () => {
+  for(const type of ['pointerdown','click','keydown']) {
+    const f=fixture({thread:true}),op=f.bind();f.stage(op);f.commit(op);await f.settle();const view=f.makeCard(op);f.finish(view);await f.settle();
+    const ready=f.observe(op), original=f.form.__reactFiber$fixture;
+    f.documentEvent(type,f.body);
+    f.form.__reactFiber$fixture=f.makeFibers('local-chatgpt:00000000-0000-0000-0000-000000000000').leaf;
+    f.form.__reactFiber$fixture=original;
+    assert.equal(f.call({action:'validate',target:op.target}).valid,false);
+    assert.equal(f.observe(op).attachmentID,ready.attachmentID);assert.equal(f.observe(op).state,'attached');
+    assert.equal(f.context.__riftletWebAcceptance20261027v6.tail.continuityEvents.outsideInteraction,1);
+    assert.equal(f.input.inputCount,1);
+  }
+});
+
+test('Navigation API events permanently end observation and input despite final business ABA', async () => {
+  for(const type of ['navigate','currententrychange']) {
+    const f=fixture({thread:true}),op=f.bind();f.stage(op);f.commit(op);await f.settle();const view=f.makeCard(op);f.finish(view);await f.settle();
+    const original=f.form.__reactFiber$fixture;assert.equal(f.observe(op).state,'attached');
+    f.navigationEvent(type);
+    f.form.__reactFiber$fixture=f.makeFibers('local-chatgpt:00000000-0000-0000-0000-000000000000').leaf;
+    f.form.__reactFiber$fixture=original;
+    assert.equal(f.call({action:'validate',target:op.target}).valid,false);
+    assert.equal(f.observe(op).state,'invalidated');assert.equal(f.observe(op).belongsToOriginalDraft,false);
+    assert.equal(f.context.__riftletWebAcceptance20261027v6.tail.continuityEvents[type],1);
+    assert.equal(f.input.inputCount,1);
+  }
+});
+
+test('trusted editor typing and untrusted external events do not revoke the input epoch', () => {
+  const f=fixture({thread:true}),t=f.target();
+  for(const type of ['pointerdown','click','keydown']){f.documentEvent(type,f.editor);f.documentEvent(type,f.body,false);}
+  assert.equal(f.call({action:'validate',target:t}).valid,true);
+  assert.equal(f.context.__riftletWebAcceptance20261027v6.tail.continuityEvents.outsideInteraction,0);
 });

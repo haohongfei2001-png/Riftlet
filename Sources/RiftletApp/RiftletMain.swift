@@ -79,6 +79,11 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
     private var visibleIDs = Set<UUID>()
     private var completionWatch: Task<Void, Never>?
     private var targetArmer: Task<Void, Never>?
+    private var armScheduler = TargetArmScheduler()
+    private var armingAdapter: (any AttachmentAdapter)?
+    private var activationObserver: NSObjectProtocol?
+    private var lastForegroundSession: String?
+    private var diagnosticEvents = 0
     private var armedTarget: ArmedTarget?
     private var frozenPress: (id: UUID, target: TargetLease?)?
     private var armSession = UUID()
@@ -99,7 +104,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
     func applicationWillTerminate(_ notification: Notification) {
         completionWatch?.cancel()
         targetArmer?.cancel()
+        armScheduler.stop(); armedTarget = nil; frozenPress = nil
         if let wakeObserver { NSWorkspace.shared.notificationCenter.removeObserver(wakeObserver) }
+        if let activationObserver { NSWorkspace.shared.notificationCenter.removeObserver(activationObserver) }
         rift?.close()
         if let sourceBinding { Task { await sourceBinding.stop() } }
         if instanceDescriptor >= 0 { flock(instanceDescriptor, LOCK_UN); Darwin.close(instanceDescriptor) }
@@ -136,7 +143,8 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
         }
         try configuration.validate()
         rift = RiftPanelController(mediaDirectory: root.appendingPathComponent("media"), configuration: configuration,
-            onPress: { [weak self] id, timestamp in self?.freezePress(id, timestamp: timestamp) }) { [weak self] id in
+            onPress: { [weak self] id, timestamp in self?.freezePress(id, timestamp: timestamp) },
+            onSelectionBoundary: { [weak self] boundary in self?.recordSelection(boundary) }) { [weak self] id in
             guard let self else { return }
             let frozen = self.frozenPress?.id == id ? self.frozenPress?.target : nil
             self.frozenPress = nil
@@ -174,11 +182,11 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
         let transfer = TransferCoordinator(store: store, adapter: adapter, mediaDirectory: root.appendingPathComponent("media"),
                                            policy: policy, onChange: { [weak self] in await self?.refresh() })
         self.transfer = transfer
+        if mode == .webAcceptance { startArming(adapter: adapter) }
         // Recovery only observes original unresolved operations. In Web acceptance
         // this may contact Chrome after restart; it never dispatches a new input.
         try await transfer.recover()
         if mode == .webAcceptance {
-            startArming(adapter: adapter)
             watchedCompletions = Set(try await store.successfulOperations().map(\.id))
             completionWatch = Task { [weak self] in
                 while !Task.isCancelled {
@@ -236,32 +244,73 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
     }
 
     private func startArming(adapter: any AttachmentAdapter) {
+        armingAdapter = adapter
+        armScheduler.start(); armSession = armScheduler.epoch
+        lastForegroundSession = foregroundChromeSession
         wakeObserver = NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.didWakeNotification,
             object: nil, queue: .main) { [weak self] _ in
                 MainActor.assumeIsolated {
-                    self?.armSession = UUID(); self?.armedTarget = nil; self?.frozenPress = nil
+                    self?.requestArm(invalidate: true)
                 }
             }
-        // One bounded task checks only the foreground tab. Arm before the first
-        // image arrives too, avoiding a guaranteed cold arm on an empty queue.
-        // No tab enumeration, navigation, upload, or post-click capture fallback.
-        targetArmer = Task { [weak self] in
-            while !Task.isCancelled {
-                guard let self else { return }
-                let session = self.armSession
-                if self.foregroundChromeSession != nil {
-                    do {
-                        let target = try await adapter.captureTarget()
-                        if session == self.armSession, target.sessionID == self.foregroundChromeSession {
-                            if self.armedTarget?.target != target {
-                                self.armedTarget = ArmedTarget(target: target,
-                                    acknowledgedUptime: ProcessInfo.processInfo.systemUptime, hostSession: session)
-                            }
-                        } else { self.armedTarget = nil }
-                    } catch { self.armedTarget = nil }
-                } else { self.armedTarget = nil }
-                do { try await Task.sleep(nanoseconds: self.visibleIDs.isEmpty ? 3_000_000_000 : 1_000_000_000) } catch { return }
+        activationObserver = NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.didActivateApplicationNotification,
+            object: nil, queue: .main) { [weak self] _ in
+                MainActor.assumeIsolated {
+                    guard let self, self.lastForegroundSession != self.foregroundChromeSession else { return }
+                    self.lastForegroundSession = self.foregroundChromeSession
+                    self.requestArm(invalidate: true)
+                }
             }
+        performPendingArm()
+    }
+
+    private func requestArm(invalidate: Bool = false) {
+        if invalidate { armedTarget = nil; frozenPress = nil }
+        let wake = armScheduler.request(invalidateEpoch: invalidate)
+        armSession = armScheduler.epoch
+        if wake { performPendingArm() }
+    }
+
+    private func performPendingArm() {
+        guard let adapter = armingAdapter, let attempt = armScheduler.begin() else { return }
+        targetArmer?.cancel() // Only the fallback sleep; never an in-flight capture.
+        targetArmer = nil
+        Task { [weak self] in
+            guard let self else { return }
+            var result: TargetLease?
+            if self.foregroundChromeSession != nil { result = try? await adapter.captureTarget() }
+            guard let completion = self.armScheduler.complete(attempt) else { return }
+            if completion.acceptsAcknowledgement {
+                if let target = result, target.sessionID == self.foregroundChromeSession {
+                    if self.armedTarget?.target != target {
+                        self.armedTarget = ArmedTarget(target: target,
+                            acknowledgedUptime: ProcessInfo.processInfo.systemUptime, hostSession: attempt.epoch)
+                    }
+                } else { self.armedTarget = nil }
+            }
+            if completion.shouldWake { self.performPendingArm() }
+            else if self.armScheduler.isRunning {
+                self.targetArmer = Task { [weak self] in
+                    guard let self else { return }
+                    do { try await Task.sleep(nanoseconds: self.visibleIDs.isEmpty ? 3_000_000_000 : 1_000_000_000) }
+                    catch { return }
+                    self.requestArm()
+                }
+            }
+        }
+    }
+
+    private func recordSelection(_ boundary: RiftSelectionBoundary) {
+        guard mode == .webAcceptance, CommandLine.arguments.contains("--acceptance-trace"), diagnosticEvents < 512 else { return }
+        diagnosticEvents += 1
+        var fields: [String: Any] = ["event": "selection_boundary", "source": boundary.source.rawValue,
+            "assetID": boundary.assetID.uuidString, "eventUptime": boundary.eventUptime,
+            "callbackUptime": ProcessInfo.processInfo.systemUptime,
+            "frozen": frozenPress?.id == boundary.assetID && frozenPress?.target != nil]
+        if let ack = armedTarget?.acknowledgedUptime { fields["ackUptime"] = ack }
+        if let number = boundary.eventNumber { fields["eventNumber"] = number }
+        if let data = try? JSONSerialization.data(withJSONObject: fields, options: [.sortedKeys]) {
+            FileHandle.standardError.write(data); FileHandle.standardError.write(Data([10]))
         }
     }
 
@@ -290,6 +339,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
             let active = try await store.assets()
             var snapshot = active
             let activeIDs = Set(active.map(\.id))
+            let hasNewImages = !activeIDs.subtracting(visibleIDs).isEmpty
             // Include only newly consumed rows, rather than loading a growing used-image history.
             for id in visibleIDs.subtracting(activeIDs) {
                 if let consumed = try await store.asset(id: id), consumed.status == .used {
@@ -300,6 +350,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
                 }
             }
             visibleIDs = activeIDs
+            if hasNewImages && mode == .webAcceptance { requestArm() }
             rift?.render(snapshot)
             switch mode {
             case .capture: statusItem?.button?.toolTip = "Riftlet · \(active.count) retained screenshots"
@@ -319,7 +370,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
             : (mode == .webAcceptance ? "WEB ACCEPTANCE — generated images, real uploads" : "Engineering foundation — capture only"), action: nil, keyEquivalent: "")
         menu.addItem(heading); statusLine = heading
         if mode == .webAcceptance {
-            menu.addItem(NSMenuItem(title: "Chrome · ChatGPT home · Chinese UI · PNG test images", action: nil, keyEquivalent: ""))
+            menu.addItem(NSMenuItem(title: "Chrome · ChatGPT Chat · Chinese UI · PNG test images", action: nil, keyEquivalent: ""))
             menu.addItem(NSMenuItem(title: "No message sending · UNKNOWN never retransmits", action: nil, keyEquivalent: ""))
             add(menu, "Add 3 generated test images", #selector(addWebTestImages))
         }
