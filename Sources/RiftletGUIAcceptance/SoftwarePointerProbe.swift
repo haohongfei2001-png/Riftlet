@@ -67,6 +67,39 @@ enum SoftwarePointerProbe {
         held.selectedAssets.append(held.expectedAsset)
         guard held.holdVerdict(focusStable: true, heldLayoutStable: true, reorderObserved: true,
                               compactionCorrect: true) == "FAIL" else { throw Failure.verdict }
+        let first = Receipt(name: "DOUBLE_FIRST", expectedAsset: UUID(), expectedWindow: 21,
+                            expectedPoint: CGPoint(x: 20, y: 30), radius: 1.5)
+        let second = Receipt(name: "DOUBLE_SECOND", expectedAsset: UUID(), expectedWindow: 22,
+                             expectedPoint: first.expectedPoint, radius: 1.5)
+        first.downCount = 1; first.upCount = 1; first.receivedWindows = [21, 21]
+        first.downIdentity = (10, 1, 21); first.downClickCount = 1
+        first.acceptedAssets = [first.expectedAsset]; first.selectedAssets = [first.expectedAsset]
+        second.downCount = 1; second.upCount = 1; second.receivedWindows = [22, 22]
+        second.downIdentity = (10.2, 2, 22); second.downClickCount = 2
+        guard doubleVerdict(first: first, second: second, interval: 0.5, focusStable: true) == "PASS_SOFTWARE_DOUBLE_REPLACEMENT"
+        else { throw Failure.verdict }
+        second.selectedAssets = [second.expectedAsset]
+        guard doubleVerdict(first: first, second: second, interval: 0.5, focusStable: true) == "FAIL" else { throw Failure.verdict }
+        second.selectedAssets = []; second.downIdentity = (10.6, 2, 22)
+        guard doubleVerdict(first: first, second: second, interval: 0.5, focusStable: true) == "INCONCLUSIVE" else { throw Failure.verdict }
+        second.downIdentity = (10.2, 2, 22); second.receivedWindows = [21, 21]
+        guard doubleVerdict(first: first, second: second, interval: 0.5, focusStable: true) == "INCONCLUSIVE" else { throw Failure.verdict }
+    }
+
+    /// CGEvent-supplied clickState=2 tests rejection on a replacement window.
+    /// It does not establish that hardware/WindowServer classified a double-click.
+    static func doubleVerdict(first: Receipt, second: Receipt, interval: TimeInterval,
+                              focusStable: Bool) -> String {
+        guard let start = first.downIdentity, let next = second.downIdentity,
+              interval > 0, next.time >= start.time, next.time - start.time <= interval,
+              first.expectedAsset != second.expectedAsset, first.expectedWindow != second.expectedWindow,
+              first.expectedPoint == second.expectedPoint, first.downClickCount == 1, second.downClickCount == 2,
+              !second.interference, second.coordinatesMatch, second.downCount == 1, second.upCount == 1,
+              second.receivedWindows == [second.expectedWindow, second.expectedWindow] else { return "INCONCLUSIVE" }
+        guard first.verdict(focusStable: focusStable) == "PASS_SOFTWARE_ROUTING" else { return "INCONCLUSIVE" }
+        return second.acceptedAssets.isEmpty && second.selectedAssets.isEmpty
+            && second.probeDownCount == 0 && second.probeUpCount == 0
+            ? "PASS_SOFTWARE_DOUBLE_REPLACEMENT" : "FAIL"
     }
 
     final class Receipt {
@@ -82,6 +115,7 @@ enum SoftwarePointerProbe {
         var probeUpCount = 0
         var coordinatesMatch = true
         var downIdentity: (time: TimeInterval, number: Int, window: Int)?
+        var downClickCount: Int?
         var acceptedAssets: [UUID] = []
         var selectedAssets: [UUID] = []
         var receivedWindows: [Int] = []
@@ -106,12 +140,13 @@ enum SoftwarePointerProbe {
             if event.type == .leftMouseDown {
                 downCount += 1
                 downIdentity = (event.timestamp, event.eventNumber, event.windowNumber)
+                downClickCount = event.clickCount
             } else if event.type == .leftMouseUp { upCount += 1 }
         }
 
         func verdict(focusStable: Bool) -> String {
             guard !interference, coordinatesMatch, downCount == 1, upCount == 1, receivedWindows.count == 2 else { return "INCONCLUSIVE" }
-            let selectsRow = name == "IMAGE" || name == "NUMBER" || name == "HOLD"
+            let selectsRow = name == "IMAGE" || name == "NUMBER" || name == "HOLD" || name == "DOUBLE_FIRST"
             let routing = selectsRow
                 ? acceptedAssets == [expectedAsset] && selectedAssets == [expectedAsset]
                     && probeDownCount == 0 && probeUpCount == 0 && receivedWindows.allSatisfy { $0 == expectedWindow }

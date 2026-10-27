@@ -12,7 +12,7 @@ enum AcceptanceMain {
         }
         if CommandLine.arguments.contains("--help") {
             print("""
-            RiftletGUIAcceptance [--self-check | --software-pointer-probes | --software-hold-probe]
+            RiftletGUIAcceptance [--self-check | --software-pointer-probes | --software-hold-probe | --software-double-probe]
             GUI: synthetic 2/3/12-image scenes, click/focus observations and delayed reorder.
             JSONL observations go to stdout; typed text is never included.
             --software-pointer-probes runs one bounded IMAGE/NUMBER/CLEAR/GAP CGEvent batch
@@ -21,6 +21,9 @@ enum AcceptanceMain {
               Acceptance-only geometry: --probe-compact or --probe-large, --probe-display-id ID.
             --software-hold-probe runs one helper-only CGEvent hold/reorder/release case;
               it is mutually exclusive with --software-pointer-probes. Physical NOT_RUN.
+            --software-double-probe runs at most two helper-only down/up pairs, testing
+              CGEvent-supplied clickState=2 after synthetic replacement. Physical NOT_RUN.
+              All software probe modes are mutually exclusive; one batch per process.
             --self-check validates fixtures/layout only and does not run GUI acceptance.
             --press-acceptance-asset UUID --app-pid PID --app-path /exact/Riftlet.app
               One bounded AXPress on one exact synthetic identifier; existing AX permission only.
@@ -95,10 +98,12 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
             resetScene(count: 3)
             record("helper_started", ["syntheticOnly": true, "guiVerdict": "NOT_ASSESSED",
                                        "os": ProcessInfo.processInfo.operatingSystemVersionString])
-            if CommandLine.arguments.contains("--software-hold-probe") {
-                if CommandLine.arguments.contains("--software-pointer-probes") {
-                    record("software_probe_refused", ["reason": "mutuallyExclusiveModes", "eventsPosted": false])
-                } else { runSoftwareHoldProbe() }
+            let modes = ["--software-pointer-probes", "--software-hold-probe", "--software-double-probe"]
+                .filter { CommandLine.arguments.contains($0) }
+            if modes.count > 1 {
+                record("software_probe_refused", ["reason": "mutuallyExclusiveModes", "eventsPosted": false])
+            } else if modes.first == "--software-double-probe" { runSoftwareDoubleProbe()
+            } else if modes.first == "--software-hold-probe" { runSoftwareHoldProbe()
             } else if CommandLine.arguments.contains("--software-pointer-probes") { runSoftwarePointerProbes() }
         } catch {
             fputs("GUI acceptance setup failed: \(error)\n", stderr)
@@ -648,11 +653,11 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
 
     /// Pair the already posted down exactly once, including task cancellation
     /// or app termination. Never create another down, retry, or post-to-PID.
-    private func releaseSoftwarePointer() {
+    private func releaseSoftwarePointer(observation: String = "software_hold_up_posted") {
         guard let release = softwareProbeRelease else { return }
         softwareProbeRelease = nil
         release.post(tap: .cghidEventTap)
-        record("software_hold_up_posted", ["inputOrigin": "CGEvent", "physical": false,
+        record(observation, ["inputOrigin": "CGEvent", "physical": false,
             "softwareProbeToken": release.getIntegerValueField(.eventSourceUserData),
             "originalReleasePoint": true])
     }
@@ -760,6 +765,131 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
                 "coordinatesMatch": receipt.coordinatesMatch, "interference": receipt.interference,
                 "heldLayoutStable": heldLayoutStable, "reorderObserved": reorderObserved,
                 "compactionCorrect": compactionCorrect, "focusEndpointsStable": focusStable, "eventsPosted": true])
+        }
+    }
+
+    private func postDoublePair(_ receipt: SoftwarePointerProbe.Receipt, point: CGPoint, clickCount: Int) -> Bool {
+        guard let source = CGEventSource(stateID: .privateState),
+              let down = CGEvent(mouseEventSource: source, mouseType: .leftMouseDown, mouseCursorPosition: point, mouseButton: .left),
+              let up = CGEvent(mouseEventSource: source, mouseType: .leftMouseUp, mouseCursorPosition: point, mouseButton: .left) else { return false }
+        for event in [down, up] {
+            event.setIntegerValueField(.eventSourceUserData, value: receipt.token)
+            event.setIntegerValueField(.mouseEventClickState, value: Int64(clickCount))
+        }
+        softwareProbeReceipt = receipt; softwareProbeRelease = up
+        defer { releaseSoftwarePointer(observation: "software_double_up_posted") }
+        record("software_double_post", ["case": receipt.name, "softwareProbeToken": receipt.token,
+            "expectedAssetID": receipt.expectedAsset.uuidString, "expectedWindow": receipt.expectedWindow,
+            "appKitPoint": ["x": receipt.expectedPoint.x, "y": receipt.expectedPoint.y],
+            "suppliedClickState": clickCount, "inputOrigin": "CGEvent", "physical": false])
+        down.post(tap: .cghidEventTap)
+        return true
+    }
+
+    private func runSoftwareDoubleProbe() {
+        guard !softwareProbeBatchUsed else {
+            record("software_probe_refused", ["reason": "oneBatchPerProcess", "eventsPosted": false]); return
+        }
+        softwareProbeBatchUsed = true
+        softwareProbeTask = Task { @MainActor [weak self] in
+            guard let self else { return }
+            defer {
+                self.releaseSoftwarePointer(observation: "software_double_up_posted")
+                self.softwareProbeReceipt = nil; self.softwareProbeTask = nil
+            }
+            self.record("software_double_started", ["maximumClickPairs": 2, "inputOrigin": "CGEvent",
+                "physical": false, "physicalVerdict": "NOT_RUN", "osDoubleClickClassification": "NOT_TESTED"])
+            do { try await Task.sleep(nanoseconds: 1_200_000_000) } catch { return }
+            self.outcome.selectItem(at: 0); self.resetScene(count: 3)
+            let scene = self.sceneGeneration
+            do { try await Task.sleep(nanoseconds: 1_000_000_000) } catch { return }
+            self.alignProbeControlToActualRows()
+            do { try await Task.sleep(nanoseconds: 650_000_000) } catch { return }
+            self.refreshTargets()
+            if let reason = self.softwareProbeUnavailable() {
+                self.record("software_double_case", ["result": "NOT_RUN", "reason": reason, "pairsPosted": 0]); return
+            }
+            guard let snapshot = self.rift?.diagnosticSnapshot, snapshot.rows.count == 3,
+                  let primary = NSScreen.screens.first else { return }
+            let firstRow = snapshot.rows[0], replacement = snapshot.rows[1]
+            // Choose a point inside both aspect-fitted images' horizontal span.
+            // Actual replacement geometry is checked again before second posting.
+            let left = max(firstRow.imageClipFrame.minX, replacement.imageClipFrame.minX)
+            let right = min(firstRow.imageClipFrame.maxX, replacement.imageClipFrame.maxX)
+            let point = CGPoint(x: (left + right) / 2, y: firstRow.imageClipFrame.midY)
+            let probePoint = self.probe.convert(self.window.convertPoint(fromScreen: point), from: nil)
+            guard right - left > 4, firstRow.imageInputFrame.contains(point),
+                  self.probe.bounds.contains(probePoint),
+                  !self.probe.subviews.contains(where: { $0.frame.contains(probePoint) }),
+                  self.ownedProbeStack(at: point, snapshot: snapshot) != nil else {
+                self.record("software_double_case", ["result": "NOT_RUN", "reason": "noSafeCommonPoint", "pairsPosted": 0]); return
+            }
+            let first = SoftwarePointerProbe.Receipt(name: "DOUBLE_FIRST", expectedAsset: firstRow.assetID,
+                expectedWindow: firstRow.imageInputWindowNumber, expectedPoint: point, radius: 1.5)
+            let quartz = SoftwarePointerProbe.quartzPoint(point, primaryFrame: primary.frame)
+            let beforePID = NSWorkspace.shared.frontmostApplication?.processIdentifier ?? -1
+            let beforeKey = NSApp.keyWindow?.windowNumber ?? -1
+            let beforeEditor = self.editor.currentEditor() != nil && self.window.firstResponder === self.editor.currentEditor()
+            let interval = NSEvent.doubleClickInterval
+            guard self.postDoublePair(first, point: quartz, clickCount: 1) else {
+                self.record("software_double_case", ["result": "NOT_RUN", "reason": "eventAllocationFailed", "pairsPosted": 0]); return
+            }
+            do { try await Task.sleep(nanoseconds: 100_000_000) } catch {
+                self.record("software_double_case", ["result": "INCONCLUSIVE", "reason": "cancelledAfterFirstPair", "pairsPosted": 1]); return
+            }
+            guard scene == self.sceneGeneration, first.verdict(focusStable: true) == "PASS_SOFTWARE_ROUTING",
+                  let firstDown = first.downIdentity else {
+                self.record("software_double_case", ["result": "INCONCLUSIVE", "reason": "firstPairNotConfirmed", "pairsPosted": 1]); return
+            }
+            // Display-only synthetic completion, using the existing helper path.
+            // It cannot fabricate an upload receipt or invoke product transfer.
+            self.records = SyntheticScene.displaying(.used, assetID: firstRow.assetID, in: self.records)
+            self.rift?.render(self.records)
+            self.refreshTargets()
+            guard scene == self.sceneGeneration, let current = self.rift?.diagnosticSnapshot,
+                  current.rows.map({ $0.assetID }) == snapshot.rows.dropFirst().map({ $0.assetID }),
+                  let moved = current.rows.first, moved.assetID == replacement.assetID,
+                  moved.imageInputWindowNumber == replacement.imageInputWindowNumber,
+                  moved.imageClipFrame.contains(point), moved.imageInputFrame.contains(point),
+                  self.ownedProbeStack(at: point, snapshot: current) != nil,
+                  self.softwareProbeUnavailable() == nil,
+                  NSWorkspace.shared.frontmostApplication?.processIdentifier == beforePID,
+                  NSApp.keyWindow?.windowNumber == beforeKey,
+                  ProcessInfo.processInfo.systemUptime + 0.02 - firstDown.time < interval else {
+                self.record("software_double_case", ["result": "INCONCLUSIVE", "reason": "replacementOrTimingGuard",
+                    "secondPairVerdict": "NOT_RUN", "pairsPosted": 1, "systemDoubleClickInterval": interval]); return
+            }
+            self.record("software_double_replacement", ["removedAssetID": firstRow.assetID.uuidString,
+                "replacementAssetID": moved.assetID.uuidString, "replacementWindow": moved.imageInputWindowNumber,
+                "originalFirstWindow": firstRow.imageInputWindowNumber, "replacementFrame": self.rectFields(moved.imageInputFrame),
+                "systemDoubleClickInterval": interval, "firstDownEventUptime": firstDown.time, "receiptEvidence": false])
+            let second = SoftwarePointerProbe.Receipt(name: "DOUBLE_SECOND", expectedAsset: moved.assetID,
+                expectedWindow: moved.imageInputWindowNumber, expectedPoint: point, radius: 1.5)
+            guard self.postDoublePair(second, point: quartz, clickCount: 2) else {
+                self.record("software_double_case", ["result": "INCONCLUSIVE", "reason": "secondAllocationFailed", "pairsPosted": 1]); return
+            }
+            do { try await Task.sleep(nanoseconds: 500_000_000) } catch { return }
+            let afterEditor = self.editor.currentEditor() != nil && self.window.firstResponder === self.editor.currentEditor()
+            let focusStable = beforePID == NSWorkspace.shared.frontmostApplication?.processIdentifier
+                && beforeKey == NSApp.keyWindow?.windowNumber && beforeEditor == afterEditor
+            let geometryStable = current.rows == self.rift?.diagnosticSnapshot.rows
+            let verdict = scene == self.sceneGeneration && geometryStable
+                ? SoftwarePointerProbe.doubleVerdict(first: first, second: second, interval: interval, focusStable: focusStable)
+                : "INCONCLUSIVE"
+            self.record("software_double_case", ["result": verdict, "pairsPosted": 2, "inputOrigin": "CGEvent", "physical": false,
+                "physicalVerdict": "NOT_RUN", "osDoubleClickClassification": "NOT_TESTED", "crossApplicationFocusVerdict": "NOT_RUN",
+                "originalAssetID": first.expectedAsset.uuidString, "replacementAssetID": second.expectedAsset.uuidString,
+                "firstToken": first.token, "secondToken": second.token, "firstWindow": first.expectedWindow, "secondWindow": second.expectedWindow,
+                "firstReceivedWindows": first.receivedWindows, "secondReceivedWindows": second.receivedWindows,
+                "firstDownCount": first.downCount, "firstUpCount": first.upCount, "secondDownCount": second.downCount, "secondUpCount": second.upCount,
+                "firstAcceptedAssets": first.acceptedAssets.map { $0.uuidString }, "firstSelectedAssets": first.selectedAssets.map { $0.uuidString },
+                "secondAcceptedAssets": second.acceptedAssets.map { $0.uuidString }, "secondSelectedAssets": second.selectedAssets.map { $0.uuidString },
+                "secondUnderlayDownCount": second.probeDownCount, "secondUnderlayUpCount": second.probeUpCount,
+                "secondDownClickCount": second.downClickCount ?? -1,
+                "downIntervalSeconds": (second.downIdentity?.time ?? firstDown.time) - firstDown.time,
+                "systemDoubleClickInterval": interval, "focusEndpointsStable": focusStable,
+                "geometryStable": geometryStable, "coordinatesMatch": first.coordinatesMatch && second.coordinatesMatch,
+                "interference": first.interference || second.interference])
         }
     }
 

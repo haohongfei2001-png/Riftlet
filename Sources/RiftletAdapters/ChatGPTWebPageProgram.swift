@@ -6,7 +6,7 @@ import RiftletCore
 /// evidence that the integrated app has passed a live test. Production admission
 /// remains separate; only syntheticDevelopment may execute it in this increment.
 public enum ChatGPTWebPageProgram {
-    public static let sourceID = "chatgpt-web-zh-20261027-integrated-v12"
+    public static let sourceID = "chatgpt-web-zh-20261027-integrated-v13"
     /// Candidate mapping only; ReceiptPolicy start registries remain separate.
     public static let acceptanceUploadStartProfileID = "chatgpt-web-zh-progress-start-development-20261027-v1"
     public static let acceptanceProfile = ObservationProfile(

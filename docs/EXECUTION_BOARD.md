@@ -1,5 +1,7 @@
 # Riftlet 自主并行执行队列
 
+> **第九轮独立 ACTIVE（2026-10-28）**：基于正式 b839230 与第八轮 8914c70 的隔离合流 57157c3；本地 root 独占真实 Chrome/GUI/数据库输入，web_safety 负责监视器兼容，native_gui 负责既有 helper 的双击增量，late_failure 非作者审查。先修复保留 v10/v12 accessor 的升级冲突，再做限定首击与软件补位双击；人工物理未运行，不覆盖 system-capture-candidate 分支，生产准入不变。证据目录 `engineering/evidence/2026-10-28-real-mac-round9/`。
+
 > **第八轮独立交接（2026-10-28）**：源码 `ee1d960`，已含正式 `595142d`。CLEAR 真正底层 down/up 与按住补位为软件实击 PASS；冷首击仍 FAIL（无 pre-event ACK、零输入），AX bind 顺序改进已实测，v10 root 冲突明确诊断。隔离扩展/native 通道可运行但不具输入授权。人工物理/compact完整矩阵/全屏等 NOT_RUN；功能 CI40544274635 PASS，最终诊断 CI40546396233 因 runner 容量不足 0 步骤 NOT_RUN。全部数据保留，生产准入不变；[准确来源和 CI](../engineering/evidence/2026-10-28-real-mac-round8/README.md)。
 
 > **第七轮独立交接（2026-10-27）**：源码 `9de6a85b0161713833dc25e3b3eb1e1a2f81a558`；[macOS CI 40525056642](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40525056642) PASS。真实双图在原目标 FIFO 中 B prepared→A succeeded→B 唯一输入，两张最终成功；冷首击 ACK 晚于点击 26.742 ms 仍 FAIL。CLEAR 防误选修复已真实 CGEvent 复测，透传仍 FAIL；GAP/IMAGE/NUMBER 仅软件路由 PASS，人工物理 NOT_RUN。[第七轮证据与 Pro 交接](../engineering/evidence/2026-10-27-real-mac-round7/README.md)。保留 v3、旧媒体/UNKNOWN/审计，不启用生产输入/重传；正式集成由 Pro 负责。

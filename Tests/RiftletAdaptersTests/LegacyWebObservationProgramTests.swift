@@ -29,7 +29,7 @@ final class LegacyWebObservationProgramTests: XCTestCase {
     func testInputActionsNeverReadLegacyRegistries() throws {
         let context = try context()
         context.evaluateScript("""
-            for(const version of ['v6','v7','v8','v9','v10','v11']) Object.defineProperty(globalThis,'__riftletWebAcceptance20261027'+version,
+            for(const version of ['v6','v7','v8','v9','v10','v11','v12']) Object.defineProperty(globalThis,'__riftletWebAcceptance20261027'+version,
                 {get(){throw Error('legacy registry must not be read for input')}});
             """)
         for action in ["captureTarget", "validate", "begin", "chunk", "commit", "discard"] {
@@ -50,14 +50,14 @@ final class LegacyWebObservationProgramTests: XCTestCase {
     }
 
     func testMissingOrMismatchedOriginalOperationReturnsDecodableUnknownWithoutFallback() throws {
-        for version in ["v6", "v7", "v8", "v9", "v10", "v11"] {
+        for version in ["v6", "v7", "v8", "v9", "v10", "v11", "v12"] {
             let context = try context()
             context.evaluateScript("var state=originalState();globalThis.__riftletWebAcceptance20261027\(version)={head:state};")
             for seed in ["", "state.operations.set(identity.operationID,{identity:{...identity,attempt:2},committed:true,inputCount:1});"] {
                 context.evaluateScript(seed)
                 let raw = try XCTUnwrap(context.evaluateScript("JSON.stringify(wrapped(command,native))")?.toString())
                 let envelope = try ObservationDecoder.decode(Data(raw.utf8))
-                XCTAssertEqual(envelope.provenance.evidenceID, "\(["v8", "v9", "v10", "v11"].contains(version) ? "W5" : "W4")-legacy-\(version)-original-observer")
+                XCTAssertEqual(envelope.provenance.evidenceID, "\(["v8", "v9", "v10", "v11", "v12"].contains(version) ? "W5" : "W4")-legacy-\(version)-original-observer")
                 XCTAssertEqual(envelope.schemaVersion, 1)
                 XCTAssertEqual(envelope.observation.state, .invalidated)
                 XCTAssertFalse(envelope.observation.belongsToOriginalDraft)
