@@ -727,6 +727,95 @@ final class InteractionLifecycleTests: XCTestCase {
             }
         }
     }
+
+    func testSafelyRebornImageCanSettleNewSelectionWhileOriginalDrainAwaitsAnotherImage() async throws {
+        let db = try store(), firstAsset = try image(1), secondAsset = try image(2)
+        for asset in [firstAsset, secondAsset] { _ = try await db.importAsset(asset) }
+        let firstStarted = expectation(description: "First image input held before safe failure")
+        let secondStarted = expectation(description: "Other image input holds the original selection drain")
+        let adapter = LifecycleDrainGateAdapter(firstAsset: firstAsset.id, secondAsset: secondAsset.id,
+            profileID: profile, firstStarted: firstStarted, secondStarted: secondStarted)
+        let settled = LifecycleSettlementRecorder()
+        let coordinator = TransferCoordinator(store: db, adapter: adapter, mediaDirectory: directory,
+            policy: admitted, onSelectionSettled: { id in await settled.record(id) })
+        let originalSelection = Task { try await coordinator.select(firstAsset.id) }
+        await fulfillment(of: [firstStarted], timeout: 3)
+        try await coordinator.select(secondAsset.id) // Prepare the next drain item.
+        await adapter.releaseFirst()
+        await fulfillment(of: [secondStarted], timeout: 3)
+        let reborn = try await db.asset(id: firstAsset.id)
+        XCTAssertEqual(reborn?.visibility, .visible)
+        XCTAssertEqual(reborn?.status, .failed)
+
+        // The original select(firstAsset) still awaits the shared drain. Its UI
+        // selection already settled, so it must not suppress this new click.
+        try await coordinator.select(firstAsset.id)
+        let selected = try await db.asset(id: firstAsset.id)
+        let operationID = try XCTUnwrap(selected?.activeOperationID)
+        let retry = try await db.operation(id: operationID)
+        let notifications = await settled.values()
+        let inputsBeforeRelease = await adapter.appendCount()
+        XCTAssertEqual(retry?.attempt, 2)
+        XCTAssertEqual(retry?.phase, .prepared)
+        XCTAssertEqual(notifications, [firstAsset.id, secondAsset.id, firstAsset.id])
+        XCTAssertEqual(inputsBeforeRelease, 2, "New user intent queues behind the one active input drain")
+
+        await adapter.releaseSecond()
+        try await originalSelection.value
+        let inputsAfterRelease = await adapter.appendCount()
+        let after = await settled.values()
+        XCTAssertEqual(inputsAfterRelease, 3)
+        XCTAssertEqual(after, notifications, "Old drain/defer must not settle a newer selection again")
+    }
+}
+
+private actor LifecycleDrainGateAdapter: AttachmentAdapter {
+    nonisolated let id = "lifecycle-fixture"
+    private let firstAsset: UUID
+    private let secondAsset: UUID
+    private let profileID: String
+    private let firstStarted: XCTestExpectation
+    private let secondStarted: XCTestExpectation
+    private var firstGate: CheckedContinuation<Void, Never>?
+    private var secondGate: CheckedContinuation<Void, Never>?
+    private var firstReleased = false
+    private var secondReleased = false
+    private var captures = 0
+    private var inputs = 0
+
+    init(firstAsset: UUID, secondAsset: UUID, profileID: String,
+         firstStarted: XCTestExpectation, secondStarted: XCTestExpectation) {
+        self.firstAsset = firstAsset; self.secondAsset = secondAsset; self.profileID = profileID
+        self.firstStarted = firstStarted; self.secondStarted = secondStarted
+    }
+    func captureTarget() async throws -> TargetLease {
+        captures += 1
+        // Explicitly independent fixture targets; no claim about real drafts.
+        return TargetLease(adapterID: id, surface: .webChat, applicationID: "fixture.browser",
+            sessionID: "session", windowID: "window", tabID: "tab", documentID: "document",
+            composerID: "composer", draftGeneration: "independent-fixture-\(captures)")
+    }
+    func validate(_ target: TargetLease) async throws -> Bool { true }
+    func append(_ request: TransferRequest) async throws -> TransferReceipt {
+        inputs += 1
+        let firstFailure = request.asset.id == firstAsset && request.operation.attempt == 1
+        if firstFailure {
+            firstStarted.fulfill()
+            if !firstReleased { await withCheckedContinuation { firstGate = $0 } }
+        } else if request.asset.id == secondAsset {
+            secondStarted.fulfill()
+            if !secondReleased { await withCheckedContinuation { secondGate = $0 } }
+        }
+        return TransferReceipt(operationID: request.operation.id, assetID: request.asset.id,
+            attempt: request.operation.attempt, assetSHA256: request.asset.sha256, target: request.operation.target,
+            outcome: firstFailure ? .definitiveFailure : .unknown, profileID: profileID,
+            attachmentID: "fixture-retired-\(request.operation.id)", belongsToOriginalDraft: true,
+            hasError: firstFailure, safeToRetry: firstFailure, reason: "Controlled synthetic input drain")
+    }
+    func reconcile(_ request: TransferRequest) async throws -> TransferReceipt { throw RiftletError.invalidTransition }
+    func releaseFirst() { firstReleased = true; firstGate?.resume(); firstGate = nil }
+    func releaseSecond() { secondReleased = true; secondGate?.resume(); secondGate = nil }
+    func appendCount() -> Int { inputs }
 }
 
 private actor LifecycleSuspendedTargetAdapter: AttachmentAdapter {

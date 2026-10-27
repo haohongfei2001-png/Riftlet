@@ -61,7 +61,8 @@ public actor TransferCoordinator {
         // Only the selection owner may release its UI reservation. A duplicate
         // invocation cannot settle the original while captureTarget still awaits.
         guard selecting.insert(assetID).inserted else { return }
-        defer { selecting.remove(assetID) }
+        var ownsSelection = true
+        defer { if ownsSelection { selecting.remove(assetID) } }
         // Reserve before the first await: slower target resolution must not reorder clicks.
         let ticket = nextTicket; nextTicket += 1
         var enqueued = false
@@ -72,8 +73,9 @@ public actor TransferCoordinator {
             if let activeID = record.activeOperationID,
                let op = try await store.operation(id: activeID), op.phase.isUnresolved {
                 if op.phase == .unknown || op.phase == .compensated { try await reconcile(op) }
-                await onChange(); await onSelectionSettled(assetID)
-                settled = true
+                await onChange()
+                selecting.remove(assetID); ownsSelection = false; settled = true
+                await onSelectionSettled(assetID)
                 skippedTickets.insert(ticket)
                 try await drain()
                 return
@@ -90,11 +92,19 @@ public actor TransferCoordinator {
             waiting[ticket] = op.id
             enqueued = true
             await onChange()
-            await onSelectionSettled(assetID); settled = true
+            // Selection ownership ends at durable preparation, not when the
+            // shared input drain finishes work for every queued image. A safely
+            // reborn image may receive a new user click while that drain runs.
+            selecting.remove(assetID); ownsSelection = false; settled = true
+            await onSelectionSettled(assetID)
             try await drain()
         } catch {
             if reserved { await store.releaseSelection(assetID) }
-            if !settled { await onChange(); await onSelectionSettled(assetID) }
+            if !settled {
+                await onChange()
+                selecting.remove(assetID); ownsSelection = false; settled = true
+                await onSelectionSettled(assetID)
+            }
             if !enqueued {
                 skippedTickets.insert(ticket)
                 try? await drain()

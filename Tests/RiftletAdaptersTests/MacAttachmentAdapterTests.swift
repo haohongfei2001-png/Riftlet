@@ -230,7 +230,8 @@ final class MacAttachmentAdapterTests: XCTestCase {
         let target = try session()
         let trace = MacFlowTrace()
         let board = try FakeMacPasteboard(trace: trace)
-        let executor = FakeMacExecutor(session: target, trace: trace, clipboard: board, pasteState: .failed)
+        let executor = FakeMacExecutor(session: target, trace: trace, clipboard: board,
+                                       pasteState: .failed, observeState: .failed)
         let client = adapter(executor, board, admitRetry: true)
         let (store, request) = try await makeRequest(target)
         let failure = try await client.append(request)
