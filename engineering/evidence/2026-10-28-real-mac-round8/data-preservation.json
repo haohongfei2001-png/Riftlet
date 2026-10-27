@@ -1,0 +1,69 @@
+{
+  "sourceSHA": "ee1d960adf67432be627e86e7aa9350e5d85d9c0",
+  "schema": 3,
+  "quickCheck": "ok",
+  "countsBefore": {
+    "assets": 25,
+    "operations": 27,
+    "compensations": 3,
+    "upload_starts": 6
+  },
+  "countsAfter": {
+    "assets": 25,
+    "operations": 27,
+    "compensations": 3,
+    "upload_starts": 6
+  },
+  "allOriginalOperationsPreserved": true,
+  "originalUnknownAndCompensatedPhasePreserved": true,
+  "originalUnknownAndCompensatedCount": 6,
+  "newOperationCount": 0,
+  "compensationsUnchanged": true,
+  "uploadStartsUnchanged": true,
+  "checkpointsUnchanged": true,
+  "privateMediaCount": 25,
+  "privateMediaBytesAndHashesUnchanged": true,
+  "otherRetainedPrivateFiles": 14,
+  "otherPrivateFilesBytesAndHashesUnchanged": true,
+  "backupMethod": "SQLite backup API under exclusive existing instance lock; no raw WAL copy, no reset",
+  "beforeBackupSHA256": "8c343ea1d8a07a6834247d4b5ef9765ca2e40d4fa4e3484bca9f099211040212",
+  "afterBackupSHA256": "426885f5fbdd24a10a1c6643ab77444c8b6af73812ebbcadf87b9419c1768e02",
+  "oldBranchesAndWorktrees": "retained",
+  "runtimeInputs": 0,
+  "messagesSent": 0,
+  "productionScreenshotUpload": "disabled",
+  "safeRetry": "disabled",
+  "result": "PASS",
+  "inventoryPathBase": "user Application Support (manifest paths are relative)",
+  "priorRoundRefs": {
+    "codex/riftlet-real-mac-round2-20261027": "8d7007e069d077d5991904e72ebd8fcda3a00806",
+    "codex/riftlet-real-mac-round3-20261027": "6344eb08c96180d1e675595083333ec860fd62a2",
+    "codex/riftlet-real-mac-round4-20261027": "03a67cc41e542a7db6dc128b27da8f108efc9896",
+    "codex/riftlet-real-mac-round5-20261027": "3bb13999b0f444c7748804eef1976e179a52a85e",
+    "codex/riftlet-real-mac-round6-20261027": "65f7d54121a637e8a97d2f25f8bcd8069393eb4d",
+    "codex/riftlet-real-mac-round7-20261027": "3b089b22449742fe7d9a76e74aa7ac99be37ba8e"
+  },
+  "operationColumnChanges": {
+    "sequence": 0,
+    "id": 0,
+    "asset_id": 0,
+    "attempt": 0,
+    "target_key": 0,
+    "target_json": 0,
+    "phase": 0,
+    "created_at": 0,
+    "updated_at": 5,
+    "receipt_json": 2,
+    "reason": 5
+  },
+  "immutableOperationFieldsCompared": [
+    "id",
+    "asset_id",
+    "attempt",
+    "target_key",
+    "target_json",
+    "created_at"
+  ],
+  "originalOperationReceiptJSONUnchanged": false,
+  "operationObservationRefresh": "Read-only recovery refreshed five timestamps/reasons and two current observation receipts. IDs, attempts, target JSON, phases and creation times are unchanged. Original and refreshed receipts remain in private before/after SQLite backup snapshots; whole database byte equality is not claimed."
+}

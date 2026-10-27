@@ -1,0 +1,192 @@
+{
+  "schemaVersion": 1,
+  "runtimeSourceSHA": "85250a869f06d99e3d3ab046116f560bac572fd9",
+  "diagnosticCodeChangeLiveTested": false,
+  "scope": "One accessibility press; not physical pointer input or a cold success.",
+  "result": "REFUSED_NO_PUBLISHED_TARGET",
+  "newInputCount": 0,
+  "newOperationCount": 0,
+  "selection": {
+    "source": "accessibility",
+    "originalEventUptime": 475387.7243876667,
+    "callbackUptime": 475387.72441170836,
+    "refusalReason": "noPublishedTarget"
+  },
+  "timeBasis": "monotonic host uptime seconds; durations in milliseconds; no page/host clock subtraction",
+  "phases": {
+    "localRecoveryToArmingMS": 20.762208,
+    "startupPermissionMS": 19.638083,
+    "firstArmTaskSchedulingMS": 4.482792,
+    "firstArmOriginalSessionPermissionMS": 40.5445,
+    "permissionReturnToNativeQueuedMS": 12.125042,
+    "nativeQueueMS": 0.019458,
+    "nativeExecutionMS": 42.4745,
+    "nativeReturnToArmFailureMS": 0.701125,
+    "firstArmTotalMS": 100.507375,
+    "axBindingMS": 22.980625,
+    "firstFailureBeforeClickMS": 27.437708,
+    "bindingEndBeforeClickMS": 4.407583,
+    "clickToCallbackMS": 0.024042
+  },
+  "captureAttempts": [
+    {
+      "reason": "startup",
+      "error": "invalidReply",
+      "publicationResult": "captureFailed",
+      "startedUptime": 475387.59644258337,
+      "endedUptime": 475387.69694995834
+    },
+    {
+      "reason": "newImages",
+      "error": "invalidReply",
+      "publicationResult": "captureFailed",
+      "startedUptime": 475387.7200295834,
+      "endedUptime": 475387.78517758334
+    },
+    {
+      "reason": "fallback",
+      "error": "invalidReply",
+      "publicationResult": "captureFailed",
+      "startedUptime": 475388.8448119167,
+      "endedUptime": 475388.90561608336
+    },
+    {
+      "reason": "fallback",
+      "error": "invalidReply",
+      "publicationResult": "captureFailed",
+      "startedUptime": 475389.9568596667,
+      "endedUptime": 475390.000776125
+    },
+    {
+      "reason": "fallback",
+      "error": "invalidReply",
+      "publicationResult": "captureFailed",
+      "startedUptime": 475391.0078202084,
+      "endedUptime": 475391.06382525
+    }
+  ],
+  "captureTransport": [
+    {
+      "phase": "receipt",
+      "executionMS": 42.47450002003461,
+      "transportSucceeded": false
+    },
+    {
+      "phase": "receipt",
+      "executionMS": 33.52466662181541,
+      "transportSucceeded": false
+    },
+    {
+      "phase": "receipt",
+      "executionMS": 27.58287498727441,
+      "transportSucceeded": false
+    },
+    {
+      "phase": "receipt",
+      "executionMS": 26.335625036153942,
+      "transportSucceeded": false
+    },
+    {
+      "phase": "receipt",
+      "executionMS": 30.079875024966896,
+      "transportSucceeded": false
+    }
+  ],
+  "permissions": {
+    "count": 8,
+    "allGranted": true,
+    "anyPrompt": false
+  },
+  "postRunReadOnlyProbe": {
+    "pageFocused": true,
+    "visible": true,
+    "topLevel": true,
+    "formCount": 1,
+    "editorCount": 1,
+    "inputCount": 1,
+    "formConnected": true,
+    "editorBelongs": true,
+    "inputBelongs": true,
+    "bindingProved": true,
+    "rootDescriptor": {
+      "present": true,
+      "data": false,
+      "getter": true,
+      "setter": true,
+      "configurable": true,
+      "writable": false,
+      "enumerable": true
+    },
+    "registries": [
+      {
+        "version": 10,
+        "count": 1,
+        "hasTail": true,
+        "tailSameForm": true,
+        "monitors": 1,
+        "sameRootMonitor": true,
+        "monitor": {
+          "stopped": false,
+          "restored": false,
+          "commits": 11271,
+          "checks": 3695,
+          "reason": null
+        }
+      },
+      {
+        "version": 11,
+        "count": 0,
+        "hasTail": false,
+        "tailSameForm": false,
+        "monitors": 0,
+        "sameRootMonitor": false
+      },
+      {
+        "version": 12,
+        "count": 0,
+        "hasTail": false,
+        "tailSameForm": false,
+        "monitors": 0,
+        "sameRootMonitor": false
+      }
+    ],
+    "unobservedRootDescriptorCandidate": true,
+    "candidateCode": "UNOBSERVED_ROOT_DESCRIPTOR"
+  },
+  "causalInterpretation": "The post-run read-only state satisfies the existing UNOBSERVED_ROOT_DESCRIPTOR rejection gate: valid binding, root accessor owned by v10, no v12 monitor for that root. The original receipt stripped this code, so the exact original thrown code was not directly retained. No root restoration, state deletion or old event replay was performed.",
+  "privateInputsSHA256": {
+    "coldTrace": "0f2c4d842f84e4e66a7eb5f8798eebbb4da1b68f78e0b991791b789fa7969bba",
+    "readOnlyProbe": "4ef648e1e14e416494a8dabf10702a0d785d9fc46fa7640a1a45b59ede137be7"
+  },
+  "freshDocumentSample": {
+    "runtimeSourceSHA": "85250a869f06d99e3d3ab046116f560bac572fd9",
+    "result": "REFUSED_NO_PUBLISHED_TARGET",
+    "scope": "Independent fresh document for the same existing thread; prior v10 document preserved. One new AX press, no replay of the first sample.",
+    "newInputCount": 0,
+    "newOperationCount": 0,
+    "initialEditorFocused": true,
+    "initialPageFocused": true,
+    "selection": {
+      "source": "accessibility",
+      "originalEventUptime": 475773.166704375,
+      "callbackUptime": 475773.166736375,
+      "refusalReason": "noPublishedTarget"
+    },
+    "initialCaptureRejections": [
+      "pageRejected(RiftletAdapters.WebPageRejection.composerUnavailable)",
+      "pageRejected(RiftletAdapters.WebPageRejection.composerUnavailable)",
+      "pageRejected(RiftletAdapters.WebPageRejection.composerUnavailable)"
+    ],
+    "firstACK": {
+      "nativeReceivedUptime": 475775.10265383334,
+      "nativeValidatedUptime": 475775.1048192084,
+      "executorMainReturnedUptime": 475775.105141
+    },
+    "firstPublishedUptime": 475775.1056081667,
+    "firstPublishedAfterClickMS": 1938.903792,
+    "firstNativeValidatedAfterClickMS": 1938.114833,
+    "axBindingMS": 22.824125015176833,
+    "interpretation": "Three composerUnavailable rejections precede the first complete ACK. Later ACK never authorizes the earlier refused event. This sample is not a controlled valid-composer/unfocused cold latency comparison.",
+    "privateTraceSHA256": "9c3d0359eae00df3d1a3bf36bb9cc1e0a205d5153eb708c6c73a6b8dbf22fed4"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "publicPayloads": "Sanitized summaries only; raw logs retained locally.",
+  "sha256": {
+    "guiPrototype": "a8cbe7c5aa766f5ff9786810a1b5a061dd97f9de2b4f4e075ee8c41cc4990b11",
+    "guiDefault": "2a90d123f680c0eff2f4ecb33b3db26e11aeab8d837a4c84594990b358789641",
+    "guiCompact": "c995809072a673e4dca2ea2b6948391f702f299030c22787fb5bc118a6a014ce",
+    "guiLarge": "abac6ac2d27b361e00bd683f645a2064c539310db7047843a6e44bd00881e35a",
+    "guiHold": "385bccf3b19e2019b39c7593eb2c5891d4080e75166d6abbfe013b072cf13613",
+    "guiDefaultRetest": "5b122cbce862fc2ab33341ecd88dd03392c74729164594037d845369fbd371cd",
+    "guiCompactRetest": "d4927cf27d1bf3e91bbe8e87ce0fa9bdac02d2cd6689963e3be55c5672e2937e",
+    "coldRetainedDocument": "0f2c4d842f84e4e66a7eb5f8798eebbb4da1b68f78e0b991791b789fa7969bba",
+    "coldFreshDocument": "9c3d0359eae00df3d1a3bf36bb9cc1e0a205d5153eb708c6c73a6b8dbf22fed4",
+    "readonlyRootProbe": "4ef648e1e14e416494a8dabf10702a0d785d9fc46fa7640a1a45b59ede137be7",
+    "finalDiagnostic": "40974406f6b35a5fb20521298679c8fceed8176298ad27e07aa6cf8e50841c2b",
+    "extensionFirstFailure": "a6fc7fc90b2b9c7b715d1618642fe37dc30750b6a3a7b9d409ad42c295eef659",
+    "extensionNoSignal": "0853575c03f879c085fcf174223b9e45423550e803e26de2cf10b6a2cced2d5d",
+    "extensionDocumentRefusal": "19e41f71a65c52385f430bcb52bbeb7b23fa2880199a80a66013867c52bf2587",
+    "extensionFinal": "95164ce810c8c022dfb6de20025cfa4dea697c2e327ddddbfdc26112f5d03e01"
+  }
+}

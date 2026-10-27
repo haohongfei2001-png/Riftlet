@@ -1,3 +1,17 @@
+# 第八轮独立真机交接 · 2026-10-28
+
+分支 `codex/riftlet-real-mac-round8-20261028`，最终源码 `ee1d960adf67432be627e86e7aa9350e5d85d9c0`。已继承正式 `595142d` 与第七轮祖先；本分支不写正式 PR #1。完整结果、准确已测 SHA、CI 和保留报告见[第八轮 README](../engineering/evidence/2026-10-28-real-mac-round8/README.md)。
+
+功能源 `85250a8` 的完整 macOS CI [40544274635](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40544274635) PASS。最终 `ee1d960` 的 [40546396233](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40546396233) 因托管 macOS ARM64 容量不足未分配 runner，0 步骤，验证状态 NOT_RUN；本地完整构建及最终闭集诊断真机确认 PASS。待容量恢复只补跑该 CI，不重复上传，也不循环重试或改付费方案。
+
+**已修复：CLEAR 真正底层透传（软件实击）。** 视觉 row 忽略鼠标，图片与编号独立非激活输入窗；最终默认竖屏 IMAGE/NUMBER/CLEAR/GAP 全通过，按住期间保留原位置、释放后选原图再补位通过。CGEvent 与人工物理分列，compact/全屏/Spaces/1×/跨应用物理焦点仍未闭合。没有事件转发或窗口排序绕过。
+
+**仍未解决：真正无 ACK 冷首击。** AX hints 注册移到首次 capture 之后，但两次原 AX 点击仍无先行 ACK、零新输入。保留的 v10 root monitor 阻止 v12 接管，现有封闭拒绝码缺失已补；最终 App 实测返回 `unobservedRootDescriptor`。独立新文档完整 ACK 晚于点击约 1.938 秒，未回填或重放。最小隔离 MV3/native 通道真实跑通，但不证明业务草稿/前台事件连续性，不能据此启用发行扩展或生产输入。
+
+SQLite v3、25 Web 媒体、27 操作、6 未决相位、补偿与开始回执、14 其他私有文件均保留。生产截图上传、生产开始 profile、安全重试仍关闭。Pro 集成此分支的最小 App/UI/adapter 增量；不重复挑选五至七轮，不清监视器或 UNKNOWN 制造成功。
+
+---
+
 # 正式工程集成交接 · 第七轮顺序调度 · 2026-10-28
 
 ## 第七轮正式合流进行中
