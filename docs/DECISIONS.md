@@ -99,3 +99,18 @@ These decisions **override** historical P04’s `verifiedReady → swallow` requ
 | D05 | OPEN | Exact animation timing and evidence profile for per-surface `uploadStarted`; visual failure-confidence admission tests; auto-archive duration, internal history UX and private-copy retention. |
 
 **Clarification:** a button click, queued intent, placeholder or unknown is not automatically reliable proof upload **actually started**. This version's fast animation must be triggered by an independently reviewable upload-start signal, while eventual success and safe retry keep their own stricter evidence. Do not automatically resend the same asset after UNKNOWN or merely because its thumbnail was hidden.
+
+## 2026-10-27 — additional explicit user rulings (latest over P16–P22 where different)
+
+The original P16–P22 remain historical. This section corrects the assistant's prior proposals of unclickable failure thumbnails, late-failure suppression, success Toasts and mandatory burst parallelism. Exact operational contract: [INTERACTION_CONTRACT_2026-10-27.md](INTERACTION_CONTRACT_2026-10-27.md).
+
+| ID | Status | Latest user ruling |
+| --- | --- | --- |
+| P23 | USER | **Optimize speed and approach consecutive clicks on multiple screenshots only when neither experience nor stability suffers**; not an unconditional demand for parallel input. |
+| P24 | USER | **No success popup or success feedback from Riftlet.** Before sending the chat message, the user can inspect whether the attachment uploaded successfully **in the original ChatGPT composer**. Do not invent success Toasts. |
+| P25 | USER | A thumbnail reborn after failed upload returns **as an ordinary screenshot**, with the same clickable, removable, idle-archivable lifecycle; do not suppress rebirth merely because the user has moved to another task. |
+| P26 | USER | If the upload is classified as **failed (explicitly or with extremely high confidence)**, **rebirth is mandatory and the thumbnail must be directly clickable for another user-initiated attempt**. Improve failure-evidence precision; do not solve ambiguity by rendering dead/unclickable reborn thumbnails. UNKNOWN still is not failure. |
+| P27 | USER | With **no usable current message composer/attachment capability**, clicking a thumbnail **does not make it disappear or swallow**. With a valid composer and actual upload start, the screenshot enters that draft and swiftly disappears from the rift; except for real upload failure, it never spontaneously rebirths. Retrieval is via the original macOS screenshot or Riftlet's internal history. |
+| P28 | USER | **Clearing the Riftlet queue changes only Riftlet visibility**, never automatically removes ChatGPT draft attachments. |
+| D06 | CONSIDERATION_ONLY | **Press-and-hold to drag** may be considered later. It is not an approved launch requirement, nor permission to delay ordinary one-click interaction or implement drag code yet. |
+| I11 | IMPLEMENTATION_REQUIRED | Calibrate failure classification and user-clickable rebirth together; distinguish invalid composer, genuine upload start, hidden UNKNOWN, confirmed/very-likely failure and ordinary screenshot lifecycle. Preserve exact-target/operation identity and no automatic retry. The docs commit does not prove implementation. |
