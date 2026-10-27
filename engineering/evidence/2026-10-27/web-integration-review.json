@@ -1,6 +1,6 @@
 {
   "reviewer": "w2_evidence_review",
-  "author": "w2_implementation; root native-foreground guard",
+  "author": "w2_implementation (page, adapter and native-foreground guard); root (App/Core/packaging composition reviewed separately)",
   "scope": "Actual bundled W2 development program, adapter polling and source provenance; synthetic-only mode with production disabled",
   "verdict": "PASS_WITHIN_SYNTHETIC_DEVELOPMENT_SCOPE; macOS build and live acceptance separately required",
   "checks": [
@@ -73,5 +73,6 @@
       "path": "Tests/RiftletAdaptersTests/ObservationNormalizerTests.swift",
       "sha256": "959f46464a5fcd0d2f076d5710b016d71a7e0e18022a0cdb534aa50ed1408e4f"
     }
-  ]
+  ],
+  "recordCorrection": "Integration checkpoint corrects author attribution only; reviewer verdict, checks and reviewed source hashes are unchanged."
 }

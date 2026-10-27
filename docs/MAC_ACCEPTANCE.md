@@ -44,3 +44,22 @@ The first command verifies generated image bytes/hash/dimensions and layout/stat
 JSONL records synthetic IDs, event counts, geometry and focus observations; typed text and key codes are not logged. No automatic GUI PASS is emitted. Record the exact tested source SHA, OS/screens and the observed N04–N07 outcomes. Missing physical screens or an interactive session leave only the relevant cases untested.
 
 Real ChatGPT tests are separate and use [the inherited W00–W07/M00–M06 procedure](../research/technical-decision-2026-10-26/03_MAC_VALIDATION.md). Build/test/animation success never substitutes for that evidence.
+
+## W2 integrated Web acceptance entry — available, live test NOT_RUN
+
+The actual [source/evidence handoff](../research/web-attachment-handoff-2026-10-27/README.md) is archived at its exact `6f415698` version. The integrated program and App at `97f10b0` compile and pass the native/offline CI. The authorized remote Mac is currently offline; these commands are the direct continuation point, not a claim they ran live.
+
+```bash
+bash scripts/build-macos.sh
+build/Riftlet.app/Contents/MacOS/Riftlet --web-acceptance-self-check
+open -n build/Riftlet.app --args --web-acceptance
+```
+
+The self-check does not contact Chrome; it verifies bundled resources, mode separation and synthetic-only consumption policy. The interactive mode visibly says **WEB ACCEPTANCE** and has a separate `Riftlet-Web-Acceptance` data root. It creates three ImageIO-generated PNGs, never starts system-folder collection, and validates all recovered records before constructing the real adapter. Quit other modes of the same build before interactive acceptance so their rifts cannot be confused. The menu can add a new generated batch without deleting unresolved history. Do not delete the acceptance database to disguise an UNKNOWN result.
+
+1. Use an authorized test draft in foreground Google Chrome, exact `https://chatgpt.com/`, Chat selected and the observed Chinese UI. Existing text/attachments may remain and must be preserved. Nonmatching routes and input structures are refused. Other threads/locales and Work are outside this acceptance scope and must not be used; the program does not yet independently identify the selected Chat/Work mode. Respect existing Automation/Apple Events JavaScript permissions; the app does not change these settings.
+2. Keep the draft input focused and click one generated thumbnail. Record first-click behavior, retained focus, one input, matching image and original draft. The adapter observes its own lifecycle and exact bytes/RGBA; elapsed time never proves success. Only the generated-image development profile may persist `used` and show the existing swallow animation.
+3. Observe the same operation through a delayed completion, interruption, route/tab change and restart. Click on UNKNOWN only calls observation, never append. A restart may query Chrome for an old operation; it never starts a new input. Missing original observer/document remains UNKNOWN, and no safe-retry profile exists.
+4. Record the tested source SHA, actual OS/Chrome/UI scope and sanitized per-operation evidence. Extend the actual target observations to existing chat threads and click-time browser-tab changes before production admission. Native foreground/window checks alone are not proof of the click-time tab.
+
+Run N01/N02 with the ordinary capture mode and N04–N07 with the existing GUI helper in the same authorized session. Passing the generated-image upload path does not by itself prove **system screenshot → first thumbnail click → correct live draft → safe swallow**. That final product loop remains the highest acceptance gate. The existing used record retains local bytes; post-consumption late-failure queue revival is still unimplemented and unverified, so the production registry stays empty.

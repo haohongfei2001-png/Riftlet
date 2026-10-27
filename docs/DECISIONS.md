@@ -67,3 +67,17 @@ The original feature-branch/Draft-PR and review requirements remain. User absenc
 | I07 | IMPLEMENTATION | Obtain the actual source and complete scoped evidence before production success or safe-retry admission. A versioned observation normalizer may support product ATTACHED as a code-selected completion signal, while Core admission remains separate and empty in the shipping composition. |
 
 The current repository branches and available recent Library file inventory were checked for the new Web handoff. No matching new source/evidence package was resolved; the already archived technical ZIP is the older snapshot. Continue implementation with explicit synthetic fixtures and a disabled transport/program boundary; only the page-specific source integration and production admission wait for the missing handoff.
+
+## 2026-10-27 — actual Web handoff obtained and integrated for acceptance
+
+The preceding unsuccessful handoff search is historical. The new branch `codex/web-attachment-handoff-20261027`, commit `6f4156988f32fa06d4df9f06a43f564b560e0a1d`, now supplies the [actual source and sanitized evidence](../research/web-attachment-handoff-2026-10-27/README.md). Its directory was imported byte-for-byte; main and its website changes were not merged.
+
+| ID | Status | Statement |
+| --- | --- | --- |
+| P15 | USER | Continue from b5958d1, prioritize W2 and N1 toward the real two-operation product loop; do not repeat completed modules or redesign the plan. Keep Mac-client work independent and preserve the draft/no-release boundary. |
+| E07 | SOURCE_REVIEWED | Independent review verified all 55 manifest entries and replayed the scoped evidence: three archived real Apple Events inputs, scoped ATTACHED for IDENTITY/OTHER, UNKNOWN for both aborts and the temporary-chat route transition. These are inherited real experiments and current offline replays, not new live integrated-App tests. |
+| I08 | IMPLEMENTATION | The bundled page program reuses the tested input primitive and observed per-image lifecycle/content checks. Explicit `--web-acceptance` uses generated images and its own directory with the real native bridge. Development completion is restricted by asset origin in both normalizer and Core policy; shipping success/retry registries remain empty. |
+| E08 | NOT_TESTED | The registered authorized Mac is offline in this execution session. Integrated Apple Events/ATTACHED, click-time target identity, real screenshot/first-click/focus/pass-through/fullscreen/multi-display and the final two-operation loop remain unrun. |
+| I09 | IMPLEMENTATION | Keep UNKNOWN observation-only and safe-retry disabled. The handoff requires reversible handling of post-consumption late failure; retaining used bytes is implemented, but late-failure queue revival and its real evidence are not. Synthetic acceptance animation does not admit production swallow. |
+
+Strict internal READY remains outside this integration target. The remaining gates concern accurate targets, scoped product ATTACHED, recovery and safe consumption of the actual integrated product.

@@ -1,6 +1,6 @@
 # Open questions — research history and current engineering gates
 
-**2026-10-27 update:** development is authorized. These questions gate only the affected modules; see [the dependency plan](ENGINEERING_PLAN.md). E06 records the user's latest report: product-level ATTACHED passed that session's scoped abnormal tests. The corresponding actual source and full evidence are still needed here for independent admission; that handoff does not block the native modules or disabled Web integration.
+**2026-10-27 update:** development is authorized. The [actual scoped Web handoff](../research/web-attachment-handoff-2026-10-27/README.md) has now been obtained, independently reviewed and integrated into an explicit generated-image Web acceptance mode. The missing prerequisite is now the online Mac test of this integrated program, accurate click-time target capture, safe production consumption/recovery and separate retry admission. It is no longer a missing-source or missing-plan task. See [the execution checkpoint](EXECUTION_BOARD.md).
 
 **Historical 2026-10-26 factual questions (read alongside E04/E05):**
 1. Real ChatGPT web: does selected DOM/FileList or native path append the new image into the **correct composer** without replacing text/attachments?
@@ -23,7 +23,7 @@ P12/P13 authorize routine decisions and parallel work without the user's partici
 
 | Unresolved item | Work that proceeds now | Waiting condition applies only to |
 | --- | --- | --- |
-| Web abnormal completion/failure evidence | W0 fixtures, W1 single disabled candidate adapter and transport tests | W2 real verification and specific success/retry profile enablement |
+| Integrated Web real target/completion/recovery evidence | Actual handoff archived and replayed; bundled program + native acceptance mode built/tested | W2 live integrated verification and success/retry enablement; exact tab capture and late-failure revival remain unresolved |
 | Mac client AX/input evidence | M0 target/pasteboard ownership logic and synthetic tests | M1 actual input/AX completion and per-surface support |
 | Real first-click, transparency, Spaces/displays/self-inclusion | U1 helper, U2 deterministic tests, Capture recovery fixes | The specific N1 GUI/system acceptance claim |
 | Final geometry/animation/Logo | Adjustable R2 01 defaults; no final approval label | Visual/brand finishing |

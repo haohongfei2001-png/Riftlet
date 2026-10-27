@@ -2,7 +2,7 @@
 
 ## Current admission
 
-No production adapter is enabled. On 2026-10-27 the user reports that another Codex session's product-level ATTACHED criterion passed abnormal validation within that round's scope, authorizing actual Web adapter integration. The actual source, environment/case matrix and full evidence have not yet been obtained here. This supersedes the earlier candidate-only report, without claiming independent inspection or coverage beyond that round. Success and safe-retry profiles still require their respective evidence admission; a successful ATTACHED report alone does not admit retry-safe failure semantics.
+No production adapter is enabled. On 2026-10-27 the actual [Web handoff](../research/web-attachment-handoff-2026-10-27/README.md) was obtained at `6f4156988f32fa06d4df9f06a43f564b560e0a1d` and independently reviewed. It substantiates the user's scoped product-level ATTACHED report. The input program and per-image observations are now integrated, but the new integrated program has not run on a live Mac/ChatGPT in this session. Both actual aborts remain UNKNOWN; there is no safe-retry admission. The archive explicitly leaves active browser-tab switching, same-URL draft replacement and post-preview failure untested.
 
 ## API
 
@@ -22,7 +22,7 @@ The coordinator commits `dispatchIntent` first and passes that durable operation
 
 The request's immutable file URL is beneath the app's private media root. The adapter should recheck its bytes/hash before transmission, use an operation-specific upload name with the real encoding extension, and enforce target size/type limits without silent lossy conversion. It never reads/sends chat history, replaces composer text, deletes pre-existing attachments or sends a message.
 
-`verifiedReady` names Riftlet’s admitted product completion result. It does not require a private field literally named READY. The user reports the product-level ATTACHED criterion passed the other session's scoped abnormal tests. This branch still needs the corresponding source and full evidence reviewed before admitting its mapping; it does not relabel that report as an unpassed experiment or as already-admitted production behavior.
+`verifiedReady` names Riftlet’s admitted product completion result. It does not require a private field literally named READY. The inherited scoped ATTACHED evidence has now been inspected. Real integrated target/completion/recovery tests and independent production admission are still required; the new implementation does not inherit a live PASS merely by reusing the input source.
 
 ## Receipt fields and admission
 
@@ -36,7 +36,7 @@ Identity must equal operationId, assetId, attempt, content hash and every Target
 | definitiveFailure | Retry only with separate versioned failure profile and proof no residual auto-retrying attachment can still complete |
 | unknown | Keep original operation/asset, target lock and recovery query |
 
-Success and failure registration are independent. A normal-flow READY proof does not automatically admit network-failure retry semantics. The shipping default registries are both empty. `ReceiptPolicy` is code-reviewed policy, not a user-editable JSON override. Development tests may explicitly admit synthetic fixture profiles; shipping App does not pass them.
+Success and failure registration are independent. A normal-flow READY proof does not automatically admit network-failure retry semantics. The shipping default registries are both empty. `ReceiptPolicy` is code-reviewed policy, not a user-editable JSON override. The explicit Web acceptance composition passes a separate `syntheticAcceptanceProfiles` map: it requires synthetic origin, exact surface and the usual positive evidence, and cannot grant retry. The ordinary capture composition passes no development profiles. `integratedDevelopment` provenance is also rejected for system screenshots by the normalizer; it is a code-source label, not a claim of a new live test.
 
 ## Web implementation path
 
@@ -53,9 +53,13 @@ Implement only one production candidate path at a time. Consider MV3 when specif
 
 `RiftletAdapters` now contains `ObservationDecoder`/`ObservationNormalizer` and `WebAttachmentAdapter`/`ChromeAppleEventsExecutor`. The version-1 observation is bounded to 64 KiB and rejects unknown fields, including nested identity/lease fields. Incoming data cannot supply an admission profile or positive-ready/safe-retry policy. Code-owned mapping is followed by the existing Core policy.
 
-The native executor uses one shared serial utility queue for AppleScript, leaving AppKit snapshots on MainActor. It transfers 64 KiB chunks from a verified private descriptor, checks operation/attempt/chunk acknowledgements, rechecks the complete file hash before a single commit and only observes after uncertain input. The App still uses `UnavailableAdapter`; the Web adapter's only non-disabled mode accepts synthetic assets. There is no real page function bundled yet.
+The native executor uses one shared serial utility queue for AppleScript, leaving AppKit snapshots on MainActor. It transfers 64 KiB chunks from a verified private descriptor, checks operation/attempt/chunk acknowledgements, and rechecks the complete file hash before a single commit. Input-side commands now also require the original foreground Chrome window/active tab. This still does **not** prove click-time tab identity if a switch occurs before queued target capture. Observation remains addressed to the original target and never activates it.
 
-The reviewed page function must supply capture/validate/begin/chunk/commit/observe/discard semantics. Commit checks the full original lease and assembled bytes in the same page execution as input; discard only clears temporary bytes. A foreground PID/launch check does not prove which Chrome tab was foreground before queued Apple Events executed. W2 must cover same-browser tab changes during target capture as well as navigation during input. Passing fake transport tests does not discharge that real target-selection requirement.
+`ChatGPTWebPageProgram.load()` loads the bundled `chatgpt-web-20261027.js`. The narrow inherited scope is exact `https://chatgpt.com/`, Chat, the observed Chinese attachment/progress labels, PNG ≤8 MiB and ≤16M decoded pixels. Nonmatching routes/input structures are rejected. The acceptance operator must select Chat: the program does not independently identify Chat versus Work, so its fixed webChat label is a development precondition, not proven surface recognition. The page registers a one-shot operation before async hashing, then revalidates the original nodes/lease/visibility/focus synchronously with the files setter and change event. Completion requires the entered File hash, unique input, original card/image continuity, its own progress→100→progress removal→final data-image load, and exact file bytes or exact sRGB decoded RGBA+dimensions. Async proof is rebound to the same operation/nodes/source/load sequence before observation can report ATTACHED. Transient removal/reinsertion and final-source replacement veto that proof. The resource has no message-send, composer-edit, attachment-removal or network-hook operation.
+
+Post-commit work is bounded observation (default 10 seconds, capped configuration 30 seconds); time only stops work, never proves success. Each native call separately has a five-second Apple Events timeout, so the polling budget is checked between calls rather than being a hard total deadline. Restart/click on UNKNOWN only observes the original operation. Missing document/observer remains UNKNOWN. Page operation tombstones and observation work are bounded; the current development session refuses new work after its limits rather than silently rearming.
+
+Only explicit `--web-acceptance` wires the native bridge, in `Riftlet-Web-Acceptance`, with generated images and origin checks before and after importer recovery. Ordinary capture still uses `UnavailableAdapter`; `--simulate` remains offline. Fresh acceptance launch makes no input; a restart may observe old unresolved operations. The integrated real Chrome path, first-click behavior and terminal animation have **not** been exercised live here. Used bytes are retained, but post-consumption late-failure revival is not implemented or admitted.
 
 ## Mac implementation path
 

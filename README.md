@@ -6,6 +6,8 @@
 
 **Execution update:** routine engineering now proceeds autonomously with parallel module ownership and independent technical review; no per-increment user approval is required. The [v2 dependency plan](docs/ENGINEERING_PLAN.md) separates implementation from real-evidence admission, and the [live execution board](docs/EXECUTION_BOARD.md) identifies ready work, scoped waits and the next concrete actions. Production attachment profiles remain disabled until their evidence gates pass.
 
+**Latest functional increment:** the real Codex Web source/evidence handoff is now archived and integrated. Commit `97f10b0` adds the bundled ChatGPT page program and explicit native `--web-acceptance` mode with generated test images. It passes 139 native tests, 9 page-program VM regressions and relocated App resource self-checks on macOS CI. The registered interactive Mac is offline, so the integrated live upload/GUI/two-operation loop remains untested; the ordinary screenshot mode still cannot upload or swallow real images.
+
 ## The distinctive interaction
 - Extremely fine vertical **spatial rift** at the screen edge; tiny, aspect-ratio-preserving, roughly coin-sized screenshots protrude partly from it.
 - Oldest at top. Everyday pending queue is normally **2–3 images**, occasionally 10+; each screenshot shows only the image and a simple number.
@@ -48,6 +50,8 @@ open build/Riftlet.app --args --simulate
 ```
 
 Simulation uses only synthetic images in its own data directory and never connects to ChatGPT. Run without `--simulate` to collect actual system screenshot files; the production upload adapter remains disabled, so clicks retain the screenshot. This is an engineering build with an ad-hoc signature, not a notarized release. [Real Mac acceptance](docs/MAC_ACCEPTANCE.md) lists the remaining GUI checks.
+
+The separate **Web acceptance mode** uses the real native bridge, generated images and an isolated queue. Its current page scope is ChatGPT Home/Chat with the observed Chinese UI and PNG. See [the exact startup and acceptance steps](docs/MAC_ACCEPTANCE.md#w2-integrated-web-acceptance-entry--available-live-test-not_run). It never sends a message or retries an UNKNOWN input, and its development completion profile cannot consume system screenshots. This is the next live-test entry point, not an admitted production adapter.
 
 
 ## Prelaunch website (2026-10-27)
