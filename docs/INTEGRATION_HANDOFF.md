@@ -220,3 +220,14 @@ git worktree add -b codex/riftlet-real-mac-round2-20261027 ../Riftlet-real-mac-r
 </details>
 
 </details>
+
+
+## 第四轮本地 Mac 候选：待 Pro 合流
+
+正式起点 `a441c70f3c4071069bd594513ecf16600bbb0ab8`；独立分支 `codex/riftlet-real-mac-round4-20261027`，源码提交 `35e98517ce2808a35a45a26a08d18e4b386b8bf7` 与 `c9c68a66c4b6ff55ffe8048cff6f1cf781600519`。不得把本段当作正式分支已合入声明。
+
+实际突破：发言框未聚焦的普通已保存对话，人工首击新合成图一次，原目标冻结、单次输入、完整完成证据和 used 已通过一次局部实测。点击前已有 ACK，因此冷首击尚未关闭。新增裸 UUID 业务身份读取、composer 可用性与焦点分离、v6/v7 原操作只读兼容和 native ACK 诊断。未改 Core/UI/App 产品源；235 native / 48 page / 14 legacy 及打包 CI PASS。
+
+PR #4 的 `90a04883160032fc6354fb4f3d3f7d56fede2947` 是本轮产品依据：实际 uploadStarted 后快速视觉吞噬，最终 READY 与安全重传独立。旧版 used/READY 动画不是新版视觉契约 PASS。详见[第四轮证据与限制](../engineering/evidence/2026-10-27-real-mac-round4/README.md)、[Core persisted profile 最小补丁请求](../engineering/evidence/2026-10-27-real-mac-round4/core-persisted-identity-request.md)和[App ACK 发布接口](../engineering/evidence/2026-10-27-real-mac-round4/app-integration-request.md)。
+
+保留原 SQLite v2、16 个原媒体文件、16 个原操作和 3 个补偿审计；新加 1 图/1 成功操作。原 UNKNOWN 未重放。App 已正常退出，原页面 v8 observer 特意保留以支持可能的原操作迟到失败只读观察；不应 stop/清 registry 来制造新 bind。生产来源、安全重传仍关闭。

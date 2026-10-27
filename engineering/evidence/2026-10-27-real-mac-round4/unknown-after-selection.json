@@ -1,0 +1,28 @@
+{
+  "legacyMatched": true,
+  "evidenceID": "W4-legacy-v6-original-observer",
+  "state": "invalidated",
+  "originalDraft": false,
+  "exact": false,
+  "before": [
+    {
+      "v": 6,
+      "total": 3
+    },
+    {
+      "v": 7,
+      "total": 0
+    }
+  ],
+  "after": [
+    {
+      "v": 6,
+      "total": 3
+    },
+    {
+      "v": 7,
+      "total": 0
+    }
+  ],
+  "scope": "After two later selections on existing UNKNOWN; direct page compatibility observe; no input command."
+}
