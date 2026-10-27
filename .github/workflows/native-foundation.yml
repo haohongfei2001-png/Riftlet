@@ -51,6 +51,7 @@ jobs:
         run: |
           set -o pipefail
           node Tests/WebPageProgram/acceptance-program.test.cjs 2>&1 | tee test-results/web-page-program.log
+          node Tests/WebPageProgram/legacy-web-observe.test.cjs 2>&1 | tee test-results/legacy-web-observe.log
       - name: Exercise round-two fault harness offline
         run: |
           set -o pipefail

@@ -45,13 +45,14 @@ public final class ChromeAppleEventsExecutor: WebBridgeExecutor {
         }
         let commandJSON = String(decoding: try JSONEncoder().encode(command), as: UTF8.self)
         let sessionJSON = String(decoding: try JSONEncoder().encode(session), as: UTF8.self)
+        let requestID = UUID().uuidString
         let enqueued = ProcessInfo.processInfo.systemUptime
         let trace = self.trace
-        let data: Data = try await withCheckedThrowingContinuation { continuation in
+        let delivery: ChromeDelivery = try await withCheckedThrowingContinuation { continuation in
             Self.scriptQueue.async {
                 let started = ProcessInfo.processInfo.systemUptime
                 var phase = "process"
-                let result: Result<Data, Error> = Result {
+                let result: Result<ChromeDelivery, Error> = Result {
                     try autoreleasepool {
                         // Recheck process lifetime after waiting for the shared serial
                         // queue. An old lease cannot target a newly reused PID.
@@ -92,10 +93,14 @@ public final class ChromeAppleEventsExecutor: WebBridgeExecutor {
                             if !reply.isEmpty { break }
                             Thread.sleep(forTimeInterval: 0.02)
                         } while ProcessInfo.processInfo.systemUptime < deadline
+                        let received = ProcessInfo.processInfo.systemUptime
                         // Missing/late reply never resubmits an input command.
                         let text = try envelope.decode(reply)
                         guard text.utf8.count <= ObservationDecoder.maximumPayloadBytes else { throw WebAdapterError.invalidReply }
+                        let bytes = Data(text.utf8)
+                        var targetDigest: String?
                         if command.action == .captureTarget {
+                            targetDigest = try NativeCaptureProof.digest(bytes, session: session, window: selected.window, tab: selected.tab)
                             // Do not publish an ACK already known to be stale:
                             // selecting another tab while the receipt was pending
                             // is a different target even in the same Chrome PID.
@@ -104,10 +109,14 @@ public final class ChromeAppleEventsExecutor: WebBridgeExecutor {
                             guard active == selected else { throw WebAdapterError.nativeSelectionChanged }
                         }
                         phase = "complete"
-                        return Data(text.utf8)
+                        if let targetDigest {
+                            trace.capture(requestID: requestID, phase: "native_validated", digest: targetDigest,
+                                          received: received, accepted: true)
+                        }
+                        return ChromeDelivery(data: bytes, targetDigest: targetDigest, received: received)
                     }
                 }
-                trace.record(action: command.action.rawValue, phase: phase, enqueued: enqueued, started: started,
+                trace.record(requestID: requestID, action: command.action.rawValue, phase: phase, enqueued: enqueued, started: started,
                              succeeded: (try? result.get()) != nil)
                 continuation.resume(with: result)
             }
@@ -115,25 +124,49 @@ public final class ChromeAppleEventsExecutor: WebBridgeExecutor {
         if command.action == .captureTarget {
             guard let frontmost = NSWorkspace.shared.frontmostApplication,
                   frontmost.processIdentifier == pid, frontmost.launchDate == launched else {
+                if let digest = delivery.targetDigest {
+                    trace.capture(requestID: requestID, phase: "main_actor_return", digest: digest, received: delivery.received, accepted: false)
+                }
                 throw WebAdapterError.browserNotFrontmost
             }
+            if let digest = delivery.targetDigest {
+                trace.capture(requestID: requestID, phase: "main_actor_return", digest: digest, received: delivery.received, accepted: true)
+            }
         }
-        return data
+        return delivery.data
     }
 }
 
-/// Local opt-in timing only; no source, URL, target identity or page payload.
+private struct ChromeDelivery: Sendable {
+    let data: Data
+    let targetDigest: String?
+    let received: TimeInterval
+}
+
+/// Local opt-in timing only; opaque digest, never raw source/URL/identity/payload.
 private final class ChromeBridgeTrace: @unchecked Sendable {
     private let enabled: Bool
     private let lock = NSLock()
     private var count = 0
     init(enabled: Bool) { self.enabled = enabled }
-    func record(action: String, phase: String, enqueued: TimeInterval, started: TimeInterval, succeeded: Bool) {
+    func capture(requestID: String, phase: String, digest: String, received: TimeInterval, accepted: Bool) {
+        guard enabled else { return }
+        lock.lock(); defer { lock.unlock() }
+        guard count < 2048 else { return }; count += 1
+        let fields: [String: Any] = ["event": "capture_ack", "requestID": requestID, "phase": phase,
+            "targetDigest": digest, "receivedUptime": received,
+            "recordedUptime": ProcessInfo.processInfo.systemUptime, "accepted": accepted,
+            "authority": "DIAGNOSTIC_ONLY_NOT_APP_PUBLICATION"]
+        if let data = try? JSONSerialization.data(withJSONObject: fields, options: [.sortedKeys]) {
+            try? FileHandle.standardError.write(contentsOf: data + Data([10]))
+        }
+    }
+    func record(requestID: String, action: String, phase: String, enqueued: TimeInterval, started: TimeInterval, succeeded: Bool) {
         guard enabled else { return }
         lock.lock(); defer { lock.unlock() }
         guard count < 2048 else { return }; count += 1
         let end = ProcessInfo.processInfo.systemUptime
-        let fields: [String: Any] = ["event": "native_bridge", "action": action, "phase": phase,
+        let fields: [String: Any] = ["event": "native_bridge", "requestID": requestID, "action": action, "phase": phase,
             "queuedUptime": enqueued, "startedUptime": started, "endedUptime": end,
             "queueMS": (started - enqueued) * 1000, "executionMS": (end - started) * 1000, "transportSucceeded": succeeded]
         if let data = try? JSONSerialization.data(withJSONObject: fields, options: [.sortedKeys]) {

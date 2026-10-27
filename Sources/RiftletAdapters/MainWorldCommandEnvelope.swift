@@ -5,6 +5,7 @@ import CoreFoundation
 public enum WebPageRejection: String, CaseIterable, Sendable {
     case unsupportedSurface = "UNSUPPORTED_TEST_SURFACE"
     case ambiguousComposer = "AMBIGUOUS_COMPOSER"
+    case composerUnavailable = "COMPOSER_UNAVAILABLE"
     case unprovenMode = "UNPROVEN_CHAT_MODE"
     case unprovenThread = "UNPROVEN_THREAD_IDENTITY"
     case unobservedThread = "UNOBSERVED_THREAD_COMPOSER"

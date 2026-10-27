@@ -18,8 +18,13 @@ function fixture({blockedDigest = false, route = 'https://chatgpt.com/', mode = 
   const mutationObservers=[];
   const digestGate = blockedDigest ? new Promise(resolve => { releaseDigest = resolve; }) : Promise.resolve();
   class Node {
-    constructor(tag, attrs = {}) { this.tagName = tag.toUpperCase(); this.attrs = {...attrs}; this.isConnected = true; this.children = []; this.parent = null; this.textContent = ''; }
+    constructor(tag, attrs = {}) { this.nodeType=1;this.tagName = tag.toUpperCase(); this.attrs = {...attrs}; this.isConnected = true; this.children = []; this.parent = null; this.textContent = ''; }
     getAttribute(k) { return this.attrs[k] ?? null; }
+    hasAttribute(k) { return Object.prototype.hasOwnProperty.call(this.attrs,k); }
+    get parentElement() { return this.parent?.nodeType===1 ? this.parent : null; }
+    get isContentEditable() { return this.attrs.contenteditable==='true'; }
+    getClientRects() { return this.rendered===false ? [] : [{}]; }
+    matches(selector) { return selector===':disabled' && (this.disabled===true || this.hasAttribute('disabled') || this.disabledByFieldset===true); }
     get parentNode() { return this.parent; }
     contains(n) { return n === this || this.children.some(c => c.contains(n)); }
     closest(selector) { if ((selector === 'form' && this.tagName === 'FORM') || (selector === 'header' && this.tagName === 'HEADER') || (selector === '[role=button]' && this.attrs.role === 'button')) return this; return this.parent?.closest(selector) || null; }
@@ -28,6 +33,8 @@ function fixture({blockedDigest = false, route = 'https://chatgpt.com/', mode = 
     querySelectorAll(selector) {
       const all = this.children.flatMap(c => [c, ...c.querySelectorAll('*')]);
       if (selector === '*') return all;
+      if (selector === ':modal') return all.filter(n=>n.nativeModal===true);
+      if (selector === '[role=dialog][aria-modal=true],[role=alertdialog][aria-modal=true]') return all.filter(n=>['dialog','alertdialog'].includes(n.attrs.role)&&n.attrs['aria-modal']==='true');
       if (selector === 'form[data-chatgpt-composer][data-composer-placement=thread][data-thread-find-composer=true]') return all.filter(n=>n.tagName==='FORM' && n.attrs['data-chatgpt-composer']!==undefined && n.attrs['data-composer-placement']==='thread' && n.attrs['data-thread-find-composer']==='true');
       if (selector === '[contenteditable=true][role=textbox][aria-label="询问 ChatGPT"]') return all.filter(n=>n.attrs.contenteditable==='true' && n.attrs.role==='textbox' && n.attrs['aria-label']==='询问 ChatGPT');
       if (selector === '[role=group][aria-label="撰写器模式"]') return all.filter(n => n.attrs.role === 'group' && n.attrs['aria-label'] === '撰写器模式');
@@ -48,7 +55,7 @@ function fixture({blockedDigest = false, route = 'https://chatgpt.com/', mode = 
     dispatchEvent(event) { this.inputCount++; for (const fn of events.get(event.type) || []) fn({target:this,type:event.type}); return true; }
     get form() { return this.formOverride || this.closest('form'); }
   }
-  const body = new Node('body'), form = body.append(new Node('form')), editor = form.append(new Node('div'));
+  const body = new Node('body'), form = body.append(new Node('form')), editor = form.append(new Node('div',{contenteditable:'true',role:'textbox'}));
   const businessID='local-chatgpt:12345678-1234-1234-1234-123456789ABC';
   const makeFibers=(id=businessID)=>{
     const leaf={stateNode:form,memoizedProps:{},return:null};
@@ -75,7 +82,7 @@ function fixture({blockedDigest = false, route = 'https://chatgpt.com/', mode = 
   let currentEditor = editor;
   const input = form.append(new Input());
   const document = {
-    visibilityState:'visible', hasFocus:() => focused,
+    visibilityState:'visible', hasFocus:() => focused, activeElement:body,
     querySelectorAll: selector => selector === '[contenteditable=true][role=textbox]' ? [currentEditor] : body.querySelectorAll(selector),
     addEventListener:(type,fn) => { if (!events.has(type)) events.set(type, []); events.get(type).push(fn); },
     getElementById:() => null
@@ -100,7 +107,8 @@ function fixture({blockedDigest = false, route = 'https://chatgpt.com/', mode = 
     get currentSrc() { return this.src; }
     get alt() { return this.attrs.alt || ''; }
   }
-  const context = vm.createContext({console, Uint8Array, Map, Set, WeakMap, Promise, File, atob,
+  const context = vm.createContext({console, Uint8Array, Map, Set, WeakMap, Promise, File, atob, queueMicrotask,
+    getComputedStyle:node=>({display:node.display||'block',visibility:node.visibility||'visible'}),
     performance:{now:()=>performance.now()},
     crypto:{randomUUID:() => webcrypto.randomUUID(),subtle:{digest:async(...args) => { await digestGate; return webcrypto.subtle.digest(...args); }}},
     navigation:{addEventListener:(type,fn)=>{if(!navigationEvents.has(type))navigationEvents.set(type,[]);navigationEvents.get(type).push(fn);}},
@@ -139,7 +147,7 @@ function fixture({blockedDigest = false, route = 'https://chatgpt.com/', mode = 
     const deadline=Date.now()+2000;
     do {
       await new Promise(resolve=>setTimeout(resolve,1));
-      const ops=[];for(let g=context.__riftletWebAcceptance20261027v7?.head;g;g=g.next) ops.push(...g.operations.values());
+      const ops=[];for(let g=context.__riftletWebAcceptance20261027v8?.head;g;g=g.next) ops.push(...g.operations.values());
       if (ops.every(op=>!op.committed || op.invalid || (op.fileHashVerified && !op.proofPending))) return;
     } while(Date.now()<deadline);
     assert.fail('bounded synthetic async work did not settle');
@@ -302,7 +310,7 @@ test('returning to a tab can bind a fresh lease while original UNKNOWN stays obs
   for(const fn of f.events.get('visibilitychange')||[]) fn();
   f.document.visibilityState='visible';
   for(const fn of f.events.get('visibilitychange')||[]) fn();
-  const registry=f.context.__riftletWebAcceptance20261027v7;
+  const registry=f.context.__riftletWebAcceptance20261027v8;
   assert.equal(registry.count,1);
   assert.equal(f.observe(old).state,'inputTriggered');assert.equal(registry.count,1);
   const fresh=f.bind('33333333-3333-4333-8333-333333333333');
@@ -323,11 +331,11 @@ test('returning to a tab can bind a fresh lease while original UNKNOWN stays obs
 });
 
 test('lease generations are bounded and older state cannot bypass current admission', () => {
-  for(const key of ['__riftletWebAcceptance20261027v1','__riftletWebAcceptance20261027v2','__riftletWebAcceptance20261027v3','__riftletWebAcceptance20261027v4','__riftletWebAcceptance20261027v5','__riftletWebAcceptance20261027v6']) {
+  for(const key of ['__riftletWebAcceptance20261027v1','__riftletWebAcceptance20261027v2','__riftletWebAcceptance20261027v3','__riftletWebAcceptance20261027v4','__riftletWebAcceptance20261027v5','__riftletWebAcceptance20261027v6','__riftletWebAcceptance20261027v7']) {
     const legacy=fixture({mode:'missing'});
     legacy.context[key]={valid:()=>true,target:{...native,surface:'webChat'}};
     assert.throws(()=>legacy.target(),/UNPROVEN_CHAT_MODE/);
-    assert.equal(legacy.context.__riftletWebAcceptance20261027v7.count,0);
+    assert.equal(legacy.context.__riftletWebAcceptance20261027v8.count,0);
   }
   const f=fixture();let first;
   for(let i=0;i<32;i++) {
@@ -336,7 +344,7 @@ test('lease generations are bounded and older state cannot bypass current admiss
     f.document.visibilityState='visible';
   }
   assert.throws(()=>f.target(),/LEASE_GENERATION_LIMIT/);
-  const registry=f.context.__riftletWebAcceptance20261027v7;
+  const registry=f.context.__riftletWebAcceptance20261027v8;
   assert.equal(registry.count,32);assert.equal(registry.head.target.documentID,first.documentID);
   assert.equal(f.call({action:'validate',target:first}).valid,false);assert.equal(f.input.inputCount,0);
 });
@@ -502,16 +510,16 @@ test('observed 373-level current ancestry is accepted but chains above 512 remai
 });
 
 
-test('trusted composer-external interaction revokes input across business ABA but preserves old observation', async () => {
+test('trusted composer-external interaction does not hide a committed business ABA', async () => {
   for(const type of ['pointerdown','click','keydown']) {
     const f=fixture({thread:true}),op=f.bind();f.stage(op);f.commit(op);await f.settle();const view=f.makeCard(op);f.finish(view);await f.settle();
     const ready=f.observe(op), original=f.form.__reactFiber$fixture;
     f.documentEvent(type,f.body);
-    f.form.__reactFiber$fixture=f.makeFibers('local-chatgpt:00000000-0000-0000-0000-000000000000').leaf;
-    f.form.__reactFiber$fixture=original;
+    threadCommit(f,'local-chatgpt:00000000-0000-0000-0000-000000000000');
+    threadCommit(f);
     assert.equal(f.call({action:'validate',target:op.target}).valid,false);
-    assert.equal(f.observe(op).attachmentID,ready.attachmentID);assert.equal(f.observe(op).state,'attached');
-    assert.equal(f.context.__riftletWebAcceptance20261027v7.tail.continuityEvents.outsideInteraction,1);
+    assert.equal(f.observe(op).state,'invalidated');
+    assert.equal(f.context.__riftletWebAcceptance20261027v8.tail.continuityEvents.outsideInteraction,1);
     assert.equal(f.input.inputCount,1);
   }
 });
@@ -525,7 +533,7 @@ test('Navigation API events permanently end observation and input despite final 
     f.form.__reactFiber$fixture=original;
     assert.equal(f.call({action:'validate',target:op.target}).valid,false);
     assert.equal(f.observe(op).state,'invalidated');assert.equal(f.observe(op).belongsToOriginalDraft,false);
-    assert.equal(f.context.__riftletWebAcceptance20261027v7.tail.continuityEvents[type],1);
+    assert.equal(f.context.__riftletWebAcceptance20261027v8.tail.continuityEvents[type],1);
     assert.equal(f.input.inputCount,1);
   }
 });
@@ -534,7 +542,7 @@ test('trusted editor typing and untrusted external events do not revoke the inpu
   const f=fixture({thread:true}),t=f.target();
   for(const type of ['pointerdown','click','keydown']){f.documentEvent(type,f.editor);f.documentEvent(type,f.body,false);}
   assert.equal(f.call({action:'validate',target:t}).valid,true);
-  assert.equal(f.context.__riftletWebAcceptance20261027v7.tail.continuityEvents.outsideInteraction,0);
+  assert.equal(f.context.__riftletWebAcceptance20261027v8.tail.continuityEvents.outsideInteraction,0);
 });
 
 function threadCommit(f, id = f.businessID) {
@@ -549,7 +557,7 @@ test('v7 root setter observes both real assignments in same-DOM business ABA and
   const descriptor=Object.getOwnPropertyDescriptor(root,'current');assert.equal(typeof descriptor.set,'function');
   threadCommit(f,'local-chatgpt:00000000-0000-0000-0000-000000000000');
   threadCommit(f);
-  const registry=f.context.__riftletWebAcceptance20261027v7;
+  const registry=f.context.__riftletWebAcceptance20261027v8;
   assert.equal([...registry.rootMonitors.values()][0].diagnostics.commits,2);
   assert.equal(f.call({action:'validate',target:old}).valid,false);
   const fresh=f.target();assert.notEqual(fresh.draftGeneration,old.draftGeneration);
@@ -561,7 +569,7 @@ test('v7 same-ID normal commits preserve input and perform one binding check per
   const f=fixture({thread:true}),old=f.target();
   threadCommit(f);assert.equal(f.call({action:'validate',target:old}).valid,true);
   f.windowEvent('blur');f.windowEvent('focus');const fresh=f.target();
-  const monitor=[...f.context.__riftletWebAcceptance20261027v7.rootMonitors.values()][0],before=monitor.diagnostics.checks;
+  const monitor=[...f.context.__riftletWebAcceptance20261027v8.rootMonitors.values()][0],before=monitor.diagnostics.checks;
   threadCommit(f);assert.equal(monitor.diagnostics.checks-before,1);
   assert.equal(f.call({action:'validate',target:fresh}).valid,true);
   assert.equal(f.call({action:'validate',target:old}).valid,false);
@@ -579,7 +587,7 @@ test('v7 checker exceptions and reentrant commits cannot escape into React or ro
     }});
     assert.doesNotThrow(()=>{root.current=next.root;});
     assert.equal(root.current,reentrant?last:next.root);
-    const monitor=[...f.context.__riftletWebAcceptance20261027v7.rootMonitors.values()][0];
+    const monitor=[...f.context.__riftletWebAcceptance20261027v8.rootMonitors.values()][0];
     assert.equal(monitor.diagnostics.reason,reentrant?'REENTRANT_COMMIT':'CHECK_FAILED');
     assert.equal(monitor.diagnostics.stopped,true);
     delete f.form.__reactFiber$fixture;
@@ -594,7 +602,7 @@ test('v7 replaced or frozen root descriptor is permanently disqualified and cann
     else Object.defineProperty(root,'current',{value,writable:true,configurable:true,enumerable:true});
     assert.equal(f.call({action:'validate',target:old}).valid,false);
     assert.throws(()=>f.target(),/ROOT_MONITOR_LOST/);
-    const result=f.context.__riftletWebAcceptance20261027v7.stopRootMonitors();
+    const result=f.context.__riftletWebAcceptance20261027v8.stopRootMonitors();
     assert.equal(result[0].restored,false);
     assert.equal(root.current,value);
   }
@@ -602,7 +610,7 @@ test('v7 replaced or frozen root descriptor is permanently disqualified and cann
 
 test('v7 explicit stop restores only its own descriptor with the latest committed value and cannot rearm old leases', () => {
   const f=fixture({thread:true}),root=f.fibers.root.stateNode,original=Object.getOwnPropertyDescriptor(root,'current'),old=f.target();
-  const next=threadCommit(f);const result=f.context.__riftletWebAcceptance20261027v7.stopRootMonitors();
+  const next=threadCommit(f);const result=f.context.__riftletWebAcceptance20261027v8.stopRootMonitors();
   const restored=Object.getOwnPropertyDescriptor(root,'current');
   assert.equal(result[0].restored,true);assert.equal(restored.value,next.root);
   for(const key of ['enumerable','writable','configurable'])assert.equal(restored[key],original[key]);
@@ -621,9 +629,101 @@ test('v7 ambiguous or replaced original form binding at commit revokes the origi
 });
 
 test('v7 Home does not instrument React roots; unmodifiable thread descriptors refuse before observer registration', () => {
-  const home=fixture();home.target();assert.equal(home.context.__riftletWebAcceptance20261027v7.rootMonitors.size,0);
+  const home=fixture();home.target();assert.equal(home.context.__riftletWebAcceptance20261027v8.rootMonitors.size,0);
   const f=fixture({thread:true}),root=f.fibers.root.stateNode;
   Object.defineProperty(root,'current',{value:root.current,writable:false,configurable:false});
   assert.throws(()=>f.target(),/UNOBSERVED_ROOT_DESCRIPTOR/);
-  assert.equal(f.events.size,0);assert.equal(f.context.__riftletWebAcceptance20261027v7.count,0);
+  assert.equal(f.events.size,0);assert.equal(f.context.__riftletWebAcceptance20261027v8.count,0);
+});
+
+test('R01 body/sidebar interactions keep the original usable composer without focusing its editor', async () => {
+  for(const thread of [false,true]) for(const kind of ['body','sidebar']) {
+    const f=fixture({thread}),outside=kind==='body'?f.body:f.body.append(new f.Node('aside'));
+    const op=f.bind(),beforeText=f.editor.textContent;
+    f.document.activeElement=outside;
+    for(const type of ['pointerdown','click','keydown'])f.documentEvent(type,outside);
+    await Promise.resolve();
+    assert.equal(f.call({action:'validate',target:op.target}).valid,true);
+    assert.equal(f.target().draftGeneration,op.target.draftGeneration);
+    f.stage(op);f.commit(op);await f.settle();
+    assert.equal(f.input.inputCount,1);assert.equal(f.document.activeElement,outside);
+    assert.equal(f.editor.textContent,beforeText);
+    const view=f.makeCard(op);f.finish(view);await f.settle();assert.equal(f.observe(op).state,'attached');
+  }
+});
+
+test('R01 unavailable composer or attachment capability refuses capture without input', () => {
+  const changes=[
+    f=>{f.form.inert=true;}, f=>{f.body.attrs.inert='';}, f=>{f.editor.attrs['aria-hidden']='true';},
+    f=>{f.body.attrs.hidden='';}, f=>{f.editor.attrs['aria-disabled']='true';},
+    f=>{f.editor.attrs.contenteditable='false';},f=>{f.editor.rendered=false;},f=>{f.form.display='none';},
+    f=>{f.editor.visibility='hidden';},f=>{f.input.disabled=true;},f=>{f.input.disabledByFieldset=true;},
+    f=>{f.input.inert=true;},f=>{f.input.attrs['aria-disabled']='true';}
+  ];
+  for(const thread of [false,true])for(const change of changes){
+    const f=fixture({thread});change(f);assert.throws(()=>f.target(),/COMPOSER_UNAVAILABLE|AMBIGUOUS_COMPOSER/);assert.equal(f.input.inputCount,0);
+  }
+});
+
+test('R01 native modal and visible semantic blocking dialog refuse while hidden nonblocking dialogs do not', () => {
+  for(const nativeModal of [false,true]){
+    const f=fixture(),dialog=f.body.append(new f.Node('dialog',{role:'dialog','aria-modal':'true'}));
+    dialog.nativeModal=nativeModal;
+    assert.throws(()=>f.target(),/COMPOSER_UNAVAILABLE/);
+    dialog.attrs.hidden='';dialog.rendered=false;
+    if(nativeModal)assert.throws(()=>f.target(),/COMPOSER_UNAVAILABLE/);
+    else assert.equal(f.target().surface,'webChat');
+  }
+  const f=fixture();f.body.append(new f.Node('dialog',{open:'',role:'dialog'}));
+  assert.equal(f.target().surface,'webChat');
+  const within=fixture();within.form.nativeModal=true;
+  assert.equal(within.target().surface,'webChat'); // A top-layer ancestor does not block its own composer.
+});
+
+test('R01 intentionally hidden unique file input stays usable but duplicate attachment entry refuses', async () => {
+  const f=fixture();f.input.attrs.hidden='';f.input.attrs['aria-hidden']='true';f.input.rendered=false;f.input.display='none';
+  const op=f.bind();f.stage(op);f.commit(op);await f.settle();assert.equal(f.input.inputCount,1);
+  const other=fixture();other.form.append(new other.Input());
+  assert.throws(()=>other.target(),/UNOBSERVED_INPUT_STRUCTURE/);assert.equal(other.input.inputCount,0);
+});
+
+test('R01 final asynchronous commit rechecks blockers and focus without redirecting the frozen target', async () => {
+  const changes=[f=>{f.form.inert=true;},f=>{f.input.disabled=true;},f=>{f.editor.rendered=false;},
+    f=>{f.body.append(new f.Node('div',{role:'alertdialog','aria-modal':'true'}));},f=>f.focus(false)];
+  for(const change of changes){
+    const f=fixture({blockedDigest:true}),op=f.bind();f.stage(op);f.commit(op);change(f);f.release();await f.settle();
+    assert.equal(f.input.inputCount,0);assert.equal(f.observe(op).state,'invalidated');
+  }
+});
+
+test('R01 interaction that actually opens a blocking dialog revokes only input, preserving committed observation', async () => {
+  const f=fixture({thread:true}),op=f.bind();f.stage(op);f.commit(op);await f.settle();const view=f.makeCard(op);f.finish(view);await f.settle();
+  const original=f.observe(op);assert.equal(original.state,'attached');
+  f.documentEvent('click',f.body);
+  const modal=f.body.append(new f.Node('div',{role:'dialog','aria-modal':'true'}));await Promise.resolve();
+  assert.equal(f.call({action:'validate',target:op.target}).valid,false);
+  assert.equal(f.observe(op).state,'attached');assert.equal(f.observe(op).attachmentID,original.attachmentID);
+  modal.attrs.hidden='';modal.rendered=false;
+  assert.equal(f.call({action:'validate',target:op.target}).valid,false);
+  const fresh=f.target();assert.notEqual(fresh.draftGeneration,op.target.draftGeneration);
+  assert.equal(fresh.logicalDraftIdentity.id,op.target.logicalDraftIdentity.id);assert.equal(f.input.inputCount,1);
+});
+
+test('unsupported unobserved business ABA: assert current limitation after ordinary outside interaction', async () => {
+  // Explicit counterexample, NOT fail-closed acceptance. A transient business
+  // change that bypasses the root.current setter, DOM mutation and Navigation
+  // events is indistinguishable from inert interaction at the final snapshot.
+  // Keep this limitation visible alongside the observed-commit ABA rejection.
+  for(const type of ['pointerdown','click','keydown']) {
+    const f=fixture({thread:true}),target=f.target(),original=f.form.__reactFiber$fixture;
+    const monitor=[...f.context.__riftletWebAcceptance20261027v8.rootMonitors.values()][0];
+    f.documentEvent(type,f.body);
+    f.form.__reactFiber$fixture=f.makeFibers('local-chatgpt:00000000-0000-0000-0000-000000000000').leaf;
+    f.form.__reactFiber$fixture=original;
+    await Promise.resolve(); // The outside-interaction recheck sees only final A.
+    assert.equal(monitor.diagnostics.commits,0);
+    assert.equal(f.call({action:'validate',target}).valid,true); // Known unsupported transition class.
+    assert.equal(f.context.__riftletWebAcceptance20261027v8.tail.continuityEvents.outsideInteraction,1);
+    assert.equal(f.input.inputCount,0); // The fixture does not perform an upload.
+  }
 });
