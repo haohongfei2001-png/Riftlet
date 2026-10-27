@@ -2,6 +2,9 @@
 
 > **Latest user product supersession (2026-10-27):** [fast-swallow interaction contract](INTERACTION_CONTRACT_2026-10-27.md). The UI must swallow a screenshot **as soon as its actual upload start is positively evidenced**; it must **not wait for this contract's stricter `verifiedReady` evidence**. The full adapter receipt/retry guarantees below still apply to backend truth and safe retry. No current `inputTriggered`/`attachedCandidate` or placeholder may automatically masquerade as confirmed upload start. Add an independently reviewed per-surface start signal; maintain a separate durable visible/archived state; strong failure may trigger late rebirth while ambiguous outcomes remain hidden internally. This change is **not implemented or production-enabled** by documentation alone.
 
+> **Further user ruling:** classified upload failure must produce **an ordinary clickable reborn image**, not a disabled retry UI. Backend safety should be achieved by improving the evidence boundary for calling something a *failed upload*; cases where the old upload might still complete remain UNKNOWN, not falsely classified as failed. A click on a reborn failure is a user-requested new attempt, never a background automatic replay. A current window with no usable composer/attachment entry never starts upload or swallows; success is visible in the draft itself with **no extra success Toast**. Speed/near-consecutive clicks are optimized only within stability guarantees. This is a product target; the existing production registries remain disabled until real evidence and engineering admission.
+
+
 
 ## Current admission
 
