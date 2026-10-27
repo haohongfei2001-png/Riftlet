@@ -1,3 +1,72 @@
+# 正式工程集成交接 · 第三轮 · 2026-10-27
+
+北京时间。正式分支 `codex/engineering-foundation-20261027` / [Draft PR #1](https://github.com/haohongfei2001-png/Riftlet/pull/1)。root 负责统一集成；本地 Codex 负责真实 Mac 修复与验收。第三轮代码/证据已接入；日常一次点击和生产准入仍未达标，第四轮直接在现有实现上推进。
+
+## 确切来源与本轮修复
+
+| 来源 | SHA / 处理 |
+| --- | --- |
+| 前一正式基线 | `7d6bca6010fdd9098aef879d9734497a79403a03` |
+| 第三轮源码 | helper `11aec0407dbef7e5fcec4be4f7ae03eecbf2749d`；最终源码 `159b3ef3e6c87ea468ba334dff64ad8db640d80c` |
+| 第三轮证据 | `d26c6daafa7073102f5c8848b95fbbd425cdad9c`；最终澄清 `6344eb08c96180d1e675595083333ec860fd62a2`；[原12文件](../engineering/evidence/2026-10-27-real-mac-round3/README.md)逐字节保留 |
+| 正式合流验证输入 | [`aa4fd2b9ed64efb83d9b7c8b29102cbd91d03e2b`](https://github.com/haohongfei2001-png/Riftlet/commit/aa4fd2b9ed64efb83d9b7c8b29102cbd91d03e2b)；保留完整祖先，新增下述 AX 缓存修复 |
+
+非作者 native 审查发现 ChromeActivityObserver 只凭 PID 复用旧 observer：进程退出后 PID 被新实例复用时，事件唤醒可能仍留在旧实例。root 改为同时核对 PID 与 launchDate；启动身份缺失拒绝绑定，stop 同时清理缓存。AX 只是调度提示，不是目标授权，因此该问题影响唤醒可靠性；实际输入的 PID/launch/window/tab 检查未变。修正经非作者复核和完整原生构建/既有回归；**真实 OS PID 复用未执行**，不增造镜像测试或宣称现场复现。
+
+除此文件外产品源码/Tests/构建输入与159b3ef一致。Core、Capture、M1五个后端源码与7d6bca6零差异。原分支、证据、网站/设计和 main 保留；没有写私有数据库、清 UNKNOWN、发布或发送聊天消息。
+
+<!-- ROUND3_INTEGRATION_STATUS -->
+**第三轮完整工程 CI 通过：** 已测正式输入 [`aa4fd2b9ed64efb83d9b7c8b29102cbd91d03e2b`](https://github.com/haohongfei2001-png/Riftlet/commit/aa4fd2b9ed64efb83d9b7c8b29102cbd91d03e2b)，[run 40471069966](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40471069966) / job 122078052804，于 **2026-10-27 16:06:16 北京时间**成功。**228/228 原生**（Capture 48 / Core 73 / UI 17 / Adapters 90）、**38/38 页面 VM**、**8/8 故障工具离线组**、**12/12 只读网络 probe 离线组**、历史回放 55 文件 / 19 用例 / 89 trace 前缀 / 2 明确模拟迟到错误、Release、ad-hoc 签名及三个自检全部通过。实际日志已核对 SQLite v1→v2 迁移/回滚、UNKNOWN、迟到失败补偿、逻辑草稿、预绑定、MAIN 回执和 M1 恢复。
+
+[永久验证记录](../engineering/evidence/2026-10-27-integration-round3/verification.json)、[非作者审查](../engineering/evidence/2026-10-27-integration-round3/review.json)、[实际日志摘录](../engineering/evidence/2026-10-27-integration-round3/ci-excerpt.txt)、[工程制品 12718636844](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40471069966/artifacts/12718636844)。制品 SHA-256 由 GitHub 元数据提供：`fe204a7566b4dc0fb6c0d94d7e7cb4d73d786d36c038278b40985cd624de0d1e`。CI 临时 PR 合并为 `f202d50cad83b9ea132fe3f4d478a08956255752`，检查与当时 main `eba1a4fc77648a665e1d5c1f2609df1314c3b079` 的兼容性；没有合并 main。最终交接只更新文档/记录，未改变已测构建输入。自检明确 `CHROME_NOT_RUN` / `GUI_NOT_RUN`；CI 不扩大真实 Mac 验收范围。
+<!-- END_ROUND3_INTEGRATION_STATUS -->
+
+## 真实证据的准确状态
+
+| 项目 | 继承结论与限制 |
+| --- | --- |
+| AX/预绑定探索 | 318次arm、92次armed，零selection boundary、零input command。来自最终版本前未提交探索工作树，native诊断/helper字段有差异；页面hash相同，不冒充最终二进制首击通过 |
+| v7 root monitor | 三组474/847/79次普通commit检查及显式stop恢复有记录；单次最高7/11.6/3.6ms。证明运行/恢复，未证明真实业务ABA。另slot9读取失败，不宣称遍历了浏览器全部目标 |
+| 系统截图自包含 | **FAIL**：只运行实际capture App、无helper的系统CLI区域截图仍有Riftlet微图，已排除helper来源；`sharingType.none`没有解决该次问题 |
+| 资源 | **PASS_MEASUREMENT_ONLY**：实际capture-only App，约600秒/61内核样本，含一次CLI截图收录，没有上传。启动后RSS32.61–55.00MiB、末45.875MiB，footprint18.83–25.00MiB；interrupt wakeups增299。CPU0.73秒来自归档ps累计摘要，约单核0.12%，不是峰值或Web/monitor负载认证 |
+| 收录与延迟 | 一次系统CLI区域截图收录5→6 pending，零生产操作；不是用户快捷键闭环。mtime→import约234ms、firstSeen→import约162ms，仅局部指标；完整T0/T1/T2未取得 |
+| GUI探索 | 未冻结完整源码的早期helper有局部非激活/重复点击观察；CUA GAP仅事件4单点到底层、零选择。CLEAR坐标未命中；不能把窗口预测当实际穿透PASS/FAIL |
+| 完整首击 / 业务转换 / MID / 物理N1 | **未完成**。本轮没有新真实上传、没有真实运行MID probe、没有abort；38页面/12probe离线不能替代这些验收 |
+| 数据保留 | 原15份私有媒体字节、资产、operation identity/attempt/target/phase与3份补偿审计保留；恢复改变了部分updated_at/reason/receipt_json，不能称全部operation行逐字不变 |
+
+[原始README](../engineering/evidence/2026-10-27-real-mac-round3/README.md)、[资源摘要](../engineering/evidence/2026-10-27-real-mac-round3/capture-resources.json)、[GUI来源](../engineering/evidence/2026-10-27-real-mac-round3/gui-review.md)、[数据保留](../engineering/evidence/2026-10-27-real-mac-round3/preservation.json)保留精确范围。本会话只审查归档与CI，没有操作本地Mac。第二轮普通线程成功、后台DOM补偿及真实POST100中断仍是原v6源码的历史局部事实，不扩大为当前v7新验收。
+
+## 现行约束与产品缺陷
+
+- 新 Chrome AX observer 只使用已有授权，不弹提示；只读 focused-window handle，不读标题/正文。对应用/window对象请求设置50ms messaging timeout，但设置返回值未检查，未验证硬截止；总启动耗时需另测。hover/AX只唤醒现有single-flight；不授予身份，不追认被拒点击。App与transport两个logger**各自**上限2048，transportSucceeded不等于已发布ACK。
+- v7 root.current monitor 会改变真实页面属性的反射语义；只覆盖普通setter赋值，不能覆盖原地props ABA、defineProperty绕过再恢复或安装前历史。每form每commit检查，最多4个root；Home不安装。显式stop只恢复自身仍拥有的descriptor和最新value，失效墓碑不能rearm。性能峰值与真实业务转换仍需验收，不能直接生产启用。
+- **跨版本恢复缺口OPEN**：v7不读取旧v6 registry，旧操作部分持续观察能力丧失；不自动搬迁或重放。原数据库/媒体/私有备份保留，供原版本审计；保留数据不等于恢复能力完成。下一步仅研究/实现原操作版本路由的只读观察，不能因此回填目标或恢复输入权。
+- **透明区域风险OPEN**：原whole-row mouseDown/mouseUp接受路径与前版完全一致；预测CLEAR命中row不是实击证据。先做准确CLEAR与GAP自动化控制试验；若证实误选，按真实图/数字命中区最小修复。拒绝选择也不自动证明穿透；不拿hitTest(nil)、事件转发或推测多窗口重写代替验收。
+- 普通capture仍UnavailableAdapter；Web仅synthetic验收，生产截图上传/吞噬、安全重试和Mac客户端profiles继续关闭。原UNKNOWN、补偿、legacy nil全tab锁、一次输入和完整receipt身份不放宽。原附件退役/无残留重试契约及开发容量上限继续保留。
+
+## 第四轮直接动作
+
+保持旧三个验收分支及私有数据，基于PR #1最新正式HEAD建立工作树并记录SHA：
+
+```bash
+git fetch origin codex/engineering-foundation-20261027
+git worktree add -b codex/riftlet-real-mac-round4-20261027 ../Riftlet-real-mac-round4 FETCH_HEAD
+git -C ../Riftlet-real-mac-round4 rev-parse HEAD
+```
+
+1. 恢复可可靠控制的精确测试标签后，用现有trace完成一组真实冷首击及真实同tab业务A→B→A/同URL切换。保存event→ACK→冻结→唯一输入证据，不用普通commit计数或重复成功图累加替代。没有发言框焦点不应成为正常使用的额外前置操作；不得放松原目标连续性。
+2. 处理v6→v7只读恢复兼容性及monitor停止后的生命周期；只观察原操作。对实际PID重启/重绑补局部验收，不为此要求人为制造PID复用作为全工程前提。
+3. 首先实际运行已有只读MID probe，绑定大图byte transport/body/hash；确认链路后再独立做真实中段中断/恢复。两同名JSON不算retry，没有命中仍NOT_EXERCISED。
+4. 展示底层helper并核对实时坐标/接收窗口，执行一个准确CLEAR与GAP控制点，再测按住补位和替换行双击、跨应用键盘焦点、全屏/屏幕变化。代理事件标自动化，物理来源未证实则不称物理PASS；不新增日常用户步骤或把验收安排成用户审批。
+5. 自包含已确认FAIL，沿现有系统截图入口核实可支持的原生排除方案与边界，再增量修复；不能把sharingType.none或未经实测的提前隐藏当保证。补齐capture-done T0、完整文件T1和可点T2；已有capture-only资源基线保留，Web+monitor负载单独测。
+
+沿用现有构建、自检和[MAC_ACCEPTANCE](MAC_ACCEPTANCE.md)，每项留精确源码/输入来源/范围。root统一集成，本地Codex真机执行；没有新增发布或品牌依赖。
+
+## 第二轮及以前交接（历史保留）
+
+<details>
+<summary>7d6bca6及此前检查点；现行状态以上文为准</summary>
+
 # 正式工程集成交接 · 第二轮 · 2026-10-27
 
 北京时间。唯一正式工程分支为 `codex/engineering-foundation-20261027` / [Draft PR #1](https://github.com/haohongfei2001-png/Riftlet/pull/1)。root 完成正式集成、CI 与非作者审查；本地 Codex 继续负责真实 Mac 执行、修复与验收。第三轮从此正式分支最新检查点直接续做，不重做基础模块或总体规划。
@@ -147,5 +216,7 @@ git worktree add -b codex/riftlet-real-mac-round2-20261027 ../Riftlet-real-mac-r
 ## 第二轮本地 Mac 候选交接（2026-10-27）
 
 独立分支 `codex/riftlet-real-mac-round2-20261027` 基于本文件正式检查点 c1456534；源码 `fff0e8c090f125211b35a56e7a16abef61109fb1` 已通过完整 CI 227 原生/31 页面测试和真实普通线程、POST100 XHR 中断、原操作后台观察/补偿的局部验收。详见[第二轮报告](../engineering/evidence/2026-10-27-real-mac-round2/README.md)。这是待 Pro 技术集成的候选，不是本文件上方正式分支已经合入的声明。生产与重试仍关闭；尤其无事件的业务身份 A→B→A、UX-01 全场景和物理 N1 未准入。原分支/数据库/媒体/补偿审计保留，不能清理 UNKNOWN 来继续演示。
+
+</details>
 
 </details>
