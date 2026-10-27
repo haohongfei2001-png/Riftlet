@@ -203,7 +203,7 @@ final class ReleaseCaptureTests: XCTestCase {
         XCTAssertEqual(try f.files("journal"), [journal])
         XCTAssertEqual(try f.files("media").count, 1)
         XCTAssertEqual(try Data(contentsOf: f.privateRoot.appendingPathComponent("media").appendingPathComponent(record.image.fileName)),
-                       Data(contentsOf: url))
+                       try Data(contentsOf: url))
     }
 
     func testPNGJPEGAndTIFFPreserveExactBytesColorProfileAndEncodedDimensions() async throws {
@@ -255,7 +255,7 @@ final class ReleaseCaptureTests: XCTestCase {
         XCTAssertEqual(record.image.pixelWidth, 40)
         XCTAssertEqual(record.image.pixelHeight, 20)
         let media = f.privateRoot.appendingPathComponent("media").appendingPathComponent(record.image.fileName)
-        XCTAssertEqual(try Data(contentsOf: media), Data(contentsOf: url))
+        XCTAssertEqual(try Data(contentsOf: media), try Data(contentsOf: url))
         let source = try XCTUnwrap(CGImageSourceCreateWithURL(media as CFURL, nil))
         let properties = try XCTUnwrap(CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any])
         XCTAssertEqual((properties[kCGImagePropertyOrientation] as? NSNumber)?.intValue, 6)
