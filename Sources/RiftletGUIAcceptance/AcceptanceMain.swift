@@ -846,18 +846,80 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
             self.records = SyntheticScene.displaying(.used, assetID: firstRow.assetID, in: self.records)
             self.rift?.render(self.records)
             self.refreshTargets()
-            guard scene == self.sceneGeneration, let current = self.rift?.diagnosticSnapshot,
-                  current.rows.map({ $0.assetID }) == snapshot.rows.dropFirst().map({ $0.assetID }),
-                  let moved = current.rows.first, moved.assetID == replacement.assetID,
-                  moved.imageInputWindowNumber == replacement.imageInputWindowNumber,
-                  moved.imageClipFrame.contains(point), moved.imageInputFrame.contains(point),
-                  self.ownedProbeStack(at: point, snapshot: current) != nil,
-                  self.softwareProbeUnavailable() == nil,
-                  NSWorkspace.shared.frontmostApplication?.processIdentifier == beforePID,
-                  NSApp.keyWindow?.windowNumber == beforeKey,
-                  ProcessInfo.processInfo.systemUptime + 0.02 - firstDown.time < interval else {
-                self.record("software_double_case", ["result": "INCONCLUSIVE", "reason": "replacementOrTimingGuard",
-                    "secondPairVerdict": "NOT_RUN", "pairsPosted": 1, "systemDoubleClickInterval": interval]); return
+            // AppKit's model frame may precede the WindowServer update. Yield
+            // only for read-only samples, under the original first-down deadline.
+            let postingDeadline = firstDown.time + interval - 0.02
+            var readySnapshot: RiftDiagnosticSnapshot?
+            var lastReason = "notSampled"
+            var samples = 0
+            var reasonCounts: [String: Int] = [:]
+            var lastFields: [String: Any] = [:]
+            while samples < 64 {
+                guard !Task.isCancelled else { lastReason = "cancelled"; break }
+                guard ProcessInfo.processInfo.systemUptime < postingDeadline else { lastReason = "originalIntervalExpired"; break }
+                samples += 1
+                guard scene == self.sceneGeneration else { lastReason = "sceneChanged"; break }
+                guard !first.interference else { lastReason = "inputInterference"; break }
+                if let unavailable = self.softwareProbeUnavailable() {
+                    lastReason = unavailable; break
+                }
+                guard NSWorkspace.shared.frontmostApplication?.processIdentifier == beforePID,
+                      NSApp.keyWindow?.windowNumber == beforeKey else { lastReason = "focusChanged"; break }
+                guard let candidate = self.rift?.diagnosticSnapshot,
+                      candidate.rows.map({ $0.assetID }) == snapshot.rows.dropFirst().map({ $0.assetID }),
+                      let moved = candidate.rows.first, moved.assetID == replacement.assetID,
+                      moved.imageInputWindowNumber == replacement.imageInputWindowNumber else {
+                    lastReason = "replacementIdentityChanged"; break
+                }
+                let nativeFrame = self.nativeInputFrame(windowNumber: moved.imageInputWindowNumber,
+                                                        primaryFrame: primary.frame)
+                let stack = self.ownedProbeStack(at: point, snapshot: candidate)
+                let top = NSWindow.windowNumber(at: point, belowWindowWithWindowNumber: 0)
+                let firstInteractive = stack?.first(where: { number in
+                    NSApp.windows.first(where: { $0.windowNumber == number })?.ignoresMouseEvents == false
+                })
+                lastFields = ["sampleUptime": ProcessInfo.processInfo.systemUptime,
+                    "nativeFrame": nativeFrame.map { self.rectFields($0) } ?? [:],
+                    "nativeFrameAvailable": nativeFrame != nil,
+                    "modelFrame": self.rectFields(moved.imageInputFrame),
+                    "queriedTopWindow": top, "queriedOwnedWindowStack": stack ?? [],
+                    "firstInteractiveWindow": firstInteractive ?? 0]
+                if !moved.imageClipFrame.contains(point) || !moved.imageInputFrame.contains(point) {
+                    lastReason = "modelFrameNotAtFrozenPoint"
+                } else if nativeFrame == nil {
+                    lastReason = "nativeFrameUnavailable"
+                } else if nativeFrame?.contains(point) != true {
+                    lastReason = "nativeFrameNotAtFrozenPoint"
+                } else if stack == nil {
+                    lastReason = "nativeOwnedStackUnavailable"
+                } else if firstInteractive != moved.imageInputWindowNumber {
+                    lastReason = "replacementNotFirstInteractiveWindow"
+                } else {
+                    lastReason = "ready"; readySnapshot = candidate; break
+                }
+                reasonCounts[lastReason, default: 0] += 1
+                do { try await Task.sleep(nanoseconds: 5_000_000) }
+                catch { lastReason = "cancelled"; break }
+            }
+            let retryableReasons: Set<String> = ["modelFrameNotAtFrozenPoint", "nativeFrameUnavailable",
+                "nativeFrameNotAtFrozenPoint", "nativeOwnedStackUnavailable", "replacementNotFirstInteractiveWindow"]
+            if samples == 64 && readySnapshot == nil && retryableReasons.contains(lastReason)
+                && ProcessInfo.processInfo.systemUptime < postingDeadline {
+                lastReason = "nativeSampleLimitReached"
+            }
+            var waitFields: [String: Any] = ["samples": samples, "reason": lastReason,
+                "reasonCounts": reasonCounts, "postingDeadline": postingDeadline,
+                "originalFirstDownEventUptime": firstDown.time, "systemDoubleClickInterval": interval,
+                "replacementAssetID": replacement.assetID.uuidString,
+                "replacementWindow": replacement.imageInputWindowNumber,
+                "lastNativeSample": lastFields, "secondPairPosted": false]
+            self.record("software_double_replacement_wait", waitFields)
+            guard let current = readySnapshot, let moved = current.rows.first,
+                  ProcessInfo.processInfo.systemUptime < postingDeadline else {
+                if readySnapshot != nil { lastReason = "originalIntervalExpiredAfterSample" }
+                waitFields["result"] = "INCONCLUSIVE"; waitFields["reason"] = lastReason
+                waitFields["secondPairVerdict"] = "NOT_RUN"; waitFields["pairsPosted"] = 1
+                self.record("software_double_case", waitFields); return
             }
             self.record("software_double_replacement", ["removedAssetID": firstRow.assetID.uuidString,
                 "replacementAssetID": moved.assetID.uuidString, "replacementWindow": moved.imageInputWindowNumber,
@@ -865,6 +927,17 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
                 "systemDoubleClickInterval": interval, "firstDownEventUptime": firstDown.time, "receiptEvidence": false])
             let second = SoftwarePointerProbe.Receipt(name: "DOUBLE_SECOND", expectedAsset: moved.assetID,
                 expectedWindow: moved.imageInputWindowNumber, expectedPoint: point, radius: 1.5)
+            let finalRefusal: String?
+            if ProcessInfo.processInfo.systemUptime >= postingDeadline { finalRefusal = "originalIntervalExpiredBeforePost" }
+            else if let unavailable = self.softwareProbeUnavailable() { finalRefusal = unavailable }
+            else if first.interference { finalRefusal = "inputInterference" }
+            else if scene != self.sceneGeneration { finalRefusal = "sceneChanged" }
+            else if self.rift?.diagnosticSnapshot.rows != current.rows { finalRefusal = "geometryChangedBeforePost" }
+            else { finalRefusal = nil }
+            if let finalRefusal {
+                self.record("software_double_case", ["result": "INCONCLUSIVE", "reason": finalRefusal,
+                    "secondPairVerdict": "NOT_RUN", "pairsPosted": 1]); return
+            }
             guard self.postDoublePair(second, point: quartz, clickCount: 2) else {
                 self.record("software_double_case", ["result": "INCONCLUSIVE", "reason": "secondAllocationFailed", "pairsPosted": 1]); return
             }
@@ -891,6 +964,18 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
                 "geometryStable": geometryStable, "coordinatesMatch": first.coordinatesMatch && second.coordinatesMatch,
                 "interference": first.interference || second.interference])
         }
+    }
+
+    /// WindowServer metadata, not an AppKit model frame and not a screenshot.
+    private func nativeInputFrame(windowNumber: Int, primaryFrame: CGRect) -> CGRect? {
+        guard windowNumber > 0,
+              let windows = CGWindowListCopyWindowInfo(.optionIncludingWindow, CGWindowID(windowNumber)) as? [[String: Any]],
+              let item = windows.first(where: { ($0[kCGWindowNumber as String] as? NSNumber)?.intValue == windowNumber }),
+              (item[kCGWindowOwnerPID as String] as? NSNumber)?.int32Value == ProcessInfo.processInfo.processIdentifier,
+              (item[kCGWindowIsOnscreen as String] as? NSNumber)?.boolValue == true,
+              let bounds = item[kCGWindowBounds as String] as? [String: Any],
+              let quartzFrame = CGRect(dictionaryRepresentation: bounds as CFDictionary) else { return nil }
+        return SoftwarePointerProbe.appKitFrame(quartzFrame, primaryFrame: primaryFrame)
     }
 
     /// Query-only safety guard. Walk past this helper's known visual/input

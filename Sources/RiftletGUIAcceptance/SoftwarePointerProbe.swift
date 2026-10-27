@@ -9,6 +9,11 @@ enum SoftwarePointerProbe {
         CGPoint(x: point.x, y: primaryFrame.maxY - point.y)
     }
 
+    static func appKitFrame(_ quartzFrame: CGRect, primaryFrame: CGRect) -> CGRect {
+        CGRect(x: quartzFrame.minX, y: primaryFrame.maxY - quartzFrame.maxY,
+               width: quartzFrame.width, height: quartzFrame.height)
+    }
+
     /// Reposition only the existing helper control/probe window. Use actual
     /// AppKit screen frames; a portrait or negative-origin display needs no scale.
     static func probeControlFrame(current: CGRect, visibleScreen: CGRect) -> CGRect {
@@ -23,7 +28,10 @@ enum SoftwarePointerProbe {
         enum Failure: Error { case geometry, verdict }
         let primary = CGRect(x: 0, y: 0, width: 1440, height: 900)
         guard quartzPoint(CGPoint(x: 20, y: 850), primaryFrame: primary) == CGPoint(x: 20, y: 50),
-              quartzPoint(CGPoint(x: -50, y: 950), primaryFrame: primary) == CGPoint(x: -50, y: -50) else {
+              quartzPoint(CGPoint(x: -50, y: 950), primaryFrame: primary) == CGPoint(x: -50, y: -50),
+              appKitFrame(CGRect(x: -34, y: 208, width: 26, height: 56),
+                          primaryFrame: CGRect(x: 0, y: 0, width: 1920, height: 1080))
+                == CGRect(x: -34, y: 816, width: 26, height: 56) else {
             throw Failure.geometry
         }
         let narrowed = CGRect(x: 223, y: 0, width: 1474, height: 1080)
