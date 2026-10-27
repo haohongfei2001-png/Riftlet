@@ -1,5 +1,7 @@
 # Riftlet 自主并行执行队列
 
+> **第七轮独立交接（2026-10-27）**：源码 `9de6a85b0161713833dc25e3b3eb1e1a2f81a558`；[macOS CI 40525056642](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40525056642) PASS。真实双图在原目标 FIFO 中 B prepared→A succeeded→B 唯一输入，两张最终成功；冷首击 ACK 晚于点击 26.742 ms 仍 FAIL。CLEAR 防误选修复已真实 CGEvent 复测，透传仍 FAIL；GAP/IMAGE/NUMBER 仅软件路由 PASS，人工物理 NOT_RUN。[第七轮证据与 Pro 交接](../engineering/evidence/2026-10-27-real-mac-round7/README.md)。保留 v3、旧媒体/UNKNOWN/审计，不启用生产输入/重传；正式集成由 Pro 负责。
+
 > **第六轮独立真机增量（2026-10-27）**：Web v12 分块优化真实点击至 AppKit 关闭 5.51→3.67 秒（单次对照），无 ACK 冷首击已真实复现安全拒绝；同草稿第二图明确在 Core targetBusy 被取消、未输入。Core/UI/App 不改，Pro 安装专项不混入。源码/CI/保留核验/顺序调度提案见 [第六轮交接](../engineering/evidence/2026-10-27-real-mac-round6/README.md)。生产截图与安全重试仍关闭；首击与连续点击不标整体验收通过。
 
 

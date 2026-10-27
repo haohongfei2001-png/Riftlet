@@ -1,4 +1,5 @@
 import AppKit
+import CryptoKit
 import ImageIO
 import UniformTypeIdentifiers
 import Darwin
@@ -129,18 +130,28 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private var archiveNotBefore: TimeInterval = 0
     private var archiveClock: (wall: Date, uptime: TimeInterval)?
     private var completionWatch: Task<Void, Never>?
+    private var originalRecoveryIDs: [UUID]?
+    private var originalRecoveryTask: Task<Void, Never>?
+    private var startupCompletedIDs = Set<UUID>()
     private var targetArmer: Task<Void, Never>?
     private var armScheduler = TargetArmScheduler()
     private var armingAdapter: (any AttachmentAdapter)?
     private var activationObserver: NSObjectProtocol?
     private var lastForegroundSession: String?
     private var diagnosticEvents = 0
+    private var visibilityTrace = AcceptanceTraceDeduplicator<UUID, [String]>()
+    private var readyTrace = AcceptanceTraceDeduplicator<UUID, [String]>()
     private var pendingArmReason = "startup"
     private var chromeActivity: ChromeActivityObserver?
     private var armedTarget: ArmedTarget?
     private var armedCaptureDiagnostics: CapturedTargetDiagnostics?
     private var activeCaptureInvocation: CaptureInvocationContext?
-    private var frozenPress: (id: UUID, target: TargetLease?, refusalReason: String)?
+    private var frozenPress: (id: UUID, target: TargetLease?, refusalReason: String,
+        eventUptime: TimeInterval, acceptedUptime: TimeInterval, acknowledgedUptime: TimeInterval?, epoch: UUID,
+        captureRequestID: UUID?, armAttemptID: UUID?)?
+    private let selectionAuthority = SelectionAuthority()
+    private let selectionSubmissions = SelectionSubmissionQueue()
+    private var selectionUIOwners: [UUID: UUID] = [:]
     private var armSession = UUID()
     private var wakeObserver: NSObjectProtocol?
     private var watchedCompletions = Set<UUID>()
@@ -184,8 +195,11 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         if let permissionActivationObserver { NSWorkspace.shared.notificationCenter.removeObserver(permissionActivationObserver) }
         if let permissionWakeObserver { NSWorkspace.shared.notificationCenter.removeObserver(permissionWakeObserver) }
         completionWatch?.cancel()
+        originalRecoveryTask?.cancel()
         archiveTask?.cancel()
         targetArmer?.cancel()
+        cancelSelections(reason: "termination")
+        selectionSubmissions.stop()
         armScheduler.stop(); armedTarget = nil; frozenPress = nil
         armedCaptureDiagnostics = nil
         chromeActivity?.stop()
@@ -245,25 +259,47 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             holdsSelectionUntilFinished: true, interactionFence: interactionFence,
             onRemove: { [weak self] id in self?.removeVisible(id) }) { [weak self] id in
             guard let self else { return }
-            let frozen = self.frozenPress?.id == id ? self.frozenPress?.target : nil
+            let press = self.frozenPress?.id == id ? self.frozenPress : nil
+            let frozen = press?.target
             let revision = self.rift?.selectionRevision(for: id)
             self.frozenPress = nil
-            Task {
+            var accepted: AcceptedSelection?
+            if self.mode == .webAcceptance, let press, let target = frozen, let revision, let ack = press.acknowledgedUptime {
+                let token = AcceptedSelection(assetID: id, target: target, hostEpoch: press.epoch,
+                    acknowledgedUptime: ack, eventUptime: press.eventUptime, acceptedUptime: press.acceptedUptime,
+                    visibilityRevision: revision, deadlineUptime: press.acceptedUptime + 30,
+                    captureRequestID: press.captureRequestID, armAttemptID: press.armAttemptID)
+                if self.selectionAuthority.insert(token, now: ProcessInfo.processInfo.systemUptime) { accepted = token }
+            }
+            let originalSelection = accepted
+            let selectionOwner = originalSelection?.id ?? UUID()
+            self.selectionUIOwners[id] = selectionOwner
+            let submit: @MainActor (UInt64) async -> Void = { ordinal in
+                self.recordAcceptance(["event": "selection_submission_started", "selectionOrdinal": ordinal,
+                    "assetID": id.uuidString, "uptime": ProcessInfo.processInfo.systemUptime])
                 guard self.mode != .webAcceptance || self.watchedCompletions.count < 64 else {
                     self.showIssue("Acceptance observation limit reached; images retained.")
-                    self.rift?.finishSelection(id)
+                    self.cancelOriginalSelection(originalSelection, reason: "observationLimit")
+                    self.finishOriginalSelection(id, token: originalSelection, revision: revision, ownerID: selectionOwner)
                     return
                 }
                 do {
-                    if self.mode == .webAcceptance {
-                        self.automationPermission = await self.inspectAutomationPermission(reason: "selection", assetID: id)
+                    if self.mode == .webAcceptance, originalSelection == nil {
+                        self.applyAutomationPermission(await self.inspectAutomationPermission(reason: "selection", assetID: id, expectedSession: frozen?.sessionID))
                         guard self.automationPermission == .granted else {
                             self.rift?.setFeedback("Chrome 附件访问暂不可用；图片保留。请在运行状态中查看原因。", for: id)
-                            self.rift?.finishSelection(id); self.updateSetup()
+                            self.finishOriginalSelection(id, token: originalSelection, revision: revision, ownerID: selectionOwner); self.updateSetup()
                             return
                         }
                     }
-                    if self.mode == .webAcceptance { try await self.transfer?.select(id, frozenTarget: frozen, visibilityRevision: revision) }
+                    if self.mode == .webAcceptance {
+                        if let originalSelection { try await self.transfer?.select(originalSelection) }
+                        else {
+                            // No original pre-event ACK: the old path may only
+                            // reconcile an existing operation, never capture.
+                            try await self.transfer?.select(id, frozenTarget: nil, visibilityRevision: revision)
+                        }
+                    }
                     else { try await self.transfer?.select(id, visibilityRevision: revision) }
                     if let record = try await self.store?.asset(id: id), record.visibility == .visible,
                        let operationID = record.activeOperationID, record.status == .failed {
@@ -275,13 +311,33 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                     if self.mode == .webAcceptance {
                         self.setupIssue = ProductStatus.clickIssue(error,
                             frontmostBundleID: NSWorkspace.shared.frontmostApplication?.bundleIdentifier, webAcceptance: true)
-                        if self.setupIssue == .permissionDenied { self.automationPermission = .denied }
+                        if self.setupIssue == .permissionDenied { self.applyAutomationPermission(.denied) }
                     }
                     self.rift?.setFeedback(self.mode == .capture ? "此版本尚未启用真实截图附加；图片保留。"
                         : "当前附件目标暂不可用；图片保留，可在运行状态中查看原因。", for: id)
+                    self.cancelOriginalSelection(originalSelection, reason: "selectionRejected")
+                    self.finishOriginalSelection(id, token: originalSelection, revision: revision, ownerID: selectionOwner)
                     self.updateSetup()
                 }
+                self.finishOriginalSelection(id, token: originalSelection, revision: revision, ownerID: selectionOwner)
                 await self.refresh()
+            }
+            guard self.mode == .webAcceptance else {
+                Task { await submit(0) }
+                return
+            }
+            let ordinal = self.selectionSubmissions.enqueue(selectionID: originalSelection?.id,
+                deadline: originalSelection?.deadlineUptime,
+                cancelled: { [weak self] in
+                    self?.cancelOriginalSelection(originalSelection, reason: "submissionCancelled")
+                    self?.finishOriginalSelection(id, token: originalSelection, revision: revision, ownerID: selectionOwner)
+                }, run: submit)
+            if let ordinal {
+                self.recordAcceptance(["event": "selection_enqueued", "selectionOrdinal": ordinal,
+                    "assetID": id.uuidString, "uptime": ProcessInfo.processInfo.systemUptime])
+            } else {
+                self.cancelOriginalSelection(originalSelection, reason: "submissionLimit")
+                self.finishOriginalSelection(id, token: originalSelection, revision: revision, ownerID: selectionOwner)
             }
         }
         rift?.setUserHidden(userHidden)
@@ -306,15 +362,27 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         }
         let transfer = TransferCoordinator(store: store, adapter: adapter, mediaDirectory: root.appendingPathComponent("media"),
             policy: policy, onChange: { [weak self] in await self?.refresh() },
-            onSelectionSettled: { [weak self] id in await self?.finishPreparedSelection(id) })
+            onSelectionSettled: { [weak self] id in await self?.finishPreparedSelection(id) },
+            onAcceptedSelectionSettled: { [weak self] selection in
+                await self?.finishOriginalSelection(selection.assetID, token: selection, revision: selection.visibilityRevision)
+            }, onAcceptedSelectionFinished: { [weak self] id in
+                await self?.selectionAuthority.finish(id)
+            }, validateAcceptedSelection: { [weak self] selection in
+                await self?.validateAcceptedSelection(selection) ?? false
+            })
         self.transfer = transfer
         armingAdapter = mode == .webAcceptance ? adapter : nil
         // Durable crash recovery remains local even when Automation is denied.
         // No page observation is attempted until a passive check says allowed.
         try await store.recoverInterruptedOperations()
+        originalRecoveryIDs = try await store.unresolvedOperations().map(\.id)
+        startupCompletedIDs = mode != .capture ? Set(try await store.successfulOperations().map(\.id)) : []
+        recordAcceptance(["event": "local_recovery_complete", "uptime": ProcessInfo.processInfo.systemUptime])
         if mode == .webAcceptance {
+            // Process identity only, not permission or a page/attachment lease.
+            lastForegroundSession = foregroundChromeSession
             installPassivePermissionRecovery()
-            automationPermission = await inspectAutomationPermission(reason: "startup")
+            applyAutomationPermission(await inspectAutomationPermission(reason: "startup"))
         }
         try await startAttachmentObservationIfPermitted()
         if mode != .capture {
@@ -352,7 +420,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             guard let self else { return .unavailable }
             return await self.inspectAutomationPermission(reason: "passiveResume")
         }, onResult: { [weak self] result in
-            self?.automationPermission = result; self?.updateSetup()
+            self?.applyAutomationPermission(result); self?.updateSetup()
         }, resume: { [weak self] in
             guard let self, !self.terminating else { return }
             do { try await self.startAttachmentObservationIfPermitted() }
@@ -366,6 +434,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                     guard let self, !self.attachmentObservationStarted,
                           let app = note.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication,
                           app.bundleIdentifier == "com.google.Chrome" else { return }
+                    self.lastForegroundSession = self.foregroundChromeSession
                     self.permissionResumer?.request()
                 }
             }
@@ -379,16 +448,18 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     }
 
     /// Measure the existing passive check without caching authorization or
-    /// changing its target selection. Only acceptance trace logs these bounds.
+    /// substituting another process for an original selection. Only acceptance
+    /// trace logs these bounds; a session string grants no page authority.
     private func inspectAutomationPermission(reason: String, assetID: UUID? = nil,
-                                             invocation: CaptureInvocationContext? = nil) async -> AutomationPermissionState {
+                                             invocation: CaptureInvocationContext? = nil,
+                                             expectedSession: String? = nil) async -> AutomationPermissionState {
         let started = ProcessInfo.processInfo.systemUptime
-        let result = await permissionGate.inspect()
+        let result = await permissionGate.inspect(expectedSession: expectedSession)
         guard mode == .webAcceptance, CommandLine.arguments.contains("--acceptance-trace") else { return result }
         var fields: [String: Any] = ["event": "permission_check", "purpose": reason,
             "permissionRequestID": UUID().uuidString, "startedUptime": started,
             "endedUptime": ProcessInfo.processInfo.systemUptime, "result": String(describing: result),
-            "askedUser": false]
+            "askedUser": false, "originalSessionBound": expectedSession != nil]
         if let assetID { fields["assetID"] = assetID.uuidString }
         if let invocation {
             fields["captureRequestID"] = invocation.requestID.uuidString
@@ -399,28 +470,49 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         return result
     }
 
+    private func startOriginalRecovery() {
+        guard !terminating, let ids = originalRecoveryIDs, let transfer else { return }
+        originalRecoveryIDs = nil
+        originalRecoveryTask = Task { [weak self] in
+            guard let self else { return }
+            defer { self.originalRecoveryTask = nil }
+            self.recordAcceptance(["event": "original_recovery_started", "uptime": ProcessInfo.processInfo.systemUptime,
+                "operationCount": ids.count])
+            do {
+                // Recheck permission independently after prebinding. This never
+                // captures a target or replays a previously refused selection.
+                if self.mode == .webAcceptance {
+                    self.applyAutomationPermission(await self.inspectAutomationPermission(reason: "originalRecovery"))
+                    guard self.automationPermission == .granted else { return }
+                }
+                try Task.checkCancellation()
+                try await transfer.recoverOriginalObservations(operationIDs: ids)
+            } catch { self.setupIssue = .targetUnavailable; self.updateSetup() }
+            self.recordAcceptance(["event": "original_recovery_finished", "uptime": ProcessInfo.processInfo.systemUptime])
+        }
+    }
+
     private func startAttachmentObservationIfPermitted() async throws {
-        guard !terminating, !attachmentObservationStarted, !attachmentObservationStarting, let transfer, let store,
+        guard !terminating, !attachmentObservationStarted, !attachmentObservationStarting, let transfer,
               mode != .webAcceptance || automationPermission == .granted else { return }
         attachmentObservationStarting = true
         defer { attachmentObservationStarting = false }
-        // Same original-operation recovery as before. No new input is created.
-        try await transfer.recover()
-        let completedIDs = mode != .capture ? Set(try await store.successfulOperations().map(\.id)) : Set<UUID>()
+        // All local recovery/snapshots completed before any arming or selection.
+        // Remote observation is original-ID-only and cannot reset newer operations.
         try Task.checkCancellation()
         guard !terminating else { return }
-        // Finish all throwing work before installing tasks/observers. A failed
-        // recovery can then be retried without duplicate watchers or a false latch.
-        if mode == .webAcceptance, let armingAdapter { startArming(adapter: armingAdapter) }
-        watchedCompletions = completedIDs
+        watchedCompletions = startupCompletedIDs
         attachmentObservationStarted = true
+        if mode == .webAcceptance, let armingAdapter { startArming(adapter: armingAdapter) }
+        else { startOriginalRecovery() }
         guard mode != .capture else { return }
         completionWatch = Task { [weak self] in
             while !Task.isCancelled {
                 do { try await Task.sleep(nanoseconds: self?.simulation == true ? 400_000_000 : 5_000_000_000) } catch { return }
                 guard let self else { return }
+                guard self.originalRecoveryTask == nil, self.originalRecoveryIDs == nil else { continue }
                 if self.mode == .webAcceptance {
-                    self.automationPermission = await self.inspectAutomationPermission(reason: "backgroundObservation")
+                    self.applyAutomationPermission(await self.inspectAutomationPermission(reason: "backgroundObservation"))
                     self.updateSetup()
                     guard self.automationPermission == .granted else {
                         self.armedTarget = nil; self.armedCaptureDiagnostics = nil; self.frozenPress = nil
@@ -515,7 +607,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                     if setupIssue == .sourceAccess, captureStatus?.sourceAccessible == true { setupIssue = nil }
                 } catch { receiveCaptureDiagnostic(.classify(error, context: .source)) }
             }
-            automationPermission = await inspectAutomationPermission(reason: "setupRecheck")
+            applyAutomationPermission(await inspectAutomationPermission(reason: "setupRecheck"))
             do { try await startAttachmentObservationIfPermitted() }
             catch { setupIssue = .targetUnavailable }
             await refresh()
@@ -561,7 +653,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         updateSetup()
         Task {
             defer { requestingPermission = false; updateSetup() }
-            automationPermission = await permissionGate.requestFromUserAction()
+            applyAutomationPermission(await permissionGate.requestFromUserAction(expectedSession: lastForegroundSession))
             if automationPermission == .denied { setupIssue = .permissionDenied }
             else if automationPermission == .granted {
                 if setupIssue == .permissionDenied { setupIssue = nil }
@@ -591,7 +683,71 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         }
     }
 
+    private func finishOriginalSelection(_ assetID: UUID, token: AcceptedSelection?, revision: Int64?, ownerID: UUID? = nil) {
+        guard let owner = token?.id ?? ownerID, selectionUIOwners[assetID] == owner else { return }
+        selectionUIOwners.removeValue(forKey: assetID)
+        guard let revision, rift?.selectionRevision(for: assetID) == revision else { return }
+        rift?.finishSelection(assetID)
+    }
+
+    private func cancelOriginalSelection(_ selection: AcceptedSelection?, reason: String) {
+        guard let selection else { return }
+        selection.cancel()
+        selectionAuthority.cancel(id: selection.id)
+        guard let transfer else { return }
+        Task { try? await transfer.cancelAcceptedSelections(ids: [selection.id], reason: reason) }
+    }
+
+    private func cancelSelections(assetID: UUID? = nil, reason: String) {
+        let ids = selectionAuthority.cancel(assetID: assetID)
+        selectionSubmissions.cancel(selectionIDs: Set(ids))
+        recordAcceptance(["event": "selection_authority_cancelled", "reason": reason,
+            "uptime": ProcessInfo.processInfo.systemUptime, "singleAsset": assetID != nil])
+        guard !ids.isEmpty, let transfer else { return }
+        Task { try? await transfer.cancelAcceptedSelections(ids: ids, reason: reason) }
+    }
+
+    private func applyAutomationPermission(_ state: AutomationPermissionState) {
+        let lostPermission = automationPermission == .granted && state != .granted
+        automationPermission = state
+        guard mode == .webAcceptance, state != .granted else { return }
+        cancelSelections(reason: "permissionUnavailable")
+        armedTarget = nil; armedCaptureDiagnostics = nil; frozenPress = nil
+        if lostPermission {
+            _ = armScheduler.request(invalidateEpoch: true)
+            armSession = armScheduler.epoch
+        }
+    }
+
+    private func validateAcceptedSelection(_ selection: AcceptedSelection) async -> Bool {
+        func permits() -> Bool {
+            selectionAuthority.permits(selection, epoch: armSession, foregroundSession: foregroundChromeSession,
+                hidden: userHidden, terminating: terminating, now: ProcessInfo.processInfo.systemUptime)
+        }
+        guard permits() else { return false }
+        let permission = await inspectAutomationPermission(reason: "acceptedSelectionValidation", assetID: selection.assetID,
+            expectedSession: selection.target.sessionID)
+        applyAutomationPermission(permission)
+        let accepted = permission == .granted && permits()
+        var fields: [String: Any] = ["event": "accepted_selection_validation", "selectionID": selection.id.uuidString,
+            "assetID": selection.assetID.uuidString, "hostEpoch": selection.hostEpoch.uuidString,
+            "originalEventUptime": selection.eventUptime, "acceptedUptime": selection.acceptedUptime,
+            "effectiveAckUptime": selection.acknowledgedUptime, "visibilityRevision": selection.visibilityRevision,
+            "deadlineUptime": selection.deadlineUptime, "uptime": ProcessInfo.processInfo.systemUptime,
+            "accepted": accepted]
+        let encoder = JSONEncoder(); encoder.outputFormatting = [.sortedKeys]
+        if let data = try? encoder.encode(selection.target) {
+            fields["targetDigest"] = SHA256.hash(data: data).map { String(format: "%02x", $0) }.joined()
+        }
+        if let id = selection.captureRequestID { fields["captureRequestID"] = id.uuidString }
+        if let id = selection.armAttemptID { fields["armAttemptID"] = id.uuidString }
+        recordAcceptance(fields)
+        return accepted
+    }
+
     private func finishPreparedSelection(_ id: UUID) {
+        // Web submissions release only their exact original token/revision owner.
+        guard mode != .webAcceptance else { return }
         // Coordinator awaits committed refresh before this callback. Releasing
         // the UI reservation cannot flush a stale pre-prepare archive snapshot.
         rift?.finishSelection(id)
@@ -619,10 +775,13 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             } else if armed.acknowledgedUptime >= timestamp { refusal = "ackNotBeforeOriginalEvent" }
             else { refusal = "originalEventInFuture" }
         } else { refusal = "noPublishedTarget" }
-        frozenPress = (id, target, refusal)
+        frozenPress = (id, target, refusal, timestamp, now, armedTarget?.acknowledgedUptime, armSession,
+            armedCaptureDiagnostics?.context.requestID, armedCaptureDiagnostics?.context.armAttemptID)
     }
 
     private func startArming(adapter: any AttachmentAdapter) {
+        guard !armScheduler.isRunning, !terminating else { return }
+        recordAcceptance(["event": "arming_started", "uptime": ProcessInfo.processInfo.systemUptime])
         armingAdapter = adapter
         armScheduler.start(); armSession = armScheduler.epoch
         lastForegroundSession = foregroundChromeSession
@@ -650,7 +809,10 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
 
     private func requestArm(reason: String = "fallback", invalidate: Bool = false) {
         pendingArmReason = reason
-        if invalidate { armedTarget = nil; armedCaptureDiagnostics = nil; frozenPress = nil }
+        if invalidate {
+            cancelSelections(reason: reason)
+            armedTarget = nil; armedCaptureDiagnostics = nil; frozenPress = nil
+        }
         let wake = armScheduler.request(invalidateEpoch: invalidate)
         armSession = armScheduler.epoch
         if wake { performPendingArm() }
@@ -669,10 +831,12 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             var result: TargetLease?
             var diagnostics: CapturedTargetDiagnostics?
             var errorCode = "browserNotFrontmost"
-            if self.foregroundChromeSession != nil {
+            if let originalSession = self.foregroundChromeSession {
                 do {
-                    self.automationPermission = await self.inspectAutomationPermission(reason: "targetArming", invocation: invocation)
-                    guard self.automationPermission == .granted else { throw WebAdapterError.disabled }
+                    self.applyAutomationPermission(await self.inspectAutomationPermission(reason: "targetArming", invocation: invocation, expectedSession: originalSession))
+                    guard self.automationPermission == .granted,
+                          self.foregroundChromeSession == originalSession,
+                          self.armSession == attempt.epoch else { throw WebAdapterError.disabled }
                     if let web = adapter as? WebAttachmentAdapter {
                         diagnostics = try await web.captureTargetWithDiagnostics(context: invocation)
                         result = diagnostics?.target
@@ -726,6 +890,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 fields["effectiveArmAttemptID"] = effective.context.armAttemptID.uuidString
             }
             self.recordAcceptance(fields)
+            // The first prebind finishes before remote recovery enters the shared
+            // adapter/transport, avoiding a startup queue behind old observations.
+            self.startOriginalRecovery()
             if completion.shouldWake { self.performPendingArm() }
             else if self.armScheduler.isRunning {
                 self.targetArmer = Task { [weak self] in
@@ -836,6 +1003,10 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 if refreshRequested { continue }
                 if mode == .webAcceptance, CommandLine.arguments.contains("--acceptance-trace") {
                     for record in snapshot {
+                        let signature = [record.status.rawValue, record.visibility.rawValue,
+                            record.visibilityReason.rawValue, String(record.visibilityRevision),
+                            record.activeOperationID?.uuidString ?? "none"]
+                        guard visibilityTrace.shouldRecord(signature, for: record.id) else { continue }
                         var fields: [String: Any] = ["event": "committed_visibility_observed",
                             "assetID": record.id.uuidString, "status": record.status.rawValue,
                             "visibility": record.visibility.rawValue, "visibilityReason": record.visibilityReason.rawValue,
@@ -845,6 +1016,8 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                         recordAcceptance(fields)
                     }
                     for operation in successful {
+                        let signature = [operation.assetID.uuidString, String(operation.attempt), operation.phase.rawValue]
+                        guard readyTrace.shouldRecord(signature, for: operation.id) else { continue }
                         recordAcceptance(["event": "ready_persistence_observed", "assetID": operation.assetID.uuidString,
                             "operationID": operation.id.uuidString, "attempt": operation.attempt,
                             "phase": operation.phase.rawValue, "commitUpperBoundUptime": snapshotObservedUptime,
@@ -937,6 +1110,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
 
     private func removeVisible(_ id: UUID) {
         guard let store else { return }
+        cancelSelections(assetID: id, reason: "removed")
         Task {
             do { try await store.removeFromQueue(id); await refresh() }
             catch { showIssue("Could not remove this image from the rift; files are preserved.") }
@@ -945,6 +1119,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
 
     @objc private func clearVisible() {
         guard let store else { return }
+        cancelSelections(reason: "clearVisible")
         Task {
             do { _ = try await store.clearVisibleQueue(); await refresh() }
             catch { showIssue("Could not clear the visible queue; files and attachments are preserved.") }
@@ -966,7 +1141,11 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         changingHidden = true
         let requested = !userHidden
         // Hide immediately; showing requires the persistent change to succeed.
-        if requested { userHidden = true; rift?.setUserHidden(true); updateControlTitles() }
+        if requested {
+            cancelSelections(reason: "hidden")
+            frozenPress = nil
+            userHidden = true; rift?.setUserHidden(true); updateControlTitles()
+        }
         Task {
             defer { changingHidden = false; updateControlTitles() }
             do {

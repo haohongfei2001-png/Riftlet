@@ -13,6 +13,16 @@ private actor PermissionProbe: AutomationPermissionChecking {
     func calls() -> [Bool] { requests }
 }
 
+private actor BoundPermissionProbe: AutomationPermissionChecking {
+    var sessions: [String?] = []
+    func check(askUserIfNeeded: Bool) -> AutomationPermissionState { .unavailable }
+    func check(askUserIfNeeded: Bool, expectedSession: String?) -> AutomationPermissionState {
+        sessions.append(expectedSession)
+        return .granted
+    }
+    func recorded() -> [String?] { sessions }
+}
+
 final class AutomationPermissionTests: XCTestCase {
     func testOrdinaryCaptureCannotProbeOrRequestChrome() async {
         let probe = PermissionProbe([.granted])
@@ -42,6 +52,27 @@ final class AutomationPermissionTests: XCTestCase {
             let calls = await probe.calls()
             XCTAssertEqual(status, result); XCTAssertEqual(calls, [false])
         }
+    }
+
+    func testEveryDispatchPermissionCheckUsesOriginalSessionWithoutCaching() async {
+        let probe = BoundPermissionProbe()
+        let gate = AutomationPermissionGate(requiresChrome: true, checker: probe)
+        let first = await gate.inspect(expectedSession: "original-process")
+        let second = await gate.inspect(expectedSession: "original-process")
+        let sessions = await probe.recorded()
+        XCTAssertEqual(first, .granted); XCTAssertEqual(second, .granted)
+        XCTAssertEqual(sessions, ["original-process", "original-process"])
+    }
+
+    func testMultipleChromeInstancesSelectExactOriginalSessionOrForegroundNeverFirst() {
+        let first = PermissionBrowserIdentity(pid: 11, launched: Date(timeIntervalSince1970: 1))
+        let second = PermissionBrowserIdentity(pid: 22, launched: Date(timeIntervalSince1970: 2))
+        XCTAssertEqual(PermissionBrowserIdentity.select([first, second], foregroundPID: 22, expectedSession: nil), second)
+        XCTAssertEqual(PermissionBrowserIdentity.select([first, second], foregroundPID: 11, expectedSession: second.session), second)
+        XCTAssertNil(PermissionBrowserIdentity.select([first, second], foregroundPID: 33, expectedSession: nil))
+        XCTAssertNil(PermissionBrowserIdentity.select([first, second], foregroundPID: 22, expectedSession: "22:1.0"))
+        XCTAssertNil(PermissionBrowserIdentity.select([second, second], foregroundPID: 22, expectedSession: second.session))
+        XCTAssertEqual(PermissionBrowserIdentity.select([first], foregroundPID: nil, expectedSession: nil), first)
     }
 
     func testNativePermissionCodesNeverConflateDenialWithUnavailable() {

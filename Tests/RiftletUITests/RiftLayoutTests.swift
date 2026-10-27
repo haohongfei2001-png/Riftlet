@@ -3,6 +3,35 @@ import RiftletCore
 @testable import RiftletUI
 
 final class RiftLayoutTests: XCTestCase {
+    func testObservedClearPaddingCannotBeginOrCompleteSelection() {
+        // Actual helper CLEAR local point (1.5, 2) in the first 44-point row.
+        let row = RiftRowLayout(assetID: UUID(), ordinal: 1,
+            frame: CGRect(x: 1840, y: 878, width: 71.15, height: 44),
+            imageFrame: CGRect(x: 17.15, y: 0, width: 72, height: 44),
+            imageClipFrame: CGRect(x: 17.15, y: 0, width: 54, height: 44),
+            numberFrame: CGRect(x: 4, y: 15.5, width: 7.15, height: 13))
+        let clear = CGPoint(x: 1.5, y: 2)
+        let image = CGPoint(x: 44.15, y: 22)
+        let number = CGPoint(x: 7.575, y: 22)
+        XCTAssertFalse(row.containsSelectionPoint(clear))
+        XCTAssertFalse(row.containsSelectionPoint(CGPoint(x: 14, y: 22)), "Number/image gap is not a selection")
+        XCTAssertFalse(row.containsSelectionPoint(CGPoint(x: 80, y: 22)), "Clipped image remainder is not a selection")
+        var gate = PointerSelectionGate()
+        XCTAssertFalse(gate.begin(assetID: row.assetID, screenPoint: clear, timestamp: 1,
+            clickCount: 1, doubleClickInterval: 0.5, acceptsSelection: row.containsSelectionPoint(clear)))
+        XCTAssertNil(gate.end(inside: row.containsSelectionPoint(image)), "Padding down cannot become a click on release")
+        for (index, point) in [image, number].enumerated() {
+            XCTAssertTrue(row.containsSelectionPoint(point))
+            XCTAssertTrue(gate.begin(assetID: row.assetID, screenPoint: point, timestamp: Double(index + 3),
+                clickCount: 1, doubleClickInterval: 0.5, acceptsSelection: row.containsSelectionPoint(point)))
+            XCTAssertEqual(gate.end(inside: row.containsSelectionPoint(point)), row.assetID)
+        }
+        XCTAssertTrue(gate.begin(assetID: row.assetID, screenPoint: image, timestamp: 6,
+            clickCount: 1, doubleClickInterval: 0.5, acceptsSelection: row.containsSelectionPoint(image)))
+        XCTAssertNil(gate.end(inside: row.containsSelectionPoint(clear)), "Release in padding must cancel the original hold")
+        XCTAssertFalse(gate.isHolding)
+    }
+
     private func records(_ count: Int, width: Int = 900, height: Int = 1_200) -> [AssetRecord] {
         (0..<count).map { index in
             let id = UUID()
