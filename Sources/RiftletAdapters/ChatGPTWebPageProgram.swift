@@ -6,7 +6,7 @@ import RiftletCore
 /// evidence that the integrated app has passed a live test. Production admission
 /// remains separate; only syntheticDevelopment may execute it in this increment.
 public enum ChatGPTWebPageProgram {
-    public static let sourceID = "chatgpt-web-zh-20261027-integrated-v7"
+    public static let sourceID = "chatgpt-web-zh-20261027-integrated-v8"
     public static let acceptanceProfile = ObservationProfile(
         adapterID: "chatgpt-web", surface: .webChat,
         profileID: "chatgpt-web-zh-attached-development-20261027-v2",
@@ -24,7 +24,7 @@ public enum ChatGPTWebPageProgram {
         guard let url = resources.url(forResource: "chatgpt-web-20261027", withExtension: "js"),
               let source = try? String(contentsOf: url, encoding: .utf8), !source.isEmpty,
               source.utf8.count <= 128 * 1024 else { throw WebAdapterError.programUnavailable }
-        return WebPageProgram(sourceID: sourceID, functionSource: source)
+        return try LegacyWebObservationProgram.wrapping(WebPageProgram(sourceID: sourceID, functionSource: source))
     }
 }
 

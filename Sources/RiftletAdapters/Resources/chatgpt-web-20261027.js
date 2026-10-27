@@ -9,9 +9,9 @@
  */
 function riftletWebAcceptance(command, native) {
   'use strict';
-  // v7 requires a reversible, root-local commit observer for the thread candidate.
+  // v8 separates page interaction from an available, identity-bound composer.
   // Its old native requests remain UNKNOWN instead of acquiring a new lease.
-  const KEY = '__riftletWebAcceptance20261027v7';
+  const KEY = '__riftletWebAcceptance20261027v8';
   const MAX_GENERATIONS = 32;
   const MAX_BYTES = 8 * 1024 * 1024, MAX_PIXELS = 16 * 1024 * 1024;
   const TARGET_KEYS = ['adapterID', 'surface', 'applicationID', 'sessionID', 'windowID', 'tabID', 'documentID', 'composerID', 'draftGeneration'];
@@ -225,6 +225,37 @@ function riftletWebAcceptance(command, native) {
     const inputs = form ? [...form.querySelectorAll('input[type=file][aria-label="附加文件"]')] : [];
     if (!form || inputs.length !== 1) fail('UNOBSERVED_INPUT_STRUCTURE');
     const input = inputs[0], route = location.href, documentID = crypto.randomUUID();
+    // Focus belongs to the document, not necessarily its editor. The selected
+    // composer must nevertheless be usable at capture and at the final input.
+    const blockedAncestor = (node, includeHidden = true, includeDisabled = true) => {
+      let depth = 0;
+      for (let current = node; current?.nodeType === 1; current = current.parentElement) {
+        if (++depth > 256) return true;
+        if (current.inert || current.hasAttribute('inert')
+            || (includeHidden && (current.hidden || current.hasAttribute('hidden') || current.getAttribute('aria-hidden') === 'true'))
+            || (includeDisabled && current.getAttribute('aria-disabled') === 'true')) return true;
+      }
+      return false;
+    };
+    const rendered = node => {
+      const style = getComputedStyle(node);
+      return node.getClientRects().length > 0 && style.display !== 'none'
+        && style.visibility !== 'hidden' && style.visibility !== 'collapse';
+    };
+    const composerAvailable = () => {
+      try {
+        if (!form.isConnected || !editor.isConnected || !input.isConnected
+            || !editor.isContentEditable || blockedAncestor(form) || blockedAncestor(editor)
+            || !rendered(form) || !rendered(editor) || input.disabled || input.matches(':disabled')
+            || blockedAncestor(input, false)) return false;
+        // A file input is commonly visually hidden by design. Do not require
+        // that node to render or focus; only its original attachment capability.
+        if ([...document.querySelectorAll(':modal')].some(node => !node.contains(form))) return false;
+        const modals = document.querySelectorAll('[role=dialog][aria-modal=true],[role=alertdialog][aria-modal=true]');
+        return ![...modals].some(node => !node.contains(form) && !blockedAncestor(node, true, false) && rendered(node));
+      } catch { return false; }
+    };
+    if (!composerAvailable()) fail('COMPOSER_UNAVAILABLE');
     // Reject a missing/lost monitor before registering any generation listeners.
     const monitor = thread ? rootMonitor(registry, boundRoot) : null;
     const ids = new WeakMap(), operations = new Map();
@@ -258,8 +289,11 @@ function riftletWebAcceptance(command, native) {
       if (!identitySnapshotValid()) { if (!invalid) invalidate(); return false; }
       return true;
     };
-    const valid = () => observationIdentityValid() && !inputRevoked
-      && document.visibilityState === 'visible' && document.hasFocus();
+    const valid = () => {
+      if (!observationIdentityValid() || inputRevoked) return false;
+      if (!composerAvailable()) { revokeInput(); return false; }
+      return document.visibilityState === 'visible' && document.hasFocus();
+    };
     const markBad = (op, error = false) => {
       // Preserve a previously proved, still-bound attachment's identity when its
       // own card/image reports a late error. Navigation, node replacement and
@@ -448,13 +482,17 @@ function riftletWebAcceptance(command, native) {
       if (event.target === globalThis) revokeInput();
     });
     document.addEventListener('visibilitychange', revokeInput);
-    // A current React snapshot does not prove that this business draft stayed
-    // current between commands. Revoke at observable navigation intent without
-    // inspecting key values, outside text, destinations or history payloads.
+    // A click in the body/sidebar is not a draft change. Recheck the same
+    // binding after the page handles that interaction; navigation and root
+    // commit guards independently revoke real transitions, including ABA.
     const continuityEvents = {outsideInteraction: 0, navigate: 0, currententrychange: 0};
     for (const type of ['pointerdown', 'click', 'keydown']) document.addEventListener(type, event => {
       if (event.isTrusted === true && event.target && !form.contains(event.target)) {
-        continuityEvents.outsideInteraction++; revokeInput();
+        continuityEvents.outsideInteraction++;
+        queueMicrotask(() => {
+          drain();
+          if (observationIdentityValid() && !composerAvailable()) revokeInput();
+        });
       }
     }, true);
     if (typeof globalThis.navigation?.addEventListener === 'function') {
