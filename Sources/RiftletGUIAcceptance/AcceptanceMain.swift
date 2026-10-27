@@ -79,6 +79,14 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
 
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { true }
 
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        // Stage Manager can leave only the nonactivating probe panels visible.
+        // Reopening the existing helper must recover its actual control window.
+        window?.deminiaturize(nil)
+        window?.makeKeyAndOrderFront(nil)
+        return true
+    }
+
     func applicationWillTerminate(_ notification: Notification) {
         reorderTask?.cancel()
         outcomeTasks.values.forEach { $0.cancel() }

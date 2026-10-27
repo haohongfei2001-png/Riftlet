@@ -9,9 +9,9 @@
  */
 function riftletWebAcceptance(command, native) {
   'use strict';
-  // v3 never reuses an older installation missing focus-epoch revocation.
+  // v4 never reuses an older installation missing current-focus validation.
   // Its old native requests remain UNKNOWN instead of acquiring a new lease.
-  const KEY = '__riftletWebAcceptance20261027v3';
+  const KEY = '__riftletWebAcceptance20261027v4';
   const MAX_GENERATIONS = 32;
   const MAX_BYTES = 8 * 1024 * 1024, MAX_PIXELS = 16 * 1024 * 1024;
   const TARGET_KEYS = ['adapterID', 'surface', 'applicationID', 'sessionID', 'windowID', 'tabID', 'documentID', 'composerID', 'draftGeneration'];
@@ -73,7 +73,8 @@ function riftletWebAcceptance(command, native) {
     const valid = () => {
       const currentEditors = document.querySelectorAll('[contenteditable=true][role=textbox]');
       const currentInputs = form.querySelectorAll('input[type=file][aria-label="附加文件"]');
-      return !invalid && modeMatches() && location.href === route && document.visibilityState === 'visible' && form.isConnected && editor.isConnected
+      return !invalid && modeMatches() && location.href === route && document.visibilityState === 'visible'
+        && document.hasFocus() && form.isConnected && editor.isConnected
         && input.isConnected && input.form === form && editor.closest('form') === form && form.contains(input)
         && currentEditors.length === 1 && currentEditors[0] === editor
         && currentInputs.length === 1 && currentInputs[0] === input

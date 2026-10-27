@@ -242,13 +242,14 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
                     self?.armSession = UUID(); self?.armedTarget = nil; self?.frozenPress = nil
                 }
             }
-        // One bounded task checks only the foreground tab while images exist.
+        // One bounded task checks only the foreground tab. Arm before the first
+        // image arrives too, avoiding a guaranteed cold arm on an empty queue.
         // No tab enumeration, navigation, upload, or post-click capture fallback.
         targetArmer = Task { [weak self] in
             while !Task.isCancelled {
                 guard let self else { return }
                 let session = self.armSession
-                if !self.visibleIDs.isEmpty, self.foregroundChromeSession != nil {
+                if self.foregroundChromeSession != nil {
                     do {
                         let target = try await adapter.captureTarget()
                         if session == self.armSession, target.sessionID == self.foregroundChromeSession {
@@ -259,7 +260,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
                         } else { self.armedTarget = nil }
                     } catch { self.armedTarget = nil }
                 } else { self.armedTarget = nil }
-                do { try await Task.sleep(nanoseconds: 1_000_000_000) } catch { return }
+                do { try await Task.sleep(nanoseconds: self.visibleIDs.isEmpty ? 3_000_000_000 : 1_000_000_000) } catch { return }
             }
         }
     }

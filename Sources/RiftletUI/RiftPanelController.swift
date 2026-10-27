@@ -366,7 +366,7 @@ public final class RiftPanelController {
         }
         window.view.onScroll = { [weak self] delta in self?.scroll(delta) }
         window.view.onAccessiblePress = { [weak self, weak view = window.view] in
-            guard let self, let view, !self.transitioning,
+            guard let self, let view, !self.transitioning, !self.gate.isHolding,
                   [.pending, .failed, .unknown].contains(view.record.status) else { return false }
             // AX has an invocation boundary, not a physical mouse event timestamp.
             self.onPress(id, ProcessInfo.processInfo.systemUptime)

@@ -125,7 +125,10 @@ public actor QueueStore {
         try database.transaction {
             let op = try requiredOperation(id)
             guard op.phase == .prepared else { throw RiftletError.invalidTransition }
-            guard try database.rows("SELECT id FROM operations WHERE target_key=? AND phase IN ('dispatchIntent','inputTriggered','attachmentPresent','unknown','compensated')", [op.target.stableKey]).isEmpty else { throw RiftletError.targetBusy }
+            let active = try unresolvedOperations().filter { $0.phase != .prepared }
+            guard !active.contains(where: { $0.target.serializationKey == op.target.serializationKey }) else {
+                throw RiftletError.targetBusy
+            }
             try update(op, phase: .dispatchIntent, status: .transferring, reason: "dispatch-intent committed")
         }
     }

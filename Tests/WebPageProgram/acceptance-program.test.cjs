@@ -120,7 +120,7 @@ function fixture({blockedDigest = false, route = 'https://chatgpt.com/', mode = 
     const deadline=Date.now()+2000;
     do {
       await new Promise(resolve=>setTimeout(resolve,1));
-      const ops=[];for(let g=context.__riftletWebAcceptance20261027v3?.head;g;g=g.next) ops.push(...g.operations.values());
+      const ops=[];for(let g=context.__riftletWebAcceptance20261027v4?.head;g;g=g.next) ops.push(...g.operations.values());
       if (ops.every(op=>!op.committed || op.invalid || (op.fileHashVerified && !op.proofPending))) return;
     } while(Date.now()<deadline);
     assert.fail('bounded synthetic async work did not settle');
@@ -281,7 +281,7 @@ test('returning to a tab can bind a fresh lease while original UNKNOWN stays obs
   for(const fn of f.events.get('visibilitychange')||[]) fn();
   f.document.visibilityState='visible';
   for(const fn of f.events.get('visibilitychange')||[]) fn();
-  const registry=f.context.__riftletWebAcceptance20261027v3;
+  const registry=f.context.__riftletWebAcceptance20261027v4;
   assert.equal(registry.count,1);
   assert.equal(f.observe(old).state,'invalidated');assert.equal(registry.count,1);
   const fresh=f.bind('33333333-3333-4333-8333-333333333333');
@@ -302,11 +302,11 @@ test('returning to a tab can bind a fresh lease while original UNKNOWN stays obs
 });
 
 test('lease generations are bounded and older state cannot bypass current admission', () => {
-  for(const key of ['__riftletWebAcceptance20261027v1','__riftletWebAcceptance20261027v2']) {
+  for(const key of ['__riftletWebAcceptance20261027v1','__riftletWebAcceptance20261027v2','__riftletWebAcceptance20261027v3']) {
     const legacy=fixture({mode:'missing'});
     legacy.context[key]={valid:()=>true,target:{...native,surface:'webChat'}};
     assert.throws(()=>legacy.target(),/UNPROVEN_CHAT_MODE/);
-    assert.equal(legacy.context.__riftletWebAcceptance20261027v3.count,0);
+    assert.equal(legacy.context.__riftletWebAcceptance20261027v4.count,0);
   }
   const f=fixture();let first;
   for(let i=0;i<32;i++) {
@@ -315,7 +315,7 @@ test('lease generations are bounded and older state cannot bypass current admiss
     f.document.visibilityState='visible';
   }
   assert.throws(()=>f.target(),/LEASE_GENERATION_LIMIT/);
-  const registry=f.context.__riftletWebAcceptance20261027v3;
+  const registry=f.context.__riftletWebAcceptance20261027v4;
   assert.equal(registry.count,32);assert.equal(registry.head.target.documentID,first.documentID);
   assert.equal(f.call({action:'validate',target:first}).valid,false);assert.equal(f.input.inputCount,0);
 });
@@ -365,4 +365,16 @@ test('final input drains pending mode or node round-trips after asynchronous has
     f.queueMutation(records(f));f.release();await f.settle();
     assert.equal(f.input.inputCount,0);assert.equal(f.observe(op).state,'invalidated');
   }
+});
+
+
+test('current document focus is required even before blur notification is delivered', async () => {
+  const f=fixture(),op=f.bind();f.stage(op);
+  f.focus(false); // Do not deliver Window blur or visibilitychange.
+  assert.equal(f.call({action:'validate',target:op.target}).valid,false);
+  assert.throws(()=>f.commit(op),/TARGET_INVALID/);
+  assert.equal(f.input.inputCount,0);
+  const pending=fixture({blockedDigest:true}),later=pending.bind();pending.stage(later);pending.commit(later);
+  pending.focus(false);pending.release();await pending.settle();
+  assert.equal(pending.input.inputCount,0);assert.equal(pending.observe(later).state,'invalidated');
 });

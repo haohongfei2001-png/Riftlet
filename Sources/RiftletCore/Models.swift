@@ -77,6 +77,16 @@ public struct TargetLease: Codable, Equatable, Hashable, Sendable {
         // All fields are strings/enums; encoding cannot fail for a valid lease.
         return String(data: try! encoder.encode(self), encoding: .utf8)!
     }
+
+    /// A focus lease is not a business draft identity. Until the Web adapter has
+    /// independently proved that identity, an unresolved upload locks its whole
+    /// Chrome tab, including rearming, navigation and moving between windows.
+    /// Receipt equality still requires every field of the original lease.
+    public var serializationKey: String {
+        guard surface == .webChat, applicationID == "com.google.Chrome",
+              let tabID, !tabID.isEmpty else { return stableKey }
+        return String(data: try! JSONEncoder().encode([adapterID, applicationID, sessionID, tabID]), encoding: .utf8)!
+    }
 }
 
 public enum OperationPhase: String, Codable, Sendable {
