@@ -24,10 +24,11 @@ final class SQLiteDatabase {
         try execute("PRAGMA journal_mode = WAL")
         try execute("PRAGMA synchronous = FULL")
         let version = try rows("PRAGMA user_version").first?[0] ?? "0"
-        guard version == "0" || version == "1" else {
+        guard version == "0" || version == "1" || version == "2" else {
             throw RiftletError.database("Unsupported schema version \(version); database preserved")
         }
         if version == "0" { try transaction { try migrate() } }
+        if version != "2" { try transaction { try migrateCompensation() } }
         guard try rows("PRAGMA quick_check").first?.first == "ok" else {
             throw RiftletError.database("Integrity check failed; database preserved")
         }
@@ -70,6 +71,41 @@ final class SQLiteDatabase {
         try execute("CREATE TABLE checkpoints (key TEXT PRIMARY KEY, value BLOB NOT NULL)")
         try execute("CREATE TABLE metadata (key TEXT PRIMARY KEY, value TEXT NOT NULL)")
         try execute("PRAGMA user_version = 1")
+    }
+
+    private func migrateCompensation() throws {
+        // Add one phase to the existing state machine without rewriting assets,
+        // receipt bytes, operation IDs, timestamps, or attempt ordering.
+        try execute("""
+            CREATE TABLE operations_v2 (
+                sequence INTEGER PRIMARY KEY AUTOINCREMENT,
+                id TEXT NOT NULL UNIQUE,
+                asset_id TEXT NOT NULL REFERENCES assets(id),
+                attempt INTEGER NOT NULL CHECK(attempt > 0),
+                target_key TEXT NOT NULL,
+                target_json TEXT NOT NULL,
+                phase TEXT NOT NULL CHECK(phase IN ('prepared','dispatchIntent','inputTriggered','attachmentPresent','unknown','compensated','failed','succeeded')),
+                created_at REAL NOT NULL,
+                updated_at REAL NOT NULL,
+                receipt_json TEXT,
+                reason TEXT NOT NULL DEFAULT '',
+                UNIQUE(asset_id, attempt)
+            )
+            """)
+        try execute("INSERT INTO operations_v2 SELECT * FROM operations")
+        try execute("DROP TABLE operations")
+        try execute("ALTER TABLE operations_v2 RENAME TO operations")
+        try execute("CREATE UNIQUE INDEX one_unresolved_per_asset ON operations(asset_id) WHERE phase NOT IN ('failed','succeeded')")
+        // A late failure can coexist with a newer in-flight image in this draft.
+        // Compensated operations are checked by the dispatch guard, not this index.
+        try execute("CREATE UNIQUE INDEX one_dispatched_per_target ON operations(target_key) WHERE phase IN ('dispatchIntent','inputTriggered','attachmentPresent','unknown')")
+        try execute("""
+            CREATE TABLE compensations (
+                operation_id TEXT PRIMARY KEY REFERENCES operations(id),
+                evidence_json TEXT NOT NULL
+            )
+            """)
+        try execute("PRAGMA user_version = 2")
     }
 
     func execute(_ sql: String, _ parameters: [String?] = []) throws {

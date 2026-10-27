@@ -80,7 +80,7 @@ public struct TargetLease: Codable, Equatable, Hashable, Sendable {
 }
 
 public enum OperationPhase: String, Codable, Sendable {
-    case prepared, dispatchIntent, inputTriggered, attachmentPresent, unknown, failed, succeeded
+    case prepared, dispatchIntent, inputTriggered, attachmentPresent, unknown, compensated, failed, succeeded
     public var isUnresolved: Bool { self != .failed && self != .succeeded }
 }
 
@@ -134,4 +134,12 @@ public enum RiftletError: Error, Equatable {
     case database(String), invalidAsset(String), assetNotFound, operationNotFound
     case unresolvedOperation(UUID), targetBusy, invalidTransition, mismatchedReceipt
     case modeMismatch, adapterUnavailable(String)
+}
+
+/// The first admitted success and its identity-correlated revocation survive all
+/// later observations. Revocation restores visibility but grants no new input.
+public struct TransferCompensation: Codable, Equatable, Sendable {
+    public let originalSuccess: TransferReceipt
+    public let failure: TransferReceipt
+    public let createdAt: Date
 }

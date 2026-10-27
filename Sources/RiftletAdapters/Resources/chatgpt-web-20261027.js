@@ -32,6 +32,27 @@ function riftletWebAcceptance(command, native) {
         || document.visibilityState !== 'visible' || !document.hasFocus()) fail('UNSUPPORTED_TEST_SURFACE');
     if (native.applicationID !== 'com.google.Chrome' || !native.sessionID
         || !/^\d+$/.test(native.windowID) || !/^\d+$/.test(native.tabID)) fail('NATIVE_CONTEXT_REQUIRED');
+    // Observed on the local Chinese Home header, 2026-10-27. A legacy
+    // account with no explicit mode control is unsupported, not assumed Chat.
+    const modeSelector = '[role=group][aria-label="撰写器模式"]';
+    const modeGroups = [...document.querySelectorAll(modeSelector)];
+    if (modeGroups.length !== 1 || !modeGroups[0].closest('header')) fail('UNPROVEN_CHAT_MODE');
+    const modeGroup = modeGroups[0], modeHeader = modeGroup.closest('header');
+    const modeButtons = [...modeGroup.querySelectorAll('button[type=button]')];
+    const chatButtons = modeButtons.filter(n => n.textContent.trim() === '聊天');
+    const workButtons = modeButtons.filter(n => n.textContent.trim() === '工作');
+    if (modeButtons.length !== 2 || chatButtons.length !== 1 || workButtons.length !== 1) fail('UNPROVEN_CHAT_MODE');
+    const chatMode = chatButtons[0], workMode = workButtons[0];
+    const modeMatches = () => {
+      const groups = document.querySelectorAll(modeSelector), buttons = modeGroup.querySelectorAll('button[type=button]');
+      return groups.length === 1 && groups[0] === modeGroup && modeGroup.isConnected && modeHeader.isConnected
+        && modeGroup.closest('header') === modeHeader && chatMode.isConnected && workMode.isConnected
+        && modeGroup.contains(chatMode) && modeGroup.contains(workMode)
+        && buttons.length === 2 && [...buttons].includes(chatMode) && [...buttons].includes(workMode)
+        && chatMode.textContent.trim() === '聊天' && workMode.textContent.trim() === '工作'
+        && chatMode.getAttribute('aria-pressed') === 'true' && workMode.getAttribute('aria-pressed') === 'false';
+    };
+    if (!modeMatches()) fail('UNPROVEN_CHAT_MODE');
     const editors = [...document.querySelectorAll('[contenteditable=true][role=textbox]')];
     if (editors.length !== 1) fail('AMBIGUOUS_COMPOSER');
     const editor = editors[0], form = editor.closest('form');
@@ -49,7 +70,7 @@ function riftletWebAcceptance(command, native) {
     const valid = () => {
       const currentEditors = document.querySelectorAll('[contenteditable=true][role=textbox]');
       const currentInputs = form.querySelectorAll('input[type=file][aria-label="附加文件"]');
-      return !invalid && location.href === route && document.visibilityState === 'visible' && form.isConnected && editor.isConnected
+      return !invalid && modeMatches() && location.href === route && document.visibilityState === 'visible' && form.isConnected && editor.isConnected
         && input.isConnected && input.form === form && editor.closest('form') === form && form.contains(input)
         && currentEditors.length === 1 && currentEditors[0] === editor
         && currentInputs.length === 1 && currentInputs[0] === input
@@ -61,6 +82,14 @@ function riftletWebAcceptance(command, native) {
       for (const op of operations.values()) { op.file = null; op.chunks = []; op.proof = null; }
     };
     const markBad = (op, error = false) => {
+      // Preserve a previously proved, still-bound attachment's identity when its
+      // own card/image reports a late error. Navigation, node replacement and
+      // generic invalidation are not failure evidence and cannot mint this ID.
+      if (error && op.proof && currentMember(op)
+          && op.proof.card === op.card && op.proof.image === op.image
+          && sameIdentity(op.proof.identity, op.identity)) {
+        op.errorAttachmentID = target.documentID + ':' + nodeID(op.card) + ':' + nodeID(op.image);
+      }
       op.invalid = true; op.error ||= error; op.proof = null; op.file = null; op.chunks = [];
     };
     const ownCards = name => [...form.querySelectorAll('[role=button][aria-label]')]
@@ -166,8 +195,16 @@ function riftletWebAcceptance(command, native) {
       let relevant = false;
       for (const record of records) {
         if (containsNode(form, record.target)) relevant = true;
+        if (containsNode(modeGroup, record.target)) {
+          relevant = true;
+          // Observe the changes, not only their final value: Chat -> Work ->
+          // Chat within one mutation batch permanently revokes this lease.
+          if (record.type === 'characterData' || record.type === 'childList'
+              || (record.type === 'attributes' && ['aria-pressed', 'role', 'aria-label', 'type'].includes(record.attributeName)
+                && record.oldValue !== record.target.getAttribute(record.attributeName))) invalidate();
+        }
         for (const removed of record.removedNodes || []) {
-          if ([editor, input, form, ...baseline].some(node => containsNode(removed, node))) {
+          if ([editor, input, form, modeGroup, modeHeader, chatMode, workMode, ...baseline].some(node => containsNode(removed, node))) {
             invalidate(); relevant = true;
           }
           for (const op of operations.values()) {
@@ -188,10 +225,14 @@ function riftletWebAcceptance(command, native) {
       if (relevant) sampleAll('mutation');
     });
     observer.observe(form, {subtree: true, childList: true, attributes: true, attributeOldValue: true, characterData: true});
+    observer.observe(modeGroup, {subtree: true, childList: true, attributes: true, attributeOldValue: true,
+      characterData: true, characterDataOldValue: true});
     // An entire form/ancestor can be detached and reinserted. Watch each parent
     // child-list only; avoid observing the rest of the page's subtree or text.
-    for (let ancestor = form.parentNode; ancestor; ancestor = ancestor.parentNode) {
-      observer.observe(ancestor, {childList: true});
+    for (const root of [form, modeGroup]) {
+      for (let ancestor = root.parentNode; ancestor; ancestor = ancestor.parentNode) {
+        observer.observe(ancestor, {childList: true});
+      }
     }
     document.addEventListener('change', event => {
       if (!valid() || event.target !== input || !(event.target instanceof HTMLInputElement)) return;
@@ -302,6 +343,14 @@ function riftletWebAcceptance(command, native) {
   observation.hasError = op.error;
   observation.isUploading = op.uploading;
   if (!observation.belongsToOriginalDraft || op.invalid) {
+    if (observation.belongsToOriginalDraft && op.error && op.errorAttachmentID
+        && op.card?.isConnected && state.form.contains(op.card)
+        && op.image?.isConnected && op.image.closest('[role=button]') === op.card
+        && op.card.getAttribute('aria-label') === op.name && op.image.alt === op.name
+        && state.ownCards(op.name).length === 1) {
+      observation.attachmentID = op.errorAttachmentID;
+      observation.exactImageIdentity = true;
+    }
     observation.state = 'invalidated'; return envelope;
   }
   if (op.inputCount === 1) observation.state = 'inputTriggered';

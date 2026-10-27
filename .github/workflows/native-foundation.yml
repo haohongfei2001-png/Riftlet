@@ -1,5 +1,15 @@
 name: Native foundation
 on:
+  push:
+    branches:
+      - 'codex/riftlet-real-mac-acceptance-*'
+    paths:
+      - 'Sources/**'
+      - 'Tests/**'
+      - 'Resources/**'
+      - 'Package.swift'
+      - 'scripts/**'
+      - '.github/workflows/native-foundation.yml'
   pull_request:
     paths:
       - 'Sources/**'

@@ -52,7 +52,7 @@ public actor TransferCoordinator {
             guard let record = try await store.asset(id: assetID) else { throw RiftletError.assetNotFound }
             if let activeID = record.activeOperationID,
                let op = try await store.operation(id: activeID), op.phase.isUnresolved {
-                if op.phase == .unknown { try await reconcile(op) }
+                if op.phase == .unknown || op.phase == .compensated { try await reconcile(op) }
                 skippedTickets.insert(ticket)
                 try await drain()
                 return
@@ -77,7 +77,7 @@ public actor TransferCoordinator {
     public func recover() async throws {
         try await store.recoverInterruptedOperations()
         await onChange()
-        for op in try await store.unresolvedOperations() where op.phase == .unknown && op.target.adapterID == adapter.id {
+        for op in try await store.unresolvedOperations() where (op.phase == .unknown || op.phase == .compensated) && op.target.adapterID == adapter.id {
             do { try await reconcile(op) }
             catch { try await store.markUnknown(op.id, reason: "Recovery observation unavailable") }
         }
@@ -136,6 +136,19 @@ public actor TransferCoordinator {
         let receipt = try await adapter.reconcile(original)
         _ = try await store.apply(receipt, policy: policy)
         await onChange()
+    }
+
+    /// Successful uploads remain observable for a correlated late failure.
+    /// Transport errors or navigation are not failures and cannot reverse success.
+    /// The return value controls only an in-memory observation watch.
+    public func observeCompleted(operationID: UUID) async throws -> Bool {
+        guard let op = try await store.operation(id: operationID), op.phase == .succeeded,
+              op.target.adapterID == adapter.id else { return false }
+        let receipt = try await adapter.reconcile(try await request(for: op))
+        _ = try await store.apply(receipt, policy: policy)
+        await onChange()
+        let current = try await store.operation(id: operationID)
+        return receipt.belongsToOriginalDraft && current?.phase == .succeeded
     }
 
     private func request(for op: TransferOperation) async throws -> TransferRequest {

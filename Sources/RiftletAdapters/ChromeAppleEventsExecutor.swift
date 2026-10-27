@@ -2,12 +2,11 @@ import AppKit
 import Foundation
 import RiftletCore
 
-/// Native transport only; it contains no ChatGPT selectors or completion rules.
-/// A real reviewed page program is required. This executor never activates Chrome.
+/// Native Apple Events transport; selectors and completion rules stay in the
+/// reviewed page program. Events address the exact PID, never an ambiguous
+/// bundle-ID lookup when several Chrome profile processes are running.
 @MainActor
 public final class ChromeAppleEventsExecutor: WebBridgeExecutor {
-    // NSAppleScript may execute off the main thread, but execution must be
-    // serialized across ALL executor instances in this process.
     private static let scriptQueue = DispatchQueue(label: "com.riftlet.apple-events", qos: .utility)
 
     public init() {}
@@ -20,93 +19,149 @@ public final class ChromeAppleEventsExecutor: WebBridgeExecutor {
                   frontmost.bundleIdentifier == browserID else { throw WebAdapterError.browserNotFrontmost }
             application = frontmost
         } else {
-            guard let running = NSRunningApplication.runningApplications(withBundleIdentifier: browserID).first else {
-                throw WebAdapterError.invalidTarget
-            }
+            guard let target = command.target, target.applicationID == browserID,
+                  let running = NSRunningApplication.runningApplications(withBundleIdentifier: browserID).first(where: {
+                      guard let launch = $0.launchDate else { return false }
+                      return "\($0.processIdentifier):\(launch.timeIntervalSince1970)" == target.sessionID
+                  }) else { throw WebAdapterError.invalidTarget }
             application = running
         }
         guard let launched = application.launchDate else { throw WebAdapterError.invalidTarget }
-        let session = "\(application.processIdentifier):\(launched.timeIntervalSince1970)"
+        let pid = application.processIdentifier
+        let session = "\(pid):\(launched.timeIntervalSince1970)"
         let requiresForeground = command.action != .observe && command.action != .discard
         if requiresForeground {
-            guard NSWorkspace.shared.frontmostApplication?.processIdentifier == application.processIdentifier else {
+            guard NSWorkspace.shared.frontmostApplication?.processIdentifier == pid else {
                 throw WebAdapterError.browserNotFrontmost
             }
         }
-        let selection: String
-        if command.action == .captureTarget {
-            selection = """
-            if frontmost is false then error "Browser no longer foreground"
-            if (count of windows) is 0 then error "No browser window"
-            set selectedWindow to front window
-            set selectedTab to active tab of selectedWindow
-            """
-        } else {
-            guard let target = command.target, target.applicationID == browserID,
-                  target.sessionID == session,
+        if command.action != .captureTarget {
+            guard let target = command.target, target.sessionID == session,
                   let windowID = Int64(target.windowID), windowID > 0,
-                  let tabText = target.tabID, let tabID = Int64(tabText), tabID > 0 else {
+                  let tab = target.tabID, let tabID = Int64(tab), tabID > 0 else {
                 throw WebAdapterError.invalidTarget
             }
-            // Numeric identifiers only: no interpolation of caller-controlled AppleScript.
-            selection = """
-            set selectedWindow to first window whose id is \(windowID)
-            set selectedTab to first tab of selectedWindow whose id is \(tabID)
-            \(requiresForeground ? "if frontmost is false then error \"Browser no longer foreground\"\nif (id of front window) is not \(windowID) then error \"Original window no longer foreground\"\nif (id of active tab of selectedWindow) is not \(tabID) then error \"Original tab no longer active\"" : "")
-            """
         }
-
         let commandJSON = String(decoding: try JSONEncoder().encode(command), as: UTF8.self)
         let sessionJSON = String(decoding: try JSONEncoder().encode(session), as: UTF8.self)
-        // A supplied program receives native identities as context; it must observe
-        // document/composer identity itself. Merely echoing context is not proof.
-        let prefix = "JSON.stringify((\(program.functionSource))(\(commandJSON),{applicationID:\"\(browserID)\",sessionID:\(sessionJSON),windowID:String("
-        let middle = "),tabID:String("
-        let suffix = ")}))"
-        let source = """
-        with timeout of 5 seconds
-            if application id "com.google.Chrome" is not running then error "Browser not running"
-            tell application id "com.google.Chrome"
-                \(selection)
-                set nativeWindowID to (id of selectedWindow) as text
-                set nativeTabID to (id of selectedTab) as text
-                set jsSource to \(literal(prefix)) & nativeWindowID & \(literal(middle)) & nativeTabID & \(literal(suffix))
-                return execute selectedTab javascript jsSource
-            end tell
-        end timeout
-        """
-        // Keep AppKit foreground/session snapshots on MainActor, but a blocked
-        // Apple Event must not block the rift or menu for its timeout duration.
         let data: Data = try await withCheckedThrowingContinuation { continuation in
             Self.scriptQueue.async {
-                let result: Result<Data, WebAdapterError> = autoreleasepool {
-                    guard let script = NSAppleScript(source: source) else { return .failure(.nativeExecutionFailed) }
-                    var error: NSDictionary?
-                    let reply = script.executeAndReturnError(&error)
-                    guard error == nil, let text = reply.stringValue,
-                          text.utf8.count <= ObservationDecoder.maximumPayloadBytes else {
-                        return .failure(.nativeExecutionFailed)
+                let result: Result<Data, Error> = Result {
+                    try autoreleasepool {
+                        // Recheck process lifetime after waiting for the shared serial
+                        // queue. An old lease cannot target a newly reused PID.
+                        guard let running = NSRunningApplication(processIdentifier: pid),
+                              running.bundleIdentifier == browserID, running.launchDate == launched else {
+                            throw WebAdapterError.invalidTarget
+                        }
+                        let bridge = ChromePIDEvents(pid: pid)
+                        if requiresForeground, try !bridge.frontmost() { throw WebAdapterError.browserNotFrontmost }
+                        let selected: (window: String, tab: String)
+                        if command.action == .captureTarget {
+                            selected = try bridge.activeIdentity()
+                        } else {
+                            guard let target = command.target, let tab = target.tabID else { throw WebAdapterError.invalidTarget }
+                            selected = (target.windowID, tab)
+                            if requiresForeground {
+                                let active = try bridge.activeIdentity()
+                                guard active.window == selected.window, active.tab == selected.tab else {
+                                    throw WebAdapterError.invalidTarget
+                                }
+                            }
+                        }
+                        let context = "{applicationID:\"\(browserID)\",sessionID:\(sessionJSON),windowID:\"\(selected.window)\",tabID:\"\(selected.tab)\"}"
+                        let source = "JSON.stringify((\(program.functionSource))(\(commandJSON),\(context)))"
+                        let text = try bridge.execute(source, window: selected.window, tab: selected.tab)
+                        guard text.utf8.count <= ObservationDecoder.maximumPayloadBytes else { throw WebAdapterError.invalidReply }
+                        return Data(text.utf8)
                     }
-                    return .success(Data(text.utf8))
                 }
                 continuation.resume(with: result)
             }
         }
         if command.action == .captureTarget {
             guard let frontmost = NSWorkspace.shared.frontmostApplication,
-                  frontmost.processIdentifier == application.processIdentifier,
-                  frontmost.launchDate == launched else {
+                  frontmost.processIdentifier == pid, frontmost.launchDate == launched else {
                 throw WebAdapterError.browserNotFrontmost
             }
         }
         return data
     }
+}
 
-    private func literal(_ value: String) -> String {
-        "\"" + value.replacingOccurrences(of: "\\", with: "\\\\")
-            .replacingOccurrences(of: "\"", with: "\\\"")
-            .replacingOccurrences(of: "\r", with: "\\r")
-            .replacingOccurrences(of: "\n", with: "\\n")
-            .replacingOccurrences(of: "\t", with: "\\t") + "\""
+/// Codes come from Chrome's installed scripting.sdef (Standard/Chromium suites),
+/// not undocumented browser internals. This preserves the existing five-second
+/// per-event timeout and never activates, navigates or sends a ChatGPT message.
+private struct ChromePIDEvents {
+    let pid: pid_t
+    private func code(_ text: String) -> UInt32 { text.utf8.reduce(0) { ($0 << 8) | UInt32($1) } }
+
+    private func object(_ kind: String, form: String, key: NSAppleEventDescriptor,
+                        container: NSAppleEventDescriptor = .null()) throws -> NSAppleEventDescriptor {
+        let record = NSAppleEventDescriptor.record()
+        record.setDescriptor(.init(typeCode: code(kind)), forKeyword: code("want"))
+        record.setDescriptor(.init(enumCode: code(form)), forKeyword: code("form"))
+        record.setDescriptor(key, forKeyword: code("seld"))
+        record.setDescriptor(container, forKeyword: code("from"))
+        guard let specifier = record.coerce(toDescriptorType: code("obj ")) else { throw WebAdapterError.nativeExecutionFailed }
+        return specifier
+    }
+
+    private func property(_ name: String, of container: NSAppleEventDescriptor = .null()) throws -> NSAppleEventDescriptor {
+        try object("prop", form: "prop", key: .init(typeCode: code(name)), container: container)
+    }
+
+    private func send(_ suite: String, _ event: String, direct: NSAppleEventDescriptor,
+                      javascript: String? = nil) throws -> NSAppleEventDescriptor {
+        let request = NSAppleEventDescriptor(eventClass: code(suite), eventID: code(event),
+            targetDescriptor: .init(processIdentifier: pid), returnID: -1, transactionID: 0)
+        request.setParam(direct, forKeyword: code("----"))
+        if let javascript { request.setParam(.init(string: javascript), forKeyword: code("JvSc")) }
+        let reply: NSAppleEventDescriptor
+        do { reply = try request.sendEvent(options: [.waitForReply], timeout: 5) }
+        catch {
+            // Never surface the native localized description: it can contain
+            // script source, user paths or page payload. A numeric OSStatus is
+            // sufficient to distinguish denied Automation from timeout/transport.
+            let native = error as NSError
+            guard native.domain == NSOSStatusErrorDomain,
+                  let status = Int32(exactly: native.code) else { throw WebAdapterError.nativeExecutionFailed }
+            throw WebAdapterError.nativeEventFailed(status)
+        }
+        if let error = reply.paramDescriptor(forKeyword: code("errn")), error.int32Value != 0 {
+            throw WebAdapterError.nativeEventFailed(error.int32Value)
+        }
+        guard let result = reply.paramDescriptor(forKeyword: code("----")) else { throw WebAdapterError.nativeExecutionFailed }
+        return result
+    }
+
+    private func get(_ object: NSAppleEventDescriptor) throws -> NSAppleEventDescriptor {
+        try send("core", "getd", direct: object)
+    }
+
+    private func identifier(_ object: NSAppleEventDescriptor) throws -> String {
+        guard let value = try get(property("ID  ", of: object)).stringValue,
+              let number = Int64(value), number > 0 else { throw WebAdapterError.invalidTarget }
+        return String(number)
+    }
+
+    func frontmost() throws -> Bool { try get(property("pisf")).booleanValue }
+
+    func activeIdentity() throws -> (window: String, tab: String) {
+        let front = try object("cwin", form: "indx", key: .init(int32: 1))
+        let windowID = try identifier(front)
+        // Resolve the tab from the captured window, not a second front-window read.
+        let window = try object("cwin", form: "ID  ", key: .init(string: windowID))
+        let active = try get(property("acTa", of: window))
+        return (windowID, try identifier(active))
+    }
+
+    func execute(_ source: String, window: String, tab: String) throws -> String {
+        let windowObject = try object("cwin", form: "ID  ", key: .init(string: window))
+        let tabObject = try object("CrTb", form: "ID  ", key: .init(string: tab), container: windowObject)
+        guard let result = try send("CrSu", "ExJa", direct: tabObject, javascript: source).stringValue else {
+            throw WebAdapterError.nativeExecutionFailed
+        }
+        return result
     }
 }

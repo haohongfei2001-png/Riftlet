@@ -33,7 +33,7 @@ public struct ObservationNormalizer: Sendable {
         let item = envelope.observation
         let identity = item.identity
         let operation = request.operation
-        guard operation.phase.isUnresolved, operation.phase != .prepared else {
+        guard (operation.phase.isUnresolved || operation.phase == .succeeded), operation.phase != .prepared else {
             throw ObservationError.operationNotDispatched
         }
         guard identity.operationID == operation.id, identity.assetID == request.asset.id,

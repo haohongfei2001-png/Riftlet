@@ -65,12 +65,12 @@ final class RecoveryBoundaryTests: XCTestCase {
         XCTAssertEqual(record?.activeOperationID, op.id)
     }
 
-    func testTerminalSuccessCannotBeReversedByLateUnknownOrFailure() async throws {
+    func testTerminalSuccessCannotBeReversedByUncorrelatedLateObservation() async throws {
         let db = try store(); let a = image(); _ = try await db.importAsset(a)
         let op = try await db.prepare(assetID: a.id, target: target()); try await db.markDispatchIntent(op.id)
         let success = evidence(op, a)
         _ = try await db.apply(success, policy: policy)
-        for outcome in [ReceiptOutcome.unknown, .definitiveFailure, .attachedCandidate] {
+        for outcome in [ReceiptOutcome.unknown, .attachedCandidate] {
             let result = try await db.apply(evidence(op, a, outcome: outcome), policy: policy)
             XCTAssertEqual(result.status, .used)
         }

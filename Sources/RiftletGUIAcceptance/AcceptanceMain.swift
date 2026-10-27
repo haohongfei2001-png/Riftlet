@@ -5,7 +5,7 @@ import RiftletUI
 
 @main
 enum AcceptanceMain {
-    static func main() async {
+    @MainActor static func main() {
         if CommandLine.arguments.contains("--help") {
             print("""
             RiftletGUIAcceptance [--self-check]
@@ -25,7 +25,8 @@ enum AcceptanceMain {
             }
             return
         }
-        await MainActor.run { runApplication() }
+        // AppKit must own the main loop outside an executing async actor job.
+        runApplication()
     }
 
     @MainActor private static func runApplication() {

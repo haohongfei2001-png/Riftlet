@@ -12,7 +12,7 @@ const png = Buffer.from([137,80,78,71,13,10,26,10,1,2,3,4,5,6,7,8]);
 const digest = b => createHash('sha256').update(b).digest('hex');
 const native = {applicationID:'com.google.Chrome', sessionID:'4242:1', windowID:'17', tabID:'19'};
 
-function fixture({blockedDigest = false, route = 'https://chatgpt.com/'} = {}) {
+function fixture({blockedDigest = false, route = 'https://chatgpt.com/', mode = 'chat'} = {}) {
   const events = new Map(), globalEvents = new Map();
   let mutationCallback, focused = true, releaseDigest;
   const observations=[];
@@ -22,12 +22,14 @@ function fixture({blockedDigest = false, route = 'https://chatgpt.com/'} = {}) {
     getAttribute(k) { return this.attrs[k] ?? null; }
     get parentNode() { return this.parent; }
     contains(n) { return n === this || this.children.some(c => c.contains(n)); }
-    closest(selector) { if ((selector === 'form' && this.tagName === 'FORM') || (selector === '[role=button]' && this.attrs.role === 'button')) return this; return this.parent?.closest(selector) || null; }
+    closest(selector) { if ((selector === 'form' && this.tagName === 'FORM') || (selector === 'header' && this.tagName === 'HEADER') || (selector === '[role=button]' && this.attrs.role === 'button')) return this; return this.parent?.closest(selector) || null; }
     append(n) { n.parent = this; this.children.push(n); return n; }
     querySelector(selector) { return this.querySelectorAll(selector)[0] || null; }
     querySelectorAll(selector) {
       const all = this.children.flatMap(c => [c, ...c.querySelectorAll('*')]);
       if (selector === '*') return all;
+      if (selector === '[role=group][aria-label="撰写器模式"]') return all.filter(n => n.attrs.role === 'group' && n.attrs['aria-label'] === '撰写器模式');
+      if (selector === 'button[type=button]') return all.filter(n => n.tagName === 'BUTTON' && n.attrs.type === 'button');
       if (selector === 'img') return all.filter(n => n.tagName === 'IMG');
       if (selector === '[role=progressbar]') return all.filter(n => n.attrs.role === 'progressbar');
       if (selector === '[role=button][aria-label]') return all.filter(n => n.attrs.role === 'button' && n.attrs['aria-label'] != null);
@@ -45,12 +47,19 @@ function fixture({blockedDigest = false, route = 'https://chatgpt.com/'} = {}) {
     get form() { return this.formOverride || this.closest('form'); }
   }
   const body = new Node('body'), form = body.append(new Node('form')), editor = form.append(new Node('div'));
+  const modeHeader = body.append(new Node('header'));
+  const modeGroup = modeHeader.append(new Node('div', {role:'group', 'aria-label':'撰写器模式'}));
+  const chatMode = modeGroup.append(new Node('button', {type:'button','aria-pressed':mode === 'work' ? 'false' : 'true'}));
+  const workMode = modeGroup.append(new Node('button', {type:'button','aria-pressed':mode === 'work' ? 'true' : 'false'}));
+  chatMode.textContent='聊天';workMode.textContent='工作';
+  if (mode === 'missing') modeHeader.children=[];
+  if (mode === 'ambiguous') modeHeader.append(new Node('div', {role:'group','aria-label':'撰写器模式'}));
   editor.textContent = 'Existing 中文 draft 👋';
   let currentEditor = editor;
   const input = form.append(new Input());
   const document = {
     visibilityState:'visible', hasFocus:() => focused,
-    querySelectorAll: selector => selector === '[contenteditable=true][role=textbox]' ? [currentEditor] : [],
+    querySelectorAll: selector => selector === '[contenteditable=true][role=textbox]' ? [currentEditor] : body.querySelectorAll(selector),
     addEventListener:(type,fn) => { if (!events.has(type)) events.set(type, []); events.get(type).push(fn); },
     getElementById:() => null
   };
@@ -60,7 +69,7 @@ function fixture({blockedDigest = false, route = 'https://chatgpt.com/'} = {}) {
     if (!records.length) records=[{type:'childList',target:form,removedNodes:[],addedNodes:[]}];
     const delivered=records.filter(record=>observations.some(({target,options})=>
       (target===record.target || (options.subtree && target.contains?.(record.target)))
-      && (record.type==='childList' ? options.childList : options.attributes)));
+      && (record.type==='childList' ? options.childList : record.type==='characterData' ? options.characterData : options.attributes)));
     if(delivered.length) mutationCallback(delivered);
   };
   const sharedPixels = new Uint8Array([12,20,30,255,40,50,60,255]);
@@ -120,7 +129,7 @@ function fixture({blockedDigest = false, route = 'https://chatgpt.com/'} = {}) {
     mutation([{type:'attributes',target:view.image,attributeName:'src'}]);
     for (const fn of events.get('load')||[]) fn({target:view.image,type:'load'});
   };
-  return {Node,Input,document,body,form,editor,input,call,target,bind,stage,commit,observe,settle,makeCard,finish,
+  return {Node,Input,document,body,form,editor,input,modeHeader,modeGroup,chatMode,workMode,call,target,bind,stage,commit,observe,settle,makeCard,finish,
     mutate:records=>mutation(records),release:()=>releaseDigest?.(),focus:v=>{focused=v;},
     replaceEditor:n=>{currentEditor=n;},events,context};
 }
@@ -196,4 +205,57 @@ test('wrong operation identity, file bytes, route or an absent original observer
   assert.throws(()=>fixture({route:'https://chatgpt.com/c/example'}).target(),/UNSUPPORTED_TEST_SURFACE/);
   const corrupt=fixture(),bad=corrupt.bind();bad.identity.assetSHA256='0'.repeat(64);corrupt.stage(bad);corrupt.commit(bad);await corrupt.settle();
   assert.equal(corrupt.input.inputCount,0);assert.equal(corrupt.observe(bad).state,'invalidated');
+});
+
+test('proved attachment keeps its independent identity on a correlated late error, without retry', async () => {
+  const f=fixture(),op=f.bind();f.stage(op);f.commit(op);await f.settle();
+  const view=f.makeCard(op);f.finish(view);await f.settle();
+  const success=f.observe(op);assert.equal(success.state,'attached');assert.ok(success.attachmentID);
+  view.card.attrs['data-state']='error';
+  f.mutate([{type:'attributes',target:view.card,attributeName:'data-state'}]);
+  const failed=f.observe(op);
+  assert.equal(failed.state,'invalidated');assert.equal(failed.hasError,true);
+  assert.equal(failed.belongsToOriginalDraft,true);assert.equal(failed.exactImageIdentity,true);
+  assert.equal(failed.attachmentID,success.attachmentID);assert.equal(failed.automaticRetryExcluded,false);
+  assert.equal(f.observe(op).attachmentID,success.attachmentID);assert.equal(f.input.inputCount,1);
+});
+
+test('navigation, unproved errors and unrelated cards cannot create late-failure identity', async () => {
+  const f=fixture(),op=f.bind();f.stage(op);f.commit(op);await f.settle();const view=f.makeCard(op);
+  view.card.attrs['data-state']='error';f.mutate([{type:'attributes',target:view.card,attributeName:'data-state'}]);
+  assert.equal(f.observe(op).attachmentID,undefined);
+  const g=fixture(),good=g.bind();g.stage(good);g.commit(good);await g.settle();const ready=g.makeCard(good);
+  g.finish(ready);await g.settle();assert.equal(g.observe(good).state,'attached');
+  const other=g.form.append(new g.Node('div',{role:'button','aria-label':'other.png','data-state':'error'}));
+  other.append(new g.Node('img'));g.mutate([]);assert.equal(g.observe(good).state,'attached');
+  g.context.location.href='https://chatgpt.com/c/different';
+  const lost=g.observe(good);assert.equal(lost.state,'invalidated');assert.equal(lost.attachmentID,undefined);
+  assert.equal(lost.hasError,false);assert.equal(g.input.inputCount,1);
+});
+
+test('only the observed unambiguous Chinese Home Chat mode is admitted', () => {
+  assert.equal(fixture().target().surface,'webChat');
+  for(const mode of ['work','missing','ambiguous']) {
+    const f=fixture({mode});assert.throws(()=>f.target(),/UNPROVEN_CHAT_MODE/);assert.equal(f.input.inputCount,0);
+  }
+  const f=fixture();f.workMode.attrs['aria-pressed']='true';assert.throws(()=>f.target(),/UNPROVEN_CHAT_MODE/);
+});
+
+test('mode switching and replacement permanently revoke the original draft lease', async () => {
+  const mutations = [
+    f=>{ f.chatMode.attrs['aria-pressed']='false';f.workMode.attrs['aria-pressed']='true';
+      f.mutate([{type:'attributes',target:f.chatMode,attributeName:'aria-pressed',oldValue:'true'}]); },
+    f=>{ // Final snapshot says Chat again, but the recorded intermediate state says Work.
+      f.mutate([{type:'attributes',target:f.chatMode,attributeName:'aria-pressed',oldValue:'true'},
+        {type:'attributes',target:f.chatMode,attributeName:'aria-pressed',oldValue:'false'}]); },
+    f=>f.mutate([{type:'childList',target:f.modeHeader,removedNodes:[f.modeGroup],addedNodes:[f.modeGroup]}]),
+    f=>f.mutate([{type:'childList',target:f.body,removedNodes:[f.modeHeader],addedNodes:[f.modeHeader]}]),
+    f=>f.mutate([{type:'childList',target:f.modeGroup,removedNodes:[f.chatMode],addedNodes:[f.chatMode]}])
+  ];
+  for(const change of mutations) {
+    const f=fixture({blockedDigest:true}),op=f.bind();f.stage(op);f.commit(op);change(f);
+    f.chatMode.attrs['aria-pressed']='true';f.workMode.attrs['aria-pressed']='false';
+    f.release();await f.settle();assert.equal(f.input.inputCount,0);
+    assert.equal(f.observe(op).state,'invalidated');assert.throws(()=>f.target(),/TARGET_INVALID/);
+  }
 });

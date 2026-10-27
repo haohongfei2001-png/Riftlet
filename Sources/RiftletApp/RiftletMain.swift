@@ -29,22 +29,29 @@ private enum ApplicationMode: Equatable {
 
 @main
 enum RiftletMain {
-    static func main() async {
+    @MainActor static func main() {
         if CommandLine.arguments.contains("--self-check") {
-            do { try await SelfCheck.run(); print("RIFTLET_SELF_CHECK_PASS: private import, durable queue, synthetic receipt, restart") }
-            catch { fputs("RIFTLET_SELF_CHECK_FAIL: \(error)\n", stderr); exit(1) }
-            return
+            Task {
+                do { try await SelfCheck.run(); print("RIFTLET_SELF_CHECK_PASS: private import, durable queue, synthetic receipt, restart"); exit(0) }
+                catch { fputs("RIFTLET_SELF_CHECK_FAIL: \(error)\n", stderr); exit(1) }
+            }
+            dispatchMain()
         }
         if CommandLine.arguments.contains("--web-acceptance-self-check") {
-            do {
-                try await WebAcceptanceSelfCheck.run()
-                print("RIFTLET_WEB_ACCEPTANCE_SELF_CHECK_PASS: bundled page source, synthetic-only policy, isolated modes; CHROME_NOT_RUN; GUI_NOT_RUN")
-            } catch { fputs("RIFTLET_WEB_ACCEPTANCE_SELF_CHECK_FAIL: \(error)\n", stderr); exit(1) }
-            return
+            Task {
+                do {
+                    try await WebAcceptanceSelfCheck.run()
+                    print("RIFTLET_WEB_ACCEPTANCE_SELF_CHECK_PASS: bundled page source, synthetic-only policy, isolated modes; CHROME_NOT_RUN; GUI_NOT_RUN")
+                    exit(0)
+                } catch { fputs("RIFTLET_WEB_ACCEPTANCE_SELF_CHECK_FAIL: \(error)\n", stderr); exit(1) }
+            }
+            dispatchMain()
         }
         do {
             let mode = try ApplicationMode.resolve(CommandLine.arguments)
-            await MainActor.run { runApplication(mode: mode) }
+            // AppKit owns the main run loop. Do not hold a Swift executor job
+            // across run(): delegate Tasks must be able to initialize the app.
+            runApplication(mode: mode)
         } catch { fputs("Riftlet mode conflict; choose one explicit development mode.\n", stderr); exit(2) }
     }
 
@@ -70,6 +77,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
     private var rift: RiftPanelController?
     private var root: URL!
     private var visibleIDs = Set<UUID>()
+    private var completionWatch: Task<Void, Never>?
+    private var watchedCompletions = Set<UUID>()
+    private var observationBackoff: [UUID: (failures: Int, next: Date)] = [:]
     private var instanceDescriptor: Int32 = -1
     private let mode: ApplicationMode
     private var simulation: Bool { mode == .simulation }
@@ -82,6 +92,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
     }
 
     func applicationWillTerminate(_ notification: Notification) {
+        completionWatch?.cancel()
         rift?.close()
         if let sourceBinding { Task { await sourceBinding.stop() } }
         if instanceDescriptor >= 0 { flock(instanceDescriptor, LOCK_UN); Darwin.close(instanceDescriptor) }
@@ -120,10 +131,15 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
         rift = RiftPanelController(mediaDirectory: root.appendingPathComponent("media"), configuration: configuration) { [weak self] id in
             guard let self else { return }
             Task {
+                guard self.mode != .webAcceptance || self.watchedCompletions.count < 64 else {
+                    self.showIssue("Acceptance observation limit reached; images retained.")
+                    return
+                }
                 do { try await self.transfer?.select(id) }
                 catch {
+                    let diagnostic = (error as? WebAdapterError).map { String(describing: $0) } ?? "targetUnavailable"
                     self.showIssue(self.mode == .webAcceptance
-                        ? "Test image retained. Original Chrome draft or Automation access unavailable."
+                        ? "Test image retained. Chrome diagnostic: \(diagnostic)."
                         : "Screenshot retained. ChatGPT attachment adapter is not enabled in this build.")
                 }
                 await self.refresh()
@@ -148,6 +164,34 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
         // Recovery only observes original unresolved operations. In Web acceptance
         // this may contact Chrome after restart; it never dispatches a new input.
         try await transfer.recover()
+        if mode == .webAcceptance {
+            watchedCompletions = Set(try await store.successfulOperations().map(\.id))
+            completionWatch = Task { [weak self] in
+                while !Task.isCancelled {
+                    do { try await Task.sleep(nanoseconds: 5_000_000_000) } catch { return }
+                    guard let self else { return }
+                    for id in self.watchedCompletions {
+                        if Task.isCancelled { return }
+                        if let backoff = self.observationBackoff[id], backoff.next > Date() { continue }
+                        do {
+                            if try await !transfer.observeCompleted(operationID: id) {
+                                self.watchedCompletions.remove(id)
+                            }
+                            self.observationBackoff.removeValue(forKey: id)
+                        } catch WebAdapterError.invalidTarget {
+                            // The original process/session no longer exists.
+                            self.watchedCompletions.remove(id)
+                            self.observationBackoff.removeValue(forKey: id)
+                        } catch {
+                            // Loss of transport is not proof of a late failure.
+                            // Preserve success; back off observation without input.
+                            let failures = min(6, (self.observationBackoff[id]?.failures ?? 0) + 1)
+                            self.observationBackoff[id] = (failures, Date().addingTimeInterval(min(300, pow(2, Double(failures)) * 5)))
+                        }
+                    }
+                }
+            }
+        }
         if mode != .capture {
             statusLine?.title = simulation ? "SIMULATION · synthetic images only · no ChatGPT input"
                 : "WEB ACCEPTANCE · generated images · real Chrome input"
@@ -192,7 +236,12 @@ private final class ApplicationController: NSObject, NSApplicationDelegate {
             let activeIDs = Set(active.map(\.id))
             // Include only newly consumed rows, rather than loading a growing used-image history.
             for id in visibleIDs.subtracting(activeIDs) {
-                if let consumed = try await store.asset(id: id), consumed.status == .used { snapshot.append(consumed) }
+                if let consumed = try await store.asset(id: id), consumed.status == .used {
+                    snapshot.append(consumed)
+                    if mode == .webAcceptance, let operationID = consumed.activeOperationID {
+                        watchedCompletions.insert(operationID)
+                    }
+                }
             }
             visibleIDs = activeIDs
             rift?.render(snapshot)

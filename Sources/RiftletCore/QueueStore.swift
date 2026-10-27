@@ -102,8 +102,22 @@ public actor QueueStore {
         return try JSONDecoder().decode(TransferReceipt.self, from: Data(raw.utf8))
     }
 
+    public func compensation(for operationID: UUID) throws -> TransferCompensation? {
+        guard let raw = try database.rows("SELECT evidence_json FROM compensations WHERE operation_id=?", [operationID.uuidString]).first?.first ?? nil else { return nil }
+        return try JSONDecoder().decode(TransferCompensation.self, from: Data(raw.utf8))
+    }
+
     public func unresolvedOperations() throws -> [TransferOperation] {
         try database.rows("SELECT id,asset_id,attempt,target_json,phase,created_at,updated_at FROM operations WHERE phase NOT IN ('failed','succeeded') ORDER BY sequence").map(decodeOperation)
+    }
+
+    /// A bounded restart observation set; old receipt history is never replayed.
+    public func successfulOperations(limit: Int = 64) throws -> [TransferOperation] {
+        try database.rows("""
+            SELECT o.id,o.asset_id,o.attempt,o.target_json,o.phase,o.created_at,o.updated_at
+            FROM operations o JOIN assets a ON a.active_operation_id=o.id
+            WHERE o.phase='succeeded' ORDER BY o.sequence DESC LIMIT ?
+            """, [String(max(0, min(limit, 64)))]).map(decodeOperation)
     }
 
     /// Commit intent BEFORE the caller performs any external input.
@@ -111,7 +125,7 @@ public actor QueueStore {
         try database.transaction {
             let op = try requiredOperation(id)
             guard op.phase == .prepared else { throw RiftletError.invalidTransition }
-            guard try database.rows("SELECT id FROM operations WHERE target_key=? AND phase IN ('dispatchIntent','inputTriggered','attachmentPresent','unknown')", [op.target.stableKey]).isEmpty else { throw RiftletError.targetBusy }
+            guard try database.rows("SELECT id FROM operations WHERE target_key=? AND phase IN ('dispatchIntent','inputTriggered','attachmentPresent','unknown','compensated')", [op.target.stableKey]).isEmpty else { throw RiftletError.targetBusy }
             try update(op, phase: .dispatchIntent, status: .transferring, reason: "dispatch-intent committed")
         }
     }
@@ -128,7 +142,7 @@ public actor QueueStore {
         try database.transaction {
             let op = try requiredOperation(id)
             guard op.phase.isUnresolved, op.phase != .prepared else { throw RiftletError.invalidTransition }
-            try update(op, phase: .unknown, status: .unknown, reason: reason)
+            try update(op, phase: op.phase == .compensated ? .compensated : .unknown, status: .unknown, reason: reason)
         }
     }
 
@@ -140,7 +154,29 @@ public actor QueueStore {
             guard op.assetID == receipt.assetID, op.attempt == receipt.attempt,
                   record.image.sha256 == receipt.assetSHA256, op.target == receipt.target,
                   record.activeOperationID == op.id else { throw RiftletError.mismatchedReceipt }
-            // A delayed result cannot change an already terminal attempt.
+            // A positive terminal receipt is not immune to a later, independently
+            // identified error. Preserve both facts atomically; never re-upload.
+            if op.phase == .succeeded {
+                guard let success = try self.receipt(for: op.id),
+                      correlatedFailure(receipt, success: success) else { return record }
+                let evidence = TransferCompensation(originalSuccess: success, failure: receipt, createdAt: Date())
+                try database.execute("INSERT INTO compensations(operation_id,evidence_json) VALUES(?,?)", [op.id.uuidString, try json(evidence)])
+                try update(op, phase: .compensated, status: .unknown, reason: "Identity-correlated late failure; observation only")
+                try database.execute("UPDATE operations SET receipt_json=? WHERE id=?", [try json(receipt), op.id.uuidString])
+                guard let restored = try asset(id: op.assetID) else { throw RiftletError.assetNotFound }
+                return restored
+            }
+            if op.phase == .compensated {
+                // Old success/candidate/UNKNOWN replies cannot swallow the restored
+                // image again. Only separate retry admission can release this lock.
+                guard let evidence = try compensation(for: op.id),
+                      correlatedFailure(receipt, success: evidence.originalSuccess),
+                      policy.allowsRetry(receipt: receipt, asset: record.image, mode: mode) else { return record }
+                try update(op, phase: .failed, status: .failed, reason: receipt.reason)
+                try database.execute("UPDATE operations SET receipt_json=? WHERE id=?", [try json(receipt), op.id.uuidString])
+                guard let restored = try asset(id: op.assetID) else { throw RiftletError.assetNotFound }
+                return restored
+            }
             guard op.phase.isUnresolved else { return record }
             guard op.phase != .prepared else { throw RiftletError.invalidTransition }
             var phase = op.phase; var status = record.status
@@ -171,6 +207,7 @@ public actor QueueStore {
     public func recoverInterruptedOperations() throws {
         try database.transaction {
             for op in try unresolvedOperations() {
+                if op.phase == .compensated { continue }
                 if op.phase == .prepared {
                     try update(op, phase: .failed, status: .failed, reason: "Restart before dispatch intent; no input occurred")
                 } else {
@@ -203,6 +240,16 @@ public actor QueueStore {
             } else { status = .pending }
             try database.execute("UPDATE assets SET status=? WHERE id=?", [status.rawValue, id.uuidString])
         }
+    }
+
+    private func correlatedFailure(_ failure: TransferReceipt, success: TransferReceipt) -> Bool {
+        success.outcome == .verifiedReady && success.positiveReady && success.belongsToOriginalDraft
+            && !success.hasError && !success.isUploading
+            && failure.hasError && !failure.positiveReady && failure.belongsToOriginalDraft
+            && (failure.outcome == .unknown || failure.outcome == .definitiveFailure)
+            && failure.profileID == success.profileID
+            && failure.attachmentID == success.attachmentID
+            && !(success.attachmentID?.isEmpty ?? true)
     }
 
     private func update(_ op: TransferOperation, phase: OperationPhase, status: QueueStatus, reason: String) throws {

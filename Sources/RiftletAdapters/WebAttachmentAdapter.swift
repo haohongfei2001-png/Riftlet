@@ -46,6 +46,7 @@ public protocol WebBridgeExecutor: Sendable {
 public enum WebAdapterError: Error, Equatable, Sendable {
     case disabled, programUnavailable, syntheticAssetsOnly, invalidTarget, invalidRequest
     case invalidPrivateFile, inputInFlight, invalidReply, browserNotFrontmost, nativeExecutionFailed
+    case nativeEventFailed(Int32)
 }
 
 /// Real bridge code can be integrated without enabling real screenshots. There is
@@ -143,11 +144,16 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
         try check(request.operation.target)
         guard request.asset.origin == .synthetic else { throw WebAdapterError.syntheticAssetsOnly }
         guard request.operation.assetID == request.asset.id,
-              request.operation.phase.isUnresolved,
+              (request.operation.phase.isUnresolved || request.operation.phase == .succeeded),
               request.operation.phase != .prepared else { throw WebAdapterError.invalidRequest }
         let identity = ObservationIdentity(operationID: request.operation.id, assetID: request.asset.id,
             attempt: request.operation.attempt, assetSHA256: request.asset.sha256, target: request.operation.target)
         let data = try await perform(.init(action: .observe, target: identity.target, identity: identity))
+        // Successful operations may only be checked for identity-correlated late
+        // errors. A single observation does not start another polling/upload loop.
+        if request.operation.phase == .succeeded {
+            return try normalizer.receipt(from: ObservationDecoder.decode(data), for: request)
+        }
         return try await observeCompletion(initial: data, identity: identity, request: request)
     }
 
@@ -181,9 +187,35 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
     private func perform(_ command: WebBridgeCommand) async throws -> Data {
         try requireEnabled()
         guard let program else { throw WebAdapterError.programUnavailable }
-        let reply = try await executor.execute(command, program: program)
-        guard reply.count <= ObservationDecoder.maximumPayloadBytes else { throw WebAdapterError.invalidReply }
-        return reply
+        do {
+            let reply = try await executor.execute(command, program: program)
+            guard reply.count <= ObservationDecoder.maximumPayloadBytes else { throw WebAdapterError.invalidReply }
+            return reply
+        } catch {
+            // This bridge is synthetic-development-only. Log only a closed set
+            // of code-owned labels/numeric OSStatus, never NSError descriptions,
+            // page text, target identities, JavaScript or user paths.
+            if case .syntheticDevelopment = mode {
+                let label: String
+                switch error as? WebAdapterError {
+                case .disabled?: label = "disabled"
+                case .programUnavailable?: label = "programUnavailable"
+                case .syntheticAssetsOnly?: label = "syntheticAssetsOnly"
+                case .invalidTarget?: label = "invalidTarget"
+                case .invalidRequest?: label = "invalidRequest"
+                case .invalidPrivateFile?: label = "invalidPrivateFile"
+                case .inputInFlight?: label = "inputInFlight"
+                case .invalidReply?: label = "invalidReply"
+                case .browserNotFrontmost?: label = "browserNotFrontmost"
+                case .nativeExecutionFailed?: label = "nativeExecutionFailed"
+                case .nativeEventFailed(let code)?: label = "nativeEventFailed(\(code))"
+                case nil: label = "unclassifiedTransportError"
+                }
+                let message = "RIFTLET_WEB_DIAGNOSTIC action=\(command.action.rawValue) error=\(label)\n"
+                try? FileHandle.standardError.write(contentsOf: Data(message.utf8))
+            }
+            throw error
+        }
     }
 
     private func check(_ target: TargetLease) throws {
