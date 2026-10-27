@@ -61,18 +61,18 @@ public final class ChromeAppleEventsExecutor: WebBridgeExecutor {
                               running.bundleIdentifier == browserID, running.launchDate == launched else {
                             throw WebAdapterError.invalidTarget
                         }
-                        let bridge = ChromePIDEvents(pid: pid)
+                        let bridge = ChromePIDEvents(pid: pid, trace: trace, requestID: requestID)
                         phase = "foreground"
                         if requiresForeground, try !bridge.frontmost() { throw WebAdapterError.browserNotFrontmost }
                         phase = "selection"
                         let selected: (window: String, tab: String)
                         if command.action == .captureTarget {
-                            selected = try bridge.activeIdentity()
+                            selected = try bridge.activeIdentity(check: "capture_selection")
                         } else {
                             guard let target = command.target, let tab = target.tabID else { throw WebAdapterError.invalidTarget }
                             selected = (target.windowID, tab)
                             if requiresForeground {
-                                let active = try bridge.activeIdentity()
+                                let active = try bridge.activeIdentity(check: "input_selection")
                                 guard active.window == selected.window, active.tab == selected.tab else {
                                     throw WebAdapterError.nativeSelectionChanged
                                 }
@@ -106,7 +106,7 @@ public final class ChromeAppleEventsExecutor: WebBridgeExecutor {
                             // selecting another tab while the receipt was pending
                             // is a different target even in the same Chrome PID.
                             phase = "capture_return_selection"
-                            let active = try bridge.activeIdentity()
+                            let active = try bridge.activeIdentity(check: "capture_return_selection")
                             guard active == selected else { throw WebAdapterError.nativeSelectionChanged }
                         }
                         phase = "complete"
@@ -187,11 +187,54 @@ private final class ChromeBridgeTrace: @unchecked Sendable {
         }
     }
 
+    func activeIdentity(requestID: String, check: String, route: String, started: TimeInterval, succeeded: Bool) {
+        guard enabled else { return }
+        lock.lock(); defer { lock.unlock() }
+        guard count < 2048 else { return }; count += 1
+        let fields: [String: Any] = ["event": "active_identity", "requestID": requestID,
+            "check": check, "route": route, "elapsedMS": (ProcessInfo.processInfo.systemUptime - started) * 1000,
+            "succeeded": succeeded, "authority": "DIAGNOSTIC_ONLY"]
+        if let data = try? JSONSerialization.data(withJSONObject: fields, options: [.sortedKeys]) {
+            try? FileHandle.standardError.write(contentsOf: data + Data([10]))
+        }
+    }
+
     private func addContext(_ context: CaptureInvocationContext?, to fields: inout [String: Any]) {
         guard let context else { return }
         fields["captureRequestID"] = context.requestID.uuidString
         fields["armAttemptID"] = context.armAttemptID.uuidString
         fields["hostEpoch"] = context.hostEpoch.uuidString
+    }
+}
+
+/// Pure parser for the observed Chrome get-acTa result. Only a complete,
+/// absolute tab-ID -> window-ID -> null object chain is a one-read identity.
+/// Unsupported descriptor shapes return nil for the existing compatibility path.
+enum ChromeActiveTabDescriptor {
+    private static func code(_ text: String) -> UInt32 { text.utf8.reduce(0) { ($0 << 8) | UInt32($1) } }
+
+    static func identity(in descriptor: NSAppleEventDescriptor) -> (window: String, tab: String)? {
+        guard let tab = fixedObject(descriptor, kind: "CrTb"),
+              let window = fixedObject(tab.container, kind: "cwin"),
+              window.container.descriptorType == code("null"), window.container.data.isEmpty else { return nil }
+        return (window.id, tab.id)
+    }
+
+    private static func fixedObject(_ descriptor: NSAppleEventDescriptor, kind: String)
+        -> (id: String, container: NSAppleEventDescriptor)? {
+        let keys = Set([code("want"), code("form"), code("seld"), code("from")])
+        guard descriptor.descriptorType == code("obj "), descriptor.numberOfItems == 4,
+              Set((1...4).map { descriptor.keywordForDescriptor(at: $0) }) == keys,
+              let want = descriptor.forKeyword(code("want")), want.descriptorType == code("type"),
+              want.data.count == 4, want.typeCodeValue == code(kind),
+              let form = descriptor.forKeyword(code("form")), form.descriptorType == code("enum"),
+              form.data.count == 4, form.enumCodeValue == code("ID  "),
+              let selector = descriptor.forKeyword(code("seld")), selector.descriptorType == code("utxt"),
+              let text = selector.stringValue, !text.isEmpty, text.utf8.count <= 19,
+              text.utf8.allSatisfy({ (48...57).contains($0) }), text.first != "0",
+              let number = Int64(text), number > 0, String(number) == text,
+              let container = descriptor.forKeyword(code("from")) else { return nil }
+        return (text, container)
     }
 }
 
@@ -201,6 +244,8 @@ private final class ChromeBridgeTrace: @unchecked Sendable {
 /// setter receives only a void JavaScript expression, not a navigation URL.
 private struct ChromePIDEvents {
     let pid: pid_t
+    let trace: ChromeBridgeTrace
+    let requestID: String
     private func code(_ text: String) -> UInt32 { text.utf8.reduce(0) { ($0 << 8) | UInt32($1) } }
 
     private func object(_ kind: String, form: String, key: NSAppleEventDescriptor,
@@ -258,13 +303,27 @@ private struct ChromePIDEvents {
 
     func frontmost() throws -> Bool { try get(property("pisf")).booleanValue }
 
-    func activeIdentity() throws -> (window: String, tab: String) {
+    func activeIdentity(check: String) throws -> (window: String, tab: String) {
+        let started = ProcessInfo.processInfo.systemUptime
+        var route = "descriptor_read_failed", succeeded = false
+        defer { trace.activeIdentity(requestID: requestID, check: check, route: route, started: started, succeeded: succeeded) }
         let front = try object("cwin", form: "indx", key: .init(int32: 1))
+        // One get resolves the front window's active tab to an absolute object
+        // chain. Parse fields, never the descriptor's printable description.
+        let snapshot = try get(property("acTa", of: front))
+        if let identity = ChromeActiveTabDescriptor.identity(in: snapshot) {
+            route = "descriptor_fast"; succeeded = true; return identity
+        }
+        route = "legacy_fallback"
+        // Older/unsupported Chrome shapes retain the previous three-read path.
+        // A transport error above propagates; it is not an automatic resend.
         let windowID = try identifier(front)
         // Resolve the tab from the captured window, not a second front-window read.
         let window = try object("cwin", form: "ID  ", key: .init(string: windowID))
         let active = try get(property("acTa", of: window))
-        return (windowID, try identifier(active))
+        let tabID = try identifier(active)
+        succeeded = true
+        return (windowID, tabID)
     }
 
     func execute(_ source: String, window: String, tab: String) throws -> String {

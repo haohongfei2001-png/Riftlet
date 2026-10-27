@@ -15,8 +15,12 @@ public enum WebBridgeAction: String, Codable, Sendable {
 public struct WebPageProgram: Sendable {
     public let sourceID: String
     public let functionSource: String
-    public init(sourceID: String, functionSource: String) {
+    /// Code-owned transport capacity; never negotiated from page JSON. Older
+    /// and generic programs retain their 64 KiB default.
+    public let maximumChunkBytes: Int
+    public init(sourceID: String, functionSource: String, maximumChunkBytes: Int = 64 * 1024) {
         self.sourceID = sourceID; self.functionSource = functionSource
+        self.maximumChunkBytes = maximumChunkBytes
     }
 }
 
@@ -116,6 +120,7 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
         inputInFlight = true
         defer { inputInFlight = false }
 
+        guard let maximumChunkBytes = program?.maximumChunkBytes else { throw WebAdapterError.programUnavailable }
         // Two passes through the same no-follow descriptor: do not transfer an
         // already-corrupt file, and do not commit if bytes change while chunking.
         let file = try PrivateUploadFile(request: request, mediaDirectory: mediaDirectory)
@@ -134,7 +139,7 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
             began = true
             var index = 0
             var hash = SHA256()
-            while let chunk = try file.nextChunk() {
+            while let chunk = try file.nextChunk(maximumBytes: maximumChunkBytes) {
                 hash.update(data: chunk)
                 let command = WebBridgeCommand(action: .chunk, target: identity.target, identity: identity,
                     chunkIndex: index, chunkBase64: chunk.base64EncodedString())
@@ -204,7 +209,8 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
     private func requireEnabled() throws {
         guard case .syntheticDevelopment = mode else { throw WebAdapterError.disabled }
         guard let program, !program.sourceID.isEmpty, !program.functionSource.isEmpty,
-              program.functionSource.utf8.count <= 128 * 1024 else { throw WebAdapterError.programUnavailable }
+              program.functionSource.utf8.count <= 128 * 1024,
+              (64 * 1024...256 * 1024).contains(program.maximumChunkBytes) else { throw WebAdapterError.programUnavailable }
     }
 
     private func perform(_ command: WebBridgeCommand) async throws -> Data {
@@ -284,7 +290,7 @@ private final class PrivateUploadFile {
         guard url.isFileURL, url.lastPathComponent == request.asset.fileName,
               url.deletingLastPathComponent().resolvingSymlinksInPath() == mediaDirectory.resolvingSymlinksInPath(),
               !url.pathExtension.isEmpty, request.asset.byteCount > 0,
-              request.asset.byteCount <= 128 * 1024 * 1024 else { throw WebAdapterError.invalidPrivateFile }
+              request.asset.byteCount <= 8 * 1024 * 1024 else { throw WebAdapterError.invalidPrivateFile }
         let descriptor = open(url.path, O_RDONLY | O_NONBLOCK | O_NOFOLLOW | O_CLOEXEC)
         guard descriptor >= 0 else { throw WebAdapterError.invalidPrivateFile }
         var info = stat()
@@ -298,8 +304,9 @@ private final class PrivateUploadFile {
 
     deinit { close(fd) }
 
-    func nextChunk() throws -> Data? {
-        var data = Data(count: 64 * 1024)
+    func nextChunk(maximumBytes: Int = 64 * 1024) throws -> Data? {
+        guard (1...256 * 1024).contains(maximumBytes) else { throw WebAdapterError.invalidPrivateFile }
+        var data = Data(count: maximumBytes)
         let count: Int = data.withUnsafeMutableBytes { buffer in
             var result: Int
             repeat { result = read(fd, buffer.baseAddress, buffer.count) } while result < 0 && errno == EINTR

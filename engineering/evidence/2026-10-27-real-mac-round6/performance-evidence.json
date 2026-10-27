@@ -1,0 +1,133 @@
+{
+  "schemaVersion": 1,
+  "comparison": "one generated-image sample per source, same bytes/hash, not statistical latency guarantee",
+  "oldSourceSHA": "53ebcc4da4b0df508edc11f6ead9ea4d8a843dad",
+  "newSourceSHA": "7878de3138d1c140369c3cfbe69a28dd2770294c",
+  "oldPageObservation": {
+    "bridgeBeforeUptime": 456713.075399166,
+    "bridgeAfterUptime": 456713.33883,
+    "page": {
+      "nowMS": 186860.10000002384,
+      "timeOrigin": 1793101011800.1,
+      "pageFocused": true,
+      "editorFocused": true,
+      "textPreserved": true,
+      "oldCardsPreserved": true,
+      "fileEvents": [
+        {
+          "type": "change",
+          "t": 154145.5,
+          "isTrusted": false,
+          "files": 1,
+          "editorFocused": true,
+          "pageFocused": true,
+          "textPreserved": true,
+          "cardsPreserved": true,
+          "selectionPreserved": true
+        }
+      ],
+      "operations": [
+        {
+          "operationID": "D53F7E0E-871B-4118-84DB-FB00772E1FE7",
+          "assetID": "A69D72AA-1616-4D12-BC70-8FA5A77B8AE0",
+          "attempt": 1,
+          "hash": "494d7d015dc1a91073b356e1d6d64a546497aab37f8c47c4f82c630d7033f5bb",
+          "inputCount": 1,
+          "inputSequence": 2,
+          "inputObservedAtMS": 154145.80000001192,
+          "start": {
+            "version": 1,
+            "signal": "correlatedProgress",
+            "evidenceID": "e948f80c-8d5a-4176-aeee-a7be66d4d073",
+            "inputCount": 1,
+            "inputSequence": 2,
+            "startSequence": 31,
+            "previousProgress": 4.084106969654981,
+            "currentProgress": 8.622003602604961,
+            "inputObservedAtMS": 154145.80000001192,
+            "startObservedAtMS": 156323.70000004768
+          },
+          "proofCompletedAtMS": 161791.5,
+          "proofCompletedSequence": 50,
+          "hasProof": true,
+          "committed": true,
+          "invalid": false,
+          "error": false,
+          "uploading": false,
+          "startDisqualified": true,
+          "progressCount": 0,
+          "originalProgressNode": false,
+          "exactProgressLabel": false
+        }
+      ]
+    }
+  },
+  "newPageObservation": {
+    "bridgeBeforeUptime": 462748.259900791,
+    "bridgeAfterUptime": 462748.524347041,
+    "page": {
+      "nowMS": 136655.80000001192,
+      "timeOrigin": 1793107097209.3,
+      "pageFocused": true,
+      "editorFocused": true,
+      "textPreserved": true,
+      "oldCardsPreserved": true,
+      "fileEvents": [
+        {
+          "type": "change",
+          "t": 100073.69999998808,
+          "isTrusted": false,
+          "files": 1,
+          "editorFocused": true,
+          "pageFocused": true,
+          "textPreserved": true,
+          "cardsPreserved": true,
+          "selectionPreserved": true
+        }
+      ],
+      "operations": [
+        {
+          "operationID": "134D2BC3-19D5-4E87-BAFC-EE8D23195C13",
+          "assetID": "D1871E45-5FB8-4F8E-9BAD-920C4EE8E8A2",
+          "attempt": 1,
+          "hash": "494d7d015dc1a91073b356e1d6d64a546497aab37f8c47c4f82c630d7033f5bb",
+          "inputCount": 1,
+          "inputSequence": 2,
+          "inputObservedAtMS": 100073.80000001192,
+          "start": {
+            "version": 1,
+            "signal": "correlatedProgress",
+            "evidenceID": "c083a2cb-e074-46ef-92a1-d190d42e0c28",
+            "inputCount": 1,
+            "inputSequence": 2,
+            "startSequence": 19,
+            "previousProgress": 4.084106969654981,
+            "currentProgress": 4.9916862962449775,
+            "inputObservedAtMS": 100073.80000001192,
+            "startObservedAtMS": 102309.19999998808
+          },
+          "proofCompletedAtMS": 108035.80000001192,
+          "proofCompletedSequence": 53,
+          "hasProof": true,
+          "committed": true,
+          "invalid": false,
+          "error": false,
+          "uploading": false,
+          "startDisqualified": true,
+          "progressCount": 0,
+          "originalProgressNode": false,
+          "exactProgressLabel": false
+        }
+      ]
+    }
+  },
+  "traceHashes": {
+    "riftlet-round5-final.jsonl": "cf7fa890dbead121c225048160dcecbb8b50bf400051ffa62d9237af24e19a49",
+    "riftlet-round6-valid-cold.jsonl": "d5f1eaf86a155a99d7b311095718c67f9b7d6ed98d9a7989ab76322802a2aef4"
+  },
+  "nativeScope": "AX software input and AppKit function/window-close timestamps; not physical mouse or first rendered pixel",
+  "oldClickToCloseMS": 5510.2175,
+  "newClickToCloseMS": 3668.704125,
+  "oldChunkCount": 49,
+  "newChunkCount": 13
+}

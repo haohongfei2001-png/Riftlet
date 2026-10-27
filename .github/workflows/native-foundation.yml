@@ -92,6 +92,7 @@ jobs:
           swift test --skip-build --filter PresentationBoundaryTests 2>&1 | tee test-results/presentation-boundaries-detailed.log
           swift test --skip-build --filter WebAcceptanceIntegrationTests 2>&1 | tee test-results/web-composition-detailed.log
           swift test --skip-build --filter PassivePermissionResumeTests 2>&1 | tee test-results/passive-permission-resume-detailed.log
+          swift test --skip-build --filter ChromeActiveTabDescriptorTests 2>&1 | tee test-results/chrome-active-descriptor-detailed.log
       - name: Package native application
         run: |
           set -o pipefail

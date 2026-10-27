@@ -1,0 +1,23 @@
+{
+  "sourceSHA": "c000cc1b930b278ae22b29e6b01941a9faf0a87d",
+  "result": "PASS_NO_BLOCKING_FINDINGS",
+  "reviews": [
+    {
+      "reviewer": "independent native lane",
+      "scope": "v12 chunk bounds, bytes/hash/ACK/one commit, legacy forwarding",
+      "execution": "126 page/legacy VM checks passed; actual Chrome and RSS not inferred"
+    },
+    {
+      "reviewer": "independent legacy/cold lane",
+      "scope": "v12 and native fixed descriptor parser, fallback, selection-return and foreground guards",
+      "execution": "126 page/legacy VM checks plus Swift parse passed; live read-only batch separately recorded"
+    }
+  ],
+  "localNativeParser": "five Foundation descriptor assertion groups passed; not represented as XCTest",
+  "coreUIAppChanges": false,
+  "productionAndSafeRetryAdmissionChanged": false,
+  "remainingProductFailures": [
+    "no-complete-ACK cold click refuses",
+    "same-draft B remains targetBusy while A unresolved"
+  ]
+}

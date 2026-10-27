@@ -9,10 +9,11 @@
  */
 function riftletWebAcceptance(command, native) {
   'use strict';
-  // v11 handles native MutationRecord NodeLists so event observation survives early return.
+  // v12 accepts bounded 256 KiB chunks with the same per-chunk ACK and one-shot commit.
   // Its old native requests remain UNKNOWN instead of acquiring a new lease.
-  const KEY = '__riftletWebAcceptance20261027v11';
+  const KEY = '__riftletWebAcceptance20261027v12';
   const MAX_GENERATIONS = 32;
+  const MAX_CHUNK_BYTES = 256 * 1024;
   const MAX_BYTES = 8 * 1024 * 1024, MAX_PIXELS = 16 * 1024 * 1024;
   const TARGET_KEYS = ['adapterID', 'surface', 'applicationID', 'sessionID', 'windowID', 'tabID', 'documentID', 'composerID', 'draftGeneration'];
   const sameLogical = (a, b) => (!a && !b) || (!!a && !!b && a.profileID === b.profileID && a.id === b.id);
@@ -650,10 +651,10 @@ function riftletWebAcceptance(command, native) {
   }
   if (command.action === 'chunk') {
     if (op.committed || op.invalid || command.chunkIndex !== op.nextChunk
-        || typeof command.chunkBase64 !== 'string' || command.chunkBase64.length > 87384
+        || typeof command.chunkBase64 !== 'string' || command.chunkBase64.length > 4 * Math.ceil(MAX_CHUNK_BYTES / 3)
         || !/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(command.chunkBase64)) fail('CHUNK_REFUSED');
     const bytes = Uint8Array.from(atob(command.chunkBase64), c => c.charCodeAt(0));
-    if (!bytes.length || bytes.length > 65536 || op.received + bytes.length > op.bytes) fail('CHUNK_SIZE');
+    if (!bytes.length || bytes.length > MAX_CHUNK_BYTES || op.received + bytes.length > op.bytes) fail('CHUNK_SIZE');
     op.chunks.push(bytes); op.received += bytes.length; op.nextChunk++;
     return acknowledge(op, op.nextChunk);
   }
