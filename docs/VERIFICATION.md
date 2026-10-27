@@ -9,7 +9,23 @@
 - macOS CI compilation/tests/package smoke do not prove interactive focus, click-through, Spaces or real upload.
 - No real user screenshots, chats or browser sessions are used in automated tests.
 
-## Formal integration — current increment
+## Round-two formal integration — current increment
+
+**第二轮完整工程 CI 与非作者审查通过：** 已测正式输入 [`39046d16823401c50ce3527ec1204e7517e1078a`](https://github.com/haohongfei2001-png/Riftlet/commit/39046d16823401c50ce3527ec1204e7517e1078a)，[run40462287936](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40462287936) / job122049461297，于2026-10-27 **14:39:36北京时间**成功。**227/227原生**（Capture48/Core73/UI17/Adapters89）、**31/31页面VM**、**8/8故障工具离线组**、历史回放55文件/19用例/89前缀/2明确模拟迟到错误、Release/签名及三个自检全部通过。SQLite v1→v2迁移/回滚、UNKNOWN/补偿、logical11、scheduler8、MAIN7和M1恢复均在实际日志核对。
+
+[永久验证](../engineering/evidence/2026-10-27-integration-round2/verification.json)、[非作者审查](../engineering/evidence/2026-10-27-integration-round2/review.json)、[实际日志摘录](../engineering/evidence/2026-10-27-integration-round2/ci-excerpt.txt)、[工程制品12714722940](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40462287936/artifacts/12714722940)。源码/测试与fff0e8c一致，最终文档提交不修改已测输入。临时PR测试合并17dc667不是main合并；PR #1保持Draft，不发布。CI自检明确CHROME_NOT_RUN/GUI_NOT_RUN；不冒充本地真实验收。
+
+Artifact12714722940: **1,123,280 bytes**, SHA256 `68505ec7e5cfb2d59827a1a4ac1132128b5e6376aaf451e0049ec9cf4c46248a`, expires2026-11-10. Runner: macOS14.8.9/build23J631/arm64, Apple Swift5.10. Root and the independent evidence reviewer each read run/job/full logs/artifact metadata. The 48 selected actual regression execution lines are retained alongside compiler, fixture and self-check lines; they are not a new test suite. Build times27.79s(debug/tests),18.22s(release) are CI durations, not screenshot latency.
+
+The source predecessor's [run40458148137](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40458148137) atfff0e8c passed227native/31page; that historical run did not contain root's new8-group CI step. The current full run above did. Root did not add unrelated product tests merely to increase counts. All11 incoming evidence files are identical to8d7007e, including the eight JSON records and fault template/test. New integration evidence is kept separately. Core's non-author additionally executed the exact extracted migration SQL in Linux SQLite3.53.1 at8rollback/reopen boundaries; this is not Swift, process-kill or power-loss proof.
+
+### Current inherited real-Mac scope
+
+Second-round local sourcefff0e8c and [handoff8d7007e](../engineering/evidence/2026-10-27-real-mac-round2/README.md) record scoped existing-thread generated-image success, UNKNOWN observe-only recovery, original background proof/DOM-marker compensation, and an actual bound POST100 XHR abort after UI100 with UNKNOWN/restart retention. These are separately classified: synthetic VM is not live network evidence; DOM compensation is not post-consumption network failure; queued complete progress after abort is not server success. Raw private pixels/network payloads were not imported or newly captured by the integrator.
+
+MID did not bind/abort its bytes. Full UX-01/02, unobservable React A→B→A, physical N1, screenshot self-inclusion isolation, full source→clickable latency/resources and production two-operation loop remain open/NOT_RUN. The two extra system images were collected with originals/private bytes retained; approximately61.5s after shortcut-return is not a proven watcher delay. Normal production queue had5pending/0operations, acceptance6used/4unknown with3compensation audits in the incoming local preservation record; this session did not inspect or modify those private stores. Production screenshot input/consumption, safe retry and Mac client profiles remain disabled.
+
+## Previous formal integration — historical c1456534
 
 <!-- INTEGRATION_STATUS -->
 Tested combined source [`76a8385be063bf225248c057262eb8d57e4be43f`](https://github.com/haohongfei2001-png/Riftlet/commit/76a8385be063bf225248c057262eb8d57e4be43f) preserves both f075b8f and88f9e36 as parents. [Run40453748396](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40453748396) / job122022173576 completed successfully2026-10-27 13:11:09Beijing: **201/201 native** (Capture48/Core54/UI17/Adapters82), **20/20 page VM**, archived replay55files/19cases/89prefixes/2simulated late-error vetoes, release/ad-hoc signature and all three packaged self-checks. The actual CI checkout21600647f30a2d6da1ca109f1f7db55c3e81bf6c is a temporary PR test merge, not a main merge.
@@ -19,7 +35,7 @@ Actual XCTest logs include v1→v2 data/receipt/order/lock preservation, migrati
 [Artifact12711707097](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40453748396/artifacts/12711707097):1068262bytes, SHA256`11d788d77e8e23fac3c01ce2583c1e6c0eb94648664a8cd0b37f9cc5b36b6c24`, expires2026-11-10. No real GUI/ChatGPT is exercised by CI; CHROME_NOT_RUN/GUI_NOT_RUN remain explicit. This documentation/evidence checkpoint leaves tested source/build inputs unchanged. The local live evidence and predecessor CIs below remain their own historical results.
 <!-- END_INTEGRATION_STATUS -->
 
-## Latest local Mac execution
+## First local Mac execution — historical 1909771
 
 Source `1909771d45ad00290dffe245b9a42e6e9f55203c`, isolated acceptance branch, successful [run40449181125](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40449181125). See the [real Mac handoff](../engineering/evidence/2026-10-27-real-mac/README.md), [sanitized live evidence](../engineering/evidence/2026-10-27-real-mac/live-evidence.json) and [checks](../engineering/evidence/2026-10-27-real-mac/verification.json).
 

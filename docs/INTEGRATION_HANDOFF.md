@@ -1,3 +1,76 @@
+# 正式工程集成交接 · 第二轮 · 2026-10-27
+
+北京时间。唯一正式工程分支为 `codex/engineering-foundation-20261027` / [Draft PR #1](https://github.com/haohongfei2001-png/Riftlet/pull/1)。root 完成正式集成、CI 与非作者审查；本地 Codex 继续负责真实 Mac 执行、修复与验收。第三轮从此正式分支最新检查点直接续做，不重做基础模块或总体规划。
+
+## 当前不可变来源与合流
+
+| 来源 | 确切 SHA | 处理 |
+| --- | --- | --- |
+| 前一正式工程基线 | `c1456534fa2f9652f770321f179ff88737edc281` | 保留第一轮真机、M1 与此前全部祖先 |
+| 第二轮已测源码 | `fff0e8c090f125211b35a56e7a16abef61109fb1` | 普通线程、逻辑草稿、MAIN 单次桥接、后台观察、单飞预绑定及原生选择诊断 |
+| 第二轮交接 | `8d7007e069d077d5991904e72ebd8fcda3a00806` | [原始 11 文件](../engineering/evidence/2026-10-27-real-mac-round2/README.md)完整、逐字节保留 |
+| 正式完整工程验证输入 | [`39046d16823401c50ce3527ec1204e7517e1078a`](https://github.com/haohongfei2001-png/Riftlet/commit/39046d16823401c50ce3527ec1204e7517e1078a) | 保留上述祖先；只增加 CI 中已有 8 组故障夹具的离线执行与日志归档，`round*` 支持第三轮沿用 |
+
+第二轮直接继承 c1456534，采用保留祖先的快进整合，没有 squash、强推或冲突覆盖。产品源码、Tests、Package.swift、Resources、scripts、ThirdPartyNotices 与 fff0e8c 完全一致；M1 五个源码文件与 c1456534 完全一致。审查没有发现需要修改产品源码的新增合流阻断问题。main 的独立网站更新未混入工程改动，未改 main、设计/品牌、既有私有数据或原证据。最终检查点仅在已测工程上补充本交接与验证记录；精确 HEAD 由 PR #1 和提交记录给出。
+
+<!-- ROUND2_INTEGRATION_STATUS -->
+**第二轮完整工程 CI 与非作者审查通过：** 已测正式输入 [`39046d16823401c50ce3527ec1204e7517e1078a`](https://github.com/haohongfei2001-png/Riftlet/commit/39046d16823401c50ce3527ec1204e7517e1078a)，[run40462287936](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40462287936) / job122049461297，于2026-10-27 **14:39:36北京时间**成功。**227/227原生**（Capture48/Core73/UI17/Adapters89）、**31/31页面VM**、**8/8故障工具离线组**、历史回放55文件/19用例/89前缀/2明确模拟迟到错误、Release/签名及三个自检全部通过。SQLite v1→v2迁移/回滚、UNKNOWN/补偿、logical11、scheduler8、MAIN7和M1恢复均在实际日志核对。
+
+[永久验证](../engineering/evidence/2026-10-27-integration-round2/verification.json)、[非作者审查](../engineering/evidence/2026-10-27-integration-round2/review.json)、[实际日志摘录](../engineering/evidence/2026-10-27-integration-round2/ci-excerpt.txt)、[工程制品12714722940](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40462287936/artifacts/12714722940)。源码/测试与fff0e8c一致，最终文档提交不修改已测输入。临时PR测试合并17dc667不是main合并；PR #1保持Draft，不发布。CI自检明确CHROME_NOT_RUN/GUI_NOT_RUN；不冒充本地真实验收。
+<!-- END_ROUND2_INTEGRATION_STATUS -->
+
+## 已审查的真实结果及边界
+
+以下是本地 Codex 第二轮的真实执行记录，经独立审查继承；本集成会话没有再次操作真实 Mac 或浏览器。CI 与故障夹具的合成结果不扩大这些结论。
+
+| 场景 | 当前结论 | 不包含的结论 |
+| --- | --- | --- |
+| 普通已有中文 Chat 对话 | **有范围 PASS**：`7607529F…`、`01FC359F…` 两个不同生成图片，各一次输入和独立逐图内容证明；旧正文、附件节点/源和编辑器焦点保留 | 首次自动化在 AX 动作后出现结果变量错误，下一次选了另一图片；不是无歧义的一次物理首击试验，不代表全部线程/模式 |
+| UNKNOWN 恢复 | **有范围 PASS**：`01FC359F…` 仅观察原操作后转成功，inputCount 仍为 1 | 不授予重传权；不解决冷首击 |
+| 后台观察与迟到补偿 | **有范围 PASS**：原成功证明跨隐藏/重启保持；原附件 DOM 错误标记导致持久补偿且 safeToRetry=false | 这是 DOM 故障，不是真实网络失败或真实消费后网络失败 |
+| POST100 真实网络路径中断 | **故障命中与安全保留有范围 PASS**：`FF0FFE74…` 的 input hash→唯一 creation URL→实际 XHR Blob hash→自身 UI100→一次 native abort→abort event/status0；之后 UNKNOWN 跨重启保留 | loaded=total=3137 是 abort 后到达的进度事件；不证明服务器成功/拒收、消费后补偿、无缓存重试或安全重传 |
+| 故障工具恢复 | **有范围 PASS**：60 秒窗口内 STOPPED、originalsRestored、pending=0，仍一次输入及一个匹配 creation | 不排除缓存请求或观察窗口外重试；最终 uniqueCreationURL=false 是停止时清空临时 URL，命中证据在事件 6/7 |
+| MID | **NOT_EXERCISED**：生成大 PNG 成功上传，但未绑定其字节请求、未 abort | 两条含上传名的 JSON 请求不能证明重试、压缩或替代 transport |
+| UX-01 / UX-02 | **仍 OPEN**：预绑定调度和 Core 逻辑身份契约已实现/回归；真实首击、ACK 和完整草稿转换矩阵未完成 | 无可观察事件、复用 DOM 的业务 A→B→A 仍有准入缺口 |
+| 物理 N1 / 真实截图两操作闭环 | **NOT_RUN / 未完整验收**；本轮 helper AX 边界记录不是物理鼠标证据 | 不将静止横/竖屏截图尺寸当屏幕切换验收，不把生成图片开发吞噬当生产闭环 |
+
+来源：[第二轮真实交接](../engineering/evidence/2026-10-27-real-mac-round2/README.md)、[POST100](../engineering/evidence/2026-10-27-real-mac-round2/post100-network-receipt.json)、[MID](../engineering/evidence/2026-10-27-real-mac-round2/mid-network-receipt.json)、[原操作](../engineering/evidence/2026-10-27-real-mac-round2/durable-operations.json)、[保留检查](../engineering/evidence/2026-10-27-real-mac-round2/preservation.json)。公开材料保留脱敏事实和匹配结果，不包含私有截图、聊天正文、signed URL 或原始网络抓包；没有把审阅归档写成新的独立真机实验。
+
+## 当前接口与准入保持
+
+- MAIN 桥使用精确 PID/启动会话、窗口、标签提交一次 percent-encoded `javascript:void(...)`；随机 nonce DOM 回执丢失后只读，不重发命令。一秒读循环不是总硬超时，每个 Apple Event 仍有五秒上限。真实测试观察到该 MAIN 命令本身没有触发 Navigation 事件，这不是所有 Chrome 版本的保证。
+- `LogicalDraftIdentity` 只由已观察 profile 的当前已提交 React ancestry 提供，512 层有界，含 alternate 的实际 membership 和 HostRoot.current 检查；不使用 URL、pending props 或猜测节点作为身份。两个识别出的不同 ID 才缩小同 tab 冲突；nil/未知 profile 继续全 tab wildcard。原 target JSON 不回填，完整回执等值包含 logical identity 和原输入代际。
+- blur/focus/visibility 撤销新输入权，但仍绑定原业务草稿/节点的已提交操作可后台观察；业务、route、Navigation、原节点/附件丢失仍撤销。一次输入墓碑、先持久 intent、UNKNOWN 只观察和补偿审计不变。
+- 普通 capture 仍用 `UnavailableAdapter`；Web 仅显式生成图片开发验收，生产截图上传、自动吞噬与 safe-retry 注册表保持关闭。Mac provider/profile 不借用 Web 证据，M1 后端保留默认禁用。
+- 补偿后重试仍须解决原非空 attachment ID 的退役关联与无残留/无自动完成证据；不把 nil 当通配符。页面 32 generation、每代 32 operation、64 成功 watch、M1 256 墓碑是当前开发上限，不能清未决历史规避。
+
+## 第三轮直接执行交接
+
+保留两个既有验收分支、SQLite v2、媒体、UNKNOWN/补偿与 clipboard journal；不 reset 到旧构建、不回填旧草稿 identity。使用 PR #1 最新正式 HEAD 建新 worktree，记录实际输出 SHA：
+
+```bash
+git fetch origin codex/engineering-foundation-20261027
+git worktree add -b codex/riftlet-real-mac-round3-20261027 ../Riftlet-real-mac-round3 FETCH_HEAD
+git -C ../Riftlet-real-mac-round3 rev-parse HEAD
+```
+
+然后沿用 [MAC_ACCEPTANCE](MAC_ACCEPTANCE.md)、`scripts/build-macos.sh`、三个自检及已有 helper。正式分支只由 root 集成；本地 Codex 在第三轮分支修复和实测，不争写 PR #1。以下是既有实现上的增量动作，不新增日常用户步骤：
+
+| 开放项 | 下一条实际动作 | 通过所需事实 |
+| --- | --- | --- |
+| **UX-01 冷首击 / ACK 竞态** | 用已有边界 trace 关联原 event uptime、ACK、目标 epoch；覆盖新页面、即时截图、延迟 Apple Events、多窗口和激活变化；增量修正现有单飞调度 | 正常支持场景一次微图点击，无等待/第二击/确认。若自动续做，必须有跨原点击的同草稿连续性证据；没有证据不改投后来目标、不重放被拒点击 |
+| **UX-02 稳定逻辑草稿** | 在 MAIN 实测可靠业务转换 epoch；跑真实 A→B→A、同 URL 替换、返回旧草稿、移窗、重启；沿用现有 identity / observer 分离 | 同草稿失焦/rearm不能解锁；证明不同草稿才独立输入；旧操作只 observe。无事件 ABA 未解决前继续拒绝相应准入，legacy nil 不回填/清锁 |
+| **MID 请求关联** | 先只读确认大图真实 byte 请求的 transport/body 类型与尺寸，再绑定 operation/name/hash/request 后中断；沿用有界恢复工具 | 原请求身份链、实际中段 native abort 及事件、旧正文/附件保留、UNKNOWN/重启、hooks 恢复；没命中仍 NOT_EXERCISED，不由 JSON 数量推断 retry |
+| **物理 N1 / 资源** | 真实鼠标首击、透明/间隙穿透、按住时补位/双击、Spaces/全屏、屏幕切换/热插拔/旋转和十分钟资源测量 | 记录实际输入来源、原 asset、下层点击/焦点、屏幕前后状态和实际 CPU/内存/唤醒；工具受限只隔离对应项 |
+| **截图自包含 / 延迟** | 分别只运行实际 App 或 helper 隔离自包含窗口来源；覆盖既有截图快捷方式。分别记录触发、系统 capture-done T0、完整文件 T1、首次可点 T2 | `sharingType.none` 不作排除保证。两图已收录但截图包含 Riftlet 样式元素；约 61.5 秒是 shortcut 返回→mtime，不能归因 watcher。已知 mtime→import 0.280/0.293 秒、firstSeen→import 0.208/0.234 秒，完整预算仍需测 |
+
+第三轮记录确切源码与 PASS/FAIL/NOT_RUN；不发送 ChatGPT 消息，不为演示清除 UNKNOWN 或放宽成功/重试准入。系统截图自包含与延迟是实际产品问题，不由品牌/发行工作阻塞修复。日常工程决定由双方自主完成。
+
+## 前轮集成与第二轮候选记录（历史保留）
+
+<details>
+<summary>c1456534 交接及 8d7007e 中继承的候选说明；现行状态以上文为准</summary>
+
 # 正式工程集成交接 · 2026-10-27
 
 北京时间。唯一正式工程分支仍为 `codex/engineering-foundation-20261027` / [Draft PR #1](https://github.com/haohongfei2001-png/Riftlet/pull/1)。本文件记录本轮合流、真实缺陷和下一条执行动作；不替代既有开发计划。本地 Codex 继续独占真实 Mac 的 W2/N1 验收，root 负责正式集成、共享契约和准入。
@@ -74,3 +147,5 @@ git worktree add -b codex/riftlet-real-mac-round2-20261027 ../Riftlet-real-mac-r
 ## 第二轮本地 Mac 候选交接（2026-10-27）
 
 独立分支 `codex/riftlet-real-mac-round2-20261027` 基于本文件正式检查点 c1456534；源码 `fff0e8c090f125211b35a56e7a16abef61109fb1` 已通过完整 CI 227 原生/31 页面测试和真实普通线程、POST100 XHR 中断、原操作后台观察/补偿的局部验收。详见[第二轮报告](../engineering/evidence/2026-10-27-real-mac-round2/README.md)。这是待 Pro 技术集成的候选，不是本文件上方正式分支已经合入的声明。生产与重试仍关闭；尤其无事件的业务身份 A→B→A、UX-01 全场景和物理 N1 未准入。原分支/数据库/媒体/补偿审计保留，不能清理 UNKNOWN 来继续演示。
+
+</details>
