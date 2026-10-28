@@ -226,18 +226,32 @@ private final class ScreenshotEntryRailView: NSView {
         updateColors(); glyphs.needsDisplay = true
     }
 
+    override func viewDidMoveToWindow() { super.viewDidMoveToWindow(); refreshAppearance() }
+    override func viewDidChangeBackingProperties() { super.viewDidChangeBackingProperties(); refreshAppearance() }
+
+    func refreshAppearance() { updateColors(); glyphs.needsDisplay = true }
+
     private func updateColors() {
         effectiveAppearance.performAsCurrentDrawingAppearance {
+            CATransaction.begin(); CATransaction.setDisableActions(true)
+            defer { CATransaction.commit() }
             let dark = effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
-            glass.layer?.borderWidth = 0.75
-            glass.layer?.borderColor = NSColor.white.withAlphaComponent(dark ? 0.20 : 0.58).cgColor
+            let contrast = NSWorkspace.shared.accessibilityDisplayShouldIncreaseContrast
+            let pixel = 1 / max(1, window?.backingScaleFactor ?? 1)
+            let border: NSColor = contrast ? RiftVisualStyle.ink
+                : NSWorkspace.shared.accessibilityDisplayShouldReduceTransparency ? RiftVisualStyle.separator
+                : NSColor.white.withAlphaComponent(dark ? 0.14 : 0.48)
+            glass.layer?.borderWidth = contrast ? 1 : pixel
+            glass.layer?.borderColor = border.cgColor
+            // NSVisualEffectView owns the system's Reduce Transparency rendering;
+            // no second glass/opaque overlay or new input surface is introduced.
             surface.layer?.shadowColor = NSColor.black.cgColor
             surface.layer?.shadowOpacity = dark ? 0.22 : 0.13
             surface.layer?.shadowOffset = CGSize(width: 0, height: -3)
             surface.layer?.shadowRadius = 8
             selection.layer?.backgroundColor = NSColor.labelColor.withAlphaComponent(dark ? 0.10 : 0.065).cgColor
-            selection.layer?.borderWidth = 0.5
-            selection.layer?.borderColor = NSColor.labelColor.withAlphaComponent(0.12).cgColor
+            selection.layer?.borderWidth = contrast ? 1 : pixel
+            selection.layer?.borderColor = (contrast ? RiftVisualStyle.ink : NSColor.labelColor.withAlphaComponent(0.12)).cgColor
         }
     }
 
@@ -302,6 +316,7 @@ public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
     private var queueFrames: [CGRect] = []
     private var globalMonitor: Any?
     private var localMonitor: Any?
+    private var accessibilityObserver: NSObjectProtocol?
     private var frameTimer: Timer?
     private var pressedSlot: ScreenshotEntrySlot?
     private var suppressionStarted: TimeInterval?
@@ -344,7 +359,30 @@ public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
             self?.observePointer()
             return event
         }
+        accessibilityObserver = NSWorkspace.shared.notificationCenter.addObserver(
+            forName: NSWorkspace.accessibilityDisplayOptionsDidChangeNotification, object: nil, queue: .main) { [weak self] _ in
+                MainActor.assumeIsolated {
+                    self?.applyAccessibilityDisplayOptions(reduceMotion: NSWorkspace.shared.accessibilityDisplayShouldReduceMotion)
+                }
+            }
         updateControls()
+    }
+
+    /// Applies presentation policy without changing a capture/session/input fact.
+    /// The explicit value also permits regression checks without changing macOS preferences.
+    func applyAccessibilityDisplayOptions(reduceMotion: Bool) {
+        guard !closed else { return }
+        drawing.refreshAppearance()
+        if reduceMotion {
+            stopFrames()
+            let time = uptime
+            rail.setExpanded(session.isExpanded, at: time, duration: configuration.expansionDuration, animated: false)
+            cancelMotion.move(to: session.isExpanded ? session.activeSlot : .anchor, at: time, animated: false)
+            // Paint the current semantic endpoint even while capture hides us;
+            // restoration must never resume the abandoned spatial interpolation.
+            paint()
+        }
+        requestFrame()
     }
 
     public func configure(screen: NSScreen?, anchor: CGPoint? = nil,
@@ -489,6 +527,8 @@ public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
         if let globalMonitor { NSEvent.removeMonitor(globalMonitor) }
         if let localMonitor { NSEvent.removeMonitor(localMonitor) }
         globalMonitor = nil; localMonitor = nil
+        if let accessibilityObserver { NSWorkspace.shared.notificationCenter.removeObserver(accessibilityObserver) }
+        accessibilityObserver = nil
         for input in inputs {
             input.view.onPress = nil; input.view.onInvoke = nil
             input.view.isEnabled = false; input.panel.close()
@@ -690,5 +730,6 @@ public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
         frameTimer?.invalidate()
         if let globalMonitor { NSEvent.removeMonitor(globalMonitor) }
         if let localMonitor { NSEvent.removeMonitor(localMonitor) }
+        if let accessibilityObserver { NSWorkspace.shared.notificationCenter.removeObserver(accessibilityObserver) }
     }
 }

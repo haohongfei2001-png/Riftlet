@@ -170,6 +170,51 @@ final class ScreenshotEntryControllerTests: XCTestCase {
         for control in snapshot.controls { XCTAssertFalse(try window(control.windowNumber).isVisible) }
     }
 
+    @MainActor func testReduceMotionChangeSettlesCurrentVisualTargetsWithoutChangingSessionOrCallbacks() async throws {
+        let controller = try controller(); defer { controller.close() }
+        var actions = 0
+        controller.onBegin = { _ in actions += 1 }; controller.onMode = { _ in actions += 1 }
+        controller.onCancel = { actions += 1 }; controller.onOptions = { _ in actions += 1 }
+        controller.setExpanded(true)
+        controller.setMode(.fullScreen)
+        controller.setBusy(true)
+        controller.setOptions(InteractiveScreenshotOptions(delay: 5, showPointer: true, editAfter: true))
+        let original = controller.diagnosticSnapshot
+        controller.applyAccessibilityDisplayOptions(reduceMotion: true)
+        let settled = controller.diagnosticSnapshot
+        XCTAssertEqual(settled.expansion, 1)
+        XCTAssertEqual(settled.cancelSlotPosition, 2)
+        XCTAssertTrue(settled.isExpanded); XCTAssertTrue(settled.isBusy)
+        XCTAssertEqual(settled.mode, .fullScreen)
+        XCTAssertEqual(settled.controls.map(\.frame), original.controls.map(\.frame))
+        XCTAssertEqual(settled.controls.map(\.windowNumber), original.controls.map(\.windowNumber))
+        XCTAssertEqual(controller.options.delay, 5)
+        XCTAssertTrue(controller.options.showPointer); XCTAssertTrue(controller.options.editAfter)
+        try await Task.sleep(nanoseconds: 50_000_000)
+        XCTAssertEqual(controller.diagnosticSnapshot.expansion, 1)
+        XCTAssertEqual(controller.diagnosticSnapshot.cancelSlotPosition, 2)
+        XCTAssertEqual(actions, 0, "A display preference never starts, cancels or changes capture")
+        let decorative = try window(controller.diagnosticSnapshot.visualWindowNumber)
+        controller.close()
+        let closed = controller.diagnosticSnapshot
+        controller.applyAccessibilityDisplayOptions(reduceMotion: true)
+        XCTAssertEqual(controller.diagnosticSnapshot.expansion, closed.expansion)
+        XCTAssertTrue(controller.inputFrames.isEmpty)
+        XCTAssertFalse(decorative.isVisible)
+    }
+
+    @MainActor func testGlassBorderUsesCurrentNativeBackingScale() throws {
+        let controller = try controller(); defer { controller.close() }
+        controller.setExpanded(true, animated: false)
+        let decorative = try window(controller.diagnosticSnapshot.visualWindowNumber)
+        func children(_ view: NSView) -> [NSView] { [view] + view.subviews.flatMap(children) }
+        let glass = try XCTUnwrap(children(try XCTUnwrap(decorative.contentView)).compactMap { $0 as? NSVisualEffectView }.first)
+        XCTAssertEqual(glass.material, .popover)
+        XCTAssertEqual(glass.blendingMode, .behindWindow)
+        let expected: CGFloat = NSWorkspace.shared.accessibilityDisplayShouldIncreaseContrast ? 1 : 1 / decorative.backingScaleFactor
+        XCTAssertEqual(try XCTUnwrap(glass.layer).borderWidth, expected, accuracy: 0.0001)
+    }
+
     @MainActor func testEscapeDuringHeldControlCannotReopenOnItsLaterMouseUp() throws {
         let controller = try controller(); defer { controller.close() }
         var began = 0; controller.onBegin = { _ in began += 1 }

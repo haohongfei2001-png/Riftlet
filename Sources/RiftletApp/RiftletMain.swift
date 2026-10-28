@@ -647,6 +647,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     @objc private func showFeedback() { feedback.open() }
 
     @objc private func showSetup() { updateSetup(); setup?.show() }
+    @objc private func showOnboarding() { updateSetup(); setup?.showOnboarding() }
 
     @objc private func recheckSetup() {
         guard initialized, !requestingPermission, let token = captureControl.begin(.recheck) else { return }
@@ -1386,6 +1387,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             : (mode == .webAcceptance ? "Web 验收 · 仅生成图片" : "正在准备本地截图收录…"), action: nil, keyEquivalent: "")
         menu.addItem(heading); statusLine = heading
         add(menu, "设置…", #selector(showSetup))
+        add(menu, "使用引导…", #selector(showOnboarding))
         add(menu, "反馈与建议…", #selector(showFeedback))
         add(menu, "入缝动效…", #selector(showArrivalSettings))
         if mode.collectsSystemScreenshots { add(menu, "文件访问设置…", #selector(openFilePrivacySettings)) }

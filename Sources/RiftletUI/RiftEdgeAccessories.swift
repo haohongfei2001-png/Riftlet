@@ -120,7 +120,11 @@ final class RiftLineView: NSView {
                 self.panel.setFrame(CGRect(x: x, y: y, width: w, height: h), display: true)
                 self.image.frame = CGRect(origin: CGPoint(x: 8, y: 8), size: size)
                 self.image.image = NSImage(cgImage: cg, size: size)
-                self.panel.alphaValue = 1; self.panel.orderFrontRegardless()
+                self.panel.alphaValue = 0; self.panel.orderFrontRegardless()
+                NSAnimationContext.runAnimationGroup { context in
+                    context.duration = 0.08
+                    self.panel.animator().alphaValue = 1
+                }
             }
         }
     }
