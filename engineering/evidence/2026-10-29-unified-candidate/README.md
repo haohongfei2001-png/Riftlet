@@ -38,3 +38,7 @@
 ## 精确源码复核
 
 非作者 engineering_review 已只读批准固定源码 `dd0d80b5b6e3836da4fd3627866beba6a18cc6d5`，tree `3d1a33f657d365fb47a6bc741cd96749ec8889a7`。确认两条正式祖先、干净树、所有最终产品/CI/helper对象；设置示意预览仅在有效模式、实际尺寸、原生 backing 属性或辅助选项变化时重排。这里的源码批准不代表创始人批准视觉参数；新 macOS CI 与图/MOV审查仍 pending。
+
+## 首轮 CI 修正记录
+
+Feedback run `40754551166`（head `d909ecc`，checkout `10850947666b8b047bb357cb618ab48acaf8fa5a`）通过 88 项隔离审计、20 项服务测试后，在新视觉 helper 的 Swift Quartz API 桥接处编译失败；原生测试未执行。已改用 SDK 明确推荐的公开 `CGImage` Swift overlay，并把本进程的正数窗口 ID 按 Quartz 要求编码为 nil-callback CFArray，不捕获其他进程、不申请权限、无动态符号替代。非作者工程复核批准新 source `7bdd46362b71229c29d65f0554d526c0b09e79dc` / tree `8494f8fdae3ccf33ab0016a8db47ffdb3bfaaeba`；仅 helper 10+/8-，产品源码未变。新组合 CI 与实际图/MOV仍等待执行，不继承为通过。

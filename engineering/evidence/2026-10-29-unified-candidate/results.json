@@ -10,11 +10,23 @@
   "productionEnabled": false,
   "safeRetryEnabled": false,
   "feedbackCloudDelivery": "NOT_DEPLOYED",
-  "reviewedSource": "dd0d80b5b6e3836da4fd3627866beba6a18cc6d5",
-  "reviewedSourceTree": "3d1a33f657d365fb47a6bc741cd96749ec8889a7",
+  "reviewedSource": "7bdd46362b71229c29d65f0554d526c0b09e79dc",
+  "reviewedSourceTree": "8494f8fdae3ccf33ab0016a8db47ffdb3bfaaeba",
   "localChecks": {
     "unifiedAuditRejectionTests": 24,
     "nativeVisualManifestTests": 9,
     "swiftTests": "NOT_RUN_LOCALLY_LINUX"
-  }
+  },
+  "attempts": [
+    {
+      "head": "d909ecc2774a5453dddcfb388d39c12a611169b2",
+      "feedbackRun": 40754551166,
+      "feedbackJob": 123049869006,
+      "checkout": "10850947666b8b047bb357cb618ab48acaf8fa5a",
+      "result": "FAIL_HELPER_SWIFT_API_BRIDGE",
+      "isolationTestsPassed": 88,
+      "serviceTestsPassed": 20,
+      "nativeTests": "NOT_RUN_COMPILE_FAILED"
+    }
+  ]
 }
