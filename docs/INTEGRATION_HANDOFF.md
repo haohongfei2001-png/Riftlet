@@ -1,5 +1,12 @@
 # 正式工程交接：第八、九轮与真实系统截图候选合流 · 2026-10-28
 
+## 修复版真实系统截图完成复测 · 2026-10-28
+
+本轮独立分支 `codex/riftlet-real-mac-acceptance-sc-complete-20261028`，运行源码 **48574df19f34e5681ee98815750e279540e9eb9b**，无生产源码新增修改。新系统PNG（6,796,322B，1746×1164）经一次实际微图CGEvent点击，**SC-INPUT/SC-START/SC-COMPLETE限定PASS**。原页面严格sRGB proof与候选attached journal一致；独立RGBA 8,129,376通道零差异。48字符、editor内8..11选区、未聚焦状态及一张稳定旧附件完整保留。
+
+同一源码[CI40656871851](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40656871851)已核实success，非作者原始证据及脱敏审查PASS；不冒充新CI。候选本地仍unknown/visible，三准入关闭，旧A/D和历史全保留，不重输。正式Pro可依据[本例完整证据](../engineering/evidence/2026-10-28-system-screenshot-complete/README.md)分别审查受限开始/完成准入；物理鼠标、无ACK冷首击、旧v7/v8页面兼容及安全重试仍不在PASS范围。本轮已停止输入并结束现场工作。
+
+
 ## 系统截图第二阶段限定交接 · 2026-10-28
 
 独立分支 `codex/riftlet-real-mac-acceptance-sc-stage2-20261028`；源码 `867d93f`（v9兼容+实际输入）、`48574df`（普通sRGB严格像素比较修复）。[macOS CI40656871851](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40656871851) PASS。一张1.56MiB真实系统PNG一次CGEvent点击，SC-INPUT/SC-START PASS；正文48字符、非空选区8..11、编辑器未聚焦保留。完整SC-COMPLETE仍FAIL：旧运行代码的willReadFrequently导致1级颜色舍入不匹配；同原图/原预览的显式sRGB单变量对照严格相等，源码最小修复已构建，但未新输入复测，旧D继续UNKNOWN。

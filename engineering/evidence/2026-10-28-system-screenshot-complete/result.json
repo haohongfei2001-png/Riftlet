@@ -1,0 +1,189 @@
+{
+  "schemaVersion": 1,
+  "result": {
+    "SC_INPUT": "PASS",
+    "SC_START": "PASS",
+    "SC_COMPLETE": "PASS",
+    "draftPreservation": "PASS, nonempty text, noncollapsed editor selection and one stable old attachment",
+    "physicalMouse": "NOT_RUN"
+  },
+  "runtime": {
+    "sourceSHA": "48574df19f34e5681ee98815750e279540e9eb9b",
+    "handoffBase": "f2ae645451044649fbe73326952efbe084353869",
+    "appResource": [
+      {
+        "file": "chatgpt-web-20261027.js",
+        "sha256": "c0afbd8a652c7a0e8fe6875ddbbd54f075e9c60bcda512eeb4df610e72f8948b",
+        "matchesSource": true,
+        "strictSRGBWithoutReadHint": true
+      }
+    ],
+    "newProductionSourceChanges": 0
+  },
+  "capture": {
+    "nativeSystemScreenshotMetadata": true,
+    "kind": "selection",
+    "bytes": 6796322,
+    "sha256": "0c19cb16f5c6dfdcaf0958284d6f40450912ea03babe5a79e1d268c2f06ff596",
+    "width": 1746,
+    "height": 1164,
+    "pngBitDepth": 8,
+    "pngColorType": 6,
+    "originalPrivateCopyHashEqual": true,
+    "createdThisRound": true,
+    "notReinputOfAorD": true
+  },
+  "input": {
+    "source": "CGEvent software, one down/up through real native thumbnail; not physical",
+    "beginCount": 1,
+    "chunkCount": 26,
+    "commitCount": 1,
+    "allTransportRepliesSucceeded": true,
+    "pageInputCount": 1,
+    "independentChangeCount": 1,
+    "nativeSelectionCount": 1,
+    "ACKBeforeClickMS": 1208.9092916576192,
+    "frozen": true,
+    "fullOriginalTargetEqualAcrossPreclickPageJournalDB": true,
+    "allJournalIdentityFieldsEqual": true,
+    "inputStartAttachedAttachmentIDEqual": true,
+    "logicalDraftIndependentOfExistingUnknowns": true
+  },
+  "page": {
+    "inputToStartMS": 2151.400000035763,
+    "inputToFinalProofMS": 8784.0,
+    "startBeforeFinal": true,
+    "startPreviousProgress": 2.4538636176318533,
+    "startCurrentProgress": 3.6807954264477796,
+    "hashVerified": true,
+    "inputSequence": 2,
+    "hashSequence": 7,
+    "startSequence": 17,
+    "hundredSequence": 50,
+    "endedSequence": 59,
+    "loadedSequence": 60,
+    "proofCompletedSequence": 62,
+    "proofIdentityIsOriginal": true,
+    "proofNodesAreOriginal": true,
+    "proofSourceIsOriginal": true,
+    "invalid": false,
+    "error": false,
+    "uploading": false,
+    "progressCount": 0,
+    "originalCardConnected": true,
+    "originalImageConnected": true,
+    "continuityEvents": {
+      "outsideInteraction": 0,
+      "navigate": 0,
+      "currententrychange": 0
+    }
+  },
+  "content": {
+    "comparison": "exact browser OffscreenCanvas explicit sRGB RGBA8, no willReadFrequently and no tolerance",
+    "originalHashVerifiedBeforeIndependentDecode": true,
+    "originalRGBASHA256": "6f20aa4069b1d28a3693527e3b7d1402e424a393271a3d38ec081c98b0f5d129",
+    "previewRGBASHA256": "6f20aa4069b1d28a3693527e3b7d1402e424a393271a3d38ec081c98b0f5d129",
+    "differentChannels": 0,
+    "channelCount": 8129376,
+    "sameDimensions": true,
+    "sameOriginalImageAndSourceAfterRead": true,
+    "previewPNGBytes": 6673150,
+    "previewPNGSHA256": "3eaa650ed13568739c4835244275a939b44d19e0cbe7e3ab538e0c198f20bcff",
+    "originalAndPreviewPNGBytesEqual": false,
+    "serverOriginalFileBytePreservation": "NOT_VERIFIED"
+  },
+  "preservation": {
+    "beforeTextLength": 48,
+    "beforeSelectionOffsets": [
+      8,
+      11
+    ],
+    "beforeOldAttachmentCount": 1,
+    "afterAttachmentCount": 2,
+    "editorFocusedAtInputAndObservedSnapshots": false,
+    "selectionWithinOriginalEditor": true,
+    "all24PostClickSnapshotsPreserved": true,
+    "final": {
+      "textLength": 48,
+      "textPreserved": true,
+      "oldCardCount": 1,
+      "oldCardsPreserved": true,
+      "oldSourcesPreserved": true,
+      "oldDimensionsPreserved": true,
+      "oldStillComplete": true,
+      "currentCards": 2,
+      "selectionPreserved": true,
+      "selectionNoncollapsed": true,
+      "selectionWithinOriginalEditor": true,
+      "selectedTextPreserved": true,
+      "anchorOffset": 8,
+      "focusOffset": 11,
+      "pageFocused": true,
+      "editorFocused": false,
+      "formConnected": true,
+      "editorSame": true,
+      "messageNodesSame": true,
+      "observedChangeCount": 1
+    },
+    "oldAttachmentPreviewByteEqualsPreparedOriginal": true,
+    "oldAttachmentSetup": "one separate 3045-byte generated PNG input before formal screenshot trial; stable old attachment restored in normal fresh document, not counted as Riftlet system input"
+  },
+  "journal": {
+    "unknown": {
+      "state": "unknown",
+      "isUploading": false,
+      "belongsToOriginalDraft": true,
+      "exactImageIdentity": false,
+      "hasError": false
+    },
+    "input": {
+      "state": "inputTriggered",
+      "isUploading": true,
+      "belongsToOriginalDraft": true,
+      "exactImageIdentity": false,
+      "hasError": false
+    },
+    "start": {
+      "state": "uploadStarted",
+      "isUploading": true,
+      "belongsToOriginalDraft": true,
+      "exactImageIdentity": true,
+      "hasError": false
+    },
+    "attached": {
+      "state": "attached",
+      "isUploading": false,
+      "belongsToOriginalDraft": true,
+      "exactImageIdentity": true,
+      "hasError": false
+    }
+  },
+  "sqlite": {
+    "schema": 3,
+    "integrity": "ok",
+    "assetsBefore": 5,
+    "assetsAfter": 6,
+    "operationsBefore": 3,
+    "operationsAfter": 4,
+    "assetF": "unknown/visible",
+    "reason": "observer-v2:attached:integratedDevelopment",
+    "upload_starts": 0,
+    "startCompletionSafeFailureAdmissions": false,
+    "oldAssetsAndCheckpointsUnchanged": true
+  },
+  "preparationBoundary": {
+    "oldPageMonitor": "existing v7/v8 root ownership conflict; unchanged, not newly supported",
+    "newDocument": "normal new tab for independent existing business thread; prepared stable attachment restored",
+    "oldASelectionObserved": true,
+    "reinputOfUnknown": "none; old original operation IDs/attempts/targets unchanged; preparation logs bounded, DB compared",
+    "oldAReadOnlyLookupAtEnd": "original operation not found in available retained page registry",
+    "oldDReadOnlyLookupAtEnd": "original tab unavailable; no reload or replay",
+    "physicalClick": "NOT_RUN; observed mouse label alone does not establish hardware source"
+  },
+  "scopeLimits": [
+    "single 6.48 MiB actual system PNG on current zh ordinary-thread Chrome structure",
+    "no no-ACK cold click claim",
+    "no production admissions or swallow claim",
+    "no safe retry or MID claim"
+  ]
+}

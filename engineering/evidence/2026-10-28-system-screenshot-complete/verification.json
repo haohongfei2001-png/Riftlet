@@ -1,0 +1,18 @@
+{
+  "sourceSHA": "48574df19f34e5681ee98815750e279540e9eb9b",
+  "productionTreeUnchanged": true,
+  "build": "existing final complete App; executable and bundled JS hashes reverified this round",
+  "newBuildClaim": false,
+  "macOSCI": {
+    "runID": 40656871851,
+    "conclusion": "success",
+    "headSha": "48574df19f34e5681ee98815750e279540e9eb9b",
+    "status": "completed",
+    "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/40656871851",
+    "reusedExactSameSourceRun": true,
+    "newRunTriggered": false
+  },
+  "actualMacResult": "SC-INPUT/START/COMPLETE PASS for F",
+  "physicalMouse": "NOT_RUN",
+  "noProductionAdmissions": true
+}

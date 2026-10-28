@@ -1,5 +1,8 @@
 # Riftlet 自主并行执行队列
 
+> **SC-COMPLETE 修复版真机复测 · DONE（限定PASS）**：运行48574df；新系统PNG经唯一CGEvent输入取得严格sRGB proof及attached journal，SC-INPUT/START/COMPLETE均PASS。48字符、editor内非折叠选区及一张稳定旧附件保留。旧UNKNOWN不重输，三准入关闭；同源CI40656871851已核实成功，无新增生产源码。[完整脱敏证据与Pro交接](../engineering/evidence/2026-10-28-system-screenshot-complete/README.md)。
+
+
 > **系统截图第二阶段 · DONE（限定交接）**：最终源码48574df、CI40656871851 PASS。真实新系统PNG一次输入取得SC-START；48字符和选区8..11未聚焦保留。旧v9 monitor阻断已修复并真机恢复；sRGB性能提示舍入缺陷已最小修复及只读像素对照，未新输入复测，完整SC-COMPLETE仍FAIL。旧UNKNOWN/数据全保留，准入不变；[结果与Pro下一步](../engineering/evidence/2026-10-28-system-screenshot-stage2/README.md)。
 
 
