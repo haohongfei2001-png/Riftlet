@@ -4,7 +4,7 @@
 
 审查人：`/root/engineering_review`。本轮对产品、Feedback UI、原生视觉 helper、工作流及证据声明保持非作者、只读审查。此报告由审查人新增；产品修复由正式集成人 `/root` 实施，视觉 helper 与 Feedback 计数修复由 `/root/acceptance_audit` 实施。审查人曾编写统一 composition gate 及其隔离测试，该部分由 root 独立复核，不以本报告构成自我批准。
 
-当前审查基线为 `fea485ce5226ab519af8f5325412b2ef43ba4a5a`，本轮审查对象是其后的工作树差异。**源冻结与精确 source SHA 待定；本报告不批准尚未提供的提交，也不把源审查等同于 macOS 编译、实际交互或视觉通过。** 当前已读完的产品修补未发现源级阻断。helper 作者仍在完成正常／真实系统辅助功能 profile 的有限取证及末尾回归；其最终 diff 与 exact source 对象需另行确认。
+当前审查基线为 `fea485ce5226ab519af8f5325412b2ef43ba4a5a`，本轮审查对象是其后的工作树差异。**最终工作树 diff 已完成非作者复审，精确 source SHA 待定；本报告不批准尚未提供的提交，也不把源审查等同于 macOS 编译、实际交互或视觉通过。** 已读完的产品修补及冻结的 helper／Feedback／CI 末尾差异未发现源级阻断。exact source 对象需另行确认。
 
 ## 1. 来源合同与目录重叠：采用范围明确收窄
 
@@ -41,7 +41,7 @@ History 的行动说明只描述当前实际可用的按钮，不再对没有恢
 
 审查中指出了一个新增交互风险：若把 `hasMarkedText` 纳入按钮 enabled 状态，而仅由 `textDidChange` 刷新，IME 单纯 unmark 后未必触发正文变化，可能导致按钮保持 disabled。作者已移除这个新增 gating；当前源码中的提交按钮仅依赖 loaded、busy、可编辑性、engine 和正文有效性。原 `submitCurrentDraft` 与 `saveBeforeClosing` 的 marked-text 安全 guard 原样保留。现有 IME 保护因此没有被削弱，也不新增对未可靠观察的 unmark 事件的依赖。
 
-正式工程最新的草稿可靠保存、异步关闭锁定、关闭后重开、diagnostic 同意快照、nil endpoint、未真正接收不得显示成功等边界保持。待作者完成新的 Unicode／提交按钮原生回归后再确认其最终测试差异。
+正式工程最新的草稿可靠保存、异步关闭锁定、关闭后重开、diagnostic 同意快照、nil endpoint、未真正接收不得显示成功等边界保持。最终新增 `FeedbackTextLimitTests.swift` 三项原生回归已完成源审查：普通中文及 4000／4001 scalar；2000 个 NFD 字素对应 4000 scalar，超限拒绝但正式 store 与 UI 仍保留完整草稿；emoji 的 16000／16384／16388 UTF-8 字节边界与正式 Envelope 一致。后两种 emoji 数量也同时超出 scalar 限制，该测试不声称隔离证明了独立字节上限。三项原生回归实际运行仍待 macOS CI。
 
 ## 5. 原生视觉证据失效及 helper 修复
 
@@ -67,7 +67,7 @@ History 的行动说明只描述当前实际可用的按钮，不再对没有恢
 
 当前工作流仅调整临时 CI runner 的这两项正常基线，再用新 AppKit 进程读取 `NSWorkspace.shared` 的 Reduce Motion、Increase Contrast、Reduce Transparency 三个真实属性。正常证据要求三者均为 false；不能仅靠 defaults 命令退出码或输出宣称成功。helper 也独立记录起止真实属性。产品辅助功能 guard 不改，用户设备设置不改，不申请或绕过 TCC。
 
-作者仍在补真实系统 reduced profile 的有限场景与 driver 预期 profile 校验；该部分的最终 diff、系统 readback 和新 CI 尚未审完，不在本次预备结论中自动批准。若实际状态不符，相关正常运动／材质证据必须失败或 NOT_RUN，不得用产品内强制 false 替代。
+最终 reduced profile 差异已完成非作者复审：正常套件仍为全部 44 个注册场景；结束后只在临时 runner 将三项辅助功能设为 true，以新的 helper 进程 readback，并仅重取 `queue-dark`、`entry-dark`、`motion-magnet` 三例。`--only-case` 只能选择既有注册场景，未知项拒绝，重复项不扩大执行。driver 对 normal／reduced 两种 profile 的起止三项真实 bool 严格匹配，不以命令退出码替代实际状态。normal magnet 要求自有合成源确实提供、原生 decorationStarted 和对应 finished／cancelled；reduced 要求没有 decoration、到达模式为 none，并观察到不超过 80 ms 的 swallow 调度及 close。真实系统 readback 与新画面仍待 CI。若实际状态不符，相关正常运动／材质证据必须失败或 NOT_RUN，不得用产品内强制 false 替代。
 
 ## 7. 组合、安全边界及已执行验证
 
@@ -77,8 +77,8 @@ History 的行动说明只描述当前实际可用的按钮，不再对没有恢
 
 | 检查 | 结果与范围 |
 |---|---|
-| 当前 diff 的只读产品／流程审查 | 已读范围未见未解决源阻断；最后 helper／UI 测试差异待冻结 |
-| `Tests/NativeVisualEvidence` | 12 项 PASS，0.014 秒；为 manifest 拒绝回归，不是原生画面验收 |
+| 当前 diff 的只读产品／流程审查 | 最终冻结差异未见未解决源阻断；exact source 对象待确认 |
+| `Tests/NativeVisualEvidence` | 最终 16 项 PASS，0.020 秒；为 manifest／profile／事件拒绝回归，不是原生画面验收 |
 | `git diff --check` | PASS |
 | 最新修补的 macOS 编译与组合 Native／Feedback CI | 待运行／确认 |
 | 最新原尺寸 PNG 与实际 MOV | 待重新取得并独立审阅 |
@@ -89,7 +89,7 @@ History 的行动说明只描述当前实际可用的按钮，不再对没有恢
 ## 8. 交付时应保留的质量分类
 
 1. **已实质修补且有独立源审查／对应有限验证的项目：** 隐藏文件路径、防晚到权限启动、真实能力文案、footer／About／History、Feedback scalar 一致性、多窗捕获漏面板及旧证据诚实降级。原生修复是否最终通过，应由随后 exact source 的 macOS CI 和画面填实，不能提前写成全部验收通过。
-2. **有明确方案、继续自主完成的项目：** 最终 helper profile 差异与回归收尾、exact source／pin 核对、组合 CI、有效原尺寸 PNG 和 MOV 的重新取得及独立审美审查。代码可以自主修的问题不得仅转成创始人待办。
+2. **有明确方案、继续自主完成的项目：** exact source／pin 核对、组合 CI、有效原尺寸 PNG 和 MOV 的重新取得及独立审美审查。代码可以自主修的问题不得仅转成创始人待办。
 3. **平台／真人条件尚缺的项目：** 真实桌面、真实截图流程、人工物理鼠标、多屏及 Spaces 等接受标准。持续明确 NOT_RUN 和恢复条件，不以软件事件、合成图、CI 截图或源审查冒充真实通过。
 
 **精确对象确认栏：待 root 提供冻结 source commit 与 tree。确认消息将另行给出，CI 与视觉结论分别记录。**
