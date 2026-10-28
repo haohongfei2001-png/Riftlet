@@ -1,0 +1,53 @@
+{
+  "beforeAssets": 6,
+  "afterAssets": 8,
+  "beforeOperations": 4,
+  "afterOperations": 5,
+  "oldAssetsUnchanged": true,
+  "oldCheckpointsUnchanged": true,
+  "allPrivateMediaHashesValid": true,
+  "compensationsUnchanged": true,
+  "startsBefore": 0,
+  "startsAfter": 1,
+  "baselineAttachmentBytesEqual": true,
+  "oldOperations": [
+    {
+      "alias": "A",
+      "changedFields": [
+        "updated_at",
+        "reason"
+      ],
+      "identityAndPhaseUnchanged": true,
+      "phase": "unknown"
+    },
+    {
+      "alias": "B",
+      "changedFields": [],
+      "identityAndPhaseUnchanged": true,
+      "phase": "failed"
+    },
+    {
+      "alias": "D",
+      "changedFields": [
+        "updated_at"
+      ],
+      "identityAndPhaseUnchanged": true,
+      "phase": "unknown"
+    },
+    {
+      "alias": "F",
+      "changedFields": [
+        "updated_at",
+        "receipt_json",
+        "reason"
+      ],
+      "identityAndPhaseUnchanged": true,
+      "phase": "unknown"
+    }
+  ],
+  "extraUnselectedAsset": "one previously created 11,489,808-byte screenshot was naturally collected on startup; no input or operation",
+  "originalsDeleted": false,
+  "databaseReset": false,
+  "originalScreenshotHashesFound": 8,
+  "expectedOriginalScreenshots": 8
+}

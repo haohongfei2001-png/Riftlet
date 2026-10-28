@@ -1,0 +1,70 @@
+{
+  "nativeClock": "ProcessInfo.systemUptime; relative to original NSEvent, ms",
+  "ACKPublished": -35635.338,
+  "originalClick": 0,
+  "selectionCallback": 4.801,
+  "commitExecutionBegan": 492.393,
+  "commitExecutionEnded": 579.482,
+  "swallowedCommitObservedUpperBound": 2559.124,
+  "swallowScheduled": 2559.618,
+  "swallowActualStart": 2559.649,
+  "swallowClose": 2686.613,
+  "AppKitActualStartToCloseMS": 126.964,
+  "windowServerLastAllThreePresentSample": 2700.388,
+  "windowServerFirstAllThreeAbsentSample": 2720.581,
+  "windowServerValidSamples": 2315,
+  "windowServerFailedSamples": 0,
+  "windowServerFrontChromeThroughout": true,
+  "readyPersistenceObservedUpperBound": 8105.598,
+  "pageClock": "document.performance; relative to original input, ms; not equated to native uptime",
+  "inputToStrictStartMS": 1995.7,
+  "inputToStrictProofMS": 7345.0,
+  "sqliteReadOnlySamples": [
+    {
+      "readEndedAfterClickMS": -1497.001,
+      "status": "pending",
+      "visibility": "visible",
+      "visibilityRevision": 0,
+      "reason": "capture",
+      "uploadStarts": 0
+    },
+    {
+      "readEndedAfterClickMS": 89.937,
+      "status": "transferring",
+      "visibility": "visible",
+      "visibilityRevision": 0,
+      "reason": "capture",
+      "uploadStarts": 0
+    },
+    {
+      "readEndedAfterClickMS": 175.709,
+      "status": "transferring",
+      "visibility": "visible",
+      "visibilityRevision": 0,
+      "reason": "capture",
+      "uploadStarts": 0
+    },
+    {
+      "readEndedAfterClickMS": 2569.379,
+      "status": "transferring",
+      "visibility": "swallowed",
+      "visibilityRevision": 1,
+      "reason": "uploadStarted",
+      "uploadStarts": 1
+    },
+    {
+      "readEndedAfterClickMS": 8107.809,
+      "status": "used",
+      "visibility": "swallowed",
+      "visibilityRevision": 1,
+      "reason": "uploadStarted",
+      "uploadStarts": 1
+    }
+  ],
+  "limits": [
+    "SQLite snapshot/read timestamps are upper bounds, not exact commit timestamps.",
+    "WindowServer polling records valid window presence, not rendered animation pixels or exact compositor presentation time.",
+    "original effective ACK is from before click; a refresh was in flight and did not replace click authorization."
+  ],
+  "effectiveACK": -35635.339
+}

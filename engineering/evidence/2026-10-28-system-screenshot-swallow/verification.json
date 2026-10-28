@@ -1,0 +1,13 @@
+{
+  "sourceSHA": "e421e6687651c2fac1441410c1af2bd5b8151e55",
+  "runID": 40674197202,
+  "status": "completed",
+  "conclusion": "success",
+  "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/40674197202",
+  "verifiedThisSession": true,
+  "reusedExactSourceCI": true,
+  "newCITriggeredByThisAcceptance": false,
+  "localFullAppBuild": "PASS",
+  "localBundleCheck": "PASS",
+  "productSourceChanged": false
+}
