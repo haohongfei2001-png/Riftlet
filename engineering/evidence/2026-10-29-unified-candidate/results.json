@@ -5,9 +5,16 @@
   "feedbackCI": "NOT_RUN",
   "newNativeVisualEvidence": "NOT_RUN",
   "physicalMacAcceptance": "NOT_RUN",
-  "sourceReview": "CONDITIONAL: exact source and CI pending",
+  "sourceReview": "PASS_NON_AUTHOR_SOURCE_CHECKPOINT; native/visual acceptance pending",
   "founderInstallationRequested": false,
   "productionEnabled": false,
   "safeRetryEnabled": false,
-  "feedbackCloudDelivery": "NOT_DEPLOYED"
+  "feedbackCloudDelivery": "NOT_DEPLOYED",
+  "reviewedSource": "dd0d80b5b6e3836da4fd3627866beba6a18cc6d5",
+  "reviewedSourceTree": "3d1a33f657d365fb47a6bc741cd96749ec8889a7",
+  "localChecks": {
+    "unifiedAuditRejectionTests": 24,
+    "nativeVisualManifestTests": 9,
+    "swiftTests": "NOT_RUN_LOCALLY_LINUX"
+  }
 }

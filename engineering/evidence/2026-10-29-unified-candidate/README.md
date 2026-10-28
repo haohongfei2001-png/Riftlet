@@ -34,3 +34,7 @@
 3. 平台或缺少真人操作限制：逐项见 acceptance-matrix.md，正式交付时记录准确缺口及恢复条件。
 
 普通生产上传、安全失败/安全重试保持关闭。Feedback endpoint=nil；本机“保存待发送”不表示开发者已收到。PR #1 保持 Draft，main 不合并，不公开发行，也不要求创始人立即体验。
+
+## 精确源码复核
+
+非作者 engineering_review 已只读批准固定源码 `dd0d80b5b6e3836da4fd3627866beba6a18cc6d5`，tree `3d1a33f657d365fb47a6bc741cd96749ec8889a7`。确认两条正式祖先、干净树、所有最终产品/CI/helper对象；设置示意预览仅在有效模式、实际尺寸、原生 backing 属性或辅助选项变化时重排。这里的源码批准不代表创始人批准视觉参数；新 macOS CI 与图/MOV审查仍 pending。
