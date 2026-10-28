@@ -450,7 +450,10 @@ function riftletWebAcceptance(command, native) {
       if (!Number.isSafeInteger(width) || !Number.isSafeInteger(height) || width < 1 || height < 1
           || width * height > MAX_PIXELS) fail('UNSUPPORTED_PIXEL_SIZE');
       const canvas = new OffscreenCanvas(width, height);
-      const ctx = canvas.getContext('2d', {colorSpace: 'srgb', willReadFrequently: true});
+      // Match the page's ordinary sRGB preview rendering. On the tested Mac,
+      // willReadFrequently changes color-profile rounding by one channel level.
+      // Keep exact RGBA equality; never use a tolerance or bless an old operation.
+      const ctx = canvas.getContext('2d', {colorSpace: 'srgb'});
       if (!ctx) fail('PIXEL_CONTEXT_UNAVAILABLE');
       ctx.drawImage(image, 0, 0);
       return {width, height, sha256: await hash(ctx.getImageData(0, 0, width, height).data)};
