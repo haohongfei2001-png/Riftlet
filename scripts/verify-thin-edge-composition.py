@@ -33,7 +33,7 @@ METADATA_PATHS = frozenset((
     "engineering/evidence/2026-10-29-thin-edge-native/README.md",
     "engineering/evidence/2026-10-29-thin-edge-native/results.json",
 ))
-REVIEWED_SOURCE = "4fd4ac2da062bb26dc3cdc600b224f2e8dfe094b"  # Non-author source review + scoped native evidence.
+REVIEWED_SOURCE = "f70d26e6967c4750269415d17b4a4b6231a0853f"  # Non-author source review + scoped native evidence.
 
 
 @dataclass(frozen=True)
