@@ -108,7 +108,14 @@ final class SystemScreenshotWebCandidateTests: XCTestCase {
         let syntheticProfile = WebAttachmentAdapter(mediaDirectory: directory, executor: bridge, program: page,
             mode: .systemScreenshotCandidate, profile: ChatGPTWebPageProgram.acceptanceProfile,
             candidateJournal: SystemScreenshotObservationJournal(store: store))
-        for client in [noJournal, syntheticProfile] {
+        // A reviewed version change is explicit: neither a stale identifier
+        // nor a generated-image profile can enter the real-origin candidate.
+        let staleProgram = WebPageProgram(sourceID: "chatgpt-web-zh-20261027-integrated-v12",
+            functionSource: page.functionSource, maximumChunkBytes: page.maximumChunkBytes)
+        let staleCandidate = WebAttachmentAdapter(mediaDirectory: directory, executor: bridge, program: staleProgram,
+            mode: .systemScreenshotCandidate, profile: SystemScreenshotWebCandidate.profile,
+            candidateJournal: SystemScreenshotObservationJournal(store: store))
+        for client in [noJournal, syntheticProfile, staleCandidate] {
             do { _ = try await client.captureTarget(); XCTFail("Unscoped candidate ran") }
             catch WebAdapterError.programUnavailable {}
         }

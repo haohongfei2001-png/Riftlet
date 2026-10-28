@@ -13,6 +13,17 @@ enum FirstUseSelfCheck {
 
     static func run() async throws {
         try await SelectionFlowSelfCheck.run()
+        var binding = DeferredChromeActivityBinding()
+        let originalEpoch = UUID(), currentEpoch = UUID()
+        binding.request(afterCaptureIn: originalEpoch)
+        binding.request(afterCaptureIn: currentEpoch)
+        guard !binding.take(afterCaptureIn: originalEpoch, isRunning: true),
+              binding.take(afterCaptureIn: currentEpoch, isRunning: true),
+              !binding.take(afterCaptureIn: currentEpoch, isRunning: true) else {
+            throw RiftletError.invalidTransition
+        }
+        binding.request(afterCaptureIn: currentEpoch); binding.cancel()
+        guard !binding.take(afterCaptureIn: currentEpoch, isRunning: true) else { throw RiftletError.invalidTransition }
         var trace = AcceptanceTraceDeduplicator<Int, String>(capacity: 2)
         guard trace.shouldRecord("visible", for: 1), !trace.shouldRecord("visible", for: 1),
               trace.shouldRecord("swallowed", for: 1), trace.shouldRecord("used", for: 2),

@@ -7,7 +7,7 @@ const native = {applicationID:'com.google.Chrome', sessionID:'4242:1', windowID:
 function fixture(version, options) {
   // Keep the historical fixture independent of the current page's evolving ABI.
   const original = fs.readFileSync(path.join(__dirname, '../RiftletAdaptersTests/Fixtures/LegacyWeb', version+'.js'), 'utf8');
-  const make = ['v8','v9','v10','v11'].includes(version) ? require('../RiftletAdaptersTests/Fixtures/LegacyWeb/'+version+'-dom-fixture.cjs') : require('./legacy-dom-fixture.cjs');
+  const make = ['v8','v9','v10','v11','v12'].includes(version) ? require('../RiftletAdaptersTests/Fixtures/LegacyWeb/'+version+'-dom-fixture.cjs') : require('./legacy-dom-fixture.cjs');
   const f = make(original, version, options);
   f.legacy = vm.runInContext('('+legacy+')', f.context);
   f.read = op => f.legacy(op.command('observe'), native);
@@ -19,7 +19,7 @@ async function ready(version, options) {
   const view=f.makeCard(op); f.finish(view); await f.settle();
   assert.equal(f.observe(op).state,'attached'); return {f,op,view};
 }
-for (const version of ['v6','v7','v8','v9','v10','v11']) {
+for (const version of ['v6','v7','v8','v9','v10','v11','v12']) {
   test(version+' historical positive progress never becomes schema2 or uploadStarted', async () => {
     const f=fixture(version),op=f.bind();f.stage(op);f.commit(op);await f.settle();f.makeCard(op);
     const stored=f.registry().head.operations.get(op.identity.operationID);
@@ -39,7 +39,7 @@ for (const version of ['v6','v7','v8','v9','v10','v11']) {
     const background=f.read(op);
     assert.equal(background.observation.state,'attached');
     assert.equal(background.observation.attachmentID,before.attachmentID);
-    assert.equal(background.provenance.evidenceID,(['v8','v9','v10','v11'].includes(version)?'W5':'W4')+'-legacy-'+version+'-original-observer');
+    assert.equal(background.provenance.evidenceID,(['v8','v9','v10','v11','v12'].includes(version)?'W5':'W4')+'-legacy-'+version+'-original-observer');
     f.focus(true); f.document.visibilityState='visible'; const fresh=f.target();
     assert.notEqual(fresh.draftGeneration,op.target.draftGeneration);
     assert.equal(f.read(op).observation.state,'attached'); assert.equal(f.input.inputCount,1);

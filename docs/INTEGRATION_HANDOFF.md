@@ -1,3 +1,43 @@
+# 正式工程交接：第八、九轮与真实系统截图候选合流 · 2026-10-28
+
+本节为当前入口；下方旧交接仅作历史。基线 `d6a083dec660990bd65124e7acd78f2d900b5013` 与固定第九轮 `b30bb80d5af5cc12b0640c3609f70292709738a1` 保留双亲历史；共同祖先 b839230，第八轮 8914c702 已是第九轮祖先，不再 cherry-pick。最终正式 SHA、组合 CI 与审查结果以 PR #1 的本轮交接记录为准，来源 CI 40555899978 不替代组合 CI。
+
+## 本轮组合范围
+
+- 第八轮：原视觉/AX 窗口忽略鼠标，图片与编号为独立非激活输入窗口；外部 CLEAR padding 可由 WindowServer 路由给底层窗口，无事件转发。原按下身份、隐藏、吞噬及补位生命周期保留。AX 提示注册移到当前捕获尝试之后，不产生 ACK 或权限。
+- 第九轮：v13 只借用同 root、明确匹配的完整 v10/v12 原监视器；保留原 accessor、旧 operation/proof 和 v6–v12 只读恢复。新旧 generation 权限分离，不重建缺失证明。沿用已声明的 MAIN-world registry 完整性假设；不是对恶意闭包替换的认证。
+- 真实截图候选的精确程序版本同步为 v13，仍要求自己的 origin/profile/journal；加入旧 sourceID 拒绝回归，不能放宽为任意程序。Core、SQLite v3、preflight、accepted+30 截止修复、独立数据根、首观察审计及三份空准入映射保留。
+- 第九轮 helper 在原系统双击时间界内等待真实窗口几何再投递第二对软件事件；它验证既有补位防误选，不替代物理鼠标双击分类。
+
+## 直接交给本地 Codex：先取得真实截图原始证据
+
+无需重新研究架构，也无需先实现失败安全重试。从本轮最终正式 SHA 新建独立 worktree；保留所有现有工作树、数据库、原图、私有媒体、UNKNOWN、补偿及旧观察器。只用新截图，不重传旧未决。
+
+```bash
+bash scripts/build-macos.sh
+./build/Riftlet.app/Contents/MacOS/Riftlet --system-screenshot-candidate --acceptance-trace
+```
+
+也可从普通 App 菜单选择“打开真实截图内部候选…”。核对 `Riftlet REAL TEST` 与独立 `Riftlet-System-Screenshot-Candidate` 数据根。普通实例仍只收录；测试时避免两个实例的裂缝叠放。首次授权、Chrome JavaScript 开关沿用已有原生引导，不安装扩展，不强制聚焦编辑器。
+
+第一轮顺序与判断：
+
+1. **SC-INPUT**：新系统 PNG 的来源、原字节/私有副本/hash、大小/像素、原点击、先行完整 ACK、完整 target、asset/operation/attempt 和目标文件 `inputCount=1`。不得自动发送消息。
+2. **SC-START**：同一原操作/附件的正向进度观察及原文件身份；保存现有 candidate checkpoint，排除 files/change/占位和错目标/错图。不要因当前仍可见而重复点击。
+3. **SC-COMPLETE**：同一原附件实际完成与精确内容证明；原正文、选区及已有附件不变。分别记录页面事实、候选观察和本地可见性/UNKNOWN，不把这三个层次混在一起。
+
+**三份候选 start/completion/safe-failure 映射仍为空。** 即使真实页面已正确收到附件，本地仍 UNKNOWN、仍可见，是当前未准入策略的预期结果，不是输入失败；同草稿锁不能被清除来演示连续上传。取得原始 SC-START/SC-COMPLETE 并独立审查后，可以分别准入受限内部候选，复用现成快吞噬；普通生产和 safe-retry 不随之开启。证据公开前移除真实截图内容、私有正文、浏览器认证与完整目标秘密。
+
+## 继承的范围，不扩大为 Beta 通过
+
+第八轮 CLEAR/GAP/IMAGE/NUMBER 与按住补位是限定 CGEvent 软件路由 PASS；不是物理鼠标或图片 alpha/圆角逐像素透传。第九轮保留真实 Chrome v10/v12 只读识别恢复，以及第二击确实到 B、B 零选择的软件双击结果。没有本轮新真实截图/上传/GUI 证据。
+
+无先行完整 ACK 的冷首击仍安全拒绝；第九轮该样本 ACK 晚约209ms，禁止晚到 ACK 补造原授权。业务 ABA/同 URL 无可观察切换、MID、真实安全失败、物理 GUI/显示器矩阵、系统截图自包含与 T0/T1/T2 继续开放，不阻止先取 SC-INPUT/START/COMPLETE。浏览器扩展实验只原样归档，不进入 App/bundle 或正常使用前提。
+
+---
+
+## 前一候选工程交接（历史原文）
+
 # 正式工程集成交接 · 真实系统截图内部候选 · 2026-10-28
 
 ## 当前正式组合：系统截图候选接线已实现，生产准入仍关闭
@@ -459,3 +499,20 @@ PR #4 的 `90a04883160032fc6354fb4f3d3f7d56fede2947` 是本轮产品依据：实
 实际生成图片的 **一次 helper AX → 真实递增上传开始 → AppKit 快吞噬 → 后台独立最终成功 PASS（限定）**。原 input=1、完整 target/attachment、首份 start 审计、较晚 final proof 和 persisted succeeded 对齐；开始后约59–322ms调用动画，动画段约253ms，窗口关闭早于最终证明约4.89–5.16s。不是物理鼠标或无ACK冷首击；原保留配置swallowDuration=.24，不是点击到关闭仅253ms。
 
 Core/UI/App正式源码未改；两份最小临时overlay供Pro接入synthetic start策略及诊断/AX元数据。生产、safe retry仍关闭。原11 Web资产/17操作/3补偿及所有原私有媒体哈希保留，新增5图各input1，其中2图未决保持原样；未发送消息。详见[第五轮完整交接](../engineering/evidence/2026-10-27-real-mac-round5/README.md)。本段替代此前“等待人工点第2张”的准备检查点；无需再请求该动作。下一项为Pro集成限定synthetic补丁，其后继续冷首击、业务转换、同草稿多图与物理N1，MID及安全终止分别准入。
+
+
+---
+
+## 第八轮独立交接（历史原文）
+
+# 第八轮独立真机交接 · 2026-10-28
+
+分支 `codex/riftlet-real-mac-round8-20261028`，最终源码 `ee1d960adf67432be627e86e7aa9350e5d85d9c0`。已继承正式 `595142d` 与第七轮祖先；本分支不写正式 PR #1。完整结果、准确已测 SHA、CI 和保留报告见[第八轮 README](../engineering/evidence/2026-10-28-real-mac-round8/README.md)。
+
+功能源 `85250a8` 的完整 macOS CI [40544274635](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40544274635) PASS。最终 `ee1d960` 的 [40546396233](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40546396233) 因托管 macOS ARM64 容量不足未分配 runner，0 步骤，验证状态 NOT_RUN；本地完整构建及最终闭集诊断真机确认 PASS。待容量恢复只补跑该 CI，不重复上传，也不循环重试或改付费方案。
+
+**已修复：CLEAR 真正底层透传（软件实击）。** 视觉 row 忽略鼠标，图片与编号独立非激活输入窗；最终默认竖屏 IMAGE/NUMBER/CLEAR/GAP 全通过，按住期间保留原位置、释放后选原图再补位通过。CGEvent 与人工物理分列，compact/全屏/Spaces/1×/跨应用物理焦点仍未闭合。没有事件转发或窗口排序绕过。
+
+**仍未解决：真正无 ACK 冷首击。** AX hints 注册移到首次 capture 之后，但两次原 AX 点击仍无先行 ACK、零新输入。保留的 v10 root monitor 阻止 v12 接管，现有封闭拒绝码缺失已补；最终 App 实测返回 `unobservedRootDescriptor`。独立新文档完整 ACK 晚于点击约 1.938 秒，未回填或重放。最小隔离 MV3/native 通道真实跑通，但不证明业务草稿/前台事件连续性，不能据此启用发行扩展或生产输入。
+
+SQLite v3、25 Web 媒体、27 操作、6 未决相位、补偿与开始回执、14 其他私有文件均保留。生产截图上传、生产开始 profile、安全重试仍关闭。Pro 集成此分支的最小 App/UI/adapter 增量；不重复挑选五至七轮，不清监视器或 UNKNOWN 制造成功。

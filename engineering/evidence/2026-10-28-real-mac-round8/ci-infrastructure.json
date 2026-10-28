@@ -1,0 +1,31 @@
+{
+  "sourceSHA": "ee1d960adf67432be627e86e7aa9350e5d85d9c0",
+  "run": 40546396233,
+  "jobID": 122338064578,
+  "workflowConclusion": "failure",
+  "jobConclusion": "cancelled",
+  "result": "NOT_RUN",
+  "runnerAllocated": false,
+  "stepsStarted": 0,
+  "reason": "Hosted macOS ARM64 capacity; job was not acquired after GitHub internal attempts.",
+  "annotations": [
+    {
+      "level": "failure",
+      "message": "The job was not acquired by Runner of type hosted even after multiple attempts"
+    },
+    {
+      "level": "notice",
+      "message": "Due to capacity constraints, jobs targeting macOS arm64 runners may experience longer queue times."
+    },
+    {
+      "level": "notice",
+      "message": "Due to capacity constraints, jobs targeting macOS arm64 runners may experience longer queue times."
+    },
+    {
+      "level": "notice",
+      "message": "Due to capacity constraints, jobs targeting macOS arm64 runners may experience longer queue times."
+    }
+  ],
+  "automaticRerunsRequested": 0,
+  "resumeTrigger": "Runner capacity available; rerun this exact final source once through the existing workflow. No paid-plan or runner-architecture changes."
+}

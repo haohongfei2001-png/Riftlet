@@ -1,0 +1,47 @@
+{
+  "sourceSHA": "fcb052bfe6fad09af5de3c90d5954259e000a8ef",
+  "inputSource": "CGEvent explicit clickState",
+  "physical": "NOT_RUN",
+  "binarySHA256": "eed56d821dc4475a457f005156721a6e1c18039ebee7290a8b8fa9db29f6c635",
+  "result": [
+    {
+      "batchID": "B64A481A-8D17-4CB7-AD14-66BC991A9470",
+      "controlWindow": {
+        "collectionBehavior": 65536,
+        "frame": {
+          "height": 1080,
+          "width": 800,
+          "x": -800,
+          "y": 0
+        },
+        "miniaturized": false,
+        "number": 51519,
+        "occlusionVisible": true,
+        "onActiveSpace": true,
+        "screenID": 3,
+        "visible": true
+      },
+      "event": "software_double_case",
+      "frontmostBundle": "unidentified",
+      "frontmostPID": 14498,
+      "helperActive": true,
+      "helperPID": 14498,
+      "keyWindow": 51519,
+      "mainWindow": 51519,
+      "pairsPosted": 1,
+      "probeEditorFocused": true,
+      "probeKeyInputEligible": true,
+      "reason": "replacementOrTimingGuard",
+      "result": "INCONCLUSIVE",
+      "sceneID": "13D16F1C-64EF-4BD5-9F06-2DF8740FC4CB",
+      "secondPairVerdict": "NOT_RUN",
+      "selectionCount": 1,
+      "syntheticOnly": true,
+      "systemDoubleClickInterval": 0.5,
+      "underlyingClickCount": 0,
+      "uptime": 479103.33085933333
+    }
+  ],
+  "logSHA256": "7af843c2615330a507b3e27909111a4ef901de0e0f1327ee976d290eecf3cd07",
+  "scope": "Original bounded run; first tagged pair selects original A once. Second pair not sent because native replacement geometry was not yet confirmed."
+}

@@ -1,3 +1,5 @@
+> 第八轮独立真机更新（2026-10-28）：[证据](../engineering/evidence/2026-10-28-real-mac-round8/README.md)。最终 UI 源码85250a8在默认90°竖屏用CGEvent实测IMAGE/NUMBER/CLEAR/GAP均PASS，CLEAR底层真实收到down/up；按住补位PASS。人工物理不可由此替代。冷首击仍FAIL；最终ee1d960仅补闭集诊断，v10旧root监视器保持，未清状态。原有其他FAIL/NOT_RUN继续有效。
+
 # Native foundation acceptance on a real Mac
 
 > **第六轮独立真机增量（2026-10-27）**：Web v12 分块优化真实点击至 AppKit 关闭 5.51→3.67 秒（单次对照），无 ACK 冷首击已真实复现安全拒绝；同草稿第二图明确在 Core targetBusy 被取消、未输入。Core/UI/App 不改，Pro 安装专项不混入。源码/CI/保留核验/顺序调度提案见 [第六轮交接](../engineering/evidence/2026-10-27-real-mac-round6/README.md)。生产截图与安全重试仍关闭；首击与连续点击不标整体验收通过。

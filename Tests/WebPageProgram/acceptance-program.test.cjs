@@ -155,7 +155,7 @@ function fixture({blockedDigest = false, blockedInputDigest = false, route = 'ht
     const deadline=Date.now()+2000;
     do {
       await new Promise(resolve=>setTimeout(resolve,1));
-      const ops=[];for(let g=context.__riftletWebAcceptance20261027v12?.head;g;g=g.next) ops.push(...g.operations.values());
+      const ops=[];for(let g=context.__riftletWebAcceptance20261027v13?.head;g;g=g.next) ops.push(...g.operations.values());
       if (ops.every(op=>!op.committed || op.invalid || (op.fileHashVerified && !op.proofPending))) return;
     } while(Date.now()<deadline);
     assert.fail('bounded synthetic async work did not settle');
@@ -319,7 +319,7 @@ test('returning to a tab can bind a fresh lease while original UNKNOWN stays obs
   for(const fn of f.events.get('visibilitychange')||[]) fn();
   f.document.visibilityState='visible';
   for(const fn of f.events.get('visibilitychange')||[]) fn();
-  const registry=f.context.__riftletWebAcceptance20261027v12;
+  const registry=f.context.__riftletWebAcceptance20261027v13;
   assert.equal(registry.count,1);
   assert.equal(f.observe(old).state,'inputTriggered');assert.equal(registry.count,1);
   const fresh=f.bind('33333333-3333-4333-8333-333333333333');
@@ -344,7 +344,7 @@ test('lease generations are bounded and older state cannot bypass current admiss
     const legacy=fixture({mode:'missing'});
     legacy.context[key]={valid:()=>true,target:{...native,surface:'webChat'}};
     assert.throws(()=>legacy.target(),/UNPROVEN_CHAT_MODE/);
-    assert.equal(legacy.context.__riftletWebAcceptance20261027v12.count,0);
+    assert.equal(legacy.context.__riftletWebAcceptance20261027v13.count,0);
   }
   const f=fixture();let first;
   for(let i=0;i<32;i++) {
@@ -353,7 +353,7 @@ test('lease generations are bounded and older state cannot bypass current admiss
     f.document.visibilityState='visible';
   }
   assert.throws(()=>f.target(),/LEASE_GENERATION_LIMIT/);
-  const registry=f.context.__riftletWebAcceptance20261027v12;
+  const registry=f.context.__riftletWebAcceptance20261027v13;
   assert.equal(registry.count,32);assert.equal(registry.head.target.documentID,first.documentID);
   assert.equal(f.call({action:'validate',target:first}).valid,false);assert.equal(f.input.inputCount,0);
 });
@@ -576,7 +576,7 @@ test('trusted composer-external interaction does not hide a committed business A
     threadCommit(f);
     assert.equal(f.call({action:'validate',target:op.target}).valid,false);
     assert.equal(f.observe(op).state,'invalidated');
-    assert.equal(f.context.__riftletWebAcceptance20261027v12.tail.continuityEvents.outsideInteraction,1);
+    assert.equal(f.context.__riftletWebAcceptance20261027v13.tail.continuityEvents.outsideInteraction,1);
     assert.equal(f.input.inputCount,1);
   }
 });
@@ -590,7 +590,7 @@ test('Navigation API events permanently end observation and input despite final 
     f.form.__reactFiber$fixture=original;
     assert.equal(f.call({action:'validate',target:op.target}).valid,false);
     assert.equal(f.observe(op).state,'invalidated');assert.equal(f.observe(op).belongsToOriginalDraft,false);
-    assert.equal(f.context.__riftletWebAcceptance20261027v12.tail.continuityEvents[type],1);
+    assert.equal(f.context.__riftletWebAcceptance20261027v13.tail.continuityEvents[type],1);
     assert.equal(f.input.inputCount,1);
   }
 });
@@ -599,7 +599,7 @@ test('trusted editor typing and untrusted external events do not revoke the inpu
   const f=fixture({thread:true}),t=f.target();
   for(const type of ['pointerdown','click','keydown']){f.documentEvent(type,f.editor);f.documentEvent(type,f.body,false);}
   assert.equal(f.call({action:'validate',target:t}).valid,true);
-  assert.equal(f.context.__riftletWebAcceptance20261027v12.tail.continuityEvents.outsideInteraction,0);
+  assert.equal(f.context.__riftletWebAcceptance20261027v13.tail.continuityEvents.outsideInteraction,0);
 });
 
 function threadCommit(f, id = f.businessID) {
@@ -614,7 +614,7 @@ test('v7 root setter observes both real assignments in same-DOM business ABA and
   const descriptor=Object.getOwnPropertyDescriptor(root,'current');assert.equal(typeof descriptor.set,'function');
   threadCommit(f,'local-chatgpt:00000000-0000-0000-0000-000000000000');
   threadCommit(f);
-  const registry=f.context.__riftletWebAcceptance20261027v12;
+  const registry=f.context.__riftletWebAcceptance20261027v13;
   assert.equal([...registry.rootMonitors.values()][0].diagnostics.commits,2);
   assert.equal(f.call({action:'validate',target:old}).valid,false);
   const fresh=f.target();assert.notEqual(fresh.draftGeneration,old.draftGeneration);
@@ -626,7 +626,7 @@ test('v7 same-ID normal commits preserve input and perform one binding check per
   const f=fixture({thread:true}),old=f.target();
   threadCommit(f);assert.equal(f.call({action:'validate',target:old}).valid,true);
   f.windowEvent('blur');f.windowEvent('focus');const fresh=f.target();
-  const monitor=[...f.context.__riftletWebAcceptance20261027v12.rootMonitors.values()][0],before=monitor.diagnostics.checks;
+  const monitor=[...f.context.__riftletWebAcceptance20261027v13.rootMonitors.values()][0],before=monitor.diagnostics.checks;
   threadCommit(f);assert.equal(monitor.diagnostics.checks-before,1);
   assert.equal(f.call({action:'validate',target:fresh}).valid,true);
   assert.equal(f.call({action:'validate',target:old}).valid,false);
@@ -644,7 +644,7 @@ test('v7 checker exceptions and reentrant commits cannot escape into React or ro
     }});
     assert.doesNotThrow(()=>{root.current=next.root;});
     assert.equal(root.current,reentrant?last:next.root);
-    const monitor=[...f.context.__riftletWebAcceptance20261027v12.rootMonitors.values()][0];
+    const monitor=[...f.context.__riftletWebAcceptance20261027v13.rootMonitors.values()][0];
     assert.equal(monitor.diagnostics.reason,reentrant?'REENTRANT_COMMIT':'CHECK_FAILED');
     assert.equal(monitor.diagnostics.stopped,true);
     delete f.form.__reactFiber$fixture;
@@ -659,7 +659,7 @@ test('v7 replaced or frozen root descriptor is permanently disqualified and cann
     else Object.defineProperty(root,'current',{value,writable:true,configurable:true,enumerable:true});
     assert.equal(f.call({action:'validate',target:old}).valid,false);
     assert.throws(()=>f.target(),/ROOT_MONITOR_LOST/);
-    const result=f.context.__riftletWebAcceptance20261027v12.stopRootMonitors();
+    const result=f.context.__riftletWebAcceptance20261027v13.stopRootMonitors();
     assert.equal(result[0].restored,false);
     assert.equal(root.current,value);
   }
@@ -667,7 +667,7 @@ test('v7 replaced or frozen root descriptor is permanently disqualified and cann
 
 test('v7 explicit stop restores only its own descriptor with the latest committed value and cannot rearm old leases', () => {
   const f=fixture({thread:true}),root=f.fibers.root.stateNode,original=Object.getOwnPropertyDescriptor(root,'current'),old=f.target();
-  const next=threadCommit(f);const result=f.context.__riftletWebAcceptance20261027v12.stopRootMonitors();
+  const next=threadCommit(f);const result=f.context.__riftletWebAcceptance20261027v13.stopRootMonitors();
   const restored=Object.getOwnPropertyDescriptor(root,'current');
   assert.equal(result[0].restored,true);assert.equal(restored.value,next.root);
   for(const key of ['enumerable','writable','configurable'])assert.equal(restored[key],original[key]);
@@ -686,11 +686,11 @@ test('v7 ambiguous or replaced original form binding at commit revokes the origi
 });
 
 test('v7 Home does not instrument React roots; unmodifiable thread descriptors refuse before observer registration', () => {
-  const home=fixture();home.target();assert.equal(home.context.__riftletWebAcceptance20261027v12.rootMonitors.size,0);
+  const home=fixture();home.target();assert.equal(home.context.__riftletWebAcceptance20261027v13.rootMonitors.size,0);
   const f=fixture({thread:true}),root=f.fibers.root.stateNode;
   Object.defineProperty(root,'current',{value:root.current,writable:false,configurable:false});
   assert.throws(()=>f.target(),/UNOBSERVED_ROOT_DESCRIPTOR/);
-  assert.equal(f.events.size,0);assert.equal(f.context.__riftletWebAcceptance20261027v12.count,0);
+  assert.equal(f.events.size,0);assert.equal(f.context.__riftletWebAcceptance20261027v13.count,0);
 });
 
 test('R01 body/sidebar interactions keep the original usable composer without focusing its editor', async () => {
@@ -773,14 +773,14 @@ test('unsupported unobserved business ABA: assert current limitation after ordin
   // Keep this limitation visible alongside the observed-commit ABA rejection.
   for(const type of ['pointerdown','click','keydown']) {
     const f=fixture({thread:true}),target=f.target(),original=f.form.__reactFiber$fixture;
-    const monitor=[...f.context.__riftletWebAcceptance20261027v12.rootMonitors.values()][0];
+    const monitor=[...f.context.__riftletWebAcceptance20261027v13.rootMonitors.values()][0];
     f.documentEvent(type,f.body);
     f.form.__reactFiber$fixture=f.makeFibers('local-chatgpt:00000000-0000-0000-0000-000000000000').leaf;
     f.form.__reactFiber$fixture=original;
     await Promise.resolve(); // The outside-interaction recheck sees only final A.
     assert.equal(monitor.diagnostics.commits,0);
     assert.equal(f.call({action:'validate',target}).valid,true); // Known unsupported transition class.
-    assert.equal(f.context.__riftletWebAcceptance20261027v12.tail.continuityEvents.outsideInteraction,1);
+    assert.equal(f.context.__riftletWebAcceptance20261027v13.tail.continuityEvents.outsideInteraction,1);
     assert.equal(f.input.inputCount,0); // The fixture does not perform an upload.
   }
 });
@@ -821,7 +821,7 @@ test('v9 correlated progress timeline proves start before independent final read
   setProgress(f,view,100);assert.equal(f.observe(op).uploadStart,undefined);assert.notEqual(f.observe(op).state,'uploadStarted');
   f.finish(view);await f.settle();const ready=f.observe(op);
   assert.equal(ready.state,'attached');assert.equal(ready.attachmentID,start.attachmentID);assert.equal(ready.uploadStart,undefined);
-  const internal=f.context.__riftletWebAcceptance20261027v12.tail.operations.get(op.identity.operationID);
+  const internal=f.context.__riftletWebAcceptance20261027v13.tail.operations.get(op.identity.operationID);
   assert.ok(internal.proof.completed>e.startSequence);assert.equal(f.input.inputCount,1);
 });
 
@@ -903,7 +903,7 @@ test('v9 registry does not inspect, mutate or stop an existing v8 observer', () 
   const f=fixture();let touched=0;
   const legacy=new Proxy({}, {get(){touched++;throw Error('legacy observer accessed');},set(){touched++;throw Error('legacy observer mutated');}});
   Object.defineProperty(f.context,'__riftletWebAcceptance20261027v8',{value:legacy,configurable:false,writable:false});
-  assert.ok(f.target());assert.ok(f.context.__riftletWebAcceptance20261027v12);assert.equal(touched,0);
+  assert.ok(f.target());assert.ok(f.context.__riftletWebAcceptance20261027v13);assert.equal(touched,0);
 });
 
 
@@ -966,7 +966,7 @@ test('v9 final proof keeps an internal diagnostic timestamp without adding recei
   clock=20;setProgress(f,view,40);const start=f.observe(op);
   assert.equal(start.uploadStart.inputObservedAtMS,10);assert.equal(start.uploadStart.startObservedAtMS,20);
   clock=30;f.finish(view);await f.settle();
-  const envelope=f.call(op.command('observe')),proof=f.context.__riftletWebAcceptance20261027v12.tail.operations.get(op.identity.operationID).proof;
+  const envelope=f.call(op.command('observe')),proof=f.context.__riftletWebAcceptance20261027v13.tail.operations.get(op.identity.operationID).proof;
   assert.equal(envelope.observation.state,'attached');assert.equal(proof.completedAtMS,30);
   assert.ok(proof.completedAtMS>start.uploadStart.startObservedAtMS);
   assert.equal(envelope.completedAtMS,undefined);assert.equal(envelope.observation.completedAtMS,undefined);
@@ -979,7 +979,7 @@ test('v9 final proof keeps an internal diagnostic timestamp without adding recei
 test('v10 real initial missing progress waits on its original node and two observed decimals establish start', async () => {
   const f=fixture();let clock=10;f.context.performance.now=()=>clock;
   const op=f.bind();f.stage(op);f.commit(op);await f.settle();const view=f.makeCard(op,null);
-  const internal=f.context.__riftletWebAcceptance20261027v12.tail.operations.get(op.identity.operationID);
+  const internal=f.context.__riftletWebAcceptance20261027v13.tail.operations.get(op.identity.operationID);
   assert.equal(internal.progressNode,view.progress);assert.equal(internal.progressValue,null);assert.equal(internal.startDisqualified,false);
   for(let i=0;i<3;i++){f.mutate([]);assert.equal(f.observe(op).uploadStart,undefined);}
   clock=20;setProgress(f,view,4.5378966329499795);
@@ -995,7 +995,7 @@ test('v10 finite-then-missing and coalesced missing round trips permanently disq
   for(const initial of [null,4.5378966329499795])for(const values of [[4.5378966329499795,null,9.075793265899959],[4.5378966329499795,null],[100,null,9.075793265899959],['',9.075793265899959]]) {
     const f=fixture(),op=f.bind();f.stage(op);f.commit(op);await f.settle();const view=f.makeCard(op,initial);
     queueProgressBatch(f,view,values);assert.equal(f.observe(op).uploadStart,undefined);
-    const internal=f.context.__riftletWebAcceptance20261027v12.tail.operations.get(op.identity.operationID);
+    const internal=f.context.__riftletWebAcceptance20261027v13.tail.operations.get(op.identity.operationID);
     assert.equal(internal.startDisqualified,true);
     setProgress(f,view,20);setProgress(f,view,40);assert.equal(f.observe(op).uploadStart,undefined);assert.equal(f.input.inputCount,1);
     f.finish(view);await f.settle();assert.equal(f.observe(op).state,'attached');
@@ -1012,7 +1012,7 @@ test('v10 initial missing progress cannot survive replacement or transient remov
     f.mutate([{type:'childList',target:view.card,removedNodes:[old],addedNodes:[view.progress]}]);
     setProgress(f,view,4.5378966329499795);setProgress(f,view,9.075793265899959);
     assert.equal(f.observe(op).uploadStart,undefined);
-    assert.equal(f.context.__riftletWebAcceptance20261027v12.tail.operations.get(op.identity.operationID).startDisqualified,true);
+    assert.equal(f.context.__riftletWebAcceptance20261027v13.tail.operations.get(op.identity.operationID).startDisqualified,true);
   }
 });
 
@@ -1037,7 +1037,7 @@ test('v10 initial missing exception does not admit malformed numeric placeholder
 
 test('v11 real NodeList-like callbacks finish original upload without any native observe after start', async () => {
   const f=fixture(),op=f.bind();f.stage(op);f.commit(op);await f.settle();
-  const internal=f.context.__riftletWebAcceptance20261027v12.tail.operations.get(op.identity.operationID);
+  const internal=f.context.__riftletWebAcceptance20261027v13.tail.operations.get(op.identity.operationID);
   const view=f.makeCard(op,null);
   setProgress(f,view,4.5378966329499795);assert.equal(internal.uploadStart,null);
   setProgress(f,view,9.075793265899959);assert.ok(internal.uploadStart);
@@ -1059,7 +1059,7 @@ test('v11 real NodeList-like callbacks finish original upload without any native
 test('v11 never mutates or stops a historical v10 observer when installing a new registry', () => {
   const f=fixture();let touched=0;
   Object.defineProperty(f.context,'__riftletWebAcceptance20261027v10',{value:new Proxy({}, {get(){touched++;throw Error('old v10 accessed');},set(){touched++;throw Error('old v10 mutated');}})});
-  assert.ok(f.target());assert.equal(touched,0);assert.ok(f.context.__riftletWebAcceptance20261027v12);
+  assert.ok(f.target());assert.equal(touched,0);assert.ok(f.context.__riftletWebAcceptance20261027v13);
 });
 
 
@@ -1115,4 +1115,183 @@ test('v12 cannot acquire a new input lease for an old v11 operation or touch its
   assert.equal(f.call({action:'validate',target:old}).valid,false);
   assert.throws(()=>f.call({action:'commit',target:old,identity:{...op.identity,target:old},chunkIndex:1}),/TARGET_INVALID/);
   assert.equal(touched,0);assert.equal(f.input.inputCount,0);
+});
+
+function historicalProgram(f, version) {
+  const file=path.join(__dirname,'../RiftletAdaptersTests/Fixtures/LegacyWeb',`v${version}.js`);
+  const program=vm.runInContext('('+fs.readFileSync(file,'utf8')+')',f.context);
+  return command=>program(command,native);
+}
+function installV10Owner(f) {
+  const call=historicalProgram(f,10),target=call({action:'captureTarget'});
+  const registry=f.context.__riftletWebAcceptance20261027v10,root=f.fibers.root.stateNode;
+  return {call,target,registry,root,monitor:registry.rootMonitors.get(root)};
+}
+
+test('v13 borrows the frozen v10 owner after actual v12 failure without changing its descriptor or old state', () => {
+  const f=fixture({thread:true}),old=installV10Owner(f),descriptor=Object.getOwnPropertyDescriptor(old.root,'current');
+  const oldHead=old.registry.head,oldOperations=oldHead.operations;
+  const v12=historicalProgram(f,12);
+  assert.throws(()=>v12({action:'captureTarget'}),/UNOBSERVED_ROOT_DESCRIPTOR/);
+  const failed=f.context.__riftletWebAcceptance20261027v12;
+  assert.equal(failed.count,0);assert.equal(failed.rootMonitors.size,0);
+  const fresh=f.target(),current=f.context.__riftletWebAcceptance20261027v13;
+  assert.notEqual(fresh.documentID,old.target.documentID);
+  assert.equal(fresh.logicalDraftIdentity.id,old.target.logicalDraftIdentity.id);
+  assert.deepEqual(Object.getOwnPropertyDescriptor(old.root,'current'),descriptor);
+  assert.equal(old.registry.head,oldHead);assert.equal(oldHead.operations,oldOperations);
+  assert.equal(old.registry.count,1);assert.equal(failed.count,0);
+  assert.equal(current.rootMonitors.get(old.root).diagnostics.borrowedFrom,10);
+  assert.equal(old.monitor.diagnostics.stopped,false);
+  assert.equal(f.call({action:'validate',target:fresh}).valid,true);
+  assert.equal(f.call({action:'validate',target:old.target}).valid,false);
+  const identity={operationID:'11111111-1111-4111-8111-111111111111',assetID:'22222222-2222-4222-8222-222222222222',attempt:1,assetSHA256:digest(png),target:old.target};
+  for(const action of ['begin','chunk','commit']) assert.throws(()=>f.call({action,target:old.target,identity}),/TARGET_INVALID/);
+  assert.equal(f.input.inputCount,0);
+});
+
+test('v13 private groups preserve both independent commit checks and bound repeated same-form rearming', () => {
+  const f=fixture({thread:true}),old=installV10Owner(f);let fresh=f.target();
+  const monitor=f.context.__riftletWebAcceptance20261027v13.rootMonitors.get(old.root);
+  const before=old.monitor.diagnostics.checks;
+  threadCommit(f);
+  assert.equal(old.monitor.diagnostics.checks-before,2);
+  assert.equal(old.call({action:'validate',target:old.target}).valid,true);
+  assert.equal(f.call({action:'validate',target:fresh}).valid,true);
+  for(let i=0;i<10;i++) { f.windowEvent('blur');f.windowEvent('focus');fresh=f.target(); }
+  assert.equal(monitor.diagnostics.groups,1);
+  const rearmed=old.monitor.diagnostics.checks;threadCommit(f);
+  assert.equal(old.monitor.diagnostics.checks-rearmed,2);
+  assert.equal(f.call({action:'validate',target:fresh}).valid,true);
+  threadCommit(f,'local-chatgpt:00000000-0000-0000-0000-000000000000');threadCommit(f);
+  assert.equal(old.call({action:'validate',target:old.target}).valid,false);
+  assert.equal(f.call({action:'validate',target:fresh}).valid,false);
+  const next=f.target();assert.notEqual(next.draftGeneration,fresh.draftGeneration);
+});
+
+test('v13 borrower stop never restores or stops owner and cannot rearm its own stopped wrapper', () => {
+  const f=fixture({thread:true}),old=installV10Owner(f),fresh=f.target();
+  const descriptor=Object.getOwnPropertyDescriptor(old.root,'current'),registry=f.context.__riftletWebAcceptance20261027v13;
+  const proof={sentinel:'retained-original-bookkeeping'};old.registry.head.operations.set('retained',{proof});
+  const result=registry.stopRootMonitors();
+  assert.equal(result[0].restored,false);assert.equal(old.monitor.diagnostics.stopped,false);
+  assert.deepEqual(Object.getOwnPropertyDescriptor(old.root,'current'),descriptor);
+  assert.equal(old.registry.head.operations.get('retained').proof,proof);
+  assert.equal(old.call({action:'validate',target:old.target}).valid,true);
+  assert.equal(f.call({action:'validate',target:fresh}).valid,false);
+  assert.throws(()=>f.target(),/ROOT_MONITOR_LOST/);
+  threadCommit(f);assert.equal(old.call({action:'validate',target:old.target}).valid,true);
+});
+
+test('v13 new checker exceptions cannot disqualify v10 owner or clear original proof bookkeeping', () => {
+  const f=fixture({thread:true}),old=installV10Owner(f),fresh=f.target();
+  const proof={sentinel:'retained-original-bookkeeping'};old.registry.head.operations.set('retained',{proof});
+  const original=f.form.querySelectorAll;let calls=0;
+  f.form.querySelectorAll=function(selector){
+    if(selector==='input[type=file][aria-label="附加文件"]' && ++calls===2) throw Error('new-check-only');
+    return original.call(this,selector);
+  };
+  assert.doesNotThrow(()=>threadCommit(f));f.form.querySelectorAll=original;
+  assert.equal(old.monitor.diagnostics.stopped,false);
+  assert.equal(old.registry.head.operations.get('retained').proof,proof);
+  assert.equal(old.call({action:'validate',target:old.target}).valid,true);
+  assert.equal(f.call({action:'validate',target:fresh}).valid,false);
+});
+
+test('v13 refuses stopped, incompatible, spoofed, ambiguous and replaced monitor owners', () => {
+  for(const scenario of ['stopped','bind-spoof','intact-spoof','descriptor-spoof','ambiguous','cycle']) {
+    const f=fixture({thread:true}),old=installV10Owner(f);
+    if(scenario==='stopped')old.registry.stopRootMonitors();
+    if(scenario==='bind-spoof')old.monitor.bind=()=>()=>true;
+    if(scenario==='intact-spoof')old.monitor.intact=()=>true;
+    if(scenario==='descriptor-spoof')Object.defineProperty(old.root,'current',{get:()=>f.fibers.root,set:()=>{},configurable:true});
+    if(scenario==='ambiguous')Object.defineProperty(f.context,'__riftletWebAcceptance20261027v11',{value:{rootMonitors:new Map([[old.root,old.monitor]])}});
+    if(scenario==='cycle')old.registry.head.next=old.registry.head;
+    assert.throws(()=>f.target(),/UNOBSERVED_ROOT_DESCRIPTOR|ROOT_MONITOR_LOST/);
+    assert.equal(f.context.__riftletWebAcceptance20261027v13.count,0);
+    assert.equal(f.input.inputCount,0);
+  }
+  const unknown=fixture({thread:true});historicalProgram(unknown,11)({action:'captureTarget'});
+  assert.throws(()=>unknown.target(),/UNOBSERVED_ROOT_DESCRIPTOR/);
+});
+
+test('v13 borrowed lease permanently loses authority after owner stop, function swap or root descriptor loss', () => {
+  for(const scenario of ['owner-stop','function-swap','descriptor-loss']) {
+    const f=fixture({thread:true}),old=installV10Owner(f),fresh=f.target();
+    if(scenario==='owner-stop')old.registry.stopRootMonitors();
+    if(scenario==='function-swap')old.monitor.bind=()=>()=>true;
+    if(scenario==='descriptor-loss')Object.defineProperty(old.root,'current',{value:old.root.current,writable:true,configurable:true});
+    assert.equal(f.call({action:'validate',target:fresh}).valid,false);
+    assert.throws(()=>f.target(),/ROOT_MONITOR_LOST/);
+    assert.equal(f.input.inputCount,0);
+  }
+});
+
+for (const ownerVersion of [10,12]) test(`v13 borrowed v${ownerVersion} fresh lease inputs once and finishes while old real proof and late-error observation stay original`, async () => {
+  // The frozen v10 DOM helper uses arrays, matching its original VM evidence;
+  // this does not repair or reclassify v10's separately recorded NodeList bug.
+  const frozen=fs.readFileSync(path.join(__dirname,`../RiftletAdaptersTests/Fixtures/LegacyWeb/v${ownerVersion}.js`),'utf8');
+  const f=require(`../RiftletAdaptersTests/Fixtures/LegacyWeb/v${ownerVersion}-dom-fixture.cjs`)(frozen,'v'+ownerVersion,{thread:true});
+  const old=f.bind();f.stage(old);f.commit(old);await f.settle();
+  const oldView=f.makeCard(old);f.finish(oldView);await f.settle();
+  assert.equal(f.observe(old).state,'attached');
+  const oldRegistry=f.context['__riftletWebAcceptance20261027v'+ownerVersion],oldOp=oldRegistry.head.operations.get(old.identity.operationID),proof=oldOp.proof;
+  const originalDescriptor=Object.getOwnPropertyDescriptor(f.fibers.root.stateNode,'current');
+  const program=vm.runInContext('('+source+')',f.context),call=command=>program(command,native);
+  const target=call({action:'captureTarget'}),identity={operationID:'33333333-3333-4333-8333-333333333333',assetID:'44444444-4444-4444-8444-444444444444',attempt:1,assetSHA256:digest(png),target};
+  const next={identity,target,name:'riftlet-'+identity.operationID+'.png',bytes:png,command:action=>({action,identity,target})};
+  call({...next.command('begin'),uploadName:next.name,mediaType:'image/png',byteCount:png.length});
+  call({...next.command('chunk'),chunkIndex:0,chunkBase64:png.toString('base64')});
+  call({...next.command('commit'),chunkIndex:1});
+  const current=f.context.__riftletWebAcceptance20261027v13,op=current.tail.operations.get(identity.operationID);
+  assert.equal(current.rootMonitors.get(f.fibers.root.stateNode).diagnostics.borrowedFrom,ownerVersion);
+  assert.deepEqual(Object.getOwnPropertyDescriptor(f.fibers.root.stateNode,'current'),originalDescriptor);
+  const wait=async predicate=>{for(let i=0;i<500;i++){if(predicate())return;await new Promise(r=>setTimeout(r,1));}assert.fail('bounded original operation observation did not settle');};
+  await wait(()=>op.fileHashVerified);assert.equal(f.input.inputCount,2);assert.equal(op.inputCount,1);
+  const newView=f.makeCard(next);f.finish(newView);await wait(()=>!!op.proof);
+  assert.equal(call(next.command('observe')).observation.state,'attached');
+  assert.equal(oldOp.proof,proof);assert.equal(f.observe(old).state,'attached');
+  assert.throws(()=>call({...next.command('commit'),chunkIndex:1}),/COMMIT_REFUSED/);
+  current.stopRootMonitors();
+  assert.equal(oldOp.proof,proof);assert.equal(f.observe(old).state,'attached');
+  const legacy=vm.runInContext('('+fs.readFileSync(path.join(__dirname,'../../Sources/RiftletAdapters/Resources/legacy-web-observe.js'),'utf8')+')',f.context);
+  assert.equal(legacy(old.command('observe'),native).observation.state,'attached');
+  oldView.card.attrs['data-state']='error';f.mutate([{type:'attributes',target:oldView.card,attributeName:'data-state'}]);
+  const late=legacy(old.command('observe'),native).observation;
+  assert.equal(late.hasError,true);assert.equal(late.exactImageIdentity,true);
+  assert.equal(late.identity.operationID,old.identity.operationID);assert.equal(f.input.inputCount,2);
+});
+
+test('v13 rejects accessor-valued owner diagnostics without invoking them', () => {
+  for(const field of ['stopped','restored','reason']) {
+    const f=fixture({thread:true}),old=installV10Owner(f);let reads=0;
+    Object.defineProperty(old.monitor.diagnostics,field,{get(){reads++;throw Error('unknown getter');},configurable:true});
+    assert.throws(()=>f.target(),/ROOT_MONITOR_LOST/);
+    assert.equal(reads,0);assert.equal(f.input.inputCount,0);
+  }
+});
+
+test('v13 rejects ordinary wrong-root map membership without restoring the current root', () => {
+  const f=fixture({thread:true}),old=installV10Owner(f),descriptor=Object.getOwnPropertyDescriptor(old.root,'current');
+  old.registry.rootMonitors.delete(old.root);old.registry.rootMonitors.set({},old.monitor);
+  assert.throws(()=>f.target(),/UNOBSERVED_ROOT_DESCRIPTOR/);
+  assert.deepEqual(Object.getOwnPropertyDescriptor(old.root,'current'),descriptor);
+  assert.equal(f.input.inputCount,0);
+});
+
+test('unsupported MAIN-world registry tampering: authentic cross-root monitor swap cannot be authenticated by source equality', () => {
+  const f=fixture({thread:true}),old=installV10Owner(f),originalFiber=f.form.__reactFiber$fixture;
+  const second=f.makeFibers();f.form.__reactFiber$fixture=second.leaf;
+  old.call({action:'captureTarget'});
+  const otherMonitor=old.registry.rootMonitors.get(second.root.stateNode);
+  assert.ok(otherMonitor);assert.notEqual(otherMonitor,old.monitor);
+  // This is deliberate corruption of a code-owned registry, outside the
+  // admitted same-world integrity assumption. The old protocol has no pure
+  // reader exposing its closed-over root/getter identity. Do not fake refusal.
+  old.registry.rootMonitors.set(old.root,otherMonitor);
+  f.form.__reactFiber$fixture=originalFiber;
+  const target=f.target();
+  threadCommit(f,'local-chatgpt:00000000-0000-0000-0000-000000000000');threadCommit(f);
+  assert.equal(f.call({action:'validate',target}).valid,true);
+  assert.equal(f.input.inputCount,0);
 });

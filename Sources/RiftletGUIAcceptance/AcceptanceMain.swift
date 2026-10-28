@@ -12,12 +12,18 @@ enum AcceptanceMain {
         }
         if CommandLine.arguments.contains("--help") {
             print("""
-            RiftletGUIAcceptance [--self-check | --software-pointer-probes]
+            RiftletGUIAcceptance [--self-check | --software-pointer-probes | --software-hold-probe | --software-double-probe]
             GUI: synthetic 2/3/12-image scenes, click/focus observations and delayed reorder.
             JSONL observations go to stdout; typed text is never included.
             --software-pointer-probes runs one bounded IMAGE/NUMBER/CLEAR/GAP CGEvent batch
               on fresh helper-only synthetic scenes; existing posting permission, no prompt.
               Physical-human acceptance remains NOT_RUN. No real App upload is invoked.
+              Acceptance-only geometry: --probe-compact or --probe-large, --probe-display-id ID.
+            --software-hold-probe runs one helper-only CGEvent hold/reorder/release case;
+              it is mutually exclusive with --software-pointer-probes. Physical NOT_RUN.
+            --software-double-probe runs at most two helper-only down/up pairs, testing
+              CGEvent-supplied clickState=2 after synthetic replacement. Physical NOT_RUN.
+              All software probe modes are mutually exclusive; one batch per process.
             --self-check validates fixtures/layout only and does not run GUI acceptance.
             --press-acceptance-asset UUID --app-pid PID --app-path /exact/Riftlet.app
               One bounded AXPress on one exact synthetic identifier; existing AX permission only.
@@ -75,6 +81,7 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
     private var softwareProbeTask: Task<Void, Never>?
     private var softwareProbeBatchUsed = false
     private var softwareProbeReceipt: SoftwarePointerProbe.Receipt?
+    private var softwareProbeRelease: CGEvent?
     private var holdTestArmed = false
     private var heldTestAsset: UUID?
     private let holdStatus = NSTextField(wrappingLabelWithString: "按住补位：尚未准备")
@@ -91,7 +98,13 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
             resetScene(count: 3)
             record("helper_started", ["syntheticOnly": true, "guiVerdict": "NOT_ASSESSED",
                                        "os": ProcessInfo.processInfo.operatingSystemVersionString])
-            if CommandLine.arguments.contains("--software-pointer-probes") { runSoftwarePointerProbes() }
+            let modes = ["--software-pointer-probes", "--software-hold-probe", "--software-double-probe"]
+                .filter { CommandLine.arguments.contains($0) }
+            if modes.count > 1 {
+                record("software_probe_refused", ["reason": "mutuallyExclusiveModes", "eventsPosted": false])
+            } else if modes.first == "--software-double-probe" { runSoftwareDoubleProbe()
+            } else if modes.first == "--software-hold-probe" { runSoftwareHoldProbe()
+            } else if CommandLine.arguments.contains("--software-pointer-probes") { runSoftwarePointerProbes() }
         } catch {
             fputs("GUI acceptance setup failed: \(error)\n", stderr)
             NSApp.terminate(nil)
@@ -106,6 +119,7 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
     }
 
     func applicationWillTerminate(_ notification: Notification) {
+        releaseSoftwarePointer()
         reorderTask?.cancel()
         softwareProbeTask?.cancel()
         targetRefreshTask?.cancel()
@@ -208,6 +222,8 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
         dump.target = self; appMenu.addItem(dump)
         let run = NSMenuItem(title: "Run Software Pointer Probes (once)", action: #selector(runSoftwarePointerProbes), keyEquivalent: "")
         run.target = self; appMenu.addItem(run)
+        let hold = NSMenuItem(title: "Run Software Hold Probe (once)", action: #selector(runSoftwareHoldProbe), keyEquivalent: "")
+        hold.target = self; appMenu.addItem(hold)
         appMenu.addItem(withTitle: "Quit Acceptance Helper", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         appItem.submenu = appMenu
         let editItem = NSMenuItem()
@@ -299,7 +315,7 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
             if let snapshot = rift?.diagnosticSnapshot {
                 fields["targetGeometryCurrent"] = !snapshot.isTransitioning && snapshot.rows == targetRows
                 fields["rowGeometryTransitioning"] = snapshot.isTransitioning
-                if let row = snapshot.rows.first(where: { $0.windowNumber == event.windowNumber }) {
+                if let row = snapshot.rows.first(where: { [$0.windowNumber, $0.imageInputWindowNumber, $0.numberInputWindowNumber].contains(event.windowNumber) }) {
                     fields["rowAssetID"] = row.assetID.uuidString
                     // Geometry classification, not a pixel-alpha or physical-origin claim.
                     fields["rowRegion"] = row.imageClipFrame.contains(point) ? "imageRectangle"
@@ -360,12 +376,21 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
         rift?.close()
         var configuration = RiftConfiguration()
         configuration.preferredDisplayID = (window.screen?.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.uint32Value
+        let arguments = CommandLine.arguments
+        if let index = arguments.firstIndex(of: "--probe-display-id"), index + 1 < arguments.count,
+           let id = UInt32(arguments[index + 1]), NSScreen.screens.contains(where: {
+               ($0.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.uint32Value == id
+           }) { configuration.preferredDisplayID = id }
+        if arguments.contains("--probe-compact") { configuration.fitWidth = 48; configuration.fitHeight = 32 }
+        if arguments.contains("--probe-large") { configuration.fitWidth = 128; configuration.fitHeight = 96; configuration.rowPitch = 100 }
         rift = RiftPanelController(mediaDirectory: mediaRoot, configuration: configuration,
             onSelectionBoundary: { [weak self] boundary in self?.recordPress(boundary) }) { [weak self] id in
             self?.selected(id)
         }
         rift?.render(records)
-        record("scene_reset", ["count": count, "assetIDs": records.map { $0.id.uuidString }])
+        record("scene_reset", ["count": count, "assetIDs": records.map { $0.id.uuidString },
+            "fitWidth": configuration.fitWidth, "fitHeight": configuration.fitHeight,
+            "preferredDisplayID": configuration.preferredDisplayID ?? 0])
         scheduleTargetRefresh()
     }
 
@@ -562,18 +587,14 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
                     self.record("software_probe_case", ["case": name, "result": "NOT_RUN", "reason": "targetMissing", "eventsPosted": false])
                     break
                 }
-                let top = NSWindow.windowNumber(at: target.screenPoint, belowWindowWithWindowNumber: 0)
-                let ownWindows = Set(NSApp.windows.map(\.windowNumber))
-                let rowAtPoint = snapshot.rows.first(where: { $0.frame.contains(target.screenPoint) })
-                let underneath = NSWindow.windowNumber(at: target.screenPoint,
-                    belowWindowWithWindowNumber: rowAtPoint?.windowNumber ?? 0)
-                guard ownWindows.contains(top), underneath == self.window.windowNumber,
+                guard let stack = self.ownedProbeStack(at: target.screenPoint, snapshot: snapshot),
                       snapshot.rows == self.rift?.diagnosticSnapshot.rows, scene == self.sceneGeneration else {
                     results[name] = "NOT_RUN"
                     self.record("software_probe_case", ["case": name, "result": "NOT_RUN", "reason": "nonHelperSurfaceOrChangedGeometry", "eventsPosted": false])
                     break
                 }
-                let expectedWindow = (name == "IMAGE" || name == "NUMBER") ? row.windowNumber : self.window.windowNumber
+                let expectedWindow = name == "IMAGE" ? row.imageInputWindowNumber
+                    : name == "NUMBER" ? row.numberInputWindowNumber : self.window.windowNumber
                 let receipt = SoftwarePointerProbe.Receipt(name: name, expectedAsset: row.assetID,
                     expectedWindow: expectedWindow, expectedPoint: target.screenPoint, radius: target.radius)
                 let point = SoftwarePointerProbe.quartzPoint(target.screenPoint, primaryFrame: primary.frame)
@@ -594,7 +615,7 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
                 self.softwareProbeReceipt = receipt
                 self.record("software_probe_post", ["case": name, "softwareProbeToken": receipt.token,
                     "inputOrigin": "CGEvent", "physical": false, "expectedAssetID": row.assetID.uuidString,
-                    "expectedWindow": expectedWindow, "appKitPoint": ["x": target.screenPoint.x, "y": target.screenPoint.y],
+                    "expectedWindow": expectedWindow, "queriedOwnedWindowStack": stack, "appKitPoint": ["x": target.screenPoint.x, "y": target.screenPoint.y],
                     "quartzPoint": ["x": point.x, "y": point.y], "expectedRows": snapshot.rows.map { $0.assetID.uuidString },
                     "eventsPosted": true])
                 // One adjacent down/up pair, globally routed by WindowServer.
@@ -628,6 +649,350 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
                 "physicalVerdict": "NOT_RUN", "crossApplicationFocusVerdict": "NOT_RUN",
                 "inputOrigin": "CGEvent", "physical": false])
         }
+    }
+
+    /// Pair the already posted down exactly once, including task cancellation
+    /// or app termination. Never create another down, retry, or post-to-PID.
+    private func releaseSoftwarePointer(observation: String = "software_hold_up_posted") {
+        guard let release = softwareProbeRelease else { return }
+        softwareProbeRelease = nil
+        release.post(tap: .cghidEventTap)
+        record(observation, ["inputOrigin": "CGEvent", "physical": false,
+            "softwareProbeToken": release.getIntegerValueField(.eventSourceUserData),
+            "originalReleasePoint": true])
+    }
+
+    @objc private func runSoftwareHoldProbe() {
+        guard !softwareProbeBatchUsed else {
+            record("software_probe_refused", ["reason": "oneBatchPerProcess", "physical": false]); return
+        }
+        softwareProbeBatchUsed = true
+        softwareProbeTask = Task { @MainActor [weak self] in
+            guard let self else { return }
+            defer {
+                self.releaseSoftwarePointer()
+                self.softwareProbeReceipt = nil; self.softwareProbeTask = nil
+            }
+            self.record("software_hold_started", ["inputOrigin": "CGEvent", "physical": false,
+                "maximumClickPairs": 1, "reorderDelaySeconds": 1.5, "physicalVerdict": "NOT_RUN"])
+            do { try await Task.sleep(nanoseconds: 1_200_000_000) } catch { return }
+            self.outcome.selectItem(at: 0); self.resetScene(count: 3)
+            let scene = self.sceneGeneration
+            do { try await Task.sleep(nanoseconds: 1_000_000_000) } catch { return }
+            self.alignProbeControlToActualRows()
+            do { try await Task.sleep(nanoseconds: 650_000_000) } catch { return }
+            self.refreshTargets()
+            if let reason = self.softwareProbeUnavailable() {
+                self.record("software_hold_case", ["result": "NOT_RUN", "reason": reason, "eventsPosted": false]); return
+            }
+            guard let snapshot = self.rift?.diagnosticSnapshot, snapshot.rows.count == 3,
+                  let target = self.probe.targets.first(where: { $0.name.hasPrefix("HOLD ") }),
+                  let primary = NSScreen.screens.first,
+                  let stack = self.ownedProbeStack(at: target.screenPoint, snapshot: snapshot),
+                  snapshot.rows == self.rift?.diagnosticSnapshot.rows, scene == self.sceneGeneration else {
+                self.record("software_hold_case", ["result": "NOT_RUN", "reason": "nonHelperSurfaceOrChangedGeometry", "eventsPosted": false]); return
+            }
+            let row = snapshot.rows[1], other = snapshot.rows[0]
+            guard row.imageClipFrame.contains(target.screenPoint), row.imageInputFrame.contains(target.screenPoint),
+                  row.assetID != other.assetID else {
+                self.record("software_hold_case", ["result": "NOT_RUN", "reason": "holdTargetMismatch", "eventsPosted": false]); return
+            }
+            let receipt = SoftwarePointerProbe.Receipt(name: "HOLD", expectedAsset: row.assetID,
+                expectedWindow: row.imageInputWindowNumber, expectedPoint: target.screenPoint, radius: target.radius)
+            let point = SoftwarePointerProbe.quartzPoint(target.screenPoint, primaryFrame: primary.frame)
+            guard let source = CGEventSource(stateID: .privateState),
+                  let down = CGEvent(mouseEventSource: source, mouseType: .leftMouseDown, mouseCursorPosition: point, mouseButton: .left),
+                  let up = CGEvent(mouseEventSource: source, mouseType: .leftMouseUp, mouseCursorPosition: point, mouseButton: .left) else {
+                self.record("software_hold_case", ["result": "NOT_RUN", "reason": "eventAllocationFailed", "eventsPosted": false]); return
+            }
+            for event in [down, up] {
+                event.setIntegerValueField(.eventSourceUserData, value: receipt.token)
+                event.setIntegerValueField(.mouseEventClickState, value: 1)
+            }
+            let beforePID = NSWorkspace.shared.frontmostApplication?.processIdentifier ?? -1
+            let beforeKey = NSApp.keyWindow?.windowNumber ?? -1
+            let beforeEditor = self.editor.currentEditor() != nil && self.window.firstResponder === self.editor.currentEditor()
+            self.armReorder()
+            self.softwareProbeReceipt = receipt
+            self.softwareProbeRelease = up
+            self.record("software_hold_down_post", ["softwareProbeToken": receipt.token, "inputOrigin": "CGEvent", "physical": false,
+                "expectedAssetID": row.assetID.uuidString, "removedAssetID": other.assetID.uuidString,
+                "expectedWindow": row.imageInputWindowNumber, "queriedOwnedWindowStack": stack,
+                "appKitPoint": ["x": target.screenPoint.x, "y": target.screenPoint.y],
+                "originalRows": snapshot.rows.map { $0.assetID.uuidString }, "eventsPosted": true])
+            down.post(tap: .cghidEventTap)
+            do { try await Task.sleep(nanoseconds: 1_950_000_000) } catch {
+                self.record("software_hold_case", ["result": "INCONCLUSIVE", "reason": "cancelledAfterDown", "eventsPosted": true]); return
+            }
+            let heldSnapshot = self.rift?.diagnosticSnapshot
+            let heldLayoutStable = heldSnapshot?.rows == snapshot.rows && heldSnapshot?.isHolding == true
+                && receipt.selectedAssets.isEmpty
+            let reorderObserved = self.records.first(where: { $0.id == other.assetID })?.status == .used
+                && self.heldTestAsset == row.assetID && self.reorderTask == nil
+            let stillOwned = self.ownedProbeStack(at: target.screenPoint, snapshot: snapshot) != nil
+            let helperStillForeground = NSApp.isActive
+                && NSWorkspace.shared.frontmostApplication?.processIdentifier == beforePID
+                && NSApp.keyWindow?.windowNumber == beforeKey
+            self.record("software_hold_before_release", ["softwareProbeToken": receipt.token,
+                "expectedAssetID": row.assetID.uuidString, "heldLayoutStable": heldLayoutStable,
+                "reorderObserved": reorderObserved, "stillOwned": stillOwned,
+                "helperStillForeground": helperStillForeground, "downCount": receipt.downCount,
+                "selectedCountBeforeRelease": receipt.selectedAssets.count,
+                "rows": heldSnapshot?.rows.map { $0.assetID.uuidString } ?? []])
+            // Always balance the original down, even if a guard changed while
+            // held. A changed surface makes the verdict inconclusive, not a retry.
+            self.releaseSoftwarePointer()
+            do { try await Task.sleep(nanoseconds: 650_000_000) } catch { return }
+            let after = self.rift?.diagnosticSnapshot
+            let afterRow = after?.rows.first(where: { $0.assetID == row.assetID })
+            let compactionCorrect = after?.isHolding == false
+                && after?.rows.map { $0.assetID } == snapshot.rows.dropFirst().map { $0.assetID }
+                && afterRow?.ordinal == 1 && afterRow?.imageInputWindowNumber == row.imageInputWindowNumber
+                && (afterRow?.frame.minY ?? row.frame.minY) > row.frame.minY
+            let afterEditor = self.editor.currentEditor() != nil && self.window.firstResponder === self.editor.currentEditor()
+            let focusStable = helperStillForeground && beforePID == NSWorkspace.shared.frontmostApplication?.processIdentifier
+                && beforeKey == NSApp.keyWindow?.windowNumber && beforeEditor == afterEditor
+            let result = scene == self.sceneGeneration && stillOwned
+                ? receipt.holdVerdict(focusStable: focusStable, heldLayoutStable: heldLayoutStable,
+                    reorderObserved: reorderObserved, compactionCorrect: compactionCorrect) : "INCONCLUSIVE"
+            self.record("software_hold_case", ["result": result, "inputOrigin": "CGEvent", "physical": false,
+                "physicalVerdict": "NOT_RUN", "crossApplicationFocusVerdict": "NOT_RUN", "doubleReplacementVerdict": "NOT_RUN",
+                "softwareProbeToken": receipt.token, "expectedAssetID": row.assetID.uuidString,
+                "removedAssetID": other.assetID.uuidString, "expectedWindow": row.imageInputWindowNumber,
+                "receivedWindows": receipt.receivedWindows, "downCount": receipt.downCount, "upCount": receipt.upCount,
+                "acceptedAssets": receipt.acceptedAssets.map { $0.uuidString }, "selectedAssets": receipt.selectedAssets.map { $0.uuidString },
+                "underlyingDownCount": receipt.probeDownCount, "underlyingUpCount": receipt.probeUpCount,
+                "coordinatesMatch": receipt.coordinatesMatch, "interference": receipt.interference,
+                "heldLayoutStable": heldLayoutStable, "reorderObserved": reorderObserved,
+                "compactionCorrect": compactionCorrect, "focusEndpointsStable": focusStable, "eventsPosted": true])
+        }
+    }
+
+    private func postDoublePair(_ receipt: SoftwarePointerProbe.Receipt, point: CGPoint, clickCount: Int) -> Bool {
+        guard let source = CGEventSource(stateID: .privateState),
+              let down = CGEvent(mouseEventSource: source, mouseType: .leftMouseDown, mouseCursorPosition: point, mouseButton: .left),
+              let up = CGEvent(mouseEventSource: source, mouseType: .leftMouseUp, mouseCursorPosition: point, mouseButton: .left) else { return false }
+        for event in [down, up] {
+            event.setIntegerValueField(.eventSourceUserData, value: receipt.token)
+            event.setIntegerValueField(.mouseEventClickState, value: Int64(clickCount))
+        }
+        softwareProbeReceipt = receipt; softwareProbeRelease = up
+        defer { releaseSoftwarePointer(observation: "software_double_up_posted") }
+        record("software_double_post", ["case": receipt.name, "softwareProbeToken": receipt.token,
+            "expectedAssetID": receipt.expectedAsset.uuidString, "expectedWindow": receipt.expectedWindow,
+            "appKitPoint": ["x": receipt.expectedPoint.x, "y": receipt.expectedPoint.y],
+            "suppliedClickState": clickCount, "inputOrigin": "CGEvent", "physical": false])
+        down.post(tap: .cghidEventTap)
+        return true
+    }
+
+    private func runSoftwareDoubleProbe() {
+        guard !softwareProbeBatchUsed else {
+            record("software_probe_refused", ["reason": "oneBatchPerProcess", "eventsPosted": false]); return
+        }
+        softwareProbeBatchUsed = true
+        softwareProbeTask = Task { @MainActor [weak self] in
+            guard let self else { return }
+            defer {
+                self.releaseSoftwarePointer(observation: "software_double_up_posted")
+                self.softwareProbeReceipt = nil; self.softwareProbeTask = nil
+            }
+            self.record("software_double_started", ["maximumClickPairs": 2, "inputOrigin": "CGEvent",
+                "physical": false, "physicalVerdict": "NOT_RUN", "osDoubleClickClassification": "NOT_TESTED"])
+            do { try await Task.sleep(nanoseconds: 1_200_000_000) } catch { return }
+            self.outcome.selectItem(at: 0); self.resetScene(count: 3)
+            let scene = self.sceneGeneration
+            do { try await Task.sleep(nanoseconds: 1_000_000_000) } catch { return }
+            self.alignProbeControlToActualRows()
+            do { try await Task.sleep(nanoseconds: 650_000_000) } catch { return }
+            self.refreshTargets()
+            if let reason = self.softwareProbeUnavailable() {
+                self.record("software_double_case", ["result": "NOT_RUN", "reason": reason, "pairsPosted": 0]); return
+            }
+            guard let snapshot = self.rift?.diagnosticSnapshot, snapshot.rows.count == 3,
+                  let primary = NSScreen.screens.first else { return }
+            let firstRow = snapshot.rows[0], replacement = snapshot.rows[1]
+            // Choose a point inside both aspect-fitted images' horizontal span.
+            // Actual replacement geometry is checked again before second posting.
+            let left = max(firstRow.imageClipFrame.minX, replacement.imageClipFrame.minX)
+            let right = min(firstRow.imageClipFrame.maxX, replacement.imageClipFrame.maxX)
+            let point = CGPoint(x: (left + right) / 2, y: firstRow.imageClipFrame.midY)
+            let probePoint = self.probe.convert(self.window.convertPoint(fromScreen: point), from: nil)
+            guard right - left > 4, firstRow.imageInputFrame.contains(point),
+                  self.probe.bounds.contains(probePoint),
+                  !self.probe.subviews.contains(where: { $0.frame.contains(probePoint) }),
+                  self.ownedProbeStack(at: point, snapshot: snapshot) != nil else {
+                self.record("software_double_case", ["result": "NOT_RUN", "reason": "noSafeCommonPoint", "pairsPosted": 0]); return
+            }
+            let first = SoftwarePointerProbe.Receipt(name: "DOUBLE_FIRST", expectedAsset: firstRow.assetID,
+                expectedWindow: firstRow.imageInputWindowNumber, expectedPoint: point, radius: 1.5)
+            let quartz = SoftwarePointerProbe.quartzPoint(point, primaryFrame: primary.frame)
+            let beforePID = NSWorkspace.shared.frontmostApplication?.processIdentifier ?? -1
+            let beforeKey = NSApp.keyWindow?.windowNumber ?? -1
+            let beforeEditor = self.editor.currentEditor() != nil && self.window.firstResponder === self.editor.currentEditor()
+            let interval = NSEvent.doubleClickInterval
+            guard self.postDoublePair(first, point: quartz, clickCount: 1) else {
+                self.record("software_double_case", ["result": "NOT_RUN", "reason": "eventAllocationFailed", "pairsPosted": 0]); return
+            }
+            do { try await Task.sleep(nanoseconds: 100_000_000) } catch {
+                self.record("software_double_case", ["result": "INCONCLUSIVE", "reason": "cancelledAfterFirstPair", "pairsPosted": 1]); return
+            }
+            guard scene == self.sceneGeneration, first.verdict(focusStable: true) == "PASS_SOFTWARE_ROUTING",
+                  let firstDown = first.downIdentity else {
+                self.record("software_double_case", ["result": "INCONCLUSIVE", "reason": "firstPairNotConfirmed", "pairsPosted": 1]); return
+            }
+            // Display-only synthetic completion, using the existing helper path.
+            // It cannot fabricate an upload receipt or invoke product transfer.
+            self.records = SyntheticScene.displaying(.used, assetID: firstRow.assetID, in: self.records)
+            self.rift?.render(self.records)
+            self.refreshTargets()
+            // AppKit's model frame may precede the WindowServer update. Yield
+            // only for read-only samples, under the original first-down deadline.
+            let postingDeadline = firstDown.time + interval - 0.02
+            var readySnapshot: RiftDiagnosticSnapshot?
+            var lastReason = "notSampled"
+            var samples = 0
+            var reasonCounts: [String: Int] = [:]
+            var lastFields: [String: Any] = [:]
+            while samples < 64 {
+                guard !Task.isCancelled else { lastReason = "cancelled"; break }
+                guard ProcessInfo.processInfo.systemUptime < postingDeadline else { lastReason = "originalIntervalExpired"; break }
+                samples += 1
+                guard scene == self.sceneGeneration else { lastReason = "sceneChanged"; break }
+                guard !first.interference else { lastReason = "inputInterference"; break }
+                if let unavailable = self.softwareProbeUnavailable() {
+                    lastReason = unavailable; break
+                }
+                guard NSWorkspace.shared.frontmostApplication?.processIdentifier == beforePID,
+                      NSApp.keyWindow?.windowNumber == beforeKey else { lastReason = "focusChanged"; break }
+                guard let candidate = self.rift?.diagnosticSnapshot,
+                      candidate.rows.map({ $0.assetID }) == snapshot.rows.dropFirst().map({ $0.assetID }),
+                      let moved = candidate.rows.first, moved.assetID == replacement.assetID,
+                      moved.imageInputWindowNumber == replacement.imageInputWindowNumber else {
+                    lastReason = "replacementIdentityChanged"; break
+                }
+                let nativeFrame = self.nativeInputFrame(windowNumber: moved.imageInputWindowNumber,
+                                                        primaryFrame: primary.frame)
+                let stack = self.ownedProbeStack(at: point, snapshot: candidate)
+                let top = NSWindow.windowNumber(at: point, belowWindowWithWindowNumber: 0)
+                let firstInteractive = stack?.first(where: { number in
+                    NSApp.windows.first(where: { $0.windowNumber == number })?.ignoresMouseEvents == false
+                })
+                lastFields = ["sampleUptime": ProcessInfo.processInfo.systemUptime,
+                    "nativeFrame": nativeFrame.map { self.rectFields($0) } ?? [:],
+                    "nativeFrameAvailable": nativeFrame != nil,
+                    "modelFrame": self.rectFields(moved.imageInputFrame),
+                    "queriedTopWindow": top, "queriedOwnedWindowStack": stack ?? [],
+                    "firstInteractiveWindow": firstInteractive ?? 0]
+                if !moved.imageClipFrame.contains(point) || !moved.imageInputFrame.contains(point) {
+                    lastReason = "modelFrameNotAtFrozenPoint"
+                } else if nativeFrame == nil {
+                    lastReason = "nativeFrameUnavailable"
+                } else if nativeFrame?.contains(point) != true {
+                    lastReason = "nativeFrameNotAtFrozenPoint"
+                } else if stack == nil {
+                    lastReason = "nativeOwnedStackUnavailable"
+                } else if firstInteractive != moved.imageInputWindowNumber {
+                    lastReason = "replacementNotFirstInteractiveWindow"
+                } else {
+                    lastReason = "ready"; readySnapshot = candidate; break
+                }
+                reasonCounts[lastReason, default: 0] += 1
+                do { try await Task.sleep(nanoseconds: 5_000_000) }
+                catch { lastReason = "cancelled"; break }
+            }
+            let retryableReasons: Set<String> = ["modelFrameNotAtFrozenPoint", "nativeFrameUnavailable",
+                "nativeFrameNotAtFrozenPoint", "nativeOwnedStackUnavailable", "replacementNotFirstInteractiveWindow"]
+            if samples == 64 && readySnapshot == nil && retryableReasons.contains(lastReason)
+                && ProcessInfo.processInfo.systemUptime < postingDeadline {
+                lastReason = "nativeSampleLimitReached"
+            }
+            var waitFields: [String: Any] = ["samples": samples, "reason": lastReason,
+                "reasonCounts": reasonCounts, "postingDeadline": postingDeadline,
+                "originalFirstDownEventUptime": firstDown.time, "systemDoubleClickInterval": interval,
+                "replacementAssetID": replacement.assetID.uuidString,
+                "replacementWindow": replacement.imageInputWindowNumber,
+                "lastNativeSample": lastFields, "secondPairPosted": false]
+            self.record("software_double_replacement_wait", waitFields)
+            guard let current = readySnapshot, let moved = current.rows.first,
+                  ProcessInfo.processInfo.systemUptime < postingDeadline else {
+                if readySnapshot != nil { lastReason = "originalIntervalExpiredAfterSample" }
+                waitFields["result"] = "INCONCLUSIVE"; waitFields["reason"] = lastReason
+                waitFields["secondPairVerdict"] = "NOT_RUN"; waitFields["pairsPosted"] = 1
+                self.record("software_double_case", waitFields); return
+            }
+            self.record("software_double_replacement", ["removedAssetID": firstRow.assetID.uuidString,
+                "replacementAssetID": moved.assetID.uuidString, "replacementWindow": moved.imageInputWindowNumber,
+                "originalFirstWindow": firstRow.imageInputWindowNumber, "replacementFrame": self.rectFields(moved.imageInputFrame),
+                "systemDoubleClickInterval": interval, "firstDownEventUptime": firstDown.time, "receiptEvidence": false])
+            let second = SoftwarePointerProbe.Receipt(name: "DOUBLE_SECOND", expectedAsset: moved.assetID,
+                expectedWindow: moved.imageInputWindowNumber, expectedPoint: point, radius: 1.5)
+            let finalRefusal: String?
+            if ProcessInfo.processInfo.systemUptime >= postingDeadline { finalRefusal = "originalIntervalExpiredBeforePost" }
+            else if let unavailable = self.softwareProbeUnavailable() { finalRefusal = unavailable }
+            else if first.interference { finalRefusal = "inputInterference" }
+            else if scene != self.sceneGeneration { finalRefusal = "sceneChanged" }
+            else if self.rift?.diagnosticSnapshot.rows != current.rows { finalRefusal = "geometryChangedBeforePost" }
+            else { finalRefusal = nil }
+            if let finalRefusal {
+                self.record("software_double_case", ["result": "INCONCLUSIVE", "reason": finalRefusal,
+                    "secondPairVerdict": "NOT_RUN", "pairsPosted": 1]); return
+            }
+            guard self.postDoublePair(second, point: quartz, clickCount: 2) else {
+                self.record("software_double_case", ["result": "INCONCLUSIVE", "reason": "secondAllocationFailed", "pairsPosted": 1]); return
+            }
+            do { try await Task.sleep(nanoseconds: 500_000_000) } catch { return }
+            let afterEditor = self.editor.currentEditor() != nil && self.window.firstResponder === self.editor.currentEditor()
+            let focusStable = beforePID == NSWorkspace.shared.frontmostApplication?.processIdentifier
+                && beforeKey == NSApp.keyWindow?.windowNumber && beforeEditor == afterEditor
+            let geometryStable = current.rows == self.rift?.diagnosticSnapshot.rows
+            let verdict = scene == self.sceneGeneration && geometryStable
+                ? SoftwarePointerProbe.doubleVerdict(first: first, second: second, interval: interval, focusStable: focusStable)
+                : "INCONCLUSIVE"
+            self.record("software_double_case", ["result": verdict, "pairsPosted": 2, "inputOrigin": "CGEvent", "physical": false,
+                "physicalVerdict": "NOT_RUN", "osDoubleClickClassification": "NOT_TESTED", "crossApplicationFocusVerdict": "NOT_RUN",
+                "originalAssetID": first.expectedAsset.uuidString, "replacementAssetID": second.expectedAsset.uuidString,
+                "firstToken": first.token, "secondToken": second.token, "firstWindow": first.expectedWindow, "secondWindow": second.expectedWindow,
+                "firstReceivedWindows": first.receivedWindows, "secondReceivedWindows": second.receivedWindows,
+                "firstDownCount": first.downCount, "firstUpCount": first.upCount, "secondDownCount": second.downCount, "secondUpCount": second.upCount,
+                "firstAcceptedAssets": first.acceptedAssets.map { $0.uuidString }, "firstSelectedAssets": first.selectedAssets.map { $0.uuidString },
+                "secondAcceptedAssets": second.acceptedAssets.map { $0.uuidString }, "secondSelectedAssets": second.selectedAssets.map { $0.uuidString },
+                "secondUnderlayDownCount": second.probeDownCount, "secondUnderlayUpCount": second.probeUpCount,
+                "secondDownClickCount": second.downClickCount ?? -1,
+                "downIntervalSeconds": (second.downIdentity?.time ?? firstDown.time) - firstDown.time,
+                "systemDoubleClickInterval": interval, "focusEndpointsStable": focusStable,
+                "geometryStable": geometryStable, "coordinatesMatch": first.coordinatesMatch && second.coordinatesMatch,
+                "interference": first.interference || second.interference])
+        }
+    }
+
+    /// WindowServer metadata, not an AppKit model frame and not a screenshot.
+    private func nativeInputFrame(windowNumber: Int, primaryFrame: CGRect) -> CGRect? {
+        guard windowNumber > 0,
+              let windows = CGWindowListCopyWindowInfo(.optionIncludingWindow, CGWindowID(windowNumber)) as? [[String: Any]],
+              let item = windows.first(where: { ($0[kCGWindowNumber as String] as? NSNumber)?.intValue == windowNumber }),
+              (item[kCGWindowOwnerPID as String] as? NSNumber)?.int32Value == ProcessInfo.processInfo.processIdentifier,
+              (item[kCGWindowIsOnscreen as String] as? NSNumber)?.boolValue == true,
+              let bounds = item[kCGWindowBounds as String] as? [String: Any],
+              let quartzFrame = CGRect(dictionaryRepresentation: bounds as CFDictionary) else { return nil }
+        return SoftwarePointerProbe.appKitFrame(quartzFrame, primaryFrame: primaryFrame)
+    }
+
+    /// Query-only safety guard. Walk past this helper's known visual/input
+    /// panels to its own probe. NSWindow ordering queries may include windows
+    /// with ignoresMouseEvents; this prediction never supplies a routing PASS.
+    private func ownedProbeStack(at point: CGPoint, snapshot: RiftDiagnosticSnapshot) -> [Int]? {
+        let products = Set(snapshot.rows.flatMap { [$0.windowNumber, $0.imageInputWindowNumber, $0.numberInputWindowNumber] })
+        var result: [Int] = [], below = 0
+        for _ in 0..<16 {
+            let next = NSWindow.windowNumber(at: point, belowWindowWithWindowNumber: below)
+            guard next > 0, !result.contains(next), NSApp.windows.contains(where: { $0.windowNumber == next }) else { return nil }
+            result.append(next)
+            if next == window.windowNumber { return result }
+            guard products.contains(next) else { return nil }
+            below = next
+        }
+        return nil
     }
 
     private func rectFields(_ rect: CGRect) -> [String: CGFloat] {
@@ -666,12 +1031,12 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
         probe.targets = candidates.filter { exclusion($0) == nil }
         probe.needsDisplay = true
         record("probe_targets", ["targets": probe.targets.map { target in
-            let rowWindow = snapshot.rows.first(where: { $0.frame.contains(target.screenPoint) })?.windowNumber ?? 0
-            let underneath = NSWindow.windowNumber(at: target.screenPoint, belowWindowWithWindowNumber: rowWindow)
+            let stack = ownedProbeStack(at: target.screenPoint, snapshot: snapshot)
+            let underneath = stack?.last ?? 0
             return ["name": target.name, "x": target.screenPoint.x, "y": target.screenPoint.y,
              "radius": target.radius,
              "quartzPoint": quartzFields(target.screenPoint),
-             "predictedUnderlyingWindow": underneath,
+             "predictedUnderlyingWindow": underneath, "queriedOwnedWindowStack": stack ?? [],
              "underlyingProbePredicted": underneath == window.windowNumber,
              "predictedWindow": NSWindow.windowNumber(at: target.screenPoint, belowWindowWithWindowNumber: 0)] as [String: Any]
         }, "candidateTargets": candidates.map { target in
@@ -686,7 +1051,9 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
         "rows": snapshot.rows.map { row in
             ["assetID": row.assetID.uuidString, "ordinal": row.ordinal, "window": row.windowNumber,
              "frame": rectFields(row.frame), "image": rectFields(row.imageClipFrame),
-             "number": rectFields(row.numberFrame)] as [String: Any]
+             "number": rectFields(row.numberFrame),
+             "imageInputWindow": row.imageInputWindowNumber, "numberInputWindow": row.numberInputWindowNumber,
+             "imageInputFrame": rectFields(row.imageInputFrame), "numberInputFrame": rectFields(row.numberInputFrame)] as [String: Any]
         }, "coordinateSpace": "AppKit global screen points; Quartz global points, no backing-scale multiplication",
             "primaryScreenFrame": rectFields(NSScreen.screens.first?.frame ?? .zero),
             "predictionIsPassEvidence": false])

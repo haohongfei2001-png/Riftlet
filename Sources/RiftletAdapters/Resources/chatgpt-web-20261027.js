@@ -9,9 +9,9 @@
  */
 function riftletWebAcceptance(command, native) {
   'use strict';
-  // v12 accepts bounded 256 KiB chunks with the same per-chunk ACK and one-shot commit.
+  // v13 may borrow one intact, known v10/v12 root monitor without replacing its descriptor.
   // Its old native requests remain UNKNOWN instead of acquiring a new lease.
-  const KEY = '__riftletWebAcceptance20261027v12';
+  const KEY = '__riftletWebAcceptance20261027v13';
   const MAX_GENERATIONS = 32;
   const MAX_CHUNK_BYTES = 256 * 1024;
   const MAX_BYTES = 8 * 1024 * 1024, MAX_PIXELS = 16 * 1024 * 1024;
@@ -91,7 +91,7 @@ function riftletWebAcceptance(command, native) {
   // This candidate instruments only the proven root's ordinary current writes.
   // It does not claim coverage of defineProperty bypass-and-restore or in-place
   // props mutations. No document text, React callback or DOM write is involved.
-  function rootMonitor(registry, root) {
+  function ownedRootMonitor(registry, root) {
     const previous = registry.rootMonitors.get(root);
     if (previous) {
       if (!previous.intact()) fail('ROOT_MONITOR_LOST');
@@ -173,6 +173,125 @@ function riftletWebAcceptance(command, native) {
     try { Object.defineProperty(root, 'current', {get, set, enumerable: original.enumerable, configurable: original.configurable}); }
     catch { disqualify('INSTALL_FAILED'); fail('ROOT_MONITOR_UNAVAILABLE'); }
     return monitor;
+  }
+
+  // Only the frozen v10/v12 monitor protocols are compatible. This is defensive
+  // same-world compatibility, not authentication against arbitrary page code.
+  // Do not call any historical method until its data shape and function bodies
+  // match our unchanged owned-monitor implementation.
+  function rootMonitor(registry, root) {
+    const previous = registry.rootMonitors.get(root);
+    if (previous) {
+      if (!previous.intact()) fail('ROOT_MONITOR_LOST');
+      return previous;
+    }
+    if (registry.rootMonitors.size >= 4) fail('ROOT_MONITOR_LIMIT');
+    const data = (object, key) => {
+      const d = Object.getOwnPropertyDescriptor(object, key);
+      return d && Object.prototype.hasOwnProperty.call(d, 'value') ? d.value : undefined;
+    };
+    const owners = () => {
+      const found = [];
+      for (const version of [7, 8, 9, 10, 11, 12]) {
+        const descriptor = Object.getOwnPropertyDescriptor(globalThis, '__riftletWebAcceptance20261027v' + version);
+        if (!descriptor) continue;
+        if (!Object.prototype.hasOwnProperty.call(descriptor, 'value') || descriptor.configurable || descriptor.writable) fail('UNOBSERVED_ROOT_DESCRIPTOR');
+        const old = descriptor.value, map = old && data(old, 'rootMonitors');
+        if (!(map instanceof Map) || map.size > 4) fail('UNOBSERVED_ROOT_DESCRIPTOR');
+        if (Map.prototype.has.call(map, root)) found.push({version, registry: old, map, monitor: Map.prototype.get.call(map, root)});
+      }
+      return found;
+    };
+    let candidates;
+    try { candidates = owners(); } catch { fail('UNOBSERVED_ROOT_DESCRIPTOR'); }
+    if (!candidates.length) return ownedRootMonitor(registry, root);
+    if (candidates.length !== 1 || ![10, 12].includes(candidates[0].version)) fail('UNOBSERVED_ROOT_DESCRIPTOR');
+    const owner = candidates[0], monitor = owner.monitor;
+    const count = data(owner.registry, 'count'), seen = new Set();
+    let state = data(owner.registry, 'head'), tail = null;
+    for (let i = 0; state && i < MAX_GENERATIONS; i++) {
+      if (seen.has(state) || !data(state, 'form') || !(data(state, 'operations') instanceof Map)) fail('UNOBSERVED_ROOT_DESCRIPTOR');
+      seen.add(state); tail = state; state = data(state, 'next');
+    }
+    if (state || !Number.isSafeInteger(count) || count < 1 || count !== seen.size
+        || tail !== data(owner.registry, 'tail')) fail('UNOBSERVED_ROOT_DESCRIPTOR');
+    const rootDescriptor = Object.getOwnPropertyDescriptor(root, 'current');
+    // Produce reference function bodies on an isolated plain object only. No
+    // page root, DOM, callbacks or old registry is altered by this comparison.
+    const referenceRoot = {current: null}, reference = ownedRootMonitor({rootMonitors: new Map()}, referenceRoot);
+    const referenceDescriptor = Object.getOwnPropertyDescriptor(referenceRoot, 'current');
+    const functionSource = fn => typeof fn === 'function' ? Function.prototype.toString.call(fn) : null;
+    const functions = {};
+    for (const key of ['intact', 'bind', 'stop']) {
+      functions[key] = monitor && data(monitor, key);
+      if (functionSource(functions[key]) !== functionSource(reference[key])) fail('UNOBSERVED_ROOT_DESCRIPTOR');
+    }
+    if (!rootDescriptor || rootDescriptor.configurable !== true
+        || functionSource(rootDescriptor.get) !== functionSource(referenceDescriptor.get)
+        || functionSource(rootDescriptor.set) !== functionSource(referenceDescriptor.set)) fail('UNOBSERVED_ROOT_DESCRIPTOR');
+    const ownerDiagnostics = data(monitor, 'diagnostics');
+    if (!ownerDiagnostics || data(ownerDiagnostics, 'stopped') !== false || data(ownerDiagnostics, 'restored') !== false
+        || data(ownerDiagnostics, 'reason') !== null) fail('ROOT_MONITOR_LOST');
+    let active = true;
+    const groups = new Map();
+    const diagnostics = {borrowedFrom: owner.version, groups: 0, commits: 0, checks: 0, elapsedMs: 0, maxElapsedMs: 0, stopped: false, restored: false, reason: null};
+    const invalidateGroup = group => {
+      if (!group.alive) return;
+      group.alive = false;
+      for (const invalidate of group.invalidators) { try { invalidate(); } catch {} }
+    };
+    const disqualify = reason => {
+      active = false; diagnostics.stopped = true; diagnostics.reason ||= reason;
+      for (const group of groups.values()) invalidateGroup(group);
+    };
+    const intact = () => {
+      if (!active) return false;
+      try {
+        const candidates = owners(), descriptor = Object.getOwnPropertyDescriptor(root, 'current');
+        if (candidates.length !== 1 || candidates[0].registry !== owner.registry || candidates[0].map !== owner.map
+            || candidates[0].monitor !== monitor || data(monitor, 'diagnostics') !== ownerDiagnostics
+            || ['intact', 'bind', 'stop'].some(key => data(monitor, key) !== functions[key])
+            || !descriptor || descriptor.get !== rootDescriptor.get || descriptor.set !== rootDescriptor.set
+            || descriptor.configurable !== rootDescriptor.configurable || descriptor.enumerable !== rootDescriptor.enumerable
+            || data(ownerDiagnostics, 'stopped') !== false || data(ownerDiagnostics, 'restored') !== false
+            || data(ownerDiagnostics, 'reason') !== null || !functions.intact()) { disqualify('OWNER_LOST'); return false; }
+        return true;
+      } catch { disqualify('OWNER_LOST'); return false; }
+    };
+    const borrowed = {intact, diagnostics, stop() { disqualify('EXPLICIT_STOP'); return {...diagnostics}; },
+      bind(form, editor, input, logical, route, check, invalidate) {
+        if (!intact()) fail('ROOT_MONITOR_LOST');
+        let group = groups.get(form);
+        if (group?.alive && (group.editor !== editor || group.input !== input || group.route !== route || !sameLogical(group.logical, logical))) invalidateGroup(group);
+        if (!group?.alive) {
+          if (!group && groups.size >= MAX_GENERATIONS) fail('ROOT_MONITOR_LIMIT');
+          // Private per-form token prevents the old bind implementation from
+          // reusing an old generation's check or changing its invalidators.
+          const token = group?.token || {};
+          group = {token, editor, input, logical, route, alive: true, invalidators: new Set()};
+          groups.set(form, group); diagnostics.groups = groups.size;
+          const currentGroup = group;
+          const safeCheck = () => {
+            if (!active || !currentGroup.alive) return false;
+            try { diagnostics.checks++; return intact() && check(); }
+            // A new borrower's exception must not escape into the old setter,
+            // whose catch would otherwise invalidate unrelated old proofs.
+            catch { invalidateGroup(currentGroup); return false; }
+          };
+          try { group.ownerAlive = functions.bind(token, editor, input, logical, route, safeCheck, () => invalidateGroup(currentGroup)); }
+          catch { invalidateGroup(group); fail('ROOT_MONITOR_LOST'); }
+        }
+        if (group.invalidators.size >= MAX_GENERATIONS) fail('ROOT_MONITOR_LIMIT');
+        group.invalidators.add(invalidate);
+        return () => {
+          try { return intact() && group.alive && group.ownerAlive(); }
+          catch { invalidateGroup(group); return false; }
+        };
+      }};
+    // Retain the local stopped wrapper as a tombstone; never restore the owner.
+    registry.rootMonitors.set(root, borrowed);
+    if (!intact()) fail('ROOT_MONITOR_LOST');
+    return borrowed;
   }
 
   function install(registry) {

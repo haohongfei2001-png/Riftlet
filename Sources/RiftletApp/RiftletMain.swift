@@ -133,6 +133,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private var readyTrace = AcceptanceTraceDeduplicator<UUID, [String]>()
     private var pendingArmReason = "startup"
     private var chromeActivity: ChromeActivityObserver?
+    private var deferredChromeActivityBinding = DeferredChromeActivityBinding()
     private var armedTarget: ArmedTarget?
     private var armedCaptureDiagnostics: CapturedTargetDiagnostics?
     private var activeCaptureInvocation: CaptureInvocationContext?
@@ -192,6 +193,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         selectionSubmissions.stop()
         armScheduler.stop(); armedTarget = nil; frozenPress = nil
         armedCaptureDiagnostics = nil
+        deferredChromeActivityBinding.cancel()
         chromeActivity?.stop()
         if let wakeObserver { NSWorkspace.shared.notificationCenter.removeObserver(wakeObserver) }
         if let activationObserver { NSWorkspace.shared.notificationCenter.removeObserver(activationObserver) }
@@ -721,6 +723,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         if lostPermission {
             _ = armScheduler.request(invalidateEpoch: true)
             armSession = armScheduler.epoch
+            deferredChromeActivityBinding.request(afterCaptureIn: armSession)
         }
     }
 
@@ -791,8 +794,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         armScheduler.start(); armSession = armScheduler.epoch
         lastForegroundSession = foregroundChromeSession
         chromeActivity = ChromeActivityObserver { [weak self] reason in self?.requestArm(reason: reason) }
-        let activityAvailable = chromeActivity?.bind(to: NSWorkspace.shared.frontmostApplication) ?? false
-        recordAcceptance(["event": "chrome_activity_binding", "available": activityAvailable])
+        // AX notifications are hints. Their synchronous remote registration must
+        // not precede the first authoritative capture/ACK or epoch revocation.
+        deferredChromeActivityBinding.request(afterCaptureIn: armSession)
         wakeObserver = NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.didWakeNotification,
             object: nil, queue: .main) { [weak self] _ in
                 MainActor.assumeIsolated {
@@ -804,8 +808,6 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 MainActor.assumeIsolated {
                     guard let self, self.lastForegroundSession != self.foregroundChromeSession else { return }
                     self.lastForegroundSession = self.foregroundChromeSession
-                    let available = self.chromeActivity?.bind(to: NSWorkspace.shared.frontmostApplication) ?? false
-                    self.recordAcceptance(["event": "chrome_activity_binding", "available": available])
                     self.requestArm(reason: "activation", invalidate: true)
                 }
             }
@@ -820,7 +822,20 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         }
         let wake = armScheduler.request(invalidateEpoch: invalidate)
         armSession = armScheduler.epoch
+        if invalidate { deferredChromeActivityBinding.request(afterCaptureIn: armSession) }
         if wake { performPendingArm() }
+    }
+
+    private func bindDeferredChromeActivity(afterCaptureIn epoch: UUID) {
+        guard !terminating, epoch == armSession,
+              deferredChromeActivityBinding.take(afterCaptureIn: epoch, isRunning: armScheduler.isRunning) else { return }
+        let started = ProcessInfo.processInfo.systemUptime
+        let available = chromeActivity?.bind(to: NSWorkspace.shared.frontmostApplication) ?? false
+        let ended = ProcessInfo.processInfo.systemUptime
+        recordAcceptance(["event": "chrome_activity_binding", "available": available,
+            "hostEpoch": epoch.uuidString, "phase": "afterCaptureCompletion",
+            "startedUptime": started, "endedUptime": ended, "elapsedMS": (ended - started) * 1000,
+            "authorizesInput": false])
     }
 
     private func performPendingArm() {
@@ -833,6 +848,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         activeCaptureInvocation = invocation
         Task { [weak self] in
             guard let self else { return }
+            let taskEntered = ProcessInfo.processInfo.systemUptime
             var result: TargetLease?
             var diagnostics: CapturedTargetDiagnostics?
             var errorCode = "browserNotFrontmost"
@@ -879,7 +895,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 }
             }
             var fields: [String: Any] = ["event": "arm_completion", "reason": reason, "startedUptime": started,
-                "endedUptime": ProcessInfo.processInfo.systemUptime, "error": errorCode,
+                "taskEnteredUptime": taskEntered, "endedUptime": ProcessInfo.processInfo.systemUptime, "error": errorCode,
                 "captureRequestID": invocation.requestID.uuidString, "armAttemptID": attempt.id.uuidString,
                 "hostEpoch": attempt.epoch.uuidString, "publicationResult": publicationResult,
                 "reusedExistingArmedTarget": reused,
@@ -895,6 +911,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 fields["effectiveArmAttemptID"] = effective.context.armAttemptID.uuidString
             }
             self.recordAcceptance(fields)
+            // Failed current-epoch captures also install the hint observer so
+            // later focus/window activity can recover. Stale completions cannot.
+            self.bindDeferredChromeActivity(afterCaptureIn: attempt.epoch)
             // The first prebind finishes before remote recovery enters the shared
             // adapter/transport, avoiding a startup queue behind old observations.
             self.startOriginalRecovery()

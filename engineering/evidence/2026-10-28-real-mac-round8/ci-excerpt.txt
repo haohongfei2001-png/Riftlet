@@ -1,0 +1,15 @@
+Source 85250a869f06d99e3d3ab046116f560bac572fd9; run 40544274635 PASS.
+These are source-logged checks, not physical GUI or real ChatGPT upload evidence.
+
+macos	Native unit and integration tests	2026-10-27T16:57:48.5232290Z [74/416] Testing RiftletAppTests.DeferredChromeActivityBindingTests/testFirstCompletedCaptureConsumesOneBindingIndependentOfCaptureSuccess
+macos	Native unit and integration tests	2026-10-27T16:57:48.5264980Z [75/416] Testing RiftletAppTests.DeferredChromeActivityBindingTests/testForegroundChangeDuringCaptureDoesNotLetOldCompletionStealNewBinding
+macos	Native unit and integration tests	2026-10-27T16:57:48.5668240Z [76/416] Testing RiftletAppTests.DeferredChromeActivityBindingTests/testRepeatedSignalsCoalesceAndStopCannotRestoreOldBinding
+macos	Native unit and integration tests	2026-10-27T16:57:58.6658160Z [304/416] Testing RiftletUITests.RiftInputIslandTests/testVisualIsMouseTransparentAndOnlyInputIslandsCoverImageAndNumber
+macos	Native unit and integration tests	2026-10-27T16:57:58.7245940Z [305/416] Testing RiftletUITests.RiftInputIslandTests/testOriginalInputEventSelectsSameAssetAcrossItsTwoIslandsAndRejectsPaddingRelease
+macos	Native unit and integration tests	2026-10-27T16:57:58.8855300Z [310/416] Testing RiftletUITests.RiftInputIslandTests/testHeldAssetDefersSwallowAndAllThreeWindowsCloseBeforeCompaction
+macos	Native unit and integration tests	2026-10-27T16:58:06.2982850Z [416/416] Testing RiftletAdaptersTests.WebAttachmentAdapterTests/testUnsupportedChunkCapacityAndOverEightMiBFileRefuseBeforeBridgeCommands
+macos	Package native application	2026-10-27T16:58:54.5720770Z RIFTLET_BUNDLE_CHECK_PASS: layout, permissions text, resources, notices; development 0.1.0; NOT_NOTARIZED; GATEKEEPER_NOT_RUN
+macos	Run packaged executable with synthetic data	2026-10-27T16:58:55.1097030Z RIFTLET_SELF_CHECK_PASS: private import, durable upload-start visibility, delayed synthetic completion, restart
+macos	Run packaged executable with synthetic data	2026-10-27T16:58:55.1813310Z RIFTLET_WEB_ACCEPTANCE_SELF_CHECK_PASS: bundled page source, synthetic-only start/completion policy, isolated modes; CHROME_NOT_RUN; GUI_NOT_RUN
+macos	Run packaged executable with synthetic data	2026-10-27T16:58:55.2066820Z RIFTLET_FIRST_USE_SELF_CHECK_PASS: presentation persistence, disabled-production permission isolation, honest status; PERMISSIONS_NOT_REQUESTED; GUI_NOT_RUN
+macos	Validate and archive synthetic GUI acceptance helper	2026-10-27T16:58:55.8611260Z RIFTLET_GUI_HELPER_SELF_CHECK_PASS: 12 synthetic PNGs; scenes 2/3/12; layout/status fixtures; GUI_NOT_RUN

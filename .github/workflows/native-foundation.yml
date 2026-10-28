@@ -88,6 +88,8 @@ jobs:
           # Parallel discovery lines do not distinguish passed from XCTSkip.
           # Reuse the build and report only this existing suite in detail.
           swift test --skip-build --filter RiftLifecycleTests 2>&1 | tee test-results/rift-lifecycle-detailed.log
+          swift test --skip-build --filter RiftInputIslandTests 2>&1 | tee test-results/rift-input-islands-detailed.log
+          swift test --skip-build --filter DeferredChromeActivityBindingTests 2>&1 | tee test-results/deferred-chrome-binding-detailed.log
           swift test --skip-build --filter RiftSetupControllerTests 2>&1 | tee test-results/setup-window-detailed.log
           swift test --skip-build --filter ReleaseCaptureTests 2>&1 | tee test-results/release-capture-detailed.log
           swift test --skip-build --filter PresentationBoundaryTests 2>&1 | tee test-results/presentation-boundaries-detailed.log

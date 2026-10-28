@@ -2,11 +2,11 @@ import Foundation
 import Darwin
 import RiftletCore
 
-/// Native candidate scope, not an admission. It reuses the exact bundled v12
+/// Native candidate scope, not an admission. It reuses the exact reviewed bundled v13
 /// program/MAIN bridge and never changes a page provenance label to "real".
 /// Separate identifiers prevent generated-image permissions admitting screenshots.
 public enum SystemScreenshotWebCandidate {
-    public static let sourceID = "chatgpt-web-zh-20261027-integrated-v12"
+    public static let sourceID = "chatgpt-web-zh-20261027-integrated-v13"
     public static let uploadStartProfileID = "chatgpt-web-system-screenshot-start-candidate-20261028-v1"
     public static let completionProfileID = "chatgpt-web-system-screenshot-attached-candidate-20261028-v1"
     public static let profile = ObservationProfile(adapterID: "chatgpt-web", surface: .webChat,

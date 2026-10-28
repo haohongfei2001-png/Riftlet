@@ -1,0 +1,22 @@
+{
+  "sourceSHA": "ee1d960adf67432be627e86e7aa9350e5d85d9c0",
+  "inputActions": 0,
+  "firstArm": {
+    "armAttemptID": "AB5E1DB9-D4BD-4A47-8316-CBC427B34F88",
+    "armed": false,
+    "captureRequestID": "B9CF8EA6-6626-4BAA-89B4-5167E3E5FBCF",
+    "endedUptime": 475982.61160508334,
+    "epochAccepted": true,
+    "error": "pageRejected(RiftletAdapters.WebPageRejection.unobservedRootDescriptor)",
+    "event": "arm_completion",
+    "hostEpoch": "87E7E58B-55F2-449B-8FDF-A862F70AE19E",
+    "publicationResult": "captureFailed",
+    "reason": "startup",
+    "reusedExistingArmedTarget": false,
+    "startedUptime": 475982.5163200417,
+    "taskEnteredUptime": 475982.5211836667
+  },
+  "selectionEvents": 0,
+  "rawLogSHA256": "40974406f6b35a5fb20521298679c8fceed8176298ad27e07aa6cf8e50841c2b",
+  "result": "PASS_DIAGNOSTIC_REFUSAL"
+}

@@ -1,0 +1,46 @@
+{
+  "sourceSHA": "85250a869f06d99e3d3ab046116f560bac572fd9",
+  "reviews": [
+    {
+      "reviewer": "native_gui",
+      "scope": "App deferred AX hint binding and epoch invalidation order",
+      "result": "PASS",
+      "author": "web_safety",
+      "liveRuntimeRunByReviewer": false
+    },
+    {
+      "reviewer": "web_safety",
+      "scope": "native input islands, lifecycle, AX uniqueness, helper routing and hold probe",
+      "result": "PASS",
+      "author": "native_gui and root",
+      "liveRuntimeRunByReviewer": false
+    },
+    {
+      "reviewer": "web_safety",
+      "scope": "extension laboratory sender/native framing and document transition proof",
+      "result": "PASS",
+      "author": "late_failure",
+      "resolvedFinding": "An ACK-count increment could belong to the old document. Now joins browser-supplied documentID and verifies second fixture.",
+      "liveRuntimeRunByReviewer": false
+    },
+    {
+      "reviewer": "late_failure",
+      "scope": "Closed root-binding rejection codes and JavaScriptCore envelope tests",
+      "author": "web_safety",
+      "result": "PASS",
+      "liveRuntimeRunByReviewer": false
+    },
+    {
+      "reviewer": "late_failure",
+      "scope": "Final evidence/source attribution, privacy and preservation claims",
+      "result": "PASS_AFTER_CORRECTION",
+      "resolvedFinding": "Final ee1d960 CI must have a separate pending/result entry rather than inherit 85250a8 PASS. Added finalCI and explicit waiting language.",
+      "liveRuntimeRunByReviewer": false
+    }
+  ],
+  "limitations": [
+    "No reviewer claims physical input or production acceptance.",
+    "Formal Core permission recipient patch inherited unchanged; combined CI separately tracked."
+  ],
+  "finalSourceSHA": "ee1d960adf67432be627e86e7aa9350e5d85d9c0"
+}

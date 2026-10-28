@@ -1,0 +1,81 @@
+{
+  "sourceSHA": "85250a869f06d99e3d3ab046116f560bac572fd9",
+  "implementationCommit": "4e2391bfb54b4a9f8a9ce9a8fac6b27b209efa10",
+  "formalInherited": "595142d0345adc0d06f54371f50406879310610d",
+  "os": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0\nBuildVersion:\t\t26A428",
+  "architecture": "arm64",
+  "toolchain": "Apple Swift version 6.4 (swiftlang-6.4.0.34.1 clang-2100.3.34.1)\nTarget: arm64-apple-macosx27.0.0",
+  "build": {
+    "result": "PASS",
+    "archiveSource": true,
+    "command": "bash scripts/build-macos.sh",
+    "logSHA256": "24445b629c2ace19f7ec3deadfdc287816e2a48f3f4da32012ce616f47b51bb2",
+    "durationSeconds": 30.02,
+    "bundleValidation": "PASS",
+    "adHocSignature": "PASS",
+    "notarization": "NOT_RUN"
+  },
+  "packagedSelfChecks": {
+    "firstUse": "PASS",
+    "webAcceptance": "PASS",
+    "core": "PASS",
+    "permissionRequests": false,
+    "liveChrome": false
+  },
+  "ci": {
+    "run": 40544274635,
+    "sourceSHA": "85250a869f06d99e3d3ab046116f560bac572fd9",
+    "status": "completed",
+    "result": "PASS",
+    "logSHA256": "8989876b55f34ac1644ab5f67570d605671dd3b632c723d2c1133b18a0bac816",
+    "nativeTestsDiscovered": 416,
+    "newSuiteSkipReporting": "Parallel logs list all three input-island and all three deferred-binding tests; not a physical event result."
+  },
+  "productionScreenshotUpload": "DISABLED",
+  "productionUploadStartedProfile": "EMPTY",
+  "safeRetry": "DISABLED",
+  "binarySHA256": {
+    "App": "3fdcbfa032aa73f516215abd8a5856f159f65dc96e3129d35cc25bc01b4f7827",
+    "GUIHelper": "600b395bc9aa705e067cd0d074542237af8214a3afd08012c4ea69a6e347aa02"
+  },
+  "finalSourceSHA": "ee1d960adf67432be627e86e7aa9350e5d85d9c0",
+  "finalDelta": "Two fixed rejection codes and closed-envelope tests only; same UI/App/permissions/Core as 85250a8.",
+  "finalBuild": {
+    "result": "PASS",
+    "archiveSource": true,
+    "logSHA256": "3f42e1444e6c5d6b1956b68a1c5677c925decd10e1174089fa3d26670e646d18",
+    "AppSHA256": "240226627924738e18bb4d93c476c76006fde02e652a5968c0a5446eacbf6ad4"
+  },
+  "finalCI": {
+    "run": 40546396233,
+    "sourceSHA": "ee1d960adf67432be627e86e7aa9350e5d85d9c0",
+    "status": "completed",
+    "result": "NOT_RUN",
+    "checkedAtUTC": "2026-10-27T17:15:27.466584+00:00",
+    "jobID": 122338064578,
+    "stepsStarted": 0,
+    "workflowConclusion": "failure",
+    "jobConclusion": "cancelled",
+    "runnerAllocated": false,
+    "reason": "Hosted macOS ARM64 capacity; job was not acquired after GitHub internal attempts.",
+    "annotationsEvidence": "ci-infrastructure.json"
+  },
+  "finalPackagedSelfChecks": {
+    "firstUse": {
+      "result": "PASS",
+      "logSHA256": "b8acde75e6ad2d4b724e61e902d02f587fec4d496696a6a01634842d0faa6494"
+    },
+    "webAcceptance": {
+      "result": "PASS",
+      "logSHA256": "a47ac0ed870328c9f158b1ee9fed9eec7fd7aa6e4109c3f3017d307f29dbe15d"
+    },
+    "core": {
+      "result": "PASS",
+      "logSHA256": "9a6cbd54ef6829d86fd7e0cd7ba688aa6387ae15af41a550ffba3e42832b6018"
+    },
+    "helper": {
+      "result": "PASS",
+      "logSHA256": "12e12f3b06661fac9aa67d2573b45485f7e37cf3efc23d7c7dced4f5228e8d13"
+    }
+  }
+}
