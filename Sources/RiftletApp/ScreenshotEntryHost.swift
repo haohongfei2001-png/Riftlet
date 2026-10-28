@@ -50,7 +50,7 @@ final class ScreenshotEntryHost {
         rift.onGeometryChange = { [weak self] in self?.configure() }
         screenObserver = NotificationCenter.default.addObserver(
             forName: NSApplication.didChangeScreenParametersNotification, object: nil, queue: .main) { [weak self] _ in
-                Task { @MainActor in self?.configure() }
+                Task { @MainActor [weak self] in self?.configure() }
             }
         windowCloseObserver = NotificationCenter.default.addObserver(
             forName: NSWindow.willCloseNotification, object: nil, queue: .main) { [weak self] note in

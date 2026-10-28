@@ -432,7 +432,7 @@ private final class InteractiveScreenshotSelectionView: NSView {
 
     override func updateTrackingAreas() {
         if let tracking { removeTrackingArea(tracking) }
-        tracking = NSTrackingArea(rect: bounds, options: [.activeAlways, .mouseMoved, .cursorUpdate, .inVisibleRect], owner: self)
+        tracking = NSTrackingArea(rect: bounds, options: [.activeAlways, .mouseMoved, .cursorUpdate, .inVisibleRect], owner: self, userInfo: nil)
         if let tracking { addTrackingArea(tracking) }
         super.updateTrackingAreas()
     }
