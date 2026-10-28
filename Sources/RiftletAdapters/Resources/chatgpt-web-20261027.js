@@ -9,7 +9,7 @@
  */
 function riftletWebAcceptance(command, native) {
   'use strict';
-  // v13 may borrow one intact, known v10/v12 root monitor without replacing its descriptor.
+  // v13 may borrow one intact, known v9/v10/v12 root monitor without replacing its descriptor.
   // Its old native requests remain UNKNOWN instead of acquiring a new lease.
   const KEY = '__riftletWebAcceptance20261027v13';
   const MAX_GENERATIONS = 32;
@@ -175,7 +175,7 @@ function riftletWebAcceptance(command, native) {
     return monitor;
   }
 
-  // Only the frozen v10/v12 monitor protocols are compatible. This is defensive
+  // Only the frozen v9/v10/v12 monitor protocols are compatible. This is defensive
   // same-world compatibility, not authentication against arbitrary page code.
   // Do not call any historical method until its data shape and function bodies
   // match our unchanged owned-monitor implementation.
@@ -205,7 +205,7 @@ function riftletWebAcceptance(command, native) {
     let candidates;
     try { candidates = owners(); } catch { fail('UNOBSERVED_ROOT_DESCRIPTOR'); }
     if (!candidates.length) return ownedRootMonitor(registry, root);
-    if (candidates.length !== 1 || ![10, 12].includes(candidates[0].version)) fail('UNOBSERVED_ROOT_DESCRIPTOR');
+    if (candidates.length !== 1 || ![9, 10, 12].includes(candidates[0].version)) fail('UNOBSERVED_ROOT_DESCRIPTOR');
     const owner = candidates[0], monitor = owner.monitor;
     const count = data(owner.registry, 'count'), seen = new Set();
     let state = data(owner.registry, 'head'), tail = null;

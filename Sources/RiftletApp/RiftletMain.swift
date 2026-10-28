@@ -965,7 +965,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         }
         fields["armInFlight"] = armScheduler.inFlight != nil
         fields["hostEpochMatches"] = armedTarget?.hostSession == armSession
-        fields["foregroundSessionMatches"] = armedTarget?.target.sessionID == foregroundChromeSession
+        fields["foregroundSessionMatches"] = armedTarget.map { $0.target.sessionID == foregroundChromeSession } ?? false
         if let ack = armedTarget?.acknowledgedUptime { fields["ackUptime"] = ack }
         if let number = boundary.eventNumber { fields["eventNumber"] = number }
         recordAcceptance(fields)

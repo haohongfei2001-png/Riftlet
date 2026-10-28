@@ -1227,7 +1227,7 @@ test('v13 borrowed lease permanently loses authority after owner stop, function 
   }
 });
 
-for (const ownerVersion of [10,12]) test(`v13 borrowed v${ownerVersion} fresh lease inputs once and finishes while old real proof and late-error observation stay original`, async () => {
+for (const ownerVersion of [9,10,12]) test(`v13 borrowed v${ownerVersion} fresh lease inputs once and finishes while old real proof and late-error observation stay original`, async () => {
   // The frozen v10 DOM helper uses arrays, matching its original VM evidence;
   // this does not repair or reclassify v10's separately recorded NodeList bug.
   const frozen=fs.readFileSync(path.join(__dirname,`../RiftletAdaptersTests/Fixtures/LegacyWeb/v${ownerVersion}.js`),'utf8');
@@ -1294,4 +1294,56 @@ test('unsupported MAIN-world registry tampering: authentic cross-root monitor sw
   threadCommit(f,'local-chatgpt:00000000-0000-0000-0000-000000000000');threadCommit(f);
   assert.equal(f.call({action:'validate',target}).valid,true);
   assert.equal(f.input.inputCount,0);
+});
+
+
+test('v9 owner protocol and full structural predicates match the explicitly reviewed v10 and v12 sources',()=>{
+  const frozen=version=>fs.readFileSync(path.join(__dirname,`../RiftletAdaptersTests/Fixtures/LegacyWeb/v${version}.js`),'utf8');
+  const block=(text,start,end)=>text.slice(text.indexOf(start),text.indexOf(end,text.indexOf(start)));
+  const v9=frozen(9);
+  for(const version of [10,12])for(const [start,end] of [
+    ['  function rootMonitor(', '\n  function install('],
+    ['  function readThreadBinding(', '\n  // This candidate'],
+    ['const checkBinding =', ';\n      monitorAlive']]) {
+    const expected=block(v9,start,end);assert.ok(expected.length>100);
+    assert.equal(block(frozen(version),start,end),expected);
+  }
+});
+
+test('v9 UNKNOWN stays on its original lease through prior v11/v13 failed capture and new v13 borrowing',async()=>{
+  const f=fixture({thread:true}),v9=historicalProgram(f,9);v9({action:'captureTarget'});
+  f.windowEvent('blur');f.windowEvent('focus');const oldTarget=v9({action:'captureTarget'});
+  const registry=f.context.__riftletWebAcceptance20261027v9,root=f.fibers.root.stateNode;
+  assert.equal(registry.count,2);
+  const descriptor=Object.getOwnPropertyDescriptor(root,'current'),originalState=registry.tail;
+  const identity={operationID:'55555555-5555-4555-8555-555555555555',assetID:'66666666-6666-4666-8666-666666666666',attempt:1,assetSHA256:digest(png),target:oldTarget};
+  const command=action=>({action,target:oldTarget,identity});
+  v9({...command('begin'),uploadName:'riftlet-'+identity.operationID+'.png',mediaType:'image/png',byteCount:png.length});
+  v9({...command('chunk'),chunkIndex:0,chunkBase64:png.toString('base64')});
+  v9({...command('commit'),chunkIndex:1});
+  const op=originalState.operations.get(identity.operationID);
+  for(let i=0;i<500&&!op.fileHashVerified;i++)await new Promise(r=>setTimeout(r,1));
+  assert.equal(op.inputCount,1);assert.equal(op.fileHashVerified,true);assert.equal(op.proof,null);
+  assert.throws(()=>historicalProgram(f,11)({action:'captureTarget'}),/UNOBSERVED_ROOT_DESCRIPTOR/);
+  // Reproduce the previous v13 allowlist refusal; all remaining code is the
+  // same program. Its already-created empty registry must not be reset.
+  const priorSource=source.replace('![9, 10, 12].includes(candidates[0].version)','![10, 12].includes(candidates[0].version)');
+  assert.notEqual(priorSource,source);
+  const prior=vm.runInContext('('+priorSource+')',f.context);
+  assert.throws(()=>prior({action:'captureTarget'},native),/UNOBSERVED_ROOT_DESCRIPTOR/);
+  const empty=f.context.__riftletWebAcceptance20261027v13;
+  assert.equal(empty.count,0);assert.equal(empty.rootMonitors.size,0);
+  const target=f.target();assert.equal(f.context.__riftletWebAcceptance20261027v13,empty);
+  assert.equal(empty.count,1);assert.equal(empty.rootMonitors.get(root).diagnostics.borrowedFrom,9);
+  assert.equal(registry.count,2);assert.equal(registry.tail,originalState);
+  assert.equal(originalState.operations.get(identity.operationID),op);
+  assert.equal(op.inputCount,1);assert.equal(op.proof,null);
+  assert.deepEqual(Object.getOwnPropertyDescriptor(root,'current'),descriptor);
+  assert.notEqual(target.documentID,oldTarget.documentID);
+  assert.equal(f.call({action:'validate',target:oldTarget}).valid,false);
+  for(const action of ['begin','chunk','commit'])assert.throws(()=>f.call(command(action)),/TARGET_INVALID/);
+  const legacy=vm.runInContext('('+fs.readFileSync(path.join(__dirname,'../../Sources/RiftletAdapters/Resources/legacy-web-observe.js'),'utf8')+')',f.context);
+  const observed=legacy(command('observe'),native);
+  assert.equal(observed.schemaVersion,1);assert.equal(observed.observation.identity.operationID,identity.operationID);
+  assert.equal(observed.observation.state,'inputTriggered');assert.equal(f.input.inputCount,1);
 });
