@@ -212,9 +212,11 @@ final class RiftSettingsForm: NSObject {
             message.isHidden = false; RiftVisualStyle.applyTextStyle(message); return
         }
         let requested: Double? = value == 0 ? nil : value
+        let persistedHours = requested.map { ($0 * 3600) / 3600 }
         // AppKit can finish editing while an action refreshes its controls.
-        // Repeated delivery of the already-saved value must not write twice.
-        guard requested != snapshot.archiveAfterHours else {
+        // Match the host's seconds-to-hours round trip, including fractional
+        // values, so repeated delivery cannot cause another durable write.
+        guard persistedHours != snapshot.archiveAfterHours else {
             message.stringValue = "已保存"; message.textColor = RiftVisualStyle.secondary; message.isHidden = false
             RiftVisualStyle.applyTextStyle(message); return
         }

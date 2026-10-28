@@ -108,7 +108,7 @@ final class UnifiedSettingsTests: XCTestCase {
         var value = RiftSettingsSnapshot(archiveAfterHours: 24)
         let controller = RiftSetupController(onRecheck: {}, onOpenSource: {}, onPermission: {}, onDismiss: { dismissed += 1 }, onSettingsChange: { change in
             changes.append(change)
-            if case .archiveAfterHours(let hours) = change { value.archiveAfterHours = hours }
+            if case .archiveAfterHours(let hours) = change { value.archiveAfterHours = hours.map { ($0 * 3600) / 3600 } }
             return value
         })
         defer { controller.close() }
@@ -125,12 +125,12 @@ final class UnifiedSettingsTests: XCTestCase {
         let save: NSButton = try control("settings.archiveSave")
         XCTAssertTrue(try XCTUnwrap(hours.window).makeFirstResponder(hours))
         let nextEditor = try XCTUnwrap(hours.currentEditor() as? NSTextView)
-        nextEditor.string = "3"
+        nextEditor.string = "0.011"
         XCTAssertTrue(try XCTUnwrap(hours.window).makeFirstResponder(nil))
         await Task.yield()
         XCTAssertEqual(changes, [.archiveAfterHours(2)], "Leaving the field is not a save command")
         save.performClick(nil); save.performClick(nil)
-        XCTAssertEqual(changes, [.archiveAfterHours(2), .archiveAfterHours(3)], "An already-saved value cannot cause duplicate durable writes")
+        XCTAssertEqual(changes, [.archiveAfterHours(2), .archiveAfterHours(0.011)], "An already-saved fractional value cannot cause duplicate durable writes")
         XCTAssertTrue(controller.isVisible)
     }
 
