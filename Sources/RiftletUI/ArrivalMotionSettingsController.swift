@@ -120,6 +120,7 @@ public final class ArrivalMotionSettingsController: NSWindowController, NSWindow
 final class ArrivalPreviewView: NSView {
     private var currentMode: ArrivalMotionMode = .none
     private var renderedBounds = NSRect.zero
+    private var renderedBackingScale: CGFloat = 0
     private let clip = CALayer()
     private let imageLayer = CALayer()
     private let line = CALayer()
@@ -144,7 +145,13 @@ final class ArrivalPreviewView: NSView {
     override func viewDidMoveToWindow() { super.viewDidMoveToWindow(); updateAppearance() }
     override func viewDidChangeBackingProperties() {
         super.viewDidChangeBackingProperties()
-        show(currentMode, animate: false)
+        // AppKit also reports color-space/backing updates with the same scale.
+        // Refresh colors without cancelling a deliberate in-flight preview.
+        if bounds != renderedBounds || (window?.backingScaleFactor ?? 1) != renderedBackingScale {
+            show(currentMode, animate: false)
+        } else {
+            updateAppearance()
+        }
     }
 
     private func updateAppearance() {
@@ -169,6 +176,7 @@ final class ArrivalPreviewView: NSView {
         currentMode = mode
         guard bounds.width > 100, bounds.height > 80 else { return }
         renderedBounds = bounds
+        renderedBackingScale = window?.backingScaleFactor ?? 1
         stop(); updateAppearance()
         let edge = bounds.maxX - 20
         let target = CGRect(x: edge - 54, y: bounds.midY - 22.5, width: 72, height: 45)

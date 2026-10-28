@@ -230,6 +230,9 @@ final class RiftSettingsForm: NSObject {
             : "当前使用“无”。你可以选择磁力吸引，先在这里预览。"
         RiftVisualStyle.applyTextStyle(motionHint)
         guard shownSection == .display, redraw else { return }
+        // Finish any pending initial/control layout before installing animation;
+        // a subsequent genuine size change still cancels through the view.
+        if play { preview.window?.contentView?.layoutSubtreeIfNeeded() }
         preview.show(snapshot.arrivalMode.effective(reduceMotion: reduced), animate: play && preview.window?.isVisible == true)
     }
 }

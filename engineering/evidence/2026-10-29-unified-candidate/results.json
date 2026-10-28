@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "phase": "EXACT_SOURCE_REVIEWED_AWAITING_MACOS_CI",
-  "nativeCI": "PENDING_NEW_EXACT_HEAD",
-  "feedbackCI": "PENDING_NEW_EXACT_HEAD",
-  "newNativeVisualEvidence": "PENDING_RECAPTURE_AND_NON_AUTHOR_REVIEW",
+  "phase": "MANUAL_PREVIEW_REGRESSION_REPAIR_SOURCE_CHECKPOINT",
+  "nativeCI": "PENDING_REPAIRED_SOURCE",
+  "feedbackCI": "PENDING_REPAIRED_SOURCE",
+  "newNativeVisualEvidence": "PENDING_REPAIRED_SOURCE",
   "physicalMacAcceptance": "NOT_RUN_AUTHORIZED_MAC_OFFLINE",
   "sourceReview": "PASS_NON_AUTHOR_EXACT_SOURCE; native and visual acceptance pending",
   "founderInstallationRequested": false,
@@ -75,6 +75,29 @@
         "packagingRejectionPassed": 19,
         "visualManifestPassed": 9
       }
+    },
+    {
+      "head": "c8c92f81c51a9235f25200f026552e9db692d6ec",
+      "nativeRun": 40761070646,
+      "nativeJob": 123072852031,
+      "nativeResult": "FAIL_PREVIOUSLY_SKIPPED_MANUAL_PREVIEW",
+      "nativeUniqueScheduled": 645,
+      "failedTests": 1,
+      "failedAssertions": 2,
+      "checkout": "fecca3f5783a3ad5040b8e9ee47d4c19919d2219",
+      "nativeVisual": "NOT_RUN_PRIOR_TEST_FAILED",
+      "realSystemAccessibilityBefore": {
+        "reduceMotion": true,
+        "increaseContrast": false,
+        "reduceTransparency": true
+      },
+      "realSystemAccessibilityNormal": {
+        "reduceMotion": false,
+        "increaseContrast": false,
+        "reduceTransparency": false
+      },
+      "feedbackRun": 40761070614,
+      "feedbackResult": "PENDING"
     }
   ],
   "lateRemoteObservation": {

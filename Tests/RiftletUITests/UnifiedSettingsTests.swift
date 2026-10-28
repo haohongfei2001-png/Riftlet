@@ -146,12 +146,18 @@ final class UnifiedSettingsTests: XCTestCase {
         let preview: ArrivalPreviewView = try control("settings.motionPreviewImage")
         preview.window?.contentView?.layoutSubtreeIfNeeded()
         let replay: NSButton = try control("settings.motionPreview")
+        XCTAssertTrue(preview.window?.isVisible == true)
+        XCTAssertGreaterThan(preview.bounds.width, 100)
+        XCTAssertGreaterThan(preview.bounds.height, 80)
         replay.performClick(nil)
         let imageLayer = try XCTUnwrap(preview.layer?.sublayers?.first?.sublayers?.first)
-        XCTAssertNotNil(imageLayer.animation(forKey: "arrival.preview"))
+        let diagnostics = "bounds=\(preview.bounds), visible=\(preview.window?.isVisible == true), scale=\(preview.window?.backingScaleFactor ?? 0), layerKeys=\(imageLayer.animationKeys() ?? [])"
+        XCTAssertNotNil(imageLayer.animation(forKey: "arrival.preview"), diagnostics)
         value.entryEnabled = false
         controller.updateSettings(value); preview.layout()
         XCTAssertNotNil(imageLayer.animation(forKey: "arrival.preview"), "An unrelated status or same-size layout cannot interrupt a deliberate preview")
+        preview.viewDidChangeBackingProperties()
+        XCTAssertNotNil(imageLayer.animation(forKey: "arrival.preview"), "A backing notification with unchanged physical scale cannot cancel the preview")
         controller.close()
         XCTAssertNil(imageLayer.animation(forKey: "arrival.preview"), "Closing still cancels preview work")
     }
