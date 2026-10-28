@@ -8,7 +8,9 @@
 - 正式起点：`1920e0562db893a3292af89a89270a26ddb46a5f`。交付前只读核对正式远端已到 `0e7ea8be148e1124b387e799fd886a7830e96559`；未覆盖、合并或重置该分支/PR #1。
 - 设计：`7e03bd2c26c6aa43dbac07b073e00d08d1951b71` 的 `design/final-system-20261028/`，以原字节留存。已阅读 HANDOFF、SOURCE_DELTA、APPKIT_SPEC、TOKENS、MOTION_SPEC，并运行独立交互原型作对照。网页未进入 App bundle。
 - 按祖先合入预测入口 `5d6a683652d255af8c1d3e0d9533587fcc27a24d` 和入缝基础 `d552a7388af3890bf693bb3fb24f4b8fc5bc12e7`；没有重建入口、Presenter 或上传机制。
-- 主实现 `46a909a35df16b76b6153fcb772a48740fb07ac6`；位置修复 `888a4b0075bc8faf944a3e7a75ebd9a7a7ff3acf`；最后原生源码 `ad4854c849448bb37c387528bddf673732d8e362` 补齐预览淡入、入口像素描边/动态Reduce Motion和主动重开引导。
+- 主实现 `46a909a35df16b76b6153fcb772a48740fb07ac6`；位置修复 `888a4b0075bc8faf944a3e7a75ebd9a7a7ff3acf`；视觉收口源码 `ad4854c849448bb37c387528bddf673732d8e362` 补齐预览淡入、入口像素描边/动态Reduce Motion和主动重开引导。
+- CI兼容修复 `4fd4ac2da062bb26dc3cdc600b224f2e8dfe094b` 仅增加两个稳定图层名称并校正测试定位/事务提交与分页断言；未改运行布局、点击、动效或上传语义，原取证SHA不重标。
+- 完整 macOS CI 源码头 **`00dedc7f8164643c3435e3f87aa462e28af0b1c8`**，reviewed tree `f70d26e6967c4750269415d17b4a4b6231a0853f`。后续仅本README/results交接元数据更新，未改产品/测试树。
 - 审查后的完整树、CI 与最终交接提交见 [results.json](results.json)。正式 Pro 应按最新正式头审查组合，重新固定其组合树；不要把本分支 pin 直接当作未来正式树的批准。
 
 ## 五阶段实际结果
@@ -59,9 +61,11 @@
 ## 构建、自动化与非作者审查
 
 - 最终源码本地完整 release App build PASS；bundle布局、权限文字、资源、许可检查 PASS；包内 `--self-check` PASS。开发 ad-hoc 签名，未公证/发行。
-- 本机仅 CLT SDK，`swift test` 无法解析 XCTest：本地全套 NOT_RUN（前置条件缺失），不是测试通过。完整原生 XCTest/离线 Web/Feedback/打包由独立 macOS CI执行，状态见 results.json。
+- 本机仅 CLT SDK，`swift test` 无法解析 XCTest：本地全套 NOT_RUN（前置条件缺失），不是测试通过。完整 macOS CI [40742061755](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40742061755) **completed/success**，源码头00dedc7，macOS14.8.9 (23J631)/arm64/Swift5.10；620项原生测试调度、详细生命周期/输入岛/权限/候选/Feedback/入口子集、离线Web、完整App、四项包内自检、Beta包与helper自检通过。独立Feedback workflow未单独触发，不能冒称其云端/隔离workflow新运行；Native包含Feedback原生回归。旧arrival分支专属步骤按原条件跳过，其原生测试仍在全套中，历史固定审计另已执行。
 - 21项临时 Git fixture 的组合审计正反例 PASS。三份历史审计按原 blob 在原 SHA 执行，原脚本保持不变；新 gate 固定完整独立审查树，只允许 gate自身及两条明确的交接元数据作为后续更新，拒绝新文件/删除/改mode/symlink等。
 - 原 d552 的两条 CI `40717446445`/`40717446400` 未获 runner，0步骤取消；这不构成源码失败证据。其原源码已单独完整本地构建 PASS。新组合实际编译、测试错误以本次 CI 为准，不刷旧运行。
+- 首次组合CI [40739110823](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40739110823) **FAIL**：原生620项中的10个案例失败。实际定位包括按子层序号取错AppKit绘制层，以及旧的整行frame/全队列同页/窄屏挪plane断言。修复改为唯一命名图片层、显式CA事务提交和固定plane/全部身份跨页可达断言；按压等待时限与全部终态要求保留。thin_windows非作者审查确认没有跳过或放宽安全判据。准确复跑结果见 results.json；旧失败保留，不覆盖。
+- 第二次CI [40740627791](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40740627791) **FAIL**，只余2个按压结束断言：真实model/presentation均0、interaction全部释放，但客户端保留 `rift.translation` 键。CA头文件约定的是从render tree移除，不等同于客户端动画键列表立即为空；不为测试新增生产清理计时器。后续仅按压完成检查实际姿态、经过完整按压/归位时长及严格合法的已完成80ms return key，其他静态/中断清理仍要求无动画。该判断由thin_motion及thin_windows独立复核，最终f70d26e按压终态修复由40742061755全套复跑确认。
 - 非作者：thin_windows审查 motion/Main，thin_acceptance审查Panel/pager/peek与选择边界，thin_motion审查窗口/Feedback/Main及最终888a4b0。发现的迟到overlay、预览回返、10→9宽度、分页恢复、错误失败文案、初次尺寸和跨屏重开问题均修复；ad4854c最后小修经thin_motion非作者复审无阻断；窗口/CG证据保留46a909a来源，五段录屏保留888a4b0来源，入口/队列/hover/pager四图在ad4854c重拍。888a4b0 的跨屏重开修复已源码复审，本轮未再进行物理跨屏拖动复测。没有把源审查写成实机人工通过。
 
 ## 已知差异与剩余验收
@@ -87,4 +91,4 @@ bash scripts/build-macos.sh
 .build/release/RiftletGUIAcceptance --software-double-probe
 ```
 
-界面和软件鼠标命令必须串行，且独占桌面；均不上传。可选 `--visual-reduced-motion`、`--visual-cancel-arrival`、`--visual-missing-source` 及本机有效的 `--probe-display-id`。候选 `build/Riftlet.app` 交正式 Pro 组合与独立质量验收；不得按本视觉证据直接开放生产上传或发布。
+界面和软件鼠标命令必须串行，且独占桌面；均不上传。可选 `--visual-reduced-motion`、`--visual-cancel-arrival`、`--visual-missing-source` 及本机有效的 `--probe-display-id`。本机最终App源码4fd4ac2、完整release build21.48s和包内self-check PASS；测试断言后继不改产品字节。可运行开发包 `build/Riftlet-Quiet-Edge-Candidate-4fd4ac2.zip`（SHA-256 `9c57b7f3050238babe4262933bfb696736f4c75eb4d8639cfc37c578723fc2d8`），CI运行也保存精确00dedc7组合制品。候选 `build/Riftlet.app` 交正式 Pro 组合与独立质量验收；不得按本视觉证据直接开放生产上传或发布。

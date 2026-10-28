@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "status": "NATIVE_CANDIDATE_EVIDENCE_COMPLETE_CI_PENDING",
+  "status": "DELIVERED_NATIVE_IMPLEMENTATION_CANDIDATE",
   "visualApproval": "IMPLEMENTATION_CANDIDATE_ONLY",
   "branch": "codex/riftlet-real-mac-acceptance-thin-edge-20261029",
   "formalBaseline": "1920e0562db893a3292af89a89270a26ddb46a5f",
   "formalRemoteObservedBeforeHandoff": "0e7ea8be148e1124b387e799fd886a7830e96559",
   "design": "7e03bd2c26c6aa43dbac07b073e00d08d1951b71",
-  "lastNativeSource": "ad4854c849448bb37c387528bddf673732d8e362",
+  "lastNativeSource": "4fd4ac2da062bb26dc3cdc600b224f2e8dfe094b",
   "windowAndRoutingSource": "46a909a35df16b76b6153fcb772a48740fb07ac6",
   "local": {
     "releaseAppBuild": "PASS",
@@ -16,8 +16,9 @@
       "count": 21
     },
     "fullXCTest": "NOT_RUN: local CLT cannot resolve XCTest",
-    "buildDurationSeconds": 22.61,
-    "executableSHA256": "6e436372be991f05a556aa7b08390a21eecf866c21043473e12c830b6413a337"
+    "buildDurationSeconds": 21.48,
+    "executableSHA256": "cf9da496217b258d57bf8348e5880d596dce42da08e50c48fde4084fce4afad1",
+    "candidateZIPSHA256": "9c57b7f3050238babe4262933bfb696736f4c75eb4d8639cfc37c578723fc2d8"
   },
   "native": {
     "windowScreenshots": "PASS_LIMITED_2X_NATIVE",
@@ -30,8 +31,21 @@
     "realUpload": "NOT_RUN"
   },
   "ci": {
-    "status": "PENDING",
-    "run": null
+    "status": "completed",
+    "run": 40742061755,
+    "head": "00dedc7f8164643c3435e3f87aa462e28af0b1c8",
+    "nativeSuite": "PASS; 620 reported XCTest cases; detailed subsets and full packaging passed",
+    "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/40742061755",
+    "conclusion": "success",
+    "environment": {
+      "macOS": "14.8.9",
+      "build": "23J631",
+      "swift": "5.10",
+      "architecture": "arm64"
+    },
+    "workflow": "Native foundation",
+    "independentFeedbackWorkflow": "NOT_RUN; Feedback native tests included in Native foundation",
+    "intentionallySkippedStep": "Old arrival-branch-only audit step; full native Arrival tests and historical pinned audit ran"
   },
   "review": {
     "nonAuthorRoles": [
@@ -39,7 +53,9 @@
       "thin_windows",
       "thin_acceptance"
     ],
-    "sourceBlockers": 0
+    "sourceBlockers": 0,
+    "publicEvidence": "PASS: independent hashes, dimensions, timing, scope and sampled visual privacy review",
+    "finalTestRepair": "PASS: thin_windows non-author review, no production changes or skipped contracts"
   },
   "safety": {
     "historicalDataUnchanged": true,
@@ -49,5 +65,22 @@
     "publicEvidenceSyntheticOnly": true,
     "release": "NOT_PUBLISHED"
   },
-  "motionSource": "888a4b0075bc8faf944a3e7a75ebd9a7a7ff3acf"
+  "motionSource": "888a4b0075bc8faf944a3e7a75ebd9a7a7ff3acf",
+  "reviewedCompositionSource": "f70d26e6967c4750269415d17b4a4b6231a0853f",
+  "visualPolishSource": "ad4854c849448bb37c387528bddf673732d8e362",
+  "ciHistory": [
+    {
+      "run": 40739110823,
+      "head": "b3ddbd0bee8edd333fe2e06b5f4eb7baf12fe594",
+      "conclusion": "FAIL",
+      "scope": "10 native regression cases failed; layer-order lookup, CA transaction polling and obsolete geometry assertions corrected without relaxing safety"
+    },
+    {
+      "run": 40740627791,
+      "head": "6d73c66063ffa3b0078cbee37f5fe0e54f63637e",
+      "conclusion": "FAIL",
+      "scope": "Only 2 press-completion assertions remained: model and presentation were zero and interaction released, but client CA key persisted. Actual pose and bounded completed-return-key checks replace an unsupported key-empty assumption."
+    }
+  ],
+  "testRepairSource": "f70d26e6967c4750269415d17b4a4b6231a0853f"
 }
