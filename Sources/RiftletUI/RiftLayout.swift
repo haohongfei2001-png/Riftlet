@@ -1,5 +1,8 @@
 import Foundation
 import RiftletCore
+#if canImport(AppKit)
+import AppKit
+#endif
 
 public struct RiftRowLayout: Equatable, Sendable {
     public let assetID: UUID
@@ -10,6 +13,7 @@ public struct RiftRowLayout: Equatable, Sendable {
     public let imageFrame: CGRect
     public let imageClipFrame: CGRect
     public let numberFrame: CGRect
+    public var numberIsPad: Bool = false
 
     /// Selection eligibility only; rejecting padding does not forward an event
     /// through this row's rectangular native window to another application.
@@ -24,6 +28,7 @@ public struct RiftLayoutResult: Equatable, Sendable {
     public let firstVisibleIndex: Int
     public let capacity: Int
     public let totalCount: Int
+    public var pagerFrame: CGRect = .zero
     public var hasEarlier: Bool { firstVisibleIndex > 0 }
     public var hasLater: Bool { firstVisibleIndex + rows.count < totalCount }
 }
@@ -36,6 +41,8 @@ public enum RiftLayout {
         let fitted: CGSize
         let exposed: Double
         let numberWidth: Double
+        let numberHeight: Double
+        let numberIsPad: Bool
         let width: Double
         let height: Double
     }
@@ -45,9 +52,17 @@ public enum RiftLayout {
         let fitted = fit(pixelWidth: record.image.pixelWidth,
                          pixelHeight: record.image.pixelHeight, configuration: c)
         let exposed = Double(fitted.width) * (1 - c.hiddenFraction)
-        let numberWidth = Double(String(ordinal).count) * c.numberFontSize * 0.65
+        #if canImport(AppKit)
+        let measured = ceil((String(ordinal) as NSString).size(withAttributes: [
+            .font: NSFont.monospacedDigitSystemFont(ofSize: c.numberFontSize, weight: .regular)]).width)
+        #else
+        let measured = Double(String(ordinal).count) * c.numberFontSize * 0.65
+        #endif
+        let pad = exposed < 24 || fitted.height < 20
+        let numberWidth = pad ? max(22, measured + 8) : measured
+        let numberHeight = pad ? 24.0 : c.numberFontSize + 2
         return RowMetrics(record: record, ordinal: ordinal, fitted: fitted, exposed: exposed,
-                          numberWidth: numberWidth,
+                          numberWidth: numberWidth, numberHeight: numberHeight, numberIsPad: pad,
                           width: max(c.minimumHitWidth, exposed + c.numberGap + numberWidth + c.leftPadding),
                           height: max(c.minimumHitHeight, Double(fitted.height)))
     }
@@ -59,30 +74,31 @@ public enum RiftLayout {
     }
 
     public static func make(records: [AssetRecord], visibleFrame: CGRect,
-                            configuration c: RiftConfiguration, firstVisibleIndex: Int = 0) -> RiftLayoutResult {
+                            configuration c: RiftConfiguration, firstVisibleIndex: Int = 0,
+                            backingScale: Double = 1, highContrast: Bool = false) -> RiftLayoutResult {
         let active = records.filter { $0.visibility == .visible }
         let height = max(c.fitHeight, c.minimumHitHeight)
         // Preserve a genuine empty strip between row windows even for experimental dimensions.
         let pitch = max(c.rowPitch, height + 4)
-        let available = max(0, Double(visibleFrame.height) - 2 * c.screenPadding)
-        let capacity = available >= height ? max(1, Int(floor((available - height) / pitch)) + 1) : 0
+        let firstCenter = Double(visibleFrame.maxY) - c.firstCenterFromTop
+        let bottom = Double(visibleFrame.minY) + c.screenPadding
+        let room = firstCenter - bottom - height / 2
+        let unpaged = room >= 0 ? Int(floor(room / pitch)) + 1 : 0
+        let overflow = active.count > unpaged
+        let reserved = overflow ? 28.0 : 0
+        let remaining = room - reserved
+        let capacity = remaining >= 0 ? Int(floor(remaining / pitch)) + 1 : 0
         let index = min(max(0, firstVisibleIndex), max(0, active.count - capacity))
         let count = min(capacity, max(0, active.count - index))
         let fittedRows = (0..<count).map { offset in
             metrics(for: active[index + offset], ordinal: index + offset + 1, configuration: c)
         }
-        // Experimental insets must not push otherwise fitting input windows off a
-        // narrow/rotated display. All visible rows still share one fixed rift edge.
-        let minimumEdgeX = min(Double(visibleFrame.maxX),
-                               Double(visibleFrame.minX) + (fittedRows.map(\.width).max() ?? 0))
-        let edgeX = max(minimumEdgeX, Double(visibleFrame.maxX) - c.outerInset)
-        let topLimit = Double(visibleFrame.maxY) - c.screenPadding - height / 2
-        let bottomLimit = Double(visibleFrame.minY) + c.screenPadding + height / 2
-        let preferred = Double(visibleFrame.maxY) - c.firstCenterFromTop
-        let needed = bottomLimit + Double(max(0, count - 1)) * pitch
-        let firstCenter = min(topLimit, max(preferred, needed))
+        // Fixed plane and first slot: a long queue pages, never lifts the first row.
+        let edgeX = Double(visibleFrame.maxX) - c.outerInset
+        let fitsHorizontally = max(fittedRows.map(\.width).max() ?? 0, overflow ? 112 : 0) <= Double(visibleFrame.width) - c.outerInset
+        let fitsEntry = c.firstCenterFromTop >= 180 && visibleFrame.height >= c.firstCenterFromTop + height / 2 + c.screenPadding
         var rows: [RiftRowLayout] = []
-        for (offset, item) in fittedRows.enumerated() {
+        for (offset, item) in fittedRows.enumerated() where fitsHorizontally && fitsEntry {
             let ordinal = item.ordinal
             let record = item.record
             let fitted = item.fitted
@@ -99,22 +115,31 @@ public enum RiftLayout {
                 imageFrame: CGRect(x: imageX, y: imageY, width: fitted.width, height: fitted.height),
                 imageClipFrame: CGRect(x: imageX, y: imageY, width: exposed, height: fitted.height),
                 numberFrame: CGRect(x: imageX - c.numberGap - numberWidth,
-                                    y: rowHeight / 2 - c.numberFontSize / 2 - 1,
-                                    width: numberWidth, height: c.numberFontSize + 2)))
+                                    y: (rowHeight - item.numberHeight) / 2,
+                                    width: numberWidth, height: item.numberHeight),
+                numberIsPad: item.numberIsPad))
         }
         let rawLine: CGRect
         if let first = rows.first, let last = rows.last {
             let top = Double(first.frame.maxY) + c.lineExtension
             let bottom = Double(last.frame.minY) - c.lineExtension
-            rawLine = CGRect(x: edgeX - c.lineWidth / 2, y: bottom, width: c.lineWidth, height: top - bottom)
+            let scale = backingScale.isFinite && backingScale > 0 ? backingScale : 1
+            let lineWidth = highContrast ? 1.0 : 1 / scale
+            // Single physical pixel, aligned in the same screen backing space.
+            rawLine = CGRect(x: floor(edgeX * scale) / scale - lineWidth, y: bottom,
+                             width: lineWidth, height: top - bottom)
         } else {
             // Empty visible queues have no decorative remnant, regardless of
             // any legacy emptyTraceLength stored by an earlier build.
             rawLine = .zero
         }
         let line = rawLine.intersection(visibleFrame)
+        let pager = overflow && !rows.isEmpty
+            ? CGRect(x: edgeX - 112, y: firstCenter - Double(max(0, capacity - 1)) * pitch - height / 2 - 28,
+                     width: 112, height: 20) : .zero
         return RiftLayoutResult(rows: rows, lineFrame: line.isNull ? .zero : line,
-                                firstVisibleIndex: index, capacity: capacity, totalCount: active.count)
+                                firstVisibleIndex: index, capacity: capacity, totalCount: active.count,
+                                pagerFrame: pager)
     }
 }
 

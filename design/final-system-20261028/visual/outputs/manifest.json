@@ -1,0 +1,145 @@
+{
+  "title": "Riftlet Quiet edge high-fidelity boards",
+  "date": "2026-10-28 Asia/Shanghai",
+  "formal_source": "1920e0562db893a3292af89a89270a26ddb46a5f",
+  "brand_source": "eba1a4fc77648a665e1d5c1f2609df1314c3b079:favicon.svg",
+  "brand_source_sha256": "546d57a4d36d5f975a969f8a8bd73ffac35cc8271057767d246e81a1b7d19343",
+  "status": "final recommended design, not user-approved native implementation",
+  "font_rendering": "Noto Sans CJK SC Regular/Medium + DejaVu Sans in Linux/Inkscape. Native target is macOS system font; no font binaries redistributed.",
+  "scale": "Each individual board exports one pixel per model logical point. Native window artboards include 24pt external review margin and separate caption area; actual window sizes remain560×520/680×520/760×560/600×540. Overview is explicitly reduced.",
+  "assets": "All wallpaper, application chrome, conversations and screenshot contents synthetic and editable SVG. No private screenshot or real app capture.",
+  "boards": [
+    {
+      "id": "01-light-chat-1440",
+      "svg": "01-light-chat-1440.svg",
+      "png": "01-light-chat-1440.png",
+      "width_px": 1440,
+      "height_px": 900,
+      "logical_scale": 1,
+      "source_kind": "synthetic vector design reconstruction",
+      "sha256_svg": "f1a1d016e80832bd8dc5fac3780dc6353e411e388cd4e391636fe89a9d53c946",
+      "sha256_png": "53087fad2e466232f2aab4a5a6c8b223f037c23e704e1bcfc7d444bf0d1fcd16"
+    },
+    {
+      "id": "02-dark-notes-1440",
+      "svg": "02-dark-notes-1440.svg",
+      "png": "02-dark-notes-1440.png",
+      "width_px": 1440,
+      "height_px": 900,
+      "logical_scale": 1,
+      "source_kind": "synthetic vector design reconstruction",
+      "sha256_svg": "e7c82f74f946da6cc136c9b03ae963aab424e34c9c6f6d9d5898a00e26eb200b",
+      "sha256_png": "d21ec7671905957b505199190ff2ef7ae05f0faf89bd1667e81f55ced310d182"
+    },
+    {
+      "id": "03-compact-finder-1280",
+      "svg": "03-compact-finder-1280.svg",
+      "png": "03-compact-finder-1280.png",
+      "width_px": 1280,
+      "height_px": 800,
+      "logical_scale": 1,
+      "source_kind": "synthetic vector design reconstruction",
+      "sha256_svg": "f5ac5b62f5567346e7dc986f8ed611ccf9c03d421aee966783d96bf18c6846d2",
+      "sha256_png": "46b443c2e01ffa6159cff5fd603167af1a207272c29cb72f1c94a4e92d12faa5"
+    },
+    {
+      "id": "04-external-2560",
+      "svg": "04-external-2560.svg",
+      "png": "04-external-2560.png",
+      "width_px": 2560,
+      "height_px": 1440,
+      "logical_scale": 1,
+      "source_kind": "synthetic vector design reconstruction",
+      "sha256_svg": "0aa6f456bbbc9c604806df89bfd8214fa2247a582860e26bf88b1a10a7e874a9",
+      "sha256_png": "e8f0ec3048aee084aefed44b816cec96d0af322b04e78e647409a4815e7bbcde"
+    },
+    {
+      "id": "05-empty-desktop-1440",
+      "svg": "05-empty-desktop-1440.svg",
+      "png": "05-empty-desktop-1440.png",
+      "width_px": 1440,
+      "height_px": 900,
+      "logical_scale": 1,
+      "source_kind": "synthetic vector design reconstruction",
+      "sha256_svg": "2771781d97b74a8aad75cb29c001e864a812ab929c80ad8b6f1ae251ac9d2eab",
+      "sha256_png": "b621413071e0d0b2c1d2ecc8a2de98ee5c4c047d5b43c7306eef750c54dd75b5"
+    },
+    {
+      "id": "06-entry-expanded-1440",
+      "svg": "06-entry-expanded-1440.svg",
+      "png": "06-entry-expanded-1440.png",
+      "width_px": 1440,
+      "height_px": 900,
+      "logical_scale": 1,
+      "source_kind": "synthetic vector design reconstruction",
+      "sha256_svg": "8996e82a4a787041865b310b14948b01e5b813c0731698250da7ae5803b86e9b",
+      "sha256_png": "3ac0689cbecc91e33454a1c472bd1489c47b0caad3f90f4e7f8d3b02106821f8"
+    },
+    {
+      "id": "07-waiting-before-start-1440",
+      "svg": "07-waiting-before-start-1440.svg",
+      "png": "07-waiting-before-start-1440.png",
+      "width_px": 1440,
+      "height_px": 900,
+      "logical_scale": 1,
+      "source_kind": "synthetic vector design reconstruction",
+      "sha256_svg": "2dbe4e1cac240b961211dfb555b64e19552f54d5b834942baf5a1d7420f3a6fd",
+      "sha256_png": "594907bb347b7ca184b544c9a3185b4ed2f00dbc4eb4df9db0b23993bab842c7"
+    },
+    {
+      "id": "08-unknown-history-1440",
+      "svg": "08-unknown-history-1440.svg",
+      "png": "08-unknown-history-1440.png",
+      "width_px": 1440,
+      "height_px": 900,
+      "logical_scale": 1,
+      "source_kind": "synthetic vector design reconstruction",
+      "sha256_svg": "d1fdfc8d503518ff33e8db4d14e67af44322f17e3f4545ea28dc4ecb6f8a2e0b",
+      "sha256_png": "69e8d5247a3ba4ff06a691e1cba445d12e860bd5ee80fe688f096599507984c5"
+    },
+    {
+      "id": "09-native-first-use",
+      "svg": "09-native-first-use.svg",
+      "png": "09-native-first-use.png",
+      "width_px": 608,
+      "height_px": 608,
+      "logical_scale": 1,
+      "source_kind": "synthetic vector design reconstruction",
+      "sha256_svg": "735b0b28b35a2ee8a5faf19890d8f78d64eb2f4cd365cf9b91eb20c9206de228",
+      "sha256_png": "cbeef2f42c60a7650a29b4f708080672abaf9384fd958897c42acabab04eb936"
+    },
+    {
+      "id": "10-native-settings",
+      "svg": "10-native-settings.svg",
+      "png": "10-native-settings.png",
+      "width_px": 728,
+      "height_px": 608,
+      "logical_scale": 1,
+      "source_kind": "synthetic vector design reconstruction",
+      "sha256_svg": "0bf750376f44705ec4c67d59c79d3a1e93b9964f983900be5c2a5471d2e0c79d",
+      "sha256_png": "1733ee28afa697f7707e2301c3a5a9a060c55fd20e0b906158b745308fd2e10d"
+    },
+    {
+      "id": "11-native-history",
+      "svg": "11-native-history.svg",
+      "png": "11-native-history.png",
+      "width_px": 808,
+      "height_px": 648,
+      "logical_scale": 1,
+      "source_kind": "synthetic vector design reconstruction",
+      "sha256_svg": "3535c3a77733db7257a985ffa477281bee030d78e462269002a7e50f70831fc1",
+      "sha256_png": "79fb97ddfb3ca03c9dfe86c8ed0734070c06c996b47c4c75c8ab328d3dd232eb"
+    },
+    {
+      "id": "12-native-feedback",
+      "svg": "12-native-feedback.svg",
+      "png": "12-native-feedback.png",
+      "width_px": 648,
+      "height_px": 628,
+      "logical_scale": 1,
+      "source_kind": "synthetic vector design reconstruction",
+      "sha256_svg": "ab29937c9c70e348240405771ede4291b66d2d97fd861e907f47e7e7d044c33d",
+      "sha256_png": "140210aeb76f10ad7b6dac703539af192f9c831bd2545a56091826c009f07836"
+    }
+  ]
+}

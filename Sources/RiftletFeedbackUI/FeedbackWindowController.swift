@@ -1,5 +1,6 @@
 import AppKit
 import RiftletFeedback
+import RiftletUI
 
 @MainActor
 public final class FeedbackWindowController: NSWindowController, NSWindowDelegate, NSTextViewDelegate {
@@ -20,6 +21,10 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
     private let reports = NSPopUpButton()
     private var previewWindow: NSWindow?
     private var loading: Task<Void, Never>?
+    private let characterCount = NSTextField(labelWithString: "0 / 4,000 字符")
+    private let recordsDisclosure = NSButton(title: "本机反馈记录 · 0", target: nil, action: nil)
+    private let recordsBody = NSStackView()
+    private var recordsExpanded = false
     // Production always writes the same sidecar. Tests suspend this narrow seam
     // to verify that close cannot race text, kind or consent edits.
     var persistDraft: (@Sendable (FeedbackDraft) async throws -> Void)?
@@ -33,10 +38,8 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
     public init(engine: FeedbackEngine?, diagnostics: FeedbackDiagnostics, appVersion: String, demo: Bool = false) {
         self.engine = engine; self.diagnostics = diagnostics; self.appVersion = appVersion; self.demo = demo
         if let engine { persistDraft = { value in try await engine.store.saveDraft(value) } }
-        let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 560, height: 560),
-            styleMask: [.titled, .closable, .resizable], backing: .buffered, defer: false)
-        window.title = demo ? "反馈与建议 — 离线合成演示" : "反馈与建议"
-        window.minSize = NSSize(width: 500, height: 520)
+        let window = RiftVisualStyle.window(outerSize: NSSize(width: 600, height: 540),
+            minimum: NSSize(width: 560, height: 500), title: demo ? "反馈与建议 — 离线合成演示" : "反馈与建议")
         super.init(window: window)
         window.delegate = self; window.isReleasedWhenClosed = false
         build()
@@ -47,47 +50,79 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
 
     private func build() {
         guard let content = window?.contentView else { return }
-        let stack = NSStackView(); stack.orientation = .vertical; stack.alignment = .leading; stack.spacing = 12
-        stack.translatesAutoresizingMaskIntoConstraints = false; content.addSubview(stack)
-        NSLayoutConstraint.activate([
-            stack.leadingAnchor.constraint(equalTo: content.leadingAnchor, constant: 20),
-            stack.trailingAnchor.constraint(equalTo: content.trailingAnchor, constant: -20),
-            stack.topAnchor.constraint(equalTo: content.topAnchor, constant: 20),
-            stack.bottomAnchor.constraint(equalTo: content.bottomAnchor, constant: -20)
-        ])
-        let heading = NSTextField(wrappingLabelWithString: "哪里不顺手？也欢迎告诉我你的想法。")
-        heading.font = .systemFont(ofSize: 16, weight: .semibold); stack.addArrangedSubview(heading)
+        let stack = RiftVisualStyle.vertical([], spacing: 12)
+        stack.edgeInsets = NSEdgeInsets(top: 24, left: 24, bottom: 16, right: 24)
+        let scroller = NSScrollView(); scroller.hasVerticalScroller = true; scroller.autohidesScrollers = true
+        scroller.drawsBackground = false; scroller.documentView = stack
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        let heading = RiftVisualStyle.label("哪里不顺手？", role: "title")
+        let introduction = RiftVisualStyle.label("也欢迎告诉我，你希望它怎样工作。", role: "secondary")
         kind.addItems(withTitles: ["遇到问题", "改进建议"]); kind.target = self; kind.action = #selector(changedKind)
-        kind.setAccessibilityLabel("反馈类型"); stack.addArrangedSubview(kind)
+        kind.setAccessibilityLabel("反馈类型"); kind.font = RiftVisualStyle.bodyFont
         let scroll = NSScrollView(); scroll.hasVerticalScroller = true; scroll.borderType = .bezelBorder
-        scroll.documentView = text; text.isRichText = false; text.importsGraphics = false
-        text.isAutomaticQuoteSubstitutionEnabled = false; text.font = .systemFont(ofSize: 14)
+        scroll.documentView = text; scroll.backgroundColor = RiftVisualStyle.surface
+        text.isRichText = false; text.importsGraphics = false; text.isAutomaticQuoteSubstitutionEnabled = false
+        text.font = RiftVisualStyle.bodyFont; text.textColor = RiftVisualStyle.ink; text.backgroundColor = RiftVisualStyle.surface
+        text.insertionPointColor = RiftVisualStyle.accent
         text.isVerticallyResizable = true; text.isHorizontallyResizable = false
         text.autoresizingMask = [.width]; text.textContainer?.widthTracksTextView = true
-        text.textContainerInset = NSSize(width: 8, height: 8); text.delegate = self
+        text.textContainerInset = NSSize(width: 12, height: 12); text.delegate = self
+        let paragraph = NSMutableParagraphStyle(); paragraph.minimumLineHeight = 18; paragraph.maximumLineHeight = 18
+        text.defaultParagraphStyle = paragraph
         text.setAccessibilityLabel("发生了什么？你原本希望怎样？")
-        stack.addArrangedSubview(scroll); scroll.widthAnchor.constraint(equalTo: stack.widthAnchor).isActive = true
-        scroll.heightAnchor.constraint(greaterThanOrEqualToConstant: 150).isActive = true
-        consent.target = self; consent.action = #selector(changedConsent); stack.addArrangedSubview(consent)
-        stack.addArrangedSubview(NSButton(title: "查看将发送的诊断…", target: self, action: #selector(showPreview)))
-        let privacy = NSTextField(wrappingLabelWithString: "你输入的文字及主动勾选的诊断会发送到开发者的私有反馈中心，可供开发者和获授权的 AI 辅助分析。不会自动附带截图、聊天、剪贴板、完整路径或浏览器资料。文字中也请勿填写密码等秘密。")
-        privacy.font = .systemFont(ofSize: 11); privacy.textColor = .secondaryLabelColor
-        stack.addArrangedSubview(privacy); privacy.widthAnchor.constraint(equalTo: stack.widthAnchor).isActive = true
-        status.font = .systemFont(ofSize: 12); stack.addArrangedSubview(status)
-        status.widthAnchor.constraint(equalTo: stack.widthAnchor).isActive = true
-        send.target = self; send.action = #selector(submit)
-        // Return and IME composition always remain in the editor.
-        let actions = NSStackView(views: [NSButton(title: "保存并关闭", target: self, action: #selector(closeRequested)), send])
-        actions.spacing = 12; stack.addArrangedSubview(actions)
-        reports.setAccessibilityLabel("已提交的本机反馈记录"); stack.addArrangedSubview(reports)
-        let historyActions = NSStackView(views: [
-            NSButton(title: "查看正文", target: self, action: #selector(showSaved)),
-            NSButton(title: "刷新状态", target: self, action: #selector(refreshSelected)),
-            NSButton(title: "取消待发送／申请删除", target: self, action: #selector(deleteSelected))
-        ])
-        historyActions.spacing = 8; stack.addArrangedSubview(historyActions)
-        stack.addArrangedSubview(NSButton(title: "移除已取消／已删除的本机正文…", target: self, action: #selector(forgetSelected)))
+        scroll.heightAnchor.constraint(equalToConstant: 150).isActive = true
+        characterCount.font = RiftVisualStyle.secondaryFont; characterCount.textColor = RiftVisualStyle.secondary
+        consent.target = self; consent.action = #selector(changedConsent); consent.font = RiftVisualStyle.bodyFont
+        let preview = NSButton(title: "预览…", target: self, action: #selector(showPreview)); RiftVisualStyle.style(preview)
+        let diagnosticsRow = NSStackView(views: [consent, preview]); diagnosticsRow.spacing = 8
+        let privacy = RiftVisualStyle.label("你输入的文字及主动勾选的诊断会发送到开发者的私有反馈中心，可供开发者和获授权的 AI 辅助分析。不会自动附带截图、聊天、剪贴板、完整路径或浏览器资料。请勿填写密码等秘密。", role: "secondary")
+        status.font = RiftVisualStyle.secondaryFont; status.textColor = RiftVisualStyle.secondary
+        send.title = engine?.configured == true ? "发送反馈" : "保存待发送"
+        send.target = self; send.action = #selector(submit); RiftVisualStyle.style(send, prominent: true)
+        let close = NSButton(title: "保存并关闭", target: self, action: #selector(closeRequested)); RiftVisualStyle.style(close)
+        // Neither button is the Return default: Return and IME stay in the editor.
+        let actions = NSStackView(views: [close, send]); actions.spacing = 8
+        let footer = RiftVisualStyle.vertical([status, actions], spacing: 12)
+        reports.setAccessibilityLabel("已提交的本机反馈记录")
+        recordsDisclosure.setButtonType(.onOff); recordsDisclosure.bezelStyle = .inline
+        recordsDisclosure.font = RiftVisualStyle.bodyFont; recordsDisclosure.contentTintColor = RiftVisualStyle.ink
+        recordsDisclosure.image = NSImage(systemSymbolName: "chevron.right", accessibilityDescription: nil)
+        recordsDisclosure.imagePosition = .imageLeading
+        recordsDisclosure.target = self; recordsDisclosure.action = #selector(toggleRecords)
+        recordsDisclosure.setAccessibilityLabel("展开本机反馈记录")
+        recordsBody.orientation = .vertical; recordsBody.alignment = .leading; recordsBody.spacing = 8
+        recordsBody.addArrangedSubview(reports)
+        for (title, action) in [("查看正文", #selector(showSaved)), ("刷新状态", #selector(refreshSelected)),
+                                ("取消待发送／申请删除", #selector(deleteSelected)), ("移除已取消／已删除的本机正文…", #selector(forgetSelected))] {
+            let button = NSButton(title: title, target: self, action: action); RiftVisualStyle.style(button); recordsBody.addArrangedSubview(button)
+        }
+        recordsBody.isHidden = true
+        for view in [heading, introduction, kind, scroll, characterCount, diagnosticsRow, privacy, recordsDisclosure, recordsBody] {
+            stack.addArrangedSubview(view)
+            if view !== kind && view !== recordsDisclosure { view.widthAnchor.constraint(equalTo: stack.widthAnchor, constant: -48).isActive = true }
+        }
+        for view in [scroller, footer] { view.translatesAutoresizingMaskIntoConstraints = false; content.addSubview(view) }
+        status.widthAnchor.constraint(equalTo: footer.widthAnchor).isActive = true
+        NSLayoutConstraint.activate([
+            scroller.leadingAnchor.constraint(equalTo: content.leadingAnchor), scroller.trailingAnchor.constraint(equalTo: content.trailingAnchor),
+            scroller.topAnchor.constraint(equalTo: content.topAnchor), scroller.bottomAnchor.constraint(equalTo: footer.topAnchor, constant: -12),
+            stack.widthAnchor.constraint(equalTo: scroller.contentView.widthAnchor), stack.leadingAnchor.constraint(equalTo: scroller.contentView.leadingAnchor),
+            stack.topAnchor.constraint(equalTo: scroller.contentView.topAnchor),
+            footer.leadingAnchor.constraint(equalTo: content.leadingAnchor, constant: 24), footer.trailingAnchor.constraint(equalTo: content.trailingAnchor, constant: -24),
+            footer.bottomAnchor.constraint(equalTo: content.bottomAnchor, constant: -16)])
         controlsEnabled(false)
+    }
+    @objc private func toggleRecords() {
+        // Reuse the same document and editor; folding never saves, submits,
+        // rebuilds draft controls, or changes diagnostic consent.
+        recordsExpanded.toggle(); recordsBody.isHidden = !recordsExpanded
+        recordsDisclosure.state = recordsExpanded ? .on : .off
+        recordsDisclosure.image = NSImage(systemSymbolName: recordsExpanded ? "chevron.down" : "chevron.right", accessibilityDescription: nil)
+        recordsDisclosure.setAccessibilityLabel(recordsExpanded ? "收起本机反馈记录" : "展开本机反馈记录")
+    }
+    private func updateCharacterCount() {
+        characterCount.stringValue = "\(text.string.count) / 4,000 字符"
+        characterCount.textColor = text.string.count > 4_000 || text.string.utf8.count > 16 * 1024 ? .systemOrange : RiftVisualStyle.secondary
     }
     private func controlsEnabled(_ enabled: Bool) {
         text.isEditable = enabled; kind.isEnabled = enabled; consent.isEnabled = enabled; send.isEnabled = enabled
@@ -111,13 +146,14 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
     private func applyDraft() {
         text.string = draft.text; kind.selectItem(at: draft.kind == .problem ? 0 : 1)
         consent.state = draft.diagnostic == nil ? .off : .on
+        updateCharacterCount()
     }
     private func nextDraft() -> FeedbackDraft {
         draft.revision += 1; draft.text = text.string
         draft.kind = kind.indexOfSelectedItem == 0 ? .problem : .suggestion
         return draft
     }
-    public func textDidChange(_ notification: Notification) { saveEdited() }
+    public func textDidChange(_ notification: Notification) { updateCharacterCount(); saveEdited() }
     @objc private func changedKind() { saveEdited() }
     @objc private func changedConsent() {
         guard loaded, !busy else { return }
@@ -169,11 +205,13 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
     private func showText(_ value: String, title: String) {
         let panel = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 580, height: 420),
             styleMask: [.titled, .closable, .resizable], backing: .buffered, defer: false)
-        panel.title = title; panel.isReleasedWhenClosed = false
+        panel.title = title; panel.isReleasedWhenClosed = false; panel.backgroundColor = RiftVisualStyle.window
         let scroll = NSScrollView(frame: panel.contentView!.bounds)
         scroll.autoresizingMask = [.width, .height]; scroll.hasVerticalScroller = true
         let view = NSTextView(frame: scroll.bounds); view.isEditable = false; view.isRichText = false
-        view.font = .monospacedSystemFont(ofSize: 12, weight: .regular); view.string = value
+        view.font = .monospacedSystemFont(ofSize: 11, weight: .regular); view.string = value
+        view.textColor = RiftVisualStyle.ink; view.backgroundColor = RiftVisualStyle.window
+        view.textContainerInset = NSSize(width: 24, height: 24)
         view.autoresizingMask = [.width]; view.textContainer?.widthTracksTextView = true
         scroll.documentView = view; panel.contentView?.addSubview(scroll)
         previewWindow = panel; panel.center(); panel.makeKeyAndOrderFront(nil)
@@ -211,6 +249,7 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
         do {
             let selected = reports.selectedItem?.representedObject as? String
             records = try await engine.store.records(); reports.removeAllItems()
+            recordsDisclosure.title = "本机反馈记录 · \(records.count)"
             for record in records {
                 reports.addItem(withTitle: "RF-\(record.id.prefix(8)) · \(demo ? "演示：" : "")\(record.label)")
                 reports.lastItem?.representedObject = record.id

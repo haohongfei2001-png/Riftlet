@@ -48,6 +48,14 @@ public struct RiftDiagnosticSnapshot: Sendable {
     public let isTransitioning: Bool
 }
 
+public struct RiftArrivalDiagnostic: Sendable {
+    public let selectedMode: ArrivalMotionMode
+    public let effectiveMode: ArrivalMotionMode
+    public let activeAssetID: UUID?
+    public let pendingAssetID: UUID?
+    public let overlayCount: Int
+}
+
 /// Minimal native AppKit structure informed by Tendedero's LinePanel, implemented here
 /// without its private CGS calls, pointer polling, capacity eviction or artwork.
 private final class RiftPanel: NSPanel {
@@ -80,10 +88,13 @@ private final class RiftRowView: NSView, NSMenuDelegate {
     let imageClip = CALayer()
     let imageLayer = CALayer()
     var imageOffset: CGFloat = 0
+    var requestedPixelSize: Int = 0
+    var reportedImageReady = false
     var onDown: ((NSEvent) -> Bool)?
-    var onUp: ((Bool) -> Void)?
+    var onUp: ((Bool, CGPoint?) -> Void)?
     var onScroll: ((CGFloat) -> Void)?
     var onAccessiblePress: (() -> Bool)?
+    var onPreview: (() -> Bool)?
     var onApproach: (() -> Void)?
     var onHover: ((Bool) -> Void)?
     var onRemove: (() -> Void)?
@@ -97,13 +108,22 @@ private final class RiftRowView: NSView, NSMenuDelegate {
         super.init(frame: NSRect(origin: .zero, size: geometry.frame.size))
         wantsLayer = true
         layer?.backgroundColor = NSColor.clear.cgColor
+        imageClip.name = "rift.image.clip"
+        imageLayer.name = "rift.image.content"
         imageClip.masksToBounds = true
+        imageClip.cornerRadius = 1.5
+        imageClip.maskedCorners = [.layerMinXMinYCorner, .layerMinXMaxYCorner]
         layer?.addSublayer(imageClip)
         imageClip.addSublayer(imageLayer)
         imageLayer.contentsGravity = .resizeAspect
+        imageLayer.minificationFilter = .trilinear
+        imageLayer.magnificationFilter = .linear
         updateGeometry(geometry)
         setAccessibilityElement(true)
         setAccessibilityRole(.button)
+        setAccessibilityCustomActions([NSAccessibilityCustomAction(name: "预览完整截图", handler: { [weak self] in
+            self?.onPreview?() ?? false
+        })])
         updateDescription()
     }
 
@@ -138,7 +158,7 @@ private final class RiftRowView: NSView, NSMenuDelegate {
     override func menu(for event: NSEvent) -> NSMenu? {
         guard record.visibility == .visible else { return nil }
         let menu = NSMenu()
-        let remove = NSMenuItem(title: "Remove from Riftlet", action: #selector(removeFromRift(_:)), keyEquivalent: "")
+        let remove = NSMenuItem(title: "从裂缝移除", action: #selector(removeFromRift(_:)), keyEquivalent: "")
         remove.target = self; menu.addItem(remove); menu.delegate = self
         return menu
     }
@@ -166,28 +186,44 @@ private final class RiftRowView: NSView, NSMenuDelegate {
         needsDisplay = true
     }
 
+    func setArrivalHidden(_ hidden: Bool) {
+        CATransaction.begin(); CATransaction.setDisableActions(true)
+        imageLayer.isHidden = hidden
+        CATransaction.commit()
+    }
+
     func updateDescription() {
         let suffix: String
         switch record.status {
-        case .pending: suffix = "ready to attach"
-        case .transferring: suffix = "attachment pending"
-        case .unknown: suffix = "result unknown, retained"
-        case .failed: suffix = "attachment failed, retained"
-        case .missing: suffix = "private image missing"
-        case .used: suffix = "attachment verified"
+        case .pending: suffix = "可附加"
+        case .transferring: suffix = "附加处理中"
+        case .unknown: suffix = "结果待核对，图片已保留"
+        case .failed: suffix = record.visibilityReason == .safeFailure ? "上传失败，可重新选择" : "未附加，图片已保留"
+        case .missing: suffix = "本机图片不可用"
+        case .used: suffix = "已核对完成"
         }
-        setAccessibilityLabel("Screenshot \(ordinal), \(feedback ?? suffix)")
-        toolTip = feedback ?? "Screenshot \(ordinal) · \(suffix). Scroll for earlier or later captures."
-        setAccessibilityHelp(toolTip)
+        setAccessibilityLabel("截图 \(ordinal)，\(feedback ?? suffix)")
+        let help = feedback ?? "截图 \(ordinal) · \(suffix)"
+        // Full preview already describes the hovered image. Reserve tooltip
+        // surfaces for actual light feedback rather than covering that preview.
+        toolTip = feedback
+        setAccessibilityHelp(help)
     }
 
     override func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)
         let font = NSFont.monospacedDigitSystemFont(ofSize: configuration.numberFontSize, weight: .regular)
         let text = NSAttributedString(string: String(ordinal), attributes: [
-            .font: font, .foregroundColor: NSColor.secondaryLabelColor
+            .font: font, .foregroundColor: RiftVisualStyle.secondary
         ])
-        text.draw(in: geometry.numberFrame)
+        if geometry.numberIsPad {
+            RiftVisualStyle.surface.withAlphaComponent(NSWorkspace.shared.accessibilityDisplayShouldReduceTransparency ? 1 : 0.8).setFill()
+            let pad = NSBezierPath(roundedRect: geometry.numberFrame, xRadius: 5, yRadius: 5)
+            pad.fill(); RiftVisualStyle.separator.setStroke(); pad.lineWidth = 0.5; pad.stroke()
+        }
+        let textSize = text.size()
+        text.draw(at: CGPoint(x: geometry.numberFrame.midX - textSize.width / 2,
+                              y: geometry.numberFrame.midY - textSize.height / 2))
         let underlineY = geometry.numberFrame.minY - 2
         let length = min(8, geometry.numberFrame.width)
         let x = geometry.numberFrame.maxX - length
@@ -205,16 +241,21 @@ private final class RiftRowView: NSView, NSMenuDelegate {
         }
     }
 
-    func animateImage(to offset: CGFloat, duration: TimeInterval) {
+    func animateImage(to offset: CGFloat, duration: TimeInterval, power: Double? = nil) {
         let start = imageLayer.presentation()?.affineTransform().tx ?? imageOffset
         imageOffset = offset
         CATransaction.begin(); CATransaction.setDisableActions(true)
         imageLayer.setAffineTransform(CGAffineTransform(translationX: offset, y: 0))
         CATransaction.commit()
         guard duration > 0 else { imageLayer.removeAllAnimations(); return }
-        let animation = CABasicAnimation(keyPath: "transform.translation.x")
-        animation.fromValue = start; animation.toValue = offset; animation.duration = duration
-        animation.timingFunction = CAMediaTimingFunction(name: .easeOut)
+        let animation = CAKeyframeAnimation(keyPath: "transform.translation.x")
+        animation.values = (0...24).map { sample in
+            let t = Double(sample) / 24
+            let u = power.map { pow(t, $0) } ?? (1 - pow(1 - t, 3))
+            return Double(start) + Double(offset - start) * u
+        }
+        animation.duration = duration
+        animation.calculationMode = .linear
         imageLayer.add(animation, forKey: "rift.translation")
     }
 
@@ -223,7 +264,8 @@ private final class RiftRowView: NSView, NSMenuDelegate {
         _ = onDown?(event)
     }
     override func mouseUp(with event: NSEvent) {
-        onUp?(geometry.containsSelectionPoint(convert(event.locationInWindow, from: nil)))
+        onUp?(geometry.containsSelectionPoint(convert(event.locationInWindow, from: nil)),
+              event.window?.convertPoint(toScreen: event.locationInWindow))
     }
     override func scrollWheel(with event: NSEvent) { onScroll?(event.scrollingDeltaY) }
     override func accessibilityPerformPress() -> Bool { onAccessiblePress?() ?? false }
@@ -263,7 +305,7 @@ private final class RiftInputView: NSView {
         // AppKit routes release to the original down window even outside its
         // bounds. Test the union of this original asset's two regions, never a
         // replacement row under the release point.
-        rowView?.onUp?(isInsideOriginalRow(event))
+        rowView?.onUp?(isInsideOriginalRow(event), event.window?.convertPoint(toScreen: event.locationInWindow))
     }
     override func scrollWheel(with event: NSEvent) { rowView?.onScroll?(event.scrollingDeltaY) }
     override func menu(for event: NSEvent) -> NSMenu? { rowView?.menu(for: event) }
@@ -331,14 +373,27 @@ public struct RiftPresentationBoundary: Sendable {
 @MainActor
 public final class RiftPanelController {
     public private(set) var configuration: RiftConfiguration
+    public private(set) var arrivalMode: ArrivalMotionMode
+    public var effectiveArrivalMode: ArrivalMotionMode { arrivalMode.effective(reduceMotion: reduceMotion) }
+    public var arrivalDestinationDisplayID: UInt32? {
+        (screen?.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.uint32Value
+    }
+    public private(set) var magnetParameters: MagnetMotionParameters
     public private(set) var visibleRange: Range<Int> = 0..<0
     public private(set) var userHidden = false
+    /// Capture presentation is transient and never changes persisted Hide or
+    /// any asset/transfer state. Header reservation also bounds long queues.
+    public private(set) var captureSuppressed = false
+    private var captureSessionActive = false
+    private var captureHeaderAnchor: CGPoint?
+    public var onGeometryChange: (() -> Void)?
     private let cache: ThumbnailCache
     private let onSelect: (UUID) -> Void
     private let onPress: (UUID, TimeInterval) -> Void
     private let onSelectionBoundary: (RiftSelectionBoundary) -> Void
     private let onApproach: () -> Void
     private let onPresentationBoundary: (RiftPresentationBoundary) -> Void
+    private let onArrivalBoundary: (RiftArrivalBoundary) -> Void
     private let onRemove: (UUID) -> Void
     private let onInteractionChange: (RiftInteractionSnapshot) -> Void
     private let holdsSelectionUntilFinished: Bool
@@ -347,6 +402,9 @@ public final class RiftPanelController {
     private var selectionVersions: [UUID: Int64] = [:]
     private var hoveredIDs: Set<UUID> = []
     private let decoration: RiftPanel
+    private let pager = RiftPager()
+    private var pagerLayout: RiftLayoutResult?
+    private let peek = RiftPeek()
     private var rowWindows: [UUID: RowWindow] = [:]
     private var lastRecords: [AssetRecord] = []
     private var deferredRecords: [AssetRecord]?
@@ -357,6 +415,30 @@ public final class RiftPanelController {
     private var generation: UInt = 0
     private var observers: [(NotificationCenter, NSObjectProtocol)] = []
     private var scrollAccumulator: CGFloat = 0
+    private let reduceMotionOverride: (() -> Bool)?
+    private let flight = MagnetFlightPresenter()
+    private struct ArrivalCandidate {
+        let assetID: UUID
+        let token: UUID
+        let readyUptime: TimeInterval
+        var source: RiftArrivalSource?
+    }
+    private var arrivalCandidate: ArrivalCandidate?
+    private var arrivalAnimationToken: UUID?
+    private var shortAnimationTokens = Set<UUID>()
+    private var lastCaptureReadyUptime: TimeInterval?
+    private var queueTransitionEpoch: UInt = 0
+    private var finishQueueAnimation: ((Bool) -> Void)?
+    private var pressRegions: [UUID: [CGRect]] = [:]
+    /// Presentation budget only. Late metadata never replays an already shown image.
+    private let maximumArrivalAge: TimeInterval = 0.35
+    private let burstQuietInterval: TimeInterval = 0.45
+
+    public var arrivalDiagnostic: RiftArrivalDiagnostic {
+        RiftArrivalDiagnostic(selectedMode: arrivalMode, effectiveMode: effectiveArrivalMode,
+            activeAssetID: flight.currentAssetID, pendingAssetID: arrivalCandidate?.assetID,
+            overlayCount: flight.activePanelCount)
+    }
 
     public var diagnosticSnapshot: RiftDiagnosticSnapshot {
         let rows = rowWindows.filter { $0.value.panel.isVisible }.map { id, row in
@@ -373,10 +455,14 @@ public final class RiftPanelController {
     }
 
     public init(mediaDirectory: URL, configuration: RiftConfiguration = .init(),
+                arrivalMode: ArrivalMotionMode = .provisionalFallback,
+                magnetParameters: MagnetMotionParameters = .init(),
+                reduceMotionOverride: (() -> Bool)? = nil,
                 onPress: @escaping (UUID, TimeInterval) -> Void = { _, _ in },
                 onSelectionBoundary: @escaping (RiftSelectionBoundary) -> Void = { _ in },
                 onApproach: @escaping () -> Void = {},
                 onPresentationBoundary: @escaping (RiftPresentationBoundary) -> Void = { _ in },
+                onArrivalBoundary: @escaping (RiftArrivalBoundary) -> Void = { _ in },
                 holdsSelectionUntilFinished: Bool = false,
                 interactionFence: QueueInteractionFence? = nil,
                 onRemove: @escaping (UUID) -> Void = { _ in },
@@ -385,23 +471,32 @@ public final class RiftPanelController {
         // Configuration loaded from user data should be validated before construction.
         // Defensive fallback prevents malformed geometry from positioning windows off-screen.
         self.configuration = (try? configuration.validate()) != nil ? configuration : RiftConfiguration()
+        self.arrivalMode = arrivalMode
+        self.magnetParameters = magnetParameters
+        self.reduceMotionOverride = reduceMotionOverride
         self.onSelect = onSelect
         self.onPress = onPress
         self.onSelectionBoundary = onSelectionBoundary
         self.onApproach = onApproach
         self.onPresentationBoundary = onPresentationBoundary
+        self.onArrivalBoundary = onArrivalBoundary
         self.onRemove = onRemove
         self.onInteractionChange = onInteractionChange
         self.holdsSelectionUntilFinished = holdsSelectionUntilFinished
         self.interactionFence = interactionFence
         cache = ThumbnailCache(directory: mediaDirectory)
         decoration = RiftPanel(frame: .zero, decorative: true)
-        let line = NSView(frame: .zero)
-        line.wantsLayer = true
-        line.layer?.backgroundColor = NSColor.secondaryLabelColor.withAlphaComponent(0.48).cgColor
-        decoration.contentView = line
+        decoration.contentView = RiftLineView(frame: .zero)
+        pager.onStep = { [weak self] direction in self?.page(direction) }
         observe(NSApplication.didChangeScreenParametersNotification, center: .default)
         observe(NSWorkspace.didWakeNotification, center: NSWorkspace.shared.notificationCenter)
+        observe(NSWorkspace.activeSpaceDidChangeNotification, center: NSWorkspace.shared.notificationCenter)
+        let accessibility = NSWorkspace.shared.notificationCenter.addObserver(
+            forName: NSWorkspace.accessibilityDisplayOptionsDidChangeNotification,
+            object: nil, queue: .main) { [weak self] _ in
+                Task { @MainActor [weak self] in self?.motionPolicyChanged() }
+            }
+        observers.append((NSWorkspace.shared.notificationCenter, accessibility))
     }
 
     private func observe(_ name: Notification.Name, center: NotificationCenter) {
@@ -412,9 +507,76 @@ public final class RiftPanelController {
         observers.append((center, token))
     }
 
-    private var reduceMotion: Bool { NSWorkspace.shared.accessibilityDisplayShouldReduceMotion }
+    private var reduceMotion: Bool { reduceMotionOverride?() ?? NSWorkspace.shared.accessibilityDisplayShouldReduceMotion }
     private func duration(_ normal: Double) -> TimeInterval {
-        reduceMotion ? min(normal, configuration.reducedMotionDuration) : normal
+        reduceMotion ? min(0.08, normal) : normal
+    }
+
+    private var pressOffset: CGFloat { reduceMotion ? 0 : configuration.inwardDistance }
+
+    /// Called immediately after import, independently of optional metadata/decode.
+    /// One pending candidate and at most one flying copy; bursts settle statically.
+    @discardableResult
+    public func noteCaptureReady(_ assetID: UUID, uptime: TimeInterval) -> UUID? {
+        cancelDecorations(reason: .captureObserved)
+        finishQueueTransition(allowShift: false)
+        let now = ProcessInfo.processInfo.systemUptime
+        guard uptime.isFinite, uptime >= 0, uptime <= now else { return nil }
+        let previous = lastCaptureReadyUptime
+        // Invalid clocks cannot poison later captures, and an out-of-order old
+        // observation cannot rewind the quiet interval to replay a burst flight.
+        lastCaptureReadyUptime = max(previous ?? uptime, uptime)
+        guard !closed, !userHidden, !captureSuppressed, effectiveArrivalMode == .magnet,
+              now - uptime <= maximumArrivalAge,
+              previous.map({ uptime - $0 >= burstQuietInterval }) ?? true,
+              !lastRecords.contains(where: { $0.id == assetID }) else { return nil }
+        let token = UUID()
+        arrivalCandidate = ArrivalCandidate(assetID: assetID, token: token, readyUptime: uptime)
+        return token
+    }
+
+    /// A result arriving after the first image decode is deliberately ignored.
+    /// No metadata timeout, retry, hidden row or animation completion gates input.
+    public func resolveArrivalSource(_ source: RiftArrivalSource?, assetID: UUID, token: UUID) {
+        guard var candidate = arrivalCandidate, candidate.assetID == assetID,
+              candidate.token == token, !closed, !userHidden, !captureSuppressed else { return }
+        guard effectiveArrivalMode == .magnet, let source,
+              ProcessInfo.processInfo.systemUptime - candidate.readyUptime <= maximumArrivalAge else {
+            arrivalCandidate = nil; return
+        }
+        candidate.source = source; arrivalCandidate = candidate
+    }
+
+    /// Integration seam for screenshot UI suppression, hide, and topology changes.
+    /// This can release decoration only; it cannot mutate a durable asset.
+    public func cancelDecorations(reason: MagnetFlightEndReason = .cancelled) {
+        arrivalCandidate = nil
+        peek.cancel()
+        flight.cancel(reason: reason)
+    }
+
+    public func setArrivalMode(_ mode: ArrivalMotionMode) {
+        arrivalMode = mode; motionPolicyChanged()
+    }
+
+    private func motionPolicyChanged() {
+        cancelDecorations(reason: reduceMotion ? .reduceMotion : .settingsChanged)
+        finishQueueTransition(allowShift: false)
+        for token in shortAnimationTokens { mutateInteraction { $0.endAnimation(token) } }
+        shortAnimationTokens.removeAll()
+        // Do not reset PointerSelectionGate or an accepted business selection.
+        for row in rowWindows.values {
+            row.view.animateImage(to: 0, duration: 0)
+            row.view.setArrivalHidden(false)
+            row.panels.forEach { $0.alphaValue = 1 }
+        }
+        flushDeferred()
+    }
+
+    private func finishQueueTransition(allowShift: Bool) {
+        guard let finish = finishQueueAnimation else { return }
+        finishQueueAnimation = nil; queueTransitionEpoch &+= 1
+        finish(allowShift)
     }
 
     private var screen: NSScreen? {
@@ -431,6 +593,50 @@ public final class RiftPanelController {
     }
 
     public var interactionSnapshot: RiftInteractionSnapshot { interaction.snapshot }
+
+    public var preferredScreen: NSScreen? { screen }
+
+    public func setCaptureHeaderAnchor(_ anchor: CGPoint?) {
+        guard !closed, captureHeaderAnchor != anchor else { return }
+        captureHeaderAnchor = anchor
+        reflow()
+    }
+
+    public func setCaptureSessionActive(_ active: Bool) {
+        guard !closed else { return }
+        captureSessionActive = active
+        for panel in allPresentationPanels {
+            panel.level = active ? NSWindow.Level(rawValue: NSWindow.Level.statusBar.rawValue + 1) : .floating
+        }
+        updatePager()
+    }
+
+    public func setCaptureSuppressed(_ suppressed: Bool) {
+        guard !closed, suppressed != captureSuppressed else { return }
+        captureSuppressed = suppressed
+        if suppressed {
+            cancelDecorations(reason: .cancelled); pager.hide()
+            allPresentationPanels.forEach { $0.orderOut(nil) }
+        } else if !userHidden {
+            // Restore the current presentation in place. lastRecords can still
+            // describe the pre-swallow queue while a close/shift timer owns the
+            // transition; re-applying it here would reverse that animation.
+            rowWindows.values.forEach { row in row.panels.forEach { present($0) } }
+            if !rowWindows.isEmpty && !decoration.frame.isEmpty { present(decoration) }
+        }
+        updatePager()
+        refreshHoverFromPointer()
+        onGeometryChange?()
+    }
+
+    private func updatePager() {
+        guard let pagerLayout else { pager.hide(); return }
+        pager.update(pagerLayout, hidden: captureSuppressed || userHidden || closed, level: decoration.level)
+    }
+
+    private var allPresentationPanels: [NSPanel] {
+        [decoration] + rowWindows.values.flatMap { [$0.panel, $0.imageInput, $0.numberInput] }
+    }
 
     /// The displayed version is captured before an asynchronous store call. A
     /// later archive response must not replace an accepted click with a new row.
@@ -455,9 +661,11 @@ public final class RiftPanelController {
     private func trackAnimation(_ time: TimeInterval) {
         guard time > 0 else { return }
         let token = UUID(), epoch = generation
+        shortAnimationTokens.insert(token)
         mutateInteraction { $0.beginAnimation(token) }
         DispatchQueue.main.asyncAfter(deadline: .now() + time) { [weak self] in
             guard let self, !self.closed, self.generation == epoch else { return }
+            self.shortAnimationTokens.remove(token)
             self.mutateInteraction { $0.endAnimation(token) }
             self.flushDeferred()
         }
@@ -467,6 +675,7 @@ public final class RiftPanelController {
     /// intentionally separate from mouseUp so target capture cannot lose its row.
     public func finishSelection(_ assetID: UUID) {
         selectionVersions.removeValue(forKey: assetID)
+        pressRegions.removeValue(forKey: assetID)
         mutateInteraction { $0.finishSelection(assetID) }
         flushDeferred()
     }
@@ -491,11 +700,12 @@ public final class RiftPanelController {
         guard !closed, hidden != userHidden else { return }
         userHidden = hidden
         resetWindows()
-        if !hidden { apply(lastRecords, animateShift: false) }
+        if !hidden { apply(lastRecords) }
     }
 
     private func present(_ panel: NSPanel) {
-        guard !closed, !userHidden else { panel.orderOut(nil); return }
+        guard !closed, !userHidden, !captureSuppressed else { panel.orderOut(nil); return }
+        panel.level = captureSessionActive ? NSWindow.Level(rawValue: NSWindow.Level.statusBar.rawValue + 1) : .floating
         panel.orderFrontRegardless()
     }
 
@@ -519,6 +729,26 @@ public final class RiftPanelController {
         guard !closed else { return }
         if userHidden { lastRecords = records; deferredRecords = nil; return }
         let includesArchive = containsNewArchive(records)
+        if includesArchive && interaction.snapshot.blocksAutomaticArchive {
+            // Do not cancel the very decoration that currently protects a
+            // just-committed archive from disappearing underneath the user.
+            deferredRecords = records; return
+        }
+        if let id = flight.currentAssetID,
+           !records.contains(where: { $0.id == id && $0.visibility == .visible
+               && $0.status == .pending }) {
+            cancelDecorations()
+        }
+        // New durable captures do not wait for a previous swallow/compaction.
+        // Finish only the visual transition whose start was already committed.
+        let known = Set(lastRecords.map(\.id))
+        if transitioning && records.contains(where: {
+            $0.visibility == .visible && $0.visibilityReason == .capture && !known.contains($0.id)
+        }) && !gate.isHolding && !interaction.snapshot.isSelecting {
+            deferredRecords = records
+            finishQueueTransition(allowShift: false)
+            return
+        }
         if gate.isHolding || transitioning || interaction.snapshot.isSelecting
             || (includesArchive && interaction.snapshot.blocksAutomaticArchive) {
             // Also protects the post-commit/pre-render gap: a pointer may arrive
@@ -529,43 +759,65 @@ public final class RiftPanelController {
             $0.visibility == .swallowed && $0.visibilityReason == .uploadStarted
                 && rowWindows[$0.id]?.view.record.visibility == .visible
         }
-        guard !swallowed.isEmpty else { apply(records, animateShift: false); return }
-        setTransitioning(true); deferredRecords = records
+        guard !swallowed.isEmpty else { apply(records); return }
+        cancelDecorations()
         let token = generation
         let swallowTime = duration(configuration.swallowDuration)
         // Scheduling is after existing hold/selection/transition deferral gates.
         for record in swallowed { recordPresentation(.swallowScheduled, record: record, duration: swallowTime) }
+        // A true zero-time path: no alpha animator, translation, asyncAfter(0),
+        // transition latch, or extra run-loop turn before final rows exist.
+        if swallowTime == 0 {
+            for record in swallowed {
+                recordPresentation(.swallowActualStart, record: record, duration: 0)
+                rowWindows.removeValue(forKey: record.id)?.close()
+                recordPresentation(.swallowClose, record: record, duration: 0)
+            }
+            deferredRecords = nil
+            apply(records)
+            return
+        }
+        setTransitioning(true); deferredRecords = records
         for record in swallowed {
             guard let window = rowWindows[record.id] else { continue }
             // Commit the presentation transition before any pending press-return
             // timer can run; that timer must never undo the inward exit motion.
             window.view.record = record
             recordPresentation(.swallowActualStart, record: record, duration: swallowTime)
-            window.view.animateImage(to: window.view.geometry.imageClipFrame.width + 2, duration: swallowTime)
+            window.view.animateImage(to: self.reduceMotion ? 0 : 56, duration: swallowTime, power: 1.35)
             NSAnimationContext.runAnimationGroup { context in
                 context.duration = swallowTime
                 window.panels.forEach { $0.animator().alphaValue = 0 }
             }
         }
-        DispatchQueue.main.asyncAfter(deadline: .now() + swallowTime) { [weak self] in
+        queueTransitionEpoch &+= 1
+        let transition = queueTransitionEpoch
+        let began = ProcessInfo.processInfo.systemUptime
+        finishQueueAnimation = { [weak self] allowShift in
             guard let self, !self.closed, !self.userHidden, self.generation == token else { return }
             for record in swallowed {
                 if let window = self.rowWindows.removeValue(forKey: record.id) {
                     window.close()
-                    self.recordPresentation(.swallowClose, record: record, duration: swallowTime)
+                    self.recordPresentation(.swallowClose, record: record, duration: allowShift ? swallowTime
+                        : min(swallowTime, max(0, ProcessInfo.processInfo.systemUptime - began)))
                 }
             }
             self.setTransitioning(false)
             let next = self.deferredRecords ?? records
             self.deferredRecords = nil
-            self.apply(next, animateShift: true)
+            self.apply(next, animateShift: allowShift)
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + swallowTime) { [weak self] in
+            guard let self, self.queueTransitionEpoch == transition else { return }
+            self.finishQueueTransition(allowShift: true)
         }
     }
 
-    private func apply(_ records: [AssetRecord], animateShift: Bool) {
+    private func apply(_ records: [AssetRecord], animateShift: Bool = false) {
         guard !closed else { return }
         guard !userHidden else { lastRecords = records; return }
         guard let screen else {
+            cancelDecorations(reason: .geometryChanged)
             rowWindows.values.forEach { $0.orderOut() }
             decoration.orderOut(nil); lastRecords = records; return
         }
@@ -573,24 +825,47 @@ public final class RiftPanelController {
         let hasNewCapture = !lastRecords.isEmpty && records.contains {
             $0.visibility == .visible && $0.visibilityReason == .capture && !oldIDs.contains($0.id)
         }
-        var layout = RiftLayout.make(records: records, visibleFrame: screen.visibleFrame,
-                                     configuration: configuration, firstVisibleIndex: firstVisibleIndex)
+        let queueFrame = screen.visibleFrame
+        let makeLayout = { (index: Int) in
+            RiftLayout.make(records: records, visibleFrame: queueFrame,
+                configuration: self.configuration, firstVisibleIndex: index,
+                backingScale: screen.backingScaleFactor,
+                highContrast: NSWorkspace.shared.accessibilityDisplayShouldIncreaseContrast)
+        }
+        var layout = makeLayout(firstVisibleIndex)
         if hasNewCapture && layout.totalCount > layout.capacity {
             firstVisibleIndex = max(0, layout.totalCount - layout.capacity)
-            layout = RiftLayout.make(records: records, visibleFrame: screen.visibleFrame,
-                                     configuration: configuration, firstVisibleIndex: firstVisibleIndex)
+            layout = makeLayout(firstVisibleIndex)
         }
+        let shiftTime = reduceMotion ? 0 : configuration.shiftDuration
+        let movingFrames = Dictionary(uniqueKeysWithValues: layout.rows.compactMap { geometry -> (UUID, CGRect)? in
+            guard animateShift, shiftTime > 0, let row = rowWindows[geometry.assetID],
+                  row.panel.frame != geometry.frame else { return nil }
+            return (geometry.assetID, row.panel.frame)
+        })
+        let shouldShift = !movingFrames.isEmpty
         firstVisibleIndex = layout.firstVisibleIndex
         visibleRange = firstVisibleIndex..<(firstVisibleIndex + layout.rows.count)
+        if let flyingID = flight.currentAssetID,
+           let old = rowWindows[flyingID],
+           layout.rows.first(where: { $0.assetID == flyingID }) != old.view.geometry {
+            cancelDecorations(reason: .geometryChanged)
+        }
         let visibleIDs = Set(layout.rows.map(\.assetID))
+        if let previewID = peek.assetID {
+            let old = rowWindows[previewID]?.view
+            let next = layout.rows.first { $0.assetID == previewID }
+            let nextRecord = records.first { $0.id == previewID }
+            if next == nil || next != old?.geometry || nextRecord?.visibilityRevision != old?.record.visibilityRevision {
+                peek.cancel()
+            }
+        }
         for id in Array(rowWindows.keys) where !visibleIDs.contains(id) {
+            flight.cancel(assetID: id)
             rowWindows.removeValue(forKey: id)?.close()
         }
         let byID = Dictionary(records.map { ($0.id, $0) }, uniquingKeysWith: { _, latest in latest })
-        let shouldShift = animateShift && !layout.rows.isEmpty
-        let shiftTime = shouldShift ? duration(configuration.shiftDuration) : 0
         let token = generation
-        if shouldShift { setTransitioning(true) }
         for geometry in layout.rows {
             guard let record = byID[geometry.assetID] else { continue }
             let window: RowWindow
@@ -605,74 +880,143 @@ public final class RiftPanelController {
             let oldStatus = window.view.record.status
             window.view.record = record
             window.view.configuration = configuration
-            // Keep old label/row widths during the vertical move. Otherwise 10 → 9
-            // would first jump the image sideways and clip the old two-digit label.
-            if !shouldShift || isNew { window.view.updateGeometry(geometry) }
-            if !shouldShift || isNew { window.view.ordinal = geometry.ordinal }
-            window.view.updateDescription()
-            if shouldShift && !isNew {
-                let origin = CGPoint(x: geometry.frame.maxX - window.panel.frame.width,
-                                     y: geometry.frame.midY - window.panel.frame.height / 2)
-                let delta = CGPoint(x: origin.x - window.panel.frame.minX,
-                                    y: origin.y - window.panel.frame.minY)
-                let destinations = window.panels.map { item in
-                    CGPoint(x: item.frame.minX + delta.x, y: item.frame.minY + delta.y)
-                }
-                NSAnimationContext.runAnimationGroup { context in
-                    context.duration = shiftTime
-                    context.timingFunction = CAMediaTimingFunction(name: .easeOut)
-                    for (item, destination) in zip(window.panels, destinations) {
-                        item.animator().setFrameOrigin(destination)
-                    }
-                }
-            } else {
-                window.panel.setFrame(geometry.frame, display: true)
-                window.syncInputFrames()
+            // Each frame moves the visual panel and its two input islands together.
+            // A press finishes the decoration while retaining the original asset/regions.
+            if movingFrames[record.id] == nil {
+                window.view.updateGeometry(geometry)
+                window.view.ordinal = geometry.ordinal
             }
+            window.view.updateDescription()
+            window.panel.setFrame(movingFrames[record.id] ?? geometry.frame, display: true)
+            window.syncInputFrames()
             window.panels.forEach { present($0) }
             // The press response ends independently of upload completion. A
             // pre-start UNKNOWN is retained without a perpetual pressed pose.
             let expectedOffset: CGFloat = 0
             if isNew {
-                window.panels.forEach { $0.alphaValue = 0 }
+                // Input windows and the final queue position exist immediately.
+                // Only an optional, independently owned image copy may animate.
+                window.panels.forEach { $0.alphaValue = 1 }
                 window.view.animateImage(to: expectedOffset, duration: 0)
-                let arrivalTime = duration(configuration.arrivalDuration)
-                trackAnimation(arrivalTime)
-                NSAnimationContext.runAnimationGroup { context in
-                    context.duration = arrivalTime
-                    window.panels.forEach { $0.animator().alphaValue = 1 }
-                }
+                reportArrival(.rowAvailable, id: record.id)
             } else if oldStatus != record.status || window.view.imageOffset != expectedOffset {
                 window.view.animateImage(to: expectedOffset, duration: duration(
                     record.status == .failed ? configuration.returnDuration : configuration.pressDuration))
             }
-            let pixels = Int(ceil(max(configuration.fitWidth, configuration.fitHeight) * screen.backingScaleFactor))
-            cache.image(for: record.image, maxPixelSize: pixels) { [weak view = window.view] image in
-                view?.setImage(image)
+            let hasCandidate = arrivalCandidate?.assetID == record.id && effectiveArrivalMode == .magnet
+            let normalLongest = CGFloat(max(configuration.fitWidth, configuration.fitHeight))
+            let longest = hasCandidate ? max(normalLongest,
+                max(magnetParameters.initialMaximumSize.width, magnetParameters.initialMaximumSize.height))
+                : normalLongest
+            let pixels = max(window.view.requestedPixelSize, Int(ceil(longest * screen.backingScaleFactor)))
+            window.view.requestedPixelSize = pixels
+            let revision = record.visibilityRevision
+            cache.image(for: record.image, maxPixelSize: pixels) { [weak self, weak view = window.view] image in
+                guard let self, let view, !self.closed, !self.userHidden, self.generation == token,
+                      self.rowWindows[record.id]?.view === view,
+                      view.record.visibility == .visible, view.record.visibilityRevision == revision else { return }
+                // Exactly the same decoded pixels are used for source and row.
+                view.setImage(image)
+                if image != nil, !view.reportedImageReady {
+                    view.reportedImageReady = true
+                    self.reportArrival(.imageDecoded, id: record.id)
+                }
+                if isNew, let image { self.startArrivalIfPossible(id: record.id, image: image) }
+                else if isNew, self.arrivalCandidate?.assetID == record.id { self.arrivalCandidate = nil }
             }
         }
-        decoration.setFrame(layout.lineFrame, display: true)
-        decoration.contentView?.frame = CGRect(origin: .zero, size: layout.lineFrame.size)
+        var lineFrame = layout.lineFrame
+        if !lineFrame.isEmpty, let header = captureHeaderAnchor {
+            lineFrame.size.height = max(lineFrame.maxY, header.y + 18) - lineFrame.minY
+        }
+        decoration.setFrame(lineFrame, display: true)
+        decoration.contentView?.frame = CGRect(origin: .zero, size: lineFrame.size)
         if !layout.rows.isEmpty && !layout.lineFrame.isEmpty { present(decoration) }
         else { decoration.orderOut(nil) }
+        pagerLayout = layout; updatePager()
         lastRecords = records
         refreshHoverFromPointer()
+        onGeometryChange?()
         if shouldShift {
-            DispatchQueue.main.asyncAfter(deadline: .now() + shiftTime) { [weak self] in
+            setTransitioning(true)
+            queueTransitionEpoch &+= 1
+            let transition = queueTransitionEpoch
+            let began = ProcessInfo.processInfo.systemUptime
+            finishQueueAnimation = { [weak self] _ in
                 guard let self, !self.closed, self.generation == token else { return }
                 for geometry in layout.rows {
-                    let row = self.rowWindows[geometry.assetID]
-                    row?.panel.setFrame(geometry.frame, display: true)
-                    let view = row?.view
-                    view?.updateGeometry(geometry)
-                    view?.ordinal = geometry.ordinal; view?.updateDescription(); view?.needsDisplay = true
-                    row?.syncInputFrames()
+                    guard let row = self.rowWindows[geometry.assetID] else { continue }
+                    row.view.updateGeometry(geometry)
+                    row.view.ordinal = geometry.ordinal; row.view.updateDescription()
+                    row.panel.setFrame(geometry.frame, display: true)
+                    row.syncInputFrames()
                 }
                 self.setTransitioning(false)
                 self.refreshHoverFromPointer()
+                self.onGeometryChange?()
                 self.flushDeferred()
             }
+            func step() {
+                guard !self.closed, self.generation == token, self.queueTransitionEpoch == transition else { return }
+                let t = min(1, max(0, (ProcessInfo.processInfo.systemUptime - began) / shiftTime))
+                let eased = 1 - pow(1 - t, 3)
+                for geometry in layout.rows {
+                    guard let start = movingFrames[geometry.assetID], let row = self.rowWindows[geometry.assetID] else { continue }
+                    // Keep the old local width/ordinal and the fixed plane
+                    // until completion, including the 10→9 digit boundary.
+                    var frame = start
+                    frame.origin.y = start.minY + (geometry.frame.minY - start.minY) * eased
+                    row.panel.setFrame(frame, display: true)
+                    row.syncInputFrames()
+                }
+                if t >= 1 { self.finishQueueTransition(allowShift: false) }
+                else { DispatchQueue.main.asyncAfter(deadline: .now() + 1.0 / 60) { step() } }
+            }
+            step()
         }
+    }
+
+    private func startArrivalIfPossible(id: UUID, image: CGImage) {
+        guard let candidate = arrivalCandidate, candidate.assetID == id else { return }
+        arrivalCandidate = nil
+        guard !closed, !userHidden, !captureSuppressed, effectiveArrivalMode == .magnet,
+              selectionVersions[id] == nil, !gate.isHolding, !transitioning,
+              ProcessInfo.processInfo.systemUptime - candidate.readyUptime <= maximumArrivalAge,
+              let source = candidate.source, let screen, let row = rowWindows[id],
+              row.view.record.visibility == .visible, row.view.record.status == .pending,
+              let displayID = (screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.uint32Value,
+              source.displayID == displayID, source.displayFrame == screen.frame,
+              source.backingScale == screen.backingScaleFactor else { return }
+        let target = row.panel.convertToScreen(row.view.convert(row.view.geometry.imageFrame, to: nil))
+        let edge = row.panel.convertToScreen(row.view.convert(row.view.geometry.imageClipFrame, to: nil)).maxX
+        guard let plan = MagnetMotionPlan(sourceRect: source.rect, targetImageFrame: target,
+            clippingEdgeX: edge, screenFrame: screen.frame, parameters: magnetParameters) else { return }
+        let token = UUID(), epoch = generation, revision = row.view.record.visibilityRevision
+        let started = flight.start(assetID: id, image: image, plan: plan,
+            backingScale: screen.backingScaleFactor,
+            elapsedSinceAssetReady: ProcessInfo.processInfo.systemUptime - candidate.readyUptime) { [weak self, weak view = row.view] completion in
+                guard let self else { return }
+                if let view, self.rowWindows[id]?.view === view,
+                   view.record.visibilityRevision == revision { view.setArrivalHidden(false) }
+                if self.arrivalAnimationToken == token {
+                    self.arrivalAnimationToken = nil
+                    self.mutateInteraction { $0.endAnimation(token) }
+                }
+                self.reportArrival(.decorationEnded, id: id, reason: completion.reason.rawValue)
+                if [.finished, .timedOut].contains(completion.reason), self.generation == epoch { self.flushDeferred() }
+            }
+        if started {
+            row.view.setArrivalHidden(true)
+            if decoration.isVisible { present(decoration) }
+            arrivalAnimationToken = token
+            mutateInteraction { $0.beginAnimation(token) }
+            reportArrival(.decorationStarted, id: id)
+        }
+    }
+
+    private func reportArrival(_ phase: RiftArrivalPhase, id: UUID, reason: String? = nil) {
+        onArrivalBoundary(RiftArrivalBoundary(phase: phase, assetID: id,
+            uptime: ProcessInfo.processInfo.systemUptime, mode: effectiveArrivalMode, reason: reason))
     }
 
     private func refreshHoverFromPointer() {
@@ -689,7 +1033,7 @@ public final class RiftPanelController {
 
     private func returnPress(_ id: UUID) {
         guard let row = rowWindows[id], !userHidden, row.view.record.visibility == .visible else { return }
-        let time = duration(configuration.returnDuration)
+        let time = duration(0.08)
         trackAnimation(time)
         row.view.animateImage(to: 0, duration: time)
     }
@@ -700,7 +1044,14 @@ public final class RiftPanelController {
             // Use both input islands so an exit from one cannot clear a hover
             // already inside the other. Event-driven only; no polling timer.
             self.refreshHoverFromPointer()
+            if self.hoveredIDs.contains(id) { self.schedulePeek(id) }
+            else if self.peek.assetID == id { self.peek.leave() }
             self.flushDeferred()
+        }
+        window.view.onPreview = { [weak self] in
+            guard let self, self.rowWindows[id] != nil, !self.gate.isHolding,
+                  !self.transitioning, !self.userHidden, !self.captureSuppressed else { return false }
+            self.schedulePeek(id, immediate: true); return true
         }
         window.view.onApproach = { [weak self] in
             guard let self, !self.gate.isHolding, !self.transitioning, !self.userHidden else { return }
@@ -708,6 +1059,7 @@ public final class RiftPanelController {
         }
         window.view.onMenuVisibility = { [weak self] open in
             guard let self, !self.closed else { return }
+            if open { self.peek.cancel() }
             self.mutateInteraction { $0.setMenu(id, open: open) }
             if !open { self.flushDeferred() }
         }
@@ -720,8 +1072,14 @@ public final class RiftPanelController {
         window.view.onDown = { [weak self, weak view = window.view] event in
             guard let self, let view, let eventWindow = event.window,
                   inputWindowNumbers.contains(eventWindow.windowNumber) else { return false }
+            self.peek.cancel()
             let point = eventWindow.convertPoint(toScreen: event.locationInWindow)
-            let accepts = !self.closed && !self.userHidden && !self.transitioning && self.selectionVersions[id] == nil
+            let originalRegions = self.rowWindows[id].map { [$0.imageInput.frame, $0.numberInput.frame] } ?? []
+            // A decorative queue move is interruptible. Preserve the ORIGINAL
+            // asset and press regions if snapping its windows changes geometry.
+            self.finishQueueTransition(allowShift: false)
+            let accepts = !self.closed && !self.userHidden && !self.captureSuppressed && self.rowWindows[id]?.view === view
+                && self.selectionVersions[id] == nil
                 && view.record.visibility == .visible && view.record.status != .transferring
                 && view.record.status != .used
             let accepted = self.gate.begin(assetID: id, screenPoint: point, timestamp: event.timestamp,
@@ -729,7 +1087,9 @@ public final class RiftPanelController {
                                           acceptsSelection: accepts)
             if accepted {
                 self.selectionVersions[id] = view.record.visibilityRevision
+                self.pressRegions[id] = originalRegions
                 self.mutateInteraction { $0.beginSelection(id, held: true) }
+                self.cancelDecorations(reason: .clicked)
                 self.setFeedback(nil, for: id)
                 self.onPress(id, event.timestamp)
                 self.onSelectionBoundary(RiftSelectionBoundary(assetID: id, source: .mouse,
@@ -737,14 +1097,18 @@ public final class RiftPanelController {
                     windowNumber: event.windowNumber, clickCount: event.clickCount))
                 let time = self.duration(self.configuration.pressDuration)
                 self.trackAnimation(time)
-                view.animateImage(to: self.configuration.inwardDistance, duration: time)
+                view.animateImage(to: self.pressOffset, duration: time)
             }
             return accepted
         }
-        window.view.onUp = { [weak self] inside in
+        window.view.onUp = { [weak self] inside, releasePoint in
             guard let self, !self.closed, self.interaction.heldID == id else { return }
             let held = self.interaction.heldID
-            let selected = self.gate.end(inside: inside)
+            let originalInside = releasePoint.map { point in
+                self.pressRegions[id]?.contains(where: { $0.contains(point) }) ?? false
+            } ?? false
+            let selected = self.gate.end(inside: inside || originalInside)
+            self.pressRegions.removeValue(forKey: id)
             self.mutateInteraction { $0.releasePointer(accepted: selected != nil) }
             if let held, selected == nil {
                 self.selectionVersions.removeValue(forKey: held)
@@ -756,52 +1120,88 @@ public final class RiftPanelController {
                 // Presentation only: a rejected or still-awaiting-input click
                 // naturally releases its pressed pose without forging a receipt.
                 let epoch = self.generation
-                DispatchQueue.main.asyncAfter(deadline: .now() + self.duration(self.configuration.pressDuration)) { [weak self] in
-                    guard let self, !self.closed, self.generation == epoch else { return }
-                    self.returnPress(selected)
+                let pressTime = self.duration(self.configuration.pressDuration)
+                if pressTime > 0 {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + pressTime) { [weak self] in
+                        guard let self, !self.closed, self.generation == epoch else { return }
+                        self.returnPress(selected)
+                    }
                 }
             }
             self.flushDeferred()
         }
         window.view.onScroll = { [weak self] delta in self?.scroll(delta) }
         window.view.onAccessiblePress = { [weak self, weak view = window.view] in
-            guard let self, let view, !self.userHidden, !self.transitioning, !self.gate.isHolding,
+            guard let self, let view, !self.closed, !self.userHidden, !self.captureSuppressed, !self.gate.isHolding else { return false }
+            self.finishQueueTransition(allowShift: false)
+            guard self.rowWindows[id]?.view === view,
                   self.selectionVersions[id] == nil, view.record.visibility == .visible,
                   [.pending, .failed, .unknown, .missing].contains(view.record.status) else { return false }
             let invocationUptime = ProcessInfo.processInfo.systemUptime
             self.selectionVersions[id] = view.record.visibilityRevision
             self.mutateInteraction { $0.beginSelection(id, held: false) }
+            self.cancelDecorations(reason: .clicked)
             self.setFeedback(nil, for: id)
             self.onPress(id, invocationUptime)
             self.onSelectionBoundary(RiftSelectionBoundary(assetID: id, source: .accessibility,
                 eventUptime: invocationUptime))
             let time = self.duration(self.configuration.pressDuration)
             self.trackAnimation(time)
-            view.animateImage(to: self.configuration.inwardDistance, duration: time)
+            view.animateImage(to: self.pressOffset, duration: time)
             self.onSelect(id)
             if !self.holdsSelectionUntilFinished { self.finishSelection(id) }
             let epoch = self.generation
-            DispatchQueue.main.asyncAfter(deadline: .now() + time) { [weak self] in
-                guard let self, !self.closed, self.generation == epoch else { return }
-                self.returnPress(id)
+            if time > 0 {
+                DispatchQueue.main.asyncAfter(deadline: .now() + time) { [weak self] in
+                    guard let self, !self.closed, self.generation == epoch else { return }
+                    self.returnPress(id)
+                }
             }
             return true
         }
+    }
+
+    private func schedulePeek(_ id: UUID, immediate: Bool = false) {
+        guard let row = rowWindows[id], let screen, !closed, !userHidden, !captureSuppressed,
+              !gate.isHolding, !transitioning, !interaction.snapshot.isSelecting else { return }
+        let revision = row.view.record.visibilityRevision
+        peek.schedule(id: id, immediate: immediate, stillValid: { [weak self] in
+            guard let self else { return false }
+            return !self.closed && !self.userHidden && !self.captureSuppressed && !self.gate.isHolding
+                && !self.transitioning && !self.interaction.snapshot.isSelecting
+                && self.rowWindows[id]?.view === row.view && row.view.record.visibility == .visible
+                && row.view.record.visibilityRevision == revision
+                && (immediate || self.hoveredIDs.contains(id))
+        }, load: { [weak self] completion in
+            self?.cache.image(for: row.view.record.image, maxPixelSize: Int(320 * screen.backingScaleFactor), completion: completion)
+        }, anchor: { [weak self] in
+            guard let self, let screen = self.screen else { return nil }
+            return (row.panel.frame, screen.visibleFrame)
+        })
+    }
+
+    private func page(_ direction: Int) {
+        guard !userHidden, !gate.isHolding, !transitioning, !interaction.snapshot.isSelecting else { return }
+        cancelDecorations()
+        firstVisibleIndex = max(0, firstVisibleIndex + direction * max(1, visibleRange.count))
+        apply(lastRecords)
     }
 
     private func scroll(_ delta: CGFloat) {
         guard !userHidden, !gate.isHolding, !transitioning, !interaction.snapshot.isSelecting else { return }
         scrollAccumulator += delta
         guard abs(scrollAccumulator) >= 8 else { return }
+        cancelDecorations()
         firstVisibleIndex = max(0, firstVisibleIndex + (scrollAccumulator < 0 ? 1 : -1))
         scrollAccumulator = 0
-        apply(lastRecords, animateShift: false)
+        apply(lastRecords)
     }
 
     public func showLatest() {
         guard !userHidden, !gate.isHolding, !transitioning, !interaction.snapshot.isSelecting else { return }
+        cancelDecorations()
         firstVisibleIndex = lastRecords.filter { $0.visibility == .visible }.count
-        apply(lastRecords, animateShift: false)
+        apply(lastRecords)
     }
 
     /// Explicit history restoration may reveal one existing item without
@@ -810,13 +1210,15 @@ public final class RiftPanelController {
         guard !userHidden, !gate.isHolding, !transitioning, !interaction.snapshot.isSelecting,
               let index = lastRecords.filter({ $0.visibility == .visible }).firstIndex(where: { $0.id == assetID }) else { return }
         guard !visibleRange.contains(index) else { return }
+        cancelDecorations()
         firstVisibleIndex = index
-        apply(lastRecords, animateShift: false)
+        apply(lastRecords)
     }
 
     public func showOldest() {
         guard !userHidden, !gate.isHolding, !transitioning, !interaction.snapshot.isSelecting else { return }
-        firstVisibleIndex = 0; apply(lastRecords, animateShift: false)
+        cancelDecorations()
+        firstVisibleIndex = 0; apply(lastRecords)
     }
 
     public func updateConfiguration(_ configuration: RiftConfiguration) throws {
@@ -831,6 +1233,8 @@ public final class RiftPanelController {
     }
 
     private func resetWindows() {
+        cancelDecorations(reason: userHidden ? .hidden : .geometryChanged)
+        finishQueueAnimation = nil; queueTransitionEpoch &+= 1
         generation &+= 1; transitioning = false
         let held = interaction.heldID
         gate.cancel()
@@ -838,11 +1242,12 @@ public final class RiftPanelController {
         lastRecords = deferredRecords ?? lastRecords
         deferredRecords = nil
         hoveredIDs.removeAll()
+        pressRegions.removeAll(); shortAnimationTokens.removeAll()
         mutateInteraction { $0.resetPresentation() }
         rowWindows.values.forEach { $0.close() }
         rowWindows.removeAll()
         visibleRange = 0..<0
-        decoration.orderOut(nil)
+        decoration.orderOut(nil); pagerLayout = nil; pager.hide(); peek.cancel()
     }
 
     private func reflow() {
@@ -852,7 +1257,7 @@ public final class RiftPanelController {
         let protectedArchive = pending.map { containsNewArchive($0) && interaction.snapshot.blocksAutomaticArchive } ?? false
         resetWindows()
         if protectedArchive && !userHidden { lastRecords = displayed }
-        if !userHidden { apply(lastRecords, animateShift: false) }
+        if !userHidden { apply(lastRecords) }
         // A wake/display event must not bypass an archive already deferred for
         // a pointer or an accepted selection. Recheck after new geometry exists.
         if protectedArchive, let pending { render(pending) }
@@ -860,12 +1265,15 @@ public final class RiftPanelController {
 
     public func close() {
         guard !closed else { return }
+        cancelDecorations(reason: .closed); flight.close()
+        finishQueueAnimation = nil; queueTransitionEpoch &+= 1
         closed = true; generation &+= 1; gate.cancel()
+        pressRegions.removeAll(); shortAnimationTokens.removeAll()
         selectionVersions.removeAll(); hoveredIDs.removeAll()
         mutateInteraction { $0.close() }
         observers.forEach { $0.0.removeObserver($0.1) }; observers.removeAll()
         rowWindows.values.forEach { $0.close() }; rowWindows.removeAll()
-        decoration.close(); cache.clear()
+        decoration.close(); pager.close(); peek.close(); cache.clear()
     }
 
     deinit { observers.forEach { $0.0.removeObserver($0.1) } }

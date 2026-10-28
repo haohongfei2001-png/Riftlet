@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "baseline": "1920e0562db893a3292af89a89270a26ddb46a5f",
+  "design": "0b73291652c11f5cb7b6e2792d001eb3340c988b",
+  "branch": "codex/arrival-none-magnet-native-20261028",
+  "authoringHost": "Linux x86_64; no local Swift/AppKit",
+  "status": "IMPLEMENTED_AWAITING_MACOS_CI",
+  "macOSCI": [],
+  "local": {
+    "gitDiffCheck": "PASS",
+    "deltaAuditFixtureTests": "14 PASS; original baseline audit 42 PASS",
+    "nativeSwift": "NOT_RUN: no Swift compiler or macOS SDK on authoring host"
+  },
+  "physical": {
+    "systemScreenshotSourceMetadata": "NOT_RUN",
+    "physicalMouseAndFocus": "NOT_RUN",
+    "retinaAndMixedDisplay": "NOT_RUN",
+    "realCaptureReadyLatency": "NOT_RUN",
+    "selfCaptureExclusion": "NOT_RUN",
+    "visualQualityAndFatigue": "NOT_RUN",
+    "actualChatGPTUploadOnThisBinary": "NOT_RUN",
+    "frameTimeRSSGPUAndPower": "NOT_RUN"
+  },
+  "sourceGeometryAdmission": "No OS builds admitted. --arrival-metadata-candidate is explicit unvalidated local geometry testing only.",
+  "productDefault": "UNAPPROVED; absent selection uses provisional none"
+}

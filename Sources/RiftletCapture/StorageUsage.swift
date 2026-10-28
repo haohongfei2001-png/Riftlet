@@ -2,7 +2,7 @@ import Foundation
 import Darwin
 
 public enum StorageUsageArea: String, Codable, CaseIterable, Sendable {
-    case media, staging, journal, database
+    case media, staging, journal, database, captures
 }
 
 public enum StorageAreaAvailability: String, Codable, Sendable { case present, absent, unavailable }
@@ -89,7 +89,7 @@ public enum PrivateStorageUsage {
               rootInfo.st_mode & mode_t(S_IFMT) == mode_t(S_IFDIR),
               rootInfo.st_uid == getuid() else { throw StorageUsageError.unsafeRoot }
 
-        var areas = [StorageUsageArea.media, .staging, .journal].map {
+        var areas = [StorageUsageArea.media, .staging, .journal, .captures].map {
             scanDirectory(rootDescriptor: descriptor, area: $0, limit: maximumEntriesPerArea)
         }
         areas.append(scanDatabase(rootDescriptor: descriptor))

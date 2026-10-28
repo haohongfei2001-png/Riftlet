@@ -1,0 +1,132 @@
+[
+  {
+    "scene": "setup-light",
+    "nativeWindow": {
+      "backingScaleFactor": 2,
+      "height": 520,
+      "width": 560,
+      "x": 620,
+      "y": 420
+    },
+    "bytes": 137629,
+    "method": "WindowServer screencapture window, no resize",
+    "source": "46a909a35df16b76b6153fcb772a48740fb07ac6"
+  },
+  {
+    "scene": "settings-light",
+    "nativeWindow": {
+      "backingScaleFactor": 2,
+      "height": 520,
+      "width": 680,
+      "x": 620,
+      "y": 420
+    },
+    "bytes": 197561,
+    "method": "WindowServer screencapture window, no resize",
+    "source": "46a909a35df16b76b6153fcb772a48740fb07ac6"
+  },
+  {
+    "scene": "history-light",
+    "nativeWindow": {
+      "backingScaleFactor": 2,
+      "height": 560,
+      "width": 760,
+      "x": 580,
+      "y": 390
+    },
+    "bytes": 224989,
+    "method": "WindowServer screencapture window, no resize",
+    "source": "46a909a35df16b76b6153fcb772a48740fb07ac6"
+  },
+  {
+    "scene": "feedback-light",
+    "nativeWindow": {
+      "backingScaleFactor": 2,
+      "height": 540,
+      "width": 600,
+      "x": 660,
+      "y": 405
+    },
+    "bytes": 191524,
+    "method": "WindowServer screencapture window, no resize",
+    "source": "46a909a35df16b76b6153fcb772a48740fb07ac6"
+  },
+  {
+    "scene": "motion-light",
+    "nativeWindow": {
+      "backingScaleFactor": 2,
+      "height": 372,
+      "width": 468,
+      "x": 726,
+      "y": 531
+    },
+    "bytes": 96027,
+    "method": "WindowServer screencapture window, no resize",
+    "source": "46a909a35df16b76b6153fcb772a48740fb07ac6"
+  },
+  {
+    "scene": "setup-dark",
+    "nativeWindow": {
+      "backingScaleFactor": 2,
+      "height": 520,
+      "width": 560,
+      "x": 620,
+      "y": 420
+    },
+    "bytes": 133994,
+    "method": "WindowServer screencapture window, no resize",
+    "source": "46a909a35df16b76b6153fcb772a48740fb07ac6"
+  },
+  {
+    "scene": "settings-dark",
+    "nativeWindow": {
+      "backingScaleFactor": 2,
+      "height": 520,
+      "width": 680,
+      "x": 620,
+      "y": 420
+    },
+    "bytes": 197249,
+    "method": "WindowServer screencapture window, no resize",
+    "source": "46a909a35df16b76b6153fcb772a48740fb07ac6"
+  },
+  {
+    "scene": "history-dark",
+    "nativeWindow": {
+      "backingScaleFactor": 2,
+      "height": 560,
+      "width": 760,
+      "x": 580,
+      "y": 390
+    },
+    "bytes": 225253,
+    "method": "WindowServer screencapture window, no resize",
+    "source": "46a909a35df16b76b6153fcb772a48740fb07ac6"
+  },
+  {
+    "scene": "feedback-dark",
+    "nativeWindow": {
+      "backingScaleFactor": 2,
+      "height": 540,
+      "width": 600,
+      "x": 660,
+      "y": 405
+    },
+    "bytes": 189394,
+    "method": "WindowServer screencapture window, no resize",
+    "source": "46a909a35df16b76b6153fcb772a48740fb07ac6"
+  },
+  {
+    "scene": "motion-dark",
+    "nativeWindow": {
+      "backingScaleFactor": 2,
+      "height": 372,
+      "width": 468,
+      "x": 726,
+      "y": 531
+    },
+    "bytes": 94411,
+    "method": "WindowServer screencapture window, no resize",
+    "source": "46a909a35df16b76b6153fcb772a48740fb07ac6"
+  }
+]

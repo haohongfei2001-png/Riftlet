@@ -21,7 +21,7 @@ final class RiftInputIslandTests: XCTestCase {
         configuration.swallowDuration = 0.02; configuration.shiftDuration = 0.01
         configuration.returnDuration = 0.01
         return RiftPanelController(mediaDirectory: FileManager.default.temporaryDirectory,
-            configuration: configuration, onSelectionBoundary: onBoundary, onSelect: onSelect)
+            configuration: configuration, arrivalMode: .magnet, onSelectionBoundary: onBoundary, onSelect: onSelect)
     }
 
     @MainActor private func window(_ number: Int) throws -> NSWindow {

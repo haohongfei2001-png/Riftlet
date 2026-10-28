@@ -27,6 +27,7 @@ public struct ReceiptPolicy: Sendable {
     }
 
     public func allowsUploadStart(receipt: TransferReceipt, asset: ImportedAsset, mode: StoreMode) -> Bool {
+        guard asset.origin != .applicationScreenshot else { return false }
         guard receipt.outcome == .uploadStarted, let evidence = receipt.uploadStartEvidence,
               evidence.version == 1, evidence.inputCount == 1,
               !evidence.evidenceID.isEmpty, evidence.evidenceID.utf8.count <= 256,
@@ -48,6 +49,7 @@ public struct ReceiptPolicy: Sendable {
     }
 
     public func allowsConsumption(receipt: TransferReceipt, asset: ImportedAsset, mode: StoreMode) -> Bool {
+        guard asset.origin != .applicationScreenshot else { return false }
         guard receipt.outcome == .verifiedReady,
               receipt.positiveReady, receipt.belongsToOriginalDraft,
               !receipt.hasError, !receipt.isUploading,
@@ -65,6 +67,7 @@ public struct ReceiptPolicy: Sendable {
 
     /// A false failure can duplicate an upload, so failure admission is separate from READY.
     public func allowsRetry(receipt: TransferReceipt, asset: ImportedAsset, mode: StoreMode) -> Bool {
+        guard asset.origin != .applicationScreenshot else { return false }
         guard receipt.outcome == .definitiveFailure, receipt.safeToRetry, receipt.hasError,
               let attachmentID = receipt.attachmentID, !attachmentID.isEmpty,
               receipt.belongsToOriginalDraft, !receipt.isUploading, !receipt.positiveReady else { return false }

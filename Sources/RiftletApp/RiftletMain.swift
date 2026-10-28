@@ -104,6 +104,10 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private var sourceBinding: CaptureSourceBinding?
     private var transfer: TransferCoordinator?
     private var rift: RiftPanelController?
+    private var screenshotEntry: ScreenshotEntryHost?
+    private var arrivalPreferences: ArrivalMotionPreferences?
+    private var arrivalSettings: ArrivalMotionSettingsController?
+    private var arrivalCapture: ArrivalCaptureBridge?
     private var root: URL!
     private var visibleIDs = Set<UUID>()
     private var refreshRunning = false
@@ -163,7 +167,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         // The first ordinary launch explains collection before its first source
         // read. Acceptance mode must not steal the test browser's focus.
         if mode.collectsSystemScreenshots, firstUse.needsAutomaticPresentation {
-            showSetup(); firstUse.recordPresentation()
+            updateSetup(); setup?.showOnboarding(); firstUse.recordPresentation()
         }
         Task {
             do { try await start() }
@@ -208,6 +212,8 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         if let wakeObserver { NSWorkspace.shared.notificationCenter.removeObserver(wakeObserver) }
         if let activationObserver { NSWorkspace.shared.notificationCenter.removeObserver(activationObserver) }
         if let archiveWakeObserver { NSWorkspace.shared.notificationCenter.removeObserver(archiveWakeObserver) }
+        screenshotEntry?.close()
+        arrivalCapture?.close(); arrivalSettings?.close()
         rift?.close()
         history?.close()
         setup?.close()
@@ -257,11 +263,19 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             lifecycleSettings = try JSONDecoder().decode(LifecycleSettings.self, from: Data(contentsOf: lifecycleURL))
         } else { try JSONEncoder().encode(lifecycleSettings).write(to: lifecycleURL, options: .atomic) }
         try lifecycleSettings.validate()
+        arrivalPreferences = ArrivalMotionPreferences(url: root.appendingPathComponent("arrival-motion-settings.json"))
         rift = RiftPanelController(mediaDirectory: root.appendingPathComponent("media"), configuration: configuration,
+            arrivalMode: arrivalPreferences?.mode ?? .provisionalFallback,
             onPress: { [weak self] id, timestamp in self?.freezePress(id, timestamp: timestamp) },
             onSelectionBoundary: { [weak self] boundary in self?.recordSelection(boundary) },
             onApproach: { [weak self] in self?.requestArm(reason: "pointerApproach") },
             onPresentationBoundary: { [weak self] boundary in self?.recordPresentation(boundary) },
+            onArrivalBoundary: { [weak self] boundary in
+                var fields: [String: Any] = ["event": boundary.phase.rawValue, "assetID": boundary.assetID.uuidString,
+                    "uptime": boundary.uptime, "motionMode": boundary.mode.rawValue]
+                if let reason = boundary.reason { fields["reason"] = reason }
+                self?.recordArrivalTrace(fields)
+            },
             holdsSelectionUntilFinished: true, interactionFence: interactionFence,
             onRemove: { [weak self] id in self?.removeVisible(id) }) { [weak self] id in
             guard let self else { return }
@@ -364,6 +378,10 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             }
         }
         rift?.setUserHidden(userHidden)
+        if let rift {
+            arrivalCapture = ArrivalCaptureBridge(panel: rift,
+                allowsMetadata: ArrivalSourceProfile.allowsMetadata(arguments: CommandLine.arguments))
+        }
         history = RiftHistoryController(mediaDirectory: root.appendingPathComponent("media"),
             onRestore: { [weak self] id in self?.restoreHistory(id) },
             onRemove: { [weak self] id in self?.removeVisible(id) },
@@ -409,6 +427,18 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             } catch { receiveCaptureDiagnostic(.classify(error, context: .locationPreference)) }
             let service = CaptureService(store: store, privateRoot: root, sourceDirectory: detectedSource ?? CaptureSource.defaultDirectory(),
                                          onChange: { [weak self] in await self?.refresh() },
+                                         onImported: { [weak self] record, observation in
+                                             Task { @MainActor [weak self] in
+                                                 guard let self, !self.terminating else { return }
+                                                 self.recordArrivalTrace(["event": "captureDurableObserved",
+                                                    "assetID": record.id.uuidString, "uptime": observation.readyUptime,
+                                                    "firstSeenWallTime": record.image.firstSeenAt.timeIntervalSince1970])
+                                                 self.arrivalCapture?.imported(record, observation: observation)
+                                                 // Publish each committed asset without awaiting source metadata
+                                                 // or the rest of a multi-file collector scan.
+                                                 await self.refresh()
+                                             }
+                                         },
                                          onDiagnostic: { [weak self] value in await self?.receiveCaptureDiagnostic(value) })
             capture = service
             let binding = CaptureSourceBinding(service: service, provider: captureLocation,
@@ -423,6 +453,14 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         updateControlTitles()
         startArchiveScheduler()
         initialized = true
+        if mode.collectsSystemScreenshots, let rift {
+            do {
+                screenshotEntry = try ScreenshotEntryHost(root: root, store: store, rift: rift,
+                    onChange: { [weak self] in await self?.refresh() },
+                    onIssue: { [weak self] message in self?.showIssue(message) })
+                screenshotEntry?.setHidden(userHidden)
+            } catch { showIssue("截图入口暂不可用，已有截图收录和队列仍保留。") }
+        }
         await refresh()
     }
 
@@ -560,7 +598,16 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             onChooseSourceAccess: mode.collectsSystemScreenshots ? { [weak self] in self?.chooseSourceAccess() } : nil,
             onToggleHidden: { [weak self] in self?.toggleHidden() },
             onToggleCollection: mode.collectsSystemScreenshots ? { [weak self] in self?.toggleCollection() } : nil,
-            onOpenHistory: { [weak self] in self?.showHistory() })
+            onOpenHistory: { [weak self] in self?.showHistory() },
+            onOpenEntrySettings: mode.collectsSystemScreenshots ? { [weak self] in
+                guard let self else { return }
+                guard let entry = self.screenshotEntry?.entry else {
+                    self.showIssue("截图入口暂不可用，请在运行状态中重新检查。"); return
+                }
+                entry.showPreferences()
+            } : nil,
+            onOpenDisplaySettings: { [weak self] in self?.showArrivalSettings() },
+            onOpenFeedback: { [weak self] in self?.showFeedback() })
         updateSetup()
     }
 
@@ -600,6 +647,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     @objc private func showFeedback() { feedback.open() }
 
     @objc private func showSetup() { updateSetup(); setup?.show() }
+    @objc private func showOnboarding() { updateSetup(); setup?.showOnboarding() }
 
     @objc private func recheckSetup() {
         guard initialized, !requestingPermission, let token = captureControl.begin(.recheck) else { return }
@@ -1098,6 +1146,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 watchedCompletions.formUnion(successful.map(\.id))
                 if hasNewImages && mode.usesWebAdapter { requestArm(reason: "newImages") }
                 rift?.render(snapshot)
+                screenshotEntry?.configure()
                 // The last observed phase may advance to input before another
                 // refresh. Use neutral text, never claim ongoing no-input status.
                 let prepared = Dictionary(uniqueKeysWithValues: unresolved.filter { operation in
@@ -1228,7 +1277,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         if requested {
             cancelSelections(reason: "hidden")
             frozenPress = nil
-            userHidden = true; rift?.setUserHidden(true); updateControlTitles()
+            userHidden = true; screenshotEntry?.setHidden(true); rift?.setUserHidden(true); updateControlTitles()
         }
         Task {
             defer { changingHidden = false; updateControlTitles() }
@@ -1236,6 +1285,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 try await store.setUserHidden(requested)
                 visibilitySettingFailed = false
                 userHidden = requested; rift?.setUserHidden(requested)
+                screenshotEntry?.setHidden(requested)
                 await refresh()
             } catch { visibilitySettingFailed = true; updateSetup() }
         }
@@ -1336,8 +1386,10 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         let heading = NSMenuItem(title: simulation ? "离线模拟 · 没有真实上传"
             : (mode == .webAcceptance ? "Web 验收 · 仅生成图片" : "正在准备本地截图收录…"), action: nil, keyEquivalent: "")
         menu.addItem(heading); statusLine = heading
-        add(menu, "开始使用与运行状态…", #selector(showSetup))
+        add(menu, "设置…", #selector(showSetup))
+        add(menu, "使用引导…", #selector(showOnboarding))
         add(menu, "反馈与建议…", #selector(showFeedback))
+        add(menu, "入缝动效…", #selector(showArrivalSettings))
         if mode.collectsSystemScreenshots { add(menu, "文件访问设置…", #selector(openFilePrivacySettings)) }
         if mode == .webAcceptance {
             menu.addItem(NSMenuItem(title: "Chrome · ChatGPT Chat · Chinese UI · PNG test images", action: nil, keyEquivalent: ""))
@@ -1350,15 +1402,16 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         }
         if simulation { add(menu, "Add 3 synthetic demo images", #selector(addWebTestImages)) }
         menu.addItem(.separator())
-        let hide = NSMenuItem(title: "Hide rift", action: #selector(toggleHidden), keyEquivalent: "")
+        let hide = NSMenuItem(title: "隐藏裂缝", action: #selector(toggleHidden), keyEquivalent: "")
         hide.target = self; menu.addItem(hide); hideItem = hide
         if mode.collectsSystemScreenshots {
-            let pause = NSMenuItem(title: "Pause collection", action: #selector(toggleCollection), keyEquivalent: "")
+            add(menu, "截图…", #selector(beginScreenshot))
+            let pause = NSMenuItem(title: "暂停收录", action: #selector(toggleCollection), keyEquivalent: "")
             pause.target = self; menu.addItem(pause); pauseItem = pause
         }
-        add(menu, "内部截图历史…", #selector(showHistory))
+        add(menu, "截图历史…", #selector(showHistory))
         add(menu, "清空可见队列（保留文件）", #selector(clearVisible))
-        let archive = NSMenuItem(title: "Idle archive…", action: #selector(configureArchive), keyEquivalent: "")
+        let archive = NSMenuItem(title: "自动归档…", action: #selector(configureArchive), keyEquivalent: "")
         archive.target = self; menu.addItem(archive); archiveItem = archive
         menu.addItem(.separator())
         add(menu, "显示最新截图", #selector(showLatest))
@@ -1383,6 +1436,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         let item = NSMenuItem(title: title, action: action, keyEquivalent: key); item.target = self; menu.addItem(item)
     }
     func validateMenuItem(_ item: NSMenuItem) -> Bool {
+        if item.action == #selector(beginScreenshot) { return screenshotEntry != nil && !userHidden }
         if item.action == #selector(toggleCollection) { return mode.collectsSystemScreenshots && initialized && !captureControl.isBusy }
         if item.action == #selector(recheckSetup) || item.action == #selector(reload) {
             return initialized && !captureControl.isBusy && !requestingPermission
@@ -1391,9 +1445,34 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         return true
     }
     private func showIssue(_ message: String) { statusLine?.title = message; statusItem?.button?.toolTip = message }
+    @objc private func beginScreenshot() { screenshotEntry?.beginFromMenu() }
     @objc private func showLatest() { rift?.showLatest() }
     @objc private func showOldest() { rift?.showOldest() }
     @objc private func quit() { NSApplication.shared.terminate(nil) }
+    @objc private func showArrivalSettings() {
+        guard let preferences = arrivalPreferences else { return }
+        if arrivalSettings == nil {
+            arrivalSettings = ArrivalMotionSettingsController(mode: preferences.mode,
+                hasExplicitSelection: preferences.selectedMode != nil) { [weak self] mode in
+                    guard let self, var value = self.arrivalPreferences else { throw CocoaError(.fileWriteUnknown) }
+                    try value.select(mode)
+                    self.arrivalPreferences = value
+                    self.arrivalCapture?.cancel()
+                    self.rift?.setArrivalMode(mode)
+                }
+        }
+        arrivalSettings?.update(mode: preferences.mode, hasExplicitSelection: preferences.selectedMode != nil)
+        arrivalSettings?.show()
+    }
+    private func recordArrivalTrace(_ fields: [String: Any]) {
+        guard CommandLine.arguments.contains("--arrival-trace") else { return }
+        var event = fields
+        event["scope"] = "software_boundaries_not_physical_pixels"
+        event["metadataCandidate"] = CommandLine.arguments.contains(ArrivalSourceProfile.candidateArgument)
+        guard let data = try? JSONSerialization.data(withJSONObject: event, options: [.sortedKeys]),
+              let line = String(data: data, encoding: .utf8) else { return }
+        print("RIFTLET_ARRIVAL_TRACE " + line)
+    }
     @objc private func addWebTestImages() {
         guard mode.generatesSyntheticImages, let store else { return }
         Task {

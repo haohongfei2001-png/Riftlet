@@ -3,6 +3,7 @@
 源码 `7ef6cd4b` 已完成反馈可靠性修复、标准 macOS15 运行器迁移及非作者审查，完整 Native/Feedback CI 已通过，真实统一 Beta 安装包已下载核验。正式工程文档后继的最终 SHA、新正式分支 CI 和下载固定在 [PR #1](https://github.com/haohongfei2001-png/Riftlet/pull/1)，细节见 [Feedback 交接](FEEDBACK_V01_HANDOFF.md)。当前截图实现与准入、真实 Mac 工作树、原有历史与数据均保留，main 未合并。私有反馈仓库已建立；Cloudflare 登录和离线 Mac 仍阻塞真实原生到云端验收，endpoint 继续为空。以下原交接记录保留为历史。
 
 ---
+> **2026-10-29「薄界」原生实施独立候选**：`codex/riftlet-real-mac-acceptance-thin-edge-20261029` 按最终设计继承预测入口与磁力基础，完成共享原生视觉、稳定裂缝/编号/分页/预览、入口空间统一和四相可中断动效。真实2x窗口截图、原生合成动效录像及CGEvent路由已取证；不重测上传、不改变生产或重试准入，不覆盖正式Pro分支。准确源码、macOS CI、非作者审查、未验项与可运行App说明集中在[独立交接](../engineering/evidence/2026-10-29-thin-edge-native/README.md)。所有新精确视觉参数仍为实施候选；本轮不要求创始人体验。以下保留历史与正式检查点，不把独立候选当作已经正式整合。
 
 # 当前正式交接：Beta 体验修复与可运行版本更新 · 2026-10-28
 
