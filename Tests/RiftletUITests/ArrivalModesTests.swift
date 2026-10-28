@@ -107,7 +107,31 @@ final class ArrivalModesTests: XCTestCase {
         }
     }
 
+    @MainActor private func completedPressIsSettled(_ image: CALayer, panel: RiftPanelController,
+                                                   notBefore: TimeInterval) -> Bool {
+        guard ProcessInfo.processInfo.systemUptime >= notBefore,
+              image.affineTransform().tx == 0,
+              let presentation = image.presentation(), presentation.affineTransform().tx == 0,
+              !panel.interactionSnapshot.isHolding, !panel.interactionSnapshot.isSelecting,
+              !panel.interactionSnapshot.isTransitioning else { return false }
+        let keys = image.animationKeys() ?? []
+        if keys.isEmpty { return true }
+        // The CA client layer can retain an already-finished key. Only the real
+        // 80 ms return-to-zero animation is acceptable, never another effect,
+        // a looping animation, or a model-only pose with no presentation layer.
+        guard keys == ["rift.translation"],
+              let animation = image.animation(forKey: "rift.translation") as? CAKeyframeAnimation,
+              animation.keyPath == "transform.translation.x",
+              abs(animation.duration - 0.08) <= 0.000_001,
+              animation.isRemovedOnCompletion, !animation.autoreverses,
+              animation.repeatCount == 0, animation.repeatDuration == 0, animation.speed == 1,
+              let values = animation.values as? [NSNumber], let last = values.last,
+              last.doubleValue == 0 else { return false }
+        return true
+    }
+
     @MainActor private func assertStatic(_ panel: RiftPanelController, id: UUID,
+                                        completedPressNotBefore: TimeInterval? = nil,
                                         file: StaticString = #filePath, line: UInt = #line) throws {
         let (geometry, window, _, layer) = try row(panel, id: id)
         XCTAssertEqual(window.alphaValue, 1, file: file, line: line)
@@ -116,7 +140,12 @@ final class ArrivalModesTests: XCTestCase {
             XCTAssertEqual(input.alphaValue, 1, file: file, line: line)
         }
         XCTAssertEqual(layer.affineTransform().tx, 0, file: file, line: line)
-        XCTAssertTrue(layer.animationKeys()?.isEmpty ?? true, file: file, line: line)
+        if let completedPressNotBefore {
+            XCTAssertTrue(completedPressIsSettled(layer, panel: panel, notBefore: completedPressNotBefore),
+                          "Only the completed, visibly settled return animation may retain a CA key", file: file, line: line)
+        } else {
+            XCTAssertTrue(layer.animationKeys()?.isEmpty ?? true, file: file, line: line)
+        }
         XCTAssertFalse(layer.isHidden, file: file, line: line)
         XCTAssertFalse(panel.diagnosticSnapshot.isTransitioning, file: file, line: line)
         XCTAssertEqual(panel.arrivalDiagnostic.overlayCount, 0, file: file, line: line)
@@ -137,6 +166,7 @@ final class ArrivalModesTests: XCTestCase {
         view.displayIfNeeded()
         XCTAssertTrue(try row(panel, id: record.id).3 === image,
                       "AppKit drawing must not change the canonical layer chosen for this asset")
+        let pressNotBefore = ProcessInfo.processInfo.systemUptime + configuration.pressDuration + 0.08
         XCTAssertTrue(view.accessibilityPerformPress())
         XCTAssertEqual(selected, [record.id], "No animation completion or run-loop turn authorizes selection")
         XCTAssertEqual(panel.diagnosticSnapshot.rows.map(\.assetID), [record.id], "A press alone must never swallow")
@@ -147,10 +177,12 @@ final class ArrivalModesTests: XCTestCase {
             "modelX=\(image.affineTransform().tx), presentationX=\(String(describing: image.presentation()?.affineTransform().tx)), "
                 + "animations=\(image.animationKeys() ?? []), interaction=\(panel.interactionSnapshot)"
         }) {
-            image.affineTransform().tx == 0 && (image.animationKeys()?.isEmpty ?? true)
-                && !panel.interactionSnapshot.isTransitioning
+            self.completedPressIsSettled(image, panel: panel, notBefore: pressNotBefore)
         }
-        try assertStatic(panel, id: record.id)
+        try assertStatic(panel, id: record.id, completedPressNotBefore: pressNotBefore)
+        let settled = try row(panel, id: record.id)
+        XCTAssertEqual(settled.0, before, "Press completion preserves the original row and both input windows")
+        XCTAssertTrue(settled.3 === image)
         XCTAssertEqual(selected, [record.id], "Returning the visual pose must not replay input")
     }
 
@@ -187,16 +219,21 @@ final class ArrivalModesTests: XCTestCase {
         panel.render([failed, second])
         try assertStatic(panel, id: first.id)
         XCTAssertEqual(panel.diagnosticSnapshot.rows.map(\.assetID), [first.id, second.id])
-        XCTAssertTrue(try row(panel, id: first.id).2.accessibilityPerformPress())
+        let reborn = try row(panel, id: first.id)
+        let pressNotBefore = ProcessInfo.processInfo.systemUptime + configuration.pressDuration + 0.08
+        XCTAssertTrue(reborn.2.accessibilityPerformPress())
         XCTAssertEqual(selected, [first.id], "The reborn row keeps the same asset and can be selected normally")
-        let rebornImage = try row(panel, id: first.id).3
+        let rebornImage = reborn.3
         try await eventually("Reborn screenshot press feedback did not settle", diagnostics: {
             "modelX=\(rebornImage.affineTransform().tx), presentationX=\(String(describing: rebornImage.presentation()?.affineTransform().tx)), "
                 + "animations=\(rebornImage.animationKeys() ?? []), interaction=\(panel.interactionSnapshot)"
         }) {
-            rebornImage.affineTransform().tx == 0 && (rebornImage.animationKeys()?.isEmpty ?? true)
+            self.completedPressIsSettled(rebornImage, panel: panel, notBefore: pressNotBefore)
         }
-        try assertStatic(panel, id: first.id)
+        try assertStatic(panel, id: first.id, completedPressNotBefore: pressNotBefore)
+        let settled = try row(panel, id: first.id)
+        XCTAssertEqual(settled.0, reborn.0, "Returning the reborn press cannot replace or move its original input windows")
+        XCTAssertTrue(settled.3 === rebornImage)
         XCTAssertEqual(selected, [first.id])
     }
 
