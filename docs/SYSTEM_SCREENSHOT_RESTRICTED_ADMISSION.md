@@ -57,7 +57,7 @@ reconcile、恢复、旧journal和页面JSON不能登记资格。没有资格就
 
 ## 验证与交付位置
 
-完整macOS CI必须覆盖原生全套、当前Web与legacy、SQLite v1/v2→v3迁移、UNKNOWN和原点击／权限、候选准入、打包、Release构建及五项App/helper自检。候选自检明确标注GENERATED_FIXTURE、CHROME_NOT_RUN、SYSTEM_SCREENSHOT_NOT_RUN、GUI_NOT_RUN，不能替代新的真实Mac体验。
+已测源码 `34caed4a5c5b7264c1699b62ea1438e1ce5646ca` 的[完整macOS CI40673128250](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40673128250) completed/success：457原生、86当前页面/61旧页面、17组详细回归120项（包含在457内）、包装12、Release及五项App/helper自检。SQLite v1/v2→v3迁移、UNKNOWN和原点击／权限保护均随原套件验证；新增13项准入回归与实际App组合已通过。候选自检明确标注GENERATED_FIXTURE、CHROME_NOT_RUN、SYSTEM_SCREENSHOT_NOT_RUN、GUI_NOT_RUN，不能替代新的真实Mac体验。
 
 最终精确正式HEAD、CI run/job、实测checkout与源码树对应、非作者审查和候选App artifact由 [PR #1最新正式交接](https://github.com/haohongfei2001-png/Riftlet/pull/1) 固定；永久记录放在 [本轮集成证据](../engineering/evidence/2026-10-28-sc-restricted-admission/README.md)。候选App来自该次CI的 `Riftlet-macOS-development.zip`，为内部ad-hoc开发包，不是公证／公开发行版。
 

@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "integration_lead": "root / sole formal engineering integrator authorized by current user",
+  "official_baseline": "871d825a43a759bb6dd8ded9cdc99a340d8e0e64",
+  "evidence_handoff": "493d1d8b898d18e34709463d2dceca8c85ad4014",
+  "evidence_actual_runtime": "48574df19f34e5681ee98815750e279540e9eb9b",
+  "common_ancestor": "f2ae645451044649fbe73326952efbe084353869",
+  "preserving_merge_commit": "375f52d84007ea6644ddcc0380fa52a3591c74ab",
+  "preserving_merge_parents": [
+    "871d825a43a759bb6dd8ded9cdc99a340d8e0e64",
+    "493d1d8b898d18e34709463d2dceca8c85ad4014"
+  ],
+  "tested_source_commit": "34caed4a5c5b7264c1699b62ea1438e1ce5646ca",
+  "tested_source_tree": "d1b5c73c4d3c7eda94c7675a18f87b1ee08bafcf",
+  "fixture_fix_only": [
+    "Tests/RiftletAdaptersTests/SystemScreenshotCandidateAdmissionTests.swift"
+  ],
+  "source_ci": {
+    "run_id": 40673128250,
+    "job_id": 122764686050,
+    "checkout_sha": "34caed4a5c5b7264c1699b62ea1438e1ce5646ca",
+    "conclusion": "success",
+    "summary": "source-ci-summary.json",
+    "log": "ci-40673128250-success.log",
+    "pr_ci_also_success": 40673134992
+  },
+  "failed_attempt": {
+    "run_id": 40672786893,
+    "job_id": 122763525170,
+    "head_sha": "375f52d84007ea6644ddcc0380fa52a3591c74ab",
+    "checkout_sha": "6349afb880bb88cd9d1f2e9c46dccd415bb0ea16",
+    "reason": "Four new generated fixture cases used a non-UUID start evidenceID; existing strict decoder rejected them. Only fixture string corrected.",
+    "log": "ci-40672786893-failed.log",
+    "cancelled_push_not_counted": 40672755431,
+    "saved_log_sha256": "2e6aa20dd8c7777f29f2b0cac2e9b2891ff725630353cbf3d54e1cc4721d42d3"
+  },
+  "admission": {
+    "internal_new_operations_only": true,
+    "start_profile": "chatgpt-web-system-screenshot-start-restricted-20261028-v2",
+    "completion_profile": "chatgpt-web-system-screenshot-attached-restricted-20261028-v2",
+    "safety_failure": false,
+    "retry": false,
+    "ordinary_production": false,
+    "legacy_v1_and_old_UNKNOWN_admitted": false,
+    "source_js_changed": false,
+    "prospective_operation_registration": "SQLite v3 first checkpoint, exact persisted dispatch intent/identity, nonce, no reconcile enrollment",
+    "png": "original single-frame noninterlaced RGBA8, <=8MiB <=16777216 pixels",
+    "target": "Chrome zh ordinary recognized persisted conversation, exact original full target"
+  },
+  "original_F_public_evidence_sha256": {
+    "README.md": "baa2eb191618b2e9a95fb11f3f5839aaf9a508d6e285e55497801cbc8996219f",
+    "private-evidence-sha256.json": "1f575aeea9c7fdebba6f9f247e4e173210fb5b6caf287d9e6f7ca532548c2c57",
+    "result.json": "aafaf2e31c57ed388e812ae231addacaec51288731558948060ab1b8a897527b",
+    "review.json": "ee0a09f55a05ede558afc22a775e345cf28b582caeb283f6e5bbf912277131fb",
+    "timeline.json": "308246cab508a5d05a2e2e033fed1711e3a36852d972bbd60e0fb9f182f030ce",
+    "verification.json": "2eebfd0d08f781ad02ca013e40ca4cb72c374cf33f13646b48626dac75331e11"
+  },
+  "remote_refs_not_written": {
+    "main": "eba1a4fc77648a665e1d5c1f2609df1314c3b079",
+    "codex/feedback-v01-20261028": "f195bebbc22ed1a162b5866ca1fe6c7ccb9835b9"
+  },
+  "final_handoff": "This documentation/evidence commit retains all source-ci-summary build input objects; PR #1 final handoff fixes its exact SHA, new final CI and App artifact.",
+  "next_real_mac": "One different new original system screenshot; no F/old UNKNOWN re-input, cleanup or unlock. New App whole fast-swallow experience remains NOT_RUN until that execution.",
+  "non_author_reviews": {
+    "start-evidence-review.md": "618188856214addf5f5c1a52f1cb5c749c5e1f6be099e125d131c0adec1b5cfa",
+    "completion-evidence-review.md": "d63893bed44933b8459fa283d04386c608b7a9502955ba0cd55d994bcad9b79a",
+    "safety-design-review.md": "8b7db7f3984cd96bc4ab387d0dfa8a3257e8cc79d2a936c1c44d748a45afefdc",
+    "safety-implementation-review.md": "e4b85617af5d1cacb30691306a879dfcf7ca96d766e7925e0bb034b26054b69d",
+    "completion-implementation-review.md": "68d9e49507d3d096d754917746174f8cb53659c515f83d54a18bc562d58492ea",
+    "ci-safety-review.md": "72242957ce9aba8e6a3eada8ed0609d7b537696a2b3ccd25c662f451c0a7dc16",
+    "ci-completion-review.md": "703a915ae1aba681b2132c0584e57fc815e97f5fb140f3f1f1fcdaa435fd97f9"
+  }
+}

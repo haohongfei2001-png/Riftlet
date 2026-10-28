@@ -1,5 +1,19 @@
 # Engineering verification record
 
+## 2026-10-28：真实截图受限准入与快吞噬组合
+
+已测源码 **`34caed4a5c5b7264c1699b62ea1438e1ce5646ca`**，合流父节点保留正式871d825与新F证据493d1d8。实际直接checkout该SHA的[完整macOS CI40673128250](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40673128250) completed/success于 **2026-10-28 10:36:20 UTC**，job122764686050，18步骤success；同SHA的PR组合CI40673134992也成功。
+
+- 457个原生测试：Core138、Adapters150、Capture65、UI56、App48；新增13个逐操作准入回归及1个App独立策略回归已包含其中。
+- 当前页面86、legacy61；原离线回放、network fault/probe、第五轮helper9/4/2、第二阶段helper12及Python包装12均成功。
+- 17组详细suite共120项，全部passed、0skip，已包含在457内，不能重复相加。覆盖旧权限wake/过期ACK、原选择、UNKNOWN、旧操作、完整身份、并发资格和重启只读等保护。
+- Release构建、ad-hoc签名、移动后的App与五项App/helper可执行自检成功。生成夹具自检明确标注真实Chrome/系统截图/GUI未运行。
+- 新start与completion由不同非作者分别审证，源码、测试和完整实际CI再经两位非作者审查。页面JS与48574df字节一致，精确sRGB判据、v9/v10/v12/v13兼容和原上传流程未改变。
+- 首轮PR CI40672786893因新增夹具使用非UUID开始evidenceID导致4项回归失败；仅修正一行测试fixture，未放宽validator。失败完整日志和修复依据均保留，初始push40672755431取消，不计通过。
+
+[永久源CI/审查/失败记录](../engineering/evidence/2026-10-28-sc-restricted-admission/README.md)与[当前候选入口](SYSTEM_SCREENSHOT_RESTRICTED_ADMISSION.md)。最终文档交接HEAD的完整PR #1 CI与App artifact由PR #1最新交接固定，不把本次source CI冒称那个最终run。F原操作及全部旧UNKNOWN仍未准入；安全失败/重试、普通生产关闭。新版真实快吞噬只待另一张全新系统截图，不重输F/旧UNKNOWN，不清库解锁。
+
+
 2026-10-27 Asia/Shanghai. Initial foundation branch based on `5a3ab5d7a761d5397f8bc15b6f40d761b29e58d2`.
 
 ## Evidence categories

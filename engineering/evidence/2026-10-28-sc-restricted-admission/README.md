@@ -30,7 +30,13 @@ The JS resource remains byte-identical to48574df, SHA-256 `c0afbd8a652c7a0e8fe68
 
 ## Verification and accurate continuation
 
-Actual source/final CI and implementation review records will be added after the full macOS run; final accurate SHA and artifact are fixed by the PR #1 handoff. Do not substitute the old source CI for the new implementation.
+The exact tested source is **`34caed4a5c5b7264c1699b62ea1438e1ce5646ca`**, tree `d1b5c73c4d3c7eda94c7675a18f87b1ee08bafcf`. [Direct-source macOS CI40673128250](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40673128250), job122764686050, completed/success at2026-10-28 10:36:20UTC; all18 steps succeeded. Its actual checkout is exactly that source SHA. PR-source CI40673134992 also succeeded.
+
+[Machine-readable source CI summary](source-ci-summary.json) records457 unique native tests (Core138/Adapters150/Capture65/UI56/App48),17 detailed suites/120 tests already included in457, current Web86/legacy61, helpers/packaging and all five packaged self-check markers. The full actual [successful job log](ci-40673128250-success.log) is retained, with leading BOM/terminal newline normalization disclosed. It includes migrations, original selection and permission protection, release build, signing and packaging.
+
+The first PR run40672786893 failed four new fixture cases because its constructed start evidence ID was not a UUID. The immutable original validator correctly rejected it. Only that fixture string changed in34caed4; all production source stayed identical. [Full failed log](ci-40672786893-failed.log) is retained. Initial push40672755431 was cancelled and is not a passing run.
+
+[Source safety implementation review](safety-implementation-review.md) and [independent completion implementation review](completion-implementation-review.md) bind the reviewed file hashes, explain resolved findings and the one-line fixture repair. [Full-log safety CI review](ci-safety-review.md) and [independent completion CI review](ci-completion-review.md) both pass, bound to the actual direct source checkout. The final documentation handoff keeps all12 listed build/test input objects unchanged; its exact final SHA and new full PR #1 run/artifact are fixed by the final PR #1 handoff, not silently relabelled as this source run.
 
 Generated-fixture tests exercise new start→swallowed→read-only restart→independent succeeded, independent policy maps, legacy F-style valid attached/start remaining UNKNOWN and locked, malformed/foreign registration, full identity mismatch, concurrent first enrollment, duplicate append rejection, scope refusal and private-file integrity. The packaged software self-check retains explicit CHROME_NOT_RUN / SYSTEM_SCREENSHOT_NOT_RUN / GUI_NOT_RUN labels.
 
