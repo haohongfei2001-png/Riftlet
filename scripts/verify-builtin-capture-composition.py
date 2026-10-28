@@ -22,7 +22,7 @@ METADATA_PATHS = frozenset((
     "docs/BUILTIN_CAPTURE_HANDOFF_2026-10-29.md",
     "engineering/evidence/2026-10-29-builtin-capture/results.json",
 ))
-REVIEWED_SOURCE = "bd83e84e49fe7f50ad6c483bf9ccb1885ce70fc8"  # Independent full-source, timeout and origin-overlap review.
+REVIEWED_SOURCE = "9ebd89cf6067ffb2c21dba3034a48dae64bfda52"  # Independent full-source, safe publication and preference migration review.
 
 
 def load_engine():

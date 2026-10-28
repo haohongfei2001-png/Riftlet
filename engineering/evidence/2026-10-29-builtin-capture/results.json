@@ -3,24 +3,10 @@
   "baseline": "443d21da1a55c0061eafced823b5406879b96024",
   "formalHeadObserved": "0e7ea8be148e1124b387e799fd886a7830e96559",
   "branch": "codex/builtin-capture-completion-20261029",
-  "sourceRevision": "bd83e84e49fe7f50ad6c483bf9ccb1885ce70fc8",
+  "sourceRevision": "9ebd89cf6067ffb2c21dba3034a48dae64bfda52",
   "ci": {
-    "status": "PENDING_NEW_SAFE_PUBLICATION_SOURCE; previous software-only success did not establish CLI output success",
-    "runs": [
-      {
-        "id": 40756422188,
-        "name": "Native foundation",
-        "status": "IN_PROGRESS",
-        "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/40756422188"
-      },
-      {
-        "id": 40756422179,
-        "name": "Feedback v0.1",
-        "status": "SUCCESS",
-        "job": 123056434257,
-        "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/40756422179"
-      }
-    ],
+    "status": "PENDING_CI_FOR_REVIEWED_SAFE_PUBLICATION_AND_PREFERENCE_MIGRATION_SOURCE",
+    "runs": [],
     "previousSourceRuns": [
       {
         "head": "9e7ab42739c78d97ee7dc352216a6a62659ce2ea",
@@ -35,7 +21,7 @@
         "previewImagesRetained": 0
       }
     ],
-    "testedHead": "b901b5e10a94aa25165d0e020e50931ae8015a77",
+    "testedHead": null,
     "rejectedCandidate": {
       "source": "bd83e84e49fe7f50ad6c483bf9ccb1885ce70fc8",
       "head": "b901b5e10a94aa25165d0e020e50931ae8015a77",
@@ -90,7 +76,7 @@
   "ordinaryProductionAndSafeRetry": "UNCHANGED; closed",
   "formalPR1ModifiedByThisTask": false,
   "release": "NOT_RELEASED",
-  "sourceTree": "be0bd4f1d399935205e75979efd400961d9d4f22",
+  "sourceTree": "091965c27c191f6a9880da5c6061013e3b47269f",
   "localChecks": {
     "diffCheck": "PASS",
     "originalGateFaultTests": 21,
@@ -104,12 +90,27 @@
     ],
     "remainingSourceBlockers": [],
     "physicalOrUploadAdmission": "NOT_GRANTED",
-    "reviewedSource": "bd83e84e49fe7f50ad6c483bf9ccb1885ce70fc8",
+    "reviewedSource": "9ebd89cf6067ffb2c21dba3034a48dae64bfda52",
     "timeoutRaceFollowup": "PASS; exact two-blob delta independently reviewed",
-    "originOverlapFollowup": "PASS source review; ordinary CLI filename in hidden private stage, exclusive hidden final publication, provenance conflict guard; real output acceptance requires new CI"
+    "originOverlapFollowup": "PASS source review; ordinary CLI filename in hidden private stage, exclusive hidden final publication, provenance conflict guard; real output acceptance requires new CI",
+    "reviewedTree": "091965c27c191f6a9880da5c6061013e3b47269f",
+    "safePublicationFollowup": {
+      "source": "b32d358f9cfb1dda59cab7d23aa0f04be1ffc52a",
+      "tree": "94423895add23282b6937ab45a791c4961206ea8",
+      "result": "PASS exact source and evidence review; no runtime, physical or upload approval",
+      "reviewer": "technology_audit (non-author)",
+      "scope": "Owned directory descriptors, exclusive link publication, cancellation retention, exact path readback; actual native fixture and output-error CI gate; retained-image provenance and privacy"
+    },
+    "preferenceMigrationFollowup": {
+      "source": "9ebd89cf6067ffb2c21dba3034a48dae64bfda52",
+      "tree": "091965c27c191f6a9880da5c6061013e3b47269f",
+      "result": "PASS exact four-path delta review; runtime pending CI",
+      "reviewer": "technology_audit (non-author)",
+      "scope": "Strict canonical/legacy key precedence and canonical-only write, migration regressions, generated-EXIF documentation correction"
+    }
   },
   "pullRequest": "https://github.com/haohongfei2001-png/Riftlet/pull/14",
-  "newSwiftTestMethods": 40,
+  "newSwiftTestMethods": 51,
   "legacyVisibleCaptures": "NOT_MIGRATED; no retag, no cleanup, no new upload evidence or old-operation admission",
   "productAcceptance": "BLOCKED; engineering candidate only",
   "remainingRequirements": [
@@ -972,5 +973,15 @@
     "productionBackendAcceptance": "NOT_GRANTED",
     "sourceRun": 40756422188,
     "sourceJob": 123056435473
+  },
+  "formalIntegrationObserved": {
+    "pr": 15,
+    "head": "c8c92f81c51a9235f25200f026552e9db692d6ec",
+    "reviewedSource": "49735b821bf8aae8f8327048a3c0ba159e1963d1",
+    "state": "OPEN_DRAFT",
+    "formalPR1Head": "0e7ea8be148e1124b387e799fd886a7830e96559",
+    "modifiedByThisTask": false,
+    "combinedAcceptance": "NOT_RUN",
+    "conflictAudit": "Earlier snapshot fea485ce had 9 intersecting paths and 7 text-conflict files; latest c8c92 additionally changes engine paths, pending read-only conflict refresh"
   }
 }
