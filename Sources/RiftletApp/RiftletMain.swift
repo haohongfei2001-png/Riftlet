@@ -458,6 +458,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 screenshotEntry = try ScreenshotEntryHost(root: root, store: store, rift: rift,
                     onChange: { [weak self] in await self?.refresh() },
                     onIssue: { [weak self] message in self?.showIssue(message) })
+                screenshotEntry?.onPreferencesChanged = { [weak self] in self?.updateSetup() }
                 screenshotEntry?.setHidden(userHidden)
             } catch { showIssue("截图入口暂不可用，已有截图收录和队列仍保留。") }
         }
@@ -599,21 +600,22 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             onToggleHidden: { [weak self] in self?.toggleHidden() },
             onToggleCollection: mode.collectsSystemScreenshots ? { [weak self] in self?.toggleCollection() } : nil,
             onOpenHistory: { [weak self] in self?.showHistory() },
-            onOpenEntrySettings: mode.collectsSystemScreenshots ? { [weak self] in
-                guard let self else { return }
-                guard let entry = self.screenshotEntry?.entry else {
-                    self.showIssue("截图入口暂不可用，请在运行状态中重新检查。"); return
-                }
-                entry.showPreferences()
-            } : nil,
             onOpenDisplaySettings: { [weak self] in self?.showArrivalSettings() },
-            onOpenFeedback: { [weak self] in self?.showFeedback() })
+            onOpenFeedback: { [weak self] in self?.showFeedback() },
+            onSetBuiltInScreenshotEnabled: mode.collectsSystemScreenshots ? { [weak self] enabled in
+                self?.screenshotEntry?.setEnabled(enabled)
+            } : nil,
+            onDefaultScreenshotMode: mode.collectsSystemScreenshots ? { [weak self] selected in
+                self?.screenshotEntry?.saveDefault(selected)
+            } : nil)
         updateSetup()
     }
 
     private func updateSetup() {
         let issue: SetupIssue? = visibilitySettingFailed ? .visibilityPreferenceUnsaved
-            : (collectionSettingFailed ? .collectionPreferenceUnsaved : (captureDiagnostic.map(ProductStatus.issue) ?? setupIssue))
+            : (collectionSettingFailed ? .collectionPreferenceUnsaved
+                : (screenshotEntry?.preferenceSaveFailed == true ? .screenshotPreferenceUnsaved
+                    : (captureDiagnostic.map(ProductStatus.issue) ?? setupIssue)))
         let attachment = mode.attachmentState
         let source = ProductStatus.sourceState(detectedSource: detectedSource, observation: captureStatus,
             systemCollection: mode.collectsSystemScreenshots, paused: captureIsPaused, initialized: initialized)
@@ -624,7 +626,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             attachment: attachment, permission: ProductStatus.permission(automationPermission),
             permissionDetail: mode.usesWebAdapter ? ProductStatus.chromeJavaScriptHelp : nil,
             storage: setupStorage, issue: issue, supportDescription: ProductStatus.supportDescription,
-            isChecking: captureControl.isBusy || requestingPermission || !initialized)
+            isChecking: captureControl.isBusy || requestingPermission || !initialized,
+            builtInScreenshotEnabled: screenshotEntry?.isEnabled,
+            defaultScreenshotMode: screenshotEntry?.defaultMode ?? .window)
         if setup?.presentation.snapshot != snapshot { setup?.update(snapshot: snapshot) }
         let presentation = SetupPresentation(snapshot: snapshot)
         let summary = presentation.issueText ?? (mode.collectsSystemScreenshots ? presentation.collectionText : presentation.attachmentText)
@@ -644,10 +648,12 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         updateSetup()
     }
 
-    @objc private func showFeedback() { feedback.open() }
+    @objc private func showFeedback() { screenshotEntry?.cancel(); feedback.open() }
 
-    @objc private func showSetup() { updateSetup(); setup?.show() }
-    @objc private func showOnboarding() { updateSetup(); setup?.showOnboarding() }
+    // A deliberate host window must never sit underneath a live selection
+    // panel: clicking its controls would otherwise create a screenshot.
+    @objc private func showSetup() { screenshotEntry?.cancel(); updateSetup(); setup?.show() }
+    @objc private func showOnboarding() { screenshotEntry?.cancel(); updateSetup(); setup?.showOnboarding() }
 
     @objc private func recheckSetup() {
         guard initialized, !requestingPermission, let token = captureControl.begin(.recheck) else { return }
@@ -1218,6 +1224,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
 
     @objc private func showHistory() {
         guard let history else { return }
+        screenshotEntry?.cancel()
         history.show()
         Task { await refreshHistory() }
     }
@@ -1436,7 +1443,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         let item = NSMenuItem(title: title, action: action, keyEquivalent: key); item.target = self; menu.addItem(item)
     }
     func validateMenuItem(_ item: NSMenuItem) -> Bool {
-        if item.action == #selector(beginScreenshot) { return screenshotEntry != nil && !userHidden }
+        if item.action == #selector(beginScreenshot) { return screenshotEntry?.isEnabled == true && !userHidden }
         if item.action == #selector(toggleCollection) { return mode.collectsSystemScreenshots && initialized && !captureControl.isBusy }
         if item.action == #selector(recheckSetup) || item.action == #selector(reload) {
             return initialized && !captureControl.isBusy && !requestingPermission
@@ -1451,6 +1458,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     @objc private func quit() { NSApplication.shared.terminate(nil) }
     @objc private func showArrivalSettings() {
         guard let preferences = arrivalPreferences else { return }
+        screenshotEntry?.cancel()
         if arrivalSettings == nil {
             arrivalSettings = ArrivalMotionSettingsController(mode: preferences.mode,
                 hasExplicitSelection: preferences.selectedMode != nil) { [weak self] mode in

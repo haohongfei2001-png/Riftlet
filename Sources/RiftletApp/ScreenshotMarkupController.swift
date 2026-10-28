@@ -13,7 +13,8 @@ final class ScreenshotMarkupController: NSWindowController, NSWindowDelegate {
 
     init?(pngData: Data) {
         guard let source = CGImageSourceCreateWithData(pngData as CFData, nil),
-              let image = CGImageSourceCreateImageAtIndex(source, 0, nil) else { return nil }
+              let image = CGImageSourceCreateImageAtIndex(source, 0, nil),
+              Self.supportsMarkup(image) else { return nil }
         canvas = ScreenshotMarkupCanvas(image: image)
         let panel = ScreenshotMarkupPanel(contentRect: NSRect(x: 0, y: 0, width: 760, height: 540),
             styleMask: [.titled, .closable, .resizable, .nonactivatingPanel], backing: .buffered, defer: false)
@@ -55,6 +56,15 @@ final class ScreenshotMarkupController: NSWindowController, NSWindowDelegate {
     }
 
     required init?(coder: NSCoder) { fatalError("init(coder:) is not used") }
+
+    /// The small editor renders an 8-bit SDR RGB derivative. Restrict it to
+    /// recognized sRGB / Display P3 profiles; unknown transfer functions and
+    /// high-bit-depth sources take the byte-preserving original path.
+    static func supportsMarkup(_ image: CGImage) -> Bool {
+        guard image.bitsPerComponent == 8, let space = image.colorSpace,
+              space.model == .rgb, let name = space.name else { return false }
+        return name == CGColorSpace.sRGB || name == CGColorSpace.displayP3
+    }
 
     func present() {
         window?.center(); window?.makeKeyAndOrderFront(nil)

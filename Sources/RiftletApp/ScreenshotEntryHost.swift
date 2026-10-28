@@ -16,8 +16,15 @@ final class ScreenshotEntryHost {
     private var preferences: ScreenshotEntryPreferences
     private let onChange: @MainActor () async -> Void
     private let onIssue: (String) -> Void
+    private let savePreferences: (ScreenshotEntryPreferences, URL) throws -> Void
+    var onPreferencesChanged: (() -> Void)?
+    var isEnabled: Bool { preferences.builtInScreenshotEnabled }
+    var defaultMode: ScreenshotMode { preferences.defaultMode }
+    private(set) var preferenceSaveFailed = false
+    private var userHidden = false
     private var menuOpen = false
     private var editor: ScreenshotMarkupController?
+    private var editorID: UUID?
     private var cancelling = false
     private var closed = false
     private var screenObserver: NSObjectProtocol?
@@ -27,8 +34,11 @@ final class ScreenshotEntryHost {
 
     init(root: URL, store: QueueStore, rift: RiftPanelController,
          onChange: @escaping @MainActor () async -> Void,
-         onIssue: @escaping (String) -> Void) throws {
+         onIssue: @escaping (String) -> Void,
+         captureController: InteractiveScreenshotController? = nil,
+         savePreferences: @escaping (ScreenshotEntryPreferences, URL) throws -> Void = { try $0.save(to: $1) }) throws {
         self.rift = rift; self.onChange = onChange; self.onIssue = onIssue
+        self.savePreferences = savePreferences
         outputDirectory = root.appendingPathComponent("captures", isDirectory: true)
         preferencesURL = root.appendingPathComponent("capture-entry-settings.json")
         preferences = try ScreenshotEntryPreferences.load(from: preferencesURL)
@@ -41,11 +51,14 @@ final class ScreenshotEntryHost {
                 try encoder.encode(adjusted).write(to: root.appendingPathComponent("rift-configuration.json"), options: .atomic)
                 try rift.updateConfiguration(adjusted)
             }
-            try preferences.save(to: preferencesURL)
+            try savePreferences(preferences, preferencesURL)
         }
         importer = PrivateAssetImporter(privateRoot: root, store: store)
-        entry = ScreenshotEntryController(defaultMode: preferences.defaultMode)
-        capture = InteractiveScreenshotController(outputDirectory: outputDirectory)
+        entry = ScreenshotEntryController(defaultMode: preferences.defaultMode,
+                                          isEnabled: preferences.builtInScreenshotEnabled)
+        capture = captureController ?? InteractiveScreenshotController(outputDirectory: outputDirectory,
+            isEnabled: preferences.builtInScreenshotEnabled)
+        capture.setEnabled(preferences.builtInScreenshotEnabled)
         wireCallbacks()
         rift.onGeometryChange = { [weak self] in self?.configure() }
         screenObserver = NotificationCenter.default.addObserver(
@@ -64,24 +77,28 @@ final class ScreenshotEntryHost {
 
     private func wireCallbacks() {
         entry.onBegin = { [weak self] mode in
-            guard let self, !self.closed else { return }
+            guard let self, !self.closed, self.isEnabled, !self.userHidden else { return }
             self.startCapture(mode: mode)
         }
         entry.onMode = { [weak self] mode in
-            guard let self, !self.closed else { return }
+            guard let self, !self.closed, self.isEnabled, !self.userHidden else { return }
             if self.capture.isActive { self.capture.updateMode(mode) }
             else { self.startCapture(mode: mode) }
         }
         entry.onCancel = { [weak self] in self?.cancel() }
-        entry.onOptions = { [weak self] options in self?.capture.updateOptions(options) }
+        entry.onOptions = { [weak self] options in
+            guard let self, self.isEnabled, !self.closed else { return }
+            self.capture.updateOptions(options)
+        }
         entry.onSettings = { [weak self] mode in self?.saveDefault(mode) }
         entry.onMenuVisibility = { [weak self] open in
-            guard let self else { return }
+            guard let self, self.isEnabled, !self.closed else { return }
             self.menuOpen = open; self.updateSuspension()
         }
         capture.onCancel = { [weak self] in self?.cancel() }
         capture.onError = { [weak self] error in
-            self?.onIssue(error.localizedDescription)
+            guard let self, self.isEnabled, !self.closed else { return }
+            self.onIssue(error.localizedDescription)
         }
         capture.onCaptureVisibilityChanged = { [weak self] hidden in
             self?.setExposureSuppressed(hidden)
@@ -91,6 +108,11 @@ final class ScreenshotEntryHost {
 
     func configure() {
         guard !closed else { return }
+        guard isEnabled else {
+            rift.setCaptureHeaderAnchor(nil)
+            entry.configure(screen: nil)
+            return
+        }
         guard let screen = rift.preferredScreen else {
             entry.configure(screen: nil); return
         }
@@ -102,12 +124,13 @@ final class ScreenshotEntryHost {
     }
 
     func beginFromMenu() {
-        guard !closed, !entry.isHidden else { return }
+        guard !closed, isEnabled, !userHidden, !entry.isHidden else { return }
         if !entry.isExpanded { entry.setExpanded(true) }
         if !capture.isActive { startCapture(mode: entry.mode) }
     }
 
     private func startCapture(mode: ScreenshotMode) {
+        guard isEnabled, !closed, !userHidden, !cancelling else { return }
         rift.setCaptureSessionActive(true)
         capture.start(mode: mode, options: entry.options)
         // Permission refusal/no display never creates a capture session. Return
@@ -119,25 +142,63 @@ final class ScreenshotEntryHost {
     }
 
     func setHidden(_ hidden: Bool) {
+        userHidden = hidden
         if hidden { cancel() }
         entry.setHidden(hidden)
     }
 
-    private func saveDefault(_ mode: ScreenshotMode) {
+    /// Disabling is immediate even on a full/read-only disk. Enabling becomes
+    /// effective only after persistence succeeds. Neither path touches the
+    /// system collector, visibility preference, queue or original files.
+    func setEnabled(_ enabled: Bool) {
+        guard !closed else { return }
+        guard enabled != isEnabled || preferenceSaveFailed else { return }
+        var proposed = preferences; proposed.builtInScreenshotEnabled = enabled
+        if !enabled {
+            preferences.builtInScreenshotEnabled = false
+            capture.setEnabled(false)
+            cancel()
+            entry.setEnabled(false)
+            rift.setCaptureHeaderAnchor(nil)
+        }
+        do {
+            try savePreferences(proposed, preferencesURL)
+            preferences = proposed; preferenceSaveFailed = false
+            capture.setEnabled(enabled)
+            entry.setEnabled(enabled)
+            entry.setHidden(userHidden)
+            configure()
+        } catch {
+            preferenceSaveFailed = true
+            onIssue(enabled ? "内置截图设置未能保存，开关状态未改变。请检查可用存储空间后重试。"
+                : "内置截图已关闭，但设置未能保存；重启可能恢复原设置。请检查可用存储空间后重试。")
+        }
+        onPreferencesChanged?()
+    }
+
+    func saveDefault(_ mode: ScreenshotMode) {
+        guard !closed else { return }
         var proposed = preferences; proposed.defaultMode = mode
-        do { try proposed.save(to: preferencesURL); preferences = proposed }
+        do {
+            try savePreferences(proposed, preferencesURL)
+            preferences = proposed; preferenceSaveFailed = false
+            entry.setDefaultMode(mode)
+        }
         catch {
+            preferenceSaveFailed = true
             entry.setDefaultMode(preferences.defaultMode)
             onIssue("默认截图方式未能保存，请稍后重试。")
         }
+        onPreferencesChanged?()
     }
 
     private func updateSuspension() {
+        guard !closed, isEnabled, !cancelling else { return }
         capture.setInteractionSuspended(menuOpen || editor != nil)
     }
 
     private func setExposureSuppressed(_ hidden: Bool) {
-        guard !closed, hidden != exposureIsSuppressed else { return }
+        guard !closed, hidden != exposureIsSuppressed, !hidden || (isEnabled && !cancelling) else { return }
         exposureIsSuppressed = hidden
         // This is self-exclusion during one exposure, not a UI collapse.
         entry.setCaptureSuppressed(hidden); rift.setCaptureSuppressed(hidden)
@@ -154,43 +215,45 @@ final class ScreenshotEntryHost {
     }
 
     private func received(_ result: InteractiveScreenshotCapture) {
-        guard !closed else { return }
+        guard !closed, isEnabled, !cancelling else { return }
         if result.options.editAfter, let editor = ScreenshotMarkupController(pngData: result.pngData) {
+            let owner = UUID(); editorID = owner
             self.editor = editor
             entry.setBusy(true); updateSuspension()
             editor.onFinish = { [weak self] editedData in
-                guard let self else { return }
-                self.editor = nil; self.entry.setBusy(false); self.updateSuspension()
+                guard let self, !self.closed, self.editorID == owner else { return }
+                self.editorID = nil; self.editor = nil
+                self.entry.setBusy(false); self.updateSuspension()
                 self.collect(result, editedData: editedData)
             }
             editor.present()
         } else {
             collect(result, editedData: nil)
+            if result.options.editAfter {
+                onIssue("这张截图已按原画质保留；当前轻量标注不支持它的颜色格式。")
+            }
         }
         // Deliberately no setExpanded(false), cancel(), or mode/order mutation.
     }
 
     private func collect(_ result: InteractiveScreenshotCapture, editedData: Data?) {
         let importer = self.importer, directory = outputDirectory
+        // A completed exposure owns a saved original. Its durable import may
+        // finish after the feature is disabled; it never restarts capture or
+        // changes a setting. Unfinished exposures are cancelled by the engine.
         Task { [weak self] in
             do {
-                let source: URL
-                let origin: AssetOrigin
-                if let editedData {
-                    source = directory.appendingPathComponent(UUID().uuidString.lowercased() + "-edited.png")
-                    try editedData.write(to: source, options: .atomic)
-                    try FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: source.path)
-                    origin = .applicationScreenshot
-                } else {
-                    source = result.sourceURL
-                    origin = result.hasSystemScreenshotMetadata ? .systemScreenshot : .applicationScreenshot
-                }
-                _ = try await importer.importCompletedScreenshot(at: source, origin: origin)
+                // Origin records who initiated the capture, not which encoder
+                // happened to write an xattr. Built-in originals and derivatives
+                // must never borrow the system-screenshot admission profile.
+                _ = try await importer.importBuiltInScreenshot(original: result.sourceURL,
+                    editedPNG: editedData, outputDirectory: directory)
                 guard let self, !self.closed else { return }
                 await self.onChange()
                 self.rift.showLatest(); self.configure()
             } catch {
-                self?.onIssue("截图原文件已保留，暂未加入裂缝。请检查可用存储空间后重试。")
+                guard let self, !self.closed else { return }
+                self.onIssue("截图原文件已保留，暂未加入裂缝。请检查可用存储空间后重试。")
             }
         }
     }
@@ -201,6 +264,7 @@ final class ScreenshotEntryHost {
         capture.cancel()
         setExposureSuppressed(false)
         editor?.keepOriginalAndClose(); editor = nil
+        editorID = nil
         menuOpen = false
         entry.setCaptureSuppressed(false); entry.setBusy(false)
         entry.setExpanded(false)
@@ -211,6 +275,7 @@ final class ScreenshotEntryHost {
     func close() {
         guard !closed else { return }
         cancel(); closed = true
+        capture.setEnabled(false)
         if let screenObserver { NotificationCenter.default.removeObserver(screenObserver) }
         if let windowCloseObserver { NotificationCenter.default.removeObserver(windowCloseObserver) }
         screenObserver = nil

@@ -229,4 +229,119 @@ final class ScreenshotEntryControllerTests: XCTestCase {
         controller.close()
         XCTAssertFalse(entry.accessibilityPerformPress(), "Retained closed views have no action authority")
     }
+
+    @MainActor func testInitiallyDisabledEntryOwnsNoListenersAndCanBeEnabledWithoutRecreation() throws {
+        _ = NSApplication.shared
+        let screen = try XCTUnwrap(NSScreen.screens.first)
+        let controller = ScreenshotEntryController(defaultMode: .region, isEnabled: false)
+        defer { controller.close() }
+        controller.configure(screen: screen)
+        var began: [ScreenshotMode] = []
+        controller.onBegin = { began.append($0) }
+        let disabled = controller.diagnosticSnapshot
+        XCTAssertFalse(disabled.isEnabled)
+        XCTAssertEqual(disabled.pointerMonitorCount, 0)
+        XCTAssertFalse(disabled.hasScheduledFrame)
+        XCTAssertFalse(disabled.controls.contains(where: \.isEnabled))
+        XCTAssertTrue(controller.inputFrames.isEmpty)
+        XCTAssertFalse(try press(controller, slot: .anchor))
+        controller.setExpanded(true)
+        controller.setBusy(true)
+        controller.setCaptureSuppressed(true)
+        XCTAssertFalse(controller.isExpanded)
+        XCTAssertFalse(controller.isBusy)
+        XCTAssertFalse(controller.isCaptureSuppressed)
+        XCTAssertTrue(began.isEmpty)
+        for control in disabled.controls { XCTAssertFalse(try window(control.windowNumber).isVisible) }
+
+        controller.setEnabled(true)
+        XCTAssertGreaterThan(controller.diagnosticSnapshot.pointerMonitorCount, 0)
+        XCTAssertLessThanOrEqual(controller.diagnosticSnapshot.pointerMonitorCount, 2)
+        XCTAssertEqual(controller.diagnosticSnapshot.controls.map(\.windowNumber), disabled.controls.map(\.windowNumber))
+        XCTAssertFalse(controller.isExpanded, "Re-enable never resumes the earlier capture session")
+        XCTAssertTrue(try press(controller, slot: .anchor))
+        XCTAssertEqual(began, [.region])
+        XCTAssertEqual(controller.defaultMode, .region)
+    }
+
+    @MainActor func testDisableStopsAnimationsAndLateRestoreCannotRevealTheEntry() async throws {
+        let controller = try controller(); defer { controller.close() }
+        var actions = 0
+        controller.onBegin = { _ in actions += 1 }; controller.onCancel = { actions += 1 }
+        controller.setExpanded(true)
+        controller.setMode(.fullScreen)
+        controller.setCaptureSuppressed(true)
+        controller.setEnabled(false)
+        // Exposure/permission callbacks may have been queued before the switch.
+        controller.setCaptureSuppressed(false)
+        controller.setExpanded(true)
+        controller.setBusy(true)
+        controller.configure(screen: NSScreen.screens.first)
+        controller.applyAccessibilityDisplayOptions(reduceMotion: true)
+        try await Task.sleep(nanoseconds: 50_000_000)
+        let disabled = controller.diagnosticSnapshot
+        XCTAssertFalse(disabled.isEnabled)
+        XCTAssertFalse(disabled.isExpanded)
+        XCTAssertFalse(disabled.isBusy)
+        XCTAssertEqual(disabled.expansion, 0)
+        XCTAssertEqual(disabled.cancelSlotPosition, 0)
+        XCTAssertEqual(disabled.pointerMonitorCount, 0)
+        XCTAssertFalse(disabled.hasScheduledFrame)
+        XCTAssertEqual(disabled.glyphAlpha, 0)
+        XCTAssertEqual(disabled.surfaceAlpha, 0)
+        XCTAssertFalse(try window(disabled.visualWindowNumber).isVisible)
+        for control in disabled.controls { XCTAssertFalse(try window(control.windowNumber).isVisible) }
+        XCTAssertTrue(controller.inputFrames.isEmpty)
+        XCTAssertEqual(actions, 0, "Disabling UI alone never starts a new capture")
+    }
+
+    @MainActor func testDisableDuringHeldControlPreventsReleaseAfterReenableFromBeginningCapture() throws {
+        let controller = try controller(); defer { controller.close() }
+        controller.setExpanded(true, animated: false)
+        var began = 0, selected = 0
+        controller.onBegin = { _ in began += 1 }; controller.onMode = { _ in selected += 1 }
+        let held = try view(controller, slot: .near)
+        let panel = try XCTUnwrap(held.window)
+        held.mouseDown(with: try event(.leftMouseDown, window: panel, time: 20))
+        controller.setEnabled(false)
+        controller.setEnabled(true)
+        controller.setExpanded(true, animated: false)
+        held.mouseUp(with: try event(.leftMouseUp, window: panel, time: 20.1))
+        XCTAssertEqual(controller.mode, .window)
+        XCTAssertEqual(began, 0)
+        XCTAssertEqual(selected, 0)
+        XCTAssertTrue(try press(controller, slot: .near), "A fresh user action remains usable")
+        XCTAssertEqual(controller.mode, .region)
+        XCTAssertEqual(selected, 1)
+    }
+
+    @MainActor func testRepeatedTogglesDoNotAccumulateListenersOrOverrideIndependentHide() throws {
+        let controller = try controller(); defer { controller.close() }
+        let expectedMonitors = controller.diagnosticSnapshot.pointerMonitorCount
+        XCTAssertGreaterThan(expectedMonitors, 0)
+        controller.setDefaultMode(.fullScreen)
+        for _ in 0..<12 {
+            controller.setEnabled(false)
+            controller.setEnabled(false)
+            XCTAssertEqual(controller.diagnosticSnapshot.pointerMonitorCount, 0)
+            XCTAssertFalse(controller.diagnosticSnapshot.hasScheduledFrame)
+            controller.setHidden(true)
+            controller.setEnabled(true)
+            XCTAssertTrue(controller.isHidden)
+            XCTAssertEqual(controller.diagnosticSnapshot.pointerMonitorCount, 0)
+            XCTAssertTrue(controller.inputFrames.isEmpty)
+            controller.setHidden(false)
+            controller.setEnabled(true)
+            XCTAssertEqual(controller.diagnosticSnapshot.pointerMonitorCount, expectedMonitors)
+            XCTAssertEqual(controller.defaultMode, .fullScreen)
+            XCTAssertFalse(controller.isExpanded)
+        }
+        controller.close()
+        controller.setEnabled(true)
+        controller.setHidden(false)
+        XCTAssertFalse(controller.isEnabled)
+        XCTAssertEqual(controller.diagnosticSnapshot.pointerMonitorCount, 0)
+        XCTAssertFalse(controller.diagnosticSnapshot.hasScheduledFrame)
+    }
+
 }
