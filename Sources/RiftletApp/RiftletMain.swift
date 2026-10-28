@@ -7,6 +7,7 @@ import RiftletCore
 import RiftletCapture
 import RiftletUI
 import RiftletAdapters
+import RiftletFeedback
 
 @main
 enum RiftletMain {
@@ -67,6 +68,7 @@ enum RiftletMain {
 
 @MainActor
 private final class ApplicationController: NSObject, NSApplicationDelegate, NSMenuItemValidation {
+    private lazy var feedback = FeedbackHost(modeDirectory: mode.directoryName)
     private var statusItem: NSStatusItem?
     private var statusLine: NSMenuItem?
     private var storageLine: NSMenuItem?
@@ -155,6 +157,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         installMenu()
+        _ = feedback // Independent sidecar initializes off the screenshot path.
         installSetup()
         // The first ordinary launch explains collection before its first source
         // read. Acceptance mode must not steal the test browser's focus.
@@ -164,6 +167,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         Task {
             do { try await start() }
             catch {
+                feedback.diagnostics.record(.initializationIssue)
                 setupIssue = .initializationFailed
                 if CaptureDiagnostic.classify(error, context: .privateStorage).code == .insufficientStorage {
                     setupStorage = .insufficientSpace; setupIssue = .insufficientSpace
@@ -178,6 +182,11 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         // Explicit return from settings/menu, not an idle timer. Recheck does
         // not grant permission or re-enable a paused collector.
         if initialized, setup?.isVisible == true { recheckSetup() }
+    }
+
+    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        feedback.prepareTermination { accepted in sender.reply(toApplicationShouldTerminate: accepted) }
+        return .terminateLater
     }
 
     func applicationWillTerminate(_ notification: Notification) {
@@ -267,6 +276,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                     captureRequestID: press.captureRequestID, armAttemptID: press.armAttemptID)
                 if self.selectionAuthority.insert(token, now: ProcessInfo.processInfo.systemUptime) { accepted = token }
             }
+            if accepted != nil { self.feedback.diagnostics.record(.selectionAccepted) }
             let originalSelection = accepted
             let selectionOwner = originalSelection?.id ?? UUID()
             self.selectionUIOwners[id] = selectionOwner
@@ -311,6 +321,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                     }
                     self.rift?.setFeedback(self.mode == .capture ? "此版本尚未启用真实截图附加；图片保留。"
                         : (self.setupIssue?.text ?? "当前附件目标暂不可用；图片保留，可在运行状态中查看原因。"), for: id)
+                    self.feedback.diagnostics.record(.selectionRejected)
                     self.cancelOriginalSelection(originalSelection, reason: "selectionRejected")
                     self.finishOriginalSelection(id, token: originalSelection, revision: revision, ownerID: selectionOwner)
                     self.updateSetup()
@@ -560,6 +571,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     }
 
     private func receiveCaptureDiagnostic(_ value: CaptureDiagnostic) {
+        feedback.capture(value)
         captureDiagnostic = value
         switch value.code {
         case .insufficientStorage: setupStorage = .insufficientSpace
@@ -568,6 +580,8 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         }
         updateSetup()
     }
+
+    @objc private func showFeedback() { feedback.open() }
 
     @objc private func showSetup() { updateSetup(); setup?.show() }
 
@@ -717,6 +731,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private func applyAutomationPermission(_ state: AutomationPermissionState) {
         let lostPermission = automationPermission == .granted && state != .granted
         automationPermission = state
+        if mode.usesWebAdapter, state != .granted { feedback.diagnostics.record(.permissionUnavailable) }
         guard mode.usesWebAdapter, state != .granted else { return }
         cancelSelections(reason: "permissionUnavailable")
         armedTarget = nil; armedCaptureDiagnostics = nil; frozenPress = nil
@@ -1055,6 +1070,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 watchedCompletions.formUnion(successful.map(\.id))
                 if hasNewImages && mode.usesWebAdapter { requestArm(reason: "newImages") }
                 rift?.render(snapshot)
+                feedback.assets(snapshot) // Sampled local counts, not operation-level statistics.
+                feedback.operations(successful + unresolved)
+                if interactionFence.snapshot().blocked { feedback.diagnostics.record(.uiProjectionDeferred) }
                 switch mode {
                 case .capture:
                     statusItem?.button?.toolTip = "Riftlet · \(active.count) visible screenshots\(userHidden ? " · hidden" : "")"
@@ -1064,7 +1082,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 }
                 if history?.isVisible == true { await refreshHistory() }
                 updateSetup()
-            } catch { showIssue("Queue read failed; durable data is preserved.") }
+            } catch { feedback.diagnostics.record(.queueReadIssue); showIssue("Queue read failed; durable data is preserved.") }
         } while refreshRequested
         refreshRunning = false
         let waiters = refreshWaiters; refreshWaiters.removeAll()
@@ -1278,6 +1296,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             : (mode == .webAcceptance ? "Web 验收 · 仅生成图片" : "正在准备本地截图收录…"), action: nil, keyEquivalent: "")
         menu.addItem(heading); statusLine = heading
         add(menu, "开始使用与运行状态…", #selector(showSetup))
+        add(menu, "反馈与建议…", #selector(showFeedback))
         if mode.collectsSystemScreenshots { add(menu, "文件访问设置…", #selector(openFilePrivacySettings)) }
         if mode == .webAcceptance {
             menu.addItem(NSMenuItem(title: "Chrome · ChatGPT Chat · Chinese UI · PNG test images", action: nil, keyEquivalent: ""))
