@@ -51,12 +51,13 @@ public enum RiftVisualStyle {
     /// Apply the intended outer size after Auto Layout has established the
     /// native minimum. Keep the entire frame on its current screen when it fits,
     /// so WindowServer does not narrow a straddling first presentation.
-    public static func restoreWindowSize(_ window: NSWindow, size: NSSize) {
+    public static func restoreWindowSize(_ window: NSWindow, size: NSSize, constrainOrigin: Bool = false) {
         window.contentView?.layoutSubtreeIfNeeded()
         var frame = window.frame
         frame.origin.y += frame.height - size.height
         frame.size = size
-        if let screen = window.screen ?? NSScreen.main {
+        if (constrainOrigin || !NSScreen.screens.contains { $0.visibleFrame.intersects(frame) }),
+           let screen = window.screen ?? NSScreen.main {
             let visible = screen.visibleFrame
             if size.width <= visible.width { frame.origin.x = max(visible.minX, min(frame.minX, visible.maxX - size.width)) }
             if size.height <= visible.height { frame.origin.y = max(visible.minY, min(frame.minY, visible.maxY - size.height)) }

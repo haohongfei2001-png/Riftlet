@@ -146,9 +146,9 @@ public final class RiftSetupController: NSObject, NSWindowDelegate {
 
     private func present(size: NSSize) {
         dismissPending = true
-        RiftVisualStyle.restoreWindowSize(setupWindow, size: size)
+        RiftVisualStyle.restoreWindowSize(setupWindow, size: size, constrainOrigin: !hasPresented)
         setupWindow.makeKeyAndOrderFront(nil)
-        RiftVisualStyle.restoreWindowSize(setupWindow, size: size)
+        RiftVisualStyle.restoreWindowSize(setupWindow, size: size, constrainOrigin: !hasPresented)
         hasPresented = true
         NSApp.activate(ignoringOtherApps: true)
     }

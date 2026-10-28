@@ -112,9 +112,9 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
     public func show() {
         let size = hasPresented ? historyWindow.frame.size : NSSize(width: 760, height: 560)
         refresh()
-        RiftVisualStyle.restoreWindowSize(historyWindow, size: size)
+        RiftVisualStyle.restoreWindowSize(historyWindow, size: size, constrainOrigin: !hasPresented)
         historyWindow.makeKeyAndOrderFront(nil)
-        RiftVisualStyle.restoreWindowSize(historyWindow, size: size)
+        RiftVisualStyle.restoreWindowSize(historyWindow, size: size, constrainOrigin: !hasPresented)
         hasPresented = true
         NSApp.activate(ignoringOtherApps: true)
     }
