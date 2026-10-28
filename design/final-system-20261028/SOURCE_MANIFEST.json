@@ -1,0 +1,16 @@
+{
+  "checkpointUtc": "2026-10-28 15:48:37 UTC",
+  "repository": "haohongfei2001-png/Riftlet",
+  "designBranch": "design/product-system-20261028",
+  "formal": {"branch":"codex/engineering-foundation-20261027","sha":"1920e0562db893a3292af89a89270a26ddb46a5f","pr":1,"state":"open","draft":true},
+  "predictiveEntry": {"branch":"codex/predictive-capture-entry-20261028","sha":"5d6a683652d255af8c1d3e0d9533587fcc27a24d","pr":11,"draft":true},
+  "nativeArrival": {"branch":"codex/arrival-none-magnet-native-20261028","sha":"d552a7388af3890bf693bb3fb24f4b8fc5bc12e7","mergeBaseWithPredictiveEntry":"1920e0562db893a3292af89a89270a26ddb46a5f","ciStatusNotAssessedByDesign":true},
+  "twoModeDesign": {"branch":"design/arrival-none-magnet-20261028","sha":"0b73291652c11f5cb7b6e2792d001eb3340c988b","pr":10,"draft":true},
+  "historicalInteractiveDesign": {"branch":"design/interactive-rift-v1-20261027","sha":"8b2937e05c6ca2e4c33a7c59fd1dce0cca05f3aa"},
+  "feedback": {"branch":"codex/feedback-v01-20261028","sha":"f195bebbc22ed1a162b5866ca1fe6c7ccb9835b9","alreadyIntegrated":true},
+  "main": {"sha":"eba1a4fc77648a665e1d5c1f2609df1314c3b079","source":"git ls-remote refs/heads/main","modifiedByThisTask":false},
+  "scope": "only design/final-system-20261028; no native implementation, product gate or PR1 modifications",
+  "designFileFormat": "editable SVG plus portable HTML; Figma workspace MCP quota prevented design population, empty Figma file is not a deliverable",
+  "sourcePriority": ["latest explicit user decisions","fixed product and interaction documents","actual Git ancestors and source","new recommended visual values"],
+  "approval": "Final recommended direction; new geometry, material and motion choices are not silently treated as approved native implementation"
+}
