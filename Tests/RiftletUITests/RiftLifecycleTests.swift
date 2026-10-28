@@ -105,7 +105,7 @@ final class RiftLifecycleTests: XCTestCase {
         configuration.shiftDuration = 0.01
         configuration.returnDuration = 0.01
         return RiftPanelController(mediaDirectory: FileManager.default.temporaryDirectory,
-                                   configuration: configuration, onSelect: { _ in })
+                                   configuration: configuration, arrivalMode: .magnet, onSelect: { _ in })
     }
 
     /// Introspection of real panels in CI, not a physical pointer/focus trial.
@@ -159,11 +159,14 @@ final class RiftLifecycleTests: XCTestCase {
         XCTAssertFalse(panel.diagnosticSnapshot.isTransitioning)
     }
 
-    @MainActor func testArchiveSnapshotWaitsForAnActiveArrivalInsteadOfRemovingItsRow() async throws {
+    @MainActor func testArchiveSnapshotWaitsForAnActivePressInsteadOfRemovingItsRow() async throws {
         let panel = try controller()
         defer { panel.close() }
         let first = record()
         panel.render([first])
+        let row = try XCTUnwrap(panel.diagnosticSnapshot.rows.first)
+        let view = try XCTUnwrap(NSApp.windows.first { $0.windowNumber == row.windowNumber }?.contentView)
+        XCTAssertTrue(view.accessibilityPerformPress())
         XCTAssertTrue(panel.interactionSnapshot.isTransitioning)
         panel.render([record(image: first.image, visibility: .archived)])
         XCTAssertEqual(panel.diagnosticSnapshot.rows.map(\.assetID), [first.id])
