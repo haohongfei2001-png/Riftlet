@@ -616,8 +616,11 @@ public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
         switch mode { case .window: return "窗口"; case .region: return "区域"; case .fullScreen: return "全屏" }
     }
 
-    private func showOptions() {
-        guard session.isExpanded, !isBusy, !menuIsOpen else { return }
+    /// Explicit settings access exposes the existing choices without starting capture.
+    public func showPreferences() { showOptions(requiresExpanded: false) }
+
+    private func showOptions(requiresExpanded: Bool = true) {
+        guard (!requiresExpanded || session.isExpanded), !isBusy, !menuIsOpen else { return }
         let menu = NSMenu(title: "截图选项")
         menu.autoenablesItems = false; menu.delegate = self
         let defaults = NSMenu(title: "默认截图方式")
@@ -647,8 +650,12 @@ public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
         let edit = NSMenuItem(title: "截图后编辑", action: #selector(toggleEditing(_:)), keyEquivalent: "")
         edit.target = self; edit.state = options.editAfter ? .on : .off; menu.addItem(edit)
         self.menu = menu
-        let view = inputs[ScreenshotEntrySlot.more.rawValue].view
-        menu.popUp(positioning: nil, at: CGPoint(x: -menu.size.width - 6, y: view.bounds.maxY), in: view)
+        if session.isExpanded {
+            let view = inputs[ScreenshotEntrySlot.more.rawValue].view
+            menu.popUp(positioning: nil, at: CGPoint(x: -menu.size.width - 6, y: view.bounds.maxY), in: view)
+        } else {
+            menu.popUp(positioning: nil, at: NSEvent.mouseLocation, in: nil)
+        }
         self.menu = nil
     }
 

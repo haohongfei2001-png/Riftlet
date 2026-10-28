@@ -107,7 +107,7 @@ final class ArrivalModesTests: XCTestCase {
         XCTAssertEqual(panel.arrivalDiagnostic.overlayCount, 0, file: file, line: line)
     }
 
-    @MainActor func testNoneCreatesFinalInteractiveRowAndPressWithoutDecorativeDisplacement() throws {
+    @MainActor func testNoneSkipsArrivalButRetainsPressResponseWithoutDelayingSelection() async throws {
         let (root, _, configuration) = try environment()
         defer { try? FileManager.default.removeItem(at: root) }
         let record = try generated(directory: root)
@@ -118,14 +118,22 @@ final class ArrivalModesTests: XCTestCase {
         XCTAssertNil(panel.noteCaptureReady(record.id, uptime: ProcessInfo.processInfo.systemUptime))
         panel.render([record])
         try assertStatic(panel, id: record.id)
-        let (_, _, view, _) = try row(panel, id: record.id)
+        let (before, _, view, image) = try row(panel, id: record.id)
         XCTAssertTrue(view.accessibilityPerformPress())
         XCTAssertEqual(selected, [record.id], "No animation completion or run-loop turn authorizes selection")
+        XCTAssertEqual(panel.diagnosticSnapshot.rows.map(\.assetID), [record.id], "A press alone must never swallow")
+        XCTAssertEqual(try row(panel, id: record.id).0.imageInputFrame, before.imageInputFrame,
+                       "The press decoration must not move the original input target")
+        XCTAssertGreaterThan(image.affineTransform().tx, 0, "None disables arrival, not normal press feedback")
+        try await eventually("The press response did not return independently of an upload result") {
+            image.affineTransform().tx == 0 && (image.animationKeys()?.isEmpty ?? true)
+                && !panel.interactionSnapshot.isTransitioning
+        }
         try assertStatic(panel, id: record.id)
-        XCTAssertFalse(panel.interactionSnapshot.isTransitioning)
+        XCTAssertEqual(selected, [record.id], "Returning the visual pose must not replay input")
     }
 
-    @MainActor func testNoneSwallowCompactionFailureRebirthAndUnknownStayBusinessDrivenAndSynchronous() throws {
+    @MainActor func testNoneRetainsFastSwallowCompactionAndBusinessDrivenRebirthWithoutUnknownReplay() async throws {
         let (root, _, configuration) = try environment()
         defer { try? FileManager.default.removeItem(at: root) }
         let first = try generated(1, directory: root), second = try generated(2, directory: root)
@@ -138,36 +146,60 @@ final class ArrivalModesTests: XCTestCase {
         let firstOrigin = try row(panel, id: first.id).0.frame.origin
         let started = state(first, status: .transferring, visibility: .swallowed, reason: .uploadStarted)
         panel.render([started, second])
-        XCTAssertEqual(panel.diagnosticSnapshot.rows.map(\.assetID), [second.id])
+        XCTAssertTrue(panel.diagnosticSnapshot.isTransitioning)
+        XCTAssertEqual(phases.map(\.phase), [.swallowScheduled, .swallowActualStart])
+        XCTAssertTrue(phases.allSatisfy { $0.actualDuration > 0 && $0.actualDuration <= 0.2 },
+                      "No-arrival must retain the short positively-started swallow")
+        try await eventually("Committed swallow and queue compaction did not settle") {
+            panel.diagnosticSnapshot.rows.map(\.assetID) == [second.id] && !panel.diagnosticSnapshot.isTransitioning
+        }
         XCTAssertEqual(try row(panel, id: second.id).0.frame.origin, firstOrigin)
         try assertStatic(panel, id: second.id)
         XCTAssertEqual(phases.map(\.phase), [.swallowScheduled, .swallowActualStart, .swallowClose])
-        XCTAssertTrue(phases.allSatisfy { $0.actualDuration == 0 })
+        XCTAssertTrue(phases.allSatisfy { $0.assetID == first.id })
+        XCTAssertLessThanOrEqual(phases[1].uptime, phases[2].uptime)
         panel.render([state(first, status: .unknown, visibility: .swallowed, reason: .uploadStarted), second])
         XCTAssertEqual(panel.diagnosticSnapshot.rows.map(\.assetID), [second.id])
+        XCTAssertEqual(phases.count, 3, "UNKNOWN is not a second start or visual replay")
+        XCTAssertTrue(selected.isEmpty, "Rendering observations never authorizes an input")
         let failed = state(first, status: .failed, visibility: .visible, reason: .safeFailure, revision: 2)
         panel.render([failed, second])
         try assertStatic(panel, id: first.id)
         XCTAssertEqual(panel.diagnosticSnapshot.rows.map(\.assetID), [first.id, second.id])
         XCTAssertTrue(try row(panel, id: first.id).2.accessibilityPerformPress())
         XCTAssertEqual(selected, [first.id], "The reborn row keeps the same asset and can be selected normally")
+        let rebornImage = try row(panel, id: first.id).3
+        try await eventually("Reborn screenshot press feedback did not settle") {
+            rebornImage.affineTransform().tx == 0 && (rebornImage.animationKeys()?.isEmpty ?? true)
+        }
         try assertStatic(panel, id: first.id)
+        XCTAssertEqual(selected, [first.id])
     }
 
-    @MainActor func testReduceMotionUsesTheSameZeroDurationLifecycleWithoutChangingSelectedMode() throws {
+    @MainActor func testReduceMotionUsesShortAlphaSwallowWithoutSpatialMotionOrChangingSelectedMode() async throws {
         let (root, _, configuration) = try environment()
         defer { try? FileManager.default.removeItem(at: root) }
         let first = try generated(directory: root)
+        var phases: [RiftPresentationBoundary] = []
         let panel = RiftPanelController(mediaDirectory: root, configuration: configuration, arrivalMode: .magnet,
-            reduceMotionOverride: { true }, onSelect: { _ in })
+            reduceMotionOverride: { true }, onPresentationBoundary: { phases.append($0) }, onSelect: { _ in })
         defer { panel.close() }
         XCTAssertEqual(panel.arrivalDiagnostic.selectedMode, .magnet)
         XCTAssertEqual(panel.arrivalDiagnostic.effectiveMode, .none)
         XCTAssertNil(panel.noteCaptureReady(first.id, uptime: ProcessInfo.processInfo.systemUptime))
         panel.render([first]); try assertStatic(panel, id: first.id)
+        let image = try row(panel, id: first.id).3
         panel.render([state(first, status: .transferring, visibility: .swallowed, reason: .uploadStarted)])
-        XCTAssertTrue(panel.diagnosticSnapshot.rows.isEmpty)
-        XCTAssertFalse(panel.diagnosticSnapshot.isTransitioning)
+        XCTAssertEqual(image.affineTransform().tx, 0, "Reduced motion must not translate the screenshot")
+        let animation = try XCTUnwrap(image.animation(forKey: "rift.translation") as? CAKeyframeAnimation)
+        let samples = try XCTUnwrap(animation.values as? [NSNumber])
+        XCTAssertFalse(samples.isEmpty)
+        XCTAssertTrue(samples.allSatisfy { $0.doubleValue == 0 })
+        XCTAssertTrue(phases.allSatisfy { $0.actualDuration > 0 && $0.actualDuration <= 0.08 })
+        try await eventually("Reduced motion alpha swallow did not settle") {
+            panel.diagnosticSnapshot.rows.isEmpty && !panel.diagnosticSnapshot.isTransitioning
+        }
+        XCTAssertEqual(phases.map(\.phase), [.swallowScheduled, .swallowActualStart, .swallowClose])
         panel.render([state(first, status: .failed, visibility: .visible, reason: .safeFailure, revision: 2)])
         try assertStatic(panel, id: first.id)
         XCTAssertEqual(panel.arrivalMode, .magnet)

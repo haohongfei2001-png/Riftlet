@@ -57,6 +57,12 @@ jobs:
           swift --version
           sw_vers
           uname -m
+      - name: Verify reviewed thin-edge composition and rejection paths
+        run: |
+          set -o pipefail
+          mkdir -p test-results
+          python3 -B scripts/verify-thin-edge-composition.py 2>&1 | tee test-results/thin-edge-composition.log
+          python3 -B -m unittest discover -s Tests/ThinEdgeIsolation -v 2>&1 | tee test-results/thin-edge-isolation-tests.log
       - name: Replay archived Web evidence offline
         run: |
           set -o pipefail

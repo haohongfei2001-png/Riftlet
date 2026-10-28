@@ -167,6 +167,8 @@ public final class MagnetFlightPresenter {
     public func start(assetID: UUID, image: CGImage, plan: MagnetMotionPlan,
                       backingScale: CGFloat, elapsedSinceAssetReady: TimeInterval = 0,
                       onCompletion: @escaping (MagnetFlightCompletion) -> Void) -> Bool {
+        let invocationCA = CACurrentMediaTime()
+        let assetReadyCA = invocationCA - elapsedSinceAssetReady
         generation &+= 1
         let token = generation
         cancel(reason: .superseded)
@@ -224,6 +226,8 @@ public final class MagnetFlightPresenter {
         }
         let animation = plan.makeLayerAnimation(relativeTo: panel.frame.origin)
         animation.delegate = end
+        let remaining = plan.totalDuration - (CACurrentMediaTime() - assetReadyCA)
+        guard remaining > 0 else { panel.close(); return false }
         flight = Flight(assetID: assetID, generation: token, panel: panel,
                         rootLayer: root, imageLayer: imageLayer, endDelegate: end,
                         timeout: timeout, sampledFrameCount: plan.keyframeTimes.count,
@@ -232,7 +236,7 @@ public final class MagnetFlightPresenter {
         CATransaction.setDisableActions(true)
         plan.applyFinalState(to: imageLayer, relativeTo: panel.frame.origin)
         // Asset readiness is the visual clock origin, not optional image decode.
-        animation.beginTime = imageLayer.convertTime(CACurrentMediaTime(), from: nil) - elapsedSinceAssetReady
+        animation.beginTime = imageLayer.convertTime(assetReadyCA, from: nil)
         imageLayer.add(animation, forKey: "riftlet.magnet.flight")
         panel.orderFrontRegardless()
         CATransaction.commit()
@@ -240,7 +244,7 @@ public final class MagnetFlightPresenter {
             finish(generation: token, reason: .cancelled)
             return false
         }
-        DispatchQueue.main.asyncAfter(deadline: .now() + plan.totalDuration - elapsedSinceAssetReady + 0.100, execute: timeout)
+        DispatchQueue.main.asyncAfter(deadline: .now() + max(0, plan.totalDuration - (CACurrentMediaTime() - assetReadyCA)) + 0.100, execute: timeout)
         return true
     }
 

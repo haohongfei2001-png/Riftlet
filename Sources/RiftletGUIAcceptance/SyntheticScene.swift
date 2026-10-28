@@ -6,17 +6,17 @@ import CryptoKit
 import RiftletCore
 import RiftletUI
 
-/// Fixtures for the standalone acceptance tool. This module has no capture service,
-/// database, attachment adapter or access to the production media directory.
+/// Fixtures for the standalone acceptance tool. These fixtures have no capture
+/// service, queue database, adapter or access to the production media directory.
 enum SyntheticScene {
-    static let supportedCounts = [2, 3, 12]
+    static let supportedCounts = [2, 3, 12, 16]
 
     static func makeMedia(in directory: URL) throws -> [AssetRecord] {
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true,
                                                 attributes: [.posixPermissions: 0o700])
-        return try (1...12).map { index in
+        return try (1...16).map { index in
             let id = UUID(uuidString: String(format: "00000000-0000-4000-8000-%012d", index))!
-            let dimensions = [(360, 220), (220, 360), (256, 256)][(index - 1) % 3]
+            let dimensions = [(360, 220), (220, 360), (256, 256), (96, 768), (768, 96)][(index - 1) % 5]
             let fileName = String(format: "acceptance-%02d.png", index)
             let file = directory.appendingPathComponent(fileName)
             try writeImage(to: file, index: index, width: dimensions.0, height: dimensions.1)
@@ -54,7 +54,7 @@ enum SyntheticScene {
             .appendingPathComponent("riftlet-gui-self-check-\(UUID().uuidString)", isDirectory: true)
         defer { try? FileManager.default.removeItem(at: root) }
         let fixtures = try makeMedia(in: root)
-        guard fixtures.count == 12, Set(fixtures.map(\.id)).count == 12 else { throw Failure.invalidFixture }
+        guard fixtures.count == 16, Set(fixtures.map(\.id)).count == 16 else { throw Failure.invalidFixture }
         for fixture in fixtures {
             let file = root.appendingPathComponent(fixture.image.fileName)
             let bytes = try Data(contentsOf: file)
@@ -70,7 +70,7 @@ enum SyntheticScene {
         for count in supportedCounts {
             let records = try records(from: fixtures, count: count)
             let layout = RiftLayout.make(records: records, visibleFrame: viewport, configuration: .init())
-            guard layout.rows.count == count, layout.rows.map(\.assetID) == records.map(\.id),
+            guard layout.rows.count == min(count, layout.capacity), layout.rows.map(\.assetID) == Array(records.prefix(layout.capacity)).map(\.id),
                   layout.rows.allSatisfy({ viewport.contains($0.frame) }) else { throw Failure.invalidLayout }
             for retained in [QueueStatus.failed, .unknown] {
                 let changed = displaying(retained, assetID: records[0].id, in: records)
@@ -80,8 +80,8 @@ enum SyntheticScene {
             }
             let used = displaying(.used, assetID: records[0].id, in: records)
             let shifted = RiftLayout.make(records: used, visibleFrame: viewport, configuration: .init())
-            guard shifted.rows.map(\.assetID) == Array(records.dropFirst()).map(\.id),
-                  shifted.rows.map(\.ordinal) == Array(1..<count) else { throw Failure.invalidLayout }
+            guard shifted.rows.map(\.assetID) == Array(records.dropFirst().prefix(shifted.capacity)).map(\.id),
+                  shifted.rows.map(\.ordinal) == Array(1..<(shifted.rows.count + 1)) else { throw Failure.invalidLayout }
         }
     }
 
@@ -99,12 +99,16 @@ enum SyntheticScene {
         context.addPath(shape)
         context.setFillColor(CGColor(red: 0.76, green: 0.85, blue: 0.90, alpha: 1))
         context.fillPath()
+        // Original synthetic artwork stays proportional for the 1:8 / 8:1
+        // fixtures; no real screenshot or system-screenshot metadata is used.
+        let inset = CGFloat(min(width, height)) * 0.12
         for row in 0..<6 {
             context.setFillColor(CGColor(red: 0.10 + Double(index % 4) * 0.12,
                                          green: 0.25 + Double(index % 3) * 0.12,
                                          blue: 0.48, alpha: 1))
-            context.fill(CGRect(x: 30, y: 30 + row * 25,
-                                width: width - 60 - (row + index) % 5 * 15, height: 11))
+            context.fill(CGRect(x: inset, y: inset + CGFloat(row) * (CGFloat(height) - 2 * inset) / 7,
+                                width: (CGFloat(width) - 2 * inset) * (0.55 + 0.08 * CGFloat((row + index) % 5)),
+                                height: max(2, (CGFloat(height) - 2 * inset) / 18)))
         }
         guard let image = context.makeImage(),
               let destination = CGImageDestinationCreateWithURL(file as CFURL, UTType.png.identifier as CFString, 1, nil) else {

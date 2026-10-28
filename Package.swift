@@ -13,7 +13,7 @@ let package = Package(
     targets: [
         .systemLibrary(name: "CSQLite", pkgConfig: "sqlite3"),
         .target(name: "RiftletFeedback", dependencies: ["CSQLite"]),
-        .target(name: "RiftletFeedbackUI", dependencies: ["RiftletFeedback"]),
+        .target(name: "RiftletFeedbackUI", dependencies: ["RiftletFeedback", "RiftletUI"]),
         .executableTarget(name: "RiftletFeedbackDemo", dependencies: ["RiftletFeedback", "RiftletFeedbackUI"]),
         .testTarget(name: "RiftletFeedbackTests", dependencies: ["RiftletFeedback", "CSQLite"]),
         .testTarget(name: "RiftletFeedbackUITests", dependencies: ["RiftletFeedbackUI", "RiftletFeedback"]),
@@ -21,7 +21,7 @@ let package = Package(
         .target(name: "RiftletCapture", dependencies: ["RiftletCore"]),
         .target(name: "RiftletUI", dependencies: ["RiftletCore", "RiftletCapture"]),
         .target(name: "RiftletAdapters", dependencies: ["RiftletCore"], resources: [.process("Resources")]),
-        .executableTarget(name: "RiftletGUIAcceptance", dependencies: ["RiftletUI", "RiftletCore"]),
+        .executableTarget(name: "RiftletGUIAcceptance", dependencies: ["RiftletUI", "RiftletCore", "RiftletFeedback", "RiftletFeedbackUI"]),
         .executableTarget(name: "RiftletApp", dependencies: ["RiftletCore", "RiftletCapture", "RiftletUI", "RiftletAdapters", "RiftletFeedback", "RiftletFeedbackUI"]),
         .testTarget(name: "RiftletCoreTests", dependencies: ["RiftletCore", "CSQLite"]),
         .testTarget(name: "RiftletCaptureTests", dependencies: ["RiftletCapture", "RiftletCore", "CSQLite"]),

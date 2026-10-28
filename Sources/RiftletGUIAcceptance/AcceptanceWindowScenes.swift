@@ -1,0 +1,132 @@
+import AppKit
+import RiftletCore
+import RiftletUI
+import RiftletFeedback
+import RiftletFeedbackUI
+
+/// Existing product windows over helper-only data. The helper has no queue
+/// store, capture service, browser or network-capable feedback transport.
+@MainActor
+final class AcceptanceWindowScenes {
+    private var setup: RiftSetupController?
+    private var history: RiftHistoryController?
+    private var motion: ArrivalMotionSettingsController?
+    private var feedback: FeedbackWindowController?
+    private var feedbackLoad: Task<Void, Never>?
+    private let mediaRoot: URL
+    private let fixtures: [AssetRecord]
+    private let record: (String, [String: Any]) -> Void
+
+    init(mediaRoot: URL, fixtures: [AssetRecord], record: @escaping (String, [String: Any]) -> Void) {
+        self.mediaRoot = mediaRoot; self.fixtures = fixtures; self.record = record
+    }
+
+    func show(_ name: String) {
+        switch name {
+        case "setup", "settings":
+            if let setup {
+                if name == "setup" { setup.showOnboarding() } else { setup.show() }
+                captureWindowGeometry(name); return
+            }
+            let controller = RiftSetupController(
+                onRecheck: { [weak self] in self?.action("recheck") },
+                onOpenSource: { [weak self] in self?.action("source") },
+                onPermission: { [weak self] in self?.action("permission") },
+                onDismiss: { [weak self] in self?.action("dismiss") },
+                onChooseSourceAccess: { [weak self] in self?.action("sourceAccess") },
+                onToggleHidden: { [weak self] in self?.action("hide") },
+                onToggleCollection: { [weak self] in self?.action("pause") },
+                onOpenHistory: { [weak self] in self?.show("history") },
+                onOpenEntrySettings: { [weak self] in self?.action("entrySettings") },
+                onOpenDisplaySettings: { [weak self] in self?.show("motion") },
+                onOpenFeedback: { [weak self] in self?.show("feedback") })
+            controller.update(snapshot: SetupSnapshot(
+                sourceLocation: "合成验收素材（不读取系统截图位置）", source: .notApplicable,
+                collection: .stopped, visibleCount: 3, pendingCount: 1,
+                attachment: .offlineSimulation, permission: .notNeeded,
+                storage: .measured(bytes: UInt64(fixtures.reduce(Int64(0)) { $0 + $1.image.byteCount }), complete: true),
+                supportDescription: "仅合成 AppKit 呈现验收；没有读取截图、检查权限、连接浏览器或授予生产准入。"))
+            setup = controller
+            if name == "setup" { controller.showOnboarding() } else { controller.show() }
+            captureWindowGeometry(name)
+        case "history":
+            if let history { history.show(); captureWindowGeometry(name); return }
+            let controller = RiftHistoryController(mediaDirectory: mediaRoot,
+                onRestore: { [weak self] _ in self?.action("historyRestore") },
+                onRemove: { [weak self] _ in self?.action("historyRemove") },
+                onReveal: { [weak self] _ in self?.action("historyReveal") })
+            let entries = fixtures.prefix(8).enumerated().map { index, fixture in
+                let state: QueueStatus = index == 1 ? .unknown : (index == 2 ? .used : .pending)
+                let visibility: QueueVisibility = index == 1 || index == 2 ? .swallowed
+                    : (index == 3 ? .archived : (index == 4 ? .removed : .visible))
+                let reason: QueueVisibilityReason = index == 1 || index == 2 ? .uploadStarted
+                    : (index == 3 ? .automaticArchive : (index == 4 ? .userRemoved : .capture))
+                let projection = AssetRecord(image: fixture.image, sequence: fixture.sequence, status: state,
+                    visibility: visibility, visibilityRevision: visibility == .visible ? 0 : 1,
+                    visibilityReason: reason)
+                return RiftHistoryEntry(record: projection, canRestore: visibility == .archived || visibility == .removed,
+                    detail: "合成呈现样本。没有真实操作、上传回执或数据库状态；此窗口只验证原生视觉与可访问性。")
+            }
+            history = controller; controller.update(entries: entries); controller.show()
+            captureWindowGeometry(name)
+        case "motion":
+            if let motion { motion.show(); captureWindowGeometry(name); return }
+            let controller = ArrivalMotionSettingsController(mode: .none, hasExplicitSelection: false) { [weak self] _ in
+                self?.action("motionChoice") // The product preview updates, but no user preference is persisted.
+            }
+            motion = controller; controller.show(); captureWindowGeometry(name)
+        case "feedback":
+            if let feedback { feedback.show(); captureWindowGeometry(name); return }
+            guard feedbackLoad == nil else { return }
+            feedbackLoad?.cancel()
+            feedbackLoad = Task { @MainActor [weak self] in
+                guard let self else { return }
+                do {
+                    // This fresh directory belongs to this invocation's helper
+                    // fixtures. It never opens an existing user feedback root.
+                    let store = try FeedbackStore(directory: self.mediaRoot.appendingPathComponent("feedback-fixture", isDirectory: true))
+                    try await store.saveDraft(FeedbackDraft(kind: .suggestion,
+                        text: "合成界面验收：希望缩略图的等待说明更容易看清。此文字仅用于检查原生反馈窗口；不会联网发送。", revision: 1))
+                    try Task.checkCancellation()
+                    let diagnostics = FeedbackDiagnostics()
+                    let engine = FeedbackEngine(store: store, secrets: MemoryFeedbackSecrets(), transport: DisabledFeedbackTransport())
+                    let controller = FeedbackWindowController(engine: engine, diagnostics: diagnostics, appVersion: "0.1.0", demo: true)
+                    self.feedback = controller; controller.show(); self.captureWindowGeometry(name)
+                    self.feedbackLoad = nil
+                } catch is CancellationError { }
+                catch {
+                    self.feedbackLoad = nil
+                    self.record("visual_window_unavailable", ["name": name, "syntheticOnly": true, "networkEnabled": false])
+                }
+            }
+        default:
+            record("visual_window_unavailable", ["reason": "unknownScene", "syntheticOnly": true])
+        }
+    }
+
+    func cancel() { feedbackLoad?.cancel(); feedbackLoad = nil }
+
+    private func action(_ name: String) {
+        record("visual_window_action", ["action": name, "syntheticOnly": true,
+            "permissionRequested": false, "browserAccess": false, "queueMutation": false, "networkEnabled": false])
+    }
+
+    private func captureWindowGeometry(_ name: String) {
+        // Only windows in this helper process are inspected. Window titles and
+        // user text are not logged. AppKit frames do not assert rendered pixels.
+        let windows = NSApp.windows.filter { $0.isVisible && $0.styleMask.contains(.titled) }
+        // Acceptance-only privacy layering. This does not change the product
+        // controller or certify its ordinary cross-application window order.
+        for window in windows {
+            window.level = NSWindow.Level(rawValue: NSWindow.Level.floating.rawValue + 1)
+            window.orderFrontRegardless()
+        }
+        record("visual_window_shown", ["name": name, "syntheticOnly": true, "networkEnabled": false,
+            "fixtureLayerIsolation": true,
+            "windows": windows.map { window in
+                ["number": window.windowNumber, "x": window.frame.minX, "y": window.frame.minY,
+                 "width": window.frame.width, "height": window.frame.height,
+                 "backingScaleFactor": window.backingScaleFactor] as [String: Any]
+            }])
+    }
+}

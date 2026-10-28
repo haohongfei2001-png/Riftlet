@@ -96,6 +96,7 @@ final class ScreenshotEntryHost {
         }
         let placement = ScreenshotEntryPreferences.placement(in: screen.visibleFrame, configuration: rift.configuration)
         rift.setCaptureHeaderAnchor(placement.queueHeader)
+        guard placement.queueHeader != nil else { entry.configure(screen: nil); return }
         let queue = rift.diagnosticSnapshot.rows.flatMap { [$0.imageInputFrame, $0.numberInputFrame] }
         entry.configure(screen: screen, anchor: placement.anchor, queueFrames: queue)
     }

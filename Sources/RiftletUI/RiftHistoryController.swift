@@ -7,13 +7,14 @@ private final class HistoryTextCell: NSTableCellView {
 
     override init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
-        title.font = .systemFont(ofSize: 12)
-        subtitle.font = .systemFont(ofSize: 11)
-        subtitle.textColor = .secondaryLabelColor
+        title.font = RiftVisualStyle.bodyFont
+        title.textColor = RiftVisualStyle.ink
+        subtitle.font = RiftVisualStyle.secondaryFont
+        subtitle.textColor = RiftVisualStyle.secondary
         title.lineBreakMode = .byTruncatingTail
         subtitle.lineBreakMode = .byTruncatingTail
         let stack = NSStackView(views: [title, subtitle])
-        stack.orientation = .vertical; stack.alignment = .leading; stack.spacing = 5
+        stack.orientation = .vertical; stack.alignment = .leading; stack.spacing = 4
         stack.translatesAutoresizingMaskIntoConstraints = false
         addSubview(stack)
         NSLayoutConstraint.activate([
@@ -34,7 +35,7 @@ private final class HistoryImageCell: NSTableCellView {
         super.init(frame: frameRect)
         preview.imageScaling = .scaleProportionallyUpOrDown
         preview.translatesAutoresizingMaskIntoConstraints = false
-        preview.setAccessibilityLabel("Screenshot preview")
+        preview.setAccessibilityLabel("截图预览")
         addSubview(preview)
         NSLayoutConstraint.activate([
             preview.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 8),
@@ -60,18 +61,26 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
     private let onNextPage: (() -> Void)?
     private let onPreviousPage: (() -> Void)?
     private let search = NSSearchField()
-    private let filter = NSPopUpButton(frame: .zero, pullsDown: false)
-    private let table = NSTableView()
+    private var filterIndex = 0
+    private var filterButtons: [NSButton] = []
+    private let table = HistoryTableView()
+    private let detailImage = NSImageView()
+    private let detailTitle = NSTextField(wrappingLabelWithString: "选择一张截图")
+    private let detailMetadata = NSTextField(wrappingLabelWithString: "")
+    private let detailState = NSTextField(wrappingLabelWithString: "原图与本地记录始终保留。")
+    private var detailID: UUID?
+    private var previewWindow: NSWindow?
     private let countLabel = NSTextField(labelWithString: "")
-    private let restoreButton = NSButton(title: "Return to Rift", target: nil, action: nil)
-    private let removeButton = NSButton(title: "Remove from Rift", target: nil, action: nil)
-    private let revealButton = NSButton(title: "Show in Finder", target: nil, action: nil)
-    private let newerButton = NSButton(title: "Newer", target: nil, action: nil)
-    private let olderButton = NSButton(title: "Older", target: nil, action: nil)
+    private let restoreButton = NSButton(title: "放回裂缝", target: nil, action: nil)
+    private let removeButton = NSButton(title: "移出可见队列", target: nil, action: nil)
+    private let revealButton = NSButton(title: "在 Finder 中显示", target: nil, action: nil)
+    private let newerButton = NSButton(title: "上一页", target: nil, action: nil)
+    private let olderButton = NSButton(title: "下一页", target: nil, action: nil)
     private var entries: [RiftHistoryEntry] = []
     private var displayed: [RiftHistoryEntry] = []
     private var pageOffset = 0
     private var hasEarlier = false
+    private var hasPresented = false
 
     public var isVisible: Bool { historyWindow.isVisible }
 
@@ -81,13 +90,12 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         self.cache = ThumbnailCache(directory: mediaDirectory)
         self.onRestore = onRestore; self.onRemove = onRemove; self.onReveal = onReveal
         self.onNextPage = onNextPage; self.onPreviousPage = onPreviousPage
-        historyWindow = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 720, height: 500),
-                                 styleMask: [.titled, .closable, .miniaturizable, .resizable],
-                                 backing: .buffered, defer: false)
+        historyWindow = RiftVisualStyle.window(outerSize: NSSize(width: 760, height: 560),
+            minimum: NSSize(width: 680, height: 480), title: "Riftlet — 截图历史")
         super.init()
-        historyWindow.title = "Riftlet — Screenshot History"
+        historyWindow.title = "Riftlet — 截图历史"
         historyWindow.isReleasedWhenClosed = false
-        historyWindow.minSize = NSSize(width: 560, height: 340)
+        historyWindow.minSize = NSSize(width: 680, height: 480)
         historyWindow.delegate = self
         configureContent()
         historyWindow.center()
@@ -102,88 +110,100 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
     }
 
     public func show() {
+        let size = hasPresented ? historyWindow.frame.size : NSSize(width: 760, height: 560)
         refresh()
+        RiftVisualStyle.restoreWindowSize(historyWindow, size: size)
         historyWindow.makeKeyAndOrderFront(nil)
+        RiftVisualStyle.restoreWindowSize(historyWindow, size: size)
+        hasPresented = true
         NSApp.activate(ignoringOtherApps: true)
     }
 
     public func close() { historyWindow.close() }
 
     public func windowWillClose(_ notification: Notification) {
-        cache.clear()
+        cache.clear(); detailID = nil; detailImage.image = nil; previewWindow?.close(); previewWindow = nil
         displayed.removeAll()
         table.reloadData()
     }
 
     private func configureContent() {
         guard let content = historyWindow.contentView else { return }
-        search.placeholderString = "Search this page: date, image ID or state"
-        search.delegate = self
-        search.sendsSearchStringImmediately = true
-        filter.addItems(withTitles: RiftHistoryFilter.allCases.map(\.title))
-        filter.target = self; filter.action = #selector(filterChanged)
-        filter.setAccessibilityLabel("History filter")
-        let top = NSStackView(views: [search, filter])
-        top.orientation = .horizontal; top.spacing = 10
-        search.widthAnchor.constraint(greaterThanOrEqualToConstant: 250).isActive = true
-
+        search.placeholderString = "搜索本页"; search.setAccessibilityLabel("搜索当前历史页")
+        search.delegate = self; search.sendsSearchStringImmediately = true
+        let sidebar = NSVisualEffectView(); sidebar.material = .sidebar; sidebar.blendingMode = .behindWindow
+        let nav = RiftVisualStyle.vertical([RiftVisualStyle.label("本机截图", role: "heading")], spacing: 4)
+        for (i, name) in ["全部截图", "待核实", "已附加", "已归档", "明确失败", "已移除"].enumerated() {
+            let button = RiftSidebarButton(title: name, target: self, action: #selector(filterChanged(_:)))
+            button.tag = i; button.setButtonType(.pushOnPushOff)
+            button.font = RiftVisualStyle.bodyFont; button.alignment = .left
+            button.heightAnchor.constraint(equalToConstant: 36).isActive = true
+            button.widthAnchor.constraint(equalToConstant: 128).isActive = true
+            filterButtons.append(button); nav.addArrangedSubview(button)
+        }
+        nav.addArrangedSubview(RiftVisualStyle.label("原图始终保留", role: "secondary"))
+        nav.translatesAutoresizingMaskIntoConstraints = false; sidebar.addSubview(nav)
+        NSLayoutConstraint.activate([nav.leadingAnchor.constraint(equalTo: sidebar.leadingAnchor, constant: 12),
+            nav.topAnchor.constraint(equalTo: sidebar.topAnchor, constant: 24)])
+        let list = NSView()
         let previewColumn = NSTableColumn(identifier: NSUserInterfaceItemIdentifier("preview"))
-        previewColumn.width = 92; previewColumn.minWidth = 92; previewColumn.maxWidth = 92
+        previewColumn.width = 72; previewColumn.minWidth = 72; previewColumn.maxWidth = 72
         let descriptionColumn = NSTableColumn(identifier: NSUserInterfaceItemIdentifier("description"))
-        descriptionColumn.minWidth = 320
+        descriptionColumn.width = 172; descriptionColumn.minWidth = 148
         table.addTableColumn(previewColumn); table.addTableColumn(descriptionColumn)
-        table.headerView = nil; table.rowHeight = 68
-        table.intercellSpacing = NSSize(width: 0, height: 2)
-        table.usesAlternatingRowBackgroundColors = true
-        table.allowsMultipleSelection = false
-        table.columnAutoresizingStyle = .lastColumnOnlyAutoresizingStyle
-        table.dataSource = self; table.delegate = self
-        table.target = self; table.doubleAction = #selector(revealSelected)
-        table.setAccessibilityLabel("Local screenshots")
-        let scroll = NSScrollView()
-        scroll.hasVerticalScroller = true; scroll.autohidesScrollers = true
-        scroll.borderType = .bezelBorder; scroll.documentView = table
-
+        table.headerView = nil; table.rowHeight = 64; table.intercellSpacing = .zero
+        table.usesAlternatingRowBackgroundColors = false; table.backgroundColor = RiftVisualStyle.window
+        table.allowsMultipleSelection = false; table.columnAutoresizingStyle = .lastColumnOnlyAutoresizingStyle
+        table.dataSource = self; table.delegate = self; table.target = self
+        table.doubleAction = #selector(previewSelected)
+        table.onPreview = { [weak self] in self?.previewSelected() }
+        table.setAccessibilityLabel("本机截图记录；空格查看预览")
+        let scroll = NSScrollView(); scroll.hasVerticalScroller = true; scroll.autohidesScrollers = true
+        scroll.drawsBackground = false; scroll.documentView = table
+        let paging = NSStackView(views: [newerButton, olderButton]); paging.spacing = 8
         for button in [restoreButton, removeButton, revealButton, newerButton, olderButton] {
-            button.bezelStyle = .rounded; button.target = self
+            RiftVisualStyle.style(button); button.target = self
         }
-        restoreButton.action = #selector(restoreSelected)
-        removeButton.action = #selector(removeSelected)
-        revealButton.action = #selector(revealSelected)
-        newerButton.action = #selector(previousPage)
-        olderButton.action = #selector(nextPage)
-        let actions = NSStackView(views: [revealButton, restoreButton, removeButton])
-        actions.orientation = .horizontal; actions.spacing = 8
-        let paging = NSStackView(views: [newerButton, olderButton])
-        paging.orientation = .horizontal; paging.spacing = 8
-        countLabel.font = .systemFont(ofSize: 11); countLabel.textColor = .secondaryLabelColor
-        countLabel.lineBreakMode = .byTruncatingTail
-        let note = NSTextField(wrappingLabelWithString:
-            "Returning to the rift does not upload. Removing here keeps the local image and the ChatGPT attachment.")
-        note.font = .systemFont(ofSize: 11); note.textColor = .secondaryLabelColor
-
-        for view in [top, scroll, actions, paging, countLabel, note] {
-            view.translatesAutoresizingMaskIntoConstraints = false; content.addSubview(view)
+        restoreButton.action = #selector(restoreSelected); removeButton.action = #selector(removeSelected)
+        revealButton.action = #selector(revealSelected); newerButton.action = #selector(previousPage); olderButton.action = #selector(nextPage)
+        countLabel.font = RiftVisualStyle.secondaryFont; countLabel.textColor = RiftVisualStyle.secondary
+        for view in [search, scroll, paging, countLabel] { view.translatesAutoresizingMaskIntoConstraints = false; list.addSubview(view) }
+        NSLayoutConstraint.activate([search.leadingAnchor.constraint(equalTo: list.leadingAnchor, constant: 12),
+            search.trailingAnchor.constraint(equalTo: list.trailingAnchor, constant: -12), search.topAnchor.constraint(equalTo: list.topAnchor, constant: 16),
+            scroll.topAnchor.constraint(equalTo: search.bottomAnchor, constant: 12), scroll.leadingAnchor.constraint(equalTo: list.leadingAnchor),
+            scroll.trailingAnchor.constraint(equalTo: list.trailingAnchor), scroll.bottomAnchor.constraint(equalTo: countLabel.topAnchor, constant: -8),
+            countLabel.leadingAnchor.constraint(equalTo: list.leadingAnchor, constant: 12),
+            countLabel.bottomAnchor.constraint(equalTo: paging.topAnchor, constant: -8),
+            paging.leadingAnchor.constraint(equalTo: list.leadingAnchor, constant: 12), paging.bottomAnchor.constraint(equalTo: list.bottomAnchor, constant: -16)])
+        detailTitle.font = RiftVisualStyle.titleFont; detailTitle.textColor = RiftVisualStyle.ink
+        detailMetadata.font = RiftVisualStyle.secondaryFont; detailMetadata.textColor = RiftVisualStyle.secondary
+        detailState.font = RiftVisualStyle.bodyFont; detailState.textColor = RiftVisualStyle.ink
+        for field in [detailTitle, detailMetadata, detailState] {
+            field.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+            RiftVisualStyle.applyTextStyle(field)
         }
+        detailImage.imageScaling = .scaleProportionallyUpOrDown
+        detailImage.setAccessibilityLabel("完整比例截图预览")
+        detailImage.heightAnchor.constraint(equalToConstant: 200).isActive = true
+        let note = RiftVisualStyle.label("放回裂缝不会立即上传。移出队列不会删除本地原图或聊天附件。", role: "secondary")
+        let detail = RiftVisualStyle.documentStack([detailImage, detailTitle, detailMetadata, detailState, revealButton, restoreButton, removeButton, note], spacing: 12)
+        detail.edgeInsets = NSEdgeInsets(top: 24, left: 24, bottom: 24, right: 24)
+        for view in detail.arrangedSubviews { view.widthAnchor.constraint(equalTo: detail.widthAnchor, constant: -48).isActive = true }
+        let detailScroll = RiftVisualStyle.topAlignedScrollView()
+        detailScroll.drawsBackground = false; detailScroll.documentView = detail; detail.translatesAutoresizingMaskIntoConstraints = false
+        let separator = NSBox(); separator.boxType = .separator
+        for view in [sidebar, list, separator, detailScroll] { view.translatesAutoresizingMaskIntoConstraints = false; content.addSubview(view) }
         NSLayoutConstraint.activate([
-            top.topAnchor.constraint(equalTo: content.topAnchor, constant: 16),
-            top.leadingAnchor.constraint(equalTo: content.leadingAnchor, constant: 16),
-            top.trailingAnchor.constraint(equalTo: content.trailingAnchor, constant: -16),
-            scroll.topAnchor.constraint(equalTo: top.bottomAnchor, constant: 12),
-            scroll.leadingAnchor.constraint(equalTo: top.leadingAnchor),
-            scroll.trailingAnchor.constraint(equalTo: top.trailingAnchor),
-            scroll.bottomAnchor.constraint(equalTo: countLabel.topAnchor, constant: -10),
-            countLabel.leadingAnchor.constraint(equalTo: top.leadingAnchor),
-            countLabel.centerYAnchor.constraint(equalTo: paging.centerYAnchor),
-            countLabel.trailingAnchor.constraint(lessThanOrEqualTo: paging.leadingAnchor, constant: -8),
-            paging.trailingAnchor.constraint(equalTo: top.trailingAnchor),
-            paging.bottomAnchor.constraint(equalTo: actions.topAnchor, constant: -10),
-            actions.leadingAnchor.constraint(equalTo: top.leadingAnchor),
-            actions.bottomAnchor.constraint(equalTo: note.topAnchor, constant: -8),
-            note.leadingAnchor.constraint(equalTo: top.leadingAnchor),
-            note.trailingAnchor.constraint(equalTo: top.trailingAnchor),
-            note.bottomAnchor.constraint(equalTo: content.bottomAnchor, constant: -14)
-        ])
+            sidebar.leadingAnchor.constraint(equalTo: content.leadingAnchor), sidebar.topAnchor.constraint(equalTo: content.topAnchor),
+            sidebar.bottomAnchor.constraint(equalTo: content.bottomAnchor), sidebar.widthAnchor.constraint(equalToConstant: 152),
+            list.leadingAnchor.constraint(equalTo: sidebar.trailingAnchor), list.topAnchor.constraint(equalTo: content.topAnchor),
+            list.bottomAnchor.constraint(equalTo: content.bottomAnchor), list.widthAnchor.constraint(equalToConstant: 260),
+            separator.leadingAnchor.constraint(equalTo: list.trailingAnchor), separator.widthAnchor.constraint(equalToConstant: 1),
+            separator.topAnchor.constraint(equalTo: content.topAnchor), separator.bottomAnchor.constraint(equalTo: content.bottomAnchor),
+            detailScroll.leadingAnchor.constraint(equalTo: separator.trailingAnchor), detailScroll.trailingAnchor.constraint(equalTo: content.trailingAnchor),
+            detailScroll.topAnchor.constraint(equalTo: content.topAnchor), detailScroll.bottomAnchor.constraint(equalTo: content.bottomAnchor),
+            detail.widthAnchor.constraint(equalTo: detailScroll.contentView.widthAnchor),
+            detail.leadingAnchor.constraint(equalTo: detailScroll.contentView.leadingAnchor), detail.topAnchor.constraint(equalTo: detailScroll.contentView.topAnchor)])
         updateActions()
     }
 
@@ -194,14 +214,26 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
 
     private func refresh() {
         let selectedID = selectedEntry?.id
-        let selectedFilter = RiftHistoryFilter.allCases.indices.contains(filter.indexOfSelectedItem)
-            ? RiftHistoryFilter.allCases[filter.indexOfSelectedItem] : .all
-        displayed = HistoryPresentation.matching(entries, filter: selectedFilter, query: search.stringValue)
+        let filtered = entries.filter { entry in
+            switch filterIndex {
+            case 1: return entry.needsVerification
+            case 2: return entry.record.status == .used
+            case 3: return entry.record.visibility == .archived
+            case 4: return entry.isConfirmedFailure
+            case 5: return entry.record.visibility == .removed
+            default: return true
+            }
+        }
+        let query = search.stringValue.trimmingCharacters(in: .whitespacesAndNewlines)
+        displayed = HistoryPresentation.matching(filtered).filter { entry in
+            query.isEmpty || !HistoryPresentation.matching([entry], query: query).isEmpty || Self.stateText(entry).localizedCaseInsensitiveContains(query)
+        }
+        for button in filterButtons { button.state = button.tag == filterIndex ? .on : .off; button.contentTintColor = button.state == .on ? RiftVisualStyle.accent : RiftVisualStyle.ink }
         table.reloadData()
         if let selectedID, let row = displayed.firstIndex(where: { $0.id == selectedID }) {
             table.selectRowIndexes(IndexSet(integer: row), byExtendingSelection: false)
         } else { table.deselectAll(nil) }
-        countLabel.stringValue = "\(displayed.count) of \(entries.count) on this page · page \(pageOffset / HistoryPresentation.pageSize + 1)"
+        countLabel.stringValue = "本页 \(displayed.count) / \(entries.count) 条 · 第 \(pageOffset / HistoryPresentation.pageSize + 1) 页"
         updateActions()
     }
 
@@ -211,9 +243,48 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         revealButton.isEnabled = selectedEntry != nil
         newerButton.isEnabled = pageOffset > 0 && onPreviousPage != nil
         olderButton.isEnabled = hasEarlier && onNextPage != nil
+        updateDetail()
     }
 
-    @objc private func filterChanged() { refresh() }
+    private static func stateText(_ entry: RiftHistoryEntry) -> String {
+        if entry.needsVerification { return "结果待核实 · 不会再次附加" }
+        if entry.record.status == .used { return "已附加" }
+        if entry.isConfirmedFailure { return "已确认失败 · 图片保留" }
+        if entry.record.status == .missing { return "本地副本不可用" }
+        if entry.record.visibility == .archived { return "已归档" }
+        if entry.record.visibility == .removed { return "已移出裂缝" }
+        if entry.record.status == .failed { return "未附加 · 图片保留" }
+        return "待附加"
+    }
+    private func updateDetail() {
+        guard let entry = selectedEntry else {
+            detailID = nil; detailImage.image = nil; detailImage.isHidden = true; detailTitle.stringValue = "截图会留在这里"
+            detailMetadata.stringValue = ""; detailState.stringValue = "选择一张截图，查看原比例预览与本地状态。"; return
+        }
+        detailID = entry.id; detailImage.image = nil; detailImage.isHidden = false
+        detailTitle.stringValue = Self.stateText(entry)
+        detailMetadata.stringValue = "\(HistoryPresentation.dateText(for: entry))\n\(entry.record.image.pixelWidth) × \(entry.record.image.pixelHeight)"
+        detailState.stringValue = entry.needsVerification ? "尚不能确认这次附加的结果。原图和本地记录均保留，不会自动再次附加。" :
+            entry.record.status == .used ? "后台已取得独立完成证明。原始系统截图仍然保留。" :
+            entry.record.status == .failed && !entry.isConfirmedFailure ? "本次未附加不代表已证明远端上传失败；不会自动重传。" : "附加、归档或移除后，本地记录仍保留。可用操作会随记录状态更新。"
+        for field in [detailTitle, detailMetadata, detailState] { RiftVisualStyle.applyTextStyle(field) }
+        cache.image(for: entry.record.image, maxPixelSize: Int(320 * historyWindow.backingScaleFactor)) { [weak self] image in
+            guard let self, self.detailID == entry.id, self.historyWindow.isVisible else { return }
+            self.detailImage.image = image.map { NSImage(cgImage: $0, size: .zero) }
+        }
+    }
+    @objc private func previewSelected() {
+        guard selectedEntry != nil, let image = detailImage.image else { return }
+        previewWindow?.close()
+        let panel = HistoryPreviewWindow(contentRect: NSRect(x: 0, y: 0, width: 640, height: 480),
+            styleMask: [.titled, .closable, .resizable], backing: .buffered, defer: false)
+        panel.title = "截图预览"; panel.isReleasedWhenClosed = false; panel.backgroundColor = RiftVisualStyle.window
+        let view = NSImageView(frame: panel.contentView?.bounds ?? .zero); view.autoresizingMask = [.width, .height]
+        view.image = image; view.imageScaling = .scaleProportionallyUpOrDown; view.setAccessibilityLabel("本地截图预览，Escape 关闭")
+        panel.contentView?.addSubview(view); previewWindow = panel; panel.center(); panel.makeKeyAndOrderFront(nil)
+    }
+
+    @objc private func filterChanged(_ sender: NSButton) { filterIndex = sender.tag; refresh() }
     public func controlTextDidChange(_ obj: Notification) { refresh() }
     public func tableViewSelectionDidChange(_ notification: Notification) { updateActions() }
     public func numberOfRows(in tableView: NSTableView) -> Int { displayed.count }
@@ -237,8 +308,8 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         cell.identifier = column.identifier
         let asset = entry.record.image
         cell.title.stringValue = "\(HistoryPresentation.dateText(for: entry)) · \(asset.pixelWidth) × \(asset.pixelHeight)"
-        cell.subtitle.stringValue = HistoryPresentation.stateText(for: entry)
-        cell.toolTip = [entry.id.uuidString, entry.detail].compactMap { $0 }.joined(separator: "\n")
+        cell.subtitle.stringValue = Self.stateText(entry)
+        cell.toolTip = Self.stateText(entry)
         return cell
     }
 
@@ -259,4 +330,19 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
 
     @objc private func nextPage() { guard hasEarlier else { return }; onNextPage?() }
     @objc private func previousPage() { guard pageOffset > 0 else { return }; onPreviousPage?() }
+}
+
+
+@MainActor
+private final class HistoryTableView: NSTableView {
+    var onPreview: (() -> Void)?
+    override func keyDown(with event: NSEvent) {
+        if event.keyCode == 49, event.modifierFlags.intersection(.deviceIndependentFlagsMask).isEmpty,
+           window?.firstResponder === self { onPreview?(); return }
+        super.keyDown(with: event)
+    }
+}
+@MainActor
+private final class HistoryPreviewWindow: NSWindow {
+    override func cancelOperation(_ sender: Any?) { performClose(sender) }
 }

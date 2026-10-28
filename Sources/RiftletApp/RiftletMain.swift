@@ -167,7 +167,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         // The first ordinary launch explains collection before its first source
         // read. Acceptance mode must not steal the test browser's focus.
         if mode.collectsSystemScreenshots, firstUse.needsAutomaticPresentation {
-            showSetup(); firstUse.recordPresentation()
+            updateSetup(); setup?.showOnboarding(); firstUse.recordPresentation()
         }
         Task {
             do { try await start() }
@@ -598,7 +598,16 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             onChooseSourceAccess: mode.collectsSystemScreenshots ? { [weak self] in self?.chooseSourceAccess() } : nil,
             onToggleHidden: { [weak self] in self?.toggleHidden() },
             onToggleCollection: mode.collectsSystemScreenshots ? { [weak self] in self?.toggleCollection() } : nil,
-            onOpenHistory: { [weak self] in self?.showHistory() })
+            onOpenHistory: { [weak self] in self?.showHistory() },
+            onOpenEntrySettings: mode.collectsSystemScreenshots ? { [weak self] in
+                guard let self else { return }
+                guard let entry = self.screenshotEntry?.entry else {
+                    self.showIssue("截图入口暂不可用，请在运行状态中重新检查。"); return
+                }
+                entry.showPreferences()
+            } : nil,
+            onOpenDisplaySettings: { [weak self] in self?.showArrivalSettings() },
+            onOpenFeedback: { [weak self] in self?.showFeedback() })
         updateSetup()
     }
 
@@ -1376,9 +1385,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         let heading = NSMenuItem(title: simulation ? "离线模拟 · 没有真实上传"
             : (mode == .webAcceptance ? "Web 验收 · 仅生成图片" : "正在准备本地截图收录…"), action: nil, keyEquivalent: "")
         menu.addItem(heading); statusLine = heading
-        add(menu, "开始使用与运行状态…", #selector(showSetup))
+        add(menu, "设置…", #selector(showSetup))
         add(menu, "反馈与建议…", #selector(showFeedback))
-        add(menu, "截图动效…", #selector(showArrivalSettings))
+        add(menu, "入缝动效…", #selector(showArrivalSettings))
         if mode.collectsSystemScreenshots { add(menu, "文件访问设置…", #selector(openFilePrivacySettings)) }
         if mode == .webAcceptance {
             menu.addItem(NSMenuItem(title: "Chrome · ChatGPT Chat · Chinese UI · PNG test images", action: nil, keyEquivalent: ""))
@@ -1391,16 +1400,16 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         }
         if simulation { add(menu, "Add 3 synthetic demo images", #selector(addWebTestImages)) }
         menu.addItem(.separator())
-        let hide = NSMenuItem(title: "Hide rift", action: #selector(toggleHidden), keyEquivalent: "")
+        let hide = NSMenuItem(title: "隐藏裂缝", action: #selector(toggleHidden), keyEquivalent: "")
         hide.target = self; menu.addItem(hide); hideItem = hide
         if mode.collectsSystemScreenshots {
             add(menu, "截图…", #selector(beginScreenshot))
-            let pause = NSMenuItem(title: "Pause collection", action: #selector(toggleCollection), keyEquivalent: "")
+            let pause = NSMenuItem(title: "暂停收录", action: #selector(toggleCollection), keyEquivalent: "")
             pause.target = self; menu.addItem(pause); pauseItem = pause
         }
-        add(menu, "内部截图历史…", #selector(showHistory))
+        add(menu, "截图历史…", #selector(showHistory))
         add(menu, "清空可见队列（保留文件）", #selector(clearVisible))
-        let archive = NSMenuItem(title: "Idle archive…", action: #selector(configureArchive), keyEquivalent: "")
+        let archive = NSMenuItem(title: "自动归档…", action: #selector(configureArchive), keyEquivalent: "")
         archive.target = self; menu.addItem(archive); archiveItem = archive
         menu.addItem(.separator())
         add(menu, "显示最新截图", #selector(showLatest))
