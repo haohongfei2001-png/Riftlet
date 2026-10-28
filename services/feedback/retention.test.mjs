@@ -59,3 +59,24 @@ test('stored unknown fields are never projected into a private Issue',async(t)=>
   t.after(()=>{globalThis.fetch=old;});env.DELIVERY_ENABLED='true';await dispatch(env);
   assert.equal(posts,0);assert.equal(env.sqlite.prepare('SELECT state FROM feedback').get().state,'uncertain');
 });
+test('resolved tombstones expire even with old Issue metadata; pending deletion obligations survive',async()=>{
+  const env=fixture();
+  const old=Math.floor(Date.now()/1000)-366*86400;
+  const cases=[
+    ['deleted',1,old,false],['deleted',null,old,false],['expired',null,old,false],
+    ['deletion_pending',1,old,true],['deletion_pending',null,old,true],
+    ['uncertain',null,old,true],['expired',1,old,true],
+    ['deleted',1,Math.floor(Date.now()/1000),true]
+  ];
+  const ids=[];
+  for(const [state,issue,created] of cases){
+    const p=payload();await receiver.fetch(request(p),env);ids.push(p.id);
+    env.sqlite.prepare("UPDATE feedback SET state=?,issue_number=?,issue_node_id=?,created=?,payload=NULL,day_bucket='',ip_bucket='' WHERE id=?")
+      .run(state,issue,issue===null?null:'SYNTHETIC',created,p.id);
+  }
+  await dispatch(env);
+  for(let i=0;i<ids.length;i++){
+    const found=env.sqlite.prepare('SELECT id FROM feedback WHERE id=?').get(ids[i]);
+    assert.equal(Boolean(found),cases[i][3],`${cases[i][0]} / issue ${cases[i][1]}`);
+  }
+});

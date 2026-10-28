@@ -113,5 +113,16 @@ public actor FeedbackEngine {
         await pump()
     }
 
+    /// Local forgetting is allowed only after no-send cancellation or confirmed
+    /// server deletion. Remove the exact capability FIRST; if Keychain fails,
+    /// keep the body and retryable cleanup entry. If SQLite fails afterwards,
+    /// removal of a now-missing capability is idempotent on the next user retry.
+    public func forgetResolved(id: String) async throws {
+        guard let record = try await store.records().first(where: { $0.id == id }) else { return }
+        guard record.state == .cancelled || record.state == .deleted else { throw FeedbackFailure.conflict }
+        try secrets.remove(for: id)
+        try await store.forgetResolved(id: id)
+    }
+
     public func stop() { stopped = true; pumpRequested = false; invalidateWake() }
 }

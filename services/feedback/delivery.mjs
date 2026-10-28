@@ -43,7 +43,9 @@ export async function dispatch(env) {
     env.DB.prepare("UPDATE feedback SET payload=NULL,day_bucket='',ip_bucket='',delete_requested=1,state=CASE WHEN state='pending' THEN 'expired' WHEN state='deleted' THEN 'deleted' ELSE 'deletion_pending' END WHERE expires<=? AND payload IS NOT NULL").bind(now),
     env.DB.prepare('DELETE FROM quota WHERE expires<?').bind(now),
     env.DB.prepare("UPDATE feedback SET state='uncertain' WHERE state='attempting' AND attempt_at<?").bind(now-300),
-    env.DB.prepare("DELETE FROM feedback WHERE created<? AND state IN ('deleted','expired') AND issue_number IS NULL").bind(now-365*86400)
+    // Owner-confirmed deletion resolves the remote obligation even when the
+    // original Issue number remains. Unresolved deletion obligations never age out.
+    env.DB.prepare("DELETE FROM feedback WHERE created<? AND (state='deleted' OR (state='expired' AND issue_number IS NULL))").bind(now-365*86400)
   ]);
   if(env.DELIVERY_ENABLED!=='true') return;
   if(!await privateRepository(env)) return;

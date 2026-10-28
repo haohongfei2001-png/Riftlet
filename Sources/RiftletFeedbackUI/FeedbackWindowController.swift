@@ -241,11 +241,11 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
         guard selected.state == .cancelled || selected.state == .deleted else {
             status.stringValue = "先取消未发送反馈或等待服务确认删除，再移除本机正文。"; return
         }
-        let alert = NSAlert(); alert.messageText = "移除这条本机反馈正文？"
-        alert.informativeText = "这是本机内容删除，不改变其他反馈或任何截图。"
-        alert.addButton(withTitle: "移除正文"); alert.addButton(withTitle: "保留")
+        let alert = NSAlert(); alert.messageText = "移除这条本机反馈正文及访问凭证？"
+        alert.informativeText = "删除这条已取消或已删除反馈的本机正文和钥匙串凭证；不改变其他反馈或任何截图。"
+        alert.addButton(withTitle: "移除"); alert.addButton(withTitle: "保留")
         guard alert.runModal() == .alertFirstButtonReturn else { return }
-        Task { do { try await engine.store.forgetResolved(id: selected.id); await refreshRecords() } catch { failure() } }
+        Task { do { try await engine.forgetResolved(id: selected.id); await refreshRecords() } catch { failure() } }
     }
     @objc private func deleteSelected() {
         guard let selected, let engine else { return }

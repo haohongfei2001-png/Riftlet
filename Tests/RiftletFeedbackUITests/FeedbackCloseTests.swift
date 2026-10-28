@@ -20,17 +20,26 @@ final class FeedbackCloseTests: XCTestCase {
         let (store, controller) = try fixture(); await controller.waitUntilLoaded()
         let window = try XCTUnwrap(controller.window)
         let text = try XCTUnwrap(editor(in: try XCTUnwrap(window.contentView)))
+        var previousRevision: Int64 = 0
         for value in ["first close", "reopened final edit"] {
+            // Exercise a genuinely reopened window. Closing an already-closed
+            // NSWindow need not produce a second willClose notification.
+            controller.showWindow(nil)
+            XCTAssertTrue(window.isVisible)
             text.string = value
             controller.textDidChange(Notification(name: NSText.didChangeNotification))
             let closed = expectation(description: "window closed after durable save: \(value)")
             let observer = NotificationCenter.default.addObserver(forName: NSWindow.willCloseNotification, object: window, queue: .main) { _ in closed.fulfill() }
-            let bypass = controller.windowShouldClose(window)
-            XCTAssertFalse(bypass, "Every close must be deferred until its own save")
-            if bypass { NotificationCenter.default.removeObserver(observer); return }
+            // AppKit must call the delegate, defer closing and then close after
+            // persistence. Do not replace this with a direct delegate invocation.
+            window.performClose(nil)
             await fulfillment(of: [closed], timeout: 3)
             NotificationCenter.default.removeObserver(observer)
-            let saved = try await store.draft(); XCTAssertEqual(saved.text, value)
+            XCTAssertFalse(window.isVisible)
+            let saved = try await store.draft()
+            XCTAssertEqual(saved.text, value)
+            XCTAssertGreaterThan(saved.revision, previousRevision)
+            previousRevision = saved.revision
         }
     }
     @MainActor func testTerminationKeepsEditorFrozenAfterSaveThroughLaterHostAwaits() async throws {
