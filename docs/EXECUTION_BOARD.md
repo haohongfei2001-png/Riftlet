@@ -1,3 +1,5 @@
+> **2026-10-28 Beta 日常体验独立包 · DONE（限定）**：本地 Mac 在独立分支完成等待/取消说明与 tooltip/AX 清理修复，源码 `fa74f3c68f05ab4eaccfc24e2f39c0177289ddb3`、macOS CI `40693945938` success。用户报告的人工 helper 操作仅覆盖 IMAGE/NUMBER/GAP/按住原图；准确 CLEAR、补位后双击及真实 Chrome 物理输入未升级。正式工程更新 b4bcfa41 后另树实测 Feedback 两次关闭重开、隐藏恢复与目标再捕获；没有新增上传。两套源码未混称，Pro 整合 Main 两处冲突并运行组合 CI。详细 [产品结论与交接](../engineering/evidence/2026-10-28-beta-ux/README.md)。历史 UNKNOWN、原媒体与审计均保留。
+
 # Riftlet 自主并行执行队列
 
 > **当前任务：真实截图受限准入与快吞噬（2026-10-28）**。以正式 `871d825` 合入真实证据 `493d1d8`，保留两个分支的祖先；F 的 SC-INPUT/START/COMPLETE 分别限定 PASS。独立开始、完成证据审查支持受限内部候选：Chrome 中文 ChatGPT 普通已有 thread、单帧非交错 RGBA8 PNG、仅本版本登记的新操作。v2 开始和完成分别授权，旧 v1 / F / 旧 UNKNOWN 永不追溯授权，安全失败／重试及普通生产继续关闭。复用原 Core/UI，严格 sRGB JS 不变。[当前实现、准确验证与本地 Codex 入口](SYSTEM_SCREENSHOT_RESTRICTED_ADMISSION.md)。最终 SHA/完整 macOS CI/候选 App 以 PR #1 最新交接为准，PR 保持 Draft。
