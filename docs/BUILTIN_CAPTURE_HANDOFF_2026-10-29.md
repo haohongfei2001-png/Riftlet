@@ -10,7 +10,7 @@
 - 本分支直接父基线：薄界原生交接 `443d21da1a55c0061eafced823b5406879b96024`，其已测源码为 `00dedc7f8164643c3435e3f87aa462e28af0b1c8`。
 - 本轮仅在独立克隆写入。最新正式 Feedback 增量未重复合入本分支；正式负责人先完成薄界/Feedback 合流，再接本增量。
 
-独立 Draft PR：[#14](https://github.com/haohongfei2001-png/Riftlet/pull/14)。已独立审阅的首个源提交：`86ed9cf63f2aed0ea3114275d109b0e54287d74f`；当前源提交为 `6540f1981897c1cda6957c38f88243b2b1ed763e`，补充修复了子进程已退出、完成通知尚未消费时的误超时，并用真实无害子进程覆盖此竞态。准确后续候选、CI run / job、审查和制品记录位于 [results.json](../engineering/evidence/2026-10-29-builtin-capture/results.json)。未执行的项目始终保留 NOT_RUN。
+独立 Draft PR：[#14](https://github.com/haohongfei2001-png/Riftlet/pull/14)。已独立审阅的实现提交依次为 `86ed9cf63f2aed0ea3114275d109b0e54287d74f`、`6540f1981897c1cda6957c38f88243b2b1ed763e`（自然退出后误超时修复）、`bd83e84e49fe7f50ad6c483bf9ccb1885ce70fc8`（同目录来源隔离）。当前完整源 tree 为 `be0bd4f1d399935205e75979efd400961d9d4f22`。准确候选、CI run / job、审查和制品记录位于 [results.json](../engineering/evidence/2026-10-29-builtin-capture/results.json)。未执行的项目始终保留 NOT_RUN。
 
 ## 本轮真实代码
 
@@ -33,6 +33,8 @@
 ### 原文件、来源与标注
 
 所有内置截图均为 `applicationScreenshot`，即使 macOS 工具写了真实系统截图 xattr，也不会借用 `systemScreenshot` 或 synthetic 上传准入。原 PNG 和元数据不改写，沿用 PrivateAssetImporter 的文件身份、完整验证、容量、哈希、journal、SQLite v3 和去重。
+
+系统截图位置与私有 `captures` 目录重叠时，新自有原件从预留起使用隐藏 basename，派生文件也隐藏，复用系统收录器既有的隐藏文件排除规则；同目录真正系统截图仍正常收录。显式 built-in 导入命中已有其他来源时拒绝返回为成功，不重标已有记录。旧候选留下的可见原件不被回溯重命名或净化，不扩大其来源、旧 UNKNOWN 或旧操作准入。
 
 可选标注维持矩形/撤销/保留原图/完成的小范围。派生 PNG 的私有持久写入移到已有 importer actor；未修改原图。编辑器仅接受已知 sRGB / Display P3 的 8-bit SDR RGB，其他格式保留原图并给出轻量说明，避免静默降位深。内置截图目前走既有队列的静态入场降级，未借用未准入的系统源矩形；磁力仅保留原有已批准模式，不宣称内置轨迹已通过。
 
@@ -83,6 +85,14 @@ git log --reverse --oneline 443d21da1a55c0061eafced823b5406879b96024..origin/cod
 ```
 
 由负责人在其独立组合工作树 cherry-pick 本增量源提交及必要修复；新 composition pin 必须针对合流后的实际完整树经非作者审查重新固定，不能把本分支 CI 当组合 CI。保留正式 Feedback 对象和旧证据、所有 Core/Adapters/SQLite/sourceKey/profile。
+
+实现增量的精确顺序如下（由正式负责人执行，本轮未在正式分支执行）：
+
+```sh
+git cherry-pick -x 86ed9cf63f2aed0ea3114275d109b0e54287d74f 6540f1981897c1cda6957c38f88243b2b1ed763e bd83e84e49fe7f50ad6c483bf9ccb1885ce70fc8
+```
+
+中间及末尾的 pin/交接提交只更新三条元数据，不要把其中的旧完整树 pin 直接当作正式组合 pin；先保留门禁失败关闭，再对实际组合源码独立审阅后固定新 pin。
 
 只读 `git merge-tree` 对固定 `443d21d` 与正式 `0e7ea8be` 发现的**继承冲突**为 `Sources/RiftletFeedbackUI/FeedbackWindowController.swift`、`docs/EXECUTION_BOARD.md`、`docs/INTEGRATION_HANDOFF.md`。本截图增量不修改 FeedbackWindowController；前述冲突由正在工作的薄界正式负责人处理。本增量重点接点是 `RiftletMain` 的 host/设置回调和窗口打开边界、`RiftSetupController` 的截图页及两个 CI workflow；最终组合可能还需按其最新演进做局部手工合流。
 

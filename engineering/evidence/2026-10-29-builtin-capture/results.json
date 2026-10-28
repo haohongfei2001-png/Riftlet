@@ -3,10 +3,24 @@
   "baseline": "443d21da1a55c0061eafced823b5406879b96024",
   "formalHeadObserved": "0e7ea8be148e1124b387e799fd886a7830e96559",
   "branch": "codex/builtin-capture-completion-20261029",
-  "sourceRevision": "6540f1981897c1cda6957c38f88243b2b1ed763e",
+  "sourceRevision": "bd83e84e49fe7f50ad6c483bf9ccb1885ce70fc8",
   "ci": {
     "status": "PENDING_CURRENT_SOURCE",
-    "runs": []
+    "runs": [],
+    "previousSourceRuns": [
+      {
+        "head": "9e7ab42739c78d97ee7dc352216a6a62659ce2ea",
+        "reviewedSource": "86ed9cf63f2aed0ea3114275d109b0e54287d74f",
+        "nativeRun": 40753727348,
+        "feedbackRun": 40753727997,
+        "conclusion": "success",
+        "currentSourceAcceptance": false,
+        "reason": "Before timeout and overlapping-source fixes",
+        "intelProbeCapturedSamples": 30,
+        "arm64ProbeCapturedSamples": 0,
+        "previewImagesRetained": 0
+      }
+    ]
   },
   "authorEnvironment": "Linux x86_64; no local Swift/AppKit runtime",
   "registeredMac": "OFFLINE",
@@ -15,7 +29,7 @@
   "ordinaryProductionAndSafeRetry": "UNCHANGED; closed",
   "formalPR1ModifiedByThisTask": false,
   "release": "NOT_RELEASED",
-  "sourceTree": "b9c84168b8e49abd640d77fb38d05463745004ae",
+  "sourceTree": "be0bd4f1d399935205e75979efd400961d9d4f22",
   "localChecks": {
     "diffCheck": "PASS",
     "originalGateFaultTests": 21,
@@ -29,9 +43,11 @@
     ],
     "remainingSourceBlockers": [],
     "physicalOrUploadAdmission": "NOT_GRANTED",
-    "reviewedSource": "6540f1981897c1cda6957c38f88243b2b1ed763e",
-    "timeoutRaceFollowup": "PASS; exact two-blob delta independently reviewed"
+    "reviewedSource": "bd83e84e49fe7f50ad6c483bf9ccb1885ce70fc8",
+    "timeoutRaceFollowup": "PASS; exact two-blob delta independently reviewed",
+    "originOverlapFollowup": "PASS; hidden originals/derivatives, returned-origin conflict rejection, active and retired system-source scans"
   },
   "pullRequest": "https://github.com/haohongfei2001-png/Riftlet/pull/14",
-  "newSwiftTestMethods": 37
+  "newSwiftTestMethods": 40,
+  "legacyVisibleCaptures": "NOT_MIGRATED; no retag, no cleanup, no new upload evidence or old-operation admission"
 }
