@@ -91,6 +91,7 @@ final class RiftSettingsForm: NSObject {
             forName: NSWorkspace.accessibilityDisplayOptionsDidChangeNotification, object: nil, queue: .main) { [weak self] _ in
                 Task { @MainActor [weak self] in
                     guard let self else { return }
+                    self.preview.recordDiagnostic("accessibility.notification")
                     self.refreshMotion(play: false)
                 }
             }
@@ -130,7 +131,7 @@ final class RiftSettingsForm: NSObject {
     }
 
     func content(for section: RiftSettingsSection) -> [NSView] {
-        preview.stop(); shownSection = section
+        preview.stop(reason: "form.content section=\(section.rawValue)"); shownSection = section
         message.isHidden = true
         refreshMotion(play: false)
         switch section {
@@ -151,7 +152,7 @@ final class RiftSettingsForm: NSObject {
         }
     }
 
-    func stop() { preview.stop(); shownSection = nil }
+    func stop() { preview.stop(reason: "form.stop"); shownSection = nil }
 
     private func card(_ views: [NSView]) -> NSView {
         let card = RiftVisualStyle.card(views)
@@ -222,7 +223,11 @@ final class RiftSettingsForm: NSObject {
         }
         apply(.archiveAfterHours(requested))
     }
-    @objc private func replay() { refreshMotion(play: true) }
+    @objc private func replay() {
+        preview.recordDiagnostic("replay.action.enter")
+        refreshMotion(play: true)
+        preview.recordDiagnostic("replay.action.exit")
+    }
     private func refreshMotion(play: Bool, redraw: Bool = true) {
         let reduced = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
         motionHint.stringValue = reduced ? "系统已开启“减少动态效果”，当前直接呈现；保留你的动效选择。"
@@ -233,6 +238,7 @@ final class RiftSettingsForm: NSObject {
         // Finish any pending initial/control layout before installing animation;
         // a subsequent genuine size change still cancels through the view.
         if play { preview.window?.contentView?.layoutSubtreeIfNeeded() }
-        preview.show(snapshot.arrivalMode.effective(reduceMotion: reduced), animate: play && preview.window?.isVisible == true)
+        preview.show(snapshot.arrivalMode.effective(reduceMotion: reduced), animate: play && preview.window?.isVisible == true,
+                     reason: "form.refresh play=\(play) redraw=\(redraw)")
     }
 }

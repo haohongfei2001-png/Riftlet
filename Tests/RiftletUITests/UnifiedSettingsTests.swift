@@ -134,7 +134,7 @@ final class UnifiedSettingsTests: XCTestCase {
         XCTAssertTrue(controller.isVisible)
     }
 
-    @MainActor func testBackgroundPreferenceRefreshAndUnchangedLayoutPreserveManualPreview() throws {
+    @MainActor func testBackgroundPreferenceRefreshAndUnchangedLayoutPreserveManualPreview() async throws {
         try prepare()
         guard !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion else {
             throw XCTSkip("System Reduce Motion correctly disables this visual preview")
@@ -144,13 +144,21 @@ final class UnifiedSettingsTests: XCTestCase {
         defer { controller.close() }
         controller.updateSettings(value); controller.show(section: .display)
         let preview: ArrivalPreviewView = try control("settings.motionPreviewImage")
+        var observations: [String] = [], droppedObservations = 0
+        preview.diagnosticObserver = {
+            if observations.count < 96 { observations.append($0) } else { droppedObservations += 1 }
+        }
+        defer { preview.diagnosticObserver = nil; print("PREVIEW_OBSERVATIONS_BEGIN\n" + observations.joined(separator: "\n") + "\nPREVIEW_OBSERVATIONS_END dropped=\(droppedObservations)") }
         preview.window?.contentView?.layoutSubtreeIfNeeded()
         let replay: NSButton = try control("settings.motionPreview")
         XCTAssertTrue(preview.window?.isVisible == true)
         XCTAssertGreaterThan(preview.bounds.width, 100)
         XCTAssertGreaterThan(preview.bounds.height, 80)
+        preview.recordDiagnostic("test.performClick.before")
         replay.performClick(nil)
+        preview.recordDiagnostic("test.performClick.after")
         let imageLayer = try XCTUnwrap(preview.layer?.sublayers?.first?.sublayers?.first)
+        preview.recordDiagnostic("test.assertLayer", observedLayer: imageLayer)
         let diagnostics = "bounds=\(preview.bounds), visible=\(preview.window?.isVisible == true), scale=\(preview.window?.backingScaleFactor ?? 0), layerKeys=\(imageLayer.animationKeys() ?? [])"
         XCTAssertNotNil(imageLayer.animation(forKey: "arrival.preview"), diagnostics)
         value.entryEnabled = false
@@ -160,6 +168,11 @@ final class UnifiedSettingsTests: XCTestCase {
         XCTAssertNotNil(imageLayer.animation(forKey: "arrival.preview"), "A backing notification with unchanged physical scale cannot cancel the preview")
         controller.close()
         XCTAssertNil(imageLayer.animation(forKey: "arrival.preview"), "Closing still cancels preview work")
+        // Let already delivered delegate observations be logged. This happens
+        // after every original assertion; it cannot turn a missing animation
+        // into a pass or extend its product duration.
+        await Task.yield()
+        await Task.yield()
     }
 
     @MainActor func testWindowRecoveryUsesReachableTitleBarAndPreservesValidCrossDisplayPosition() {

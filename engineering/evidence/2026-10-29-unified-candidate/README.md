@@ -92,3 +92,11 @@ push视觉原始制品含118 PNG/5 MOV，39静态原图已逐张独立审查；d
 第六轮 c74eac56 的 Native push/PR `40765889388` / `40765899978` 及 Feedback push `40765889306` 因 `FeedbackRecordBodyView.swift` 的 NSSize 上限 `.greatestFiniteMagnitude` 类型歧义编译失败。原生测试尚未开始，打包/新视觉未运行，不计作654项通过。修补仅将两个NSSize构造中的三个上限参数显式写为 `CGFloat.greatestFiniteMagnitude`；布局、滚动、生命周期断言与取证条件均未放宽。精确修补审查及新组合CI仍待完成。
 
 最小类型修补已由非作者精确核准：`e9fa9c260281a39ac9805a9f0e07f31d9f1f3733` / tree `d86a4e5fd9373a32ff75e3b70806fa5c4433579d` / parent c74eac56，干净树；仅该原生文件两行与README/results。c74的四个Native/Feedback运行最终均为同一编译失败，原生0开始；两Feedback的20项服务和88项隔离通过。新pin只引用该已审source，待下一准确组合CI。
+
+## 保留重复出现的预览失败并增加可归因观测
+
+第七轮27db81fb的Native push/PR `40766737184` / `40766744451` 编译通过并调度654个唯一测试，但同一手动预览存在性测试再次失败。相同四个preview相关blob在5a详细串行0.063秒通过，这次并行测试整体1.034/1.717秒；整体时长不能说明动画已自然完成。当前仍不能区分动画被显式取消、自然结束或测试按sublayer索引取得错误图层。
+
+Feedback push/PR `40766737084` / `40766744482` 成功：46项唯一原生（新增长文实际尾字滚动、单条目标sheet、IME折叠/刷新保持均明确PASS）、20项服务、88项隔离，均0 skip；52次原生执行含关闭重复6次不重复计数。新App和原尺寸视觉仍未执行。完整source.tar的853对象与Git blob/mode匹配27db。
+
+追加只读内部诊断记录preview实际/被断言图层identity与父链、keys、uptime与CA本地时钟、布局/backing/辅助通知、action起止及原始delegate flag。生产默认不安装observer、不写日志或文件。原performClick及全部断言原样保留，没有延长产品时长、暂停动画时钟或接受nil；诊断用于归因，不作为修复通过。

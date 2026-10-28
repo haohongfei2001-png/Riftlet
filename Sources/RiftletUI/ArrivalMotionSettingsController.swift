@@ -124,6 +124,19 @@ final class ArrivalPreviewView: NSView {
     private let clip = CALayer()
     private let imageLayer = CALayer()
     private let line = CALayer()
+    // Optional in-process diagnostics contain only this synthetic preview's
+    // clock/geometry/layer state. No logger, file or production telemetry.
+    var diagnosticObserver: ((String) -> Void)?
+    private var diagnosticDelegate: ArrivalPreviewDiagnosticDelegate?
+
+    func recordDiagnostic(_ event: String, observedLayer: CALayer? = nil) {
+        guard let diagnosticObserver else { return }
+        let root = layer.map { String(describing: ObjectIdentifier($0)) } ?? "nil"
+        let observed = observedLayer.map { String(describing: ObjectIdentifier($0)) } ?? "nil"
+        let localTime = imageLayer.convertTime(CACurrentMediaTime(), from: nil)
+        let animation = imageLayer.animation(forKey: "arrival.preview")
+        diagnosticObserver("mainThread=\(Thread.isMainThread) uptime=\(ProcessInfo.processInfo.systemUptime) event=\(event) mode=\(currentMode.rawValue) bounds=\(bounds) rendered=\(renderedBounds) visible=\(window?.isVisible == true) scale=\(window?.backingScaleFactor ?? 0) renderedScale=\(renderedBackingScale) reduced=\(NSWorkspace.shared.accessibilityDisplayShouldReduceMotion) root=\(root) image=\(ObjectIdentifier(imageLayer)) observed=\(observed) observedIsImage=\(observedLayer === imageLayer) clipAttached=\(clip.superlayer === layer) imageAttached=\(imageLayer.superlayer === clip) actualKeys=\(imageLayer.animationKeys() ?? []) localTime=\(localTime) speed=\(imageLayer.speed) offset=\(imageLayer.timeOffset) clipSpeed=\(clip.speed) rootSpeed=\(layer?.speed ?? 0) animationBegin=\(animation?.beginTime ?? -1) animationDuration=\(animation?.duration ?? -1)")
+    }
 
     override init(frame: NSRect) {
         super.init(frame: frame)
@@ -141,14 +154,15 @@ final class ArrivalPreviewView: NSView {
         updateAppearance()
     }
 
-    override func viewDidChangeEffectiveAppearance() { super.viewDidChangeEffectiveAppearance(); updateAppearance() }
-    override func viewDidMoveToWindow() { super.viewDidMoveToWindow(); updateAppearance() }
+    override func viewDidChangeEffectiveAppearance() { super.viewDidChangeEffectiveAppearance(); recordDiagnostic("appearance"); updateAppearance() }
+    override func viewDidMoveToWindow() { super.viewDidMoveToWindow(); recordDiagnostic("movedToWindow"); updateAppearance() }
     override func viewDidChangeBackingProperties() {
         super.viewDidChangeBackingProperties()
+        recordDiagnostic("backing.notification")
         // AppKit also reports color-space/backing updates with the same scale.
         // Refresh colors without cancelling a deliberate in-flight preview.
         if bounds != renderedBounds || (window?.backingScaleFactor ?? 1) != renderedBackingScale {
-            show(currentMode, animate: false)
+            show(currentMode, animate: false, reason: "backing.geometryChanged")
         } else {
             updateAppearance()
         }
@@ -169,15 +183,17 @@ final class ArrivalPreviewView: NSView {
 
     override func layout() {
         super.layout()
-        if bounds != renderedBounds { show(currentMode, animate: false) }
+        recordDiagnostic("layout")
+        if bounds != renderedBounds { show(currentMode, animate: false, reason: "layout.boundsChanged") }
     }
 
-    func show(_ mode: ArrivalMotionMode, animate: Bool) {
+    func show(_ mode: ArrivalMotionMode, animate: Bool, reason: String = "explicit") {
+        recordDiagnostic("show.request reason=\(reason) requestedMode=\(mode.rawValue) animate=\(animate)")
         currentMode = mode
         guard bounds.width > 100, bounds.height > 80 else { return }
         renderedBounds = bounds
         renderedBackingScale = window?.backingScaleFactor ?? 1
-        stop(); updateAppearance()
+        stop(reason: "show.prepare"); updateAppearance()
         let edge = bounds.maxX - 20
         let target = CGRect(x: edge - 54, y: bounds.midY - 22.5, width: 72, height: 45)
         CATransaction.begin(); CATransaction.setDisableActions(true)
@@ -187,17 +203,26 @@ final class ArrivalPreviewView: NSView {
         imageLayer.frame = target
         imageLayer.contentsScale = window?.backingScaleFactor ?? 2
         CATransaction.commit()
-        guard mode == .magnet, animate,
-              let plan = MagnetMotionPlan(
+        guard mode == .magnet, animate else { recordDiagnostic("animation.static"); return }
+        guard let plan = MagnetMotionPlan(
                 sourceRect: CGRect(x: 28, y: bounds.midY - 44, width: 140.8, height: 88),
-                targetImageFrame: target, clippingEdgeX: edge, screenFrame: bounds) else { return }
+                targetImageFrame: target, clippingEdgeX: edge, screenFrame: bounds) else {
+            recordDiagnostic("animation.planRejected"); return
+        }
         CATransaction.begin(); CATransaction.setDisableActions(true)
         plan.applyFinalState(to: imageLayer, relativeTo: .zero)
-        imageLayer.add(plan.makeLayerAnimation(relativeTo: .zero), forKey: "arrival.preview")
+        let animation = plan.makeLayerAnimation(relativeTo: .zero)
+        if diagnosticObserver != nil {
+            let observer = ArrivalPreviewDiagnosticDelegate { [weak self] event in self?.recordDiagnostic(event) }
+            diagnosticDelegate = observer; animation.delegate = observer
+        }
+        recordDiagnostic("animation.willAdd duration=\(plan.totalDuration)")
+        imageLayer.add(animation, forKey: "arrival.preview")
         CATransaction.commit()
+        recordDiagnostic("animation.didAdd duration=\(plan.totalDuration)")
     }
 
-    func stop() { imageLayer.removeAllAnimations() }
+    func stop(reason: String = "explicit") { recordDiagnostic("stop reason=\(reason)"); imageLayer.removeAllAnimations() }
 
     private static func makeImage() -> CGImage? {
         // Readable neutral window fixture; no real screenshot or private content.
@@ -215,5 +240,16 @@ final class ArrivalPreviewView: NSView {
         }
         image.unlockFocus()
         return image.cgImage(forProposedRect: nil, context: nil, hints: nil)
+    }
+}
+
+private final class ArrivalPreviewDiagnosticDelegate: NSObject, CAAnimationDelegate {
+    let callback: @MainActor (String) -> Void
+    init(callback: @escaping @MainActor (String) -> Void) { self.callback = callback }
+    func animationDidStart(_ anim: CAAnimation) { report("delegate.start") }
+    func animationDidStop(_ anim: CAAnimation, finished flag: Bool) { report("delegate.stop finished=\(flag)") }
+    private func report(_ event: String) {
+        let value = "\(event) rawUptime=\(ProcessInfo.processInfo.systemUptime) mainThread=\(Thread.isMainThread)"
+        DispatchQueue.main.async { [callback] in callback(value) }
     }
 }
