@@ -78,6 +78,8 @@ final class RiftSettingsForm: NSObject {
         entry.font = RiftVisualStyle.bodyFont
         hours.font = RiftVisualStyle.bodyFont; hours.alignment = .right
         hours.target = self; hours.action = #selector(saveArchive)
+        // Save is deliberate: Return or the Save button, never a focus change.
+        hours.cell?.sendsActionOnEndEditing = false
         hours.identifier = .init("settings.archiveHours"); hours.setAccessibilityLabel("闲置归档小时数，0 表示关闭")
         hours.widthAnchor.constraint(equalToConstant: 68).isActive = true
         archiveSave.target = self; archiveSave.action = #selector(saveArchive)
@@ -121,7 +123,8 @@ final class RiftSettingsForm: NSObject {
         displayHint.stringValue = disconnected ? "已选显示器暂未连接，当前使用可用主屏；连接恢复后自动回到原选择。" : "选择会保留。显示器断开时，临时使用可用主屏。"
         entryHint.stringValue = value.entryAvailable ? "默认方式在下一次入口会话生效；当前截图模式与槽位保持。关闭入口仍可收录系统截图。" : "此运行模式未启用截图入口；已有本地截图和历史保持可用。"
         if hours.currentEditor() == nil { hours.stringValue = value.archiveAfterHours.map { String(format: "%.6g", $0) } ?? "0" }
-        hours.isEnabled = enabled; archiveSave.isEnabled = enabled
+        if hours.isEnabled != enabled { hours.isEnabled = enabled }
+        archiveSave.isEnabled = enabled
         for field in [displayHint, entryHint] { RiftVisualStyle.applyTextStyle(field) }
         refreshMotion(play: false, redraw: old.arrivalMode != value.arrivalMode)
     }
@@ -208,7 +211,14 @@ final class RiftSettingsForm: NSObject {
             message.stringValue = "请输入有效的非负小时数；0 表示关闭。"; message.textColor = .systemOrange
             message.isHidden = false; RiftVisualStyle.applyTextStyle(message); return
         }
-        apply(.archiveAfterHours(value == 0 ? nil : value))
+        let requested: Double? = value == 0 ? nil : value
+        // AppKit can finish editing while an action refreshes its controls.
+        // Repeated delivery of the already-saved value must not write twice.
+        guard requested != snapshot.archiveAfterHours else {
+            message.stringValue = "已保存"; message.textColor = RiftVisualStyle.secondary; message.isHidden = false
+            RiftVisualStyle.applyTextStyle(message); return
+        }
+        apply(.archiveAfterHours(requested))
     }
     @objc private func replay() { refreshMotion(play: true) }
     private func refreshMotion(play: Bool, redraw: Bool = true) {

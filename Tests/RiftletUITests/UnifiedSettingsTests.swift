@@ -122,6 +122,16 @@ final class UnifiedSettingsTests: XCTestCase {
         XCTAssertEqual(changes, [.archiveAfterHours(2)])
         XCTAssertEqual(dismissed, 0)
         XCTAssertTrue(controller.isVisible)
+        let save: NSButton = try control("settings.archiveSave")
+        XCTAssertTrue(try XCTUnwrap(hours.window).makeFirstResponder(hours))
+        let nextEditor = try XCTUnwrap(hours.currentEditor() as? NSTextView)
+        nextEditor.string = "3"
+        XCTAssertTrue(try XCTUnwrap(hours.window).makeFirstResponder(nil))
+        await Task.yield()
+        XCTAssertEqual(changes, [.archiveAfterHours(2)], "Leaving the field is not a save command")
+        save.performClick(nil); save.performClick(nil)
+        XCTAssertEqual(changes, [.archiveAfterHours(2), .archiveAfterHours(3)], "An already-saved value cannot cause duplicate durable writes")
+        XCTAssertTrue(controller.isVisible)
     }
 
     @MainActor func testBackgroundPreferenceRefreshAndUnchangedLayoutPreserveManualPreview() throws {
