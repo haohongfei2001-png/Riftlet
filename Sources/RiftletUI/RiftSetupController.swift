@@ -320,6 +320,10 @@ public final class RiftSetupController: NSObject, NSWindowDelegate {
         stack.translatesAutoresizingMaskIntoConstraints = false
         for view in views where !(view is NSButton) { view.widthAnchor.constraint(equalTo: stack.widthAnchor).isActive = true }
         let scroll = RiftVisualStyle.topAlignedScrollView()
+        // Keep the settings column stable while document height and status
+        // labels settle. Legacy scrollers retain their native gutter; overlay
+        // scrollers still hide automatically and keep the user's chosen style.
+        scroll.autohidesScrollers = false
         scroll.documentView = stack; scroll.translatesAutoresizingMaskIntoConstraints = false; pageHost.addSubview(scroll)
         scroll.setAccessibilityLabel("Riftlet 首次使用与运行状态")
         NSLayoutConstraint.activate([scroll.leadingAnchor.constraint(equalTo: pageHost.leadingAnchor),

@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "phase": "PINNED_DIAGNOSTIC_SOURCE_AWAITING_EXACT_CI",
-  "nativeCI": "FAIL_RECURRENT_MANUAL_PREVIEW_ASSERTION_27DB",
-  "feedbackCI": "PASS_27DB_46_UNIQUE_NATIVE_ZERO_SKIP",
+  "phase": "REPAIRED_SETTINGS_SCROLL_GUTTER_AWAITING_EXACT_REVIEW_AND_CI",
+  "nativeCI": "FAIL_260A_PREVIEW_CANCELLED_BY_15PT_LAYOUT_CHANGE",
+  "feedbackCI": "PASS_260A_46_UNIQUE_NATIVE_ZERO_SKIP",
   "newNativeVisualEvidence": "NOT_RUN_PRIOR_NATIVE_TEST_FAILED",
   "physicalMacAcceptance": "NOT_RUN_AUTHORIZED_MAC_OFFLINE",
   "sourceReview": "PASS_NON_AUTHOR_EXACT_DIAGNOSTIC_SOURCE; no behavioral repair or runtime/visual pass claimed",
@@ -191,6 +191,35 @@
       "nativeArtifactSHA256": "18da905ffe58a27fdc44f87f576f47b55e2511c0409b7e7d07f1f1a4d1f294ae",
       "feedbackSourceFileCount": 853,
       "sourceArchiveSHA256": "615960e5f45d4524034a72e7ea90b223515822b54f3fc5d71f998fd3595358c5"
+    },
+    {
+      "head": "260a4d7bf3c241dee5e8e758ae9343239a920938",
+      "nativeRun": 40768864109,
+      "nativeJob": 123100303040,
+      "pushNativeRun": 40768855641,
+      "pushNativeJob": 123100272665,
+      "checkout": "76538a31217319cdd87124c44b2a42d6343a446f",
+      "nativeResult": "FAIL_PREVIEW_CANCELLED_BY_ACTUAL_LATE_GEOMETRY_CHANGE",
+      "nativeUniqueScheduled": 654,
+      "failedTests": 1,
+      "failedAssertions": 3,
+      "nativeVisual": "NOT_RUN_PRIOR_NATIVE_TEST_FAILED",
+      "diagnosticEventsEach": 17,
+      "diagnosticDroppedEach": 0,
+      "provenCause": "Actual image layer width 444 to 429 after add 88.550/104.634 milliseconds; layout.boundsChanged explicitly stops preview before 560ms duration",
+      "scrollGutterCause": "Consistent with 15pt legacy scroller; new native readback required",
+      "feedbackRun": 40768864043,
+      "feedbackJob": 123100301902,
+      "pushFeedbackRun": 40768855467,
+      "pushFeedbackJob": 123100272301,
+      "feedbackResult": "PASS",
+      "feedbackUniqueNativeTests": 46,
+      "feedbackNativeInvocations": 52,
+      "feedbackNativeSkipped": 0,
+      "feedbackServicePassed": 20,
+      "feedbackIsolationPassed": 88,
+      "feedbackSourceFileCount": 853,
+      "sourceArchiveSHA256": "cc33a856e4045540f2da5f90983b2d92dc77c3c82ce3fea3eb84c6338e5a3222"
     }
   ],
   "lateRemoteObservation": {
@@ -202,8 +231,8 @@
   },
   "physicalMacLastObservation": {
     "status": "Offline",
-    "observedUTC": "2026-10-28T20:06:00Z",
-    "reportedLastSeen": "4h ago",
+    "observedUTC": "2026-10-28T21:05:00Z",
+    "reportedLastSeen": "25m ago",
     "realPhysicalAcceptance": "NOT_RUN"
   },
   "plannedEvidence": {

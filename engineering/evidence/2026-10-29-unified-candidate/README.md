@@ -102,3 +102,11 @@ Feedback push/PR `40766737084` / `40766744482` 成功：46项唯一原生（新�
 追加只读内部诊断记录preview实际/被断言图层identity与父链、keys、uptime与CA本地时钟、布局/backing/辅助通知、action起止及原始delegate flag。生产默认不安装observer、不写日志或文件。原performClick及全部断言原样保留，没有延长产品时长、暂停动画时钟或接受nil；诊断用于归因，不作为修复通过。
 
 非作者已精确核准诊断源码 `1c6ca389c6e3e9154d84757c32ef22ba4c0683ec` / tree `85a489c52b6db66b8248dce68658a90419e7784a` / parent 27db81fb，五个文件限三份诊断实现/测试及README/results。原时长、时钟、performClick、全部断言与CI门禁保持。当前仅更新三个既有允许元数据路径；诊断批准不代表修复、原生或视觉PASS，下一实际事件链将用于归因。
+
+## 预览失败已定位为真实后到布局取消
+
+第八轮260a4d7的Native PR/push `40768864109` / `40768855641` 均失败，654唯一调度；唯一失败仍为手动预览三条原断言。两份完整17事件链且dropped=0，证明真正imageLayer安装后88.550/104.634毫秒，bounds宽从444变429，随后layout.boundsChanged→show(false)→stop→static；既不是错误图层，也未到560毫秒自然结束。UTC打印时间不能作为事件发生时间，归因使用记录中的单调uptime。Feedback PR/push `40768864043` / `40768855467` 均46唯一原生PASS、52调用含6重复、0skip；服务20/隔离88PASS。新包装和视觉仍未执行。
+
+设置页文档宽绑定clip，自动隐藏传统滚动条可在文档高度确定后占用15点，符合实际轨迹；具体style会由下一日志实读。局部修补只让RiftSetupController页scroll保留原生竖条槽位，保持系统scrollerStyle，overlay仍由AppKit自动隐藏；不改公共scroll工厂、动画时钟或真实缩放/尺寸变化时的静态重排。原performClick及全部原断言保留，并加强点击前后bounds稳定断言；新增单窗口legacy/overlay在实际需要/无需滚动的两种高度间转换回归。新的修补尚待非作者精确审查及下一CI，不能先宣布PASS。
+
+Apple原始依据：<https://developer.apple.com/documentation/appkit/nsscrollview/autohidesscrollers>；自动隐藏会移除不需要的传统滚动条以释放空间，overlay忽略此属性。

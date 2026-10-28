@@ -154,9 +154,11 @@ final class UnifiedSettingsTests: XCTestCase {
         XCTAssertTrue(preview.window?.isVisible == true)
         XCTAssertGreaterThan(preview.bounds.width, 100)
         XCTAssertGreaterThan(preview.bounds.height, 80)
+        let previewBoundsBeforeReplay = preview.bounds
         preview.recordDiagnostic("test.performClick.before")
         replay.performClick(nil)
         preview.recordDiagnostic("test.performClick.after")
+        XCTAssertEqual(preview.bounds, previewBoundsBeforeReplay, "Replaying must not change the settings column as a native scroller appears")
         let imageLayer = try XCTUnwrap(preview.layer?.sublayers?.first?.sublayers?.first)
         preview.recordDiagnostic("test.assertLayer", observedLayer: imageLayer)
         let diagnostics = "bounds=\(preview.bounds), visible=\(preview.window?.isVisible == true), scale=\(preview.window?.backingScaleFactor ?? 0), layerKeys=\(imageLayer.animationKeys() ?? [])"
@@ -173,6 +175,42 @@ final class UnifiedSettingsTests: XCTestCase {
         // into a pass or extend its product duration.
         await Task.yield()
         await Task.yield()
+    }
+
+    @MainActor func testSettingsColumnKeepsItsWidthWhenNativeScrollingBecomesNecessary() async throws {
+        try prepare()
+        let controller = RiftSetupController(onRecheck: {}, onOpenSource: {}, onPermission: {}, onDismiss: {},
+            onSettingsChange: { _ in RiftSettingsSnapshot() })
+        defer { controller.close() }
+        controller.show(section: .display)
+        let preview: ArrivalPreviewView = try control("settings.motionPreviewImage")
+        let window = try XCTUnwrap(preview.window)
+        let scroll = try XCTUnwrap(preview.enclosingScrollView)
+        // Exercise native styles on this test window only; never change the
+        // user's preference or force a particular style in product code.
+        for style in [NSScroller.Style.legacy, .overlay] {
+            scroll.scrollerStyle = style
+            var expectedWidth: CGFloat?
+            var overflow: [Bool] = []
+            for height in [CGFloat(480), CGFloat(700), CGFloat(520)] {
+                var frame = window.frame; frame.size.height = height
+                window.setFrame(frame, display: true)
+                window.contentView?.layoutSubtreeIfNeeded()
+                await Task.yield()
+                window.contentView?.layoutSubtreeIfNeeded()
+                scroll.reflectScrolledClipView(scroll.contentView)
+                window.contentView?.layoutSubtreeIfNeeded()
+                let document = try XCTUnwrap(scroll.documentView)
+                overflow.append(document.frame.height > scroll.contentView.bounds.height)
+                if let expectedWidth {
+                    XCTAssertEqual(preview.bounds.width, expectedWidth,
+                        "Changing scroll necessity must not shift the settings column")
+                } else { expectedWidth = preview.bounds.width }
+                XCTAssertGreaterThan(preview.bounds.width, 100)
+            }
+            XCTAssertTrue(overflow[0], "The compact window must actually exercise scrolling")
+            XCTAssertFalse(overflow[1], "The larger window must actually exercise a fitting document")
+        }
     }
 
     @MainActor func testWindowRecoveryUsesReachableTitleBarAndPreservesValidCrossDisplayPosition() {
