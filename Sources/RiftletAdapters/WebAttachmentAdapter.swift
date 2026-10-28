@@ -62,8 +62,9 @@ public enum WebAdapterError: Error, Equatable, Sendable {
     case nativeSelectionChanged, pageRejected(WebPageRejection)
 }
 
-/// The explicit system-screenshot candidate only enables isolated test input.
-/// It does not register a production start/completion/retry profile.
+/// The explicit screenshot candidate is isolated from ordinary production.
+/// Its reviewed start/completion scope is assigned only to registered new
+/// operations; historical operations retain their observation-only profiles.
 public actor WebAttachmentAdapter: AttachmentAdapter {
     public nonisolated let id: String
     private let mediaDirectory: URL
@@ -73,6 +74,7 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
     private let normalizer: ObservationNormalizer
     private let polling: WebObservationPolling
     private let candidateJournal: SystemScreenshotObservationJournal?
+    private let candidateAdmission: SystemScreenshotCandidateAdmission?
     private var inputInFlight = false
 
     public init(mediaDirectory: URL, executor: any WebBridgeExecutor,
@@ -80,7 +82,8 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
                 profile: ObservationProfile = .init(adapterID: "chatgpt-web", surface: .webChat,
                                                      profileID: "web-unadmitted-v1"),
                 polling: WebObservationPolling = .acceptance,
-                candidateJournal: SystemScreenshotObservationJournal? = nil) {
+                candidateJournal: SystemScreenshotObservationJournal? = nil,
+                candidateAdmission: SystemScreenshotCandidateAdmission? = nil) {
         id = profile.adapterID; self.mediaDirectory = mediaDirectory.standardizedFileURL
         self.executor = executor; self.program = program; self.mode = mode
         if case .systemScreenshotCandidate = mode {
@@ -88,12 +91,14 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
         } else { normalizer = ObservationNormalizer(profile: profile) }
         self.polling = polling
         self.candidateJournal = candidateJournal
+        self.candidateAdmission = candidateAdmission
     }
 
     public func preflight(asset: ImportedAsset, fileURL: URL) async throws {
         if case .systemScreenshotCandidate = mode {
             try requireEnabled()
-            try SystemScreenshotWebCandidate.preflight(asset, fileURL: fileURL, mediaDirectory: mediaDirectory)
+            try SystemScreenshotWebCandidate.preflight(asset, fileURL: fileURL, mediaDirectory: mediaDirectory,
+                restrictedAdmission: candidateAdmission != nil)
         }
     }
 
@@ -112,11 +117,13 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
         let data = try await perform(.init(action: .captureTarget, captureInvocation: invocation))
         let target = try decode(TargetLease.self, from: data)
         try check(target)
+        try checkNewInputScope(target)
         return target
     }
 
     public func validate(_ target: TargetLease) async throws -> Bool {
         try check(target)
+        try checkNewInputScope(target)
         let data = try await perform(.init(action: .validate, target: target))
         let response = try decode(ValidationReply.self, from: data)
         return response.valid && response.target == target
@@ -125,6 +132,7 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
     public func append(_ request: TransferRequest) async throws -> TransferReceipt {
         try requireEnabled()
         try check(request.operation.target)
+        try checkNewInputScope(request.operation.target)
         try checkOrigin(request.asset)
         guard request.operation.assetID == request.asset.id,
               request.operation.phase == .dispatchIntent else { throw WebAdapterError.invalidRequest }
@@ -138,7 +146,12 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
         // Two passes through the same no-follow descriptor: do not transfer an
         // already-corrupt file, and do not commit if bytes change while chunking.
         let file = try PrivateUploadFile(request: request, mediaDirectory: mediaDirectory)
-        try file.verifyAndRewind()
+        let verifiedHeader = try file.verifyAndRewind()
+        if case .systemScreenshotCandidate = mode, let candidateAdmission {
+            try SystemScreenshotWebCandidate.validateHeader(Array(verifiedHeader), asset: request.asset,
+                restrictedAdmission: true)
+            try await candidateAdmission.enroll(request)
+        }
         let identity = ObservationIdentity(operationID: request.operation.id, assetID: request.asset.id,
             attempt: request.operation.attempt, assetSHA256: request.asset.sha256, target: request.operation.target)
         let suffix = request.fileURL.pathExtension
@@ -227,7 +240,9 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
               (64 * 1024...256 * 1024).contains(program.maximumChunkBytes) else { throw WebAdapterError.programUnavailable }
         if case .systemScreenshotCandidate = mode {
             guard program.sourceID == SystemScreenshotWebCandidate.sourceID,
-                  SystemScreenshotWebCandidate.matches(normalizer.profile), candidateJournal != nil else {
+                  SystemScreenshotWebCandidate.matches(normalizer.profile),
+                  normalizer.profile.profileID == SystemScreenshotWebCandidate.completionProfileID,
+                  candidateJournal != nil else {
                 throw WebAdapterError.programUnavailable
             }
         }
@@ -243,17 +258,29 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
         }
     }
 
+    private func checkNewInputScope(_ target: TargetLease) throws {
+        if case .systemScreenshotCandidate = mode, candidateAdmission != nil {
+            try SystemScreenshotWebCandidate.validateAdmittedTarget(target)
+        }
+    }
+
     private func normalize(_ data: Data, for request: TransferRequest) async throws -> TransferReceipt {
         try await normalize(ObservationDecoder.decode(data), for: request)
     }
 
     private func normalize(_ envelope: AttachmentObservationEnvelope, for request: TransferRequest) async throws -> TransferReceipt {
-        let receipt = try normalizer.receipt(from: envelope, for: request)
+        var scopedNormalizer = normalizer
+        if case .systemScreenshotCandidate = mode, let candidateAdmission,
+           try await candidateAdmission.admits(request) {
+            scopedNormalizer = ObservationNormalizer(profile: SystemScreenshotWebCandidate.admittedProfile,
+                developmentScope: .systemScreenshotCandidate)
+        }
+        let receipt = try scopedNormalizer.receipt(from: envelope, for: request)
         if case .systemScreenshotCandidate = mode {
             guard envelope.provenance.source == .integratedDevelopment, let candidateJournal else {
                 throw ObservationError.syntheticEvidenceForRealAsset
             }
-            // Preserve the first unadmitted positive/negative observations in
+            // Preserve the first original positive/negative observations in
             // SQLite, independently of the latest receipt and admitted starts.
             // Failure after commit remains UNKNOWN; this never retries input.
             try await candidateJournal.record(envelope, for: request)
@@ -368,12 +395,17 @@ private final class PrivateUploadFile {
         return data
     }
 
-    func verifyAndRewind() throws {
+    func verifyAndRewind() throws -> Data {
         var hash = SHA256()
-        while let chunk = try nextChunk() { hash.update(data: chunk) }
+        var header = Data()
+        while let chunk = try nextChunk() {
+            if header.count < 33 { header.append(chunk.prefix(33 - header.count)) }
+            hash.update(data: chunk)
+        }
         try verifyAfterRead(hash: hash.finalize().map { String(format: "%02x", $0) }.joined())
         guard lseek(fd, 0, SEEK_SET) == 0 else { throw WebAdapterError.invalidPrivateFile }
         readCount = 0
+        return header
     }
 
     func verifyAfterRead(hash: String) throws {

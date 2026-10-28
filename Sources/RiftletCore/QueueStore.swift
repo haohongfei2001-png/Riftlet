@@ -202,6 +202,28 @@ public actor QueueStore {
         }
     }
 
+    /// First-write registration bound to an actual new dispatch intent. The
+    /// caller supplies a nonce and must compare the retained bytes to determine
+    /// whether it won. This grants no receipt, retry, visibility or success;
+    /// those still require the existing independent receipt policy. Checking
+    /// state and inserting together prevents a stale request enrolling UNKNOWN.
+    public func claimDispatchCheckpoint(_ data: Data, for key: String,
+                                        operation: TransferOperation, asset: ImportedAsset) throws -> Data {
+        guard !key.isEmpty, key.utf8.count <= 256, data.count <= 64 * 1024 else {
+            throw RiftletError.invalidAsset("Checkpoint exceeds its bounded contract")
+        }
+        return try database.transaction {
+            guard mode == .production, operation.phase == .dispatchIntent,
+                  try self.operation(id: operation.id) == operation,
+                  operation.assetID == asset.id,
+                  let record = try self.asset(id: asset.id), record.image == asset,
+                  record.activeOperationID == operation.id else { throw RiftletError.invalidTransition }
+            try database.execute("INSERT OR IGNORE INTO checkpoints(key,value) VALUES(?,?)", [key, data.base64EncodedString()])
+            guard let saved = try checkpoint(for: key) else { throw RiftletError.database("Missing dispatch checkpoint") }
+            return saved
+        }
+    }
+
     /// Duplicate clicks return the unresolved operation instead of allocating a new attempt.
     public func prepare(assetID: UUID, target: TargetLease) throws -> TransferOperation {
         try database.transaction {

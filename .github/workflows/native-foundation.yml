@@ -107,6 +107,7 @@ jobs:
           swift test --skip-build --filter SelectionAuthorityTests 2>&1 | tee test-results/selection-authority-detailed.log
           swift test --skip-build --filter SelectionSubmissionQueueTests 2>&1 | tee test-results/selection-submission-detailed.log
           swift test --skip-build --filter SystemScreenshotWebCandidateTests 2>&1 | tee test-results/system-candidate-input-detailed.log
+          swift test --skip-build --filter SystemScreenshotCandidateAdmissionTests 2>&1 | tee test-results/system-candidate-admission-detailed.log
           swift test --skip-build --filter SystemScreenshotObservationJournalTests 2>&1 | tee test-results/system-candidate-observations-detailed.log
           swift test --skip-build --filter SystemScreenshotCandidateIntegrationTests 2>&1 | tee test-results/system-candidate-composition-detailed.log
           swift test --skip-build --filter SystemScreenshotFidelityTests 2>&1 | tee test-results/system-candidate-fidelity-detailed.log

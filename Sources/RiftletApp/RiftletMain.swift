@@ -15,7 +15,7 @@ enum RiftletMain {
             Task {
                 do {
                     try await SystemScreenshotCandidateSelfCheck.run()
-                    print("RIFTLET_SYSTEM_SCREENSHOT_CANDIDATE_SELF_CHECK_PASS: original-byte import, one software input, closed admission, durable candidate observations, read-only restart; GENERATED_FIXTURE; CHROME_NOT_RUN; SYSTEM_SCREENSHOT_NOT_RUN; GUI_NOT_RUN")
+                    print("RIFTLET_SYSTEM_SCREENSHOT_CANDIDATE_SELF_CHECK_PASS: original-byte import, one software input, restricted start then independent completion, durable new-operation registration, legacy UNKNOWN unchanged, read-only restart; GENERATED_FIXTURE; CHROME_NOT_RUN; SYSTEM_SCREENSHOT_NOT_RUN; GUI_NOT_RUN")
                     exit(0)
                 } catch { fputs("RIFTLET_SYSTEM_SCREENSHOT_CANDIDATE_SELF_CHECK_FAIL\n", stderr); exit(1) }
             }
@@ -676,7 +676,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         guard mode == .capture, Bundle.main.bundleURL.pathExtension == "app" else { return }
         let alert = NSAlert()
         alert.messageText = "打开真实截图内部候选？"
-        alert.informativeText = "这是尚未准入的内部验收：新系统截图保存在独立本地目录，点击符合限制的 PNG 会尝试输入当前 ChatGPT 草稿。只使用你愿意附加的截图。开始、成功与重试仍关闭；结果待核实，不自动吞噬或重新上传。普通实例继续保留；请在「Riftlet REAL TEST」菜单查看候选状态，需要时再退出普通实例。"
+        alert.informativeText = "这是受限的内部候选：新系统截图保存在独立本地目录，仅支持 Chrome 中文 ChatGPT 普通已有聊天中的原样 8-bit RGBA PNG。只使用你愿意附加的新截图。真实开始后快速吞噬，独立完成证明到达后后台记录成功；旧待核实操作保持原状，安全失败与重试仍关闭。普通实例继续保留；请在「Riftlet REAL TEST」菜单查看候选状态，需要时再退出普通实例。"
         alert.addButton(withTitle: "打开内部候选")
         alert.addButton(withTitle: "取消")
         guard alert.runModal() == .alertFirstButtonReturn else { return }
@@ -1290,7 +1290,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         }
         if mode == .systemScreenshotCandidate {
             menu.addItem(NSMenuItem(title: "真实截图内部候选 · 未生产准入", action: nil, keyEquivalent: ""))
-            menu.addItem(NSMenuItem(title: "仅原样 PNG · 开始/成功待审 · 不重传", action: nil, keyEquivalent: ""))
+            menu.addItem(NSMenuItem(title: "普通已有聊天 · RGBA8 PNG · 开始即吞噬 · 不重传", action: nil, keyEquivalent: ""))
         }
         if simulation { add(menu, "Add 3 synthetic demo images", #selector(addWebTestImages)) }
         menu.addItem(.separator())

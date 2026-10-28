@@ -2,13 +2,13 @@ import Foundation
 import RiftletCore
 import RiftletAdapters
 
-/// Input scope and evidence admission are distinct. The explicit candidate can
-/// collect original system files and exercise the existing one-input bridge;
-/// these THREE registries remain empty until real screenshot evidence is reviewed.
-/// They are code-owned, never read from arguments, defaults, plist or page JSON.
+/// Separate evidence decisions from 493d1d8: SC-START and SC-COMPLETE are admitted
+/// only for registered new operations in the restricted internal candidate.
+/// Historical v1, safe failure/retry and ordinary production remain unadmitted.
+/// These maps are code-owned, never read from arguments, defaults or page JSON.
 enum SystemScreenshotCandidateConfiguration {
-    static let uploadStartProfiles: [String: TargetSurface] = [:]
-    static let completedAttachmentProfiles: [String: TargetSurface] = [:]
+    static let uploadStartProfiles: [String: TargetSurface] = [SystemScreenshotWebCandidate.admittedUploadStartProfileID: .webChat]
+    static let completedAttachmentProfiles: [String: TargetSurface] = [SystemScreenshotWebCandidate.admittedCompletionProfileID: .webChat]
     static let safeFailureProfiles: [String: TargetSurface] = [:]
     static let receiptPolicy = ReceiptPolicy(admittedProfiles: completedAttachmentProfiles,
         retrySafeProfiles: safeFailureProfiles, uploadStartProfiles: uploadStartProfiles)
@@ -46,7 +46,8 @@ struct ApplicationAttachmentComposition {
                 executor: executor ?? ChromeAppleEventsExecutor(traceEnabled: traceEnabled),
                 program: try ChatGPTWebPageProgram.load(), mode: .systemScreenshotCandidate,
                 profile: SystemScreenshotWebCandidate.profile, polling: polling,
-                candidateJournal: SystemScreenshotObservationJournal(store: store)),
+                candidateJournal: SystemScreenshotObservationJournal(store: store),
+                candidateAdmission: SystemScreenshotCandidateAdmission(store: store)),
                 policy: SystemScreenshotCandidateConfiguration.receiptPolicy)
         }
     }

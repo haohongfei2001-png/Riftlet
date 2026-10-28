@@ -25,7 +25,7 @@ public enum SetupIssue: Equatable, Sendable {
     public var text: String {
         switch self {
         case .attachmentFormat:
-            return "截图已保存在本机。当前真实截图候选只接收原样 PNG；本图未上传、未转换，原文件与私有副本保留。"
+            return "截图已保存在本机。当前真实截图候选只接收原样、非交错的 8-bit RGBA PNG；本图未上传、未转换，原文件与私有副本保留。"
         case .attachmentBytes:
             return "截图已保存在本机，但超过当前网页候选的 8 MiB 传输上限。本图未上传、未压缩，原文件与私有副本保留。"
         case .attachmentPixels:
@@ -149,7 +149,7 @@ public struct SetupPresentation: Equatable, Sendable {
         case .syntheticWeb:
             return "当前是独立 Web 验收模式，仅允许生成的测试图片。不会收录或上传真实截图，也不会发送聊天消息。"
         case .systemScreenshotCandidate:
-            return "真实截图内部候选：点击会尝试把原样 PNG 输入当前 ChatGPT 草稿。开始、成功与安全重试尚未准入；只保存待审观察，不自动吞噬、不宣布成功、不重传，不发送消息。普通模式仍未启用上传。"
+            return "真实截图内部候选：仅支持 Chrome 中文 ChatGPT 普通已有聊天中的原样 8-bit RGBA PNG。新操作在真实上传开始后快速吞噬，独立完成证明到达后在后台记录成功。旧待核实操作保持原状；安全失败与重试未开放，不重传、不发送消息。普通模式仍未启用上传。"
         case .offlineSimulation:
             return "当前是离线模拟，仅演示生成图片的显示与状态变化；没有连接 ChatGPT。"
         case .available:

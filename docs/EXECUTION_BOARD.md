@@ -1,8 +1,18 @@
 # Riftlet 自主并行执行队列
 
+> **当前任务：真实截图受限准入与快吞噬（2026-10-28）**。以正式 `871d825` 合入真实证据 `493d1d8`，保留两个分支的祖先；F 的 SC-INPUT/START/COMPLETE 分别限定 PASS。独立开始、完成证据审查支持受限内部候选：Chrome 中文 ChatGPT 普通已有 thread、单帧非交错 RGBA8 PNG、仅本版本登记的新操作。v2 开始和完成分别授权，旧 v1 / F / 旧 UNKNOWN 永不追溯授权，安全失败／重试及普通生产继续关闭。复用原 Core/UI，严格 sRGB JS 不变。[当前实现、准确验证与本地 Codex 入口](SYSTEM_SCREENSHOT_RESTRICTED_ADMISSION.md)。最终 SHA/完整 macOS CI/候选 App 以 PR #1 最新交接为准，PR 保持 Draft。
+>
+> 正式集成 ref 和共享 App 仍由当前负责人独占；反馈 `codex/feedback-v01-20261028` / Draft PR #7 独立，本次不合入。以下旧状态为各自检查点记录，不覆盖当前准入决定。
+
+### 历史检查点：第一、二阶段正式集成（871d825）
+
 > **当前正式集成：真实系统截图第一、二阶段（2026-10-28）**：唯一集成负责人按 `4b7228a → 5d2994c → f2ae645` 的实际祖先链快进组合，保留 a5db972 权限 wake、v9/v10/v12/v13 兼容、48574df 精确 sRGB 修复及全部证据。当前交接提交只增文档/证据，源码不变；最终准确 HEAD、macOS CI 和审查以 [PR #1 最新交接](https://github.com/haohongfei2001-png/Riftlet/pull/1) 为准。[直接继承入口](INTEGRATION_HANDOFF.md)／[永久证据](../engineering/evidence/2026-10-28-integration-sc-stages1-2/README.md)。SC-INPUT/START 只保留限定 PASS；SC-COMPLETE 旧源码 FAIL、修复后新输入 NOT_RUN；三项候选准入与普通生产继续关闭。
 >
 > 后续本地 Codex 与反馈 Pro 仅在各自独立分支交付；正式 ref、App 共享合流和 PR #1 由同一负责人独占。反馈 Draft PR #7 本轮未合入。没有新建产品功能或重开已有验收任务；本地 Codex 的下一增量仅为新 PNG 的修复后完成路径，旧 UNKNOWN 不重输，现有数据根不重建。下面各轮条目保留为历史。
+### 新交付的 F 完成证据（493d1d8）
+
+> **SC-COMPLETE 修复版真机复测 · DONE（限定PASS）**：运行48574df；新系统PNG经唯一CGEvent输入取得严格sRGB proof及attached journal，SC-INPUT/START/COMPLETE均PASS。48字符、editor内非折叠选区及一张稳定旧附件保留。旧UNKNOWN不重输，三准入关闭；同源CI40656871851已核实成功，无新增生产源码。[完整脱敏证据与Pro交接](../engineering/evidence/2026-10-28-system-screenshot-complete/README.md)。
+
 
 > **系统截图第二阶段 · DONE（限定交接）**：最终源码48574df、CI40656871851 PASS。真实新系统PNG一次输入取得SC-START；48字符和选区8..11未聚焦保留。旧v9 monitor阻断已修复并真机恢复；sRGB性能提示舍入缺陷已最小修复及只读像素对照，未新输入复测，完整SC-COMPLETE仍FAIL。旧UNKNOWN/数据全保留，准入不变；[结果与Pro下一步](../engineering/evidence/2026-10-28-system-screenshot-stage2/README.md)。
 
