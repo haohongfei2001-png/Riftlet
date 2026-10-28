@@ -2,6 +2,13 @@ Riftlet 内部 Beta：真实截图快吞噬 + Feedback v0.1
 
 这是供创始人亲自体验的内部候选包，不是公开发行版。包含完整的原生 Riftlet.app。
 
+本次体验修复
+保留已集成 Feedback v0.1 与原截图上传机制，合入 fa74f3c 的最小体验修复和 8e1a1688 证据。
+已接受的排队点击、处理中、取消和点击时页面尚未完成验证有准确说明；主要经 tooltip 和
+辅助功能呈现，没有新增常驻排队徽标。旧提示不会覆盖后来的选择，支持说明也已更新。
+本次未改动画或上传速度；无预绑定 ACK 的冷首击仍会安全拒绝。
+下载、正常启动后即可开始创始人体验，无需重做已完成的 H 上传验收。
+
 首次安装与启动
 1. 解压整个 ZIP，将 Riftlet-Internal-Beta 文件夹放到固定位置，例如个人“应用程序”文件夹。
    保持 App、启动入口和本说明在同一文件夹。不要覆盖反馈开发者或其他工作树中的 App。
@@ -50,9 +57,11 @@ Cloudflare 接收器和私有 GitHub Issues 尚未部署；当前 endpoint 为�
 - 不扩展到 Home 新对话、Work、其他浏览器、ChatGPT 原生客户端、其他图像格式或所有 OS。
 
 尚未完成
-人工物理鼠标验收、无 ACK 冷首击、完整多屏/全屏/Spaces、截图完全排除 Riftlet 自身、
+真实 Chrome 物理鼠标附加、指定 CLEAR 与补位后双击、无 ACK 冷首击、完整多屏/全屏/Spaces、
+截图完全排除 Riftlet 自身、
 真实网络异常及安全失败/重试、正式签名公证、云端反馈投递和真实 Keychain/IME/VoiceOver 矩阵。
 一次软件 CGEvent 限定 PASS 不等于全面发行验收，也不是本组合 App 的新真机重测。
+旧 e421 的人工 helper 和 b4bc 的反馈窗口软件检查仅各自限定通过，不冒充新版 App 实测。
 
 数据与边界
 沿用原 Riftlet-System-Screenshot-Candidate 数据根。反馈使用其中独立 Feedback-v01 数据库。

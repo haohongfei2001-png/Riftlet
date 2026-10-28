@@ -2,8 +2,9 @@
 """Read-only audit of the reviewed internal Beta's committed Git composition.
 
 No branch/event metadata, working-tree file, environment override or merge-parent
-order supplies the expected source. The CLI pins the three accepted commits and
-the separately reviewed minimal Main blob. A shallow checkout must fetch history
+order supplies the expected source. The CLI pins the accepted source/evidence
+commits, the seven approved UX files, and the separately reviewed Main blob.
+A shallow checkout must fetch history
 before this audit; missing objects fail closed. No fetch or repository write is
 performed here.
 """
@@ -22,6 +23,9 @@ class Policy:
     official: str
     acceptance: str
     feedback: str
+    beta: str
+    experience: str
+    experience_evidence: str
     main_blob: str
 
 
@@ -30,15 +34,33 @@ POLICY = Policy(
     official="e421e6687651c2fac1441410c1af2bd5b8151e55",
     acceptance="c177174e400064d8ec8bb79685c33d01c4e93b89",
     feedback="f195bebbc22ed1a162b5866ca1fe6c7ccb9835b9",
-    main_blob="5b1c64348cc0661f0de359c45a54158e828d6c22",
+    beta="b4bcfa41e8e237723b975d2a9a0059e955fa0c1f",
+    experience="fa74f3c68f05ab4eaccfc24e2f39c0177289ddb3",
+    experience_evidence="8e1a1688e75db8c18965e073ae357010e7397a3a",
+    main_blob="05fe28ec734ba0d8c040810c737b26715a33d5de",
 )
 
 SCREENSHOT_PATHS = (
-    "Sources/RiftletCore", "Sources/RiftletCapture", "Sources/RiftletUI",
-    "Sources/RiftletAdapters", "Sources/RiftletGUIAcceptance", "Sources/CSQLite",
+    "Sources/RiftletCore", "Sources/RiftletCapture",
+    "Sources/RiftletAdapters", "Sources/CSQLite",
     "Resources", "ThirdPartyNotices", "Tests/RiftletCoreTests",
-    "Tests/RiftletCaptureTests", "Tests/RiftletUITests", "Tests/RiftletAdaptersTests",
-    "Tests/RiftletAppTests", "Tests/WebPageProgram",
+    "Tests/RiftletCaptureTests", "Tests/RiftletAdaptersTests", "Tests/WebPageProgram",
+)
+# Only these individual UX objects move to fa74f3c. Every other object in their
+# original directories remains pinned to e421e668; these are not directory-wide
+# exceptions. Main is checked separately against the reviewed combined blob.
+EXPERIENCE_PATHS = (
+    "Sources/RiftletApp/ProductStatus.swift",
+    "Sources/RiftletApp/SelectionSubmissionQueue.swift",
+    "Sources/RiftletGUIAcceptance/AcceptanceMain.swift",
+    "Sources/RiftletUI/RiftPanelController.swift",
+    "Tests/RiftletAppTests/ProductStatusTests.swift",
+    "Tests/RiftletAppTests/SelectionSubmissionQueueTests.swift",
+    "Tests/RiftletUITests/PresentationBoundaryTests.swift",
+)
+EXPERIENCE_ROOTS = (
+    "Sources/RiftletUI", "Sources/RiftletGUIAcceptance",
+    "Tests/RiftletUITests", "Tests/RiftletAppTests",
 )
 FEEDBACK_PATHS = (
     "Sources/RiftletFeedback", "Sources/RiftletFeedbackUI", "Sources/RiftletFeedbackDemo",
@@ -47,6 +69,7 @@ FEEDBACK_PATHS = (
     "Package.swift", "scripts/build-feedback-demo.sh", "scripts/verify-feedback-isolation.sh",
 )
 EVIDENCE_PATH = "engineering/evidence/2026-10-28-system-screenshot-swallow"
+EXPERIENCE_EVIDENCE_PATH = "engineering/evidence/2026-10-28-beta-ux"
 APP_PATH = "Sources/RiftletApp"
 MAIN_PATH = APP_PATH + "/RiftletMain.swift"
 HOST_PATH = APP_PATH + "/FeedbackHost.swift"
@@ -97,11 +120,14 @@ def audit(repository, revision="HEAD", policy=POLICY):
     The executable CLI always uses POLICY above and exposes no pin overrides.
     """
     report = {
-        "schemaVersion": 1,
+        "schemaVersion": 2,
         "result": "FAIL",
         "revisionRequested": revision,
         "policy": {"official": policy.official, "acceptance": policy.acceptance,
-                   "feedback": policy.feedback, "mainBlob": policy.main_blob},
+                   "feedback": policy.feedback, "beta": policy.beta,
+                   "experience": policy.experience,
+                   "experienceEvidence": policy.experience_evidence,
+                   "mainBlob": policy.main_blob},
         "checks": [],
     }
     checks = report["checks"]
@@ -114,7 +140,8 @@ def audit(repository, revision="HEAD", policy=POLICY):
         report["revision"] = resolved
         report["tree"] = git(repository, "rev-parse", resolved + "^{tree}").decode("ascii").strip()
         report["parents"] = git(repository, "show", "-s", "--format=%P", resolved).decode("ascii").strip().split()
-        for name in ("official", "acceptance", "feedback"):
+        for name in ("official", "acceptance", "feedback", "beta",
+                     "experience", "experience_evidence"):
             anchor = getattr(policy, name)
             if not re.fullmatch(r"[0-9a-f]{40}", anchor) or commit(repository, anchor) != anchor:
                 raise AuditError("Invalid fixed commit identity: " + name)
@@ -126,8 +153,10 @@ def audit(repository, revision="HEAD", policy=POLICY):
 
         for group, expected_revision, paths in (
             ("screenshot", policy.official, SCREENSHOT_PATHS),
+            ("experience", policy.experience, EXPERIENCE_PATHS),
             ("feedback", policy.feedback, FEEDBACK_PATHS),
             ("acceptance", policy.acceptance, (EVIDENCE_PATH,)),
+            ("experience-evidence", policy.experience_evidence, (EXPERIENCE_EVIDENCE_PATH,)),
         ):
             expected = objects(repository, expected_revision, paths)
             actual = objects(repository, resolved, paths)
@@ -137,18 +166,27 @@ def audit(repository, revision="HEAD", policy=POLICY):
                       path in expected and actual.get(path) == expected[path],
                       expected=expected.get(path), actual=actual.get(path))
 
-        expected_app = objects(repository, policy.official, (APP_PATH,), recursive=True)
-        actual_app = objects(repository, resolved, (APP_PATH,), recursive=True)
-        for entries in (expected_app, actual_app):
-            entries.pop(MAIN_PATH, None)
-            entries.pop(HOST_PATH, None)
-        missing = sorted(set(expected_app) - set(actual_app))
-        added = sorted(set(actual_app) - set(expected_app))
-        changed = sorted(path for path in set(expected_app) & set(actual_app)
-                         if expected_app[path] != actual_app[path])
-        check("app:original-files", bool(expected_app) and not (missing or added or changed),
-              expectedFileCount=len(expected_app), actualFileCount=len(actual_app),
-              missing=missing, added=added, changed=changed)
+        def check_unmodified_files(identifier, root, exclusions):
+            expected = objects(repository, policy.official, (root,), recursive=True)
+            actual = objects(repository, resolved, (root,), recursive=True)
+            # A directory containing only an approved file may become empty
+            # after exclusions; its original object must nevertheless exist.
+            original_exists = bool(expected)
+            for entries in (expected, actual):
+                for path in exclusions:
+                    entries.pop(path, None)
+            missing = sorted(set(expected) - set(actual))
+            added = sorted(set(actual) - set(expected))
+            changed = sorted(path for path in set(expected) & set(actual)
+                             if expected[path] != actual[path])
+            check(identifier, original_exists and not (missing or added or changed),
+                  expectedFileCount=len(expected), actualFileCount=len(actual),
+                  missing=missing, added=added, changed=changed)
+
+        for root in EXPERIENCE_ROOTS:
+            check_unmodified_files("experience:unmodified:" + root, root, EXPERIENCE_PATHS)
+        check_unmodified_files("app:original-files", APP_PATH,
+                               (*EXPERIENCE_PATHS, MAIN_PATH, HOST_PATH))
 
         actual_main = objects(repository, resolved, (MAIN_PATH,)).get(MAIN_PATH)
         expected_main = {"mode": "100644", "type": "blob", "oid": policy.main_blob}

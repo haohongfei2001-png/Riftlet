@@ -1,4 +1,4 @@
-# 统一内部 Beta：真实快吞噬 + Feedback v0.1
+# 统一内部 Beta：体验修复 + 真实快吞噬 + Feedback v0.1
 
 **本轮交付完整原生 App，供创始人开始真实使用体验。** 唯一正式分支仍是 `codex/engineering-foundation-20261027`；[PR #1](https://github.com/haohongfei2001-png/Riftlet/pull/1) 保持 Draft，不合并 main、不公开发行。准确最终正式 SHA、两项 macOS CI、实际下载制品及其 SHA-256 固定在 PR #1 最新集成交接，不能用旧来源 CI 代替组合 CI。
 
@@ -6,13 +6,24 @@
 
 | 来源 | 固定提交 | 本次处理 |
 | --- | --- | --- |
-| 已正式准入的截图源码 | `e421e6687651c2fac1441410c1af2bd5b8151e55` | 截图/Core/Capture/UI/Adapter/资源/原测试全部保留 |
-| H 真实快吞噬交接 | `c177174e400064d8ec8bb79685c33d01c4e93b89` | e421 的直接子提交，仅七份脱敏证据；原样继承，不重复合源码 |
-| Feedback v0.1 / PR #7 | `f195bebbc22ed1a162b5866ca1fe6c7ccb9835b9` | 保留分支祖先；完整接入原 Core/UI/Demo/测试/服务源码 |
+| 本轮正式基线 | `b4bcfa41e8e237723b975d2a9a0059e955fa0c1f` | 已含 H 证据及 Feedback；不重复合入 |
+| Codex 体验修复 | `fa74f3c68f05ab4eaccfc24e2f39c0177289ddb3` | 基于 e421 的八文件 App/UI/helper/测试最小修改 |
+| 最终证据交接 | `8e1a1688e75db8c18965e073ae357010e7397a3a` | fa74 的直接子提交；八份脱敏证据原样继承 |
+| 已有截图与真实证据 | `e421e668` / `c177174` | Core/Capture/Adapter/SQLite/资源/准入与 H 证据不变 |
+| 已有 Feedback v0.1 | `f195bebbc22ed1a162b5866ca1fe6c7ccb9835b9` | 模块、Host、测试、服务与 Package 完全保留 |
 
-独立 integration worktree 从 c177 开始，以保留双亲的 merge 合入 f195；共同祖先是 `4b7228a`。共享 Main 自动三方合流后相对 e421 仅原 Feedback 的 **20 行新增、1 行替换**，没有以旧 Main 整文件覆盖。`Package.swift` 与 f195 交付完全相同。原 ApplicationMode、Info.plist、准入表、SQLite v3、权限恢复、原点击授权、FIFO、动画及后台观察没有重写。
+本轮独立 worktree 从正式 b4bc 开始，按共同祖先 e421 合入 8e1，保留双方父节点与全部历史。Main 两处冲突逐块处理：selection catch 保留 owner/visibilityRevision 保护、`ProductStatus.clickFeedback(error)` 及原 selectionRejected 诊断；render 后保留 prepared/cancelled 展示及原 assets/operations/uiProjectionDeferred 诊断。其余七文件与 fa74 精确相同，Main 相对 fa74 仍只是原 Feedback 的 **20 行新增、1 行替换**，没有整文件覆盖。
 
-`scripts/verify-internal-beta-integration.py` 对实际 Git commit 核对三方祖先、精确目录对象、其他原 App 文件和固定已审 Main blob；不依赖可能滞后的 PR base 元数据。源反馈隔离脚本及其四项 Git 回归完整保留。本轮新增审计是这一固定组合的质量门；后续获授权改动相关源文件时，应明确更新相应来源/审核记录，不能关闭审计来掩盖覆盖。
+`scripts/verify-internal-beta-integration.py` 保留原保护并核对 b4bc/fa74/8e1 真实祖先、获准文件精确对象及已审 Main。未批准的同目录文件仍逐对象固定；H、UX 证据与 Feedback 继续精确固定，CLI 无来源覆盖参数，CI 审计必跑。原 ApplicationMode、Info.plist、准入、SQLite v3、权限恢复、原点击、FIFO 调度、动画及后台观察没有重写。详见 [本轮集成记录](../engineering/evidence/2026-10-28-beta-ux-integration/README.md)。
+
+## 这版实际改善什么
+
+- 后一张原点击被接受而尚在提交队列时，提供“已接收，正在等待附加”；prepared 用中性“附加处理中”，不把可能已推进的输入误说成尚未上传。
+- 取消、超时、原草稿变化和点击时页面尚未完成验证各有准确说明。异步提示受原选择 owner、visibilityRevision 和 operation 身份限制；未知原因不暴露原始错误、不授予重传。
+- tooltip、辅助功能标签与帮助同步；按下/AXPress 清旧提示，清理旧阶段时保留较新的取消说明。当前主要通过 tooltip/辅助功能呈现，没有新增持续可见的排队徽标。
+- 支持说明与已准入范围一致，不再显示“开始与完成均待准入”的过期文字。
+
+没有改变上传速度或动画。约 2.72 秒仍是旧 H 的点击到原窗口消失，约 127 ms 是其中动画段，无 ACK 冷首击仍会安全拒绝。组合 CI 和交付完成后，优先创始人正常体验，不要求重做 H 上传验收。
 
 ## 已归档的真实快吞噬
 

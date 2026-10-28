@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "formalBaseline": "b4bcfa41e8e237723b975d2a9a0059e955fa0c1f",
+  "experienceSource": "fa74f3c68f05ab4eaccfc24e2f39c0177289ddb3",
+  "experienceHandoff": "8e1a1688e75db8c18965e073ae357010e7397a3a",
+  "mergeBase": "e421e6687651c2fac1441410c1af2bd5b8151e55",
+  "orderedMergeParents": [
+    "b4bcfa41e8e237723b975d2a9a0059e955fa0c1f",
+    "8e1a1688e75db8c18965e073ae357010e7397a3a"
+  ],
+  "combinedMainBlob": "05fe28ec734ba0d8c040810c737b26715a33d5de",
+  "sourceNativeCI": {
+    "runID": 40693945938,
+    "jobID": 122835634479,
+    "headSHA": "fa74f3c68f05ab4eaccfc24e2f39c0177289ddb3",
+    "status": "completed",
+    "conclusion": "success",
+    "notFinalCombinedCI": true
+  },
+  "approvedSourceFiles": {
+    "Sources/RiftletApp/ProductStatus.swift": {
+      "deliveredBlob": "060db249bc159b3eee1c1b7d0a0eb87d3f43cc30",
+      "integratedBlob": "060db249bc159b3eee1c1b7d0a0eb87d3f43cc30"
+    },
+    "Sources/RiftletApp/RiftletMain.swift": {
+      "deliveredBlob": "5d6ab3d98c7105530dcd4b35c5e017ef80a199d4",
+      "integratedBlob": "05fe28ec734ba0d8c040810c737b26715a33d5de"
+    },
+    "Sources/RiftletApp/SelectionSubmissionQueue.swift": {
+      "deliveredBlob": "7a5a494f0a98518d3f18a04decacbf2a0ac292a6",
+      "integratedBlob": "7a5a494f0a98518d3f18a04decacbf2a0ac292a6"
+    },
+    "Sources/RiftletGUIAcceptance/AcceptanceMain.swift": {
+      "deliveredBlob": "164e43c3ece94234a77884d5d58f5a86a2cf9d1b",
+      "integratedBlob": "164e43c3ece94234a77884d5d58f5a86a2cf9d1b"
+    },
+    "Sources/RiftletUI/RiftPanelController.swift": {
+      "deliveredBlob": "76014911d0c28fae18290a9e1042f01456612fcd",
+      "integratedBlob": "76014911d0c28fae18290a9e1042f01456612fcd"
+    },
+    "Tests/RiftletAppTests/ProductStatusTests.swift": {
+      "deliveredBlob": "1d549b18a42083fd39d6c6ca98aeff2f83464c8a",
+      "integratedBlob": "1d549b18a42083fd39d6c6ca98aeff2f83464c8a"
+    },
+    "Tests/RiftletAppTests/SelectionSubmissionQueueTests.swift": {
+      "deliveredBlob": "5159c7ca08d02b6020ff667c1e42e484ca00a5fa",
+      "integratedBlob": "5159c7ca08d02b6020ff667c1e42e484ca00a5fa"
+    },
+    "Tests/RiftletUITests/PresentationBoundaryTests.swift": {
+      "deliveredBlob": "0ef5ea00170baedbc6c459822d9b10e59a28c58d",
+      "integratedBlob": "0ef5ea00170baedbc6c459822d9b10e59a28c58d"
+    }
+  },
+  "evidenceTrees": {
+    "engineering/evidence/2026-10-28-system-screenshot-swallow": "08ae1fce57c7a8776dc7329c792fcb06ad9da4ba",
+    "engineering/evidence/2026-10-28-beta-ux": "5d7313dda5a6c99ef152f3a7b2eec67c544fafbc"
+  },
+  "launchArgument": "--system-screenshot-candidate",
+  "feedbackEndpointConfigured": false,
+  "ordinaryProductionUploadEnabled": false,
+  "safeFailureOrRetryEnabled": false,
+  "newRealScreenshotInputPerformed": false,
+  "finalResultsLocation": "https://github.com/haohongfei2001-png/Riftlet/pull/1"
+}

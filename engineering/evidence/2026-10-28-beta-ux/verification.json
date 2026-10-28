@@ -1,0 +1,71 @@
+{
+  "date": "2026-10-28",
+  "branch": "codex/riftlet-real-mac-acceptance-beta-ux-20261028",
+  "sourceSHA": "fa74f3c68f05ab4eaccfc24e2f39c0177289ddb3",
+  "baseSHA": "e421e6687651c2fac1441410c1af2bd5b8151e55",
+  "combinedSmokeSHA": "b4bcfa41e8e237723b975d2a9a0059e955fa0c1f",
+  "environment": {
+    "os": "macOS 27.0",
+    "build": "26A428",
+    "architecture": "arm64",
+    "chrome": "156.0.8078.73"
+  },
+  "builds": [
+    {
+      "source": "fa74f3c68f05ab4eaccfc24e2f39c0177289ddb3",
+      "result": "PASS",
+      "bundleCheck": "PASS",
+      "seconds": 31.31
+    },
+    {
+      "source": "b4bcfa41e8e237723b975d2a9a0059e955fa0c1f",
+      "result": "PASS",
+      "bundleCheck": "PASS",
+      "seconds": 32.86
+    }
+  ],
+  "ci": {
+    "conclusion": "success",
+    "databaseId": 40693945938,
+    "headSha": "fa74f3c68f05ab4eaccfc24e2f39c0177289ddb3",
+    "startedAt": "2026-10-28T13:09:57Z",
+    "status": "completed",
+    "updatedAt": "2026-10-28T13:12:15Z",
+    "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/40693945938"
+  },
+  "localXCTest": {
+    "result": "NOT_RUN",
+    "reason": "Command Line Tools installation has no XCTest; actual macOS CI performed native suite"
+  },
+  "nonAuthorSourceReview": {
+    "reviewer": "web_safety",
+    "result": "PASS",
+    "scope": "final diff; review findings fixed before commit"
+  },
+  "physicalGUI": {
+    "result": "LIMITED_PASS",
+    "source": "user-reported physical operation with unattributed NSEvent evidence",
+    "runtimeSHA": "e421e6687651c2fac1441410c1af2bd5b8151e55",
+    "chromePhysicalUpload": "NOT_RUN",
+    "exactClearTarget": "NOT_RUN",
+    "postReflowDoubleClick": "NOT_RUN"
+  },
+  "rotatedCompactProbe": {
+    "source": "fa74f3c68f05ab4eaccfc24e2f39c0177289ddb3",
+    "result": "NOT_RUN",
+    "reason": "helperNotForegroundKey",
+    "eventPairsPosted": 0,
+    "targetDisplayRotationDegrees": 90,
+    "physical": "NOT_RUN"
+  },
+  "newWebInputs": 0,
+  "productionAdmissionChanged": false,
+  "safeRetryEnabled": false,
+  "combinedWithPatchCI": "NOT_RUN; integration owner must run after resolving two Main conflict blocks",
+  "privateEvidence": "Retained locally; this package contains no raw screenshots, chat text, full targets, private paths or databases",
+  "nonAuthorEvidenceReview": {
+    "reviewer": "web_safety",
+    "result": "PASS",
+    "scope": "all eight public evidence files and execution board; 26 private artifact digests matched; no private content leakage found"
+  }
+}

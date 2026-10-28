@@ -145,6 +145,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private let selectionAuthority = SelectionAuthority()
     private let selectionSubmissions = SelectionSubmissionQueue()
     private var selectionUIOwners: [UUID: UUID] = [:]
+    private var preparedFeedbackOperations: [UUID: UUID] = [:]
     private var armSession = UUID()
     private var wakeObserver: NSObjectProtocol?
     private var watchedCompletions = Set<UUID>()
@@ -280,7 +281,15 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             let originalSelection = accepted
             let selectionOwner = originalSelection?.id ?? UUID()
             self.selectionUIOwners[id] = selectionOwner
+            let feedback: @MainActor (String?) -> Void = { [weak self] text in
+                guard let self, self.selectionUIOwners[id] == selectionOwner,
+                      let revision, self.rift?.selectionRevision(for: id) == revision else { return }
+                self.rift?.setFeedback(text, for: id)
+            }
             let submit: @MainActor (UInt64) async -> Void = { ordinal in
+                if self.selectionUIOwners[id] == selectionOwner {
+                    self.rift?.clearFeedback(matching: ProductStatus.AttachmentFeedback.waiting.text, for: id)
+                }
                 self.recordAcceptance(["event": "selection_submission_started", "selectionOrdinal": ordinal,
                     "assetID": id.uuidString, "uptime": ProcessInfo.processInfo.systemUptime])
                 guard !self.mode.usesWebAdapter || self.watchedCompletions.count < 64 else {
@@ -293,7 +302,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                     if self.mode.usesWebAdapter, originalSelection == nil {
                         self.applyAutomationPermission(await self.inspectAutomationPermission(reason: "selection", assetID: id, expectedSession: frozen?.sessionID))
                         guard self.automationPermission == .granted else {
-                            self.rift?.setFeedback("Chrome 附件访问暂不可用；图片保留。请在运行状态中查看原因。", for: id)
+                            feedback("Chrome 附件访问暂不可用；图片保留。请在运行状态中查看原因。")
                             self.finishOriginalSelection(id, token: originalSelection, revision: revision, ownerID: selectionOwner); self.updateSetup()
                             return
                         }
@@ -310,7 +319,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                     if let record = try await self.store?.asset(id: id), record.visibility == .visible,
                        let operationID = record.activeOperationID, record.status == .failed {
                         let reason = try await self.store?.operationReason(for: operationID)
-                        self.rift?.setFeedback(reason, for: id)
+                        feedback(ProductStatus.operationFeedback(reason).text)
                     }
                 }
                 catch {
@@ -319,8 +328,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                             frontmostBundleID: NSWorkspace.shared.frontmostApplication?.bundleIdentifier, webAcceptance: true)
                         if self.setupIssue == .permissionDenied { self.applyAutomationPermission(.denied) }
                     }
-                    self.rift?.setFeedback(self.mode == .capture ? "此版本尚未启用真实截图附加；图片保留。"
-                        : (self.setupIssue?.text ?? "当前附件目标暂不可用；图片保留，可在运行状态中查看原因。"), for: id)
+                    feedback(self.mode == .capture ? "此版本尚未启用真实截图附加；图片保留。"
+                        : (ProductStatus.clickFeedback(error)?.text ?? self.setupIssue?.text
+                           ?? "当前附件目标暂不可用；图片保留，可在运行状态中查看原因。"))
                     self.feedback.diagnostics.record(.selectionRejected)
                     self.cancelOriginalSelection(originalSelection, reason: "selectionRejected")
                     self.finishOriginalSelection(id, token: originalSelection, revision: revision, ownerID: selectionOwner)
@@ -333,16 +343,22 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 Task { await submit(0) }
                 return
             }
+            let waitsForSubmission = self.selectionSubmissions.hasOutstandingSubmission
             let ordinal = self.selectionSubmissions.enqueue(selectionID: originalSelection?.id,
                 deadline: originalSelection?.deadlineUptime,
                 cancelled: { [weak self] in
+                    feedback(ProductStatus.AttachmentFeedback.cancelledBeforeInput.text)
                     self?.cancelOriginalSelection(originalSelection, reason: "submissionCancelled")
                     self?.finishOriginalSelection(id, token: originalSelection, revision: revision, ownerID: selectionOwner)
                 }, run: submit)
             if let ordinal {
+                if waitsForSubmission, originalSelection != nil {
+                    feedback(ProductStatus.AttachmentFeedback.waiting.text)
+                }
                 self.recordAcceptance(["event": "selection_enqueued", "selectionOrdinal": ordinal,
                     "assetID": id.uuidString, "uptime": ProcessInfo.processInfo.systemUptime])
             } else {
+                feedback(ProductStatus.AttachmentFeedback.cancelledBeforeInput.text)
                 self.cancelOriginalSelection(originalSelection, reason: "submissionLimit")
                 self.finishOriginalSelection(id, token: originalSelection, revision: revision, ownerID: selectionOwner)
             }
@@ -1035,6 +1051,14 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 }
                 let successful = mode.usesWebAdapter ? try await store.successfulOperations() : []
                 let unresolved = try await store.unresolvedOperations()
+                var cancelledPreparedFeedback: [UUID: String] = [:]
+                for (id, operationID) in preparedFeedbackOperations {
+                    guard snapshot.contains(where: {
+                        $0.id == id && $0.activeOperationID == operationID && $0.status == .failed && $0.visibility == .visible
+                    }) else { continue }
+                    cancelledPreparedFeedback[id] = ProductStatus.operationFeedback(
+                        try await store.operationReason(for: operationID)).text
+                }
                 // Independent reads, not an atomic multi-row snapshot or exact COMMIT.
                 let snapshotObservedUptime = ProcessInfo.processInfo.systemUptime
                 var preferenceIssue: CaptureDiagnostic?
@@ -1074,6 +1098,19 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 watchedCompletions.formUnion(successful.map(\.id))
                 if hasNewImages && mode.usesWebAdapter { requestArm(reason: "newImages") }
                 rift?.render(snapshot)
+                // The last observed phase may advance to input before another
+                // refresh. Use neutral text, never claim ongoing no-input status.
+                let prepared = Dictionary(uniqueKeysWithValues: unresolved.filter { operation in
+                    operation.phase == .prepared && snapshot.contains {
+                        $0.id == operation.assetID && $0.activeOperationID == operation.id && $0.visibility == .visible
+                    }
+                }.map { ($0.assetID, $0.id) })
+                for (id, operationID) in preparedFeedbackOperations where prepared[id] != operationID {
+                    rift?.clearFeedback(matching: ProductStatus.AttachmentFeedback.preparing.text, for: id)
+                }
+                for (id, text) in cancelledPreparedFeedback { rift?.setFeedback(text, for: id) }
+                for id in prepared.keys { rift?.setFeedback(ProductStatus.AttachmentFeedback.preparing.text, for: id) }
+                preparedFeedbackOperations = prepared
                 feedback.assets(snapshot) // Sampled local counts, not operation-level statistics.
                 feedback.operations(successful + unresolved)
                 if interactionFence.snapshot().blocked { feedback.diagnostics.record(.uiProjectionDeferred) }

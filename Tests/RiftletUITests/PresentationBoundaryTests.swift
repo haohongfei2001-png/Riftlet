@@ -49,6 +49,27 @@ final class PresentationBoundaryTests: XCTestCase {
         return try XCTUnwrap(window.contentView)
     }
 
+    @MainActor func testWaitingFeedbackIsAccessibleAndStaleClearPreservesNewCancellation() throws {
+        var selected = 0
+        let panel = try controller(onSelect: { _ in selected += 1 }); defer { panel.close() }
+        let asset = record(); panel.render([asset])
+        let geometry = panel.diagnosticSnapshot.rows
+        let view = try rowView(asset.id, in: panel)
+        let waiting = "已接收，正在等待附加；本次尚未上传。"
+        let cancelled = "此次附加已取消，图片保留；本次未上传。"
+        panel.setFeedback(waiting, for: asset.id)
+        XCTAssertTrue(view.accessibilityLabel()?.contains(waiting) == true)
+        XCTAssertEqual(view.accessibilityHelp(), waiting)
+        panel.setFeedback(cancelled, for: asset.id)
+        panel.clearFeedback(matching: waiting, for: asset.id)
+        XCTAssertEqual(view.toolTip, cancelled)
+        XCTAssertTrue(view.accessibilityLabel()?.contains(cancelled) == true)
+        panel.clearFeedback(matching: cancelled, for: asset.id)
+        XCTAssertFalse(view.accessibilityLabel()?.contains(cancelled) == true)
+        XCTAssertEqual(panel.diagnosticSnapshot.rows, geometry)
+        XCTAssertEqual(selected, 0, "Presentation feedback cannot dispatch an input")
+    }
+
     @MainActor func testOriginalStartIdentitySurvivesDeferredReadyAndClosesOnlyOnce() async throws {
         var boundaries: [RiftPresentationBoundary] = []
         let panel = try controller(onBoundary: { boundaries.append($0) })

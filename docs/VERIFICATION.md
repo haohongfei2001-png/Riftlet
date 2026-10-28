@@ -1,5 +1,13 @@
 # Engineering verification record
 
+## 2026-10-28：Beta 体验修复正式组合
+
+正式基线 b4bc 已含 H 与 Feedback；本次按共同祖先 e421 合入 fa74 的证据后继 8e1。Main 两处冲突保留双方逻辑，其余七个变更文件与 fa74 精确相同。Core/Capture/Adapters/Web/SQLite/准入、Feedback 与 Package 均保持；新增 UX 证据八文件不改写。固定来源审计保留原不变对象，明确更新获准文件、证据和真实祖先，绝不关闭审计。
+
+来源 [CI40693945938](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40693945938) 的 head 为 fa74，completed/success，只认证独立修复。新组合运行完整 Native foundation 与 Feedback v0.1，覆盖原生/页面/legacy、SQLite/UNKNOWN/权限/原点击、反馈服务与数据库、固定来源、Release/签名/自检及统一 App 包装。准确新 SHA、run/job、数量、非作者复核和下载包摘要固定在 [PR #1 最新交接](https://github.com/haohongfei2001-png/Riftlet/pull/1)，不以来源 CI 代替组合结果。
+
+[原始 Codex 交接](../engineering/evidence/2026-10-28-beta-ux/README.md) / [本轮集成审查](../engineering/evidence/2026-10-28-beta-ux-integration/README.md)。人工 helper e421、反馈窗口 b4bc、修复 CI fa74 的范围分别保留；没有新截图上传或已改善速度的声称。首用/真实权限/物理上传/多屏/安全重试不会由 CI 代签。交付后进入创始人体验，不追加无具体风险的常规测试。
+
 ## 2026-10-28：H 真实快吞噬归档与统一内部 Beta
 
 真实 H 验收交接 `c177174e400064d8ec8bb79685c33d01c4e93b89` 是 e421e668 的证据子提交，运行源码仍为 e421；七份原始脱敏证据原样继承。SC-INPUT/START/COMPLETE/UX 软件 CGEvent 限定 PASS，人工物理鼠标 NOT_RUN，冷首击/异常重试/普通生产不扩张。原始私有数据审查由原 native_gui 完成，本轮非作者核对公开记录、源码和 19 项内部一致性。

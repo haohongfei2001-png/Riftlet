@@ -1,4 +1,8 @@
+> **2026-10-28 Beta 日常体验独立包 · DONE（限定）**：本地 Mac 在独立分支完成等待/取消说明与 tooltip/AX 清理修复，源码 `fa74f3c68f05ab4eaccfc24e2f39c0177289ddb3`、macOS CI `40693945938` success。用户报告的人工 helper 操作仅覆盖 IMAGE/NUMBER/GAP/按住原图；准确 CLEAR、补位后双击及真实 Chrome 物理输入未升级。正式工程更新 b4bcfa41 后另树实测 Feedback 两次关闭重开、隐藏恢复与目标再捕获；没有新增上传。两套源码未混称，Pro 整合 Main 两处冲突并运行组合 CI。详细 [产品结论与交接](../engineering/evidence/2026-10-28-beta-ux/README.md)。历史 UNKNOWN、原媒体与审计均保留。
+
 # Riftlet 自主并行执行队列
+
+> **当前任务：Beta 体验修复最终集成与可交付版本更新（2026-10-28）**。正式 b4bc 已含 Feedback 与 H，本轮只合入 fa74 的证据后继 8e1，逐块保留 Main 双方逻辑。固定来源审计准确扩展已批准文件并继续必跑；完整 Native/Feedback CI、非作者审查与更新 App 见 [当前内部 Beta](INTERNAL_BETA.md) 和 PR #1。普通生产/安全重试/云端均不开放，旧 UNKNOWN 不重传、不清除。交付后优先创始人正常体验，不再追加常规验收任务。下方均为前序历史，不覆盖此项。
 
 > **当前任务：真实快吞噬验收归档、Feedback v0.1 集成与统一内部 Beta（2026-10-28）**。`e421e668 → c177174` 仅增加 H 的七份真实脱敏证据；再按共同祖先合入反馈交接 `f195beb`，保留双方历史。截图/Core/UI/准入与原测试不改，Main 只继承已审反馈 hook，云端仍未部署、endpoint=nil。完整 App 与明确候选启动入口、完整组合 CI 和非作者审查见 [内部 Beta 交接](INTERNAL_BETA.md) 及 PR #1 最新固定 SHA/制品。
 >

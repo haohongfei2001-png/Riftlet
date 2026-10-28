@@ -1,4 +1,12 @@
-# 当前正式交接：真实快吞噬归档、Feedback v0.1 与统一内部 Beta · 2026-10-28
+# 当前正式交接：Beta 体验修复与可运行版本更新 · 2026-10-28
+
+从正式 `b4bcfa41e8e237723b975d2a9a0059e955fa0c1f` 在独立 worktree 合入 `8e1a1688e75db8c18965e073ae357010e7397a3a`，后者包含 Codex `fa74f3c68f05ab4eaccfc24e2f39c0177289ddb3` 体验修复与八份原始脱敏证据。Main 两处冲突逐块保留 owner/revision、精确错误提示、prepared/cancelled 展示和全部原 Feedback 接线。固定来源审计准确更新获准文件和 Main，不跳过、不豁免任意 UI/App 修改。
+
+[当前安装和创始人体验入口](INTERNAL_BETA.md) / [本轮来源与审查](../engineering/evidence/2026-10-28-beta-ux-integration/README.md)。最终正式 HEAD、组合 Native/Feedback CI、非作者审查及下载包摘要固定在 [PR #1 最新交接](https://github.com/haohongfei2001-png/Riftlet/pull/1)。本地 Codex 直接继承该 HEAD，不重复合 fa74/8e1、Feedback 或 H。旧 UNKNOWN、媒体、历史与审计保留；普通生产与安全失败/重试关闭，Feedback endpoint=nil，不部署云端，不合并 main。
+
+证据严格区分：人工 helper 来自 e421，Feedback 窗口软件检查来自 b4bc，独立修复 CI40693945938 来自 fa74；均不冒充最终组合 App 的新真机验收。交付后优先创始人体验，遇到实际问题再定位，不扩常规验证。
+
+## 历史交接：首份统一内部 Beta
 
 当前交接见 [统一内部 Beta：安装、启动和体验检查点](INTERNAL_BETA.md)。H 真实快吞噬 `c177174` 为 e421 的直接证据子提交，仅新增七份脱敏文件，限定软件 CGEvent PASS；人工物理鼠标 NOT_RUN、无 ACK 冷首击未解。Feedback v0.1 `f195beb` 按真实祖先合入，截图以 e421 为权威，Main 仅最小反馈接线；完整 App 附明确内部候选启动入口。反馈 endpoint 为空，本机待发送不能显示云端成功。原反馈分支不写入，main 不合并，PR #1 保持 Draft。
 
