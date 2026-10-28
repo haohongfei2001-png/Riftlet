@@ -27,6 +27,7 @@ class Policy:
     experience: str
     experience_evidence: str
     main_blob: str
+    feedback_updates: tuple[tuple[str, str], ...] = ()
 
 
 # Changing any pin requires a new integration review, not a runtime override.
@@ -38,6 +39,22 @@ POLICY = Policy(
     experience="fa74f3c68f05ab4eaccfc24e2f39c0177289ddb3",
     experience_evidence="8e1a1688e75db8c18965e073ae357010e7397a3a",
     main_blob="05fe28ec734ba0d8c040810c737b26715a33d5de",
+    # 2026-10-29 independently reviewed Feedback reliability/privacy repairs.
+    # All other Feedback files remain pinned to the original f195beb delivery.
+    feedback_updates=(
+        ("Sources/RiftletFeedback/FeedbackEngine.swift", "364bf1ad9f47ea820a82522ad7af3ab8a8ef7a91"),
+        ("Sources/RiftletFeedback/FeedbackStore.swift", "e00e5722d09b38257777aa105828ced889d36ff2"),
+        ("Sources/RiftletFeedbackUI/FeedbackWindowController.swift", "b9f2bb1418112f6dae35a2d4a33a9ef28ff7e39e"),
+        ("Tests/RiftletFeedbackTests/FeedbackAutomaticRetryTests.swift", "3cacdac27aac9e8bd6ef9396f5f5c3e72ed352f3"),
+        ("Tests/RiftletFeedbackTests/FeedbackPrivacyCleanupTests.swift", "2ec47c6f7c984194e89f9bcadc26cc1ce4eef059"),
+        ("Tests/RiftletFeedbackTests/FeedbackTests.swift", "507fe2ff7485078ab3b6d4dd11b12448c70559ca"),
+        ("Tests/RiftletFeedbackUITests/FeedbackCloseTests.swift", "657d62ff9fde0863064a959326324d0938abc971"),
+        ("Tests/RiftletFeedbackUITests/FeedbackWindowTests.swift", "437712acf5eeca9c4aaa4961ed1b35ed275e5333"),
+        ("services/feedback/delivery.mjs", "11c853d9a72cc8d9e2ee63be7efaf0e42a476d6c"),
+        ("services/feedback/feedback.test.mjs", "4ff61e5f3d0125c03feda989a9559ca4c42209af"),
+        ("services/feedback/wrangler.delivery.jsonc", "6fdd3bba7a3a1ca04149428bf420df222385ffd7"),
+        ("services/feedback/README.md", "bf1fad3c7343ec931a5da8fe2e37ff4cbfc697ec"),
+    ),
 )
 
 SCREENSHOT_PATHS = (
@@ -127,7 +144,8 @@ def audit(repository, revision="HEAD", policy=POLICY):
                    "feedback": policy.feedback, "beta": policy.beta,
                    "experience": policy.experience,
                    "experienceEvidence": policy.experience_evidence,
-                   "mainBlob": policy.main_blob},
+                   "mainBlob": policy.main_blob,
+                   "feedbackUpdates": dict(policy.feedback_updates)},
         "checks": [],
     }
     checks = report["checks"]
@@ -150,6 +168,15 @@ def audit(repository, revision="HEAD", policy=POLICY):
             check("ancestor:" + name, is_ancestor, expected=anchor)
         if not re.fullmatch(r"[0-9a-f]{40}", policy.main_blob):
             raise AuditError("Invalid fixed Main blob identity")
+        feedback_updates = dict(policy.feedback_updates)
+        if len(feedback_updates) != len(policy.feedback_updates):
+            raise AuditError("Duplicate fixed Feedback update path")
+        for path, oid in feedback_updates.items():
+            if (not any(path == root or path.startswith(root + "/") for root in FEEDBACK_PATHS)
+                    or any(part in ("", ".", "..") for part in path.split("/"))
+                    or not re.fullmatch(r"[0-9a-f]{40}", oid)
+                    or git(repository, "cat-file", "-t", oid).strip() != b"blob"):
+                raise AuditError("Invalid fixed Feedback update: " + path)
 
         for group, expected_revision, paths in (
             ("screenshot", policy.official, SCREENSHOT_PATHS),
@@ -158,6 +185,25 @@ def audit(repository, revision="HEAD", policy=POLICY):
             ("acceptance", policy.acceptance, (EVIDENCE_PATH,)),
             ("experience-evidence", policy.experience_evidence, (EXPERIENCE_EVIDENCE_PATH,)),
         ):
+            if group == "feedback" and feedback_updates:
+                # Preserve every original object; approve only the reviewed
+                # text-file blobs, including explicit additions. A neighbouring
+                # mutation/addition/deletion still fails this exact comparison.
+                for root in paths:
+                    expected = objects(repository, expected_revision, (root,), recursive=True)
+                    original_exists = bool(expected)
+                    actual = objects(repository, resolved, (root,), recursive=True)
+                    for path, oid in feedback_updates.items():
+                        if path == root or path.startswith(root + "/"):
+                            expected[path] = {"mode": "100644", "type": "blob", "oid": oid}
+                    missing = sorted(set(expected) - set(actual))
+                    added = sorted(set(actual) - set(expected))
+                    changed = sorted(path for path in set(expected) & set(actual)
+                                     if expected[path] != actual[path])
+                    check(group + ":" + root, original_exists and not (missing or added or changed),
+                          expectedFileCount=len(expected), actualFileCount=len(actual),
+                          missing=missing, added=added, changed=changed)
+                continue
             expected = objects(repository, expected_revision, paths)
             actual = objects(repository, resolved, paths)
             for path in paths:

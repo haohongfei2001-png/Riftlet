@@ -76,4 +76,21 @@ final class FeedbackPrivacyCleanupTests: XCTestCase {
         let final = try await store.records(); XCTAssertTrue(final.isEmpty)
         XCTAssertThrowsError(try secrets.secret(for: id, create: false))
     }
+
+    func testForgottenBodyIsScrubbedFromLiveDatabaseWithoutRemovingOtherFeedback() async throws {
+        let (root, store, secrets, engine) = try fixture()
+        let marker = "ERASE-FEEDBACK-" + UUID().uuidString
+        let removed = try await engine.enqueue(FeedbackDraft(text: String(repeating: marker, count: 40), revision: 1), appVersion: "0.1.0")
+        let retained = try await engine.enqueue(FeedbackDraft(text: "keep this separate report", revision: 3), appVersion: "0.1.0")
+        let database = root.appendingPathComponent("feedback.sqlite")
+        XCTAssertNotNil(try Data(contentsOf: database).range(of: Data(marker.utf8)))
+        try await engine.requestDeletion(id: removed)
+        try await engine.forgetResolved(id: removed)
+        XCTAssertNil(try Data(contentsOf: database).range(of: Data(marker.utf8)))
+        XCTAssertThrowsError(try secrets.secret(for: removed, create: false))
+        let remaining = try await store.records()
+        XCTAssertEqual(remaining.map(\.id), [retained])
+        XCTAssertEqual(remaining.first?.envelope.text, "keep this separate report")
+        await engine.stop()
+    }
 }

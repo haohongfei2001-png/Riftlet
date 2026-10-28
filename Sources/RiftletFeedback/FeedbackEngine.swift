@@ -113,8 +113,16 @@ public actor FeedbackEngine {
         wake = Task { [weak self] in
             do { try await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000)) } catch { return }
             guard !Task.isCancelled else { return }
-            await self?.pump()
+            await self?.scheduledWake(generation: generation)
         }
+    }
+
+    private func scheduledWake(generation: UInt64) async {
+        guard !stopped, generation == scheduleGeneration else { return }
+        // The timer task is now the caller of pump(). Release its handle before
+        // pump invalidates any pending timer, or it cancels its own network work.
+        wake = nil
+        await pump()
     }
 
     public func refresh(id: String) async throws {

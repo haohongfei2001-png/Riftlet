@@ -50,7 +50,14 @@ export async function dispatch(env) {
   if(env.DELIVERY_ENABLED!=='true') return;
   if(!await privateRepository(env)) return;
   const pending=await env.DB.prepare("SELECT * FROM feedback WHERE state IN ('pending','uncertain','deletion_pending') AND checked_at<? ORDER BY created LIMIT 10").bind(now-300).all();
+  // Workers Free permits 50 external subrequests per invocation. The private
+  // repository check used one. Reserve a complete bounded reconciliation scan
+  // before touching checked_at; unfinished records remain eligible next tick.
+  let githubBudget=49;
   for(const original of pending.results) {
+    const requestBound=original.state==='pending'?1:(original.issue_number?0:10);
+    if(githubBudget<requestBound) break;
+    githubBudget-=requestBound;
     await env.DB.prepare('UPDATE feedback SET checked_at=? WHERE id=?').bind(now,original.id).run();
     if(original.state!=='pending') { if(!original.issue_number) await reconcile(env,original); continue; }
     const claim=await env.DB.prepare("UPDATE feedback SET state='attempting',attempt_at=? WHERE id=? AND state='pending' AND delete_requested=0 AND payload IS NOT NULL RETURNING *")
@@ -58,7 +65,15 @@ export async function dispatch(env) {
     if(claim.results.length!==1) continue;
     const record=claim.results[0];
     const current=await row(env,record.id);
-    if(current.delete_requested) continue;
+    if(current.delete_requested) {
+      // This invocation owns the only creation claim and has not issued POST.
+      // A delete observed here has no remote side effect to reconcile. Resolve
+      // only this exact claim; deletes after this check remain pending until
+      // an owner verifies permanent removal of the possibly created Issue.
+      await env.DB.prepare("UPDATE feedback SET state='deleted' WHERE id=? AND state='deletion_pending' AND delete_requested=1 AND attempt_at=? AND issue_number IS NULL")
+        .bind(record.id,record.attempt_at).run();
+      continue;
+    }
     try {
       const response=await fetch(`https://api.github.com/repos/${env.GITHUB_REPOSITORY}/issues`,{
         method:'POST',headers:headers(env),redirect:'error',signal:AbortSignal.timeout(15000),

@@ -102,4 +102,22 @@ final class FeedbackWindowTests: XCTestCase {
         XCTAssertFalse(saved); XCTAssertEqual(controller.currentText, "保留在窗口中")
         XCTAssertFalse(controller.diagnosticSelected); XCTAssertTrue(controller.isEditingEnabled)
     }
+    @MainActor func testMarkedTextCannotSubmitOrCloseUntilCompositionIsCommitted() async throws {
+        let (store, engine, _, controller) = try fixture(); await controller.waitUntilLoaded()
+        let text = try editor(controller)
+        text.setMarkedText("中文组字", selectedRange: NSRange(location: 4, length: 0),
+                           replacementRange: NSRange(location: NSNotFound, length: 0))
+        XCTAssertTrue(text.hasMarkedText())
+        await controller.submitCurrentDraft()
+        let closed = await controller.saveBeforeClosing()
+        let before = try await store.records()
+        XCTAssertFalse(closed); XCTAssertTrue(before.isEmpty)
+        XCTAssertEqual(controller.currentText, "中文组字")
+        text.unmarkText()
+        XCTAssertFalse(text.hasMarkedText())
+        await controller.submitCurrentDraft()
+        let after = try await store.records()
+        XCTAssertEqual(after.count, 1); XCTAssertEqual(after.first?.envelope.text, "中文组字")
+        await engine.stop()
+    }
 }

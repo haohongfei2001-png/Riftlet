@@ -62,7 +62,9 @@ public actor FeedbackStore {
             guard sqlite3_step(version) == SQLITE_ROW else { throw FeedbackFailure.storageUnavailable }
             let v = sqlite3_column_int(version, 0)
             guard v == 0 || v == 1 else { throw FeedbackFailure.storageUnavailable }
-            try exec("PRAGMA journal_mode=DELETE; PRAGMA synchronous=FULL; PRAGMA trusted_schema=OFF;")
+            // Clear removed text from the live sidecar's freed cells/pages.
+            // This does not claim erasure from OS snapshots or external backups.
+            try exec("PRAGMA journal_mode=DELETE; PRAGMA synchronous=FULL; PRAGMA trusted_schema=OFF; PRAGMA secure_delete=ON;")
             try exec("BEGIN IMMEDIATE")
             do {
                 try exec("CREATE TABLE IF NOT EXISTS meta(key TEXT PRIMARY KEY,value TEXT NOT NULL); CREATE TABLE IF NOT EXISTS draft(id INTEGER PRIMARY KEY CHECK(id=1),revision INTEGER NOT NULL,payload BLOB NOT NULL); CREATE TABLE IF NOT EXISTS reports(id TEXT PRIMARY KEY,payload BLOB NOT NULL,state TEXT NOT NULL,attempts INTEGER NOT NULL DEFAULT 0,next_attempt REAL NOT NULL,created REAL NOT NULL); CREATE TABLE IF NOT EXISTS submissions(revision INTEGER PRIMARY KEY,report_id TEXT NOT NULL); CREATE TABLE IF NOT EXISTS credential_intents(id TEXT PRIMARY KEY); PRAGMA user_version=1;")
@@ -214,7 +216,11 @@ public actor FeedbackStore {
         }
     }
     public func requestDeletion(id: String) throws {
-        try execute("UPDATE reports SET state=CASE WHEN attempts=0 AND state='queued' THEN 'cancelled' ELSE 'deletionQueued' END,next_attempt=0 WHERE id=? AND state NOT IN ('deleted','cancelled','deletionPending')", [id])
+        // An unavailable credential can block a report before beginAttempt.
+        // With no durable attempt there cannot have been HTTP: allow local
+        // cancellation even after a failed retry or an older deletion attempt.
+        // Received/delivered states and any attempted request still need DELETE.
+        try execute("UPDATE reports SET state=CASE WHEN attempts=0 AND state IN ('queued','blocked','deletionQueued','deletionBlocked') THEN 'cancelled' ELSE 'deletionQueued' END,next_attempt=0 WHERE id=? AND state NOT IN ('deleted','cancelled','deletionPending')", [id])
     }
     public func forgetResolved(id: String) throws {
         try execute("DELETE FROM reports WHERE id=? AND state IN ('deleted','cancelled')", [id])

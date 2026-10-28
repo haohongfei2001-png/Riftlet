@@ -6,6 +6,7 @@ credentials or host repo mutation.
 """
 
 import importlib.util
+from dataclasses import replace
 import json
 from pathlib import Path
 import subprocess
@@ -172,6 +173,55 @@ class InternalBetaIntegrationTests(unittest.TestCase):
         self.write("Sources/RiftletFeedback/FeedbackEngine.swift", "silently changed delivery\n")
         self.record("feedback changed")
         self.assertIn("feedback:Sources/RiftletFeedback", self.failures(self.inspect()))
+
+    def approve_feedback_repairs(self):
+        repairs = {
+            "Sources/RiftletFeedback/FeedbackEngine.swift": "reviewed timer repair\n",
+            "Tests/RiftletFeedbackTests/FeedbackAutomaticRetryTests.swift": "new timer regression\n",
+        }
+        for path, content in repairs.items():
+            self.write(path, content)
+        self.record("independently reviewed exact Feedback repairs")
+        updates = tuple((path, self.git("rev-parse", "HEAD:" + path)) for path in repairs)
+        self.policy = replace(self.policy, feedback_updates=updates)
+
+    def test_exact_feedback_repairs_and_added_test_are_accepted(self):
+        self.approve_feedback_repairs()
+        self.assertEqual(self.inspect()["result"], "PASS")
+        # Approval is not a wildcard: changing the repaired object still fails.
+        self.write("Sources/RiftletFeedback/FeedbackEngine.swift", "different repair\n")
+        self.record("alter approved repair")
+        self.assertIn("feedback:Sources/RiftletFeedback", self.failures(self.inspect()))
+
+    def test_feedback_repairs_do_not_allow_neighbor_mutation_or_addition(self):
+        self.approve_feedback_repairs()
+        self.write("Sources/RiftletFeedback/Unexpected.swift", "unreviewed neighbor\n")
+        self.write("Tests/RiftletFeedbackTests/value.swift", "unreviewed old test change\n")
+        self.write("Sources/RiftletApp/FeedbackHost.swift", "unreviewed endpoint\n")
+        self.record("unreviewed neighboring changes")
+        self.assertEqual(self.failures(self.inspect()), {
+            "feedback:Sources/RiftletFeedback", "feedback:Tests/RiftletFeedbackTests",
+            "feedback:Sources/RiftletApp/FeedbackHost.swift",
+        })
+
+    def test_missing_added_feedback_regression_is_rejected(self):
+        self.approve_feedback_repairs()
+        (self.root / "Tests/RiftletFeedbackTests/FeedbackAutomaticRetryTests.swift").unlink()
+        self.record("drop required new regression")
+        self.assertEqual(self.failures(self.inspect()), {"feedback:Tests/RiftletFeedbackTests"})
+
+    def test_feedback_repair_policy_rejects_non_feedback_and_non_blob_pins(self):
+        self.approve_feedback_repairs()
+        oid = self.policy.feedback_updates[0][1]
+        valid = self.policy
+        for updates in (
+            (("Sources/RiftletCore/value.swift", oid),),
+            (("Sources/RiftletFeedback/../RiftletCore/value.swift", oid),),
+            (("Sources/RiftletFeedback/FeedbackEngine.swift", self.combined),),
+            (valid.feedback_updates[0], valid.feedback_updates[0]),
+        ):
+            self.policy = replace(valid, feedback_updates=updates)
+            self.assertEqual(self.failures(self.inspect()), {"audit:git-inputs"})
 
     def test_every_approved_ux_file_requires_its_exact_delivered_object(self):
         # Independent list includes an added test absent from the old baseline.

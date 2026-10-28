@@ -16,18 +16,24 @@ final class FeedbackCloseTests: XCTestCase {
         if let text = view as? NSTextView { return text }
         return view.subviews.compactMap { editor(in: $0) }.first
     }
+    @MainActor private func consent(in view: NSView) -> NSButton? {
+        if let button = view as? NSButton, button.title.hasPrefix("附带最近") { return button }
+        return view.subviews.compactMap { consent(in: $0) }.first
+    }
     @MainActor func testEveryCloseAttemptFlushesEvenAfterPriorProgrammaticClose() async throws {
         let (store, controller) = try fixture(); await controller.waitUntilLoaded()
         let window = try XCTUnwrap(controller.window)
         let text = try XCTUnwrap(editor(in: try XCTUnwrap(window.contentView)))
+        let consent = try XCTUnwrap(consent(in: try XCTUnwrap(window.contentView)))
         var previousRevision: Int64 = 0
-        for value in ["first close", "reopened final edit"] {
+        for (value, attach) in [("first close", false), ("reopened final edit", true), ("reopened consent removed", false)] {
             // Exercise a genuinely reopened window. Closing an already-closed
             // NSWindow need not produce a second willClose notification.
             controller.showWindow(nil)
             XCTAssertTrue(window.isVisible)
             text.string = value
             controller.textDidChange(Notification(name: NSText.didChangeNotification))
+            if (consent.state == .on) != attach { consent.performClick(nil) }
             let closed = expectation(description: "window closed after durable save: \(value)")
             let observer = NotificationCenter.default.addObserver(forName: NSWindow.willCloseNotification, object: window, queue: .main) { _ in closed.fulfill() }
             // AppKit must call the delegate, defer closing and then close after
@@ -38,6 +44,7 @@ final class FeedbackCloseTests: XCTestCase {
             XCTAssertFalse(window.isVisible)
             let saved = try await store.draft()
             XCTAssertEqual(saved.text, value)
+            XCTAssertEqual(saved.diagnostic != nil, attach)
             XCTAssertGreaterThan(saved.revision, previousRevision)
             previousRevision = saved.revision
         }

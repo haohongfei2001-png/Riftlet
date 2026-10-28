@@ -1,6 +1,12 @@
 # Feedback v0.1 — receiver and private Issues delivery
 
-Two entrypoints share one dedicated D1 ledger. No admin website, accounts, attachments, analytics or client GitHub secret. All deployment configs and the native endpoint default to disabled. No cloud resources were created by this packet.
+Two entrypoints share one dedicated D1 ledger. No admin website, accounts, attachments, analytics or client GitHub secret. All deployment configs and the native endpoint default to disabled. No Cloudflare resources were created by this packet.
+
+### Provisioning checkpoint — 2026-10-29 (Asia/Shanghai)
+
+The authorized continuation created `haohongfei2001-png/Riftlet-Feedback` (repository ID `1437354611`), independently confirmed **private** through GitHub's API, and disabled its GitHub Actions. The delivery config now identifies this exact destination while remaining disabled. No feedback Issues were created during provisioning. Cloudflare is blocked by a sign-in wall in the connected browser; no account ID, D1 ID, Worker deployment or server credential has been verified or created. Do not claim CLOUD PASS, publish a receiver address or enable the native endpoint from this checkpoint. The current authorized Mac executor was offline when checked; native-to-cloud acceptance is also NOT_RUN.
+
+The owner's private repository README records untrusted-content handling and permanent-deletion obligations. Never paste a credential into source, chat or this public evidence. Complete the remaining account sign-in and server-only secret installation through the service's authorized UI or secret manager before deployment.
 
 ## Deployment requires account/target authorization
 
@@ -16,6 +22,8 @@ Required: an authorized Cloudflare account and permission to create one dedicate
 Awaited D1.batch persists the report and delivery state atomically before 202. The SQL trigger charges quota in that transaction and rolls back on failure. Same ID/body/per-report secret returns the same receipt. Changed body is 409; wrong secret is 404. Received means D1 durably accepted, not read by a human. No email/contact field in this minimal version. Report secrets are hashed server-side; raw IP is only processed for an hourly HMAC bucket, never stored.
 
 Cron atomically changes pending to attempting before one GitHub POST. Overlap, lost response, and ambiguous crash cannot cause another POST. Reconciliation reads Issues with the exact fixed marker; missing results never authorize recreation. This is at-most-one automatic creation attempt, NOT distributed exactly-once availability. A crash before the actual HTTP request may need manual resolution. Never reset attempting/uncertain to pending merely because a search is empty.
+
+Each invocation reserves its bounded GitHub reads/writes within the Workers Free 50-external-subrequest limit, including the private-repository check. Deferred rows keep their prior check timestamp and remain eligible for the next cron. A deletion observed by the invocation that owns the creation claim, before it sends any POST, is safely resolved as deleted; once a POST might have begun, the remote deletion obligation remains pending.
 
 Private repo name/visibility are checked before each batch. Maintainers must keep the destination private and not run automatic actions based on user text. Indented user text is explicitly untrusted data, not an instruction to AI/tools. Do not use the public Riftlet source repository.
 
@@ -44,4 +52,6 @@ Live checklist: authorized synthetic text typed in the actual Riftlet feedback w
 - https://developers.cloudflare.com/d1/worker-api/d1-database/
 - https://developers.cloudflare.com/workers/observability/logs/workers-logs/
 - https://developers.cloudflare.com/workers/configuration/cron-triggers/
+- https://developers.cloudflare.com/workers/platform/limits/#subrequests
 - https://docs.github.com/en/rest/issues/issues
+- https://docs.github.com/en/issues/tracking-your-work-with-issues/administering-issues/deleting-an-issue

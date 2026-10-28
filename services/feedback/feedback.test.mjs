@@ -85,6 +85,25 @@ test('uncertain POST with no observable issue never blind-retries',async(t)=>{
   await dispatch(env);gh.issues.length=0;env.DB.db.exec('UPDATE feedback SET checked_at=0');await dispatch(env);
   assert.equal(gh.posts,1);assert.equal((await stored(env,p.id)).state,'uncertain');
 });
+test('reconciliation stays within free Worker request budget and leaves later reports eligible',async(t)=>{
+  const env=environment();
+  for(let i=0;i<10;i++) await receiver.fetch(req(payload()),env);
+  env.DB.db.exec("UPDATE feedback SET state='uncertain'");
+  const old=globalThis.fetch;let requests=0,posts=0;
+  globalThis.fetch=async(url,init={})=>{
+    requests++;
+    if(init.method==='POST'){posts++;throw new Error('must not post');}
+    if(String(url).includes('/issues?')) return Response.json(Array.from({length:100},(_,i)=>({number:i+1,title:'unrelated',body:'unrelated'})));
+    return Response.json({private:true,full_name:'owner/private-feedback'});
+  };
+  t.after(()=>{globalThis.fetch=old;});
+  for(const expected of [4,8,10]) {
+    requests=0;await dispatch(env);
+    assert(requests<=50,`external subrequests: ${requests}`);
+    assert.equal(env.DB.db.prepare('SELECT COUNT(*) n FROM feedback WHERE checked_at>0').get().n,expected);
+  }
+  assert.equal(posts,0);assert.equal(env.DB.db.prepare("SELECT COUNT(*) n FROM feedback WHERE state='uncertain'").get().n,10);
+});
 test('deletion before input stops delivery; late POST acknowledges deletion_pending, not deletion complete',async(t)=>{
   const env=environment(),p=payload();await receiver.fetch(req(p),env);
   let r=await receiver.fetch(req(p,token,'DELETE'),env);assert.equal((await r.json()).state,'deleted');
@@ -92,6 +111,32 @@ test('deletion before input stops delivery; late POST acknowledges deletion_pend
   await dispatch(env);assert.equal(gh.posts,0);
   const q=payload();await receiver.fetch(req(q),env);await dispatch(env);
   const after=await stored(env,q.id);assert.equal(gh.posts,1);assert.equal(after.state,'deletion_pending');assert.equal(after.payload,null);assert.equal(after.issue_number,1);
+});
+test('deletion after claim but before POST resolves without an imaginary remote deletion obligation',async(t)=>{
+  const env=environment(),p=payload();await receiver.fetch(req(p),env);const gh=github(t);
+  const bound=env.DB.bound.bind(env.DB);let deleted=false;
+  env.DB.bound=(sql,args)=>{
+    const statement=bound(sql,args);
+    if(sql.includes("state='attempting',attempt_at=?")) {
+      const all=statement.all.bind(statement);
+      statement.all=async()=>{
+        const result=await all();
+        if(result.results.length===1 && !deleted) {
+          deleted=true;
+          const response=await receiver.fetch(req(p,token,'DELETE'),env);
+          assert.equal((await response.json()).state,'deletion_pending');
+        }
+        return result;
+      };
+    }
+    return statement;
+  };
+  await dispatch(env);
+  const after=await stored(env,p.id);
+  assert.equal(deleted,true);assert.equal(gh.posts,0);assert.equal(after.state,'deleted');
+  assert.equal(after.payload,null);assert.equal(after.issue_number,null);
+  assert.equal((await (await receiver.fetch(req(p,token,'GET'),env)).json()).state,'deleted');
+  env.DB.db.exec('UPDATE feedback SET checked_at=0');await dispatch(env);assert.equal(gh.posts,0);
 });
 test('expired pending text is removed honestly; restore of attempting remains observation-only',async(t)=>{
   const env=environment(),p=payload();await receiver.fetch(req(p),env);const gh=github(t);

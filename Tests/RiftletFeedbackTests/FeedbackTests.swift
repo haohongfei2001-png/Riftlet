@@ -92,6 +92,29 @@ final class FeedbackTests: XCTestCase {
         let transport=ScriptedTransport();let restart=FeedbackEngine(store:store,secrets:MemoryFeedbackSecrets(),transport:transport)
         await restart.pump();let calls=await transport.calls;XCTAssertEqual(calls.count,0)
         let records=try await store.records();XCTAssertEqual(records[0].state,.blocked)
+        XCTAssertEqual(records[0].attempts,0)
+        // The missing capability must not strand text that was never sent.
+        try await restart.requestDeletion(id:records[0].id)
+        let cancelled=try await store.records();XCTAssertEqual(cancelled[0].state,.cancelled)
+        try await restart.forgetResolved(id:records[0].id)
+        let remaining=try await store.records(),afterCalls=await transport.calls
+        XCTAssertTrue(remaining.isEmpty);XCTAssertTrue(afterCalls.isEmpty)
+        await restart.stop()
+    }
+    func testMissingCredentialAfterAttemptCannotBeLocallyCancelled() async throws {
+        let store=try FeedbackStore(directory:directory())
+        let original=FeedbackEngine(store:store,secrets:MemoryFeedbackSecrets(),transport:DisabledFeedbackTransport())
+        let id=try await original.enqueue(FeedbackDraft(text:"old request may have reached server",revision:1),appVersion:"0.1.0")
+        _=try await store.beginAttempt(id:id,expected:.queued)
+        let transport=ScriptedTransport()
+        let restart=FeedbackEngine(store:store,secrets:MemoryFeedbackSecrets(),transport:transport)
+        await restart.pump()
+        try await restart.requestDeletion(id:id)
+        let records=try await store.records(),calls=await transport.calls
+        XCTAssertEqual(records.first?.state,.deletionBlocked)
+        XCTAssertEqual(records.first?.attempts,1);XCTAssertTrue(calls.isEmpty)
+        do { try await restart.forgetResolved(id:id);XCTFail("Cloud obligation must remain") }
+        catch FeedbackFailure.conflict {}
         await restart.stop()
     }
     func testStoreLocksAndFutureSchemaCannotTouchScreenshotDatabase() async throws {

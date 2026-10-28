@@ -70,7 +70,7 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
         scroll.heightAnchor.constraint(greaterThanOrEqualToConstant: 150).isActive = true
         consent.target = self; consent.action = #selector(changedConsent); stack.addArrangedSubview(consent)
         stack.addArrangedSubview(NSButton(title: "查看将发送的诊断…", target: self, action: #selector(showPreview)))
-        let privacy = NSTextField(wrappingLabelWithString: "仅发送你输入的文字及主动勾选的诊断，可供开发者和获授权的 AI 辅助分析。不会自动附带截图、聊天、剪贴板、完整路径或浏览器资料。文字中也请勿填写密码等秘密。")
+        let privacy = NSTextField(wrappingLabelWithString: "你输入的文字及主动勾选的诊断会发送到开发者的私有反馈中心，可供开发者和获授权的 AI 辅助分析。不会自动附带截图、聊天、剪贴板、完整路径或浏览器资料。文字中也请勿填写密码等秘密。")
         privacy.font = .systemFont(ofSize: 11); privacy.textColor = .secondaryLabelColor
         stack.addArrangedSubview(privacy); privacy.widthAnchor.constraint(equalTo: stack.widthAnchor).isActive = true
         status.font = .systemFont(ofSize: 12); stack.addArrangedSubview(status)

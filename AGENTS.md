@@ -1,5 +1,9 @@
 # Riftlet context for all AI contributors
 
+## Feedback delivery continuation — 2026-10-29
+
+The latest user explicitly authorizes Feedback-only fixes, dedicated free-tier Cloudflare resources, an independent private Issues repository, deployment/testing and reviewed integration into the existing Draft PR #1. This supersedes older statements below that cloud provisioning was not authorized; unavailable account/device access still blocks only its own operation. Continue from the current engineering head (initially `1920e056`), which already includes PR #7 `f195beb`; do not merge Feedback again or overwrite Main. Preserve screenshot sources, admissions, history, data and all original evidence. The private destination is `haohongfei2001-png/Riftlet-Feedback`; do not put feedback in public source Issues. No main merge, public release, paid upgrade or website/DNS changes. Real native-to-cloud acceptance is required before declaring delivery complete; implementation and mock tests are separate.
+
 ## Source priority
 1. The latest explicit user instructions, including standing authorization in the current session.
 2. Recorded user constraints in `docs/PRODUCT.md` and `docs/DECISIONS.md`; retain superseded decisions as history.
