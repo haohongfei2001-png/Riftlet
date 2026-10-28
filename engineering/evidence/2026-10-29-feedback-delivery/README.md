@@ -31,7 +31,7 @@ Cloudflare's connected-browser dashboard returned **Sign in to Cloudflare**. No 
 
 | Capability | Current evidence scope |
 | --- | --- |
-| Unified native Feedback code | IMPLEMENTED; new CI must be checked at the exact resulting SHA |
+| Unified native Feedback code | IMPLEMENTED / CI PASS at `7ef6cd4b`; exact final formal-branch identity and CI remain fixed in PR #1 |
 | Private destination provisioned | Actual GitHub private repository and disabled Actions verified; not delivery PASS |
 | Receiver HTTPS / cloud D1 | BLOCKED — Cloudflare sign-in/account access; no cloud receipt |
 | Scheduled delivery / unique Issue | BLOCKED — Worker deployment and server-only credential installation absent |
@@ -51,3 +51,11 @@ Both unchanged Worker/config snapshots from `14bfc1f8` passed actual local `wran
 The original macOS 14 jobs were waiting for a hosted runner with no executed steps. The original `2d517411` pair was cancelled by normal workflow concurrency when the evidence correction arrived; the `14bfc1f8` pair also remained queued. GitHub's official [macOS 14 retirement notice](https://github.com/actions/runner-images/issues/13518) warns of longer queues during deprecation and retirement on 2026-11-02, and recommends macOS 15 as a migration target. No causal claim of a global outage or a scheduled brownout on this date is made.
 
 Both existing workflows now change only `runs-on: macos-14` to the standard `macos-15` label. All triggers, permissions, pinned Actions, concurrency, 15-minute timeout, tests, assertions, package/self-check steps and artifact settings remain unchanged. The [official runner reference](https://docs.github.com/en/actions/how-tos/write-workflows/choose-where-workflows-run/choose-the-runner-for-a-job) identifies this as a standard arm64 runner, free on public repositories. The product's macOS 13 deployment target and screenshot admission are unchanged. Results must identify the actual macOS 15/Swift environment, not claim a new macOS 14 or physical-Mac PASS.
+
+## Completed source verification and installable package
+
+The reviewed implementation at `7ef6cd4bfd6e22605b0d97db37e249a8d94797c1` passed both actual macOS 15 CI runs: [Native 40733901373](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40733901373) and [Feedback 40733901402](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40733901402). Native ran 501 unique tests; the 38 Feedback/AppKit tests are included, not added again. Service 20, isolation 4+14, fixed composition 42/42, packaging 12+7, release build, strict ad-hoc signing, packaged executable checks and complete unified Beta packaging passed. The original PR7-only conditional step was skipped; the current fixed composition audit executed and passed. Full decoded original job logs and source/checkout/package identities are preserved in [ci-source-verification/](ci-source-verification/).
+
+The integration lead actually downloaded the [native artifact](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40733901373/artifacts/12837440740), verified both ZIP layers and inspected the complete arm64 Riftlet App, candidate launcher, README, resources, notices and manifest. The inner `build/Riftlet-Internal-Beta.zip` is 1,475,586 bytes with SHA-256 `eee6b1bd04ce7f7dead12ad45ef745f6dc9e07d14c609c3d192c24b5042c87d4`. All 14 build-input groups match source `7ef6cd4b` and checkout `05e5f5e5`; their entire trees are also identical in this PR13 run. The source package is usable for local Feedback UI/queue behavior, with the receiver still disabled.
+
+The final documentation successor integrates this reviewed source into the existing engineering branch without changing any build/test input. Its precise final SHA, the new formal PR1 CI runs, final artifact and non-author checks are recorded in [PR #1](https://github.com/haohongfei2001-png/Riftlet/pull/1). Those later results must be checked there; the source runs above are never relabelled as formal-branch runs. No main merge or public release is authorized or claimed. Real native-to-cloud delivery remains blocked by the separately stated account/device conditions.

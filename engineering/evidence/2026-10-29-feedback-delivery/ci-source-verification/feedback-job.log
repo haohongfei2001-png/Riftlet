@@ -1,0 +1,1353 @@
+﻿2026-10-28T17:20:11.4149020Z Current runner version: '2.338.0'
+2026-10-28T17:20:11.4166030Z ##[group]Runner Image Provisioner
+2026-10-28T17:20:11.4166590Z Hosted Compute Agent
+2026-10-28T17:20:11.4167080Z Version: 20260828.587
+2026-10-28T17:20:11.4167510Z Commit: abac92662cab4cc7352de4f9f9d2e2419aad9c29
+2026-10-28T17:20:11.4168100Z Build Date: 2026-08-28T16:44:25Z
+2026-10-28T17:20:11.4168600Z Worker ID: {837bc1c2-a5ba-429d-9f56-fe03bd620bde}
+2026-10-28T17:20:11.4169130Z Azure Region: westus
+2026-10-28T17:20:11.4169510Z ##[endgroup]
+2026-10-28T17:20:11.4170490Z ##[group]Operating System
+2026-10-28T17:20:11.4170900Z macOS
+2026-10-28T17:20:11.4171300Z 15.7.9
+2026-10-28T17:20:11.4171760Z 24G830
+2026-10-28T17:20:11.4172110Z ##[endgroup]
+2026-10-28T17:20:11.4172470Z ##[group]Runner Image
+2026-10-28T17:20:11.4172920Z Image: macos-15-arm64
+2026-10-28T17:20:11.4173360Z Version: 20260907.0337.1
+2026-10-28T17:20:11.4174210Z Included Software: https://github.com/actions/runner-images/blob/macos-15-arm64/20260907.0337/images/macos/macos-15-arm64-Readme.md
+2026-10-28T17:20:11.4175360Z Image Release: https://github.com/actions/runner-images/releases/tag/macos-15-arm64%2F20260907.0337
+2026-10-28T17:20:11.4176040Z ##[endgroup]
+2026-10-28T17:20:11.4176870Z ##[group]GITHUB_TOKEN Permissions
+2026-10-28T17:20:11.4177970Z Contents: read
+2026-10-28T17:20:11.4178340Z Metadata: read
+2026-10-28T17:20:11.4178710Z ##[endgroup]
+2026-10-28T17:20:11.4180180Z Secret source: Actions
+2026-10-28T17:20:11.4180820Z Cache mode: write
+2026-10-28T17:20:11.4181390Z Prepare workflow directory
+2026-10-28T17:20:11.4415700Z Prepare all required actions
+2026-10-28T17:20:11.4450930Z Getting action download info
+2026-10-28T17:20:11.6970580Z Download action repository 'actions/checkout@11d5960a326750d5838078e36cf38b85af677262' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-10-28T17:20:11.9080680Z Download action repository 'actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-10-28T17:20:12.1064960Z Complete job name: feedback
+2026-10-28T17:20:12.1784550Z ##[group]Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+2026-10-28T17:20:12.1785390Z with:
+2026-10-28T17:20:12.1801790Z   fetch-depth: 0
+2026-10-28T17:20:12.1802240Z   persist-credentials: false
+2026-10-28T17:20:12.1802660Z   repository: haohongfei2001-png/Riftlet
+2026-10-28T17:20:12.1806030Z   token: ***
+2026-10-28T17:20:12.1806390Z   ssh-strict: true
+2026-10-28T17:20:12.1806710Z   ssh-user: git
+2026-10-28T17:20:12.1807100Z   clean: true
+2026-10-28T17:20:12.1807460Z   sparse-checkout-cone-mode: true
+2026-10-28T17:20:12.1807920Z   fetch-tags: false
+2026-10-28T17:20:12.1808320Z   show-progress: true
+2026-10-28T17:20:12.1808750Z   lfs: false
+2026-10-28T17:20:12.1809110Z   submodules: false
+2026-10-28T17:20:12.1809500Z   set-safe-directory: true
+2026-10-28T17:20:12.1809910Z   allow-unsafe-pr-checkout: false
+2026-10-28T17:20:12.1810750Z ##[endgroup]
+2026-10-28T17:20:12.6682120Z Syncing repository: haohongfei2001-png/Riftlet
+2026-10-28T17:20:12.6683750Z ##[group]Getting Git version info
+2026-10-28T17:20:12.6684890Z Working directory is '/Users/runner/work/Riftlet/Riftlet'
+2026-10-28T17:20:12.6686050Z [command]/opt/homebrew/bin/git version
+2026-10-28T17:20:12.7237980Z git version 2.55.0
+2026-10-28T17:20:12.7261090Z ##[endgroup]
+2026-10-28T17:20:12.7271230Z Copying '/Users/runner/.gitconfig' to '/Users/runner/work/_temp/03774b76-b0d0-43fe-81de-f424a66f04d7/.gitconfig'
+2026-10-28T17:20:12.7272840Z Temporarily overriding HOME='/Users/runner/work/_temp/03774b76-b0d0-43fe-81de-f424a66f04d7' before making global git config changes
+2026-10-28T17:20:12.7273850Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-28T17:20:12.7276440Z [command]/opt/homebrew/bin/git config --global --add safe.directory /Users/runner/work/Riftlet/Riftlet
+2026-10-28T17:20:12.7401720Z Deleting the contents of '/Users/runner/work/Riftlet/Riftlet'
+2026-10-28T17:20:12.7409450Z ##[group]Initializing the repository
+2026-10-28T17:20:12.7418850Z [command]/opt/homebrew/bin/git init /Users/runner/work/Riftlet/Riftlet
+2026-10-28T17:20:12.7732720Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-28T17:20:12.7735320Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-28T17:20:12.7737470Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-28T17:20:12.7739100Z hint: call:
+2026-10-28T17:20:12.7740110Z hint:
+2026-10-28T17:20:12.7741610Z hint: 	git config --global init.defaultBranch <name>
+2026-10-28T17:20:12.7743190Z hint:
+2026-10-28T17:20:12.7744580Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-28T17:20:12.7746540Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-28T17:20:12.7748070Z hint:
+2026-10-28T17:20:12.7748970Z hint: 	git branch -m <name>
+2026-10-28T17:20:12.7750160Z hint:
+2026-10-28T17:20:12.7751480Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-28T17:20:12.7755900Z Initialized empty Git repository in /Users/runner/work/Riftlet/Riftlet/.git/
+2026-10-28T17:20:12.7766670Z [command]/opt/homebrew/bin/git remote add origin https://github.com/haohongfei2001-png/Riftlet
+2026-10-28T17:20:12.7851570Z ##[endgroup]
+2026-10-28T17:20:12.7852910Z ##[group]Disabling automatic garbage collection
+2026-10-28T17:20:12.7853540Z [command]/opt/homebrew/bin/git config --local gc.auto 0
+2026-10-28T17:20:12.8019580Z ##[endgroup]
+2026-10-28T17:20:12.8025730Z ##[group]Setting up auth
+2026-10-28T17:20:12.8027110Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-28T17:20:12.8033100Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-28T17:20:12.9293230Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-28T17:20:12.9314000Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-28T17:20:13.0231850Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-28T17:20:13.0297550Z [command]/opt/homebrew/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-28T17:20:13.1260700Z [command]/opt/homebrew/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-28T17:20:13.1521370Z ##[endgroup]
+2026-10-28T17:20:13.1522510Z ##[group]Fetching the repository
+2026-10-28T17:20:13.1531420Z [command]/opt/homebrew/bin/git -c protocol.version=2 fetch --prune --no-recurse-submodules origin +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/* +05e5f5e538a2780d039491a53317a21bd00f4dd0:refs/remotes/pull/13/merge
+2026-10-28T17:20:30.6442710Z From https://github.com/haohongfei2001-png/Riftlet
+2026-10-28T17:20:30.6459920Z  * [new branch]      codex/arrival-none-magnet-native-20261028 -> origin/codex/arrival-none-magnet-native-20261028
+2026-10-28T17:20:30.6474940Z  * [new branch]      codex/engineering-foundation-20261027    -> origin/codex/engineering-foundation-20261027
+2026-10-28T17:20:30.6476380Z  * [new branch]      codex/feedback-delivery-20261029         -> origin/codex/feedback-delivery-20261029
+2026-10-28T17:20:30.6515180Z  * [new branch]      codex/feedback-v01-20261028              -> origin/codex/feedback-v01-20261028
+2026-10-28T17:20:30.6629560Z  * [new branch]      codex/m1-native-backend-20261027         -> origin/codex/m1-native-backend-20261027
+2026-10-28T17:20:30.6636600Z  * [new branch]      codex/predictive-capture-entry-20261028  -> origin/codex/predictive-capture-entry-20261028
+2026-10-28T17:20:30.6642980Z  * [new branch]      codex/riftlet-real-mac-acceptance-20261027 -> origin/codex/riftlet-real-mac-acceptance-20261027
+2026-10-28T17:20:30.6681530Z  * [new branch]      codex/riftlet-real-mac-acceptance-beta-ux-20261028 -> origin/codex/riftlet-real-mac-acceptance-beta-ux-20261028
+2026-10-28T17:20:30.6682470Z  * [new branch]      codex/riftlet-real-mac-acceptance-internal-beta-20261028 -> origin/codex/riftlet-real-mac-acceptance-internal-beta-20261028
+2026-10-28T17:20:30.6683540Z  * [new branch]      codex/riftlet-real-mac-acceptance-internal-beta-ux-20261028 -> origin/codex/riftlet-real-mac-acceptance-internal-beta-ux-20261028
+2026-10-28T17:20:30.6685080Z  * [new branch]      codex/riftlet-real-mac-acceptance-sc-admission-20261028 -> origin/codex/riftlet-real-mac-acceptance-sc-admission-20261028
+2026-10-28T17:20:30.6686160Z  * [new branch]      codex/riftlet-real-mac-acceptance-sc-complete-20261028 -> origin/codex/riftlet-real-mac-acceptance-sc-complete-20261028
+2026-10-28T17:20:30.6687230Z  * [new branch]      codex/riftlet-real-mac-acceptance-sc-integration-20261028 -> origin/codex/riftlet-real-mac-acceptance-sc-integration-20261028
+2026-10-28T17:20:30.6688270Z  * [new branch]      codex/riftlet-real-mac-acceptance-sc-stage2-20261028 -> origin/codex/riftlet-real-mac-acceptance-sc-stage2-20261028
+2026-10-28T17:20:30.6689320Z  * [new branch]      codex/riftlet-real-mac-acceptance-sc-swallow-20261028 -> origin/codex/riftlet-real-mac-acceptance-sc-swallow-20261028
+2026-10-28T17:20:30.6690220Z  * [new branch]      codex/riftlet-real-mac-round2-20261027   -> origin/codex/riftlet-real-mac-round2-20261027
+2026-10-28T17:20:30.6690920Z  * [new branch]      codex/riftlet-real-mac-round3-20261027   -> origin/codex/riftlet-real-mac-round3-20261027
+2026-10-28T17:20:30.6691800Z  * [new branch]      codex/riftlet-real-mac-round4-20261027   -> origin/codex/riftlet-real-mac-round4-20261027
+2026-10-28T17:20:30.6693140Z  * [new branch]      codex/riftlet-real-mac-round5-20261027   -> origin/codex/riftlet-real-mac-round5-20261027
+2026-10-28T17:20:30.6710620Z  * [new branch]      codex/riftlet-real-mac-round6-20261027   -> origin/codex/riftlet-real-mac-round6-20261027
+2026-10-28T17:20:30.6712460Z  * [new branch]      codex/riftlet-real-mac-round7-20261027   -> origin/codex/riftlet-real-mac-round7-20261027
+2026-10-28T17:20:30.6713560Z  * [new branch]      codex/riftlet-real-mac-round8-20261028   -> origin/codex/riftlet-real-mac-round8-20261028
+2026-10-28T17:20:30.6714530Z  * [new branch]      codex/riftlet-real-mac-round9-20261028   -> origin/codex/riftlet-real-mac-round9-20261028
+2026-10-28T17:20:30.6715900Z  * [new branch]      codex/system-capture-candidate-20261028  -> origin/codex/system-capture-candidate-20261028
+2026-10-28T17:20:30.6716860Z  * [new branch]      codex/system-screenshot-real-20261028    -> origin/codex/system-screenshot-real-20261028
+2026-10-28T17:20:30.6717670Z  * [new branch]      codex/web-attachment-handoff-20261027    -> origin/codex/web-attachment-handoff-20261027
+2026-10-28T17:20:30.6718630Z  * [new branch]      design/arrival-none-magnet-20261028      -> origin/design/arrival-none-magnet-20261028
+2026-10-28T17:20:30.6719480Z  * [new branch]      design/interactive-rift-v1-20261027      -> origin/design/interactive-rift-v1-20261027
+2026-10-28T17:20:30.6720170Z  * [new branch]      design/product-system-20261028           -> origin/design/product-system-20261028
+2026-10-28T17:20:30.6721020Z  * [new branch]      docs/fast-swallow-product-contract-20261027 -> origin/docs/fast-swallow-product-contract-20261027
+2026-10-28T17:20:30.6721990Z  * [new branch]      integration/round8-9-candidate-20261028  -> origin/integration/round8-9-candidate-20261028
+2026-10-28T17:20:30.6722800Z  * [new branch]      integration/round8-9-workbench-20261028  -> origin/integration/round8-9-workbench-20261028
+2026-10-28T17:20:30.6723540Z  * [new branch]      main                                     -> origin/main
+2026-10-28T17:20:30.6724040Z  * [new ref]         05e5f5e538a2780d039491a53317a21bd00f4dd0 -> pull/13/merge
+2026-10-28T17:20:30.6726950Z ##[endgroup]
+2026-10-28T17:20:30.6727440Z ##[group]Determining the checkout info
+2026-10-28T17:20:30.6728690Z ##[endgroup]
+2026-10-28T17:20:30.6729020Z [command]/opt/homebrew/bin/git sparse-checkout disable
+2026-10-28T17:20:30.6731460Z [command]/opt/homebrew/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-28T17:20:30.6828090Z ##[group]Checking out the ref
+2026-10-28T17:20:30.6828930Z [command]/opt/homebrew/bin/git checkout --progress --force refs/remotes/pull/13/merge
+2026-10-28T17:20:31.0151590Z HEAD is now at 05e5f5e Merge 7ef6cd4bfd6e22605b0d97db37e249a8d94797c1 into 1920e0562db893a3292af89a89270a26ddb46a5f
+2026-10-28T17:20:31.0161770Z ##[endgroup]
+2026-10-28T17:20:31.0288760Z [command]/opt/homebrew/bin/git log -1 --format=%H
+2026-10-28T17:20:31.0361560Z 05e5f5e538a2780d039491a53317a21bd00f4dd0
+2026-10-28T17:20:31.0371440Z ##[group]Removing auth
+2026-10-28T17:20:31.0375420Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-28T17:20:31.0437830Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-28T17:20:31.2106600Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-28T17:20:31.2212490Z http.https://github.com/.extraheader
+2026-10-28T17:20:31.2337800Z [command]/opt/homebrew/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-28T17:20:31.2532150Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-28T17:20:31.3883780Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-28T17:20:31.3945550Z [command]/opt/homebrew/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-28T17:20:31.5380100Z ##[endgroup]
+2026-10-28T17:20:31.6905770Z ##[group]Run set -o pipefail
+2026-10-28T17:20:31.6906130Z [36;1mset -o pipefail[0m
+2026-10-28T17:20:31.6906420Z [36;1mmkdir -p feedback-results[0m
+2026-10-28T17:20:31.6906910Z [36;1mpython3 -m unittest discover -s Tests/FeedbackIsolation -v 2>&1 | tee feedback-results/isolation-tests.log[0m
+2026-10-28T17:20:31.6907590Z [36;1mpython3 -m unittest discover -s Tests/InternalBetaIsolation -v 2>&1 | tee feedback-results/internal-beta-isolation-tests.log[0m
+2026-10-28T17:20:31.7711350Z shell: /bin/bash -e {0}
+2026-10-28T17:20:31.7711740Z ##[endgroup]
+2026-10-28T17:20:32.6794270Z test_mutated_feedback_blob_is_rejected (test_isolation.IsolationTests.test_mutated_feedback_blob_is_rejected) ... ok
+2026-10-28T17:20:33.0010610Z test_mutated_protected_blob_is_rejected (test_isolation.IsolationTests.test_mutated_protected_blob_is_rejected) ... ok
+2026-10-28T17:20:33.3132150Z test_stale_event_uses_actual_target_parent (test_isolation.IsolationTests.test_stale_event_uses_actual_target_parent) ... ok
+2026-10-28T17:20:33.6595720Z test_wrong_head_or_wrong_target_ref_is_rejected (test_isolation.IsolationTests.test_wrong_head_or_wrong_target_ref_is_rejected) ... ok
+2026-10-28T17:20:33.6598030Z 
+2026-10-28T17:20:33.6608230Z ----------------------------------------------------------------------
+2026-10-28T17:20:33.6609460Z Ran 4 tests in 1.401s
+2026-10-28T17:20:33.6675190Z 
+2026-10-28T17:20:33.6680820Z OK
+2026-10-28T17:20:34.6404390Z test_approved_ux_does_not_allow_other_changes_in_the_same_directories (test_integration.InternalBetaIntegrationTests.test_approved_ux_does_not_allow_other_changes_in_the_same_directories) ... ok
+2026-10-28T17:20:35.5278400Z test_cli_has_no_fixture_pin_override_and_emits_structured_failure (test_integration.InternalBetaIntegrationTests.test_cli_has_no_fixture_pin_override_and_emits_structured_failure) ... ok
+2026-10-28T17:20:36.4564250Z test_correct_composition_checks_commits_not_dirty_or_untracked_files (test_integration.InternalBetaIntegrationTests.test_correct_composition_checks_commits_not_dirty_or_untracked_files) ... ok
+2026-10-28T17:20:37.4278470Z test_every_approved_ux_file_requires_its_exact_delivered_object (test_integration.InternalBetaIntegrationTests.test_every_approved_ux_file_requires_its_exact_delivered_object) ... ok
+2026-10-28T17:20:39.5311230Z test_exact_feedback_repairs_and_added_test_are_accepted (test_integration.InternalBetaIntegrationTests.test_exact_feedback_repairs_and_added_test_are_accepted) ... ok
+2026-10-28T17:20:40.9579230Z test_feedback_branch_old_screenshot_logic_cannot_replace_official (test_integration.InternalBetaIntegrationTests.test_feedback_branch_old_screenshot_logic_cannot_replace_official) ... ok
+2026-10-28T17:20:41.9055730Z test_feedback_delivery_mutation_is_rejected (test_integration.InternalBetaIntegrationTests.test_feedback_delivery_mutation_is_rejected) ... ok
+2026-10-28T17:20:43.0970470Z test_feedback_repair_policy_rejects_non_feedback_and_non_blob_pins (test_integration.InternalBetaIntegrationTests.test_feedback_repair_policy_rejects_non_feedback_and_non_blob_pins) ... ok
+2026-10-28T17:20:44.3682560Z test_feedback_repairs_do_not_allow_neighbor_mutation_or_addition (test_integration.InternalBetaIntegrationTests.test_feedback_repairs_do_not_allow_neighbor_mutation_or_addition) ... ok
+2026-10-28T17:20:45.1483890Z test_identical_tree_without_delivery_ancestry_is_rejected (test_integration.InternalBetaIntegrationTests.test_identical_tree_without_delivery_ancestry_is_rejected) ... ok
+2026-10-28T17:20:45.9848090Z test_lost_acceptance_file_is_rejected_despite_retained_ancestors (test_integration.InternalBetaIntegrationTests.test_lost_acceptance_file_is_rejected_despite_retained_ancestors) ... ok
+2026-10-28T17:20:47.1356560Z test_missing_added_feedback_regression_is_rejected (test_integration.InternalBetaIntegrationTests.test_missing_added_feedback_regression_is_rejected) ... ok
+2026-10-28T17:20:48.9309440Z test_shared_main_and_other_app_files_need_exact_reviewed_objects (test_integration.InternalBetaIntegrationTests.test_shared_main_and_other_app_files_need_exact_reviewed_objects) ... ok
+2026-10-28T17:20:49.7890720Z test_ux_delivery_must_be_merged_not_copied_on_top_of_existing_beta (test_integration.InternalBetaIntegrationTests.test_ux_delivery_must_be_merged_not_copied_on_top_of_existing_beta) ... ok
+2026-10-28T17:20:49.7893520Z 
+2026-10-28T17:20:49.7894040Z ----------------------------------------------------------------------
+2026-10-28T17:20:49.7895580Z Ran 14 tests in 16.042s
+2026-10-28T17:20:49.7895890Z 
+2026-10-28T17:20:49.7896230Z OK
+2026-10-28T17:20:49.8315000Z ##[group]Run set -o pipefail
+2026-10-28T17:20:49.8315530Z [36;1mset -o pipefail[0m
+2026-10-28T17:20:49.8316060Z [36;1mpython3 scripts/verify-internal-beta-integration.py 2>&1 | tee feedback-results/internal-beta-composition.log[0m
+2026-10-28T17:20:49.8355140Z shell: /bin/bash -e {0}
+2026-10-28T17:20:49.8355410Z ##[endgroup]
+2026-10-28T17:20:51.0482540Z INTERNAL_BETA_INTEGRATION_PASS
+2026-10-28T17:20:51.0488600Z {
+2026-10-28T17:20:51.0491600Z   "checks": [
+2026-10-28T17:20:51.0492300Z     {
+2026-10-28T17:20:51.0493020Z       "expected": "e421e6687651c2fac1441410c1af2bd5b8151e55",
+2026-10-28T17:20:51.0494500Z       "id": "ancestor:official",
+2026-10-28T17:20:51.0495440Z       "result": "PASS"
+2026-10-28T17:20:51.0495750Z     },
+2026-10-28T17:20:51.0496030Z     {
+2026-10-28T17:20:51.0496370Z       "expected": "c177174e400064d8ec8bb79685c33d01c4e93b89",
+2026-10-28T17:20:51.0497440Z       "id": "ancestor:acceptance",
+2026-10-28T17:20:51.0498510Z       "result": "PASS"
+2026-10-28T17:20:51.0499320Z     },
+2026-10-28T17:20:51.0528630Z     {
+2026-10-28T17:20:51.0536930Z       "expected": "f195bebbc22ed1a162b5866ca1fe6c7ccb9835b9",
+2026-10-28T17:20:51.0557800Z       "id": "ancestor:feedback",
+2026-10-28T17:20:51.0558310Z       "result": "PASS"
+2026-10-28T17:20:51.0558790Z     },
+2026-10-28T17:20:51.0559020Z     {
+2026-10-28T17:20:51.0559390Z       "expected": "b4bcfa41e8e237723b975d2a9a0059e955fa0c1f",
+2026-10-28T17:20:51.0559800Z       "id": "ancestor:beta",
+2026-10-28T17:20:51.0561230Z       "result": "PASS"
+2026-10-28T17:20:51.0561610Z     },
+2026-10-28T17:20:51.0562120Z     {
+2026-10-28T17:20:51.0562430Z       "expected": "fa74f3c68f05ab4eaccfc24e2f39c0177289ddb3",
+2026-10-28T17:20:51.0565020Z       "id": "ancestor:experience",
+2026-10-28T17:20:51.0565500Z       "result": "PASS"
+2026-10-28T17:20:51.0565830Z     },
+2026-10-28T17:20:51.0566230Z     {
+2026-10-28T17:20:51.0566590Z       "expected": "8e1a1688e75db8c18965e073ae357010e7397a3a",
+2026-10-28T17:20:51.0567040Z       "id": "ancestor:experience_evidence",
+2026-10-28T17:20:51.0567520Z       "result": "PASS"
+2026-10-28T17:20:51.0572760Z     },
+2026-10-28T17:20:51.0579340Z     {
+2026-10-28T17:20:51.0579880Z       "actual": {
+2026-10-28T17:20:51.0580260Z         "mode": "040000",
+2026-10-28T17:20:51.0580760Z         "oid": "667403bf956c82a49f0520913de2948a12195a75",
+2026-10-28T17:20:51.0581210Z         "type": "tree"
+2026-10-28T17:20:51.0581590Z       },
+2026-10-28T17:20:51.0581910Z       "expected": {
+2026-10-28T17:20:51.0582350Z         "mode": "040000",
+2026-10-28T17:20:51.0582760Z         "oid": "667403bf956c82a49f0520913de2948a12195a75",
+2026-10-28T17:20:51.0583230Z         "type": "tree"
+2026-10-28T17:20:51.0583370Z       },
+2026-10-28T17:20:51.0583710Z       "id": "screenshot:Sources/RiftletCore",
+2026-10-28T17:20:51.0585040Z       "result": "PASS"
+2026-10-28T17:20:51.0585290Z     },
+2026-10-28T17:20:51.0585410Z     {
+2026-10-28T17:20:51.0585600Z       "actual": {
+2026-10-28T17:20:51.0586010Z         "mode": "040000",
+2026-10-28T17:20:51.0587250Z         "oid": "c190891690d9f0fa4073fe5c6b2ddcc78ad633d1",
+2026-10-28T17:20:51.0587630Z         "type": "tree"
+2026-10-28T17:20:51.0587920Z       },
+2026-10-28T17:20:51.0588120Z       "expected": {
+2026-10-28T17:20:51.0588410Z         "mode": "040000",
+2026-10-28T17:20:51.0588690Z         "oid": "c190891690d9f0fa4073fe5c6b2ddcc78ad633d1",
+2026-10-28T17:20:51.0589020Z         "type": "tree"
+2026-10-28T17:20:51.0589180Z       },
+2026-10-28T17:20:51.0589480Z       "id": "screenshot:Sources/RiftletCapture",
+2026-10-28T17:20:51.0589820Z       "result": "PASS"
+2026-10-28T17:20:51.0590160Z     },
+2026-10-28T17:20:51.0590430Z     {
+2026-10-28T17:20:51.0590550Z       "actual": {
+2026-10-28T17:20:51.0590750Z         "mode": "040000",
+2026-10-28T17:20:51.0591010Z         "oid": "812c5bb92275a50b31213bdc2f9a60f2847b222b",
+2026-10-28T17:20:51.0591380Z         "type": "tree"
+2026-10-28T17:20:51.0591580Z       },
+2026-10-28T17:20:51.0591840Z       "expected": {
+2026-10-28T17:20:51.0592530Z         "mode": "040000",
+2026-10-28T17:20:51.0592810Z         "oid": "812c5bb92275a50b31213bdc2f9a60f2847b222b",
+2026-10-28T17:20:51.0593050Z         "type": "tree"
+2026-10-28T17:20:51.0593260Z       },
+2026-10-28T17:20:51.0593450Z       "id": "screenshot:Sources/RiftletAdapters",
+2026-10-28T17:20:51.0593780Z       "result": "PASS"
+2026-10-28T17:20:51.0593990Z     },
+2026-10-28T17:20:51.0594230Z     {
+2026-10-28T17:20:51.0594410Z       "actual": {
+2026-10-28T17:20:51.0594610Z         "mode": "040000",
+2026-10-28T17:20:51.0594900Z         "oid": "b09e2c80f8ca3beaacb84be61d257db6e3ce97b5",
+2026-10-28T17:20:51.0595160Z         "type": "tree"
+2026-10-28T17:20:51.0595340Z       },
+2026-10-28T17:20:51.0595470Z       "expected": {
+2026-10-28T17:20:51.0595730Z         "mode": "040000",
+2026-10-28T17:20:51.0596000Z         "oid": "b09e2c80f8ca3beaacb84be61d257db6e3ce97b5",
+2026-10-28T17:20:51.0596350Z         "type": "tree"
+2026-10-28T17:20:51.0596490Z       },
+2026-10-28T17:20:51.0596750Z       "id": "screenshot:Sources/CSQLite",
+2026-10-28T17:20:51.0597010Z       "result": "PASS"
+2026-10-28T17:20:51.0597270Z     },
+2026-10-28T17:20:51.0597440Z     {
+2026-10-28T17:20:51.0597680Z       "actual": {
+2026-10-28T17:20:51.0597870Z         "mode": "040000",
+2026-10-28T17:20:51.0598230Z         "oid": "760e5d2e74f2237ca17597edd042f2f1d13439ac",
+2026-10-28T17:20:51.0598530Z         "type": "tree"
+2026-10-28T17:20:51.0598740Z       },
+2026-10-28T17:20:51.0598990Z       "expected": {
+2026-10-28T17:20:51.0599210Z         "mode": "040000",
+2026-10-28T17:20:51.0599820Z         "oid": "760e5d2e74f2237ca17597edd042f2f1d13439ac",
+2026-10-28T17:20:51.0600040Z         "type": "tree"
+2026-10-28T17:20:51.0600210Z       },
+2026-10-28T17:20:51.0600350Z       "id": "screenshot:Resources",
+2026-10-28T17:20:51.0600530Z       "result": "PASS"
+2026-10-28T17:20:51.0600760Z     },
+2026-10-28T17:20:51.0600880Z     {
+2026-10-28T17:20:51.0601120Z       "actual": {
+2026-10-28T17:20:51.0601310Z         "mode": "040000",
+2026-10-28T17:20:51.0601640Z         "oid": "89a07e01c183f61fca6bc7d7127322b00fa03ded",
+2026-10-28T17:20:51.0601920Z         "type": "tree"
+2026-10-28T17:20:51.0602140Z       },
+2026-10-28T17:20:51.0602390Z       "expected": {
+2026-10-28T17:20:51.0602650Z         "mode": "040000",
+2026-10-28T17:20:51.0602930Z         "oid": "89a07e01c183f61fca6bc7d7127322b00fa03ded",
+2026-10-28T17:20:51.0603260Z         "type": "tree"
+2026-10-28T17:20:51.0603480Z       },
+2026-10-28T17:20:51.0603710Z       "id": "screenshot:ThirdPartyNotices",
+2026-10-28T17:20:51.0604160Z       "result": "PASS"
+2026-10-28T17:20:51.0604400Z     },
+2026-10-28T17:20:51.0604630Z     {
+2026-10-28T17:20:51.0604790Z       "actual": {
+2026-10-28T17:20:51.0605050Z         "mode": "040000",
+2026-10-28T17:20:51.0605300Z         "oid": "f165a6466d18e6fa523dff89e0536821a6424da6",
+2026-10-28T17:20:51.0605640Z         "type": "tree"
+2026-10-28T17:20:51.0605980Z       },
+2026-10-28T17:20:51.0606270Z       "expected": {
+2026-10-28T17:20:51.0606440Z         "mode": "040000",
+2026-10-28T17:20:51.0606660Z         "oid": "f165a6466d18e6fa523dff89e0536821a6424da6",
+2026-10-28T17:20:51.0606900Z         "type": "tree"
+2026-10-28T17:20:51.0607050Z       },
+2026-10-28T17:20:51.0607230Z       "id": "screenshot:Tests/RiftletCoreTests",
+2026-10-28T17:20:51.0607440Z       "result": "PASS"
+2026-10-28T17:20:51.0607610Z     },
+2026-10-28T17:20:51.0607740Z     {
+2026-10-28T17:20:51.0607880Z       "actual": {
+2026-10-28T17:20:51.0608040Z         "mode": "040000",
+2026-10-28T17:20:51.0608270Z         "oid": "c84ffcbd2d8ee86edfff290af3e7b63f6b06fcbd",
+2026-10-28T17:20:51.0608530Z         "type": "tree"
+2026-10-28T17:20:51.0608690Z       },
+2026-10-28T17:20:51.0608820Z       "expected": {
+2026-10-28T17:20:51.0608990Z         "mode": "040000",
+2026-10-28T17:20:51.0609270Z         "oid": "c84ffcbd2d8ee86edfff290af3e7b63f6b06fcbd",
+2026-10-28T17:20:51.0609620Z         "type": "tree"
+2026-10-28T17:20:51.0609780Z       },
+2026-10-28T17:20:51.0609960Z       "id": "screenshot:Tests/RiftletCaptureTests",
+2026-10-28T17:20:51.0610430Z       "result": "PASS"
+2026-10-28T17:20:51.0610600Z     },
+2026-10-28T17:20:51.0610720Z     {
+2026-10-28T17:20:51.0610840Z       "actual": {
+2026-10-28T17:20:51.0610970Z         "mode": "040000",
+2026-10-28T17:20:51.0611200Z         "oid": "3a91e6bd85a234b18288d10da84c14a64c8f7a70",
+2026-10-28T17:20:51.0611440Z         "type": "tree"
+2026-10-28T17:20:51.0611590Z       },
+2026-10-28T17:20:51.0611740Z       "expected": {
+2026-10-28T17:20:51.0611910Z         "mode": "040000",
+2026-10-28T17:20:51.0612110Z         "oid": "3a91e6bd85a234b18288d10da84c14a64c8f7a70",
+2026-10-28T17:20:51.0612350Z         "type": "tree"
+2026-10-28T17:20:51.0612500Z       },
+2026-10-28T17:20:51.0612720Z       "id": "screenshot:Tests/RiftletAdaptersTests",
+2026-10-28T17:20:51.0612960Z       "result": "PASS"
+2026-10-28T17:20:51.0613120Z     },
+2026-10-28T17:20:51.0613250Z     {
+2026-10-28T17:20:51.0613390Z       "actual": {
+2026-10-28T17:20:51.0613540Z         "mode": "040000",
+2026-10-28T17:20:51.0613750Z         "oid": "7996141e99298ff29e77f2ef8b2bc53b6a67b4be",
+2026-10-28T17:20:51.0614000Z         "type": "tree"
+2026-10-28T17:20:51.0614170Z       },
+2026-10-28T17:20:51.0614310Z       "expected": {
+2026-10-28T17:20:51.0614460Z         "mode": "040000",
+2026-10-28T17:20:51.0614670Z         "oid": "7996141e99298ff29e77f2ef8b2bc53b6a67b4be",
+2026-10-28T17:20:51.0614910Z         "type": "tree"
+2026-10-28T17:20:51.0615070Z       },
+2026-10-28T17:20:51.0615230Z       "id": "screenshot:Tests/WebPageProgram",
+2026-10-28T17:20:51.0615470Z       "result": "PASS"
+2026-10-28T17:20:51.0615810Z     },
+2026-10-28T17:20:51.0615940Z     {
+2026-10-28T17:20:51.0616080Z       "actual": {
+2026-10-28T17:20:51.0616250Z         "mode": "100644",
+2026-10-28T17:20:51.0616570Z         "oid": "060db249bc159b3eee1c1b7d0a0eb87d3f43cc30",
+2026-10-28T17:20:51.0616800Z         "type": "blob"
+2026-10-28T17:20:51.0616980Z       },
+2026-10-28T17:20:51.0617100Z       "expected": {
+2026-10-28T17:20:51.0617240Z         "mode": "100644",
+2026-10-28T17:20:51.0617480Z         "oid": "060db249bc159b3eee1c1b7d0a0eb87d3f43cc30",
+2026-10-28T17:20:51.0617780Z         "type": "blob"
+2026-10-28T17:20:51.0617920Z       },
+2026-10-28T17:20:51.0618130Z       "id": "experience:Sources/RiftletApp/ProductStatus.swift",
+2026-10-28T17:20:51.0618410Z       "result": "PASS"
+2026-10-28T17:20:51.0618570Z     },
+2026-10-28T17:20:51.0618700Z     {
+2026-10-28T17:20:51.0618830Z       "actual": {
+2026-10-28T17:20:51.0618980Z         "mode": "100644",
+2026-10-28T17:20:51.0619190Z         "oid": "7a5a494f0a98518d3f18a04decacbf2a0ac292a6",
+2026-10-28T17:20:51.0619440Z         "type": "blob"
+2026-10-28T17:20:51.0619600Z       },
+2026-10-28T17:20:51.0619720Z       "expected": {
+2026-10-28T17:20:51.0619900Z         "mode": "100644",
+2026-10-28T17:20:51.0620100Z         "oid": "7a5a494f0a98518d3f18a04decacbf2a0ac292a6",
+2026-10-28T17:20:51.0620330Z         "type": "blob"
+2026-10-28T17:20:51.0620490Z       },
+2026-10-28T17:20:51.0620800Z       "id": "experience:Sources/RiftletApp/SelectionSubmissionQueue.swift",
+2026-10-28T17:20:51.0621130Z       "result": "PASS"
+2026-10-28T17:20:51.0621290Z     },
+2026-10-28T17:20:51.0621420Z     {
+2026-10-28T17:20:51.0621560Z       "actual": {
+2026-10-28T17:20:51.0621700Z         "mode": "100644",
+2026-10-28T17:20:51.0621900Z         "oid": "164e43c3ece94234a77884d5d58f5a86a2cf9d1b",
+2026-10-28T17:20:51.0622130Z         "type": "blob"
+2026-10-28T17:20:51.0622260Z       },
+2026-10-28T17:20:51.0622430Z       "expected": {
+2026-10-28T17:20:51.0622610Z         "mode": "100644",
+2026-10-28T17:20:51.0622810Z         "oid": "164e43c3ece94234a77884d5d58f5a86a2cf9d1b",
+2026-10-28T17:20:51.0623060Z         "type": "blob"
+2026-10-28T17:20:51.0623210Z       },
+2026-10-28T17:20:51.0623430Z       "id": "experience:Sources/RiftletGUIAcceptance/AcceptanceMain.swift",
+2026-10-28T17:20:51.0623720Z       "result": "PASS"
+2026-10-28T17:20:51.0623870Z     },
+2026-10-28T17:20:51.0623980Z     {
+2026-10-28T17:20:51.0624090Z       "actual": {
+2026-10-28T17:20:51.0624230Z         "mode": "100644",
+2026-10-28T17:20:51.0624610Z         "oid": "76014911d0c28fae18290a9e1042f01456612fcd",
+2026-10-28T17:20:51.0624840Z         "type": "blob"
+2026-10-28T17:20:51.0624980Z       },
+2026-10-28T17:20:51.0625100Z       "expected": {
+2026-10-28T17:20:51.0625240Z         "mode": "100644",
+2026-10-28T17:20:51.0625590Z         "oid": "76014911d0c28fae18290a9e1042f01456612fcd",
+2026-10-28T17:20:51.0625830Z         "type": "blob"
+2026-10-28T17:20:51.0625960Z       },
+2026-10-28T17:20:51.0626160Z       "id": "experience:Sources/RiftletUI/RiftPanelController.swift",
+2026-10-28T17:20:51.0626430Z       "result": "PASS"
+2026-10-28T17:20:51.0626580Z     },
+2026-10-28T17:20:51.0626700Z     {
+2026-10-28T17:20:51.0626820Z       "actual": {
+2026-10-28T17:20:51.0626960Z         "mode": "100644",
+2026-10-28T17:20:51.0627150Z         "oid": "1d549b18a42083fd39d6c6ca98aeff2f83464c8a",
+2026-10-28T17:20:51.0627380Z         "type": "blob"
+2026-10-28T17:20:51.0627520Z       },
+2026-10-28T17:20:51.0627640Z       "expected": {
+2026-10-28T17:20:51.0627780Z         "mode": "100644",
+2026-10-28T17:20:51.0627980Z         "oid": "1d549b18a42083fd39d6c6ca98aeff2f83464c8a",
+2026-10-28T17:20:51.0628200Z         "type": "blob"
+2026-10-28T17:20:51.0628340Z       },
+2026-10-28T17:20:51.0628550Z       "id": "experience:Tests/RiftletAppTests/ProductStatusTests.swift",
+2026-10-28T17:20:51.0628820Z       "result": "PASS"
+2026-10-28T17:20:51.0628960Z     },
+2026-10-28T17:20:51.0629070Z     {
+2026-10-28T17:20:51.0629190Z       "actual": {
+2026-10-28T17:20:51.0629360Z         "mode": "100644",
+2026-10-28T17:20:51.0629740Z         "oid": "5159c7ca08d02b6020ff667c1e42e484ca00a5fa",
+2026-10-28T17:20:51.0630020Z         "type": "blob"
+2026-10-28T17:20:51.0630180Z       },
+2026-10-28T17:20:51.0630320Z       "expected": {
+2026-10-28T17:20:51.0630480Z         "mode": "100644",
+2026-10-28T17:20:51.0630690Z         "oid": "5159c7ca08d02b6020ff667c1e42e484ca00a5fa",
+2026-10-28T17:20:51.0631010Z         "type": "blob"
+2026-10-28T17:20:51.0631160Z       },
+2026-10-28T17:20:51.0705080Z       "id": "experience:Tests/RiftletAppTests/SelectionSubmissionQueueTests.swift",
+2026-10-28T17:20:51.0708890Z       "result": "PASS"
+2026-10-28T17:20:51.0709370Z     },
+2026-10-28T17:20:51.0709720Z     {
+2026-10-28T17:20:51.0710420Z       "actual": {
+2026-10-28T17:20:51.0710840Z         "mode": "100644",
+2026-10-28T17:20:51.0711430Z         "oid": "0ef5ea00170baedbc6c459822d9b10e59a28c58d",
+2026-10-28T17:20:51.0711690Z         "type": "blob"
+2026-10-28T17:20:51.0711840Z       },
+2026-10-28T17:20:51.0711970Z       "expected": {
+2026-10-28T17:20:51.0712120Z         "mode": "100644",
+2026-10-28T17:20:51.0712320Z         "oid": "0ef5ea00170baedbc6c459822d9b10e59a28c58d",
+2026-10-28T17:20:51.0712540Z         "type": "blob"
+2026-10-28T17:20:51.0712680Z       },
+2026-10-28T17:20:51.0712920Z       "id": "experience:Tests/RiftletUITests/PresentationBoundaryTests.swift",
+2026-10-28T17:20:51.0713220Z       "result": "PASS"
+2026-10-28T17:20:51.0713370Z     },
+2026-10-28T17:20:51.0713490Z     {
+2026-10-28T17:20:51.0713630Z       "actualFileCount": 6,
+2026-10-28T17:20:51.0713800Z       "added": [],
+2026-10-28T17:20:51.0713940Z       "changed": [],
+2026-10-28T17:20:51.0714100Z       "expectedFileCount": 6,
+2026-10-28T17:20:51.0714300Z       "id": "feedback:Sources/RiftletFeedback",
+2026-10-28T17:20:51.0714510Z       "missing": [],
+2026-10-28T17:20:51.0714660Z       "result": "PASS"
+2026-10-28T17:20:51.0714810Z     },
+2026-10-28T17:20:51.0714920Z     {
+2026-10-28T17:20:51.0715050Z       "actualFileCount": 1,
+2026-10-28T17:20:51.0715220Z       "added": [],
+2026-10-28T17:20:51.0715360Z       "changed": [],
+2026-10-28T17:20:51.0715520Z       "expectedFileCount": 1,
+2026-10-28T17:20:51.0715720Z       "id": "feedback:Sources/RiftletFeedbackUI",
+2026-10-28T17:20:51.0715930Z       "missing": [],
+2026-10-28T17:20:51.0716080Z       "result": "PASS"
+2026-10-28T17:20:51.0716220Z     },
+2026-10-28T17:20:51.0716340Z     {
+2026-10-28T17:20:51.0716470Z       "actualFileCount": 1,
+2026-10-28T17:20:51.0716630Z       "added": [],
+2026-10-28T17:20:51.0717320Z       "changed": [],
+2026-10-28T17:20:51.0717490Z       "expectedFileCount": 1,
+2026-10-28T17:20:51.0717700Z       "id": "feedback:Sources/RiftletFeedbackDemo",
+2026-10-28T17:20:51.0717920Z       "missing": [],
+2026-10-28T17:20:51.0718070Z       "result": "PASS"
+2026-10-28T17:20:51.0718210Z     },
+2026-10-28T17:20:51.0718330Z     {
+2026-10-28T17:20:51.0718450Z       "actualFileCount": 1,
+2026-10-28T17:20:51.0718610Z       "added": [],
+2026-10-28T17:20:51.0718750Z       "changed": [],
+2026-10-28T17:20:51.0718910Z       "expectedFileCount": 1,
+2026-10-28T17:20:51.0719140Z       "id": "feedback:Sources/RiftletApp/FeedbackHost.swift",
+2026-10-28T17:20:51.0719380Z       "missing": [],
+2026-10-28T17:20:51.0719520Z       "result": "PASS"
+2026-10-28T17:20:51.0719670Z     },
+2026-10-28T17:20:51.0719780Z     {
+2026-10-28T17:20:51.0719910Z       "actualFileCount": 6,
+2026-10-28T17:20:51.0720070Z       "added": [],
+2026-10-28T17:20:51.0720210Z       "changed": [],
+2026-10-28T17:20:51.0720370Z       "expectedFileCount": 6,
+2026-10-28T17:20:51.0720570Z       "id": "feedback:Tests/RiftletFeedbackTests",
+2026-10-28T17:20:51.0720780Z       "missing": [],
+2026-10-28T17:20:51.0720930Z       "result": "PASS"
+2026-10-28T17:20:51.0721080Z     },
+2026-10-28T17:20:51.0721190Z     {
+2026-10-28T17:20:51.0721320Z       "actualFileCount": 2,
+2026-10-28T17:20:51.0721480Z       "added": [],
+2026-10-28T17:20:51.0721610Z       "changed": [],
+2026-10-28T17:20:51.0721770Z       "expectedFileCount": 2,
+2026-10-28T17:20:51.0721980Z       "id": "feedback:Tests/RiftletFeedbackUITests",
+2026-10-28T17:20:51.0722460Z       "missing": [],
+2026-10-28T17:20:51.0722610Z       "result": "PASS"
+2026-10-28T17:20:51.0722750Z     },
+2026-10-28T17:20:51.0722870Z     {
+2026-10-28T17:20:51.0723000Z       "actualFileCount": 1,
+2026-10-28T17:20:51.0723170Z       "added": [],
+2026-10-28T17:20:51.0723300Z       "changed": [],
+2026-10-28T17:20:51.0723460Z       "expectedFileCount": 1,
+2026-10-28T17:20:51.0723670Z       "id": "feedback:Tests/FeedbackIsolation",
+2026-10-28T17:20:51.0723870Z       "missing": [],
+2026-10-28T17:20:51.0724020Z       "result": "PASS"
+2026-10-28T17:20:51.0724160Z     },
+2026-10-28T17:20:51.0724280Z     {
+2026-10-28T17:20:51.0724400Z       "actualFileCount": 9,
+2026-10-28T17:20:51.0724570Z       "added": [],
+2026-10-28T17:20:51.0724710Z       "changed": [],
+2026-10-28T17:20:51.0724860Z       "expectedFileCount": 9,
+2026-10-28T17:20:51.0725050Z       "id": "feedback:services/feedback",
+2026-10-28T17:20:51.0725240Z       "missing": [],
+2026-10-28T17:20:51.0725390Z       "result": "PASS"
+2026-10-28T17:20:51.0725530Z     },
+2026-10-28T17:20:51.0725640Z     {
+2026-10-28T17:20:51.0725770Z       "actualFileCount": 1,
+2026-10-28T17:20:51.0725930Z       "added": [],
+2026-10-28T17:20:51.0726070Z       "changed": [],
+2026-10-28T17:20:51.0726220Z       "expectedFileCount": 1,
+2026-10-28T17:20:51.0726410Z       "id": "feedback:Package.swift",
+2026-10-28T17:20:51.0726590Z       "missing": [],
+2026-10-28T17:20:51.0726740Z       "result": "PASS"
+2026-10-28T17:20:51.0726890Z     },
+2026-10-28T17:20:51.0727000Z     {
+2026-10-28T17:20:51.0727130Z       "actualFileCount": 1,
+2026-10-28T17:20:51.0727290Z       "added": [],
+2026-10-28T17:20:51.0727430Z       "changed": [],
+2026-10-28T17:20:51.0727590Z       "expectedFileCount": 1,
+2026-10-28T17:20:51.0727800Z       "id": "feedback:scripts/build-feedback-demo.sh",
+2026-10-28T17:20:51.0728020Z       "missing": [],
+2026-10-28T17:20:51.0728170Z       "result": "PASS"
+2026-10-28T17:20:51.0728310Z     },
+2026-10-28T17:20:51.0728430Z     {
+2026-10-28T17:20:51.0728560Z       "actualFileCount": 1,
+2026-10-28T17:20:51.0728720Z       "added": [],
+2026-10-28T17:20:51.0728860Z       "changed": [],
+2026-10-28T17:20:51.0729010Z       "expectedFileCount": 1,
+2026-10-28T17:20:51.0729240Z       "id": "feedback:scripts/verify-feedback-isolation.sh",
+2026-10-28T17:20:51.0729470Z       "missing": [],
+2026-10-28T17:20:51.0729620Z       "result": "PASS"
+2026-10-28T17:20:51.0729760Z     },
+2026-10-28T17:20:51.0729870Z     {
+2026-10-28T17:20:51.0730170Z       "actual": {
+2026-10-28T17:20:51.0730330Z         "mode": "040000",
+2026-10-28T17:20:51.0730530Z         "oid": "08ae1fce57c7a8776dc7329c792fcb06ad9da4ba",
+2026-10-28T17:20:51.0730750Z         "type": "tree"
+2026-10-28T17:20:51.0730890Z       },
+2026-10-28T17:20:51.0731020Z       "expected": {
+2026-10-28T17:20:51.0731160Z         "mode": "040000",
+2026-10-28T17:20:51.0731360Z         "oid": "08ae1fce57c7a8776dc7329c792fcb06ad9da4ba",
+2026-10-28T17:20:51.0731580Z         "type": "tree"
+2026-10-28T17:20:51.0731730Z       },
+2026-10-28T17:20:51.0731970Z       "id": "acceptance:engineering/evidence/2026-10-28-system-screenshot-swallow",
+2026-10-28T17:20:51.0732270Z       "result": "PASS"
+2026-10-28T17:20:51.0732410Z     },
+2026-10-28T17:20:51.0732530Z     {
+2026-10-28T17:20:51.0732640Z       "actual": {
+2026-10-28T17:20:51.0732790Z         "mode": "040000",
+2026-10-28T17:20:51.0732980Z         "oid": "5d7313dda5a6c99ef152f3a7b2eec67c544fafbc",
+2026-10-28T17:20:51.0733210Z         "type": "tree"
+2026-10-28T17:20:51.0733350Z       },
+2026-10-28T17:20:51.0733470Z       "expected": {
+2026-10-28T17:20:51.0733620Z         "mode": "040000",
+2026-10-28T17:20:51.0733810Z         "oid": "5d7313dda5a6c99ef152f3a7b2eec67c544fafbc",
+2026-10-28T17:20:51.0734030Z         "type": "tree"
+2026-10-28T17:20:51.0734170Z       },
+2026-10-28T17:20:51.0734380Z       "id": "experience-evidence:engineering/evidence/2026-10-28-beta-ux",
+2026-10-28T17:20:51.0734650Z       "result": "PASS"
+2026-10-28T17:20:51.0734800Z     },
+2026-10-28T17:20:51.0735040Z     {
+2026-10-28T17:20:51.0735170Z       "actualFileCount": 8,
+2026-10-28T17:20:51.0735330Z       "added": [],
+2026-10-28T17:20:51.0735470Z       "changed": [],
+2026-10-28T17:20:51.0735630Z       "expectedFileCount": 8,
+2026-10-28T17:20:51.0735840Z       "id": "experience:unmodified:Sources/RiftletUI",
+2026-10-28T17:20:51.0736060Z       "missing": [],
+2026-10-28T17:20:51.0736210Z       "result": "PASS"
+2026-10-28T17:20:51.0736350Z     },
+2026-10-28T17:20:51.0736460Z     {
+2026-10-28T17:20:51.0736600Z       "actualFileCount": 4,
+2026-10-28T17:20:51.0736760Z       "added": [],
+2026-10-28T17:20:51.0736910Z       "changed": [],
+2026-10-28T17:20:51.0737060Z       "expectedFileCount": 4,
+2026-10-28T17:20:51.0737300Z       "id": "experience:unmodified:Sources/RiftletGUIAcceptance",
+2026-10-28T17:20:51.0737540Z       "missing": [],
+2026-10-28T17:20:51.0737690Z       "result": "PASS"
+2026-10-28T17:20:51.0737830Z     },
+2026-10-28T17:20:51.0737950Z     {
+2026-10-28T17:20:51.0738070Z       "actualFileCount": 7,
+2026-10-28T17:20:51.0738240Z       "added": [],
+2026-10-28T17:20:51.0738380Z       "changed": [],
+2026-10-28T17:20:51.0738530Z       "expectedFileCount": 7,
+2026-10-28T17:20:51.0738750Z       "id": "experience:unmodified:Tests/RiftletUITests",
+2026-10-28T17:20:51.0738970Z       "missing": [],
+2026-10-28T17:20:51.0739120Z       "result": "PASS"
+2026-10-28T17:20:51.0739260Z     },
+2026-10-28T17:20:51.0739370Z     {
+2026-10-28T17:20:51.0739500Z       "actualFileCount": 9,
+2026-10-28T17:20:51.0739660Z       "added": [],
+2026-10-28T17:20:51.0739800Z       "changed": [],
+2026-10-28T17:20:51.0739960Z       "expectedFileCount": 9,
+2026-10-28T17:20:51.0740180Z       "id": "experience:unmodified:Tests/RiftletAppTests",
+2026-10-28T17:20:51.0740410Z       "missing": [],
+2026-10-28T17:20:51.0740560Z       "result": "PASS"
+2026-10-28T17:20:51.0740700Z     },
+2026-10-28T17:20:51.0740820Z     {
+2026-10-28T17:20:51.0740950Z       "actualFileCount": 14,
+2026-10-28T17:20:51.0741120Z       "added": [],
+2026-10-28T17:20:51.0741260Z       "changed": [],
+2026-10-28T17:20:51.0741420Z       "expectedFileCount": 14,
+2026-10-28T17:20:51.0741600Z       "id": "app:original-files",
+2026-10-28T17:20:51.0741780Z       "missing": [],
+2026-10-28T17:20:51.0741930Z       "result": "PASS"
+2026-10-28T17:20:51.0742070Z     },
+2026-10-28T17:20:51.0742190Z     {
+2026-10-28T17:20:51.0742300Z       "actual": {
+2026-10-28T17:20:51.0742440Z         "mode": "100644",
+2026-10-28T17:20:51.0742750Z         "oid": "05fe28ec734ba0d8c040810c737b26715a33d5de",
+2026-10-28T17:20:51.0742980Z         "type": "blob"
+2026-10-28T17:20:51.0743130Z       },
+2026-10-28T17:20:51.0743250Z       "expected": {
+2026-10-28T17:20:51.0743390Z         "mode": "100644",
+2026-10-28T17:20:51.0743580Z         "oid": "05fe28ec734ba0d8c040810c737b26715a33d5de",
+2026-10-28T17:20:51.0743800Z         "type": "blob"
+2026-10-28T17:20:51.0743950Z       },
+2026-10-28T17:20:51.0744090Z       "id": "app:reviewed-main",
+2026-10-28T17:20:51.0744260Z       "result": "PASS"
+2026-10-28T17:20:51.0744410Z     }
+2026-10-28T17:20:51.0744530Z   ],
+2026-10-28T17:20:51.0744650Z   "parents": [
+2026-10-28T17:20:51.0744810Z     "1920e0562db893a3292af89a89270a26ddb46a5f",
+2026-10-28T17:20:51.0745040Z     "7ef6cd4bfd6e22605b0d97db37e249a8d94797c1"
+2026-10-28T17:20:51.0745270Z   ],
+2026-10-28T17:20:51.0745390Z   "policy": {
+2026-10-28T17:20:51.0745620Z     "acceptance": "c177174e400064d8ec8bb79685c33d01c4e93b89",
+2026-10-28T17:20:51.0745910Z     "beta": "b4bcfa41e8e237723b975d2a9a0059e955fa0c1f",
+2026-10-28T17:20:51.0746190Z     "experience": "fa74f3c68f05ab4eaccfc24e2f39c0177289ddb3",
+2026-10-28T17:20:51.0746510Z     "experienceEvidence": "8e1a1688e75db8c18965e073ae357010e7397a3a",
+2026-10-28T17:20:51.0746830Z     "feedback": "f195bebbc22ed1a162b5866ca1fe6c7ccb9835b9",
+2026-10-28T17:20:51.0747080Z     "feedbackUpdates": {
+2026-10-28T17:20:51.0747400Z       "Sources/RiftletFeedback/FeedbackEngine.swift": "364bf1ad9f47ea820a82522ad7af3ab8a8ef7a91",
+2026-10-28T17:20:51.0747990Z       "Sources/RiftletFeedback/FeedbackStore.swift": "e00e5722d09b38257777aa105828ced889d36ff2",
+2026-10-28T17:20:51.0748920Z       "Sources/RiftletFeedbackUI/FeedbackWindowController.swift": "b9f2bb1418112f6dae35a2d4a33a9ef28ff7e39e",
+2026-10-28T17:20:51.0749540Z       "Tests/RiftletFeedbackTests/FeedbackAutomaticRetryTests.swift": "3cacdac27aac9e8bd6ef9396f5f5c3e72ed352f3",
+2026-10-28T17:20:51.0750170Z       "Tests/RiftletFeedbackTests/FeedbackPrivacyCleanupTests.swift": "2ec47c6f7c984194e89f9bcadc26cc1ce4eef059",
+2026-10-28T17:20:51.0750740Z       "Tests/RiftletFeedbackTests/FeedbackTests.swift": "507fe2ff7485078ab3b6d4dd11b12448c70559ca",
+2026-10-28T17:20:51.0751290Z       "Tests/RiftletFeedbackUITests/FeedbackCloseTests.swift": "657d62ff9fde0863064a959326324d0938abc971",
+2026-10-28T17:20:51.0751860Z       "Tests/RiftletFeedbackUITests/FeedbackWindowTests.swift": "437712acf5eeca9c4aaa4961ed1b35ed275e5333",
+2026-10-28T17:20:51.0752410Z       "services/feedback/README.md": "bf1fad3c7343ec931a5da8fe2e37ff4cbfc697ec",
+2026-10-28T17:20:51.0752840Z       "services/feedback/delivery.mjs": "11c853d9a72cc8d9e2ee63be7efaf0e42a476d6c",
+2026-10-28T17:20:51.0753270Z       "services/feedback/feedback.test.mjs": "4ff61e5f3d0125c03feda989a9559ca4c42209af",
+2026-10-28T17:20:51.0753740Z       "services/feedback/wrangler.delivery.jsonc": "6fdd3bba7a3a1ca04149428bf420df222385ffd7"
+2026-10-28T17:20:51.0754070Z     },
+2026-10-28T17:20:51.0754240Z     "mainBlob": "05fe28ec734ba0d8c040810c737b26715a33d5de",
+2026-10-28T17:20:51.0754530Z     "official": "e421e6687651c2fac1441410c1af2bd5b8151e55"
+2026-10-28T17:20:51.0754750Z   },
+2026-10-28T17:20:51.0754870Z   "result": "PASS",
+2026-10-28T17:20:51.0755060Z   "revision": "05e5f5e538a2780d039491a53317a21bd00f4dd0",
+2026-10-28T17:20:51.0755300Z   "revisionRequested": "HEAD",
+2026-10-28T17:20:51.0755470Z   "schemaVersion": 2,
+2026-10-28T17:20:51.0755660Z   "tree": "2d7c8de6c5e982b18586b68429ae80d890e5edf4"
+2026-10-28T17:20:51.0755870Z }
+2026-10-28T17:20:51.0941830Z ##[group]Run set -o pipefail
+2026-10-28T17:20:51.0942070Z [36;1mset -o pipefail[0m
+2026-10-28T17:20:51.0942250Z [36;1mmkdir -p feedback-results[0m
+2026-10-28T17:20:51.0942450Z [36;1mswift --version[0m
+2026-10-28T17:20:51.0942610Z [36;1msw_vers[0m
+2026-10-28T17:20:51.0942750Z [36;1mnode --version[0m
+2026-10-28T17:20:51.0943260Z [36;1mnode --experimental-sqlite --test services/feedback/feedback.test.mjs services/feedback/retention.test.mjs 2>&1 | tee feedback-results/service.log[0m
+2026-10-28T17:20:51.0975610Z shell: /bin/bash -e {0}
+2026-10-28T17:20:51.0975780Z ##[endgroup]
+2026-10-28T17:20:54.4427080Z Apple Swift version 6.1.2 (swiftlang-6.1.2.1.2 clang-1700.0.13.5)
+2026-10-28T17:20:54.4428380Z Target: arm64-apple-macosx15.0
+2026-10-28T17:20:54.4645510Z ProductName:		macOS
+2026-10-28T17:20:54.4648210Z ProductVersion:		15.7.9
+2026-10-28T17:20:54.4651480Z BuildVersion:		24G830
+2026-10-28T17:20:54.6315100Z v22.23.2
+2026-10-28T17:20:54.9252220Z TAP version 13
+2026-10-28T17:20:55.1546370Z # (node:3167) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+2026-10-28T17:20:55.1600080Z # (Use `node --trace-warnings ...` to show where the warning was created)
+2026-10-28T17:20:55.2059910Z # Subtest: real SQLite receipt is durable and same report/body/secret is idempotent under overlapping requests
+2026-10-28T17:20:55.2162780Z ok 1 - real SQLite receipt is durable and same report/body/secret is idempotent under overlapping requests
+2026-10-28T17:20:55.2265230Z   ---
+2026-10-28T17:20:55.2367190Z   duration_ms: 109.531208
+2026-10-28T17:20:55.2473660Z   type: 'test'
+2026-10-28T17:20:55.2487900Z   ...
+2026-10-28T17:20:55.2491910Z # Subtest: D1 write failure never acknowledges; exact original request can recover
+2026-10-28T17:20:55.2492780Z ok 2 - D1 write failure never acknowledges; exact original request can recover
+2026-10-28T17:20:55.2495090Z   ---
+2026-10-28T17:20:55.2504640Z   duration_ms: 20.553709
+2026-10-28T17:20:55.2507840Z   type: 'test'
+2026-10-28T17:20:55.2510060Z   ...
+2026-10-28T17:20:55.2511690Z # Subtest: strict diagnostics and body whitelist reject raw identifiers and secrets; plain feedback excludes diagnostics
+2026-10-28T17:20:55.2516460Z ok 3 - strict diagnostics and body whitelist reject raw identifiers and secrets; plain feedback excludes diagnostics
+2026-10-28T17:20:55.2518140Z   ---
+2026-10-28T17:20:55.2518790Z   duration_ms: 12.291291
+2026-10-28T17:20:55.2519460Z   type: 'test'
+2026-10-28T17:20:55.2520140Z   ...
+2026-10-28T17:20:55.2520970Z # Subtest: SQL quota rejects insertion atomically and duplicate receipts do not consume quota
+2026-10-28T17:20:55.2529090Z ok 4 - SQL quota rejects insertion atomically and duplicate receipts do not consume quota
+2026-10-28T17:20:55.2529610Z   ---
+2026-10-28T17:20:55.2529780Z   duration_ms: 8.025917
+2026-10-28T17:20:55.2530950Z   type: 'test'
+2026-10-28T17:20:55.2531220Z   ...
+2026-10-28T17:20:55.2532870Z # Subtest: delivery enforces private destination, durable intent and one issue across overlapping dispatcher calls
+2026-10-28T17:20:55.2533650Z ok 5 - delivery enforces private destination, durable intent and one issue across overlapping dispatcher calls
+2026-10-28T17:20:55.2535460Z   ---
+2026-10-28T17:20:55.2535930Z   duration_ms: 9.763042
+2026-10-28T17:20:55.2536670Z   type: 'test'
+2026-10-28T17:20:55.2537290Z   ...
+2026-10-28T17:20:55.2537900Z # Subtest: public repository refuses all content delivery
+2026-10-28T17:20:55.2538780Z ok 6 - public repository refuses all content delivery
+2026-10-28T17:20:55.2539620Z   ---
+2026-10-28T17:20:55.2540320Z   duration_ms: 5.502541
+2026-10-28T17:20:55.2540970Z   type: 'test'
+2026-10-28T17:20:55.2545180Z   ...
+2026-10-28T17:20:55.2796830Z # Subtest: lost GitHub response reconciles original issue without repeating POST
+2026-10-28T17:20:55.2798680Z ok 7 - lost GitHub response reconciles original issue without repeating POST
+2026-10-28T17:20:55.2799190Z   ---
+2026-10-28T17:20:55.2799460Z   duration_ms: 33.155708
+2026-10-28T17:20:55.2799880Z   type: 'test'
+2026-10-28T17:20:55.2801410Z   ...
+2026-10-28T17:20:55.2861030Z # Subtest: uncertain POST with no observable issue never blind-retries
+2026-10-28T17:20:55.2864080Z ok 8 - uncertain POST with no observable issue never blind-retries
+2026-10-28T17:20:55.2865910Z   ---
+2026-10-28T17:20:55.2867270Z   duration_ms: 5.034958
+2026-10-28T17:20:55.2868660Z   type: 'test'
+2026-10-28T17:20:55.2872580Z   ...
+2026-10-28T17:20:55.3484880Z # Subtest: reconciliation stays within free Worker request budget and leaves later reports eligible
+2026-10-28T17:20:55.3534960Z ok 9 - reconciliation stays within free Worker request budget and leaves later reports eligible
+2026-10-28T17:20:55.3536190Z   ---
+2026-10-28T17:20:55.3544130Z   duration_ms: 61.624916
+2026-10-28T17:20:55.3545240Z   type: 'test'
+2026-10-28T17:20:55.3546020Z   ...
+2026-10-28T17:20:55.3583500Z # Subtest: deletion before input stops delivery; late POST acknowledges deletion_pending, not deletion complete
+2026-10-28T17:20:55.3584390Z ok 10 - deletion before input stops delivery; late POST acknowledges deletion_pending, not deletion complete
+2026-10-28T17:20:55.3584990Z   ---
+2026-10-28T17:20:55.3585270Z   duration_ms: 12.731792
+2026-10-28T17:20:55.3585540Z   type: 'test'
+2026-10-28T17:20:55.3585870Z   ...
+2026-10-28T17:20:55.3645540Z # Subtest: deletion after claim but before POST resolves without an imaginary remote deletion obligation
+2026-10-28T17:20:55.3647600Z ok 11 - deletion after claim but before POST resolves without an imaginary remote deletion obligation
+2026-10-28T17:20:55.3648940Z   ---
+2026-10-28T17:20:55.3685550Z   duration_ms: 3.659667
+2026-10-28T17:20:55.3686300Z   type: 'test'
+2026-10-28T17:20:55.3686570Z   ...
+2026-10-28T17:20:55.3717080Z # Subtest: expired pending text is removed honestly; restore of attempting remains observation-only
+2026-10-28T17:20:55.3721020Z ok 12 - expired pending text is removed honestly; restore of attempting remains observation-only
+2026-10-28T17:20:55.3721620Z   ---
+2026-10-28T17:20:55.3721910Z   duration_ms: 9.826333
+2026-10-28T17:20:55.3722250Z   type: 'test'
+2026-10-28T17:20:55.3722490Z   ...
+2026-10-28T17:20:55.3799410Z # Subtest: capabilities never transfer; old IDs and switch-off fail closed
+2026-10-28T17:20:55.3799890Z ok 13 - capabilities never transfer; old IDs and switch-off fail closed
+2026-10-28T17:20:55.3800190Z   ---
+2026-10-28T17:20:55.3800340Z   duration_ms: 2.174875
+2026-10-28T17:20:55.3800530Z   type: 'test'
+2026-10-28T17:20:55.3800680Z   ...
+2026-10-28T17:20:55.3800920Z # Subtest: Swift and service share exactly the same closed fact vocabulary
+2026-10-28T17:20:55.3801310Z ok 14 - Swift and service share exactly the same closed fact vocabulary
+2026-10-28T17:20:55.3801590Z   ---
+2026-10-28T17:20:55.3801740Z   duration_ms: 6.144416
+2026-10-28T17:20:55.3801940Z   type: 'test'
+2026-10-28T17:20:55.3802080Z   ...
+2026-10-28T17:20:55.3853810Z # (node:3168) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+2026-10-28T17:20:55.3855150Z # (Use `node --trace-warnings ...` to show where the warning was created)
+2026-10-28T17:20:55.3856480Z # Subtest: expiry scrubs payload and report IP bucket; never-attempted expired report can be deleted
+2026-10-28T17:20:55.3857930Z ok 15 - expiry scrubs payload and report IP bucket; never-attempted expired report can be deleted
+2026-10-28T17:20:55.3858910Z   ---
+2026-10-28T17:20:55.3859300Z   duration_ms: 106.119625
+2026-10-28T17:20:55.3859810Z   type: 'test'
+2026-10-28T17:20:55.3860230Z   ...
+2026-10-28T17:20:55.3860970Z # Subtest: claimed or delivered deletion remains pending and retains its remote obligation
+2026-10-28T17:20:55.3862260Z ok 16 - claimed or delivered deletion remains pending and retains its remote obligation
+2026-10-28T17:20:55.3863130Z   ---
+2026-10-28T17:20:55.3863910Z   duration_ms: 15.761
+2026-10-28T17:20:55.3864450Z   type: 'test'
+2026-10-28T17:20:55.3865260Z   ...
+2026-10-28T17:20:55.3865910Z # Subtest: stored unknown fields are never projected into a private Issue
+2026-10-28T17:20:55.3867530Z ok 17 - stored unknown fields are never projected into a private Issue
+2026-10-28T17:20:55.3868360Z   ---
+2026-10-28T17:20:55.3868780Z   duration_ms: 9.489333
+2026-10-28T17:20:55.3869530Z   type: 'test'
+2026-10-28T17:20:55.3869790Z   ...
+2026-10-28T17:20:55.3870170Z # Subtest: resolved tombstones expire even with old Issue metadata; pending deletion obligations survive
+2026-10-28T17:20:55.3871320Z ok 18 - resolved tombstones expire even with old Issue metadata; pending deletion obligations survive
+2026-10-28T17:20:55.3871880Z   ---
+2026-10-28T17:20:55.3872100Z   duration_ms: 25.443542
+2026-10-28T17:20:55.3872370Z   type: 'test'
+2026-10-28T17:20:55.3872580Z   ...
+2026-10-28T17:20:55.3872940Z # Subtest: DELETE preceding the first POST commit creates a durable capability-bound tombstone
+2026-10-28T17:20:55.3873490Z ok 19 - DELETE preceding the first POST commit creates a durable capability-bound tombstone
+2026-10-28T17:20:55.3873910Z   ---
+2026-10-28T17:20:55.3874200Z   duration_ms: 8.18175
+2026-10-28T17:20:55.3892200Z   type: 'test'
+2026-10-28T17:20:55.3892550Z   ...
+2026-10-28T17:20:55.3893050Z # Subtest: unknown-ID deletion is quota-bounded even with new submissions disabled
+2026-10-28T17:20:55.3893630Z ok 20 - unknown-ID deletion is quota-bounded even with new submissions disabled
+2026-10-28T17:20:55.3894020Z   ---
+2026-10-28T17:20:55.3894180Z   duration_ms: 4.838375
+2026-10-28T17:20:55.3894370Z   type: 'test'
+2026-10-28T17:20:55.3894560Z   ...
+2026-10-28T17:20:55.3894810Z 1..20
+2026-10-28T17:20:55.3894950Z # tests 20
+2026-10-28T17:20:55.3895110Z # suites 0
+2026-10-28T17:20:55.3895260Z # pass 20
+2026-10-28T17:20:55.3895390Z # fail 0
+2026-10-28T17:20:55.3895530Z # cancelled 0
+2026-10-28T17:20:55.3895690Z # skipped 0
+2026-10-28T17:20:55.3895870Z # todo 0
+2026-10-28T17:20:55.3896030Z # duration_ms 483.96375
+2026-10-28T17:20:55.3908470Z swift-driver version: 1.120.5 
+2026-10-28T17:20:55.4263450Z ##[group]Run set -o pipefail
+2026-10-28T17:20:55.4264780Z [36;1mset -o pipefail[0m
+2026-10-28T17:20:55.4265340Z [36;1mswift test --filter 'RiftletFeedbackTests|RiftletFeedbackUITests' 2>&1 | tee feedback-results/native.log[0m
+2026-10-28T17:20:55.4267130Z [36;1m# Repeat the same regression without inflating the unique test count.[0m
+2026-10-28T17:20:55.4267750Z [36;1mfor attempt in 1 2 3; do[0m
+2026-10-28T17:20:55.4269290Z [36;1m  swift test --skip-build --filter FeedbackCloseTests 2>&1 | tee "feedback-results/close-repeat-$attempt.log"[0m
+2026-10-28T17:20:55.4270790Z [36;1mdone[0m
+2026-10-28T17:20:55.4348730Z shell: /bin/bash -e {0}
+2026-10-28T17:20:55.4349050Z ##[endgroup]
+2026-10-28T17:20:59.9883740Z Building for debugging...
+2026-10-28T17:20:59.9993990Z [0/49] /Users/runner/work/Riftlet/Riftlet/.build/arm64-apple-macosx/debug/RiftletPackageTests.derived/runner.swift
+2026-10-28T17:21:00.0023810Z [1/49] Copying v9.js
+2026-10-28T17:21:00.0025240Z [1/49] Copying v9-dom-fixture.cjs
+2026-10-28T17:21:00.0025580Z [1/49] Copying v8-dom-fixture.cjs
+2026-10-28T17:21:00.0026030Z [1/49] Copying v8.js
+2026-10-28T17:21:00.0026270Z [1/49] Copying v7.js
+2026-10-28T17:21:00.0026580Z [1/49] Copying v6.js
+2026-10-28T17:21:00.0026800Z [1/49] Copying v12.js
+2026-10-28T17:21:00.0027250Z [1/49] Copying v12-dom-fixture.cjs
+2026-10-28T17:21:00.0027520Z [1/49] Copying v11.js
+2026-10-28T17:21:00.0027820Z [1/49] Copying v11-dom-fixture.cjs
+2026-10-28T17:21:00.0028080Z [1/49] Copying v10.js
+2026-10-28T17:21:00.0028360Z [1/49] Copying v10-dom-fixture.cjs
+2026-10-28T17:21:00.0028670Z [1/49] Copying README.md
+2026-10-28T17:21:00.0028920Z [14/49] Copying legacy-web-observe.js
+2026-10-28T17:21:00.0029260Z [15/49] Copying chatgpt-web-20261027.js
+2026-10-28T17:21:00.0029560Z [15/49] Copying synthetic-attached-v1.json
+2026-10-28T17:21:00.0029900Z [15/49] Write sources
+2026-10-28T17:21:00.0030200Z [23/49] Write RiftletGUIAcceptance-entitlement.plist
+2026-10-28T17:21:00.0030700Z [23/49] Write RiftletFeedbackDemo-entitlement.plist
+2026-10-28T17:21:00.0030990Z [23/49] Write sources
+2026-10-28T17:21:00.0031290Z [34/49] Write Riftlet-entitlement.plist
+2026-10-28T17:21:00.2597610Z [37/49] Write swift-version--79AA4F9932D1E87A.txt
+2026-10-28T17:21:05.5523880Z [39/61] Emitting module RiftletCore
+2026-10-28T17:21:12.0523490Z [40/64] Compiling RiftletCore QueueInteractionFence.swift
+2026-10-28T17:21:12.0626100Z [41/64] Compiling RiftletCore QueueStore.swift
+2026-10-28T17:21:12.0740040Z [42/64] Compiling RiftletCore ReceiptPolicy.swift
+2026-10-28T17:21:12.0824140Z [43/64] Compiling RiftletCore AcceptedSelection.swift
+2026-10-28T17:21:12.0828590Z [44/64] Compiling RiftletCore ArmedTarget.swift
+2026-10-28T17:21:12.0834210Z [45/64] Compiling RiftletCore Models.swift
+2026-10-28T17:21:12.1058420Z [48/64] Emitting module RiftletFeedback
+2026-10-28T17:21:12.1159400Z [51/66] Compiling RiftletCore SQLiteDatabase.swift
+2026-10-28T17:21:12.1261740Z [52/66] Compiling RiftletCore TargetArmScheduler.swift
+2026-10-28T17:21:12.1377830Z [53/66] Compiling RiftletCore TransferCoordinator.swift
+2026-10-28T17:21:13.5130210Z [54/84] Compiling RiftletCoreTests LifecycleMigrationTests.swift
+2026-10-28T17:21:13.5238670Z [55/84] Compiling RiftletCoreTests LogicalDraftIdentityTests.swift
+2026-10-28T17:21:17.7850630Z [56/91] Emitting module RiftletUI
+2026-10-28T17:21:18.9345630Z [57/94] Compiling RiftletCapture CaptureDiagnostics.swift
+2026-10-28T17:21:18.9447240Z [58/94] Compiling RiftletCapture CaptureService.swift
+2026-10-28T17:21:18.9548830Z [59/94] Compiling RiftletCapture CaptureSourceBinding.swift
+2026-10-28T17:21:21.2973490Z [60/94] Compiling RiftletCapture FileValidation.swift
+2026-10-28T17:21:21.3073800Z [61/94] Compiling RiftletCapture FolderWatcher.swift
+2026-10-28T17:21:21.3175850Z [62/94] Compiling RiftletCapture PrivateAssetImporter.swift
+2026-10-28T17:21:23.3988560Z [63/96] Compiling RiftletCapture StorageCapacity.swift
+2026-10-28T17:21:23.4085090Z [64/96] Compiling RiftletCapture StorageUsage.swift
+2026-10-28T17:21:23.5294970Z [67/96] Compiling RiftletUI ThumbnailCache.swift
+2026-10-28T17:21:23.7032540Z [68/96] Emitting module RiftletCapture
+2026-10-28T17:21:25.7079220Z [75/103] Compiling RiftletFeedbackUI FeedbackWindowController.swift
+2026-10-28T17:21:25.7181460Z [76/103] Emitting module RiftletFeedbackUI
+2026-10-28T17:21:30.1920800Z [77/110] Emitting module RiftletUITests
+2026-10-28T17:21:30.6812110Z [78/112] Emitting module RiftletCoreTests
+2026-10-28T17:21:36.1441130Z [79/116] Compiling RiftletUITests RiftSetupControllerTests.swift
+2026-10-28T17:21:36.1544590Z [80/116] Compiling RiftletUITests SetupPresentationTests.swift
+2026-10-28T17:21:36.1647290Z [81/116] Compiling RiftletUITests RiftInputIslandTests.swift
+2026-10-28T17:21:36.1748920Z [82/116] Compiling RiftletUITests RiftLayoutTests.swift
+2026-10-28T17:21:36.1850360Z [83/116] Compiling RiftletUITests HistoryPresentationTests.swift
+2026-10-28T17:21:36.1952680Z [84/116] Compiling RiftletUITests PresentationBoundaryTests.swift
+2026-10-28T17:21:36.2054640Z [85/116] Emitting module RiftletFeedbackTests
+2026-10-28T17:21:36.2155980Z [87/118] Compiling RiftletFeedbackTests FeedbackPrivacyCleanupTests.swift
+2026-10-28T17:21:36.2258180Z [88/118] Compiling RiftletFeedbackTests FeedbackTests.swift
+2026-10-28T17:21:36.9549810Z [92/123] Compiling RiftletCoreTests TargetArmPermissionWakeTests.swift
+2026-10-28T17:21:36.9653660Z [93/123] Compiling RiftletCoreTests TargetArmSchedulerTests.swift
+2026-10-28T17:21:36.9756080Z [94/123] Compiling RiftletCoreTests TransferCoordinatorTests.swift
+2026-10-28T17:21:36.9857650Z [95/123] Compiling RiftletCoreTests WebTargetLockTests.swift
+2026-10-28T17:21:38.1830620Z [100/123] Compiling RiftletCoreTests SyntheticAcceptancePolicyTests.swift
+2026-10-28T17:21:40.2615550Z [103/126] Compiling RiftletFeedbackUITests FeedbackWindowTests.swift
+2026-10-28T17:21:40.2719890Z [104/126] Compiling RiftletFeedbackUITests FeedbackCloseTests.swift
+2026-10-28T17:21:40.2821490Z [105/126] Emitting module RiftletFeedbackUITests
+2026-10-28T17:21:41.0170810Z [106/128] Emitting module RiftletFeedbackDemo
+2026-10-28T17:21:41.0271160Z [107/128] Compiling RiftletFeedbackDemo FeedbackDemoMain.swift
+2026-10-28T17:21:41.6590340Z [108/134] Emitting module RiftletCaptureTests
+2026-10-28T17:21:43.5246530Z [109/136] Compiling RiftletCaptureTests StorageUsageTests.swift
+2026-10-28T17:21:43.5348120Z [110/136] Compiling RiftletCaptureTests SystemScreenshotFidelityTests.swift
+2026-10-28T17:21:43.5856800Z [111/136] Compiling RiftletCaptureTests CaptureSourceBindingTests.swift
+2026-10-28T17:21:43.5857340Z [112/136] Compiling RiftletCaptureTests CaptureTests.swift
+2026-10-28T17:21:43.6081780Z [113/136] Compiling RiftletCaptureTests FileSafetyTests.swift
+2026-10-28T17:21:43.6185210Z [114/136] Compiling RiftletCaptureTests ImportFaultTests.swift
+2026-10-28T17:21:43.6287070Z [115/136] Compiling RiftletCaptureTests ReleaseCaptureTests.swift
+2026-10-28T17:21:44.2005720Z [116/151] Emitting module RiftletGUIAcceptance
+2026-10-28T17:21:44.2107920Z [117/151] Compiling RiftletAdapters AttachmentObservation.swift
+2026-10-28T17:21:44.2209300Z [118/151] Compiling RiftletAdapters CaptureDiagnostics.swift
+2026-10-28T17:21:44.2310720Z [119/151] Compiling RiftletAdapters ChatGPTWebPageProgram.swift
+2026-10-28T17:21:44.2412650Z [120/151] Compiling RiftletAdapters ChromeActivityObserver.swift
+2026-10-28T17:21:45.1943780Z [121/152] Emitting module RiftletAdapters
+2026-10-28T17:21:45.3954020Z [123/158] Compiling RiftletAdapters ChromeAppleEventsExecutor.swift
+2026-10-28T17:21:45.4357240Z [124/158] Compiling RiftletGUIAcceptance SyntheticScene.swift
+2026-10-28T17:21:45.4560150Z [124/158] Write Objects.LinkFileList
+2026-10-28T17:21:46.5680060Z [129/158] Linking RiftletFeedbackDemo
+2026-10-28T17:21:46.6086070Z [130/158] Applying RiftletFeedbackDemo
+2026-10-28T17:21:46.7693960Z [131/158] Linking RiftletGUIAcceptance
+2026-10-28T17:21:46.7995630Z [132/158] Applying RiftletGUIAcceptance
+2026-10-28T17:21:47.8473590Z [134/158] Compiling RiftletAdapters MacAttachmentAdapter.swift
+2026-10-28T17:21:47.8587490Z /Users/runner/work/Riftlet/Riftlet/Sources/RiftletAdapters/NativePasteboardDriver.swift:192:18: warning: 'filePromise' was deprecated in macOS 10.14
+2026-10-28T17:21:47.8612810Z 190 | 
+2026-10-28T17:21:47.8613930Z 191 |     private func isFilePromise(_ type: NSPasteboard.PasteboardType) -> Bool {
+2026-10-28T17:21:47.8623580Z 192 |         type == .filePromise || NSFilePromiseReceiver.readableDraggedTypes.contains(type.rawValue)
+2026-10-28T17:21:47.8624290Z     |                  `- warning: 'filePromise' was deprecated in macOS 10.14
+2026-10-28T17:21:47.8624710Z 193 |     }
+2026-10-28T17:21:47.8650470Z 194 | }
+2026-10-28T17:21:47.8650910Z [135/158] Compiling RiftletAdapters MacClipboardCoordinator.swift
+2026-10-28T17:21:47.8651650Z /Users/runner/work/Riftlet/Riftlet/Sources/RiftletAdapters/NativePasteboardDriver.swift:192:18: warning: 'filePromise' was deprecated in macOS 10.14
+2026-10-28T17:21:47.8652280Z 190 | 
+2026-10-28T17:21:47.8652610Z 191 |     private func isFilePromise(_ type: NSPasteboard.PasteboardType) -> Bool {
+2026-10-28T17:21:47.8653330Z 192 |         type == .filePromise || NSFilePromiseReceiver.readableDraggedTypes.contains(type.rawValue)
+2026-10-28T17:21:47.8653880Z     |                  `- warning: 'filePromise' was deprecated in macOS 10.14
+2026-10-28T17:21:47.8654250Z 193 |     }
+2026-10-28T17:21:47.8654450Z 194 | }
+2026-10-28T17:21:47.8654800Z [136/158] Compiling RiftletAdapters MainWorldCommandEnvelope.swift
+2026-10-28T17:21:47.8655450Z /Users/runner/work/Riftlet/Riftlet/Sources/RiftletAdapters/NativePasteboardDriver.swift:192:18: warning: 'filePromise' was deprecated in macOS 10.14
+2026-10-28T17:21:47.8655960Z 190 | 
+2026-10-28T17:21:47.8656290Z 191 |     private func isFilePromise(_ type: NSPasteboard.PasteboardType) -> Bool {
+2026-10-28T17:21:47.8656790Z 192 |         type == .filePromise || NSFilePromiseReceiver.readableDraggedTypes.contains(type.rawValue)
+2026-10-28T17:21:47.8657240Z     |                  `- warning: 'filePromise' was deprecated in macOS 10.14
+2026-10-28T17:21:47.8657500Z 193 |     }
+2026-10-28T17:21:47.8657810Z 194 | }
+2026-10-28T17:21:47.8658150Z [137/158] Compiling RiftletAdapters NativeCaptureProof.swift
+2026-10-28T17:21:47.8658910Z /Users/runner/work/Riftlet/Riftlet/Sources/RiftletAdapters/NativePasteboardDriver.swift:192:18: warning: 'filePromise' was deprecated in macOS 10.14
+2026-10-28T17:21:47.8659450Z 190 | 
+2026-10-28T17:21:47.8659770Z 191 |     private func isFilePromise(_ type: NSPasteboard.PasteboardType) -> Bool {
+2026-10-28T17:21:47.8660330Z 192 |         type == .filePromise || NSFilePromiseReceiver.readableDraggedTypes.contains(type.rawValue)
+2026-10-28T17:21:47.8660820Z     |                  `- warning: 'filePromise' was deprecated in macOS 10.14
+2026-10-28T17:21:47.8661200Z 193 |     }
+2026-10-28T17:21:47.8661470Z 194 | }
+2026-10-28T17:21:47.8661820Z [138/158] Compiling RiftletAdapters NativeMacAXDriver.swift
+2026-10-28T17:21:47.8662500Z /Users/runner/work/Riftlet/Riftlet/Sources/RiftletAdapters/NativePasteboardDriver.swift:192:18: warning: 'filePromise' was deprecated in macOS 10.14
+2026-10-28T17:21:47.8663670Z 190 | 
+2026-10-28T17:21:47.8664120Z 191 |     private func isFilePromise(_ type: NSPasteboard.PasteboardType) -> Bool {
+2026-10-28T17:21:47.8664660Z 192 |         type == .filePromise || NSFilePromiseReceiver.readableDraggedTypes.contains(type.rawValue)
+2026-10-28T17:21:47.8665280Z     |                  `- warning: 'filePromise' was deprecated in macOS 10.14
+2026-10-28T17:21:47.8665640Z 193 |     }
+2026-10-28T17:21:47.8665950Z 194 | }
+2026-10-28T17:21:47.8666270Z [139/158] Compiling RiftletAdapters NativeMacAttachmentExecutor.swift
+2026-10-28T17:21:47.8667090Z /Users/runner/work/Riftlet/Riftlet/Sources/RiftletAdapters/NativePasteboardDriver.swift:192:18: warning: 'filePromise' was deprecated in macOS 10.14
+2026-10-28T17:21:47.8667800Z 190 | 
+2026-10-28T17:21:47.8668150Z 191 |     private func isFilePromise(_ type: NSPasteboard.PasteboardType) -> Bool {
+2026-10-28T17:21:47.8669840Z 192 |         type == .filePromise || NSFilePromiseReceiver.readableDraggedTypes.contains(type.rawValue)
+2026-10-28T17:21:47.8670590Z     |                  `- warning: 'filePromise' was deprecated in macOS 10.14
+2026-10-28T17:21:47.8671100Z 193 |     }
+2026-10-28T17:21:47.8671410Z 194 | }
+2026-10-28T17:21:47.8671810Z [140/158] Compiling RiftletAdapters NativePasteboardDriver.swift
+2026-10-28T17:21:47.8677480Z /Users/runner/work/Riftlet/Riftlet/Sources/RiftletAdapters/NativePasteboardDriver.swift:192:18: warning: 'filePromise' was deprecated in macOS 10.14
+2026-10-28T17:21:47.8678110Z 190 | 
+2026-10-28T17:21:47.8678470Z 191 |     private func isFilePromise(_ type: NSPasteboard.PasteboardType) -> Bool {
+2026-10-28T17:21:47.8679160Z 192 |         type == .filePromise || NSFilePromiseReceiver.readableDraggedTypes.contains(type.rawValue)
+2026-10-28T17:21:47.8679800Z     |                  `- warning: 'filePromise' was deprecated in macOS 10.14
+2026-10-28T17:21:47.8680090Z 193 |     }
+2026-10-28T17:21:47.8680210Z 194 | }
+2026-10-28T17:21:47.8680430Z [146/158] Compiling RiftletAdapters ClipboardOwnership.swift
+2026-10-28T17:21:47.8681010Z [147/158] Compiling RiftletAdapters LegacyWebObservationProgram.swift
+2026-10-28T17:21:47.8701930Z [148/158] Compiling RiftletAdapters ObservationNormalizer.swift
+2026-10-28T17:21:47.8702840Z [149/158] Compiling RiftletAdapters SystemScreenshotCandidateAdmission.swift
+2026-10-28T17:21:47.8703640Z [150/158] Compiling RiftletAdapters SystemScreenshotObservationJournal.swift
+2026-10-28T17:21:47.8704470Z [151/158] Compiling RiftletAdapters SystemScreenshotWebCandidate.swift
+2026-10-28T17:21:47.8705380Z [152/158] Compiling RiftletAdapters WebAttachmentAdapter.swift
+2026-10-28T17:21:47.8705880Z [153/158] Compiling RiftletAdapters resource_bundle_accessor.swift
+2026-10-28T17:21:50.6622950Z [154/184] Emitting module RiftletApp
+2026-10-28T17:21:53.0297510Z [155/190] Compiling RiftletApp AcceptanceTraceDeduplicator.swift
+2026-10-28T17:21:53.0437230Z [156/190] Compiling RiftletApp ApplicationMode.swift
+2026-10-28T17:21:53.0480070Z [157/190] Compiling RiftletApp AutomationPermission.swift
+2026-10-28T17:21:53.0605510Z [158/190] Compiling RiftletApp CaptureControlGate.swift
+2026-10-28T17:21:53.0718410Z [159/190] Compiling RiftletApp DeferredChromeActivityBinding.swift
+2026-10-28T17:21:53.0819720Z [160/190] Compiling RiftletApp FeedbackHost.swift
+2026-10-28T17:21:53.0921080Z [161/190] Emitting module RiftletAdaptersTests
+2026-10-28T17:21:53.1022370Z [162/190] Compiling RiftletApp FirstUsePreferences.swift
+2026-10-28T17:21:53.1125020Z /Users/runner/work/Riftlet/Riftlet/Tests/RiftletAdaptersTests/NativePasteboardDriverTests.swift:157:47: warning: 'filePromise' was deprecated in macOS 10.14
+2026-10-28T17:21:53.1227990Z 155 |         // NSPasteboardItem.setData. Use the real modern receiver-advertised type.
+2026-10-28T17:21:53.1330190Z 156 |         let promiseType = try XCTUnwrap(NSFilePromiseReceiver.readableDraggedTypes.first {
+2026-10-28T17:21:53.1432450Z 157 |             $0 != NSPasteboard.PasteboardType.filePromise.rawValue
+2026-10-28T17:21:53.1534290Z     |                                               `- warning: 'filePromise' was deprecated in macOS 10.14
+2026-10-28T17:21:53.1635800Z 158 |         })
+2026-10-28T17:21:53.1737110Z 159 |         try write([[promiseType: Data([1])]], to: board)
+2026-10-28T17:21:53.1838200Z 
+2026-10-28T17:21:53.1939510Z /Users/runner/work/Riftlet/Riftlet/Tests/RiftletAdaptersTests/NativePasteboardDriverTests.swift:198:83: warning: 'filePromise' was deprecated in macOS 10.14
+2026-10-28T17:21:53.2042140Z 196 |         catch ClipboardOwnershipError.snapshotTooLarge {}
+2026-10-28T17:21:53.2144020Z 197 |         XCTAssertEqual(try driver.currentOwnerSynchronously(), owner)
+2026-10-28T17:21:53.2246220Z 198 |         let promised = try ClipboardSnapshot(items: [[NSPasteboard.PasteboardType.filePromise.rawValue: Data([1])]])
+2026-10-28T17:21:53.2367920Z     |                                                                                   `- warning: 'filePromise' was deprecated in macOS 10.14
+2026-10-28T17:21:53.2490910Z 199 |         do { _ = try await driver.restoreIfOwned(promised, expectedOwner: owner); XCTFail("Promise restore") }
+2026-10-28T17:21:53.2590400Z 200 |         catch NativePasteboardError.promisedRepresentation {}
+2026-10-28T17:21:53.2697420Z [163/190] Compiling RiftletApp FirstUseSelfCheck.swift
+2026-10-28T17:21:53.2800980Z /Users/runner/work/Riftlet/Riftlet/Tests/RiftletAdaptersTests/NativePasteboardDriverTests.swift:157:47: warning: 'filePromise' was deprecated in macOS 10.14
+2026-10-28T17:21:53.2904730Z 155 |         // NSPasteboardItem.setData. Use the real modern receiver-advertised type.
+2026-10-28T17:21:53.3008180Z 156 |         let promiseType = try XCTUnwrap(NSFilePromiseReceiver.readableDraggedTypes.first {
+2026-10-28T17:21:53.3122730Z 157 |             $0 != NSPasteboard.PasteboardType.filePromise.rawValue
+2026-10-28T17:21:53.3245520Z     |                                               `- warning: 'filePromise' was deprecated in macOS 10.14
+2026-10-28T17:21:53.3362710Z 158 |         })
+2026-10-28T17:21:53.3468640Z 159 |         try write([[promiseType: Data([1])]], to: board)
+2026-10-28T17:21:53.3580780Z 
+2026-10-28T17:21:53.3692500Z /Users/runner/work/Riftlet/Riftlet/Tests/RiftletAdaptersTests/NativePasteboardDriverTests.swift:198:83: warning: 'filePromise' was deprecated in macOS 10.14
+2026-10-28T17:21:53.3809870Z 196 |         catch ClipboardOwnershipError.snapshotTooLarge {}
+2026-10-28T17:21:53.3911800Z 197 |         XCTAssertEqual(try driver.currentOwnerSynchronously(), owner)
+2026-10-28T17:21:53.4013360Z 198 |         let promised = try ClipboardSnapshot(items: [[NSPasteboard.PasteboardType.filePromise.rawValue: Data([1])]])
+2026-10-28T17:21:53.4114860Z     |                                                                                   `- warning: 'filePromise' was deprecated in macOS 10.14
+2026-10-28T17:21:53.4217490Z 199 |         do { _ = try await driver.restoreIfOwned(promised, expectedOwner: owner); XCTFail("Promise restore") }
+2026-10-28T17:21:53.4319970Z 200 |         catch NativePasteboardError.promisedRepresentation {}
+2026-10-28T17:21:53.4422210Z [164/190] Compiling RiftletApp LifecycleSettings.swift
+2026-10-28T17:21:53.4524840Z /Users/runner/work/Riftlet/Riftlet/Tests/RiftletAdaptersTests/NativePasteboardDriverTests.swift:157:47: warning: 'filePromise' was deprecated in macOS 10.14
+2026-10-28T17:21:53.4647240Z 155 |         // NSPasteboardItem.setData. Use the real modern receiver-advertised type.
+2026-10-28T17:21:53.4770220Z 156 |         let promiseType = try XCTUnwrap(NSFilePromiseReceiver.readableDraggedTypes.first {
+2026-10-28T17:21:53.4901520Z 157 |             $0 != NSPasteboard.PasteboardType.filePromise.rawValue
+2026-10-28T17:21:53.5004000Z     |                                               `- warning: 'filePromise' was deprecated in macOS 10.14
+2026-10-28T17:21:53.5111220Z 158 |         })
+2026-10-28T17:21:53.5212850Z 159 |         try write([[promiseType: Data([1])]], to: board)
+2026-10-28T17:21:53.5313850Z 
+2026-10-28T17:21:53.5444400Z /Users/runner/work/Riftlet/Riftlet/Tests/RiftletAdaptersTests/NativePasteboardDriverTests.swift:198:83: warning: 'filePromise' was deprecated in macOS 10.14
+2026-10-28T17:21:53.5551580Z 196 |         catch ClipboardOwnershipError.snapshotTooLarge {}
+2026-10-28T17:21:53.5653170Z 197 |         XCTAssertEqual(try driver.currentOwnerSynchronously(), owner)
+2026-10-28T17:21:53.5777750Z 198 |         let promised = try ClipboardSnapshot(items: [[NSPasteboard.PasteboardType.filePromise.rawValue: Data([1])]])
+2026-10-28T17:21:53.5879450Z     |                                                                                   `- warning: 'filePromise' was deprecated in macOS 10.14
+2026-10-28T17:21:53.5982120Z 199 |         do { _ = try await driver.restoreIfOwned(promised, expectedOwner: owner); XCTFail("Promise restore") }
+2026-10-28T17:21:53.6084250Z 200 |         catch NativePasteboardError.promisedRepresentation {}
+2026-10-28T17:21:53.6186940Z [165/190] Compiling RiftletApp PassivePermissionResume.swift
+2026-10-28T17:21:53.6290450Z /Users/runner/work/Riftlet/Riftlet/Tests/RiftletAdaptersTests/NativePasteboardDriverTests.swift:157:47: warning: 'filePromise' was deprecated in macOS 10.14
+2026-10-28T17:21:53.6392200Z 155 |         // NSPasteboardItem.setData. Use the real modern receiver-advertised type.
+2026-10-28T17:21:53.6493760Z 156 |         let promiseType = try XCTUnwrap(NSFilePromiseReceiver.readableDraggedTypes.first {
+2026-10-28T17:21:53.6598310Z 157 |             $0 != NSPasteboard.PasteboardType.filePromise.rawValue
+2026-10-28T17:21:53.6700350Z     |                                               `- warning: 'filePromise' was deprecated in macOS 10.14
+2026-10-28T17:21:53.6803360Z 158 |         })
+2026-10-28T17:21:53.6905620Z 159 |         try write([[promiseType: Data([1])]], to: board)
+2026-10-28T17:21:53.7007090Z 
+2026-10-28T17:21:53.7111380Z /Users/runner/work/Riftlet/Riftlet/Tests/RiftletAdaptersTests/NativePasteboardDriverTests.swift:198:83: warning: 'filePromise' was deprecated in macOS 10.14
+2026-10-28T17:21:53.7150340Z 196 |         catch ClipboardOwnershipError.snapshotTooLarge {}
+2026-10-28T17:21:53.7254810Z 197 |         XCTAssertEqual(try driver.currentOwnerSynchronously(), owner)
+2026-10-28T17:21:53.7357440Z 198 |         let promised = try ClipboardSnapshot(items: [[NSPasteboard.PasteboardType.filePromise.rawValue: Data([1])]])
+2026-10-28T17:21:53.7459960Z     |                                                                                   `- warning: 'filePromise' was deprecated in macOS 10.14
+2026-10-28T17:21:53.7567800Z 199 |         do { _ = try await driver.restoreIfOwned(promised, expectedOwner: owner); XCTFail("Promise restore") }
+2026-10-28T17:21:53.7670340Z 200 |         catch NativePasteboardError.promisedRepresentation {}
+2026-10-28T17:21:53.7807000Z [166/190] Compiling RiftletApp ProductStatus.swift
+2026-10-28T17:21:53.7922800Z /Users/runner/work/Riftlet/Riftlet/Tests/RiftletAdaptersTests/NativePasteboardDriverTests.swift:157:47: warning: 'filePromise' was deprecated in macOS 10.14
+2026-10-28T17:21:53.8044980Z 155 |         // NSPasteboardItem.setData. Use the real modern receiver-advertised type.
+2026-10-28T17:21:53.8163190Z 156 |         let promiseType = try XCTUnwrap(NSFilePromiseReceiver.readableDraggedTypes.first {
+2026-10-28T17:21:53.8285300Z 157 |             $0 != NSPasteboard.PasteboardType.filePromise.rawValue
+2026-10-28T17:21:53.8385780Z     |                                               `- warning: 'filePromise' was deprecated in macOS 10.14
+2026-10-28T17:21:53.8486920Z 158 |         })
+2026-10-28T17:21:53.8589120Z 159 |         try write([[promiseType: Data([1])]], to: board)
+2026-10-28T17:21:53.8690360Z 
+2026-10-28T17:21:53.8791430Z /Users/runner/work/Riftlet/Riftlet/Tests/RiftletAdaptersTests/NativePasteboardDriverTests.swift:198:83: warning: 'filePromise' was deprecated in macOS 10.14
+2026-10-28T17:21:53.8892140Z 196 |         catch ClipboardOwnershipError.snapshotTooLarge {}
+2026-10-28T17:21:53.8993640Z 197 |         XCTAssertEqual(try driver.currentOwnerSynchronously(), owner)
+2026-10-28T17:21:53.9093990Z 198 |         let promised = try ClipboardSnapshot(items: [[NSPasteboard.PasteboardType.filePromise.rawValue: Data([1])]])
+2026-10-28T17:21:53.9195450Z     |                                                                                   `- warning: 'filePromise' was deprecated in macOS 10.14
+2026-10-28T17:21:53.9297410Z 199 |         do { _ = try await driver.restoreIfOwned(promised, expectedOwner: owner); XCTFail("Promise restore") }
+2026-10-28T17:21:53.9397360Z 200 |         catch NativePasteboardError.promisedRepresentation {}
+2026-10-28T17:21:53.9498830Z [167/190] Compiling RiftletApp RiftletMain.swift
+2026-10-28T17:21:53.9601190Z /Users/runner/work/Riftlet/Riftlet/Tests/RiftletAdaptersTests/NativePasteboardDriverTests.swift:157:47: warning: 'filePromise' was deprecated in macOS 10.14
+2026-10-28T17:21:53.9701060Z 155 |         // NSPasteboardItem.setData. Use the real modern receiver-advertised type.
+2026-10-28T17:21:53.9802890Z 156 |         let promiseType = try XCTUnwrap(NSFilePromiseReceiver.readableDraggedTypes.first {
+2026-10-28T17:21:53.9905070Z 157 |             $0 != NSPasteboard.PasteboardType.filePromise.rawValue
+2026-10-28T17:21:54.0029640Z     |                                               `- warning: 'filePromise' was deprecated in macOS 10.14
+2026-10-28T17:21:54.0130730Z 158 |         })
+2026-10-28T17:21:54.0231630Z 159 |         try write([[promiseType: Data([1])]], to: board)
+2026-10-28T17:21:54.0332670Z 
+2026-10-28T17:21:54.0434200Z /Users/runner/work/Riftlet/Riftlet/Tests/RiftletAdaptersTests/NativePasteboardDriverTests.swift:198:83: warning: 'filePromise' was deprecated in macOS 10.14
+2026-10-28T17:21:54.0534420Z 196 |         catch ClipboardOwnershipError.snapshotTooLarge {}
+2026-10-28T17:21:54.0636860Z 197 |         XCTAssertEqual(try driver.currentOwnerSynchronously(), owner)
+2026-10-28T17:21:54.0737120Z 198 |         let promised = try ClipboardSnapshot(items: [[NSPasteboard.PasteboardType.filePromise.rawValue: Data([1])]])
+2026-10-28T17:21:54.0838700Z     |                                                                                   `- warning: 'filePromise' was deprecated in macOS 10.14
+2026-10-28T17:21:54.0939750Z 199 |         do { _ = try await driver.restoreIfOwned(promised, expectedOwner: owner); XCTFail("Promise restore") }
+2026-10-28T17:21:54.1040550Z 200 |         catch NativePasteboardError.promisedRepresentation {}
+2026-10-28T17:21:54.3005170Z [180/196] Compiling RiftletAdaptersTests SystemScreenshotCandidateAdmissionTests.swift
+2026-10-28T17:21:54.3107330Z [181/196] Compiling RiftletAdaptersTests SystemScreenshotObservationJournalTests.swift
+2026-10-28T17:21:54.3170400Z [182/196] Compiling RiftletAdaptersTests SystemScreenshotWebCandidateTests.swift
+2026-10-28T17:21:54.3171440Z [183/196] Compiling RiftletAdaptersTests UploadStartObservationTests.swift
+2026-10-28T17:21:54.3172090Z [184/196] Compiling RiftletAdaptersTests WebAttachmentAdapterTests.swift
+2026-10-28T17:21:54.3172690Z [185/196] Compiling RiftletAdaptersTests resource_bundle_accessor.swift
+2026-10-28T17:21:54.3351920Z [185/196] Write Objects.LinkFileList
+2026-10-28T17:21:55.2589240Z [186/196] Linking Riftlet
+2026-10-28T17:21:55.3133420Z [187/196] Applying Riftlet
+2026-10-28T17:21:56.6934110Z [189/205] Emitting module RiftletAppTests
+2026-10-28T17:21:56.7048760Z [190/205] Compiling RiftletAppTests FirstUseTests.swift
+2026-10-28T17:21:56.7121640Z [191/205] Compiling RiftletAppTests PassivePermissionResumeTests.swift
+2026-10-28T17:21:56.7122670Z [192/205] Compiling RiftletAppTests ProductStatusTests.swift
+2026-10-28T17:21:56.7123350Z [193/205] Compiling RiftletAppTests SelectionAuthorityTests.swift
+2026-10-28T17:21:56.7124520Z [194/205] Compiling RiftletAppTests AcceptanceTraceDeduplicatorTests.swift
+2026-10-28T17:21:56.7125780Z [195/205] Compiling RiftletAppTests AutomationPermissionTests.swift
+2026-10-28T17:21:56.7126390Z [196/205] Compiling RiftletAppTests CaptureControlGateTests.swift
+2026-10-28T17:21:56.7126930Z [197/205] Compiling RiftletAppTests DeferredChromeActivityBindingTests.swift
+2026-10-28T17:21:58.4246380Z [204/208] Compiling RiftletAppTests SelectionSubmissionQueueTests.swift
+2026-10-28T17:21:58.4248660Z [205/208] Compiling RiftletAppTests SystemScreenshotCandidateIntegrationTests.swift
+2026-10-28T17:21:58.4249710Z [206/208] Compiling RiftletAppTests WebAcceptanceIntegrationTests.swift
+2026-10-28T17:22:01.4436280Z [207/210] Compiling RiftletPackageTests runner.swift
+2026-10-28T17:22:01.4541190Z [208/210] Emitting module RiftletPackageTests
+2026-10-28T17:22:01.4658080Z [208/210] Write Objects.LinkFileList
+2026-10-28T17:22:02.8367180Z [209/210] Linking RiftletPackageTests
+2026-10-28T17:22:02.8405540Z Build complete! (63.00s)
+2026-10-28T17:22:10.2323790Z Test Suite 'Selected tests' started at 2026-10-28 17:22:03.500.
+2026-10-28T17:22:10.2423480Z Test Suite 'RiftletPackageTests.xctest' started at 2026-10-28 17:22:03.502.
+2026-10-28T17:22:10.2526140Z Test Suite 'FeedbackAutomaticRetryTests' started at 2026-10-28 17:22:03.502.
+2026-10-28T17:22:10.2541850Z Test Case '-[RiftletFeedbackTests.FeedbackAutomaticRetryTests testStopPreventsScheduledRetryFromDispatching]' started.
+2026-10-28T17:22:10.2570180Z Test Case '-[RiftletFeedbackTests.FeedbackAutomaticRetryTests testStopPreventsScheduledRetryFromDispatching]' passed (1.225 seconds).
+2026-10-28T17:22:10.2573020Z Test Case '-[RiftletFeedbackTests.FeedbackAutomaticRetryTests testTimerRetriesDeletionWithoutResendingBody]' started.
+2026-10-28T17:22:10.2578870Z Test Case '-[RiftletFeedbackTests.FeedbackAutomaticRetryTests testTimerRetriesDeletionWithoutResendingBody]' passed (1.076 seconds).
+2026-10-28T17:22:10.2583770Z Test Case '-[RiftletFeedbackTests.FeedbackAutomaticRetryTests testTimerRetriesWithoutAnotherUserActionAndPreservesEnvelopeAndCredential]' started.
+2026-10-28T17:22:10.2587070Z Test Case '-[RiftletFeedbackTests.FeedbackAutomaticRetryTests testTimerRetriesWithoutAnotherUserActionAndPreservesEnvelopeAndCredential]' passed (1.091 seconds).
+2026-10-28T17:22:10.2590820Z Test Suite 'FeedbackAutomaticRetryTests' passed at 2026-10-28 17:22:06.894.
+2026-10-28T17:22:10.2599060Z 	 Executed 3 tests, with 0 failures (0 unexpected) in 3.391 (3.392) seconds
+2026-10-28T17:22:10.2604290Z Test Suite 'FeedbackCloseTests' started at 2026-10-28 17:22:06.894.
+2026-10-28T17:22:10.2607350Z Test Case '-[RiftletFeedbackUITests.FeedbackCloseTests testEveryCloseAttemptFlushesEvenAfterPriorProgrammaticClose]' started.
+2026-10-28T17:22:10.2635170Z Test Case '-[RiftletFeedbackUITests.FeedbackCloseTests testEveryCloseAttemptFlushesEvenAfterPriorProgrammaticClose]' passed (1.072 seconds).
+2026-10-28T17:22:10.2639930Z Test Case '-[RiftletFeedbackUITests.FeedbackCloseTests testTerminationKeepsEditorFrozenAfterSaveThroughLaterHostAwaits]' started.
+2026-10-28T17:22:10.2642140Z Test Case '-[RiftletFeedbackUITests.FeedbackCloseTests testTerminationKeepsEditorFrozenAfterSaveThroughLaterHostAwaits]' passed (0.122 seconds).
+2026-10-28T17:22:10.2643000Z Test Suite 'FeedbackCloseTests' passed at 2026-10-28 17:22:08.089.
+2026-10-28T17:22:10.2644220Z 	 Executed 2 tests, with 0 failures (0 unexpected) in 1.194 (1.195) seconds
+2026-10-28T17:22:10.2646930Z Test Suite 'FeedbackCredentialIntentTests' started at 2026-10-28 17:22:08.089.
+2026-10-28T17:22:10.2648780Z Test Case '-[RiftletFeedbackTests.FeedbackCredentialIntentTests testAbandonedCredentialCleanupResumesAfterRestartWithoutTouchingCommittedSecret]' started.
+2026-10-28T17:22:10.2652690Z Test Case '-[RiftletFeedbackTests.FeedbackCredentialIntentTests testAbandonedCredentialCleanupResumesAfterRestartWithoutTouchingCommittedSecret]' passed (0.211 seconds).
+2026-10-28T17:22:10.2654510Z Test Case '-[RiftletFeedbackTests.FeedbackCredentialIntentTests testOverlappingSameDraftLeavesOnlyWinningReportCapability]' started.
+2026-10-28T17:22:10.2656810Z Test Case '-[RiftletFeedbackTests.FeedbackCredentialIntentTests testOverlappingSameDraftLeavesOnlyWinningReportCapability]' passed (0.020 seconds).
+2026-10-28T17:22:10.2658240Z Test Case '-[RiftletFeedbackTests.FeedbackCredentialIntentTests testRepeatedCapacityFailuresKeepDraftAndDoNotAccumulateSecrets]' started.
+2026-10-28T17:22:10.2659620Z Test Case '-[RiftletFeedbackTests.FeedbackCredentialIntentTests testRepeatedCapacityFailuresKeepDraftAndDoNotAccumulateSecrets]' passed (0.089 seconds).
+2026-10-28T17:22:10.2661200Z Test Suite 'FeedbackCredentialIntentTests' passed at 2026-10-28 17:22:08.410.
+2026-10-28T17:22:10.2664900Z 	 Executed 3 tests, with 0 failures (0 unexpected) in 0.320 (0.321) seconds
+2026-10-28T17:22:10.2668360Z Test Suite 'FeedbackDurabilityTests' started at 2026-10-28 17:22:08.410.
+2026-10-28T17:22:10.2669790Z Test Case '-[RiftletFeedbackTests.FeedbackDurabilityTests testActualInsertFailureRollsBackSubmissionAndKeepsLatestDraft]' started.
+2026-10-28T17:22:10.2670990Z Test Case '-[RiftletFeedbackTests.FeedbackDurabilityTests testActualInsertFailureRollsBackSubmissionAndKeepsLatestDraft]' passed (0.015 seconds).
+2026-10-28T17:22:10.2672080Z Test Case '-[RiftletFeedbackTests.FeedbackDurabilityTests testOutboxCapacityNeverEvictsTextAndKeepsTheNewDraft]' started.
+2026-10-28T17:22:10.2673980Z Test Case '-[RiftletFeedbackTests.FeedbackDurabilityTests testOutboxCapacityNeverEvictsTextAndKeepsTheNewDraft]' passed (0.081 seconds).
+2026-10-28T17:22:10.2675030Z Test Case '-[RiftletFeedbackTests.FeedbackDurabilityTests testReadFailureDoesNotMasqueradeAsMissingIdempotencyRecord]' started.
+2026-10-28T17:22:10.2676110Z Test Case '-[RiftletFeedbackTests.FeedbackDurabilityTests testReadFailureDoesNotMasqueradeAsMissingIdempotencyRecord]' passed (0.003 seconds).
+2026-10-28T17:22:10.2677420Z Test Case '-[RiftletFeedbackTests.FeedbackDurabilityTests testSidecarAndLockHavePrivatePermissions]' started.
+2026-10-28T17:22:10.2679270Z Test Case '-[RiftletFeedbackTests.FeedbackDurabilityTests testSidecarAndLockHavePrivatePermissions]' passed (0.004 seconds).
+2026-10-28T17:22:10.2680200Z Test Suite 'FeedbackDurabilityTests' passed at 2026-10-28 17:22:08.514.
+2026-10-28T17:22:10.2680940Z 	 Executed 4 tests, with 0 failures (0 unexpected) in 0.104 (0.104) seconds
+2026-10-28T17:22:10.2682100Z Test Suite 'FeedbackFlightTests' started at 2026-10-28 17:22:08.514.
+2026-10-28T17:22:10.2683820Z Test Case '-[RiftletFeedbackTests.FeedbackFlightTests testDanglingSidecarSymlinkRefusesWithoutCreatingItsDestination]' started.
+2026-10-28T17:22:10.2684940Z Test Case '-[RiftletFeedbackTests.FeedbackFlightTests testDanglingSidecarSymlinkRefusesWithoutCreatingItsDestination]' passed (0.001 seconds).
+2026-10-28T17:22:10.2712920Z Test Case '-[RiftletFeedbackTests.FeedbackFlightTests testDeletionDuringStatusAutomaticallyDrainsAfterSuccessAndError]' started.
+2026-10-28T17:22:10.2714150Z Test Case '-[RiftletFeedbackTests.FeedbackFlightTests testDeletionDuringStatusAutomaticallyDrainsAfterSuccessAndError]' passed (0.029 seconds).
+2026-10-28T17:22:10.2715280Z Test Case '-[RiftletFeedbackTests.FeedbackFlightTests testLateExpiryOrDeliveryCannotEraseDeletionIntentOrReviveDeletedRecord]' started.
+2026-10-28T17:22:10.2716550Z Test Case '-[RiftletFeedbackTests.FeedbackFlightTests testLateExpiryOrDeliveryCannotEraseDeletionIntentOrReviveDeletedRecord]' passed (0.012 seconds).
+2026-10-28T17:22:10.2735670Z Test Case '-[RiftletFeedbackTests.FeedbackFlightTests testNewFrozenSubmissionDuringStatusIsNotStranded]' started.
+2026-10-28T17:22:10.2751990Z Test Case '-[RiftletFeedbackTests.FeedbackFlightTests testNewFrozenSubmissionDuringStatusIsNotStranded]' passed (0.015 seconds).
+2026-10-28T17:22:10.2798770Z Test Case '-[RiftletFeedbackTests.FeedbackFlightTests testStopDuringStatusDoesNotDispatchQueuedDeletion]' started.
+2026-10-28T17:22:10.2800430Z Test Case '-[RiftletFeedbackTests.FeedbackFlightTests testStopDuringStatusDoesNotDispatchQueuedDeletion]' passed (0.011 seconds).
+2026-10-28T17:22:10.2801390Z Test Suite 'FeedbackFlightTests' passed at 2026-10-28 17:22:08.582.
+2026-10-28T17:22:10.2801980Z 	 Executed 5 tests, with 0 failures (0 unexpected) in 0.068 (0.068) seconds
+2026-10-28T17:22:10.2802740Z Test Suite 'FeedbackPrivacyCleanupTests' started at 2026-10-28 17:22:08.582.
+2026-10-28T17:22:10.2803840Z Test Case '-[RiftletFeedbackTests.FeedbackPrivacyCleanupTests testForgottenBodyIsScrubbedFromLiveDatabaseWithoutRemovingOtherFeedback]' started.
+2026-10-28T17:22:10.2805010Z Test Case '-[RiftletFeedbackTests.FeedbackPrivacyCleanupTests testForgottenBodyIsScrubbedFromLiveDatabaseWithoutRemovingOtherFeedback]' passed (0.013 seconds).
+2026-10-28T17:22:10.2806160Z Test Case '-[RiftletFeedbackTests.FeedbackPrivacyCleanupTests testKeychainFailurePreservesCleanupRecordAndRetryDoesNotResend]' started.
+2026-10-28T17:22:10.2814250Z Test Case '-[RiftletFeedbackTests.FeedbackPrivacyCleanupTests testKeychainFailurePreservesCleanupRecordAndRetryDoesNotResend]' passed (0.010 seconds).
+2026-10-28T17:22:10.2817320Z Test Case '-[RiftletFeedbackTests.FeedbackPrivacyCleanupTests testResolvedForgetRemovesOnlyItsCapabilityAndKeepsUnresolvedReport]' started.
+2026-10-28T17:22:10.2818700Z Test Case '-[RiftletFeedbackTests.FeedbackPrivacyCleanupTests testResolvedForgetRemovesOnlyItsCapabilityAndKeepsUnresolvedReport]' passed (0.012 seconds).
+2026-10-28T17:22:10.2820900Z Test Case '-[RiftletFeedbackTests.FeedbackPrivacyCleanupTests testSQLiteFailureAfterCapabilityRemovalCanResumeWithoutRecreatingSecret]' started.
+2026-10-28T17:22:10.2822190Z Test Case '-[RiftletFeedbackTests.FeedbackPrivacyCleanupTests testSQLiteFailureAfterCapabilityRemovalCanResumeWithoutRecreatingSecret]' passed (0.011 seconds).
+2026-10-28T17:22:10.2823190Z Test Suite 'FeedbackPrivacyCleanupTests' passed at 2026-10-28 17:22:08.627.
+2026-10-28T17:22:10.2824170Z 	 Executed 4 tests, with 0 failures (0 unexpected) in 0.045 (0.045) seconds
+2026-10-28T17:22:10.2824840Z Test Suite 'FeedbackTests' started at 2026-10-28 17:22:08.627.
+2026-10-28T17:22:10.2825660Z Test Case '-[RiftletFeedbackTests.FeedbackTests testDeletionWinsLateReceiptAndUnattemptedCancellationNeedsNoNetwork]' started.
+2026-10-28T17:22:10.2826820Z Test Case '-[RiftletFeedbackTests.FeedbackTests testDeletionWinsLateReceiptAndUnattemptedCancellationNeedsNoNetwork]' passed (0.012 seconds).
+2026-10-28T17:22:10.2827990Z Test Case '-[RiftletFeedbackTests.FeedbackTests testDiagnosticAllowlistIsBoundedAndKeepsVisibilityUnknownAndSuccessDistinct]' started.
+2026-10-28T17:22:10.2829160Z Test Case '-[RiftletFeedbackTests.FeedbackTests testDiagnosticAllowlistIsBoundedAndKeepsVisibilityUnknownAndSuccessDistinct]' passed (0.001 seconds).
+2026-10-28T17:22:10.2830160Z Test Case '-[RiftletFeedbackTests.FeedbackTests testDraftCloseRestartRevisionAndConsentSnapshot]' started.
+2026-10-28T17:22:10.2831080Z Test Case '-[RiftletFeedbackTests.FeedbackTests testDraftCloseRestartRevisionAndConsentSnapshot]' passed (0.005 seconds).
+2026-10-28T17:22:10.2832210Z Test Case '-[RiftletFeedbackTests.FeedbackTests testEndpointRejectsHTTPSecretsAndQueryAndUnknownDiagnostics]' started.
+2026-10-28T17:22:10.2833210Z Test Case '-[RiftletFeedbackTests.FeedbackTests testEndpointRejectsHTTPSecretsAndQueryAndUnknownDiagnostics]' passed (0.000 seconds).
+2026-10-28T17:22:10.2834110Z Test Case '-[RiftletFeedbackTests.FeedbackTests testEnqueueIsAtomicFrozenAndIdempotentForOneDraft]' started.
+2026-10-28T17:22:10.2835670Z Test Case '-[RiftletFeedbackTests.FeedbackTests testEnqueueIsAtomicFrozenAndIdempotentForOneDraft]' passed (0.013 seconds).
+2026-10-28T17:22:10.2836860Z Test Case '-[RiftletFeedbackTests.FeedbackTests testMissingCredentialAfterAttemptCannotBeLocallyCancelled]' started.
+2026-10-28T17:22:10.2837870Z Test Case '-[RiftletFeedbackTests.FeedbackTests testMissingCredentialAfterAttemptCannotBeLocallyCancelled]' passed (0.013 seconds).
+2026-10-28T17:22:10.2839050Z Test Case '-[RiftletFeedbackTests.FeedbackTests testMissingKeychainCapabilityCannotBeReplacedOnRetry]' started.
+2026-10-28T17:22:10.2840030Z Test Case '-[RiftletFeedbackTests.FeedbackTests testMissingKeychainCapabilityCannotBeReplacedOnRetry]' passed (0.015 seconds).
+2026-10-28T17:22:10.2841140Z Test Case '-[RiftletFeedbackTests.FeedbackTests testNetworkLossRetriesExactFrozenBytesAndSecretWithoutDuplicateReport]' started.
+2026-10-28T17:22:10.2842050Z Test Case '-[RiftletFeedbackTests.FeedbackTests testNetworkLossRetriesExactFrozenBytesAndSecretWithoutDuplicateReport]' passed (1.117 seconds).
+2026-10-28T17:22:10.2843860Z Test Case '-[RiftletFeedbackTests.FeedbackTests testStoreLocksAndFutureSchemaCannotTouchScreenshotDatabase]' started.
+2026-10-28T17:22:10.2844930Z Test Case '-[RiftletFeedbackTests.FeedbackTests testStoreLocksAndFutureSchemaCannotTouchScreenshotDatabase]' passed (0.004 seconds).
+2026-10-28T17:22:10.2846080Z Test Case '-[RiftletFeedbackTests.FeedbackTests testUncleanSessionIsNotDeclaredACrashAndSubmissionBoundsPreserveDraft]' started.
+2026-10-28T17:22:10.2847260Z Test Case '-[RiftletFeedbackTests.FeedbackTests testUncleanSessionIsNotDeclaredACrashAndSubmissionBoundsPreserveDraft]' passed (0.005 seconds).
+2026-10-28T17:22:10.2848080Z Test Case '-[RiftletFeedbackTests.FeedbackTests testWrongOrNonDurableReceiptCannotAnnounceSuccess]' started.
+2026-10-28T17:22:10.2849070Z Test Case '-[RiftletFeedbackTests.FeedbackTests testWrongOrNonDurableReceiptCannotAnnounceSuccess]' passed (0.007 seconds).
+2026-10-28T17:22:10.2849740Z Test Suite 'FeedbackTests' passed at 2026-10-28 17:22:09.822.
+2026-10-28T17:22:10.2852500Z 	 Executed 11 tests, with 0 failures (0 unexpected) in 1.194 (1.194) seconds
+2026-10-28T17:22:10.2853120Z Test Suite 'FeedbackWindowTests' started at 2026-10-28 17:22:09.822.
+2026-10-28T17:22:10.2854090Z Test Case '-[RiftletFeedbackUITests.FeedbackWindowTests testCloseFreezesTextKindAndConsentBeforeAsyncSaveAndRestoresOnFailure]' started.
+2026-10-28T17:22:10.2855470Z Test Case '-[RiftletFeedbackUITests.FeedbackWindowTests testCloseFreezesTextKindAndConsentBeforeAsyncSaveAndRestoresOnFailure]' passed (0.054 seconds).
+2026-10-28T17:22:10.2856540Z Test Case '-[RiftletFeedbackUITests.FeedbackWindowTests testConsentFreezesExactPreviewAndFreshDraftResetsIt]' started.
+2026-10-28T17:22:10.2857520Z Test Case '-[RiftletFeedbackUITests.FeedbackWindowTests testConsentFreezesExactPreviewAndFreshDraftResetsIt]' passed (0.041 seconds).
+2026-10-28T17:22:10.2858470Z Test Case '-[RiftletFeedbackUITests.FeedbackWindowTests testMarkedTextCannotSubmitOrCloseUntilCompositionIsCommitted]' started.
+2026-10-28T17:22:10.2859500Z Test Case '-[RiftletFeedbackUITests.FeedbackWindowTests testMarkedTextCannotSubmitOrCloseUntilCompositionIsCommitted]' passed (0.124 seconds).
+2026-10-28T17:22:10.2860530Z Test Case '-[RiftletFeedbackUITests.FeedbackWindowTests testNativeWindowHasEditableTextAndConsentOffWithoutNetwork]' started.
+2026-10-28T17:22:10.2861530Z Test Case '-[RiftletFeedbackUITests.FeedbackWindowTests testNativeWindowHasEditableTextAndConsentOffWithoutNetwork]' passed (0.019 seconds).
+2026-10-28T17:22:10.2862560Z Test Case '-[RiftletFeedbackUITests.FeedbackWindowTests testTextOnlySubmissionNeverBorrowsAvailableDiagnostics]' started.
+2026-10-28T17:22:10.2863610Z Test Case '-[RiftletFeedbackUITests.FeedbackWindowTests testTextOnlySubmissionNeverBorrowsAvailableDiagnostics]' passed (0.048 seconds).
+2026-10-28T17:22:10.2864650Z Test Case '-[RiftletFeedbackUITests.FeedbackWindowTests testUnavailableStoreCannotCloseAndLoseUnsavedText]' started.
+2026-10-28T17:22:10.2865590Z Test Case '-[RiftletFeedbackUITests.FeedbackWindowTests testUnavailableStoreCannotCloseAndLoseUnsavedText]' passed (0.014 seconds).
+2026-10-28T17:22:10.2866480Z Test Suite 'FeedbackWindowTests' passed at 2026-10-28 17:22:10.123.
+2026-10-28T17:22:10.2867060Z 	 Executed 6 tests, with 0 failures (0 unexpected) in 0.301 (0.301) seconds
+2026-10-28T17:22:10.2867680Z Test Suite 'RiftletPackageTests.xctest' passed at 2026-10-28 17:22:10.123.
+2026-10-28T17:22:10.2868150Z 	 Executed 38 tests, with 0 failures (0 unexpected) in 6.616 (6.621) seconds
+2026-10-28T17:22:10.2868740Z Test Suite 'Selected tests' passed at 2026-10-28 17:22:10.123.
+2026-10-28T17:22:10.2869370Z 	 Executed 38 tests, with 0 failures (0 unexpected) in 6.616 (6.623) seconds
+2026-10-28T17:22:10.2878500Z ◇ Test run started.
+2026-10-28T17:22:10.2879310Z ↳ Testing Library Version: 124.4
+2026-10-28T17:22:10.2879830Z ↳ Target Platform: arm64e-apple-macos14.0
+2026-10-28T17:22:10.2880500Z ✔ Test run with 0 tests passed after 0.001 seconds.
+2026-10-28T17:22:11.2696830Z [0/1] Planning build
+2026-10-28T17:22:11.9246130Z Test Suite 'Selected tests' started at 2026-10-28 17:22:11.492.
+2026-10-28T17:22:11.9247420Z Test Suite 'RiftletPackageTests.xctest' started at 2026-10-28 17:22:11.494.
+2026-10-28T17:22:11.9250660Z Test Suite 'FeedbackCloseTests' started at 2026-10-28 17:22:11.494.
+2026-10-28T17:22:11.9252660Z Test Case '-[RiftletFeedbackUITests.FeedbackCloseTests testEveryCloseAttemptFlushesEvenAfterPriorProgrammaticClose]' started.
+2026-10-28T17:22:11.9255050Z Test Case '-[RiftletFeedbackUITests.FeedbackCloseTests testEveryCloseAttemptFlushesEvenAfterPriorProgrammaticClose]' passed (0.316 seconds).
+2026-10-28T17:22:11.9257670Z Test Case '-[RiftletFeedbackUITests.FeedbackCloseTests testTerminationKeepsEditorFrozenAfterSaveThroughLaterHostAwaits]' started.
+2026-10-28T17:22:11.9260120Z Test Case '-[RiftletFeedbackUITests.FeedbackCloseTests testTerminationKeepsEditorFrozenAfterSaveThroughLaterHostAwaits]' passed (0.058 seconds).
+2026-10-28T17:22:11.9261820Z Test Suite 'FeedbackCloseTests' passed at 2026-10-28 17:22:11.868.
+2026-10-28T17:22:11.9263630Z 	 Executed 2 tests, with 0 failures (0 unexpected) in 0.374 (0.374) seconds
+2026-10-28T17:22:11.9264860Z Test Suite 'RiftletPackageTests.xctest' passed at 2026-10-28 17:22:11.868.
+2026-10-28T17:22:11.9265950Z 	 Executed 2 tests, with 0 failures (0 unexpected) in 0.374 (0.375) seconds
+2026-10-28T17:22:11.9267410Z Test Suite 'Selected tests' passed at 2026-10-28 17:22:11.868.
+2026-10-28T17:22:11.9268420Z 	 Executed 2 tests, with 0 failures (0 unexpected) in 0.374 (0.376) seconds
+2026-10-28T17:22:11.9270260Z ◇ Test run started.
+2026-10-28T17:22:11.9270970Z ↳ Testing Library Version: 124.4
+2026-10-28T17:22:11.9271700Z ↳ Target Platform: arm64e-apple-macos14.0
+2026-10-28T17:22:11.9272720Z ✔ Test run with 0 tests passed after 0.001 seconds.
+2026-10-28T17:22:13.2311460Z Test Suite 'Selected tests' started at 2026-10-28 17:22:12.835.
+2026-10-28T17:22:13.2313060Z Test Suite 'RiftletPackageTests.xctest' started at 2026-10-28 17:22:12.838.
+2026-10-28T17:22:13.2315660Z Test Suite 'FeedbackCloseTests' started at 2026-10-28 17:22:12.838.
+2026-10-28T17:22:13.2316950Z Test Case '-[RiftletFeedbackUITests.FeedbackCloseTests testEveryCloseAttemptFlushesEvenAfterPriorProgrammaticClose]' started.
+2026-10-28T17:22:13.2317960Z Test Case '-[RiftletFeedbackUITests.FeedbackCloseTests testEveryCloseAttemptFlushesEvenAfterPriorProgrammaticClose]' passed (0.293 seconds).
+2026-10-28T17:22:13.2319000Z Test Case '-[RiftletFeedbackUITests.FeedbackCloseTests testTerminationKeepsEditorFrozenAfterSaveThroughLaterHostAwaits]' started.
+2026-10-28T17:22:13.2320110Z Test Case '-[RiftletFeedbackUITests.FeedbackCloseTests testTerminationKeepsEditorFrozenAfterSaveThroughLaterHostAwaits]' passed (0.042 seconds).
+2026-10-28T17:22:13.2320890Z Test Suite 'FeedbackCloseTests' passed at 2026-10-28 17:22:13.173.
+2026-10-28T17:22:13.2321440Z 	 Executed 2 tests, with 0 failures (0 unexpected) in 0.335 (0.335) seconds
+2026-10-28T17:22:13.2323090Z Test Suite 'RiftletPackageTests.xctest' passed at 2026-10-28 17:22:13.173.
+2026-10-28T17:22:13.2325820Z 	 Executed 2 tests, with 0 failures (0 unexpected) in 0.335 (0.336) seconds
+2026-10-28T17:22:13.2334940Z Test Suite 'Selected tests' passed at 2026-10-28 17:22:13.173.
+2026-10-28T17:22:13.2344560Z 	 Executed 2 tests, with 0 failures (0 unexpected) in 0.335 (0.338) seconds
+2026-10-28T17:22:13.2377880Z ◇ Test run started.
+2026-10-28T17:22:13.2378320Z ↳ Testing Library Version: 124.4
+2026-10-28T17:22:13.2378760Z ↳ Target Platform: arm64e-apple-macos14.0
+2026-10-28T17:22:13.2379190Z ✔ Test run with 0 tests passed after 0.001 seconds.
+2026-10-28T17:22:14.6575920Z Test Suite 'Selected tests' started at 2026-10-28 17:22:14.235.
+2026-10-28T17:22:14.6577200Z Test Suite 'RiftletPackageTests.xctest' started at 2026-10-28 17:22:14.237.
+2026-10-28T17:22:14.6577860Z Test Suite 'FeedbackCloseTests' started at 2026-10-28 17:22:14.237.
+2026-10-28T17:22:14.6580200Z Test Case '-[RiftletFeedbackUITests.FeedbackCloseTests testEveryCloseAttemptFlushesEvenAfterPriorProgrammaticClose]' started.
+2026-10-28T17:22:14.6583460Z Test Case '-[RiftletFeedbackUITests.FeedbackCloseTests testEveryCloseAttemptFlushesEvenAfterPriorProgrammaticClose]' passed (0.319 seconds).
+2026-10-28T17:22:14.6586520Z Test Case '-[RiftletFeedbackUITests.FeedbackCloseTests testTerminationKeepsEditorFrozenAfterSaveThroughLaterHostAwaits]' started.
+2026-10-28T17:22:14.6587560Z Test Case '-[RiftletFeedbackUITests.FeedbackCloseTests testTerminationKeepsEditorFrozenAfterSaveThroughLaterHostAwaits]' passed (0.043 seconds).
+2026-10-28T17:22:14.6588320Z Test Suite 'FeedbackCloseTests' passed at 2026-10-28 17:22:14.600.
+2026-10-28T17:22:14.6588770Z 	 Executed 2 tests, with 0 failures (0 unexpected) in 0.363 (0.363) seconds
+2026-10-28T17:22:14.6589230Z Test Suite 'RiftletPackageTests.xctest' passed at 2026-10-28 17:22:14.600.
+2026-10-28T17:22:14.6589800Z 	 Executed 2 tests, with 0 failures (0 unexpected) in 0.363 (0.363) seconds
+2026-10-28T17:22:14.6590260Z Test Suite 'Selected tests' passed at 2026-10-28 17:22:14.600.
+2026-10-28T17:22:14.6590980Z 	 Executed 2 tests, with 0 failures (0 unexpected) in 0.363 (0.365) seconds
+2026-10-28T17:22:14.6591610Z ◇ Test run started.
+2026-10-28T17:22:14.6591850Z ↳ Testing Library Version: 124.4
+2026-10-28T17:22:14.6592200Z ↳ Target Platform: arm64e-apple-macos14.0
+2026-10-28T17:22:14.6592530Z ✔ Test run with 0 tests passed after 0.001 seconds.
+2026-10-28T17:22:14.6889740Z ##[group]Run set -o pipefail
+2026-10-28T17:22:14.6890950Z [36;1mset -o pipefail[0m
+2026-10-28T17:22:14.6891850Z [36;1mbash scripts/build-feedback-demo.sh 2>&1 | tee feedback-results/demo-build.log[0m
+2026-10-28T17:22:14.7009550Z shell: /bin/bash -e {0}
+2026-10-28T17:22:14.7010080Z ##[endgroup]
+2026-10-28T17:22:16.5471170Z Building for production...
+2026-10-28T17:22:16.5533320Z [0/6] Write sources
+2026-10-28T17:22:16.7929430Z [3/6] Write swift-version--79AA4F9932D1E87A.txt
+2026-10-28T17:22:23.5178550Z [5/7] Compiling RiftletFeedback FeedbackDiagnostics.swift
+2026-10-28T17:22:27.0172710Z [6/8] Compiling RiftletFeedbackUI FeedbackWindowController.swift
+2026-10-28T17:22:27.8127640Z [7/9] Compiling RiftletFeedbackDemo FeedbackDemoMain.swift
+2026-10-28T17:22:27.8556030Z [7/9] Write Objects.LinkFileList
+2026-10-28T17:22:28.6134980Z [8/9] Linking RiftletFeedbackDemo
+2026-10-28T17:22:28.6901080Z Build of product 'RiftletFeedbackDemo' complete! (12.27s)
+2026-10-28T17:22:29.8408100Z File Doesn't Exist, Will Create: build/.feedback-demo.jU5Z00/Riftlet Feedback Demo.app/Contents/Info.plist
+2026-10-28T17:22:29.9281410Z build/.feedback-demo.jU5Z00/Riftlet Feedback Demo.app: replacing existing signature
+2026-10-28T17:22:30.0846650Z FEEDBACK_DEMO_BUILD_PASS; OFFLINE_SYNTHETIC; CLOUD_NOT_RUN; PHYSICAL_GUI_NOT_RUN; NOT_NOTARIZED
+2026-10-28T17:22:30.1409360Z ##[group]Run mkdir -p feedback-results
+2026-10-28T17:22:30.1409750Z [36;1mmkdir -p feedback-results[0m
+2026-10-28T17:22:30.1410180Z [36;1mgit rev-parse HEAD > feedback-results/checkout-sha.txt[0m
+2026-10-28T17:22:30.1412400Z [36;1mgit archive --format=tar HEAD Sources/RiftletFeedback Sources/RiftletFeedbackUI Sources/RiftletFeedbackDemo Sources/RiftletApp/FeedbackHost.swift Sources/RiftletApp/RiftletMain.swift Sources/CSQLite Tests/RiftletFeedbackTests Tests/RiftletFeedbackUITests services/feedback Package.swift > feedback-results/source.tar[0m
+2026-10-28T17:22:30.1487620Z shell: /bin/bash -e {0}
+2026-10-28T17:22:30.1488010Z ##[endgroup]
+2026-10-28T17:22:30.5559390Z ##[group]Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+2026-10-28T17:22:30.5559920Z with:
+2026-10-28T17:22:30.5560290Z   name: feedback-v01-05e5f5e538a2780d039491a53317a21bd00f4dd0
+2026-10-28T17:22:30.5560790Z   path: feedback-results/
+build/Riftlet-Feedback-Demo.zip
+
+2026-10-28T17:22:30.5561150Z   retention-days: 14
+2026-10-28T17:22:30.5561500Z   if-no-files-found: warn
+2026-10-28T17:22:30.5561770Z   compression-level: 6
+2026-10-28T17:22:30.5562080Z   overwrite: false
+2026-10-28T17:22:30.5562300Z   include-hidden-files: false
+2026-10-28T17:22:30.5562710Z ##[endgroup]
+2026-10-28T17:22:32.2341510Z (node:4102) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-28T17:22:32.2345170Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-28T17:22:32.2473120Z Multiple search paths detected. Calculating the least common ancestor of all paths
+2026-10-28T17:22:32.2496230Z The least common ancestor is /Users/runner/work/Riftlet/Riftlet. This will be the root directory of the artifact
+2026-10-28T17:22:32.2497160Z With the provided path, there will be 12 files uploaded
+2026-10-28T17:22:32.2497740Z Artifact name is valid!
+2026-10-28T17:22:32.2498020Z Root directory input is valid!
+2026-10-28T17:22:32.9599930Z Beginning upload of artifact content to blob storage
+2026-10-28T17:22:33.0486600Z (node:4102) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-28T17:22:33.3046230Z Uploaded bytes 235853
+2026-10-28T17:22:33.3479040Z Finished uploading artifact content to blob storage!
+2026-10-28T17:22:33.3481110Z SHA256 digest of uploaded artifact zip is 978e2a0e81b8bdd6dd6c396e2925f9765264e17271d8b254ad9916259e886126
+2026-10-28T17:22:33.3485980Z Finalizing artifact upload
+2026-10-28T17:22:33.8017120Z Artifact feedback-v01-05e5f5e538a2780d039491a53317a21bd00f4dd0.zip successfully finalized. Artifact ID 12837061774
+2026-10-28T17:22:33.8026090Z Artifact feedback-v01-05e5f5e538a2780d039491a53317a21bd00f4dd0 has been successfully uploaded! Final size is 235853 bytes. Artifact ID is 12837061774
+2026-10-28T17:22:33.8027420Z Artifact download URL: https://github.com/haohongfei2001-png/Riftlet/actions/runs/40733901402/artifacts/12837061774
+2026-10-28T17:22:33.8768580Z Post job cleanup.
+2026-10-28T17:22:34.1504470Z [command]/opt/homebrew/bin/git version
+2026-10-28T17:22:34.1895120Z git version 2.55.0
+2026-10-28T17:22:34.2014570Z Copying '/Users/runner/.gitconfig' to '/Users/runner/work/_temp/8358ef69-c33b-4134-96b1-e9ca07e4f291/.gitconfig'
+2026-10-28T17:22:34.2055780Z Temporarily overriding HOME='/Users/runner/work/_temp/8358ef69-c33b-4134-96b1-e9ca07e4f291' before making global git config changes
+2026-10-28T17:22:34.2084090Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-28T17:22:34.2148260Z [command]/opt/homebrew/bin/git config --global --add safe.directory /Users/runner/work/Riftlet/Riftlet
+2026-10-28T17:22:34.2561170Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-28T17:22:34.2627190Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-28T17:22:34.5162410Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-28T17:22:34.5287120Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-28T17:22:34.6772540Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-28T17:22:34.7111140Z [command]/opt/homebrew/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-28T17:22:34.8676720Z Cleaning up orphan processes
+2026-10-28T17:22:37.3102020Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@11d5960a326750d5838078e36cf38b85af677262, actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+

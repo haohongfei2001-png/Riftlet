@@ -1,6 +1,6 @@
 # Feedback v0.1 · 当前交付续接（2026-10-29）
 
-已实时核对 PR #7 在 `70cf588` 合入正式工程，当前续接起点是 PR #1 的 `1920e056`，不再重复合并。新增自动重试、未发送凭据丢失取消、无POST投递删除竞态和免费请求预算修复，实际非作者审查已完成；新增macOS CI结果、准确最终SHA及统一App下载以[PR #1](https://github.com/haohongfei2001-png/Riftlet/pull/1)最新交接为准。源码与证据见[本轮交付记录](../engineering/evidence/2026-10-29-feedback-delivery/README.md)。
+已实时核对 PR #7 在 `70cf588` 合入正式工程，当前续接起点是 PR #1 的 `1920e056`，不再重复合并。新增自动重试、未发送凭据丢失取消、无POST投递删除竞态和免费请求预算修复，实际非作者审查已完成。源码 `7ef6cd4b` 的完整macOS15 CI（Native 40733901373、Feedback 40733901402）已通过：501唯一原生测试、内含38反馈/UI，20服务回归及42项固定审计通过，实际统一App已下载核验。正式工程文档后继的准确最终SHA、新正式CI及统一App下载以[PR #1](https://github.com/haohongfei2001-png/Riftlet/pull/1)最新交接为准。源码与证据见[本轮交付记录](../engineering/evidence/2026-10-29-feedback-delivery/README.md)。
 
 专用私库 `haohongfei2001-png/Riftlet-Feedback` 已真实建立并核实Private、禁用Actions。Cloudflare当前缺已登录账户，已登记Mac执行器离线；未部署D1/Worker，未创建测试Issue。客户端endpoint仍为空，真实原生到云端链路 **BLOCKED / NOT_RUN**，不能宣布交付完成。新统一内部Beta仍可保存本机反馈，不能实际发送到开发者。
 

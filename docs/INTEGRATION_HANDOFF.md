@@ -1,3 +1,9 @@
+## 2026-10-29 Feedback 可靠性与正式继承
+
+源码 `7ef6cd4b` 已完成反馈可靠性修复、标准 macOS15 运行器迁移及非作者审查，完整 Native/Feedback CI 已通过，真实统一 Beta 安装包已下载核验。正式工程文档后继的最终 SHA、新正式分支 CI 和下载固定在 [PR #1](https://github.com/haohongfei2001-png/Riftlet/pull/1)，细节见 [Feedback 交接](FEEDBACK_V01_HANDOFF.md)。当前截图实现与准入、真实 Mac 工作树、原有历史与数据均保留，main 未合并。私有反馈仓库已建立；Cloudflare 登录和离线 Mac 仍阻塞真实原生到云端验收，endpoint 继续为空。以下原交接记录保留为历史。
+
+---
+
 # 当前正式交接：Beta 体验修复与可运行版本更新 · 2026-10-28
 
 从正式 `b4bcfa41e8e237723b975d2a9a0059e955fa0c1f` 在独立 worktree 合入 `8e1a1688e75db8c18965e073ae357010e7397a3a`，后者包含 Codex `fa74f3c68f05ab4eaccfc24e2f39c0177289ddb3` 体验修复与八份原始脱敏证据。Main 两处冲突逐块保留 owner/revision、精确错误提示、prepared/cancelled 展示和全部原 Feedback 接线。固定来源审计准确更新获准文件和 Main，不跳过、不豁免任意 UI/App 修改。

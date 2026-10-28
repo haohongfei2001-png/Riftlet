@@ -1,3 +1,11 @@
+## 2026-10-29 Feedback 可靠性更新
+
+当前统一 Beta 包含已审查的反馈可靠性修复。源码 `7ef6cd4b` 的完整 macOS15 Native/Feedback CI 已通过，实际 arm64/ad-hoc 安装包已下载并核验。正式工程后继、准确下载入口和校验值以 [PR #1](https://github.com/haohongfei2001-png/Riftlet/pull/1) 最新交接为准；整包仍包含 App、明确的内部候选启动入口、使用说明和构建清单。
+
+反馈可保存草稿、预览自愿诊断、管理和取消本机待发送记录，但 Cloudflare 尚未部署、endpoint 为空，仍不能真实发送给开发者。既有截图行为、准入及数据根保留。这不是云端端到端交付完成，也不是已公证的公开发行版。下方旧下载与 SHA 均保留历史身份。
+
+---
+
 # 统一内部 Beta：体验修复 + 真实快吞噬 + Feedback v0.1
 
 **本轮交付完整原生 App，供创始人开始真实使用体验。** 唯一正式分支仍是 `codex/engineering-foundation-20261027`；[PR #1](https://github.com/haohongfei2001-png/Riftlet/pull/1) 保持 Draft，不合并 main、不公开发行。准确最终正式 SHA、两项 macOS CI、实际下载制品及其 SHA-256 固定在 PR #1 最新集成交接，不能用旧来源 CI 代替组合 CI。
