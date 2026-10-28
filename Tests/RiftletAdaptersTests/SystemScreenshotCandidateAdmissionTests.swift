@@ -471,7 +471,7 @@ private actor AdmissionTestBridge: WebBridgeExecutor {
             let state = states.isEmpty ? .unknown : states.removeFirst()
             let identity = try XCTUnwrap(command.identity)
             let start: ObservedUploadStart? = state == .uploadStarted ? .init(version: 1,
-                signal: .correlatedProgress, evidenceID: "constructed-admission-start", inputCount: 1,
+                signal: .correlatedProgress, evidenceID: "00000000-0000-4000-8000-000000000003", inputCount: 1,
                 inputSequence: 1, startSequence: 3, previousProgress: 10, currentProgress: 20,
                 inputObservedAtMS: 10, startObservedAtMS: 30) : nil
             let item = AttachmentObservation(identity: identity, state: state,
