@@ -158,7 +158,7 @@ final class MagnetFlightPresenterTests: XCTestCase {
                 ended.append($0.assetID)
             })
         })
-        XCTAssertFalse(presenter.start(assetID: attempted, image: image, plan: plan, backingScale: scale) {
+        XCTAssertFalse(presenter.start(assetID: attempted, image: image, plan: plan, backingScale: scale) { _ in
             XCTFail("A start superseded during its own callback never owns a window")
         })
         XCTAssertEqual(presenter.currentAssetID, nested)

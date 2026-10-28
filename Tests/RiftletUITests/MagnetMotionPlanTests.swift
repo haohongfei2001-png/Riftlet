@@ -120,7 +120,7 @@ final class MagnetMotionPlanTests: XCTestCase {
         let badSources = [CGRect.zero,
                           CGRect(x: 300, y: 300, width: -100, height: 100),
                           CGRect(x: 300, y: 300, width: 100, height: -100),
-                          CGRect(x: .nan, y: 10, width: 100, height: 100),
+                          CGRect(x: CGFloat.nan, y: 10, width: 100, height: 100),
                           CGRect(x: -40, y: 10, width: 100, height: 100),
                           CGRect(x: 1400, y: 10, width: 100, height: 100),
                           CGRect(x: 1433, y: 500, width: 4, height: 4)]

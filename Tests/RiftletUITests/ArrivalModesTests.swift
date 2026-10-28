@@ -397,13 +397,15 @@ final class ArrivalModesTests: XCTestCase {
         defer { panel.close() }
         try await beginFlight(panel, record: record, screen: screen)
         let original = try row(panel, id: record.id)
-        let pixels = try XCTUnwrap(original.3.contents as? CGImage)
+        let pixels = try XCTUnwrap(original.3.contents) as AnyObject
+        XCTAssertEqual(CFGetTypeID(pixels), CGImageGetTypeID())
         try await eventually("Flight did not finish and clear its native overlay") { panel.arrivalDiagnostic.overlayCount == 0 }
         let final = try row(panel, id: record.id)
         XCTAssertEqual(final.0.frame, original.0.frame)
         XCTAssertEqual(final.0.imageInputFrame, original.0.imageInputFrame)
         XCTAssertEqual(final.0.numberInputFrame, original.0.numberInputFrame)
-        XCTAssertTrue((final.3.contents as? CGImage) === pixels)
+        let finalPixels = try XCTUnwrap(final.3.contents) as AnyObject
+        XCTAssertTrue(finalPixels === pixels)
         try assertStatic(panel, id: record.id)
         XCTAssertFalse(panel.interactionSnapshot.isTransitioning)
     }
