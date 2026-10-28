@@ -18,10 +18,14 @@ public final class KeychainFeedbackSecrets: FeedbackSecretStorage, @unchecked Se
             kSecUseDataProtectionKeychain as String: true]
         var read = query; read[kSecReturnData as String] = true
         read[kSecMatchLimit as String] = kSecMatchLimitOne
+        // A background retry must not open a Keychain authorization dialog.
+        // A missing/locked capability is retained as blocked, never replaced.
+        if !create { read[kSecUseAuthenticationUI as String] = kSecUseAuthenticationUIFail }
         var result: CFTypeRef?
         let status = SecItemCopyMatching(read as CFDictionary, &result)
         if status == errSecSuccess, let data = result as? Data,
-           let text = String(data: data, encoding: .utf8), text.count == 64 { return text }
+           let text = String(data: data, encoding: .utf8),
+           text.range(of: "^[0-9a-f]{64}$", options: .regularExpression) != nil { return text }
         guard status == errSecItemNotFound, create else { throw FeedbackFailure.secretUnavailable }
         var bytes = [UInt8](repeating: 0, count: 32)
         guard SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes) == errSecSuccess else { throw FeedbackFailure.secretUnavailable }
@@ -38,7 +42,7 @@ public final class KeychainFeedbackSecrets: FeedbackSecretStorage, @unchecked Se
     }
 }
 
-/// Deliberately not used by the shipping host. An isolated test/demo capability store.
+/// Used only by tests; the shipping host always selects KeychainFeedbackSecrets.
 public final class MemoryFeedbackSecrets: FeedbackSecretStorage, @unchecked Sendable {
     private let lock = NSLock()
     private var values: [String: String] = [:]

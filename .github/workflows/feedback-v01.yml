@@ -26,7 +26,7 @@ jobs:
           swift --version
           sw_vers
           node --version
-          node --experimental-sqlite --test services/feedback/feedback.test.mjs 2>&1 | tee feedback-results/service.log
+          node --experimental-sqlite --test services/feedback/feedback.test.mjs services/feedback/retention.test.mjs 2>&1 | tee feedback-results/service.log
       - name: Native feedback and software AppKit tests
         run: |
           set -o pipefail

@@ -1,0 +1,61 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {DatabaseSync} from 'node:sqlite';
+import {readFileSync} from 'node:fs';
+import receiver from './receiver.mjs';
+import {dispatch} from './delivery.mjs';
+
+// Executes actual schema/SQL. D1 scheduling and GitHub remain mocked, not live.
+function fixture() {
+  const sqlite=new DatabaseSync(':memory:');
+  sqlite.exec(readFileSync(new URL('./schema.sql',import.meta.url),'utf8'));
+  const prepare=(sql,args=[])=>({
+    bind(...values){return prepare(sql,values);},
+    execute(){return {results:sqlite.prepare(sql).all(...args)};},
+    async first(){return this.execute().results[0]??null;},
+    async all(){return this.execute();},async run(){return this.execute();}
+  });
+  const DB={prepare,async batch(statements){
+    sqlite.exec('BEGIN');try{const results=statements.map(s=>s.execute());sqlite.exec('COMMIT');return results;}
+    catch(e){sqlite.exec('ROLLBACK');throw e;}
+  }};
+  return {sqlite,DB,ACCEPT_ENABLED:'true',IP_HMAC_KEY:'test-key-'.repeat(8),DELIVERY_ENABLED:'false',GITHUB_TOKEN:'test-only',GITHUB_REPOSITORY:'owner/private-feedback'};
+}
+const token='f'.repeat(64);
+const payload=()=>({schema:1,id:crypto.randomUUID(),kind:'problem',text:'synthetic retention test',appVersion:'0.1.0',createdAt:Math.floor(Date.now()/1000)});
+function request(p,method='POST') {
+  return new Request('https://feedback.invalid/v1/feedback'+(method==='POST'?'':'/'+p.id),{
+    method,headers:{Authorization:'Bearer '+token,'Content-Type':'application/json','CF-Connecting-IP':'192.0.2.42'},
+    ...(method==='POST'?{body:JSON.stringify(p)}:{})
+  });
+}
+test('expiry scrubs payload and report IP bucket; never-attempted expired report can be deleted',async()=>{
+  const env=fixture(),p=payload();
+  assert.equal((await receiver.fetch(request(p),env)).status,202);
+  env.sqlite.exec('UPDATE feedback SET expires=0');await dispatch(env);
+  const expired=env.sqlite.prepare('SELECT * FROM feedback').get();
+  assert.equal(expired.state,'expired');assert.equal(expired.payload,null);assert.equal(expired.ip_bucket,'');assert.equal(expired.day_bucket,'');
+  const deletion=await receiver.fetch(request(p,'DELETE'),env);assert.equal((await deletion.json()).state,'deleted');
+  const retry=await receiver.fetch(request(p),env);assert.equal((await retry.json()).state,'deleted');
+  assert.equal(env.sqlite.prepare('SELECT COUNT(*) n FROM feedback').get().n,1);
+});
+test('claimed or delivered deletion remains pending and retains its remote obligation',async()=>{
+  for(const state of ['attempting','uncertain','delivered']) {
+    const env=fixture(),p=payload();await receiver.fetch(request(p),env);
+    env.sqlite.prepare('UPDATE feedback SET state=?,issue_number=1,issue_node_id=?').run(state,'SYNTHETIC');
+    const r=await receiver.fetch(request(p,'DELETE'),env);assert.equal((await r.json()).state,'deletion_pending');
+    const row=env.sqlite.prepare('SELECT * FROM feedback').get();
+    assert.equal(row.payload,null);assert.equal(row.ip_bucket,'');assert.equal(row.issue_number,1);
+  }
+});
+test('stored unknown fields are never projected into a private Issue',async(t)=>{
+  const env=fixture(),p=payload();await receiver.fetch(request(p),env);
+  env.sqlite.prepare('UPDATE feedback SET payload=?').run(JSON.stringify({...p,path:'/Users/synthetic/private'}));
+  const old=globalThis.fetch;let posts=0;
+  globalThis.fetch=async(url,init={})=>{
+    if(init.method==='POST'){posts++;throw new Error('must not post');}
+    return Response.json({private:true,full_name:'owner/private-feedback'});
+  };
+  t.after(()=>{globalThis.fetch=old;});env.DELIVERY_ENABLED='true';await dispatch(env);
+  assert.equal(posts,0);assert.equal(env.sqlite.prepare('SELECT state FROM feedback').get().state,'uncertain');
+});

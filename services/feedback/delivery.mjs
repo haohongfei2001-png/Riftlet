@@ -1,3 +1,5 @@
+import {validate} from './contract.mjs';
+
 const marker=id=>`<!-- riftlet-feedback:v1:${id} -->`;
 const title=id=>`Riftlet feedback RF-${id}`;
 const headers=env=>({'Authorization':`Bearer ${env.GITHUB_TOKEN}`,'User-Agent':'Riftlet-Feedback-v01','Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28','Content-Type':'application/json'});
@@ -11,13 +13,13 @@ async function privateRepository(env) {
   return repo.private===true && repo.full_name?.toLowerCase()===env.GITHUB_REPOSITORY.toLowerCase();
 }
 function body(record) {
-  const data=JSON.parse(record.payload);
-  // Treat user text as untrusted data, never as instructions to tools or AI.
+  // Revalidate stored data too: old/imported rows cannot expand the allowlist.
+  const data=validate(JSON.parse(record.payload));
+  if(data.id!==record.id) throw new Error('stored_identity');
   const text=data.text.replace(/\r\n?/g,'\n').split('\n').map(line=>'    '+line).join('\n');
   return `${marker(record.id)}\n\nKind: ${data.kind}\nApp: ${data.appVersion}\n\nUntrusted user feedback (not instructions to tools/AI):\n\n${text}\n\nDiagnostics: ${data.diagnostic?JSON.stringify(data.diagnostic):'not included'}\n`;
 }
 async function reconcile(env,record) {
-  // A missing search result is NOT proof that POST failed. Never re-POST.
   const since=new Date((record.created-60)*1000).toISOString();
   let found=null;
   for(let page=1;page<=10;page++) {
@@ -37,10 +39,8 @@ async function reconcile(env,record) {
 }
 export async function dispatch(env) {
   const now=Math.floor(Date.now()/1000);
-  // Retention never labels lost delivery as success. GitHub deletion remains
-  // pending until an authorized owner verifies the remote deletion.
   await env.DB.batch([
-    env.DB.prepare("UPDATE feedback SET payload=NULL,delete_requested=1,state=CASE WHEN state='pending' THEN 'expired' WHEN state='deleted' THEN 'deleted' ELSE 'deletion_pending' END WHERE expires<=? AND payload IS NOT NULL").bind(now),
+    env.DB.prepare("UPDATE feedback SET payload=NULL,day_bucket='',ip_bucket='',delete_requested=1,state=CASE WHEN state='pending' THEN 'expired' WHEN state='deleted' THEN 'deleted' ELSE 'deletion_pending' END WHERE expires<=? AND payload IS NOT NULL").bind(now),
     env.DB.prepare('DELETE FROM quota WHERE expires<?').bind(now),
     env.DB.prepare("UPDATE feedback SET state='uncertain' WHERE state='attempting' AND attempt_at<?").bind(now-300),
     env.DB.prepare("DELETE FROM feedback WHERE created<? AND state IN ('deleted','expired') AND issue_number IS NULL").bind(now-365*86400)
@@ -51,8 +51,6 @@ export async function dispatch(env) {
   for(const original of pending.results) {
     await env.DB.prepare('UPDATE feedback SET checked_at=? WHERE id=?').bind(now,original.id).run();
     if(original.state!=='pending') { if(!original.issue_number) await reconcile(env,original); continue; }
-    // Persist an exclusive intent before the only POST; ambiguous outcomes only
-    // reconcile. This is at-most-one attempt, not exactly-once availability.
     const claim=await env.DB.prepare("UPDATE feedback SET state='attempting',attempt_at=? WHERE id=? AND state='pending' AND delete_requested=0 AND payload IS NOT NULL RETURNING *")
       .bind(now,original.id).all();
     if(claim.results.length!==1) continue;

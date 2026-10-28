@@ -29,7 +29,6 @@ async function handle(request,env) {
   if(!hash) return json({error:'unauthorized'},401);
   const now=Math.floor(Date.now()/1000);
   if(request.method==='POST' && url.pathname==='/v1/feedback') {
-    // Disable new submissions without disabling capability-authenticated deletion.
     if(env.ACCEPT_ENABLED !== 'true' || typeof env.IP_HMAC_KEY !== 'string' || env.IP_HMAC_KEY.length<32) return json({error:'unavailable'},503);
     if(request.headers.get('Content-Type')?.split(';')[0].trim().toLowerCase()!=='application/json'
         || request.headers.has('Content-Encoding')) return json({error:'content_type'},415);
@@ -39,7 +38,6 @@ async function handle(request,env) {
     const payload=JSON.stringify(value), payloadHash=await digest(payload);
     let row=await lookup(env.DB,value.id);
     if(!row) {
-      // Old frozen envelopes cannot be recreated after tombstone expiry.
       if(value.createdAt<now-30*86400 || value.createdAt>now+300) return json({error:'submission_age'},422);
       const ip=request.headers.get('CF-Connecting-IP');
       if(!ip) return json({error:'unavailable'},503);
@@ -59,14 +57,16 @@ async function handle(request,env) {
     if(!row) return json({error:'unavailable'},503);
     if(row.secret_hash!==hash) return json({error:'not_found'},404);
     if(row.payload_hash!==payloadHash) return json({error:'conflict'},409);
-    return json(receipt(row),202); // Only AFTER awaited durable insertion / existing durable row.
+    return json(receipt(row),202);
   }
   const match=/^\/v1\/feedback\/([^/]+)$/.exec(url.pathname);
   if(!match || !validID(match[1]) || !['GET','DELETE'].includes(request.method)) return json({error:'not_found'},404);
   const row=await lookup(env.DB,match[1]);
   if(!row || row.secret_hash!==hash) return json({error:'not_found'},404);
   if(request.method==='DELETE') {
-    await env.DB.prepare("UPDATE feedback SET delete_requested=1,payload=NULL,state=CASE WHEN state='pending' THEN 'deleted' WHEN state='deleted' THEN 'deleted' ELSE 'deletion_pending' END WHERE id=?").bind(row.id).run();
+    // expired is only the never-delivered pending path. Its deletion has no
+    // remote Issue obligation. Uncertain/claimed requests remain pending.
+    await env.DB.prepare("UPDATE feedback SET delete_requested=1,payload=NULL,day_bucket='',ip_bucket='',state=CASE WHEN state IN ('pending','expired','deleted') THEN 'deleted' ELSE 'deletion_pending' END WHERE id=?").bind(row.id).run();
     return json(receipt(await lookup(env.DB,row.id)),202);
   }
   return json(receipt(row));
