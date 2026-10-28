@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "source": "e39c30046d2451cee204a5bc2f8fc22f2251da26",
+  "tree": "e1d5eec20a267efa9f9dab1ac8dc31c312dd5d95",
+  "parents": ["d6a083dec660990bd65124e7acd78f2d900b5013", "b30bb80d5af5cc12b0640c3609f70292709738a1"],
+  "commonAncestor": "b83923068064f6d82f2d253a3c177661fdabc294",
+  "round8": "8914c7027478cbef6af70ad7549e290d5b8cc232",
+  "round9TestedSource": "23becda7b5a82beb4634ba3816fde6dac49034d2",
+  "round8AlreadyAncestor": true,
+  "ci": {
+    "run": 40628705359,
+    "job": 122619751123,
+    "status": "completed",
+    "conclusion": "success",
+    "steps": 17,
+    "checkout": "e2f4f0cd94a8dfb29bc5462a7d080b7304747098",
+    "checkoutTreeEqualsReviewedTree": true,
+    "os": "macOS 14.8.9 (23J631)",
+    "architecture": "arm64",
+    "swift": "5.10",
+    "nativeUnique": 440,
+    "nativeByModule": {"Core": 135, "Adapters": 137, "Capture": 65, "UI": 56, "App": 47},
+    "detailedPassed": 106,
+    "detailedSkipped": 0,
+    "detailedAlreadyIncludedInNativeTotal": true,
+    "pageVM": 83,
+    "legacyVM": 61,
+    "packaging": 12,
+    "selfChecks": 5,
+    "artifact": {"id": 12790392670, "bytes": 1923804, "sha256": "39da5e37721f2593f070c4d8070aa1c2991805d54f7522cf101a18784614b451", "downloadedAndHashRecomputed": true, "expiresAt": "2026-11-11T03:50:06Z"}
+  },
+  "preservation": {
+    "protectedObjectsUnchangedFromFormalBase": {
+      "Sources/RiftletCore": "feb08412f024e8ddb2aaf6459db12a826d73a872",
+      "Sources/RiftletCapture": "c190891690d9f0fa4073fe5c6b2ddcc78ad633d1",
+      "Sources/RiftletApp/ApplicationMode.swift": "175c92cd5cdbc6db9feb9154765ad8e5de1331f5",
+      "Sources/RiftletApp/SystemScreenshotCandidateConfiguration.swift": "e52a52a5e4313a9c0e492d59a97bf9bc91ee4b8a",
+      "Sources/RiftletApp/PassivePermissionResume.swift": "aae1d2e7b5e8fbed41427e8a2f1d51fd569ec9c9",
+      "Sources/RiftletAdapters/SystemScreenshotObservationJournal.swift": "3497e0baaa9c75aba82657bd4a15f3b7d86afd90",
+      "Sources/RiftletAdapters/WebAttachmentAdapter.swift": "91407efa6f908704f4cd9cfa31546528cf16263a",
+      "Sources/RiftletAdapters/ObservationNormalizer.swift": "d0f2a068b8ee1506b5772a7f00df87b912909e5b",
+      "Sources/RiftletUI/RiftHistoryController.swift": "405e55c2aa28ac524f466e013dff6b5b31c531d0",
+      "Sources/RiftletUI/HistoryPresentation.swift": "9d3b950737f9f019919f88690be5ee0734e7fca4",
+      "Resources": "760e5d2e74f2237ca17597edd042f2f1d13439ac",
+      "ThirdPartyNotices": "89a07e01c183f61fca6bc7d7127322b00fa03ded"
+    },
+    "originalRound8And9FileCount": 32,
+    "originalEvidenceBytesAndGitBlobsUnchanged": true,
+    "sourcePreservationManifestSha256": "3cf7fb13b107e5141bf8f2b676f8a12f7ff6361c99cb8674724bc43c749a4801"
+  },
+  "failuresAndCorrections": [
+    "Initial local combined VM: two premature v12 attached assertions failed because fixture settle inspected v11 registry. Corrected exact-version lookup; frozen v12.js and predicates unchanged. Three subsequent local runs: 144/144.",
+    "Auxiliary preparation run40628422942 passed source/tree and144VM but push was refused due to GITHUB_TOKEN workflow permissions. Used existing authorized GitHub connector to create isolated branch; no permission escalation or formal/main change."
+  ],
+  "notRun": ["SC-INPUT", "SC-START", "SC-COMPLETE", "physical GUI", "real screenshot timing", "new combined binary Chrome/TCC acceptance"],
+  "admission": {"ordinaryProductionUpload": false, "candidateStart": false, "candidateComplete": false, "safeRetry": false}
+}
