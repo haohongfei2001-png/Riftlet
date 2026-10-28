@@ -1,5 +1,8 @@
 # Riftlet 自主并行执行队列
 
+> **系统截图第二阶段 · DONE（限定交接）**：最终源码48574df、CI40656871851 PASS。真实新系统PNG一次输入取得SC-START；48字符和选区8..11未聚焦保留。旧v9 monitor阻断已修复并真机恢复；sRGB性能提示舍入缺陷已最小修复及只读像素对照，未新输入复测，完整SC-COMPLETE仍FAIL。旧UNKNOWN/数据全保留，准入不变；[结果与Pro下一步](../engineering/evidence/2026-10-28-system-screenshot-stage2/README.md)。
+
+
 > **真实系统截图首验限定交接（2026-10-28）**：源码a5db972，CI树3f4e18a，macOS CI40647857737 PASS。已修复App权限变化丢失arming wake的实际阻断；真实系统PNG通过一次原输入取得原附件attached候选，start证据未取得，正文/选区前后对照NOT_RUN，完整冷首击及生产准入未通过。A UNKNOWN/visible和B取消记录、旧数据全保留；[结果、适用范围与Pro交接](../engineering/evidence/2026-10-28-system-screenshot-real/README.md)。
 
 > **第九轮独立交接（2026-10-28）**：Web/真实 App 源码 fcb052b，最终 helper/完整构建源码 23becda；v10/v12 旧监视器兼容在真实页面恢复，原 descriptor/操作保留。原冷首击 ACK 仍晚约209ms，安全拒绝零输入；补位双击实测软件路由 PASS，人工物理 NOT_RUN。144页面/legacy、完整构建/四自检及非作者审查 PASS；本机 XCTest 缺失，CI40555899978 尚待执行，不能写全套 native PASS。系统截图候选4d352c2未在此分支集成，生产准入不变。[准确结果与交接](../engineering/evidence/2026-10-28-real-mac-round9/README.md)。

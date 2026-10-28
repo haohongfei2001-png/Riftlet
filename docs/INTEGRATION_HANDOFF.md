@@ -1,5 +1,12 @@
 # 正式工程交接：第八、九轮与真实系统截图候选合流 · 2026-10-28
 
+## 系统截图第二阶段限定交接 · 2026-10-28
+
+独立分支 `codex/riftlet-real-mac-acceptance-sc-stage2-20261028`；源码 `867d93f`（v9兼容+实际输入）、`48574df`（普通sRGB严格像素比较修复）。[macOS CI40656871851](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40656871851) PASS。一张1.56MiB真实系统PNG一次CGEvent点击，SC-INPUT/SC-START PASS；正文48字符、非空选区8..11、编辑器未聚焦保留。完整SC-COMPLETE仍FAIL：旧运行代码的willReadFrequently导致1级颜色舍入不匹配；同原图/原预览的显式sRGB单变量对照严格相等，源码最小修复已构建，但未新输入复测，旧D继续UNKNOWN。
+
+只需集成后用另一张新系统截图独立复测最终proof/attached；禁止重输D或回填它的完成。开始、完成和安全失败准入仍分别关闭。非空旧附件、物理鼠标和无ACK冷首击不在本次PASS范围。完整身份、原媒体、数据库、日志只保存在私有目录；[脱敏结果、源码范围和数据保留](../engineering/evidence/2026-10-28-system-screenshot-stage2/README.md)。正式Pro工作树、PR#1及main未修改。
+
+
 > **独立Mac真实系统截图交接（2026-10-28）**：`codex/system-screenshot-real-20261028`，修复源码 `a5db972b7c4da20d30266ec8d1411fff9f434c13`，CI树 `3f4e18a15d8cc77a367beca30ade338906df9d8d` / CI40647857737 PASS。可直接审查最小App wake修复与3项回归。真实系统PNG已有唯一输入、原附件attached候选；SC-START未取得，保留性矩阵未验，三项准入不得开启。[准确证据、协议偏差和剩余项](../engineering/evidence/2026-10-28-system-screenshot-real/README.md)。本段是独立分支提案，未修改正式PR #1或扩大Beta准入。
 
 本节为当前入口；下方旧交接仅作历史。基线 `d6a083dec660990bd65124e7acd78f2d900b5013` 与固定第九轮 `b30bb80d5af5cc12b0640c3609f70292709738a1` 保留双亲历史；共同祖先 b839230，第八轮 8914c702 已是第九轮祖先，不再 cherry-pick。最终正式 SHA、组合 CI 与审查结果以 PR #1 的本轮交接记录为准，来源 CI 40555899978 不替代组合 CI。
