@@ -176,8 +176,9 @@ private final class RiftRowView: NSView, NSMenuDelegate {
         case .missing: suffix = "private image missing"
         case .used: suffix = "attachment verified"
         }
-        setAccessibilityLabel("Screenshot \(ordinal), \(suffix)")
+        setAccessibilityLabel("Screenshot \(ordinal), \(feedback ?? suffix)")
         toolTip = feedback ?? "Screenshot \(ordinal) · \(suffix). Scroll for earlier or later captures."
+        setAccessibilityHelp(toolTip)
     }
 
     override func draw(_ dirtyRect: NSRect) {
@@ -478,6 +479,12 @@ public final class RiftPanelController {
         }
     }
 
+    /// A completed waiting phase must not erase a newer cancellation or error.
+    public func clearFeedback(matching reason: String, for assetID: UUID) {
+        guard rowWindows[assetID]?.view.feedback == reason else { return }
+        setFeedback(nil, for: assetID)
+    }
+
     /// App persists this independent intent. No new image, wake, reflow or late
     /// animation may reverse it; only an explicit call with false shows the rift.
     public func setUserHidden(_ hidden: Bool) {
@@ -723,7 +730,7 @@ public final class RiftPanelController {
             if accepted {
                 self.selectionVersions[id] = view.record.visibilityRevision
                 self.mutateInteraction { $0.beginSelection(id, held: true) }
-                view.feedback = nil; view.updateDescription()
+                self.setFeedback(nil, for: id)
                 self.onPress(id, event.timestamp)
                 self.onSelectionBoundary(RiftSelectionBoundary(assetID: id, source: .mouse,
                     eventUptime: event.timestamp, eventNumber: event.eventNumber,
@@ -764,7 +771,7 @@ public final class RiftPanelController {
             let invocationUptime = ProcessInfo.processInfo.systemUptime
             self.selectionVersions[id] = view.record.visibilityRevision
             self.mutateInteraction { $0.beginSelection(id, held: false) }
-            view.feedback = nil; view.updateDescription()
+            self.setFeedback(nil, for: id)
             self.onPress(id, invocationUptime)
             self.onSelectionBoundary(RiftSelectionBoundary(assetID: id, source: .accessibility,
                 eventUptime: invocationUptime))

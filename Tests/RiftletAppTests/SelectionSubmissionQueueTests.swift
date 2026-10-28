@@ -4,6 +4,7 @@ import XCTest
 final class SelectionSubmissionQueueTests: XCTestCase {
     @MainActor func testSuspendedFirstPermissionCannotLetLaterSelectionOvertake() async {
         let queue = SelectionSubmissionQueue()
+        XCTAssertFalse(queue.hasOutstandingSubmission)
         var events: [String] = []
         var release: CheckedContinuation<Void, Never>?
         defer { queue.stop(); release?.resume() }
@@ -14,11 +15,13 @@ final class SelectionSubmissionQueueTests: XCTestCase {
             await withCheckedContinuation { release = $0; entered.fulfill() }
             events.append("A.end")
         }
+        XCTAssertTrue(queue.hasOutstandingSubmission, "A queued original click is already outstanding before its task starts")
         let b = queue.enqueue(selectionID: UUID(), deadline: nil, cancelled: {}) { _ in
             events.append("B.begin"); finished.fulfill()
         }
         XCTAssertEqual(a, 0); XCTAssertEqual(b, 1)
         await fulfillment(of: [entered], timeout: 5)
+        XCTAssertTrue(queue.hasOutstandingSubmission, "A suspended active consumer still makes later clicks wait")
         XCTAssertEqual(events, ["A.begin"])
         release?.resume(); release = nil
         await fulfillment(of: [finished], timeout: 5)

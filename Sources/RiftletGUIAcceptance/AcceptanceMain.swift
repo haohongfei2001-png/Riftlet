@@ -156,7 +156,7 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
         let title = NSTextField(wrappingLabelWithString: "N04 / N05 / N07 · Native input observations")
         title.font = .boldSystemFont(ofSize: 18)
         let guidance = NSTextField(wrappingLabelWithString: """
-        请用真实鼠标/键盘连续完成：①点文本框，再单击右侧 IMAGE 图片，输入一个测试字符；②点击 GAP 间隙、CLEAR 透明角（可补 OUTER 外侧）；③点“准备按住补位”，按住 HOLD 第二张，看到“可以松开”后释放；④待补位完成后双击剩余图片。
+        请用真实鼠标/键盘连续完成：①点文本框，再分别单击右侧 IMAGE 图片和 NUMBER 数字，各输入一个测试字符；②点击 GAP 间隙、CLEAR 透明角（可补 OUTER 外侧）；③点“准备按住补位”，按住 HOLD 第二张，看到“可以松开”后释放；④待补位完成后双击剩余图片。第④步只验证普通双击；替换窗口后的防误选仍需独立证据。
         靶点画在底层探针上，不能绕过上层窗口。以底层实际收到的点击判断穿透；图片/数字上的靶心可能被缩略图遮住，请沿标注箭头定位。透明角须点小靶心。
         只有合成素材。日志不记录输入内容或键码，不自动判 PASS。同进程文本框不代表跨应用焦点通过；跨应用/全屏仍须独立验证。
         """)

@@ -17,6 +17,9 @@ final class SelectionSubmissionQueue {
     private var nextOrdinal: UInt64 = 0
     private var active = false
 
+    /// Presentation only: a later original selection will wait for this consumer.
+    var hasOutstandingSubmission: Bool { active || !pending.isEmpty }
+
     @discardableResult
     func enqueue(selectionID: UUID?, deadline: TimeInterval?,
                  cancelled: @escaping @MainActor () -> Void,
