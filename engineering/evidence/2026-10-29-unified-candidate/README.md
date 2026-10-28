@@ -42,3 +42,7 @@
 ## 首轮 CI 修正记录
 
 Feedback run `40754551166`（head `d909ecc`，checkout `10850947666b8b047bb357cb618ab48acaf8fa5a`）通过 88 项隔离审计、20 项服务测试后，在新视觉 helper 的 Swift Quartz API 桥接处编译失败；原生测试未执行。已改用 SDK 明确推荐的公开 `CGImage` Swift overlay，并把本进程的正数窗口 ID 按 Quartz 要求编码为 nil-callback CFArray，不捕获其他进程、不申请权限、无动态符号替代。非作者工程复核批准新 source `7bdd46362b71229c29d65f0554d526c0b09e79dc` / tree `8494f8fdae3ccf33ab0016a8db47ffdb3bfaaeba`；仅 helper 10+/8-，产品源码未变。新组合 CI 与实际图/MOV仍等待执行，不继承为通过。
+
+## 原生交互回归修复
+
+第二轮 head `8db2ec`：Feedback `40756079028` 通过40项唯一原生/UI测试、20项服务测试、88项隔离审计（均0 skip）；关闭回归额外重复3轮不重复计数。Native `40756079761` 实际调度637项，新增归档 Return 测试发现一次输入导致两次保存，打包/视觉步骤尚未运行。已修复为仅Return或保存按钮主动提交、失去焦点不保存、同值幂等，并按Host秒/小时roundtrip规范小数比较；原测试未放宽，另覆盖blur及0.011连点。非作者确认新source `cba039bae3fb976295d00869d5117fbaab50a26d` / tree `413ab447aa47f26ab2c27737ec7db887307163cd` 可固定；新完整CI与视觉仍待验证。
