@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "phase": "INDEPENDENT_VISUAL_REVIEW_POLISH_IN_PROGRESS",
-  "nativeCI": "LATEST_SOURCE_NOT_RUN; previous fea485 CI passed but edge evidence invalid",
-  "feedbackCI": "LATEST_SOURCE_NOT_RUN; previous fea485 passed",
-  "newNativeVisualEvidence": "RECAPTURE_REQUIRED; previous auxiliary screenshots valid, edge screenshots and motion invalid",
+  "phase": "EXACT_SOURCE_REVIEWED_AWAITING_MACOS_CI",
+  "nativeCI": "PENDING_NEW_EXACT_HEAD",
+  "feedbackCI": "PENDING_NEW_EXACT_HEAD",
+  "newNativeVisualEvidence": "PENDING_RECAPTURE_AND_NON_AUTHOR_REVIEW",
   "physicalMacAcceptance": "NOT_RUN_AUTHORIZED_MAC_OFFLINE",
-  "sourceReview": "PASS_NON_AUTHOR_SOURCE_CHECKPOINT; native/visual acceptance pending",
+  "sourceReview": "PASS_NON_AUTHOR_EXACT_SOURCE; native and visual acceptance pending",
   "founderInstallationRequested": false,
   "productionEnabled": false,
   "safeRetryEnabled": false,
   "feedbackCloudDelivery": "NOT_DEPLOYED",
-  "reviewedSource": "cba039bae3fb976295d00869d5117fbaab50a26d",
-  "reviewedSourceTree": "413ab447aa47f26ab2c27737ec7db887307163cd",
+  "reviewedSource": "49735b821bf8aae8f8327048a3c0ba159e1963d1",
+  "reviewedSourceTree": "e3c9ebe8340852ab89e269d194d8cdc7c11dfac2",
   "localChecks": {
     "unifiedAuditRejectionTests": 24,
     "nativeVisualManifestTests": 16,
@@ -63,7 +63,18 @@
       "motionLimitation": "Actual runner Reduce Motion=true, all arrival events mode none; no normal magnet or interrupt proof",
       "artifactID": 12847311498,
       "artifactSHA256": "1ad26cffe9231e895f2d9f670b43967b0ae9881fd296cfc54a36917dc77cbd1b",
-      "internalBetaSHA256": "8e2beb8a506935f5ad4db8610b203ce35dacba0d14244fab1f78a49b5bdda3d6"
+      "internalBetaSHA256": "8e2beb8a506935f5ad4db8610b203ce35dacba0d14244fab1f78a49b5bdda3d6",
+      "detailedNativeEvidence": {
+        "distinctPassed": 235,
+        "distinctSkipped": 1,
+        "allWithinFullParallelScheduledCount": true,
+        "fullParallelPerTestSkipCount": "NOT_EXPOSED",
+        "captureEntryDetailedPassed": 46,
+        "unifiedProductDetailedPassed": 30,
+        "unifiedProductDetailedSkipped": 1,
+        "packagingRejectionPassed": 19,
+        "visualManifestPassed": 9
+      }
     }
   ],
   "lateRemoteObservation": {
@@ -75,8 +86,6 @@
   },
   "physicalMacLastObservation": {
     "status": "Offline",
-    "deviceID": "ea7c2cb7-378e-4226-a030-4f3e02a6ba2f",
-    "host": "hhfdeMacBook-Air.local",
     "observedUTC": "2026-10-28T20:06:00Z",
     "reportedLastSeen": "4h ago",
     "realPhysicalAcceptance": "NOT_RUN"

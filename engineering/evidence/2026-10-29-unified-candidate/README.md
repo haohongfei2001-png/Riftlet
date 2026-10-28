@@ -64,3 +64,7 @@ Feedback run `40754551166`（head `d909ecc`，checkout `10850947666b8b047bb357cb
 - Feedback计数与既有Envelope的Unicode scalar/UTF-8/空白规则一致，保持本机保存和无云端送达声明。
 
 以上最新改动正在等待精确组合CI和新原尺寸复审，不能继承旧通过结论。真实Mac仍离线；旧H、旧UNKNOWN、系统原图、数据库与审计未动。
+
+## 第四轮准确源码固定
+
+非作者 engineering_review 已确认 `49735b821bf8aae8f8327048a3c0ba159e1963d1` / tree `e3c9ebe8340852ab89e269d194d8cdc7c11dfac2`，工作树干净；所有产品/helper/CI对象与逐项复审一致，最新独立报告字节一致。统一gate现在仅将REVIEWED_SOURCE指向该检查点；没有新增路径豁免或改变旧审计。44个普通真实AppKit场景与3个实际系统辅助组合场景将分别取证，额外原生回归由下一轮CI验证。该确认仅为SOURCE_REVIEW_PASS；Native/Feedback、原尺寸图与MOV仍待当前提交实际执行。
