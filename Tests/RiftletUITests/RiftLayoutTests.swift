@@ -90,11 +90,27 @@ final class RiftLayoutTests: XCTestCase {
         XCTAssertEqual(highContrast.lineFrame.width, 1)
     }
 
-    func testPagerCapacityAndPlaneDoNotMoveWhenSelectingLastPage() {
+    func testPagerCapacityAndPlaneDoNotMoveWhenSelectingLastPage() throws {
         let input = records(26), frame = CGRect(x: 1920, y: 0, width: 900, height: 740)
         let first = RiftLayout.make(records: input, visibleFrame: frame, configuration: .init())
         let last = RiftLayout.make(records: input, visibleFrame: frame, configuration: .init(), firstVisibleIndex: 999)
-        XCTAssertEqual(first.rows.first?.frame, last.rows.first?.frame)
+        let firstRow = try XCTUnwrap(first.rows.first)
+        let lastPageRow = try XCTUnwrap(last.rows.first)
+        // A two-digit ordinal extends its visible input island to the left.
+        // The image and fixed plane must not move with that envelope change.
+        XCTAssertGreaterThan(lastPageRow.numberFrame.width, firstRow.numberFrame.width)
+        XCTAssertEqual(firstRow.frame.maxX, lastPageRow.frame.maxX)
+        XCTAssertEqual(firstRow.frame.midY, lastPageRow.frame.midY)
+        XCTAssertEqual(firstRow.imageClipFrame.offsetBy(dx: firstRow.frame.minX, dy: firstRow.frame.minY),
+                       lastPageRow.imageClipFrame.offsetBy(dx: lastPageRow.frame.minX, dy: lastPageRow.frame.minY))
+        XCTAssertEqual(first.lineFrame, last.lineFrame)
+        XCTAssertEqual(first.capacity, last.capacity)
+        XCTAssertEqual(lastPageRow.assetID, input[last.firstVisibleIndex].id)
+        for row in first.rows + last.rows {
+            XCTAssertTrue(frame.contains(row.frame))
+            XCTAssertTrue(CGRect(origin: .zero, size: row.frame.size).contains(row.numberFrame))
+            XCTAssertEqual(row.assetID, input[row.ordinal - 1].id)
+        }
         XCTAssertEqual(last.rows.last?.ordinal, 26)
         XCTAssertFalse(last.hasLater)
         XCTAssertEqual(first.pagerFrame, last.pagerFrame)

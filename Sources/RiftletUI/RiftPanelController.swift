@@ -108,6 +108,8 @@ private final class RiftRowView: NSView, NSMenuDelegate {
         super.init(frame: NSRect(origin: .zero, size: geometry.frame.size))
         wantsLayer = true
         layer?.backgroundColor = NSColor.clear.cgColor
+        imageClip.name = "rift.image.clip"
+        imageLayer.name = "rift.image.content"
         imageClip.masksToBounds = true
         imageClip.cornerRadius = 1.5
         imageClip.maskedCorners = [.layerMinXMinYCorner, .layerMinXMaxYCorner]

@@ -66,16 +66,31 @@ final class ArrivalModesTests: XCTestCase {
         let info = try XCTUnwrap(panel.diagnosticSnapshot.rows.first { $0.assetID == id })
         let window = try XCTUnwrap(NSApp.windows.first { $0.windowNumber == info.windowNumber })
         let view = try XCTUnwrap(window.contentView)
-        let layer = try XCTUnwrap(view.layer?.sublayers?.first?.sublayers?.first)
+        // AppKit may insert drawing/backing layers before the application-owned
+        // clip when this native view draws. A positional first/first lookup can
+        // therefore observe a different layer after the same row is redrawn.
+        func descendants(_ layer: CALayer) -> [CALayer] {
+            [layer] + (layer.sublayers ?? []).flatMap(descendants)
+        }
+        let root = try XCTUnwrap(view.layer)
+        let matches = descendants(root).filter { $0.name == "rift.image.content" }
+        XCTAssertEqual(matches.count, 1, "The original asset must own exactly one canonical image layer")
+        let layer = try XCTUnwrap(matches.first)
+        XCTAssertEqual(layer.superlayer?.name, "rift.image.clip")
         return (info, window, view, layer)
     }
 
-    @MainActor private func eventually(_ description: String, _ condition: () -> Bool) async throws {
+    @MainActor private func eventually(_ description: String, diagnostics: () -> String = { "" },
+                                      _ condition: () -> Bool) async throws {
         for _ in 0..<70 {
+            // XCTest's async MainActor polling is not a normal AppKit event-loop
+            // turn. Submit pending presentation transactions before observing
+            // CA completion; never remove animations or change their endpoints.
+            CATransaction.flush()
             if condition() { return }
             try await Task.sleep(nanoseconds: 10_000_000)
         }
-        XCTFail(description)
+        XCTFail(description + " " + diagnostics())
         throw WaitFailure.deadline
     }
 
@@ -119,13 +134,19 @@ final class ArrivalModesTests: XCTestCase {
         panel.render([record])
         try assertStatic(panel, id: record.id)
         let (before, _, view, image) = try row(panel, id: record.id)
+        view.displayIfNeeded()
+        XCTAssertTrue(try row(panel, id: record.id).3 === image,
+                      "AppKit drawing must not change the canonical layer chosen for this asset")
         XCTAssertTrue(view.accessibilityPerformPress())
         XCTAssertEqual(selected, [record.id], "No animation completion or run-loop turn authorizes selection")
         XCTAssertEqual(panel.diagnosticSnapshot.rows.map(\.assetID), [record.id], "A press alone must never swallow")
         XCTAssertEqual(try row(panel, id: record.id).0.imageInputFrame, before.imageInputFrame,
                        "The press decoration must not move the original input target")
         XCTAssertGreaterThan(image.affineTransform().tx, 0, "None disables arrival, not normal press feedback")
-        try await eventually("The press response did not return independently of an upload result") {
+        try await eventually("The press response did not return independently of an upload result", diagnostics: {
+            "modelX=\(image.affineTransform().tx), presentationX=\(String(describing: image.presentation()?.affineTransform().tx)), "
+                + "animations=\(image.animationKeys() ?? []), interaction=\(panel.interactionSnapshot)"
+        }) {
             image.affineTransform().tx == 0 && (image.animationKeys()?.isEmpty ?? true)
                 && !panel.interactionSnapshot.isTransitioning
         }
@@ -169,7 +190,10 @@ final class ArrivalModesTests: XCTestCase {
         XCTAssertTrue(try row(panel, id: first.id).2.accessibilityPerformPress())
         XCTAssertEqual(selected, [first.id], "The reborn row keeps the same asset and can be selected normally")
         let rebornImage = try row(panel, id: first.id).3
-        try await eventually("Reborn screenshot press feedback did not settle") {
+        try await eventually("Reborn screenshot press feedback did not settle", diagnostics: {
+            "modelX=\(rebornImage.affineTransform().tx), presentationX=\(String(describing: rebornImage.presentation()?.affineTransform().tx)), "
+                + "animations=\(rebornImage.animationKeys() ?? []), interaction=\(panel.interactionSnapshot)"
+        }) {
             rebornImage.affineTransform().tx == 0 && (rebornImage.animationKeys()?.isEmpty ?? true)
         }
         try assertStatic(panel, id: first.id)

@@ -24,7 +24,7 @@ final class RiftCapturePresentationTests: XCTestCase {
         configuration.outerInset = 14; configuration.firstCenterFromTop = 332
         configuration.arrivalDuration = 0.01
         return RiftPanelController(mediaDirectory: FileManager.default.temporaryDirectory,
-                                   configuration: configuration, onSelect: { _ in })
+                                   configuration: configuration, reduceMotionOverride: { false }, onSelect: { _ in })
     }
 
     @MainActor func testLongQueueNeverReflowsUpIntoTheCaptureEntry() throws {
@@ -89,7 +89,10 @@ final class RiftCapturePresentationTests: XCTestCase {
         let input = records(2); controller.render(input)
         let row = try XCTUnwrap(controller.diagnosticSnapshot.rows.first)
         let visual = try XCTUnwrap(NSApp.windows.first { $0.windowNumber == row.windowNumber })
-        let imageLayer = try XCTUnwrap(visual.contentView?.layer?.sublayers?.first?.sublayers?.first)
+        // AppKit may insert a drawing/backing layer ahead of our clip on some
+        // OS versions. Inspect the actual named content, never its array order.
+        func descendants(_ layer: CALayer) -> [CALayer] { [layer] + (layer.sublayers ?? []).flatMap(descendants) }
+        let imageLayer = try XCTUnwrap(descendants(try XCTUnwrap(visual.contentView?.layer)).first { $0.name == "rift.image.content" })
         let swallowed = AssetRecord(image: input[0].image, sequence: input[0].sequence,
             status: .transferring, visibility: .swallowed, visibilityRevision: 1, visibilityReason: .uploadStarted)
         controller.render([swallowed, input[1]])
