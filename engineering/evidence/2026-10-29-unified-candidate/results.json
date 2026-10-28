@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
-  "phase": "PREVIEW_REPAIR_EXACT_SOURCE_REVIEWED_AWAITING_CI",
-  "nativeCI": "PENDING_REPAIRED_SOURCE",
-  "feedbackCI": "PENDING_REPAIRED_SOURCE",
-  "newNativeVisualEvidence": "PENDING_REPAIRED_SOURCE",
+  "phase": "ADDITIONAL_PRODUCT_POLISH_AND_PRESERVED_FAILURE_DIAGNOSIS",
+  "nativeCI": "PENDING_FINAL_D11_PREVIEW_WATCHER_SOURCE",
+  "feedbackCI": "5a997969_PASS_43_UNIQUE_NATIVE_0_SKIP; final added record UI pending",
+  "newNativeVisualEvidence": "5a997969_39_STATIC_NATIVE_PNG_AND_4_MOV_ACCEPTED; MAGNET_NATURAL_COMPLETION_FAIL; FINAL_SOURCE_PENDING",
   "physicalMacAcceptance": "NOT_RUN_AUTHORIZED_MAC_OFFLINE",
-  "sourceReview": "PASS_NON_AUTHOR_EXACT_SOURCE; preview recovery and native visual pending",
+  "sourceReview": "PASS_NON_AUTHOR_9a06e1e1; additional product polish under independent review",
   "founderInstallationRequested": false,
   "productionEnabled": false,
   "safeRetryEnabled": false,
@@ -14,7 +14,7 @@
   "reviewedSourceTree": "bd0663096e3b8510045ee05bf52710137e6e7b80",
   "localChecks": {
     "unifiedAuditRejectionTests": 24,
-    "nativeVisualManifestTests": 16,
+    "nativeVisualManifestTests": 18,
     "swiftTests": "NOT_RUN_LOCALLY_LINUX"
   },
   "attempts": [
@@ -97,9 +97,51 @@
         "reduceTransparency": false
       },
       "feedbackRun": 40761070614,
-      "feedbackResult": "PENDING",
+      "feedbackResult": "CANCELLED_OBSOLETE_ATTEMPT_AFTER_PREVIEW_REPAIR",
       "pushNativeRun": 40761058894,
       "pushNativeResult": "SAME_PREVIEW_TEST_FAILURE"
+    },
+    {
+      "head": "5a9979693ac1bb28fa898d23c60bc791c2c7ec4d",
+      "nativeRun": 40762482432,
+      "nativeJob": 123077787507,
+      "checkout": "d6051e331f451c09e0a0483fc647e0cb7367757c",
+      "nativeResult": "FAIL_EXISTING_PREFERENCE_PARENT_REPLACEMENT_REMOVAL_OBSERVATION",
+      "nativeUniqueScheduled": 645,
+      "failedTests": 1,
+      "failure": "CaptureSourceBindingTests.testPreferenceParentReplacementAndSubsequentCreationRemainObserved; Removed preference observed timeout at original 3 seconds",
+      "pushNativeRun": 40762471599,
+      "pushNativeResult": "FULL_NATIVE_DETAILED_PACKAGING_PASS; NORMAL_VISUAL_MAGNET_COMPLETION_TIMEOUT",
+      "pushNativeDetailed": {
+        "distinctPassed": 243,
+        "distinctSkipped": 0,
+        "fullParallelPerTestSkipCount": "NOT_EXPOSED",
+        "unifiedProductPassed": 31,
+        "captureEntryPassed": 50,
+        "feedbackUniquePassed": 43,
+        "manualPreviewRegression": "PASS_EXPLICIT_DETAILED_LOG"
+      },
+      "nativeVisual": {
+        "rawPNG": 118,
+        "rawMOV": 5,
+        "acceptedPNG": 102,
+        "acceptedMOV": 4,
+        "validStaticPNG": 39,
+        "magnetDiagnosticPNG": 16,
+        "magnetDiagnosticMOV": 1,
+        "magnetEndReason": "timedOut",
+        "normalAccessibilityAllFalse": true,
+        "originalProductPixelsPresent": true,
+        "physicalInput": "NOT_RUN"
+      },
+      "feedbackRun": 40762482456,
+      "feedbackResult": "PASS",
+      "pushFeedbackRun": 40762471635,
+      "feedbackUniqueNativeTests": 43,
+      "feedbackNativeSkipped": 0,
+      "feedbackServicePassed": 20,
+      "feedbackIsolationPassed": 88,
+      "nativeArtifactSHA256": "0bb4158a44799d2e27b382c51510f0e49d568968c8851a9e6c579ba637f9613b"
     }
   ],
   "lateRemoteObservation": {
@@ -116,7 +158,7 @@
     "realPhysicalAcceptance": "NOT_RUN"
   },
   "plannedEvidence": {
-    "normalCases": 44,
+    "normalCases": 46,
     "actualSystemReducedCases": [
       "queue-dark",
       "entry-dark",

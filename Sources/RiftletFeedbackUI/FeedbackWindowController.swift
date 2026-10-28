@@ -18,13 +18,13 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
     private let consent = NSButton(checkboxWithTitle: "附带最近的技术诊断（仅本次）", target: nil, action: nil)
     private let status = NSTextField(wrappingLabelWithString: "正在打开本地反馈草稿…")
     private let send = NSButton(title: "发送反馈", target: nil, action: nil)
-    private let reports = NSPopUpButton()
     private var previewWindow: NSWindow?
     private var loading: Task<Void, Never>?
     private let characterCount = NSTextField(labelWithString: "0 / 4,000 字符")
     private let recordsDisclosure = NSButton(title: "本机反馈记录 · 0", target: nil, action: nil)
     private let recordsBody = NSStackView()
     private var recordsExpanded = false
+    private var recordsRefreshGeneration: UInt64 = 0
     private var hasPresented = false
     // Production always writes the same sidecar. Tests suspend this narrow seam
     // to verify that close cannot race text, kind or consent edits.
@@ -86,19 +86,15 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
         // Neither button is the Return default: Return and IME stay in the editor.
         let actions = NSStackView(views: [close, send]); actions.spacing = 8
         let footer = RiftVisualStyle.vertical([status, actions], spacing: 12)
-        reports.setAccessibilityLabel("已提交的本机反馈记录")
         recordsDisclosure.setButtonType(.onOff); recordsDisclosure.bezelStyle = .inline
+        recordsDisclosure.identifier = NSUserInterfaceItemIdentifier("feedback.recordsDisclosure")
         recordsDisclosure.font = RiftVisualStyle.bodyFont; recordsDisclosure.contentTintColor = RiftVisualStyle.ink
         recordsDisclosure.image = NSImage(systemSymbolName: "chevron.right", accessibilityDescription: nil)
         recordsDisclosure.imagePosition = .imageLeading
         recordsDisclosure.target = self; recordsDisclosure.action = #selector(toggleRecords)
         recordsDisclosure.setAccessibilityLabel("展开本机反馈记录")
         recordsBody.orientation = .vertical; recordsBody.alignment = .leading; recordsBody.spacing = 8
-        recordsBody.addArrangedSubview(reports)
-        for (title, action) in [("查看正文", #selector(showSaved)), ("刷新状态", #selector(refreshSelected)),
-                                ("取消待发送／申请删除", #selector(deleteSelected)), ("移除已取消／已删除的本机正文…", #selector(forgetSelected))] {
-            let button = NSButton(title: title, target: self, action: action); RiftVisualStyle.style(button); recordsBody.addArrangedSubview(button)
-        }
+        rebuildRecords()
         recordsBody.isHidden = true
         for view in [heading, introduction, kind, scroll, characterCount, diagnosticsRow, privacy, recordsDisclosure, recordsBody] {
             stack.addArrangedSubview(view)
@@ -223,16 +219,17 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
     @objc private func closeRequested() { window?.performClose(nil) }
     @objc private func showPreview() {
         let value = (try? draft.diagnostic?.preview()) ?? "未附带诊断。勾选后会冻结当时的白名单快照；之后的新事件不会加入本次提交。"
-        showText(value, title: "本次诊断预览")
+        showText(value, title: "本次诊断预览", monospaced: true)
     }
-    private func showText(_ value: String, title: String) {
+    private func showText(_ value: String, title: String, monospaced: Bool = false) {
         let panel = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 580, height: 420),
             styleMask: [.titled, .closable, .resizable], backing: .buffered, defer: false)
         panel.title = title; panel.isReleasedWhenClosed = false; panel.backgroundColor = RiftVisualStyle.window
         let scroll = NSScrollView(frame: panel.contentView!.bounds)
         scroll.autoresizingMask = [.width, .height]; scroll.hasVerticalScroller = true
         let view = NSTextView(frame: scroll.bounds); view.isEditable = false; view.isRichText = false
-        view.font = .monospacedSystemFont(ofSize: 11, weight: .regular); view.string = value
+        view.font = monospaced ? .monospacedSystemFont(ofSize: 11, weight: .regular) : RiftVisualStyle.bodyFont
+        view.string = value
         view.textColor = RiftVisualStyle.ink; view.backgroundColor = RiftVisualStyle.window
         view.textContainerInset = NSSize(width: 24, height: 24)
         view.autoresizingMask = [.width]; view.textContainer?.widthTracksTextView = true
@@ -267,54 +264,117 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
             }
         }
     }
-    private func refreshRecords() async {
+    func refreshRecords() async {
         guard let engine else { return }
+        recordsRefreshGeneration &+= 1
+        let generation = recordsRefreshGeneration
         do {
-            let selected = reports.selectedItem?.representedObject as? String
-            records = try await engine.store.records(); reports.removeAllItems()
+            let latest = try await engine.store.records()
+            guard generation == recordsRefreshGeneration else { return }
+            records = latest
             recordsDisclosure.title = "本机反馈记录 · \(records.count)"
-            for record in records {
-                reports.addItem(withTitle: "RF-\(record.id.prefix(8)) · \(demo ? "演示：" : "")\(record.label)")
-                reports.lastItem?.representedObject = record.id
-            }
-            if let selected, let index = records.firstIndex(where: { $0.id == selected }) { reports.selectItem(at: index) }
-            if records.isEmpty { reports.addItem(withTitle: "尚无已提交反馈") }
+            rebuildRecords()
         } catch { failure() }
     }
-    private var selected: FeedbackRecord? {
-        guard let id = reports.selectedItem?.representedObject as? String else { return nil }
-        return records.first { $0.id == id }
+
+    private func recordButton(_ title: String, record: FeedbackRecord, action: Selector) -> NSButton {
+        let button = FeedbackRecordButton(title: title, recordID: record.id, target: self, action: action)
+        RiftVisualStyle.style(button); button.font = RiftVisualStyle.secondaryFont; button.controlSize = .small
+        button.setAccessibilityLabel("\(title)，反馈 RF-\(record.id.prefix(8))")
+        return button
     }
-    @objc private func showSaved() {
-        if let selected { showText(selected.envelope.text, title: "本机保存的反馈 RF-\(selected.id)") }
+    private func rebuildRecords() {
+        // Replace only this folded region. The editor, first responder, marked
+        // text, selection and draft controls stay alive during every refresh.
+        for view in recordsBody.arrangedSubviews { recordsBody.removeArrangedSubview(view); view.removeFromSuperview() }
+        if records.isEmpty {
+            let empty = RiftVisualStyle.label("尚无已提交反馈。保存草稿不会生成待发送记录。", role: "secondary")
+            recordsBody.addArrangedSubview(empty)
+            empty.widthAnchor.constraint(equalTo: recordsBody.widthAnchor).isActive = true
+            return
+        }
+        for record in records {
+            let identifier = RiftVisualStyle.label("RF-\(record.id.prefix(8))", role: "heading")
+            identifier.toolTip = "RF-\(record.id)"
+            let state = RiftVisualStyle.label("\(demo ? "离线演示（非云端）：" : "")\(record.label)", role: "secondary")
+            state.identifier = NSUserInterfaceItemIdentifier("feedback.record.status.\(record.id)")
+            let body = FeedbackRecordBodyView(text: record.envelope.text, recordID: record.id)
+            let actions = NSStackView(views: [recordButton("查看完整正文", record: record, action: #selector(showSaved(_:)))])
+            actions.spacing = 8; actions.alignment = .centerY
+            if record.state != .cancelled && record.state != .deleted {
+                actions.addArrangedSubview(recordButton("刷新状态", record: record, action: #selector(refreshRecord(_:))))
+            }
+            switch record.state {
+            case .cancelled, .deleted:
+                actions.addArrangedSubview(recordButton("移除本机正文与凭证…", record: record, action: #selector(forgetRecord(_:))))
+            case .deletionQueued, .deletionPending:
+                actions.addArrangedSubview(RiftVisualStyle.label("等待删除确认", role: "secondary"))
+            default:
+                let canCancelLocally = record.attempts == 0 && [.queued, .blocked, .deletionBlocked].contains(record.state)
+                let title = canCancelLocally ? "取消待发送" : record.state == .deletionBlocked ? "重新申请删除" : "申请删除"
+                actions.addArrangedSubview(recordButton(title, record: record, action: #selector(deleteRecord(_:))))
+            }
+            let card = RiftVisualStyle.card([identifier, state, body, actions])
+            card.identifier = NSUserInterfaceItemIdentifier("feedback.record.\(record.id)")
+            recordsBody.addArrangedSubview(card)
+            card.widthAnchor.constraint(equalTo: recordsBody.widthAnchor).isActive = true
+            if let content = body.superview { body.widthAnchor.constraint(equalTo: content.widthAnchor).isActive = true }
+        }
     }
-    @objc private func refreshSelected() {
-        guard let selected, let engine else { return }
+    private func record(for sender: FeedbackRecordButton) -> FeedbackRecord? { records.first { $0.id == sender.recordID } }
+    @objc private func showSaved(_ sender: FeedbackRecordButton) {
+        if let record = record(for: sender) { showText(record.envelope.text, title: "本机保存的反馈 RF-\(record.id)") }
+    }
+    @objc private func refreshRecord(_ sender: FeedbackRecordButton) {
+        guard let record = record(for: sender), let engine else { return }
         Task {
             do {
-                if selected.state == .queued || selected.state == .deletionQueued { await engine.pump() }
-                else { try await engine.refresh(id: selected.id) }
+                if record.state == .queued || record.state == .deletionQueued { await engine.pump() }
+                else { try await engine.refresh(id: record.id) }
                 await refreshRecords()
             } catch { status.stringValue = "服务暂不可用；本机正文和反馈编号保留。" }
         }
     }
-    @objc private func forgetSelected() {
-        guard let selected, let engine else { return }
-        guard selected.state == .cancelled || selected.state == .deleted else {
+    @objc private func forgetRecord(_ sender: FeedbackRecordButton) {
+        guard let record = record(for: sender), let engine else { return }
+        guard record.state == .cancelled || record.state == .deleted else {
             status.stringValue = "先取消未发送反馈或等待服务确认删除，再移除本机正文。"; return
         }
-        let alert = NSAlert(); alert.messageText = "移除这条本机反馈正文及访问凭证？"
-        alert.informativeText = "删除这条已取消或已删除反馈的本机正文和钥匙串凭证；不改变其他反馈或任何截图。"
-        alert.addButton(withTitle: "移除"); alert.addButton(withTitle: "保留")
-        guard alert.runModal() == .alertFirstButtonReturn else { return }
-        Task { do { try await engine.forgetResolved(id: selected.id); await refreshRecords() } catch { failure() } }
+        confirmRecordAction(title: "移除这条本机反馈正文及访问凭证？",
+            message: "只移除反馈 RF-\(record.id.prefix(8)) 的已取消或已确认删除的本机正文和钥匙串凭证。不改变其他反馈或任何截图。",
+            button: "移除") { [weak self] in
+                do { try await engine.forgetResolved(id: record.id); await self?.refreshRecords() }
+                catch { self?.failure() }
+            }
     }
-    @objc private func deleteSelected() {
-        guard let selected, let engine else { return }
-        let alert = NSAlert(); alert.messageText = "取消待发送或申请删除这条反馈？"
-        alert.informativeText = "尚未尝试发送的记录只取消本机投递。其余提交申请云端删除，私有维护副本可能需要维护者处理；不会把关闭 Issue 当成删除。本机正文暂时保留。"
-        alert.addButton(withTitle: "申请删除"); alert.addButton(withTitle: "保留")
-        guard alert.runModal() == .alertFirstButtonReturn else { return }
-        Task { do { try await engine.requestDeletion(id: selected.id); await refreshRecords() } catch { failure() } }
+    @objc private func deleteRecord(_ sender: FeedbackRecordButton) {
+        guard let record = record(for: sender), let engine else { return }
+        confirmRecordAction(title: sender.title == "取消待发送" ? "取消这条待发送反馈？" : "申请删除这条反馈？",
+            message: "只处理反馈 RF-\(record.id.prefix(8))。确认时仍未尝试发送的记录仅取消本机投递；已尝试发送的记录会申请云端删除，包括需要维护者处理的私有维护副本。本机正文暂时保留，不改变其他反馈或任何截图。",
+            button: sender.title) { [weak self] in
+                do { try await engine.requestDeletion(id: record.id); await self?.refreshRecords() }
+                catch { self?.failure() }
+            }
     }
+    private func confirmRecordAction(title: String, message: String, button: String,
+                                     operation: @escaping @MainActor () async -> Void) {
+        guard let window, window.attachedSheet == nil else { return }
+        let alert = NSAlert(); alert.messageText = title; alert.informativeText = message
+        alert.addButton(withTitle: button); alert.addButton(withTitle: "保留")
+        alert.beginSheetModal(for: window) { response in
+            guard response == .alertFirstButtonReturn else { return }
+            Task { @MainActor in await operation() }
+        }
+    }
+}
+
+@MainActor
+private final class FeedbackRecordButton: NSButton {
+    let recordID: String
+    init(title: String, recordID: String, target: AnyObject, action: Selector) {
+        self.recordID = recordID
+        super.init(frame: .zero)
+        self.title = title; self.target = target; self.action = action
+    }
+    required init?(coder: NSCoder) { nil }
 }

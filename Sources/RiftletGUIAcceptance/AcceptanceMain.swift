@@ -61,6 +61,8 @@ enum AcceptanceMain {
               --visual-local-onboarding uses the actual production-disabled local collection presentation.
               --visual-last-page and --visual-preview-index 1...16 select fixture views.
               --visual-history-state archived|unknown selects a synthetic history row.
+              --visual-feedback-records expands two fresh local queued/cancelled feedback
+              fixtures through existing product controls; no network or cloud receipt.
               Preview invokes the native AX custom action in-process, not a physical hover.
               --visual-background bright|textured changes only the synthetic backdrop.
               With --visual-timeline, export timestamped native frames, not a latency benchmark.
@@ -500,7 +502,7 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
                         self.record("native_evidence_preview_action", ["physical": false, "accepted": true])
                     }
                     try await Task.sleep(nanoseconds: 350_000_000)
-                    try evidence.capture("native")
+                    try await evidence.capture("native")
                     try evidence.finish()
                 }
                 NSApp.terminate(nil)

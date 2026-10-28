@@ -1,0 +1,1841 @@
+{
+  "source": "5a9979693ac1bb28fa898d23c60bc791c2c7ec4d",
+  "checkout": "5a9979693ac1bb28fa898d23c60bc791c2c7ec4d",
+  "summaryStatus": "FAIL",
+  "summaryAcceptedPNG": 102,
+  "rawManifestPNG": 118,
+  "summaryAcceptedMOV": 4,
+  "rawMOV": 5,
+  "errors": [],
+  "scenes": [
+    {
+      "scene": "entry-bright-light",
+      "summaryStatus": "CAPTURED_NATIVE_WINDOWSERVER",
+      "source": "5a9979693ac1bb28fa898d23c60bc791c2c7ec4d",
+      "png": [
+        {
+          "file": "native.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 15,
+          "selectedOwnWindowCount": 16,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "71217649559ce704c9007d90a2b1a308687538a2951c5de278eabba1a62929fa"
+        }
+      ]
+    },
+    {
+      "scene": "entry-dark",
+      "summaryStatus": "CAPTURED_NATIVE_WINDOWSERVER",
+      "source": "5a9979693ac1bb28fa898d23c60bc791c2c7ec4d",
+      "png": [
+        {
+          "file": "native.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 15,
+          "selectedOwnWindowCount": 16,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "6cf8e530cf19869def4f28747d2e80dd2e01b53021b6ed6f0534933e837c576f"
+        }
+      ]
+    },
+    {
+      "scene": "entry-light",
+      "summaryStatus": "CAPTURED_NATIVE_WINDOWSERVER",
+      "source": "5a9979693ac1bb28fa898d23c60bc791c2c7ec4d",
+      "png": [
+        {
+          "file": "native.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 15,
+          "selectedOwnWindowCount": 16,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "82a74b686dd8cab002d2844ac9edc04a36667f597d6c9b22ce1a0e5fbff2dc7e"
+        }
+      ]
+    },
+    {
+      "scene": "entry-textured-dark",
+      "summaryStatus": "CAPTURED_NATIVE_WINDOWSERVER",
+      "source": "5a9979693ac1bb28fa898d23c60bc791c2c7ec4d",
+      "png": [
+        {
+          "file": "native.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 15,
+          "selectedOwnWindowCount": 16,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "049fe4f69522794307341dcf1bb924d1193e68cf534728083a860ac556821f7c"
+        }
+      ]
+    },
+    {
+      "scene": "entry-textured-light",
+      "summaryStatus": "CAPTURED_NATIVE_WINDOWSERVER",
+      "source": "5a9979693ac1bb28fa898d23c60bc791c2c7ec4d",
+      "png": [
+        {
+          "file": "native.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 15,
+          "selectedOwnWindowCount": 16,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "32e47dc5a9bb550eb169441d18653d7a3e7c7d99082d4d893f4d582ee825c63f"
+        }
+      ]
+    },
+    {
+      "scene": "feedback-dark",
+      "summaryStatus": "CAPTURED_NATIVE_WINDOWSERVER",
+      "source": "5a9979693ac1bb28fa898d23c60bc791c2c7ec4d",
+      "png": [
+        {
+          "file": "native.png",
+          "valid": true,
+          "pixels": [
+            600,
+            540
+          ],
+          "productWindowCount": 1,
+          "selectedOwnWindowCount": 1,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "82383dcf517c2c0a13b67c5fcd5789c3ee0c882d105002dfa08672d1dd506a12"
+        }
+      ]
+    },
+    {
+      "scene": "feedback-light",
+      "summaryStatus": "CAPTURED_NATIVE_WINDOWSERVER",
+      "source": "5a9979693ac1bb28fa898d23c60bc791c2c7ec4d",
+      "png": [
+        {
+          "file": "native.png",
+          "valid": true,
+          "pixels": [
+            600,
+            540
+          ],
+          "productWindowCount": 1,
+          "selectedOwnWindowCount": 1,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "3edc451133cdddabd941b6b11a2103881d31dfff5034f7656a54eb387e3da4b8"
+        }
+      ]
+    },
+    {
+      "scene": "firstuse-local-0-light",
+      "summaryStatus": "CAPTURED_NATIVE_WINDOWSERVER",
+      "source": "5a9979693ac1bb28fa898d23c60bc791c2c7ec4d",
+      "png": [
+        {
+          "file": "native.png",
+          "valid": true,
+          "pixels": [
+            560,
+            520
+          ],
+          "productWindowCount": 1,
+          "selectedOwnWindowCount": 1,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "cf3ce207669c5c32f4c93c1770a4b8a2ee0b6590e242cb8021ea29ddee121511"
+        }
+      ]
+    },
+    {
+      "scene": "firstuse-local-2-light",
+      "summaryStatus": "CAPTURED_NATIVE_WINDOWSERVER",
+      "source": "5a9979693ac1bb28fa898d23c60bc791c2c7ec4d",
+      "png": [
+        {
+          "file": "native.png",
+          "valid": true,
+          "pixels": [
+            560,
+            520
+          ],
+          "productWindowCount": 1,
+          "selectedOwnWindowCount": 1,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "958a77b0baa0fc7ff23680bbc7e17805c6a40b177612089dc6d500d6d77a8d40"
+        }
+      ]
+    },
+    {
+      "scene": "history-archived-dark",
+      "summaryStatus": "CAPTURED_NATIVE_WINDOWSERVER",
+      "source": "5a9979693ac1bb28fa898d23c60bc791c2c7ec4d",
+      "png": [
+        {
+          "file": "native.png",
+          "valid": true,
+          "pixels": [
+            760,
+            560
+          ],
+          "productWindowCount": 1,
+          "selectedOwnWindowCount": 1,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "b11a5638646147d6392e80c69bb799eb3c71c3f7aa61611a06028eb1749a8d04"
+        }
+      ]
+    },
+    {
+      "scene": "history-archived-light",
+      "summaryStatus": "CAPTURED_NATIVE_WINDOWSERVER",
+      "source": "5a9979693ac1bb28fa898d23c60bc791c2c7ec4d",
+      "png": [
+        {
+          "file": "native.png",
+          "valid": true,
+          "pixels": [
+            760,
+            560
+          ],
+          "productWindowCount": 1,
+          "selectedOwnWindowCount": 1,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "7ac0441b93dc9857608b16d2fcb3bf0fc910185a5d6cdb18cd971a95c54e5411"
+        }
+      ]
+    },
+    {
+      "scene": "history-dark",
+      "summaryStatus": "CAPTURED_NATIVE_WINDOWSERVER",
+      "source": "5a9979693ac1bb28fa898d23c60bc791c2c7ec4d",
+      "png": [
+        {
+          "file": "native.png",
+          "valid": true,
+          "pixels": [
+            760,
+            560
+          ],
+          "productWindowCount": 1,
+          "selectedOwnWindowCount": 1,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "bb48b8b7e91cb8bebc7aa40a3d1146dd25d62f6bf720a7513ea758d694a361d5"
+        }
+      ]
+    },
+    {
+      "scene": "history-light",
+      "summaryStatus": "CAPTURED_NATIVE_WINDOWSERVER",
+      "source": "5a9979693ac1bb28fa898d23c60bc791c2c7ec4d",
+      "png": [
+        {
+          "file": "native.png",
+          "valid": true,
+          "pixels": [
+            760,
+            560
+          ],
+          "productWindowCount": 1,
+          "selectedOwnWindowCount": 1,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "45835c5c62f430932ebb92b4c869fcd23c0d03b317de0e0da81d17a753685b0d"
+        }
+      ]
+    },
+    {
+      "scene": "history-unknown-dark",
+      "summaryStatus": "CAPTURED_NATIVE_WINDOWSERVER",
+      "source": "5a9979693ac1bb28fa898d23c60bc791c2c7ec4d",
+      "png": [
+        {
+          "file": "native.png",
+          "valid": true,
+          "pixels": [
+            760,
+            560
+          ],
+          "productWindowCount": 1,
+          "selectedOwnWindowCount": 1,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "d17c10c2fa08875a32ca95d231467e84261041fbe0271d2cc042a4c5f7a6aa2e"
+        }
+      ]
+    },
+    {
+      "scene": "history-unknown-light",
+      "summaryStatus": "CAPTURED_NATIVE_WINDOWSERVER",
+      "source": "5a9979693ac1bb28fa898d23c60bc791c2c7ec4d",
+      "png": [
+        {
+          "file": "native.png",
+          "valid": true,
+          "pixels": [
+            760,
+            560
+          ],
+          "productWindowCount": 1,
+          "selectedOwnWindowCount": 1,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "eae221d147a96162b3676a27561df82a714b095624602dc9c84e4586eb9339d0"
+        }
+      ]
+    },
+    {
+      "scene": "last-page-dark",
+      "summaryStatus": "CAPTURED_NATIVE_WINDOWSERVER",
+      "source": "5a9979693ac1bb28fa898d23c60bc791c2c7ec4d",
+      "png": [
+        {
+          "file": "native.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 10,
+          "selectedOwnWindowCount": 11,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "1f030b281e09fb2aab7f2600f96b044f402836920ab787ed6602f49db4abe9e7"
+        }
+      ]
+    },
+    {
+      "scene": "last-page-light",
+      "summaryStatus": "CAPTURED_NATIVE_WINDOWSERVER",
+      "source": "5a9979693ac1bb28fa898d23c60bc791c2c7ec4d",
+      "png": [
+        {
+          "file": "native.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 10,
+          "selectedOwnWindowCount": 11,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "0935c595bfbd3b7932fc9b4eb77c6e456063c9cac9462cb062eb48ea3d9f621c"
+        }
+      ]
+    },
+    {
+      "scene": "motion-interrupt",
+      "summaryStatus": "CAPTURED_NATIVE_WINDOWSERVER",
+      "source": "5a9979693ac1bb28fa898d23c60bc791c2c7ec4d",
+      "png": [
+        {
+          "file": "frame-00.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 7,
+          "selectedOwnWindowCount": 8,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "6504a2204ae00c7723204b067c00474b8a85ce9b2b489fd8043117cff3c79072"
+        },
+        {
+          "file": "frame-01.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 7,
+          "selectedOwnWindowCount": 8,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "0935d7f8bdb80ce6b477a2904e1f2ace1c728ba5717820ad95b10e32d0c06d4a"
+        },
+        {
+          "file": "frame-02.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 11,
+          "selectedOwnWindowCount": 12,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "dccaf95f8dc586a795891a80a7aa3928d4461a732d084fcf8bcfa39d5f81d680"
+        },
+        {
+          "file": "frame-03.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 11,
+          "selectedOwnWindowCount": 12,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "a2b7344b9f4060eaa89652e74184e4f59fc6aa403019d4191e10fff2e2750f5a"
+        },
+        {
+          "file": "frame-04.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 11,
+          "selectedOwnWindowCount": 12,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "4d6f38c7a805c6bbfada80612364b75a271bda06e6561166a4cb9529029ce0a8"
+        },
+        {
+          "file": "frame-05.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 10,
+          "selectedOwnWindowCount": 11,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "c2fff39cd227f789ae83d8e1a8329999772954b659c9cb72aeb0a2d2c6e7ea40"
+        },
+        {
+          "file": "frame-06.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 10,
+          "selectedOwnWindowCount": 11,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "c2fff39cd227f789ae83d8e1a8329999772954b659c9cb72aeb0a2d2c6e7ea40"
+        },
+        {
+          "file": "frame-07.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 10,
+          "selectedOwnWindowCount": 11,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "c2fff39cd227f789ae83d8e1a8329999772954b659c9cb72aeb0a2d2c6e7ea40"
+        },
+        {
+          "file": "frame-08.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 10,
+          "selectedOwnWindowCount": 11,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "c2fff39cd227f789ae83d8e1a8329999772954b659c9cb72aeb0a2d2c6e7ea40"
+        },
+        {
+          "file": "frame-09.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 10,
+          "selectedOwnWindowCount": 11,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "377e8287d61bfb739100ef3ab325a06bfe1556b9adfbdadb82bbb6854e1343d2"
+        },
+        {
+          "file": "frame-11.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 10,
+          "selectedOwnWindowCount": 11,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "283a102fbdae23b034058db979c821d93f32a2e5431a1c949e48375d1478382b"
+        },
+        {
+          "file": "frame-12.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 10,
+          "selectedOwnWindowCount": 11,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "83d7a54aecf6a23d9f95999c305498b6fe6f933dd5b79ef2287e528a06ae537c"
+        },
+        {
+          "file": "frame-13.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 7,
+          "selectedOwnWindowCount": 8,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "4fae1504e97fef6485c8126f45a5629597e717ca2f0b1a8aaea36ec451be37a1"
+        },
+        {
+          "file": "frame-14.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 7,
+          "selectedOwnWindowCount": 8,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "6504a2204ae00c7723204b067c00474b8a85ce9b2b489fd8043117cff3c79072"
+        },
+        {
+          "file": "frame-15.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 7,
+          "selectedOwnWindowCount": 8,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "6504a2204ae00c7723204b067c00474b8a85ce9b2b489fd8043117cff3c79072"
+        }
+      ],
+      "movie": {
+        "file": "/workspace/scratch/e55fa0cc21f1/ci-artifacts/40762471599/extracted/test-results/native-visual/scenes/motion-interrupt/native-motion.mov",
+        "sha256Matches": true,
+        "bytesMatch": true,
+        "manifestFrames": 168,
+        "decodedFrames": 168,
+        "dimensions": [
+          1024,
+          684
+        ],
+        "timeBase": "1/600",
+        "maxPTSErrorSeconds": 0.0008245416666339267,
+        "ptserrorWithinHalfTick": true,
+        "monotonicPTS": true,
+        "decodeReturnCode": 0,
+        "decodeStderr": "",
+        "extractReturnCode": 0,
+        "maxFrameGapSeconds": 0.146667,
+        "medianFrameGapSeconds": 0.03500000000000014,
+        "decodedFrameDirectory": "/workspace/scratch/e55fa0cc21f1/design-review-ci40762471599/motion-interrupt/decoded"
+      }
+    },
+    {
+      "scene": "motion-magnet",
+      "summaryStatus": "FAIL",
+      "source": "5a9979693ac1bb28fa898d23c60bc791c2c7ec4d",
+      "png": [
+        {
+          "file": "frame-00.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 7,
+          "selectedOwnWindowCount": 8,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "6504a2204ae00c7723204b067c00474b8a85ce9b2b489fd8043117cff3c79072"
+        },
+        {
+          "file": "frame-01.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 7,
+          "selectedOwnWindowCount": 8,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "0935d7f8bdb80ce6b477a2904e1f2ace1c728ba5717820ad95b10e32d0c06d4a"
+        },
+        {
+          "file": "frame-02.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 11,
+          "selectedOwnWindowCount": 12,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "089ef59173fded7f04b519ff4927f5eb6f6f2aa7c88f72592e22b82bd157e798"
+        },
+        {
+          "file": "frame-03.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 11,
+          "selectedOwnWindowCount": 12,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "28f60ee27d249cb8762ffe0cff5f49f354f04ad169227092a2c1ee9e0cc84a5d"
+        },
+        {
+          "file": "frame-04.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 11,
+          "selectedOwnWindowCount": 12,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "268c227cc0d6deab1d8af583761b887c859ff10e8b779b5c98db79252ad34f86"
+        },
+        {
+          "file": "frame-05.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 11,
+          "selectedOwnWindowCount": 12,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "1df3088556d21ec2c22258ff022382e0a4ed2fc9db05933339bb043740de87bd"
+        },
+        {
+          "file": "frame-06.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 11,
+          "selectedOwnWindowCount": 12,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "21a003d443ebda34d33a1968f1c56da6c12795366164015c8c6756e48cccdd2c"
+        },
+        {
+          "file": "frame-07.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 11,
+          "selectedOwnWindowCount": 12,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "4172c1b15132e42fc85b958726257068f0319ab9fcbf7acbd0ba48535dbabf48"
+        },
+        {
+          "file": "frame-08.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 10,
+          "selectedOwnWindowCount": 11,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "c2fff39cd227f789ae83d8e1a8329999772954b659c9cb72aeb0a2d2c6e7ea40"
+        },
+        {
+          "file": "frame-09.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 10,
+          "selectedOwnWindowCount": 11,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "377e8287d61bfb739100ef3ab325a06bfe1556b9adfbdadb82bbb6854e1343d2"
+        },
+        {
+          "file": "frame-10.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 10,
+          "selectedOwnWindowCount": 11,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "377e8287d61bfb739100ef3ab325a06bfe1556b9adfbdadb82bbb6854e1343d2"
+        },
+        {
+          "file": "frame-11.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 10,
+          "selectedOwnWindowCount": 11,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "d1679647c5462b3cee728919b5aae56c6c0130571b8ed162e4d98e984d03d6c3"
+        },
+        {
+          "file": "frame-12.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 7,
+          "selectedOwnWindowCount": 8,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "8ff506e4eea0eacfbe68a60d16cd4a795684077b4ff1ee648d9eaa3c15016944"
+        },
+        {
+          "file": "frame-13.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 7,
+          "selectedOwnWindowCount": 8,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "96dfe5018be37d56829b58bafb9a1fc2a27a932310166f852241169d8f5e7109"
+        },
+        {
+          "file": "frame-14.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 7,
+          "selectedOwnWindowCount": 8,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "6504a2204ae00c7723204b067c00474b8a85ce9b2b489fd8043117cff3c79072"
+        },
+        {
+          "file": "frame-15.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 7,
+          "selectedOwnWindowCount": 8,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "6504a2204ae00c7723204b067c00474b8a85ce9b2b489fd8043117cff3c79072"
+        }
+      ],
+      "movie": {
+        "file": "/workspace/scratch/e55fa0cc21f1/ci-artifacts/40762471599/extracted/test-results/native-visual/scenes/motion-magnet/native-motion.mov",
+        "sha256Matches": true,
+        "bytesMatch": true,
+        "manifestFrames": 135,
+        "decodedFrames": 135,
+        "dimensions": [
+          1024,
+          684
+        ],
+        "timeBase": "1/600",
+        "maxPTSErrorSeconds": 0.0008322500000237376,
+        "ptserrorWithinHalfTick": true,
+        "monotonicPTS": true,
+        "decodeReturnCode": 0,
+        "decodeStderr": "",
+        "extractReturnCode": 0,
+        "maxFrameGapSeconds": 0.226667,
+        "medianFrameGapSeconds": 0.041666999999999677,
+        "decodedFrameDirectory": "/workspace/scratch/e55fa0cc21f1/design-review-ci40762471599/motion-magnet/decoded"
+      }
+    },
+    {
+      "scene": "motion-missing-source",
+      "summaryStatus": "CAPTURED_NATIVE_WINDOWSERVER",
+      "source": "5a9979693ac1bb28fa898d23c60bc791c2c7ec4d",
+      "png": [
+        {
+          "file": "frame-00.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 7,
+          "selectedOwnWindowCount": 8,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "6504a2204ae00c7723204b067c00474b8a85ce9b2b489fd8043117cff3c79072"
+        },
+        {
+          "file": "frame-01.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 7,
+          "selectedOwnWindowCount": 8,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "0935d7f8bdb80ce6b477a2904e1f2ace1c728ba5717820ad95b10e32d0c06d4a"
+        },
+        {
+          "file": "frame-02.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 10,
+          "selectedOwnWindowCount": 11,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "0935d7f8bdb80ce6b477a2904e1f2ace1c728ba5717820ad95b10e32d0c06d4a"
+        },
+        {
+          "file": "frame-03.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 10,
+          "selectedOwnWindowCount": 11,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "5a3bada162e6de74123a590d9ae1f73cee3a40b42711882bfc69d5be3782dad0"
+        },
+        {
+          "file": "frame-04.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 10,
+          "selectedOwnWindowCount": 11,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "be21b430e4da818dfd8962f8d93804d87b00cddfb492c61ccf42f9b2e304fe22"
+        },
+        {
+          "file": "frame-05.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 10,
+          "selectedOwnWindowCount": 11,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "be21b430e4da818dfd8962f8d93804d87b00cddfb492c61ccf42f9b2e304fe22"
+        },
+        {
+          "file": "frame-06.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 10,
+          "selectedOwnWindowCount": 11,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "be21b430e4da818dfd8962f8d93804d87b00cddfb492c61ccf42f9b2e304fe22"
+        },
+        {
+          "file": "frame-07.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 10,
+          "selectedOwnWindowCount": 11,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "be21b430e4da818dfd8962f8d93804d87b00cddfb492c61ccf42f9b2e304fe22"
+        },
+        {
+          "file": "frame-08.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 10,
+          "selectedOwnWindowCount": 11,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "be21b430e4da818dfd8962f8d93804d87b00cddfb492c61ccf42f9b2e304fe22"
+        },
+        {
+          "file": "frame-09.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 10,
+          "selectedOwnWindowCount": 11,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "be21b430e4da818dfd8962f8d93804d87b00cddfb492c61ccf42f9b2e304fe22"
+        },
+        {
+          "file": "frame-10.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 10,
+          "selectedOwnWindowCount": 11,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "be21b430e4da818dfd8962f8d93804d87b00cddfb492c61ccf42f9b2e304fe22"
+        },
+        {
+          "file": "frame-11.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 10,
+          "selectedOwnWindowCount": 11,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "283a102fbdae23b034058db979c821d93f32a2e5431a1c949e48375d1478382b"
+        },
+        {
+          "file": "frame-12.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 10,
+          "selectedOwnWindowCount": 11,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "293b0537976018e349c2b4536809b89ab1d89b04d3cd9277cdbcce1a58601c35"
+        },
+        {
+          "file": "frame-13.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 7,
+          "selectedOwnWindowCount": 8,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "c7168854fa04ecad32fcd4651a6ecc06d1097b22712cb2b4165c954a0a8df021"
+        },
+        {
+          "file": "frame-14.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 7,
+          "selectedOwnWindowCount": 8,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "6504a2204ae00c7723204b067c00474b8a85ce9b2b489fd8043117cff3c79072"
+        },
+        {
+          "file": "frame-15.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 7,
+          "selectedOwnWindowCount": 8,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "6504a2204ae00c7723204b067c00474b8a85ce9b2b489fd8043117cff3c79072"
+        }
+      ],
+      "movie": {
+        "file": "/workspace/scratch/e55fa0cc21f1/ci-artifacts/40762471599/extracted/test-results/native-visual/scenes/motion-missing-source/native-motion.mov",
+        "sha256Matches": true,
+        "bytesMatch": true,
+        "manifestFrames": 164,
+        "decodedFrames": 164,
+        "dimensions": [
+          1024,
+          684
+        ],
+        "timeBase": "1/600",
+        "maxPTSErrorSeconds": 0.0008317500000085687,
+        "ptserrorWithinHalfTick": true,
+        "monotonicPTS": true,
+        "decodeReturnCode": 0,
+        "decodeStderr": "",
+        "extractReturnCode": 0,
+        "maxFrameGapSeconds": 0.1766669999999999,
+        "medianFrameGapSeconds": 0.03500000000000014,
+        "decodedFrameDirectory": "/workspace/scratch/e55fa0cc21f1/design-review-ci40762471599/motion-missing-source/decoded"
+      }
+    },
+    {
+      "scene": "motion-none",
+      "summaryStatus": "CAPTURED_NATIVE_WINDOWSERVER",
+      "source": "5a9979693ac1bb28fa898d23c60bc791c2c7ec4d",
+      "png": [
+        {
+          "file": "frame-00.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 10,
+          "selectedOwnWindowCount": 11,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "2588367a7ffbbf1203ba4bbc1eca10682d6762390e2f9e6c7eab8c02ad9b4647"
+        },
+        {
+          "file": "frame-01.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 10,
+          "selectedOwnWindowCount": 11,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "1654aa258d1cf028f3e22b5f4b90463b4747b2ee775fc947459d1059ed7a291b"
+        },
+        {
+          "file": "frame-02.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 10,
+          "selectedOwnWindowCount": 11,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "1654aa258d1cf028f3e22b5f4b90463b4747b2ee775fc947459d1059ed7a291b"
+        },
+        {
+          "file": "frame-03.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 10,
+          "selectedOwnWindowCount": 11,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "1654aa258d1cf028f3e22b5f4b90463b4747b2ee775fc947459d1059ed7a291b"
+        },
+        {
+          "file": "frame-04.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 10,
+          "selectedOwnWindowCount": 11,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "1654aa258d1cf028f3e22b5f4b90463b4747b2ee775fc947459d1059ed7a291b"
+        },
+        {
+          "file": "frame-05.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 10,
+          "selectedOwnWindowCount": 11,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "1654aa258d1cf028f3e22b5f4b90463b4747b2ee775fc947459d1059ed7a291b"
+        },
+        {
+          "file": "frame-06.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 10,
+          "selectedOwnWindowCount": 11,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "1654aa258d1cf028f3e22b5f4b90463b4747b2ee775fc947459d1059ed7a291b"
+        },
+        {
+          "file": "frame-07.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 10,
+          "selectedOwnWindowCount": 11,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "1654aa258d1cf028f3e22b5f4b90463b4747b2ee775fc947459d1059ed7a291b"
+        },
+        {
+          "file": "frame-08.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 10,
+          "selectedOwnWindowCount": 11,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "1654aa258d1cf028f3e22b5f4b90463b4747b2ee775fc947459d1059ed7a291b"
+        },
+        {
+          "file": "frame-09.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 10,
+          "selectedOwnWindowCount": 11,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "1654aa258d1cf028f3e22b5f4b90463b4747b2ee775fc947459d1059ed7a291b"
+        },
+        {
+          "file": "frame-10.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 10,
+          "selectedOwnWindowCount": 11,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "1056d598f8177906d55acc08b6a0cd2b3e981aed58686a4ef3465b969ecaa072"
+        },
+        {
+          "file": "frame-11.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 10,
+          "selectedOwnWindowCount": 11,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "210df7227bdd9e2f484ce2d9a47e8660361c01fec0436a495391e822d429b1d4"
+        },
+        {
+          "file": "frame-12.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 7,
+          "selectedOwnWindowCount": 8,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "9627140becad82eab7c779b04a955e5d570cb300e2bf3ab5c3f572f318f01e25"
+        },
+        {
+          "file": "frame-13.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 7,
+          "selectedOwnWindowCount": 8,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "c6993d89ead7c08bb68e8b5114f1bf9198132ae5a96528206af394a7496b79ff"
+        },
+        {
+          "file": "frame-14.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 7,
+          "selectedOwnWindowCount": 8,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "b2a0c807bfdf2c6ca445f66976b5c9226bd9f8bb7d1fe67abd05fafa5a9f85b9"
+        },
+        {
+          "file": "frame-15.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 7,
+          "selectedOwnWindowCount": 8,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "7df318e0b0db89a0f86c09806b1aeeb2fcee86960e44bfd093c44c9ebde3e8f7"
+        }
+      ],
+      "movie": {
+        "file": "/workspace/scratch/e55fa0cc21f1/ci-artifacts/40762471599/extracted/test-results/native-visual/scenes/motion-none/native-motion.mov",
+        "sha256Matches": true,
+        "bytesMatch": true,
+        "manifestFrames": 126,
+        "decodedFrames": 126,
+        "dimensions": [
+          1024,
+          684
+        ],
+        "timeBase": "1/600",
+        "maxPTSErrorSeconds": 0.0008311249999675141,
+        "ptserrorWithinHalfTick": true,
+        "monotonicPTS": true,
+        "decodeReturnCode": 0,
+        "decodeStderr": "",
+        "extractReturnCode": 0,
+        "maxFrameGapSeconds": 0.293333,
+        "medianFrameGapSeconds": 0.036667000000000005,
+        "decodedFrameDirectory": "/workspace/scratch/e55fa0cc21f1/design-review-ci40762471599/motion-none/decoded"
+      }
+    },
+    {
+      "scene": "motion-reduce-motion",
+      "summaryStatus": "CAPTURED_NATIVE_WINDOWSERVER",
+      "source": "5a9979693ac1bb28fa898d23c60bc791c2c7ec4d",
+      "png": [
+        {
+          "file": "frame-00.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 7,
+          "selectedOwnWindowCount": 8,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "6504a2204ae00c7723204b067c00474b8a85ce9b2b489fd8043117cff3c79072"
+        },
+        {
+          "file": "frame-01.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 7,
+          "selectedOwnWindowCount": 8,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "0935d7f8bdb80ce6b477a2904e1f2ace1c728ba5717820ad95b10e32d0c06d4a"
+        },
+        {
+          "file": "frame-02.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 10,
+          "selectedOwnWindowCount": 11,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "5a3bada162e6de74123a590d9ae1f73cee3a40b42711882bfc69d5be3782dad0"
+        },
+        {
+          "file": "frame-03.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 10,
+          "selectedOwnWindowCount": 11,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "be21b430e4da818dfd8962f8d93804d87b00cddfb492c61ccf42f9b2e304fe22"
+        },
+        {
+          "file": "frame-04.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 10,
+          "selectedOwnWindowCount": 11,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "be21b430e4da818dfd8962f8d93804d87b00cddfb492c61ccf42f9b2e304fe22"
+        },
+        {
+          "file": "frame-05.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 10,
+          "selectedOwnWindowCount": 11,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "be21b430e4da818dfd8962f8d93804d87b00cddfb492c61ccf42f9b2e304fe22"
+        },
+        {
+          "file": "frame-06.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 10,
+          "selectedOwnWindowCount": 11,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "be21b430e4da818dfd8962f8d93804d87b00cddfb492c61ccf42f9b2e304fe22"
+        },
+        {
+          "file": "frame-07.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 10,
+          "selectedOwnWindowCount": 11,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "be21b430e4da818dfd8962f8d93804d87b00cddfb492c61ccf42f9b2e304fe22"
+        },
+        {
+          "file": "frame-08.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 10,
+          "selectedOwnWindowCount": 11,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "be21b430e4da818dfd8962f8d93804d87b00cddfb492c61ccf42f9b2e304fe22"
+        },
+        {
+          "file": "frame-09.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 10,
+          "selectedOwnWindowCount": 11,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "be21b430e4da818dfd8962f8d93804d87b00cddfb492c61ccf42f9b2e304fe22"
+        },
+        {
+          "file": "frame-10.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 10,
+          "selectedOwnWindowCount": 11,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "be21b430e4da818dfd8962f8d93804d87b00cddfb492c61ccf42f9b2e304fe22"
+        },
+        {
+          "file": "frame-11.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 10,
+          "selectedOwnWindowCount": 11,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "cb2a67004cd63d6f519436ba9811ba44177db174592ab2974200fd94fd9ddd1d"
+        },
+        {
+          "file": "frame-12.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 10,
+          "selectedOwnWindowCount": 11,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "cb2a67004cd63d6f519436ba9811ba44177db174592ab2974200fd94fd9ddd1d"
+        },
+        {
+          "file": "frame-13.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 7,
+          "selectedOwnWindowCount": 8,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "6504a2204ae00c7723204b067c00474b8a85ce9b2b489fd8043117cff3c79072"
+        },
+        {
+          "file": "frame-14.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 7,
+          "selectedOwnWindowCount": 8,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "0935d7f8bdb80ce6b477a2904e1f2ace1c728ba5717820ad95b10e32d0c06d4a"
+        },
+        {
+          "file": "frame-15.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 7,
+          "selectedOwnWindowCount": 8,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "6504a2204ae00c7723204b067c00474b8a85ce9b2b489fd8043117cff3c79072"
+        }
+      ],
+      "movie": {
+        "file": "/workspace/scratch/e55fa0cc21f1/ci-artifacts/40762471599/extracted/test-results/native-visual/scenes/motion-reduce-motion/native-motion.mov",
+        "sha256Matches": true,
+        "bytesMatch": true,
+        "manifestFrames": 171,
+        "decodedFrames": 171,
+        "dimensions": [
+          1024,
+          684
+        ],
+        "timeBase": "1/600",
+        "maxPTSErrorSeconds": 0.0008302916666682592,
+        "ptserrorWithinHalfTick": true,
+        "monotonicPTS": true,
+        "decodeReturnCode": 0,
+        "decodeStderr": "",
+        "extractReturnCode": 0,
+        "maxFrameGapSeconds": 0.196667,
+        "medianFrameGapSeconds": 0.03500000000000014,
+        "decodedFrameDirectory": "/workspace/scratch/e55fa0cc21f1/design-review-ci40762471599/motion-reduce-motion/decoded"
+      }
+    },
+    {
+      "scene": "preview-portrait-dark",
+      "summaryStatus": "CAPTURED_NATIVE_WINDOWSERVER",
+      "source": "5a9979693ac1bb28fa898d23c60bc791c2c7ec4d",
+      "png": [
+        {
+          "file": "native.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 26,
+          "selectedOwnWindowCount": 27,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "5c165265b6d985a2c99b3d81accc6c5fe06e794d950020a5939a8dbaf8f8c840"
+        }
+      ]
+    },
+    {
+      "scene": "preview-portrait-light",
+      "summaryStatus": "CAPTURED_NATIVE_WINDOWSERVER",
+      "source": "5a9979693ac1bb28fa898d23c60bc791c2c7ec4d",
+      "png": [
+        {
+          "file": "native.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 26,
+          "selectedOwnWindowCount": 27,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "3fcd21b1fa52da5b7adce675ce279775d0c88458092c64ed1acbb209e55d080d"
+        }
+      ]
+    },
+    {
+      "scene": "preview-wide-dark",
+      "summaryStatus": "CAPTURED_NATIVE_WINDOWSERVER",
+      "source": "5a9979693ac1bb28fa898d23c60bc791c2c7ec4d",
+      "png": [
+        {
+          "file": "native.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 26,
+          "selectedOwnWindowCount": 27,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "56080c6df1228c6d08e330ac5d9a76796d62b9b648f9a766699ed8249d9a74cd"
+        }
+      ]
+    },
+    {
+      "scene": "preview-wide-light",
+      "summaryStatus": "CAPTURED_NATIVE_WINDOWSERVER",
+      "source": "5a9979693ac1bb28fa898d23c60bc791c2c7ec4d",
+      "png": [
+        {
+          "file": "native.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 26,
+          "selectedOwnWindowCount": 27,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "e870e094a8ae598cec6226e0d80b993caba1e7576e5852877fe11fb2d3e6326f"
+        }
+      ]
+    },
+    {
+      "scene": "queue-dark",
+      "summaryStatus": "CAPTURED_NATIVE_WINDOWSERVER",
+      "source": "5a9979693ac1bb28fa898d23c60bc791c2c7ec4d",
+      "png": [
+        {
+          "file": "native.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 25,
+          "selectedOwnWindowCount": 26,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "b53b06c80aade58a75e5bc41675a748a76abbb94419edaaa127458e4bc511a34"
+        }
+      ]
+    },
+    {
+      "scene": "queue-light",
+      "summaryStatus": "CAPTURED_NATIVE_WINDOWSERVER",
+      "source": "5a9979693ac1bb28fa898d23c60bc791c2c7ec4d",
+      "png": [
+        {
+          "file": "native.png",
+          "valid": true,
+          "pixels": [
+            1024,
+            684
+          ],
+          "productWindowCount": 25,
+          "selectedOwnWindowCount": 26,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "505422a52e031721a22ba08a949a387603dc8f86ac93b4236d39f2137a7e0922"
+        }
+      ]
+    },
+    {
+      "scene": "settings-0-dark",
+      "summaryStatus": "CAPTURED_NATIVE_WINDOWSERVER",
+      "source": "5a9979693ac1bb28fa898d23c60bc791c2c7ec4d",
+      "png": [
+        {
+          "file": "native.png",
+          "valid": true,
+          "pixels": [
+            680,
+            520
+          ],
+          "productWindowCount": 1,
+          "selectedOwnWindowCount": 1,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "174dd24565cd3c3ce51752482d27bb3f9d1d6a6ec62a739ceed59b41cf6fcea0"
+        }
+      ]
+    },
+    {
+      "scene": "settings-0-light",
+      "summaryStatus": "CAPTURED_NATIVE_WINDOWSERVER",
+      "source": "5a9979693ac1bb28fa898d23c60bc791c2c7ec4d",
+      "png": [
+        {
+          "file": "native.png",
+          "valid": true,
+          "pixels": [
+            680,
+            520
+          ],
+          "productWindowCount": 1,
+          "selectedOwnWindowCount": 1,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "8258abf8e940ed2ea156f9bd4044aed166b15a26a537421dca2fae46628e9549"
+        }
+      ]
+    },
+    {
+      "scene": "settings-1-dark",
+      "summaryStatus": "CAPTURED_NATIVE_WINDOWSERVER",
+      "source": "5a9979693ac1bb28fa898d23c60bc791c2c7ec4d",
+      "png": [
+        {
+          "file": "native.png",
+          "valid": true,
+          "pixels": [
+            680,
+            520
+          ],
+          "productWindowCount": 1,
+          "selectedOwnWindowCount": 1,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "36604d4a12c99bd14b42d2962b9ab852b95ba763c3f1a985a1363705edd362df"
+        }
+      ]
+    },
+    {
+      "scene": "settings-1-light",
+      "summaryStatus": "CAPTURED_NATIVE_WINDOWSERVER",
+      "source": "5a9979693ac1bb28fa898d23c60bc791c2c7ec4d",
+      "png": [
+        {
+          "file": "native.png",
+          "valid": true,
+          "pixels": [
+            680,
+            520
+          ],
+          "productWindowCount": 1,
+          "selectedOwnWindowCount": 1,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "e78d393ba4b7dc59a2f738c9c533f6d61492a062455ef3131e60cb5822957129"
+        }
+      ]
+    },
+    {
+      "scene": "settings-2-dark",
+      "summaryStatus": "CAPTURED_NATIVE_WINDOWSERVER",
+      "source": "5a9979693ac1bb28fa898d23c60bc791c2c7ec4d",
+      "png": [
+        {
+          "file": "native.png",
+          "valid": true,
+          "pixels": [
+            680,
+            520
+          ],
+          "productWindowCount": 1,
+          "selectedOwnWindowCount": 1,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "1fd2f64777d3261b27949c6967c0a6530cbfb683a55009f47ef23d24d201f267"
+        }
+      ]
+    },
+    {
+      "scene": "settings-2-light",
+      "summaryStatus": "CAPTURED_NATIVE_WINDOWSERVER",
+      "source": "5a9979693ac1bb28fa898d23c60bc791c2c7ec4d",
+      "png": [
+        {
+          "file": "native.png",
+          "valid": true,
+          "pixels": [
+            680,
+            520
+          ],
+          "productWindowCount": 1,
+          "selectedOwnWindowCount": 1,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "72edf838fda1d22f31f1a7635fc22c3847d94894eb04423428b051c5be0bda8e"
+        }
+      ]
+    },
+    {
+      "scene": "settings-3-dark",
+      "summaryStatus": "CAPTURED_NATIVE_WINDOWSERVER",
+      "source": "5a9979693ac1bb28fa898d23c60bc791c2c7ec4d",
+      "png": [
+        {
+          "file": "native.png",
+          "valid": true,
+          "pixels": [
+            680,
+            520
+          ],
+          "productWindowCount": 1,
+          "selectedOwnWindowCount": 1,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "db5df58e2468d1d61ac39e24968e387b9920a197ae86073e073cb975de155dfe"
+        }
+      ]
+    },
+    {
+      "scene": "settings-3-light",
+      "summaryStatus": "CAPTURED_NATIVE_WINDOWSERVER",
+      "source": "5a9979693ac1bb28fa898d23c60bc791c2c7ec4d",
+      "png": [
+        {
+          "file": "native.png",
+          "valid": true,
+          "pixels": [
+            680,
+            520
+          ],
+          "productWindowCount": 1,
+          "selectedOwnWindowCount": 1,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "eb5a024537b36c063c997e7c18395f1a81e999db7b675652e2a2b3a85cb56d0f"
+        }
+      ]
+    },
+    {
+      "scene": "settings-4-dark",
+      "summaryStatus": "CAPTURED_NATIVE_WINDOWSERVER",
+      "source": "5a9979693ac1bb28fa898d23c60bc791c2c7ec4d",
+      "png": [
+        {
+          "file": "native.png",
+          "valid": true,
+          "pixels": [
+            680,
+            520
+          ],
+          "productWindowCount": 1,
+          "selectedOwnWindowCount": 1,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "cfad5064cfce9cae005987d53ddad373dddec94f60897704641ca210222153d6"
+        }
+      ]
+    },
+    {
+      "scene": "settings-4-light",
+      "summaryStatus": "CAPTURED_NATIVE_WINDOWSERVER",
+      "source": "5a9979693ac1bb28fa898d23c60bc791c2c7ec4d",
+      "png": [
+        {
+          "file": "native.png",
+          "valid": true,
+          "pixels": [
+            680,
+            520
+          ],
+          "productWindowCount": 1,
+          "selectedOwnWindowCount": 1,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "b1babbd573c6dd7d1211129a6ec45c47f29e70836db15171981214d31c2f9de6"
+        }
+      ]
+    },
+    {
+      "scene": "setup-0-dark",
+      "summaryStatus": "CAPTURED_NATIVE_WINDOWSERVER",
+      "source": "5a9979693ac1bb28fa898d23c60bc791c2c7ec4d",
+      "png": [
+        {
+          "file": "native.png",
+          "valid": true,
+          "pixels": [
+            560,
+            520
+          ],
+          "productWindowCount": 1,
+          "selectedOwnWindowCount": 1,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "52a5baef23ea2c5618f85ccf463fc4f468fd55ee1417669e90157410d0066293"
+        }
+      ]
+    },
+    {
+      "scene": "setup-0-light",
+      "summaryStatus": "CAPTURED_NATIVE_WINDOWSERVER",
+      "source": "5a9979693ac1bb28fa898d23c60bc791c2c7ec4d",
+      "png": [
+        {
+          "file": "native.png",
+          "valid": true,
+          "pixels": [
+            560,
+            520
+          ],
+          "productWindowCount": 1,
+          "selectedOwnWindowCount": 1,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "8585cf8eca48b54ed3ef91cb52b91fc3b14dd731f68cc1b9fe08902795c7da92"
+        }
+      ]
+    },
+    {
+      "scene": "setup-1-dark",
+      "summaryStatus": "CAPTURED_NATIVE_WINDOWSERVER",
+      "source": "5a9979693ac1bb28fa898d23c60bc791c2c7ec4d",
+      "png": [
+        {
+          "file": "native.png",
+          "valid": true,
+          "pixels": [
+            560,
+            520
+          ],
+          "productWindowCount": 1,
+          "selectedOwnWindowCount": 1,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "51e978a7909f8efab48a86a58d146c967cecdd98e58d68eaf9f0c8eab40dc7da"
+        }
+      ]
+    },
+    {
+      "scene": "setup-1-light",
+      "summaryStatus": "CAPTURED_NATIVE_WINDOWSERVER",
+      "source": "5a9979693ac1bb28fa898d23c60bc791c2c7ec4d",
+      "png": [
+        {
+          "file": "native.png",
+          "valid": true,
+          "pixels": [
+            560,
+            520
+          ],
+          "productWindowCount": 1,
+          "selectedOwnWindowCount": 1,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "fadbb8ccc20178c0e6dfc6c0f715214d62182e0d92c7925a7d2b6aa8d63da581"
+        }
+      ]
+    },
+    {
+      "scene": "setup-2-dark",
+      "summaryStatus": "CAPTURED_NATIVE_WINDOWSERVER",
+      "source": "5a9979693ac1bb28fa898d23c60bc791c2c7ec4d",
+      "png": [
+        {
+          "file": "native.png",
+          "valid": true,
+          "pixels": [
+            560,
+            520
+          ],
+          "productWindowCount": 1,
+          "selectedOwnWindowCount": 1,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "6a33b89cf82460dc475619c3a723869c6b90a655445881d4593e2d7a3d6a03f5"
+        }
+      ]
+    },
+    {
+      "scene": "setup-2-light",
+      "summaryStatus": "CAPTURED_NATIVE_WINDOWSERVER",
+      "source": "5a9979693ac1bb28fa898d23c60bc791c2c7ec4d",
+      "png": [
+        {
+          "file": "native.png",
+          "valid": true,
+          "pixels": [
+            560,
+            520
+          ],
+          "productWindowCount": 1,
+          "selectedOwnWindowCount": 1,
+          "productPixelsDifferFromBackdrop": null,
+          "sha256": "29cdefdf5c91c228ceecac219ff7ca8aaecd0f207675890487f2505cf366c098"
+        }
+      ]
+    }
+  ]
+}

@@ -10,6 +10,24 @@ public protocol CaptureLocationProviding: Sendable {
     func stop() async
 }
 
+/// File events and the consumer's later read are distinct observations. A
+/// replaced parent can produce absent -> consumer reads B -> absent before the
+/// next coalesced event. Remembering only event signatures loses that deletion.
+struct CapturePreferenceObservation {
+    private struct DeliveredRead { let signature: FileSignature? }
+    private var eventSignature: FileSignature?
+    private var deliveredRead: DeliveredRead?
+    init(signature: FileSignature? = nil) { eventSignature = signature }
+
+    mutating func didRead(signature: FileSignature?) { deliveredRead = DeliveredRead(signature: signature) }
+    mutating func beginNotification(signature: FileSignature?, force: Bool) -> Bool {
+        let differsFromRead = deliveredRead.map { $0.signature != signature } ?? false
+        guard force || signature != eventSignature || differsFromRead else { return false }
+        eventSignature = signature; deliveredRead = nil
+        return true
+    }
+}
+
 /// Watches both the preference file and its parent: in-place writes and atomic replacement
 /// are separate filesystem events. Only this one domain is parsed; no preference is written.
 /// Actual Screenshot.app preference propagation remains a real-Mac acceptance case.
@@ -22,7 +40,7 @@ public actor SystemCaptureLocationProvider: CaptureLocationProviding {
     private var onChange: (@Sendable () async -> Void)?
     private var running = false
     private var generation = UUID()
-    private var observedSignature: FileSignature?
+    private var observation = CapturePreferenceObservation()
     private var parentLocation: URL?
     private var parentRevision = UUID()
 
@@ -35,6 +53,12 @@ public actor SystemCaptureLocationProvider: CaptureLocationProviding {
     }
 
     public func currentDirectory() throws -> URL {
+        let value = try readDirectory()
+        if running { observation.didRead(signature: value.signature) }
+        return value.directory
+    }
+
+    private func readDirectory() throws -> (directory: URL, signature: FileSignature?) {
         // Reading the observed file avoids a long-lived UserDefaults process cache. A
         // malformed/partial plist must not silently switch collection back to Desktop.
         let descriptor = Darwin.open(preferencesFile.path, O_RDONLY | O_NONBLOCK | O_NOFOLLOW | O_CLOEXEC)
@@ -42,7 +66,7 @@ public actor SystemCaptureLocationProvider: CaptureLocationProviding {
             let code = errno
             // fileExists also returns false on denied parent traversal. Only an
             // actual absent preference permits the system's default location.
-            if code == ENOENT { return fallbackDirectory }
+            if code == ENOENT { return (fallbackDirectory, nil) }
             throw CaptureError.io("read-location-preference", code)
         }
         let handle = FileHandle(fileDescriptor: descriptor, closeOnDealloc: true)
@@ -55,12 +79,12 @@ public actor SystemCaptureLocationProvider: CaptureLocationProviding {
               signature == (try FileSignature.read(at: preferencesFile)),
               let values = try? PropertyListSerialization.propertyList(from: data, options: [], format: nil),
               let domain = values as? [String: Any] else { throw CaptureError.invalidLocationPreference }
-        guard let value = domain["location"] else { return fallbackDirectory }
+        guard let value = domain["location"] else { return (fallbackDirectory, signature) }
         guard let path = value as? String else { throw CaptureError.invalidLocationPreference }
-        guard !path.isEmpty else { return fallbackDirectory }
+        guard !path.isEmpty else { return (fallbackDirectory, signature) }
         let expanded = (path as NSString).expandingTildeInPath
         guard (expanded as NSString).isAbsolutePath, !expanded.utf8.contains(0) else { throw CaptureError.invalidLocationPreference }
-        return URL(fileURLWithPath: expanded, isDirectory: true).standardizedFileURL
+        return (URL(fileURLWithPath: expanded, isDirectory: true).standardizedFileURL, signature)
     }
 
     public func start(onChange: @escaping @Sendable () async -> Void) async throws {
@@ -69,7 +93,7 @@ public actor SystemCaptureLocationProvider: CaptureLocationProviding {
         generation = UUID()
         let token = generation
         self.onChange = onChange
-        observedSignature = try? FileSignature.read(at: preferencesFile)
+        observation = CapturePreferenceObservation(signature: try? FileSignature.read(at: preferencesFile))
         do {
             try await attachParentIfNeeded(token: token)
             guard running, generation == token else { return }
@@ -92,6 +116,7 @@ public actor SystemCaptureLocationProvider: CaptureLocationProviding {
         parentWatcher?.cancel(); parentWatcher = nil
         parentLocation = nil; parentRevision = UUID()
         fileWatcher?.cancel(); fileWatcher = nil
+        observation = CapturePreferenceObservation()
         onChange = nil
         if let wakeObserver { NSWorkspace.shared.notificationCenter.removeObserver(wakeObserver) }
         wakeObserver = nil
@@ -164,8 +189,7 @@ public actor SystemCaptureLocationProvider: CaptureLocationProviding {
         let signature = try? FileSignature.read(at: preferencesFile)
         // Other applications write the Preferences directory frequently. Their events do
         // not parse our plist or rebind the collector if this specific file is unchanged.
-        guard force || signature != observedSignature else { return }
-        observedSignature = signature
+        guard observation.beginNotification(signature: signature, force: force) else { return }
         await onChange()
     }
 }

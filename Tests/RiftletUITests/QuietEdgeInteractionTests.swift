@@ -142,7 +142,7 @@ final class QuietEdgeInteractionTests: XCTestCase {
         var deliveries: [((CGImage?) -> Void)] = []
         func schedule() {
             peek.schedule(id: id, immediate: true, stillValid: { true },
-                load: { deliveries.append($0) }, anchor: { (row, screen.visibleFrame) })
+                load: { deliveries.append($0) }, anchor: { (row, screen.visibleFrame, row.minX) })
         }
         schedule()
         try await eventually { deliveries.count == 1 }
@@ -158,6 +158,44 @@ final class QuietEdgeInteractionTests: XCTestCase {
         peek.cancel(); deliveries[1](cg)
         XCTAssertNil(peek.assetID)
         XCTAssertFalse(preview.isVisible, "A late image decode must not reopen a cancelled private preview")
+    }
+
+    @MainActor func testPortraitPreviewClearsEveryNativeNumberAndImageInputIsland() async throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let input = try [(12, 100), (180, 16), (90, 120)].enumerated().map { index, size -> AssetRecord in
+            let context = try XCTUnwrap(CGContext(data: nil, width: size.0, height: size.1, bitsPerComponent: 8,
+                bytesPerRow: size.0 * 4, space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue))
+            context.setFillColor(CGColor(gray: 0.7, alpha: 1))
+            context.fill(CGRect(x: 0, y: 0, width: size.0, height: size.1))
+            let cg = try XCTUnwrap(context.makeImage()), id = UUID()
+            let url = root.appendingPathComponent("\(id).png")
+            let destination = try XCTUnwrap(CGImageDestinationCreateWithURL(url as CFURL, UTType.png.identifier as CFString, 1, nil))
+            CGImageDestinationAddImage(destination, cg, nil); XCTAssertTrue(CGImageDestinationFinalize(destination))
+            let data = try Data(contentsOf: url)
+            return AssetRecord(image: ImportedAsset(id: id, sourceKey: "peek-clearance-\(id)", fileName: url.lastPathComponent,
+                sha256: SHA256.hash(data: data).map { String(format: "%02x", $0) }.joined(), byteCount: Int64(data.count),
+                pixelWidth: size.0, pixelHeight: size.1, mediaType: "image/png", origin: .synthetic), sequence: Int64(index + 1))
+        }
+        let panel = try controller(mediaDirectory: root); defer { panel.close() }
+        panel.render(input)
+        let rows = panel.diagnosticSnapshot.rows
+        let owner = try XCTUnwrap(rows.first { $0.assetID == input[0].id })
+        let leading = try XCTUnwrap(rows.flatMap { [$0.imageInputFrame.minX, $0.numberInputFrame.minX] }.min())
+        XCTAssertLessThan(leading, owner.frame.minX, "The wider neighbor must exercise the original overlap")
+        let before = Set(NSApp.windows.filter(\.isVisible).map(\.windowNumber))
+        let content = try XCTUnwrap(try window(owner.windowNumber).contentView)
+        let action = try XCTUnwrap(content.accessibilityCustomActions()?.first)
+        XCTAssertTrue(action.handler?() == true)
+        try await eventually { NSApp.windows.contains { $0.isVisible && !before.contains($0.windowNumber) } }
+        let preview = try XCTUnwrap(NSApp.windows.first { $0.isVisible && !before.contains($0.windowNumber) })
+        XCTAssertLessThanOrEqual(preview.frame.maxX, leading - 12)
+        XCTAssertTrue(preview.ignoresMouseEvents); XCTAssertFalse(preview.canBecomeKey)
+        for row in rows {
+            XCTAssertFalse(preview.frame.intersects(row.imageInputFrame))
+            XCTAssertFalse(preview.frame.intersects(row.numberInputFrame))
+        }
     }
 
     @MainActor func testPressDuringNativeReflowKeepsRawEventAndOriginalReleaseRegion() async throws {

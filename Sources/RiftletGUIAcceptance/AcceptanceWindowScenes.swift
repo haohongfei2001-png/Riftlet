@@ -18,6 +18,7 @@ final class AcceptanceWindowScenes {
     private let record: (String, [String: Any]) -> Void
     private var settingsFixture = RiftSettingsSnapshot(entryAvailable: true)
     private var historyFixtures: [RiftHistoryEntry] = []
+    private var feedbackFixtureRecords: [FeedbackRecord] = []
 
     private var requestedSettingsSection: RiftSettingsSection? {
         let args = CommandLine.arguments
@@ -115,11 +116,26 @@ final class AcceptanceWindowScenes {
                     // This fresh directory belongs to this invocation's helper
                     // fixtures. It never opens an existing user feedback root.
                     let store = try FeedbackStore(directory: self.mediaRoot.appendingPathComponent("feedback-fixture", isDirectory: true))
+                    let engine = FeedbackEngine(store: store, secrets: MemoryFeedbackSecrets(), transport: DisabledFeedbackTransport())
+                    let expanded = CommandLine.arguments.contains("--visual-feedback-records")
+                    if expanded {
+                        _ = try await engine.enqueue(FeedbackDraft(kind: .suggestion,
+                            text: "合成记录：希望完整预览避开相邻截图的编号。仅保存本机，尚未送达。", revision: 1), appVersion: "0.1.0")
+                        let cancelled = try await engine.enqueue(FeedbackDraft(kind: .problem,
+                            text: "合成记录：这条反馈已在发送前取消，正文仍可在本机查看。", revision: 3), appVersion: "0.1.0")
+                        try await engine.requestDeletion(id: cancelled)
+                        self.feedbackFixtureRecords = try await store.records()
+                        guard self.feedbackFixtureRecords.count == 2,
+                              Set(self.feedbackFixtureRecords.map { $0.state.rawValue }) == ["queued", "cancelled"],
+                              self.feedbackFixtureRecords.allSatisfy({ $0.attempts == 0 }) else {
+                            throw NativeVisualEvidence.Failure.unsafeRequest
+                        }
+                    }
                     try await store.saveDraft(FeedbackDraft(kind: .suggestion,
-                        text: "合成界面验收：希望缩略图的等待说明更容易看清。此文字仅用于检查原生反馈窗口；不会联网发送。", revision: 1))
+                        text: "合成界面验收：希望缩略图的等待说明更容易看清。此文字仅用于检查原生反馈窗口；不会联网发送。",
+                        revision: expanded ? 5 : 1))
                     try Task.checkCancellation()
                     let diagnostics = FeedbackDiagnostics()
-                    let engine = FeedbackEngine(store: store, secrets: MemoryFeedbackSecrets(), transport: DisabledFeedbackTransport())
                     let controller = FeedbackWindowController(engine: engine, diagnostics: diagnostics, appVersion: "0.1.0", demo: true)
                     self.feedback = controller; controller.show(); self.captureWindowGeometry(name)
                     self.feedbackLoad = nil
@@ -141,6 +157,36 @@ final class AcceptanceWindowScenes {
     func prepareEvidencePage() throws {
         let args = CommandLine.arguments
         func descendants(_ root: NSView) -> [NSView] { [root] + root.subviews.flatMap(descendants) }
+        if args.contains("--visual-feedback-records") {
+            guard feedback != nil, feedbackFixtureRecords.count == 2,
+                  let content = NSApp.windows.filter(\.isVisible).compactMap(\.contentView).first(where: {
+                      descendants($0).contains { $0.identifier?.rawValue == "feedback.recordsDisclosure" }
+                  }),
+                  let disclosure = descendants(content).first(where: {
+                      $0.identifier?.rawValue == "feedback.recordsDisclosure"
+                  }) as? NSButton else { throw NativeVisualEvidence.Failure.missingWindow }
+            if disclosure.state != .on { disclosure.performClick(nil) }
+            content.layoutSubtreeIfNeeded()
+            let views = descendants(content)
+            let cards = try feedbackFixtureRecords.map { record -> NSView in
+                guard let card = views.first(where: { $0.identifier?.rawValue == "feedback.record.\(record.id)" }),
+                      !card.isHiddenOrHasHiddenAncestor,
+                      let body = views.first(where: { $0.identifier?.rawValue == "feedback.record.body.\(record.id)" }) as? NSTextView,
+                      body.string == record.envelope.text,
+                      let state = views.first(where: { $0.identifier?.rawValue == "feedback.record.status.\(record.id)" }) as? NSTextField,
+                      state.stringValue == "离线演示（非云端）：\(record.label)" else { throw NativeVisualEvidence.Failure.missingWindow }
+                return card
+            }
+            guard disclosure.state == .on, let first = cards.first else { throw NativeVisualEvidence.Failure.missingWindow }
+            // Bring the two short synthetic cards into the existing product
+            // scroll view. No action button, transport or receipt is invoked.
+            let area = cards.dropFirst().reduce(first.bounds) { $0.union(first.convert($1.bounds, from: $1)) }
+            first.scrollToVisible(area)
+            record("native_evidence_feedback_records", ["fixtureRecordCount": cards.count,
+                "fixtureStates": feedbackFixtureRecords.map { $0.state.rawValue }.sorted(),
+                "bodyAndStateMatched": true, "expanded": true, "networkEnabled": false,
+                "receiptEvidence": false, "softwareSelection": true, "physical": false])
+        }
         if let index = args.firstIndex(of: "--visual-history-state"), index + 1 < args.count {
             let state = args[index + 1]
             let sorted = HistoryPresentation.matching(historyFixtures)

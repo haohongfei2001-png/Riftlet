@@ -36,7 +36,10 @@ public struct RiftArrivalSource: Equatable, Sendable {
     }
 }
 
-public enum RiftArrivalPhase: String, Sendable { case rowAvailable, imageDecoded, decorationStarted, decorationEnded }
+public enum RiftArrivalPhase: String, Sendable {
+    case rowAvailable, imageDecoded, decorationStarted, decorationEnded
+    case animationDelegateStarted, animationDelegateStopped
+}
 
 /// Optional software timing only: not a display-photon or physical-input claim.
 public struct RiftArrivalBoundary: Sendable {

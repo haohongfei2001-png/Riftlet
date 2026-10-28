@@ -6,6 +6,20 @@ import CryptoKit
 import ImageIO
 import UniformTypeIdentifiers
 
+/// WindowServer produces immutable CGImages. This handoff contains only those
+/// already captured self-owned pixels, never an NSWindow or a mutable UI object.
+private struct NativePNGImages: @unchecked Sendable {
+    let image: CGImage
+    let background: CGImage?
+}
+
+private struct NativePNGResult: Sendable {
+    let bytes: Int
+    let sha256: String
+    let productDifferencePixels: Int?
+    let processedOnMainThread: Bool
+}
+
 /// A helper-only recorder. It captures only the WindowServer IDs of windows
 /// owned by this process. It never captures a display, another process, an
 /// existing screenshot, or a production data directory, and never asks for TCC.
@@ -76,10 +90,12 @@ final class NativeVisualEvidence {
         let allowedNames: Set<String> = ["native_arrival_boundary", "native_presentation_boundary",
             "visual_synthetic_start_projection", "visual_synthetic_final_projection",
             "visual_timeline_started", "visual_timeline_finished", "synthetic_asset_ready",
-            "synthetic_decoration_cancel", "native_evidence_preview_action", "native_evidence_history_selection"]
+            "synthetic_decoration_cancel", "native_evidence_preview_action", "native_evidence_history_selection",
+            "native_evidence_feedback_records"]
         guard allowedNames.contains(name), events.count < 64 else { return }
         let allowedFields: Set<String> = ["phase", "boundaryUptime", "duration", "mode", "reason",
-            "readyUptime", "sourceProvided", "physical", "accepted", "fixtureState", "fixtureSequence", "softwareSelection"]
+            "readyUptime", "sourceProvided", "physical", "accepted", "fixtureState", "fixtureSequence", "softwareSelection",
+            "fixtureRecordCount", "fixtureStates", "bodyAndStateMatched", "expanded", "networkEnabled", "receiptEvidence"]
         var event = fields.filter { allowedFields.contains($0.key) }
         event["event"] = name; event["uptime"] = ProcessInfo.processInfo.systemUptime
         events.append(event)
@@ -88,12 +104,12 @@ final class NativeVisualEvidence {
     /// Produces original WindowServer pixels. No resampling, cacheDisplay,
     /// layer.render, synthetic frame painting, or screenshot permission change.
     @discardableResult
-    func capture(_ name: String) throws -> Bool {
+    func capture(_ name: String) async throws -> Bool {
         guard let frame = try captureOwnedWindows() else {
             recordUnavailableFrame(name)
             return false
         }
-        try writePNG(frame, name: name)
+        try await writePNG(frame, name: name)
         return true
     }
 
@@ -143,16 +159,22 @@ final class NativeVisualEvidence {
         return windowIDs
     }
 
-    private func productDifferencePixels(_ frame: NativeFrame) throws -> Int {
+    private func captureBackdrop(for frame: NativeFrame) throws -> CGImage {
         guard let backdrop,
               let background = CGImage(windowListFromArrayScreenBounds: frame.quartzRect,
-                windowArray: try windowArray([backdrop]), imageOption: [.boundsIgnoreFraming, .bestResolution]),
-              background.width == frame.image.width, background.height == frame.image.height,
-              background.bitsPerPixel == 32, frame.image.bitsPerPixel == 32,
-              background.bitsPerComponent == 8, frame.image.bitsPerComponent == 8,
-              background.bitmapInfo == frame.image.bitmapInfo,
-              let actualData = frame.image.dataProvider?.data, let backgroundData = background.dataProvider?.data,
-              CFDataGetLength(actualData) >= frame.image.bytesPerRow * frame.image.height,
+                windowArray: try windowArray([backdrop]), imageOption: [.boundsIgnoreFraming, .bestResolution]) else {
+            throw Failure.encoding
+        }
+        return background
+    }
+
+    nonisolated private static func productDifferencePixels(_ image: CGImage, background: CGImage) throws -> Int {
+        guard background.width == image.width, background.height == image.height,
+              background.bitsPerPixel == 32, image.bitsPerPixel == 32,
+              background.bitsPerComponent == 8, image.bitsPerComponent == 8,
+              background.bitmapInfo == image.bitmapInfo,
+              let actualData = image.dataProvider?.data, let backgroundData = background.dataProvider?.data,
+              CFDataGetLength(actualData) >= image.bytesPerRow * image.height,
               CFDataGetLength(backgroundData) >= background.bytesPerRow * background.height,
               let actual = CFDataGetBytePtr(actualData), let baseline = CFDataGetBytePtr(backgroundData) else {
             throw Failure.encoding
@@ -160,9 +182,9 @@ final class NativeVisualEvidence {
         var difference = 0
         // Compare original pixels, without resizing or modifying either image.
         // A little capture dithering cannot turn an empty backdrop into a pass.
-        for y in 0..<frame.image.height {
-            for x in 0..<frame.image.width {
-                let a = y * frame.image.bytesPerRow + x * 4
+        for y in 0..<image.height {
+            for x in 0..<image.width {
+                let a = y * image.bytesPerRow + x * 4
                 let b = y * background.bytesPerRow + x * 4
                 if (0..<4).contains(where: { abs(Int(actual[a + $0]) - Int(baseline[b + $0])) > 8 }) {
                     difference += 1
@@ -178,18 +200,35 @@ final class NativeVisualEvidence {
                        "uptime": ProcessInfo.processInfo.systemUptime, "physicalInput": "NOT_RUN"])
     }
 
-    private func writePNG(_ frame: NativeFrame, name: String) throws {
-        let image = frame.image
-        let difference: Int?
-        if singleWindow { difference = nil } else { difference = try productDifferencePixels(frame) }
-        let file = directory.appendingPathComponent(name + ".png")
+    nonisolated private static func encodePNG(_ images: NativePNGImages, file: URL) throws -> NativePNGResult {
+        let onMainThread = Thread.isMainThread
+        guard !onMainThread else { throw Failure.unsafeRequest }
+        let difference = try images.background.map { try productDifferencePixels(images.image, background: $0) }
         guard !FileManager.default.fileExists(atPath: file.path),
               let target = CGImageDestinationCreateWithURL(file as CFURL, UTType.png.identifier as CFString, 1, nil) else {
             throw Failure.encoding
         }
-        CGImageDestinationAddImage(target, image, nil)
+        CGImageDestinationAddImage(target, images.image, nil)
         guard CGImageDestinationFinalize(target) else { throw Failure.encoding }
         let bytes = try Data(contentsOf: file)
+        return NativePNGResult(bytes: bytes.count,
+            sha256: SHA256.hash(data: bytes).map { String(format: "%02x", $0) }.joined(),
+            productDifferencePixels: difference, processedOnMainThread: onMainThread)
+    }
+
+    private func writePNG(_ frame: NativeFrame, name: String) async throws {
+        let image = frame.image
+        let background: CGImage?
+        if singleWindow { background = nil } else { background = try captureBackdrop(for: frame) }
+        let images = NativePNGImages(image: image, background: background)
+        let file = directory.appendingPathComponent(name + ".png")
+        // Await exactly one background job before capturing the next frame.
+        // Heavy original-pixel comparison/PNG encoding/hash work must not block
+        // AppKit's run loop or compete with Core Animation completion delivery.
+        let encoded = try await Task.detached(priority: .utility) {
+            try Self.encodePNG(images, file: file)
+        }.value
+        try Task.checkCancellation()
         var result: [String: Any] = [
             "name": name, "file": file.lastPathComponent, "status": "CAPTURED_NATIVE_WINDOWSERVER",
             "method": "CGImage(windowListFromArrayScreenBounds:windowArray:imageOption:); only NSApp-owned windows",
@@ -200,15 +239,16 @@ final class NativeVisualEvidence {
             "pixelScaleY": CGFloat(image.height) / frame.rect.height,
             "backingScaleFactor": frame.backingScale,
             "resized": false, "source": source, "checkout": checkout,
-            "bytes": bytes.count,
-            "sha256": SHA256.hash(data: bytes).map { String(format: "%02x", $0) }.joined(),
+            "bytes": encoded.bytes, "sha256": encoded.sha256,
+            "pngProcessingOnMainThread": encoded.processedOnMainThread,
+            "pngProcessing": "One awaited background task; immutable original self-window image pair",
             "selectedOwnWindowCount": frame.windowCount,
             "ownWindowNumbersFrontToBack": frame.windowNumbers,
             "windowOrdering": "NSApplication.enumerateWindows(orderedFrontToBack)",
             "productWindowCount": frame.windowCount - (singleWindow ? 0 : 1),
             "syntheticOnly": true, "receiptEvidence": false, "physicalInput": "NOT_RUN"
         ]
-        if let difference {
+        if let difference = encoded.productDifferencePixels {
             result["productDifferencePixelCount"] = difference
             result["minimumProductDifferencePixels"] = 64
             result["productPixelComparison"] = "original own-window composite versus original opaque own backdrop; channel delta > 8"
@@ -256,7 +296,7 @@ final class NativeVisualEvidence {
             if keyframe < times.count && elapsed >= times[keyframe] {
                 // Do not duplicate one late capture under multiple timestamps.
                 while keyframe + 1 < times.count && elapsed >= times[keyframe + 1] { keyframe += 1 }
-                try writePNG(native, name: String(format: "frame-%02d", keyframe))
+                try await writePNG(native, name: String(format: "frame-%02d", keyframe))
                 keyframe += 1
             }
             let after = ProcessInfo.processInfo.systemUptime - zero

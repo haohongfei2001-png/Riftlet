@@ -12,6 +12,16 @@ public struct MagnetFlightCompletion: Equatable, Sendable {
     public let reason: MagnetFlightEndReason
 }
 
+/// Raw delegate timing is diagnostic only. A stopped callback with false does
+/// not report a completed flight, and none of these events grants upload state.
+public struct MagnetAnimationObservation: Sendable {
+    public enum Phase: String, Sendable { case started, stopped }
+    public let phase: Phase
+    public let uptime: TimeInterval
+    public let finished: Bool?
+    public let wasMainThread: Bool
+}
+
 public struct MagnetFlightDiagnostics: Sendable {
     public let assetID: UUID?
     public let generation: UInt
@@ -102,10 +112,20 @@ private final class MagnetDecorationView: NSView {
 
 private final class MagnetAnimationEnd: NSObject, CAAnimationDelegate {
     let callback: @MainActor (Bool) -> Void
-    init(callback: @escaping @MainActor (Bool) -> Void) { self.callback = callback }
+    let observe: @MainActor (MagnetAnimationObservation) -> Void
+    init(observe: @escaping @MainActor (MagnetAnimationObservation) -> Void,
+         callback: @escaping @MainActor (Bool) -> Void) { self.observe = observe; self.callback = callback }
+
+    func animationDidStart(_ anim: CAAnimation) {
+        let event = MagnetAnimationObservation(phase: .started, uptime: ProcessInfo.processInfo.systemUptime,
+            finished: nil, wasMainThread: Thread.isMainThread)
+        DispatchQueue.main.async { [observe] in observe(event) }
+    }
 
     func animationDidStop(_ anim: CAAnimation, finished flag: Bool) {
-        DispatchQueue.main.async { [callback] in callback(flag) }
+        let event = MagnetAnimationObservation(phase: .stopped, uptime: ProcessInfo.processInfo.systemUptime,
+            finished: flag, wasMainThread: Thread.isMainThread)
+        DispatchQueue.main.async { [observe, callback] in observe(event); callback(flag) }
     }
 }
 
@@ -166,6 +186,7 @@ public final class MagnetFlightPresenter {
     @discardableResult
     public func start(assetID: UUID, image: CGImage, plan: MagnetMotionPlan,
                       backingScale: CGFloat, elapsedSinceAssetReady: TimeInterval = 0,
+                      onAnimationObservation: @escaping (MagnetAnimationObservation) -> Void = { _ in },
                       onCompletion: @escaping (MagnetFlightCompletion) -> Void) -> Bool {
         let invocationCA = CACurrentMediaTime()
         let assetReadyCA = invocationCA - elapsedSinceAssetReady
@@ -213,7 +234,7 @@ public final class MagnetFlightPresenter {
         root.mask = clipMask
         root.addSublayer(imageLayer)
 
-        let end = MagnetAnimationEnd { [weak self] finished in
+        let end = MagnetAnimationEnd(observe: onAnimationObservation) { [weak self] finished in
             guard finished else { return }
             self?.finish(generation: token, reason: .finished)
         }

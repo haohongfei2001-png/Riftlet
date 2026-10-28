@@ -34,6 +34,7 @@ def cases():
             result.append((f"settings-{section}-{appearance}", base + ["--visual-window", "settings", "--visual-settings-section", str(section)]))
         for name in ("history", "feedback"):
             result.append((f"{name}-{appearance}", base + ["--visual-window", name]))
+        result.append((f"feedback-records-{appearance}", base + ["--visual-window", "feedback", "--visual-feedback-records"]))
         for state in ("archived", "unknown"):
             result.append((f"history-{state}-{appearance}", base + ["--visual-window", "history", "--visual-history-state", state]))
         result.append((f"queue-{appearance}", base + ["--visual-scene", "16"]))
@@ -99,6 +100,8 @@ def verify_capture(directory: Path, report: dict, source: str, checkout: str) ->
             raise ValueError("frameSourceOrResizeMismatch")
         if frame.get("syntheticOnly") is not True or frame.get("receiptEvidence") is not False:
             raise ValueError("frameScopeMismatch")
+        if frame.get("pngProcessingOnMainThread") is not False:
+            raise ValueError("pngProcessingMustLeaveNativeRunLoopAvailable")
         own_count, product_count = frame.get("selectedOwnWindowCount"), frame.get("productWindowCount")
         numbers = frame.get("ownWindowNumbersFrontToBack")
         if (type(own_count) is not int or type(product_count) is not int
@@ -187,6 +190,13 @@ def verify_case_behavior(flags: list, report: dict, expected_system_accessibilit
     reduced = expected or override
     if report.get("helperReducedMotionOverride") is not override:
         raise ValueError("reducedMotionFixtureMismatch")
+    if "--visual-feedback-records" in flags and report.get("status") != "NOT_RUN":
+        observed = [event for event in report.get("events", []) if event.get("event") == "native_evidence_feedback_records"]
+        if (len(observed) != 1 or observed[0].get("fixtureRecordCount") != 2
+                or observed[0].get("fixtureStates") != ["cancelled", "queued"]
+                or any(observed[0].get(key) is not True for key in ("bodyAndStateMatched", "expanded", "softwareSelection"))
+                or any(observed[0].get(key) is not False for key in ("physical", "networkEnabled", "receiptEvidence"))):
+            raise ValueError("expandedLocalFeedbackRecordsNotObserved")
     if "--visual-timeline" not in flags or report.get("status") == "NOT_RUN":
         return
     events = report.get("events", [])

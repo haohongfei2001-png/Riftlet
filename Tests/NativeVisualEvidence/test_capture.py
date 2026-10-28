@@ -34,6 +34,7 @@ class NativeVisualManifestTests(unittest.TestCase):
             "frames": [{"status": "CAPTURED_NATIVE_WINDOWSERVER", "file": "native.png", "pixels": [1, 1],
                         "bytes": len(self.png), "sha256": hashlib.sha256(self.png).hexdigest(), "resized": False,
                         "source": self.source, "checkout": self.checkout, "syntheticOnly": True, "receiptEvidence": False,
+                        "pngProcessingOnMainThread": False,
                         "selectedOwnWindowCount": 1, "productWindowCount": 1, "ownWindowNumbersFrontToBack": [123],
                         "windowOrdering": "NSApplication.enumerateWindows(orderedFrontToBack)"}]}
 
@@ -77,6 +78,13 @@ class NativeVisualManifestTests(unittest.TestCase):
                 report[key] = "PASS"
                 with self.assertRaisesRegex(ValueError, "unsupportedAcceptanceClaim"):
                     self.verify(report)
+
+    def test_png_processing_cannot_silently_block_the_native_run_loop(self):
+        for value in (None, True, "false"):
+            report = copy.deepcopy(self.report)
+            report["frames"][0]["pngProcessingOnMainThread"] = value
+            with self.assertRaisesRegex(ValueError, "pngProcessingMustLeaveNativeRunLoopAvailable"):
+                self.verify(report)
 
     def test_partial_capture_and_wrong_source_fail_closed(self):
         self.report["frames"].append({"status": "NOT_RUN"})
@@ -159,11 +167,28 @@ class NativeVisualManifestTests(unittest.TestCase):
             CAPTURE.verify_case_behavior(flags, self.report, "reduced")
 
     def test_filter_is_limited_to_registered_cases_and_preserves_all_default_cases(self):
-        self.assertEqual(len(CAPTURE.selected_cases([])), 44)
+        self.assertEqual(len(CAPTURE.selected_cases([])), 46)
         self.assertEqual([name for name, _ in CAPTURE.selected_cases(["queue-dark", "entry-dark", "motion-magnet", "queue-dark"])],
                          ["queue-dark", "entry-dark", "motion-magnet"])
         with self.assertRaisesRegex(ValueError, "Unknown registered case"):
             CAPTURE.selected_cases(["../../other"])
+
+    def test_feedback_records_require_exact_local_states_and_visible_content_observation(self):
+        self.report["helperReducedMotionOverride"] = False
+        flags = ["--visual-window", "feedback", "--visual-feedback-records"]
+        with self.assertRaisesRegex(ValueError, "expandedLocalFeedbackRecordsNotObserved"):
+            CAPTURE.verify_case_behavior(flags, self.report)
+        event = {"event": "native_evidence_feedback_records", "fixtureRecordCount": 2,
+                 "fixtureStates": ["cancelled", "queued"], "bodyAndStateMatched": True,
+                 "expanded": True, "softwareSelection": True, "physical": False,
+                 "networkEnabled": False, "receiptEvidence": False}
+        self.report["events"] = [event]
+        CAPTURE.verify_case_behavior(flags, self.report)
+        for key, value in (("fixtureStates", ["delivered", "queued"]), ("expanded", False),
+                           ("bodyAndStateMatched", False), ("receiptEvidence", True)):
+            report = copy.deepcopy(self.report); report["events"][0][key] = value
+            with self.assertRaisesRegex(ValueError, "expandedLocalFeedbackRecordsNotObserved"):
+                CAPTURE.verify_case_behavior(flags, report)
 
     def movie_fixture(self):
         # A minimal container fixture for integrity/metadata rejection tests,

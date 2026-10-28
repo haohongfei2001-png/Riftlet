@@ -244,20 +244,27 @@ private final class RiftRowView: NSView, NSMenuDelegate {
 
     func animateImage(to offset: CGFloat, duration: TimeInterval, power: Double? = nil) {
         let start = imageLayer.presentation()?.affineTransform().tx ?? imageOffset
+        let animation: CAKeyframeAnimation?
+        if duration > 0 {
+            let keyframes = CAKeyframeAnimation(keyPath: "transform.translation.x")
+            keyframes.values = (0...24).map { sample in
+                let t = Double(sample) / 24
+                let u = power.map { pow(t, $0) } ?? (1 - pow(1 - t, 3))
+                return Double(start) + Double(offset - start) * u
+            }
+            keyframes.duration = duration
+            keyframes.calculationMode = .linear
+            animation = keyframes
+        } else { animation = nil }
         imageOffset = offset
+        // Publish the final model and its explicit transition together. A
+        // separate model commit can expose a fully swallowed frame before the
+        // animation is installed, then briefly reveal that image again.
         CATransaction.begin(); CATransaction.setDisableActions(true)
         imageLayer.setAffineTransform(CGAffineTransform(translationX: offset, y: 0))
+        if let animation { imageLayer.add(animation, forKey: "rift.translation") }
+        else { imageLayer.removeAllAnimations() }
         CATransaction.commit()
-        guard duration > 0 else { imageLayer.removeAllAnimations(); return }
-        let animation = CAKeyframeAnimation(keyPath: "transform.translation.x")
-        animation.values = (0...24).map { sample in
-            let t = Double(sample) / 24
-            let u = power.map { pow(t, $0) } ?? (1 - pow(1 - t, 3))
-            return Double(start) + Double(offset - start) * u
-        }
-        animation.duration = duration
-        animation.calculationMode = .linear
-        imageLayer.add(animation, forKey: "rift.translation")
     }
 
     override func mouseDown(with event: NSEvent) {
@@ -859,7 +866,9 @@ public final class RiftPanelController {
             let old = rowWindows[previewID]?.view
             let next = layout.rows.first { $0.assetID == previewID }
             let nextRecord = records.first { $0.id == previewID }
-            if next == nil || next != old?.geometry || nextRecord?.visibilityRevision != old?.record.visibilityRevision {
+            let visibleGeometryChanged = layout.rows.count != rowWindows.count
+                || layout.rows.contains { $0 != rowWindows[$0.assetID]?.view.geometry }
+            if next == nil || visibleGeometryChanged || nextRecord?.visibilityRevision != old?.record.visibilityRevision {
                 peek.cancel()
             }
         }
@@ -997,7 +1006,15 @@ public final class RiftPanelController {
         let token = UUID(), epoch = generation, revision = row.view.record.visibilityRevision
         let started = flight.start(assetID: id, image: image, plan: plan,
             backingScale: screen.backingScaleFactor,
-            elapsedSinceAssetReady: ProcessInfo.processInfo.systemUptime - candidate.readyUptime) { [weak self, weak view = row.view] completion in
+            elapsedSinceAssetReady: ProcessInfo.processInfo.systemUptime - candidate.readyUptime,
+            onAnimationObservation: { [weak self] event in
+                guard let self else { return }
+                let phase: RiftArrivalPhase = event.phase == .started ? .animationDelegateStarted : .animationDelegateStopped
+                let finished = event.finished.map { String($0) } ?? "none"
+                self.onArrivalBoundary(RiftArrivalBoundary(phase: phase, assetID: id, uptime: event.uptime,
+                    mode: self.effectiveArrivalMode,
+                    reason: "finished=\(finished);callbackMainThread=\(event.wasMainThread)"))
+            }) { [weak self, weak view = row.view] completion in
                 guard let self else { return }
                 if let view, self.rowWindows[id]?.view === view,
                    view.record.visibilityRevision == revision { view.setArrivalHidden(false) }
@@ -1179,7 +1196,10 @@ public final class RiftPanelController {
             self?.cache.image(for: row.view.record.image, maxPixelSize: Int(320 * screen.backingScaleFactor), completion: completion)
         }, anchor: { [weak self] in
             guard let self, let screen = self.screen else { return nil }
-            return (row.panel.frame, screen.visibleFrame)
+            let inputs = self.rowWindows.values.flatMap { [$0.imageInput, $0.numberInput] }
+                .filter { $0.isVisible && !$0.frame.isEmpty }
+            guard let leading = inputs.map({ $0.frame.minX }).min() else { return nil }
+            return (row.panel.frame, screen.visibleFrame, leading)
         })
     }
 

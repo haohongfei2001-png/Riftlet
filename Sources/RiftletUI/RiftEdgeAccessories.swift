@@ -67,6 +67,27 @@ final class RiftLineView: NSView {
     func close() { countPanel.close(); panels.forEach { $0.close() } }
 }
 
+/// Keep the full preview clear of every visible thumbnail/number input island,
+/// while its vertical position continues to belong to the hovered row.
+enum RiftPeekGeometry {
+    static func frame(imageSize: CGSize, owner: CGRect, visible: CGRect, leadingInputEdge: CGFloat) -> CGRect? {
+        guard [imageSize.width, imageSize.height, owner.midY, visible.minX, visible.minY,
+               visible.maxX, visible.maxY, leadingInputEdge].allSatisfy(\.isFinite),
+              imageSize.width > 0, imageSize.height > 0 else { return nil }
+        let right = min(visible.maxX - 12, leadingInputEdge - 12)
+        let availableWidth = right - (visible.minX + 12) - 16
+        let availableHeight = visible.height - 24 - 16
+        // The design sizes are maxima. Preserve the complete aspect ratio on
+        // a narrow display instead of clamping the preview over input islands.
+        let ratio = min(min(320 / imageSize.width, 240 / imageSize.height),
+                        min(availableWidth / imageSize.width, availableHeight / imageSize.height))
+        guard ratio.isFinite, ratio > 0 else { return nil }
+        let width = imageSize.width * ratio + 16, height = imageSize.height * ratio + 16
+        let y = max(visible.minY + 12, min(visible.maxY - height - 12, owner.midY - height / 2))
+        return CGRect(x: right - width, y: y, width: width, height: height)
+    }
+}
+
 /// Bounded, full-aspect hover preview; no source mutation or attachment API.
 @MainActor final class RiftPeek {
     private let panel = EdgeDecorationPanel()
@@ -101,7 +122,7 @@ final class RiftLineView: NSView {
     }
     func schedule(id: UUID, immediate: Bool = false, stillValid: @escaping () -> Bool,
                   load: @escaping (@escaping (CGImage?) -> Void) -> Void,
-                  anchor: @escaping () -> (CGRect, CGRect)?) {
+                  anchor: @escaping () -> (CGRect, CGRect, CGFloat)?) {
         leaveEpoch &+= 1
         if assetID == id && panel.isVisible { panel.alphaValue = 1; return }
         // A pending/abandoned decode must be rescheduled after re-entry.
@@ -110,14 +131,11 @@ final class RiftLineView: NSView {
         DispatchQueue.main.asyncAfter(deadline: .now() + (immediate ? 0 : 0.45)) { [weak self] in
             guard let self, self.epoch == token, stillValid() else { return }
             load { [weak self] cg in
-                guard let self, self.epoch == token, stillValid(), let cg, let (row, visible) = anchor() else { return }
-                let ratio = min(320 / CGFloat(cg.width), 240 / CGFloat(cg.height))
-                let size = CGSize(width: CGFloat(cg.width) * ratio, height: CGFloat(cg.height) * ratio)
-                let w = size.width + 16, h = size.height + 16
-                guard visible.width >= w + 24, visible.height >= h + 24 else { self.cancel(); return }
-                let x = max(visible.minX + 12, min(visible.maxX - w - 12, row.minX - 12 - w))
-                let y = max(visible.minY + 12, min(visible.maxY - h - 12, row.midY - h / 2))
-                self.panel.setFrame(CGRect(x: x, y: y, width: w, height: h), display: true)
+                guard let self, self.epoch == token, stillValid(), let cg, let (row, visible, leading) = anchor() else { return }
+                guard let frame = RiftPeekGeometry.frame(imageSize: CGSize(width: cg.width, height: cg.height),
+                    owner: row, visible: visible, leadingInputEdge: leading) else { self.cancel(); return }
+                let size = CGSize(width: frame.width - 16, height: frame.height - 16)
+                self.panel.setFrame(frame, display: true)
                 self.image.frame = CGRect(origin: CGPoint(x: 8, y: 8), size: size)
                 self.image.image = NSImage(cgImage: cg, size: size)
                 self.panel.alphaValue = 0; self.panel.orderFrontRegardless()
