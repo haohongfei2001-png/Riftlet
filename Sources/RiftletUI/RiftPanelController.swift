@@ -218,8 +218,9 @@ private final class RiftRowView: NSView, NSMenuDelegate {
         ])
         if geometry.numberIsPad {
             RiftVisualStyle.surface.withAlphaComponent(NSWorkspace.shared.accessibilityDisplayShouldReduceTransparency ? 1 : 0.8).setFill()
-            let pad = NSBezierPath(roundedRect: geometry.numberFrame, xRadius: 5, yRadius: 5)
-            pad.fill(); RiftVisualStyle.separator.setStroke(); pad.lineWidth = 0.5; pad.stroke()
+            let stroke: CGFloat = NSWorkspace.shared.accessibilityDisplayShouldIncreaseContrast ? 1 : 1 / max(1, window?.backingScaleFactor ?? 1)
+            let pad = NSBezierPath(roundedRect: geometry.numberFrame.insetBy(dx: stroke / 2, dy: stroke / 2), xRadius: 5, yRadius: 5)
+            pad.fill(); RiftVisualStyle.separator.setStroke(); pad.lineWidth = stroke; pad.stroke()
         }
         let textSize = text.size()
         text.draw(at: CGPoint(x: geometry.numberFrame.midX - textSize.width / 2,
@@ -409,6 +410,7 @@ public final class RiftPanelController {
     private var lastRecords: [AssetRecord] = []
     private var deferredRecords: [AssetRecord]?
     private var firstVisibleIndex = 0
+    private var pageCapacity = 0
     private var gate = PointerSelectionGate()
     private var transitioning = false
     private var closed = false
@@ -834,7 +836,7 @@ public final class RiftPanelController {
         }
         var layout = makeLayout(firstVisibleIndex)
         if hasNewCapture && layout.totalCount > layout.capacity {
-            firstVisibleIndex = max(0, layout.totalCount - layout.capacity)
+            firstVisibleIndex = RiftLayout.lastPageStart(totalCount: layout.totalCount, capacity: layout.capacity)
             layout = makeLayout(firstVisibleIndex)
         }
         let shiftTime = reduceMotion ? 0 : configuration.shiftDuration
@@ -845,6 +847,7 @@ public final class RiftPanelController {
         })
         let shouldShift = !movingFrames.isEmpty
         firstVisibleIndex = layout.firstVisibleIndex
+        pageCapacity = layout.capacity
         visibleRange = firstVisibleIndex..<(firstVisibleIndex + layout.rows.count)
         if let flyingID = flight.currentAssetID,
            let old = rowWindows[flyingID],
@@ -1183,7 +1186,8 @@ public final class RiftPanelController {
     private func page(_ direction: Int) {
         guard !userHidden, !gate.isHolding, !transitioning, !interaction.snapshot.isSelecting else { return }
         cancelDecorations()
-        firstVisibleIndex = max(0, firstVisibleIndex + direction * max(1, visibleRange.count))
+        firstVisibleIndex = RiftLayout.pageStart(from: firstVisibleIndex, direction: direction,
+            totalCount: lastRecords.filter { $0.visibility == .visible }.count, capacity: pageCapacity)
         apply(lastRecords)
     }
 

@@ -16,6 +16,15 @@ final class AcceptanceWindowScenes {
     private let mediaRoot: URL
     private let fixtures: [AssetRecord]
     private let record: (String, [String: Any]) -> Void
+    private var settingsFixture = RiftSettingsSnapshot(entryAvailable: true)
+    private var historyFixtures: [RiftHistoryEntry] = []
+
+    private var requestedSettingsSection: RiftSettingsSection? {
+        let args = CommandLine.arguments
+        guard let index = args.firstIndex(of: "--visual-settings-section"), index + 1 < args.count,
+              let raw = Int(args[index + 1]) else { return nil }
+        return RiftSettingsSection(rawValue: raw)
+    }
 
     init(mediaRoot: URL, fixtures: [AssetRecord], record: @escaping (String, [String: Any]) -> Void) {
         self.mediaRoot = mediaRoot; self.fixtures = fixtures; self.record = record
@@ -25,7 +34,7 @@ final class AcceptanceWindowScenes {
         switch name {
         case "setup", "settings":
             if let setup {
-                if name == "setup" { setup.showOnboarding() } else { setup.show() }
+                if name == "setup" { setup.showOnboarding() } else { setup.show(section: requestedSettingsSection) }
                 captureWindowGeometry(name); return
             }
             let controller = RiftSetupController(
@@ -39,15 +48,33 @@ final class AcceptanceWindowScenes {
                 onOpenHistory: { [weak self] in self?.show("history") },
                 onOpenEntrySettings: { [weak self] in self?.action("entrySettings") },
                 onOpenDisplaySettings: { [weak self] in self?.show("motion") },
-                onOpenFeedback: { [weak self] in self?.show("feedback") })
+                onOpenFeedback: { [weak self] in self?.show("feedback") },
+                onSettingsChange: { [weak self] change in
+                    guard let self else { return RiftSettingsSnapshot() }
+                    switch change {
+                    case .entryEnabled(let enabled): self.settingsFixture.entryEnabled = enabled
+                    case .defaultCaptureMode(let mode): self.settingsFixture.defaultCaptureMode = mode
+                    case .arrivalMode(let mode):
+                        self.settingsFixture.arrivalMode = mode; self.settingsFixture.hasArrivalSelection = true
+                    case .preferredDisplay(let id): self.settingsFixture.preferredDisplayID = id
+                    case .archiveAfterHours(let hours): self.settingsFixture.archiveAfterHours = hours
+                    }
+                    self.action("inMemorySettingsChange")
+                    return self.settingsFixture
+                })
             controller.update(snapshot: SetupSnapshot(
                 sourceLocation: "合成验收素材（不读取系统截图位置）", source: .notApplicable,
                 collection: .stopped, visibleCount: 3, pendingCount: 1,
                 attachment: .offlineSimulation, permission: .notNeeded,
                 storage: .measured(bytes: UInt64(fixtures.reduce(Int64(0)) { $0 + $1.image.byteCount }), complete: true),
                 supportDescription: "仅合成 AppKit 呈现验收；没有读取截图、检查权限、连接浏览器或授予生产准入。"))
+            settingsFixture.displays = NSScreen.screens.enumerated().compactMap { index, screen in
+                guard let id = (screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.uint32Value else { return nil }
+                return RiftSettingsDisplay(id: id, name: "原生验收显示器 \(index + 1)")
+            }
+            controller.updateSettings(settingsFixture)
             setup = controller
-            if name == "setup" { controller.showOnboarding() } else { controller.show() }
+            if name == "setup" { controller.showOnboarding() } else { controller.show(section: requestedSettingsSection) }
             captureWindowGeometry(name)
         case "history":
             if let history { history.show(); captureWindowGeometry(name); return }
@@ -67,6 +94,7 @@ final class AcceptanceWindowScenes {
                 return RiftHistoryEntry(record: projection, canRestore: visibility == .archived || visibility == .removed,
                     detail: "合成呈现样本。没有真实操作、上传回执或数据库状态；此窗口只验证原生视觉与可访问性。")
             }
+            historyFixtures = entries
             history = controller; controller.update(entries: entries); controller.show()
             captureWindowGeometry(name)
         case "motion":
@@ -105,6 +133,38 @@ final class AcceptanceWindowScenes {
     }
 
     func cancel() { feedbackLoad?.cancel(); feedbackLoad = nil }
+
+    /// Helper-only software navigation through the product's existing buttons.
+    /// It neither requests permissions nor advances the final onboarding action.
+    func prepareEvidencePage() throws {
+        let args = CommandLine.arguments
+        func descendants(_ root: NSView) -> [NSView] { [root] + root.subviews.flatMap(descendants) }
+        if let index = args.firstIndex(of: "--visual-history-state"), index + 1 < args.count {
+            let state = args[index + 1]
+            let sorted = HistoryPresentation.matching(historyFixtures)
+            guard state == "archived" || state == "unknown", let history,
+                  let row = sorted.firstIndex(where: {
+                      state == "archived" ? $0.record.visibility == .archived : $0.record.status == .unknown
+                  }),
+                  let table = NSApp.windows.filter(\.isVisible).compactMap(\.contentView)
+                    .flatMap(descendants).compactMap({ $0 as? NSTableView }).first(where: { $0.delegate === history }),
+                  table.numberOfRows == sorted.count else { throw NativeVisualEvidence.Failure.missingWindow }
+            table.selectRowIndexes(IndexSet(integer: row), byExtendingSelection: false)
+            table.scrollRowToVisible(row)
+            guard table.selectedRow == row else { throw NativeVisualEvidence.Failure.missingWindow }
+            record("native_evidence_history_selection", ["fixtureState": state,
+                "fixtureSequence": sorted[row].record.sequence, "softwareSelection": true, "physical": false])
+        }
+        guard let index = args.firstIndex(of: "--visual-onboarding-page"), index + 1 < args.count,
+              let page = Int(args[index + 1]), (0...2).contains(page),
+              let window = NSApp.windows.first(where: { $0.identifier == RiftSetupController.windowIdentifier }),
+              let content = window.contentView else { return }
+        for _ in 0..<page {
+            descendants(content).compactMap { $0 as? NSButton }
+                .first(where: { $0.identifier?.rawValue == "setup.next" })?.performClick(nil)
+        }
+        captureWindowGeometry("setup-page-\(page)")
+    }
 
     private func action(_ name: String) {
         record("visual_window_action", ["action": name, "syntheticOnly": true,

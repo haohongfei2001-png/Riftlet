@@ -243,8 +243,11 @@ private final class ScreenshotEntryRailView: NSView {
                 : NSColor.white.withAlphaComponent(dark ? 0.14 : 0.48)
             glass.layer?.borderWidth = contrast ? 1 : pixel
             glass.layer?.borderColor = border.cgColor
-            // NSVisualEffectView owns the system's Reduce Transparency rendering;
-            // no second glass/opaque overlay or new input surface is introduced.
+            // Reduce Transparency must also defeat the optical parent alpha;
+            // an opaque material inside a translucent parent still leaks desktop.
+            let opaque = NSWorkspace.shared.accessibilityDisplayShouldReduceTransparency
+            glass.state = opaque ? .inactive : .active
+            glass.layer?.backgroundColor = opaque ? RiftVisualStyle.surface.cgColor : NSColor.clear.cgColor
             surface.layer?.shadowColor = NSColor.black.cgColor
             surface.layer?.shadowOpacity = dark ? 0.22 : 0.13
             surface.layer?.shadowOffset = CGSize(width: 0, height: -3)
@@ -272,7 +275,8 @@ private final class ScreenshotEntryRailView: NSView {
                                  y: c.controlSize / 2 + cancelSlotPosition * c.slotPitch - selectedSize / 2,
                                  width: selectedSize, height: selectedSize)
         selection.alphaValue = session.isExpanded ? expansion : 0
-        surface.alphaValue = alphas.surface
+        surface.alphaValue = NSWorkspace.shared.accessibilityDisplayShouldReduceTransparency
+            ? (alphas.surface > 0 ? 1 : 0) : alphas.surface
         glyphs.frame = CGRect(origin: origin,
                              size: CGSize(width: c.controlSize, height: c.controlSize + 3 * c.slotPitch))
         glyphs.configuration = c; glyphs.session = session; glyphs.expansion = expansion

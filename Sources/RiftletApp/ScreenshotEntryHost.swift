@@ -16,6 +16,10 @@ final class ScreenshotEntryHost {
     private var preferences: ScreenshotEntryPreferences
     private let onChange: @MainActor () async -> Void
     private let onIssue: (String) -> Void
+    private let onPreferencesChange: () -> Void
+    private var userHidden = false
+    var isEnabled: Bool { preferences.isEnabled }
+    var defaultMode: ScreenshotMode { preferences.defaultMode }
     private var menuOpen = false
     private var editor: ScreenshotMarkupController?
     private var cancelling = false
@@ -27,8 +31,9 @@ final class ScreenshotEntryHost {
 
     init(root: URL, store: QueueStore, rift: RiftPanelController,
          onChange: @escaping @MainActor () async -> Void,
-         onIssue: @escaping (String) -> Void) throws {
+         onIssue: @escaping (String) -> Void, onPreferencesChange: @escaping () -> Void = {}) throws {
         self.rift = rift; self.onChange = onChange; self.onIssue = onIssue
+        self.onPreferencesChange = onPreferencesChange
         outputDirectory = root.appendingPathComponent("captures", isDirectory: true)
         preferencesURL = root.appendingPathComponent("capture-entry-settings.json")
         preferences = try ScreenshotEntryPreferences.load(from: preferencesURL)
@@ -46,11 +51,12 @@ final class ScreenshotEntryHost {
         importer = PrivateAssetImporter(privateRoot: root, store: store)
         entry = ScreenshotEntryController(defaultMode: preferences.defaultMode)
         capture = InteractiveScreenshotController(outputDirectory: outputDirectory)
+        entry.setHidden(!preferences.isEnabled)
         wireCallbacks()
         rift.onGeometryChange = { [weak self] in self?.configure() }
         screenObserver = NotificationCenter.default.addObserver(
             forName: NSApplication.didChangeScreenParametersNotification, object: nil, queue: .main) { [weak self] _ in
-                Task { @MainActor [weak self] in self?.configure() }
+                Task { @MainActor [weak self] in self?.configure(); self?.onPreferencesChange() }
             }
         windowCloseObserver = NotificationCenter.default.addObserver(
             forName: NSWindow.willCloseNotification, object: nil, queue: .main) { [weak self] note in
@@ -91,6 +97,9 @@ final class ScreenshotEntryHost {
 
     func configure() {
         guard !closed else { return }
+        guard preferences.isEnabled else {
+            rift.setCaptureHeaderAnchor(nil); entry.configure(screen: nil); return
+        }
         guard let screen = rift.preferredScreen else {
             entry.configure(screen: nil); return
         }
@@ -119,13 +128,30 @@ final class ScreenshotEntryHost {
     }
 
     func setHidden(_ hidden: Bool) {
+        userHidden = hidden
         if hidden { cancel() }
-        entry.setHidden(hidden)
+        entry.setHidden(hidden || !preferences.isEnabled)
+    }
+
+    func setEnabled(_ enabled: Bool) throws {
+        var proposed = preferences; proposed.isEnabled = enabled
+        try proposed.save(to: preferencesURL)
+        preferences = proposed
+        if !enabled { cancel() }
+        entry.setHidden(userHidden || !enabled)
+        configure(); onPreferencesChange()
+    }
+
+    func selectDefaultMode(_ mode: ScreenshotMode) throws {
+        var proposed = preferences; proposed.defaultMode = mode
+        try proposed.save(to: preferencesURL)
+        preferences = proposed
+        entry.setDefaultMode(mode)
+        onPreferencesChange()
     }
 
     private func saveDefault(_ mode: ScreenshotMode) {
-        var proposed = preferences; proposed.defaultMode = mode
-        do { try proposed.save(to: preferencesURL); preferences = proposed }
+        do { try selectDefaultMode(mode) }
         catch {
             entry.setDefaultMode(preferences.defaultMode)
             onIssue("默认截图方式未能保存，请稍后重试。")

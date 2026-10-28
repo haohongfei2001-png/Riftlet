@@ -56,13 +56,28 @@ public enum RiftVisualStyle {
         var frame = window.frame
         frame.origin.y += frame.height - size.height
         frame.size = size
-        if (constrainOrigin || !NSScreen.screens.contains { $0.visibleFrame.intersects(frame) }),
-           let screen = window.screen ?? NSScreen.main {
-            let visible = screen.visibleFrame
-            if size.width <= visible.width { frame.origin.x = max(visible.minX, min(frame.minX, visible.maxX - size.width)) }
-            if size.height <= visible.height { frame.origin.y = max(visible.minY, min(frame.minY, visible.maxY - size.height)) }
-        }
+        frame = reachableWindowFrame(frame, visibleFrames: NSScreen.screens.map(\.visibleFrame),
+            preferredFrame: (window.screen ?? NSScreen.main)?.visibleFrame, constrainOrigin: constrainOrigin)
         window.setFrame(frame, display: true)
+    }
+
+    /// A few intersecting body pixels do not make a titled window recoverable.
+    /// Keep legitimate cross-screen placement only while a useful title-bar
+    /// segment remains reachable; otherwise bring it to an available screen.
+    static func reachableWindowFrame(_ frame: NSRect, visibleFrames: [NSRect],
+                                     preferredFrame: NSRect?, constrainOrigin: Bool = false) -> NSRect {
+        let titleHeight = min(28, frame.height)
+        let title = NSRect(x: frame.minX, y: frame.maxY - titleHeight, width: frame.width, height: titleHeight)
+        let reachable = visibleFrames.contains { visible in
+            let overlap = title.intersection(visible)
+            return !overlap.isNull && overlap.width >= min(96, frame.width) && overlap.height >= min(16, titleHeight)
+        }
+        guard constrainOrigin || !reachable else { return frame }
+        guard let visible = preferredFrame.flatMap({ visibleFrames.contains($0) ? $0 : nil }) ?? visibleFrames.first else { return frame }
+        var restored = frame
+        restored.origin.x = frame.width <= visible.width ? max(visible.minX, min(frame.minX, visible.maxX - frame.width)) : visible.minX
+        restored.origin.y = frame.height <= visible.height ? max(visible.minY, min(frame.minY, visible.maxY - frame.height)) : visible.maxY - frame.height
+        return restored
     }
 
     /// Both coordinates are top-down. A short document stays at the top rather
@@ -157,6 +172,7 @@ private final class RiftTopAlignedClipView: NSClipView {
 /// selected-row background. macOS inline bezels otherwise draw every row as a pill.
 @MainActor
 public final class RiftSidebarButton: NSButton {
+    public var symbolName: String? { didSet { needsDisplay = true } }
     public override var state: NSControl.StateValue { didSet { needsDisplay = true } }
     public override var focusRingMaskBounds: NSRect { bounds }
 
@@ -177,7 +193,13 @@ public final class RiftSidebarButton: NSButton {
         let color = selected ? RiftVisualStyle.accent : RiftVisualStyle.ink
         let text = NSAttributedString(string: title, attributes: [.font: selected ? RiftVisualStyle.headingFont : RiftVisualStyle.bodyFont,
             .foregroundColor: isEnabled ? color : color.withAlphaComponent(0.45), .paragraphStyle: paragraph])
-        text.draw(in: CGRect(x: 12, y: bounds.midY - text.size().height / 2, width: max(0, bounds.width - 24), height: text.size().height))
+        let textX: CGFloat = symbolName == nil ? 12 : 36
+        if let symbolName, let icon = NSImage(systemSymbolName: symbolName, accessibilityDescription: nil)?
+            .withSymbolConfiguration(NSImage.SymbolConfiguration(pointSize: 14, weight: .regular)
+                .applying(NSImage.SymbolConfiguration(paletteColors: [color]))) {
+            icon.draw(in: CGRect(x: 12, y: bounds.midY - 8, width: 16, height: 16))
+        }
+        text.draw(in: CGRect(x: textX, y: bounds.midY - text.size().height / 2, width: max(0, bounds.width - textX - 8), height: text.size().height))
     }
     public override func drawFocusRingMask() {
         NSBezierPath(roundedRect: bounds, xRadius: 8, yRadius: 8).fill()

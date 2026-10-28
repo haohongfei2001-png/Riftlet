@@ -41,6 +41,15 @@ enum AcceptanceMain {
             --visual-entry [--visual-entry-expanded]
               Existing predictive entry with the native queue geometry. Its actions
               only log synthetic intent; no capture controller or screenshot is created.
+            --export-native-evidence /new/absolute/directory --evidence-source SHA --evidence-checkout SHA
+              Requires --visual-clean. Capture only this helper's WindowServer windows,
+              at original pixels, then exit. No other app or display capture; no TCC request.
+              --visual-settings-section 0...4 and --visual-onboarding-page 0...2 select pages.
+              --visual-last-page and --visual-preview-index 1...16 select fixture views.
+              --visual-history-state archived|unknown selects a synthetic history row.
+              Preview invokes the native AX custom action in-process, not a physical hover.
+              --visual-background bright|textured changes only the synthetic backdrop.
+              With --visual-timeline, export timestamped native frames, not a latency benchmark.
             --self-check validates fixtures/layout only and does not run GUI acceptance.
             --press-acceptance-asset UUID --app-pid PID --app-path /exact/Riftlet.app
               One bounded AXPress on one exact synthetic identifier; existing AX permission only.
@@ -92,6 +101,8 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
     private var visualTimeline: Task<Void, Never>?
     private var visualWindows: AcceptanceWindowScenes?
     private var visualEntry: ScreenshotEntryController?
+    private var nativeEvidence: NativeVisualEvidence?
+    private var nativeEvidenceTask: Task<Void, Never>?
     private var visualArrival: Bool {
         CommandLine.arguments.contains("--visual-magnet") || CommandLine.arguments.contains("--visual-missing-source")
     }
@@ -140,6 +151,7 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
             buildWindow()
             installObservations()
             resetScene(count: visualCount)
+            if NativeVisualEvidence.requested { nativeEvidence = try NativeVisualEvidence(backdrop: window) }
             record("helper_started", ["syntheticOnly": true, "guiVerdict": "NOT_ASSESSED",
                                        "os": ProcessInfo.processInfo.operatingSystemVersionString])
             let modes = ["--software-pointer-probes", "--software-hold-probe", "--software-double-probe"]
@@ -157,6 +169,7 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
                 }
                 visualWindows = scenes; scenes.show(CommandLine.arguments[index + 1])
             }
+            if nativeEvidence != nil { startNativeEvidence() }
         } catch {
             fputs("GUI acceptance setup failed: \(error)\n", stderr)
             NSApp.terminate(nil)
@@ -174,6 +187,7 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
         releaseSoftwarePointer()
         reorderTask?.cancel()
         visualTimeline?.cancel()
+        nativeEvidenceTask?.cancel()
         visualWindows?.cancel()
         visualEntry?.close(); visualEntry = nil
         softwareProbeTask?.cancel()
@@ -207,6 +221,9 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
         window.setFrame(frame, display: false)
         probe = ClickProbeView(frame: CGRect(origin: .zero, size: frame.size))
         probe.visualClean = visualClean
+        if let index = CommandLine.arguments.firstIndex(of: "--visual-background"), index + 1 < CommandLine.arguments.count {
+            probe.visualBackdropStyle = CommandLine.arguments[index + 1]
+        }
         probe.onMouseDown = { [weak self] event in
             guard let self else { return }
             self.underlyingClicks += 1
@@ -405,6 +422,7 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
     }
 
     private func record(_ name: String, _ fields: [String: Any] = [:]) {
+        nativeEvidence?.note(name, fields: fields)
         var value = fields
         value["event"] = name
         value["uptime"] = ProcessInfo.processInfo.systemUptime
@@ -438,6 +456,45 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
         logView.string = observations.joined(separator: "\n") + "\n"
         logView.scrollToEndOfDocument(nil)
         status.stringValue = "Observed probe clicks: \(underlyingClicks) · thumbnail selections: \(selectionCount) · GUI verdict: NOT ASSESSED"
+    }
+
+    private func startNativeEvidence() {
+        guard let evidence = nativeEvidence else { return }
+        nativeEvidenceTask = Task { @MainActor [weak self] in
+            guard let self else { return }
+            do {
+                if CommandLine.arguments.contains("--visual-timeline") {
+                    try await evidence.recordTimeline()
+                } else {
+                    // Let AppKit layout, native text, async image decode and the
+                    // isolated Feedback draft load complete on the main run loop.
+                    try await Task.sleep(nanoseconds: 700_000_000)
+                    try self.visualWindows?.prepareEvidencePage()
+                    if CommandLine.arguments.contains("--visual-last-page") { self.rift?.showLatest() }
+                    if let index = CommandLine.arguments.firstIndex(of: "--visual-preview-index"),
+                       index + 1 < CommandLine.arguments.count,
+                       let ordinal = Int(CommandLine.arguments[index + 1]),
+                       let asset = self.records.first(where: { $0.sequence == Int64(ordinal) }) {
+                        self.rift?.showAsset(asset.id)
+                        try await Task.sleep(nanoseconds: 100_000_000)
+                        guard let row = self.rift?.diagnosticSnapshot.rows.first(where: { $0.assetID == asset.id }),
+                              let nativeWindow = NSApp.windows.first(where: { $0.windowNumber == row.windowNumber }),
+                              let action = nativeWindow.contentView?.accessibilityCustomActions()?.first,
+                              action.handler?() == true else { throw NativeVisualEvidence.Failure.missingWindow }
+                        self.record("native_evidence_preview_action", ["physical": false, "accepted": true])
+                    }
+                    try await Task.sleep(nanoseconds: 350_000_000)
+                    try evidence.capture("native")
+                    try evidence.finish()
+                }
+                NSApp.terminate(nil)
+            } catch is CancellationError { }
+            catch {
+                try? evidence.finish(failure: "nativeEvidenceExportFailed")
+                fputs("NATIVE_EVIDENCE_EXPORT_FAIL\n", stderr)
+                NSApp.terminate(nil)
+            }
+        }
     }
 
     private func resetScene(count: Int) {
@@ -1326,6 +1383,7 @@ private final class ClickProbeView: NSView {
     var onMouseUp: ((NSEvent) -> Void)?
     var targets: [ProbeTarget] = []
     var visualClean = false
+    var visualBackdropStyle = "solid"
     var sourceImage: NSImage?
     var sourceRect: CGRect {
         let width = min(240, max(120, bounds.width * 0.20))
@@ -1348,6 +1406,19 @@ private final class ClickProbeView: NSView {
     override func draw(_ dirtyRect: NSRect) {
         NSColor.windowBackgroundColor.setFill()
         bounds.fill()
+        if visualClean && visualBackdropStyle == "bright" {
+            NSColor.white.setFill(); bounds.fill()
+        } else if visualClean && visualBackdropStyle == "textured" {
+            NSGradient(starting: NSColor(srgbRed: 0.13, green: 0.25, blue: 0.36, alpha: 1),
+                       ending: NSColor(srgbRed: 0.69, green: 0.50, blue: 0.33, alpha: 1))?.draw(in: bounds, angle: 18)
+            // A deliberately busy, synthetic wallpaper, with no user pixels.
+            for index in 0..<12 {
+                let x = CGFloat(index % 4) * bounds.width / 4
+                let y = CGFloat(index / 4) * bounds.height / 3
+                NSColor.white.withAlphaComponent(index.isMultiple(of: 2) ? 0.12 : 0.035).setFill()
+                NSBezierPath(ovalIn: CGRect(x: x - 90, y: y - 60, width: bounds.width * 0.55, height: bounds.height * 0.70)).fill()
+            }
+        }
         if let sourceImage {
             sourceImage.draw(in: sourceRect, from: .zero, operation: .sourceOver,
                              fraction: 1, respectFlipped: true, hints: nil)

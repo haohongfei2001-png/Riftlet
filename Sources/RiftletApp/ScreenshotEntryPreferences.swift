@@ -7,6 +7,17 @@ import RiftletUI
 struct ScreenshotEntryPreferences: Codable, Equatable {
     var version: Int = 1
     var defaultMode: ScreenshotMode = .window
+    var isEnabled: Bool = true
+
+    private enum CodingKeys: String, CodingKey { case version, defaultMode, isEnabled }
+    init() {}
+    init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        version = try values.decode(Int.self, forKey: .version)
+        defaultMode = try values.decode(ScreenshotMode.self, forKey: .defaultMode)
+        // The previous version had no toggle. Preserve its enabled behavior.
+        isEnabled = try values.decodeIfPresent(Bool.self, forKey: .isEnabled) ?? true
+    }
 
     static func load(from url: URL) throws -> Self {
         guard FileManager.default.fileExists(atPath: url.path) else { return Self() }

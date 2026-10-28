@@ -6,6 +6,21 @@ import RiftletAdapters
 @testable import RiftletApp
 
 final class ScreenshotEntryIntegrationTests: XCTestCase {
+    func testExistingEntryPreferenceStaysEnabledAndExplicitDisableRoundTrips() throws {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let url = directory.appendingPathComponent("settings.json")
+        try Data(#"{"version":1,"defaultMode":"region"}"#.utf8).write(to: url)
+        var value = try ScreenshotEntryPreferences.load(from: url)
+        XCTAssertTrue(value.isEnabled, "An existing installation cannot silently lose its entry")
+        XCTAssertEqual(value.defaultMode, .region)
+        value.isEnabled = false; try value.save(to: url)
+        let reopened = try ScreenshotEntryPreferences.load(from: url)
+        XCTAssertFalse(reopened.isEnabled)
+        XCTAssertEqual(reopened.defaultMode, .region)
+    }
+
     func testDefaultModePersistsWithPrivatePermissionsAndUnknownVersionIsRejected() throws {
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)

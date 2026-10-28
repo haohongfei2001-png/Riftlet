@@ -40,8 +40,8 @@ private final class HistoryImageCell: NSTableCellView {
         NSLayoutConstraint.activate([
             preview.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 8),
             preview.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -8),
-            preview.topAnchor.constraint(equalTo: topAnchor, constant: 6),
-            preview.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -6)
+            preview.centerYAnchor.constraint(equalTo: centerYAnchor),
+            preview.heightAnchor.constraint(equalToConstant: 44)
         ])
     }
 
@@ -76,6 +76,7 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
     private let revealButton = NSButton(title: "在 Finder 中显示", target: nil, action: nil)
     private let newerButton = NSButton(title: "上一页", target: nil, action: nil)
     private let olderButton = NSButton(title: "下一页", target: nil, action: nil)
+    private let actionNote = RiftVisualStyle.label("放回裂缝不会立即上传。移出队列不会删除本地原图或聊天附件。", role: "secondary")
     private var entries: [RiftHistoryEntry] = []
     private var displayed: [RiftHistoryEntry] = []
     private var pageOffset = 0
@@ -133,9 +134,10 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         search.delegate = self; search.sendsSearchStringImmediately = true
         let sidebar = NSVisualEffectView(); sidebar.material = .sidebar; sidebar.blendingMode = .behindWindow
         let nav = RiftVisualStyle.vertical([RiftVisualStyle.label("本机截图", role: "heading")], spacing: 4)
+        let symbols = ["photo.on.rectangle", "clock", "paperclip", "archivebox", "exclamationmark.circle", "minus.circle"]
         for (i, name) in ["全部截图", "待核实", "已附加", "已归档", "明确失败", "已移除"].enumerated() {
             let button = RiftSidebarButton(title: name, target: self, action: #selector(filterChanged(_:)))
-            button.tag = i; button.setButtonType(.pushOnPushOff)
+            button.tag = i; button.symbolName = symbols[i]; button.setButtonType(.pushOnPushOff)
             button.font = RiftVisualStyle.bodyFont; button.alignment = .left
             button.heightAnchor.constraint(equalToConstant: 36).isActive = true
             button.widthAnchor.constraint(equalToConstant: 128).isActive = true
@@ -185,10 +187,9 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         detailImage.imageScaling = .scaleProportionallyUpOrDown
         detailImage.setAccessibilityLabel("完整比例截图预览")
         detailImage.heightAnchor.constraint(equalToConstant: 200).isActive = true
-        let note = RiftVisualStyle.label("放回裂缝不会立即上传。移出队列不会删除本地原图或聊天附件。", role: "secondary")
-        let detail = RiftVisualStyle.documentStack([detailImage, detailTitle, detailMetadata, detailState, revealButton, restoreButton, removeButton, note], spacing: 12)
+        let detail = RiftVisualStyle.documentStack([detailImage, detailTitle, detailMetadata, detailState, revealButton, restoreButton, removeButton, actionNote], spacing: 12)
         detail.edgeInsets = NSEdgeInsets(top: 24, left: 24, bottom: 24, right: 24)
-        for view in detail.arrangedSubviews { view.widthAnchor.constraint(equalTo: detail.widthAnchor, constant: -48).isActive = true }
+        for view in detail.arrangedSubviews where !(view is NSButton) { view.widthAnchor.constraint(equalTo: detail.widthAnchor, constant: -48).isActive = true }
         let detailScroll = RiftVisualStyle.topAlignedScrollView()
         detailScroll.drawsBackground = false; detailScroll.documentView = detail; detail.translatesAutoresizingMaskIntoConstraints = false
         let separator = NSBox(); separator.boxType = .separator
@@ -241,6 +242,10 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         restoreButton.isEnabled = selectedEntry?.canRestoreToRift == true
         removeButton.isEnabled = selectedEntry?.canRemoveFromRift == true
         revealButton.isEnabled = selectedEntry != nil
+        restoreButton.isHidden = !restoreButton.isEnabled
+        removeButton.isHidden = !removeButton.isEnabled
+        revealButton.isHidden = selectedEntry == nil
+        actionNote.isHidden = selectedEntry == nil
         newerButton.isEnabled = pageOffset > 0 && onPreviousPage != nil
         olderButton.isEnabled = hasEarlier && onNextPage != nil
         updateDetail()
@@ -259,7 +264,9 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
     private func updateDetail() {
         guard let entry = selectedEntry else {
             detailID = nil; detailImage.image = nil; detailImage.isHidden = true; detailTitle.stringValue = "截图会留在这里"
-            detailMetadata.stringValue = ""; detailState.stringValue = "选择一张截图，查看原比例预览与本地状态。"; return
+            detailMetadata.stringValue = ""; detailState.stringValue = "选择一张截图，查看原比例预览与本地状态。"
+            for field in [detailTitle, detailMetadata, detailState] { RiftVisualStyle.applyTextStyle(field) }
+            return
         }
         detailID = entry.id; detailImage.image = nil; detailImage.isHidden = false
         detailTitle.stringValue = Self.stateText(entry)
@@ -306,10 +313,11 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         let cell = (tableView.makeView(withIdentifier: column.identifier, owner: self) as? HistoryTextCell)
             ?? HistoryTextCell(frame: .zero)
         cell.identifier = column.identifier
-        let asset = entry.record.image
-        cell.title.stringValue = "\(HistoryPresentation.dateText(for: entry)) · \(asset.pixelWidth) × \(asset.pixelHeight)"
+        let formatter = DateFormatter()
+        formatter.setLocalizedDateFormatFromTemplate(Calendar.current.isDate(HistoryPresentation.captureDate(for: entry), equalTo: Date(), toGranularity: .year) ? "MMMd HHmm" : "yyMMdd HHmm")
+        cell.title.stringValue = formatter.string(from: HistoryPresentation.captureDate(for: entry))
         cell.subtitle.stringValue = Self.stateText(entry)
-        cell.toolTip = Self.stateText(entry)
+        cell.toolTip = HistoryPresentation.dateText(for: entry) + " · " + Self.stateText(entry)
         return cell
     }
 

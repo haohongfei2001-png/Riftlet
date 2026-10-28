@@ -35,6 +35,22 @@ public struct RiftLayoutResult: Equatable, Sendable {
 
 /// Deterministic geometry, independent of NSWindow and of upload semantics.
 public enum RiftLayout {
+    /// Arrow paging uses disjoint fixed-capacity pages. An arbitrary in-range
+    /// index is still accepted so the existing wheel can browse one row at a time.
+    public static func lastPageStart(totalCount: Int, capacity: Int) -> Int {
+        guard totalCount > 0, capacity > 0 else { return 0 }
+        return ((totalCount - 1) / capacity) * capacity
+    }
+
+    public static func pageStart(from index: Int, direction: Int, totalCount: Int, capacity: Int) -> Int {
+        guard capacity > 0, totalCount > 0 else { return 0 }
+        let bounded = min(max(0, index), lastPageStart(totalCount: totalCount, capacity: capacity))
+        let current = (bounded / capacity) * capacity
+        if direction < 0 { return max(0, bounded == current ? current - capacity : current) }
+        if direction > 0 { return min(lastPageStart(totalCount: totalCount, capacity: capacity), current + capacity) }
+        return bounded
+    }
+
     private struct RowMetrics {
         let record: AssetRecord
         let ordinal: Int
@@ -88,7 +104,7 @@ public enum RiftLayout {
         let reserved = overflow ? 28.0 : 0
         let remaining = room - reserved
         let capacity = remaining >= 0 ? Int(floor(remaining / pitch)) + 1 : 0
-        let index = min(max(0, firstVisibleIndex), max(0, active.count - capacity))
+        let index = min(max(0, firstVisibleIndex), lastPageStart(totalCount: active.count, capacity: capacity))
         let count = min(capacity, max(0, active.count - index))
         let fittedRows = (0..<count).map { offset in
             metrics(for: active[index + offset], ordinal: index + offset + 1, configuration: c)

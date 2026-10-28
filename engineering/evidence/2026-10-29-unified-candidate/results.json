@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "phase": "SOURCE_REVIEW_CHECKPOINT",
+  "nativeCI": "NOT_RUN",
+  "feedbackCI": "NOT_RUN",
+  "newNativeVisualEvidence": "NOT_RUN",
+  "physicalMacAcceptance": "NOT_RUN",
+  "sourceReview": "CONDITIONAL: exact source and CI pending",
+  "founderInstallationRequested": false,
+  "productionEnabled": false,
+  "safeRetryEnabled": false,
+  "feedbackCloudDelivery": "NOT_DEPLOYED"
+}

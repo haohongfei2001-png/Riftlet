@@ -106,7 +106,6 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private var rift: RiftPanelController?
     private var screenshotEntry: ScreenshotEntryHost?
     private var arrivalPreferences: ArrivalMotionPreferences?
-    private var arrivalSettings: ArrivalMotionSettingsController?
     private var arrivalCapture: ArrivalCaptureBridge?
     private var root: URL!
     private var visibleIDs = Set<UUID>()
@@ -213,7 +212,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         if let activationObserver { NSWorkspace.shared.notificationCenter.removeObserver(activationObserver) }
         if let archiveWakeObserver { NSWorkspace.shared.notificationCenter.removeObserver(archiveWakeObserver) }
         screenshotEntry?.close()
-        arrivalCapture?.close(); arrivalSettings?.close()
+        arrivalCapture?.close()
         rift?.close()
         history?.close()
         setup?.close()
@@ -457,7 +456,8 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             do {
                 screenshotEntry = try ScreenshotEntryHost(root: root, store: store, rift: rift,
                     onChange: { [weak self] in await self?.refresh() },
-                    onIssue: { [weak self] message in self?.showIssue(message) })
+                    onIssue: { [weak self] message in self?.showIssue(message) },
+                    onPreferencesChange: { [weak self] in self?.updateSetup() })
                 screenshotEntry?.setHidden(userHidden)
             } catch { showIssue("截图入口暂不可用，已有截图收录和队列仍保留。") }
         }
@@ -599,15 +599,11 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             onToggleHidden: { [weak self] in self?.toggleHidden() },
             onToggleCollection: mode.collectsSystemScreenshots ? { [weak self] in self?.toggleCollection() } : nil,
             onOpenHistory: { [weak self] in self?.showHistory() },
-            onOpenEntrySettings: mode.collectsSystemScreenshots ? { [weak self] in
-                guard let self else { return }
-                guard let entry = self.screenshotEntry?.entry else {
-                    self.showIssue("截图入口暂不可用，请在运行状态中重新检查。"); return
-                }
-                entry.showPreferences()
-            } : nil,
-            onOpenDisplaySettings: { [weak self] in self?.showArrivalSettings() },
-            onOpenFeedback: { [weak self] in self?.showFeedback() })
+            onOpenFeedback: { [weak self] in self?.showFeedback() },
+            onSettingsChange: { [weak self] change in
+                guard let self else { throw CocoaError(.fileWriteUnknown) }
+                return try self.applySettings(change)
+            })
         updateSetup()
     }
 
@@ -626,6 +622,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             storage: setupStorage, issue: issue, supportDescription: ProductStatus.supportDescription,
             isChecking: captureControl.isBusy || requestingPermission || !initialized)
         if setup?.presentation.snapshot != snapshot { setup?.update(snapshot: snapshot) }
+        setup?.updateSettings(settingsSnapshot())
         let presentation = SetupPresentation(snapshot: snapshot)
         let summary = presentation.issueText ?? (mode.collectsSystemScreenshots ? presentation.collectionText : presentation.attachmentText)
         statusLine?.title = summary
@@ -644,10 +641,10 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         updateSetup()
     }
 
-    @objc private func showFeedback() { feedback.open() }
+    @objc private func showFeedback() { screenshotEntry?.cancel(); feedback.open() }
 
-    @objc private func showSetup() { updateSetup(); setup?.show() }
-    @objc private func showOnboarding() { updateSetup(); setup?.showOnboarding() }
+    @objc private func showSetup() { screenshotEntry?.cancel(); updateSetup(); setup?.show() }
+    @objc private func showOnboarding() { screenshotEntry?.cancel(); updateSetup(); setup?.showOnboarding() }
 
     @objc private func recheckSetup() {
         guard initialized, !requestingPermission, let token = captureControl.begin(.recheck) else { return }
@@ -712,6 +709,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
 
     private func requestAutomationPermission() {
         guard mode.usesWebAdapter, !captureControl.isBusy, !requestingPermission else { return }
+        screenshotEntry?.cancel()
         if automationPermission == .denied { openPrivacySettings(automation: true); return }
         requestingPermission = true
         updateSetup()
@@ -729,6 +727,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
 
     @objc private func openFilePrivacySettings() { openPrivacySettings(automation: false) }
     private func openPrivacySettings(automation: Bool) {
+        screenshotEntry?.cancel()
         let pane = automation ? "Privacy_Automation" : "Privacy_FilesAndFolders"
         if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?\(pane)"),
            NSWorkspace.shared.open(url) { return }
@@ -1218,6 +1217,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
 
     @objc private func showHistory() {
         guard let history else { return }
+        // An explicit auxiliary action ends the capture session so its full-
+        // screen selection overlay cannot intercept this window's controls.
+        screenshotEntry?.cancel()
         history.show()
         Task { await refreshHistory() }
     }
@@ -1322,25 +1324,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         }
     }
 
-    @objc private func configureArchive() {
-        guard let root else { return }
-        let alert = NSAlert()
-        alert.messageText = "闲置截图归档"
-        alert.informativeText = "距上次使用的小时数。输入 0 关闭；归档保留本机图片，不修改 ChatGPT 附件。时长可随时调整。"
-        let field = NSTextField(string: lifecycleSettings.archiveAfterSeconds.map { String($0 / 3600) } ?? "0")
-        field.frame = NSRect(x: 0, y: 0, width: 220, height: 24)
-        alert.accessoryView = field; alert.addButton(withTitle: "保存"); alert.addButton(withTitle: "取消")
-        guard alert.runModal() == .alertFirstButtonReturn,
-              let hours = Double(field.stringValue), hours.isFinite, hours >= 0 else { return }
-        var settings = lifecycleSettings
-        settings.archiveAfterSeconds = hours == 0 ? nil : hours * 3600
-        do {
-            try settings.validate()
-            try JSONEncoder().encode(settings).write(to: root.appendingPathComponent("lifecycle-settings.json"), options: .atomic)
-            lifecycleSettings = settings; archiveNotBefore = ProcessInfo.processInfo.systemUptime + 30
-            updateControlTitles()
-        } catch { showIssue("Archive setting was not saved; previous setting kept.") }
-    }
+    @objc private func configureArchive() { screenshotEntry?.cancel(); updateSetup(); setup?.show(section: .privacy) }
 
     private func startArchiveScheduler() {
         archiveNotBefore = ProcessInfo.processInfo.systemUptime + 30
@@ -1436,7 +1420,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         let item = NSMenuItem(title: title, action: action, keyEquivalent: key); item.target = self; menu.addItem(item)
     }
     func validateMenuItem(_ item: NSMenuItem) -> Bool {
-        if item.action == #selector(beginScreenshot) { return screenshotEntry != nil && !userHidden }
+        if item.action == #selector(beginScreenshot) { return screenshotEntry?.isEnabled == true && !userHidden }
         if item.action == #selector(toggleCollection) { return mode.collectsSystemScreenshots && initialized && !captureControl.isBusy }
         if item.action == #selector(recheckSetup) || item.action == #selector(reload) {
             return initialized && !captureControl.isBusy && !requestingPermission
@@ -1449,21 +1433,55 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     @objc private func showLatest() { rift?.showLatest() }
     @objc private func showOldest() { rift?.showOldest() }
     @objc private func quit() { NSApplication.shared.terminate(nil) }
-    @objc private func showArrivalSettings() {
-        guard let preferences = arrivalPreferences else { return }
-        if arrivalSettings == nil {
-            arrivalSettings = ArrivalMotionSettingsController(mode: preferences.mode,
-                hasExplicitSelection: preferences.selectedMode != nil) { [weak self] mode in
-                    guard let self, var value = self.arrivalPreferences else { throw CocoaError(.fileWriteUnknown) }
-                    try value.select(mode)
-                    self.arrivalPreferences = value
-                    self.arrivalCapture?.cancel()
-                    self.rift?.setArrivalMode(mode)
-                }
+    @objc private func showArrivalSettings() { screenshotEntry?.cancel(); updateSetup(); setup?.show(section: .display) }
+
+    private func settingsSnapshot() -> RiftSettingsSnapshot {
+        let displays = NSScreen.screens.compactMap { screen -> RiftSettingsDisplay? in
+            guard let id = (screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.uint32Value else { return nil }
+            return RiftSettingsDisplay(id: id, name: screen.localizedName)
         }
-        arrivalSettings?.update(mode: preferences.mode, hasExplicitSelection: preferences.selectedMode != nil)
-        arrivalSettings?.show()
+        return RiftSettingsSnapshot(entryAvailable: screenshotEntry != nil,
+            entryEnabled: screenshotEntry?.isEnabled ?? true,
+            defaultCaptureMode: screenshotEntry?.defaultMode ?? .window,
+            arrivalMode: arrivalPreferences?.mode ?? .provisionalFallback,
+            hasArrivalSelection: arrivalPreferences?.selectedMode != nil,
+            displays: displays, preferredDisplayID: rift?.configuration.preferredDisplayID,
+            archiveAfterHours: lifecycleSettings.archiveAfterSeconds.map { $0 / 3600 })
     }
+
+    private func applySettings(_ change: RiftSettingsChange) throws -> RiftSettingsSnapshot {
+        guard initialized, let root else { throw CocoaError(.fileWriteUnknown) }
+        switch change {
+        case .entryEnabled(let enabled):
+            guard let screenshotEntry else { throw CocoaError(.fileWriteUnknown) }
+            try screenshotEntry.setEnabled(enabled)
+        case .defaultCaptureMode(let mode):
+            guard let screenshotEntry else { throw CocoaError(.fileWriteUnknown) }
+            try screenshotEntry.selectDefaultMode(mode)
+        case .arrivalMode(let mode):
+            guard var value = arrivalPreferences else { throw CocoaError(.fileWriteUnknown) }
+            try value.select(mode)
+            arrivalPreferences = value; arrivalCapture?.cancel(); rift?.setArrivalMode(mode)
+        case .preferredDisplay(let displayID):
+            guard let rift else { throw CocoaError(.fileWriteUnknown) }
+            var configuration = rift.configuration; configuration.preferredDisplayID = displayID
+            try configuration.validate()
+            let encoder = JSONEncoder(); encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+            try encoder.encode(configuration).write(to: root.appendingPathComponent("rift-configuration.json"), options: .atomic)
+            cancelSelections(reason: "displayPreferenceChanged"); frozenPress = nil
+            screenshotEntry?.cancel(); arrivalCapture?.cancel()
+            try rift.updateConfiguration(configuration); screenshotEntry?.configure()
+        case .archiveAfterHours(let hours):
+            var value = lifecycleSettings
+            value.archiveAfterSeconds = hours.map { $0 * 3600 }
+            try value.validate()
+            try JSONEncoder().encode(value).write(to: root.appendingPathComponent("lifecycle-settings.json"), options: .atomic)
+            lifecycleSettings = value; archiveNotBefore = ProcessInfo.processInfo.systemUptime + 30
+        }
+        updateControlTitles()
+        return settingsSnapshot()
+    }
+
     private func recordArrivalTrace(_ fields: [String: Any]) {
         guard CommandLine.arguments.contains("--arrival-trace") else { return }
         var event = fields

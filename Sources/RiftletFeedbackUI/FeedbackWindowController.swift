@@ -25,6 +25,7 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
     private let recordsDisclosure = NSButton(title: "本机反馈记录 · 0", target: nil, action: nil)
     private let recordsBody = NSStackView()
     private var recordsExpanded = false
+    private var hasPresented = false
     // Production always writes the same sidecar. Tests suspend this narrow seam
     // to verify that close cannot race text, kind or consent edits.
     var persistDraft: (@Sendable (FeedbackDraft) async throws -> Void)?
@@ -50,10 +51,10 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
 
     private func build() {
         guard let content = window?.contentView else { return }
-        let stack = RiftVisualStyle.vertical([], spacing: 12)
+        let stack = RiftVisualStyle.documentStack([], spacing: 12)
         stack.edgeInsets = NSEdgeInsets(top: 24, left: 24, bottom: 16, right: 24)
-        let scroller = NSScrollView(); scroller.hasVerticalScroller = true; scroller.autohidesScrollers = true
-        scroller.drawsBackground = false; scroller.documentView = stack
+        let scroller = RiftVisualStyle.topAlignedScrollView()
+        scroller.documentView = stack
         stack.translatesAutoresizingMaskIntoConstraints = false
         let heading = RiftVisualStyle.label("哪里不顺手？", role: "title")
         let introduction = RiftVisualStyle.label("也欢迎告诉我，你希望它怎样工作。", role: "secondary")
@@ -140,7 +141,15 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
         } catch { loaded = true; controlsEnabled(true); failure() }
     }
     public func show() {
-        window?.center(); showWindow(nil); NSApp.activate(ignoringOtherApps: true); window?.makeFirstResponder(text)
+        if let window {
+            let size = hasPresented ? window.frame.size : NSSize(width: 600, height: 540)
+            if !hasPresented { window.center() }
+            RiftVisualStyle.restoreWindowSize(window, size: size, constrainOrigin: !hasPresented)
+            showWindow(nil)
+            RiftVisualStyle.restoreWindowSize(window, size: size, constrainOrigin: !hasPresented)
+            hasPresented = true
+        }
+        NSApp.activate(ignoringOtherApps: true); window?.makeFirstResponder(text)
         Task { await refreshRecords() }
     }
     private func applyDraft() {

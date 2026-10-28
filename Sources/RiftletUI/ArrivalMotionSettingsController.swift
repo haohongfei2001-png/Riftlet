@@ -17,7 +17,7 @@ public final class ArrivalMotionSettingsController: NSWindowController, NSWindow
         self.mode = mode; hasSelection = hasExplicitSelection; self.onChoose = onChoose
         let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 468, height: 344),
             styleMask: [.titled, .closable], backing: .buffered, defer: false)
-        window.title = "入缝动效 · 实施候选"
+        window.title = "入缝动效"
         window.isReleasedWhenClosed = false; window.backgroundColor = RiftVisualStyle.window
         super.init(window: window)
         window.delegate = self
@@ -103,7 +103,7 @@ public final class ArrivalMotionSettingsController: NSWindowController, NSWindow
         choice.selectItem(at: ArrivalMotionMode.allCases.firstIndex(of: mode) ?? 0)
         let reduced = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
         if reduced { detail.stringValue = "系统已开启“减少动态效果”，该次入缝静态呈现，仍保留已选偏好。" }
-        else if !hasSelection { detail.stringValue = "尚未选择入缝动效，当前暂用“无”；不是正式默认裁决。" }
+        else if !hasSelection { detail.stringValue = "当前使用“无”。你可以选择磁力吸引，先在这里预览。" }
         else { detail.stringValue = "已保存。源位置无法确认时，截图会直接呈现。" }
         RiftVisualStyle.applyTextStyle(detail)
         preview.show(mode.effective(reduceMotion: reduced), animate: play && window?.isVisible == true)
@@ -117,7 +117,9 @@ public final class ArrivalMotionSettingsController: NSWindowController, NSWindow
 }
 
 @MainActor
-private final class ArrivalPreviewView: NSView {
+final class ArrivalPreviewView: NSView {
+    private var currentMode: ArrivalMotionMode = .none
+    private var renderedBounds = NSRect.zero
     private let clip = CALayer()
     private let imageLayer = CALayer()
     private let line = CALayer()
@@ -154,8 +156,15 @@ private final class ArrivalPreviewView: NSView {
 
     required init?(coder: NSCoder) { fatalError("init(coder:) is not used") }
 
+    override func layout() {
+        super.layout()
+        if bounds != renderedBounds { show(currentMode, animate: false) }
+    }
+
     func show(_ mode: ArrivalMotionMode, animate: Bool) {
+        currentMode = mode
         guard bounds.width > 100, bounds.height > 80 else { return }
+        renderedBounds = bounds
         stop(); updateAppearance()
         let edge = bounds.maxX - 20
         let target = CGRect(x: edge - 54, y: bounds.midY - 22.5, width: 72, height: 45)

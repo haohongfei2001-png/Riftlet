@@ -188,6 +188,9 @@ final class QuietEdgeInteractionTests: XCTestCase {
     @MainActor func testDigitBoundaryReflowKeepsFixedClippingPlaneUntilOrdinalHandoff() async throws {
         let panel = try controller(); defer { panel.close() }
         let input = records(10); panel.render(input); panel.showLatest()
+        // Keep both ordinals 9 and 10 visible even when a partial final page
+        // contains only ordinal 10. This test inspects the digit-width handoff.
+        panel.showAsset(input[8].id)
         let original = try XCTUnwrap(panel.diagnosticSnapshot.rows.first { $0.assetID == input[9].id })
         let removed = try XCTUnwrap(panel.diagnosticSnapshot.rows.first?.assetID)
         XCTAssertNotEqual(removed, input[9].id)

@@ -103,7 +103,11 @@ final class RiftLayoutTests: XCTestCase {
         XCTAssertEqual(firstRow.frame.midY, lastPageRow.frame.midY)
         XCTAssertEqual(firstRow.imageClipFrame.offsetBy(dx: firstRow.frame.minX, dy: firstRow.frame.minY),
                        lastPageRow.imageClipFrame.offsetBy(dx: lastPageRow.frame.minX, dy: lastPageRow.frame.minY))
-        XCTAssertEqual(first.lineFrame, last.lineFrame)
+        XCTAssertEqual(first.lineFrame.minX, last.lineFrame.minX)
+        XCTAssertEqual(first.lineFrame.width, last.lineFrame.width)
+        XCTAssertEqual(first.lineFrame.maxY, last.lineFrame.maxY)
+        XCTAssertEqual(last.lineFrame.minY, last.rows.last!.frame.minY - RiftConfiguration().lineExtension)
+        XCTAssertEqual(last.firstVisibleIndex, ((input.count - 1) / first.capacity) * first.capacity)
         XCTAssertEqual(first.capacity, last.capacity)
         XCTAssertEqual(lastPageRow.assetID, input[last.firstVisibleIndex].id)
         for row in first.rows + last.rows {
@@ -116,6 +120,39 @@ final class RiftLayoutTests: XCTestCase {
         XCTAssertEqual(first.pagerFrame, last.pagerFrame)
         XCTAssertTrue(frame.contains(first.pagerFrame))
         XCTAssertLessThanOrEqual(first.pagerFrame.maxY + 8, first.rows.last!.frame.minY)
+    }
+
+    func testArrowPagesNeverRepeatItemsAndPartialLastPageReturnsToPreviousPage() {
+        let input = records(16)
+        let frame = CGRect(x: 0, y: 0, width: 1440, height: 1080)
+        let first = RiftLayout.make(records: input, visibleFrame: frame, configuration: .init())
+        XCTAssertEqual(first.capacity, 14)
+        let next = RiftLayout.pageStart(from: first.firstVisibleIndex, direction: 1,
+            totalCount: input.count, capacity: first.capacity)
+        let last = RiftLayout.make(records: input, visibleFrame: frame, configuration: .init(), firstVisibleIndex: next)
+        XCTAssertEqual(first.rows.map(\.ordinal), Array(1...14))
+        XCTAssertEqual(last.rows.map(\.ordinal), [15, 16])
+        XCTAssertTrue(Set(first.rows.map(\.assetID)).isDisjoint(with: last.rows.map(\.assetID)))
+        XCTAssertEqual(RiftLayout.pageStart(from: last.firstVisibleIndex, direction: -1,
+            totalCount: input.count, capacity: last.capacity), 0)
+        let oneLeft = RiftLayout.make(records: Array(input.prefix(15)), visibleFrame: frame,
+            configuration: .init(), firstVisibleIndex: last.firstVisibleIndex)
+        XCTAssertEqual(oneLeft.rows.map(\.ordinal), [15])
+        let noTail = RiftLayout.make(records: Array(input.prefix(14)), visibleFrame: frame,
+            configuration: .init(), firstVisibleIndex: last.firstVisibleIndex)
+        XCTAssertEqual(noTail.firstVisibleIndex, 0)
+        XCTAssertEqual(noTail.rows.count, 14)
+    }
+
+    func testWheelOffsetRemainsAvailableAndArrowReturnsToPageBoundary() {
+        let input = records(40), frame = CGRect(x: 0, y: 0, width: 1440, height: 1080)
+        let wheel = RiftLayout.make(records: input, visibleFrame: frame, configuration: .init(), firstVisibleIndex: 3)
+        XCTAssertEqual(wheel.firstVisibleIndex, 3)
+        XCTAssertEqual(wheel.rows.first?.ordinal, 4)
+        XCTAssertEqual(RiftLayout.pageStart(from: 3, direction: -1, totalCount: 40, capacity: wheel.capacity), 0)
+        XCTAssertEqual(RiftLayout.pageStart(from: 3, direction: 1, totalCount: 40, capacity: wheel.capacity), wheel.capacity)
+        XCTAssertEqual(RiftLayout.lastPageStart(totalCount: 0, capacity: 0), 0)
+        XCTAssertEqual(RiftLayout.pageStart(from: 8, direction: 1, totalCount: 40, capacity: 0), 0)
     }
 
     func testSmallDisplayKeepsAllItemsReachableWithoutOffscreenWindows() {

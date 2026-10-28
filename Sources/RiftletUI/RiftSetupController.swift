@@ -34,6 +34,11 @@ public final class RiftSetupController: NSObject, NSWindowDelegate {
     private let onOpenEntrySettings: (() -> Void)?
     private let onOpenDisplaySettings: (() -> Void)?
     private let onOpenFeedback: (() -> Void)?
+    private let onSettingsChange: ((RiftSettingsChange) throws -> RiftSettingsSnapshot)?
+    private lazy var settingsForm = RiftSettingsForm { [weak self] change in
+        guard let self, let save = self.onSettingsChange else { throw CocoaError(.fileWriteUnknown) }
+        return try save(change)
+    }
 
     private let source = NSTextField(wrappingLabelWithString: "")
     private let path = NSTextField(wrappingLabelWithString: "")
@@ -62,13 +67,14 @@ public final class RiftSetupController: NSObject, NSWindowDelegate {
                 onToggleHidden: (() -> Void)? = nil, onToggleCollection: (() -> Void)? = nil,
                 onOpenHistory: (() -> Void)? = nil,
                 onOpenEntrySettings: (() -> Void)? = nil, onOpenDisplaySettings: (() -> Void)? = nil,
-                onOpenFeedback: (() -> Void)? = nil) {
+                onOpenFeedback: (() -> Void)? = nil,
+                onSettingsChange: ((RiftSettingsChange) throws -> RiftSettingsSnapshot)? = nil) {
         self.onRecheck = onRecheck; self.onOpenSource = onOpenSource
         self.onPermission = onPermission; self.onDismiss = onDismiss
         self.onChooseSourceAccess = onChooseSourceAccess; self.onToggleHidden = onToggleHidden
         self.onToggleCollection = onToggleCollection; self.onOpenHistory = onOpenHistory
         self.onOpenEntrySettings = onOpenEntrySettings; self.onOpenDisplaySettings = onOpenDisplaySettings
-        self.onOpenFeedback = onOpenFeedback
+        self.onOpenFeedback = onOpenFeedback; self.onSettingsChange = onSettingsChange
         setupWindow = RiftVisualStyle.window(outerSize: NSSize(width: 680, height: 520),
             minimum: NSSize(width: 620, height: 480), title: "Riftlet — 设置与运行状态")
         super.init()
@@ -119,9 +125,14 @@ public final class RiftSetupController: NSObject, NSWindowDelegate {
         }
     }
 
-    /// Call only for first-run presentation or a deliberate menu action. The
-    /// status model, background imports and permission updates never call this.
-    public func show() {
+    /// Refresh local preference controls without presenting a window or saving.
+    public func updateSettings(_ snapshot: RiftSettingsSnapshot) {
+        settingsForm.update(snapshot, enabled: onSettingsChange != nil && !presentation.snapshot.isChecking)
+    }
+
+    /// Present only for a deliberate menu action, never a background update.
+    public func show(section: RiftSettingsSection? = nil) {
+        if let section { settingsSection = section.rawValue }
         rememberSize()
         onboardingStep = nil
         setupWindow.minSize = NSSize(width: 620, height: 480)
@@ -155,6 +166,7 @@ public final class RiftSetupController: NSObject, NSWindowDelegate {
 
     /// Owner teardown does not count as a user dismissing first-use guidance.
     public func close() {
+        settingsForm.stop()
         silentClose = true
         setupWindow.close()
         dismissPending = false
@@ -162,6 +174,7 @@ public final class RiftSetupController: NSObject, NSWindowDelegate {
     }
 
     public func windowWillClose(_ notification: Notification) {
+        settingsForm.stop()
         guard dismissPending, !silentClose else { return }
         dismissPending = false
         onDismiss()
@@ -195,9 +208,10 @@ public final class RiftSetupController: NSObject, NSWindowDelegate {
         let product = RiftVisualStyle.label("Riftlet", role: "heading")
         navigation.addArrangedSubview(product)
         navigation.setCustomSpacing(24, after: product)
+        let symbols = ["slider.horizontal.3", "camera", "display", "lock.shield", "info.circle"]
         for (i, title) in ["运行状态", "截图入口", "显示与动效", "隐私与存储", "关于与支持"].enumerated() {
             let button = RiftSidebarButton(title: title, target: self, action: #selector(selectSection(_:)))
-            button.tag = i; button.font = RiftVisualStyle.bodyFont
+            button.tag = i; button.symbolName = symbols[i]; button.font = RiftVisualStyle.bodyFont
             button.alignment = .left; button.setButtonType(.pushOnPushOff)
             button.widthAnchor.constraint(equalToConstant: 132).isActive = true
             button.heightAnchor.constraint(equalToConstant: 36).isActive = true
@@ -225,11 +239,12 @@ public final class RiftSetupController: NSObject, NSWindowDelegate {
     }
 
     private func rebuildPage() {
+        settingsForm.stop()
         pageHost.subviews.forEach { $0.removeFromSuperview() }
         footer.arrangedSubviews.forEach { footer.removeArrangedSubview($0); $0.removeFromSuperview() }
         navigation.superview?.isHidden = onboardingStep != nil
         sidebarWidth?.constant = onboardingStep == nil ? 156 : 0
-        progress.stringValue = onboardingStep.map { "认识 Riftlet  ·  连接与权限  ·  开始使用    \($0 + 1) / 3" } ?? "内部候选 · 薄界视觉实施候选"
+        progress.stringValue = onboardingStep.map { "认识 Riftlet  ·  连接与权限  ·  开始使用    \($0 + 1) / 3" } ?? "内部候选"
         setupWindow.title = onboardingStep == nil ? "Riftlet — 设置与运行状态" : "Riftlet — 开始使用 · 内部候选"
         var views: [NSView] = []
         let sourceCard = { [self] in RiftVisualStyle.card([RiftVisualStyle.label("系统截图位置", role: "heading"), source, path, buttons([sourceButton, accessButton])]) }
@@ -261,21 +276,17 @@ public final class RiftSetupController: NSObject, NSWindowDelegate {
             }
             switch settingsSection {
             case 1:
-                views = [RiftVisualStyle.label("截图入口", role: "title"),
-                    RiftVisualStyle.label("系统截图与预测入口并存。入口会话的模式槽保持固定，默认设置只影响下一次。"), sourceCard(),
-                    actionButton("配置截图入口…", action: #selector(openEntry), available: onOpenEntrySettings != nil)]
+                views = [RiftVisualStyle.label("截图入口", role: "title")]
+                    + settingsForm.content(for: .captureEntry) + [sourceCard()]
             case 2:
-                views = [RiftVisualStyle.label("显示与动效", role: "title"),
-                    RiftVisualStyle.label("无 / 磁力吸引只影响截图来到裂缝的过程。上传开始后的快速吞噬独立保留。"),
-                    RiftVisualStyle.card([rift, buttons([hideButton])]),
-                    actionButton("入缝动效与显示设置…", action: #selector(openDisplay), available: onOpenDisplaySettings != nil),
-                    RiftVisualStyle.label("减少动态、减少透明度与提高对比度遵循 macOS 设置。新视觉参数仍为实施候选。", role: "secondary")]
+                views = [RiftVisualStyle.label("显示与动效", role: "title")]
+                    + settingsForm.content(for: .display)
+                    + [RiftVisualStyle.label("减少动态、减少透明度与提高对比度遵循 macOS 设置。", role: "secondary")]
             case 3:
-                views = [RiftVisualStyle.label("隐私与存储", role: "title"),
-                    RiftVisualStyle.card([RiftVisualStyle.label("原始系统截图保留", role: "heading"),
-                        RiftVisualStyle.label("隐藏、移除与归档不删除原件，也不删除 ChatGPT 中的附件。"), pending]),
-                    RiftVisualStyle.card([RiftVisualStyle.label("本机存储", role: "heading"), storage]),
-                    RiftVisualStyle.label("闲置归档沿用菜单中的当前设置。用量是逻辑文件大小，不代表可释放空间；不会自动清理。", role: "secondary")]
+                views = [RiftVisualStyle.label("隐私与存储", role: "title")]
+                    + settingsForm.content(for: .privacy)
+                    + [RiftVisualStyle.card([RiftVisualStyle.label("本机存储", role: "heading"), storage, pending]),
+                       RiftVisualStyle.label("用量是逻辑文件大小，不代表可释放空间；不会自动清理原图。", role: "secondary")]
             case 4:
                 views = [RiftVisualStyle.label("关于 Riftlet", role: "title"),
                     RiftVisualStyle.label("让截图自然地停留在桌面边缘，通过一次点击进入当前聊天草稿。"),
@@ -284,7 +295,7 @@ public final class RiftSetupController: NSObject, NSWindowDelegate {
             default:
                 views = [RiftVisualStyle.label("运行状态", role: "title"),
                     RiftVisualStyle.card([collection, rift, pending, buttons([hideButton, pauseButton, historyButton])]),
-                    sourceCard(), chromeCard()]
+                    RiftVisualStyle.card([source, path, buttons([sourceButton, accessButton]), attachment, permission, permissionButton])]
             }
             [recheckButton, doneButton].forEach { footer.addArrangedSubview($0) }
         }
