@@ -1,0 +1,45 @@
+name: Feedback v0.1
+on:
+  pull_request:
+    paths:
+      - 'Sources/**'
+      - 'Tests/**'
+      - 'Package.swift'
+      - 'services/feedback/**'
+      - 'scripts/build-feedback-demo.sh'
+      - '.github/workflows/feedback-v01.yml'
+permissions:
+  contents: read
+concurrency:
+  group: feedback-v01-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  feedback:
+    runs-on: macos-14
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Environment and service fault tests
+        run: |
+          set -o pipefail
+          mkdir -p feedback-results
+          swift --version
+          sw_vers
+          node --version
+          node --experimental-sqlite --test services/feedback/feedback.test.mjs 2>&1 | tee feedback-results/service.log
+      - name: Native feedback and software AppKit tests
+        run: |
+          set -o pipefail
+          swift test --filter 'FeedbackTests|FeedbackWindowTests' 2>&1 | tee feedback-results/native.log
+      - name: Package isolated offline feedback demo
+        run: |
+          set -o pipefail
+          bash scripts/build-feedback-demo.sh 2>&1 | tee feedback-results/demo-build.log
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: feedback-v01-${{ github.sha }}
+          path: |
+            feedback-results/
+            build/Riftlet-Feedback-Demo.zip
+          retention-days: 14
