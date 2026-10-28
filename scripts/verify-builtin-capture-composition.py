@@ -22,7 +22,7 @@ METADATA_PATHS = frozenset((
     "docs/BUILTIN_CAPTURE_HANDOFF_2026-10-29.md",
     "engineering/evidence/2026-10-29-builtin-capture/results.json",
 ))
-REVIEWED_SOURCE = None  # Set only after the independent review + source commit.
+REVIEWED_SOURCE = "86ed9cf63f2aed0ea3114275d109b0e54287d74f"  # Independent engine / entry / host / privacy review.
 
 
 def load_engine():

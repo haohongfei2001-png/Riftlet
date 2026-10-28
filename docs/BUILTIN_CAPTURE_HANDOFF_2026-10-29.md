@@ -10,7 +10,7 @@
 - 本分支直接父基线：薄界原生交接 `443d21da1a55c0061eafced823b5406879b96024`，其已测源码为 `00dedc7f8164643c3435e3f87aa462e28af0b1c8`。
 - 本轮仅在独立克隆写入。最新正式 Feedback 增量未重复合入本分支；正式负责人先完成薄界/Feedback 合流，再接本增量。
 
-准确源提交、最终候选、CI run / job、审查和制品记录位于 [results.json](../engineering/evidence/2026-10-29-builtin-capture/results.json)。未执行的项目始终保留 NOT_RUN。
+已独立审阅的首个源提交：`86ed9cf63f2aed0ea3114275d109b0e54287d74f`。准确后续候选、CI run / job、审查和制品记录位于 [results.json](../engineering/evidence/2026-10-29-builtin-capture/results.json)。未执行的项目始终保留 NOT_RUN。
 
 ## 本轮真实代码
 
@@ -86,4 +86,4 @@ git log --reverse --oneline 443d21da1a55c0061eafced823b5406879b96024..origin/cod
 
 只读 `git merge-tree` 对固定 `443d21d` 与正式 `0e7ea8be` 发现的**继承冲突**为 `Sources/RiftletFeedbackUI/FeedbackWindowController.swift`、`docs/EXECUTION_BOARD.md`、`docs/INTEGRATION_HANDOFF.md`。本截图增量不修改 FeedbackWindowController；前述冲突由正在工作的薄界正式负责人处理。本增量重点接点是 `RiftletMain` 的 host/设置回调和窗口打开边界、`RiftSetupController` 的截图页及两个 CI workflow；最终组合可能还需按其最新演进做局部手工合流。
 
-不使用旧二进制读取已经包含 applicationScreenshot 的同一数据根；不通过清库/删除原件回退。不改 main，不改现有 PR #1，不升级为正式发行。
+本轮不新增 SQLite schema；父基线已支持 applicationScreenshot。早于原截图入口增量、无法识别该来源的旧二进制不应读取同一数据根；兼容回退由集成负责人核对，不通过清库/删除原件解决。不改 main，不改现有 PR #1，不升级为正式发行。

@@ -3,13 +3,31 @@
   "baseline": "443d21da1a55c0061eafced823b5406879b96024",
   "formalHeadObserved": "0e7ea8be148e1124b387e799fd886a7830e96559",
   "branch": "codex/builtin-capture-completion-20261029",
-  "sourceRevision": null,
-  "ci": {"status": "PENDING", "runs": []},
+  "sourceRevision": "86ed9cf63f2aed0ea3114275d109b0e54287d74f",
+  "ci": {
+    "status": "PENDING",
+    "runs": []
+  },
   "authorEnvironment": "Linux x86_64; no local Swift/AppKit runtime",
   "registeredMac": "OFFLINE",
   "physicalAcceptance": "NOT_RUN",
   "newApplicationScreenshotUpload": "NOT_RUN; admission closed",
   "ordinaryProductionAndSafeRetry": "UNCHANGED; closed",
   "formalPR1ModifiedByThisTask": false,
-  "release": "NOT_RELEASED"
+  "release": "NOT_RELEASED",
+  "sourceTree": "bb95cebe91922ac12f9d069b2e50b36d888df51d",
+  "localChecks": {
+    "diffCheck": "PASS",
+    "originalGateFaultTests": 21,
+    "newGateWiringTests": 5,
+    "scope": "Linux Git composition; not native capture"
+  },
+  "sourceReview": {
+    "reviewers": [
+      "technology_audit (independent engine/host/UI/probe/gates)",
+      "capture_engine (independent host/settings/importer)"
+    ],
+    "remainingSourceBlockers": [],
+    "physicalOrUploadAdmission": "NOT_GRANTED"
+  }
 }
