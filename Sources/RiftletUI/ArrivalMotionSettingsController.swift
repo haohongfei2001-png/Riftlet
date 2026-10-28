@@ -142,6 +142,10 @@ final class ArrivalPreviewView: NSView {
 
     override func viewDidChangeEffectiveAppearance() { super.viewDidChangeEffectiveAppearance(); updateAppearance() }
     override func viewDidMoveToWindow() { super.viewDidMoveToWindow(); updateAppearance() }
+    override func viewDidChangeBackingProperties() {
+        super.viewDidChangeBackingProperties()
+        show(currentMode, animate: false)
+    }
 
     private func updateAppearance() {
         effectiveAppearance.performAsCurrentDrawingAppearance {
