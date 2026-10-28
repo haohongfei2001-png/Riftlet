@@ -100,3 +100,5 @@ push视觉原始制品含118 PNG/5 MOV，39静态原图已逐张独立审查；d
 Feedback push/PR `40766737084` / `40766744482` 成功：46项唯一原生（新增长文实际尾字滚动、单条目标sheet、IME折叠/刷新保持均明确PASS）、20项服务、88项隔离，均0 skip；52次原生执行含关闭重复6次不重复计数。新App和原尺寸视觉仍未执行。完整source.tar的853对象与Git blob/mode匹配27db。
 
 追加只读内部诊断记录preview实际/被断言图层identity与父链、keys、uptime与CA本地时钟、布局/backing/辅助通知、action起止及原始delegate flag。生产默认不安装observer、不写日志或文件。原performClick及全部断言原样保留，没有延长产品时长、暂停动画时钟或接受nil；诊断用于归因，不作为修复通过。
+
+非作者已精确核准诊断源码 `1c6ca389c6e3e9154d84757c32ef22ba4c0683ec` / tree `85a489c52b6db66b8248dce68658a90419e7784a` / parent 27db81fb，五个文件限三份诊断实现/测试及README/results。原时长、时钟、performClick、全部断言与CI门禁保持。当前仅更新三个既有允许元数据路径；诊断批准不代表修复、原生或视觉PASS，下一实际事件链将用于归因。
