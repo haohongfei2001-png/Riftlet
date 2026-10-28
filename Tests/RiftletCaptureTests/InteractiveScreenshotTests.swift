@@ -215,7 +215,7 @@ final class InteractiveScreenshotTests: XCTestCase {
         let directory = root.appendingPathComponent("captures")
         do { _ = try await capturer.capture(request, outputDirectory: directory); XCTFail("Wrong-size output was accepted") }
         catch { XCTAssertEqual(error as? InteractiveScreenshotError, .unexpectedPixelDimensions) }
-        let output = directory.appendingPathComponent(request.id.uuidString.lowercased() + ".png")
+        let output = directory.appendingPathComponent("." + request.id.uuidString.lowercased() + ".png")
         XCTAssertEqual(try Data(contentsOf: output), original)
     }
 

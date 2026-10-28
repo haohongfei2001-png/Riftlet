@@ -6,6 +6,13 @@ import Darwin
 import RiftletCore
 @testable import RiftletCapture
 
+private final class CompletedCaptureClock: @unchecked Sendable {
+    private let lock = NSLock()
+    private var value = Date()
+    func read() -> Date { lock.lock(); defer { lock.unlock() }; return value }
+    func advance() { lock.lock(); value.addTimeInterval(1); lock.unlock() }
+}
+
 final class CompletedScreenshotImporterTests: XCTestCase {
     private func syntheticPNG(at url: URL, red: CGFloat = 0.25) throws -> Data {
         try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
@@ -66,6 +73,7 @@ final class CompletedScreenshotImporterTests: XCTestCase {
         XCTAssertEqual(try Data(contentsOf: root.appendingPathComponent("media").appendingPathComponent(record.image.fileName)), edited)
         let names = try FileManager.default.contentsOfDirectory(at: captures, includingPropertiesForKeys: nil)
         let derivative = try XCTUnwrap(names.first { $0.lastPathComponent.hasSuffix("-edited.png") })
+        XCTAssertTrue(derivative.lastPathComponent.hasPrefix("."), "Owned derivative must stay outside the system collector")
         let mode = try FileManager.default.attributesOfItem(atPath: derivative.path)[.posixPermissions] as? NSNumber
         XCTAssertEqual(mode?.intValue, 0o600)
         do {
@@ -73,6 +81,72 @@ final class CompletedScreenshotImporterTests: XCTestCase {
             XCTFail("Derivative escaped its owned capture directory")
         } catch CaptureError.privatePathUnsafe {}
         XCTAssertEqual(try Data(contentsOf: original), bytes)
+    }
+
+    func testOverlappingSystemDirectoryKeepsOwnedCapturesSeparateWithoutDroppingSystemScreenshots() async throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let captures = root.appendingPathComponent("captures"), other = root.appendingPathComponent("other-system-location")
+        for directory in [captures, other] {
+            try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        }
+        let store = try QueueStore(databaseURL: root.appendingPathComponent("queue.sqlite"))
+        let clock = CompletedCaptureClock()
+        let service = CaptureService(store: store, privateRoot: root, sourceDirectory: captures, now: { clock.read() })
+        do {
+            try await service.start()
+            let owned = captures.appendingPathComponent("." + UUID().uuidString.lowercased() + ".png")
+            let system = captures.appendingPathComponent("Screen Shot fixture.png")
+            let original = try syntheticPNG(at: owned)
+            _ = try syntheticPNG(at: system, red: 0.8)
+            let marker = try PropertyListSerialization.data(fromPropertyList: true, format: .binary, options: 0)
+            // Real filesystem/xattr fixtures, not real screen or upload evidence.
+            for url in [owned, system] {
+                XCTAssertEqual(marker.withUnsafeBytes { setxattr(url.path, CaptureSource.metadataName, $0.baseAddress, $0.count, 0, 0) }, 0)
+            }
+            try await service.rescan(); clock.advance(); try await service.rescan()
+            // Exercise the departing-directory scan as well, before explicit
+            // built-in import (for example while the markup window is open).
+            clock.advance(); try await service.setSourceDirectory(other)
+            clock.advance(); try await service.rescan()
+            let collected = try await store.assets(includeUsed: true)
+            XCTAssertEqual(collected.count, 1)
+            XCTAssertEqual(collected.first?.image.origin, .systemScreenshot)
+            XCTAssertEqual(collected.first?.image.sourceKey, try FileSignature.read(at: system).sourceKey)
+
+            let importer = PrivateAssetImporter(privateRoot: root, store: store)
+            let application = try await importer.importBuiltInScreenshot(original: owned, outputDirectory: captures)
+            XCTAssertEqual(application.image.origin, .applicationScreenshot)
+            try await service.setSourceDirectory(captures)
+            clock.advance(); try await service.rescan()
+            let coexist = try await store.assets(includeUsed: true)
+            XCTAssertEqual(coexist.count, 2)
+            XCTAssertEqual(Set(coexist.map { $0.image.origin.rawValue }), ["systemScreenshot", "applicationScreenshot"])
+            XCTAssertEqual(try Data(contentsOf: owned), original)
+            await service.stop()
+        } catch {
+            await service.stop()
+            throw error
+        }
+    }
+
+    func testBuiltInImportRejectsAnExistingOtherOriginWithoutRetaggingHistory() async throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let captures = root.appendingPathComponent("captures"), source = captures.appendingPathComponent("legacy.png")
+        let bytes = try syntheticPNG(at: source)
+        let marker = try PropertyListSerialization.data(fromPropertyList: true, format: .binary, options: 0)
+        XCTAssertEqual(marker.withUnsafeBytes { setxattr(source.path, CaptureSource.metadataName, $0.baseAddress, $0.count, 0, 0) }, 0)
+        let store = try QueueStore(databaseURL: root.appendingPathComponent("queue.sqlite"))
+        let importer = PrivateAssetImporter(privateRoot: root, store: store)
+        let existing = try await importer.importCompletedScreenshot(at: source, origin: .systemScreenshot)
+        do {
+            _ = try await importer.importBuiltInScreenshot(original: source, outputDirectory: captures)
+            XCTFail("Existing system provenance must not be returned as built-in success")
+        } catch RiftletError.modeMismatch {}
+        let unchanged = try await store.asset(id: existing.id)
+        XCTAssertEqual(unchanged, existing)
+        XCTAssertEqual(try Data(contentsOf: source), bytes)
     }
 
     func testCompletedApplicationPNGIsCopiedExactlyAndOriginalIsRetained() async throws {

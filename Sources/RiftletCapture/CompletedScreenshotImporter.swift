@@ -21,13 +21,21 @@ extension PrivateAssetImporter {
                 throw CaptureError.privatePathUnsafe
             }
             try PrivateFiles.ensurePrivateDirectory(expected)
-            source = expected.appendingPathComponent(UUID().uuidString.lowercased() + "-edited.png")
+            // The system collector already ignores hidden directory entries.
+            // Keep owned originals/derivatives out of that independent route even
+            // if the user's system screenshot location overlaps this directory.
+            source = expected.appendingPathComponent("." + UUID().uuidString.lowercased() + "-edited.png")
             try PrivateFiles.atomicPrivateWrite(editedPNG, to: source)
         } else {
             source = original
         }
-        return try await importCompletedScreenshot(at: source, origin: .applicationScreenshot,
-                                                   firstSeenAt: firstSeenAt)
+        let record = try await importCompletedScreenshot(at: source, origin: .applicationScreenshot,
+                                                        firstSeenAt: firstSeenAt)
+        // Existing source-key records are immutable provenance. Never return a
+        // pre-existing system/synthetic record as successful built-in admission,
+        // and never retag historical records or their operations to repair it.
+        guard record.image.origin == .applicationScreenshot else { throw RiftletError.modeMismatch }
+        return record
     }
 
     /// The owning capture process has exited (or the editor has atomically

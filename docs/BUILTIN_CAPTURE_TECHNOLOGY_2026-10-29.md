@@ -66,6 +66,8 @@ Apple 目前将 `NSWindow.SharingType.none` 描述为不再使用的 legacy 值�
 
 内置截图由 Riftlet 发起，因此本轮统一记录 `applicationScreenshot`，包括有真实系统 screenshot xattr 的原 PNG；编辑产物同样属于该来源。原文件的 xattr 不伪造、不擦除；它不能单独证明本次来源等同既有系统截图验收链。
 
+补充审计发现系统截图目录允许与 `root/captures` 重叠。原来可见的自有 PNG 在编辑器停留期间可能先被系统收录器发现；仅在 Host 传入 `.applicationScreenshot` 不足以阻止这条竞争路径。新原件从独占创建预留文件开始即使用隐藏 basename，派生 PNG 也如此，复用收录器原有 `.skipsHiddenFiles` 行为精确隔离自有产物；同目录内可见的真正系统截图继续按原流程收录。显式 built-in 导入若命中已有其他来源的 sourceKey，拒绝返回为成功，不重标历史或解除旧操作。该修复不追溯改名旧候选留下的可见原件，也不为它们制造新的上传证据。
+
 保留以下既有边界：
 
 - `PrivateAssetImporter` 继续验证原文件身份、尺寸/格式、容量、完整哈希和 durable journal；SQLite v3、不透明 sourceKey 去重及原文件不重建。

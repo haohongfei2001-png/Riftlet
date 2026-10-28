@@ -1,6 +1,8 @@
 import XCTest
 import Foundation
 import CoreGraphics
+import ImageIO
+import UniformTypeIdentifiers
 @testable import RiftletCapture
 
 /// These execute harmless real child processes on macOS. They verify process
@@ -83,6 +85,50 @@ final class InteractiveScreenshotProcessTests: XCTestCase {
         catch { XCTAssertEqual(error as? InteractiveScreenshotError, .captureToolUnavailable) }
         XCTAssertEqual(try FileManager.default.contentsOfDirectory(atPath: root.path), [existing.lastPathComponent])
         XCTAssertEqual(try Data(contentsOf: existing), original)
+    }
+
+    @MainActor
+    func testOwnedOriginalIsHiddenBeforeToolStartsAndRemainsByteCompleteAfterCapture() async throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent("riftlet-hidden-output-" + UUID().uuidString)
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let bitmap = try XCTUnwrap(CGContext(data: nil, width: 32, height: 24, bitsPerComponent: 8,
+            bytesPerRow: 0, space: CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue))
+        bitmap.setFillColor(CGColor(red: 0.2, green: 0.4, blue: 0.8, alpha: 1))
+        bitmap.fill(CGRect(x: 0, y: 0, width: 32, height: 24))
+        let fixture = root.appendingPathComponent("fixture.png")
+        let destination = try XCTUnwrap(CGImageDestinationCreateWithURL(fixture as CFURL,
+            UTType.png.identifier as CFString, 1, nil))
+        CGImageDestinationAddImage(destination, try XCTUnwrap(bitmap.makeImage()), nil)
+        XCTAssertTrue(CGImageDestinationFinalize(destination))
+        let original = try Data(contentsOf: fixture)
+
+        // A harmless owned fixture utility verifies the pre-existing reservation
+        // is already hidden before writing. This is not Apple-tool capture proof.
+        let executable = root.appendingPathComponent("fixture-tool")
+        let script = "#!/bin/sh\nfor last do :; done\ncase \"${last##*/}\" in .*.png) ;; *) exit 76 ;; esac\n[ -f \"$last\" ] || exit 77\n/bin/cp \"${0%/*}/fixture.png\" \"$last\"\n"
+        try Data(script.utf8).write(to: executable)
+        try FileManager.default.setAttributes([.posixPermissions: 0o700], ofItemAtPath: executable.path)
+        let display = InteractiveScreenshotDisplay(id: 1, frame: CGRect(x: 0, y: 0, width: 16, height: 12),
+            quartzFrame: CGRect(x: 0, y: 0, width: 16, height: 12), scale: 2)
+        var session = InteractiveScreenshotSession()
+        session.start(mode: .fullScreen, options: .init())
+        let request = try XCTUnwrap(session.beginCapture(target: .init(rect: display.frame,
+            quartzRect: display.quartzFrame, displays: [display], window: nil)))
+        let directory = root.appendingPathComponent("captures")
+        let capturer = InteractiveScreenshotSystemCapture(executableURL: executable)
+        let result = try await capturer.capture(request, outputDirectory: directory)
+
+        XCTAssertEqual(result.sourceURL.lastPathComponent, "." + request.id.uuidString.lowercased() + ".png")
+        XCTAssertEqual(result.data, original)
+        XCTAssertEqual(try Data(contentsOf: result.sourceURL), original)
+        XCTAssertEqual(result.pixelWidth, 32); XCTAssertEqual(result.pixelHeight, 24)
+        let visible = try FileManager.default.contentsOfDirectory(at: directory,
+            includingPropertiesForKeys: nil, options: [.skipsHiddenFiles])
+        XCTAssertTrue(visible.isEmpty, "The system watcher must not see the owned original")
+        XCTAssertEqual(try FileManager.default.contentsOfDirectory(atPath: directory.path),
+            [result.sourceURL.lastPathComponent], "The hidden original must still exist")
     }
 
     func testCleanupNeverDeletesACompletedOrReplacedOutput() throws {

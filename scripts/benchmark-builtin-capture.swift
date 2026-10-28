@@ -267,7 +267,10 @@ private final class ProbeResources: @unchecked Sendable {
 }
 
 private func captureCLI(arguments: [String], stage: URL, resources: ProbeResources) async throws -> Payload {
-    let url = stage.appendingPathComponent(UUID().uuidString + ".png")
+    // Match production's hidden staging basename so a system screenshot
+    // collector cannot misclassify this application-created PNG. Only this
+    // exact precreated path is read; output at another path is a failed sample.
+    let url = stage.appendingPathComponent(".capture-" + UUID().uuidString + ".png")
     let fd = Darwin.open(url.path, O_WRONLY | O_CREAT | O_EXCL | O_NOFOLLOW | O_CLOEXEC, 0o600)
     guard fd >= 0 else { throw ProbeError.unsafeOutput }
     Darwin.close(fd)
@@ -343,9 +346,33 @@ private func captureQuartz(windowID: CGWindowID?, rect: CGRect) throws -> Payloa
         boundary: "CGWindowListCreateImage call to CGImage; pngStageMS separately encodes PNG", memoryAfterCapture: capturedMemory)
 }
 
-@MainActor private func fixtureIsVisible(_ window: NSWindow, quartzRect: CGRect) -> Bool {
-    guard window.isVisible, window.isOpaque, window.alphaValue == 1,
-          let rows = CGWindowListCopyWindowInfo(.optionOnScreenOnly, kCGNullWindowID) as? [[String: Any]] else { return false }
+@MainActor private func fixtureVisibilityRejection(_ window: NSWindow, quartzRect: CGRect) -> [String: Any]? {
+    func diagnostic(_ reason: String, ownRow: [String: Any]? = nil) -> [String: Any] {
+        var result: [String: Any] = ["reason": reason, "requestedQuartzPoints": rectValues(quartzRect),
+            "ownFrameAppKitPoints": rectValues(window.frame), "ownWindowIsVisible": window.isVisible,
+            "ownWindowIsOpaque": window.isOpaque, "ownWindowAlpha": Double(window.alphaValue),
+            "ownBackingScale": Double(window.backingScaleFactor)]
+        if let ownRow {
+            if let bounds = ownRow[kCGWindowBounds as String] as? [String: Any],
+               let ownRect = CGRect(dictionaryRepresentation: bounds as CFDictionary) {
+                result["ownWindowServerQuartzPoints"] = rectValues(ownRect)
+            }
+            result["ownWindowServerAlpha"] = (ownRow[kCGWindowAlpha as String] as? NSNumber)?.doubleValue
+        }
+        // Never serialize a WindowServer dictionary: diagnostics contain only
+        // this process's fixture fields, with no foreign-window metadata.
+        return result
+    }
+    guard window.isVisible else { return diagnostic("OWN_WINDOW_NOT_VISIBLE") }
+    guard window.isOpaque else { return diagnostic("OWN_WINDOW_NOT_OPAQUE") }
+    guard window.alphaValue == 1 else { return diagnostic("OWN_WINDOW_ALPHA_NOT_ONE") }
+    guard let rows = CGWindowListCopyWindowInfo(.optionOnScreenOnly, kCGNullWindowID) as? [[String: Any]] else {
+        return diagnostic("ONSCREEN_WINDOW_LIST_UNAVAILABLE")
+    }
+    let ownRow = rows.first {
+        ($0[kCGWindowNumber as String] as? NSNumber)?.intValue == window.windowNumber &&
+            ($0[kCGWindowOwnerPID as String] as? NSNumber)?.int32Value == getpid()
+    }
     for row in rows {
         guard let bounds = row[kCGWindowBounds as String] as? [String: Any],
               let rect = CGRect(dictionaryRepresentation: bounds as CFDictionary), rect.intersects(quartzRect),
@@ -353,9 +380,11 @@ private func captureQuartz(windowID: CGWindowID?, rect: CGRect) throws -> Payloa
         // Front-to-back order: any intersecting foreign window before our opaque
         // fixture vetoes a screen-region sample. No names or titles are retained.
         let own = (row[kCGWindowNumber as String] as? NSNumber)?.intValue == window.windowNumber
-        return own && rect.contains(quartzRect)
+        guard own else { return diagnostic("FOREIGN_OVERLAP_VETO", ownRow: ownRow) }
+        guard rect.contains(quartzRect) else { return diagnostic("OWN_QUARTZ_BOUNDS_DO_NOT_CONTAIN_REQUEST", ownRow: ownRow) }
+        return nil
     }
-    return false
+    return diagnostic("NO_INTERSECTING_ONSCREEN_WINDOW", ownRow: ownRow)
 }
 
 @MainActor private func run(_ options: Options, resources: ProbeResources) async -> [String: Any] {
@@ -449,8 +478,16 @@ private func captureQuartz(windowID: CGWindowID?, rect: CGRect) throws -> Payloa
                     "requestedQuartzPoints": rectValues(rect), "memoryBefore": memory()]
                 let start = ProcessInfo.processInfo.systemUptime
                 do {
-                    guard CGPreflightScreenCaptureAccess() else { throw ProbeError.fixtureChanged }
-                    if localRect != nil && !fixtureIsVisible(window, quartzRect: rect) { throw ProbeError.fixtureChanged }
+                    guard CGPreflightScreenCaptureAccess() else {
+                        entry["fixtureVisibilityRejection"] = ["reason": "SCREEN_CAPTURE_PERMISSION_NO_LONGER_GRANTED"]
+                        entry["fixtureVisibilityRejectionPhase"] = "BEFORE_CAPTURE"
+                        throw ProbeError.fixtureChanged
+                    }
+                    if localRect != nil, let rejection = fixtureVisibilityRejection(window, quartzRect: rect) {
+                        entry["fixtureVisibilityRejection"] = rejection
+                        entry["fixtureVisibilityRejectionPhase"] = "BEFORE_CAPTURE"
+                        throw ProbeError.fixtureChanged
+                    }
                     let payload: Payload
                     switch backend {
                     case "screencapture":
@@ -473,7 +510,11 @@ private func captureQuartz(windowID: CGWindowID?, rect: CGRect) throws -> Payloa
                         else { payload = try captureQuartz(windowID: kind == "window-no-shadow" ? CGWindowID(window.windowNumber) : nil, rect: rect) }
                     }
                     let readyMS = milliseconds(start)
-                    if localRect != nil && !fixtureIsVisible(window, quartzRect: rect) { throw ProbeError.fixtureChanged }
+                    if localRect != nil, let rejection = fixtureVisibilityRejection(window, quartzRect: rect) {
+                        entry["fixtureVisibilityRejection"] = rejection
+                        entry["fixtureVisibilityRejectionPhase"] = "AFTER_CAPTURE_BEFORE_INSPECTION"
+                        throw ProbeError.fixtureChanged
+                    }
                     let inspection = try autoreleasepool { try inspectPNG(payload.data,
                         fixtureSize: localRect == nil ? nil : size, fixtureScale: screen.backingScaleFactor,
                         localRect: localRect, retainSynthetic: options.retainSyntheticImages != nil) }
@@ -509,6 +550,9 @@ private func captureQuartz(windowID: CGWindowID?, rect: CGRect) throws -> Payloa
     }
     report["status"] = "COMPLETED_MEASUREMENT_PROBE"
     report["samples"] = records; report["summaries"] = summaries
+    report["capturedSampleCount"] = records.filter { $0["status"] as? String == "CAPTURED" }.count
+    report["errorSampleCount"] = records.filter { $0["status"] as? String == "ERROR" }.count
+    report["notRunSampleCount"] = records.filter { $0["status"] as? String == "NOT_RUN" }.count
     report["sanitizedSyntheticImagesRetained"] = records.filter { $0["sanitizedSyntheticPreview"] != nil }.count
     report["memoryAfterAllSamples"] = memory()
     return report
@@ -518,6 +562,7 @@ private func baseReport(scope: String) -> [String: Any] {
     let os = ProcessInfo.processInfo.operatingSystemVersion
     return ["schemaVersion": 1, "scope": scope, "osVersion": "\(os.majorVersion).\(os.minorVersion).\(os.patchVersion)",
         "permissionRequested": false, "rawImagesPersistedAsArtifacts": false,
+        "screencaptureOutputPolicy": "Hidden .capture-<UUID>.png in private staging; validate and read only the exact precreated output path, with no renamed-file fallback",
         "previewPolicy": "Only optional fully validated synthetic pixels; sanitized sRGB PNG, never full-display bytes",
         "physicalMouseAcceptance": "NOT_RUN", "mixedScaleMultiDisplayAcceptance": "NOT_RUN",
         "HDRWideGamutAcceptance": "NOT_RUN", "realRiftletImportUploadAcceptance": "NOT_RUN",

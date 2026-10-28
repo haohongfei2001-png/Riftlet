@@ -64,7 +64,11 @@ final class InteractiveScreenshotSystemCapture: InteractiveScreenshotCapturing {
     func capture(_ request: InteractiveScreenshotRequest, outputDirectory: URL) async throws -> InteractiveScreenshotFile {
         try Task.checkCancellation()
         try Self.prepareDirectory(outputDirectory)
-        let outputURL = outputDirectory.appendingPathComponent(request.id.uuidString.lowercased() + ".png")
+        // Keep the owned original hidden from its first reservation onward. If
+        // the user independently chooses this directory for system screenshots,
+        // the existing watcher must not import our encoder-marked PNG as system
+        // provenance while the host is still awaiting optional markup.
+        let outputURL = outputDirectory.appendingPathComponent("." + request.id.uuidString.lowercased() + ".png")
         let arguments = try InteractiveScreenshotCommand.arguments(for: request, outputURL: outputURL)
         // Reserve a private, new name; never overwrite a previous original capture.
         let descriptor = Darwin.open(outputURL.path, O_WRONLY | O_CREAT | O_EXCL | O_NOFOLLOW | O_CLOEXEC, 0o600)
