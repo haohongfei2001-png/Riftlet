@@ -2,8 +2,7 @@ import AppKit
 import RiftletFeedback
 import RiftletFeedbackUI
 
-/// Not a network credential: deterministic only for the offline demonstration,
-/// allowing its own local reports to remain viewable after a demo restart.
+/// Deterministic only for the offline demo; never a network credential.
 private struct OfflineDemoSecrets: FeedbackSecretStorage {
     func secret(for id: String, create: Bool) throws -> String {
         let compact = id.replacingOccurrences(of: "-", with: "").lowercased()
@@ -40,7 +39,7 @@ private final class DemoDelegate: NSObject, NSApplicationDelegate {
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
         guard let controller else { return .terminateNow }
         Task {
-            let saved = await controller.saveBeforeClosing()
+            let saved = await controller.saveBeforeClosing(lockOnSuccess: true)
             if !saved { controller.show() }
             sender.reply(toApplicationShouldTerminate: saved)
         }

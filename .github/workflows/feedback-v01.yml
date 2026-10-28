@@ -30,7 +30,7 @@ jobs:
       - name: Native feedback and software AppKit tests
         run: |
           set -o pipefail
-          swift test --filter 'FeedbackTests|FeedbackWindowTests' 2>&1 | tee feedback-results/native.log
+          swift test --filter 'RiftletFeedbackTests|RiftletFeedbackUITests' 2>&1 | tee feedback-results/native.log
       - name: Package isolated offline feedback demo
         run: |
           set -o pipefail

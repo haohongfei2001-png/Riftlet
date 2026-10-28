@@ -10,7 +10,6 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
     private var draft = FeedbackDraft()
     private var loaded = false
     private var busy = false
-    private var mayClose = false
     private var autosave: Task<Void, Never>?
     private var records: [FeedbackRecord] = []
     private let text = NSTextView()
@@ -21,8 +20,8 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
     private let reports = NSPopUpButton()
     private var previewWindow: NSWindow?
     private var loading: Task<Void, Never>?
-    // A narrow persistence seam: production always writes the same sidecar.
-    // Tests suspend it to prove that close cannot race a later edit.
+    // Production always writes the same sidecar. Tests suspend this narrow seam
+    // to verify that close cannot race text, kind or consent edits.
     var persistDraft: (@Sendable (FeedbackDraft) async throws -> Void)?
     var isEditingEnabled: Bool { text.isEditable && kind.isEnabled && consent.isEnabled }
     var statusText: String { status.stringValue }
@@ -142,19 +141,24 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
     private func failure() {
         status.stringValue = "未能可靠保存或处理反馈；文字仍在这里。请保留窗口或复制正文，不会报告发送成功。"
     }
-    public func saveBeforeClosing() async -> Bool {
+    public func saveBeforeClosing(lockOnSuccess: Bool = false) async -> Bool {
         guard loaded, !busy, !text.hasMarkedText() else { return false }
-        // Freeze all editable fields synchronously, before the SQLite await.
         busy = true; controlsEnabled(false); autosave?.cancel()
-        defer { busy = false; controlsEnabled(true) }
-        guard let persistDraft else { return text.string.isEmpty }
+        var saved = false
+        defer {
+            // App termination still awaits outbox stop and clean-exit persistence.
+            // No new editing may enter between this save and the final quit reply.
+            if !lockOnSuccess || !saved { busy = false; controlsEnabled(true) }
+        }
+        guard let persistDraft else { saved = text.string.isEmpty; return saved }
         let value = nextDraft()
-        do { try await persistDraft(value); return true }
+        do { try await persistDraft(value); saved = true; return true }
         catch { failure(); return false }
     }
     public func windowShouldClose(_ sender: NSWindow) -> Bool {
-        if mayClose { mayClose = false; return true }
-        Task { if await saveBeforeClosing() { mayClose = true; close() } }
+        // NSWindow.close() does NOT invoke windowShouldClose again. A reusable
+        // "mayClose" flag would skip saving on a later reopening of the window.
+        Task { if await saveBeforeClosing() { sender.close() } }
         return false
     }
     @objc private func closeRequested() { window?.performClose(nil) }
@@ -181,8 +185,6 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
         let value = nextDraft(); busy = true; controlsEnabled(false); autosave?.cancel()
         do {
             let id = try await engine.enqueue(value, appVersion: appVersion)
-            // enqueue already atomically cleared this revision. Do not depend on
-            // another fallible read and leave the submitted text eligible again.
             draft = FeedbackDraft(revision: value.revision + 1); applyDraft()
             status.stringValue = "已保存在本机，等待接收。编号 RF-\(id)"
             busy = false; controlsEnabled(true)
