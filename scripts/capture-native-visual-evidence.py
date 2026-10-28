@@ -44,6 +44,9 @@ def cases():
     for appearance, background in (("light", "bright"), ("light", "textured"), ("dark", "textured")):
         result.append((f"entry-{background}-{appearance}", ["--appearance", appearance,
             "--visual-scene", "3", "--visual-entry", "--visual-entry-expanded", "--visual-background", background]))
+    for page in (0, 2):
+        result.append((f"firstuse-local-{page}-light", ["--appearance", "light", "--visual-window", "setup",
+            "--visual-onboarding-page", str(page), "--visual-local-onboarding"]))
     for name, flags in (("magnet", ["--visual-magnet"]), ("none", []),
                         ("reduce-motion", ["--visual-magnet", "--visual-reduced-motion"]),
                         ("interrupt", ["--visual-magnet", "--visual-cancel-arrival"]),
@@ -61,6 +64,14 @@ def verify_capture(directory: Path, report: dict, source: str, checkout: str) ->
     for key in ("physicalInput", "realScreenshot", "realUpload", "crossApplicationFocus", "productionWindowOrder"):
         if report.get(key) != "NOT_RUN":
             raise ValueError("unsupportedAcceptanceClaim")
+    capture_kind = report.get("captureKind")
+    if capture_kind not in ("single-product-window", "owned-product-composite"):
+        raise ValueError("missingCaptureKind")
+    for key in ("systemAccessibilityAtStart", "systemAccessibilityAtEnd"):
+        value = report.get(key)
+        if (not isinstance(value, dict) or set(value) != {"reduceMotion", "increaseContrast", "reduceTransparency"}
+                or any(type(v) is not bool for v in value.values())):
+            raise ValueError("missingSystemAccessibility")
     frames = report.get("frames")
     if not isinstance(frames, list) or not frames:
         raise ValueError("missingFrames")
@@ -88,6 +99,23 @@ def verify_capture(directory: Path, report: dict, source: str, checkout: str) ->
             raise ValueError("frameSourceOrResizeMismatch")
         if frame.get("syntheticOnly") is not True or frame.get("receiptEvidence") is not False:
             raise ValueError("frameScopeMismatch")
+        own_count, product_count = frame.get("selectedOwnWindowCount"), frame.get("productWindowCount")
+        numbers = frame.get("ownWindowNumbersFrontToBack")
+        if (type(own_count) is not int or type(product_count) is not int
+                or not isinstance(numbers, list) or any(type(n) is not int or n <= 0 for n in numbers)
+                or len(numbers) != own_count or len(set(numbers)) != own_count
+                or frame.get("windowOrdering") != "NSApplication.enumerateWindows(orderedFrontToBack)"):
+            raise ValueError("invalidOwnWindowSet")
+        if capture_kind == "single-product-window":
+            if own_count != 1 or product_count != 1:
+                raise ValueError("invalidSingleProductWindow")
+        else:
+            if own_count < 2 or product_count != own_count - 1:
+                raise ValueError("missingProductWindow")
+            difference = frame.get("productDifferencePixelCount")
+            if (type(difference) is not int or frame.get("minimumProductDifferencePixels") != 64
+                    or not 64 <= difference <= pixels[0] * pixels[1]):
+                raise ValueError("missingProductPixels")
         captured += 1
     if report.get("status") == "CAPTURED_NATIVE_WINDOWSERVER" and captured != len(frames):
         raise ValueError("partialCaptureClaimedComplete")
@@ -148,6 +176,53 @@ def verify_movie(directory: Path, movie: dict, source: str, checkout: str, frame
         raise ValueError("movieContainerMalformed")
 
 
+def verify_case_behavior(flags: list, report: dict, expected_system_accessibility: str = "normal") -> None:
+    # This suite is a normal-material baseline. The dedicated reduce-motion
+    # scene uses only the existing helper override, never a product guard bypass.
+    expected = expected_system_accessibility == "reduced"
+    if any(any(value is not expected for value in report[key].values())
+           for key in ("systemAccessibilityAtStart", "systemAccessibilityAtEnd")):
+        raise ValueError("normalSystemAccessibilityRequired" if not expected else "reducedSystemAccessibilityRequired")
+    override = "--visual-reduced-motion" in flags
+    reduced = expected or override
+    if report.get("helperReducedMotionOverride") is not override:
+        raise ValueError("reducedMotionFixtureMismatch")
+    if "--visual-timeline" not in flags or report.get("status") == "NOT_RUN":
+        return
+    events = report.get("events", [])
+    arrivals = [e for e in events if e.get("event") == "native_arrival_boundary"]
+    started = [e for e in arrivals if e.get("phase") == "decorationStarted"]
+    ended = [e for e in arrivals if e.get("phase") == "decorationEnded"]
+    sources = [e for e in events if e.get("event") == "synthetic_asset_ready"]
+    if "--visual-magnet" in flags and not reduced:
+        if (not any(e.get("sourceProvided") is True for e in sources)
+                or not any(e.get("mode") == "magnet" for e in started)):
+            raise ValueError("magnetWasNotExercised")
+        reason = "cancelled" if "--visual-cancel-arrival" in flags else "finished"
+        if not any(e.get("mode") == "magnet" and e.get("reason") == reason for e in ended):
+            raise ValueError("magnetCompletionNotObserved")
+    else:
+        if started:
+            raise ValueError("unexpectedArrivalDecoration")
+        if reduced and (not arrivals or any(e.get("mode") != "none" for e in arrivals)):
+            raise ValueError("reducedArrivalPolicyNotObserved")
+        if "--visual-missing-source" in flags and not any(e.get("sourceProvided") is False for e in sources):
+            raise ValueError("missingSourceFallbackNotExercised")
+    if not any(e.get("event") == "native_presentation_boundary" and e.get("phase") == "swallowClose" for e in events):
+        raise ValueError("nativeSwallowNotObserved")
+    if reduced and not any(e.get("event") == "native_presentation_boundary" and e.get("phase") == "swallowScheduled"
+                           and type(e.get("duration")) in (int, float) and 0 < e["duration"] <= 0.08 for e in events):
+        raise ValueError("reducedSwallowPolicyNotObserved")
+
+
+def selected_cases(names: list) -> list:
+    registered = cases()
+    unknown = set(names) - {name for name, _ in registered}
+    if unknown:
+        raise ValueError("Unknown registered case: " + ", ".join(sorted(unknown)))
+    return [(name, flags) for name, flags in registered if not names or name in set(names)]
+
+
 def git(repository: Path, *args: str) -> str:
     env = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
     return subprocess.check_output(["git", "--no-replace-objects", "-C", str(repository), *args],
@@ -187,7 +262,13 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--helper", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--only-case", action="append", default=[], help="Repeat to select registered cases only")
+    parser.add_argument("--expected-system-accessibility", choices=("normal", "reduced"), default="normal")
     args = parser.parse_args()
+    try:
+        requested_cases = selected_cases(args.only_case)
+    except ValueError as error:
+        parser.error(str(error))
     repository = Path(__file__).resolve().parents[1]
     source = git(repository, "rev-parse", os.environ.get("RIFTLET_BUILD_HEAD_SHA", "HEAD") + "^{commit}")
     checkout = git(repository, "rev-parse", "HEAD")
@@ -202,6 +283,7 @@ def main() -> int:
     report = {"schemaVersion": 1, "source": source, "checkout": checkout,
               "helperSHA256": hashlib.sha256(helper.read_bytes()).hexdigest(),
               "scope": "Synthetic native WindowServer visual evidence; independent review required",
+              "expectedSystemAccessibility": args.expected_system_accessibility,
               "physicalInput": "NOT_RUN", "realScreenshot": "NOT_RUN", "realUpload": "NOT_RUN",
               "cases": []}
     if platform.system() != "Darwin":
@@ -210,7 +292,7 @@ def main() -> int:
         return 0
     started = time.monotonic()
     with tempfile.TemporaryDirectory(prefix="riftlet-native-visual-process-") as temporary:
-        for name, flags in cases():
+        for name, flags in requested_cases:
             destination = output / "scenes" / name
             command = [str(helper), "--visual-clean", "--export-native-evidence", str(destination),
                        "--evidence-source", source, "--evidence-checkout", checkout] + flags
@@ -231,6 +313,7 @@ def main() -> int:
             try:
                 capture = json.loads((destination / "capture.json").read_text(encoding="utf-8"))
                 verify_capture(destination, capture, source, checkout)
+                verify_case_behavior(flags, capture, args.expected_system_accessibility)
                 if process.returncode != 0:
                     raise ValueError("helperExitFailure")
                 case["capture"] = capture

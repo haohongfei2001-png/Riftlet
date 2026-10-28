@@ -48,7 +48,7 @@ final class InteractiveScreenshotSystemCapture: InteractiveScreenshotCapturing {
     func capture(_ request: InteractiveScreenshotRequest, outputDirectory: URL) async throws -> InteractiveScreenshotFile {
         try Task.checkCancellation()
         try Self.prepareDirectory(outputDirectory)
-        let outputURL = outputDirectory.appendingPathComponent(request.id.uuidString.lowercased() + ".png")
+        let outputURL = InteractiveScreenshotOutput.originalURL(in: outputDirectory, captureID: request.id)
         // Reserve a private, new name; never overwrite a previous original capture.
         let descriptor = Darwin.open(outputURL.path, O_WRONLY | O_CREAT | O_EXCL | O_NOFOLLOW | O_CLOEXEC, 0o600)
         guard descriptor >= 0 else { throw InteractiveScreenshotError.unsafeOutputDirectory }

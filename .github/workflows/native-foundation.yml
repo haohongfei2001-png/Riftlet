@@ -93,7 +93,17 @@ jobs:
           node engineering/evidence/2026-10-27-real-mac-round5/versioned-progress-diagnostic-probe.test.cjs 2>&1 | tee test-results/round5-versioned-probe.log
       - name: Verify system-screenshot stage-two diagnostic fixtures
         run: node --test engineering/evidence/2026-10-28-system-screenshot-stage2/*.test.cjs
-      - name: Native unit and integration tests
+      - name: Establish and verify actual CI accessibility baseline
+        # These are ephemeral CI-runner preferences. Product accessibility
+        # guards are unchanged; a fresh AppKit process must observe this value.
+        run: |
+          set -o pipefail
+          mkdir -p test-results
+          swift -e 'import AppKit; let w = NSWorkspace.shared; print("before.reduceMotion=\(w.accessibilityDisplayShouldReduceMotion) before.increaseContrast=\(w.accessibilityDisplayShouldIncreaseContrast) before.reduceTransparency=\(w.accessibilityDisplayShouldReduceTransparency)")' | tee test-results/accessibility-before.log
+          defaults write com.apple.universalaccess reduceMotion -bool false
+          defaults write com.apple.universalaccess reduceTransparency -bool false
+          swift -e 'import AppKit; let w = NSWorkspace.shared; print("reduceMotion=\(w.accessibilityDisplayShouldReduceMotion) increaseContrast=\(w.accessibilityDisplayShouldIncreaseContrast) reduceTransparency=\(w.accessibilityDisplayShouldReduceTransparency)"); guard !w.accessibilityDisplayShouldReduceMotion && !w.accessibilityDisplayShouldReduceTransparency && !w.accessibilityDisplayShouldIncreaseContrast else { fatalError("CI accessibility baseline is not normal; motion/material evidence cannot be captured") }' | tee test-results/accessibility-normal-motion.log
+      - name: Execute native unit and integration tests
         run: |
           set -o pipefail
           mkdir -p test-results
@@ -171,7 +181,20 @@ jobs:
           set -o pipefail
           python3 -B -m unittest discover -s Tests/NativeVisualEvidence -v 2>&1 | tee test-results/native-visual-manifest-tests.log
           riftlet_bin_dir="$(swift build -c release --show-bin-path)"
-          python3 -B scripts/capture-native-visual-evidence.py --helper "$riftlet_bin_dir/RiftletGUIAcceptance" --output "$PWD/test-results/native-visual" 2>&1 | tee test-results/native-visual-capture.log
+          python3 -B scripts/capture-native-visual-evidence.py --helper "$riftlet_bin_dir/RiftletGUIAcceptance" --expected-system-accessibility normal --output "$PWD/test-results/native-visual" 2>&1 | tee test-results/native-visual-capture.log
+      - name: Capture bounded actual system accessibility variants
+        env:
+          RIFTLET_BUILD_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -o pipefail
+          # Only this disposable CI runner is changed. Fresh product/helper
+          # processes continue to read and honor the real AppKit system policy.
+          defaults write com.apple.universalaccess reduceMotion -bool true
+          defaults write com.apple.universalaccess reduceTransparency -bool true
+          defaults write com.apple.universalaccess increaseContrast -bool true
+          riftlet_bin_dir="$(swift build -c release --show-bin-path)"
+          "$riftlet_bin_dir/RiftletGUIAcceptance" --report-system-accessibility | tee test-results/accessibility-reduced.log
+          python3 -B scripts/capture-native-visual-evidence.py --helper "$riftlet_bin_dir/RiftletGUIAcceptance" --expected-system-accessibility reduced --only-case queue-dark --only-case entry-dark --only-case motion-magnet --output "$PWD/test-results/native-visual-accessibility" 2>&1 | tee test-results/native-visual-accessibility-capture.log
       - name: Archive evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

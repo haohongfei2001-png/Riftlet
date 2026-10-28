@@ -6,6 +6,19 @@ import RiftletUI
 @main
 enum AcceptanceMain {
     @MainActor static func main() {
+        if CommandLine.arguments.contains("--report-system-accessibility") {
+            do {
+                let report: [String: Any] = ["schemaVersion": 1,
+                    "kind": "read-only-system-accessibility", "provider": "NSWorkspace.shared",
+                    "systemAccessibility": NativeVisualEvidence.systemAccessibilitySnapshot(),
+                    "systemPreferencesChanged": false, "permissionsRequested": false]
+                let data = try JSONSerialization.data(withJSONObject: report, options: [.sortedKeys])
+                print(String(decoding: data, as: UTF8.self))
+            } catch {
+                fputs("SYSTEM_ACCESSIBILITY_REPORT_FAIL\n", stderr); exit(1)
+            }
+            return
+        }
         let axFlags = ["--press-acceptance-asset", "--app-pid", "--app-path"]
         if CommandLine.arguments.contains(where: { axFlags.contains($0) }) {
             exit(AcceptanceAXPress.run(Array(CommandLine.arguments.dropFirst())))
@@ -45,12 +58,15 @@ enum AcceptanceMain {
               Requires --visual-clean. Capture only this helper's WindowServer windows,
               at original pixels, then exit. No other app or display capture; no TCC request.
               --visual-settings-section 0...4 and --visual-onboarding-page 0...2 select pages.
+              --visual-local-onboarding uses the actual production-disabled local collection presentation.
               --visual-last-page and --visual-preview-index 1...16 select fixture views.
               --visual-history-state archived|unknown selects a synthetic history row.
               Preview invokes the native AX custom action in-process, not a physical hover.
               --visual-background bright|textured changes only the synthetic backdrop.
               With --visual-timeline, export timestamped native frames, not a latency benchmark.
             --self-check validates fixtures/layout only and does not run GUI acceptance.
+            --report-system-accessibility prints actual AppKit Reduce Motion, Increase Contrast
+              and Reduce Transparency as JSON, without windows, permission requests or writes.
             --press-acceptance-asset UUID --app-pid PID --app-path /exact/Riftlet.app
               One bounded AXPress on one exact synthetic identifier; existing AX permission only.
             """)

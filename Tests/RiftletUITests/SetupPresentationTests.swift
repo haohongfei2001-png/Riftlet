@@ -11,7 +11,27 @@ final class SetupPresentationTests: XCTestCase {
             XCTAssertNil(model.permissionText)
             XCTAssertNil(model.issueText)
             XCTAssertFalse(model.canRequestPermission)
+            XCTAssertTrue(model.firstUseDescription.contains("当前仅本地收录"))
+            XCTAssertEqual(model.firstUseFlow, "截图 → 收录 → 查看")
+            XCTAssertTrue(model.firstUseNextStep.contains("当前不会上传"))
         }
+    }
+
+    func testFirstUseDoesNotPromiseRealAttachmentInSimulationOrUnavailableModes() {
+        let offline = SetupPresentation(snapshot: .init(attachment: .offlineSimulation))
+        XCTAssertTrue(offline.firstUseDescription.contains("离线演示"))
+        XCTAssertTrue(offline.firstUseNextStep.contains("不会上传"))
+        let synthetic = SetupPresentation(snapshot: .init(attachment: .syntheticWeb))
+        XCTAssertTrue(synthetic.firstUseDescription.contains("不收录真实截图"))
+        XCTAssertTrue(synthetic.firstUseNextStep.contains("不会上传真实截图"))
+        for state in [SetupAttachmentState.unsupportedBrowser, .targetUnavailable] {
+            let value = SetupPresentation(snapshot: .init(attachment: state))
+            XCTAssertTrue(value.firstUseDescription.contains("附加目标不可用"))
+            XCTAssertTrue(value.firstUseNextStep.contains("不会切换"))
+        }
+        let candidate = SetupPresentation(snapshot: .init(attachment: .systemScreenshotCandidate, permission: .granted))
+        XCTAssertTrue(candidate.firstUseDescription.contains("目标与图片均通过核验"))
+        XCTAssertTrue(candidate.firstUseNextStep.contains("仍须通过核验"))
     }
 
     func testUnknownIsPendingAndDoesNotAuthorizeAnotherInput() {

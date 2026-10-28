@@ -245,7 +245,11 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         restoreButton.isHidden = !restoreButton.isEnabled
         removeButton.isHidden = !removeButton.isEnabled
         revealButton.isHidden = selectedEntry == nil
-        actionNote.isHidden = selectedEntry == nil
+        let notes = [restoreButton.isEnabled ? "放回裂缝不会立即上传。" : nil,
+                     removeButton.isEnabled ? "移出队列不会删除本地原图或聊天附件。" : nil].compactMap { $0 }
+        actionNote.stringValue = notes.joined()
+        RiftVisualStyle.applyTextStyle(actionNote)
+        actionNote.isHidden = notes.isEmpty
         newerButton.isEnabled = pageOffset > 0 && onPreviousPage != nil
         olderButton.isEnabled = hasEarlier && onNextPage != nil
         updateDetail()

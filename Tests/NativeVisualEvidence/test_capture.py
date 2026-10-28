@@ -27,10 +27,15 @@ class NativeVisualManifestTests(unittest.TestCase):
             "checkout": self.checkout, "syntheticOnly": True,
             "otherApplicationPixelsCaptured": False, "screenCapturePermissionRequested": False,
             "performanceBenchmark": False,
+            "captureKind": "single-product-window",
+            "systemAccessibilityAtStart": {"reduceMotion": False, "increaseContrast": False, "reduceTransparency": False},
+            "systemAccessibilityAtEnd": {"reduceMotion": False, "increaseContrast": False, "reduceTransparency": False},
             **{key: "NOT_RUN" for key in ("physicalInput", "realScreenshot", "realUpload", "crossApplicationFocus", "productionWindowOrder")},
             "frames": [{"status": "CAPTURED_NATIVE_WINDOWSERVER", "file": "native.png", "pixels": [1, 1],
                         "bytes": len(self.png), "sha256": hashlib.sha256(self.png).hexdigest(), "resized": False,
-                        "source": self.source, "checkout": self.checkout, "syntheticOnly": True, "receiptEvidence": False}]}
+                        "source": self.source, "checkout": self.checkout, "syntheticOnly": True, "receiptEvidence": False,
+                        "selectedOwnWindowCount": 1, "productWindowCount": 1, "ownWindowNumbersFrontToBack": [123],
+                        "windowOrdering": "NSApplication.enumerateWindows(orderedFrontToBack)"}]}
 
     def verify(self, report=None):
         CAPTURE.verify_capture(self.root, report or self.report, self.source, self.checkout)
@@ -80,6 +85,85 @@ class NativeVisualManifestTests(unittest.TestCase):
         self.report["source"] = self.checkout
         with self.assertRaisesRegex(ValueError, "sourceMismatch"):
             self.verify()
+
+    def test_composite_cannot_pass_with_only_backdrop_or_no_product_pixels(self):
+        self.report["captureKind"] = "owned-product-composite"
+        frame = self.report["frames"][0]
+        frame["productWindowCount"] = 0
+        with self.assertRaisesRegex(ValueError, "missingProductWindow"):
+            self.verify()
+        frame.update(selectedOwnWindowCount=2, productWindowCount=1,
+                     ownWindowNumbersFrontToBack=[456, 123], minimumProductDifferencePixels=64,
+                     productDifferencePixelCount=0)
+        with self.assertRaisesRegex(ValueError, "missingProductPixels"):
+            self.verify()
+        frame["productDifferencePixelCount"] = 64  # A one-pixel PNG cannot substantiate this.
+        with self.assertRaisesRegex(ValueError, "missingProductPixels"):
+            self.verify()
+
+    def test_duplicate_window_ids_cannot_claim_an_extra_product_window(self):
+        self.report["captureKind"] = "owned-product-composite"
+        self.report["frames"][0].update(selectedOwnWindowCount=2, productWindowCount=1,
+                                       ownWindowNumbersFrontToBack=[123, 123])
+        with self.assertRaisesRegex(ValueError, "invalidOwnWindowSet"):
+            self.verify()
+
+    def test_actual_accessibility_snapshot_cannot_be_omitted_or_loosely_coerced(self):
+        for value in (None, {}, {"reduceMotion": "false", "increaseContrast": False, "reduceTransparency": False}):
+            self.report["systemAccessibilityAtStart"] = value
+            with self.assertRaisesRegex(ValueError, "missingSystemAccessibility"):
+                self.verify()
+
+    def test_normal_cases_cannot_silently_use_reduced_motion_or_opaque_materials(self):
+        self.report["helperReducedMotionOverride"] = False
+        CAPTURE.verify_case_behavior([], self.report)
+        for key in ("reduceMotion", "increaseContrast", "reduceTransparency"):
+            report = copy.deepcopy(self.report)
+            report["systemAccessibilityAtStart"][key] = True
+            with self.assertRaisesRegex(ValueError, "normalSystemAccessibilityRequired"):
+                CAPTURE.verify_case_behavior([], report)
+
+    def test_magnet_filename_requires_real_start_source_and_expected_end(self):
+        flags = ["--visual-timeline", "--visual-magnet"]
+        self.report["helperReducedMotionOverride"] = False
+        events = [
+            {"event": "synthetic_asset_ready", "sourceProvided": True},
+            {"event": "native_arrival_boundary", "phase": "decorationStarted", "mode": "magnet"},
+            {"event": "native_arrival_boundary", "phase": "decorationEnded", "mode": "magnet", "reason": "finished"},
+            {"event": "native_presentation_boundary", "phase": "swallowClose"}]
+        self.report["events"] = events
+        CAPTURE.verify_case_behavior(flags, self.report)
+        events[0]["sourceProvided"] = False
+        with self.assertRaisesRegex(ValueError, "magnetWasNotExercised"):
+            CAPTURE.verify_case_behavior(flags, self.report)
+        events[0]["sourceProvided"] = True
+        with self.assertRaisesRegex(ValueError, "magnetCompletionNotObserved"):
+            CAPTURE.verify_case_behavior(flags + ["--visual-cancel-arrival"], self.report)
+        events[2]["reason"] = "cancelled"
+        CAPTURE.verify_case_behavior(flags + ["--visual-cancel-arrival"], self.report)
+
+    def test_reduced_system_capture_requires_real_policy_and_native_static_outcome(self):
+        self.report["helperReducedMotionOverride"] = False
+        flags = ["--visual-timeline", "--visual-magnet"]
+        with self.assertRaisesRegex(ValueError, "reducedSystemAccessibilityRequired"):
+            CAPTURE.verify_case_behavior(flags, self.report, "reduced")
+        for key in ("systemAccessibilityAtStart", "systemAccessibilityAtEnd"):
+            self.report[key] = {name: True for name in self.report[key]}
+        self.report["events"] = [
+            {"event": "native_arrival_boundary", "phase": "rowAvailable", "mode": "none"},
+            {"event": "native_presentation_boundary", "phase": "swallowScheduled", "duration": 0.08},
+            {"event": "native_presentation_boundary", "phase": "swallowClose"}]
+        CAPTURE.verify_case_behavior(flags, self.report, "reduced")
+        self.report["events"][0]["mode"] = "magnet"
+        with self.assertRaisesRegex(ValueError, "reducedArrivalPolicyNotObserved"):
+            CAPTURE.verify_case_behavior(flags, self.report, "reduced")
+
+    def test_filter_is_limited_to_registered_cases_and_preserves_all_default_cases(self):
+        self.assertEqual(len(CAPTURE.selected_cases([])), 44)
+        self.assertEqual([name for name, _ in CAPTURE.selected_cases(["queue-dark", "entry-dark", "motion-magnet", "queue-dark"])],
+                         ["queue-dark", "entry-dark", "motion-magnet"])
+        with self.assertRaisesRegex(ValueError, "Unknown registered case"):
+            CAPTURE.selected_cases(["../../other"])
 
     def movie_fixture(self):
         # A minimal container fixture for integrity/metadata rejection tests,

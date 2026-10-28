@@ -47,6 +47,7 @@ public final class InteractiveScreenshotController {
     private var cachedWindows: [InteractiveScreenshotWindow] = []
     private var lastWindowRefresh: TimeInterval = -.infinity
     private var previousFrontmost: NSRunningApplication?
+    private var startAttempt: UUID?
 
     private struct Gesture {
         let revision: UInt64
@@ -75,8 +76,15 @@ public final class InteractiveScreenshotController {
     /// Called by the host only after the user clicks its capture entry.
     public func start(mode: ScreenshotMode, options: InteractiveScreenshotOptions = .init()) {
         if session.isActive { updateOptions(options); updateMode(mode); return }
+        let attempt = UUID()
+        startAttempt = attempt
         let originalFrontmost = NSWorkspace.shared.frontmostApplication
-        guard permission.hasAccess() || permission.requestAccess() else {
+        let allowed = permission.hasAccess() || permission.requestAccess()
+        // A system permission prompt can spin a nested run loop. An explicit
+        // cancel, disabled entry or newer start during it revokes this attempt.
+        guard startAttempt == attempt else { return }
+        startAttempt = nil
+        guard allowed else {
             onError?(.screenRecordingPermissionRequired); return
         }
         guard !displays().isEmpty else { onError?(.noDisplay); return }
@@ -121,6 +129,7 @@ public final class InteractiveScreenshotController {
     }
 
     public func cancel() {
+        startAttempt = nil
         guard session.isActive else { return }
         session.cancel(); gesture = nil; captureTask?.cancel(); captureTask = nil; capturer.cancel()
         panels.forEach { $0.orderOut(nil); $0.close() }; panels.removeAll()

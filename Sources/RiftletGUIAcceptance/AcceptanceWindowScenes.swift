@@ -62,10 +62,12 @@ final class AcceptanceWindowScenes {
                     self.action("inMemorySettingsChange")
                     return self.settingsFixture
                 })
+            let localOnboarding = CommandLine.arguments.contains("--visual-local-onboarding")
+            settingsFixture.entryAvailable = !localOnboarding
             controller.update(snapshot: SetupSnapshot(
                 sourceLocation: "合成验收素材（不读取系统截图位置）", source: .notApplicable,
                 collection: .stopped, visibleCount: 3, pendingCount: 1,
-                attachment: .offlineSimulation, permission: .notNeeded,
+                attachment: localOnboarding ? .productionDisabled : .offlineSimulation, permission: .notNeeded,
                 storage: .measured(bytes: UInt64(fixtures.reduce(Int64(0)) { $0 + $1.image.byteCount }), complete: true),
                 supportDescription: "仅合成 AppKit 呈现验收；没有读取截图、检查权限、连接浏览器或授予生产准入。"))
             settingsFixture.displays = NSScreen.screens.enumerated().compactMap { index, screen in

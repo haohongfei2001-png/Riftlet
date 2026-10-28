@@ -307,3 +307,12 @@ Next READY task or next concrete action:
 实际生成图片的 **一次 helper AX → 真实递增上传开始 → AppKit 快吞噬 → 后台独立最终成功 PASS（限定）**。原 input=1、完整 target/attachment、首份 start 审计、较晚 final proof 和 persisted succeeded 对齐；开始后约59–322ms调用动画，动画段约253ms，窗口关闭早于最终证明约4.89–5.16s。不是物理鼠标或无ACK冷首击；原保留配置swallowDuration=.24，不是点击到关闭仅253ms。
 
 Core/UI/App正式源码未改；两份最小临时overlay供Pro接入synthetic start策略及诊断/AX元数据。生产、safe retry仍关闭。原11 Web资产/17操作/3补偿及所有原私有媒体哈希保留，新增5图各input1，其中2图未决保持原样；未发送消息。详见[第五轮完整交接](../engineering/evidence/2026-10-27-real-mac-round5/README.md)。本段替代此前“等待人工点第2张”的准备检查点；无需再请求该动作。下一项为Pro集成限定synthetic补丁，其后继续冷首击、业务转换、同草稿多图与物理N1，MID及安全终止分别准入。
+
+
+## 薄界统一候选独立打磨 · 2026-10-29
+
+正式 `0e7ea8be` 与原生 `443d21d` 按祖先双亲合流，独立候选分支 `codex/riftlet-real-mac-acceptance-internal-beta-thin-edge-20261029` / Draft PR #15；正式 PR #1 保持 Draft，main不合并。预测入口与磁力已在祖先，不重复cherry-pick。保留最新Feedback可靠性修复、原候选准入及所有旧证据。
+
+统一设置、原生预览、分页、历史、Feedback布局与关闭、入口/辅助窗协调等实质打磨正在准确组合CI与非作者视觉/工程审查。已有成功CI中发现并主动驳回了漏NSPanel的多窗取证，不能以构建成功代表产品视觉合格。全部尝试、已审源与最终交付状态统一记录于[本轮质量交接](../engineering/evidence/2026-10-29-unified-candidate/README.md)，该记录是本轮最新结论入口；下方历史阶段陈述不代表当前准入。
+
+真机离线，旧H不复测，不触碰UNKNOWN/原图/数据库。普通生产上传、安全失败与重试仍关闭，Feedback云端未部署；不要求创始人立即安装体验。

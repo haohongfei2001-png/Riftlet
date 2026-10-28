@@ -203,7 +203,7 @@ final class ScreenshotEntryHost {
                 let source: URL
                 let origin: AssetOrigin
                 if let editedData {
-                    source = directory.appendingPathComponent(UUID().uuidString.lowercased() + "-edited.png")
+                    source = InteractiveScreenshotOutput.editedURL(in: directory)
                     try editedData.write(to: source, options: .atomic)
                     try FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: source.path)
                     origin = .applicationScreenshot

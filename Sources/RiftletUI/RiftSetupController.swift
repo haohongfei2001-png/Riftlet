@@ -50,6 +50,9 @@ public final class RiftSetupController: NSObject, NSWindowDelegate {
     private let support = NSTextField(wrappingLabelWithString: "")
     private let storage = NSTextField(wrappingLabelWithString: "")
     private let issue = NSTextField(wrappingLabelWithString: "")
+    private let firstUseDescription = RiftVisualStyle.label("")
+    private let firstUseFlow = RiftVisualStyle.label("", role: "heading")
+    private let firstUseNextStep = RiftVisualStyle.label("")
     private let recheckButton = NSButton(title: "重新检查", target: nil, action: nil)
     private let sourceButton = NSButton(title: "查看截图位置", target: nil, action: nil)
     private let accessButton = NSButton(title: "允许访问截图位置…", target: nil, action: nil)
@@ -104,6 +107,9 @@ public final class RiftSetupController: NSObject, NSWindowDelegate {
         storage.stringValue = presentation.storageText
         issue.stringValue = presentation.issueText ?? ""
         issue.isHidden = presentation.issueText == nil
+        firstUseDescription.stringValue = presentation.firstUseDescription
+        firstUseFlow.stringValue = presentation.firstUseFlow
+        firstUseNextStep.stringValue = presentation.firstUseNextStep
         sourceButton.isEnabled = presentation.hasSourceLocation
         accessButton.isHidden = onChooseSourceAccess == nil
         accessButton.isEnabled = presentation.hasSourceLocation && onChooseSourceAccess != nil && !snapshot.isChecking
@@ -120,7 +126,8 @@ public final class RiftSetupController: NSObject, NSWindowDelegate {
         hideButton.setAccessibilityLabel(hideButton.title)
         pauseButton.setAccessibilityLabel(pauseButton.title)
         historyButton.isEnabled = onOpenHistory != nil
-        for field in [source, path, collection, rift, pending, attachment, permission, support, storage, issue] {
+        for field in [source, path, collection, rift, pending, attachment, permission, support, storage, issue,
+                      firstUseDescription, firstUseFlow, firstUseNextStep] {
             RiftVisualStyle.applyTextStyle(field)
         }
     }
@@ -222,7 +229,7 @@ public final class RiftSetupController: NSObject, NSWindowDelegate {
         NSLayoutConstraint.activate([navigation.leadingAnchor.constraint(equalTo: sidebar.leadingAnchor, constant: 12),
             navigation.topAnchor.constraint(equalTo: sidebar.topAnchor, constant: 24)])
         progress.font = RiftVisualStyle.secondaryFont; progress.textColor = RiftVisualStyle.secondary
-        footer.orientation = .horizontal; footer.spacing = 8
+        footer.orientation = .horizontal; footer.alignment = .centerY; footer.spacing = 8
         for view in [sidebar, progress, pageHost, footer] { view.translatesAutoresizingMaskIntoConstraints = false; content.addSubview(view) }
         sidebarWidth = sidebar.widthAnchor.constraint(equalToConstant: 156)
         contentLeading = pageHost.leadingAnchor.constraint(equalTo: sidebar.trailingAnchor, constant: 24)
@@ -232,6 +239,7 @@ public final class RiftSetupController: NSObject, NSWindowDelegate {
             pageHost.topAnchor.constraint(equalTo: progress.bottomAnchor, constant: 12), contentLeading!,
             pageHost.trailingAnchor.constraint(equalTo: content.trailingAnchor, constant: -24),
             pageHost.bottomAnchor.constraint(equalTo: footer.topAnchor, constant: -16),
+            footer.leadingAnchor.constraint(equalTo: pageHost.leadingAnchor),
             footer.trailingAnchor.constraint(equalTo: content.trailingAnchor, constant: -24),
             footer.bottomAnchor.constraint(equalTo: content.bottomAnchor, constant: -16)])
         rebuildPage()
@@ -242,6 +250,13 @@ public final class RiftSetupController: NSObject, NSWindowDelegate {
         settingsForm.stop()
         pageHost.subviews.forEach { $0.removeFromSuperview() }
         footer.arrangedSubviews.forEach { footer.removeArrangedSubview($0); $0.removeFromSuperview() }
+        let safetyNote = RiftVisualStyle.label("不发送消息，不删除原截图。", role: "secondary")
+        safetyNote.identifier = .init("setup.safetyNote")
+        safetyNote.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+        let footerSpace = NSView()
+        footerSpace.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        footerSpace.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        footer.addArrangedSubview(safetyNote); footer.addArrangedSubview(footerSpace)
         navigation.superview?.isHidden = onboardingStep != nil
         sidebarWidth?.constant = onboardingStep == nil ? 156 : 0
         progress.stringValue = onboardingStep.map { "认识 Riftlet  ·  连接与权限  ·  开始使用    \($0 + 1) / 3" } ?? "内部候选"
@@ -252,17 +267,16 @@ public final class RiftSetupController: NSObject, NSWindowDelegate {
         if let step = onboardingStep {
             if step == 0 {
                 views = [RiftVisualStyle.label("截图一次，点击一次", role: "title"),
-                    RiftVisualStyle.label("截图自然地停在桌面边缘。需要时，点一下，进入当前聊天草稿。"),
-                    RiftVisualStyle.card([RiftVisualStyle.label("系统截图  →  桌面边缘  →  当前草稿", role: "heading"),
-                        RiftVisualStyle.label("沿用 macOS 系统截图习惯"), RiftVisualStyle.label("只附加图片，不发送消息"),
-                        RiftVisualStyle.label("原图与本地历史始终保留")])]
+                    firstUseDescription, RiftFirstUseIllustration(frame: .zero),
+                    RiftVisualStyle.vertical([RiftVisualStyle.label("沿用 macOS 系统截图习惯"),
+                        RiftVisualStyle.label("只附加图片，不发送消息"),
+                        RiftVisualStyle.label("原图与本地历史始终保留")], spacing: 8)]
             } else if step == 1 {
                 views = [RiftVisualStyle.label("连接你已经在用的工具", role: "title"),
                     RiftVisualStyle.label("允许访问不等于目标已经验证；也可稍后设置，继续本地收录。", role: "secondary"), sourceCard(), chromeCard()]
             } else {
                 views = [RiftVisualStyle.label("下一张截图，从这里开始", role: "title"),
-                    RiftVisualStyle.label("出现 → 点击 → 继续", role: "heading"),
-                    RiftVisualStyle.label("回到受支持的 Chrome 普通已有对话，用一张新的系统截图开始。无需先聚焦发言框。"), attachment, support]
+                    firstUseFlow, firstUseNextStep, attachment, support]
             }
             backButton.isHidden = step == 0; nextButton.title = step == 2 ? "开始使用" : step == 0 ? "继续" : "下一步"
             nextButton.setAccessibilityLabel(nextButton.title)
@@ -289,7 +303,7 @@ public final class RiftSetupController: NSObject, NSWindowDelegate {
                        RiftVisualStyle.label("用量是逻辑文件大小，不代表可释放空间；不会自动清理原图。", role: "secondary")]
             case 4:
                 views = [RiftVisualStyle.label("关于 Riftlet", role: "title"),
-                    RiftVisualStyle.label("让截图自然地停留在桌面边缘，通过一次点击进入当前聊天草稿。"),
+                    firstUseDescription,
                     RiftVisualStyle.card([RiftVisualStyle.label("内部候选 · 薄界", role: "heading"), support]),
                     actionButton("反馈与建议…", action: #selector(openFeedback), available: onOpenFeedback != nil)]
             default:
@@ -301,11 +315,10 @@ public final class RiftSetupController: NSObject, NSWindowDelegate {
         }
         // Current blockers stay visible on every page, without changing focus.
         views.insert(issue, at: min(1, views.count))
-        views.append(RiftVisualStyle.label("不发送消息，不删除原截图。", role: "secondary"))
         let stack = RiftVisualStyle.documentStack(views, spacing: 16)
         stack.edgeInsets = NSEdgeInsets(top: 0, left: 0, bottom: 16, right: 0)
         stack.translatesAutoresizingMaskIntoConstraints = false
-        for view in views { view.widthAnchor.constraint(equalTo: stack.widthAnchor).isActive = true }
+        for view in views where !(view is NSButton) { view.widthAnchor.constraint(equalTo: stack.widthAnchor).isActive = true }
         let scroll = RiftVisualStyle.topAlignedScrollView()
         scroll.documentView = stack; scroll.translatesAutoresizingMaskIntoConstraints = false; pageHost.addSubview(scroll)
         scroll.setAccessibilityLabel("Riftlet 首次使用与运行状态")

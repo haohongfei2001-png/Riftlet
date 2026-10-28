@@ -73,6 +73,8 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
         text.setAccessibilityLabel("发生了什么？你原本希望怎样？")
         scroll.heightAnchor.constraint(equalToConstant: 150).isActive = true
         characterCount.font = RiftVisualStyle.secondaryFont; characterCount.textColor = RiftVisualStyle.secondary
+        characterCount.identifier = NSUserInterfaceItemIdentifier("feedback.characterCount")
+        characterCount.toolTip = "组合符号和 emoji 可能包含多个字符，按组成字符计数；发送限制与这里的计数一致。正文最多 16 KiB。"
         consent.target = self; consent.action = #selector(changedConsent); consent.font = RiftVisualStyle.bodyFont
         let preview = NSButton(title: "预览…", target: self, action: #selector(showPreview)); RiftVisualStyle.style(preview)
         let diagnosticsRow = NSStackView(views: [consent, preview]); diagnosticsRow.spacing = 8
@@ -122,11 +124,23 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
         recordsDisclosure.setAccessibilityLabel(recordsExpanded ? "收起本机反馈记录" : "展开本机反馈记录")
     }
     private func updateCharacterCount() {
-        characterCount.stringValue = "\(text.string.count) / 4,000 字符"
-        characterCount.textColor = text.string.count > 4_000 || text.string.utf8.count > 16 * 1024 ? .systemOrange : RiftVisualStyle.secondary
+        characterCount.stringValue = "\(text.string.unicodeScalars.count) / 4,000 字符"
+        let containsText = !text.string.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        characterCount.textColor = containsText && !submissionTextIsValid ? .systemOrange : RiftVisualStyle.secondary
+        updateSendAvailability()
+    }
+    private var submissionTextIsValid: Bool {
+        // Reuse the envelope's scalar/UTF-8/blank validation instead of keeping
+        // a second UI admission rule. This creates no outbox record or receipt.
+        (try? FeedbackEnvelope(draft: FeedbackDraft(text: text.string), appVersion: appVersion)) != nil
+    }
+    private func updateSendAvailability() {
+        send.isEnabled = loaded && !busy && text.isEditable && engine != nil
+            && submissionTextIsValid
     }
     private func controlsEnabled(_ enabled: Bool) {
-        text.isEditable = enabled; kind.isEnabled = enabled; consent.isEnabled = enabled; send.isEnabled = enabled
+        text.isEditable = enabled; kind.isEnabled = enabled; consent.isEnabled = enabled
+        updateSendAvailability()
     }
     private func load() async {
         guard let engine else {

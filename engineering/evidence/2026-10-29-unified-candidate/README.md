@@ -46,3 +46,21 @@ Feedback run `40754551166`（head `d909ecc`，checkout `10850947666b8b047bb357cb
 ## 原生交互回归修复
 
 第二轮 head `8db2ec`：Feedback `40756079028` 通过40项唯一原生/UI测试、20项服务测试、88项隔离审计（均0 skip）；关闭回归额外重复3轮不重复计数。Native `40756079761` 实际调度637项，新增归档 Return 测试发现一次输入导致两次保存，打包/视觉步骤尚未运行。已修复为仅Return或保存按钮主动提交、失去焦点不保存、同值幂等，并按Host秒/小时roundtrip规范小数比较；原测试未放宽，另覆盖blur及0.011连点。非作者确认新source `cba039bae3fb976295d00869d5117fbaab50a26d` / tree `413ab447aa47f26ab2c27737ec7db887307163cd` 可固定；新完整CI与视觉仍待验证。
+
+## 已通过 CI 后被独立视觉审查驳回的取证
+
+第三轮 head `fea485ce5226ab519af8f5325412b2ef43ba4a5a` 的 Native `40757263054` 与 Feedback `40757262980` 均成功。Native 调度637项，已知手动预览详细测试因真实系统 Reduce Motion 跳过；Feedback40项唯一原生/UI、20项服务、88项隔离测试通过且无跳过。独立包检查确认14个构建输入对象、资源签名哈希、实际arm64二进制与精确源码一致。这不等于视觉通过。
+
+独立设计审查实际查看37张静态原图，并解码5份MOV，发现多窗取证使用 NSApp.orderedWindows 漏掉 NSPanel。24张辅助窗口图有效；13张边缘静态图、76张运动PNG和5MOV只显示自有背景，不得证明边缘或动效。原始文件及审查报告保留，见 independent-design-native-attempt3.md 和 attempt3-visual-integrity.json。真实 Reduce Motion 还使所有动效走none/fallback；无正常磁力或中断的视觉证明。
+
+本轮修正取证为NSApp.windows自有可见集合与AppKit真实前后排序，并验证合成原像素确实不同于同一自有背板；空白取证失败关闭。CI临时机器恢复普通Motion/Transparency设置后，由全新AppKit进程读取真实属性；helper另记录起止系统状态。产品辅助功能guard保持。GitHub官方runner配置解释了原默认：<https://github.com/actions/runner-images/blob/main/images/macos/scripts/build/configure-system.sh>。新素材仍须非作者审美判断。
+
+## 当前自主修复范围
+
+- 固定设置/首用页脚安全说明；关于页Feedback按钮自然宽；补齐批准首用静态截图到边缘示意；首用和关于说明按真实运行模式显示，普通模式明确仅本地收录。
+- 历史详情仅说明实际允许的放回/移出动作，UNKNOWN不出现不适用提示。
+- 新自有截图原件和编辑派生件采用共享隐藏文件名，避免系统截图目录重叠时被active/retired watcher重复收录。保留所有旧文件；真实系统元数据原图仍沿既有来源/预检规则，编辑派生图仍为applicationScreenshot。未采用同期候选分支的全面来源重标策略。
+- 权限提示的嵌套事件循环中，取消/禁用/新的启动会撤销旧启动token，迟到的授权不重新打开选择层。
+- Feedback计数与既有Envelope的Unicode scalar/UTF-8/空白规则一致，保持本机保存和无云端送达声明。
+
+以上最新改动正在等待精确组合CI和新原尺寸复审，不能继承旧通过结论。真实Mac仍离线；旧H、旧UNKNOWN、系统原图、数据库与审计未动。

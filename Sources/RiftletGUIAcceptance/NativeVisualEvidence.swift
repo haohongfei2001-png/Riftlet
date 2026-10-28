@@ -12,14 +12,24 @@ import UniformTypeIdentifiers
 /// Capturing a synthetic native projection is not real input/upload acceptance.
 @MainActor
 final class NativeVisualEvidence {
-    enum Failure: Error { case unsafeRequest, existingOutput, missingWindow, encoding }
+    enum Failure: Error { case unsafeRequest, existingOutput, missingWindow, missingProductPixels, encoding }
 
     static var requested: Bool { CommandLine.arguments.contains("--export-native-evidence") }
+
+    /// Read the actual AppKit policy. This never writes system preferences or
+    /// changes how product controllers honor accessibility settings.
+    static func systemAccessibilitySnapshot() -> [String: Bool] {
+        let workspace = NSWorkspace.shared
+        return ["reduceMotion": workspace.accessibilityDisplayShouldReduceMotion,
+                "increaseContrast": workspace.accessibilityDisplayShouldIncreaseContrast,
+                "reduceTransparency": workspace.accessibilityDisplayShouldReduceTransparency]
+    }
 
     private let directory: URL
     private let source: String
     private let checkout: String
     private let singleWindow: Bool
+    private let accessibilityAtStart: [String: Bool]
     private weak var backdrop: NSWindow?
     private var frames: [[String: Any]] = []
     private var events: [[String: Any]] = []
@@ -30,8 +40,10 @@ final class NativeVisualEvidence {
     private struct NativeFrame {
         let image: CGImage
         let rect: CGRect
+        let quartzRect: CGRect
         let backingScale: CGFloat
         let windowCount: Int
+        let windowNumbers: [Int]
         let started: TimeInterval
         let ended: TimeInterval
     }
@@ -56,6 +68,7 @@ final class NativeVisualEvidence {
                                                 attributes: [.posixPermissions: 0o700])
         self.directory = directory; self.source = source; self.checkout = checkout
         self.singleWindow = args.contains("--visual-window")
+        self.accessibilityAtStart = Self.systemAccessibilitySnapshot()
         self.backdrop = backdrop
     }
 
@@ -86,22 +99,22 @@ final class NativeVisualEvidence {
 
     private func captureOwnedWindows() throws -> NativeFrame? {
         guard let backdrop else { throw Failure.missingWindow }
-        let owned = NSApp.orderedWindows.filter { $0.isVisible && $0.windowNumber > 0 }
+        // orderedWindows is an AppleScript collection that excludes NSPanel.
+        // Start with every visible self-owned window, then ask AppKit for its
+        // real onscreen order. No other process's metadata or pixels are read.
+        let allowed = Set(NSApp.windows.filter { $0.isVisible && $0.windowNumber > 0 }.map(\.windowNumber))
+        var owned: [NSWindow] = []
+        NSApp.enumerateWindows(options: .orderedFrontToBack) { window, _ in
+            if allowed.contains(window.windowNumber) { owned.append(window) }
+        }
+        guard owned.count == allowed.count, Set(owned.map(\.windowNumber)) == allowed else { throw Failure.missingWindow }
         let selected = singleWindow ? owned.filter { $0 !== backdrop && $0.styleMask.contains(.titled) } : owned
-        guard !selected.isEmpty, !singleWindow || selected.count == 1 else { throw Failure.missingWindow }
+        guard !selected.isEmpty, !singleWindow || selected.count == 1,
+              singleWindow || (selected.contains(where: { $0 === backdrop }) && selected.count > 1) else { throw Failure.missingWindow }
         let appKitRect = singleWindow ? selected[0].frame : backdrop.frame
         guard appKitRect.width > 0, appKitRect.height > 0,
-              let firstScreen = NSScreen.screens.first,
-              let windowIDs = CFArrayCreateMutable(kCFAllocatorDefault, 0, nil) else { throw Failure.missingWindow }
-        // Quartz expects scalar CGWindowID values in a CFArray with nil
-        // callbacks, not CFNumber objects. These encoded values are never
-        // dereferenced; every ID comes from this process's selected NSWindow.
-        for window in selected {
-            guard let windowID = CGWindowID(exactly: window.windowNumber),
-                  windowID != kCGNullWindowID,
-                  let scalar = UnsafeRawPointer(bitPattern: UInt(windowID)) else { throw Failure.missingWindow }
-            CFArrayAppendValue(windowIDs, scalar)
-        }
+              let firstScreen = NSScreen.screens.first else { throw Failure.missingWindow }
+        let windowIDs = try windowArray(selected)
         let quartzRect = CGRect(x: appKitRect.minX, y: firstScreen.frame.maxY - appKitRect.maxY,
                                 width: appKitRect.width, height: appKitRect.height)
         let before = ProcessInfo.processInfo.systemUptime
@@ -110,9 +123,54 @@ final class NativeVisualEvidence {
             captureUnavailable = true
             return nil
         }
-        return NativeFrame(image: image, rect: appKitRect,
+        return NativeFrame(image: image, rect: appKitRect, quartzRect: quartzRect,
             backingScale: (singleWindow ? selected[0] : backdrop).backingScaleFactor,
-            windowCount: selected.count, started: before, ended: ProcessInfo.processInfo.systemUptime)
+            windowCount: selected.count, windowNumbers: selected.map(\.windowNumber),
+            started: before, ended: ProcessInfo.processInfo.systemUptime)
+    }
+
+    private func windowArray(_ windows: [NSWindow]) throws -> CFArray {
+        guard let windowIDs = CFArrayCreateMutable(kCFAllocatorDefault, 0, nil) else { throw Failure.missingWindow }
+        // Quartz expects scalar CGWindowID values in a CFArray with nil
+        // callbacks, not CFNumber objects. These encoded values are never
+        // dereferenced; every ID comes from this process's selected NSWindow.
+        for window in windows {
+            guard let windowID = CGWindowID(exactly: window.windowNumber),
+                  windowID != kCGNullWindowID,
+                  let scalar = UnsafeRawPointer(bitPattern: UInt(windowID)) else { throw Failure.missingWindow }
+            CFArrayAppendValue(windowIDs, scalar)
+        }
+        return windowIDs
+    }
+
+    private func productDifferencePixels(_ frame: NativeFrame) throws -> Int {
+        guard let backdrop,
+              let background = CGImage(windowListFromArrayScreenBounds: frame.quartzRect,
+                windowArray: try windowArray([backdrop]), imageOption: [.boundsIgnoreFraming, .bestResolution]),
+              background.width == frame.image.width, background.height == frame.image.height,
+              background.bitsPerPixel == 32, frame.image.bitsPerPixel == 32,
+              background.bitsPerComponent == 8, frame.image.bitsPerComponent == 8,
+              background.bitmapInfo == frame.image.bitmapInfo,
+              let actualData = frame.image.dataProvider?.data, let backgroundData = background.dataProvider?.data,
+              CFDataGetLength(actualData) >= frame.image.bytesPerRow * frame.image.height,
+              CFDataGetLength(backgroundData) >= background.bytesPerRow * background.height,
+              let actual = CFDataGetBytePtr(actualData), let baseline = CFDataGetBytePtr(backgroundData) else {
+            throw Failure.encoding
+        }
+        var difference = 0
+        // Compare original pixels, without resizing or modifying either image.
+        // A little capture dithering cannot turn an empty backdrop into a pass.
+        for y in 0..<frame.image.height {
+            for x in 0..<frame.image.width {
+                let a = y * frame.image.bytesPerRow + x * 4
+                let b = y * background.bytesPerRow + x * 4
+                if (0..<4).contains(where: { abs(Int(actual[a + $0]) - Int(baseline[b + $0])) > 8 }) {
+                    difference += 1
+                }
+            }
+        }
+        guard difference >= 64 else { throw Failure.missingProductPixels }
+        return difference
     }
 
     private func recordUnavailableFrame(_ name: String) {
@@ -122,6 +180,8 @@ final class NativeVisualEvidence {
 
     private func writePNG(_ frame: NativeFrame, name: String) throws {
         let image = frame.image
+        let difference: Int?
+        if singleWindow { difference = nil } else { difference = try productDifferencePixels(frame) }
         let file = directory.appendingPathComponent(name + ".png")
         guard !FileManager.default.fileExists(atPath: file.path),
               let target = CGImageDestinationCreateWithURL(file as CFURL, UTType.png.identifier as CFString, 1, nil) else {
@@ -130,7 +190,7 @@ final class NativeVisualEvidence {
         CGImageDestinationAddImage(target, image, nil)
         guard CGImageDestinationFinalize(target) else { throw Failure.encoding }
         let bytes = try Data(contentsOf: file)
-        frames.append([
+        var result: [String: Any] = [
             "name": name, "file": file.lastPathComponent, "status": "CAPTURED_NATIVE_WINDOWSERVER",
             "method": "CGImage(windowListFromArrayScreenBounds:windowArray:imageOption:); only NSApp-owned windows",
             "captureStartedUptime": frame.started, "captureEndedUptime": frame.ended,
@@ -143,8 +203,17 @@ final class NativeVisualEvidence {
             "bytes": bytes.count,
             "sha256": SHA256.hash(data: bytes).map { String(format: "%02x", $0) }.joined(),
             "selectedOwnWindowCount": frame.windowCount,
+            "ownWindowNumbersFrontToBack": frame.windowNumbers,
+            "windowOrdering": "NSApplication.enumerateWindows(orderedFrontToBack)",
+            "productWindowCount": frame.windowCount - (singleWindow ? 0 : 1),
             "syntheticOnly": true, "receiptEvidence": false, "physicalInput": "NOT_RUN"
-        ])
+        ]
+        if let difference {
+            result["productDifferencePixelCount"] = difference
+            result["minimumProductDifferencePixels"] = 64
+            result["productPixelComparison"] = "original own-window composite versus original opaque own backdrop; channel delta > 8"
+        }
+        frames.append(result)
     }
 
     func recordTimeline() async throws {
@@ -214,6 +283,10 @@ final class NativeVisualEvidence {
             "source": source, "checkout": checkout,
             "os": ProcessInfo.processInfo.operatingSystemVersionString,
             "appearance": NSApp.effectiveAppearance.name.rawValue,
+            "captureKind": singleWindow ? "single-product-window" : "owned-product-composite",
+            "systemAccessibilityAtStart": accessibilityAtStart,
+            "systemAccessibilityAtEnd": Self.systemAccessibilitySnapshot(),
+            "helperReducedMotionOverride": CommandLine.arguments.contains("--visual-reduced-motion"),
             "syntheticOnly": true, "fixtureLayerIsolation": true,
             "otherApplicationPixelsCaptured": false, "screenCapturePermissionRequested": false,
             "physicalInput": "NOT_RUN", "realScreenshot": "NOT_RUN", "realUpload": "NOT_RUN",

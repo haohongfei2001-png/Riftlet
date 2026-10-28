@@ -149,8 +149,9 @@ final class InteractiveScreenshotTests: XCTestCase {
 private final class InteractivePermissionFixture: InteractiveScreenshotPermissionChecking {
     var allowed = true
     var requestCalls = 0
+    var onRequest: (() -> Void)?
     func hasAccess() -> Bool { allowed }
-    func requestAccess() -> Bool { requestCalls += 1; return allowed }
+    func requestAccess() -> Bool { requestCalls += 1; onRequest?(); return allowed }
 }
 
 @MainActor
@@ -199,6 +200,43 @@ final class InteractiveScreenshotControllerTests: XCTestCase {
         controller.submitSelection(target)
         XCTAssertEqual(permission.requestCalls, 1); XCTAssertFalse(controller.isActive)
         XCTAssertEqual(errors, [.screenRecordingPermissionRequired]); XCTAssertTrue(capturer.requests.isEmpty)
+    }
+
+    @MainActor
+    func testCancelDuringPermissionPromptRejectsItsLateGrantAndAllowsAFreshStart() {
+        let permission = InteractivePermissionFixture(); permission.allowed = false
+        let (controller, _, capturer, target) = fixture(permission: permission)
+        var errors: [InteractiveScreenshotError] = []
+        controller.onError = { errors.append($0) }
+        permission.onRequest = {
+            controller.cancel()
+            permission.allowed = true
+        }
+        controller.start(mode: .region)
+        controller.submitSelection(target)
+        XCTAssertFalse(controller.isActive)
+        XCTAssertEqual(controller.state, .idle)
+        XCTAssertTrue(controller.selectionWindowIDs.isEmpty)
+        XCTAssertTrue(capturer.requests.isEmpty)
+        XCTAssertTrue(errors.isEmpty, "A revoked prompt must not report a stale denial or reopen selection")
+        controller.start(mode: .window)
+        XCTAssertTrue(controller.isActive)
+        XCTAssertEqual(controller.currentMode, .window)
+        controller.cancel()
+    }
+
+    @MainActor
+    func testNewerStartDuringPermissionPromptOwnsModeWithoutOldAttemptReopening() {
+        let permission = InteractivePermissionFixture(); permission.allowed = false
+        let (controller, _, _, _) = fixture(permission: permission)
+        permission.onRequest = {
+            permission.allowed = true
+            controller.start(mode: .fullScreen)
+        }
+        controller.start(mode: .region)
+        XCTAssertTrue(controller.isActive)
+        XCTAssertEqual(controller.currentMode, .fullScreen)
+        controller.cancel()
     }
 
     @MainActor

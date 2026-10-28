@@ -610,3 +610,12 @@ Core/UI/App正式源码未改；两份最小临时overlay供Pro接入synthetic s
 **仍未解决：真正无 ACK 冷首击。** AX hints 注册移到首次 capture 之后，但两次原 AX 点击仍无先行 ACK、零新输入。保留的 v10 root monitor 阻止 v12 接管，现有封闭拒绝码缺失已补；最终 App 实测返回 `unobservedRootDescriptor`。独立新文档完整 ACK 晚于点击约 1.938 秒，未回填或重放。最小隔离 MV3/native 通道真实跑通，但不证明业务草稿/前台事件连续性，不能据此启用发行扩展或生产输入。
 
 SQLite v3、25 Web 媒体、27 操作、6 未决相位、补偿与开始回执、14 其他私有文件均保留。生产截图上传、生产开始 profile、安全重试仍关闭。Pro 集成此分支的最小 App/UI/adapter 增量；不重复挑选五至七轮，不清监视器或 UNKNOWN 制造成功。
+
+
+## 薄界统一候选独立打磨 · 2026-10-29
+
+正式 `0e7ea8be` 与原生 `443d21d` 按祖先双亲合流，独立候选分支 `codex/riftlet-real-mac-acceptance-internal-beta-thin-edge-20261029` / Draft PR #15；正式 PR #1 保持 Draft，main不合并。预测入口与磁力已在祖先，不重复cherry-pick。保留最新Feedback可靠性修复、原候选准入及所有旧证据。
+
+统一设置、原生预览、分页、历史、Feedback布局与关闭、入口/辅助窗协调等实质打磨正在准确组合CI与非作者视觉/工程审查。已有成功CI中发现并主动驳回了漏NSPanel的多窗取证，不能以构建成功代表产品视觉合格。全部尝试、已审源与最终交付状态统一记录于[本轮质量交接](../engineering/evidence/2026-10-29-unified-candidate/README.md)，该记录是本轮最新结论入口；下方历史阶段陈述不代表当前准入。
+
+真机离线，旧H不复测，不触碰UNKNOWN/原图/数据库。普通生产上传、安全失败与重试仍关闭，Feedback云端未部署；不要求创始人立即安装体验。
