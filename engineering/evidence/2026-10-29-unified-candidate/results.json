@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "phase": "MANUAL_PREVIEW_REGRESSION_REPAIR_SOURCE_CHECKPOINT",
+  "phase": "PREVIEW_REPAIR_EXACT_SOURCE_REVIEWED_AWAITING_CI",
   "nativeCI": "PENDING_REPAIRED_SOURCE",
   "feedbackCI": "PENDING_REPAIRED_SOURCE",
   "newNativeVisualEvidence": "PENDING_REPAIRED_SOURCE",
   "physicalMacAcceptance": "NOT_RUN_AUTHORIZED_MAC_OFFLINE",
-  "sourceReview": "PASS_NON_AUTHOR_EXACT_SOURCE; native and visual acceptance pending",
+  "sourceReview": "PASS_NON_AUTHOR_EXACT_SOURCE; preview recovery and native visual pending",
   "founderInstallationRequested": false,
   "productionEnabled": false,
   "safeRetryEnabled": false,
   "feedbackCloudDelivery": "NOT_DEPLOYED",
-  "reviewedSource": "49735b821bf8aae8f8327048a3c0ba159e1963d1",
-  "reviewedSourceTree": "e3c9ebe8340852ab89e269d194d8cdc7c11dfac2",
+  "reviewedSource": "9a06e1e1a89fababd95cb892a662cbbf63e5c0c9",
+  "reviewedSourceTree": "bd0663096e3b8510045ee05bf52710137e6e7b80",
   "localChecks": {
     "unifiedAuditRejectionTests": 24,
     "nativeVisualManifestTests": 16,
@@ -97,7 +97,9 @@
         "reduceTransparency": false
       },
       "feedbackRun": 40761070614,
-      "feedbackResult": "PENDING"
+      "feedbackResult": "PENDING",
+      "pushNativeRun": 40761058894,
+      "pushNativeResult": "SAME_PREVIEW_TEST_FAILURE"
     }
   ],
   "lateRemoteObservation": {
