@@ -9,6 +9,10 @@ private struct OfflineDemoSecrets: FeedbackSecretStorage {
         guard compact.count == 32 else { throw FeedbackFailure.secretUnavailable }
         return compact + compact
     }
+    func remove(for id: String) throws {
+        // No credential or Keychain item exists in this offline-only provider.
+        // The host always uses the real, fallible Keychain removal implementation.
+    }
 }
 
 @MainActor
