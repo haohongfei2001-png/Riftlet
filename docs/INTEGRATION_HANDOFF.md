@@ -1,5 +1,7 @@
 # 正式工程交接：第八、九轮与真实系统截图候选合流 · 2026-10-28
 
+> **独立Mac真实系统截图交接（2026-10-28）**：`codex/system-screenshot-real-20261028`，修复源码 `a5db972b7c4da20d30266ec8d1411fff9f434c13`，CI树 `3f4e18a15d8cc77a367beca30ade338906df9d8d` / CI40647857737 PASS。可直接审查最小App wake修复与3项回归。真实系统PNG已有唯一输入、原附件attached候选；SC-START未取得，保留性矩阵未验，三项准入不得开启。[准确证据、协议偏差和剩余项](../engineering/evidence/2026-10-28-system-screenshot-real/README.md)。本段是独立分支提案，未修改正式PR #1或扩大Beta准入。
+
 本节为当前入口；下方旧交接仅作历史。基线 `d6a083dec660990bd65124e7acd78f2d900b5013` 与固定第九轮 `b30bb80d5af5cc12b0640c3609f70292709738a1` 保留双亲历史；共同祖先 b839230，第八轮 8914c702 已是第九轮祖先，不再 cherry-pick。最终正式 SHA、组合 CI 与审查结果以 PR #1 的本轮交接记录为准，来源 CI 40555899978 不替代组合 CI。
 
 ## 本轮组合范围
