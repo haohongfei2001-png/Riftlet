@@ -30,7 +30,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   feedback:
-    runs-on: macos-14
+    runs-on: macos-15
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
@@ -43,7 +43,7 @@ jobs:
           mkdir -p feedback-results
           # Keep all original audits at their exact historical pins; then compare
           # the complete combined tree against its independent review checkpoint.
-          python3 scripts/verify-thin-edge-composition.py 2>&1 | tee feedback-results/thin-edge-composition.log
+          python3 scripts/verify-builtin-capture-composition.py 2>&1 | tee feedback-results/builtin-capture-composition.log
       - name: Verify isolation audit regressions
         run: |
           set -o pipefail
@@ -52,6 +52,7 @@ jobs:
           python3 -m unittest discover -s Tests/CaptureEntryIsolation -v 2>&1 | tee feedback-results/capture-entry-isolation-tests.log
           python3 -m unittest discover -s Tests/ArrivalIsolation -v 2>&1 | tee feedback-results/arrival-isolation-tests.log
           python3 -m unittest discover -s Tests/ThinEdgeIsolation -v 2>&1 | tee feedback-results/thin-edge-isolation-tests.log
+          python3 -B -m unittest discover -s Tests/BuiltInCaptureIsolation -v 2>&1 | tee feedback-results/builtin-capture-isolation-tests.log
       - name: Verify actual Feedback and current screenshot composition
         if: github.event.pull_request.head.ref == 'codex/feedback-v01-20261028'
         env:

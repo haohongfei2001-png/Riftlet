@@ -1,4 +1,5 @@
 import AppKit
+import RiftletCapture
 
 /// The lightweight, explicitly opened first-use/status surface. This class has
 /// no upload, Automation, file mutation or browser capability. Host callbacks
@@ -34,6 +35,11 @@ public final class RiftSetupController: NSObject, NSWindowDelegate {
     private let onOpenEntrySettings: (() -> Void)?
     private let onOpenDisplaySettings: (() -> Void)?
     private let onOpenFeedback: (() -> Void)?
+    private let onSetBuiltInScreenshotEnabled: ((Bool) -> Void)?
+    private let onDefaultScreenshotMode: ((ScreenshotMode) -> Void)?
+    private let builtInCaptureButton = NSButton(checkboxWithTitle: "启用内置截图", target: nil, action: nil)
+    private let builtInCaptureStatus = NSTextField(labelWithString: "")
+    private let defaultScreenshotMode = NSPopUpButton(frame: .zero, pullsDown: false)
 
     private let source = NSTextField(wrappingLabelWithString: "")
     private let path = NSTextField(wrappingLabelWithString: "")
@@ -62,13 +68,17 @@ public final class RiftSetupController: NSObject, NSWindowDelegate {
                 onToggleHidden: (() -> Void)? = nil, onToggleCollection: (() -> Void)? = nil,
                 onOpenHistory: (() -> Void)? = nil,
                 onOpenEntrySettings: (() -> Void)? = nil, onOpenDisplaySettings: (() -> Void)? = nil,
-                onOpenFeedback: (() -> Void)? = nil) {
+                onOpenFeedback: (() -> Void)? = nil,
+                onSetBuiltInScreenshotEnabled: ((Bool) -> Void)? = nil,
+                onDefaultScreenshotMode: ((ScreenshotMode) -> Void)? = nil) {
         self.onRecheck = onRecheck; self.onOpenSource = onOpenSource
         self.onPermission = onPermission; self.onDismiss = onDismiss
         self.onChooseSourceAccess = onChooseSourceAccess; self.onToggleHidden = onToggleHidden
         self.onToggleCollection = onToggleCollection; self.onOpenHistory = onOpenHistory
         self.onOpenEntrySettings = onOpenEntrySettings; self.onOpenDisplaySettings = onOpenDisplaySettings
         self.onOpenFeedback = onOpenFeedback
+        self.onSetBuiltInScreenshotEnabled = onSetBuiltInScreenshotEnabled
+        self.onDefaultScreenshotMode = onDefaultScreenshotMode
         setupWindow = RiftVisualStyle.window(outerSize: NSSize(width: 680, height: 520),
             minimum: NSSize(width: 620, height: 480), title: "Riftlet — 设置与运行状态")
         super.init()
@@ -114,6 +124,11 @@ public final class RiftSetupController: NSObject, NSWindowDelegate {
         hideButton.setAccessibilityLabel(hideButton.title)
         pauseButton.setAccessibilityLabel(pauseButton.title)
         historyButton.isEnabled = onOpenHistory != nil
+        builtInCaptureButton.state = snapshot.builtInScreenshotEnabled == true ? .on : .off
+        builtInCaptureButton.isEnabled = snapshot.builtInScreenshotEnabled != nil && onSetBuiltInScreenshotEnabled != nil
+        builtInCaptureStatus.stringValue = snapshot.builtInScreenshotEnabled.map { $0 ? "开启" : "关闭" } ?? "当前模式不可用"
+        defaultScreenshotMode.selectItem(withTag: Self.screenshotModes.firstIndex(of: snapshot.defaultScreenshotMode) ?? 0)
+        defaultScreenshotMode.isEnabled = snapshot.builtInScreenshotEnabled != nil && onDefaultScreenshotMode != nil
         for field in [source, path, collection, rift, pending, attachment, permission, support, storage, issue] {
             RiftVisualStyle.applyTextStyle(field)
         }
@@ -191,6 +206,18 @@ public final class RiftSetupController: NSObject, NSWindowDelegate {
             button.setAccessibilityLabel(button.title)
         }
         doneButton.keyEquivalent = "\r"
+        builtInCaptureButton.target = self; builtInCaptureButton.action = #selector(toggleBuiltInCapture)
+        builtInCaptureButton.identifier = .init("setup.builtInCapture")
+        builtInCaptureButton.setAccessibilityLabel("启用内置截图")
+        builtInCaptureStatus.font = RiftVisualStyle.secondaryFont
+        builtInCaptureStatus.textColor = RiftVisualStyle.secondary
+        for (index, title) in ["窗口", "区域", "全屏"].enumerated() {
+            defaultScreenshotMode.addItem(withTitle: title)
+            defaultScreenshotMode.lastItem?.tag = index
+        }
+        defaultScreenshotMode.target = self; defaultScreenshotMode.action = #selector(changeDefaultScreenshotMode)
+        defaultScreenshotMode.identifier = .init("setup.defaultScreenshotMode")
+        defaultScreenshotMode.setAccessibilityLabel("默认截图模式")
         navigation.orientation = .vertical; navigation.alignment = .leading; navigation.spacing = 4
         let product = RiftVisualStyle.label("Riftlet", role: "heading")
         navigation.addArrangedSubview(product)
@@ -198,6 +225,7 @@ public final class RiftSetupController: NSObject, NSWindowDelegate {
         for (i, title) in ["运行状态", "截图入口", "显示与动效", "隐私与存储", "关于与支持"].enumerated() {
             let button = RiftSidebarButton(title: title, target: self, action: #selector(selectSection(_:)))
             button.tag = i; button.font = RiftVisualStyle.bodyFont
+            button.identifier = .init("setup.section.\(i)")
             button.alignment = .left; button.setButtonType(.pushOnPushOff)
             button.widthAnchor.constraint(equalToConstant: 132).isActive = true
             button.heightAnchor.constraint(equalToConstant: 36).isActive = true
@@ -262,8 +290,12 @@ public final class RiftSetupController: NSObject, NSWindowDelegate {
             switch settingsSection {
             case 1:
                 views = [RiftVisualStyle.label("截图入口", role: "title"),
-                    RiftVisualStyle.label("系统截图与预测入口并存。入口会话的模式槽保持固定，默认设置只影响下一次。"), sourceCard(),
-                    actionButton("配置截图入口…", action: #selector(openEntry), available: onOpenEntrySettings != nil)]
+                    RiftVisualStyle.card([RiftVisualStyle.label("内置截图", role: "heading"),
+                        buttons([builtInCaptureButton]), builtInCaptureStatus,
+                        RiftVisualStyle.label("关闭后继续使用 macOS 系统截图。已有截图、历史和系统截图收录保留。", role: "secondary")]),
+                    RiftVisualStyle.card([RiftVisualStyle.label("默认截图模式", role: "heading"), defaultScreenshotMode,
+                        RiftVisualStyle.label("只决定下一次展开的默认模式；当前会话的三个模式槽保持固定。", role: "secondary")]),
+                    sourceCard()]
             case 2:
                 views = [RiftVisualStyle.label("显示与动效", role: "title"),
                     RiftVisualStyle.label("无 / 磁力吸引只影响截图来到裂缝的过程。上传开始后的快速吞噬独立保留。"),
@@ -315,6 +347,19 @@ public final class RiftSetupController: NSObject, NSWindowDelegate {
     @objc private func openEntry() { onOpenEntrySettings?() }
     @objc private func openDisplay() { onOpenDisplaySettings?() }
     @objc private func openFeedback() { onOpenFeedback?() }
+    private static let screenshotModes: [ScreenshotMode] = [.window, .region, .fullScreen]
+    @objc private func toggleBuiltInCapture() {
+        guard presentation.snapshot.builtInScreenshotEnabled != nil, let onSetBuiltInScreenshotEnabled else { return }
+        onSetBuiltInScreenshotEnabled(builtInCaptureButton.state == .on)
+        // Reflect the host's actual result, including a failed persistence write.
+        update(snapshot: presentation.snapshot)
+    }
+    @objc private func changeDefaultScreenshotMode() {
+        guard presentation.snapshot.builtInScreenshotEnabled != nil,
+              let index = defaultScreenshotMode.selectedItem?.tag, Self.screenshotModes.indices.contains(index) else { return }
+        onDefaultScreenshotMode?(Self.screenshotModes[index])
+        update(snapshot: presentation.snapshot)
+    }
 
     @objc private func recheck() { guard !presentation.snapshot.isChecking else { return }; onRecheck() }
     @objc private func openSource() { guard presentation.hasSourceLocation else { return }; onOpenSource() }

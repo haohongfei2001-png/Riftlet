@@ -44,44 +44,83 @@ final class InteractiveScreenshotSystemCapture: InteractiveScreenshotCapturing {
     }
     private var job: Job?
     private var timeout: Task<Void, Never>?
+    private var idleWaiters: [CheckedContinuation<Void, Never>] = []
+    private let executableURL: URL
+    private let timeoutNanoseconds: UInt64
+    private let cancellationGraceNanoseconds: UInt64
+    var hasRunningProcess: Bool { job?.process.isRunning == true }
+
+    init(executableURL: URL = InteractiveScreenshotCommand.executable,
+         timeoutNanoseconds: UInt64 = 30_000_000_000,
+         cancellationGraceNanoseconds: UInt64 = 1_000_000_000) {
+        self.executableURL = executableURL
+        self.timeoutNanoseconds = timeoutNanoseconds
+        self.cancellationGraceNanoseconds = cancellationGraceNanoseconds
+    }
 
     func capture(_ request: InteractiveScreenshotRequest, outputDirectory: URL) async throws -> InteractiveScreenshotFile {
         try Task.checkCancellation()
         try Self.prepareDirectory(outputDirectory)
         let outputURL = outputDirectory.appendingPathComponent(request.id.uuidString.lowercased() + ".png")
+        let arguments = try InteractiveScreenshotCommand.arguments(for: request, outputURL: outputURL)
         // Reserve a private, new name; never overwrite a previous original capture.
         let descriptor = Darwin.open(outputURL.path, O_WRONLY | O_CREAT | O_EXCL | O_NOFOLLOW | O_CLOEXEC, 0o600)
         guard descriptor >= 0 else { throw InteractiveScreenshotError.unsafeOutputDirectory }
+        let reservation = try? FileSignature.read(descriptor: descriptor)
         Darwin.close(descriptor)
-        let arguments = try InteractiveScreenshotCommand.arguments(for: request, outputURL: outputURL)
-        try await run(arguments: arguments)
-        try Task.checkCancellation()
-        return try await Task.detached(priority: .userInitiated) {
-            try Self.readOriginal(at: outputURL)
-        }.value
+        do {
+            try await run(arguments: arguments)
+            try Task.checkCancellation()
+            let reader = Task.detached(priority: .userInitiated) {
+                try Self.readOriginal(at: outputURL)
+            }
+            let result = try await withTaskCancellationHandler(operation: {
+                try await reader.value
+            }, onCancel: { reader.cancel() })
+            try Task.checkCancellation()
+            try Self.validatePixelDimensions(result, for: request)
+            return result
+        } catch {
+            // Only remove our unchanged, empty reservation. A nonempty original
+            // (including one completed during cancellation) is always retained.
+            Self.removeEmptyReservation(at: outputURL, signature: reservation)
+            throw error
+        }
     }
 
     func cancel() {
-        guard var current = job else { return }
+        guard var current = job, !current.cancelled else { return }
         current.cancelled = true; job = current
         if current.process.isRunning { current.process.terminate() }
         timeout?.cancel()
         let cancelledID = current.id, cancelledProcess = current.process
+        let grace = cancellationGraceNanoseconds
         timeout = Task { @MainActor [weak self] in
-            do { try await Task.sleep(nanoseconds: 1_000_000_000) } catch { return }
+            do { try await Task.sleep(nanoseconds: grace) } catch { return }
             guard self?.job?.id == cancelledID, cancelledProcess.isRunning else { return }
             Darwin.kill(cancelledProcess.processIdentifier, SIGKILL)
         }
     }
 
-    private func run(arguments: [String]) async throws {
+    /// Internal seam also permits process-lifetime regression tests to execute a
+    /// harmless fixture process. Production always uses Apple's fixed executable.
+    func run(arguments: [String]) async throws {
+        if let previous = job {
+            guard previous.cancelled || previous.timedOut else {
+                throw InteractiveScreenshotError.captureFailed(-1)
+            }
+            // Cancel followed immediately by re-enable must not fail merely
+            // because the old owned child has not delivered termination yet.
+            await withCheckedContinuation { idleWaiters.append($0) }
+        }
+        try Task.checkCancellation()
         let id = UUID()
         try await withTaskCancellationHandler(operation: {
             try Task.checkCancellation()
             try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
                 guard job == nil else { continuation.resume(throwing: InteractiveScreenshotError.captureFailed(-1)); return }
                 let process = Process()
-                process.executableURL = InteractiveScreenshotCommand.executable
+                process.executableURL = executableURL
                 process.arguments = arguments
                 process.standardOutput = FileHandle.nullDevice
                 process.standardError = FileHandle.nullDevice
@@ -96,12 +135,13 @@ final class InteractiveScreenshotSystemCapture: InteractiveScreenshotCapturing {
                     continuation.resume(throwing: InteractiveScreenshotError.captureToolUnavailable)
                     return
                 }
+                let limit = timeoutNanoseconds, grace = cancellationGraceNanoseconds
                 timeout = Task { @MainActor [weak self] in
-                    do { try await Task.sleep(nanoseconds: 30_000_000_000) } catch { return }
+                    do { try await Task.sleep(nanoseconds: limit) } catch { return }
                     guard let self, var current = self.job, current.id == id else { return }
                     current.timedOut = true; self.job = current
                     if current.process.isRunning { current.process.terminate() }
-                    do { try await Task.sleep(nanoseconds: 1_000_000_000) } catch { return }
+                    do { try await Task.sleep(nanoseconds: grace) } catch { return }
                     if self.job?.id == id, current.process.isRunning {
                         // This is exclusively our still-running child process.
                         Darwin.kill(current.process.processIdentifier, SIGKILL)
@@ -119,11 +159,40 @@ final class InteractiveScreenshotSystemCapture: InteractiveScreenshotCapturing {
     private func finish(id: UUID, status: Int32) {
         guard let current = job, current.id == id else { return }
         timeout?.cancel(); timeout = nil; job = nil
+        let waiters = idleWaiters; idleWaiters.removeAll()
+        waiters.forEach { $0.resume() }
         current.process.terminationHandler = nil
         if current.cancelled { current.continuation.resume(throwing: CancellationError()) }
         else if current.timedOut { current.continuation.resume(throwing: InteractiveScreenshotError.captureTimedOut) }
         else if status != 0 { current.continuation.resume(throwing: InteractiveScreenshotError.captureFailed(status)) }
         else { current.continuation.resume() }
+    }
+
+    nonisolated static func removeEmptyReservation(at url: URL, signature: FileSignature?) {
+        guard let signature, signature.size == 0,
+              (try? FileSignature.read(at: url)) == signature else { return }
+        _ = unlink(url.path)
+    }
+
+    /// Enforce the frozen single-display native-scale contract without resizing
+    /// or rewriting the output. A returned mismatch is retained for diagnosis,
+    /// never silently admitted as the requested capture. Mixed-display output
+    /// and window shadows need separate empirical contracts and are not inferred.
+    nonisolated static func validatePixelDimensions(_ file: InteractiveScreenshotFile,
+                                                    for request: InteractiveScreenshotRequest) throws {
+        guard request.mode != .window, request.target.displays.count == 1,
+              let display = request.target.displays.first,
+              display.frame.contains(request.target.rect),
+              display.quartzFrame.contains(request.target.quartzRect) else { return }
+        let width = request.target.quartzRect.width * display.scale
+        let height = request.target.quartzRect.height * display.scale
+        guard display.scale.isFinite, display.scale > 0,
+              width.isFinite, height.isFinite, width > 0, height > 0,
+              width <= 50_000, height <= 50_000,
+              width == width.rounded(), height == height.rounded(),
+              file.pixelWidth == Int(width), file.pixelHeight == Int(height) else {
+            throw InteractiveScreenshotError.unexpectedPixelDimensions
+        }
     }
 
     private static func prepareDirectory(_ url: URL) throws {
@@ -140,6 +209,7 @@ final class InteractiveScreenshotSystemCapture: InteractiveScreenshotCapturing {
 
     /// Descriptor-based validation preserves original bytes and never sets screenshot metadata.
     nonisolated static func readOriginal(at url: URL) throws -> InteractiveScreenshotFile {
+        try Task.checkCancellation()
         let descriptor = Darwin.open(url.path, O_RDONLY | O_NONBLOCK | O_NOFOLLOW | O_CLOEXEC)
         guard descriptor >= 0 else { throw InteractiveScreenshotError.invalidOutput }
         defer { Darwin.close(descriptor) }
@@ -155,6 +225,7 @@ final class InteractiveScreenshotSystemCapture: InteractiveScreenshotCapturing {
             throw InteractiveScreenshotError.invalidOutput
         }
         let options = [kCGImageSourceShouldCache: false] as CFDictionary
+        try Task.checkCancellation()
         guard let source = CGImageSourceCreateWithData(data as CFData, options),
               let typeID = CGImageSourceGetType(source), typeID as String == UTType.png.identifier,
               CGImageSourceGetCount(source) == 1, CGImageSourceGetStatus(source) == .statusComplete,
@@ -173,6 +244,7 @@ final class InteractiveScreenshotSystemCapture: InteractiveScreenshotCapturing {
             throw InteractiveScreenshotError.invalidOutput
         }
         let marker = (try? CaptureSource.isScreenshot(descriptor: descriptor)) == true
+        try Task.checkCancellation()
         guard (try? FileSignature.read(at: url)) == signature else { throw InteractiveScreenshotError.invalidOutput }
         return InteractiveScreenshotFile(sourceURL: url, data: data, pixelWidth: width,
                                          pixelHeight: height, hasSystemScreenshotMetadata: marker)

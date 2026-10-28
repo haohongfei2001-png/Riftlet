@@ -1,4 +1,5 @@
 import Foundation
+import RiftletCapture
 
 public enum SetupSourceState: Equatable, Sendable { case checking, notChecked, notApplicable, accessible, unavailable, notConfigured }
 public enum SetupCollectionState: Equatable, Sendable { case starting, collecting, waitingForSource, paused, stopped }
@@ -20,10 +21,13 @@ public enum SetupIssue: Equatable, Sendable {
     case unsupportedBrowser, targetUnavailable, permissionDenied, imageUnavailable
     case initializationFailed, configurationUnavailable
     case visibilityPreferenceUnsaved, collectionPreferenceUnsaved
-    case attachmentFormat, attachmentBytes, attachmentPixels
+    case screenshotPreferenceUnsaved
+    case attachmentFormat, attachmentBytes, attachmentPixels, attachmentSource
 
     public var text: String {
         switch self {
+        case .attachmentSource:
+            return "这张图片暂未开放自动附加。本次未上传，原图与本地历史保留；系统截图的既有流程不受影响。"
         case .attachmentFormat:
             return "截图已保存在本机。当前真实截图候选只接收原样、非交错的 8-bit RGBA PNG；本图未上传、未转换，原文件与私有副本保留。"
         case .attachmentBytes:
@@ -60,6 +64,8 @@ public enum SetupIssue: Equatable, Sendable {
             return "显示偏好未能保存；本次运行保持隐藏，重启可能恢复之前的设置。请检查磁盘可写后重新操作；图片仍保留。"
         case .collectionPreferenceUnsaved:
             return "收录开关未能保存；本次运行仍暂停收录，重启可能恢复之前的设置。请检查磁盘可写后重新操作；已有图片仍保留。"
+        case .screenshotPreferenceUnsaved:
+            return "内置截图设置未能保存；重启可能恢复之前的设置。请检查磁盘可写后重试；系统截图收录和已有图片仍保留。"
         }
     }
 }
@@ -84,6 +90,10 @@ public struct SetupSnapshot: Equatable, Sendable {
     /// A host-owned collection/recheck transaction is in flight. This is UI
     /// feedback only; the host must also serialize mutations independently.
     public let isChecking: Bool
+    /// nil means this application mode has no built-in screenshot capability.
+    /// Independent of collection pause, rift visibility and TCC permission.
+    public let builtInScreenshotEnabled: Bool?
+    public let defaultScreenshotMode: ScreenshotMode
 
     public init(sourceLocation: String? = nil, source: SetupSourceState = .checking,
                 collection: SetupCollectionState = .starting, isHidden: Bool = false,
@@ -91,12 +101,15 @@ public struct SetupSnapshot: Equatable, Sendable {
                 attachment: SetupAttachmentState = .productionDisabled,
                 permission: SetupPermissionState = .notNeeded, permissionDetail: String? = nil,
                 storage: SetupStorageState = .notMeasured, issue: SetupIssue? = nil,
-                supportDescription: String = "", isChecking: Bool = false) {
+                supportDescription: String = "", isChecking: Bool = false,
+                builtInScreenshotEnabled: Bool? = nil, defaultScreenshotMode: ScreenshotMode = .window) {
         self.sourceLocation = sourceLocation; self.source = source; self.collection = collection
         self.isHidden = isHidden; self.visibleCount = max(0, visibleCount); self.pendingCount = max(0, pendingCount)
         self.attachment = attachment; self.permission = permission; self.permissionDetail = permissionDetail
         self.storage = storage; self.issue = issue; self.supportDescription = supportDescription
         self.isChecking = isChecking
+        self.builtInScreenshotEnabled = builtInScreenshotEnabled
+        self.defaultScreenshotMode = defaultScreenshotMode
     }
 }
 

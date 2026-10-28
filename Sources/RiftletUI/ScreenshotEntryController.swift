@@ -14,6 +14,9 @@ public struct ScreenshotEntryControlSnapshot: Sendable {
 /// Geometry and local UI facts only; not proof of WindowServer routing or
 /// capture exclusion. All frames use AppKit screen coordinates.
 public struct ScreenshotEntryDiagnosticSnapshot: Sendable {
+    public let isEnabled: Bool
+    public let pointerMonitorCount: Int
+    public let hasScheduledFrame: Bool
     public let isExpanded: Bool
     public let mode: ScreenshotMode
     public let defaultMode: ScreenshotMode
@@ -296,6 +299,7 @@ public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
 
     public private(set) var configuration: ScreenshotEntryConfiguration
     public private(set) var options: InteractiveScreenshotOptions
+    public private(set) var isEnabled: Bool
     public private(set) var isHidden = false
     public private(set) var isCaptureSuppressed = false
     public private(set) var isBusy = false
@@ -323,11 +327,14 @@ public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
     private var menu: NSMenu?
     private var menuIsOpen = false
     private var closed = false
+    private var observationGeneration: UInt64 = 0
 
     public init(configuration: ScreenshotEntryConfiguration = .init(),
                 defaultMode: ScreenshotMode = .window,
-                options: InteractiveScreenshotOptions = .init()) {
+                options: InteractiveScreenshotOptions = .init(),
+                isEnabled: Bool = true) {
         self.configuration = configuration.validated
+        self.isEnabled = isEnabled
         var initial = options
         initial.delay = options.delay.isFinite ? min(60, max(0, options.delay)) : 0
         self.options = initial; initialOptions = initial
@@ -340,38 +347,88 @@ public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
             panel.contentView = view
             view.setAccessibilityIdentifier("riftlet-screenshot-\(slot.rawValue)")
             view.onPress = { [weak self] pressed in
-                guard let self, !self.closed else { return }
+                guard let self, !self.closed, self.isEnabled else { return }
                 self.pressedSlot = pressed ? slot : nil
                 self.requestFrame()
             }
             view.onInvoke = { [weak self] in self?.perform(slot: slot) }
             inputs.append((panel, view))
         }
-        // Mouse-only observation. The local handler returns the original event;
-        // neither monitor posts, consumes, redirects or interprets other apps' input.
+        updateControls()
+    }
+
+    /// Stops all entry-only work without changing collection or saved media.
+    /// The host separately cancels the engine and invalidates its callbacks.
+    /// Re-enabling restores an idle entry; it never resumes an old selection.
+    public func setEnabled(_ enabled: Bool) {
+        guard !closed, enabled != isEnabled else { return }
+        isEnabled = enabled
+        if !enabled {
+            stopObservation()
+            closePreferences()
+            inputs.forEach { $0.view.releasePress() }
+            pressedSlot = nil
+            session.setExpanded(false)
+            isBusy = false
+            isCaptureSuppressed = false
+            suppressionStarted = nil
+            optics = ScreenshotEntryOptics()
+            rail.setExpanded(false, at: uptime, duration: 0, animated: false)
+            cancelMotion.move(to: .anchor, at: uptime, animated: false)
+            orderOut()
+            paint()
+        } else {
+            drawing.refreshAppearance()
+            reconcileObservation()
+            observePointer()
+        }
+        updateControls()
+        requestFrame()
+    }
+
+    private func reconcileObservation() {
+        guard !closed, isEnabled, !isHidden, layout != nil else {
+            stopObservation(); return
+        }
+        guard globalMonitor == nil, localMonitor == nil, accessibilityObserver == nil else { return }
+        observationGeneration &+= 1
+        let generation = observationGeneration
+        // Mouse-only observation. The local handler always returns the original
+        // event; no listener posts, consumes or redirects another app's input.
         let mask: NSEvent.EventTypeMask = [.mouseMoved, .leftMouseDragged, .rightMouseDragged,
                                          .otherMouseDragged, .leftMouseDown, .leftMouseUp,
                                          .rightMouseDown, .rightMouseUp]
         globalMonitor = NSEvent.addGlobalMonitorForEvents(matching: mask) { [weak self] _ in
-            self?.observePointer()
+            guard let self, self.observationGeneration == generation else { return }
+            self.observePointer()
         }
         localMonitor = NSEvent.addLocalMonitorForEvents(matching: mask) { [weak self] event in
-            self?.observePointer()
+            if let self, self.observationGeneration == generation { self.observePointer() }
             return event
         }
         accessibilityObserver = NSWorkspace.shared.notificationCenter.addObserver(
             forName: NSWorkspace.accessibilityDisplayOptionsDidChangeNotification, object: nil, queue: .main) { [weak self] _ in
                 MainActor.assumeIsolated {
-                    self?.applyAccessibilityDisplayOptions(reduceMotion: NSWorkspace.shared.accessibilityDisplayShouldReduceMotion)
+                    guard let self, self.observationGeneration == generation else { return }
+                    self.applyAccessibilityDisplayOptions(reduceMotion: NSWorkspace.shared.accessibilityDisplayShouldReduceMotion)
                 }
             }
-        updateControls()
+    }
+
+    private func stopObservation() {
+        observationGeneration &+= 1
+        if let globalMonitor { NSEvent.removeMonitor(globalMonitor) }
+        if let localMonitor { NSEvent.removeMonitor(localMonitor) }
+        globalMonitor = nil; localMonitor = nil
+        if let accessibilityObserver { NSWorkspace.shared.notificationCenter.removeObserver(accessibilityObserver) }
+        accessibilityObserver = nil
+        stopFrames()
     }
 
     /// Applies presentation policy without changing a capture/session/input fact.
     /// The explicit value also permits regression checks without changing macOS preferences.
     func applyAccessibilityDisplayOptions(reduceMotion: Bool) {
-        guard !closed else { return }
+        guard !closed, isEnabled else { return }
         drawing.refreshAppearance()
         if reduceMotion {
             stopFrames()
@@ -405,6 +462,7 @@ public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
                 inputs[slot.rawValue].panel.setFrame(layout.controlFrames[slot.rawValue], display: true)
             }
         }
+        reconcileObservation()
         observePointer()
         requestFrame()
     }
@@ -422,7 +480,7 @@ public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
     }
 
     public func setExpanded(_ expanded: Bool, animated: Bool = true) {
-        guard !closed, expanded != session.isExpanded else { return }
+        guard !closed, (!expanded || isEnabled), expanded != session.isExpanded else { return }
         inputs.forEach { $0.view.releasePress() }
         session.setExpanded(expanded)
         if expanded { cancelMotion.move(to: .anchor, at: uptime, animated: false) }
@@ -430,7 +488,7 @@ public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
         if expanded { options = initialOptions }
         pressedSlot = nil
         if !expanded {
-            menu?.cancelTrackingWithoutAnimation()
+            closePreferences()
             if let layout, let screen = suppliedScreen {
                 optics.resume(anchor: layout.anchor, screenWidth: screen.frame.width,
                               configuration: configuration.optics, afterCancel: true)
@@ -444,7 +502,7 @@ public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
 
     /// Updates semantics immediately. No alpha or spatial-memory reset occurs.
     public func setMode(_ mode: ScreenshotMode) {
-        guard !closed else { return }
+        guard !closed, isEnabled else { return }
         inputs.forEach { $0.view.releasePress() }
         session.setMode(mode)
         cancelMotion.move(to: session.activeSlot, at: uptime,
@@ -457,15 +515,16 @@ public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
         isHidden = hidden
         if hidden {
             inputs.forEach { $0.view.releasePress() }
-            menu?.cancelTrackingWithoutAnimation(); orderOut()
+            closePreferences(); orderOut()
         }
-        else { optics.resumeClock(); requestFrame() }
+        reconcileObservation()
+        if !hidden { optics.resumeClock(); observePointer(); requestFrame() }
     }
 
     /// Capture can hide its own controls for a few frames without collapsing,
     /// ending a session, changing any alpha, or changing the selected mode.
     public func setCaptureSuppressed(_ suppressed: Bool) {
-        guard !closed, suppressed != isCaptureSuppressed else { return }
+        guard !closed, isEnabled, suppressed != isCaptureSuppressed else { return }
         isCaptureSuppressed = suppressed
         if suppressed {
             suppressionStarted = uptime
@@ -485,7 +544,7 @@ public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
 
     /// Editing/processing is host-owned. The current mode's X remains enabled.
     public func setBusy(_ busy: Bool) {
-        guard !closed else { return }
+        guard !closed, isEnabled else { return }
         isBusy = busy; updateControls(); requestFrame()
     }
 
@@ -496,7 +555,7 @@ public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
     }
 
     public var inputFrames: [CGRect] {
-        guard !closed, !isHidden, !isCaptureSuppressed, let layout else { return [] }
+        guard !closed, isEnabled, !isHidden, !isCaptureSuppressed, let layout else { return [] }
         return ScreenshotEntrySlot.allCases.compactMap { slot in
             let input = inputs[slot.rawValue]
             return input.view.isEnabled && input.panel.isVisible ? layout.controlFrames[slot.rawValue] : nil
@@ -512,7 +571,9 @@ public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
                 isCancel: session.isExpanded && slot == session.activeSlot,
                 isEnabled: inputs[slot.rawValue].view.isEnabled)
         }
-        return ScreenshotEntryDiagnosticSnapshot(isExpanded: isExpanded, mode: mode,
+        return ScreenshotEntryDiagnosticSnapshot(isEnabled: isEnabled,
+            pointerMonitorCount: (globalMonitor == nil ? 0 : 1) + (localMonitor == nil ? 0 : 1),
+            hasScheduledFrame: frameTimer != nil, isExpanded: isExpanded, mode: mode,
             defaultMode: defaultMode, isHidden: isHidden, isCaptureSuppressed: isCaptureSuppressed,
             isBusy: isBusy, glyphAlpha: optics.alphas.glyph, surfaceAlpha: optics.alphas.surface,
             expansion: rail.value, cancelSlotPosition: cancelMotion.value,
@@ -522,13 +583,9 @@ public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
     public func close() {
         guard !closed else { return }
         closed = true
-        menu?.cancelTrackingWithoutAnimation(); menu = nil
-        stopFrames()
-        if let globalMonitor { NSEvent.removeMonitor(globalMonitor) }
-        if let localMonitor { NSEvent.removeMonitor(localMonitor) }
-        globalMonitor = nil; localMonitor = nil
-        if let accessibilityObserver { NSWorkspace.shared.notificationCenter.removeObserver(accessibilityObserver) }
-        accessibilityObserver = nil
+        isEnabled = false
+        closePreferences()
+        stopObservation()
         for input in inputs {
             input.view.onPress = nil; input.view.onInvoke = nil
             input.view.isEnabled = false; input.panel.close()
@@ -539,7 +596,7 @@ public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
     private var uptime: TimeInterval { ProcessInfo.processInfo.systemUptime }
 
     private func observePointer() {
-        guard !closed, let screen = suppliedScreen, let layout else { return }
+        guard !closed, isEnabled, !isHidden, !isCaptureSuppressed, let screen = suppliedScreen, let layout else { return }
         optics.observe(point: NSEvent.mouseLocation, at: uptime, anchor: layout.anchor,
                        screenFrame: screen.frame, pointerIsDown: NSEvent.pressedMouseButtons != 0,
                        configuration: configuration.optics)
@@ -548,7 +605,7 @@ public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
     }
 
     private func perform(slot: ScreenshotEntrySlot) {
-        guard !closed, !isHidden, !isCaptureSuppressed,
+        guard !closed, isEnabled, !isHidden, !isCaptureSuppressed,
               inputs[slot.rawValue].view.isEnabled, let action = session.action(for: slot) else { return }
         switch action {
         case .begin:
@@ -573,7 +630,7 @@ public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
             let input = inputs[slot.rawValue]
             input.panel.level = level
             let active = session.isExpanded && slot == session.activeSlot
-            input.view.isEnabled = (session.isExpanded || slot == .anchor) && (!isBusy || active)
+            input.view.isEnabled = isEnabled && (session.isExpanded || slot == .anchor) && (!isBusy || active)
             let label: String
             if !session.isExpanded { label = "截图，默认\(Self.name(session.defaultMode))" }
             else if active { label = "取消\(Self.name(session.mode))截图" }
@@ -586,14 +643,14 @@ public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
 
     private func requestFrame() {
         updateWindowVisibility()
-        guard !closed, !isHidden, !isCaptureSuppressed, layout != nil else { stopFrames(); return }
+        guard !closed, isEnabled, !isHidden, !isCaptureSuppressed, layout != nil else { stopFrames(); return }
         guard frameTimer == nil else { return }
         advanceFrame()
         scheduleFrameIfNeeded()
     }
 
     private func scheduleFrameIfNeeded() {
-        guard frameTimer == nil, !closed, !isHidden, !isCaptureSuppressed, layout != nil,
+        guard frameTimer == nil, !closed, isEnabled, !isHidden, !isCaptureSuppressed, layout != nil,
               !optics.isSettled || !rail.isSettled || !cancelMotion.isSettled else { return }
         let timer = Timer(timeInterval: 1 / 60, target: self, selector: #selector(animationFrame(_:)),
                           userInfo: nil, repeats: true)
@@ -603,7 +660,8 @@ public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
     }
 
     @objc private func animationFrame(_ timer: Timer) {
-        guard !closed, !isHidden, !isCaptureSuppressed else { stopFrames(); return }
+        guard timer === frameTimer else { return }
+        guard !closed, isEnabled, !isHidden, !isCaptureSuppressed else { stopFrames(); return }
         advanceFrame()
         if optics.isSettled && rail.isSettled && cancelMotion.isSettled { stopFrames() }
     }
@@ -626,7 +684,7 @@ public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
     }
 
     private func updateWindowVisibility() {
-        guard !closed, !isHidden, !isCaptureSuppressed, let layout else { orderOut(); return }
+        guard !closed, isEnabled, !isHidden, !isCaptureSuppressed, let layout else { orderOut(); return }
         if optics.alphas.glyph > 0 || optics.alphas.surface > 0 {
             if !decoration.isVisible { decoration.orderFrontRegardless() }
         } else { decoration.orderOut(nil) }
@@ -659,8 +717,16 @@ public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
     /// Explicit settings access exposes the existing choices without starting capture.
     public func showPreferences() { showOptions(requiresExpanded: false) }
 
+    public func closePreferences() {
+        let activeMenu = menu
+        menu = nil
+        activeMenu?.cancelTrackingWithoutAnimation()
+        if menuIsOpen { menuIsOpen = false; onMenuVisibility?(false) }
+    }
+
     private func showOptions(requiresExpanded: Bool = true) {
-        guard (!requiresExpanded || session.isExpanded), !isBusy, !menuIsOpen else { return }
+        guard !closed, isEnabled, !isHidden, !isCaptureSuppressed,
+              (!requiresExpanded || session.isExpanded), !isBusy, !menuIsOpen else { return }
         let menu = NSMenu(title: "截图选项")
         menu.autoenablesItems = false; menu.delegate = self
         let defaults = NSMenu(title: "默认截图方式")
@@ -696,33 +762,42 @@ public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
         } else {
             menu.popUp(positioning: nil, at: NSEvent.mouseLocation, in: nil)
         }
-        self.menu = nil
+        if self.menu === menu { closePreferences() }
+    }
+
+    private func ownsMenuAction(_ sender: NSMenuItem) -> Bool {
+        guard !closed, isEnabled, !isHidden, !isCaptureSuppressed, let activeMenu = menu,
+              let itemMenu = sender.menu else { return false }
+        return itemMenu === activeMenu || itemMenu.supermenu === activeMenu
     }
 
     public func menuWillOpen(_ menu: NSMenu) {
-        guard !menuIsOpen else { return }
+        guard !closed, isEnabled, menu === self.menu, !menuIsOpen else { return }
         menuIsOpen = true; onMenuVisibility?(true)
     }
 
     public func menuDidClose(_ menu: NSMenu) {
-        guard menuIsOpen else { return }
+        guard menu === self.menu, menuIsOpen else { return }
         menuIsOpen = false; onMenuVisibility?(false)
     }
 
     @objc private func changeDefault(_ sender: NSMenuItem) {
-        guard let raw = sender.representedObject as? String, let value = ScreenshotMode(rawValue: raw) else { return }
+        guard ownsMenuAction(sender), let raw = sender.representedObject as? String, let value = ScreenshotMode(rawValue: raw) else { return }
         setDefaultMode(value); onSettings?(value)
     }
 
     @objc private func togglePointer(_ sender: NSMenuItem) {
+        guard ownsMenuAction(sender) else { return }
         options.showPointer.toggle(); onOptions?(options)
     }
 
     @objc private func changeDelay(_ sender: NSMenuItem) {
+        guard ownsMenuAction(sender) else { return }
         options.delay = TimeInterval(sender.tag); onOptions?(options)
     }
 
     @objc private func toggleEditing(_ sender: NSMenuItem) {
+        guard ownsMenuAction(sender) else { return }
         options.editAfter.toggle(); onOptions?(options)
     }
 

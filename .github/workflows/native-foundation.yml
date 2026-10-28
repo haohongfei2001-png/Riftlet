@@ -45,7 +45,11 @@ concurrency:
   cancel-in-progress: true
 jobs:
   macos:
-    runs-on: macos-14
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [macos-15, macos-15-intel]
+    runs-on: ${{ matrix.runner }}
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
@@ -57,12 +61,19 @@ jobs:
           swift --version
           sw_vers
           uname -m
-      - name: Verify reviewed thin-edge composition and rejection paths
+      - name: Verify reviewed built-in capture composition and rejection paths
         run: |
           set -o pipefail
           mkdir -p test-results
-          python3 -B scripts/verify-thin-edge-composition.py 2>&1 | tee test-results/thin-edge-composition.log
+          python3 -B scripts/verify-builtin-capture-composition.py 2>&1 | tee test-results/builtin-capture-composition.log
           python3 -B -m unittest discover -s Tests/ThinEdgeIsolation -v 2>&1 | tee test-results/thin-edge-isolation-tests.log
+          python3 -B -m unittest discover -s Tests/BuiltInCaptureIsolation -v 2>&1 | tee test-results/builtin-capture-isolation-tests.log
+      - name: Compile screenshot comparison probe and report environment capabilities
+        run: |
+          set -o pipefail
+          swiftc -parse-as-library -O -target "$(uname -m)-apple-macosx13.0" scripts/benchmark-builtin-capture.swift -o /tmp/riftlet-capture-benchmark 2>&1 | tee test-results/capture-probe-build.log
+          /tmp/riftlet-capture-benchmark --self-check 2>&1 | tee test-results/capture-probe-self-check.log
+          /tmp/riftlet-capture-benchmark --iterations 5 --output test-results/capture-backend-probe.json --retain-synthetic-images test-results/synthetic-capture-previews 2>&1 | tee test-results/capture-backend-probe.log
       - name: Replay archived Web evidence offline
         run: |
           set -o pipefail
@@ -133,7 +144,7 @@ jobs:
           swift test --skip-build --filter SystemScreenshotCandidateIntegrationTests 2>&1 | tee test-results/system-candidate-composition-detailed.log
           swift test --skip-build --filter SystemScreenshotFidelityTests 2>&1 | tee test-results/system-candidate-fidelity-detailed.log
           swift test --skip-build --filter 'RiftletFeedbackTests|RiftletFeedbackUITests' 2>&1 | tee test-results/feedback-detailed.log
-          swift test --skip-build --filter 'ScreenshotEntry|InteractiveScreenshot|CompletedScreenshotImporter|RiftCapturePresentation' 2>&1 | tee test-results/capture-entry-detailed.log
+          swift test --skip-build --filter 'ScreenshotEntry|InteractiveScreenshot|CompletedScreenshotImporter|RiftCapturePresentation|BuiltInScreenshotHost|ScreenshotMarkupFidelity|RiftSetupController' 2>&1 | tee test-results/capture-entry-detailed.log
       - name: Package native application
         run: |
           set -o pipefail
@@ -166,7 +177,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: native-foundation-${{ github.sha }}
+          name: native-foundation-${{ matrix.runner }}-${{ github.sha }}
           path: |
             test-results/
             build/Riftlet-macOS-development.zip

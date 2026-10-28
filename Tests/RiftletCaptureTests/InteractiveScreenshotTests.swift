@@ -35,6 +35,42 @@ final class InteractiveScreenshotTests: XCTestCase {
         XCTAssertFalse(InteractiveScreenshotGeometry.isUsable(CGRect(x: CGFloat.nan, y: 0, width: 10, height: 10)))
     }
 
+    func testFractionalRegionPreviewUsesTheExactIntegralCommandBoundary() throws {
+        let rect = try XCTUnwrap(InteractiveScreenshotGeometry.dragRect(
+            from: CGPoint(x: 10.75, y: 20.5), to: CGPoint(x: 1.25, y: 3.75), displays: [main]))
+        XCTAssertEqual(rect, CGRect(x: 1, y: 3, width: 10, height: 18))
+        var session = InteractiveScreenshotSession()
+        session.start(mode: .region, options: .init())
+        let quartz = InteractiveScreenshotGeometry.quartzRect(fromAppKit: rect, primaryScreenTop: 900)
+        let request = try XCTUnwrap(session.beginCapture(target: .init(rect: rect, quartzRect: quartz,
+            displays: [main], window: nil)))
+        XCTAssertEqual(try InteractiveScreenshotCommand.arguments(for: request,
+            outputURL: URL(fileURLWithPath: "/tmp/grid.png")), ["-x", "-t", "png", "-R", "1,879,10,18", "/tmp/grid.png"])
+    }
+
+    func testCommandRejectsFractionalBoundaryInsteadOfSilentlyExpandingPixels() throws {
+        var session = InteractiveScreenshotSession()
+        session.start(mode: .region, options: .init())
+        let request = try XCTUnwrap(session.beginCapture(target: .init(
+            rect: CGRect(x: 10.5, y: 20.5, width: 30, height: 40),
+            quartzRect: CGRect(x: 10.5, y: 839.5, width: 30, height: 40), displays: [main], window: nil)))
+        XCTAssertThrowsError(try InteractiveScreenshotCommand.arguments(for: request,
+            outputURL: URL(fileURLWithPath: "/tmp/unsnapped.png"))) {
+            XCTAssertEqual($0 as? InteractiveScreenshotError, .invalidSelection)
+        }
+    }
+
+    func testTopologyIsOrderIndependentButRejectsScaleAndAdditionalDisplays() {
+        let secondary = InteractiveScreenshotDisplay(id: 2, frame: CGRect(x: -1280, y: 0, width: 1280, height: 720),
+            quartzFrame: CGRect(x: -1280, y: 180, width: 1280, height: 720), scale: 1)
+        XCTAssertTrue(InteractiveScreenshotGeometry.sameTopology([main, secondary], [secondary, main]))
+        XCTAssertFalse(InteractiveScreenshotGeometry.sameTopology([main], [main, secondary]))
+        XCTAssertFalse(InteractiveScreenshotGeometry.sameTopology([main, main], [main, main]))
+        let changedScale = InteractiveScreenshotDisplay(id: main.id, frame: main.frame,
+            quartzFrame: main.quartzFrame, scale: 1)
+        XCTAssertFalse(InteractiveScreenshotGeometry.sameTopology([main], [changedScale]))
+    }
+
     func testNoninteractiveArgumentsNeverOpenSystemSelectionAndDoNotScaleRetinaPoints() throws {
         var session = InteractiveScreenshotSession()
         session.start(mode: .region, options: .init(showPointer: true))
@@ -53,6 +89,48 @@ final class InteractiveScreenshotTests: XCTestCase {
         let request = try XCTUnwrap(session.beginCapture(target: target(window: selected)))
         let args = try InteractiveScreenshotCommand.arguments(for: request, outputURL: URL(fileURLWithPath: "/tmp/window.png"))
         XCTAssertEqual(args, ["-x", "-t", "png", "-l", "48", "/tmp/window.png"])
+    }
+
+    func testSingleDisplayPixelContractChecksNativeScaleForRegionAndFullScreen() throws {
+        for scale in [CGFloat(1), CGFloat(2)] {
+            let display = InteractiveScreenshotDisplay(id: main.id, frame: main.frame,
+                quartzFrame: main.quartzFrame, scale: scale)
+            for mode in [ScreenshotMode.region, .fullScreen] {
+                var session = InteractiveScreenshotSession()
+                session.start(mode: mode, options: .init())
+                let rect = mode == .fullScreen ? display.frame : target().rect
+                let quartz = InteractiveScreenshotGeometry.quartzRect(fromAppKit: rect, primaryScreenTop: 900)
+                let request = try XCTUnwrap(session.beginCapture(target: .init(rect: rect, quartzRect: quartz,
+                    displays: [display], window: nil)))
+                let width = Int(rect.width * scale), height = Int(rect.height * scale)
+                let file = InteractiveScreenshotFile(sourceURL: URL(fileURLWithPath: "/tmp/dimension-fixture.png"),
+                    data: Data(), pixelWidth: width, pixelHeight: height, hasSystemScreenshotMetadata: false)
+                XCTAssertNoThrow(try InteractiveScreenshotSystemCapture.validatePixelDimensions(file, for: request))
+                let wrong = InteractiveScreenshotFile(sourceURL: file.sourceURL, data: Data(),
+                    pixelWidth: width + 1, pixelHeight: height, hasSystemScreenshotMetadata: false)
+                XCTAssertThrowsError(try InteractiveScreenshotSystemCapture.validatePixelDimensions(wrong, for: request)) {
+                    XCTAssertEqual($0 as? InteractiveScreenshotError, .unexpectedPixelDimensions)
+                }
+            }
+        }
+    }
+
+    func testPixelPostconditionDoesNotInventWindowShadowOrMixedDisplayDimensions() throws {
+        let secondary = InteractiveScreenshotDisplay(id: 2, frame: CGRect(x: -1280, y: 0, width: 1280, height: 720),
+            quartzFrame: CGRect(x: -1280, y: 180, width: 1280, height: 720), scale: 1)
+        let window = InteractiveScreenshotWindow(id: 48, ownerPID: 1234, rect: target().rect)
+        let file = InteractiveScreenshotFile(sourceURL: URL(fileURLWithPath: "/tmp/uninferred.png"),
+            data: Data(), pixelWidth: 180, pixelHeight: 140, hasSystemScreenshotMetadata: false)
+        var session = InteractiveScreenshotSession()
+        session.start(mode: .window, options: .init())
+        let windowRequest = try XCTUnwrap(session.beginCapture(target: target(window: window)))
+        XCTAssertNoThrow(try InteractiveScreenshotSystemCapture.validatePixelDimensions(file, for: windowRequest))
+        session.cancel(); session.start(mode: .region, options: .init())
+        let rect = CGRect(x: -20, y: 50, width: 100, height: 100)
+        let mixedRequest = try XCTUnwrap(session.beginCapture(target: .init(rect: rect,
+            quartzRect: InteractiveScreenshotGeometry.quartzRect(fromAppKit: rect, primaryScreenTop: 900),
+            displays: [main, secondary], window: nil)))
+        XCTAssertNoThrow(try InteractiveScreenshotSystemCapture.validatePixelDimensions(file, for: mixedRequest))
     }
 
     func testModeChangeKeepsConfirmedRequestAndSuccessRearmsCurrentMode() throws {
@@ -117,6 +195,30 @@ final class InteractiveScreenshotTests: XCTestCase {
         XCTAssertEqual(errno, ENOATTR)
     }
 
+    @MainActor
+    func testWrongSizeCompletedToolOutputIsRejectedAndOriginalBytesRemain() async throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent("riftlet-output-size-" + UUID().uuidString)
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let original = try fixturePNG()
+        try original.write(to: root.appendingPathComponent("fixture.png"))
+        // This isolated fixture utility copies a known generated PNG to its final
+        // argument. The production executable and capture flags remain fixed.
+        let executable = root.appendingPathComponent("fixture-tool")
+        let script = "#!/bin/sh\nfor last do :; done\n/bin/cp \"${0%/*}/fixture.png\" \"$last\"\n"
+        try Data(script.utf8).write(to: executable)
+        try FileManager.default.setAttributes([.posixPermissions: 0o700], ofItemAtPath: executable.path)
+        var session = InteractiveScreenshotSession()
+        session.start(mode: .region, options: .init())
+        let request = try XCTUnwrap(session.beginCapture(target: target()))
+        let capturer = InteractiveScreenshotSystemCapture(executableURL: executable)
+        let directory = root.appendingPathComponent("captures")
+        do { _ = try await capturer.capture(request, outputDirectory: directory); XCTFail("Wrong-size output was accepted") }
+        catch { XCTAssertEqual(error as? InteractiveScreenshotError, .unexpectedPixelDimensions) }
+        let output = directory.appendingPathComponent(request.id.uuidString.lowercased() + ".png")
+        XCTAssertEqual(try Data(contentsOf: output), original)
+    }
+
     func testMalformedAndSymlinkOutputsAreRejected() throws {
         let root = FileManager.default.temporaryDirectory.appendingPathComponent("riftlet-interactive-invalid-" + UUID().uuidString)
         try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
@@ -149,8 +251,10 @@ final class InteractiveScreenshotTests: XCTestCase {
 private final class InteractivePermissionFixture: InteractiveScreenshotPermissionChecking {
     var allowed = true
     var requestCalls = 0
+    var requestResult: Bool?
+    var onRequest: (() -> Void)?
     func hasAccess() -> Bool { allowed }
-    func requestAccess() -> Bool { requestCalls += 1; return allowed }
+    func requestAccess() -> Bool { requestCalls += 1; onRequest?(); return requestResult ?? allowed }
 }
 
 @MainActor
@@ -176,14 +280,16 @@ private final class InteractiveCapturerFixture: InteractiveScreenshotCapturing {
 final class InteractiveScreenshotControllerTests: XCTestCase {
     @MainActor
     private func fixture(permission: InteractivePermissionFixture? = nil, capturer: InteractiveCapturerFixture? = nil,
-                         windows: @escaping () -> [InteractiveScreenshotWindow] = { [] })
+                         windows: @escaping () -> [InteractiveScreenshotWindow] = { [] },
+                         displays: (() -> [InteractiveScreenshotDisplay])? = nil, isEnabled: Bool = true)
         -> (InteractiveScreenshotController, InteractivePermissionFixture, InteractiveCapturerFixture, InteractiveScreenshotTarget) {
         let permission = permission ?? InteractivePermissionFixture()
         let capturer = capturer ?? InteractiveCapturerFixture()
         let display = InteractiveScreenshotDisplay(id: 7, frame: CGRect(x: 0, y: 0, width: 1440, height: 900),
             quartzFrame: CGRect(x: 0, y: 0, width: 1440, height: 900), scale: 2)
         let controller = InteractiveScreenshotController(outputDirectory: URL(fileURLWithPath: "/tmp/not-used-by-fixture"),
-            permission: permission, capturer: capturer, displays: { [display] }, windows: windows, presentsPanels: false)
+            permission: permission, capturer: capturer, displays: displays ?? { [display] }, windows: windows,
+            presentsPanels: false, isEnabled: isEnabled)
         let target = InteractiveScreenshotTarget(rect: display.frame, quartzRect: display.quartzFrame, displays: [display], window: nil)
         return (controller, permission, capturer, target)
     }
@@ -279,6 +385,185 @@ final class InteractiveScreenshotControllerTests: XCTestCase {
         capturer.onRequest = { began.fulfill() }
         controller.setInteractionSuspended(false); controller.submitSelection(target)
         await fulfillment(of: [began], timeout: 1)
+        controller.cancel(); capturer.succeed()
+    }
+
+    @MainActor
+    func testDisabledControllerNeverRequestsPermissionAndReenableIsReversible() {
+        let permission = InteractivePermissionFixture(); permission.allowed = false
+        let (controller, _, capturer, target) = fixture(permission: permission, isEnabled: false)
+        controller.start(mode: .region); controller.submitSelection(target)
+        XCTAssertFalse(controller.isEnabled); XCTAssertFalse(controller.isActive)
+        XCTAssertEqual(permission.requestCalls, 0); XCTAssertTrue(capturer.requests.isEmpty)
+        permission.allowed = true
+        controller.setEnabled(true); controller.start(mode: .window)
+        XCTAssertTrue(controller.isEnabled); XCTAssertTrue(controller.isActive)
+        XCTAssertEqual(controller.currentMode, .window); XCTAssertEqual(permission.requestCalls, 0)
+        controller.cancel()
+    }
+
+    @MainActor
+    func testPermissionPromptReturningAfterDisableCannotReopenOrReportSpuriousError() {
+        let permission = InteractivePermissionFixture(); permission.allowed = false; permission.requestResult = true
+        let (controller, _, _, _) = fixture(permission: permission)
+        permission.onRequest = { [weak controller] in controller?.setEnabled(false) }
+        var errors = 0
+        controller.onError = { _ in errors += 1 }
+        controller.start(mode: .region)
+        XCTAssertEqual(permission.requestCalls, 1)
+        XCTAssertFalse(controller.isEnabled); XCTAssertFalse(controller.isActive)
+        XCTAssertEqual(controller.state, .idle); XCTAssertEqual(errors, 0)
+        permission.onRequest = nil; permission.allowed = true
+        controller.setEnabled(true); controller.start(mode: .fullScreen)
+        XCTAssertTrue(controller.isActive); XCTAssertEqual(controller.state, .selecting(.fullScreen))
+        controller.cancel()
+    }
+
+    @MainActor
+    func testDisableDuringCountdownCancelsBeforeAnyProcessAndNeverResumes() async throws {
+        let (controller, _, capturer, target) = fixture()
+        let counting = expectation(description: "countdown entered")
+        controller.onStateChange = { state in if case .countdown = state { counting.fulfill() } }
+        var captures = 0
+        controller.onCapture = { _ in captures += 1 }
+        controller.start(mode: .region, options: .init(delay: 0.05)); controller.submitSelection(target)
+        await fulfillment(of: [counting], timeout: 1)
+        controller.setEnabled(false)
+        try await Task.sleep(nanoseconds: 100_000_000)
+        XCTAssertTrue(capturer.requests.isEmpty); XCTAssertEqual(captures, 0)
+        XCTAssertEqual(controller.state, .idle); XCTAssertFalse(controller.isCapturing)
+        controller.setEnabled(true)
+        XCTAssertFalse(controller.isActive, "Enabling alone must not reopen a previous gesture")
+    }
+
+    @MainActor
+    func testReentrantDisableAtCapturingStateCannotLaunchChildOrHideHost() async {
+        let (controller, _, capturer, target) = fixture()
+        var visibilityChanges = 0
+        controller.onCaptureVisibilityChanged = { _ in visibilityChanges += 1 }
+        controller.onStateChange = { [weak controller] state in
+            if case .capturing = state { controller?.setEnabled(false) }
+        }
+        controller.start(mode: .region); controller.submitSelection(target)
+        for _ in 0..<10 { await Task.yield() }
+        XCTAssertTrue(capturer.requests.isEmpty); XCTAssertEqual(visibilityChanges, 0)
+        XCTAssertEqual(controller.state, .idle); XCTAssertFalse(controller.isActive)
+    }
+
+    @MainActor
+    func testOldCompletionAfterReenableCannotConsumeNewSessionCapture() async {
+        let (controller, _, capturer, target) = fixture()
+        let oldBegan = expectation(description: "old process began")
+        capturer.onRequest = { oldBegan.fulfill() }
+        var captures = 0
+        controller.onCapture = { _ in captures += 1 }
+        controller.start(mode: .region); controller.submitSelection(target)
+        await fulfillment(of: [oldBegan], timeout: 1)
+        controller.setEnabled(false); controller.setEnabled(true)
+        let newBegan = expectation(description: "new process began")
+        capturer.onRequest = { newBegan.fulfill() }
+        controller.start(mode: .fullScreen); controller.submitSelection(target)
+        await fulfillment(of: [newBegan], timeout: 1)
+        capturer.succeed()
+        for _ in 0..<10 { await Task.yield() }
+        XCTAssertEqual(captures, 0); XCTAssertTrue(controller.isCapturing)
+        let delivered = expectation(description: "only new capture delivered")
+        controller.onCapture = { result in captures += 1; XCTAssertEqual(result.mode, .fullScreen); delivered.fulfill() }
+        capturer.succeed()
+        await fulfillment(of: [delivered], timeout: 1)
+        XCTAssertEqual(captures, 1); XCTAssertFalse(controller.isCapturing); XCTAssertTrue(controller.isActive)
+        controller.cancel()
+    }
+
+    @MainActor
+    func testChangedScaleOrDisconnectedDisplayRejectsFrozenRequestBeforeTool() async {
+        let initial = InteractiveScreenshotDisplay(id: 7, frame: CGRect(x: 0, y: 0, width: 1440, height: 900),
+            quartzFrame: CGRect(x: 0, y: 0, width: 1440, height: 900), scale: 2)
+        for replacement in [[InteractiveScreenshotDisplay(id: initial.id, frame: initial.frame,
+                                 quartzFrame: initial.quartzFrame, scale: 1)], []] {
+            var displays = [initial]
+            let (controller, _, capturer, target) = fixture(displays: { displays })
+            let rejected = expectation(description: "topology change rejected")
+            controller.onError = { error in XCTAssertEqual(error, .displayConfigurationChanged); rejected.fulfill() }
+            controller.start(mode: .region, options: .init(delay: 0.01)); controller.submitSelection(target)
+            displays = replacement
+            await fulfillment(of: [rejected], timeout: 1)
+            XCTAssertTrue(capturer.requests.isEmpty); XCTAssertFalse(controller.isCapturing)
+            controller.cancel()
+        }
+    }
+
+    @MainActor
+    func testMovedResizedOrClosedWindowRejectsConfirmedSelection() async {
+        let selected = InteractiveScreenshotWindow(id: 42, ownerPID: 111,
+            rect: CGRect(x: 10, y: 10, width: 300, height: 200))
+        for replacement in [[InteractiveScreenshotWindow(id: selected.id, ownerPID: selected.ownerPID,
+                                 rect: selected.rect.offsetBy(dx: 10, dy: 0))],
+                            [InteractiveScreenshotWindow(id: selected.id, ownerPID: selected.ownerPID,
+                                 rect: CGRect(x: 10, y: 10, width: 301, height: 200))], []] {
+            var current = [selected]
+            let (controller, _, capturer, displayTarget) = fixture(windows: { current })
+            let target = InteractiveScreenshotTarget(rect: selected.rect,
+                quartzRect: CGRect(x: 10, y: 690, width: 300, height: 200),
+                displays: displayTarget.displays, window: selected)
+            let rejected = expectation(description: "window mutation rejected")
+            controller.onError = { error in XCTAssertEqual(error, .selectedWindowUnavailable); rejected.fulfill() }
+            controller.start(mode: .window, options: .init(delay: 0.01)); controller.submitSelection(target)
+            current = replacement
+            await fulfillment(of: [rejected], timeout: 1)
+            XCTAssertTrue(capturer.requests.isEmpty); XCTAssertFalse(controller.isCapturing)
+            controller.cancel()
+        }
+    }
+
+    @MainActor
+    func testSpaceOrSleepInterruptionInvalidatesLateSuccessAndClosesSession() async {
+        let (controller, _, capturer, target) = fixture()
+        let began = expectation(description: "capture began before interruption")
+        capturer.onRequest = { began.fulfill() }
+        var captures = 0, cancels = 0
+        controller.onCapture = { _ in captures += 1 }; controller.onCancel = { cancels += 1 }
+        controller.start(mode: .region); controller.submitSelection(target)
+        await fulfillment(of: [began], timeout: 1)
+        controller.environmentChanged(); capturer.succeed()
+        for _ in 0..<10 { await Task.yield() }
+        XCTAssertEqual(captures, 0); XCTAssertEqual(cancels, 1)
+        XCTAssertFalse(controller.isActive); XCTAssertEqual(controller.state, .idle)
+    }
+
+    @MainActor
+    func testGestureModeChangeAndSuspensionRejectHeldMouseRelease() async {
+        let (controller, _, capturer, _) = fixture()
+        controller.start(mode: .region)
+        controller.pointerDown(at: CGPoint(x: 10, y: 10))
+        controller.pointerDragged(to: CGPoint(x: 100, y: 100))
+        controller.updateMode(.fullScreen)
+        controller.pointerUp(at: CGPoint(x: 100, y: 100))
+        controller.pointerDown(at: CGPoint(x: 20, y: 20))
+        controller.setInteractionSuspended(true); controller.setInteractionSuspended(false)
+        controller.pointerUp(at: CGPoint(x: 20, y: 20))
+        for _ in 0..<8 { await Task.yield() }
+        XCTAssertTrue(capturer.requests.isEmpty); XCTAssertFalse(controller.isCapturing)
+        controller.cancel()
+    }
+
+    @MainActor
+    func testExternalDisplayClickCapturesThatDisplayOnceEvenOnDuplicateMouseUp() async {
+        let left = InteractiveScreenshotDisplay(id: 12, frame: CGRect(x: -1920, y: -180, width: 1920, height: 1080),
+            quartzFrame: CGRect(x: -1920, y: 0, width: 1920, height: 1080), scale: 1)
+        let right = InteractiveScreenshotDisplay(id: 7, frame: CGRect(x: 0, y: 0, width: 1440, height: 900),
+            quartzFrame: CGRect(x: 0, y: 0, width: 1440, height: 900), scale: 2)
+        let (controller, _, capturer, _) = fixture(displays: { [right, left] })
+        let began = expectation(description: "selected external display")
+        capturer.onRequest = { began.fulfill() }
+        controller.start(mode: .fullScreen)
+        controller.pointerDown(at: CGPoint(x: -100, y: 100)); controller.pointerUp(at: CGPoint(x: -100, y: 100))
+        controller.pointerUp(at: CGPoint(x: -100, y: 100))
+        await fulfillment(of: [began], timeout: 1)
+        XCTAssertEqual(capturer.requests.count, 1)
+        XCTAssertEqual(capturer.requests.first?.target.rect, left.frame)
+        XCTAssertEqual(capturer.requests.first?.target.quartzRect, left.quartzFrame)
+        XCTAssertEqual(capturer.requests.first?.target.displays.map(\.id), [left.id])
         controller.cancel(); capturer.succeed()
     }
 }

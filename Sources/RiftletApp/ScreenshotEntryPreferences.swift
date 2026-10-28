@@ -2,11 +2,34 @@ import Foundation
 import RiftletCapture
 import RiftletUI
 
-/// One preference controls the next session's fixed mode order. Capturing and
-/// switching the active mode never write this setting.
+/// Capture availability and the next session's fixed mode order are independent
+/// of collection pause and rift visibility. Capturing and mode switches never
+/// write preferences or macOS screenshot settings.
 struct ScreenshotEntryPreferences: Codable, Equatable {
     var version: Int = 1
     var defaultMode: ScreenshotMode = .window
+    var builtInScreenshotEnabled: Bool = true
+
+    private enum CodingKeys: String, CodingKey {
+        case version, defaultMode, builtInScreenshotEnabled
+    }
+
+    init(version: Int = 1, defaultMode: ScreenshotMode = .window,
+         builtInScreenshotEnabled: Bool = true) {
+        self.version = version
+        self.defaultMode = defaultMode
+        self.builtInScreenshotEnabled = builtInScreenshotEnabled
+    }
+
+    init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        version = try values.decode(Int.self, forKey: .version)
+        defaultMode = try values.decode(ScreenshotMode.self, forKey: .defaultMode)
+        // Version 1 predates the off switch. Its existing users already had the
+        // built-in entry enabled; preserving that behavior must not reset their
+        // chosen default mode. An explicit false survives every future load.
+        builtInScreenshotEnabled = try values.decodeIfPresent(Bool.self, forKey: .builtInScreenshotEnabled) ?? true
+    }
 
     static func load(from url: URL) throws -> Self {
         guard FileManager.default.fileExists(atPath: url.path) else { return Self() }
@@ -32,7 +55,6 @@ struct ScreenshotEntryPreferences: Codable, Equatable {
         result.rowPitch = 60
         result.outerInset = 14
         result.firstCenterFromTop = 202
-        result.numberGap = 8
         return result
     }
 

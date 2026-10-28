@@ -65,7 +65,8 @@ enum ProductStatus {
         guard webAcceptance else { return nil }
         if let input = error as? SystemScreenshotInputError {
             switch input {
-            case .unsupportedFormat, .systemScreenshotsOnly: return .attachmentFormat
+            case .unsupportedFormat: return .attachmentFormat
+            case .systemScreenshotsOnly: return .attachmentSource
             case .byteLimit: return .attachmentBytes
             case .pixelLimit: return .attachmentPixels
             }

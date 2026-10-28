@@ -25,6 +25,7 @@ public final class InteractiveScreenshotController {
     public var onCaptureVisibilityChanged: ((_ isHidden: Bool) -> Void)?
 
     public var isActive: Bool { session.isActive }
+    public private(set) var isEnabled: Bool
     public var isCapturing: Bool { session.pending != nil }
     public var currentMode: ScreenshotMode { session.mode }
     public var selectionWindowIDs: Set<Int> { Set(panels.map(\.windowNumber)) }
@@ -40,6 +41,8 @@ public final class InteractiveScreenshotController {
     private var panels: [InteractiveScreenshotSelectionPanel] = []
     private var captureTask: Task<Void, Never>?
     private var screenObserver: NSObjectProtocol?
+    private var workspaceObservers: [NSObjectProtocol] = []
+    private var startAttemptID = UUID()
     private var interactionSuspended = false
     private var hostUIHidden = false
     private var selectionHidden = false
@@ -54,29 +57,46 @@ public final class InteractiveScreenshotController {
         let start: CGPoint
         let display: InteractiveScreenshotDisplay
         let window: InteractiveScreenshotWindow?
+        let topology: [InteractiveScreenshotDisplay]
     }
     private var gesture: Gesture?
 
-    public convenience init(outputDirectory: URL) {
+    public convenience init(outputDirectory: URL, isEnabled: Bool = true) {
         self.init(outputDirectory: outputDirectory, permission: InteractiveScreenshotPermission(),
                   capturer: InteractiveScreenshotSystemCapture(), displays: Self.currentDisplays,
-                  windows: Self.currentWindows, presentsPanels: true)
+                  windows: Self.currentWindows, presentsPanels: true, isEnabled: isEnabled)
     }
 
     init(outputDirectory: URL, permission: any InteractiveScreenshotPermissionChecking,
          capturer: any InteractiveScreenshotCapturing,
          displays: @escaping @MainActor () -> [InteractiveScreenshotDisplay],
-         windows: @escaping @MainActor () -> [InteractiveScreenshotWindow], presentsPanels: Bool) {
+         windows: @escaping @MainActor () -> [InteractiveScreenshotWindow], presentsPanels: Bool,
+         isEnabled: Bool = true) {
         self.outputDirectory = outputDirectory
         self.permission = permission; self.capturer = capturer
         self.displays = displays; self.windows = windows; self.presentsPanels = presentsPanels
+        self.isEnabled = isEnabled
+    }
+
+    /// Disabling is independent of system screenshot collection. It invalidates
+    /// even a permission request whose synchronous OS call runs a nested event
+    /// loop, so its late return cannot recreate an already disabled session.
+    public func setEnabled(_ enabled: Bool) {
+        isEnabled = enabled
+        if !enabled { cancel() }
     }
 
     /// Called by the host only after the user clicks its capture entry.
     public func start(mode: ScreenshotMode, options: InteractiveScreenshotOptions = .init()) {
+        guard isEnabled else { return }
         if session.isActive { updateOptions(options); updateMode(mode); return }
+        let attempt = UUID(); startAttemptID = attempt
         let originalFrontmost = NSWorkspace.shared.frontmostApplication
-        guard permission.hasAccess() || permission.requestAccess() else {
+        var granted = permission.hasAccess()
+        guard isEnabled, startAttemptID == attempt else { return }
+        if !granted { granted = permission.requestAccess() }
+        guard isEnabled, startAttemptID == attempt else { return }
+        guard granted else {
             onError?(.screenRecordingPermissionRequired); return
         }
         guard !displays().isEmpty else { onError?(.noDisplay); return }
@@ -84,25 +104,42 @@ public final class InteractiveScreenshotController {
         previousFrontmost = originalFrontmost
         if previousFrontmost?.processIdentifier == ProcessInfo.processInfo.processIdentifier { previousFrontmost = nil }
         session.start(mode: mode, options: options)
+        let sessionID = session.id
         interactionSuspended = false; selectionHidden = false; gesture = nil; highlightedRect = nil
         refreshWindowCache(force: true)
         setState(.selecting(mode))
-        if presentsPanels {
-            rebuildPanels()
-            screenObserver = NotificationCenter.default.addObserver(forName: NSApplication.didChangeScreenParametersNotification,
-                                                                    object: nil, queue: .main) { [weak self] _ in
-                Task { @MainActor [weak self] in
-                    guard let self, self.session.isActive else { return }
-                    self.gesture = nil; self.highlightedRect = nil
-                    // A frozen in-flight request is independently revalidated.
-                    self.rebuildPanels()
-                }
+        guard isEnabled, session.isActive, session.id == sessionID else { return }
+        if presentsPanels { rebuildPanels() }
+        screenObserver = NotificationCenter.default.addObserver(forName: NSApplication.didChangeScreenParametersNotification,
+                                                                object: nil, queue: .main) { [weak self] _ in
+            Task { @MainActor [weak self] in
+                guard let self, self.session.id == sessionID else { return }
+                self.environmentChanged(reportDisplayChange: true)
             }
         }
+        let workspace = NSWorkspace.shared.notificationCenter
+        for name in [NSWorkspace.willSleepNotification, NSWorkspace.screensDidSleepNotification,
+                     NSWorkspace.activeSpaceDidChangeNotification] {
+            workspaceObservers.append(workspace.addObserver(forName: name, object: nil, queue: .main) { [weak self] _ in
+                Task { @MainActor [weak self] in
+                    guard let self, self.session.id == sessionID else { return }
+                    self.environmentChanged()
+                }
+            })
+        }
+    }
+
+    /// No pending selection/countdown is resumed automatically on another Space
+    /// or after sleep. A fresh explicit gesture establishes a new target.
+    func environmentChanged(reportDisplayChange: Bool = false) {
+        let hadPendingCapture = isCapturing
+        cancel()
+        if reportDisplayChange && hadPendingCapture { onError?(.displayConfigurationChanged) }
     }
 
     public func updateMode(_ mode: ScreenshotMode) {
         session.updateMode(mode)
+        guard isEnabled, session.isActive else { return }
         gesture = nil; setHighlight(nil); refreshWindowCache(force: true)
         if session.isActive && !isCapturing { setState(.selecting(mode)) }
         for panel in panels { panel.selectionView.mode = mode; panel.invalidateCursorRects(for: panel.selectionView) }
@@ -121,11 +158,16 @@ public final class InteractiveScreenshotController {
     }
 
     public func cancel() {
+        startAttemptID = UUID()
         guard session.isActive else { return }
         session.cancel(); gesture = nil; captureTask?.cancel(); captureTask = nil; capturer.cancel()
         panels.forEach { $0.orderOut(nil); $0.close() }; panels.removeAll()
         if let screenObserver { NotificationCenter.default.removeObserver(screenObserver) }
+        let workspace = NSWorkspace.shared.notificationCenter
+        workspaceObservers.forEach { workspace.removeObserver($0) }
+        workspaceObservers.removeAll()
         screenObserver = nil; highlightedRect = nil; selectionHidden = false
+        cachedWindows.removeAll(); lastWindowRefresh = -.infinity
         restoreHostUI()
         setState(.idle)
         // Nonactivating panels normally release keyboard focus themselves. Only
@@ -147,15 +189,24 @@ public final class InteractiveScreenshotController {
     private func rebuildPanels() {
         panels.forEach { $0.orderOut(nil); $0.close() }; panels.removeAll()
         guard session.isActive else { return }
+        let sessionID = session.id
         for display in displays() {
             let panel = InteractiveScreenshotSelectionPanel(frame: display.frame)
             panel.selectionView.mode = session.mode
-            panel.selectionView.onMove = { [weak self] point in self?.pointerMoved(point) }
-            panel.selectionView.onDown = { [weak self] point in self?.pointerDown(at: point) }
-            panel.selectionView.onDrag = { [weak self] point in self?.pointerDragged(to: point) }
-            panel.selectionView.onUp = { [weak self] point in self?.pointerUp(at: point) }
+            panel.selectionView.onMove = { [weak self] point in
+                guard let self, self.session.id == sessionID else { return }; self.pointerMoved(point)
+            }
+            panel.selectionView.onDown = { [weak self] point in
+                guard let self, self.session.id == sessionID else { return }; self.pointerDown(at: point)
+            }
+            panel.selectionView.onDrag = { [weak self] point in
+                guard let self, self.session.id == sessionID else { return }; self.pointerDragged(to: point)
+            }
+            panel.selectionView.onUp = { [weak self] point in
+                guard let self, self.session.id == sessionID else { return }; self.pointerUp(at: point)
+            }
             panel.selectionView.onCancel = { [weak self] in
-                guard let self, !self.interactionSuspended else { return }; self.cancel()
+                guard let self, self.session.id == sessionID, !self.interactionSuspended else { return }; self.cancel()
             }
             panels.append(panel)
         }
@@ -195,7 +246,7 @@ public final class InteractiveScreenshotController {
         return cachedWindows.first { $0.rect.contains(point) }
     }
 
-    private func pointerMoved(_ point: CGPoint) {
+    func pointerMoved(_ point: CGPoint) {
         guard session.isActive, !interactionSuspended, !isCapturing else { return }
         switch session.mode {
         case .window: setHighlight(window(at: point)?.rect)
@@ -204,29 +255,37 @@ public final class InteractiveScreenshotController {
         }
     }
 
-    private func pointerDown(at point: CGPoint) {
+    func pointerDown(at point: CGPoint) {
+        let currentDisplays = displays()
         guard session.isActive, !interactionSuspended, !isCapturing,
-              let display = displays().first(where: { $0.frame.contains(point) }) else { return }
+              let display = currentDisplays.first(where: { $0.frame.contains(point) }) else { return }
         let targetWindow = session.mode == .window ? window(at: point, force: true) : nil
         guard session.mode != .window || targetWindow != nil else { return }
         gesture = Gesture(revision: session.selectionRevision, mode: session.mode, start: point,
-                          display: display, window: targetWindow)
+                          display: display, window: targetWindow, topology: currentDisplays)
         if session.mode == .region { setHighlight(nil) }
         else { setHighlight(targetWindow?.rect ?? display.frame) }
     }
 
-    private func pointerDragged(to point: CGPoint) {
+    func pointerDragged(to point: CGPoint) {
         guard let gesture, gesture.revision == session.selectionRevision,
               gesture.mode == .region, !interactionSuspended, !isCapturing else { return }
-        setHighlight(InteractiveScreenshotGeometry.dragRect(from: gesture.start, to: point, displays: displays()))
+        let currentDisplays = displays()
+        guard InteractiveScreenshotGeometry.sameTopology(gesture.topology, currentDisplays) else {
+            self.gesture = nil; setHighlight(nil); return
+        }
+        setHighlight(InteractiveScreenshotGeometry.dragRect(from: gesture.start, to: point, displays: currentDisplays))
     }
 
-    private func pointerUp(at point: CGPoint) {
+    func pointerUp(at point: CGPoint) {
         guard let selected = gesture else { return }
         gesture = nil
         guard session.isActive, !interactionSuspended, !isCapturing,
               selected.revision == session.selectionRevision, selected.mode == session.mode else { return }
         let currentDisplays = displays()
+        guard InteractiveScreenshotGeometry.sameTopology(selected.topology, currentDisplays) else {
+            setHighlight(nil); onError?(.displayConfigurationChanged); return
+        }
         let rect: CGRect
         switch selected.mode {
         case .region:
@@ -235,7 +294,7 @@ public final class InteractiveScreenshotController {
         case .window:
             guard hypot(point.x - selected.start.x, point.y - selected.start.y) <= 8,
                   let original = selected.window, let current = window(at: point, force: true),
-                  current.id == original.id, current.ownerPID == original.ownerPID else { setHighlight(nil); return }
+                  current == original else { setHighlight(nil); return }
             rect = original.rect
         case .fullScreen:
             guard hypot(point.x - selected.start.x, point.y - selected.start.y) <= 8,
@@ -247,12 +306,13 @@ public final class InteractiveScreenshotController {
         let top = reference.frame.maxY + reference.quartzFrame.minY
         let quartz = selected.mode == .fullScreen ? selected.display.quartzFrame
             : InteractiveScreenshotGeometry.quartzRect(fromAppKit: rect, primaryScreenTop: top)
-        submitSelection(InteractiveScreenshotTarget(rect: rect, quartzRect: quartz, displays: involved, window: selected.window))
+        submitSelection(InteractiveScreenshotTarget(rect: rect, quartzRect: quartz, displays: involved,
+            window: selected.window, topology: currentDisplays))
     }
 
     /// Internal deterministic seam; normal callers arrive from a complete native gesture.
     func submitSelection(_ target: InteractiveScreenshotTarget) {
-        guard !interactionSuspended, let request = session.beginCapture(target: target) else { return }
+        guard isEnabled, !interactionSuspended, let request = session.beginCapture(target: target) else { return }
         setHighlight(nil)
         captureTask = Task { @MainActor [weak self] in
             guard let self else { return }
@@ -271,6 +331,8 @@ public final class InteractiveScreenshotController {
                 guard self.permission.hasAccess() else { throw InteractiveScreenshotError.screenRecordingPermissionRequired }
                 try self.validateTarget(request.target)
                 self.setState(.capturing(request.mode))
+                try Task.checkCancellation()
+                guard self.isEnabled, self.session.owns(request) else { return }
                 let hiddenIDs = self.hideForCapture(request)
                 try await self.waitForHiddenWindows(hiddenIDs)
                 try Task.checkCancellation()
@@ -283,7 +345,9 @@ public final class InteractiveScreenshotController {
                 guard self.session.complete(request) else { return }
                 self.captureTask = nil
                 self.restoreAfterCapture()
+                guard self.isEnabled, self.session.isActive, self.session.id == request.sessionID else { return }
                 self.setState(.selecting(self.session.mode))
+                guard self.isEnabled, self.session.isActive, self.session.id == request.sessionID else { return }
                 let result = InteractiveScreenshotCapture(sourceURL: file.sourceURL, pngData: file.data,
                     mode: request.mode, rect: request.target.rect, displayID: request.target.displays[0].id,
                     displayIDs: request.target.displays.map(\.id), windowID: request.target.window?.id,
@@ -294,7 +358,9 @@ public final class InteractiveScreenshotController {
             } catch {
                 guard self.session.complete(request) else { return }
                 self.captureTask = nil; self.restoreAfterCapture()
+                guard self.isEnabled, self.session.isActive, self.session.id == request.sessionID else { return }
                 self.setState(.selecting(self.session.mode))
+                guard self.isEnabled, self.session.isActive, self.session.id == request.sessionID else { return }
                 if !(error is CancellationError) { self.onError?(error as? InteractiveScreenshotError ?? .invalidOutput) }
                 if self.session.isActive && !self.interactionSuspended { self.presentPanels() }
             }
@@ -303,11 +369,14 @@ public final class InteractiveScreenshotController {
 
     private func validateTarget(_ target: InteractiveScreenshotTarget) throws {
         let currentDisplays = displays()
-        guard target.displays.allSatisfy({ expected in
-            currentDisplays.contains { $0.id == expected.id && $0.frame == expected.frame && $0.quartzFrame == expected.quartzFrame }
-        }) else { throw InteractiveScreenshotError.displayConfigurationChanged }
+        guard InteractiveScreenshotGeometry.sameTopology(target.topology, currentDisplays) else {
+            throw InteractiveScreenshotError.displayConfigurationChanged
+        }
+        guard target.displays.allSatisfy({ currentDisplays.contains($0) }) else {
+            throw InteractiveScreenshotError.displayConfigurationChanged
+        }
         if let selected = target.window {
-            guard windows().contains(where: { $0.id == selected.id && $0.ownerPID == selected.ownerPID }) else {
+            guard windows().contains(selected) else {
                 throw InteractiveScreenshotError.selectedWindowUnavailable
             }
         }
@@ -424,11 +493,11 @@ private final class InteractiveScreenshotSelectionView: NSView {
     override var needsPanelToBecomeKey: Bool { true }
     override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
 
-    private var cameraCursor: NSCursor {
+    private lazy var cameraCursor: NSCursor = {
         guard let image = NSImage(systemSymbolName: "camera.fill", accessibilityDescription: nil) else { return .crosshair }
         image.size = NSSize(width: 24, height: 20)
         return NSCursor(image: image, hotSpot: NSPoint(x: 12, y: 10))
-    }
+    }()
 
     override func updateTrackingAreas() {
         if let tracking { removeTrackingArea(tracking) }
@@ -455,7 +524,8 @@ private final class InteractiveScreenshotSelectionView: NSView {
         NSColor.black.withAlphaComponent(targetRect == nil ? 0.06 : 0.17).setFill(); dim.fill()
         guard let targetRect else { return }
         if mode == .window { NSColor.controlAccentColor.withAlphaComponent(0.10).setFill(); NSBezierPath(rect: targetRect).fill() }
-        let border = NSBezierPath(rect: targetRect.insetBy(dx: 0.5, dy: 0.5))
-        border.lineWidth = 1; NSColor.white.withAlphaComponent(0.95).setStroke(); border.stroke()
+        let pixel = 1 / max(1, window?.backingScaleFactor ?? 1)
+        let border = NSBezierPath(rect: targetRect.insetBy(dx: pixel / 2, dy: pixel / 2))
+        border.lineWidth = pixel; NSColor.white.withAlphaComponent(0.95).setStroke(); border.stroke()
     }
 }

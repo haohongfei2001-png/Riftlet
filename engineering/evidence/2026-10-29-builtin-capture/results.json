@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "baseline": "443d21da1a55c0061eafced823b5406879b96024",
+  "formalHeadObserved": "0e7ea8be148e1124b387e799fd886a7830e96559",
+  "branch": "codex/builtin-capture-completion-20261029",
+  "sourceRevision": null,
+  "ci": {"status": "PENDING", "runs": []},
+  "authorEnvironment": "Linux x86_64; no local Swift/AppKit runtime",
+  "registeredMac": "OFFLINE",
+  "physicalAcceptance": "NOT_RUN",
+  "newApplicationScreenshotUpload": "NOT_RUN; admission closed",
+  "ordinaryProductionAndSafeRetry": "UNCHANGED; closed",
+  "formalPR1ModifiedByThisTask": false,
+  "release": "NOT_RELEASED"
+}
