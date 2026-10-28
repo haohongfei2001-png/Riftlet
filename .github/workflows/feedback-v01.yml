@@ -20,6 +20,7 @@ on:
       - 'scripts/build-feedback-demo.sh'
       - 'scripts/verify-feedback-isolation.sh'
       - 'scripts/verify-internal-beta-integration.py'
+      - 'scripts/verify-capture-entry-integration.py'
       - 'packaging/**'
       - '.github/workflows/feedback-v01.yml'
 permissions:
@@ -36,16 +37,19 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
-      - name: Verify isolation audit regressions
+      - name: Verify fixed Beta and reviewed capture-entry increment
         run: |
           set -o pipefail
           mkdir -p feedback-results
-          python3 -m unittest discover -s Tests/FeedbackIsolation -v 2>&1 | tee feedback-results/isolation-tests.log
-          python3 -m unittest discover -s Tests/InternalBetaIsolation -v 2>&1 | tee feedback-results/internal-beta-isolation-tests.log
-      - name: Verify archived evidence and pinned unified Beta composition
+          # The new audit invokes the unchanged historical audit at its accepted
+          # Beta commit, then verifies the exact reviewed incremental objects.
+          python3 scripts/verify-capture-entry-integration.py 2>&1 | tee feedback-results/capture-entry-composition.log
+      - name: Verify isolation audit regressions
         run: |
           set -o pipefail
-          python3 scripts/verify-internal-beta-integration.py 2>&1 | tee feedback-results/internal-beta-composition.log
+          python3 -m unittest discover -s Tests/FeedbackIsolation -v 2>&1 | tee feedback-results/isolation-tests.log
+          python3 -m unittest discover -s Tests/InternalBetaIsolation -v 2>&1 | tee feedback-results/internal-beta-isolation-tests.log
+          python3 -m unittest discover -s Tests/CaptureEntryIsolation -v 2>&1 | tee feedback-results/capture-entry-isolation-tests.log
       - name: Verify actual Feedback and current screenshot composition
         if: github.event.pull_request.head.ref == 'codex/feedback-v01-20261028'
         env:

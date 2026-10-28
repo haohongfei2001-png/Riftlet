@@ -333,6 +333,12 @@ public final class RiftPanelController {
     public private(set) var configuration: RiftConfiguration
     public private(set) var visibleRange: Range<Int> = 0..<0
     public private(set) var userHidden = false
+    /// Capture presentation is transient and never changes persisted Hide or
+    /// any asset/transfer state. Header reservation also bounds long queues.
+    public private(set) var captureSuppressed = false
+    private var captureSessionActive = false
+    private var captureHeaderAnchor: CGPoint?
+    public var onGeometryChange: (() -> Void)?
     private let cache: ThumbnailCache
     private let onSelect: (UUID) -> Void
     private let onPress: (UUID, TimeInterval) -> Void
@@ -432,6 +438,42 @@ public final class RiftPanelController {
 
     public var interactionSnapshot: RiftInteractionSnapshot { interaction.snapshot }
 
+    public var preferredScreen: NSScreen? { screen }
+
+    public func setCaptureHeaderAnchor(_ anchor: CGPoint?) {
+        guard !closed, captureHeaderAnchor != anchor else { return }
+        captureHeaderAnchor = anchor
+        reflow()
+    }
+
+    public func setCaptureSessionActive(_ active: Bool) {
+        guard !closed else { return }
+        captureSessionActive = active
+        for panel in allPresentationPanels {
+            panel.level = active ? NSWindow.Level(rawValue: NSWindow.Level.statusBar.rawValue + 1) : .floating
+        }
+    }
+
+    public func setCaptureSuppressed(_ suppressed: Bool) {
+        guard !closed, suppressed != captureSuppressed else { return }
+        captureSuppressed = suppressed
+        if suppressed {
+            allPresentationPanels.forEach { $0.orderOut(nil) }
+        } else if !userHidden {
+            // Restore the current presentation in place. lastRecords can still
+            // describe the pre-swallow queue while a close/shift timer owns the
+            // transition; re-applying it here would reverse that animation.
+            rowWindows.values.forEach { row in row.panels.forEach { present($0) } }
+            if !rowWindows.isEmpty && !decoration.frame.isEmpty { present(decoration) }
+        }
+        refreshHoverFromPointer()
+        onGeometryChange?()
+    }
+
+    private var allPresentationPanels: [NSPanel] {
+        [decoration] + rowWindows.values.flatMap { [$0.panel, $0.imageInput, $0.numberInput] }
+    }
+
     /// The displayed version is captured before an asynchronous store call. A
     /// later archive response must not replace an accepted click with a new row.
     public func selectionRevision(for assetID: UUID) -> Int64? { selectionVersions[assetID] }
@@ -495,7 +537,8 @@ public final class RiftPanelController {
     }
 
     private func present(_ panel: NSPanel) {
-        guard !closed, !userHidden else { panel.orderOut(nil); return }
+        guard !closed, !userHidden, !captureSuppressed else { panel.orderOut(nil); return }
+        panel.level = captureSessionActive ? NSWindow.Level(rawValue: NSWindow.Level.statusBar.rawValue + 1) : .floating
         panel.orderFrontRegardless()
     }
 
@@ -573,12 +616,19 @@ public final class RiftPanelController {
         let hasNewCapture = !lastRecords.isEmpty && records.contains {
             $0.visibility == .visible && $0.visibilityReason == .capture && !oldIDs.contains($0.id)
         }
-        var layout = RiftLayout.make(records: records, visibleFrame: screen.visibleFrame,
-                                     configuration: configuration, firstVisibleIndex: firstVisibleIndex)
+        var queueFrame = screen.visibleFrame
+        var queueConfiguration = configuration
+        if let header = captureHeaderAnchor {
+            queueFrame.size.height = max(0, min(queueFrame.maxY, header.y - 62 + configuration.screenPadding) - queueFrame.minY)
+            queueConfiguration.firstCenterFromTop = configuration.screenPadding
+                + max(configuration.fitHeight, configuration.minimumHitHeight) / 2
+        }
+        var layout = RiftLayout.make(records: records, visibleFrame: queueFrame,
+                                     configuration: queueConfiguration, firstVisibleIndex: firstVisibleIndex)
         if hasNewCapture && layout.totalCount > layout.capacity {
             firstVisibleIndex = max(0, layout.totalCount - layout.capacity)
-            layout = RiftLayout.make(records: records, visibleFrame: screen.visibleFrame,
-                                     configuration: configuration, firstVisibleIndex: firstVisibleIndex)
+            layout = RiftLayout.make(records: records, visibleFrame: queueFrame,
+                                     configuration: queueConfiguration, firstVisibleIndex: firstVisibleIndex)
         }
         firstVisibleIndex = layout.firstVisibleIndex
         visibleRange = firstVisibleIndex..<(firstVisibleIndex + layout.rows.count)
@@ -651,12 +701,17 @@ public final class RiftPanelController {
                 view?.setImage(image)
             }
         }
-        decoration.setFrame(layout.lineFrame, display: true)
-        decoration.contentView?.frame = CGRect(origin: .zero, size: layout.lineFrame.size)
+        var lineFrame = layout.lineFrame
+        if !lineFrame.isEmpty, let header = captureHeaderAnchor {
+            lineFrame.size.height = max(lineFrame.maxY, header.y + 18) - lineFrame.minY
+        }
+        decoration.setFrame(lineFrame, display: true)
+        decoration.contentView?.frame = CGRect(origin: .zero, size: lineFrame.size)
         if !layout.rows.isEmpty && !layout.lineFrame.isEmpty { present(decoration) }
         else { decoration.orderOut(nil) }
         lastRecords = records
         refreshHoverFromPointer()
+        onGeometryChange?()
         if shouldShift {
             DispatchQueue.main.asyncAfter(deadline: .now() + shiftTime) { [weak self] in
                 guard let self, !self.closed, self.generation == token else { return }
@@ -670,6 +725,7 @@ public final class RiftPanelController {
                 }
                 self.setTransitioning(false)
                 self.refreshHoverFromPointer()
+                self.onGeometryChange?()
                 self.flushDeferred()
             }
         }

@@ -1,7 +1,12 @@
 import Foundation
 
 public enum StoreMode: String, Codable, Sendable { case production, simulation }
-public enum AssetOrigin: String, Codable, Sendable { case systemScreenshot, synthetic }
+public enum AssetOrigin: String, Codable, Sendable {
+    case systemScreenshot, synthetic
+    /// A real user image created/edited inside Riftlet. This is never synthetic
+    /// evidence and cannot borrow the original-system-screenshot admission.
+    case applicationScreenshot
+}
 public enum QueueStatus: String, Codable, Sendable {
     case pending, transferring, unknown, failed, used, missing
 }

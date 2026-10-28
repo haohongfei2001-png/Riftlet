@@ -11,6 +11,7 @@
 <key>LSMinimumSystemVersion</key><string>13.0</string>
 <key>LSUIElement</key><true/>
 <key>NSHighResolutionCapable</key><true/>
+<key>NSScreenCaptureUsageDescription</key><string>Riftlet 仅在你主动截图时捕获所选窗口、区域或屏幕，并在本机保存截图。</string>
 <key>LSApplicationCategoryType</key><string>public.app-category.utilities</string>
 <key>RiftletBuildChannel</key><string>development</string>
 <key>RiftletDeveloperIDSigned</key><false/>

@@ -104,6 +104,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private var sourceBinding: CaptureSourceBinding?
     private var transfer: TransferCoordinator?
     private var rift: RiftPanelController?
+    private var screenshotEntry: ScreenshotEntryHost?
     private var root: URL!
     private var visibleIDs = Set<UUID>()
     private var refreshRunning = false
@@ -208,6 +209,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         if let wakeObserver { NSWorkspace.shared.notificationCenter.removeObserver(wakeObserver) }
         if let activationObserver { NSWorkspace.shared.notificationCenter.removeObserver(activationObserver) }
         if let archiveWakeObserver { NSWorkspace.shared.notificationCenter.removeObserver(archiveWakeObserver) }
+        screenshotEntry?.close()
         rift?.close()
         history?.close()
         setup?.close()
@@ -423,6 +425,14 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         updateControlTitles()
         startArchiveScheduler()
         initialized = true
+        if mode.collectsSystemScreenshots, let rift {
+            do {
+                screenshotEntry = try ScreenshotEntryHost(root: root, store: store, rift: rift,
+                    onChange: { [weak self] in await self?.refresh() },
+                    onIssue: { [weak self] message in self?.showIssue(message) })
+                screenshotEntry?.setHidden(userHidden)
+            } catch { showIssue("截图入口暂不可用，已有截图收录和队列仍保留。") }
+        }
         await refresh()
     }
 
@@ -1098,6 +1108,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 watchedCompletions.formUnion(successful.map(\.id))
                 if hasNewImages && mode.usesWebAdapter { requestArm(reason: "newImages") }
                 rift?.render(snapshot)
+                screenshotEntry?.configure()
                 // The last observed phase may advance to input before another
                 // refresh. Use neutral text, never claim ongoing no-input status.
                 let prepared = Dictionary(uniqueKeysWithValues: unresolved.filter { operation in
@@ -1228,7 +1239,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         if requested {
             cancelSelections(reason: "hidden")
             frozenPress = nil
-            userHidden = true; rift?.setUserHidden(true); updateControlTitles()
+            userHidden = true; screenshotEntry?.setHidden(true); rift?.setUserHidden(true); updateControlTitles()
         }
         Task {
             defer { changingHidden = false; updateControlTitles() }
@@ -1236,6 +1247,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 try await store.setUserHidden(requested)
                 visibilitySettingFailed = false
                 userHidden = requested; rift?.setUserHidden(requested)
+                screenshotEntry?.setHidden(requested)
                 await refresh()
             } catch { visibilitySettingFailed = true; updateSetup() }
         }
@@ -1353,6 +1365,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         let hide = NSMenuItem(title: "Hide rift", action: #selector(toggleHidden), keyEquivalent: "")
         hide.target = self; menu.addItem(hide); hideItem = hide
         if mode.collectsSystemScreenshots {
+            add(menu, "截图…", #selector(beginScreenshot))
             let pause = NSMenuItem(title: "Pause collection", action: #selector(toggleCollection), keyEquivalent: "")
             pause.target = self; menu.addItem(pause); pauseItem = pause
         }
@@ -1383,6 +1396,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         let item = NSMenuItem(title: title, action: action, keyEquivalent: key); item.target = self; menu.addItem(item)
     }
     func validateMenuItem(_ item: NSMenuItem) -> Bool {
+        if item.action == #selector(beginScreenshot) { return screenshotEntry != nil && !userHidden }
         if item.action == #selector(toggleCollection) { return mode.collectsSystemScreenshots && initialized && !captureControl.isBusy }
         if item.action == #selector(recheckSetup) || item.action == #selector(reload) {
             return initialized && !captureControl.isBusy && !requestingPermission
@@ -1391,6 +1405,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         return true
     }
     private func showIssue(_ message: String) { statusLine?.title = message; statusItem?.button?.toolTip = message }
+    @objc private func beginScreenshot() { screenshotEntry?.beginFromMenu() }
     @objc private func showLatest() { rift?.showLatest() }
     @objc private func showOldest() { rift?.showOldest() }
     @objc private func quit() { NSApplication.shared.terminate(nil) }
