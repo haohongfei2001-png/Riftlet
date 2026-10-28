@@ -51,10 +51,54 @@ final class ScreenshotEntryPreferencesTests: XCTestCase {
         XCTAssertEqual(try Data(contentsOf: unrelated), original)
     }
 
+    func testLegacyIsEnabledMigratesWithoutChangingModeAndSavesOnlyCanonicalKey() throws {
+        let (root, url) = try settingsURL()
+        defer { try? FileManager.default.removeItem(at: root) }
+        for enabled in [false, true] {
+            for mode in [ScreenshotMode.window, .region, .fullScreen] {
+                let legacy: [String: Any] = ["version": 1, "defaultMode": mode.rawValue, "isEnabled": enabled]
+                try JSONSerialization.data(withJSONObject: legacy).write(to: url)
+                let preferences = try ScreenshotEntryPreferences.load(from: url)
+                XCTAssertEqual(preferences.builtInScreenshotEnabled, enabled)
+                XCTAssertEqual(preferences.defaultMode, mode)
+                try preferences.save(to: url)
+                let saved = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any])
+                XCTAssertEqual(Set(saved.keys), ["version", "defaultMode", "builtInScreenshotEnabled"])
+                XCTAssertEqual(saved["builtInScreenshotEnabled"] as? Bool, enabled)
+                XCTAssertEqual(try ScreenshotEntryPreferences.load(from: url), preferences)
+            }
+        }
+    }
+
+    func testCanonicalToggleWinsOverConflictingOrMalformedLegacyValues() throws {
+        let (root, url) = try settingsURL()
+        defer { try? FileManager.default.removeItem(at: root) }
+        let legacyValues: [Any] = [true, false, "invalid", NSNull()]
+        for canonical in [false, true] {
+            for legacy in legacyValues {
+                let values: [String: Any] = ["version": 1, "defaultMode": "region",
+                    "builtInScreenshotEnabled": canonical, "isEnabled": legacy]
+                try JSONSerialization.data(withJSONObject: values).write(to: url)
+                let preferences = try ScreenshotEntryPreferences.load(from: url)
+                XCTAssertEqual(preferences.builtInScreenshotEnabled, canonical)
+                XCTAssertEqual(preferences.defaultMode, .region)
+            }
+        }
+    }
+
     func testInvalidExplicitToggleIsRejectedInsteadOfSilentlyEnablingCapture() throws {
         let (root, url) = try settingsURL()
         defer { try? FileManager.default.removeItem(at: root) }
-        try Data(#"{"version":1,"defaultMode":"window","builtInScreenshotEnabled":"false"}"#.utf8).write(to: url)
-        XCTAssertThrowsError(try ScreenshotEntryPreferences.load(from: url))
+        let invalidValues: [Any] = ["false", 1, NSNull()]
+        for invalid in invalidValues {
+            // A malformed canonical value cannot fall back to a valid legacy
+            // value; a malformed legacy value cannot become the enabled default.
+            for toggles in [["builtInScreenshotEnabled": invalid, "isEnabled": false], ["isEnabled": invalid]] {
+                var values: [String: Any] = ["version": 1, "defaultMode": "window"]
+                values.merge(toggles) { _, new in new }
+                try JSONSerialization.data(withJSONObject: values).write(to: url)
+                XCTAssertThrowsError(try ScreenshotEntryPreferences.load(from: url))
+            }
+        }
     }
 }

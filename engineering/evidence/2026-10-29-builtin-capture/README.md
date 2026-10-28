@@ -8,7 +8,7 @@
 
 ## Actual captured synthetic previews
 
-The two PNGs in `synthetic-previews/` came from actual SCScreenshotManager captures in arm64 job `123056435473`, run [40756422188](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40756422188), PR head `b901b5e10a94aa25165d0e020e50931ae8015a77`, merge checkout `d60685f5ce5e8711b039645a8c47c027dbb00e12`, on macOS 15.7.9, one 1024×768 1× display. The fixture contained only synthetic color bands and pixel strips. Every retained pixel passed the tool's strict synthetic allowlist before a metadata-free sRGB re-encode. `manifest.json` fixes both preview and original-PNG digests.
+The two PNGs in `synthetic-previews/` came from actual SCScreenshotManager captures in arm64 job `123056435473`, run [40756422188](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40756422188), PR head `b901b5e10a94aa25165d0e020e50931ae8015a77`, merge checkout `d60685f5ce5e8711b039645a8c47c027dbb00e12`, on macOS 15.7.9, one 1024×768 1× display. The fixture contained only synthetic color bands and pixel strips. Every retained pixel passed the tool's strict synthetic allowlist before an sRGB re-encode with no copied source metadata; the encoder-generated EXIF contains only color-space and image-dimension values. `manifest.json` fixes both preview and original-PNG digests.
 
 These are **sanitized actual captures**, not original PNG files, not the production CLI backend, and not evidence for HDR, ICC fidelity, orientation, physical interaction or new-source upload. Intel and nonmatching samples retained no images. Raw screenshots, arbitrary window titles, desktop contents and user data are not included.
 

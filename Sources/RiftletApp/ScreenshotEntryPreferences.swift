@@ -12,6 +12,7 @@ struct ScreenshotEntryPreferences: Codable, Equatable {
 
     private enum CodingKeys: String, CodingKey {
         case version, defaultMode, builtInScreenshotEnabled
+        case legacyIsEnabled = "isEnabled"
     }
 
     init(version: Int = 1, defaultMode: ScreenshotMode = .window,
@@ -25,10 +26,24 @@ struct ScreenshotEntryPreferences: Codable, Equatable {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         version = try values.decode(Int.self, forKey: .version)
         defaultMode = try values.decode(ScreenshotMode.self, forKey: .defaultMode)
-        // Version 1 predates the off switch. Its existing users already had the
-        // built-in entry enabled; preserving that behavior must not reset their
-        // chosen default mode. An explicit false survives every future load.
-        builtInScreenshotEnabled = try values.decodeIfPresent(Bool.self, forKey: .builtInScreenshotEnabled) ?? true
+        // The thin-edge integration used isEnabled in the same version-1 file.
+        // A present canonical key wins and must decode strictly, including null;
+        // malformed settings must never silently turn a disabled feature on.
+        if values.contains(.builtInScreenshotEnabled) {
+            builtInScreenshotEnabled = try values.decode(Bool.self, forKey: .builtInScreenshotEnabled)
+        } else if values.contains(.legacyIsEnabled) {
+            builtInScreenshotEnabled = try values.decode(Bool.self, forKey: .legacyIsEnabled)
+        } else {
+            // Earlier version-1 settings predate either switch and were enabled.
+            builtInScreenshotEnabled = true
+        }
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var values = encoder.container(keyedBy: CodingKeys.self)
+        try values.encode(version, forKey: .version)
+        try values.encode(defaultMode, forKey: .defaultMode)
+        try values.encode(builtInScreenshotEnabled, forKey: .builtInScreenshotEnabled)
     }
 
     static func load(from url: URL) throws -> Self {
