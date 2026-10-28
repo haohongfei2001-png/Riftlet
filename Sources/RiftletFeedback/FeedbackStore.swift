@@ -65,7 +65,7 @@ public actor FeedbackStore {
             try exec("PRAGMA journal_mode=DELETE; PRAGMA synchronous=FULL; PRAGMA trusted_schema=OFF;")
             try exec("BEGIN IMMEDIATE")
             do {
-                try exec("CREATE TABLE IF NOT EXISTS meta(key TEXT PRIMARY KEY,value TEXT NOT NULL); CREATE TABLE IF NOT EXISTS draft(id INTEGER PRIMARY KEY CHECK(id=1),revision INTEGER NOT NULL,payload BLOB NOT NULL); CREATE TABLE IF NOT EXISTS reports(id TEXT PRIMARY KEY,payload BLOB NOT NULL,state TEXT NOT NULL,attempts INTEGER NOT NULL DEFAULT 0,next_attempt REAL NOT NULL,created REAL NOT NULL); CREATE TABLE IF NOT EXISTS submissions(revision INTEGER PRIMARY KEY,report_id TEXT NOT NULL); PRAGMA user_version=1;")
+                try exec("CREATE TABLE IF NOT EXISTS meta(key TEXT PRIMARY KEY,value TEXT NOT NULL); CREATE TABLE IF NOT EXISTS draft(id INTEGER PRIMARY KEY CHECK(id=1),revision INTEGER NOT NULL,payload BLOB NOT NULL); CREATE TABLE IF NOT EXISTS reports(id TEXT PRIMARY KEY,payload BLOB NOT NULL,state TEXT NOT NULL,attempts INTEGER NOT NULL DEFAULT 0,next_attempt REAL NOT NULL,created REAL NOT NULL); CREATE TABLE IF NOT EXISTS submissions(revision INTEGER PRIMARY KEY,report_id TEXT NOT NULL); CREATE TABLE IF NOT EXISTS credential_intents(id TEXT PRIMARY KEY); PRAGMA user_version=1;")
                 try exec("INSERT OR IGNORE INTO draft VALUES(1,0,'{\"kind\":\"problem\",\"text\":\"\",\"revision\":0}')")
                 var marker: OpaquePointer?
                 guard sqlite3_prepare_v2(handle, "SELECT value FROM meta WHERE key='running'", -1, &marker, nil) == SQLITE_OK else { throw FeedbackFailure.storageUnavailable }
@@ -141,6 +141,7 @@ public actor FeedbackStore {
             try execute("INSERT INTO reports(id,payload,state,next_attempt,created) VALUES(?,?,'queued',0,?)",
                         [envelope.id, String(decoding: bytes, as: UTF8.self), String(envelope.createdAt)])
             try execute("INSERT INTO submissions VALUES(?,?)", [String(value.revision), envelope.id])
+            try execute("DELETE FROM credential_intents WHERE id=?", [envelope.id])
             let fresh = FeedbackDraft(revision: value.revision + 1)
             try execute("UPDATE draft SET revision=?,payload=? WHERE id=1",
                         [String(fresh.revision), String(decoding: try encoder.encode(fresh), as: UTF8.self)])
@@ -164,6 +165,27 @@ public actor FeedbackStore {
                 attempts: Int(sqlite3_column_int(s, 3)), nextAttempt: Date(timeIntervalSince1970: sqlite3_column_double(s, 4)),
                 created: Date(timeIntervalSince1970: sqlite3_column_double(s, 5))))
         }
+    }
+    /// Journal only the random report ID before touching Keychain. No secret is
+    /// stored here. A failed/abandoned enqueue can be cleaned after restart.
+    func registerCredentialIntent(id: String) throws {
+        guard UUID(uuidString: id) != nil else { throw FeedbackFailure.conflict }
+        try execute("INSERT INTO credential_intents(id) SELECT ? WHERE (SELECT COUNT(*) FROM credential_intents)<32", [id])
+        guard sqlite3_changes(db) == 1 else { throw FeedbackFailure.capacity }
+    }
+    func uncommittedCredentialIDs() throws -> [String] {
+        let s = try statement("SELECT id FROM credential_intents WHERE NOT EXISTS(SELECT 1 FROM reports WHERE reports.id=credential_intents.id) LIMIT 32")
+        defer { sqlite3_finalize(s) }
+        var ids: [String] = []
+        while true {
+            let step = sqlite3_step(s)
+            if step == SQLITE_DONE { return ids }
+            guard step == SQLITE_ROW else { throw FeedbackFailure.storageUnavailable }
+            ids.append(string(s, 0))
+        }
+    }
+    func finishCredentialCleanup(id: String) throws {
+        try execute("DELETE FROM credential_intents WHERE id=? AND NOT EXISTS(SELECT 1 FROM reports WHERE reports.id=credential_intents.id)", [id])
     }
     public func beginAttempt(id: String, expected: FeedbackLocalState) throws -> Bool {
         try execute("UPDATE reports SET attempts=MIN(attempts+1,9999) WHERE id=? AND state=?", [id, expected.rawValue])

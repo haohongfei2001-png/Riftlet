@@ -6,6 +6,7 @@ public actor FeedbackEngine {
     public let store: FeedbackStore
     private let secrets: any FeedbackSecretStorage
     private let transport: any FeedbackTransport
+    private var activeCredentialIDs = Set<String>()
     private var running = false
     private var pumpRequested = false
     private var wake: Task<Void, Never>?
@@ -19,14 +20,43 @@ public actor FeedbackEngine {
     }
 
     public func enqueue(_ draft: FeedbackDraft, appVersion: String) async throws -> String {
+        await cleanupAbandonedCredentials()
         if let existing = try await store.submittedID(revision: draft.revision) { return existing }
         try await store.saveDraft(draft)
         let envelope = try FeedbackEnvelope(draft: draft, appVersion: appVersion)
-        _ = try secrets.secret(for: envelope.id, create: true)
-        return try await store.enqueue(envelope, from: draft)
+        activeCredentialIDs.insert(envelope.id)
+        defer { activeCredentialIDs.remove(envelope.id) }
+        try await store.registerCredentialIntent(id: envelope.id)
+        do {
+            _ = try secrets.secret(for: envelope.id, create: true)
+            let committedID = try await store.enqueue(envelope, from: draft)
+            if committedID != envelope.id { await cleanupCredential(id: envelope.id) }
+            return committedID
+        } catch {
+            // Query the durable ledger first; an ambiguous commit must never
+            // discard a capability belonging to a persisted report.
+            await cleanupCredential(id: envelope.id)
+            throw error
+        }
+    }
+
+    private func cleanupCredential(id: String) async {
+        do {
+            guard try await store.uncommittedCredentialIDs().contains(id) else { return }
+            try secrets.remove(for: id)
+            try await store.finishCredentialCleanup(id: id)
+        } catch { /* Keep the intent for retry; never touch screenshot storage. */ }
+    }
+    private func cleanupAbandonedCredentials() async {
+        guard let ids = try? await store.uncommittedCredentialIDs() else { return }
+        for id in ids where !activeCredentialIDs.contains(id) {
+            await cleanupCredential(id: id)
+        }
     }
 
     public func pump() async {
+        guard !stopped else { return }
+        await cleanupAbandonedCredentials() // Local cleanup also works with the endpoint disabled.
         guard configured, !stopped else { return }
         guard !running else { pumpRequested = true; return }
         running = true; invalidateWake()
