@@ -23,6 +23,11 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
+      - name: Verify isolation audit regressions
+        run: |
+          set -o pipefail
+          mkdir -p feedback-results
+          python3 -m unittest discover -s Tests/FeedbackIsolation -v 2>&1 | tee feedback-results/isolation-tests.log
       - name: Verify actual Feedback and current screenshot composition
         if: github.event.pull_request.head.ref == 'codex/feedback-v01-20261028'
         env:
