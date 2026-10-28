@@ -5,6 +5,7 @@ on:
       - 'codex/riftlet-real-mac-acceptance-*'
       - 'codex/riftlet-real-mac-round*'
       - 'codex/system-capture-candidate-20261028'
+      - 'codex/system-screenshot-real-20261028'
     paths:
       - 'Sources/**'
       - 'Tests/**'
