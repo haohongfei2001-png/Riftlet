@@ -145,6 +145,15 @@ jobs:
           swift test --skip-build --filter SystemScreenshotFidelityTests 2>&1 | tee test-results/system-candidate-fidelity-detailed.log
           swift test --skip-build --filter 'RiftletFeedbackTests|RiftletFeedbackUITests' 2>&1 | tee test-results/feedback-detailed.log
           swift test --skip-build --filter 'ScreenshotEntry|InteractiveScreenshot|CompletedScreenshotImporter|RiftCapturePresentation|BuiltInScreenshotHost|ScreenshotMarkupFidelity|RiftSetupController' 2>&1 | tee test-results/capture-entry-detailed.log
+      - name: Exercise the production screenshot engine and private import with an owned fixture
+        env:
+          RIFTLET_REAL_CAPTURE_FIXTURE: '1'
+        run: |
+          set -o pipefail
+          # Serial and opt-in: this does not run inside the parallel software suite.
+          # The test also requires GITHUB_ACTIONS and preexisting capture permission.
+          # Actual output/import failures fail; an unavailable safe fixture is NOT_RUN.
+          swift test --skip-build --filter BuiltInCaptureNativeProbeTests 2>&1 | tee test-results/builtin-capture-native-probe.log
       - name: Package native application
         run: |
           set -o pipefail
@@ -173,6 +182,11 @@ jobs:
           "$riftlet_bin_dir/RiftletGUIAcceptance" --self-check 2>&1 | tee test-results/gui-helper-self-check.log
           cp "$riftlet_bin_dir/RiftletGUIAcceptance" build/RiftletGUIAcceptance
           ditto -c -k --keepParent build/RiftletGUIAcceptance build/Riftlet-GUI-Acceptance.zip
+      - name: Reject actual screenshot output failures independently of software tests
+        if: always()
+        run: |
+          set -o pipefail
+          python3 -B scripts/verify-capture-probe-outcome.py test-results/capture-backend-probe.json 2>&1 | tee test-results/capture-output-contract.log
       - name: Archive evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

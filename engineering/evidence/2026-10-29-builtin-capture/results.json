@@ -5,8 +5,22 @@
   "branch": "codex/builtin-capture-completion-20261029",
   "sourceRevision": "bd83e84e49fe7f50ad6c483bf9ccb1885ce70fc8",
   "ci": {
-    "status": "PENDING_CURRENT_SOURCE",
-    "runs": [],
+    "status": "PENDING_NEW_SAFE_PUBLICATION_SOURCE; previous software-only success did not establish CLI output success",
+    "runs": [
+      {
+        "id": 40756422188,
+        "name": "Native foundation",
+        "status": "IN_PROGRESS",
+        "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/40756422188"
+      },
+      {
+        "id": 40756422179,
+        "name": "Feedback v0.1",
+        "status": "SUCCESS",
+        "job": 123056434257,
+        "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/40756422179"
+      }
+    ],
     "previousSourceRuns": [
       {
         "head": "9e7ab42739c78d97ee7dc352216a6a62659ce2ea",
@@ -20,7 +34,54 @@
         "arm64ProbeCapturedSamples": 0,
         "previewImagesRetained": 0
       }
-    ]
+    ],
+    "testedHead": "b901b5e10a94aa25165d0e020e50931ae8015a77",
+    "rejectedCandidate": {
+      "source": "bd83e84e49fe7f50ad6c483bf9ccb1885ce70fc8",
+      "head": "b901b5e10a94aa25165d0e020e50931ae8015a77",
+      "checkout": "d60685f5ce5e8711b039645a8c47c027dbb00e12",
+      "nativeRun": 40756422188,
+      "feedbackRun": 40756422179,
+      "nativeJobs": {
+        "intel": 123056434921,
+        "arm64": 123056435473
+      },
+      "workflowConclusions": "success; old workflow did not reject actual probe errors",
+      "software": {
+        "parallelUniqueScheduledMethods": 660,
+        "serialDetailedPassed": 243,
+        "serialCaptureSettingsPassedSubset": 88,
+        "serialFailed": 0,
+        "serialSkipped": 0,
+        "countsOverlap": true
+      },
+      "actualCLI": {
+        "intel": {
+          "captured": 0,
+          "errors": 15,
+          "reason": "INVALIDPNG"
+        },
+        "arm64": {
+          "captured": 0,
+          "errors": 15,
+          "reason": "INVALIDPNG"
+        }
+      },
+      "actualSCScreenshotManager": {
+        "intelCaptured": 15,
+        "arm64Captured": 15,
+        "arm64SafePreviews": 10
+      },
+      "productDecision": "REJECTED; direct hidden leaf produced no readable exact-path PNG",
+      "intelLogSHA256": "dc66d986a5d5feebe4dd4f2874c982d82c462f1a578d4552983d1b60ce3dc1f2",
+      "feedback": {
+        "job": 123056434257,
+        "softwareIsolationTestsPassed": 65,
+        "serviceTestsPassed": 18,
+        "nativeFeedbackTestsPassed": 33,
+        "physicalAcceptance": "NOT_RUN"
+      }
+    }
   },
   "authorEnvironment": "Linux x86_64; no local Swift/AppKit runtime",
   "registeredMac": "OFFLINE",
@@ -45,9 +106,871 @@
     "physicalOrUploadAdmission": "NOT_GRANTED",
     "reviewedSource": "bd83e84e49fe7f50ad6c483bf9ccb1885ce70fc8",
     "timeoutRaceFollowup": "PASS; exact two-blob delta independently reviewed",
-    "originOverlapFollowup": "PASS; hidden originals/derivatives, returned-origin conflict rejection, active and retired system-source scans"
+    "originOverlapFollowup": "PASS source review; ordinary CLI filename in hidden private stage, exclusive hidden final publication, provenance conflict guard; real output acceptance requires new CI"
   },
   "pullRequest": "https://github.com/haohongfei2001-png/Riftlet/pull/14",
   "newSwiftTestMethods": 40,
-  "legacyVisibleCaptures": "NOT_MIGRATED; no retag, no cleanup, no new upload evidence or old-operation admission"
+  "legacyVisibleCaptures": "NOT_MIGRATED; no retag, no cleanup, no new upload evidence or old-operation admission",
+  "productAcceptance": "BLOCKED; engineering candidate only",
+  "remainingRequirements": [
+    {
+      "id": "RETINA_ODD_PIXEL_SELECTION",
+      "status": "NOT_IMPLEMENTED_OR_PHYSICALLY_VALIDATED",
+      "detail": "Production region grid remains integral logical points; mixed-scale raster and half-point capture contract unproven."
+    },
+    {
+      "id": "APPLICATION_SCREENSHOT_UPLOAD",
+      "status": "NOT_RUN_ADMISSION_CLOSED",
+      "detail": "No new upload-start, completion or retry profile; old UNKNOWN and identity boundaries unchanged."
+    },
+    {
+      "id": "BUILTIN_MAGNET_GEOMETRY",
+      "status": "NOT_CONNECTED",
+      "detail": "Built-in images use approved static arrival fallback; system geometry admission is not borrowed."
+    },
+    {
+      "id": "PHYSICAL_MAC_MATRIX",
+      "status": "NOT_RUN",
+      "detail": "Registered Mac offline. Real mouse/TCC/Spaces/Retina/hotplug/sleep/app self-exclusion/subjective latency not covered by CI."
+    },
+    {
+      "id": "FORMAL_COMBINATION_RELEASE",
+      "status": "NOT_RUN",
+      "detail": "Sole formal integration owner must combine with latest Quiet Edge/Feedback and re-pin/re-run the actual combined tree."
+    }
+  ],
+  "preliminaryProbeEvidence": {
+    "schemaVersion": 1,
+    "runID": 40753727348,
+    "head": "9e7ab42739c78d97ee7dc352216a6a62659ce2ea",
+    "checkout": "be3080ccbbd32c69e770ec635882e9a058443396",
+    "source": "JSON from completed GitHub job log probe output; raw PNG image bytes were not retained",
+    "intel": {
+      "jobID": 123046924487,
+      "jobConclusion": "success",
+      "osVersion": "15.7.9",
+      "display": {
+        "backingScale": 1,
+        "connectedScreenCount": 1,
+        "isMirrored": false,
+        "ordinal": 1,
+        "quartzBounds": [
+          0,
+          0,
+          1920,
+          1080
+        ]
+      },
+      "fixturePointSize": [
+        480,
+        320
+      ],
+      "selfCheck": {
+        "capture": "NOT_RUN",
+        "checks": [
+          "PNG_ROUND_TRIP",
+          "TRUNCATED_PNG_REJECTED",
+          "FRACTIONAL_ARGUMENT_SERIALIZATION_ONLY",
+          "MEDIAN",
+          "JSON_SAFE_MEMORY",
+          "SANITIZED_PREVIEW_PIXEL_ALLOWLIST",
+          "OFF_FIXTURE_PIXEL_REJECTED"
+        ],
+        "fidelityMeaning": "Raw PNG metadata and diagnostic sRGB digest. SDR fixture does not prove HDR/wide-gamut correctness.",
+        "HDRWideGamutAcceptance": "NOT_RUN",
+        "latencyMeaning": "Tool/API + PNG boundary only. Not click-to-thumbnail, upload latency or fully cold system cache.",
+        "memory": {
+          "childrenPeakResidentBytesCumulative": 0,
+          "processPeakResidentBytes": 5267456,
+          "residentBytes": 5267456,
+          "scope": "Darwin bytes; process lifetime peaks, NOT per-backend isolated peaks; children cumulative"
+        },
+        "mixedScaleMultiDisplayAcceptance": "NOT_RUN",
+        "osVersion": "15.7.9",
+        "permissionRequested": false,
+        "physicalMouseAcceptance": "NOT_RUN",
+        "previewPolicy": "Only optional fully validated synthetic pixels; sanitized sRGB PNG, never full-display bytes",
+        "rawImagesPersistedAsArtifacts": false,
+        "realRiftletImportUploadAcceptance": "NOT_RUN",
+        "schemaVersion": 1,
+        "scope": "OFFLINE_SYNTHETIC_SELF_CHECK_NO_APPKIT_NO_TCC",
+        "status": "PASS"
+      },
+      "sckEnumerationMS": 105.47164399997655,
+      "sanitizedSyntheticImagesRetained": 0,
+      "groups": [
+        {
+          "allMedianReadyToInspectPNGMS": 261.15694500003883,
+          "backend": "screencapture",
+          "capturedSamples": 5,
+          "firstReadyToInspectPNGMS": 414.4424670000717,
+          "variant": "window-no-shadow",
+          "warmMedianReadyToInspectPNGMS": 246.35974350002243,
+          "requestedQuartzPoints": [
+            720,
+            350,
+            480,
+            320
+          ],
+          "samples": [
+            {
+              "sample": 1,
+              "phase": "FIRST_VARIANT_CALL_IN_EXISTING_PROCESS",
+              "captureMS": 361.3683480000418,
+              "pngStageMS": 0.366297000027771,
+              "readyToInspectPNGMS": 414.4424670000717,
+              "rawPNGSHA256": "408455e3a4f9e25d290846036d16270988622d29b05e72d3c2efb98ceb5e99f4"
+            },
+            {
+              "sample": 2,
+              "phase": "WARM_VARIANT_CALL",
+              "captureMS": 227.91968700005327,
+              "pngStageMS": 0.28106800004934485,
+              "readyToInspectPNGMS": 231.56254200000603,
+              "rawPNGSHA256": "408455e3a4f9e25d290846036d16270988622d29b05e72d3c2efb98ceb5e99f4"
+            },
+            {
+              "sample": 3,
+              "phase": "WARM_VARIANT_CALL",
+              "captureMS": 413.29089699991073,
+              "pngStageMS": 0.3106980000211479,
+              "readyToInspectPNGMS": 415.79297399994175,
+              "rawPNGSHA256": "408455e3a4f9e25d290846036d16270988622d29b05e72d3c2efb98ceb5e99f4"
+            },
+            {
+              "sample": 4,
+              "phase": "WARM_VARIANT_CALL",
+              "captureMS": 257.41060099994684,
+              "pngStageMS": 0.38439499996911763,
+              "readyToInspectPNGMS": 261.15694500003883,
+              "rawPNGSHA256": "408455e3a4f9e25d290846036d16270988622d29b05e72d3c2efb98ceb5e99f4"
+            },
+            {
+              "sample": 5,
+              "phase": "WARM_VARIANT_CALL",
+              "captureMS": 207.38290100007362,
+              "pngStageMS": 0.29314799996882357,
+              "readyToInspectPNGMS": 211.29042299992307,
+              "rawPNGSHA256": "408455e3a4f9e25d290846036d16270988622d29b05e72d3c2efb98ceb5e99f4"
+            }
+          ],
+          "rawMetadataDistinct": [
+            {
+              "bitDepth": 8,
+              "chunkTypes": [
+                "IHDR",
+                "iCCP",
+                "eXIf",
+                "IDAT",
+                "IDAT",
+                "IDAT",
+                "IDAT",
+                "IEND"
+              ],
+              "colorSpace": "UNNAMED_OR_MISSING",
+              "colorType": 6,
+              "comparisonSpace": "sRGB RGBA8; diagnostic conversion only, not product output",
+              "comparisonSRGBA8SHA256": "1d7c9135b7eaebfb18ca7d8c92142cd0bd502ade7e3da40f3f3c2649d20148f9",
+              "decodedBitsPerComponent": 8,
+              "decodedBitsPerPixel": 32,
+              "decodedHeight": 320,
+              "decodedWidth": 480,
+              "embeddedICC": true,
+              "embeddedICCChunkSHA256": "80c7019d38bb282221a036e4d068bdecb0d1249c60d6a56f79e3bef50de983c2",
+              "embeddedSRGBChunk": false,
+              "fixtureCanaryMatches": 4,
+              "fixtureCanaryMeaning": "Four interior synthetic color samples; not full pixel/DPI/occlusion acceptance",
+              "fixtureColorCanary": "MATCH",
+              "height": 320,
+              "interlace": 0,
+              "rawPNGBytes": 61411,
+              "rawPNGSHA256": "408455e3a4f9e25d290846036d16270988622d29b05e72d3c2efb98ceb5e99f4",
+              "syntheticPixelValidation": "MISMATCH_NO_IMAGE_RETAINED",
+              "width": 480
+            }
+          ]
+        },
+        {
+          "allMedianReadyToInspectPNGMS": 52.48216699999375,
+          "backend": "SCScreenshotManager",
+          "capturedSamples": 5,
+          "firstReadyToInspectPNGMS": 537.2674040000902,
+          "variant": "window-no-shadow",
+          "warmMedianReadyToInspectPNGMS": 51.89887900002077,
+          "requestedQuartzPoints": [
+            720,
+            350,
+            480,
+            320
+          ],
+          "samples": [
+            {
+              "sample": 1,
+              "phase": "FIRST_VARIANT_CALL_IN_EXISTING_PROCESS",
+              "captureMS": 518.3779799999684,
+              "pngStageMS": 11.127024999950663,
+              "readyToInspectPNGMS": 537.2674040000902,
+              "rawPNGSHA256": "6ae8c84b3403b246765c9d8254017e2d071a4bfeb08785ce46510afa485fbedf"
+            },
+            {
+              "sample": 2,
+              "phase": "WARM_VARIANT_CALL",
+              "captureMS": 41.15897200006202,
+              "pngStageMS": 7.395027000029586,
+              "readyToInspectPNGMS": 51.31559100004779,
+              "rawPNGSHA256": "6ae8c84b3403b246765c9d8254017e2d071a4bfeb08785ce46510afa485fbedf"
+            },
+            {
+              "sample": 3,
+              "phase": "WARM_VARIANT_CALL",
+              "captureMS": 44.53034400000888,
+              "pngStageMS": 6.722801000023537,
+              "readyToInspectPNGMS": 53.53271499996026,
+              "rawPNGSHA256": "6ae8c84b3403b246765c9d8254017e2d071a4bfeb08785ce46510afa485fbedf"
+            },
+            {
+              "sample": 4,
+              "phase": "WARM_VARIANT_CALL",
+              "captureMS": 37.999538000008215,
+              "pngStageMS": 6.731362000095942,
+              "readyToInspectPNGMS": 48.458459000016774,
+              "rawPNGSHA256": "6ae8c84b3403b246765c9d8254017e2d071a4bfeb08785ce46510afa485fbedf"
+            },
+            {
+              "sample": 5,
+              "phase": "WARM_VARIANT_CALL",
+              "captureMS": 42.90003800008435,
+              "pngStageMS": 6.97511900000336,
+              "readyToInspectPNGMS": 52.48216699999375,
+              "rawPNGSHA256": "6ae8c84b3403b246765c9d8254017e2d071a4bfeb08785ce46510afa485fbedf"
+            }
+          ],
+          "rawMetadataDistinct": [
+            {
+              "bitDepth": 8,
+              "chunkTypes": [
+                "IHDR",
+                "sRGB",
+                "eXIf",
+                "IDAT",
+                "IDAT",
+                "IDAT",
+                "IDAT",
+                "IEND"
+              ],
+              "colorSpace": "sRGB",
+              "colorType": 6,
+              "comparisonSpace": "sRGB RGBA8; diagnostic conversion only, not product output",
+              "comparisonSRGBA8SHA256": "385ea0abf56dc8c427d7971a38fd87e7d03b3c99c46ac38bab702bc6023d2269",
+              "decodedBitsPerComponent": 8,
+              "decodedBitsPerPixel": 32,
+              "decodedHeight": 320,
+              "decodedWidth": 480,
+              "embeddedICC": false,
+              "embeddedSRGBChunk": true,
+              "fixtureCanaryMatches": 4,
+              "fixtureCanaryMeaning": "Four interior synthetic color samples; not full pixel/DPI/occlusion acceptance",
+              "fixtureColorCanary": "MATCH",
+              "height": 320,
+              "interlace": 0,
+              "rawPNGBytes": 58672,
+              "rawPNGSHA256": "6ae8c84b3403b246765c9d8254017e2d071a4bfeb08785ce46510afa485fbedf",
+              "syntheticPixelValidation": "MISMATCH_NO_IMAGE_RETAINED",
+              "width": 480
+            }
+          ]
+        },
+        {
+          "allMedianReadyToInspectPNGMS": 130.7512979999501,
+          "backend": "screencapture",
+          "capturedSamples": 5,
+          "firstReadyToInspectPNGMS": 130.7512979999501,
+          "variant": "region-integral",
+          "warmMedianReadyToInspectPNGMS": 138.5549799999808,
+          "requestedQuartzPoints": [
+            752,
+            382,
+            128,
+            96
+          ],
+          "samples": [
+            {
+              "sample": 1,
+              "phase": "FIRST_VARIANT_CALL_IN_EXISTING_PROCESS",
+              "captureMS": 127.9309279999552,
+              "pngStageMS": 0.25910899989867175,
+              "readyToInspectPNGMS": 130.7512979999501,
+              "rawPNGSHA256": "1cf742cdf1a2180eedb3a31252d7f8e5c4528b4c79a903bc13a3da9eb96daec1"
+            },
+            {
+              "sample": 2,
+              "phase": "WARM_VARIANT_CALL",
+              "captureMS": 120.71819599998435,
+              "pngStageMS": 0.2343569999538886,
+              "readyToInspectPNGMS": 123.4698319999552,
+              "rawPNGSHA256": "1cf742cdf1a2180eedb3a31252d7f8e5c4528b4c79a903bc13a3da9eb96daec1"
+            },
+            {
+              "sample": 3,
+              "phase": "WARM_VARIANT_CALL",
+              "captureMS": 149.91411300002255,
+              "pngStageMS": 0.23253300003034383,
+              "readyToInspectPNGMS": 152.77990799995678,
+              "rawPNGSHA256": "1cf742cdf1a2180eedb3a31252d7f8e5c4528b4c79a903bc13a3da9eb96daec1"
+            },
+            {
+              "sample": 4,
+              "phase": "WARM_VARIANT_CALL",
+              "captureMS": 121.49682500000836,
+              "pngStageMS": 0.2132239999355079,
+              "readyToInspectPNGMS": 124.3300520000048,
+              "rawPNGSHA256": "1cf742cdf1a2180eedb3a31252d7f8e5c4528b4c79a903bc13a3da9eb96daec1"
+            },
+            {
+              "sample": 5,
+              "phase": "WARM_VARIANT_CALL",
+              "captureMS": 154.4243959999676,
+              "pngStageMS": 0.20520999999007472,
+              "readyToInspectPNGMS": 156.97061000003032,
+              "rawPNGSHA256": "1cf742cdf1a2180eedb3a31252d7f8e5c4528b4c79a903bc13a3da9eb96daec1"
+            }
+          ],
+          "rawMetadataDistinct": [
+            {
+              "bitDepth": 8,
+              "chunkTypes": [
+                "IHDR",
+                "iCCP",
+                "eXIf",
+                "IDAT",
+                "IEND"
+              ],
+              "colorSpace": "UNNAMED_OR_MISSING",
+              "colorType": 6,
+              "comparisonSpace": "sRGB RGBA8; diagnostic conversion only, not product output",
+              "comparisonSRGBA8SHA256": "ef5b967831d0bfd29ddd1a8db67012ba9975f637ec4072cc1118d0708c1845cf",
+              "decodedBitsPerComponent": 8,
+              "decodedBitsPerPixel": 32,
+              "decodedHeight": 96,
+              "decodedWidth": 128,
+              "embeddedICC": true,
+              "embeddedICCChunkSHA256": "80c7019d38bb282221a036e4d068bdecb0d1249c60d6a56f79e3bef50de983c2",
+              "embeddedSRGBChunk": false,
+              "fixtureCanaryMatches": 4,
+              "fixtureCanaryMeaning": "Four interior synthetic color samples; not full pixel/DPI/occlusion acceptance",
+              "fixtureColorCanary": "MATCH",
+              "height": 96,
+              "interlace": 0,
+              "rawPNGBytes": 9623,
+              "rawPNGSHA256": "1cf742cdf1a2180eedb3a31252d7f8e5c4528b4c79a903bc13a3da9eb96daec1",
+              "syntheticPixelValidation": "MISMATCH_NO_IMAGE_RETAINED",
+              "width": 128
+            }
+          ]
+        },
+        {
+          "allMedianReadyToInspectPNGMS": 43.33696499998041,
+          "backend": "SCScreenshotManager",
+          "capturedSamples": 5,
+          "firstReadyToInspectPNGMS": 51.92697899997256,
+          "variant": "region-integral",
+          "warmMedianReadyToInspectPNGMS": 43.08802999997852,
+          "requestedQuartzPoints": [
+            752,
+            382,
+            128,
+            96
+          ],
+          "samples": [
+            {
+              "sample": 1,
+              "phase": "FIRST_VARIANT_CALL_IN_EXISTING_PROCESS",
+              "captureMS": 48.92424799993478,
+              "pngStageMS": 1.0917869999502727,
+              "readyToInspectPNGMS": 51.92697899997256,
+              "rawPNGSHA256": "fb92aaf1525d0f1f766cfbc834b9afccf90abba321b951338cd58c8ef3b4dc04"
+            },
+            {
+              "sample": 2,
+              "phase": "WARM_VARIANT_CALL",
+              "captureMS": 33.85946299999887,
+              "pngStageMS": 0.6794690000333503,
+              "readyToInspectPNGMS": 36.26500200005012,
+              "rawPNGSHA256": "122f37a6702880865a17b77e260eabf1563937807f2ac4708c9a3de63ab9176f"
+            },
+            {
+              "sample": 3,
+              "phase": "WARM_VARIANT_CALL",
+              "captureMS": 40.68083399999978,
+              "pngStageMS": 0.847184000008383,
+              "readyToInspectPNGMS": 42.83909499997662,
+              "rawPNGSHA256": "122f37a6702880865a17b77e260eabf1563937807f2ac4708c9a3de63ab9176f"
+            },
+            {
+              "sample": 4,
+              "phase": "WARM_VARIANT_CALL",
+              "captureMS": 73.20107599991843,
+              "pngStageMS": 0.8117700000411787,
+              "readyToInspectPNGMS": 76.4438590000509,
+              "rawPNGSHA256": "122f37a6702880865a17b77e260eabf1563937807f2ac4708c9a3de63ab9176f"
+            },
+            {
+              "sample": 5,
+              "phase": "WARM_VARIANT_CALL",
+              "captureMS": 40.86647199994786,
+              "pngStageMS": 0.608614000043417,
+              "readyToInspectPNGMS": 43.33696499998041,
+              "rawPNGSHA256": "122f37a6702880865a17b77e260eabf1563937807f2ac4708c9a3de63ab9176f"
+            }
+          ],
+          "rawMetadataDistinct": [
+            {
+              "bitDepth": 8,
+              "chunkTypes": [
+                "IHDR",
+                "sRGB",
+                "eXIf",
+                "IDAT",
+                "IEND"
+              ],
+              "colorSpace": "sRGB",
+              "colorType": 6,
+              "comparisonSpace": "sRGB RGBA8; diagnostic conversion only, not product output",
+              "comparisonSRGBA8SHA256": "5e4cbbe19177bcbd904eeeebac555798e9fa60488c8c73559af82f42ec602a80",
+              "decodedBitsPerComponent": 8,
+              "decodedBitsPerPixel": 32,
+              "decodedHeight": 96,
+              "decodedWidth": 128,
+              "embeddedICC": false,
+              "embeddedSRGBChunk": true,
+              "fixtureCanaryMatches": 4,
+              "fixtureCanaryMeaning": "Four interior synthetic color samples; not full pixel/DPI/occlusion acceptance",
+              "fixtureColorCanary": "MATCH",
+              "height": 96,
+              "interlace": 0,
+              "rawPNGBytes": 6884,
+              "rawPNGSHA256": "fb92aaf1525d0f1f766cfbc834b9afccf90abba321b951338cd58c8ef3b4dc04",
+              "syntheticPixelValidation": "MISMATCH_NO_IMAGE_RETAINED",
+              "width": 128
+            },
+            {
+              "bitDepth": 8,
+              "chunkTypes": [
+                "IHDR",
+                "sRGB",
+                "eXIf",
+                "IDAT",
+                "IEND"
+              ],
+              "colorSpace": "sRGB",
+              "colorType": 6,
+              "comparisonSpace": "sRGB RGBA8; diagnostic conversion only, not product output",
+              "comparisonSRGBA8SHA256": "eeb20053fe50d34556ab3ed0e95ce5912016bf464bc515d6710209fb81d946b8",
+              "decodedBitsPerComponent": 8,
+              "decodedBitsPerPixel": 32,
+              "decodedHeight": 96,
+              "decodedWidth": 128,
+              "embeddedICC": false,
+              "embeddedSRGBChunk": true,
+              "fixtureCanaryMatches": 4,
+              "fixtureCanaryMeaning": "Four interior synthetic color samples; not full pixel/DPI/occlusion acceptance",
+              "fixtureColorCanary": "MATCH",
+              "height": 96,
+              "interlace": 0,
+              "rawPNGBytes": 6759,
+              "rawPNGSHA256": "122f37a6702880865a17b77e260eabf1563937807f2ac4708c9a3de63ab9176f",
+              "syntheticPixelValidation": "MISMATCH_NO_IMAGE_RETAINED",
+              "width": 128
+            }
+          ]
+        },
+        {
+          "allMedianReadyToInspectPNGMS": 126.06730300001345,
+          "backend": "screencapture",
+          "capturedSamples": 5,
+          "firstReadyToInspectPNGMS": 153.01187400007166,
+          "variant": "region-half-point",
+          "warmMedianReadyToInspectPNGMS": 125.04954399997814,
+          "requestedQuartzPoints": [
+            752.5,
+            382.5,
+            127.5,
+            95.5
+          ],
+          "samples": [
+            {
+              "sample": 1,
+              "phase": "FIRST_VARIANT_CALL_IN_EXISTING_PROCESS",
+              "captureMS": 150.09122999992996,
+              "pngStageMS": 0.25128499999027554,
+              "readyToInspectPNGMS": 153.01187400007166,
+              "rawPNGSHA256": "1cf742cdf1a2180eedb3a31252d7f8e5c4528b4c79a903bc13a3da9eb96daec1"
+            },
+            {
+              "sample": 2,
+              "phase": "WARM_VARIANT_CALL",
+              "captureMS": 125.68364099990958,
+              "pngStageMS": 0.24976800000331423,
+              "readyToInspectPNGMS": 128.4335990000045,
+              "rawPNGSHA256": "1cf742cdf1a2180eedb3a31252d7f8e5c4528b4c79a903bc13a3da9eb96daec1"
+            },
+            {
+              "sample": 3,
+              "phase": "WARM_VARIANT_CALL",
+              "captureMS": 115.09194999996453,
+              "pngStageMS": 0.19361299996489834,
+              "readyToInspectPNGMS": 117.55591400003595,
+              "rawPNGSHA256": "1cf742cdf1a2180eedb3a31252d7f8e5c4528b4c79a903bc13a3da9eb96daec1"
+            },
+            {
+              "sample": 4,
+              "phase": "WARM_VARIANT_CALL",
+              "captureMS": 121.09043100008421,
+              "pngStageMS": 0.25947500000711443,
+              "readyToInspectPNGMS": 124.03178499994283,
+              "rawPNGSHA256": "1cf742cdf1a2180eedb3a31252d7f8e5c4528b4c79a903bc13a3da9eb96daec1"
+            },
+            {
+              "sample": 5,
+              "phase": "WARM_VARIANT_CALL",
+              "captureMS": 123.2595599999513,
+              "pngStageMS": 0.27395399990837177,
+              "readyToInspectPNGMS": 126.06730300001345,
+              "rawPNGSHA256": "1cf742cdf1a2180eedb3a31252d7f8e5c4528b4c79a903bc13a3da9eb96daec1"
+            }
+          ],
+          "rawMetadataDistinct": [
+            {
+              "bitDepth": 8,
+              "chunkTypes": [
+                "IHDR",
+                "iCCP",
+                "eXIf",
+                "IDAT",
+                "IEND"
+              ],
+              "colorSpace": "UNNAMED_OR_MISSING",
+              "colorType": 6,
+              "comparisonSpace": "sRGB RGBA8; diagnostic conversion only, not product output",
+              "comparisonSRGBA8SHA256": "ef5b967831d0bfd29ddd1a8db67012ba9975f637ec4072cc1118d0708c1845cf",
+              "decodedBitsPerComponent": 8,
+              "decodedBitsPerPixel": 32,
+              "decodedHeight": 96,
+              "decodedWidth": 128,
+              "embeddedICC": true,
+              "embeddedICCChunkSHA256": "80c7019d38bb282221a036e4d068bdecb0d1249c60d6a56f79e3bef50de983c2",
+              "embeddedSRGBChunk": false,
+              "fixtureCanaryMatches": 4,
+              "fixtureCanaryMeaning": "Four interior synthetic color samples; not full pixel/DPI/occlusion acceptance",
+              "fixtureColorCanary": "MATCH",
+              "height": 96,
+              "interlace": 0,
+              "rawPNGBytes": 9623,
+              "rawPNGSHA256": "1cf742cdf1a2180eedb3a31252d7f8e5c4528b4c79a903bc13a3da9eb96daec1",
+              "syntheticPixelValidation": "MISMATCH_NO_IMAGE_RETAINED",
+              "width": 128
+            }
+          ]
+        },
+        {
+          "allMedianReadyToInspectPNGMS": 73.66842800001905,
+          "backend": "SCScreenshotManager",
+          "capturedSamples": 5,
+          "firstReadyToInspectPNGMS": 950.4117490000681,
+          "variant": "region-half-point",
+          "warmMedianReadyToInspectPNGMS": 59.640898499992545,
+          "requestedQuartzPoints": [
+            752.5,
+            382.5,
+            127.5,
+            95.5
+          ],
+          "samples": [
+            {
+              "sample": 1,
+              "phase": "FIRST_VARIANT_CALL_IN_EXISTING_PROCESS",
+              "captureMS": 946.509530999947,
+              "pngStageMS": 1.2185749999389373,
+              "readyToInspectPNGMS": 950.4117490000681,
+              "rawPNGSHA256": "20298e2ad71bd1d53edb2940b0150303d0e87554d74d09c6ee5e866b3a829ea6"
+            },
+            {
+              "sample": 2,
+              "phase": "WARM_VARIANT_CALL",
+              "captureMS": 37.73151100006089,
+              "pngStageMS": 1.1211480000383744,
+              "readyToInspectPNGMS": 41.393809000055626,
+              "rawPNGSHA256": "464d11350860edfcf1b7c6d537227cca322495bce09ce87ca20e044616cddddd"
+            },
+            {
+              "sample": 3,
+              "phase": "WARM_VARIANT_CALL",
+              "captureMS": 70.45271100002992,
+              "pngStageMS": 1.011650999998892,
+              "readyToInspectPNGMS": 73.66842800001905,
+              "rawPNGSHA256": "464d11350860edfcf1b7c6d537227cca322495bce09ce87ca20e044616cddddd"
+            },
+            {
+              "sample": 4,
+              "phase": "WARM_VARIANT_CALL",
+              "captureMS": 74.62934000000132,
+              "pngStageMS": 1.1608720000140238,
+              "readyToInspectPNGMS": 77.83113199991476,
+              "rawPNGSHA256": "464d11350860edfcf1b7c6d537227cca322495bce09ce87ca20e044616cddddd"
+            },
+            {
+              "sample": 5,
+              "phase": "WARM_VARIANT_CALL",
+              "captureMS": 42.523875000028966,
+              "pngStageMS": 1.1287080000101923,
+              "readyToInspectPNGMS": 45.61336899996604,
+              "rawPNGSHA256": "464d11350860edfcf1b7c6d537227cca322495bce09ce87ca20e044616cddddd"
+            }
+          ],
+          "rawMetadataDistinct": [
+            {
+              "bitDepth": 8,
+              "chunkTypes": [
+                "IHDR",
+                "sRGB",
+                "eXIf",
+                "IDAT",
+                "IEND"
+              ],
+              "colorSpace": "sRGB",
+              "colorType": 6,
+              "comparisonSpace": "sRGB RGBA8; diagnostic conversion only, not product output",
+              "comparisonSRGBA8SHA256": "bee8127be832437f0f96dbb500b3b1fb6db7093e81eb65f47b88ab075a0d9c66",
+              "decodedBitsPerComponent": 8,
+              "decodedBitsPerPixel": 32,
+              "decodedHeight": 96,
+              "decodedWidth": 128,
+              "embeddedICC": false,
+              "embeddedSRGBChunk": true,
+              "fixtureCanaryMatches": 4,
+              "fixtureCanaryMeaning": "Four interior synthetic color samples; not full pixel/DPI/occlusion acceptance",
+              "fixtureColorCanary": "MATCH",
+              "height": 96,
+              "interlace": 0,
+              "rawPNGBytes": 11079,
+              "rawPNGSHA256": "20298e2ad71bd1d53edb2940b0150303d0e87554d74d09c6ee5e866b3a829ea6",
+              "syntheticPixelValidation": "MISMATCH_NO_IMAGE_RETAINED",
+              "width": 128
+            },
+            {
+              "bitDepth": 8,
+              "chunkTypes": [
+                "IHDR",
+                "sRGB",
+                "eXIf",
+                "IDAT",
+                "IEND"
+              ],
+              "colorSpace": "sRGB",
+              "colorType": 6,
+              "comparisonSpace": "sRGB RGBA8; diagnostic conversion only, not product output",
+              "comparisonSRGBA8SHA256": "03c2359dc8a8e139584135831924c3bdefd7db81a774b0651d54da07c598bc62",
+              "decodedBitsPerComponent": 8,
+              "decodedBitsPerPixel": 32,
+              "decodedHeight": 96,
+              "decodedWidth": 128,
+              "embeddedICC": false,
+              "embeddedSRGBChunk": true,
+              "fixtureCanaryMatches": 4,
+              "fixtureCanaryMeaning": "Four interior synthetic color samples; not full pixel/DPI/occlusion acceptance",
+              "fixtureColorCanary": "MATCH",
+              "height": 96,
+              "interlace": 0,
+              "rawPNGBytes": 11051,
+              "rawPNGSHA256": "464d11350860edfcf1b7c6d537227cca322495bce09ce87ca20e044616cddddd",
+              "syntheticPixelValidation": "MISMATCH_NO_IMAGE_RETAINED",
+              "width": 128
+            }
+          ]
+        }
+      ],
+      "notRun": [
+        {
+          "backend": "CoreGraphics-legacy",
+          "reason": "LEGACY_API_REFERENCE_NOT_RUN_ON_MACOS_15_OR_LATER",
+          "status": "NOT_RUN",
+          "variant": "window-no-shadow"
+        },
+        {
+          "backend": "CoreGraphics-legacy",
+          "reason": "LEGACY_API_REFERENCE_NOT_RUN_ON_MACOS_15_OR_LATER",
+          "status": "NOT_RUN",
+          "variant": "region-integral"
+        },
+        {
+          "backend": "CoreGraphics-legacy",
+          "reason": "LEGACY_API_REFERENCE_NOT_RUN_ON_MACOS_15_OR_LATER",
+          "status": "NOT_RUN",
+          "variant": "region-half-point"
+        },
+        {
+          "backend": "screencapture",
+          "reason": "DESKTOP_CAPTURE_REQUIRES_EXPLICIT_OPT_IN",
+          "status": "NOT_RUN",
+          "variant": "full-selected-display"
+        },
+        {
+          "backend": "SCScreenshotManager",
+          "reason": "DESKTOP_CAPTURE_REQUIRES_EXPLICIT_OPT_IN",
+          "status": "NOT_RUN",
+          "variant": "full-selected-display"
+        },
+        {
+          "backend": "CoreGraphics-legacy",
+          "reason": "LEGACY_API_REFERENCE_NOT_RUN_ON_MACOS_15_OR_LATER",
+          "status": "NOT_RUN",
+          "variant": "full-selected-display"
+        }
+      ],
+      "memoryAfterAllSamples": {
+        "childrenPeakResidentBytesCumulative": 10522624,
+        "processPeakResidentBytes": 26099712,
+        "residentBytes": 26050560,
+        "scope": "Darwin bytes; process lifetime peaks, NOT per-backend isolated peaks; children cumulative"
+      }
+    },
+    "arm64": {
+      "jobID": 123046923780,
+      "jobConclusion": "success",
+      "osVersion": "15.7.9",
+      "display": {
+        "backingScale": 1,
+        "connectedScreenCount": 1,
+        "isMirrored": false,
+        "ordinal": 1,
+        "quartzBounds": [
+          0,
+          0,
+          1024,
+          768
+        ]
+      },
+      "fixturePointSize": [
+        480,
+        320
+      ],
+      "selfCheck": {
+        "capture": "NOT_RUN",
+        "checks": [
+          "PNG_ROUND_TRIP",
+          "TRUNCATED_PNG_REJECTED",
+          "FRACTIONAL_ARGUMENT_SERIALIZATION_ONLY",
+          "MEDIAN",
+          "JSON_SAFE_MEMORY",
+          "SANITIZED_PREVIEW_PIXEL_ALLOWLIST",
+          "OFF_FIXTURE_PIXEL_REJECTED"
+        ],
+        "fidelityMeaning": "Raw PNG metadata and diagnostic sRGB digest. SDR fixture does not prove HDR/wide-gamut correctness.",
+        "HDRWideGamutAcceptance": "NOT_RUN",
+        "latencyMeaning": "Tool/API + PNG boundary only. Not click-to-thumbnail, upload latency or fully cold system cache.",
+        "memory": {
+          "childrenPeakResidentBytesCumulative": 0,
+          "processPeakResidentBytes": 8585216,
+          "residentBytes": 8585216,
+          "scope": "Darwin bytes; process lifetime peaks, NOT per-backend isolated peaks; children cumulative"
+        },
+        "mixedScaleMultiDisplayAcceptance": "NOT_RUN",
+        "osVersion": "15.7.9",
+        "permissionRequested": false,
+        "physicalMouseAcceptance": "NOT_RUN",
+        "previewPolicy": "Only optional fully validated synthetic pixels; sanitized sRGB PNG, never full-display bytes",
+        "rawImagesPersistedAsArtifacts": false,
+        "realRiftletImportUploadAcceptance": "NOT_RUN",
+        "schemaVersion": 1,
+        "scope": "OFFLINE_SYNTHETIC_SELF_CHECK_NO_APPKIT_NO_TCC",
+        "status": "PASS"
+      },
+      "sckEnumerationMS": 45.48770833332583,
+      "sanitizedSyntheticImagesRetained": 0,
+      "capturedSamples": 0,
+      "errorSamples": 30,
+      "errorReason": "FIXTURECHANGED",
+      "rootCause": "Not identifiable from first-run generic guard report; diagnostic-only change scheduled for next CI",
+      "notRun": [
+        {
+          "backend": "CoreGraphics-legacy",
+          "reason": "LEGACY_API_REFERENCE_NOT_RUN_ON_MACOS_15_OR_LATER",
+          "status": "NOT_RUN",
+          "variant": "window-no-shadow"
+        },
+        {
+          "backend": "CoreGraphics-legacy",
+          "reason": "LEGACY_API_REFERENCE_NOT_RUN_ON_MACOS_15_OR_LATER",
+          "status": "NOT_RUN",
+          "variant": "region-integral"
+        },
+        {
+          "backend": "CoreGraphics-legacy",
+          "reason": "LEGACY_API_REFERENCE_NOT_RUN_ON_MACOS_15_OR_LATER",
+          "status": "NOT_RUN",
+          "variant": "region-half-point"
+        },
+        {
+          "backend": "screencapture",
+          "reason": "DESKTOP_CAPTURE_REQUIRES_EXPLICIT_OPT_IN",
+          "status": "NOT_RUN",
+          "variant": "full-selected-display"
+        },
+        {
+          "backend": "SCScreenshotManager",
+          "reason": "DESKTOP_CAPTURE_REQUIRES_EXPLICIT_OPT_IN",
+          "status": "NOT_RUN",
+          "variant": "full-selected-display"
+        },
+        {
+          "backend": "CoreGraphics-legacy",
+          "reason": "LEGACY_API_REFERENCE_NOT_RUN_ON_MACOS_15_OR_LATER",
+          "status": "NOT_RUN",
+          "variant": "full-selected-display"
+        }
+      ],
+      "memoryAfterAllSamples": {
+        "childrenPeakResidentBytesCumulative": 0,
+        "processPeakResidentBytes": 23232512,
+        "residentBytes": 23216128,
+        "scope": "Darwin bytes; process lifetime peaks, NOT per-backend isolated peaks; children cumulative"
+      }
+    },
+    "limitations": [
+      "First-variant call in existing process, not cold OS cache",
+      "readyToInspectPNGMS includes pre-capture permission/fixture check + tool/API + PNG read/encode; excludes metadata/preview inspection and Riftlet import/upload",
+      "30 Intel samples passed four interior color canaries but every full-pixel exact privacy allowlist mismatched; no preview retained; do not claim full-pixel/color/orientation acceptance",
+      "No actual backend captures on arm64 in this run",
+      "Single 1x virtual display on each runner; Retina/multi-monitor/physical mouse/HDR/wide-gamut/system permission recovery/real Riftlet interaction/upload NOT_RUN",
+      "CLI old source used non-hidden random output; hidden-basename support is not proven by this run"
+    ]
+  },
+  "pathDiagnostic": {
+    "source": "df5d5a0741aa89a36538ccca098d58e16f2f5b80",
+    "run": 40758912572,
+    "file": "capture-path-diagnostic.json",
+    "scope": "Independent diagnostic, not production engine admission",
+    "intel": "ordinary leaf in hidden parent CAPTURED 3/3 window and region variants; hidden leaf exact path missing 3/3 despite exit 0",
+    "arm64": "NOT_RUN; FOREIGN_OVERLAP_VETO before any capture invocation",
+    "fullDisplayRetinaMultiMonitor": "NOT_RUN"
+  },
+  "safePublicationFix": {
+    "status": "SOURCE_REVIEWED_WAITING_NEW_CI",
+    "layout": "Fresh hidden directory0700, ordinary CLI leaf0600, exclusive descriptor-based linkat to hidden final name",
+    "originalBytePolicy": "No recode; identity-checked exact output and readback; preserve nonempty failures",
+    "collector": "Existing nonrecursive hidden-file filtering unchanged",
+    "storageAccounting": "Retained nonempty stage directories mark existing usage estimate incomplete; inner stage bytes not counted",
+    "nativeIntegrationProbe": "Actual default Apple engine plus publication, readback, private importer, SQLite reopen/dedupe and concurrent system collector; opt-in guarded synthetic fixture only",
+    "actualOutputGate": "Actual CLI errors fail CI; unavailable fixture remains NOT_RUN"
+  },
+  "retainedImages": {
+    "directory": "synthetic-previews",
+    "manifest": "synthetic-previews/manifest.json",
+    "count": 2,
+    "kind": "Actual SCScreenshotManager captured synthetic pixels, full-pixel allowlist then sRGB sanitized reencode",
+    "originalPNGArtifacts": false,
+    "productionBackendAcceptance": "NOT_GRANTED",
+    "sourceRun": 40756422188,
+    "sourceJob": 123056435473
+  }
 }

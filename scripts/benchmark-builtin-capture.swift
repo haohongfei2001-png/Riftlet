@@ -19,6 +19,12 @@ import UniformTypeIdentifiers
 
 private enum ProbeError: Error { case arguments, unsafeOutput, process, invalidPNG, resourceBound, noImage, fixtureChanged }
 
+private enum CLIOutputLayout: String {
+    case regularLeaf = "regular-leaf"
+    case hiddenLeaf = "hidden-leaf"
+    case hiddenParent = "hidden-parent"
+}
+
 private struct Options {
     var iterations = 5
     var displayIndex = 1
@@ -26,6 +32,7 @@ private struct Options {
     var selfCheck = false
     var output: URL?
     var retainSyntheticImages: URL?
+    var cliOutputLayout: CLIOutputLayout = .hiddenParent
 
     init(_ arguments: [String]) throws {
         var i = 0
@@ -33,11 +40,15 @@ private struct Options {
             switch arguments[i] {
             case "--self-check": selfCheck = true
             case "--allow-desktop-capture": desktopOptIn = true
-            case "--iterations", "--display-index", "--output", "--retain-synthetic-images":
+            case "--iterations", "--display-index", "--output", "--retain-synthetic-images", "--cli-output-layout":
                 let key = arguments[i]; i += 1
                 guard i < arguments.count else { throw ProbeError.arguments }
                 if key == "--output" { output = URL(fileURLWithPath: arguments[i]) }
                 else if key == "--retain-synthetic-images" { retainSyntheticImages = URL(fileURLWithPath: arguments[i], isDirectory: true) }
+                else if key == "--cli-output-layout" {
+                    guard let layout = CLIOutputLayout(rawValue: arguments[i]) else { throw ProbeError.arguments }
+                    cliOutputLayout = layout
+                }
                 else {
                     guard let n = Int(arguments[i]) else { throw ProbeError.arguments }
                     if key == "--iterations" { guard (1...30).contains(n) else { throw ProbeError.arguments }; iterations = n }
@@ -266,15 +277,50 @@ private final class ProbeResources: @unchecked Sendable {
     }
 }
 
-private func captureCLI(arguments: [String], stage: URL, resources: ProbeResources) async throws -> Payload {
-    // Match production's hidden staging basename so a system screenshot
-    // collector cannot misclassify this application-created PNG. Only this
-    // exact precreated path is read; output at another path is a failed sample.
-    let url = stage.appendingPathComponent(".capture-" + UUID().uuidString + ".png")
+private func privateOutputInventory(_ directory: URL, exactOutput: URL) -> [String: Any] {
+    guard let names = try? FileManager.default.contentsOfDirectory(atPath: directory.path) else {
+        return ["status": "UNAVAILABLE"]
+    }
+    var records: [[String: Any]] = []
+    for name in names.sorted().prefix(64) {
+        let url = directory.appendingPathComponent(name)
+        var record: [String: Any] = ["isExactOutput": url == exactOutput,
+            "hiddenBasename": name.hasPrefix("."), "pngExtension": url.pathExtension.lowercased() == "png"]
+        var st = stat()
+        if lstat(url.path, &st) == 0 {
+            let kind = st.st_mode & mode_t(S_IFMT)
+            record["kind"] = kind == mode_t(S_IFREG) ? "REGULAR" : kind == mode_t(S_IFDIR) ? "DIRECTORY" : kind == mode_t(S_IFLNK) ? "SYMLINK" : "OTHER"
+            record["bytes"] = st.st_size
+            record["ownedByThisUser"] = st.st_uid == geteuid()
+            record["mode"] = Int(st.st_mode & 0o777)
+        } else { record["kind"] = "STAT_UNAVAILABLE" }
+        records.append(record)
+    }
+    // Names, paths and contents are intentionally absent. Inspect only a fresh
+    // per-sample directory owned by this process; never recurse or follow links.
+    return ["status": "OBSERVED", "entryCount": names.count, "inspectionTruncated": names.count > 64,
+        "entries": records, "scope": "Only this call's fresh private staging directory; metadata only"]
+}
+
+private func captureCLI(arguments: [String], stage: URL, resources: ProbeResources,
+                        layout: CLIOutputLayout, diagnostic: inout [String: Any]) async throws -> Payload {
+    let nonce = UUID().uuidString
+    let directory = stage.appendingPathComponent((layout == .hiddenParent ? ".sample-" : "sample-") + nonce, isDirectory: true)
+    diagnostic = ["layout": layout.rawValue, "expectedParentHidden": layout == .hiddenParent,
+        "expectedLeafHidden": layout == .hiddenLeaf, "readPolicy": "EXACT_PATH_ONLY_NO_RENAMED_FILE_FALLBACK"]
+    do { try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: false, attributes: [.posixPermissions: 0o700]) }
+    catch { diagnostic["failureStage"] = "PRIVATE_SAMPLE_DIRECTORY_CREATE"; throw ProbeError.unsafeOutput }
+    let url = directory.appendingPathComponent((layout == .hiddenLeaf ? ".capture-" : "capture-") + nonce + ".png")
+    defer {
+        diagnostic["postAttemptInventory"] = privateOutputInventory(directory, exactOutput: url)
+        try? FileManager.default.removeItem(at: directory)
+    }
+    // Only the exact precreated path is read. Other output is recorded as
+    // metadata and removed with this owned directory, never accepted as success.
     let fd = Darwin.open(url.path, O_WRONLY | O_CREAT | O_EXCL | O_NOFOLLOW | O_CLOEXEC, 0o600)
-    guard fd >= 0 else { throw ProbeError.unsafeOutput }
+    guard fd >= 0 else { diagnostic["failureStage"] = "EXACT_OUTPUT_PRECREATE"; throw ProbeError.unsafeOutput }
     Darwin.close(fd)
-    defer { try? FileManager.default.removeItem(at: url) }
+    diagnostic["exactOutputPrecreated"] = true
     let process = Process()
     process.executableURL = URL(fileURLWithPath: "/usr/sbin/screencapture")
     process.arguments = ["-x", "-t", "png"] + arguments + [url.path]
@@ -290,21 +336,34 @@ private func captureCLI(arguments: [String], stage: URL, resources: ProbeResourc
     DispatchQueue.global().asyncAfter(deadline: .now() + 20, execute: timeout)
     defer { timeout.cancel() }
     let start = ProcessInfo.processInfo.systemUptime
-    let duration: Double = try await withCheckedThrowingContinuation { continuation in
-        process.terminationHandler = { child in
-            let duration = milliseconds(start)
-            if child.terminationStatus == 0 { continuation.resume(returning: duration) }
-            else { continuation.resume(throwing: ProbeError.process) }
+    let duration: Double
+    do {
+        duration = try await withCheckedThrowingContinuation { continuation in
+            process.terminationHandler = { child in
+                let duration = milliseconds(start)
+                if child.terminationStatus == 0 { continuation.resume(returning: duration) }
+                else { continuation.resume(throwing: ProbeError.process) }
+            }
+            do { try process.run() }
+            catch { process.terminationHandler = nil; continuation.resume(throwing: ProbeError.process) }
         }
-        do { try process.run() }
-        catch { process.terminationHandler = nil; continuation.resume(throwing: ProbeError.process) }
-    }
+    } catch { diagnostic["failureStage"] = "PROCESS_RUN_OR_EXIT"; throw ProbeError.process }
+    diagnostic["childExitStatus"] = 0
     let capturedMemory = memory(), readStart = ProcessInfo.processInfo.systemUptime
     var st = stat()
-    guard lstat(url.path, &st) == 0, st.st_mode & mode_t(S_IFMT) == mode_t(S_IFREG),
-          st.st_uid == geteuid(), st.st_size > 0, st.st_size <= 512 * 1_024 * 1_024,
-          chmod(url.path, 0o600) == 0 else { throw ProbeError.invalidPNG }
-    let data = try Data(contentsOf: url)
+    guard lstat(url.path, &st) == 0 else { diagnostic["failureStage"] = "EXACT_PATH_MISSING"; throw ProbeError.invalidPNG }
+    guard st.st_mode & mode_t(S_IFMT) == mode_t(S_IFREG) else { diagnostic["failureStage"] = "EXACT_PATH_NOT_REGULAR"; throw ProbeError.invalidPNG }
+    guard st.st_uid == geteuid() else { diagnostic["failureStage"] = "EXACT_PATH_OWNER_MISMATCH"; throw ProbeError.invalidPNG }
+    guard st.st_size > 0 else { diagnostic["failureStage"] = "EXACT_PATH_EMPTY"; throw ProbeError.invalidPNG }
+    guard st.st_size <= 512 * 1_024 * 1_024 else { diagnostic["failureStage"] = "EXACT_PATH_SIZE_LIMIT"; throw ProbeError.invalidPNG }
+    guard chmod(url.path, 0o600) == 0 else { diagnostic["failureStage"] = "EXACT_PATH_PERMISSIONS"; throw ProbeError.invalidPNG }
+    let data: Data
+    do { data = try Data(contentsOf: url) }
+    catch { diagnostic["failureStage"] = "EXACT_PATH_READ"; throw ProbeError.invalidPNG }
+    diagnostic["exactBytesRead"] = data.count
+    let validSignature = data.prefix(8) == Data([137, 80, 78, 71, 13, 10, 26, 10])
+    diagnostic["exactPNGSignatureValid"] = validSignature
+    guard validSignature else { diagnostic["failureStage"] = "EXACT_PATH_INVALID_PNG_SIGNATURE"; throw ProbeError.invalidPNG }
     return Payload(data: data, captureMS: duration, pngMS: milliseconds(readStart),
         boundary: "process launch through exit; includes PNG encoding/disk write; pngStageMS is file read", memoryAfterCapture: capturedMemory)
 }
@@ -388,7 +447,7 @@ private func captureQuartz(windowID: CGWindowID?, rect: CGRect) throws -> Payloa
 }
 
 @MainActor private func run(_ options: Options, resources: ProbeResources) async -> [String: Any] {
-    var report = baseReport(scope: "ACTUAL_API_CAPTURE_OF_CONTROLLED_SYNTHETIC_WINDOW")
+    var report = baseReport(scope: "ACTUAL_API_CAPTURE_OF_CONTROLLED_SYNTHETIC_WINDOW", cliOutputLayout: options.cliOutputLayout)
     guard CGPreflightScreenCaptureAccess() else {
         report["status"] = "NOT_RUN"; report["reason"] = "SCREEN_CAPTURE_PERMISSION_NOT_ALREADY_GRANTED"
         report["permissionRequested"] = false; return report
@@ -492,7 +551,10 @@ private func captureQuartz(windowID: CGWindowID?, rect: CGRect) throws -> Payloa
                     switch backend {
                     case "screencapture":
                         let args = kind == "window-no-shadow" ? ["-o", "-l", String(window.windowNumber)] : ["-R", rectangleArgument(rect)]
-                        payload = try await captureCLI(arguments: args, stage: stage, resources: resources)
+                        var outputDiagnostic: [String: Any] = [:]
+                        defer { entry["cliOutputDiagnostic"] = outputDiagnostic }
+                        payload = try await captureCLI(arguments: args, stage: stage, resources: resources,
+                            layout: options.cliOutputLayout, diagnostic: &outputDiagnostic)
                     case "SCScreenshotManager":
                         if #available(macOS 14.0, *), let scWindow, let scDisplay {
                             if kind == "window-no-shadow" {
@@ -558,11 +620,12 @@ private func captureQuartz(windowID: CGWindowID?, rect: CGRect) throws -> Payloa
     return report
 }
 
-private func baseReport(scope: String) -> [String: Any] {
+private func baseReport(scope: String, cliOutputLayout: CLIOutputLayout = .hiddenParent) -> [String: Any] {
     let os = ProcessInfo.processInfo.operatingSystemVersion
     return ["schemaVersion": 1, "scope": scope, "osVersion": "\(os.majorVersion).\(os.minorVersion).\(os.patchVersion)",
         "permissionRequested": false, "rawImagesPersistedAsArtifacts": false,
-        "screencaptureOutputPolicy": "Hidden .capture-<UUID>.png in private staging; validate and read only the exact precreated output path, with no renamed-file fallback",
+        "cliOutputLayout": cliOutputLayout.rawValue,
+        "screencaptureOutputPolicy": "Fresh mode-0700 private sample directory; validate and read only the exact precreated output path, with no renamed-file fallback. Post-attempt directory inventory contains metadata only.",
         "previewPolicy": "Only optional fully validated synthetic pixels; sanitized sRGB PNG, never full-display bytes",
         "physicalMouseAcceptance": "NOT_RUN", "mixedScaleMultiDisplayAcceptance": "NOT_RUN",
         "HDRWideGamutAcceptance": "NOT_RUN", "realRiftletImportUploadAcceptance": "NOT_RUN",
@@ -571,6 +634,10 @@ private func baseReport(scope: String) -> [String: Any] {
 }
 
 private func selfCheck() throws -> [String: Any] {
+    guard try Options([]).cliOutputLayout == .hiddenParent,
+          try Options(["--cli-output-layout", "regular-leaf"]).cliOutputLayout == .regularLeaf,
+          try Options(["--cli-output-layout", "hidden-leaf"]).cliOutputLayout == .hiddenLeaf,
+          try Options(["--cli-output-layout", "hidden-parent"]).cliOutputLayout == .hiddenParent else { throw ProbeError.arguments }
     let space = CGColorSpace(name: CGColorSpace.sRGB)!
     guard let context = CGContext(data: nil, width: 16, height: 8, bitsPerComponent: 8, bytesPerRow: 64,
         space: space, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) else { throw ProbeError.noImage }
@@ -606,7 +673,7 @@ private func selfCheck() throws -> [String: Any] {
     guard unsafe.safePreview == nil else { throw ProbeError.invalidPNG }
     var report = baseReport(scope: "OFFLINE_SYNTHETIC_SELF_CHECK_NO_APPKIT_NO_TCC")
     report["status"] = "PASS"; report["capture"] = "NOT_RUN"
-    report["checks"] = ["PNG_ROUND_TRIP", "TRUNCATED_PNG_REJECTED", "FRACTIONAL_ARGUMENT_SERIALIZATION_ONLY", "MEDIAN", "JSON_SAFE_MEMORY", "SANITIZED_PREVIEW_PIXEL_ALLOWLIST", "OFF_FIXTURE_PIXEL_REJECTED"]
+    report["checks"] = ["PNG_ROUND_TRIP", "TRUNCATED_PNG_REJECTED", "FRACTIONAL_ARGUMENT_SERIALIZATION_ONLY", "MEDIAN", "JSON_SAFE_MEMORY", "SANITIZED_PREVIEW_PIXEL_ALLOWLIST", "OFF_FIXTURE_PIXEL_REJECTED", "CLI_LAYOUT_ARGUMENTS"]
     report["memory"] = memory()
     return report
 }
@@ -627,7 +694,7 @@ private func emit(_ report: [String: Any], options: Options) throws {
         let options: Options
         do { options = try Options(Array(CommandLine.arguments.dropFirst())) }
         catch {
-            fputs("Usage: riftlet-capture-benchmark [--self-check] [--iterations 1...30] [--display-index 1...32] [--output new-report.json] [--retain-synthetic-images NEW_DIR] [--allow-desktop-capture]\n", stderr)
+            fputs("Usage: riftlet-capture-benchmark [--self-check] [--iterations 1...30] [--display-index 1...32] [--output new-report.json] [--retain-synthetic-images NEW_DIR] [--cli-output-layout regular-leaf|hidden-leaf|hidden-parent] [--allow-desktop-capture]\n", stderr)
             exit(2)
         }
         if options.selfCheck {
@@ -637,7 +704,7 @@ private func emit(_ report: [String: Any], options: Options) throws {
         // Preflight precedes NSApplication and SCShareableContent. A denied CI
         // runner produces an explicit NOT_RUN report without a permission prompt.
         guard CGPreflightScreenCaptureAccess() else {
-            var report = baseReport(scope: "ACTUAL_API_CAPTURE_PROBE")
+            var report = baseReport(scope: "ACTUAL_API_CAPTURE_PROBE", cliOutputLayout: options.cliOutputLayout)
             report["status"] = "NOT_RUN"; report["reason"] = "SCREEN_CAPTURE_PERMISSION_NOT_ALREADY_GRANTED"
             do { try emit(report, options: options); exit(0) }
             catch { fputs("Capture-probe report could not be saved.\n", stderr); exit(1) }
@@ -651,7 +718,7 @@ private func emit(_ report: [String: Any], options: Options) throws {
         let watchdog = DispatchWorkItem {
             guard resources.claimCompletion() else { return }
             resources.cleanup()
-            var report = baseReport(scope: "ACTUAL_API_CAPTURE_PROBE")
+            var report = baseReport(scope: "ACTUAL_API_CAPTURE_PROBE", cliOutputLayout: options.cliOutputLayout)
             report["status"] = "INCOMPLETE_TIMEOUT"; report["reason"] = "PROBE_EXCEEDED_90_SECONDS"
             try? emit(report, options: options)
             exit(3)
