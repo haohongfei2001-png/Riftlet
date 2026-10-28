@@ -84,3 +84,5 @@ Feedback run `40754551166`（head `d909ecc`，checkout `10850947666b8b047bb357cb
 push视觉原始制品含118 PNG/5 MOV，39静态原图已逐张独立审查；driver仅接受102 PNG/4 MOV，正常磁力以timedOut收口而非finished，余16 PNG/1 MOV保留为诊断。非作者逐帧审查发现竖长预览遮挡相邻编号，以及两部吞噬片首帧全空后再现。新辅助系统三项共同开启的取证尚未运行，不能用helper override替代。完整独立报告见 independent-design-5a997969.md；哈希/原尺寸/PTS核验见 attempt5-visual-integrity.json；实现作者磁力诊断单列 attempt5-magnet-diagnosis.md。
 
 当前追加修复包括：Feedback同窗逐条完整正文/状态/生命周期动作与绑定单条ID的原生sheet、100pt有界可滚动正文、后台刷新及折叠保留草稿/IME；原偏好事件去重补记消费者实际成功读取的文件签名，修复absent→实际读B→absent可能漏删，原3秒测试不改；预览避让所有可见输入岛且按剩余空间等比fit；吞噬最终model与显式动画同事务；原始CA delegate时间/flag仅作诊断，PNG比较/编码/hash改为一个等待完成的后台任务，释放主循环。没有放宽磁力自然finished、上传开始或完成要求。原尺寸新素材及这些新增测试仍须准确源码CI与非作者复审，不能从5a继承通过。
+
+非作者已独立核准追加源码 `5d9ef9dc646361b736ef2f624a1674413c67a19e` / tree `16936100cac9b345fcc650afe4965172e2dbbdc7`，父源5a997969，22文件与冻结审查一致、工作树干净。这里只将统一gate的既有固定来源更新到该检查点；未增加豁免或改变历史审计。下一准确 Native/Feedback、普通46场景、实际三项共同开启的3场景及原尺寸影片复审仍待执行。
