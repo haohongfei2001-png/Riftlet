@@ -1,3 +1,5 @@
+> **2026-10-29「薄界」原生实施独立候选**：`codex/riftlet-real-mac-acceptance-thin-edge-20261029` 按最终设计继承预测入口与磁力基础，完成共享原生视觉、稳定裂缝/编号/分页/预览、入口空间统一和四相可中断动效。真实2x窗口截图、原生合成动效录像及CGEvent路由已取证；不重测上传、不改变生产或重试准入，不覆盖正式Pro分支。准确源码、macOS CI、非作者审查、未验项与可运行App说明集中在[独立交接](../engineering/evidence/2026-10-29-thin-edge-native/README.md)。所有新精确视觉参数仍为实施候选；本轮不要求创始人体验。以下保留历史与正式检查点，不把独立候选当作已经正式整合。
+
 > **2026-10-28 Beta 日常体验独立包 · DONE（限定）**：本地 Mac 在独立分支完成等待/取消说明与 tooltip/AX 清理修复，源码 `fa74f3c68f05ab4eaccfc24e2f39c0177289ddb3`、macOS CI `40693945938` success。用户报告的人工 helper 操作仅覆盖 IMAGE/NUMBER/GAP/按住原图；准确 CLEAR、补位后双击及真实 Chrome 物理输入未升级。正式工程更新 b4bcfa41 后另树实测 Feedback 两次关闭重开、隐藏恢复与目标再捕获；没有新增上传。两套源码未混称，Pro 整合 Main 两处冲突并运行组合 CI。详细 [产品结论与交接](../engineering/evidence/2026-10-28-beta-ux/README.md)。历史 UNKNOWN、原媒体与审计均保留。
 
 # Riftlet 自主并行执行队列

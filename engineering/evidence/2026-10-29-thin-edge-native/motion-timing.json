@@ -1,0 +1,477 @@
+{
+  "scope": "Native AppKit with synthetic projection only; not new upload evidence. Boundary callbacks have scheduling latency.",
+  "source": "888a4b0075bc8faf944a3e7a75ebd9a7a7ff3acf",
+  "scenes": [
+    {
+      "scene": "magnet",
+      "source": "888a4b0075bc8faf944a3e7a75ebd9a7a7ff3acf",
+      "rawLogSHA256": "597e1860752501bbd17ec96de9b20d3a781a92be763fa1b9d960d702291cae93",
+      "syntheticOnly": true,
+      "metrics": {
+        "nativeSwallowStartToCloseMs": 126.426,
+        "configuredSwallowMs": 120.0,
+        "nativeDecorationStartToEndMs": 545.014
+      },
+      "events": [
+        {
+          "assetID": "00000000-0000-4000-8000-000000000001",
+          "boundaryUptime": 564479.8373859167,
+          "event": "native_arrival_boundary",
+          "mode": "magnet",
+          "phase": "rowAvailable",
+          "reason": "none",
+          "receiptEvidence": false,
+          "syntheticOnly": true,
+          "uptime": 564479.8373937916
+        },
+        {
+          "assetID": "00000000-0000-4000-8000-000000000001",
+          "boundaryUptime": 564479.8420814584,
+          "event": "native_arrival_boundary",
+          "mode": "magnet",
+          "phase": "imageDecoded",
+          "reason": "none",
+          "receiptEvidence": false,
+          "syntheticOnly": true,
+          "uptime": 564479.8420885
+        },
+        {
+          "assetID": "00000000-0000-4000-8000-000000000001",
+          "boundaryUptime": 564479.8459589167,
+          "event": "native_arrival_boundary",
+          "mode": "magnet",
+          "phase": "decorationStarted",
+          "reason": "none",
+          "receiptEvidence": false,
+          "syntheticOnly": true,
+          "uptime": 564479.8459650417
+        },
+        {
+          "assetID": "00000000-0000-4000-8000-000000000001",
+          "boundaryUptime": 564480.3909724167,
+          "event": "native_arrival_boundary",
+          "mode": "magnet",
+          "phase": "decorationEnded",
+          "reason": "finished",
+          "receiptEvidence": false,
+          "syntheticOnly": true,
+          "uptime": 564480.3909806667
+        },
+        {
+          "assetID": "00000000-0000-4000-8000-000000000001",
+          "event": "visual_synthetic_start_projection",
+          "receiptEvidence": false,
+          "syntheticOnly": true,
+          "uptime": 564482.366462375
+        },
+        {
+          "assetID": "00000000-0000-4000-8000-000000000001",
+          "boundaryUptime": 564482.3681645833,
+          "duration": 0.12,
+          "event": "native_presentation_boundary",
+          "phase": "swallowScheduled",
+          "receiptEvidence": false,
+          "syntheticOnly": true,
+          "uptime": 564482.3681700417
+        },
+        {
+          "assetID": "00000000-0000-4000-8000-000000000001",
+          "boundaryUptime": 564482.3688251667,
+          "duration": 0.12,
+          "event": "native_presentation_boundary",
+          "phase": "swallowActualStart",
+          "receiptEvidence": false,
+          "syntheticOnly": true,
+          "uptime": 564482.3688282917
+        },
+        {
+          "assetID": "00000000-0000-4000-8000-000000000001",
+          "boundaryUptime": 564482.4952506667,
+          "duration": 0.12,
+          "event": "native_presentation_boundary",
+          "phase": "swallowClose",
+          "receiptEvidence": false,
+          "syntheticOnly": true,
+          "uptime": 564482.4952641667
+        },
+        {
+          "assetID": "00000000-0000-4000-8000-000000000001",
+          "event": "visual_synthetic_final_projection",
+          "receiptEvidence": false,
+          "syntheticOnly": true,
+          "uptime": 564484.1203743333
+        },
+        {
+          "event": "visual_timeline_finished",
+          "inputExecuted": false,
+          "receiptEvidence": false,
+          "syntheticOnly": true,
+          "uptime": 564484.1214195
+        }
+      ]
+    },
+    {
+      "scene": "none",
+      "source": "888a4b0075bc8faf944a3e7a75ebd9a7a7ff3acf",
+      "rawLogSHA256": "368efd64405bce315af5ced62ae440b4d033b313613a80beaa034a1ef74e2490",
+      "syntheticOnly": true,
+      "metrics": {
+        "nativeSwallowStartToCloseMs": 126.935,
+        "configuredSwallowMs": 120.0
+      },
+      "events": [
+        {
+          "assetID": "00000000-0000-4000-8000-000000000001",
+          "boundaryUptime": 564486.5087450834,
+          "event": "native_arrival_boundary",
+          "mode": "none",
+          "phase": "rowAvailable",
+          "reason": "none",
+          "receiptEvidence": false,
+          "syntheticOnly": true,
+          "uptime": 564486.50875975
+        },
+        {
+          "assetID": "00000000-0000-4000-8000-000000000001",
+          "boundaryUptime": 564486.5972426251,
+          "event": "native_arrival_boundary",
+          "mode": "none",
+          "phase": "imageDecoded",
+          "reason": "none",
+          "receiptEvidence": false,
+          "syntheticOnly": true,
+          "uptime": 564486.597247625
+        },
+        {
+          "assetID": "00000000-0000-4000-8000-000000000001",
+          "event": "visual_synthetic_start_projection",
+          "receiptEvidence": false,
+          "syntheticOnly": true,
+          "uptime": 564490.133929
+        },
+        {
+          "assetID": "00000000-0000-4000-8000-000000000001",
+          "boundaryUptime": 564490.1349164167,
+          "duration": 0.12,
+          "event": "native_presentation_boundary",
+          "phase": "swallowScheduled",
+          "receiptEvidence": false,
+          "syntheticOnly": true,
+          "uptime": 564490.1349202917
+        },
+        {
+          "assetID": "00000000-0000-4000-8000-000000000001",
+          "boundaryUptime": 564490.1352734166,
+          "duration": 0.12,
+          "event": "native_presentation_boundary",
+          "phase": "swallowActualStart",
+          "receiptEvidence": false,
+          "syntheticOnly": true,
+          "uptime": 564490.1352746667
+        },
+        {
+          "assetID": "00000000-0000-4000-8000-000000000001",
+          "boundaryUptime": 564490.2622080834,
+          "duration": 0.12,
+          "event": "native_presentation_boundary",
+          "phase": "swallowClose",
+          "receiptEvidence": false,
+          "syntheticOnly": true,
+          "uptime": 564490.2622174583
+        },
+        {
+          "assetID": "00000000-0000-4000-8000-000000000001",
+          "event": "visual_synthetic_final_projection",
+          "receiptEvidence": false,
+          "syntheticOnly": true,
+          "uptime": 564491.908697125
+        },
+        {
+          "event": "visual_timeline_finished",
+          "inputExecuted": false,
+          "receiptEvidence": false,
+          "syntheticOnly": true,
+          "uptime": 564491.909508375
+        }
+      ]
+    },
+    {
+      "scene": "reduce-motion",
+      "source": "888a4b0075bc8faf944a3e7a75ebd9a7a7ff3acf",
+      "rawLogSHA256": "da806f7e0f5e2626b7312f3c5785480d140c5c3578b96fe7cb6fca063abecee9",
+      "syntheticOnly": true,
+      "metrics": {
+        "nativeSwallowStartToCloseMs": 87.98,
+        "configuredSwallowMs": 80.0
+      },
+      "events": [
+        {
+          "assetID": "00000000-0000-4000-8000-000000000001",
+          "boundaryUptime": 564497.5051022083,
+          "event": "native_arrival_boundary",
+          "mode": "none",
+          "phase": "rowAvailable",
+          "reason": "none",
+          "receiptEvidence": false,
+          "syntheticOnly": true,
+          "uptime": 564497.5051067084
+        },
+        {
+          "assetID": "00000000-0000-4000-8000-000000000001",
+          "boundaryUptime": 564497.508595375,
+          "event": "native_arrival_boundary",
+          "mode": "none",
+          "phase": "imageDecoded",
+          "reason": "none",
+          "receiptEvidence": false,
+          "syntheticOnly": true,
+          "uptime": 564497.5085990417
+        },
+        {
+          "assetID": "00000000-0000-4000-8000-000000000001",
+          "event": "visual_synthetic_start_projection",
+          "receiptEvidence": false,
+          "syntheticOnly": true,
+          "uptime": 564500.011237875
+        },
+        {
+          "assetID": "00000000-0000-4000-8000-000000000001",
+          "boundaryUptime": 564500.0123569167,
+          "duration": 0.08,
+          "event": "native_presentation_boundary",
+          "phase": "swallowScheduled",
+          "receiptEvidence": false,
+          "syntheticOnly": true,
+          "uptime": 564500.0123650833
+        },
+        {
+          "assetID": "00000000-0000-4000-8000-000000000001",
+          "boundaryUptime": 564500.0129065,
+          "duration": 0.08,
+          "event": "native_presentation_boundary",
+          "phase": "swallowActualStart",
+          "receiptEvidence": false,
+          "syntheticOnly": true,
+          "uptime": 564500.0129091667
+        },
+        {
+          "assetID": "00000000-0000-4000-8000-000000000001",
+          "boundaryUptime": 564500.1008865001,
+          "duration": 0.08,
+          "event": "native_presentation_boundary",
+          "phase": "swallowClose",
+          "receiptEvidence": false,
+          "syntheticOnly": true,
+          "uptime": 564500.1008954584
+        },
+        {
+          "assetID": "00000000-0000-4000-8000-000000000001",
+          "event": "visual_synthetic_final_projection",
+          "receiptEvidence": false,
+          "syntheticOnly": true,
+          "uptime": 564501.7656167917
+        },
+        {
+          "event": "visual_timeline_finished",
+          "inputExecuted": false,
+          "receiptEvidence": false,
+          "syntheticOnly": true,
+          "uptime": 564501.7668443334
+        }
+      ]
+    },
+    {
+      "scene": "interrupt",
+      "source": "888a4b0075bc8faf944a3e7a75ebd9a7a7ff3acf",
+      "rawLogSHA256": "dde77046265a07832e3afb5d99a64914515a21b39b89070bb55fc3381659866c",
+      "syntheticOnly": true,
+      "metrics": {
+        "nativeSwallowStartToCloseMs": 127.338,
+        "configuredSwallowMs": 120.0,
+        "nativeDecorationStartToEndMs": 254.864
+      },
+      "events": [
+        {
+          "assetID": "00000000-0000-4000-8000-000000000001",
+          "boundaryUptime": 564506.3187306251,
+          "event": "native_arrival_boundary",
+          "mode": "magnet",
+          "phase": "rowAvailable",
+          "reason": "none",
+          "receiptEvidence": false,
+          "syntheticOnly": true,
+          "uptime": 564506.318736625
+        },
+        {
+          "assetID": "00000000-0000-4000-8000-000000000001",
+          "boundaryUptime": 564506.3238539584,
+          "event": "native_arrival_boundary",
+          "mode": "magnet",
+          "phase": "imageDecoded",
+          "reason": "none",
+          "receiptEvidence": false,
+          "syntheticOnly": true,
+          "uptime": 564506.32386475
+        },
+        {
+          "assetID": "00000000-0000-4000-8000-000000000001",
+          "boundaryUptime": 564506.328284,
+          "event": "native_arrival_boundary",
+          "mode": "magnet",
+          "phase": "decorationStarted",
+          "reason": "none",
+          "receiptEvidence": false,
+          "syntheticOnly": true,
+          "uptime": 564506.3282884584
+        },
+        {
+          "assetID": "00000000-0000-4000-8000-000000000001",
+          "boundaryUptime": 564506.5831481667,
+          "event": "native_arrival_boundary",
+          "mode": "magnet",
+          "phase": "decorationEnded",
+          "reason": "cancelled",
+          "receiptEvidence": false,
+          "syntheticOnly": true,
+          "uptime": 564506.5831606667
+        },
+        {
+          "assetID": "00000000-0000-4000-8000-000000000001",
+          "event": "visual_synthetic_start_projection",
+          "receiptEvidence": false,
+          "syntheticOnly": true,
+          "uptime": 564508.8373400416
+        },
+        {
+          "assetID": "00000000-0000-4000-8000-000000000001",
+          "boundaryUptime": 564508.8383036667,
+          "duration": 0.12,
+          "event": "native_presentation_boundary",
+          "phase": "swallowScheduled",
+          "receiptEvidence": false,
+          "syntheticOnly": true,
+          "uptime": 564508.8383077917
+        },
+        {
+          "assetID": "00000000-0000-4000-8000-000000000001",
+          "boundaryUptime": 564508.8386912501,
+          "duration": 0.12,
+          "event": "native_presentation_boundary",
+          "phase": "swallowActualStart",
+          "receiptEvidence": false,
+          "syntheticOnly": true,
+          "uptime": 564508.8386929584
+        },
+        {
+          "assetID": "00000000-0000-4000-8000-000000000001",
+          "boundaryUptime": 564508.9660290417,
+          "duration": 0.12,
+          "event": "native_presentation_boundary",
+          "phase": "swallowClose",
+          "receiptEvidence": false,
+          "syntheticOnly": true,
+          "uptime": 564508.9660385833
+        },
+        {
+          "assetID": "00000000-0000-4000-8000-000000000001",
+          "event": "visual_synthetic_final_projection",
+          "receiptEvidence": false,
+          "syntheticOnly": true,
+          "uptime": 564510.554037375
+        },
+        {
+          "event": "visual_timeline_finished",
+          "inputExecuted": false,
+          "receiptEvidence": false,
+          "syntheticOnly": true,
+          "uptime": 564510.555510625
+        }
+      ]
+    },
+    {
+      "scene": "missing-source",
+      "source": "888a4b0075bc8faf944a3e7a75ebd9a7a7ff3acf",
+      "rawLogSHA256": "adefdcdcfd477f485158485376e78a98528714a625404a686107240d3b01cc81",
+      "syntheticOnly": true,
+      "metrics": {
+        "nativeSwallowStartToCloseMs": 129.62,
+        "configuredSwallowMs": 120.0
+      },
+      "events": [
+        {
+          "assetID": "00000000-0000-4000-8000-000000000001",
+          "boundaryUptime": 564514.8374150001,
+          "event": "native_arrival_boundary",
+          "mode": "magnet",
+          "phase": "rowAvailable",
+          "reason": "none",
+          "receiptEvidence": false,
+          "syntheticOnly": true,
+          "uptime": 564514.8374173751
+        },
+        {
+          "assetID": "00000000-0000-4000-8000-000000000001",
+          "boundaryUptime": 564514.839181875,
+          "event": "native_arrival_boundary",
+          "mode": "magnet",
+          "phase": "imageDecoded",
+          "reason": "none",
+          "receiptEvidence": false,
+          "syntheticOnly": true,
+          "uptime": 564514.8391844167
+        },
+        {
+          "assetID": "00000000-0000-4000-8000-000000000001",
+          "event": "visual_synthetic_start_projection",
+          "receiptEvidence": false,
+          "syntheticOnly": true,
+          "uptime": 564517.4361440417
+        },
+        {
+          "assetID": "00000000-0000-4000-8000-000000000001",
+          "boundaryUptime": 564517.4373463334,
+          "duration": 0.12,
+          "event": "native_presentation_boundary",
+          "phase": "swallowScheduled",
+          "receiptEvidence": false,
+          "syntheticOnly": true,
+          "uptime": 564517.4373507916
+        },
+        {
+          "assetID": "00000000-0000-4000-8000-000000000001",
+          "boundaryUptime": 564517.4378158334,
+          "duration": 0.12,
+          "event": "native_presentation_boundary",
+          "phase": "swallowActualStart",
+          "receiptEvidence": false,
+          "syntheticOnly": true,
+          "uptime": 564517.437817625
+        },
+        {
+          "assetID": "00000000-0000-4000-8000-000000000001",
+          "boundaryUptime": 564517.5674357917,
+          "duration": 0.12,
+          "event": "native_presentation_boundary",
+          "phase": "swallowClose",
+          "receiptEvidence": false,
+          "syntheticOnly": true,
+          "uptime": 564517.5674472083
+        },
+        {
+          "assetID": "00000000-0000-4000-8000-000000000001",
+          "event": "visual_synthetic_final_projection",
+          "receiptEvidence": false,
+          "syntheticOnly": true,
+          "uptime": 564519.1668514167
+        },
+        {
+          "event": "visual_timeline_finished",
+          "inputExecuted": false,
+          "receiptEvidence": false,
+          "syntheticOnly": true,
+          "uptime": 564519.1679492084
+        }
+      ]
+    }
+  ]
+}

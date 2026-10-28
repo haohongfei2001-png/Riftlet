@@ -1,1 +1,53 @@
-{"status":"IN_PROGRESS","physicalInput":"NOT_RUN","realUpload":"NOT_RUN"}
+{
+  "schemaVersion": 1,
+  "status": "NATIVE_CANDIDATE_EVIDENCE_COMPLETE_CI_PENDING",
+  "visualApproval": "IMPLEMENTATION_CANDIDATE_ONLY",
+  "branch": "codex/riftlet-real-mac-acceptance-thin-edge-20261029",
+  "formalBaseline": "1920e0562db893a3292af89a89270a26ddb46a5f",
+  "formalRemoteObservedBeforeHandoff": "0e7ea8be148e1124b387e799fd886a7830e96559",
+  "design": "7e03bd2c26c6aa43dbac07b073e00d08d1951b71",
+  "lastNativeSource": "ad4854c849448bb37c387528bddf673732d8e362",
+  "windowAndRoutingSource": "46a909a35df16b76b6153fcb772a48740fb07ac6",
+  "local": {
+    "releaseAppBuild": "PASS",
+    "bundleSelfCheck": "PASS",
+    "compositionFixtureTests": {
+      "result": "PASS",
+      "count": 21
+    },
+    "fullXCTest": "NOT_RUN: local CLT cannot resolve XCTest",
+    "buildDurationSeconds": 22.61,
+    "executableSHA256": "6e436372be991f05a556aa7b08390a21eecf866c21043473e12c830b6413a337"
+  },
+  "native": {
+    "windowScreenshots": "PASS_LIMITED_2X_NATIVE",
+    "queuePagerHover": "PASS_LIMITED_2X_NATIVE",
+    "softwareRouting": "PASS_CGEVENT_ONLY",
+    "arrivalAndSwallow": "PASS_SYNTHETIC_NATIVE_PROJECTION",
+    "physicalInput": "NOT_RUN",
+    "crossApplicationFocus": "NOT_RUN",
+    "spacesFullscreen": "NOT_RUN",
+    "realUpload": "NOT_RUN"
+  },
+  "ci": {
+    "status": "PENDING",
+    "run": null
+  },
+  "review": {
+    "nonAuthorRoles": [
+      "thin_motion",
+      "thin_windows",
+      "thin_acceptance"
+    ],
+    "sourceBlockers": 0
+  },
+  "safety": {
+    "historicalDataUnchanged": true,
+    "ordinaryUploadEnabled": false,
+    "safeRetryEnabled": false,
+    "realUploadInputCount": 0,
+    "publicEvidenceSyntheticOnly": true,
+    "release": "NOT_PUBLISHED"
+  },
+  "motionSource": "888a4b0075bc8faf944a3e7a75ebd9a7a7ff3acf"
+}
