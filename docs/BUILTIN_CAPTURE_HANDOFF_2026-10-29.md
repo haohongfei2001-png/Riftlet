@@ -10,7 +10,7 @@
 - 本分支直接父基线：薄界原生交接 `443d21da1a55c0061eafced823b5406879b96024`，其已测源码为 `00dedc7f8164643c3435e3f87aa462e28af0b1c8`。
 - 本轮仅在独立克隆写入。最新正式 Feedback 增量未重复合入本分支；正式负责人先完成薄界/Feedback 合流，再接本增量。
 
-已独立审阅的首个源提交：`86ed9cf63f2aed0ea3114275d109b0e54287d74f`。准确后续候选、CI run / job、审查和制品记录位于 [results.json](../engineering/evidence/2026-10-29-builtin-capture/results.json)。未执行的项目始终保留 NOT_RUN。
+独立 Draft PR：[#14](https://github.com/haohongfei2001-png/Riftlet/pull/14)。已独立审阅的首个源提交：`86ed9cf63f2aed0ea3114275d109b0e54287d74f`；当前源提交为 `6540f1981897c1cda6957c38f88243b2b1ed763e`，补充修复了子进程已退出、完成通知尚未消费时的误超时，并用真实无害子进程覆盖此竞态。准确后续候选、CI run / job、审查和制品记录位于 [results.json](../engineering/evidence/2026-10-29-builtin-capture/results.json)。未执行的项目始终保留 NOT_RUN。
 
 ## 本轮真实代码
 
