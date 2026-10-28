@@ -110,3 +110,5 @@ Feedback push/PR `40766737084` / `40766744482` 成功：46项唯一原生（新�
 设置页文档宽绑定clip，自动隐藏传统滚动条可在文档高度确定后占用15点，符合实际轨迹；具体style会由下一日志实读。局部修补只让RiftSetupController页scroll保留原生竖条槽位，保持系统scrollerStyle，overlay仍由AppKit自动隐藏；不改公共scroll工厂、动画时钟或真实缩放/尺寸变化时的静态重排。原performClick及全部原断言保留，并加强点击前后bounds稳定断言；新增单窗口legacy/overlay在实际需要/无需滚动的两种高度间转换回归。新的修补尚待非作者精确审查及下一CI，不能先宣布PASS。
 
 Apple原始依据：<https://developer.apple.com/documentation/appkit/nsscrollview/autohidesscrollers>；自动隐藏会移除不需要的传统滚动条以释放空间，overlay忽略此属性。
+
+非作者已精确核准局部滚动布局修补 `8d59ffacfdb1e647c118c98a29336c98f95b82e4` / tree `47d382d899cead08a41cd2d891d81ff133feb364` / parent260a4d7，干净树且五个文件与约定相符。原断言、动画时钟和真实几何变更重排保持；当前只更新既定三条pin元数据，等待下一准确Native/Feedback与原尺寸复审。444/429是preview view的bounds宽，图层身份一致不表示imageLayer本身具有该宽度。
