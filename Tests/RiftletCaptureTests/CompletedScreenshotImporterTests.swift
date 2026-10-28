@@ -23,9 +23,11 @@ final class CompletedScreenshotImporterTests: XCTestCase {
         let original = try Data(contentsOf: source)
         let store = try QueueStore(databaseURL: root.appendingPathComponent("queue.sqlite"))
         let importer = PrivateAssetImporter(privateRoot: root, store: store)
-        // A generated fixture has no genuine system-screenshot marker.
+        // A generated fixture has no genuine system-screenshot marker. The
+        // existing importer represents an absent marker as metadataPending;
+        // notScreenshot means a present but false/invalid marker.
         do { _ = try await importer.importCompletedScreenshot(at: source, origin: .systemScreenshot); XCTFail("Unmarked file gained system origin") }
-        catch CaptureError.notScreenshot {}
+        catch CaptureError.metadataPending {}
         let record = try await importer.importCompletedScreenshot(at: source, origin: .applicationScreenshot)
         let repeated = try await importer.importCompletedScreenshot(at: source, origin: .applicationScreenshot)
         XCTAssertEqual(record.id, repeated.id)

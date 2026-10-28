@@ -76,7 +76,7 @@ REVIEWED_OBJECTS = {
     "Sources/RiftletUI/ScreenshotEntryModel.swift": "67b72caa18fb151ead4d36b1369a0a6900ca4b2f",
     "Tests/CaptureEntryIsolation/test_integration.py": "dd29553591641c2818857bf7870c8824230aa563",
     "Tests/RiftletAppTests/ScreenshotEntryIntegrationTests.swift": "89bb42a028ea8e195cf3a394d86db8c667ad8348",
-    "Tests/RiftletCaptureTests/CompletedScreenshotImporterTests.swift": "749e7e1ab5024037f0e5f3f5aa267df7c9b44bc9",
+    "Tests/RiftletCaptureTests/CompletedScreenshotImporterTests.swift": "f81baad6579082e0e1ca37db27803df3390e5495",
     "Tests/RiftletCaptureTests/InteractiveScreenshotTests.swift": "dbb17e110d712a2b3cb0b21cd61ef9351b1bf65a",
     "Tests/RiftletUITests/RiftCapturePresentationTests.swift": "e5b2a796949657b9e5c440a1d2b87319d3293928",
     "Tests/RiftletUITests/ScreenshotEntryControllerTests.swift": "b5eb3e7e369d5d476dfc21e877503c223d095dcc",
