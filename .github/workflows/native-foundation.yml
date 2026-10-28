@@ -6,6 +6,7 @@ on:
       - 'codex/riftlet-real-mac-round*'
       - 'codex/system-capture-candidate-20261028'
       - 'codex/system-screenshot-real-20261028'
+      - 'codex/arrival-none-magnet-native-20261028'
     paths:
       - 'Sources/**'
       - 'Tests/**'
@@ -90,6 +91,14 @@ jobs:
           set -o pipefail
           mkdir -p test-results
           swift test --parallel 2>&1 | tee test-results/swift-test.log
+      - name: Verify isolated arrival delta and report native motion outcomes
+        if: github.head_ref == 'codex/arrival-none-magnet-native-20261028' || github.ref == 'refs/heads/codex/arrival-none-magnet-native-20261028'
+        run: |
+          set -o pipefail
+          python3 -B -m unittest discover -s Tests/ArrivalIsolation -v 2>&1 | tee test-results/arrival-isolation-tests.log
+          python3 -B scripts/verify-arrival-integration.py 2>&1 | tee test-results/arrival-integration.log
+          swift test --skip-build --filter 'ArrivalMotionPreferencesTests|CaptureArrivalObservationTests|ArrivalModesTests|MagnetMotionPlanTests|MagnetFlightPresenterTests|ScreenshotSourceGeometryTests' 2>&1 | tee test-results/arrival-native-detailed.log
+          swiftc -typecheck scripts/arrival-source-probe.swift 2>&1 | tee test-results/arrival-probe-typecheck.log
       - name: Verify packaging rejection paths offline
         run: |
           set -o pipefail

@@ -55,6 +55,7 @@ public actor CaptureService {
     public let importer: PrivateAssetImporter
     private var sourceDirectory: URL
     private let onChange: @Sendable () async -> Void
+    private let onImported: @Sendable (AssetRecord, ScreenshotSourceObservation) -> Void
     private let onIssue: @Sendable (String) async -> Void
     private let onDiagnostic: @Sendable (CaptureDiagnostic) async -> Void
     private var sourceAccessible = false
@@ -91,6 +92,7 @@ public actor CaptureService {
 
     public init(store: QueueStore, privateRoot: URL, sourceDirectory: URL,
                 onChange: @escaping @Sendable () async -> Void = {},
+                onImported: @escaping @Sendable (AssetRecord, ScreenshotSourceObservation) -> Void = { _, _ in },
                 onIssue: @escaping @Sendable (String) async -> Void = { _ in },
                 onDiagnostic: @escaping @Sendable (CaptureDiagnostic) async -> Void = { _ in },
                 now: @escaping @Sendable () -> Date = { Date() }) {
@@ -98,6 +100,7 @@ public actor CaptureService {
         importer = PrivateAssetImporter(privateRoot: privateRoot, store: store)
         self.sourceDirectory = sourceDirectory.standardizedFileURL
         self.onChange = onChange; self.onIssue = onIssue; self.onDiagnostic = onDiagnostic
+        self.onImported = onImported
         self.now = now
     }
 
@@ -390,9 +393,12 @@ public actor CaptureService {
                 needsRetry = true; continue
             }
             do {
-                _ = try await importer.importStableFile(at: url, signature: signature,
+                let record = try await importer.importStableFile(at: url, signature: signature,
                     firstSeenAt: observations[signature.sourceKey]?.firstSeenAt ?? now)
                 guard running, generation == token else { await onChange(); return }
+                // Optional presentation observation AFTER durable commit, with
+                // no wait for metadata, animation or a second stability window.
+                onImported(record, ScreenshotSourceObservation(url: url, signature: signature, assetID: record.id))
                 observations.removeValue(forKey: signature.sourceKey)
                 imported = true
                 importedCount += 1
@@ -521,7 +527,8 @@ public actor CaptureService {
                     pendingHandoffs[key] = item; changed = true; continue
                 }
                 guard now().timeIntervalSince(item.stableSince) >= 0.12 else { continue }
-                _ = try await importer.importStableFile(at: item.url, signature: current, firstSeenAt: item.firstSeenAt)
+                let record = try await importer.importStableFile(at: item.url, signature: current, firstSeenAt: item.firstSeenAt)
+                onImported(record, ScreenshotSourceObservation(url: item.url, signature: current, assetID: record.id))
                 pendingHandoffs.removeValue(forKey: key)
                 changed = true; imported = true; copyCount += 1
             } catch CaptureError.notScreenshot {

@@ -43,9 +43,18 @@ jobs:
           python3 -m unittest discover -s Tests/FeedbackIsolation -v 2>&1 | tee feedback-results/isolation-tests.log
           python3 -m unittest discover -s Tests/InternalBetaIsolation -v 2>&1 | tee feedback-results/internal-beta-isolation-tests.log
       - name: Verify archived evidence and pinned unified Beta composition
+        env:
+          RIFTLET_REVIEW_HEAD: ${{ github.head_ref || github.ref_name }}
         run: |
           set -o pipefail
-          python3 scripts/verify-internal-beta-integration.py 2>&1 | tee feedback-results/internal-beta-composition.log
+          if [[ "$RIFTLET_REVIEW_HEAD" == 'codex/arrival-none-magnet-native-20261028' ]]; then
+            # This runs the original fixed audit against its exact baseline AND
+            # verifies every candidate-tree object against an exact path policy.
+            python3 -B scripts/verify-arrival-integration.py 2>&1 | tee feedback-results/internal-beta-composition.log
+            python3 -B -m unittest discover -s Tests/ArrivalIsolation -v 2>&1 | tee feedback-results/arrival-isolation-tests.log
+          else
+            python3 scripts/verify-internal-beta-integration.py 2>&1 | tee feedback-results/internal-beta-composition.log
+          fi
       - name: Verify actual Feedback and current screenshot composition
         if: github.event.pull_request.head.ref == 'codex/feedback-v01-20261028'
         env:

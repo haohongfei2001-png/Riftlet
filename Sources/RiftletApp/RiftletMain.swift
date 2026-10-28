@@ -104,6 +104,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private var sourceBinding: CaptureSourceBinding?
     private var transfer: TransferCoordinator?
     private var rift: RiftPanelController?
+    private var arrivalPreferences: ArrivalMotionPreferences?
+    private var arrivalSettings: ArrivalMotionSettingsController?
+    private var arrivalCapture: ArrivalCaptureBridge?
     private var root: URL!
     private var visibleIDs = Set<UUID>()
     private var refreshRunning = false
@@ -208,6 +211,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         if let wakeObserver { NSWorkspace.shared.notificationCenter.removeObserver(wakeObserver) }
         if let activationObserver { NSWorkspace.shared.notificationCenter.removeObserver(activationObserver) }
         if let archiveWakeObserver { NSWorkspace.shared.notificationCenter.removeObserver(archiveWakeObserver) }
+        arrivalCapture?.close(); arrivalSettings?.close()
         rift?.close()
         history?.close()
         setup?.close()
@@ -257,11 +261,19 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             lifecycleSettings = try JSONDecoder().decode(LifecycleSettings.self, from: Data(contentsOf: lifecycleURL))
         } else { try JSONEncoder().encode(lifecycleSettings).write(to: lifecycleURL, options: .atomic) }
         try lifecycleSettings.validate()
+        arrivalPreferences = ArrivalMotionPreferences(url: root.appendingPathComponent("arrival-motion-settings.json"))
         rift = RiftPanelController(mediaDirectory: root.appendingPathComponent("media"), configuration: configuration,
+            arrivalMode: arrivalPreferences?.mode ?? .provisionalFallback,
             onPress: { [weak self] id, timestamp in self?.freezePress(id, timestamp: timestamp) },
             onSelectionBoundary: { [weak self] boundary in self?.recordSelection(boundary) },
             onApproach: { [weak self] in self?.requestArm(reason: "pointerApproach") },
             onPresentationBoundary: { [weak self] boundary in self?.recordPresentation(boundary) },
+            onArrivalBoundary: { [weak self] boundary in
+                var fields: [String: Any] = ["event": boundary.phase.rawValue, "assetID": boundary.assetID.uuidString,
+                    "uptime": boundary.uptime, "motionMode": boundary.mode.rawValue]
+                if let reason = boundary.reason { fields["reason"] = reason }
+                self?.recordArrivalTrace(fields)
+            },
             holdsSelectionUntilFinished: true, interactionFence: interactionFence,
             onRemove: { [weak self] id in self?.removeVisible(id) }) { [weak self] id in
             guard let self else { return }
@@ -364,6 +376,10 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             }
         }
         rift?.setUserHidden(userHidden)
+        if let rift {
+            arrivalCapture = ArrivalCaptureBridge(panel: rift,
+                allowsMetadata: ArrivalSourceProfile.allowsMetadata(arguments: CommandLine.arguments))
+        }
         history = RiftHistoryController(mediaDirectory: root.appendingPathComponent("media"),
             onRestore: { [weak self] id in self?.restoreHistory(id) },
             onRemove: { [weak self] id in self?.removeVisible(id) },
@@ -409,6 +425,18 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             } catch { receiveCaptureDiagnostic(.classify(error, context: .locationPreference)) }
             let service = CaptureService(store: store, privateRoot: root, sourceDirectory: detectedSource ?? CaptureSource.defaultDirectory(),
                                          onChange: { [weak self] in await self?.refresh() },
+                                         onImported: { [weak self] record, observation in
+                                             Task { @MainActor [weak self] in
+                                                 guard let self, !self.terminating else { return }
+                                                 self.recordArrivalTrace(["event": "captureDurableObserved",
+                                                    "assetID": record.id.uuidString, "uptime": observation.readyUptime,
+                                                    "firstSeenWallTime": record.image.firstSeenAt.timeIntervalSince1970])
+                                                 self.arrivalCapture?.imported(record, observation: observation)
+                                                 // Publish each committed asset without awaiting source metadata
+                                                 // or the rest of a multi-file collector scan.
+                                                 await self.refresh()
+                                             }
+                                         },
                                          onDiagnostic: { [weak self] value in await self?.receiveCaptureDiagnostic(value) })
             capture = service
             let binding = CaptureSourceBinding(service: service, provider: captureLocation,
@@ -1338,6 +1366,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         menu.addItem(heading); statusLine = heading
         add(menu, "开始使用与运行状态…", #selector(showSetup))
         add(menu, "反馈与建议…", #selector(showFeedback))
+        add(menu, "截图动效…", #selector(showArrivalSettings))
         if mode.collectsSystemScreenshots { add(menu, "文件访问设置…", #selector(openFilePrivacySettings)) }
         if mode == .webAcceptance {
             menu.addItem(NSMenuItem(title: "Chrome · ChatGPT Chat · Chinese UI · PNG test images", action: nil, keyEquivalent: ""))
@@ -1394,6 +1423,30 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     @objc private func showLatest() { rift?.showLatest() }
     @objc private func showOldest() { rift?.showOldest() }
     @objc private func quit() { NSApplication.shared.terminate(nil) }
+    @objc private func showArrivalSettings() {
+        guard let preferences = arrivalPreferences else { return }
+        if arrivalSettings == nil {
+            arrivalSettings = ArrivalMotionSettingsController(mode: preferences.mode,
+                hasExplicitSelection: preferences.selectedMode != nil) { [weak self] mode in
+                    guard let self, var value = self.arrivalPreferences else { throw CocoaError(.fileWriteUnknown) }
+                    try value.select(mode)
+                    self.arrivalPreferences = value
+                    self.arrivalCapture?.cancel()
+                    self.rift?.setArrivalMode(mode)
+                }
+        }
+        arrivalSettings?.update(mode: preferences.mode, hasExplicitSelection: preferences.selectedMode != nil)
+        arrivalSettings?.show()
+    }
+    private func recordArrivalTrace(_ fields: [String: Any]) {
+        guard CommandLine.arguments.contains("--arrival-trace") else { return }
+        var event = fields
+        event["scope"] = "software_boundaries_not_physical_pixels"
+        event["metadataCandidate"] = CommandLine.arguments.contains(ArrivalSourceProfile.candidateArgument)
+        guard let data = try? JSONSerialization.data(withJSONObject: event, options: [.sortedKeys]),
+              let line = String(data: data, encoding: .utf8) else { return }
+        print("RIFTLET_ARRIVAL_TRACE " + line)
+    }
     @objc private func addWebTestImages() {
         guard mode.generatesSyntheticImages, let store else { return }
         Task {
