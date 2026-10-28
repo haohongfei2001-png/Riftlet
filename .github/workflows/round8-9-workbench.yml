@@ -4,45 +4,46 @@ on:
     branches: ['integration/round8-9-workbench-20261028']
     paths: ['.github/workflows/round8-9-workbench.yml']
 permissions:
-  contents: read
+  contents: write
 jobs:
-  source-export:
+  prepare-candidate:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           fetch-depth: 0
-          persist-credentials: false
-      - name: Export exact authorized source history without credentials
+      - name: Reproduce and publish only the reviewed isolated merge
         shell: bash
         run: |
           set -euo pipefail
           base=d6a083dec660990bd65124e7acd78f2d900b5013
           incoming=b30bb80d5af5cc12b0640c3609f70292709738a1
-          common=b83923068064f6d82f2d253a3c177661fdabc294
-          test "$(git merge-base "$base" "$incoming")" = "$common"
+          test "$(git merge-base "$base" "$incoming")" = b83923068064f6d82f2d253a3c177661fdabc294
           git merge-base --is-ancestor 8914c7027478cbef6af70ad7549e290d5b8cc232 "$incoming"
-          mkdir -p integration-export
-          git update-ref refs/heads/export-formal "$base"
-          git update-ref refs/heads/export-round9 "$incoming"
-          git bundle create integration-export/riftlet-integration.bundle refs/heads/export-formal refs/heads/export-round9
-          git bundle verify integration-export/riftlet-integration.bundle
-          git diff --stat "$common" "$incoming" > integration-export/incoming-stat.txt
-          git diff "$common" "$incoming" -- Sources Tests > integration-export/incoming-source.patch
-          git diff "$common" "$base" -- Sources Tests > integration-export/candidate-source.patch
-          git log --oneline "$base..$incoming" > integration-export/incoming-history.txt
+          resolver="$PWD/integration/resolve-round8-9.py"
+          git config user.name 'Riftlet Integration'
+          git config user.email 'integration@riftlet.invalid'
+          work="$RUNNER_TEMP/riftlet-round89-combined"
+          git worktree add --detach "$work" "$base"
+          cd "$work"
           set +e
-          git merge-tree --write-tree "$base" "$incoming" > integration-export/merge-preview.txt
-          status=$?
+          git merge --no-ff --no-commit "$incoming"
+          result=$?
           set -e
-          echo "merge-preview exit=$status (preview only; no branch changed)"
-          cat integration-export/merge-preview.txt
-          sha256sum integration-export/* > integration-export/SHA256SUMS
-          du -h integration-export/riftlet-integration.bundle
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
-        with:
-          name: round8-9-source-export
-          path: integration-export/
-          retention-days: 7
-          if-no-files-found: error
+          test "$result" = 1
+          python3 "$resolver"
+          test "$(git write-tree)" = e1d5eec20a267efa9f9dab1ac8dc31c312dd5d95
+          git diff --cached --check
+          git diff --exit-code "$base" -- Sources/RiftletCore Sources/RiftletCapture Sources/RiftletApp/SystemScreenshotCandidateConfiguration.swift Sources/RiftletApp/ApplicationMode.swift Sources/RiftletAdapters/SystemScreenshotObservationJournal.swift
+          node --test Tests/WebPageProgram/acceptance-program.test.cjs Tests/WebPageProgram/legacy-web-observe.test.cjs > "$RUNNER_TEMP/round89-web.log" 2>&1
+          tail -10 "$RUNNER_TEMP/round89-web.log"
+          python3 -m unittest discover -s Tests/Packaging -v > "$RUNNER_TEMP/round89-packaging.log" 2>&1
+          git commit -m 'Integrate rounds eight and nine into the isolated system-screenshot candidate' -m 'Preserve both histories, Core preflight, SQLite v3, exact thirty-second selection bounds, isolated real-origin storage and closed start/completion/retry policies. Pin the reviewed v13 page explicitly; correct the v12 test fixture async registry without changing frozen page source. Native/physical validation is separate.'
+          combined=$(git rev-parse HEAD)
+          test "$(git rev-parse HEAD^1)" = "$base"
+          test "$(git rev-parse HEAD^2)" = "$incoming"
+          git push origin "$combined:refs/heads/integration/round8-9-candidate-20261028"
+          echo "COMBINED_SHA=$combined"
+          echo "COMBINED_TREE=$(git rev-parse HEAD^{tree})"
+          echo 'FORMAL_REF_UNCHANGED; MAIN_UNCHANGED; MACOS_CI_PENDING; LIVE_MAC_NOT_RUN'
