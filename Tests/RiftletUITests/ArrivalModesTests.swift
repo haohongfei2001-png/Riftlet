@@ -398,7 +398,7 @@ final class ArrivalModesTests: XCTestCase {
         try await beginFlight(panel, record: record, screen: screen)
         let original = try row(panel, id: record.id)
         let pixels = try XCTUnwrap(original.3.contents) as AnyObject
-        XCTAssertEqual(CFGetTypeID(pixels), CGImageGetTypeID())
+        XCTAssertEqual(CFGetTypeID(pixels), CGImage.typeID)
         try await eventually("Flight did not finish and clear its native overlay") { panel.arrivalDiagnostic.overlayCount == 0 }
         let final = try row(panel, id: record.id)
         XCTAssertEqual(final.0.frame, original.0.frame)
