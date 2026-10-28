@@ -1,5 +1,15 @@
 # Engineering verification record
 
+## 2026-10-28：H 真实快吞噬归档与统一内部 Beta
+
+真实 H 验收交接 `c177174e400064d8ec8bb79685c33d01c4e93b89` 是 e421e668 的证据子提交，运行源码仍为 e421；七份原始脱敏证据原样继承。SC-INPUT/START/COMPLETE/UX 软件 CGEvent 限定 PASS，人工物理鼠标 NOT_RUN，冷首击/异常重试/普通生产不扩张。原始私有数据审查由原 native_gui 完成，本轮非作者核对公开记录、源码和 19 项内部一致性。
+
+Feedback 固定交付 f195beb 按保留祖先的合流集成；其 25 Core + 7 软件 AppKit 测试在组合完整 macOS CI 中执行，原 457 项截图工程测试保持。服务的 18 个真实 SQLite/mock HTTP 测试与四项 Git 隔离回归保留；新增七项三方 Git 审计、七项 Beta 包装/启动器回归。数字是预期套件组成，实际通过结果以精确 CI 日志和 PR #1 交接为准，不将本机静态审查算原生测试。
+
+统一 `Riftlet-Internal-Beta.zip` 包含完整 App、明确候选启动入口、中文说明和实际构建身份。CI 完整 release/signature/self-check 后生成并验证；下载后的 App/两层摘要与实际 checkout/head 输入对象均需核对。最终 source SHA、完整 Native/Feedback run/job、通过数量、非作者结论与实际制品固定在 [PR #1 最新交接](https://github.com/haohongfei2001-png/Riftlet/pull/1)，永久说明见 [内部 Beta](INTERNAL_BETA.md)。本组合不重新执行真实截图上传，不部署反馈服务，不把 CI 当 Finder/Gatekeeper/物理鼠标/Keychain/云端验收。
+
+以下均为各自历史检查点；其中“真实快吞噬尚待复测、反馈未集成”已由本节更新。
+
 ## 2026-10-28：真实截图受限准入与快吞噬组合
 
 已测源码 **`34caed4a5c5b7264c1699b62ea1438e1ce5646ca`**，合流父节点保留正式871d825与新F证据493d1d8。实际直接checkout该SHA的[完整macOS CI40673128250](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40673128250) completed/success于 **2026-10-28 10:36:20 UTC**，job122764686050，18步骤success；同SHA的PR组合CI40673134992也成功。

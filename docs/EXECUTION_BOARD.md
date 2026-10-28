@@ -1,5 +1,9 @@
 # Riftlet 自主并行执行队列
 
+> **当前任务：真实快吞噬验收归档、Feedback v0.1 集成与统一内部 Beta（2026-10-28）**。`e421e668 → c177174` 仅增加 H 的七份真实脱敏证据；再按共同祖先合入反馈交接 `f195beb`，保留双方历史。截图/Core/UI/准入与原测试不改，Main 只继承已审反馈 hook，云端仍未部署、endpoint=nil。完整 App 与明确候选启动入口、完整组合 CI 和非作者审查见 [内部 Beta 交接](INTERNAL_BETA.md) 及 PR #1 最新固定 SHA/制品。
+>
+> H 软件 CGEvent 的单次输入、严格开始、AppKit/WindowServer 快吞噬和后台独立成功已限定 PASS；不再要求重复 H 上传。人工物理鼠标 NOT_RUN、无 ACK 冷首击未解，安全失败/重试与普通生产关闭，旧 UNKNOWN 全保留。反馈源码已正式交付，唯一负责人负责共享 App 合流；不写反馈作者分支或 App 路径。此后的工作重心是真实体验、可靠性与发行质量。**以下为历史检查点，不覆盖当前状态。**
+
 > **当前任务：真实截图受限准入与快吞噬（2026-10-28）**。以正式 `871d825` 合入真实证据 `493d1d8`，保留两个分支的祖先；F 的 SC-INPUT/START/COMPLETE 分别限定 PASS。独立开始、完成证据审查支持受限内部候选：Chrome 中文 ChatGPT 普通已有 thread、单帧非交错 RGBA8 PNG、仅本版本登记的新操作。v2 开始和完成分别授权，旧 v1 / F / 旧 UNKNOWN 永不追溯授权，安全失败／重试及普通生产继续关闭。复用原 Core/UI，严格 sRGB JS 不变。[当前实现、准确验证与本地 Codex 入口](SYSTEM_SCREENSHOT_RESTRICTED_ADMISSION.md)。最终 SHA/完整 macOS CI/候选 App 以 PR #1 最新交接为准，PR 保持 Draft。
 >
 > 正式集成 ref 和共享 App 仍由当前负责人独占；反馈 `codex/feedback-v01-20261028` / Draft PR #7 独立，本次不合入。以下旧状态为各自检查点记录，不覆盖当前准入决定。

@@ -1,6 +1,8 @@
-# 当前正式交接：真实截图受限准入与快吞噬 · 2026-10-28
+# 当前正式交接：真实快吞噬归档、Feedback v0.1 与统一内部 Beta · 2026-10-28
 
-当前交接见 [受限准入与本地 Codex 复测入口](SYSTEM_SCREENSHOT_RESTRICTED_ADMISSION.md)，原始 F 证据见 [493d1d8 脱敏交付](../engineering/evidence/2026-10-28-system-screenshot-complete/README.md)。独立审查分别支持内部候选 start 与 completion；仅新登记操作和已限定范围获准，旧 UNKNOWN 不重传、不清除、不解锁，普通生产与安全重试关闭。PR #1 保持 Draft，main 和反馈分支不写入。最终精确正式 SHA、完整 CI 和 App artifact 由 PR #1 最新正式交接固定。
+当前交接见 [统一内部 Beta：安装、启动和体验检查点](INTERNAL_BETA.md)。H 真实快吞噬 `c177174` 为 e421 的直接证据子提交，仅新增七份脱敏文件，限定软件 CGEvent PASS；人工物理鼠标 NOT_RUN、无 ACK 冷首击未解。Feedback v0.1 `f195beb` 按真实祖先合入，截图以 e421 为权威，Main 仅最小反馈接线；完整 App 附明确内部候选启动入口。反馈 endpoint 为空，本机待发送不能显示云端成功。原反馈分支不写入，main 不合并，PR #1 保持 Draft。
+
+旧 UNKNOWN 不重传、不清除、不解锁；普通生产、安全失败和安全重试关闭。最终精确正式 SHA、完整 Native/Feedback macOS CI、非作者审查与实际 App artifact 由 [PR #1 最新正式交接](https://github.com/haohongfei2001-png/Riftlet/pull/1) 固定。下方各阶段的“待真机、反馈未合入”等表述仅属于对应历史检查点，不覆盖本段。
 
 ---
 

@@ -1,5 +1,7 @@
 # 真实系统截图：受限内部候选与快吞噬 · 2026-10-28
 
+> **更新：H 真实快吞噬已完成限定 PASS。** `c177174` 仅归档运行 e421e668 的七份证据；一次软件 CGEvent 点击、严格开始、原窗口消失和后台 succeeded/used 已通过，人工物理 NOT_RUN、冷首击未解。原包见 [H 证据](../engineering/evidence/2026-10-28-system-screenshot-swallow/README.md)。反馈交付 f195beb 与明确内部候选启动包见 [当前内部 Beta](INTERNAL_BETA.md)。不重跑 H、不改变下列准入，不把旧 F/UNKNOWN 追溯变成成功。
+
 ## 当前决定
 
 F 的真实证据交付 `493d1d8b898d18e34709463d2dceca8c85ad4014`，实际运行源码 `48574df19f34e5681ee98815750e279540e9eb9b`，同源 macOS CI `40656871851`。同一张新系统 PNG 已分别取得 **SC-INPUT、SC-START、SC-COMPLETE 限定 PASS**。本轮在正式 `871d825a43a759bb6dd8ded9cdc99a340d8e0e64` 上按真实祖先关系合入该证据；493d1d8 与871d825均继承f2ae645，使用保留双方父节点的合流，不重做第一、二阶段或重写上传机制。
@@ -13,7 +15,7 @@ F 的真实证据交付 `493d1d8b898d18e34709463d2dceca8c85ad4014`，实际运�
 | 普通启动 | 仍为 UnavailableAdapter；系统截图只收录，不因候选准入打开上传 |
 | 安全失败、安全重试 | 关闭；failureSignal=nil、safeFailureProfiles为空 |
 | F、A、D 与所有旧 UNKNOWN | 保留原操作、attempt、目标、历史和锁；只读观察，不补资格、不重传、不清除、不解锁 |
-| 新版快吞噬真实交互 | 软件组合、完整 CI 和非作者审查分别验证；新候选的真实 Mac 单次体验仍由下一张全新截图验证 |
+| 新版快吞噬真实交互 | H 在 e421e668 上取得软件 CGEvent / 原生窗口限定 PASS；不扩大为物理鼠标、冷首击或新组合 App 真机复测 |
 
 ## 准入范围与证据
 
@@ -61,7 +63,9 @@ reconcile、恢复、旧journal和页面JSON不能登记资格。没有资格就
 
 最终精确正式HEAD、CI run/job、实测checkout与源码树对应、非作者审查和候选App artifact由 [PR #1最新正式交接](https://github.com/haohongfei2001-png/Riftlet/pull/1) 固定；永久记录放在 [本轮集成证据](../engineering/evidence/2026-10-28-sc-restricted-admission/README.md)。候选App来自该次CI的 `Riftlet-macOS-development.zip`，为内部ad-hoc开发包，不是公证／公开发行版。
 
-## 本地 Codex：只验证另一张全新截图的完整体验
+## 已完成的 H 实机入口（历史复现说明，不要求重跑）
+
+本节是 e421 交付时的单次验收协议，现已由 H 完成。后续直接进入 [内部 Beta 产品体验检查点](INTERNAL_BETA.md)，不重传 H、F 或旧 UNKNOWN，不为归档重复上传。
 
 1. 继承PR #1最终准确正式SHA，在独立worktree构建，或下载同一最终CI的App；保留旧分支、系统原件、私有媒体、原候选数据根、SQLite/WAL和全部审计。不要重建数据库，也不要把旧截图重新导入。
 2. 从普通App菜单“打开真实截图内部候选…”进入，或按下列命令启动。确认菜单为 `Riftlet REAL TEST`。沿用首次使用、目录访问和原Chrome权限流程；已有普通实例可按原流程隐藏／退出，不能覆盖另一个Pro的App路径。
@@ -80,4 +84,4 @@ bash scripts/build-macos.sh
 
 ## 后续唯一集成入口
 
-正式分支 `codex/engineering-foundation-20261027` 和PR #1仍由当前负责人唯一写入。后续本地Codex和反馈Pro的正式交接按实际共同祖先审查、组合并完整验证，不重复合入已有历史。反馈 `codex/feedback-v01-20261028` / Draft PR #7本次未合入；本轮Main仅更新候选说明与自检日志三个字符串，后续对共享App作最小差异合流。PR #1保持Draft，不合main、不发布、不要求浏览器扩展。
+正式分支 `codex/engineering-foundation-20261027` 和PR #1仍由当前负责人唯一写入。后续正式交接按实际共同祖先审查、组合并完整验证，不重复合入已有历史。e421 准入增量当时仅改 Main 三处说明字符串；当前已接入反馈 `f195beb` 的最小 hook，截图逻辑保持 e421，见 [内部 Beta](INTERNAL_BETA.md)。反馈作者分支不写入；PR #1保持Draft，不合main、不发布、不要求浏览器扩展。
