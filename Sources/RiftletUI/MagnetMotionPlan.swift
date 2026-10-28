@@ -4,34 +4,34 @@ import CoreGraphics
 /// Tunable engineering candidate, not a declaration of the final product default
 /// or of physical-Mac visual acceptance. Values are seconds and AppKit points.
 public struct MagnetMotionParameters: Equatable, Sendable {
-    public var formationDuration: TimeInterval = 0.100
-    public var chargeDuration: TimeInterval = 0.070
-    public var attractionDuration: TimeInterval = 0.270
-    public var initialMaximumSize = CGSize(width: 200, height: 130)
+    public var formationDuration: TimeInterval = 0.123
+    public var chargeDuration: TimeInterval = 0.101
+    public var attractionDuration: TimeInterval = 0.260
+    public var initialMaximumSize = CGSize(width: 240, height: 150)
     public var smallMaximumSize = CGSize(width: 58, height: 46)
-    public var chargeAmplitude: CGFloat = 1.3
+    public var chargeAmplitude: CGFloat = 1.2
     public var minimumTravel: CGFloat = 24
-    /// Higher values sustain acceleration later before a smooth brake.
-    /// Velocity is proportional to u^power * (1-u)^2, with no spring overshoot.
-    public var accelerationPower: Int = 5
+    public var settleDuration: TimeInterval = 0.076
+    /// Design candidate t^2.25 attraction; reverse only after complete occlusion.
+    public var accelerationPower: Double = 2.25
     /// Explicit keyframe interpolation; no per-frame Swift timer or display link.
     public var samplesPerSecond: Double = 240
 
     public init() {}
 
     public var totalDuration: TimeInterval {
-        formationDuration + chargeDuration + attractionDuration
+        formationDuration + chargeDuration + attractionDuration + settleDuration
     }
 
     public var isValid: Bool {
-        let times = [formationDuration, chargeDuration, attractionDuration]
+        let times = [formationDuration, chargeDuration, attractionDuration, settleDuration]
         return times.allSatisfy { $0.isFinite && $0 > 0 }
             && totalDuration <= 1.2
             && Self.validSize(initialMaximumSize, maximum: CGSize(width: 240, height: 150))
             && Self.validSize(smallMaximumSize, maximum: initialMaximumSize)
             && chargeAmplitude.isFinite && (0...1.5).contains(chargeAmplitude)
             && minimumTravel.isFinite && (0...256).contains(minimumTravel)
-            && (2...8).contains(accelerationPower)
+            && accelerationPower.isFinite && (1...8).contains(accelerationPower)
             && samplesPerSecond.isFinite && (60...240).contains(samplesPerSecond)
     }
 
@@ -43,7 +43,7 @@ public struct MagnetMotionParameters: Equatable, Sendable {
 }
 
 public enum MagnetMotionStage: String, Sendable {
-    case forming, charging, attracting, settled
+    case forming, charging, attracting, settling, settled
 }
 
 public struct MagnetMotionSample: Equatable, Sendable {
@@ -54,8 +54,9 @@ public struct MagnetMotionSample: Equatable, Sendable {
 }
 
 /// A single image travels to the exact final RiftLayout image rectangle. Its
-/// right side crosses one fixed clipping plane; no second sprite materializes
-/// at the destination, and no position/scale curve is spliced at edge contact.
+/// right side crosses one fixed clipping plane. At complete occlusion it reverses
+/// into the final slot. The hidden turnaround preserves visible-area continuity;
+/// it deliberately does not claim C1 velocity continuity.
 ///
 /// All rectangles use the SAME display's AppKit global point coordinates.
 /// This type validates geometry, not screenshot-metadata provenance. The caller
@@ -67,6 +68,8 @@ public struct MagnetMotionPlan: Equatable, Sendable {
     public let initialFrame: CGRect
     public let smallFrame: CGRect
     public let finalFrame: CGRect
+    /// Entire image behind the fixed clipping plane, before final reveal.
+    public let occludedFrame: CGRect
     /// Bounded transparent window, clipped to the physical display and edge.
     public let overlayFrame: CGRect
     public let parameters: MagnetMotionParameters
@@ -100,8 +103,10 @@ public struct MagnetMotionPlan: Equatable, Sendable {
                            height: min(initialSize.height, parameters.smallMaximumSize.height)))
         let initial = Self.frame(center: center, size: initialSize)
         let small = Self.frame(center: center, size: smallSize)
-        let dx = targetImageFrame.midX - center.x
-        let dy = targetImageFrame.midY - center.y
+        let occluded = CGRect(x: clippingEdgeX, y: targetImageFrame.minY,
+                              width: targetImageFrame.width, height: targetImageFrame.height)
+        let dx = occluded.midX - center.x
+        let dy = occluded.midY - center.y
         let distance = hypot(dx, dy)
         guard distance.isFinite, distance >= max(0.01, parameters.minimumTravel),
               initial.maxX <= clippingEdgeX else { return nil }
@@ -123,13 +128,13 @@ public struct MagnetMotionPlan: Equatable, Sendable {
         // accidentally clip the image before it reaches the intended rift plane.
         let travelWidth = max(small.width, targetImageFrame.width)
         let travelHeight = max(small.height, targetImageFrame.height)
-        let travelBounds = CGRect(x: min(center.x, targetImageFrame.midX) - travelWidth / 2,
-                                  y: min(center.y, targetImageFrame.midY) - travelHeight / 2,
+        let travelBounds = CGRect(x: min(center.x, occluded.midX) - travelWidth / 2,
+                                  y: min(center.y, occluded.midY) - travelHeight / 2,
                                   width: abs(dx) + travelWidth, height: abs(dy) + travelHeight)
         guard travelBounds.minX >= screenFrame.minX,
               travelBounds.minY >= screenFrame.minY,
               travelBounds.maxY <= screenFrame.maxY else { return nil }
-        let overlay = initial.union(chargeBounds).union(travelBounds).intersection(clip)
+        let overlay = initial.union(chargeBounds).union(travelBounds).union(targetImageFrame).intersection(clip)
         guard Self.validRect(overlay) else { return nil }
 
         self.sourceRect = sourceRect
@@ -138,6 +143,7 @@ public struct MagnetMotionPlan: Equatable, Sendable {
         self.initialFrame = initial
         self.smallFrame = small
         self.finalFrame = targetImageFrame
+        self.occludedFrame = occluded
         self.overlayFrame = overlay
         self.parameters = parameters
         self.direction = direction
@@ -161,7 +167,7 @@ public struct MagnetMotionPlan: Equatable, Sendable {
         let p = parameters
         if t < p.formationDuration {
             let u = t / p.formationDuration
-            let progress = Self.smoothstep5(u)
+            let progress = Self.outCubic(u)
             return MagnetMotionSample(
                 frame: Self.frame(center: CGPoint(x: initialFrame.midX, y: initialFrame.midY),
                     size: Self.interpolate(initialFrame.size, smallFrame.size, progress)),
@@ -171,19 +177,27 @@ public struct MagnetMotionPlan: Equatable, Sendable {
             let u = (t - p.formationDuration) / p.chargeDuration
             // 1.5 deterministic directional cycles, smoothly zero at both ends.
             // No random jitter, rotation, glow, bounce or perpetual oscillation.
-            let envelope = pow(sin(.pi * u), 2)
+            let envelope = sin(.pi * u) * (1 - u)
             let displacement = p.chargeAmplitude * CGFloat(sin(3 * .pi * u) * envelope)
             return MagnetMotionSample(
                 frame: smallFrame.offsetBy(dx: direction.dx * displacement, dy: direction.dy * displacement),
                 stage: .charging, travelProgress: 0)
         }
-        let u = (t - p.formationDuration - p.chargeDuration) / p.attractionDuration
-        let progress = Self.attractionProgress(u, accelerationPower: p.accelerationPower)
-        let center = CGPoint(x: smallFrame.midX + (finalFrame.midX - smallFrame.midX) * CGFloat(progress),
-                             y: smallFrame.midY + (finalFrame.midY - smallFrame.midY) * CGFloat(progress))
-        return MagnetMotionSample(frame: Self.frame(center: center,
-            size: Self.interpolate(smallFrame.size, finalFrame.size, Self.smoothstep5(u))),
-            stage: .attracting, travelProgress: progress)
+        let attractionStart = p.formationDuration + p.chargeDuration
+        let settleStart = attractionStart + p.attractionDuration
+        if t < settleStart {
+            let u = (t - attractionStart) / p.attractionDuration
+            let progress = Self.attractionProgress(u, accelerationPower: p.accelerationPower)
+            let center = CGPoint(x: smallFrame.midX + (occludedFrame.midX - smallFrame.midX) * CGFloat(progress),
+                                 y: smallFrame.midY + (occludedFrame.midY - smallFrame.midY) * CGFloat(progress))
+            return MagnetMotionSample(frame: Self.frame(center: center,
+                size: Self.interpolate(smallFrame.size, finalFrame.size, progress)),
+                stage: .attracting, travelProgress: progress)
+        }
+        let reveal = Self.outCubic((t - settleStart) / p.settleDuration)
+        return MagnetMotionSample(frame: occludedFrame.offsetBy(
+            dx: (finalFrame.minX - occludedFrame.minX) * CGFloat(reveal), dy: 0),
+            stage: .settling, travelProgress: 1)
     }
 
     /// Exact visible part of the same sprite at a sample, including the final
@@ -191,7 +205,9 @@ public struct MagnetMotionPlan: Equatable, Sendable {
     public func visibleFrame(at elapsed: TimeInterval) -> CGRect {
         let clip = CGRect(x: screenFrame.minX, y: screenFrame.minY,
                           width: clippingEdgeX - screenFrame.minX, height: screenFrame.height)
-        return sample(at: elapsed).frame.intersection(clip)
+        let frame = sample(at: elapsed).frame
+        let visible = frame.intersection(clip)
+        return visible.isEmpty ? CGRect(x: clippingEdgeX, y: frame.minY, width: 0, height: frame.height) : visible
     }
 
     /// Includes exact phase boundaries as well as a bounded uniform sampling.
@@ -199,25 +215,21 @@ public struct MagnetMotionPlan: Equatable, Sendable {
     public var keyframeTimes: [TimeInterval] {
         let count = max(2, Int(ceil(totalDuration * parameters.samplesPerSecond)))
         let times = (0...count).map { Double($0) * totalDuration / Double(count) }
-            + [parameters.formationDuration, parameters.formationDuration + parameters.chargeDuration]
+            + [parameters.formationDuration, parameters.formationDuration + parameters.chargeDuration,
+               parameters.formationDuration + parameters.chargeDuration + parameters.attractionDuration]
         return Array(Set(times)).sorted()
     }
 
-    /// Normalized integral of u^power*(1-u)^2. The default power=5 yields
-    /// 28u^6-48u^7+21u^8, accelerates until u=5/7, then continuously brakes.
-    /// Velocity and acceleration are zero at both endpoints for every valid power.
-    public static func attractionProgress(_ value: Double, accelerationPower: Int = 5) -> Double {
+    /// Design-candidate attraction, with no hidden braking segment or overshoot.
+    /// Turnaround occurs while completely clipped, not in public visible space.
+    public static func attractionProgress(_ value: Double, accelerationPower: Double = 2.25) -> Double {
         guard value.isFinite else { return value == .infinity ? 1 : 0 }
-        let u = min(1, max(0, value))
-        if u <= 0 { return 0 }
-        if u >= 1 { return 1 }
-        let p = Double(min(8, max(2, accelerationPower)))
-        let c = (p + 1) * (p + 2) * (p + 3) / 2
-        return min(1, max(0, c * pow(u, p + 1) * (1 / (p + 1) - 2 * u / (p + 2) + u * u / (p + 3))))
+        guard accelerationPower.isFinite else { return 0 }
+        return pow(min(1, max(0, value)), min(8, max(1, accelerationPower)))
     }
 
-    private static func smoothstep5(_ u: Double) -> Double {
-        u * u * u * (10 + u * (-15 + 6 * u))
+    private static func outCubic(_ u: Double) -> Double {
+        1 - pow(1 - min(1, max(0, u)), 3)
     }
 
     private static func interpolate(_ a: CGSize, _ b: CGSize, _ progress: Double) -> CGSize {

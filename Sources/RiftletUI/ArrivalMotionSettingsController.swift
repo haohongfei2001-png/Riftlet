@@ -17,19 +17,19 @@ public final class ArrivalMotionSettingsController: NSWindowController, NSWindow
         self.mode = mode; hasSelection = hasExplicitSelection; self.onChoose = onChoose
         let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 468, height: 344),
             styleMask: [.titled, .closable], backing: .buffered, defer: false)
-        window.title = "截图动效"
+        window.title = "入缝动效 · 实施候选"
         window.isReleasedWhenClosed = false
         super.init(window: window)
         window.delegate = self
         let root = NSView(frame: window.contentView?.bounds ?? .zero)
         window.contentView = root
-        let title = NSTextField(labelWithString: "截图收录后的动效")
+        let title = NSTextField(labelWithString: "截图到达边缘时")
         title.font = .systemFont(ofSize: 16, weight: .semibold)
-        let hint = NSTextField(wrappingLabelWithString: "截图始终可以立即点击。系统开启“减少动态效果”时使用“无”。")
+        let hint = NSTextField(wrappingLabelWithString: "仅改变新截图的入缝装饰，不关闭上传开始后的快速吞噬。截图始终可立即点击。")
         hint.textColor = .secondaryLabelColor
         choice.addItems(withTitles: ArrivalMotionMode.allCases.map(\.title))
         choice.target = self; choice.action = #selector(choose)
-        choice.setAccessibilityLabel("截图动效")
+        choice.setAccessibilityLabel("入缝动效")
         let replay = NSButton(title: "再次预览", target: self, action: #selector(replay))
         let caption = NSTextField(labelWithString: "示意图预览")
         caption.font = .systemFont(ofSize: 11); caption.textColor = .secondaryLabelColor
@@ -95,8 +95,8 @@ public final class ArrivalMotionSettingsController: NSWindowController, NSWindow
     private func refresh(play: Bool) {
         choice.selectItem(at: ArrivalMotionMode.allCases.firstIndex(of: mode) ?? 0)
         let reduced = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
-        if reduced { detail.stringValue = "系统已开启“减少动态效果”，当前预览和截图均使用“无”。" }
-        else if !hasSelection { detail.stringValue = "尚未选择动效，当前暂用“无”。" }
+        if reduced { detail.stringValue = "系统已开启“减少动态效果”，该次入缝静态呈现，仍保留已选偏好。" }
+        else if !hasSelection { detail.stringValue = "尚未选择入缝动效，当前暂用“无”；不是正式默认裁决。" }
         else { detail.stringValue = "已保存。源位置无法确认时，截图会直接呈现。" }
         preview.show(mode.effective(reduceMotion: reduced), animate: play && window?.isVisible == true)
     }
@@ -141,7 +141,8 @@ private final class ArrivalPreviewView: NSView {
         let target = CGRect(x: edge - 54, y: bounds.midY - 22.5, width: 72, height: 45)
         CATransaction.begin(); CATransaction.setDisableActions(true)
         clip.frame = CGRect(x: 0, y: 0, width: edge, height: bounds.height)
-        line.frame = CGRect(x: edge - 0.35, y: target.minY - 8, width: 0.7, height: target.height + 16)
+        let lineWidth: CGFloat = NSWorkspace.shared.accessibilityDisplayShouldIncreaseContrast ? 1 : 1 / (window?.backingScaleFactor ?? 2)
+        line.frame = CGRect(x: edge - lineWidth, y: target.minY - 8, width: lineWidth, height: target.height + 16)
         line.backgroundColor = NSColor.secondaryLabelColor.withAlphaComponent(0.48).cgColor
         imageLayer.frame = target
         imageLayer.contentsScale = window?.backingScaleFactor ?? 2

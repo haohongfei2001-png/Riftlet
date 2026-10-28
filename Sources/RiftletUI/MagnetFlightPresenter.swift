@@ -165,7 +165,7 @@ public final class MagnetFlightPresenter {
     /// visible and clickable. No delayed start/retry is scheduled after failure.
     @discardableResult
     public func start(assetID: UUID, image: CGImage, plan: MagnetMotionPlan,
-                      backingScale: CGFloat,
+                      backingScale: CGFloat, elapsedSinceAssetReady: TimeInterval = 0,
                       onCompletion: @escaping (MagnetFlightCompletion) -> Void) -> Bool {
         generation &+= 1
         let token = generation
@@ -174,6 +174,8 @@ public final class MagnetFlightPresenter {
         // that reentrant owner or leave its native window orphaned.
         guard generation == token, flight == nil,
               !isClosed, backingScale.isFinite, (1...4).contains(backingScale),
+              elapsedSinceAssetReady.isFinite, elapsedSinceAssetReady >= 0,
+              elapsedSinceAssetReady < plan.totalDuration,
               image.width > 0, image.height > 0,
               !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion,
               plan.overlayFrame.width * plan.overlayFrame.height * backingScale * backingScale <= 32_000_000,
@@ -191,6 +193,8 @@ public final class MagnetFlightPresenter {
         let imageLayer = CALayer()
         imageLayer.contents = image
         imageLayer.contentsGravity = .resize
+        imageLayer.cornerRadius = 1.5
+        imageLayer.masksToBounds = true
         imageLayer.contentsScale = backingScale
         imageLayer.minificationFilter = .trilinear
         imageLayer.magnificationFilter = .linear
@@ -227,6 +231,8 @@ public final class MagnetFlightPresenter {
         CATransaction.begin()
         CATransaction.setDisableActions(true)
         plan.applyFinalState(to: imageLayer, relativeTo: panel.frame.origin)
+        // Asset readiness is the visual clock origin, not optional image decode.
+        animation.beginTime = imageLayer.convertTime(CACurrentMediaTime(), from: nil) - elapsedSinceAssetReady
         imageLayer.add(animation, forKey: "riftlet.magnet.flight")
         panel.orderFrontRegardless()
         CATransaction.commit()
@@ -234,7 +240,7 @@ public final class MagnetFlightPresenter {
             finish(generation: token, reason: .cancelled)
             return false
         }
-        DispatchQueue.main.asyncAfter(deadline: .now() + plan.totalDuration + 0.100, execute: timeout)
+        DispatchQueue.main.asyncAfter(deadline: .now() + plan.totalDuration - elapsedSinceAssetReady + 0.100, execute: timeout)
         return true
     }
 

@@ -19,6 +19,7 @@ final class MagnetFlightPresenterTests: XCTestCase {
             parameters.formationDuration = 0.01
             parameters.chargeDuration = 0.01
             parameters.attractionDuration = 0.02
+            parameters.settleDuration = 0.01
         }
         let plan = try XCTUnwrap(MagnetMotionPlan(sourceRect: source, targetImageFrame: destination,
             clippingEdgeX: frame.maxX - 8, screenFrame: frame, parameters: parameters))
@@ -144,6 +145,19 @@ final class MagnetFlightPresenterTests: XCTestCase {
             XCTFail("A disconnected or changed screen must fall back")
         })
         XCTAssertEqual(presenter.activePanelCount, 0)
+    }
+
+    @MainActor func testExpiredOrInvalidReadyClockDoesNotReplayDecoration() throws {
+        let (plan, image, scale) = try fixture()
+        let presenter = MagnetFlightPresenter()
+        defer { presenter.close() }
+        for elapsed in [Double.nan, .infinity, -0.01, plan.totalDuration, plan.totalDuration + 1] {
+            XCTAssertFalse(presenter.start(assetID: UUID(), image: image, plan: plan,
+                backingScale: scale, elapsedSinceAssetReady: elapsed) { _ in
+                    XCTFail("An expired asset-ready decoration never manufactures completion")
+                })
+            XCTAssertEqual(presenter.activePanelCount, 0)
+        }
     }
 
     @MainActor func testReentrantCompletionCannotOrphanANewerWindow() throws {

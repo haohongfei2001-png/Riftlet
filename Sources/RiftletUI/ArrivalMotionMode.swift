@@ -1,6 +1,7 @@
 import Foundation
 
-/// The complete product choice set. Retired experiments are not runtime modes.
+/// The complete arrival-decoration choice set. It never controls upload-start
+/// swallow, press feedback or queue reflow. Retired experiments are not modes.
 public enum ArrivalMotionMode: String, CaseIterable, Codable, Sendable {
     case none
     case magnet

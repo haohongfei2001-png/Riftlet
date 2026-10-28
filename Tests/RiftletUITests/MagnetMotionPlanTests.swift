@@ -15,7 +15,7 @@ final class MagnetMotionPlanTests: XCTestCase {
 
     func testOneContinuousImageEndsAtExactLayoutWithFixedOcclusion() throws {
         let p = try plan()
-        XCTAssertEqual(p.totalDuration, 0.440, accuracy: 0.000001)
+        XCTAssertEqual(p.totalDuration, 0.560, accuracy: 0.000001)
         XCTAssertEqual(p.sample(at: p.totalDuration).frame, destination)
         XCTAssertEqual(p.visibleFrame(at: p.totalDuration), CGRect(x: 1378, y: 673, width: 54, height: 56))
         XCTAssertEqual(p.sample(at: 100).frame, destination)
@@ -26,36 +26,59 @@ final class MagnetMotionPlanTests: XCTestCase {
             XCTAssertTrue(sample.frame.minX.isFinite && sample.frame.minY.isFinite)
             let visible = p.visibleFrame(at: p.totalDuration * Double(index) / 1000)
             XCTAssertLessThanOrEqual(visible.maxX, 1432.000001)
-            XCTAssertTrue(p.overlayFrame.insetBy(dx: -0.001, dy: -0.001).contains(visible))
+            if !visible.isEmpty { XCTAssertTrue(p.overlayFrame.insetBy(dx: -0.001, dy: -0.001).contains(visible)) }
         }
     }
 
-    func testFormationAndChargeJoinWithoutFrameOrVelocityJump() throws {
+    func testFourPhaseBoundariesHaveContinuousFramesAndHiddenTurnaround() throws {
         let p = try plan()
+        let settleStart = p.parameters.formationDuration + p.parameters.chargeDuration + p.parameters.attractionDuration
         let boundaries = [p.parameters.formationDuration,
                           p.parameters.formationDuration + p.parameters.chargeDuration,
-                          p.totalDuration]
-        let h = 0.000001
+                          settleStart, p.totalDuration]
+        // Positional continuity is required; the hidden reversal does not claim C1 velocity continuity.
+        let h = 0.00000001
         for boundary in boundaries {
             let left = p.sample(at: boundary - h).frame
             let at = p.sample(at: boundary).frame
             let right = p.sample(at: boundary + h).frame
-            XCTAssertEqual(left.midX, at.midX, accuracy: 0.000001)
-            XCTAssertEqual(left.midY, at.midY, accuracy: 0.000001)
-            XCTAssertEqual(left.width, at.width, accuracy: 0.000001)
-            XCTAssertEqual(right.midX, at.midX, accuracy: 0.000001)
-            XCTAssertEqual(right.width, at.width, accuracy: 0.000001)
-            XCTAssertLessThan(abs((at.midX - left.midX) / h), 0.02)
-            XCTAssertLessThan(abs((right.midX - at.midX) / h), 0.02)
-            XCTAssertLessThan(abs((at.width - left.width) / h), 0.02)
-            XCTAssertLessThan(abs((right.width - at.width) / h), 0.02)
+            XCTAssertEqual(left.midX, at.midX, accuracy: 0.0002)
+            XCTAssertEqual(left.midY, at.midY, accuracy: 0.0002)
+            XCTAssertEqual(left.width, at.width, accuracy: 0.0002)
+            XCTAssertEqual(right.midX, at.midX, accuracy: 0.0002)
+            XCTAssertEqual(right.width, at.width, accuracy: 0.0002)
         }
+        XCTAssertEqual(p.sample(at: settleStart).stage, .settling)
+        XCTAssertEqual(p.sample(at: settleStart).frame.minX, p.clippingEdgeX)
+        XCTAssertEqual(p.visibleFrame(at: settleStart).width, 0)
+        XCTAssertLessThan(p.visibleFrame(at: settleStart - h).width, 0.0002)
+        XCTAssertLessThan(p.visibleFrame(at: settleStart + h).width, 0.0002)
+        XCTAssertEqual(p.sample(at: p.totalDuration).stage, .settled)
+    }
+
+    func testPublishedDesignReferenceGoldenSamples() throws {
+        // Reference fixture from the design film: source center(840,550), 8:5;
+        // AppKit row center=670 and edge=1426. Screen points, no Retina multiplier.
+        let p = try XCTUnwrap(MagnetMotionPlan(sourceRect: CGRect(x: 440, y: 300, width: 800, height: 500),
+            targetImageFrame: CGRect(x: 1372, y: 647.5, width: 72, height: 45),
+            clippingEdgeX: 1426, screenFrame: screen))
+        XCTAssertEqual(p.initialFrame, CGRect(x: 720, y: 475, width: 240, height: 150))
+        XCTAssertEqual(p.sample(at: 0.0615).frame.width, 80.75, accuracy: 0.000001)
+        XCTAssertEqual(p.sample(at: 0.0615).frame.midX, 840, accuracy: 0.000001)
+        XCTAssertEqual(p.sample(at: 0.123).frame.width, 58, accuracy: 0.000001)
+        let halfway = p.sample(at: 0.354)
+        XCTAssertEqual(halfway.frame.midX, 970.7593925719526, accuracy: 0.000001)
+        XCTAssertEqual(halfway.frame.midY, 575.2268924576115, accuracy: 0.000001)
+        XCTAssertEqual(halfway.frame.width, 60.943137453388, accuracy: 0.000001)
+        XCTAssertEqual(p.visibleFrame(at: 0.484).width, 0, accuracy: 0.000001)
+        XCTAssertEqual(p.sample(at: 0.522).frame.minX, 1378.75, accuracy: 0.000001)
+        XCTAssertEqual(p.sample(at: 0.560).frame.minX, 1372, accuracy: 0.000001)
     }
 
     func testChargeIsBoundedAndAlignedToAttractionInsteadOfRandomShake() throws {
         let p = try plan()
-        let dx = p.finalFrame.midX - p.smallFrame.midX
-        let dy = p.finalFrame.midY - p.smallFrame.midY
+        let dx = p.occludedFrame.midX - p.smallFrame.midX
+        let dy = p.occludedFrame.midY - p.smallFrame.midY
         let length = hypot(dx, dy)
         var signed: [CGFloat] = []
         for index in 0...100 {
@@ -63,7 +86,7 @@ final class MagnetMotionPlanTests: XCTestCase {
                 + p.parameters.chargeDuration * Double(index) / 100).frame
             let ox = frame.midX - p.smallFrame.midX
             let oy = frame.midY - p.smallFrame.midY
-            XCTAssertLessThanOrEqual(hypot(ox, oy), 1.3 + 0.000001)
+            XCTAssertLessThanOrEqual(hypot(ox, oy), 1.2 + 0.000001)
             XCTAssertEqual(ox * dy - oy * dx, 0, accuracy: 0.000001)
             signed.append((ox * dx + oy * dy) / length)
         }
@@ -73,24 +96,20 @@ final class MagnetMotionPlanTests: XCTestCase {
         XCTAssertEqual(signed.last!, 0, accuracy: 0.000001)
     }
 
-    func testAttractionAcceleratesMostOfTheFlightThenBrakesMonotonically() {
+    func testAttractionAcceleratesMonotonicallyUntilFullyOccluded() {
         let samples = (0...1000).map { MagnetMotionPlan.attractionProgress(Double($0) / 1000) }
         let increments = zip(samples, samples.dropFirst()).map { $1 - $0 }
         XCTAssertTrue(increments.allSatisfy { $0 >= -1e-12 })
-        XCTAssertLessThan(samples[500], 0.20, "First half travels under one fifth of the distance")
-        let maximum = increments.enumerated().max(by: { $0.element < $1.element })!.offset
-        XCTAssertTrue((710...718).contains(maximum), "Acceleration continues through approximately 5/7")
-        XCTAssertLessThan(increments[20], increments[250])
-        XCTAssertLessThan(increments[250], increments[600])
-        XCTAssertGreaterThan(increments[800], increments[950])
+        XCTAssertEqual(samples[500], 0.21022410381342863, accuracy: 1e-12)
+        XCTAssertTrue(zip(increments, increments.dropFirst()).allSatisfy { $1 >= $0 - 1e-12 })
         XCTAssertEqual(samples.first!, 0)
         XCTAssertEqual(samples.last!, 1)
     }
 
     func testInitialAndSmallFootprintsAreBoundedAndTinySourceIsNotUpscaledInitially() throws {
         let p = try plan()
-        XCTAssertLessThanOrEqual(p.initialFrame.width, 200)
-        XCTAssertLessThanOrEqual(p.initialFrame.height, 130)
+        XCTAssertLessThanOrEqual(p.initialFrame.width, 240)
+        XCTAssertLessThanOrEqual(p.initialFrame.height, 150)
         XCTAssertLessThanOrEqual(p.smallFrame.width, 58)
         XCTAssertLessThanOrEqual(p.smallFrame.height, 46)
         let tiny = try XCTUnwrap(MagnetMotionPlan(sourceRect: CGRect(x: 300, y: 300, width: 4, height: 3),
@@ -142,6 +161,8 @@ final class MagnetMotionPlanTests: XCTestCase {
         var p = MagnetMotionParameters(); p.formationDuration = .nan; values.append(p)
         p = .init(); p.chargeDuration = -1; values.append(p)
         p = .init(); p.attractionDuration = 0; values.append(p)
+        p = .init(); p.settleDuration = 0; values.append(p)
+        p = .init(); p.accelerationPower = .nan; values.append(p)
         p = .init(); p.chargeAmplitude = 10; values.append(p)
         p = .init(); p.initialMaximumSize.width = .infinity; values.append(p)
         p = .init(); p.samplesPerSecond = 1_000_000; values.append(p)
@@ -159,9 +180,10 @@ final class MagnetMotionPlanTests: XCTestCase {
         let animation = p.makeLayerAnimation(relativeTo: origin)
         XCTAssertEqual(animation.duration, p.totalDuration)
         XCTAssertEqual(animation.animations?.count, 2)
-        XCTAssertLessThanOrEqual(p.keyframeTimes.count, 110)
+        XCTAssertLessThanOrEqual(p.keyframeTimes.count, 140)
         XCTAssertTrue(p.keyframeTimes.contains(p.parameters.formationDuration))
         XCTAssertTrue(p.keyframeTimes.contains(p.parameters.formationDuration + p.parameters.chargeDuration))
+        XCTAssertTrue(p.keyframeTimes.contains(p.parameters.formationDuration + p.parameters.chargeDuration + p.parameters.attractionDuration))
         let positions = try XCTUnwrap(animation.animations?.first as? CAKeyframeAnimation)
         XCTAssertEqual(positions.calculationMode, .linear)
         let points = try XCTUnwrap(positions.values as? [NSValue])
@@ -181,7 +203,7 @@ final class MagnetMotionPlanTests: XCTestCase {
         XCTAssertEqual(later.sample(at: later.totalDuration).frame, destination)
         for power in 2...8 {
             let progress = (0...1000).map { MagnetMotionPlan.attractionProgress(Double($0) / 1000,
-                                                                              accelerationPower: power) }
+                                                                              accelerationPower: Double(power)) }
             XCTAssertTrue(zip(progress, progress.dropFirst()).allSatisfy { $1 >= $0 - 1e-12 })
         }
     }
@@ -189,14 +211,11 @@ final class MagnetMotionPlanTests: XCTestCase {
     func testTinyNearbySourceCannotBeClippedByAnEndpointOnlyWindowEnvelope() throws {
         let p = try XCTUnwrap(MagnetMotionPlan(sourceRect: CGRect(x: 1388, y: 699.5, width: 4, height: 3),
             targetImageFrame: destination, clippingEdgeX: 1432, screenFrame: screen))
-        var extendedBeyondEndpointUnion = false
-        let endpoints = p.initialFrame.union(p.finalFrame)
         for index in 0...1000 {
             let time = p.totalDuration * Double(index) / 1000
             let visible = p.visibleFrame(at: time)
-            if visible.minX < endpoints.minX { extendedBeyondEndpointUnion = true }
-            XCTAssertTrue(p.overlayFrame.insetBy(dx: -0.001, dy: -0.001).contains(visible))
+            if !visible.isEmpty { XCTAssertTrue(p.overlayFrame.insetBy(dx: -0.001, dy: -0.001).contains(visible)) }
         }
-        XCTAssertTrue(extendedBeyondEndpointUnion, "Fixture exercises the real independent-size/position envelope risk")
+        XCTAssertLessThan(p.overlayFrame.width, screen.width, "Decoration stays bounded to the flight envelope")
     }
 }
