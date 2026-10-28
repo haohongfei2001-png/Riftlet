@@ -93,18 +93,20 @@ final class NativeVisualEvidence {
         guard appKitRect.width > 0, appKitRect.height > 0,
               let firstScreen = NSScreen.screens.first,
               let windowIDs = CFArrayCreateMutable(kCFAllocatorDefault, 0, nil) else { throw Failure.missingWindow }
-        // CGWindowListCreate returns the API's opaque CGWindowID representation;
-        // do not bridge NSNumber arrays or include an unowned window ID.
+        // Quartz expects scalar CGWindowID values in a CFArray with nil
+        // callbacks, not CFNumber objects. These encoded values are never
+        // dereferenced; every ID comes from this process's selected NSWindow.
         for window in selected {
-            guard let one = CGWindowListCreate(.optionIncludingWindow, CGWindowID(window.windowNumber)),
-                  CFArrayGetCount(one) == 1 else { throw Failure.missingWindow }
-            CFArrayAppendValue(windowIDs, CFArrayGetValueAtIndex(one, 0))
+            guard let windowID = CGWindowID(exactly: window.windowNumber),
+                  windowID != kCGNullWindowID,
+                  let scalar = UnsafeRawPointer(bitPattern: UInt(windowID)) else { throw Failure.missingWindow }
+            CFArrayAppendValue(windowIDs, scalar)
         }
         let quartzRect = CGRect(x: appKitRect.minX, y: firstScreen.frame.maxY - appKitRect.maxY,
                                 width: appKitRect.width, height: appKitRect.height)
         let before = ProcessInfo.processInfo.systemUptime
-        guard let image = CGWindowListCreateImageFromArray(quartzRect, windowIDs,
-                    [.boundsIgnoreFraming, .bestResolution]), image.width > 0, image.height > 0 else {
+        guard let image = CGImage(windowListFromArrayScreenBounds: quartzRect, windowArray: windowIDs,
+                    imageOption: [.boundsIgnoreFraming, .bestResolution]), image.width > 0, image.height > 0 else {
             captureUnavailable = true
             return nil
         }
@@ -130,7 +132,7 @@ final class NativeVisualEvidence {
         let bytes = try Data(contentsOf: file)
         frames.append([
             "name": name, "file": file.lastPathComponent, "status": "CAPTURED_NATIVE_WINDOWSERVER",
-            "method": "CGWindowListCreateImageFromArray; only NSApp-owned windows",
+            "method": "CGImage(windowListFromArrayScreenBounds:windowArray:imageOption:); only NSApp-owned windows",
             "captureStartedUptime": frame.started, "captureEndedUptime": frame.ended,
             "elapsedSeconds": frame.started - start, "pixels": [image.width, image.height],
             "points": [frame.rect.width, frame.rect.height],
