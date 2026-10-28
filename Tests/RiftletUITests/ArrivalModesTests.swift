@@ -490,4 +490,32 @@ final class ArrivalModesTests: XCTestCase {
             XCTAssertEqual(panel.diagnosticSnapshot.lineFrame, .zero)
         }
     }
+
+    @MainActor func testInvalidCaptureClocksCannotSuppressTheNextValidArrival() throws {
+        let (root, _, configuration) = try environment()
+        defer { try? FileManager.default.removeItem(at: root) }
+        let invalid: [TimeInterval] = [.nan, .infinity, -.infinity, -1,
+                                      ProcessInfo.processInfo.systemUptime + 60]
+        for uptime in invalid {
+            let panel = RiftPanelController(mediaDirectory: root, configuration: configuration, arrivalMode: .magnet,
+                reduceMotionOverride: { false }, onSelect: { _ in })
+            defer { panel.close() }
+            XCTAssertNil(panel.noteCaptureReady(UUID(), uptime: uptime))
+            XCTAssertNotNil(panel.noteCaptureReady(UUID(), uptime: ProcessInfo.processInfo.systemUptime),
+                            "A rejected timestamp must not alter the capture quiet clock")
+        }
+    }
+
+    @MainActor func testOutOfOrderCaptureClockCannotRewindBurstSuppression() throws {
+        let (root, _, configuration) = try environment()
+        defer { try? FileManager.default.removeItem(at: root) }
+        let panel = RiftPanelController(mediaDirectory: root, configuration: configuration, arrivalMode: .magnet,
+            reduceMotionOverride: { false }, onSelect: { _ in })
+        defer { panel.close() }
+        let recent = ProcessInfo.processInfo.systemUptime - 0.05
+        XCTAssertNotNil(panel.noteCaptureReady(UUID(), uptime: recent))
+        XCTAssertNil(panel.noteCaptureReady(UUID(), uptime: recent - 10))
+        XCTAssertNil(panel.noteCaptureReady(UUID(), uptime: recent + 0.025),
+                     "An old source observation cannot make a rapid new capture look quiet")
+    }
 }

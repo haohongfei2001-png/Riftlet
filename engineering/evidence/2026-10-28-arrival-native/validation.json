@@ -8,7 +8,7 @@
   "macOSCI": [],
   "local": {
     "gitDiffCheck": "PASS",
-    "deltaAuditFixtureTests": "13 PASS; original baseline audit 42 PASS",
+    "deltaAuditFixtureTests": "14 PASS; original baseline audit 42 PASS",
     "nativeSwift": "NOT_RUN: no Swift compiler or macOS SDK on authoring host"
   },
   "physical": {

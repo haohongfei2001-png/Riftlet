@@ -490,11 +490,14 @@ public final class RiftPanelController {
     public func noteCaptureReady(_ assetID: UUID, uptime: TimeInterval) -> UUID? {
         cancelDecorations(reason: .captureObserved)
         finishQueueTransition(allowShift: false)
+        let now = ProcessInfo.processInfo.systemUptime
+        guard uptime.isFinite, uptime >= 0, uptime <= now else { return nil }
         let previous = lastCaptureReadyUptime
-        lastCaptureReadyUptime = uptime
+        // Invalid clocks cannot poison later captures, and an out-of-order old
+        // observation cannot rewind the quiet interval to replay a burst flight.
+        lastCaptureReadyUptime = max(previous ?? uptime, uptime)
         guard !closed, !userHidden, effectiveArrivalMode == .magnet,
-              uptime.isFinite, uptime <= ProcessInfo.processInfo.systemUptime,
-              ProcessInfo.processInfo.systemUptime - uptime <= maximumArrivalAge,
+              now - uptime <= maximumArrivalAge,
               previous.map({ uptime - $0 >= burstQuietInterval }) ?? true,
               !lastRecords.contains(where: { $0.id == assetID }) else { return nil }
         let token = UUID()

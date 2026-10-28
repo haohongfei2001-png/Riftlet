@@ -75,6 +75,15 @@ Recovered/pending sources and delayed observations must not replay a stale sourc
 animation. Animation metadata work belongs off the UI actor; late/absent metadata
 must leave the immediately usable final row in place.
 
+The bridge's two-second topology quiet interval and fresh `firstSeen` check are
+conservative heuristics, **not proof of the display topology at capture time**.
+A capture already in progress, a floating thumbnail or delayed file delivery can
+span a display change and still look freshly imported after that quiet interval.
+The file metadata provides no independently observed capture timestamp with which
+to prove topology correspondence. Production OS-build admission therefore stays
+empty until actual capture-time evidence supports the candidate convention and
+the associated fallback behavior; current-display consistency alone is insufficient.
+
 ## Read-only Mac probe
 
 From an isolated checkout on a Mac:
@@ -103,9 +112,13 @@ Use new, non-private screenshots to record region/window/fullscreen on supported
 OS builds at 1× and 2×, plus displays left/above/below the primary and mixed scale.
 Compare raw rectangle coordinates with independently known actual capture bounds.
 Record missing metadata and shadow mismatch as fallbacks, not failed collection.
-Test unchanged topology, topology changes between capture and file readiness,
-and another destination monitor. No coordinate convention gains accepted status
-merely by passing the synthetic parser tests.
+Test unchanged topology, another destination monitor, and topology changes while
+capture is in progress or between capture and file readiness. Run the latter with
+the system floating thumbnail both enabled and disabled, including delayed file
+delivery beyond the quiet interval. These capture-time topology cases remain
+**NOT_RUN** and are required before admitting an OS build; ambiguous correspondence
+must retain static fallback. No coordinate convention gains accepted status merely
+by passing the synthetic parser tests.
 
 ## Subsequent capture pollution
 

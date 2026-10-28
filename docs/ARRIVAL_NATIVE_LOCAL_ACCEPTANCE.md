@@ -69,6 +69,8 @@ python3 -B scripts/verify-arrival-integration.py origin/codex/arrival-none-magne
 
 先使用该普通收录模式检查收录、外观与立即可点击场景；在菜单选择“磁力吸引”。AM-06 的回执驱动吞噬及 AM-07 的失败／UNKNOWN 状态使用现成的隔离合成测试；实际上传另按 AM-16 执行。保持显示器／Space 稳定至少两秒后拍摄一张全新截图；其它安全条件仍可能静态降级。`--arrival-metadata-candidate` 不保证每种截图都能播放，也不是最终默认款。完成逐类型、坐标与像素验证后，由正式负责人审查证据，再为精确 OS build 增加来源准入；不要直接改成“所有版本允许”。
 
+上述两秒拓扑静默期和新近 `firstSeen` 都只是保守启发式，**不能证明截图发生时使用的显示器拓扑**。正在进行的截图、系统浮动缩略图或文件延迟落盘可能跨越显示器变化，并在静默期之后被当作新文件收录；元数据没有独立观察到的截图时钟来消除这种歧义。OS build 准入之前必须完成 AM-18，并审查捕获时的真实拓扑证据；当前显示器与矩形／像素一致不能单独代替这项验证。无法确认来源对应关系的样本保持静态降级。
+
 只有 AM-16 的独立真实上传检查需要既有 `--system-screenshot-candidate`。在原允许范围内，单次启动可同时传入 `--arrival-metadata-candidate`；需要保管私有证据时再显式加入原 `--acceptance-trace`。这些参数不能提升 UNKNOWN、安全失败或重试权限。
 
 测量本次新增阶段时，使用 `--arrival-trace`。它记录有类型的本地 JSON 事件：`captureDurableObserved`、`rowAvailable`、`imageDecoded`、`decorationStarted`、`decorationEnded`，通过资产身份与单调 uptime 关联；不含截图、源路径或文件名。`captureDurableObserved` 是收到已提交资产的观察时刻，仍不是精确 COMMIT 或系统截图完成时刻。`rowAvailable` 证明软件输入结构建立，不证明硬件物理点击已经通过。此 trace 与原上传证据 trace 分开解释。
@@ -100,6 +102,7 @@ python3 -B scripts/verify-arrival-integration.py origin/codex/arrival-none-magne
 | AM-15 | 经明确同意关闭系统浮动缩略图后，各截图类型至少 10 次 | 分阶段实测就绪时延与失败／缺元数据率；不宣称“近零”或借用单张最佳值 | NOT_RUN |
 | AM-16 | 新系统截图一次实际 ChatGPT 附加，另保留无 ACK 冷首击拒绝 | 上传原一次 input、独立 start／final、正文／选区／旧附件不变；动效零等待不冒充网络零等待 | NOT_RUN |
 | AM-17 | 至少 100 次新图＋取消／隐藏／模式切换循环并留空闲期 | 临时窗口和图层回到基线、无后台帧循环；记录 CPU／内存／帧间隔而非凭观感写性能 PASS | NOT_RUN |
+| AM-18 | 截图正在进行或已经捕获但文件尚未就绪时改变显示器排列／缩放／连接；系统浮动缩略图开、关分别执行，并包含落盘晚于两秒静默期的样本 | 关联实际捕获时的拓扑与原始元数据；来源对应关系不明时静态降级；不得以新近 `firstSeen` 或静默期推定来源正确；此项为 OS build 准入前置检查 | NOT_RUN |
 
 失败／重生和 UNKNOWN 的软件检查不打开真实安全失败／重试准入。真实异常若证据不足，保持 UNKNOWN 并只读观察原操作；不得为演示重生改库、注入真实成功或重传已经输入的图。
 
