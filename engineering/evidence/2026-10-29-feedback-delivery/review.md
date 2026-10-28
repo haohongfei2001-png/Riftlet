@@ -39,3 +39,9 @@ These existing fixes matched f195 and had already passed the independently check
 ## Scope limits
 
 No reviewer granted CLOUD PASS or physical MAC PASS. The review did not inspect a live D1 record, a real Worker delivery, a server credential, an Issue creation/deletion, or a new real macOS GUI interaction. Those remain separately blocked/not run. Final automated checks and downloaded bundle inspection are recorded in the continuation PR/PR #1 after they actually finish.
+
+## GitHub review and evidence correction
+
+GitHub Codex review of `2d517411` completed with one P1 finding: the raw repository Settings PNG did not satisfy the repository's prohibition on raw screenshots in public evidence. The integration lead removed it from the current tree, retained only a minimal text provisioning record, and preserved shared history. The earlier commit remains addressable; no permanent-history deletion is claimed. Independent visual inspection found repository/account metadata and Actions policy only, with no token, product screenshots or private chat. No credential rotation or unauthorized history rewrite is required.
+
+The non-author reviewer also read the entire Linux success log, recomputed SHA-256 `cf51732d896ef24ed5800abd57f42a03dc0989fe052d8f1d97673e79a56ff407`, deduplicated all 30 passing tests, and checked all 14 exported files against the exact `2d517411` Git objects. The first restricted-sandbox compiler SIGILL occurred before tests; the same command/source passed after normal execution approval. This is Linux logic/SQLite/timer evidence, not macOS/AppKit/Keychain or cloud acceptance.

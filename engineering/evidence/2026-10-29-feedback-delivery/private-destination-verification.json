@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "repository": "haohongfei2001-png/Riftlet-Feedback",
+  "repositoryID": 1437354611,
+  "repositoryURL": "https://github.com/haohongfei2001-png/Riftlet-Feedback",
+  "visibility": "private",
+  "visibilityEvidence": "GitHub repository API, independently rechecked 2026-10-28 UTC",
+  "actionsEnabled": false,
+  "actionsEvidence": "Authorized owner Settings > Actions UI: Disable actions selected; Actions policy updated confirmation observed",
+  "provisioningTestIssuesCreated": 0,
+  "workerDeployed": false,
+  "nativeCloudE2E": "BLOCKED",
+  "scope": "Private destination provisioning only; not a receipt, delivery, deletion or E2E PASS",
+  "publicEvidencePolicy": "Text-only. Raw repository Settings screenshot removed from current tree after PR13 review. Prior commit 2d517411 still contains that historical image; no claim of Git-history erasure."
+}
