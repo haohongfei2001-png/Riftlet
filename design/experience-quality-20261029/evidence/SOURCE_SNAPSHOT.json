@@ -1,0 +1,59 @@
+{
+  "recordedUTC": "2026-10-28 19:04:58 UTC",
+  "repository": "haohongfei2001-png/Riftlet",
+  "method": "GitHub connector read-only API; explicit main branch resolution; fixed Git objects read from isolated local copies",
+  "formalDesignSHA": "7e03bd2c26c6aa43dbac07b073e00d08d1951b71",
+  "nativeCandidateSHA": "00dedc7f8164643c3435e3f87aa462e28af0b1c8",
+  "nativeHandoffSHA": "443d21da1a55c0061eafced823b5406879b96024",
+  "mainSHA": "eba1a4fc77648a665e1d5c1f2609df1314c3b079",
+  "pr1": {
+    "url": "https://github.com/haohongfei2001-png/Riftlet/pull/1",
+    "state": "open",
+    "draft": true,
+    "merged": false,
+    "headBranch": "codex/engineering-foundation-20261027",
+    "headSHA": "0e7ea8be148e1124b387e799fd886a7830e96559"
+  },
+  "nativeHandoffBranch": {
+    "name": "codex/riftlet-real-mac-acceptance-thin-edge-20261029",
+    "headSHA": "443d21da1a55c0061eafced823b5406879b96024"
+  },
+  "nativeCI": {
+    "runID": 40742061755,
+    "jobID": 123005982942,
+    "result": "completed / success, verified through jobs API",
+    "reportedXCTestCount": 620,
+    "countProvenance": "candidate handoff README; not rerun or recounted in this design task",
+    "nativeTestsRerunByThisTask": false
+  },
+  "evidenceClasses": {
+    "formalExisting": 9,
+    "candidateImplemented": 18,
+    "designedNotFullyImplemented": 2,
+    "substantiatedExperienceGap": 12,
+    "notVerified": 7
+  },
+  "designPrototype": {
+    "sha256": "4691dca065b25c203533a93d05a76486fad25d6b4e9e927cbbde96e5378826e6",
+    "sceneGroups": 6,
+    "fixedScenarios": 38,
+    "boards": 16,
+    "offlineChecks": {
+      "passed": 33,
+      "failed": 0,
+      "networkRequests": 0,
+      "pageErrors": 0
+    },
+    "physicalMacAcceptance": false
+  },
+  "isolation": {
+    "newPathOnly": "design/experience-quality-20261029/",
+    "intendedIndependentBranch": "design/full-experience-supplement-20261029",
+    "baseSHA": "0e7ea8be148e1124b387e799fd886a7830e96559",
+    "changedPR1": false,
+    "changedMain": false,
+    "changedFormalDesign": false,
+    "changedOtherIntegration": false,
+    "modifiedNativeProductSource": false
+  }
+}

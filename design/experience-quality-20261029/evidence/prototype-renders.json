@@ -1,0 +1,1590 @@
+{
+  "scope": "DESIGN_PROTOTYPE_ONLY",
+  "sourceSHA256": "4691dca065b25c203533a93d05a76486fad25d6b4e9e927cbbde96e5378826e6",
+  "network": "blocked",
+  "errors": [],
+  "exports": [
+    {
+      "name": "01-first-use-local",
+      "scene": "start",
+      "scenario": "local",
+      "appearance": "light",
+      "width": 1440,
+      "height": 1050,
+      "text": "Riftlet — 开始使用 · 内部候选\n让截图停在手边\n\n沿用熟悉的系统截图方式。截图会出现在桌面边缘，随时可以查看。\n\n当前能力：仅本地收录\n截图位置可读取\n\n桌面 · 只收录新的截图文件\n\n在 Finder 中查看\n当前版本仅在本机收录与查看\n\n附加尚未开放；无需为此开启 Chrome 自动化。\n\n了解使用方式\n系统截图\n→\n桌面边缘\n·\n保留原图\n关闭引导不授予权限\n稍后设置\n完成",
+      "state": {
+        "scene": "start",
+        "scenario": "local",
+        "epoch": 2,
+        "learn": false,
+        "source": "accessible",
+        "permission": "notRequested",
+        "currentMode": "region",
+        "frozenMode": "region",
+        "seconds": 3,
+        "capturePhase": "countdown",
+        "inputs": 0,
+        "callout": false,
+        "peek": false,
+        "preview": false,
+        "selected": 0,
+        "hidden": false,
+        "paused": false,
+        "arrival": "none",
+        "recordOpen": false,
+        "sheet": false,
+        "text": "希望倒计时的时候，能看清这一次截取的范围。",
+        "diagnostics": false,
+        "feedbackSaved": false,
+        "feedbackNotice": "",
+        "localQueued": false,
+        "activeAsset": 0,
+        "calloutAsset": 0,
+        "hoverAsset": null,
+        "fixedReview": true,
+        "assets": [
+          {
+            "id": 0,
+            "phase": "idle",
+            "visual": "stable",
+            "inputs": 0
+          },
+          {
+            "id": 1,
+            "phase": "idle",
+            "visual": "stable",
+            "inputs": 0
+          },
+          {
+            "id": 2,
+            "phase": "idle",
+            "visual": "stable",
+            "inputs": 0
+          }
+        ],
+        "attachment": "idle",
+        "records": [],
+        "sheetRecordID": null,
+        "saveFailed": false,
+        "submittedText": null,
+        "historyFilter": 0,
+        "historyRecords": [
+          {
+            "id": 0,
+            "phase": "unknown",
+            "short": "今天 09:38",
+            "date": "2026 年 10 月 29 日 09:38",
+            "w": 3840,
+            "h": 2560
+          },
+          {
+            "id": 1,
+            "phase": "used",
+            "short": "今天 09:32",
+            "date": "2026 年 10 月 29 日 09:32",
+            "w": 2880,
+            "h": 1920
+          },
+          {
+            "id": 2,
+            "phase": "archived",
+            "short": "昨天 18:06",
+            "date": "2026 年 10 月 28 日 18:06",
+            "w": 1920,
+            "h": 1280
+          }
+        ],
+        "historySearch": ""
+      },
+      "windowBounds": [
+        {
+          "label": "Riftlet — 开始使用 · 内部候选",
+          "w": 560,
+          "h": 520
+        }
+      ]
+    },
+    {
+      "name": "02-first-use-access",
+      "scene": "start",
+      "scenario": "source",
+      "appearance": "light",
+      "width": 1440,
+      "height": 1050,
+      "text": "Riftlet — 开始使用 · 内部候选\n让截图停在手边\n\n沿用熟悉的系统截图方式。截图会出现在桌面边缘，随时可以查看。\n\n当前能力：仅本地收录\n无法读取当前截图位置\n\n选择当前截图文件夹以继续收录。已有截图保留。\n\n选择文件夹…\n当前版本仅在本机收录与查看\n\n附加尚未开放；无需为此开启 Chrome 自动化。\n\n了解使用方式\n系统截图\n→\n桌面边缘\n·\n保留原图\n关闭引导不授予权限\n稍后设置\n完成",
+      "state": {
+        "scene": "start",
+        "scenario": "source",
+        "epoch": 3,
+        "learn": false,
+        "source": "unavailable",
+        "permission": "notRequested",
+        "currentMode": "region",
+        "frozenMode": "region",
+        "seconds": 3,
+        "capturePhase": "countdown",
+        "inputs": 0,
+        "callout": false,
+        "peek": false,
+        "preview": false,
+        "selected": 0,
+        "hidden": false,
+        "paused": false,
+        "arrival": "none",
+        "recordOpen": false,
+        "sheet": false,
+        "text": "希望倒计时的时候，能看清这一次截取的范围。",
+        "diagnostics": false,
+        "feedbackSaved": false,
+        "feedbackNotice": "",
+        "localQueued": false,
+        "activeAsset": 0,
+        "calloutAsset": 0,
+        "hoverAsset": null,
+        "fixedReview": true,
+        "assets": [
+          {
+            "id": 0,
+            "phase": "idle",
+            "visual": "stable",
+            "inputs": 0
+          },
+          {
+            "id": 1,
+            "phase": "idle",
+            "visual": "stable",
+            "inputs": 0
+          },
+          {
+            "id": 2,
+            "phase": "idle",
+            "visual": "stable",
+            "inputs": 0
+          }
+        ],
+        "attachment": "idle",
+        "records": [],
+        "sheetRecordID": null,
+        "saveFailed": false,
+        "submittedText": null,
+        "historyFilter": 0,
+        "historyRecords": [
+          {
+            "id": 0,
+            "phase": "unknown",
+            "short": "今天 09:38",
+            "date": "2026 年 10 月 29 日 09:38",
+            "w": 3840,
+            "h": 2560
+          },
+          {
+            "id": 1,
+            "phase": "used",
+            "short": "今天 09:32",
+            "date": "2026 年 10 月 29 日 09:32",
+            "w": 2880,
+            "h": 1920
+          },
+          {
+            "id": 2,
+            "phase": "archived",
+            "short": "昨天 18:06",
+            "date": "2026 年 10 月 28 日 18:06",
+            "w": 1920,
+            "h": 1280
+          }
+        ],
+        "historySearch": ""
+      },
+      "windowBounds": [
+        {
+          "label": "Riftlet — 开始使用 · 内部候选",
+          "w": 560,
+          "h": 520
+        }
+      ]
+    },
+    {
+      "name": "03-first-use-candidate",
+      "scene": "start",
+      "scenario": "candidate",
+      "appearance": "light",
+      "width": 1440,
+      "height": 1050,
+      "text": "Riftlet — 开始使用 · 内部候选\n截图停在手边，点一下附加\n\n截图出现在桌面边缘。点一下，将图片附加到当前支持的草稿。\n\n受限候选 · Chrome 中文普通已有对话\n截图位置可读取\n\n桌面 · 只收录新的截图文件\n\n在 Finder 中查看\n连接 Chrome 当前草稿\n\n只在你点击截图时尝试附加，不发送聊天消息。\n\n检查 Chrome 访问…\n了解使用方式\n系统截图\n→\n桌面边缘\n·\n保留原图\n关闭引导不授予权限\n稍后设置\n完成",
+      "state": {
+        "scene": "start",
+        "scenario": "candidate",
+        "epoch": 4,
+        "learn": false,
+        "source": "accessible",
+        "permission": "notRequested",
+        "currentMode": "region",
+        "frozenMode": "region",
+        "seconds": 3,
+        "capturePhase": "countdown",
+        "inputs": 0,
+        "callout": false,
+        "peek": false,
+        "preview": false,
+        "selected": 0,
+        "hidden": false,
+        "paused": false,
+        "arrival": "none",
+        "recordOpen": false,
+        "sheet": false,
+        "text": "希望倒计时的时候，能看清这一次截取的范围。",
+        "diagnostics": false,
+        "feedbackSaved": false,
+        "feedbackNotice": "",
+        "localQueued": false,
+        "activeAsset": 0,
+        "calloutAsset": 0,
+        "hoverAsset": null,
+        "fixedReview": true,
+        "assets": [
+          {
+            "id": 0,
+            "phase": "idle",
+            "visual": "stable",
+            "inputs": 0
+          },
+          {
+            "id": 1,
+            "phase": "idle",
+            "visual": "stable",
+            "inputs": 0
+          },
+          {
+            "id": 2,
+            "phase": "idle",
+            "visual": "stable",
+            "inputs": 0
+          }
+        ],
+        "attachment": "idle",
+        "records": [],
+        "sheetRecordID": null,
+        "saveFailed": false,
+        "submittedText": null,
+        "historyFilter": 0,
+        "historyRecords": [
+          {
+            "id": 0,
+            "phase": "unknown",
+            "short": "今天 09:38",
+            "date": "2026 年 10 月 29 日 09:38",
+            "w": 3840,
+            "h": 2560
+          },
+          {
+            "id": 1,
+            "phase": "used",
+            "short": "今天 09:32",
+            "date": "2026 年 10 月 29 日 09:32",
+            "w": 2880,
+            "h": 1920
+          },
+          {
+            "id": 2,
+            "phase": "archived",
+            "short": "昨天 18:06",
+            "date": "2026 年 10 月 28 日 18:06",
+            "w": 1920,
+            "h": 1280
+          }
+        ],
+        "historySearch": ""
+      },
+      "windowBounds": [
+        {
+          "label": "Riftlet — 开始使用 · 内部候选",
+          "w": 560,
+          "h": 520
+        }
+      ]
+    },
+    {
+      "name": "04-capture-countdown",
+      "scene": "capture",
+      "scenario": "switched",
+      "appearance": "light",
+      "width": 1440,
+      "height": 1050,
+      "text": "工作笔记 · 合成内容\n一段需要分享的研究笔记\n\n仅为演示截图范围与界面位置，不包含真实聊天或文件。\n\n本次所选区域 · 520 × 295 pt（示意）\n已选区域 · 3 秒后拍摄\n下一张：窗口截图",
+      "state": {
+        "scene": "capture",
+        "scenario": "switched",
+        "epoch": 5,
+        "learn": false,
+        "source": "accessible",
+        "permission": "notRequested",
+        "currentMode": "window",
+        "frozenMode": "region",
+        "seconds": 3,
+        "capturePhase": "countdown",
+        "inputs": 0,
+        "callout": false,
+        "peek": false,
+        "preview": false,
+        "selected": 0,
+        "hidden": false,
+        "paused": false,
+        "arrival": "none",
+        "recordOpen": false,
+        "sheet": false,
+        "text": "希望倒计时的时候，能看清这一次截取的范围。",
+        "diagnostics": false,
+        "feedbackSaved": false,
+        "feedbackNotice": "",
+        "localQueued": false,
+        "activeAsset": 0,
+        "calloutAsset": 0,
+        "hoverAsset": null,
+        "fixedReview": true,
+        "assets": [
+          {
+            "id": 0,
+            "phase": "idle",
+            "visual": "stable",
+            "inputs": 0
+          },
+          {
+            "id": 1,
+            "phase": "idle",
+            "visual": "stable",
+            "inputs": 0
+          },
+          {
+            "id": 2,
+            "phase": "idle",
+            "visual": "stable",
+            "inputs": 0
+          }
+        ],
+        "attachment": "idle",
+        "records": [],
+        "sheetRecordID": null,
+        "saveFailed": false,
+        "submittedText": null,
+        "historyFilter": 0,
+        "historyRecords": [
+          {
+            "id": 0,
+            "phase": "unknown",
+            "short": "今天 09:38",
+            "date": "2026 年 10 月 29 日 09:38",
+            "w": 3840,
+            "h": 2560
+          },
+          {
+            "id": 1,
+            "phase": "used",
+            "short": "今天 09:32",
+            "date": "2026 年 10 月 29 日 09:32",
+            "w": 2880,
+            "h": 1920
+          },
+          {
+            "id": 2,
+            "phase": "archived",
+            "short": "昨天 18:06",
+            "date": "2026 年 10 月 28 日 18:06",
+            "w": 1920,
+            "h": 1280
+          }
+        ],
+        "historySearch": ""
+      },
+      "windowBounds": []
+    },
+    {
+      "name": "05-capture-revoked",
+      "scene": "capture",
+      "scenario": "revoked",
+      "appearance": "dark",
+      "width": 1440,
+      "height": 1050,
+      "text": "工作笔记 · 合成内容\n一段需要分享的研究笔记\n\n仅为演示截图范围与界面位置，不包含真实聊天或文件。\n\n屏幕录制访问已关闭\n结束截图后，在系统设置中检查访问。",
+      "state": {
+        "scene": "capture",
+        "scenario": "revoked",
+        "epoch": 6,
+        "learn": false,
+        "source": "accessible",
+        "permission": "notRequested",
+        "currentMode": "region",
+        "frozenMode": "region",
+        "seconds": 3,
+        "capturePhase": "error",
+        "inputs": 0,
+        "callout": false,
+        "peek": false,
+        "preview": false,
+        "selected": 0,
+        "hidden": false,
+        "paused": false,
+        "arrival": "none",
+        "recordOpen": false,
+        "sheet": false,
+        "text": "希望倒计时的时候，能看清这一次截取的范围。",
+        "diagnostics": false,
+        "feedbackSaved": false,
+        "feedbackNotice": "",
+        "localQueued": false,
+        "activeAsset": 0,
+        "calloutAsset": 0,
+        "hoverAsset": null,
+        "fixedReview": true,
+        "assets": [
+          {
+            "id": 0,
+            "phase": "idle",
+            "visual": "stable",
+            "inputs": 0
+          },
+          {
+            "id": 1,
+            "phase": "idle",
+            "visual": "stable",
+            "inputs": 0
+          },
+          {
+            "id": 2,
+            "phase": "idle",
+            "visual": "stable",
+            "inputs": 0
+          }
+        ],
+        "attachment": "idle",
+        "records": [],
+        "sheetRecordID": null,
+        "saveFailed": false,
+        "submittedText": null,
+        "historyFilter": 0,
+        "historyRecords": [
+          {
+            "id": 0,
+            "phase": "unknown",
+            "short": "今天 09:38",
+            "date": "2026 年 10 月 29 日 09:38",
+            "w": 3840,
+            "h": 2560
+          },
+          {
+            "id": 1,
+            "phase": "used",
+            "short": "今天 09:32",
+            "date": "2026 年 10 月 29 日 09:32",
+            "w": 2880,
+            "h": 1920
+          },
+          {
+            "id": 2,
+            "phase": "archived",
+            "short": "昨天 18:06",
+            "date": "2026 年 10 月 28 日 18:06",
+            "w": 1920,
+            "h": 1280
+          }
+        ],
+        "historySearch": ""
+      },
+      "windowBounds": []
+    },
+    {
+      "name": "06-attach-rejected",
+      "scene": "attach",
+      "scenario": "rejected",
+      "appearance": "light",
+      "width": 1440,
+      "height": 1050,
+      "text": "当前草稿（示意） · 截图点击不改变键盘焦点\nResearch notes\nA synthetic image for interface review.\nOriginal ratio · no cropping · synthetic content\n1\nResearch notes\nA synthetic image for interface review.\nOriginal ratio · no cropping · synthetic content\n2\nResearch notes\nA synthetic image for interface review.\nOriginal ratio · no cropping · synthetic content\n3\n当前没有可验证的草稿\n\n图片已保留。回到支持的聊天页面后，再点一次。\n\n继续输入你的消息…",
+      "state": {
+        "scene": "attach",
+        "scenario": "rejected",
+        "epoch": 7,
+        "learn": false,
+        "source": "accessible",
+        "permission": "notRequested",
+        "currentMode": "region",
+        "frozenMode": "region",
+        "seconds": 3,
+        "capturePhase": "countdown",
+        "inputs": 0,
+        "callout": true,
+        "peek": false,
+        "preview": false,
+        "selected": 0,
+        "hidden": false,
+        "paused": false,
+        "arrival": "none",
+        "recordOpen": false,
+        "sheet": false,
+        "text": "希望倒计时的时候，能看清这一次截取的范围。",
+        "diagnostics": false,
+        "feedbackSaved": false,
+        "feedbackNotice": "",
+        "localQueued": false,
+        "activeAsset": 0,
+        "calloutAsset": 0,
+        "hoverAsset": null,
+        "fixedReview": true,
+        "assets": [
+          {
+            "id": 0,
+            "phase": "rejected",
+            "visual": "stable",
+            "inputs": 0
+          },
+          {
+            "id": 1,
+            "phase": "idle",
+            "visual": "stable",
+            "inputs": 0
+          },
+          {
+            "id": 2,
+            "phase": "idle",
+            "visual": "stable",
+            "inputs": 0
+          }
+        ],
+        "attachment": "rejected",
+        "records": [],
+        "sheetRecordID": null,
+        "saveFailed": false,
+        "submittedText": null,
+        "historyFilter": 0,
+        "historyRecords": [
+          {
+            "id": 0,
+            "phase": "unknown",
+            "short": "今天 09:38",
+            "date": "2026 年 10 月 29 日 09:38",
+            "w": 3840,
+            "h": 2560
+          },
+          {
+            "id": 1,
+            "phase": "used",
+            "short": "今天 09:32",
+            "date": "2026 年 10 月 29 日 09:32",
+            "w": 2880,
+            "h": 1920
+          },
+          {
+            "id": 2,
+            "phase": "archived",
+            "short": "昨天 18:06",
+            "date": "2026 年 10 月 28 日 18:06",
+            "w": 1920,
+            "h": 1280
+          }
+        ],
+        "historySearch": ""
+      },
+      "windowBounds": []
+    },
+    {
+      "name": "07-attach-prepared",
+      "scene": "attach",
+      "scenario": "prepared",
+      "appearance": "dark",
+      "width": 1440,
+      "height": 1050,
+      "text": "当前草稿（示意） · 截图点击不改变键盘焦点\nResearch notes\nA synthetic image for interface review.\nOriginal ratio · no cropping · synthetic content\n1\nResearch notes\nA synthetic image for interface review.\nOriginal ratio · no cropping · synthetic content\n2\nResearch notes\nA synthetic image for interface review.\nOriginal ratio · no cropping · synthetic content\n3\n附加处理中\n\n正在等待结果确认。此时不能保证尚未输入。\n\n继续输入你的消息…",
+      "state": {
+        "scene": "attach",
+        "scenario": "prepared",
+        "epoch": 8,
+        "learn": false,
+        "source": "accessible",
+        "permission": "notRequested",
+        "currentMode": "region",
+        "frozenMode": "region",
+        "seconds": 3,
+        "capturePhase": "countdown",
+        "inputs": 0,
+        "callout": true,
+        "peek": false,
+        "preview": false,
+        "selected": 0,
+        "hidden": false,
+        "paused": false,
+        "arrival": "none",
+        "recordOpen": false,
+        "sheet": false,
+        "text": "希望倒计时的时候，能看清这一次截取的范围。",
+        "diagnostics": false,
+        "feedbackSaved": false,
+        "feedbackNotice": "",
+        "localQueued": false,
+        "activeAsset": 0,
+        "calloutAsset": 0,
+        "hoverAsset": null,
+        "fixedReview": true,
+        "assets": [
+          {
+            "id": 0,
+            "phase": "prepared",
+            "visual": "stable",
+            "inputs": 0
+          },
+          {
+            "id": 1,
+            "phase": "idle",
+            "visual": "stable",
+            "inputs": 0
+          },
+          {
+            "id": 2,
+            "phase": "idle",
+            "visual": "stable",
+            "inputs": 0
+          }
+        ],
+        "attachment": "prepared",
+        "records": [],
+        "sheetRecordID": null,
+        "saveFailed": false,
+        "submittedText": null,
+        "historyFilter": 0,
+        "historyRecords": [
+          {
+            "id": 0,
+            "phase": "unknown",
+            "short": "今天 09:38",
+            "date": "2026 年 10 月 29 日 09:38",
+            "w": 3840,
+            "h": 2560
+          },
+          {
+            "id": 1,
+            "phase": "used",
+            "short": "今天 09:32",
+            "date": "2026 年 10 月 29 日 09:32",
+            "w": 2880,
+            "h": 1920
+          },
+          {
+            "id": 2,
+            "phase": "archived",
+            "short": "昨天 18:06",
+            "date": "2026 年 10 月 28 日 18:06",
+            "w": 1920,
+            "h": 1280
+          }
+        ],
+        "historySearch": ""
+      },
+      "windowBounds": []
+    },
+    {
+      "name": "08-recovery-permission",
+      "scene": "settings",
+      "scenario": "permission",
+      "appearance": "light",
+      "width": 1440,
+      "height": 1050,
+      "text": "Riftlet — 设置与运行状态\n运行状态\n截图入口\n显示与动效\n隐私与存储\n关于与支持\n运行状态\nChrome 自动化访问已关闭\n\n已有截图仍在本机。恢复访问后，需要重新点击截图。\n\n打开系统设置…\n收录新截图\n\n已开启；来源和存储可用时收录。\n\n显示裂缝\n\n有可见截图时显示。\n\n结果待核实\n\n1 条 · 保持原记录，不会重新附加。\n\n查看\n\n访问允许不等于草稿有效；Riftlet 不会自动切换聊天。",
+      "state": {
+        "scene": "settings",
+        "scenario": "permission",
+        "epoch": 9,
+        "learn": false,
+        "source": "accessible",
+        "permission": "notRequested",
+        "currentMode": "region",
+        "frozenMode": "region",
+        "seconds": 3,
+        "capturePhase": "countdown",
+        "inputs": 0,
+        "callout": false,
+        "peek": false,
+        "preview": false,
+        "selected": 0,
+        "hidden": false,
+        "paused": false,
+        "arrival": "none",
+        "recordOpen": false,
+        "sheet": false,
+        "text": "希望倒计时的时候，能看清这一次截取的范围。",
+        "diagnostics": false,
+        "feedbackSaved": false,
+        "feedbackNotice": "",
+        "localQueued": false,
+        "activeAsset": 0,
+        "calloutAsset": 0,
+        "hoverAsset": null,
+        "fixedReview": true,
+        "assets": [
+          {
+            "id": 0,
+            "phase": "idle",
+            "visual": "stable",
+            "inputs": 0
+          },
+          {
+            "id": 1,
+            "phase": "idle",
+            "visual": "stable",
+            "inputs": 0
+          },
+          {
+            "id": 2,
+            "phase": "idle",
+            "visual": "stable",
+            "inputs": 0
+          }
+        ],
+        "attachment": "idle",
+        "records": [],
+        "sheetRecordID": null,
+        "saveFailed": false,
+        "submittedText": null,
+        "historyFilter": 0,
+        "historyRecords": [
+          {
+            "id": 0,
+            "phase": "unknown",
+            "short": "今天 09:38",
+            "date": "2026 年 10 月 29 日 09:38",
+            "w": 3840,
+            "h": 2560
+          },
+          {
+            "id": 1,
+            "phase": "used",
+            "short": "今天 09:32",
+            "date": "2026 年 10 月 29 日 09:32",
+            "w": 2880,
+            "h": 1920
+          },
+          {
+            "id": 2,
+            "phase": "archived",
+            "short": "昨天 18:06",
+            "date": "2026 年 10 月 28 日 18:06",
+            "w": 1920,
+            "h": 1280
+          }
+        ],
+        "historySearch": ""
+      },
+      "windowBounds": [
+        {
+          "label": "Riftlet — 设置与运行状态",
+          "w": 680,
+          "h": 520
+        }
+      ]
+    },
+    {
+      "name": "09-display-fallback",
+      "scene": "settings",
+      "scenario": "display",
+      "appearance": "dark",
+      "width": 1440,
+      "height": 1050,
+      "text": "Riftlet — 设置与运行状态\n运行状态\n截图入口\n显示与动效\n隐私与存储\n关于与支持\n显示与动效\n首选显示器未连接\n\n当前显示在内建显示器。首选位置仍保留。\n\n当前 · 内建屏幕\n首选 · 外接屏幕\n裂缝显示位置\n\n屏幕恢复后按既有策略重新检查；不回放操作。\n\n内建显示器\n入缝动效\n\n来源坐标不可靠时，本张直接出现。\n\n无\n\n此行是补充呈现。实际拔插、1x / 2x 与 Spaces 行为须在正式组合 App 验证。",
+      "state": {
+        "scene": "settings",
+        "scenario": "display",
+        "epoch": 10,
+        "learn": false,
+        "source": "accessible",
+        "permission": "notRequested",
+        "currentMode": "region",
+        "frozenMode": "region",
+        "seconds": 3,
+        "capturePhase": "countdown",
+        "inputs": 0,
+        "callout": false,
+        "peek": false,
+        "preview": false,
+        "selected": 0,
+        "hidden": false,
+        "paused": false,
+        "arrival": "none",
+        "recordOpen": false,
+        "sheet": false,
+        "text": "希望倒计时的时候，能看清这一次截取的范围。",
+        "diagnostics": false,
+        "feedbackSaved": false,
+        "feedbackNotice": "",
+        "localQueued": false,
+        "activeAsset": 0,
+        "calloutAsset": 0,
+        "hoverAsset": null,
+        "fixedReview": true,
+        "assets": [
+          {
+            "id": 0,
+            "phase": "idle",
+            "visual": "stable",
+            "inputs": 0
+          },
+          {
+            "id": 1,
+            "phase": "idle",
+            "visual": "stable",
+            "inputs": 0
+          },
+          {
+            "id": 2,
+            "phase": "idle",
+            "visual": "stable",
+            "inputs": 0
+          }
+        ],
+        "attachment": "idle",
+        "records": [],
+        "sheetRecordID": null,
+        "saveFailed": false,
+        "submittedText": null,
+        "historyFilter": 0,
+        "historyRecords": [
+          {
+            "id": 0,
+            "phase": "unknown",
+            "short": "今天 09:38",
+            "date": "2026 年 10 月 29 日 09:38",
+            "w": 3840,
+            "h": 2560
+          },
+          {
+            "id": 1,
+            "phase": "used",
+            "short": "今天 09:32",
+            "date": "2026 年 10 月 29 日 09:32",
+            "w": 2880,
+            "h": 1920
+          },
+          {
+            "id": 2,
+            "phase": "archived",
+            "short": "昨天 18:06",
+            "date": "2026 年 10 月 28 日 18:06",
+            "w": 1920,
+            "h": 1280
+          }
+        ],
+        "historySearch": ""
+      },
+      "windowBounds": [
+        {
+          "label": "Riftlet — 设置与运行状态",
+          "w": 680,
+          "h": 520
+        }
+      ]
+    },
+    {
+      "name": "10-relaunch-state",
+      "scene": "settings",
+      "scenario": "relaunch",
+      "appearance": "light",
+      "width": 1440,
+      "height": 1050,
+      "text": "Riftlet — 设置与运行状态\n运行状态\n截图入口\n显示与动效\n隐私与存储\n关于与支持\n运行状态\n按上次状态继续\n\n收录保持暂停，裂缝保持隐藏。已有记录和待核实结果保留。\n\n查看截图历史\n收录新截图\n\n已暂停，已有截图保留。\n\n显示裂缝\n\n已隐藏，不会暂停收录。\n\n结果待核实\n\n1 条 · 保持原记录，不会重新附加。\n\n查看\n\n退出和再次启动保留独立的显示与收录偏好。",
+      "state": {
+        "scene": "settings",
+        "scenario": "relaunch",
+        "epoch": 11,
+        "learn": false,
+        "source": "accessible",
+        "permission": "notRequested",
+        "currentMode": "region",
+        "frozenMode": "region",
+        "seconds": 3,
+        "capturePhase": "countdown",
+        "inputs": 0,
+        "callout": false,
+        "peek": false,
+        "preview": false,
+        "selected": 0,
+        "hidden": true,
+        "paused": true,
+        "arrival": "none",
+        "recordOpen": false,
+        "sheet": false,
+        "text": "希望倒计时的时候，能看清这一次截取的范围。",
+        "diagnostics": false,
+        "feedbackSaved": false,
+        "feedbackNotice": "",
+        "localQueued": false,
+        "activeAsset": 0,
+        "calloutAsset": 0,
+        "hoverAsset": null,
+        "fixedReview": true,
+        "assets": [
+          {
+            "id": 0,
+            "phase": "idle",
+            "visual": "stable",
+            "inputs": 0
+          },
+          {
+            "id": 1,
+            "phase": "idle",
+            "visual": "stable",
+            "inputs": 0
+          },
+          {
+            "id": 2,
+            "phase": "idle",
+            "visual": "stable",
+            "inputs": 0
+          }
+        ],
+        "attachment": "idle",
+        "records": [],
+        "sheetRecordID": null,
+        "saveFailed": false,
+        "submittedText": null,
+        "historyFilter": 0,
+        "historyRecords": [
+          {
+            "id": 0,
+            "phase": "unknown",
+            "short": "今天 09:38",
+            "date": "2026 年 10 月 29 日 09:38",
+            "w": 3840,
+            "h": 2560
+          },
+          {
+            "id": 1,
+            "phase": "used",
+            "short": "今天 09:32",
+            "date": "2026 年 10 月 29 日 09:32",
+            "w": 2880,
+            "h": 1920
+          },
+          {
+            "id": 2,
+            "phase": "archived",
+            "short": "昨天 18:06",
+            "date": "2026 年 10 月 28 日 18:06",
+            "w": 1920,
+            "h": 1280
+          }
+        ],
+        "historySearch": ""
+      },
+      "windowBounds": [
+        {
+          "label": "Riftlet — 设置与运行状态",
+          "w": 680,
+          "h": 520
+        }
+      ]
+    },
+    {
+      "name": "11-history-unknown",
+      "scene": "history",
+      "scenario": "unknown",
+      "appearance": "light",
+      "width": 1440,
+      "height": 1050,
+      "text": "Riftlet — 截图历史\n全部\n待核实\n已附加\n已归档\n明确失败\n已移除\nResearch notes\nA synthetic image for interface review.\nOriginal ratio · no cropping · synthetic content\n今天 09:38\n结果待核实\nResearch notes\nA synthetic image for interface review.\nOriginal ratio · no cropping · synthetic content\n今天 09:32\n已附加\nResearch notes\nA synthetic image for interface review.\nOriginal ratio · no cropping · synthetic content\n昨天 18:06\n已归档\n第 1 页 · 每页最多 200 条　‹　›\n截图 · 今天 09:38\nResearch notes\nA synthetic image for interface review.\nOriginal ratio · no cropping · synthetic content\n2026 年 10 月 29 日 09:38\n3840 × 2560 像素 · PNG\n结果待核实\n\n已观察到这次上传开始，但最终结果尚不能确认。截图已从裂缝隐藏。\n\n不会自动重传，也不能将这一条放回裂缝重试。\n\n完整预览\n在 Finder 中查看",
+      "state": {
+        "scene": "history",
+        "scenario": "unknown",
+        "epoch": 12,
+        "learn": false,
+        "source": "accessible",
+        "permission": "notRequested",
+        "currentMode": "region",
+        "frozenMode": "region",
+        "seconds": 3,
+        "capturePhase": "countdown",
+        "inputs": 0,
+        "callout": false,
+        "peek": false,
+        "preview": false,
+        "selected": 0,
+        "hidden": false,
+        "paused": false,
+        "arrival": "none",
+        "recordOpen": false,
+        "sheet": false,
+        "text": "希望倒计时的时候，能看清这一次截取的范围。",
+        "diagnostics": false,
+        "feedbackSaved": false,
+        "feedbackNotice": "",
+        "localQueued": false,
+        "activeAsset": 0,
+        "calloutAsset": 0,
+        "hoverAsset": null,
+        "fixedReview": true,
+        "assets": [
+          {
+            "id": 0,
+            "phase": "idle",
+            "visual": "stable",
+            "inputs": 0
+          },
+          {
+            "id": 1,
+            "phase": "idle",
+            "visual": "stable",
+            "inputs": 0
+          },
+          {
+            "id": 2,
+            "phase": "idle",
+            "visual": "stable",
+            "inputs": 0
+          }
+        ],
+        "attachment": "idle",
+        "records": [],
+        "sheetRecordID": null,
+        "saveFailed": false,
+        "submittedText": null,
+        "historyFilter": 0,
+        "historyRecords": [
+          {
+            "id": 0,
+            "phase": "unknown",
+            "short": "今天 09:38",
+            "date": "2026 年 10 月 29 日 09:38",
+            "w": 3840,
+            "h": 2560
+          },
+          {
+            "id": 1,
+            "phase": "used",
+            "short": "今天 09:32",
+            "date": "2026 年 10 月 29 日 09:32",
+            "w": 2880,
+            "h": 1920
+          },
+          {
+            "id": 2,
+            "phase": "archived",
+            "short": "昨天 18:06",
+            "date": "2026 年 10 月 28 日 18:06",
+            "w": 1920,
+            "h": 1280
+          }
+        ],
+        "historySearch": ""
+      },
+      "windowBounds": [
+        {
+          "label": "Riftlet — 截图历史",
+          "w": 760,
+          "h": 560
+        }
+      ]
+    },
+    {
+      "name": "12-history-preview",
+      "scene": "history",
+      "scenario": "preview",
+      "appearance": "dark",
+      "width": 1440,
+      "height": 1050,
+      "text": "Riftlet — 截图历史\n全部\n待核实\n已附加\n已归档\n明确失败\n已移除\nResearch notes\nA synthetic image for interface review.\nOriginal ratio · no cropping · synthetic content\n今天 09:38\n结果待核实\nResearch notes\nA synthetic image for interface review.\nOriginal ratio · no cropping · synthetic content\n今天 09:32\n已附加\nResearch notes\nA synthetic image for interface review.\nOriginal ratio · no cropping · synthetic content\n昨天 18:06\n已归档\n第 1 页 · 每页最多 200 条　‹　›\n截图 · 今天 09:38\nResearch notes\nA synthetic image for interface review.\nOriginal ratio · no cropping · synthetic content\n2026 年 10 月 29 日 09:38\n3840 × 2560 像素 · PNG\n结果待核实\n\n已观察到这次上传开始，但最终结果尚不能确认。截图已从裂缝隐藏。\n\n不会自动重传，也不能将这一条放回裂缝重试。\n\n完整预览\n在 Finder 中查看\n截图预览 · 今天 09:38\n适合窗口 · 原始比例\n关闭 · Esc\nResearch notes\nA synthetic image for interface review.\nOriginal ratio · no cropping · synthetic content\n视口对应像素 · 只读预览，不修改原图（设计示意）",
+      "state": {
+        "scene": "history",
+        "scenario": "preview",
+        "epoch": 13,
+        "learn": false,
+        "source": "accessible",
+        "permission": "notRequested",
+        "currentMode": "region",
+        "frozenMode": "region",
+        "seconds": 3,
+        "capturePhase": "countdown",
+        "inputs": 0,
+        "callout": false,
+        "peek": false,
+        "preview": true,
+        "selected": 0,
+        "hidden": false,
+        "paused": false,
+        "arrival": "none",
+        "recordOpen": false,
+        "sheet": false,
+        "text": "希望倒计时的时候，能看清这一次截取的范围。",
+        "diagnostics": false,
+        "feedbackSaved": false,
+        "feedbackNotice": "",
+        "localQueued": false,
+        "activeAsset": 0,
+        "calloutAsset": 0,
+        "hoverAsset": null,
+        "fixedReview": true,
+        "assets": [
+          {
+            "id": 0,
+            "phase": "idle",
+            "visual": "stable",
+            "inputs": 0
+          },
+          {
+            "id": 1,
+            "phase": "idle",
+            "visual": "stable",
+            "inputs": 0
+          },
+          {
+            "id": 2,
+            "phase": "idle",
+            "visual": "stable",
+            "inputs": 0
+          }
+        ],
+        "attachment": "idle",
+        "records": [],
+        "sheetRecordID": null,
+        "saveFailed": false,
+        "submittedText": null,
+        "historyFilter": 0,
+        "historyRecords": [
+          {
+            "id": 0,
+            "phase": "unknown",
+            "short": "今天 09:38",
+            "date": "2026 年 10 月 29 日 09:38",
+            "w": 3840,
+            "h": 2560
+          },
+          {
+            "id": 1,
+            "phase": "used",
+            "short": "今天 09:32",
+            "date": "2026 年 10 月 29 日 09:32",
+            "w": 2880,
+            "h": 1920
+          },
+          {
+            "id": 2,
+            "phase": "archived",
+            "short": "昨天 18:06",
+            "date": "2026 年 10 月 28 日 18:06",
+            "w": 1920,
+            "h": 1280
+          }
+        ],
+        "historySearch": ""
+      },
+      "windowBounds": [
+        {
+          "label": "Riftlet — 截图历史",
+          "w": 760,
+          "h": 560
+        }
+      ]
+    },
+    {
+      "name": "13-feedback-offline",
+      "scene": "feedback",
+      "scenario": "offline",
+      "appearance": "light",
+      "width": 1440,
+      "height": 1050,
+      "text": "反馈与建议\n哪里不顺手？\n也欢迎告诉我，你希望它怎样工作。\n　接收服务尚未配置 · 当前不会上传\n改进建议\n遇到问题\n21 / 4,000 字符\n不会自动附带截图\n附带技术诊断（仅本次）\n预览…\n\n仅发送你输入的文字和主动选择的诊断，供开发者及获授权的 AI 辅助分析。不会自动附带截图、聊天或浏览器资料。\n\n› 本机反馈记录 · 0\n草稿保存在这台 Mac；关闭不会发送。\n保存并关闭\n保存待发送",
+      "state": {
+        "scene": "feedback",
+        "scenario": "offline",
+        "epoch": 14,
+        "learn": false,
+        "source": "accessible",
+        "permission": "notRequested",
+        "currentMode": "region",
+        "frozenMode": "region",
+        "seconds": 3,
+        "capturePhase": "countdown",
+        "inputs": 0,
+        "callout": false,
+        "peek": false,
+        "preview": false,
+        "selected": 0,
+        "hidden": false,
+        "paused": false,
+        "arrival": "none",
+        "recordOpen": false,
+        "sheet": false,
+        "text": "希望倒计时的时候，能看清这一次截取的范围。",
+        "diagnostics": false,
+        "feedbackSaved": false,
+        "feedbackNotice": "",
+        "localQueued": false,
+        "activeAsset": 0,
+        "calloutAsset": 0,
+        "hoverAsset": null,
+        "fixedReview": true,
+        "assets": [
+          {
+            "id": 0,
+            "phase": "idle",
+            "visual": "stable",
+            "inputs": 0
+          },
+          {
+            "id": 1,
+            "phase": "idle",
+            "visual": "stable",
+            "inputs": 0
+          },
+          {
+            "id": 2,
+            "phase": "idle",
+            "visual": "stable",
+            "inputs": 0
+          }
+        ],
+        "attachment": "idle",
+        "records": [],
+        "sheetRecordID": null,
+        "saveFailed": false,
+        "submittedText": null,
+        "historyFilter": 0,
+        "historyRecords": [
+          {
+            "id": 0,
+            "phase": "unknown",
+            "short": "今天 09:38",
+            "date": "2026 年 10 月 29 日 09:38",
+            "w": 3840,
+            "h": 2560
+          },
+          {
+            "id": 1,
+            "phase": "used",
+            "short": "今天 09:32",
+            "date": "2026 年 10 月 29 日 09:32",
+            "w": 2880,
+            "h": 1920
+          },
+          {
+            "id": 2,
+            "phase": "archived",
+            "short": "昨天 18:06",
+            "date": "2026 年 10 月 28 日 18:06",
+            "w": 1920,
+            "h": 1280
+          }
+        ],
+        "historySearch": ""
+      },
+      "windowBounds": [
+        {
+          "label": "反馈与建议",
+          "w": 600,
+          "h": 540
+        }
+      ]
+    },
+    {
+      "name": "14-feedback-ime",
+      "scene": "feedback",
+      "scenario": "ime",
+      "appearance": "dark",
+      "width": 1440,
+      "height": 1050,
+      "text": "反馈与建议\n哪里不顺手？\n也欢迎告诉我，你希望它怎样工作。\n　接收服务尚未配置 · 当前不会上传\n改进建议\n遇到问题\n21 / 4,000 字符\n当前正在组字（模拟）\n附带技术诊断（仅本次）\n预览…\n\n仅发送你输入的文字和主动选择的诊断，供开发者及获授权的 AI 辅助分析。不会自动附带截图、聊天或浏览器资料。\n\n› 本机反馈记录 · 0\n请先完成当前文字输入，再关闭。\n保存并关闭\n保存待发送",
+      "state": {
+        "scene": "feedback",
+        "scenario": "ime",
+        "epoch": 15,
+        "learn": false,
+        "source": "accessible",
+        "permission": "notRequested",
+        "currentMode": "region",
+        "frozenMode": "region",
+        "seconds": 3,
+        "capturePhase": "countdown",
+        "inputs": 0,
+        "callout": false,
+        "peek": false,
+        "preview": false,
+        "selected": 0,
+        "hidden": false,
+        "paused": false,
+        "arrival": "none",
+        "recordOpen": false,
+        "sheet": false,
+        "text": "希望倒计时的时候，能看清这一次截取的范围。",
+        "diagnostics": false,
+        "feedbackSaved": false,
+        "feedbackNotice": "请先完成当前文字输入，再关闭。",
+        "localQueued": false,
+        "activeAsset": 0,
+        "calloutAsset": 0,
+        "hoverAsset": null,
+        "fixedReview": true,
+        "assets": [
+          {
+            "id": 0,
+            "phase": "idle",
+            "visual": "stable",
+            "inputs": 0
+          },
+          {
+            "id": 1,
+            "phase": "idle",
+            "visual": "stable",
+            "inputs": 0
+          },
+          {
+            "id": 2,
+            "phase": "idle",
+            "visual": "stable",
+            "inputs": 0
+          }
+        ],
+        "attachment": "idle",
+        "records": [],
+        "sheetRecordID": null,
+        "saveFailed": false,
+        "submittedText": null,
+        "historyFilter": 0,
+        "historyRecords": [
+          {
+            "id": 0,
+            "phase": "unknown",
+            "short": "今天 09:38",
+            "date": "2026 年 10 月 29 日 09:38",
+            "w": 3840,
+            "h": 2560
+          },
+          {
+            "id": 1,
+            "phase": "used",
+            "short": "今天 09:32",
+            "date": "2026 年 10 月 29 日 09:32",
+            "w": 2880,
+            "h": 1920
+          },
+          {
+            "id": 2,
+            "phase": "archived",
+            "short": "昨天 18:06",
+            "date": "2026 年 10 月 28 日 18:06",
+            "w": 1920,
+            "h": 1280
+          }
+        ],
+        "historySearch": ""
+      },
+      "windowBounds": [
+        {
+          "label": "反馈与建议",
+          "w": 600,
+          "h": 540
+        }
+      ]
+    },
+    {
+      "name": "15-feedback-delete",
+      "scene": "feedback",
+      "scenario": "remote",
+      "appearance": "light",
+      "width": 1440,
+      "height": 1050,
+      "text": "反馈与建议\n哪里不顺手？\n也欢迎告诉我，你希望它怎样工作。\n　服务已配置 · 只有收到回执才算送达\n改进建议\n遇到问题\n21 / 4,000 字符\n不会自动附带截图\n附带技术诊断（仅本次）\n预览…\n\n仅发送你输入的文字和主动选择的诊断，供开发者及获授权的 AI 辅助分析。不会自动附带截图、聊天或浏览器资料。\n\n⌄ 本机反馈记录 · 1\n今天 09:36 · 改进建议\n发送结果待确认\n\n建议增加倒计时的剩余时间。\n\n申请删除反馈…\n草稿保存在这台 Mac；关闭不会发送。\n保存并关闭\n发送反馈\n申请删除这条反馈？\n\n这条反馈可能已到达服务。将申请删除；收到确认前，会保留编号和必要记录。\n\n只影响这一条反馈，不会删除截图。\n\n保留反馈\n申请删除",
+      "state": {
+        "scene": "feedback",
+        "scenario": "remote",
+        "epoch": 16,
+        "learn": false,
+        "source": "accessible",
+        "permission": "notRequested",
+        "currentMode": "region",
+        "frozenMode": "region",
+        "seconds": 3,
+        "capturePhase": "countdown",
+        "inputs": 0,
+        "callout": false,
+        "peek": false,
+        "preview": false,
+        "selected": 0,
+        "hidden": false,
+        "paused": false,
+        "arrival": "none",
+        "recordOpen": true,
+        "sheet": true,
+        "text": "希望倒计时的时候，能看清这一次截取的范围。",
+        "diagnostics": false,
+        "feedbackSaved": false,
+        "feedbackNotice": "",
+        "localQueued": false,
+        "activeAsset": 0,
+        "calloutAsset": 0,
+        "hoverAsset": null,
+        "fixedReview": true,
+        "assets": [
+          {
+            "id": 0,
+            "phase": "idle",
+            "visual": "stable",
+            "inputs": 0
+          },
+          {
+            "id": 1,
+            "phase": "idle",
+            "visual": "stable",
+            "inputs": 0
+          },
+          {
+            "id": 2,
+            "phase": "idle",
+            "visual": "stable",
+            "inputs": 0
+          }
+        ],
+        "attachment": "idle",
+        "records": [
+          {
+            "id": 1,
+            "phase": "ambiguous",
+            "text": "建议增加倒计时的剩余时间。"
+          }
+        ],
+        "sheetRecordID": 1,
+        "saveFailed": false,
+        "submittedText": null,
+        "historyFilter": 0,
+        "historyRecords": [
+          {
+            "id": 0,
+            "phase": "unknown",
+            "short": "今天 09:38",
+            "date": "2026 年 10 月 29 日 09:38",
+            "w": 3840,
+            "h": 2560
+          },
+          {
+            "id": 1,
+            "phase": "used",
+            "short": "今天 09:32",
+            "date": "2026 年 10 月 29 日 09:32",
+            "w": 2880,
+            "h": 1920
+          },
+          {
+            "id": 2,
+            "phase": "archived",
+            "short": "昨天 18:06",
+            "date": "2026 年 10 月 28 日 18:06",
+            "w": 1920,
+            "h": 1280
+          }
+        ],
+        "historySearch": ""
+      },
+      "windowBounds": [
+        {
+          "label": "反馈与建议",
+          "w": 600,
+          "h": 540
+        }
+      ]
+    },
+    {
+      "name": "16-feedback-save-failure",
+      "scene": "feedback",
+      "scenario": "savefail",
+      "appearance": "light",
+      "width": 1440,
+      "height": 1050,
+      "text": "反馈与建议\n哪里不顺手？\n也欢迎告诉我，你希望它怎样工作。\n　接收服务尚未配置 · 当前不会上传\n改进建议\n遇到问题\n21 / 4,000 字符\n不会自动附带截图\n附带技术诊断（仅本次）\n预览…\n\n仅发送你输入的文字和主动选择的诊断，供开发者及获授权的 AI 辅助分析。不会自动附带截图、聊天或浏览器资料。\n\n› 本机反馈记录 · 0\n草稿还未保存，文字仍在这里。\n保存并关闭\n复制正文\n重试保存\n保存待发送",
+      "state": {
+        "scene": "feedback",
+        "scenario": "savefail",
+        "epoch": 17,
+        "learn": false,
+        "source": "accessible",
+        "permission": "notRequested",
+        "currentMode": "region",
+        "frozenMode": "region",
+        "seconds": 3,
+        "capturePhase": "countdown",
+        "inputs": 0,
+        "callout": false,
+        "peek": false,
+        "preview": false,
+        "selected": 0,
+        "hidden": false,
+        "paused": false,
+        "arrival": "none",
+        "recordOpen": false,
+        "sheet": false,
+        "text": "希望倒计时的时候，能看清这一次截取的范围。",
+        "diagnostics": false,
+        "feedbackSaved": false,
+        "feedbackNotice": "草稿还未保存，文字仍在这里。",
+        "localQueued": false,
+        "activeAsset": 0,
+        "calloutAsset": 0,
+        "hoverAsset": null,
+        "fixedReview": true,
+        "assets": [
+          {
+            "id": 0,
+            "phase": "idle",
+            "visual": "stable",
+            "inputs": 0
+          },
+          {
+            "id": 1,
+            "phase": "idle",
+            "visual": "stable",
+            "inputs": 0
+          },
+          {
+            "id": 2,
+            "phase": "idle",
+            "visual": "stable",
+            "inputs": 0
+          }
+        ],
+        "attachment": "idle",
+        "records": [],
+        "sheetRecordID": null,
+        "saveFailed": true,
+        "submittedText": null,
+        "historyFilter": 0,
+        "historyRecords": [
+          {
+            "id": 0,
+            "phase": "unknown",
+            "short": "今天 09:38",
+            "date": "2026 年 10 月 29 日 09:38",
+            "w": 3840,
+            "h": 2560
+          },
+          {
+            "id": 1,
+            "phase": "used",
+            "short": "今天 09:32",
+            "date": "2026 年 10 月 29 日 09:32",
+            "w": 2880,
+            "h": 1920
+          },
+          {
+            "id": 2,
+            "phase": "archived",
+            "short": "昨天 18:06",
+            "date": "2026 年 10 月 28 日 18:06",
+            "w": 1920,
+            "h": 1280
+          }
+        ],
+        "historySearch": ""
+      },
+      "windowBounds": [
+        {
+          "label": "反馈与建议",
+          "w": 600,
+          "h": 540
+        }
+      ]
+    }
+  ]
+}

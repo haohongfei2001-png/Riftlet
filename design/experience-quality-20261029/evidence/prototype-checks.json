@@ -1,0 +1,142 @@
+{
+  "scope": "OFFLINE_HTML_PROTOTYPE_ONLY; not AppKit or physical input acceptance",
+  "networkRequests": 0,
+  "pageErrors": [],
+  "passed": 33,
+  "failed": 0,
+  "results": [
+    {
+      "name": "首屏仅本地能力，完成不请求授权",
+      "result": "PASS"
+    },
+    {
+      "name": "来源可读没有重复授权按钮",
+      "result": "PASS"
+    },
+    {
+      "name": "Chrome脚本设置与系统授权分开",
+      "result": "PASS"
+    },
+    {
+      "name": "点击第二张，受理绑定第二个资产",
+      "result": "PASS"
+    },
+    {
+      "name": "连续点击同图不创建第二次操作",
+      "result": "PASS"
+    },
+    {
+      "name": "第二图开始后仅同一资产吞噬，尾帧保留先到完成",
+      "result": "PASS"
+    },
+    {
+      "name": "吞噬期间 UNKNOWN 不被动画尾帧覆盖",
+      "result": "PASS"
+    },
+    {
+      "name": "切换独立样本使旧吞噬回调失效",
+      "result": "PASS"
+    },
+    {
+      "name": "离开 hover 不取消正在进行的吞噬",
+      "result": "PASS"
+    },
+    {
+      "name": "等待时间本身不制造开始或完成",
+      "result": "PASS"
+    },
+    {
+      "name": "指针不在同岛时不主动弹等待说明",
+      "result": "PASS"
+    },
+    {
+      "name": "同岛说明到期退出，450ms可主动再读",
+      "result": "PASS"
+    },
+    {
+      "name": "prepared轻说明绑定第二资产且按自身期限退出",
+      "result": "PASS"
+    },
+    {
+      "name": "同态再次说明不被上一计时器提前清除",
+      "result": "PASS"
+    },
+    {
+      "name": "拒绝后新点击仍校验，未伪装受理",
+      "result": "PASS"
+    },
+    {
+      "name": "队列透明缝隙没有独立命中面",
+      "result": "PASS"
+    },
+    {
+      "name": "倒计时切模式只更新下一次",
+      "result": "PASS"
+    },
+    {
+      "name": "倒计时尚未结束不能接受捕获完成",
+      "result": "PASS"
+    },
+    {
+      "name": "倒计时结束只进入捕获，不凭时间生成图",
+      "result": "PASS"
+    },
+    {
+      "name": "已完成后结束会话保留完成事实",
+      "result": "PASS"
+    },
+    {
+      "name": "取消后不接纳迟到捕获回调",
+      "result": "PASS"
+    },
+    {
+      "name": "显示变化不承诺未经证实的未拍摄",
+      "result": "PASS"
+    },
+    {
+      "name": "UNKNOWN历史不暴露放回或重试",
+      "result": "PASS"
+    },
+    {
+      "name": "历史切记录使用各自状态、时间和预览",
+      "result": "PASS"
+    },
+    {
+      "name": "待核实筛选不混入已附加和归档",
+      "result": "PASS"
+    },
+    {
+      "name": "Space仅历史列表焦点生效",
+      "result": "PASS"
+    },
+    {
+      "name": "空反馈记录折叠不会制造记录",
+      "result": "PASS"
+    },
+    {
+      "name": "取消待发送后折叠重开仍是取消状态",
+      "result": "PASS"
+    },
+    {
+      "name": "空白与本机保存失败不能enqueue",
+      "result": "PASS"
+    },
+    {
+      "name": "emoji Unicode口径与原模型一致，超限保留编辑",
+      "result": "PASS"
+    },
+    {
+      "name": "模拟组字期间既不关闭也不提交",
+      "result": "PASS"
+    },
+    {
+      "name": "Feedback删除申请不冒充删除完成",
+      "result": "PASS"
+    },
+    {
+      "name": "Feedback sheet焦点循环且Escape保留原记录",
+      "result": "PASS"
+    }
+  ],
+  "sourceSHA256": "4691dca065b25c203533a93d05a76486fad25d6b4e9e927cbbde96e5378826e6"
+}
