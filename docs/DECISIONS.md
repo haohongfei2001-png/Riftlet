@@ -184,3 +184,10 @@ Following direct user confirmation of the earlier product-usability review, thes
 独立candidate scope/profile保留原integratedDevelopment来源，永不把真实资产改成synthetic或借用生成图准入。未准入观察在现有checkpoints按原asset/operation/attempt/hash/fulltarget保留六类首值；该审计不等于upload_starts，不触发吞噬/succeeded/安全重试。开始、最终完成、安全失败各自为空且源码持有；未来只以对应真实截图证据独立审查准入。UNKNOWN重启/再点击只观察原操作；旧原件、媒体、补偿和历史不删除。
 
 初次候选CI的invalidTransition促成独立可确定复现的30秒截止边界修复：验证与App同用accepted+30，不用反减和epsilon，不延长期限或回填ACK。初次运行没有记录实际uptime，不宣称捕获了其具体浮点值。后续完整CI与非作者审查见[永久证据](../engineering/evidence/2026-10-28-system-screenshot-candidate/README.md)。新候选取证能力不等于普通模式、真实快吞噬、冷首击/ABA/MID/GUI、安全重试或公开发行通过。
+
+
+## I20 — 预测截图入口与固定模式槽（2026-10-28，用户本轮授权）
+
+用户要求将已批准的 v6 设计高还原写入 GitHub，并明确两项覆盖旧原型的行为：截图成功后保持展开，只有明确取消才退出；三个模式固定在设置决定的位置，点击只选中模式，取消盖片在三槽间移动，不交换模式图标。退出后回到原入口。默认模式设置只影响下一轮展开。
+
+独立分支 `codex/predictive-capture-entry-20261028` 从统一内部 Beta 起步，并保留期间更新的 `1920e0562db893a3292af89a89270a26ddb46a5f`，实现原生 AppKit 入口、连续拍摄、固定槽盖片、系统输出收录和可选矩形标注，同时保留离线交互参照。范围及数据兼容性见 [本轮接线与验证说明](CAPTURE_ENTRY_2026-10-28.md)。不合并 main、不改正式分支、不新增上传准入；历史来源审计保留，新增明确审阅增量审计。真机未执行项不能以 HTML 或软件事件通过替代。

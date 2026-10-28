@@ -19,7 +19,7 @@ let package = Package(
         .testTarget(name: "RiftletFeedbackUITests", dependencies: ["RiftletFeedbackUI", "RiftletFeedback"]),
         .target(name: "RiftletCore", dependencies: ["CSQLite"]),
         .target(name: "RiftletCapture", dependencies: ["RiftletCore"]),
-        .target(name: "RiftletUI", dependencies: ["RiftletCore"]),
+        .target(name: "RiftletUI", dependencies: ["RiftletCore", "RiftletCapture"]),
         .target(name: "RiftletAdapters", dependencies: ["RiftletCore"], resources: [.process("Resources")]),
         .executableTarget(name: "RiftletGUIAcceptance", dependencies: ["RiftletUI", "RiftletCore"]),
         .executableTarget(name: "RiftletApp", dependencies: ["RiftletCore", "RiftletCapture", "RiftletUI", "RiftletAdapters", "RiftletFeedback", "RiftletFeedbackUI"]),

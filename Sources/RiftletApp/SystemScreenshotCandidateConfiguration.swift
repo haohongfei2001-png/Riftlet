@@ -15,9 +15,12 @@ enum SystemScreenshotCandidateConfiguration {
 
     static func validateStore(_ store: QueueStore) async throws {
         guard await store.mode == .production,
-              try await store.assets(includeUsed: true).allSatisfy({ $0.image.origin == .systemScreenshot }) else {
+              try await store.assets(includeUsed: true).allSatisfy({ $0.image.origin != .synthetic }) else {
             throw RiftletError.modeMismatch
         }
+        // Edited/unmarked in-app images may be retained in this same history.
+        // The adapter still rejects them before input; ReceiptPolicy also denies
+        // all three admissions. Retaining a local image is not upload authority.
     }
 }
 
