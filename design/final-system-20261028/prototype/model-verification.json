@@ -1,0 +1,15 @@
+{
+  "scope": "synthetic-design-model-only",
+  "passed": 8,
+  "failed": 0,
+  "checks": [
+    "arrival preserves original aspect ratio and exposes a visible pad for extreme ratios",
+    "no target and no original authorization cannot create input",
+    "start is not completion; visual exit alone keeps the operation uploading",
+    "stale selection token cannot start a later selection on the same asset",
+    "FIFO cancellation promotes the next original selection without creating input",
+    "UNKNOWN cannot rebirth, restore or unlock the same draft; another target remains independent",
+    "a stale completion token cannot finish a later synthetic attempt",
+    "slot identities are frozen in the returned session mapping"
+  ]
+}

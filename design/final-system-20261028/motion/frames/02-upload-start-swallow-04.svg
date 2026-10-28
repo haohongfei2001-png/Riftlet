@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900" role="img" aria-label="Riftlet 设计模拟，非真实上传">
+<rect x="0.0000" y="0.0000" width="1440.0000" height="900.0000" rx="0.0000" fill="#e6e9e6" opacity="1.00000"/>
+<polygon points="0.000,390.000 390.000,200.000 740.000,335.000 1040.000,0.000 1440.000,0.000 1440.000,900.000 0.000,900.000" fill="#d9e2de"/>
+<polygon points="0.000,690.000 380.000,560.000 700.000,650.000 1130.000,390.000 1440.000,470.000 1440.000,900.000 0.000,900.000" fill="#c5d4ce"/>
+<rect x="0.0000" y="0.0000" width="1440.0000" height="28.0000" rx="0.0000" fill="#f6f8f7" opacity="0.72000"/>
+<text x="18.0000" y="17.4400" fill="#26313b" font-family="Noto Sans CJK SC, PingFang SC, sans-serif" font-size="12">●</text>
+<text x="47.0000" y="17.4400" fill="#26313b" font-family="Noto Sans CJK SC, PingFang SC, sans-serif" font-size="12">Chrome</text>
+<text x="114.0000" y="17.4400" fill="#26313b" font-family="Noto Sans CJK SC, PingFang SC, sans-serif" font-size="12">文件   编辑   查看   历史记录   窗口   帮助</text>
+<text x="1140.0000" y="16.3200" fill="#26313b" font-family="Noto Sans CJK SC, PingFang SC, sans-serif" font-size="11">Riftlet     10月28日 周三  16:20</text>
+<rect x="170.0000" y="94.0000" width="1080.0000" height="690.0000" rx="13.0000" fill="#b9c6c1" opacity="1.00000"/>
+<rect x="170.0000" y="85.0000" width="1080.0000" height="690.0000" rx="12.0000" fill="#fbfcfd" opacity="1.00000"/>
+<rect x="170.0000" y="85.0000" width="1080.0000" height="74.0000" rx="12.0000" fill="#f2f4f5" opacity="1.00000"/>
+<rect x="170.0000" y="122.0000" width="1080.0000" height="37.0000" rx="0.0000" fill="#f2f4f5" opacity="1.00000"/>
+<ellipse cx="191.5000" cy="106.5000" rx="5.5000" ry="5.5000" fill="#ee766b" opacity="1.00000"/>
+<ellipse cx="211.5000" cy="106.5000" rx="5.5000" ry="5.5000" fill="#e4be5d" opacity="1.00000"/>
+<ellipse cx="231.5000" cy="106.5000" rx="5.5000" ry="5.5000" fill="#6fb983" opacity="1.00000"/>
+<rect x="275.0000" y="94.0000" width="213.0000" height="28.0000" rx="7.0000" fill="#ffffff" opacity="1.00000"/>
+<text x="292.0000" y="111.3200" fill="#26313b" font-family="Noto Sans CJK SC, PingFang SC, sans-serif" font-size="11">ChatGPT  ·  设计讨论</text>
+<text x="192.0000" y="147.6800" fill="#64717a" font-family="Noto Sans CJK SC, PingFang SC, sans-serif" font-size="14">‹     ›</text>
+<polyline points="264.0000,140.0000 263.9192,140.8951 263.6795,141.7614 263.2885,142.5707 262.7590,143.2969 262.1080,143.9166 261.3566,144.4098 260.5291,144.7605 259.6521,144.9573 258.7541,144.9939 257.8640,144.8692 257.0106,144.5872 256.2215,144.1569 255.5222,143.5923 254.9352,142.9117 254.4796,142.1369 254.1701,141.2931 254.0166,140.4075 254.0242,139.5088 254.1925,138.6259 254.5162,137.7874 254.9848,137.0204 255.5831,136.3497 256.2918,135.7970 257.0880,135.3800 257.9460,135.1123 258.8381,135.0026 259.7354,135.0544 260.6089,135.2659" fill="none" stroke="#64717a" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" opacity="1.00000"/>
+<polyline points="260.0000,134.0000 264.0000,135.0000 263.0000,139.0000" fill="none" stroke="#64717a" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" opacity="1.00000"/>
+<rect x="283.0000" y="128.0000" width="835.0000" height="24.0000" rx="6.0000" fill="#e8ebee" opacity="1.00000"/>
+<text x="302.0000" y="143.3200" fill="#64717a" font-family="Noto Sans CJK SC, PingFang SC, sans-serif" font-size="11">chatgpt.com/c/design-reference</text>
+<rect x="170.0000" y="159.0000" width="190.0000" height="616.0000" rx="0.0000" fill="#f3f5f6" opacity="1.00000"/>
+<text x="190.0000" y="200.9200" fill="#26313b" font-family="Noto Sans CJK SC, PingFang SC, sans-serif" font-size="16">ChatGPT</text>
+<text x="190.0000" y="238.5600" fill="#26313b" font-family="Noto Sans CJK SC, PingFang SC, sans-serif" font-size="13">＋ 新聊天</text>
+<text x="190.0000" y="276.3200" fill="#64717a" font-family="Noto Sans CJK SC, PingFang SC, sans-serif" font-size="11">今天</text>
+<rect x="181.0000" y="289.0000" width="168.0000" height="35.0000" rx="7.0000" fill="#e4e9ec" opacity="1.00000"/>
+<text x="191.0000" y="310.4400" fill="#26313b" font-family="Noto Sans CJK SC, PingFang SC, sans-serif" font-size="12">桌面界面的空间与节奏</text>
+<text x="191.0000" y="353.4400" fill="#64717a" font-family="Noto Sans CJK SC, PingFang SC, sans-serif" font-size="12">写作中的留白</text>
+<text x="386.0000" y="198.8000" fill="#26313b" font-family="Noto Sans CJK SC, PingFang SC, sans-serif" font-size="15">ChatGPT</text>
+<text x="455.0000" y="298.2400" fill="#26313b" font-family="Noto Sans CJK SC, PingFang SC, sans-serif" font-size="27">让内容留在手边，</text>
+<text x="455.0000" y="340.2400" fill="#26313b" font-family="Noto Sans CJK SC, PingFang SC, sans-serif" font-size="27">让动作自然地发生。</text>
+<text x="455.0000" y="389.6800" fill="#64717a" font-family="Noto Sans CJK SC, PingFang SC, sans-serif" font-size="14">我们正在比较三个界面的比例与层次。</text>
+<text x="455.0000" y="419.6800" fill="#64717a" font-family="Noto Sans CJK SC, PingFang SC, sans-serif" font-size="14">附件和草稿在这里保持原样；消息不会自动发送。</text>
+<rect x="439.0000" y="604.0000" width="727.0000" height="130.0000" rx="18.0000" fill="#ffffff" opacity="1.00000" stroke="#d9dfe3" stroke-width="0.8"/>
+<rect x="455.0000" y="617.0000" width="62.0000" height="38.0000" rx="4.0000" fill="#e6e8ef" opacity="1.00000"/>
+<text x="463.0000" y="637.0800" fill="#64717a" font-family="Noto Sans CJK SC, PingFang SC, sans-serif" font-size="9">已有附件</text>
+<text x="455.0000" y="687.6800" fill="#26313b" font-family="Noto Sans CJK SC, PingFang SC, sans-serif" font-size="14">请帮我比较这两个版面的节奏。</text>
+<text x="455.0000" y="728.4000" fill="#64717a" font-family="Noto Sans CJK SC, PingFang SC, sans-serif" font-size="20">＋</text>
+<ellipse cx="1139.5000" cy="709.5000" rx="13.5000" ry="13.5000" fill="#dce2e7" opacity="1.00000"/>
+<text x="1133.0000" y="716.0400" fill="#64717a" font-family="Noto Sans CJK SC, PingFang SC, sans-serif" font-size="17">↑</text>
+<text x="582.0000" y="758.2000" fill="#64717a" font-family="Noto Sans CJK SC, PingFang SC, sans-serif" font-size="10">此桌面、窗口、草稿和图片全部为原创合成设计素材。</text>
+<rect x="586.0000" y="841.0000" width="268.0000" height="46.0000" rx="12.0000" fill="#ecf0ed" opacity="0.75000" stroke="#f9fcfa" stroke-width="0.7"/>
+<rect x="597.0000" y="850.0000" width="29.0000" height="29.0000" rx="7.0000" fill="#75a4c8" opacity="1.00000"/>
+<text x="606.0000" y="869.8000" fill="#ffffff" font-family="Noto Sans CJK SC, PingFang SC, sans-serif" font-size="15">F</text>
+<rect x="638.0000" y="850.0000" width="29.0000" height="29.0000" rx="7.0000" fill="#ddb966" opacity="1.00000"/>
+<text x="647.0000" y="869.8000" fill="#ffffff" font-family="Noto Sans CJK SC, PingFang SC, sans-serif" font-size="15">N</text>
+<rect x="679.0000" y="850.0000" width="29.0000" height="29.0000" rx="7.0000" fill="#709dbb" opacity="1.00000"/>
+<text x="688.0000" y="869.8000" fill="#ffffff" font-family="Noto Sans CJK SC, PingFang SC, sans-serif" font-size="15">S</text>
+<rect x="720.0000" y="850.0000" width="29.0000" height="29.0000" rx="7.0000" fill="#83a68b" opacity="1.00000"/>
+<text x="729.0000" y="869.8000" fill="#ffffff" font-family="Noto Sans CJK SC, PingFang SC, sans-serif" font-size="15">C</text>
+<rect x="761.0000" y="850.0000" width="29.0000" height="29.0000" rx="7.0000" fill="#c1cad0" opacity="1.00000"/>
+<text x="770.0000" y="869.8000" fill="#ffffff" font-family="Noto Sans CJK SC, PingFang SC, sans-serif" font-size="15">R</text>
+<rect x="802.0000" y="850.0000" width="29.0000" height="29.0000" rx="7.0000" fill="#c2c3bc" opacity="1.00000"/>
+<text x="811.0000" y="869.8000" fill="#ffffff" font-family="Noto Sans CJK SC, PingFang SC, sans-serif" font-size="15">T</text>
+<defs><clipPath id="plane-1"><rect x="0" y="0" width="1426.0" height="900"/></clipPath></defs><g clip-path="url(#plane-1)"><rect x="1372.0000" y="207.5000" width="72.0000" height="45.0000" rx="0.0000" fill="#dde5ef" opacity="1.00000"/><rect x="1377.7600" y="212.9000" width="39.6000" height="2.4750" rx="0.0000" fill="#677b95" opacity="1.00000"/><rect x="1377.7600" y="217.4000" width="27.3600" height="1.1250" rx="0.0000" fill="#677b95" opacity="1.00000"/><rect x="1377.7600" y="222.3500" width="60.4800" height="21.1500" rx="0.0000" fill="#becbd9" opacity="1.00000"/><ellipse cx="1420.6000" cy="233.1500" rx="10.4400" ry="8.1000" fill="#677b95" opacity="1.00000"/><rect x="1377.7600" y="247.1000" width="45.3600" height="0.8100" rx="0.0000" fill="#677b95" opacity="1.00000"/></g>
+<text x="1358.0000" y="235.3200" fill="#64717a" font-family="Noto Sans CJK SC, PingFang SC, sans-serif" font-size="11" style="font-variant-numeric:tabular-nums">1</text>
+<defs><clipPath id="plane-2"><rect x="0" y="0" width="1426.0" height="900"/></clipPath></defs><g clip-path="url(#plane-2)"><rect x="1372.0000" y="267.5000" width="72.0000" height="45.0000" rx="0.0000" fill="#e9dfd5" opacity="1.00000"/><rect x="1377.7600" y="272.9000" width="39.6000" height="2.4750" rx="0.0000" fill="#936c57" opacity="1.00000"/><rect x="1377.7600" y="277.4000" width="27.3600" height="1.1250" rx="0.0000" fill="#936c57" opacity="1.00000"/><rect x="1377.7600" y="282.3500" width="60.4800" height="21.1500" rx="0.0000" fill="#ccb3a1" opacity="1.00000"/><ellipse cx="1420.6000" cy="293.1500" rx="10.4400" ry="8.1000" fill="#936c57" opacity="1.00000"/><rect x="1377.7600" y="307.1000" width="45.3600" height="0.8100" rx="0.0000" fill="#936c57" opacity="1.00000"/></g>
+<text x="1358.0000" y="295.3200" fill="#64717a" font-family="Noto Sans CJK SC, PingFang SC, sans-serif" font-size="11" style="font-variant-numeric:tabular-nums">2</text>
+<polyline points="1426.0000,199.5000 1426.0000,320.5000" fill="none" stroke="#26323b" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.57000"/>
+<rect x="529.0000" y="617.0000" width="58.0000" height="36.2500" rx="0.0000" fill="#e7e3dc" opacity="1.00000"/>
+<rect x="533.6400" y="621.3500" width="31.9000" height="1.9937" rx="0.0000" fill="#5a766e" opacity="1.00000"/>
+<rect x="533.6400" y="624.9750" width="22.0400" height="0.9062" rx="0.0000" fill="#5a766e" opacity="1.00000"/>
+<rect x="533.6400" y="628.9625" width="48.7200" height="17.0375" rx="0.0000" fill="#c1c9b8" opacity="1.00000"/>
+<ellipse cx="568.1500" cy="637.6625" rx="8.4100" ry="6.5250" fill="#5a766e" opacity="1.00000"/>
+<rect x="533.6400" y="648.9000" width="36.5400" height="0.6525" rx="0.0000" fill="#5a766e" opacity="1.00000"/>
+<rect x="529.0000" y="652.0000" width="58.0000" height="2.0000" rx="0.0000" fill="#d4dbe1" opacity="1.00000"/>
+<rect x="529.0000" y="652.0000" width="17.4000" height="2.0000" rx="0.0000" fill="#365ec8" opacity="1.00000"/>
+<polyline points="1390.0000,230.0000 1391.0000,247.0000 1395.0000,243.0000 1399.0000,250.0000 1402.0000,248.0000 1398.0000,242.0000 1404.0000,241.0000 1390.0000,230.0000" fill="none" stroke="#ffffff" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" opacity="1.00000"/>
+<polygon points="1390.000,230.000 1391.000,247.000 1395.000,243.000 1399.000,250.000 1402.000,248.000 1398.000,242.000 1404.000,241.000" fill="#20262d" stroke="#ffffff" stroke-width="1"/>
+<text x="40.0000" y="822.4000" fill="#26313b" font-family="Noto Sans CJK SC, PingFang SC, sans-serif" font-size="20">02 / 严格开始后的快速吞噬</text>
+<text x="40.0000" y="844.4400" fill="#64717a" font-family="Noto Sans CJK SC, PingFang SC, sans-serif" font-size="12">完成仅后台记录；Riftlet不出现成功Toast。</text>
+<text x="40.0000" y="872.4400" fill="#26313b" font-family="Noto Sans CJK SC, PingFang SC, sans-serif" font-size="12">设计模拟 · 非真实上传</text>
+<text x="1015.0000" y="827.6800" fill="#26313b" font-family="Noto Sans CJK SC, PingFang SC, sans-serif" font-size="14">后台独立确认附件内容</text>
+<text x="1015.0000" y="849.3200" fill="#64717a" font-family="Noto Sans CJK SC, PingFang SC, sans-serif" font-size="11">1900 ms  ·  60 fps  ·  100% 逻辑比例</text>
+</svg>
