@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "phase": "ADDITIONAL_POLISH_EXACT_SOURCE_REVIEWED_AWAITING_CI",
-  "nativeCI": "PENDING_EXACT_SOURCE",
-  "feedbackCI": "PENDING_EXACT_SOURCE",
-  "newNativeVisualEvidence": "PENDING_EXACT_SOURCE",
+  "phase": "EXPLICIT_CGFLOAT_COMPILE_REPAIR_AWAITING_EXACT_REVIEW",
+  "nativeCI": "NOT_RUN_COMPILE_FAILED_C74",
+  "feedbackCI": "NATIVE_NOT_RUN_COMPILE_FAILED_C74",
+  "newNativeVisualEvidence": "NOT_RUN_PRIOR_COMPILE_FAILED",
   "physicalMacAcceptance": "NOT_RUN_AUTHORIZED_MAC_OFFLINE",
   "sourceReview": "PASS_NON_AUTHOR_EXACT_SOURCE; new CI and visual pending",
   "founderInstallationRequested": false,
@@ -142,6 +142,19 @@
       "feedbackServicePassed": 20,
       "feedbackIsolationPassed": 88,
       "nativeArtifactSHA256": "0bb4158a44799d2e27b382c51510f0e49d568968c8851a9e6c579ba637f9613b"
+    },
+    {
+      "head": "c74eac56bb4545f02d475fc3f8f9956d56d5e77b",
+      "nativeRun": 40765899978,
+      "pushNativeRun": 40765889388,
+      "nativeResult": "FAIL_COMPILE_AMBIGUOUS_CGFLOAT_SIZE_LIMIT",
+      "nativeTestsStarted": 0,
+      "nativeVisual": "NOT_RUN_PRIOR_COMPILE_FAILED",
+      "pushFeedbackRun": 40765889306,
+      "pushFeedbackResult": "NATIVE_COMPILE_FAILED; service and isolation counts awaiting log extraction",
+      "feedbackRun": 40765901480,
+      "feedbackResult": "PENDING_LOG_CONFIRMATION",
+      "failure": "FeedbackRecordBodyView.swift:19 ambiguous use of greatestFiniteMagnitude; NSSize overload requires explicit CGFloat"
     }
   ],
   "lateRemoteObservation": {

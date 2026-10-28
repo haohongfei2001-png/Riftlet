@@ -16,7 +16,7 @@ final class FeedbackRecordBodyView: NSScrollView {
         body.isEditable = false; body.isSelectable = true; body.isRichText = false
         body.drawsBackground = false; body.font = RiftVisualStyle.bodyFont; body.textColor = RiftVisualStyle.ink
         body.isVerticallyResizable = true; body.isHorizontallyResizable = false
-        body.minSize = .zero; body.maxSize = NSSize(width: .greatestFiniteMagnitude, height: .greatestFiniteMagnitude)
+        body.minSize = .zero; body.maxSize = NSSize(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude)
         body.autoresizingMask = [.width]; body.textContainer?.widthTracksTextView = true
         body.textContainer?.lineFragmentPadding = 0; body.textContainerInset = NSSize(width: 0, height: 4)
         let paragraph = NSMutableParagraphStyle(); paragraph.minimumLineHeight = 18; paragraph.maximumLineHeight = 18
@@ -35,7 +35,7 @@ final class FeedbackRecordBodyView: NSScrollView {
               let container = body.textContainer, let manager = body.layoutManager else { return }
         measuredWidth = width
         body.setFrameSize(NSSize(width: width, height: max(26, body.frame.height)))
-        container.containerSize = NSSize(width: width, height: .greatestFiniteMagnitude)
+        container.containerSize = NSSize(width: width, height: CGFloat.greatestFiniteMagnitude)
         manager.ensureLayout(for: container)
         let height = max(26, ceil(manager.usedRect(for: container).height) + 8)
         body.setFrameSize(NSSize(width: width, height: height))
