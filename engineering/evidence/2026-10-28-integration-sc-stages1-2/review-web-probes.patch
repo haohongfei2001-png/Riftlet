@@ -1,0 +1,36 @@
+--- a/Tests/WebPageProgram/acceptance-program.test.cjs
++++ b/Tests/WebPageProgram/acceptance-program.test.cjs
+@@ -1347,3 +1347,33 @@
+   assert.equal(observed.schemaVersion,1);assert.equal(observed.observation.identity.operationID,identity.operationID);
+   assert.equal(observed.observation.state,'inputTriggered');assert.equal(f.input.inputCount,1);
+ });
++
++test('independent review: exact one-channel-level mismatch is rejected, never tolerated', async () => {
++  const f=fixture(), op=f.bind(); f.stage(op); f.commit(op); await f.settle();
++  const view=f.makeCard(op);
++  view.image.rgba=new Uint8Array([13,20,30,255,40,50,60,255]);
++  f.finish(view,Buffer.from([...png,99])); await f.settle();
++  assert.equal(f.observe(op).state,'invalidated');
++  assert.equal(f.observe(op).exactImageIdentity,false);
++  assert.equal(f.input.inputCount,1);
++});
++test('independent review: equal pixel buffers with different dimensions are rejected', async () => {
++  const f=fixture(), op=f.bind(); f.stage(op); f.commit(op); await f.settle();
++  const view=f.makeCard(op); view.image.naturalWidth=1; view.image.naturalHeight=2;
++  f.finish(view,Buffer.from([...png,99])); await f.settle();
++  assert.equal(f.observe(op).state,'invalidated');
++  assert.equal(f.input.inputCount,1);
++});
++test('independent review: both original and preview use ordinary explicit sRGB without read-frequency hint', async () => {
++  const f=fixture(), contexts=[];
++  f.context.OffscreenCanvas=class {
++    constructor(w,h) { this.width=w;this.height=h; }
++    getContext(kind,options) { contexts.push({kind,options:JSON.parse(JSON.stringify(options))});let selected;
++      return {drawImage:image=>{selected=image;},getImageData:()=>({data:selected.rgba})}; }
++  };
++  const op=f.bind(); f.stage(op); f.commit(op); await f.settle();
++  const view=f.makeCard(op); f.finish(view,Buffer.from([...png,99])); await f.settle();
++  assert.equal(f.observe(op).state,'attached');
++  assert.deepEqual(contexts,[{kind:'2d',options:{colorSpace:'srgb'}},{kind:'2d',options:{colorSpace:'srgb'}}]);
++  assert.equal(f.input.inputCount,1);
++});

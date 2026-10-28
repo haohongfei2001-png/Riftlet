@@ -9,7 +9,15 @@
 - macOS CI compilation/tests/package smoke do not prove interactive focus, click-through, Spaces or real upload.
 - No real user screenshots, chats or browser sessions are used in automated tests.
 
-## System-screenshot internal candidate — current tested source
+## Real-system screenshot stages 1–2 — current integration
+
+本轮正式基础 `4b7228a`，实际线性继承至 `f2ae645`，最终产品源码 `48574df`。a5db972 权限丢 wake 修复、v9 owner 兼容及精确 sRGB 修复均保留；无反馈分支代码。当前交接提交只更新文档/证据，Sources/Tests/Resources/Package/scripts/.github/许可证/research 及两阶段原始证据对象不变。[永久集成核验](../engineering/evidence/2026-10-28-integration-sc-stages1-2/README.md)记录源码 CI、对象清单和三位非作者审查；最终准确 HEAD 的完整 macOS CI 由 PR #1 最新交接固定，不能把来源 CI40656871851 改称本轮新运行。
+
+三位非作者分别审查原点击／权限、v9/v10/v12/v13／严格内容、历史／证据／CI覆盖，未发现阻断；独立 Linux 页面86和legacy61通过，三个额外临时审查探针不计入仓库或 macOS 测试总数。macOS 原生与实际打包结果以准确运行日志为准，GUI／TCC／真实系统截图不由 CI 代签。
+
+SC-INPUT／SC-START 只继承限定 PASS；SC-COMPLETE 旧输入源码 FAIL，48574df修复后新系统截图输入 NOT_RUN。三项候选准入、普通生产和安全重试继续关闭；未知原操作不重新输入，原数据库／媒体／审计不重建。以下各 CI 是对应历史源码的记录。
+
+## System-screenshot internal candidate — historical tested source
 
 正式基线b839230；实现3da1288，已测修复 **4d352c28dcb70e8f6dc42ef93d9df46042a9215d**。独立候选push [CI40551804340](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40551804340) / job122357244974于2026-10-28 **01:36:14北京时间** completed/success，actual checkout为同一4d352c2：**433原生**（Core135/Adapters136/Capture65/UI53/App44，52 suites），72页面/54legacy、原55files/19case/89prefix/2明确SIMULATED迟到错误回放、8fault/12probe/9+4+2helper/12包装、Release/签名与五自检。14组详细复跑100项passed、0skip，已计入433；未用复跑数增加总数。
 

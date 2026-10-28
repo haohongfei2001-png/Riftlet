@@ -1,3 +1,55 @@
+# 正式工程交接：真实系统截图第一、二阶段集成 · 2026-10-28
+
+## 当前继承入口
+
+正式分支仍为 `codex/engineering-foundation-20261027`，Draft PR #1；本轮由当前唯一正式集成负责人从 `4b7228a07a23381d3de467a44dd8490d73e26e7e` 在独立 integration worktree 完成。实际 Git 历史是：
+
+`4b7228a → a5db972 → 3f4e18a → 5d2994c → 867d93f → 48574df → f2ae645 → 本文所在的交接提交`
+
+第一阶段已是第二阶段祖先，采用快进继承；没有重复 cherry-pick、压平历史或另造合流。最终准确正式 HEAD、实际完整 macOS CI 与审查结果由 [PR #1 最新正式交接](https://github.com/haohongfei2001-png/Riftlet/pull/1) 固定；本目录的 [永久集成证据](../engineering/evidence/2026-10-28-integration-sc-stages1-2/README.md) 保留源码检查点、对象和非作者审查。该交接提交只更新文档/证据，产品源码、测试和构建输入与 `f2ae645451044649fbe73326952efbe084353869` / `48574df19f34e5681ee98815750e279540e9eb9b` 相同。
+
+### 已进入组合的代码
+
+- 第一阶段 `a5db972b7c4da20d30266ec8d1411fff9f434c13`：在取消原选择、清除 armed/frozen 状态并推进 epoch 后消费权限丢失的 idle wake；只恢复新的目标观察，保留单一在途、旧 epoch ACK 拒绝及严格原事件前 ACK。三项回归随完整原生 CI 执行。
+- 第二阶段 `867d93f797952fd0402d50525f384f2f416c1b93`：v13 的严格同 root owner 白名单加入完整 v9，继续兼容 v10/v12；不替换 descriptor、不停止原监视器、不修复旧 proof、不让旧操作重新输入。无 armedTarget 时的诊断布尔值修正为 false，不赋予授权。
+- 第二阶段 `48574df19f34e5681ee98815750e279540e9eb9b`：移除 `willReadFrequently`，保留显式 sRGB。完成仍要求精确文件字节或相同尺寸及全部 RGBA 的精确 SHA-256，且绑定原节点、source、最终 load 与完整原身份；没有像素容差。
+- 原 Core、Capture、UI、SQLite v3、首次使用、被动权限恢复、原点击/AcceptedSelection、UNKNOWN、补偿与首观察审计保留；两阶段原始脱敏证据字节不改。
+
+### 真实证据和准入必须分开
+
+| 项目 | 当前准确状态 |
+| --- | --- |
+| SC-INPUT | **限定 PASS**：继承实际系统 PNG、CGEvent 单次点击、原事件前完整 ACK、原身份和 inputCount=1 的记录 |
+| SC-START | **限定 PASS**：第二阶段原操作的同一进度节点递增中间值及持久候选 start；不保证快速小图或所有环境 |
+| SC-COMPLETE | **旧运行源码 FAIL；修复后新系统截图输入 NOT_RUN**。只读颜色对照和 macOS CI 不补签真实完成 |
+| 候选开始／完成／安全失败准入 | **三份映射继续为空**；本轮不会因为继承 START 证据自动开放 |
+| 普通生产／safe-retry | **关闭**；PR #1 Draft，不合 main、不公开发行 |
+
+第二阶段保留性证据只覆盖其普通线程样本的 48 字符、非空选区 8..11、未聚焦 editor，旧附件基线为 0、附件总数 0→1；非空旧附件矩阵、人工物理鼠标、无 ACK 冷首击、业务 ABA、MID、自包含和完整 T0/T1/T2 均不能由本轮 CI 升级。
+
+### 本地 Codex 直接继承
+
+从 PR #1 交接固定的最终 SHA 建立新的独立 worktree，保留旧工作树、系统原件、私有媒体、同一候选 SQLite v3 数据根、UNKNOWN、补偿和审计。已有第一、二阶段无需再次合入或重复验收。沿用：
+
+```bash
+bash scripts/build-macos.sh
+./build/Riftlet.app/Contents/MacOS/Riftlet --system-screenshot-candidate --acceptance-trace
+```
+
+唯一待续的完成路径是：在原规则允许的独立业务草稿，使用**另一张新的真实系统 PNG**执行一次用户点击，记录修复后的精确 proof、原附件 attached journal 与正文/选区/旧附件保留；不重输旧 A/D，不回填旧 proof，不补造 uploadStarted，不新建数据根或清锁/重建数据库。仍使用 `Riftlet REAL TEST` 与原候选数据根。没有获准开始证据时不假吞噬；即使页面已上传，当前未准入的本地 UNKNOWN/可见不代表输入失败。
+
+### 后续持续集成归属
+
+当前负责人是正式工程唯一写入者。本地 Codex 真实 Mac 修复和反馈 Pro 的**正式交接**均由该负责人先刷新远端、核对祖先、独立审查并验证组合后纳入 PR #1；不重新合并已经是祖先的提交。更新正式 ref 使用预期旧 SHA 和非强制快进，若远端发生未知变动先停在独立集成分支核对。
+
+反馈 `codex/feedback-v01-20261028` / Draft PR #7 继续独立开发；本次没有引入其 `RiftletMain.swift` / Package 接线，也没有写其分支。后续正式交接时以实际共同祖先整合两个 App 改动，不用整文件覆盖。
+
+---
+
+## 以下为已保留的阶段交接与历史记录
+
+下文的“未修改正式 PR”“下一轮首验”“NOT_RUN”仅表示对应历史检查点；当前状态以上文及 PR #1 最新精确 SHA/CI 为准，原失败和证据不改写。
+
 # 正式工程交接：第八、九轮与真实系统截图候选合流 · 2026-10-28
 
 ## 系统截图第二阶段限定交接 · 2026-10-28
