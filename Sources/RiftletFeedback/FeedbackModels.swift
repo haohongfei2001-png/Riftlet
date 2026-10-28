@@ -6,8 +6,8 @@ public enum FeedbackFailure: Error, Equatable, Sendable {
     case endpointUnavailable, invalidResponse, transport, conflict, rejected, rateLimited(Int)
 }
 
-/// Closed vocabulary only. No API accepts arbitrary dictionaries, Error descriptions,
-/// screenshot identifiers, hashes, paths, clipboard contents or browser state.
+/// Closed vocabulary only. No arbitrary errors, screenshot IDs/hashes, paths,
+/// clipboard contents, acceptance traces or browser state can be recorded here.
 public enum FeedbackFact: String, Codable, CaseIterable, Sendable {
     case sessionStarted, previousSessionUnclean, initializationIssue, captureSourceUnavailable
     case captureImportIssue, captureUnsupported, privateStorageIssue, queueReadIssue
@@ -67,9 +67,9 @@ public struct FeedbackEnvelope: Codable, Equatable, Sendable {
         guard !draft.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
               draft.text.unicodeScalars.count <= 4000, draft.text.utf8.count <= 16384 else { throw FeedbackFailure.invalidText }
         try draft.diagnostic?.validate()
-        self.schema = 1; self.id = id.uuidString.lowercased(); self.kind = draft.kind; self.text = draft.text
+        schema = 1; self.id = id.uuidString.lowercased(); kind = draft.kind; text = draft.text
         self.appVersion = appVersion.range(of: #"^[0-9]{1,4}(\.[0-9]{1,4}){0,3}$"#, options: .regularExpression) != nil ? appVersion : "0"
-        self.createdAt = Int64(now.timeIntervalSince1970); self.diagnostic = draft.diagnostic
+        createdAt = Int64(now.timeIntervalSince1970); diagnostic = draft.diagnostic
     }
     public func encoded() throws -> Data {
         let encoder = JSONEncoder(); encoder.outputFormatting = [.sortedKeys, .withoutEscapingSlashes]
@@ -78,7 +78,9 @@ public struct FeedbackEnvelope: Codable, Equatable, Sendable {
         return bytes
     }
 }
-public enum FeedbackLocalState: String, Codable, Sendable { case queued, received, delivered, blocked, deletionQueued, deletionPending, deleted, cancelled, expired }
+public enum FeedbackLocalState: String, Codable, Sendable {
+    case queued, received, delivered, blocked, deletionQueued, deletionBlocked, deletionPending, deleted, cancelled, expired
+}
 public struct FeedbackRecord: Sendable {
     public let id: String
     public let envelope: FeedbackEnvelope
@@ -95,6 +97,7 @@ public struct FeedbackRecord: Sendable {
         case .cancelled: return "已取消本机投递（未发送）"
         case .blocked: return "需处理；文字仍保存在本机"
         case .deletionQueued: return "删除申请待发送；不会再提交反馈正文"
+        case .deletionBlocked: return "删除申请受阻；请检查访问凭证后重新申请，不会重发正文"
         case .deletionPending: return "删除处理中（包括私有维护副本）"
         case .deleted: return "服务已确认删除"
         case .expired: return "投递已过期；本机文字保留"
