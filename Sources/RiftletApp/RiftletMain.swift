@@ -721,9 +721,13 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         cancelSelections(reason: "permissionUnavailable")
         armedTarget = nil; armedCaptureDiagnostics = nil; frozenPress = nil
         if lostPermission {
-            _ = armScheduler.request(invalidateEpoch: true)
+            let wake = armScheduler.request(invalidateEpoch: true)
             armSession = armScheduler.epoch
             deferredChromeActivityBinding.request(afterCaptureIn: armSession)
+            // An idle scheduler has no capture completion to deliver this wake.
+            // Dropping it leaves pending=true forever: later fallback/activation
+            // requests coalesce without starting a fresh target observation.
+            if wake { performPendingArm() }
         }
     }
 
