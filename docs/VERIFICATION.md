@@ -4,7 +4,11 @@
 
 真实 H 验收交接 `c177174e400064d8ec8bb79685c33d01c4e93b89` 是 e421e668 的证据子提交，运行源码仍为 e421；七份原始脱敏证据原样继承。SC-INPUT/START/COMPLETE/UX 软件 CGEvent 限定 PASS，人工物理鼠标 NOT_RUN，冷首击/异常重试/普通生产不扩张。原始私有数据审查由原 native_gui 完成，本轮非作者核对公开记录、源码和 19 项内部一致性。
 
-Feedback 固定交付 f195beb 按保留祖先的合流集成；其 25 Core + 7 软件 AppKit 测试在组合完整 macOS CI 中执行，原 457 项截图工程测试保持。服务的 18 个真实 SQLite/mock HTTP 测试与四项 Git 隔离回归保留；新增七项三方 Git 审计、七项 Beta 包装/启动器回归。数字是预期套件组成，实际通过结果以精确 CI 日志和 PR #1 交接为准，不将本机静态审查算原生测试。
+已测源码 `70cf5881e07ad18f44c96aa3e7200d3be3df2b04` 保留 c177/f195 双亲，实际直接 checkout 同一 SHA 的 [完整 Native CI40692933473](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40692933473) completed/success（2026-10-28 21:05:13 北京时间），19 步骤通过。**489 唯一原生测试**＝原457 + Feedback25 + FeedbackUI7；详细复跑152项（其中32反馈）全部明确通过、0skip，已包含在489内。当前页面86/legacy61、原迁移/UNKNOWN/权限/原点击保护、原包装12+新增Beta包装7、Release/严格签名、五项可执行自检及统一包验证均成功。
+
+同源 [Feedback CI40692933838](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40692933838) completed/success（21:04:16 北京时间）：32原生/UI是489的子集，两项关闭/重开测试额外重复三次不增唯一数；18 SQLite/mock HTTP、原4 Git+新7三方Git回归、31精确组合检查及离线Demo构建通过。原PR7专用组合步骤按条件跳过，新增固定来源审计实际执行通过。两个非作者分别复核真实完整日志及范围。
+
+[永久源码CI、日志、摘要、源制品与审查](../engineering/evidence/2026-10-28-internal-beta/README.md)。源制品12816964364已实际下载并核对外层摘要、完整App、launcher可执行权限、十四组输入对象和源/checkout身份。最终交接仅新增这些文档/证据及README的可选预览措辞精确化，所有可执行源码仍与70cf588一致；不能把70的旧run或包冒称最终正式HEAD的新验证。
 
 统一 `Riftlet-Internal-Beta.zip` 包含完整 App、明确候选启动入口、中文说明和实际构建身份。CI 完整 release/signature/self-check 后生成并验证；下载后的 App/两层摘要与实际 checkout/head 输入对象均需核对。最终 source SHA、完整 Native/Feedback run/job、通过数量、非作者结论与实际制品固定在 [PR #1 最新交接](https://github.com/haohongfei2001-png/Riftlet/pull/1)，永久说明见 [内部 Beta](INTERNAL_BETA.md)。本组合不重新执行真实截图上传，不部署反馈服务，不把 CI 当 Finder/Gatekeeper/物理鼠标/Keychain/云端验收。
 

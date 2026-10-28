@@ -1,0 +1,117 @@
+{
+  "schemaVersion": 1,
+  "sourceSHA": "70cf5881e07ad18f44c96aa3e7200d3be3df2b04",
+  "sourceTree": "5d970fd354f1a4a8c70b0ec0b1a027825944f8b5",
+  "parents": [
+    "c177174e400064d8ec8bb79685c33d01c4e93b89",
+    "f195bebbc22ed1a162b5866ca1fe6c7ccb9835b9"
+  ],
+  "actualCheckout": "70cf5881e07ad18f44c96aa3e7200d3be3df2b04",
+  "native": {
+    "runID": 40692933473,
+    "jobID": 122832122361,
+    "status": "completed",
+    "conclusion": "success",
+    "uniqueTests": 489,
+    "modules": {
+      "RiftletAdaptersTests": 150,
+      "RiftletAppTests": 48,
+      "RiftletCaptureTests": 65,
+      "RiftletCoreTests": 138,
+      "RiftletFeedbackTests": 25,
+      "RiftletFeedbackUITests": 7,
+      "RiftletUITests": 56
+    },
+    "stepsSuccess": 19,
+    "pageTests": 86,
+    "legacyTests": 61,
+    "originalPackagingTests": 12,
+    "betaPackagingTests": 7,
+    "detailedUniqueSubset": 152,
+    "selfChecks": 5,
+    "runUpdatedAtUTC": "2026-10-28T13:05:13Z"
+  },
+  "feedback": {
+    "runID": 40692933838,
+    "jobID": 122832124074,
+    "status": "completed",
+    "conclusion": "success",
+    "nativeUniqueSubsetOf489": 32,
+    "extraCloseRepeatsNotAdded": 3,
+    "serviceTests": 18,
+    "originalGitTests": 4,
+    "newGitTests": 7,
+    "pinnedCompositionChecks": 31,
+    "stepsSuccess": 11,
+    "stepsExpectedSkipped": 1,
+    "expectedSkip": "Original PR #7-only composition audit; new pinned audit ran and passed",
+    "runUpdatedAtUTC": "2026-10-28T13:04:16Z"
+  },
+  "logs": [
+    {
+      "file": "source-native-40692933473.log",
+      "bytes": 287759,
+      "sha256": "d2d04be0b8aed3410f35f10fbb6bfbd034781337c53336c8ec4f2e017a634c22",
+      "normalization": "Leading BOM removed; terminal newline normalized; all actual log lines retained."
+    },
+    {
+      "file": "source-feedback-40692933838.log",
+      "bytes": 94466,
+      "sha256": "1d9dddaa36bc16e8a4ec7fae5e06fdac45acd8640058e4cf85931c0576a06fd0",
+      "normalization": "Leading BOM removed; terminal newline normalized; all actual log lines retained."
+    }
+  ],
+  "artifact": {
+    "outerBytes": 3573381,
+    "outerSHA256": "41c08496cce14df730a6c4904f151b14be6f718c1797dd627bbfbf39d64c096e",
+    "innerBetaBytes": 1479597,
+    "innerBetaSHA256": "b23fa9046c867661651ac743d2c8b1b482fc594d0b89e745fbccee2962057cdb",
+    "launcherMode": "0o100755",
+    "manifest": {
+      "schemaVersion": 1,
+      "kind": "internal-beta-development",
+      "sourceHeadSHA": "70cf5881e07ad18f44c96aa3e7200d3be3df2b04",
+      "checkoutSHA": "70cf5881e07ad18f44c96aa3e7200d3be3df2b04",
+      "ciRunID": "40692933473",
+      "architecture": "arm64",
+      "launchArgument": "--system-screenshot-candidate",
+      "ordinaryAppDefault": "capture-upload-disabled",
+      "dataDirectory": "Riftlet-System-Screenshot-Candidate",
+      "feedbackEndpointConfigured": false,
+      "feedbackDelivery": "local-outbox-only",
+      "realAcceptanceSourceSHA": "e421e6687651c2fac1441410c1af2bd5b8151e55",
+      "realAcceptanceEvidenceSHA": "c177174e400064d8ec8bb79685c33d01c4e93b89",
+      "realAcceptanceScope": "prebound-software-CGEvent-one-new-PNG; not a new combined-App Mac run",
+      "buildInputObjects": {
+        "Sources": "6a06b1c73c45d1ea6d0d9205c72f90bf50991055",
+        "Tests": "6f92c456d1e02b00fc36ddf0dcf8b8612ff4e512",
+        "Resources": "760e5d2e74f2237ca17597edd042f2f1d13439ac",
+        "Package.swift": "32845958fe38db6151c9eb9375eda4d6985219c6",
+        "scripts": "a4e5f4c416b90e64afe0789e23d11cbafaae53dd",
+        "packaging": "a16fc43df640f3dca158568acc7b9ce65f572855",
+        ".github": "85e87b11992d6d518cce544d39929517d863131f",
+        "services/feedback": "4420284c4e68ceaaca65b8a5ef50027054101341",
+        "ThirdPartyNotices": "89a07e01c183f61fca6bc7d7127322b00fa03ded",
+        "research": "7ed0708f7cb3faed95a37fe319e3f0400f3b51dd",
+        "engineering/evidence/2026-10-27-real-mac-round2": "8bf31e0794f1cbd840c4d0b6ac7ac791b326eb81",
+        "engineering/evidence/2026-10-27-real-mac-round3": "dfb9ec12e223366dd37d1e44c8c34a4756bbf96b",
+        "engineering/evidence/2026-10-27-real-mac-round5": "5a22c1bbeffbc0188b5bf4c2da951fce20a85a54",
+        "engineering/evidence/2026-10-28-system-screenshot-stage2": "51e8dba0abbbed28e2ab9274f9736c955537f25f"
+      },
+      "sha256": {
+        "Start-Riftlet-Internal-Beta.command": "99ad3d30e2af2a3d6a39a7de039addd77cc7d06b72bcc1d44dfecf1e5428a450",
+        "README-zh-CN.txt": "8f0f7ce1d9f197bfa2fb7644bcf773b39cfa94f11df9325acf569cdc0064f43f",
+        "Riftlet.app/Contents/MacOS/Riftlet": "be9297ea1f450c3e3b6d4712770dad38699443823d4cbcba6cccd4a082feacbc",
+        "Riftlet.app/Contents/Info.plist": "e6a625188cb0c0539ea72024520df656c50c257133adcf5c210d9beaf0042d34",
+        "Riftlet.app/Contents/Resources/Riftlet_RiftletAdapters.bundle/chatgpt-web-20261027.js": "c0afbd8a652c7a0e8fe6875ddbbd54f075e9c60bcda512eeb4df610e72f8948b",
+        "Riftlet.app/Contents/Resources/Riftlet_RiftletAdapters.bundle/legacy-web-observe.js": "9a60f99e806289213e9df8bd9812337ebf58e334cd996679ef3a5de394805848"
+      }
+    }
+  },
+  "limitations": [
+    "This is source checkpoint 70cf588, not the final formal HEAD CI.",
+    "Final checkpoint changes evidence/docs and the packaged README optional-preview wording; executable source remains identical.",
+    "Final formal HEAD gets new Native and Feedback macOS runs and a freshly verified artifact.",
+    "H real Mac evidence ran e421; no new real upload or physical/Keychain/cloud acceptance in these runs."
+  ]
+}

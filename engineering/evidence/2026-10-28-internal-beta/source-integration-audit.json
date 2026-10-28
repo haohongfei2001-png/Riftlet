@@ -1,0 +1,421 @@
+{
+  "checks": [
+    {
+      "expected": "e421e6687651c2fac1441410c1af2bd5b8151e55",
+      "id": "ancestor:official",
+      "result": "PASS"
+    },
+    {
+      "expected": "c177174e400064d8ec8bb79685c33d01c4e93b89",
+      "id": "ancestor:acceptance",
+      "result": "PASS"
+    },
+    {
+      "expected": "f195bebbc22ed1a162b5866ca1fe6c7ccb9835b9",
+      "id": "ancestor:feedback",
+      "result": "PASS"
+    },
+    {
+      "actual": {
+        "mode": "040000",
+        "oid": "667403bf956c82a49f0520913de2948a12195a75",
+        "type": "tree"
+      },
+      "expected": {
+        "mode": "040000",
+        "oid": "667403bf956c82a49f0520913de2948a12195a75",
+        "type": "tree"
+      },
+      "id": "screenshot:Sources/RiftletCore",
+      "result": "PASS"
+    },
+    {
+      "actual": {
+        "mode": "040000",
+        "oid": "c190891690d9f0fa4073fe5c6b2ddcc78ad633d1",
+        "type": "tree"
+      },
+      "expected": {
+        "mode": "040000",
+        "oid": "c190891690d9f0fa4073fe5c6b2ddcc78ad633d1",
+        "type": "tree"
+      },
+      "id": "screenshot:Sources/RiftletCapture",
+      "result": "PASS"
+    },
+    {
+      "actual": {
+        "mode": "040000",
+        "oid": "a465e77cdc2bade5273255f7f1f52e22a2d9f27f",
+        "type": "tree"
+      },
+      "expected": {
+        "mode": "040000",
+        "oid": "a465e77cdc2bade5273255f7f1f52e22a2d9f27f",
+        "type": "tree"
+      },
+      "id": "screenshot:Sources/RiftletUI",
+      "result": "PASS"
+    },
+    {
+      "actual": {
+        "mode": "040000",
+        "oid": "812c5bb92275a50b31213bdc2f9a60f2847b222b",
+        "type": "tree"
+      },
+      "expected": {
+        "mode": "040000",
+        "oid": "812c5bb92275a50b31213bdc2f9a60f2847b222b",
+        "type": "tree"
+      },
+      "id": "screenshot:Sources/RiftletAdapters",
+      "result": "PASS"
+    },
+    {
+      "actual": {
+        "mode": "040000",
+        "oid": "cbecf1a08867d4ebd962c3f8110b5e0cdab9c438",
+        "type": "tree"
+      },
+      "expected": {
+        "mode": "040000",
+        "oid": "cbecf1a08867d4ebd962c3f8110b5e0cdab9c438",
+        "type": "tree"
+      },
+      "id": "screenshot:Sources/RiftletGUIAcceptance",
+      "result": "PASS"
+    },
+    {
+      "actual": {
+        "mode": "040000",
+        "oid": "b09e2c80f8ca3beaacb84be61d257db6e3ce97b5",
+        "type": "tree"
+      },
+      "expected": {
+        "mode": "040000",
+        "oid": "b09e2c80f8ca3beaacb84be61d257db6e3ce97b5",
+        "type": "tree"
+      },
+      "id": "screenshot:Sources/CSQLite",
+      "result": "PASS"
+    },
+    {
+      "actual": {
+        "mode": "040000",
+        "oid": "760e5d2e74f2237ca17597edd042f2f1d13439ac",
+        "type": "tree"
+      },
+      "expected": {
+        "mode": "040000",
+        "oid": "760e5d2e74f2237ca17597edd042f2f1d13439ac",
+        "type": "tree"
+      },
+      "id": "screenshot:Resources",
+      "result": "PASS"
+    },
+    {
+      "actual": {
+        "mode": "040000",
+        "oid": "89a07e01c183f61fca6bc7d7127322b00fa03ded",
+        "type": "tree"
+      },
+      "expected": {
+        "mode": "040000",
+        "oid": "89a07e01c183f61fca6bc7d7127322b00fa03ded",
+        "type": "tree"
+      },
+      "id": "screenshot:ThirdPartyNotices",
+      "result": "PASS"
+    },
+    {
+      "actual": {
+        "mode": "040000",
+        "oid": "f165a6466d18e6fa523dff89e0536821a6424da6",
+        "type": "tree"
+      },
+      "expected": {
+        "mode": "040000",
+        "oid": "f165a6466d18e6fa523dff89e0536821a6424da6",
+        "type": "tree"
+      },
+      "id": "screenshot:Tests/RiftletCoreTests",
+      "result": "PASS"
+    },
+    {
+      "actual": {
+        "mode": "040000",
+        "oid": "c84ffcbd2d8ee86edfff290af3e7b63f6b06fcbd",
+        "type": "tree"
+      },
+      "expected": {
+        "mode": "040000",
+        "oid": "c84ffcbd2d8ee86edfff290af3e7b63f6b06fcbd",
+        "type": "tree"
+      },
+      "id": "screenshot:Tests/RiftletCaptureTests",
+      "result": "PASS"
+    },
+    {
+      "actual": {
+        "mode": "040000",
+        "oid": "21cf764935cdedb77542708358aff83248069a69",
+        "type": "tree"
+      },
+      "expected": {
+        "mode": "040000",
+        "oid": "21cf764935cdedb77542708358aff83248069a69",
+        "type": "tree"
+      },
+      "id": "screenshot:Tests/RiftletUITests",
+      "result": "PASS"
+    },
+    {
+      "actual": {
+        "mode": "040000",
+        "oid": "3a91e6bd85a234b18288d10da84c14a64c8f7a70",
+        "type": "tree"
+      },
+      "expected": {
+        "mode": "040000",
+        "oid": "3a91e6bd85a234b18288d10da84c14a64c8f7a70",
+        "type": "tree"
+      },
+      "id": "screenshot:Tests/RiftletAdaptersTests",
+      "result": "PASS"
+    },
+    {
+      "actual": {
+        "mode": "040000",
+        "oid": "7d25e0172c2e66e6aa257726c2e89cc5dfb30d28",
+        "type": "tree"
+      },
+      "expected": {
+        "mode": "040000",
+        "oid": "7d25e0172c2e66e6aa257726c2e89cc5dfb30d28",
+        "type": "tree"
+      },
+      "id": "screenshot:Tests/RiftletAppTests",
+      "result": "PASS"
+    },
+    {
+      "actual": {
+        "mode": "040000",
+        "oid": "7996141e99298ff29e77f2ef8b2bc53b6a67b4be",
+        "type": "tree"
+      },
+      "expected": {
+        "mode": "040000",
+        "oid": "7996141e99298ff29e77f2ef8b2bc53b6a67b4be",
+        "type": "tree"
+      },
+      "id": "screenshot:Tests/WebPageProgram",
+      "result": "PASS"
+    },
+    {
+      "actual": {
+        "mode": "040000",
+        "oid": "838cb87fb1f1c4d04959df810dd9d355f3e97854",
+        "type": "tree"
+      },
+      "expected": {
+        "mode": "040000",
+        "oid": "838cb87fb1f1c4d04959df810dd9d355f3e97854",
+        "type": "tree"
+      },
+      "id": "feedback:Sources/RiftletFeedback",
+      "result": "PASS"
+    },
+    {
+      "actual": {
+        "mode": "040000",
+        "oid": "f9ca02c8e9922ef70bce8059e9ec16579ac4eb81",
+        "type": "tree"
+      },
+      "expected": {
+        "mode": "040000",
+        "oid": "f9ca02c8e9922ef70bce8059e9ec16579ac4eb81",
+        "type": "tree"
+      },
+      "id": "feedback:Sources/RiftletFeedbackUI",
+      "result": "PASS"
+    },
+    {
+      "actual": {
+        "mode": "040000",
+        "oid": "2079544eef441d8946aebb74f05b258baa9e4a33",
+        "type": "tree"
+      },
+      "expected": {
+        "mode": "040000",
+        "oid": "2079544eef441d8946aebb74f05b258baa9e4a33",
+        "type": "tree"
+      },
+      "id": "feedback:Sources/RiftletFeedbackDemo",
+      "result": "PASS"
+    },
+    {
+      "actual": {
+        "mode": "100644",
+        "oid": "32c42b91b235167d4b77324ac587b4596a655d84",
+        "type": "blob"
+      },
+      "expected": {
+        "mode": "100644",
+        "oid": "32c42b91b235167d4b77324ac587b4596a655d84",
+        "type": "blob"
+      },
+      "id": "feedback:Sources/RiftletApp/FeedbackHost.swift",
+      "result": "PASS"
+    },
+    {
+      "actual": {
+        "mode": "040000",
+        "oid": "73b9aae54a1675ff30e24e89b581ed9e4655b2d3",
+        "type": "tree"
+      },
+      "expected": {
+        "mode": "040000",
+        "oid": "73b9aae54a1675ff30e24e89b581ed9e4655b2d3",
+        "type": "tree"
+      },
+      "id": "feedback:Tests/RiftletFeedbackTests",
+      "result": "PASS"
+    },
+    {
+      "actual": {
+        "mode": "040000",
+        "oid": "1699f6e163d00ac853c775d9042f791b553fe3d4",
+        "type": "tree"
+      },
+      "expected": {
+        "mode": "040000",
+        "oid": "1699f6e163d00ac853c775d9042f791b553fe3d4",
+        "type": "tree"
+      },
+      "id": "feedback:Tests/RiftletFeedbackUITests",
+      "result": "PASS"
+    },
+    {
+      "actual": {
+        "mode": "040000",
+        "oid": "ef8c2cd5225b266a33c130811eac39e8c5b1c167",
+        "type": "tree"
+      },
+      "expected": {
+        "mode": "040000",
+        "oid": "ef8c2cd5225b266a33c130811eac39e8c5b1c167",
+        "type": "tree"
+      },
+      "id": "feedback:Tests/FeedbackIsolation",
+      "result": "PASS"
+    },
+    {
+      "actual": {
+        "mode": "040000",
+        "oid": "4420284c4e68ceaaca65b8a5ef50027054101341",
+        "type": "tree"
+      },
+      "expected": {
+        "mode": "040000",
+        "oid": "4420284c4e68ceaaca65b8a5ef50027054101341",
+        "type": "tree"
+      },
+      "id": "feedback:services/feedback",
+      "result": "PASS"
+    },
+    {
+      "actual": {
+        "mode": "100644",
+        "oid": "32845958fe38db6151c9eb9375eda4d6985219c6",
+        "type": "blob"
+      },
+      "expected": {
+        "mode": "100644",
+        "oid": "32845958fe38db6151c9eb9375eda4d6985219c6",
+        "type": "blob"
+      },
+      "id": "feedback:Package.swift",
+      "result": "PASS"
+    },
+    {
+      "actual": {
+        "mode": "100644",
+        "oid": "196ed48e76ff8853b39b13890527e7c44f5d4a2e",
+        "type": "blob"
+      },
+      "expected": {
+        "mode": "100644",
+        "oid": "196ed48e76ff8853b39b13890527e7c44f5d4a2e",
+        "type": "blob"
+      },
+      "id": "feedback:scripts/build-feedback-demo.sh",
+      "result": "PASS"
+    },
+    {
+      "actual": {
+        "mode": "100644",
+        "oid": "22473113fe01bfc0adcb45350326f8f3fd3be1fb",
+        "type": "blob"
+      },
+      "expected": {
+        "mode": "100644",
+        "oid": "22473113fe01bfc0adcb45350326f8f3fd3be1fb",
+        "type": "blob"
+      },
+      "id": "feedback:scripts/verify-feedback-isolation.sh",
+      "result": "PASS"
+    },
+    {
+      "actual": {
+        "mode": "040000",
+        "oid": "08ae1fce57c7a8776dc7329c792fcb06ad9da4ba",
+        "type": "tree"
+      },
+      "expected": {
+        "mode": "040000",
+        "oid": "08ae1fce57c7a8776dc7329c792fcb06ad9da4ba",
+        "type": "tree"
+      },
+      "id": "acceptance:engineering/evidence/2026-10-28-system-screenshot-swallow",
+      "result": "PASS"
+    },
+    {
+      "actualFileCount": 16,
+      "added": [],
+      "changed": [],
+      "expectedFileCount": 16,
+      "id": "app:original-files",
+      "missing": [],
+      "result": "PASS"
+    },
+    {
+      "actual": {
+        "mode": "100644",
+        "oid": "5b1c64348cc0661f0de359c45a54158e828d6c22",
+        "type": "blob"
+      },
+      "expected": {
+        "mode": "100644",
+        "oid": "5b1c64348cc0661f0de359c45a54158e828d6c22",
+        "type": "blob"
+      },
+      "id": "app:reviewed-main",
+      "result": "PASS"
+    }
+  ],
+  "parents": [
+    "c177174e400064d8ec8bb79685c33d01c4e93b89",
+    "f195bebbc22ed1a162b5866ca1fe6c7ccb9835b9"
+  ],
+  "policy": {
+    "acceptance": "c177174e400064d8ec8bb79685c33d01c4e93b89",
+    "feedback": "f195bebbc22ed1a162b5866ca1fe6c7ccb9835b9",
+    "mainBlob": "5b1c64348cc0661f0de359c45a54158e828d6c22",
+    "official": "e421e6687651c2fac1441410c1af2bd5b8151e55"
+  },
+  "result": "PASS",
+  "revision": "70cf5881e07ad18f44c96aa3e7200d3be3df2b04",
+  "revisionRequested": "70cf5881e07ad18f44c96aa3e7200d3be3df2b04",
+  "schemaVersion": 1,
+  "tree": "5d970fd354f1a4a8c70b0ec0b1a027825944f8b5"
+}
