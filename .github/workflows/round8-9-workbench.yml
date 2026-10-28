@@ -1,0 +1,48 @@
+name: Round 8-9 integration workbench
+on:
+  push:
+    branches: ['integration/round8-9-workbench-20261028']
+    paths: ['.github/workflows/round8-9-workbench.yml']
+permissions:
+  contents: read
+jobs:
+  source-export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Export exact authorized source history without credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          base=d6a083dec660990bd65124e7acd78f2d900b5013
+          incoming=b30bb80d5af5cc12b0640c3609f70292709738a1
+          common=b83923068064f6d82f2d253a3c177661fdabc294
+          test "$(git merge-base "$base" "$incoming")" = "$common"
+          git merge-base --is-ancestor 8914c7027478cbef6af70ad7549e290d5b8cc232 "$incoming"
+          mkdir -p integration-export
+          git update-ref refs/heads/export-formal "$base"
+          git update-ref refs/heads/export-round9 "$incoming"
+          git bundle create integration-export/riftlet-integration.bundle refs/heads/export-formal refs/heads/export-round9
+          git bundle verify integration-export/riftlet-integration.bundle
+          git diff --stat "$common" "$incoming" > integration-export/incoming-stat.txt
+          git diff "$common" "$incoming" -- Sources Tests > integration-export/incoming-source.patch
+          git diff "$common" "$base" -- Sources Tests > integration-export/candidate-source.patch
+          git log --oneline "$base..$incoming" > integration-export/incoming-history.txt
+          set +e
+          git merge-tree --write-tree "$base" "$incoming" > integration-export/merge-preview.txt
+          status=$?
+          set -e
+          echo "merge-preview exit=$status (preview only; no branch changed)"
+          cat integration-export/merge-preview.txt
+          sha256sum integration-export/* > integration-export/SHA256SUMS
+          du -h integration-export/riftlet-integration.bundle
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: round8-9-source-export
+          path: integration-export/
+          retention-days: 7
+          if-no-files-found: error
