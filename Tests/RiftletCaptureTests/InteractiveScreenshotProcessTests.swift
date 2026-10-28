@@ -45,10 +45,22 @@ final class InteractiveScreenshotProcessTests: XCTestCase {
     @MainActor
     func testTimeoutReapsChildAndAllowsSubsequentRun() async throws {
         let capturer = InteractiveScreenshotSystemCapture(executableURL: URL(fileURLWithPath: "/bin/sleep"),
-            timeoutNanoseconds: 40_000_000, cancellationGraceNanoseconds: 40_000_000)
+            timeoutNanoseconds: 500_000_000, cancellationGraceNanoseconds: 50_000_000)
         do { try await capturer.run(arguments: ["10"]); XCTFail("Fixture must time out") }
         catch { XCTAssertEqual(error as? InteractiveScreenshotError, .captureTimedOut) }
         XCTAssertFalse(capturer.hasRunningProcess)
+        try await capturer.run(arguments: ["0"])
+        XCTAssertFalse(capturer.hasRunningProcess)
+    }
+
+    @MainActor
+    func testExitedProcessIsNotTimedOutWhileTerminationDeliveryIsDelayed() async throws {
+        let capturer = InteractiveScreenshotSystemCapture(executableURL: URL(fileURLWithPath: "/bin/sleep"),
+            timeoutNanoseconds: 500_000_000, cancellationGraceNanoseconds: 50_000_000,
+            terminationDeliveryDelayNanoseconds: 1_000_000_000)
+        // The real zero-duration child exits before the deadline; its completion
+        // is deliberately delivered after it. Without the running-process guard,
+        // the pending job would incorrectly be marked as timed out.
         try await capturer.run(arguments: ["0"])
         XCTAssertFalse(capturer.hasRunningProcess)
     }

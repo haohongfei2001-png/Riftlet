@@ -48,14 +48,17 @@ final class InteractiveScreenshotSystemCapture: InteractiveScreenshotCapturing {
     private let executableURL: URL
     private let timeoutNanoseconds: UInt64
     private let cancellationGraceNanoseconds: UInt64
+    private let terminationDeliveryDelayNanoseconds: UInt64
     var hasRunningProcess: Bool { job?.process.isRunning == true }
 
     init(executableURL: URL = InteractiveScreenshotCommand.executable,
          timeoutNanoseconds: UInt64 = 30_000_000_000,
-         cancellationGraceNanoseconds: UInt64 = 1_000_000_000) {
+         cancellationGraceNanoseconds: UInt64 = 1_000_000_000,
+         terminationDeliveryDelayNanoseconds: UInt64 = 0) {
         self.executableURL = executableURL
         self.timeoutNanoseconds = timeoutNanoseconds
         self.cancellationGraceNanoseconds = cancellationGraceNanoseconds
+        self.terminationDeliveryDelayNanoseconds = terminationDeliveryDelayNanoseconds
     }
 
     func capture(_ request: InteractiveScreenshotRequest, outputDirectory: URL) async throws -> InteractiveScreenshotFile {
@@ -124,9 +127,15 @@ final class InteractiveScreenshotSystemCapture: InteractiveScreenshotCapturing {
                 process.arguments = arguments
                 process.standardOutput = FileHandle.nullDevice
                 process.standardError = FileHandle.nullDevice
+                let deliveryDelay = terminationDeliveryDelayNanoseconds
                 process.terminationHandler = { [weak self] terminated in
                     let status = terminated.terminationStatus
-                    Task { @MainActor [weak self] in self?.finish(id: id, status: status) }
+                    Task { @MainActor [weak self] in
+                        // Zero in production; the internal test seam reproduces
+                        // a delayed actor delivery after a real child has exited.
+                        if deliveryDelay > 0 { try? await Task.sleep(nanoseconds: deliveryDelay) }
+                        self?.finish(id: id, status: status)
+                    }
                 }
                 job = Job(id: id, process: process, continuation: continuation)
                 do { try process.run() }
@@ -138,7 +147,8 @@ final class InteractiveScreenshotSystemCapture: InteractiveScreenshotCapturing {
                 let limit = timeoutNanoseconds, grace = cancellationGraceNanoseconds
                 timeout = Task { @MainActor [weak self] in
                     do { try await Task.sleep(nanoseconds: limit) } catch { return }
-                    guard let self, var current = self.job, current.id == id else { return }
+                    guard let self, var current = self.job, current.id == id,
+                          current.process.isRunning else { return }
                     current.timedOut = true; self.job = current
                     if current.process.isRunning { current.process.terminate() }
                     do { try await Task.sleep(nanoseconds: grace) } catch { return }
