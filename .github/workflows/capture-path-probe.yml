@@ -1,0 +1,56 @@
+name: Capture output path diagnostic
+on:
+  push:
+    branches:
+      - 'codex/builtin-capture-probe-20261029'
+permissions:
+  contents: read
+jobs:
+  capture-path:
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [macos-15, macos-15-intel]
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Compile standalone diagnostic with macOS 13 deployment target
+        id: compile
+        run: |
+          set -o pipefail
+          mkdir -p test-results
+          swift --version | tee test-results/compiler.log
+          sw_vers | tee test-results/os.log
+          uname -m | tee test-results/architecture.log
+          swiftc -parse-as-library -O -target "$(uname -m)-apple-macosx13.0" scripts/benchmark-builtin-capture.swift -o /tmp/riftlet-capture-path-probe 2>&1 | tee test-results/build.log
+      - name: Offline synthetic self-check
+        id: selfcheck
+        run: |
+          set -o pipefail
+          /tmp/riftlet-capture-path-probe --self-check --output test-results/self-check.json 2>&1 | tee test-results/self-check.log
+      - name: Probe regular output leaf
+        if: ${{ !cancelled() && steps.selfcheck.outcome == 'success' }}
+        run: |
+          set -o pipefail
+          /tmp/riftlet-capture-path-probe --iterations 1 --cli-output-layout regular-leaf --output test-results/regular-leaf.json 2>&1 | tee test-results/regular-leaf.log
+      - name: Probe hidden output leaf
+        if: ${{ !cancelled() && steps.selfcheck.outcome == 'success' }}
+        run: |
+          set -o pipefail
+          /tmp/riftlet-capture-path-probe --iterations 1 --cli-output-layout hidden-leaf --output test-results/hidden-leaf.json 2>&1 | tee test-results/hidden-leaf.log
+      - name: Probe hidden fresh parent with regular output leaf
+        if: ${{ !cancelled() && steps.selfcheck.outcome == 'success' }}
+        run: |
+          set -o pipefail
+          /tmp/riftlet-capture-path-probe --iterations 1 --cli-output-layout hidden-parent --output test-results/hidden-parent.json 2>&1 | tee test-results/hidden-parent.log
+      - name: Archive metadata-only diagnostic reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: capture-path-probe-${{ matrix.runner }}-${{ github.sha }}
+          path: test-results
+          retention-days: 14
+          if-no-files-found: error
