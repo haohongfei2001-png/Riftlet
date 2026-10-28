@@ -90,3 +90,5 @@ push视觉原始制品含118 PNG/5 MOV，39静态原图已逐张独立审查；d
 ## 新记录正文组件的编译修正
 
 第六轮 c74eac56 的 Native push/PR `40765889388` / `40765899978` 及 Feedback push `40765889306` 因 `FeedbackRecordBodyView.swift` 的 NSSize 上限 `.greatestFiniteMagnitude` 类型歧义编译失败。原生测试尚未开始，打包/新视觉未运行，不计作654项通过。修补仅将两个NSSize构造中的三个上限参数显式写为 `CGFloat.greatestFiniteMagnitude`；布局、滚动、生命周期断言与取证条件均未放宽。精确修补审查及新组合CI仍待完成。
+
+最小类型修补已由非作者精确核准：`e9fa9c260281a39ac9805a9f0e07f31d9f1f3733` / tree `d86a4e5fd9373a32ff75e3b70806fa5c4433579d` / parent c74eac56，干净树；仅该原生文件两行与README/results。c74的四个Native/Feedback运行最终均为同一编译失败，原生0开始；两Feedback的20项服务和88项隔离通过。新pin只引用该已审source，待下一准确组合CI。
