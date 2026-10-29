@@ -1,15 +1,21 @@
 {
   "schemaVersion": 1,
-  "status": "IMPLEMENTATION_CHECKPOINT_REVIEW_AND_COMBINED_VERIFICATION_PENDING",
+  "status": "SOURCE_REVIEWED_COMBINED_RUNTIME_PENDING",
   "inputs": {
     "unified": "2c8cd0371de5e07fd7794f76335381a40403030d",
     "builtin": "6b60f67f6d35272eecff901c507bd75a77874ed6",
     "commonAncestor": "443d21da1a55c0061eafced823b5406879b96024",
     "experience": "69600ab3c7fa9e373582613bd55d22075234b65a"
   },
-  "nonAuthorReview": "NOT_RUN",
-  "combinedNativeCI": "NOT_RUN",
-  "combinedFeedbackCI": "NOT_RUN",
+  "nonAuthorReview": {
+    "status": "PASS",
+    "scope": "exact source; not runtime",
+    "setupMain": "non-author experience reviewer",
+    "feedbackAndScroller": "non-author magnetic reviewer",
+    "unresolvedFindings": []
+  },
+  "combinedNativeCI": "PENDING_NEW_EXACT_SOURCE",
+  "combinedFeedbackCI": "PENDING_NEW_EXACT_SOURCE",
   "physicalMac": "BLOCKED_AUTHORIZED_EXECUTOR_OFFLINE",
   "realChatGPT": "NOT_RUN_APPLICATION_ORIGIN_ADMISSION_CLOSED",
   "cloudFeedback": "NOT_RUN_ENDPOINT_NIL",
@@ -29,5 +35,32 @@
     "unknownReplay": false,
     "uploadAdmissionExpanded": false,
     "userDataChanged": false
+  },
+  "reviewedSource": "a3d18b508c5376ddaa87c45b45953d551c8b369f",
+  "reviewedTree": "f8ac091d8f3b21148a8df1274459f4f2491f921b",
+  "continuationFailures": [
+    {
+      "head": "b3cec64f0ecbf869aff3b17b88d55323d1765393",
+      "run": 40821969722,
+      "reason": "three retained tests reference removed isEnabled property",
+      "repair": "d7080499ef4d50ab612c456246da4e1b7688a095; API names only, assertions unchanged"
+    },
+    {
+      "head": "d7080499ef4d50ab612c456246da4e1b7688a095",
+      "run": 40830335742,
+      "job": 123302828056,
+      "reason": "asynchronous overlay-to-legacy retile shrinks settings preview 444 to 429 points and cancels animation",
+      "repair": "reserve measured native legacy gutter independently of actual scroller style; original assertions unchanged"
+    }
+  ],
+  "experience": {
+    "Q01": "remaining title/capability code repaired; native visual pending",
+    "Q05": "already-readable source authorization suppressed; remaining permissions unchanged",
+    "Q07": "service capability persistent; destructive sheet Keep default; new macOS key tests pending",
+    "Q08": "explicit close blocker/retry/body-copy; runtime pending",
+    "Q09": "app-scoped settings shortcut and standard editing routes; runtime pending",
+    "Q06": "IN_PROGRESS_NOT_IN_REVIEWED_SOURCE",
+    "Q03": "NOT_IMPLEMENTED",
+    "Q04": "NOT_IMPLEMENTED"
   }
 }

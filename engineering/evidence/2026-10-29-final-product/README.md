@@ -2,8 +2,8 @@
 
 ## Status
 
-Implementation checkpoint on the existing PR #15 only. **Not a release or source-admitted candidate.**
-The immutable source-admission check intentionally remains blocked until an actual non-author reviews the new tree. Native/Feedback execution is a separate job, not a bypass: the complete workflow cannot pass without source admission. Existing historical gates remain byte-identical.
+Engineering continuation on the existing Draft PR #15 only. **Not a release or fully accepted product.**
+The source checkpoint `a3d18b508c5376ddaa87c45b45953d551c8b369f` (tree `f8ac091d8f3b21148a8df1274459f4f2491f921b`) has actual non-author review and is pinned by the final composition gate. Native/Feedback execution remains a separate job: the complete workflow cannot pass without source admission. Existing historical gates and runtime acceptance requirements remain unchanged. Accurate combined CI and new original-pixel review are pending.
 
 ## Exact inputs
 
@@ -38,6 +38,16 @@ Q01: existing PR #15 capability-specific first-use copy retained, not redone. Q0
 
 ## Verification and boundaries
 
-The final-source gate has no review pin yet. A software build/test result never substitutes for that review. Native/Feedback workflows run exact combined objects on their normal checks; inherited acceptance scripts are not rewritten to accept this delta. Two architectures, production capture component probes, original-pixel visual/MOV checks and actual runner accessibility variants are retained.
+The final-source gate pins the non-author-reviewed source above. A software build/test result never substitutes for that review. Native/Feedback workflows run exact combined objects on their normal checks; inherited acceptance scripts are not rewritten to accept this delta. Two architectures, production capture component probes, original-pixel visual/MOV checks and actual runner accessibility variants are retained.
 
 Physical mouse, real Mac permissions, Retina/mixed screens/Spaces, new built-in ChatGPT attachment, Gatekeeper/notarization, and Feedback HTTPS-to-private-Issue acceptance remain NOT_RUN/BLOCKED. Feedback endpoint stays nil. No old H upload is repeated, no UNKNOWN or original media is cleared, and no cloud/private data is collected by this integration.
+
+## Continuation: actual blockers and bounded repairs
+
+The latest branch was refreshed rather than assuming the prior diagnostic-workflow failure persisted. `b3cec64f0ecbf869aff3b17b88d55323d1765393` already includes PR #14 with both parents and removes the disposable workflow. Native [40821969722](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40821969722) failed because three retained integration-test references used the old `isEnabled` property. Commit `d7080499ef4d50ab612c456246da4e1b7688a095` adapts those names to `builtInScreenshotEnabled`, retaining every assertion and expected value. Its non-author review passed.
+
+Native [40830335742](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40830335742), ARM job `123302828056`, compiled and exposed the next genuine failure: AppKit changed the settings scroll style from overlay to legacy during replay; clip width changed 476→461pt and preview width 444→429pt. The genuine size change correctly cancelled the preview. `autohidesScrollers=false` alone did not prevent this style change. The settings document now reserves the public native legacy-scroller width in both styles, without forcing the user's style. The original width/animation assertions are unchanged. Apple API basis: [preferredScrollerStyle](https://developer.apple.com/documentation/appkit/nsscroller/preferredscrollerstyle), [scrollerWidth(for:scrollerStyle:)](https://developer.apple.com/documentation/appkit/nsscroller/scrollerwidth(for:scrollerstyle:)). This remains a proposed runtime fix until the exact combined tests pass.
+
+The same reviewed source finishes the remaining Q01 title/capability projection; hides already-satisfied folder authorization; wires app-scoped Cmd-, and standard nil-target editing actions; keeps Feedback service capability visible across edits; binds destructive sheet defaults to Keep; and adds explicit safe-close reasons, retry-save and body-only copy. Screenshot admission, Core/Adapters, capture/import, Feedback engine/service and all historical evidence are unchanged from `d708049`.
+
+Non-author review was split by authorship: the Feedback author reviewed Setup/Main and the unchanged protected composition; a different reviewer examined all Feedback UI/tests and the scroller fix. Both reviewed exact `a3d18b5`, with no unresolved findings. Prior `b3cec64` full-composition review also found no new integration safety defect and ran all 24 final-isolation regressions. These are source reviews, not GUI or cloud acceptance. Q06 preview work is still separate uncommitted work at this checkpoint; Q03/Q04 and remaining Q05 are not claimed implemented.
