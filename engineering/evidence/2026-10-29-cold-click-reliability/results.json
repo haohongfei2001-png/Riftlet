@@ -2,8 +2,8 @@
   "schema": 1,
   "branch": "codex/riftlet-cold-click-reliability-20261029",
   "base": "c15fd4b4a27659946ef49280131e875f4d5ab9d1",
-  "sourceCommit": null,
-  "reviewedSource": null,
+  "sourceCommit": "c308d46c1412a56e90d665972c0bc8f6ad1511a3",
+  "reviewedSource": "c308d46c1412a56e90d665972c0bc8f6ad1511a3",
   "productResult": "Bounded prebinding recovery fixes; true zero-pre-event-ACK cold click remains safely refused",
   "pageProgramSHA256": "482c2ab8b6f4ba4db5912eade5966882cc1e88436b7c3c49f8eb2bcf6fd48e00",
   "local": {
@@ -41,6 +41,16 @@
     "formalIsolation": {
       "result": "PASS",
       "tests": 24
+    },
+    "packagedSelfChecks": {
+      "result": "PASS",
+      "checks": [
+        "self-check",
+        "web-acceptance-self-check",
+        "first-use-self-check",
+        "system-screenshot-candidate-self-check"
+      ],
+      "scope": "Synthetic fixtures; no real Chrome or system screenshot input"
     }
   },
   "nativeRegressionScope": {
@@ -68,15 +78,23 @@
     "compensations": 3,
     "privateMediaFiles": 50,
     "beforePrivateManifestSHA256": "e33565b7ad34ec7c29d705f263fe3c7f4758d3b1a0bfa7237caaeb9525be40ec",
-    "afterComparison": "PENDING",
+    "afterComparison": "PASS",
     "databaseWritesByThisTask": false,
     "mainAndFormalRefsWritten": false,
-    "ordinaryProductionOrRetryAdmissionChanged": false
+    "ordinaryProductionOrRetryAdmissionChanged": false,
+    "afterPrivateManifestSHA256": "2732965af2ec02a3efa6dbd3d4d3a8fd49beb15f461a27d944e4df49912f4b0c",
+    "allTableCountsAndCanonicalRowHashesEqual": true,
+    "allMediaByteHashesEqual": true
   },
   "independentReview": {
     "pageSource": "PASS",
     "nativeSource": "PASS",
-    "workflowAndScopeGate": "PASS"
+    "workflowAndScopeGate": "PASS",
+    "exactSource": "c308d46c1412a56e90d665972c0bc8f6ad1511a3",
+    "nativeTestsAndHeadlessRunner": "PASS",
+    "publicEvidencePrivacy": "PASS",
+    "reviewers": "Non-author page and native/browser lanes; root resolves review suggestions",
+    "formalIntegrationApproval": false
   },
   "ci": null,
   "remainingDefects": [

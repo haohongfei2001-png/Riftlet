@@ -12,7 +12,7 @@ BASE = 'c15fd4b4a27659946ef49280131e875f4d5ab9d1'
 BASE_GATE = 'scripts/verify-final-product-composition.py'
 BASE_GATE_BLOB = 'd587f376a1382fc5a26e3c3306037af99df54c39'
 # Filled only after a committed tree has independent technical review.
-REVIEWED_SOURCE = None
+REVIEWED_SOURCE = "c308d46c1412a56e90d665972c0bc8f6ad1511a3"
 META = frozenset({
     'scripts/verify-cold-click-scope.py',
     'engineering/evidence/2026-10-29-cold-click-reliability/README.md',

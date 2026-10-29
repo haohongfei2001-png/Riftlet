@@ -2,7 +2,8 @@
 
 独立技术分支 `codex/riftlet-cold-click-reliability-20261029`，基于正式 PR #15
 `c15fd4b4a27659946ef49280131e875f4d5ab9d1`。本轮未修改正式分支、PR #15 或 main。
-源码提交、独立审查、CI 与最终交接以同目录 `results.json` 的精确记录为准。
+已审源码：`c308d46c1412a56e90d665972c0bc8f6ad1511a3`。独立审查、CI 与最终交接以同目录
+`results.json` 的精确记录为准。
 
 ## 产品结果
 
