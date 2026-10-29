@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "SOURCE_REVIEWED_NATIVE_FIXTURE_READINESS_REGRESSION_PENDING",
+  "status": "PR17_PRODUCT_SOURCE_REVIEWED_FORMAL_COMBINED_CI_PENDING",
   "inputs": {
     "unified": "2c8cd0371de5e07fd7794f76335381a40403030d",
     "builtin": "6b60f67f6d35272eecff901c507bd75a77874ed6",
@@ -119,10 +119,43 @@
       ],
       "unresolvedFindings": [],
       "scope": "Exact Git source review; new complete macOS execution and original pixels still required"
+    },
+    "pr17ReliabilityIntegration": {
+      "status": "PASS",
+      "source": "683aefb46b7ed774674a3dd2e6199868952b7b46",
+      "tree": "2188e6839aadeaa052f81800f640edb077269148",
+      "receiptReviewer": "/root/receipt_integration_review",
+      "queueAndWebReviewer": "/root/queue_integration_review",
+      "fullTreeAndGateReviewer": "/root/formal_source_review",
+      "scope": "Exact complete product source, changed implementations/tests and original App/adapter/Core call sites; not a GitHub human approval",
+      "reviewedBlobs": {
+        "Sources/RiftletAdapters/ChromeAppleEventsExecutor.swift": "64c59c75c1e4699522746bc494d0746ef68b1914",
+        "Sources/RiftletAdapters/MainWorldCommandEnvelope.swift": "46ecb20003db0be01ee5bca0357a3f741e850e8b",
+        "Sources/RiftletApp/SelectionSubmissionQueue.swift": "68926b857ab97426a90a06fd2b8397c395700281",
+        "Tests/RiftletAdaptersTests/MainWorldCommandEnvelopeTests.swift": "c6994a72ad461143acd9712470c44a68989d52ad",
+        "Tests/RiftletAdaptersTests/MainWorldReceiptReaderTests.swift": "1216c2081f68cae95047381034f61e47f8fb7c3c",
+        "Tests/RiftletAppTests/SelectionSubmissionQueueTests.swift": "1b1f814128b9101e017796992d37711676dc662f",
+        "Tests/WebPageProgram/acceptance-program.test.cjs": "b34c0db3d0fc1650d1d730eae805b244fbd7dc02"
+      },
+      "unresolvedFindings": [],
+      "independentLocalExecution": {
+        "originalFinalIsolation": {
+          "pass": 24,
+          "fail": 0
+        },
+        "webPageVM": {
+          "tests": 90,
+          "pass": 90,
+          "fail": 0,
+          "skip": 0
+        },
+        "actualEnvelopeTemplates": "Original lost-return failure reproduced; same nonce recovery executes MAIN once; separate original 10000ms expiries"
+      },
+      "nativeAndRealChromeExecutionAtSourceReview": "NOT_RUN_NEW_COMBINATION"
     }
   },
-  "combinedNativeCI": "FAIL_AT_8525_TWO_DISTINCT_INTEL_HELPER_PREPARATION_PATHS_NEW_SOURCE_PENDING",
-  "combinedFeedbackCI": "PASS_BOTH_AT_8525_NEW_EXACT_SOURCE_PENDING",
+  "combinedNativeCI": "PENDING_NEW_FORMAL_HEAD_AND_ACTUAL_PR_MERGE",
+  "combinedFeedbackCI": "PENDING_NEW_FORMAL_HEAD_AND_ACTUAL_PR_MERGE",
   "physicalMac": "BLOCKED_AUTHORIZED_EXECUTOR_OFFLINE",
   "realChatGPT": "NOT_RUN_APPLICATION_ORIGIN_ADMISSION_CLOSED",
   "cloudFeedback": "NOT_RUN_ENDPOINT_NIL",
@@ -143,8 +176,8 @@
     "uploadAdmissionExpanded": false,
     "userDataChanged": false
   },
-  "reviewedSource": "de0fbdfe8ca08c1efe30eca931c481598cc2970f",
-  "reviewedTree": "0ccc2ba7f1d960d1034960c3d055df96a97a824f",
+  "reviewedSource": "683aefb46b7ed774674a3dd2e6199868952b7b46",
+  "reviewedTree": "2188e6839aadeaa052f81800f640edb077269148",
   "continuationFailures": [
     {
       "head": "b3cec64f0ecbf869aff3b17b88d55323d1765393",
@@ -1093,5 +1126,123 @@
         "cloud": "NOT_RUN_ENDPOINT_NIL"
       }
     }
-  ]
+  ],
+  "precedingSourceReviewCheckpoint": {
+    "status": "SOURCE_REVIEWED_NATIVE_FIXTURE_READINESS_REGRESSION_PENDING",
+    "reviewedSource": "de0fbdfe8ca08c1efe30eca931c481598cc2970f",
+    "reviewedTree": "0ccc2ba7f1d960d1034960c3d055df96a97a824f",
+    "combinedNativeCI": "FAIL_AT_8525_TWO_DISTINCT_INTEL_HELPER_PREPARATION_PATHS_NEW_SOURCE_PENDING",
+    "combinedFeedbackCI": "PASS_BOTH_AT_8525_NEW_EXACT_SOURCE_PENDING"
+  },
+  "pr17ReliabilityIntegration": {
+    "formalPR": 15,
+    "sourcePR": 17,
+    "formalBaseline": "73251d034c8da8f486d09083b048a35cdee39bc0",
+    "productCommit": "683aefb46b7ed774674a3dd2e6199868952b7b46",
+    "productTree": "2188e6839aadeaa052f81800f640edb077269148",
+    "preservedProductCommitIdentity": true,
+    "productParent": "73251d034c8da8f486d09083b048a35cdee39bc0",
+    "changedProductPaths": [
+      "Sources/RiftletAdapters/ChromeAppleEventsExecutor.swift",
+      "Sources/RiftletAdapters/MainWorldCommandEnvelope.swift",
+      "Sources/RiftletApp/SelectionSubmissionQueue.swift",
+      "Tests/RiftletAdaptersTests/MainWorldCommandEnvelopeTests.swift",
+      "Tests/RiftletAdaptersTests/MainWorldReceiptReaderTests.swift",
+      "Tests/RiftletAppTests/SelectionSubmissionQueueTests.swift",
+      "Tests/WebPageProgram/acceptance-program.test.cjs"
+    ],
+    "productDiff": {
+      "files": 7,
+      "productionFiles": 3,
+      "testFiles": 4,
+      "additions": 562,
+      "deletions": 28
+    },
+    "unchangedBaselineFileObjects": 872,
+    "productFileObjects": 879,
+    "excludedTechnicalCommits": [
+      "6d9649c46a2f6655fd5b91afe6c306a075a2f5b2",
+      "fea4145cdc7eec91c36db34bec23a75a2e403a9a"
+    ],
+    "unchangedFormalWorkflowBlobs": {
+      ".github/workflows/native-foundation.yml": "19a0235133a526b6aca4b6dc70e02b379a911d3c",
+      ".github/workflows/feedback-v01.yml": "70f3dc0f50b2fed69a7696cbd450101e2ef62a66"
+    },
+    "formalGateChange": "Only REVIEWED_SOURCE literal; original policy, historical pins, metadata set and all tests unchanged",
+    "oldGateOnProduct": "FAIL exactly for one new path and six changed objects; four inherited audits PASS",
+    "requiredNewGate": {
+      "checks": 25,
+      "protectedObjects": 876,
+      "directoryExemptionsAdded": 0
+    },
+    "requiredNewCI": {
+      "nativePush": "PENDING",
+      "nativePR": "PENDING",
+      "feedbackPush": "PENDING",
+      "feedbackPR": "PENDING",
+      "runtimeEvidenceDestination": "PR #15 exact completed run/job/source/checkout records and original artifacts; no post-test executable changes"
+    },
+    "preservedFormalBaselineCI": {
+      "head": "73251d034c8da8f486d09083b048a35cdee39bc0",
+      "nativePush": 40852759638,
+      "nativePR": 40852766774,
+      "feedbackPush": 40852759654,
+      "feedbackPR": 40852766770,
+      "result": "SUCCESS_ALL_FOUR_NO_RERUN",
+      "scope": "Previous formal source only, not new combination"
+    },
+    "preservedTechnicalCI": {
+      "head": "fea4145cdc7eec91c36db34bec23a75a2e403a9a",
+      "nativePush": 40861759911,
+      "nativePR": 40861849051,
+      "feedbackPush": 40861759915,
+      "feedbackPR": 40861849112,
+      "result": "SUCCESS_ALL_FOUR_WITH_ONE_FAILED_INTEL_JOB_RERUN",
+      "scope": "Technical source only, not new formal combination"
+    },
+    "preservedTechnicalIntelFailure": {
+      "run": 40861759911,
+      "initialJob": 123406495677,
+      "initialArtifact": 12891138473,
+      "initialResult": "FAIL_BEFORE_SWIFT",
+      "failedAssertion": "network-fault.test.cjs:23:484; undefined !== 1; x.sent after original 15ms tick",
+      "originalLogSHA256": "6d7a29b63209dfeec364592e8c69f2ffa2ce8638a2b2c9621a6f595b91c21411",
+      "rerunJob": 123409797586,
+      "rerunArtifact": 12891849858,
+      "rerunResult": "SUCCESS_UNCHANGED_COMPLETE_INTEL_JOB",
+      "rerunLogSHA256": "b51f839f0c4a2bfb02716fd32b66dbd8f3efea633231206f509e78250c1289ba",
+      "reruns": 1,
+      "originalTestAndTemplateUnchanged": true,
+      "soleSchedulingCause": "NOT_PROVEN_ORIGINAL_LOG_HAS_NO_ASYNC_EVENT_TRACE",
+      "recurrencePolicy": "Diagnose original new failure logs; do not remove assertions or repeat indefinitely"
+    },
+    "realEnvironment": {
+      "device": "hhfdeMacBook-Air.local",
+      "readOnlyDeviceCheck": "OFFLINE",
+      "newRealInputCount": 0,
+      "newPhysicalInput": "NOT_RUN",
+      "newSystemScreenshotChatGPTLoop": "NOT_RUN",
+      "realChromeAEFaultRecovery": "NOT_RUN",
+      "coldFirstClickWithoutPreEventACK": "NOT_RUN_HISTORICAL_PRODUCT_FAIL_SAFE_REFUSAL_PASS",
+      "applicationScreenshotUpload": "NOT_RUN_ADMISSION_CLOSED",
+      "cloudFeedback": "NOT_RUN_ENDPOINT_NIL"
+    },
+    "preservedBoundaries": [
+      "originalTargetAndPreEventACK",
+      "singleMAINSubmission",
+      "originalOneSecondReceiptBudget",
+      "originalSelectionDeadlineFIFOAndCancelOnce",
+      "SQLiteV3AndUnknownReadOnlyRecovery",
+      "separateUploadStartedCompletionAndRetryAdmission",
+      "ordinaryAndApplicationScreenshotUploadClosed",
+      "thinEdgeMagnetAndCaptureImplementation",
+      "Feedback",
+      "noOldHFReplay",
+      "noUnknownOrOriginalMediaCleanup",
+      "noAutomaticChatSend",
+      "noMainOrPR1Write",
+      "noReleaseOrFounderBeta"
+    ],
+    "stopAfter": "Completed formal integration with exact source review, full Native/Feedback CI and actual merge-tree verification; no unrelated polishing"
+  }
 }
