@@ -10,8 +10,10 @@
   "nonAuthorReview": {
     "status": "PASS",
     "scope": "exact source; not runtime",
-    "setupMain": "non-author experience reviewer",
-    "feedbackAndScroller": "non-author magnetic reviewer",
+    "capturePresentation": "non-author lead reviewer",
+    "historyPreviewAndAttachmentExplanation": "non-author experience reviewer",
+    "compositionHelperWorkflow": "non-author integration reviewer",
+    "feedbackSDKTestLabel": "non-author magnetic reviewer",
     "unresolvedFindings": []
   },
   "combinedNativeCI": "PENDING_NEW_EXACT_SOURCE",
@@ -36,8 +38,8 @@
     "uploadAdmissionExpanded": false,
     "userDataChanged": false
   },
-  "reviewedSource": "a3d18b508c5376ddaa87c45b45953d551c8b369f",
-  "reviewedTree": "f8ac091d8f3b21148a8df1274459f4f2491f921b",
+  "reviewedSource": "c81f24b388c0a4d54c3c470a23df60f0cc31b6a3",
+  "reviewedTree": "2f21eea44cebde6de3111607ccc2dcc2eb88d474",
   "continuationFailures": [
     {
       "head": "b3cec64f0ecbf869aff3b17b88d55323d1765393",
@@ -51,6 +53,14 @@
       "job": 123302828056,
       "reason": "asynchronous overlay-to-legacy retile shrinks settings preview 444 to 429 points and cancels animation",
       "repair": "reserve measured native legacy gutter independently of actual scroller style; original assertions unchanged"
+    },
+    {
+      "head": "65c67804f0d049a25aa947c9104410b20e46c94e",
+      "run": 40831099906,
+      "job": 123305386167,
+      "reason": "AppKit test requires performKeyEquivalent(with:) label",
+      "repair": "c81f24b388c0a4d54c3c470a23df60f0cc31b6a3; argument label only; original sheet/state/send-count assertions preserved",
+      "sourceAdmission": "PASS"
     }
   ],
   "experience": {
@@ -59,8 +69,25 @@
     "Q07": "service capability persistent; destructive sheet Keep default; new macOS key tests pending",
     "Q08": "explicit close blocker/retry/body-copy; runtime pending",
     "Q09": "app-scoped settings shortcut and standard editing routes; runtime pending",
-    "Q06": "IN_PROGRESS_NOT_IN_REVIEWED_SOURCE",
-    "Q03": "NOT_IMPLEMENTED",
-    "Q04": "NOT_IMPLEMENTED"
+    "Q06": "implemented verified bounded single-flight fit preview; identity/replacement/small-image regressions; runtime pending",
+    "Q03": "implemented frozen-request / next-mode projection, fixed slots and unchanged capture ownership; runtime pending",
+    "Q04": "implemented owner/revision-bound explanation on original pointer-free peek; deferred preparation refreshed after release without replay; runtime pending",
+    "Q02": "existing three-page flow retained; optional redesign not adopted",
+    "Q10": "original actual CI accessibility variants retained; physical environments NOT_RUN"
+  },
+  "localVerification": {
+    "finalIsolationTests": 24,
+    "originalVisualManifestTests": 18,
+    "supplementalCases": 6,
+    "supplementalUnsafeObservationsRejected": 34,
+    "scope": "Linux script checks and exact source review; Swift/macOS NOT_RUN at this checkpoint"
+  },
+  "nativeVisualGUI": {
+    "status": "PENDING_NEW_EXACT_SOURCE",
+    "originalCasesRequired": 46,
+    "originalMoviesRequired": 5,
+    "supplementalStaticCasesRequired": 6,
+    "physicalInput": "NOT_RUN",
+    "crossApplicationFocus": "NOT_RUN"
   }
 }
