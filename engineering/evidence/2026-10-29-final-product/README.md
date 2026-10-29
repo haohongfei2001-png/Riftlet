@@ -1,3 +1,46 @@
+# Feedback cloud closeout and enabled-source checkpoint — 2026-10-29
+
+Frozen source C2 is `4223a9dc80bd982e4b95305a1bd1e8f15ce7393c` (tree `a8eebcbfe47b4b3ad6f97412b4760def444910e3`), a direct child of previously admitted H `2f30885644c9dc597e47d8f1dc89b9e16828092a`. **Complete C2 non-author review passed with no blocking findings.** Reviewer `/root/deployment_review` matched all984 GitHub/local file objects and the complete89-file delta; a separate reviewer checked84 documentation/evidence files,182 links and12 anchors. The three new redirect tests were authored by deployment_review and reviewed by root as non-author. The exact decision (SHA256 `123d623b584685e032ac5274cafc23fda7c0f731233af5d2cac0f8d10626f780`) and89-file manifest are embedded in `results.json`. This is engineering review, not a claim of GitHub human approval.
+
+C2 configures the single fixed public HTTPS Receiver endpoint in `FeedbackHost` and contains the reviewed two-site Cloudflare Workers `redirect: "error"` to `"manual"` repair. Three new service cases each cover HTTP301/302/307/308: the old source actually failed all three; the repaired source passed all24 named local cases. The endpoint change is one line; screenshot Main/Core/Capture, admission, old UNKNOWN and the independent source gates are preserved. These local results do not replace the new complete macOS workflows.
+
+## Actual cloud service acceptance
+
+[The cloud evidence entry](../2026-10-29-feedback-cloud/README.md) and [final archive manifest](../2026-10-29-feedback-cloud/final-acceptance/manifest.json) record54/54 real HTTPS contract checks, direct D1 identity/hash persistence, same-ID lost-client-receipt recovery, real503 and429/rollback, and exactly3 unique private GitHub Issues. Six exact-body checks are two complete observations of those same3 Issues. The64 unique primary events retain four response-discard attempts, including the original pre-write DNS failure; snapshots are not double-counted.
+
+Owner permanent deletion of Issues1/2/3 was independently verified in the same authorized private repository by successful repository reads, a successful empty all-state Issue list and each exact Issue's explicit **410 Gone/deleted** response. The prepared404 expectation is retained as corrected history. Guarded D1 closure and direct final observation at15:39:00.373Z show8rows/8deleted/0active payload/0pending deletion/0temporary probe, with original Issue identities retained and limits100/20. The final three original-capability GETs returned their exact IDs, `deleted` and Boolean `durable=true`. Task-specific private temporary files were then removed under the recorded review:7 exact directories/18 files, all absent. No physical-media, native SQLite/Keychain or immediate provider-backup erasure is claimed; actual D1 Time Travel shows a past7days restore window.
+
+Ordinary Receiver version `39f6277e-11f2-455b-be27-8f0b6a795685` and Delivery version `3c749b91-ace3-45d9-86e5-62e2dab06c35` are restored. Production bundle/readback and removal of the temporary fault variable are recorded. The diagnostic scenario directly establishes actual Issue creation → D1 uncertain/null identity → delete intent/body scrub → normal cron recognition of the original Issue. Its HTTP201 response bytes and conditional discard-branch execution were not directly captured. No native-window or native-business-event diagnostic acceptance is inferred.
+
+## Current source, new CI and unified Beta
+
+Committed C2 has `sourceEndpointConfigured=true` for `https://riftlet-feedback-receiver.haohongfei2001.workers.dev/v1/feedback`. Configuration is not a per-feedback receipt or Issue-delivery claim. **The C2 admission successor's complete Native ARM/Intel CI, Feedback CI and enabled unified Beta build/independent ZIP verification are NOT_RUN at this metadata checkpoint.** No successor SHA, CI run/job, artifact identity or outcome is predicted.
+
+After that approval, this admission successor changes only the existing source-pin literal plus this README and `results.json`. The original gate first rejected only C2's74 new paths and15 changed objects while all four historical audits passed; that unmodified rejection is recorded in `results.json`. All audit policy, historical pins, workflows, metadata exceptions and screenshot admission remain unchanged. Completed new execution must identify the actual source/admission SHA, PR checkout, runs/jobs and downloaded ARM/Intel unified ZIP hashes in the formal PR handoff. An earlier nil-endpoint package cannot stand in for that result.
+
+## Preserved completed H verification
+
+Historical H `2f30885644c9dc597e47d8f1dc89b9e16828092a` used reviewed C `4d1fd5f1b6c7f75305d70ab5f1c04da2cdddb6bb` and actual PR checkout `1f145f08da6cec1043789dfe34d4d5144e7c3e25` (tree `c9c874bd35878e6784ef96a29e01b00c36c90a8c`, equal to H's tree). Non-author `/root/deployment_review` verified the complete successful runs and logs:
+
+| Historical workflow | Run | Completed successful jobs |
+|---|---|---|
+| [Native foundation](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40891805452) |40891805452|ARM123510319038; Intel123510319389; source admission123510319390|
+| [Feedback v0.1](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40891805617) |40891805617|Feedback123510319310; source admission123510318287|
+
+Each historical Native architecture's detailed Feedback suite passed49 unique cases. The historical Feedback job passed49 unique cases plus two close cases repeated three times; its55 passed executions are not55 unique tests. The historical service result is21/21 with actual Node22.23.2. Native745 refers to parallel test scheduling entries, not physical-Mac acceptance. The exact original verification record, log hashes, job IDs and artifact metadata are embedded under `latestCompletedRuntime` in `results.json`; the older8525 record and all earlier history remain preserved. H packages were built and checked in CI as **local-outbox-only**, and their ZIP bytes were intentionally not independently downloaded. Those results apply to H only.
+
+## Remaining real Mac acceptance and formal boundaries
+
+The user explicitly leaves Mac connection to Codex. [The prepared real Mac handoff](../2026-10-29-feedback-cloud/CODEX_REAL_MAC_E2E.md) covers the actual unified native window → cloud chain, opt-in diagnostics from native business events, IME/VoiceOver, close/quit/restart and network recovery, local/remote deletion and screenshot isolation. Every such real Mac item remains **NOT_RUN**; no executor has been scheduled or promised. Service scripts, software AppKit tests and CI WindowServer fixtures do not replace that acceptance, so **true native-to-cloud end-to-end delivery is not declared complete**.
+
+At this checkpoint the C2 continuation has not updated PR#1; it remains Draft. Main, screenshot admission and old UNKNOWN data are unchanged. No main merge, public release, paid upgrade, website/DNS change, Developer ID signing or notarization is claimed. The token expires2026-11-28 and requires maintainer rotation; no future automated operator is implied.
+
+---
+
+# Historical checkpoint records
+
+The original sections below preserve the facts, review outcomes and incomplete work at their original checkpoints. Their statements about an uncreated Delivery, a disconnected browser, nil endpoint or pending cleanup are historical and are superseded by the current cloud entry above. They are not current blockers or new C2/H2 execution results.
+
 # Feedback receiver continuation — 2026-10-29
 
 The new independently reviewed source is `4d1fd5f1b6c7f75305d70ab5f1c04da2cdddb6bb` (tree `ffda55a2af47c17eb130d21700a210c698ac73e3`), a direct child of current unified PR #15 head `c15fd4b4a27659946ef49280131e875f4d5ab9d1`. Non-author reviewer `/root/deployment_review` compared the complete remote/local trees and all 46 changed files. There are no unresolved source blockers. The source pin successor changes only the existing reviewed-source literal and these two existing metadata files; no policy, workflow, metadata exception, screenshot admission or historical evidence is changed.

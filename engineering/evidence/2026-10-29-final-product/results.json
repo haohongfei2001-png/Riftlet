@@ -9,6 +9,838 @@
   },
   "nonAuthorReview": {
     "status": "PASS",
+    "source": "4223a9dc80bd982e4b95305a1bd1e8f15ce7393c",
+    "tree": "a8eebcbfe47b4b3ad6f97412b4760def444910e3",
+    "reviewer": "/root/deployment_review",
+    "scope": "Exact complete C2 source/configuration/evidence; root separately reviewed the three tests authored by deployment_review. This is non-author engineering review, not GitHub human approval.",
+    "unresolvedFindings": [],
+    "decisionSHA256": "123d623b584685e032ac5274cafc23fda7c0f731233af5d2cac0f8d10626f780",
+    "originalDecision": {
+      "schema": 1,
+      "reviewedAtUTC": "2026-10-29T16:01:01.678368+00:00",
+      "decision": "APPROVE_EXACT_C2_SOURCE_AFTER_NONAUTHOR_REVIEW; COMPLETE_MACOS_CI_AND_FINAL_BETA_VALIDATION_STILL_REQUIRED",
+      "reviewer": "/root/deployment_review",
+      "commit": "4223a9dc80bd982e4b95305a1bd1e8f15ce7393c",
+      "tree": "a8eebcbfe47b4b3ad6f97412b4760def444910e3",
+      "parent": "2f30885644c9dc597e47d8f1dc89b9e16828092a",
+      "blockingFindings": [],
+      "objectVerification": {
+        "realGitHubCommitAndRecursiveTreeIndependentlyFetched": true,
+        "remoteFullTreeMatchesEveryLocalObject": true,
+        "remoteRecursiveTreeTruncated": false,
+        "treeEntries": 1138,
+        "committedFiles": 984,
+        "changedFiles": 89,
+        "modifiedExisting": 15,
+        "addedSafeEvidence": 74,
+        "reviewedManifest": "reviewed-89-files.json",
+        "manifestSHA256": "30c4aee2c5ae5b8455033e20ad985d9e235beb16812143e027f0fc55cf8ab76c",
+        "allPriorObjectsPreservedExceptExact15ReviewedChanges": true,
+        "allAddedFilesWithinFeedbackCloudEvidence": true
+      },
+      "reviewedCodeAndConfiguration": [
+        {
+          "path": "Sources/RiftletApp/FeedbackHost.swift",
+          "scope": "Exactly one endpoint line changed from nil to the audited HTTPS receiver /v1/feedback URL after the real cloud and final deletion activation gate passed. All other native source and tests remain byte-identical.",
+          "sha256": "283f3acbf76891d6af93b3af133179fa30e7507029b818c85824439cc71bb262"
+        },
+        {
+          "path": "services/feedback/delivery.mjs",
+          "scope": "Exactly two redirect error-to-manual changes and explanatory comments. Workers compatibility fixed without following redirects, forwarding credentials, loosening private-repository validation, or changing the unique HTTP-201 delivery gate, uncertainty, deletion, or retention behavior.",
+          "sha256": "f769e11b0a8778026d8d865ed7e7c60697f876eeb13232356e9921d55772e263"
+        },
+        {
+          "path": "services/feedback/feedback.test.mjs",
+          "scope": "Three directed tests cover private repository preflight, uncertain reconciliation, and POST 301/302/307/308 behavior. Exact candidate prior red-before/green-after logs retained, total 24 named service tests passed.",
+          "sha256": "8746342fbc245907fce0fca2e3288546700df4d490f3587d7bd5a14feeb0543e"
+        },
+        {
+          "paths": [
+            "services/feedback/wrangler.delivery.jsonc",
+            "services/feedback/wrangler.receiver.jsonc"
+          ],
+          "scope": "Dedicated account/D1/private-repository IDs are non-secret. Delivery production date and true string switch plus disabled preview URLs match real readback. No paid upgrade, public delivery route, temporary injection variable, or secret is committed."
+        }
+      ],
+      "independence": {
+        "productImplementationAndFullComposition": "Reviewed here independently of root, who authored/applied the production Host/config and redirect changes.",
+        "newThreeRedirectTests": "Authored by this reviewer in isolated /tmp, not claimed to be independently reviewed by their author. Root performed a separate non-author review of exact blob 4b50e95dedff5f5bff7a360422684b1820854bed and confirmed all four redirects, observable no-claim/no-duplicate/uncertain assertions, two-tick POST count, and cleanup of fetch/clock overrides.",
+        "temporaryDiagnosticProbe": "This reviewer authored the isolated preflight-only diagnostic candidate. Root independently reviewed it before the temporary deployment. It is archived as historical evidence only, absent from production code/config, and the probe table is removed.",
+        "documentsAndEvidenceSecondReviewer": "/root/deployment_review/evidence_scope_scan independently reviewed all 84 documentation/evidence blobs from exact C2; no shared writes or platform access.",
+        "secondReviewDecisionSHA256": "bb4d8549bf1317fd28312b4405a15595e2a2ab8f30c44eb2dd839b7e01a8f382",
+        "secondReviewedFilesSHA256": "a0b216c4cb241d37a700e0ad90ed30a205d09686ec7f5ca390de4d9a35ec4caa",
+        "secondScanDetailsSHA256": "4906dc9c31fdcd934f3e8f7cfcfbbb7df2ecf21eba99f445753636a46ce1ed63"
+      },
+      "protectedScope": {
+        "allOriginalWorkflowsUnchanged": true,
+        "allOriginalScriptsUnchanged": true,
+        "packageAndCaptureCoreAdaptersMainUnchanged": true,
+        "allNativeTestsUnchanged": true,
+        "allHistoricalGatesAndFourAuditsPreserved": true,
+        "sourceGateStillPinsPriorC": true,
+        "noScreenshotReceiptPolicyOrAdmissionChange": true,
+        "noMainOrRemoteMutationByReviewer": true
+      },
+      "deploymentCorrespondence": {
+        "receiverSourceRebuiltToExactActiveBundle": {
+          "bytes": 9610,
+          "sha256": "21fe26d707f0310358fb4878a45647c66fc1d0420687b7639a66d09323620677",
+          "activeVersion": "39f6277e-11f2-455b-be27-8f0b6a795685",
+          "buildOptions": "esbuild 0.25.12 bundle esm browser target es2022, without minification, matching the actual receiver build"
+        },
+        "ordinaryDeliverySourceRebuiltToExactActiveBundle": {
+          "bytes": 6356,
+          "sha256": "0236e5582362b1f74d21aad2ab04ef0d3333fed75f3e49fd7d924ccbef8ce7db",
+          "activeVersion": "3c749b91-ace3-45d9-86e5-62e2dab06c35"
+        },
+        "currentOperationalUIReadback": "final-operational-ui-readback.json records actual D1 past-7-days Time Travel, private repository Disable actions checked, and production-only expected Delivery variables/encrypted secret with temporary fault variable absent; earlier action chronology is explicitly operator-reported."
+      },
+      "cloudEvidenceDecision": {
+        "scope": "Real HTTPS receiver to dedicated D1 to three unique private GitHub Issues; same-identity client lost-receipt retry after independent D1 proof; uncertain creation and late original-Issue reconciliation across deletion; owner permanent deletion and guarded D1 closeout.",
+        "uniqueEventCount": 64,
+        "actualHTTPChecksPassed": 54,
+        "responseDiscardAttempts": 4,
+        "discardBoundary": "Three completed request writes; one historical DNS/pre-write failure preserved. No origin response read by discard harness. A completed write alone is never called D1 durability.",
+        "exactBodyComparisons": 6,
+        "uniquePrivateIssues": 3,
+        "githubRemoteReadCallsSeparatelyCounted": 9,
+        "permanentDeletionEvidence": "Owner Delete issue confirmations; same connected principal successfully reads the expected private repository and complete state=all empty list; each exact issue yields structured 410 with explicit deleted message. Official GitHub deleted-with-read-access semantics correct the retained historical 404-only expectation.",
+        "finalD1": {
+          "rows": 8,
+          "deleted": 8,
+          "payloadPresent": 0,
+          "pendingDeletion": 0,
+          "temporaryProbeTables": 0,
+          "dailyLimit": 100,
+          "hourlyLimit": 20
+        },
+        "finalOriginalCapabilityGETs": "Three exact original IDs return HTTP 200, state deleted and durable Boolean true; three extra strict semantic assertions passed.",
+        "archiveManifestSHA256": "8cb4b2f8b97d74231aaa47dc14bda675db574c70d080bf17bd55134f3d9f582b",
+        "uniqueEventsSHA256": "839473fea9af437543a4a5b6c585338f4225012134e8004589d50d4bcbd0cdda",
+        "temporaryPrivacyCleanup": "Seven exact task-only directories and eighteen files were removed after safe archive and safe provider-410 export; reviewer independently confirms all seven paths absent. No physical secure erasure or cloud backup erasure claim.",
+        "remoteTestDeletionObligationsRemaining": 0,
+        "limits": [
+          "No independent raw capture of diagnostic HTTP 201 or direct discard-branch execution. Exact fault-build deployment plus actual Issue, uncertain state and original-Issue reconciliation support the explicitly qualified fault scenario.",
+          "Service-generated synthetic diagnostics are not native business-event or native diagnostic preview evidence.",
+          "No physical Mac GUI, IME, VoiceOver, native screenshot isolation, or native-to-cloud end-to-end execution is claimed."
+        ]
+      },
+      "documentationAndPublicSafety": {
+        "filesIndependentlyScanned": 84,
+        "relativeLinksPassed": 182,
+        "anchorsPassed": 12,
+        "noRawPrivateFeedbackBodyCapabilityServerSecretOrPrivateKeyFound": true,
+        "historicalCheckpointScopePreserved": true,
+        "currentDeletionAndCleanupStatementsMatchEvidence": true
+      },
+      "verificationBoundaries": {
+        "existingLocalServiceVerification": "Exact current service/test candidate previously ran 24 named tests successfully; before-fix three directed tests failed as expected. This is local regression evidence, not cloud or macOS CI.",
+        "beforeAdmission": "before-admission-summary.json records expected 23/25 PASS, only 74 newly reviewed paths and 15 changed objects rejected by the unchanged prior source pin; all four historical audits PASS.",
+        "priorCI": "H Native run 40891805452 and Feedback run 40891805617 are successful historical checkpoint runs, not C2/H2 results.",
+        "newFullCIAndBeta": "NOT_RUN for final successor at the time of this decision; run original complete workflows and verify exact successor Beta artifacts after H2.",
+        "mac": "NOT_RUN; deferred to Codex under the user instruction, with no automatic executor claim.",
+        "formattingException": "Only six trailing-whitespace lines in immutable historical redirect-manual-fix/before.log are preserved to retain the raw failure-log hash; source and documentation diff checks pass when this one raw log is excluded.",
+        "untrackedFiles": "An untracked acceptance/__pycache__ directory is outside C2; reviewer did not remove or include it."
+      },
+      "permittedAdmissionSuccessor": {
+        "parentMustBe": "4223a9dc80bd982e4b95305a1bd1e8f15ce7393c",
+        "onlyPaths": [
+          "scripts/verify-final-product-composition.py",
+          "engineering/evidence/2026-10-29-final-product/README.md",
+          "engineering/evidence/2026-10-29-final-product/results.json"
+        ],
+        "gateOnlyChange": "Replace only the REVIEWED_SOURCE forty-hex literal with exact C2. Preserve every other gate policy byte, historical pin, main overlay, and workflow.",
+        "metadataOnly": "Record this exact source/tree/manifest/review and honest cloud/CI/Mac boundaries. No source or unrelated evidence change.",
+        "nextRequirement": "Independently review actual C2..H2 diff, then require original source gate and full macOS workflows; validate final source-bound unified Beta artifacts. No main merge or public release."
+      }
+    },
+    "reviewedFilesManifestSHA256": "30c4aee2c5ae5b8455033e20ad985d9e235beb16812143e027f0fc55cf8ab76c",
+    "reviewedFiles": [
+      {
+        "path": "AGENTS.md",
+        "change": "M",
+        "blob": "21f0775b0d70cff56d0eb2e64e28d3bb96fd3c41",
+        "bytes": 15447,
+        "sha256": "a1b77a7af1ba185324d37f25c3522d059c181b1138f7c501acec416179ffee92"
+      },
+      {
+        "path": "Sources/RiftletApp/FeedbackHost.swift",
+        "change": "M",
+        "blob": "e5490af012930da90e732d386836aeca641293d7",
+        "bytes": 5328,
+        "sha256": "283f3acbf76891d6af93b3af133179fa30e7507029b818c85824439cc71bb262"
+      },
+      {
+        "path": "docs/EXECUTION_BOARD.md",
+        "change": "M",
+        "blob": "11909ed4bfb898c45198cd08a12f15398561ff89",
+        "bytes": 59773,
+        "sha256": "1f4cba002caa8f4812f595fe408c1a4984bd43705ad9990e18fb2b6fcfec1709"
+      },
+      {
+        "path": "docs/FEEDBACK_V01_HANDOFF.md",
+        "change": "M",
+        "blob": "1475430da37a6afe4e6f9fe304a09a40fd1f31f8",
+        "bytes": 10948,
+        "sha256": "d790bf62d2ed97348af8f7688ae1c238f89e05e1624ac9864362a0f6e9786084"
+      },
+      {
+        "path": "docs/INTEGRATION_HANDOFF.md",
+        "change": "M",
+        "blob": "7aa5817d14da3f3af83811bfd4e80dd122fed7e9",
+        "bytes": 89061,
+        "sha256": "fa90f0c079f120aa0e887b497922052c5db4db39d2770dcbf6938819387a06ea"
+      },
+      {
+        "path": "docs/INTERNAL_BETA.md",
+        "change": "M",
+        "blob": "158df3052ebb8d8756ed9f54c61eb03ed2246964",
+        "bytes": 13537,
+        "sha256": "000f5e164c8b14cda0c856d2af89b8f09c7a97c5d3c3d31616b413f3bdbe3d1e"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/CODEX_REAL_MAC_E2E.md",
+        "change": "M",
+        "blob": "34642bfb62ee45b0e785424bfeb7c49dd66da7c1",
+        "bytes": 11200,
+        "sha256": "ca5894f9524d18523358b8e2526e03e25d14c7031c1617007e8f0d8bf9f31b83"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/DEPLOYMENT_RECONCILIATION_CHECKLIST.md",
+        "change": "M",
+        "blob": "a28878160960295ec75ddbe5adb9de3a229cb7c8",
+        "bytes": 3057,
+        "sha256": "a9201d0df8ea9a8d8099a0064c093d587b708b585ea977f82ee3f703ae6a7978"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/MINIMUM_OPERATIONS.md",
+        "change": "M",
+        "blob": "1c615f51177b6a74c8bd6ecba8839ff35520df9d",
+        "bytes": 7895,
+        "sha256": "255072c0a696916e87c57533498b2df2dacb605a729ea4bbf6233666dc3a4e46"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/README.md",
+        "change": "M",
+        "blob": "c851cec2f96e3b5f44026e22d6da3408fc75bd79",
+        "bytes": 12143,
+        "sha256": "90046ade1e100e7ba2f8a637f3ce9def87f475d99b516373b111af433e799a0e"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/client-risk-evidence.json",
+        "change": "A",
+        "blob": "0f924d2e1335dc4eb018453d7a0d4ffb22393bbd",
+        "bytes": 59522,
+        "sha256": "31f3f29f2a26c3135319098c6336d1d4b9590285b2485846bd167904065ed62f"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/client-risk-evidence.md",
+        "change": "A",
+        "blob": "8cdcfaaf8760f4e4bde1d7c3fa72617a7803d8e3",
+        "bytes": 14980,
+        "sha256": "4b6b926e279a2d5562b2fe0e0f5a1f2dd876ceffa7f854ad27d3e7dba796ff10"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/control-plane-live-observations.json",
+        "change": "A",
+        "blob": "1668fc66c850b429f87aaa85ca58415f9d07d53a",
+        "bytes": 4793,
+        "sha256": "10b6e3a18390607b8f72f503d327ffa2ccfdb514fec67c676226ad86bf0299b8"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/d1-final-deletion-closeout.json",
+        "change": "A",
+        "blob": "6d96546fb85ff5c0473351aeebf15e0ac52fed52",
+        "bytes": 2025,
+        "sha256": "c0d6b3f3ba2c3b57c2c5110291d0dc55a238a49eb22c825518fa34426d5df593"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/d1-final-summary.json",
+        "change": "A",
+        "blob": "0a9db06ed9123021bde6e6e625780f4901833ad4",
+        "bytes": 458,
+        "sha256": "7f488cff0b12a1e9165c658cd56f6237c87941ba70cc74beeb33f31e53958d07"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/d1-first-batch-cleanup.json",
+        "change": "A",
+        "blob": "91e127b64a358f70594b9251f1ba5e071c003e06",
+        "bytes": 909,
+        "sha256": "2e6813006d87419a7edb8e454f3384f340145d980522ac7a4b2aeff237a46557"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/d1-late-reconcile.json",
+        "change": "A",
+        "blob": "bf8b1f218e0b3670c06f355a77bfd2d07c92f706",
+        "bytes": 608,
+        "sha256": "c6d44703d0e389c661bfe925bf89bebe586fa6f89ff67e76d8a73f1a0d26e210"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/deletion-closeout-prepared/closeout-all-three.sql",
+        "change": "A",
+        "blob": "56b05b9d4020edad9be5657816061a270394c388",
+        "bytes": 1385,
+        "sha256": "7aecce4ffc5d5f08b697b13f2dc40c1d54c7aef440b3274b040ccca6fb5e2356"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/deletion-closeout-prepared/closeout-diagnostic.sql",
+        "change": "A",
+        "blob": "0d2e67ae756169506ea7073fbaec891d4e3af0bb",
+        "bytes": 462,
+        "sha256": "08764f0670c727e2c793f44bd65a81b959192441054371a13fd880a7c6c62430"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/deletion-closeout-prepared/closeout-lost_receipt.sql",
+        "change": "A",
+        "blob": "08a58dc721aaa1ee9184049b1c9ca2a4605d19f6",
+        "bytes": 464,
+        "sha256": "f155f0a1e4d051dc80761c4524de2565e1a52827b613bd2f22ce46c0e9332eee"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/deletion-closeout-prepared/closeout-plain.sql",
+        "change": "A",
+        "blob": "33e6896e33c64e2dfe7f418fb0683bedc1e2d87c",
+        "bytes": 457,
+        "sha256": "6406a4c9c3312b18f54f7bb2286f238154bda0fa06cfda7f2f60e5782b5dd244"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/deletion-closeout-prepared/offline-guard-checks.json",
+        "change": "A",
+        "blob": "b20cdd6fa776a96b05ade84f6edcf61f5fad370e",
+        "bytes": 3335,
+        "sha256": "007c5b87c395f1e0ed96d3b6bc595629eb71847131c5b03136ea84adffe04102"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/deletion-closeout-prepared/verification-gate.json",
+        "change": "A",
+        "blob": "d938ff0ea92ba6692b33979421056d2dbd12f1a3",
+        "bytes": 3195,
+        "sha256": "ff88fd5ee1cffe88cea1b3ec71af3dab5eefd9f8de39648199858b92d84647ca"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/deletion-closeout-prepared/verify-closeout-readonly.sql",
+        "change": "A",
+        "blob": "543266b4462c5cd8d05302286a53e4f2b5a22971",
+        "bytes": 461,
+        "sha256": "b18e4b0b96cb254e5a027a4028c8931249e7607cbb9ea27ca39787778c716e33"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/deletion-closeout-sql-review.json",
+        "change": "A",
+        "blob": "7a5f703ab68a01729b675d55393a418c334058b7",
+        "bytes": 4576,
+        "sha256": "8d89d53c1cb1bfb2a5a8bc06ae788c32a97cdaa24d9b13ae2638ed0bc32ae42c"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/delivery-checkpoint.json",
+        "change": "A",
+        "blob": "58deff3c541173935148e7c8d57ff088afce9be4",
+        "bytes": 15658,
+        "sha256": "a75a28e2b729066cb7dbd866ae1e5e1b5c4f7e0732860d2e6b5893f2e7fbc156"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/delivery-phase-selector-independent-review.json",
+        "change": "A",
+        "blob": "966dc9b15217104fc4970cef1b60f58aeefbce7e",
+        "bytes": 2445,
+        "sha256": "4dbd9eba02dce63cc45a126b2912b436f31836e1c522072ac1a4e2a58b031126"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/delivery-phase/client-loss-retry-event.jsonl",
+        "change": "A",
+        "blob": "b7b5f3f5f84d71183adc4ac627afbb899f6d618f",
+        "bytes": 751,
+        "sha256": "0f7cfebf98df93d6f3ccc5d127af5d6526fd5d31d6a20ff37cbd465d4e3c8ec8"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/delivery-phase/client-loss-retry-summary.json",
+        "change": "A",
+        "blob": "2ed476b099d6d0a3b347f9769f2212af1809b57e",
+        "bytes": 1850,
+        "sha256": "b771d159a39e28aead1edd05132ebb19a2e26a76cdcca7eca1713dc9e385f2a7"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/delivery-phase/final-client-deleted-20261029T153938Z/events.jsonl",
+        "change": "A",
+        "blob": "a50d2dbd5e803765dab6c3a9f5c0371503956e6c",
+        "bytes": 1971,
+        "sha256": "7caebf58757061789550b7620e559fc8737c6e6c56a0bef6964617bce0db0c75"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/delivery-phase/final-client-deleted-20261029T153938Z/summary.json",
+        "change": "A",
+        "blob": "d52ee22ccd9f8fa57de8e96f98cd63a844f3d325",
+        "bytes": 1297,
+        "sha256": "eb8d3e970206b4715b6dae86d617566410bb1849c6991386132cce085ad16fae"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/delivery-phase/github-deletion-race-20261029T152244Z/events.jsonl",
+        "change": "A",
+        "blob": "8f6c8d8328007728e19f35e1aa81a0376e4e129e",
+        "bytes": 7892,
+        "sha256": "f9f81c4d420aa89af4c2c8c2238e1d3047a3b38a258b14b2c479d233ca097d08"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/delivery-phase/github-deletion-race-20261029T152244Z/summary.json",
+        "change": "A",
+        "blob": "5a862bd7510ddb6af98f668a04ca19e9954e01b6",
+        "bytes": 8050,
+        "sha256": "44b89558dacc2d5b4cd8e302ddaf59928d9b852b26e0165510ec56d5980e2da5"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/delivery-phase/github-observation-20261029T145732Z/summary.json",
+        "change": "A",
+        "blob": "f670d8e42001cfcf92fe7d76753b24c14377547f",
+        "bytes": 2126,
+        "sha256": "b02adf55c7e50efff4bd2773b08c90eab9adb8ab1236be79b8243ee83d7f6f7f"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/delivery-phase/identities.json",
+        "change": "A",
+        "blob": "d334a5b6e561f7e49d78cdd9a94bbcb244e6d4a0",
+        "bytes": 677,
+        "sha256": "6d714728916c50cd0671eec335b8d359de8255d4bda6ed57003fe643cf4e3610"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/delivery-phase/kill-switch-events.jsonl",
+        "change": "A",
+        "blob": "be9e8023d1072278308f1d589d9fe40fec4146f8",
+        "bytes": 1331,
+        "sha256": "edda065a7b1f8180f6ccfc70d816e9f3e7e7f13caf66b72c212112e74240bbd4"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/delivery-phase/kill-switch-summary.json",
+        "change": "A",
+        "blob": "d8af26b44a17663c8523b7c22f2a2f5b95209774",
+        "bytes": 2401,
+        "sha256": "5fc836b4ccc17c345fae04ab2ad65c350dfc84107678c3b895e7619d56052f54"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/delivery-phase/late-reconcile-snapshot-20261029T153217Z/events.jsonl",
+        "change": "A",
+        "blob": "5182312c256cba82700cfaae0f020199cdc25a9f",
+        "bytes": 15096,
+        "sha256": "54ac4a5a827cbd86cb61aa18602e665f58329a150c365f89108d3ef5358ec91a"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/delivery-phase/late-reconcile-snapshot-20261029T153217Z/summary.json",
+        "change": "A",
+        "blob": "79ad238de805811621f0ab311797e9898d58dfe0",
+        "bytes": 5112,
+        "sha256": "6492fe6cc1e108eeaef4944ad7406dcb6fe108a3a521d69b08b66952444e27ef"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/delivery-phase/pending-delete-snapshot-20261029T152439Z/events.jsonl",
+        "change": "A",
+        "blob": "a1ffa2d14818e944374d2f2fb56d353b03045115",
+        "bytes": 11876,
+        "sha256": "695c5415398fe2198858e8d7802be3def84f77b6737e5def81dc5a55434c5333"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/delivery-phase/pending-delete-snapshot-20261029T152439Z/summary.json",
+        "change": "A",
+        "blob": "724cfbf9d4380bb68dd9281a4167537579591c1c",
+        "bytes": 7229,
+        "sha256": "066dbdad047f700b00ebbf42c5d9b299299afd8f29373509b880b11b1e687454"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/delivery-phase/permanent-delete-api-observation-20261029T153426Z/summary.json",
+        "change": "A",
+        "blob": "1b1ba12ceacdd6445ead067627efcbafd3a512df",
+        "bytes": 3665,
+        "sha256": "385d31e82e5b7a6599f3ae18392989ca460c64d99f4ab6426d9ee5cc6e4a114d"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/delivery-phase/post-client-retry-events.jsonl",
+        "change": "A",
+        "blob": "1daea60f50b7026588fb675378cdbed07e33103b",
+        "bytes": 4107,
+        "sha256": "99929594af8f0373f9ae1b3cf38594d2cca59d8cb4d327fafd1d46a9a73990c4"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/delivery-phase/quota-rejection-event.jsonl",
+        "change": "A",
+        "blob": "6390bb7a9d09fa70b8ac633cbb5f8cc8cee73d0a",
+        "bytes": 686,
+        "sha256": "d9b58b6dd1f86d80432b45c05fd0f116faa1e2f428080befae8c82f3a81f8280"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/delivery-phase/quota-rejection-summary.json",
+        "change": "A",
+        "blob": "7372e5372b5a60b803bfec668c662815ad74222a",
+        "bytes": 1236,
+        "sha256": "92dc6a1cac9f3b9b57b912ecda6ebf63cee92c3a4e8b7ad614eb7924172aabd8"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/delivery-phase/submission-snapshot-20261029T145242Z/events.jsonl",
+        "change": "A",
+        "blob": "83a9b0001fe821adff9424fb7fe9076bf0909563",
+        "bytes": 3356,
+        "sha256": "7840ad1c7cb99f1256a5349426f0e4228b38ef577d9354907c5648482449c036"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/delivery-phase/submission-snapshot-20261029T145242Z/summary.json",
+        "change": "A",
+        "blob": "f1c445cbd2fc762942384bc5f147ba337c937aee",
+        "bytes": 3281,
+        "sha256": "df38bac25f879cdbd2a375662d8c0dd2b02e50c33fc05cd330e2934830546841"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/delivery-preflight-live-observations.json",
+        "change": "A",
+        "blob": "93142805fdc8137fd8cee6655f88383bb7c9f671",
+        "bytes": 18440,
+        "sha256": "ec18494fb233fd72ca8f51c0c18017735d88be99067d4f6715c045baecb5c176"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/delivery-runtime-acceptance.json",
+        "change": "A",
+        "blob": "055b6767862ad1de772d4971fcb1031f4973e094",
+        "bytes": 3726,
+        "sha256": "5b24173b51348246e461e73555c23a12d83218673e92621d12afbea1e5a93ee5"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/final-acceptance/bootstrap-observation.json",
+        "change": "A",
+        "blob": "fab75cd3608db58a3284625da71ef577ebde0457",
+        "bytes": 815,
+        "sha256": "0603c84cd5227635ecf5de09c340723366ec0a454528f1493bcc8470d217e632"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/final-acceptance/event-provenance.json",
+        "change": "A",
+        "blob": "98fd086fee2378d1685144a46725d0ed903b33bc",
+        "bytes": 11493,
+        "sha256": "03a15e26d3c47511f65c5018d2c304cc49566ad06551100cca8bb3911c28de41"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/final-acceptance/final-client-deleted-summary.json",
+        "change": "A",
+        "blob": "d52ee22ccd9f8fa57de8e96f98cd63a844f3d325",
+        "bytes": 1297,
+        "sha256": "eb8d3e970206b4715b6dae86d617566410bb1849c6991386132cce085ad16fae"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/final-acceptance/github-before-delivery-summary.json",
+        "change": "A",
+        "blob": "f670d8e42001cfcf92fe7d76753b24c14377547f",
+        "bytes": 2126,
+        "sha256": "b02adf55c7e50efff4bd2773b08c90eab9adb8ab1236be79b8243ee83d7f6f7f"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/final-acceptance/github-three-issues-summary.json",
+        "change": "A",
+        "blob": "5a862bd7510ddb6af98f668a04ca19e9954e01b6",
+        "bytes": 8050,
+        "sha256": "44b89558dacc2d5b4cd8e302ddaf59928d9b852b26e0165510ec56d5980e2da5"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/final-acceptance/identities.json",
+        "change": "A",
+        "blob": "7f1d8826a46597edcf44b110ffc4f81ea417c956",
+        "bytes": 3415,
+        "sha256": "c9aad57b6f1aa1c8088255fe889e653019ad845fb244a2febd0752946905fe52"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/final-acceptance/late-reconcile-summary.json",
+        "change": "A",
+        "blob": "79ad238de805811621f0ab311797e9898d58dfe0",
+        "bytes": 5112,
+        "sha256": "6492fe6cc1e108eeaef4944ad7406dcb6fe108a3a521d69b08b66952444e27ef"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/final-acceptance/manifest.json",
+        "change": "A",
+        "blob": "aeb85dc7279aee02b126061601d42883b48c0219",
+        "bytes": 1170,
+        "sha256": "8cb4b2f8b97d74231aaa47dc14bda675db574c70d080bf17bd55134f3d9f582b"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/final-acceptance/permanent-delete-api-summary.json",
+        "change": "A",
+        "blob": "1b1ba12ceacdd6445ead067627efcbafd3a512df",
+        "bytes": 3665,
+        "sha256": "385d31e82e5b7a6599f3ae18392989ca460c64d99f4ab6426d9ee5cc6e4a114d"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/final-acceptance/receiver-events.jsonl",
+        "change": "A",
+        "blob": "28587031e3c938468f79e6166a1a196c299f96b1",
+        "bytes": 43358,
+        "sha256": "839473fea9af437543a4a5b6c585338f4225012134e8004589d50d4bcbd0cdda"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/final-acceptance/summary.json",
+        "change": "A",
+        "blob": "3c6b30b9a0bd85b1b5aecad0ef9071a9b718bc46",
+        "bytes": 4671,
+        "sha256": "6772801e10215819d63af21ef616087228f3bef3abfc6ae495998966c1c73b2c"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/final-archive-cleanup-review/decision.json",
+        "change": "A",
+        "blob": "b2656c2a21a15a990a950977fd252880eae5c495",
+        "bytes": 3709,
+        "sha256": "59162217ef50ce4393b55eb20ef35b282036fac6b366baebe4c52ab4e74c115c"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/final-archive-cleanup-review/provider-410-safe-extract.json",
+        "change": "A",
+        "blob": "d64afde1e8f19a07659fb6c226097832044b51b2",
+        "bytes": 1753,
+        "sha256": "80f0c336869d1771c65ad31f731a29afa9ff8d2a3ce1ac7ed55ac6fc6f3184d5"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/final-operational-ui-readback.json",
+        "change": "A",
+        "blob": "a45cf48a84c135691ed79c5f8b81ddea8adf1076",
+        "bytes": 6888,
+        "sha256": "77add0a271a12d49540454af25403e9e179f23cdeb29f769f47771b367c6f965"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/github-owner-permanent-deletion.json",
+        "change": "A",
+        "blob": "754c48eae172a684172865318925d036532c3660",
+        "bytes": 10532,
+        "sha256": "412e309a43356fdfbc1a5a2791c5a665c373dcb72ad9f1023e27b078a1284f8a"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/host-activation-gate/decision.json",
+        "change": "A",
+        "blob": "a17ff76649fa2219dc4258c18a9858218f5acd0e",
+        "bytes": 3759,
+        "sha256": "4e79e3d7eebd66d8917b8c15a1d7dc39f57609e0b3814c30e4fb5a4eb349db6a"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/host-activation-gate/reviewed-evidence-manifest.json",
+        "change": "A",
+        "blob": "efe7f70d092c6b2f78f33fb1dbd8f0852268606e",
+        "bytes": 2512,
+        "sha256": "7766aef7f69bd4ac3bdc8c4eb7489281f283bb55e0eb2909cc08b98cc03169cf"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/lost-response-independent-review.json",
+        "change": "A",
+        "blob": "b855c9a6e341f94ce91100f3e6cdd2598c086795",
+        "bytes": 424,
+        "sha256": "cc2c2d180394e467cc02733ab484390efcc7100619e237c338d76f2f82346ea2"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/lost-response-proposal.patch",
+        "change": "A",
+        "blob": "c536d368f570acd8a25dd3cb6bebeba9226648a0",
+        "bytes": 1121,
+        "sha256": "ff917c97fde43452a4a7e18cd581efaf2bd7c6e3f5272d7750f46534d734dfbe"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/permanent-deletion-410-review/corrected-verification-gate.json",
+        "change": "A",
+        "blob": "077c5782975ccb68e7cf6347ebdec1ab480b38c9",
+        "bytes": 2559,
+        "sha256": "d3d4dd61b140a754d1eba9ac6dd20524ad426df72222cc5721155d68c4c79b39"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/permanent-deletion-410-review/decision.json",
+        "change": "A",
+        "blob": "92596bad89d66196a0a46fe45496cd10904d7607",
+        "bytes": 2724,
+        "sha256": "d3671241aa18b9752a4b45ddf7bc0d8a11aeac868d84e39f0cd5975f260c1c20"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/private-temporary-cleanup.json",
+        "change": "A",
+        "blob": "5f0e0fe5cb0eacd0a38634e35a473fb5d524b884",
+        "bytes": 2526,
+        "sha256": "6895eb4047b1ce6059bcc2fff1a74e6a9c59b00ed51cff32c66bd489653d7fca"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/production-bundle-independent-review.json",
+        "change": "A",
+        "blob": "cf863cc65f52a776b44f9ab4960c6486bb1ae106",
+        "bytes": 2441,
+        "sha256": "323b3a6c84244a2024b2de5ff12b7e0b466d6225318c1fca109133e67ff486f7"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/receiver-final-code-readback.json",
+        "change": "A",
+        "blob": "e6e12180232937a99e432578f3c7be5d0ed49b83",
+        "bytes": 680,
+        "sha256": "0b0d455fca128cce408d7bd81aea9a2a34550654eb0f7b9674f119ba9292bb2c"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/redirect-manual-fix/after.log",
+        "change": "A",
+        "blob": "514b2dc129175a30098e0eb3bcd162a80b65a1ed",
+        "bytes": 6619,
+        "sha256": "dab2cf4c0eb002b879c5a6ae91ace241ffbe14c90d59871924e67d8c0836c3ff"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/redirect-manual-fix/before.log",
+        "change": "A",
+        "blob": "627d27f56d196ff0a216c618a2c9999e081e9100",
+        "bytes": 10103,
+        "sha256": "d1204839236480d65a048d471685d6dfb4b43bb7013e1603627d623a606321eb"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/redirect-manual-fix/bundle-structural-check.json",
+        "change": "A",
+        "blob": "0618a6a72fba137218c3809edd7eb2d470573717",
+        "bytes": 483,
+        "sha256": "b56281a00e05ebec4b830ee0fd6fcc8f1b31b1b3572214becb568f3d2e72d56c"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/redirect-manual-fix/decision.json",
+        "change": "A",
+        "blob": "07e527fc3f1eef398c22a131cf8c9fcfa2cb02c8",
+        "bytes": 1134,
+        "sha256": "ceae11f1533505bc6efbabbf6c4945300b3d5748a8ab54cdd0e5ddb221a83eae"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/redirect-manual-fix/redirect-manual-fix.patch",
+        "change": "A",
+        "blob": "9de66bc4cbb44a44ae3343801816357529ba17e8",
+        "bytes": 6054,
+        "sha256": "5715b6d6fc84aa71a697b9a00f0bb7118624871802b5660797bbdfd2a0794a9f"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/temporary-preflight-probe/manifest.json",
+        "change": "A",
+        "blob": "ece5b5add8d959871509e1ed46b63ef527d5a171",
+        "bytes": 539,
+        "sha256": "8835ac6785811d8ac9086883dba1e31d2785bf2440de4e5850104f8cf0c2cce5"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/temporary-preflight-probe/offline-check.log",
+        "change": "A",
+        "blob": "2db5de2eadea97d8837bb8a268671a1e6e2ff667",
+        "bytes": 548,
+        "sha256": "84c2b7f73620fb1db34ee80e723292c03e6a14d063246709e0330f7123a44e77"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/temporary-preflight-probe/offline-verification.json",
+        "change": "A",
+        "blob": "6b8b9c3860985b869a9fcaa3afb51440694e0acc",
+        "bytes": 696,
+        "sha256": "ab685207ade55beefdf84f2983a3e91ffe540ff196f33237538499263f6ea888"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/temporary-preflight-probe/preflight-probe.patch",
+        "change": "A",
+        "blob": "c4dea55d388e9f02948fa48c36b55d0050d3f371",
+        "bytes": 4544,
+        "sha256": "1f12a3d930bcd0a9e71f07cae24eac5a2b17504728090a99a25cb7c314fd1aeb"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/temporary-preflight-probe/probe-schema.sql",
+        "change": "A",
+        "blob": "4848d1e2eec69a6ece1f1bac5c7de3f55e45bbea",
+        "bytes": 820,
+        "sha256": "ca2c54f82c4bd7e5bdd66eebc42090868b52448ae93a03040b001a43e2dedb48"
+      },
+      {
+        "path": "engineering/evidence/2026-10-29-feedback-cloud/temporary-preflight-probe/schema-check.log",
+        "change": "A",
+        "blob": "db5330e957c92a472d5b31a8e6579b6f4643e984",
+        "bytes": 203,
+        "sha256": "f5b37e5ef0e797d1eb530d11b77c414c5b79c095a41cc04d3845b4ccd9137d59"
+      },
+      {
+        "path": "services/feedback/README.md",
+        "change": "M",
+        "blob": "d190342394c209f0aa6d80621917d23b5114b7eb",
+        "bytes": 12648,
+        "sha256": "e1e184d9a24cc97213e0613b4299f0b8e4b743e2fdf847d7326980be8bbcb21c"
+      },
+      {
+        "path": "services/feedback/delivery.mjs",
+        "change": "M",
+        "blob": "c61d5a3d5672ac761256210c30e073a22d83dd7a",
+        "bytes": 6779,
+        "sha256": "f769e11b0a8778026d8d865ed7e7c60697f876eeb13232356e9921d55772e263"
+      },
+      {
+        "path": "services/feedback/feedback.test.mjs",
+        "change": "M",
+        "blob": "4b50e95dedff5f5bff7a360422684b1820854bed",
+        "bytes": 18204,
+        "sha256": "8746342fbc245907fce0fca2e3288546700df4d490f3587d7bd5a14feeb0543e"
+      },
+      {
+        "path": "services/feedback/wrangler.delivery.jsonc",
+        "change": "M",
+        "blob": "0d981a8ce2c35b846d00bf5bd8112ddc2ef1c2dd",
+        "bytes": 584,
+        "sha256": "95c3584d018b4da3e20d3c8d756b2acdb08274637d887573ac126f23045de62c"
+      },
+      {
+        "path": "services/feedback/wrangler.receiver.jsonc",
+        "change": "M",
+        "blob": "ae425f60e8805b687bc67d850960f55e2df8f615",
+        "bytes": 477,
+        "sha256": "fe76d4bbfe591eda920fc05ad6d2a82f94601785cbba188a0affea2554303f7a"
+      }
+    ],
+    "originalGateBeforeAdmission": {
+      "command": "python -B scripts/verify-final-product-composition.py 4223a9dc80bd982e4b95305a1bd1e8f15ce7393c --repository /workspace/scratch/3e5b090206d5/riftlet",
+      "exitCode": 1,
+      "result": "EXPECTED_OLD_PIN_REJECTION",
+      "checks": 25,
+      "passed": 23,
+      "failed": [
+        "composition:exact-paths",
+        "composition:exact-objects"
+      ],
+      "unexpectedPaths": 74,
+      "changedPriorObjects": 15,
+      "missingPaths": 0,
+      "historicalAudits": [
+        {
+          "id": "historical:feedback-reliability",
+          "originalAudit": {
+            "mode": "100644",
+            "oid": "d02efe1b8655b22a2aae2a347bba3c4d1c9d20f8",
+            "type": "blob"
+          },
+          "originalRevision": "0e7ea8be148e1124b387e799fd886a7830e96559",
+          "result": "PASS"
+        },
+        {
+          "id": "historical:thin-edge",
+          "originalAudit": {
+            "mode": "100644",
+            "oid": "eff1187ef5a46797266cd6aa69e383dfdf4e3a60",
+            "type": "blob"
+          },
+          "originalRevision": "443d21da1a55c0061eafced823b5406879b96024",
+          "result": "PASS"
+        },
+        {
+          "id": "historical:unified-thin-edge",
+          "originalAudit": {
+            "mode": "100644",
+            "oid": "a9470427c62625db2935e187f340616682aaa30d",
+            "type": "blob"
+          },
+          "originalRevision": "2c8cd0371de5e07fd7794f76335381a40403030d",
+          "result": "PASS"
+        },
+        {
+          "id": "historical:builtin-capture",
+          "originalAudit": {
+            "mode": "100644",
+            "oid": "1b9d9ad4c43026647fd4f656962b639bab877965",
+            "type": "blob"
+          },
+          "originalRevision": "6b60f67f6d35272eecff901c507bd75a77874ed6",
+          "result": "PASS"
+        }
+      ],
+      "rawSHA256": "ceaa5006230be15f4aec5c951478dc39d8489466b27c06a1a5b93f44f6e6f133",
+      "explanation": "The unchanged source gate still pins prior reviewed C. New source is deliberately not admitted before non-author review; no policy weakening is permitted."
+    }
+  },
+  "historicalNonAuthorReviewThroughPR17": {
+    "status": "PASS",
     "scope": "exact source; not runtime",
     "capturePresentation": "non-author lead reviewer",
     "historyPreviewAndAttachmentExplanation": "non-author experience reviewer",
@@ -154,11 +986,11 @@
       "nativeAndRealChromeExecutionAtSourceReview": "NOT_RUN_NEW_COMBINATION"
     }
   },
-  "combinedNativeCI": "PENDING_NEW_FORMAL_HEAD_AND_ACTUAL_PR_MERGE",
-  "combinedFeedbackCI": "PENDING_NEW_FORMAL_HEAD_AND_ACTUAL_PR_MERGE",
-  "physicalMac": "BLOCKED_AUTHORIZED_EXECUTOR_OFFLINE",
+  "combinedNativeCI": "NOT_RUN_FOR_C2_ADMISSION_SUCCESSOR; historical H ARM and Intel success is archived in latestCompletedRuntime",
+  "combinedFeedbackCI": "NOT_RUN_FOR_C2_ADMISSION_SUCCESSOR; historical H Feedback49/service21 success is archived in latestCompletedRuntime",
+  "physicalMac": "NOT_RUN_USER_DEFERRED_TO_CODEX; handoff prepared, no executor scheduled or claimed",
   "realChatGPT": "NOT_RUN_APPLICATION_ORIGIN_ADMISSION_CLOSED",
-  "cloudFeedback": "NOT_RUN_ENDPOINT_NIL",
+  "cloudFeedback": "CLOUD_SERVICE_PASS_WITH_RECORDED_LIMITS; real HTTPS/D1/private-Issue/deletion evidence complete, native-window E2E NOT_RUN",
   "diagnostics": {
     "originalFailedRun": 40770139026,
     "isolatedVariantRun": 40819965387,
@@ -176,8 +1008,8 @@
     "uploadAdmissionExpanded": false,
     "userDataChanged": false
   },
-  "reviewedSource": "4d1fd5f1b6c7f75305d70ab5f1c04da2cdddb6bb",
-  "reviewedTree": "ffda55a2af47c17eb130d21700a210c698ac73e3",
+  "reviewedSource": "4223a9dc80bd982e4b95305a1bd1e8f15ce7393c",
+  "reviewedTree": "a8eebcbfe47b4b3ad6f97412b4760def444910e3",
   "continuationFailures": [
     {
       "head": "b3cec64f0ecbf869aff3b17b88d55323d1765393",
@@ -283,7 +1115,7 @@
     "feedbackRecordsStartup": "Before the single original disclosure click, wait at most two seconds for the actual fixture draft/editor and both exact record IDs/bodies/states. Original post-click visibility/body/state assertions and process bounds remain. Old staticPreparation/missingWindow does not identify the precise failed guard.",
     "readinessEvidenceScope": "Preparation facts are not pixel proof. New source remains complete-CI and original-PNG/MOV pending."
   },
-  "latestCompletedRuntime": {
+  "historical8525Runtime": {
     "schemaVersion": 1,
     "head": "8525a36d878acdc70be26b673e468cee456278a3",
     "reviewedSource": "25609879978557e21ce42e781f2d1c2e41120752",
@@ -834,6 +1666,280 @@
     ],
     "completedNativeAttempts": 5,
     "allListedJobsCompleted": true
+  },
+  "latestCompletedRuntime": {
+    "scope": "HISTORICAL_H_ONLY: latest completed CI in this record; not current C2/H2 CI or an enabled-service Beta.",
+    "head": "2f30885644c9dc597e47d8f1dc89b9e16828092a",
+    "reviewedSource": "4d1fd5f1b6c7f75305d70ab5f1c04da2cdddb6bb",
+    "checkout": "1f145f08da6cec1043789dfe34d4d5144e7c3e25",
+    "sourceTree": "ffda55a2af47c17eb130d21700a210c698ac73e3",
+    "checkoutTree": "c9c874bd35878e6784ef96a29e01b00c36c90a8c",
+    "verificationRecordSHA256": "972512c4ddb2b95cf9c926fb58be6481a2ff3fe274d8934381cb26f54ce92333",
+    "platformMetadataSHA256": "562ebd1ea59cb859b5a6efe98388e7330f9ab93a6c5c7b45f202c90cba019269",
+    "completedJobs": [
+      {
+        "id": 123510319038,
+        "name": "macos (macos-15)",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 40891805452
+      },
+      {
+        "id": 123510319389,
+        "name": "macos (macos-15-intel)",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 40891805452
+      },
+      {
+        "id": 123510319390,
+        "name": "source_admission",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 40891805452
+      },
+      {
+        "id": 123510318287,
+        "name": "source_admission",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 40891805617
+      },
+      {
+        "id": 123510319310,
+        "name": "feedback",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 40891805617
+      }
+    ],
+    "originalVerificationRecord": {
+      "reviewer": "/root/deployment_review",
+      "completedVerificationUTC": "2026-10-29T14:42:05.079669+00:00",
+      "status": "H_CHECKPOINT_FULL_NATIVE_AND_FEEDBACK_CI_PASS",
+      "reviewedSource": "4d1fd5f1b6c7f75305d70ab5f1c04da2cdddb6bb",
+      "admissionHead": "2f30885644c9dc597e47d8f1dc89b9e16828092a",
+      "actualCheckout": "1f145f08da6cec1043789dfe34d4d5144e7c3e25",
+      "actualCheckoutTree": "c9c874bd35878e6784ef96a29e01b00c36c90a8c",
+      "mergeParents": [
+        "c15fd4b4a27659946ef49280131e875f4d5ab9d1",
+        "2f30885644c9dc597e47d8f1dc89b9e16828092a"
+      ],
+      "mergeTreeEqualsAdmissionHead": true,
+      "nativeRun": {
+        "id": 40891805452,
+        "name": "Native foundation",
+        "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/40891805452",
+        "head": "2f30885644c9dc597e47d8f1dc89b9e16828092a",
+        "status": "completed",
+        "conclusion": "success",
+        "created": "2026-10-29T14:28:25Z",
+        "updated": "2026-10-29T14:40:43Z",
+        "attempt": 1,
+        "event": "pull_request"
+      },
+      "feedbackRun": {
+        "id": 40891805617,
+        "name": "Feedback v0.1",
+        "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/40891805617",
+        "head": "2f30885644c9dc597e47d8f1dc89b9e16828092a",
+        "status": "completed",
+        "conclusion": "success",
+        "created": "2026-10-29T14:28:25Z",
+        "updated": "2026-10-29T14:32:16Z",
+        "attempt": 1,
+        "event": "pull_request"
+      },
+      "allFiveJobsSuccess": true,
+      "skippedBranchSpecificSteps": [
+        {
+          "job": 123510319038,
+          "step": "Verify isolated arrival delta and report native motion outcomes"
+        },
+        {
+          "job": 123510319389,
+          "step": "Verify isolated arrival delta and report native motion outcomes"
+        },
+        {
+          "job": 123510319310,
+          "step": "Verify actual Feedback and current screenshot composition"
+        }
+      ],
+      "architectures": {
+        "arm64": {
+          "rawJobLog": "native-arm-job-123510319038.log",
+          "rawLogSHA256": "7b597a2db2ba9c818573acc201eb9b010fe89ddf4bc5c993f45c626440450d6c",
+          "parallelListedTestCount": 745,
+          "parallelDistinctListedTestCount": 745,
+          "parallelCountIsNotPhysicalPassCount": true,
+          "dedicatedFeedbackUniquePassedCases": 49,
+          "packageProofLines": [
+            "2026-10-29T14:33:48.8382870Z RIFTLET_BUNDLE_CHECK_PASS: layout, permissions text, resources, notices; development 0.1.0; NOT_NOTARIZED; GATEKEEPER_NOT_RUN",
+            "2026-10-29T14:33:48.8990740Z Created build/Riftlet.app (development ad-hoc signature; not notarized; no public release).",
+            "2026-10-29T14:33:49.8932660Z RIFTLET_BUNDLE_CHECK_PASS: layout, permissions text, resources, notices; development 0.1.0; NOT_NOTARIZED; GATEKEEPER_NOT_RUN",
+            "2026-10-29T14:33:50.6978250Z RIFTLET_INTERNAL_BETA_CHECK_PASS: source=2f30885644c9dc597e47d8f1dc89b9e16828092a; checkout=1f145f08da6cec1043789dfe34d4d5144e7c3e25; explicit candidate; Feedback=local-outbox-only; GUI_NOT_RUN; GATEKEEPER_NOT_RUN",
+            "2026-10-29T14:33:50.9386650Z RIFTLET_INTERNAL_BETA_PACKAGE_PASS: complete App, explicit candidate launcher, Feedback capability recorded in exact build manifest; NOT_PUBLIC_RELEASE"
+          ],
+          "captureProbeSummary": [
+            {
+              "status": "PARTIAL",
+              "completedModes": [
+                "region"
+              ],
+              "notRunModes": [
+                "window",
+                "fullScreen"
+              ],
+              "physicalInteractionAcceptance": "NOT_RUN",
+              "realUploadAcceptance": "NOT_RUN"
+            }
+          ],
+          "physicalAcceptance": "NOT_RUN",
+          "independentBetaZipBytesDownloaded": false
+        },
+        "x86_64": {
+          "rawJobLog": "native-intel-job-123510319389.log",
+          "rawLogSHA256": "8c6a066ec3e61032dbd38c57180473178f8bb415f561663c7b5749b2de4bd993",
+          "parallelListedTestCount": 745,
+          "parallelDistinctListedTestCount": 745,
+          "parallelCountIsNotPhysicalPassCount": true,
+          "dedicatedFeedbackUniquePassedCases": 49,
+          "packageProofLines": [
+            "2026-10-29T14:37:35.8395520Z RIFTLET_BUNDLE_CHECK_PASS: layout, permissions text, resources, notices; development 0.1.0; NOT_NOTARIZED; GATEKEEPER_NOT_RUN",
+            "2026-10-29T14:37:36.0096280Z Created build/Riftlet.app (development ad-hoc signature; not notarized; no public release).",
+            "2026-10-29T14:37:42.9976880Z RIFTLET_BUNDLE_CHECK_PASS: layout, permissions text, resources, notices; development 0.1.0; NOT_NOTARIZED; GATEKEEPER_NOT_RUN",
+            "2026-10-29T14:37:47.3032430Z RIFTLET_INTERNAL_BETA_CHECK_PASS: source=2f30885644c9dc597e47d8f1dc89b9e16828092a; checkout=1f145f08da6cec1043789dfe34d4d5144e7c3e25; explicit candidate; Feedback=local-outbox-only; GUI_NOT_RUN; GATEKEEPER_NOT_RUN",
+            "2026-10-29T14:37:48.0352760Z RIFTLET_INTERNAL_BETA_PACKAGE_PASS: complete App, explicit candidate launcher, Feedback capability recorded in exact build manifest; NOT_PUBLIC_RELEASE"
+          ],
+          "captureProbeSummary": [
+            {
+              "status": "PARTIAL",
+              "completedModes": [
+                "region"
+              ],
+              "notRunModes": [
+                "window",
+                "fullScreen"
+              ],
+              "physicalInteractionAcceptance": "NOT_RUN",
+              "realUploadAcceptance": "NOT_RUN"
+            }
+          ],
+          "physicalAcceptance": "NOT_RUN",
+          "independentBetaZipBytesDownloaded": false
+        }
+      },
+      "feedbackDetails": {
+        "head": "2f30885644c9dc597e47d8f1dc89b9e16828092a",
+        "workflowRun": 40891805617,
+        "feedbackJob": 123510319310,
+        "serviceRuntime": "v22.23.2",
+        "serviceSubtests": 21,
+        "serviceSummary": [
+          "2026-10-29T14:29:52.6613190Z # tests 21",
+          "2026-10-29T14:29:52.6614070Z # pass 21",
+          "2026-10-29T14:29:52.6614530Z # fail 0",
+          "2026-10-29T14:29:52.6614950Z # cancelled 0",
+          "2026-10-29T14:29:52.6615460Z # skipped 0"
+        ],
+        "nativeUniquePassedCases": 49,
+        "nativePassedExecutionsIncludingRepeats": 55,
+        "intentionalThreeCloseRepeatsNotAddedToUniqueCount": true,
+        "feedbackLogSHA256": "26e804c04397a5d0b9de6a3abf50238cbc996a8acf8a2ee6b999e17cdefc3c41",
+        "sourceAdmission": {
+          "run": 40891805452,
+          "job": 123510319390,
+          "artifact": 12903869992,
+          "zipSHA256": "92f36c94df4bb1ba979d7428f64c2b07733fbb368c1655bbca83ddc9cbf7a1f2",
+          "artifactDigestMatched": true,
+          "result": "PASS",
+          "checks": 25,
+          "allChecksPASS": true,
+          "protectedFileCount": 907,
+          "fixedSource": "4d1fd5f1b6c7f75305d70ab5f1c04da2cdddb6bb",
+          "actualMerge": "1f145f08da6cec1043789dfe34d4d5144e7c3e25",
+          "actualTree": "c9c874bd35878e6784ef96a29e01b00c36c90a8c",
+          "isolationSuiteSummaries": {
+            "builtin-isolation-tests.log": {
+              "summary": [
+                "Ran 5 tests in 0.806s"
+              ],
+              "hasOK": true
+            },
+            "final-isolation-tests.log": {
+              "summary": [
+                "Ran 24 tests in 4.662s"
+              ],
+              "hasOK": true
+            },
+            "thin-edge-isolation-tests.log": {
+              "summary": [
+                "Ran 21 tests in 2.929s"
+              ],
+              "hasOK": true
+            },
+            "unified-isolation-tests.log": {
+              "summary": [
+                "Ran 24 tests in 3.844s"
+              ],
+              "hasOK": true
+            }
+          }
+        },
+        "scope": "Actual CI checkpoint; not physical Mac or cloud-pipeline acceptance. H Beta download deferred by root because resumed cloud work may produce C2."
+      },
+      "artifactMetadata": [
+        {
+          "id": 12905657497,
+          "name": "native-foundation-macos-15-intel-1f145f08da6cec1043789dfe34d4d5144e7c3e25",
+          "sizeBytes": 14178640,
+          "digest": "sha256:bca105cc7543edc669f35ce5b4f6209d242b96e2a6c05f84dcb18197bcef2cb1",
+          "head": "2f30885644c9dc597e47d8f1dc89b9e16828092a",
+          "expired": false,
+          "expiresAt": "2026-11-12T14:40:36Z"
+        },
+        {
+          "id": 12905023749,
+          "name": "native-foundation-macos-15-1f145f08da6cec1043789dfe34d4d5144e7c3e25",
+          "sizeBytes": 12501595,
+          "digest": "sha256:583cf57b6ae816904e141ed693928cb866ae03842930bfa39898652061bf6a3e",
+          "head": "2f30885644c9dc597e47d8f1dc89b9e16828092a",
+          "expired": false,
+          "expiresAt": "2026-11-12T14:35:48Z"
+        },
+        {
+          "id": 12903869992,
+          "name": "final-source-admission-1f145f08da6cec1043789dfe34d4d5144e7c3e25",
+          "sizeBytes": 218817,
+          "digest": "sha256:92f36c94df4bb1ba979d7428f64c2b07733fbb368c1655bbca83ddc9cbf7a1f2",
+          "head": "2f30885644c9dc597e47d8f1dc89b9e16828092a",
+          "expired": false,
+          "expiresAt": "2026-11-12T14:28:46Z"
+        },
+        {
+          "id": 12904604168,
+          "name": "feedback-v01-1f145f08da6cec1043789dfe34d4d5144e7c3e25",
+          "sizeBytes": 40567231,
+          "digest": "sha256:282d81f50d6027f62ccebf81ca96d043009208c7df337d36203945a484027fcc",
+          "head": "2f30885644c9dc597e47d8f1dc89b9e16828092a",
+          "expired": false,
+          "expiresAt": "2026-11-12T14:32:09Z"
+        },
+        {
+          "id": 12903809865,
+          "name": "feedback-source-admission-1f145f08da6cec1043789dfe34d4d5144e7c3e25",
+          "sizeBytes": 215933,
+          "digest": "sha256:a0a77ea2ea64825274ffc18c72357d62ca3dd14b8c917e70e54dd64ca4c3d42a",
+          "head": "2f30885644c9dc597e47d8f1dc89b9e16828092a",
+          "expired": false,
+          "expiresAt": "2026-11-12T14:28:35Z"
+        }
+      ],
+      "scope": "Actual H full CI and job logs verified. Beta ZIPs generated/verified in CI, but independent ZIP byte materialization intentionally deferred by root pending resumed real cloud work and possible C2; no final Beta download/package-byte verification claim for H. Native WindowServer/fixtures are not physical Mac acceptance. Host remains nil; no cloud pipeline completion."
+    },
+    "enabledBetaAtH": false,
+    "independentUnifiedZipBytesVerifiedAtH": false,
+    "notCurrentSourceCI": true
   },
   "completedRuntimeHistory": [
     {
@@ -1857,6 +2963,151 @@
     "cloudStatus": "REAL_RECEIVER_HTTP_AND_TWO_DIRECT_D1_RECORDS; PRIVATE_ISSUE_PIPELINE_BLOCKED",
     "nativeEndpoint": "nil; local-outbox-only",
     "physicalMac": "NOT_RUN; user deferred to Codex; handoff prepared, executor not scheduled",
-    "release": "No main merge, public release or notarization claim"
+    "release": "No main merge, public release or notarization claim",
+    "historicalScope": "C1/H receiver-only checkpoint before reconnection and later real delivery/deletion. Original pending/blocking and nil-endpoint statements are preserved as historical facts, superseded by feedbackCloudCloseoutContinuation."
+  },
+  "reviewedSourceFieldStatus": "Exact C2 has completed non-author review; fixed source pin updated only after the recorded approval.",
+  "sourceEndpointConfigured": true,
+  "sourceEndpoint": "https://riftlet-feedback-receiver.haohongfei2001.workers.dev/v1/feedback",
+  "sourceEndpointScope": "Exact committed FeedbackHost literal is configured. This is not per-feedback receipt, Issue delivery, a tested native window, or a current Beta artifact claim.",
+  "historicalSectionScope": "historicalNonAuthorReviewThroughPR17, historical8525Runtime, completedRuntimeHistory, precedingSourceReviewCheckpoint, pr17ReliabilityIntegration and feedbackCloudContinuation retain their original checkpoint facts and limitations; they do not describe current cloud deployment or C2 review.",
+  "feedbackCloudCloseoutContinuation": {
+    "source": "4223a9dc80bd982e4b95305a1bd1e8f15ce7393c",
+    "sourceTree": "a8eebcbfe47b4b3ad6f97412b4760def444910e3",
+    "sourceParent": "2f30885644c9dc597e47d8f1dc89b9e16828092a",
+    "nonAuthorReview": {
+      "status": "PASS",
+      "decisionSHA256": "123d623b584685e032ac5274cafc23fda7c0f731233af5d2cac0f8d10626f780",
+      "completeDecisionAndManifest": "Top-level nonAuthorReview in this same metadata file"
+    },
+    "sourceEndpointConfigured": true,
+    "endpoint": "https://riftlet-feedback-receiver.haohongfei2001.workers.dev/v1/feedback",
+    "endpointActivationReview": "engineering/evidence/2026-10-29-feedback-cloud/host-activation-gate/decision.json",
+    "endpointActivationReviewSHA256": "4e79e3d7eebd66d8917b8c15a1d7dc39f57609e0b3814c30e4fb5a4eb349db6a",
+    "actualCloudEvidence": "engineering/evidence/2026-10-29-feedback-cloud/README.md",
+    "finalArchive": "engineering/evidence/2026-10-29-feedback-cloud/final-acceptance/manifest.json",
+    "finalUniqueEvents": 64,
+    "realReceiverHTTPPassed": 54,
+    "realReceiverHTTPChecks": 54,
+    "historicalClientDiscardAttempts": 4,
+    "preWriteDNSFailuresPreserved": 1,
+    "distinctActuallyCreatedPrivateIssues": 3,
+    "exactIssueBodyChecksAcrossTwoListings": 6,
+    "issueBodyCountingScope": "Two observations of the same three actual Issues; not six Issues.",
+    "deduplicatedReceiverEventsSHA256": "839473fea9af437543a4a5b6c585338f4225012134e8004589d50d4bcbd0cdda",
+    "receiverVersion": "39f6277e-11f2-455b-be27-8f0b6a795685",
+    "deliveryVersion": "3c749b91-ace3-45d9-86e5-62e2dab06c35",
+    "deliveryProductionBundleSHA256": "0236e5582362b1f74d21aad2ab04ef0d3333fed75f3e49fd7d924ccbef8ce7db",
+    "privateRepository": "haohongfei2001-png/Riftlet-Feedback",
+    "privateRepositoryVerified": true,
+    "actualDeletion": {
+      "ownerPermanentlyDeletedIssues": [
+        1,
+        2,
+        3
+      ],
+      "sameAuthorizedRepositoryExplicitDeletedStatus": 410,
+      "repositoryReadSucceeded": true,
+      "completeAllStateListCount": 0,
+      "prepared404Expectation": "Historical expected gate corrected to actual authorized410/deleted; no generic error or missing permission accepted as deletion.",
+      "directD1ObservedUTC": "2026-10-29T15:39:00.373Z",
+      "rows": 8,
+      "deleted": 8,
+      "activePayloads": 0,
+      "pendingDelete": 0,
+      "probeTables": 0,
+      "originalIssueIdentitiesRetained": true,
+      "finalOriginalCapabilityGETSemanticChecks": {
+        "pass": 3,
+        "fail": 0,
+        "exactIdentity": true,
+        "exactState": "deleted",
+        "durableIsBooleanTrue": true
+      },
+      "activeTestPayloadCleanup": "PASS_IN_ACTIVE_D1_AND_PRIVATE_ISSUES",
+      "providerBackupErasure": "NOT_PROVEN; observed Time Travel restore window is past7days; no instant physical backup erasure claim"
+    },
+    "localTemporaryCleanup": {
+      "evidence": "engineering/evidence/2026-10-29-feedback-cloud/private-temporary-cleanup.json",
+      "observedUTC": "2026-10-29T15:47:56.261645+00:00",
+      "exactTaskDirectoriesRemoved": 7,
+      "exactTaskFilesRemoved": 18,
+      "allAbsent": true,
+      "scope": "Reviewed task-generated temporary test capabilities and private raw copies only; no native SQLite/Keychain or provider backup erasure claim."
+    },
+    "actualFaultAcceptance": [
+      "Receiver disabled POST503 with authorized prior GET still available",
+      "Atomic daily budget HTTP429 left rejected ID absent and quota unchanged",
+      "Persisted original ID after lost client receipt retried without new row, creation time or payload hash",
+      "Observed original Issue creation, D1 uncertain identity, delete intent, scrubbed body and later original-Issue reconciliation"
+    ],
+    "diagnostic201Limit": "Actual GitHub201 response bytes and conditional discard-branch execution were not independently captured; do not convert source inference into direct wire evidence.",
+    "redirectRepair": {
+      "productionFiles": [
+        "services/feedback/delivery.mjs",
+        "services/feedback/feedback.test.mjs"
+      ],
+      "change": "Two Workers fetch redirect:error options changed to manual; redirects are not followed and original validators remain.",
+      "oldSourceWithNewCases": {
+        "pass": 21,
+        "fail": 3
+      },
+      "fixedSourceLocalCases": {
+        "pass": 24,
+        "fail": 0
+      },
+      "threeNewCasesEachCover": [
+        301,
+        302,
+        307,
+        308
+      ],
+      "nonAuthorReview": "engineering/evidence/2026-10-29-feedback-cloud/redirect-manual-fix/decision.json",
+      "newCIStatus": "NOT_RUN_AT_THIS_METADATA_CHECKPOINT"
+    },
+    "admissionSuccessor": {
+      "status": "REVIEWED_SOURCE_PIN_APPLIED_AT_THIS_METADATA_CHECKPOINT; COMPLETE_CI_AND_ENABLED_BETA_PENDING",
+      "allowedChangedPaths": [
+        "scripts/verify-final-product-composition.py",
+        "engineering/evidence/2026-10-29-final-product/README.md",
+        "engineering/evidence/2026-10-29-final-product/results.json"
+      ],
+      "gateChange": "Only the existing reviewed-source literal after actual C2 non-author approval; policy, fixed historical audits and metadata exceptions remain unchanged.",
+      "runtimeCI": "NOT_RUN_FOR_NEW_SUCCESSOR",
+      "enabledUnifiedBeta": "NOT_BUILT_OR_INDEPENDENTLY_BYTE_VERIFIED_FOR_NEW_SUCCESSOR",
+      "identityRecording": "Actual successor SHA/tree, PR checkout, run/job and artifact IDs/hashes belong in the subsequent completed formal PR handoff; no future values are predicted here."
+    },
+    "macAcceptance": {
+      "status": "NOT_RUN",
+      "userInstruction": "已登录，连接 mac 的任务可以遗留给 codex，做完其他",
+      "handoff": "engineering/evidence/2026-10-29-feedback-cloud/CODEX_REAL_MAC_E2E.md",
+      "executorScheduled": false,
+      "required": [
+        "Real unified native window to durable D1 and unique private Issue",
+        "Native whitelist business-event diagnosis opt-in/preview/freeze",
+        "Chinese IME and keyboard/VoiceOver",
+        "Close/reopen/quit/restart/network recovery and original identity",
+        "Native local cancellation and remote deletion with SQLite/Keychain cleanup",
+        "Screenshot isolation in each Feedback state without replaying oldUNKNOWN"
+      ]
+    },
+    "formalIntegrationAtCheckpoint": {
+      "mainChanged": false,
+      "pr1UpdatedByThisC2Continuation": false,
+      "pr1RemainsDraft": true,
+      "publicRelease": false,
+      "screenshotAdmissionChanged": false
+    },
+    "operations": {
+      "dedicatedResourcesOnly": true,
+      "paidUpgrade": false,
+      "websiteOrDNSChanged": false,
+      "dailyBudget": 100,
+      "hourlyIPBudget": 20,
+      "deliveryCredentialExpiry": "2026-11-28",
+      "credentialRotation": "Maintainer duty; no scheduled executor claimed",
+      "privateRepositoryActions": "Disable actions checked in fresh actual readback at2026-10-29T15:53:32.696Z",
+      "temporaryFaultVariableAbsentInActualReadback": true
+    }
   }
 }
