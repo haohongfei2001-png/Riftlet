@@ -38,7 +38,7 @@ public struct RiftArrivalSource: Equatable, Sendable {
 
 public enum RiftArrivalPhase: String, Sendable {
     case rowAvailable, imageDecoded, decorationStarted, decorationEnded
-    case animationDelegateStarted, animationDelegateStopped
+    case animationSubmitted, animationDelegateStarted, animationDelegateStopped
 }
 
 /// Optional software timing only: not a display-photon or physical-input claim.

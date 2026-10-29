@@ -15,11 +15,17 @@ public struct MagnetFlightCompletion: Equatable, Sendable {
 /// Raw delegate timing is diagnostic only. A stopped callback with false does
 /// not report a completed flight, and none of these events grants upload state.
 public struct MagnetAnimationObservation: Sendable {
-    public enum Phase: String, Sendable { case started, stopped }
+    public enum Phase: String, Sendable { case submitted, started, stopped }
     public let phase: Phase
     public let uptime: TimeInterval
     public let finished: Bool?
     public let wasMainThread: Bool
+    public let timing: String?
+
+    init(phase: Phase, uptime: TimeInterval, finished: Bool?, wasMainThread: Bool, timing: String? = nil) {
+        self.phase = phase; self.uptime = uptime; self.finished = finished
+        self.wasMainThread = wasMainThread; self.timing = timing
+    }
 }
 
 public struct MagnetFlightDiagnostics: Sendable {
@@ -118,13 +124,15 @@ private final class MagnetAnimationEnd: NSObject, CAAnimationDelegate {
 
     func animationDidStart(_ anim: CAAnimation) {
         let event = MagnetAnimationObservation(phase: .started, uptime: ProcessInfo.processInfo.systemUptime,
-            finished: nil, wasMainThread: Thread.isMainThread)
+            finished: nil, wasMainThread: Thread.isMainThread,
+            timing: "animationBeginLocal=\(anim.beginTime);duration=\(anim.duration);offset=\(anim.timeOffset);speed=\(anim.speed)")
         DispatchQueue.main.async { [observe] in observe(event) }
     }
 
     func animationDidStop(_ anim: CAAnimation, finished flag: Bool) {
         let event = MagnetAnimationObservation(phase: .stopped, uptime: ProcessInfo.processInfo.systemUptime,
-            finished: flag, wasMainThread: Thread.isMainThread)
+            finished: flag, wasMainThread: Thread.isMainThread,
+            timing: "animationBeginLocal=\(anim.beginTime);duration=\(anim.duration);offset=\(anim.timeOffset);speed=\(anim.speed)")
         DispatchQueue.main.async { [observe, callback] in observe(event); callback(flag) }
     }
 }
@@ -214,24 +222,13 @@ public final class MagnetFlightPresenter {
         panel.contentView = view
 
         let imageLayer = CALayer()
-        imageLayer.contents = image
+        imageLayer.name = "rift.magnet.image"
         imageLayer.contentsGravity = .resize
         imageLayer.cornerRadius = 1.5
         imageLayer.masksToBounds = true
         imageLayer.contentsScale = backingScale
         imageLayer.minificationFilter = .trilinear
         imageLayer.magnificationFilter = .linear
-        let clipMask = CAShapeLayer()
-        // Use actual native window coordinates, preserving a fractional edge if
-        // WindowServer rounds the transparent panel's outer rectangle.
-        clipMask.frame = root.bounds
-        let clip = CGRect(x: plan.screenFrame.minX - panel.frame.minX,
-                          y: plan.screenFrame.minY - panel.frame.minY,
-                          width: plan.clippingEdgeX - plan.screenFrame.minX,
-                          height: plan.screenFrame.height)
-        clipMask.path = CGPath(rect: clip, transform: nil)
-        clipMask.fillColor = NSColor.black.cgColor
-        root.mask = clipMask
         root.addSublayer(imageLayer)
 
         let end = MagnetAnimationEnd(observe: onAnimationObservation) { [weak self] finished in
@@ -245,27 +242,55 @@ public final class MagnetFlightPresenter {
                 self?.finish(generation: token, reason: .timedOut)
             }
         }
-        let animation = plan.makeLayerAnimation(relativeTo: panel.frame.origin)
-        animation.delegate = end
         let remaining = plan.totalDuration - (CACurrentMediaTime() - assetReadyCA)
         guard remaining > 0 else { panel.close(); return false }
         flight = Flight(assetID: assetID, generation: token, panel: panel,
                         rootLayer: root, imageLayer: imageLayer, endDelegate: end,
                         timeout: timeout, sampledFrameCount: plan.keyframeTimes.count,
                         completion: onCompletion)
+        // Establish the real visible AppKit layer host while it has no pixels.
+        // Mapping a global ready time before this step can use a provisional
+        // host clock, and ordering a populated model can flash the final pose.
+        panel.orderFrontRegardless()
+        panel.displayIfNeeded()
+        guard generation == token, flight?.generation == token, panel.isVisible,
+              plan.totalDuration - (CACurrentMediaTime() - assetReadyCA) > 0 else {
+            finish(generation: token, reason: .cancelled)
+            return false
+        }
+        let animation = plan.makeLayerAnimation(relativeTo: panel.frame.origin)
+        animation.delegate = end
+        // A future local start holds the source pose, never the model endpoint.
+        // Completion still removes the animation normally.
+        animation.fillMode = .backwards
         CATransaction.begin()
         CATransaction.setDisableActions(true)
+        root.frame = view.bounds
+        let clipMask = CAShapeLayer()
+        // Use the established native window coordinates, preserving the exact
+        // clipping plane if WindowServer rounded the outer transparent frame.
+        clipMask.frame = root.bounds
+        let clip = CGRect(x: plan.screenFrame.minX - panel.frame.minX,
+                          y: plan.screenFrame.minY - panel.frame.minY,
+                          width: plan.clippingEdgeX - plan.screenFrame.minX,
+                          height: plan.screenFrame.height)
+        clipMask.path = CGPath(rect: clip, transform: nil)
+        clipMask.fillColor = NSColor.black.cgColor
+        root.mask = clipMask
+        imageLayer.contents = image
         plan.applyFinalState(to: imageLayer, relativeTo: panel.frame.origin)
         // Asset readiness is the visual clock origin, not optional image decode.
         animation.beginTime = imageLayer.convertTime(assetReadyCA, from: nil)
         imageLayer.add(animation, forKey: "riftlet.magnet.flight")
-        panel.orderFrontRegardless()
         CATransaction.commit()
-        guard panel.isVisible else {
-            finish(generation: token, reason: .cancelled)
-            return false
-        }
-        DispatchQueue.main.asyncAfter(deadline: .now() + max(0, plan.totalDuration - (CACurrentMediaTime() - assetReadyCA)) + 0.100, execute: timeout)
+        let installed = imageLayer.animation(forKey: "riftlet.magnet.flight")
+        let installedBegin = installed?.beginTime ?? -1
+        onAnimationObservation(MagnetAnimationObservation(phase: .submitted,
+            uptime: ProcessInfo.processInfo.systemUptime, finished: nil, wasMainThread: Thread.isMainThread,
+            timing: "assetReadyGlobal=\(assetReadyCA);animationBeginLocal=\(installedBegin);animationBeginGlobal=\(imageLayer.convertTime(installedBegin, to: nil));globalNow=\(CACurrentMediaTime());localNow=\(imageLayer.convertTime(CACurrentMediaTime(), from: nil));deadlineGlobal=\(assetReadyCA + plan.totalDuration + 0.100);duration=\(plan.totalDuration);rootBegin=\(root.beginTime);rootSpeed=\(root.speed);rootOffset=\(root.timeOffset);windowVisible=\(panel.isVisible);hostPreparedWithoutPixels=true"))
+        guard generation == token, flight?.generation == token else { return false }
+        let cleanupRemaining = max(0, assetReadyCA + plan.totalDuration + 0.100 - CACurrentMediaTime())
+        DispatchQueue.main.asyncAfter(deadline: .now() + cleanupRemaining, execute: timeout)
         return true
     }
 

@@ -20,6 +20,13 @@ private struct NativePNGResult: Sendable {
     let processedOnMainThread: Bool
 }
 
+/// Immutable pixels and the original capture clock cross to the movie actor.
+/// No AppKit view/window, mutable layer, or writer object crosses this boundary.
+private struct NativeMovieFrame: @unchecked Sendable {
+    let image: CGImage
+    let captureUptime: TimeInterval
+}
+
 /// A helper-only recorder. It captures only the WindowServer IDs of windows
 /// owned by this process. It never captures a display, another process, an
 /// existing screenshot, or a production data directory, and never asks for TCC.
@@ -285,13 +292,21 @@ final class NativeVisualEvidence {
             captureCount += 1
             if recorder == nil && movieReport == nil {
                 do {
-                    recorder = try NativeMovieRecorder(directory: directory, first: native.image,
+                    let candidate = NativeMovieRecorder(directory: directory,
+                        contentWidth: native.image.width, contentHeight: native.image.height,
                         firstCaptureUptime: native.started)
+                    try await candidate.prepare()
+                    recorder = candidate
+                } catch NativeMovieRecorder.Failure.processingOnMainThread {
+                    movieReport = ["status": "NOT_RUN", "reason": "nativeMovieProcessingOnMainThread",
+                                   "movieProcessingOnMainThread": true]
                 } catch {
                     movieReport = ["status": "NOT_RUN", "reason": "nativeMovieEncoderUnavailable"]
                 }
             }
-            recorder?.append(native.image, captureUptime: native.started)
+            // One awaited actor call per captured frame: no encoder backlog,
+            // interpolation, or extra UI-thread pixel copies.
+            await recorder?.append(NativeMovieFrame(image: native.image, captureUptime: native.started))
             let elapsed = native.started - zero
             if keyframe < times.count && elapsed >= times[keyframe] {
                 // Do not duplicate one late capture under multiple timestamps.
@@ -303,7 +318,11 @@ final class NativeVisualEvidence {
             nextCapture = zero + (floor(after * 30) + 1) / 30
         }
         if let recorder {
-            movieReport = await recorder.finish()
+            // Serialized immutable data is Sendable; mutable AV objects and
+            // untyped dictionaries stay confined to the movie actor.
+            let movieData = await recorder.finish()
+            movieReport = (try? JSONSerialization.jsonObject(with: movieData)) as? [String: Any]
+                ?? ["status": "NOT_RUN", "reason": "nativeMovieReportUnavailable"]
             if captureUnavailable {
                 movieReport = ["status": "NOT_RUN", "reason": "nativeCaptureIntervalIncomplete",
                                "encodedFrameCount": movieReport?["encodedFrameCount"] ?? 0]
@@ -344,13 +363,15 @@ final class NativeVisualEvidence {
 /// A real-time, bounded native-frame encoder. Presentation timestamps come
 /// from actual WindowServer capture calls; missed or backpressured frames are
 /// omitted. This records observation overhead, not physical/performance proof.
-@MainActor
-private final class NativeMovieRecorder {
-    enum Failure: Error { case unsupportedEncoder }
+/// All mutable AV state is confined to this one serial actor. Its initializer
+/// stores only values; preparation, pixel copies, append, finish and hashing
+/// execute in awaited actor calls, never in the UI capture operation.
+private actor NativeMovieRecorder {
+    enum Failure: Error { case unsupportedEncoder, processingOnMainThread }
     private let url: URL
-    private let writer: AVAssetWriter
-    private let input: AVAssetWriterInput
-    private let adaptor: AVAssetWriterInputPixelBufferAdaptor
+    private var writer: AVAssetWriter?
+    private var input: AVAssetWriterInput?
+    private var adaptor: AVAssetWriterInputPixelBufferAdaptor?
     private let width: Int
     private let height: Int
     private let contentWidth: Int
@@ -359,16 +380,27 @@ private final class NativeMovieRecorder {
     private var times: [Double] = []
     private var dropped = 0
     private var failure: String?
+    private var processingOnMainThread = false
 
-    init(directory: URL, first: CGImage, firstCaptureUptime: TimeInterval) throws {
-        contentWidth = first.width; contentHeight = first.height
+    init(directory: URL, contentWidth: Int, contentHeight: Int, firstCaptureUptime: TimeInterval) {
+        self.contentWidth = contentWidth; self.contentHeight = contentHeight
         // H.264 encoders require even dimensions. At most one black edge pixel
         // is added; the original image is drawn 1:1 and never resized/cropped.
-        width = first.width + first.width % 2; height = first.height + first.height % 2
+        width = contentWidth + contentWidth % 2; height = contentHeight + contentHeight % 2
         origin = firstCaptureUptime
         url = directory.appendingPathComponent("native-motion.mov")
+    }
+
+    private func observeBackgroundProcessing() -> Bool {
+        let onMainThread = Thread.isMainThread
+        processingOnMainThread = processingOnMainThread || onMainThread
+        return !onMainThread
+    }
+
+    func prepare() throws {
+        guard observeBackgroundProcessing() else { throw Failure.processingOnMainThread }
         guard !FileManager.default.fileExists(atPath: url.path) else { throw Failure.unsupportedEncoder }
-        writer = try AVAssetWriter(outputURL: url, fileType: .mov)
+        let writer = try AVAssetWriter(outputURL: url, fileType: .mov)
         let settings: [String: Any] = [AVVideoCodecKey: AVVideoCodecType.h264,
             AVVideoWidthKey: width, AVVideoHeightKey: height,
             AVVideoCompressionPropertiesKey: [
@@ -376,9 +408,9 @@ private final class NativeMovieRecorder {
                 AVVideoAllowFrameReorderingKey: false,
                 AVVideoMaxKeyFrameIntervalKey: 60,
                 AVVideoProfileLevelKey: AVVideoProfileLevelH264HighAutoLevel]]
-        input = AVAssetWriterInput(mediaType: .video, outputSettings: settings)
+        let input = AVAssetWriterInput(mediaType: .video, outputSettings: settings)
         input.expectsMediaDataInRealTime = true
-        adaptor = AVAssetWriterInputPixelBufferAdaptor(assetWriterInput: input, sourcePixelBufferAttributes: [
+        let adaptor = AVAssetWriterInputPixelBufferAdaptor(assetWriterInput: input, sourcePixelBufferAttributes: [
             kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_32BGRA,
             kCVPixelBufferWidthKey as String: width, kCVPixelBufferHeightKey as String: height,
             kCVPixelBufferCGImageCompatibilityKey as String: true,
@@ -387,10 +419,14 @@ private final class NativeMovieRecorder {
         writer.add(input)
         guard writer.startWriting() else { throw Failure.unsupportedEncoder }
         writer.startSession(atSourceTime: .zero)
+        self.writer = writer; self.input = input; self.adaptor = adaptor
     }
 
-    func append(_ image: CGImage, captureUptime: TimeInterval) {
+    func append(_ frame: NativeMovieFrame) {
+        guard observeBackgroundProcessing() else { failure = "nativeMovieProcessingOnMainThread"; return }
         guard failure == nil, times.count < 200 else { return }
+        guard let writer, let input, let adaptor else { failure = "nativeMovieNotPrepared"; return }
+        let image = frame.image
         guard image.width == contentWidth, image.height == contentHeight else {
             failure = "nativeWindowGeometryChanged"; writer.cancelWriting(); return
         }
@@ -411,7 +447,7 @@ private final class NativeMovieRecorder {
         context.fill(CGRect(x: 0, y: 0, width: width, height: height))
         context.interpolationQuality = .none
         context.draw(image, in: CGRect(x: 0, y: 0, width: contentWidth, height: contentHeight))
-        let elapsed = max(0, captureUptime - origin)
+        let elapsed = max(0, frame.captureUptime - origin)
         guard times.last.map({ elapsed > $0 }) ?? true else { dropped += 1; return }
         if adaptor.append(buffer, withPresentationTime: CMTime(seconds: elapsed, preferredTimescale: 1_000_000)) {
             times.append(elapsed)
@@ -420,7 +456,21 @@ private final class NativeMovieRecorder {
         }
     }
 
-    func finish() async -> [String: Any] {
+    private func reportData(_ fields: [String: Any]) -> Data {
+        var report = fields
+        report["movieProcessingOnMainThread"] = processingOnMainThread
+        report["movieProcessing"] = "One serial actor; every immutable native frame append awaited"
+        return (try? JSONSerialization.data(withJSONObject: report, options: [.sortedKeys]))
+            ?? Data(#"{"status":"NOT_RUN","reason":"nativeMovieReportUnavailable"}"#.utf8)
+    }
+
+    func finish() async -> Data {
+        guard observeBackgroundProcessing() else {
+            return reportData(["status": "NOT_RUN", "reason": "nativeMovieProcessingOnMainThread"])
+        }
+        guard let writer, let input else {
+            return reportData(["status": "NOT_RUN", "reason": "nativeMovieNotPrepared"])
+        }
         if failure == nil && !times.isEmpty && writer.status == .writing {
             input.markAsFinished()
             writer.finishWriting { }
@@ -428,12 +478,15 @@ private final class NativeMovieRecorder {
             let deadline = ProcessInfo.processInfo.systemUptime + 2
             while writer.status == .writing && ProcessInfo.processInfo.systemUptime < deadline {
                 try? await Task.sleep(nanoseconds: 25_000_000)
+                guard observeBackgroundProcessing() else {
+                    return reportData(["status": "NOT_RUN", "reason": "nativeMovieProcessingOnMainThread"])
+                }
             }
         }
         guard failure == nil, times.count >= 2, writer.status == .completed else {
             if writer.status == .writing { writer.cancelWriting() }
-            return ["status": "NOT_RUN", "reason": failure ?? "nativeMovieDidNotComplete",
-                    "encodedFrameCount": times.count, "backpressureOrAllocationDrops": dropped]
+            return reportData(["status": "NOT_RUN", "reason": failure ?? "nativeMovieDidNotComplete",
+                    "encodedFrameCount": times.count, "backpressureOrAllocationDrops": dropped])
         }
         do {
             let handle = try FileHandle(forReadingFrom: url)
@@ -443,7 +496,7 @@ private final class NativeMovieRecorder {
             while let chunk = try handle.read(upToCount: 1_048_576), !chunk.isEmpty {
                 hash.update(data: chunk); size += chunk.count
             }
-            return ["status": "RECORDED_NATIVE_WINDOWSERVER", "file": url.lastPathComponent,
+            return reportData(["status": "RECORDED_NATIVE_WINDOWSERVER", "file": url.lastPathComponent,
                 "bytes": size, "sha256": hash.finalize().map { String(format: "%02x", $0) }.joined(),
                 "codec": "H.264 in QuickTime MOV; lossy video encoding, original PNGs retained",
                 "contentPixels": [contentWidth, contentHeight], "encodedPixels": [width, height],
@@ -453,9 +506,9 @@ private final class NativeMovieRecorder {
                 "backpressureOrAllocationDrops": dropped, "maximumPoolBuffers": 3,
                 "timestamps": "Actual capture monotonic time relative to first capture; no interpolated/duplicate frames",
                 "syntheticOnly": true, "receiptEvidence": false, "physicalInput": "NOT_RUN",
-                "performanceBenchmark": false]
+                "performanceBenchmark": false])
         } catch {
-            return ["status": "NOT_RUN", "reason": "nativeMovieDigestUnavailable"]
+            return reportData(["status": "NOT_RUN", "reason": "nativeMovieDigestUnavailable"])
         }
     }
 }

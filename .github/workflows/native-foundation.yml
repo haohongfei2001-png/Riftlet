@@ -146,7 +146,7 @@ jobs:
           swift test --skip-build --filter 'RiftletFeedbackTests|RiftletFeedbackUITests' 2>&1 | tee test-results/feedback-detailed.log
           swift test --skip-build --filter 'ScreenshotEntry|InteractiveScreenshot|CompletedScreenshotImporter|RiftCapturePresentation' 2>&1 | tee test-results/capture-entry-detailed.log
           swift test --skip-build --filter 'CaptureSourceBindingTests|CapturePreferenceObservationTests' 2>&1 | tee test-results/capture-source-binding-detailed.log
-          swift test --skip-build --filter 'UnifiedSettingsTests|QuietEdgeInteractionTests|QuietEdgeWindowTests|RiftLayoutTests|RiftPeekGeometryTests|FeedbackVisualCandidateTests' 2>&1 | tee test-results/unified-product-detailed.log
+          swift test --skip-build --filter 'UnifiedSettingsTests|QuietEdgeInteractionTests|QuietEdgeWindowTests|RiftLayoutTests|RiftPeekGeometryTests|FeedbackVisualCandidateTests|MagnetFlightPresenterTests|ArrivalModesTests' 2>&1 | tee test-results/unified-product-detailed.log
       - name: Package native application
         run: |
           set -o pipefail

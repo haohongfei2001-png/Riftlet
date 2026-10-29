@@ -1,4 +1,5 @@
 import AppKit
+import QuartzCore
 import XCTest
 @testable import RiftletUI
 
@@ -92,6 +93,48 @@ final class MagnetFlightPresenterTests: XCTestCase {
         XCTAssertEqual(presenter.activePanelCount, 0)
         XCTAssertEqual(completions.count, 12, "Old animation and watchdog callbacks are harmless")
         XCTAssertEqual(Set(completions.map(\.generation)).count, 12)
+    }
+
+    @MainActor func testVisibleHostRetainsReadyClockAndNaturallyFinishesTheNormalPlan() async throws {
+        let (plan, image, scale) = try fixture()
+        let presenter = MagnetFlightPresenter()
+        defer { presenter.close() }
+        let elapsed: TimeInterval = 0.080
+        var completions: [MagnetFlightCompletion] = []
+        var observations: [MagnetAnimationObservation] = []
+        let before = CACurrentMediaTime()
+        XCTAssertTrue(presenter.start(assetID: UUID(), image: image, plan: plan, backingScale: scale,
+            elapsedSinceAssetReady: elapsed, onAnimationObservation: { observations.append($0) }) {
+                completions.append($0)
+            })
+        let after = CACurrentMediaTime()
+        let window = try XCTUnwrap(NSApp.windows.first { $0.windowNumber == presenter.diagnostics.windowNumber })
+        XCTAssertTrue(window.isVisible)
+        func findImage(_ layer: CALayer) -> CALayer? {
+            if layer.name == "rift.magnet.image" { return layer }
+            return layer.sublayers?.compactMap { findImage($0) }.first
+        }
+        let root = try XCTUnwrap(window.contentView?.layer)
+        let imageLayer = try XCTUnwrap(findImage(root))
+        let animation = try XCTUnwrap(imageLayer.animation(forKey: "riftlet.magnet.flight"))
+        let globalBegin = imageLayer.convertTime(animation.beginTime, to: nil)
+        XCTAssertGreaterThanOrEqual(globalBegin, before - elapsed - 0.000001)
+        XCTAssertLessThanOrEqual(globalBegin, after - elapsed + 0.000001)
+        XCTAssertLessThan(globalBegin, before)
+        XCTAssertEqual(animation.duration, plan.totalDuration)
+        XCTAssertEqual(animation.fillMode, .backwards)
+        XCTAssertTrue(animation.isRemovedOnCompletion)
+        XCTAssertEqual(animation.speed, 1)
+        XCTAssertEqual(animation.timeOffset, 0)
+        XCTAssertTrue(observations.contains { $0.phase == .submitted })
+        for _ in 0..<90 where completions.isEmpty {
+            CATransaction.flush()
+            try await Task.sleep(nanoseconds: 10_000_000)
+        }
+        XCTAssertEqual(completions.map(\.reason), [.finished])
+        XCTAssertTrue(observations.contains { $0.phase == .stopped && $0.finished == true })
+        XCTAssertEqual(presenter.activePanelCount, 0)
+        XCTAssertEqual(presenter.diagnostics.retainedImageCount, 0)
     }
 
     @MainActor func testNaturalFinishAndExplicitCloseReleaseWithoutReplayingCompletion() async throws {

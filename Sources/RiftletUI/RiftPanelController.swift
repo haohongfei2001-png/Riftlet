@@ -179,9 +179,10 @@ private final class RiftRowView: NSView, NSMenuDelegate {
         needsDisplay = true
     }
 
-    func setImage(_ image: CGImage?) {
+    func setImage(_ image: CGImage?, arrivalHidden: Bool? = nil) {
         CATransaction.begin(); CATransaction.setDisableActions(true)
         imageLayer.contents = image
+        if let arrivalHidden { imageLayer.isHidden = arrivalHidden }
         CATransaction.commit()
         needsDisplay = true
     }
@@ -927,14 +928,20 @@ public final class RiftPanelController {
                 guard let self, let view, !self.closed, !self.userHidden, self.generation == token,
                       self.rowWindows[record.id]?.view === view,
                       view.record.visibility == .visible, view.record.visibilityRevision == revision else { return }
-                // Exactly the same decoded pixels are used for source and row.
-                view.setImage(image)
                 if image != nil, !view.reportedImageReady {
                     view.reportedImageReady = true
                     self.reportArrival(.imageDecoded, id: record.id)
                 }
                 if isNew, let image { self.startArrivalIfPossible(id: record.id, image: image) }
                 else if isNew, self.arrivalCandidate?.assetID == record.id { self.arrivalCandidate = nil }
+                // Starting a decoration may synchronously invoke an observer or
+                // completion that changes ownership. Never populate a stale row.
+                guard !self.closed, !self.userHidden, self.generation == token,
+                      self.rowWindows[record.id]?.view === view,
+                      view.record.visibility == .visible, view.record.visibilityRevision == revision else { return }
+                // Preserve an active flight's hidden state. Its source and row
+                // use exactly the same decoded pixels.
+                view.setImage(image)
             }
         }
         var lineFrame = layout.lineFrame
@@ -1004,16 +1011,24 @@ public final class RiftPanelController {
         guard let plan = MagnetMotionPlan(sourceRect: source.rect, targetImageFrame: target,
             clippingEdgeX: edge, screenFrame: screen.frame, parameters: magnetParameters) else { return }
         let token = UUID(), epoch = generation, revision = row.view.record.visibilityRevision
+        // The canonical image must never be exposed before its decoration.
+        // Contents and hidden state share one transaction; input stays live.
+        row.view.setImage(image, arrivalHidden: true)
         let started = flight.start(assetID: id, image: image, plan: plan,
             backingScale: screen.backingScaleFactor,
             elapsedSinceAssetReady: ProcessInfo.processInfo.systemUptime - candidate.readyUptime,
             onAnimationObservation: { [weak self] event in
                 guard let self else { return }
-                let phase: RiftArrivalPhase = event.phase == .started ? .animationDelegateStarted : .animationDelegateStopped
+                let phase: RiftArrivalPhase
+                switch event.phase {
+                case .submitted: phase = .animationSubmitted
+                case .started: phase = .animationDelegateStarted
+                case .stopped: phase = .animationDelegateStopped
+                }
                 let finished = event.finished.map { String($0) } ?? "none"
                 self.onArrivalBoundary(RiftArrivalBoundary(phase: phase, assetID: id, uptime: event.uptime,
                     mode: self.effectiveArrivalMode,
-                    reason: "finished=\(finished);callbackMainThread=\(event.wasMainThread)"))
+                    reason: "finished=\(finished);callbackMainThread=\(event.wasMainThread)" + (event.timing.map { ";" + $0 } ?? "")))
             }) { [weak self, weak view = row.view] completion in
                 guard let self else { return }
                 if let view, self.rowWindows[id]?.view === view,
@@ -1026,11 +1041,12 @@ public final class RiftPanelController {
                 if [.finished, .timedOut].contains(completion.reason), self.generation == epoch { self.flushDeferred() }
             }
         if started {
-            row.view.setArrivalHidden(true)
             if decoration.isVisible { present(decoration) }
             arrivalAnimationToken = token
             mutateInteraction { $0.beginAnimation(token) }
             reportArrival(.decorationStarted, id: id)
+        } else {
+            row.view.setArrivalHidden(false)
         }
     }
 

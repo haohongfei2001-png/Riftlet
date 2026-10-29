@@ -112,3 +112,15 @@ Feedback push/PR `40766737084` / `40766744482` 成功：46项唯一原生（新�
 Apple原始依据：<https://developer.apple.com/documentation/appkit/nsscrollview/autohidesscrollers>；自动隐藏会移除不需要的传统滚动条以释放空间，overlay忽略此属性。
 
 非作者已精确核准局部滚动布局修补 `8d59ffacfdb1e647c118c98a29336c98f95b82e4` / tree `47d382d899cead08a41cd2d891d81ff133feb364` / parent260a4d7，干净树且五个文件与约定相符。原断言、动画时钟和真实几何变更重排保持；当前只更新既定三条pin元数据，等待下一准确Native/Feedback与原尺寸复审。444/429是preview view的bounds宽，图层身份一致不表示imageLayer本身具有该宽度。
+
+## 第九轮：预览真实修复，磁力仍有两项可自主收口
+
+2c8cd037的Native PR/push `40770139026` / `40770128579` 全量步骤均成功，各655唯一调度；详细结果各268唯一PASS（270调用包含2重复、0skip），包装及自检通过。手动预览两份完整13事件/dropped0证明真实legacy style=0、autohides=false、预览429点始终稳定，原断言以及legacy/overlay实际溢出/适合高度回归通过，先前后到gutter布局中断可限定关闭。Feedback两运行 `40770138950` / `40770128612` 均46唯一原生、20服务、88隔离PASS，0skip。
+
+push原尺寸证据135 PNG/6 MOV（普通46场景，加真实三项辅助组合3场景）；非实现作者完整检查43静态原图与912解码帧，限定关闭D11 Feedback完整记录、D16邻项预览避让、D17吞噬闪回。PR普通组45/46接受，其失败magnet的16 PNG/1 MOV另保留；真实辅助组合因此NOT_RUN。两运行均见D18：目标微图先闪现，随后源端装饰才出现；两份frame-02原PNG SHA256相同4a56f645235d20d47dabd4d5171f4af2319249399f4d36028950a2ab543aa5ed。push自然finished，PR先watchdog timedOut、随后原delegate false；不是成功回调丢失。原始失败不能因push成功覆盖。
+
+本轮修补在同一事务中设置行图像与隐藏状态，先展示无像素透明原生宿主，再以原assetReady时钟提交clip、模型终态和显式动画；backwards防止未来local起点前暴露终态，失败立即静态恢复。原560ms时长与assetReady+560ms+100ms清理截止保持；新增submitted与原始delegate时钟实读，不把timeout改成finished。增加正常计划、80ms已有elapsed、原时钟映射、自然finished/raw true的严格原生回归；原50ms清理测试不变。点击回归在submitted时断言图像已经隐藏且两块真实输入窗仍可见。原XCTest使用CATransaction.flush驱动提交，仍不能代替新MOV自然完成门禁。
+
+MOV编码、像素复制、等待和hash移入独立actor；MainActor只负责原窗口采集，以单个await保留背压，原PTS、帧上限、缓冲和无插值约束不变。新movieProcessingOnMainThread必须实读false，true/缺失/非布尔全部拒绝；19项Python manifest测试通过，但实际macOS编译和新原尺寸效果仍待CI。入口提示缩短以消除末行孤字。产品时钟假说仍待新日志验证，不作已证明根因。
+
+环境恢复时本地未上传的ae07e3b checkpoint丢失，已据前次已审差异恢复；原2c8制品、完整报告与D18原始图像未丢失，补充报告逐字节恢复。新checkpoint必须再次取得非作者精确核准，不能沿用已丢失提交号作来源。正式分支、main、生产与安全重试边界不变。

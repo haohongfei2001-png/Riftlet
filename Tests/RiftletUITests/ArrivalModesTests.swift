@@ -271,10 +271,20 @@ final class ArrivalModesTests: XCTestCase {
         defer { try? FileManager.default.removeItem(at: root) }
         let record = try generated(directory: root)
         var selected: [UUID] = [], pressed: [UUID] = []
+        weak var observedPanel: RiftPanelController?
+        var rowWasHiddenAndClickableAtSubmission = false
         let panel = RiftPanelController(mediaDirectory: root, configuration: configuration, arrivalMode: .magnet,
-            reduceMotionOverride: { false }, onPress: { id, _ in pressed.append(id) }, onSelect: { selected.append($0) })
+            reduceMotionOverride: { false }, onArrivalBoundary: { [weak self] event in
+                guard event.phase == .animationSubmitted, let self, let observedPanel,
+                      let current = try? self.row(observedPanel, id: record.id) else { return }
+                let inputs = [current.0.imageInputWindowNumber, current.0.numberInputWindowNumber]
+                rowWasHiddenAndClickableAtSubmission = current.3.contents != nil && current.3.isHidden &&
+                    inputs.allSatisfy { number in NSApp.windows.contains { $0.windowNumber == number && $0.isVisible } }
+            }, onPress: { id, _ in pressed.append(id) }, onSelect: { selected.append($0) })
+        observedPanel = panel
         defer { panel.close() }
         try await beginFlight(panel, record: record, screen: screen)
+        XCTAssertTrue(rowWasHiddenAndClickableAtSubmission)
         let original = try row(panel, id: record.id)
         XCTAssertTrue(original.3.isHidden)
         let input = try XCTUnwrap(NSApp.windows.first { $0.windowNumber == original.0.imageInputWindowNumber })

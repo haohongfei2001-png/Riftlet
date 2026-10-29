@@ -137,6 +137,8 @@ def verify_movie(directory: Path, movie: dict, source: str, checkout: str, frame
         raise ValueError("unsafeMoviePathOrStatus")
     if movie.get("source") != source or movie.get("checkout") != checkout:
         raise ValueError("movieSourceMismatch")
+    if movie.get("movieProcessingOnMainThread") is not False:
+        raise ValueError("movieEncodingMustBeOffMainThread")
     if (movie.get("syntheticOnly") is not True or movie.get("receiptEvidence") is not False
             or movie.get("physicalInput") != "NOT_RUN" or movie.get("performanceBenchmark") is not False
             or movie.get("contentResized") is not False):

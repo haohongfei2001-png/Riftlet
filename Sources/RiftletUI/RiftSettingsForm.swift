@@ -122,7 +122,7 @@ final class RiftSettingsForm: NSObject {
         display.isEnabled = enabled
         let disconnected = value.preferredDisplayID.map { selected in !value.displays.contains { $0.id == selected } } ?? false
         displayHint.stringValue = disconnected ? "已选显示器暂未连接，当前使用可用主屏；连接恢复后自动回到原选择。" : "选择会保留。显示器断开时，临时使用可用主屏。"
-        entryHint.stringValue = value.entryAvailable ? "默认方式在下一次入口会话生效；当前截图模式与槽位保持。关闭入口仍可收录系统截图。" : "此运行模式未启用截图入口；已有本地截图和历史保持可用。"
+        entryHint.stringValue = value.entryAvailable ? "默认方式下次打开入口时生效；当前模式与槽位保持。关闭入口仍可收录系统截图。" : "此运行模式未启用截图入口；已有本地截图和历史保持可用。"
         if hours.currentEditor() == nil { hours.stringValue = value.archiveAfterHours.map { String(format: "%.6g", $0) } ?? "0" }
         if hours.isEnabled != enabled { hours.isEnabled = enabled }
         archiveSave.isEnabled = enabled

@@ -200,6 +200,7 @@ class NativeVisualManifestTests(unittest.TestCase):
             "source": self.source, "checkout": self.checkout,
             "syntheticOnly": True, "receiptEvidence": False, "physicalInput": "NOT_RUN",
             "performanceBenchmark": False, "contentResized": False,
+            "movieProcessingOnMainThread": False,
             "contentPixels": [1, 1], "encodedPixels": [2, 2], "paddingPixels": [1, 1],
             "presentationSeconds": [0.0, 0.038, 0.079], "encodedFrameCount": 3,
             "targetFrameRate": 30, "maximumPoolBuffers": 3,
@@ -218,6 +219,15 @@ class NativeVisualManifestTests(unittest.TestCase):
                              ([0.0, float("nan"), 0.079], 3), ([0.0, 0.038, 0.079], 4)):
             self.report["movie"].update(presentationSeconds=times, encodedFrameCount=count)
             with self.assertRaisesRegex(ValueError, "movieTimestampsInvalid"): self.verify()
+
+    def test_movie_requires_actual_background_processing_readback(self):
+        self.movie_fixture(); self.verify()
+        for value in (True, None, 0, "false"):
+            with self.subTest(readback=value):
+                self.movie_fixture(); self.report["movie"]["movieProcessingOnMainThread"] = value
+                with self.assertRaisesRegex(ValueError, "movieEncodingMustBeOffMainThread"): self.verify()
+        self.movie_fixture(); del self.report["movie"]["movieProcessingOnMainThread"]
+        with self.assertRaisesRegex(ValueError, "movieEncodingMustBeOffMainThread"): self.verify()
 
     def test_movie_scope_padding_source_and_path_cannot_drift(self):
         for field, value, message in (("contentResized", True, "movieScopeMismatch"),
