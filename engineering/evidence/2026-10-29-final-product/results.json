@@ -16,8 +16,9 @@
     "feedbackSDKTestLabel": "non-author magnetic reviewer",
     "unresolvedFindings": [],
     "nativeRuntimeRepair": {
-      "feedback": "non-author magnetic reviewer; exact three blobs",
-      "history": "non-author experience reviewer; exact two blobs"
+      "feedbackSheetAndNaturalMagnetTest": "non-author magnetic reviewer; exact three blobs",
+      "absoluteDeadlineTask": "non-author integration reviewer; exact Core blob",
+      "previousHistoryViewportRepair": "non-author experience reviewer; retained unchanged"
     }
   },
   "combinedNativeCI": "PENDING_NEW_EXACT_SOURCE",
@@ -42,8 +43,8 @@
     "uploadAdmissionExpanded": false,
     "userDataChanged": false
   },
-  "reviewedSource": "ee538eb7e3aedc459cbccffbeb0337918fa13b6b",
-  "reviewedTree": "dcfeb2d5cfc1148a3910c4e177ae7255c77c2c89",
+  "reviewedSource": "034913a446ff932966d1c364b10a9e408b54a74d",
+  "reviewedTree": "798209b5225aa4c3e6fdfbc7e4759b6a0748fa73",
   "continuationFailures": [
     {
       "head": "b3cec64f0ecbf869aff3b17b88d55323d1765393",
@@ -85,12 +86,33 @@
       "feedbackFailedAssertions": 5,
       "originalAndSupplementalVisuals": "NOT_RUN_AFTER_FULL_TEST_FAILURE",
       "repair": "ee538eb7e3aedc459cbccffbeb0337918fa13b6b"
+    },
+    {
+      "head": "a4e811a285e108c2c0752ef054560bcbabd24263",
+      "nativePushRun": 40834319136,
+      "nativePRRun": 40834326516,
+      "feedbackPushRun": 40834319074,
+      "feedbackPRRun": 40834326513,
+      "sourceAdmission": "PASS_ALL_FOUR",
+      "nativeCompile": "PASS_ARM_AND_INTEL",
+      "nativeTestsInvoked": 724,
+      "failureGroups": [
+        "NSWindow default setter changes keyEquivalent to Return; Escape independently fails",
+        "original deadline test still prepared at its original observation bound",
+        "Intel natural-finish start returned false with zero completions on test-only 50ms plan"
+      ],
+      "historyAndClipboardAndSettingsRegression": "executed without reported failure; complete suite still failed",
+      "feedbackCases": 49,
+      "feedbackFailedCases": 2,
+      "feedbackFailedAssertions": 4,
+      "originalAndSupplementalVisuals": "NOT_RUN_AFTER_FULL_TEST_FAILURE",
+      "repair": "034913a446ff932966d1c364b10a9e408b54a74d"
     }
   ],
   "experience": {
     "Q01": "remaining title/capability code repaired; native visual pending",
     "Q05": "already-readable source authorization suppressed; remaining permissions unchanged",
-    "Q07": "safe default rebound synchronously after AppKit sheet presentation; original Return/Escape assertions plus layout stability check retained; runtime pending",
+    "Q07": "Keep actual Return default plus sheet-local Escape cancelOperation responder; original real-key behavior assertions and chain lifetime checks retained; runtime pending",
     "Q08": "save recovery implemented; clipboard assertion accepts only two observed plain-text types with exact body; runtime pending",
     "Q09": "app-scoped settings shortcut and standard editing routes; runtime pending",
     "Q06": "verified bounded preview plus bitmap-independent nonzero viewport; original 2s rejection assertion retained; new AppKit success/minimum-size regression pending",
@@ -113,5 +135,10 @@
     "supplementalStaticCasesRequired": 6,
     "physicalInput": "NOT_RUN",
     "crossApplicationFocus": "NOT_RUN"
+  },
+  "runtimeRepairs": {
+    "absoluteDeadline": "remaining interval computed at actual Task start; original 50ms/150ms regression unchanged",
+    "magnetNaturalTest": "original 560ms product plan; original 1.2s wait and strict finished/cleanup assertions unchanged",
+    "productionMagnetChangedInThisRepair": false
   }
 }
