@@ -1,0 +1,180 @@
+{
+  "schema": 1,
+  "sourceSHA": "e5d77d3c82bf2769387049e533e93073d36ee6fb",
+  "nativeSourceSHA": "a1df3d9242d4a38e42ccb37124d0dd98d761d5c2",
+  "formalAtStart": "c15fd4b4a27659946ef49280131e875f4d5ab9d1",
+  "formalAtHandoffRead": "53ea3a1de76a30ab0d8cb221ff7e4e4fa2bce83f",
+  "environment": {
+    "os": "Version 27.0 (Build 26A428)",
+    "screens": 2,
+    "swift": "6.4, CommandLineTools; local XCTest unavailable",
+    "sameBootEvidenceKeptPrivately": true
+  },
+  "control": {
+    "cuaInventory": "PASS",
+    "cuaDedicatedTabRead": "NOT_RUN: 12-second DOM snapshot timeout",
+    "nativeFixedReceiverRead": "PASS: existing primary Chrome AE fixed-tab/DOM + AX focused window",
+    "otherChromeRead": "FAIL: JavaScript AE status 12; permissions/profile unchanged",
+    "cuafaultNotAttributedToAppleEvents": true,
+    "realAppPublishedTargetObserved": true,
+    "firstRunArmedObservations": 8,
+    "notAFirstClickRate": true
+  },
+  "captureAttempt": {
+    "source": "CGEvent",
+    "count": 1,
+    "systemShortcut": "Command-Shift-4",
+    "systemUIObservedWindows": 1,
+    "softwareAreaReleasePosted": true,
+    "generatedDisplayWasNotAnUploadSource": true,
+    "configuredDestination": "Downloads/file (read-only preferences checked)",
+    "newFilesAtDestination": 0,
+    "newSystemPNG": 0,
+    "T0": "NOT_MEASURED",
+    "T1": "NOT_RUN: no new file",
+    "T2": "NOT_RUN: no new asset",
+    "result": "FAIL: software sampling attempt produced no observed new file at the configured destination; downstream click NOT_RUN; root cause unproven",
+    "systemUITriggerResult": "PASS: UI observed after shortcut"
+  },
+  "clickTrials": {
+    "physical": 0,
+    "CGEvent": 0,
+    "AXPress": 0,
+    "browserSynthetic": 0,
+    "successRate": null,
+    "latencyDistribution": null,
+    "newInputs": 0,
+    "messagesSent": 0
+  },
+  "traceFix": {
+    "problem": "stdout print split/interleaved arrival records when stdout/stderr collected together",
+    "beforeValidLines": 1001,
+    "beforeMalformedLines": 8,
+    "afterValidLines": 998,
+    "afterMalformedLines": 0,
+    "fix": "single stderr write for one complete arrival record; no stdio buffering",
+    "scope": "real logging defect fixed; not a first-click product fix"
+  },
+  "scenarioResults": [
+    {
+      "scenario": "existing-chat",
+      "source": "CGEvent",
+      "result": "NOT_RUN",
+      "reason": "No new macOS system PNG was produced by the bounded software shortcut/selection attempt; no thumbnail was clicked."
+    },
+    {
+      "scenario": "app-startup",
+      "source": "physical",
+      "result": "NOT_RUN",
+      "reason": "No independently witnessed human mouse input; startup prebinding diagnostics are not a click trial."
+    },
+    {
+      "scenario": "chrome-switch",
+      "source": "physical",
+      "result": "NOT_RUN",
+      "reason": "Multiple Chrome receivers observed; no isolated natural mouse trial."
+    },
+    {
+      "scenario": "unfocused-composer",
+      "source": "physical",
+      "result": "NOT_RUN",
+      "reason": "No new safe system PNG and no human mouse trial."
+    },
+    {
+      "scenario": "chat-body",
+      "source": "physical",
+      "result": "NOT_RUN",
+      "reason": "Not exercised after the capture prerequisite failed."
+    },
+    {
+      "scenario": "sidebar",
+      "source": "physical",
+      "result": "NOT_RUN",
+      "reason": "Not exercised after the capture prerequisite failed."
+    },
+    {
+      "scenario": "wake-or-page-restoration",
+      "source": "physical",
+      "result": "NOT_RUN",
+      "reason": "Not exercised; no sleep/restart or permission mutation."
+    }
+  ],
+  "privateEvidence": [
+    {
+      "label": "native control",
+      "bytes": 1756,
+      "sha256": "271df99ad5620318dcfc1dbd344b844429d4c065053690a2ee70392e8588cb3c"
+    },
+    {
+      "label": "initial trace with recorded malformed rows",
+      "bytes": 424059,
+      "sha256": "f807f228f88f796d079bf2d9dcf611f5855a9199c21200719e002a6e426f4d7d"
+    },
+    {
+      "label": "fixed trace",
+      "bytes": 418189,
+      "sha256": "c12d799cfb2e73bc056a619f7f5225f2f574b7d3c63085912739bc2d41cd2578"
+    },
+    {
+      "label": "system shortcut",
+      "bytes": 295,
+      "sha256": "aad3935460ce9f2bcf2e5c9195d6f782abd74dc0eb78b4a3aa210540f8f9dc4b"
+    },
+    {
+      "label": "new source inspection",
+      "bytes": 96,
+      "sha256": "9ca6227a31eda2585eeabca53ade6eeff2a9467ac736cd2e1c9a9e6817a8ecd6"
+    },
+    {
+      "label": "data before",
+      "bytes": 11820,
+      "sha256": "422c7e895989b7ebdd4ca182a0372fcc29654a69ea4f173e31ba4cb6991a930c"
+    },
+    {
+      "label": "data after",
+      "bytes": 12336,
+      "sha256": "79aaa434b37ea567c3d6aa229e521295bab7a8476253ddbfbeee6aeb3a256e38"
+    },
+    {
+      "label": "same-session manifest",
+      "bytes": 1836,
+      "sha256": "4bc4b6110298cbd18416c8f40931c302ec33b1df3e253232772334481da4df6d"
+    },
+    {
+      "label": "offline timeline result",
+      "bytes": 5005,
+      "sha256": "11802bc252eaab5a49aebf09a845b6671ff819ef470bfbc3e2bf31fd0ae8b350"
+    },
+    {
+      "label": "capture preferences",
+      "bytes": 1009,
+      "sha256": "672be9eef5b015117bd57d19ea892c9c4475742e6b23adc4c754b940cb9dbb73"
+    },
+    {
+      "label": "software event driver source",
+      "bytes": 4093,
+      "sha256": "e1b49d53750d4f64c8786d235cefd999331229f63e704515f96fdd3f78c9c379"
+    },
+    {
+      "label": "software event driver binary",
+      "bytes": 118456,
+      "sha256": "839cdc2b13ccf7787232f0a0d065106179e7ed190e19aae41ef1e6259a34422d"
+    },
+    {
+      "label": "safe display generator",
+      "bytes": 970,
+      "sha256": "eed046c72b35008a9565a77307822f7eca5850db19d486196d89d9f6470c785e"
+    },
+    {
+      "label": "configured UI output readback",
+      "bytes": 51,
+      "sha256": "3d265738a08fcc8718037c66c8f83b253610efa752c3467952b3ec572897bb05"
+    },
+    {
+      "label": "source directory baseline",
+      "bytes": 12091,
+      "sha256": "e7463af9a469f87eb88330fd11b6f095b2949893d3c58f5d74e50579e9f848d0"
+    }
+  ],
+  "admission": "Core/Adapters/registry unchanged; ordinary upload and safe retry remain closed; no browser extension installed"
+}

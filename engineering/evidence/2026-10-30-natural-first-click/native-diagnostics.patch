@@ -1,0 +1,676 @@
+diff --git a/Sources/RiftletApp/RiftletMain.swift b/Sources/RiftletApp/RiftletMain.swift
+index 98282db..b631dfb 100644
+--- a/Sources/RiftletApp/RiftletMain.swift
++++ b/Sources/RiftletApp/RiftletMain.swift
+@@ -135,6 +135,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
+     private var activationObserver: NSObjectProtocol?
+     private var lastForegroundSession: String?
+     private var diagnosticEvents = 0
++    private let diagnosticRunID = UUID()
+     private var visibilityTrace = AcceptanceTraceDeduplicator<UUID, [String]>()
+     private var readyTrace = AcceptanceTraceDeduplicator<UUID, [String]>()
+     private var pendingArmReason = "startup"
+@@ -268,6 +269,10 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
+             arrivalMode: arrivalPreferences?.mode ?? .provisionalFallback,
+             onPress: { [weak self] id, timestamp in self?.freezePress(id, timestamp: timestamp) },
+             onSelectionBoundary: { [weak self] boundary in self?.recordSelection(boundary) },
++            onInputReceipt: { [weak self] boundary, accepted in
++                self?.recordInputReceipt(boundary, accepted: accepted)
++            },
++            onInputWindowObservation: { [weak self] value in self?.recordInputWindows(value) },
+             onApproach: { [weak self] in self?.requestArm(reason: "pointerApproach") },
+             onPresentationBoundary: { [weak self] boundary in self?.recordPresentation(boundary) },
+             onArrivalBoundary: { [weak self] boundary in
+@@ -439,6 +444,21 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
+                                          onImported: { [weak self] record, observation in
+                                              Task { @MainActor [weak self] in
+                                                  guard let self, !self.terminating else { return }
++                                                 let delivered = ProcessInfo.processInfo.systemUptime
++                                                 self.recordAcceptance(["event": "capture_durable_delivery",
++                                                    "assetID": record.id.uuidString,
++                                                    "readyUptime": observation.readyUptime,
++                                                    "callbackUptime": delivered,
++                                                    "systemCaptureCompletionMeasured": false])
++                                                 if let timing = observation.sourceTiming {
++                                                     var fields: [String: Any] = ["event": "capture_source_verified",
++                                                        "assetID": record.id.uuidString,
++                                                        "validatedCopyUptime": timing.validatedCopyUptime,
++                                                        "durableCommitUptime": timing.durableCommitUptime,
++                                                        "systemCaptureCompletionMeasured": false]
++                                                     if let observed = timing.firstObservedUptime { fields["firstObservedUptime"] = observed }
++                                                     self.recordAcceptance(fields)
++                                                 }
+                                                  // A committed new screenshot is an observation
+                                                  // demand, never a click or input authorization.
+                                                  // Start prebinding before preview work and the
+@@ -453,7 +473,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
+                                                  await self.refresh()
+                                              }
+                                          },
+-                                         onDiagnostic: { [weak self] value in await self?.receiveCaptureDiagnostic(value) })
++                                         onDiagnostic: { [weak self] value in await self?.receiveCaptureDiagnostic(value) },
++                                         recordSourceTiming: CommandLine.arguments.contains("--acceptance-trace")
++                                            || CommandLine.arguments.contains("--arrival-trace"))
+             capture = service
+             let binding = CaptureSourceBinding(service: service, provider: captureLocation,
+                 onDiagnostic: { [weak self] value in await self?.receiveCaptureDiagnostic(value) })
+@@ -973,6 +995,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
+         let started = ProcessInfo.processInfo.systemUptime
+         let invocation = CaptureInvocationContext(armAttemptID: attempt.id, hostEpoch: attempt.epoch)
+         activeCaptureInvocation = invocation
++        recordAcceptance(["event": "arm_attempt_started", "reason": reason, "uptime": started,
++            "captureRequestID": invocation.requestID.uuidString,
++            "armAttemptID": attempt.id.uuidString, "hostEpoch": attempt.epoch.uuidString])
+         Task { [weak self] in
+             guard let self else { return }
+             let taskEntered = ProcessInfo.processInfo.systemUptime
+@@ -1104,13 +1129,41 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
+         fields["foregroundSessionMatches"] = armedTarget.map { $0.target.sessionID == foregroundChromeSession } ?? false
+         if let ack = armedTarget?.acknowledgedUptime { fields["ackUptime"] = ack }
+         if let number = boundary.eventNumber { fields["eventNumber"] = number }
++        if let number = boundary.windowNumber { fields["windowNumber"] = number }
++        if let token = boundary.eventSourceUserData { fields["eventSourceUserData"] = token }
+         recordAcceptance(fields)
+     }
+ 
++    private func recordInputReceipt(_ boundary: RiftSelectionBoundary, accepted: Bool) {
++        var fields: [String: Any] = ["event": "native_input_receipt", "source": boundary.source.rawValue,
++            "assetID": boundary.assetID.uuidString, "eventUptime": boundary.eventUptime,
++            "callbackUptime": ProcessInfo.processInfo.systemUptime, "gateAccepted": accepted,
++            "hardwareSourceProven": false]
++        if let number = boundary.eventNumber { fields["eventNumber"] = number }
++        if let number = boundary.windowNumber { fields["windowNumber"] = number }
++        if let count = boundary.clickCount { fields["clickCount"] = count }
++        if let token = boundary.eventSourceUserData { fields["eventSourceUserData"] = token }
++        recordAcceptance(fields)
++    }
++
++    private func recordInputWindows(_ value: RiftInputWindowObservation) {
++        func rect(_ r: CGRect) -> [Double] { [r.minX, r.minY, r.width, r.height].map(Double.init) }
++        recordAcceptance(["event": "input_windows_observed", "assetID": value.assetID.uuidString,
++            "visibilityRevision": value.visibilityRevision, "uptime": value.uptime, "phase": value.phase,
++            "imageWindow": value.imageWindow, "numberWindow": value.numberWindow,
++            "imageFrame": rect(value.imageFrame), "numberFrame": rect(value.numberFrame),
++            "windowsVisible": value.windowsVisible, "ignoresMouseEvents": value.ignoresMouseEvents,
++            "selectionStateEligible": value.selectionStateEligible, "imageDecoded": value.imageDecoded,
++            "windowServerHitMeasured": false, "pixelPresentationMeasured": false])
++    }
++
+     private func recordAcceptance(_ fields: [String: Any]) {
+         guard mode.usesWebAdapter, CommandLine.arguments.contains("--acceptance-trace"), diagnosticEvents < 2048 else { return }
+         diagnosticEvents += 1
+-        if let data = try? JSONSerialization.data(withJSONObject: fields, options: [.sortedKeys]) {
++        var event = fields
++        event["runID"] = diagnosticRunID.uuidString
++        event["clock"] = "hostSystemUptime"
++        if let data = try? JSONSerialization.data(withJSONObject: event, options: [.sortedKeys]) {
+             try? FileHandle.standardError.write(contentsOf: data + Data([10]))
+         }
+     }
+@@ -1580,11 +1633,16 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
+     private func recordArrivalTrace(_ fields: [String: Any]) {
+         guard CommandLine.arguments.contains("--arrival-trace") else { return }
+         var event = fields
++        event["runID"] = diagnosticRunID.uuidString
++        event["clock"] = "hostSystemUptime"
+         event["scope"] = "software_boundaries_not_physical_pixels"
+         event["metadataCandidate"] = CommandLine.arguments.contains(ArrivalSourceProfile.candidateArgument)
+         guard let data = try? JSONSerialization.data(withJSONObject: event, options: [.sortedKeys]),
+               let line = String(data: data, encoding: .utf8) else { return }
+-        print("RIFTLET_ARRIVAL_TRACE " + line)
++        // One write on the same stream as native/selection diagnostics. stdio
++        // print may split the prefix/body/newline and interleave a second JSON
++        // record when both streams are collected into one private trace file.
++        try? FileHandle.standardError.write(contentsOf: Data(("RIFTLET_ARRIVAL_TRACE " + line + "\n").utf8))
+     }
+     @objc private func addWebTestImages() {
+         guard mode.generatesSyntheticImages, let store else { return }
+diff --git a/Sources/RiftletCapture/CaptureService.swift b/Sources/RiftletCapture/CaptureService.swift
+index 1fd9f90..e873442 100644
+--- a/Sources/RiftletCapture/CaptureService.swift
++++ b/Sources/RiftletCapture/CaptureService.swift
+@@ -14,6 +14,7 @@ private struct Observation {
+     var signature: FileSignature
+     let firstSeenAt: Date
+     var stableSince: Date
++    let firstObservedUptime: TimeInterval?
+ }
+ 
+ private struct PendingSourceCapture: Codable, Sendable {
+@@ -56,6 +57,7 @@ public actor CaptureService {
+     private var sourceDirectory: URL
+     private let onChange: @Sendable () async -> Void
+     private let onImported: @Sendable (AssetRecord, ScreenshotSourceObservation) -> Void
++    private let recordSourceTiming: Bool
+     private let onIssue: @Sendable (String) async -> Void
+     private let onDiagnostic: @Sendable (CaptureDiagnostic) async -> Void
+     private var sourceAccessible = false
+@@ -95,12 +97,14 @@ public actor CaptureService {
+                 onImported: @escaping @Sendable (AssetRecord, ScreenshotSourceObservation) -> Void = { _, _ in },
+                 onIssue: @escaping @Sendable (String) async -> Void = { _ in },
+                 onDiagnostic: @escaping @Sendable (CaptureDiagnostic) async -> Void = { _ in },
++                recordSourceTiming: Bool = false,
+                 now: @escaping @Sendable () -> Date = { Date() }) {
+         self.store = store
+         importer = PrivateAssetImporter(privateRoot: privateRoot, store: store)
+         self.sourceDirectory = sourceDirectory.standardizedFileURL
+         self.onChange = onChange; self.onIssue = onIssue; self.onDiagnostic = onDiagnostic
+         self.onImported = onImported
++        self.recordSourceTiming = recordSourceTiming
+         self.now = now
+     }
+ 
+@@ -384,21 +388,32 @@ public actor CaptureService {
+             if let previous = observations[signature.sourceKey] {
+                 if previous.signature != signature {
+                     observations[signature.sourceKey] = Observation(url: url, signature: signature,
+-                        firstSeenAt: previous.firstSeenAt, stableSince: now)
++                        firstSeenAt: previous.firstSeenAt, stableSince: now,
++                        firstObservedUptime: previous.firstObservedUptime)
+                     needsRetry = true; continue
+                 }
+                 if now.timeIntervalSince(previous.stableSince) < 0.12 { needsRetry = true; continue }
+             } else {
+-                observations[signature.sourceKey] = Observation(url: url, signature: signature, firstSeenAt: now, stableSince: now)
++                observations[signature.sourceKey] = Observation(url: url, signature: signature,
++                    firstSeenAt: now, stableSince: now,
++                    firstObservedUptime: recordSourceTiming ? ProcessInfo.processInfo.systemUptime : nil)
+                 needsRetry = true; continue
+             }
+             do {
+-                let record = try await importer.importStableFile(at: url, signature: signature,
+-                    firstSeenAt: observations[signature.sourceKey]?.firstSeenAt ?? now)
++                let firstObservedUptime = observations[signature.sourceKey]?.firstObservedUptime
++                let result = try await importer.importStableFileWithTiming(at: url, signature: signature,
++                    firstSeenAt: observations[signature.sourceKey]?.firstSeenAt ?? now,
++                    recordTiming: recordSourceTiming)
++                let record = result.record
+                 guard running, generation == token else { await onChange(); return }
+                 // Optional presentation observation AFTER durable commit, with
+                 // no wait for metadata, animation or a second stability window.
+-                onImported(record, ScreenshotSourceObservation(url: url, signature: signature, assetID: record.id))
++                let timing = result.timing.map {
++                    ScreenshotSourceTiming(firstObservedUptime: firstObservedUptime,
++                        validatedCopyUptime: $0.validatedCopyUptime, durableCommitUptime: $0.durableCommitUptime)
++                }
++                onImported(record, ScreenshotSourceObservation(url: url, signature: signature,
++                    assetID: record.id, sourceTiming: timing))
+                 observations.removeValue(forKey: signature.sourceKey)
+                 imported = true
+                 importedCount += 1
+@@ -527,8 +542,17 @@ public actor CaptureService {
+                     pendingHandoffs[key] = item; changed = true; continue
+                 }
+                 guard now().timeIntervalSince(item.stableSince) >= 0.12 else { continue }
+-                let record = try await importer.importStableFile(at: item.url, signature: current, firstSeenAt: item.firstSeenAt)
+-                onImported(record, ScreenshotSourceObservation(url: item.url, signature: current, assetID: record.id))
++                let result = try await importer.importStableFileWithTiming(at: item.url, signature: current,
++                    firstSeenAt: item.firstSeenAt, recordTiming: recordSourceTiming)
++                let record = result.record
++                // Pending source dates survive restarts; monotonic observations do not.
++                // Never reconstruct this first-observed time from a persisted Date.
++                let timing = result.timing.map {
++                    ScreenshotSourceTiming(firstObservedUptime: nil,
++                        validatedCopyUptime: $0.validatedCopyUptime, durableCommitUptime: $0.durableCommitUptime)
++                }
++                onImported(record, ScreenshotSourceObservation(url: item.url, signature: current,
++                    assetID: record.id, sourceTiming: timing))
+                 pendingHandoffs.removeValue(forKey: key)
+                 changed = true; imported = true; copyCount += 1
+             } catch CaptureError.notScreenshot {
+diff --git a/Sources/RiftletCapture/PrivateAssetImporter.swift b/Sources/RiftletCapture/PrivateAssetImporter.swift
+index 6188017..b88ebba 100644
+--- a/Sources/RiftletCapture/PrivateAssetImporter.swift
++++ b/Sources/RiftletCapture/PrivateAssetImporter.swift
+@@ -34,6 +34,17 @@ struct SimulatedImportInterruption: Error, Equatable {
+ 
+ typealias ImportFaultHook = @Sendable (ImportBoundaryContext) throws -> Void
+ 
++struct AssetImportTiming: Sendable {
++    let validatedCopyUptime: TimeInterval
++    let durableCommitUptime: TimeInterval
++}
++
++struct ObservedAssetImport: Sendable {
++    let record: AssetRecord
++    /// Existing and journal-recovered assets never acquire fresh source times.
++    let timing: AssetImportTiming?
++}
++
+ /// Files and metadata use a recoverable ordering, not a fictitious cross-filesystem/SQL transaction.
+ /// Durable staging -> durable manifest -> atomic media rename -> SQLite insert.
+ /// The original screenshot is never moved, modified or deleted.
+@@ -95,13 +106,23 @@ public actor PrivateAssetImporter {
+     func importStableFile(at url: URL, signature: FileSignature,
+                           origin: AssetOrigin = .systemScreenshot,
+                           firstSeenAt: Date) async throws -> AssetRecord {
++        let result = try await importStableFileWithTiming(at: url, signature: signature,
++            origin: origin, firstSeenAt: firstSeenAt, recordTiming: false)
++        return result.record
++    }
++
++    /// Same import path with optional ephemeral observations. The default callers
++    /// avoid clock sampling; timing cannot affect file, journal or SQL decisions.
++    func importStableFileWithTiming(at url: URL, signature: FileSignature,
++                                   origin: AssetOrigin = .systemScreenshot,
++                                   firstSeenAt: Date, recordTiming: Bool) async throws -> ObservedAssetImport {
+         guard await store.mode != .simulation || origin == .synthetic else { throw RiftletError.modeMismatch }
+         guard !importing.contains(signature.sourceKey) else { throw CaptureError.importInProgress }
+         importing.insert(signature.sourceKey)
+         defer { importing.remove(signature.sourceKey) }
+         if let existing = try await store.asset(sourceKey: signature.sourceKey) {
+             journaledSources.remove(signature.sourceKey)
+-            return existing
++            return ObservedAssetImport(record: existing, timing: nil)
+         }
+         // An earlier IO/SQL failure may already own a durable private copy. Reconcile it
+         // before allocating another UUID/file for the same source event.
+@@ -109,7 +130,7 @@ public actor PrivateAssetImporter {
+             _ = try await recover()
+             if let existing = try await store.asset(sourceKey: signature.sourceKey) {
+                 journaledSources.remove(signature.sourceKey)
+-                return existing
++                return ObservedAssetImport(record: existing, timing: nil)
+             }
+         }
+         try ensureDirectories()
+@@ -146,6 +167,7 @@ public actor PrivateAssetImporter {
+                 throw CaptureError.notScreenshot
+             }
+             let result = try ValidatedImage.inspect(stageURL, byteCount: signature.size)
++            let validatedCopyUptime = recordTiming ? ProcessInfo.processInfo.systemUptime : nil
+             let fileName = id.uuidString.lowercased() + "." + result.fileExtension
+             let image = ImportedAsset(id: id, sourceKey: signature.sourceKey, fileName: fileName,
+                                       sha256: hash, byteCount: signature.size, pixelWidth: result.width,
+@@ -164,9 +186,15 @@ public actor PrivateAssetImporter {
+             journaledSources.insert(signature.sourceKey)
+             try PrivateFiles.promote(stageURL, to: mediaURL, probe: commitProbe)
+             let record = try await store.importAsset(image)
++            // QueueStore can also deduplicate at transaction time. Another
++            // importer winning that race must not inherit this copy's timeline.
++            let timing = record.image == image ? validatedCopyUptime.map {
++                AssetImportTiming(validatedCopyUptime: $0,
++                                  durableCommitUptime: ProcessInfo.processInfo.systemUptime)
++            } : nil
+             journaledSources.remove(signature.sourceKey)
+             try commitProbe?(.databaseCommitted)
+-            return record
++            return ObservedAssetImport(record: record, timing: timing)
+         } catch {
+             // A renamed journal owns staging even if its directory fsync subsequently fails.
+             // Deleting that stage would break recovery from an otherwise valid journal.
+diff --git a/Sources/RiftletCapture/ScreenshotSourceGeometry.swift b/Sources/RiftletCapture/ScreenshotSourceGeometry.swift
+index 9824a0c..6436ec7 100644
+--- a/Sources/RiftletCapture/ScreenshotSourceGeometry.swift
++++ b/Sources/RiftletCapture/ScreenshotSourceGeometry.swift
+@@ -30,21 +30,39 @@ public enum ScreenshotSourceFailure: String, Error, Equatable, Sendable {
+     case mirroredDisplay, pixelScaleMismatch, displayCaptureMismatch
+ }
+ 
++/// Optional, process-local observations in the host system-uptime clock domain.
++/// These are observed upper bounds, not Screenshot.app completion time or the
++/// earliest instant the original file could have been read. Never persisted or
++/// reconstructed from file dates, an old asset, or a recovery journal.
++public struct ScreenshotSourceTiming: Equatable, Sendable {
++    /// When this collector first retained the candidate during this process.
++    /// Nil for a pending handoff, whose original observation may predate restart.
++    public let firstObservedUptime: TimeInterval?
++    /// Complete copy/hash, source identity/metadata rechecks and image inspection
++    /// have all passed. Includes copying, private-file fsync and decoding work.
++    public let validatedCopyUptime: TimeInterval
++    /// QueueStore's original import has returned after its durable transaction.
++    public let durableCommitUptime: TimeInterval
++}
++
+ /// Ephemeral decoration input. This value owns no asset, queue, upload or retry state.
+ /// Created after a durable import; reading it is optional and may happen off the UI actor.
+ /// Its full source signature rejects replacement OR in-place edits since the import.
+ public struct ScreenshotSourceObservation: Sendable {
+     public let assetID: UUID
+     public let readyUptime: TimeInterval
++    public let sourceTiming: ScreenshotSourceTiming?
+     private let sourceURL: URL
+     private let signature: FileSignature
+ 
+     init(url: URL, signature: FileSignature, assetID: UUID,
+-         readyUptime: TimeInterval = ProcessInfo.processInfo.systemUptime) {
++         readyUptime: TimeInterval = ProcessInfo.processInfo.systemUptime,
++         sourceTiming: ScreenshotSourceTiming? = nil) {
+         sourceURL = url
+         self.signature = signature
+         self.assetID = assetID
+         self.readyUptime = readyUptime
++        self.sourceTiming = sourceTiming
+     }
+ 
+     public func readMetadata() -> Result<ScreenshotSourceMetadata, ScreenshotSourceFailure> {
+diff --git a/Sources/RiftletUI/RiftPanelController.swift b/Sources/RiftletUI/RiftPanelController.swift
+index 7109a05..cc8184f 100644
+--- a/Sources/RiftletUI/RiftPanelController.swift
++++ b/Sources/RiftletUI/RiftPanelController.swift
+@@ -17,14 +17,35 @@ public struct RiftSelectionBoundary: Equatable, Sendable {
+     public let eventNumber: Int?
+     public let windowNumber: Int?
+     public let clickCount: Int?
++    /// Diagnostic correlation only; zero/absence does not prove hardware input.
++    public let eventSourceUserData: Int64?
+ 
+     public init(assetID: UUID, source: RiftSelectionSource, eventUptime: TimeInterval,
+-                eventNumber: Int? = nil, windowNumber: Int? = nil, clickCount: Int? = nil) {
++                eventNumber: Int? = nil, windowNumber: Int? = nil, clickCount: Int? = nil,
++                eventSourceUserData: Int64? = nil) {
+         self.assetID = assetID; self.source = source; self.eventUptime = eventUptime
+         self.eventNumber = eventNumber; self.windowNumber = windowNumber; self.clickCount = clickCount
++        self.eventSourceUserData = eventSourceUserData
+     }
+ }
+ 
++/// AppKit state at initial ordering or decoded-image delivery. This is not a
++/// WindowServer hit/pixel receipt and never grants target or selection authority.
++public struct RiftInputWindowObservation: Sendable {
++    public let assetID: UUID
++    public let visibilityRevision: Int64
++    public let uptime: TimeInterval
++    public let phase: String
++    public let imageWindow: Int
++    public let numberWindow: Int
++    public let imageFrame: CGRect
++    public let numberFrame: CGRect
++    public let windowsVisible: Bool
++    public let ignoresMouseEvents: Bool
++    public let selectionStateEligible: Bool
++    public let imageDecoded: Bool
++}
++
+ /// Read-only native geometry for the standalone acceptance helper. Rectangles
+ /// are in screen points; observing this value never changes input or layout.
+ public struct RiftDiagnosticRow: Equatable, Sendable {
+@@ -424,6 +445,8 @@ public final class RiftPanelController {
+     private let onSelect: (UUID) -> Void
+     private let onPress: (UUID, TimeInterval) -> Void
+     private let onSelectionBoundary: (RiftSelectionBoundary) -> Void
++    private let onInputReceipt: (RiftSelectionBoundary, Bool) -> Void
++    private let onInputWindowObservation: (RiftInputWindowObservation) -> Void
+     private let onApproach: () -> Void
+     private let onPresentationBoundary: (RiftPresentationBoundary) -> Void
+     private let onArrivalBoundary: (RiftArrivalBoundary) -> Void
+@@ -502,6 +525,8 @@ public final class RiftPanelController {
+                 reduceMotionOverride: (() -> Bool)? = nil,
+                 onPress: @escaping (UUID, TimeInterval) -> Void = { _, _ in },
+                 onSelectionBoundary: @escaping (RiftSelectionBoundary) -> Void = { _ in },
++                onInputReceipt: @escaping (RiftSelectionBoundary, Bool) -> Void = { _, _ in },
++                onInputWindowObservation: @escaping (RiftInputWindowObservation) -> Void = { _ in },
+                 onApproach: @escaping () -> Void = {},
+                 onPresentationBoundary: @escaping (RiftPresentationBoundary) -> Void = { _ in },
+                 onArrivalBoundary: @escaping (RiftArrivalBoundary) -> Void = { _ in },
+@@ -519,6 +544,8 @@ public final class RiftPanelController {
+         self.onSelect = onSelect
+         self.onPress = onPress
+         self.onSelectionBoundary = onSelectionBoundary
++        self.onInputReceipt = onInputReceipt
++        self.onInputWindowObservation = onInputWindowObservation
+         self.onApproach = onApproach
+         self.onPresentationBoundary = onPresentationBoundary
+         self.onArrivalBoundary = onArrivalBoundary
+@@ -1010,6 +1037,7 @@ public final class RiftPanelController {
+                 window.panels.forEach { $0.alphaValue = 1 }
+                 window.view.animateImage(to: expectedOffset, duration: 0)
+                 reportArrival(.rowAvailable, id: record.id)
++                observeInputWindows(window, phase: "initialOrder")
+             } else if oldStatus != record.status || window.view.imageOffset != expectedOffset {
+                 window.view.animateImage(to: expectedOffset, duration: duration(
+                     record.status == .failed ? configuration.returnDuration : configuration.pressDuration))
+@@ -1037,6 +1065,9 @@ public final class RiftPanelController {
+                     view.reportedImageReady = true
+                     self.reportArrival(.imageDecoded, id: record.id)
+                 }
++                if isNew, let row = self.rowWindows[record.id] {
++                    self.observeInputWindows(row, phase: "imageDelivery")
++                }
+                 if let arrivalOwner, let image {
+                     if !self.startArrivalIfPossible(id: record.id, image: image, owner: arrivalOwner) {
+                         // A rejected/cancelled handoff is an immediate static
+@@ -1170,6 +1201,20 @@ public final class RiftPanelController {
+         row.view.animateImage(to: 0, duration: time)
+     }
+ 
++    private func observeInputWindows(_ row: RowWindow, phase: String) {
++        let record = row.view.record
++        onInputWindowObservation(RiftInputWindowObservation(assetID: record.id,
++            visibilityRevision: record.visibilityRevision, uptime: ProcessInfo.processInfo.systemUptime,
++            phase: phase, imageWindow: row.imageInput.windowNumber, numberWindow: row.numberInput.windowNumber,
++            imageFrame: row.imageInput.frame, numberFrame: row.numberInput.frame,
++            windowsVisible: row.imageInput.isVisible && row.numberInput.isVisible,
++            ignoresMouseEvents: row.imageInput.ignoresMouseEvents || row.numberInput.ignoresMouseEvents,
++            selectionStateEligible: !closed && !userHidden && !captureSuppressed && !gate.isHolding
++                && selectionVersions[record.id] == nil && record.visibility == .visible
++                && record.status != .transferring && record.status != .used,
++            imageDecoded: row.view.reportedImageReady))
++    }
++
+     private func wire(_ window: RowWindow, id: UUID) {
+         window.view.onHover = { [weak self] inside in
+             guard let self, !self.userHidden, !self.closed else { return }
+@@ -1217,6 +1262,11 @@ public final class RiftPanelController {
+             let accepted = self.gate.begin(assetID: id, screenPoint: point, timestamp: event.timestamp,
+                                           clickCount: event.clickCount, doubleClickInterval: NSEvent.doubleClickInterval,
+                                           acceptsSelection: accepts)
++            let boundary = RiftSelectionBoundary(assetID: id, source: .mouse,
++                eventUptime: event.timestamp, eventNumber: event.eventNumber,
++                windowNumber: event.windowNumber, clickCount: event.clickCount,
++                eventSourceUserData: event.cgEvent?.getIntegerValueField(.eventSourceUserData))
++            self.onInputReceipt(boundary, accepted)
+             if accepted {
+                 self.selectionVersions[id] = view.record.visibilityRevision
+                 self.pressRegions[id] = originalRegions
+@@ -1224,9 +1274,7 @@ public final class RiftPanelController {
+                 self.cancelDecorations(reason: .clicked)
+                 self.setFeedback(nil, for: id)
+                 self.onPress(id, event.timestamp)
+-                self.onSelectionBoundary(RiftSelectionBoundary(assetID: id, source: .mouse,
+-                    eventUptime: event.timestamp, eventNumber: event.eventNumber,
+-                    windowNumber: event.windowNumber, clickCount: event.clickCount))
++                self.onSelectionBoundary(boundary)
+                 let time = self.duration(self.configuration.pressDuration)
+                 self.trackAnimation(time)
+                 view.animateImage(to: self.pressOffset, duration: time)
+diff --git a/Tests/RiftletCaptureTests/CaptureArrivalObservationTests.swift b/Tests/RiftletCaptureTests/CaptureArrivalObservationTests.swift
+index 6935bcd..34cbb22 100644
+--- a/Tests/RiftletCaptureTests/CaptureArrivalObservationTests.swift
++++ b/Tests/RiftletCaptureTests/CaptureArrivalObservationTests.swift
+@@ -66,7 +66,7 @@ final class CaptureArrivalObservationTests: XCTestCase {
+                 let original = try? Data(contentsOf: source)
+                 checks.append(ImportedObservationCheck(record: record, observation: observation,
+                     committedInSeparateConnection: committed, privateBytesPresent: copy != nil && copy == original))
+-            }, now: { clock.read() })
++            }, recordSourceTiming: true, now: { clock.read() })
+         do {
+             try await service.start()
+             let context = try XCTUnwrap(CGContext(data: nil, width: 32, height: 18, bitsPerComponent: 8,
+@@ -89,6 +89,13 @@ final class CaptureArrivalObservationTests: XCTestCase {
+             XCTAssertTrue(observed.privateBytesPresent)
+             XCTAssertEqual(observed.observation.assetID, observed.record.id)
+             XCTAssertLessThanOrEqual(observed.observation.readyUptime, ProcessInfo.processInfo.systemUptime)
++            let timing = try XCTUnwrap(observed.observation.sourceTiming)
++            let firstObserved = try XCTUnwrap(timing.firstObservedUptime)
++            XCTAssertGreaterThan(firstObserved, 0)
++            XCTAssertLessThanOrEqual(firstObserved, timing.validatedCopyUptime)
++            XCTAssertLessThanOrEqual(timing.validatedCopyUptime, timing.durableCommitUptime)
++            XCTAssertLessThanOrEqual(timing.durableCommitUptime, observed.observation.readyUptime)
++            XCTAssertNil(observed.record.image.capturedAt, "Diagnostic observations do not invent system capture completion")
+             XCTAssertEqual(observed.observation.readMetadata(), .failure(.missingRectangle))
+             let durable = try await fixture.store.asset(id: observed.record.id)
+             XCTAssertEqual(durable, observed.record)
+diff --git a/Tests/RiftletCaptureTests/CaptureSourceBindingTests.swift b/Tests/RiftletCaptureTests/CaptureSourceBindingTests.swift
+index 62b6047..fda639f 100644
+--- a/Tests/RiftletCaptureTests/CaptureSourceBindingTests.swift
++++ b/Tests/RiftletCaptureTests/CaptureSourceBindingTests.swift
+@@ -15,6 +15,13 @@ private final class SourceTestClock: @unchecked Sendable {
+     func advance(_ interval: TimeInterval = 1) { lock.lock(); value.addTimeInterval(interval); lock.unlock() }
+ }
+ 
++private final class SourceObservationChecks: @unchecked Sendable {
++    private let lock = NSLock()
++    private var values: [ScreenshotSourceObservation] = []
++    func append(_ observation: ScreenshotSourceObservation) { lock.lock(); values.append(observation); lock.unlock() }
++    func read() -> [ScreenshotSourceObservation] { lock.lock(); defer { lock.unlock() }; return values }
++}
++
+ private actor TestLocationProvider: CaptureLocationProviding {
+     var directory: URL
+     private var handler: (@Sendable () async -> Void)?
+@@ -142,8 +149,10 @@ final class CaptureSourceBindingTests: XCTestCase {
+     func testIncompleteOldSourceSurvivesSwitchAndProcessRestart() async throws {
+         let f = try Fixture(); defer { f.close() }
+         let clock = SourceTestClock()
++        let observations = SourceObservationChecks()
+         let service = CaptureService(store: f.store, privateRoot: f.privateRoot, sourceDirectory: f.first,
+-                                     now: { clock.read() })
++            onImported: { _, observation in observations.append(observation) },
++            recordSourceTiming: true, now: { clock.read() })
+         try await service.start()
+         let oldSource = f.first.appendingPathComponent("unfinished.png")
+         let bytes = try png()
+@@ -161,7 +170,8 @@ final class CaptureSourceBindingTests: XCTestCase {
+         let handle = try FileHandle(forWritingTo: oldSource)
+         try handle.truncate(atOffset: 0); try handle.write(contentsOf: bytes); try handle.close()
+         let restarted = CaptureService(store: f.store, privateRoot: f.privateRoot, sourceDirectory: f.second,
+-                                       now: { clock.read() })
++            onImported: { _, observation in observations.append(observation) },
++            recordSourceTiming: true, now: { clock.read() })
+         try await restarted.start()
+         clock.advance()
+         try await restarted.rescan()
+@@ -169,6 +179,12 @@ final class CaptureSourceBindingTests: XCTestCase {
+         XCTAssertEqual(recovered.count, 1)
+         XCTAssertEqual(recovered.first?.image.sourceKey, sourceKey)
+         XCTAssertEqual(try Data(contentsOf: oldSource), bytes)
++        let arrivals = observations.read()
++        XCTAssertEqual(arrivals.count, 1)
++        let timing = try XCTUnwrap(arrivals.first?.sourceTiming)
++        XCTAssertNil(timing.firstObservedUptime, "The persisted handoff cannot supply an earlier process's monotonic observation")
++        XCTAssertLessThanOrEqual(timing.validatedCopyUptime, timing.durableCommitUptime)
++        XCTAssertLessThanOrEqual(timing.durableCommitUptime, try XCTUnwrap(arrivals.first?.readyUptime))
+         await restarted.stop()
+     }
+ 
+diff --git a/Tests/RiftletCaptureTests/ImportFaultTests.swift b/Tests/RiftletCaptureTests/ImportFaultTests.swift
+index b82d538..009c630 100644
+--- a/Tests/RiftletCaptureTests/ImportFaultTests.swift
++++ b/Tests/RiftletCaptureTests/ImportFaultTests.swift
+@@ -65,6 +65,49 @@ final class ImportFaultTests: XCTestCase {
+             signature: FileSignature.read(at: fixture.source), firstSeenAt: Date())
+     }
+ 
++    func testImportTimingIsOptInAndExistingAssetDoesNotAcquireNewSourceTimes() async throws {
++        let f = try Fixture(); defer { f.close() }
++        let signature = try FileSignature.read(at: f.source)
++        let importer = PrivateAssetImporter(privateRoot: f.privateRoot, store: f.store)
++        let initial = try await importer.importStableFileWithTiming(at: f.source, signature: signature,
++            firstSeenAt: Date(), recordTiming: false)
++        XCTAssertNil(initial.timing)
++
++        // Turning diagnostics on later must not relabel an old committed asset
++        // as a new complete read, even if its original file is still present.
++        let existing = try await importer.importStableFileWithTiming(at: f.source, signature: signature,
++            firstSeenAt: Date(), recordTiming: true)
++        XCTAssertEqual(existing.record.id, initial.record.id)
++        XCTAssertNil(existing.timing)
++        XCTAssertEqual(try Data(contentsOf: f.source), f.bytes)
++    }
++
++    func testJournalRecoveryDoesNotAcquireFreshSourceTiming() async throws {
++        let f = try Fixture(); defer { f.close() }
++        let once = OncePerBoundary([.journalSynced])
++        let importer = PrivateAssetImporter(privateRoot: f.privateRoot, store: f.store) { context in
++            if once.take(context.boundary) { throw SimulatedImportInterruption(boundary: context.boundary) }
++        }
++        let signature = try FileSignature.read(at: f.source)
++        do {
++            _ = try await importer.importStableFileWithTiming(at: f.source, signature: signature,
++                firstSeenAt: Date(), recordTiming: true)
++            XCTFail("Expected a journal-owned interrupted import")
++        } catch let interruption as SimulatedImportInterruption {
++            XCTAssertEqual(interruption.boundary, .journalSynced)
++        }
++        let incomplete = try await f.store.assets()
++        XCTAssertTrue(incomplete.isEmpty)
++        // This call takes the journal recovery branch before opening the source.
++        // Recovery reads the private copy; it is not a new original-file input.
++        let recovered = try await importer.importStableFileWithTiming(at: f.source, signature: signature,
++            firstSeenAt: Date(), recordTiming: true)
++        XCTAssertNil(recovered.timing)
++        let stored = try await f.store.assets()
++        XCTAssertEqual(stored.map(\.id), [recovered.record.id])
++        XCTAssertEqual(try Data(contentsOf: f.source), f.bytes)
++    }
++
+     func testEveryDurableBoundaryCanReopenWithoutDuplicateQueueOrOriginalLoss() async throws {
+         for boundary in ImportBoundary.allCases {
+             let f = try Fixture(); defer { f.close() }
+diff --git a/Tests/RiftletUITests/RiftInputIslandTests.swift b/Tests/RiftletUITests/RiftInputIslandTests.swift
+index 72ef0ea..451dd05 100644
+--- a/Tests/RiftletUITests/RiftInputIslandTests.swift
++++ b/Tests/RiftletUITests/RiftInputIslandTests.swift
+@@ -13,6 +13,8 @@ final class RiftInputIslandTests: XCTestCase {
+     }
+ 
+     @MainActor private func controller(onBoundary: @escaping (RiftSelectionBoundary) -> Void = { _ in },
++                                      onReceipt: @escaping (RiftSelectionBoundary, Bool) -> Void = { _, _ in },
++                                      onWindows: @escaping (RiftInputWindowObservation) -> Void = { _ in },
+                                       onSelect: @escaping (UUID) -> Void = { _ in }) throws -> RiftPanelController {
+         _ = NSApplication.shared
+         guard !NSScreen.screens.isEmpty else { throw XCTSkip("No AppKit screen; native routing remains separately unverified") }
+@@ -21,7 +23,8 @@ final class RiftInputIslandTests: XCTestCase {
+         configuration.swallowDuration = 0.02; configuration.shiftDuration = 0.01
+         configuration.returnDuration = 0.01
+         return RiftPanelController(mediaDirectory: FileManager.default.temporaryDirectory,
+-            configuration: configuration, arrivalMode: .magnet, onSelectionBoundary: onBoundary, onSelect: onSelect)
++            configuration: configuration, arrivalMode: .magnet, onSelectionBoundary: onBoundary,
++            onInputReceipt: onReceipt, onInputWindowObservation: onWindows, onSelect: onSelect)
+     }
+ 
+     @MainActor private func window(_ number: Int) throws -> NSWindow {
+@@ -65,7 +68,9 @@ final class RiftInputIslandTests: XCTestCase {
+ 
+     @MainActor func testOriginalInputEventSelectsSameAssetAcrossItsTwoIslandsAndRejectsPaddingRelease() throws {
+         var selected: [UUID] = [], boundaries: [RiftSelectionBoundary] = []
+-        let panel = try controller(onBoundary: { boundaries.append($0) }, onSelect: { selected.append($0) })
++        var receipts: [(RiftSelectionBoundary, Bool)] = []
++        let panel = try controller(onBoundary: { boundaries.append($0) },
++            onReceipt: { receipts.append(($0, $1)) }, onSelect: { selected.append($0) })
+         defer { panel.close() }
+         let asset = record(); panel.render([asset])
+         let row = try XCTUnwrap(panel.diagnosticSnapshot.rows.first)
+@@ -93,12 +98,31 @@ final class RiftInputIslandTests: XCTestCase {
+         numberView.mouseDown(with: try event(.leftMouseDown, window: number, screen: numberPoint, time: 14.2, count: 2))
+         numberView.mouseUp(with: try event(.leftMouseUp, window: number, screen: numberPoint, time: 14.3, count: 2))
+         XCTAssertEqual(selected.count, 2)
++        XCTAssertEqual(receipts.count, 4, "Raw delivered presses include the rejected double click")
++        XCTAssertEqual(receipts.map { $0.1 }, [true, true, true, false])
++        XCTAssertEqual(receipts.last?.0.eventUptime, 14.2, "A rejected event retains its original time")
++        XCTAssertEqual(receipts.last?.0.windowNumber, number.windowNumber)
+         panel.close()
+         imageView.mouseDown(with: try event(.leftMouseDown, window: image, screen: imagePoint, time: 20))
+         imageView.mouseUp(with: try event(.leftMouseUp, window: image, screen: imagePoint, time: 20.1))
+         XCTAssertEqual(selected.count, 2, "Retained closed input references cannot select")
+     }
+ 
++    @MainActor func testInputObservationDoesNotClaimSuppressedWindowsAreClickable() throws {
++        var observations: [RiftInputWindowObservation] = []
++        let panel = try controller(onWindows: { observations.append($0) }); defer { panel.close() }
++        panel.setCaptureSuppressed(true)
++        let asset = record(); panel.render([asset])
++        let value = try XCTUnwrap(observations.first)
++        XCTAssertEqual(value.assetID, asset.id)
++        XCTAssertEqual(value.phase, "initialOrder")
++        XCTAssertFalse(value.windowsVisible)
++        XCTAssertFalse(value.selectionStateEligible)
++        XCTAssertFalse(value.imageDecoded)
++        XCTAssertFalse(value.ignoresMouseEvents, "Input capability and actual visibility are separate")
++        XCTAssertGreaterThan(value.uptime, 0)
++    }
++
+     @MainActor func testHeldAssetDefersSwallowAndAllThreeWindowsCloseBeforeCompaction() async throws {
+         let panel = try controller(); defer { panel.close() }
+         let asset = record(), other = record(2); panel.render([asset, other])

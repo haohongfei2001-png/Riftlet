@@ -1,4 +1,4 @@
-> **2026-10-30 自然原生首击时间链 · 独立专项进行中**：分支 `codex/riftlet-natural-first-click-20261030` 继承已审原生修复与独立实验归档，真实 Mac/Chrome 仅由本地执行者输入。补源文件验证、App 收图、输入窗口观测与原事件关联；物理/CGEvent/AX 分开，缺失 T0 不用文件日期补写。不修改正式 PR #15 或扩大准入。
+> **2026-10-30 自然原生首击时间链 · 源码/CI/审查 PASS；真实首击 NOT_RUN**：独立分支 `codex/riftlet-natural-first-click-20261030`，源码 `e5d77d3`。修复真实日志交错，补原生同钟观测，完整 macOS CI `40914439852` success。一次软件系统快捷键取样未在配置目录产生可观察新文件，微图点击/新上传均0，不能计算自然成功率；旧媒体、UNKNOWN及准入保留。正式PR #15最新实际head `53ea3a1`，未写其工作树或refs。[结果与精确集成补丁](../engineering/evidence/2026-10-30-natural-first-click/README.md)。
 
 > **2026-10-29 冷首击可靠性 · 独立技术增量进行中**：基于 PR #15 `c15fd4b`，本地执行者独占 Mac/Chrome，分离零操作页面 lease 耗尽、异步权限发布与真正无 pre-event ACK 的结构性边界。只在 `codex/riftlet-cold-click-reliability-20261029` 修改；原操作、来源及准入不变。当前结果与交接见 [专项证据](../engineering/evidence/2026-10-29-cold-click-reliability/README.md)。
 

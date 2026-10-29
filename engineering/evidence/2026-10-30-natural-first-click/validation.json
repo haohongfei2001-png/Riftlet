@@ -1,0 +1,95 @@
+{
+  "reviewedSource": "e5d77d3c82bf2769387049e533e93073d36ee6fb",
+  "nativeCodeSameAs": "a1df3d9242d4a38e42ccb37124d0dd98d761d5c2",
+  "independentReview": {
+    "role": "natural_independent_review",
+    "result": "PASS",
+    "scope": "exact source, native timing, safety/retention scope, CI and offline causal joins",
+    "independentOfflineCases": 21,
+    "resolvedFindings": [
+      "Only guaranteed observation partial orders are enforced; original NSEvent offsets are not called capture latency."
+    ],
+    "excludes": [
+      "physical mouse",
+      "real new system PNG",
+      "real upload",
+      "exact T0/T2",
+      "final formal combined App"
+    ]
+  },
+  "CI": {
+    "runID": 40914439852,
+    "jobID": 123590794071,
+    "sourceSHA": "e5d77d3c82bf2769387049e533e93073d36ee6fb",
+    "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/40914439852",
+    "status": "completed",
+    "conclusion": "success",
+    "nativeNumberedCases": 763,
+    "loggedSkips": 0,
+    "scopeAudit": "PASS",
+    "offlineCausalCounterexamples": 21,
+    "fullReleaseApp": "PASS",
+    "selfChecks": {
+      "web-acceptance-self-check": "RIFTLET_WEB_ACCEPTANCE_SELF_CHECK_PASS: bundled page source, synthetic-only start/completion policy, isolated modes; CHROME_NOT_RUN; GUI_NOT_RUN",
+      "first-use-self-check": "RIFTLET_FIRST_USE_SELF_CHECK_PASS: presentation persistence, disabled-production permission isolation, honest status; PERMISSIONS_NOT_REQUESTED; GUI_NOT_RUN",
+      "system-screenshot-candidate-self-check": "RIFTLET_SYSTEM_SCREENSHOT_CANDIDATE_SELF_CHECK_PASS: original-byte import, one software input, restricted start then independent completion, durable new-operation registration, legacy UNKNOWN unchanged, read-only restart; GENERATED_FIXTURE; CHROME_NOT_RUN; SYSTEM_SCREENSHOT_NOT_RUN; GUI_NOT_RUN",
+      "self-check": "RIFTLET_SELF_CHECK_PASS: private import, durable upload-start visibility, delayed synthetic completion, restart"
+    },
+    "artifactID": 12915069079,
+    "artifactBytes": 1995837,
+    "artifactSHA256": "7599d7a6008853bfad5c0d1bb610585fd6e7e19bb025cd47ccb58a8bec79d970",
+    "appZIPBytes": 1985044,
+    "appZIPSHA256": "2bd7b83e0d3a1a70595c468f3dac7c66eeaf049bbabcf2228e1b89d6363925fe",
+    "nativeLogSHA256": "df400badfdf7f5f633eabfead9e63cb993f65b456bfc312f89e815ff6f478b0b",
+    "compiler": "Apple Swift version 6.1.2 (swiftlang-6.1.2.1.2 clang-1700.0.13.5)\nTarget: arm64-apple-macosx15.0",
+    "os": "ProductName:\t\tmacOS\nProductVersion:\t\t15.7.9\nBuildVersion:\t\t24G830",
+    "supersededQueuedRun": {
+      "id": 40912738802,
+      "result": "cancelled",
+      "reason": "Offline join needed independent-review correction; avoided duplicate native verification."
+    }
+  },
+  "local": {
+    "completeAppBuild": "PASS, Swift 6.4 / macOS 27 arm64",
+    "systemCandidateSelfCheck": "PASS, generated fixture only",
+    "XCTest": "NOT_RUN, CommandLineTools lacks XCTest.framework",
+    "privateBuildLogSHA256": "24e91e83a482fd074ee74ed4fd9331bed2bcaa0de0095a4483687468e91ebbfb",
+    "liveBinarySHA256": "164bb6fa69738d4f18b6f437224ac155f531267e6c8fcd1aa61d3110db49db65"
+  },
+  "formalApplyCheck": {
+    "base": "53ea3a1de76a30ab0d8cb221ff7e4e4fa2bce83f",
+    "result": "PASS, temporary Git index only",
+    "prerequisite": "c308d46 native Source/Tests patch then this native-diagnostics.patch",
+    "unmergedEntries": 0,
+    "formalFeedbackHostUnchanged": true,
+    "formalRefsOrWorktreeModified": false,
+    "combinedNativeBuild": "NOT_RUN, belongs to formal integration owner"
+  },
+  "nativePatchSHA256": "9824759ab45028e83c87fac6e5ab7ebadcbc93784083c7fdbc7cd2fe1c6af0f6",
+  "independentEvidenceReview": {
+    "role": "natural_independent_review",
+    "result": "PASS_LIMITED",
+    "verified": [
+      "exact GitHub run/job/head and official artifact digest/bytes",
+      "original artifact and packaged App hashes",
+      "763 unique native cases, zero logged skips, four self checks",
+      "native patch byte-identical to reviewed 9-file diff",
+      "15 private evidence file hashes and sizes",
+      "read-only before/after snapshot JSONs, not direct DB",
+      "no public private path/chat URL/credentials found"
+    ],
+    "doesNotAdmit": [
+      "natural first-click reliability",
+      "human physical mouse",
+      "exact T0/T2",
+      "real new upload",
+      "latest formal combined App"
+    ],
+    "wordingResolved": "Reason for observing no new file at configured destination remains unproven."
+  },
+  "privateArchive": {
+    "persistentLocalEvidenceCopyCreated": true,
+    "originalTempCopyRetained": true,
+    "publicRawData": false
+  }
+}

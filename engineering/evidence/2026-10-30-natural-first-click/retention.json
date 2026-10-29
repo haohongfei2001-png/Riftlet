@@ -1,0 +1,69 @@
+{
+  "scope": "Read-only per-table snapshots before/after owned candidate executions, not a claim of an unchanged database file",
+  "roots": [
+    {
+      "database": 1,
+      "changedTables": {},
+      "oldMediaCount": 16,
+      "oldMediaExact": true,
+      "newMediaCount": 0,
+      "operationTableExact": true,
+      "uploadStartTableExact": true
+    },
+    {
+      "database": 2,
+      "changedTables": {
+        "assets": {
+          "before": 8,
+          "after": 11
+        },
+        "operations": {
+          "before": 5,
+          "after": 5
+        },
+        "sqlite_sequence": {
+          "before": 2,
+          "after": 2
+        }
+      },
+      "oldMediaCount": 8,
+      "oldMediaExact": true,
+      "newMediaCount": 3,
+      "operationTableExact": false,
+      "uploadStartTableExact": true
+    },
+    {
+      "database": 3,
+      "changedTables": {},
+      "oldMediaCount": 26,
+      "oldMediaExact": true,
+      "newMediaCount": 0,
+      "operationTableExact": true,
+      "uploadStartTableExact": true
+    }
+  ],
+  "historicalMediaRetained": 50,
+  "historicalMediaByteExact": true,
+  "operationCountBefore": 32,
+  "operationCountAfter": 32,
+  "candidateOperationPhasesBefore": [
+    "unknown",
+    "failed",
+    "unknown",
+    "unknown",
+    "succeeded"
+  ],
+  "candidateOperationPhasesAfter": [
+    "unknown",
+    "failed",
+    "unknown",
+    "unknown",
+    "succeeded"
+  ],
+  "newInputs": 0,
+  "newCandidateAssets": 3,
+  "candidateOperationTableChanged": true,
+  "reason": "Existing original-operation background observation recorded unavailable and refreshed UNKNOWN reason/updated_at through unchanged QueueStore.markUnknown. The before snapshot kept aggregate row hashes, so whole-row identity equality is not claimed. No operation was deleted or added; old UNKNOWN phases and counts remain.",
+  "otherTables": "upload_starts, compensations, metadata/checkpoints and all tables in the other two roots exact. Admission source objects are unchanged; runtime admission sidecar equality was not separately measured.",
+  "sourceCompletionForNewAssets": "Startup backlog import; not screenshots produced by this task and not click trials"
+}
