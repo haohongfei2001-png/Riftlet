@@ -148,3 +148,5 @@ push另暴露两项实质UI问题。设置preview完整17事件/dropped0证明�
 push严格正常磁力测试得到timedOut；其raw stopped=true断言未失败，但旧日志没有完整raw/交付时间，不能由此确定本次唯一根因。移除native delegate已在main时的额外dispatch，主线程真实flag在当前执行轮交付；非主线程仍原队列转发，false不变、generation清权及原assetReady+560ms+100ms清理截止不变。新增确定性主线程交付/原flag回归；原正常计划仍严格要求finished/raw true，并输出有界submitted/原raw时间/交付时间/完成时钟以核因果。此修改不能借旧2c8诊断对照五次成功宣称有效，仍需准确新CI与原尺寸MOV。
 
 原始依据：Apple [preferredScrollerStyle](https://developer.apple.com/documentation/appkit/nsscroller/preferredscrollerstyle) 明确系统可在运行中自动更新所有scroll view并retile；[scrollerWidth(for:scrollerStyle:)](https://developer.apple.com/documentation/appkit/nsscroller/scrollerwidth(for:scrollerstyle:)) 提供对应原生宽度。本轮不以加等待、延长动效或接受nil/timeout来收口。
+
+非作者已精确核准本轮七路径修补tree `eaffe8ad665cb56ba4c403ab665ca15543d913e0`，canonical源码 `ee6149bad38b5ed0fbc2b803c8891df909d6940e`、parent5ed与冻结本地检查点完全同tree，工作树干净。当前仅更新既定三条来源元数据，历史审计、CI顺序、原所有失败断言及原磁力时长/100ms清理上限不变。新准确Native/Feedback、单次受控组件和原尺寸影片仍待运行，不能继承先前通过。
