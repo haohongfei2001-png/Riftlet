@@ -1,0 +1,461 @@
+{
+  "schemaVersion": 1,
+  "formalPR1Head": "98e66a956d55b5fac71718bc627dd89705b2a506",
+  "PR15HandoffHead": "623d3725d0b3096f1dc7332e6cae11f47f7002c2",
+  "branch": "codex/riftlet-natural-first-click-20261030",
+  "priorHandoff": "414a6cb217e058fb5d6237125f126b507fa111ce",
+  "unchangedNativeSource": "e5d77d3c82bf2769387049e533e93073d36ee6fb",
+  "environment": {
+    "macOS": "27.0",
+    "build": "26A428",
+    "architecture": "arm64",
+    "displayScales": [
+      2,
+      2
+    ],
+    "sameBootVerifiedPrivately": true,
+    "clock": "hostSystemUptime"
+  },
+  "settings": {
+    "configuredLocation": "user Downloads",
+    "target": "file",
+    "targetScreenshot": "file",
+    "explicitType": null,
+    "explicitShowThumbnail": null,
+    "areaShortcutEnabled": true,
+    "currentHostOverrideObserved": false,
+    "preferencesEqualBeforeAfter": true,
+    "hotkeysEqualBeforeAfter": true
+  },
+  "trials": [
+    {
+      "trial": "left-screen-pointer-premove",
+      "inputOrigin": "CGEvent",
+      "result": "FAIL_NO_NEW_FILE",
+      "newFiles": 0,
+      "newCompletePNGs": 0,
+      "t0ActualCaptureCompletion": null,
+      "selectionGeometryMeasured": false,
+      "events": [
+        {
+          "event": "event_post",
+          "offsetMS": -172.04,
+          "type": 5,
+          "flags": 0,
+          "clickState": 0,
+          "createdEventTimestamp": 0
+        },
+        {
+          "event": "event_post",
+          "offsetMS": 0.0,
+          "type": 10,
+          "flags": 1179648,
+          "clickState": 0,
+          "createdEventTimestamp": 0
+        },
+        {
+          "event": "event_post",
+          "offsetMS": 45.009,
+          "type": 11,
+          "flags": 1179648,
+          "clickState": 0,
+          "createdEventTimestamp": 0
+        },
+        {
+          "event": "shortcut_ui",
+          "offsetMS": 444.024
+        },
+        {
+          "event": "event_post",
+          "offsetMS": 444.643,
+          "type": 1,
+          "flags": 538050560,
+          "clickState": 1,
+          "createdEventTimestamp": 0
+        },
+        {
+          "event": "event_post",
+          "offsetMS": 529.04,
+          "type": 6,
+          "flags": 538050560,
+          "clickState": 1,
+          "createdEventTimestamp": 0
+        },
+        {
+          "event": "event_post",
+          "offsetMS": 611.933,
+          "type": 2,
+          "flags": 538050560,
+          "clickState": 0,
+          "createdEventTimestamp": 0
+        },
+        {
+          "event": "selection_release_posted",
+          "offsetMS": 697.851
+        },
+        {
+          "event": "capture_ui_transition",
+          "offsetMS": 5640.386
+        },
+        {
+          "event": "trial_end",
+          "offsetMS": 20713.594
+        }
+      ],
+      "observedAfterDriverReleaseRecordSeconds": 20.016
+    },
+    {
+      "trial": "left-screen-neutralized-modifiers",
+      "inputOrigin": "CGEvent",
+      "result": "FAIL_NO_NEW_FILE",
+      "newFiles": 0,
+      "newCompletePNGs": 0,
+      "t0ActualCaptureCompletion": null,
+      "selectionGeometryMeasured": false,
+      "events": [
+        {
+          "event": "event_post",
+          "offsetMS": -170.925,
+          "type": 5,
+          "flags": 0,
+          "clickState": 0,
+          "createdEventTimestamp": 0
+        },
+        {
+          "event": "event_post",
+          "offsetMS": 0.0,
+          "type": 10,
+          "flags": 1179648,
+          "clickState": 0,
+          "createdEventTimestamp": 0
+        },
+        {
+          "event": "event_post",
+          "offsetMS": 44.618,
+          "type": 11,
+          "flags": 1179648,
+          "clickState": 0,
+          "createdEventTimestamp": 0
+        },
+        {
+          "event": "shortcut_ui",
+          "offsetMS": 442.451
+        },
+        {
+          "event": "event_post",
+          "offsetMS": 443.088,
+          "type": 12,
+          "flags": 0,
+          "clickState": 0,
+          "createdEventTimestamp": 0
+        },
+        {
+          "event": "event_post",
+          "offsetMS": 487.961,
+          "type": 1,
+          "flags": 536870912,
+          "clickState": 1,
+          "createdEventTimestamp": 0
+        },
+        {
+          "event": "event_post",
+          "offsetMS": 573.54,
+          "type": 6,
+          "flags": 536870912,
+          "clickState": 1,
+          "createdEventTimestamp": 0
+        },
+        {
+          "event": "event_post",
+          "offsetMS": 662.487,
+          "type": 2,
+          "flags": 536870912,
+          "clickState": 0,
+          "createdEventTimestamp": 0
+        },
+        {
+          "event": "selection_release_posted",
+          "offsetMS": 747.853
+        },
+        {
+          "event": "capture_ui_transition",
+          "offsetMS": 5684.765
+        },
+        {
+          "event": "trial_end",
+          "offsetMS": 20767.416
+        }
+      ],
+      "observedAfterDriverReleaseRecordSeconds": 20.02
+    },
+    {
+      "trial": "main-screen-neutralized-modifiers",
+      "inputOrigin": "CGEvent",
+      "result": "FAIL_NO_NEW_FILE",
+      "newFiles": 0,
+      "newCompletePNGs": 0,
+      "t0ActualCaptureCompletion": null,
+      "selectionGeometryMeasured": false,
+      "events": [
+        {
+          "event": "event_post",
+          "offsetMS": -194.55,
+          "type": 5,
+          "flags": 0,
+          "clickState": 0,
+          "createdEventTimestamp": 0
+        },
+        {
+          "event": "event_post",
+          "offsetMS": 0.0,
+          "type": 10,
+          "flags": 1179648,
+          "clickState": 0,
+          "createdEventTimestamp": 0
+        },
+        {
+          "event": "event_post",
+          "offsetMS": 45.142,
+          "type": 11,
+          "flags": 1179648,
+          "clickState": 0,
+          "createdEventTimestamp": 0
+        },
+        {
+          "event": "shortcut_ui",
+          "offsetMS": 446.548
+        },
+        {
+          "event": "event_post",
+          "offsetMS": 449.357,
+          "type": 12,
+          "flags": 0,
+          "clickState": 0,
+          "createdEventTimestamp": 0
+        },
+        {
+          "event": "event_post",
+          "offsetMS": 493.519,
+          "type": 1,
+          "flags": 536870912,
+          "clickState": 1,
+          "createdEventTimestamp": 0
+        },
+        {
+          "event": "event_post",
+          "offsetMS": 580.722,
+          "type": 6,
+          "flags": 536870912,
+          "clickState": 1,
+          "createdEventTimestamp": 0
+        },
+        {
+          "event": "event_post",
+          "offsetMS": 667.506,
+          "type": 2,
+          "flags": 536870912,
+          "clickState": 0,
+          "createdEventTimestamp": 0
+        },
+        {
+          "event": "selection_release_posted",
+          "offsetMS": 752.971
+        },
+        {
+          "event": "capture_ui_transition",
+          "offsetMS": 5680.025
+        },
+        {
+          "event": "trial_end",
+          "offsetMS": 20766.071
+        }
+      ],
+      "observedAfterDriverReleaseRecordSeconds": 20.013
+    }
+  ],
+  "controls": {
+    "ownedWindowCLI": {
+      "result": "PASS_ENGINE_WINDOW_CAPTURE_ONLY",
+      "bytes": 5960820,
+      "dimensions": [
+        1660,
+        1752
+      ],
+      "screenshotMetadataPresent": true,
+      "qualifiesAsNormalShortcutSource": false
+    },
+    "interactiveCLI": {
+      "result": "NOT_RUN",
+      "preconditions": [
+        "owned document not found on first entry",
+        "pointer readback differed from requested coordinate after reopening"
+      ],
+      "engineLaunchCount": 0
+    }
+  },
+  "downstream": {
+    "riftletLaunchCount": 0,
+    "databaseOpenCountByThisTask": 0,
+    "newMicrothumbnailClicks": 0,
+    "browserInputCount": 0,
+    "SC_INPUT": "NOT_RUN",
+    "SC_START": "NOT_RUN",
+    "SC_COMPLETE": "NOT_RUN",
+    "physical": "NOT_RUN",
+    "t1NewNormalSource": null,
+    "t2ClickableMicrothumbnail": null,
+    "firstClickSuccessRate": null
+  },
+  "limits": [
+    "No accepted selection rectangle or capture completion receipt was obtained.",
+    "Creation-time event timestamps of zero do not prove delivered NSEvent timestamps or OS rejection.",
+    "Modifier normalization and main-screen transfer did not resolve the failure.",
+    "Pointer readback mismatch does not establish whether concurrent input or posting behavior caused it.",
+    "No new App root or backlog recovery was introduced.",
+    "The new observer was compiled and idle-smoke-tested after the active trials, not used to retroactively produce their receipts.",
+    "Active probes polled newly appearing filenames only; modified-file timestamps were checked separately at the end. The new observer does not retroactively strengthen those observations.",
+    "The 20-second interval starts at the driver selection_release_posted record, about 85ms after post(mouseUp); neither is an OS release/completion receipt."
+  ],
+  "privateReceipts": [
+    {
+      "file": "prepare.jsonl",
+      "bytes": 624,
+      "sha256": "d89f2cc8453562c55fe37ed9a4ec220a570bebebe46265a1994db9aa9ed210c5"
+    },
+    {
+      "file": "premoved.jsonl",
+      "bytes": 682,
+      "sha256": "6108950fd5588a8983461ad4fe478d09c586d225c881418d95f9734c4c056dc3"
+    },
+    {
+      "file": "premoved-activated.jsonl",
+      "bytes": 3081,
+      "sha256": "0acab0e6acdaebe5f86037e9a5900c01a29f3aef63c73f732a462cab87585b96"
+    },
+    {
+      "file": "release.jsonl",
+      "bytes": 3616,
+      "sha256": "2325db61772a51607bf97e5fc5dc700136f36eb9008686b6573c83e763323419"
+    },
+    {
+      "file": "main.jsonl",
+      "bytes": 4157,
+      "sha256": "cb914005491977e3eb05359285b78a08a1b966b3cfb59a3963e43f8a686a2526"
+    },
+    {
+      "file": "engine-interactive.jsonl",
+      "bytes": 613,
+      "sha256": "0c06f0bfe6729786aef25e3de1160013d5b182adec9b9a19a514e73c6625a22f"
+    },
+    {
+      "file": "engine-interactive-reopened.jsonl",
+      "bytes": 1352,
+      "sha256": "9296db969f6ea1ddf8f2e757c5a8fd159d511d6d2161fb55975fb255d01d5b66"
+    },
+    {
+      "file": "engine-control.json",
+      "bytes": 468,
+      "sha256": "e9edbfd6443a332247d441552c5d90c6f915e8461186cae995535a7366686a5c"
+    },
+    {
+      "file": "engine-control.png",
+      "bytes": 5960820,
+      "sha256": "a99a8cd2876c6cf63fb544819d3ff0776455203eb8a9ef66f4f220e5ccfcc021"
+    },
+    {
+      "file": "preferences-before.plist",
+      "bytes": 1009,
+      "sha256": "672be9eef5b015117bd57d19ea892c9c4475742e6b23adc4c754b940cb9dbb73"
+    },
+    {
+      "file": "preferences-after.plist",
+      "bytes": 1009,
+      "sha256": "672be9eef5b015117bd57d19ea892c9c4475742e6b23adc4c754b940cb9dbb73"
+    },
+    {
+      "file": "hotkeys-before.plist",
+      "bytes": 4305,
+      "sha256": "f16954cd29b25d7d3fc01788788d00dd3111a2c4bbe36cd4574a650d3fe44fab"
+    },
+    {
+      "file": "hotkeys-after.plist",
+      "bytes": 4305,
+      "sha256": "f16954cd29b25d7d3fc01788788d00dd3111a2c4bbe36cd4574a650d3fe44fab"
+    },
+    {
+      "file": "screenshot-system-log.json",
+      "bytes": 853889,
+      "sha256": "a64097c628f9fe77452438b698b8fb0c42393670d32dd41f1ee76c5896083895"
+    },
+    {
+      "file": "engine-system-log.json",
+      "bytes": 216163,
+      "sha256": "e6d076b870c650564458e698e345e7e005b8889edc31878530b535abc062ad13"
+    },
+    {
+      "file": "capture-probe.swift",
+      "bytes": 8301,
+      "sha256": "937187bcfd86824a85e33fb2427aa51c4c763065b1f6690594ed99e79a68a7c4"
+    },
+    {
+      "file": "engine-probe.swift",
+      "bytes": 9983,
+      "sha256": "dd14c7b5ab4ff9d484092d3d7464cf5de83b51b7600619aab6b1d6952c68983d"
+    },
+    {
+      "file": "observer-smoke.jsonl",
+      "bytes": 705,
+      "sha256": "baa6df48f1c20963980a1e0aefd7a7b45a27209dfc913d83e56bdc60a0a9fbae"
+    },
+    {
+      "file": "session.json",
+      "bytes": 122,
+      "sha256": "b21ed2f2db48f7c3dd64cd56c419e6484e5ac11105fdd900ecee144e48eca926"
+    },
+    {
+      "file": "session-end.json",
+      "bytes": 83,
+      "sha256": "5329abfcad34be910b815476855bf980604bd03378e1d2a537499cbb408d9faf"
+    },
+    {
+      "file": "owned-window-final.txt",
+      "bytes": 31,
+      "sha256": "6109d9b97eddf5b85d56b03483a0818066223c40f97fec1a0239d61cb6ff10a4"
+    },
+    {
+      "file": "owned-preview-cleanup.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "cleanup-read.json",
+      "bytes": 113,
+      "sha256": "29dcea6f5df7638ffc08451f128f19433288ef4f515729ad9a86bc360ee9b912"
+    },
+    {
+      "file": "cleanup-final.json",
+      "bytes": 54,
+      "sha256": "643a6f13914c5cd225864110a31f9e85e7a7750cb8e1674011f4a411dda35f5d"
+    },
+    {
+      "file": "capture-observer.swift",
+      "bytes": 7116,
+      "sha256": "f63a3b0cdc95b359ecfe7f0f5f722f6571f58ec76aaaa9982e9de379b1773680"
+    },
+    {
+      "file": "capture-observer-reviewed.swift",
+      "bytes": 7100,
+      "sha256": "ba63f2a0e6e7adcc27bbf5bab12aaa842ae086f76b89259454597def1c56aede"
+    },
+    {
+      "file": "observer-reviewed-smoke.jsonl",
+      "bytes": 705,
+      "sha256": "b66e8ec1f4dd40a6ce10f11fc88b3076f6aeecadfd7298e3ebc393b44c378710"
+    },
+    {
+      "file": "observer-reviewed-self-check.txt",
+      "bytes": 36,
+      "sha256": "aeea4f6c590681f14cc91569a728b1e924a5f0b37e95b8c65438caba4cc49e5a"
+    }
+  ]
+}

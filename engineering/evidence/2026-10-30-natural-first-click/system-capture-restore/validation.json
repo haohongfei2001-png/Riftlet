@@ -1,0 +1,46 @@
+{
+  "nativeProductChanged": false,
+  "productTrees": {
+    "Sources": "51d060f3598a3299b336fcb7213defdff8d06dad",
+    "Tests": "b86b2a095fc7ac91821d55194f680f9daa9a28d2"
+  },
+  "inheritedNativeCI": {
+    "id": 40914439852,
+    "headSha": "e5d77d3c82bf2769387049e533e93073d36ee6fb",
+    "status": "completed",
+    "conclusion": "success",
+    "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/40914439852",
+    "runInThisIncrement": false,
+    "scope": "unchanged prior native source only; not this capture experiment"
+  },
+  "currentDiagnostic": {
+    "file": "capture-observer.swift",
+    "sha256": "ba63f2a0e6e7adcc27bbf5bab12aaa842ae086f76b89259454597def1c56aede",
+    "localSwiftCompile": "PASS",
+    "classificationSelfCheck": "PASS_CLASSIFICATION_AND_FORMAT_ONLY",
+    "idleOneSecondSmoke": "PASS_READ_ONLY_IDLE",
+    "activeCaptureWithNewObserver": "NOT_RUN",
+    "macOSProductBuildRepeated": false,
+    "counterexample": "JPEG content under a .png filename is rejected by PNG magic/type check; no source admission inferred."
+  },
+  "independentReview": {
+    "status": "PASS_LIMITED",
+    "reviewerRole": "non-author natural_independent_review",
+    "reviewedDiagnosticSHA256": "ba63f2a0e6e7adcc27bbf5bab12aaa842ae086f76b89259454597def1c56aede",
+    "verifiedPrivateReceiptCount": 28,
+    "independentCompileAndClassificationFormatSelfCheck": "PASS",
+    "resolvedFindings": [
+      "Do not classify JPEG bytes under a .png extension as PNG.",
+      "CaptureUI process ownership alone does not identify an annotation window.",
+      "Separate end-of-trial mtime inspection from active new-filename polling.",
+      "Driver release-record time is not the OS mouseUp receipt."
+    ],
+    "remainingScope": [
+      "Normal shortcut capture FAIL_NO_NEW_FILE",
+      "CLI interactive control NOT_RUN before launch",
+      "Physical / new microthumbnail input / start / completion NOT_RUN",
+      "No final-product reliability or admission approval"
+    ]
+  },
+  "scope": "No product change; limited real capture failure evidence, no downstream acceptance."
+}

@@ -1,3 +1,5 @@
+> **2026-10-30 系统截图恢复 · 有界 FAIL / 下游 NOT_RUN**：正式产品基线实读 PR #1 `98e66a9`；本独立分支没有启动 Riftlet 或打开旧数据。三次 CGEvent 快捷键对照无新文件，CLI 自有窗口捕获成功但不是正常快捷键来源。已区分原生 touchshield 与浮动容器，修饰键归零/主屏对照仍未证明选区完成。停止条件成立，不扩展架构、不重复上传。[结果与最小复现](../engineering/evidence/2026-10-30-natural-first-click/system-capture-restore/README.md)。
+
 > **2026-10-30 自然原生首击时间链 · 源码/CI/审查 PASS；真实首击 NOT_RUN**：独立分支 `codex/riftlet-natural-first-click-20261030`，源码 `e5d77d3`。修复真实日志交错，补原生同钟观测，完整 macOS CI `40914439852` success。一次软件系统快捷键取样未在配置目录产生可观察新文件，微图点击/新上传均0，不能计算自然成功率；旧媒体、UNKNOWN及准入保留。正式PR #15最新实际head `53ea3a1`，未写其工作树或refs。[结果与精确集成补丁](../engineering/evidence/2026-10-30-natural-first-click/README.md)。
 
 > **2026-10-29 冷首击可靠性 · 独立技术增量进行中**：基于 PR #15 `c15fd4b`，本地执行者独占 Mac/Chrome，分离零操作页面 lease 耗尽、异步权限发布与真正无 pre-event ACK 的结构性边界。只在 `codex/riftlet-cold-click-reliability-20261029` 修改；原操作、来源及准入不变。当前结果与交接见 [专项证据](../engineering/evidence/2026-10-29-cold-click-reliability/README.md)。
