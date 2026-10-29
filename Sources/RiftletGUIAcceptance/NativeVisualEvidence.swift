@@ -154,7 +154,8 @@ final class NativeVisualEvidence {
             "statusTextFits", "statusDisplayComplete", "displayCommitWaitSeconds",
             "previewDisplayComplete", "previewWindowNumber", "previewViewportPoints",
             "feedbackDisplayComplete", "feedbackFailureState", "feedbackWindowNumber", "feedbackContentBounds",
-            "feedbackStatusFrame", "feedbackRecoveryFrames", "feedbackEditorViewportFrame", "feedbackAlphas"]
+            "feedbackStatusFrame", "feedbackRecoveryFrames", "feedbackRecoveryAlignmentFrames",
+            "feedbackEditorViewportFrame", "feedbackAlphas"]
         var event = fields.filter { allowedFields.contains($0.key) }
         event["event"] = name; event["uptime"] = ProcessInfo.processInfo.systemUptime
         events.append(event)
@@ -369,6 +370,15 @@ final class NativeVisualEvidence {
                 }
                 && footerAndViewport.allSatisfy { content.bounds.contains($0.convert($0.bounds, to: content)) }
         }
+        // AppKit lays out button content using alignment rectangles; full view
+        // frames also contain bezel/shadow outsets. Retain both measurements.
+        let recoveryAlignmentFrames = try [retry, copy].map { button -> CGRect in
+            guard let parent = button.superview else { throw Failure.missingWindow }
+            let alignment = parent.convert(button.alignmentRect(forFrame: button.frame), to: content)
+            let fullBounds = button.convert(button.bounds, to: content)
+            guard usableRect(alignment), fullBounds.contains(alignment) else { throw Failure.unsafeRequest }
+            return alignment
+        }
         supplementalObservation(["retryEnabled": retry.isEnabled, "copyEnabled": copy.isEnabled,
             "draftRetained": controller.currentText == body, "savedDraftUnchanged": saved == initial,
             "recordsEmpty": records.isEmpty, "persistenceFault": "ownedSQLiteJournalPathCollision",
@@ -377,6 +387,7 @@ final class NativeVisualEvidence {
             "feedbackWindowNumber": window.windowNumber, "feedbackContentBounds": rectValues(content.bounds),
             "feedbackStatusFrame": rectValues(failureStatus.convert(failureStatus.bounds, to: content)),
             "feedbackRecoveryFrames": [retry, copy].map { rectValues($0.convert($0.bounds, to: content)) },
+            "feedbackRecoveryAlignmentFrames": recoveryAlignmentFrames.map(rectValues),
             "feedbackEditorViewportFrame": rectValues(viewport.convert(viewport.bounds, to: content)),
             "feedbackAlphas": [window.alphaValue] + views.map(\.alphaValue),
             "displayCommitWaitSeconds": ProcessInfo.processInfo.systemUptime - commitStart])

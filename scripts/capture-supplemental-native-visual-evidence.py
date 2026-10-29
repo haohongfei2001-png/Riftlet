@@ -107,11 +107,14 @@ def verify_feedback_display(event: dict, frame: dict) -> None:
     status = event.get("feedbackStatusFrame")
     viewport = event.get("feedbackEditorViewportFrame")
     recovery = event.get("feedbackRecoveryFrames")
+    alignment = event.get("feedbackRecoveryAlignmentFrames")
     if (not all(positive_rect(rect) for rect in (content, status, viewport))
             or not isinstance(recovery, list) or len(recovery) != 2 or not all(positive_rect(rect) for rect in recovery)
+            or not isinstance(alignment, list) or len(alignment) != 2 or not all(positive_rect(rect) for rect in alignment)
             or any(value > bound for value, bound in zip(content[2:], frame["points"]))
             or any(not contains_rect(content, rect) for rect in [status, viewport, *recovery])
-            or intersects_rect(recovery[0], recovery[1])
+            or any(not contains_rect(full, aligned) for full, aligned in zip(recovery, alignment))
+            or intersects_rect(alignment[0], alignment[1])
             or any(intersects_rect(status, rect) or intersects_rect(viewport, rect) for rect in recovery)
             or intersects_rect(status, viewport)):
         raise ValueError("feedbackFailureControlsOutsideVisibleViewport")
@@ -210,7 +213,10 @@ def self_check() -> None:
             event.update(persistenceFault="ownedSQLiteJournalPathCollision", windowWidth=560, windowHeight=500,
                          feedbackFailureState="draftSaveFailed", feedbackWindowNumber=99, feedbackAlphas=[1] * 6,
                          displayCommitWaitSeconds=0.05, feedbackContentBounds=[0, 0, 560, 472],
-                         feedbackStatusFrame=[24, 80, 512, 18], feedbackRecoveryFrames=[[24, 48, 115, 24], [147, 48, 80, 24]],
+                         feedbackStatusFrame=[24, 80, 512, 18], feedbackRecoveryFrames=[[17, 37, 125, 32], [136, 37, 86, 32]],
+                         # Synthetic validator fixture: overlapping outer frames
+                         # with separate content alignment, never an amended capture.
+                         feedbackRecoveryAlignmentFrames=[[24, 44, 111, 20], [143, 44, 72, 20]],
                          feedbackEditorViewportFrame=[25, 201, 494, 148])
         elif name == "queue-feedback":
             required = ["noteVisible", "noteAvoidsInputs"]
@@ -237,6 +243,8 @@ def self_check() -> None:
             except ValueError: negative_checks += 1
             else: raise AssertionError("unsafe supplemental observation accepted: " + key)
         if name == "feedback-save-failure":
+            assert intersects_rect(*event["feedbackRecoveryFrames"])
+            assert not intersects_rect(*event["feedbackRecoveryAlignmentFrames"])
             for key, value in {"feedbackFailureState": "saving", "feedbackWindowNumber": 101,
                                "feedbackAlphas": [1, 1, 0, 1, 1, 1], "displayCommitWaitSeconds": 0,
                                "feedbackContentBounds": [0, 0, 0, 472], "feedbackStatusFrame": [24, 480, 512, 18],
@@ -246,6 +254,17 @@ def self_check() -> None:
                 try: verify_supplement(flags, changed)
                 except ValueError: negative_checks += 1
                 else: raise AssertionError("undrawn Feedback recovery accepted: " + key)
+            for invalid in (None, [], [[24, 44, 0, 20], [143, 44, 72, 20]],
+                            [[16, 44, 111, 20], [143, 44, 72, 20]],
+                            [[137, 44, 4, 20], [137, 44, 4, 20]]):
+                changed = copy.deepcopy(report); changed["events"][0]["feedbackRecoveryAlignmentFrames"] = invalid
+                try: verify_supplement(flags, changed)
+                except ValueError: negative_checks += 1
+                else: raise AssertionError("missing, out-of-bounds or overlapping button alignment accepted")
+            missing = copy.deepcopy(report); del missing["events"][0]["feedbackRecoveryAlignmentFrames"]
+            try: verify_supplement(flags, missing)
+            except ValueError: negative_checks += 1
+            else: raise AssertionError("unobserved button alignment accepted")
         if name.startswith("history-preview-"):
             for key, value in {"previewWindowNumber": 101, "previewViewportPoints": [0, 100],
                                "displayCommitWaitSeconds": 0}.items():
