@@ -1,0 +1,88 @@
+name: Cold click reliability
+on:
+  push:
+    branches: ['codex/riftlet-cold-click-reliability-20261029']
+    paths:
+      - 'Sources/**'
+      - 'Tests/**'
+      - 'scripts/**'
+      - '.github/workflows/cold-click-reliability.yml'
+permissions:
+  contents: read
+concurrency:
+  group: cold-click-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify independent scope and retained formal gate
+        run: |
+          set -o pipefail
+          mkdir -p test-results
+          python3 -B scripts/verify-cold-click-scope.py | tee test-results/cold-scope.json
+          python3 -B -m unittest discover -s Tests/FinalProductIsolation -v 2>&1 | tee test-results/formal-isolation.log
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: cold-click-source-${{ github.sha }}
+          path: test-results/
+  native:
+    runs-on: macos-15
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Environment and deterministic page safety
+        run: |
+          set -o pipefail
+          mkdir -p test-results
+          swift --version | tee test-results/compiler.txt
+          sw_vers | tee test-results/os.txt
+          node --version | tee test-results/node.txt
+          node -e 'if (Number(process.versions.node.split(".")[0]) < 22) throw new Error("Node 22 or later is required")'
+          node Tests/WebPageProgram/acceptance-program.test.cjs 2>&1 | tee test-results/web-page.log
+          node Tests/WebPageProgram/legacy-web-observe.test.cjs 2>&1 | tee test-results/legacy-web.log
+      - name: Full native suite
+        run: |
+          set -o pipefail
+          # Disposable hosted runner only, matching the retained native suite's
+          # motion baseline. Production accessibility preferences are untouched.
+          defaults write com.apple.universalaccess reduceMotion -bool false
+          defaults write com.apple.universalaccess reduceTransparency -bool false
+          swift -e 'import AppKit; let w = NSWorkspace.shared; guard !w.accessibilityDisplayShouldReduceMotion && !w.accessibilityDisplayShouldReduceTransparency && !w.accessibilityDisplayShouldIncreaseContrast else { fatalError("CI motion baseline unavailable") }'
+          swift test --parallel 2>&1 | tee test-results/swift-test.log
+      - name: Detailed cold boundary and authority cases
+        run: |
+          set -o pipefail
+          swift test --skip-build --filter 'ColdClickBoundaryTests|AutomationPermissionPublicationTests|ArmedTargetTests|TargetArmSchedulerTests|TargetArmPermissionWakeTests|SelectionAuthorityTests|SelectionSubmissionQueueTests|AcceptedSelectionQueueTests|PassivePermissionResumeTests' 2>&1 | tee test-results/cold-native-detailed.log
+      - name: Real headless Chromium DOM, isolated synthetic fixture only
+        working-directory: Tests/ColdClickBrowser
+        run: |
+          set -o pipefail
+          npm ci --ignore-scripts --no-audit --no-fund
+          npx --no-install playwright install chromium --only-shell
+          npm test 2>&1 | tee ../../test-results/cold-browser.log
+      - name: Full release App and retained self-checks
+        run: |
+          set -o pipefail
+          bash scripts/build-macos.sh 2>&1 | tee test-results/build.log
+          for check in --self-check --web-acceptance-self-check --first-use-self-check --system-screenshot-candidate-self-check; do
+            build/Riftlet.app/Contents/MacOS/Riftlet "$check" 2>&1 | tee "test-results/${check#--}.log"
+          done
+          ditto -c -k --sequesterRsrc --keepParent build/Riftlet.app build/Riftlet-Cold-Click-Technical.zip
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: cold-click-native-${{ github.sha }}
+          path: |
+            test-results/
+            build/Riftlet-Cold-Click-Technical.zip
+          retention-days: 14

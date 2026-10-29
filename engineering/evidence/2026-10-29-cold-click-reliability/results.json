@@ -1,0 +1,87 @@
+{
+  "schema": 1,
+  "branch": "codex/riftlet-cold-click-reliability-20261029",
+  "base": "c15fd4b4a27659946ef49280131e875f4d5ab9d1",
+  "sourceCommit": null,
+  "reviewedSource": null,
+  "productResult": "Bounded prebinding recovery fixes; true zero-pre-event-ACK cold click remains safely refused",
+  "pageProgramSHA256": "482c2ab8b6f4ba4db5912eade5966882cc1e88436b7c3c49f8eb2bcf6fd48e00",
+  "local": {
+    "macOS": "27.0 (26A428)",
+    "architecture": "arm64",
+    "swift": "6.4",
+    "appTargetBuild": "PASS",
+    "fullReleaseBuild": "PASS",
+    "xctest": "NOT_RUN: active Command Line Tools has no xctest",
+    "pageVM": {
+      "result": "PASS",
+      "tests": 97
+    },
+    "legacyObservationVM": {
+      "result": "PASS",
+      "tests": 61
+    },
+    "headlessBrowser": {
+      "result": "PASS",
+      "driver": "Playwright 1.62.1",
+      "browser": "Chromium 151.0.7922.34",
+      "cases": 5,
+      "emptyLeaseCycles": 40,
+      "trustedWindowFocusEvents": 80,
+      "retainedEmptyStates": 1,
+      "externalRequests": 0,
+      "realUploads": 0,
+      "scope": "Offline synthetic DOM; fixture business ancestry; iframe/top-level trusted focus; no macOS activation claim"
+    },
+    "baselineBrowser": {
+      "result": "FAIL_REPRODUCED",
+      "reason": "LEASE_GENERATION_LIMIT",
+      "sourceSHA256": "c0afbd8a652c7a0e8fe6875ddbbd54f075e9c60bcda512eeb4df610e72f8948b"
+    },
+    "formalIsolation": {
+      "result": "PASS",
+      "tests": 24
+    }
+  },
+  "nativeRegressionScope": {
+    "eventBoundaryCases": 4,
+    "eventSource": "Constructed NSEvent directly invoking production AppKit input-island callbacks",
+    "permissionPublicationCases": 11,
+    "TCCRealityClaim": false,
+    "currentCI": "PENDING"
+  },
+  "live": {
+    "result": "NOT_RUN",
+    "reason": "Existing Chrome browser tab control timed out; native Chrome access returned -10005 timeoutReached",
+    "systemScreenshotsCreated": 0,
+    "inputs": 0,
+    "messagesSent": 0,
+    "coldPreEventACK": "NOT_RUN",
+    "physicalMouse": "NOT_RUN",
+    "uploadStarted": "NOT_RUN",
+    "attached": "NOT_RUN"
+  },
+  "preservation": {
+    "roots": 3,
+    "historicalOperations": 32,
+    "uploadStarts": 7,
+    "compensations": 3,
+    "privateMediaFiles": 50,
+    "beforePrivateManifestSHA256": "e33565b7ad34ec7c29d705f263fe3c7f4758d3b1a0bfa7237caaeb9525be40ec",
+    "afterComparison": "PENDING",
+    "databaseWritesByThisTask": false,
+    "mainAndFormalRefsWritten": false,
+    "ordinaryProductionOrRetryAdmissionChanged": false
+  },
+  "independentReview": {
+    "pageSource": "PASS",
+    "nativeSource": "PASS",
+    "workflowAndScopeGate": "PASS"
+  },
+  "ci": null,
+  "remainingDefects": [
+    "A click before any complete ACK has no safely attributable target and remains refused; no replay or timestamp backfill",
+    "Legacy already-exhausted or operation-bearing registries are preserved and cannot be recycled without independent proof",
+    "New real macOS/system-screenshot/ChatGPT/physical acceptance is not established by offline browser or AppKit callback tests"
+  ]
+}

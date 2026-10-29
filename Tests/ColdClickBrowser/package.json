@@ -1,0 +1,9 @@
+{
+  "name": "riftlet-cold-click-browser-regression",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Offline headless Chromium regression for the actual Riftlet page program",
+  "scripts": { "test": "node cold-click.test.mjs" },
+  "engines": { "node": ">=22" },
+  "devDependencies": { "playwright": "1.62.1" }
+}

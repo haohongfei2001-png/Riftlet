@@ -1,3 +1,5 @@
+> **2026-10-29 冷首击可靠性 · 独立技术增量进行中**：基于 PR #15 `c15fd4b`，本地执行者独占 Mac/Chrome，分离零操作页面 lease 耗尽、异步权限发布与真正无 pre-event ACK 的结构性边界。只在 `codex/riftlet-cold-click-reliability-20261029` 修改；原操作、来源及准入不变。当前结果与交接见 [专项证据](../engineering/evidence/2026-10-29-cold-click-reliability/README.md)。
+
 > **2026-10-29 Feedback 最终交付专项 · CODE/CI PASS，真实端到端 BLOCKED**：已在正式1920e056后继7ef6cd4完成可靠性修复、非作者审查、完整macOS15 Native40733901373与Feedback40733901402，501唯一原生（含38反馈/UI）、20服务、4+14隔离及42项固定审计通过，统一arm64/ad-hoc App已实际下载核验。源码、完整日志和包校验见 engineering/evidence/2026-10-29-feedback-delivery；正式工程文档后继SHA/新正式CI/最终下载以PR #1最新交接为准。专用Private私库Riftlet-Feedback已建立并禁用Actions；Cloudflare仍缺登录、已登记Mac离线，D1/Worker未部署、endpoint为空。不能宣布真实原生→云端交付完成。截图准入、数据、旧UNKNOWN及main保留；三个独立执行者已实际并行完成作者/非作者工作。
 
 > **2026-10-29 内置截图专项 · 独立候选**：在 `codex/builtin-capture-completion-20261029` 复用薄界原生 `443d21d`，完成独立持久开关、截图生命周期/目标/进程修复与来源分离。正式 PR #1 和另一位 Pro 的集成工作树不改。准确源码、CI、独立审查、冲突与 NOT_RUN 门槛见 [专项交接](BUILTIN_CAPTURE_HANDOFF_2026-10-29.md)。
