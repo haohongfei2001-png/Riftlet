@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "SOURCE_REVIEWED_FINAL_UNINSTRUMENTED_REGRESSION_PENDING",
+  "status": "SOURCE_REVIEWED_NATIVE_ALIGNMENT_REGRESSION_PENDING",
   "inputs": {
     "unified": "2c8cd0371de5e07fd7794f76335381a40403030d",
     "builtin": "6b60f67f6d35272eecff901c507bd75a77874ed6",
@@ -74,10 +74,29 @@
         }
       ],
       "unresolvedFindings": []
+    },
+    "buttonAlignmentRepair": {
+      "source": "25609879978557e21ce42e781f2d1c2e41120752",
+      "reviewers": [
+        "non-author integration reviewer",
+        "non-author magnetic reviewer",
+        "non-author lead reviewer"
+      ],
+      "blobs": [
+        {
+          "path": "Sources/RiftletGUIAcceptance/NativeVisualEvidence.swift",
+          "sha": "6e795ebec1feb8c2d22665bfbb6b891a0809e8ee"
+        },
+        {
+          "path": "scripts/capture-supplemental-native-visual-evidence.py",
+          "sha": "51c463924c6b53d3f3fca93603135458fa3226e1"
+        }
+      ],
+      "unresolvedFindings": []
     }
   },
-  "combinedNativeCI": "PASS_AT_A8C9_FINAL_UNINSTRUMENTED_SOURCE_PENDING",
-  "combinedFeedbackCI": "PASS_AT_A8C9_NEW_EXACT_SOURCE_PENDING",
+  "combinedNativeCI": "FAIL_AT_850_ALIGNMENT_VALIDATOR_AND_LEGACY_PROBE_FINAL_SOURCE_PENDING",
+  "combinedFeedbackCI": "PASS_AT_850_NEW_EXACT_SOURCE_PENDING",
   "physicalMac": "BLOCKED_AUTHORIZED_EXECUTOR_OFFLINE",
   "realChatGPT": "NOT_RUN_APPLICATION_ORIGIN_ADMISSION_CLOSED",
   "cloudFeedback": "NOT_RUN_ENDPOINT_NIL",
@@ -98,8 +117,8 @@
     "uploadAdmissionExpanded": false,
     "userDataChanged": false
   },
-  "reviewedSource": "beecd723bf5c72546af2c32d3bf7277f030fd72a",
-  "reviewedTree": "dda32f36ca7eba086d16ec7674ab09a61ad62d83",
+  "reviewedSource": "25609879978557e21ce42e781f2d1c2e41120752",
+  "reviewedTree": "61a23b4260ce056c34608c4bd00965eb1df6e117",
   "continuationFailures": [
     {
       "head": "b3cec64f0ecbf869aff3b17b88d55323d1765393",
@@ -168,7 +187,7 @@
     "Q01": "Native first-use local-only pixels and existing software projections PASS at a8c9; physical first install NOT_RUN",
     "Q05": "already-readable source authorization suppressed; remaining permissions unchanged",
     "Q07": "Actual software Return/Escape, safe default, responder restoration and exact-record guards PASS in both a8c9 Feedback runs; real cloud NOT_RUN",
-    "Q08": "Original save/close/retry/body-only-copy software tests PASS; PR Intel a8c9 supplemental screenshot captured previous saving state and is rejected; final display-readiness repair awaits new pixels",
+    "Q08": "All three 850 original failure PNGs show actual failure text, preserved body and retry/copy. Machine verifier rejected overlapping native decoration frames; actual AppKit alignment measurement repair awaits complete new CI",
     "Q09": "Existing five-section settings, app-scoped shortcut and standard editing retained; a8c9 native settings images independently inspected",
     "Q06": "All four a8c9 portrait/wide/missing native images display correct bounded fit or explicit failure; original preview/identity software regressions PASS",
     "Q03": "All four a8c9 original supplemental PNGs now visibly show the frozen countdown, next mode and settled moving X; final source regression pending",
@@ -180,11 +199,11 @@
     "finalIsolationTests": 24,
     "originalVisualManifestTests": 18,
     "supplementalCases": 6,
-    "supplementalUnsafeObservationsRejected": 78,
-    "scope": "Linux script checks and non-author exact source review; final uninstrumented Swift/macOS execution pending"
+    "supplementalUnsafeObservationsRejected": 84,
+    "scope": "Linux checks and exact independent code review; new actual AppKit alignment measurements and complete CI required"
   },
   "nativeVisualGUI": {
-    "status": "MAGNET_COUNTDOWN_HISTORY_PASS_AT_A8C9_FINAL_FEEDBACK_PIXELS_AND_UNINSTRUMENTED_SOURCE_PENDING",
+    "status": "THREE_850_SETS_VISUALLY_READABLE_MACHINE_ALIGNMENT_FIX_AND_COMPLETE_NATIVE_REGRESSION_PENDING",
     "originalCasesRequired": 46,
     "originalMoviesRequired": 5,
     "supplementalStaticCasesRequired": 6,
@@ -192,34 +211,39 @@
     "crossApplicationFocus": "NOT_RUN"
   },
   "runtimeRepairs": {
-    "absoluteDeadline": "Remaining interval uses actual Task start; cancellation guard and existing strict transaction now execute in one QueueStore actor turn. Original 50ms token/150ms observation test restored byte-for-byte; scheduling root cause not claimed; final uninstrumented run required",
+    "absoluteDeadline": "Original uninstrumented 50ms/150ms regression passed in all three 850 jobs that reached Swift, with 726 full cases; fourth job stopped earlier in unchanged legacy Node probe. One-store-turn cleanup retained; no claim of a measured sole scheduling root cause",
     "magnetNaturalTest": "original 560ms product plan; original 1.2s wait and strict finished/cleanup assertions unchanged",
     "productionMagnetChangedInThisRepair": true,
     "magnetFirstPresentation": "decoded contents and owner hide committed together; flight model/animation committed before window ordering; owner-matched fallback and backwards initial fill; 560ms/finished gates unchanged",
-    "helperReadiness": "Existing native slot/label/history commits retained; Feedback failure now requires actual failure text, visible owned recovery controls/editor viewport, normal native display commit and a fresh readiness read",
+    "helperReadiness": "850 original pixels confirm actual Feedback failure display; record native alignmentRect(forFrame:) separately from retained full visible bounds to distinguish button content from standard decoration",
     "exportDiagnostic": "only fixed Failure/ExportStage values; no raw errors",
-    "deadlineTrace": "REMOVED from Core, test and workflow; no new diagnostic workflow remains"
+    "deadlineTrace": "REMOVED from Core, test and workflow; no new diagnostic workflow remains",
+    "buttonAlignment": "Only two buttons' mutual overlap uses actual native alignment rectangles contained in corresponding full bounds; status/editor keep original full-bounds non-overlap checks. No fixed inset, tolerance, product layout or timeout change"
   },
   "latestCompletedRuntime": {
-    "head": "a8c9ca9a13e72944b511a073ca1441f6e836377e",
-    "reviewedSource": "79480baff484d0d7abcc911afff68faf8076b5b0",
-    "prCheckout": "feab43de8fa980e94e85a3bdb93ea18c76a6ce0e",
+    "head": "850200c6fe00f99c6fe6bde266c2cdeabbfa30b3",
+    "reviewedSource": "beecd723bf5c72546af2c32d3bf7277f030fd72a",
+    "prCheckout": "3968a22569a19454801d0f3291e9b24b7ea4fb06",
     "nativePush": {
-      "run": 40842900740,
-      "status": "PASS",
-      "armJob": 123343325485,
-      "intelJob": 123343325184
+      "run": 40846190712,
+      "status": "FAIL_SUPPLEMENTAL_BUTTON_FRAME_GEOMETRY",
+      "armJob": 123354164665,
+      "intelJob": 123354164523
     },
     "nativePR": {
-      "run": 40842908347,
-      "status": "PASS",
-      "armJob": 123343351114,
-      "intelJob": 123343350764
+      "run": 40846200828,
+      "status": "FAIL",
+      "armJob": 123354198325,
+      "armStatus": "FAIL_SUPPLEMENTAL_BUTTON_FRAME_GEOMETRY",
+      "intelJob": 123354198576,
+      "intelStatus": "FAIL_UNCHANGED_ROUND3_ASYNC_HASH_FIXED_20MS_TEST_BEFORE_SWIFT"
     },
-    "nativeUniqueCases": 725,
+    "nativeUniqueCases": 726,
+    "nativeFullSuiteCompletedJobs": 3,
+    "debugExpiryTrace": "REMOVED_ZERO_LOG_OCCURRENCES",
     "feedback": {
-      "pushRun": 40842900775,
-      "prRun": 40842908348,
+      "pushRun": 40846190810,
+      "prRun": 40846200799,
       "status": "PASS_BOTH",
       "swiftUniqueCases": 49,
       "pythonIsolationCases": 117,
@@ -229,73 +253,86 @@
     },
     "fullNativeVisual": {
       "armPush": {
-        "artifact": 12884330772,
-        "zipSHA256": "e94564685e87c4cf186782534d5a532eef561c03056df92ee7fea5b1b85dca29",
         "scenes": 46,
-        "originalPNGs": 121,
+        "originalPNGs": 119,
         "movies": 5,
-        "supplementalPixelReview": "6_OF_6_PASS",
-        "reducedScenes": 3,
-        "reducedPNGs": 17,
-        "reducedMovies": 1,
-        "magnetNaturalFinished": true
+        "artifact": 12885048129
       },
       "intelPush": {
-        "artifact": 12883559634,
-        "zipSHA256": "6e67c859f81944e371bdccecb48449736f86bb0312f33024982777f4f76e592a",
         "scenes": 46,
-        "originalPNGs": 103,
-        "movies": 5,
-        "supplementalPixelReview": "6_OF_6_PASS",
-        "reducedScenes": 3,
-        "reducedPNGs": 15,
-        "reducedMovies": 1,
-        "magnetNaturalFinished": true
+        "originalPNGs": 101,
+        "movies": 5
       },
       "armPR": {
-        "artifact": 12884017726,
-        "zipSHA256": "1e11ba71ee47aab2b7de1f723f36d42585f52a01a32329e318960ec90fd18cf8",
         "scenes": 46,
-        "originalPNGs": 120,
+        "originalPNGs": 117,
         "movies": 5,
-        "supplementalPixelReview": "6_OF_6_PASS",
-        "reducedScenes": 3,
-        "reducedPNGs": 18,
-        "reducedMovies": 1,
-        "magnetNaturalFinished": true
+        "artifact": 12885517002,
+        "zipSHA256": "b06552f27b25eb5c10914f92be173b9a7807a245229ef7d22da1cf38df09a4da"
       },
-      "intelPR": {
-        "artifact": 12884147774,
-        "zipSHA256": "eb01bb02512b7aeb00f6badf91ac35c7c3928c0b5501ad752edb19a7a8410d6f",
-        "scenes": 46,
-        "originalPNGs": 90,
-        "movies": 5,
-        "supplementalPixelReview": "5_OF_6_PASS_FEEDBACK_STALE_SAVING_FRAME_FAIL",
-        "reducedScenes": 3,
-        "reducedPNGs": 13,
-        "reducedMovies": 1,
-        "magnetNaturalFinished": true
-      },
+      "intelPR": "NOT_RUN_PRE_SWIFT_FAILURE",
+      "reducedSystemVariants": "NOT_RUN_AFTER_SUPPLEMENTAL_GATE_FAILURE",
       "scope": "OWNED_SYNTHETIC_WINDOWSERVER_NOT_PHYSICAL_OR_REAL_UPLOAD"
     },
     "independentPixelReview": {
-      "magnet": "PASS_RECORDED_ORIGINAL_FRAMES; no target flash followed by disappearance before flight; natural completion observed",
-      "countdownAndHistory": "PASS_ALL_FOUR_RUNNERS",
-      "feedbackSaveFailure": "FAIL_PR_INTEL_STALE_SAVING_FRAME; other three original PNGs readable",
-      "samplingLimit": "No inference about uncaptured instants or performance percentiles; Intel frame cadence was sparse",
-      "findings": [
-        "PR Intel Feedback failure scene captured the previous saving state despite enabled recovery metadata; await actual native display and inspect new pixels."
-      ]
+      "magnet": "Natural finish and no initial flash in reviewed recorded frames; not an overall workflow PASS",
+      "feedbackFailure": "All three produced original PNGs visibly show failure text, preserved draft and retry/copy controls; old saving frame fixed",
+      "supplementalMachineGate": "FAIL_FULL_BUTTON_BOUNDS_INTERSECT_6PT",
+      "measuredBounds": {
+        "retry": [
+          17,
+          37,
+          125,
+          32
+        ],
+        "copy": [
+          136,
+          37,
+          86,
+          32
+        ],
+        "status": [
+          22,
+          72,
+          516,
+          14
+        ],
+        "editorViewport": [
+          25,
+          202,
+          480,
+          148
+        ],
+        "content": [
+          0,
+          0,
+          560,
+          472
+        ]
+      },
+      "finding": "Native NSButton outer frames include decoration and overlap while their visible button content has spacing. Need native alignmentRect(forFrame:) measurements, keeping full-bounds visibility and containment; no fixed tolerance or product layout change."
     },
-    "productionCaptureProbe": {
-      "scope": "OWNED_SYNTHETIC_NATIVE_FIXTURE",
-      "status": "PARTIAL",
-      "region": "PASS_ORIGINAL_PRIVATE_COPY_APPLICATION_ORIGIN_AND_DEDUPE",
-      "window": "NOT_RUN_FOREIGN_OVERLAP_VETO",
-      "fullScreen": "NOT_RUN_FOREIGN_OVERLAP_VETO",
-      "realSystemScreenshotWorkflow": "NOT_RUN"
+    "legacyProbeFailure": {
+      "job": 123354198576,
+      "test": "engineering/evidence/2026-10-27-real-mac-round3/network-probe.test.cjs:55 (called at 128)",
+      "testBlob": "78780be3135a6b15b60478f73682c25e9d3d6947",
+      "templateBlob": "6b538be9a7f7c44455663f3df64f8d09f7a84014",
+      "observation": "changeHashOK false after fixed 20ms; no state/events logged",
+      "inference": "Async File.arrayBuffer / webcrypto completion may exceed fixed delay; pending versus rejected hash cannot be distinguished from this log. Not a measured root cause.",
+      "unchangedSince": [
+        "a8c9ca9a",
+        "0e7ea8be",
+        "2c8cd037",
+        "6b60f67f"
+      ],
+      "localOriginalRun": "12_OF_12_OFFLINE_GROUPS_PASS_NOT_A_MACOS_SUBSTITUTE",
+      "remaining": "New complete Intel job required with all original scripts unchanged"
     },
-    "deadlineDiagnosis": "All four original full-suite deadline cases passed with DEBUG trace enabled, but successful XCTest stdout did not preserve event timestamps. Detailed successful timing is NOT_OBSERVED; trace removal and exact original 50ms/150ms rerun remain required."
+    "environmentRecheck": {
+      "remoteMac": "OFFLINE; actual read-only execution attempt previously returned no device online",
+      "browser": "Current Browser connector returned originating browser context unavailable; no Cloudflare signed-in session could be reused",
+      "cloud": "NOT_RUN_ENDPOINT_NIL"
+    }
   },
   "completedRuntimeHistory": [
     {
@@ -365,6 +402,114 @@
         "realSystemScreenshotWorkflow": "NOT_RUN"
       },
       "deadlineDiagnosis": "Absolute remaining-time correction is insufficient for the original parallel gate. Keep 50ms deadline, 150ms observation and all assertions; gather opt-in DEBUG timing before deciding the repair."
+    },
+    {
+      "head": "a8c9ca9a13e72944b511a073ca1441f6e836377e",
+      "reviewedSource": "79480baff484d0d7abcc911afff68faf8076b5b0",
+      "prCheckout": "feab43de8fa980e94e85a3bdb93ea18c76a6ce0e",
+      "nativePush": {
+        "run": 40842900740,
+        "status": "PASS",
+        "armJob": 123343325485,
+        "intelJob": 123343325184
+      },
+      "nativePR": {
+        "run": 40842908347,
+        "status": "PASS",
+        "armJob": 123343351114,
+        "intelJob": 123343350764
+      },
+      "nativeUniqueCases": 725,
+      "feedback": {
+        "pushRun": 40842900775,
+        "prRun": 40842908348,
+        "status": "PASS_BOTH",
+        "swiftUniqueCases": 49,
+        "pythonIsolationCases": 117,
+        "nodeServiceCases": 20,
+        "closeRepeatedPasses": 3,
+        "realCloud": "NOT_RUN"
+      },
+      "fullNativeVisual": {
+        "armPush": {
+          "artifact": 12884330772,
+          "zipSHA256": "e94564685e87c4cf186782534d5a532eef561c03056df92ee7fea5b1b85dca29",
+          "scenes": 46,
+          "originalPNGs": 121,
+          "movies": 5,
+          "supplementalPixelReview": "6_OF_6_PASS",
+          "reducedScenes": 3,
+          "reducedPNGs": 17,
+          "reducedMovies": 1,
+          "magnetNaturalFinished": true
+        },
+        "intelPush": {
+          "artifact": 12883559634,
+          "zipSHA256": "6e67c859f81944e371bdccecb48449736f86bb0312f33024982777f4f76e592a",
+          "scenes": 46,
+          "originalPNGs": 103,
+          "movies": 5,
+          "supplementalPixelReview": "6_OF_6_PASS",
+          "reducedScenes": 3,
+          "reducedPNGs": 15,
+          "reducedMovies": 1,
+          "magnetNaturalFinished": true
+        },
+        "armPR": {
+          "artifact": 12884017726,
+          "zipSHA256": "1e11ba71ee47aab2b7de1f723f36d42585f52a01a32329e318960ec90fd18cf8",
+          "scenes": 46,
+          "originalPNGs": 120,
+          "movies": 5,
+          "supplementalPixelReview": "6_OF_6_PASS",
+          "reducedScenes": 3,
+          "reducedPNGs": 18,
+          "reducedMovies": 1,
+          "magnetNaturalFinished": true
+        },
+        "intelPR": {
+          "artifact": 12884147774,
+          "zipSHA256": "eb01bb02512b7aeb00f6badf91ac35c7c3928c0b5501ad752edb19a7a8410d6f",
+          "scenes": 46,
+          "originalPNGs": 90,
+          "movies": 5,
+          "supplementalPixelReview": "5_OF_6_PASS_FEEDBACK_STALE_SAVING_FRAME_FAIL",
+          "reducedScenes": 3,
+          "reducedPNGs": 13,
+          "reducedMovies": 1,
+          "magnetNaturalFinished": true
+        },
+        "scope": "OWNED_SYNTHETIC_WINDOWSERVER_NOT_PHYSICAL_OR_REAL_UPLOAD"
+      },
+      "independentPixelReview": {
+        "magnet": "PASS_RECORDED_ORIGINAL_FRAMES; no target flash followed by disappearance before flight; natural completion observed",
+        "countdownAndHistory": "PASS_ALL_FOUR_RUNNERS",
+        "feedbackSaveFailure": "FAIL_PR_INTEL_STALE_SAVING_FRAME; other three original PNGs readable",
+        "samplingLimit": "No inference about uncaptured instants or performance percentiles; Intel frame cadence was sparse",
+        "findings": [
+          "PR Intel Feedback failure scene captured the previous saving state despite enabled recovery metadata; await actual native display and inspect new pixels."
+        ]
+      },
+      "productionCaptureProbe": {
+        "scope": "OWNED_SYNTHETIC_NATIVE_FIXTURE",
+        "status": "PARTIAL",
+        "region": "PASS_ORIGINAL_PRIVATE_COPY_APPLICATION_ORIGIN_AND_DEDUPE",
+        "window": "NOT_RUN_FOREIGN_OVERLAP_VETO",
+        "fullScreen": "NOT_RUN_FOREIGN_OVERLAP_VETO",
+        "realSystemScreenshotWorkflow": "NOT_RUN"
+      },
+      "deadlineDiagnosis": "All four original full-suite deadline cases passed with DEBUG trace enabled, but successful XCTest stdout did not preserve event timestamps. Detailed successful timing is NOT_OBSERVED; trace removal and exact original 50ms/150ms rerun remain required.",
+      "staticOriginalPixelReview": {
+        "source": "a8c9ca9a13e72944b511a073ca1441f6e836377e",
+        "reviewer": "non-author magnetic reviewer; no self-approval of magnetic motion",
+        "normalStaticCasesPerArchitecture": 41,
+        "architectures": 2,
+        "reducedStaticCasesPerArchitecture": 2,
+        "totalOriginalPNGsReviewed": 86,
+        "result": "PASS_STATIC_PRESENTATION",
+        "recordSHA256": "c941d72e48504d2e6bb24181a8b03134b3634e8c868146bd13089f591ca05817",
+        "scope": "Previous exact a8c9 artifacts only; not relabeled as later output"
+      }
     }
   ]
 }
