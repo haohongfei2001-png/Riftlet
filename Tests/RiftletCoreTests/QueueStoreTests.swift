@@ -143,6 +143,45 @@ final class QueueStoreTests: XCTestCase {
         catch RiftletError.mismatchedReceipt {}
     }
 
+    func testConditionalCancellationNoOpsRemainReadOnlyWhileAnotherWriterHoldsTheDatabase() async throws {
+        let db = try store(), unknownImage = image(), pendingImage = image()
+        _ = try await db.importAsset(unknownImage); _ = try await db.importAsset(pendingImage)
+        let unknown = try await db.prepare(assetID: unknownImage.id, target: target())
+        try await db.markDispatchIntent(unknown.id)
+        try await db.markUnknown(unknown.id, reason: "Original input remains unresolved")
+        let pending = try await db.prepare(assetID: pendingImage.id, target: target())
+        try await db.cancelPreparedIfNeeded(pending.id, reason: "Expired before input")
+        let cancelled = try await db.operation(id: pending.id)
+        XCTAssertEqual(cancelled?.phase, .failed)
+        XCTAssertEqual(cancelled?.id, pending.id); XCTAssertEqual(cancelled?.attempt, pending.attempt)
+        XCTAssertEqual(cancelled?.target, pending.target)
+
+        let beforeUnknown = try await db.operation(id: unknown.id)
+        let beforeUnknownAsset = try await db.asset(id: unknownImage.id)
+        let beforeCancelledAsset = try await db.asset(id: pendingImage.id)
+        let beforeReason = try await db.operationReason(for: unknown.id)
+        let blocker = try SQLiteDatabase(url: directory.appendingPathComponent("queue.sqlite"))
+        try blocker.execute("BEGIN IMMEDIATE")
+        defer { try? blocker.execute("ROLLBACK") }
+        // WAL permits these reads, but any accidental write transaction would
+        // fail while this separate connection continues holding its write lock.
+        let missingID = UUID()
+        for id in [missingID, unknown.id, pending.id] {
+            try await db.cancelPreparedIfNeeded(id, reason: "Must remain a no-op")
+        }
+        let afterUnknown = try await db.operation(id: unknown.id)
+        let afterCancelled = try await db.operation(id: pending.id)
+        let afterUnknownAsset = try await db.asset(id: unknownImage.id)
+        let afterCancelledAsset = try await db.asset(id: pendingImage.id)
+        let afterReason = try await db.operationReason(for: unknown.id)
+        let cancelledReason = try await db.operationReason(for: pending.id)
+        let missing = try await db.operation(id: missingID)
+        XCTAssertEqual(afterUnknown, beforeUnknown); XCTAssertEqual(afterUnknownAsset, beforeUnknownAsset)
+        XCTAssertEqual(afterCancelled, cancelled); XCTAssertEqual(afterCancelledAsset, beforeCancelledAsset)
+        XCTAssertEqual(afterReason, beforeReason); XCTAssertEqual(cancelledReason, "Expired before input")
+        XCTAssertNil(missing)
+    }
+
     func testSimulationCannotOpenProductionStoreOrAcceptRealImage() async throws {
         _ = try store()
         do { _ = try store(.simulation); XCTFail("Mode changed") } catch RiftletError.modeMismatch {}

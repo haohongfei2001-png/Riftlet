@@ -84,27 +84,16 @@ public actor TransferCoordinator {
         guard selection.isValid(), acceptedSelections[selection.id] == nil,
               acceptedSelections.count < maximumPendingSelections else { throw RiftletError.invalidTransition }
         acceptedSelections[selection.id] = selection
-        selectionExpiryTrace("registered", selection: selection)
         expiryTasks[selection.id] = Task { [weak self] in
             // Task scheduling can itself be delayed. Compute the remaining
             // interval when this task actually starts, so that delay is never
             // added a second time to the original absolute selection deadline.
             do {
-                selectionExpiryTrace("task-started", selection: selection)
                 try Task.checkCancellation()
                 let remaining = selection.deadlineUptime - ProcessInfo.processInfo.systemUptime
                 if remaining > 0 { try await Task.sleep(nanoseconds: UInt64(remaining * 1_000_000_000)) }
-                selectionExpiryTrace("sleep-returned", selection: selection)
-            } catch {
-                selectionExpiryTrace("sleep-cancelled", selection: selection)
-                return
-            }
-            do {
-                try await self?.cancelAcceptedSelection(selection.id, reason: "Accepted selection expired before input")
-                selectionExpiryTrace("expiry-returned", selection: selection)
-            } catch {
-                selectionExpiryTrace("expiry-error-type-\(String(reflecting: type(of: error)))", selection: selection)
-            }
+            } catch { return }
+            try? await self?.cancelAcceptedSelection(selection.id, reason: "Accepted selection expired before input")
         }
         do {
             try await select(selection.assetID, target: selection.target, allowCapture: false,
@@ -138,7 +127,6 @@ public actor TransferCoordinator {
         guard let token = acceptedSelections[tokenID] else { return }
         token.cancel()
         let operations = operationSelections.filter { $0.value.id == tokenID }.map(\.key)
-        selectionExpiryTrace("cancel-entered-operations-\(operations.count)", selection: token)
         for id in operations { try await cancelIfPrepared(id, reason: reason) }
         finishAcceptedSelection(token)
         await onChange()
@@ -146,7 +134,6 @@ public actor TransferCoordinator {
     }
 
     private func finishAcceptedSelection(_ selection: AcceptedSelection) {
-        selectionExpiryTrace("finish-entered", selection: selection)
         let removed = acceptedSelections.removeValue(forKey: selection.id) != nil
         expiryTasks.removeValue(forKey: selection.id)?.cancel()
         // Keep revoked authority attached until its FIFO slot is retired. An
@@ -437,31 +424,13 @@ public actor TransferCoordinator {
     }
 
     private func cancelIfPrepared(_ id: UUID, reason: String) async throws {
-        let selection = operationSelections[id]
-        let phase = try await store.operation(id: id)?.phase
-        if let selection { selectionExpiryTrace("prepared-read-\(String(describing: phase))", selection: selection) }
-        guard phase == .prepared else { return }
-        do {
-            try await store.cancelPrepared(id, reason: reason)
-            if let selection { selectionExpiryTrace("prepared-cancel-committed", selection: selection) }
-        }
-        catch RiftletError.invalidTransition { /* A concurrent explicit removal already cancelled it. */ }
+        try await store.cancelPreparedIfNeeded(id, reason: reason)
     }
 
     private func request(for op: TransferOperation) async throws -> TransferRequest {
         guard let asset = try await store.asset(id: op.assetID) else { throw RiftletError.assetNotFound }
         return TransferRequest(operation: op, asset: asset.image, fileURL: mediaDirectory.appendingPathComponent(asset.image.fileName))
     }
-}
-
-/// Temporary, opt-in debug timing for the unchanged full-suite deadline gate.
-/// Release builds never emit this trace. Diagnostic I/O may perturb timing;
-/// remove it after diagnosis, without changing the deadline or authority gates.
-private func selectionExpiryTrace(_ event: String, selection: AcceptedSelection) {
-    #if DEBUG
-    guard ProcessInfo.processInfo.environment["RIFTLET_SELECTION_EXPIRY_TRACE"] == "1" else { return }
-    print("RIFTLET_SELECTION_EXPIRY id=\(selection.id) at=\(ProcessInfo.processInfo.systemUptime) accepted=\(selection.acceptedUptime) deadline=\(selection.deadlineUptime) event=\(event)")
-    #endif
 }
 
 /// Default ordinary-capture boundary. The separately launched internal candidate

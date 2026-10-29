@@ -319,6 +319,14 @@ public actor QueueStore {
         return op
     }
 
+    /// Keep the read-only no-op and conditional cancellation in one actor turn.
+    /// Missing or already dispatched work must not acquire a write transaction.
+    func cancelPreparedIfNeeded(_ id: UUID, reason: String) throws {
+        guard try operation(id: id)?.phase == .prepared else { return }
+        do { try cancelPrepared(id, reason: reason) }
+        catch RiftletError.invalidTransition { /* Another store connection already changed it. */ }
+    }
+
     public func cancelPrepared(_ id: UUID, reason: String) throws {
         try database.transaction {
             let op = try requiredOperation(id)
