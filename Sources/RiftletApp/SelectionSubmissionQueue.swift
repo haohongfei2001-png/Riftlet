@@ -8,6 +8,7 @@ final class SelectionSubmissionQueue {
         let id: UUID
         let selectionID: UUID?
         let ordinal: UInt64
+        let deadline: TimeInterval?
         let run: @MainActor (UInt64) async -> Void
         let cancelled: @MainActor () -> Void
     }
@@ -16,6 +17,15 @@ final class SelectionSubmissionQueue {
     private var expiries: [UUID: Task<Void, Never>] = [:]
     private var nextOrdinal: UInt64 = 0
     private var active = false
+    private let uptime: @MainActor () -> TimeInterval
+    private let sleep: @MainActor (UInt64) async throws -> Void
+
+    /// Internal timing seam for deterministic scheduling regressions. These
+    /// dependencies never create or extend an accepted selection's authority.
+    init(uptime: @escaping @MainActor () -> TimeInterval = { ProcessInfo.processInfo.systemUptime },
+         sleep: @escaping @MainActor (UInt64) async throws -> Void = { try await Task.sleep(nanoseconds: $0) }) {
+        self.uptime = uptime; self.sleep = sleep
+    }
 
     /// Presentation only: a later original selection will wait for this consumer.
     var hasOutstandingSubmission: Bool { active || !pending.isEmpty }
@@ -25,16 +35,24 @@ final class SelectionSubmissionQueue {
                  cancelled: @escaping @MainActor () -> Void,
                  run: @escaping @MainActor (UInt64) async -> Void) -> UInt64? {
         guard pending.count + (active ? 1 : 0) < 16 else { return nil }
-        let entry = Entry(id: UUID(), selectionID: selectionID, ordinal: nextOrdinal, run: run, cancelled: cancelled)
+        let entry = Entry(id: UUID(), selectionID: selectionID, ordinal: nextOrdinal,
+                          deadline: deadline, run: run, cancelled: cancelled)
         nextOrdinal += 1
         pending.append(entry)
         if let deadline {
-            let remaining = deadline - ProcessInfo.processInfo.systemUptime
+            let remaining = deadline - uptime()
             guard remaining.isFinite, remaining > 0, remaining <= 30 else {
                 pending.removeLast(); return nil
             }
-            expiries[entry.id] = Task { [weak self] in
-                do { try await Task.sleep(nanoseconds: UInt64(remaining * 1_000_000_000)) } catch { return }
+            expiries[entry.id] = Task { [weak self, uptime = self.uptime, sleep = self.sleep] in
+                do {
+                    try Task.checkCancellation()
+                    // A delayed task must retain the original absolute deadline,
+                    // not add its scheduling delay to the interval accepted above.
+                    let remaining = deadline - uptime()
+                    if remaining > 0 { try await sleep(UInt64(remaining * 1_000_000_000)) }
+                    try Task.checkCancellation()
+                } catch { return }
                 self?.removePending { $0.id == entry.id }
             }
         }
@@ -59,6 +77,12 @@ final class SelectionSubmissionQueue {
         while !pending.isEmpty && !Task.isCancelled {
             let entry = pending.removeFirst()
             expiries.removeValue(forKey: entry.id)?.cancel()
+            // The timer may still be waiting to resume. Check the original
+            // deadline at the actual submission boundary as well.
+            if let deadline = entry.deadline, !(uptime() < deadline) {
+                entry.cancelled()
+                continue
+            }
             active = true
             await entry.run(entry.ordinal)
             active = false

@@ -87,16 +87,13 @@ public final class ChromeAppleEventsExecutor: WebBridgeExecutor {
                         phase = "submit"
                         try bridge.submitMainWorld(envelope.source, window: selected.window, tab: selected.tab)
                         phase = "receipt"
-                        let deadline = ProcessInfo.processInfo.systemUptime + 1
-                        var reply = ""
-                        repeat {
-                            reply = try bridge.execute(envelope.reader, window: selected.window, tab: selected.tab)
-                            if !reply.isEmpty { break }
-                            Thread.sleep(forTimeInterval: 0.02)
-                        } while ProcessInfo.processInfo.systemUptime < deadline
-                        let received = ProcessInfo.processInfo.systemUptime
+                        let receipt = try MainWorldReceiptReader.read(envelope) { budget in
+                            try bridge.execute(envelope.reader, window: selected.window, tab: selected.tab,
+                                               receiptBudget: budget)
+                        }
+                        let received = receipt.receivedUptime
                         // Missing/late reply never resubmits an input command.
-                        let text = try envelope.decode(reply)
+                        let text = receipt.text
                         guard text.utf8.count <= ObservationDecoder.maximumPayloadBytes else { throw WebAdapterError.invalidReply }
                         let bytes = Data(text.utf8)
                         var targetDigest: String?
@@ -239,9 +236,10 @@ enum ChromeActiveTabDescriptor {
 }
 
 /// Codes come from Chrome's installed scripting.sdef (Standard/Chromium suites),
-/// not undocumented browser internals. This preserves the existing five-second
-/// per-event timeout and never activates or sends a ChatGPT message. The URL
-/// setter receives only a void JavaScript expression, not a navigation URL.
+/// not undocumented browser internals. Submission and identity reads retain the
+/// five-second per-event timeout; receipt reads use their remaining one-second
+/// budget. This never activates or sends a ChatGPT message. The URL setter
+/// receives only a void JavaScript expression, not a navigation URL.
 private struct ChromePIDEvents {
     let pid: pid_t
     let trace: ChromeBridgeTrace
@@ -264,14 +262,19 @@ private struct ChromePIDEvents {
     }
 
     private func send(_ suite: String, _ event: String, direct: NSAppleEventDescriptor,
-                      javascript: String? = nil, value: String? = nil) throws -> NSAppleEventDescriptor {
+                      javascript: String? = nil, value: String? = nil,
+                      receiptBudget: MainWorldReceiptReadBudget? = nil) throws -> NSAppleEventDescriptor {
         let request = NSAppleEventDescriptor(eventClass: code(suite), eventID: code(event),
             targetDescriptor: .init(processIdentifier: pid), returnID: -1, transactionID: 0)
         request.setParam(direct, forKeyword: code("----"))
         if let javascript { request.setParam(.init(string: javascript), forKeyword: code("JvSc")) }
         if let value { request.setParam(.init(string: value), forKeyword: code("data")) }
+        let timeout: TimeInterval
+        if let receiptBudget {
+            timeout = try receiptBudget.timeout(at: ProcessInfo.processInfo.systemUptime)
+        } else { timeout = 5 }
         let reply: NSAppleEventDescriptor
-        do { reply = try request.sendEvent(options: [.waitForReply], timeout: 5) }
+        do { reply = try request.sendEvent(options: [.waitForReply], timeout: timeout) }
         catch {
             // Never surface the native localized description: it can contain
             // script source, user paths or page payload. A numeric OSStatus is
@@ -326,10 +329,12 @@ private struct ChromePIDEvents {
         return (windowID, tabID)
     }
 
-    func execute(_ source: String, window: String, tab: String) throws -> String {
+    func execute(_ source: String, window: String, tab: String,
+                 receiptBudget: MainWorldReceiptReadBudget) throws -> String {
         let windowObject = try object("cwin", form: "ID  ", key: .init(string: window))
         let tabObject = try object("CrTb", form: "ID  ", key: .init(string: tab), container: windowObject)
-        guard let result = try send("CrSu", "ExJa", direct: tabObject, javascript: source).stringValue else {
+        guard let result = try send("CrSu", "ExJa", direct: tabObject, javascript: source,
+                                    receiptBudget: receiptBudget).stringValue else {
             throw WebAdapterError.nativeExecutionFailed
         }
         return result

@@ -67,26 +67,69 @@ final class MainWorldCommandEnvelopeTests: XCTestCase {
     func testReadingLostReplyNeverExecutesCommandAgain() throws {
         let context = try XCTUnwrap(JSContext())
         context.evaluateScript("""
-            var executions = 0, attributes = {};
+            var executions = 0, attributes = {}, expireReceipt, receiptTTL;
             var document = {documentElement:{
               setAttribute:function(k,v){attributes[k]=v},
               getAttribute:function(k){return attributes[k] || null},
               removeAttribute:function(k){delete attributes[k]}
             }};
-            function setTimeout(callback,delay) {}
+            function setTimeout(callback,delay) { expireReceipt=callback; receiptTTL=delay; }
             """)
         let command = MainWorldCommandEnvelope(
             function: "function(){executions++; return {inputCount:executions}}", commandJSON: "{}", contextJSON: "{}")
         context.evaluateScript(command.source)
         XCTAssertNil(context.exception)
-        let first = try XCTUnwrap(context.evaluateScript(command.reader)?.toString())
-        let parsed = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(command.decode(first).utf8)) as? [String: Any])
-        XCTAssertEqual(parsed["inputCount"] as? Int, 1)
-        for _ in 0..<3 {
-            let lost = try XCTUnwrap(context.evaluateScript(command.reader)?.toString())
-            XCTAssertTrue(lost.isEmpty); reject(lost, using: command)
+        var now: TimeInterval = 10, reads = 0, lost = ""
+        let recovered = try MainWorldReceiptReader.read(command, clock: { now }, sleep: { now += $0 }) { budget in
+            reads += 1
+            let raw = try XCTUnwrap(context.evaluateScript(command.reader)?.toString())
+            if reads == 1 {
+                // Chrome executed the reader, but the host never received its
+                // reply. Only another read, not another MAIN submission, follows.
+                lost = raw; now += try budget.timeout(at: now)
+                throw WebAdapterError.nativeEventFailed(-1712)
+            }
+            XCTAssertEqual(raw, lost)
+            return raw
         }
+        let parsed = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(recovered.text.utf8)) as? [String: Any])
+        XCTAssertEqual(parsed["inputCount"] as? Int, 1)
+        XCTAssertEqual(reads, 2); XCTAssertFalse(lost.isEmpty)
+        for _ in 0..<3 {
+            let repeated = try XCTUnwrap(context.evaluateScript(command.reader)?.toString())
+            XCTAssertEqual(repeated, lost)
+            XCTAssertEqual(try command.decode(repeated), recovered.text)
+        }
+        XCTAssertEqual(context.evaluateScript("receiptTTL")?.toInt32(), 10_000)
+        context.evaluateScript("expireReceipt()")
+        let expired = try XCTUnwrap(context.evaluateScript(command.reader)?.toString())
+        XCTAssertTrue(expired.isEmpty); reject(expired, using: command)
         XCTAssertEqual(context.evaluateScript("executions")?.toInt32(), 1)
+        XCTAssertNil(context.exception)
+    }
+
+    func testReceiptExpiryIsScopedToItsNonceWithoutConsumingAnotherReceipt() throws {
+        let context = try XCTUnwrap(JSContext())
+        context.evaluateScript("""
+            var attributes={}, timers=[], executions=0, document={documentElement:{
+              setAttribute:function(k,v){attributes[k]=v},getAttribute:function(k){return attributes[k] || null},
+              removeAttribute:function(k){delete attributes[k]}}};
+            function setTimeout(callback,delay) { timers.push({callback:callback,delay:delay}); }
+            """)
+        let function = "function(){executions++; return {count:executions}}"
+        let first = MainWorldCommandEnvelope(function: function, commandJSON: "{}", contextJSON: "{}")
+        let second = MainWorldCommandEnvelope(function: function, commandJSON: "{}", contextJSON: "{}")
+        context.evaluateScript(first.source); context.evaluateScript(second.source)
+        let firstRaw = try XCTUnwrap(context.evaluateScript(first.reader)?.toString())
+        let secondRaw = try XCTUnwrap(context.evaluateScript(second.reader)?.toString())
+        XCTAssertNotEqual(firstRaw, secondRaw)
+        reject(firstRaw, using: second); reject(secondRaw, using: first)
+        context.evaluateScript("timers[0].callback()")
+        XCTAssertEqual(context.evaluateScript(first.reader)?.toString(), "")
+        XCTAssertEqual(context.evaluateScript(second.reader)?.toString(), secondRaw)
+        XCTAssertEqual(context.evaluateScript("timers[0].delay")?.toInt32(), 10_000)
+        XCTAssertEqual(context.evaluateScript("timers[1].delay")?.toInt32(), 10_000)
+        XCTAssertEqual(context.evaluateScript("executions")?.toInt32(), 2)
         XCTAssertNil(context.exception)
     }
 
@@ -144,7 +187,7 @@ final class MainWorldCommandEnvelopeTests: XCTestCase {
             XCTAssertThrowsError(try command.decode(raw)) {
                 XCTAssertEqual($0 as? WebAdapterError, .pageRejected(code))
             }
-            XCTAssertEqual(context.evaluateScript(command.reader)?.toString(), "")
+            XCTAssertEqual(context.evaluateScript(command.reader)?.toString(), raw)
             XCTAssertEqual(context.evaluateScript("executions")?.toInt32(), 1)
             for altered in [code.rawValue + "\n", code.rawValue + ":private-detail", code.rawValue.lowercased()] {
                 reject(try json(["nonce": command.nonce, "ok": false, "rejection": altered]), using: command)

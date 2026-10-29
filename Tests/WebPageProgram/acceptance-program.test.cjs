@@ -709,6 +709,91 @@ test('R01 body/sidebar interactions keep the original usable composer without fo
   }
 });
 
+// These sentinels exercise the unchanged v13 program in the controlled VM DOM.
+// There is no real React change handler, Selection implementation or ChatGPT
+// service here; this proves the program's own preservation boundary only.
+for(const thread of [false,true]) for(const kind of ['body','sidebar']) {
+  test(`v13 offline ${thread?'thread':'Home'} / ${kind} input preserves draft, Selection, focus and old attachment`, async () => {
+    const f=fixture({thread}),outside=kind==='body'?f.body:f.body.append(new f.Node('aside'));
+    const originalText=f.editor.textContent;
+    const textNode=f.editor.append(new f.Node('#text'));
+    textNode.nodeType=3;textNode.textContent=originalText;
+    const prior=f.form.append(new f.Node('div',{role:'button','aria-label':'existing.png','data-state':'ready'}));
+    const priorImage=prior.append(new f.Node('img',{alt:'existing.png',src:'blob:existing-attachment'}));
+    const priorAttributes={...prior.attrs},imageAttributes={...priorImage.attrs},priorChildren=prior.children;
+    const range={startContainer:textNode,startOffset:8,endContainer:textNode,endOffset:11,collapsed:false};
+    const selection={anchorNode:textNode,anchorOffset:8,focusNode:textNode,focusOffset:11,
+      isCollapsed:false,rangeCount:1,type:'Range',getRangeAt:index=>{assert.equal(index,0);return range;}};
+    const calls={textReads:0,textWrites:0,selectionReads:0,selectionWrites:0,focus:0,activeElementWrites:0,send:0,oldAttachmentWrites:0};
+    const reject=key=>()=>{calls[key]++;throw Error(`Unexpected v13 fixture side effect: ${key}`);};
+    const textSentinels=[f.editor,textNode].map(node=>{
+      const state={value:originalText};
+      const get=()=>{calls.textReads++;return state.value;};
+      const set=value=>{state.value=value;reject('textWrites')();};
+      Object.defineProperty(node,'textContent',{configurable:true,get,set});
+      return {node,state,get,set};
+    });
+    for(const property of ['innerText','innerHTML']) Object.defineProperty(f.editor,property,{set:reject('textWrites')});
+    for(const property of ['data','nodeValue']) Object.defineProperty(textNode,property,{set:reject('textWrites')});
+    f.document.execCommand=reject('textWrites');
+    for(const method of ['removeAllRanges','addRange','collapse','collapseToStart','collapseToEnd',
+      'extend','setBaseAndExtent','deleteFromDocument','selectAllChildren','empty','modify']) {
+      selection[method]=reject('selectionWrites');
+    }
+    for(const method of ['setStart','setEnd','setStartBefore','setStartAfter','setEndBefore','setEndAfter',
+      'collapse','deleteContents','extractContents','insertNode','surroundContents','selectNode','selectNodeContents']) {
+      range[method]=reject('selectionWrites');
+    }
+    f.document.getSelection=f.context.getSelection=()=>{calls.selectionReads++;return selection;};
+    vm.runInContext('globalThis.window=globalThis',f.context);
+    f.Node.prototype.focus=reject('focus');f.Node.prototype.blur=reject('focus');
+    Object.defineProperty(f.document,'activeElement',{configurable:true,get:()=>outside,set:reject('activeElementWrites')});
+    f.form.submit=reject('send');f.form.requestSubmit=reject('send');f.Node.prototype.click=reject('send');
+    f.Node.prototype.dispatchEvent=event=>{if(event.type==='submit')reject('send')();return true;};
+    for(const node of [prior,priorImage]) node.attrs=new Proxy(node.attrs,{
+      set:reject('oldAttachmentWrites'),deleteProperty:reject('oldAttachmentWrites'),defineProperty:reject('oldAttachmentWrites')
+    });
+    for(const node of [prior,priorImage]) for(const method of ['setAttribute','removeAttribute','remove','replaceWith']) {
+      node[method]=reject('oldAttachmentWrites');
+    }
+    for(const property of ['src','alt']) Object.defineProperty(priorImage,property,{
+      get:()=>imageAttributes[property],set:reject('oldAttachmentWrites')
+    });
+    const assertPreserved=()=>{
+      assert.deepEqual(calls,{textReads:0,textWrites:0,selectionReads:0,selectionWrites:0,focus:0,activeElementWrites:0,send:0,oldAttachmentWrites:0});
+      assert.equal(f.document.activeElement,outside);assert.notEqual(outside,f.editor);
+      assert.equal(f.editor.children.length,1);assert.equal(f.editor.children[0],textNode);
+      assert.equal(textNode.parentNode,f.editor);
+      assert.equal(selection.anchorNode,textNode);assert.equal(selection.focusNode,textNode);
+      assert.deepEqual([selection.anchorOffset,selection.focusOffset,selection.isCollapsed,selection.rangeCount],[8,11,false,1]);
+      assert.equal(selection.getRangeAt(0),range);
+      assert.equal(range.startContainer,textNode);assert.equal(range.endContainer,textNode);
+      assert.deepEqual([range.startOffset,range.endOffset,range.collapsed],[8,11,false]);
+      assert.ok(f.form.contains(prior));assert.equal(prior.parentNode,f.form);assert.equal(prior.isConnected,true);
+      assert.equal(prior.children,priorChildren);assert.equal(prior.children.length,1);assert.equal(prior.children[0],priorImage);
+      assert.equal(priorImage.parentNode,prior);assert.equal(priorImage.isConnected,true);
+      assert.deepEqual(prior.attrs,priorAttributes);assert.deepEqual(priorImage.attrs,imageAttributes);
+      for(const sentinel of textSentinels) {
+        assert.equal(sentinel.state.value,originalText);
+        const descriptor=Object.getOwnPropertyDescriptor(sentinel.node,'textContent');
+        assert.equal(descriptor.get,sentinel.get);assert.equal(descriptor.set,sentinel.set);
+      }
+    };
+    const op=f.bind();
+    for(const type of ['pointerdown','click','keydown'])f.documentEvent(type,outside);
+    await Promise.resolve();
+    assert.equal(f.call({action:'validate',target:op.target}).valid,true);
+    assert.equal(f.target().draftGeneration,op.target.draftGeneration);assertPreserved();
+    f.stage(op);f.commit(op);await f.settle();
+    assert.equal(f.input.inputCount,1);assert.equal(f.input.files.length,1);assert.equal(f.input.files[0].name,op.name);
+    assert.equal(digest(Buffer.from(await f.input.files[0].arrayBuffer())),op.identity.assetSHA256);
+    assert.equal(f.observe(op).state,'inputTriggered');assertPreserved();
+    const view=f.makeCard(op);f.finish(view);await f.settle();
+    assert.equal(f.observe(op).state,'attached');assert.equal(f.observe(op).exactImageIdentity,true);
+    f.observe(op);assert.equal(f.input.inputCount,1);assertPreserved();
+  });
+}
+
 test('R01 unavailable composer or attachment capability refuses capture without input', () => {
   const changes=[
     f=>{f.form.inert=true;}, f=>{f.body.attrs.inert='';}, f=>{f.editor.attrs['aria-hidden']='true';},
