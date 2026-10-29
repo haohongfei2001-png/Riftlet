@@ -116,7 +116,7 @@ private final class MagnetDecorationView: NSView {
     required init?(coder: NSCoder) { fatalError("init(coder:) is not used") }
 }
 
-private final class MagnetAnimationEnd: NSObject, CAAnimationDelegate {
+final class MagnetAnimationEnd: NSObject, CAAnimationDelegate {
     let callback: @MainActor (Bool) -> Void
     let observe: @MainActor (MagnetAnimationObservation) -> Void
     init(observe: @escaping @MainActor (MagnetAnimationObservation) -> Void,
@@ -126,14 +126,26 @@ private final class MagnetAnimationEnd: NSObject, CAAnimationDelegate {
         let event = MagnetAnimationObservation(phase: .started, uptime: ProcessInfo.processInfo.systemUptime,
             finished: nil, wasMainThread: Thread.isMainThread,
             timing: "animationBeginLocal=\(anim.beginTime);duration=\(anim.duration);offset=\(anim.timeOffset);speed=\(anim.speed)")
-        DispatchQueue.main.async { [observe] in observe(event) }
+        if Thread.isMainThread {
+            MainActor.assumeIsolated { observe(event) }
+        } else {
+            DispatchQueue.main.async { [observe] in observe(event) }
+        }
     }
 
     func animationDidStop(_ anim: CAAnimation, finished flag: Bool) {
         let event = MagnetAnimationObservation(phase: .stopped, uptime: ProcessInfo.processInfo.systemUptime,
             finished: flag, wasMainThread: Thread.isMainThread,
             timing: "animationBeginLocal=\(anim.beginTime);duration=\(anim.duration);offset=\(anim.timeOffset);speed=\(anim.speed)")
-        DispatchQueue.main.async { [observe, callback] in observe(event); callback(flag) }
+        // Deliver an already-main-thread native completion in the same turn.
+        // An extra dispatch can put the real finished callback behind queued
+        // safety cleanup. Off-main delivery still crosses to the main actor;
+        // the original flag and original bounded cleanup deadline are unchanged.
+        if Thread.isMainThread {
+            MainActor.assumeIsolated { observe(event); callback(flag) }
+        } else {
+            DispatchQueue.main.async { [observe, callback] in observe(event); callback(flag) }
+        }
     }
 }
 

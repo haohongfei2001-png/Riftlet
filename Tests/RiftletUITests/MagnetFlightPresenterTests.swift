@@ -95,6 +95,23 @@ final class MagnetFlightPresenterTests: XCTestCase {
         XCTAssertEqual(Set(completions.map(\.generation)).count, 12)
     }
 
+    @MainActor func testMainThreadDelegateDeliversOriginalFlagsWithoutAnotherQueueTurn() {
+        var observations: [MagnetAnimationObservation] = []
+        var completions: [Bool] = []
+        let delegate = MagnetAnimationEnd(observe: { observations.append($0) }, callback: { completions.append($0) })
+        let animation = CAAnimation()
+        animation.duration = 0.560
+        delegate.animationDidStart(animation)
+        XCTAssertEqual(observations.map(\.phase), [.started])
+        delegate.animationDidStop(animation, finished: true)
+        XCTAssertEqual(completions, [true], "A native completion already on main must reach its owner before queued cleanup")
+        delegate.animationDidStop(animation, finished: false)
+        XCTAssertEqual(completions, [true, false], "Cancellation remains false; the delegate cannot manufacture natural completion")
+        XCTAssertEqual(observations.map(\.phase), [.started, .stopped, .stopped])
+        XCTAssertEqual(observations.compactMap(\.finished), [true, false])
+        XCTAssertTrue(observations.allSatisfy(\.wasMainThread))
+    }
+
     @MainActor func testVisibleHostRetainsReadyClockAndNaturallyFinishesTheNormalPlan() async throws {
         let (plan, image, scale) = try fixture()
         let presenter = MagnetFlightPresenter()
@@ -102,9 +119,17 @@ final class MagnetFlightPresenterTests: XCTestCase {
         let elapsed: TimeInterval = 0.080
         var completions: [MagnetFlightCompletion] = []
         var observations: [MagnetAnimationObservation] = []
+        var clockRecords: [String] = []
+        defer { print("MAGNET_CLOCK_OBSERVATIONS_BEGIN\n" + clockRecords.joined(separator: "\n") + "\nMAGNET_CLOCK_OBSERVATIONS_END") }
         let before = CACurrentMediaTime()
         XCTAssertTrue(presenter.start(assetID: UUID(), image: image, plan: plan, backingScale: scale,
-            elapsedSinceAssetReady: elapsed, onAnimationObservation: { observations.append($0) }) {
+            elapsedSinceAssetReady: elapsed, onAnimationObservation: { observation in
+                observations.append(observation)
+                if clockRecords.count < 16 {
+                    clockRecords.append("phase=\(observation.phase.rawValue) rawUptime=\(observation.uptime) deliveredUptime=\(ProcessInfo.processInfo.systemUptime) finished=\(String(describing: observation.finished)) rawWasMain=\(observation.wasMainThread) timing=\(observation.timing ?? "none")")
+                }
+            }) {
+                clockRecords.append("completion=\($0.reason.rawValue) deliveredUptime=\(ProcessInfo.processInfo.systemUptime)")
                 completions.append($0)
             })
         let after = CACurrentMediaTime()

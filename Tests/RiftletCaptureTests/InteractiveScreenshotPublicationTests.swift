@@ -16,7 +16,8 @@ final class InteractiveScreenshotPublicationTests: XCTestCase {
         let request: InteractiveScreenshotRequest
 
         init() throws {
-            root = FileManager.default.temporaryDirectory.appendingPathComponent("riftlet-publication-" + UUID().uuidString)
+            root = FileManager.default.temporaryDirectory.resolvingSymlinksInPath()
+                .appendingPathComponent("riftlet-publication-" + UUID().uuidString)
             captures = root.appendingPathComponent("captures", isDirectory: true)
             source = root.appendingPathComponent("synthetic.png")
             try FileManager.default.createDirectory(at: captures, withIntermediateDirectories: true,

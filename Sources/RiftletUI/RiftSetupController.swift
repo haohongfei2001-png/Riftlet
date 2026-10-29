@@ -320,15 +320,20 @@ public final class RiftSetupController: NSObject, NSWindowDelegate {
         stack.translatesAutoresizingMaskIntoConstraints = false
         for view in views where !(view is NSButton) { view.widthAnchor.constraint(equalTo: stack.widthAnchor).isActive = true }
         let scroll = RiftVisualStyle.topAlignedScrollView()
-        // Keep the settings column stable while document height and status
-        // labels settle. Legacy scrollers retain their native gutter; overlay
-        // scrollers still hide automatically and keep the user's chosen style.
+        // Reserve the native legacy gutter in both scroller styles. AppKit can
+        // switch overlay/legacy after showing a window or as pointing devices
+        // change; tying the document to the clip width would then reflow text
+        // and cancel an in-progress preview. The native scroller still follows
+        // the user's preference; overlay scrollers use this same empty gutter.
         scroll.autohidesScrollers = false
+        let gutter = NSScroller.scrollerWidth(for: scroll.verticalScroller?.controlSize ?? .regular,
+                                             scrollerStyle: .legacy)
         scroll.documentView = stack; scroll.translatesAutoresizingMaskIntoConstraints = false; pageHost.addSubview(scroll)
         scroll.setAccessibilityLabel("Riftlet 首次使用与运行状态")
         NSLayoutConstraint.activate([scroll.leadingAnchor.constraint(equalTo: pageHost.leadingAnchor),
             scroll.trailingAnchor.constraint(equalTo: pageHost.trailingAnchor), scroll.topAnchor.constraint(equalTo: pageHost.topAnchor),
-            scroll.bottomAnchor.constraint(equalTo: pageHost.bottomAnchor), stack.widthAnchor.constraint(equalTo: scroll.contentView.widthAnchor),
+            scroll.bottomAnchor.constraint(equalTo: pageHost.bottomAnchor),
+            stack.widthAnchor.constraint(equalTo: scroll.widthAnchor, constant: -gutter),
             stack.topAnchor.constraint(equalTo: scroll.contentView.topAnchor), stack.leadingAnchor.constraint(equalTo: scroll.contentView.leadingAnchor)])
     }
     private func actionButton(_ title: String, action: Selector, available: Bool) -> NSButton {

@@ -136,3 +136,15 @@ Native PR新增单独串行、显式opt-in的自有不透明合成窗口region�
 恢复后的测试实参顺序错误已由独立工程审查在CI前拦下并局部修正；旧8969d93b/cee67树不作为已批准来源。此轮完整修补需重新固定source SHA/tree、非作者批准与准确Native/Feedback CI，然后以新原尺寸影片确认D18及自然完成。
 
 非作者已精确核准最终源码 `49f1f706fcaa34f3f1ee95bc6c46f0c97d0b03c6` / tree `bd3568d7cce5724596fa90a571f99233acde462b` / parent fa863572，工作树干净。完整19路径恢复/磁力/MOV/截图发布及来源修补和所有新增回归均经过独立静审；最后三文件取证残留记账修补也已核准。Core、Feedback、服务、Adapters、CSQLite、Package、Main与Feedback workflow相对2c8保持。本次仅更新既有三条允许元数据路径及REVIEWED_SOURCE，准确组合CI、单次真实区域组件与D18/自然完成原尺寸复审仍待实际运行，不能先标PASS。
+
+## 第十轮：保留准确失败，修正运行中原生滚动样式与回调交付
+
+隔离源 `5edb27ba875a4fc772161d44a3bb91ff71d6e73d` 已在新 Draft PR #16 运行。原PR #15并发新增仅旧2c8诊断workflow，全部原样保留，未吸收其500ms实验清理宽限或借用诊断绿灯。三条准确运行均通过固定来源审计。Native PR `40820773407` / push `40820741329` 编译成功并各调度666唯一原生测试，但两者均失败；新App、原尺寸视觉与opt-in实际截图组件均未运行，实际新Apple命令调用0。Feedback PR `40820773403` 成功，46唯一原生PASS、52调用含重复、0skip；服务20、隔离88通过。
+
+两Native的新截图publication回归在同两处URL列表断言失败：Foundation枚举返回/private/var路径，fixture从/var别名派生。仅将整个测试fixture临时根预先canonicalize，原排他、目录身份、非空保留、原字节及列表断言均不放宽，产品截图路径不因此修改。
+
+push另暴露两项实质UI问题。设置preview完整17事件/dropped0证明：动画安装时原生style=overlay、clip476、preview444；75.09ms后AppKit自动改为legacy、clip461、preview429，触发布局静态重绘。上轮在实际legacy下的限定通过仍保留，但不能代表动态style切换已修复。现在仅在统一设置页按NSScroller提供的原生legacy宽保留固定gutter，文档宽绑定scroll外框减去gutter；两种系统滚动样式均可正常使用且保持列宽/位置。原所有失败断言保留，新增播放中overlay↔legacy的frame、横向可见原点、document/clip约束、动画持续与真实滚动必要性检查，不强制系统style、不改全局偏好。
+
+push严格正常磁力测试得到timedOut；其raw stopped=true断言未失败，但旧日志没有完整raw/交付时间，不能由此确定本次唯一根因。移除native delegate已在main时的额外dispatch，主线程真实flag在当前执行轮交付；非主线程仍原队列转发，false不变、generation清权及原assetReady+560ms+100ms清理截止不变。新增确定性主线程交付/原flag回归；原正常计划仍严格要求finished/raw true，并输出有界submitted/原raw时间/交付时间/完成时钟以核因果。此修改不能借旧2c8诊断对照五次成功宣称有效，仍需准确新CI与原尺寸MOV。
+
+原始依据：Apple [preferredScrollerStyle](https://developer.apple.com/documentation/appkit/nsscroller/preferredscrollerstyle) 明确系统可在运行中自动更新所有scroll view并retile；[scrollerWidth(for:scrollerStyle:)](https://developer.apple.com/documentation/appkit/nsscroller/scrollerwidth(for:scrollerstyle:)) 提供对应原生宽度。本轮不以加等待、延长动效或接受nil/timeout来收口。

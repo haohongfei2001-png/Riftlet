@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
-  "phase": "PINNED_REVIEWED_MAGNET_NATIVE_CAPTURE_REPAIR_AWAITING_EXACT_CI",
-  "nativeCI": "2C8_PUSH_SUCCESS_PR_FAIL_NORMAL_MAGNET_COMPLETION",
-  "feedbackCI": "PASS_2C8_46_UNIQUE_NATIVE_ZERO_SKIP",
+  "phase": "SCROLLER_STYLE_AND_DELEGATE_DELIVERY_REPAIR_AWAITING_EXACT_REVIEW_AND_CI",
+  "nativeCI": "5ED_PR_AND_PUSH_FAIL_PUBLICATION_URL_ALIAS; PUSH_ALSO_NATIVE_STYLE_CHANGE_AND_MAGNET_TIMEOUT",
+  "feedbackCI": "PASS_5ED_PR_46_UNIQUE_NATIVE_ZERO_SKIP",
   "newNativeVisualEvidence": "2C8_D11_D16_D17_LIMITED_CLOSED_D18_AND_PR_MAGNET_TIMEOUT_BLOCK_FINAL",
   "physicalMacAcceptance": "NOT_RUN_AUTHORIZED_MAC_OFFLINE",
-  "sourceReview": "PASS_NON_AUTHOR_EXACT_SOURCE_TREE; NATIVE_RUNTIME_COMPONENT_VISUAL_PENDING",
+  "sourceReview": "49F_PREVIOUS_SOURCE_REVIEW_PASS; FOLLOWUP_REPAIR_PENDING_NEW_EXACT_CHECKPOINT",
   "founderInstallationRequested": false,
   "productionEnabled": false,
   "safeRetryEnabled": false,
@@ -274,6 +274,50 @@
       "independentVisual": "D11_D16_D17_LIMITED_CLOSED; D18_TARGET_IMAGE_FLASH_BEFORE_SOURCE_FLIGHT_BLOCKING",
       "pushArtifactSHA256": "cb3e011e05528a63528c2b5fed2aae884a7f94bff8f2006ae50143776f32b1ff",
       "prArtifactSHA256": "5fd2c88ffe62322330e9af31762f68858561243a9bee1e6b1f81412dc800727d"
+    },
+    {
+      "head": "5edb27ba875a4fc772161d44a3bb91ff71d6e73d",
+      "nativeRun": 40820773407,
+      "nativeJob": 123272482932,
+      "pushNativeRun": 40820741329,
+      "pushNativeJob": 123272381959,
+      "nativeResult": "FAIL",
+      "pushNativeResult": "FAIL",
+      "nativeUniqueScheduledEach": 666,
+      "nativeFullParallelPerTestSkipCount": "NOT_EXPOSED",
+      "prFailedTests": 2,
+      "prFailedAssertions": 2,
+      "pushFailedTests": 4,
+      "pushFailedAssertions": 7,
+      "bothFailures": "PUBLICATION_FIXTURE_VAR_PRIVATE_VAR_URL_ALIAS_ONLY_TWO_ASSERTIONS",
+      "pushAdditionalFailures": [
+        "NORMAL_MAGNET_TIMEOUT",
+        "PREVIEW_NATIVE_OVERLAY_TO_LEGACY_REFLOW_CANCELS_ANIMATION"
+      ],
+      "pushPreviewEvents": 17,
+      "pushPreviewDropped": 0,
+      "pushPreviewStyleBefore": 1,
+      "pushPreviewStyleAfter": 0,
+      "pushPreviewWidthBefore": 444,
+      "pushPreviewWidthAfter": 429,
+      "pushPreviewInstallToLayoutMS": 75.0904583333,
+      "magnetRawTrueObservedButExactRawDeliveryTimingUnavailable": true,
+      "nativeVisual": "NOT_RUN_PRIOR_TEST_FAILURE",
+      "appPackaging": "NOT_RUN_PRIOR_TEST_FAILURE",
+      "realAppleCaptureInvocations": 0,
+      "ownedWindowCaptureComponent": "NOT_RUN_PRIOR_TEST_FAILURE",
+      "feedbackRun": 40820773403,
+      "feedbackJob": 123272482793,
+      "feedbackResult": "PASS",
+      "feedbackUniqueNativeTests": 46,
+      "feedbackNativeInvocations": 52,
+      "feedbackNativeSkipped": 0,
+      "feedbackServicePassed": 20,
+      "feedbackIsolationPassed": 88,
+      "previousFailureReclassifiedAsPass": false,
+      "checkout": "a319470e49a71cd66ab5f54a8a2c5d68b197e9fa",
+      "feedbackSourceFileCount": 855,
+      "sourceArchiveSHA256": "991f0b91b46ab1680516f454e91a7cea5570f4212c96c271ca712024e6a6f64a"
     }
   ],
   "lateRemoteObservation": {
@@ -286,7 +330,7 @@
   },
   "physicalMacLastObservation": {
     "status": "Offline",
-    "observedUTC": "2026-10-29T04:27:31Z",
+    "observedUTC": "2026-10-29T05:00:49Z",
     "reportedLastSeen": "4h ago",
     "realPhysicalAcceptance": "NOT_RUN"
   },
@@ -312,5 +356,16 @@
       "status": "AWAITING_NEW_SOURCE_RUN",
       "actualExecutionPublicationImportOrPatternFailure": "FAIL_NOT_ENVIRONMENTAL_SKIP"
     }
+  },
+  "concurrentDiagnosticBranch": {
+    "preservedPR": 15,
+    "observedHead": "7cee46795f3f0804aa634c8b2d9fe95cda2ba69c",
+    "scope": "ONLY_NEW_DIAGNOSTIC_WORKFLOW_ON_OLD_2C8_SOURCE; NO_PRODUCT_DELTA",
+    "formalNativeFeedbackGate": "FAIL_UNREVIEWED_WORKFLOW_PATH",
+    "diagnosticQualification": "NOT_VALID_FOR_NEW_SOURCE",
+    "oldUnchangedControlAndDirectMainFiveTrialsEach": "BOTH_PASS_NOT_CAUSAL_PROOF",
+    "experimental500msCleanupAdopted": false,
+    "isolatedReviewedPR": 16,
+    "isolatedReviewedBranch": "codex/riftlet-real-mac-acceptance-unified-reviewed-20261029"
   }
 }

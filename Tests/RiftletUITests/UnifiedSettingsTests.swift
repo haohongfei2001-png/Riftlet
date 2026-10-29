@@ -155,6 +155,7 @@ final class UnifiedSettingsTests: XCTestCase {
         XCTAssertGreaterThan(preview.bounds.width, 100)
         XCTAssertGreaterThan(preview.bounds.height, 80)
         let previewBoundsBeforeReplay = preview.bounds
+        let previewFrameBeforeReplay = preview.convert(preview.bounds, to: preview.window?.contentView)
         preview.recordDiagnostic("test.performClick.before")
         replay.performClick(nil)
         preview.recordDiagnostic("test.performClick.after")
@@ -168,6 +169,19 @@ final class UnifiedSettingsTests: XCTestCase {
         XCTAssertNotNil(imageLayer.animation(forKey: "arrival.preview"), "An unrelated status or same-size layout cannot interrupt a deliberate preview")
         preview.viewDidChangeBackingProperties()
         XCTAssertNotNil(imageLayer.animation(forKey: "arrival.preview"), "A backing notification with unchanged physical scale cannot cancel the preview")
+        let scroll = try XCTUnwrap(preview.enclosingScrollView)
+        for style in [NSScroller.Style.overlay, .legacy, .overlay] {
+            scroll.scrollerStyle = style
+            preview.window?.contentView?.layoutSubtreeIfNeeded()
+            XCTAssertEqual(preview.bounds, previewBoundsBeforeReplay,
+                "Changing the native scroller style cannot reflow the settings document")
+            XCTAssertEqual(preview.convert(preview.bounds, to: preview.window?.contentView), previewFrameBeforeReplay,
+                "The document must retain its position rather than centering within an overlay clip")
+            XCTAssertLessThanOrEqual(try XCTUnwrap(scroll.documentView).frame.width, scroll.contentView.bounds.width)
+            XCTAssertEqual(scroll.documentVisibleRect.minX, 0, accuracy: 0.001)
+            XCTAssertNotNil(imageLayer.animation(forKey: "arrival.preview"),
+                "Native scroller style changes cannot interrupt a deliberate preview")
+        }
         controller.close()
         XCTAssertNil(imageLayer.animation(forKey: "arrival.preview"), "Closing still cancels preview work")
         // Let already delivered delegate observations be logged. This happens
@@ -188,9 +202,9 @@ final class UnifiedSettingsTests: XCTestCase {
         let scroll = try XCTUnwrap(preview.enclosingScrollView)
         // Exercise native styles on this test window only; never change the
         // user's preference or force a particular style in product code.
-        for style in [NSScroller.Style.legacy, .overlay] {
+        var expectedWidth: CGFloat?
+        for style in [NSScroller.Style.legacy, .overlay, .legacy] {
             scroll.scrollerStyle = style
-            var expectedWidth: CGFloat?
             var overflow: [Bool] = []
             for height in [CGFloat(480), CGFloat(700), CGFloat(520)] {
                 var frame = window.frame; frame.size.height = height
