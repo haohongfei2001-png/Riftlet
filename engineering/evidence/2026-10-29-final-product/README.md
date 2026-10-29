@@ -1,3 +1,52 @@
+# H2 completed CI and enabled unified Beta evidence — 2026-10-29
+
+**The admitted H2 source has completed the original Native ARM/Intel and Feedback workflows, and both unified App ZIPs have passed independent byte and source-binding review.** H2 is `98e66a956d55b5fac71718bc627dd89705b2a506` (tree `5ab168800db05f757f08c3eed9fe5cb97c23355d`), based on reviewed source C2 `4223a9dc80bd982e4b95305a1bd1e8f15ce7393c`. The actual PR #18 checkout `507259e1c8d2ba7aace2994c1ca1956a14aa0205` has parents c15 and H2 and exactly H2's tree. Complete C2 review, the narrow H2 admission successor and both actual source-admission jobs were independently reviewed. Runtime/package reviewer `/root/codex_handoff` completed the actual final aggregate at2026-10-29T16:28:02.956571Z (SHA256 `c846caa51241573328fefdf3209e917c243dac63bb83bee33b351e5ed96e6b1f`), embedded unchanged in `latestCompletedRuntime.originalVerificationRecord`. Only these two existing evidence files change in this successor; the source pin, composition policy, workflows and product bytes remain unchanged.
+
+## Actual completed workflows
+
+| Workflow / execution | Actual identity | Verified result |
+|---|---|---|
+| [Native foundation](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40907767281) | Run40907767281; actual attempt2; head H2; updated2026-10-29T16:23:39Z | Completed/success after the single unchanged full Intel rerun. Original failed attempt remains preserved. |
+| ARM native | Original job123567118497; latest API representation123572107768 | Complete native job PASS, including the full Swift suite,49 unique dedicated Feedback cases, original synthetic native fixtures, unified App packaging and strict ad-hoc signature checks. The two job representations have byte-identical original logs and count as one ARM execution. |
+| Intel native | Successful rerun job123572103993; original failed job123567118367 | Complete unchanged rerun PASS: all12 original round-three fixture groups, full Swift suite,49 unique dedicated Feedback cases, native fixtures, App/package build and strict ad-hoc signature checks. |
+| Native source admission | Original independently reviewed job123567118411; latest API representation123572105676 | Original25 checks PASS with981 protected files; the current successful API representation is recorded without inferring an extra execution. |
+| [Feedback v0.1](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40907767213) | Run40907767213; actual attempt1; Feedback job123567119165; source job123567119883; updated2026-10-29T16:07:51Z | Complete PASS:49 unique native Feedback cases,24 named service cases using actual Node22.23.2, and source admission. |
+
+Each native architecture's745 parallel entries are test scheduling evidence, not a physical-Mac pass count. The Feedback workflow's two close cases repeated three times are additional executions of the same cases. The two visual cases repeated by another selected Native suite likewise do not increase the49 unique Feedback cases. Branch-specific steps that are intentionally inapplicable remain explicitly listed as skipped in the original records; no required gate was removed.
+
+### Original Intel failure and bounded rerun
+
+Intel attempt1 failed at the unchanged historical lab probe before native compilation: `bind()` observed `changeHashOK=false` after its fixed20ms timer. Native suites and package were not run in that attempt. The later always-run capture-output verifier correctly rejected the absent report; this was not an executed capture failure. The probe's asynchronous hashing finishing after the timer is consistent with the evidence, but the failed log does not uniquely establish its cause.
+
+The first rerun request received actual403 because the workflow was still running; it executed no rerun. After independent review, one later request ran the entire failed Intel job unchanged. No delay, assertion, historical fixture, gate, workflow or environment policy was relaxed. That one full rerun passed; the original failure is retained. Its downloaded artifact12911139737 is10,195bytes, SHA256 `24e3e587fae789670a59042002ed6e8f703aca8fa86142c6b1c0d7a9ee2264d2`, and contains six diagnostic logs with no App or Beta. Exact failure analysis, original log hashes, both request responses and independent decisions are embedded under `h2RuntimeVerification` in [results.json](results.json).
+
+## Two usable unified internal Beta packages
+
+Both packages contain the same integrated Riftlet App, existing screenshot menus and permission/onboarding resources, and Feedback v0.1 with the real HTTPS endpoint. They are architecture-specific packages, not a universal binary or the separate offline Feedback Demo. Each linked GitHub artifact contains the original `build/Riftlet-Internal-Beta.zip`; the delivery filenames below are byte-identical copies of those inner archives.
+
+| Architecture | Actual GitHub artifact | Delivered inner ZIP | Bytes | SHA256 |
+|---|---|---|---:|---|
+| Apple silicon arm64 | [12912183820](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40907767281/artifacts/12912183820) | `Riftlet-Feedback-v0.1-98e66a9-arm64.zip` |1,970,151|`ed91633d35222ac97771403d73a1092aad666f8731969d9df755368c9e149d0c`|
+| Intel x86_64 | [12913941348](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40907767281/artifacts/12913941348) | `Riftlet-Feedback-v0.1-98e66a9-x86_64.zip` |2,072,285|`2b46a4bbf985d708be41ccbe0bd675289979b283a75c011499bf0d09c9296f29`|
+
+The successful Intel artifact is the exact ID above; its same-named earlier failure artifact12911139737 is not a Beta. Independent review checked both outer/inner archive integrity, actual Mach-O architectures, bundle/resources/notices, the compiled full endpoint, all14 manifest input objects against H2 and the actual checkout, and the original repository-aware bundle/package validators. ARM's earlier missing-local-object limitation is resolved by its separately recorded successful source-bound follow-up. Common manifest fields and nonbinary file hashes agree between architectures. Actual macOS build/package steps performed strict codesign checks, and each binary's embedded ad-hoc flag was independently read. These are development ad-hoc packages; Developer ID, notarization, Gatekeeper and physical installation are not claimed.
+
+## Cloud capability and remaining acceptance
+
+The exact endpoint in committed source, build metadata and both compiled binaries is `https://riftlet-feedback-receiver.haohongfei2001.workers.dev/v1/feedback`. [Existing real cloud acceptance](../2026-10-29-feedback-cloud/README.md) records54 HTTPS checks,3 unique private Issues and8 final deleted rows, with all failures, retention limits and the diagnostic201 observation limit preserved. These existing records are reused without sending new cloud feedback for this metadata successor. Static endpoint presence and service-script acceptance do not prove an App-window submission.
+
+**Physical Mac and native-window-to-cloud E2E remain NOT_RUN.** The user left Mac connection to Codex; [the prepared handoff](../2026-10-29-feedback-cloud/CODEX_REAL_MAC_E2E.md) still requires actual native business-event diagnostics, IME/VoiceOver, close/quit/restart/network recovery, native cancellation/SQLite/Keychain cleanup and screenshot isolation. No executor is scheduled. CI capture probes remain owned synthetic fixtures: region passed, window/fullScreen were not run under the foreign-overlap veto, and no real upload or pixel/color admission is granted. The original screenshot admission, Chrome target policy and every old UNKNOWN stay unchanged.
+
+At this evidence checkpoint, root's fresh GitHub check still had PR #15 at c15 and PR #1 at0e7ea8be, both Open/Draft; main remainedeba1a4f. The formal promotion and subsequent PR #1 CI have not yet occurred. The H2 PR #18 runs above are not relabeled as that future work. A later evidence-only successor can record the actual new refs and CI after execution. This document predicts no self-SHA, future result, main merge or public release.
+
+`latestCompletedRuntime` now identifies this actual H2 result. The exact earlier H object is retained as `historicalHRuntime`;8525 and all prior records are unchanged. The complete original admission-time README below is preserved as history, including its then-pending CI/package statements and its old meaning of `latestCompletedRuntime`.
+
+---
+
+# Preserved H2 admission-time checkpoint and older history
+
+The following original text is historical. Its original `latestCompletedRuntime` H record is now preserved exactly under `historicalHRuntime`; its incomplete statuses are not current blockers and are superseded only by the actual observations above.
+
 # Feedback cloud closeout and enabled-source checkpoint — 2026-10-29
 
 Frozen source C2 is `4223a9dc80bd982e4b95305a1bd1e8f15ce7393c` (tree `a8eebcbfe47b4b3ad6f97412b4760def444910e3`), a direct child of previously admitted H `2f30885644c9dc597e47d8f1dc89b9e16828092a`. **Complete C2 non-author review passed with no blocking findings.** Reviewer `/root/deployment_review` matched all984 GitHub/local file objects and the complete89-file delta; a separate reviewer checked84 documentation/evidence files,182 links and12 anchors. The three new redirect tests were authored by deployment_review and reviewed by root as non-author. The exact decision (SHA256 `123d623b584685e032ac5274cafc23fda7c0f731233af5d2cac0f8d10626f780`) and89-file manifest are embedded in `results.json`. This is engineering review, not a claim of GitHub human approval.
