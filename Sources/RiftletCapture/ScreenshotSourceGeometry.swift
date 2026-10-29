@@ -30,21 +30,39 @@ public enum ScreenshotSourceFailure: String, Error, Equatable, Sendable {
     case mirroredDisplay, pixelScaleMismatch, displayCaptureMismatch
 }
 
+/// Optional, process-local observations in the host system-uptime clock domain.
+/// These are observed upper bounds, not Screenshot.app completion time or the
+/// earliest instant the original file could have been read. Never persisted or
+/// reconstructed from file dates, an old asset, or a recovery journal.
+public struct ScreenshotSourceTiming: Equatable, Sendable {
+    /// When this collector first retained the candidate during this process.
+    /// Nil for a pending handoff, whose original observation may predate restart.
+    public let firstObservedUptime: TimeInterval?
+    /// Complete copy/hash, source identity/metadata rechecks and image inspection
+    /// have all passed. Includes copying, private-file fsync and decoding work.
+    public let validatedCopyUptime: TimeInterval
+    /// QueueStore's original import has returned after its durable transaction.
+    public let durableCommitUptime: TimeInterval
+}
+
 /// Ephemeral decoration input. This value owns no asset, queue, upload or retry state.
 /// Created after a durable import; reading it is optional and may happen off the UI actor.
 /// Its full source signature rejects replacement OR in-place edits since the import.
 public struct ScreenshotSourceObservation: Sendable {
     public let assetID: UUID
     public let readyUptime: TimeInterval
+    public let sourceTiming: ScreenshotSourceTiming?
     private let sourceURL: URL
     private let signature: FileSignature
 
     init(url: URL, signature: FileSignature, assetID: UUID,
-         readyUptime: TimeInterval = ProcessInfo.processInfo.systemUptime) {
+         readyUptime: TimeInterval = ProcessInfo.processInfo.systemUptime,
+         sourceTiming: ScreenshotSourceTiming? = nil) {
         sourceURL = url
         self.signature = signature
         self.assetID = assetID
         self.readyUptime = readyUptime
+        self.sourceTiming = sourceTiming
     }
 
     public func readMetadata() -> Result<ScreenshotSourceMetadata, ScreenshotSourceFailure> {

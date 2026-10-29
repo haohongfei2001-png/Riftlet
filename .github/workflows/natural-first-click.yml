@@ -1,0 +1,82 @@
+name: Natural native first-click diagnostics
+on:
+  push:
+    branches: ['codex/riftlet-natural-first-click-20261030']
+    paths:
+      - 'Sources/**'
+      - 'Tests/**'
+      - 'engineering/experiments/natural-first-click-20261030/**'
+      - '.github/workflows/natural-first-click.yml'
+permissions:
+  contents: read
+concurrency:
+  group: natural-first-click-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  native:
+    runs-on: macos-15
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Preserve source and admission outside diagnostic scope
+        run: |
+          set -o pipefail
+          mkdir -p test-results
+          python3 - <<'PY' | tee test-results/scope.json
+          import json, subprocess
+          base = '21a6be430f75848cf5efe5cc5c97ce6fd6b492f9'
+          subprocess.run(['git', 'merge-base', '--is-ancestor', base, 'HEAD'], check=True)
+          def tree(ref):
+              return {p.decode(): obj.decode() for row in subprocess.check_output(
+                  ['git', '--no-replace-objects', 'ls-tree', '-rz', ref]).split(b'\0') if row
+                  for obj, p in [row.split(b'\t', 1)]}
+          old, new = tree(base), tree('HEAD')
+          allowed = {
+              'Sources/RiftletApp/RiftletMain.swift',
+              'Sources/RiftletCapture/CaptureService.swift',
+              'Sources/RiftletCapture/PrivateAssetImporter.swift',
+              'Sources/RiftletCapture/ScreenshotSourceGeometry.swift',
+              'Sources/RiftletUI/RiftPanelController.swift',
+              'Tests/RiftletCaptureTests/CaptureArrivalObservationTests.swift',
+              'Tests/RiftletCaptureTests/CaptureSourceBindingTests.swift',
+              'Tests/RiftletCaptureTests/ImportFaultTests.swift',
+              'Tests/RiftletUITests/RiftInputIslandTests.swift',
+              'docs/EXECUTION_BOARD.md', '.github/workflows/natural-first-click.yml'}
+          changed = sorted(p for p in old.keys() | new.keys() if old.get(p) != new.get(p))
+          assert changed
+          for p in changed:
+              assert p in allowed or p.startswith(('engineering/experiments/natural-first-click-20261030/',
+                  'engineering/evidence/2026-10-30-natural-first-click/')), p
+              assert new.get(p, '').startswith('100644 blob '), ('deleted or nonregular file', p)
+          print(json.dumps({'result':'PASS','baseline':base,'changed':changed,
+              'scope':'diagnostics only; protected Core/Adapters/admission and historical evidence unchanged'}, indent=2))
+          PY
+      - name: Offline causal join counterexamples
+        run: python3 -B -m unittest discover -s engineering/experiments/natural-first-click-20261030 -v
+      - name: Full macOS suite
+        run: |
+          set -o pipefail
+          swift --version | tee test-results/compiler.txt
+          sw_vers | tee test-results/os.txt
+          defaults write com.apple.universalaccess reduceMotion -bool false
+          defaults write com.apple.universalaccess reduceTransparency -bool false
+          swift test --parallel 2>&1 | tee test-results/native.log
+      - name: Release App and retained self checks
+        run: |
+          set -o pipefail
+          bash scripts/build-macos.sh 2>&1 | tee test-results/build.log
+          for check in --self-check --web-acceptance-self-check --first-use-self-check --system-screenshot-candidate-self-check; do
+            build/Riftlet.app/Contents/MacOS/Riftlet "$check" 2>&1 | tee "test-results/${check#--}.log"
+          done
+          ditto -c -k --sequesterRsrc --keepParent build/Riftlet.app build/Riftlet-Natural-First-Click.zip
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: natural-first-click-${{ github.sha }}
+          path: |
+            test-results/
+            build/Riftlet-Natural-First-Click.zip
+          retention-days: 14

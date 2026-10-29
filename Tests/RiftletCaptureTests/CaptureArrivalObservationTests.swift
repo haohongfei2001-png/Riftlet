@@ -66,7 +66,7 @@ final class CaptureArrivalObservationTests: XCTestCase {
                 let original = try? Data(contentsOf: source)
                 checks.append(ImportedObservationCheck(record: record, observation: observation,
                     committedInSeparateConnection: committed, privateBytesPresent: copy != nil && copy == original))
-            }, now: { clock.read() })
+            }, recordSourceTiming: true, now: { clock.read() })
         do {
             try await service.start()
             let context = try XCTUnwrap(CGContext(data: nil, width: 32, height: 18, bitsPerComponent: 8,
@@ -89,6 +89,13 @@ final class CaptureArrivalObservationTests: XCTestCase {
             XCTAssertTrue(observed.privateBytesPresent)
             XCTAssertEqual(observed.observation.assetID, observed.record.id)
             XCTAssertLessThanOrEqual(observed.observation.readyUptime, ProcessInfo.processInfo.systemUptime)
+            let timing = try XCTUnwrap(observed.observation.sourceTiming)
+            let firstObserved = try XCTUnwrap(timing.firstObservedUptime)
+            XCTAssertGreaterThan(firstObserved, 0)
+            XCTAssertLessThanOrEqual(firstObserved, timing.validatedCopyUptime)
+            XCTAssertLessThanOrEqual(timing.validatedCopyUptime, timing.durableCommitUptime)
+            XCTAssertLessThanOrEqual(timing.durableCommitUptime, observed.observation.readyUptime)
+            XCTAssertNil(observed.record.image.capturedAt, "Diagnostic observations do not invent system capture completion")
             XCTAssertEqual(observed.observation.readMetadata(), .failure(.missingRectangle))
             let durable = try await fixture.store.asset(id: observed.record.id)
             XCTAssertEqual(durable, observed.record)

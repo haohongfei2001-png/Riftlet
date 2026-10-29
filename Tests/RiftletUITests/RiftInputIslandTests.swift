@@ -13,6 +13,8 @@ final class RiftInputIslandTests: XCTestCase {
     }
 
     @MainActor private func controller(onBoundary: @escaping (RiftSelectionBoundary) -> Void = { _ in },
+                                      onReceipt: @escaping (RiftSelectionBoundary, Bool) -> Void = { _, _ in },
+                                      onWindows: @escaping (RiftInputWindowObservation) -> Void = { _ in },
                                       onSelect: @escaping (UUID) -> Void = { _ in }) throws -> RiftPanelController {
         _ = NSApplication.shared
         guard !NSScreen.screens.isEmpty else { throw XCTSkip("No AppKit screen; native routing remains separately unverified") }
@@ -21,7 +23,8 @@ final class RiftInputIslandTests: XCTestCase {
         configuration.swallowDuration = 0.02; configuration.shiftDuration = 0.01
         configuration.returnDuration = 0.01
         return RiftPanelController(mediaDirectory: FileManager.default.temporaryDirectory,
-            configuration: configuration, arrivalMode: .magnet, onSelectionBoundary: onBoundary, onSelect: onSelect)
+            configuration: configuration, arrivalMode: .magnet, onSelectionBoundary: onBoundary,
+            onInputReceipt: onReceipt, onInputWindowObservation: onWindows, onSelect: onSelect)
     }
 
     @MainActor private func window(_ number: Int) throws -> NSWindow {
@@ -65,7 +68,9 @@ final class RiftInputIslandTests: XCTestCase {
 
     @MainActor func testOriginalInputEventSelectsSameAssetAcrossItsTwoIslandsAndRejectsPaddingRelease() throws {
         var selected: [UUID] = [], boundaries: [RiftSelectionBoundary] = []
-        let panel = try controller(onBoundary: { boundaries.append($0) }, onSelect: { selected.append($0) })
+        var receipts: [(RiftSelectionBoundary, Bool)] = []
+        let panel = try controller(onBoundary: { boundaries.append($0) },
+            onReceipt: { receipts.append(($0, $1)) }, onSelect: { selected.append($0) })
         defer { panel.close() }
         let asset = record(); panel.render([asset])
         let row = try XCTUnwrap(panel.diagnosticSnapshot.rows.first)
@@ -93,10 +98,29 @@ final class RiftInputIslandTests: XCTestCase {
         numberView.mouseDown(with: try event(.leftMouseDown, window: number, screen: numberPoint, time: 14.2, count: 2))
         numberView.mouseUp(with: try event(.leftMouseUp, window: number, screen: numberPoint, time: 14.3, count: 2))
         XCTAssertEqual(selected.count, 2)
+        XCTAssertEqual(receipts.count, 4, "Raw delivered presses include the rejected double click")
+        XCTAssertEqual(receipts.map { $0.1 }, [true, true, true, false])
+        XCTAssertEqual(receipts.last?.0.eventUptime, 14.2, "A rejected event retains its original time")
+        XCTAssertEqual(receipts.last?.0.windowNumber, number.windowNumber)
         panel.close()
         imageView.mouseDown(with: try event(.leftMouseDown, window: image, screen: imagePoint, time: 20))
         imageView.mouseUp(with: try event(.leftMouseUp, window: image, screen: imagePoint, time: 20.1))
         XCTAssertEqual(selected.count, 2, "Retained closed input references cannot select")
+    }
+
+    @MainActor func testInputObservationDoesNotClaimSuppressedWindowsAreClickable() throws {
+        var observations: [RiftInputWindowObservation] = []
+        let panel = try controller(onWindows: { observations.append($0) }); defer { panel.close() }
+        panel.setCaptureSuppressed(true)
+        let asset = record(); panel.render([asset])
+        let value = try XCTUnwrap(observations.first)
+        XCTAssertEqual(value.assetID, asset.id)
+        XCTAssertEqual(value.phase, "initialOrder")
+        XCTAssertFalse(value.windowsVisible)
+        XCTAssertFalse(value.selectionStateEligible)
+        XCTAssertFalse(value.imageDecoded)
+        XCTAssertFalse(value.ignoresMouseEvents, "Input capability and actual visibility are separate")
+        XCTAssertGreaterThan(value.uptime, 0)
     }
 
     @MainActor func testHeldAssetDefersSwallowAndAllThreeWindowsCloseBeforeCompaction() async throws {

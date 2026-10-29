@@ -14,6 +14,7 @@ private struct Observation {
     var signature: FileSignature
     let firstSeenAt: Date
     var stableSince: Date
+    let firstObservedUptime: TimeInterval?
 }
 
 private struct PendingSourceCapture: Codable, Sendable {
@@ -56,6 +57,7 @@ public actor CaptureService {
     private var sourceDirectory: URL
     private let onChange: @Sendable () async -> Void
     private let onImported: @Sendable (AssetRecord, ScreenshotSourceObservation) -> Void
+    private let recordSourceTiming: Bool
     private let onIssue: @Sendable (String) async -> Void
     private let onDiagnostic: @Sendable (CaptureDiagnostic) async -> Void
     private var sourceAccessible = false
@@ -95,12 +97,14 @@ public actor CaptureService {
                 onImported: @escaping @Sendable (AssetRecord, ScreenshotSourceObservation) -> Void = { _, _ in },
                 onIssue: @escaping @Sendable (String) async -> Void = { _ in },
                 onDiagnostic: @escaping @Sendable (CaptureDiagnostic) async -> Void = { _ in },
+                recordSourceTiming: Bool = false,
                 now: @escaping @Sendable () -> Date = { Date() }) {
         self.store = store
         importer = PrivateAssetImporter(privateRoot: privateRoot, store: store)
         self.sourceDirectory = sourceDirectory.standardizedFileURL
         self.onChange = onChange; self.onIssue = onIssue; self.onDiagnostic = onDiagnostic
         self.onImported = onImported
+        self.recordSourceTiming = recordSourceTiming
         self.now = now
     }
 
@@ -384,21 +388,32 @@ public actor CaptureService {
             if let previous = observations[signature.sourceKey] {
                 if previous.signature != signature {
                     observations[signature.sourceKey] = Observation(url: url, signature: signature,
-                        firstSeenAt: previous.firstSeenAt, stableSince: now)
+                        firstSeenAt: previous.firstSeenAt, stableSince: now,
+                        firstObservedUptime: previous.firstObservedUptime)
                     needsRetry = true; continue
                 }
                 if now.timeIntervalSince(previous.stableSince) < 0.12 { needsRetry = true; continue }
             } else {
-                observations[signature.sourceKey] = Observation(url: url, signature: signature, firstSeenAt: now, stableSince: now)
+                observations[signature.sourceKey] = Observation(url: url, signature: signature,
+                    firstSeenAt: now, stableSince: now,
+                    firstObservedUptime: recordSourceTiming ? ProcessInfo.processInfo.systemUptime : nil)
                 needsRetry = true; continue
             }
             do {
-                let record = try await importer.importStableFile(at: url, signature: signature,
-                    firstSeenAt: observations[signature.sourceKey]?.firstSeenAt ?? now)
+                let firstObservedUptime = observations[signature.sourceKey]?.firstObservedUptime
+                let result = try await importer.importStableFileWithTiming(at: url, signature: signature,
+                    firstSeenAt: observations[signature.sourceKey]?.firstSeenAt ?? now,
+                    recordTiming: recordSourceTiming)
+                let record = result.record
                 guard running, generation == token else { await onChange(); return }
                 // Optional presentation observation AFTER durable commit, with
                 // no wait for metadata, animation or a second stability window.
-                onImported(record, ScreenshotSourceObservation(url: url, signature: signature, assetID: record.id))
+                let timing = result.timing.map {
+                    ScreenshotSourceTiming(firstObservedUptime: firstObservedUptime,
+                        validatedCopyUptime: $0.validatedCopyUptime, durableCommitUptime: $0.durableCommitUptime)
+                }
+                onImported(record, ScreenshotSourceObservation(url: url, signature: signature,
+                    assetID: record.id, sourceTiming: timing))
                 observations.removeValue(forKey: signature.sourceKey)
                 imported = true
                 importedCount += 1
@@ -527,8 +542,17 @@ public actor CaptureService {
                     pendingHandoffs[key] = item; changed = true; continue
                 }
                 guard now().timeIntervalSince(item.stableSince) >= 0.12 else { continue }
-                let record = try await importer.importStableFile(at: item.url, signature: current, firstSeenAt: item.firstSeenAt)
-                onImported(record, ScreenshotSourceObservation(url: item.url, signature: current, assetID: record.id))
+                let result = try await importer.importStableFileWithTiming(at: item.url, signature: current,
+                    firstSeenAt: item.firstSeenAt, recordTiming: recordSourceTiming)
+                let record = result.record
+                // Pending source dates survive restarts; monotonic observations do not.
+                // Never reconstruct this first-observed time from a persisted Date.
+                let timing = result.timing.map {
+                    ScreenshotSourceTiming(firstObservedUptime: nil,
+                        validatedCopyUptime: $0.validatedCopyUptime, durableCommitUptime: $0.durableCommitUptime)
+                }
+                onImported(record, ScreenshotSourceObservation(url: item.url, signature: current,
+                    assetID: record.id, sourceTiming: timing))
                 pendingHandoffs.removeValue(forKey: key)
                 changed = true; imported = true; copyCount += 1
             } catch CaptureError.notScreenshot {

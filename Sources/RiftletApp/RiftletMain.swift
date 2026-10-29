@@ -135,6 +135,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private var activationObserver: NSObjectProtocol?
     private var lastForegroundSession: String?
     private var diagnosticEvents = 0
+    private let diagnosticRunID = UUID()
     private var visibilityTrace = AcceptanceTraceDeduplicator<UUID, [String]>()
     private var readyTrace = AcceptanceTraceDeduplicator<UUID, [String]>()
     private var pendingArmReason = "startup"
@@ -268,6 +269,10 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             arrivalMode: arrivalPreferences?.mode ?? .provisionalFallback,
             onPress: { [weak self] id, timestamp in self?.freezePress(id, timestamp: timestamp) },
             onSelectionBoundary: { [weak self] boundary in self?.recordSelection(boundary) },
+            onInputReceipt: { [weak self] boundary, accepted in
+                self?.recordInputReceipt(boundary, accepted: accepted)
+            },
+            onInputWindowObservation: { [weak self] value in self?.recordInputWindows(value) },
             onApproach: { [weak self] in self?.requestArm(reason: "pointerApproach") },
             onPresentationBoundary: { [weak self] boundary in self?.recordPresentation(boundary) },
             onArrivalBoundary: { [weak self] boundary in
@@ -439,6 +444,21 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                                          onImported: { [weak self] record, observation in
                                              Task { @MainActor [weak self] in
                                                  guard let self, !self.terminating else { return }
+                                                 let delivered = ProcessInfo.processInfo.systemUptime
+                                                 self.recordAcceptance(["event": "capture_durable_delivery",
+                                                    "assetID": record.id.uuidString,
+                                                    "readyUptime": observation.readyUptime,
+                                                    "callbackUptime": delivered,
+                                                    "systemCaptureCompletionMeasured": false])
+                                                 if let timing = observation.sourceTiming {
+                                                     var fields: [String: Any] = ["event": "capture_source_verified",
+                                                        "assetID": record.id.uuidString,
+                                                        "validatedCopyUptime": timing.validatedCopyUptime,
+                                                        "durableCommitUptime": timing.durableCommitUptime,
+                                                        "systemCaptureCompletionMeasured": false]
+                                                     if let observed = timing.firstObservedUptime { fields["firstObservedUptime"] = observed }
+                                                     self.recordAcceptance(fields)
+                                                 }
                                                  // A committed new screenshot is an observation
                                                  // demand, never a click or input authorization.
                                                  // Start prebinding before preview work and the
@@ -453,7 +473,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                                                  await self.refresh()
                                              }
                                          },
-                                         onDiagnostic: { [weak self] value in await self?.receiveCaptureDiagnostic(value) })
+                                         onDiagnostic: { [weak self] value in await self?.receiveCaptureDiagnostic(value) },
+                                         recordSourceTiming: CommandLine.arguments.contains("--acceptance-trace")
+                                            || CommandLine.arguments.contains("--arrival-trace"))
             capture = service
             let binding = CaptureSourceBinding(service: service, provider: captureLocation,
                 onDiagnostic: { [weak self] value in await self?.receiveCaptureDiagnostic(value) })
@@ -973,6 +995,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         let started = ProcessInfo.processInfo.systemUptime
         let invocation = CaptureInvocationContext(armAttemptID: attempt.id, hostEpoch: attempt.epoch)
         activeCaptureInvocation = invocation
+        recordAcceptance(["event": "arm_attempt_started", "reason": reason, "uptime": started,
+            "captureRequestID": invocation.requestID.uuidString,
+            "armAttemptID": attempt.id.uuidString, "hostEpoch": attempt.epoch.uuidString])
         Task { [weak self] in
             guard let self else { return }
             let taskEntered = ProcessInfo.processInfo.systemUptime
@@ -1104,13 +1129,41 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         fields["foregroundSessionMatches"] = armedTarget.map { $0.target.sessionID == foregroundChromeSession } ?? false
         if let ack = armedTarget?.acknowledgedUptime { fields["ackUptime"] = ack }
         if let number = boundary.eventNumber { fields["eventNumber"] = number }
+        if let number = boundary.windowNumber { fields["windowNumber"] = number }
+        if let token = boundary.eventSourceUserData { fields["eventSourceUserData"] = token }
         recordAcceptance(fields)
+    }
+
+    private func recordInputReceipt(_ boundary: RiftSelectionBoundary, accepted: Bool) {
+        var fields: [String: Any] = ["event": "native_input_receipt", "source": boundary.source.rawValue,
+            "assetID": boundary.assetID.uuidString, "eventUptime": boundary.eventUptime,
+            "callbackUptime": ProcessInfo.processInfo.systemUptime, "gateAccepted": accepted,
+            "hardwareSourceProven": false]
+        if let number = boundary.eventNumber { fields["eventNumber"] = number }
+        if let number = boundary.windowNumber { fields["windowNumber"] = number }
+        if let count = boundary.clickCount { fields["clickCount"] = count }
+        if let token = boundary.eventSourceUserData { fields["eventSourceUserData"] = token }
+        recordAcceptance(fields)
+    }
+
+    private func recordInputWindows(_ value: RiftInputWindowObservation) {
+        func rect(_ r: CGRect) -> [Double] { [r.minX, r.minY, r.width, r.height].map(Double.init) }
+        recordAcceptance(["event": "input_windows_observed", "assetID": value.assetID.uuidString,
+            "visibilityRevision": value.visibilityRevision, "uptime": value.uptime, "phase": value.phase,
+            "imageWindow": value.imageWindow, "numberWindow": value.numberWindow,
+            "imageFrame": rect(value.imageFrame), "numberFrame": rect(value.numberFrame),
+            "windowsVisible": value.windowsVisible, "ignoresMouseEvents": value.ignoresMouseEvents,
+            "selectionStateEligible": value.selectionStateEligible, "imageDecoded": value.imageDecoded,
+            "windowServerHitMeasured": false, "pixelPresentationMeasured": false])
     }
 
     private func recordAcceptance(_ fields: [String: Any]) {
         guard mode.usesWebAdapter, CommandLine.arguments.contains("--acceptance-trace"), diagnosticEvents < 2048 else { return }
         diagnosticEvents += 1
-        if let data = try? JSONSerialization.data(withJSONObject: fields, options: [.sortedKeys]) {
+        var event = fields
+        event["runID"] = diagnosticRunID.uuidString
+        event["clock"] = "hostSystemUptime"
+        if let data = try? JSONSerialization.data(withJSONObject: event, options: [.sortedKeys]) {
             try? FileHandle.standardError.write(contentsOf: data + Data([10]))
         }
     }
@@ -1580,11 +1633,16 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private func recordArrivalTrace(_ fields: [String: Any]) {
         guard CommandLine.arguments.contains("--arrival-trace") else { return }
         var event = fields
+        event["runID"] = diagnosticRunID.uuidString
+        event["clock"] = "hostSystemUptime"
         event["scope"] = "software_boundaries_not_physical_pixels"
         event["metadataCandidate"] = CommandLine.arguments.contains(ArrivalSourceProfile.candidateArgument)
         guard let data = try? JSONSerialization.data(withJSONObject: event, options: [.sortedKeys]),
               let line = String(data: data, encoding: .utf8) else { return }
-        print("RIFTLET_ARRIVAL_TRACE " + line)
+        // One write on the same stream as native/selection diagnostics. stdio
+        // print may split the prefix/body/newline and interleave a second JSON
+        // record when both streams are collected into one private trace file.
+        try? FileHandle.standardError.write(contentsOf: Data(("RIFTLET_ARRIVAL_TRACE " + line + "\n").utf8))
     }
     @objc private func addWebTestImages() {
         guard mode.generatesSyntheticImages, let store else { return }

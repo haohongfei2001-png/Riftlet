@@ -65,6 +65,49 @@ final class ImportFaultTests: XCTestCase {
             signature: FileSignature.read(at: fixture.source), firstSeenAt: Date())
     }
 
+    func testImportTimingIsOptInAndExistingAssetDoesNotAcquireNewSourceTimes() async throws {
+        let f = try Fixture(); defer { f.close() }
+        let signature = try FileSignature.read(at: f.source)
+        let importer = PrivateAssetImporter(privateRoot: f.privateRoot, store: f.store)
+        let initial = try await importer.importStableFileWithTiming(at: f.source, signature: signature,
+            firstSeenAt: Date(), recordTiming: false)
+        XCTAssertNil(initial.timing)
+
+        // Turning diagnostics on later must not relabel an old committed asset
+        // as a new complete read, even if its original file is still present.
+        let existing = try await importer.importStableFileWithTiming(at: f.source, signature: signature,
+            firstSeenAt: Date(), recordTiming: true)
+        XCTAssertEqual(existing.record.id, initial.record.id)
+        XCTAssertNil(existing.timing)
+        XCTAssertEqual(try Data(contentsOf: f.source), f.bytes)
+    }
+
+    func testJournalRecoveryDoesNotAcquireFreshSourceTiming() async throws {
+        let f = try Fixture(); defer { f.close() }
+        let once = OncePerBoundary([.journalSynced])
+        let importer = PrivateAssetImporter(privateRoot: f.privateRoot, store: f.store) { context in
+            if once.take(context.boundary) { throw SimulatedImportInterruption(boundary: context.boundary) }
+        }
+        let signature = try FileSignature.read(at: f.source)
+        do {
+            _ = try await importer.importStableFileWithTiming(at: f.source, signature: signature,
+                firstSeenAt: Date(), recordTiming: true)
+            XCTFail("Expected a journal-owned interrupted import")
+        } catch let interruption as SimulatedImportInterruption {
+            XCTAssertEqual(interruption.boundary, .journalSynced)
+        }
+        let incomplete = try await f.store.assets()
+        XCTAssertTrue(incomplete.isEmpty)
+        // This call takes the journal recovery branch before opening the source.
+        // Recovery reads the private copy; it is not a new original-file input.
+        let recovered = try await importer.importStableFileWithTiming(at: f.source, signature: signature,
+            firstSeenAt: Date(), recordTiming: true)
+        XCTAssertNil(recovered.timing)
+        let stored = try await f.store.assets()
+        XCTAssertEqual(stored.map(\.id), [recovered.record.id])
+        XCTAssertEqual(try Data(contentsOf: f.source), f.bytes)
+    }
+
     func testEveryDurableBoundaryCanReopenWithoutDuplicateQueueOrOriginalLoss() async throws {
         for boundary in ImportBoundary.allCases {
             let f = try Fixture(); defer { f.close() }

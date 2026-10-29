@@ -17,12 +17,33 @@ public struct RiftSelectionBoundary: Equatable, Sendable {
     public let eventNumber: Int?
     public let windowNumber: Int?
     public let clickCount: Int?
+    /// Diagnostic correlation only; zero/absence does not prove hardware input.
+    public let eventSourceUserData: Int64?
 
     public init(assetID: UUID, source: RiftSelectionSource, eventUptime: TimeInterval,
-                eventNumber: Int? = nil, windowNumber: Int? = nil, clickCount: Int? = nil) {
+                eventNumber: Int? = nil, windowNumber: Int? = nil, clickCount: Int? = nil,
+                eventSourceUserData: Int64? = nil) {
         self.assetID = assetID; self.source = source; self.eventUptime = eventUptime
         self.eventNumber = eventNumber; self.windowNumber = windowNumber; self.clickCount = clickCount
+        self.eventSourceUserData = eventSourceUserData
     }
+}
+
+/// AppKit state at initial ordering or decoded-image delivery. This is not a
+/// WindowServer hit/pixel receipt and never grants target or selection authority.
+public struct RiftInputWindowObservation: Sendable {
+    public let assetID: UUID
+    public let visibilityRevision: Int64
+    public let uptime: TimeInterval
+    public let phase: String
+    public let imageWindow: Int
+    public let numberWindow: Int
+    public let imageFrame: CGRect
+    public let numberFrame: CGRect
+    public let windowsVisible: Bool
+    public let ignoresMouseEvents: Bool
+    public let selectionStateEligible: Bool
+    public let imageDecoded: Bool
 }
 
 /// Read-only native geometry for the standalone acceptance helper. Rectangles
@@ -424,6 +445,8 @@ public final class RiftPanelController {
     private let onSelect: (UUID) -> Void
     private let onPress: (UUID, TimeInterval) -> Void
     private let onSelectionBoundary: (RiftSelectionBoundary) -> Void
+    private let onInputReceipt: (RiftSelectionBoundary, Bool) -> Void
+    private let onInputWindowObservation: (RiftInputWindowObservation) -> Void
     private let onApproach: () -> Void
     private let onPresentationBoundary: (RiftPresentationBoundary) -> Void
     private let onArrivalBoundary: (RiftArrivalBoundary) -> Void
@@ -502,6 +525,8 @@ public final class RiftPanelController {
                 reduceMotionOverride: (() -> Bool)? = nil,
                 onPress: @escaping (UUID, TimeInterval) -> Void = { _, _ in },
                 onSelectionBoundary: @escaping (RiftSelectionBoundary) -> Void = { _ in },
+                onInputReceipt: @escaping (RiftSelectionBoundary, Bool) -> Void = { _, _ in },
+                onInputWindowObservation: @escaping (RiftInputWindowObservation) -> Void = { _ in },
                 onApproach: @escaping () -> Void = {},
                 onPresentationBoundary: @escaping (RiftPresentationBoundary) -> Void = { _ in },
                 onArrivalBoundary: @escaping (RiftArrivalBoundary) -> Void = { _ in },
@@ -519,6 +544,8 @@ public final class RiftPanelController {
         self.onSelect = onSelect
         self.onPress = onPress
         self.onSelectionBoundary = onSelectionBoundary
+        self.onInputReceipt = onInputReceipt
+        self.onInputWindowObservation = onInputWindowObservation
         self.onApproach = onApproach
         self.onPresentationBoundary = onPresentationBoundary
         self.onArrivalBoundary = onArrivalBoundary
@@ -1010,6 +1037,7 @@ public final class RiftPanelController {
                 window.panels.forEach { $0.alphaValue = 1 }
                 window.view.animateImage(to: expectedOffset, duration: 0)
                 reportArrival(.rowAvailable, id: record.id)
+                observeInputWindows(window, phase: "initialOrder")
             } else if oldStatus != record.status || window.view.imageOffset != expectedOffset {
                 window.view.animateImage(to: expectedOffset, duration: duration(
                     record.status == .failed ? configuration.returnDuration : configuration.pressDuration))
@@ -1036,6 +1064,9 @@ public final class RiftPanelController {
                 if image != nil, !view.reportedImageReady {
                     view.reportedImageReady = true
                     self.reportArrival(.imageDecoded, id: record.id)
+                }
+                if isNew, let row = self.rowWindows[record.id] {
+                    self.observeInputWindows(row, phase: "imageDelivery")
                 }
                 if let arrivalOwner, let image {
                     if !self.startArrivalIfPossible(id: record.id, image: image, owner: arrivalOwner) {
@@ -1170,6 +1201,20 @@ public final class RiftPanelController {
         row.view.animateImage(to: 0, duration: time)
     }
 
+    private func observeInputWindows(_ row: RowWindow, phase: String) {
+        let record = row.view.record
+        onInputWindowObservation(RiftInputWindowObservation(assetID: record.id,
+            visibilityRevision: record.visibilityRevision, uptime: ProcessInfo.processInfo.systemUptime,
+            phase: phase, imageWindow: row.imageInput.windowNumber, numberWindow: row.numberInput.windowNumber,
+            imageFrame: row.imageInput.frame, numberFrame: row.numberInput.frame,
+            windowsVisible: row.imageInput.isVisible && row.numberInput.isVisible,
+            ignoresMouseEvents: row.imageInput.ignoresMouseEvents || row.numberInput.ignoresMouseEvents,
+            selectionStateEligible: !closed && !userHidden && !captureSuppressed && !gate.isHolding
+                && selectionVersions[record.id] == nil && record.visibility == .visible
+                && record.status != .transferring && record.status != .used,
+            imageDecoded: row.view.reportedImageReady))
+    }
+
     private func wire(_ window: RowWindow, id: UUID) {
         window.view.onHover = { [weak self] inside in
             guard let self, !self.userHidden, !self.closed else { return }
@@ -1217,6 +1262,11 @@ public final class RiftPanelController {
             let accepted = self.gate.begin(assetID: id, screenPoint: point, timestamp: event.timestamp,
                                           clickCount: event.clickCount, doubleClickInterval: NSEvent.doubleClickInterval,
                                           acceptsSelection: accepts)
+            let boundary = RiftSelectionBoundary(assetID: id, source: .mouse,
+                eventUptime: event.timestamp, eventNumber: event.eventNumber,
+                windowNumber: event.windowNumber, clickCount: event.clickCount,
+                eventSourceUserData: event.cgEvent?.getIntegerValueField(.eventSourceUserData))
+            self.onInputReceipt(boundary, accepted)
             if accepted {
                 self.selectionVersions[id] = view.record.visibilityRevision
                 self.pressRegions[id] = originalRegions
@@ -1224,9 +1274,7 @@ public final class RiftPanelController {
                 self.cancelDecorations(reason: .clicked)
                 self.setFeedback(nil, for: id)
                 self.onPress(id, event.timestamp)
-                self.onSelectionBoundary(RiftSelectionBoundary(assetID: id, source: .mouse,
-                    eventUptime: event.timestamp, eventNumber: event.eventNumber,
-                    windowNumber: event.windowNumber, clickCount: event.clickCount))
+                self.onSelectionBoundary(boundary)
                 let time = self.duration(self.configuration.pressDuration)
                 self.trackAnimation(time)
                 view.animateImage(to: self.pressOffset, duration: time)

@@ -34,6 +34,17 @@ struct SimulatedImportInterruption: Error, Equatable {
 
 typealias ImportFaultHook = @Sendable (ImportBoundaryContext) throws -> Void
 
+struct AssetImportTiming: Sendable {
+    let validatedCopyUptime: TimeInterval
+    let durableCommitUptime: TimeInterval
+}
+
+struct ObservedAssetImport: Sendable {
+    let record: AssetRecord
+    /// Existing and journal-recovered assets never acquire fresh source times.
+    let timing: AssetImportTiming?
+}
+
 /// Files and metadata use a recoverable ordering, not a fictitious cross-filesystem/SQL transaction.
 /// Durable staging -> durable manifest -> atomic media rename -> SQLite insert.
 /// The original screenshot is never moved, modified or deleted.
@@ -95,13 +106,23 @@ public actor PrivateAssetImporter {
     func importStableFile(at url: URL, signature: FileSignature,
                           origin: AssetOrigin = .systemScreenshot,
                           firstSeenAt: Date) async throws -> AssetRecord {
+        let result = try await importStableFileWithTiming(at: url, signature: signature,
+            origin: origin, firstSeenAt: firstSeenAt, recordTiming: false)
+        return result.record
+    }
+
+    /// Same import path with optional ephemeral observations. The default callers
+    /// avoid clock sampling; timing cannot affect file, journal or SQL decisions.
+    func importStableFileWithTiming(at url: URL, signature: FileSignature,
+                                   origin: AssetOrigin = .systemScreenshot,
+                                   firstSeenAt: Date, recordTiming: Bool) async throws -> ObservedAssetImport {
         guard await store.mode != .simulation || origin == .synthetic else { throw RiftletError.modeMismatch }
         guard !importing.contains(signature.sourceKey) else { throw CaptureError.importInProgress }
         importing.insert(signature.sourceKey)
         defer { importing.remove(signature.sourceKey) }
         if let existing = try await store.asset(sourceKey: signature.sourceKey) {
             journaledSources.remove(signature.sourceKey)
-            return existing
+            return ObservedAssetImport(record: existing, timing: nil)
         }
         // An earlier IO/SQL failure may already own a durable private copy. Reconcile it
         // before allocating another UUID/file for the same source event.
@@ -109,7 +130,7 @@ public actor PrivateAssetImporter {
             _ = try await recover()
             if let existing = try await store.asset(sourceKey: signature.sourceKey) {
                 journaledSources.remove(signature.sourceKey)
-                return existing
+                return ObservedAssetImport(record: existing, timing: nil)
             }
         }
         try ensureDirectories()
@@ -146,6 +167,7 @@ public actor PrivateAssetImporter {
                 throw CaptureError.notScreenshot
             }
             let result = try ValidatedImage.inspect(stageURL, byteCount: signature.size)
+            let validatedCopyUptime = recordTiming ? ProcessInfo.processInfo.systemUptime : nil
             let fileName = id.uuidString.lowercased() + "." + result.fileExtension
             let image = ImportedAsset(id: id, sourceKey: signature.sourceKey, fileName: fileName,
                                       sha256: hash, byteCount: signature.size, pixelWidth: result.width,
@@ -164,9 +186,15 @@ public actor PrivateAssetImporter {
             journaledSources.insert(signature.sourceKey)
             try PrivateFiles.promote(stageURL, to: mediaURL, probe: commitProbe)
             let record = try await store.importAsset(image)
+            // QueueStore can also deduplicate at transaction time. Another
+            // importer winning that race must not inherit this copy's timeline.
+            let timing = record.image == image ? validatedCopyUptime.map {
+                AssetImportTiming(validatedCopyUptime: $0,
+                                  durableCommitUptime: ProcessInfo.processInfo.systemUptime)
+            } : nil
             journaledSources.remove(signature.sourceKey)
             try commitProbe?(.databaseCommitted)
-            return record
+            return ObservedAssetImport(record: record, timing: timing)
         } catch {
             // A renamed journal owns staging even if its directory fsync subsequently fails.
             // Deleting that stage would break recovery from an otherwise valid journal.

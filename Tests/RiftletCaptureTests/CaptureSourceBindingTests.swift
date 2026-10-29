@@ -15,6 +15,13 @@ private final class SourceTestClock: @unchecked Sendable {
     func advance(_ interval: TimeInterval = 1) { lock.lock(); value.addTimeInterval(interval); lock.unlock() }
 }
 
+private final class SourceObservationChecks: @unchecked Sendable {
+    private let lock = NSLock()
+    private var values: [ScreenshotSourceObservation] = []
+    func append(_ observation: ScreenshotSourceObservation) { lock.lock(); values.append(observation); lock.unlock() }
+    func read() -> [ScreenshotSourceObservation] { lock.lock(); defer { lock.unlock() }; return values }
+}
+
 private actor TestLocationProvider: CaptureLocationProviding {
     var directory: URL
     private var handler: (@Sendable () async -> Void)?
@@ -142,8 +149,10 @@ final class CaptureSourceBindingTests: XCTestCase {
     func testIncompleteOldSourceSurvivesSwitchAndProcessRestart() async throws {
         let f = try Fixture(); defer { f.close() }
         let clock = SourceTestClock()
+        let observations = SourceObservationChecks()
         let service = CaptureService(store: f.store, privateRoot: f.privateRoot, sourceDirectory: f.first,
-                                     now: { clock.read() })
+            onImported: { _, observation in observations.append(observation) },
+            recordSourceTiming: true, now: { clock.read() })
         try await service.start()
         let oldSource = f.first.appendingPathComponent("unfinished.png")
         let bytes = try png()
@@ -161,7 +170,8 @@ final class CaptureSourceBindingTests: XCTestCase {
         let handle = try FileHandle(forWritingTo: oldSource)
         try handle.truncate(atOffset: 0); try handle.write(contentsOf: bytes); try handle.close()
         let restarted = CaptureService(store: f.store, privateRoot: f.privateRoot, sourceDirectory: f.second,
-                                       now: { clock.read() })
+            onImported: { _, observation in observations.append(observation) },
+            recordSourceTiming: true, now: { clock.read() })
         try await restarted.start()
         clock.advance()
         try await restarted.rescan()
@@ -169,6 +179,12 @@ final class CaptureSourceBindingTests: XCTestCase {
         XCTAssertEqual(recovered.count, 1)
         XCTAssertEqual(recovered.first?.image.sourceKey, sourceKey)
         XCTAssertEqual(try Data(contentsOf: oldSource), bytes)
+        let arrivals = observations.read()
+        XCTAssertEqual(arrivals.count, 1)
+        let timing = try XCTUnwrap(arrivals.first?.sourceTiming)
+        XCTAssertNil(timing.firstObservedUptime, "The persisted handoff cannot supply an earlier process's monotonic observation")
+        XCTAssertLessThanOrEqual(timing.validatedCopyUptime, timing.durableCommitUptime)
+        XCTAssertLessThanOrEqual(timing.durableCommitUptime, try XCTUnwrap(arrivals.first?.readyUptime))
         await restarted.stop()
     }
 
