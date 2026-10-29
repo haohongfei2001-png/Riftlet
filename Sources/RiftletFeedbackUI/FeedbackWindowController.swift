@@ -436,16 +436,19 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
         let destructive = alert.addButton(withTitle: button)
         let keep = alert.addButton(withTitle: "保留")
         destructive.keyEquivalent = ""
-        // Return/Enter invoke the default cell; Escape is a separate key
-        // equivalent on that same non-destructive button. Neither may confirm.
-        alert.layout()
-        alert.window.defaultButtonCell = keep.cell as? NSButtonCell
         keep.keyEquivalent = "\u{1b}"; keep.keyEquivalentModifierMask = []
+        alert.layout()
         alert.window.initialFirstResponder = keep
         alert.beginSheetModal(for: window) { response in
             guard response == .alertFirstButtonReturn else { return }
             Task { @MainActor in await operation() }
         }
+        // AppKit finalizes the sheet's default during presentation. Bind Return
+        // only after all key equivalents and sheet setup are complete; setting
+        // it before the Escape equivalent/presentation loses the default on macOS.
+        // This is synchronous, before the next keyboard event can be delivered.
+        alert.window.defaultButtonCell = keep.cell as? NSButtonCell
+        alert.window.makeFirstResponder(keep)
     }
 }
 

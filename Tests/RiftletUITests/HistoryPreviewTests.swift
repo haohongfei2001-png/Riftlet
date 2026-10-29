@@ -184,6 +184,52 @@ final class HistoryPreviewTests: XCTestCase {
     }
 
     @MainActor
+    func testEmptyPreviewViewportLoadsVerifiedImageAndRemainsUsableAtMinimumSize() async throws {
+        _ = NSApplication.shared
+        guard !NSScreen.screens.isEmpty else { throw XCTSkip("AppKit display unavailable") }
+        let (directory, asset) = try fixture(width: 1280, height: 720)
+        let original = try Data(contentsOf: directory.appendingPathComponent(asset.fileName))
+        var actions = 0
+        let controller = RiftHistoryController(mediaDirectory: directory,
+            onRestore: { _ in actions += 1 }, onRemove: { _ in actions += 1 }, onReveal: { _ in actions += 1 })
+        defer { controller.close() }
+        controller.update(entries: [RiftHistoryEntry(record: AssetRecord(image: asset, sequence: 1))])
+        controller.show()
+        func descendants(_ view: NSView) -> [NSView] { [view] + view.subviews.flatMap(descendants) }
+        let table = try XCTUnwrap(NSApp.windows.compactMap(\.contentView).flatMap(descendants)
+            .compactMap { $0 as? NSTableView }.first { $0.delegate === controller })
+        table.selectRowIndexes(IndexSet(integer: 0), byExtendingSelection: false)
+        XCTAssertTrue(NSApp.sendAction(try XCTUnwrap(table.doubleAction), to: table.target, from: table))
+        let preview = try XCTUnwrap(NSApp.windows.first { $0.identifier?.rawValue == "RiftletHistoryPreview" && $0.isVisible })
+        let content = try XCTUnwrap(preview.contentView)
+        let image = try XCTUnwrap(descendants(content).compactMap { $0 as? NSImageView }
+            .first { $0.identifier?.rawValue == "history.preview.image" })
+        let status = try XCTUnwrap(descendants(content).compactMap { $0 as? NSTextField }
+            .first { $0.identifier?.rawValue == "history.preview.status" })
+        XCTAssertNil(image.image, "The initial shell must not borrow the unverified thumbnail")
+        for size in [preview.frame.size, NSSize(width: 360, height: 280)] {
+            preview.setFrame(NSRect(origin: preview.frame.origin, size: size), display: true)
+            content.layoutSubtreeIfNeeded()
+            let emptyViewport = image.bounds.size
+            XCTAssertGreaterThan(emptyViewport.width, 0)
+            XCTAssertGreaterThan(emptyViewport.height, content.bounds.height / 2,
+                "The image viewport, not the footer, must receive the available window height")
+            let deadline = ProcessInfo.processInfo.systemUptime + 2
+            while status.stringValue != "已按窗口显示" && ProcessInfo.processInfo.systemUptime < deadline {
+                try await Task.sleep(nanoseconds: 20_000_000)
+            }
+            XCTAssertEqual(status.stringValue, "已按窗口显示", "viewport=\(image.bounds), visible=\(preview.isVisible)")
+            XCTAssertNotNil(image.image)
+            content.layoutSubtreeIfNeeded()
+            XCTAssertEqual(image.bounds.size, emptyViewport,
+                "Decoded bitmap dimensions must not change the viewport used to request it")
+            XCTAssertTrue(preview.title.contains(String(asset.id.uuidString.prefix(8))))
+        }
+        XCTAssertEqual(actions, 0)
+        XCTAssertEqual(try Data(contentsOf: directory.appendingPathComponent(asset.fileName)), original)
+    }
+
+    @MainActor
     func testValidPNGReplacementNeverAppearsUnderOriginalPreviewIdentity() async throws {
         _ = NSApplication.shared
         guard !NSScreen.screens.isEmpty else { throw XCTSkip("AppKit display unavailable") }
@@ -218,12 +264,17 @@ final class HistoryPreviewTests: XCTestCase {
             .first { $0.identifier?.rawValue == "history.preview.image" })
         let status = try XCTUnwrap(descendants(content).compactMap { $0 as? NSTextField }
             .first { $0.identifier?.rawValue == "history.preview.status" })
+        content.layoutSubtreeIfNeeded()
+        XCTAssertGreaterThan(image.bounds.width, 0)
+        XCTAssertGreaterThan(image.bounds.height, content.bounds.height / 2,
+            "A rejected image still needs an empty viewport so validation can start")
         XCTAssertNil(image.image, "An unverified thumbnail must never flash under A's title")
         let decodeDeadline = ProcessInfo.processInfo.systemUptime + 2
         while !status.stringValue.contains("无法加载") && ProcessInfo.processInfo.systemUptime < decodeDeadline {
             try await Task.sleep(nanoseconds: 20_000_000)
         }
-        XCTAssertTrue(status.stringValue.contains("无法加载"))
+        XCTAssertTrue(status.stringValue.contains("无法加载"),
+            "status=\(status.stringValue), viewport=\(image.bounds), visible=\(preview.isVisible)")
         XCTAssertNil(image.image, "Rejected replacement must not leave B displayed as A")
         XCTAssertTrue(preview.title.contains(String(assetA.id.uuidString.prefix(8))))
         XCTAssertEqual(actions, 0)

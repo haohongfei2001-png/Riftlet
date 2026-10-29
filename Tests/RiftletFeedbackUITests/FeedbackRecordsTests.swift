@@ -151,6 +151,12 @@ final class FeedbackRecordsTests: XCTestCase {
             let sheet = try XCTUnwrap(window.attachedSheet)
             let keep = try button("保留", in: try XCTUnwrap(sheet.contentView))
             XCTAssertTrue(sheet.defaultButtonCell === keep.cell)
+            // The native presentation/layout turn must not replace the safe
+            // default after the controller has returned from beginSheetModal.
+            try await Task.sleep(nanoseconds: 150_000_000)
+            XCTAssertTrue(sheet.defaultButtonCell === keep.cell)
+            XCTAssertEqual(keep.keyEquivalent, "\u{1b}")
+            XCTAssertTrue(try button("取消待发送", in: try XCTUnwrap(sheet.contentView)).keyEquivalent.isEmpty)
             let event = try XCTUnwrap(NSEvent.keyEvent(with: .keyDown, location: .zero, modifierFlags: [],
                 timestamp: ProcessInfo.processInfo.systemUptime, windowNumber: sheet.windowNumber, context: nil,
                 characters: characters, charactersIgnoringModifiers: characters, isARepeat: false, keyCode: keyCode))

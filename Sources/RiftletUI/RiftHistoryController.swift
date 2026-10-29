@@ -48,6 +48,15 @@ private final class HistoryImageCell: NSTableCellView {
     required init?(coder: NSCoder) { fatalError("init(coder:) is not used") }
 }
 
+/// The viewport must exist before a bitmap is decoded. An empty NSImageView's
+/// intrinsic height can otherwise collapse the image area and let the footer
+/// absorb the window, leaving no viewport from which to request that bitmap.
+private final class HistoryPreviewImageView: NSImageView {
+    override var intrinsicContentSize: NSSize {
+        NSSize(width: NSView.noIntrinsicMetric, height: NSView.noIntrinsicMetric)
+    }
+}
+
 /// Explicitly opened local history, with one bounded metadata page and reused
 /// downsampled thumbnails. No adapter, upload, clipboard or deletion capability.
 @MainActor
@@ -341,13 +350,15 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         panel.identifier = .init("RiftletHistoryPreview")
         panel.isReleasedWhenClosed = false; panel.backgroundColor = RiftVisualStyle.window
         panel.minSize = NSSize(width: 360, height: 280); panel.delegate = self
-        let view = NSImageView(); view.identifier = .init("history.preview.image")
+        let view = HistoryPreviewImageView(); view.identifier = .init("history.preview.image")
         view.imageScaling = .scaleProportionallyDown
         let status = RiftVisualStyle.label("正在加载预览…", role: "secondary")
         status.identifier = .init("history.preview.status")
         let reveal = NSButton(title: "在 Finder 中显示", target: self, action: #selector(revealPreview))
         RiftVisualStyle.style(reveal)
         let footer = NSStackView(views: [status, reveal]); footer.spacing = 12
+        footer.setContentHuggingPriority(.defaultHigh, for: .vertical)
+        footer.setContentCompressionResistancePriority(.required, for: .vertical)
         status.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         if let content = panel.contentView {
             for item in [view, footer] { item.translatesAutoresizingMaskIntoConstraints = false; content.addSubview(item) }
@@ -356,6 +367,7 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
                 view.trailingAnchor.constraint(equalTo: content.trailingAnchor, constant: -16),
                 view.topAnchor.constraint(equalTo: content.topAnchor, constant: 12),
                 view.bottomAnchor.constraint(equalTo: footer.topAnchor, constant: -12),
+                view.heightAnchor.constraint(greaterThanOrEqualToConstant: 1),
                 footer.leadingAnchor.constraint(equalTo: content.leadingAnchor, constant: 16),
                 footer.trailingAnchor.constraint(equalTo: content.trailingAnchor, constant: -16),
                 footer.bottomAnchor.constraint(equalTo: content.bottomAnchor, constant: -12),

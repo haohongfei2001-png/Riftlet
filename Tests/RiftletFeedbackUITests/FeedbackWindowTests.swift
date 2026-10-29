@@ -179,7 +179,15 @@ final class FeedbackWindowTests: XCTestCase {
         defer { board.releaseGlobally() }
         XCTAssertTrue(controller.copyDraftText(to: board))
         XCTAssertEqual(board.string(forType: .string), body)
-        XCTAssertEqual(board.types, [.string]); XCTAssertTrue(controller.diagnosticSelected)
+        // AppKit may publish its legacy NSString alias for the same plain text.
+        // Permit only these two known types; URLs, files, images and diagnostics
+        // still have no representation on this private pasteboard.
+        let copiedTypes = Set(try XCTUnwrap(board.types))
+        let plainTextTypes: Set<NSPasteboard.PasteboardType> = [.string, .init("NSStringPboardType")]
+        XCTAssertTrue(copiedTypes.contains(.string))
+        XCTAssertTrue(copiedTypes.isSubset(of: plainTextTypes))
+        for type in copiedTypes { XCTAssertEqual(board.string(forType: type), body) }
+        XCTAssertTrue(controller.diagnosticSelected)
         let before = try await store.records(); XCTAssertTrue(before.isEmpty)
         // Recovery does not run on its own. The explicit retry uses the current
         // body and the original durable save path, then closes only on success.
