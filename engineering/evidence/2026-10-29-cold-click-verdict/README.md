@@ -4,6 +4,8 @@
 
 这是 `codex/riftlet-cold-click-reliability-20261029` 上的隔离实验增量。继承交接 `b4590f4fee8ab43e0ad30d23c980abebe324d20c`、已审生产源码 `c308d46c1412a56e90d665972c0bc8f6ad1511a3`。本轮没有修改任何已有生产源码、测试、准入、旧 gate、权限或数据库。正式 PR #15 在开始核实时仍为 Draft、HEAD `c15fd4b4a27659946ef49280131e875f4d5ab9d1`；本分支没有写入它、PR #1 或 main。
 
+本轮可运行源码：`b031f239100f28c133bec690ab84237fb9d13a58`。新 [macOS CI 40896682733](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40896682733) 在该精确提交首次 **SUCCESS**（attempt 1）；后继仅补公开审查与交接记录，不重跑同一源码。原始 artifact `12907586256` 已下载核对，各文件 hash 保存在审查记录。
+
 ## 一、四类原因分别裁决
 
 完整原始 trace 哈希、关联字段、同域时间线与源码入口见 [causal-audit.md](causal-audit.md)。不能将这四类统一称作一个竞态。
@@ -70,6 +72,6 @@
 
 若严格保留“原生微图、无扩展、任意无证明时刻也必须一次成功”三项条件，本轮没有可安全交付的方案。现行 Beta 必须诚实保留无证明拒绝，不标为已解决。若下一阶段允许调整点击入口，优先投入**浏览器持有原始点击及点击前 witness**，再用最小 Native Messaging 传送原资产；价值是消除该入口对 host 预先 ACK 的依赖，代价是一次扩展/native host 安装、页面内界面以及新的安全/兼容验收。仅更换 AE 为元数据 push 不值得作为解决方案继续投入。
 
-本轮 CI 只运行新增 macOS 探针编译、自检和离线架构比较，并验证 b459 的所有既有文件逐对象不变。完整 App/Swift/AppKit 仍引用已审源码对应的 [既有 CI 40881144683](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40881144683)，没有把它改称新实测。新源码 SHA、独立审查和新 CI 记录在 [review-and-validation.json](review-and-validation.json)。
+本轮 CI 在 macOS 15.8.2 arm64、Swift 6.1.2、Node 22.23.4、Chromium 151.0.7922.34 上运行新增探针编译、自检和离线架构比较，并验证 b459 的 **890 个既有文件对象**不变。一次 fixture 输入与正文/选区/旧附件保持均通过，没有向外部发出请求。完整 App/Swift/AppKit 仍引用已审源码对应的 [既有 CI 40881144683](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40881144683)，没有把它改称新实测。新源码 SHA、独立审查和新 CI 记录在 [review-and-validation.json](review-and-validation.json)。
 
 数据核对见 [retained-data.json](retained-data.json)：三个原数据根全表（含 sqlite_sequence）摘要、32 个操作、7 个 start、3 个补偿和 50 个私有媒体的字节/hash 均与上一已保存快照一致。旧 UNKNOWN、原图和审计未清理、未重输；公开文件只含脱敏结果与原件 hash。

@@ -2,7 +2,7 @@
   "scope": "isolated architecture experiment; no new product admission",
   "baseHandoff": "b4590f4fee8ab43e0ad30d23c980abebe324d20c",
   "unchangedReviewedProductSource": "c308d46c1412a56e90d665972c0bc8f6ad1511a3",
-  "experimentSourceCommit": null,
+  "experimentSourceCommit": "b031f239100f28c133bec690ab84237fb9d13a58",
   "productSourceChangedThisRound": false,
   "newLiveScreenshotUpload": "NOT_RUN",
   "originalNativeNoACKGoal": "UNRESOLVED",
@@ -37,12 +37,74 @@
     }
   },
   "newArchitectureCI": {
-    "result": "NOT_YET_RUN"
+    "result": "SUCCESS",
+    "runID": 40896682733,
+    "jobID": 123527606988,
+    "attempt": 1,
+    "checkout": "b031f239100f28c133bec690ab84237fb9d13a58",
+    "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/40896682733",
+    "artifactID": 12907586256,
+    "artifactBytes": 48009,
+    "artifactSHA256ReportedByGitHub": "096d94257f8cae0d1cb59c5c69d14904a65577139c92e93da2e79c56f09d07e4",
+    "macOS": "15.8.2 (24H232)",
+    "architecture": "arm64",
+    "Swift": "6.1.2",
+    "Node": "v22.23.4",
+    "Chromium": "151.0.7922.34",
+    "Playwright": "1.62.1",
+    "preservedExistingGitObjects": 890,
+    "newProductionSource": false,
+    "browserResult": {
+      "result": "PASS",
+      "fixtureInputCount": 1,
+      "liveInputCount": 0,
+      "state": "inputTriggered",
+      "textSelectionOldAttachmentPreserved": true,
+      "externalRequests": 0,
+      "newProductAdmission": false
+    },
+    "checks": [
+      "unchanged reviewed product tree",
+      "retained historical gate at its original checkpoint",
+      "native probe compile and self-check",
+      "incomplete-observation model",
+      "real offline Chromium page-owned witness experiment"
+    ],
+    "artifactFileSHA256": {
+      "isolation.json": "e97a70c1bcc042b6c5e6e0d52ae42bbcec5916fdd9c3df8dc7e5d7fd56965d07",
+      "retained-reviewed-baseline.json": "fde99617557d6c24951af812ed2a3e34222bb514710a4185716de7db68aa880b",
+      "authority-counterexample.json": "ae302ed3036049ce2d55256a2683e07454e6b3b361aa815b7d0dd76a71472b5f",
+      "browser-lab.json": "1c2bd5900c6ae3449dcfc4ceb938960da1ca0af153cfed0c3a5bb5a3b40d5722",
+      "probe-self-check.txt": "6e60330e13b3ae82920b889eb4512ad5bc3d9c5f50704faeb2d7dde10a547d53",
+      "compiler.txt": "397d818de37b7a684ba905c1b92230e4534ff4cda0daf8a6eabc2a1fcfd50390",
+      "os.txt": "e0a9e270c507499fb163b6bb80e62f10c6fca344ce2c93fa2987fe42caf94b29",
+      "node.txt": "2266957ed9a639bd7264d714bfa798a961510bf2e50695c668ab8fc0c3f4e906"
+    },
+    "downloadedOriginalArtifactSHA256Verified": true
   },
   "retainedFullProductCI": {
     "runID": 40881144683,
     "checkout": "3611a5f7545268893596ff43d046373d128c9f88",
     "result": "SUCCESS_PREVIOUS_RUN_UNCHANGED_SOURCE",
     "scope": "full native Swift/AppKit suite, full release App and self-checks; not a new live acceptance"
+  },
+  "formalPR15ReadOnlyRecheck": {
+    "head": "c15fd4b4a27659946ef49280131e875f4d5ab9d1",
+    "draft": true,
+    "merged": false,
+    "mutatedByThisTask": false
+  },
+  "finalIndependentReview": {
+    "reviewer": "verdict_final_review",
+    "result": "PASS",
+    "reviewedSource": "b031f239100f28c133bec690ab84237fb9d13a58",
+    "artifactReviewed": 12907586256,
+    "newBrowserOrLiveRun": false,
+    "blockingFindings": 0,
+    "scope": "exact experiment commit, CI artifact, public privacy and handoff claims; no production admission",
+    "reviewedHandoffMetadataSHA256BeforeRecordingThisReceipt": {
+      "README.md": "83109339d656d217b98c2b02c0ac89edccae2f3a4cf65e3798718320449e25dc",
+      "review-and-validation.json": "ebe5372f0b4fa0a262fbbcc4d3d639ead1afcc0f68746dce780cd0b8fe33556a"
+    }
   }
 }
