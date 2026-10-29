@@ -309,7 +309,8 @@
       "realUserDesktopCapture": false,
       "realUpload": false,
       "missingPrerequisites": "NOT_RUN_NOT_SYNTHETIC_PASS",
-      "status": "AWAITING_NEW_SOURCE_RUN"
+      "status": "AWAITING_NEW_SOURCE_RUN",
+      "actualExecutionPublicationImportOrPatternFailure": "FAIL_NOT_ENVIRONMENTAL_SKIP"
     }
   }
 }

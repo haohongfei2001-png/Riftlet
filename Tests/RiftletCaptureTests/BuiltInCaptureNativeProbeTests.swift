@@ -109,12 +109,52 @@ private final class NativeCaptureProbeEvidence {
         guard let directory, preGuard, postGuard, pixelPattern, invocations == 1, returned == 1 else {
             throw NativeCaptureProbeFailure(code: "RAW_ARTIFACT_PRIVACY_PROOF_INCOMPLETE")
         }
-        let file = directory.appendingPathComponent("region-original.png")
-        try data.write(to: file, options: .withoutOverwriting)
-        guard chmod(file.path, 0o600) == 0, try Data(contentsOf: file) == data else {
+        let name = "region-original.png"
+        let directoryDescriptor = Darwin.open(directory.path, O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC)
+        guard directoryDescriptor >= 0 else { throw NativeCaptureProbeFailure(code: "RAW_ARTIFACT_DIRECTORY_UNAVAILABLE") }
+        defer { Darwin.close(directoryDescriptor) }
+        details["originalArtifactCandidateFile"] = name
+        details["unverifiedOriginalArtifactMayRemain"] = true
+        let descriptor = openat(directoryDescriptor, name, O_RDWR | O_CREAT | O_EXCL | O_NOFOLLOW | O_CLOEXEC, 0o600)
+        guard descriptor >= 0 else { throw NativeCaptureProbeFailure(code: "RAW_ARTIFACT_EXCLUSIVE_CREATE_FAILED") }
+        defer { Darwin.close(descriptor) }
+        func stillOwnsFile() -> Bool {
+            var held = stat(), named = stat()
+            return fstat(descriptor, &held) == 0 && fstatat(directoryDescriptor, name, &named, AT_SYMLINK_NOFOLLOW) == 0
+                && held.st_mode & mode_t(S_IFMT) == mode_t(S_IFREG) && named.st_mode & mode_t(S_IFMT) == mode_t(S_IFREG)
+                && held.st_uid == geteuid() && named.st_uid == geteuid()
+                && held.st_dev == named.st_dev && held.st_ino == named.st_ino
+                && held.st_birthtimespec.tv_sec == named.st_birthtimespec.tv_sec
+                && held.st_birthtimespec.tv_nsec == named.st_birthtimespec.tv_nsec
+        }
+        defer {
+            if !originalPublished {
+                // Only this exclusive creation is eligible for cleanup. A
+                // replaced/unverifiable entry is retained and explicitly
+                // reported as a possible unverified artifact, never hidden by
+                // rawOriginalPublished=false/originalFile=null.
+                if stillOwnsFile(), unlinkat(directoryDescriptor, name, 0) == 0 {
+                    details["unverifiedOriginalArtifactMayRemain"] = false
+                    details["originalArtifactFailureCleanup"] = "OWNED_FILE_REMOVED"
+                } else {
+                    details["originalArtifactFailureCleanup"] = "IDENTITY_UNVERIFIABLE_OR_REMOVAL_FAILED_NO_OTHER_FILE_DELETED"
+                }
+            }
+        }
+        let handle = FileHandle(fileDescriptor: descriptor, closeOnDealloc: false)
+        try handle.write(contentsOf: data)
+        guard fchmod(descriptor, 0o600) == 0, fsync(descriptor) == 0 else {
             throw NativeCaptureProbeFailure(code: "RAW_ARTIFACT_WRITE_OR_READBACK_FAILED")
         }
+        try handle.seek(toOffset: 0)
+        var heldDirectory = stat(), namedDirectory = stat()
+        guard try handle.readToEnd() == data, stillOwnsFile(), fsync(directoryDescriptor) == 0,
+              fstat(directoryDescriptor, &heldDirectory) == 0, lstat(directory.path, &namedDirectory) == 0,
+              namedDirectory.st_mode & mode_t(S_IFMT) == mode_t(S_IFDIR),
+              heldDirectory.st_dev == namedDirectory.st_dev, heldDirectory.st_ino == namedDirectory.st_ino,
+              stillOwnsFile() else { throw NativeCaptureProbeFailure(code: "RAW_ARTIFACT_WRITE_OR_READBACK_FAILED") }
         originalPublished = true
+        details["unverifiedOriginalArtifactMayRemain"] = false
     }
 
     func flush() throws {
@@ -134,7 +174,7 @@ private final class NativeCaptureProbeEvidence {
 /// One optional real region capture; the ordinary parallel suite skips before
 /// creating a window. This never requests permission, sends events, touches an
 /// existing database or exercises upload. Only verified synthetic original bytes
-/// may be retained in this CI run's private artifact directory.
+/// may be retained in this CI run's artifact directory.
 final class BuiltInCaptureNativeProbeTests: XCTestCase {
     private func require(_ condition: Bool, _ code: String) throws {
         guard condition else { throw NativeCaptureProbeFailure(code: code) }

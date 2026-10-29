@@ -131,6 +131,6 @@ MOV编码、像素复制、等待和hash移入独立actor；MainActor只负责�
 
 局部修补保持最终隐藏文件名，改在新建私有隐藏目录中向系统命令提供普通PNG叶名，以目录描述符、身份核验和linkat排他发布；不替换已有目的地，取消/失败不删除非空输出。Host改用专用built-in导入API，原件和编辑件都记applicationScreenshot；去重遇到其他历史origin拒绝，不重新标记原记录。外部系统截图观察/准入、Core、Adapter与原上传证明不变。该分支的设置key迁移不适用于本候选现有isEnabled，因此未引入。
 
-Native PR新增单独串行、显式opt-in的自有不透明合成窗口region组件探针，每次至多一次实际命令，不补拍、不上传；全量并行与push不会开启此probe。权限/拓扑/遮挡/像素guard不满足即保留NOT_RUN；仅成功证据可保留原PNG与capture.json。其范围限真实Apple CLI→安全发布→私有导入/SQLite，不能替代入口三模式、物理选择、底层焦点或端到端上传。实际次数和结果以新run为准。
+Native PR新增单独串行、显式opt-in的自有不透明合成窗口region组件探针，每次至多一次实际命令，不补拍、不上传；全量并行与push不会开启此probe。权限/拓扑/遮挡前提不满足保留NOT_RUN；实际命令、发布、导入、持久化或输出图案校验失败记FAIL，不放宽成环境跳过。通过完整隐私守卫及原字节核验后才可归档原PNG，结果和次数另存capture.json。其范围限真实Apple CLI→安全发布→私有导入/SQLite，不能替代入口三模式、物理选择、底层焦点或端到端上传。实际次数和结果以新run为准。
 
 恢复后的测试实参顺序错误已由独立工程审查在CI前拦下并局部修正；旧8969d93b/cee67树不作为已批准来源。此轮完整修补需重新固定source SHA/tree、非作者批准与准确Native/Feedback CI，然后以新原尺寸影片确认D18及自然完成。
