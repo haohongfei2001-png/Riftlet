@@ -1,0 +1,69 @@
+name: Integration source objects
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/integration-object-export.yml'
+permissions:
+  contents: read
+jobs:
+  export:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Export code objects without workstation data or historical evidence images
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p integration-objects
+          python3 - <<'PY'
+          import json, pathlib, subprocess
+          def git(*args):
+              return subprocess.check_output(['git', '--no-replace-objects', *args])
+          out = pathlib.Path('integration-objects')
+          # Commit/tree objects retain exact ancestry and fixed audit identities.
+          # Historical screenshot/video blobs and local .git/config are excluded.
+          metadata = {line.split(b' ', 1)[0] for line in
+                      git('rev-list', '--objects', '--all', '--filter=blob:none').splitlines()}
+          suffixes = {'.swift', '.py', '.sh', '.js', '.cjs', '.mjs', '.ts', '.yml', '.yaml',
+                      '.json', '.md', '.txt', '.plist', '.h', '.c', '.modulemap', '.html',
+                      '.css', '.svg', '.toml', '.lock', '.resolved', '.xml', '.command'}
+          selected = set(metadata)
+          for line in git('rev-list', '--objects', '--all').splitlines():
+              parts = line.split(b' ', 1)
+              if len(parts) != 2:
+                  continue
+              oid, raw_path = parts
+              path = raw_path.decode('utf-8', errors='strict')
+              p = pathlib.PurePosixPath(path)
+              if (p.suffix in suffixes or p.name.startswith(('LICENSE', 'NOTICE'))
+                  or path.startswith(('Resources/', 'ThirdPartyNotices/'))
+                  or p.name in {'.gitignore', '.gitattributes', 'Makefile', 'CMakeLists.txt'}):
+                  selected.add(oid)
+          with (out / 'objects.pack').open('wb') as f:
+              subprocess.run(['git', '--no-replace-objects', 'pack-objects', '--stdout'],
+                             input=b'\n'.join(sorted(selected)) + b'\n', stdout=f, check=True)
+          refs = []
+          for line in git('for-each-ref', '--format=%(refname) %(objectname)', 'refs/remotes/origin').decode().splitlines():
+              name, oid = line.split(' ', 1)
+              refs.append({'ref': name, 'sha': oid})
+          (out / 'refs.json').write_text(json.dumps(refs, indent=2) + '\n')
+          report = {'head': git('rev-parse', 'HEAD').decode().strip(),
+                    'selectedObjectCount': len(selected),
+                    'scope': 'Commit/tree graph and tracked code/text/resource blobs; not a complete media clone',
+                    'excluded': 'Historical evidence image/video blobs, git configuration, credentials, untracked files',
+                    'productVerification': 'NOT_RUN; source transport only'}
+          (out / 'manifest.json').write_text(json.dumps(report, indent=2) + '\n')
+          print(json.dumps(report))
+          PY
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: riftlet-integration-objects-${{ github.event.pull_request.head.sha }}
+          path: integration-objects/
+          if-no-files-found: error
+          retention-days: 1
