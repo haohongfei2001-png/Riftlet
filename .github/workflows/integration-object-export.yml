@@ -1,4 +1,4 @@
-name: Integration source objects
+name: Magnet completion diagnosis
 on:
   pull_request:
     paths:
@@ -6,64 +6,76 @@ on:
 permissions:
   contents: read
 jobs:
-  export:
-    if: github.event.pull_request.head.repo.full_name == github.repository
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
+  diagnose:
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.number == 15
+    runs-on: macos-15
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        variant: [direct-main-delegate, completion-delivery-grace]
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
+          ref: 2c8cd0371de5e07fd7794f76335381a40403030d
           fetch-depth: 0
           persist-credentials: false
-      - name: Export code objects without workstation data or historical evidence images
-        shell: bash
+      - name: Verify unchanged inherited source then create isolated diagnostic commit
+        env:
+          VARIANT: ${{ matrix.variant }}
         run: |
           set -euo pipefail
-          mkdir -p integration-objects
+          mkdir -p test-results
+          python3 -B scripts/verify-unified-candidate-composition.py > test-results/inherited-composition.json
           python3 - <<'PY'
-          import json, pathlib, subprocess
-          def git(*args):
-              return subprocess.check_output(['git', '--no-replace-objects', *args])
-          out = pathlib.Path('integration-objects')
-          # Commit/tree objects retain exact ancestry and fixed audit identities.
-          # Historical screenshot/video blobs and local .git/config are excluded.
-          metadata = {line.split(b' ', 1)[0] for line in
-                      git('rev-list', '--objects', '--all', '--filter=blob:none').splitlines()}
-          suffixes = {'.swift', '.py', '.sh', '.js', '.cjs', '.mjs', '.ts', '.yml', '.yaml',
-                      '.json', '.md', '.txt', '.plist', '.h', '.c', '.modulemap', '.html',
-                      '.css', '.svg', '.toml', '.lock', '.resolved', '.xml', '.command'}
-          selected = set(metadata)
-          for line in git('rev-list', '--objects', '--all').splitlines():
-              parts = line.split(b' ', 1)
-              if len(parts) != 2:
-                  continue
-              oid, raw_path = parts
-              path = raw_path.decode('utf-8', errors='strict')
-              p = pathlib.PurePosixPath(path)
-              if (p.suffix in suffixes or p.name.startswith(('LICENSE', 'NOTICE'))
-                  or path.startswith(('Resources/', 'ThirdPartyNotices/'))
-                  or p.name in {'.gitignore', '.gitattributes', 'Makefile', 'CMakeLists.txt'}):
-                  selected.add(oid)
-          with (out / 'objects.pack').open('wb') as f:
-              subprocess.run(['git', '--no-replace-objects', 'pack-objects', '--stdout'],
-                             input=b'\n'.join(sorted(selected)) + b'\n', stdout=f, check=True)
-          refs = []
-          for line in git('for-each-ref', '--format=%(refname) %(objectname)', 'refs/remotes/origin').decode().splitlines():
-              name, oid = line.split(' ', 1)
-              refs.append({'ref': name, 'sha': oid})
-          (out / 'refs.json').write_text(json.dumps(refs, indent=2) + '\n')
-          report = {'head': git('rev-parse', 'HEAD').decode().strip(),
-                    'selectedObjectCount': len(selected),
-                    'scope': 'Commit/tree graph and tracked code/text/resource blobs; not a complete media clone',
-                    'excluded': 'Historical evidence image/video blobs, git configuration, credentials, untracked files',
-                    'productVerification': 'NOT_RUN; source transport only'}
-          (out / 'manifest.json').write_text(json.dumps(report, indent=2) + '\n')
-          print(json.dumps(report))
+          import os, pathlib
+          p = pathlib.Path('Sources/RiftletUI/MagnetFlightPresenter.swift')
+          s = p.read_text()
+          if os.environ['VARIANT'] == 'direct-main-delegate':
+              old = '        DispatchQueue.main.async { [observe, callback] in observe(event); callback(flag) }'
+              new = '''        if Thread.isMainThread {
+                      MainActor.assumeIsolated { observe(event); callback(flag) }
+                  } else {
+                      DispatchQueue.main.async { [observe, callback] in observe(event); callback(flag) }
+                  }'''
+          else:
+              # Diagnostic only: animation remains exactly 560 ms and the existing
+              # driver must still observe a genuine finished=true delegate.
+              old = '+ 0.100, execute: timeout)'
+              new = '+ 0.500, execute: timeout)'
+          assert s.count(old) == 1, 'Diagnostic source precondition changed'
+          p.write_text(s.replace(old, new))
           PY
+          git diff --check
+          git diff --binary > test-results/diagnostic.patch
+          git config user.name 'Riftlet diagnostic executor'
+          git config user.email 'riftlet-diagnostic@users.noreply.github.com'
+          git add Sources/RiftletUI/MagnetFlightPresenter.swift
+          git commit -m "diagnostic-only: $VARIANT; unchanged visual completion gate"
+          git show -s --format=raw HEAD > test-results/diagnostic-commit.txt
+          git rev-parse HEAD HEAD^{tree} > test-results/diagnostic-source.txt
+          sw_vers > test-results/environment.txt
+          swift --version >> test-results/environment.txt
+          # These local diagnostic commits are not pushed or promoted.
+      - name: Establish normal disposable-runner accessibility policy
+        run: |
+          set -euo pipefail
+          defaults write com.apple.universalaccess reduceMotion -bool false
+          defaults write com.apple.universalaccess reduceTransparency -bool false
+          swift -e 'import AppKit; let w = NSWorkspace.shared; print(w.accessibilityDisplayShouldReduceMotion, w.accessibilityDisplayShouldReduceTransparency, w.accessibilityDisplayShouldIncreaseContrast); guard !w.accessibilityDisplayShouldReduceMotion && !w.accessibilityDisplayShouldReduceTransparency && !w.accessibilityDisplayShouldIncreaseContrast else { fatalError("Normal accessibility baseline required") }' | tee test-results/accessibility.txt
+      - name: Build actual native diagnostic helper
+        run: |
+          set -o pipefail
+          swift build -c release --product RiftletGUIAcceptance 2>&1 | tee test-results/build.log
+      - name: Exercise unchanged natural-completion evidence gate
+        run: |
+          set -o pipefail
+          helper="$(swift build -c release --show-bin-path)/RiftletGUIAcceptance"
+          python3 -B scripts/capture-native-visual-evidence.py --helper "$helper" --expected-system-accessibility normal --only-case motion-magnet --only-case motion-interrupt --output "$PWD/test-results/visual" 2>&1 | tee test-results/capture.log
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
         with:
-          name: riftlet-integration-objects-${{ github.event.pull_request.head.sha }}
-          path: integration-objects/
+          name: magnet-diagnostic-${{ matrix.variant }}-${{ github.event.pull_request.head.sha }}
+          path: test-results/
           if-no-files-found: error
-          retention-days: 1
+          retention-days: 3
