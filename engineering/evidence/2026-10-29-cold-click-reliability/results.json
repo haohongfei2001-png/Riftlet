@@ -58,7 +58,7 @@
     "eventSource": "Constructed NSEvent directly invoking production AppKit input-island callbacks",
     "permissionPublicationCases": 11,
     "TCCRealityClaim": false,
-    "currentCI": "PENDING"
+    "currentCI": "PASS"
   },
   "live": {
     "result": "NOT_RUN",
@@ -94,12 +94,90 @@
     "nativeTestsAndHeadlessRunner": "PASS",
     "publicEvidencePrivacy": "PASS",
     "reviewers": "Non-author page and native/browser lanes; root resolves review suggestions",
-    "formalIntegrationApproval": false
+    "formalIntegrationApproval": false,
+    "ciOriginalArtifacts": "PASS",
+    "ciReviewScope": "Original ZIP hashes, all 14 extracted files, 760 numbered native executions, 63 detailed native cases, page/legacy/browser scope, packaged current and legacy JS exact source blobs, actual arm64 binary and strict codesign; App never launched"
   },
-  "ci": null,
+  "ci": {
+    "runID": 40881144683,
+    "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/40881144683",
+    "result": "SUCCESS",
+    "attempt": 1,
+    "checkout": "3611a5f7545268893596ff43d046373d128c9f88",
+    "sameRuntimeSourceAs": "c308d46c1412a56e90d665972c0bc8f6ad1511a3",
+    "jobs": {
+      "source": 123472664044,
+      "native": 123472664424
+    },
+    "environment": {
+      "macOS": "15.7.9 (24G830)",
+      "architecture": "arm64",
+      "swift": "6.1.2",
+      "node": "22.23.2",
+      "playwright": "1.62.1",
+      "chromium": "151.0.7922.34"
+    },
+    "fullNativeNumberedExecutions": 760,
+    "detailedNativeTests": 63,
+    "newPermissionCases": 11,
+    "newAppKitBoundaryCases": 4,
+    "pageVMTests": 97,
+    "legacyObservationVMTests": 61,
+    "headlessBrowserCases": 5,
+    "originalFormalIsolationTests": 24,
+    "independentScopeChecks": 9,
+    "fullReleaseBuild": "PASS",
+    "packagedSelfChecks": "4 PASS, synthetic scope only",
+    "newLiveInputs": 0,
+    "physicalMouse": "NOT_RUN",
+    "intelArchitecture": "NOT_RUN for this increment",
+    "nativeArtifact": {
+      "id": 12900233034,
+      "bytes": 1993373,
+      "sha256": "0e62e3fd9fdd7da044ae0e65a6ec5f50e65c7949da852900aa6c75d69368a0f1"
+    },
+    "sourceArtifact": {
+      "id": 12900416722,
+      "bytes": 1709,
+      "sha256": "c9f464a40a2bd0ca66122c7c5f5c48391607eb2cfeb6f5bfbe4670efcf76fc1a"
+    },
+    "appZip": {
+      "file": "build/Riftlet-Cold-Click-Technical.zip",
+      "bytes": 1970756,
+      "sha256": "68f554e9612ce49a0739340ce4eae46da244f411b8ba6c8f424b783a8f047bee",
+      "downloadedAndVerified": true,
+      "originalZipRepacked": false,
+      "bundleCheck": "PASS",
+      "codesignVerifyStrict": "PASS",
+      "actualMachO": "arm64",
+      "installedOrLaunchedOnUserData": false,
+      "notarized": false
+    },
+    "logSHA256": {
+      "swift-test.log": "3b12bfc7fbba7e266a7eec5704be4fdb4942d019e60a5d1e9967613520718ffa",
+      "cold-native-detailed.log": "728418d457ebae68e0001710cc383e2dc8f2a4107ae8c12cda6edf3beca0f7f5",
+      "cold-browser.log": "31644028d8fc5edfbd9a61101495b328651ad6861ee74b5dd23d71a3698108aa",
+      "web-page.log": "536a2a0fa2d2f8849963bae347e7782d50ca8043564e16f32bbfc85628ceef4c",
+      "legacy-web.log": "5884038e6a6aff9982f3bdfe9d5c7217eeb0ca46b2cf30e28f829d7a0171081a",
+      "build.log": "6f4f3d4bb8627b98418e7b5ea2bdb089f2dd2aaea8497728a4be17f2c339080f"
+    },
+    "noSkippedSteps": true,
+    "testLogFailureOrSkipMarkers": false
+  },
   "remainingDefects": [
     "A click before any complete ACK has no safely attributable target and remains refused; no replay or timestamp backfill",
     "Legacy already-exhausted or operation-bearing registries are preserved and cannot be recycled without independent proof",
     "New real macOS/system-screenshot/ChatGPT/physical acceptance is not established by offline browser or AppKit callback tests"
-  ]
+  ],
+  "handoff": {
+    "formalPR": 15,
+    "formalHeadReadOnlyVerified": "c15fd4b4a27659946ef49280131e875f4d5ab9d1",
+    "productSourcePaths": [
+      "Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js",
+      "Sources/RiftletApp/RiftletMain.swift",
+      "Sources/RiftletApp/AutomationPermissionPublication.swift"
+    ],
+    "replayOrAdmissionChanges": false,
+    "finalDocumentationOnlySuccessor": "Resolve from branch HEAD; runtime remains the reviewed source above"
+  }
 }

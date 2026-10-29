@@ -76,9 +76,9 @@ Chrome 重启 session、终止、原事件早于 ACK、ACK 在按住期间到达
 | 页面 VM 回归 | PASS，97；原旧版本只读观察回归 PASS，61 |
 | 真实 Chromium | PASS，Playwright 1.62.1 + 匹配 Chromium 151.0.7922.34，5 组；全部离线合成 fixture |
 | 基线对照 | 同一 Chromium runner 加载 c15 原页面，准确复现空 lease 耗尽；零真实上传 |
-| 原生编译 | 本地 `swift build --target RiftletApp` PASS；完整 release App／CI 结果见 results.json |
-| AppKit 原事件 | 4 个构造 NSEvent 直接调用真实 input island 的回归；结果由 macOS CI 记录 |
-| 权限乱序 | 11 个确定性 policy＋真实调用接口回归；结果由 macOS CI 记录，不是系统 TCC 撤权验收 |
+| 原生编译 | 本地 `swift build --target RiftletApp` PASS；完整 release App 与 CI 均 PASS |
+| AppKit 原事件 | 4 个构造 NSEvent 直接调用真实 input island 的回归；CI PASS，原日志可复核 |
+| 权限乱序 | 11 个确定性 policy＋真实调用接口回归；CI PASS，原日志可复核，不是系统 TCC 撤权验收 |
 | 真正冷首击／新系统截图／实际附加与快吞噬 | NOT_RUN；现有 UI 控制接口超时，零真实输入 |
 | 人工鼠标、WindowServer 路由、Spaces／多屏 | NOT_RUN；不把构造 NSEvent、AX 或 headless 点击冒充人工 |
 
@@ -111,7 +111,8 @@ begin/chunk/commit/change 各一次，重复 commit 拒绝，提交消息零次�
 3 个补偿记录、50 个私有媒体文件。原图、媒体、原操作、UNKNOWN、锁、补偿和审计均保留；
 私有快照仅留本机，公开不含路径、会话、截图、正文、目标完整身份或原始日志。
 基线私有 manifest SHA-256：`e33565b7ad34ec7c29d705f263fe3c7f4758d3b1a0bfa7237caaeb9525be40ec`。
-最终逐表／媒体比较见 results.json。未启动旧 schema 二进制、未重传、未清库。
+最终三个数据根的全部表计数及逐行规范化内容哈希、50 个媒体的字节哈希全部相等（PASS），见 results.json。
+未启动旧 schema 二进制、未重传、未清库。
 
 页面修改由 native/browser 方向非作者审查，权限修改由页面方向非作者审查；CI／范围 gate 的
 审查建议已落实为固定 blob 执行、净化 Git 环境和有界下载。完整精确源码 review pin 与 CI
@@ -121,3 +122,31 @@ begin/chunk/commit/change 各一次，重复 commit 拒绝，提交消息零次�
 下一项有价值的真实验证是：在 UI 控制恢复且只有一个输入所有者时，用**全新**系统截图与有效
 独立草稿检查截图触发的预绑定／一次输入／真实开始／独立完成，并保留原 click 与 ACK 的因果
 时序。不要重传任何历史操作；不要把本轮受控页面 PASS 宣称为真实 cold-first-click PASS。
+
+## 完整 CI 与准确交接
+
+[Cold click reliability 40881144683](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40881144683)
+首次执行 SUCCESS。CI checkout 为 `3611a5f7545268893596ff43d046373d128c9f88`，相对受审源码
+`c308d46c1412a56e90d665972c0bc8f6ad1511a3` 仅有三份明确元数据变更。
+
+- macOS 15.7.9／arm64／Swift 6.1.2；完整 Swift suite 760 项编号执行通过，专项串行 63 项通过，
+  其中原生权限 11 项及构造 NSEvent 时间边界 4 项均逐例 PASS。专项重复运行不累计为更多唯一用例。
+- 页面 97、旧观察 61、真实离线 Chromium 5 组通过。完整 release App、原四个 synthetic self-check
+  通过；没有把其中的生成图片“软件输入”写成真实系统截图或 ChatGPT 输入。
+- source job `123472664044`：9 项独立来源检查、原正式隔离回归 24 项通过。
+  native job `123472664424`：实际浏览器版本 151.0.7922.34，匹配固定 Playwright 1.62.1。
+- 原制品 `12900233034` 已下载，外包 digest 匹配 GitHub 记录。内部原
+  `Riftlet-Cold-Click-Technical.zip` 为 1,970,756 bytes，SHA-256
+  `68f554e9612ce49a0739340ce4eae46da244f411b8ba6c8f424b783a8f047bee`。
+  包内资源检查、严格签名校验及实际 arm64 Mach-O 均通过；未重打包、未安装到用户目录、未启动它操作旧数据。
+  这是 development/ad-hoc 技术制品，未公证。本增量未重新执行 Intel 架构或整套视觉影片验收。
+
+Pro 可直接以已审源码提交及本分支后继证据作集成输入。实际生产只修改三个文件：页面程序、Main 的
+权限结果归属／更早观察接线，以及新权限发布策略。Core、UI、Capture、SQLite、原队列、来源准入、
+上传开始／完成判据、安全失败和重试保护保持原对象。对应 native/page/browser 回归应一并保留。
+独立 workflow／scope checker 不替代正式 PR #15 的来源门禁；正式负责人决定其集成方式并重新固定
+正式 review pin。本轮最后的 evidence-only 提交不重跑相同 CI，也不冒称它有新的运行结果。
+
+非作者已再次检查原 CI ZIP、14 个解包文件、包内新旧页面精确源码 hash、全部测试日志及
+GitHub 实际 job/step 状态（PASS）。没有 skipped step；760 项编号执行完整覆盖，专项 63 项
+逐例通过。审查期间没有启动 App 或接触用户页面／数据库。
