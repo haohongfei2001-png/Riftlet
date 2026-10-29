@@ -1,0 +1,65 @@
+{
+  "status": "PARTIAL_SYSTEM_SOURCE_PASS_PRODUCT_NOT_RUN",
+  "nativeProductChanged": false,
+  "nativeSource": "e5d77d3c82bf2769387049e533e93073d36ee6fb",
+  "sourcesTree": "51d060f3598a3299b336fcb7213defdff8d06dad",
+  "executedPrivateDriverSHA256": "cd0eefab435c997dd2db9f7800628c83fd97bbbfcce018f3c47c31e3375bacf5",
+  "executedPrivateDriverBinarySHA256": "e1848816575eb2d5e494dbab488a91cf896455bf686423945b7e3e93a15d0085",
+  "attempts": {
+    "systemArea": 1,
+    "systemWindowGuardRefusedBeforeSelection": 1,
+    "cliOwnWindowControl": 1,
+    "appLaunchesByThisTask": 0,
+    "microthumbnailClicks": 0,
+    "inputCount": 0,
+    "uploadStartedCount": 0,
+    "completionCount": 0,
+    "newUnknownCount": 0,
+    "noAckRejections": null,
+    "firstClickSuccessRate": null,
+    "physical": "NOT_RUN"
+  },
+  "timing": {
+    "initialObservationSeconds": 15,
+    "backendLogToFileBirthWallSeconds": 60.57198119163513,
+    "qualification": "Indirect wall-clock metadata difference, not directly measured T0/T1 delay",
+    "exactT0": null,
+    "firstReadableT1": null,
+    "microthumbnailT2": null
+  },
+  "retention": {
+    "screenshotPreferenceValuesUnchanged": true,
+    "originalSystemFilesPreserved": true,
+    "candidateFilesHashed": 31,
+    "businessDatabaseOpened": false,
+    "oldOperationReplayed": false,
+    "admissionsChanged": false,
+    "chatMessageSent": false,
+    "privateArchiveFiles": 26,
+    "privateManifestSHA256": "42fbeef5363596a78982c1cbf5ad3a8cb4ce81669b83570d8b251dc5b0ba3042",
+    "candidateFileSetAndBytesUnchangedAtFinalCheck": true
+  },
+  "inheritedNativeCI": {
+    "id": 40914439852,
+    "headSha": "e5d77d3c82bf2769387049e533e93073d36ee6fb",
+    "status": "completed",
+    "conclusion": "success",
+    "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/40914439852",
+    "repeatedInThisIncrement": false,
+    "scope": "Unchanged native source; not new real product acceptance"
+  },
+  "nonAuthorReview": {
+    "status": "PASS_LIMITED",
+    "role": "natural_independent_review",
+    "scope": "Screenshot provenance, bounded attempt counts, clock limits and evidence; no product admission",
+    "verifiedPrivateManifestFiles": 26,
+    "remainingFindings": [],
+    "sourceAndEvidenceChecks": [
+      "Original PNG and evidence copy SHA, IHDR, chunk CRCs and complete RGBA scanlines",
+      "Original screenshot xattrs and matching engine captureRect",
+      "19 event post/session-receipt pairs; window control stopped before selection",
+      "Private archive hashes and 0700/0600 permissions",
+      "No private paths, chat URLs or credentials in public evidence"
+    ]
+  }
+}

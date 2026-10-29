@@ -1,3 +1,5 @@
+> **2026-10-30 新系统截图来源 PASS / 产品点击尚未执行**：新的CGEvent系统区域路径取得1.17 MB真实PNG；后端日志与文件birthtime间接差约60.57秒，准确T0/T1仍未知。专用Chrome标签被另一任务占用，待明确协调授权；本任务未启动App或输入，无生产源码/准入变更。[本次实际结果](../engineering/evidence/2026-10-30-natural-first-click/native-system-output/README.md)。
+
 > **2026-10-30 系统截图恢复 · 有界 FAIL / 下游 NOT_RUN**：正式产品基线实读 PR #1 `98e66a9`；本独立分支没有启动 Riftlet 或打开旧数据。三次 CGEvent 快捷键对照无新文件，CLI 自有窗口捕获成功但不是正常快捷键来源。已区分原生 touchshield 与浮动容器，修饰键归零/主屏对照仍未证明选区完成。停止条件成立，不扩展架构、不重复上传。[结果与最小复现](../engineering/evidence/2026-10-30-natural-first-click/system-capture-restore/README.md)。
 
 > **2026-10-30 自然原生首击时间链 · 源码/CI/审查 PASS；真实首击 NOT_RUN**：独立分支 `codex/riftlet-natural-first-click-20261030`，源码 `e5d77d3`。修复真实日志交错，补原生同钟观测，完整 macOS CI `40914439852` success。一次软件系统快捷键取样未在配置目录产生可观察新文件，微图点击/新上传均0，不能计算自然成功率；旧媒体、UNKNOWN及准入保留。正式PR #15最新实际head `53ea3a1`，未写其工作树或refs。[结果与精确集成补丁](../engineering/evidence/2026-10-30-natural-first-click/README.md)。
