@@ -84,9 +84,15 @@ public actor TransferCoordinator {
         guard selection.isValid(), acceptedSelections[selection.id] == nil,
               acceptedSelections.count < maximumPendingSelections else { throw RiftletError.invalidTransition }
         acceptedSelections[selection.id] = selection
-        let nanoseconds = UInt64(max(0, selection.deadlineUptime - ProcessInfo.processInfo.systemUptime) * 1_000_000_000)
         expiryTasks[selection.id] = Task { [weak self] in
-            do { try await Task.sleep(nanoseconds: nanoseconds) } catch { return }
+            // Task scheduling can itself be delayed. Compute the remaining
+            // interval when this task actually starts, so that delay is never
+            // added a second time to the original absolute selection deadline.
+            do {
+                try Task.checkCancellation()
+                let remaining = selection.deadlineUptime - ProcessInfo.processInfo.systemUptime
+                if remaining > 0 { try await Task.sleep(nanoseconds: UInt64(remaining * 1_000_000_000)) }
+            } catch { return }
             try? await self?.cancelAcceptedSelection(selection.id, reason: "Accepted selection expired before input")
         }
         do {

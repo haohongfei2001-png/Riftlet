@@ -114,7 +114,7 @@ final class FeedbackRecordsTests: XCTestCase {
         XCTAssertTrue(views(sheetContent).compactMap { $0 as? NSTextField }.contains { $0.stringValue.contains("RF-\(second.prefix(8))") })
         let keep = try button("保留", in: sheetContent)
         XCTAssertTrue(sheet.defaultButtonCell === keep.cell)
-        XCTAssertEqual(keep.keyEquivalent, "\u{1b}")
+        XCTAssertEqual(keep.keyEquivalent, "\r")
         XCTAssertTrue(try button("取消待发送", in: sheetContent).keyEquivalent.isEmpty)
         // A refresh cannot retarget a pending confirmation to another row.
         await controller.refreshRecords()
@@ -149,14 +149,19 @@ final class FeedbackRecordsTests: XCTestCase {
         for (characters, keyCode) in [("\r", UInt16(36)), ("\u{1b}", UInt16(53))] {
             try button("取消待发送", in: card(id, in: controller)).performClick(nil)
             let sheet = try XCTUnwrap(window.attachedSheet)
-            let keep = try button("保留", in: try XCTUnwrap(sheet.contentView))
+            let sheetContent = try XCTUnwrap(sheet.contentView)
+            let keep = try button("保留", in: sheetContent)
+            let cancellation = try XCTUnwrap(sheetContent.nextResponder)
+            let originalNextResponder = cancellation.nextResponder
+            XCTAssertFalse(cancellation === sheet)
             XCTAssertTrue(sheet.defaultButtonCell === keep.cell)
             // The native presentation/layout turn must not replace the safe
             // default after the controller has returned from beginSheetModal.
             try await Task.sleep(nanoseconds: 150_000_000)
             XCTAssertTrue(sheet.defaultButtonCell === keep.cell)
-            XCTAssertEqual(keep.keyEquivalent, "\u{1b}")
-            XCTAssertTrue(try button("取消待发送", in: try XCTUnwrap(sheet.contentView)).keyEquivalent.isEmpty)
+            XCTAssertTrue(sheetContent.nextResponder === cancellation)
+            XCTAssertEqual(keep.keyEquivalent, "\r")
+            XCTAssertTrue(try button("取消待发送", in: sheetContent).keyEquivalent.isEmpty)
             let event = try XCTUnwrap(NSEvent.keyEvent(with: .keyDown, location: .zero, modifierFlags: [],
                 timestamp: ProcessInfo.processInfo.systemUptime, windowNumber: sheet.windowNumber, context: nil,
                 characters: characters, charactersIgnoringModifiers: characters, isARepeat: false, keyCode: keyCode))
@@ -164,10 +169,12 @@ final class FeedbackRecordsTests: XCTestCase {
             // event is not claimed as physical keyboard/VoiceOver acceptance.
             if !sheet.performKeyEquivalent(with: event) { sheet.sendEvent(event) }
             for _ in 0..<100 {
-                if window.attachedSheet == nil { break }
+                if window.attachedSheet == nil && sheetContent.nextResponder !== cancellation { break }
                 try await Task.sleep(nanoseconds: 10_000_000)
             }
             XCTAssertNil(window.attachedSheet, "The non-destructive action must dismiss this sheet")
+            XCTAssertTrue(sheetContent.nextResponder === originalNextResponder,
+                "Every dismissal restores the original responder chain")
             let records = try await store.records()
             XCTAssertEqual(records.first { $0.id == id }?.state, .queued)
             XCTAssertEqual(records.first { $0.id == id }?.attempts, 0)

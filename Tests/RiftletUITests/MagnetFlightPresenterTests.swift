@@ -96,7 +96,10 @@ final class MagnetFlightPresenterTests: XCTestCase {
     }
 
     @MainActor func testNaturalFinishAndExplicitCloseReleaseWithoutReplayingCompletion() async throws {
-        let (plan, image, scale) = try fixture(short: true)
+        // Exercise the real 560ms trajectory. A compressed 50ms fixture can
+        // legitimately expire while AppKit constructs its native window and
+        // choose static fallback before there is any animation to complete.
+        let (plan, image, scale) = try fixture()
         let presenter = MagnetFlightPresenter()
         var completions: [MagnetFlightCompletion] = []
         XCTAssertTrue(presenter.start(assetID: UUID(), image: image, plan: plan, backingScale: scale) {

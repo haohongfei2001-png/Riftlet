@@ -436,19 +436,52 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
         let destructive = alert.addButton(withTitle: button)
         let keep = alert.addButton(withTitle: "保留")
         destructive.keyEquivalent = ""
-        keep.keyEquivalent = "\u{1b}"; keep.keyEquivalentModifierMask = []
+        keep.keyEquivalent = "\r"; keep.keyEquivalentModifierMask = []
         alert.layout()
-        alert.window.initialFirstResponder = keep
-        alert.beginSheetModal(for: window) { response in
+        let sheet = alert.window
+        sheet.initialFirstResponder = keep
+        let cancellation = FeedbackSheetCancellationResponder()
+        // nextResponder is unowned. The completion retains this responder until
+        // it has restored the sheet's original chain on every dismissal path.
+        alert.beginSheetModal(for: window) { [cancellation] response in
+            cancellation.detach()
             guard response == .alertFirstButtonReturn else { return }
             Task { @MainActor in await operation() }
         }
-        // AppKit finalizes the sheet's default during presentation. Bind Return
-        // only after all key equivalents and sheet setup are complete; setting
-        // it before the Escape equivalent/presentation loses the default on macOS.
-        // This is synchronous, before the next keyboard event can be delivered.
-        alert.window.defaultButtonCell = keep.cell as? NSButtonCell
-        alert.window.makeFirstResponder(keep)
+        // NSWindow sets the default cell's key equivalent to Return. Escape
+        // therefore uses this sheet's cancelOperation chain, not a second key
+        // equivalent on the same button. All setup finishes synchronously.
+        sheet.defaultButtonCell = keep.cell as? NSButtonCell
+        sheet.makeFirstResponder(keep)
+        cancellation.install(on: sheet)
+    }
+}
+
+@MainActor
+private final class FeedbackSheetCancellationResponder: NSResponder {
+    private weak var sheet: NSWindow?
+    private weak var content: NSView?
+    private var originalNextResponder: NSResponder?
+
+    func install(on sheet: NSWindow) {
+        guard let content = sheet.contentView else { return }
+        self.sheet = sheet; self.content = content
+        originalNextResponder = content.nextResponder
+        nextResponder = originalNextResponder
+        content.nextResponder = self
+    }
+
+    func detach() {
+        if let content, content.nextResponder === self {
+            content.nextResponder = originalNextResponder
+        }
+        nextResponder = nil; originalNextResponder = nil
+        content = nil; sheet = nil
+    }
+
+    override func cancelOperation(_ sender: Any?) {
+        guard let sheet, let parent = sheet.sheetParent, parent.attachedSheet === sheet else { return }
+        parent.endSheet(sheet, returnCode: .alertSecondButtonReturn)
     }
 }
 
