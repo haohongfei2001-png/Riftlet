@@ -56,6 +56,33 @@ final class InteractiveScreenshotPublicationTests: XCTestCase {
 
     private func quote(_ url: URL) -> String { "'" + url.path.replacingOccurrences(of: "'", with: "'\\''") + "'" }
 
+    private func assertDirectoryContainsOnly(_ expected: URL, in directory: URL,
+                                            file: StaticString = #filePath, line: UInt = #line) throws {
+        let entries = try FileManager.default.contentsOfDirectory(at: directory, includingPropertiesForKeys: nil)
+        XCTAssertEqual(entries.count, 1, "The complete directory must contain exactly the expected file", file: file, line: line)
+        let entry = try XCTUnwrap(entries.only, file: file, line: line)
+        XCTAssertEqual(entry.lastPathComponent, expected.lastPathComponent, file: file, line: line)
+        // Foundation may return /private/var for an enumerated /var URL even
+        // after resolving the fixture root. Compare the actual entries without
+        // following symlinks; a basename match alone is insufficient.
+        var listed = stat(), requested = stat()
+        let listedResult = lstat(entry.path, &listed)
+        let requestedResult = lstat(expected.path, &requested)
+        XCTAssertEqual(listedResult, 0, "Enumerated entry must exist", file: file, line: line)
+        XCTAssertEqual(requestedResult, 0, "Expected entry must exist", file: file, line: line)
+        guard listedResult == 0, requestedResult == 0 else { return }
+        XCTAssertEqual(listed.st_mode & mode_t(S_IFMT), mode_t(S_IFREG), file: file, line: line)
+        XCTAssertEqual(requested.st_mode & mode_t(S_IFMT), mode_t(S_IFREG), file: file, line: line)
+        XCTAssertEqual(listed.st_dev, requested.st_dev, file: file, line: line)
+        XCTAssertEqual(listed.st_ino, requested.st_ino, file: file, line: line)
+        XCTAssertEqual(listed.st_birthtimespec.tv_sec, requested.st_birthtimespec.tv_sec, file: file, line: line)
+        XCTAssertEqual(listed.st_birthtimespec.tv_nsec, requested.st_birthtimespec.tv_nsec, file: file, line: line)
+        XCTAssertEqual(listed.st_uid, requested.st_uid, file: file, line: line)
+        XCTAssertEqual(listed.st_uid, geteuid(), file: file, line: line)
+        XCTAssertEqual(listed.st_size, requested.st_size, file: file, line: line)
+        XCTAssertEqual(listed.st_mode & 0o777, requested.st_mode & 0o777, file: file, line: line)
+    }
+
     @MainActor
     func testOrdinaryStagedLeafPublishesHiddenOriginalWithoutReencoding() async throws {
         let fixture = try Fixture()
@@ -79,7 +106,7 @@ final class InteractiveScreenshotPublicationTests: XCTestCase {
         XCTAssertEqual(lstat(fixture.final.path, &info), 0)
         XCTAssertEqual(info.st_mode & 0o777, 0o600)
         XCTAssertTrue(try fixture.stageFiles().isEmpty)
-        XCTAssertEqual(try FileManager.default.contentsOfDirectory(at: fixture.captures, includingPropertiesForKeys: nil), [fixture.final])
+        try assertDirectoryContainsOnly(fixture.final, in: fixture.captures)
     }
 
     @MainActor
@@ -170,7 +197,7 @@ final class InteractiveScreenshotPublicationTests: XCTestCase {
         XCTAssertFalse(FileManager.default.fileExists(atPath: fixture.final.path))
         let staged = try XCTUnwrap(try fixture.stageFiles(in: displaced).only)
         XCTAssertEqual(try Data(contentsOf: staged), fixture.bytes)
-        XCTAssertEqual(try FileManager.default.contentsOfDirectory(at: fixture.captures, includingPropertiesForKeys: nil), [sentinel])
+        try assertDirectoryContainsOnly(sentinel, in: fixture.captures)
     }
 
     @MainActor

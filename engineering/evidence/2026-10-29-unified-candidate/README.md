@@ -150,3 +150,13 @@ push严格正常磁力测试得到timedOut；其raw stopped=true断言未失败�
 原始依据：Apple [preferredScrollerStyle](https://developer.apple.com/documentation/appkit/nsscroller/preferredscrollerstyle) 明确系统可在运行中自动更新所有scroll view并retile；[scrollerWidth(for:scrollerStyle:)](https://developer.apple.com/documentation/appkit/nsscroller/scrollerwidth(for:scrollerstyle:)) 提供对应原生宽度。本轮不以加等待、延长动效或接受nil/timeout来收口。
 
 非作者已精确核准本轮七路径修补tree `eaffe8ad665cb56ba4c403ab665ca15543d913e0`，canonical源码 `ee6149bad38b5ed0fbc2b803c8891df909d6940e`、parent5ed与冻结本地检查点完全同tree，工作树干净。当前仅更新既定三条来源元数据，历史审计、CI顺序、原所有失败断言及原磁力时长/100ms清理上限不变。新准确Native/Feedback、单次受控组件和原尺寸影片仍待运行，不能继承先前通过。
+
+## 第十一轮：验证夹具按真实文件身份与持久化事件判断
+
+`2265afc9` 的 Native PR `40821858383` / push `40821851037` 编译成功并各调度667项，PR两项、push三项失败。两份完整日志没有磁力/设置的新失败，但成功的并行stdout被抑制，详细suite和新MOV尚未执行，不能宣布视觉或时序稳定。Feedback PR `40821858400` 为46唯一原生PASS、52调用、0skip，服务20/隔离88；完整source.tar855对象与2265精确匹配。新App、视觉及真实组件仍NOT_RUN，实际Apple命令调用0。
+
+上一轮仅对fixture根调用resolvingSymlinksInPath不足：Foundation目录枚举仍返回/private/var而派生URL使用/var。两个原列表断言改为严格完整目录必须恰含1项、basename一致、lstat不跟随链接且双方均regular，并比较dev/inode/birth/UID/size/权限。它仍拒绝多余文件、符号链接、错误身份和残留stage，原字节、排他、取消和替换目录保护断言不变；不再拿URL字符串形式当文件身份。
+
+push既有AcceptedSelectionQueue测试在固定150ms休眠后读到B仍prepared。原生产和该测试之前都未改，日志不足以证明永久漏清理。生产的绝对deadline授权、输入前后复核和UNKNOWN锁定独立于异步清理是否已落库。仅该测试改为通过既有onChange只读核同一B已durably failed后单次通知、在5秒有界失败窗口内等待真实事件；B的50ms有效期保持，测试不主动触发取消或drain。原B failed、A unresolved、inputs只有A、A完成后也不发B的断言全部保留，并校验观察时间不早于原deadline及原token失效。输出计划/观察时钟用于后续审查。这是异步测试完成同步修正，不改变生产deadline或安全条件，也不是把prepared作为通过。
+
+本轮只改变两个测试文件和本目录两份事实记录；所有产品、helper、CI顺序、来源政策均保持。需要新的非作者精确源码审查、固定pin和准确CI，尚无新的通过结论。
