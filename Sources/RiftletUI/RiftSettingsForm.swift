@@ -13,6 +13,7 @@ public struct RiftSettingsDisplay: Equatable, Sendable {
 public struct RiftSettingsSnapshot: Equatable, Sendable {
     public var entryAvailable: Bool
     public var entryEnabled: Bool
+    public var capturePreferencesSaveFailed: Bool
     public var defaultCaptureMode: ScreenshotMode
     public var arrivalMode: ArrivalMotionMode
     public var hasArrivalSelection: Bool
@@ -21,10 +22,12 @@ public struct RiftSettingsSnapshot: Equatable, Sendable {
     public var archiveAfterHours: Double?
 
     public init(entryAvailable: Bool = false, entryEnabled: Bool = true,
+                capturePreferencesSaveFailed: Bool = false,
                 defaultCaptureMode: ScreenshotMode = .window, arrivalMode: ArrivalMotionMode = .none,
                 hasArrivalSelection: Bool = false, displays: [RiftSettingsDisplay] = [],
                 preferredDisplayID: UInt32? = nil, archiveAfterHours: Double? = nil) {
         self.entryAvailable = entryAvailable; self.entryEnabled = entryEnabled
+        self.capturePreferencesSaveFailed = capturePreferencesSaveFailed
         self.defaultCaptureMode = defaultCaptureMode; self.arrivalMode = arrivalMode
         self.hasArrivalSelection = hasArrivalSelection; self.displays = displays
         self.preferredDisplayID = preferredDisplayID; self.archiveAfterHours = archiveAfterHours
@@ -37,12 +40,13 @@ public enum RiftSettingsChange: Equatable, Sendable {
 }
 
 /// Embedded settings reuse the existing host persistence. A failed write keeps
-/// the previous selection; refreshing never opens a window or starts a capture.
+/// the actual effective state, including an immediate unsaved disable. Refreshing
+/// never opens a window or starts a capture.
 @MainActor
 final class RiftSettingsForm: NSObject {
     private(set) var snapshot = RiftSettingsSnapshot()
     private let onChange: (RiftSettingsChange) throws -> RiftSettingsSnapshot
-    private let entry = NSButton(checkboxWithTitle: "启用预测式截图入口", target: nil, action: nil)
+    private let entry = NSButton(checkboxWithTitle: "启用内置截图", target: nil, action: nil)
     private let captureMode = NSPopUpButton(frame: .zero, pullsDown: false)
     private let arrivalMode = NSPopUpButton(frame: .zero, pullsDown: false)
     private let display = NSPopUpButton(frame: .zero, pullsDown: false)
@@ -63,6 +67,7 @@ final class RiftSettingsForm: NSObject {
         super.init()
         entry.target = self; entry.action = #selector(toggleEntry)
         entry.identifier = .init("settings.entryEnabled")
+        entry.setAccessibilityLabel("启用内置截图")
         captureMode.addItems(withTitles: ["窗口", "区域", "全屏"])
         captureMode.target = self; captureMode.action = #selector(selectCaptureMode)
         captureMode.identifier = .init("settings.captureMode"); captureMode.setAccessibilityLabel("默认截图方式")
@@ -122,7 +127,10 @@ final class RiftSettingsForm: NSObject {
         display.isEnabled = enabled
         let disconnected = value.preferredDisplayID.map { selected in !value.displays.contains { $0.id == selected } } ?? false
         displayHint.stringValue = disconnected ? "已选显示器暂未连接，当前使用可用主屏；连接恢复后自动回到原选择。" : "选择会保留。显示器断开时，临时使用可用主屏。"
-        entryHint.stringValue = value.entryAvailable ? "默认方式在下一次入口会话生效；当前截图模式与槽位保持。关闭入口仍可收录系统截图。" : "此运行模式未启用截图入口；已有本地截图和历史保持可用。"
+        entryHint.stringValue = value.entryAvailable ? "默认方式在下一次入口会话生效；当前截图模式与槽位保持。关闭内置截图仍可收录系统截图。" : "此运行模式未启用截图入口；已有本地截图和历史保持可用。"
+        if value.capturePreferencesSaveFailed {
+            entryHint.stringValue = Self.captureSaveFailureMessage(value)
+        }
         if hours.currentEditor() == nil { hours.stringValue = value.archiveAfterHours.map { String(format: "%.6g", $0) } ?? "0" }
         if hours.isEnabled != enabled { hours.isEnabled = enabled }
         archiveSave.isEnabled = enabled
@@ -179,12 +187,24 @@ final class RiftSettingsForm: NSObject {
         do {
             let saved = try onChange(change)
             update(saved, enabled: enabled)
-            message.stringValue = "已保存"; message.textColor = RiftVisualStyle.secondary
+            switch change {
+            case .entryEnabled, .defaultCaptureMode:
+                message.stringValue = saved.capturePreferencesSaveFailed ? Self.captureSaveFailureMessage(saved) : "已保存"
+                message.textColor = saved.capturePreferencesSaveFailed ? .systemOrange : RiftVisualStyle.secondary
+            default:
+                message.stringValue = "已保存"; message.textColor = RiftVisualStyle.secondary
+            }
         } catch {
             update(snapshot, enabled: enabled)
             message.stringValue = "未能保存，仍保留原来的设置。请稍后重试。"; message.textColor = .systemOrange
         }
         message.isHidden = false; RiftVisualStyle.applyTextStyle(message)
+    }
+
+    private static func captureSaveFailureMessage(_ value: RiftSettingsSnapshot) -> String {
+        value.entryEnabled
+            ? "设置未能保存；继续使用当前生效的内置截图设置。请检查可用存储空间后重试。"
+            : "内置截图当前已关闭；设置尚未保存，重启可能恢复先前设置。请检查可用存储空间后重试。"
     }
 
     @objc private func toggleEntry() { guard entry.isEnabled else { return }; apply(.entryEnabled(entry.state == .on)) }

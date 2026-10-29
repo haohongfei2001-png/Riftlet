@@ -456,8 +456,8 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             do {
                 screenshotEntry = try ScreenshotEntryHost(root: root, store: store, rift: rift,
                     onChange: { [weak self] in await self?.refresh() },
-                    onIssue: { [weak self] message in self?.showIssue(message) },
-                    onPreferencesChange: { [weak self] in self?.updateSetup() })
+                    onIssue: { [weak self] message in self?.showIssue(message) })
+                screenshotEntry?.onPreferencesChanged = { [weak self] in self?.updateSetup() }
                 screenshotEntry?.setHidden(userHidden)
             } catch { showIssue("截图入口暂不可用，已有截图收录和队列仍保留。") }
         }
@@ -609,7 +609,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
 
     private func updateSetup() {
         let issue: SetupIssue? = visibilitySettingFailed ? .visibilityPreferenceUnsaved
-            : (collectionSettingFailed ? .collectionPreferenceUnsaved : (captureDiagnostic.map(ProductStatus.issue) ?? setupIssue))
+            : (collectionSettingFailed ? .collectionPreferenceUnsaved
+                : (screenshotEntry?.preferenceSaveFailed == true ? .screenshotPreferenceUnsaved
+                    : (captureDiagnostic.map(ProductStatus.issue) ?? setupIssue)))
         let attachment = mode.attachmentState
         let source = ProductStatus.sourceState(detectedSource: detectedSource, observation: captureStatus,
             systemCollection: mode.collectsSystemScreenshots, paused: captureIsPaused, initialized: initialized)
@@ -620,7 +622,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             attachment: attachment, permission: ProductStatus.permission(automationPermission),
             permissionDetail: mode.usesWebAdapter ? ProductStatus.chromeJavaScriptHelp : nil,
             storage: setupStorage, issue: issue, supportDescription: ProductStatus.supportDescription,
-            isChecking: captureControl.isBusy || requestingPermission || !initialized)
+            isChecking: captureControl.isBusy || requestingPermission || !initialized,
+            builtInScreenshotEnabled: screenshotEntry?.isEnabled,
+            defaultScreenshotMode: screenshotEntry?.defaultMode ?? .window)
         if setup?.presentation.snapshot != snapshot { setup?.update(snapshot: snapshot) }
         setup?.updateSettings(settingsSnapshot())
         let presentation = SetupPresentation(snapshot: snapshot)
@@ -643,6 +647,8 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
 
     @objc private func showFeedback() { screenshotEntry?.cancel(); feedback.open() }
 
+    // A deliberate host window must never sit underneath a live selection
+    // panel: clicking its controls would otherwise create a screenshot.
     @objc private func showSetup() { screenshotEntry?.cancel(); updateSetup(); setup?.show() }
     @objc private func showOnboarding() { screenshotEntry?.cancel(); updateSetup(); setup?.showOnboarding() }
 
@@ -1441,7 +1447,8 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             return RiftSettingsDisplay(id: id, name: screen.localizedName)
         }
         return RiftSettingsSnapshot(entryAvailable: screenshotEntry != nil,
-            entryEnabled: screenshotEntry?.isEnabled ?? true,
+            entryEnabled: screenshotEntry?.isEnabled ?? false,
+            capturePreferencesSaveFailed: screenshotEntry?.preferenceSaveFailed ?? false,
             defaultCaptureMode: screenshotEntry?.defaultMode ?? .window,
             arrivalMode: arrivalPreferences?.mode ?? .provisionalFallback,
             hasArrivalSelection: arrivalPreferences?.selectedMode != nil,
@@ -1454,10 +1461,10 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         switch change {
         case .entryEnabled(let enabled):
             guard let screenshotEntry else { throw CocoaError(.fileWriteUnknown) }
-            try screenshotEntry.setEnabled(enabled)
+            screenshotEntry.setEnabled(enabled)
         case .defaultCaptureMode(let mode):
             guard let screenshotEntry else { throw CocoaError(.fileWriteUnknown) }
-            try screenshotEntry.selectDefaultMode(mode)
+            screenshotEntry.saveDefault(mode)
         case .arrivalMode(let mode):
             guard var value = arrivalPreferences else { throw CocoaError(.fileWriteUnknown) }
             try value.select(mode)

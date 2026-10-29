@@ -125,7 +125,14 @@ private final class MagnetAnimationEnd: NSObject, CAAnimationDelegate {
     func animationDidStop(_ anim: CAAnimation, finished flag: Bool) {
         let event = MagnetAnimationObservation(phase: .stopped, uptime: ProcessInfo.processInfo.systemUptime,
             finished: flag, wasMainThread: Thread.isMainThread)
-        DispatchQueue.main.async { [observe, callback] in observe(event); callback(flag) }
+        // A completion already delivered on the UI thread must not queue
+        // another turn behind a due watchdog. Off-main delegates still hop
+        // safely; only the real finished flag can finish a flight successfully.
+        if Thread.isMainThread {
+            MainActor.assumeIsolated { observe(event); callback(flag) }
+        } else {
+            DispatchQueue.main.async { [observe, callback] in observe(event); callback(flag) }
+        }
     }
 }
 
@@ -265,7 +272,13 @@ public final class MagnetFlightPresenter {
             finish(generation: token, reason: .cancelled)
             return false
         }
-        DispatchQueue.main.asyncAfter(deadline: .now() + max(0, plan.totalDuration - (CACurrentMediaTime() - assetReadyCA)) + 0.100, execute: timeout)
+        // This is bounded resource cleanup, NOT the animation clock or a
+        // completion criterion. WindowServer/delegate delivery can lag the
+        // final rendered frame during capture/composition. Keep the original
+        // 560 ms trajectory and live input islands; allow 500 ms to deliver a
+        // genuine finished=true callback before reporting timedOut. A timeout
+        // never becomes finished and never changes upload/retry authority.
+        DispatchQueue.main.asyncAfter(deadline: .now() + max(0, plan.totalDuration - (CACurrentMediaTime() - assetReadyCA)) + 0.500, execute: timeout)
         return true
     }
 

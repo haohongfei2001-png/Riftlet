@@ -38,8 +38,9 @@ public struct InteractiveScreenshotCapture: Sendable {
     public let pixelWidth: Int
     public let pixelHeight: Int
     public let options: InteractiveScreenshotOptions
-    /// Read from the actual system output. Never inferred from a filename or command.
-    /// False must not be relabelled as systemScreenshot to borrow candidate admission.
+    /// Read from the actual tool output, for diagnostics only. All captures
+    /// initiated here remain applicationScreenshot even when Apple writes this
+    /// marker. It never grants the original systemScreenshot upload admission.
     public let hasSystemScreenshotMetadata: Bool
 }
 
@@ -62,6 +63,7 @@ public enum InteractiveScreenshotError: Error, Equatable, Sendable, LocalizedErr
     case captureOverlayStillVisible
     case unsafeOutputDirectory
     case invalidOutput
+    case unexpectedPixelDimensions
     case imageTooLarge
 
     public var errorDescription: String? {
@@ -77,6 +79,7 @@ public enum InteractiveScreenshotError: Error, Equatable, Sendable, LocalizedErr
         case .captureOverlayStillVisible: return "截图界面尚未完全隐藏，本次没有拍摄；请重试。"
         case .unsafeOutputDirectory: return "无法安全访问应用内截图保存目录。"
         case .invalidOutput: return "系统没有返回完整有效的 PNG 截图。"
+        case .unexpectedPixelDimensions: return "系统返回的截图尺寸与所选区域不一致；原文件已保留，请重新选择。"
         case .imageTooLarge: return "截图超出本地图片处理范围；原始文件未被改写。"
         }
     }
@@ -100,6 +103,16 @@ struct InteractiveScreenshotTarget: Equatable, Sendable {
     let quartzRect: CGRect
     let displays: [InteractiveScreenshotDisplay]
     let window: InteractiveScreenshotWindow?
+    /// The complete desktop at selection time, including displays outside the
+    /// selected rectangle. Attaching a display into a former gap changes what a
+    /// global rectangle captures even when its original display is unchanged.
+    let topology: [InteractiveScreenshotDisplay]
+
+    init(rect: CGRect, quartzRect: CGRect, displays: [InteractiveScreenshotDisplay],
+         window: InteractiveScreenshotWindow?, topology: [InteractiveScreenshotDisplay]? = nil) {
+        self.rect = rect; self.quartzRect = quartzRect; self.displays = displays
+        self.window = window; self.topology = topology ?? displays
+    }
 }
 
 struct InteractiveScreenshotRequest: Equatable, Sendable {
@@ -185,7 +198,19 @@ enum InteractiveScreenshotGeometry {
         let rect = CGRect(x: min(from.x, to.x), y: min(from.y, to.y),
                           width: abs(from.x - to.x), height: abs(from.y - to.y)).intersection(desktop)
         guard isUsable(rect), displays.contains(where: { $0.frame.intersects(rect) }) else { return nil }
-        return rect
+        // The retained screencapture backend consumes integral logical points.
+        // Snap the *visible* selection to that same grid, rather than silently
+        // expanding only the command rectangle after the user releases. This
+        // does not claim half-point/odd-pixel selection on Retina displays.
+        return rect.integral.intersection(desktop)
+    }
+
+    static func sameTopology(_ expected: [InteractiveScreenshotDisplay],
+                             _ current: [InteractiveScreenshotDisplay]) -> Bool {
+        guard !expected.isEmpty, expected.count == current.count,
+              Set(expected.map(\.id)).count == expected.count,
+              Set(current.map(\.id)).count == current.count else { return false }
+        return expected.allSatisfy { display in current.contains(display) }
     }
 }
 
@@ -205,8 +230,10 @@ enum InteractiveScreenshotCommand {
             arguments += ["-l", String(window.id)]
         } else {
             // -R addresses exact global coordinates, unlike -D's display ordinal.
-            // The system receives points and produces its native pixel dimensions.
-            let rect = request.target.quartzRect.integral
+            // Preview/selection already uses this grid. Do not silently enlarge
+            // an unaligned request here: that would disagree with its highlight.
+            let rect = request.target.quartzRect
+            guard rect == rect.integral else { throw InteractiveScreenshotError.invalidSelection }
             arguments += ["-R", "\(Int(rect.minX)),\(Int(rect.minY)),\(Int(rect.width)),\(Int(rect.height))"]
         }
         arguments.append(outputURL.path)

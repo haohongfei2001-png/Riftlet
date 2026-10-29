@@ -44,9 +44,38 @@ concurrency:
   group: native-foundation-${{ github.ref }}
   cancel-in-progress: true
 jobs:
+  source_admission:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify exact final source admission and immutable inherited audits
+        run: |
+          set -o pipefail
+          mkdir -p test-results
+          python3 -B -m unittest discover -s Tests/FinalProductIsolation -v 2>&1 | tee test-results/final-isolation-tests.log
+          python3 -B -m unittest discover -s Tests/UnifiedCandidateIsolation -v 2>&1 | tee test-results/unified-isolation-tests.log
+          python3 -B -m unittest discover -s Tests/ThinEdgeIsolation -v 2>&1 | tee test-results/thin-edge-isolation-tests.log
+          python3 -B -m unittest discover -s Tests/BuiltInCaptureIsolation -v 2>&1 | tee test-results/builtin-isolation-tests.log
+          python3 -B scripts/verify-final-product-composition.py 2>&1 | tee test-results/final-product-composition.log
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: final-source-admission-${{ github.sha }}
+          path: test-results/
+          retention-days: 14
   macos:
-    runs-on: macos-15
-    timeout-minutes: 15
+    # Native verification is independent, not an exception to admission. The
+    # workflow fails if source_admission fails; no unreviewed tree is promoted.
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [macos-15, macos-15-intel]
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
@@ -57,13 +86,6 @@ jobs:
           swift --version
           sw_vers
           uname -m
-      - name: Verify reviewed unified composition and rejection paths
-        run: |
-          set -o pipefail
-          mkdir -p test-results
-          python3 -B scripts/verify-unified-candidate-composition.py 2>&1 | tee test-results/unified-composition.log
-          python3 -B -m unittest discover -s Tests/UnifiedCandidateIsolation -v 2>&1 | tee test-results/unified-isolation-tests.log
-          python3 -B -m unittest discover -s Tests/ThinEdgeIsolation -v 2>&1 | tee test-results/thin-edge-isolation-tests.log
       - name: Replay archived Web evidence offline
         run: |
           set -o pipefail
@@ -103,6 +125,12 @@ jobs:
           defaults write com.apple.universalaccess reduceMotion -bool false
           defaults write com.apple.universalaccess reduceTransparency -bool false
           swift -e 'import AppKit; let w = NSWorkspace.shared; print("reduceMotion=\(w.accessibilityDisplayShouldReduceMotion) increaseContrast=\(w.accessibilityDisplayShouldIncreaseContrast) reduceTransparency=\(w.accessibilityDisplayShouldReduceTransparency)"); guard !w.accessibilityDisplayShouldReduceMotion && !w.accessibilityDisplayShouldReduceTransparency && !w.accessibilityDisplayShouldIncreaseContrast else { fatalError("CI accessibility baseline is not normal; motion/material evidence cannot be captured") }' | tee test-results/accessibility-normal-motion.log
+      - name: Compile screenshot comparison probe and report environment capabilities
+        run: |
+          set -o pipefail
+          swiftc -parse-as-library -O -target "$(uname -m)-apple-macosx13.0" scripts/benchmark-builtin-capture.swift -o /tmp/riftlet-capture-benchmark 2>&1 | tee test-results/capture-probe-build.log
+          /tmp/riftlet-capture-benchmark --self-check 2>&1 | tee test-results/capture-probe-self-check.log
+          /tmp/riftlet-capture-benchmark --iterations 5 --output test-results/capture-backend-probe.json --retain-synthetic-images test-results/synthetic-capture-previews 2>&1 | tee test-results/capture-backend-probe.log
       - name: Execute native unit and integration tests
         run: |
           set -o pipefail
@@ -144,9 +172,22 @@ jobs:
           swift test --skip-build --filter SystemScreenshotCandidateIntegrationTests 2>&1 | tee test-results/system-candidate-composition-detailed.log
           swift test --skip-build --filter SystemScreenshotFidelityTests 2>&1 | tee test-results/system-candidate-fidelity-detailed.log
           swift test --skip-build --filter 'RiftletFeedbackTests|RiftletFeedbackUITests' 2>&1 | tee test-results/feedback-detailed.log
-          swift test --skip-build --filter 'ScreenshotEntry|InteractiveScreenshot|CompletedScreenshotImporter|RiftCapturePresentation' 2>&1 | tee test-results/capture-entry-detailed.log
+          swift test --skip-build --filter 'ScreenshotEntry|InteractiveScreenshot|CompletedScreenshotImporter|RiftCapturePresentation|BuiltInScreenshotHost|ScreenshotMarkupFidelity|RiftSetupController' 2>&1 | tee test-results/capture-entry-detailed.log
           swift test --skip-build --filter 'CaptureSourceBindingTests|CapturePreferenceObservationTests' 2>&1 | tee test-results/capture-source-binding-detailed.log
           swift test --skip-build --filter 'UnifiedSettingsTests|QuietEdgeInteractionTests|QuietEdgeWindowTests|RiftLayoutTests|RiftPeekGeometryTests|FeedbackVisualCandidateTests' 2>&1 | tee test-results/unified-product-detailed.log
+      - name: Exercise the production screenshot engine and private import with an owned fixture
+        env:
+          RIFTLET_REAL_CAPTURE_FIXTURE: '1'
+        run: |
+          set -o pipefail
+          # Serial and opt-in: this does not run inside the parallel software suite.
+          # The test also requires GITHUB_ACTIONS and preexisting capture permission.
+          # Actual output/import failures fail; an unavailable safe fixture is NOT_RUN.
+          swift test --skip-build --filter BuiltInCaptureNativeProbeTests 2>&1 | tee test-results/builtin-capture-native-probe.log
+      - name: Verify strict magnet completion and resource cleanup separately
+        run: |
+          set -o pipefail
+          swift test --skip-build --filter MagnetFlightPresenterTests 2>&1 | tee test-results/magnet-strict-completion.log
       - name: Package native application
         run: |
           set -o pipefail
@@ -196,11 +237,16 @@ jobs:
           riftlet_bin_dir="$(swift build -c release --show-bin-path)"
           "$riftlet_bin_dir/RiftletGUIAcceptance" --report-system-accessibility | tee test-results/accessibility-reduced.log
           python3 -B scripts/capture-native-visual-evidence.py --helper "$riftlet_bin_dir/RiftletGUIAcceptance" --expected-system-accessibility reduced --only-case queue-dark --only-case entry-dark --only-case motion-magnet --output "$PWD/test-results/native-visual-accessibility" 2>&1 | tee test-results/native-visual-accessibility-capture.log
+      - name: Reject actual screenshot output failures independently of software tests
+        if: always()
+        run: |
+          set -o pipefail
+          python3 -B scripts/verify-capture-probe-outcome.py test-results/capture-backend-probe.json 2>&1 | tee test-results/capture-output-contract.log
       - name: Archive evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: native-foundation-${{ github.sha }}
+          name: native-foundation-${{ matrix.runner }}-${{ github.sha }}
           path: |
             test-results/
             build/Riftlet-macOS-development.zip

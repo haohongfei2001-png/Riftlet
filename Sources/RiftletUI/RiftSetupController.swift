@@ -1,4 +1,5 @@
 import AppKit
+import RiftletCapture
 
 /// The lightweight, explicitly opened first-use/status surface. This class has
 /// no upload, Automation, file mutation or browser capability. Host callbacks
@@ -134,7 +135,7 @@ public final class RiftSetupController: NSObject, NSWindowDelegate {
 
     /// Refresh local preference controls without presenting a window or saving.
     public func updateSettings(_ snapshot: RiftSettingsSnapshot) {
-        settingsForm.update(snapshot, enabled: onSettingsChange != nil && !presentation.snapshot.isChecking)
+        settingsForm.update(snapshot, enabled: onSettingsChange != nil)
     }
 
     /// Present only for a deliberate menu action, never a background update.
@@ -219,6 +220,7 @@ public final class RiftSetupController: NSObject, NSWindowDelegate {
         for (i, title) in ["运行状态", "截图入口", "显示与动效", "隐私与存储", "关于与支持"].enumerated() {
             let button = RiftSidebarButton(title: title, target: self, action: #selector(selectSection(_:)))
             button.tag = i; button.symbolName = symbols[i]; button.font = RiftVisualStyle.bodyFont
+            button.identifier = .init("setup.section.\(i)")
             button.alignment = .left; button.setButtonType(.pushOnPushOff)
             button.widthAnchor.constraint(equalToConstant: 132).isActive = true
             button.heightAnchor.constraint(equalToConstant: 36).isActive = true
@@ -343,7 +345,6 @@ public final class RiftSetupController: NSObject, NSWindowDelegate {
     @objc private func openEntry() { onOpenEntrySettings?() }
     @objc private func openDisplay() { onOpenDisplaySettings?() }
     @objc private func openFeedback() { onOpenFeedback?() }
-
     @objc private func recheck() { guard !presentation.snapshot.isChecking else { return }; onRecheck() }
     @objc private func openSource() { guard presentation.hasSourceLocation else { return }; onOpenSource() }
     @objc private func chooseSourceAccess() {

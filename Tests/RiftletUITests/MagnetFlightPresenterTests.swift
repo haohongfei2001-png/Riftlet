@@ -1,5 +1,6 @@
 import AppKit
 import XCTest
+import QuartzCore
 @testable import RiftletUI
 
 /// Software AppKit/WindowServer checks only. These do not certify physical
@@ -101,9 +102,9 @@ final class MagnetFlightPresenterTests: XCTestCase {
         XCTAssertTrue(presenter.start(assetID: UUID(), image: image, plan: plan, backingScale: scale) {
             completions.append($0)
         })
-        try await Task.sleep(nanoseconds: 220_000_000)
+        try await Task.sleep(nanoseconds: 1_200_000_000)
         XCTAssertEqual(completions.count, 1)
-        XCTAssertTrue([.finished, .timedOut].contains(completions[0].reason))
+        XCTAssertEqual(completions.first?.reason, .finished, "Resource timeout is not natural animation completion")
         XCTAssertEqual(presenter.activePanelCount, 0)
         XCTAssertEqual(presenter.diagnostics.retainedImageCount, 0)
         presenter.close()
@@ -111,6 +112,31 @@ final class MagnetFlightPresenterTests: XCTestCase {
         XCTAssertFalse(presenter.start(assetID: UUID(), image: image, plan: plan, backingScale: scale) { _ in
             XCTFail("Closed presenter cannot begin or complete a new decoration")
         })
+        XCTAssertEqual(completions.count, 1)
+    }
+
+
+    @MainActor func testStoppedRenderClockTimesOutWithoutManufacturingNaturalCompletion() async throws {
+        let (plan, image, scale) = try fixture()
+        let presenter = MagnetFlightPresenter()
+        defer { presenter.close() }
+        var completions: [MagnetFlightCompletion] = []
+        XCTAssertTrue(presenter.start(assetID: UUID(), image: image, plan: plan, backingScale: scale) {
+            completions.append($0)
+        })
+        let number = try XCTUnwrap(presenter.diagnostics.windowNumber)
+        let window = try XCTUnwrap(NSApp.windows.first { $0.windowNumber == number })
+        // Deliberately prevent animation progress, without stopping the main
+        // run loop or injecting a fabricated successful delegate.
+        let layer = try XCTUnwrap(window.contentView?.layer)
+        layer.speed = 0
+        CATransaction.flush()
+        try await Task.sleep(nanoseconds: 1_300_000_000)
+        XCTAssertEqual(completions.count, 1)
+        XCTAssertEqual(completions.first?.reason, .timedOut)
+        XCTAssertEqual(presenter.activePanelCount, 0)
+        XCTAssertEqual(presenter.diagnostics.retainedImageCount, 0)
+        presenter.cancel()
         XCTAssertEqual(completions.count, 1)
     }
 

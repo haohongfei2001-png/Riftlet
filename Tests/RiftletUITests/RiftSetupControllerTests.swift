@@ -3,6 +3,48 @@ import XCTest
 @testable import RiftletUI
 
 final class RiftSetupControllerTests: XCTestCase {
+    @MainActor func testBuiltInSwitchAndDefaultModeAreInlineAndIndependentOfHidePause() throws {
+        try prepareAppKit()
+        var enabled: [Bool] = [], modes: [String] = [], hidden = 0, paused = 0
+        var saved = RiftSettingsSnapshot(entryAvailable: true, entryEnabled: true, defaultCaptureMode: .region)
+        let controller = RiftSetupController(onRecheck: {}, onOpenSource: {}, onPermission: {}, onDismiss: {},
+            onToggleHidden: { hidden += 1 }, onToggleCollection: { paused += 1 },
+            onSettingsChange: { change in
+                switch change {
+                case .entryEnabled(let value): enabled.append(value); saved.entryEnabled = value
+                case .defaultCaptureMode(let value): modes.append(value.rawValue); saved.defaultCaptureMode = value
+                default: XCTFail("Unrelated preference changed")
+                }
+                return saved
+            })
+        defer { controller.close() }
+        controller.update(snapshot: .init(collection: .paused, isHidden: true, isChecking: true,
+            builtInScreenshotEnabled: true, defaultScreenshotMode: .region))
+        controller.updateSettings(saved)
+        try button("setup.section.1").performClick(nil)
+        let toggle = try button("settings.entryEnabled")
+        let picker = try XCTUnwrap(try button("settings.captureMode") as? NSPopUpButton)
+        XCTAssertTrue(toggle.isEnabled, "Collection work must not prevent stopping built-in capture")
+        XCTAssertEqual(toggle.state, .on)
+        XCTAssertEqual(toggle.accessibilityLabel(), "启用内置截图")
+        XCTAssertEqual(picker.titleOfSelectedItem, "区域")
+        toggle.performClick(nil)
+        XCTAssertEqual(enabled, [false]); XCTAssertEqual(hidden, 0); XCTAssertEqual(paused, 0)
+        controller.update(snapshot: .init(collection: .paused, isHidden: true,
+            builtInScreenshotEnabled: false, defaultScreenshotMode: .region))
+        controller.updateSettings(saved)
+        XCTAssertEqual(toggle.state, .off)
+        XCTAssertTrue(picker.isEnabled, "Off does not discard the next-session preference")
+        picker.selectItem(withTitle: "全屏")
+        XCTAssertTrue(NSApp.sendAction(try XCTUnwrap(picker.action), to: picker.target, from: picker))
+        XCTAssertEqual(modes, ["fullScreen"])
+        XCTAssertEqual(enabled, [false]); XCTAssertEqual(hidden, 0); XCTAssertEqual(paused, 0)
+        XCTAssertFalse(controller.isVisible, "A settings refresh must not open the window")
+        controller.update(snapshot: .init())
+        controller.updateSettings(.init())
+        XCTAssertFalse(toggle.isEnabled); XCTAssertFalse(picker.isEnabled)
+    }
+
     @MainActor private func prepareAppKit() throws {
         _ = NSApplication.shared
         guard !NSScreen.screens.isEmpty else {

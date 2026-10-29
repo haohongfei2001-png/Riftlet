@@ -62,6 +62,38 @@ final class UnifiedSettingsTests: XCTestCase {
         XCTAssertTrue(message.stringValue.contains("未能保存"))
     }
 
+
+    @MainActor func testFailedPersistenceKeepsImmediateDisableVisibleAndNeverReportsSaved() throws {
+        try prepare()
+        var value = RiftSettingsSnapshot(entryAvailable: true, entryEnabled: true)
+        var changes: [RiftSettingsChange] = []
+        let controller = RiftSetupController(onRecheck: {}, onOpenSource: {}, onPermission: {}, onDismiss: {}, onSettingsChange: { change in
+            changes.append(change)
+            guard case .entryEnabled(let enabled) = change else { XCTFail("Unrelated mutation"); return value }
+            // Mirrors the host contract: off takes effect even if persistence
+            // fails; enabling cannot take effect until the write succeeds.
+            if !enabled { value.entryEnabled = false }
+            value.capturePreferencesSaveFailed = true
+            return value
+        })
+        defer { controller.close() }
+        controller.update(snapshot: .init(collection: .paused, isHidden: true, isChecking: true))
+        controller.updateSettings(value); controller.show(section: .captureEntry)
+        let toggle: NSButton = try control("settings.entryEnabled")
+        XCTAssertTrue(toggle.isEnabled, "A collection check must never block stopping built-in capture")
+        toggle.performClick(nil)
+        XCTAssertEqual(toggle.state, .off)
+        let message: NSTextField = try control("settings.saveStatus")
+        XCTAssertTrue(message.stringValue.contains("已关闭"))
+        XCTAssertTrue(message.stringValue.contains("尚未保存"))
+        XCTAssertFalse(message.stringValue == "已保存")
+        toggle.performClick(nil)
+        XCTAssertEqual(toggle.state, .off, "Failed enabling must not appear on")
+        XCTAssertEqual(changes, [.entryEnabled(false), .entryEnabled(true)])
+        controller.updateSettings(value)
+        XCTAssertEqual(toggle.state, .off)
+    }
+
     @MainActor func testArchiveRejectsPartialNumbersAndPreservesExplicitDisable() throws {
         try prepare()
         var changes: [RiftSettingsChange] = []

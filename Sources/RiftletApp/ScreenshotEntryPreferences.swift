@@ -2,21 +2,48 @@ import Foundation
 import RiftletCapture
 import RiftletUI
 
-/// One preference controls the next session's fixed mode order. Capturing and
-/// switching the active mode never write this setting.
+/// Capture availability and the next session's fixed mode order are independent
+/// of collection pause and rift visibility. Capturing and mode switches never
+/// write preferences or macOS screenshot settings.
 struct ScreenshotEntryPreferences: Codable, Equatable {
     var version: Int = 1
     var defaultMode: ScreenshotMode = .window
-    var isEnabled: Bool = true
+    var builtInScreenshotEnabled: Bool = true
 
-    private enum CodingKeys: String, CodingKey { case version, defaultMode, isEnabled }
-    init() {}
+    private enum CodingKeys: String, CodingKey {
+        case version, defaultMode, builtInScreenshotEnabled
+        case legacyIsEnabled = "isEnabled"
+    }
+
+    init(version: Int = 1, defaultMode: ScreenshotMode = .window,
+         builtInScreenshotEnabled: Bool = true) {
+        self.version = version
+        self.defaultMode = defaultMode
+        self.builtInScreenshotEnabled = builtInScreenshotEnabled
+    }
+
     init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         version = try values.decode(Int.self, forKey: .version)
         defaultMode = try values.decode(ScreenshotMode.self, forKey: .defaultMode)
-        // The previous version had no toggle. Preserve its enabled behavior.
-        isEnabled = try values.decodeIfPresent(Bool.self, forKey: .isEnabled) ?? true
+        // The thin-edge integration used isEnabled in the same version-1 file.
+        // A present canonical key wins and must decode strictly, including null;
+        // malformed settings must never silently turn a disabled feature on.
+        if values.contains(.builtInScreenshotEnabled) {
+            builtInScreenshotEnabled = try values.decode(Bool.self, forKey: .builtInScreenshotEnabled)
+        } else if values.contains(.legacyIsEnabled) {
+            builtInScreenshotEnabled = try values.decode(Bool.self, forKey: .legacyIsEnabled)
+        } else {
+            // Earlier version-1 settings predate either switch and were enabled.
+            builtInScreenshotEnabled = true
+        }
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var values = encoder.container(keyedBy: CodingKeys.self)
+        try values.encode(version, forKey: .version)
+        try values.encode(defaultMode, forKey: .defaultMode)
+        try values.encode(builtInScreenshotEnabled, forKey: .builtInScreenshotEnabled)
     }
 
     static func load(from url: URL) throws -> Self {
@@ -43,7 +70,6 @@ struct ScreenshotEntryPreferences: Codable, Equatable {
         result.rowPitch = 60
         result.outerInset = 14
         result.firstCenterFromTop = 202
-        result.numberGap = 8
         return result
     }
 

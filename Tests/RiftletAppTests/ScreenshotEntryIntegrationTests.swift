@@ -45,6 +45,9 @@ final class ScreenshotEntryIntegrationTests: XCTestCase {
         XCTAssertEqual(migrated.outerInset, 14); XCTAssertEqual(migrated.preferredDisplayID, 42)
         var custom = old; custom.firstCenterFromTop = 214
         XCTAssertEqual(ScreenshotEntryPreferences.initialLayout(custom), custom)
+        var customGap = old; customGap.numberGap = 17
+        XCTAssertEqual(ScreenshotEntryPreferences.initialLayout(customGap).numberGap, 17,
+                       "First capture setup must preserve a separately customized number gap")
         XCTAssertEqual(ScreenshotEntryPreferences.initialLayout(migrated), migrated)
     }
 
