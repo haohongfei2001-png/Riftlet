@@ -14,6 +14,7 @@ final class ThumbnailCache {
     private let queue = DispatchQueue(label: "Riftlet.thumbnail", qos: .utility)
     private var pending: [String: [(CGImage?) -> Void]] = [:]
     private let directory: URL
+    private var generation: UInt = 0
 
     init(directory: URL) {
         self.directory = directory
@@ -29,6 +30,7 @@ final class ThumbnailCache {
         guard !asset.fileName.isEmpty, asset.fileName == URL(fileURLWithPath: asset.fileName).lastPathComponent,
               asset.fileName != ".", asset.fileName != ".." else { completion(nil); return }
         pending[key] = [completion]
+        let epoch = generation
         let url = directory.appendingPathComponent(asset.fileName)
         queue.async { [weak self] in
             guard let self else { return }
@@ -46,6 +48,7 @@ final class ThumbnailCache {
             }
             let renderedImage = image
             DispatchQueue.main.async { [self] in
+                guard self.generation == epoch else { return }
                 if let renderedImage {
                     self.cache.setObject(ThumbnailBox(renderedImage), forKey: key as NSString,
                                          cost: renderedImage.bytesPerRow * renderedImage.height)
@@ -56,5 +59,5 @@ final class ThumbnailCache {
         }
     }
 
-    func clear() { cache.removeAllObjects(); pending.removeAll() }
+    func clear() { generation &+= 1; cache.removeAllObjects(); pending.removeAll() }
 }

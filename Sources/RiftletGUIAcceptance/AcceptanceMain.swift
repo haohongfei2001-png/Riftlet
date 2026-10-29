@@ -6,6 +6,19 @@ import RiftletUI
 @main
 enum AcceptanceMain {
     @MainActor static func main() {
+        if CommandLine.arguments.contains("--report-system-accessibility") {
+            do {
+                let report: [String: Any] = ["schemaVersion": 1,
+                    "kind": "read-only-system-accessibility", "provider": "NSWorkspace.shared",
+                    "systemAccessibility": NativeVisualEvidence.systemAccessibilitySnapshot(),
+                    "systemPreferencesChanged": false, "permissionsRequested": false]
+                let data = try JSONSerialization.data(withJSONObject: report, options: [.sortedKeys])
+                print(String(decoding: data, as: UTF8.self))
+            } catch {
+                fputs("SYSTEM_ACCESSIBILITY_REPORT_FAIL\n", stderr); exit(1)
+            }
+            return
+        }
         let axFlags = ["--press-acceptance-asset", "--app-pid", "--app-path"]
         if CommandLine.arguments.contains(where: { axFlags.contains($0) }) {
             exit(AcceptanceAXPress.run(Array(CommandLine.arguments.dropFirst())))
@@ -13,7 +26,7 @@ enum AcceptanceMain {
         if CommandLine.arguments.contains("--help") {
             print("""
             RiftletGUIAcceptance [--self-check | --software-pointer-probes | --software-hold-probe | --software-double-probe]
-            GUI: synthetic 2/3/12-image scenes, click/focus observations and delayed reorder.
+            GUI: synthetic 2/3/12/16-image scenes, click/focus observations and delayed reorder.
             JSONL observations go to stdout; typed text is never included.
             --software-pointer-probes runs one bounded IMAGE/NUMBER/CLEAR/GAP CGEvent batch
               on fresh helper-only synthetic scenes; existing posting permission, no prompt.
@@ -24,7 +37,38 @@ enum AcceptanceMain {
             --software-double-probe runs at most two helper-only down/up pairs, testing
               CGEvent-supplied clickState=2 after synthetic replacement. Physical NOT_RUN.
               All software probe modes are mutually exclusive; one batch per process.
+            --visual-scene 2|3|12|16 --appearance light|dark [--visual-clean]
+              Actual AppKit panels over an opaque helper-only synthetic backdrop.
+              --visual-clean hides diagnostic controls and target marks, not product windows.
+              Its floating backdrop/auxiliary layering is fixture isolation, not
+              evidence of production cross-application focus or window ordering.
+              --visual-timeline projects synthetic waiting/start/completion states once;
+              no input, receipt, database, browser or real upload is created.
+              --visual-magnet supplies a known helper-only synthetic source rectangle;
+              --visual-missing-source tests static fallback; --visual-cancel-arrival
+              cancels decoration at 250ms. --visual-reduced-motion affects only the
+              helper's Rift panel; it does not change the system preference.
+            --visual-window setup|settings|history|motion|feedback
+              Existing native product window with helper-only synthetic data; feedback
+              uses a fresh local fixture sidecar and DisabledFeedbackTransport, no network.
+            --visual-entry [--visual-entry-expanded]
+              Existing predictive entry with the native queue geometry. Its actions
+              only log synthetic intent; no capture controller or screenshot is created.
+            --export-native-evidence /new/absolute/directory --evidence-source SHA --evidence-checkout SHA
+              Requires --visual-clean. Capture only this helper's WindowServer windows,
+              at original pixels, then exit. No other app or display capture; no TCC request.
+              --visual-settings-section 0...4 and --visual-onboarding-page 0...2 select pages.
+              --visual-local-onboarding uses the actual production-disabled local collection presentation.
+              --visual-last-page and --visual-preview-index 1...16 select fixture views.
+              --visual-history-state archived|unknown selects a synthetic history row.
+              --visual-feedback-records expands two fresh local queued/cancelled feedback
+              fixtures through existing product controls; no network or cloud receipt.
+              Preview invokes the native AX custom action in-process, not a physical hover.
+              --visual-background bright|textured changes only the synthetic backdrop.
+              With --visual-timeline, export timestamped native frames, not a latency benchmark.
             --self-check validates fixtures/layout only and does not run GUI acceptance.
+            --report-system-accessibility prints actual AppKit Reduce Motion, Increase Contrast
+              and Reduce Transparency as JSON, without windows, permission requests or writes.
             --press-acceptance-asset UUID --app-pid PID --app-path /exact/Riftlet.app
               One bounded AXPress on one exact synthetic identifier; existing AX permission only.
             """)
@@ -34,7 +78,7 @@ enum AcceptanceMain {
             do {
                 try SyntheticScene.selfCheck()
                 try SoftwarePointerProbe.selfCheck()
-                print("RIFTLET_GUI_HELPER_SELF_CHECK_PASS: 12 synthetic PNGs; scenes 2/3/12; layout/status fixtures; GUI_NOT_RUN")
+                print("RIFTLET_GUI_HELPER_SELF_CHECK_PASS: 16 synthetic PNGs; scenes 2/3/12/16; layout/status fixtures; GUI_NOT_RUN")
             } catch {
                 fputs("RIFTLET_GUI_HELPER_SELF_CHECK_FAIL: \(error)\n", stderr)
                 exit(1)
@@ -72,6 +116,29 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
     private var sceneGeneration = UUID()
     private var reorderTask: Task<Void, Never>?
     private var outcomeTasks: [UUID: Task<Void, Never>] = [:]
+    private var visualTimeline: Task<Void, Never>?
+    private var visualWindows: AcceptanceWindowScenes?
+    private var visualEntry: ScreenshotEntryController?
+    private var nativeEvidence: NativeVisualEvidence?
+    private var nativeEvidenceTask: Task<Void, Never>?
+    private var visualArrival: Bool {
+        CommandLine.arguments.contains("--visual-magnet") || CommandLine.arguments.contains("--visual-missing-source")
+    }
+    private var visualClean: Bool { CommandLine.arguments.contains("--visual-clean") }
+    private var visualCount: Int {
+        let args = CommandLine.arguments
+        guard let index = args.firstIndex(of: "--visual-scene"), index + 1 < args.count,
+              let count = Int(args[index + 1]), SyntheticScene.supportedCounts.contains(count) else { return 3 }
+        return count
+    }
+    private var requestedScreen: NSScreen? {
+        let args = CommandLine.arguments
+        guard let index = args.firstIndex(of: "--probe-display-id"), index + 1 < args.count,
+              let id = UInt32(args[index + 1]) else { return NSScreen.main }
+        return NSScreen.screens.first {
+            ($0.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.uint32Value == id
+        } ?? NSScreen.main
+    }
     private var underlyingClicks = 0
     private var selectionCount = 0
     private let batchID = UUID()
@@ -92,10 +159,17 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
                 .appendingPathComponent("riftlet-gui-acceptance-\(UUID().uuidString)", isDirectory: true)
             mediaRoot = root
             fixtures = try SyntheticScene.makeMedia(in: root)
+            if let index = CommandLine.arguments.firstIndex(of: "--appearance"), index + 1 < CommandLine.arguments.count {
+                let name = CommandLine.arguments[index + 1]
+                if name == "light" || name == "dark" {
+                    NSApp.appearance = NSAppearance(named: name == "dark" ? .darkAqua : .aqua)
+                }
+            }
             installMenu()
             buildWindow()
             installObservations()
-            resetScene(count: 3)
+            resetScene(count: visualCount)
+            if NativeVisualEvidence.requested { nativeEvidence = try NativeVisualEvidence(backdrop: window) }
             record("helper_started", ["syntheticOnly": true, "guiVerdict": "NOT_ASSESSED",
                                        "os": ProcessInfo.processInfo.operatingSystemVersionString])
             let modes = ["--software-pointer-probes", "--software-hold-probe", "--software-double-probe"]
@@ -105,6 +179,15 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
             } else if modes.first == "--software-double-probe" { runSoftwareDoubleProbe()
             } else if modes.first == "--software-hold-probe" { runSoftwareHoldProbe()
             } else if CommandLine.arguments.contains("--software-pointer-probes") { runSoftwarePointerProbes() }
+            else if CommandLine.arguments.contains("--visual-timeline") { startVisualTimeline() }
+            if modes.isEmpty, let index = CommandLine.arguments.firstIndex(of: "--visual-window"),
+               index + 1 < CommandLine.arguments.count {
+                let scenes = AcceptanceWindowScenes(mediaRoot: root, fixtures: fixtures) { [weak self] event, fields in
+                    self?.record(event, fields)
+                }
+                visualWindows = scenes; scenes.show(CommandLine.arguments[index + 1])
+            }
+            if nativeEvidence != nil { startNativeEvidence() }
         } catch {
             fputs("GUI acceptance setup failed: \(error)\n", stderr)
             NSApp.terminate(nil)
@@ -121,6 +204,10 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
     func applicationWillTerminate(_ notification: Notification) {
         releaseSoftwarePointer()
         reorderTask?.cancel()
+        visualTimeline?.cancel()
+        nativeEvidenceTask?.cancel()
+        visualWindows?.cancel()
+        visualEntry?.close(); visualEntry = nil
         softwareProbeTask?.cancel()
         targetRefreshTask?.cancel()
         outcomeTasks.values.forEach { $0.cancel() }
@@ -131,15 +218,30 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
     }
 
     private func buildWindow() {
-        let frame = NSScreen.main?.visibleFrame ?? CGRect(x: 0, y: 0, width: 1_200, height: 800)
-        window = NSWindow(contentRect: frame, styleMask: [.titled, .closable, .resizable, .miniaturizable],
-                          backing: .buffered, defer: false)
+        let frame = requestedScreen?.visibleFrame ?? CGRect(x: 0, y: 0, width: 1_200, height: 800)
+        if visualClean {
+            // No hidden stack or titlebar sizing constraints may shrink this
+            // privacy backdrop and expose unrelated desktop pixels in captures.
+            window = AcceptanceBackdropWindow(contentRect: frame, styleMask: [.borderless],
+                backing: .buffered, defer: false)
+            window.isOpaque = true; window.backgroundColor = .windowBackgroundColor
+            window.hasShadow = false
+            window.level = .floating
+            window.hidesOnDeactivate = false
+        } else {
+            window = NSWindow(contentRect: frame, styleMask: [.titled, .closable, .resizable, .miniaturizable],
+                backing: .buffered, defer: false)
+        }
         window.title = "Riftlet GUI acceptance — SYNTHETIC ONLY — observations, no automatic PASS"
         window.delegate = self
         window.isReleasedWhenClosed = false
         if #available(macOS 13.0, *) { window.collectionBehavior = [.primary] }
         window.setFrame(frame, display: false)
         probe = ClickProbeView(frame: CGRect(origin: .zero, size: frame.size))
+        probe.visualClean = visualClean
+        if let index = CommandLine.arguments.firstIndex(of: "--visual-background"), index + 1 < CommandLine.arguments.count {
+            probe.visualBackdropStyle = CommandLine.arguments[index + 1]
+        }
         probe.onMouseDown = { [weak self] event in
             guard let self else { return }
             self.underlyingClicks += 1
@@ -152,6 +254,12 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
             self.record("underlying_probe_up", self.eventFields(event))
         }
         window.contentView = probe
+        if visualClean {
+            window.setFrame(frame, display: true)
+            window.makeKeyAndOrderFront(nil)
+            NSApp.activate(ignoringOtherApps: true)
+            return
+        }
 
         let title = NSTextField(wrappingLabelWithString: "N04 / N05 / N07 · Native input observations")
         title.font = .boldSystemFont(ofSize: 18)
@@ -165,6 +273,7 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
         let scenes = NSStackView(views: [button("2 images", #selector(scene2)),
                                         button("3 images", #selector(scene3)),
                                         button("12 images", #selector(scene12)),
+                                        button("16 images", #selector(scene16)),
                                         button("Oldest", #selector(showOldest)),
                                         button("Latest", #selector(showLatest))])
         scenes.orientation = .horizontal
@@ -259,7 +368,10 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
             let observer = NotificationCenter.default.addObserver(forName: name, object: nil, queue: .main) { [weak self] notification in
                 guard let controller = self else { return }
                 let eventName = notification.name.rawValue
-                DispatchQueue.main.async { [controller] in controller.record("focus_changed", ["notification": eventName]) }
+                DispatchQueue.main.async { [controller] in
+                    controller.orderVisualBackdropBelowProduct()
+                    controller.record("focus_changed", ["notification": eventName])
+                }
             }
             observers.append(observer)
         }
@@ -328,6 +440,7 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
     }
 
     private func record(_ name: String, _ fields: [String: Any] = [:]) {
+        nativeEvidence?.note(name, fields: fields)
         var value = fields
         value["event"] = name
         value["uptime"] = ProcessInfo.processInfo.systemUptime
@@ -363,9 +476,49 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
         status.stringValue = "Observed probe clicks: \(underlyingClicks) · thumbnail selections: \(selectionCount) · GUI verdict: NOT ASSESSED"
     }
 
+    private func startNativeEvidence() {
+        guard let evidence = nativeEvidence else { return }
+        nativeEvidenceTask = Task { @MainActor [weak self] in
+            guard let self else { return }
+            do {
+                if CommandLine.arguments.contains("--visual-timeline") {
+                    try await evidence.recordTimeline()
+                } else {
+                    // Let AppKit layout, native text, async image decode and the
+                    // isolated Feedback draft load complete on the main run loop.
+                    try await Task.sleep(nanoseconds: 700_000_000)
+                    try self.visualWindows?.prepareEvidencePage()
+                    if CommandLine.arguments.contains("--visual-last-page") { self.rift?.showLatest() }
+                    if let index = CommandLine.arguments.firstIndex(of: "--visual-preview-index"),
+                       index + 1 < CommandLine.arguments.count,
+                       let ordinal = Int(CommandLine.arguments[index + 1]),
+                       let asset = self.records.first(where: { $0.sequence == Int64(ordinal) }) {
+                        self.rift?.showAsset(asset.id)
+                        try await Task.sleep(nanoseconds: 100_000_000)
+                        guard let row = self.rift?.diagnosticSnapshot.rows.first(where: { $0.assetID == asset.id }),
+                              let nativeWindow = NSApp.windows.first(where: { $0.windowNumber == row.windowNumber }),
+                              let action = nativeWindow.contentView?.accessibilityCustomActions()?.first,
+                              action.handler?() == true else { throw NativeVisualEvidence.Failure.missingWindow }
+                        self.record("native_evidence_preview_action", ["physical": false, "accepted": true])
+                    }
+                    try await Task.sleep(nanoseconds: 350_000_000)
+                    try await evidence.capture("native")
+                    try evidence.finish()
+                }
+                NSApp.terminate(nil)
+            } catch is CancellationError { }
+            catch {
+                try? evidence.finish(failure: "nativeEvidenceExportFailed")
+                fputs("NATIVE_EVIDENCE_EXPORT_FAIL\n", stderr)
+                NSApp.terminate(nil)
+            }
+        }
+    }
+
     private func resetScene(count: Int) {
         guard let mediaRoot else { return }
         sceneGeneration = UUID()
+        visualTimeline?.cancel(); visualTimeline = nil
         reorderTask?.cancel()
         heldTestAsset = nil; holdTestArmed = false
         holdStatus.stringValue = "按住补位：尚未准备"
@@ -373,6 +526,7 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
         outcomeTasks.removeAll()
         do { records = try SyntheticScene.records(from: fixtures, count: count) }
         catch { record("fixture_error"); return }
+        visualEntry?.close(); visualEntry = nil
         rift?.close()
         var configuration = RiftConfiguration()
         configuration.preferredDisplayID = (window.screen?.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.uint32Value
@@ -383,15 +537,111 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
            }) { configuration.preferredDisplayID = id }
         if arguments.contains("--probe-compact") { configuration.fitWidth = 48; configuration.fitHeight = 32 }
         if arguments.contains("--probe-large") { configuration.fitWidth = 128; configuration.fitHeight = 96; configuration.rowPitch = 100 }
+        let reduceOverride: (() -> Bool)? = arguments.contains("--visual-reduced-motion") ? { true } : nil
         rift = RiftPanelController(mediaDirectory: mediaRoot, configuration: configuration,
-            onSelectionBoundary: { [weak self] boundary in self?.recordPress(boundary) }) { [weak self] id in
+            arrivalMode: visualArrival ? .magnet : .none, reduceMotionOverride: reduceOverride,
+            onSelectionBoundary: { [weak self] boundary in self?.recordPress(boundary) },
+            onPresentationBoundary: { [weak self] boundary in
+                self?.record("native_presentation_boundary", ["phase": boundary.phase.rawValue,
+                    "assetID": boundary.assetID.uuidString, "boundaryUptime": boundary.uptime,
+                    "duration": boundary.actualDuration, "receiptEvidence": false])
+            }, onArrivalBoundary: { [weak self] boundary in
+                self?.record("native_arrival_boundary", ["phase": boundary.phase.rawValue,
+                    "assetID": boundary.assetID.uuidString, "boundaryUptime": boundary.uptime,
+                    "mode": boundary.mode.rawValue, "reason": boundary.reason ?? "none", "receiptEvidence": false])
+            }) { [weak self] id in
             self?.selected(id)
         }
-        rift?.render(records)
+        rift?.onGeometryChange = { [weak self] in
+            self?.updateEntryGeometry()
+            self?.orderVisualBackdropBelowProduct()
+        }
+        if visualArrival, let first = records.first {
+            probe.sourceImage = NSImage(contentsOf: mediaRoot.appendingPathComponent(first.image.fileName))
+            probe.needsDisplay = true
+            if arguments.contains("--visual-timeline") {
+                // Defer this new fixture until the bounded timeline so a recorder
+                // can start first. This is not a deferred/replayed user click.
+                rift?.render(Array(records.dropFirst()))
+            } else {
+                beginSyntheticArrival(first)
+                rift?.render(records)
+            }
+        } else { rift?.render(records) }
+        if arguments.contains("--visual-entry") || arguments.contains("--visual-entry-expanded") {
+            let entry = ScreenshotEntryController(defaultMode: .window)
+            visualEntry = entry
+            entry.onBegin = { [weak self] mode in
+                self?.rift?.setCaptureSessionActive(true)
+                self?.record("synthetic_entry_begin", ["mode": mode.rawValue, "captureExecuted": false])
+                self?.recordEntryGeometry()
+            }
+            entry.onMode = { [weak self] mode in
+                self?.record("synthetic_entry_mode", ["mode": mode.rawValue, "captureExecuted": false])
+                self?.recordEntryGeometry()
+            }
+            entry.onCancel = { [weak self] in
+                self?.rift?.setCaptureSessionActive(false)
+                self?.record("synthetic_entry_cancel", ["captureExecuted": false])
+                self?.recordEntryGeometry()
+            }
+            entry.onOptions = { [weak self] options in self?.visualEntry?.setOptions(options) }
+            entry.onSettings = { [weak self] mode in
+                self?.visualEntry?.setDefaultMode(mode)
+                self?.record("synthetic_entry_default", ["mode": mode.rawValue, "preferencePersisted": false])
+            }
+            updateEntryGeometry()
+            if arguments.contains("--visual-entry-expanded") {
+                entry.setExpanded(true, animated: false)
+                rift?.setCaptureSessionActive(true)
+            }
+            recordEntryGeometry()
+        }
+        orderVisualBackdropBelowProduct()
         record("scene_reset", ["count": count, "assetIDs": records.map { $0.id.uuidString },
             "fitWidth": configuration.fitWidth, "fitHeight": configuration.fitHeight,
-            "preferredDisplayID": configuration.preferredDisplayID ?? 0])
+            "preferredDisplayID": configuration.preferredDisplayID ?? 0,
+            "backingScaleFactor": window.backingScaleFactor,
+            "captureContentRect": rectFields(window.convertToScreen(probe.convert(probe.bounds, to: nil))),
+            "visualClean": visualClean, "visualAppearance": NSApp.effectiveAppearance.name.rawValue,
+            "fixtureLayerIsolation": visualClean,
+            "reducedMotionOverride": arguments.contains("--visual-reduced-motion"),
+            "systemReducedMotion": NSWorkspace.shared.accessibilityDisplayShouldReduceMotion])
         scheduleTargetRefresh()
+    }
+
+    private func orderVisualBackdropBelowProduct() {
+        guard visualClean, let window, window.isVisible else { return }
+        window.level = .floating
+        if let first = rift?.diagnosticSnapshot.rows.first {
+            // Existing Rift windows keep their production levels. Only this
+            // synthetic background is placed below the first visual owner.
+            window.order(.below, relativeTo: first.windowNumber)
+        }
+    }
+
+    private func updateEntryGeometry() {
+        guard let entry = visualEntry, let rift, let screen = rift.preferredScreen else { return }
+        let anchor = CGPoint(x: screen.visibleFrame.maxX - rift.configuration.outerInset - 18,
+                             y: screen.visibleFrame.maxY - rift.configuration.firstCenterFromTop + 66)
+        rift.setCaptureHeaderAnchor(anchor)
+        let queueFrames = rift.diagnosticSnapshot.rows.flatMap { [$0.imageInputFrame, $0.numberInputFrame] }
+        entry.configure(screen: screen, anchor: anchor, queueFrames: queueFrames)
+    }
+
+    private func recordEntryGeometry() {
+        guard let visualEntry else { return }
+        let snapshot = visualEntry.diagnosticSnapshot
+        record("native_entry_geometry", ["syntheticOnly": true, "captureExecuted": false,
+            "expanded": snapshot.isExpanded, "mode": snapshot.mode.rawValue,
+            "glyphAlpha": snapshot.glyphAlpha, "surfaceAlpha": snapshot.surfaceAlpha,
+            "expansion": snapshot.expansion, "cancelSlotPosition": snapshot.cancelSlotPosition,
+            "visualWindow": snapshot.visualWindowNumber,
+            "controls": snapshot.controls.map { control in
+                ["slot": control.slot.rawValue, "window": control.windowNumber,
+                 "frame": rectFields(control.frame), "enabled": control.isEnabled,
+                 "cancel": control.isCancel] as [String: Any]
+            }])
     }
 
     private func recordPress(_ boundary: RiftSelectionBoundary) {
@@ -447,9 +697,85 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
         }
     }
 
+    private func beginSyntheticArrival(_ record: AssetRecord) {
+        guard record.image.origin == .synthetic, let rift,
+              let screen = rift.preferredScreen,
+              let displayID = (screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.uint32Value else { return }
+        let sourceRect = window.convertToScreen(probe.convert(probe.sourceRect, to: nil))
+        let ready = ProcessInfo.processInfo.systemUptime
+        let token = rift.noteCaptureReady(record.id, uptime: ready)
+        let missing = CommandLine.arguments.contains("--visual-missing-source")
+        if let token {
+            let source = !missing && screen.frame.contains(sourceRect)
+                ? RiftArrivalSource(rect: sourceRect, displayID: displayID,
+                    displayFrame: screen.frame, backingScale: screen.backingScaleFactor) : nil
+            rift.resolveArrivalSource(source, assetID: record.id, token: token)
+        }
+        self.record("synthetic_asset_ready", ["assetID": record.id.uuidString,
+            "readyUptime": ready, "knownHelperSourceRect": rectFields(sourceRect),
+            "sourceProvided": token != nil && !missing && screen.frame.contains(sourceRect),
+            "sourceIsSystemEvidence": false, "receiptEvidence": false])
+        if CommandLine.arguments.contains("--visual-cancel-arrival") {
+            let generation = sceneGeneration
+            outcomeTasks[record.id] = Task { @MainActor [weak self] in
+                do { try await Task.sleep(nanoseconds: 250_000_000) } catch { return }
+                guard let self, self.sceneGeneration == generation else { return }
+                self.rift?.cancelDecorations(reason: .cancelled)
+                self.record("synthetic_decoration_cancel", ["assetID": record.id.uuidString,
+                    "inputExecuted": false, "physical": false])
+                self.outcomeTasks.removeValue(forKey: record.id)
+            }
+        }
+    }
+
+    /// A synthetic projection only. The existing presenter receives the same
+    /// visibility facts as production, but no upload or proof is manufactured.
+    private func startVisualTimeline() {
+        visualTimeline?.cancel()
+        let scene = sceneGeneration
+        visualTimeline = Task { @MainActor [weak self] in
+            guard let self, let first = self.records.first else { return }
+            self.record("visual_timeline_started", ["receiptEvidence": false, "inputExecuted": false])
+            do { try await Task.sleep(nanoseconds: 2_000_000_000) } catch { return }
+            guard self.sceneGeneration == scene else { return }
+            if self.visualArrival {
+                self.beginSyntheticArrival(first)
+                self.rift?.render(self.records)
+                do { try await Task.sleep(nanoseconds: 1_000_000_000) } catch { return }
+                guard self.sceneGeneration == scene else { return }
+            }
+            self.rift?.setFeedback("合成演示：已接收，正在等待附加；没有真实上传。", for: first.id)
+            self.record("visual_synthetic_waiting", ["assetID": first.id.uuidString, "receiptEvidence": false])
+            do { try await Task.sleep(nanoseconds: 1_500_000_000) } catch { return }
+            guard self.sceneGeneration == scene else { return }
+            let operation = UUID(uuidString: "00000000-0000-4000-9000-000000000001")!
+            self.records = self.records.map { record in
+                guard record.id == first.id else { return record }
+                return AssetRecord(image: record.image, sequence: record.sequence, status: .unknown,
+                    activeOperationID: operation, visibility: .swallowed, visibilityRevision: 1,
+                    visibilityReason: .uploadStarted)
+            }
+            self.record("visual_synthetic_start_projection", ["assetID": first.id.uuidString, "receiptEvidence": false])
+            self.rift?.render(self.records)
+            do { try await Task.sleep(nanoseconds: 1_700_000_000) } catch { return }
+            guard self.sceneGeneration == scene else { return }
+            self.records = self.records.map { record in
+                guard record.id == first.id else { return record }
+                return AssetRecord(image: record.image, sequence: record.sequence, status: .used,
+                    activeOperationID: operation, visibility: .swallowed, visibilityRevision: 1,
+                    visibilityReason: .uploadStarted)
+            }
+            self.rift?.render(self.records)
+            self.record("visual_synthetic_final_projection", ["assetID": first.id.uuidString, "receiptEvidence": false])
+            self.record("visual_timeline_finished", ["inputExecuted": false, "receiptEvidence": false])
+            self.visualTimeline = nil
+        }
+    }
+
     @objc private func scene2() { resetScene(count: 2) }
     @objc private func scene3() { resetScene(count: 3) }
     @objc private func scene12() { resetScene(count: 12) }
+    @objc private func scene16() { resetScene(count: 16) }
     @objc private func showOldest() { rift?.showOldest(); record("show_oldest"); scheduleTargetRefresh() }
     @objc private func showLatest() { rift?.showLatest(); record("show_latest"); scheduleTargetRefresh() }
     @objc private func focusEditor() { window.makeFirstResponder(editor); record("focus_requested") }
@@ -1011,6 +1337,7 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
 
     private func refreshTargets() {
         guard let rift, let window else { return }
+        recordEntryGeometry()
         let snapshot = rift.diagnosticSnapshot
         guard !snapshot.isHolding, !snapshot.isTransitioning else {
             probe.targets = []; probe.needsDisplay = true
@@ -1060,11 +1387,28 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
     }
 }
 
+/// Synthetic acceptance backdrop only, never a product input window. The
+/// requested visible-frame rectangle is measured and logged for capture crops.
+private final class AcceptanceBackdropWindow: NSWindow {
+    override var canBecomeKey: Bool { true }
+    override var canBecomeMain: Bool { true }
+    override func constrainFrameRect(_ frameRect: NSRect, to screen: NSScreen?) -> NSRect { frameRect }
+}
+
 @MainActor
 private final class ClickProbeView: NSView {
     var onMouseDown: ((NSEvent) -> Void)?
     var onMouseUp: ((NSEvent) -> Void)?
     var targets: [ProbeTarget] = []
+    var visualClean = false
+    var visualBackdropStyle = "solid"
+    var sourceImage: NSImage?
+    var sourceRect: CGRect {
+        let width = min(240, max(120, bounds.width * 0.20))
+        let ratio = sourceImage.map { $0.size.height / max(1, $0.size.width) } ?? 0.625
+        return CGRect(x: bounds.width * 0.36, y: bounds.height * 0.43,
+                      width: width, height: min(150, width * ratio))
+    }
     private var lastPoint: CGPoint?
     override var isFlipped: Bool { true }
     override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
@@ -1080,6 +1424,30 @@ private final class ClickProbeView: NSView {
     override func draw(_ dirtyRect: NSRect) {
         NSColor.windowBackgroundColor.setFill()
         bounds.fill()
+        if visualClean && visualBackdropStyle == "bright" {
+            NSColor.white.setFill(); bounds.fill()
+        } else if visualClean && visualBackdropStyle == "textured" {
+            NSGradient(starting: NSColor(srgbRed: 0.13, green: 0.25, blue: 0.36, alpha: 1),
+                       ending: NSColor(srgbRed: 0.69, green: 0.50, blue: 0.33, alpha: 1))?.draw(in: bounds, angle: 18)
+            // A deliberately busy, synthetic wallpaper, with no user pixels.
+            for index in 0..<12 {
+                let x = CGFloat(index % 4) * bounds.width / 4
+                let y = CGFloat(index / 4) * bounds.height / 3
+                NSColor.white.withAlphaComponent(index.isMultiple(of: 2) ? 0.12 : 0.035).setFill()
+                NSBezierPath(ovalIn: CGRect(x: x - 90, y: y - 60, width: bounds.width * 0.55, height: bounds.height * 0.70)).fill()
+            }
+        }
+        if let sourceImage {
+            sourceImage.draw(in: sourceRect, from: .zero, operation: .sourceOver,
+                             fraction: 1, respectFlipped: true, hints: nil)
+        }
+        if visualClean {
+            let text = "Riftlet · 原生呈现候选\n合成素材 · 非真实上传 · 未授予生产准入\n以实际屏幕点绘制；截图像素倍率单独记录"
+            let label = NSAttributedString(string: text, attributes: [
+                .font: NSFont.systemFont(ofSize: 13), .foregroundColor: NSColor.secondaryLabelColor])
+            label.draw(in: CGRect(x: 28, y: 28, width: 410, height: 80))
+            return
+        }
         NSColor.separatorColor.setStroke()
         let grid = NSBezierPath()
         for x in stride(from: 0.0, through: Double(bounds.width), by: 40) {

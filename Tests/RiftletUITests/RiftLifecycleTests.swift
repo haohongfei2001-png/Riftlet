@@ -105,7 +105,7 @@ final class RiftLifecycleTests: XCTestCase {
         configuration.shiftDuration = 0.01
         configuration.returnDuration = 0.01
         return RiftPanelController(mediaDirectory: FileManager.default.temporaryDirectory,
-                                   configuration: configuration, onSelect: { _ in })
+                                   configuration: configuration, arrivalMode: .magnet, reduceMotionOverride: { false }, onSelect: { _ in })
     }
 
     /// Introspection of real panels in CI, not a physical pointer/focus trial.
@@ -159,11 +159,14 @@ final class RiftLifecycleTests: XCTestCase {
         XCTAssertFalse(panel.diagnosticSnapshot.isTransitioning)
     }
 
-    @MainActor func testArchiveSnapshotWaitsForAnActiveArrivalInsteadOfRemovingItsRow() async throws {
+    @MainActor func testArchiveSnapshotWaitsForAnActivePressInsteadOfRemovingItsRow() async throws {
         let panel = try controller()
         defer { panel.close() }
         let first = record()
         panel.render([first])
+        let row = try XCTUnwrap(panel.diagnosticSnapshot.rows.first)
+        let view = try XCTUnwrap(NSApp.windows.first { $0.windowNumber == row.windowNumber }?.contentView)
+        XCTAssertTrue(view.accessibilityPerformPress())
         XCTAssertTrue(panel.interactionSnapshot.isTransitioning)
         panel.render([record(image: first.image, visibility: .archived)])
         XCTAssertEqual(panel.diagnosticSnapshot.rows.map(\.assetID), [first.id])
@@ -202,7 +205,10 @@ final class RiftLifecycleTests: XCTestCase {
         let row = try XCTUnwrap(panel.diagnosticSnapshot.rows.first)
         let window = try XCTUnwrap(NSApp.windows.first { $0.windowNumber == row.windowNumber })
         let view = try XCTUnwrap(window.contentView)
-        let imageLayer = try XCTUnwrap(view.layer?.sublayers?.first?.sublayers?.first)
+        // AppKit may insert a drawing/backing layer ahead of our clip on some
+        // OS versions. Inspect the actual named content, never its array order.
+        func descendants(_ layer: CALayer) -> [CALayer] { [layer] + (layer.sublayers ?? []).flatMap(descendants) }
+        let imageLayer = try XCTUnwrap(descendants(try XCTUnwrap(view.layer)).first { $0.name == "rift.image.content" })
         // This invokes the actual accessibility callback in software; it is not
         // a physical N1 event or evidence about a live attachment adapter.
         XCTAssertTrue(view.accessibilityPerformPress())

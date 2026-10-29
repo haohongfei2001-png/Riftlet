@@ -20,6 +20,7 @@ on:
       - 'scripts/build-feedback-demo.sh'
       - 'scripts/verify-feedback-isolation.sh'
       - 'scripts/verify-internal-beta-integration.py'
+      - 'scripts/verify-capture-entry-integration.py'
       - 'packaging/**'
       - '.github/workflows/feedback-v01.yml'
 permissions:
@@ -36,16 +37,22 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
-      - name: Verify isolation audit regressions
+      - name: Verify reviewed unified candidate composition
         run: |
           set -o pipefail
           mkdir -p feedback-results
-          python3 -m unittest discover -s Tests/FeedbackIsolation -v 2>&1 | tee feedback-results/isolation-tests.log
-          python3 -m unittest discover -s Tests/InternalBetaIsolation -v 2>&1 | tee feedback-results/internal-beta-isolation-tests.log
-      - name: Verify archived evidence and pinned unified Beta composition
+          # Keep all original audits at their exact historical pins; then compare
+          # the complete combined tree against its independent review checkpoint.
+          python3 scripts/verify-unified-candidate-composition.py 2>&1 | tee feedback-results/unified-composition.log
+      - name: Verify isolation audit regressions
         run: |
           set -o pipefail
-          python3 scripts/verify-internal-beta-integration.py 2>&1 | tee feedback-results/internal-beta-composition.log
+          python3 -m unittest discover -s Tests/FeedbackIsolation -v 2>&1 | tee feedback-results/isolation-tests.log
+          python3 -m unittest discover -s Tests/InternalBetaIsolation -v 2>&1 | tee feedback-results/internal-beta-isolation-tests.log
+          python3 -m unittest discover -s Tests/CaptureEntryIsolation -v 2>&1 | tee feedback-results/capture-entry-isolation-tests.log
+          python3 -m unittest discover -s Tests/ArrivalIsolation -v 2>&1 | tee feedback-results/arrival-isolation-tests.log
+          python3 -m unittest discover -s Tests/ThinEdgeIsolation -v 2>&1 | tee feedback-results/thin-edge-isolation-tests.log
+          python3 -m unittest discover -s Tests/UnifiedCandidateIsolation -v 2>&1 | tee feedback-results/unified-isolation-tests.log
       - name: Verify actual Feedback and current screenshot composition
         if: github.event.pull_request.head.ref == 'codex/feedback-v01-20261028'
         env:
@@ -77,7 +84,9 @@ jobs:
         run: |
           mkdir -p feedback-results
           git rev-parse HEAD > feedback-results/checkout-sha.txt
-          git archive --format=tar HEAD Sources/RiftletFeedback Sources/RiftletFeedbackUI Sources/RiftletFeedbackDemo Sources/RiftletApp/FeedbackHost.swift Sources/RiftletApp/RiftletMain.swift Sources/CSQLite Tests/RiftletFeedbackTests Tests/RiftletFeedbackUITests services/feedback Package.swift > feedback-results/source.tar
+          # The shared visual system now depends on UI/Core/Capture. Archive the
+          # complete source so this is a reproducible composition, not a partial demo.
+          git archive --format=tar HEAD > feedback-results/source.tar
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:

@@ -1,0 +1,181 @@
+{
+  "source": "46a909a35df16b76b6153fcb772a48740fb07ac6",
+  "scope": "Helper native windows, CGEvent. Not human physical or cross-application focus. Explicit CGEvent clickState=2 is not OS double-click classification.",
+  "rawLogs": [
+    {
+      "case": "pointer",
+      "sha256": "fdb51b01cf75b88a325effe7ca8952b83cc55aed79f0fd6c68d2ebed7017f332"
+    },
+    {
+      "case": "hold",
+      "sha256": "611d1c71a1ae2f73b092093564f62395ab3ec9a041aa2ed4ff569d8b415396ce"
+    },
+    {
+      "case": "double",
+      "sha256": "396068da26d64deb81559645c675157a84c6d420c293470d9f75003cff3889ae"
+    }
+  ],
+  "observations": [
+    {
+      "acceptedAssets": [
+        "00000000-0000-4000-8000-000000000001"
+      ],
+      "case": "IMAGE",
+      "coordinatesMatch": true,
+      "downCount": 1,
+      "event": "software_probe_case",
+      "expectedAssetID": "00000000-0000-4000-8000-000000000001",
+      "focusEndpointsStable": true,
+      "geometryStable": true,
+      "inputOrigin": "CGEvent",
+      "interference": false,
+      "physical": false,
+      "physicalVerdict": "NOT_RUN",
+      "result": "PASS_SOFTWARE_ROUTING",
+      "selectedAssets": [
+        "00000000-0000-4000-8000-000000000001"
+      ],
+      "selectionCount": 1,
+      "syntheticOnly": true,
+      "underlyingDownCount": 0,
+      "underlyingUpCount": 0,
+      "upCount": 1,
+      "uptime": 563799.261960375
+    },
+    {
+      "acceptedAssets": [
+        "00000000-0000-4000-8000-000000000001"
+      ],
+      "case": "NUMBER",
+      "coordinatesMatch": true,
+      "downCount": 1,
+      "event": "software_probe_case",
+      "expectedAssetID": "00000000-0000-4000-8000-000000000001",
+      "focusEndpointsStable": true,
+      "geometryStable": true,
+      "inputOrigin": "CGEvent",
+      "interference": false,
+      "physical": false,
+      "physicalVerdict": "NOT_RUN",
+      "result": "PASS_SOFTWARE_ROUTING",
+      "selectedAssets": [
+        "00000000-0000-4000-8000-000000000001"
+      ],
+      "selectionCount": 2,
+      "syntheticOnly": true,
+      "underlyingDownCount": 0,
+      "underlyingUpCount": 0,
+      "upCount": 1,
+      "uptime": 563800.9445711666
+    },
+    {
+      "acceptedAssets": [],
+      "case": "CLEAR",
+      "coordinatesMatch": true,
+      "downCount": 1,
+      "event": "software_probe_case",
+      "expectedAssetID": "00000000-0000-4000-8000-000000000001",
+      "focusEndpointsStable": true,
+      "geometryStable": true,
+      "inputOrigin": "CGEvent",
+      "interference": false,
+      "physical": false,
+      "physicalVerdict": "NOT_RUN",
+      "result": "PASS_SOFTWARE_ROUTING",
+      "selectedAssets": [],
+      "selectionCount": 2,
+      "syntheticOnly": true,
+      "underlyingDownCount": 1,
+      "underlyingUpCount": 1,
+      "upCount": 1,
+      "uptime": 563802.65728725
+    },
+    {
+      "acceptedAssets": [],
+      "case": "GAP",
+      "coordinatesMatch": true,
+      "downCount": 1,
+      "event": "software_probe_case",
+      "expectedAssetID": "00000000-0000-4000-8000-000000000001",
+      "focusEndpointsStable": true,
+      "geometryStable": true,
+      "inputOrigin": "CGEvent",
+      "interference": false,
+      "physical": false,
+      "physicalVerdict": "NOT_RUN",
+      "result": "PASS_SOFTWARE_ROUTING",
+      "selectedAssets": [],
+      "selectionCount": 2,
+      "syntheticOnly": true,
+      "underlyingDownCount": 1,
+      "underlyingUpCount": 1,
+      "upCount": 1,
+      "uptime": 563804.3620639583
+    },
+    {
+      "acceptedAssets": [
+        "00000000-0000-4000-8000-000000000002"
+      ],
+      "compactionCorrect": true,
+      "coordinatesMatch": true,
+      "crossApplicationFocusVerdict": "NOT_RUN",
+      "downCount": 1,
+      "event": "software_hold_case",
+      "expectedAssetID": "00000000-0000-4000-8000-000000000002",
+      "focusEndpointsStable": true,
+      "heldLayoutStable": true,
+      "inputOrigin": "CGEvent",
+      "interference": false,
+      "physical": false,
+      "physicalVerdict": "NOT_RUN",
+      "removedAssetID": "00000000-0000-4000-8000-000000000001",
+      "reorderObserved": true,
+      "result": "PASS_SOFTWARE_HOLD",
+      "selectedAssets": [
+        "00000000-0000-4000-8000-000000000002"
+      ],
+      "selectionCount": 1,
+      "syntheticOnly": true,
+      "underlyingDownCount": 0,
+      "underlyingUpCount": 0,
+      "upCount": 1,
+      "uptime": 563826.5146528333
+    },
+    {
+      "coordinatesMatch": true,
+      "crossApplicationFocusVerdict": "NOT_RUN",
+      "downIntervalSeconds": 0.1533040830399841,
+      "event": "software_double_case",
+      "firstAcceptedAssets": [
+        "00000000-0000-4000-8000-000000000001"
+      ],
+      "firstDownCount": 1,
+      "firstSelectedAssets": [
+        "00000000-0000-4000-8000-000000000001"
+      ],
+      "firstUpCount": 1,
+      "focusEndpointsStable": true,
+      "geometryStable": true,
+      "inputOrigin": "CGEvent",
+      "interference": false,
+      "originalAssetID": "00000000-0000-4000-8000-000000000001",
+      "osDoubleClickClassification": "NOT_TESTED",
+      "pairsPosted": 2,
+      "physical": false,
+      "physicalVerdict": "NOT_RUN",
+      "replacementAssetID": "00000000-0000-4000-8000-000000000002",
+      "result": "PASS_SOFTWARE_DOUBLE_REPLACEMENT",
+      "secondAcceptedAssets": [],
+      "secondDownClickCount": 2,
+      "secondDownCount": 1,
+      "secondSelectedAssets": [],
+      "secondUnderlayDownCount": 0,
+      "secondUnderlayUpCount": 0,
+      "secondUpCount": 1,
+      "selectionCount": 1,
+      "syntheticOnly": true,
+      "systemDoubleClickInterval": 0.5,
+      "uptime": 563830.5453858334
+    }
+  ]
+}

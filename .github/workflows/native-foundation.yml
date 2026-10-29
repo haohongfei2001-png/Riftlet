@@ -6,6 +6,7 @@ on:
       - 'codex/riftlet-real-mac-round*'
       - 'codex/system-capture-candidate-20261028'
       - 'codex/system-screenshot-real-20261028'
+      - 'codex/arrival-none-magnet-native-20261028'
     paths:
       - 'Sources/**'
       - 'Tests/**'
@@ -56,6 +57,13 @@ jobs:
           swift --version
           sw_vers
           uname -m
+      - name: Verify reviewed unified composition and rejection paths
+        run: |
+          set -o pipefail
+          mkdir -p test-results
+          python3 -B scripts/verify-unified-candidate-composition.py 2>&1 | tee test-results/unified-composition.log
+          python3 -B -m unittest discover -s Tests/UnifiedCandidateIsolation -v 2>&1 | tee test-results/unified-isolation-tests.log
+          python3 -B -m unittest discover -s Tests/ThinEdgeIsolation -v 2>&1 | tee test-results/thin-edge-isolation-tests.log
       - name: Replay archived Web evidence offline
         run: |
           set -o pipefail
@@ -85,11 +93,29 @@ jobs:
           node engineering/evidence/2026-10-27-real-mac-round5/versioned-progress-diagnostic-probe.test.cjs 2>&1 | tee test-results/round5-versioned-probe.log
       - name: Verify system-screenshot stage-two diagnostic fixtures
         run: node --test engineering/evidence/2026-10-28-system-screenshot-stage2/*.test.cjs
-      - name: Native unit and integration tests
+      - name: Establish and verify actual CI accessibility baseline
+        # These are ephemeral CI-runner preferences. Product accessibility
+        # guards are unchanged; a fresh AppKit process must observe this value.
+        run: |
+          set -o pipefail
+          mkdir -p test-results
+          swift -e 'import AppKit; let w = NSWorkspace.shared; print("before.reduceMotion=\(w.accessibilityDisplayShouldReduceMotion) before.increaseContrast=\(w.accessibilityDisplayShouldIncreaseContrast) before.reduceTransparency=\(w.accessibilityDisplayShouldReduceTransparency)")' | tee test-results/accessibility-before.log
+          defaults write com.apple.universalaccess reduceMotion -bool false
+          defaults write com.apple.universalaccess reduceTransparency -bool false
+          swift -e 'import AppKit; let w = NSWorkspace.shared; print("reduceMotion=\(w.accessibilityDisplayShouldReduceMotion) increaseContrast=\(w.accessibilityDisplayShouldIncreaseContrast) reduceTransparency=\(w.accessibilityDisplayShouldReduceTransparency)"); guard !w.accessibilityDisplayShouldReduceMotion && !w.accessibilityDisplayShouldReduceTransparency && !w.accessibilityDisplayShouldIncreaseContrast else { fatalError("CI accessibility baseline is not normal; motion/material evidence cannot be captured") }' | tee test-results/accessibility-normal-motion.log
+      - name: Execute native unit and integration tests
         run: |
           set -o pipefail
           mkdir -p test-results
           swift test --parallel 2>&1 | tee test-results/swift-test.log
+      - name: Verify isolated arrival delta and report native motion outcomes
+        if: github.head_ref == 'codex/arrival-none-magnet-native-20261028' || github.ref == 'refs/heads/codex/arrival-none-magnet-native-20261028'
+        run: |
+          set -o pipefail
+          python3 -B -m unittest discover -s Tests/ArrivalIsolation -v 2>&1 | tee test-results/arrival-isolation-tests.log
+          python3 -B scripts/verify-arrival-integration.py 2>&1 | tee test-results/arrival-integration.log
+          swift test --skip-build --filter 'ArrivalMotionPreferencesTests|CaptureArrivalObservationTests|ArrivalModesTests|MagnetMotionPlanTests|MagnetFlightPresenterTests|ScreenshotSourceGeometryTests' 2>&1 | tee test-results/arrival-native-detailed.log
+          swiftc -typecheck scripts/arrival-source-probe.swift 2>&1 | tee test-results/arrival-probe-typecheck.log
       - name: Verify packaging rejection paths offline
         run: |
           set -o pipefail
@@ -118,6 +144,19 @@ jobs:
           swift test --skip-build --filter SystemScreenshotCandidateIntegrationTests 2>&1 | tee test-results/system-candidate-composition-detailed.log
           swift test --skip-build --filter SystemScreenshotFidelityTests 2>&1 | tee test-results/system-candidate-fidelity-detailed.log
           swift test --skip-build --filter 'RiftletFeedbackTests|RiftletFeedbackUITests' 2>&1 | tee test-results/feedback-detailed.log
+          swift test --skip-build --filter 'ScreenshotEntry|InteractiveScreenshot|CompletedScreenshotImporter|RiftCapturePresentation' 2>&1 | tee test-results/capture-entry-detailed.log
+          swift test --skip-build --filter 'CaptureSourceBindingTests|CapturePreferenceObservationTests' 2>&1 | tee test-results/capture-source-binding-detailed.log
+          swift test --skip-build --filter 'UnifiedSettingsTests|QuietEdgeInteractionTests|QuietEdgeWindowTests|RiftLayoutTests|RiftPeekGeometryTests|FeedbackVisualCandidateTests|MagnetFlightPresenterTests|ArrivalModesTests' 2>&1 | tee test-results/unified-product-detailed.log
+      - name: Probe one owned-window system capture component on PR
+        if: github.event_name == 'pull_request'
+        env:
+          RIFTLET_REAL_CAPTURE_FIXTURE: '1'
+          RIFTLET_BUILD_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -o pipefail
+          # One fresh synthetic-window region capture, no physical input or upload.
+          # The ordinary parallel suite never opts into this component probe.
+          swift test --skip-build --filter BuiltInCaptureNativeProbeTests/testActualAppleCapturePublicationAndPrivateImport 2>&1 | tee test-results/builtin-capture-native-engine.log
       - name: Package native application
         run: |
           set -o pipefail
@@ -146,6 +185,27 @@ jobs:
           "$riftlet_bin_dir/RiftletGUIAcceptance" --self-check 2>&1 | tee test-results/gui-helper-self-check.log
           cp "$riftlet_bin_dir/RiftletGUIAcceptance" build/RiftletGUIAcceptance
           ditto -c -k --keepParent build/RiftletGUIAcceptance build/Riftlet-GUI-Acceptance.zip
+      - name: Capture isolated native visual evidence at original pixels
+        env:
+          RIFTLET_BUILD_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -o pipefail
+          python3 -B -m unittest discover -s Tests/NativeVisualEvidence -v 2>&1 | tee test-results/native-visual-manifest-tests.log
+          riftlet_bin_dir="$(swift build -c release --show-bin-path)"
+          python3 -B scripts/capture-native-visual-evidence.py --helper "$riftlet_bin_dir/RiftletGUIAcceptance" --expected-system-accessibility normal --output "$PWD/test-results/native-visual" 2>&1 | tee test-results/native-visual-capture.log
+      - name: Capture bounded actual system accessibility variants
+        env:
+          RIFTLET_BUILD_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -o pipefail
+          # Only this disposable CI runner is changed. Fresh product/helper
+          # processes continue to read and honor the real AppKit system policy.
+          defaults write com.apple.universalaccess reduceMotion -bool true
+          defaults write com.apple.universalaccess reduceTransparency -bool true
+          defaults write com.apple.universalaccess increaseContrast -bool true
+          riftlet_bin_dir="$(swift build -c release --show-bin-path)"
+          "$riftlet_bin_dir/RiftletGUIAcceptance" --report-system-accessibility | tee test-results/accessibility-reduced.log
+          python3 -B scripts/capture-native-visual-evidence.py --helper "$riftlet_bin_dir/RiftletGUIAcceptance" --expected-system-accessibility reduced --only-case queue-dark --only-case entry-dark --only-case motion-magnet --output "$PWD/test-results/native-visual-accessibility" 2>&1 | tee test-results/native-visual-accessibility-capture.log
       - name: Archive evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

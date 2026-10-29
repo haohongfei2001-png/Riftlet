@@ -1,3 +1,7 @@
+# Current unified Thin Edge increment — 2026-10-29
+
+The latest user asks the formal lead to integrate `443d21d` with current formal `0e7ea8be`, preserve the latest Feedback reliability fixes, and autonomously polish the product before founder use. This supersedes older “prioritize founder usage now” handoffs. Do not ask the founder to install this round. PR #1 remains Draft; no main merge or public release. No duplicate cherry-picks of entry/arrival ancestors, no production/safe-retry expansion, no repeat H upload or old UNKNOWN/data cleanup. New visual parameters remain reviewed implementation candidates, not final founder approval. Use the new fixed unified composition gate; historical gates and their exact source objects remain unchanged. Native synthetic WindowServer images/movies and software tests are separate from physical/macOS end-to-end acceptance.
+
 # Riftlet context for all AI contributors
 
 ## Feedback delivery continuation — 2026-10-29

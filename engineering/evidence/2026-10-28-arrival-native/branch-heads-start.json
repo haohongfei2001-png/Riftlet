@@ -1,0 +1,131 @@
+{
+  "method": "isolated git clone of all remote refs before edits",
+  "heads": [
+    {
+      "branch": "codex/engineering-foundation-20261027",
+      "sha": "1920e0562db893a3292af89a89270a26ddb46a5f"
+    },
+    {
+      "branch": "codex/feedback-v01-20261028",
+      "sha": "f195bebbc22ed1a162b5866ca1fe6c7ccb9835b9"
+    },
+    {
+      "branch": "codex/m1-native-backend-20261027",
+      "sha": "88f9e362d7e1610929eeb42e77b3d7652477bd1f"
+    },
+    {
+      "branch": "codex/predictive-capture-entry-20261028",
+      "sha": "a526bc74a9a9f00e8dc4fceca2a4bc0a5adc1e0c"
+    },
+    {
+      "branch": "codex/riftlet-real-mac-acceptance-20261027",
+      "sha": "f075b8fe97eddf04d868e9e5fe589c51c9d12ad5"
+    },
+    {
+      "branch": "codex/riftlet-real-mac-acceptance-beta-ux-20261028",
+      "sha": "8e1a1688e75db8c18965e073ae357010e7397a3a"
+    },
+    {
+      "branch": "codex/riftlet-real-mac-acceptance-internal-beta-20261028",
+      "sha": "70cf5881e07ad18f44c96aa3e7200d3be3df2b04"
+    },
+    {
+      "branch": "codex/riftlet-real-mac-acceptance-internal-beta-ux-20261028",
+      "sha": "1920e0562db893a3292af89a89270a26ddb46a5f"
+    },
+    {
+      "branch": "codex/riftlet-real-mac-acceptance-sc-admission-20261028",
+      "sha": "e421e6687651c2fac1441410c1af2bd5b8151e55"
+    },
+    {
+      "branch": "codex/riftlet-real-mac-acceptance-sc-complete-20261028",
+      "sha": "493d1d8b898d18e34709463d2dceca8c85ad4014"
+    },
+    {
+      "branch": "codex/riftlet-real-mac-acceptance-sc-integration-20261028",
+      "sha": "871d825a43a759bb6dd8ded9cdc99a340d8e0e64"
+    },
+    {
+      "branch": "codex/riftlet-real-mac-acceptance-sc-stage2-20261028",
+      "sha": "f2ae645451044649fbe73326952efbe084353869"
+    },
+    {
+      "branch": "codex/riftlet-real-mac-acceptance-sc-swallow-20261028",
+      "sha": "c177174e400064d8ec8bb79685c33d01c4e93b89"
+    },
+    {
+      "branch": "codex/riftlet-real-mac-round2-20261027",
+      "sha": "8d7007e069d077d5991904e72ebd8fcda3a00806"
+    },
+    {
+      "branch": "codex/riftlet-real-mac-round3-20261027",
+      "sha": "6344eb08c96180d1e675595083333ec860fd62a2"
+    },
+    {
+      "branch": "codex/riftlet-real-mac-round4-20261027",
+      "sha": "03a67cc41e542a7db6dc128b27da8f108efc9896"
+    },
+    {
+      "branch": "codex/riftlet-real-mac-round5-20261027",
+      "sha": "3bb13999b0f444c7748804eef1976e179a52a85e"
+    },
+    {
+      "branch": "codex/riftlet-real-mac-round6-20261027",
+      "sha": "65f7d54121a637e8a97d2f25f8bcd8069393eb4d"
+    },
+    {
+      "branch": "codex/riftlet-real-mac-round7-20261027",
+      "sha": "3b089b22449742fe7d9a76e74aa7ac99be37ba8e"
+    },
+    {
+      "branch": "codex/riftlet-real-mac-round8-20261028",
+      "sha": "8914c7027478cbef6af70ad7549e290d5b8cc232"
+    },
+    {
+      "branch": "codex/riftlet-real-mac-round9-20261028",
+      "sha": "b30bb80d5af5cc12b0640c3609f70292709738a1"
+    },
+    {
+      "branch": "codex/system-capture-candidate-20261028",
+      "sha": "d6a083dec660990bd65124e7acd78f2d900b5013"
+    },
+    {
+      "branch": "codex/system-screenshot-real-20261028",
+      "sha": "5d2994c150646549830746cd83c264c600973689"
+    },
+    {
+      "branch": "codex/web-attachment-handoff-20261027",
+      "sha": "6f4156988f32fa06d4df9f06a43f564b560e0a1d"
+    },
+    {
+      "branch": "design/arrival-none-magnet-20261028",
+      "sha": "0b73291652c11f5cb7b6e2792d001eb3340c988b"
+    },
+    {
+      "branch": "design/interactive-rift-v1-20261027",
+      "sha": "8b2937e05c6ca2e4c33a7c59fd1dce0cca05f3aa"
+    },
+    {
+      "branch": "docs/fast-swallow-product-contract-20261027",
+      "sha": "90a04883160032fc6354fb4f3d3f7d56fede2947"
+    },
+    {
+      "branch": "integration/round8-9-candidate-20261028",
+      "sha": "e39c30046d2451cee204a5bc2f8fc22f2251da26"
+    },
+    {
+      "branch": "integration/round8-9-workbench-20261028",
+      "sha": "dda55555925da012cfd60de5de8187ddbf6ae7cb"
+    },
+    {
+      "branch": "main",
+      "sha": "eba1a4fc77648a665e1d5c1f2609df1314c3b079"
+    }
+  ],
+  "notes": [
+    "Initial connector branches read saw predictive entry44c5b613; isolated clone saw its latera526bc74; neither was merged.",
+    "No remote branch was modified by this observation."
+  ],
+  "observationClock": "Initial clone before source edits; a separate observation timestamp was not recorded.",
+  "recordWrittenAtUTC": "2026-10-28T14:49:33.455709+00:00"
+}

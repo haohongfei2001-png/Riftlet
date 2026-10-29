@@ -3,6 +3,7 @@
 源码 `7ef6cd4b` 已完成反馈可靠性修复、标准 macOS15 运行器迁移及非作者审查，完整 Native/Feedback CI 已通过，真实统一 Beta 安装包已下载核验。正式工程文档后继的最终 SHA、新正式分支 CI 和下载固定在 [PR #1](https://github.com/haohongfei2001-png/Riftlet/pull/1)，细节见 [Feedback 交接](FEEDBACK_V01_HANDOFF.md)。当前截图实现与准入、真实 Mac 工作树、原有历史与数据均保留，main 未合并。私有反馈仓库已建立；Cloudflare 登录和离线 Mac 仍阻塞真实原生到云端验收，endpoint 继续为空。以下原交接记录保留为历史。
 
 ---
+> **2026-10-29「薄界」原生实施独立候选**：`codex/riftlet-real-mac-acceptance-thin-edge-20261029` 按最终设计继承预测入口与磁力基础，完成共享原生视觉、稳定裂缝/编号/分页/预览、入口空间统一和四相可中断动效。真实2x窗口截图、原生合成动效录像及CGEvent路由已取证；不重测上传、不改变生产或重试准入，不覆盖正式Pro分支。准确源码、macOS CI、非作者审查、未验项与可运行App说明集中在[独立交接](../engineering/evidence/2026-10-29-thin-edge-native/README.md)。所有新精确视觉参数仍为实施候选；本轮不要求创始人体验。以下保留历史与正式检查点，不把独立候选当作已经正式整合。
 
 # 当前正式交接：Beta 体验修复与可运行版本更新 · 2026-10-28
 
@@ -609,3 +610,12 @@ Core/UI/App正式源码未改；两份最小临时overlay供Pro接入synthetic s
 **仍未解决：真正无 ACK 冷首击。** AX hints 注册移到首次 capture 之后，但两次原 AX 点击仍无先行 ACK、零新输入。保留的 v10 root monitor 阻止 v12 接管，现有封闭拒绝码缺失已补；最终 App 实测返回 `unobservedRootDescriptor`。独立新文档完整 ACK 晚于点击约 1.938 秒，未回填或重放。最小隔离 MV3/native 通道真实跑通，但不证明业务草稿/前台事件连续性，不能据此启用发行扩展或生产输入。
 
 SQLite v3、25 Web 媒体、27 操作、6 未决相位、补偿与开始回执、14 其他私有文件均保留。生产截图上传、生产开始 profile、安全重试仍关闭。Pro 集成此分支的最小 App/UI/adapter 增量；不重复挑选五至七轮，不清监视器或 UNKNOWN 制造成功。
+
+
+## 薄界统一候选独立打磨 · 2026-10-29
+
+正式 `0e7ea8be` 与原生 `443d21d` 按祖先双亲合流，独立候选分支 `codex/riftlet-real-mac-acceptance-internal-beta-thin-edge-20261029` / Draft PR #15；正式 PR #1 保持 Draft，main不合并。预测入口与磁力已在祖先，不重复cherry-pick。保留最新Feedback可靠性修复、原候选准入及所有旧证据。
+
+统一设置、原生预览、分页、历史、Feedback布局与关闭、入口/辅助窗协调等实质打磨正在准确组合CI与非作者视觉/工程审查。已有成功CI中发现并主动驳回了漏NSPanel的多窗取证，不能以构建成功代表产品视觉合格。全部尝试、已审源与最终交付状态统一记录于[本轮质量交接](../engineering/evidence/2026-10-29-unified-candidate/README.md)，该记录是本轮最新结论入口；下方历史阶段陈述不代表当前准入。
+
+真机离线，旧H不复测，不触碰UNKNOWN/原图/数据库。普通生产上传、安全失败与重试仍关闭，Feedback云端未部署；不要求创始人立即安装体验。

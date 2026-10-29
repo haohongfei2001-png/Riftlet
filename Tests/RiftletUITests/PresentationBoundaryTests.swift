@@ -38,7 +38,7 @@ final class PresentationBoundaryTests: XCTestCase {
         configuration.returnDuration = 0.01
         configuration.reducedMotionDuration = 0.02
         return RiftPanelController(mediaDirectory: FileManager.default.temporaryDirectory,
-            configuration: configuration, onSelectionBoundary: onSelection,
+            configuration: configuration, arrivalMode: .magnet, onSelectionBoundary: onSelection,
             onPresentationBoundary: onBoundary, holdsSelectionUntilFinished: holdsSelection,
             onSelect: onSelect)
     }

@@ -1,0 +1,245 @@
+import AppKit
+import XCTest
+@testable import RiftletUI
+
+/// Software AppKit only; no screenshot, permission, browser or durable user data.
+final class UnifiedSettingsTests: XCTestCase {
+    @MainActor private func prepare() throws {
+        _ = NSApplication.shared
+        guard !NSScreen.screens.isEmpty else { throw XCTSkip("WindowServer unavailable; physical settings acceptance NOT_RUN") }
+    }
+    @MainActor private func control<T: NSView>(_ id: String, as type: T.Type = T.self) throws -> T {
+        let window = try XCTUnwrap(NSApp.windows.first { $0.identifier == RiftSetupController.windowIdentifier })
+        func visit(_ view: NSView) -> T? {
+            if view.identifier?.rawValue == id { return view as? T }
+            for child in view.subviews { if let found = visit(child) { return found } }
+            return nil
+        }
+        return try XCTUnwrap(visit(try XCTUnwrap(window.contentView)))
+    }
+    @MainActor private func send(_ control: NSControl) { _ = control.sendAction(control.action, to: control.target) }
+
+    @MainActor func testAllPreferencePagesStayInOneWindowAndRefreshDoesNotSave() throws {
+        try prepare()
+        var changes: [RiftSettingsChange] = []
+        var value = RiftSettingsSnapshot(entryAvailable: true, archiveAfterHours: 24)
+        let controller = RiftSetupController(onRecheck: {}, onOpenSource: {}, onPermission: {}, onDismiss: {}, onSettingsChange: { change in
+            changes.append(change)
+            if case .defaultCaptureMode(let mode) = change { value.defaultCaptureMode = mode }
+            return value
+        })
+        defer { controller.close() }
+        controller.updateSettings(value)
+        XCTAssertFalse(controller.isVisible)
+        for section in [RiftSettingsSection.captureEntry, .display, .privacy] { controller.show(section: section) }
+        XCTAssertTrue(changes.isEmpty, "Viewing settings never starts capture or writes preferences")
+        controller.show(section: .captureEntry)
+        let mode: NSPopUpButton = try control("settings.captureMode")
+        mode.selectItem(at: 1); send(mode)
+        XCTAssertEqual(changes, [.defaultCaptureMode(.region)])
+        controller.close(); controller.updateSettings(value)
+        XCTAssertFalse(controller.isVisible, "Background preference refresh cannot reopen the window")
+    }
+
+    @MainActor func testFailedDisplayAndMotionWritesRestoreSavedSelections() throws {
+        try prepare()
+        let value = RiftSettingsSnapshot(entryAvailable: true, arrivalMode: .none,
+            displays: [.init(id: 1, name: "Display A"), .init(id: 2, name: "Display B")], preferredDisplayID: 1)
+        var attempts = 0
+        let controller = RiftSetupController(onRecheck: {}, onOpenSource: {}, onPermission: {}, onDismiss: {}, onSettingsChange: { _ in
+            attempts += 1; throw CocoaError(.fileWriteNoPermission)
+        })
+        defer { controller.close() }
+        controller.updateSettings(value); controller.show(section: .display)
+        let display: NSPopUpButton = try control("settings.display")
+        display.selectItem(at: 2); send(display)
+        XCTAssertEqual(display.indexOfSelectedItem, 1, "The unchanged menu must still roll back an unsaved selection")
+        let motion: NSPopUpButton = try control("settings.arrivalMode")
+        motion.selectItem(at: 1); send(motion)
+        XCTAssertEqual(motion.indexOfSelectedItem, 0)
+        XCTAssertEqual(attempts, 2)
+        let message: NSTextField = try control("settings.saveStatus")
+        XCTAssertTrue(message.stringValue.contains("未能保存"))
+    }
+
+    @MainActor func testArchiveRejectsPartialNumbersAndPreservesExplicitDisable() throws {
+        try prepare()
+        var changes: [RiftSettingsChange] = []
+        var value = RiftSettingsSnapshot(archiveAfterHours: 24)
+        let controller = RiftSetupController(onRecheck: {}, onOpenSource: {}, onPermission: {}, onDismiss: {}, onSettingsChange: { change in
+            changes.append(change)
+            if case .archiveAfterHours(let hours) = change { value.archiveAfterHours = hours }
+            return value
+        })
+        defer { controller.close() }
+        controller.updateSettings(value); controller.show(section: .privacy)
+        let hours: NSTextField = try control("settings.archiveHours")
+        let save: NSButton = try control("settings.archiveSave")
+        for invalid in ["1abc", "-1", "nan", "infinity", "1.2.3", ""] { hours.stringValue = invalid; save.performClick(nil) }
+        XCTAssertTrue(changes.isEmpty)
+        hours.stringValue = "0"; save.performClick(nil)
+        hours.stringValue = "1.5"; save.performClick(nil)
+        XCTAssertEqual(changes, [.archiveAfterHours(nil), .archiveAfterHours(1.5)])
+    }
+
+    @MainActor func testUnavailableEntryCannotInvokePreferenceActionAndDisconnectedDisplayIsRetained() throws {
+        try prepare()
+        var attempts = 0
+        let value = RiftSettingsSnapshot(entryAvailable: false, displays: [.init(id: 2, name: "Available")], preferredDisplayID: 1)
+        let controller = RiftSetupController(onRecheck: {}, onOpenSource: {}, onPermission: {}, onDismiss: {}, onSettingsChange: { _ in
+            attempts += 1; return value
+        })
+        defer { controller.close() }
+        controller.updateSettings(value); controller.show(section: .captureEntry)
+        let enabled: NSButton = try control("settings.entryEnabled")
+        let capture: NSPopUpButton = try control("settings.captureMode")
+        XCTAssertFalse(enabled.isEnabled); XCTAssertFalse(capture.isEnabled)
+        enabled.performClick(nil); send(capture)
+        XCTAssertEqual(attempts, 0)
+        controller.show(section: .display)
+        let display: NSPopUpButton = try control("settings.display")
+        XCTAssertEqual(display.titleOfSelectedItem, "已选显示器（未连接）")
+        XCTAssertEqual(attempts, 0, "Hotplug fallback must not silently change the saved display")
+    }
+
+    @MainActor func testReturnInArchiveFieldSavesWithoutDismissingSettings() async throws {
+        try prepare()
+        var dismissed = 0, changes: [RiftSettingsChange] = []
+        var value = RiftSettingsSnapshot(archiveAfterHours: 24)
+        let controller = RiftSetupController(onRecheck: {}, onOpenSource: {}, onPermission: {}, onDismiss: { dismissed += 1 }, onSettingsChange: { change in
+            changes.append(change)
+            if case .archiveAfterHours(let hours) = change { value.archiveAfterHours = hours.map { ($0 * 3600) / 3600 } }
+            return value
+        })
+        defer { controller.close() }
+        controller.updateSettings(value); controller.show(section: .privacy)
+        let hours: NSTextField = try control("settings.archiveHours")
+        hours.stringValue = "2"
+        XCTAssertTrue(try XCTUnwrap(hours.window).makeFirstResponder(hours))
+        let editor = try XCTUnwrap(hours.currentEditor() as? NSTextView)
+        editor.insertNewline(nil)
+        await Task.yield()
+        XCTAssertEqual(changes, [.archiveAfterHours(2)])
+        XCTAssertEqual(dismissed, 0)
+        XCTAssertTrue(controller.isVisible)
+        let save: NSButton = try control("settings.archiveSave")
+        XCTAssertTrue(try XCTUnwrap(hours.window).makeFirstResponder(hours))
+        let nextEditor = try XCTUnwrap(hours.currentEditor() as? NSTextView)
+        nextEditor.string = "0.011"
+        XCTAssertTrue(try XCTUnwrap(hours.window).makeFirstResponder(nil))
+        await Task.yield()
+        XCTAssertEqual(changes, [.archiveAfterHours(2)], "Leaving the field is not a save command")
+        save.performClick(nil); save.performClick(nil)
+        XCTAssertEqual(changes, [.archiveAfterHours(2), .archiveAfterHours(0.011)], "An already-saved fractional value cannot cause duplicate durable writes")
+        XCTAssertTrue(controller.isVisible)
+    }
+
+    @MainActor func testBackgroundPreferenceRefreshAndUnchangedLayoutPreserveManualPreview() async throws {
+        try prepare()
+        guard !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion else {
+            throw XCTSkip("System Reduce Motion correctly disables this visual preview")
+        }
+        var value = RiftSettingsSnapshot(entryAvailable: true, arrivalMode: .magnet, hasArrivalSelection: true)
+        let controller = RiftSetupController(onRecheck: {}, onOpenSource: {}, onPermission: {}, onDismiss: {}, onSettingsChange: { _ in value })
+        defer { controller.close() }
+        controller.updateSettings(value); controller.show(section: .display)
+        let preview: ArrivalPreviewView = try control("settings.motionPreviewImage")
+        var observations: [String] = [], droppedObservations = 0
+        preview.diagnosticObserver = {
+            if observations.count < 96 { observations.append($0) } else { droppedObservations += 1 }
+        }
+        defer { preview.diagnosticObserver = nil; print("PREVIEW_OBSERVATIONS_BEGIN\n" + observations.joined(separator: "\n") + "\nPREVIEW_OBSERVATIONS_END dropped=\(droppedObservations)") }
+        preview.window?.contentView?.layoutSubtreeIfNeeded()
+        let replay: NSButton = try control("settings.motionPreview")
+        XCTAssertTrue(preview.window?.isVisible == true)
+        XCTAssertGreaterThan(preview.bounds.width, 100)
+        XCTAssertGreaterThan(preview.bounds.height, 80)
+        let previewBoundsBeforeReplay = preview.bounds
+        let previewFrameBeforeReplay = preview.convert(preview.bounds, to: preview.window?.contentView)
+        preview.recordDiagnostic("test.performClick.before")
+        replay.performClick(nil)
+        preview.recordDiagnostic("test.performClick.after")
+        XCTAssertEqual(preview.bounds, previewBoundsBeforeReplay, "Replaying must not change the settings column as a native scroller appears")
+        let imageLayer = try XCTUnwrap(preview.layer?.sublayers?.first?.sublayers?.first)
+        preview.recordDiagnostic("test.assertLayer", observedLayer: imageLayer)
+        let diagnostics = "bounds=\(preview.bounds), visible=\(preview.window?.isVisible == true), scale=\(preview.window?.backingScaleFactor ?? 0), layerKeys=\(imageLayer.animationKeys() ?? [])"
+        XCTAssertNotNil(imageLayer.animation(forKey: "arrival.preview"), diagnostics)
+        value.entryEnabled = false
+        controller.updateSettings(value); preview.layout()
+        XCTAssertNotNil(imageLayer.animation(forKey: "arrival.preview"), "An unrelated status or same-size layout cannot interrupt a deliberate preview")
+        preview.viewDidChangeBackingProperties()
+        XCTAssertNotNil(imageLayer.animation(forKey: "arrival.preview"), "A backing notification with unchanged physical scale cannot cancel the preview")
+        let scroll = try XCTUnwrap(preview.enclosingScrollView)
+        for style in [NSScroller.Style.overlay, .legacy, .overlay] {
+            scroll.scrollerStyle = style
+            preview.window?.contentView?.layoutSubtreeIfNeeded()
+            XCTAssertEqual(preview.bounds, previewBoundsBeforeReplay,
+                "Changing the native scroller style cannot reflow the settings document")
+            XCTAssertEqual(preview.convert(preview.bounds, to: preview.window?.contentView), previewFrameBeforeReplay,
+                "The document must retain its position rather than centering within an overlay clip")
+            XCTAssertLessThanOrEqual(try XCTUnwrap(scroll.documentView).frame.width, scroll.contentView.bounds.width)
+            XCTAssertEqual(scroll.documentVisibleRect.minX, 0, accuracy: 0.001)
+            XCTAssertNotNil(imageLayer.animation(forKey: "arrival.preview"),
+                "Native scroller style changes cannot interrupt a deliberate preview")
+        }
+        controller.close()
+        XCTAssertNil(imageLayer.animation(forKey: "arrival.preview"), "Closing still cancels preview work")
+        // Let already delivered delegate observations be logged. This happens
+        // after every original assertion; it cannot turn a missing animation
+        // into a pass or extend its product duration.
+        await Task.yield()
+        await Task.yield()
+    }
+
+    @MainActor func testSettingsColumnKeepsItsWidthWhenNativeScrollingBecomesNecessary() async throws {
+        try prepare()
+        let controller = RiftSetupController(onRecheck: {}, onOpenSource: {}, onPermission: {}, onDismiss: {},
+            onSettingsChange: { _ in RiftSettingsSnapshot() })
+        defer { controller.close() }
+        controller.show(section: .display)
+        let preview: ArrivalPreviewView = try control("settings.motionPreviewImage")
+        let window = try XCTUnwrap(preview.window)
+        let scroll = try XCTUnwrap(preview.enclosingScrollView)
+        // Exercise native styles on this test window only; never change the
+        // user's preference or force a particular style in product code.
+        var expectedWidth: CGFloat?
+        for style in [NSScroller.Style.legacy, .overlay, .legacy] {
+            scroll.scrollerStyle = style
+            var overflow: [Bool] = []
+            for height in [CGFloat(480), CGFloat(700), CGFloat(520)] {
+                var frame = window.frame; frame.size.height = height
+                window.setFrame(frame, display: true)
+                window.contentView?.layoutSubtreeIfNeeded()
+                await Task.yield()
+                window.contentView?.layoutSubtreeIfNeeded()
+                scroll.reflectScrolledClipView(scroll.contentView)
+                window.contentView?.layoutSubtreeIfNeeded()
+                let document = try XCTUnwrap(scroll.documentView)
+                overflow.append(document.frame.height > scroll.contentView.bounds.height)
+                if let expectedWidth {
+                    XCTAssertEqual(preview.bounds.width, expectedWidth,
+                        "Changing scroll necessity must not shift the settings column")
+                } else { expectedWidth = preview.bounds.width }
+                XCTAssertGreaterThan(preview.bounds.width, 100)
+            }
+            XCTAssertTrue(overflow[0], "The compact window must actually exercise scrolling")
+            XCTAssertFalse(overflow[1], "The larger window must actually exercise a fitting document")
+        }
+    }
+
+    @MainActor func testWindowRecoveryUsesReachableTitleBarAndPreservesValidCrossDisplayPosition() {
+        let main = NSRect(x: 0, y: 0, width: 1440, height: 900)
+        let left = NSRect(x: -1000, y: 0, width: 1000, height: 800)
+        let across = NSRect(x: -200, y: 200, width: 680, height: 520)
+        XCTAssertEqual(RiftVisualStyle.reachableWindowFrame(across, visibleFrames: [main, left], preferredFrame: main), across)
+        let bottomSliver = NSRect(x: 100, y: 890, width: 680, height: 520)
+        let recovered = RiftVisualStyle.reachableWindowFrame(bottomSliver, visibleFrames: [main], preferredFrame: main)
+        XCTAssertEqual(recovered.origin, NSPoint(x: 100, y: 380))
+        let sideSliver = NSRect(x: 1435, y: 100, width: 680, height: 520)
+        XCTAssertEqual(RiftVisualStyle.reachableWindowFrame(sideSliver, visibleFrames: [main], preferredFrame: main).origin.x, 760)
+        let oversized = NSRect(x: 9000, y: 9000, width: 1600, height: 1000)
+        let accessible = RiftVisualStyle.reachableWindowFrame(oversized, visibleFrames: [main], preferredFrame: main)
+        XCTAssertEqual(accessible.minX, main.minX)
+        XCTAssertEqual(accessible.maxY, main.maxY)
+    }
+}

@@ -203,9 +203,25 @@ final class AcceptedSelectionQueueTests: XCTestCase {
 
     func testDeadlineCancelsPreparedWhileOriginalUnknownRemainsLocked() async throws {
         let s = try store(), a = try await asset(s), b = try await asset(s), adapter = ParkAdapter()
-        let coordinator = coordinator(s, adapter)
-        try await coordinator.select(token(a)); try await coordinator.select(token(b, duration: 0.05))
-        try await Task.sleep(nanoseconds: 150_000_000)
+        let expiration = expectation(description: "Original B preparation is durably cancelled after its deadline")
+        let observed = ParkExpirationObservation()
+        let coordinator = coordinator(s, adapter, change: {
+            guard let record = try? await s.asset(id: b.id), let id = record.activeOperationID,
+                  let operation = try? await s.operation(id: id), operation.phase == .failed else { return }
+            await observed.fulfillOnce(expiration)
+        })
+        try await coordinator.select(token(a))
+        let selection = token(b, duration: 0.05)
+        try await coordinator.select(selection)
+        // A sleep does not establish completion across the coordinator/store
+        // actors. Observe the actual durable transition; never trigger a drain
+        // or cancellation from the test, or lengthen the selection's 50ms lease.
+        await fulfillment(of: [expiration], timeout: 5)
+        let cancelledAt = await observed.uptime
+        XCTAssertNotNil(cancelledAt)
+        if let cancelledAt { XCTAssertGreaterThanOrEqual(cancelledAt, selection.deadlineUptime) }
+        XCTAssertFalse(selection.isValid(), "Waiting for cleanup cannot restore expired input authority")
+        print("ACCEPTED_SELECTION_DEADLINE planned=\(selection.deadlineUptime) observedDurableCancellation=\(String(describing: cancelledAt))")
         let bOp = try await operation(b, s), aOp = try await operation(a, s), inputs = await adapter.inputs()
         XCTAssertEqual(bOp.phase, .failed); XCTAssertTrue(aOp.phase.isUnresolved); XCTAssertEqual(inputs, [a.id])
         await adapter.complete(a.id); try await coordinator.observePending()
@@ -324,6 +340,15 @@ final class AcceptedSelectionQueueTests: XCTestCase {
         let current = try await s.operation(id: op.id); XCTAssertEqual(current?.phase, .prepared)
         let original = token(b); try await s.markDispatchIntent(op.id, selection: original)
         XCTAssertFalse(original.isValid())
+    }
+}
+
+private actor ParkExpirationObservation {
+    private(set) var uptime: TimeInterval?
+    func fulfillOnce(_ expectation: XCTestExpectation) {
+        guard uptime == nil else { return }
+        uptime = ProcessInfo.processInfo.systemUptime
+        expectation.fulfill()
     }
 }
 

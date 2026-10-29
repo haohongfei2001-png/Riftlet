@@ -14,7 +14,7 @@ final class RiftReconfigurationTests: XCTestCase {
         }
     }
 
-    func testLargeValidInsetDoesNotPushFittingRowsOutsideNarrowDisplay() throws {
+    func testLargeValidInsetHidesUnfittingRowsWithoutDiscardingTheirIdentity() throws {
         var configuration = RiftConfiguration()
         configuration.fitWidth = 256
         configuration.fitHeight = 256
@@ -22,14 +22,33 @@ final class RiftReconfigurationTests: XCTestCase {
         configuration.outerInset = 256
         try configuration.validate()
         let frame = CGRect(x: -480, y: 50, width: 480, height: 900)
-        let layout = RiftLayout.make(records: records(3), visibleFrame: frame, configuration: configuration)
-        XCTAssertEqual(layout.rows.count, 3)
-        for row in layout.rows {
-            XCTAssertTrue(frame.contains(row.frame), "A valid inset must not move the hit window past the left edge")
-            XCTAssertEqual(row.imageFrame.width / row.imageFrame.height, 1_920.0 / 1_080.0, accuracy: 0.0001)
-            XCTAssertEqual(row.frame.maxX, layout.rows[0].frame.maxX, accuracy: 0.0001)
+        let input = records(3)
+        let layout = RiftLayout.make(records: input, visibleFrame: frame, configuration: configuration)
+        // A valid preference is not proof that it fits every display: this
+        // leaves 224pt for a 256pt image plus its visible number. Do not shift
+        // the fixed plane or create partially offscreen input islands to fit.
+        XCTAssertTrue(layout.rows.isEmpty)
+        XCTAssertEqual(layout.lineFrame, .zero)
+        XCTAssertEqual(layout.pagerFrame, .zero)
+        XCTAssertEqual(layout.totalCount, input.count, "Hidden edges retain the history/queue records")
+
+        let widerFrame = CGRect(x: -800, y: 50, width: 800, height: 900)
+        var reached = Set<UUID>()
+        for start in 0..<input.count {
+            let restored = RiftLayout.make(records: input, visibleFrame: widerFrame,
+                configuration: configuration, firstVisibleIndex: start)
+            XCTAssertEqual(restored.totalCount, input.count)
+            XCTAssertFalse(restored.rows.isEmpty)
+            XCTAssertTrue(widerFrame.contains(restored.lineFrame))
+            for row in restored.rows {
+                XCTAssertTrue(widerFrame.contains(row.frame), "The full hit envelope must fit after display recovery")
+                XCTAssertEqual(row.imageFrame.width / row.imageFrame.height, 1_920.0 / 1_080.0, accuracy: 0.0001)
+                XCTAssertEqual(row.frame.maxX, widerFrame.maxX - configuration.outerInset, accuracy: 0.0001)
+                XCTAssertEqual(row.assetID, input[row.ordinal - 1].id)
+                reached.insert(row.assetID)
+            }
         }
-        XCTAssertTrue(frame.contains(layout.lineFrame))
+        XCTAssertEqual(reached, Set(input.map(\.id)))
     }
 
     func testGeometryReconfigurationPreservesIdentityAndOcclusionRatio() throws {
@@ -44,16 +63,30 @@ final class RiftReconfigurationTests: XCTestCase {
         configuration.rowPitch = 20
         try configuration.validate()
         let changed = RiftLayout.make(records: input, visibleFrame: frame, configuration: configuration)
-        XCTAssertEqual(changed.rows.map(\.assetID), original.rows.map(\.assetID))
-        XCTAssertEqual(changed.rows.map(\.ordinal), Array(1...12))
-        for row in changed.rows {
-            XCTAssertTrue(frame.contains(row.frame))
-            XCTAssertEqual(row.imageClipFrame.width / row.imageFrame.width, 0.6, accuracy: 0.0001)
-            XCTAssertEqual(row.imageFrame.width / row.imageFrame.height, 1_920.0 / 1_080.0, accuracy: 0.0001)
+        XCTAssertLessThan(changed.capacity, original.capacity, "Larger rows must page instead of overlapping")
+        XCTAssertEqual(changed.rows.map(\.assetID), Array(input.prefix(changed.rows.count)).map(\.id))
+        XCTAssertEqual(changed.rows.first?.frame.midY, original.rows.first?.frame.midY)
+        XCTAssertTrue(changed.hasLater)
+        var reached = Set<UUID>()
+        for start in 0..<input.count {
+            let page = RiftLayout.make(records: input, visibleFrame: frame,
+                configuration: configuration, firstVisibleIndex: start)
+            XCTAssertEqual(page.totalCount, input.count)
+            XCTAssertEqual(page.rows.first?.frame.midY, changed.rows.first?.frame.midY)
+            XCTAssertTrue(frame.contains(page.pagerFrame))
+            for row in page.rows {
+                XCTAssertTrue(frame.contains(row.frame))
+                XCTAssertEqual(row.frame.maxX, frame.maxX - configuration.outerInset)
+                XCTAssertEqual(row.assetID, input[row.ordinal - 1].id)
+                XCTAssertEqual(row.imageClipFrame.width / row.imageFrame.width, 0.6, accuracy: 0.0001)
+                XCTAssertEqual(row.imageFrame.width / row.imageFrame.height, 1_920.0 / 1_080.0, accuracy: 0.0001)
+                reached.insert(row.assetID)
+            }
+            for pair in zip(page.rows, page.rows.dropFirst()) {
+                XCTAssertGreaterThanOrEqual(pair.0.frame.minY - pair.1.frame.maxY, 4)
+            }
         }
-        for pair in zip(changed.rows, changed.rows.dropFirst()) {
-            XCTAssertGreaterThanOrEqual(pair.0.frame.minY - pair.1.frame.maxY, 4)
-        }
+        XCTAssertEqual(reached, Set(input.map(\.id)), "Every retained asset remains reachable after reconfiguration")
     }
 
     func testEveryRetainedItemRemainsReachableAcrossSmallDisplayWindows() {

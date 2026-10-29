@@ -1,8 +1,11 @@
 > **2026-10-29 Feedback 最终交付专项 · CODE/CI PASS，真实端到端 BLOCKED**：已在正式1920e056后继7ef6cd4完成可靠性修复、非作者审查、完整macOS15 Native40733901373与Feedback40733901402，501唯一原生（含38反馈/UI）、20服务、4+14隔离及42项固定审计通过，统一arm64/ad-hoc App已实际下载核验。源码、完整日志和包校验见 engineering/evidence/2026-10-29-feedback-delivery；正式工程文档后继SHA/新正式CI/最终下载以PR #1最新交接为准。专用Private私库Riftlet-Feedback已建立并禁用Actions；Cloudflare仍缺登录、已登记Mac离线，D1/Worker未部署、endpoint为空。不能宣布真实原生→云端交付完成。截图准入、数据、旧UNKNOWN及main保留；三个独立执行者已实际并行完成作者/非作者工作。
+> **2026-10-29「薄界」原生实施独立候选**：`codex/riftlet-real-mac-acceptance-thin-edge-20261029` 按最终设计继承预测入口与磁力基础，完成共享原生视觉、稳定裂缝/编号/分页/预览、入口空间统一和四相可中断动效。真实2x窗口截图、原生合成动效录像及CGEvent路由已取证；不重测上传、不改变生产或重试准入，不覆盖正式Pro分支。准确源码、macOS CI、非作者审查、未验项与可运行App说明集中在[独立交接](../engineering/evidence/2026-10-29-thin-edge-native/README.md)。所有新精确视觉参数仍为实施候选；本轮不要求创始人体验。以下保留历史与正式检查点，不把独立候选当作已经正式整合。
 
 > **2026-10-28 Beta 日常体验独立包 · DONE（限定）**：本地 Mac 在独立分支完成等待/取消说明与 tooltip/AX 清理修复，源码 `fa74f3c68f05ab4eaccfc24e2f39c0177289ddb3`、macOS CI `40693945938` success。用户报告的人工 helper 操作仅覆盖 IMAGE/NUMBER/GAP/按住原图；准确 CLEAR、补位后双击及真实 Chrome 物理输入未升级。正式工程更新 b4bcfa41 后另树实测 Feedback 两次关闭重开、隐藏恢复与目标再捕获；没有新增上传。两套源码未混称，Pro 整合 Main 两处冲突并运行组合 CI。详细 [产品结论与交接](../engineering/evidence/2026-10-28-beta-ux/README.md)。历史 UNKNOWN、原媒体与审计均保留。
 
 # Riftlet 自主并行执行队列
+
+> **预测截图入口 · 独立实现与验证中（2026-10-28）**：用户明确授权将已批准设计写入 GitHub。新分支 `codex/predictive-capture-entry-20261028` 基于最新统一内部 Beta `1920e056`（已保留期间上游 UX 修复）；实现截图后持续展开、固定三模式槽与移动取消盖片、独立透明度和原生连续截图。正式分支/main 未改写。离线交互参照及本地隔离回归已通过，原生结果以新 PR 精确 HEAD 的 macOS Actions 为准，真机/TCC/物理焦点不冒称 PASS。[范围、来源、兼容性与待验项](CAPTURE_ENTRY_2026-10-28.md)。
 
 > **当前任务：Beta 体验修复最终集成与可交付版本更新（2026-10-28）**。正式 b4bc 已含 Feedback 与 H，本轮只合入 fa74 的证据后继 8e1，逐块保留 Main 双方逻辑。固定来源审计准确扩展已批准文件并继续必跑；完整 Native/Feedback CI、非作者审查与更新 App 见 [当前内部 Beta](INTERNAL_BETA.md) 和 PR #1。普通生产/安全重试/云端均不开放，旧 UNKNOWN 不重传、不清除。交付后优先创始人正常体验，不再追加常规验收任务。下方均为前序历史，不覆盖此项。
 
@@ -304,3 +307,12 @@ Next READY task or next concrete action:
 实际生成图片的 **一次 helper AX → 真实递增上传开始 → AppKit 快吞噬 → 后台独立最终成功 PASS（限定）**。原 input=1、完整 target/attachment、首份 start 审计、较晚 final proof 和 persisted succeeded 对齐；开始后约59–322ms调用动画，动画段约253ms，窗口关闭早于最终证明约4.89–5.16s。不是物理鼠标或无ACK冷首击；原保留配置swallowDuration=.24，不是点击到关闭仅253ms。
 
 Core/UI/App正式源码未改；两份最小临时overlay供Pro接入synthetic start策略及诊断/AX元数据。生产、safe retry仍关闭。原11 Web资产/17操作/3补偿及所有原私有媒体哈希保留，新增5图各input1，其中2图未决保持原样；未发送消息。详见[第五轮完整交接](../engineering/evidence/2026-10-27-real-mac-round5/README.md)。本段替代此前“等待人工点第2张”的准备检查点；无需再请求该动作。下一项为Pro集成限定synthetic补丁，其后继续冷首击、业务转换、同草稿多图与物理N1，MID及安全终止分别准入。
+
+
+## 薄界统一候选独立打磨 · 2026-10-29
+
+正式 `0e7ea8be` 与原生 `443d21d` 按祖先双亲合流，独立候选分支 `codex/riftlet-real-mac-acceptance-internal-beta-thin-edge-20261029` / Draft PR #15；正式 PR #1 保持 Draft，main不合并。预测入口与磁力已在祖先，不重复cherry-pick。保留最新Feedback可靠性修复、原候选准入及所有旧证据。
+
+统一设置、原生预览、分页、历史、Feedback布局与关闭、入口/辅助窗协调等实质打磨正在准确组合CI与非作者视觉/工程审查。已有成功CI中发现并主动驳回了漏NSPanel的多窗取证，不能以构建成功代表产品视觉合格。全部尝试、已审源与最终交付状态统一记录于[本轮质量交接](../engineering/evidence/2026-10-29-unified-candidate/README.md)，该记录是本轮最新结论入口；下方历史阶段陈述不代表当前准入。
+
+真机离线，旧H不复测，不触碰UNKNOWN/原图/数据库。普通生产上传、安全失败与重试仍关闭，Feedback云端未部署；不要求创始人立即安装体验。

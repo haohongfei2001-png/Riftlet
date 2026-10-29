@@ -104,6 +104,53 @@ public struct SetupPresentation: Equatable, Sendable {
     public let snapshot: SetupSnapshot
     public init(snapshot: SetupSnapshot) { self.snapshot = snapshot }
 
+    /// First-use guidance follows the host's actual capability. It never turns
+    /// a permission grant or an illustration into a promise of upload access.
+    public var firstUseDescription: String {
+        switch snapshot.attachment {
+        case .productionDisabled:
+            return "截图自然地停在桌面边缘。当前仅本地收录，可以查看截图与历史。"
+        case .offlineSimulation:
+            return "用生成图片认识桌面边缘的裂缝。当前是离线演示，没有连接聊天草稿。"
+        case .syntheticWeb:
+            return "生成的测试图片停在桌面边缘。当前仅用于独立网页验收，不收录真实截图。"
+        case .systemScreenshotCandidate:
+            return "截图自然地停在桌面边缘。内部候选只在目标与图片均通过核验后，附加到当前聊天草稿。"
+        case .available:
+            return "截图自然地停在桌面边缘。需要时，点一下，进入当前受支持的聊天草稿。"
+        case .unsupportedBrowser, .targetUnavailable:
+            return "截图自然地停在桌面边缘。当前附加目标不可用，图片留在本机。"
+        }
+    }
+
+    public var firstUseFlow: String {
+        switch snapshot.attachment {
+        case .productionDisabled: return "截图 → 收录 → 查看"
+        case .offlineSimulation: return "生成图片 → 显示 → 演示"
+        case .syntheticWeb: return "生成测试图 → 核验目标 → 验收"
+        case .systemScreenshotCandidate: return "出现 → 核验 → 附加"
+        case .available: return "出现 → 点击 → 继续"
+        case .unsupportedBrowser, .targetUnavailable: return "截图 → 保留 → 检查目标"
+        }
+    }
+
+    public var firstUseNextStep: String {
+        switch snapshot.attachment {
+        case .productionDisabled:
+            return "确认截图位置可读取并开启收录后，用一张新的截图开始。当前不会上传，授权也不会开启附加能力。"
+        case .offlineSimulation:
+            return "继续查看生成图片的显示与状态变化。演示不会读取真实截图，也不会上传。"
+        case .syntheticWeb:
+            return "仅使用此模式生成的测试图片；受支持的 Chrome 草稿仍需独立核验。不会上传真实截图。"
+        case .systemScreenshotCandidate:
+            return "仅在获准的内部验收中，使用新截图与受支持的 Chrome 普通已有对话。无需先聚焦发言框；目标和原样图片仍须通过核验。"
+        case .available:
+            return "回到受支持的当前聊天草稿，用一张新的截图开始。只有唯一目标通过核验后才附加图片。"
+        case .unsupportedBrowser, .targetUnavailable:
+            return "先检查当前浏览器与聊天草稿。截图继续保留，不会切换到其他窗口或自动再次附加。"
+        }
+    }
+
     public var sourceText: String {
         switch snapshot.source {
         case .checking: return "正在检查系统截图保存位置。"
