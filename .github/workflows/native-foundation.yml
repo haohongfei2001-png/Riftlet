@@ -147,6 +147,16 @@ jobs:
           swift test --skip-build --filter 'ScreenshotEntry|InteractiveScreenshot|CompletedScreenshotImporter|RiftCapturePresentation' 2>&1 | tee test-results/capture-entry-detailed.log
           swift test --skip-build --filter 'CaptureSourceBindingTests|CapturePreferenceObservationTests' 2>&1 | tee test-results/capture-source-binding-detailed.log
           swift test --skip-build --filter 'UnifiedSettingsTests|QuietEdgeInteractionTests|QuietEdgeWindowTests|RiftLayoutTests|RiftPeekGeometryTests|FeedbackVisualCandidateTests|MagnetFlightPresenterTests|ArrivalModesTests' 2>&1 | tee test-results/unified-product-detailed.log
+      - name: Probe one owned-window system capture component on PR
+        if: github.event_name == 'pull_request'
+        env:
+          RIFTLET_REAL_CAPTURE_FIXTURE: '1'
+          RIFTLET_BUILD_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -o pipefail
+          # One fresh synthetic-window region capture, no physical input or upload.
+          # The ordinary parallel suite never opts into this component probe.
+          swift test --skip-build --filter BuiltInCaptureNativeProbeTests/testActualAppleCapturePublicationAndPrivateImport 2>&1 | tee test-results/builtin-capture-native-engine.log
       - name: Package native application
         run: |
           set -o pipefail

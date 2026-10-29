@@ -200,18 +200,10 @@ final class ScreenshotEntryHost {
         let importer = self.importer, directory = outputDirectory
         Task { [weak self] in
             do {
-                let source: URL
-                let origin: AssetOrigin
-                if let editedData {
-                    source = InteractiveScreenshotOutput.editedURL(in: directory)
-                    try editedData.write(to: source, options: .atomic)
-                    try FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: source.path)
-                    origin = .applicationScreenshot
-                } else {
-                    source = result.sourceURL
-                    origin = result.hasSystemScreenshotMetadata ? .systemScreenshot : .applicationScreenshot
-                }
-                _ = try await importer.importCompletedScreenshot(at: source, origin: origin)
+                // A real screenshot xattr describes the encoder output, not
+                // authority to borrow the independently admitted system source.
+                _ = try await importer.importBuiltInScreenshot(original: result.sourceURL,
+                    editedPNG: editedData, outputDirectory: directory)
                 guard let self, !self.closed else { return }
                 await self.onChange()
                 self.rift.showLatest(); self.configure()

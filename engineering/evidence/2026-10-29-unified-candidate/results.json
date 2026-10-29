@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "phase": "MAGNET_HOST_ATOMIC_ROW_AND_MOVIE_ACTOR_REPAIR_AWAITING_SOURCE_REVIEW_AND_EXACT_CI",
+  "phase": "MAGNET_AND_NATIVE_CAPTURE_PUBLICATION_REPAIR_AWAITING_EXACT_REVIEW_AND_CI",
   "nativeCI": "2C8_PUSH_SUCCESS_PR_FAIL_NORMAL_MAGNET_COMPLETION",
   "feedbackCI": "PASS_2C8_46_UNIQUE_NATIVE_ZERO_SKIP",
   "newNativeVisualEvidence": "2C8_D11_D16_D17_LIMITED_CLOSED_D18_AND_PR_MAGNET_TIMEOUT_BLOCK_FINAL",
@@ -282,12 +282,12 @@
     "builtinCaptureCandidate": "6b60f67f6d35272eecff901c507bd75a77874ed6",
     "designExperienceSupplement": "69600ab3c7fa9e373582613bd55d22075234b65a",
     "disposition": "Observed and reviewed; not wholesale merged. Preserve current source provenance contract; apply narrowly confirmed directory-overlap, permission-cancel, and truthful-copy fixes.",
-    "builtinCaptureReview": "NEW_DELTA_READ_ONLY_REVIEW_PENDING; formal source unchanged"
+    "builtinCaptureReview": "RELEVANT_REGION_PROBE_DIAGNOSIS_VERIFIED; narrow stage/publication and built-in-only application origin repair; no whole-branch merge or settings-key migration"
   },
   "physicalMacLastObservation": {
     "status": "Offline",
-    "observedUTC": "2026-10-28T22:21:00Z",
-    "reportedLastSeen": "47m ago",
+    "observedUTC": "2026-10-29T04:27:31Z",
+    "reportedLastSeen": "4h ago",
     "realPhysicalAcceptance": "NOT_RUN"
   },
   "plannedEvidence": {
@@ -299,6 +299,17 @@
     ],
     "requiresRealAppKitAccessibilityReadback": true,
     "physicalInput": "NOT_RUN",
-    "realUpload": "NOT_RUN"
+    "realUpload": "NOT_RUN",
+    "ownedWindowNativeCaptureComponent": {
+      "when": "pull_request_only_serial_explicit_opt_in",
+      "maximumRealCLIInvocationsPerRun": 1,
+      "mode": "region",
+      "normalFullParallelOptIn": false,
+      "pushOptIn": false,
+      "realUserDesktopCapture": false,
+      "realUpload": false,
+      "missingPrerequisites": "NOT_RUN_NOT_SYNTHETIC_PASS",
+      "status": "AWAITING_NEW_SOURCE_RUN"
+    }
   }
 }
