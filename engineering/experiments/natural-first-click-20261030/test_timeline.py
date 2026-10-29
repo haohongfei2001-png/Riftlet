@@ -130,8 +130,7 @@ class TimelineTests(unittest.TestCase):
         cases = (("capture_source_verified", "firstObservedUptime", 5),
                  ("capture_source_verified", "validatedCopyUptime", 5),
                  ("capture_source_verified", "durableCommitUptime", 5),
-                 ("capture_durable_delivery", "readyUptime", 5),
-                 ("capture_durable_delivery", "callbackUptime", 5))
+                 ("capture_durable_delivery", "readyUptime", 5))
         for event, field, value in cases:
             with self.subTest(field=field):
                 manifest, rows = fixture()
@@ -141,13 +140,48 @@ class TimelineTests(unittest.TestCase):
                 self.assertEqual(trial["status"], "ACK_BEFORE_CLICK_PROVEN")
                 self.assertEqual(trial["captureChainStatus"], "INCONSISTENT")
                 self.assertTrue(trial["invalidStages"])
-                self.assertIsNone(trial["latencyMS"]["sourceValidatedToClick"])
-                self.assertIsNone(report["bySource"]["CGEvent"]["latencyDistributionMS"]["sourceValidatedToClick"])
+                # No duration may use an inconsistent endpoint, but the
+                # independently ordered presentation branch can remain valid.
+                self.assertTrue(any(value is None for value in trial["latencyMS"].values()))
         manifest, rows = fixture()
         row(rows, "capture_source_verified")["validatedCopyUptime"] = 5
         trial = timeline.analyze(manifest, rows)["trials"][0]
         self.assertEqual(trial["latencyMS"]["importReadyToMainCallback"], 30)
-        self.assertEqual(trial["latencyMS"]["windowOrderToClick"], 40)
+        self.assertIsNone(trial["latencyMS"]["sourceValidatedToWindowObservation"])
+        self.assertEqual(trial["originalEventOffsetsMS"]["fromInputWindowObservation"], 40)
+        self.assertEqual(trial["originalEventOffsetsMS"]["fromSourceValidatedCopy"], -3700)
+        self.assertIn("fromSourceValidatedCopy", trial["invalidEventOffsetBaselines"])
+        report = timeline.analyze(manifest, rows)
+        self.assertIsNone(report["bySource"]["CGEvent"]["originalEventOffsetDistributionMS"]["fromSourceValidatedCopy"])
+
+    def test_window_observation_can_precede_importer_return_and_main_delivery_stamps(self):
+        manifest, rows = fixture()
+        row(rows, "capture_source_verified")["durableCommitUptime"] = 2
+        row(rows, "capture_durable_delivery").update(readyUptime=2.01, callbackUptime=2.02)
+        trial = timeline.analyze(manifest, rows)["trials"][0]
+        self.assertEqual(trial["captureChainStatus"], "PARTIAL")
+        self.assertFalse(trial["invalidStages"])
+        self.assertEqual(trial["status"], "ACK_BEFORE_CLICK_PROVEN")
+        self.assertEqual(trial["latencyMS"]["sourceValidatedToWindowObservation"], 60)
+        self.assertEqual(trial["latencyMS"]["importReadyToMainCallback"], 10)
+
+    def test_original_event_before_window_observation_is_signed_offset_not_capture_failure(self):
+        for event_time in (1.2599, 0.25):
+            # First case: a press between orderFront and the observation.
+            # Second case: CGEvent created before capture and delivered later.
+            with self.subTest(event_time=event_time):
+                manifest, rows = fixture()
+                row(rows, "native_input_receipt")["eventUptime"] = event_time
+                row(rows, "selection_boundary").update(eventUptime=event_time, originalEventUptime=event_time)
+                report = timeline.analyze(manifest, rows)
+                trial = report["trials"][0]
+                self.assertEqual(trial["captureChainStatus"], "PARTIAL")
+                self.assertFalse(trial["invalidStages"])
+                self.assertEqual(trial["status"], "ACK_BEFORE_CLICK_PROVEN")
+                self.assertLess(trial["originalEventOffsetsMS"]["fromInputWindowObservation"], 0)
+                self.assertFalse(trial["originalEventOffsetsAreLatencies"])
+                self.assertNotIn("windowOrderToClick", trial["latencyMS"])
+                self.assertLess(report["bySource"]["CGEvent"]["originalEventOffsetDistributionMS"]["fromInputWindowObservation"]["min"], 0)
 
     def test_missing_capture_stages_are_not_filled_and_nonadjacent_inversion_is_detected(self):
         manifest, rows = fixture()
@@ -168,7 +202,7 @@ class TimelineTests(unittest.TestCase):
         self.assertEqual(trial["captureChainStatus"], "PARTIAL")
         self.assertFalse(trial["invalidStages"])
         self.assertEqual(trial["latencyMS"]["sourceValidatedToImageDelivery"], 300)
-        self.assertEqual(trial["latencyMS"]["sourceValidatedToClick"], 100)
+        self.assertEqual(trial["originalEventOffsetsMS"]["fromSourceValidatedCopy"], 100)
 
     def test_t0_cannot_contradict_verified_copy_or_be_inferred_from_file_time(self):
         for completion in ({"kind": "exact", "uptime": 5, "evidence": "operator receipt"},
@@ -179,7 +213,8 @@ class TimelineTests(unittest.TestCase):
                 trial = timeline.analyze(manifest, rows)["trials"][0]
                 self.assertEqual(trial["captureChainStatus"], "INCONSISTENT")
                 self.assertEqual(trial["captureCompletion"]["temporalCheck"], "CONTRADICTS_VALIDATED_COPY")
-                self.assertIsNone(trial["latencyMS"]["sourceValidatedToClick"])
+                self.assertIsNone(trial["latencyMS"]["sourceValidatedToWindowObservation"])
+                self.assertIn("fromSourceValidatedCopy", trial["invalidEventOffsetBaselines"])
                 self.assertEqual(trial["status"], "ACK_BEFORE_CLICK_PROVEN")
         manifest, rows = fixture()
         manifest["trials"][0]["captureCompletion"]["upperUptime"] = 6

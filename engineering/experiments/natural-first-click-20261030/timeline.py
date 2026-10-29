@@ -250,14 +250,18 @@ def capture_completion(trial):
 def capture_chain(times, completion):
     """Validate observed partial orders independently of target/ACK authority.
 
-    Image delivery and the original press are independent successors of initial
-    window ordering: an early software press need not wait for decoded pixels.
-    Missing stages stay missing; comparing known endpoints does not fill them.
+    The importer stamps *after* awaiting the database insert, while another Main
+    refresh can already read that asset and render it. Therefore importer-return
+    and Main-delivery stamps have no guaranteed order against window observation.
+    The original NSEvent timestamp is independent: it may precede the post-order
+    observation or a CGEvent may have been created before it was posted. Never
+    turn those signed offsets into capture latency or an inconsistent capture.
     """
-    path = ["firstCandidateObserved", "sourceValidatedCopyUpperBound", "durableCommit",
-            "importObserverReady", "mainCaptureCallback", "inputWindowsOrdered"]
+    importer = ["firstCandidateObserved", "sourceValidatedCopyUpperBound", "durableCommit",
+                "importObserverReady", "mainCaptureCallback"]
+    presentation = ["sourceValidatedCopyUpperBound", "inputWindowsOrdered", "imageDelivered"]
     invalid = set()
-    for branch in (path + ["originalClick"], path + ["imageDelivered"]):
+    for branch in (importer, presentation):
         known = [key for key in branch if times.get(key) is not None]
         for earlier, later in zip(known, known[1:]):
             if times[earlier] > times[later]:
@@ -285,15 +289,13 @@ def capture_chain(times, completion):
     # Either endpoint of an inversion may be wrong. Exclude any metric using
     # those stages or crossing them, rather than guessing which timestamp to fix.
     suspect = {key for pair in invalid for key in pair}
-    metrics = {"sourceValidatedToWindowOrder": path[1:],
-               "sourceValidatedToImageDelivery": path[1:] + ["imageDelivered"],
-               "sourceValidatedToClick": path[1:] + ["originalClick"],
-               "importReadyToMainCallback": ["importObserverReady", "mainCaptureCallback"],
-               "windowOrderToClick": ["inputWindowsOrdered", "originalClick"]}
+    metrics = {"sourceValidatedToWindowObservation": presentation[:2],
+               "sourceValidatedToImageDelivery": presentation,
+               "importReadyToMainCallback": ["importObserverReady", "mainCaptureCallback"]}
     durations = {name: (None if suspect.intersection(stages) else
                        delta(times.get(stages[-1]), times.get(stages[0])))
                  for name, stages in metrics.items()}
-    complete = (all(times.get(key) is not None for key in path + ["originalClick", "imageDelivered"])
+    complete = (all(times.get(key) is not None for key in importer + presentation + ["originalClick"])
                 and kind == "EXACT_ATTESTED")
     status = "INCONSISTENT" if invalid else "CONSISTENT_OBSERVATIONS" if complete else "PARTIAL"
     return status, [f"{earlier}>{later}" for earlier, later in sorted(invalid)], durations
@@ -348,6 +350,13 @@ def trial_summary(trial, rows):
     result["times"] = times
     result["captureChainStatus"], result["invalidStages"], result["latencyMS"] = capture_chain(
         times, result["captureCompletion"])
+    offset_baselines = {"fromSourceValidatedCopy": "sourceValidatedCopyUpperBound",
+                        "fromInputWindowObservation": "inputWindowsOrdered"}
+    result["originalEventOffsetsMS"] = {name: delta(times["originalClick"], times.get(key))
+                                         for name, key in offset_baselines.items()}
+    suspect = {key for pair in result["invalidStages"] for key in pair.split(">")}
+    result["invalidEventOffsetBaselines"] = [name for name, key in offset_baselines.items() if key in suspect]
+    result["originalEventOffsetsAreLatencies"] = False
     result["missingStages"] = [key for key, value in times.items() if value is None]
     if result["captureCompletion"]["status"] != "EXACT_ATTESTED":
         result["missingStages"].append("exactSystemCaptureCompletion")
@@ -382,10 +391,17 @@ def analyze(manifest, rows):
         passed = [r for r in attempted if r["status"] == "ACK_BEFORE_CLICK_PROVEN"]
         margins = [r["ackEvidence"]["ackMarginMS"] for r in passed]
         durations = {}
-        for name in ("sourceValidatedToClick", "windowOrderToClick", "importReadyToMainCallback"):
+        for name in ("sourceValidatedToWindowObservation", "sourceValidatedToImageDelivery", "importReadyToMainCallback"):
             values = [r["latencyMS"][name] for r in attempted if r["latencyMS"][name] is not None]
             durations[name] = {"count": len(values), "min": min(values), "median": statistics.median(values),
                                "max": max(values)} if values else None
+        offsets = {}
+        for name in ("fromSourceValidatedCopy", "fromInputWindowObservation"):
+            values = [r["originalEventOffsetsMS"][name] for r in attempted
+                      if r["originalEventOffsetsMS"][name] is not None
+                      and name not in r["invalidEventOffsetBaselines"]]
+            offsets[name] = {"count": len(values), "min": min(values), "median": statistics.median(values),
+                             "max": max(values)} if values else None
         groups[source] = {"qualifiedNativeTrials": len(attempted), "preClickACKProven": len(passed),
             "preClickACKRate": len(passed) / len(attempted) if attempted else None,
             "status": "OBSERVED_LIMITED_SAMPLE" if attempted else "NOT_RUN",
@@ -393,9 +409,13 @@ def analyze(manifest, rows):
             "ackMarginMS": {"min": min(margins), "median": statistics.median(margins),
                             "max": max(margins)} if margins else None,
             "latencyDistributionMS": durations,
+            "originalEventOffsetDistributionMS": offsets,
             "attachmentSuccessRate": None}
     return {"version": 1, "scope": "native timing evidence only; no input or upload admission",
             "clock": CLOCK, "traceRecordCount": len(rows), "trials": results, "bySource": groups,
+            "timeSemantics": {"durableCommit": "post-await import return observation, not transaction commit instant",
+                "inputWindowsOrdered": "post-order AppKit observation, not first WindowServer hit availability",
+                "originalEventOffsetsMS": "signed original-event timestamp offsets; not capture or upload latency"},
             "completeNaturalPhysicalAcceptance": "NOT_ESTABLISHED"}
 
 
