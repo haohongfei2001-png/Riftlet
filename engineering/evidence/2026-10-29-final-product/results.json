@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "SOURCE_REVIEWED_COMBINED_RUNTIME_PENDING",
+  "status": "SOURCE_REVIEWED_REPAIRS_RUNTIME_PENDING",
   "inputs": {
     "unified": "2c8cd0371de5e07fd7794f76335381a40403030d",
     "builtin": "6b60f67f6d35272eecff901c507bd75a77874ed6",
@@ -19,10 +19,16 @@
       "feedbackSheetAndNaturalMagnetTest": "non-author magnetic reviewer; exact three blobs",
       "absoluteDeadlineTask": "non-author integration reviewer; exact Core blob",
       "previousHistoryViewportRepair": "non-author experience reviewer; retained unchanged"
+    },
+    "nativeFirstPresentationRepair": {
+      "source": "79480baff484d0d7abcc911afff68faf8076b5b0",
+      "magnet": "independent integration and lead review",
+      "helper": "independent integration and lead review",
+      "deadlineTrace": "independent integration and magnetic review; diagnostic only"
     }
   },
-  "combinedNativeCI": "PENDING_NEW_EXACT_SOURCE",
-  "combinedFeedbackCI": "PENDING_NEW_EXACT_SOURCE",
+  "combinedNativeCI": "PENDING_NEW_EXACT_SOURCE_AFTER_52CD_FAILURES",
+  "combinedFeedbackCI": "PASS_AT_52CD_NEW_EXACT_SOURCE_PENDING",
   "physicalMac": "BLOCKED_AUTHORIZED_EXECUTOR_OFFLINE",
   "realChatGPT": "NOT_RUN_APPLICATION_ORIGIN_ADMISSION_CLOSED",
   "cloudFeedback": "NOT_RUN_ENDPOINT_NIL",
@@ -43,8 +49,8 @@
     "uploadAdmissionExpanded": false,
     "userDataChanged": false
   },
-  "reviewedSource": "034913a446ff932966d1c364b10a9e408b54a74d",
-  "reviewedTree": "798209b5225aa4c3e6fdfbc7e4759b6a0748fa73",
+  "reviewedSource": "79480baff484d0d7abcc911afff68faf8076b5b0",
+  "reviewedTree": "567a59e756a6cc7547821b90e50d1869ab502d48",
   "continuationFailures": [
     {
       "head": "b3cec64f0ecbf869aff3b17b88d55323d1765393",
@@ -112,11 +118,11 @@
   "experience": {
     "Q01": "remaining title/capability code repaired; native visual pending",
     "Q05": "already-readable source authorization suppressed; remaining permissions unchanged",
-    "Q07": "Keep actual Return default plus sheet-local Escape cancelOperation responder; original real-key behavior assertions and chain lifetime checks retained; runtime pending",
+    "Q07": "Actual Return/Escape, stable safe default, responder restoration and exact record ownership PASS in both Feedback runs at 52cd",
     "Q08": "save recovery implemented; clipboard assertion accepts only two observed plain-text types with exact body; runtime pending",
     "Q09": "app-scoped settings shortcut and standard editing routes; runtime pending",
-    "Q06": "verified bounded preview plus bitmap-independent nonzero viewport; original 2s rejection assertion retained; new AppKit success/minimum-size regression pending",
-    "Q03": "implemented frozen-request / next-mode projection, fixed slots and unchanged capture ownership; runtime pending",
+    "Q06": "Verified preview and viewport software regressions run; ARM portrait/wide/missing pixels readable, but PR Intel portrait captured before native display updated and remains visually failed pending helper readiness revalidation",
+    "Q03": "State and software checks implemented; original supplemental pixels lack visible countdown/next-mode; helper readiness repair pending",
     "Q04": "implemented owner/revision-bound explanation on original pointer-free peek; deferred preparation refreshed after release without replay; runtime pending",
     "Q02": "existing three-page flow retained; optional redesign not adopted",
     "Q10": "original actual CI accessibility variants retained; physical environments NOT_RUN"
@@ -125,11 +131,11 @@
     "finalIsolationTests": 24,
     "originalVisualManifestTests": 18,
     "supplementalCases": 6,
-    "supplementalUnsafeObservationsRejected": 34,
+    "supplementalUnsafeObservationsRejected": 68,
     "scope": "Linux script checks and exact source review; Swift/macOS NOT_RUN at this checkpoint"
   },
   "nativeVisualGUI": {
-    "status": "PENDING_NEW_EXACT_SOURCE",
+    "status": "PENDING_NEW_NATIVE_PIXELS_AFTER_OBSERVED_52CD_FAILURES",
     "originalCasesRequired": 46,
     "originalMoviesRequired": 5,
     "supplementalStaticCasesRequired": 6,
@@ -137,8 +143,80 @@
     "crossApplicationFocus": "NOT_RUN"
   },
   "runtimeRepairs": {
-    "absoluteDeadline": "remaining interval computed at actual Task start; original 50ms/150ms regression unchanged",
+    "absoluteDeadline": "Remaining interval uses Task start, but original parallel deadline gate still failed on PR ARM at 52cd; not a completed fix",
     "magnetNaturalTest": "original 560ms product plan; original 1.2s wait and strict finished/cleanup assertions unchanged",
-    "productionMagnetChangedInThisRepair": false
+    "productionMagnetChangedInThisRepair": true,
+    "magnetFirstPresentation": "decoded contents and owner hide committed together; flight model/animation committed before window ordering; owner-matched fallback and backwards initial fill; 560ms/finished gates unchanged",
+    "helperReadiness": "existing cancel motion and actual label/preview display awaited; native pixel review still required",
+    "exportDiagnostic": "only fixed Failure/ExportStage values; no raw errors",
+    "deadlineTrace": "temporary opt-in DEBUG trace in original full suite; 50ms/150ms/authority unchanged; remove after diagnosis"
+  },
+  "latestCompletedRuntime": {
+    "head": "52cd894417eafda9ea38c4f26f1f5304b83e8b5a",
+    "reviewedSource": "034913a446ff932966d1c364b10a9e408b54a74d",
+    "prCheckout": "f8f88f3a79340b2e527d477151d246f929e9e3f3",
+    "nativePush": {
+      "run": 40835658068,
+      "status": "FAIL",
+      "armJob": 123319712741,
+      "armStatus": "PASS",
+      "intelJob": 123319712793,
+      "intelStatus": "FAIL_NATIVE_EXPORT_BEFORE_MAGNET_READY"
+    },
+    "nativePR": {
+      "run": 40835663771,
+      "status": "FAIL",
+      "armJob": 123319731531,
+      "armStatus": "FAIL_ORIGINAL_DEADLINE_PREPARED_NOT_FAILED",
+      "intelJob": 123319731475,
+      "intelStatus": "PASS"
+    },
+    "feedback": {
+      "pushRun": 40835658075,
+      "prRun": 40835663780,
+      "status": "PASS_BOTH",
+      "swiftUniqueCases": 49,
+      "pythonIsolationCases": 117,
+      "nodeServiceCases": 20,
+      "closeRepeatedPasses": 3,
+      "realCloud": "NOT_RUN"
+    },
+    "fullNativeVisual": {
+      "armPush": {
+        "artifact": 12880398564,
+        "scenes": 46,
+        "originalPNGs": 116,
+        "movies": 5,
+        "magnetNaturalFinished": true,
+        "magnetFinishedAfterReadyMS": 667.852
+      },
+      "intelPR": {
+        "artifact": 12881171779,
+        "scenes": 46,
+        "originalPNGs": 90,
+        "movies": 5,
+        "magnetNaturalFinished": true,
+        "magnetFinishedAfterReadyMS": 578
+      },
+      "scope": "OWNED_SYNTHETIC_WINDOWSERVER_NOT_PHYSICAL_OR_REAL_UPLOAD"
+    },
+    "independentPixelReview": {
+      "status": "FAIL",
+      "findings": [
+        "ARM target image appears for a frame before being hidden for the flight; row/flight layer cause not yet isolated",
+        "Q03 countdown/next-mode strings exist in state but are absent from original native pixels; helper captured before visible presentation settled",
+        "PR Intel portrait history preview native pixels remain blank/loading despite imageLoaded metadata; helper must await actual display submission"
+      ],
+      "otherSupplementalScenes": "ARM push 5/6 readable; PR Intel 4/6 readable, with portrait-loading and countdown missing pixels rejected independently"
+    },
+    "productionCaptureProbe": {
+      "scope": "OWNED_SYNTHETIC_NATIVE_FIXTURE",
+      "status": "PARTIAL",
+      "region": "PASS",
+      "window": "NOT_RUN_FOREIGN_OVERLAP_VETO",
+      "fullScreen": "NOT_RUN_FOREIGN_OVERLAP_VETO",
+      "realSystemScreenshotWorkflow": "NOT_RUN"
+    },
+    "deadlineDiagnosis": "Absolute remaining-time correction is insufficient for the original parallel gate. Keep 50ms deadline, 150ms observation and all assertions; gather opt-in DEBUG timing before deciding the repair."
   }
 }

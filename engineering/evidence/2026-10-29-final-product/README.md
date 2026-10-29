@@ -3,7 +3,7 @@
 ## Status
 
 Engineering continuation on the existing Draft PR #15 only. **Not a release or fully accepted product.**
-The source checkpoint `034913a446ff932966d1c364b10a9e408b54a74d` (tree `798209b5225aa4c3e6fdfbc7e4759b6a0748fa73`) has actual non-author review and is pinned by the final composition gate. Native/Feedback execution remains a separate job: the complete workflow cannot pass without source admission. Existing historical gates and runtime acceptance requirements remain unchanged. Accurate combined CI and new original-pixel review are pending.
+The source checkpoint `79480baff484d0d7abcc911afff68faf8076b5b0` (tree `567a59e756a6cc7547821b90e50d1869ab502d48`) has actual non-author review and is pinned by the final composition gate. Native/Feedback execution remains a separate job: the complete workflow cannot pass without source admission. Existing historical gates and runtime acceptance requirements remain unchanged. Accurate combined CI and new original-pixel review are pending.
 
 ## Exact inputs
 
@@ -81,3 +81,29 @@ The unchanged deadline regression recurred on loaded runners. Inspection found t
 Intel also reported the natural-finish unit test's start() returning false and zero completion. Its test-only trajectory was 50ms; native panel/layer preparation consuming that interval can correctly produce static fallback before an animation exists. This is the best source-consistent explanation, not a measured rejection reason. The test now uses the real 560ms plan while preserving successful-start, existing 1.2s wait, exactly-once genuine .finished, cleanup and closed-presenter assertions. Production magnet code, asset-ready timing and 500ms bounded cleanup are unchanged. The magnetic reviewer independently approved this test adaptation and the sheet repair. The original 46-case/5-MOV and reduced-system visual checks remain required, unchanged and not yet reached.
 
 The a4 native executions did not repeat the history success/minimum-window or replacement errors, the clipboard alias failure or the settings column-width failure; their full workflows still failed, so no complete native or visual PASS is claimed. Both Feedback runs compiled and ran 49 cases with four assertions failing in two Escape-related cases; the following repeated-close/demo stages again did not run.
+
+## 52cd8944 complete execution and independent pixel findings
+
+The source `034913a446ff932966d1c364b10a9e408b54a74d` was tested through exact pin HEAD `52cd894417eafda9ea38c4f26f1f5304b83e8b5a`; PR checkout was `f8f88f3a79340b2e527d477151d246f929e9e3f3`. All source-admission jobs passed. Both Feedback runs (40835658075 / 40835663780) passed 49 unique Swift cases, 117 Python isolation cases and 20 Node service cases. Actual software AppKit Return/Escape dismissal, the 150ms default-button stability check and responder-chain restoration passed. Cloud/native HTTPS delivery remains NOT_RUN.
+
+Native push 40835658068: ARM job123319712741 passed the original full suite, detailed regressions, combined App packaging, original 46 cases / 116 original PNGs / 5 MOVs, six supplemental scenes and actual accessibility variants. Intel job123319712793 passed the original full suite and strict magnet regressions but failed before asset-ready in the original motion-magnet export (`frames=[]`, zero-byte MOV). Its generic catch did not identify which export stage failed; no timedOut or magnetic start was observed in that scene.
+
+Native PR 40835663771: Intel job123319731475 passed the complete invocation, 46 original cases / 90 PNGs / 5 MOVs, six supplemental scenes and actual reduced variants. ARM job123319731531 failed the unchanged deadline assertion: prepared remained instead of failed after the original 150ms wait for a 50ms token. The recent remaining-time correction is therefore insufficient; the total case duration is not a measurement of timer lateness. The original input-authority checks still prevent dispatch after expiry, but the state-cleanup gate remains failed.
+
+Independent review of original ARM PNGs and decoded MOV frames proves a visual defect: the new image is already shown at the target in frame-02 / MOV frame33 (PTS2.110s), then disappears from the target as flight begins in frame-03 / MOV frame34 (PTS2.208s). Natural finished=true was separately observed at ready+663.668ms and ended.finished at +667.852ms. Successful completion does not excuse this flash. The row and flight first-commit ordering require repair and complete revalidation.
+
+The Q03 supplemental PNG lacks the countdown and next-mode text even though metadata strings reported true; its first readiness predicate did not await the actual presentation commit or existing cancel-slot transition. This scene is visually FAIL. The other five supplemental original images were independently inspected as readable and within their intended window bounds. No boolean metadata is used to overrule the pixels.
+
+The owned production-capture probe is PARTIAL: region import passed with exact original PNG/private-copy identity and applicationScreenshot isolation; window and fullScreen were NOT_RUN under FOREIGN_OVERLAP_VETO. Physical input, actual system-screenshot user workflow, real ChatGPT attachment and cloud Feedback remain separately unverified.
+
+Next repair is confined to production first-presentation ordering, supplemental native readiness, safe white-listed export diagnostics, and opt-in DEBUG deadline timing. No original scene, threshold, assertion, 560ms trajectory or upload/origin authority is relaxed; temporary timing trace must be removed after diagnosis.
+
+Further independent PR Intel pixel review: portrait history preview is blank and still says loading despite imageLoaded metadata; that run has 4/6 acceptable supplemental images, whereas ARM has 5/6. Await the real existing display update for this helper scene as well, then review the new original pixels. No decoder or product behavior is changed to manufacture evidence.
+
+## Reviewed first-presentation repair and bounded diagnostics
+
+Source `79480baff484d0d7abcc911afff68faf8076b5b0` / tree `567a59e756a6cc7547821b90e50d1869ab502d48` contains the ten exactly reviewed source files. Non-author integration review covers the production magnetic first-commit and owner restoration changes, the native helper readiness/white-listed export diagnostics, and the temporary deadline timing; root independently reviewed magnetic and helper diffs. The actual sources and original 560ms trajectory, 1.2s natural-finish assertion, 50ms token / 150ms deadline observation, original 46-case / 5-MOV driver and historical audit policy remain intact.
+
+New regression observes decoded contents only after target hiding, verifies cache refresh cannot reveal the active owner, and verifies cancellation/Reduce Motion restores static content without blocking original input. The helper now waits for actual existing slot motion, valid visible label geometry, and native history/status display commits; the six-scene verifier rejects 68 unsafe or premature observations. Original 18 visual-manifest tests pass locally. These checks are not macOS compilation or new pixel acceptance.
+
+The original full native test step alone enables DEBUG deadline timestamps. It records only runtime token identity, monotonic clock values, phase, count and error type, with no arbitrary reason/error payload. The trace can perturb timing and is diagnostic only; remove it after resolving the failed original gate. No extra diagnostic workflow or candidate branch was created.
