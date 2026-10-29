@@ -15,6 +15,10 @@ CREATE TABLE IF NOT EXISTS feedback (
 );
 CREATE INDEX IF NOT EXISTS feedback_delivery ON feedback(state,checked_at,created);
 CREATE INDEX IF NOT EXISTS feedback_expiry ON feedback(expires);
+-- Keep periodic retention work bounded as scrubbed tombstones accumulate.
+CREATE INDEX IF NOT EXISTS feedback_live_expiry ON feedback(expires) WHERE payload IS NOT NULL;
+CREATE INDEX IF NOT EXISTS feedback_state_created ON feedback(state,created,issue_number);
+CREATE INDEX IF NOT EXISTS quota_expiry ON quota(expires);
 -- Trigger and insertion/outbox are atomic. Zero changed rows cannot grant quota.
 CREATE TRIGGER IF NOT EXISTS feedback_budget BEFORE INSERT ON feedback BEGIN
   SELECT CASE WHEN COALESCE((SELECT used FROM quota WHERE bucket=NEW.day_bucket),0) >= (SELECT daily FROM limits WHERE id=1)

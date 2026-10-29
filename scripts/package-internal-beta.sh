@@ -29,4 +29,4 @@ if [[ -L build/Riftlet-Internal-Beta.zip || -d build/Riftlet-Internal-Beta.zip ]
   exit 2
 fi
 mv "$riftlet_beta_stage/Riftlet-Internal-Beta.zip" build/Riftlet-Internal-Beta.zip
-echo "RIFTLET_INTERNAL_BETA_PACKAGE_PASS: complete App, explicit candidate launcher, local-only Feedback, exact build manifest; NOT_PUBLIC_RELEASE"
+echo "RIFTLET_INTERNAL_BETA_PACKAGE_PASS: complete App, explicit candidate launcher, Feedback capability recorded in exact build manifest; NOT_PUBLIC_RELEASE"

@@ -1,0 +1,62 @@
+{
+  "atUTC": "2026-10-29T14:15:25.522508+00:00",
+  "scope": "Offline intentional failure fixture; proves whether local runner executes and propagates assertions; no product code change",
+  "cleanedOnlyTestRelatedEnvironment": true,
+  "results": [
+    {
+      "mode": "default-isolation",
+      "exitCode": 1,
+      "log": "TAP version 13\n# Subtest: /tmp/riftlet-cloud-review-20261029/node-runner/must-fail.test.mjs\nnot ok 1 - /tmp/riftlet-cloud-review-20261029/node-runner/must-fail.test.mjs\n  ---\n  duration_ms: 62.794396\n  type: 'test'\n  location: '/tmp/riftlet-cloud-review-20261029/node-runner/must-fail.test.mjs:1:1'\n  failureType: 'testCodeFailure'\n  exitCode: 1\n  signal: ~\n  error: 'test failed'\n  code: 'ERR_TEST_FAILURE'\n  ...\n1..1\n# tests 1\n# suites 0\n# pass 0\n# fail 1\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 71.183991\n",
+      "logSHA256": "ed30342240925367196e03219ba82eaf3c095d4885b1d3d4519f871a7bea2a0e"
+    },
+    {
+      "mode": "no-isolation",
+      "exitCode": 1,
+      "log": "TAP version 13\n# Subtest: synthetic intentional failure proves assertion propagation\nnot ok 1 - synthetic intentional failure proves assertion propagation\n  ---\n  duration_ms: 1.761375\n  type: 'test'\n  location: '/tmp/riftlet-cloud-review-20261029/node-runner/must-fail.test.mjs:4:1'\n  failureType: 'testCodeFailure'\n  error: |-\n    SYNTHETIC_EXPECTED_FAILURE\n    \n    1 !== 2\n    \n  code: 'ERR_ASSERTION'\n  name: 'AssertionError'\n  expected: 2\n  actual: 1\n  operator: 'strictEqual'\n  stack: |-\n    TestContext.<anonymous> (file:///tmp/riftlet-cloud-review-20261029/node-runner/must-fail.test.mjs:6:10)\n    Test.runInAsyncScope (node:async_hooks:227:14)\n    Test.run (node:internal/test_runner/test:1402:25)\n    Test.start (node:internal/test_runner/test:1262:17)\n    startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17)\n  ...\n1..1\n# tests 1\n# suites 0\n# pass 0\n# fail 1\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 18.451002\n",
+      "logSHA256": "079d07b03724cb67fd24c308aeb179c3f6dfb8106492c1afe51985b33c6865d0"
+    }
+  ],
+  "bodyExecutions": [
+    {
+      "bodyExecuted": true,
+      "nodeTestContext": "child-v8",
+      "execArgv": [
+        "--test-coverage-functions=0",
+        "--test-concurrency=0",
+        "--inspect-publish-uid=stderr,http",
+        "--inspect-port=127.0.0.1:9229",
+        "--stack-trace-limit=10",
+        "--report-signal=SIGUSR2",
+        "--test-coverage-lines=0",
+        "--secure-heap-min=2",
+        "--test-isolation=process",
+        "--heap-prof-interval=524288",
+        "--cpu-prof-interval=1000",
+        "--v8-pool-size=4",
+        "--trace-event-file-pattern=node_trace.${rotation}.log",
+        "--test-coverage-branches=0",
+        "--watch-kill-signal=SIGTERM",
+        "--tls-cipher-list=TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256:TLS_AES_128_GCM_SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA384:DHE-RSA-AES256-SHA384:ECDHE-RSA-AES256-SHA256:DHE-RSA-AES256-SHA256:HIGH:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!SRP:!CAMELLIA",
+        "--experimental-addon-modules",
+        "--use-largepages=off",
+        "--max-http-header-size=16384",
+        "--test-timeout=0",
+        "--node-snapshot",
+        "--secure-heap=0",
+        "--network-family-autoselection-attempt-timeout=250",
+        "--heapsnapshot-near-heap-limit=0"
+      ],
+      "nodeOptionsPresent": false
+    },
+    {
+      "bodyExecuted": true,
+      "nodeTestContext": null,
+      "execArgv": [
+        "--test-isolation=none",
+        "--test",
+        "--test-reporter=tap"
+      ],
+      "nodeOptionsPresent": false
+    }
+  ]
+}

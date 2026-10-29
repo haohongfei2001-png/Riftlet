@@ -1,0 +1,144 @@
+TAP version 13
+# Subtest: real SQLite receipt is durable and same report/body/secret is idempotent under overlapping requests
+ok 1 - real SQLite receipt is durable and same report/body/secret is idempotent under overlapping requests
+  ---
+  duration_ms: 54.334983
+  type: 'test'
+  ...
+# Subtest: D1 write failure never acknowledges; exact original request can recover
+ok 2 - D1 write failure never acknowledges; exact original request can recover
+  ---
+  duration_ms: 3.444059
+  type: 'test'
+  ...
+# Subtest: strict diagnostics and body whitelist reject raw identifiers and secrets; plain feedback excludes diagnostics
+ok 3 - strict diagnostics and body whitelist reject raw identifiers and secrets; plain feedback excludes diagnostics
+  ---
+  duration_ms: 4.430325
+  type: 'test'
+  ...
+# Subtest: SQL quota rejects insertion atomically and duplicate receipts do not consume quota
+ok 4 - SQL quota rejects insertion atomically and duplicate receipts do not consume quota
+  ---
+  duration_ms: 3.235454
+  type: 'test'
+  ...
+# Subtest: delivery enforces private destination, durable intent and one issue across overlapping dispatcher calls
+ok 5 - delivery enforces private destination, durable intent and one issue across overlapping dispatcher calls
+  ---
+  duration_ms: 4.445057
+  type: 'test'
+  ...
+# Subtest: public repository refuses all content delivery
+ok 6 - public repository refuses all content delivery
+  ---
+  duration_ms: 2.211792
+  type: 'test'
+  ...
+# Subtest: lost GitHub response reconciles original issue without repeating POST
+ok 7 - lost GitHub response reconciles original issue without repeating POST
+  ---
+  duration_ms: 8.054265
+  type: 'test'
+  ...
+# Subtest: uncertain POST with no observable issue never blind-retries
+ok 8 - uncertain POST with no observable issue never blind-retries
+  ---
+  duration_ms: 3.243677
+  type: 'test'
+  ...
+# Subtest: reconciliation stays within free Worker request budget and leaves later reports eligible
+ok 9 - reconciliation stays within free Worker request budget and leaves later reports eligible
+  ---
+  duration_ms: 25.744475
+  type: 'test'
+  ...
+# Subtest: five-minute cron ticks cannot starve a pending report behind unresolved reconciliation scans
+ok 10 - five-minute cron ticks cannot starve a pending report behind unresolved reconciliation scans
+  ---
+  duration_ms: 67.098038
+  type: 'test'
+  ...
+# {"tick":0,"elapsedSeconds":0,"externalRequests":41,"uncertainVisited":4,"pendingState":"pending","posts":0}
+# {"tick":1,"elapsedSeconds":300,"externalRequests":41,"uncertainVisited":8,"pendingState":"pending","posts":0}
+# {"tick":2,"elapsedSeconds":600,"externalRequests":42,"uncertainVisited":9,"pendingState":"delivered","posts":1}
+# {"tick":3,"elapsedSeconds":900,"externalRequests":41,"uncertainVisited":9,"pendingState":"delivered","posts":1}
+# {"tick":4,"elapsedSeconds":1200,"externalRequests":41,"uncertainVisited":9,"pendingState":"delivered","posts":1}
+# {"tick":5,"elapsedSeconds":1500,"externalRequests":41,"uncertainVisited":9,"pendingState":"delivered","posts":1}
+# {"tick":6,"elapsedSeconds":1800,"externalRequests":41,"uncertainVisited":9,"pendingState":"delivered","posts":1}
+# {"tick":7,"elapsedSeconds":2100,"externalRequests":41,"uncertainVisited":9,"pendingState":"delivered","posts":1}
+# Subtest: deletion before input stops delivery; late POST acknowledges deletion_pending, not deletion complete
+ok 11 - deletion before input stops delivery; late POST acknowledges deletion_pending, not deletion complete
+  ---
+  duration_ms: 7.631337
+  type: 'test'
+  ...
+# Subtest: deletion after claim but before POST resolves without an imaginary remote deletion obligation
+ok 12 - deletion after claim but before POST resolves without an imaginary remote deletion obligation
+  ---
+  duration_ms: 3.157426
+  type: 'test'
+  ...
+# Subtest: expired pending text is removed honestly; restore of attempting remains observation-only
+ok 13 - expired pending text is removed honestly; restore of attempting remains observation-only
+  ---
+  duration_ms: 3.41193
+  type: 'test'
+  ...
+# Subtest: capabilities never transfer; old IDs and switch-off fail closed
+ok 14 - capabilities never transfer; old IDs and switch-off fail closed
+  ---
+  duration_ms: 4.817809
+  type: 'test'
+  ...
+# Subtest: Swift and service share exactly the same closed fact vocabulary
+ok 15 - Swift and service share exactly the same closed fact vocabulary
+  ---
+  duration_ms: 0.559313
+  type: 'test'
+  ...
+# Subtest: expiry scrubs payload and report IP bucket; never-attempted expired report can be deleted
+ok 16 - expiry scrubs payload and report IP bucket; never-attempted expired report can be deleted
+  ---
+  duration_ms: 6.66387
+  type: 'test'
+  ...
+# Subtest: claimed or delivered deletion remains pending and retains its remote obligation
+ok 17 - claimed or delivered deletion remains pending and retains its remote obligation
+  ---
+  duration_ms: 6.355866
+  type: 'test'
+  ...
+# Subtest: stored unknown fields are never projected into a private Issue
+ok 18 - stored unknown fields are never projected into a private Issue
+  ---
+  duration_ms: 3.062053
+  type: 'test'
+  ...
+# Subtest: resolved tombstones expire even with old Issue metadata; pending deletion obligations survive
+ok 19 - resolved tombstones expire even with old Issue metadata; pending deletion obligations survive
+  ---
+  duration_ms: 7.959956
+  type: 'test'
+  ...
+# Subtest: DELETE preceding the first POST commit creates a durable capability-bound tombstone
+ok 20 - DELETE preceding the first POST commit creates a durable capability-bound tombstone
+  ---
+  duration_ms: 4.742125
+  type: 'test'
+  ...
+# Subtest: unknown-ID deletion is quota-bounded even with new submissions disabled
+ok 21 - unknown-ID deletion is quota-bounded even with new submissions disabled
+  ---
+  duration_ms: 1.855125
+  type: 'test'
+  ...
+1..21
+# tests 21
+# suites 0
+# pass 21
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 247.617976

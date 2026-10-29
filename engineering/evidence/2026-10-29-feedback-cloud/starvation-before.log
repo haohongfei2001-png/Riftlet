@@ -1,0 +1,38 @@
+✖ five-minute cron ticks cannot starve a pending report behind unresolved reconciliation scans (124.023695ms)
+ℹ {"tick":0,"elapsedSeconds":0,"externalRequests":41,"uncertainVisited":4,"pendingState":"pending","posts":0}
+ℹ {"tick":1,"elapsedSeconds":300,"externalRequests":41,"uncertainVisited":8,"pendingState":"pending","posts":0}
+ℹ {"tick":2,"elapsedSeconds":600,"externalRequests":41,"uncertainVisited":8,"pendingState":"pending","posts":0}
+ℹ {"tick":3,"elapsedSeconds":900,"externalRequests":41,"uncertainVisited":8,"pendingState":"pending","posts":0}
+ℹ {"tick":4,"elapsedSeconds":1200,"externalRequests":41,"uncertainVisited":8,"pendingState":"pending","posts":0}
+ℹ {"tick":5,"elapsedSeconds":1500,"externalRequests":41,"uncertainVisited":8,"pendingState":"pending","posts":0}
+ℹ {"tick":6,"elapsedSeconds":1800,"externalRequests":41,"uncertainVisited":8,"pendingState":"pending","posts":0}
+ℹ {"tick":7,"elapsedSeconds":2100,"externalRequests":41,"uncertainVisited":8,"pendingState":"pending","posts":0}
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 150.916496
+
+✖ failing tests:
+
+test at services/feedback/feedback.test.mjs:107:1
+✖ five-minute cron ticks cannot starve a pending report behind unresolved reconciliation scans (124.023695ms)
+  AssertionError [ERR_ASSERTION]: a fresh pending report must progress despite unresolved older reports
+  + actual - expected
+  
+  + 'pending'
+  - 'delivered'
+  
+      at TestContext.<anonymous> (file:///tmp/riftlet-cloud-verification-20261029/starvation-regression/before/services/feedback/feedback.test.mjs:144:10)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'pending',
+    expected: 'delivered',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

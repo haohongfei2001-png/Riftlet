@@ -49,7 +49,10 @@ export async function dispatch(env) {
   ]);
   if(env.DELIVERY_ENABLED!=='true') return;
   if(!await privateRepository(env)) return;
-  const pending=await env.DB.prepare("SELECT * FROM feedback WHERE state IN ('pending','uncertain','deletion_pending') AND checked_at<? ORDER BY created LIMIT 10").bind(now-300).all();
+  // Old uncertain rows must not repeatedly occupy the bounded request budget.
+  // Prefer never/least recently checked work so new submissions and unresolved
+  // deletion obligations eventually receive their own turn without retrying POST.
+  const pending=await env.DB.prepare("SELECT * FROM feedback WHERE state IN ('pending','uncertain','deletion_pending') AND checked_at<? ORDER BY checked_at,created,id LIMIT 10").bind(now-300).all();
   // Workers Free permits 50 external subrequests per invocation. The private
   // repository check used one. Reserve a complete bounded reconciliation scan
   // before touching checked_at; unfinished records remain eligible next tick.

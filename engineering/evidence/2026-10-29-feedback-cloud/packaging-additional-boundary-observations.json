@@ -1,0 +1,41 @@
+{
+  "scope": "Offline boundary review only; mocked Git reads with real package fixtures; no network/GUI",
+  "observations": [
+    {
+      "case": "exact-source",
+      "result": "PASS",
+      "sourceRead": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:Sources/RiftletApp/FeedbackHost.swift"
+    },
+    {
+      "case": "foreign-host",
+      "result": "manifest_feedback_source_mismatch",
+      "sourceRead": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:Sources/RiftletApp/FeedbackHost.swift"
+    },
+    {
+      "case": "unreviewed-explicit-port",
+      "result": "manifest_feedback_source_mismatch",
+      "sourceRead": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:Sources/RiftletApp/FeedbackHost.swift"
+    },
+    {
+      "case": "strict-boolean-types",
+      "valuesRejected": [
+        1,
+        0,
+        "true",
+        "false",
+        null
+      ],
+      "result": "PASS"
+    },
+    {
+      "case": "actual-proposed-placeholder",
+      "result": "REJECTED"
+    },
+    {
+      "case": "without-repository",
+      "result": "STRUCTURE_ONLY_ACCEPTS_SELF_CONSISTENT_MANIFEST",
+      "scope": "Does not authorize a domain or prove committed source binding; final packaging always supplies --repository"
+    }
+  ],
+  "result": "PASS within repository-aware packaging path"
+}

@@ -104,6 +104,53 @@ test('reconciliation stays within free Worker request budget and leaves later re
   }
   assert.equal(posts,0);assert.equal(env.DB.db.prepare("SELECT COUNT(*) n FROM feedback WHERE state='uncertain'").get().n,10);
 });
+test('five-minute cron ticks cannot starve a pending report behind unresolved reconciliation scans',async(t)=>{
+  const originalNow=Date.now,originalFetch=globalThis.fetch;
+  const firstTick=2_000_000_000;let now=firstTick,requests=0;
+  Date.now=()=>now*1000;
+  t.after(()=>{Date.now=originalNow;globalThis.fetch=originalFetch;});
+  const env=environment(),uncertain=[];
+  for(let i=0;i<9;i++) {
+    const p=payload();uncertain.push(p.id);
+    assert.equal((await receiver.fetch(req(p),env)).status,202);
+    env.DB.db.prepare("UPDATE feedback SET state='uncertain',created=?,attempt_at=? WHERE id=?")
+      .run(firstTick-9+i,firstTick-600,p.id);
+  }
+  const pending=payload();assert.equal((await receiver.fetch(req(pending),env)).status,202);
+  const posts=[];
+  globalThis.fetch=async(url,init={})=>{
+    requests++;
+    if(init.method==='POST') {
+      posts.push(JSON.parse(init.body));
+      return Response.json({number:700,node_id:'NODE-NEW-PENDING'},{status:201});
+    }
+    if(String(url).includes('/issues?')) {
+      // Every unresolved row consumes its complete ten-page safety scan.
+      // None of these unrelated Issues proves absence or permits a new POST.
+      return Response.json(Array.from({length:100},(_,i)=>({number:i+1,title:'unrelated',body:'unrelated'})));
+    }
+    return Response.json({private:true,full_name:'owner/private-feedback'});
+  };
+  for(let tick=0;tick<8;tick++) {
+    // Match the configured five-minute cron exactly. Previously tested calls
+    // in a frozen second hid old rows becoming eligible again after two ticks.
+    now=firstTick+tick*300;requests=0;await dispatch(env);
+    assert(requests<=50,`tick ${tick}: ${requests} external requests`);
+    assert.equal(env.DB.db.prepare("SELECT COUNT(*) n FROM feedback WHERE state='uncertain'").get().n,9);
+    const visited=env.DB.db.prepare("SELECT COUNT(*) n FROM feedback WHERE state='uncertain' AND checked_at>0").get().n;
+    const state=(await stored(env,pending.id)).state;
+    t.diagnostic(JSON.stringify({tick,elapsedSeconds:tick*300,externalRequests:requests,uncertainVisited:visited,pendingState:state,posts:posts.length}));
+  }
+  assert.equal((await stored(env,pending.id)).state,'delivered','a fresh pending report must progress despite unresolved older reports');
+  assert.equal((await stored(env,pending.id)).issue_number,700);
+  assert.deepEqual(posts.map(p=>p.title),[`Riftlet feedback RF-${pending.id}`]);
+  for(const id of uncertain) {
+    const record=await stored(env,id);
+    assert(record.checked_at>0,'every old uncertain report must eventually be observed');
+    assert.equal(record.state,'uncertain');assert.equal(record.issue_number,null);
+  }
+});
+
 test('deletion before input stops delivery; late POST acknowledges deletion_pending, not deletion complete',async(t)=>{
   const env=environment(),p=payload();await receiver.fetch(req(p),env);
   let r=await receiver.fetch(req(p,token,'DELETE'),env);assert.equal((await r.json()).state,'deleted');

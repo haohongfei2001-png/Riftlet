@@ -1,3 +1,7 @@
+## Feedback cloud continuation — 2026-10-29
+
+Feedback-only work on the latest unified PR #15 history: delivery fairness/index repairs, package capability metadata and real receiver evidence are implemented and independently reviewed. Dedicated D1 and HTTPS Receiver are deployed. Delivery Worker/cron/private Issue proof and final direct D1 cleanup checks wait on restoration of the previously authorized browser connection; Host remains nil. Exact source/CI and live outcomes: [current checkpoint](../engineering/evidence/2026-10-29-feedback-cloud/README.md). Physical Mac/native-window work is prepared for Codex per the user, without an active executor claim. Preserve existing screenshot tasks, old UNKNOWN, Main/Core/Capture and original workflows; no main merge or public release.
+
 > **2026-10-29 Feedback 最终交付专项 · CODE/CI PASS，真实端到端 BLOCKED**：已在正式1920e056后继7ef6cd4完成可靠性修复、非作者审查、完整macOS15 Native40733901373与Feedback40733901402，501唯一原生（含38反馈/UI）、20服务、4+14隔离及42项固定审计通过，统一arm64/ad-hoc App已实际下载核验。源码、完整日志和包校验见 engineering/evidence/2026-10-29-feedback-delivery；正式工程文档后继SHA/新正式CI/最终下载以PR #1最新交接为准。专用Private私库Riftlet-Feedback已建立并禁用Actions；Cloudflare仍缺登录、已登记Mac离线，D1/Worker未部署、endpoint为空。不能宣布真实原生→云端交付完成。截图准入、数据、旧UNKNOWN及main保留；三个独立执行者已实际并行完成作者/非作者工作。
 
 > **2026-10-29 内置截图专项 · 独立候选**：在 `codex/builtin-capture-completion-20261029` 复用薄界原生 `443d21d`，完成独立持久开关、截图生命周期/目标/进程修复与来源分离。正式 PR #1 和另一位 Pro 的集成工作树不改。准确源码、CI、独立审查、冲突与 NOT_RUN 门槛见 [专项交接](BUILTIN_CAPTURE_HANDOFF_2026-10-29.md)。

@@ -7,6 +7,7 @@ import shutil
 import subprocess
 import tempfile
 import unittest
+from unittest.mock import patch
 
 REPOSITORY = Path(__file__).resolve().parents[2]
 SPEC = importlib.util.spec_from_file_location("beta_package", REPOSITORY / "scripts/verify-internal-beta-package.py")
@@ -40,7 +41,8 @@ class InternalBetaPackagingTests(unittest.TestCase):
                          "launchArgument": "--system-screenshot-candidate",
                          "ordinaryAppDefault": "capture-upload-disabled",
                          "dataDirectory": "Riftlet-System-Screenshot-Candidate",
-                         "feedbackEndpointConfigured": False, "feedbackDelivery": "local-outbox-only",
+                         "feedbackEndpointConfigured": False, "feedbackEndpoint": None,
+                         "feedbackDelivery": "local-outbox-only",
                          "buildInputObjects": {path: "e" * 40 for path in VERIFY.INPUTS},
                          "sha256": VERIFY.package_hashes(self.package)}
         self.save_manifest()
@@ -116,6 +118,121 @@ class InternalBetaPackagingTests(unittest.TestCase):
         self.save_manifest()
         with self.assertRaisesRegex(ValueError, "invalid_build_inputs"):
             VERIFY.verify_package(self.package)
+
+    def test_configured_receiver_is_a_capability_not_cloud_success(self):
+        endpoint = "https://feedback-test.example.invalid/v1/feedback"
+        self.manifest.update(feedbackEndpointConfigured=True, feedbackEndpoint=endpoint,
+                             feedbackDelivery="https-receiver-configured")
+        self.save_manifest()
+        result = VERIFY.verify_package(self.package)
+        self.assertEqual(result["feedbackEndpoint"], endpoint)
+        self.assertFalse(self.calls.exists())
+        for claim in ("cloud-pass", "received", "delivered", "local-outbox-only"):
+            with self.subTest(claim=claim):
+                self.manifest["feedbackDelivery"] = claim
+                self.save_manifest()
+                with self.assertRaisesRegex(ValueError, "invalid_feedback_boundary"):
+                    VERIFY.verify_package(self.package)
+
+    def test_receiver_manifest_rejects_missing_and_unsafe_addresses(self):
+        for endpoint in ("", "PENDING_DEPLOYMENT", "http://feedback-test.example.invalid/v1/feedback",
+                         "https://secret@feedback-test.example.invalid/v1/feedback",
+                         "https://feedback-test.example.invalid:8443/v1/feedback",
+                         "https://feedback-test.example.invalid/v1/feedback?token=private",
+                         "https://feedback-test.example.invalid/v1/feedback#private",
+                         "https://feedback-test.example.invalid/v1/feedback?",
+                         "https://feedback-test.example.invalid/v1/feedback/",
+                         "https://feedback-test..example.invalid/v1/feedback",
+                         "https://feedback-test.example.invalid/v1/feedback\n"):
+            with self.subTest(endpoint=endpoint):
+                self.manifest.update(feedbackEndpointConfigured=True, feedbackEndpoint=endpoint,
+                                     feedbackDelivery="https-receiver-configured")
+                self.save_manifest()
+                with self.assertRaisesRegex(ValueError, "invalid_feedback_boundary"):
+                    VERIFY.verify_package(self.package)
+        self.manifest.update(feedbackEndpointConfigured=True, feedbackEndpoint=None,
+                             feedbackDelivery="https-receiver-configured")
+        self.save_manifest()
+        with self.assertRaisesRegex(ValueError, "invalid_feedback_boundary"):
+            VERIFY.verify_package(self.package)
+
+    def test_disabled_manifest_cannot_hide_configured_receiver_or_coerce_boolean(self):
+        self.manifest["feedbackEndpoint"] = "https://feedback-test.example.invalid/v1/feedback"
+        self.save_manifest()
+        with self.assertRaisesRegex(ValueError, "invalid_feedback_boundary"):
+            VERIFY.verify_package(self.package)
+        self.manifest["feedbackEndpoint"] = None
+        self.manifest["feedbackEndpointConfigured"] = 0
+        self.save_manifest()
+        with self.assertRaisesRegex(ValueError, "invalid_feedback_boundary"):
+            VERIFY.verify_package(self.package)
+
+    def test_host_source_requires_one_explicit_reviewable_literal(self):
+        disabled = "    static let endpoint: URL? = nil\n"
+        self.assertFalse(VERIFY.feedback_source_configuration(disabled)["feedbackEndpointConfigured"])
+        endpoint = "https://feedback-test.example.invalid:443/v1/feedback"
+        configured = '    static let endpoint: URL? = URL(string: "' + endpoint + '")\n'
+        self.assertEqual(VERIFY.feedback_source_configuration(configured)["feedbackEndpoint"], endpoint)
+        for source in ("", disabled + disabled,
+                       "    static let endpoint: URL? = ProcessInfo.processInfo.environment[\"ENDPOINT\"].flatMap(URL.init)\n",
+                       '    static let endpoint: URL? = URL(string: "https://\\(host)/v1/feedback")\n',
+                       '    static let endpoint: URL? = URL(string: "PENDING_DEPLOYMENT")\n'):
+            with self.subTest(source=source), self.assertRaisesRegex(ValueError, "invalid_feedback_(source|boundary)"):
+                VERIFY.feedback_source_configuration(source)
+
+    def test_manifest_configuration_must_match_its_committed_host(self):
+        endpoint = "https://feedback-test.example.invalid/v1/feedback"
+        self.manifest.update(feedbackEndpointConfigured=True, feedbackEndpoint=endpoint,
+                             feedbackDelivery="https-receiver-configured")
+        self.save_manifest()
+        requested_source = ("show", self.manifest["sourceHeadSHA"] + ":" + VERIFY.FEEDBACK_HOST)
+        for committed, accepted in (("    static let endpoint: URL? = nil\n", False),
+                ('    static let endpoint: URL? = URL(string: "' + endpoint + '")\n', True)):
+            def read_git(repository, *args):
+                if args == requested_source:
+                    return committed
+                self.assertEqual(args[0], "rev-parse")
+                return "e" * 40
+            with self.subTest(accepted=accepted), patch.object(VERIFY, "git", side_effect=read_git) as read:
+                if accepted:
+                    VERIFY.verify_package(self.package, REPOSITORY)
+                else:
+                    with self.assertRaisesRegex(ValueError, "manifest_feedback_source_mismatch"):
+                        VERIFY.verify_package(self.package, REPOSITORY)
+                read.assert_any_call(REPOSITORY, *requested_source)
+
+    def test_manifest_creation_derives_capability_from_committed_host(self):
+        repository = self.root / "source-checkpoint"
+        repository.mkdir()
+        subprocess.run(["git", "init", "-q", str(repository)], check=True)
+        for path in VERIFY.INPUTS:
+            target = repository / path
+            if path == "Package.swift":
+                target.write_text("// synthetic build identity\n")
+            else:
+                target.mkdir(parents=True)
+                (target / "fixture").write_text("synthetic build identity\n")
+        host = repository / VERIFY.FEEDBACK_HOST
+        host.parent.mkdir(parents=True)
+        host.write_text("    static let endpoint: URL? = nil\n")
+
+        def commit():
+            subprocess.run(["git", "-C", str(repository), "add", "."], check=True)
+            subprocess.run(["git", "-C", str(repository), "-c", "user.name=Package Test",
+                            "-c", "user.email=package-test@example.invalid", "commit", "-qm", "Synthetic identity"], check=True)
+
+        commit()
+        local = VERIFY.create_manifest(self.package, repository, "HEAD")
+        self.assertIs(local["feedbackEndpointConfigured"], False)
+        self.assertIsNone(local["feedbackEndpoint"])
+        endpoint = "https://feedback-test.example.invalid/v1/feedback"
+        host.write_text('    static let endpoint: URL? = URL(string: "' + endpoint + '")\n')
+        commit()
+        configured = VERIFY.create_manifest(self.package, repository, "HEAD")
+        self.assertIs(configured["feedbackEndpointConfigured"], True)
+        self.assertEqual(configured["feedbackEndpoint"], endpoint)
+        self.assertEqual(configured["feedbackDelivery"], "https-receiver-configured")
+        self.assertNotEqual(local["sourceHeadSHA"], configured["sourceHeadSHA"])
 
 
 if __name__ == "__main__":

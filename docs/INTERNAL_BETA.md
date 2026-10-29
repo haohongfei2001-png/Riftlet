@@ -1,3 +1,7 @@
+## Feedback cloud successor — 2026-10-29
+
+The dedicated receiver/D1 are now deployed and have real synthetic HTTP evidence. The native App endpoint is still nil because private GitHub delivery has not been deployed and verified; this Beta continues to save feedback locally as pending. The package's `build-info.json` is bound to its committed Host and reports the exact capability, never per-feedback cloud success. [Current delivery evidence and remaining conditions](../engineering/evidence/2026-10-29-feedback-cloud/README.md) supersede older statements below about cloud login/provisioning. Latest successor source, complete macOS CI and corresponding arm64/x86_64 packages are recorded in the formal Draft PR after those executions complete. No public release, notarization or physical Mac/native-to-cloud completion is claimed. The user has left Mac connection to Codex; no founder installation is requested.
+
 ## 2026-10-29 Feedback 可靠性更新
 
 当前统一 Beta 包含已审查的反馈可靠性修复。源码 `7ef6cd4b` 的完整 macOS15 Native/Feedback CI 已通过，实际 arm64/ad-hoc 安装包已下载并核验。正式工程后继、准确下载入口和校验值以 [PR #1](https://github.com/haohongfei2001-png/Riftlet/pull/1) 最新交接为准；整包仍包含 App、明确的内部候选启动入口、使用说明和构建清单。

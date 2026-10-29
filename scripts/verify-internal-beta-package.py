@@ -11,12 +11,14 @@ import re
 import stat
 import subprocess
 import sys
+from urllib.parse import urlsplit
 
 SPEC = importlib.util.spec_from_file_location("bundle_check", Path(__file__).with_name("verify-app-bundle.py"))
 BUNDLE = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(BUNDLE)
 ENTRY = "Start-Riftlet-Internal-Beta.command"
 README = "README-zh-CN.txt"
+FEEDBACK_HOST = "Sources/RiftletApp/FeedbackHost.swift"
 INPUTS = ("Sources", "Tests", "Resources", "Package.swift", "scripts", "packaging",
           ".github", "services/feedback", "ThirdPartyNotices", "research",
           "engineering/evidence/2026-10-27-real-mac-round2",
@@ -36,6 +38,37 @@ def require(condition, code):
 
 def git(repository, *args):
     return subprocess.check_output(["git", "-C", str(repository), *args], text=True).strip()
+
+
+def feedback_configuration(endpoint):
+    # A configured receiver is a build capability, never a durable receipt or
+    # an assertion that GitHub delivery/native-to-cloud acceptance has passed.
+    if endpoint is None:
+        return {"feedbackEndpointConfigured": False, "feedbackEndpoint": None,
+                "feedbackDelivery": "local-outbox-only"}
+    require(isinstance(endpoint, str) and re.fullmatch(
+        r"https://[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?(?::443)?/v1/feedback", endpoint),
+        "invalid_feedback_boundary")
+    parts = urlsplit(endpoint)
+    require(parts.scheme == "https" and parts.hostname and parts.username is None
+            and parts.password is None and parts.port in (None, 443)
+            and parts.path == "/v1/feedback" and not parts.query and not parts.fragment
+            and all(re.fullmatch(r"[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?", label)
+                    for label in parts.hostname.split(".")), "invalid_feedback_boundary")
+    return {"feedbackEndpointConfigured": True, "feedbackEndpoint": endpoint,
+            "feedbackDelivery": "https-receiver-configured"}
+
+
+def feedback_source_configuration(source):
+    # Keep one literal in the shipped Host. Expressions, environment overrides,
+    # duplicate declarations and unresolved deployment placeholders fail closed.
+    declarations = re.findall(r"^[ \t]*static let endpoint: URL\? = (.+)$", source, re.MULTILINE)
+    require(len(declarations) == 1, "invalid_feedback_source")
+    if declarations[0] == "nil":
+        return feedback_configuration(None)
+    literal = re.fullmatch(r'URL\(string: "([^"\\\n]+)"\)', declarations[0])
+    require(literal is not None, "invalid_feedback_source")
+    return feedback_configuration(literal.group(1))
 
 
 def package_hashes(package):
@@ -70,7 +103,7 @@ def create_manifest(package, repository, source_head):
             "launchArgument": "--system-screenshot-candidate",
             "ordinaryAppDefault": "capture-upload-disabled",
             "dataDirectory": "Riftlet-System-Screenshot-Candidate",
-            "feedbackEndpointConfigured": False, "feedbackDelivery": "local-outbox-only",
+            **feedback_source_configuration(git(repository, "show", head + ":" + FEEDBACK_HOST)),
             "realAcceptanceSourceSHA": "e421e6687651c2fac1441410c1af2bd5b8151e55",
             "realAcceptanceEvidenceSHA": "c177174e400064d8ec8bb79685c33d01c4e93b89",
             "realAcceptanceScope": "prebound-software-CGEvent-one-new-PNG; not a new combined-App Mac run",
@@ -98,8 +131,9 @@ def verify_package(package, repository=None):
     require(manifest.get("launchArgument") == "--system-screenshot-candidate"
             and manifest.get("ordinaryAppDefault") == "capture-upload-disabled"
             and manifest.get("dataDirectory") == "Riftlet-System-Screenshot-Candidate", "invalid_launch_profile")
-    require(manifest.get("feedbackEndpointConfigured") is False
-            and manifest.get("feedbackDelivery") == "local-outbox-only", "invalid_feedback_boundary")
+    feedback = feedback_configuration(manifest.get("feedbackEndpoint"))
+    require(manifest.get("feedbackEndpointConfigured") is feedback["feedbackEndpointConfigured"]
+            and manifest.get("feedbackDelivery") == feedback["feedbackDelivery"], "invalid_feedback_boundary")
     require(manifest.get("sha256") == package_hashes(package), "package_hash_mismatch")
     require(isinstance(manifest.get("buildInputObjects"), dict) and set(manifest["buildInputObjects"]) == set(INPUTS)
             and all(re.fullmatch(r"[0-9a-f]{40}", v) for v in manifest["buildInputObjects"].values()), "invalid_build_inputs")
@@ -107,6 +141,8 @@ def verify_package(package, repository=None):
         for path, value in manifest["buildInputObjects"].items():
             require(git(repository, "rev-parse", manifest["checkoutSHA"] + ":" + path) == value
                     and git(repository, "rev-parse", manifest["sourceHeadSHA"] + ":" + path) == value, "manifest_input_mismatch")
+        require(feedback == feedback_source_configuration(git(repository, "show", manifest["sourceHeadSHA"] + ":" + FEEDBACK_HOST)),
+                "manifest_feedback_source_mismatch")
     return manifest
 
 
@@ -126,7 +162,7 @@ def main():
     except (ValueError, OSError, TypeError, subprocess.CalledProcessError, BUNDLE.VerificationError) as error:
         print("RIFTLET_INTERNAL_BETA_CHECK_FAIL: " + type(error).__name__, file=sys.stderr)
         return 1
-    print("RIFTLET_INTERNAL_BETA_CHECK_PASS: source=" + manifest["sourceHeadSHA"] + "; checkout=" + manifest["checkoutSHA"] + "; explicit candidate; local Feedback; GUI_NOT_RUN; GATEKEEPER_NOT_RUN")
+    print("RIFTLET_INTERNAL_BETA_CHECK_PASS: source=" + manifest["sourceHeadSHA"] + "; checkout=" + manifest["checkoutSHA"] + "; explicit candidate; Feedback=" + manifest["feedbackDelivery"] + "; GUI_NOT_RUN; GATEKEEPER_NOT_RUN")
     return 0
 
 

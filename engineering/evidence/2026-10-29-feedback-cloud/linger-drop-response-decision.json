@@ -1,0 +1,26 @@
+{
+  "reviewer": "/root/deployment_review",
+  "decision": "PASS",
+  "atUTC": "2026-10-29T14:04:37.137049+00:00",
+  "baseScriptSHA256": "e7dd5824bc15dabceaa3712d9b455199153698fad3fc5e8f5de4523cfb4a1515",
+  "reviewedSHA256": {
+    "cloud_acceptance.py": "697518d9de0809ea1bd329d8b5f9b0e4483614e38e8c43593ece501f637fba60",
+    "linger-drop-response.patch": "a6c7232a21b43ccef47538b374271fd103e4cb99f5852dc9d053c9f051869517",
+    "test_linger_drop_response.py": "362967cf421e991a79524d5aa355d6fa8c54f72af7473c306f063f0a1f564400"
+  },
+  "offlineCases": 4,
+  "offlineResult": "4/4 PASS",
+  "testLogSHA256": "189115d7744af2e255a6f9edb780d95a8cc395cbbbe7fe7191d323764767ff71",
+  "networkRequestsByReviewer": 0,
+  "sharedFilesModifiedByReviewer": false,
+  "approvedScope": "One fixed 3-second post-write hold before closing the same standard HTTPS proxy connection without reading the origin response",
+  "observedBoundaries": [
+    "Only complete origin write reaches the overridden getresponse",
+    "Exactly one sleep(3.0) occurs while the connection is still open and origin getresponse has not run",
+    "Write failure performs no sleep and leaves requestBytesWritten and postWriteLingerCompleted false",
+    "Prior standard proxy/NO_PROXY/CONNECT/TLS and proxy-auth-only-to-CONNECT guarantees are unchanged",
+    "Event remains transportOutcome=unknown and receiptRead=false",
+    "Delay completion is recorded explicitly and is not a persistence claim"
+  ],
+  "realAcceptanceRemaining": "Root-authorized one request with original lost_receipt UUID/body/capability; independently observe real D1 before any retry. First immediate-close attempt remains retained as unknown/no observed D1 row; this patch does not guarantee persistence."
+}

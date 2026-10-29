@@ -1,0 +1,27 @@
+{
+  "atUTC": "2026-10-29T13:30:51.408156+00:00",
+  "baseSHA": "c15fd4b4a27659946ef49280131e875f4d5ab9d1",
+  "reviewedPatchSHA256": "9e340ae0c9acf9eb45db28d1b7c72dc95e89398827795fdb3cc7b91073f4d687",
+  "reviewedFileSHA256": {
+    "Sources/RiftletApp/FeedbackHost.swift": "4def11a998f6c0711741dd6707489c6b28005a84d6b0f56b92ded1d5ee6345f0",
+    "scripts/verify-internal-beta-package.py": "b6bbacd7c750b994ac89b77b10004f11fc9aafa5d19e87958108e4971e58d5f3",
+    "Tests/InternalBetaPackaging/test_package.py": "c616c148e5d4f8d8a6a917a5989eab9ea7b456bd6962430d18d14893c45c8417",
+    "scripts/package-internal-beta.sh": "b35a5d0025de83804005e7fbb17e7e18daf88e44ce18bb4db2ea2678758ed6a0",
+    "packaging/internal-beta/README-zh-CN.txt": "894ae2f83160cde87cd97a5a0c8fa7e4994d846f4c531ee722b79176eddcf9b3"
+  },
+  "command": [
+    "python3",
+    "-B",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "Tests/InternalBetaPackaging",
+    "-v"
+  ],
+  "exitCode": 0,
+  "cases": 13,
+  "filesUnchangedDuringTest": true,
+  "testLogSHA256": "ad89b22489f6ebe309044a5fa5a647f2cea4f7a5667ff1150a518dcc90967890",
+  "scope": "Offline packaging/source-manifest tests only; synthetic App; no native GUI or cloud request"
+}

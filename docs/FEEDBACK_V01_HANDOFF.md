@@ -1,4 +1,18 @@
-# Feedback v0.1 · 当前交付续接（2026-10-29）
+## 2026-10-29 14:17 UTC · 真实 Receiver 已运行，完整链路尚未完成
+
+用户已登录正确账户，并把真实 Mac 连接/窗口验收留给 Codex；验收清单已准备，未安排执行器。统一工程基线仍为 PR #15 的 `c15fd4b`。本轮服务修复21项、包装13项本地回归与独立审查通过，不能替代最终新 SHA 的完整 macOS CI。
+
+真实 Receiver 已部署至 `https://riftlet-feedback-receiver.haohongfei2001.workers.dev/v1/feedback`：当时观察到业务版本前缀 `07497aa3` active；后续 Secret/开关变更后的最终 active version 尚待读取。专用 DB binding 已保存，Logs/Traces/Issues 均关闭，`ACCEPT_ENABLED=true`，32-byte 随机 `IP_HMAC_KEY` 已作为服务器 Secret 安装。真实部署为 workers.dev 公开路由、compatibility date `2026-10-29`；这些是平台观察，不由旧配置文件的 disabled 默认值推断。
+
+真实 HTTPS 已完成 **36/36 HTTP PASS**：原28项之外，14:16:42–43对plain/diagnostic/lost逐条DELETE均202/deleted，14:16:54–55对全部5个原ID的GET均200/deleted。14:00:19.183Z 的独立 D1 Console 证据确认文字/合成诊断两条原 ID、正文哈希与 pending 状态，均无 Issue 身份。14:11:33 对原 lost_receipt 的授权 GET 返回 200/received/durable=true；其独立 D1 hash/单行数，以及删除响应的实际 D1 tombstone/正文清除仍待核查；不能把 HTTP `deleted` 升级为完整删除 CLOUD PASS。
+
+Delivery 截至本检查点尚未创建。最小权限 GitHub token 已创建，仅限独立私有反馈仓库、Metadata read / Issues write，2026-11-28 到期；它仅存在授权浏览器会话内，未安装 Delivery，秘密不入库或报告。14:04 后浏览器控制连续 MCP 超时，14:12 最新结果明确为 `No connected browser was found`；剩余平台操作因此 BLOCKED。这是登录之后缺少可连接浏览器的执行条件，不是缺账号授权。
+
+原5个测试身份都已由HTTP报告deleted，没有retry-dropped、重建身份或Issue创建。独立D1 payload-null/flags/墓碑核查因浏览器失联仍BLOCKED，不声称备份残留已清除。原私有测试状态0700/0600暂留待最终核验清理，不提交任何凭证。
+
+Host **仍为 nil**；真实私有 Issue 投递、GitHub 永久删除和原生窗口端到端均未通过。资源、36项真实HTTP原始事件、三次不同丢回执结果及逐条最终HTTP清理结果/剩余独立D1核查义务见[云端续接证据](../engineering/evidence/2026-10-29-feedback-cloud/README.md)。以前的 HelloWorld、零反馈、未保存配置和缺登录描述只属于下方保留的历史检查点，不能再作为当前状态。
+
+# Feedback v0.1 · 历史交付续接（2026-10-29，早于本页最新云端检查点）
 
 已实时核对 PR #7 在 `70cf588` 合入正式工程，当前续接起点是 PR #1 的 `1920e056`，不再重复合并。新增自动重试、未发送凭据丢失取消、无POST投递删除竞态和免费请求预算修复，实际非作者审查已完成。源码 `7ef6cd4b` 的完整macOS15 CI（Native 40733901373、Feedback 40733901402）已通过：501唯一原生测试、内含38反馈/UI，20服务回归及42项固定审计通过，实际统一App已下载核验。正式工程文档后继的准确最终SHA、新正式CI及统一App下载以[PR #1](https://github.com/haohongfei2001-png/Riftlet/pull/1)最新交接为准。源码与证据见[本轮交付记录](../engineering/evidence/2026-10-29-feedback-delivery/README.md)。
 

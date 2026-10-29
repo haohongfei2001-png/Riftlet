@@ -1,0 +1,330 @@
+{
+  "capturedUTC": "2026-10-29T14:17:36.625064+00:00",
+  "scope": "Real HTTPS Receiver acceptance and authorized synthetic-data cleanup; no native Mac end-to-end or private GitHub delivery claim",
+  "harnessSHA256": "697518d9de0809ea1bd329d8b5f9b0e4483614e38e8c43593ece501f637fba60",
+  "eventCount": 39,
+  "httpCheckCount": 36,
+  "httpCheckOutcomes": {
+    "PASS": 36
+  },
+  "httpStatusCounts": {
+    "202": 12,
+    "200": 8,
+    "422": 7,
+    "413": 1,
+    "409": 1,
+    "404": 3,
+    "401": 1,
+    "415": 2,
+    "400": 1
+  },
+  "phases": {
+    "send": 5,
+    "strictValidation": 18,
+    "deletionScenarios": 4,
+    "lostReceiptReadOnlyStatus": 1,
+    "cleanupDelete": 3,
+    "cleanupReadOnlyStatus": 5,
+    "dropAttempts": 3
+  },
+  "dropAttempts": [
+    {
+      "atUTC": "2026-10-29T13:53:13.088343+00:00",
+      "case": "lost_receipt",
+      "check": "request_sent_response_not_read",
+      "id": "083ca5ca-d1f4-44f6-9a3e-1c32f8850cc9",
+      "requestPayloadSHA256": "5ba81029befc2af2c5dd7384ceba150b1a4a7d856e3d1691bcc092f1e2be4b9e",
+      "transportOutcome": "unknown",
+      "receiptRead": false,
+      "scope": "Real HTTPS request; connection closed without reading a receipt; remote persistence must be checked separately",
+      "requestBytesWritten": false,
+      "exceptionType": "gaierror"
+    },
+    {
+      "atUTC": "2026-10-29T14:01:17.074152+00:00",
+      "case": "lost_receipt",
+      "check": "request_sent_response_not_read",
+      "id": "083ca5ca-d1f4-44f6-9a3e-1c32f8850cc9",
+      "requestPayloadSHA256": "5ba81029befc2af2c5dd7384ceba150b1a4a7d856e3d1691bcc092f1e2be4b9e",
+      "transportOutcome": "unknown",
+      "receiptRead": false,
+      "scope": "Real HTTPS request; connection closed without reading a receipt; remote persistence must be checked separately",
+      "requestBytesWritten": true
+    },
+    {
+      "atUTC": "2026-10-29T14:06:45.889277+00:00",
+      "case": "lost_receipt",
+      "check": "request_sent_response_not_read",
+      "id": "083ca5ca-d1f4-44f6-9a3e-1c32f8850cc9",
+      "requestPayloadSHA256": "5ba81029befc2af2c5dd7384ceba150b1a4a7d856e3d1691bcc092f1e2be4b9e",
+      "transportOutcome": "unknown",
+      "receiptRead": false,
+      "scope": "Real HTTPS request; connection closed without reading a receipt; remote persistence must be checked separately",
+      "requestBytesWritten": true,
+      "configuredPostWriteLingerMilliseconds": 3000,
+      "postWriteLingerCompleted": true
+    }
+  ],
+  "cleanupEvents": [
+    {
+      "atUTC": "2026-10-29T14:16:42.388972+00:00",
+      "case": "plain",
+      "method": "DELETE",
+      "id": "6b8a8849-6ffc-4805-ae4e-e37cfa00f342",
+      "requestPayloadSHA256": null,
+      "scope": "real-HTTPS; D1 and private-Issue proof separate",
+      "httpStatus": 202,
+      "headers": {
+        "Content-Type": "application/json",
+        "Cache-Control": "no-store",
+        "X-Content-Type-Options": "nosniff",
+        "Retry-After": null,
+        "CF-Ray": "a522ccb14b9c1642-ORD"
+      },
+      "unexpectedResponseKeyCount": 0,
+      "response": {
+        "id": "6b8a8849-6ffc-4805-ae4e-e37cfa00f342",
+        "state": "deleted",
+        "durable": true
+      },
+      "responseSchemaValid": true,
+      "durationMilliseconds": 611.08,
+      "check": "authorized_delete",
+      "expectation": {
+        "httpStatus": 202,
+        "state": null
+      },
+      "httpCheck": "PASS"
+    },
+    {
+      "atUTC": "2026-10-29T14:16:43.001807+00:00",
+      "case": "diagnostic",
+      "method": "DELETE",
+      "id": "0fa0a07f-76d3-4815-bee3-22f60dcdbdcb",
+      "requestPayloadSHA256": null,
+      "scope": "real-HTTPS; D1 and private-Issue proof separate",
+      "httpStatus": 202,
+      "headers": {
+        "Content-Type": "application/json",
+        "Cache-Control": "no-store",
+        "X-Content-Type-Options": "nosniff",
+        "Retry-After": null,
+        "CF-Ray": "a522ccb51b0586d3-ORD"
+      },
+      "unexpectedResponseKeyCount": 0,
+      "response": {
+        "id": "0fa0a07f-76d3-4815-bee3-22f60dcdbdcb",
+        "state": "deleted",
+        "durable": true
+      },
+      "responseSchemaValid": true,
+      "durationMilliseconds": 269.375,
+      "check": "authorized_delete",
+      "expectation": {
+        "httpStatus": 202,
+        "state": null
+      },
+      "httpCheck": "PASS"
+    },
+    {
+      "atUTC": "2026-10-29T14:16:43.272475+00:00",
+      "case": "lost_receipt",
+      "method": "DELETE",
+      "id": "083ca5ca-d1f4-44f6-9a3e-1c32f8850cc9",
+      "requestPayloadSHA256": null,
+      "scope": "real-HTTPS; D1 and private-Issue proof separate",
+      "httpStatus": 202,
+      "headers": {
+        "Content-Type": "application/json",
+        "Cache-Control": "no-store",
+        "X-Content-Type-Options": "nosniff",
+        "Retry-After": null,
+        "CF-Ray": "a522ccb68fdf1642-ORD"
+      },
+      "unexpectedResponseKeyCount": 0,
+      "response": {
+        "id": "083ca5ca-d1f4-44f6-9a3e-1c32f8850cc9",
+        "state": "deleted",
+        "durable": true
+      },
+      "responseSchemaValid": true,
+      "durationMilliseconds": 250.931,
+      "check": "authorized_delete",
+      "expectation": {
+        "httpStatus": 202,
+        "state": null
+      },
+      "httpCheck": "PASS"
+    },
+    {
+      "atUTC": "2026-10-29T14:16:54.660813+00:00",
+      "case": "plain",
+      "method": "GET",
+      "id": "6b8a8849-6ffc-4805-ae4e-e37cfa00f342",
+      "requestPayloadSHA256": null,
+      "scope": "real-HTTPS; D1 and private-Issue proof separate",
+      "httpStatus": 200,
+      "headers": {
+        "Content-Type": "application/json",
+        "Cache-Control": "no-store",
+        "X-Content-Type-Options": "nosniff",
+        "Retry-After": null,
+        "CF-Ray": "a522ccfdb8b086d3-ORD"
+      },
+      "unexpectedResponseKeyCount": 0,
+      "response": {
+        "id": "6b8a8849-6ffc-4805-ae4e-e37cfa00f342",
+        "state": "deleted",
+        "durable": true
+      },
+      "responseSchemaValid": true,
+      "durationMilliseconds": 150.307,
+      "check": "authorized_status",
+      "expectation": {
+        "httpStatus": 200,
+        "state": null
+      },
+      "httpCheck": "PASS"
+    },
+    {
+      "atUTC": "2026-10-29T14:16:54.812286+00:00",
+      "case": "diagnostic",
+      "method": "GET",
+      "id": "0fa0a07f-76d3-4815-bee3-22f60dcdbdcb",
+      "requestPayloadSHA256": null,
+      "scope": "real-HTTPS; D1 and private-Issue proof separate",
+      "httpStatus": 200,
+      "headers": {
+        "Content-Type": "application/json",
+        "Cache-Control": "no-store",
+        "X-Content-Type-Options": "nosniff",
+        "Retry-After": null,
+        "CF-Ray": "a522ccfeaf951642-ORD"
+      },
+      "unexpectedResponseKeyCount": 0,
+      "response": {
+        "id": "0fa0a07f-76d3-4815-bee3-22f60dcdbdcb",
+        "state": "deleted",
+        "durable": true
+      },
+      "responseSchemaValid": true,
+      "durationMilliseconds": 144.64,
+      "check": "authorized_status",
+      "expectation": {
+        "httpStatus": 200,
+        "state": null
+      },
+      "httpCheck": "PASS"
+    },
+    {
+      "atUTC": "2026-10-29T14:16:54.958034+00:00",
+      "case": "lost_receipt",
+      "method": "GET",
+      "id": "083ca5ca-d1f4-44f6-9a3e-1c32f8850cc9",
+      "requestPayloadSHA256": null,
+      "scope": "real-HTTPS; D1 and private-Issue proof separate",
+      "httpStatus": 200,
+      "headers": {
+        "Content-Type": "application/json",
+        "Cache-Control": "no-store",
+        "X-Content-Type-Options": "nosniff",
+        "Retry-After": null,
+        "CF-Ray": "a522ccff882886d3-ORD"
+      },
+      "unexpectedResponseKeyCount": 0,
+      "response": {
+        "id": "083ca5ca-d1f4-44f6-9a3e-1c32f8850cc9",
+        "state": "deleted",
+        "durable": true
+      },
+      "responseSchemaValid": true,
+      "durationMilliseconds": 171.34,
+      "check": "authorized_status",
+      "expectation": {
+        "httpStatus": 200,
+        "state": null
+      },
+      "httpCheck": "PASS"
+    },
+    {
+      "atUTC": "2026-10-29T14:16:55.130557+00:00",
+      "case": "delete_before_submit",
+      "method": "GET",
+      "id": "bd84bc6b-905b-4835-8a2e-277896131723",
+      "requestPayloadSHA256": null,
+      "scope": "real-HTTPS; D1 and private-Issue proof separate",
+      "httpStatus": 200,
+      "headers": {
+        "Content-Type": "application/json",
+        "Cache-Control": "no-store",
+        "X-Content-Type-Options": "nosniff",
+        "Retry-After": null,
+        "CF-Ray": "a522cd009eff1642-ORD"
+      },
+      "unexpectedResponseKeyCount": 0,
+      "response": {
+        "id": "bd84bc6b-905b-4835-8a2e-277896131723",
+        "state": "deleted",
+        "durable": true
+      },
+      "responseSchemaValid": true,
+      "durationMilliseconds": 110.246,
+      "check": "authorized_status",
+      "expectation": {
+        "httpStatus": 200,
+        "state": null
+      },
+      "httpCheck": "PASS"
+    },
+    {
+      "atUTC": "2026-10-29T14:16:55.241892+00:00",
+      "case": "pending_delete",
+      "method": "GET",
+      "id": "35bc1586-1b37-41ed-b6e5-87221bd6a3d2",
+      "requestPayloadSHA256": null,
+      "scope": "real-HTTPS; D1 and private-Issue proof separate",
+      "httpStatus": 200,
+      "headers": {
+        "Content-Type": "application/json",
+        "Cache-Control": "no-store",
+        "X-Content-Type-Options": "nosniff",
+        "Retry-After": null,
+        "CF-Ray": "a522cd015f3886d3-ORD"
+      },
+      "unexpectedResponseKeyCount": 0,
+      "response": {
+        "id": "35bc1586-1b37-41ed-b6e5-87221bd6a3d2",
+        "state": "deleted",
+        "durable": true
+      },
+      "responseSchemaValid": true,
+      "durationMilliseconds": 112.285,
+      "check": "authorized_status",
+      "expectation": {
+        "httpStatus": 200,
+        "state": null
+      },
+      "httpCheck": "PASS"
+    }
+  ],
+  "allFiveFinalHTTPStatesDeleted": true,
+  "historicalEventsPreservedByteForByte": true,
+  "retryDroppedExecuted": false,
+  "directD1ReadByThisAgent": false,
+  "githubDeliveryTestedByThisAgent": false,
+  "nativeMacTested": false,
+  "privateStateRetainedAsRequested": true,
+  "privateStateModes": "0700/0600",
+  "credentialValuesIncluded": false,
+  "remainingVerification": [
+    "Direct D1 query of these five IDs must independently confirm unique tombstones, null active payload, deletion flags and no issue identity",
+    "HTTP status deleted does not prove D1 backup or Time Travel erasure",
+    "GitHub delivery, real 201, issue uniqueness and permanent issue deletion were not exercised",
+    "Native Mac SQLite/Keychain cleanup remains with Codex"
+  ],
+  "cleanupRecommendation": [
+    "Keep private state only for explicitly needed final verification; after authorized completion, remove the exact private test-state directory without copying secrets to the repository or Library",
+    "Preserve required server tombstones under the existing retention policy; do not remove them to force reuse or resurrect these deleted test identities",
+    "Retain the sanitized event snapshot and its hash manifest as public-reviewable evidence; do not claim secure physical media erasure when deleting local temporary files"
+  ]
+}

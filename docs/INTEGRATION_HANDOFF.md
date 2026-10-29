@@ -1,3 +1,7 @@
+## Feedback cloud continuation — 2026-10-29
+
+The Feedback-only successor starts from the latest unified PR #15 source `c15fd4b4a27659946ef49280131e875f4d5ab9d1`, preserving all existing product history and screenshot admission. It adds bounded delivery fairness, D1 maintenance indexes, source-bound Beta capability metadata and actual receiver acceptance evidence. The dedicated HTTPS receiver and D1 are live; the Delivery Worker/private Issue path remains incomplete after the browser connection disconnected. Host remains nil. [Current cloud checkpoint](../engineering/evidence/2026-10-29-feedback-cloud/README.md) records exact observations, resources, test cleanup and remaining conditions. A new reviewed source and unchanged full workflows are required before the successor is admitted. Physical Mac work is prepared for Codex, without a scheduled executor or MAC PASS claim. Earlier checkpoints below retain their original scope.
+
 ## 2026-10-29 Feedback 可靠性与正式继承
 
 源码 `7ef6cd4b` 已完成反馈可靠性修复、标准 macOS15 运行器迁移及非作者审查，完整 Native/Feedback CI 已通过，真实统一 Beta 安装包已下载核验。正式工程文档后继的最终 SHA、新正式分支 CI 和下载固定在 [PR #1](https://github.com/haohongfei2001-png/Riftlet/pull/1)，细节见 [Feedback 交接](FEEDBACK_V01_HANDOFF.md)。当前截图实现与准入、真实 Mac 工作树、原有历史与数据均保留，main 未合并。私有反馈仓库已建立；Cloudflare 登录和离线 Mac 仍阻塞真实原生到云端验收，endpoint 继续为空。以下原交接记录保留为历史。
