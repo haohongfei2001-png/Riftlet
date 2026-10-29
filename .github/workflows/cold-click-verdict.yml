@@ -1,0 +1,73 @@
+name: Cold click architecture comparison
+on:
+  push:
+    branches: ['codex/riftlet-cold-click-reliability-20261029']
+    paths:
+      - 'engineering/experiments/click-time-witness-20261029/**'
+      - 'engineering/experiments/chrome-control-probe-20261029/**'
+      - '.github/workflows/cold-click-verdict.yml'
+permissions:
+  contents: read
+concurrency:
+  group: cold-click-verdict-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  comparison:
+    runs-on: macos-15
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Preserve reviewed product and historical admission unchanged
+        run: |
+          set -o pipefail
+          mkdir -p test-results
+          python3 - <<'PY' | tee test-results/isolation.json
+          import json, subprocess
+          base = 'b4590f4fee8ab43e0ad30d23c980abebe324d20c'
+          def tree(ref):
+              result = {}
+              for row in subprocess.check_output(['git', '--no-replace-objects', 'ls-tree', '-rz', ref]).split(b'\0'):
+                  if row:
+                      obj, path = row.split(b'\t', 1)
+                      result[path.decode()] = obj.decode()
+              return result
+          old, new = tree(base), tree('HEAD')
+          subprocess.run(['git', '--no-replace-objects', 'merge-base', '--is-ancestor', base, 'HEAD'], check=True)
+          changed = sorted(p for p in old if old[p] != new.get(p))
+          assert not changed, ('reviewed files changed', changed)
+          added = sorted(new.keys() - old.keys())
+          prefixes = ('engineering/experiments/click-time-witness-20261029/',
+                      'engineering/experiments/chrome-control-probe-20261029/',
+                      'engineering/evidence/2026-10-29-cold-click-verdict/')
+          assert added
+          assert all(p.startswith(prefixes) or p == '.github/workflows/cold-click-verdict.yml' for p in added), added
+          assert all(new[p].startswith('100644 blob ') for p in added), added
+          print(json.dumps({'result': 'PASS', 'unchangedReviewedBaseline': base, 'additions': added,
+              'scope': 'experiment isolation only, no new product or upload admission'}, indent=2))
+          PY
+          python3 -B scripts/verify-cold-click-scope.py b4590f4fee8ab43e0ad30d23c980abebe324d20c > test-results/retained-reviewed-baseline.json
+      - name: Actual macOS native probe build and noninteractive descriptor check
+        run: |
+          set -o pipefail
+          sw_vers | tee test-results/os.txt
+          swift --version | tee test-results/compiler.txt
+          swiftc -parse-as-library engineering/experiments/chrome-control-probe-20261029/probe.swift -o test-results/chrome-control-probe
+          test-results/chrome-control-probe --self-check | tee test-results/probe-self-check.txt
+      - name: Bounded offline browser comparison
+        run: |
+          set -o pipefail
+          node --version | tee test-results/node.txt
+          node -e 'if (Number(process.versions.node.split(".")[0]) < 22) throw new Error("Node 22 or later is required")'
+          npm ci --prefix Tests/ColdClickBrowser --ignore-scripts --no-audit --no-fund
+          (cd Tests/ColdClickBrowser && npx --no-install playwright install chromium --only-shell)
+          node engineering/experiments/click-time-witness-20261029/authority-counterexample.mjs | tee test-results/authority-counterexample.json
+          node engineering/experiments/click-time-witness-20261029/browser-lab.mjs | tee test-results/browser-lab.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: cold-click-architecture-${{ github.sha }}
+          path: test-results/
+          retention-days: 14

@@ -1,0 +1,136 @@
+{
+  "status": "PASS",
+  "scope": "OFFLINE_BROWSER_OWNED_ENTRY_ARCHITECTURE_EXPERIMENT",
+  "sourceSHA256": "482c2ab8b6f4ba4db5912eade5966882cc1e88436b7c3c49f8eb2bcf6fd48e00",
+  "witnessSHA256": "379fc36e8fade61fd10afb72898c0ae42775c94734d3f595dc3285bb1fa27964",
+  "driverVersion": "1.62.1",
+  "browserVersion": "151.0.7922.34",
+  "nodeVersion": "v26.8.2",
+  "checks": 110,
+  "productionInputAuthority": false,
+  "liveInputAuthority": false,
+  "productionAdmission": false,
+  "syntheticFixtureInputCount": 1,
+  "results": [
+    {
+      "case": "pre_event_page_witness_browser_owned_entry",
+      "status": "PASS",
+      "hostTargetACK": "ABSENT_BY_CONSTRUCTION",
+      "nativeEntryComparison": "REFUSED_MODEL_ONLY",
+      "pointerSource": "HEADLESS_CDP_UA_POINTER_NOT_PHYSICAL",
+      "syntheticFixtureInputCount": 1,
+      "witnessCompletedBeforeEventMS": 31.5,
+      "eventToHandlerMS": 0.3,
+      "state": "inputTriggered",
+      "textSelectionOldAttachmentPreserved": true
+    },
+    {
+      "case": "consumed_sink_boundary_and_late_reply",
+      "status": "PASS",
+      "input": 0,
+      "sinkInvocations": 1,
+      "result": "UNKNOWN_RETAINED"
+    },
+    {
+      "case": "true_zero_page_witness_and_later_publication",
+      "status": "PASS",
+      "input": 0
+    },
+    {
+      "case": "late_witness_in_earlier_capture_listener",
+      "status": "PASS",
+      "input": 0,
+      "witnessAfterEventMS": 16.9,
+      "eventToHandlerMS": 16.9
+    },
+    {
+      "case": "delayed_handler_business_ABA",
+      "status": "PASS",
+      "input": 0
+    },
+    {
+      "case": "untrusted_dispatchEvent",
+      "status": "PASS",
+      "input": 0
+    },
+    {
+      "case": "release_outside_original_control",
+      "status": "PASS",
+      "input": 0
+    },
+    {
+      "case": "asset_wait_business-ABA",
+      "status": "PASS",
+      "input": 0
+    },
+    {
+      "case": "asset_wait_host-epoch-ABA",
+      "status": "PASS",
+      "input": 0
+    },
+    {
+      "case": "asset_wait_permission-ABA",
+      "status": "PASS",
+      "input": 0
+    },
+    {
+      "case": "asset_wait_asset-revision",
+      "status": "PASS",
+      "input": 0
+    },
+    {
+      "case": "asset_wait_detach",
+      "status": "PASS",
+      "input": 0
+    },
+    {
+      "case": "asset_wait_modal",
+      "status": "PASS",
+      "input": 0
+    },
+    {
+      "case": "asset_wait_actual_frame_focus_roundtrip",
+      "status": "PASS",
+      "input": 0,
+      "scope": "HEADLESS_FRAME_BOUNDARY_NOT_MACOS_APPLICATION_SWITCH"
+    },
+    {
+      "case": "wrong_async_reply_request",
+      "status": "PASS",
+      "input": 0
+    },
+    {
+      "case": "wrong_async_reply_attempt",
+      "status": "PASS",
+      "input": 0
+    },
+    {
+      "case": "wrong_async_reply_hash",
+      "status": "PASS",
+      "input": 0
+    },
+    {
+      "case": "wrong_async_reply_bytes",
+      "status": "PASS",
+      "input": 0
+    }
+  ],
+  "environment": {
+    "headless": true,
+    "freshTemporaryProfile": true,
+    "nonPersistentContext": true,
+    "offline": true,
+    "serviceWorkers": "blocked",
+    "externalRequests": 0,
+    "userProfileUsed": false,
+    "extensionInstalled": false
+  },
+  "limits": [
+    "Alternate page-owned entry; not a fix for the original native NSPanel click",
+    "Native target ACK absent and host metadata simulated; no Native Messaging transport tested",
+    "Trusted UA/CDP pointer is software automation, not a human physical mouse",
+    "Synthetic React ancestry; no live ChatGPT or real screenshot/uploadStarted/attached",
+    "Only same-renderer timestamps; no host/renderer clock comparison or backfilled ACK",
+    "No pre-event page witness still refuses; browser startup and uninstalled monitor remain uncovered"
+  ]
+}

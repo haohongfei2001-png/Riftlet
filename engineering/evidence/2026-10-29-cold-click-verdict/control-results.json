@@ -1,0 +1,94 @@
+{
+  "scope": "live read-only native control diagnosis; never input authority",
+  "macOS": "Version 27.0 (Build 26A428)",
+  "screenCount": 2,
+  "probeAXTrusted": true,
+  "probeAutomationReceiverScope": "this unsigned diagnosis executable and its inherited caller only; not a permission grant for every App",
+  "rawPrivateReportSHA256": "7aad24be64f59b8530e1c62691942ec2f93d4f415633d6bf1e97faaf4ecb1884",
+  "nativeReceivers": [
+    {
+      "receiverIndex": 1,
+      "frontmostAtProbe": true,
+      "passiveAutomationStatus": 0,
+      "directAX": {
+        "result": "PASS",
+        "milliseconds": 20.625
+      },
+      "nativeFrontmostRead": {
+        "result": "PASS",
+        "milliseconds": 38.859
+      },
+      "nativeFixedTabDOM": {
+        "result": "PASS",
+        "milliseconds": 25.663,
+        "chatGPTOrdinaryThread": true,
+        "pageFocused": true,
+        "pageVisible": true,
+        "note": "raw DOM counts are not a unique valid composer/target proof"
+      }
+    },
+    {
+      "receiverIndex": 2,
+      "frontmostAtProbe": false,
+      "passiveAutomationStatus": 0,
+      "directAX": {
+        "result": "PASS",
+        "milliseconds": 20.447
+      },
+      "nativeFrontmostRead": {
+        "result": "PASS",
+        "milliseconds": 28.669
+      },
+      "nativeFixedTabDOM": {
+        "result": "FAIL",
+        "milliseconds": 38.484,
+        "nativeStatus": 12,
+        "note": "numeric failure only; cause not attributed and settings not changed"
+      }
+    }
+  ],
+  "controlTool": {
+    "nativeChromeAndPreviewAX": "FAIL -10005 timeoutReached",
+    "browserMetadata": "PASS create, list and close owned temporary tabs",
+    "retainedProfileLookup": "unavailable via retained extension instance reference; inventory and fresh provider IDs disagree",
+    "freshChatGPTDOM": "FAIL bounded 15-second domSnapshot timeout",
+    "freshPublicPageFallback": "FAIL combined navigation and read-only CDP sequence exceeded 12-second bound; failing substep not isolated",
+    "inAppBlank": "PASS create/read blank/close",
+    "temporaryTabsClosed": true,
+    "userTabsClosed": false
+  },
+  "inputOrSendCount": 0,
+  "newScreenshotCount": 0,
+  "newPermissionPrompts": 0,
+  "permissionChanges": 0,
+  "liveUploadAcceptance": "NOT_RUN",
+  "conclusion": "Native Apple Events and direct AX work for at least one running receiver; full CUA page/desktop observation not restored. The evidence does not establish global Chrome failure, TCC denial or a specific server defect.",
+  "liveProbeSourceSHA256": "2aab28412a6ac68919328b05716fb1f16daa2fb2d47f343828f4b36b1901d64c",
+  "reviewedProbeRetest": {
+    "sourceSHA256": "6ff15293b16c819b4811868fd9b6b7de1dd5efaabe6c1e791306884318140445",
+    "privateRawSHA256": "c5943774c440a0bf70e72174036ca74ba8033a550387c3a9d9fd43da27924188",
+    "changes": "closed remote JSON schema/projection, AX timeout configuration and process-lifetime validation",
+    "frontmostChrome": false,
+    "result": "PASS_READ_ONLY_NO_INPUT",
+    "receiverResults": [
+      {
+        "receiverIndex": 1,
+        "frontmostAtProbe": false,
+        "AX": "PASS",
+        "AEFrontmost": "PASS",
+        "fixedTabDOM": "PASS",
+        "failureStatus": null
+      },
+      {
+        "receiverIndex": 2,
+        "frontmostAtProbe": false,
+        "AX": "PASS",
+        "AEFrontmost": "PASS",
+        "fixedTabDOM": "FAIL",
+        "failureStatus": 12
+      }
+    ],
+    "inputs": 0,
+    "prompts": 0
+  }
+}

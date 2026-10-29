@@ -1,0 +1,41 @@
+{
+  "result": "PASS",
+  "comparisonBaselineSHA256": "2732965af2ec02a3efa6dbd3d4d3a8fd49beb15f461a27d944e4df49912f4b0c",
+  "currentPrivateManifestSHA256": "b6cde6ea39e65544ca41856162e4d90b7e36f189e3558038d1ba9b832d18c8be",
+  "method": "read-only SQLite transaction; every table including sqlite_sequence canonical row digest and every private media file SHA-256",
+  "initialEnumerationCorrection": "first audit excluded sqlite_sequence; only that table name differed, corrected without database writes",
+  "databaseWrites": 0,
+  "newLiveInputs": 0,
+  "checks": [
+    {
+      "rootIndex": 1,
+      "tableNamesIdentical": true,
+      "allTableDigestsIdentical": true,
+      "allMediaIdentical": true,
+      "operationCount": 0,
+      "uploadStartCount": 0,
+      "compensationCount": 0,
+      "mediaCount": 16
+    },
+    {
+      "rootIndex": 2,
+      "tableNamesIdentical": true,
+      "allTableDigestsIdentical": true,
+      "allMediaIdentical": true,
+      "operationCount": 5,
+      "uploadStartCount": 1,
+      "compensationCount": 0,
+      "mediaCount": 8
+    },
+    {
+      "rootIndex": 3,
+      "tableNamesIdentical": true,
+      "allTableDigestsIdentical": true,
+      "allMediaIdentical": true,
+      "operationCount": 27,
+      "uploadStartCount": 6,
+      "compensationCount": 3,
+      "mediaCount": 26
+    }
+  ]
+}

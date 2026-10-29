@@ -1,0 +1,48 @@
+{
+  "scope": "isolated architecture experiment; no new product admission",
+  "baseHandoff": "b4590f4fee8ab43e0ad30d23c980abebe324d20c",
+  "unchangedReviewedProductSource": "c308d46c1412a56e90d665972c0bc8f6ad1511a3",
+  "experimentSourceCommit": null,
+  "productSourceChangedThisRound": false,
+  "newLiveScreenshotUpload": "NOT_RUN",
+  "originalNativeNoACKGoal": "UNRESOLVED",
+  "browserOwnedEntryFeasibility": "PASS_OFFLINE_SYNTHETIC_ONLY",
+  "nativeProbe": "PASS_READ_ONLY_DIAGNOSIS; second receiver retains native status 12",
+  "browserExperimentReview": {
+    "reviewer": "cold_page_audit",
+    "result": "PASS",
+    "fixesBeforePass": [
+      "consume original asset once across attempt and visibility revision changes",
+      "post-sink boundary becomes UNKNOWN and cannot be overwritten by late result"
+    ],
+    "independentExecution": false,
+    "witnessSHA256": "379fc36e8fade61fd10afb72898c0ae42775c94734d3f595dc3285bb1fa27964",
+    "runnerSHA256": "ea9c5393c71881dbb0a730de422ea6ab847e76bc073b83db1c2fb3c67583ae26"
+  },
+  "nativeProbeModelWorkflowReview": {
+    "reviewer": "cold_native_audit",
+    "result": "PASS",
+    "independentProbeCompileSelfCheck": true,
+    "independentModelRun": true,
+    "liveProbeRunByReviewer": false,
+    "fixesBeforePass": [
+      "closed remote JSON schema and projection",
+      "AX timeout configuration and process-lifetime checks",
+      "explicit Node minimum in isolated CI"
+    ],
+    "filesSHA256": {
+      "engineering/experiments/chrome-control-probe-20261029/probe.swift": "6ff15293b16c819b4811868fd9b6b7de1dd5efaabe6c1e791306884318140445",
+      "engineering/experiments/click-time-witness-20261029/authority-counterexample.mjs": "601be82078a4014f033d22db7900fbb090a69d6e14c16d6af9dec3187dbdc97a",
+      ".github/workflows/cold-click-verdict.yml": "0c744d771e9beca1010878516d011de1a3d0ee3a513140b793e28ba0231126de"
+    }
+  },
+  "newArchitectureCI": {
+    "result": "NOT_YET_RUN"
+  },
+  "retainedFullProductCI": {
+    "runID": 40881144683,
+    "checkout": "3611a5f7545268893596ff43d046373d128c9f88",
+    "result": "SUCCESS_PREVIOUS_RUN_UNCHANGED_SOURCE",
+    "scope": "full native Swift/AppKit suite, full release App and self-checks; not a new live acceptance"
+  }
+}
