@@ -22,8 +22,8 @@ GATE_PATH = "scripts/verify-cold-attachment-scope.py"
 BASELINE = "73251d034c8da8f486d09083b048a35cdee39bc0"
 BASELINE_GATE_PATH = "scripts/verify-final-product-composition.py"
 BASELINE_GATE_BLOB = "6e9b3a8383cc6c780acc48e299b0bc289dcfcd0e"
-REVIEWED_SOURCE = None
-REVIEWED_TREE = None
+REVIEWED_SOURCE = "6d9649c46a2f6655fd5b91afe6c306a075a2f5b2"
+REVIEWED_TREE = "8467441078096d7da972170750c49c508e2997b2"
 
 EDITED_PATHS = frozenset((
     ".github/workflows/native-foundation.yml",
