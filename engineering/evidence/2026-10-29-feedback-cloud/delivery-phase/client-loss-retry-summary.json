@@ -1,0 +1,48 @@
+{
+  "scope": "One original-identity retry after operator-reported direct D1 proof of persistence; after-retry row uniqueness and unchanged creation time require another direct D1 observation",
+  "rootReportedBeforeRetryD1": {
+    "observedUTC": "2026-10-29T14:53:12.901Z",
+    "id": "2b2dd0e6-c966-4910-93a0-e96b5510a056",
+    "rowCount": 1,
+    "created": 1793285562,
+    "payloadSHA256": "48ed5dbab4d657845d865647e580b32e887654fed17cfcd912824bc6b7ec05fc",
+    "state": "pending",
+    "source": "Root actual authenticated D1 Console observation; original D1 evidence retained by root"
+  },
+  "retryEvent": {
+    "atUTC": "2026-10-29T14:53:48.148416+00:00",
+    "case": "lost_receipt",
+    "method": "POST",
+    "id": "2b2dd0e6-c966-4910-93a0-e96b5510a056",
+    "requestPayloadSHA256": "48ed5dbab4d657845d865647e580b32e887654fed17cfcd912824bc6b7ec05fc",
+    "scope": "real-HTTPS; D1 and private-Issue proof separate",
+    "httpStatus": 202,
+    "headers": {
+      "Content-Type": "application/json",
+      "Cache-Control": "no-store",
+      "X-Content-Type-Options": "nosniff",
+      "Retry-After": null,
+      "CF-Ray": "a52303080f0c86d3-ORD"
+    },
+    "unexpectedResponseKeyCount": 0,
+    "response": {
+      "id": "2b2dd0e6-c966-4910-93a0-e96b5510a056",
+      "state": "received",
+      "durable": true
+    },
+    "responseSchemaValid": true,
+    "durationMilliseconds": 138.555,
+    "check": "exact_original_retry_after_response_not_read",
+    "expectation": {
+      "httpStatus": 202,
+      "state": null
+    },
+    "httpCheck": "PASS"
+  },
+  "retryCount": 1,
+  "newIdentityCreated": false,
+  "cleanupExecuted": false,
+  "afterRetryD1ConfirmedByThisAgent": false,
+  "allEventsSHA256": "99929594af8f0373f9ae1b3cf38594d2cca59d8cb4d327fafd1d46a9a73990c4",
+  "retryEventSHA256": "0f7cfebf98df93d6f3ccc5d127af5d6526fd5d31d6a20ff37cbd465d4e3c8ec8"
+}

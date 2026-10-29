@@ -3,7 +3,9 @@ import {validate} from './contract.mjs';
 const marker=id=>`<!-- riftlet-feedback:v1:${id} -->`;
 const title=id=>`Riftlet feedback RF-${id}`;
 const headers=env=>({'Authorization':`Bearer ${env.GITHUB_TOKEN}`,'User-Agent':'Riftlet-Feedback-v01','Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28','Content-Type':'application/json'});
-const get=(env,path)=>fetch(`https://api.github.com/repos/${env.GITHUB_REPOSITORY}${path}`,{headers:headers(env),redirect:'error',signal:AbortSignal.timeout(15000)});
+// Workers supports manual/follow, not error. Never forward credentials through
+// a redirect: callers reject non-2xx (GET) and every status except 201 (POST).
+const get=(env,path)=>fetch(`https://api.github.com/repos/${env.GITHUB_REPOSITORY}${path}`,{headers:headers(env),redirect:'manual',signal:AbortSignal.timeout(15000)});
 const row=(env,id)=>env.DB.prepare('SELECT * FROM feedback WHERE id=?').bind(id).first();
 async function privateRepository(env) {
   if(!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(env.GITHUB_REPOSITORY??'') || !env.GITHUB_TOKEN) return false;
@@ -79,7 +81,7 @@ export async function dispatch(env) {
     }
     try {
       const response=await fetch(`https://api.github.com/repos/${env.GITHUB_REPOSITORY}/issues`,{
-        method:'POST',headers:headers(env),redirect:'error',signal:AbortSignal.timeout(15000),
+        method:'POST',headers:headers(env),redirect:'manual',signal:AbortSignal.timeout(15000),
         body:JSON.stringify({title:title(record.id),body:body(record)})
       });
       if(response.status!==201) throw new Error('uncertain');

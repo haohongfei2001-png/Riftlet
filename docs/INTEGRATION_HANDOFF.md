@@ -1,6 +1,18 @@
-## Feedback cloud continuation — 2026-10-29
+## Feedback v0.1 最终云端结果 · 2026-10-29 15:39 UTC
 
-The Feedback-only successor starts from the latest unified PR #15 source `c15fd4b4a27659946ef49280131e875f4d5ab9d1`, preserving all existing product history and screenshot admission. It adds bounded delivery fairness, D1 maintenance indexes, source-bound Beta capability metadata and actual receiver acceptance evidence. The dedicated HTTPS receiver and D1 are live; the Delivery Worker/private Issue path remains incomplete after the browser connection disconnected. Host remains nil. [Current cloud checkpoint](../engineering/evidence/2026-10-29-feedback-cloud/README.md) records exact observations, resources, test cleanup and remaining conditions. A new reviewed source and unchanged full workflows are required before the successor is admitted. Physical Mac work is prepared for Codex, without a scheduled executor or MAC PASS claim. Earlier checkpoints below retain their original scope.
+**真实服务接收、D1持久化、三条唯一私有Issue投递、原Issue迟到协调与远端测试反馈删除已验证。真实Riftlet原生窗口端到端仍NOT_RUN。** 3个Issue经完整列表/正文核对后由owner永久删除；同一有权限连接确认3条精确Issue均410 Gone/deleted且完整state=all列表为空。经独审后的精确D1结案确认8行deleted、正文0、待删0、临时probe0、额度100/20；三条原凭证GET最终200/原ID/deleted/durable=true，语义断言3/3通过。
+
+诊断反馈的实际创建→uncertain→原Issue迟到协调且删除意图保留有直接证据；没有直接捕获诊断请求HTTP201或注入分支踪迹，不能补称抓包通过。D1 Time Travel实读过去7天（未restore），在线清空不保证可恢复历史或物理备份即时删除。
+
+两处Workers不支持的redirect:error已改manual，新增3项在旧源码失败、修复后24项本地回归通过并经非作者审查。Receiver最终39f6277e-11f2-455b-be27-8f0b6a795685；普通Delivery最终3c749b91-ace3-45d9-86e5-62e2dab06c35，临时变量/逻辑和probe表已清理。
+
+云端终态已通过独立启用门禁，**本轮源码的Host已实际配置固定真实HTTPS接收地址**，只改原nil那一行，其他Host字节不变；配置不等于任意单条反馈已经接收/投递。最终准确源码、实际CI和对应统一App下载以[正式工程定值元数据](../engineering/evidence/2026-10-29-final-product/results.json)及[PR #1最终交接](https://github.com/haohongfei2001-png/Riftlet/pull/1)为准。历史H `2f308856…`完整ARM/Intel/Feedback已通过（49唯一Feedback/21服务），其local-outbox-only包不能冒称本轮新启用包。用户将真实Mac连接/操作留给Codex；清单已准备、未安排执行器、不要求本轮用户安装。
+
+[准确云端版本、ID/Issue、删除证据与运维](../engineering/evidence/2026-10-29-feedback-cloud/README.md) · [准备给Codex的真实Mac验收](../engineering/evidence/2026-10-29-feedback-cloud/CODEX_REAL_MAC_E2E.md)。早先断连、资源未建、测试记录待删均已成为历史，不是当前外部授权阻塞。
+
+## 以下为既有工程与包的历史检查点
+
+旧SHA、下载、能力与阻塞只属于各自当时版本；最新交付以顶部/正式最终包身份为准，不改原始测试结论。
 
 ## 2026-10-29 Feedback 可靠性与正式继承
 

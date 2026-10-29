@@ -1,0 +1,13 @@
+{
+  "checks": "11/11 offline mocked boundaries and SQLite schema guard PASS",
+  "networkRequests": 0,
+  "sharedWrites": 0,
+  "files": {
+    "delivery.mjs": "b4aba0f18bd37f91a315a8e0dfbbed346eefa7585dff7b9f93ef5ba4e6e1eeb9",
+    "preflight-probe.patch": "1f12a3d930bcd0a9e71f07cae24eac5a2b17504728090a99a25cb7c314fd1aeb",
+    "probe-schema.sql": "ca2c54f82c4bd7e5bdd66eebc42090868b52448ae93a03040b001a43e2dedb48",
+    "offline-check.mjs": "35b285e82332c64940a9c743307349bdb83c9d48f95479a3da82187df2ad4d72",
+    "offline-check.log": "84c2b7f73620fb1db34ee80e723292c03e6a14d063246709e0330f7123a44e77",
+    "schema-check.log": "f5b37e5ef0e797d1eb530d11b77c414c5b79c095a41cc04d3845b4ccd9137d59"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "engineering/evidence/2026-10-29-feedback-cloud/control-plane-live-observations.json": "10b6e3a18390607b8f72f503d327ffa2ccfdb514fec67c676226ad86bf0299b8",
+  "engineering/evidence/2026-10-29-feedback-cloud/delivery-runtime-acceptance.json": "5b24173b51348246e461e73555c23a12d83218673e92621d12afbea1e5a93ee5",
+  "engineering/evidence/2026-10-29-feedback-cloud/d1-late-reconcile.json": "c6d44703d0e389c661bfe925bf89bebe586fa6f89ff67e76d8a73f1a0d26e210",
+  "engineering/evidence/2026-10-29-feedback-cloud/github-owner-permanent-deletion.json": "412e309a43356fdfbc1a5a2791c5a665c373dcb72ad9f1023e27b078a1284f8a",
+  "engineering/evidence/2026-10-29-feedback-cloud/d1-final-deletion-closeout.json": "c0d6b3f3ba2c3b57c2c5110291d0dc55a238a49eb22c825518fa34426d5df593",
+  "engineering/evidence/2026-10-29-feedback-cloud/d1-final-summary.json": "7f488cff0b12a1e9165c658cd56f6237c87941ba70cc74beeb33f31e53958d07",
+  "engineering/evidence/2026-10-29-feedback-cloud/production-bundle-independent-review.json": "323b3a6c84244a2024b2de5ff12b7e0b466d6225318c1fca109133e67ff486f7",
+  "engineering/evidence/2026-10-29-feedback-cloud/permanent-deletion-410-review/decision.json": "d3671241aa18b9752a4b45ddf7bc0d8a11aeac868d84e39f0cd5975f260c1c20",
+  "engineering/evidence/2026-10-29-feedback-cloud/permanent-deletion-410-review/corrected-verification-gate.json": "d3d4dd61b140a754d1eba9ac6dd20524ad426df72222cc5721155d68c4c79b39",
+  "engineering/evidence/2026-10-29-feedback-cloud/delivery-phase/identities.json": "6d714728916c50cd0671eec335b8d359de8255d4bda6ed57003fe643cf4e3610",
+  "engineering/evidence/2026-10-29-feedback-cloud/delivery-phase/github-deletion-race-20261029T152244Z/summary.json": "44b89558dacc2d5b4cd8e302ddaf59928d9b852b26e0165510ec56d5980e2da5",
+  "engineering/evidence/2026-10-29-feedback-cloud/delivery-phase/late-reconcile-snapshot-20261029T153217Z/summary.json": "6492fe6cc1e108eeaef4944ad7406dcb6fe108a3a521d69b08b66952444e27ef",
+  "engineering/evidence/2026-10-29-feedback-cloud/delivery-phase/permanent-delete-api-observation-20261029T153426Z/summary.json": "385d31e82e5b7a6599f3ae18392989ca460c64d99f4ab6426d9ee5cc6e4a114d",
+  "engineering/evidence/2026-10-29-feedback-cloud/delivery-phase/final-client-deleted-20261029T153938Z/events.jsonl": "7caebf58757061789550b7620e559fc8737c6e6c56a0bef6964617bce0db0c75",
+  "engineering/evidence/2026-10-29-feedback-cloud/delivery-phase/final-client-deleted-20261029T153938Z/summary.json": "eb8d3e970206b4715b6dae86d617566410bb1849c6991386132cce085ad16fae"
+}

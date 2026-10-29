@@ -1,0 +1,15 @@
+{
+  "scope": "Public-safe derived evidence only; no private state, raw Issue bodies, platform credentials or per-feedback capabilities",
+  "files": {
+    "permanent-delete-api-summary.json": "385d31e82e5b7a6599f3ae18392989ca460c64d99f4ab6426d9ee5cc6e4a114d",
+    "event-provenance.json": "03a15e26d3c47511f65c5018d2c304cc49566ad06551100cca8bb3911c28de41",
+    "final-client-deleted-summary.json": "eb8d3e970206b4715b6dae86d617566410bb1849c6991386132cce085ad16fae",
+    "github-three-issues-summary.json": "44b89558dacc2d5b4cd8e302ddaf59928d9b852b26e0165510ec56d5980e2da5",
+    "summary.json": "6772801e10215819d63af21ef616087228f3bef3abfc6ae495998966c1c73b2c",
+    "bootstrap-observation.json": "0603c84cd5227635ecf5de09c340723366ec0a454528f1493bcc8470d217e632",
+    "late-reconcile-summary.json": "6492fe6cc1e108eeaef4944ad7406dcb6fe108a3a521d69b08b66952444e27ef",
+    "github-before-delivery-summary.json": "b02adf55c7e50efff4bd2773b08c90eab9adb8ab1236be79b8243ee83d7f6f7f",
+    "receiver-events.jsonl": "839473fea9af437543a4a5b6c585338f4225012134e8004589d50d4bcbd0cdda",
+    "identities.json": "c9aad57b6f1aa1c8088255fe889e653019ad845fb244a2febd0752946905fe52"
+  }
+}

@@ -1,0 +1,2 @@
+SELECT id,state,delete_requested,issue_number,issue_node_id,(payload IS NULL) AS payload_is_null,created,expires FROM feedback WHERE id IN ('9650fede-d514-4672-81f7-c92d2fa1afd2','5b11fd1c-80a9-4a41-8790-0b1296bd6401','2b2dd0e6-c966-4910-93a0-e96b5510a056') ORDER BY id;
+SELECT id,COUNT(*) AS row_count FROM feedback WHERE id IN ('9650fede-d514-4672-81f7-c92d2fa1afd2','5b11fd1c-80a9-4a41-8790-0b1296bd6401','2b2dd0e6-c966-4910-93a0-e96b5510a056') GROUP BY id;

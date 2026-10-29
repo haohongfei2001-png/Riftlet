@@ -16,7 +16,7 @@ final class FeedbackHost {
     private var lastPhaseCounts: [FeedbackFact:Int] = [:]
     private let version = Bundle.main.object(forInfoDictionaryKey:"CFBundleShortVersionString") as? String ?? "0"
     // Set only in a reviewed deployment commit after actual private-repo E2E.
-    static let endpoint: URL? = nil
+    static let endpoint: URL? = URL(string: "https://riftlet-feedback-receiver.haohongfei2001.workers.dev/v1/feedback")
     init(modeDirectory: String) {
         diagnostics.record(.sessionStarted)
         let root=FileManager.default.urls(for:.applicationSupportDirectory,in:.userDomainMask).first!

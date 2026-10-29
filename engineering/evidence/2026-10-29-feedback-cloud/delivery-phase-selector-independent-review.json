@@ -1,0 +1,74 @@
+{
+  "reviewer": "/root/deployment_review",
+  "atUTC": "2026-10-29T14:40:52.098394+00:00",
+  "decision": "APPROVED_SCOPED_PHASE_SELECTOR",
+  "reviewedFile": "/tmp/riftlet-cloud-verification-20261029/delivery-phase/phase_runner.py",
+  "sha256": "c32e3b961a441230b182c6e42debfabff410676d4fc1e8206eacd0d979274ac6",
+  "pinnedHelperSHA256": "697518d9de0809ea1bd329d8b5f9b0e4483614e38e8c43593ece501f637fba60",
+  "fixedEndpoint": "https://riftlet-feedback-receiver.haohongfei2001.workers.dev/v1/feedback",
+  "fixedFreshStateDirectory": "/tmp/riftlet-feedback-delivery-live-20261029",
+  "threeLabels": [
+    "plain",
+    "diagnostic",
+    "lost_receipt"
+  ],
+  "offlineChecks": [
+    {
+      "case": "send-plain",
+      "result": "PASS",
+      "delegatedPOSTCalls": 1,
+      "newIdentityOrAutomaticRetry": false
+    },
+    {
+      "case": "send-diagnostic",
+      "result": "PASS",
+      "delegatedPOSTCalls": 1,
+      "newIdentityOrAutomaticRetry": false
+    },
+    {
+      "case": "unsuccessful_send",
+      "result": "PASS",
+      "delegatedPOSTCalls": 1,
+      "automaticRetryOrPrepare": false
+    },
+    {
+      "case": "prepare",
+      "result": "PASS",
+      "delegatedPOSTCalls": 0
+    },
+    {
+      "case": "show",
+      "result": "PASS",
+      "delegatedPOSTCalls": 0
+    },
+    {
+      "case": "d1-query",
+      "result": "PASS",
+      "delegatedPOSTCalls": 0
+    },
+    {
+      "case": "wrong-endpoint",
+      "result": "PASS",
+      "delegatedPOSTCalls": 0
+    },
+    {
+      "case": "wrong-labels",
+      "result": "PASS",
+      "delegatedPOSTCalls": 0
+    },
+    {
+      "case": "changed-helper-pin",
+      "result": "PASS",
+      "delegatedPOSTCalls": 0
+    }
+  ],
+  "networkRequestsByReviewer": 0,
+  "privateStateReadByReviewer": false,
+  "sharedSourceOrRefsChanged": false,
+  "scope": "Offline mocked delegation and static review only. Each send command delegates one reviewed original run_check POST, never generates/replaces identity or automatically retries. Preparation uses unchanged mkdir exist_ok=False/fsync/private modes. Not a real HTTP PASS.",
+  "operatorConditions": [
+    "Use only the new prepared three original UUID/body/capability values; old five deleted IDs must never be reused.",
+    "One root-authorized command at each phase; failed POST retains original state and unknown remote outcome.",
+    "Real D1 and private Issue observations still required; HTTP202 alone is not full delivery or deletion proof."
+  ]
+}

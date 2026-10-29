@@ -1,0 +1,11 @@
+{
+  "scope": "OFFLINE PATCH SEMANTICS ONLY; mocked GitHub201; not CLOUD PASS",
+  "sourceHead": "c15fd4b4a27659946ef49280131e875f4d5ab9d1",
+  "selected201BodyParsed": false,
+  "selectedBecameUncertainBeforeReconciliation": true,
+  "nonselectedDeliveredNormally": true,
+  "originalIssueRecoveredWithoutAnotherPOST": true,
+  "racingDeleteRemainedPendingWithNoBody": true,
+  "totalPOSTsForThreeReports": 3,
+  "result": "PASS"
+}

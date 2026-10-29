@@ -1,0 +1,90 @@
+{
+  "scope": "New three-identity service phase: actual receiver HTTP observations and one unknown client-receipt outcome; direct D1 and GitHub proof remain separate",
+  "eventsSHA256": "7840ad1c7cb99f1256a5349426f0e4228b38ef577d9354907c5648482449c036",
+  "eventCount": 5,
+  "httpChecksPassed": 4,
+  "controlRejections": [
+    503,
+    429
+  ],
+  "acceptedHTTPResponses": [
+    {
+      "atUTC": "2026-10-29T14:52:20.370651+00:00",
+      "case": "plain",
+      "method": "POST",
+      "id": "9650fede-d514-4672-81f7-c92d2fa1afd2",
+      "requestPayloadSHA256": "2b3a680c716322a8c7c8b0c1c2944b29fee5fab909b0c2765746ed8b27208187",
+      "scope": "real-HTTPS; D1 and private-Issue proof separate",
+      "httpStatus": 202,
+      "headers": {
+        "Content-Type": "application/json",
+        "Cache-Control": "no-store",
+        "X-Content-Type-Options": "nosniff",
+        "Retry-After": null,
+        "CF-Ray": "a52300e36b2086d3-ORD"
+      },
+      "unexpectedResponseKeyCount": 0,
+      "response": {
+        "id": "9650fede-d514-4672-81f7-c92d2fa1afd2",
+        "state": "received",
+        "durable": true
+      },
+      "responseSchemaValid": true,
+      "durationMilliseconds": 1138.097,
+      "check": "delivery_phase_single_post_plain",
+      "expectation": {
+        "httpStatus": 202,
+        "state": null
+      },
+      "httpCheck": "PASS"
+    },
+    {
+      "atUTC": "2026-10-29T14:52:33.894940+00:00",
+      "case": "diagnostic",
+      "method": "POST",
+      "id": "5b11fd1c-80a9-4a41-8790-0b1296bd6401",
+      "requestPayloadSHA256": "5283bdc742aaf2bdb42da5c8ae827ea3158a9516c71abff564522a4b3b665563",
+      "scope": "real-HTTPS; D1 and private-Issue proof separate",
+      "httpStatus": 202,
+      "headers": {
+        "Content-Type": "application/json",
+        "Cache-Control": "no-store",
+        "X-Content-Type-Options": "nosniff",
+        "Retry-After": null,
+        "CF-Ray": "a5230137ee1986d3-ORD"
+      },
+      "unexpectedResponseKeyCount": 0,
+      "response": {
+        "id": "5b11fd1c-80a9-4a41-8790-0b1296bd6401",
+        "state": "received",
+        "durable": true
+      },
+      "responseSchemaValid": true,
+      "durationMilliseconds": 223.095,
+      "check": "delivery_phase_single_post_diagnostic",
+      "expectation": {
+        "httpStatus": 202,
+        "state": null
+      },
+      "httpCheck": "PASS"
+    }
+  ],
+  "clientLostResponseAttempt": {
+    "atUTC": "2026-10-29T14:52:42.159368+00:00",
+    "case": "lost_receipt",
+    "check": "request_sent_response_not_read",
+    "id": "2b2dd0e6-c966-4910-93a0-e96b5510a056",
+    "requestPayloadSHA256": "48ed5dbab4d657845d865647e580b32e887654fed17cfcd912824bc6b7ec05fc",
+    "transportOutcome": "unknown",
+    "receiptRead": false,
+    "scope": "Real HTTPS request; connection closed without reading a receipt; remote persistence must be checked separately",
+    "requestBytesWritten": true,
+    "configuredPostWriteLingerMilliseconds": 3000,
+    "postWriteLingerCompleted": true
+  },
+  "retryDroppedExecuted": false,
+  "cleanupExecuted": false,
+  "githubIssuesQueriedByThisAgent": false,
+  "credentialsIncluded": false,
+  "nextRequirement": "Independent actual D1 rows/hashes/counts for all three original IDs before any lost-receipt retry; delivery activation controlled separately by root"
+}

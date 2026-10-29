@@ -1,0 +1,40 @@
+{
+  "scope": "Actual final three original-capability authenticated GETs with explicit semantic assertions beyond the generic HTTP contract check",
+  "checks": [
+    {
+      "case": "plain",
+      "id": "9650fede-d514-4672-81f7-c92d2fa1afd2",
+      "observedUTC": "2026-10-29T15:39:38.227137+00:00",
+      "exactStatus200": true,
+      "exactStateDeleted": true,
+      "durableIsBooleanTrue": true,
+      "exactIdentityMatches": true,
+      "semanticCheck": "PASS"
+    },
+    {
+      "case": "diagnostic",
+      "id": "5b11fd1c-80a9-4a41-8790-0b1296bd6401",
+      "observedUTC": "2026-10-29T15:39:38.438143+00:00",
+      "exactStatus200": true,
+      "exactStateDeleted": true,
+      "durableIsBooleanTrue": true,
+      "exactIdentityMatches": true,
+      "semanticCheck": "PASS"
+    },
+    {
+      "case": "lost_receipt",
+      "id": "2b2dd0e6-c966-4910-93a0-e96b5510a056",
+      "observedUTC": "2026-10-29T15:39:38.614578+00:00",
+      "exactStatus200": true,
+      "exactStateDeleted": true,
+      "durableIsBooleanTrue": true,
+      "exactIdentityMatches": true,
+      "semanticCheck": "PASS"
+    }
+  ],
+  "passed": 3,
+  "failed": 0,
+  "eventsSHA256": "7caebf58757061789550b7620e559fc8737c6e6c56a0bef6964617bce0db0c75",
+  "noPostDeleteOrGitHubRequests": true,
+  "privateStateUnchanged": true
+}

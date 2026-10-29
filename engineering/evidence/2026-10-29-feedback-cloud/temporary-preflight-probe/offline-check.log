@@ -1,0 +1,12 @@
+PASS successful strict preflight stops before dispatch
+PASS boolean true remains disabled
+PASS HTTP 401 recorded without parsing body
+PASS HTTP 403 recorded without parsing body
+PASS retention batch failure stays private
+PASS fetch failure stays private
+PASS JSON failure stays private
+PASS public repository remains rejected
+PASS wrong repository name remains rejected
+PASS eligible query failure stays private
+PASS probe storage failure only exposes fixed error
+RESULT 11/11 offline boundary checks PASS; actual HTTP 0; shared source mutations 0

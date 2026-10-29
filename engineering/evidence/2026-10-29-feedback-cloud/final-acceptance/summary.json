@@ -1,0 +1,102 @@
+{
+  "scope": "Final deduplicated independent Feedback service acceptance evidence. Combines actual Receiver HTTPS observations and actual private GitHub observations; root-owned D1/deployment evidence remains separately attributed. Physical Mac/native-window-to-cloud acceptance is NOT_RUN and delegated to Codex.",
+  "capturedUTC": "2026-10-29T15:42:38.723428+00:00",
+  "sources": [
+    {
+      "round": "initial_receiver_round",
+      "eventCount": 40,
+      "rawEventsSHA256": "7e2b323135614552f73f9e5606a514bcd8dc995e0c578a90f0b0752757c1def2"
+    },
+    {
+      "round": "delivery_round",
+      "eventCount": 24,
+      "rawEventsSHA256": "2a5be170958dd7bb4f5a15e60b02984380cd1cb68ba7b4399079563ee6cd521e"
+    }
+  ],
+  "counts": {
+    "rawPrimaryEvents": 64,
+    "uniqueEvents": 64,
+    "duplicatesRemoved": 0,
+    "receiverHTTPContractChecks": 54,
+    "receiverHTTPContractPass": 54,
+    "clientResponseDiscardAttempts": 4,
+    "clientResponseDiscardAttemptsWritten": 3,
+    "clientResponseDiscardPreWriteDNSFailures": 1,
+    "exactPrivateIssueBodyChecksAcrossTwoIndependentListings": 6,
+    "distinctActuallyCreatedTestIssues": 3,
+    "githubConnectorRemoteReads": 9,
+    "finalExplicitDeletedSemanticChecks": 3
+  },
+  "aggregationRule": "Only the two primary event logs are merged once, by full canonical event identity. Historical snapshots are supporting evidence, not additional events. Separate timestamps for repeated genuine observations are preserved.",
+  "receiverEventsSHA256": "839473fea9af437543a4a5b6c585338f4225012134e8004589d50d4bcbd0cdda",
+  "allEightLastObservedAuthenticatedStatesDeleted": true,
+  "finalClientSemanticChecks": [
+    {
+      "case": "plain",
+      "id": "9650fede-d514-4672-81f7-c92d2fa1afd2",
+      "observedUTC": "2026-10-29T15:39:38.227137+00:00",
+      "exactStatus200": true,
+      "exactStateDeleted": true,
+      "durableIsBooleanTrue": true,
+      "exactIdentityMatches": true,
+      "semanticCheck": "PASS"
+    },
+    {
+      "case": "diagnostic",
+      "id": "5b11fd1c-80a9-4a41-8790-0b1296bd6401",
+      "observedUTC": "2026-10-29T15:39:38.438143+00:00",
+      "exactStatus200": true,
+      "exactStateDeleted": true,
+      "durableIsBooleanTrue": true,
+      "exactIdentityMatches": true,
+      "semanticCheck": "PASS"
+    },
+    {
+      "case": "lost_receipt",
+      "id": "2b2dd0e6-c966-4910-93a0-e96b5510a056",
+      "observedUTC": "2026-10-29T15:39:38.614578+00:00",
+      "exactStatus200": true,
+      "exactStateDeleted": true,
+      "durableIsBooleanTrue": true,
+      "exactIdentityMatches": true,
+      "semanticCheck": "PASS"
+    }
+  ],
+  "rootReportedFinalD1": {
+    "observedUTC": "2026-10-29T15:39:00.373Z",
+    "source": "Root actual authenticated D1 Console; root archive d1-final-summary.json",
+    "rows": 8,
+    "deleted": 8,
+    "body_present": 0,
+    "pending_delete": 0,
+    "probe_tables": 0,
+    "daily_limit": 100,
+    "hourly_limit": 20,
+    "newThreeOriginalIssueIdentitiesRetained": true
+  },
+  "githubDeletion": {
+    "actualObservedUTC": "2026-10-29T15:34:26.371Z",
+    "actualStatus": 410,
+    "providerExplicitlySaysDeleted": true,
+    "samePrivateRepositoryAccessible": true,
+    "completeStateAllListCount": 0,
+    "prepared404ExpectationPreservedAsHistory": true,
+    "caseSpecific410IndependentReviewDecisionSHA256": "d3671241aa18b9752a4b45ddf7bc0d8a11aeac868d84e39f0cd5975f260c1c20",
+    "noPermissionFailureTreatedAsDeletion": true
+  },
+  "hostActivationIndependentReview": {
+    "decisionSHA256": "4e79e3d7eebd66d8917b8c15a1d7dc39f57609e0b3814c30e4fb5a4eb349db6a",
+    "scope": "Exact reviewed Receiver endpoint activation only; no MAC PASS or direct diagnostic-201 capture escalation"
+  },
+  "importantLimits": [
+    "All submitted diagnostic events are explicit synthetic whitelist data, not native business-event generation or UI opt-in acceptance",
+    "True native Riftlet window, IME, restart/offline UI and screenshot-isolation physical Mac tests remain NOT_RUN with Codex",
+    "The diagnostic real-201 response-discard scenario uses the reviewed root-deployed exact-ID fault injection; this agent did not capture the discarded GitHub 201 response bytes",
+    "Application deleted state and absence of active D1 body do not prove immediate erasure of Cloudflare Time Travel/backups or provider operational retention",
+    "Private per-feedback capabilities and private raw GitHub evidence remain retained only for final review; nothing has been deleted locally yet"
+  ],
+  "historicalTransportAndExpectationDifferencesRetained": true,
+  "newIdentitiesCreatedDuringFinalization": false,
+  "publicSnapshotContainsCapabilities": false,
+  "noNetworkAfterFinalThreeGETs": true
+}

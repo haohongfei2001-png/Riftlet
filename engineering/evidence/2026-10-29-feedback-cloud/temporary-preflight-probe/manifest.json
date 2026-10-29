@@ -1,0 +1,10 @@
+{
+  "baseSource": "/tmp/riftlet-feedback-bundler-20261029/acceptance/delivery.mjs",
+  "baseSHA256": "de318dcfc5c8bd1a094b227c2261bf9bcbd5b3ecfbf187d6e75e9c83c916815f",
+  "candidateSHA256": "b4aba0f18bd37f91a315a8e0dfbbed346eefa7585dff7b9f93ef5ba4e6e1eeb9",
+  "patchSHA256": "1f12a3d930bcd0a9e71f07cae24eac5a2b17504728090a99a25cb7c314fd1aeb",
+  "schemaSHA256": "ca2c54f82c4bd7e5bdd66eebc42090868b52448ae93a03040b001a43e2dedb48",
+  "addedLines": 68,
+  "ordinaryDispatchByteIdentical": true,
+  "originalMaintenanceBlockCopiedExactly": true
+}

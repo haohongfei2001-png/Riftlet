@@ -1,111 +1,85 @@
-# Feedback cloud continuation — 2026-10-29
+# Feedback v0.1 真实云端服务交付证据
 
-## Current checkpoint — 14:17 UTC
+## 最终云端检查点 · 2026-10-29T15:39:38.614578Z
 
-**The business Receiver is deployed and 36 scoped real HTTPS checks passed. Two original reports have independently observed D1 records. Delivery has not been created, Host remains nil, private-Issue delivery/permanent deletion and native-window end-to-end acceptance remain NOT_RUN.** The user is logged in to the correct account. A prepared Codex Mac handoff is not an assigned or scheduled executor.
+**服务端真实接收、D1持久化、三条唯一私有Issue投递、原Issue迟到协调和测试反馈删除已经完成有范围的真实验证。全部8条测试记录的active正文为空、状态为deleted；创建的3个私有Issue已由owner永久删除并独立核实。真实Riftlet原生窗口端到端仍NOT_RUN，不能宣布Feedback v0.1真实原生端到端交付完成。**
 
-This increment descends from the actual unified PR #15 source `c15fd4b4a27659946ef49280131e875f4d5ab9d1`. It preserves Main, Package, native Feedback behavior, Capture, Core, Adapters, SQLite v3, screenshot admission and old UNKNOWN. The source admission and final new macOS workflows still need to bind the completed increment; previous c15 CI must not be relabeled as new-source CI.
+本记录只覆盖实际服务脚本与云端操作，诊断为合成白名单。云端服务终态已通过[非作者启用门禁](host-activation-gate/decision.json)，集成人已实际将Host唯一一行从nil改为固定真实HTTPS endpoint，其他Host字节未改。**源码已配置真实接收；配置本身不表示某条反馈已接收或投递。** 准确新源码、实际CI和对应统一App包从[正式工程定值元数据](../2026-10-29-final-product/results.json)和[PR #1最终交接](https://github.com/haohongfei2001-png/Riftlet/pull/1)解析；本页不预测SHA或未运行结果。Mac连接与实际窗口/截图操作按用户决定准备交给Codex，未设置执行器。
 
-## Actual Receiver deployment and remaining version check
+## 实际资源、部署与运维边界
 
-- Receiver: `https://riftlet-feedback-receiver.haohongfei2001.workers.dev/v1/feedback`. The business bundle version prefix `07497aa3` was observed active. Secret/flag changes followed; the final full active version is still pending a fresh platform read, so that prefix is not presented as the final immutable deployment ID.
-- Account: `b10365c5c641bd88cb1b9f35a4172d37`; dedicated D1: `riftlet-feedback`, ID `4167f4a2-5dfd-422d-86ca-077176fc8600`. The schema, trigger and reviewed indexes are initialized; observed limits are 100/day and 20/hour/IP bucket.
-- Actual saved Receiver settings: correct `DB` binding; Logs, Traces and Issues OFF; `ACCEPT_ENABLED=true`; a random 32-byte `IP_HMAC_KEY` installed as a server Secret. Its value is never included in this evidence.
-- Actual route/config: public workers.dev and compatibility date `2026-10-29`. The Receiver Wrangler declaration is now aligned to these actual values. Delivery remains an undeployed disabled declaration dated `2026-10-28`; the final active Receiver version still needs a platform read.
-- Delivery does not yet exist. Its cron, D1 binding, external delivery, retention execution and final version are NOT_RUN/unconfigured.
-- A fine-grained GitHub credential was created for only `haohongfei2001-png/Riftlet-Feedback`, with Metadata read and Issues write, expiring `2026-11-28`. It exists only in the authorized browser session and is not installed in Delivery. Creation and permission metadata do not prove installation or Issue delivery.
+| 项目 | 最终已观察值 / 范围 |
+|---|---|
+| Cloudflare账户 | `b10365c5c641bd88cb1b9f35a4172d37`，现有授权有效 |
+| 专用D1 | `riftlet-feedback` / `4167f4a2-5dfd-422d-86ca-077176fc8600`；实际daily100/hourly20 |
+| Receiver | `https://riftlet-feedback-receiver.haohongfei2001.workers.dev/v1/feedback`；最终版`39f6277e-11f2-455b-be27-8f0b6a795685` |
+| Delivery | `riftlet-feedback-delivery`；最终普通版`3c749b91-ace3-45d9-86e5-62e2dab06c35`；cron `*/5 * * * *`；无公开route |
+| Delivery生产bundle | SHA256 `0236e5582362b1f74d21aad2ab04ef0d3333fed75f3e49fd7d924ccbef8ce7db`；6356bytes；UI源复制逐字一致、独立重建字节一致 |
+| 最小权限 | Receiver仅IP_HMAC_KEY；Delivery仅私库Riftlet-Feedback的Metadata read/Issues RW；token2026-11-28到期；不含秘密值 |
+| 日志与临时诊断 | Logs/Traces/Issues关闭；临时变量已删除并实读；普通bundle无测试注入，D1临时probe表为0 |
+| 私有目的仓库 | `haohongfei2001-png/Riftlet-Feedback`，ID1437354611，private；唯一专用反馈仓库 |
+| Actions | 14:49实际仍enabled；14:50选择Disable actions、Save并reload后确认disabled；不沿用创建时即已禁用的旧假定 |
+| 备份限制 | 14:58已登录D1 Time Travel页面显示过去7天，未restore；在线清空不等于该可恢复历史清除或物理备份即时删除 |
+| 范围 | 免费资源，未升级套餐，未改DNS/官网/品牌/main/截图准入 |
 
-Since approximately 14:04 UTC, browser-control calls repeatedly returned MCP timeouts. At 14:12 the latest result is **`No connected browser was found`**. Control-plane reads/deployment are BLOCKED by the absent connected browser, not the already functioning HTTPS receiver or user authorization. Restore the same authorized connection and first read the saved state; do not duplicate the D1/Receiver or ask for account permission already granted.
+生产bundle审查：[production-bundle-independent-review.json](production-bundle-independent-review.json)。 当前Actions禁用、D1过去7天恢复窗口及普通Delivery变量表的[直接UI读回](final-operational-ui-readback.json)另行归档；较早操作时间保留为操作者记录。到期前轮换token是有权维护者的运维义务，没有设置自动轮换执行器或定时用户任务。恢复D1历史前必须暂停投递并核对既有Issue与删除墓碑，避免恢复旧pending造成重复创建。
 
-## Real HTTPS and independent D1 evidence
+## 实际投递阻断修复
 
-The public [HTTP event snapshot](live-http/events.jsonl), [identity/digest map](live-http/identities.json) and [scope/count summary](live-http/summary.json) preserve **39 events: 36 completed HTTP checks and three separately recorded drop attempts**. The 36 checks comprise five send/duplicate checks, eighteen validation/identity checks, four deletion-response checks, one separately authorized read-only lost-receipt status GET, three cleanup DELETEs and five final read-only status GETs; all passed their stated HTTP/schema expectations. Expected 4xx rejections are successful validation checks, not accepted reports. These are service-script checks with synthetic diagnostics, not real native-window or real-business-event diagnostic acceptance.
+Workers运行时在发送GitHub请求前拒绝两处`redirect:error`。最小修复为`redirect:manual`，保留不跟随跳转、目的仓库private核验和一次创建意图。三项新回归分别覆盖仓库门禁、未知结果核对及Issue创建跳转，每项检查301/302/307/308。
 
-[The original D1 Console record](d1-first-receipts.json), observed at **14:00:19.183Z**, independently confirms:
+[独立决策](redirect-manual-fix/decision.json)与原日志证明：旧源码21 PASS/新3 FAIL；修复后24项具名本地测试PASS。24是本地已执行回归，不是尚未产生的C2/H2 CI。H已完成服务CI仍为21。所有原失败保留。
 
-| Synthetic case | Original feedback ID | Observed D1 state | Payload SHA256 |
-| --- | --- | --- | --- |
-| plain | `6b8a8849-6ffc-4805-ae4e-e37cfa00f342` | pending; no Issue; payload present | `359fc12aea66375f9e30ec979e4cc1195805d21800301801531600483237f01b` |
-| diagnostic | `0fa0a07f-76d3-4815-bee3-22f60dcdbdcb` | pending; no Issue; payload present | `72b7d9f0acb1b5b5d9a34c8397f4c84e9980bec9f8e051c93d239636dfbf7e4e` |
+## 真实接收、持久化、幂等与预算
 
-That query predates later tests. It is not a final total-row count or proof of those later cases. The earlier 13:25 observation of zero rows remains historical.
+最终去重归档合并两份主事件日志一次，共64条唯一事件：54/54实际HTTP合同检查通过、4次原始丢回执尝试（含1次写出前DNS失败）、两次独立完整列表的6项正文核验。实际创建Issue为3个，最终deleted精确语义另有3/3断言；不把正文核验次数写成6个Issue，也不把失败drop改写成HTTP成功。最终events SHA256 `839473fea9af437543a4a5b6c585338f4225012134e8004589d50d4bcbd0cdda`；见[最终安全归档](final-acceptance/summary.json)。
 
-### Dropped original response: preserve all three outcomes
+14:53:12.901Z直接D1确认第二批三条原ID各一行、原正文hash一致；客户端丢回执身份`2b2dd0e6…`在14:53:48使用原ID/凭证/正文重试，14:54:22.535Z仍一行，created=1793285562和hash不变。真实503阻止新接收而授权GET继续可用；真实429之后拒绝ID无行、反馈行数和日配额计数均不增加，100/20限额已恢复。
 
-All attempts use original ID `083ca5ca-d1f4-44f6-9a3e-1c32f8850cc9` and payload hash `5ba81029befc2af2c5dd7384ceba150b1a4a7d856e3d1691bcc092f1e2be4b9e`.
+证据：[控制台观察](control-plane-live-observations.json)、[阶段HTTP](delivery-phase/post-client-retry-events.jsonl)、[开关](delivery-phase/kill-switch-summary.json)、[额度](delivery-phase/quota-rejection-summary.json)。最初36项HTTP/三次drop保留独立阶段，不能把重叠summary直接相加。
 
-| Attempt UTC | Actual local result | Remote conclusion at 14:12 |
-| --- | --- | --- |
-| 13:53:13.088343 | `gaierror`; request bytes were not written; no receipt read | This is a failed transport attempt, not a persisted request with a lost receipt. |
-| 14:01:17.074152 | Bytes written, connection closed immediately, no receipt read | [Independent Console observation](d1-immediate-close-no-row.json) found no row. Do not call it D1 success. |
-| 14:06:45.889277 | Bytes written, fixed 3,000ms hold completed, no origin receipt read | At 14:11:33 a separate authorized GET returned 200/received/durable=true. Independent D1 hash/count remains pending; local bytes alone did not prove receipt. |
+## 三条唯一私有Issue
 
-No original-feedback retry has been executed at this checkpoint. The 14:11:33 read-only GET is new received-status evidence for the original identity, not a retry and not a replacement for direct D1 hash/count. Never manufacture a new identity or overwrite the earlier failed/no-row observations.
+实际cron在15:20:59后创建Issue。15:22:10.156Z独立读取repo metadata确认private，完整state=all短页共3条，逐条原ID/marker/完整正文和诊断均一致，各只有一条。[原创建与完整正文核验](delivery-phase/github-deletion-race-20261029T152244Z/summary.json)保留创建前后事实；下表Issue已删除，链接可返回Gone，不是交付证据缺失。
 
-### Four actual deletion-response checks, separate from deletion completion
+| 场景 | Feedback ID | 已创建的私有Issue / node ID | 完整列表唯一数 / 正文 | 最终清理状态 |
+|---|---|---|---|---|
+| plain | `9650fede-d514-4672-81f7-c92d2fa1afd2` | #1 / `I_kwDOVaxKc88AAAABa8HXFg` | 1 / 精确一致 | Issue永久删除；D1/授权GET均deleted |
+| diagnostic | `5b11fd1c-80a9-4a41-8790-0b1296bd6401` | #2 / `I_kwDOVaxKc88AAAABa8HZEQ` | 1 / 精确一致 | Issue永久删除；D1/授权GET均deleted |
+| lost_receipt | `2b2dd0e6-c966-4910-93a0-e96b5510a056` | #3 / `I_kwDOVaxKc88AAAABa8HbSw` | 1 / 精确一致 | Issue永久删除；D1/授权GET均deleted |
 
-At 14:07:51, `delete_before_submit` ID `bd84bc6b-905b-4835-8a2e-277896131723` received HTTP202/deleted for authorized DELETE, and again deleted for the late original POST. At 14:08:02, `pending_delete` ID `35bc1586-1b37-41ed-b6e5-87221bd6a3d2` received HTTP202/received and then HTTP202/deleted. These are real Receiver responses. Direct D1 proof of one content-free authorized tombstone/null payload and permanent private-Issue deletion has not been obtained; **no complete deletion CLOUD PASS is claimed**.
+### GitHub返回不确定性与迟到协调的精确范围
 
-## Authorized cleanup and remaining independent verification
+已部署经过审查的单测试ID丢返回响应版本。诊断记录实际创建Issue #2后，15:21:30.844Z D1为uncertain、Issue身份NULL；15:22:36授权DELETE返回deletion_pending，15:23:17Z内容NULL且删除意图保留。**没有直接捕获该诊断请求的HTTP201响应或该注入分支的执行踪迹**，不能写成“已独立抓到201丢响应”。
 
-| Case | Original ID | Obligation at this checkpoint |
-| --- | --- | --- |
-| plain | `6b8a8849-6ffc-4805-ae4e-e37cfa00f342` | Cleanup DELETE202/deleted; final GET200/deleted. Direct D1 null payload/flags/tombstone verification BLOCKED. |
-| diagnostic | `0fa0a07f-76d3-4815-bee3-22f60dcdbdcb` | Cleanup DELETE202/deleted; final GET200/deleted. Direct D1 verification BLOCKED; diagnostics were synthetic. |
-| lost_receipt | `083ca5ca-d1f4-44f6-9a3e-1c32f8850cc9` | Earlier GET received, then cleanup DELETE202/deleted and final GET200/deleted. No retry-dropped. Direct D1 final verification BLOCKED. |
-| delete_before_submit | `bd84bc6b-905b-4835-8a2e-277896131723` | Final GET200/deleted. Independently verify D1 null payload/delete_requested/unique tombstone/no Issue; retain normal tombstone policy. |
-| pending_delete | `35bc1586-1b37-41ed-b6e5-87221bd6a3d2` | Final GET200/deleted. Independently verify active payload NULL and original deletion state; do not infer backup erasure. |
+普通生产恢复后，15:31:23.323Z真实cron认回原Issue #2/node，仍为deletion_pending/delete_requested=1/payloadNULL，原attempt_at1793287259不变。15:32:05.141Z独立完整列表仍仅原3个Issue，ID/node/正文/state/created/updated均未变化，原helper3/3精确通过；随后原凭证GET仍为deletion_pending。源码协调路径不会重新POST；直接证据是原创建意图未重置且完整列表无新Issue，不声称取得了完整出站POST抓包。
 
-At 14:16:42–43 the original plain, diagnostic and lost_receipt IDs each received DELETE202/deleted; at 14:16:54–55 all five original IDs received GET200/deleted. No new POST, retry-dropped, identity or Issue was created. HTTP cleanup is complete within that explicit scope; final direct D1 payload-null/flags/unique-tombstone verification remains BLOCKED by the disconnected browser. Do not replay these deleted identities or reset their tombstones for a later Delivery test. Original per-feedback credentials remain temporarily in private 0700/0600 state, as requested for final verification/cleanup; no credential value or private state is part of the public snapshot. Root must remove only that exact temporary state when it is no longer required, without claiming secure physical-media erasure. No native SQLite/Keychain cleanup, GitHub permanent deletion or D1 backup/Time Travel erasure is claimed.
+证据：[D1迟到协调](d1-late-reconcile.json)、[独立列表及状态](delivery-phase/late-reconcile-snapshot-20261029T153217Z/summary.json)。这充分支持已观察到的实际创建→不确定→原Issue协调且删除意图不倒退；未直接捕获部分单独保留。
 
-## Next already-authorized work
+## 永久删除与D1/协议状态结案
 
-1. Reconnect the authorized browser control; read final Receiver active version and saved configuration. Reuse existing resources.
-2. Independently query all five deleted original test IDs in D1 without raw credential/body dumps; confirm final payload NULL, deletion flags, unique tombstones and no Issue identity. Preserve every earlier observation and do not retry/reset these deleted identities.
-3. Create/reuse only the dedicated cron-only Delivery Worker, install the existing minimal repository credential as a server Secret, keep logging off, verify private destination and exact cron/settings, then execute the actual private-Issue delivery and unknown-result/deletion tests.
-4. For any later newly authorized independent delivery tests, record their own Issue number/node ID and cleanup evidence. This completed HTTP cleanup created no Issue; never resurrect its five deleted identities, reset attempting/uncertain to pending, or treat Issue closure as permanent deletion.
-5. Only reviewed same-deployment Receiver/D1/private-Issue evidence permits applying the separately reviewed one-line actual Host URL candidate. Commit the full source, obtain exact non-author review, update only the established final source pin/metadata, and run the complete existing macOS workflows and unified Beta packaging.
-6. Keep [the Codex real Mac handoff](CODEX_REAL_MAC_E2E.md) prepared. No executor has been scheduled, and the true native-window E2E remains NOT_RUN.
+1. owner在15:32–15:33:48对准确Issue #1/#2/#3执行“Delete issue”并确认Delete，未用Close代替；[实际owner操作](github-owner-permanent-deletion.json)。
+2. 15:34:26.371Z同一有权限连接成功读取正确private仓库，每个精确Issue GET均为 **410 Gone，provider明确deleted**，完整state=all列表成功返回空数组。[独立API证据](delivery-phase/permanent-delete-api-observation-20261029T153426Z/summary.json)。
+3. [非作者复审](permanent-deletion-410-review/decision.json)核对原始读数、owner操作及[官方Get issue语义](https://docs.github.com/en/rest/issues/issues#get-an-issue)：有read access时已删Issue返回410；缺少read access可能404。原404准备预期保留为已更正的历史，不能把410改写成404，或把任意错误/401/403/断网/空列表单独算删除证明。
+4. 经复审后，集成人执行三条原ID+原Issue number/node+delete_requested=1+payloadNULL+deletion_pending的精确guardedSQL。15:38:01.664Z直接D1确认8行全部deleted/delete1/payloadNULL，新三行保留原Issue1/2/3身份。[逐行结案](d1-final-deletion-closeout.json)。
+5. 15:39:00.373Z直接aggregate：**rows8、deleted8、body0、pendingDelete0、probe0、daily100/hourly20**。[最终总数](d1-final-summary.json)。15:39:38三条原单条凭证GET均为200/原ID/deleted/durable=true；额外精确语义断言3/3 PASS，[原始事件与断言](delivery-phase/final-client-deleted-20261029T153938Z/summary.json)。这些GET由验收脚本发起，不是原生App操作。
 
-[deployment-checkpoint.json](deployment-checkpoint.json) contains the exact current values and preserved old checkpoint. [Minimum operations](MINIMUM_OPERATIONS.md) and [deployment reconciliation](DEPLOYMENT_RECONCILIATION_CHECKLIST.md) separate saved configuration, declarations and unexecuted work. Existing 21 service / 13 packaging local tests and source reviews remain valid only for their recorded software scope.
+远端合成测试反馈的正文/Issue删除义务已结案，保留无正文墓碑及原Issue身份，禁止复活旧8个ID。D1过去7天可恢复窗口、平台物理备份不在即时删除证明内；真实Mac本地SQLite/Keychain清理未执行。临时私有验收状态只由集成人在验证结束后处理，绝不进入公开仓库；其文件移除结果不由本检查点推断。
 
-## Historical provisioning narrative — superseded by the 14:17 checkpoint
+## 本地验收材料收口 · 2026-10-29T15:47:56.261645+00:00
 
-The following original narrative preserves the earlier bootstrap/zero-row/unsaved-settings state and associated failures. Its descriptions of “current”, “not deployed”, “no secret” or “remaining” apply only to that earlier checkpoint, not to the live Receiver documented above.
+[独立归档审查](final-archive-cleanup-review/decision.json)通过后，集成人移除了清单内7个临时测试目录及18个文件，包含单条测试凭证和原始私有Issue响应副本；[实际移除记录](private-temporary-cleanup.json)确认全部路径不再存在。最终安全归档及[限定410原始字段摘录](final-archive-cleanup-review/provider-410-safe-extract.json)保留。没有移除服务器Secret、浏览器状态、D1墓碑、正式工程或真实Mac数据；普通文件移除不等于物理介质或云端备份擦除。早先快照中“尚待本地清理”保持其当时事实，由本后继记录结案。
 
-### Current acceptance boundary
+## 当前工程与产品边界
 
-**IMPLEMENTED / local regression PASS; cloud provisioning PARTIAL; real cloud pipeline BLOCKED; physical Mac NOT_RUN.** The user is logged in and explicitly delegated the Mac connection/GUI acceptance to Codex. This checkpoint does not declare native-to-cloud delivery complete.
+H `2f30885644c9dc597e47d8f1dc89b9e16828092a` 的[完整Native ARM/Intel](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40891805452)和[Feedback CI](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40891805617)已成功，49项唯一Feedback/21项服务及固定门禁通过；[十项客户端风险](client-risk-evidence.md)已逐项映射源码/审查/原日志。这是历史H的CI和local-outbox-only包证据；本轮Host已实际配置公开真实endpoint，不把旧H包改称新启用包。
 
-This isolated increment descends from the actual current unified PR #15 source `c15fd4b4a27659946ef49280131e875f4d5ab9d1`; it does not replace Main, Package, native Feedback, Capture, Core, Adapters, screenshot SQLite v3 or any upload admission. PR #1 remains Draft at `0e7ea8be148e1124b387e799fd886a7830e96559`, and main remains `eba1a4fc77648a665e1d5c1f2609df1314c3b079`. Final reviewed source/head and exact new CI are pinned in this increment's PR and the existing final-product source-admission records.
+客户端已实际应用已审查的固定公开HTTPS URL一行接线。最终源码、独立全差异审查、既有source admission、完整macOS/Feedback执行及准确统一Beta引用统一以[正式工程定值元数据](../2026-10-29-final-product/results.json)和[PR #1最终交接](https://github.com/haohongfei2001-png/Riftlet/pull/1)的已发生记录为准；下载包的build-info必须绑定该源码，不能引用旧H的local-outbox-only包来证明新能力。本文不硬填预测SHA/CI，不修改截图准入或main。
 
-### Actual code repair and independent review
+[Codex真实Mac清单](CODEX_REAL_MAC_E2E.md)仍NOT_RUN：原生窗口到云、真实IME/VoiceOver/Keychain、退出/网络恢复和截图隔离。未安排执行器，也不要求用户本轮安装。只有这些原生实际要求完成，才能按用户标准宣布Feedback真实端到端交付完成。
 
-Non-author reviewer `/root/deployment_review` reproduced a previously untested starvation defect: nine older uncertain reports can alternate within the fixed GitHub budget forever, leaving the ninth report and a new pending report untouched at real five-minute tick intervals. Delivery now orders by `checked_at,created,id`. Unknown outcomes remain observation-only; there is no second automatic POST. The new regression fails on the original ordering, passes on the actual repaired source, visits all nine uncertain rows and posts the new report exactly once by tick 2, while every invocation uses at most 42 requests in this fixture.
+## 历史与运维入口
 
-Three indexes bound expiry/quota/tombstone cleanup as retained rows accumulate. They do not change retention or deletion semantics. The independent combined service execution passed **21/21**, with exact reviewed blob hashes and original failure/pass logs preserved here. These tests use real SQLite plus mock GitHub; they are not CLOUD PASS.
+[初始36HTTP与3drop](live-http/summary.json)、[14:17部署状态](deployment-checkpoint.json)、[原Receiver部署](receiver-deployment.json)、[早期空Issue](delivery-phase/github-observation-20261029T145732Z/summary.json)、原诊断失败/旧404预期都保留事实。早先断连、未建Delivery、待删状态属于历史，不能作为当前阻塞。完整旧H文档由[固定Git对象](https://github.com/haohongfei2001-png/Riftlet/blob/2f30885644c9dc597e47d8f1dc89b9e16828092a/engineering/evidence/2026-10-29-feedback-cloud/README.md)复查。
 
-The package manifest now derives the feedback configuration from the committed Host source at `sourceHeadSHA` and checks it against the package's original build-input objects. It distinguishes `local-outbox-only` from `https-receiver-configured`; neither label asserts receipt, delivery or processing. Wrong domains, unsafe URLs, coerced booleans and invented success claims are rejected. The four packaging files received non-author review and **13/13** regression PASS. The proposed Host placeholder was deliberately not applied: actual Host stays `nil`.
-
-`services/feedback/acceptance/cloud_acceptance.py` is the reviewed bounded real-HTTPS acceptance harness, not another feedback implementation. It preserves five independent synthetic report identities/capabilities privately and separates HTTP responses from independently observed D1/Issue evidence. No live feedback request was sent in this checkpoint.
-
-### Actual external work
-
-- Authenticated Cloudflare inventory showed no D1 databases and no Workers projects before provisioning; no pre-existing Feedback service was duplicated.
-- Created the dedicated `riftlet-feedback` D1 database `4167f4a2-5dfd-422d-86ca-077176fc8600` in account `b10365c5c641bd88cb1b9f35a4172d37`. The actual free-tier inventory showed the free hard quotas; no paid upgrade was selected.
-- Applied the existing schema and reviewed indexes to that dedicated database. Actual Console queries confirmed all three application tables, five indexes and the quota trigger. At **13:25:39 UTC**, limits were **100/day, 20/hour/IP bucket**, with **zero feedback rows**.
-- Created `riftlet-feedback-receiver`. At **13:38:09 UTC**, a real unauthenticated HTTPS GET with the existing harness's honest `Riftlet-Cloud-Acceptance/0.1` User-Agent returned HTTP 200 and exactly **Hello World!**. This proves hostname reachability only; the business receiver is not deployed. The earlier default Python client returned 403/1010, which is retained in the checkpoint; no security protection was disabled to obtain the later result.
-- The receiver Settings page contains a Logs-off / DB-binding draft. The attempted `ACCEPT_ENABLED=false` save and final persisted settings could not be confirmed because the Browser connector subsequently returned **MCP request timed out**, including on reconnection. This is a browser-control transport blocker after successful login, not evidence of missing platform permission.
-- Re-read the existing GitHub destination: repository `1437354611`, `haohongfei2001-png/Riftlet-Feedback`, remains **private**. No new repository, feedback Issue, service token or accepted feedback was created in this continuation.
-
-See [deployment-checkpoint.json](deployment-checkpoint.json) for exact observed values and uncertainty. Config files now contain the verified account/database IDs but remain fail-closed declarations; they do not assert the unfinished dashboard state is deployed. In particular the checked-in receiver still has `workers_dev=false`, while the bootstrap hostname currently exists. Resolve that actual route/config difference when deploying the reviewed business code.
-
-### Remaining execution, already authorized
-
-Restore the same browser-control connection, inspect saved state first, reuse the existing database/receiver, replace the bootstrap with exact reviewed receiver code, install only its HMAC secret, create/reuse the separate cron-only Delivery Worker, and install its repository-only Issues credential. Keep request/body logging disabled. Then run the existing real HTTP/D1/private-Issue/unknown-result/deletion checks, retain deployment versions, and clear each test record or explicitly preserve its deletion obligation. Only successful reviewed cloud evidence permits changing the App's exact HTTPS endpoint literal and rebuilding.
-
-The short-lived, single-synthetic-ID GitHub 201 response-discard proposal was independently reviewed offline, but **not deployed**. It is not included in ordinary production code. Real acceptance must preserve the temporary and restored deployment identities and never reset uncertain rows to pending.
-
-[Minimum operations](MINIMUM_OPERATIONS.md) and [deployment reconciliation](DEPLOYMENT_RECONCILIATION_CHECKLIST.md) describe this same service and its exact unfinished state. [Prepared Codex Mac acceptance](CODEX_REAL_MAC_E2E.md) covers the real unified native window, IME, Keychain, restart, diagnostic consent, deletion and screenshot isolation. No later automatic executor has been scheduled; the document is a handoff, not proof that Codex has run it.
-
-The previous `c15fd4b` native workflows [40868965979](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40868965979) and [40868966041](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40868966041) were independently re-read as SUCCESS in this continuation. They cover that prior source, not this new increment. New exact-head CI and unified App artifacts must be recorded after source admission, without relabeling software AppKit as physical Mac acceptance.
+[最小运维](MINIMUM_OPERATIONS.md) · [部署/源码核对](DEPLOYMENT_RECONCILIATION_CHECKLIST.md) · [结构化终态](delivery-checkpoint.json)。

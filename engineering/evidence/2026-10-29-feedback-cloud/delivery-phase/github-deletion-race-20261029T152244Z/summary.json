@@ -1,0 +1,188 @@
+{
+  "scope": "Actual private GitHub full-list identity/body verification followed by a single diagnostic deletion request while its original delivery result was uncertain; no permanent deletion or native Mac claim",
+  "repositoryObservedUTC": "2026-10-29T15:22:10.156Z",
+  "repositoryID": "1437354611",
+  "repositoryFullName": "haohongfei2001-png/Riftlet-Feedback",
+  "repositoryPrivate": true,
+  "listingState": "all",
+  "page": 1,
+  "perPage": 100,
+  "observedListingCount": 3,
+  "completeListingByShortPage": true,
+  "issues": [
+    {
+      "case": "plain",
+      "feedbackID": "9650fede-d514-4672-81f7-c92d2fa1afd2",
+      "issueNumber": 1,
+      "issueID": 6102832918,
+      "issueNodeID": "I_kwDOVaxKc88AAAABa8HXFg",
+      "issueURL": "https://github.com/haohongfei2001-png/Riftlet-Feedback/issues/1",
+      "createdUTC": "2026-10-29T15:21:01Z",
+      "updatedUTC": "2026-10-29T15:21:01Z",
+      "stateAtListing": "open",
+      "matchingIssueCount": 1,
+      "exactBodyMatches": true,
+      "bodySHA256": "0cfd8e965cf0c6c709abcf8346640fd1a1ab48fc395664439b875665ba5c1985",
+      "isPullRequest": false
+    },
+    {
+      "case": "diagnostic",
+      "feedbackID": "5b11fd1c-80a9-4a41-8790-0b1296bd6401",
+      "issueNumber": 2,
+      "issueID": 6102833425,
+      "issueNodeID": "I_kwDOVaxKc88AAAABa8HZEQ",
+      "issueURL": "https://github.com/haohongfei2001-png/Riftlet-Feedback/issues/2",
+      "createdUTC": "2026-10-29T15:21:03Z",
+      "updatedUTC": "2026-10-29T15:21:03Z",
+      "stateAtListing": "open",
+      "matchingIssueCount": 1,
+      "exactBodyMatches": true,
+      "bodySHA256": "79ceac26b2611ed4fd5c6ac7d1821308ebcb2030fb0298554c8e54ef9015e641",
+      "isPullRequest": false
+    },
+    {
+      "case": "lost_receipt",
+      "feedbackID": "2b2dd0e6-c966-4910-93a0-e96b5510a056",
+      "issueNumber": 3,
+      "issueID": 6102833995,
+      "issueNodeID": "I_kwDOVaxKc88AAAABa8HbSw",
+      "issueURL": "https://github.com/haohongfei2001-png/Riftlet-Feedback/issues/3",
+      "createdUTC": "2026-10-29T15:21:05Z",
+      "updatedUTC": "2026-10-29T15:21:05Z",
+      "stateAtListing": "open",
+      "matchingIssueCount": 1,
+      "exactBodyMatches": true,
+      "bodySHA256": "4dba89c743b28ac5322e927686a28e92fb58524af3b01e05d1e0447e45a78704",
+      "isPullRequest": false
+    }
+  ],
+  "helperVerificationEvents": [
+    {
+      "atUTC": "2026-10-29T15:22:25.415869+00:00",
+      "check": "actual_private_issue_identity_and_exact_body",
+      "case": "plain",
+      "id": "9650fede-d514-4672-81f7-c92d2fa1afd2",
+      "matchingIssueCount": 1,
+      "verification": "PASS",
+      "evidenceSource": "GitHub connector actual repo metadata and state=all Issues page 1 per_page=100 at 2026-10-29T15:22:10.156Z; three results is a complete short page",
+      "observedListingCount": 3,
+      "operatorVerifiedCompleteStateAll": true,
+      "scope": "Supplied real GitHub observation with operator-verified complete state=all listing; HTTP201 and live D1 evidence remain separate",
+      "issueNumber": 1,
+      "issueNodeID": "I_kwDOVaxKc88AAAABa8HXFg",
+      "issueURL": "https://github.com/haohongfei2001-png/Riftlet-Feedback/issues/1",
+      "exactBodyMatches": true,
+      "bodySHA256": "0cfd8e965cf0c6c709abcf8346640fd1a1ab48fc395664439b875665ba5c1985"
+    },
+    {
+      "atUTC": "2026-10-29T15:22:25.416642+00:00",
+      "check": "actual_private_issue_identity_and_exact_body",
+      "case": "diagnostic",
+      "id": "5b11fd1c-80a9-4a41-8790-0b1296bd6401",
+      "matchingIssueCount": 1,
+      "verification": "PASS",
+      "evidenceSource": "GitHub connector actual repo metadata and state=all Issues page 1 per_page=100 at 2026-10-29T15:22:10.156Z; three results is a complete short page",
+      "observedListingCount": 3,
+      "operatorVerifiedCompleteStateAll": true,
+      "scope": "Supplied real GitHub observation with operator-verified complete state=all listing; HTTP201 and live D1 evidence remain separate",
+      "issueNumber": 2,
+      "issueNodeID": "I_kwDOVaxKc88AAAABa8HZEQ",
+      "issueURL": "https://github.com/haohongfei2001-png/Riftlet-Feedback/issues/2",
+      "exactBodyMatches": true,
+      "bodySHA256": "79ceac26b2611ed4fd5c6ac7d1821308ebcb2030fb0298554c8e54ef9015e641"
+    },
+    {
+      "atUTC": "2026-10-29T15:22:25.418107+00:00",
+      "check": "actual_private_issue_identity_and_exact_body",
+      "case": "lost_receipt",
+      "id": "2b2dd0e6-c966-4910-93a0-e96b5510a056",
+      "matchingIssueCount": 1,
+      "verification": "PASS",
+      "evidenceSource": "GitHub connector actual repo metadata and state=all Issues page 1 per_page=100 at 2026-10-29T15:22:10.156Z; three results is a complete short page",
+      "observedListingCount": 3,
+      "operatorVerifiedCompleteStateAll": true,
+      "scope": "Supplied real GitHub observation with operator-verified complete state=all listing; HTTP201 and live D1 evidence remain separate",
+      "issueNumber": 3,
+      "issueNodeID": "I_kwDOVaxKc88AAAABa8HbSw",
+      "issueURL": "https://github.com/haohongfei2001-png/Riftlet-Feedback/issues/3",
+      "exactBodyMatches": true,
+      "bodySHA256": "4dba89c743b28ac5322e927686a28e92fb58524af3b01e05d1e0447e45a78704"
+    }
+  ],
+  "diagnosticDeleteEvent": {
+    "atUTC": "2026-10-29T15:22:36.172017+00:00",
+    "case": "diagnostic",
+    "method": "DELETE",
+    "id": "5b11fd1c-80a9-4a41-8790-0b1296bd6401",
+    "requestPayloadSHA256": null,
+    "scope": "real-HTTPS; D1 and private-Issue proof separate",
+    "httpStatus": 202,
+    "headers": {
+      "Content-Type": "application/json",
+      "Cache-Control": "no-store",
+      "X-Content-Type-Options": "nosniff",
+      "Retry-After": null,
+      "CF-Ray": "a5232d387c0386d3-ORD"
+    },
+    "unexpectedResponseKeyCount": 0,
+    "response": {
+      "id": "5b11fd1c-80a9-4a41-8790-0b1296bd6401",
+      "state": "deletion_pending",
+      "durable": true
+    },
+    "responseSchemaValid": true,
+    "durationMilliseconds": 312.312,
+    "check": "authorized_delete",
+    "expectation": {
+      "httpStatus": 202,
+      "state": null
+    },
+    "httpCheck": "PASS"
+  },
+  "diagnosticPostDeleteStatusEvent": {
+    "atUTC": "2026-10-29T15:22:44.663314+00:00",
+    "case": "diagnostic",
+    "method": "GET",
+    "id": "5b11fd1c-80a9-4a41-8790-0b1296bd6401",
+    "requestPayloadSHA256": null,
+    "scope": "real-HTTPS; D1 and private-Issue proof separate",
+    "httpStatus": 200,
+    "headers": {
+      "Content-Type": "application/json",
+      "Cache-Control": "no-store",
+      "X-Content-Type-Options": "nosniff",
+      "Retry-After": null,
+      "CF-Ray": "a5232d6d4cbf86d3-ORD"
+    },
+    "unexpectedResponseKeyCount": 0,
+    "response": {
+      "id": "5b11fd1c-80a9-4a41-8790-0b1296bd6401",
+      "state": "deletion_pending",
+      "durable": true
+    },
+    "responseSchemaValid": true,
+    "durationMilliseconds": 128.855,
+    "check": "authorized_status",
+    "expectation": {
+      "httpStatus": 200,
+      "state": null
+    },
+    "httpCheck": "PASS"
+  },
+  "onlyDiagnosticDeleteRequested": true,
+  "diagnosticCurrentlyDeletionPending": true,
+  "otherTwoFeedbacksUntouched": true,
+  "githubPermanentDeleteExecuted": false,
+  "databaseModifiedDirectlyByThisAgent": false,
+  "actualHTTP201DirectlyCapturedByThisAgent": false,
+  "lateReconcileD1ObservationRequired": true,
+  "diagnosticEvidenceScope": "Exact opted-in synthetic whitelist payload only; no claim of native business-event or Mac privacy acceptance",
+  "privateRawStorageMode": "0700/0600",
+  "rawConnectorObservationSHA256": "942d202450c167c90195c058d1148865fd5b80b7a812b78dfe1137ca55d4e425",
+  "eventsSHA256": "f9f81c4d420aa89af4c2c8c2238e1d3047a3b38a258b14b2c479d233ca097d08",
+  "cleanupObligations": [
+    "Diagnostic Issue #2 remains real and private pending authorized permanent deletion; API correctly reports deletion_pending",
+    "Plain Issue #1 and client-lost-response Issue #3 remain untouched for further authorized verification and eventual cleanup",
+    "Direct D1 after late reconcile must preserve delete intent and null active payload; backup retention remains separate"
+  ]
+}

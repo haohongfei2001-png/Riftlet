@@ -1,0 +1,222 @@
+TAP version 13
+# Subtest: real SQLite receipt is durable and same report/body/secret is idempotent under overlapping requests
+ok 1 - real SQLite receipt is durable and same report/body/secret is idempotent under overlapping requests
+  ---
+  duration_ms: 71.205357
+  type: 'test'
+  ...
+# Subtest: D1 write failure never acknowledges; exact original request can recover
+ok 2 - D1 write failure never acknowledges; exact original request can recover
+  ---
+  duration_ms: 4.338347
+  type: 'test'
+  ...
+# Subtest: strict diagnostics and body whitelist reject raw identifiers and secrets; plain feedback excludes diagnostics
+ok 3 - strict diagnostics and body whitelist reject raw identifiers and secrets; plain feedback excludes diagnostics
+  ---
+  duration_ms: 3.733717
+  type: 'test'
+  ...
+# Subtest: SQL quota rejects insertion atomically and duplicate receipts do not consume quota
+ok 4 - SQL quota rejects insertion atomically and duplicate receipts do not consume quota
+  ---
+  duration_ms: 2.928306
+  type: 'test'
+  ...
+# Subtest: delivery enforces private destination, durable intent and one issue across overlapping dispatcher calls
+ok 5 - delivery enforces private destination, durable intent and one issue across overlapping dispatcher calls
+  ---
+  duration_ms: 5.306874
+  type: 'test'
+  ...
+# Subtest: public repository refuses all content delivery
+ok 6 - public repository refuses all content delivery
+  ---
+  duration_ms: 2.582986
+  type: 'test'
+  ...
+# Subtest: lost GitHub response reconciles original issue without repeating POST
+ok 7 - lost GitHub response reconciles original issue without repeating POST
+  ---
+  duration_ms: 4.086068
+  type: 'test'
+  ...
+# Subtest: uncertain POST with no observable issue never blind-retries
+ok 8 - uncertain POST with no observable issue never blind-retries
+  ---
+  duration_ms: 4.959702
+  type: 'test'
+  ...
+# Subtest: reconciliation stays within free Worker request budget and leaves later reports eligible
+ok 9 - reconciliation stays within free Worker request budget and leaves later reports eligible
+  ---
+  duration_ms: 26.64073
+  type: 'test'
+  ...
+# Subtest: five-minute cron ticks cannot starve a pending report behind unresolved reconciliation scans
+ok 10 - five-minute cron ticks cannot starve a pending report behind unresolved reconciliation scans
+  ---
+  duration_ms: 77.212374
+  type: 'test'
+  ...
+# {"tick":0,"elapsedSeconds":0,"externalRequests":41,"uncertainVisited":4,"pendingState":"pending","posts":0}
+# {"tick":1,"elapsedSeconds":300,"externalRequests":41,"uncertainVisited":8,"pendingState":"pending","posts":0}
+# {"tick":2,"elapsedSeconds":600,"externalRequests":42,"uncertainVisited":9,"pendingState":"delivered","posts":1}
+# {"tick":3,"elapsedSeconds":900,"externalRequests":41,"uncertainVisited":9,"pendingState":"delivered","posts":1}
+# {"tick":4,"elapsedSeconds":1200,"externalRequests":41,"uncertainVisited":9,"pendingState":"delivered","posts":1}
+# {"tick":5,"elapsedSeconds":1500,"externalRequests":41,"uncertainVisited":9,"pendingState":"delivered","posts":1}
+# {"tick":6,"elapsedSeconds":1800,"externalRequests":41,"uncertainVisited":9,"pendingState":"delivered","posts":1}
+# {"tick":7,"elapsedSeconds":2100,"externalRequests":41,"uncertainVisited":9,"pendingState":"delivered","posts":1}
+# Subtest: deletion before input stops delivery; late POST acknowledges deletion_pending, not deletion complete
+ok 11 - deletion before input stops delivery; late POST acknowledges deletion_pending, not deletion complete
+  ---
+  duration_ms: 8.491005
+  type: 'test'
+  ...
+# Subtest: deletion after claim but before POST resolves without an imaginary remote deletion obligation
+ok 12 - deletion after claim but before POST resolves without an imaginary remote deletion obligation
+  ---
+  duration_ms: 4.039657
+  type: 'test'
+  ...
+# Subtest: expired pending text is removed honestly; restore of attempting remains observation-only
+ok 13 - expired pending text is removed honestly; restore of attempting remains observation-only
+  ---
+  duration_ms: 3.931905
+  type: 'test'
+  ...
+# Subtest: capabilities never transfer; old IDs and switch-off fail closed
+ok 14 - capabilities never transfer; old IDs and switch-off fail closed
+  ---
+  duration_ms: 3.2372
+  type: 'test'
+  ...
+# Subtest: Swift and service share exactly the same closed fact vocabulary
+ok 15 - Swift and service share exactly the same closed fact vocabulary
+  ---
+  duration_ms: 0.673112
+  type: 'test'
+  ...
+# Subtest: repository redirects never follow or permit a feedback creation claim
+not ok 16 - repository redirects never follow or permit a feedback creation claim
+  ---
+  duration_ms: 3.429009
+  type: 'test'
+  location: '/tmp/riftlet-cloud-review-20261029/redirect-manual-fix/before/services/feedback/feedback.test.mjs:213:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Cloudflare Workers supports manual, not error
+    
+    'error' !== 'manual'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'manual'
+  actual: 'error'
+  operator: 'strictEqual'
+  stack: |-
+    globalThis.fetch (file:///tmp/riftlet-cloud-review-20261029/redirect-manual-fix/before/services/feedback/feedback.test.mjs:218:14)
+    get (file:///tmp/riftlet-cloud-review-20261029/redirect-manual-fix/before/services/feedback/delivery.mjs:6:23)
+    privateRepository (file:///tmp/riftlet-cloud-review-20261029/redirect-manual-fix/before/services/feedback/delivery.mjs:10:24)
+    dispatch (file:///tmp/riftlet-cloud-review-20261029/redirect-manual-fix/before/services/feedback/delivery.mjs:51:13)
+    async TestContext.<anonymous> (file:///tmp/riftlet-cloud-review-20261029/redirect-manual-fix/before/services/feedback/feedback.test.mjs:224:5)
+    async Test.run (node:internal/test_runner/test:1409:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: reconciliation redirects cannot disclose credentials or resolve an uncertain report
+not ok 17 - reconciliation redirects cannot disclose credentials or resolve an uncertain report
+  ---
+  duration_ms: 2.866562
+  type: 'test'
+  location: '/tmp/riftlet-cloud-review-20261029/redirect-manual-fix/before/services/feedback/feedback.test.mjs:232:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Cloudflare Workers supports manual, not error
+    
+    'error' !== 'manual'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'manual'
+  actual: 'error'
+  operator: 'strictEqual'
+  stack: |-
+    globalThis.fetch (file:///tmp/riftlet-cloud-review-20261029/redirect-manual-fix/before/services/feedback/feedback.test.mjs:239:14)
+    get (file:///tmp/riftlet-cloud-review-20261029/redirect-manual-fix/before/services/feedback/delivery.mjs:6:23)
+    privateRepository (file:///tmp/riftlet-cloud-review-20261029/redirect-manual-fix/before/services/feedback/delivery.mjs:10:24)
+    dispatch (file:///tmp/riftlet-cloud-review-20261029/redirect-manual-fix/before/services/feedback/delivery.mjs:51:13)
+    async TestContext.<anonymous> (file:///tmp/riftlet-cloud-review-20261029/redirect-manual-fix/before/services/feedback/feedback.test.mjs:247:5)
+    async Test.run (node:internal/test_runner/test:1409:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: Issue POST redirects stay uncertain and later ticks never repeat or follow POST
+not ok 18 - Issue POST redirects stay uncertain and later ticks never repeat or follow POST
+  ---
+  duration_ms: 2.521123
+  type: 'test'
+  location: '/tmp/riftlet-cloud-review-20261029/redirect-manual-fix/before/services/feedback/feedback.test.mjs:253:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Cloudflare Workers supports manual, not error
+    
+    'error' !== 'manual'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'manual'
+  actual: 'error'
+  operator: 'strictEqual'
+  stack: |-
+    globalThis.fetch (file:///tmp/riftlet-cloud-review-20261029/redirect-manual-fix/before/services/feedback/feedback.test.mjs:259:14)
+    get (file:///tmp/riftlet-cloud-review-20261029/redirect-manual-fix/before/services/feedback/delivery.mjs:6:23)
+    privateRepository (file:///tmp/riftlet-cloud-review-20261029/redirect-manual-fix/before/services/feedback/delivery.mjs:10:24)
+    dispatch (file:///tmp/riftlet-cloud-review-20261029/redirect-manual-fix/before/services/feedback/delivery.mjs:51:13)
+    async TestContext.<anonymous> (file:///tmp/riftlet-cloud-review-20261029/redirect-manual-fix/before/services/feedback/feedback.test.mjs:270:5)
+    async Test.run (node:internal/test_runner/test:1409:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: expiry scrubs payload and report IP bucket; never-attempted expired report can be deleted
+ok 19 - expiry scrubs payload and report IP bucket; never-attempted expired report can be deleted
+  ---
+  duration_ms: 4.650336
+  type: 'test'
+  ...
+# Subtest: claimed or delivered deletion remains pending and retains its remote obligation
+ok 20 - claimed or delivered deletion remains pending and retains its remote obligation
+  ---
+  duration_ms: 6.377775
+  type: 'test'
+  ...
+# Subtest: stored unknown fields are never projected into a private Issue
+ok 21 - stored unknown fields are never projected into a private Issue
+  ---
+  duration_ms: 3.081516
+  type: 'test'
+  ...
+# Subtest: resolved tombstones expire even with old Issue metadata; pending deletion obligations survive
+ok 22 - resolved tombstones expire even with old Issue metadata; pending deletion obligations survive
+  ---
+  duration_ms: 8.907451
+  type: 'test'
+  ...
+# Subtest: DELETE preceding the first POST commit creates a durable capability-bound tombstone
+ok 23 - DELETE preceding the first POST commit creates a durable capability-bound tombstone
+  ---
+  duration_ms: 3.266665
+  type: 'test'
+  ...
+# Subtest: unknown-ID deletion is quota-bounded even with new submissions disabled
+ok 24 - unknown-ID deletion is quota-bounded even with new submissions disabled
+  ---
+  duration_ms: 8.126506
+  type: 'test'
+  ...
+1..24
+# tests 24
+# suites 0
+# pass 21
+# fail 3
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 285.976083

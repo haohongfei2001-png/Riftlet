@@ -1,0 +1,70 @@
+{
+  "scope": "Actual receiver enable-switch check, 1 new-identity POST and 1 old-deleted-identity GET; no D1 persistence or delivery claim",
+  "checks": [
+    {
+      "atUTC": "2026-10-29T14:47:04.532594+00:00",
+      "case": "plain",
+      "method": "POST",
+      "id": "9650fede-d514-4672-81f7-c92d2fa1afd2",
+      "requestPayloadSHA256": "2b3a680c716322a8c7c8b0c1c2944b29fee5fab909b0c2765746ed8b27208187",
+      "scope": "real-HTTPS; D1 and private-Issue proof separate",
+      "httpStatus": 503,
+      "headers": {
+        "Content-Type": "application/json",
+        "Cache-Control": "no-store",
+        "X-Content-Type-Options": "nosniff",
+        "Retry-After": null,
+        "CF-Ray": "a522f92dcfed86d3-ORD"
+      },
+      "unexpectedResponseKeyCount": 0,
+      "response": {
+        "error": "unavailable"
+      },
+      "responseSchemaValid": true,
+      "durationMilliseconds": 121.719,
+      "check": "receiver_disabled_rejects_new_plain",
+      "expectation": {
+        "httpStatus": 503,
+        "state": null
+      },
+      "httpCheck": "PASS"
+    },
+    {
+      "atUTC": "2026-10-29T14:47:12.727637+00:00",
+      "case": "plain",
+      "method": "GET",
+      "id": "6b8a8849-6ffc-4805-ae4e-e37cfa00f342",
+      "requestPayloadSHA256": null,
+      "scope": "real-HTTPS; D1 and private-Issue proof separate",
+      "httpStatus": 200,
+      "headers": {
+        "Content-Type": "application/json",
+        "Cache-Control": "no-store",
+        "X-Content-Type-Options": "nosniff",
+        "Retry-After": null,
+        "CF-Ray": "a522f960af7286d3-ORD"
+      },
+      "unexpectedResponseKeyCount": 0,
+      "response": {
+        "id": "6b8a8849-6ffc-4805-ae4e-e37cfa00f342",
+        "state": "deleted",
+        "durable": true
+      },
+      "responseSchemaValid": true,
+      "durationMilliseconds": 151.16,
+      "check": "authorized_status",
+      "expectation": {
+        "httpStatus": 200,
+        "state": null
+      },
+      "httpCheck": "PASS"
+    }
+  ],
+  "httpChecksPassed": 2,
+  "newPlainBodyAcceptedByThisObservation": false,
+  "automaticRetryExecuted": false,
+  "additionalIdentitiesCreated": false,
+  "eventsSHA256": "edda065a7b1f8180f6ccfc70d816e9f3e7e7f13caf66b72c212112e74240bbd4",
+  "newStateEventLogSHA256": "a943eb29e6cd2fab9ace54422f2afb32122cc99c44659be112f4dff6ed0a715f",
+  "oldStateEventLogSHA256": "7e2b323135614552f73f9e5606a514bcd8dc995e0c578a90f0b0752757c1def2"
+}

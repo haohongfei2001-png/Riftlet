@@ -1,28 +1,18 @@
-# Feedback v0.1 最小运维说明草案
+# Feedback v0.1 最小运维说明
 
-仅覆盖专用 Feedback 服务；不修改 Riftlet 官网、DNS、品牌资产、截图服务或生产准入，不购买套餐。现有已授权资源优先复用。本说明本身不是实际部署或验收通过证明。
+仅管理专用Feedback资源，不修改官网/DNS/品牌/截图准入、不购买付费升级。
 
-## 当前资源与停止点 · 2026-10-29 14:17 UTC
+## 当前服务与已完成测试清理 · 2026-10-29 15:39 UTC
 
-授权账户为 `b10365c5c641bd88cb1b9f35a4172d37`。专用 D1 `riftlet-feedback` 的 ID 为 `4167f4a2-5dfd-422d-86ca-077176fc8600`，已创建和初始化，限额观察为 daily=100、hourly=20。14:00:19.183Z 的独立 Console 查询确认 plain/diagnostic 两条原 ID/正文哈希的 pending 记录，均无 Issue 身份；后续三条测试身份的 D1 最终状态尚待独立核查。
+Receiver `https://riftlet-feedback-receiver.haohongfei2001.workers.dev/v1/feedback`，最终版本39f6277e-11f2-455b-be27-8f0b6a795685；普通Delivery版本`3c749b91-ace3-45d9-86e5-62e2dab06c35`，bundleSHA256`0236e5582362b1f74d21aad2ab04ef0d3333fed75f3e49fd7d924ccbef8ce7db`，6356bytes已UI逐字比对/独立重建。DB为riftlet-feedback/4167f4a2-5dfd-422d-86ca-077176fc8600，cron每5分钟，无Delivery公开route，日志关闭，临时注入/变量/probe表均已移除。真实503、429原子回滚、原身份重试和3唯一私有Issue已核验。
 
-业务 Receiver 已部署，`07497aa3` 曾被实际观察为 active；Secret/开关后续变更后的最终 active version 尚待读取。`DB` 已保存，Logs/Traces/Issues OFF，`ACCEPT_ENABLED=true`，32-byte 随机 `IP_HMAC_KEY` 已安全安装。实际 endpoint 为 `https://riftlet-feedback-receiver.haohongfei2001.workers.dev/v1/feedback`；实际 workers.dev 开启、compatibility date 为2026-10-29。早期 HelloWorld、0行及未保存 settings 属于历史检查点，不是当前状态。
+三条Issue经owner实际永久删除与独立有权限410/完整空列表核实，再按精确原行/Issue身份guardedSQL结案。15:39 D1为8行deleted、body0、pendingDelete0、probe0、100/20；三条原凭证GET全部200/deleted/durable=true。远端合成测试正文/Issue义务已完成；保留无内容墓碑及原Issue身份，不重置或复活旧ID。原始证据和时间顺序见[README](README.md)。
 
-真实HTTP累计36项通过；14:11:33的原lost_receipt授权GET返回received后，14:16:42–43对plain/diagnostic/lost逐条DELETE均202/deleted，14:16:54–55对原5ID各GET均200/deleted，但 Delivery 尚未创建；它的 cron、retention 执行和 GitHub 投递尚未验证。私有单仓库 Metadata read / Issues write token 已创建，2026-11-28 到期，只在授权浏览器会话内，尚未安装 Delivery。不给报告、源码或日志写入秘密，不把“token 已创建”写成“服务已授权投递”。
+诊断实际创建→uncertain→普通cron认回原Issue且删除意图不倒退已有实证；诊断HTTP201/注入分支无直接捕获，运维记录不得夸大。临时私有验收凭证文件由集成人在必要核验结束后单独处理，公开证据不含值；真实Mac SQLite/Keychain清理尚未验收。
 
-用户已登录正确账户。14:04 后浏览器控制连续 MCP 超时，14:12 最新结果明确为 `No connected browser was found`，控制台操作当前 BLOCKED；恢复连接后读取已保存设置和最新 active version，再继续同一资源，不重复 provision，不要求用户重复授权。
+Actions当前disabled由14:50Disable/Save/reload证实，14:49实际仍enabled。GitHub Secret仅单私库Metadata read/Issues RW，2026-11-28到期；有权维护者需到期前轮换、安装并核实，不表示已设置自动轮换执行器。D1实际可恢复窗口过去7天（未restore），不是即时备份擦除保证。
 
-客户端 Host 仍为 nil。Receiver 的实际接收阶段不等于完整链路：只有同一部署的 Receiver→D1→唯一私有 Issue 及必要删除证据经审查后，才应用已准备的真实地址候选并重建 App。原生 Mac 验收尚未运行，也未安排执行器。
-
-## 继续部署前的最小核对
-
-复核 Receiver 最终部署 bundle/source hash 与 active version，不重复生成或打印已安装的 HMAC Secret。Receiver 不安装 GitHub 凭证。创建/复核唯一 Delivery 后部署精确 `delivery.mjs` 与 `contract.mjs`，绑定同一 `DB`，把现有最小权限 credential 安装为 Delivery-only `GITHUB_TOKEN`，目的仓库固定 `haohongfei2001-png/Riftlet-Feedback`。秘密不得进入源码、命令历史、公开截图/日志或客户端。
-
-Delivery 初始明确保存 `DELIVERY_ENABLED=false`，关闭日志并保持无公开 route，核对实际 binding、`*/5 * * * *` cron 和环境。Receiver 当前已为测试启用，Wrangler的workers_dev/date/ACCEPT_ENABLED声明已与实际保存值对齐；Delivery计划配置仍为date2026-10-28/disabled且未部署。最终active version仍需读取。
-
-完成最小权限/私有目的地核对后，仅在已授权测试范围启用 Delivery，执行有界真实验收并逐条登记清理义务。没有 cron 执行证据前，不声称90天 retention 已在云端自动运行。GitHub 仓库 private 是每批投递实际检查，不可为测试方便改成公开或去掉检查。
-
-最终授权清理已经执行：原5ID均由HTTP报告deleted，未执行retry-dropped/新POST/重建身份/创建Issue。后续只读核查五个原ID的D1唯一墓碑、payload NULL、删除标志及无Issue身份；当前因无连接浏览器而BLOCKED，HTTP deleted不能替代独立查询或证明备份清除。不能再为这批已删除身份重试POST、重置pending或删除墓碑以复活。原私有测试状态仅以0700/0600暂留待root最终核验与清理，不复制到仓库；清理本地文件也不声称物理介质安全抹除。
+云端最终独审已通过，集成人已实际应用唯一一行固定公开URL接线；源码已配置真实接收，不能据此声称每条反馈已收到。准确新source、实际CI和统一包引用从[正式定值元数据](../2026-10-29-final-product/results.json)与[PR #1最终交接](https://github.com/haohongfei2001-png/Riftlet/pull/1)解析；H旧包不追溯启用。Mac连接/真实窗口/截图操作准备交Codex，NOT_RUN，无执行器。
 
 ## 日常只读观察
 
@@ -58,11 +48,11 @@ SELECT COUNT(*) AS quotas FROM quota;
 
 删除请求会先清 D1 正文并阻止新投递。若 GitHub POST 可能已开始，仍需核对并永久删除实际私有 Issue。关闭 Issue、编辑成空白或只删除本地内容都不等于远端永久删除。
 
-授权仓库维护者逐条查看 `deletion_pending` 的已记录 Issue 身份，完成实际永久删除并核实后，才可把**这一条** D1 义务标为 deleted。写入时必须限制完整 feedback ID、原 issue number/node ID、`delete_requested=1`、`payload IS NULL` 和当前 deletion_pending 状态，保存原观察/结果；不执行整类状态强制更新。未知结果且没有 Issue 身份的记录不能仅凭一次空列表结案。
+授权仓库维护者逐条查看 `deletion_pending` 的已记录 Issue 身份，执行实际永久Delete issue，并用同一有权限连接成功读取正确private仓库、核查准确Issue返回410 Gone且provider明确deleted、完整state=all列表中不存在原Issue；结合原身份/owner操作完成核验后，才可把**这一条**D1义务标为deleted。原404-only预期已更正；任意错误、401/403、断网、单独404或仅open过滤列表不算删除证明。写入时必须限制完整 feedback ID、原 issue number/node ID、`delete_requested=1`、`payload IS NULL` 和当前 deletion_pending 状态，保存原观察/结果；不执行整类状态强制更新。未知结果且没有 Issue 身份的记录不能仅凭一次空列表结案。
 
 七天为现有运维响应目标，不是已经建立的自动履约保证。交付需明确实际负责删除的维护者及访问条件。每条测试反馈也必须有删除完成证据或仍待处理的义务记录。
 
-当前账户的 D1 backup/Time Travel 保留窗口尚待实查。正文在线清空不证明所有备份立即消失；对用户必须准确解释此限制。任何数据库历史恢复前先停止新接收和 GitHub 投递，保留当前 tombstones/已创建 Issue 对应记录，核对恢复数据中的原身份与远端现状；不能把旧 pending 行直接放回定时投递，否则可能重建曾经存在的 Issue。
+集成人14:58在已登录D1 Time Travel页面读到past 7 days，未restore。在线正文清空不代表过去7天可恢复历史已清，也不证明物理备份立即消失；对用户必须准确解释此限制。任何数据库历史恢复前先停止新接收和 GitHub 投递，保留当前 tombstones/已创建 Issue 对应记录，核对恢复数据中的原身份与远端现状；不能把旧 pending 行直接放回定时投递，否则可能重建曾经存在的 Issue。
 
 ## 有界测试与证据
 

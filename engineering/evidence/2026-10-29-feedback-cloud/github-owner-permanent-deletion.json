@@ -1,0 +1,64 @@
+{
+  "scope": "Authorized owner UI permanent deletion of exactly three synthetic test Issues. Close issue was never used. UI list counters may be cached; independent authenticated API verification is separately required.",
+  "repository": "haohongfei2001-png/Riftlet-Feedback",
+  "completedByUTC": "2026-10-29T15:33:48Z",
+  "actions": [
+    {
+      "issue": 1,
+      "feedbackID": "9650fede-d514-4672-81f7-c92d2fa1afd2",
+      "operation": "Delete issue → alertdialog Delete issue? → Delete",
+      "timeWindowUTC": [
+        "2026-10-29T15:32:17Z",
+        "2026-10-29T15:33:10Z"
+      ],
+      "readback": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"url\":\"https://github.com/haohongfei2001-png/Riftlet-Feedback/issues\",\"page\":\"  - /url: /copilot\\n  - button \\\"Open Copilot…\\\":\\n  - button \\\"Create new...\\\":\\n  - link \\\"All issues\\\":\\n    - /url: /issues\\n  - link \\\"All pull requests\\\":\\n    - /url: /pulls\\n  - link \\\"All repositories\\\":\\n    - /url: /repos\\n  - link \\\"You have unread notifications (g then n)\\\":\\n    - /url: /notifications\\n  - button \\\"Open user navigation menu\\\":\\n    - img \\\"hongfei hao\\\"\\n  - heading \\\"Repository navigation\\\" [level=2]\\n  - navigation \\\"Repository\\\":\\n    - list:\\n      - link \\\"Code\\\":\\n        - /url: /haohongfei2001-png/Riftlet-Feedback\\n        - generic: Code\\n      - link \\\"Issues (2)\\\":\\n        - /url: /haohongfei2001-png/Riftlet-Feedback/issues\\n        - generic: Issues\\n        - generic: \\\"2\\\"\\n        - generic: (2)\\n      - link \\\"Pull requests\\\":\\n        - /url: /haohongfei2001-png/Riftlet-Feedback/pulls\\n        - generic: Pull requests\\n      - link \\\"Projects\\\":\\n        - /url: /haohongfei2001-png/Riftlet-Feedback/projects\\n        - generic: Projects\\n      - link \\\"Security and quality\\\":\\n        - /url: /haohongfei2001-png/Riftlet-Feedback/security\\n        - generic: Security and quality\\n      - link \\\"Insights\\\":\\n        - /url: /haohongfei2001-png/Riftlet-Feedback/network/dependencies\\n        - generic: Insights\\n      - link \\\"Settings\\\":\\n        - /url: /haohongfei2001-png/Riftlet-Feedback/settings\\n        - generic: Settings\\n- main:\\n  - complementary \\\"Issues sidebar navigation\\\":\\n    - navigation \\\"Issue filters\\\":\\n      - list:\\n        - link \\\"Issues\\\":\\n          - /url: /haohongfei2001-png/Riftlet-Feedback/issues?q=is%3Aissue+state%3Aopen\\n          - generic \\\"Issues\\\"\\n        - link \\\"Assigned to me\\\":\\n          - /url: /haohongfei2001-png/Riftlet-Feedback/issues?q=is%3Aissue+state%3Aopen+assignee%3A%40me\\n          - generic \\\"Assigned to me\\\"\\n        - link \\\"Created by me\\\":\\n          - /url: /haohongfei2001-png/Riftlet-Feedback/issues?q=is%3Aissue+state%3Aopen+author%3A%40me\\n          - generic \\\"Created by me\\\"\\n        - link \\\"Mentioned\\\":\\n          - /url: /haohongfei2001-png/Riftlet-Feedback/issues?q=is%3Aissue+state%3Aopen+mentions%3A%40me\\n          - generic \\\"Mentioned\\\"\\n        - link \\\"Recent activity\\\":\\n          - /url: /haohongfei2001-png/Riftlet-Feedback/issues?q=is%3Aissue+updated%3A%3E%40today-1w+sort%3Aupdated-desc\\n          - generic \\\"Recent activity\\\"\\n    - separator\\n    - navigation \\\"Pages\\\":\\n      - list:\\n        - link \\\"Views\\\":\\n          - /url: /haohongfei2001-png/Riftlet-Feedback/issues/views\\n          - generic: Views\\n        - link \\\"Projects\\\":\\n          - /url: /haohongfei2001-png/Riftlet-Feedback/projects\\n          - generic: Projects\\n        - link \\\"Milestones\\\":\\n          - /url: /haohongfei2001-png/Riftlet-Feedback/milestones\\n          - generic: Milestones\\n        - link \\\"Labels\\\":\\n          - /url: /haohongfei2001-png/Riftlet-Feedback/labels\\n          - generic: Labels\\n    - navigation \\\"Feedback\\\":\\n      - list:\\n        - link \\\"Feedback Preview\\\":\\n          - /url: https://gh.io/issues-sidebar-feedback\\n          - generic: Feedback\\n          - generic: Preview\\n    - list:\\n      - button \\\"Collapse sidebar\\\" [expanded]:\\n        - generic: Collapse sidebar\\n  - heading \\\"Issues\\\" [level=1]:\\n    - generic \\\"Issues\\\"\\n  - link \\\"New issue\\\":\\n    - /url: /haohongfei2001-png/Riftlet-Feedback/issues/new/choose\\n    - generic: New issue\\n  - search \\\"Issues\\\":\\n    - form \\\"Search issues\\\":\\n      - generic: Search issues\\n      - text: \\\"is:\\\"\\n      - generic: issue\\n      - text: \\\"state:\\\"\\n      - generic: open\\n      - combobox \\\"Search issues\\\": is:issue state:open\\n      - button \\\"Clear filter\\\":\\n      - button \\\"Search\\\":\\n  - heading \\\"Issues\\\" [level=2]\\n  - 'checkbox \\\"Select all issues: Issues\\\"'\\n  - generic: \\\"Select all issues: Issues\\\"\\n  - paragraph:\\n    - generic: 0 of 3 selected\\n    - generic: 0 issues of 3 selected\\n  - list \\\"Filter issues by state\\\":\\n    - link \\\"Open (3)\\\":\\n      - /url: \\\"#\\\"\\n      - generic: Open\\n      - generic: \\\"3\\\"\\n      - generic: (3)\\n    - link \\\"Closed (0)\\\":\\n      - /url: \\\"#\\\"\\n      - generic: Closed\\n      - generic: \\\"0\\\"\\n      - generic: (0)\\n  - toolbar \\\"Issue list controls\\\":\\n    - button \\\"Filter by author\\\":\\n      - generic: Author\\n    - button \\\"Filter by labels\\\":\\n      - generic: Labels\\n    - button \\\"Filter by projects\\\":\\n      - generic: Projects\\n    - button \\\"Filter by milestones\\\":\\n      - generic: Milestones\\n    - button \\\"Filter by assignees\\\":\\n      - generic: Assignees\\n    - button \\\"Sort by Newest descending\\\":\\n      - generic: Newest\\n  - list \\\"Issues display density\\\":\\n    - button \\\"Comfortable display density\\\" [pressed]:\\n    - button \\\"Compact display density\\\":\\n  - list \\\"Issues\\\":\\n    - listitem \\\"Riftlet feedback RF-2b2dd0e6-c966-4910-93a0-e96b5510a056. More information available below.\\\":\\n      - heading \\\"Riftlet feedback RF-2b2dd0e6-c966-4910-93a0-e96b5510a056\\\" [level=3]:\\n        - link \\\"Riftlet feedback RF-2b2dd0e6-c966-4910-93a0-e96b5510a056\\\":\\n          - /url: https://github.com/haohongfei2001-png/Riftlet-Feedback/issues/3\\n          - generic: Riftlet feedback RF-2b2dd0e6-c966-4910-93a0-e96b5510a056\\n      - 'checkbox \\\"Select: Riftlet feedback RF-2b2dd0e6-c966-4910-93a0-e96b5510a056\\\"'\\n      - img \\\"Open\\\"\\n      - generic: haohongfei2001-png/Riftlet-Feedback#3\\n      - text: ·\\n      - button \\\"Filter by author haohongfei2001-png\\\":\\n        - generic: Filter by author\\n        - text: haohongfei2001-png\\n      - text: opened on Oct 29, 202611m ago\\n    - listitem \\\"Riftlet feedback RF-5b11fd1c-80a9-4a41-8790-0b1296bd6401. More information available below.\\\":\\n      - heading \\\"Riftlet feedback RF-5b11fd1c-80a9-4a41-8790-0b1296bd6401\\\" [level=3]:\\n        - link \\\"Riftlet feedback RF-5b11fd1c-80a9-4a41-8790-0b1296bd6401\\\":\\n          - /url: https://github.com/haohongfei2001-png/Riftlet-Feedback/issues/2\\n          - generic: Riftlet feedback RF-5b11fd1c-80a9-4a41-8790-0b1296bd6401\\n      - 'checkbox \\\"Select: Riftlet feedback RF-5b11fd1c-80a9-4a41-8790-0b1296bd6401\\\"'\\n      - img \\\"Open\\\"\\n      - generic: haohongfei2001-png/Riftlet-Feedback#2\\n      - text: ·\\n      - button \\\"Filter by author haohongfei2001-png\\\":\\n        - generic: Filter by author\\n        - text: haohongfei2001-png\\n      - text: opened on Oct 29, 202611m ago\\n- contentinfo:\\n  - heading \\\"Footer\\\" [level=2]\\n  - link \\\"GitHub Homepage\\\":\\n    - /url: https://github.com\\n  - generic: © 2026 GitHub, Inc.\\n  - navigation \\\"Footer\\\":\\n    - heading \\\"Footer navigation\\\" [level=3]\\n    - list \\\"Footer navigation\\\":\\n      - link \\\"Terms\\\":\\n        - /url: https://docs.github.com/site-policy/github-terms/github-terms-of-service\\n      - link \\\"Privacy\\\":\\n        - /url: https://docs.github.com/site-policy/privacy-policies/github-privacy-statement\\n      - link \\\"Security\\\":\\n        - /url: https://github.com/security\\n      - link \\\"Status\\\":\\n        - /url: https://www.githubstatus.com/\\n      - link \\\"Community\\\":\\n        - /url: https://github.community/\\n      - link \\\"Docs\\\":\\n        - /url: https://docs.github.com/\\n      - link \\\"Contact\\\":\\n        - /url: https://support.github.com?tags=dotcom-footer\\n      - button \\\"Manage cookies\\\"\\n      - button \\\"Do not share my personal information\\\"\"}"
+          }
+        ],
+        "structuredContent": null,
+        "isError": false
+      }
+    },
+    {
+      "issue": 2,
+      "feedbackID": "5b11fd1c-80a9-4a41-8790-0b1296bd6401",
+      "operation": "Delete issue → alertdialog Delete issue? → Delete",
+      "timeWindowUTC": [
+        "2026-10-29T15:33:10Z",
+        "2026-10-29T15:33:48Z"
+      ],
+      "readback": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"url\":\"https://github.com/haohongfei2001-png/Riftlet-Feedback/issues\",\"list\":\"Riftlet feedback RF-2b2dd0e6-c966-4910-93a0-e96b5510a056\\nhaohongfei2001-png/Riftlet-Feedback#3\\n· \\nFilter by author\\nhaohongfei2001-png opened \"}"
+          }
+        ],
+        "structuredContent": null,
+        "isError": false
+      }
+    },
+    {
+      "issue": 3,
+      "feedbackID": "2b2dd0e6-c966-4910-93a0-e96b5510a056",
+      "operation": "Delete issue → alertdialog Delete issue? → Delete",
+      "timeWindowUTC": [
+        "2026-10-29T15:33:10Z",
+        "2026-10-29T15:33:48Z"
+      ],
+      "readback": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"url\":\"https://github.com/haohongfei2001-png/Riftlet-Feedback/issues\",\"main\":\"Issues\\nAssigned to me\\nCreated by me\\nMentioned\\nRecent activity\\nViews\\nProjects\\nMilestones\\nLabels\\nFeedback\\nPreview\\nCollapse sidebar\\nIssues\\nNew issue\\nSearch issues\\nis:issue\\n \\nstate:open\\nIssues\\nOpen\\n1\\n (1)\\nClosed\\n0\\n (0)\\nAuthor\\nLabels\\nProjects\\nMilestones\\nAssignees\\nNewest\\nNo results matched your search\\n\\nTry a different search query. Learn more about searching and filtering issues and pull requests.\"}"
+          }
+        ],
+        "structuredContent": null,
+        "isError": false
+      }
+    }
+  ]
+}

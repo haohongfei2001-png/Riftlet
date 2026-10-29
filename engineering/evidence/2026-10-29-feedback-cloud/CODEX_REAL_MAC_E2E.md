@@ -1,18 +1,31 @@
-## Current receiver checkpoint
+# 准备交给 Codex：Feedback v0.1 真实 Mac 待执行验收
 
-Receiver and D1 are deployed. The final service-script snapshot records 36 HTTP checks and five identities reporting deleted after cleanup. Direct D1 cleanup confirmation and private GitHub delivery remain blocked by the disconnected authorized browser; Host remains nil. See [current checkpoint](README.md) before performing any new test. All old synthetic identities are deleted and must never be reset or reused as new submissions. This is a prepared handoff, not a scheduled Mac executor.
+用户已明确将连接Mac的任务留给Codex。本文件是待执行交接，**没有任务已投递/执行器已安排/MAC PASS声明，不要求用户本轮安装或重复批准工程选择。**
 
-# 准备交给 Codex：Feedback v0.1 最小真实 Mac 验收
+## 最终云端事实与接手边界
 
-用户最新决定：连接 Mac 的任务留给 Codex；本轮其它工程、Cloudflare 和 GitHub 工作继续完成。本清单已经准备，供后续实际接手的 Codex 在已获授权的真实 Mac 可达时执行。准备清单不表示任务已投递、执行器已设置或后续执行已安排；不要求用户现在安装、测试或再批准普通实现选择。
+截至2026-10-29 15:39 UTC，真实服务脚本→Receiver/D1→定时Delivery→3条唯一private Issue已验证，三条均经owner永久删除和独立有权限410/完整空列表核实，D1精确结案后8deleted/body0/pendingDelete0/probe0/100,20，原3凭证GET均200/原ID/deleted/durable=true。普通Receiver39f6277e/Delivery3c749b91已恢复，临时逻辑/变量/probe移除。详见[最终云端证据](README.md)。
 
-## 当前服务阶段：2026-10-29
+诊断实际创建→uncertain→原Issue协调/删除有实证，但没有直接捕获诊断HTTP201或注入分支。服务脚本与合成诊断均不算原生窗口输入/真实业务事件。旧8个测试身份已经删除，不得复活或导入为原生反馈。
 
-集成人已实际运行 Receiver：`https://riftlet-feedback-receiver.haohongfei2001.workers.dev/v1/feedback`。已归档的 `engineering/evidence/2026-10-29-feedback-cloud/d1-first-receipts.json` 记录 **2026-10-29T14:00:19.183Z** 对专用 D1 `4167f4a2-5dfd-422d-86ca-077176fc8600` 的真实 Console 查询：两条已提交反馈均为 pending、正文未清空、尚无 issue_number。此前 HelloWorld 骨架状态是更早的检查点，不能再作为当前 Receiver 结论。
+最终云独审已经批准，集成人已实际将Host唯一一行配置为固定真实HTTPS接收地址，其它Host代码不变。准确source/CI和对应统一包通过[正式工程metadata](../2026-10-29-final-product/results.json)与[PR #1最终交接](https://github.com/haohongfei2001-png/Riftlet/pull/1)取得；不能用历史H的nil端点旧包或Demo代替。接手时以新包build-info/source/部署身份为准；源码配置与云端服务完成都不自动升级下面任何Mac场景。
 
-该观察只证明本轮真实服务接收阶段，不证明 Delivery 已投递或私有 Issue 唯一形成。集成人正推进 Delivery；最终接手时从正式云端证据读取更新的部署版本、Issue 身份和测试清理结果。这两条服务端合成反馈不算下面 A 场景的原生窗口输入。Host 当前仍保持 nil，实际地址候选只在隔离目录准备；只有真实 Receiver→D1→私有 Issue 链路经审查后才由正式集成人应用并重建 App。
+## 待执行矩阵
 
-本清单未安排任何执行器。MAC PASS 和真实原生窗口端到端仍为 NOT_RUN。
+| 编号 | 实际操作 | 状态 | 核心证据 |
+|---|---|---|---|
+| M01 | 最终统一App安装启动，反馈与截图菜单同包同进程 | NOT_RUN | source/build-info/包hash/架构/签名和真实启动 |
+| M02 | 真实中文IME、多行、候选确认及组字误触保护 | NOT_RUN | 系统组字/确认/回车/发送/关闭，不用setMarkedText冒充 |
+| M03 | 关闭重开、最后正文/诊断选择、正常退出重启 | NOT_RUN | 操作前后草稿/原ID/同意，失败不丢稿 |
+| M04 | 默认关闭诊断、真实业务事件、预览冻结与发送一致 | NOT_RUN | 白名单精确快照、禁传字段、UNKNOWN/吞噬语义 |
+| M05 | 原生发送→本地→HTTPS→D1→唯一私有Issue | NOT_RUN | App自己的UUID、持久化hash、Issue身份/正文唯一性 |
+| M06 | 真断网/超时/503、重复点击、重启与自动恢复 | NOT_RUN | 原文/ID/凭证不替换、状态准确、无重复 |
+| M07 | D1持久但App丢回执、单条Keychain不可用 | NOT_RUN | 原身份幂等恢复、缺密钥不冒充、仅测试范围 |
+| M08 | 未发送取消、远端删除及迟到回执竞态 | NOT_RUN | 真永久删除前不显示deleted，本地精确清理 |
+| M09 | Tab/Return/Escape、VoiceOver标签/焦点/正文/失败提示 | NOT_RUN | 真实键盘和辅助功能操作 |
+| M10 | 反馈关闭/打开/保存/等待网络/服务不可用时截图收录点击 | NOT_RUN | 五状态对照、独立库、响应、不变目标/准入/旧UNKNOWN |
+
+没有最终启用包时先执行不依赖云的项目，按精确缺项记录其它项；不用curl或离线Demo补成原生通过，不放宽截图准入、不重传旧UNKNOWN。
 
 ## 执行前取得最终工程身份
 
@@ -53,15 +66,15 @@ Mac 可达后先只读确认已有 App 实例、工作树和数据目录。使�
 
 故障仅作用于测试 Feedback 请求、专用服务测试条件或独立验收数据；不能关闭 TLS 校验、改系统安全策略或影响现有截图上传。无法安全制造的一项记录精确 BLOCKED 原因，不用 mock 网络冒充。
 
-GitHub 201 后 Delivery 丢失返回响应，可复用本轮同一实际部署的真实云端故障证据：原 Issue 被核对后唯一恢复，未知状态不盲目再建。该云端证据不替代以上 App 发起路径；若部署版本变更影响投递/删除，应由服务负责人按实际风险补核对。
+本轮真实服务证据已确认诊断Issue实际创建→D1 uncertain/身份NULL→删除申请→普通cron认回原Issue且删除意图不倒退，完整列表始终只有原3条，最后owner永久删除、授权410核验、精确D1与原凭证GET结案。没有直接捕获诊断HTTP201响应或丢响应分支执行，不能将该部分写成直接抓包PASS。接手时可引用同一最终部署已被独立验证的这些云端环节；它们不能替代本表真实App发起路径。
 
 ## D. 删除和测试数据清理
 
 1. 在断网且 `attempts == 0` 的新测试记录上本地取消：该条不创建 D1/Issue，正文和单条凭证按既有策略清理。
 2. 对已到云端的另一条实际记录申请删除；只有原 per-feedback 凭证能授权。状态刷新并发、迟到发送回执不能撤销更新的删除意图。
-3. 原投递与删除竞态后内容不得复活。分别取得 D1 正文清除和私有 GitHub Issue 永久删除的实际证据；Issue 关闭不能代替删除。
+3. 原投递与删除竞态后内容不得复活。分别取得D1正文清除和私有GitHub Issue永久删除的实际证据；Issue关闭不能代替删除。实际本轮有read权限的Get issue返回410 Gone并明确deleted；先证明同一连接可读正确private仓库，再核对精确Issue及完整state=all列表，不能把404或任意错误直接视为删除。
 4. 远端尚未完成时 UI 继续表示删除中/需处理；完成后才标记已删除，再确认本地正文和该 Keychain 项清理正确。
-5. 所有真实测试反馈逐条清理或登记未完成义务，包含 report UUID、Issue 身份、申请时间、当前远端/本地状态、负责人和剩余条件。备份/Time Travel 残留按真实服务配置及保留期限准确说明，不声称立即物理抹除所有备份。
+5. 所有真实测试反馈逐条清理或登记未完成义务，包含 report UUID、Issue 身份、申请时间、当前远端/本地状态、负责人和剩余条件。集成人已实读当前D1 Time Travel为过去7天（未restore）；在线正文清空不代表这段可恢复历史已清，不能承诺立即物理抹除所有备份。接手时如部署配置发生变化需再核实实际值。
 
 ## E. 截图主功能隔离
 

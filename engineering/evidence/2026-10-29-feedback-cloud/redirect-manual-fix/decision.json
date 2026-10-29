@@ -1,0 +1,23 @@
+{
+  "decision": "APPROVE minimum redirect compatibility fix and exact two-replacement temporary loss source",
+  "before": {
+    "namedPass": 21,
+    "namedFail": 3,
+    "networkRequests": 0
+  },
+  "after": {
+    "namedPass": 24,
+    "namedFail": 0,
+    "networkRequests": 0
+  },
+  "officialRuntimeConstraint": "Cloudflare Workers Request supports follow/manual; error throws before request",
+  "threeNewTests": "repository redirect gate, uncertain reconciliation redirect, Issue POST redirect/no retry; each 301/302/307/308",
+  "temporaryLossSourceSHA256": "fe457f83eceaca1ac26188787ad01ea992ce3e2ee79ee6446c3c0319de09e1f8",
+  "temporaryLossBundleSHA256": "bef68180db2c353466e629500651e61c5d8999bff516a450d59e502f6c8b7154",
+  "remaining": "Actual cloud deployment and private Issue identity evidence required; no Cloud PASS from these tests",
+  "hashes": {
+    "before.log": "d1204839236480d65a048d471685d6dfb4b43bb7013e1603627d623a606321eb",
+    "after.log": "dab2cf4c0eb002b879c5a6ae91ace241ffbe14c90d59871924e67d8c0836c3ff",
+    "redirect-manual-fix.patch": "5715b6d6fc84aa71a697b9a00f0bb7118624871802b5660797bbdfd2a0794a9f"
+  }
+}

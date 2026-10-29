@@ -1,0 +1,55 @@
+{
+  "decision": "CLOUD SERVICE GATE SATISFIED; APPROVE exact FeedbackHost nil-to-reviewed-HTTPS-endpoint activation",
+  "endpoint": "https://riftlet-feedback-receiver.haohongfei2001.workers.dev/v1/feedback",
+  "scope": "Code activation permission based on actual service chain and deletion evidence; not native App end-to-end acceptance or public release approval",
+  "asOfUTC": "2026-10-29T15:39:38.614578+00:00",
+  "receiverVersion": "39f6277e-11f2-455b-be27-8f0b6a795685",
+  "deliveryVersion": "3c749b91-ace3-45d9-86e5-62e2dab06c35",
+  "deliveryBundleSHA256": "0236e5582362b1f74d21aad2ab04ef0d3333fed75f3e49fd7d924ccbef8ce7db",
+  "verified": [
+    "Actual HTTPS receipt followed by direct D1 unique original IDs and payload hashes",
+    "Client lost receipt followed by prior D1 persistence proof, exact original retry, unchanged row count/creation time/hash",
+    "Three unique private GitHub Issues with exact submitted synthetic body and opted-in synthetic diagnostic",
+    "Actual Issue creation then uncertain under reviewed exact-ID201 conditional discard build; no independent201 wire capture or branch marker claim",
+    "Normal cron reconciled original diagnostic Issue2 while preserving deletion intent and scrubbed body; same3Issues remained unique",
+    "Actual owner permanent Delete issue for exact3targets; same-authorized-context private repo/list reads and explicit410 Gone/deleted responses",
+    "Original full-identity guarded SQL executed unchanged; all8synthetic rows now deleted and payloadNULL, original3Issue identities retained",
+    "Final3original-capability GETs exactly200/originalID/deleted/durableBooleanTrue; independent semantic assertions3of3",
+    "Final direct D1 counts:8rows,8deleted,0body,0pendingDelete,0probeTables; limits100/20",
+    "Ordinary production bundle independent rebuild equals deployed readback; no loss injection or diagnostic entry in ordinary code"
+  ],
+  "gateChecks": {
+    "d1CloseoutExactSQL": true,
+    "allEightSyntheticRowsResolved": true,
+    "newThreeIssueIdentitiesRetained": true,
+    "noActivePayloadOrDeletionObligation": true,
+    "finalGETSemanticAssertions": 3,
+    "temporaryProbeAbsent": true
+  },
+  "notGranted": [
+    "MAC PASS or true native-window-to-cloud end-to-end completion",
+    "Native business-event diagnostic preview/freeze/privacy acceptance",
+    "Mac offline/restart/IME/VoiceOver/Keychain or screenshot-isolation acceptance",
+    "Direct independent capture of diagnosticHTTP201",
+    "Immediate erasure of provider backups or content-free tombstones",
+    "DeveloperID signing/notarization/public release/main merge"
+  ],
+  "nextRequiredForUnifiedBeta": [
+    "Apply only the reviewed fixed HTTPS endpoint without override or embedded credential",
+    "Freeze new exact source commit C2 for complete non-author diff review and original full macOS CI",
+    "Package and verify the resulting unified internal Beta at its exact final SHA",
+    "Keep physical Mac acceptance explicitly deferred to Codex; no automatic executor claimed"
+  ],
+  "evidenceManifestSHA256": "7766aef7f69bd4ac3bdc8c4eb7489281f283bb55e0eb2909cc08b98cc03169cf",
+  "sourceStateAtDecision": {
+    "FeedbackHostSHA256BeforeActivation": "face7548f9e17bbc65538353a12ac6c6e1e9532c66fbd104144e5fcbb84b2ce0",
+    "deliverySourceSHA256": "f769e11b0a8778026d8d865ed7e7c60697f876eeb13232356e9921d55772e263",
+    "contractSHA256": "25bff4c13114a078e57d4799bae196ca8df55d069dd146403e08d213d108a99a"
+  },
+  "reviewActions": {
+    "additionalPlatformRequests": 0,
+    "sharedFileMutations": 0,
+    "liveDBMutations": 0
+  },
+  "operationalLimits": "Authorized maintainer remains responsible for future permanent private Issue deletion and credential rotation; retain accurate backup-residue limitation."
+}

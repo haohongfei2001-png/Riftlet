@@ -1,0 +1,47 @@
+{
+  "decision": "APPROVE ordinary bundle restoration",
+  "bundleBytes": 6356,
+  "independentRebuildByteIdentical": true,
+  "esbuildVersion": "0.25.12",
+  "temporaryInstrumentationAbsent": true,
+  "manualRedirectCount": 2,
+  "config": {
+    "$schema": "node_modules/wrangler/config-schema.json",
+    "name": "riftlet-feedback-delivery",
+    "account_id": "b10365c5c641bd88cb1b9f35a4172d37",
+    "main": "delivery.mjs",
+    "compatibility_date": "2026-10-29",
+    "workers_dev": false,
+    "preview_urls": false,
+    "observability": {
+      "enabled": false
+    },
+    "triggers": {
+      "crons": [
+        "*/5 * * * *"
+      ]
+    },
+    "vars": {
+      "DELIVERY_ENABLED": "true",
+      "GITHUB_REPOSITORY": "haohongfei2001-png/Riftlet-Feedback"
+    },
+    "d1_databases": [
+      {
+        "binding": "DB",
+        "database_name": "riftlet-feedback",
+        "database_id": "4167f4a2-5dfd-422d-86ca-077176fc8600"
+      }
+    ]
+  },
+  "actualConfigScope": "Local configured values match parent-observed deployment data; no independent new platform request performed in this review",
+  "cloudDeliveryEvidence": "Parent actual D1 at 2026-10-29T15:21:30.844Z: plain delivered Issue1, lost delivered Issue3, diagnostic uncertain with null issue identity; independent private Issue body review being performed by cloud_verification",
+  "stillRequired": "Restore bundle/readback active version; remove exact-ID temporary variable; late deletion/reconciliation and actual permanent Issue deletion/D1 scrubbing evidence",
+  "hashes": {
+    "/workspace/scratch/3e5b090206d5/riftlet/services/feedback/delivery.mjs": "f769e11b0a8778026d8d865ed7e7c60697f876eeb13232356e9921d55772e263",
+    "/workspace/scratch/3e5b090206d5/riftlet/services/feedback/contract.mjs": "25bff4c13114a078e57d4799bae196ca8df55d069dd146403e08d213d108a99a",
+    "/workspace/scratch/3e5b090206d5/riftlet/services/feedback/feedback.test.mjs": "8746342fbc245907fce0fca2e3288546700df4d490f3587d7bd5a14feeb0543e",
+    "/workspace/scratch/3e5b090206d5/riftlet/services/feedback/retention.test.mjs": "4b044c0ad1421819ff91233f3b52af5beecb116c5d1eec4688aa1687e2d970a4",
+    "/workspace/scratch/3e5b090206d5/riftlet/services/feedback/wrangler.delivery.jsonc": "95c3584d018b4da3e20d3c8d756b2acdb08274637d887573ac126f23045de62c",
+    "/tmp/riftlet-feedback-bundler-20261029/delivery-manual-production.bundle.mjs": "0236e5582362b1f74d21aad2ab04ef0d3333fed75f3e49fd7d924ccbef8ce7db"
+  }
+}

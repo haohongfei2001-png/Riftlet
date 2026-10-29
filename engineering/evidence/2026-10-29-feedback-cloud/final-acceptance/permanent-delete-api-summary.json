@@ -1,0 +1,80 @@
+{
+  "scope": "Actual independent post-owner-delete GitHub API observations; actual provider status is 410 Gone/deleted, not the prepared 404 expectation; no further requests or DB transition performed",
+  "observedUTC": "2026-10-29T15:34:26.371Z",
+  "sameAuthorizedConnectorForAllReads": true,
+  "networkReadCount": 5,
+  "repository": {
+    "id": "1437354611",
+    "fullName": "haohongfei2001-png/Riftlet-Feedback",
+    "visibility": "private",
+    "readSucceeded": true
+  },
+  "issues": [
+    {
+      "issueNumber": 1,
+      "requestURL": "https://api.github.com/repos/haohongfei2001-png/Riftlet-Feedback/issues/1",
+      "observedUTC": "2026-10-29T15:34:26.371Z",
+      "connectorIsError": true,
+      "reportedHTTPStatus": 410,
+      "providerMessageExplicitlySaysDeleted": true,
+      "providerDeletedMessage": null,
+      "providerMessageSHA256": "7e0daf7224a40b93976a92783c448d0285d5779dc24b85790998b5d20410c8b1",
+      "connectorErrorIncludes410": true,
+      "responseSHA256": "b52148049be4bb61b8012fcf5f48c30a82041ca9d4787c77c023b2c7c5102ede",
+      "isPermissionStatus401Or403": false
+    },
+    {
+      "issueNumber": 2,
+      "requestURL": "https://api.github.com/repos/haohongfei2001-png/Riftlet-Feedback/issues/2",
+      "observedUTC": "2026-10-29T15:34:26.371Z",
+      "connectorIsError": true,
+      "reportedHTTPStatus": 410,
+      "providerMessageExplicitlySaysDeleted": true,
+      "providerDeletedMessage": null,
+      "providerMessageSHA256": "7e0daf7224a40b93976a92783c448d0285d5779dc24b85790998b5d20410c8b1",
+      "connectorErrorIncludes410": true,
+      "responseSHA256": "e55d2632631a310e7ac0d3c0368ed1fadb775cd7473fa16368ece1d12acad1fc",
+      "isPermissionStatus401Or403": false
+    },
+    {
+      "issueNumber": 3,
+      "requestURL": "https://api.github.com/repos/haohongfei2001-png/Riftlet-Feedback/issues/3",
+      "observedUTC": "2026-10-29T15:34:26.371Z",
+      "connectorIsError": true,
+      "reportedHTTPStatus": 410,
+      "providerMessageExplicitlySaysDeleted": true,
+      "providerDeletedMessage": null,
+      "providerMessageSHA256": "7e0daf7224a40b93976a92783c448d0285d5779dc24b85790998b5d20410c8b1",
+      "connectorErrorIncludes410": true,
+      "responseSHA256": "28059846127fa52c3109e07ca48379de465ef579138c0c903a80b2d867ca26f6",
+      "isPermissionStatus401Or403": false
+    }
+  ],
+  "completeList": {
+    "requestURL": "https://api.github.com/repos/haohongfei2001-png/Riftlet-Feedback/issues?state=all&per_page=100&page=1",
+    "state": "all",
+    "page": 1,
+    "perPage": 100,
+    "readSucceeded": true,
+    "count": 0,
+    "completeByShortPage": true,
+    "source": "Actual connector API response, not cached owner-UI counts"
+  },
+  "plannedExpectedStatus": 404,
+  "actualObservedStatusForAllThree": 410,
+  "original404PreparationPreserved": true,
+  "assessment": "Actual 410 with explicit deleted message, successful same-private-repo access and successful complete empty list supports permanent deletion; independent semantics review pending before root executes prepared SQL",
+  "rootReportedOwnerUIDelete": {
+    "scope": "Root-observed owner UI Delete issue confirmation and action; not independently performed by this agent",
+    "issue1ApproxUTC": "2026-10-29T15:32:30Z",
+    "issue2AfterUTC": "2026-10-29T15:33:10Z",
+    "issue3ApproxUTC": "2026-10-29T15:33:35Z",
+    "emptyUIAtUTC": "2026-10-29T15:33:48Z"
+  },
+  "rawConnectorObservationSHA256": "a26531741b26800ed33fa8d5a3d2dec6abfbad2e293becf3187b562b481f18d2",
+  "privateRawMode": "0700/0600",
+  "databaseModifiedByThisAgent": false,
+  "feedbackPOSTorDELETEExecuted": false,
+  "additionalRequestsAfterObservation": 0,
+  "backupErasureProven": false
+}

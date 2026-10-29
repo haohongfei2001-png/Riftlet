@@ -1,0 +1,100 @@
+{
+  "identities": [
+    {
+      "round": "initial_receiver_round",
+      "case": "plain",
+      "id": "6b8a8849-6ffc-4805-ae4e-e37cfa00f342",
+      "originalPayloadSHA256": "359fc12aea66375f9e30ec979e4cc1195805d21800301801531600483237f01b",
+      "hasSyntheticDiagnostic": false,
+      "lastAuthenticatedStatus": {
+        "observedUTC": "2026-10-29T14:47:12.727637+00:00",
+        "state": "deleted",
+        "durable": true
+      }
+    },
+    {
+      "round": "initial_receiver_round",
+      "case": "diagnostic",
+      "id": "0fa0a07f-76d3-4815-bee3-22f60dcdbdcb",
+      "originalPayloadSHA256": "72b7d9f0acb1b5b5d9a34c8397f4c84e9980bec9f8e051c93d239636dfbf7e4e",
+      "hasSyntheticDiagnostic": true,
+      "lastAuthenticatedStatus": {
+        "observedUTC": "2026-10-29T14:16:54.812286+00:00",
+        "state": "deleted",
+        "durable": true
+      }
+    },
+    {
+      "round": "initial_receiver_round",
+      "case": "lost_receipt",
+      "id": "083ca5ca-d1f4-44f6-9a3e-1c32f8850cc9",
+      "originalPayloadSHA256": "5ba81029befc2af2c5dd7384ceba150b1a4a7d856e3d1691bcc092f1e2be4b9e",
+      "hasSyntheticDiagnostic": false,
+      "lastAuthenticatedStatus": {
+        "observedUTC": "2026-10-29T14:16:54.958034+00:00",
+        "state": "deleted",
+        "durable": true
+      }
+    },
+    {
+      "round": "initial_receiver_round",
+      "case": "delete_before_submit",
+      "id": "bd84bc6b-905b-4835-8a2e-277896131723",
+      "originalPayloadSHA256": "63039307d70dd8ad66341e5c1b61d3460b5746f70ac650f7d0a81da64dac2297",
+      "hasSyntheticDiagnostic": false,
+      "lastAuthenticatedStatus": {
+        "observedUTC": "2026-10-29T14:16:55.130557+00:00",
+        "state": "deleted",
+        "durable": true
+      }
+    },
+    {
+      "round": "initial_receiver_round",
+      "case": "pending_delete",
+      "id": "35bc1586-1b37-41ed-b6e5-87221bd6a3d2",
+      "originalPayloadSHA256": "c84f0e2c97ec6572ddf6b16e9e2ba5e20e3389587c59ba94272308b17ced9d02",
+      "hasSyntheticDiagnostic": false,
+      "lastAuthenticatedStatus": {
+        "observedUTC": "2026-10-29T14:16:55.241892+00:00",
+        "state": "deleted",
+        "durable": true
+      }
+    },
+    {
+      "round": "delivery_round",
+      "case": "plain",
+      "id": "9650fede-d514-4672-81f7-c92d2fa1afd2",
+      "originalPayloadSHA256": "2b3a680c716322a8c7c8b0c1c2944b29fee5fab909b0c2765746ed8b27208187",
+      "hasSyntheticDiagnostic": false,
+      "lastAuthenticatedStatus": {
+        "observedUTC": "2026-10-29T15:39:38.227137+00:00",
+        "state": "deleted",
+        "durable": true
+      }
+    },
+    {
+      "round": "delivery_round",
+      "case": "diagnostic",
+      "id": "5b11fd1c-80a9-4a41-8790-0b1296bd6401",
+      "originalPayloadSHA256": "5283bdc742aaf2bdb42da5c8ae827ea3158a9516c71abff564522a4b3b665563",
+      "hasSyntheticDiagnostic": true,
+      "lastAuthenticatedStatus": {
+        "observedUTC": "2026-10-29T15:39:38.438143+00:00",
+        "state": "deleted",
+        "durable": true
+      }
+    },
+    {
+      "round": "delivery_round",
+      "case": "lost_receipt",
+      "id": "2b2dd0e6-c966-4910-93a0-e96b5510a056",
+      "originalPayloadSHA256": "48ed5dbab4d657845d865647e580b32e887654fed17cfcd912824bc6b7ec05fc",
+      "hasSyntheticDiagnostic": false,
+      "lastAuthenticatedStatus": {
+        "observedUTC": "2026-10-29T15:39:38.614578+00:00",
+        "state": "deleted",
+        "durable": true
+      }
+    }
+  ]
+}

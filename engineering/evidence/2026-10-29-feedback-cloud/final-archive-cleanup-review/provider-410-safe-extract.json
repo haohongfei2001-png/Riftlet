@@ -1,0 +1,40 @@
+{
+  "scope": "Exact allowlisted provider410 fields extracted from previously independently reviewed connector responses before temporary raw files are removed; no user body, credentials, headers or capability values",
+  "observedUTC": "2026-10-29T15:34:26.371Z",
+  "rawObservationSHA256": "a26531741b26800ed33fa8d5a3d2dec6abfbad2e293becf3187b562b481f18d2",
+  "sameAuthorizedRepositoryID": "1437354611",
+  "repositoryPrivate": true,
+  "completeStateAllEmpty": true,
+  "issues": [
+    {
+      "issueNumber": 1,
+      "requestURL": "https://api.github.com/repos/haohongfei2001-png/Riftlet-Feedback/issues/1",
+      "providerErrorData": {
+        "message": "This issue was deleted",
+        "documentation_url": "https://docs.github.com/rest/issues/issues#get-an-issue",
+        "status": "410"
+      },
+      "rawResponseSHA256": "b52148049be4bb61b8012fcf5f48c30a82041ca9d4787c77c023b2c7c5102ede"
+    },
+    {
+      "issueNumber": 2,
+      "requestURL": "https://api.github.com/repos/haohongfei2001-png/Riftlet-Feedback/issues/2",
+      "providerErrorData": {
+        "message": "This issue was deleted",
+        "documentation_url": "https://docs.github.com/rest/issues/issues#get-an-issue",
+        "status": "410"
+      },
+      "rawResponseSHA256": "e55d2632631a310e7ac0d3c0368ed1fadb775cd7473fa16368ece1d12acad1fc"
+    },
+    {
+      "issueNumber": 3,
+      "requestURL": "https://api.github.com/repos/haohongfei2001-png/Riftlet-Feedback/issues/3",
+      "providerErrorData": {
+        "message": "This issue was deleted",
+        "documentation_url": "https://docs.github.com/rest/issues/issues#get-an-issue",
+        "status": "410"
+      },
+      "rawResponseSHA256": "28059846127fa52c3109e07ca48379de465ef579138c0c903a80b2d867ca26f6"
+    }
+  ]
+}

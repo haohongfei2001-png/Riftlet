@@ -1,0 +1,43 @@
+{
+  "scope": "Actual Cloudflare dashboard and independently validated synthetic GitHub feedback. No native-window acceptance claim.",
+  "observedAtUTC": "2026-10-29T15:28Z",
+  "receiverVersion": "39f6277e-11f2-455b-be27-8f0b6a795685",
+  "finalDeliveryVersion": "3c749b91-ace3-45d9-86e5-62e2dab06c35",
+  "finalDeliveryBundleSHA256": "0236e5582362b1f74d21aad2ab04ef0d3333fed75f3e49fd7d924ccbef8ce7db",
+  "temporaryLossVersion": "8fb96871-7ef5-47d9-8908-4ad1447303fa",
+  "temporaryLossBundleSHA256": "bef68180db2c353466e629500651e61c5d8999bff516a450d59e502f6c8b7154",
+  "runtimeCorrection": {
+    "problem": "Cloudflare Workers rejects redirect:error before issuing the GitHub request.",
+    "fix": "Both GET and POST use redirect:manual and preserve rejection of non-success responses. No credential forwarding.",
+    "officialReference": "https://developers.cloudflare.com/workers/runtime-apis/request/",
+    "localTests": "24/24 named tests; old implementation fails the three newly added redirect tests."
+  },
+  "observations": [
+    {
+      "step": "actual_issue_creation_then_uncertain_under_reviewed_201_conditional_discard_build",
+      "text": "observed_at\tid\tstate\tchecked_at\tattempt_at\tdelete_requested\tissue_number\tissue_node_id\n2026-10-29T15:21:30.844Z\t2b2dd0e6-c966-4910-93a0-e96b5510a056\tdelivered\t1793287259\t1793287259\t0\t3\tI_kwDOVaxKc88AAAABa8HbSw\n2026-10-29T15:21:30.844Z\t5b11fd1c-80a9-4a41-8790-0b1296bd6401\tuncertain\t1793287259\t1793287259\t0\t<null>\t<null>\n2026-10-29T15:21:30.844Z\t9650fede-d514-4672-81f7-c92d2fa1afd2\tdelivered\t1793287259\t1793287259\t0\t1\tI_kwDOVaxKc88AAAABa8HXFg"
+    },
+    {
+      "step": "authorized_diagnostic_delete_before_late_reconcile",
+      "text": "observed_at\tid\tstate\tdelete_requested\tpayload_is_null\tchecked_at\tattempt_at\tissue_number\tissue_node_id\n2026-10-29T15:23:17.907Z\t5b11fd1c-80a9-4a41-8790-0b1296bd6401\tdeletion_pending\t1\t1\t1793287259\t1793287259\t<null>\t<null>"
+    },
+    {
+      "step": "all_three_content_scrubbed_pending_permanent_issue_deletion",
+      "text": "observed_at\tid\tstate\tdelete_requested\tpayload_is_null\tchecked_at\tattempt_at\tissue_number\tissue_node_id\n2026-10-29T15:25:40.984Z\t2b2dd0e6-c966-4910-93a0-e96b5510a056\tdeletion_pending\t1\t1\t1793287259\t1793287259\t3\tI_kwDOVaxKc88AAAABa8HbSw\n2026-10-29T15:25:40.984Z\t5b11fd1c-80a9-4a41-8790-0b1296bd6401\tdeletion_pending\t1\t1\t1793287259\t1793287259\t<null>\t<null>\n2026-10-29T15:25:40.984Z\t9650fede-d514-4672-81f7-c92d2fa1afd2\tdeletion_pending\t1\t1\t1793287259\t1793287259\t1\tI_kwDOVaxKc88AAAABa8HXFg"
+    },
+    {
+      "step": "ordinary_production_code_exact_readback",
+      "text": "{\"activeVersionPrefix\":\"3c749b91\",\"productionBundleMatches\":true,\"bytes\":6356}"
+    },
+    {
+      "step": "temporary_probe_table_removed",
+      "text": "observed_at\ttemporary_probe_tables\treports\tactive_payloads\tdaily\thourly\n2026-10-29T15:27:23.018Z\t0\t8\t0\t100\t20"
+    }
+  ],
+  "stillRequired": [
+    "Late reconciliation preserves diagnostic deletion intent and finds original Issue2 without a new POST",
+    "Owner permanent Issue removal and independent authenticated absence proof",
+    "Exact conditional D1 obligation completion and final status queries"
+  ],
+  "faultObservationScope": "The exact deployed test build discards the response only after status201 for the original diagnostic UUID. Independently observed: real Issue2, D1 uncertain without issue identity, then authorized deletion and later reconciliation. No independent wire-level HTTP201 capture or branch marker exists; the specific injection branch is an inference from reviewed code and resulting state. Generic network failures also preserve uncertain."
+}
