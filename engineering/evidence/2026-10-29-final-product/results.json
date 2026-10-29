@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "SOURCE_REVIEWED_NATIVE_ALIGNMENT_REGRESSION_PENDING",
+  "status": "SOURCE_REVIEWED_NATIVE_FIXTURE_READINESS_REGRESSION_PENDING",
   "inputs": {
     "unified": "2c8cd0371de5e07fd7794f76335381a40403030d",
     "builtin": "6b60f67f6d35272eecff901c507bd75a77874ed6",
@@ -93,10 +93,36 @@
         }
       ],
       "unresolvedFindings": []
+    },
+    "nativeFixtureReadiness": {
+      "source": "de0fbdfe8ca08c1efe30eca931c481598cc2970f",
+      "tree": "0ccc2ba7f1d960d1034960c3d055df96a97a824f",
+      "reviewers": [
+        "non-author integration reviewer: all three files",
+        "non-author magnetic reviewer: all three files",
+        "lead reviewer: motion preparation; static preparation author",
+        "experience reviewer: static preparation; motion preparation author"
+      ],
+      "blobs": [
+        {
+          "path": "Sources/RiftletGUIAcceptance/AcceptanceMain.swift",
+          "sha": "313550813faa2aaaba2dc69f672487a6435ea13b"
+        },
+        {
+          "path": "Sources/RiftletGUIAcceptance/NativeVisualEvidence.swift",
+          "sha": "24c23ff8a4a6b241c305199fa3c5b1b44fa6c507"
+        },
+        {
+          "path": "Sources/RiftletGUIAcceptance/AcceptanceWindowScenes.swift",
+          "sha": "d07a5c7a8f4f1bdfc1688f166637ccebf210864b"
+        }
+      ],
+      "unresolvedFindings": [],
+      "scope": "Exact Git source review; new complete macOS execution and original pixels still required"
     }
   },
-  "combinedNativeCI": "FAIL_AT_850_ALIGNMENT_VALIDATOR_AND_LEGACY_PROBE_FINAL_SOURCE_PENDING",
-  "combinedFeedbackCI": "PASS_AT_850_NEW_EXACT_SOURCE_PENDING",
+  "combinedNativeCI": "FAIL_AT_8525_TWO_DISTINCT_INTEL_HELPER_PREPARATION_PATHS_NEW_SOURCE_PENDING",
+  "combinedFeedbackCI": "PASS_BOTH_AT_8525_NEW_EXACT_SOURCE_PENDING",
   "physicalMac": "BLOCKED_AUTHORIZED_EXECUTOR_OFFLINE",
   "realChatGPT": "NOT_RUN_APPLICATION_ORIGIN_ADMISSION_CLOSED",
   "cloudFeedback": "NOT_RUN_ENDPOINT_NIL",
@@ -117,8 +143,8 @@
     "uploadAdmissionExpanded": false,
     "userDataChanged": false
   },
-  "reviewedSource": "25609879978557e21ce42e781f2d1c2e41120752",
-  "reviewedTree": "61a23b4260ce056c34608c4bd00965eb1df6e117",
+  "reviewedSource": "de0fbdfe8ca08c1efe30eca931c481598cc2970f",
+  "reviewedTree": "0ccc2ba7f1d960d1034960c3d055df96a97a824f",
   "continuationFailures": [
     {
       "head": "b3cec64f0ecbf869aff3b17b88d55323d1765393",
@@ -187,23 +213,23 @@
     "Q01": "Native first-use local-only pixels and existing software projections PASS at a8c9; physical first install NOT_RUN",
     "Q05": "already-readable source authorization suppressed; remaining permissions unchanged",
     "Q07": "Actual software Return/Escape, safe default, responder restoration and exact-record guards PASS in both a8c9 Feedback runs; real cloud NOT_RUN",
-    "Q08": "All three 850 original failure PNGs show actual failure text, preserved body and retry/copy. Machine verifier rejected overlapping native decoration frames; actual AppKit alignment measurement repair awaits complete new CI",
+    "Q08": "8525 ARM push and PR actual failure PNGs, native alignment observations and all six supplement gates PASS. Intel supplement NOT_RUN after two distinct original-suite failures. Final helper preparation regression pending.",
     "Q09": "Existing five-section settings, app-scoped shortcut and standard editing retained; a8c9 native settings images independently inspected",
     "Q06": "All four a8c9 portrait/wide/missing native images display correct bounded fit or explicit failure; original preview/identity software regressions PASS",
     "Q03": "All four a8c9 original supplemental PNGs now visibly show the frozen countdown, next mode and settled moving X; final source regression pending",
     "Q04": "All four a8c9 queue explanation PNGs readable and clear of original input; owner/revision software regressions PASS; physical click-through/focus NOT_RUN",
     "Q02": "existing three-page flow retained; optional redesign not adopted",
-    "Q10": "Actual CI NSWorkspace accessibility variants PASS at a8c9; physical input, screen changes, Spaces and full VoiceOver NOT_RUN"
+    "Q10": "8525 ARM push and PR actual reduced system variants PASS; Intel variants NOT_RUN after preceding original-suite failures. Physical input, screen changes, Spaces and full VoiceOver remain NOT_RUN."
   },
   "localVerification": {
     "finalIsolationTests": 24,
     "originalVisualManifestTests": 18,
     "supplementalCases": 6,
     "supplementalUnsafeObservationsRejected": 84,
-    "scope": "Linux checks and exact independent code review; new actual AppKit alignment measurements and complete CI required"
+    "scope": "24 final isolation, 18 original visual manifest and 84 supplemental negative checks passed for helper delta; source gate and full new macOS capture remain separately required"
   },
   "nativeVisualGUI": {
-    "status": "THREE_850_SETS_VISUALLY_READABLE_MACHINE_ALIGNMENT_FIX_AND_COMPLETE_NATIVE_REGRESSION_PENDING",
+    "status": "8525_ARM_PUSH_AND_PR_COMPLETE_INTEL_ORIGINAL_SUITE_FAILURES_PRESERVED_NEW_HELPER_SOURCE_PENDING",
     "originalCasesRequired": 46,
     "originalMoviesRequired": 5,
     "supplementalStaticCasesRequired": 6,
@@ -211,128 +237,570 @@
     "crossApplicationFocus": "NOT_RUN"
   },
   "runtimeRepairs": {
-    "absoluteDeadline": "Original uninstrumented 50ms/150ms regression passed in all three 850 jobs that reached Swift, with 726 full cases; fourth job stopped earlier in unchanged legacy Node probe. One-store-turn cleanup retained; no claim of a measured sole scheduling root cause",
+    "absoluteDeadline": "Original uninstrumented 50ms/150ms regression and external-writer no-op passed in all four 8525 jobs reaching the 726-case suite; first PR Intel attempt stopped earlier at unchanged legacy probe. No measured sole timer root cause claimed.",
     "magnetNaturalTest": "original 560ms product plan; original 1.2s wait and strict finished/cleanup assertions unchanged",
-    "productionMagnetChangedInThisRepair": true,
+    "productionMagnetChangedInThisRepair": false,
     "magnetFirstPresentation": "decoded contents and owner hide committed together; flight model/animation committed before window ordering; owner-matched fallback and backwards initial fill; 560ms/finished gates unchanged",
     "helperReadiness": "850 original pixels confirm actual Feedback failure display; record native alignmentRect(forFrame:) separately from retained full visible bounds to distinguish button content from standard decoration",
     "exportDiagnostic": "only fixed Failure/ExportStage values; no raw errors",
     "deadlineTrace": "REMOVED from Core, test and workflow; no new diagnostic workflow remains",
-    "buttonAlignment": "Only two buttons' mutual overlap uses actual native alignment rectangles contained in corresponding full bounds; status/editor keep original full-bounds non-overlap checks. No fixed inset, tolerance, product layout or timeout change"
+    "buttonAlignment": "Only two buttons' mutual overlap uses actual native alignment rectangles contained in corresponding full bounds; status/editor keep original full-bounds non-overlap checks. No fixed inset, tolerance, product layout or timeout change",
+    "productionMagnetLastChangedSource": "79480baff484d0d7abcc911afff68faf8076b5b0",
+    "timelineStartup": "At most two seconds before both clocks: actual active self-owned windows, drawn row/backdrop occlusion, positive geometry and front-to-back order; ordinary display and run-loop recheck. Single origin starts original recording and origin+2s fixture injection. No capture/retry/drop during preparation; original 64-pixel gate and 46/5 driver unchanged.",
+    "feedbackRecordsStartup": "Before the single original disclosure click, wait at most two seconds for the actual fixture draft/editor and both exact record IDs/bodies/states. Original post-click visibility/body/state assertions and process bounds remain. Old staticPreparation/missingWindow does not identify the precise failed guard.",
+    "readinessEvidenceScope": "Preparation facts are not pixel proof. New source remains complete-CI and original-PNG/MOV pending."
   },
   "latestCompletedRuntime": {
-    "head": "850200c6fe00f99c6fe6bde266c2cdeabbfa30b3",
-    "reviewedSource": "beecd723bf5c72546af2c32d3bf7277f030fd72a",
-    "prCheckout": "3968a22569a19454801d0f3291e9b24b7ea4fb06",
-    "nativePush": {
-      "run": 40846190712,
-      "status": "FAIL_SUPPLEMENTAL_BUTTON_FRAME_GEOMETRY",
-      "armJob": 123354164665,
-      "intelJob": 123354164523
-    },
-    "nativePR": {
-      "run": 40846200828,
-      "status": "FAIL",
-      "armJob": 123354198325,
-      "armStatus": "FAIL_SUPPLEMENTAL_BUTTON_FRAME_GEOMETRY",
-      "intelJob": 123354198576,
-      "intelStatus": "FAIL_UNCHANGED_ROUND3_ASYNC_HASH_FIXED_20MS_TEST_BEFORE_SWIFT"
-    },
-    "nativeUniqueCases": 726,
-    "nativeFullSuiteCompletedJobs": 3,
-    "debugExpiryTrace": "REMOVED_ZERO_LOG_OCCURRENCES",
-    "feedback": {
-      "pushRun": 40846190810,
-      "prRun": 40846200799,
-      "status": "PASS_BOTH",
-      "swiftUniqueCases": 49,
-      "pythonIsolationCases": 117,
-      "nodeServiceCases": 20,
-      "closeRepeatedPasses": 3,
-      "realCloud": "NOT_RUN"
-    },
-    "fullNativeVisual": {
-      "armPush": {
-        "scenes": 46,
-        "originalPNGs": 119,
-        "movies": 5,
-        "artifact": 12885048129
+    "schemaVersion": 1,
+    "head": "8525a36d878acdc70be26b673e468cee456278a3",
+    "reviewedSource": "25609879978557e21ce42e781f2d1c2e41120752",
+    "sourceTree": "61a23b4260ce056c34608c4bd00965eb1df6e117",
+    "snapshotUTC": "2026-10-29T09:46:29.961541+00:00",
+    "scope": "Actual macOS CI software execution and owned synthetic WindowServer evidence. This record is not combined-App physical acceptance.",
+    "overall": "INCOMPLETE: both ARM Native jobs completed full suite; push Intel failed original motion-magnet first-PNG product-pixel gate; PR Intel authorized full attempt2 failed original feedback-records-light preparation. Two Feedback workflows passed offline software acceptance. No public release or combined-App physical acceptance claimed.",
+    "originalVisualDriverSHA256": "f1f7ba966e1e57640490338dad4bc248c3da3de1f4ab5e56f47bd498d0664747",
+    "sourceAdmission": [
+      {
+        "runID": 40848521633,
+        "jobID": 123361887339,
+        "status": "SUCCESS"
       },
-      "intelPush": {
-        "scenes": 46,
-        "originalPNGs": 101,
-        "movies": 5
+      {
+        "runID": 40848529234,
+        "jobID": 123361914608,
+        "status": "SUCCESS",
+        "reportedBy": "/root/integration_review"
+      }
+    ],
+    "architectures": [
+      {
+        "event": "push",
+        "runID": 40848521633,
+        "jobID": 123361887602,
+        "attempt": 1,
+        "architecture": "arm",
+        "jobConclusion": "SUCCESS",
+        "artifactID": 12885798928,
+        "artifactZIP": "/tmp/riftlet-8525a36-push-arm.zip",
+        "artifactZIPBytes": 12356695,
+        "artifactZIPSHA256": "acfbbd437681d3e353b787c749b2a36e85a6fbbb6302d7ac6bbdb6d0a674bdd2",
+        "artifactIntegrityVerifiedBy": "/root/magnetic_diagnosis",
+        "source": "8525a36d878acdc70be26b673e468cee456278a3",
+        "checkout": "8525a36d878acdc70be26b673e468cee456278a3",
+        "softwareFullSuite": {
+          "status": "PASS",
+          "cases": 726,
+          "original50msDeadlineAnd150msObservation": "UNCHANGED",
+          "externalSQLiteWriterNoOpRegression": "PASS",
+          "strictMagnet": "PASS",
+          "unifiedAppAndInternalBetaPackage": "PASS"
+        },
+        "logs": {
+          "path": "/tmp/riftlet-8525a36-push-arm-job.log",
+          "sha256": "6f63f1a487661911e5cdb0daf22d18c1ab72bb968fffb54f18f76bda9fdbf7d5",
+          "parallelCasesEnumerated": 726,
+          "lastParallelCaseIndex": 726,
+          "selectionExpiryTraceOccurrences": 0,
+          "deadlineSerialPassLine": "2026-10-29T09:22:31.7319550Z Test Case '-[RiftletCoreTests.AcceptedSelectionQueueTests testDeadlineCancelsPreparedWhileOriginalUnknownRemainsLocked]' passed (0.188 seconds).",
+          "magnetNaturalSerialPassLine": "2026-10-29T09:23:30.9886900Z Test Case '-[RiftletUITests.MagnetFlightPresenterTests testNaturalFinishAndExplicitCloseReleaseWithoutReplayingCompletion]' passed (1.309 seconds)."
+        },
+        "normal": {
+          "status": "CAPTURED_NATIVE_WINDOWSERVER",
+          "source": "8525a36d878acdc70be26b673e468cee456278a3",
+          "checkout": "8525a36d878acdc70be26b673e468cee456278a3",
+          "cases": 46,
+          "capturedCases": 46,
+          "capturedPNGs": 117,
+          "recordedMOVs": 5,
+          "summaryPath": "/tmp/riftlet-8525a36-push-arm/test-results/native-visual/summary.json",
+          "summarySHA256": "84df26d18440276f3aa087487230396579b3eb01ac35c7eb883d72e3a21878a0",
+          "failedCases": []
+        },
+        "supplemental": {
+          "status": "CAPTURED_NATIVE_WINDOWSERVER",
+          "source": "8525a36d878acdc70be26b673e468cee456278a3",
+          "checkout": "8525a36d878acdc70be26b673e468cee456278a3",
+          "cases": 6,
+          "capturedCases": 6,
+          "capturedPNGs": 6,
+          "recordedMOVs": 0,
+          "summaryPath": "/tmp/riftlet-8525a36-push-arm/test-results/native-visual-supplemental/summary.json",
+          "summarySHA256": "675f7f22791ce71675440fa04745959563bf2711b6fd3150372cd93e0eb6c9be",
+          "failedCases": []
+        },
+        "reducedSystem": {
+          "status": "CAPTURED_NATIVE_WINDOWSERVER",
+          "source": "8525a36d878acdc70be26b673e468cee456278a3",
+          "checkout": "8525a36d878acdc70be26b673e468cee456278a3",
+          "cases": 3,
+          "capturedCases": 3,
+          "capturedPNGs": 16,
+          "recordedMOVs": 1,
+          "summaryPath": "/tmp/riftlet-8525a36-push-arm/test-results/native-visual-accessibility/summary.json",
+          "summarySHA256": "96fcd4f7fde250cfa3e5c984e2f1a3925838b2e6ffba6176cb0cc72f16983986",
+          "failedCases": []
+        },
+        "package": {
+          "path": "/tmp/riftlet-8525a36-push-arm/build/Riftlet-Internal-Beta.zip",
+          "bytes": 1967493,
+          "sha256": "cf5e900aa78fb81059ea1edfc6b5e98357225f8ca9ff2b58c3e100dddf53d3a4",
+          "source": "8525a36d878acdc70be26b673e468cee456278a3",
+          "checkout": "8525a36d878acdc70be26b673e468cee456278a3",
+          "ciRunID": "40848521633",
+          "architecture": "arm64",
+          "actualMachOCPUType": "0x100000c",
+          "executableSHA256": "72f5cb44d626ce09e9601a3de4d2a9af82f3762902ccd09949c060909819e8b0",
+          "manifestContentsIntegrity": "PASS",
+          "launchArgument": "--system-screenshot-candidate",
+          "ordinaryAppDefault": "capture-upload-disabled",
+          "feedbackEndpointConfigured": false,
+          "feedbackDelivery": "local-outbox-only",
+          "publicRelease": false
+        },
+        "artifactOriginalManifestAndFileIntegrity": "PASS: all 46 normal + 6 supplemental + 3 actual system accessibility registries, flags, source/checkout, original PNG and MOV hashes",
+        "nonAuthorPixelReview": {
+          "supplemental": "PASS: all 6 original PNGs personally inspected by /root/magnetic_diagnosis",
+          "reducedStatic": "PASS: queue-dark and entry-dark original PNGs personally inspected",
+          "magnet": {
+            "status": "PASS for actual recorded critical frames",
+            "reviewer": "/root",
+            "movieSHA256": "54c1749770ed88ff0845173efc7ababaa3b967c603da6f9e5ab7e27b56e4ffec",
+            "decodedOriginalFrames": [
+              32,
+              33,
+              34,
+              36,
+              38,
+              40,
+              41,
+              44
+            ],
+            "observed": "frame32 old two rows;33 first target empty;34-38 flight with target empty;40-44 stable target; no old appear-then-hide flash in inspected frames.",
+            "runtimeEnd": "animationDelegateStopped finished=true; decorationEnded finished",
+            "limitations": "No claim about unrecorded instants or frame rate; ffmpeg original select without resize, originals unmodified."
+          }
+        },
+        "feedbackFailurePresentation": {
+          "pngSHA256": "b43b3b90d1b8aba19e20fac67fa7db8d8993a8686a4742ee6d0047210464070a",
+          "source": "8525a36d878acdc70be26b673e468cee456278a3",
+          "status": "draftSaveFailed",
+          "actualRecoveryOuterFrames": [
+            [
+              17,
+              37,
+              125,
+              32
+            ],
+            [
+              136,
+              37,
+              86,
+              32
+            ]
+          ],
+          "actualRecoveryAlignmentFrames": [
+            [
+              24,
+              44,
+              111,
+              20
+            ],
+            [
+              143,
+              44,
+              72,
+              20
+            ]
+          ],
+          "displayCommitWaitSeconds": 0.0523315416666037,
+          "pixelVerdict": "PASS: retained body, not-sent failure status, retry/copy and ordinary save controls visible; no overlap observed",
+          "physicalOrCloudAction": false
+        }
       },
-      "armPR": {
-        "scenes": 46,
-        "originalPNGs": 117,
-        "movies": 5,
-        "artifact": 12885517002,
-        "zipSHA256": "b06552f27b25eb5c10914f92be173b9a7807a245229ef7d22da1cf38df09a4da"
+      {
+        "event": "push",
+        "runID": 40848521633,
+        "jobID": 123361887603,
+        "attempt": 1,
+        "architecture": "intel",
+        "jobConclusion": "FAILURE",
+        "artifactID": 12886506926,
+        "artifactZIP": "/tmp/riftlet-8525a36-push-intel.zip",
+        "artifactZIPBytes": 13324418,
+        "artifactZIPSHA256": "55c1f9e0c20e5879f8e605cf55f85cbae2fd5c49f0d8fa2beae857bf0ecfc640",
+        "artifactIntegrityVerifiedBy": "/root/magnetic_diagnosis",
+        "source": "8525a36d878acdc70be26b673e468cee456278a3",
+        "checkout": "8525a36d878acdc70be26b673e468cee456278a3",
+        "softwareFullSuite": {
+          "status": "PASS",
+          "cases": 726,
+          "original50msDeadlineAnd150msObservation": "UNCHANGED",
+          "externalSQLiteWriterNoOpRegression": "PASS",
+          "strictMagnet": "PASS",
+          "unifiedAppAndInternalBetaPackage": "PASS"
+        },
+        "logs": {
+          "path": "/tmp/riftlet-8525a36-push-intel-job.log",
+          "sha256": "ea44d7e0da0a78729825f66d2467b831f0e8ebbd32a2e1da6fc67c5d962db7a7",
+          "parallelCasesEnumerated": 726,
+          "lastParallelCaseIndex": 726,
+          "selectionExpiryTraceOccurrences": 0,
+          "deadlineSerialPassLine": "2026-10-29T09:22:48.5713700Z Test Case '-[RiftletCoreTests.AcceptedSelectionQueueTests testDeadlineCancelsPreparedWhileOriginalUnknownRemainsLocked]' passed (0.248 seconds).",
+          "magnetNaturalSerialPassLine": "2026-10-29T09:23:53.4619030Z Test Case '-[RiftletUITests.MagnetFlightPresenterTests testNaturalFinishAndExplicitCloseReleaseWithoutReplayingCompletion]' passed (1.227 seconds)."
+        },
+        "normal": {
+          "status": "FAIL",
+          "source": "8525a36d878acdc70be26b673e468cee456278a3",
+          "checkout": "8525a36d878acdc70be26b673e468cee456278a3",
+          "cases": 46,
+          "capturedCases": 45,
+          "capturedPNGs": 87,
+          "recordedMOVs": 4,
+          "summaryPath": "/tmp/riftlet-8525a36-push-intel/test-results/native-visual/summary.json",
+          "summarySHA256": "e20a4910b3c59f589d454497a545bfdc9ee8255dfa77ee9a1c6a106dc44752b6",
+          "failedCases": [
+            {
+              "name": "motion-magnet",
+              "reason": "missingFrames",
+              "manifestError": "missingFrames"
+            }
+          ]
+        },
+        "supplemental": {
+          "status": "NOT_RUN",
+          "reason": "preceding_required_step_failed"
+        },
+        "reducedSystem": {
+          "status": "NOT_RUN",
+          "reason": "preceding_required_step_failed"
+        },
+        "package": {
+          "path": "/tmp/riftlet-8525a36-push-intel/build/Riftlet-Internal-Beta.zip",
+          "bytes": 2069289,
+          "sha256": "da66f31260cfc353eca302f2f1a1eeb3b2bf2fd8a937bf43f200108246488bc3",
+          "source": "8525a36d878acdc70be26b673e468cee456278a3",
+          "checkout": "8525a36d878acdc70be26b673e468cee456278a3",
+          "ciRunID": "40848521633",
+          "architecture": "x86_64",
+          "actualMachOCPUType": "0x1000007",
+          "executableSHA256": "0c51aaba9998f663ca76cab7054f79d6eb96f7622aacfa686068cf8526d90a91",
+          "manifestContentsIntegrity": "PASS",
+          "launchArgument": "--system-screenshot-candidate",
+          "ordinaryAppDefault": "capture-upload-disabled",
+          "feedbackEndpointConfigured": false,
+          "feedbackDelivery": "local-outbox-only",
+          "publicRelease": false
+        },
+        "fixedExportFailure": {
+          "failure": "nativeEvidenceExportFailed",
+          "case": "missingProductPixels",
+          "stage": "pngPixelComparison",
+          "captureJSON": "/tmp/riftlet-8525a36-push-intel/test-results/native-visual/scenes/motion-magnet/capture.json",
+          "captureJSONSHA256": "83390cc46b72fced6db0ea63cba243387272c07fe73d67aba2cbcc7adba8dd9b",
+          "helperLog": "/tmp/riftlet-8525a36-push-intel/test-results/native-visual/scenes/motion-magnet/helper.log",
+          "helperLogSHA256": "dd9d5d9bb179bff9ad60b05c2912691819be0950e8aeb6d9601ef04e48dd85d8",
+          "frames": 0,
+          "movieBytes": 0,
+          "events": [
+            {
+              "boundaryUptime": 739.726577947,
+              "event": "native_arrival_boundary",
+              "mode": "magnet",
+              "phase": "imageDecoded",
+              "reason": "none",
+              "receiptEvidence": false,
+              "uptime": 739.72663315
+            },
+            {
+              "boundaryUptime": 739.727716187,
+              "event": "native_arrival_boundary",
+              "mode": "magnet",
+              "phase": "imageDecoded",
+              "reason": "none",
+              "receiptEvidence": false,
+              "uptime": 739.727738397
+            },
+            {
+              "event": "visual_timeline_started",
+              "receiptEvidence": false,
+              "uptime": 739.7283962490001
+            }
+          ],
+          "assetReadyObserved": false,
+          "magnetStartedObserved": false,
+          "magnetFinishedObserved": false,
+          "classification": "Initial PNG product-pixel gate rejected before assetReady; not evidence of failed magnetic natural completion.",
+          "hypothesis": "AppKit activation/occlusion/layer-order startup race is consistent with logs but failure pixels and selected window set at exact capture were not retained, so unique cause is unproven.",
+          "retainedGuards": "64 pixel product difference, original cadence/scenes/MOV, no retries/cancellation performed by this agent."
+        }
       },
-      "intelPR": "NOT_RUN_PRE_SWIFT_FAILURE",
-      "reducedSystemVariants": "NOT_RUN_AFTER_SUPPLEMENTAL_GATE_FAILURE",
-      "scope": "OWNED_SYNTHETIC_WINDOWSERVER_NOT_PHYSICAL_OR_REAL_UPLOAD"
-    },
-    "independentPixelReview": {
-      "magnet": "Natural finish and no initial flash in reviewed recorded frames; not an overall workflow PASS",
-      "feedbackFailure": "All three produced original PNGs visibly show failure text, preserved draft and retry/copy controls; old saving frame fixed",
-      "supplementalMachineGate": "FAIL_FULL_BUTTON_BOUNDS_INTERSECT_6PT",
-      "measuredBounds": {
-        "retry": [
-          17,
-          37,
-          125,
-          32
-        ],
-        "copy": [
-          136,
-          37,
-          86,
-          32
-        ],
-        "status": [
-          22,
-          72,
-          516,
-          14
-        ],
-        "editorViewport": [
-          25,
-          202,
-          480,
-          148
-        ],
-        "content": [
-          0,
-          0,
-          560,
-          472
-        ]
+      {
+        "event": "pull_request",
+        "runID": 40848529234,
+        "jobID": 123361915144,
+        "attempt": 1,
+        "architecture": "arm",
+        "jobConclusion": "SUCCESS",
+        "artifactID": 12886730972,
+        "artifactZIPSHA256": "9a6af6784a7d46e0d5a4e9262636efa0de83d95b74da0a9260e623f8b882c66c",
+        "artifactZIPBytes": 12488777,
+        "localDirectory": "/tmp/riftlet-8525-pr-arm-review",
+        "downloadAndIndependentVisualReviewer": "/root/integration_review",
+        "source": "8525a36d878acdc70be26b673e468cee456278a3",
+        "checkout": "33fc28c1c234d8c669b84ac4d81f93c90efe000a",
+        "softwareFullSuite": {
+          "status": "PASS",
+          "cases": 726,
+          "deadlineSerialSeconds": 0.279,
+          "strictNaturalSeconds": 1.351
+        },
+        "normal": {
+          "status": "CAPTURED_NATIVE_WINDOWSERVER",
+          "source": "8525a36d878acdc70be26b673e468cee456278a3",
+          "checkout": "33fc28c1c234d8c669b84ac4d81f93c90efe000a",
+          "cases": 46,
+          "capturedCases": 46,
+          "capturedPNGs": 120,
+          "recordedMOVs": 5,
+          "summaryPath": "/tmp/riftlet-8525-pr-arm-review/test-results/native-visual/summary.json",
+          "summarySHA256": "683f0476a5087afcb3f91aa43d4fbe2d5c515ae5b847efaa66d7c0bd04a98ef0",
+          "failedCases": []
+        },
+        "supplemental": {
+          "status": "CAPTURED_NATIVE_WINDOWSERVER",
+          "source": "8525a36d878acdc70be26b673e468cee456278a3",
+          "checkout": "33fc28c1c234d8c669b84ac4d81f93c90efe000a",
+          "cases": 6,
+          "capturedCases": 6,
+          "capturedPNGs": 6,
+          "recordedMOVs": 0,
+          "summaryPath": "/tmp/riftlet-8525-pr-arm-review/test-results/native-visual-supplemental/summary.json",
+          "summarySHA256": "f726bb6da8a145fe1aca0832efcabd4972f7562b1e0b6f6f7d1989e5da168ae5",
+          "failedCases": []
+        },
+        "reducedSystem": {
+          "status": "CAPTURED_NATIVE_WINDOWSERVER",
+          "source": "8525a36d878acdc70be26b673e468cee456278a3",
+          "checkout": "33fc28c1c234d8c669b84ac4d81f93c90efe000a",
+          "cases": 3,
+          "capturedCases": 3,
+          "capturedPNGs": 18,
+          "recordedMOVs": 1,
+          "summaryPath": "/tmp/riftlet-8525-pr-arm-review/test-results/native-visual-accessibility/summary.json",
+          "summarySHA256": "93ca165e3140657feecae1fec9af37db6147473c3d62b1feccb309a0c7bcaed5",
+          "failedCases": []
+        },
+        "package": {
+          "path": "/tmp/riftlet-8525-pr-arm-review/build/Riftlet-Internal-Beta.zip",
+          "bytes": 1967508,
+          "sha256": "e52b3e07be46f3ce0a2a6a7ddafa6d7c9c1c057b1c2cb9108420f7252b10dada",
+          "source": "8525a36d878acdc70be26b673e468cee456278a3",
+          "checkout": "33fc28c1c234d8c669b84ac4d81f93c90efe000a",
+          "ciRunID": "40848529234",
+          "architecture": "arm64",
+          "actualMachOCPUType": "0x100000c",
+          "executableSHA256": "35638ad1ae84540e58a3fc545ddacf1e826e86ea29b93de356676853f48e36cb",
+          "manifestContentsIntegrity": "PASS",
+          "launchArgument": "--system-screenshot-candidate",
+          "ordinaryAppDefault": "capture-upload-disabled",
+          "feedbackEndpointConfigured": false,
+          "feedbackDelivery": "local-outbox-only",
+          "publicRelease": false
+        },
+        "nonAuthorPixelReviewReported": "/root/integration_review: six supplemental PASS; original magnetic decoded frames35-58 PASS, natural finished=true and ended.finished; no target preflash.",
+        "ownedProductionCaptureFixture": "region PASS; window/fullScreen FOREIGN_OVERLAP_VETO => PARTIAL; not real system screenshot acceptance"
       },
-      "finding": "Native NSButton outer frames include decoration and overlap while their visible button content has spacing. Need native alignmentRect(forFrame:) measurements, keeping full-bounds visibility and containment; no fixed tolerance or product layout change."
-    },
-    "legacyProbeFailure": {
-      "job": 123354198576,
-      "test": "engineering/evidence/2026-10-27-real-mac-round3/network-probe.test.cjs:55 (called at 128)",
-      "testBlob": "78780be3135a6b15b60478f73682c25e9d3d6947",
-      "templateBlob": "6b538be9a7f7c44455663f3df64f8d09f7a84014",
-      "observation": "changeHashOK false after fixed 20ms; no state/events logged",
-      "inference": "Async File.arrayBuffer / webcrypto completion may exceed fixed delay; pending versus rejected hash cannot be distinguished from this log. Not a measured root cause.",
-      "unchangedSince": [
-        "a8c9ca9a",
-        "0e7ea8be",
-        "2c8cd037",
-        "6b60f67f"
-      ],
-      "localOriginalRun": "12_OF_12_OFFLINE_GROUPS_PASS_NOT_A_MACOS_SUBSTITUTE",
-      "remaining": "New complete Intel job required with all original scripts unchanged"
-    },
-    "environmentRecheck": {
-      "remoteMac": "OFFLINE; actual read-only execution attempt previously returned no device online",
-      "browser": "Current Browser connector returned originating browser context unavailable; no Cloudflare signed-in session could be reused",
-      "cloud": "NOT_RUN_ENDPOINT_NIL"
-    }
+      {
+        "event": "pull_request",
+        "runID": 40848529234,
+        "jobID": 123361915049,
+        "attempt": 1,
+        "architecture": "intel",
+        "jobConclusion": "FAILURE",
+        "reportedBy": "/root/integration_review",
+        "failure": "unchanged round-three probe line55/caller128; before Swift tests",
+        "artifactID": 12886231081,
+        "artifactZIPBytes": 9952,
+        "artifactZIPSHA256": "88a02647f36ba511ffb8c8c9d54e4d2537c7c2eaec5bcbf5761559111e9404ff",
+        "rawLog": "/tmp/riftlet-8525-pr-intel-attempt1-job123361915049.log",
+        "rawLogSHA256": "b5f180a972fb92a35a29d1761cd1fd6ebcd12bea4bc45dfbdbe0ddba5e946817",
+        "softwareAndVisual": "NOT_RUN after failed existing diagnostic"
+      },
+      {
+        "event": "pull_request",
+        "runID": 40848529234,
+        "jobID": 123365824869,
+        "attempt": 2,
+        "architecture": "intel",
+        "jobConclusion": "FAILURE",
+        "source": "8525a36d878acdc70be26b673e468cee456278a3",
+        "checkout": "33fc28c1c234d8c669b84ac4d81f93c90efe000a",
+        "authorization": "Root authorized full Intel job rerun at 2026-10-29T09:26:55Z. This agent did not rerun or cancel any job.",
+        "reportedBy": "/root/integration_review",
+        "artifactID": 12887895048,
+        "artifactZIPBytes": 13492381,
+        "artifactZIPSHA256": "a327bf493e471bfc22f0f0ab26e65657c415faf7b5625f1fe1eaa393689b9417",
+        "localDirectory": "/tmp/riftlet-8525-pr-intel-attempt2-review",
+        "rawLog": "/tmp/riftlet-8525-pr-intel-attempt2-job123365824869.log",
+        "rawLogSHA256": "d62964ca6dacf67818ebd029d02afa799a00f6386aebd57e9092d7254aad5e7f",
+        "softwareFullSuite": {
+          "status": "PASS",
+          "cases": 726,
+          "original50msDeadlineAnd150msObservation": "UNCHANGED; serial PASS 0.279s",
+          "externalSQLiteWriterNoOpRegression": "PASS",
+          "strictMagnetCases": 9,
+          "strictNaturalSeconds": 1.209,
+          "unifiedAppAndInternalBetaPackage": "PASS"
+        },
+        "normal": {
+          "status": "FAIL",
+          "cases": 46,
+          "capturedCases": 45,
+          "capturedPNGs": 95,
+          "recordedMOVs": 5,
+          "summaryPath": "/tmp/riftlet-8525-pr-intel-attempt2-review/test-results/native-visual/summary.json",
+          "summarySHA256": "8c7a08addb7edd1f851961e3175c54965d1a7272ace4f50c2b5405dc6d697115",
+          "failedCases": [
+            {
+              "name": "feedback-records-light",
+              "failureCase": "missingWindow",
+              "failureStage": "staticPreparation",
+              "frames": 0
+            }
+          ]
+        },
+        "supplemental": {
+          "status": "NOT_RUN",
+          "reason": "preceding_required_original_visual_step_failed"
+        },
+        "reducedSystem": {
+          "status": "NOT_RUN",
+          "reason": "preceding_required_original_visual_step_failed"
+        },
+        "fixedExportFailure": {
+          "captureJSON": "/tmp/riftlet-8525-pr-intel-attempt2-review/test-results/native-visual/scenes/feedback-records-light/capture.json",
+          "captureJSONSHA256": "954cb9e9278c143a5128238193ddaeb3f1c3ba10cf8470cb2b58c3141f9f9fee",
+          "helperLog": "/tmp/riftlet-8525-pr-intel-attempt2-review/test-results/native-visual/scenes/feedback-records-light/helper.log",
+          "failureCase": "missingWindow",
+          "failureStage": "staticPreparation",
+          "case": "feedback-records-light",
+          "frames": 0,
+          "classification": "Feedback records page preparation failed before capture; no original PNG exists for this case.",
+          "limitation": "The specific failed guard is not proven by available diagnostics; no assumption that all startup failures have the same cause."
+        },
+        "package": {
+          "path": "/tmp/riftlet-8525-pr-intel-attempt2-review/build/Riftlet-Internal-Beta.zip",
+          "bytes": 2069305,
+          "sha256": "56086e4d8e8549f1ba4a4b1f8d1b0a7fca1bf3d1d203764290bee14bf4e8a376",
+          "source": "8525a36d878acdc70be26b673e468cee456278a3",
+          "checkout": "33fc28c1c234d8c669b84ac4d81f93c90efe000a",
+          "architecture": "x86_64",
+          "executableBytes": 6575264,
+          "executableSHA256": "44b967f8e524b12b0b8aafd09505f64701f13581c1430f716e3f1c63bb69fbf0",
+          "verifiedBy": "/root/integration_review",
+          "publicRelease": false
+        },
+        "nonAuthorMagnetPixelReview": {
+          "status": "PASS scoped to recorded movie; overall original suite still FAIL",
+          "reviewer": "/root/integration_review",
+          "frames": 26,
+          "bytes": 34102,
+          "movieSHA256": "40e1488b30745f5239e13465ce88981f95880e15c26d116d3174c6893eb5fe06",
+          "observed": "ready 2.007877s; frame2.234s target empty with sprite midflight; frame2.541s target filled and then stable; no recorded preflash. Delegate finished=true at2.679892s and ended.finished at2.682358s relative to first capture.",
+          "limitation": "Sparse recording with 226ms first post-ready gap; no inference about unrecorded instants or performance."
+        },
+        "ownedProductionCaptureFixture": "PARTIAL: owned region PASS128x96@1x, window/fullScreen FOREIGN_OVERLAP_VETO; not real system screenshot acceptance"
+      }
+    ],
+    "physicalInput": "NOT_RUN",
+    "realSystemScreenshot": "NOT_RUN",
+    "realChatGPTAttachment": "NOT_RUN",
+    "cloudFeedback": "NOT_RUN",
+    "gatekeeperAndPublicRelease": "NOT_RUN",
+    "feedbackRuns": [
+      {
+        "event": "push",
+        "runID": 40848521666,
+        "jobID": 123361888253,
+        "status": "SUCCESS",
+        "source": "8525a36d878acdc70be26b673e468cee456278a3",
+        "checkout": "8525a36d878acdc70be26b673e468cee456278a3",
+        "rawLog": "/tmp/riftlet-8525a36-feedback-push-job.log",
+        "rawLogSHA256": "e21100028c0b76aa85c6e28199b74c99ceadbf2035e068c40770405e739e68ea",
+        "rawLogIndependentlyReadBy": "/root/magnetic_diagnosis",
+        "originalRunReviewer": "/root/experience_review",
+        "pythonGroups": [
+          4,
+          14,
+          11,
+          14,
+          21,
+          24,
+          5,
+          24
+        ],
+        "pythonTotal": 117,
+        "nodeTests": 20,
+        "nodePass": 20,
+        "nodeFail": 0,
+        "uniqueSwiftTests": 49,
+        "actualSwiftPassOccurrences": 55,
+        "extraCloseRepeats": {
+          "rounds": 3,
+          "casesPerRound": 2,
+          "includedInUnique49": true
+        },
+        "nativeSoftwareReturnEscapeAndResponderRestore": "PASS",
+        "failedCloseRetryAndBodyOnlyCopy": "PASS",
+        "packageAndArchive": "PASS",
+        "cloudFeedback": "NOT_RUN",
+        "physicalGUI": "NOT_RUN",
+        "release": "NOT_NOTARIZED",
+        "boundary": "OFFLINE_SYNTHETIC"
+      },
+      {
+        "event": "pull_request",
+        "runID": 40848529259,
+        "jobID": 123361913351,
+        "status": "SUCCESS",
+        "source": "8525a36d878acdc70be26b673e468cee456278a3",
+        "checkout": "33fc28c1c234d8c669b84ac4d81f93c90efe000a",
+        "rawLog": "/tmp/riftlet-8525a36-feedback-pr-job.log",
+        "rawLogSHA256": "0150903f4f2b042222519335f3f4b0833b06b2f1c20d2481f69ed1c7495a3bc2",
+        "rawLogIndependentlyReadBy": "/root/magnetic_diagnosis",
+        "originalRunReviewer": "/root/experience_review",
+        "pythonGroups": [
+          4,
+          14,
+          11,
+          14,
+          21,
+          24,
+          5,
+          24
+        ],
+        "pythonTotal": 117,
+        "nodeTests": 20,
+        "nodePass": 20,
+        "nodeFail": 0,
+        "uniqueSwiftTests": 49,
+        "actualSwiftPassOccurrences": 55,
+        "extraCloseRepeats": {
+          "rounds": 3,
+          "casesPerRound": 2,
+          "includedInUnique49": true
+        },
+        "nativeSoftwareReturnEscapeAndResponderRestore": "PASS",
+        "failedCloseRetryAndBodyOnlyCopy": "PASS",
+        "packageAndArchive": "PASS",
+        "cloudFeedback": "NOT_RUN",
+        "physicalGUI": "NOT_RUN",
+        "release": "NOT_NOTARIZED",
+        "boundary": "OFFLINE_SYNTHETIC"
+      }
+    ],
+    "completedNativeAttempts": 5,
+    "allListedJobsCompleted": true
   },
   "completedRuntimeHistory": [
     {
@@ -509,6 +977,120 @@
         "result": "PASS_STATIC_PRESENTATION",
         "recordSHA256": "c941d72e48504d2e6bb24181a8b03134b3634e8c868146bd13089f591ca05817",
         "scope": "Previous exact a8c9 artifacts only; not relabeled as later output"
+      }
+    },
+    {
+      "head": "850200c6fe00f99c6fe6bde266c2cdeabbfa30b3",
+      "reviewedSource": "beecd723bf5c72546af2c32d3bf7277f030fd72a",
+      "prCheckout": "3968a22569a19454801d0f3291e9b24b7ea4fb06",
+      "nativePush": {
+        "run": 40846190712,
+        "status": "FAIL_SUPPLEMENTAL_BUTTON_FRAME_GEOMETRY",
+        "armJob": 123354164665,
+        "intelJob": 123354164523
+      },
+      "nativePR": {
+        "run": 40846200828,
+        "status": "FAIL",
+        "armJob": 123354198325,
+        "armStatus": "FAIL_SUPPLEMENTAL_BUTTON_FRAME_GEOMETRY",
+        "intelJob": 123354198576,
+        "intelStatus": "FAIL_UNCHANGED_ROUND3_ASYNC_HASH_FIXED_20MS_TEST_BEFORE_SWIFT"
+      },
+      "nativeUniqueCases": 726,
+      "nativeFullSuiteCompletedJobs": 3,
+      "debugExpiryTrace": "REMOVED_ZERO_LOG_OCCURRENCES",
+      "feedback": {
+        "pushRun": 40846190810,
+        "prRun": 40846200799,
+        "status": "PASS_BOTH",
+        "swiftUniqueCases": 49,
+        "pythonIsolationCases": 117,
+        "nodeServiceCases": 20,
+        "closeRepeatedPasses": 3,
+        "realCloud": "NOT_RUN"
+      },
+      "fullNativeVisual": {
+        "armPush": {
+          "scenes": 46,
+          "originalPNGs": 119,
+          "movies": 5,
+          "artifact": 12885048129
+        },
+        "intelPush": {
+          "scenes": 46,
+          "originalPNGs": 101,
+          "movies": 5
+        },
+        "armPR": {
+          "scenes": 46,
+          "originalPNGs": 117,
+          "movies": 5,
+          "artifact": 12885517002,
+          "zipSHA256": "b06552f27b25eb5c10914f92be173b9a7807a245229ef7d22da1cf38df09a4da"
+        },
+        "intelPR": "NOT_RUN_PRE_SWIFT_FAILURE",
+        "reducedSystemVariants": "NOT_RUN_AFTER_SUPPLEMENTAL_GATE_FAILURE",
+        "scope": "OWNED_SYNTHETIC_WINDOWSERVER_NOT_PHYSICAL_OR_REAL_UPLOAD"
+      },
+      "independentPixelReview": {
+        "magnet": "Natural finish and no initial flash in reviewed recorded frames; not an overall workflow PASS",
+        "feedbackFailure": "All three produced original PNGs visibly show failure text, preserved draft and retry/copy controls; old saving frame fixed",
+        "supplementalMachineGate": "FAIL_FULL_BUTTON_BOUNDS_INTERSECT_6PT",
+        "measuredBounds": {
+          "retry": [
+            17,
+            37,
+            125,
+            32
+          ],
+          "copy": [
+            136,
+            37,
+            86,
+            32
+          ],
+          "status": [
+            22,
+            72,
+            516,
+            14
+          ],
+          "editorViewport": [
+            25,
+            202,
+            480,
+            148
+          ],
+          "content": [
+            0,
+            0,
+            560,
+            472
+          ]
+        },
+        "finding": "Native NSButton outer frames include decoration and overlap while their visible button content has spacing. Need native alignmentRect(forFrame:) measurements, keeping full-bounds visibility and containment; no fixed tolerance or product layout change."
+      },
+      "legacyProbeFailure": {
+        "job": 123354198576,
+        "test": "engineering/evidence/2026-10-27-real-mac-round3/network-probe.test.cjs:55 (called at 128)",
+        "testBlob": "78780be3135a6b15b60478f73682c25e9d3d6947",
+        "templateBlob": "6b538be9a7f7c44455663f3df64f8d09f7a84014",
+        "observation": "changeHashOK false after fixed 20ms; no state/events logged",
+        "inference": "Async File.arrayBuffer / webcrypto completion may exceed fixed delay; pending versus rejected hash cannot be distinguished from this log. Not a measured root cause.",
+        "unchangedSince": [
+          "a8c9ca9a",
+          "0e7ea8be",
+          "2c8cd037",
+          "6b60f67f"
+        ],
+        "localOriginalRun": "12_OF_12_OFFLINE_GROUPS_PASS_NOT_A_MACOS_SUBSTITUTE",
+        "remaining": "New complete Intel job required with all original scripts unchanged"
+      },
+      "environmentRecheck": {
+        "remoteMac": "OFFLINE; actual read-only execution attempt previously returned no device online",
+        "browser": "Current Browser connector returned originating browser context unavailable; no Cloudflare signed-in session could be reused",
+        "cloud": "NOT_RUN_ENDPOINT_NIL"
       }
     }
   ]
