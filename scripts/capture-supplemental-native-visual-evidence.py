@@ -93,6 +93,30 @@ def verify_entry_readiness(event: dict, frame: dict) -> None:
         raise ValueError("entryStatusNotInsideCapturedWindowGeometry")
 
 
+def verify_feedback_display(event: dict, frame: dict) -> None:
+    alphas = event.get("feedbackAlphas")
+    if (event.get("failureVisible") is not True or event.get("feedbackFailureState") != "draftSaveFailed"
+            or event.get("feedbackDisplayComplete") is not True
+            or not finite_number(event.get("displayCommitWaitSeconds")) or event["displayCommitWaitSeconds"] < 0.05
+            or type(event.get("feedbackWindowNumber")) is not int or event["feedbackWindowNumber"] <= 0
+            or event["feedbackWindowNumber"] not in frame.get("ownWindowNumbersFrontToBack", [])
+            or not isinstance(alphas, list) or len(alphas) != 6
+            or any(not finite_number(value) or not 0.99 <= value <= 1 for value in alphas)):
+        raise ValueError("feedbackFailureNativeDisplayNotReady")
+    content = event.get("feedbackContentBounds")
+    status = event.get("feedbackStatusFrame")
+    viewport = event.get("feedbackEditorViewportFrame")
+    recovery = event.get("feedbackRecoveryFrames")
+    if (not all(positive_rect(rect) for rect in (content, status, viewport))
+            or not isinstance(recovery, list) or len(recovery) != 2 or not all(positive_rect(rect) for rect in recovery)
+            or any(value > bound for value, bound in zip(content[2:], frame["points"]))
+            or any(not contains_rect(content, rect) for rect in [status, viewport, *recovery])
+            or intersects_rect(recovery[0], recovery[1])
+            or any(intersects_rect(status, rect) or intersects_rect(viewport, rect) for rect in recovery)
+            or intersects_rect(status, viewport)):
+        raise ValueError("feedbackFailureControlsOutsideVisibleViewport")
+
+
 def verify_supplement(flags: list[str], report: dict) -> None:
     name = flags[flags.index("--visual-supplement") + 1]
     if report.get("supplementalCase") != name:
@@ -142,6 +166,7 @@ def verify_supplement(flags: list[str], report: dict) -> None:
                 or [event.get("windowWidth"), event.get("windowHeight")] != [560, 500]
                 or frames[0].get("points") != [560, 500]):
             raise ValueError("feedbackFailureRecoveryNotObserved")
+        verify_feedback_display(event, frames[0])
     elif name == "queue-feedback":
         if (event.get("noteVisible") is not True or event.get("noteAvoidsInputs") is not True
                 or event.get("captureExecuted") is not False):
@@ -179,9 +204,14 @@ def self_check() -> None:
             required = ["titleMatches", "parentOrderedOut", "previewDisplayComplete"]
         elif name == "feedback-save-failure":
             points = [560, 500]
-            required = ["retryEnabled", "copyEnabled", "draftRetained", "savedDraftUnchanged", "recordsEmpty"]
+            required = ["retryEnabled", "copyEnabled", "draftRetained", "savedDraftUnchanged", "recordsEmpty",
+                        "failureVisible", "feedbackDisplayComplete"]
             event.update({key: True for key in required})
-            event.update(persistenceFault="ownedSQLiteJournalPathCollision", windowWidth=560, windowHeight=500)
+            event.update(persistenceFault="ownedSQLiteJournalPathCollision", windowWidth=560, windowHeight=500,
+                         feedbackFailureState="draftSaveFailed", feedbackWindowNumber=99, feedbackAlphas=[1] * 6,
+                         displayCommitWaitSeconds=0.05, feedbackContentBounds=[0, 0, 560, 472],
+                         feedbackStatusFrame=[24, 80, 512, 18], feedbackRecoveryFrames=[[24, 48, 115, 24], [147, 48, 80, 24]],
+                         feedbackEditorViewportFrame=[25, 201, 494, 148])
         elif name == "queue-feedback":
             required = ["noteVisible", "noteAvoidsInputs"]
             event.update(noteVisible=True, noteAvoidsInputs=True, captureExecuted=False)
@@ -198,7 +228,7 @@ def self_check() -> None:
                          captureRect=[0, 0, *points], inputFrames=[[950, 100 + 40 * i, 30, 30] for i in range(10)])
         report = {"status": "CAPTURED_NATIVE_WINDOWSERVER", "supplementalCase": name, "supplementalStage": "ready",
                   "events": [event], "frames": [{"status": "CAPTURED_NATIVE_WINDOWSERVER", "points": points}]}
-        if name == "entry-countdown" or name.startswith("history-preview-"):
+        if name in ("entry-countdown", "feedback-save-failure") or name.startswith("history-preview-"):
             report["frames"][0]["ownWindowNumbersFrontToBack"] = [99, 100]
         verify_supplement(flags, report)
         for key in required + ["physical", "networkEnabled", "receiptEvidence"]:
@@ -206,6 +236,16 @@ def self_check() -> None:
             try: verify_supplement(flags, changed)
             except ValueError: negative_checks += 1
             else: raise AssertionError("unsafe supplemental observation accepted: " + key)
+        if name == "feedback-save-failure":
+            for key, value in {"feedbackFailureState": "saving", "feedbackWindowNumber": 101,
+                               "feedbackAlphas": [1, 1, 0, 1, 1, 1], "displayCommitWaitSeconds": 0,
+                               "feedbackContentBounds": [0, 0, 0, 472], "feedbackStatusFrame": [24, 480, 512, 18],
+                               "feedbackRecoveryFrames": [[24, 48, 115, 24]] * 2,
+                               "feedbackEditorViewportFrame": [24, 48, 494, 148]}.items():
+                changed = copy.deepcopy(report); changed["events"][0][key] = value
+                try: verify_supplement(flags, changed)
+                except ValueError: negative_checks += 1
+                else: raise AssertionError("undrawn Feedback recovery accepted: " + key)
         if name.startswith("history-preview-"):
             for key, value in {"previewWindowNumber": 101, "previewViewportPoints": [0, 100],
                                "displayCommitWaitSeconds": 0}.items():

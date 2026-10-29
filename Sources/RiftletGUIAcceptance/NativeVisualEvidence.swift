@@ -152,7 +152,9 @@ final class NativeVisualEvidence {
             "statusWindowVisible", "statusWindowNumber", "statusAvoidsInputs", "statusWindowAlpha", "statusContentAlpha", "statusLabelAlpha",
             "statusFrame", "statusContentBounds", "statusLabelFrame", "statusLabelScreenFrame", "captureRect", "inputFrames",
             "statusTextFits", "statusDisplayComplete", "displayCommitWaitSeconds",
-            "previewDisplayComplete", "previewWindowNumber", "previewViewportPoints"]
+            "previewDisplayComplete", "previewWindowNumber", "previewViewportPoints",
+            "feedbackDisplayComplete", "feedbackFailureState", "feedbackWindowNumber", "feedbackContentBounds",
+            "feedbackStatusFrame", "feedbackRecoveryFrames", "feedbackEditorViewportFrame", "feedbackAlphas"]
         var event = fields.filter { allowedFields.contains($0.key) }
         event["event"] = name; event["uptime"] = ProcessInfo.processInfo.systemUptime
         events.append(event)
@@ -330,22 +332,54 @@ final class NativeVisualEvidence {
         controller.textDidChange(Notification(name: NSText.didChangeNotification))
         supplementalStage = "feedbackPersistenceFailure"
         close.performClick(nil)
+        let failureText = "未能可靠保存草稿；文字仍在此窗口。可重试保存或复制正文，没有发送。"
+        var failureStatus: NSTextField?
         try await waitForSupplement {
-            window.isVisible && retry.title == "重试保存并关闭" && retry.isEnabled && copy.isEnabled
+            failureStatus = self.descendants(content).compactMap { $0 as? NSTextField }.first { $0.stringValue == failureText }
+            return window.isVisible && failureStatus != nil
+                && retry.title == "重试保存并关闭" && retry.isEnabled && copy.isEnabled
                 && !retry.isHiddenOrHasHiddenAncestor && !copy.isHiddenOrHasHiddenAncestor
         }
+        guard let failureStatus, let viewport = editor.enclosingScrollView?.contentView else { throw Failure.missingWindow }
         // Removing only our deliberate obstruction does not retry or close the
         // window. The failure presentation remains until an explicit action.
         try FileManager.default.removeItem(at: journal)
         let saved = try await store.draft(), records = try await store.records()
         guard saved == initial, records.isEmpty, controller.currentText == body, editor.isEditable,
               window.frame.size == NSSize(width: 560, height: 500), !engine.configured else { throw Failure.unsafeRequest }
+        await engine.stop()
+        supplementalStage = "feedbackFailureDisplay"
+        // Enabled recovery buttons can precede their first WindowServer draw.
+        // Commit the actual failure footer, then recheck its text and visible
+        // controls without retrying, copying, scrolling or changing geometry.
         content.layoutSubtreeIfNeeded()
+        window.displayIfNeeded()
+        let commitStart = ProcessInfo.processInfo.systemUptime
+        try await Task.sleep(nanoseconds: 50_000_000)
+        let views: [NSView] = [content, failureStatus, retry, copy, viewport]
+        let footerAndViewport: [NSView] = [failureStatus, retry, copy, viewport]
+        try await waitForSupplement {
+            window.isVisible && window.alphaValue >= 0.99 && failureStatus.stringValue == failureText
+                && retry.title == "重试保存并关闭" && retry.isEnabled && copy.isEnabled
+                && controller.currentText == body && editor.isEditable
+                && views.allSatisfy {
+                    $0.window === window && !$0.isHiddenOrHasHiddenAncestor && $0.alphaValue >= 0.99
+                        && self.usableRect($0.bounds) && $0.visibleRect.contains($0.bounds)
+                        && !$0.needsLayout && !$0.needsDisplay
+                }
+                && footerAndViewport.allSatisfy { content.bounds.contains($0.convert($0.bounds, to: content)) }
+        }
         supplementalObservation(["retryEnabled": retry.isEnabled, "copyEnabled": copy.isEnabled,
             "draftRetained": controller.currentText == body, "savedDraftUnchanged": saved == initial,
             "recordsEmpty": records.isEmpty, "persistenceFault": "ownedSQLiteJournalPathCollision",
-            "windowWidth": window.frame.width, "windowHeight": window.frame.height])
-        await engine.stop()
+            "windowWidth": window.frame.width, "windowHeight": window.frame.height,
+            "failureVisible": true, "feedbackFailureState": "draftSaveFailed", "feedbackDisplayComplete": true,
+            "feedbackWindowNumber": window.windowNumber, "feedbackContentBounds": rectValues(content.bounds),
+            "feedbackStatusFrame": rectValues(failureStatus.convert(failureStatus.bounds, to: content)),
+            "feedbackRecoveryFrames": [retry, copy].map { rectValues($0.convert($0.bounds, to: content)) },
+            "feedbackEditorViewportFrame": rectValues(viewport.convert(viewport.bounds, to: content)),
+            "feedbackAlphas": [window.alphaValue] + views.map(\.alphaValue),
+            "displayCommitWaitSeconds": ProcessInfo.processInfo.systemUptime - commitStart])
     }
 
     private func prepareQueueFeedback() async throws {
