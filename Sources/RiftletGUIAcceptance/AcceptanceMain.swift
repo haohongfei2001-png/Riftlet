@@ -179,7 +179,7 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
             } else if modes.first == "--software-double-probe" { runSoftwareDoubleProbe()
             } else if modes.first == "--software-hold-probe" { runSoftwareHoldProbe()
             } else if CommandLine.arguments.contains("--software-pointer-probes") { runSoftwarePointerProbes() }
-            else if CommandLine.arguments.contains("--visual-timeline") { startVisualTimeline() }
+            else if CommandLine.arguments.contains("--visual-timeline"), nativeEvidence == nil { startVisualTimeline() }
             if modes.isEmpty, let index = CommandLine.arguments.firstIndex(of: "--visual-window"),
                index + 1 < CommandLine.arguments.count {
                 let scenes = AcceptanceWindowScenes(mediaRoot: root, fixtures: fixtures) { [weak self] event, fields in
@@ -482,12 +482,20 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
             guard let self else { return }
             do {
                 if CommandLine.arguments.contains("--visual-timeline") {
-                    try await evidence.recordTimeline()
+                    let scene = self.sceneGeneration
+                    let origin = try await evidence.prepareTimeline { self.orderVisualBackdropBelowProduct() }
+                    guard self.sceneGeneration == scene, self.visualTimeline == nil else {
+                        throw NativeVisualEvidence.Failure.unsafeRequest
+                    }
+                    // Both clocks begin only after native startup settles. The
+                    // synthetic task uses this same origin even if queued late.
+                    self.startVisualTimeline(origin: origin)
+                    try await evidence.recordTimeline(origin: origin)
                 } else {
                     // Let AppKit layout, native text, async image decode and the
                     // isolated Feedback draft load complete on the main run loop.
                     try await Task.sleep(nanoseconds: 700_000_000)
-                    try self.visualWindows?.prepareEvidencePage()
+                    try await self.visualWindows?.prepareEvidencePage()
                     if CommandLine.arguments.contains("--visual-last-page") { self.rift?.showLatest() }
                     if let index = CommandLine.arguments.firstIndex(of: "--visual-preview-index"),
                        index + 1 < CommandLine.arguments.count,
@@ -731,13 +739,23 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
 
     /// A synthetic projection only. The existing presenter receives the same
     /// visibility facts as production, but no upload or proof is manufactured.
-    private func startVisualTimeline() {
+    private func startVisualTimeline(origin: TimeInterval? = nil) {
         visualTimeline?.cancel()
         let scene = sceneGeneration
         visualTimeline = Task { @MainActor [weak self] in
             guard let self, let first = self.records.first else { return }
-            self.record("visual_timeline_started", ["receiptEvidence": false, "inputExecuted": false])
-            do { try await Task.sleep(nanoseconds: 2_000_000_000) } catch { return }
+            var fields: [String: Any] = ["receiptEvidence": false, "inputExecuted": false]
+            if let origin { fields["timelineOriginUptime"] = origin }
+            self.record("visual_timeline_started", fields)
+            do {
+                if let origin {
+                    let remaining = origin + 2 - ProcessInfo.processInfo.systemUptime
+                    if remaining > 0 { try await Task.sleep(nanoseconds: UInt64(remaining * 1_000_000_000)) }
+                } else {
+                    // Manual non-export timelines keep their original delay.
+                    try await Task.sleep(nanoseconds: 2_000_000_000)
+                }
+            } catch { return }
             guard self.sceneGeneration == scene else { return }
             if self.visualArrival {
                 self.beginSyntheticArrival(first)

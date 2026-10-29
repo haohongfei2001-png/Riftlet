@@ -37,7 +37,7 @@ final class NativeVisualEvidence {
     enum ExportStage: String, Sendable {
         case staticPreparation, supplementalPreparation, ownedWindowSelection, ownedWindowCapture
         case backdropCapture, pngProcessing, pngPixelComparison, pngDestination, pngFinalize, pngRead
-        case timelineWait, movieFinish, manifestEncoding, manifestWrite
+        case timelinePreparation, timelineWait, movieFinish, manifestEncoding, manifestWrite
     }
 
     struct FailureDiagnostic: Sendable {
@@ -139,11 +139,12 @@ final class NativeVisualEvidence {
             "visual_synthetic_start_projection", "visual_synthetic_final_projection",
             "visual_timeline_started", "visual_timeline_finished", "synthetic_asset_ready",
             "synthetic_decoration_cancel", "native_evidence_preview_action", "native_evidence_history_selection",
-            "native_evidence_feedback_records", "native_evidence_supplemental"]
+            "native_evidence_feedback_records", "native_evidence_supplemental", "native_evidence_timeline_prepared"]
         guard allowedNames.contains(name), events.count < 64 else { return }
         let allowedFields: Set<String> = ["phase", "boundaryUptime", "duration", "mode", "reason",
             "readyUptime", "sourceProvided", "physical", "accepted", "fixtureState", "fixtureSequence", "softwareSelection",
             "fixtureRecordCount", "fixtureStates", "bodyAndStateMatched", "expanded", "networkEnabled", "receiptEvidence",
+            "fixtureReadyBeforeExpansion", "fixturePreparationSeconds",
             "supplementalCase", "imageLoaded", "imageAbsent", "titleMatches", "failureVisible", "parentOrderedOut",
             "retryEnabled", "copyEnabled", "draftRetained", "savedDraftUnchanged", "recordsEmpty", "persistenceFault",
             "windowWidth", "windowHeight", "fixturePixelWidth", "fixturePixelHeight", "fixedSlotsUnchanged",
@@ -155,7 +156,9 @@ final class NativeVisualEvidence {
             "previewDisplayComplete", "previewWindowNumber", "previewViewportPoints",
             "feedbackDisplayComplete", "feedbackFailureState", "feedbackWindowNumber", "feedbackContentBounds",
             "feedbackStatusFrame", "feedbackRecoveryFrames", "feedbackRecoveryAlignmentFrames",
-            "feedbackEditorViewportFrame", "feedbackAlphas"]
+            "feedbackEditorViewportFrame", "feedbackAlphas", "timelineOriginUptime", "timelinePreparationSeconds",
+            "backdropWindowNumber", "rowWindowNumbers", "inputWindowNumbers", "ownWindowNumbersFrontToBack",
+            "helperActive", "backdropOcclusionVisible", "rowOcclusionVisible", "initialDisplaySubmitted"]
         var event = fields.filter { allowedFields.contains($0.key) }
         event["event"] = name; event["uptime"] = ProcessInfo.processInfo.systemUptime
         events.append(event)
@@ -683,8 +686,90 @@ final class NativeVisualEvidence {
         frames.append(result)
     }
 
-    func recordTimeline() async throws {
-        let zero = ProcessInfo.processInfo.systemUptime
+    private func timelineWindowReadiness() -> (windows: [NSWindow], rows: [RiftDiagnosticRow], order: [Int])? {
+        guard NSApp.isActive, let backdrop, let rift = supplementalRift,
+              backdrop.occlusionState.contains(.visible) else { return nil }
+        let snapshot = rift.diagnosticSnapshot
+        guard !snapshot.rows.isEmpty, !snapshot.isHolding, !snapshot.isTransitioning else { return nil }
+        let rowIDs = snapshot.rows.map(\.windowNumber)
+        let inputIDs = snapshot.rows.flatMap { [$0.imageInputWindowNumber, $0.numberInputWindowNumber] }
+        let expected = [backdrop.windowNumber] + rowIDs + inputIDs
+        guard expected.allSatisfy({ $0 > 0 }), Set(expected).count == expected.count else { return nil }
+        let own = NSApp.windows.filter { $0.isVisible && $0.windowNumber > 0 }
+        let windows = expected.compactMap { id in own.first(where: { $0.windowNumber == id }) }
+        guard windows.count == expected.count, windows.allSatisfy({ window in
+            guard window.isOnActiveSpace, !window.isMiniaturized, window.alphaValue >= 0.99,
+                  usableRect(window.frame), let content = window.contentView else { return false }
+            return content.window === window && !content.isHiddenOrHasHiddenAncestor
+                && content.alphaValue >= 0.99 && usableRect(content.bounds)
+        }), rowIDs.allSatisfy({ id in
+            windows.first(where: { $0.windowNumber == id })?.occlusionState.contains(.visible) == true
+        }) else { return nil }
+        // Query this application's windows only. Transparent input islands must
+        // be ordered correctly, but their occlusion state is not pixel evidence.
+        let allowed = Set(own.map(\.windowNumber))
+        var order: [Int] = []
+        NSApp.enumerateWindows(options: .orderedFrontToBack) { window, _ in
+            if allowed.contains(window.windowNumber) { order.append(window.windowNumber) }
+        }
+        guard order.count == allowed.count, Set(order) == allowed,
+              let backgroundIndex = order.firstIndex(of: backdrop.windowNumber),
+              (rowIDs + inputIDs).allSatisfy({ id in
+                  guard let index = order.firstIndex(of: id) else { return false }
+                  return index < backgroundIndex
+              }) else { return nil }
+        return (windows, snapshot.rows, order)
+    }
+
+    /// Preparation observes only the helper's initial native state. No frame is
+    /// captured, discarded or retried here; the original pixel gate runs later.
+    func prepareTimeline(orderBackdrop: () -> Void) async throws -> TimeInterval {
+        exportStage = .timelinePreparation
+        guard !singleWindow, supplementalCase == nil, frames.isEmpty, movieReport == nil,
+              CommandLine.arguments.contains("--visual-timeline") else { throw Failure.unsafeRequest }
+        let began = ProcessInfo.processInfo.systemUptime
+        let deadline = began + 2
+        while ProcessInfo.processInfo.systemUptime < deadline {
+            try Task.checkCancellation()
+            if NSApp.isActive { orderBackdrop() }
+            if let before = timelineWindowReadiness() {
+                let framesBefore = before.windows.map(\.frame)
+                for window in before.windows {
+                    window.contentView?.layoutSubtreeIfNeeded()
+                    window.displayIfNeeded()
+                }
+                let submitted = ProcessInfo.processInfo.systemUptime
+                guard submitted + 0.05 < deadline else { break }
+                // Yield to the normal AppKit display transaction, then re-read
+                // native identities, geometry, ordering and visibility together.
+                try await Task.sleep(nanoseconds: 50_000_000)
+                if ProcessInfo.processInfo.systemUptime < deadline,
+                   let after = timelineWindowReadiness(), after.rows == before.rows,
+                   after.order == before.order, after.windows.map(\.frame) == framesBefore,
+                   after.windows.allSatisfy({ window in
+                       guard let content = window.contentView else { return false }
+                       return !content.needsLayout && !content.needsDisplay
+                   }), let backdrop {
+                    let origin = ProcessInfo.processInfo.systemUptime
+                    note("native_evidence_timeline_prepared", fields: [
+                        "timelineOriginUptime": origin, "timelinePreparationSeconds": origin - began,
+                        "displayCommitWaitSeconds": origin - submitted, "initialDisplaySubmitted": true,
+                        "helperActive": NSApp.isActive, "backdropWindowNumber": backdrop.windowNumber,
+                        "backdropOcclusionVisible": backdrop.occlusionState.contains(.visible),
+                        "rowWindowNumbers": after.rows.map(\.windowNumber),
+                        "inputWindowNumbers": after.rows.flatMap { [$0.imageInputWindowNumber, $0.numberInputWindowNumber] },
+                        "rowOcclusionVisible": true, "ownWindowNumbersFrontToBack": after.order,
+                        "receiptEvidence": false])
+                    return origin
+                }
+            }
+            let remaining = min(0.02, deadline - ProcessInfo.processInfo.systemUptime)
+            if remaining > 0 { try await Task.sleep(nanoseconds: UInt64(remaining * 1_000_000_000)) }
+        }
+        throw Failure.missingWindow
+    }
+
+    func recordTimeline(origin zero: TimeInterval) async throws {
         // Real captured frames at measured times. Capture/PNG overhead is part
         // of this observation and is not a frame-rate or latency benchmark.
         let hasArrival = CommandLine.arguments.contains("--visual-magnet")

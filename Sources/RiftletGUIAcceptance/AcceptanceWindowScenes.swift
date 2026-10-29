@@ -19,6 +19,7 @@ final class AcceptanceWindowScenes {
     private var settingsFixture = RiftSettingsSnapshot(entryAvailable: true)
     private var historyFixtures: [RiftHistoryEntry] = []
     private var feedbackFixtureRecords: [FeedbackRecord] = []
+    private let feedbackFixtureDraftText = "合成界面验收：希望缩略图的等待说明更容易看清。此文字仅用于检查原生反馈窗口；不会联网发送。"
 
     private var requestedSettingsSection: RiftSettingsSection? {
         let args = CommandLine.arguments
@@ -132,7 +133,7 @@ final class AcceptanceWindowScenes {
                         }
                     }
                     try await store.saveDraft(FeedbackDraft(kind: .suggestion,
-                        text: "合成界面验收：希望缩略图的等待说明更容易看清。此文字仅用于检查原生反馈窗口；不会联网发送。",
+                        text: self.feedbackFixtureDraftText,
                         revision: expanded ? 5 : 1))
                     try Task.checkCancellation()
                     let diagnostics = FeedbackDiagnostics()
@@ -152,12 +153,53 @@ final class AcceptanceWindowScenes {
 
     func cancel() { feedbackLoad?.cancel(); feedbackLoad = nil }
 
+    private func feedbackRecordsReadyForNavigation() -> Bool {
+        guard feedbackLoad == nil, let feedback, feedbackFixtureRecords.count == 2,
+              feedback.currentText == feedbackFixtureDraftText,
+              let window = feedback.window, window.isVisible, let content = window.contentView else { return false }
+        func descendants(_ root: NSView) -> [NSView] { [root] + root.subviews.flatMap(descendants) }
+        let views = descendants(content)
+        guard views.compactMap({ $0 as? NSTextView }).contains(where: {
+                  $0.isEditable && $0.string == feedbackFixtureDraftText
+              }),
+              let disclosure = views.first(where: {
+                  $0.identifier?.rawValue == "feedback.recordsDisclosure"
+              }) as? NSButton,
+              disclosure.isEnabled, disclosure.title == "本机反馈记录 · 2" else { return false }
+        // Folded cards are normally hidden. Observe the real loaded identities
+        // and contents before navigating; visibility is still asserted below.
+        return feedbackFixtureRecords.allSatisfy { record in
+            guard views.contains(where: { $0.identifier?.rawValue == "feedback.record.\(record.id)" }),
+                  let body = views.first(where: {
+                      $0.identifier?.rawValue == "feedback.record.body.\(record.id)"
+                  }) as? NSTextView, body.string == record.envelope.text,
+                  let state = views.first(where: {
+                      $0.identifier?.rawValue == "feedback.record.status.\(record.id)"
+                  }) as? NSTextField, state.stringValue == "离线演示（非云端）：\(record.label)" else { return false }
+            return true
+        }
+    }
+
     /// Helper-only software navigation through the product's existing buttons.
     /// It neither requests permissions nor advances the final onboarding action.
-    func prepareEvidencePage() throws {
+    func prepareEvidencePage() async throws {
         let args = CommandLine.arguments
         func descendants(_ root: NSView) -> [NSView] { [root] + root.subviews.flatMap(descendants) }
         if args.contains("--visual-feedback-records") {
+            let preparationBegan = ProcessInfo.processInfo.systemUptime
+            let deadline = preparationBegan + 2
+            // Creating the controller does not finish its asynchronous draft
+            // and record loads. Await actual state before the single click;
+            // this never retries navigation, capture, or a record action.
+            while !feedbackRecordsReadyForNavigation(), ProcessInfo.processInfo.systemUptime < deadline {
+                try Task.checkCancellation()
+                try await Task.sleep(nanoseconds: 20_000_000)
+            }
+            try Task.checkCancellation()
+            guard feedbackRecordsReadyForNavigation(), ProcessInfo.processInfo.systemUptime < deadline else {
+                throw NativeVisualEvidence.Failure.missingWindow
+            }
+            let preparationSeconds = ProcessInfo.processInfo.systemUptime - preparationBegan
             guard feedback != nil, feedbackFixtureRecords.count == 2,
                   let content = NSApp.windows.filter(\.isVisible).compactMap(\.contentView).first(where: {
                       descendants($0).contains { $0.identifier?.rawValue == "feedback.recordsDisclosure" }
@@ -184,6 +226,7 @@ final class AcceptanceWindowScenes {
             first.scrollToVisible(area)
             record("native_evidence_feedback_records", ["fixtureRecordCount": cards.count,
                 "fixtureStates": feedbackFixtureRecords.map { $0.state.rawValue }.sorted(),
+                "fixtureReadyBeforeExpansion": true, "fixturePreparationSeconds": preparationSeconds,
                 "bodyAndStateMatched": true, "expanded": true, "networkEnabled": false,
                 "receiptEvidence": false, "softwareSelection": true, "physical": false])
         }
