@@ -1,7 +1,8 @@
-name: Native foundation
+name: Attachment reliability - Native
 on:
   push:
     branches:
+      - 'codex/cold-attachment-reliability-20261029'
       - 'codex/riftlet-real-mac-acceptance-*'
       - 'codex/riftlet-real-mac-round*'
       - 'codex/system-capture-candidate-20261028'
@@ -52,7 +53,7 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
-      - name: Verify exact final source admission and immutable inherited audits
+      - name: Verify exact technical delta and immutable formal checkpoint
         run: |
           set -o pipefail
           mkdir -p test-results
@@ -60,11 +61,12 @@ jobs:
           python3 -B -m unittest discover -s Tests/UnifiedCandidateIsolation -v 2>&1 | tee test-results/unified-isolation-tests.log
           python3 -B -m unittest discover -s Tests/ThinEdgeIsolation -v 2>&1 | tee test-results/thin-edge-isolation-tests.log
           python3 -B -m unittest discover -s Tests/BuiltInCaptureIsolation -v 2>&1 | tee test-results/builtin-isolation-tests.log
-          python3 -B scripts/verify-final-product-composition.py 2>&1 | tee test-results/final-product-composition.log
+          python3 -B -m unittest discover -s Tests/ColdAttachmentIsolation -v 2>&1 | tee test-results/cold-attachment-isolation.log
+          python3 -B scripts/verify-cold-attachment-scope.py 2>&1 | tee test-results/cold-attachment-scope.log
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
-          name: final-source-admission-${{ github.sha }}
+          name: cold-attachment-source-admission-${{ github.sha }}
           path: test-results/
           retention-days: 14
   macos:
