@@ -3,7 +3,7 @@
 ## Status
 
 Engineering continuation on the existing Draft PR #15 only. **Not a release or fully accepted product.**
-The source checkpoint `79480baff484d0d7abcc911afff68faf8076b5b0` (tree `567a59e756a6cc7547821b90e50d1869ab502d48`) has actual non-author review and is pinned by the final composition gate. Native/Feedback execution remains a separate job: the complete workflow cannot pass without source admission. Existing historical gates and runtime acceptance requirements remain unchanged. Accurate combined CI and new original-pixel review are pending.
+The source checkpoint `beecd723bf5c72546af2c32d3bf7277f030fd72a` (tree `dda32f36ca7eba086d16ec7674ab09a61ad62d83`) has actual non-author review and is pinned by the final composition gate. Native/Feedback execution remains a separate job: the complete workflow cannot pass without source admission. Existing historical gates and runtime acceptance requirements remain unchanged. The preceding exact HEAD a8c9 passed all four native architecture jobs and both Feedback workflows; final uninstrumented regression and the repaired Feedback supplemental pixels remain pending.
 
 ## Exact inputs
 
@@ -107,3 +107,32 @@ Source `79480baff484d0d7abcc911afff68faf8076b5b0` / tree `567a59e756a6cc7547821b
 New regression observes decoded contents only after target hiding, verifies cache refresh cannot reveal the active owner, and verifies cancellation/Reduce Motion restores static content without blocking original input. The helper now waits for actual existing slot motion, valid visible label geometry, and native history/status display commits; the six-scene verifier rejects 68 unsafe or premature observations. Original 18 visual-manifest tests pass locally. These checks are not macOS compilation or new pixel acceptance.
 
 The original full native test step alone enables DEBUG deadline timestamps. It records only runtime token identity, monotonic clock values, phase, count and error type, with no arbitrary reason/error payload. The trace can perturb timing and is diagnostic only; remove it after resolving the failed original gate. No extra diagnostic workflow or candidate branch was created.
+
+## a8c9 complete execution and independent review
+
+Exact HEAD `a8c9ca9a13e72944b511a073ca1441f6e836377e`, reviewed source `79480baff484d0d7abcc911afff68faf8076b5b0`, and PR checkout `feab43de8fa980e94e85a3bdb93ea18c76a6ce0e` completed Native push [40842900740](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40842900740) and PR [40842908347](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40842908347) successfully. Every ARM/Intel job executed 725 unique native cases, the original detailed regressions, strict natural magnet completion, unified App packaging, all 46 original scenes and five MOVs. Actual reduced system variants completed separately. The four jobs do not multiply the unique case count.
+
+Feedback push [40842900775](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40842900775) and PR [40842908348](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40842908348) passed 49 unique Swift cases, 117 Python cases, 20 Node service cases and three repeated close-regression rounds. These results cover software AppKit and offline service fixtures, not cloud delivery.
+
+| Native artifact | Original cases / PNG / MOV | Reduced cases / PNG / MOV | Independent supplemental pixels |
+| --- | --- | --- | --- |
+| Push ARM `12884330772` | 46 / 121 / 5 | 3 / 17 / 1 | 6/6 PASS |
+| Push Intel `12883559634` | 46 / 103 / 5 | 3 / 15 / 1 | 6/6 PASS |
+| PR ARM `12884017726` | 46 / 120 / 5 | 3 / 18 / 1 | 6/6 PASS |
+| PR Intel `12884147774` | 46 / 90 / 5 | 3 / 13 / 1 | 5/6 PASS; Feedback stale saving frame FAIL |
+
+Non-author reviewers decoded and examined the actual magnetic MOV frames on all four runners. The recorded sequence no longer shows the old target image appearing and disappearing before flight; genuine `animationDidStop finished=true` and `decorationEnded finished` were also observed. Normal settling may show the flight image at the destination before the delayed delegate callback; that is not the former first-frame flash. Sparse Intel recordings do not establish behavior between captured frames or latency percentiles. Countdown/next-mode and portrait history content are now present in all four sets of original pixels.
+
+Independent inspection still rejected the PR Intel Feedback supplemental PNG: it shows the previous saving state without visible retry/copy controls although metadata reported enabled controls. Automated CI success does not override this pixel failure. Its exact repair is below; all historical failed evidence remains preserved.
+
+All four original deadline cases passed in the trace-enabled full suite, but successful XCTest output did not preserve any timing events. The concrete cancellation timestamps therefore remain NOT_OBSERVED; the passing runs do not prove a scheduling root cause. The temporary instrumentation is removed in the next reviewed source.
+
+## Reviewed final cancellation and Feedback display cleanup
+
+Source `901a22a5d69d9c1c50c268557fa73f0d52c2dca4` (tree `1aeab64d78eb80a97c2657dde35f79ded0fbd405`) removes every temporary deadline trace and restores the original workflow/test files byte-for-byte to their pre-trace bodies. The original 50ms token, 150ms observation, awaits and assertions are unchanged. The conditional cancellation read and existing strict transaction now execute synchronously in one QueueStore actor turn. Missing, UNKNOWN and terminal operations remain read-only no-ops; prepared work retains the transaction's phase recheck, and only the original invalidTransition is caught. Other database errors still propagate. A regression holds a real independent SQLite write transaction while checking that these no-ops do not attempt a write or alter original operation/asset/reason identity. This closes an avoidable actor scheduling gap without claiming it was the sole historical failure cause.
+
+Final source `beecd723bf5c72546af2c32d3bf7277f030fd72a` (tree `dda32f36ca7eba086d16ec7674ab09a61ad62d83`) adds only the two Feedback helper/verifier changes after that cleanup. It waits for the actual failure text and recovery controls, completes the existing engine stop, performs normal native layout/display, yields 50ms, and rereads same-window identity, alpha, complete visible bounds, editable preserved text and clean display/layout state. It neither retries nor copies the draft and does not modify production Feedback. The verifier checks these actual geometry/window observations; the old incorrect PR Intel manifest is rejected. The local supplemental self-check now rejects 78 unsafe observations, and all 18 original manifest regressions still pass.
+
+Both exact source commits have independent integration and magnetic code reviews; root also reviewed the Feedback helper. The source gate changes only its reviewed-source literal; historical pins, metadata exceptions and the original 46-scene / 5-MOV driver are unchanged. Full native execution without diagnostics and new original Feedback pixels are required before closing this checkpoint.
+
+The authorized Mac was checked again and an actual read-only execution attempt returned offline. GitHub macOS runners supplied the execution above. Owned production-capture probes remain PARTIAL: original region PNG/private-copy identity and applicationScreenshot isolation pass; window/fullScreen are NOT_RUN under the existing FOREIGN_OVERLAP_VETO. Physical system-screenshot workflow, real ChatGPT attachment, screen/Space transitions and Feedback HTTPS-to-private-Issue delivery are not promoted by these fixtures. Endpoint remains nil; no main merge or public release occurred.
