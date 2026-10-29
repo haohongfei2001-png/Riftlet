@@ -13,14 +13,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        variant: [direct-main-delegate, completion-delivery-grace]
+        variant: [unchanged-control, direct-main-delegate]
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           ref: 2c8cd0371de5e07fd7794f76335381a40403030d
           fetch-depth: 0
           persist-credentials: false
-      - name: Verify unchanged inherited source then create isolated diagnostic commit
+      - name: Verify inherited source and create exact isolated diagnostic checkpoint
         env:
           VARIANT: ${{ matrix.variant }}
         run: |
@@ -29,34 +29,30 @@ jobs:
           python3 -B scripts/verify-unified-candidate-composition.py > test-results/inherited-composition.json
           python3 - <<'PY'
           import os, pathlib
-          p = pathlib.Path('Sources/RiftletUI/MagnetFlightPresenter.swift')
-          s = p.read_text()
           if os.environ['VARIANT'] == 'direct-main-delegate':
+              p = pathlib.Path('Sources/RiftletUI/MagnetFlightPresenter.swift')
+              s = p.read_text()
               old = '        DispatchQueue.main.async { [observe, callback] in observe(event); callback(flag) }'
               new = '''        if Thread.isMainThread {
                       MainActor.assumeIsolated { observe(event); callback(flag) }
                   } else {
                       DispatchQueue.main.async { [observe, callback] in observe(event); callback(flag) }
                   }'''
-          else:
-              # Diagnostic only: animation remains exactly 560 ms and the existing
-              # driver must still observe a genuine finished=true delegate.
-              old = '+ 0.100, execute: timeout)'
-              new = '+ 0.500, execute: timeout)'
-          assert s.count(old) == 1, 'Diagnostic source precondition changed'
-          p.write_text(s.replace(old, new))
+              assert s.count(old) == 1, 'Diagnostic precondition changed'
+              p.write_text(s.replace(old, new))
           PY
           git diff --check
           git diff --binary > test-results/diagnostic.patch
-          git config user.name 'Riftlet diagnostic executor'
-          git config user.email 'riftlet-diagnostic@users.noreply.github.com'
-          git add Sources/RiftletUI/MagnetFlightPresenter.swift
-          git commit -m "diagnostic-only: $VARIANT; unchanged visual completion gate"
+          if [ "$VARIANT" != unchanged-control ]; then
+            git config user.name 'Riftlet diagnostic executor'
+            git config user.email 'riftlet-diagnostic@users.noreply.github.com'
+            git add Sources/RiftletUI/MagnetFlightPresenter.swift
+            git commit -m "diagnostic-only: direct main delegate; unchanged animation and completion criterion"
+          fi
           git show -s --format=raw HEAD > test-results/diagnostic-commit.txt
           git rev-parse HEAD HEAD^{tree} > test-results/diagnostic-source.txt
           sw_vers > test-results/environment.txt
           swift --version >> test-results/environment.txt
-          # These local diagnostic commits are not pushed or promoted.
       - name: Establish normal disposable-runner accessibility policy
         run: |
           set -euo pipefail
@@ -67,15 +63,20 @@ jobs:
         run: |
           set -o pipefail
           swift build -c release --product RiftletGUIAcceptance 2>&1 | tee test-results/build.log
-      - name: Exercise unchanged natural-completion evidence gate
+      - name: Run five independent natural-completion observations without weakening verdicts
         run: |
           set -o pipefail
           helper="$(swift build -c release --show-bin-path)/RiftletGUIAcceptance"
-          python3 -B scripts/capture-native-visual-evidence.py --helper "$helper" --expected-system-accessibility normal --only-case motion-magnet --only-case motion-interrupt --output "$PWD/test-results/visual" 2>&1 | tee test-results/capture.log
+          failures=0
+          for trial in 1 2 3 4 5; do
+            python3 -B scripts/capture-native-visual-evidence.py --helper "$helper" --expected-system-accessibility normal --only-case motion-magnet --output "$PWD/test-results/trial-$trial" 2>&1 | tee "test-results/capture-$trial.log" || failures=$((failures+1))
+          done
+          echo "failedTrials=$failures" | tee test-results/repetition-summary.txt
+          test "$failures" -eq 0
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
-          name: magnet-diagnostic-${{ matrix.variant }}-${{ github.event.pull_request.head.sha }}
+          name: magnet-repeat-${{ matrix.variant }}-${{ github.event.pull_request.head.sha }}
           path: test-results/
           if-no-files-found: error
           retention-days: 3
