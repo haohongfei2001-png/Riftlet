@@ -4,6 +4,10 @@ import CoreGraphics
 import CoreVideo
 import CryptoKit
 import ImageIO
+import RiftletCore
+import RiftletFeedback
+import RiftletFeedbackUI
+import RiftletUI
 import UniformTypeIdentifiers
 
 /// WindowServer produces immutable CGImages. This handoff contains only those
@@ -45,6 +49,15 @@ final class NativeVisualEvidence {
     private let singleWindow: Bool
     private let accessibilityAtStart: [String: Bool]
     private weak var backdrop: NSWindow?
+    private weak var supplementalRift: RiftPanelController?
+    private weak var supplementalEntry: ScreenshotEntryController?
+    private let supplementalCase: String?
+    private var supplementalPrepared = false
+    private var supplementalDirectory: URL?
+    private var supplementalHistory: RiftHistoryController?
+    private var supplementalFeedback: FeedbackWindowController?
+    private var supplementalUnexpectedAction = false
+    private var supplementalStage = "notStarted"
     private var frames: [[String: Any]] = []
     private var events: [[String: Any]] = []
     private var captureUnavailable = false
@@ -62,7 +75,7 @@ final class NativeVisualEvidence {
         let ended: TimeInterval
     }
 
-    init(backdrop: NSWindow) throws {
+    init(backdrop: NSWindow, rift: RiftPanelController? = nil, entry: ScreenshotEntryController? = nil) throws {
         let args = CommandLine.arguments
         func value(_ flag: String) -> String? {
             guard let i = args.firstIndex(of: flag), i + 1 < args.count else { return nil }
@@ -75,6 +88,20 @@ final class NativeVisualEvidence {
               [source, checkout].allSatisfy({ $0.count == 40 && $0.allSatisfy { "0123456789abcdef".contains($0) } }) else {
             throw Failure.unsafeRequest
         }
+        let supplement = value("--visual-supplement")
+        if args.contains("--visual-supplement") {
+            let windows = ["history-preview-portrait": "history", "history-preview-wide": "history",
+                "history-preview-missing": "history", "feedback-save-failure": "feedback"]
+            guard args.filter({ $0 == "--visual-supplement" }).count == 1, let supplement,
+                  windows[supplement] != nil || supplement == "queue-feedback" || supplement == "entry-countdown",
+                  !args.contains("--visual-timeline"), !args.contains("--visual-reduced-motion"),
+                  !args.contains("--visual-feedback-records"),
+                  value("--visual-window") == windows[supplement],
+                  supplement != "queue-feedback" || rift != nil,
+                  supplement != "entry-countdown" || (entry != nil && args.contains("--visual-entry-expanded")) else {
+                throw Failure.unsafeRequest
+            }
+        }
         let directory = URL(fileURLWithPath: path, isDirectory: true).standardizedFileURL
         guard directory.resolvingSymlinksInPath().path == directory.path else { throw Failure.unsafeRequest }
         guard !FileManager.default.fileExists(atPath: directory.path) else { throw Failure.existingOutput }
@@ -82,6 +109,8 @@ final class NativeVisualEvidence {
                                                 attributes: [.posixPermissions: 0o700])
         self.directory = directory; self.source = source; self.checkout = checkout
         self.singleWindow = args.contains("--visual-window")
+        self.supplementalCase = supplement
+        self.supplementalRift = rift; self.supplementalEntry = entry
         self.accessibilityAtStart = Self.systemAccessibilitySnapshot()
         self.backdrop = backdrop
     }
@@ -91,11 +120,15 @@ final class NativeVisualEvidence {
             "visual_synthetic_start_projection", "visual_synthetic_final_projection",
             "visual_timeline_started", "visual_timeline_finished", "synthetic_asset_ready",
             "synthetic_decoration_cancel", "native_evidence_preview_action", "native_evidence_history_selection",
-            "native_evidence_feedback_records"]
+            "native_evidence_feedback_records", "native_evidence_supplemental"]
         guard allowedNames.contains(name), events.count < 64 else { return }
         let allowedFields: Set<String> = ["phase", "boundaryUptime", "duration", "mode", "reason",
             "readyUptime", "sourceProvided", "physical", "accepted", "fixtureState", "fixtureSequence", "softwareSelection",
-            "fixtureRecordCount", "fixtureStates", "bodyAndStateMatched", "expanded", "networkEnabled", "receiptEvidence"]
+            "fixtureRecordCount", "fixtureStates", "bodyAndStateMatched", "expanded", "networkEnabled", "receiptEvidence",
+            "supplementalCase", "imageLoaded", "imageAbsent", "titleMatches", "failureVisible", "parentOrderedOut",
+            "retryEnabled", "copyEnabled", "draftRetained", "savedDraftUnchanged", "recordsEmpty", "persistenceFault",
+            "windowWidth", "windowHeight", "fixturePixelWidth", "fixturePixelHeight", "fixedSlotsUnchanged",
+            "countdownVisible", "nextModeVisible", "captureExecuted", "noteVisible", "noteAvoidsInputs"]
         var event = fields.filter { allowedFields.contains($0.key) }
         event["event"] = name; event["uptime"] = ProcessInfo.processInfo.systemUptime
         events.append(event)
@@ -105,12 +138,216 @@ final class NativeVisualEvidence {
     /// layer.render, synthetic frame painting, or screenshot permission change.
     @discardableResult
     func capture(_ name: String) async throws -> Bool {
+        if let supplementalCase, !supplementalPrepared {
+            supplementalPrepared = true
+            try await prepareSupplementalScene(supplementalCase)
+        }
         guard let frame = try captureOwnedWindows() else {
             recordUnavailableFrame(name)
             return false
         }
         try await writePNG(frame, name: name)
         return true
+    }
+
+    // This opt-in path supplements the unchanged full visual suite. Every file
+    // fault below belongs to a new helper-owned directory, and every displayed
+    // view is a real product controller. No production store, capture engine,
+    // attachment adapter, pasteboard or network-capable transport is created.
+    private func prepareSupplementalScene(_ name: String) async throws {
+        supplementalStage = "prepare"
+        if name == "queue-feedback" { try await prepareQueueFeedback(); return }
+        if name == "entry-countdown" { try await prepareEntryCountdown(); return }
+        let root = FileManager.default.temporaryDirectory.resolvingSymlinksInPath()
+            .appendingPathComponent("riftlet-native-supplement-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: false,
+                                                attributes: [.posixPermissions: 0o700])
+        supplementalDirectory = root
+        // Retain the ordinary fixture controllers. Closing a history parent
+        // would close its preview; orderOut is presentation-only and preserves it.
+        for window in NSApp.windows where window !== backdrop && window.styleMask.contains(.titled) {
+            window.orderOut(nil)
+        }
+        if name == "feedback-save-failure" { try await prepareFeedbackFailure(root: root) }
+        else { try await prepareHistoryPreview(name, root: root) }
+    }
+
+    private func descendants(_ root: NSView) -> [NSView] { [root] + root.subviews.flatMap(descendants) }
+
+    private func waitForSupplement(_ predicate: () -> Bool) async throws {
+        let deadline = ProcessInfo.processInfo.systemUptime + 2
+        while !predicate(), ProcessInfo.processInfo.systemUptime < deadline {
+            try await Task.sleep(nanoseconds: 20_000_000)
+        }
+        guard predicate() else { throw Failure.missingWindow }
+    }
+
+    private func raiseSupplementalWindow(_ window: NSWindow) {
+        window.level = NSWindow.Level(rawValue: NSWindow.Level.floating.rawValue + 1)
+        window.orderFrontRegardless()
+        window.contentView?.layoutSubtreeIfNeeded()
+    }
+
+    private func supplementalObservation(_ fields: [String: Any]) {
+        var value = fields
+        value["supplementalCase"] = supplementalCase
+        value["softwareSelection"] = true; value["physical"] = false
+        value["networkEnabled"] = false; value["receiptEvidence"] = false
+        note("native_evidence_supplemental", fields: value)
+        supplementalStage = "ready"
+    }
+
+    private func prepareHistoryPreview(_ name: String, root: URL) async throws {
+        supplementalStage = "historyFixture"
+        let media = root.appendingPathComponent("media", isDirectory: true)
+        let fixtures = try SyntheticScene.makeMedia(in: media)
+        let fixture = fixtures[name == "history-preview-wide" ? 4 : 3]
+        guard fixture.image.origin == .synthetic else { throw Failure.unsafeRequest }
+        if name == "history-preview-missing" {
+            try FileManager.default.removeItem(at: media.appendingPathComponent(fixture.image.fileName))
+        }
+        let entry = RiftHistoryEntry(record: fixture)
+        let controller = RiftHistoryController(mediaDirectory: media,
+            onRestore: { [weak self] _ in self?.supplementalUnexpectedAction = true },
+            onRemove: { [weak self] _ in self?.supplementalUnexpectedAction = true },
+            onReveal: { [weak self] _ in self?.supplementalUnexpectedAction = true })
+        supplementalHistory = controller
+        controller.update(entries: [entry]); controller.show()
+        guard let table = NSApp.windows.compactMap(\.contentView).flatMap(descendants)
+            .compactMap({ $0 as? NSTableView }).first(where: { $0.delegate === controller }),
+              table.numberOfRows == 1, let historyWindow = table.window, let action = table.doubleAction else {
+            throw Failure.missingWindow
+        }
+        table.selectRowIndexes(IndexSet(integer: 0), byExtendingSelection: false)
+        guard NSApp.sendAction(action, to: table.target, from: table),
+              let preview = NSApp.windows.first(where: {
+                  $0.identifier?.rawValue == "RiftletHistoryPreview" && $0.isVisible
+              }), let content = preview.contentView,
+              let image = descendants(content).first(where: { $0.identifier?.rawValue == "history.preview.image" }) as? NSImageView,
+              let status = descendants(content).first(where: { $0.identifier?.rawValue == "history.preview.status" }) as? NSTextField else {
+            throw Failure.missingWindow
+        }
+        historyWindow.orderOut(nil)
+        if name == "history-preview-missing" {
+            preview.setFrame(NSRect(origin: preview.frame.origin, size: NSSize(width: 360, height: 280)), display: true)
+        }
+        raiseSupplementalWindow(preview)
+        supplementalStage = "historyDecode"
+        let missing = name == "history-preview-missing"
+        try await waitForSupplement {
+            missing ? status.stringValue == "无法加载清晰预览，图片记录仍保留"
+                : image.image != nil && status.stringValue == "已按窗口显示"
+        }
+        let formatter = DateFormatter(); formatter.dateStyle = .medium; formatter.timeStyle = .medium
+        let titleMatches = preview.title.contains(formatter.string(from: HistoryPresentation.captureDate(for: entry)))
+            && preview.title.hasSuffix(String(fixture.id.uuidString.prefix(8)))
+        guard titleMatches, !historyWindow.isVisible, !supplementalUnexpectedAction,
+              missing ? image.image == nil : image.image != nil else { throw Failure.missingWindow }
+        if missing {
+            guard preview.frame.size == NSSize(width: 360, height: 280) else { throw Failure.missingWindow }
+        } else if let display = image.image?.size {
+            guard abs(display.width / display.height - CGFloat(fixture.image.pixelWidth) / CGFloat(fixture.image.pixelHeight)) < 0.001 else {
+                throw Failure.missingWindow
+            }
+        }
+        supplementalObservation(["fixtureSequence": fixture.sequence, "fixturePixelWidth": fixture.image.pixelWidth,
+            "fixturePixelHeight": fixture.image.pixelHeight, "imageLoaded": image.image != nil, "imageAbsent": image.image == nil,
+            "titleMatches": titleMatches, "failureVisible": missing, "parentOrderedOut": !historyWindow.isVisible,
+            "windowWidth": preview.frame.width, "windowHeight": preview.frame.height])
+    }
+
+    private func prepareFeedbackFailure(root: URL) async throws {
+        supplementalStage = "feedbackFixture"
+        let sidecar = root.appendingPathComponent("feedback", isDirectory: true)
+        let store = try FeedbackStore(directory: sidecar)
+        let initial = FeedbackDraft(text: "合成本机草稿：此处不连接云端。", revision: 1)
+        try await store.saveDraft(initial)
+        let engine = FeedbackEngine(store: store, secrets: MemoryFeedbackSecrets(), transport: DisabledFeedbackTransport())
+        let controller = FeedbackWindowController(engine: engine, diagnostics: FeedbackDiagnostics(), appVersion: "0.1.0", demo: true)
+        supplementalFeedback = controller
+        controller.show()
+        guard let window = controller.window, let content = window.contentView,
+              let editor = descendants(content).compactMap({ $0 as? NSTextView }).first,
+              let close = descendants(content).compactMap({ $0 as? NSButton }).first(where: { $0.title == "保存并关闭" }),
+              let retry = descendants(content).first(where: { $0.identifier?.rawValue == "feedback.retrySave" }) as? NSButton,
+              let copy = descendants(content).first(where: { $0.identifier?.rawValue == "feedback.copyText" }) as? NSButton else {
+            throw Failure.missingWindow
+        }
+        try await waitForSupplement { controller.currentText == initial.text && editor.isEditable }
+        window.setFrame(NSRect(origin: window.frame.origin, size: NSSize(width: 560, height: 500)), display: true)
+        raiseSupplementalWindow(window)
+        // DELETE-mode SQLite must create this journal for the next write. An
+        // existing directory at that exact fresh fixture path causes a real I/O
+        // failure; the controller's normal persistDraft closure is untouched.
+        let journal = sidecar.appendingPathComponent("feedback.sqlite-journal", isDirectory: true)
+        try FileManager.default.createDirectory(at: journal, withIntermediateDirectories: false)
+        let body = "合成保存失败验收：正文仍保留在这里。\n可以重试保存并关闭，或先复制正文；此操作不会发送反馈。"
+        editor.string = body
+        controller.textDidChange(Notification(name: NSText.didChangeNotification))
+        supplementalStage = "feedbackPersistenceFailure"
+        close.performClick(nil)
+        try await waitForSupplement {
+            window.isVisible && retry.title == "重试保存并关闭" && retry.isEnabled && copy.isEnabled
+                && !retry.isHiddenOrHasHiddenAncestor && !copy.isHiddenOrHasHiddenAncestor
+        }
+        // Removing only our deliberate obstruction does not retry or close the
+        // window. The failure presentation remains until an explicit action.
+        try FileManager.default.removeItem(at: journal)
+        let saved = try await store.draft(), records = try await store.records()
+        guard saved == initial, records.isEmpty, controller.currentText == body, editor.isEditable,
+              window.frame.size == NSSize(width: 560, height: 500), !engine.configured else { throw Failure.unsafeRequest }
+        content.layoutSubtreeIfNeeded()
+        supplementalObservation(["retryEnabled": retry.isEnabled, "copyEnabled": copy.isEnabled,
+            "draftRetained": controller.currentText == body, "savedDraftUnchanged": saved == initial,
+            "recordsEmpty": records.isEmpty, "persistenceFault": "ownedSQLiteJournalPathCollision",
+            "windowWidth": window.frame.width, "windowHeight": window.frame.height])
+        await engine.stop()
+    }
+
+    private func prepareQueueFeedback() async throws {
+        supplementalStage = "queueFeedback"
+        guard let rift = supplementalRift, let row = rift.diagnosticSnapshot.rows.first else { throw Failure.missingWindow }
+        let reason = "请先打开可用的 ChatGPT 草稿，再点击这张图片。"
+        rift.setFeedback(reason, for: row.assetID, owner: .selection(UUID()), visibilityRevision: 0, timing: .immediate)
+        var noteWindow: NSWindow?
+        try await waitForSupplement {
+            noteWindow = NSApp.windows.first { window in
+                window.isVisible && window.contentView.map(self.descendants)?.contains(where: {
+                    ($0 as? NSTextField)?.stringValue == reason && !$0.isHiddenOrHasHiddenAncestor
+                }) == true
+            }
+            return noteWindow != nil
+        }
+        guard let noteWindow else { throw Failure.missingWindow }
+        let avoids = rift.diagnosticSnapshot.rows.allSatisfy {
+            !noteWindow.frame.intersects($0.imageInputFrame) && !noteWindow.frame.intersects($0.numberInputFrame)
+        }
+        guard avoids, noteWindow.ignoresMouseEvents, !noteWindow.canBecomeKey else { throw Failure.unsafeRequest }
+        supplementalObservation(["noteVisible": true, "noteAvoidsInputs": avoids, "captureExecuted": false])
+    }
+
+    private func prepareEntryCountdown() async throws {
+        supplementalStage = "entryCountdown"
+        guard let entry = supplementalEntry, entry.diagnosticSnapshot.isExpanded else { throw Failure.missingWindow }
+        entry.setMode(.fullScreen)
+        let before = entry.diagnosticSnapshot.controls
+        entry.setCapturePresentation(.init(sessionID: UUID(), requestID: UUID(), confirmedMode: .region,
+            nextMode: .fullScreen, state: .countdown(3)))
+        try await waitForSupplement {
+            let snapshot = entry.diagnosticSnapshot
+            return NSApp.windows.first(where: { $0.windowNumber == snapshot.captureStatusWindowNumber })?.isVisible == true
+        }
+        let snapshot = entry.diagnosticSnapshot
+        let fixed = before.count == snapshot.controls.count && zip(before, snapshot.controls).allSatisfy { pair in
+            pair.0.slot == pair.1.slot && pair.0.mode == pair.1.mode
+                && pair.0.frame == pair.1.frame && pair.0.windowNumber == pair.1.windowNumber
+        }
+        let countdown = snapshot.captureStatusText?.contains("已选区域 · 3 秒后拍摄") == true
+        let next = snapshot.captureStatusText?.contains("下一张：全屏") == true
+        guard fixed, countdown, next,
+              snapshot.controls.allSatisfy({ !snapshot.captureStatusFrame.intersects($0.frame) }) else { throw Failure.unsafeRequest }
+        supplementalObservation(["fixedSlotsUnchanged": fixed, "countdownVisible": countdown,
+            "nextModeVisible": next, "captureExecuted": false])
     }
 
     private func captureOwnedWindows() throws -> NativeFrame? {
@@ -318,6 +555,12 @@ final class NativeVisualEvidence {
     }
 
     func finish(failure: String? = nil) throws {
+        defer {
+            supplementalHistory?.close(); supplementalHistory = nil
+            supplementalFeedback?.window?.close(); supplementalFeedback = nil
+            if let root = supplementalDirectory { try? FileManager.default.removeItem(at: root) }
+            supplementalDirectory = nil
+        }
         var report: [String: Any] = [
             "schemaVersion": 1, "status": failure != nil ? "FAIL" : (captureUnavailable ? "NOT_RUN" : "CAPTURED_NATIVE_WINDOWSERVER"),
             "source": source, "checkout": checkout,
@@ -335,6 +578,7 @@ final class NativeVisualEvidence {
             "visualVerdict": "REQUIRES_INDEPENDENT_REVIEW", "frames": frames, "events": events
         ]
         if let movieReport { report["movie"] = movieReport }
+        if let supplementalCase { report["supplementalCase"] = supplementalCase; report["supplementalStage"] = supplementalStage }
         if let failure { report["failure"] = failure }
         let data = try JSONSerialization.data(withJSONObject: report, options: [.prettyPrinted, .sortedKeys])
         try data.write(to: directory.appendingPathComponent("capture.json"), options: .atomic)

@@ -55,6 +55,7 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
                                            NSSearchFieldDelegate, NSWindowDelegate {
     private let historyWindow: NSWindow
     private let cache: ThumbnailCache
+    private let mediaDirectory: URL
     private let onRestore: (UUID) -> Void
     private let onRemove: (UUID) -> Void
     private let onReveal: (UUID) -> Void
@@ -69,7 +70,16 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
     private let detailMetadata = NSTextField(wrappingLabelWithString: "")
     private let detailState = NSTextField(wrappingLabelWithString: "原图与本地记录始终保留。")
     private var detailID: UUID?
+    private var detailGeneration: UInt = 0
     private var previewWindow: NSWindow?
+    private var previewImage: NSImageView?
+    private var previewStatus: NSTextField?
+    private var previewEntry: RiftHistoryEntry?
+    private var previewVerifiedAsset: ImportedAsset?
+    private let previewOwner = UUID()
+    private var previewEpoch: UInt = 0
+    private var previewResize: DispatchWorkItem?
+    private var previewFileObserver: HistoryPreviewFileObserver?
     private let countLabel = NSTextField(labelWithString: "")
     private let restoreButton = NSButton(title: "放回裂缝", target: nil, action: nil)
     private let removeButton = NSButton(title: "移出可见队列", target: nil, action: nil)
@@ -89,6 +99,7 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
                 onRemove: @escaping (UUID) -> Void, onReveal: @escaping (UUID) -> Void,
                 onNextPage: (() -> Void)? = nil, onPreviousPage: (() -> Void)? = nil) {
         self.cache = ThumbnailCache(directory: mediaDirectory)
+        self.mediaDirectory = mediaDirectory
         self.onRestore = onRestore; self.onRemove = onRemove; self.onReveal = onReveal
         self.onNextPage = onNextPage; self.onPreviousPage = onPreviousPage
         historyWindow = RiftVisualStyle.window(outerSize: NSSize(width: 760, height: 560),
@@ -123,9 +134,29 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
     public func close() { historyWindow.close() }
 
     public func windowWillClose(_ notification: Notification) {
+        if let previewWindow, notification.object as? NSWindow === previewWindow {
+            clearPreview(); return
+        }
+        guard notification.object as? NSWindow === historyWindow else { return }
+        detailGeneration &+= 1
         cache.clear(); detailID = nil; detailImage.image = nil; previewWindow?.close(); previewWindow = nil
         displayed.removeAll()
         table.reloadData()
+    }
+
+    public func windowDidResize(_ notification: Notification) {
+        guard let previewWindow, notification.object as? NSWindow === previewWindow else { return }
+        requestPreview(debounce: true)
+    }
+
+    public func windowDidChangeBackingProperties(_ notification: Notification) {
+        guard let previewWindow, notification.object as? NSWindow === previewWindow else { return }
+        requestPreview(clearImage: true)
+    }
+
+    public func windowDidChangeScreen(_ notification: Notification) {
+        guard let previewWindow, notification.object as? NSWindow === previewWindow else { return }
+        requestPreview(clearImage: true)
     }
 
     private func configureContent() {
@@ -179,12 +210,14 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
             paging.leadingAnchor.constraint(equalTo: list.leadingAnchor, constant: 12), paging.bottomAnchor.constraint(equalTo: list.bottomAnchor, constant: -16)])
         detailTitle.font = RiftVisualStyle.titleFont; detailTitle.textColor = RiftVisualStyle.ink
         detailMetadata.font = RiftVisualStyle.secondaryFont; detailMetadata.textColor = RiftVisualStyle.secondary
+        detailMetadata.isSelectable = true
         detailState.font = RiftVisualStyle.bodyFont; detailState.textColor = RiftVisualStyle.ink
         for field in [detailTitle, detailMetadata, detailState] {
             field.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
             RiftVisualStyle.applyTextStyle(field)
         }
         detailImage.imageScaling = .scaleProportionallyUpOrDown
+        detailImage.identifier = .init("history.detail.image")
         detailImage.setAccessibilityLabel("完整比例截图预览")
         detailImage.heightAnchor.constraint(equalToConstant: 200).isActive = true
         let detail = RiftVisualStyle.documentStack([detailImage, detailTitle, detailMetadata, detailState, revealButton, restoreButton, removeButton, actionNote], spacing: 12)
@@ -266,34 +299,152 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         return "待附加"
     }
     private func updateDetail() {
+        detailGeneration &+= 1
+        let generation = detailGeneration
         guard let entry = selectedEntry else {
+            previewWindow?.close()
             detailID = nil; detailImage.image = nil; detailImage.isHidden = true; detailTitle.stringValue = "截图会留在这里"
             detailMetadata.stringValue = ""; detailState.stringValue = "选择一张截图，查看原比例预览与本地状态。"
             for field in [detailTitle, detailMetadata, detailState] { RiftVisualStyle.applyTextStyle(field) }
             return
         }
         detailID = entry.id; detailImage.image = nil; detailImage.isHidden = false
-        detailTitle.stringValue = Self.stateText(entry)
-        detailMetadata.stringValue = "\(HistoryPresentation.dateText(for: entry))\n\(entry.record.image.pixelWidth) × \(entry.record.image.pixelHeight)"
-        detailState.stringValue = entry.needsVerification ? "尚不能确认这次附加的结果。原图和本地记录均保留，不会自动再次附加。" :
+        detailTitle.stringValue = Self.captureTitle(entry)
+        detailMetadata.stringValue = "\(entry.record.image.pixelWidth) × \(entry.record.image.pixelHeight)\n编号 \(entry.id.uuidString.prefix(8))"
+        detailMetadata.toolTip = entry.id.uuidString
+        let explanation = entry.needsVerification ? "尚不能确认这次附加的结果。原图和本地记录均保留，不会自动再次附加。" :
             entry.record.status == .used ? "后台已取得独立完成证明。原始系统截图仍然保留。" :
             entry.record.status == .failed && !entry.isConfirmedFailure ? "本次未附加不代表已证明远端上传失败；不会自动重传。" : "附加、归档或移除后，本地记录仍保留。可用操作会随记录状态更新。"
+        detailState.stringValue = Self.stateText(entry) + "\n" + explanation
+        detailImage.setAccessibilityLabel(Self.previewDescription(entry))
         for field in [detailTitle, detailMetadata, detailState] { RiftVisualStyle.applyTextStyle(field) }
         cache.image(for: entry.record.image, maxPixelSize: Int(320 * historyWindow.backingScaleFactor)) { [weak self] image in
-            guard let self, self.detailID == entry.id, self.historyWindow.isVisible else { return }
+            guard let self, self.detailID == entry.id, self.detailGeneration == generation,
+                  self.historyWindow.isVisible else { return }
             self.detailImage.image = image.map { NSImage(cgImage: $0, size: .zero) }
+        }
+        if previewWindow != nil {
+            let changed = previewEntry?.record.image != entry.record.image
+            previewEntry = entry
+            updatePreviewIdentity()
+            if changed { observePreviewFile(); requestPreview(clearImage: true) }
         }
     }
     @objc private func previewSelected() {
-        guard selectedEntry != nil, let image = detailImage.image else { return }
-        previewWindow?.close()
+        guard let entry = selectedEntry else { return }
+        if let panel = previewWindow {
+            previewEntry = entry; updatePreviewIdentity(); observePreviewFile()
+            requestPreview(clearImage: true); panel.makeKeyAndOrderFront(nil); return
+        }
         let panel = HistoryPreviewWindow(contentRect: NSRect(x: 0, y: 0, width: 640, height: 480),
             styleMask: [.titled, .closable, .resizable], backing: .buffered, defer: false)
-        panel.title = "截图预览"; panel.isReleasedWhenClosed = false; panel.backgroundColor = RiftVisualStyle.window
-        let view = NSImageView(frame: panel.contentView?.bounds ?? .zero); view.autoresizingMask = [.width, .height]
-        view.image = image; view.imageScaling = .scaleProportionallyUpOrDown; view.setAccessibilityLabel("本地截图预览，Escape 关闭")
-        panel.contentView?.addSubview(view); previewWindow = panel; panel.center(); panel.makeKeyAndOrderFront(nil)
+        panel.identifier = .init("RiftletHistoryPreview")
+        panel.isReleasedWhenClosed = false; panel.backgroundColor = RiftVisualStyle.window
+        panel.minSize = NSSize(width: 360, height: 280); panel.delegate = self
+        let view = NSImageView(); view.identifier = .init("history.preview.image")
+        view.imageScaling = .scaleProportionallyDown
+        let status = RiftVisualStyle.label("正在加载预览…", role: "secondary")
+        status.identifier = .init("history.preview.status")
+        let reveal = NSButton(title: "在 Finder 中显示", target: self, action: #selector(revealPreview))
+        RiftVisualStyle.style(reveal)
+        let footer = NSStackView(views: [status, reveal]); footer.spacing = 12
+        status.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        if let content = panel.contentView {
+            for item in [view, footer] { item.translatesAutoresizingMaskIntoConstraints = false; content.addSubview(item) }
+            NSLayoutConstraint.activate([
+                view.leadingAnchor.constraint(equalTo: content.leadingAnchor, constant: 16),
+                view.trailingAnchor.constraint(equalTo: content.trailingAnchor, constant: -16),
+                view.topAnchor.constraint(equalTo: content.topAnchor, constant: 12),
+                view.bottomAnchor.constraint(equalTo: footer.topAnchor, constant: -12),
+                footer.leadingAnchor.constraint(equalTo: content.leadingAnchor, constant: 16),
+                footer.trailingAnchor.constraint(equalTo: content.trailingAnchor, constant: -16),
+                footer.bottomAnchor.constraint(equalTo: content.bottomAnchor, constant: -12),
+                footer.heightAnchor.constraint(greaterThanOrEqualToConstant: 28)])
+        }
+        previewWindow = panel; previewImage = view; previewStatus = status; previewEntry = entry
+        updatePreviewIdentity(); panel.center(); panel.makeKeyAndOrderFront(nil)
+        observePreviewFile(); requestPreview(clearImage: true)
     }
+
+    private static func captureTitle(_ entry: RiftHistoryEntry) -> String {
+        let formatter = DateFormatter(); formatter.dateStyle = .medium; formatter.timeStyle = .medium
+        return "截图 · " + formatter.string(from: HistoryPresentation.captureDate(for: entry))
+    }
+
+    private static func previewDescription(_ entry: RiftHistoryEntry) -> String {
+        "\(captureTitle(entry))，\(entry.record.image.pixelWidth) × \(entry.record.image.pixelHeight)，\(stateText(entry))，编号 \(entry.id.uuidString.prefix(8))。Escape 或空格关闭预览。"
+    }
+
+    private func updatePreviewIdentity() {
+        guard let entry = previewEntry else { return }
+        previewWindow?.title = Self.captureTitle(entry) + " · " + String(entry.id.uuidString.prefix(8))
+        previewImage?.setAccessibilityLabel(Self.previewDescription(entry))
+    }
+
+    private func observePreviewFile() {
+        previewFileObserver?.cancel(); previewFileObserver = nil
+        guard let entry = previewEntry else { return }
+        let epochAsset = entry.record.image
+        guard !epochAsset.fileName.isEmpty, epochAsset.fileName != ".", epochAsset.fileName != "..",
+              epochAsset.fileName == URL(fileURLWithPath: epochAsset.fileName).lastPathComponent else { return }
+        previewFileObserver = HistoryPreviewFileObserver(url: mediaDirectory.appendingPathComponent(epochAsset.fileName)) { [weak self] in
+            guard let self, self.previewEntry?.record.image == epochAsset, self.previewWindow != nil else { return }
+            self.observePreviewFile(); self.requestPreview(clearImage: true)
+        }
+    }
+
+    private func requestPreview(debounce: Bool = false, clearImage: Bool = false) {
+        previewEpoch &+= 1
+        let epoch = previewEpoch
+        previewResize?.cancel(); previewResize = nil
+        HistoryPreviewLoader.shared.invalidate(owner: previewOwner)
+        guard let panel = previewWindow, let entry = previewEntry, let view = previewImage else { return }
+        if clearImage || previewVerifiedAsset != entry.record.image {
+            // ThumbnailCache has a display-only asset key, not a checked file
+            // identity/hash. Never place that unverified bitmap under this
+            // preview's title while a potentially replaced file is validated.
+            view.image = nil; previewVerifiedAsset = nil
+            view.imageScaling = .scaleProportionallyDown
+        }
+        previewStatus?.stringValue = view.image == nil ? "正在加载预览…" : "正在加载清晰预览…"
+        let load = DispatchWorkItem { [weak self, weak panel] in
+            guard let self, let panel, self.previewWindow === panel, self.previewEpoch == epoch,
+                  self.previewEntry?.record.image == entry.record.image, panel.isVisible else { return }
+            panel.contentView?.layoutSubtreeIfNeeded()
+            let viewport = view.bounds.size
+            guard viewport.width > 0, viewport.height > 0 else { return }
+            let request = HistoryPreviewRequest(asset: entry.record.image, directory: self.mediaDirectory,
+                viewport: viewport, backing: panel.backingScaleFactor)
+            HistoryPreviewLoader.shared.request(owner: self.previewOwner, request: request,
+                invalidated: { [weak self] in self?.previewWindow?.close() }) { [weak self, weak panel] result in
+                    guard let self, let panel, self.previewWindow === panel, self.previewEpoch == epoch,
+                          self.previewEntry?.record.image == entry.record.image, panel.isVisible else { return }
+                    switch result {
+                    case .success(let loaded) where loaded.identity.matches(loaded.url):
+                        self.previewImage?.image = NSImage(cgImage: loaded.image,
+                            size: loaded.displaySize(backing: panel.backingScaleFactor))
+                        self.previewVerifiedAsset = entry.record.image
+                        self.previewImage?.imageScaling = .scaleProportionallyDown
+                        self.previewStatus?.stringValue = "已按窗口显示"
+                    default:
+                        self.previewImage?.image = nil; self.previewVerifiedAsset = nil
+                        self.previewStatus?.stringValue = "无法加载清晰预览，图片记录仍保留"
+                    }
+                }
+        }
+        previewResize = load
+        DispatchQueue.main.asyncAfter(deadline: .now() + (debounce ? 0.120 : 0), execute: load)
+    }
+
+    private func clearPreview() {
+        previewEpoch &+= 1; previewResize?.cancel(); previewResize = nil
+        HistoryPreviewLoader.shared.cancel(owner: previewOwner)
+        previewFileObserver?.cancel(); previewFileObserver = nil
+        previewImage?.image = nil; previewImage = nil; previewStatus = nil
+        previewEntry = nil; previewVerifiedAsset = nil; previewWindow = nil
+    }
+
+    @objc private func revealPreview() { if let entry = previewEntry { onReveal(entry.id) } }
 
     @objc private func filterChanged(_ sender: NSButton) { filterIndex = sender.tag; refresh() }
     public func controlTextDidChange(_ obj: Notification) { refresh() }
@@ -357,4 +508,10 @@ private final class HistoryTableView: NSTableView {
 @MainActor
 private final class HistoryPreviewWindow: NSWindow {
     override func cancelOperation(_ sender: Any?) { performClose(sender) }
+    override func keyDown(with event: NSEvent) {
+        if event.keyCode == 49, event.modifierFlags.intersection(.deviceIndependentFlagsMask).isEmpty {
+            performClose(nil); return
+        }
+        super.keyDown(with: event)
+    }
 }

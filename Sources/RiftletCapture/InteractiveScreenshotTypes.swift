@@ -51,6 +51,29 @@ public enum InteractiveScreenshotState: Equatable, Sendable {
     case capturing(ScreenshotMode)
 }
 
+/// Read-only presentation of an already confirmed request. The next selection
+/// mode is deliberately separate from the immutable request's mode/options.
+public struct InteractiveScreenshotPresentation: Equatable, Sendable {
+    public let sessionID: UUID
+    public let requestID: UUID
+    public let confirmedMode: ScreenshotMode
+    public let nextMode: ScreenshotMode
+    public let state: InteractiveScreenshotState
+
+    /// Presentation data only, including for isolated visual fixtures. Creating
+    /// this value never starts a capture or grants permission to deliver one.
+    public init(sessionID: UUID, requestID: UUID, confirmedMode: ScreenshotMode,
+                nextMode: ScreenshotMode, state: InteractiveScreenshotState) {
+        self.sessionID = sessionID; self.requestID = requestID
+        self.confirmedMode = confirmedMode; self.nextMode = nextMode; self.state = state
+    }
+
+    public var remainingSeconds: Int? {
+        if case .countdown(let seconds) = state, seconds > 0 { return seconds }
+        return nil
+    }
+}
+
 public enum InteractiveScreenshotError: Error, Equatable, Sendable, LocalizedError {
     case screenRecordingPermissionRequired
     case noDisplay

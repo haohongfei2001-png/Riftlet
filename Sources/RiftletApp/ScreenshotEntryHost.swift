@@ -84,6 +84,9 @@ final class ScreenshotEntryHost {
             guard let self, !self.closed, self.isEnabled, !self.userHidden else { return }
             if self.capture.isActive { self.capture.updateMode(mode) }
             else { self.startCapture(mode: mode) }
+            // A pending request keeps the same phase when only the next mode
+            // changes, so it intentionally emits no new capture state event.
+            self.updateCapturePresentation()
         }
         entry.onCancel = { [weak self] in self?.cancel() }
         entry.onOptions = { [weak self] options in
@@ -96,6 +99,7 @@ final class ScreenshotEntryHost {
             self.menuOpen = open; self.updateSuspension()
         }
         capture.onCancel = { [weak self] in self?.cancel() }
+        capture.onStateChange = { [weak self] _ in self?.updateCapturePresentation() }
         capture.onError = { [weak self] error in
             guard let self, self.isEnabled, !self.closed else { return }
             self.onIssue(error.localizedDescription)
@@ -104,6 +108,11 @@ final class ScreenshotEntryHost {
             self?.setExposureSuppressed(hidden)
         }
         capture.onCapture = { [weak self] image in self?.received(image) }
+    }
+
+    private func updateCapturePresentation() {
+        entry.setCapturePresentation(!closed && isEnabled && !userHidden && !cancelling
+            ? capture.presentationSnapshot : nil)
     }
 
     func configure() {
@@ -261,6 +270,7 @@ final class ScreenshotEntryHost {
     func cancel() {
         guard !closed, !cancelling else { return }
         cancelling = true
+        entry.setCapturePresentation(nil)
         capture.cancel()
         setExposureSuppressed(false)
         editor?.keepOriginalAndClose(); editor = nil

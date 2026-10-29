@@ -70,6 +70,53 @@ final class PresentationBoundaryTests: XCTestCase {
         XCTAssertEqual(selected, 0, "Presentation feedback cannot dispatch an input")
     }
 
+    @MainActor func testFeedbackOwnerAndRevisionRejectIdenticalOldClearAndOldOperation() throws {
+        var selected = 0
+        let panel = try controller(onSelect: { _ in selected += 1 }); defer { panel.close() }
+        let operation = UUID(), nextOperation = UUID()
+        let asset = record(operationID: operation, revision: 7)
+        panel.render([asset])
+        let view = try rowView(asset.id, in: panel)
+        let text = "附加处理中，结果尚待确认。", oldOwner = UUID(), newOwner = UUID()
+        panel.setFeedback(text, for: asset.id, owner: .selection(oldOwner), visibilityRevision: 7)
+        panel.setFeedback(text, for: asset.id, owner: .selection(newOwner), visibilityRevision: 7)
+        panel.clearFeedback(matching: text, for: asset.id, owner: .selection(oldOwner))
+        XCTAssertEqual(view.accessibilityHelp(), text, "Matching words cannot clear another selection owner")
+        panel.setFeedback("迟到的旧版本", for: asset.id, owner: .selection(oldOwner), visibilityRevision: 6)
+        XCTAssertEqual(view.accessibilityHelp(), text)
+        panel.render([record(image: asset.image, operationID: nextOperation, revision: 7)])
+        XCTAssertNotEqual(view.accessibilityHelp(), text, "A new operation clears the previous projection")
+        panel.setFeedback(text, for: asset.id, owner: .operation(operation), visibilityRevision: 7)
+        XCTAssertNotEqual(view.accessibilityHelp(), text, "The previous operation cannot reappear on the same asset")
+        panel.setFeedback(text, for: asset.id, owner: .operation(nextOperation), visibilityRevision: 7)
+        XCTAssertEqual(view.accessibilityHelp(), text)
+        panel.clearFeedback(matching: text, for: asset.id, owner: .operation(operation))
+        XCTAssertEqual(view.accessibilityHelp(), text)
+        panel.clearFeedback(matching: text, for: asset.id, owner: .operation(nextOperation))
+        XCTAssertNotEqual(view.accessibilityHelp(), text)
+        XCTAssertEqual(selected, 0)
+    }
+
+    @MainActor func testPreparedFeedbackWaitsForSelectionReleaseThenUsesCommittedOperation() throws {
+        var selected = 0
+        let panel = try controller(holdsSelection: true, onSelect: { _ in selected += 1 })
+        defer { panel.close() }
+        let asset = record(revision: 3), operation = UUID()
+        panel.render([asset])
+        let view = try rowView(asset.id, in: panel)
+        XCTAssertTrue(view.accessibilityPerformPress())
+        panel.render([record(image: asset.image, status: .transferring, operationID: operation, revision: 3)])
+        let text = "附加处理中，结果尚待确认。"
+        panel.setFeedback(text, for: asset.id, owner: .operation(operation), visibilityRevision: 3, timing: .waiting)
+        XCTAssertNotEqual(view.accessibilityHelp(), text, "A deferred old row cannot accept a newer operation yet")
+        panel.finishSelection(asset.id)
+        // The host refreshes after release, instead of letting an old operation
+        // bypass the live selection guard during the first committed refresh.
+        panel.setFeedback(text, for: asset.id, owner: .operation(operation), visibilityRevision: 3, timing: .waiting)
+        XCTAssertEqual(view.accessibilityHelp(), text)
+        XCTAssertEqual(selected, 1, "Reprojection never replays the user's selection")
+    }
+
     @MainActor func testOriginalStartIdentitySurvivesDeferredReadyAndClosesOnlyOnce() async throws {
         var boundaries: [RiftPresentationBoundary] = []
         let panel = try controller(onBoundary: { boundaries.append($0) })

@@ -156,7 +156,7 @@ final class FeedbackRecordsTests: XCTestCase {
                 characters: characters, charactersIgnoringModifiers: characters, isARepeat: false, keyCode: keyCode))
             // Real AppKit event dispatch to the visible sheet; a software key
             // event is not claimed as physical keyboard/VoiceOver acceptance.
-            if !sheet.performKeyEquivalent(event) { sheet.sendEvent(event) }
+            if !sheet.performKeyEquivalent(with: event) { sheet.sendEvent(event) }
             for _ in 0..<100 {
                 if window.attachedSheet == nil { break }
                 try await Task.sleep(nanoseconds: 10_000_000)

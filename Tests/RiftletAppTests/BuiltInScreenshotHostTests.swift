@@ -21,9 +21,11 @@ private final class HostPermissionFixture: InteractiveScreenshotPermissionChecki
 private final class HostCaptureFixture: InteractiveScreenshotCapturing {
     var onRequest: (() -> Void)?
     var pending: [CheckedContinuation<InteractiveScreenshotFile, Error>] = []
+    var requests: [InteractiveScreenshotRequest] = []
     var cancellations = 0
     func capture(_ request: InteractiveScreenshotRequest, outputDirectory: URL) async throws -> InteractiveScreenshotFile {
-        try await withCheckedThrowingContinuation { continuation in
+        requests.append(request)
+        return try await withCheckedThrowingContinuation { continuation in
             pending.append(continuation); onRequest?()
         }
     }
@@ -175,6 +177,130 @@ final class BuiltInScreenshotHostTests: XCTestCase {
         XCTAssertFalse(try ScreenshotEntryPreferences.load(from: settings).builtInScreenshotEnabled)
         host.setEnabled(true); XCTAssertTrue(host.isEnabled)
         XCTAssertFalse(capture.isActive)
+    }
+
+    @MainActor
+    func testCountdownPresentsFrozenRequestAndNextModeWithoutCreatingAnotherCapture() async throws {
+        let root = try prepare(); defer { try? FileManager.default.removeItem(at: root) }
+        try ScreenshotEntryPreferences(defaultMode: .region).save(to: root.appendingPathComponent("capture-entry-settings.json"))
+        let store = try QueueStore(databaseURL: root.appendingPathComponent("queue.sqlite"))
+        let rift = RiftPanelController(mediaDirectory: root.appendingPathComponent("media"), onSelect: { _ in })
+        let permission = HostPermissionFixture(), capturer = HostCaptureFixture()
+        let (capture, target) = engine(root: root, permission: permission, capturer: capturer)
+        let imported = expectation(description: "first original imported")
+        let host = try ScreenshotEntryHost(root: root, store: store, rift: rift,
+            onChange: { imported.fulfill() }, onIssue: { XCTFail($0) }, captureController: capture)
+        defer { host.close(); rift.close() }
+        let countdown = expectation(description: "real five-second countdown projected")
+        let hostStateChange = capture.onStateChange
+        capture.onStateChange = { state in
+            hostStateChange?(state)
+            if state == .countdown(5) { countdown.fulfill() }
+        }
+        host.beginFromMenu()
+        host.entry.setOptions(.init(delay: 5)); host.entry.onOptions?(host.entry.options)
+        let originalSlots = host.entry.diagnosticSnapshot.controls.map(\.mode)
+        let firstBegan = expectation(description: "original confirmed exposure")
+        capturer.onRequest = { firstBegan.fulfill() }
+        capture.submitSelection(target)
+        await fulfillment(of: [countdown], timeout: 2)
+        let frozen = try XCTUnwrap(host.entry.capturePresentation)
+        XCTAssertEqual(frozen.confirmedMode, .region)
+        XCTAssertEqual(frozen.remainingSeconds, 5)
+        XCTAssertEqual(host.entry.diagnosticSnapshot.captureStatusText, "已选区域 · 5 秒后拍摄")
+
+        for mode in [ScreenshotMode.window, .fullScreen] {
+            host.entry.setMode(mode); host.entry.onMode?(mode)
+            let current = try XCTUnwrap(host.entry.capturePresentation)
+            XCTAssertEqual(current.sessionID, frozen.sessionID)
+            XCTAssertEqual(current.requestID, frozen.requestID)
+            XCTAssertEqual(current.confirmedMode, .region)
+            XCTAssertEqual(current.nextMode, mode)
+            XCTAssertEqual(host.entry.diagnosticSnapshot.controls.map(\.mode), originalSlots)
+        }
+        XCTAssertEqual(host.entry.diagnosticSnapshot.captureStatusText, "已选区域 · 5 秒后拍摄\n下一张：全屏")
+        host.entry.setOptions(.init(delay: 0, showPointer: true))
+        host.entry.onOptions?(host.entry.options)
+        capture.submitSelection(target) // A second complete gesture cannot create another pending request.
+        XCTAssertTrue(capturer.requests.isEmpty)
+        XCTAssertEqual(host.entry.capturePresentation?.requestID, frozen.requestID)
+
+        let visual = host.entry.diagnosticSnapshot
+        let statusWindow = try XCTUnwrap(NSApp.windows.first { $0.windowNumber == visual.captureStatusWindowNumber })
+        XCTAssertTrue(statusWindow.ignoresMouseEvents)
+        XCTAssertFalse(statusWindow.canBecomeKey); XCTAssertFalse(statusWindow.canBecomeMain)
+        XCTAssertLessThanOrEqual(visual.captureStatusFrame.width, 240)
+        XCTAssertTrue(host.entry.captureExclusionWindowIDs.contains(CGWindowID(statusWindow.windowNumber)))
+        XCTAssertFalse(visual.controls.contains { $0.frame.intersects(visual.captureStatusFrame) })
+        let cancel = try XCTUnwrap(visual.controls.first(where: \.isCancel))
+        let cancelView = try XCTUnwrap(NSApp.windows.first { $0.windowNumber == cancel.windowNumber }?.contentView)
+        XCTAssertEqual(cancelView.accessibilityLabel(), "结束截图")
+        capture.onCaptureVisibilityChanged?(true)
+        XCTAssertFalse(statusWindow.isVisible)
+        capture.onCaptureVisibilityChanged?(false)
+        XCTAssertEqual(host.entry.capturePresentation?.requestID, frozen.requestID)
+
+        await fulfillment(of: [firstBegan], timeout: 7)
+        XCTAssertEqual(capturer.requests.count, 1)
+        XCTAssertEqual(capturer.requests[0].id, frozen.requestID)
+        XCTAssertEqual(capturer.requests[0].mode, .region)
+        XCTAssertEqual(capturer.requests[0].options, .init(delay: 5))
+        XCTAssertEqual(host.entry.diagnosticSnapshot.captureStatusText, "正在拍摄已选区域\n下一张：全屏")
+        capturer.complete(try pngFile(root: root))
+        await fulfillment(of: [imported], timeout: 3)
+        XCTAssertNil(host.entry.capturePresentation)
+        XCTAssertNil(host.entry.diagnosticSnapshot.captureStatusText)
+        XCTAssertTrue(capture.isActive); XCTAssertTrue(host.entry.isExpanded)
+
+        let secondBegan = expectation(description: "next explicit selection uses next mode")
+        capturer.onRequest = { secondBegan.fulfill() }
+        capture.submitSelection(target)
+        await fulfillment(of: [secondBegan], timeout: 2)
+        XCTAssertEqual(capturer.requests.count, 2)
+        XCTAssertEqual(capturer.requests[1].mode, .fullScreen)
+        XCTAssertEqual(capturer.requests[1].options, .init(delay: 0, showPointer: true))
+        XCTAssertFalse(host.entry.diagnosticSnapshot.captureStatusText?.contains("0 秒") ?? true)
+        host.cancel(); host.beginFromMenu()
+        XCTAssertNil(host.entry.capturePresentation)
+        capturer.complete(try pngFile(root: root)) // Cancelled old completion cannot revive its text or import.
+        for _ in 0..<20 { await Task.yield() }
+        XCTAssertNil(host.entry.capturePresentation)
+        XCTAssertNil(host.entry.diagnosticSnapshot.captureStatusText)
+        XCTAssertEqual(capturer.requests.count, 2)
+        let saved = try await store.assets(includeUsed: true)
+        XCTAssertEqual(saved.count, 1)
+    }
+
+    @MainActor
+    func testCancelCountdownClearsProjectionAndOldTaskCannotReviveIt() async throws {
+        let root = try prepare(); defer { try? FileManager.default.removeItem(at: root) }
+        try ScreenshotEntryPreferences(defaultMode: .region).save(to: root.appendingPathComponent("capture-entry-settings.json"))
+        let store = try QueueStore(databaseURL: root.appendingPathComponent("queue.sqlite"))
+        let rift = RiftPanelController(mediaDirectory: root.appendingPathComponent("media"), onSelect: { _ in })
+        let permission = HostPermissionFixture(), capturer = HostCaptureFixture()
+        let (capture, target) = engine(root: root, permission: permission, capturer: capturer)
+        let host = try ScreenshotEntryHost(root: root, store: store, rift: rift,
+            onChange: { XCTFail("Cancelled countdown must not import") }, onIssue: { XCTFail($0) }, captureController: capture)
+        defer { host.close(); rift.close() }
+        let countdown = expectation(description: "countdown began")
+        let hostStateChange = capture.onStateChange
+        capture.onStateChange = { state in
+            hostStateChange?(state)
+            if state == .countdown(5) { countdown.fulfill() }
+        }
+        host.beginFromMenu(); capture.updateOptions(.init(delay: 5)); capture.submitSelection(target)
+        await fulfillment(of: [countdown], timeout: 2)
+        XCTAssertNotNil(host.entry.capturePresentation)
+        host.cancel(); host.beginFromMenu()
+        for _ in 0..<20 { await Task.yield() }
+        XCTAssertTrue(capture.isActive)
+        XCTAssertNil(host.entry.capturePresentation)
+        XCTAssertNil(host.entry.diagnosticSnapshot.captureStatusText)
+        XCTAssertTrue(capturer.requests.isEmpty)
+        host.setHidden(true)
+        XCTAssertNil(host.entry.capturePresentation)
+        host.close()
+        XCTAssertNil(host.entry.capturePresentation)
     }
 
     func testUnsupportedSourceHasHonestLocalOnlyFeedback() {

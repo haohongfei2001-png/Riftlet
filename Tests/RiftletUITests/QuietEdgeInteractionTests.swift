@@ -160,6 +160,41 @@ final class QuietEdgeInteractionTests: XCTestCase {
         XCTAssertFalse(preview.isVisible, "A late image decode must not reopen a cancelled private preview")
     }
 
+    @MainActor func testFeedbackReusesPointerFreePeekAndInvalidatesOldDecodeAndWaitingDeadline() async throws {
+        _ = NSApplication.shared
+        guard let screen = NSScreen.screens.first else { throw XCTSkip("No AppKit display") }
+        let peek = RiftPeek(); defer { peek.close() }
+        let context = try XCTUnwrap(CGContext(data: nil, width: 4, height: 4, bitsPerComponent: 8,
+            bytesPerRow: 16, space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue))
+        let cg = try XCTUnwrap(context.makeImage()), id = UUID()
+        let row = CGRect(x: screen.visibleFrame.maxX - 90, y: screen.visibleFrame.midY, width: 70, height: 44)
+        let anchor = { (row, screen.visibleFrame, row.minX) as (CGRect, CGRect, CGFloat)? }
+        var delivery: ((CGImage?) -> Void)?
+        peek.schedule(id: id, immediate: true, stillValid: { true }, load: { delivery = $0 }, anchor: anchor)
+        try await eventually { delivery != nil }
+        let panel = peek.presentationPanel
+        peek.scheduleNote(id: id, text: "正在等待附加", delay: 0.25, stillValid: { true }, anchor: anchor)
+        delivery?(cg)
+        try await Task.sleep(nanoseconds: 100_000_000)
+        XCTAssertFalse(panel.isVisible, "An old image decode cannot bypass the waiting delay")
+        peek.leave()
+        try await Task.sleep(nanoseconds: 200_000_000)
+        XCTAssertFalse(panel.isVisible, "Leaving the island cancels the pending explanation")
+        XCTAssertNil(peek.assetID)
+        peek.scheduleNote(id: id, text: "图片已保留，当前聊天暂时不能接收图片。", delay: 0,
+            stillValid: { true }, anchor: anchor)
+        try await eventually { peek.isNoteVisible }
+        XCTAssertTrue(panel.ignoresMouseEvents); XCTAssertFalse(panel.canBecomeKey); XCTAssertFalse(panel.canBecomeMain)
+        XCTAssertLessThanOrEqual(panel.frame.width, 240)
+        XCTAssertLessThanOrEqual(panel.frame.maxX, row.minX - 12)
+        XCTAssertTrue(screen.visibleFrame.contains(panel.frame))
+        // A repeated projection does not renew the bounded display lifetime.
+        peek.scheduleNote(id: id, text: "图片已保留，当前聊天暂时不能接收图片。", delay: 0,
+            stillValid: { true }, anchor: anchor)
+        try await Task.sleep(nanoseconds: 2_600_000_000)
+        XCTAssertFalse(panel.isVisible); XCTAssertNil(peek.assetID)
+    }
+
     @MainActor func testPortraitPreviewClearsEveryNativeNumberAndImageInputIsland() async throws {
         let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
         try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)

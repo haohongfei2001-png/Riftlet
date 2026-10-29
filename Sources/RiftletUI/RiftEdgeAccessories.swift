@@ -91,22 +91,38 @@ enum RiftPeekGeometry {
 /// Bounded, full-aspect hover preview; no source mutation or attachment API.
 @MainActor final class RiftPeek {
     private let panel = EdgeDecorationPanel()
+    private let surface = RiftSurfaceView()
     private let image = NSImageView()
+    private let note = NSTextField(wrappingLabelWithString: "")
     private var epoch: UInt = 0
     private var leaveEpoch: UInt = 0
     private(set) var assetID: UUID?
+    private(set) var noteText: String?
+    var onNoteVisibilityChange: ((UUID, Bool) -> Void)?
+    var presentationPanel: NSPanel { panel }
+    var isNoteVisible: Bool { noteText != nil && panel.isVisible }
     init() {
-        let surface = RiftSurfaceView(); surface.cornerRadius = 10
+        surface.cornerRadius = 10
         surface.addSubview(image)
+        surface.addSubview(note)
+        note.font = .systemFont(ofSize: 13)
+        note.textColor = RiftVisualStyle.ink
+        note.isHidden = true
+        note.setAccessibilityElement(false)
         image.imageScaling = .scaleProportionallyUpOrDown
         panel.contentView = surface
         panel.setAccessibilityHidden(true)
     }
     func cancel() {
+        let visibleNote = isNoteVisible ? assetID : nil
         epoch &+= 1; leaveEpoch &+= 1; assetID = nil; panel.orderOut(nil); panel.alphaValue = 1
-        image.image = nil
+        image.image = nil; noteText = nil; note.isHidden = true
+        if let visibleNote { onNoteVisibilityChange?(visibleNote, false) }
     }
     func leave() {
+        // A waiting explanation is only valid on its original input island.
+        // It must not survive the image-preview leave animation.
+        if noteText != nil { cancel(); return }
         leaveEpoch &+= 1; let token = leaveEpoch
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
             guard let self, self.leaveEpoch == token else { return }
@@ -124,7 +140,7 @@ enum RiftPeekGeometry {
                   load: @escaping (@escaping (CGImage?) -> Void) -> Void,
                   anchor: @escaping () -> (CGRect, CGRect, CGFloat)?) {
         leaveEpoch &+= 1
-        if assetID == id && panel.isVisible { panel.alphaValue = 1; return }
+        if assetID == id && noteText == nil && panel.isVisible { panel.alphaValue = 1; return }
         // A pending/abandoned decode must be rescheduled after re-entry.
         // The leave timer has its own epoch and cannot invalidate the new hover.
         cancel(); assetID = id; let token = epoch
@@ -135,6 +151,7 @@ enum RiftPeekGeometry {
                 guard let frame = RiftPeekGeometry.frame(imageSize: CGSize(width: cg.width, height: cg.height),
                     owner: row, visible: visible, leadingInputEdge: leading) else { self.cancel(); return }
                 let size = CGSize(width: frame.width - 16, height: frame.height - 16)
+                self.surface.cornerRadius = 10; self.image.isHidden = false
                 self.panel.setFrame(frame, display: true)
                 self.image.frame = CGRect(origin: CGPoint(x: 8, y: 8), size: size)
                 self.image.image = NSImage(cgImage: cg, size: size)
@@ -143,6 +160,45 @@ enum RiftPeekGeometry {
                     context.duration = 0.08
                     self.panel.animator().alphaValue = 1
                 }
+            }
+        }
+    }
+
+    /// Reuses the same pointer-free surface as image peek. The caller owns the
+    /// selection/operation identity and validates it again at the deadline.
+    func scheduleNote(id: UUID, text: String, delay: TimeInterval,
+                      stillValid: @escaping () -> Bool,
+                      anchor: @escaping () -> (CGRect, CGRect, CGFloat)?) {
+        if assetID == id, noteText == text { return }
+        cancel(); assetID = id; noteText = text
+        let token = epoch
+        DispatchQueue.main.asyncAfter(deadline: .now() + max(0, delay)) { [weak self] in
+            guard let self, self.epoch == token else { return }
+            guard stillValid(), let (row, visible, leading) = anchor() else { self.cancel(); return }
+            let right = min(visible.maxX - 12, leading - 12)
+            let width = min(240, right - visible.minX - 12)
+            guard width >= 96 else { self.cancel(); return }
+            let paragraph = NSMutableParagraphStyle()
+            paragraph.lineBreakMode = .byWordWrapping
+            paragraph.minimumLineHeight = 18; paragraph.maximumLineHeight = 18
+            let attributed = NSAttributedString(string: text, attributes: [
+                .font: NSFont.systemFont(ofSize: 13), .foregroundColor: RiftVisualStyle.ink,
+                .paragraphStyle: paragraph])
+            let measured = attributed.boundingRect(with: CGSize(width: width - 24, height: .greatestFiniteMagnitude),
+                options: [.usesLineFragmentOrigin, .usesFontLeading])
+            let height = ceil(measured.height) + 26
+            guard height <= visible.height - 24 else { self.cancel(); return }
+            let y = max(visible.minY + 12, min(visible.maxY - height - 12, row.midY - height / 2))
+            self.surface.cornerRadius = 8; self.image.isHidden = true
+            self.note.attributedStringValue = attributed; self.note.isHidden = false
+            self.panel.setFrame(CGRect(x: right - width, y: y, width: width, height: height), display: true)
+            self.note.frame = CGRect(x: 12, y: 12, width: width - 24, height: height - 24)
+            self.surface.needsDisplay = true
+            self.panel.alphaValue = 1; self.panel.orderFrontRegardless()
+            self.onNoteVisibilityChange?(id, true)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.4) { [weak self] in
+                guard let self, self.epoch == token else { return }
+                self.cancel()
             }
         }
     }

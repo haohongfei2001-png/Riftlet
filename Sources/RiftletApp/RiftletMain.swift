@@ -294,14 +294,16 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             let originalSelection = accepted
             let selectionOwner = originalSelection?.id ?? UUID()
             self.selectionUIOwners[id] = selectionOwner
-            let feedback: @MainActor (String?) -> Void = { [weak self] text in
+            let feedback: @MainActor (String?, RiftFeedbackTiming) -> Void = { [weak self] text, timing in
                 guard let self, self.selectionUIOwners[id] == selectionOwner,
                       let revision, self.rift?.selectionRevision(for: id) == revision else { return }
-                self.rift?.setFeedback(text, for: id)
+                self.rift?.setFeedback(text, for: id, owner: .selection(selectionOwner),
+                    visibilityRevision: revision, timing: timing)
             }
             let submit: @MainActor (UInt64) async -> Void = { ordinal in
                 if self.selectionUIOwners[id] == selectionOwner {
-                    self.rift?.clearFeedback(matching: ProductStatus.AttachmentFeedback.waiting.text, for: id)
+                    self.rift?.clearFeedback(matching: ProductStatus.AttachmentFeedback.waiting.text, for: id,
+                        owner: .selection(selectionOwner))
                 }
                 self.recordAcceptance(["event": "selection_submission_started", "selectionOrdinal": ordinal,
                     "assetID": id.uuidString, "uptime": ProcessInfo.processInfo.systemUptime])
@@ -315,7 +317,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                     if self.mode.usesWebAdapter, originalSelection == nil {
                         self.applyAutomationPermission(await self.inspectAutomationPermission(reason: "selection", assetID: id, expectedSession: frozen?.sessionID))
                         guard self.automationPermission == .granted else {
-                            feedback("Chrome 附件访问暂不可用；图片保留。请在运行状态中查看原因。")
+                            feedback("Chrome 附件访问暂不可用；图片保留。请在运行状态中查看原因。", .immediate)
                             self.finishOriginalSelection(id, token: originalSelection, revision: revision, ownerID: selectionOwner); self.updateSetup()
                             return
                         }
@@ -332,7 +334,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                     if let record = try await self.store?.asset(id: id), record.visibility == .visible,
                        let operationID = record.activeOperationID, record.status == .failed {
                         let reason = try await self.store?.operationReason(for: operationID)
-                        feedback(ProductStatus.operationFeedback(reason).text)
+                        feedback(ProductStatus.operationFeedback(reason).text, .immediate)
                     }
                 }
                 catch {
@@ -343,7 +345,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                     }
                     feedback(self.mode == .capture ? "此版本尚未启用真实截图附加；图片保留。"
                         : (ProductStatus.clickFeedback(error)?.text ?? self.setupIssue?.text
-                           ?? "当前附件目标暂不可用；图片保留，可在运行状态中查看原因。"))
+                           ?? "当前附件目标暂不可用；图片保留，可在运行状态中查看原因。"), .immediate)
                     self.feedback.diagnostics.record(.selectionRejected)
                     self.cancelOriginalSelection(originalSelection, reason: "selectionRejected")
                     self.finishOriginalSelection(id, token: originalSelection, revision: revision, ownerID: selectionOwner)
@@ -360,18 +362,18 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             let ordinal = self.selectionSubmissions.enqueue(selectionID: originalSelection?.id,
                 deadline: originalSelection?.deadlineUptime,
                 cancelled: { [weak self] in
-                    feedback(ProductStatus.AttachmentFeedback.cancelledBeforeInput.text)
+                    feedback(ProductStatus.AttachmentFeedback.cancelledBeforeInput.text, .immediate)
                     self?.cancelOriginalSelection(originalSelection, reason: "submissionCancelled")
                     self?.finishOriginalSelection(id, token: originalSelection, revision: revision, ownerID: selectionOwner)
                 }, run: submit)
             if let ordinal {
                 if waitsForSubmission, originalSelection != nil {
-                    feedback(ProductStatus.AttachmentFeedback.waiting.text)
+                    feedback(ProductStatus.AttachmentFeedback.waiting.text, .waiting)
                 }
                 self.recordAcceptance(["event": "selection_enqueued", "selectionOrdinal": ordinal,
                     "assetID": id.uuidString, "uptime": ProcessInfo.processInfo.systemUptime])
             } else {
-                feedback(ProductStatus.AttachmentFeedback.cancelledBeforeInput.text)
+                feedback(ProductStatus.AttachmentFeedback.cancelledBeforeInput.text, .immediate)
                 self.cancelOriginalSelection(originalSelection, reason: "submissionLimit")
                 self.finishOriginalSelection(id, token: originalSelection, revision: revision, ownerID: selectionOwner)
             }
@@ -781,6 +783,10 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         selectionUIOwners.removeValue(forKey: assetID)
         guard let revision, rift?.selectionRevision(for: assetID) == revision else { return }
         rift?.finishSelection(assetID)
+        // The committed refresh can be deferred while this exact selection owns
+        // its row. Re-read after release so a prepared explanation can attach to
+        // the now-current operation; this never resubmits the selection.
+        Task { [weak self] in await self?.refresh() }
     }
 
     private func cancelOriginalSelection(_ selection: AcceptedSelection?, reason: String) {
@@ -849,7 +855,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         guard !mode.usesWebAdapter else { return }
         // Coordinator awaits committed refresh before this callback. Releasing
         // the UI reservation cannot flush a stale pre-prepare archive snapshot.
+        let hadSelection = rift?.selectionRevision(for: id) != nil
         rift?.finishSelection(id)
+        if hadSelection { Task { [weak self] in await self?.refresh() } }
     }
 
     private var foregroundChromeSession: String? {
@@ -1107,13 +1115,13 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 }
                 let successful = mode.usesWebAdapter ? try await store.successfulOperations() : []
                 let unresolved = try await store.unresolvedOperations()
-                var cancelledPreparedFeedback: [UUID: String] = [:]
+                var cancelledPreparedFeedback: [UUID: (operationID: UUID, revision: Int64, text: String)] = [:]
                 for (id, operationID) in preparedFeedbackOperations {
-                    guard snapshot.contains(where: {
+                    guard let record = snapshot.first(where: {
                         $0.id == id && $0.activeOperationID == operationID && $0.status == .failed && $0.visibility == .visible
                     }) else { continue }
-                    cancelledPreparedFeedback[id] = ProductStatus.operationFeedback(
-                        try await store.operationReason(for: operationID)).text
+                    cancelledPreparedFeedback[id] = (operationID, record.visibilityRevision,
+                        ProductStatus.operationFeedback(try await store.operationReason(for: operationID)).text)
                 }
                 // Independent reads, not an atomic multi-row snapshot or exact COMMIT.
                 let snapshotObservedUptime = ProcessInfo.processInfo.systemUptime
@@ -1163,10 +1171,18 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                     }
                 }.map { ($0.assetID, $0.id) })
                 for (id, operationID) in preparedFeedbackOperations where prepared[id] != operationID {
-                    rift?.clearFeedback(matching: ProductStatus.AttachmentFeedback.preparing.text, for: id)
+                    rift?.clearFeedback(matching: ProductStatus.AttachmentFeedback.preparing.text, for: id,
+                        owner: .operation(operationID))
                 }
-                for (id, text) in cancelledPreparedFeedback { rift?.setFeedback(text, for: id) }
-                for id in prepared.keys { rift?.setFeedback(ProductStatus.AttachmentFeedback.preparing.text, for: id) }
+                for (id, value) in cancelledPreparedFeedback {
+                    rift?.setFeedback(value.text, for: id, owner: .operation(value.operationID),
+                        visibilityRevision: value.revision)
+                }
+                for (id, operationID) in prepared {
+                    guard let record = snapshot.first(where: { $0.id == id }) else { continue }
+                    rift?.setFeedback(ProductStatus.AttachmentFeedback.preparing.text, for: id,
+                        owner: .operation(operationID), visibilityRevision: record.visibilityRevision, timing: .waiting)
+                }
                 preparedFeedbackOperations = prepared
                 feedback.assets(snapshot) // Sampled local counts, not operation-level statistics.
                 feedback.operations(successful + unresolved)

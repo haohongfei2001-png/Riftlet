@@ -28,6 +28,9 @@ public struct ScreenshotEntryDiagnosticSnapshot: Sendable {
     public let expansion: CGFloat
     public let cancelSlotPosition: CGFloat
     public let visualWindowNumber: Int
+    public let captureStatusText: String?
+    public let captureStatusWindowNumber: Int
+    public let captureStatusFrame: CGRect
     public let controls: [ScreenshotEntryControlSnapshot]
 }
 
@@ -307,6 +310,7 @@ public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
     public private(set) var isHidden = false
     public private(set) var isCaptureSuppressed = false
     public private(set) var isBusy = false
+    public private(set) var capturePresentation: InteractiveScreenshotPresentation?
     public var isExpanded: Bool { session.isExpanded }
     public var mode: ScreenshotMode { session.mode }
     public var defaultMode: ScreenshotMode { session.defaultMode }
@@ -318,6 +322,12 @@ public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
     private var cancelMotion = ScreenshotEntryCancelMotion()
     private let decoration = ScreenshotEntryPanel(decorative: true)
     private let drawing = ScreenshotEntryRailView(frame: .zero)
+    private let captureStatusPanel = ScreenshotEntryPanel(decorative: true)
+    private let captureStatusSurface = RiftSurfaceView(frame: .zero)
+    private let captureStatusLabel = NSTextField(wrappingLabelWithString: "")
+    private var captureStatusText: String?
+    private var announcedRequestID: UUID?
+    private var lastAnnouncedNextMode: ScreenshotMode?
     private var inputs: [(panel: ScreenshotEntryPanel, view: ScreenshotEntryInputView)] = []
     private var suppliedScreen: NSScreen?
     private var layout: ScreenshotEntryLayout?
@@ -345,6 +355,10 @@ public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
         session = ScreenshotEntrySession(defaultMode: defaultMode)
         super.init()
         decoration.contentView = drawing
+        captureStatusPanel.contentView = captureStatusSurface
+        captureStatusSurface.addSubview(captureStatusLabel)
+        captureStatusLabel.isSelectable = false
+        captureStatusLabel.setAccessibilityElement(false)
         for slot in ScreenshotEntrySlot.allCases {
             let panel = ScreenshotEntryPanel(decorative: false)
             let view = ScreenshotEntryInputView(frame: .zero)
@@ -373,6 +387,7 @@ public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
             inputs.forEach { $0.view.releasePress() }
             pressedSlot = nil
             session.setExpanded(false)
+            setCapturePresentation(nil)
             isBusy = false
             isCaptureSuppressed = false
             suppressionStarted = nil
@@ -492,6 +507,7 @@ public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
         if expanded { options = initialOptions }
         pressedSlot = nil
         if !expanded {
+            setCapturePresentation(nil)
             closePreferences()
             if let layout, let screen = suppliedScreen {
                 optics.resume(anchor: layout.anchor, screenWidth: screen.frame.width,
@@ -518,6 +534,7 @@ public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
         guard !closed, hidden != isHidden else { return }
         isHidden = hidden
         if hidden {
+            setCapturePresentation(nil)
             inputs.forEach { $0.view.releasePress() }
             closePreferences(); orderOut()
         }
@@ -552,8 +569,44 @@ public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
         isBusy = busy; updateControls(); requestFrame()
     }
 
+    /// Displays only the host's current frozen request. No countdown timer or
+    /// capture action is owned here; every number comes from the real engine.
+    public func setCapturePresentation(_ value: InteractiveScreenshotPresentation?) {
+        let accepted = !closed && isEnabled && !isHidden && session.isExpanded ? value : nil
+        capturePresentation = accepted
+        let text: String?
+        if let accepted, let seconds = accepted.remainingSeconds {
+            text = "已选\(Self.name(accepted.confirmedMode)) · \(seconds) 秒后拍摄"
+        } else if let accepted, case .capturing = accepted.state {
+            text = "正在拍摄已选\(Self.name(accepted.confirmedMode))"
+        } else { text = nil }
+        captureStatusText = text.map { firstLine in
+            guard let accepted, accepted.nextMode != accepted.confirmedMode else { return firstLine }
+            return firstLine + "\n下一张：\(Self.name(accepted.nextMode))"
+        }
+        updateControls()
+        updateCaptureStatusVisibility()
+        if let accepted, let text = captureStatusText {
+            let announcement: String?
+            if announcedRequestID != accepted.requestID {
+                announcedRequestID = accepted.requestID
+                lastAnnouncedNextMode = accepted.nextMode
+                announcement = text + "。按 Escape 或结束截图退出。"
+            } else if lastAnnouncedNextMode != accepted.nextMode {
+                lastAnnouncedNextMode = accepted.nextMode
+                announcement = "下一张改为\(Self.name(accepted.nextMode))，本次仍为已选\(Self.name(accepted.confirmedMode))。"
+            } else { announcement = nil }
+            if let announcement {
+                NSAccessibility.post(element: inputs[session.activeSlot.rawValue].view,
+                    notification: .announcementRequested,
+                    userInfo: [.announcement: announcement,
+                               .priority: NSAccessibilityPriorityLevel.medium.rawValue])
+            }
+        }
+    }
+
     public var captureExclusionWindowIDs: [CGWindowID] {
-        ([decoration] + inputs.map(\.panel)).compactMap {
+        ([decoration, captureStatusPanel] + inputs.map(\.panel)).compactMap {
             $0.windowNumber > 0 ? CGWindowID($0.windowNumber) : nil
         }
     }
@@ -581,13 +634,16 @@ public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
             defaultMode: defaultMode, isHidden: isHidden, isCaptureSuppressed: isCaptureSuppressed,
             isBusy: isBusy, glyphAlpha: optics.alphas.glyph, surfaceAlpha: optics.alphas.surface,
             expansion: rail.value, cancelSlotPosition: cancelMotion.value,
-            visualWindowNumber: decoration.windowNumber, controls: controls)
+            visualWindowNumber: decoration.windowNumber, captureStatusText: captureStatusText,
+            captureStatusWindowNumber: captureStatusPanel.windowNumber,
+            captureStatusFrame: captureStatusPanel.frame, controls: controls)
     }
 
     public func close() {
         guard !closed else { return }
         closed = true
         isEnabled = false
+        capturePresentation = nil; captureStatusText = nil
         closePreferences()
         stopObservation()
         for input in inputs {
@@ -595,6 +651,7 @@ public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
             input.view.isEnabled = false; input.panel.close()
         }
         decoration.close()
+        captureStatusPanel.close()
     }
 
     private var uptime: TimeInterval { ProcessInfo.processInfo.systemUptime }
@@ -630,6 +687,7 @@ public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
         let level: NSWindow.Level = session.isExpanded
             ? InteractiveScreenshotController.controlsWindowLevel : .floating
         decoration.level = level
+        captureStatusPanel.level = level
         for slot in ScreenshotEntrySlot.allCases {
             let input = inputs[slot.rawValue]
             input.panel.level = level
@@ -637,10 +695,11 @@ public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
             input.view.isEnabled = isEnabled && (session.isExpanded || slot == .anchor) && (!isBusy || active)
             let label: String
             if !session.isExpanded { label = "截图，默认\(Self.name(session.defaultMode))" }
-            else if active { label = "取消\(Self.name(session.mode))截图" }
+            else if active { label = "结束截图" }
             else if slot == .more { label = "更多截图选项" }
             else { label = "截取\(Self.name(session.modes[slot.rawValue]))" }
             input.view.setAccessibilityLabel(label)
+            input.view.setAccessibilityHelp(active ? (captureStatusText ?? "按 Escape 或结束截图退出。") : nil)
             input.view.toolTip = label
         }
     }
@@ -704,11 +763,42 @@ public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
                 || (!session.isExpanded && (!overEntry || overQueue))
             input.view.setAccessibilityHidden(false)
         }
+        updateCaptureStatusVisibility()
+    }
+
+    private func updateCaptureStatusVisibility() {
+        guard !closed, isEnabled, !isHidden, !isCaptureSuppressed, session.isExpanded,
+              let text = captureStatusText, let layout, let screen = suppliedScreen else {
+            captureStatusPanel.orderOut(nil); return
+        }
+        // Stay to the left of every real queue/entry input island. A narrow
+        // desktop falls back to the X's AX help instead of obscuring controls.
+        let safe = screen.visibleFrame.insetBy(dx: 12, dy: 12)
+        let leading = (queueFrames + layout.controlFrames).map(\.minX).min() ?? safe.maxX
+        let right = min(safe.maxX, leading - 12)
+        let width = min(CGFloat(240), right - safe.minX)
+        guard width >= 144 else { captureStatusPanel.orderOut(nil); return }
+        let paragraph = NSMutableParagraphStyle()
+        paragraph.minimumLineHeight = 18; paragraph.maximumLineHeight = 18
+        paragraph.lineBreakMode = .byWordWrapping
+        let attributed = NSAttributedString(string: text, attributes: [
+            .font: NSFont.systemFont(ofSize: 13), .foregroundColor: RiftVisualStyle.ink,
+            .paragraphStyle: paragraph])
+        let measured = attributed.boundingRect(with: CGSize(width: width - 24, height: 120),
+            options: [.usesLineFragmentOrigin, .usesFontLeading]).height
+        let height = ceil(max(18, measured)) + 24
+        guard height <= safe.height else { captureStatusPanel.orderOut(nil); return }
+        let y = max(safe.minY, min(layout.anchor.y - height / 2, safe.maxY - height))
+        captureStatusPanel.setFrame(CGRect(x: right - width, y: y, width: width, height: height), display: true)
+        captureStatusLabel.attributedStringValue = attributed
+        captureStatusLabel.frame = CGRect(x: 12, y: 12, width: width - 24, height: height - 24)
+        if !captureStatusPanel.isVisible { captureStatusPanel.orderFrontRegardless() }
     }
 
     private func orderOut() {
         stopFrames()
         decoration.orderOut(nil)
+        captureStatusPanel.orderOut(nil)
         inputs.forEach { $0.panel.orderOut(nil) }
     }
 

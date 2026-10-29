@@ -28,6 +28,11 @@ public final class InteractiveScreenshotController {
     public private(set) var isEnabled: Bool
     public var isCapturing: Bool { session.pending != nil }
     public var currentMode: ScreenshotMode { session.mode }
+    public var presentationSnapshot: InteractiveScreenshotPresentation? {
+        guard session.isActive, let request = session.pending, session.owns(request) else { return nil }
+        return InteractiveScreenshotPresentation(sessionID: request.sessionID, requestID: request.id,
+            confirmedMode: request.mode, nextMode: session.mode, state: state)
+    }
     public var selectionWindowIDs: Set<Int> { Set(panels.map(\.windowNumber)) }
     public private(set) var state: InteractiveScreenshotState = .idle
 

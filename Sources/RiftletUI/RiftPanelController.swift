@@ -375,6 +375,14 @@ public struct RiftPresentationBoundary: Sendable {
     public let actualDuration: TimeInterval
 }
 
+/// Presentation ownership only; neither case grants attachment or retry rights.
+public enum RiftFeedbackOwner: Equatable, Sendable {
+    case selection(UUID)
+    case operation(UUID)
+}
+
+public enum RiftFeedbackTiming: Equatable, Sendable { case immediate, waiting }
+
 /// The UI consumes committed state only. It has no adapter, receipt policy or file-deletion API.
 /// Per-row input windows leave genuine window-free gaps; the entire line is click-through.
 /// Actual transparent-pixel hit behavior, first-click focus and Spaces require Mac GUI validation.
@@ -413,6 +421,14 @@ public final class RiftPanelController {
     private let pager = RiftPager()
     private var pagerLayout: RiftLayoutResult?
     private let peek = RiftPeek()
+    private struct FeedbackState: Equatable {
+        let owner: RiftFeedbackOwner?
+        let revision: Int64
+        let operationID: UUID?
+        let text: String
+        let timing: RiftFeedbackTiming
+    }
+    private var feedbackStates: [UUID: FeedbackState] = [:]
     private var rowWindows: [UUID: RowWindow] = [:]
     private var lastRecords: [AssetRecord] = []
     private var deferredRecords: [AssetRecord]?
@@ -496,6 +512,10 @@ public final class RiftPanelController {
         cache = ThumbnailCache(directory: mediaDirectory)
         decoration = RiftPanel(frame: .zero, decorative: true)
         decoration.contentView = RiftLineView(frame: .zero)
+        peek.onNoteVisibilityChange = { [weak self] id, _ in
+            guard let self, let row = self.rowWindows[id] else { return }
+            self.updateFeedbackDescription(row)
+        }
         pager.onStep = { [weak self] direction in self?.page(direction) }
         observe(NSApplication.didChangeScreenParametersNotification, center: .default)
         observe(NSWorkspace.didWakeNotification, center: NSWorkspace.shared.notificationCenter)
@@ -644,7 +664,7 @@ public final class RiftPanelController {
     }
 
     private var allPresentationPanels: [NSPanel] {
-        [decoration] + rowWindows.values.flatMap { [$0.panel, $0.imageInput, $0.numberInput] }
+        [decoration, peek.presentationPanel] + rowWindows.values.flatMap { [$0.panel, $0.imageInput, $0.numberInput] }
     }
 
     /// The displayed version is captured before an asynchronous store call. A
@@ -689,18 +709,73 @@ public final class RiftPanelController {
         flushDeferred()
     }
 
-    public func setFeedback(_ reason: String?, for assetID: UUID) {
-        rowWindows[assetID]?.view.feedback = reason.map { String($0.prefix(256)) }
-        rowWindows[assetID]?.view.updateDescription()
-        if let row = rowWindows[assetID] {
-            for input in [row.imageInput, row.numberInput] { input.contentView?.toolTip = row.view.toolTip }
+    public func setFeedback(_ reason: String?, for assetID: UUID,
+                            owner: RiftFeedbackOwner? = nil, visibilityRevision: Int64? = nil,
+                            timing: RiftFeedbackTiming = .immediate) {
+        guard !closed, let row = rowWindows[assetID] else { return }
+        guard let reason else {
+            feedbackStates.removeValue(forKey: assetID)
+            if peek.assetID == assetID { peek.cancel() }
+            row.view.feedback = nil; updateFeedbackDescription(row)
+            return
         }
+        let record = row.view.record
+        guard record.visibility == .visible,
+              visibilityRevision == nil || visibilityRevision == record.visibilityRevision else { return }
+        if let owner, case .operation(let operationID) = owner {
+            guard operationID == record.activeOperationID, selectionVersions[assetID] == nil else { return }
+        }
+        let state = FeedbackState(owner: owner, revision: record.visibilityRevision,
+            operationID: record.activeOperationID, text: String(reason.prefix(256)), timing: timing)
+        // Repeated durable projections must not postpone the first 250ms
+        // deadline or restart an already expired explanation.
+        guard feedbackStates[assetID] != state else { return }
+        if peek.assetID == assetID { peek.cancel() }
+        feedbackStates[assetID] = state
+        row.view.feedback = state.text; updateFeedbackDescription(row)
+        scheduleFeedback(assetID, state: state, delay: timing == .waiting ? 0.25 : 0,
+                         requiresPointer: timing == .waiting)
     }
 
     /// A completed waiting phase must not erase a newer cancellation or error.
-    public func clearFeedback(matching reason: String, for assetID: UUID) {
-        guard rowWindows[assetID]?.view.feedback == reason else { return }
+    public func clearFeedback(matching reason: String, for assetID: UUID, owner: RiftFeedbackOwner? = nil) {
+        guard rowWindows[assetID]?.view.feedback == reason,
+              owner == nil || feedbackStates[assetID]?.owner == owner else { return }
         setFeedback(nil, for: assetID)
+    }
+
+    private func updateFeedbackDescription(_ row: RowWindow) {
+        row.view.updateDescription()
+        // Keep tooltip as the fallback, but do not stack the native tooltip on
+        // the same visible custom explanation. AX retains the full reason.
+        if peek.assetID == row.view.record.id, peek.isNoteVisible { row.view.toolTip = nil }
+        for input in [row.imageInput, row.numberInput] { input.contentView?.toolTip = row.view.toolTip }
+    }
+
+    private func scheduleFeedback(_ id: UUID, state: FeedbackState, delay: TimeInterval,
+                                  requiresPointer: Bool) {
+        guard let row = rowWindows[id], !closed, !userHidden, !captureSuppressed,
+              !gate.isHolding, !transitioning else { return }
+        let island = [row.imageInput, row.numberInput].first {
+            $0.isVisible && $0.frame.contains(NSEvent.mouseLocation)
+        }
+        if requiresPointer && island == nil { return }
+        let token = generation
+        peek.scheduleNote(id: id, text: state.text, delay: delay, stillValid: { [weak self] in
+            guard let self else { return false }
+            return !self.closed && !self.userHidden && !self.captureSuppressed
+                && !self.gate.isHolding && !self.transitioning && self.generation == token
+                && self.rowWindows[id]?.view === row.view && self.feedbackStates[id] == state
+                && row.view.record.visibility == .visible && row.view.record.visibilityRevision == state.revision
+                && row.view.record.activeOperationID == state.operationID
+                && (!requiresPointer || (island?.isVisible == true && island?.frame.contains(NSEvent.mouseLocation) == true))
+        }, anchor: { [weak self] in
+            guard let self, let screen = self.screen else { return nil }
+            let inputs = self.rowWindows.values.flatMap { [$0.imageInput, $0.numberInput] }
+                .filter { $0.isVisible && !$0.frame.isEmpty }
+            guard let leading = inputs.map({ $0.frame.minX }).min() else { return nil }
+            return (row.panel.frame, screen.visibleFrame, leading)
+        })
     }
 
     /// App persists this independent intent. No new image, wake, reflow or late
@@ -868,12 +943,14 @@ public final class RiftPanelController {
             let nextRecord = records.first { $0.id == previewID }
             let visibleGeometryChanged = layout.rows.count != rowWindows.count
                 || layout.rows.contains { $0 != rowWindows[$0.assetID]?.view.geometry }
-            if next == nil || visibleGeometryChanged || nextRecord?.visibilityRevision != old?.record.visibilityRevision {
+            if next == nil || visibleGeometryChanged || nextRecord?.visibilityRevision != old?.record.visibilityRevision
+                || nextRecord?.activeOperationID != old?.record.activeOperationID {
                 peek.cancel()
             }
         }
         for id in Array(rowWindows.keys) where !visibleIDs.contains(id) {
             flight.cancel(assetID: id)
+            feedbackStates.removeValue(forKey: id)
             rowWindows.removeValue(forKey: id)?.close()
         }
         let byID = Dictionary(records.map { ($0.id, $0) }, uniquingKeysWith: { _, latest in latest })
@@ -890,6 +967,11 @@ public final class RiftPanelController {
                 isNew = true
             }
             let oldStatus = window.view.record.status
+            if window.view.record.visibilityRevision != record.visibilityRevision
+                || window.view.record.activeOperationID != record.activeOperationID {
+                feedbackStates.removeValue(forKey: record.id)
+                window.view.feedback = nil
+            }
             window.view.record = record
             window.view.configuration = configuration
             // Each frame moves the visual panel and its two input islands together.
@@ -898,7 +980,7 @@ public final class RiftPanelController {
                 window.view.updateGeometry(geometry)
                 window.view.ordinal = geometry.ordinal
             }
-            window.view.updateDescription()
+            updateFeedbackDescription(window)
             window.panel.setFrame(movingFrames[record.id] ?? geometry.frame, display: true)
             window.syncInputFrames()
             window.panels.forEach { present($0) }
@@ -1182,6 +1264,12 @@ public final class RiftPanelController {
     }
 
     private func schedulePeek(_ id: UUID, immediate: Bool = false) {
+        // An explicit preview action still opens the image. Ordinary hover
+        // reads the current reason first, on the very same pointer-free panel.
+        if !immediate, let state = feedbackStates[id] {
+            scheduleFeedback(id, state: state, delay: 0.45, requiresPointer: true)
+            return
+        }
         guard let row = rowWindows[id], let screen, !closed, !userHidden, !captureSuppressed,
               !gate.isHolding, !transitioning, !interaction.snapshot.isSelecting else { return }
         let revision = row.view.record.visibilityRevision
@@ -1270,6 +1358,7 @@ public final class RiftPanelController {
         mutateInteraction { $0.resetPresentation() }
         rowWindows.values.forEach { $0.close() }
         rowWindows.removeAll()
+        feedbackStates.removeAll()
         visibleRange = 0..<0
         decoration.orderOut(nil); pagerLayout = nil; pager.hide(); peek.cancel()
     }
@@ -1293,7 +1382,7 @@ public final class RiftPanelController {
         finishQueueAnimation = nil; queueTransitionEpoch &+= 1
         closed = true; generation &+= 1; gate.cancel()
         pressRegions.removeAll(); shortAnimationTokens.removeAll()
-        selectionVersions.removeAll(); hoveredIDs.removeAll()
+        selectionVersions.removeAll(); hoveredIDs.removeAll(); feedbackStates.removeAll()
         mutateInteraction { $0.close() }
         observers.forEach { $0.0.removeObserver($0.1) }; observers.removeAll()
         rowWindows.values.forEach { $0.close() }; rowWindows.removeAll()

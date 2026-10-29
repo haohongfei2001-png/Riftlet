@@ -169,7 +169,7 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
             buildWindow()
             installObservations()
             resetScene(count: visualCount)
-            if NativeVisualEvidence.requested { nativeEvidence = try NativeVisualEvidence(backdrop: window) }
+            if NativeVisualEvidence.requested { nativeEvidence = try NativeVisualEvidence(backdrop: window, rift: rift, entry: visualEntry) }
             record("helper_started", ["syntheticOnly": true, "guiVerdict": "NOT_ASSESSED",
                                        "os": ProcessInfo.processInfo.operatingSystemVersionString])
             let modes = ["--software-pointer-probes", "--software-hold-probe", "--software-double-probe"]
