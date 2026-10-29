@@ -134,3 +134,5 @@ MOV编码、像素复制、等待和hash移入独立actor；MainActor只负责�
 Native PR新增单独串行、显式opt-in的自有不透明合成窗口region组件探针，每次至多一次实际命令，不补拍、不上传；全量并行与push不会开启此probe。权限/拓扑/遮挡前提不满足保留NOT_RUN；实际命令、发布、导入、持久化或输出图案校验失败记FAIL，不放宽成环境跳过。通过完整隐私守卫及原字节核验后才可归档原PNG，结果和次数另存capture.json。其范围限真实Apple CLI→安全发布→私有导入/SQLite，不能替代入口三模式、物理选择、底层焦点或端到端上传。实际次数和结果以新run为准。
 
 恢复后的测试实参顺序错误已由独立工程审查在CI前拦下并局部修正；旧8969d93b/cee67树不作为已批准来源。此轮完整修补需重新固定source SHA/tree、非作者批准与准确Native/Feedback CI，然后以新原尺寸影片确认D18及自然完成。
+
+非作者已精确核准最终源码 `49f1f706fcaa34f3f1ee95bc6c46f0c97d0b03c6` / tree `bd3568d7cce5724596fa90a571f99233acde462b` / parent fa863572，工作树干净。完整19路径恢复/磁力/MOV/截图发布及来源修补和所有新增回归均经过独立静审；最后三文件取证残留记账修补也已核准。Core、Feedback、服务、Adapters、CSQLite、Package、Main与Feedback workflow相对2c8保持。本次仅更新既有三条允许元数据路径及REVIEWED_SOURCE，准确组合CI、单次真实区域组件与D18/自然完成原尺寸复审仍待实际运行，不能先标PASS。
