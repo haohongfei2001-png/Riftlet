@@ -33,7 +33,7 @@ METADATA_PATHS = frozenset((
 ))
 # Set only after a committed source checkpoint has non-author review. This
 # script cannot approve changes to its own policy; that remains a review gate.
-REVIEWED_SOURCE = "683aefb46b7ed774674a3dd2e6199868952b7b46"  # Non-author source review; runtime acceptance remains separate.
+REVIEWED_SOURCE = "4d1fd5f1b6c7f75305d70ab5f1c04da2cdddb6bb"  # Non-author source review; runtime acceptance remains separate.
 
 
 @dataclass(frozen=True)

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "PR17_PRODUCT_SOURCE_REVIEWED_FORMAL_COMBINED_CI_PENDING",
+  "status": "FEEDBACK_CLOUD_SOURCE_REVIEWED_COMBINED_CI_PENDING",
   "inputs": {
     "unified": "2c8cd0371de5e07fd7794f76335381a40403030d",
     "builtin": "6b60f67f6d35272eecff901c507bd75a77874ed6",
@@ -176,8 +176,8 @@
     "uploadAdmissionExpanded": false,
     "userDataChanged": false
   },
-  "reviewedSource": "683aefb46b7ed774674a3dd2e6199868952b7b46",
-  "reviewedTree": "2188e6839aadeaa052f81800f640edb077269148",
+  "reviewedSource": "4d1fd5f1b6c7f75305d70ab5f1c04da2cdddb6bb",
+  "reviewedTree": "ffda55a2af47c17eb130d21700a210c698ac73e3",
   "continuationFailures": [
     {
       "head": "b3cec64f0ecbf869aff3b17b88d55323d1765393",
@@ -1244,5 +1244,619 @@
       "noReleaseOrFounderBeta"
     ],
     "stopAfter": "Completed formal integration with exact source review, full Native/Feedback CI and actual merge-tree verification; no unrelated polishing"
+  },
+  "feedbackCloudContinuation": {
+    "base": "c15fd4b4a27659946ef49280131e875f4d5ab9d1",
+    "reviewedSource": "4d1fd5f1b6c7f75305d70ab5f1c04da2cdddb6bb",
+    "reviewedTree": "ffda55a2af47c17eb130d21700a210c698ac73e3",
+    "nonAuthorReview": {
+      "reviewer": "/root/deployment_review",
+      "authorRole": "Independent non-author reviewer; no product/source/ref/browser/secret mutations",
+      "reviewedAtUTC": "2026-10-29T14:26:08.041888+00:00",
+      "decision": "APPROVED_FOR_EXACT_SOURCE_ADMISSION_AND_UNCHANGED_FULL_CI",
+      "source": "4d1fd5f1b6c7f75305d70ab5f1c04da2cdddb6bb",
+      "tree": "ffda55a2af47c17eb130d21700a210c698ac73e3",
+      "parent": "c15fd4b4a27659946ef49280131e875f4d5ab9d1",
+      "reviewedChangedFiles": 46,
+      "blockingSourceFindings": [],
+      "scope": "Complete actual source increment and sanitized partial Receiver evidence; not private-Issue delivery, native Mac acceptance, final deployment identity or public release approval",
+      "identityProof": {
+        "githubCommitAndRecursiveTreeReadIndependently": true,
+        "recursiveTreeEntries": 1049,
+        "truncated": false,
+        "remoteAndLocalEntireTreeEqual": true,
+        "all46CommitBlobsAndSHA256MatchSuppliedManifestAndWorktree": true,
+        "trackedWorktreeCleanAtReviewEnd": true
+      },
+      "preservedBoundaries": {
+        "SourcesTree": "99ae7bf21b1288f5ba899fc03e571a3584a60a4d",
+        "PackageBlob": "d3cdd0d51ad937b1afb243cd866cf0071f408d49",
+        "workflowsTree": "3e8718ac548454b7c13f9ff63be8aefaa4c92d72",
+        "finalProductGateBlob": "d587f376a1382fc5a26e3c3306037af99df54c39",
+        "existingCompositionGateBlobsUnchanged": true,
+        "HostEndpoint": "nil",
+        "screenshotAdmissionAndOldUNKNOWN": "unchanged",
+        "historicalEvidence": "unchanged; new dated evidence directory only"
+      },
+      "codeReview": [
+        "Delivery ORDER BY checked_at,created,id closes independently reproduced five-minute tick starvation without granting another POST for uncertain records.",
+        "Three additive D1 indexes retain existing trigger, quota, identity, deletion and retention semantics.",
+        "Package manifest derives capability from committed sourceHeadSHA Host; repository-aware verification rejects altered valid-domain endpoint and coercive boolean values; configuration is never receipt/delivery success.",
+        "Without --repository the standalone package validator remains structural only; the real packaging path supplies --repository and exact build-input binding.",
+        "Actual README changes are conditional on exact build-info, explain queued original-identity retry versus drafts, and retain screenshot/Feedback isolation.",
+        "Acceptance harness final reviewed SHA retains standard proxy/NO_PROXY/CONNECT/TLS, bounded three-second post-write no-read, truthful unknown result and no secret logging.",
+        "Receiver config matches saved live test settings; Delivery config remains disabled/uncreated and native Host remains nil."
+      ],
+      "tests": {
+        "service": {
+          "result": "21/21 individual subtests PASS",
+          "scope": "Local SQLite/mock GitHub; detailed independently executed log; service files match reviewed C byte-for-byte",
+          "evidence": "engineering/evidence/2026-10-29-feedback-cloud/node-runner-service-21-subtests-no-isolation.log",
+          "sha256": "5c04a552e3fc81de37b20d6f6a46eeecce107a9ddccb4855785e26cbd34dde56",
+          "command": "node --experimental-sqlite --test-isolation=none --test --test-reporter=tap services/feedback/feedback.test.mjs services/feedback/retention.test.mjs"
+        },
+        "packaging": {
+          "result": "13/13 PASS",
+          "command": "python3 -m unittest discover -s Tests/InternalBetaPackaging -p 'test_package.py' -v",
+          "scope": "Fresh independent execution against C; synthetic package tests, not App launch"
+        },
+        "acceptanceTransport": {
+          "result": "4/4 PASS",
+          "command": "python3 -m unittest discover -s services/feedback/acceptance -p 'test_cloud_acceptance.py' -v",
+          "scope": "Fresh independent execution against C; all transport mocked, no real request"
+        },
+        "defaultNodeIsolation": "2 file-level PASS only; not counted as21. Deliberate failure fixture executes/assertion exit1 in both modes; no ambient NODE_OPTIONS/preload found.",
+        "fullNewMacOSCI": "NOT_RUN at review; root must run original workflows after exact source-admission successor."
+      },
+      "evidenceAudit": {
+        "events": 39,
+        "completedHTTPChecks": 36,
+        "httpExpectationsPassed": 36,
+        "dropAttemptsSeparatelyCounted": 3,
+        "allManifestDigestsMatch": true,
+        "summaryCountsAndOriginalEventsAgree": true,
+        "allFinalFiveAuthorizedHTTPGETsDeleted": true,
+        "allThreeDropsKeepOriginalIdentityAndBodyDigest": true,
+        "dropOutcomesNeverPromotedToDurableByBytes": true,
+        "originalD1Records": "Operator direct Console capture independently re-audited: two original IDs/hashes/pending/noIssue. This reviewer did not open Cloudflare or re-query D1.",
+        "laterLostReceipt": "Authenticated GET reports received, then deleted after cleanup; original no-read outcome and independent no-row history preserved; no retry executed.",
+        "privacy": "No real platform token, bearer capability, private state, user body, screenshot, browser authentication or raw IP found in46files; the only credentialed URL match is an explicit fake offline proxy fixture.",
+        "historicalReviews": "Earlier packaging manifest includes an unapplied placeholder Host and earlier README; current C Host nil and current README independently checked, not inferred from historical manifest."
+      },
+      "exceptionsAndUnfinishedAcceptance": [
+        "Final complete Receiver active version after Secret/flag updates still needs actual platform read.",
+        "Delivery Worker, scheduled retention execution, GitHub token installation and unique private Issue creation remain NOT_RUN; its repository-only token metadata is not delivery evidence.",
+        "All five test IDs report deleted over HTTP, but direct final D1 unique tombstones/payload NULL/delete flags/noIssue remain BLOCKED by disconnected browser. Backup/Time Travel erasure is not claimed.",
+        "D1-before-client-retry lost receipt scenario, real GitHub201 lost response recovery and permanent private Issue deletion remain NOT_RUN.",
+        "Free CPU/true platform quota behavior and final backup window remain unverified; accepted-report SQL quotas are not all-request cost/rate proof.",
+        "Real native-window/IME/Keychain/restart/screenshot isolation acceptance remains NOT_RUN and delegated to Codex; a checklist is not a scheduled executor.",
+        "Host remains nil; this Beta cannot submit real App feedback until same-deployment private-Issue and required deletion evidence is reviewed."
+      ],
+      "admissionConditions": [
+        "Pin only this exact reviewed C; keep original audit logic, workflow triggers, screenshot admissions, historical objects and main boundary unchanged.",
+        "Successor changes must be restricted to the established REVIEWED_SOURCE literal and already permitted admission metadata, then actual full CI must pass.",
+        "No main merge, public release, completion claim, deployment-secret disclosure or Host activation is approved by this source review."
+      ],
+      "evidenceFiles": {
+        "http-evidence-consistency.json": {
+          "sha256": "13bbd34b888761b3cbdf3524ceacfa2281e3f1519d47e8e0d68de1e51a0e9b5d",
+          "bytes": 1010
+        },
+        "independent-acceptance-transport-4-tests.log": {
+          "sha256": "b897d02e473d4d2eda70a86baec737355fdacb2e2db599622865745fd8c1fcb3",
+          "bytes": 710
+        },
+        "independent-packaging-13-tests.log": {
+          "sha256": "eeffa205d688cf05759b194f72ad1b4021b9818604c8c9233641ddca14c5e47f",
+          "bytes": 2256
+        },
+        "independent-test-tool-results.json": {
+          "sha256": "bf03cb296137f37dba9b226fda94261a4b6b7436d56eb020ec4bf39508b4bf03",
+          "bytes": 3434
+        },
+        "remote-commit-tree.json": {
+          "sha256": "1d6d3e2eda03df3972fd9a5bf9f02ab6084effe89e49048d27c0e99aebe0e7cd",
+          "bytes": 219196
+        },
+        "reviewed-46-files.json": {
+          "sha256": "cc987c0df26452e930905052553a6487da856dbb3d330051f93880a81e09d602",
+          "bytes": 17658
+        },
+        "tree-and-file-verification.json": {
+          "sha256": "3feaf995475a366b45450c9349e9a8f98ba41d4ce219fadbc64d988bb92a03e6",
+          "bytes": 23670
+        }
+      }
+    },
+    "reviewRecordSHA256": "33be6432cad87f4f74de655f7edaee41a045aa1afbbab17777e44227a910aae5",
+    "reviewedFilesManifestSHA256": "cc987c0df26452e930905052553a6487da856dbb3d330051f93880a81e09d602",
+    "reviewedFiles": {
+      "source": "4d1fd5f1b6c7f75305d70ab5f1c04da2cdddb6bb",
+      "tree": "ffda55a2af47c17eb130d21700a210c698ac73e3",
+      "base": "c15fd4b4a27659946ef49280131e875f4d5ab9d1",
+      "changedFileCount": 46,
+      "files": [
+        {
+          "path": "AGENTS.md",
+          "bytes": 14648,
+          "sha256": "161041d974269a2e62538353991c45c9331f8c030f602374f42f0a0f18fcb622",
+          "blob": "da0be913a55928a2056e64749d8516b78638a718",
+          "mode": "100644",
+          "remoteMatches": true,
+          "providedManifestMatches": true,
+          "workingTreeMatches": true
+        },
+        {
+          "path": "Tests/InternalBetaPackaging/test_package.py",
+          "bytes": 13561,
+          "sha256": "c616c148e5d4f8d8a6a917a5989eab9ea7b456bd6962430d18d14893c45c8417",
+          "blob": "2b04ccf1c32b3d593cb39bbad9681cc52cb1d59f",
+          "mode": "100644",
+          "remoteMatches": true,
+          "providedManifestMatches": true,
+          "workingTreeMatches": true
+        },
+        {
+          "path": "docs/EXECUTION_BOARD.md",
+          "bytes": 58909,
+          "sha256": "e7ae1c4426e4d20a0484398c778a6871c6ce481032ea001f5894c96bb6a457ff",
+          "blob": "885db6702dc58c6cf4954ed4e439e5ec5f63ef4a",
+          "mode": "100644",
+          "remoteMatches": true,
+          "providedManifestMatches": true,
+          "workingTreeMatches": true
+        },
+        {
+          "path": "docs/FEEDBACK_V01_HANDOFF.md",
+          "bytes": 11419,
+          "sha256": "126f8673ad81bbec824091d60967b8f92f0864b25f35e0566884a037219710de",
+          "blob": "028875d2783f3850a0e49ef63d7a549332e94c07",
+          "mode": "100644",
+          "remoteMatches": true,
+          "providedManifestMatches": true,
+          "workingTreeMatches": true
+        },
+        {
+          "path": "docs/INTEGRATION_HANDOFF.md",
+          "bytes": 87585,
+          "sha256": "be5016a0620f7780b1d059f1e4bd2256a0363897339e8ff34752ea3e0de1b087",
+          "blob": "20e0d3d1e0de7c05a90308cec3df5a546e0866e9",
+          "mode": "100644",
+          "remoteMatches": true,
+          "providedManifestMatches": true,
+          "workingTreeMatches": true
+        },
+        {
+          "path": "docs/INTERNAL_BETA.md",
+          "bytes": 12038,
+          "sha256": "a094b9c51d3780fcdc4960d21ebd880267faec7ae0fd41185f572c46b3cce68c",
+          "blob": "18fc4fa87a16737982b9aacbe64ea9fa117f1e92",
+          "mode": "100644",
+          "remoteMatches": true,
+          "providedManifestMatches": true,
+          "workingTreeMatches": true
+        },
+        {
+          "path": "engineering/evidence/2026-10-29-feedback-cloud/CODEX_REAL_MAC_E2E.md",
+          "bytes": 9588,
+          "sha256": "4a0815edb4e28e57e90d05dc655f092355d3dfedda5738d8f66cdd234f83d250",
+          "blob": "80ce28eb0092faaf07f5e6962126d4450e1ce208",
+          "mode": "100644",
+          "remoteMatches": true,
+          "providedManifestMatches": true,
+          "workingTreeMatches": true
+        },
+        {
+          "path": "engineering/evidence/2026-10-29-feedback-cloud/DEPLOYMENT_RECONCILIATION_CHECKLIST.md",
+          "bytes": 8466,
+          "sha256": "f92024181e02796cd7736f1d6bfa218b98cd9da141a7c7340949b90f8c6e47d9",
+          "blob": "832756fde9620bef5d60f1c70c3fc8067bfe278c",
+          "mode": "100644",
+          "remoteMatches": true,
+          "providedManifestMatches": true,
+          "workingTreeMatches": true
+        },
+        {
+          "path": "engineering/evidence/2026-10-29-feedback-cloud/MINIMUM_OPERATIONS.md",
+          "bytes": 9328,
+          "sha256": "2f32380b3e0d73f91a9733d274cefb7552af51872935a49be224ebedd2cab18e",
+          "blob": "afdf02e8c33aeda7eae9e8ca204a4af41c17897a",
+          "mode": "100644",
+          "remoteMatches": true,
+          "providedManifestMatches": true,
+          "workingTreeMatches": true
+        },
+        {
+          "path": "engineering/evidence/2026-10-29-feedback-cloud/README.md",
+          "bytes": 17329,
+          "sha256": "1b547aaa6151a72c8f479ee0528f6d8edefaa7a040c9198d9d386e78270e2f6f",
+          "blob": "75811ee5306d0fd3a5933d2375b970aa1784e961",
+          "mode": "100644",
+          "remoteMatches": true,
+          "providedManifestMatches": true,
+          "workingTreeMatches": true
+        },
+        {
+          "path": "engineering/evidence/2026-10-29-feedback-cloud/d1-first-receipts.json",
+          "bytes": 538,
+          "sha256": "f715b2abd8576f3228b23d9bdc4e47ae764ae1a99818e0b87d971643f00d3a3f",
+          "blob": "05a69c9777f1a526f37e3b3be5e69c77bd8bf03e",
+          "mode": "100644",
+          "remoteMatches": true,
+          "providedManifestMatches": true,
+          "workingTreeMatches": true
+        },
+        {
+          "path": "engineering/evidence/2026-10-29-feedback-cloud/d1-immediate-close-no-row.json",
+          "bytes": 1247,
+          "sha256": "c514ff01e9731b71fc8269a9743ef507a2910a17e616f33ce2b856c5777c3352",
+          "blob": "64837d47fa86b4880b2c7ba108539f091ed9f612",
+          "mode": "100644",
+          "remoteMatches": true,
+          "providedManifestMatches": true,
+          "workingTreeMatches": true
+        },
+        {
+          "path": "engineering/evidence/2026-10-29-feedback-cloud/deployment-checkpoint.json",
+          "bytes": 25974,
+          "sha256": "dc7d5b1176b431291692564e7c63f7dc6ab7d460b12297d69329f38ba9cba1c7",
+          "blob": "d132311ed6291ee1c2173193c6a4d7d3aae9b65e",
+          "mode": "100644",
+          "remoteMatches": true,
+          "providedManifestMatches": true,
+          "workingTreeMatches": true
+        },
+        {
+          "path": "engineering/evidence/2026-10-29-feedback-cloud/linger-drop-response-decision.json",
+          "bytes": 1734,
+          "sha256": "7c2fcdbe407fa3cbe4fb7ed598dc4f60e4fb4d6f1b6c6f6705354875a6d4d86b",
+          "blob": "5a983e2c26a8d71addb2253cdd25a252ce3a9863",
+          "mode": "100644",
+          "remoteMatches": true,
+          "providedManifestMatches": true,
+          "workingTreeMatches": true
+        },
+        {
+          "path": "engineering/evidence/2026-10-29-feedback-cloud/linger-drop-response-independent-offline-tests.log",
+          "bytes": 658,
+          "sha256": "189115d7744af2e255a6f9edb780d95a8cc395cbbbe7fe7191d323764767ff71",
+          "blob": "90809952605242de1660c4d1011d54cc8ee51c50",
+          "mode": "100644",
+          "remoteMatches": true,
+          "providedManifestMatches": true,
+          "workingTreeMatches": true
+        },
+        {
+          "path": "engineering/evidence/2026-10-29-feedback-cloud/live-http/d1-query.sql",
+          "bytes": 779,
+          "sha256": "e6f6c56904c370fe0e60271894df65e11eacfb5a2c4718af119edb4433791cf7",
+          "blob": "315158cae8424e9d740649e832c666501fcb3f74",
+          "mode": "100644",
+          "remoteMatches": true,
+          "providedManifestMatches": true,
+          "workingTreeMatches": true
+        },
+        {
+          "path": "engineering/evidence/2026-10-29-feedback-cloud/live-http/events.jsonl",
+          "bytes": 25639,
+          "sha256": "5168953e6196b380baed34ea0153350ff0aa318da67888086e484a11a323f628",
+          "blob": "16373722efb28f284394294732b6e83aefed3b0a",
+          "mode": "100644",
+          "remoteMatches": true,
+          "providedManifestMatches": true,
+          "workingTreeMatches": true
+        },
+        {
+          "path": "engineering/evidence/2026-10-29-feedback-cloud/live-http/identities.json",
+          "bytes": 1460,
+          "sha256": "282a2fa09d09b5c9406d7b963ea5be6d75b5ebdabe7b3fbba415f0fe549e2c0c",
+          "blob": "1a11345d49b81bdba0fab7beaf142511e911ef4a",
+          "mode": "100644",
+          "remoteMatches": true,
+          "providedManifestMatches": true,
+          "workingTreeMatches": true
+        },
+        {
+          "path": "engineering/evidence/2026-10-29-feedback-cloud/live-http/manifest.json",
+          "bytes": 483,
+          "sha256": "36781b0f9b85159f733617908084a460bc7a888c8b2fbec41fec1f85ac877613",
+          "blob": "543dd7e92a5d2de49eb96aaf357fdb0e95963361",
+          "mode": "100644",
+          "remoteMatches": true,
+          "providedManifestMatches": true,
+          "workingTreeMatches": true
+        },
+        {
+          "path": "engineering/evidence/2026-10-29-feedback-cloud/live-http/summary.json",
+          "bytes": 11085,
+          "sha256": "859321a3f6aab5fb26d0f9cd1850cfa448ec95396ad351259b0c4f0b16866950",
+          "blob": "05ef8edf6adc67d8629f03cbf5838086b48297e8",
+          "mode": "100644",
+          "remoteMatches": true,
+          "providedManifestMatches": true,
+          "workingTreeMatches": true
+        },
+        {
+          "path": "engineering/evidence/2026-10-29-feedback-cloud/node-runner-decision.json",
+          "bytes": 3232,
+          "sha256": "69a7d4f3c5fa1938d26b7a9264948dfc1c8a9c2b92744fa3c50b2da9b266e25f",
+          "blob": "7cad2f0ba73082f46577bde3a68eb0aac9d610e3",
+          "mode": "100644",
+          "remoteMatches": true,
+          "providedManifestMatches": true,
+          "workingTreeMatches": true
+        },
+        {
+          "path": "engineering/evidence/2026-10-29-feedback-cloud/node-runner-intentional-failure-results.json",
+          "bytes": 3812,
+          "sha256": "a400f226aa578e4decef46e28c81bfafcdff9c3656e380b8a85a7587465280ca",
+          "blob": "a884ce8500c847c6cf3300838fbe9322b8820206",
+          "mode": "100644",
+          "remoteMatches": true,
+          "providedManifestMatches": true,
+          "workingTreeMatches": true
+        },
+        {
+          "path": "engineering/evidence/2026-10-29-feedback-cloud/node-runner-service-21-subtests-no-isolation.log",
+          "bytes": 5939,
+          "sha256": "5c04a552e3fc81de37b20d6f6a46eeecce107a9ddccb4855785e26cbd34dde56",
+          "blob": "1f38590513b6340e9fd6ba1b8e10d24f5dccff1f",
+          "mode": "100644",
+          "remoteMatches": true,
+          "providedManifestMatches": true,
+          "workingTreeMatches": true
+        },
+        {
+          "path": "engineering/evidence/2026-10-29-feedback-cloud/node-runner-service-default-isolation-file-level.log",
+          "bytes": 407,
+          "sha256": "cc174440632994f5c3a96eb0ee8f83cad37cae88f0cfbcf8874c4c140eb7939f",
+          "blob": "196b19779817dd1cd14fc080feeeb475b5f89a15",
+          "mode": "100644",
+          "remoteMatches": true,
+          "providedManifestMatches": true,
+          "workingTreeMatches": true
+        },
+        {
+          "path": "engineering/evidence/2026-10-29-feedback-cloud/packaging-additional-boundary-observations.json",
+          "bytes": 1267,
+          "sha256": "0f199698f672d3f2750cf166ea9d38950faf0b87a99508da31a3abb172655864",
+          "blob": "7d9cbe4806c53238993575ba2c919e38b3e6a0e3",
+          "mode": "100644",
+          "remoteMatches": true,
+          "providedManifestMatches": true,
+          "workingTreeMatches": true
+        },
+        {
+          "path": "engineering/evidence/2026-10-29-feedback-cloud/packaging-independent-13-tests.log",
+          "bytes": 2256,
+          "sha256": "ad89b22489f6ebe309044a5fa5a647f2cea4f7a5667ff1150a518dcc90967890",
+          "blob": "af03a861629f6052e6eaaac3eb35ded4890b9245",
+          "mode": "100644",
+          "remoteMatches": true,
+          "providedManifestMatches": true,
+          "workingTreeMatches": true
+        },
+        {
+          "path": "engineering/evidence/2026-10-29-feedback-cloud/packaging-reviewed-test-manifest.json",
+          "bytes": 1203,
+          "sha256": "0a5e0ff3d25305917e58243f3b50ea178048ab52ab4c605ca31197da2489ee3b",
+          "blob": "205c987a3fd5e11dd22bee6a9225c4b089f53f5e",
+          "mode": "100644",
+          "remoteMatches": true,
+          "providedManifestMatches": true,
+          "workingTreeMatches": true
+        },
+        {
+          "path": "engineering/evidence/2026-10-29-feedback-cloud/proxy-drop-response-decision.json",
+          "bytes": 1793,
+          "sha256": "e4e623387f97d34e207016c345c07b32c29524bd11b5fdc930e09941336fc76b",
+          "blob": "48b6141e55635da69f2e160c67b71b6fbad3143b",
+          "mode": "100644",
+          "remoteMatches": true,
+          "providedManifestMatches": true,
+          "workingTreeMatches": true
+        },
+        {
+          "path": "engineering/evidence/2026-10-29-feedback-cloud/proxy-drop-response-independent-offline-tests.log",
+          "bytes": 658,
+          "sha256": "e41cc034522dda6650c9851a7ba934bd816c745f1abd9f95654a2ec73bba84eb",
+          "blob": "28f3a3c015000ff9caaca84dac51fd777905c44a",
+          "mode": "100644",
+          "remoteMatches": true,
+          "providedManifestMatches": true,
+          "workingTreeMatches": true
+        },
+        {
+          "path": "engineering/evidence/2026-10-29-feedback-cloud/receiver-deployment.json",
+          "bytes": 1427,
+          "sha256": "4d71ae70bdd81567fb8ab351bb6b9fbbbe1de478098419a51bc29debe3966b3b",
+          "blob": "fdcfb5e30ca1ae7c8c9cb5760b42cdcee3c1536b",
+          "mode": "100644",
+          "remoteMatches": true,
+          "providedManifestMatches": true,
+          "workingTreeMatches": true
+        },
+        {
+          "path": "engineering/evidence/2026-10-29-feedback-cloud/service-21-tests.log",
+          "bytes": 5940,
+          "sha256": "f243ee80db1086515eb96c5e6e18c87159f6d9a059a020833b009fa3320d77c1",
+          "blob": "88b73c528ad43bfcc768a1b66c5a6d44593a2117",
+          "mode": "100644",
+          "remoteMatches": true,
+          "providedManifestMatches": true,
+          "workingTreeMatches": true
+        },
+        {
+          "path": "engineering/evidence/2026-10-29-feedback-cloud/service-independent-review.json",
+          "bytes": 1140,
+          "sha256": "051f9d1be52e4774907b9d8600231f258873fb6160aafe0f7aa624f8b3dbc9d2",
+          "blob": "17ef2625d2bc6e468f00ec60d3fe524d456b3fba",
+          "mode": "100644",
+          "remoteMatches": true,
+          "providedManifestMatches": true,
+          "workingTreeMatches": true
+        },
+        {
+          "path": "engineering/evidence/2026-10-29-feedback-cloud/starvation-after.log",
+          "bytes": 1153,
+          "sha256": "6cba9b67f8c52ba22b121ea5505d3ff5f0285878cd8b2417f84d7de8225b7fc2",
+          "blob": "f688ed6b0f90da23dc0ca6421d9c92a504c0eff0",
+          "mode": "100644",
+          "remoteMatches": true,
+          "providedManifestMatches": true,
+          "workingTreeMatches": true
+        },
+        {
+          "path": "engineering/evidence/2026-10-29-feedback-cloud/starvation-before.log",
+          "bytes": 1949,
+          "sha256": "edd045b2679dfe2dd3b4b6cee29e113171f3bf704dec3aaf4cd6e27bb48f251b",
+          "blob": "2233b6a025c72d33415423652395f8bec774130e",
+          "mode": "100644",
+          "remoteMatches": true,
+          "providedManifestMatches": true,
+          "workingTreeMatches": true
+        },
+        {
+          "path": "packaging/internal-beta/README-zh-CN.txt",
+          "bytes": 8017,
+          "sha256": "14b19a4db5421ce476c5d85c8cf0b6dcc5189b90d3c7ae4ddc791a305989b5a1",
+          "blob": "91fd068a3994a55ba7d4aa86defd9e3bfd129d9d",
+          "mode": "100644",
+          "remoteMatches": true,
+          "providedManifestMatches": true,
+          "workingTreeMatches": true
+        },
+        {
+          "path": "scripts/package-internal-beta.sh",
+          "bytes": 1692,
+          "sha256": "b35a5d0025de83804005e7fbb17e7e18daf88e44ce18bb4db2ea2678758ed6a0",
+          "blob": "37fde2fff0244c975d9e05e2482dae71a015427e",
+          "mode": "100755",
+          "remoteMatches": true,
+          "providedManifestMatches": true,
+          "workingTreeMatches": true
+        },
+        {
+          "path": "scripts/verify-internal-beta-package.py",
+          "bytes": 9637,
+          "sha256": "b6bbacd7c750b994ac89b77b10004f11fc9aafa5d19e87958108e4971e58d5f3",
+          "blob": "8937c6018dbbfcabf419593dbc4c67eea0a85fb5",
+          "mode": "100755",
+          "remoteMatches": true,
+          "providedManifestMatches": true,
+          "workingTreeMatches": true
+        },
+        {
+          "path": "services/feedback/README.md",
+          "bytes": 12231,
+          "sha256": "696530b71f0557692b5c55e95b0accacc29966ef9bfcd56d7e2ee1f74e2d1319",
+          "blob": "5a3671bb5a89644857c1cbe4563a53f08d9da72c",
+          "mode": "100644",
+          "remoteMatches": true,
+          "providedManifestMatches": true,
+          "workingTreeMatches": true
+        },
+        {
+          "path": "services/feedback/acceptance/README.md",
+          "bytes": 6215,
+          "sha256": "8e8d9bd4ebde3ac680a2264390912450b53c6b1304226a7d0abd63399fcba4df",
+          "blob": "f08c7926d4227742260fb389bde9ac8f1922f08d",
+          "mode": "100644",
+          "remoteMatches": true,
+          "providedManifestMatches": true,
+          "workingTreeMatches": true
+        },
+        {
+          "path": "services/feedback/acceptance/cloud_acceptance.py",
+          "bytes": 21659,
+          "sha256": "697518d9de0809ea1bd329d8b5f9b0e4483614e38e8c43593ece501f637fba60",
+          "blob": "47d7357e1827f45bb7f7178c65e136ac87845543",
+          "mode": "100644",
+          "remoteMatches": true,
+          "providedManifestMatches": true,
+          "workingTreeMatches": true
+        },
+        {
+          "path": "services/feedback/acceptance/test_cloud_acceptance.py",
+          "bytes": 6040,
+          "sha256": "362967cf421e991a79524d5aa355d6fa8c54f72af7473c306f063f0a1f564400",
+          "blob": "42e677f7c949f0a7eae52a3c0b1fad95fa3f7ab2",
+          "mode": "100644",
+          "remoteMatches": true,
+          "providedManifestMatches": true,
+          "workingTreeMatches": true
+        },
+        {
+          "path": "services/feedback/delivery.mjs",
+          "bytes": 6617,
+          "sha256": "58d2fad0f9c9a88ad1ff15180226ad1e7c025d7fcf9da43df909cefae5491ca8",
+          "blob": "cc7bdc7d2efb0a9eae9df118364347c9e633dbdf",
+          "mode": "100644",
+          "remoteMatches": true,
+          "providedManifestMatches": true,
+          "workingTreeMatches": true
+        },
+        {
+          "path": "services/feedback/feedback.test.mjs",
+          "bytes": 13938,
+          "sha256": "e2fc1dc0073e23b892d882b3a6ebaf59385a95969a75217749479935df96b5fa",
+          "blob": "3feedc92cfb97b9a2ee1f358d304085506861e58",
+          "mode": "100644",
+          "remoteMatches": true,
+          "providedManifestMatches": true,
+          "workingTreeMatches": true
+        },
+        {
+          "path": "services/feedback/schema.sql",
+          "bytes": 2136,
+          "sha256": "b17df2e79b2f3966af809b6045062d9dc76cd05b8a9f1d8a1c8e7e1af1454bfa",
+          "blob": "994ce13d8411ab2192ffee0717ee71dd0f93ea68",
+          "mode": "100644",
+          "remoteMatches": true,
+          "providedManifestMatches": true,
+          "workingTreeMatches": true
+        },
+        {
+          "path": "services/feedback/wrangler.delivery.jsonc",
+          "bytes": 560,
+          "sha256": "eac920fb8144e984470460b7a13e9437c1d956fbb6032ac9004a142b3230957f",
+          "blob": "2703ee7c70fc12de7235dfe9be7820376967dcf1",
+          "mode": "100644",
+          "remoteMatches": true,
+          "providedManifestMatches": true,
+          "workingTreeMatches": true
+        },
+        {
+          "path": "services/feedback/wrangler.receiver.jsonc",
+          "bytes": 452,
+          "sha256": "a873f89288f9c477577423b38a4f093493cbfaf23378d685815890040fa3546c",
+          "blob": "cb6a8caa168439669b4b6cd31c4463c0228e43d8",
+          "mode": "100644",
+          "remoteMatches": true,
+          "providedManifestMatches": true,
+          "workingTreeMatches": true
+        }
+      ]
+    },
+    "priorGateActualExecution": {
+      "revision": "4d1fd5f1b6c7f75305d70ab5f1c04da2cdddb6bb",
+      "result": "FAIL_EXPECTED_BEFORE_NEW_SOURCE_PIN",
+      "checks": 25,
+      "unexpectedPaths": 31,
+      "changedPriorObjects": 15,
+      "allFourHistoricalAudits": "PASS"
+    },
+    "admissionSuccessorScope": [
+      "scripts/verify-final-product-composition.py",
+      "engineering/evidence/2026-10-29-final-product/README.md",
+      "engineering/evidence/2026-10-29-final-product/results.json"
+    ],
+    "gatePolicyAndMetadataExceptions": "UNCHANGED; only reviewed-source literal changes",
+    "newCombinedCI": "PENDING_AT_SOURCE_CHECKPOINT; final exact run/job/artifact identities will be recorded in the associated Draft PR after execution, without appending another source commit",
+    "actualCloudEvidence": "engineering/evidence/2026-10-29-feedback-cloud/README.md",
+    "cloudStatus": "REAL_RECEIVER_HTTP_AND_TWO_DIRECT_D1_RECORDS; PRIVATE_ISSUE_PIPELINE_BLOCKED",
+    "nativeEndpoint": "nil; local-outbox-only",
+    "physicalMac": "NOT_RUN; user deferred to Codex; handoff prepared, executor not scheduled",
+    "release": "No main merge, public release or notarization claim"
   }
 }

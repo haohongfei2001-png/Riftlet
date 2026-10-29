@@ -1,3 +1,15 @@
+# Feedback receiver continuation — 2026-10-29
+
+The new independently reviewed source is `4d1fd5f1b6c7f75305d70ab5f1c04da2cdddb6bb` (tree `ffda55a2af47c17eb130d21700a210c698ac73e3`), a direct child of current unified PR #15 head `c15fd4b4a27659946ef49280131e875f4d5ab9d1`. Non-author reviewer `/root/deployment_review` compared the complete remote/local trees and all 46 changed files. There are no unresolved source blockers. The source pin successor changes only the existing reviewed-source literal and these two existing metadata files; no policy, workflow, metadata exception, screenshot admission or historical evidence is changed.
+
+The increment fixes actual five-minute delivery starvation, adds three D1 maintenance indexes, binds Beta service capability metadata to committed Host source, and records real Receiver deployment/testing with all failures and cleanup limits. Independent local checks passed 21 service subtests, 13 packaging cases and four offline transport-boundary cases. The original source gate actually rejected C's 31 new paths and 15 changed prior objects before the new review pin; all four historical audits passed.
+
+[Exact cloud checkpoint](../2026-10-29-feedback-cloud/README.md): the dedicated Receiver/D1 are deployed, 36 actual HTTP checks passed, two original D1 IDs/hashes were read directly, and the five synthetic IDs finally report deleted through authenticated HTTP. Final direct D1 cleanup proof, final active version, separate Delivery/cron/private Issue creation and permanent deletion remain incomplete after the authorized browser disconnected. The native Host remains nil. Real native-window acceptance is prepared for Codex as the user requested; no executor is scheduled. This is not a cloud-pipeline or native E2E completion claim.
+
+The full independent decision and exact 46-file manifest are embedded in `results.json`. New full Native ARM/Intel and Feedback CI are pending at this metadata checkpoint; their completed exact head/checkout, run/job, archive/hash and independent verification results will be recorded in the associated Draft PR. Prior c15 successes remain prior-source evidence. No main merge, public release or Developer ID/notarization is performed.
+
+---
+
 # Unified product integration — 2026-10-29
 
 ## Status
