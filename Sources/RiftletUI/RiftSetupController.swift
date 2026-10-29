@@ -51,6 +51,8 @@ public final class RiftSetupController: NSObject, NSWindowDelegate {
     private let support = NSTextField(wrappingLabelWithString: "")
     private let storage = NSTextField(wrappingLabelWithString: "")
     private let issue = NSTextField(wrappingLabelWithString: "")
+    private let firstUseTitle = RiftVisualStyle.label("", role: "title")
+    private let firstUseCapability = RiftVisualStyle.label("")
     private let firstUseDescription = RiftVisualStyle.label("")
     private let firstUseFlow = RiftVisualStyle.label("", role: "heading")
     private let firstUseNextStep = RiftVisualStyle.label("")
@@ -108,12 +110,14 @@ public final class RiftSetupController: NSObject, NSWindowDelegate {
         storage.stringValue = presentation.storageText
         issue.stringValue = presentation.issueText ?? ""
         issue.isHidden = presentation.issueText == nil
+        firstUseTitle.stringValue = presentation.firstUseTitle
+        firstUseCapability.stringValue = presentation.firstUseCapability
         firstUseDescription.stringValue = presentation.firstUseDescription
         firstUseFlow.stringValue = presentation.firstUseFlow
         firstUseNextStep.stringValue = presentation.firstUseNextStep
         sourceButton.isEnabled = presentation.hasSourceLocation
-        accessButton.isHidden = onChooseSourceAccess == nil
-        accessButton.isEnabled = presentation.hasSourceLocation && onChooseSourceAccess != nil && !snapshot.isChecking
+        accessButton.isHidden = onChooseSourceAccess == nil || !presentation.needsSourceAccess
+        accessButton.isEnabled = presentation.needsSourceAccess && onChooseSourceAccess != nil && !snapshot.isChecking
         recheckButton.title = snapshot.isChecking ? "正在检查…" : "重新检查"
         recheckButton.isEnabled = !snapshot.isChecking
         permissionButton.title = presentation.permissionActionTitle
@@ -128,7 +132,7 @@ public final class RiftSetupController: NSObject, NSWindowDelegate {
         pauseButton.setAccessibilityLabel(pauseButton.title)
         historyButton.isEnabled = onOpenHistory != nil
         for field in [source, path, collection, rift, pending, attachment, permission, support, storage, issue,
-                      firstUseDescription, firstUseFlow, firstUseNextStep] {
+                      firstUseTitle, firstUseCapability, firstUseDescription, firstUseFlow, firstUseNextStep] {
             RiftVisualStyle.applyTextStyle(field)
         }
     }
@@ -268,10 +272,10 @@ public final class RiftSetupController: NSObject, NSWindowDelegate {
         let chromeCard = { [self] in RiftVisualStyle.card([RiftVisualStyle.label("当前 ChatGPT 草稿", role: "heading"), attachment, permission, permissionButton]) }
         if let step = onboardingStep {
             if step == 0 {
-                views = [RiftVisualStyle.label("截图一次，点击一次", role: "title"),
+                views = [firstUseTitle,
                     firstUseDescription, RiftFirstUseIllustration(frame: .zero),
                     RiftVisualStyle.vertical([RiftVisualStyle.label("沿用 macOS 系统截图习惯"),
-                        RiftVisualStyle.label("只附加图片，不发送消息"),
+                        firstUseCapability,
                         RiftVisualStyle.label("原图与本地历史始终保留")], spacing: 8)]
             } else if step == 1 {
                 views = [RiftVisualStyle.label("连接你已经在用的工具", role: "title"),
@@ -322,15 +326,20 @@ public final class RiftSetupController: NSObject, NSWindowDelegate {
         stack.translatesAutoresizingMaskIntoConstraints = false
         for view in views where !(view is NSButton) { view.widthAnchor.constraint(equalTo: stack.widthAnchor).isActive = true }
         let scroll = RiftVisualStyle.topAlignedScrollView()
-        // Keep the settings column stable while document height and status
-        // labels settle. Legacy scrollers retain their native gutter; overlay
-        // scrollers still hide automatically and keep the user's chosen style.
+        // Reserve the native legacy gutter in both styles. AppKit can switch
+        // overlay -> legacy after presentation when pointing-device policy
+        // settles; tying the document to clip width then interrupts a live
+        // preview with a 15-point layout change. Keep the user's scroller style
+        // while making the settings column independent of that async retile.
         scroll.autohidesScrollers = false
+        let scrollerGutter = NSScroller.scrollerWidth(for: scroll.verticalScroller?.controlSize ?? .regular,
+                                                     scrollerStyle: .legacy)
         scroll.documentView = stack; scroll.translatesAutoresizingMaskIntoConstraints = false; pageHost.addSubview(scroll)
         scroll.setAccessibilityLabel("Riftlet 首次使用与运行状态")
         NSLayoutConstraint.activate([scroll.leadingAnchor.constraint(equalTo: pageHost.leadingAnchor),
             scroll.trailingAnchor.constraint(equalTo: pageHost.trailingAnchor), scroll.topAnchor.constraint(equalTo: pageHost.topAnchor),
-            scroll.bottomAnchor.constraint(equalTo: pageHost.bottomAnchor), stack.widthAnchor.constraint(equalTo: scroll.contentView.widthAnchor),
+            scroll.bottomAnchor.constraint(equalTo: pageHost.bottomAnchor),
+            stack.widthAnchor.constraint(equalTo: scroll.widthAnchor, constant: -scrollerGutter),
             stack.topAnchor.constraint(equalTo: scroll.contentView.topAnchor), stack.leadingAnchor.constraint(equalTo: scroll.contentView.leadingAnchor)])
     }
     private func actionButton(_ title: String, action: Selector, available: Bool) -> NSButton {
@@ -348,7 +357,7 @@ public final class RiftSetupController: NSObject, NSWindowDelegate {
     @objc private func recheck() { guard !presentation.snapshot.isChecking else { return }; onRecheck() }
     @objc private func openSource() { guard presentation.hasSourceLocation else { return }; onOpenSource() }
     @objc private func chooseSourceAccess() {
-        guard presentation.hasSourceLocation, !presentation.snapshot.isChecking else { return }
+        guard presentation.needsSourceAccess, !presentation.snapshot.isChecking else { return }
         onChooseSourceAccess?()
     }
     @objc private func requestPermission() {

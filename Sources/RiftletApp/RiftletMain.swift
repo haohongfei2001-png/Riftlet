@@ -649,7 +649,10 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
 
     // A deliberate host window must never sit underneath a live selection
     // panel: clicking its controls would otherwise create a screenshot.
-    @objc private func showSetup() { screenshotEntry?.cancel(); updateSetup(); setup?.show() }
+    @objc private func showSetup() {
+        guard !NSApp.windows.contains(where: { $0.attachedSheet != nil }) else { return }
+        screenshotEntry?.cancel(); updateSetup(); setup?.show()
+    }
     @objc private func showOnboarding() { screenshotEntry?.cancel(); updateSetup(); setup?.showOnboarding() }
 
     @objc private func recheckSetup() {
@@ -1376,7 +1379,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         let heading = NSMenuItem(title: simulation ? "离线模拟 · 没有真实上传"
             : (mode == .webAcceptance ? "Web 验收 · 仅生成图片" : "正在准备本地截图收录…"), action: nil, keyEquivalent: "")
         menu.addItem(heading); statusLine = heading
-        add(menu, "设置…", #selector(showSetup))
+        add(menu, "设置…", #selector(showSetup), key: ",")
         add(menu, "使用引导…", #selector(showOnboarding))
         add(menu, "反馈与建议…", #selector(showFeedback))
         add(menu, "入缝动效…", #selector(showArrivalSettings))
@@ -1420,12 +1423,40 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         menu.addItem(.separator())
         add(menu, "退出 Riftlet", #selector(quit), key: "q")
         item.menu = menu; statusItem = item
+        // Standard application shortcuts are active only while Riftlet owns
+        // the foreground application. No global monitor or hotkey is added.
+        let applicationMenu = NSMenu(title: "Riftlet")
+        add(applicationMenu, "设置…", #selector(showSetup), key: ",")
+        applicationMenu.addItem(.separator())
+        add(applicationMenu, "退出 Riftlet", #selector(quit), key: "q")
+        let applicationItem = NSMenuItem(title: "Riftlet", action: nil, keyEquivalent: "")
+        applicationItem.submenu = applicationMenu
+        let mainMenu = NSApp.mainMenu ?? NSMenu()
+        mainMenu.insertItem(applicationItem, at: 0)
+        // Preserve any existing responder menus; a menu-bar-only launch has
+        // none, so supply the standard editing routes for text windows.
+        if !mainMenu.items.contains(where: { $0.submenu?.items.contains(where: { $0.action == #selector(NSText.copy(_:)) }) == true }) {
+            let editMenu = NSMenu(title: "编辑")
+            let editing: [(String, Selector, String)] = [
+                ("撤销", Selector(("undo:")), "z"), ("重做", Selector(("redo:")), "Z"),
+                ("剪切", #selector(NSText.cut(_:)), "x"), ("复制", #selector(NSText.copy(_:)), "c"),
+                ("粘贴", #selector(NSText.paste(_:)), "v"), ("全选", #selector(NSText.selectAll(_:)), "a")
+            ]
+            for (title, action, key) in editing {
+                // nil target dispatches to the current responder, not App state.
+                editMenu.addItem(NSMenuItem(title: title, action: action, keyEquivalent: key))
+            }
+            let editItem = NSMenuItem(title: "编辑", action: nil, keyEquivalent: "")
+            editItem.submenu = editMenu; mainMenu.addItem(editItem)
+        }
+        NSApp.mainMenu = mainMenu
     }
 
     private func add(_ menu: NSMenu, _ title: String, _ action: Selector, key: String = "") {
         let item = NSMenuItem(title: title, action: action, keyEquivalent: key); item.target = self; menu.addItem(item)
     }
     func validateMenuItem(_ item: NSMenuItem) -> Bool {
+        if item.action == #selector(showSetup) { return !NSApp.windows.contains { $0.attachedSheet != nil } }
         if item.action == #selector(beginScreenshot) { return screenshotEntry?.isEnabled == true && !userHidden }
         if item.action == #selector(toggleCollection) { return mode.collectsSystemScreenshots && initialized && !captureControl.isBusy }
         if item.action == #selector(recheckSetup) || item.action == #selector(reload) {

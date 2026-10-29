@@ -155,5 +155,16 @@ final class RiftSetupControllerTests: XCTestCase {
         XCTAssertTrue(hide.isEnabled)
         hide.performClick(nil)
         XCTAssertEqual(hidden, 2, "Hiding remains independent of collection/recheck work")
+        controller.update(snapshot: .init(sourceLocation: "/tmp/synthetic-source", source: .accessible,
+            collection: .paused, isHidden: true))
+        XCTAssertTrue(access.isHidden)
+        XCTAssertFalse(access.isEnabled)
+        access.performClick(nil)
+        XCTAssertEqual(sourceGrants, 0, "A readable source needs no repeated authorization")
+        controller.update(snapshot: .init(sourceLocation: "/tmp/synthetic-source", source: .unavailable))
+        XCTAssertFalse(access.isHidden)
+        XCTAssertTrue(access.isEnabled)
+        access.performClick(nil)
+        XCTAssertEqual(sourceGrants, 1, "Recovery remains an explicit action for the actual inaccessible source")
     }
 }

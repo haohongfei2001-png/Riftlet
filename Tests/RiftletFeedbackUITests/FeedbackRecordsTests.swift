@@ -112,6 +112,10 @@ final class FeedbackRecordsTests: XCTestCase {
         let sheet = try XCTUnwrap(window.attachedSheet)
         let sheetContent = try XCTUnwrap(sheet.contentView)
         XCTAssertTrue(views(sheetContent).compactMap { $0 as? NSTextField }.contains { $0.stringValue.contains("RF-\(second.prefix(8))") })
+        let keep = try button("保留", in: sheetContent)
+        XCTAssertTrue(sheet.defaultButtonCell === keep.cell)
+        XCTAssertEqual(keep.keyEquivalent, "\u{1b}")
+        XCTAssertTrue(try button("取消待发送", in: sheetContent).keyEquivalent.isEmpty)
         // A refresh cannot retarget a pending confirmation to another row.
         await controller.refreshRecords()
         window.endSheet(sheet, returnCode: .alertFirstButtonReturn)
@@ -125,6 +129,43 @@ final class FeedbackRecordsTests: XCTestCase {
         XCTAssertEqual(result.first { $0.id == second }?.state, .cancelled)
         XCTAssertTrue(result.allSatisfy { $0.attempts == 0 })
         XCTAssertEqual(Set(result.map(\.envelope.text)), ["保留的第一条", "点击取消的第二条"])
+        await engine.stop()
+    }
+
+    @MainActor func testConfirmationReturnAndEscapeKeepTheFeedbackRecord() async throws {
+        guard !NSScreen.screens.isEmpty else { throw XCTSkip("AppKit window server unavailable") }
+        let (store, engine) = try fixture()
+        let id = try await engine.enqueue(FeedbackDraft(text: "Return 和 Escape 都应保留", revision: 1), appVersion: "0.1.0")
+        let controller = FeedbackWindowController(engine: engine, diagnostics: FeedbackDiagnostics(), appVersion: "0.1.0")
+        await controller.waitUntilLoaded(); controller.show()
+        let window = try XCTUnwrap(controller.window)
+        defer {
+            if let sheet = window.attachedSheet { window.endSheet(sheet, returnCode: .alertSecondButtonReturn) }
+            window.close()
+        }
+        let disclosure = try XCTUnwrap(views(try XCTUnwrap(window.contentView)).compactMap { $0 as? NSButton }
+            .first { $0.identifier?.rawValue == "feedback.recordsDisclosure" })
+        disclosure.performClick(nil)
+        for (characters, keyCode) in [("\r", UInt16(36)), ("\u{1b}", UInt16(53))] {
+            try button("取消待发送", in: card(id, in: controller)).performClick(nil)
+            let sheet = try XCTUnwrap(window.attachedSheet)
+            let keep = try button("保留", in: try XCTUnwrap(sheet.contentView))
+            XCTAssertTrue(sheet.defaultButtonCell === keep.cell)
+            let event = try XCTUnwrap(NSEvent.keyEvent(with: .keyDown, location: .zero, modifierFlags: [],
+                timestamp: ProcessInfo.processInfo.systemUptime, windowNumber: sheet.windowNumber, context: nil,
+                characters: characters, charactersIgnoringModifiers: characters, isARepeat: false, keyCode: keyCode))
+            // Real AppKit event dispatch to the visible sheet; a software key
+            // event is not claimed as physical keyboard/VoiceOver acceptance.
+            if !sheet.performKeyEquivalent(event) { sheet.sendEvent(event) }
+            for _ in 0..<100 {
+                if window.attachedSheet == nil { break }
+                try await Task.sleep(nanoseconds: 10_000_000)
+            }
+            XCTAssertNil(window.attachedSheet, "The non-destructive action must dismiss this sheet")
+            let records = try await store.records()
+            XCTAssertEqual(records.first { $0.id == id }?.state, .queued)
+            XCTAssertEqual(records.first { $0.id == id }?.attempts, 0)
+        }
         await engine.stop()
     }
 }

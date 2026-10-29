@@ -119,6 +119,28 @@ public struct SetupPresentation: Equatable, Sendable {
 
     /// First-use guidance follows the host's actual capability. It never turns
     /// a permission grant or an illustration into a promise of upload access.
+    public var firstUseTitle: String {
+        switch snapshot.attachment {
+        case .productionDisabled: return "截图留在桌面边缘"
+        case .offlineSimulation: return "认识 Riftlet · 离线演示"
+        case .syntheticWeb: return "生成图片 · 网页验收"
+        case .systemScreenshotCandidate: return "截图附加 · 内部候选"
+        case .available: return "截图一次，点击一次"
+        case .unsupportedBrowser, .targetUnavailable: return "截图保留，检查当前目标"
+        }
+    }
+
+    public var firstUseCapability: String {
+        switch snapshot.attachment {
+        case .productionDisabled: return "本机收录与查看，附加尚未启用"
+        case .offlineSimulation: return "仅演示生成图片，不读取或上传真实截图"
+        case .syntheticWeb: return "仅附加生成的验收图片，不发送消息"
+        case .systemScreenshotCandidate: return "仅在内部候选核验通过后附加，不发送消息"
+        case .available: return "只附加图片，不发送消息"
+        case .unsupportedBrowser, .targetUnavailable: return "当前目标不可用，截图继续保留在本机"
+        }
+    }
+
     public var firstUseDescription: String {
         switch snapshot.attachment {
         case .productionDisabled:
@@ -173,6 +195,10 @@ public struct SetupPresentation: Equatable, Sendable {
         case .unavailable: return "截图位置目前不可访问；请检查文件夹与访问权限。"
         case .notConfigured: return "尚未找到可用的文件夹。请在系统截图工具栏的「选项」中确认保存位置。"
         }
+    }
+
+    public var needsSourceAccess: Bool {
+        hasSourceLocation && snapshot.source != .accessible && snapshot.source != .notApplicable
     }
 
     public var sourcePath: String {

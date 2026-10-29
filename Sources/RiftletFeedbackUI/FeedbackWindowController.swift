@@ -16,8 +16,15 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
     private let text = NSTextView()
     private let kind = NSPopUpButton()
     private let consent = NSButton(checkboxWithTitle: "附带最近的技术诊断（仅本次）", target: nil, action: nil)
+    private let service = NSTextField(wrappingLabelWithString: "")
     private let status = NSTextField(wrappingLabelWithString: "正在打开本地反馈草稿…")
     private let send = NSButton(title: "发送反馈", target: nil, action: nil)
+    private let recoveryActions = NSStackView()
+    private let retrySave = NSButton(title: "重试保存", target: nil, action: nil)
+    private let copyText = NSButton(title: "复制正文", target: nil, action: nil)
+    // This only selects the explicitly labelled recovery button's action. It
+    // never schedules a later close after an unrelated edit or autosave.
+    private var retryClosesWindow = false
     private var previewWindow: NSWindow?
     private var loading: Task<Void, Never>?
     private let characterCount = NSTextField(labelWithString: "0 / 4,000 字符")
@@ -78,14 +85,32 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
         consent.target = self; consent.action = #selector(changedConsent); consent.font = RiftVisualStyle.bodyFont
         let preview = NSButton(title: "预览…", target: self, action: #selector(showPreview)); RiftVisualStyle.style(preview)
         let diagnosticsRow = NSStackView(views: [consent, preview]); diagnosticsRow.spacing = 8
-        let privacy = RiftVisualStyle.label("你输入的文字及主动勾选的诊断会发送到开发者的私有反馈中心，可供开发者和获授权的 AI 辅助分析。不会自动附带截图、聊天、剪贴板、完整路径或浏览器资料。请勿填写密码等秘密。", role: "secondary")
+        let privacy = RiftVisualStyle.label("反馈服务可用时，只有你提交的文字及主动勾选的诊断会发往开发者的私有反馈中心，可供开发者和获授权的 AI 辅助分析。不会自动附带截图、聊天、剪贴板、完整路径或浏览器资料。请勿填写密码等秘密。", role: "secondary")
+        privacy.identifier = NSUserInterfaceItemIdentifier("feedback.privacy")
+        service.font = RiftVisualStyle.secondaryFont; service.textColor = RiftVisualStyle.secondary
+        service.identifier = NSUserInterfaceItemIdentifier("feedback.serviceCapability")
+        if demo {
+            service.stringValue = "离线合成演示；不会向云端发送反馈。"
+        } else if engine == nil {
+            service.stringValue = "本地反馈存储暂不可用；当前不会上传。"
+        } else if engine?.configured == true {
+            service.stringValue = "反馈服务已配置；只有提交后才投递，云端接收状态以对应记录为准。"
+        } else {
+            service.stringValue = "接收服务尚未配置。可保存待发送；当前不会上传。"
+        }
         status.font = RiftVisualStyle.secondaryFont; status.textColor = RiftVisualStyle.secondary
         send.title = engine?.configured == true ? "发送反馈" : "保存待发送"
         send.target = self; send.action = #selector(submit); RiftVisualStyle.style(send, prominent: true)
         let close = NSButton(title: "保存并关闭", target: self, action: #selector(closeRequested)); RiftVisualStyle.style(close)
+        retrySave.target = self; retrySave.action = #selector(retrySaveRequested)
+        retrySave.identifier = NSUserInterfaceItemIdentifier("feedback.retrySave")
+        copyText.target = self; copyText.action = #selector(copyTextRequested)
+        copyText.identifier = NSUserInterfaceItemIdentifier("feedback.copyText")
+        for button in [retrySave, copyText] { RiftVisualStyle.style(button); recoveryActions.addArrangedSubview(button) }
+        recoveryActions.spacing = 8; recoveryActions.isHidden = true
         // Neither button is the Return default: Return and IME stay in the editor.
         let actions = NSStackView(views: [close, send]); actions.spacing = 8
-        let footer = RiftVisualStyle.vertical([status, actions], spacing: 12)
+        let footer = RiftVisualStyle.vertical([service, status, recoveryActions, actions], spacing: 8)
         recordsDisclosure.setButtonType(.onOff); recordsDisclosure.bezelStyle = .inline
         recordsDisclosure.identifier = NSUserInterfaceItemIdentifier("feedback.recordsDisclosure")
         recordsDisclosure.font = RiftVisualStyle.bodyFont; recordsDisclosure.contentTintColor = RiftVisualStyle.ink
@@ -101,7 +126,7 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
             if view !== kind && view !== recordsDisclosure { view.widthAnchor.constraint(equalTo: stack.widthAnchor, constant: -48).isActive = true }
         }
         for view in [scroller, footer] { view.translatesAutoresizingMaskIntoConstraints = false; content.addSubview(view) }
-        status.widthAnchor.constraint(equalTo: footer.widthAnchor).isActive = true
+        for label in [service, status] { label.widthAnchor.constraint(equalTo: footer.widthAnchor).isActive = true }
         NSLayoutConstraint.activate([
             scroller.leadingAnchor.constraint(equalTo: content.leadingAnchor), scroller.trailingAnchor.constraint(equalTo: content.trailingAnchor),
             scroller.topAnchor.constraint(equalTo: content.topAnchor), scroller.bottomAnchor.constraint(equalTo: footer.topAnchor, constant: -12),
@@ -133,6 +158,8 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
     private func updateSendAvailability() {
         send.isEnabled = loaded && !busy && text.isEditable && engine != nil
             && submissionTextIsValid
+        retrySave.isEnabled = loaded && !busy && text.isEditable && persistDraft != nil
+        copyText.isEnabled = loaded && !busy && !text.string.isEmpty
     }
     private func controlsEnabled(_ enabled: Bool) {
         text.isEditable = enabled; kind.isEnabled = enabled; consent.isEnabled = enabled
@@ -141,12 +168,12 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
     private func load() async {
         guard let engine else {
             loaded = true; controlsEnabled(true)
-            status.stringValue = "反馈存储暂不可用。输入内容会留在此窗口，关闭前请复制保存。"
+            draftSaveFailed(closeAttempt: false)
             return
         }
         do {
             draft = try await engine.store.draft(); applyDraft(); loaded = true; controlsEnabled(true)
-            status.stringValue = engine.configured ? "草稿保存在这台 Mac；关闭不会发送。" : "接收服务尚未配置。可保存待发送；当前不会上传。"
+            status.stringValue = "草稿保存在这台 Mac；关闭不会发送。"
             await refreshRecords()
         } catch { loaded = true; controlsEnabled(true); failure() }
     }
@@ -165,6 +192,7 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
     private func applyDraft() {
         text.string = draft.text; kind.selectItem(at: draft.kind == .problem ? 0 : 1)
         consent.state = draft.diagnostic == nil ? .off : .on
+        recoveryActions.isHidden = true; retryClosesWindow = false
         updateCharacterCount()
     }
     private func nextDraft() -> FeedbackDraft {
@@ -188,27 +216,53 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
                 try Task.checkCancellation()
                 guard let persistDraft else { throw FeedbackFailure.storageUnavailable }
                 try await persistDraft(value)
-                if draft.revision == value.revision { status.stringValue = "草稿已保存在本机；没有发送。" }
+                if draft.revision == value.revision { draftSaved() }
             } catch is CancellationError { return }
-            catch { if draft.revision == value.revision { failure() } }
+            catch { if draft.revision == value.revision { draftSaveFailed(closeAttempt: false) } }
         }
     }
     private func failure() {
         status.stringValue = "未能可靠保存或处理反馈；文字仍在这里。请保留窗口或复制正文，不会报告发送成功。"
     }
+    private func draftSaved() {
+        recoveryActions.isHidden = true; retryClosesWindow = false
+        status.stringValue = "草稿已保存在本机；没有发送。"
+    }
+    private func draftSaveFailed(closeAttempt: Bool) {
+        retryClosesWindow = closeAttempt
+        retrySave.title = closeAttempt ? "重试保存并关闭" : "重试保存"
+        retrySave.isHidden = persistDraft == nil
+        recoveryActions.isHidden = false
+        status.stringValue = persistDraft == nil
+            ? "反馈存储暂不可用。文字仍在此窗口；关闭前请复制正文保存。"
+            : "未能可靠保存草稿；文字仍在此窗口。可重试保存或复制正文，没有发送。"
+        updateSendAvailability()
+    }
     public func saveBeforeClosing(lockOnSuccess: Bool = false) async -> Bool {
-        guard loaded, !busy, !text.hasMarkedText() else { return false }
+        await saveCurrentDraft(lockOnSuccess: lockOnSuccess, closeAttempt: true)
+    }
+    private func saveCurrentDraft(lockOnSuccess: Bool, closeAttempt: Bool) async -> Bool {
+        guard loaded else { status.stringValue = "正在打开本地草稿，请稍候再关闭。"; return false }
+        guard !busy else { status.stringValue = "正在保存或处理反馈，请稍候再关闭。"; return false }
+        guard !text.hasMarkedText() else {
+            status.stringValue = "请先完成当前文字输入，再保存并关闭。"; return false
+        }
         busy = true; controlsEnabled(false); autosave?.cancel()
+        status.stringValue = closeAttempt ? "正在保存草稿；保存完成后才能关闭。" : "正在保存草稿；不会发送。"
         var saved = false
         defer {
             // App termination still awaits outbox stop and clean-exit persistence.
             // No new editing may enter between this save and the final quit reply.
             if !lockOnSuccess || !saved { busy = false; controlsEnabled(true) }
         }
-        guard let persistDraft else { saved = text.string.isEmpty; return saved }
+        guard let persistDraft else {
+            saved = text.string.isEmpty
+            if !saved { draftSaveFailed(closeAttempt: closeAttempt) }
+            return saved
+        }
         let value = nextDraft()
-        do { try await persistDraft(value); saved = true; return true }
-        catch { failure(); return false }
+        do { try await persistDraft(value); saved = true; draftSaved(); return true }
+        catch { draftSaveFailed(closeAttempt: closeAttempt); return false }
     }
     public func windowShouldClose(_ sender: NSWindow) -> Bool {
         // NSWindow.close() does NOT invoke windowShouldClose again. A reusable
@@ -217,6 +271,25 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
         return false
     }
     @objc private func closeRequested() { window?.performClose(nil) }
+    @objc private func retrySaveRequested() {
+        guard loaded, !busy else { return }
+        if retryClosesWindow { window?.performClose(nil); return }
+        Task { _ = await saveCurrentDraft(lockOnSuccess: false, closeAttempt: false) }
+    }
+    /// The caller supplies a private pasteboard in software tests. Production
+    /// invokes this only from the explicit Copy Body button; no diagnostics,
+    /// saved records or capability credentials are included.
+    @discardableResult
+    func copyDraftText(to pasteboard: NSPasteboard) -> Bool {
+        guard loaded, !busy, !text.string.isEmpty else { return false }
+        pasteboard.clearContents()
+        return pasteboard.setString(text.string, forType: .string)
+    }
+    @objc private func copyTextRequested() {
+        status.stringValue = copyDraftText(to: .general)
+            ? "正文已复制；没有发送或关闭反馈。"
+            : "无法复制正文，请选择文字后手动复制。"
+    }
     @objc private func showPreview() {
         let value = (try? draft.diagnostic?.preview()) ?? "未附带诊断。勾选后会冻结当时的白名单快照；之后的新事件不会加入本次提交。"
         showText(value, title: "本次诊断预览", monospaced: true)
@@ -360,7 +433,15 @@ public final class FeedbackWindowController: NSWindowController, NSWindowDelegat
                                      operation: @escaping @MainActor () async -> Void) {
         guard let window, window.attachedSheet == nil else { return }
         let alert = NSAlert(); alert.messageText = title; alert.informativeText = message
-        alert.addButton(withTitle: button); alert.addButton(withTitle: "保留")
+        let destructive = alert.addButton(withTitle: button)
+        let keep = alert.addButton(withTitle: "保留")
+        destructive.keyEquivalent = ""
+        // Return/Enter invoke the default cell; Escape is a separate key
+        // equivalent on that same non-destructive button. Neither may confirm.
+        alert.layout()
+        alert.window.defaultButtonCell = keep.cell as? NSButtonCell
+        keep.keyEquivalent = "\u{1b}"; keep.keyEquivalentModifierMask = []
+        alert.window.initialFirstResponder = keep
         alert.beginSheetModal(for: window) { response in
             guard response == .alertFirstButtonReturn else { return }
             Task { @MainActor in await operation() }
