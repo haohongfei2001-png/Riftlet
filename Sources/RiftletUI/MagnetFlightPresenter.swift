@@ -253,6 +253,10 @@ public final class MagnetFlightPresenter {
             }
         }
         let animation = plan.makeLayerAnimation(relativeTo: panel.frame.origin)
+        // Before the render server activates this already-timed animation, its
+        // first sample must cover the final model pose. Keep the final model
+        // and normal removal so completion cannot flash back to the source.
+        animation.fillMode = .backwards
         animation.delegate = end
         let remaining = plan.totalDuration - (CACurrentMediaTime() - assetReadyCA)
         guard remaining > 0 else { panel.close(); return false }
@@ -266,9 +270,11 @@ public final class MagnetFlightPresenter {
         // Asset readiness is the visual clock origin, not optional image decode.
         animation.beginTime = imageLayer.convertTime(assetReadyCA, from: nil)
         imageLayer.add(animation, forKey: "riftlet.magnet.flight")
-        panel.orderFrontRegardless()
         CATransaction.commit()
-        guard panel.isVisible else {
+        // Publish the model and animation as one update before AppKit orders
+        // the new native window; orderFront may display its contents eagerly.
+        panel.orderFrontRegardless()
+        guard generation == token, flight?.generation == token, panel.isVisible else {
             finish(generation: token, reason: .cancelled)
             return false
         }

@@ -58,6 +58,20 @@ final class MagnetFlightPresenterTests: XCTestCase {
         XCTAssertFalse(window.collectionBehavior.contains(.stationary))
         XCTAssertFalse(window.collectionBehavior.contains(.moveToActiveSpace))
         XCTAssertTrue(window.contentView?.isAccessibilityHidden() ?? false)
+        func descendants(_ layer: CALayer) -> [CALayer] { [layer] + (layer.sublayers ?? []).flatMap(descendants) }
+        let animatedLayers = descendants(try XCTUnwrap(window.contentView?.layer)).filter {
+            $0.animation(forKey: "riftlet.magnet.flight") != nil
+        }
+        XCTAssertEqual(animatedLayers.count, 1)
+        let animatedImage = try XCTUnwrap(animatedLayers.first)
+        let animation = try XCTUnwrap(animatedImage.animation(forKey: "riftlet.magnet.flight") as? CAAnimationGroup)
+        XCTAssertEqual(animation.fillMode, .backwards,
+            "The first visible window must use the source sample before activation, never its final model pose")
+        XCTAssertTrue(animation.isRemovedOnCompletion, "The final model pose must survive normal completion")
+        XCTAssertEqual(animation.duration, plan.totalDuration)
+        XCTAssertEqual(animatedImage.bounds.size, plan.finalFrame.size)
+        XCTAssertEqual(animatedImage.position,
+            CGPoint(x: plan.finalFrame.midX - window.frame.minX, y: plan.finalFrame.midY - window.frame.minY))
         presenter.cancel(assetID: id, reason: .clicked)
         XCTAssertEqual(completions.map(\.reason), [.clicked])
         XCTAssertFalse(window.isVisible)

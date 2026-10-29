@@ -12,6 +12,7 @@ import copy
 import hashlib
 import importlib.util
 import json
+import math
 import os
 from pathlib import Path
 import platform
@@ -42,6 +43,54 @@ def cases() -> list[tuple[str, list[str]]]:
         ("entry-countdown-next-mode-light", ["--appearance", "light", "--visual-scene", "3",
             "--visual-entry", "--visual-entry-expanded", "--visual-supplement", "entry-countdown"]),
     ]
+
+
+def finite_number(value: object) -> bool:
+    return type(value) in (int, float) and math.isfinite(value)
+
+
+def positive_rect(value: object) -> bool:
+    return (isinstance(value, list) and len(value) == 4 and all(finite_number(item) for item in value)
+            and value[2] > 0 and value[3] > 0)
+
+
+def contains_rect(outer: list[float], inner: list[float]) -> bool:
+    return (outer[0] <= inner[0] and outer[1] <= inner[1]
+            and outer[0] + outer[2] >= inner[0] + inner[2]
+            and outer[1] + outer[3] >= inner[1] + inner[3])
+
+
+def intersects_rect(first: list[float], second: list[float]) -> bool:
+    return (first[0] < second[0] + second[2] and second[0] < first[0] + first[2]
+            and first[1] < second[1] + second[3] and second[1] < first[1] + first[3])
+
+
+def verify_entry_readiness(event: dict, frame: dict) -> None:
+    required = ("fixedSlotsUnchanged", "countdownVisible", "nextModeVisible", "entrySettled", "statusWindowVisible",
+                "statusAvoidsInputs", "statusTextFits", "statusDisplayComplete")
+    if (any(event.get(key) is not True for key in required) or event.get("captureExecuted") is not False
+            or event.get("mode") != "fullScreen" or event.get("entryFrameScheduled") is not False
+            or not finite_number(event.get("entryExpansion")) or event["entryExpansion"] != 1
+            or type(event.get("cancelTargetSlot")) is not int or event["cancelTargetSlot"] not in range(3)
+            or not finite_number(event.get("cancelSlotPosition")) or event["cancelSlotPosition"] != event["cancelTargetSlot"]):
+        raise ValueError("entryFrozenRequestPresentationNotObserved")
+    if (any(not finite_number(event.get(key)) or not 0.99 <= event[key] <= 1
+            for key in ("statusWindowAlpha", "statusContentAlpha", "statusLabelAlpha"))
+            or not finite_number(event.get("displayCommitWaitSeconds")) or event["displayCommitWaitSeconds"] < 0.05):
+        raise ValueError("entryNativeDisplayNotReady")
+    rect_keys = ("statusFrame", "statusContentBounds", "statusLabelFrame", "statusLabelScreenFrame", "captureRect")
+    if any(not positive_rect(event.get(key)) for key in rect_keys):
+        raise ValueError("entryStatusGeometryInvalid")
+    capture, status = event["captureRect"], event["statusFrame"]
+    inputs = event.get("inputFrames")
+    if (capture[2:] != frame.get("points") or not contains_rect(capture, status)
+            or not contains_rect(event["statusContentBounds"], event["statusLabelFrame"])
+            or not contains_rect(status, event["statusLabelScreenFrame"])
+            or not isinstance(inputs, list) or len(inputs) != 10
+            or any(not positive_rect(rect) or intersects_rect(status, rect) for rect in inputs)
+            or type(event.get("statusWindowNumber")) is not int or event["statusWindowNumber"] <= 0
+            or event["statusWindowNumber"] not in frame.get("ownWindowNumbersFrontToBack", [])):
+        raise ValueError("entryStatusNotInsideCapturedWindowGeometry")
 
 
 def verify_supplement(flags: list[str], report: dict) -> None:
@@ -75,6 +124,15 @@ def verify_supplement(flags: list[str], report: dict) -> None:
             raise ValueError("historyPreviewOutcomeNotObserved")
         if frames[0].get("points") != [event.get("windowWidth"), event.get("windowHeight")]:
             raise ValueError("historyPreviewWindowMismatch")
+        viewport = event.get("previewViewportPoints")
+        if (event.get("previewDisplayComplete") is not True
+                or not finite_number(event.get("displayCommitWaitSeconds")) or event["displayCommitWaitSeconds"] < 0.05
+                or type(event.get("previewWindowNumber")) is not int or event["previewWindowNumber"] <= 0
+                or event["previewWindowNumber"] not in frames[0].get("ownWindowNumbersFrontToBack", [])
+                or not isinstance(viewport, list) or len(viewport) != 2
+                or any(not finite_number(value) or value <= 0 for value in viewport)
+                or any(value > bound for value, bound in zip(viewport, frames[0]["points"]))):
+            raise ValueError("historyPreviewNativeDisplayNotReady")
         if missing and frames[0].get("points") != [360, 280]:
             raise ValueError("historyMinimumWindowNotCaptured")
     elif name == "feedback-save-failure":
@@ -89,9 +147,7 @@ def verify_supplement(flags: list[str], report: dict) -> None:
                 or event.get("captureExecuted") is not False):
             raise ValueError("queueExplanationNotObserved")
     elif name == "entry-countdown":
-        if (any(event.get(key) is not True for key in ("fixedSlotsUnchanged", "countdownVisible", "nextModeVisible"))
-                or event.get("captureExecuted") is not False):
-            raise ValueError("entryFrozenRequestPresentationNotObserved")
+        verify_entry_readiness(event, frames[0])
     else:
         raise ValueError("unknownSupplementalCase")
 
@@ -117,8 +173,10 @@ def self_check() -> None:
             event.update(titleMatches=True, parentOrderedOut=True, imageLoaded=not missing, imageAbsent=missing,
                          failureVisible=missing, fixtureSequence=5 if wide else 4,
                          fixturePixelWidth=768 if wide else 96, fixturePixelHeight=96 if wide else 768,
-                         windowWidth=points[0], windowHeight=points[1])
-            required = ["titleMatches", "parentOrderedOut"]
+                         windowWidth=points[0], windowHeight=points[1], previewDisplayComplete=True,
+                         previewWindowNumber=99, previewViewportPoints=[points[0] - 32, points[1] - 82],
+                         displayCommitWaitSeconds=0.05)
+            required = ["titleMatches", "parentOrderedOut", "previewDisplayComplete"]
         elif name == "feedback-save-failure":
             points = [560, 500]
             required = ["retryEnabled", "copyEnabled", "draftRetained", "savedDraftUnchanged", "recordsEmpty"]
@@ -128,16 +186,52 @@ def self_check() -> None:
             required = ["noteVisible", "noteAvoidsInputs"]
             event.update(noteVisible=True, noteAvoidsInputs=True, captureExecuted=False)
         else:
-            required = ["fixedSlotsUnchanged", "countdownVisible", "nextModeVisible"]
-            event.update({key: True for key in required}); event["captureExecuted"] = False
+            points = [1024, 684]
+            required = ["fixedSlotsUnchanged", "countdownVisible", "nextModeVisible", "entrySettled", "statusWindowVisible",
+                        "statusAvoidsInputs", "statusTextFits", "statusDisplayComplete"]
+            event.update({key: True for key in required})
+            event.update(captureExecuted=False, mode="fullScreen", entryExpansion=1, entryFrameScheduled=False,
+                         cancelSlotPosition=2, cancelTargetSlot=2, statusWindowNumber=99,
+                         statusWindowAlpha=1, statusContentAlpha=1, statusLabelAlpha=1, displayCommitWaitSeconds=0.05,
+                         statusFrame=[700, 400, 240, 60], statusContentBounds=[0, 0, 240, 60],
+                         statusLabelFrame=[12, 12, 216, 36], statusLabelScreenFrame=[712, 412, 216, 36],
+                         captureRect=[0, 0, *points], inputFrames=[[950, 100 + 40 * i, 30, 30] for i in range(10)])
         report = {"status": "CAPTURED_NATIVE_WINDOWSERVER", "supplementalCase": name, "supplementalStage": "ready",
                   "events": [event], "frames": [{"status": "CAPTURED_NATIVE_WINDOWSERVER", "points": points}]}
+        if name == "entry-countdown" or name.startswith("history-preview-"):
+            report["frames"][0]["ownWindowNumbersFrontToBack"] = [99, 100]
         verify_supplement(flags, report)
         for key in required + ["physical", "networkEnabled", "receiptEvidence"]:
             changed = copy.deepcopy(report); changed["events"][0][key] = not event[key]
             try: verify_supplement(flags, changed)
             except ValueError: negative_checks += 1
             else: raise AssertionError("unsafe supplemental observation accepted: " + key)
+        if name.startswith("history-preview-"):
+            for key, value in {"previewWindowNumber": 101, "previewViewportPoints": [0, 100],
+                               "displayCommitWaitSeconds": 0}.items():
+                changed = copy.deepcopy(report); changed["events"][0][key] = value
+                try: verify_supplement(flags, changed)
+                except ValueError: negative_checks += 1
+                else: raise AssertionError("undrawn history preview accepted: " + key)
+        if name == "entry-countdown":
+            invalid_readiness = {
+                "entryFrameScheduled": True, "entryExpansion": 0.9, "cancelSlotPosition": 0.5,
+                "cancelTargetSlot": True, "mode": "region", "statusWindowAlpha": 0,
+                "statusContentAlpha": float("nan"), "statusLabelAlpha": 0, "displayCommitWaitSeconds": 0,
+                "statusFrame": [1000, 400, 240, 60], "statusContentBounds": [0, 0, 0, 60],
+                "statusLabelFrame": [0, 0, 241, 36], "statusLabelScreenFrame": [0, 0, 216, 36],
+                "captureRect": [0, 0, 800, 684], "inputFrames": [event["statusFrame"]] * 10,
+                "statusWindowNumber": 101,
+            }
+            for key, value in invalid_readiness.items():
+                changed = copy.deepcopy(report); changed["events"][0][key] = value
+                try: verify_supplement(flags, changed)
+                except ValueError: negative_checks += 1
+                else: raise AssertionError("unready native countdown accepted: " + key)
+            missing = copy.deepcopy(report); missing["events"][0]["inputFrames"] = event["inputFrames"][:4]
+            try: verify_supplement(flags, missing)
+            except ValueError: negative_checks += 1
+            else: raise AssertionError("missing queue avoidance evidence accepted")
         unavailable = copy.deepcopy(report); unavailable["status"] = "NOT_RUN"
         verify_supplement(flags, unavailable)
     print(f"SUPPLEMENTAL_MANIFEST_SELF_CHECK_PASS: 6 static cases; {negative_checks} rejected unsafe observations; original 46 cases/5 movies unchanged; GUI_NOT_RUN")

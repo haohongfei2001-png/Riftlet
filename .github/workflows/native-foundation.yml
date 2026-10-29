@@ -132,6 +132,8 @@ jobs:
           /tmp/riftlet-capture-benchmark --self-check 2>&1 | tee test-results/capture-probe-self-check.log
           /tmp/riftlet-capture-benchmark --iterations 5 --output test-results/capture-backend-probe.json --retain-synthetic-images test-results/synthetic-capture-previews 2>&1 | tee test-results/capture-backend-probe.log
       - name: Execute native unit and integration tests
+        env:
+          RIFTLET_SELECTION_EXPIRY_TRACE: '1'
         run: |
           set -o pipefail
           mkdir -p test-results

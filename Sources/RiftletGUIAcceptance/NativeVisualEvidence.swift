@@ -30,7 +30,25 @@ private struct NativePNGResult: Sendable {
 /// Capturing a synthetic native projection is not real input/upload acceptance.
 @MainActor
 final class NativeVisualEvidence {
-    enum Failure: Error { case unsafeRequest, existingOutput, missingWindow, missingProductPixels, encoding }
+    enum Failure: String, Error, Sendable { case unsafeRequest, existingOutput, missingWindow, missingProductPixels, encoding }
+
+    // Only these fixed values may leave the export catch. Underlying framework
+    // errors can contain paths or other process details and are never printed.
+    enum ExportStage: String, Sendable {
+        case staticPreparation, supplementalPreparation, ownedWindowSelection, ownedWindowCapture
+        case backdropCapture, pngProcessing, pngPixelComparison, pngDestination, pngFinalize, pngRead
+        case timelineWait, movieFinish, manifestEncoding, manifestWrite
+    }
+
+    struct FailureDiagnostic: Sendable {
+        let stage: ExportStage
+        let failure: Failure?
+        var failureCase: String { failure?.rawValue ?? "unclassified" }
+    }
+
+    private struct ExportFailure: Error {
+        let diagnostic: FailureDiagnostic
+    }
 
     static var requested: Bool { CommandLine.arguments.contains("--export-native-evidence") }
 
@@ -58,6 +76,7 @@ final class NativeVisualEvidence {
     private var supplementalFeedback: FeedbackWindowController?
     private var supplementalUnexpectedAction = false
     private var supplementalStage = "notStarted"
+    private var exportStage: ExportStage = .staticPreparation
     private var frames: [[String: Any]] = []
     private var events: [[String: Any]] = []
     private var captureUnavailable = false
@@ -128,7 +147,12 @@ final class NativeVisualEvidence {
             "supplementalCase", "imageLoaded", "imageAbsent", "titleMatches", "failureVisible", "parentOrderedOut",
             "retryEnabled", "copyEnabled", "draftRetained", "savedDraftUnchanged", "recordsEmpty", "persistenceFault",
             "windowWidth", "windowHeight", "fixturePixelWidth", "fixturePixelHeight", "fixedSlotsUnchanged",
-            "countdownVisible", "nextModeVisible", "captureExecuted", "noteVisible", "noteAvoidsInputs"]
+            "countdownVisible", "nextModeVisible", "captureExecuted", "noteVisible", "noteAvoidsInputs",
+            "entrySettled", "entryExpansion", "entryFrameScheduled", "cancelSlotPosition", "cancelTargetSlot",
+            "statusWindowVisible", "statusWindowNumber", "statusAvoidsInputs", "statusWindowAlpha", "statusContentAlpha", "statusLabelAlpha",
+            "statusFrame", "statusContentBounds", "statusLabelFrame", "statusLabelScreenFrame", "captureRect", "inputFrames",
+            "statusTextFits", "statusDisplayComplete", "displayCommitWaitSeconds",
+            "previewDisplayComplete", "previewWindowNumber", "previewViewportPoints"]
         var event = fields.filter { allowedFields.contains($0.key) }
         event["event"] = name; event["uptime"] = ProcessInfo.processInfo.systemUptime
         events.append(event)
@@ -140,6 +164,7 @@ final class NativeVisualEvidence {
     func capture(_ name: String) async throws -> Bool {
         if let supplementalCase, !supplementalPrepared {
             supplementalPrepared = true
+            exportStage = .supplementalPreparation
             try await prepareSupplementalScene(supplementalCase)
         }
         guard let frame = try captureOwnedWindows() else {
@@ -238,6 +263,22 @@ final class NativeVisualEvidence {
             missing ? status.stringValue == "无法加载清晰预览，图片记录仍保留"
                 : image.image != nil && status.stringValue == "已按窗口显示"
         }
+        supplementalStage = "historyDisplay"
+        // A decoder completion can set NSImage and footer text before either is
+        // drawn. Export only after normal AppKit display and a run-loop commit.
+        content.layoutSubtreeIfNeeded()
+        preview.displayIfNeeded()
+        let commitStart = ProcessInfo.processInfo.systemUptime
+        try await Task.sleep(nanoseconds: 50_000_000)
+        try await waitForSupplement {
+            let outcome = missing ? image.image == nil && status.stringValue == "无法加载清晰预览，图片记录仍保留"
+                : image.image != nil && status.stringValue == "已按窗口显示"
+            return outcome && preview.isVisible && preview.alphaValue >= 0.99
+                && [content, image, status].allSatisfy {
+                    $0.window === preview && !$0.isHiddenOrHasHiddenAncestor && $0.alphaValue >= 0.99
+                        && self.usableRect($0.bounds) && !$0.needsLayout && !$0.needsDisplay
+                }
+        }
         let formatter = DateFormatter(); formatter.dateStyle = .medium; formatter.timeStyle = .medium
         let titleMatches = preview.title.contains(formatter.string(from: HistoryPresentation.captureDate(for: entry)))
             && preview.title.hasSuffix(String(fixture.id.uuidString.prefix(8)))
@@ -253,7 +294,10 @@ final class NativeVisualEvidence {
         supplementalObservation(["fixtureSequence": fixture.sequence, "fixturePixelWidth": fixture.image.pixelWidth,
             "fixturePixelHeight": fixture.image.pixelHeight, "imageLoaded": image.image != nil, "imageAbsent": image.image == nil,
             "titleMatches": titleMatches, "failureVisible": missing, "parentOrderedOut": !historyWindow.isVisible,
-            "windowWidth": preview.frame.width, "windowHeight": preview.frame.height])
+            "windowWidth": preview.frame.width, "windowHeight": preview.frame.height,
+            "previewDisplayComplete": true, "previewWindowNumber": preview.windowNumber,
+            "previewViewportPoints": [image.bounds.width, image.bounds.height],
+            "displayCommitWaitSeconds": ProcessInfo.processInfo.systemUptime - commitStart])
     }
 
     private func prepareFeedbackFailure(root: URL) async throws {
@@ -326,31 +370,111 @@ final class NativeVisualEvidence {
         supplementalObservation(["noteVisible": true, "noteAvoidsInputs": avoids, "captureExecuted": false])
     }
 
+    private struct EntryCountdownReadiness {
+        let snapshot: ScreenshotEntryDiagnosticSnapshot
+        let window: NSWindow
+        let content: NSView
+        let label: NSTextField
+        let labelFrame: CGRect
+        let labelScreenFrame: CGRect
+        let captureRect: CGRect
+        let inputFrames: [CGRect]
+        let cancelTargetSlot: Int
+    }
+
+    private func usableRect(_ rect: CGRect) -> Bool {
+        [rect.minX, rect.minY, rect.width, rect.height].allSatisfy(\.isFinite)
+            && rect.width > 0 && rect.height > 0
+    }
+
+    private func rectValues(_ rect: CGRect) -> [CGFloat] { [rect.minX, rect.minY, rect.width, rect.height] }
+
+    private func entryCountdownReadiness(_ entry: ScreenshotEntryController,
+                                         fixedControls: [ScreenshotEntryControlSnapshot]) -> EntryCountdownReadiness? {
+        let snapshot = entry.diagnosticSnapshot
+        let cancelControls = snapshot.controls.filter(\.isCancel)
+        // The physical slots stay fixed through the mode switch. Only the X's
+        // role and its existing 100 ms movement change; neither is forced here.
+        guard snapshot.isExpanded, snapshot.mode == .fullScreen, !snapshot.isHidden, !snapshot.isCaptureSuppressed,
+              snapshot.expansion == 1, !snapshot.hasScheduledFrame,
+              snapshot.controls.count == ScreenshotEntrySlot.allCases.count,
+              fixedControls.count == snapshot.controls.count,
+              zip(fixedControls, snapshot.controls).allSatisfy({ pair in
+                  pair.0.slot == pair.1.slot && pair.0.mode == pair.1.mode
+                      && pair.0.frame == pair.1.frame && pair.0.windowNumber == pair.1.windowNumber
+              }), cancelControls.count == 1, let cancel = cancelControls.first, cancel.mode == .fullScreen,
+              snapshot.cancelSlotPosition == CGFloat(cancel.slot.rawValue),
+              let window = NSApp.windows.first(where: { $0.windowNumber == snapshot.captureStatusWindowNumber }),
+              window.isVisible, window.alphaValue >= 0.99, window.ignoresMouseEvents, !window.canBecomeKey,
+              window.frame == snapshot.captureStatusFrame, usableRect(window.frame),
+              let content = window.contentView, content.window === window,
+              !content.isHiddenOrHasHiddenAncestor, content.alphaValue >= 0.99, usableRect(content.bounds),
+              let backdrop, let rift = supplementalRift,
+              usableRect(backdrop.frame), backdrop.frame.contains(window.frame) else { return nil }
+        let expected = "已选区域 · 3 秒后拍摄\n下一张：全屏"
+        let labels = descendants(content).compactMap { $0 as? NSTextField }.filter { $0.stringValue == expected }
+        guard snapshot.captureStatusText == expected, labels.count == 1, let label = labels.first,
+              label.window === window, label.superview === content,
+              !label.isHiddenOrHasHiddenAncestor, label.alphaValue >= 0.99,
+              usableRect(label.bounds), usableRect(label.frame) else { return nil }
+        let labelFrame = label.convert(label.bounds, to: content)
+        let labelScreenFrame = window.convertToScreen(label.convert(label.bounds, to: nil))
+        let measured = label.attributedStringValue.boundingRect(with: CGSize(width: label.bounds.width, height: 120),
+            options: [.usesLineFragmentOrigin, .usesFontLeading])
+        let inputFrames = snapshot.controls.map(\.frame) + rift.diagnosticSnapshot.rows.flatMap {
+            [$0.imageInputFrame, $0.numberInputFrame]
+        }
+        guard usableRect(labelFrame), usableRect(labelScreenFrame), usableRect(measured),
+              content.bounds.contains(labelFrame), window.frame.contains(labelScreenFrame),
+              measured.width <= label.bounds.width + 0.5, measured.height <= label.bounds.height + 0.5,
+              inputFrames.allSatisfy({ usableRect($0) && !window.frame.intersects($0) }) else { return nil }
+        return EntryCountdownReadiness(snapshot: snapshot, window: window, content: content, label: label,
+            labelFrame: labelFrame, labelScreenFrame: labelScreenFrame, captureRect: backdrop.frame,
+            inputFrames: inputFrames, cancelTargetSlot: cancel.slot.rawValue)
+    }
+
     private func prepareEntryCountdown() async throws {
-        supplementalStage = "entryCountdown"
+        supplementalStage = "entryCountdownSettling"
         guard let entry = supplementalEntry, entry.diagnosticSnapshot.isExpanded else { throw Failure.missingWindow }
-        entry.setMode(.fullScreen)
         let before = entry.diagnosticSnapshot.controls
+        entry.setMode(.fullScreen)
         entry.setCapturePresentation(.init(sessionID: UUID(), requestID: UUID(), confirmedMode: .region,
             nextMode: .fullScreen, state: .countdown(3)))
+        var ready: EntryCountdownReadiness?
         try await waitForSupplement {
-            let snapshot = entry.diagnosticSnapshot
-            return NSApp.windows.first(where: { $0.windowNumber == snapshot.captureStatusWindowNumber })?.isVisible == true
+            ready = self.entryCountdownReadiness(entry, fixedControls: before)
+            return ready != nil
         }
-        let snapshot = entry.diagnosticSnapshot
-        let fixed = before.count == snapshot.controls.count && zip(before, snapshot.controls).allSatisfy { pair in
-            pair.0.slot == pair.1.slot && pair.0.mode == pair.1.mode
-                && pair.0.frame == pair.1.frame && pair.0.windowNumber == pair.1.windowNumber
+        guard let settled = ready else { throw Failure.missingWindow }
+        supplementalStage = "entryCountdownDisplay"
+        // Showing a window and setting its string are not evidence of a drawn
+        // label. Let the real AppKit display work and run-loop transaction finish
+        // after the product's own timers have stopped, then re-read all facts.
+        settled.content.layoutSubtreeIfNeeded()
+        settled.window.displayIfNeeded()
+        NSApp.windows.first(where: { $0.windowNumber == settled.snapshot.visualWindowNumber })?.displayIfNeeded()
+        let commitStart = ProcessInfo.processInfo.systemUptime
+        try await Task.sleep(nanoseconds: 50_000_000)
+        try await waitForSupplement {
+            ready = self.entryCountdownReadiness(entry, fixedControls: before)
+            return ready.map { !$0.content.needsLayout && !$0.content.needsDisplay && !$0.label.needsDisplay } == true
         }
-        let countdown = snapshot.captureStatusText?.contains("已选区域 · 3 秒后拍摄") == true
-        let next = snapshot.captureStatusText?.contains("下一张：全屏") == true
-        guard fixed, countdown, next,
-              snapshot.controls.allSatisfy({ !snapshot.captureStatusFrame.intersects($0.frame) }) else { throw Failure.unsafeRequest }
-        supplementalObservation(["fixedSlotsUnchanged": fixed, "countdownVisible": countdown,
-            "nextModeVisible": next, "captureExecuted": false])
+        guard let ready else { throw Failure.missingWindow }
+        supplementalObservation(["fixedSlotsUnchanged": true, "countdownVisible": true, "nextModeVisible": true,
+            "captureExecuted": false, "mode": "fullScreen", "entrySettled": true, "entryExpansion": ready.snapshot.expansion,
+            "entryFrameScheduled": ready.snapshot.hasScheduledFrame, "cancelSlotPosition": ready.snapshot.cancelSlotPosition,
+            "cancelTargetSlot": ready.cancelTargetSlot, "statusWindowVisible": ready.window.isVisible,
+            "statusWindowNumber": ready.window.windowNumber,
+            "statusWindowAlpha": ready.window.alphaValue, "statusContentAlpha": ready.content.alphaValue,
+            "statusLabelAlpha": ready.label.alphaValue, "statusAvoidsInputs": true, "statusTextFits": true,
+            "statusFrame": rectValues(ready.window.frame), "statusContentBounds": rectValues(ready.content.bounds),
+            "statusLabelFrame": rectValues(ready.labelFrame), "statusLabelScreenFrame": rectValues(ready.labelScreenFrame),
+            "captureRect": rectValues(ready.captureRect), "inputFrames": ready.inputFrames.map(rectValues),
+            "statusDisplayComplete": true, "displayCommitWaitSeconds": ProcessInfo.processInfo.systemUptime - commitStart])
     }
 
     private func captureOwnedWindows() throws -> NativeFrame? {
+        exportStage = .ownedWindowSelection
         guard let backdrop else { throw Failure.missingWindow }
         // orderedWindows is an AppleScript collection that excludes NSPanel.
         // Start with every visible self-owned window, then ask AppKit for its
@@ -370,6 +494,7 @@ final class NativeVisualEvidence {
         let windowIDs = try windowArray(selected)
         let quartzRect = CGRect(x: appKitRect.minX, y: firstScreen.frame.maxY - appKitRect.maxY,
                                 width: appKitRect.width, height: appKitRect.height)
+        exportStage = .ownedWindowCapture
         let before = ProcessInfo.processInfo.systemUptime
         guard let image = CGImage(windowListFromArrayScreenBounds: quartzRect, windowArray: windowIDs,
                     imageOption: [.boundsIgnoreFraming, .bestResolution]), image.width > 0, image.height > 0 else {
@@ -437,17 +562,35 @@ final class NativeVisualEvidence {
                        "uptime": ProcessInfo.processInfo.systemUptime, "physicalInput": "NOT_RUN"])
     }
 
+    nonisolated private static func exportStep<T>(_ stage: ExportStage, _ operation: () throws -> T) throws -> T {
+        do { return try operation() }
+        catch is CancellationError { throw CancellationError() }
+        catch let failure as ExportFailure { throw failure }
+        catch { throw ExportFailure(diagnostic: FailureDiagnostic(stage: stage, failure: error as? Failure)) }
+    }
+
+    func failureDiagnostic(for error: Error) -> FailureDiagnostic {
+        (error as? ExportFailure)?.diagnostic ?? FailureDiagnostic(stage: exportStage, failure: error as? Failure)
+    }
+
     nonisolated private static func encodePNG(_ images: NativePNGImages, file: URL) throws -> NativePNGResult {
         let onMainThread = Thread.isMainThread
         guard !onMainThread else { throw Failure.unsafeRequest }
-        let difference = try images.background.map { try productDifferencePixels(images.image, background: $0) }
-        guard !FileManager.default.fileExists(atPath: file.path),
-              let target = CGImageDestinationCreateWithURL(file as CFURL, UTType.png.identifier as CFString, 1, nil) else {
-            throw Failure.encoding
+        let difference = try exportStep(.pngPixelComparison) {
+            try images.background.map { try productDifferencePixels(images.image, background: $0) }
         }
-        CGImageDestinationAddImage(target, images.image, nil)
-        guard CGImageDestinationFinalize(target) else { throw Failure.encoding }
-        let bytes = try Data(contentsOf: file)
+        let target = try exportStep(.pngDestination) {
+            guard !FileManager.default.fileExists(atPath: file.path),
+                  let target = CGImageDestinationCreateWithURL(file as CFURL, UTType.png.identifier as CFString, 1, nil) else {
+                throw Failure.encoding
+            }
+            return target
+        }
+        try exportStep(.pngFinalize) {
+            CGImageDestinationAddImage(target, images.image, nil)
+            guard CGImageDestinationFinalize(target) else { throw Failure.encoding }
+        }
+        let bytes = try exportStep(.pngRead) { try Data(contentsOf: file) }
         return NativePNGResult(bytes: bytes.count,
             sha256: SHA256.hash(data: bytes).map { String(format: "%02x", $0) }.joined(),
             productDifferencePixels: difference, processedOnMainThread: onMainThread)
@@ -456,12 +599,14 @@ final class NativeVisualEvidence {
     private func writePNG(_ frame: NativeFrame, name: String) async throws {
         let image = frame.image
         let background: CGImage?
+        exportStage = .backdropCapture
         if singleWindow { background = nil } else { background = try captureBackdrop(for: frame) }
         let images = NativePNGImages(image: image, background: background)
         let file = directory.appendingPathComponent(name + ".png")
         // Await exactly one background job before capturing the next frame.
         // Heavy original-pixel comparison/PNG encoding/hash work must not block
         // AppKit's run loop or compete with Core Animation completion delivery.
+        exportStage = .pngProcessing
         let encoded = try await Task.detached(priority: .utility) {
             try Self.encodePNG(images, file: file)
         }.value
@@ -511,6 +656,7 @@ final class NativeVisualEvidence {
         // One current CGImage plus a maximum of three pooled encoder buffers.
         // A late deadline is skipped, never filled with an interpolated frame.
         while ProcessInfo.processInfo.systemUptime < deadline && captureCount < 200 {
+            exportStage = .timelineWait
             let remaining = nextCapture - ProcessInfo.processInfo.systemUptime
             if remaining > 0 { try await Task.sleep(nanoseconds: UInt64(remaining * 1_000_000_000)) }
             try Task.checkCancellation()
@@ -540,6 +686,7 @@ final class NativeVisualEvidence {
             nextCapture = zero + (floor(after * 30) + 1) / 30
         }
         if let recorder {
+            exportStage = .movieFinish
             movieReport = await recorder.finish()
             if captureUnavailable {
                 movieReport = ["status": "NOT_RUN", "reason": "nativeCaptureIntervalIncomplete",
@@ -554,7 +701,7 @@ final class NativeVisualEvidence {
         try finish()
     }
 
-    func finish(failure: String? = nil) throws {
+    func finish(failure: FailureDiagnostic? = nil) throws {
         defer {
             supplementalHistory?.close(); supplementalHistory = nil
             supplementalFeedback?.window?.close(); supplementalFeedback = nil
@@ -579,8 +726,14 @@ final class NativeVisualEvidence {
         ]
         if let movieReport { report["movie"] = movieReport }
         if let supplementalCase { report["supplementalCase"] = supplementalCase; report["supplementalStage"] = supplementalStage }
-        if let failure { report["failure"] = failure }
+        if let failure {
+            report["failure"] = "nativeEvidenceExportFailed"
+            report["failureCase"] = failure.failureCase
+            report["failureStage"] = failure.stage.rawValue
+        }
+        exportStage = .manifestEncoding
         let data = try JSONSerialization.data(withJSONObject: report, options: [.prettyPrinted, .sortedKeys])
+        exportStage = .manifestWrite
         try data.write(to: directory.appendingPathComponent("capture.json"), options: .atomic)
     }
 }

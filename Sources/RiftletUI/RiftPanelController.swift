@@ -90,6 +90,7 @@ private final class RiftRowView: NSView, NSMenuDelegate {
     var imageOffset: CGFloat = 0
     var requestedPixelSize: Int = 0
     var reportedImageReady = false
+    private var arrivalImageOwner: UUID?
     var onDown: ((NSEvent) -> Bool)?
     var onUp: ((Bool, CGPoint?) -> Void)?
     var onScroll: ((CGFloat) -> Void)?
@@ -179,16 +180,32 @@ private final class RiftRowView: NSView, NSMenuDelegate {
         needsDisplay = true
     }
 
-    func setImage(_ image: CGImage?) {
+    func setImage(_ image: CGImage?, arrivalOwner: UUID? = nil) {
         CATransaction.begin(); CATransaction.setDisableActions(true)
+        if let arrivalOwner {
+            // Commit the decoded pixels and their handoff visibility together.
+            // Ordering the flight window must never expose this target first.
+            arrivalImageOwner = arrivalOwner
+            imageLayer.isHidden = true
+        }
         imageLayer.contents = image
         CATransaction.commit()
         needsDisplay = true
     }
 
-    func setArrivalHidden(_ hidden: Bool) {
+    func ownsArrivalImage(_ owner: UUID) -> Bool { arrivalImageOwner == owner }
+
+    func restoreArrivalImage(owner: UUID) {
+        guard arrivalImageOwner == owner else { return }
+        resetArrivalImage()
+    }
+
+    /// A global motion-policy cancellation abandons every presentation owner.
+    /// Ordinary cache refreshes must never use this unconditional restoration.
+    func resetArrivalImage() {
+        arrivalImageOwner = nil
         CATransaction.begin(); CATransaction.setDisableActions(true)
-        imageLayer.isHidden = hidden
+        imageLayer.isHidden = false
         CATransaction.commit()
     }
 
@@ -596,7 +613,7 @@ public final class RiftPanelController {
         // Do not reset PointerSelectionGate or an accepted business selection.
         for row in rowWindows.values {
             row.view.animateImage(to: 0, duration: 0)
-            row.view.setArrivalHidden(false)
+            row.view.resetArrivalImage()
             row.panels.forEach { $0.alphaValue = 1 }
         }
         flushDeferred()
@@ -1009,13 +1026,24 @@ public final class RiftPanelController {
                 guard let self, let view, !self.closed, !self.userHidden, self.generation == token,
                       self.rowWindows[record.id]?.view === view,
                       view.record.visibility == .visible, view.record.visibilityRevision == revision else { return }
+                // Only this new candidate may hand its image to a flight. Hide
+                // it in the same transaction that publishes the decoded pixels,
+                // before any native flight-window ordering can display them.
+                let arrivalOwner = isNew && image != nil && self.effectiveArrivalMode == .magnet
+                    && self.arrivalCandidate?.assetID == record.id ? self.arrivalCandidate?.token : nil
                 // Exactly the same decoded pixels are used for source and row.
-                view.setImage(image)
+                view.setImage(image, arrivalOwner: arrivalOwner)
                 if image != nil, !view.reportedImageReady {
                     view.reportedImageReady = true
                     self.reportArrival(.imageDecoded, id: record.id)
                 }
-                if isNew, let image { self.startArrivalIfPossible(id: record.id, image: image) }
+                if let arrivalOwner, let image {
+                    if !self.startArrivalIfPossible(id: record.id, image: image, owner: arrivalOwner) {
+                        // A rejected/cancelled handoff is an immediate static
+                        // fallback. A stale owner cannot reveal a newer flight.
+                        view.restoreArrivalImage(owner: arrivalOwner)
+                    }
+                }
                 else if isNew, self.arrivalCandidate?.assetID == record.id { self.arrivalCandidate = nil }
             }
         }
@@ -1070,21 +1098,23 @@ public final class RiftPanelController {
         }
     }
 
-    private func startArrivalIfPossible(id: UUID, image: CGImage) {
-        guard let candidate = arrivalCandidate, candidate.assetID == id else { return }
+    private func startArrivalIfPossible(id: UUID, image: CGImage, owner: UUID) -> Bool {
+        guard let candidate = arrivalCandidate, candidate.assetID == id,
+              candidate.token == owner else { return false }
         arrivalCandidate = nil
         guard !closed, !userHidden, !captureSuppressed, effectiveArrivalMode == .magnet,
               selectionVersions[id] == nil, !gate.isHolding, !transitioning,
               ProcessInfo.processInfo.systemUptime - candidate.readyUptime <= maximumArrivalAge,
               let source = candidate.source, let screen, let row = rowWindows[id],
+              row.view.ownsArrivalImage(owner),
               row.view.record.visibility == .visible, row.view.record.status == .pending,
               let displayID = (screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.uint32Value,
               source.displayID == displayID, source.displayFrame == screen.frame,
-              source.backingScale == screen.backingScaleFactor else { return }
+              source.backingScale == screen.backingScaleFactor else { return false }
         let target = row.panel.convertToScreen(row.view.convert(row.view.geometry.imageFrame, to: nil))
         let edge = row.panel.convertToScreen(row.view.convert(row.view.geometry.imageClipFrame, to: nil)).maxX
         guard let plan = MagnetMotionPlan(sourceRect: source.rect, targetImageFrame: target,
-            clippingEdgeX: edge, screenFrame: screen.frame, parameters: magnetParameters) else { return }
+            clippingEdgeX: edge, screenFrame: screen.frame, parameters: magnetParameters) else { return false }
         let token = UUID(), epoch = generation, revision = row.view.record.visibilityRevision
         let started = flight.start(assetID: id, image: image, plan: plan,
             backingScale: screen.backingScaleFactor,
@@ -1099,7 +1129,7 @@ public final class RiftPanelController {
             }) { [weak self, weak view = row.view] completion in
                 guard let self else { return }
                 if let view, self.rowWindows[id]?.view === view,
-                   view.record.visibilityRevision == revision { view.setArrivalHidden(false) }
+                   view.record.visibilityRevision == revision { view.restoreArrivalImage(owner: owner) }
                 if self.arrivalAnimationToken == token {
                     self.arrivalAnimationToken = nil
                     self.mutateInteraction { $0.endAnimation(token) }
@@ -1108,12 +1138,12 @@ public final class RiftPanelController {
                 if [.finished, .timedOut].contains(completion.reason), self.generation == epoch { self.flushDeferred() }
             }
         if started {
-            row.view.setArrivalHidden(true)
             if decoration.isVisible { present(decoration) }
             arrivalAnimationToken = token
             mutateInteraction { $0.beginAnimation(token) }
             reportArrival(.decorationStarted, id: id)
         }
+        return started
     }
 
     private func reportArrival(_ phase: RiftArrivalPhase, id: UUID, reason: String? = nil) {

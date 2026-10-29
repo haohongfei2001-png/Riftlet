@@ -485,11 +485,35 @@ final class ArrivalModesTests: XCTestCase {
         let (root, screen, configuration) = try environment(motion: true)
         defer { try? FileManager.default.removeItem(at: root) }
         let record = try generated(directory: root)
+        weak var observedPanel: RiftPanelController?
+        var decodedGeometry: RiftDiagnosticRow?
+        var completionReasons: [String?] = []
         let panel = RiftPanelController(mediaDirectory: root, configuration: configuration, arrivalMode: .magnet,
-            reduceMotionOverride: { false }, onSelect: { _ in })
+            reduceMotionOverride: { false }, onArrivalBoundary: { event in
+                guard event.assetID == record.id else { return }
+                if event.phase == .decorationEnded { completionReasons.append(event.reason) }
+                guard event.phase == .imageDecoded else { return }
+                do {
+                    let current = try self.row(XCTUnwrap(observedPanel), id: record.id)
+                    decodedGeometry = current.0
+                    XCTAssertNotNil(current.3.contents)
+                    XCTAssertTrue(current.3.isHidden,
+                        "The decoded target must already be hidden before a native flight window can be ordered")
+                    for number in [current.0.imageInputWindowNumber, current.0.numberInputWindowNumber] {
+                        let input = try XCTUnwrap(NSApp.windows.first { $0.windowNumber == number })
+                        XCTAssertTrue(input.isVisible)
+                        XCTAssertFalse(input.ignoresMouseEvents)
+                        XCTAssertEqual(input.alphaValue, 1)
+                    }
+                } catch { XCTFail("Missing original row/input at image handoff: \(error)") }
+            }, onSelect: { _ in })
+        observedPanel = panel
         defer { panel.close() }
         try await beginFlight(panel, record: record, screen: screen)
         let original = try row(panel, id: record.id)
+        XCTAssertEqual(decodedGeometry, original.0)
+        panel.render([record])
+        XCTAssertTrue(original.3.isHidden, "An ordinary cached refresh must preserve the active handoff owner")
         let pixels = try XCTUnwrap(original.3.contents) as AnyObject
         XCTAssertEqual(CFGetTypeID(pixels), CGImage.typeID)
         try await eventually("Flight did not finish and clear its native overlay") { panel.arrivalDiagnostic.overlayCount == 0 }
@@ -499,8 +523,48 @@ final class ArrivalModesTests: XCTestCase {
         XCTAssertEqual(final.0.numberInputFrame, original.0.numberInputFrame)
         let finalPixels = try XCTUnwrap(final.3.contents) as AnyObject
         XCTAssertTrue(finalPixels === pixels)
+        XCTAssertEqual(completionReasons, ["finished"])
         try assertStatic(panel, id: record.id)
         XCTAssertFalse(panel.interactionSnapshot.isTransitioning)
+    }
+
+    @MainActor func testCancelledOrReducedMotionHandoffRestoresStaticImageBeforeReturningToRunLoop() async throws {
+        let (root, screen, configuration) = try environment(motion: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        for becomesReduced in [false, true] {
+            let record = try generated(directory: root)
+            var reduceMotion = false
+            var decoded = false, starts = 0
+            var selected: [UUID] = []
+            weak var observedPanel: RiftPanelController?
+            let panel = RiftPanelController(mediaDirectory: root, configuration: configuration, arrivalMode: .magnet,
+                reduceMotionOverride: { reduceMotion }, onArrivalBoundary: { event in
+                    guard event.assetID == record.id else { return }
+                    if event.phase == .decorationStarted { starts += 1 }
+                    guard event.phase == .imageDecoded else { return }
+                    do {
+                        let panel = try XCTUnwrap(observedPanel)
+                        XCTAssertTrue(try self.row(panel, id: record.id).3.isHidden)
+                        decoded = true
+                        if becomesReduced { reduceMotion = true }
+                        else { panel.cancelDecorations(reason: .cancelled) }
+                    } catch { XCTFail("Missing row at cancelled image handoff: \(error)") }
+                }, onSelect: { selected.append($0) })
+            observedPanel = panel
+            defer { panel.close() }
+            let token = try XCTUnwrap(panel.noteCaptureReady(record.id, uptime: ProcessInfo.processInfo.systemUptime))
+            panel.resolveArrivalSource(try source(screen), assetID: record.id, token: token)
+            panel.render([record])
+            let original = try row(panel, id: record.id)
+            try await eventually("The image handoff was not observed") { decoded }
+            XCTAssertEqual(starts, 0)
+            XCTAssertNotNil(original.3.contents)
+            try assertStatic(panel, id: record.id)
+            XCTAssertEqual(try row(panel, id: record.id).0, original.0)
+            XCTAssertTrue(original.2.accessibilityPerformPress())
+            XCTAssertEqual(selected, [record.id], "A rejected decoration must not delay original input")
+            panel.close()
+        }
     }
 
     @MainActor func testNativeSettingsOffersExactlyTwoModesAndPreviewsEachSuccessfulSelection() throws {

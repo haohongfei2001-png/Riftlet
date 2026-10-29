@@ -204,9 +204,18 @@ final class AcceptedSelectionQueueTests: XCTestCase {
     func testDeadlineCancelsPreparedWhileOriginalUnknownRemainsLocked() async throws {
         let s = try store(), a = try await asset(s), b = try await asset(s), adapter = ParkAdapter()
         let coordinator = coordinator(s, adapter)
-        try await coordinator.select(token(a)); try await coordinator.select(token(b, duration: 0.05))
+        try await coordinator.select(token(a))
+        let selection = token(b, duration: 0.05)
+        try await coordinator.select(selection)
+        let selectionReturnedAt = ProcessInfo.processInfo.systemUptime
         try await Task.sleep(nanoseconds: 150_000_000)
-        let bOp = try await operation(b, s), aOp = try await operation(a, s), inputs = await adapter.inputs()
+        let readStartedAt = ProcessInfo.processInfo.systemUptime
+        let bOp = try await operation(b, s)
+        let readEndedAt = ProcessInfo.processInfo.systemUptime
+        let aOp = try await operation(a, s), inputs = await adapter.inputs()
+        if ProcessInfo.processInfo.environment["RIFTLET_SELECTION_EXPIRY_TRACE"] == "1" {
+            print("RIFTLET_SELECTION_EXPIRY_TEST id=\(selection.id) accepted=\(selection.acceptedUptime) deadline=\(selection.deadlineUptime) selectionReturned=\(selectionReturnedAt) readStarted=\(readStartedAt) readEnded=\(readEndedAt) phase=\(bOp.phase)")
+        }
         XCTAssertEqual(bOp.phase, .failed); XCTAssertTrue(aOp.phase.isUnresolved); XCTAssertEqual(inputs, [a.id])
         await adapter.complete(a.id); try await coordinator.observePending()
         let after = await adapter.inputs(); XCTAssertEqual(after, [a.id])

@@ -508,8 +508,9 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
                 NSApp.terminate(nil)
             } catch is CancellationError { }
             catch {
-                try? evidence.finish(failure: "nativeEvidenceExportFailed")
-                fputs("NATIVE_EVIDENCE_EXPORT_FAIL\n", stderr)
+                let diagnostic = evidence.failureDiagnostic(for: error)
+                try? evidence.finish(failure: diagnostic)
+                fputs("NATIVE_EVIDENCE_EXPORT_FAIL case=\(diagnostic.failureCase) stage=\(diagnostic.stage.rawValue)\n", stderr)
                 NSApp.terminate(nil)
             }
         }
