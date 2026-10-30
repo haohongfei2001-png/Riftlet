@@ -21,7 +21,7 @@ final class SQLiteDatabase {
         try fm.setAttributes([.posixPermissions: 0o600], ofItemAtPath: url.path)
         sqlite3_busy_timeout(handle, 3000)
         try execute("PRAGMA foreign_keys = ON")
-        try execute("PRAGMA journal_mode = WAL")
+        try enableWAL()
         try execute("PRAGMA synchronous = FULL")
         let version = try rows("PRAGMA user_version").first?[0] ?? "0"
         guard ["0", "1", "2", "3"].contains(version) else {
@@ -46,6 +46,38 @@ final class SQLiteDatabase {
     }
 
     deinit { if let handle { sqlite3_close(handle) } }
+
+    /// Concurrent rollback-journal openers can receive BUSY immediately while
+    /// upgrading to WAL, even with SQLite's busy handler installed. Retry only
+    /// this idempotent initialization PRAGMA, before migrations or user writes.
+    private func enableWAL() throws {
+        let deadline = ProcessInfo.processInfo.systemUptime + 3
+        defer { sqlite3_busy_timeout(handle, 3000) }
+
+        func attempt() -> (status: Int32, message: String) {
+            var statement: OpaquePointer?
+            defer { if let statement { sqlite3_finalize(statement) } }
+            var status = sqlite3_prepare_v2(handle, "PRAGMA journal_mode = WAL", -1, &statement, nil)
+            if status == SQLITE_OK, let statement {
+                repeat { status = sqlite3_step(statement) } while status == SQLITE_ROW
+            }
+            return (status, handle.map { String(cString: sqlite3_errmsg($0)) } ?? "Database closed")
+        }
+
+        while true {
+            let remaining = max(0, deadline - ProcessInfo.processInfo.systemUptime)
+            // The SQLite busy handler and our immediate-BUSY retries share one
+            // total budget; a new attempt never receives another three seconds.
+            sqlite3_busy_timeout(handle, Int32(min(3000, remaining * 1000)))
+            let result = attempt() // Every statement is finalized before retry/sleep.
+            if result.status == SQLITE_DONE { return }
+            let left = deadline - ProcessInfo.processInfo.systemUptime
+            guard result.status == SQLITE_BUSY, left > 0 else {
+                throw RiftletError.database("WAL initialization failed (SQLite \(result.status)): \(result.message)")
+            }
+            Thread.sleep(forTimeInterval: min(0.01, left))
+        }
+    }
 
     /// Additive v3 extension: original rows and target identities remain intact.
     /// The original exclusive index still guards every legacy/ordinary dispatch.
