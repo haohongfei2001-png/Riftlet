@@ -204,6 +204,12 @@ jobs:
           "$riftlet_check_dir/Riftlet.app/Contents/MacOS/Riftlet" --first-use-self-check 2>&1 | tee test-results/first-use-self-check.log
           "$riftlet_check_dir/Riftlet.app/Contents/MacOS/Riftlet" --system-screenshot-candidate-self-check 2>&1 | tee test-results/system-screenshot-candidate-self-check.log
           ditto -c -k --sequesterRsrc --keepParent build/Riftlet.app build/Riftlet-macOS-development.zip
+      - name: Verify bounded original-operation diagnostics
+        if: matrix.runner == 'macos-15'
+        run: |
+          set -o pipefail
+          node --test engineering/diagnostics/original-operation-snapshot.test.cjs 2>&1 | tee test-results/original-operation-snapshot-tests.log
+          xcrun swiftc -parse-as-library Sources/RiftletAdapters/MainWorldCommandEnvelope.swift engineering/diagnostics/original-operation-main.swift -o build/original-operation-main
       - name: Verify isolated ordinary-entry acceptance build
         if: matrix.runner == 'macos-15'
         run: |
