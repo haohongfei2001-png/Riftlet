@@ -1,0 +1,92 @@
+{
+  "runID": 41008775790,
+  "headSHA": "07f2249ad189d7c5d318496bcfa18a3ddf65f4f1",
+  "jobConclusion": "success",
+  "modeAcceptance": "PARTIAL",
+  "records": [
+    {
+      "completedModes": [],
+      "engineReturned": true,
+      "event": "mode",
+      "mode": "window",
+      "phase": "AFTER_CAPTURE_BEFORE_IMPORT_OR_METADATA",
+      "physicalInteractionAcceptance": "NOT_RUN",
+      "pixelColorAcceptance": "NOT_GRANTED",
+      "probe": "built-in-native-engine",
+      "rawImagesPublished": false,
+      "realUploadAcceptance": "NOT_RUN",
+      "reason": "FOREIGN_OVERLAP_VETO",
+      "schemaVersion": 1,
+      "scope": "ACTUAL_APPLE_CAPTURE_PUBLISH_READBACK_PRIVATE_IMPORT_OWNED_SYNTHETIC_FIXTURE",
+      "status": "NOT_RUN"
+    },
+    {
+      "capturePublishReadbackMS": 93.64270833333421,
+      "completedModes": [
+        "region"
+      ],
+      "displayScale": 1,
+      "event": "mode",
+      "finalOriginalHidden": true,
+      "hasSystemScreenshotMetadata": true,
+      "mode": "region",
+      "ordinaryCollectorExcluded": true,
+      "origin": "applicationScreenshot",
+      "originalEqualsPrivateCopy": true,
+      "originalVerificationMS": 0.5765416666747569,
+      "physicalInteractionAcceptance": "NOT_RUN",
+      "pixelColorAcceptance": "NOT_GRANTED",
+      "pixelHeight": 96,
+      "pixelWidth": 128,
+      "privateImportMS": 5.617625000013504,
+      "probe": "built-in-native-engine",
+      "rawImagesPublished": false,
+      "rawPNGBytes": 3321,
+      "rawPNGSHA256": "f03d1ac03a108c73681916311db0e85c7155a45e13810af7b87051bc8c898d89",
+      "realUploadAcceptance": "NOT_RUN",
+      "reimportDeduplicated": true,
+      "schemaVersion": 1,
+      "scope": "ACTUAL_APPLE_CAPTURE_PUBLISH_READBACK_PRIVATE_IMPORT_OWNED_SYNTHETIC_FIXTURE",
+      "status": "PASS"
+    },
+    {
+      "completedModes": [
+        "region"
+      ],
+      "event": "mode",
+      "mode": "fullScreen",
+      "phase": "BEFORE_CAPTURE",
+      "physicalInteractionAcceptance": "NOT_RUN",
+      "pixelColorAcceptance": "NOT_GRANTED",
+      "probe": "built-in-native-engine",
+      "rawImagesPublished": false,
+      "realUploadAcceptance": "NOT_RUN",
+      "reason": "FOREIGN_OVERLAP_VETO",
+      "schemaVersion": 1,
+      "scope": "ACTUAL_APPLE_CAPTURE_PUBLISH_READBACK_PRIVATE_IMPORT_OWNED_SYNTHETIC_FIXTURE",
+      "status": "NOT_RUN"
+    },
+    {
+      "completedModes": [
+        "region"
+      ],
+      "connectedDisplayCount": 1,
+      "displayScale": 1,
+      "event": "summary",
+      "notRunModes": [
+        "window",
+        "fullScreen"
+      ],
+      "physicalInteractionAcceptance": "NOT_RUN",
+      "pixelColorAcceptance": "NOT_GRANTED",
+      "probe": "built-in-native-engine",
+      "rawImagesPublished": false,
+      "realUploadAcceptance": "NOT_RUN",
+      "schemaVersion": 1,
+      "scope": "ACTUAL_APPLE_CAPTURE_PUBLISH_READBACK_PRIVATE_IMPORT_OWNED_SYNTHETIC_FIXTURE",
+      "selectedDisplayPointHeight": 768,
+      "selectedDisplayPointWidth": 1024,
+      "status": "PARTIAL"
+    }
+  ]
+}

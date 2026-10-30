@@ -1,3 +1,5 @@
+> **2026-10-30 调整后本地专项：Chrome BLOCKED（资源占用），不等待协调**：已用独立普通 capture 测试构建完成真实系统 PNG 私有导入、微图/历史、CGEvent 无目标安全拒绝、隐藏/暂停/重启保留。两张未归因内置捕获私下保留，不算模式验收 PASS；已取消并停止桌面输入。原候选 31 文件哈希不变、0 新上传操作。正式 PR #1 `98e66a9` 的最小集成差异已实际核对；专项 CI 和独立审查见[本地结果](../engineering/evidence/2026-10-30-natural-first-click/local-only/README.md)。此裁决取代以下旧记录中的等待协调安排，历史证据保留。
+
 > **2026-10-30 新系统截图来源 PASS / 产品点击尚未执行**：新的CGEvent系统区域路径取得1.17 MB真实PNG；后端日志与文件birthtime间接差约60.57秒，准确T0/T1仍未知。专用Chrome标签被另一任务占用，待明确协调授权；本任务未启动App或输入，无生产源码/准入变更。[本次实际结果](../engineering/evidence/2026-10-30-natural-first-click/native-system-output/README.md)。
 
 > **2026-10-30 系统截图恢复 · 有界 FAIL / 下游 NOT_RUN**：正式产品基线实读 PR #1 `98e66a9`；本独立分支没有启动 Riftlet 或打开旧数据。三次 CGEvent 快捷键对照无新文件，CLI 自有窗口捕获成功但不是正常快捷键来源。已区分原生 touchshield 与浮动容器，修饰键归零/主屏对照仍未证明选区完成。停止条件成立，不扩展架构、不重复上传。[结果与最小复现](../engineering/evidence/2026-10-30-natural-first-click/system-capture-restore/README.md)。
