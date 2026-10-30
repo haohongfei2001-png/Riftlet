@@ -165,13 +165,25 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private var wakeObserver: NSObjectProtocol?
     private var watchedCompletions = Set<UUID>()
     private var observationBackoff: [UUID: (failures: Int, next: Date)] = [:]
-    private var instanceDescriptor: Int32 = -1
+    private var instanceOwnership: ApplicationInstanceOwnership?
     private let mode: ApplicationMode
     private var simulation: Bool { mode == .simulation }
 
     init(mode: ApplicationMode) { self.mode = mode; super.init() }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        // Acquire the mode before Feedback's detached initialization can claim
+        // its own lock. A losing instance must not create UI, mutate first-use
+        // state, open a sidecar, or pump an already queued feedback report.
+        do {
+            let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+            let owner = try ApplicationInstanceOwnership(root: base.appendingPathComponent(mode.directoryName, isDirectory: true))
+            instanceOwnership = owner; root = owner.root
+        } catch {
+            fputs("Riftlet could not acquire its data-directory ownership; no services were started.\n", stderr)
+            NSApp.terminate(nil)
+            return
+        }
         installMenu()
         _ = feedback // Independent sidecar initializes off the screenshot path.
         installSetup()
@@ -201,12 +213,15 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     }
 
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        guard instanceOwnership != nil else { return .terminateNow }
         feedback.prepareTermination { accepted in sender.reply(toApplicationShouldTerminate: accepted) }
         return .terminateLater
     }
 
     func applicationWillTerminate(_ notification: Notification) {
         terminating = true
+        guard let owner = instanceOwnership else { return }
+        owner.keepUntilProcessExit()
         permissionResumer?.stop()
         if let permissionActivationObserver { NSWorkspace.shared.notificationCenter.removeObserver(permissionActivationObserver) }
         if let permissionWakeObserver { NSWorkspace.shared.notificationCenter.removeObserver(permissionWakeObserver) }
@@ -230,16 +245,13 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         setup?.close()
         folderAccess.stop()
         if let sourceBinding { Task { await sourceBinding.stop() } }
-        if instanceDescriptor >= 0 { flock(instanceDescriptor, LOCK_UN); Darwin.close(instanceDescriptor) }
+        // The mode lock remains kernel-owned until all process-side stores exit.
+        instanceOwnership = nil
     }
 
     private func start() async throws {
-        let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-        root = base.appendingPathComponent(mode.directoryName, isDirectory: true)
-        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true, attributes: [.posixPermissions: 0o700])
-        instanceDescriptor = Darwin.open(root.appendingPathComponent("instance.lock").path, O_CREAT | O_RDWR | O_NOFOLLOW, 0o600)
-        guard instanceDescriptor >= 0, flock(instanceDescriptor, LOCK_EX | LOCK_NB) == 0 else {
-            throw RiftletError.database("This data directory already has a running Riftlet instance")
+        guard let owner = instanceOwnership, root == owner.root else {
+            throw RiftletError.database("App data-directory ownership is unavailable")
         }
         let store = try QueueStore(databaseURL: root.appendingPathComponent("queue.sqlite"), mode: mode.storeMode)
         self.store = store
