@@ -77,6 +77,17 @@ final class SQLiteWALInitializationTests: XCTestCase {
 
     func testPrepareAndStepShareOneWALInitializationBudget() throws {
         let (url, raw) = try fixture("staged-locks")
+        var openingHandle: OpaquePointer?
+        guard sqlite3_open_v2(url.path, &openingHandle,
+                              SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE | SQLITE_OPEN_FULLMUTEX,
+                              nil) == SQLITE_OK, let openingHandle else {
+            if let openingHandle { sqlite3_close(openingHandle) }
+            sqlite3_close(raw)
+            return XCTFail("Could not open WAL initialization fixture")
+        }
+        defer { sqlite3_close(openingHandle) }
+        XCTAssertEqual(sqlite3_busy_timeout(openingHandle, 3000), SQLITE_OK)
+        XCTAssertEqual(sqlite3_exec(openingHandle, "PRAGMA foreign_keys = ON", nil, nil, nil), SQLITE_OK)
         guard sqlite3_exec(raw, "BEGIN EXCLUSIVE", nil, nil, nil) == SQLITE_OK else {
             sqlite3_close(raw); return XCTFail("Could not establish exclusive fixture lock")
         }
@@ -109,9 +120,11 @@ final class SQLiteWALInitializationTests: XCTestCase {
             lock.shared.signal()
             lock.releaseTimedOut = lock.release.wait(timeout: .now() + 8) == .timedOut
         }.start()
+        // Measure the same production WAL helper after opening the connection;
+        // filesystem setup and unrelated initialization have no WAL deadline.
         let start = ProcessInfo.processInfo.systemUptime
         lock.start.signal()
-        XCTAssertThrowsError(try SQLiteDatabase(url: url)) { error in
+        XCTAssertThrowsError(try SQLiteDatabase.enableWAL(handle: openingHandle)) { error in
             guard case RiftletError.database(let message) = error else { return XCTFail("Unexpected \(error)") }
             XCTAssertTrue(message.contains("WAL initialization failed (SQLite 5)"), message)
         }
@@ -130,6 +143,14 @@ final class SQLiteWALInitializationTests: XCTestCase {
         // Before the fix prepare and step each received the original timeout,
         // taking about 4.5 seconds here. Allow scheduling overhead, not a new budget.
         XCTAssertLessThan(elapsed, 4)
+        var timeoutStatement: OpaquePointer?
+        XCTAssertEqual(sqlite3_prepare_v2(openingHandle, "PRAGMA busy_timeout", -1,
+                                         &timeoutStatement, nil), SQLITE_OK)
+        if let timeoutStatement {
+            defer { sqlite3_finalize(timeoutStatement) }
+            XCTAssertEqual(sqlite3_step(timeoutStatement), SQLITE_ROW)
+            XCTAssertEqual(sqlite3_column_int(timeoutStatement, 0), 3000)
+        }
         let recovered = try SQLiteDatabase(url: url)
         XCTAssertEqual(try recovered.rows("SELECT dispatch_exclusive FROM operations"), [["1"]])
         XCTAssertEqual(try recovered.rows("PRAGMA busy_timeout"), [["3000"]])

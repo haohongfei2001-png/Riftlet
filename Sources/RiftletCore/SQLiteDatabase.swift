@@ -21,7 +21,7 @@ final class SQLiteDatabase {
         try fm.setAttributes([.posixPermissions: 0o600], ofItemAtPath: url.path)
         sqlite3_busy_timeout(handle, 3000)
         try execute("PRAGMA foreign_keys = ON")
-        try enableWAL()
+        try Self.enableWAL(handle: handle)
         try execute("PRAGMA synchronous = FULL")
         let version = try rows("PRAGMA user_version").first?[0] ?? "0"
         guard ["0", "1", "2", "3"].contains(version) else {
@@ -50,39 +50,48 @@ final class SQLiteDatabase {
     /// Concurrent rollback-journal openers can receive BUSY immediately while
     /// upgrading to WAL, even with SQLite's busy handler installed. Retry only
     /// this idempotent initialization PRAGMA, before migrations or user writes.
-    private func enableWAL() throws {
+    static func enableWAL(handle: OpaquePointer?) throws {
         let deadline = ProcessInfo.processInfo.systemUptime + 3
-        defer { sqlite3_busy_timeout(handle, 3000) }
+        var busyDeadline = deadline
+        try withUnsafeMutablePointer(to: &busyDeadline) { deadlinePointer in
+            // Uninstall the callback before its stack context leaves scope,
+            // on success and on every thrown error. Other SQL keeps its timeout.
+            defer { sqlite3_busy_timeout(handle, 3000) }
+            sqlite3_busy_handler(handle, { context, _ in
+                guard let context else { return 0 }
+                let deadline = context.assumingMemoryBound(to: TimeInterval.self).pointee
+                let left = deadline - ProcessInfo.processInfo.systemUptime
+                guard left > 0 else { return 0 }
+                // busy_timeout counts requested sleep, not monotonic elapsed
+                // time. Recheck after waking so a delayed callback cannot add
+                // more waits after the shared prepare/step deadline.
+                Thread.sleep(forTimeInterval: min(0.01, left))
+                return ProcessInfo.processInfo.systemUptime < deadline ? 1 : 0
+            }, UnsafeMutableRawPointer(deadlinePointer))
 
-        func setRemainingBusyTimeout() {
-            let remaining = max(0, deadline - ProcessInfo.processInfo.systemUptime)
-            sqlite3_busy_timeout(handle, Int32(min(3000, remaining * 1000)))
-        }
-
-        func attempt() -> (status: Int32, message: String) {
-            var statement: OpaquePointer?
-            defer { if let statement { sqlite3_finalize(statement) } }
-            setRemainingBusyTimeout()
-            var status = sqlite3_prepare_v2(handle, "PRAGMA journal_mode = WAL", -1, &statement, nil)
-            if status == SQLITE_OK, let statement {
-                repeat {
-                    // Prepare can wait for a schema read lock before step needs
-                    // the WAL upgrade lock. Both consume the same deadline.
-                    setRemainingBusyTimeout()
-                    status = sqlite3_step(statement)
-                } while status == SQLITE_ROW
+            func attempt() -> (status: Int32, message: String) {
+                var statement: OpaquePointer?
+                defer { if let statement { sqlite3_finalize(statement) } }
+                var status = sqlite3_prepare_v2(handle, "PRAGMA journal_mode = WAL", -1, &statement, nil)
+                if status == SQLITE_OK, let statement {
+                    repeat { status = sqlite3_step(statement) } while status == SQLITE_ROW
+                }
+                return (status, handle.map { String(cString: sqlite3_errmsg($0)) } ?? "Database closed")
             }
-            return (status, handle.map { String(cString: sqlite3_errmsg($0)) } ?? "Database closed")
-        }
 
-        while true {
-            let result = attempt() // Every statement is finalized before retry/sleep.
-            if result.status == SQLITE_DONE { return }
-            let left = deadline - ProcessInfo.processInfo.systemUptime
-            guard result.status == SQLITE_BUSY, left > 0 else {
+            var result = attempt() // Every statement is finalized before retry/sleep.
+            while result.status == SQLITE_BUSY {
+                let left = deadline - ProcessInfo.processInfo.systemUptime
+                guard left > 0 else { break }
+                Thread.sleep(forTimeInterval: min(0.01, left))
+                // SQLite may return BUSY without invoking its callback. This
+                // outer retry uses the same deadline, including delayed wakeups.
+                guard ProcessInfo.processInfo.systemUptime < deadline else { break }
+                result = attempt()
+            }
+            guard result.status == SQLITE_DONE else {
                 throw RiftletError.database("WAL initialization failed (SQLite \(result.status)): \(result.message)")
             }
-            Thread.sleep(forTimeInterval: min(0.01, left))
         }
     }
 
