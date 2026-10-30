@@ -124,7 +124,7 @@ final class OrdinaryCaptureConfigurationTests: XCTestCase {
         XCTAssertTrue(hidden); XCTAssertTrue(paused)
         let audit = try await second.checkpoint(for: "ordinary-test-original-audit")
         XCTAssertEqual(audit, Data("original audit".utf8))
-        let history = try await second.history(); XCTAssertEqual(history.map(\.record.id), [image.id])
+        let history = try await second.history(); XCTAssertEqual(history.map(\.id), [image.id])
         XCTAssertEqual(try Data(contentsOf: file), bytes)
         let candidateRoot = base.appendingPathComponent(ApplicationMode.systemScreenshotCandidate.directoryName)
         XCTAssertFalse(FileManager.default.fileExists(atPath: candidateRoot.path))

@@ -7,6 +7,7 @@ on:
       - 'codex/system-capture-candidate-20261028'
       - 'codex/system-screenshot-real-20261028'
       - 'codex/arrival-none-magnet-native-20261028'
+      - 'codex/riftlet-ordinary-entry-20261030'
     paths:
       - 'Sources/**'
       - 'Tests/**'
