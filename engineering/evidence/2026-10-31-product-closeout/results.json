@@ -235,5 +235,13 @@
     "notarization": "NOT_RUN",
     "newUpload": "NOT_RUN: live upload source remains f306251; only WAL init changed afterward",
     "startupRecovery": "PASS: zero new operations, original identity/phase, assets, starts, compensation, checkpoints, media and journals retained"
+  },
+  "formalIntegrationBoundary": {
+    "productPR1": "edbdc7aae45c35878694e9fa376757dac7b630a8",
+    "handoffPR15": "bf3b97a432f65451c1b4232035e25c9d42b21523",
+    "mainAtFinalRead": "fccd809e9d55e0b221e75e6dcd7c21f6d357ee74",
+    "sourceGateMainSnapshot": "ea22efe25e080bd2e4a4ccf4538dbf2286c803a6",
+    "latestMainCompatibility": "NOT_RUN: latest website must be preserved and reviewed by sole formal integration owner",
+    "formalRefsModified": false
   }
 }
