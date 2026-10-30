@@ -99,7 +99,8 @@ final class OrdinaryCaptureConfigurationTests: XCTestCase {
     func testCurrentDraftInternalScopeCannotBorrowPersistedProductionOrCandidateApproval() {
         let current = OrdinaryAttachmentAdmission.internalAcceptance(currentDrafts: true)
         XCTAssertEqual(current.targetScope, .ordinaryCurrentDraftInternal)
-        XCTAssertEqual(current.observationProfile, OrdinaryCurrentDraftInternalScope.profile)
+        XCTAssertEqual(current.observationProfile.profileID, OrdinaryCurrentDraftInternalScope.profile.profileID)
+        XCTAssertEqual(current.observationProfile.uploadStartProfileID, OrdinaryCurrentDraftInternalScope.profile.uploadStartProfileID)
         XCTAssertEqual(Set(current.receiptPolicy.uploadStartProfiles.keys), [OrdinaryCurrentDraftInternalScope.admittedUploadStartProfileID, OrdinarySystemScreenshotScope.admittedUploadStartProfileID])
         XCTAssertEqual(Set(current.receiptPolicy.admittedProfiles.keys), [OrdinaryCurrentDraftInternalScope.admittedCompletionProfileID, OrdinarySystemScreenshotScope.admittedCompletionProfileID])
         XCTAssertTrue(current.receiptPolicy.retrySafeProfiles.isEmpty)
