@@ -1,3 +1,32 @@
+# 普通入口正式集成：WAL 修正后的精确源码准入（2026-10-31，北京时间）
+
+**已审完整源码：`a271929d35cdc0ee0e49d87ae02989cfaa133d2d`；tree `b1b46bc3f3aa84bae1ee9be0c37fc14a95458b9b`；唯一父提交为首轮正式 H1 `6f290c4ccd2d7fef75dd474fc0df412838cef6de`。** 本提交只更新准确来源 pin 和两份既有证据 metadata。S2 仅改 WAL 初始化及其回归测试，其他 993 个对象逐 mode/blob 保持；scope 与 release 非作者复核通过，WAL 作者另行披露。新的正式 Native ARM/Intel、Feedback、实际合流来源及原始 App 实包验证仍待执行。
+
+## 首轮结果与最小修复
+
+[Native 41123996316](https://github.com/haohongfei2001-png/Riftlet/actions/runs/41123996316) attempt 1 整体失败：ARM 与 source 成功，Intel 的新增 WAL 两阶段锁测试记录 `elapsed=4.096347656s`，未满足原 `<4s` 断言。801 是唯一测试方法枚举数；日志没有 WAL 内部逐调用时序，不能断言具体原因或称为已证明的偶发失败。[Feedback 41123996227](https://github.com/haohongfei2001-png/Riftlet/actions/runs/41123996227) attempt 1 成功。两个 source job 各 32/32 通过，四份历史审计保持。以上仅属于 H1；未盲重跑、未交付旧 H1 App，也不借用为新源码通过。
+
+独立的隔离 SQLite 实验确认累计睡眠 timeout 的实际缺口：单调用受控暂停后约 4.076 秒，单调时钟截止处理器约 3.000 秒。修复仅在 WAL 初始化期间安装截止时间 busy handler，prepare、step 及立即 BUSY 重试共用三秒预算。回调不重入 SQLite；作用域退出时先恢复原 3000 ms timeout，再释放指针。分阶段真实锁测试直接计时实际生产 WAL helper，保留 `<4s`、连续两阶段锁、原行与构造器恢复，并核对失败连接的 timeout 恢复。迁移、事务、schema、上传重试均未改变。该预算不能保证被操作系统暂停的进程在暂停期间返回。
+
+补丁 SHA256：`d6eb49a393a124e1e44c7e9c3a7c5e73039fa4840e4aebab50fdc7c9c73f3983`。三份 S2 精确复核、非作者 patch 批准、作者说明和独立实验原文及哈希均在 `results.json → ordinaryEntryIntegration.nonAuthorReviews`。
+
+## 完整组合与来源
+
+按完整依赖复用 `4f5285e`、`9e43ad3`、`10a8fe9`、`4e02c21`、`5010b4e`、`f306251`、`629624f`、`8ed2f90`。相对原正式 `edbdc7aa`，实现/必要测试/构建/门禁为 26 路径，另有两份既有 metadata；总计 28 路径、6 新增、0 删除，967 个其他对象保持，22 个产品变更对象直接等于专项最终 blob。S2 清单 SHA256：`581836f20df664802517d3357cf59c0221648f1ae1f8afbb7c6eb6957c4a745e`。
+
+main 再核实为 `fccd809e9d55e0b221e75e6dcd7c21f6d357ee74`；精确 28 网站对象、四份历史审计、双亲/祖先/路径/mode/blob 规则保持。没有修改网站、main ref 或两份正式 workflow；不纳入新增研究工具、专项 workflow 增量、临时运行配置或 TEST-ONLY overlay。保留的隔离编译通道不属于默认统一 App 的内部验收 flag、身份或数据根。
+
+## 准入与真实验收
+
+最终普通 App 真实端到端仍 **NOT_RUN**：已授权 Mac 执行器离线，本会话没有连接的本地 Chrome 来源上下文；没有真实 App 启动、输入或个人数据修改。旧内部 Home 成功仅属于 `f306251` 的预绑定 CGEvent 范围，不能替代最终 App。普通生产 input/start/completion、内置截图来源附加、Web continuation 和 safe-retry 均保持关闭；原受限候选准入不扩大。
+
+旧 UNKNOWN/历史/媒体、来源隔离、Home/local 精确身份、独立开始/完成、原子 B 条件、Feedback 固定云端、薄界、磁力、内置截图与资源完整保留。选区折叠沿用原生对照结论，没有 Range、focus 或正文恢复。PR #1 保持 Draft，不合并 main、不公开发行、不要求创始人体验 Beta。
+
+---
+
+<details>
+<summary>首轮 S1/H1 源码准入及此前完整交接（历史原文）</summary>
+
 # 普通入口正式集成：精确源码准入检查点（2026-10-31，北京时间）
 
 完整组合源码 **`e0a81ea9ec1e95557e733face88658c16f44efe7`**、tree `d2bcc065258b43fac3af9363a54a329a3747c699` 已经三路非作者审查；唯一父提交是正式 `edbdc7aae45c35878694e9fa376757dac7b630a8`。本提交只写入该已审源码 pin 和两份既有证据 metadata。**正式 Native ARM/Intel、Feedback、实际合流来源及新 App 实包验证尚待本次 PR #1 工作流完成。**
@@ -488,6 +517,8 @@ The current source `de0fbdfe8ca08c1efe30eca931c481598cc2970f` fixes two code-vis
 The failed PR Intel records-page log does show a real Feedback window; its shared missingWindow enum cannot identify the exact failed preparation guard. Controller creation does not finish asynchronous draft/record loads. The helper now waits at most two seconds for the same controller's actual fixture draft, editable editor and both exact record identities/bodies/states, then clicks the existing disclosure once. Every original visibility/body/state/scroll assertion, 700ms/350ms delay and seven-second static process bound remains. There is no product change, record action, transport call or capture retry.
 
 The original 46-case / 5-MOV driver remains byte-identical (SHA256 `f1f7ba966e1e57640490338dad4bc248c3da3de1f4ab5e56f47bd498d0664747`). Product 560ms motion, strict natural finish, 64-pixel/channel-delta-greater-than-8 comparison, original keyframes and 6.45-second recording bound remain unchanged. All three exact Git blobs received non-author review. Preparation facts do not replace new original WindowServer pixels or complete workflows. Physical Mac, real system-screenshot end-to-end, real ChatGPT and cloud Feedback remain independently NOT_RUN; the authorized Mac remains Offline.
+
+</details>
 
 </details>
 
