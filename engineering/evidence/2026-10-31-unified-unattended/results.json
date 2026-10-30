@@ -1,0 +1,105 @@
+{
+  "formalSource": "2bddb61a19114167b7485c392600c4b91dc62725",
+  "productSource": "b0cc67366fa78e6fc24d8e0c5cc468fd6a13cb76",
+  "environment": {
+    "os": "macOS 27.0",
+    "build": "26A428",
+    "architecture": "arm64",
+    "swift": "6.4",
+    "localXCTest": "NOT_RUN: Command Line Tools missing XCTest"
+  },
+  "results": {
+    "formalARMIntelArtifactProvenance": "PASS",
+    "historicalSplitLockReproduction": "PASS",
+    "ownerFirstAndTerminationHarness": "PASS",
+    "packagedAppLoserPath": "PASS",
+    "localBuildSignaturePackage": "PASS",
+    "nonAuthorSourceReview": "PASS",
+    "existingQueueRowsAnd39MediaPreserved": "PASS before live upload; final all 39 old plus one new media preserved",
+    "unifiedRealChromeUpload": "PASS limited: internal ordinary build, one new genuine system PNG, staged prebound CGEvent, focused editor, persisted chat",
+    "nativeFeedbackCloud": "NOT_RUN: independent D1 cleanup/verification path unavailable",
+    "integratedBuiltInCaptureGUI": "PARTIAL: entry/mode/cancel; gesture safely refused due foreign window coverage; completed capture NOT_RUN",
+    "physicalMouse": "NOT_RUN",
+    "prior122EvidenceFilesPreserved": "PASS",
+    "newHomeUnfocusedUpload": "NOT_RUN: safe new capture target unavailable; no input",
+    "selectionPreservation": "FAIL: actual noncollapsed range later collapsed; site modal seen subsequently, earliest cause not proven",
+    "restartOriginalOperationIdentity": "PASS",
+    "nativeFeedbackLocalDraftRestart": "PASS AX local only; restored initial empty draft; no report",
+    "coldNoACK": "NOT_RUN",
+    "nonAuthorRealEvidenceReview": "PASS limited, with selection FAIL and explicit provenance boundaries"
+  },
+  "admissions": {
+    "ordinaryInput": false,
+    "ordinaryStart": false,
+    "ordinaryCompletion": false,
+    "builtInUpload": false,
+    "safeRetry": false,
+    "webContinuation": false
+  },
+  "reviewedFileSHA256": {
+    "Sources/RiftletApp/ApplicationInstanceOwnership.swift": "e06828d8e3646b6e00c13e55544d529fcabaf921e30bf0c45d1b0e97688b2f9c",
+    "Sources/RiftletApp/RiftletMain.swift": "2d34e202a3ffc6995fdc7bd1251799350d1e1decaed189be53f61bbe079142db",
+    "Tests/RiftletAppTests/ApplicationInstanceOwnershipTests.swift": "58d693a68ba5d5d080bfce8f43f21532d107cdd1c6e563e7f8fbfa85577ca107"
+  },
+  "successorCI": {
+    "native": 41138988332,
+    "feedback": 41138988306,
+    "sourceAdmission": "FAIL: reviewed formal pin intentionally unchanged; successor requires formal integration review",
+    "nativeJobs": "PASS ARM and Intel",
+    "feedbackJob": "PASS",
+    "workflowConclusions": {
+      "native": "failure",
+      "feedback": "failure"
+    }
+  },
+  "sample": {
+    "alias": "U1",
+    "source": "new macOS Command-Shift-4 PNG via CGEvent",
+    "bytes": 1196165,
+    "pixels": [
+      702,
+      494
+    ],
+    "sha256": "d878067f4183dea7c1ba5f887f4d1e53fcf88adf78ed3f09c6b00cdbc39e8287",
+    "inputCount": 1,
+    "uploadStartRows": 1,
+    "phase": "succeeded",
+    "assetStatus": "used",
+    "visibility": "swallowed",
+    "clickToSwallowSeconds": 1.876638,
+    "clickToPanelCloseSeconds": 2.007499,
+    "pageInputToStartSeconds": 1.2148,
+    "beginChunkCommitCounts": "NOT_MEASURED: native diagnostic event cap before input",
+    "physical": false,
+    "prebound": true,
+    "editorFocused": true,
+    "serverOriginalByteFidelity": "NOT_CLAIMED"
+  },
+  "testedInternalExecutableSHA256": "a0d7d34f5d9fd374e5ac3521a05b6d35c2899ee462a935fa69508208709076fb",
+  "priorEvidenceManifestSHA256": "7a64498dda05ff2afd987d0a2dc01bc13dc9dc0088cfb8dcdff7c7707738fcf1",
+  "privateEvidenceManifestSHA256": "1ffd50647ab520c77e328c43617e3cedab554b91543592fd7181418500857f33",
+  "finalStorage": {
+    "ordinary": [
+      16,
+      0,
+      0
+    ],
+    "internalOrdinary": [
+      6,
+      5,
+      3
+    ],
+    "restricted": [
+      18,
+      7,
+      3
+    ],
+    "columns": [
+      "assets",
+      "operations",
+      "starts"
+    ],
+    "allMediaHashesMatch": true,
+    "oldInternalUnknownCount": 2
+  }
+}
