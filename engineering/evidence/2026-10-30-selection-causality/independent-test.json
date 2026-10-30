@@ -1,0 +1,15 @@
+{
+  "result": "PASS",
+  "checks": 11,
+  "sourceSHA256": "22732efdea969f9e712d024c3fc4bced1cd58e1067df8081463d5ce4b3bd1d96",
+  "browser": "151.0.7922.34",
+  "headless": true,
+  "freshContext": true,
+  "networkBlocked": true,
+  "realChatGPT": false,
+  "notes": [
+    "Synthetic browser diagnostic validation only",
+    "Native event timing and live React not exercised",
+    "Cap and dropped snapshots are explicitly reported"
+  ]
+}

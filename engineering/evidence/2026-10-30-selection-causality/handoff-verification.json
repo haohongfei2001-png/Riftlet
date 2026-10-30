@@ -1,0 +1,14 @@
+{
+  "originalEvidenceCommit": "7d4d87223c135cbea23d6e0da06a91d2210bf1b1",
+  "naturalBranchCommit": "74f25bd1ac1d161cec7948c5904775427891ada5",
+  "parent": "fcfd86780d1fe3e993caa23ad02d2fceeadf8954",
+  "ref": "heads/codex/riftlet-natural-first-click-20261030",
+  "transport": "Git Data API after bounded Git HTTPS failure",
+  "force": false,
+  "exactLocalCommitAndTreeVerified": true,
+  "readbackVerified": true,
+  "changedFiles": 5,
+  "privateManifestFilesVerified": 45,
+  "originalAndPrivateImageBytesVerified": 2,
+  "productionRefsModified": false
+}
