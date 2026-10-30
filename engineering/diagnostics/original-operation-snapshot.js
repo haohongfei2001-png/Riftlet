@@ -84,7 +84,33 @@ function riftletOriginalOperationSnapshot(command, native) {
       rootDiagnostics.push(item);
     }
   }
-  return {...result('matched'), rootDiagnostics, generations: count, retired: read(matchedState, 'retired') === true,
+  // Optional INTERNAL first-cause store. It is volatile, not journal/admission.
+  let firstInvalidation = null;
+  const diagnostic = read(globalThis, '__riftletFirstInvalidationInternalV1');
+  const records = read(diagnostic, 'records');
+  if (read(diagnostic, 'version') === 1 && records instanceof Map && records.size <= 64) {
+    const entry = Map.prototype.get.call(records, read(identity, 'operationID'));
+    if (entry && sameIdentity(read(entry, 'identity'))) {
+      const allowedReasons = ["BINDING_INVALIDATE_CALLBACK", "BINDING_MODE_MUTATION", "BINDING_MONITOR_ADMISSION_REJECTED", "BINDING_NAVIGATION_EVENT", "BINDING_REQUIRED_NODE_REMOVED", "BINDING_SEQUENCE_EXHAUSTED", "BINDING_SNAPSHOT_REJECTED", "COMMIT_ASYNC_EXCEPTION", "COMMIT_FINAL_GUARD_REJECTED", "COMMIT_INPUT_COUNT_INVALID", "COMMIT_PNG_SIGNATURE_INVALID", "DISCARD_UNCOMMITTED_OPERATION", "INPUT_EVENT_IDENTITY_INVALID", "INPUT_HASH_EXCEPTION", "INPUT_HASH_OR_BINDING_REJECTED", "MARK_BAD_UNCLASSIFIED", "MUTATION_ATTACHMENT_ATTRIBUTE_CHANGED", "MUTATION_ATTACHMENT_REMOVED", "MUTATION_PROGRESS_AFTER_END", "PROOF_CONTENT_MISMATCH", "PROOF_CONTINUITY_REJECTED", "PROOF_EXCEPTION", "REVOKE_UNCOMMITTED_OPERATION", "SAMPLE_ASSOCIATED_ERROR", "SAMPLE_CARD_DISAPPEARED", "SAMPLE_CARD_OR_INPUT_COUNT_INVALID", "SAMPLE_IMAGE_ERROR", "SAMPLE_IMAGE_IDENTITY_INVALID", "SAMPLE_NODE_REPLACED", "SAMPLE_PROGRESS_STRUCTURE_INVALID", "SAMPLE_PROOF_SOURCE_CHANGED", "SAMPLE_REPEATED_FINAL_LOAD"];
+      const reason = read(entry, 'reason'), atMS = read(entry, 'atMS');
+      if (allowedReasons.includes(reason) && typeof atMS === 'number' && Number.isFinite(atMS) && atMS >= 0) {
+        const safeNumbers = (object, keys) => Object.fromEntries(keys.map(k => {
+          const v = read(object, k); return [k, typeof v === 'number' && Number.isFinite(v) && v >= 0 ? v : null];
+        }));
+        const safeFlags = (object, keys) => Object.fromEntries(keys.map(k => {
+          const v = read(object, k); return [k, typeof v === 'boolean' ? v : null];
+        }));
+        firstInvalidation = {reason, atMS, ...safeNumbers(entry, ['sequence']),
+          flags: safeFlags(read(entry, 'flags'), ['committed','fileHashVerified','startDisqualified','uploading','proofPending']),
+          numbers: safeNumbers(read(entry, 'numbers'), ['inputCount','inputSequence','progressValue','started','hundred','ended','loaded']), nodes: {}};
+        for (const key of ['card','image','progress']) {
+          const node = read(read(entry, 'nodes'), key);
+          firstInvalidation.nodes[key] = node ? {...safeNumbers(node, ['id']), ...safeFlags(node, ['connected'])} : null;
+        }
+      }
+    }
+  }
+  return {...result('matched'), firstInvalidation, rootDiagnostics, generations: count, retired: read(matchedState, 'retired') === true,
     flags, numbers, continuity, nodes,
     proofPresent: exists('proof'), proofAuditPresent: exists('proofAudit'), uploadStartPresent: exists('uploadStart')};
 }
