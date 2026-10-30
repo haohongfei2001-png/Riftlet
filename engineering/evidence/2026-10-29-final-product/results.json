@@ -11283,5 +11283,18 @@
     "safeRetry": "CLOSED",
     "builtInSource": "CLOSED",
     "reportReview": "PASS non-author review; 24 total bounded page samples/20 post-click; page acceptance not server-byte receipt; creation outcome uncertain"
+  },
+  "firstInvalidationDiagnostic": {
+    "source": "95fdd19018c0f350fdc43e7af270ccac9969e3da",
+    "nonAuthorReview": "PASS first_cause_review",
+    "directedTests": 14,
+    "formalSourcesChanged": false,
+    "fullCIRerun": "NOT_RUN diagnostic-only per scope",
+    "nativeBuild": "NOT_RUN",
+    "realInput": "NOT_RUN",
+    "resource": "BLOCKED no identified exclusive persisted test chat",
+    "actualO1Branch": "UNDETERMINED",
+    "ordinaryAdmission": "CLOSED",
+    "privateManifestSHA256": "9b03f0e64661ffafd5fa4a247e747bfd1d069377e224f5a7928203b6c6595b00"
   }
 }

@@ -1,3 +1,53 @@
+# First invalidation instrumentation ready; live trial blocked — 2026-10-30
+
+**O1's actual first branch remains UNDETERMINED; no product defect is claimed fixed.** This increment stops at the user-defined resource boundary. No O1 tab query, new window creation, App launch, screenshot input or upload occurred. No formal Sources/Resources/receipt/admission changes.
+
+- Independently reviewed diagnostic source: `95fdd19018c0f350fdc43e7af270ccac9969e3da`; reviewer `first_cause_review`, 14 directed Node/VM tests PASS, independently reproduced. No unrelated full macOS CI rerun for this diagnostic-only increment. Previous native CI is historical, not a new diagnostic build/live PASS.
+- Current bounded native inventory: 3 observed windows, 13 tabs, 0 matches for the two previously authorized persisted test chats, 2 unattributed blank tabs. The earlier create timeout remains uncertain; neither blank tab was claimed or navigated. Inventory uses bounded loops and does not prove an exhaustive absence of all possible test resources.
+- New real input/start/swallow/completion/draft preservation/physical mouse: **NOT_RUN**, resource **BLOCKED**. Old UNKNOWN, media and audit untouched; no data-root change. Private inventory archive manifest SHA256: `9b03f0e64661ffafd5fa4a247e747bfd1d069377e224f5a7928203b6c6595b00`.
+
+## Precisely what the diagnostic records
+
+`engineering/diagnostics/first-invalidation.cjs` requires original page SHA256 `9b04975b7ee41a0f59cfc1e1ceb47e6855dd4c43e153e9304fb1f38996432e23`. It only inserts marked fragments into a separate internal resource. Removing those fragments restores the original bytes exactly. Monitor function bodies and all original predicates/returns remain unchanged. No wrapping/replacement of old monitors, target lookup, input, proof or retry is added.
+
+Each operation's first actual invalidation is recorded immediately before the invalid write, after any earlier binding failure triggered inside `currentMember`. The separate MAIN store retains at most 64 records: original identity for exact private matching, document-monotonic milliseconds, existing sequence, fixed reason enum, old card/image/progress weak node IDs and connected flags, and bounded scalar flags/progress state. No text, URL, filename, image bytes or DOM nodes are exported. Replacement records identify the executed inequality branch, not the identity of a new attachment.
+
+The record is **volatile MAIN memory**, not SQLite or candidate journal persistence. It survives binding retirement within that document but not page destruction/reload. Read it promptly with the existing original-operation MAIN executor; the updated snapshot returns a whitelist only after full original identity matching. An absent record never proves absence of invalidation. Full private request identity remains local; do not publish raw envelopes or the diagnostic store.
+
+22 operation callsites are separately named:
+
+| Code path | Fixed reasons |
+|---|---|
+| Proof | PROOF_CONTINUITY_REJECTED, PROOF_CONTENT_MISMATCH, PROOF_EXCEPTION |
+| Card/image sampling | SAMPLE_CARD_DISAPPEARED, SAMPLE_CARD_OR_INPUT_COUNT_INVALID, SAMPLE_IMAGE_IDENTITY_INVALID, SAMPLE_NODE_REPLACED, SAMPLE_ASSOCIATED_ERROR |
+| Progress/load sampling | SAMPLE_PROGRESS_STRUCTURE_INVALID, SAMPLE_IMAGE_ERROR, SAMPLE_REPEATED_FINAL_LOAD, SAMPLE_PROOF_SOURCE_CHANGED |
+| Mutation observer | MUTATION_ATTACHMENT_REMOVED, MUTATION_ATTACHMENT_ATTRIBUTE_CHANGED, MUTATION_PROGRESS_AFTER_END |
+| Input/hash | INPUT_EVENT_IDENTITY_INVALID, INPUT_HASH_OR_BINDING_REJECTED, INPUT_HASH_EXCEPTION |
+| Commit | COMMIT_PNG_SIGNATURE_INVALID, COMMIT_FINAL_GUARD_REJECTED, COMMIT_INPUT_COUNT_INVALID, COMMIT_ASYNC_EXCEPTION |
+
+Binding snapshot, mode mutation, required-node removal, navigation and monitor admission callsites have separate fixed reasons. Root-monitor/page-event callbacks retain `BINDING_INVALIDATE_CALLBACK`; this does **not** identify which callback fired. Sequence exhaustion, uncommitted revocation and discard are separate. Retirement tombstones inherit the earlier binding reason. Active-payload rejection creates an already-invalid zero-input operation and already returns a structured rejection; it is not a valid→invalid transition and is not relabeled as attachment loss.
+
+## Exact resumption entry — not executed this turn
+
+Only after independently owned, visible foreground persistent chat qualification, original draft independence from O1 and no competing browser controller are established:
+
+1. Export the exact reviewed source into a fresh build staging directory (no clone/reset and no user-data copy). Generate the diagnostic resource there only, then use the unchanged internal ordinary build script:
+
+```sh
+stage=$(mktemp -d "${TMPDIR:-/tmp}/riftlet-first-cause.XXXXXX")
+git archive 95fdd19018c0f350fdc43e7af270ccac9969e3da | tar -x -C "$stage"
+node "$stage/engineering/diagnostics/first-invalidation.cjs" "$stage/Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js" "$stage/page-diag.js"
+mv "$stage/page-diag.js" "$stage/Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js"
+(cd "$stage" && bash scripts/build-ordinary-acceptance.sh)
+```
+
+2. Keep the existing ordinary acceptance data root; no bypass of O1's target lock. Record exact binary/resource hashes as an **internal diagnostic variant**, not the formal App. Never replace the formal package.
+3. **Verify instrumentation coverage before new input.** A reused v13 binding may retain old uninstrumented closures. Use an independently qualified new document without old operations, or read-only verify the bound `markBad` function contains the inserted diagnostic marker. Do not erase/reinstall an old state or reload an UNKNOWN page to obtain coverage. Resource replacement alone is not coverage proof.
+4. One new system screenshot, new operation and original click only. Use existing native MAIN executor + updated `original-operation-snapshot.js` on that exact operation to persist private first-cause output promptly; retain journal/SQLite/page facts independently. No old O1 request or input.
+5. If first failure is observed, diagnose that exact reason; node replacement still requires original attachment continuity proof before any product relaxation. If resource qualification fails, stop without another window creation or upload.
+
+---
+
 # O1 cause audit and bounded MAIN diagnostic — 2026-10-30
 
 **Diagnostic defect fixed; O1's first invalidation trigger remains unproved. No product upload fix or new successful upload is claimed.** New real E2E is **NOT_RUN / resource acquisition blocked**. Production input/start/completion admission, builtin sources, continuation and safe retry stay closed.
