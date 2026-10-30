@@ -153,7 +153,7 @@ final class LateFailureCompensationTests: XCTestCase {
                 try legacy.execute("ALTER TABLE assets DROP COLUMN \(column)")
             }
             try legacy.execute("DROP TABLE compensations")
-            try legacy.execute("CREATE TEMP TABLE legacy_rows AS SELECT * FROM operations")
+            try legacy.execute("CREATE TEMP TABLE legacy_rows AS SELECT sequence,id,asset_id,attempt,target_key,target_json,phase,created_at,updated_at,receipt_json,reason FROM operations")
             try legacy.execute("DROP TABLE operations")
             try legacy.execute("""
                 CREATE TABLE operations (
@@ -188,10 +188,10 @@ final class LateFailureCompensationTests: XCTestCase {
         try await db.markDispatchIntent(inFlight.id)
         let before = try await db.assets(includeUsed: true)
         let legacy = try restoreLegacyOperationsSchema()
-        let oldRows = try legacy.rows("SELECT * FROM operations ORDER BY sequence")
+        let oldRows = try legacy.rows("SELECT sequence,id,asset_id,attempt,target_key,target_json,phase,created_at,updated_at,receipt_json,reason FROM operations ORDER BY sequence")
         let reopened = try store()
         XCTAssertEqual(try legacy.rows("PRAGMA user_version").first?.first, "3")
-        XCTAssertEqual(try legacy.rows("SELECT * FROM operations ORDER BY sequence"), oldRows)
+        XCTAssertEqual(try legacy.rows("SELECT sequence,id,asset_id,attempt,target_key,target_json,phase,created_at,updated_at,receipt_json,reason FROM operations ORDER BY sequence"), oldRows)
         let after = try await reopened.assets(includeUsed: true)
         let saved = try await reopened.receipt(for: success.id)
         XCTAssertEqual(after.map(\.image), before.map(\.image))
@@ -218,11 +218,11 @@ final class LateFailureCompensationTests: XCTestCase {
         // after operations were copied/dropped. SQLite must restore all old data.
         try legacy.execute("CREATE TABLE compensations (untouched TEXT)")
         try legacy.execute("INSERT INTO compensations VALUES('preserve-existing-data')")
-        let oldRows = try legacy.rows("SELECT * FROM operations")
+        let oldRows = try legacy.rows("SELECT sequence,id,asset_id,attempt,target_key,target_json,phase,created_at,updated_at,receipt_json,reason FROM operations")
         do { _ = try store(); XCTFail("Conflicting object did not fail migration") }
         catch RiftletError.database {}
         XCTAssertEqual(try legacy.rows("PRAGMA user_version").first?.first, "1")
-        XCTAssertEqual(try legacy.rows("SELECT * FROM operations"), oldRows)
+        XCTAssertEqual(try legacy.rows("SELECT sequence,id,asset_id,attempt,target_key,target_json,phase,created_at,updated_at,receipt_json,reason FROM operations"), oldRows)
         XCTAssertEqual(try legacy.rows("SELECT * FROM compensations"), [["preserve-existing-data"]])
         XCTAssertTrue(try legacy.rows("SELECT name FROM sqlite_master WHERE name='operations_v2'").isEmpty)
         try legacy.execute("DROP TABLE compensations")

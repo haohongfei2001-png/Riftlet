@@ -129,6 +129,21 @@ final class DispatchLifecycleTests: XCTestCase {
         do { _ = try await db.apply(receipt(winner, image, UUID(), outcome: .verifiedReady, attachment: start.attachmentID), policy: policy); XCTFail("alias") }
         catch RiftletError.mismatchedReceipt {}
     }
+    func testIndependentBWithoutStartStillBlocksCWhenOriginalAFinishes() async throws {
+        let db = try store(), owner = UUID(); let (a, ao, an) = try await started(db, owner: owner)
+        let b = try await asset(db), bo = try await db.prepare(assetID: b.id, target: target())
+        _ = try await db.markDispatchIntent(bo.id, selection: selection(b, target: target()), ownerID: owner, policy: policy)
+        let sql = try SQLiteDatabase(url: directory.appendingPathComponent("queue.sqlite"))
+        XCTAssertEqual(try sql.rows("SELECT dispatch_exclusive FROM operations WHERE id=?", [ao.id.uuidString]), [["1"]])
+        XCTAssertEqual(try sql.rows("SELECT dispatch_exclusive FROM operations WHERE id=?", [bo.id.uuidString]), [["0"]])
+        try await expectBusy(db, owner: owner)
+        _ = try await db.apply(receipt(ao, a, an, outcome: .verifiedReady), policy: policy)
+        try await db.markUnknown(bo.id, reason: "B commit reply lost")
+        try await expectBusy(db, owner: owner)
+        let reopened = try store()
+        try await expectBusy(reopened, owner: UUID())
+    }
+
     func testLateACompensationDoesNotReassignBAndBlocksNextInput() async throws {
         let db = try store(), owner = UUID(); let (a, ao, an) = try await started(db, owner: owner)
         let b = try await asset(db), bo = try await db.prepare(assetID: b.id, target: target())

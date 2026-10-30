@@ -103,9 +103,53 @@ final class LifecycleMigrationTests: XCTestCase {
         return LegacyFixture(sql: sql, images: images, operationIDs: operationIDs)
     }
 
+    private func makeFrozenVersionThree() throws -> LegacyFixture {
+        let legacy = try makeLegacy(version: 2)
+        // Frozen v3 additions, created without invoking the current migrator.
+        try legacy.sql.execute("ALTER TABLE assets ADD COLUMN visibility TEXT NOT NULL DEFAULT 'visible'")
+        try legacy.sql.execute("ALTER TABLE assets ADD COLUMN visibility_revision INTEGER NOT NULL DEFAULT 0")
+        try legacy.sql.execute("ALTER TABLE assets ADD COLUMN visibility_reason TEXT NOT NULL DEFAULT 'capture'")
+        try legacy.sql.execute("ALTER TABLE assets ADD COLUMN last_interaction_at REAL NOT NULL DEFAULT 0")
+        try legacy.sql.execute("CREATE INDEX visible_queue_order ON assets(visibility,sort_at,sequence)")
+        try legacy.sql.execute("CREATE TABLE upload_starts(operation_id TEXT PRIMARY KEY REFERENCES operations(id), receipt_json TEXT NOT NULL, started_at REAL NOT NULL)")
+        try legacy.sql.execute("PRAGMA user_version=3")
+        return legacy
+    }
+
+    func testFrozenVersionThreeUnknownKeepsExclusiveSlotAndOriginalRows() async throws {
+        let legacy = try makeFrozenVersionThree()
+        let before = try legacy.sql.rows("SELECT sequence,id,asset_id,attempt,target_key,target_json,phase,created_at,updated_at,receipt_json,reason FROM operations ORDER BY sequence")
+        let url = databaseURL
+        let firstOpen = Task.detached { try QueueStore(databaseURL: url) }
+        let secondOpen = Task.detached { try QueueStore(databaseURL: url) }
+        let one = try await firstOpen.value
+        _ = try await secondOpen.value // concurrent migration rechecks after BEGIN
+        _ = try QueueStore(databaseURL: databaseURL) // extension is idempotent
+        XCTAssertEqual(try legacy.sql.rows("PRAGMA user_version"), [["3"]])
+        XCTAssertEqual(try legacy.sql.rows("SELECT sequence,id,asset_id,attempt,target_key,target_json,phase,created_at,updated_at,receipt_json,reason FROM operations ORDER BY sequence"), before)
+        XCTAssertEqual(try legacy.sql.rows("SELECT DISTINCT dispatch_exclusive FROM operations"), [["1"]])
+        let old = try await one.operation(id: legacy.operationIDs[1])!
+        let nonce = try await one.dispatchInvocationID(for: old.id); XCTAssertNil(nonce)
+        let fresh = ImportedAsset(sourceKey: UUID().uuidString, fileName: "new.png", sha256: String(repeating: "a", count: 64), byteCount: 10, pixelWidth: 1, pixelHeight: 1, mediaType: "image/png", origin: .synthetic)
+        _ = try await one.importAsset(fresh)
+        let next = try await one.prepare(assetID: fresh.id, target: old.target)
+        do { try await one.markDispatchIntent(next.id); XCTFail("legacy UNKNOWN must remain locked") }
+        catch RiftletError.targetBusy {}
+    }
+
+    func testDispatchExtensionFailureRollsBackColumnAndIndexTogether() throws {
+        let legacy = try makeFrozenVersionThree()
+        try legacy.sql.execute("INSERT INTO metadata VALUES('transfer-dispatch-slots-v1','unexpected')")
+        let beforeIndex = try legacy.sql.rows("SELECT sql FROM sqlite_master WHERE name='one_dispatched_per_target'")
+        XCTAssertThrowsError(try QueueStore(databaseURL: databaseURL))
+        XCTAssertFalse(try legacy.sql.rows("PRAGMA table_info(operations)").contains { $0[1] == "dispatch_exclusive" })
+        XCTAssertEqual(try legacy.sql.rows("SELECT sql FROM sqlite_master WHERE name='one_dispatched_per_target'"), beforeIndex)
+        XCTAssertEqual(try legacy.sql.rows("PRAGMA user_version"), [["3"]])
+    }
+
     func testFrozenVersionTwoMigratesVisibilityWithoutInventingStartOrRewritingFacts() async throws {
         let legacy = try makeLegacy(version: 2)
-        let beforeOperations = try legacy.sql.rows("SELECT * FROM operations ORDER BY sequence")
+        let beforeOperations = try legacy.sql.rows("SELECT sequence,id,asset_id,attempt,target_key,target_json,phase,created_at,updated_at,receipt_json,reason FROM operations ORDER BY sequence")
         let beforeCompensations = try legacy.sql.rows("SELECT * FROM compensations")
         let beforeAssets = try legacy.sql.rows("SELECT sequence,id,source_key,file_name,sort_at,image_json,status,active_operation_id FROM assets ORDER BY sequence")
 
@@ -128,7 +172,7 @@ final class LifecycleMigrationTests: XCTestCase {
 
     func testFrozenVersionOneMigratesAllTheWayAndKeepsUnstartedUnknownVisible() async throws {
         let legacy = try makeLegacy(version: 1)
-        let before = try legacy.sql.rows("SELECT * FROM operations ORDER BY sequence")
+        let before = try legacy.sql.rows("SELECT sequence,id,asset_id,attempt,target_key,target_json,phase,created_at,updated_at,receipt_json,reason FROM operations ORDER BY sequence")
         let store = try QueueStore(databaseURL: databaseURL)
         let all = try await store.assets(includeUsed: true)
         XCTAssertEqual(all.map(\.visibility), [.swallowed, .visible, .visible])
@@ -145,12 +189,12 @@ final class LifecycleMigrationTests: XCTestCase {
     func testUnsupportedFutureVersionPreservesLegacyRows() throws {
         let legacy = try makeLegacy(version: 2)
         let assets = try legacy.sql.rows("SELECT * FROM assets ORDER BY sequence")
-        let operations = try legacy.sql.rows("SELECT * FROM operations ORDER BY sequence")
+        let operations = try legacy.sql.rows("SELECT sequence,id,asset_id,attempt,target_key,target_json,phase,created_at,updated_at,receipt_json,reason FROM operations ORDER BY sequence")
         try legacy.sql.execute("PRAGMA user_version=99")
         XCTAssertThrowsError(try QueueStore(databaseURL: databaseURL))
         XCTAssertEqual(try legacy.sql.rows("PRAGMA user_version"), [["99"]])
         XCTAssertEqual(try legacy.sql.rows("SELECT * FROM assets ORDER BY sequence"), assets)
-        XCTAssertEqual(try legacy.sql.rows("SELECT * FROM operations ORDER BY sequence"), operations)
+        XCTAssertEqual(try legacy.sql.rows("SELECT sequence,id,asset_id,attempt,target_key,target_json,phase,created_at,updated_at,receipt_json,reason FROM operations ORDER BY sequence"), operations)
     }
 
     func testLifecycleMigrationFailureRollsBackLegacySchemaAndEveryOriginalFact() throws {
@@ -158,7 +202,7 @@ final class LifecycleMigrationTests: XCTestCase {
         let assetSchema = try legacy.sql.rows("PRAGMA table_info(assets)")
         let operationSchema = try legacy.sql.rows("PRAGMA table_info(operations)")
         let assets = try legacy.sql.rows("SELECT * FROM assets ORDER BY sequence")
-        let operations = try legacy.sql.rows("SELECT * FROM operations ORDER BY sequence")
+        let operations = try legacy.sql.rows("SELECT sequence,id,asset_id,attempt,target_key,target_json,phase,created_at,updated_at,receipt_json,reason FROM operations ORDER BY sequence")
         // This unexpected preexisting object forces the lifecycle migration to
         // fail after any prior migration steps. None may partially commit.
         try legacy.sql.execute("CREATE TABLE upload_starts (untouched TEXT)")
@@ -168,7 +212,7 @@ final class LifecycleMigrationTests: XCTestCase {
         XCTAssertEqual(try legacy.sql.rows("PRAGMA table_info(assets)"), assetSchema)
         XCTAssertEqual(try legacy.sql.rows("PRAGMA table_info(operations)"), operationSchema)
         XCTAssertEqual(try legacy.sql.rows("SELECT * FROM assets ORDER BY sequence"), assets)
-        XCTAssertEqual(try legacy.sql.rows("SELECT * FROM operations ORDER BY sequence"), operations)
+        XCTAssertEqual(try legacy.sql.rows("SELECT sequence,id,asset_id,attempt,target_key,target_json,phase,created_at,updated_at,receipt_json,reason FROM operations ORDER BY sequence"), operations)
         XCTAssertEqual(try legacy.sql.rows("SELECT * FROM upload_starts"), [["preserve-existing-data"]])
         XCTAssertTrue(try legacy.sql.rows("SELECT name FROM sqlite_master WHERE name IN ('operations_v2','compensations')").isEmpty)
     }

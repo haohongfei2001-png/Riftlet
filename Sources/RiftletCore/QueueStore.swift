@@ -292,13 +292,14 @@ public actor QueueStore {
     public func markDispatchIntent(_ id: UUID, selection: AcceptedSelection? = nil,
                                    ownerID: UUID? = nil, policy: ReceiptPolicy = .init()) throws -> UUID {
         try database.transaction {
-            let op = try validatedDispatchOperation(id, selection: selection, ownerID: ownerID, policy: policy)
+            let (op, follows) = try validatedDispatchOperation(id, selection: selection, ownerID: ownerID, policy: policy)
             guard let asset = try asset(id: op.assetID) else { throw RiftletError.assetNotFound }
             let invocationID = UUID()
             let call = DispatchCallRecord(version: 1, operationID: op.id, assetID: op.assetID,
                 attempt: op.attempt, assetSHA256: asset.image.sha256, target: op.target,
                 invocationID: invocationID, ownerID: ownerID, returnedReceipt: nil)
             let write = {
+                try self.database.execute("UPDATE operations SET dispatch_exclusive=? WHERE id=?", [follows ? "0" : "1", op.id.uuidString])
                 try self.update(op, phase: .dispatchIntent, status: .transferring, reason: "dispatch-intent committed")
                 try self.saveCheckpoint(JSONEncoder().encode(call), for: self.callKey(op.id))
             }
@@ -308,7 +309,7 @@ public actor QueueStore {
     }
 
     private func validatedDispatchOperation(_ id: UUID, selection: AcceptedSelection?,
-                                            ownerID: UUID?, policy: ReceiptPolicy) throws -> TransferOperation {
+                                            ownerID: UUID?, policy: ReceiptPolicy) throws -> (TransferOperation, Bool) {
         let op = try requiredOperation(id)
         guard op.phase == .prepared, let record = try asset(id: op.assetID),
               record.visibility == .visible else { throw RiftletError.invalidTransition }
@@ -317,12 +318,14 @@ public actor QueueStore {
                   selection.visibilityRevision == record.visibilityRevision,
                   record.activeOperationID == op.id, try !userHidden() else { throw RiftletError.invalidTransition }
         }
+        var follows = false
         for active in try unresolvedOperations() where active.phase != .prepared && active.target.conflictsForDispatch(with: op.target) {
+            follows = true
             guard selection != nil, try allowsFollowing(active, next: op, ownerID: ownerID, policy: policy) else {
                 throw RiftletError.targetBusy
             }
         }
-        return op
+        return (op, follows)
     }
 
     private func callKey(_ id: UUID) -> String { "transfer-dispatch-call-v1:" + id.uuidString }
@@ -417,8 +420,11 @@ public actor QueueStore {
                   record.activeOperationID == op.id else { throw RiftletError.mismatchedReceipt }
             if let started = try uploadStartReceipt(for: op.id), let attachmentID = receipt.attachmentID,
                attachmentID != started.attachmentID { throw RiftletError.mismatchedReceipt }
-            if let attachmentID = receipt.attachmentID {
-                let starts = try database.rows("SELECT s.receipt_json FROM upload_starts s JOIN operations o ON o.id=s.operation_id WHERE o.target_key=? AND o.id<>?", [op.target.stableKey, op.id.uuidString])
+            if let attachmentID = receipt.attachmentID,
+               try uploadStartReceipt(for: op.id) == nil, op.phase != .succeeded,
+               policy.allowsUploadStart(receipt: receipt, asset: record.image, mode: mode)
+                || policy.allowsConsumption(receipt: receipt, asset: record.image, mode: mode) {
+                let starts = try database.rows("SELECT s.receipt_json FROM upload_starts s JOIN operations o ON o.id=s.operation_id WHERE o.target_key=? AND o.id<>? AND o.phase NOT IN ('failed','succeeded')", [op.target.stableKey, op.id.uuidString])
                 for row in starts {
                     if let raw = row.first ?? nil,
                        try JSONDecoder().decode(TransferReceipt.self, from: Data(raw.utf8)).attachmentID == attachmentID {
