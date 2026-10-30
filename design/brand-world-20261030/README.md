@@ -90,7 +90,7 @@ python3 tests/site-static.py --strict-assets --json
 
 ## 工程隔离与真实状态
 
-候选约定存放于仓库 `design/brand-world-20261030/`，使用独立分支 `design/brand-passage-20261030`。**Draft PR 编号及远端实际提交，由主交付创建后补充；这里不预填不存在的编号。** 原官网及旧 Logo 已作为 [baseline/](baseline/) 保留。
+候选已提交于仓库 `design/brand-world-20261030/`，独立分支 `design/brand-passage-20261030`；审阅入口为 **[Draft PR #19](https://github.com/haohongfei2001-png/Riftlet/pull/19)**。首个设计提交为 `c0e0facf3eeac71f82c8de25d60767d94f0c5a49`；PR 分支包含后续交付索引补全。 原官网及旧 Logo 已作为 [baseline/](baseline/) 保留。
 
 只读核对基线（2026-10-30；详细源链接见[产品事实](docs/product-truth.md)）：
 

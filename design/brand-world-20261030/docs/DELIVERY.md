@@ -120,7 +120,7 @@ python3 tests/site-static.py --strict-assets --json
 
 ## 7. 工程隔离、提交位置与采用
 
-远端候选统一放 `design/brand-world-20261030/`；独立分支名为 `design/brand-passage-20261030`。Draft PR 编号尚未在本索引编写时确认，应由主交付真实创建后补入，不推测编号。
+远端候选已提交于 `design/brand-world-20261030/`；独立分支为 `design/brand-passage-20261030`，**[Draft PR #19](https://github.com/haohongfei2001-png/Riftlet/pull/19)** 已实际创建并回读为 open / draft / unmerged。Git tree 校验确认 67 个原有 main 文件 SHA 全部保留，新内容都在独立目录内。
 
 只读基线核对日期为 2026-10-30；最近产品源复核记录为 06:46 UTC / 14:46 北京时间：
 

@@ -6,7 +6,7 @@
 
 本候选保留旧官网与旧Logo作为 `baseline/` 对照，新的网页在 `site/`，矢量与导出资产在 `brand/`。生成脚本、交互状态模型、验证脚本和研究说明随候选保留。
 
-本专项不修改Swift、AppKit、附件适配器、数据库、Chrome集成或真实Mac测试，不向正式PR #1/#15写入产品变更；不合并main，不改变GitHub Pages生产设置、DNS、Cloudflare服务或riftlet.com。独立设计分支／Draft PR若由主负责人创建，只作为审阅入口。未创建或未返回的具体分支、PR、预览地址不得在本文件中虚构。
+本专项不修改Swift、AppKit、附件适配器、数据库、Chrome集成或真实Mac测试，不向正式PR #1/#15写入产品变更；不合并main，不改变GitHub Pages生产设置、DNS、Cloudflare服务或riftlet.com。独立设计分支 `design/brand-passage-20261030` 与 [Draft PR #19](https://github.com/haohongfei2001-png/Riftlet/pull/19) 已创建，仅作为审阅入口；没有部署到公共生产站。
 
 图标和网页均为候选。建立独立预览、提交设计源文件不等于批准正式采用；创始人的最终决定应指向具体候选版本，避免后续将探索图误当正式资产。
 

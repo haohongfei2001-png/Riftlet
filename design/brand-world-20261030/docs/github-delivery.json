@@ -1,0 +1,19 @@
+{
+  "repository": "haohongfei2001-png/Riftlet",
+  "branch": "design/brand-passage-20261030",
+  "pull_request": 19,
+  "pull_request_url": "https://github.com/haohongfei2001-png/Riftlet/pull/19",
+  "status_at_creation": "open / draft / unmerged",
+  "base_main": "eba1a4fc77648a665e1d5c1f2609df1314c3b079",
+  "initial_design_commit": "c0e0facf3eeac71f82c8de25d60767d94f0c5a49",
+  "candidate_directory": "design/brand-world-20261030/",
+  "scope_verification": {
+    "original_main_blobs_preserved": 67,
+    "original_files_changed": 0,
+    "initial_candidate_files_added": 148,
+    "initial_manifest_all_blob_shas_match": true
+  },
+  "production_deployment": false,
+  "native_product_modified": false,
+  "note": "The branch may include later delivery-index commits. Use the PR head for the current candidate."
+}

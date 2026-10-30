@@ -54,4 +54,4 @@ Riftlet 值得独立存在的理由，是减少截图成为对话上下文时的
 
 建议品牌方决定是否采用 Passage 的**主标识关系、青绿/暖纸体系与核心叙事**，再进入最小整合。无需把已淘汰方向也打磨为第二套正式品牌。网站整合、原生资源接入、合并和上线按[采用步骤](adoption-and-scope.md)分别执行。
 
-候选内容约定放在 `design/brand-world-20261030/`，独立分支为 `design/brand-passage-20261030`；实际 Draft PR 编号由主交付创建后提供。此轮未修改原生 PR #1/#15、main、DNS 或生产官网。基线与完整交付路径见[DELIVERY](DELIVERY.md)。
+候选内容约定放在 `design/brand-world-20261030/`，独立分支为 `design/brand-passage-20261030`；实际审阅入口为 [Draft PR #19](https://github.com/haohongfei2001-png/Riftlet/pull/19)，已创建且未合并。此轮未修改原生 PR #1/#15、main、DNS 或生产官网。基线与完整交付路径见[DELIVERY](DELIVERY.md)。
