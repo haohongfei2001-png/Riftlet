@@ -1,0 +1,10 @@
+{
+  "formalBase": "98e66a956d55b5fac71718bc627dd89705b2a506",
+  "dependency": "973a3e8c41b833dd47d655bd837e9ba5ebb40d7a",
+  "testedSource": "f7f8acdd842005a2b65e914291f3a2912c4e4124",
+  "compositionTreeWithoutSpecialistWorkflow": "f043c283eeb49e1f3f8b3c2640ea43c7bbeeabde",
+  "dependencyPatchSHA256": "bcaac25bdce81e962deb157c35b87bde98a82331b4db3adb52e60b2545905ab9",
+  "productPatchSHA256": "e3d30f9384e04ef8235b13de8f8fd71a4fbceaf562b64226779374b5c11e2fa6",
+  "sourceTestsResourcesPackageEqual": true,
+  "conflicts": 0
+}

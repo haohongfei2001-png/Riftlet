@@ -1,0 +1,36 @@
+{
+  "runID": 41017793874,
+  "headSHA": "f7f8acdd842005a2b65e914291f3a2912c4e4124",
+  "conclusion": "success",
+  "nativeEnumeratedCases": 779,
+  "nativeUniqueCases": 779,
+  "pageSummaries": [
+    "# tests 167"
+  ],
+  "coreNewCases": [
+    "RiftletCoreTests.DispatchLifecycleTests/testCoordinatorNoInputRejectionPreservesImageAndRequiresNewClick",
+    "RiftletCoreTests.DispatchLifecycleTests/testCoordinatorRetiresOnlyCurrentTypedRejection",
+    "RiftletCoreTests.DispatchLifecycleTests/testIndependentBWithoutStartStillBlocksCWhenOriginalAFinishes",
+    "RiftletCoreTests.DispatchLifecycleTests/testLateACompensationDoesNotReassignBAndBlocksNextInput",
+    "RiftletCoreTests.DispatchLifecycleTests/testLegacyV3OperationWithoutCallCheckpointStaysLocked",
+    "RiftletCoreTests.DispatchLifecycleTests/testNoContinuationEvidenceRemainsLocked",
+    "RiftletCoreTests.DispatchLifecycleTests/testNoIndependentProfileAndWrongOwnerAndNewEpochRemainLocked",
+    "RiftletCoreTests.DispatchLifecycleTests/testRejectionNeedsOriginalNonceAndCannotClearUnknown",
+    "RiftletCoreTests.DispatchLifecycleTests/testFortyEightIndependentStartedOperationsRetainOriginalIdentities",
+    "RiftletCoreTests.DispatchLifecycleTests/testCoordinatorStartedAThenIndependentBSuccessOrFailureNeverReplaysA",
+    "RiftletCoreTests.DispatchLifecycleTests/testStartAloneAndAppendStillRunningCannotReleaseConflict",
+    "RiftletCoreTests.DispatchLifecycleTests/testUnownedInvocationAndUnknownCommitRemainLocked",
+    "RiftletCoreTests.DispatchLifecycleTests/testTwoConnectionsSerializeFollowingIntentAndRejectAttachmentAlias"
+  ],
+  "nativeScope": "Full swift test --parallel exited successfully; 779 enumerated cases are not a claim of physical/live acceptance or zero environment-dependent skips.",
+  "firstRun": {
+    "runID": 41014794987,
+    "headSHA": "f02ddafbaed7bab1bc843193fa4fef7b8b1a3515",
+    "conclusion": "failure",
+    "findings": [
+      "SQLite one_dispatched_per_target still rejected qualified successors",
+      "cross-operation attachment alias check was too broad for legacy read-only observations",
+      "pre-begin corrupted-file test needed typed no-input expectation"
+    ]
+  }
+}
