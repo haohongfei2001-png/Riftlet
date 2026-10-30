@@ -1,0 +1,239 @@
+{
+  "schemaVersion": 1,
+  "formalProductSHA": "edbdc7aae45c35878694e9fa376757dac7b630a8",
+  "liveSourceSHA": "f306251d4172a3369cfb74ff570b166c4356659f",
+  "sourceHead": "8ed2f907440a7eb4040213fd66497381532929e0",
+  "package": {
+    "ordinaryInternalAcceptance": true,
+    "normalLaunchWithAcceptanceTrace": true,
+    "systemCandidateArgument": false,
+    "productionRelease": false,
+    "binarySHA256": "0f74909923bdb7ad16c634224a62350363c703721aeee551cb69a45d2c3a261e"
+  },
+  "environment": {
+    "macOS": "27.0",
+    "build": "26A428",
+    "architecture": "arm64",
+    "mouseSource": "CGEvent",
+    "physical": "NOT_RUN",
+    "chrome": "156.0.8078.79"
+  },
+  "home": {
+    "result": "LIMITED_PASS",
+    "businessIdentity": "exact observed local-chatgpt UUID in committed React business groups",
+    "initializationMessages": 0,
+    "refreshes": 0,
+    "lateACKBackfill": false,
+    "newSystemScreenshotThisTurn": true,
+    "bytes": 1249988,
+    "width": 722,
+    "height": 502,
+    "PNG": "single-frame noninterlaced RGBA8",
+    "originalAndPrivateSHA256": "f315bb0a69ea6744b17f4a4368c6709d008f7b3af81ea300bcf7f6c3f54aaa44",
+    "actualMicroimageClicks": 1,
+    "newOperations": 1,
+    "inputCount": 1,
+    "beginCount": 1,
+    "chunkCount": 5,
+    "commitCount": 1,
+    "start": "PASS: correlatedProgress, one durable upload_starts",
+    "startProgress": [
+      6.669773117739111,
+      16.007455482573867
+    ],
+    "complete": "PASS: independent strict image proof and original attached receipt",
+    "phase": "succeeded",
+    "asset": "used",
+    "visibility": "swallowed",
+    "textHashPreserved": true,
+    "selectionPreservation": "FAIL",
+    "selectionBefore": [
+      33,
+      26
+    ],
+    "selectionAfter": [
+      0,
+      0
+    ],
+    "initialAttachments": 0,
+    "finalAttachments": 1,
+    "coldNoACK": "NOT_RUN",
+    "unfocusedEditor": "NOT_EXERCISED in this new run",
+    "localToPersistedInFlight": "NOT_RUN; identity change continues to revoke",
+    "selectionAfterRangeCount": 0
+  },
+  "timing": {
+    "clock": "same boot native systemUptime seconds; page performance deltas separately identified",
+    "effectiveACK": 743009.4378487084,
+    "mouseDown": 743125.208114,
+    "callback": 743125.2160290417,
+    "mouseUp": 743125.292910291,
+    "firstValidationAccepted": 743125.3186495417,
+    "commitNativeBounds": [
+      743125.6158129583,
+      743125.7326959583
+    ],
+    "pageInputToStartSeconds": 2.046899999976158,
+    "swallowedVisibilityObservedUpperBound": 743127.9154405,
+    "swallowActualStart": 743127.915977875,
+    "swallowClose": 743128.0415897084,
+    "finalPersistenceObservedUpperBound": 743141.0985677501,
+    "clickToSwallowSeconds": 2.707863875082694,
+    "clickToCloseSeconds": 2.83347570837941,
+    "pixelPresentationMeasured": false,
+    "latencyImprovementMeasured": false,
+    "screenshotT0": null,
+    "firstClickableT2": null
+  },
+  "nativeContrast": {
+    "path": "ChatGPT attachment menu and actual macOS file picker; CGEvent plus AX file-path entry",
+    "newImageBytes": 5253907,
+    "width": 1664,
+    "height": 1524,
+    "newImageSHA256": "db276bcffdcd114843c0249b59a0aea43aa92bf3d60a5dea3a3b68f2de1190fa",
+    "riftletInputForControl": 0,
+    "keyboardSelection": [
+      33,
+      26
+    ],
+    "selectionAfterPicker": [
+      26,
+      26
+    ],
+    "selectionAtStorageModal": [
+      0,
+      0
+    ],
+    "trustedFileInputAndChange": true,
+    "dialogStorageNoticeAtFocus": true,
+    "pageFocusedAtModal": true,
+    "nativeChangeToElementBlurSeconds": 6.236800000071526,
+    "initialAttachments": 1,
+    "finalAttachments": 2,
+    "oldImageNodeRetained": true,
+    "imagesComplete": true,
+    "textHashPreserved": true,
+    "strictNativeControlContentProof": "NOT_RUN; this contrast is not Riftlet completion admission",
+    "selectionAtStorageModalRangeCount": 0
+  },
+  "preservation": {
+    "sameDataRoot": true,
+    "oldUnknownIdentityAttemptPhaseRetained": true,
+    "oldMediaHashesMatch": true,
+    "oldCheckpointsPreserved": true,
+    "compensationsPreserved": true,
+    "restartNewOperations": 0,
+    "restartAssetsStartsCheckpointsMediaJournalsEqual": true,
+    "restartOperationIdentityAttemptTargetPhaseRetained": true,
+    "restartSucceededRowsEqual": true,
+    "unknownObservationMetadataMayChange": true
+  },
+  "admission": {
+    "ordinaryProduction": false,
+    "builtin": false,
+    "webContinuation": false,
+    "safeRetry": false
+  },
+  "review": {
+    "source": "local_identity_review and product_delta_review",
+    "liveEvidenceAndNativeContrast": "product_delta_review",
+    "ciFixture": "product_delta_review"
+  },
+  "ci": {
+    "run": 41116412129,
+    "status": "completed: macOS jobs success; overall failure from source-admission gate",
+    "sourceAdmission": "FAIL: exact composition has not admitted successor tree",
+    "historicalRuns": [
+      {
+        "run": 41110771157,
+        "source": "4e02c21",
+        "result": "test compile failure corrected in 5010b4e; later cancelled"
+      },
+      {
+        "run": 41112931819,
+        "source": "f306251",
+        "result": "Intel fixed-sleep diagnostic fixture failure corrected in629624f; source admission remained closed"
+      },
+      {
+        "run": 41114814066,
+        "source": "629624f",
+        "result": "ARM concurrent frozen-v3 opener failed; isolated WAL race subsequently reproduced and fixed in8ed2f90"
+      }
+    ],
+    "sourceAdmissionDetails": {
+      "result": "FAIL",
+      "reviewedSource": "95fdd19018c0f350fdc43e7af270ccac9969e3da",
+      "failedChecks": [
+        "composition:exact-paths",
+        "composition:exact-objects"
+      ],
+      "unexpectedPaths": [
+        "Tests/RiftletCoreTests/SQLiteWALInitializationTests.swift",
+        "Tests/RiftletUITests/RiftPointerApproachTests.swift",
+        "engineering/diagnostics/selection-causality.js",
+        "engineering/diagnostics/selection-causality.test.cjs",
+        "engineering/evidence/2026-10-31-ordinary-o2/README.md",
+        "engineering/evidence/2026-10-31-ordinary-o2/results.json",
+        "engineering/evidence/2026-10-31-ordinary-o3/README.md",
+        "engineering/evidence/2026-10-31-ordinary-o3/results.json"
+      ],
+      "changedPaths": [
+        "Sources/RiftletAdapters/OrdinarySystemScreenshotScope.swift",
+        "Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js",
+        "Sources/RiftletAdapters/SystemScreenshotCandidateAdmission.swift",
+        "Sources/RiftletAdapters/SystemScreenshotObservationJournal.swift",
+        "Sources/RiftletAdapters/WebAttachmentAdapter.swift",
+        "Sources/RiftletApp/OrdinaryCaptureConfiguration.swift",
+        "Sources/RiftletApp/SystemScreenshotCandidateConfiguration.swift",
+        "Sources/RiftletCore/SQLiteDatabase.swift",
+        "Sources/RiftletUI/RiftPanelController.swift",
+        "Tests/RiftletAdaptersTests/SystemScreenshotCandidateAdmissionTests.swift",
+        "Tests/RiftletAppTests/OrdinaryCaptureConfigurationTests.swift",
+        "Tests/WebPageProgram/acceptance-program.test.cjs",
+        "engineering/evidence/2026-10-27-real-mac-round3/network-probe.test.cjs"
+      ],
+      "historicalAndAncestorChecks": "PASS"
+    },
+    "jobs": [
+      {
+        "id": 124271687161,
+        "name": "source_admission",
+        "conclusion": "failure"
+      },
+      {
+        "id": 124271687573,
+        "name": "macos (macos-15-intel)",
+        "conclusion": "success"
+      },
+      {
+        "id": 124271687736,
+        "name": "macos (macos-15)",
+        "conclusion": "success"
+      }
+    ],
+    "nativeCasesPerArchitecture": 800,
+    "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/41116412129"
+  },
+  "privateManifest": {
+    "files": 122,
+    "sha256": "7a64498dda05ff2afd987d0a2dc01bc13dc9dc0088cfb8dcdff7c7707738fcf1"
+  },
+  "walInitialization": {
+    "result": "PASS: isolated local Core harness and final macOS XCTest on ARM/Intel",
+    "scope": "only journal-mode SQLITE_BUSY, total three-second budget, no transaction/input retry",
+    "beforeFailures": 15,
+    "beforeTrials": 20,
+    "afterConcurrentPairs": 10,
+    "heldReaderBoundedRefusalAndRecovery": true,
+    "nonBusyCorruptionUnchanged": true,
+    "ciOriginalFailureExactSQLNotCaptured": true
+  },
+  "finalPackage": {
+    "sourceSHA": "8ed2f907440a7eb4040213fd66497381532929e0",
+    "binarySHA256": "b27a45571f17208361233c018b84a6e96dee19f8733f468f2d90c2a4cc0251c8",
+    "build": "PASS",
+    "notarization": "NOT_RUN",
+    "newUpload": "NOT_RUN: live upload source remains f306251; only WAL init changed afterward",
+    "startupRecovery": "PASS: zero new operations, original identity/phase, assets, starts, compensation, checkpoints, media and journals retained"
+  }
+}
