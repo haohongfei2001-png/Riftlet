@@ -8,8 +8,8 @@
   const draft = $('hero-draft'), cards = $('hero-attachments');
   const motion = matchMedia('(prefers-reduced-motion: reduce)');
   const copy = {
-    zh: {play:'看一次完整操作', replay:'再看一次', capture:'模拟截图', collected:'已收录', pause:'暂停演示', idle:'两次操作，回到你的思路。', captureStatus:'01  照常截下这一块。', captured:'02  新截图在边缘。点一下它。', pending:'图片正在进入草稿…', ready:'图片留在草稿，你继续写。', paused:'演示已暂停，也可以直接点边缘的截图。', hint:'你的截图，在这里', draft:'帮我看看这个页面，还能如何改进？', item:'把截图 {id} 放入演示草稿', name:'截图 {id}', preparing:'准备中…', done:'已就绪 · 未发送'},
-    en: {play:'See it in action', replay:'Watch again', capture:'Try a capture', collected:'Captured', pause:'Pause demo', idle:'Two actions. Back to your thought.', captureStatus:'01  Capture something as usual.', captured:'02  It is at the edge. Click it.', pending:'Adding the image to the draft…', ready:'The image stays. Keep writing.', paused:'Paused. You can click the edge yourself.', hint:'Your captures, here', draft:'How could I improve this page?', item:'Add screenshot {id} to the demo draft', name:'Capture {id}', preparing:'Preparing…', done:'Ready · Not sent'}
+    zh: {play:'看一次完整操作', replay:'再看一次', capture:'模拟截图', collected:'已收录', pause:'暂停演示', idle:'两次操作，回到你的思路。', captureStatus:'01  照常截下这一块。', captured:'02  新截图在边缘。点一下它。', pending:'正在准备示例附件…', started:'已模拟开始附加，微图已收起。', ready:'图片留在草稿，你继续写。', paused:'演示已暂停，也可以直接点边缘的截图。', hint:'你的截图，在这里', draft:'帮我看看这个页面，还能如何改进？', item:'把截图 {id} 放入演示草稿', name:'截图 {id}', preparing:'准备中…', done:'已就绪 · 未发送'},
+    en: {play:'See it in action', replay:'Watch again', capture:'Try a capture', collected:'Captured', pause:'Pause demo', idle:'Two actions. Back to your thought.', captureStatus:'01  Capture something as usual.', captured:'02  It is at the edge. Click it.', pending:'Preparing the example attachment…', started:'Attachment start simulated. Thumbnail tucked away.', ready:'The image stays. Keep writing.', paused:'Paused. You can click the edge yourself.', hint:'Your captures, here', draft:'How could I improve this page?', item:'Add screenshot {id} to the demo draft', name:'Capture {id}', preparing:'Preparing…', done:'Ready · Not sent'}
   };
   let lang = document.documentElement.lang === 'en' ? 'en' : 'zh';
   let story = null, transfer = null, played = false, edited = false;
@@ -51,29 +51,26 @@
     if(story){story.abort();story=null;}
     $('hero-pause').hidden=true;
     if(scene.dataset.phase==='point')setPhase('captured');
-    if(announce){
-      if(transfer)transfer.abort();epoch++;active=false;queue=[];
-      buttons.forEach(b=>{if(['pending','queued'].includes(b.dataset.state)){b.dataset.state='available';b.removeAttribute('aria-busy');}});
-      cards.querySelectorAll('[data-ready=false]').forEach(card=>card.remove());
-      setPhase('captured');say('paused');
-    }
+    // Stopping the walkthrough must not cancel an attachment already being illustrated.
+    if(announce) say('paused');
   }
   function compact() {
     if(!needsCompact||pointerInside||keyboardInside)return;
     buttons.filter(b=>!['done','absent'].includes(b.dataset.state)).forEach((b,i)=>b.style.setProperty('--slot',i));
     needsCompact=false;
+    $('hero-edge').classList.toggle('empty', buttons.every(b=>['done','absent'].includes(b.dataset.state)));
   }
   function reset() {
     pause();if(transfer)transfer.abort();epoch++;active=false;queue=[];needsCompact=false;cards.replaceChildren();
     buttons.forEach((b,i)=>{b.dataset.state=i===2?'absent':'available';b.disabled=i===2;b.tabIndex=i===2?-1:0;b.style.setProperty('--slot',i);b.classList.remove('is-arriving');b.removeAttribute('aria-busy');});
-    $('hero-capture').disabled=false;setPhase('idle');say('idle');
+    $('hero-capture').disabled=false;$('hero-edge').classList.remove('empty');setPhase('idle');say('idle');
   }
   function reveal() {
     const b=buttons[2];
     if(b.dataset.state==='absent') {
       b.dataset.state='available';b.disabled=false;b.tabIndex=0;b.classList.add('is-arriving');
     }
-    $('hero-capture').disabled=true;refresh();setPhase('captured');say('captured');
+    $('hero-capture').disabled=true;$('hero-edge').classList.remove('empty');refresh();setPhase('captured');say('captured');
   }
   function append(button) {
     if(button.dataset.state!=='available')return;
@@ -91,10 +88,15 @@
       card.append(button.querySelector('svg').cloneNode(true));
       const label=document.createElement('div'),name=document.createElement('span'),state=document.createElement('small');
       name.textContent=text('name',button.dataset.shot);state.textContent=text('preparing');label.append(name,state);card.append(label);cards.append(card);
-      await wait(520,controller.signal);if(ticket!==epoch)return;
-      card.dataset.ready='true';state.textContent=text('done');button.dataset.state='done';button.removeAttribute('aria-busy');button.tabIndex=-1;
-      setPhase('ready');say('ready');needsCompact=true;
-      await wait(250,controller.signal);if(ticket===epoch)compact();
+      // Synthetic positive start signal: visual exit is intentionally earlier than final ready.
+      button.dataset.state='done';button.removeAttribute('aria-busy');button.tabIndex=-1;
+      $('hero-edge').classList.toggle('empty',buttons.every(b=>['done','absent'].includes(b.dataset.state)));
+      setPhase('started');say('started');needsCompact=true;
+      await wait(180,controller.signal);if(ticket!==epoch)return;
+      compact();
+      await wait(340,controller.signal);if(ticket!==epoch)return;
+      card.dataset.ready='true';state.textContent=text('done');
+      setPhase('ready');say('ready');
     } catch(error) {if(error.name!=='AbortError')throw error;}
     finally {if(ticket===epoch){active=false;void drain();}}
   }

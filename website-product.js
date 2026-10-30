@@ -17,7 +17,10 @@
       pending: '正在准备截图 {id} 的附件…',
       success: '截图 {id} 已进入演示草稿。文字保留，没有发送。',
       failure: '截图 {id} 未能附加，已回到原处。可以再次点击。',
-      unknown: '截图 {id} 的结果未确认，仍保留在原处，不会重复上传。',
+      unknown: '截图 {id} 开始后结果未确认，已留在示例历史，不会自动重传。',
+      started: '截图 {id} 已模拟开始附加，微图迅速收起。',
+      noStart: '当前没有可用草稿，截图 {id} 仍在原处。',
+      history: '截图 {id} · 待核实',
       removed: '已移除演示草稿中的截图 {id}。',
       item: '将截图 {id} 放入演示草稿',
       retry: '截图 {id} 附加失败，点击重试',
@@ -36,7 +39,10 @@
       pending: 'Preparing the attachment for screenshot {id}…',
       success: 'Screenshot {id} is in the demo draft. Your text is intact. Nothing was sent.',
       failure: 'Screenshot {id} could not be attached. It is back in place; click to retry.',
-      unknown: 'Screenshot {id} is unconfirmed. It stays in place without another upload.',
+      unknown: 'Screenshot {id} is unconfirmed after starting. It stays in example history, without an automatic retry.',
+      started: 'Screenshot {id} has simulated a positive start; the thumbnail is tucked away.',
+      noStart: 'No usable draft. Screenshot {id} remains at the edge.',
+      history: 'Screenshot {id} · Unconfirmed',
       removed: 'Screenshot {id} was removed from the demo draft.',
       item: 'Add screenshot {id} to the demo draft',
       retry: 'Screenshot {id} failed. Click to retry',
@@ -55,6 +61,7 @@
   let language = 'zh', items = [], queue = [], running = false, generation = 0;
   let pointerInside = false, keyboardInside = false, keyboardMode = false;
   let needsCompact = false, draftEdited = false, lastStatus = {key: 'initial', id: ''};
+  let historyIds = [];
   const text = (key, id = '') => copy[language][key].replaceAll('{id}', String(id));
   const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -79,6 +86,10 @@
     const remove = card.querySelector('button');
     if (remove) remove.setAttribute('aria-label', text('remove', id));
   }
+  function refreshHistory() {
+    $('demo-history').hidden = historyIds.length === 0;
+    $('demo-history-details').textContent = historyIds.map(id=>text('history',id)).join(' · ');
+  }
   function refreshThemeLabel() {
     const dark = $('desktop').classList.contains('dark');
     $('theme').textContent = text(dark ? 'light' : 'dark');
@@ -100,6 +111,7 @@
     items.forEach(labelItem);
     attachments.querySelectorAll('.attachment').forEach(refreshCard);
     refreshThemeLabel();
+    refreshHistory();
     say(lastStatus.key, lastStatus.id);
     if (updateUrl) {
       try {
@@ -112,18 +124,20 @@
   }
   function compact() {
     if (pointerInside || keyboardInside || !needsCompact) return;
-    items.filter(item => item.state !== 'done').forEach((item, index) => {
+    items.filter(item => !['done','unknown'].includes(item.state)).forEach((item, index) => {
       item.slot = index;
       item.element.style.setProperty('--y', `${index * 55}px`);
     });
     needsCompact = false;
+    edge.classList.toggle('empty', items.every(item=>['done','unknown'].includes(item.state)));
   }
   function reset() {
     generation += 1; // Invalidate any pending demo completion before rebuilding.
     items = configs.map((item, slot) => ({...item, slot, state: 'idle'}));
     queue = []; running = false; needsCompact = false;
-    pointerInside = false; keyboardInside = false;
+    pointerInside = false; keyboardInside = false; historyIds = [];
     attachments.replaceChildren(); stage.replaceChildren();
+    edge.classList.remove('empty'); refreshHistory();
     items.forEach(item => {
       const button = document.createElement('button');
       button.type = 'button'; button.className = 'rift-item'; button.dataset.id = String(item.id);
@@ -142,7 +156,7 @@
     if (item.state === 'unknown') { say('unknown', item.id); return; }
     if (['queued', 'pending', 'done'].includes(item.state)) return;
     item.state = 'queued'; labelItem(item);
-    item.element.classList.remove('failed'); item.element.classList.add('pending');
+    item.element.classList.remove('failed'); item.element.classList.remove('done'); item.element.classList.remove('unknown'); item.element.classList.add('pending');
     item.element.setAttribute('aria-busy', 'true');
     queue.push({item, outcome: outcome.value, epoch: generation});
     say('queued', item.id); void run();
@@ -152,35 +166,49 @@
     running = true;
     const task = queue.shift(), item = task.item;
     item.state = 'pending'; labelItem(item); say('pending', item.id);
-    await sleep(450);
+    await sleep(340); // Positive start is simulated, not inferred from a click.
     if (task.epoch !== generation) return;
-    let card;
-    if (task.outcome === 'success') {
-      card = document.createElement('div'); card.className = 'attachment';
+    item.element.classList.remove('pending'); item.element.removeAttribute('aria-busy');
+    if (task.outcome === 'no-start') {
+      item.state = 'idle'; labelItem(item); say('noStart', item.id);
+    } else {
+      // Synthetic start: a placeholder becomes visible in the draft before it is ready.
+      const card = document.createElement('div'); card.className = 'attachment';
       card.dataset.id = String(item.id); card.dataset.ready = 'false';
       card.innerHTML = thumbnail(item) + '<span><span class="attachment-name"></span><small></small></span>';
       refreshCard(card); attachments.appendChild(card);
-    }
-    await sleep(550);
-    if (task.epoch !== generation) return;
-    item.element.classList.remove('pending'); item.element.removeAttribute('aria-busy');
-    if (task.outcome === 'success') {
-      card.dataset.ready = 'true';
-      const remove = document.createElement('button');
-      remove.type = 'button'; remove.className = 'remove-attachment'; remove.textContent = '×';
-      remove.addEventListener('click', () => { card.remove(); say('removed', item.id); });
-      card.appendChild(remove); refreshCard(card);
       item.state = 'done'; item.element.classList.add('done'); item.element.tabIndex = -1;
-      labelItem(item); say('success', item.id); needsCompact = true;
-      await sleep(220);
+      labelItem(item); say('started', item.id); needsCompact = true;
+      edge.classList.toggle('empty',items.every(x=>['done','unknown'].includes(x.state)));
+      await sleep(170);
       if (task.epoch !== generation) return;
       compact();
-    } else {
-      item.state = task.outcome === 'failure' ? 'failed' : 'unknown';
-      item.element.classList.add(item.state); labelItem(item);
-      say(task.outcome === 'failure' ? 'failure' : 'unknown', item.id);
+      await sleep(350);
+      if (task.epoch !== generation) return;
+      if (task.outcome === 'success') {
+        card.dataset.ready = 'true';
+        const remove = document.createElement('button');
+        remove.type = 'button'; remove.className = 'remove-attachment'; remove.textContent = '×';
+        remove.addEventListener('click', () => { card.remove(); say('removed', item.id); });
+        card.appendChild(remove); refreshCard(card);
+        say('success', item.id);
+      } else {
+        // A simulated error or uncertain result must not leave a false ready attachment.
+        card.remove();
+        if (task.outcome === 'failure') {
+          item.state = 'failed'; item.element.classList.remove('done');
+          item.element.classList.add('failed'); item.element.tabIndex = 0;
+          labelItem(item); say('failure', item.id); needsCompact = true; compact();
+          edge.classList.remove('empty');
+        } else {
+          item.state = 'unknown'; item.element.classList.add('unknown');
+          labelItem(item); historyIds.push(item.id); refreshHistory();
+          say('unknown', item.id); needsCompact = true;
+          edge.classList.toggle('empty',items.every(x=>['done','unknown'].includes(x.state))); compact();
+        }
+      }
     }
-    running = false; void run();
+    if (task.epoch === generation) { running = false; void run(); }
   }
   edge.addEventListener('pointerenter', () => { pointerInside = true; });
   edge.addEventListener('pointerleave', () => { pointerInside = false; compact(); });

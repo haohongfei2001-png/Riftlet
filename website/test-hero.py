@@ -56,10 +56,10 @@ def main():
         q.locator('#hero-draft').fill('保留我的文字 🧩\n第二行')
         q.locator('[data-shot="1"]').click()
         q.wait_for_timeout(360)
-        assert q.locator('[data-shot="1"]').get_attribute('data-state')=='pending'
+        assert q.locator('[data-shot="1"]').get_attribute('data-state')=='done'
         assert q.locator('#hero-attachments [data-ready="false"]').count()==1
         assert q.locator('#hero-attachments [data-ready="true"]').count()==0
-        q.locator('[data-shot="1"]').click()
+        q.locator('[data-shot="1"]').evaluate('(b)=>b.click()')
         q.locator('#language-toggle').click()
         q.wait_for_timeout(750)
         assert q.locator('#hero-attachments .hero-attachment').count()==1
@@ -85,11 +85,9 @@ def main():
         q=page()
         q.locator('#hero-play').click();q.wait_for_timeout(420)
         q.locator('#hero-pause').click();q.wait_for_timeout(1200)
-        assert q.locator('[data-shot="3"]').get_attribute('data-state')=='available'
-        assert q.locator('#hero-attachments .hero-attachment').count()==0
-        q.locator('[data-shot="3"]').click();q.wait_for_timeout(1200)
+        assert q.locator('[data-shot="3"]').get_attribute('data-state')=='done'
         assert q.locator('#hero-attachments [data-ready="true"]').count()==1
-        RESULTS.append('pause stops pending simulation; explicit click can continue')
+        RESULTS.append('pausing narration does not cancel an already-started synthetic attachment')
         q.close()
         q=page()
         q.locator('#hero-capture').click()

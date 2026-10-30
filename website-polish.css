@@ -1,0 +1,43 @@
+/* Small, intentional refinements to the existing website. No replacement visual system. */
+/* In product marketing, use the unboxed symbol; reserve the filled app icon for app contexts. */
+.wordmark .brand-symbol{display:block;width:27px;height:34px;flex:none;color:var(--deep);overflow:visible}
+.footer-brand .brand-symbol{display:block;width:20px;height:25px;flex:none;color:var(--deep)}
+.wordmark{gap:12px}
+/* A little tactility without turning the interface into a new visual language. */
+.main-action{transition:background .2s ease, transform .2s ease, box-shadow .2s ease}
+.main-action:hover{transform:translateY(-1px);box-shadow:0 7px 16px -12px #102F27A0}
+.main-action:active{transform:translateY(0);box-shadow:none}
+.quiet-link,.navlinks a,.footer a{transition:color .18s ease,border-color .18s ease}
+.quiet-link:hover,.navlinks a:hover{color:var(--deep)}
+/* This thumbnail, not the large illustration, is the intended action target. */
+.hero-shot{width:44px;height:52px}
+.hero-shot:not([data-state=done]):not([data-state=absent]):hover .hero-shot-mask svg,
+.hero-shot:not([data-state=done]):not([data-state=absent]):focus-visible .hero-shot-mask svg{transform:translateX(-2px);filter:drop-shadow(0 3px 4px #193D3238)}
+.hero-shot:focus-visible{outline:2px solid var(--deep);outline-offset:2px}
+.hero-edge-hint{font-size:11px;font-weight:500}
+.hero-scene-heading{font-size:11px}
+.hero-local-note{font-size:10px}
+.hero-scene-foot{font-size:12px}
+.hero-sequence{font-size:11px}
+.hero-shot-number{min-width:14px;line-height:16px;font-size:10px}
+/* The expanded sandbox is intentionally a second layer, for exception states. */
+.rift-item{width:44px;height:52px}
+.demo-note{font-size:12px}
+.demo-status{font-size:13px}
+.demo-history{display:flex;align-items:baseline;gap:12px;padding:10px 13px;margin-top:8px;border-left:2px solid var(--deep);background:#EDF3EC;color:var(--ink);font-size:12px;line-height:1.65}
+.demo-history[hidden]{display:none}
+.demo-history>span:first-child{color:var(--deep);white-space:nowrap;font-weight:600}
+.demo-history>span:last-child{color:var(--muted)}
+/* A visible empty edge is not part of the approved interaction. */
+.edge.empty .edge-line,.hero-edge.empty .hero-edge-line{opacity:0}
+.hero-scene[data-phase=started] .hero-edge-hint{opacity:0}
+.hero-scene[data-phase=started] [data-step=ready]{color:var(--deep)}
+@media(max-width:760px){
+  .wordmark .brand-symbol{width:23px;height:30px}
+  .hero-local-note{font-size:10px}
+  .hero-scene-heading{font-size:10px}
+  .hero-scene-foot{font-size:11px}
+  .demo-note{font-size:11px}
+  .demo-history{font-size:11px;gap:8px;align-items:flex-start}
+}
+@media(prefers-reduced-motion:reduce){.main-action,.quiet-link,.navlinks a,.footer a{transition:none}.main-action:hover{transform:none;box-shadow:none}}
