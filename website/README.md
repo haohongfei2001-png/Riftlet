@@ -1,5 +1,7 @@
 # Riftlet website
 
+> **Review branch — 2026-10-30 refinement:** this branch uses `website-v3.css` and the updated `website-v2.js`. It is an isolated candidate; the live website remains the approved V2 described below. See [the refinement review](REFINEMENT_2026-10-30.md).
+
 The official public homepage is served at https://riftlet.com/ from the repository root on `main` through the existing GitHub Pages branch-source deployment.
 
 ## Current version: 2026-10-30 v2
