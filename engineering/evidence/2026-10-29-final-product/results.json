@@ -11259,7 +11259,14 @@
     "productSourceChange": false,
     "originalArchiveIntegrity": "PASS 49 entries unchanged",
     "localDiagnostics": "PASS Swift compile and 5 Node VM cases",
-    "ci": "PENDING",
+    "ci": {
+      "id": 41073464051,
+      "head_sha": "b18d9441b956300f22dfbefcafb80bad59e9e3dd",
+      "status": "completed",
+      "conclusion": "success",
+      "updated_at": "2026-10-30T14:48:15Z",
+      "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/41073464051"
+    },
     "originalLiveRead": {
       "status": -1728,
       "stage": "original-route-read",
@@ -11274,6 +11281,7 @@
     "productionAdmission": "CLOSED",
     "continuation": "CLOSED",
     "safeRetry": "CLOSED",
-    "builtInSource": "CLOSED"
+    "builtInSource": "CLOSED",
+    "reportReview": "PASS non-author review; 24 total bounded page samples/20 post-click; page acceptance not server-byte receipt; creation outcome uncertain"
   }
 }
