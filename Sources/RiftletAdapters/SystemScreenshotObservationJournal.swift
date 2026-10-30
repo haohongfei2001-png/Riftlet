@@ -13,7 +13,9 @@ public enum SystemScreenshotObservationJournalError: Error, Equatable, Sendable 
 public actor SystemScreenshotObservationJournal {
     private let store: QueueStore
 
-    public init(store: QueueStore) { self.store = store }
+    public nonisolated let scope: SystemScreenshotAdmissionScope
+
+    public init(store: QueueStore, scope: SystemScreenshotAdmissionScope = .candidate) { self.store = store; self.scope = scope }
 
     public func record(_ envelope: AttachmentObservationEnvelope, for request: TransferRequest) async throws {
         guard await store.mode == .production else { throw SystemScreenshotObservationJournalError.wrongStoreMode }
@@ -38,7 +40,7 @@ public actor SystemScreenshotObservationJournal {
         guard data.count <= ObservationDecoder.maximumPayloadBytes else {
             throw SystemScreenshotObservationJournalError.invalidCheckpoint
         }
-        let retained = try await store.saveCheckpointIfAbsent(data, for: Self.checkpointKey(request, slot: slot))
+        let retained = try await store.saveCheckpointIfAbsent(data, for: Self.checkpointKey(request, slot: slot, scope: scope))
         // This also checks a first record loaded after restart or written by a
         // second observer. A corrupt or different-target first record is never
         // replaced to make a newer observation appear acceptable.
@@ -48,6 +50,17 @@ public actor SystemScreenshotObservationJournal {
               original.envelope.provenance == envelope.provenance else {
             throw SystemScreenshotObservationJournalError.conflictingCheckpoint
         }
+    }
+
+    /// Only an exact original ordinary registration can retain its historical
+    /// journal while observed by the successor internal scope. This cannot create
+    /// registration or authorize input, and validates against this journal's store.
+    func recordForOriginalOrdinary(_ envelope: AttachmentObservationEnvelope, for request: TransferRequest) async throws {
+        guard scope == .ordinaryCurrentDraftInternal,
+              try await SystemScreenshotCandidateAdmission(store: store, scope: .ordinary).admits(request) else {
+            throw SystemScreenshotObservationJournalError.invalidOperation
+        }
+        try await SystemScreenshotObservationJournal(store: store, scope: .ordinary).record(envelope, for: request)
     }
 
     /// These are code-owned audit categories, never values selected by page JSON.
@@ -74,8 +87,8 @@ public actor SystemScreenshotObservationJournal {
         let envelope: AttachmentObservationEnvelope
     }
 
-    static func checkpointKey(_ request: TransferRequest, slot: Slot) -> String {
-        "system-screenshot-candidate-observation-v1:\(request.operation.id.uuidString.lowercased()):\(request.operation.attempt):\(slot.rawValue)"
+    static func checkpointKey(_ request: TransferRequest, slot: Slot, scope: SystemScreenshotAdmissionScope = .candidate) -> String {
+        "\(scope.journalPrefix):\(request.operation.id.uuidString.lowercased()):\(request.operation.attempt):\(slot.rawValue)"
     }
 
     private static func validate(_ envelope: AttachmentObservationEnvelope, for request: TransferRequest) throws {

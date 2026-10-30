@@ -6,7 +6,7 @@ commits, then compare every current object with a non-author-reviewed source
 checkpoint. Existing audit scripts stay fixed. Only this policy and two named,
 already-existing plain-text handoff records can change after that checkpoint.
 
-A GitHub PR test merge may additionally contain exactly fifteen individually
+A GitHub PR test merge may additionally contain exactly twenty-eight individually
 pinned website objects from a fixed main commit. That allowance requires the
 actual two merge parents and checks the candidate parent independently; it is
 not selected by an event, branch name, environment variable or directory prefix.
@@ -68,18 +68,31 @@ POLICY = Policy(
                         "1b9d9ad4c43026647fd4f656962b639bab877965"),
     ),
     reviewed_source=REVIEWED_SOURCE,
-    main_revision="eba1a4fc77648a665e1d5c1f2609df1314c3b079",
+    main_revision="fccd809e9d55e0b221e75e6dcd7c21f6d357ee74",
     main_objects=(
         ("favicon.svg", "0b3bd76e4db66be4eaff53c3274121c6da866b82"),
-        ("index.html", "d6edc73d994af4f32b15e828ba53172b2fc09a9e"),
-        ("site.webmanifest", "1e967c66fe1b30209b94176ee7a7d70fd3aeb5ef"),
+        ("index.html", "4097707b40721b9a01ae4d1efc4b544881c10b6e"),
+        ("site.webmanifest", "de02f57e7457770f012f33197d13d381402c8699"),
+        ("website-assets/error.svg", "7ae4e464d40b0fca66a92c7be38ba0aed0fecf44"),
+        ("website-assets/fonts/FONT-SOURCES.json", "4185934e8b50c7bb22adb4eb13b1470c30770c05"),
+        ("website-assets/fonts/Instrument-Serif-OFL.txt", "669ce7917bec662fcf7244d37f49c4277f6fbd73"),
+        ("website-assets/fonts/Noto-Serif-SC-OFL.txt", "94d1bf7b52481343e2983fb7751e8b7abe1ea07b"),
+        ("website-assets/fonts/instrument-serif-italic.woff2", "ce3c417c8d0e9f012bb697d25a0874d148ea89e6"),
+        ("website-assets/fonts/instrument-serif.woff2", "17653042acca7f87268c8c29dc8c0cc094c0b124"),
+        ("website-assets/fonts/noto-serif-sc.woff2", "0b168de5852c35da7b650c48dd5a248f389910c0"),
+        ("website-assets/glass-study.png", "2f4593262ab240d0b16e2b2c2b6ea098dbfdf492"),
+        ("website-assets/reading.svg", "336ad5196625501271106b8f82561c45759c2750"),
+        ("website-assets/riftlet.svg", "8742e132f43b61819e8550ad24eb8552d8621d9f"),
         ("website-hero.css", "5349abef4838f4590e8d6421069816cc99bec460"),
         ("website-hero.js", "dad41af6d6d2d421afc7a07042eeb7b8cc301d9e"),
         ("website-locale.js", "451ab3500e55129f4ccedf4de7ec3d818d09ea85"),
         ("website-product.css", "89db114f288ef3d2dd9e66a67072fae2aad1da77"),
         ("website-product.js", "7d8510923fe7d959f483610486bcac1ca5a12a9a"),
+        ("website-v2.css", "9cde1e595f320134468c6689c716601790c522f0"),
+        ("website-v2.js", "60e3a5293a146d39031831dc82a2300f2db2c769"),
         ("website/HERO_REVISION_2026-10-27.md", "3fd19dca32f5d1758bb24491e1d566d33e5a3359"),
-        ("website/README.md", "8e21d20e48e9904221fa4e214922ed3204134d90"),
+        ("website/README.md", "4110cc04e441b13ea0be632af4bbc99dac549178"),
+        ("website/RELEASE_2026-10-30.md", "dcc6be2aca5457821f064706aeed9087348963e1"),
         ("website/RESTORE_ART_DIRECTION_2026-10-27.md", "c4b404a16baf599e3365fb486b534eed768a0f81"),
         ("website/test-hero-layout.py", "99d162db1247a6a4578a87ac82992a23e0cc8914"),
         ("website/test-hero-motion.py", "da33a99adc0099efce9b2eeec4ec8afcb36f6196"),

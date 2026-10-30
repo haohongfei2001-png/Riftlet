@@ -12,7 +12,7 @@ const png = Buffer.from([137,80,78,71,13,10,26,10,1,2,3,4,5,6,7,8]);
 const digest = b => createHash('sha256').update(b).digest('hex');
 const native = {applicationID:'com.google.Chrome', sessionID:'4242:1', windowID:'17', tabID:'19'};
 
-function fixture({blockedDigest = false, blockedInputDigest = false, route = 'https://chatgpt.com/', mode = 'chat', thread = false, programSource = source} = {}) {
+function fixture({blockedDigest = false, blockedInputDigest = false, route = 'https://chatgpt.com/', mode = 'chat', thread = false, businessHome = false, programSource = source} = {}) {
   const events = new Map(), globalEvents = new Map(), navigationEvents = new Map();
   const remove = (map,type,fn) => { const list=map.get(type)||[], index=list.indexOf(fn); if(index>=0)list.splice(index,1); };
   let focused = true, releaseDigest, digestCalls = 0;
@@ -36,6 +36,7 @@ function fixture({blockedDigest = false, blockedInputDigest = false, route = 'ht
       if (selector === '*') return all;
       if (selector === ':modal') return all.filter(n=>n.nativeModal===true);
       if (selector === '[role=dialog][aria-modal=true],[role=alertdialog][aria-modal=true]') return all.filter(n=>['dialog','alertdialog'].includes(n.attrs.role)&&n.attrs['aria-modal']==='true');
+      if (selector === 'form[data-chatgpt-composer][data-composer-placement=home][data-thread-find-composer=true]') return all.filter(n=>n.tagName==='FORM' && n.attrs['data-chatgpt-composer']!==undefined && n.attrs['data-composer-placement']==='home' && n.attrs['data-thread-find-composer']==='true');
       if (selector === 'form[data-chatgpt-composer][data-composer-placement=thread][data-thread-find-composer=true]') return all.filter(n=>n.tagName==='FORM' && n.attrs['data-chatgpt-composer']!==undefined && n.attrs['data-composer-placement']==='thread' && n.attrs['data-thread-find-composer']==='true');
       if (selector === '[contenteditable=true][role=textbox][aria-label="询问 ChatGPT"]') return all.filter(n=>n.attrs.contenteditable==='true' && n.attrs.role==='textbox' && n.attrs['aria-label']==='询问 ChatGPT');
       if (selector === '[role=group][aria-label="撰写器模式"]') return all.filter(n => n.attrs.role === 'group' && n.attrs['aria-label'] === '撰写器模式');
@@ -60,15 +61,15 @@ function fixture({blockedDigest = false, blockedInputDigest = false, route = 'ht
   const businessID='local-chatgpt:12345678-1234-1234-1234-123456789ABC';
   const makeFibers=(id=businessID)=>{
     const leaf={stateNode:form,memoizedProps:{},return:null};
-    const modeFiber={memoizedProps:{conversationId:id,isHome:false,isWork:false,readOnly:false},child:leaf};leaf.return=modeFiber;
-    const draftFiber={memoizedProps:{conversationId:id,draftKey:id,isWorkConversation:false,isTemporaryChat:false,readOnly:false,surfacePlacement:{kind:'thread'}},child:modeFiber};modeFiber.return=draftFiber;
+    const modeFiber={memoizedProps:{conversationId:id,isHome:businessHome,isWork:false,readOnly:false},child:leaf};leaf.return=modeFiber;
+    const draftFiber={memoizedProps:{conversationId:id,draftKey:id,isWorkConversation:false,isTemporaryChat:false,readOnly:false,surfacePlacement:{kind:businessHome?'home':'thread'}},child:modeFiber};modeFiber.return=draftFiber;
     const root={tag:3,child:draftFiber,return:null,stateNode:{}};draftFiber.return=root;root.stateNode.current=root;
     return {leaf,modeFiber,draftFiber,root};
   };
   let fibers;
-  if(thread){
-    if(route==='https://chatgpt.com/')route='https://chatgpt.com/c/url-is-not-business-id';
-    Object.assign(form.attrs,{'data-chatgpt-composer':'','data-composer-placement':'thread','data-thread-find-composer':'true'});
+  if(thread || businessHome){
+    if(thread && route==='https://chatgpt.com/')route='https://chatgpt.com/c/url-is-not-business-id';
+    Object.assign(form.attrs,{'data-chatgpt-composer':'','data-composer-placement':businessHome?'home':'thread','data-thread-find-composer':'true'});
     Object.assign(editor.attrs,{contenteditable:'true',role:'textbox','aria-label':'询问 ChatGPT'});
     fibers=makeFibers();form.__reactFiber$fixture=fibers.leaf;
   }
@@ -585,6 +586,43 @@ test('observed current thread fiber exposes logical identity independently from 
   const op=f.bind();f.stage(op);f.commit(op);await f.settle();const view=f.makeCard(op);f.finish(view);await f.settle();
   assert.equal(f.observe(op).state,'attached');assert.equal(f.input.inputCount,1);
   assert.equal(fixture().target().logicalDraftIdentity,undefined);
+});
+
+test('modern Home has exact local business identity and unique input without legacy header proof', async () => {
+  const f=fixture({businessHome:true});
+  f.modeGroup.attrs['aria-label']='unrelated';
+  const op=f.bind();assert.equal(op.target.logicalDraftIdentity.id,f.businessID);
+  assert.equal(op.target.logicalDraftIdentity.profileID,'chatgpt-composer-react-20261027-v1');
+  f.stage(op);f.commit(op);await f.settle();const view=f.makeCard(op);f.finish(view);await f.settle();
+  assert.equal(f.observe(op).state,'attached');assert.equal(f.input.inputCount,1);
+});
+
+test('modern Home conflicts never borrow legacy header proof', () => {
+  for(const change of [
+    f=>f.fibers.modeFiber.memoizedProps.isHome=false,
+    f=>f.fibers.modeFiber.memoizedProps.isWork=true,
+    f=>f.fibers.modeFiber.memoizedProps.readOnly=true,
+    f=>f.fibers.draftFiber.memoizedProps.isTemporaryChat=true,
+    f=>f.fibers.draftFiber.memoizedProps.readOnly=true,
+    f=>f.fibers.draftFiber.memoizedProps.surfacePlacement.kind='thread',
+    f=>f.fibers.draftFiber.memoizedProps.draftKey='different',
+    f=>threadCommit(f,f.businessID.slice('local-chatgpt:'.length)),
+    f=>f.body.append(new f.Node('form',{'data-chatgpt-composer':'','data-composer-placement':'home','data-thread-find-composer':'true'}))
+  ]) {
+    const f=fixture({businessHome:true});change(f);
+    assert.throws(()=>f.target(),/UNPROVEN_THREAD_IDENTITY|UNOBSERVED_THREAD_COMPOSER/);
+    assert.equal(f.input.inputCount,0);
+  }
+});
+
+test('modern Home local promotion and ABA cannot authorize original click', async () => {
+  for(const restore of [false,true]) {
+    const f=fixture({businessHome:true}),op=f.bind();f.stage(op);
+    threadCommit(f,f.businessID.slice('local-chatgpt:'.length));
+    if(restore)threadCommit(f);
+    assert.equal(f.call({action:'validate',target:op.target}).valid,false);
+    assert.throws(()=>f.commit(op),/TARGET_INVALID/);assert.equal(f.input.inputCount,0);
+  }
 });
 
 test('observed persisted thread preserves its exact bare UUID under a separate profile', async () => {

@@ -8,10 +8,17 @@ const bytes = new Uint8Array(32).fill(7);
 const id = '12345678-1234-4234-8234-123456789abc';
 const route = 'https://example.invalid/private-signed-upload?token=NEVER_LOG_TOKEN';
 const tick = () => new Promise(resolve => setTimeout(resolve, 20));
+// Async WebCrypto/clone completion is not guaranteed inside one 20ms runner slice.
+// Await observable completion, retaining a finite test deadline and the original assertions.
+async function until(predicate, description) {
+  const deadline = Date.now() + 2000;
+  while (!predicate() && Date.now() < deadline) await tick();
+  assert.ok(predicate(), `Timed out waiting for ${description}`);
+}
 
 (async () => {
   const sha256 = Buffer.from(await webcrypto.subtle.digest('SHA-256', bytes)).toString('hex');
-  function setup({dynamic = false, wrongInput = false, fetchFactory = null, activeFault = false} = {}) {
+  function setup({dynamic = false, wrongInput = false, fetchFactory = null, activeFault = false, hashGate = null} = {}) {
     let timer, sink, calls = 0, aborts = 0, lastFetchArgs, lastNativePromise, fetchOverride = fetchFactory;
     const listeners = new Map(), windowListeners = new Map();
     const cfg = {sessionId: 'readonly-probe-test', operationID: id, name: `riftlet-${id}.png`, bytes: bytes.length, sha256};
@@ -39,7 +46,7 @@ const tick = () => new Promise(resolve => setTimeout(resolve, 20));
         documentElement: {appendChild() {}}, addEventListener: (name, fn) => listeners.set(name, fn),
         removeEventListener: (name, fn) => { if (listeners.get(name) === fn) listeners.delete(name); }},
       HTMLInputElement: Input, XMLHttpRequest: XHR, fetch: nativeFetch, Blob, File, FormData, Request, URL, URLSearchParams,
-      ReadableStream, ArrayBuffer, Uint8Array, TextDecoder, TextEncoder, crypto: webcrypto, performance: {now: () => 1},
+      ReadableStream, ArrayBuffer, Uint8Array, TextDecoder, TextEncoder, crypto: hashGate ? {subtle: {digest: async (...args) => { await hashGate; return webcrypto.subtle.digest(...args); }}} : webcrypto, performance: {now: () => 1},
       setTimeout: fn => (timer = fn, 1), clearTimeout() {},
       addEventListener: (name, fn) => windowListeners.set(name, fn), removeEventListener: name => windowListeners.delete(name)};
     if (activeFault) ctx.__riftletRound2Network = {query: () => ({state: 'OBSERVING_INPUT'})};
@@ -52,8 +59,8 @@ const tick = () => new Promise(resolve => setTimeout(resolve, 20));
       setFetch: fn => { fetchOverride = fn; }, pagehide: () => windowListeners.get('pagehide')?.()};
   }
   function byEvent(e, name) { return e.query().events.filter(event => event.event === name); }
-  async function bind(e) { e.change(); await tick(); assert.equal(e.query().changeHashOK, true); }
-  async function ownRequest(e) { await e.ctx.fetch('/create', {body: JSON.stringify({file_name: `riftlet-${id}.png`})}); await tick(); }
+  async function bind(e) { e.change(); await until(() => e.query().changeHashOK || e.query().state === 'STOPPED', 'input hash completion'); assert.equal(e.query().changeHashOK, true); }
+  async function ownRequest(e) { const before = byEvent(e, 'own_name_response_shape').length; await e.ctx.fetch('/create', {body: JSON.stringify({file_name: `riftlet-${id}.png`})}); await until(() => byEvent(e, 'own_name_response_shape').length > before, 'response clone inspection'); }
   function noPrivateData(e) {
     const receipt = JSON.stringify(e.query());
     for (const forbidden of ['NEVER_LOG_TOKEN', 'NEVER_LOG_BODY', 'upload_url', 'https://', 'headers', 'Authorization', 'responseText']) {
@@ -62,6 +69,13 @@ const tick = () => new Promise(resolve => setTimeout(resolve, 20));
     assert.equal(e.query().requestsInitiatedByProbe, 0); assert.equal(e.query().abortsInitiatedByProbe, 0);
     assert.equal(e.aborts(), 0); assert.equal(e.query().retryConclusion, 'NOT_ESTABLISHED');
   }
+
+  let releaseHash;
+  const gated = setup({hashGate: new Promise(resolve => { releaseHash = resolve; })});
+  const binding = bind(gated);
+  await tick(); assert.equal(gated.query().changeHashOK, false);
+  releaseHash(); await binding; gated.stop();
+  console.log('PASS fixture awaits deferred hash completion instead of a fixed runner slice');
 
   let e = setup();
   const init = {body: 'unrelated', headers: {Authorization: 'NEVER_LOG_TOKEN'}};
@@ -74,7 +88,7 @@ const tick = () => new Promise(resolve => setTimeout(resolve, 20));
   const body = new Blob([bytes], {type: 'image/png'}), signal = new AbortController().signal;
   const uploadInit = {method: 'PUT', body, signal};
   const upload = e.ctx.fetch(route, uploadInit);
-  assert.equal(upload, e.nativePromise()); assert.equal(e.args()[1], uploadInit); await upload; await tick();
+  assert.equal(upload, e.nativePromise()); assert.equal(e.args()[1], uploadInit); await upload; await until(() => byEvent(e, 'associated_body_hash').length === 1, 'upload body hash');
   const linked = byEvent(e, 'response_route_candidate'); assert.equal(linked.length, 1);
   assert.equal(linked[0].transport, 'fetch'); assert.equal(linked[0].bodyKind, 'blob'); assert.equal(linked[0].bodyByteCount, 32);
   assert.equal(byEvent(e, 'associated_body_hash')[0].sha256EqualsGenerated, true);
@@ -88,7 +102,7 @@ const tick = () => new Promise(resolve => setTimeout(resolve, 20));
   const waiting = e.ctx.fetch('/create', {body: JSON.stringify({name: `riftlet-${id}.png`})});
   assert.equal(waiting, e.nativePromise());
   const returned = await Promise.race([waiting, new Promise((_, reject) => setTimeout(() => reject(Error('response delivery delayed by clone')), 100))]);
-  assert.equal(returned, original); assert.equal(original.bodyUsed, false); await tick();
+  assert.equal(returned, original); assert.equal(original.bodyUsed, false); await until(() => e.query().cloneReaders === 1, 'pending clone reader');
   assert.equal(e.query().cloneReaders, 1); e.deadline();
   assert.equal(e.query().state, 'STOPPED'); assert.equal(e.query().cloneReaders, 0); assert.equal(e.query().originalsRestored, true);
   controller.enqueue(new TextEncoder().encode('{"untouched":"original"}')); controller.close();
@@ -99,7 +113,7 @@ const tick = () => new Promise(resolve => setTimeout(resolve, 20));
   e = setup(); await bind(e); await ownRequest(e); await ownRequest(e);
   const xhr = new e.XHR(); assert.equal(xhr.open('PUT', route, true), 'native-open');
   const sent = xhr.send(body); assert.equal(sent, 'native-send'); assert.equal(xhr.sent, 1); assert.equal(xhr.sendArgs[0], body);
-  xhr.finish(201); await tick();
+  xhr.finish(201); await until(() => byEvent(e, 'associated_body_hash').length === 1, 'XHR body hash');
   assert.equal(e.query().exactNameRequestCandidates, 2); assert.equal(byEvent(e, 'response_route_candidate').length, 2);
   assert.equal(JSON.stringify(byEvent(e, 'response_route_candidate').map(x => x.ownNameRequestLocalId)), '[1,2]');
   assert.equal(byEvent(e, 'associated_body_hash').length, 1); noPrivateData(e); e.stop();
@@ -112,14 +126,14 @@ const tick = () => new Promise(resolve => setTimeout(resolve, 20));
   await e.ctx.fetch('/create', {body: JSON.stringify({name: `riftlet-${id}.png`})});
   const early = new e.XHR(); early.open('PUT', route); early.send(body); early.finish(200);
   assert.equal(early.sent, 1); assert.equal(byEvent(e, 'response_route_candidate').length, 0);
-  slow.enqueue(new TextEncoder().encode(JSON.stringify({upload_url: route}))); slow.close(); await tick();
+  slow.enqueue(new TextEncoder().encode(JSON.stringify({upload_url: route}))); slow.close(); await until(() => byEvent(e, 'associated_body_hash').length === 1, 'late route association and body hash');
   assert.equal(byEvent(e, 'response_route_candidate').length, 1);
   assert.equal(byEvent(e, 'response_route_candidate')[0].nativeRequestAlreadyFinished, true);
   assert.equal(byEvent(e, 'associated_body_hash')[0].sha256EqualsGenerated, true); e.stop();
   console.log('PASS request preceding clone parse is associated later without delaying native send');
 
   e = setup(); await bind(e); await ownRequest(e);
-  const altered = new e.XHR(); altered.open('PUT', route); altered.send(new Blob([new Uint8Array(17)])); await tick();
+  const altered = new e.XHR(); altered.open('PUT', route); altered.send(new Blob([new Uint8Array(17)])); await until(() => byEvent(e, 'associated_body_hash').length === 1, 'mismatched body hash');
   const candidate = byEvent(e, 'associated_body_hash')[0];
   assert.equal(candidate.hashByteCount, 17); assert.equal(candidate.sha256EqualsGenerated, false);
   assert.equal(candidate.sizeEqualsGenerated, false); assert.equal(altered.sent, 1); noPrivateData(e); e.stop();
@@ -137,7 +151,7 @@ const tick = () => new Promise(resolve => setTimeout(resolve, 20));
 
   e = setup(); await bind(e);
   const form = new FormData(); form.append('private-field', new File([bytes], `riftlet-${id}.png`, {type: 'image/png'}));
-  const multipart = new e.XHR(); multipart.open('POST', '/multipart'); multipart.send(form); await tick();
+  const multipart = new e.XHR(); multipart.open('POST', '/multipart'); multipart.send(form); await until(() => byEvent(e, 'associated_body_hash').length === 1, 'multipart file-part hash');
   assert.equal(byEvent(e, 'exact_name_request_candidate')[0].bodyKind, 'form-data');
   assert.equal(byEvent(e, 'associated_body_hash')[0].hashScope, 'own_named_file_part');
   assert.equal(JSON.stringify(e.query()).includes('private-field'), false); noPrivateData(e); e.stop();
@@ -145,7 +159,7 @@ const tick = () => new Promise(resolve => setTimeout(resolve, 20));
 
   e = setup({dynamic: true}); assert.equal(e.query().operationID, null); await bind(e);
   assert.equal(e.query().operationID, id); e.change(); assert.equal(e.query().state, 'STOPPED'); assert.equal(e.query().originalsRestored, true);
-  e = setup({wrongInput: true}); e.change(); await tick(); assert.equal(e.query().state, 'STOPPED'); assert.equal(e.query().changeHashOK, false);
+  e = setup({wrongInput: true}); e.change(); await until(() => e.query().state === 'STOPPED', 'wrong-input hash rejection'); assert.equal(e.query().state, 'STOPPED'); assert.equal(e.query().changeHashOK, false);
   e = setup({dynamic: true}); e.input.files = [new File([bytes], 'unrelated.png', {type: 'image/png'})]; e.change();
   assert.equal(e.query().state, 'STOPPED'); assert.equal(e.query().operationID, null);
   console.log('PASS dynamic generated-input binding; duplicate/wrong-name/wrong-hash closes and restores');
@@ -167,7 +181,7 @@ const tick = () => new Promise(resolve => setTimeout(resolve, 20));
   assert.throws(() => setup({activeFault: true}), /INSTALL_REFUSED/);
   e = setup(); await bind(e); for (let i = 0; i < 12; i++) await ownRequest(e);
   for (let i = 0; i < 30; i++) { const item = new e.XHR(); item.open('PUT', route); item.send(body); }
-  await tick(); assert.equal(e.query().state, 'STOPPED'); assert.equal(e.query().events.length, 240);
+  await until(() => e.query().state === 'STOPPED', 'event bound'); assert.equal(e.query().state, 'STOPPED'); assert.equal(e.query().events.length, 240);
   assert.equal(e.query().originalsRestored, true); assert.equal(e.sink().state, 'STOPPED');
   e = setup(); e.ctx.__riftletRound3NetworkProbe.stop('https://example.invalid/NEVER_LOG_TOKEN'); noPrivateData(e);
   console.log('PASS bounded temporary metadata, third-party hook preservation and active fault-hook refusal');
@@ -175,7 +189,7 @@ const tick = () => new Promise(resolve => setTimeout(resolve, 20));
   e = setup(); await bind(e);
   e.setFetch(() => Promise.resolve(new Response('x'.repeat(70000), {status: 200})));
   const oversized = await e.ctx.fetch('/create', {body: JSON.stringify({name: `riftlet-${id}.png`})});
-  assert.equal((await oversized.text()).length, 70000); await tick();
+  assert.equal((await oversized.text()).length, 70000); await until(() => byEvent(e, 'response_clone_bounded_out').length === 1, 'oversized clone rejection');
   assert.equal(byEvent(e, 'response_clone_bounded_out').length, 1); noPrivateData(e); e.stop();
   console.log('PASS bounded response clone reading does not truncate application response');
   console.log('12 read-only network-probe VM groups PASS; real MID interception/abort NOT_RUN');

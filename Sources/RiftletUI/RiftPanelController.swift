@@ -345,6 +345,23 @@ private final class RiftInputView: NSView {
     override func mouseExited(with event: NSEvent) { rowView?.onHover?(false) }
 }
 
+/// Tracking areas may be rebuilt while the pointer remains in the same input
+/// island. Treat those notifications as one approach, not fresh browser work.
+struct RiftPointerApproachState {
+    private var hovered: Set<UUID> = []
+    private var reported: Set<UUID> = []
+
+    mutating func update(hovered: Set<UUID>) {
+        self.hovered = hovered
+        reported.formIntersection(hovered)
+    }
+
+    mutating func enter(_ id: UUID) -> Bool {
+        guard hovered.contains(id) else { return false }
+        return reported.insert(id).inserted
+    }
+}
+
 private struct RowWindow {
     let panel: RiftPanel
     let view: RiftRowView
@@ -434,6 +451,7 @@ public final class RiftPanelController {
     private var interaction = RiftInteractionState()
     private var selectionVersions: [UUID: Int64] = [:]
     private var hoveredIDs: Set<UUID> = []
+    private var pointerApproach = RiftPointerApproachState()
     private let decoration: RiftPanel
     private let pager = RiftPager()
     private var pagerLayout: RiftLayoutResult?
@@ -1160,6 +1178,7 @@ public final class RiftPanelController {
                 $0.isVisible && $0.frame.contains(point)
             }) ? id : nil
         })
+        pointerApproach.update(hovered: hoveredIDs)
         mutateInteraction { $0.setHovered(hoveredIDs) }
     }
 
@@ -1186,7 +1205,8 @@ public final class RiftPanelController {
             self.schedulePeek(id, immediate: true); return true
         }
         window.view.onApproach = { [weak self] in
-            guard let self, !self.gate.isHolding, !self.transitioning, !self.userHidden else { return }
+            guard let self, !self.closed, !self.captureSuppressed, !self.gate.isHolding,
+                  !self.transitioning, !self.userHidden, self.pointerApproach.enter(id) else { return }
             self.onApproach()
         }
         window.view.onMenuVisibility = { [weak self] open in
@@ -1383,7 +1403,7 @@ public final class RiftPanelController {
         if let held { selectionVersions.removeValue(forKey: held) }
         lastRecords = deferredRecords ?? lastRecords
         deferredRecords = nil
-        hoveredIDs.removeAll()
+        hoveredIDs.removeAll(); pointerApproach.update(hovered: [])
         pressRegions.removeAll(); shortAnimationTokens.removeAll()
         mutateInteraction { $0.resetPresentation() }
         rowWindows.values.forEach { $0.close() }
@@ -1412,7 +1432,7 @@ public final class RiftPanelController {
         finishQueueAnimation = nil; queueTransitionEpoch &+= 1
         closed = true; generation &+= 1; gate.cancel()
         pressRegions.removeAll(); shortAnimationTokens.removeAll()
-        selectionVersions.removeAll(); hoveredIDs.removeAll(); feedbackStates.removeAll()
+        selectionVersions.removeAll(); hoveredIDs.removeAll(); pointerApproach.update(hovered: []); feedbackStates.removeAll()
         mutateInteraction { $0.close() }
         observers.forEach { $0.0.removeObserver($0.1) }; observers.removeAll()
         rowWindows.values.forEach { $0.close() }; rowWindows.removeAll()

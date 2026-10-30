@@ -7,7 +7,9 @@ import RiftletCore
 public actor SystemScreenshotCandidateAdmission {
     private let store: QueueStore
 
-    public init(store: QueueStore) { self.store = store }
+    public nonisolated let scope: SystemScreenshotAdmissionScope
+
+    public init(store: QueueStore, scope: SystemScreenshotAdmissionScope = .candidate) { self.store = store; self.scope = scope }
 
     private struct Registration: Codable, Equatable {
         let version: Int
@@ -23,19 +25,29 @@ public actor SystemScreenshotCandidateAdmission {
     /// only; they can never authorize another append, even for the same request.
     func enroll(_ request: TransferRequest) async throws {
         try SystemScreenshotWebCandidate.validateMetadata(request.asset)
-        try SystemScreenshotWebCandidate.validateAdmittedTarget(request.operation.target)
+        try scope.validateTarget(request.operation.target)
         guard request.operation.phase == .dispatchIntent else { throw WebAdapterError.invalidRequest }
-        let key = Self.checkpointKey(for: request)
+        let key = Self.checkpointKey(for: request, scope: scope)
         guard try await store.checkpoint(for: key) == nil else { throw WebAdapterError.invalidRequest }
         let registration = Registration(version: 1, sourceID: SystemScreenshotWebCandidate.sourceID,
-            startProfileID: SystemScreenshotWebCandidate.admittedUploadStartProfileID,
-            completionProfileID: SystemScreenshotWebCandidate.admittedCompletionProfileID,
+            startProfileID: scope.admittedProfile.uploadStartProfileID!,
+            completionProfileID: scope.admittedProfile.profileID,
             identity: Self.identity(for: request), enrollmentID: UUID())
         let encoder = JSONEncoder(); encoder.outputFormatting = [.sortedKeys]
         let proposed = try encoder.encode(registration)
         // The store validates the actual persisted dispatch intent and full
         // asset/operation identity in the same transaction as this first write.
         // A fresh nonce distinguishes concurrent proposals for the same key.
+        // The historical key is also the cross-scope one-shot fence. Keeping it
+        // unchanged protects old candidate registrations and prevents two scopes
+        // from independently claiming the same dispatch intent in two connections.
+        let fenceKey = Self.checkpointKey(for: request)
+        if scope != .candidate {
+            guard try await store.checkpoint(for: fenceKey) == nil else { throw WebAdapterError.invalidRequest }
+            let fenced = try await store.claimDispatchCheckpoint(proposed, for: fenceKey,
+                operation: request.operation, asset: request.asset)
+            guard fenced == proposed else { throw WebAdapterError.invalidRequest }
+        }
         let retained = try await store.claimDispatchCheckpoint(proposed, for: key,
             operation: request.operation, asset: request.asset)
         guard retained == proposed else { throw WebAdapterError.invalidRequest }
@@ -44,13 +56,18 @@ public actor SystemScreenshotCandidateAdmission {
     /// Missing v2 registration is the permanent legacy boundary. In particular,
     /// F and older UNKNOWN records keep their unadmitted v1 observations/locks.
     func admits(_ request: TransferRequest) async throws -> Bool {
-        guard let data = try await store.checkpoint(for: Self.checkpointKey(for: request)) else { return false }
+        guard let data = try await store.checkpoint(for: Self.checkpointKey(for: request, scope: scope)) else { return false }
+        if scope != .candidate {
+            guard try await store.checkpoint(for: Self.checkpointKey(for: request)) == data else {
+                throw WebAdapterError.invalidRequest
+            }
+        }
         guard data.count <= 64 * 1024,
               let registration = try? JSONDecoder().decode(Registration.self, from: data),
               registration.version == 1,
               registration.sourceID == SystemScreenshotWebCandidate.sourceID,
-              registration.startProfileID == SystemScreenshotWebCandidate.admittedUploadStartProfileID,
-              registration.completionProfileID == SystemScreenshotWebCandidate.admittedCompletionProfileID,
+              registration.startProfileID == scope.admittedProfile.uploadStartProfileID!,
+              registration.completionProfileID == scope.admittedProfile.profileID,
               registration.identity == Self.identity(for: request),
               request.operation.assetID == request.asset.id, request.operation.phase != .prepared,
               request.operation.phase.isUnresolved || request.operation.phase == .succeeded,
@@ -66,12 +83,22 @@ public actor SystemScreenshotCandidateAdmission {
         let encoder = JSONEncoder(); encoder.outputFormatting = [.sortedKeys]
         guard (try? encoder.encode(registration)) == data else { throw WebAdapterError.invalidRequest }
         try SystemScreenshotWebCandidate.validateMetadata(request.asset)
-        try SystemScreenshotWebCandidate.validateAdmittedTarget(request.operation.target)
+        try scope.validateTarget(request.operation.target)
         return true
     }
 
-    static func checkpointKey(for request: TransferRequest) -> String {
-        "system-screenshot-admission-v2:\(request.operation.id.uuidString.lowercased()):\(request.operation.attempt)"
+    /// Read-only compatibility for operations enrolled by the preceding ordinary
+    /// internal App in this same store. Never enrolls, repairs partial fences or
+    /// borrows candidate registrations. Malformed current registrations throw.
+    func admittedObservationScope(for request: TransferRequest) async throws -> SystemScreenshotAdmissionScope? {
+        if try await admits(request) { return scope }
+        guard scope == .ordinaryCurrentDraftInternal else { return nil }
+        let prior = SystemScreenshotCandidateAdmission(store: store, scope: .ordinary)
+        return try await prior.admits(request) ? .ordinary : nil
+    }
+
+    static func checkpointKey(for request: TransferRequest, scope: SystemScreenshotAdmissionScope = .candidate) -> String {
+        "\(scope.admissionPrefix):\(request.operation.id.uuidString.lowercased()):\(request.operation.attempt)"
     }
 
     private static func identity(for request: TransferRequest) -> ObservationIdentity {

@@ -12,6 +12,17 @@ import RiftletFeedback
 @main
 enum RiftletMain {
     @MainActor static func main() {
+        if CommandLine.arguments.contains("--ordinary-build-info") {
+            let value: [String: Any] = ["internalAcceptance": OrdinaryCaptureConfiguration.isInternalAcceptance,
+                "mode": "capture", "dataDirectory": OrdinaryCaptureConfiguration.dataDirectoryName,
+                "input": OrdinaryCaptureConfiguration.admission.allowsInput,
+                "start": OrdinaryCaptureConfiguration.admission.allowsStart,
+                "completion": OrdinaryCaptureConfiguration.admission.allowsCompletion,
+                "safeRetry": false, "continuation": false]
+            if let data = try? JSONSerialization.data(withJSONObject: value, options: [.sortedKeys]),
+               let text = String(data: data, encoding: .utf8) { print(text) }
+            return
+        }
         if CommandLine.arguments.contains("--system-screenshot-candidate-self-check") {
             Task {
                 do {
@@ -244,7 +255,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         // Journal recovery may add records. Validate the isolated synthetic store
         // after recovery as well, before any real adapter is constructed.
         if mode.generatesSyntheticImages { try await seedSyntheticImages(store: store) }
-        if mode == .systemScreenshotCandidate {
+        if mode == .systemScreenshotCandidate || (mode == .capture && mode.usesWebAdapter) {
             _ = try await PrivateAssetImporter(privateRoot: root, store: store).recover()
             try await SystemScreenshotCandidateConfiguration.validateStore(store)
         }
@@ -348,7 +359,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                             self.applyAutomationPermission(.denied)
                         }
                     }
-                    feedback(self.mode == .capture ? "此版本尚未启用真实截图附加；图片保留。"
+                    feedback(!self.mode.usesWebAdapter && self.mode == .capture ? "此版本尚未启用真实截图附加；图片保留。"
                         : (ProductStatus.clickFeedback(error)?.text ?? self.setupIssue?.text
                            ?? "当前附件目标暂不可用；图片保留，可在运行状态中查看原因。"), .immediate)
                     self.feedback.diagnostics.record(.selectionRejected)
@@ -413,8 +424,8 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         // Durable crash recovery remains local even when Automation is denied.
         // No page observation is attempted until a passive check says allowed.
         try await store.recoverInterruptedOperations()
-        originalRecoveryIDs = try await store.unresolvedOperations().map(\.id)
-        startupCompletedIDs = mode != .capture ? Set(try await store.successfulOperations().map(\.id)) : []
+        originalRecoveryIDs = mode.observesAttachments ? try await store.unresolvedOperations().map(\.id) : nil
+        startupCompletedIDs = mode.observesAttachments ? Set(try await store.successfulOperations().map(\.id)) : []
         recordAcceptance(["event": "local_recovery_complete", "uptime": ProcessInfo.processInfo.systemUptime])
         var attachmentPermission: AutomationPermissionState = .notNeeded
         if mode.usesWebAdapter {
@@ -554,7 +565,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     }
 
     private func startOriginalRecovery() {
-        guard !terminating, let ids = originalRecoveryIDs, let transfer else { return }
+        guard mode.observesAttachments, !terminating, let ids = originalRecoveryIDs, let transfer else { return }
         originalRecoveryIDs = nil
         originalRecoveryTask = Task { [weak self] in
             guard let self else { return }
@@ -588,7 +599,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         attachmentObservationStarted = true
         if mode.usesWebAdapter, let armingAdapter { startArming(adapter: armingAdapter) }
         else { startOriginalRecovery() }
-        guard mode != .capture else { return }
+        guard mode.observesAttachments else { return }
         completionWatch = Task { [weak self] in
             while !Task.isCancelled {
                 do { try await Task.sleep(nanoseconds: self?.simulation == true ? 400_000_000 : 5_000_000_000) } catch { return }
@@ -777,7 +788,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     }
 
     @objc private func launchSimulation() {
-        guard mode.collectsSystemScreenshots, Bundle.main.bundleURL.pathExtension == "app" else { return }
+        guard !OrdinaryCaptureConfiguration.isInternalAcceptance, mode.collectsSystemScreenshots, Bundle.main.bundleURL.pathExtension == "app" else { return }
         let configuration = NSWorkspace.OpenConfiguration()
         configuration.arguments = ["--simulate"]
         configuration.createsNewApplicationInstance = true
@@ -790,7 +801,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     /// macOS launch acknowledgement is not candidate readiness. Keep the
     /// ordinary collector and its data intact if candidate initialization fails.
     @objc private func launchSystemScreenshotCandidate() {
-        guard mode == .capture, Bundle.main.bundleURL.pathExtension == "app" else { return }
+        guard !OrdinaryCaptureConfiguration.isInternalAcceptance, mode == .capture, Bundle.main.bundleURL.pathExtension == "app" else { return }
         let alert = NSAlert()
         alert.messageText = "打开真实截图内部候选？"
         alert.informativeText = "这是受限的内部候选：新系统截图保存在独立本地目录，仅支持 Chrome 中文 ChatGPT 普通已有聊天中的原样 8-bit RGBA PNG。只使用你愿意附加的新截图。真实开始后快速吞噬，独立完成证明到达后后台记录成功；旧待核实操作保持原状，安全失败与重试仍关闭。普通实例继续保留；请在「Riftlet REAL TEST」菜单查看候选状态，需要时再退出普通实例。"
@@ -1230,7 +1241,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 if interactionFence.snapshot().blocked { feedback.diagnostics.record(.uiProjectionDeferred) }
                 switch mode {
                 case .capture:
-                    statusItem?.button?.toolTip = "Riftlet · \(active.count) visible screenshots\(userHidden ? " · hidden" : "")"
+                    statusItem?.button?.toolTip = "\(OrdinaryCaptureConfiguration.menuTitle) · \(active.count) visible screenshots\(userHidden ? " · hidden" : "")"
                 case .simulation: statusItem?.button?.toolTip = "Riftlet SIMULATION — synthetic only; start then delayed result"
                 case .systemScreenshotCandidate: statusItem?.button?.toolTip = "Riftlet REAL TEST · 原图候选 · 生产准入关闭 · 待核实不重传"
                 case .webAcceptance: statusItem?.button?.toolTip = "Riftlet WEB ACCEPTANCE · \(active.count) visible test images · unresolved records stay in local history"
@@ -1470,8 +1481,8 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         add(menu, "检查本机存储用量", #selector(checkStorage))
         let storage = NSMenuItem(title: "私有存储：尚未检查", action: nil, keyEquivalent: "")
         menu.addItem(storage); storageLine = storage
-        if mode.collectsSystemScreenshots { add(menu, "打开离线合成演示…", #selector(launchSimulation)) }
-        if mode == .capture { add(menu, "打开真实截图内部候选…", #selector(launchSystemScreenshotCandidate)) }
+        if !OrdinaryCaptureConfiguration.isInternalAcceptance && mode.collectsSystemScreenshots { add(menu, "打开离线合成演示…", #selector(launchSimulation)) }
+        if !OrdinaryCaptureConfiguration.isInternalAcceptance && mode == .capture { add(menu, "打开真实截图内部候选…", #selector(launchSystemScreenshotCandidate)) }
         let advanced = NSMenu()
         add(advanced, "重新载入几何参数", #selector(reload))
         add(advanced, "打开工程几何参数文件", #selector(openGeometry))
