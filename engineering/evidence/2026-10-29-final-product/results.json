@@ -11166,6 +11166,55 @@
     "localNativeTests": "NOT_RUN_XCTEST_UNAVAILABLE",
     "websiteIsolationTests": 25,
     "finalOrdinaryAppE2E": "NOT_RUN",
-    "ci": "PENDING"
+    "ci": {
+      "conclusion": "success",
+      "created_at": "2026-10-30T12:42:21Z",
+      "head_sha": "dd4cd8e219799fac5c3120446747ebc69f6d149f",
+      "html_url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/41057352788",
+      "id": 41057352788,
+      "run_attempt": 1,
+      "status": "completed",
+      "updated_at": "2026-10-30T12:54:04Z"
+    },
+    "ciJobs": [
+      {
+        "completed_at": "2026-10-30T12:42:51Z",
+        "conclusion": "success",
+        "id": 124068120887,
+        "name": "source_admission",
+        "started_at": "2026-10-30T12:42:24Z",
+        "status": "completed"
+      },
+      {
+        "completed_at": "2026-10-30T12:54:03Z",
+        "conclusion": "success",
+        "id": 124068121095,
+        "name": "macos (macos-15-intel)",
+        "started_at": "2026-10-30T12:42:27Z",
+        "status": "completed"
+      },
+      {
+        "completed_at": "2026-10-30T12:49:52Z",
+        "conclusion": "success",
+        "id": 124068121159,
+        "name": "macos (macos-15)",
+        "started_at": "2026-10-30T12:42:25Z",
+        "status": "completed"
+      }
+    ],
+    "localExecutableSHA256": "83f50fa13528952f13182520e46d4c79d20c56990df298520787f0a817d32cb9",
+    "productPatch": "4f5285edd8ccbe7f88e48d344bba8e0a914bb7e4",
+    "websiteGatePatch": "003351742ce26fb8adf6c50bee3d682b82e8f17b",
+    "testedHead": "dd4cd8e219799fac5c3120446747ebc69f6d149f",
+    "mainOverlay": {
+      "tree": "742a4f18ffc6a3f3ee445ebab722e7ece6818882",
+      "main": "ea22efe25e080bd2e4a4ccf4538dbf2286c803a6",
+      "result": "PASS",
+      "checks": 32,
+      "objects": 28,
+      "refsChanged": false
+    },
+    "nativeTestScope": "Software fixtures on macOS ARM/Intel; 788 scheduled entries in full suite plus existing focused checks; not physical or real ordinary-upload E2E",
+    "dataAccess": "No existing user DB/media/UNKNOWN read or changed; isolated fixture stores only"
   }
 }

@@ -1,3 +1,26 @@
+# Ordinary-entry final handoff — 2026-10-30
+
+**Code preparation and source/software verification PASS; ordinary upload remains CLOSED and its final App E2E remains NOT_RUN.**
+
+- Independently reviewed source: `ea1af082853d4b6a6e932c66b21ed5b7d1e8681e`.
+- Actual tested head: `dd4cd8e219799fac5c3120446747ebc69f6d149f`.
+- [Native CI 41057352788](https://github.com/haohongfei2001-png/Riftlet/actions/runs/41057352788), attempt 1: **completed/success**, actual update `2026-10-30T12:54:04Z`. Source job `124068120887`, ARM `124068121159`, Intel `124068121095` all completed/success. Both architectures execute the full native suite and existing detailed native/software checks, build/package and archive their synthetic evidence. ARM log contains the four new ordinary App cases and explicit passing cross-scope adapter cases. The full-suite 788 scheduling entries are not a physical test count.
+- Final local development bundle built with current product bytes: layout/resources/notices/signature checks PASS; executable SHA-256 `83f50fa13528952f13182520e46d4c79d20c56990df298520787f0a817d32cb9`. No installation, browser action or user data access. No notarization/Gatekeeper claim.
+- Exact new-main object overlay: tree `742a4f18ffc6a3f3ee445ebab722e7ece6818882`, 28 website objects, 32 checks PASS. No main or website ref/content mutation.
+
+## Minimal integration order
+
+1. Product patch `4f5285e`: gated ordinary composition, independent registration/receipt scope, support display and UNKNOWN local-recovery preservation; include the subsequent one-line test correction from `ea1af08` (`history.map(\.id)`).
+2. Website gate/test/docs patch `0033517`: exact successor main objects, unchanged historical audit engine. Preserve the actual latest main website; this patch does not merge main itself.
+3. The single branch-trigger addition in `ea1af08` exists to run this independent branch's original CI. It is not required product logic.
+4. Do **not** blindly cherry-pick `dd4cd8e`'s source pin or promote this branch as formal PR #1. The unique integrator must review the actual combined source and set its own exact source pin, retaining original evidence. This metadata-only handoff does not rerun or relabel the tested native tree.
+
+The code keeps input, uploadStarted, completion, safe failure/retry and Web continuation closed for ordinary launch. Internal candidate admission is unchanged and cannot qualify an ordinary operation. Built-in/edited/other unsupported origins remain excluded. Final ordinary App evidence (new screenshot, native click/ACK, unique input, independent start/completion, original draft preservation and recovery) and separate engineering admission are still required before opening the product. Stopped selection-causality research and missing physical acceptance remain unresolved, not silently passed.
+
+Formal PR #1 readback remains `edbdc7aae45c35878694e9fa376757dac7b630a8`; PR #15 remains `bf3b97a432f65451c1b4232035e25c9d42b21523`. This work changes only `codex/riftlet-ordinary-entry-20261030`. Original images, UNKNOWN, database and audit history were not accessed or altered; data-retention verification uses isolated fixture stores.
+
+---
+
 # Independent ordinary-entry preparation — 2026-10-30
 
 Closed-source checkpoint `ea1af082853d4b6a6e932c66b21ed5b7d1e8681e` is based on formal `edbdc7aae45c35878694e9fa376757dac7b630a8`. Product patch `4f5285e` prepares ordinary composition and preserves historical UNKNOWN during local recovery. Website compatibility patch `0033517` pins actual main `ea22efe25e080bd2e4a4ccf4538dbf2286c803a6` and 28 exact website objects. The following commit only activates its source-review pin and records this scope; it grants no upload admission.
