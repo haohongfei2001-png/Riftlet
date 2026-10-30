@@ -1,0 +1,76 @@
+{
+  "scope": [
+    "site/index.html",
+    "site/zh/index.html"
+  ],
+  "passed_checks": 241,
+  "checked_local_files": [
+    "site/assets/app-icon.svg",
+    "site/assets/favicon.ico",
+    "site/assets/favicon.svg",
+    "site/assets/mark.svg",
+    "site/assets/og-en.png",
+    "site/assets/og-zh.png",
+    "site/assets/sample-landscape.svg",
+    "site/assets/sample-portrait.svg",
+    "site/assets/sample-wide.svg",
+    "site/brand.css",
+    "site/demo-engine.js",
+    "site/index.html",
+    "site/review.html",
+    "site/site.webmanifest",
+    "site/website.js",
+    "site/zh/index.html"
+  ],
+  "selected_base_contrast": [
+    {
+      "selector": ".composer-foot",
+      "base_light_ratio": 4.6
+    },
+    {
+      "selector": ".source-caption",
+      "base_light_ratio": 4.63
+    },
+    {
+      "selector": ".existing-attachment",
+      "base_light_ratio": 4.7
+    },
+    {
+      "selector": ".demo-limits",
+      "base_light_ratio": 4.84
+    }
+  ],
+  "errors": [],
+  "warnings": [
+    "site/index.html: no CSP meta; recommended deployment header includes connect-src 'none', object-src 'none', base-uri 'none', form-action 'none'",
+    "site/index.html: share image is relative; set an absolute production URL when adopting",
+    "site/zh/index.html: no CSP meta; recommended deployment header includes connect-src 'none', object-src 'none', base-uri 'none', form-action 'none'",
+    "site/zh/index.html: share image is relative; set an absolute production URL when adopting"
+  ],
+  "limitations": [
+    "Source inspection does not establish computed contrast, visual overflow or touch-target bounds.",
+    "Source/API scanning does not replace a browser network audit or screen-reader testing.",
+    "No remote-link HTTP requests, browser automation or native app checks are performed."
+  ],
+  "status": "PASS",
+  "verified_at": "2026-10-30T15:00:52+08:00",
+  "build_generator_python_syntax": "PASS",
+  "engine_tests": {
+    "command": "node tests/demo-engine.test.cjs",
+    "passed": 10,
+    "failed": 0,
+    "skipped": 0,
+    "note": "Observed passing run after adding the initial-state/no-automatic-success case; model source unchanged since that run."
+  },
+  "source_sha256": {
+    "site/demo-engine.js": "9e222dfa9521fd442dc8c451b31b669425453cff31ccfbda3424427dd5fa1aa8",
+    "site/website.js": "61741d8565859be875c2add8b0b7c0ec0a95d4c36625b6558bc5c9db2c82dd4a",
+    "site/brand.css": "77ac84072a65d03f2153a6b7bb8e768dfd203897c62d1cbfac0fd08626e03124",
+    "site/index.html": "82f272788190403fee98e5c5daacbaf95850d157443dfb52f23ca4422675632f",
+    "site/zh/index.html": "beeff80297562682dceec12bad44716c8841066226b918a19cfc521fc072f68b",
+    "tools/build-site.py": "763082276ba229c5ed2ad6323f6193de27bdc123787cf03992ec2331d1675d99",
+    "tests/demo-engine.test.cjs": "446d872130ff7027ad0283deb71bb8df8c502701fc37ff15a7f08c2559c188f6",
+    "tests/site-static.py": "8325055c0aedac05a4d293b2e0967a1f691c24ee2a30ad42e865c710c084f32b"
+  },
+  "portable_validation": "qa-portable-result.json"
+}

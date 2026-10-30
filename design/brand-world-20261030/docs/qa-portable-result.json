@@ -1,0 +1,78 @@
+{
+  "status": "PASS",
+  "verified_at": "2026-10-30T15:00:52+08:00",
+  "files": [
+    {
+      "path": "site/downloads/Riftlet-Review.html",
+      "bytes": 1047978,
+      "sha256": "d6e0615a61ed8d92c667b0864f8cba0cb6c1cd0c06e034cc386127fb60ab1de1"
+    },
+    {
+      "path": "site/downloads/Riftlet-Website-EN.html",
+      "bytes": 85010,
+      "sha256": "c8565639dcd84f67821372901ea0c8397ce1d9a8dfb84ac6f24abc62d7cc3a68"
+    },
+    {
+      "path": "site/downloads/Riftlet-Website-ZH.html",
+      "bytes": 84719,
+      "sha256": "0bb2fbfb403b4357bd111dec0d9432f1c9baa1de7f321b0a8f8256c23143e2b8"
+    }
+  ],
+  "contexts": [
+    {
+      "context": "site/downloads/Riftlet-Review.html / embedded en",
+      "inline_images": 11,
+      "inline_styles": 1,
+      "inline_javascript_blocks": 3,
+      "errors": [],
+      "css_matches_frozen_source": true,
+      "engine_matches_frozen_source": true
+    },
+    {
+      "context": "site/downloads/Riftlet-Review.html / embedded zh",
+      "inline_images": 11,
+      "inline_styles": 1,
+      "inline_javascript_blocks": 3,
+      "errors": [],
+      "css_matches_frozen_source": true,
+      "engine_matches_frozen_source": true
+    },
+    {
+      "context": "site/downloads/Riftlet-Review.html",
+      "inline_images": 20,
+      "inline_styles": 2,
+      "inline_javascript_blocks": 2,
+      "errors": []
+    },
+    {
+      "context": "site/downloads/Riftlet-Website-EN.html",
+      "inline_images": 11,
+      "inline_styles": 1,
+      "inline_javascript_blocks": 2,
+      "errors": [],
+      "css_matches_frozen_source": true,
+      "engine_matches_frozen_source": true
+    },
+    {
+      "context": "site/downloads/Riftlet-Website-ZH.html",
+      "inline_images": 11,
+      "inline_styles": 1,
+      "inline_javascript_blocks": 2,
+      "errors": [],
+      "css_matches_frozen_source": true,
+      "engine_matches_frozen_source": true
+    }
+  ],
+  "json_bundles": [
+    {
+      "context": "site/downloads/Riftlet-Review.html",
+      "id": "portable-pages",
+      "keys": [
+        "en",
+        "zh"
+      ]
+    }
+  ],
+  "errors": [],
+  "boundary": "Static HTMLParser, base64 and JavaScript syntax validation only. Local parent/iframe postMessage carries fixed preview-navigation identifiers and is not network I/O. Outgoing human-clicked GitHub links remain intentional."
+}
