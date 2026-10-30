@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "FORMAL_PR1_COMPLETE_NATIVE_AND_FEEDBACK_CI_PASS_H2_DELIVERY_PACKAGES_PRESERVED_REAL_MAC_NOT_RUN",
+  "status": "FORMAL_PR1_COLD_CLICK_LIFECYCLE_INTEGRATION_COMPLETE_NATIVE_ARM_INTEL_FEEDBACK_FIRST_ATTEMPT_PASS_PACKAGES_VERIFIED_REAL_MAC_NOT_RUN",
   "inputs": {
     "unified": "2c8cd0371de5e07fd7794f76335381a40403030d",
     "builtin": "6b60f67f6d35272eecff901c507bd75a77874ed6",
@@ -1008,8 +1008,8 @@
     "uploadAdmissionExpanded": false,
     "userDataChanged": false
   },
-  "reviewedSource": "4223a9dc80bd982e4b95305a1bd1e8f15ce7393c",
-  "reviewedTree": "a8eebcbfe47b4b3ad6f97412b4760def444910e3",
+  "reviewedSource": "b714dc44b27cccb76356fe15fb4854dba599a689",
+  "reviewedTree": "f043c283eeb49e1f3f8b3c2640ea43c7bbeeabde",
   "continuationFailures": [
     {
       "head": "b3cec64f0ecbf869aff3b17b88d55323d1765393",
@@ -3601,11 +3601,11 @@
     "release": "No main merge, public release or notarization claim",
     "historicalScope": "C1/H receiver-only checkpoint before reconnection and later real delivery/deletion. Original pending/blocking and nil-endpoint statements are preserved as historical facts, superseded by feedbackCloudCloseoutContinuation."
   },
-  "reviewedSourceFieldStatus": "Exact C2 has completed non-author review; fixed source pin updated only after the recorded approval.",
+  "reviewedSourceFieldStatus": "Exact b714 source checkpoint reviewed by three independent non-authors before updating only REVIEWED_SOURCE. Formal combined runtime and real environment acceptance remain separate.",
   "sourceEndpointConfigured": true,
   "sourceEndpoint": "https://riftlet-feedback-receiver.haohongfei2001.workers.dev/v1/feedback",
   "sourceEndpointScope": "Exact committed source and both independently checked ARM/Intel unified Beta packages contain the configured HTTPS endpoint. This is source/compiled-byte/package proof, not an actual native-window send or a per-feedback receipt.",
-  "historicalSectionScope": "historicalNonAuthorReviewThroughPR17, historical8525Runtime, completedRuntimeHistory, precedingSourceReviewCheckpoint, pr17ReliabilityIntegration and feedbackCloudContinuation retain their original checkpoint facts and limitations; they do not describe current cloud deployment or C2 review. historicalHRuntime preserves the exact prior H record; precedingH2AdmissionCheckpoint and the original pending subfields of feedbackCloudCloseoutContinuation are admission-time history superseded only by actual h2RuntimeVerification/latestCompletedRuntime. The exact latestCompletedRuntime and h2RuntimeVerification records remain E-era H2/PR18 package/runtime provenance. Current formal PR1 complete CI is recorded in formalPR1Continuation; E NOT_RUN and pre-promotion statements are retained historical snapshots, not current blockers.",
+  "historicalSectionScope": "historicalNonAuthorReviewThroughPR17, historical8525Runtime, completedRuntimeHistory, precedingSourceReviewCheckpoint, pr17ReliabilityIntegration and feedbackCloudContinuation retain their original checkpoint facts and limitations; they do not describe current cloud deployment or C2 review. historicalHRuntime preserves the exact prior H record; precedingH2AdmissionCheckpoint and the original pending subfields of feedbackCloudCloseoutContinuation are admission-time history superseded only by actual h2RuntimeVerification/latestCompletedRuntime. The exact latestCompletedRuntime and h2RuntimeVerification records remain E-era H2/PR18 package/runtime provenance. Current formal PR1 complete CI is recorded in formalPR1Continuation; E NOT_RUN and pre-promotion statements are retained historical snapshots, not current blockers. All records through formalPR1Continuation retain their completed 2026-10-29 historical scope. coldClickLifecycleIntegration is the current 2026-10-30 checkpoint and does not relabel prior CI or artifacts.",
   "feedbackCloudCloseoutContinuation": {
     "source": "4223a9dc80bd982e4b95305a1bd1e8f15ce7393c",
     "sourceTree": "a8eebcbfe47b4b3ad6f97412b4760def444910e3",
@@ -10931,6 +10931,1806 @@
       "scope": "Four actual completed-success E workflow statuses only, separate from complete formal PR1 log review. No additional reviewed test counts, new package byte review or future workflow claim."
     }
   },
-  "currentRuntimeEvidenceField": "formalPR1Continuation",
-  "latestCompletedRuntimeRole": "Preserved exact E-era H2/PR18 runtime and delivered-package provenance. Despite the historical field name, it is not the current formal PR1 result; current authoritative formal runtime evidence is formalPR1Continuation. Its NOT_RUN_AT_THIS_EVIDENCE_CHECKPOINT subfields describe E only."
+  "currentRuntimeEvidenceField": "coldClickLifecycleIntegration",
+  "latestCompletedRuntimeRole": "Preserved exact E-era H2/PR18 runtime and delivered-package provenance. Despite the historical field name, it is not the current formal PR1 result; current authoritative formal runtime evidence is formalPR1Continuation. Its NOT_RUN_AT_THIS_EVIDENCE_CHECKPOINT subfields describe E only.",
+  "precedingLifecycleAdmissionCheckpoint": {
+    "status": "FORMAL_PR1_COMPLETE_NATIVE_AND_FEEDBACK_CI_PASS_H2_DELIVERY_PACKAGES_PRESERVED_REAL_MAC_NOT_RUN",
+    "reviewedSource": "4223a9dc80bd982e4b95305a1bd1e8f15ce7393c",
+    "reviewedTree": "a8eebcbfe47b4b3ad6f97412b4760def444910e3",
+    "reviewedSourceFieldStatus": "Exact C2 has completed non-author review; fixed source pin updated only after the recorded approval.",
+    "currentRuntimeEvidenceField": "formalPR1Continuation",
+    "latestCompletedRuntimeRole": "Preserved exact E-era H2/PR18 runtime and delivered-package provenance. Despite the historical field name, it is not the current formal PR1 result; current authoritative formal runtime evidence is formalPR1Continuation. Its NOT_RUN_AT_THIS_EVIDENCE_CHECKPOINT subfields describe E only.",
+    "historicalSectionScope": "historicalNonAuthorReviewThroughPR17, historical8525Runtime, completedRuntimeHistory, precedingSourceReviewCheckpoint, pr17ReliabilityIntegration and feedbackCloudContinuation retain their original checkpoint facts and limitations; they do not describe current cloud deployment or C2 review. historicalHRuntime preserves the exact prior H record; precedingH2AdmissionCheckpoint and the original pending subfields of feedbackCloudCloseoutContinuation are admission-time history superseded only by actual h2RuntimeVerification/latestCompletedRuntime. The exact latestCompletedRuntime and h2RuntimeVerification records remain E-era H2/PR18 package/runtime provenance. Current formal PR1 complete CI is recorded in formalPR1Continuation; E NOT_RUN and pre-promotion statements are retained historical snapshots, not current blockers."
+  },
+  "coldClickLifecycleIntegration": {
+    "phase": "COMPLETE_FORMAL_INTEGRATION_AND_CI_PACKAGES_VERIFIED",
+    "recordedAt": "2026-10-30T08:25:18.611609+00:00",
+    "formalBase": "98e66a956d55b5fac71718bc627dd89705b2a506",
+    "previousHandoff": "623d3725d0b3096f1dc7332e6cae11f47f7002c2",
+    "sourceCheckpoint": "b714dc44b27cccb76356fe15fb4854dba599a689",
+    "sourceTree": "f043c283eeb49e1f3f8b3c2640ea43c7bbeeabde",
+    "specialistSource": "f7f8acdd842005a2b65e914291f3a2912c4e4124",
+    "specialistHandoff": "c99900c6cc5c4a1f9f575576226d46252a1d6065",
+    "specialistRun": 41017793874,
+    "integratedDependencies": [
+      "973a3e8c41b833dd47d655bd837e9ba5ebb40d7a",
+      "9790cc3a5206f115e543399f1e63619227aa62f1",
+      "90dc466ada9acd24d7172607ef8e585a1a1010f3",
+      "f7f8acdd842005a2b65e914291f3a2912c4e4124"
+    ],
+    "excludedSpecialistWorkflowCommit": "f02ddafbaed7bab1bc843193fa4fef7b8b1a3515",
+    "changedFiles": [
+      {
+        "path": "Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js",
+        "mode": "100644",
+        "blob": "4064ea89fef391048d4ff7ba9684bfdc60ffcc8f"
+      },
+      {
+        "path": "Sources/RiftletAdapters/WebAttachmentAdapter.swift",
+        "mode": "100644",
+        "blob": "2bc0acb607cb593508e3c7fb8544e5094664bf92"
+      },
+      {
+        "path": "Sources/RiftletApp/AutomationPermissionPublication.swift",
+        "mode": "100644",
+        "blob": "32fb3323e569f15e3582d13e0b297c4e4fb02972"
+      },
+      {
+        "path": "Sources/RiftletApp/RiftletMain.swift",
+        "mode": "100644",
+        "blob": "98282db42358b8ab582d678679996433a4b4b3d4"
+      },
+      {
+        "path": "Sources/RiftletCore/DispatchEvidence.swift",
+        "mode": "100644",
+        "blob": "6e7951678fa52612444d0c0c2747346725f03ee8"
+      },
+      {
+        "path": "Sources/RiftletCore/Models.swift",
+        "mode": "100644",
+        "blob": "7f2bc1bc4e357ecd83ed58c78cc2c6431769e274"
+      },
+      {
+        "path": "Sources/RiftletCore/QueueStore.swift",
+        "mode": "100644",
+        "blob": "138dd3ee7121cf19304053457271e07022a73731"
+      },
+      {
+        "path": "Sources/RiftletCore/ReceiptPolicy.swift",
+        "mode": "100644",
+        "blob": "539068e04bfbb397c58f046000bb43775bb8e3cb"
+      },
+      {
+        "path": "Sources/RiftletCore/SQLiteDatabase.swift",
+        "mode": "100644",
+        "blob": "c2302067aabad9575eb3dc26b2927c7ffa00f18c"
+      },
+      {
+        "path": "Sources/RiftletCore/TransferCoordinator.swift",
+        "mode": "100644",
+        "blob": "eec608f10db13a13196a047748470f974af7957a"
+      },
+      {
+        "path": "Tests/RiftletAdaptersTests/SystemScreenshotWebCandidateTests.swift",
+        "mode": "100644",
+        "blob": "8d34d60e705a011d16930711126b04299d479bc2"
+      },
+      {
+        "path": "Tests/RiftletAdaptersTests/WebAttachmentAdapterTests.swift",
+        "mode": "100644",
+        "blob": "e53dadc9a3f29ca3eab615d27e5ad789496d4b93"
+      },
+      {
+        "path": "Tests/RiftletAppTests/AutomationPermissionPublicationTests.swift",
+        "mode": "100644",
+        "blob": "5597bee206d2af67dba1dff0eb22c846aef3179c"
+      },
+      {
+        "path": "Tests/RiftletAppTests/ColdClickBoundaryTests.swift",
+        "mode": "100644",
+        "blob": "b3c526f32fa94114fc15f9cf06573749d481b9b8"
+      },
+      {
+        "path": "Tests/RiftletCoreTests/DispatchLifecycleTests.swift",
+        "mode": "100644",
+        "blob": "a582a37bd29959cf9643ae99dde048788d4433ef"
+      },
+      {
+        "path": "Tests/RiftletCoreTests/LateFailureCompensationTests.swift",
+        "mode": "100644",
+        "blob": "cf8af6677258fef45f77145c9a91da6c6f55035d"
+      },
+      {
+        "path": "Tests/RiftletCoreTests/LifecycleMigrationTests.swift",
+        "mode": "100644",
+        "blob": "3f76716a7a25144cb6a79aa95f81ca8a325c4857"
+      },
+      {
+        "path": "Tests/WebPageProgram/acceptance-program.test.cjs",
+        "mode": "100644",
+        "blob": "02762f7f0d9b01c56316e3454612ed0a7e4134b6"
+      }
+    ],
+    "changedPathManifestSHA256": "1c3ba5113e0e79b0e6046a4ff7b511b79b5f42b988efe82d9f4e797a34394823",
+    "changedProductAndTestPaths": 18,
+    "unchangedPriorObjects": 971,
+    "sourceBlobCount": 989,
+    "nonAuthorReviews": [
+      {
+        "reviewer": "lifecycle_safety_review",
+        "role": "independent non-author agent",
+        "reviewedCommit": "b714dc44b27cccb76356fe15fb4854dba599a689",
+        "reviewedTree": "f043c283eeb49e1f3f8b3c2640ea43c7bbeeabde",
+        "scope": "Web page, Adapter, current-call rejection, Coordinator identity, continuation and original-operation lifecycle",
+        "conclusion": "PASS_SOURCE_ONLY",
+        "confirmedBlockingFindings": []
+      },
+      {
+        "reviewer": "integration_scope_review",
+        "role": "independent non-author agent",
+        "reviewedCommit": "b714dc44b27cccb76356fe15fb4854dba599a689",
+        "reviewedTree": "f043c283eeb49e1f3f8b3c2640ea43c7bbeeabde",
+        "scope": "Exact four-commit scope, SQLite migrations, atomic independent slots, locks, original UNKNOWN and data preservation",
+        "conclusion": "PASS_SOURCE_ONLY",
+        "confirmedBlockingFindings": []
+      },
+      {
+        "reviewer": "release_composition_review",
+        "role": "independent non-author agent",
+        "reviewedCommit": "b714dc44b27cccb76356fe15fb4854dba599a689",
+        "reviewedTree": "f043c283eeb49e1f3f8b3c2640ea43c7bbeeabde",
+        "scope": "Entire composed Git tree, preserved product, immutable historical gates, fixed website overlay, source and runtime distinction",
+        "conclusion": "PASS_SOURCE_ONLY",
+        "confirmedBlockingFindings": []
+      }
+    ],
+    "localVerification": [
+      {
+        "name": "page-program",
+        "command": "node Tests/WebPageProgram/acceptance-program.test.cjs",
+        "passed": 106,
+        "failed": 0,
+        "logSHA256": "3d4195dbc579099ddbc90d8f96b20b518d036e86c4fe66f791da1ffafe246f59",
+        "scope": "Local Linux offline controlled fixtures; not physical Mac or real Chrome."
+      },
+      {
+        "name": "legacy-observation",
+        "command": "node Tests/WebPageProgram/legacy-web-observe.test.cjs",
+        "passed": 61,
+        "failed": 0,
+        "logSHA256": "a86ffa4f0b55db39fe18b7fbced4d833fa2a15ba5d0e1827ecbd3c55b59db60e",
+        "scope": "Local Linux offline controlled fixtures; not physical Mac or real Chrome."
+      },
+      {
+        "name": "final-composition-regressions",
+        "command": "python3 -B -m unittest discover -s Tests/FinalProductIsolation -v",
+        "passed": 24,
+        "failed": 0,
+        "logSHA256": "f5ead5e1f7c00c23bdb4430b7fa898534f6de6584f1032ac9e75c7fc58f2c672",
+        "scope": "Local Linux offline controlled fixtures; not physical Mac or real Chrome."
+      }
+    ],
+    "gateChange": "Only REVIEWED_SOURCE literal; four historical audit pins/blobs, three metadata exceptions, main pin and fifteen website objects unchanged.",
+    "preservedProduct": [
+      "Feedback endpoint/engine/UI/cloud source",
+      "Thin Edge UI and magnet motion",
+      "capture/settings/resources/packaging/licenses",
+      "original UNKNOWN/identity/receipts/media",
+      "restricted original candidate start and completion admission"
+    ],
+    "formalCI": {
+      "status": "PASS_FIRST_ATTEMPT",
+      "native": {
+        "runID": 41024560197,
+        "headSHA": "edbdc7aae45c35878694e9fa376757dac7b630a8",
+        "event": "pull_request",
+        "attempt": 1,
+        "conclusion": "success",
+        "completedAtUTC": "2026-10-30T08:20:32Z",
+        "armJob": 123959480040,
+        "intelJob": 123959479659,
+        "sourceJob": 123959479843
+      },
+      "feedback": {
+        "runID": 41024560240,
+        "headSHA": "edbdc7aae45c35878694e9fa376757dac7b630a8",
+        "event": "pull_request",
+        "attempt": 1,
+        "conclusion": "success",
+        "completedAtUTC": "2026-10-30T08:13:18Z",
+        "feedbackJob": 123959479892,
+        "sourceJob": 123959479708
+      },
+      "sourceAdmission": {
+        "eachJobChecksPassed": 32,
+        "candidateParentProtectedObjects": 986,
+        "mergedProtectedObjects": 997,
+        "fixedMainWebsiteObjects": 15,
+        "sameParsedGateJSONSHA256": "b2e3b897a5500dd10d7596c8669da3af2f26df07f173f44c268dc231799ff57a"
+      },
+      "nativeCases": {
+        "uniqueEnumeratedPerArchitecture": 779,
+        "scope": "Complete unfiltered swift test --parallel exited success on each architecture. Scheduling enumeration is not a claim of 779 physical operations or zero environment-dependent skips.",
+        "pageProgram": 106,
+        "legacyObserve": 61,
+        "strictMagnetDetailed": 9,
+        "dispatchLifecycle": 13,
+        "lifecycleMigration": 6
+      },
+      "feedbackCases": {
+        "uniqueNative": 30,
+        "uniqueUI": 19,
+        "uniqueNativeAndUI": 49,
+        "closeRepeatExecutions": 6,
+        "service": 24,
+        "isolationSuites": 8,
+        "isolationCases": 117
+      },
+      "priorSpecialistRunIsNotFormalCI": true,
+      "reruns": 0
+    },
+    "newUnifiedPackages": {
+      "status": "VERIFIED_ORIGINAL_FORMAL_NATIVE_ARTIFACTS",
+      "packages": [
+        {
+          "architecture": "arm64",
+          "fileName": "Riftlet-Internal-Beta-edbdc7aa-arm64.zip",
+          "bytes": 2038878,
+          "sha256": "3c1761e9e6632c59152530eab895536e3bd06e2da1be54b2c9300bfff7523d4f",
+          "sourceHead": "edbdc7aae45c35878694e9fa376757dac7b630a8",
+          "checkout": "9b6063677672f2af6d9c9f0adf4ce115fa238385",
+          "runID": 41024560197,
+          "artifactID": 12963810366,
+          "artifactURL": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/41024560197/artifacts/12963810366",
+          "outerBytes": 12665626,
+          "outerSHA256": "82ccd1725a5a7339ce8ca990aa8cd1aff39c3f59f1fdcdf6079281840612a7e4",
+          "originalArtifactMember": "build/Riftlet-Internal-Beta.zip",
+          "innerBytesUnmodified": true,
+          "manifest": {
+            "schemaVersion": 1,
+            "kind": "internal-beta-development",
+            "sourceHeadSHA": "edbdc7aae45c35878694e9fa376757dac7b630a8",
+            "checkoutSHA": "9b6063677672f2af6d9c9f0adf4ce115fa238385",
+            "ciRunID": "41024560197",
+            "architecture": "arm64",
+            "launchArgument": "--system-screenshot-candidate",
+            "ordinaryAppDefault": "capture-upload-disabled",
+            "dataDirectory": "Riftlet-System-Screenshot-Candidate",
+            "feedbackEndpointConfigured": true,
+            "feedbackEndpoint": "https://riftlet-feedback-receiver.haohongfei2001.workers.dev/v1/feedback",
+            "feedbackDelivery": "https-receiver-configured",
+            "realAcceptanceSourceSHA": "e421e6687651c2fac1441410c1af2bd5b8151e55",
+            "realAcceptanceEvidenceSHA": "c177174e400064d8ec8bb79685c33d01c4e93b89",
+            "realAcceptanceScope": "prebound-software-CGEvent-one-new-PNG; not a new combined-App Mac run",
+            "buildInputObjects": {
+              "Sources": "a09468b151b7f216109d35803a213718fe082d28",
+              "Tests": "f395246e52044a5c3573292002aeab4d30300ddf",
+              "Resources": "2b6d3694992cae6b3a3d7547a11db78c2e8c6265",
+              "Package.swift": "d3cdd0d51ad937b1afb243cd866cf0071f408d49",
+              "scripts": "666a1c0b08f2913c96b7c677d9273e8c676a5bb2",
+              "packaging": "0ec93cd8e362771a8e493a60d59dc058c6be6b99",
+              ".github": "2465b859b0e3b4627bfdaaa2b54bc030e728ea0e",
+              "services/feedback": "cd061e75995151143acea4076b814293b10c39da",
+              "ThirdPartyNotices": "89a07e01c183f61fca6bc7d7127322b00fa03ded",
+              "research": "7ed0708f7cb3faed95a37fe319e3f0400f3b51dd",
+              "engineering/evidence/2026-10-27-real-mac-round2": "8bf31e0794f1cbd840c4d0b6ac7ac791b326eb81",
+              "engineering/evidence/2026-10-27-real-mac-round3": "dfb9ec12e223366dd37d1e44c8c34a4756bbf96b",
+              "engineering/evidence/2026-10-27-real-mac-round5": "5a22c1bbeffbc0188b5bf4c2da951fce20a85a54",
+              "engineering/evidence/2026-10-28-system-screenshot-stage2": "51e8dba0abbbed28e2ab9274f9736c955537f25f"
+            },
+            "sha256": {
+              "Start-Riftlet-Internal-Beta.command": "99ad3d30e2af2a3d6a39a7de039addd77cc7d06b72bcc1d44dfecf1e5428a450",
+              "README-zh-CN.txt": "14b19a4db5421ce476c5d85c8cf0b6dcc5189b90d3c7ae4ddc791a305989b5a1",
+              "Riftlet.app/Contents/MacOS/Riftlet": "baf5643d32f3eacc7c7d4ebd590c3d4aecbad70604fca8f627bb1bcc2faf4646",
+              "Riftlet.app/Contents/Info.plist": "a76e5ef5daaf0a6c26f13138a59ddc32e0bb3191a99a77bb3b9ded6954121074",
+              "Riftlet.app/Contents/Resources/Riftlet_RiftletAdapters.bundle/chatgpt-web-20261027.js": "9b04975b7ee41a0f59cfc1e1ceb47e6855dd4c43e153e9304fb1f38996432e23",
+              "Riftlet.app/Contents/Resources/Riftlet_RiftletAdapters.bundle/legacy-web-observe.js": "9a60f99e806289213e9df8bd9812337ebf58e334cd996679ef3a5de394805848"
+            }
+          },
+          "nonAuthorPackageReview": "PASS"
+        },
+        {
+          "architecture": "x86_64",
+          "fileName": "Riftlet-Internal-Beta-edbdc7aa-intel.zip",
+          "bytes": 2148795,
+          "sha256": "594abfd488b1882efcf916e352f6f7015bfc8a4436427217034674c380585a7c",
+          "sourceHead": "edbdc7aae45c35878694e9fa376757dac7b630a8",
+          "checkout": "9b6063677672f2af6d9c9f0adf4ce115fa238385",
+          "runID": 41024560197,
+          "artifactID": 12963282793,
+          "artifactURL": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/41024560197/artifacts/12963282793",
+          "outerBytes": 14753013,
+          "outerSHA256": "435b12c06bdf6675d01b9bdd73abbc9028cedc6e7da6c6f91303b7bb7ba3e17b",
+          "originalArtifactMember": "build/Riftlet-Internal-Beta.zip",
+          "innerBytesUnmodified": true,
+          "manifest": {
+            "schemaVersion": 1,
+            "kind": "internal-beta-development",
+            "sourceHeadSHA": "edbdc7aae45c35878694e9fa376757dac7b630a8",
+            "checkoutSHA": "9b6063677672f2af6d9c9f0adf4ce115fa238385",
+            "ciRunID": "41024560197",
+            "architecture": "x86_64",
+            "launchArgument": "--system-screenshot-candidate",
+            "ordinaryAppDefault": "capture-upload-disabled",
+            "dataDirectory": "Riftlet-System-Screenshot-Candidate",
+            "feedbackEndpointConfigured": true,
+            "feedbackEndpoint": "https://riftlet-feedback-receiver.haohongfei2001.workers.dev/v1/feedback",
+            "feedbackDelivery": "https-receiver-configured",
+            "realAcceptanceSourceSHA": "e421e6687651c2fac1441410c1af2bd5b8151e55",
+            "realAcceptanceEvidenceSHA": "c177174e400064d8ec8bb79685c33d01c4e93b89",
+            "realAcceptanceScope": "prebound-software-CGEvent-one-new-PNG; not a new combined-App Mac run",
+            "buildInputObjects": {
+              "Sources": "a09468b151b7f216109d35803a213718fe082d28",
+              "Tests": "f395246e52044a5c3573292002aeab4d30300ddf",
+              "Resources": "2b6d3694992cae6b3a3d7547a11db78c2e8c6265",
+              "Package.swift": "d3cdd0d51ad937b1afb243cd866cf0071f408d49",
+              "scripts": "666a1c0b08f2913c96b7c677d9273e8c676a5bb2",
+              "packaging": "0ec93cd8e362771a8e493a60d59dc058c6be6b99",
+              ".github": "2465b859b0e3b4627bfdaaa2b54bc030e728ea0e",
+              "services/feedback": "cd061e75995151143acea4076b814293b10c39da",
+              "ThirdPartyNotices": "89a07e01c183f61fca6bc7d7127322b00fa03ded",
+              "research": "7ed0708f7cb3faed95a37fe319e3f0400f3b51dd",
+              "engineering/evidence/2026-10-27-real-mac-round2": "8bf31e0794f1cbd840c4d0b6ac7ac791b326eb81",
+              "engineering/evidence/2026-10-27-real-mac-round3": "dfb9ec12e223366dd37d1e44c8c34a4756bbf96b",
+              "engineering/evidence/2026-10-27-real-mac-round5": "5a22c1bbeffbc0188b5bf4c2da951fce20a85a54",
+              "engineering/evidence/2026-10-28-system-screenshot-stage2": "51e8dba0abbbed28e2ab9274f9736c955537f25f"
+            },
+            "sha256": {
+              "Start-Riftlet-Internal-Beta.command": "99ad3d30e2af2a3d6a39a7de039addd77cc7d06b72bcc1d44dfecf1e5428a450",
+              "README-zh-CN.txt": "14b19a4db5421ce476c5d85c8cf0b6dcc5189b90d3c7ae4ddc791a305989b5a1",
+              "Riftlet.app/Contents/MacOS/Riftlet": "8711720a1c84ae007f7568f74ab8d40ff83aa825e3c28a70e7ba560cd2529901",
+              "Riftlet.app/Contents/Info.plist": "a76e5ef5daaf0a6c26f13138a59ddc32e0bb3191a99a77bb3b9ded6954121074",
+              "Riftlet.app/Contents/Resources/Riftlet_RiftletAdapters.bundle/chatgpt-web-20261027.js": "9b04975b7ee41a0f59cfc1e1ceb47e6855dd4c43e153e9304fb1f38996432e23",
+              "Riftlet.app/Contents/Resources/Riftlet_RiftletAdapters.bundle/legacy-web-observe.js": "9a60f99e806289213e9df8bd9812337ebf58e334cd996679ef3a5de394805848"
+            }
+          },
+          "nonAuthorPackageReview": "PASS"
+        }
+      ],
+      "version": "0.1.0",
+      "build": "1",
+      "minimumMacOS": "13.0",
+      "testedOS": "15.7.9",
+      "signing": "development ad-hoc; original native strict codesign passed",
+      "developerIDSigned": false,
+      "notarized": false,
+      "gatekeeper": "NOT_RUN"
+    },
+    "boundaries": {
+      "realWebContinuation": "CLOSED",
+      "ordinaryRealUpload": "CLOSED",
+      "safeRetry": "CLOSED",
+      "realChrome": "NOT_RUN",
+      "physicalMac": "NOT_RUN",
+      "publicRelease": "NOT_PERFORMED",
+      "mainMerge": "NOT_PERFORMED"
+    },
+    "evidenceQualifications": [
+      "48-operation and 32-to-33 tests are deterministic fixtures, not new real uploads.",
+      "Old-v13 no-renewal fixture is a capability-removed current source fixture, not a frozen historic-v13 live upgrade.",
+      "Concurrent v3 extension is tested; concurrent v1/v2 opening may conservatively fail and roll back as in the prior implementation.",
+      "Existing H/H2 packages and cloud evidence retain their original source and scope."
+    ],
+    "remainingP0": [
+      {
+        "id": "REAL-COLD-CONTINUOUS",
+        "status": "NOT_RUN",
+        "requirement": "Real Chrome attachment after idle, cold first click, long continuous add/remove and historical page-state upgrade continuity; new isolated samples only."
+      },
+      {
+        "id": "REAL-INDEPENDENT-CONTINUATION",
+        "status": "NOT_RUN_PROFILE_CLOSED",
+        "requirement": "Independent evidence that B input does not replace/cancel unfinished A, with correct delayed/error attribution, before considering any Web continuation profile."
+      },
+      {
+        "id": "REAL-LOSS-RECOVERY",
+        "status": "NOT_RUN",
+        "requirement": "Real navigation/blur/refresh, delayed results, lost receipts and restart observation without reinput of old UNKNOWN or deletion of data."
+      },
+      {
+        "id": "PRODUCT-OPENING",
+        "status": "CLOSED_PENDING_ACCEPTANCE",
+        "requirement": "Ordinary real upload and safe-retry retain original admission. Product opening requires separate real evidence review."
+      },
+      {
+        "id": "PHYSICAL-MAC-FEEDBACK",
+        "status": "NOT_RUN_PRIOR_HANDOFF_RETAINED",
+        "requirement": "Existing native Feedback window to cloud acceptance, IME, Keychain, VoiceOver, restart and screenshot isolation; no cloud service redeployment in this integration."
+      }
+    ],
+    "completedAtUTC": "2026-10-30T08:20:32Z",
+    "formalHead": "edbdc7aae45c35878694e9fa376757dac7b630a8",
+    "formalHeadTree": "b0c34e307b3c7f804f6b80432b314a2ed232d097",
+    "actualCheckout": {
+      "head": "edbdc7aae45c35878694e9fa376757dac7b630a8",
+      "checkout": "9b6063677672f2af6d9c9f0adf4ce115fa238385",
+      "tree": "108d0222e41a28340b9978c94de5f7be477b031c",
+      "parents": [
+        "eba1a4fc77648a665e1d5c1f2609df1314c3b079",
+        "edbdc7aae45c35878694e9fa376757dac7b630a8"
+      ],
+      "inputs": [
+        {
+          "path": "Sources",
+          "head": "a09468b151b7f216109d35803a213718fe082d28",
+          "checkout": "a09468b151b7f216109d35803a213718fe082d28"
+        },
+        {
+          "path": "Tests",
+          "head": "f395246e52044a5c3573292002aeab4d30300ddf",
+          "checkout": "f395246e52044a5c3573292002aeab4d30300ddf"
+        },
+        {
+          "path": "Resources",
+          "head": "2b6d3694992cae6b3a3d7547a11db78c2e8c6265",
+          "checkout": "2b6d3694992cae6b3a3d7547a11db78c2e8c6265"
+        },
+        {
+          "path": "Package.swift",
+          "head": "d3cdd0d51ad937b1afb243cd866cf0071f408d49",
+          "checkout": "d3cdd0d51ad937b1afb243cd866cf0071f408d49"
+        },
+        {
+          "path": "scripts",
+          "head": "666a1c0b08f2913c96b7c677d9273e8c676a5bb2",
+          "checkout": "666a1c0b08f2913c96b7c677d9273e8c676a5bb2"
+        },
+        {
+          "path": "packaging",
+          "head": "0ec93cd8e362771a8e493a60d59dc058c6be6b99",
+          "checkout": "0ec93cd8e362771a8e493a60d59dc058c6be6b99"
+        },
+        {
+          "path": ".github",
+          "head": "2465b859b0e3b4627bfdaaa2b54bc030e728ea0e",
+          "checkout": "2465b859b0e3b4627bfdaaa2b54bc030e728ea0e"
+        },
+        {
+          "path": "services/feedback",
+          "head": "cd061e75995151143acea4076b814293b10c39da",
+          "checkout": "cd061e75995151143acea4076b814293b10c39da"
+        },
+        {
+          "path": "ThirdPartyNotices",
+          "head": "89a07e01c183f61fca6bc7d7127322b00fa03ded",
+          "checkout": "89a07e01c183f61fca6bc7d7127322b00fa03ded"
+        },
+        {
+          "path": "research",
+          "head": "7ed0708f7cb3faed95a37fe319e3f0400f3b51dd",
+          "checkout": "7ed0708f7cb3faed95a37fe319e3f0400f3b51dd"
+        },
+        {
+          "path": "engineering/evidence/2026-10-27-real-mac-round2",
+          "head": "8bf31e0794f1cbd840c4d0b6ac7ac791b326eb81",
+          "checkout": "8bf31e0794f1cbd840c4d0b6ac7ac791b326eb81"
+        },
+        {
+          "path": "engineering/evidence/2026-10-27-real-mac-round3",
+          "head": "dfb9ec12e223366dd37d1e44c8c34a4756bbf96b",
+          "checkout": "dfb9ec12e223366dd37d1e44c8c34a4756bbf96b"
+        },
+        {
+          "path": "engineering/evidence/2026-10-27-real-mac-round5",
+          "head": "5a22c1bbeffbc0188b5bf4c2da951fce20a85a54",
+          "checkout": "5a22c1bbeffbc0188b5bf4c2da951fce20a85a54"
+        },
+        {
+          "path": "engineering/evidence/2026-10-28-system-screenshot-stage2",
+          "head": "51e8dba0abbbed28e2ab9274f9736c955537f25f",
+          "checkout": "51e8dba0abbbed28e2ab9274f9736c955537f25f"
+        }
+      ]
+    },
+    "nativeVisualAndCaptureScope": {
+      "arm": {
+        "original46Cases": {
+          "png": 119,
+          "mov": 5
+        },
+        "supplementalStatic": {
+          "passed": 6,
+          "total": 6
+        },
+        "reducedSystemAccessibility": {
+          "png": 18,
+          "mov": 1
+        },
+        "ownedCapture": {
+          "status": "PARTIAL",
+          "passed": [
+            "window",
+            "region"
+          ],
+          "notRun": [
+            "fullScreen"
+          ]
+        }
+      },
+      "intel": {
+        "original46Cases": {
+          "png": 104,
+          "mov": 5
+        },
+        "supplementalStatic": {
+          "passed": 6,
+          "total": 6
+        },
+        "reducedSystemAccessibility": {
+          "png": 14,
+          "mov": 1
+        },
+        "ownedCapture": {
+          "status": "PARTIAL",
+          "passed": [
+            "region"
+          ],
+          "notRun": [
+            "window",
+            "fullScreen"
+          ]
+        }
+      },
+      "captureNotRunReason": "Original FOREIGN_OVERLAP_VETO safety conditions; no newly disabled tests or weaker criteria.",
+      "scope": "CI native execution success; not physical user interaction or a new independent pixel-level art approval."
+    },
+    "runtimeAndPackageNonAuthorReviews": [
+      {
+        "recordName": "review-feedback-source-final.json",
+        "originalRecordBytes": 16316,
+        "originalRecordSHA256": "0281982dc08e008d09885906a6a1b6ec8049522060aba0e85f259c3b94d21cd7",
+        "record": {
+          "reviewer": "lifecycle_safety_review",
+          "conclusion": "PASS_FEEDBACK_AND_BOTH_SOURCE_ADMISSIONS",
+          "formalHead": "edbdc7aae45c35878694e9fa376757dac7b630a8",
+          "formalPR": 1,
+          "feedbackRun": {
+            "id": 41024560240,
+            "attempt": 1,
+            "event": "pull_request",
+            "status": "completed",
+            "conclusion": "success",
+            "createdAtUTC": "2026-10-30T08:09:26Z",
+            "updatedAtUTC": "2026-10-30T08:13:18Z",
+            "jobs": [
+              {
+                "id": 123959479708,
+                "name": "source_admission",
+                "status": "completed",
+                "conclusion": "success",
+                "startedAtUTC": "2026-10-30T08:09:29Z",
+                "completedAtUTC": "2026-10-30T08:09:38Z",
+                "steps": [
+                  {
+                    "name": "Set up job",
+                    "status": "completed",
+                    "conclusion": "success",
+                    "number": 1,
+                    "started_at": "2026-10-30T08:09:30Z",
+                    "completed_at": "2026-10-30T08:09:30Z"
+                  },
+                  {
+                    "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+                    "status": "completed",
+                    "conclusion": "success",
+                    "number": 2,
+                    "started_at": "2026-10-30T08:09:30Z",
+                    "completed_at": "2026-10-30T08:09:32Z"
+                  },
+                  {
+                    "name": "Verify reviewed unified candidate composition",
+                    "status": "completed",
+                    "conclusion": "success",
+                    "number": 3,
+                    "started_at": "2026-10-30T08:09:32Z",
+                    "completed_at": "2026-10-30T08:09:35Z"
+                  },
+                  {
+                    "name": "Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+                    "status": "completed",
+                    "conclusion": "success",
+                    "number": 4,
+                    "started_at": "2026-10-30T08:09:35Z",
+                    "completed_at": "2026-10-30T08:09:36Z"
+                  },
+                  {
+                    "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+                    "status": "completed",
+                    "conclusion": "success",
+                    "number": 8,
+                    "started_at": "2026-10-30T08:09:36Z",
+                    "completed_at": "2026-10-30T08:09:36Z"
+                  },
+                  {
+                    "name": "Complete job",
+                    "status": "completed",
+                    "conclusion": "success",
+                    "number": 9,
+                    "started_at": "2026-10-30T08:09:36Z",
+                    "completed_at": "2026-10-30T08:09:36Z"
+                  }
+                ]
+              },
+              {
+                "id": 123959479892,
+                "name": "feedback",
+                "status": "completed",
+                "conclusion": "success",
+                "startedAtUTC": "2026-10-30T08:09:31Z",
+                "completedAtUTC": "2026-10-30T08:13:16Z",
+                "steps": [
+                  {
+                    "name": "Set up job",
+                    "status": "completed",
+                    "conclusion": "success",
+                    "number": 1,
+                    "started_at": "2026-10-30T08:09:32Z",
+                    "completed_at": "2026-10-30T08:09:34Z"
+                  },
+                  {
+                    "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+                    "status": "completed",
+                    "conclusion": "success",
+                    "number": 2,
+                    "started_at": "2026-10-30T08:09:34Z",
+                    "completed_at": "2026-10-30T08:09:39Z"
+                  },
+                  {
+                    "name": "Verify isolation audit regressions",
+                    "status": "completed",
+                    "conclusion": "success",
+                    "number": 3,
+                    "started_at": "2026-10-30T08:09:39Z",
+                    "completed_at": "2026-10-30T08:10:54Z"
+                  },
+                  {
+                    "name": "Verify actual Feedback and current screenshot composition",
+                    "status": "completed",
+                    "conclusion": "skipped",
+                    "number": 4,
+                    "started_at": "2026-10-30T08:10:54Z",
+                    "completed_at": "2026-10-30T08:10:54Z"
+                  },
+                  {
+                    "name": "Environment and service fault tests",
+                    "status": "completed",
+                    "conclusion": "success",
+                    "number": 5,
+                    "started_at": "2026-10-30T08:10:54Z",
+                    "completed_at": "2026-10-30T08:10:59Z"
+                  },
+                  {
+                    "name": "Native feedback and software AppKit tests",
+                    "status": "completed",
+                    "conclusion": "success",
+                    "number": 6,
+                    "started_at": "2026-10-30T08:10:59Z",
+                    "completed_at": "2026-10-30T08:12:16Z"
+                  },
+                  {
+                    "name": "Package isolated offline feedback demo",
+                    "status": "completed",
+                    "conclusion": "success",
+                    "number": 7,
+                    "started_at": "2026-10-30T08:12:16Z",
+                    "completed_at": "2026-10-30T08:13:08Z"
+                  },
+                  {
+                    "name": "Archive exact feedback source for reproducibility",
+                    "status": "completed",
+                    "conclusion": "success",
+                    "number": 8,
+                    "started_at": "2026-10-30T08:13:08Z",
+                    "completed_at": "2026-10-30T08:13:09Z"
+                  },
+                  {
+                    "name": "Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+                    "status": "completed",
+                    "conclusion": "success",
+                    "number": 9,
+                    "started_at": "2026-10-30T08:13:09Z",
+                    "completed_at": "2026-10-30T08:13:13Z"
+                  },
+                  {
+                    "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+                    "status": "completed",
+                    "conclusion": "success",
+                    "number": 18,
+                    "started_at": "2026-10-30T08:13:13Z",
+                    "completed_at": "2026-10-30T08:13:14Z"
+                  },
+                  {
+                    "name": "Complete job",
+                    "status": "completed",
+                    "conclusion": "success",
+                    "number": 19,
+                    "started_at": "2026-10-30T08:13:14Z",
+                    "completed_at": "2026-10-30T08:13:15Z"
+                  }
+                ]
+              }
+            ]
+          },
+          "sourceAdmissions": [
+            {
+              "jobID": 123959479843,
+              "rawLogFile": "/tmp/riftlet-lifecycle-integration/review-job-123959479843.log",
+              "rawLogBytes": 2458455,
+              "rawLogSHA256": "3c5d161072ce7a97334974961c743b132caa1df806fcd4e63c92163130dd1ed5",
+              "runID": 41024560197,
+              "result": "PASS",
+              "checks": 32,
+              "protectedFileCounts": {
+                "ci-parent:exact-objects": 986,
+                "composition:exact-objects": 997
+              },
+              "checkout": "9b6063677672f2af6d9c9f0adf4ce115fa238385",
+              "tree": "108d0222e41a28340b9978c94de5f7be477b031c",
+              "parents": [
+                "eba1a4fc77648a665e1d5c1f2609df1314c3b079",
+                "edbdc7aae45c35878694e9fa376757dac7b630a8"
+              ],
+              "reviewedSource": "b714dc44b27cccb76356fe15fb4854dba599a689",
+              "fixedMainOverlayCount": 15,
+              "metadataExceptions": [
+                "engineering/evidence/2026-10-29-final-product/README.md",
+                "engineering/evidence/2026-10-29-final-product/results.json",
+                "scripts/verify-final-product-composition.py"
+              ],
+              "gateRegressionSuiteCounts": [
+                24,
+                24,
+                21,
+                5
+              ],
+              "parsedAdmissionJSONSHA256": "b2e3b897a5500dd10d7596c8669da3af2f26df07f173f44c268dc231799ff57a"
+            },
+            {
+              "jobID": 123959479708,
+              "rawLogFile": "/tmp/riftlet-lifecycle-integration/review-job-123959479708.log",
+              "rawLogBytes": 2444199,
+              "rawLogSHA256": "c6afe73283b82d78104715028a9956b5fd34b68c82de02fab064d136ea0ef51c",
+              "runID": 41024560240,
+              "result": "PASS",
+              "checks": 32,
+              "protectedFileCounts": {
+                "ci-parent:exact-objects": 986,
+                "composition:exact-objects": 997
+              },
+              "checkout": "9b6063677672f2af6d9c9f0adf4ce115fa238385",
+              "tree": "108d0222e41a28340b9978c94de5f7be477b031c",
+              "parents": [
+                "eba1a4fc77648a665e1d5c1f2609df1314c3b079",
+                "edbdc7aae45c35878694e9fa376757dac7b630a8"
+              ],
+              "reviewedSource": "b714dc44b27cccb76356fe15fb4854dba599a689",
+              "fixedMainOverlayCount": 15,
+              "metadataExceptions": [
+                "engineering/evidence/2026-10-29-final-product/README.md",
+                "engineering/evidence/2026-10-29-final-product/results.json",
+                "scripts/verify-final-product-composition.py"
+              ],
+              "gateRegressionSuiteCounts": [],
+              "parsedAdmissionJSONSHA256": "b2e3b897a5500dd10d7596c8669da3af2f26df07f173f44c268dc231799ff57a"
+            }
+          ],
+          "feedbackJob": {
+            "jobID": 123959479892,
+            "rawLogFile": "/tmp/riftlet-lifecycle-integration/review-job-123959479892.log",
+            "rawLogBytes": 132773,
+            "rawLogSHA256": "ad189261249569e4649738877207ee7ed6709ecb5fd5e7a9f73ef936409a92b8",
+            "checkout": "9b6063677672f2af6d9c9f0adf4ce115fa238385",
+            "isolationSuiteCounts": {
+              "FeedbackIsolation": 4,
+              "InternalBetaIsolation": 14,
+              "CaptureEntryIsolation": 11,
+              "ArrivalIsolation": 14,
+              "ThinEdgeIsolation": 21,
+              "UnifiedCandidateIsolation": 24,
+              "BuiltInCaptureIsolation": 5,
+              "FinalProductIsolation": 24
+            },
+            "isolationTotal": 117,
+            "serviceTests": 24,
+            "servicePassed": 24,
+            "serviceFailed": 0,
+            "serviceSkipped": 0,
+            "nativeUniquePassed": 49,
+            "nativeModuleUniqueCounts": {
+              "RiftletFeedbackUITests": 19,
+              "RiftletFeedbackTests": 30
+            },
+            "nativeScheduledPassed": 55,
+            "closeRegressionAdditionalRuns": 3,
+            "closeCasesPerRun": 2,
+            "uniquePassedCases": [
+              "-[RiftletFeedbackTests.FeedbackAutomaticRetryTests testStopPreventsScheduledRetryFromDispatching]",
+              "-[RiftletFeedbackTests.FeedbackAutomaticRetryTests testTimerRetriesDeletionWithoutResendingBody]",
+              "-[RiftletFeedbackTests.FeedbackAutomaticRetryTests testTimerRetriesWithoutAnotherUserActionAndPreservesEnvelopeAndCredential]",
+              "-[RiftletFeedbackTests.FeedbackCredentialIntentTests testAbandonedCredentialCleanupResumesAfterRestartWithoutTouchingCommittedSecret]",
+              "-[RiftletFeedbackTests.FeedbackCredentialIntentTests testOverlappingSameDraftLeavesOnlyWinningReportCapability]",
+              "-[RiftletFeedbackTests.FeedbackCredentialIntentTests testRepeatedCapacityFailuresKeepDraftAndDoNotAccumulateSecrets]",
+              "-[RiftletFeedbackTests.FeedbackDurabilityTests testActualInsertFailureRollsBackSubmissionAndKeepsLatestDraft]",
+              "-[RiftletFeedbackTests.FeedbackDurabilityTests testOutboxCapacityNeverEvictsTextAndKeepsTheNewDraft]",
+              "-[RiftletFeedbackTests.FeedbackDurabilityTests testReadFailureDoesNotMasqueradeAsMissingIdempotencyRecord]",
+              "-[RiftletFeedbackTests.FeedbackDurabilityTests testSidecarAndLockHavePrivatePermissions]",
+              "-[RiftletFeedbackTests.FeedbackFlightTests testDanglingSidecarSymlinkRefusesWithoutCreatingItsDestination]",
+              "-[RiftletFeedbackTests.FeedbackFlightTests testDeletionDuringStatusAutomaticallyDrainsAfterSuccessAndError]",
+              "-[RiftletFeedbackTests.FeedbackFlightTests testLateExpiryOrDeliveryCannotEraseDeletionIntentOrReviveDeletedRecord]",
+              "-[RiftletFeedbackTests.FeedbackFlightTests testNewFrozenSubmissionDuringStatusIsNotStranded]",
+              "-[RiftletFeedbackTests.FeedbackFlightTests testStopDuringStatusDoesNotDispatchQueuedDeletion]",
+              "-[RiftletFeedbackTests.FeedbackPrivacyCleanupTests testForgottenBodyIsScrubbedFromLiveDatabaseWithoutRemovingOtherFeedback]",
+              "-[RiftletFeedbackTests.FeedbackPrivacyCleanupTests testKeychainFailurePreservesCleanupRecordAndRetryDoesNotResend]",
+              "-[RiftletFeedbackTests.FeedbackPrivacyCleanupTests testResolvedForgetRemovesOnlyItsCapabilityAndKeepsUnresolvedReport]",
+              "-[RiftletFeedbackTests.FeedbackPrivacyCleanupTests testSQLiteFailureAfterCapabilityRemovalCanResumeWithoutRecreatingSecret]",
+              "-[RiftletFeedbackTests.FeedbackTests testDeletionWinsLateReceiptAndUnattemptedCancellationNeedsNoNetwork]",
+              "-[RiftletFeedbackTests.FeedbackTests testDiagnosticAllowlistIsBoundedAndKeepsVisibilityUnknownAndSuccessDistinct]",
+              "-[RiftletFeedbackTests.FeedbackTests testDraftCloseRestartRevisionAndConsentSnapshot]",
+              "-[RiftletFeedbackTests.FeedbackTests testEndpointRejectsHTTPSecretsAndQueryAndUnknownDiagnostics]",
+              "-[RiftletFeedbackTests.FeedbackTests testEnqueueIsAtomicFrozenAndIdempotentForOneDraft]",
+              "-[RiftletFeedbackTests.FeedbackTests testMissingCredentialAfterAttemptCannotBeLocallyCancelled]",
+              "-[RiftletFeedbackTests.FeedbackTests testMissingKeychainCapabilityCannotBeReplacedOnRetry]",
+              "-[RiftletFeedbackTests.FeedbackTests testNetworkLossRetriesExactFrozenBytesAndSecretWithoutDuplicateReport]",
+              "-[RiftletFeedbackTests.FeedbackTests testStoreLocksAndFutureSchemaCannotTouchScreenshotDatabase]",
+              "-[RiftletFeedbackTests.FeedbackTests testUncleanSessionIsNotDeclaredACrashAndSubmissionBoundsPreserveDraft]",
+              "-[RiftletFeedbackTests.FeedbackTests testWrongOrNonDurableReceiptCannotAnnounceSuccess]",
+              "-[RiftletFeedbackUITests.FeedbackCloseTests testEveryCloseAttemptFlushesEvenAfterPriorProgrammaticClose]",
+              "-[RiftletFeedbackUITests.FeedbackCloseTests testTerminationKeepsEditorFrozenAfterSaveThroughLaterHostAwaits]",
+              "-[RiftletFeedbackUITests.FeedbackRecordsTests testConfirmationReturnAndEscapeKeepTheFeedbackRecord]",
+              "-[RiftletFeedbackUITests.FeedbackRecordsTests testEachLocalRecordHasItsOwnCompleteBodyAndLifecycleActions]",
+              "-[RiftletFeedbackUITests.FeedbackRecordsTests testRecordCancellationSheetTargetsOnlyClickedIDAfterListRefresh]",
+              "-[RiftletFeedbackUITests.FeedbackRecordsTests testRecordRefreshAndFoldingPreserveEditorMarkedTextSelectionAndConsent]",
+              "-[RiftletFeedbackUITests.FeedbackTextLimitTests testCombiningGlyphsUseEnvelopeScalarsAndInvalidDraftIsPreserved]",
+              "-[RiftletFeedbackUITests.FeedbackTextLimitTests testPlainChineseAndScalarBoundaryKeepReadableAccurateCount]",
+              "-[RiftletFeedbackUITests.FeedbackTextLimitTests testUTF8BoundaryUsesSameEnvelopeAdmissionWithoutTruncation]",
+              "-[RiftletFeedbackUITests.FeedbackVisualCandidateTests testCollapsedRecordsKeepSameEditorDraftSelectionAndNoDefaultSubmit]",
+              "-[RiftletFeedbackUITests.FeedbackVisualCandidateTests testFeedbackReopenPreservesValidPositionAndUsesTopAlignedDocument]",
+              "-[RiftletFeedbackUITests.FeedbackWindowTests testCloseFreezesTextKindAndConsentBeforeAsyncSaveAndRestoresOnFailure]",
+              "-[RiftletFeedbackUITests.FeedbackWindowTests testConsentFreezesExactPreviewAndFreshDraftResetsIt]",
+              "-[RiftletFeedbackUITests.FeedbackWindowTests testFailedCloseOffersExplicitRetryAndCopiesOnlyDraftBody]",
+              "-[RiftletFeedbackUITests.FeedbackWindowTests testMarkedTextCannotSubmitOrCloseUntilCompositionIsCommitted]",
+              "-[RiftletFeedbackUITests.FeedbackWindowTests testNativeWindowHasEditableTextAndConsentOffWithoutNetwork]",
+              "-[RiftletFeedbackUITests.FeedbackWindowTests testServiceCapabilityRemainsVisibleAfterAutosaveAndLocalSubmission]",
+              "-[RiftletFeedbackUITests.FeedbackWindowTests testTextOnlySubmissionNeverBorrowsAvailableDiagnostics]",
+              "-[RiftletFeedbackUITests.FeedbackWindowTests testUnavailableStoreCannotCloseAndLoseUnsavedText]"
+            ],
+            "skippedSteps": [
+              {
+                "name": "Verify actual Feedback and current screenshot composition",
+                "reason": "Original PR #7 branch-only condition is false for PR #1; current source admission ran separately and passed."
+              }
+            ],
+            "demoResult": "FEEDBACK_DEMO_BUILD_PASS; OFFLINE_SYNTHETIC; CLOUD_NOT_RUN; PHYSICAL_GUI_NOT_RUN; NOT_NOTARIZED",
+            "swift": "6.1.2",
+            "macOS": "15.7.9 (24G830)"
+          },
+          "confirmedBlockingFindings": [],
+          "notPerformed": [
+            "workflow rerun",
+            "real Chrome / physical Mac interaction",
+            "new live cloud Feedback endpoint end-to-end test",
+            "Developer ID signing / notarization / Gatekeeper physical installation",
+            "unified Native App artifact verification (owned by separate reviewer)"
+          ],
+          "scopeNotes": [
+            "49 native and software-AppKit cases include the two close tests; their three repeated runs do not increase the unique count.",
+            "Service tests use real local SQLite with controlled HTTP fixtures; they do not repeat or replace historical live-cloud evidence.",
+            "Full raw decoded logs are retained including BOM markers. Parsed source admission JSON only removes CI timestamp prefixes/BOM delimiters for JSON parsing.",
+            "This review does not make continuation, ordinary upload, or safe-retry admission decisions."
+          ]
+        }
+      },
+      {
+        "recordName": "review-native-final.json",
+        "originalRecordBytes": 25174,
+        "originalRecordSHA256": "14b55a5ba64165ca3e85a8ba4875b15b2370ad0f601a8c2f13217aed623a6bc5",
+        "record": {
+          "schemaVersion": 1,
+          "reviewer": "integration_scope_review",
+          "decision": "PASS",
+          "scope": "Non-author read-only review of exact formal Native ARM/Intel and source-admission original logs; not physical Chrome/Mac acceptance",
+          "runID": 41024560197,
+          "headSHA": "edbdc7aae45c35878694e9fa376757dac7b630a8",
+          "reviewedSourceSHA": "b714dc44b27cccb76356fe15fb4854dba599a689",
+          "runAttempt": 1,
+          "event": "pull_request",
+          "conclusion": "success",
+          "completedAtUTC": "2026-10-30T08:20:32Z",
+          "actualCheckout": "9b6063677672f2af6d9c9f0adf4ce115fa238385",
+          "actualCheckoutTree": "108d0222e41a28340b9978c94de5f7be477b031c",
+          "parents": [
+            "eba1a4fc77648a665e1d5c1f2609df1314c3b079",
+            "edbdc7aae45c35878694e9fa376757dac7b630a8"
+          ],
+          "sourceAdmission": {
+            "result": "PASS",
+            "revision": "9b6063677672f2af6d9c9f0adf4ce115fa238385",
+            "tree": "108d0222e41a28340b9978c94de5f7be477b031c",
+            "reviewedSource": "b714dc44b27cccb76356fe15fb4854dba599a689",
+            "mainRevision": "eba1a4fc77648a665e1d5c1f2609df1314c3b079",
+            "parents": [
+              "eba1a4fc77648a665e1d5c1f2609df1314c3b079",
+              "edbdc7aae45c35878694e9fa376757dac7b630a8"
+            ],
+            "compositionMode": "fixed-main-test-merge",
+            "checks": 32,
+            "nonpass": [],
+            "mainOverlayObjectCount": 15,
+            "protectedObjects": 997,
+            "countChecks": [
+              {
+                "differences": {},
+                "id": "ci-parent:exact-objects",
+                "protectedFileCount": 986,
+                "result": "PASS"
+              },
+              {
+                "differences": {},
+                "id": "composition:exact-objects",
+                "protectedFileCount": 997,
+                "result": "PASS"
+              }
+            ],
+            "jobID": 123959479843,
+            "logPath": "/tmp/riftlet-lifecycle-integration/review-native-source.log",
+            "logBytes": 2458455,
+            "logSHA256": "3c5d161072ce7a97334974961c743b132caa1df806fcd4e63c92163130dd1ed5",
+            "isolationTestCases": {
+              "FinalProductIsolation": 24,
+              "UnifiedCandidateIsolation": 24,
+              "ThinEdgeIsolation": 21,
+              "BuiltInCaptureIsolation": 5,
+              "total": 74
+            }
+          },
+          "jobs": [
+            {
+              "jobID": 123959480040,
+              "architecture": "arm64",
+              "conclusion": "success",
+              "compiler": "Apple Swift 6.1.2",
+              "system": "macOS 15.7.9 24G830",
+              "logPath": "/tmp/riftlet-lifecycle-integration/review-native-arm.log",
+              "logBytes": 665139,
+              "logSHA256": "1de3f4ea3d7e7163240c988efd238e89847af3c307938606744b57503b0ce1ab",
+              "fullUnfilteredSwiftCommandPresent": true,
+              "nativeEnumeratedUniqueCount": 779,
+              "enumByModule": {
+                "RiftletAdaptersTests": 170,
+                "RiftletAppTests": 100,
+                "RiftletCaptureTests": 142,
+                "RiftletCoreTests": 154,
+                "RiftletFeedbackTests": 30,
+                "RiftletFeedbackUITests": 19,
+                "RiftletUITests": 164
+              },
+              "nativeCountLimitation": "Unique enumeration/scheduling count; not a claim of physical passes or absence of environment-dependent skips. Full original unfiltered swift test --parallel step succeeded. Detailed repeats are not added to unique count.",
+              "safetyCasesEnumerated": {
+                "DispatchLifecycleTests": [
+                  "RiftletCoreTests.DispatchLifecycleTests/testCoordinatorNoInputRejectionPreservesImageAndRequiresNewClick",
+                  "RiftletCoreTests.DispatchLifecycleTests/testCoordinatorRetiresOnlyCurrentTypedRejection",
+                  "RiftletCoreTests.DispatchLifecycleTests/testCoordinatorStartedAThenIndependentBSuccessOrFailureNeverReplaysA",
+                  "RiftletCoreTests.DispatchLifecycleTests/testFortyEightIndependentStartedOperationsRetainOriginalIdentities",
+                  "RiftletCoreTests.DispatchLifecycleTests/testIndependentBWithoutStartStillBlocksCWhenOriginalAFinishes",
+                  "RiftletCoreTests.DispatchLifecycleTests/testLateACompensationDoesNotReassignBAndBlocksNextInput",
+                  "RiftletCoreTests.DispatchLifecycleTests/testLegacyV3OperationWithoutCallCheckpointStaysLocked",
+                  "RiftletCoreTests.DispatchLifecycleTests/testNoContinuationEvidenceRemainsLocked",
+                  "RiftletCoreTests.DispatchLifecycleTests/testNoIndependentProfileAndWrongOwnerAndNewEpochRemainLocked",
+                  "RiftletCoreTests.DispatchLifecycleTests/testRejectionNeedsOriginalNonceAndCannotClearUnknown",
+                  "RiftletCoreTests.DispatchLifecycleTests/testStartAloneAndAppendStillRunningCannotReleaseConflict",
+                  "RiftletCoreTests.DispatchLifecycleTests/testTwoConnectionsSerializeFollowingIntentAndRejectAttachmentAlias",
+                  "RiftletCoreTests.DispatchLifecycleTests/testUnownedInvocationAndUnknownCommitRemainLocked"
+                ],
+                "LifecycleMigrationTests": [
+                  "RiftletCoreTests.LifecycleMigrationTests/testDispatchExtensionFailureRollsBackColumnAndIndexTogether",
+                  "RiftletCoreTests.LifecycleMigrationTests/testFrozenVersionOneMigratesAllTheWayAndKeepsUnstartedUnknownVisible",
+                  "RiftletCoreTests.LifecycleMigrationTests/testFrozenVersionThreeUnknownKeepsExclusiveSlotAndOriginalRows",
+                  "RiftletCoreTests.LifecycleMigrationTests/testFrozenVersionTwoMigratesVisibilityWithoutInventingStartOrRewritingFacts",
+                  "RiftletCoreTests.LifecycleMigrationTests/testLifecycleMigrationFailureRollsBackLegacySchemaAndEveryOriginalFact",
+                  "RiftletCoreTests.LifecycleMigrationTests/testUnsupportedFutureVersionPreservesLegacyRows"
+                ],
+                "LateFailureCompensationTests": [
+                  "RiftletCoreTests.LateFailureCompensationTests/testCompensationCoexistsWithNewerInFlightImageAndBlocksFurtherDispatch",
+                  "RiftletCoreTests.LateFailureCompensationTests/testCompensationTransactionFailurePreservesSuccessAndCanBeRetriedOnce",
+                  "RiftletCoreTests.LateFailureCompensationTests/testCompletedObservationCompensatesOnlyMatchingAssetWithoutNewInput",
+                  "RiftletCoreTests.LateFailureCompensationTests/testCompletedObservationTransportFailurePreservesTerminalSuccess",
+                  "RiftletCoreTests.LateFailureCompensationTests/testCompletedObservationWithoutOriginalDraftMembershipDoesNotRevive",
+                  "RiftletCoreTests.LateFailureCompensationTests/testCorrelatedLateErrorStaysInternalAndPersistsOriginalOrderAndBothFacts",
+                  "RiftletCoreTests.LateFailureCompensationTests/testMigrationFailureRollsBackSchemaReceiptsAndVersion",
+                  "RiftletCoreTests.LateFailureCompensationTests/testMissingRestoredBytesStayMissingAcrossObservationAndRestart",
+                  "RiftletCoreTests.LateFailureCompensationTests/testRepeatedFailureAndStaleSuccessCannotConsumeCompensationOrReplaceAudit",
+                  "RiftletCoreTests.LateFailureCompensationTests/testRestartWatchCapsCallerRequestedLimitAt64",
+                  "RiftletCoreTests.LateFailureCompensationTests/testRestartWatchQueryIsBoundedAndExcludesInactiveSuccesses",
+                  "RiftletCoreTests.LateFailureCompensationTests/testSelectingAndRecoveringCompensationOnlyObservesOriginalOperation",
+                  "RiftletCoreTests.LateFailureCompensationTests/testVersionOneMigrationPreservesReceiptsOrderAndLocks",
+                  "RiftletCoreTests.LateFailureCompensationTests/testWrongAttachmentProfileDraftAndNonErrorCannotRestoreUsedImage"
+                ],
+                "RecoveryBoundaryTests": [
+                  "RiftletCoreTests.RecoveryBoundaryTests/testAssetWriteFailureRollsBackOperationAndReceiptTogether",
+                  "RiftletCoreTests.RecoveryBoundaryTests/testEveryIdentityMismatchLeavesOriginalOperationAndEvidenceUntouched",
+                  "RiftletCoreTests.RecoveryBoundaryTests/testFailedObservationKeepsMissingMediaButRemoteSuccessCanFinish",
+                  "RiftletCoreTests.RecoveryBoundaryTests/testOldSuccessfulReceiptCannotConsumeNewAttemptAfterProvedFailure",
+                  "RiftletCoreTests.RecoveryBoundaryTests/testReceiptBeforeIntentRollsBackWithoutSavingEvidence",
+                  "RiftletCoreTests.RecoveryBoundaryTests/testRestartKeepsMissingMediaAndUnknownTargetLockUntilVerifiedRestore",
+                  "RiftletCoreTests.RecoveryBoundaryTests/testTerminalSuccessCannotBeReversedByUncorrelatedLateObservation"
+                ],
+                "WebTargetLockTests": [
+                  "RiftletCoreTests.WebTargetLockTests/testCompensatedSameTabRearmRemainsLockedAcrossRestart",
+                  "RiftletCoreTests.WebTargetLockTests/testOtherSurfacesAndUnidentifiedChromeTabsKeepExactTargetLock",
+                  "RiftletCoreTests.WebTargetLockTests/testPreparedLeaseDoesNotLockDispatchOfAnotherAsset",
+                  "RiftletCoreTests.WebTargetLockTests/testUnknownBlocksSameTabAfterRearmWindowMoveAndDocumentReplacement",
+                  "RiftletCoreTests.WebTargetLockTests/testUnknownDoesNotLockAnotherTabOrBrowserSession"
+                ]
+              },
+              "safetyHeldWriterPresent": true,
+              "safetyIntentRollbackPresent": true,
+              "pageCurrent": {
+                "tests": 106,
+                "pass": 106,
+                "fail": 0
+              },
+              "pageLegacy": {
+                "tests": 61,
+                "pass": 61,
+                "fail": 0
+              },
+              "strictMagnetDetailedPassCount": 9,
+              "strictMagnetCases": [
+                "Test Case '-[RiftletUITests.MagnetFlightPresenterTests testDecorationOwnsOneMouseTransparentNonactivatingWindowAndReleasesSynchronously]' passed (0.069 seconds).",
+                "Test Case '-[RiftletUITests.MagnetFlightPresenterTests testDroppedPresenterHasNoWindowOrImageLeftBehind]' passed (0.060 seconds).",
+                "Test Case '-[RiftletUITests.MagnetFlightPresenterTests testExpiredOrInvalidReadyClockDoesNotReplayDecoration]' passed (0.001 seconds).",
+                "Test Case '-[RiftletUITests.MagnetFlightPresenterTests testInvalidScaleAndStaleScreenNeverAllocateWindow]' passed (0.000 seconds).",
+                "Test Case '-[RiftletUITests.MagnetFlightPresenterTests testNaturalFinishAndExplicitCloseReleaseWithoutReplayingCompletion]' passed (1.320 seconds).",
+                "Test Case '-[RiftletUITests.MagnetFlightPresenterTests testReentrantCompletionCannotOrphanANewerWindow]' passed (0.006 seconds).",
+                "Test Case '-[RiftletUITests.MagnetFlightPresenterTests testScreenChangeCancelsAndNoOtherAssetsAreRepresentedOrMutated]' passed (0.168 seconds).",
+                "Test Case '-[RiftletUITests.MagnetFlightPresenterTests testStoppedRenderClockTimesOutWithoutManufacturingNaturalCompletion]' passed (1.322 seconds).",
+                "Test Case '-[RiftletUITests.MagnetFlightPresenterTests testTwelveCaptureBurstKeepsOneSpriteAndNoStaleCancelOwnsTheReplacement]' passed (0.737 seconds)."
+              ],
+              "packagingRejectionTests": {
+                "bundle": 12,
+                "internalBeta": 13
+              },
+              "originalPackagingPASS": true,
+              "releaseAdHocSignatureAndStrictVerification": "Original unchanged build-macos.sh and package-internal-beta.sh completed successfully; set -e and codesign --verify --strict retained",
+              "selfChecks": [
+                "RIFTLET_SELF_CHECK_PASS: private import, durable upload-start visibility, delayed synthetic completion, restart",
+                "RIFTLET_WEB_ACCEPTANCE_SELF_CHECK_PASS: bundled page source, synthetic-only start/completion policy, isolated modes; CHROME_NOT_RUN; GUI_NOT_RUN",
+                "RIFTLET_FIRST_USE_SELF_CHECK_PASS: presentation persistence, disabled-production permission isolation, honest status; PERMISSIONS_NOT_REQUESTED; GUI_NOT_RUN",
+                "RIFTLET_SYSTEM_SCREENSHOT_CANDIDATE_SELF_CHECK_PASS: original-byte import, one software input, restricted start then independent completion, durable new-operation registration, legacy UNKNOWN unchanged, read-only restart; GENERATED_FIXTURE; CHROME_NOT_RUN; SYSTEM_SCREENSHOT_NOT_RUN; GUI_NOT_RUN",
+                "RIFTLET_GUI_HELPER_SELF_CHECK_PASS: 16 synthetic PNGs; scenes 2/3/12/16; layout/status fixtures; GUI_NOT_RUN"
+              ],
+              "originalVisualSummary": [
+                "NATIVE_VISUAL_EVIDENCE_CAPTURED_NATIVE_WINDOWSERVER: 119 original images; MOVIES 5/5 RECORDED_NATIVE_WINDOWSERVER; PHYSICAL_NOT_RUN; REAL_UPLOAD_NOT_RUN",
+                "NATIVE_VISUAL_EVIDENCE_CAPTURED_NATIVE_WINDOWSERVER: 18 original images; MOVIES 1/1 RECORDED_NATIVE_WINDOWSERVER; PHYSICAL_NOT_RUN; REAL_UPLOAD_NOT_RUN"
+              ],
+              "supplementalSummary": [
+                "SUPPLEMENTAL_NATIVE_VISUAL_CAPTURED_NATIVE_WINDOWSERVER: 6/6 original static images; ORIGINAL_FULL_SUITE_SEPARATELY_REQUIRED; PHYSICAL_NOT_RUN; REAL_UPLOAD_NOT_RUN"
+              ],
+              "ownedCaptureSummaries": [
+                {
+                  "completedModes": [
+                    "window",
+                    "region"
+                  ],
+                  "connectedDisplayCount": 1,
+                  "displayScale": 1,
+                  "event": "summary",
+                  "notRunModes": [
+                    "fullScreen"
+                  ],
+                  "physicalInteractionAcceptance": "NOT_RUN",
+                  "pixelColorAcceptance": "NOT_GRANTED",
+                  "probe": "built-in-native-engine",
+                  "rawImagesPublished": false,
+                  "realUploadAcceptance": "NOT_RUN",
+                  "schemaVersion": 1,
+                  "scope": "ACTUAL_APPLE_CAPTURE_PUBLISH_READBACK_PRIVATE_IMPORT_OWNED_SYNTHETIC_FIXTURE",
+                  "selectedDisplayPointHeight": 768,
+                  "selectedDisplayPointWidth": 1024,
+                  "status": "PARTIAL"
+                }
+              ],
+              "errorLines": [],
+              "workflowSkippedSteps": [
+                {
+                  "number": 13,
+                  "name": "Verify isolated arrival delta and report native motion outcomes",
+                  "reason": "Existing arrival-specialist branch condition is false on formal PR #1; full suite and separate strict magnet tests ran"
+                }
+              ]
+            },
+            {
+              "jobID": 123959479659,
+              "architecture": "x86_64",
+              "conclusion": "success",
+              "compiler": "Apple Swift 6.1.2",
+              "system": "macOS 15.7.9 24G830",
+              "logPath": "/tmp/riftlet-lifecycle-integration/review-native-intel.log",
+              "logBytes": 654136,
+              "logSHA256": "8146cb4b76bdbdbde6f12d589dec8381cddc472bba1d32b9cae945c901fedfbe",
+              "fullUnfilteredSwiftCommandPresent": true,
+              "nativeEnumeratedUniqueCount": 779,
+              "enumByModule": {
+                "RiftletAdaptersTests": 170,
+                "RiftletAppTests": 100,
+                "RiftletCaptureTests": 142,
+                "RiftletCoreTests": 154,
+                "RiftletFeedbackTests": 30,
+                "RiftletFeedbackUITests": 19,
+                "RiftletUITests": 164
+              },
+              "nativeCountLimitation": "Unique enumeration/scheduling count; not a claim of physical passes or absence of environment-dependent skips. Full original unfiltered swift test --parallel step succeeded. Detailed repeats are not added to unique count.",
+              "safetyCasesEnumerated": {
+                "DispatchLifecycleTests": [
+                  "RiftletCoreTests.DispatchLifecycleTests/testCoordinatorNoInputRejectionPreservesImageAndRequiresNewClick",
+                  "RiftletCoreTests.DispatchLifecycleTests/testCoordinatorRetiresOnlyCurrentTypedRejection",
+                  "RiftletCoreTests.DispatchLifecycleTests/testCoordinatorStartedAThenIndependentBSuccessOrFailureNeverReplaysA",
+                  "RiftletCoreTests.DispatchLifecycleTests/testFortyEightIndependentStartedOperationsRetainOriginalIdentities",
+                  "RiftletCoreTests.DispatchLifecycleTests/testIndependentBWithoutStartStillBlocksCWhenOriginalAFinishes",
+                  "RiftletCoreTests.DispatchLifecycleTests/testLateACompensationDoesNotReassignBAndBlocksNextInput",
+                  "RiftletCoreTests.DispatchLifecycleTests/testLegacyV3OperationWithoutCallCheckpointStaysLocked",
+                  "RiftletCoreTests.DispatchLifecycleTests/testNoContinuationEvidenceRemainsLocked",
+                  "RiftletCoreTests.DispatchLifecycleTests/testNoIndependentProfileAndWrongOwnerAndNewEpochRemainLocked",
+                  "RiftletCoreTests.DispatchLifecycleTests/testRejectionNeedsOriginalNonceAndCannotClearUnknown",
+                  "RiftletCoreTests.DispatchLifecycleTests/testStartAloneAndAppendStillRunningCannotReleaseConflict",
+                  "RiftletCoreTests.DispatchLifecycleTests/testTwoConnectionsSerializeFollowingIntentAndRejectAttachmentAlias",
+                  "RiftletCoreTests.DispatchLifecycleTests/testUnownedInvocationAndUnknownCommitRemainLocked"
+                ],
+                "LifecycleMigrationTests": [
+                  "RiftletCoreTests.LifecycleMigrationTests/testDispatchExtensionFailureRollsBackColumnAndIndexTogether",
+                  "RiftletCoreTests.LifecycleMigrationTests/testFrozenVersionOneMigratesAllTheWayAndKeepsUnstartedUnknownVisible",
+                  "RiftletCoreTests.LifecycleMigrationTests/testFrozenVersionThreeUnknownKeepsExclusiveSlotAndOriginalRows",
+                  "RiftletCoreTests.LifecycleMigrationTests/testFrozenVersionTwoMigratesVisibilityWithoutInventingStartOrRewritingFacts",
+                  "RiftletCoreTests.LifecycleMigrationTests/testLifecycleMigrationFailureRollsBackLegacySchemaAndEveryOriginalFact",
+                  "RiftletCoreTests.LifecycleMigrationTests/testUnsupportedFutureVersionPreservesLegacyRows"
+                ],
+                "LateFailureCompensationTests": [
+                  "RiftletCoreTests.LateFailureCompensationTests/testCompensationCoexistsWithNewerInFlightImageAndBlocksFurtherDispatch",
+                  "RiftletCoreTests.LateFailureCompensationTests/testCompensationTransactionFailurePreservesSuccessAndCanBeRetriedOnce",
+                  "RiftletCoreTests.LateFailureCompensationTests/testCompletedObservationCompensatesOnlyMatchingAssetWithoutNewInput",
+                  "RiftletCoreTests.LateFailureCompensationTests/testCompletedObservationTransportFailurePreservesTerminalSuccess",
+                  "RiftletCoreTests.LateFailureCompensationTests/testCompletedObservationWithoutOriginalDraftMembershipDoesNotRevive",
+                  "RiftletCoreTests.LateFailureCompensationTests/testCorrelatedLateErrorStaysInternalAndPersistsOriginalOrderAndBothFacts",
+                  "RiftletCoreTests.LateFailureCompensationTests/testMigrationFailureRollsBackSchemaReceiptsAndVersion",
+                  "RiftletCoreTests.LateFailureCompensationTests/testMissingRestoredBytesStayMissingAcrossObservationAndRestart",
+                  "RiftletCoreTests.LateFailureCompensationTests/testRepeatedFailureAndStaleSuccessCannotConsumeCompensationOrReplaceAudit",
+                  "RiftletCoreTests.LateFailureCompensationTests/testRestartWatchCapsCallerRequestedLimitAt64",
+                  "RiftletCoreTests.LateFailureCompensationTests/testRestartWatchQueryIsBoundedAndExcludesInactiveSuccesses",
+                  "RiftletCoreTests.LateFailureCompensationTests/testSelectingAndRecoveringCompensationOnlyObservesOriginalOperation",
+                  "RiftletCoreTests.LateFailureCompensationTests/testVersionOneMigrationPreservesReceiptsOrderAndLocks",
+                  "RiftletCoreTests.LateFailureCompensationTests/testWrongAttachmentProfileDraftAndNonErrorCannotRestoreUsedImage"
+                ],
+                "RecoveryBoundaryTests": [
+                  "RiftletCoreTests.RecoveryBoundaryTests/testAssetWriteFailureRollsBackOperationAndReceiptTogether",
+                  "RiftletCoreTests.RecoveryBoundaryTests/testEveryIdentityMismatchLeavesOriginalOperationAndEvidenceUntouched",
+                  "RiftletCoreTests.RecoveryBoundaryTests/testFailedObservationKeepsMissingMediaButRemoteSuccessCanFinish",
+                  "RiftletCoreTests.RecoveryBoundaryTests/testOldSuccessfulReceiptCannotConsumeNewAttemptAfterProvedFailure",
+                  "RiftletCoreTests.RecoveryBoundaryTests/testReceiptBeforeIntentRollsBackWithoutSavingEvidence",
+                  "RiftletCoreTests.RecoveryBoundaryTests/testRestartKeepsMissingMediaAndUnknownTargetLockUntilVerifiedRestore",
+                  "RiftletCoreTests.RecoveryBoundaryTests/testTerminalSuccessCannotBeReversedByUncorrelatedLateObservation"
+                ],
+                "WebTargetLockTests": [
+                  "RiftletCoreTests.WebTargetLockTests/testCompensatedSameTabRearmRemainsLockedAcrossRestart",
+                  "RiftletCoreTests.WebTargetLockTests/testOtherSurfacesAndUnidentifiedChromeTabsKeepExactTargetLock",
+                  "RiftletCoreTests.WebTargetLockTests/testPreparedLeaseDoesNotLockDispatchOfAnotherAsset",
+                  "RiftletCoreTests.WebTargetLockTests/testUnknownBlocksSameTabAfterRearmWindowMoveAndDocumentReplacement",
+                  "RiftletCoreTests.WebTargetLockTests/testUnknownDoesNotLockAnotherTabOrBrowserSession"
+                ]
+              },
+              "safetyHeldWriterPresent": true,
+              "safetyIntentRollbackPresent": true,
+              "pageCurrent": {
+                "tests": 106,
+                "pass": 106,
+                "fail": 0
+              },
+              "pageLegacy": {
+                "tests": 61,
+                "pass": 61,
+                "fail": 0
+              },
+              "strictMagnetDetailedPassCount": 9,
+              "strictMagnetCases": [
+                "Test Case '-[RiftletUITests.MagnetFlightPresenterTests testDecorationOwnsOneMouseTransparentNonactivatingWindowAndReleasesSynchronously]' passed (0.097 seconds).",
+                "Test Case '-[RiftletUITests.MagnetFlightPresenterTests testDroppedPresenterHasNoWindowOrImageLeftBehind]' passed (0.051 seconds).",
+                "Test Case '-[RiftletUITests.MagnetFlightPresenterTests testExpiredOrInvalidReadyClockDoesNotReplayDecoration]' passed (0.003 seconds).",
+                "Test Case '-[RiftletUITests.MagnetFlightPresenterTests testInvalidScaleAndStaleScreenNeverAllocateWindow]' passed (0.003 seconds).",
+                "Test Case '-[RiftletUITests.MagnetFlightPresenterTests testNaturalFinishAndExplicitCloseReleaseWithoutReplayingCompletion]' passed (1.245 seconds).",
+                "Test Case '-[RiftletUITests.MagnetFlightPresenterTests testReentrantCompletionCannotOrphanANewerWindow]' passed (0.011 seconds).",
+                "Test Case '-[RiftletUITests.MagnetFlightPresenterTests testScreenChangeCancelsAndNoOtherAssetsAreRepresentedOrMutated]' passed (0.039 seconds).",
+                "Test Case '-[RiftletUITests.MagnetFlightPresenterTests testStoppedRenderClockTimesOutWithoutManufacturingNaturalCompletion]' passed (1.336 seconds).",
+                "Test Case '-[RiftletUITests.MagnetFlightPresenterTests testTwelveCaptureBurstKeepsOneSpriteAndNoStaleCancelOwnsTheReplacement]' passed (0.765 seconds)."
+              ],
+              "packagingRejectionTests": {
+                "bundle": 12,
+                "internalBeta": 13
+              },
+              "originalPackagingPASS": true,
+              "releaseAdHocSignatureAndStrictVerification": "Original unchanged build-macos.sh and package-internal-beta.sh completed successfully; set -e and codesign --verify --strict retained",
+              "selfChecks": [
+                "RIFTLET_SELF_CHECK_PASS: private import, durable upload-start visibility, delayed synthetic completion, restart",
+                "RIFTLET_WEB_ACCEPTANCE_SELF_CHECK_PASS: bundled page source, synthetic-only start/completion policy, isolated modes; CHROME_NOT_RUN; GUI_NOT_RUN",
+                "RIFTLET_FIRST_USE_SELF_CHECK_PASS: presentation persistence, disabled-production permission isolation, honest status; PERMISSIONS_NOT_REQUESTED; GUI_NOT_RUN",
+                "RIFTLET_SYSTEM_SCREENSHOT_CANDIDATE_SELF_CHECK_PASS: original-byte import, one software input, restricted start then independent completion, durable new-operation registration, legacy UNKNOWN unchanged, read-only restart; GENERATED_FIXTURE; CHROME_NOT_RUN; SYSTEM_SCREENSHOT_NOT_RUN; GUI_NOT_RUN",
+                "RIFTLET_GUI_HELPER_SELF_CHECK_PASS: 16 synthetic PNGs; scenes 2/3/12/16; layout/status fixtures; GUI_NOT_RUN"
+              ],
+              "originalVisualSummary": [
+                "NATIVE_VISUAL_EVIDENCE_CAPTURED_NATIVE_WINDOWSERVER: 104 original images; MOVIES 5/5 RECORDED_NATIVE_WINDOWSERVER; PHYSICAL_NOT_RUN; REAL_UPLOAD_NOT_RUN",
+                "NATIVE_VISUAL_EVIDENCE_CAPTURED_NATIVE_WINDOWSERVER: 14 original images; MOVIES 1/1 RECORDED_NATIVE_WINDOWSERVER; PHYSICAL_NOT_RUN; REAL_UPLOAD_NOT_RUN"
+              ],
+              "supplementalSummary": [
+                "SUPPLEMENTAL_NATIVE_VISUAL_CAPTURED_NATIVE_WINDOWSERVER: 6/6 original static images; ORIGINAL_FULL_SUITE_SEPARATELY_REQUIRED; PHYSICAL_NOT_RUN; REAL_UPLOAD_NOT_RUN"
+              ],
+              "ownedCaptureSummaries": [
+                {
+                  "completedModes": [
+                    "region"
+                  ],
+                  "connectedDisplayCount": 1,
+                  "displayScale": 1,
+                  "event": "summary",
+                  "notRunModes": [
+                    "window",
+                    "fullScreen"
+                  ],
+                  "physicalInteractionAcceptance": "NOT_RUN",
+                  "pixelColorAcceptance": "NOT_GRANTED",
+                  "probe": "built-in-native-engine",
+                  "rawImagesPublished": false,
+                  "realUploadAcceptance": "NOT_RUN",
+                  "schemaVersion": 1,
+                  "scope": "ACTUAL_APPLE_CAPTURE_PUBLISH_READBACK_PRIVATE_IMPORT_OWNED_SYNTHETIC_FIXTURE",
+                  "selectedDisplayPointHeight": 1080,
+                  "selectedDisplayPointWidth": 1920,
+                  "status": "PARTIAL"
+                }
+              ],
+              "errorLines": [],
+              "workflowSkippedSteps": [
+                {
+                  "number": 13,
+                  "name": "Verify isolated arrival delta and report native motion outcomes",
+                  "reason": "Existing arrival-specialist branch condition is false on formal PR #1; full suite and separate strict magnet tests ran"
+                }
+              ]
+            }
+          ],
+          "notRunOrNotGranted": [
+            "Real Chrome attachment or continuous-use acceptance",
+            "Physical mouse, multi-display/Space/scale interaction acceptance",
+            "Real Web continuation profile admission",
+            "Ordinary production screenshot upload or safe retry enablement",
+            "Native Feedback UI to cloud E2E",
+            "Developer ID signing, notarization and physical Gatekeeper install acceptance",
+            "Captured-pixel independent aesthetic review is outside this log review and remains a separate artifact review"
+          ],
+          "countingRule": "The two architecture jobs execute the same 779 unique enumerated native methods; report 779 unique, not 1558. Current-page106+legacy61=167 per architecture; repeated detailed native runs are subsets. Source Python74 and composition checks32 are separate gates.",
+          "completedAtBeijing": "2026-10-30 16:20:32 +08:00"
+        }
+      },
+      {
+        "recordName": "review-package-arm64.json",
+        "originalRecordBytes": 5679,
+        "originalRecordSHA256": "8db6625ba89614c4cc9d3ac1cc7e7147aaeb2749163e430d93dfd8a9830c804f",
+        "record": {
+          "reviewer": "/root/release_composition_review",
+          "conclusion": "PASS_PACKAGE_BYTES_AND_SOURCE",
+          "scope": "Independent read-only inspection of actual new ARM64 artifact/inner ZIP/extracted files; original repository verifier executed without App launch. No physical Mac, Gatekeeper or local Apple codesign execution claimed.",
+          "reviewedAtUTC": "2026-10-30T08:20:18.367772+00:00",
+          "artifactID": 12963810366,
+          "workflowRunID": 41024560197,
+          "artifactAPIRead": "GET /repos/haohongfei2001-png/Riftlet/actions/runs/41024560197/artifacts",
+          "artifactAPIHead": "edbdc7aae45c35878694e9fa376757dac7b630a8",
+          "artifactExpiredAtReview": false,
+          "artifactExpiresAtUTC": "2026-11-13T08:17:16Z",
+          "sourceHeadSHA": "edbdc7aae45c35878694e9fa376757dac7b630a8",
+          "checkoutSHA": "9b6063677672f2af6d9c9f0adf4ce115fa238385",
+          "architecture": "arm64",
+          "outer": {
+            "file": "riftlet-native-arm64-41024560197.zip",
+            "bytes": 12665626,
+            "sha256": "82ccd1725a5a7339ce8ca990aa8cd1aff39c3f59f1fdcdf6079281840612a7e4",
+            "matchesIndependentAPI": true
+          },
+          "inner": {
+            "file": "Riftlet-Internal-Beta-edbdc7aa-arm64.zip",
+            "originalArtifactMember": "build/Riftlet-Internal-Beta.zip",
+            "bytes": 2038878,
+            "sha256": "3c1761e9e6632c59152530eab895536e3bd06e2da1be54b2c9300bfff7523d4f",
+            "equalsOriginalArtifactMemberBytes": true,
+            "zipCRCValid": true,
+            "allExtractedFileBytesEqualOriginalZIP": true
+          },
+          "originalVerifier": {
+            "script": "scripts/verify-internal-beta-package.py",
+            "exitCode": 0,
+            "result": "RIFTLET_INTERNAL_BETA_CHECK_PASS",
+            "repositoryChecked": true
+          },
+          "buildInputObjects": {
+            "Sources": {
+              "manifest": "a09468b151b7f216109d35803a213718fe082d28",
+              "source": "a09468b151b7f216109d35803a213718fe082d28",
+              "checkout": "a09468b151b7f216109d35803a213718fe082d28"
+            },
+            "Tests": {
+              "manifest": "f395246e52044a5c3573292002aeab4d30300ddf",
+              "source": "f395246e52044a5c3573292002aeab4d30300ddf",
+              "checkout": "f395246e52044a5c3573292002aeab4d30300ddf"
+            },
+            "Resources": {
+              "manifest": "2b6d3694992cae6b3a3d7547a11db78c2e8c6265",
+              "source": "2b6d3694992cae6b3a3d7547a11db78c2e8c6265",
+              "checkout": "2b6d3694992cae6b3a3d7547a11db78c2e8c6265"
+            },
+            "Package.swift": {
+              "manifest": "d3cdd0d51ad937b1afb243cd866cf0071f408d49",
+              "source": "d3cdd0d51ad937b1afb243cd866cf0071f408d49",
+              "checkout": "d3cdd0d51ad937b1afb243cd866cf0071f408d49"
+            },
+            "scripts": {
+              "manifest": "666a1c0b08f2913c96b7c677d9273e8c676a5bb2",
+              "source": "666a1c0b08f2913c96b7c677d9273e8c676a5bb2",
+              "checkout": "666a1c0b08f2913c96b7c677d9273e8c676a5bb2"
+            },
+            "packaging": {
+              "manifest": "0ec93cd8e362771a8e493a60d59dc058c6be6b99",
+              "source": "0ec93cd8e362771a8e493a60d59dc058c6be6b99",
+              "checkout": "0ec93cd8e362771a8e493a60d59dc058c6be6b99"
+            },
+            ".github": {
+              "manifest": "2465b859b0e3b4627bfdaaa2b54bc030e728ea0e",
+              "source": "2465b859b0e3b4627bfdaaa2b54bc030e728ea0e",
+              "checkout": "2465b859b0e3b4627bfdaaa2b54bc030e728ea0e"
+            },
+            "services/feedback": {
+              "manifest": "cd061e75995151143acea4076b814293b10c39da",
+              "source": "cd061e75995151143acea4076b814293b10c39da",
+              "checkout": "cd061e75995151143acea4076b814293b10c39da"
+            },
+            "ThirdPartyNotices": {
+              "manifest": "89a07e01c183f61fca6bc7d7127322b00fa03ded",
+              "source": "89a07e01c183f61fca6bc7d7127322b00fa03ded",
+              "checkout": "89a07e01c183f61fca6bc7d7127322b00fa03ded"
+            },
+            "research": {
+              "manifest": "7ed0708f7cb3faed95a37fe319e3f0400f3b51dd",
+              "source": "7ed0708f7cb3faed95a37fe319e3f0400f3b51dd",
+              "checkout": "7ed0708f7cb3faed95a37fe319e3f0400f3b51dd"
+            },
+            "engineering/evidence/2026-10-27-real-mac-round2": {
+              "manifest": "8bf31e0794f1cbd840c4d0b6ac7ac791b326eb81",
+              "source": "8bf31e0794f1cbd840c4d0b6ac7ac791b326eb81",
+              "checkout": "8bf31e0794f1cbd840c4d0b6ac7ac791b326eb81"
+            },
+            "engineering/evidence/2026-10-27-real-mac-round3": {
+              "manifest": "dfb9ec12e223366dd37d1e44c8c34a4756bbf96b",
+              "source": "dfb9ec12e223366dd37d1e44c8c34a4756bbf96b",
+              "checkout": "dfb9ec12e223366dd37d1e44c8c34a4756bbf96b"
+            },
+            "engineering/evidence/2026-10-27-real-mac-round5": {
+              "manifest": "5a22c1bbeffbc0188b5bf4c2da951fce20a85a54",
+              "source": "5a22c1bbeffbc0188b5bf4c2da951fce20a85a54",
+              "checkout": "5a22c1bbeffbc0188b5bf4c2da951fce20a85a54"
+            },
+            "engineering/evidence/2026-10-28-system-screenshot-stage2": {
+              "manifest": "51e8dba0abbbed28e2ab9274f9736c955537f25f",
+              "source": "51e8dba0abbbed28e2ab9274f9736c955537f25f",
+              "checkout": "51e8dba0abbbed28e2ab9274f9736c955537f25f"
+            }
+          },
+          "buildInputGroups": 14,
+          "machO": {
+            "magic": "MH_MAGIC_64",
+            "cpuType": 16777228,
+            "fileType": 2,
+            "isARM64": true,
+            "codeSignatureLoadCommandPresent": true,
+            "localCodeSignVerificationPerformed": false
+          },
+          "permissions": {
+            "binary": "100755",
+            "launcher": "100755",
+            "archiveAndExtractedEqual": true
+          },
+          "version": "0.1.0",
+          "build": "1",
+          "minimumMacOS": "13.0",
+          "developerIDSigned": false,
+          "notarized": false,
+          "launchArgument": "--system-screenshot-candidate",
+          "ordinaryAppDefault": "capture-upload-disabled",
+          "dataDirectory": "Riftlet-System-Screenshot-Candidate",
+          "feedbackEndpoint": "https://riftlet-feedback-receiver.haohongfei2001.workers.dev/v1/feedback",
+          "feedbackDelivery": "https-receiver-configured",
+          "exactEndpointLiteralFoundInBinary": true,
+          "realAcceptanceScope": "prebound-software-CGEvent-one-new-PNG; not a new combined-App Mac run",
+          "confirmedBlockingFindings": []
+        }
+      },
+      {
+        "recordName": "review-package-intel.json",
+        "originalRecordBytes": 5709,
+        "originalRecordSHA256": "6c2d85aa199ba98bbc98fb7ec2440d450a2e200f2fb5a34c8a383809ff6cf67d",
+        "record": {
+          "reviewer": "/root/release_composition_review",
+          "conclusion": "PASS_PACKAGE_BYTES_AND_SOURCE",
+          "scope": "Independent read-only inspection of actual new Intel x86_64 artifact/inner ZIP/extracted files; original repository verifier executed without App launch. No physical Mac, Gatekeeper or local Apple codesign execution claimed.",
+          "reviewedAtUTC": "2026-10-30T08:22:15.305195+00:00",
+          "artifactID": 12963282793,
+          "workflowRunID": 41024560197,
+          "artifactAPIRead": "GET /repos/haohongfei2001-png/Riftlet/actions/runs/41024560197/artifacts",
+          "artifactAPIHead": "edbdc7aae45c35878694e9fa376757dac7b630a8",
+          "artifactExpiredAtReview": false,
+          "artifactExpiresAtUTC": "2026-11-13T08:20:23Z",
+          "sourceHeadSHA": "edbdc7aae45c35878694e9fa376757dac7b630a8",
+          "checkoutSHA": "9b6063677672f2af6d9c9f0adf4ce115fa238385",
+          "architecture": "x86_64",
+          "outer": {
+            "file": "riftlet-native-intel-41024560197.zip",
+            "bytes": 14753013,
+            "sha256": "435b12c06bdf6675d01b9bdd73abbc9028cedc6e7da6c6f91303b7bb7ba3e17b",
+            "matchesIndependentAPI": true
+          },
+          "inner": {
+            "file": "Riftlet-Internal-Beta-edbdc7aa-intel.zip",
+            "originalArtifactMember": "build/Riftlet-Internal-Beta.zip",
+            "bytes": 2148795,
+            "sha256": "594abfd488b1882efcf916e352f6f7015bfc8a4436427217034674c380585a7c",
+            "equalsOriginalArtifactMemberBytes": true,
+            "zipCRCValid": true,
+            "allExtractedFileBytesEqualOriginalZIP": true
+          },
+          "originalVerifier": {
+            "script": "scripts/verify-internal-beta-package.py",
+            "exitCode": 0,
+            "result": "RIFTLET_INTERNAL_BETA_CHECK_PASS",
+            "repositoryChecked": true
+          },
+          "buildInputObjects": {
+            "Sources": {
+              "manifest": "a09468b151b7f216109d35803a213718fe082d28",
+              "source": "a09468b151b7f216109d35803a213718fe082d28",
+              "checkout": "a09468b151b7f216109d35803a213718fe082d28"
+            },
+            "Tests": {
+              "manifest": "f395246e52044a5c3573292002aeab4d30300ddf",
+              "source": "f395246e52044a5c3573292002aeab4d30300ddf",
+              "checkout": "f395246e52044a5c3573292002aeab4d30300ddf"
+            },
+            "Resources": {
+              "manifest": "2b6d3694992cae6b3a3d7547a11db78c2e8c6265",
+              "source": "2b6d3694992cae6b3a3d7547a11db78c2e8c6265",
+              "checkout": "2b6d3694992cae6b3a3d7547a11db78c2e8c6265"
+            },
+            "Package.swift": {
+              "manifest": "d3cdd0d51ad937b1afb243cd866cf0071f408d49",
+              "source": "d3cdd0d51ad937b1afb243cd866cf0071f408d49",
+              "checkout": "d3cdd0d51ad937b1afb243cd866cf0071f408d49"
+            },
+            "scripts": {
+              "manifest": "666a1c0b08f2913c96b7c677d9273e8c676a5bb2",
+              "source": "666a1c0b08f2913c96b7c677d9273e8c676a5bb2",
+              "checkout": "666a1c0b08f2913c96b7c677d9273e8c676a5bb2"
+            },
+            "packaging": {
+              "manifest": "0ec93cd8e362771a8e493a60d59dc058c6be6b99",
+              "source": "0ec93cd8e362771a8e493a60d59dc058c6be6b99",
+              "checkout": "0ec93cd8e362771a8e493a60d59dc058c6be6b99"
+            },
+            ".github": {
+              "manifest": "2465b859b0e3b4627bfdaaa2b54bc030e728ea0e",
+              "source": "2465b859b0e3b4627bfdaaa2b54bc030e728ea0e",
+              "checkout": "2465b859b0e3b4627bfdaaa2b54bc030e728ea0e"
+            },
+            "services/feedback": {
+              "manifest": "cd061e75995151143acea4076b814293b10c39da",
+              "source": "cd061e75995151143acea4076b814293b10c39da",
+              "checkout": "cd061e75995151143acea4076b814293b10c39da"
+            },
+            "ThirdPartyNotices": {
+              "manifest": "89a07e01c183f61fca6bc7d7127322b00fa03ded",
+              "source": "89a07e01c183f61fca6bc7d7127322b00fa03ded",
+              "checkout": "89a07e01c183f61fca6bc7d7127322b00fa03ded"
+            },
+            "research": {
+              "manifest": "7ed0708f7cb3faed95a37fe319e3f0400f3b51dd",
+              "source": "7ed0708f7cb3faed95a37fe319e3f0400f3b51dd",
+              "checkout": "7ed0708f7cb3faed95a37fe319e3f0400f3b51dd"
+            },
+            "engineering/evidence/2026-10-27-real-mac-round2": {
+              "manifest": "8bf31e0794f1cbd840c4d0b6ac7ac791b326eb81",
+              "source": "8bf31e0794f1cbd840c4d0b6ac7ac791b326eb81",
+              "checkout": "8bf31e0794f1cbd840c4d0b6ac7ac791b326eb81"
+            },
+            "engineering/evidence/2026-10-27-real-mac-round3": {
+              "manifest": "dfb9ec12e223366dd37d1e44c8c34a4756bbf96b",
+              "source": "dfb9ec12e223366dd37d1e44c8c34a4756bbf96b",
+              "checkout": "dfb9ec12e223366dd37d1e44c8c34a4756bbf96b"
+            },
+            "engineering/evidence/2026-10-27-real-mac-round5": {
+              "manifest": "5a22c1bbeffbc0188b5bf4c2da951fce20a85a54",
+              "source": "5a22c1bbeffbc0188b5bf4c2da951fce20a85a54",
+              "checkout": "5a22c1bbeffbc0188b5bf4c2da951fce20a85a54"
+            },
+            "engineering/evidence/2026-10-28-system-screenshot-stage2": {
+              "manifest": "51e8dba0abbbed28e2ab9274f9736c955537f25f",
+              "source": "51e8dba0abbbed28e2ab9274f9736c955537f25f",
+              "checkout": "51e8dba0abbbed28e2ab9274f9736c955537f25f"
+            }
+          },
+          "buildInputGroups": 14,
+          "machO": {
+            "magic": "MH_MAGIC_64",
+            "cpuType": 16777223,
+            "cpuSubtype": 3,
+            "fileType": 2,
+            "isX86_64": true,
+            "codeSignatureLoadCommandPresent": true,
+            "localCodeSignVerificationPerformed": false
+          },
+          "permissions": {
+            "binary": "100755",
+            "launcher": "100755",
+            "archiveAndExtractedEqual": true
+          },
+          "version": "0.1.0",
+          "build": "1",
+          "minimumMacOS": "13.0",
+          "developerIDSigned": false,
+          "notarized": false,
+          "launchArgument": "--system-screenshot-candidate",
+          "ordinaryAppDefault": "capture-upload-disabled",
+          "dataDirectory": "Riftlet-System-Screenshot-Candidate",
+          "feedbackEndpoint": "https://riftlet-feedback-receiver.haohongfei2001.workers.dev/v1/feedback",
+          "feedbackDelivery": "https-receiver-configured",
+          "exactEndpointLiteralFoundInBinary": true,
+          "realAcceptanceScope": "prebound-software-CGEvent-one-new-PNG; not a new combined-App Mac run",
+          "confirmedBlockingFindings": []
+        }
+      }
+    ],
+    "admissionMetadataReview": {
+      "reviewer": "release_composition_review",
+      "reviewedHead": "edbdc7aae45c35878694e9fa376757dac7b630a8",
+      "tree": "b0c34e307b3c7f804f6b80432b314a2ed232d097",
+      "result": "PASS_ADMISSION_METADATA_SOURCE_ONLY",
+      "onlyChangesAfterSourceCheckpoint": [
+        "REVIEWED_SOURCE literal",
+        "two preexisting metadata files"
+      ],
+      "localGateChecks": 25,
+      "protectedObjects": 986,
+      "fourHistoricalAudits": "PASS",
+      "previousHandoffReadmeRetainedComplete": true,
+      "previousHandoffJSONRetained": true
+    },
+    "confirmedRemainingSourceOrCIBlockers": [],
+    "stopDecision": "All requested source integration, independent review, formal CI and unified packages are complete. Stop further polishing. Resume only the requested real Chrome/continuous-use/product-opening acceptance when the real environment is available."
+  },
+  "lifecycleSourceAdmissionSnapshot": {
+    "status": "LIFECYCLE_SOURCE_REVIEWED_FORMAL_COMBINED_CI_PENDING",
+    "record": {
+      "phase": "SOURCE_ADMISSION_CHECKPOINT_FORMAL_CI_PENDING",
+      "recordedAt": "2026-10-30T08:07:45.086800+00:00",
+      "formalBase": "98e66a956d55b5fac71718bc627dd89705b2a506",
+      "previousHandoff": "623d3725d0b3096f1dc7332e6cae11f47f7002c2",
+      "sourceCheckpoint": "b714dc44b27cccb76356fe15fb4854dba599a689",
+      "sourceTree": "f043c283eeb49e1f3f8b3c2640ea43c7bbeeabde",
+      "specialistSource": "f7f8acdd842005a2b65e914291f3a2912c4e4124",
+      "specialistHandoff": "c99900c6cc5c4a1f9f575576226d46252a1d6065",
+      "specialistRun": 41017793874,
+      "integratedDependencies": [
+        "973a3e8c41b833dd47d655bd837e9ba5ebb40d7a",
+        "9790cc3a5206f115e543399f1e63619227aa62f1",
+        "90dc466ada9acd24d7172607ef8e585a1a1010f3",
+        "f7f8acdd842005a2b65e914291f3a2912c4e4124"
+      ],
+      "excludedSpecialistWorkflowCommit": "f02ddafbaed7bab1bc843193fa4fef7b8b1a3515",
+      "changedFiles": [
+        {
+          "path": "Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js",
+          "mode": "100644",
+          "blob": "4064ea89fef391048d4ff7ba9684bfdc60ffcc8f"
+        },
+        {
+          "path": "Sources/RiftletAdapters/WebAttachmentAdapter.swift",
+          "mode": "100644",
+          "blob": "2bc0acb607cb593508e3c7fb8544e5094664bf92"
+        },
+        {
+          "path": "Sources/RiftletApp/AutomationPermissionPublication.swift",
+          "mode": "100644",
+          "blob": "32fb3323e569f15e3582d13e0b297c4e4fb02972"
+        },
+        {
+          "path": "Sources/RiftletApp/RiftletMain.swift",
+          "mode": "100644",
+          "blob": "98282db42358b8ab582d678679996433a4b4b3d4"
+        },
+        {
+          "path": "Sources/RiftletCore/DispatchEvidence.swift",
+          "mode": "100644",
+          "blob": "6e7951678fa52612444d0c0c2747346725f03ee8"
+        },
+        {
+          "path": "Sources/RiftletCore/Models.swift",
+          "mode": "100644",
+          "blob": "7f2bc1bc4e357ecd83ed58c78cc2c6431769e274"
+        },
+        {
+          "path": "Sources/RiftletCore/QueueStore.swift",
+          "mode": "100644",
+          "blob": "138dd3ee7121cf19304053457271e07022a73731"
+        },
+        {
+          "path": "Sources/RiftletCore/ReceiptPolicy.swift",
+          "mode": "100644",
+          "blob": "539068e04bfbb397c58f046000bb43775bb8e3cb"
+        },
+        {
+          "path": "Sources/RiftletCore/SQLiteDatabase.swift",
+          "mode": "100644",
+          "blob": "c2302067aabad9575eb3dc26b2927c7ffa00f18c"
+        },
+        {
+          "path": "Sources/RiftletCore/TransferCoordinator.swift",
+          "mode": "100644",
+          "blob": "eec608f10db13a13196a047748470f974af7957a"
+        },
+        {
+          "path": "Tests/RiftletAdaptersTests/SystemScreenshotWebCandidateTests.swift",
+          "mode": "100644",
+          "blob": "8d34d60e705a011d16930711126b04299d479bc2"
+        },
+        {
+          "path": "Tests/RiftletAdaptersTests/WebAttachmentAdapterTests.swift",
+          "mode": "100644",
+          "blob": "e53dadc9a3f29ca3eab615d27e5ad789496d4b93"
+        },
+        {
+          "path": "Tests/RiftletAppTests/AutomationPermissionPublicationTests.swift",
+          "mode": "100644",
+          "blob": "5597bee206d2af67dba1dff0eb22c846aef3179c"
+        },
+        {
+          "path": "Tests/RiftletAppTests/ColdClickBoundaryTests.swift",
+          "mode": "100644",
+          "blob": "b3c526f32fa94114fc15f9cf06573749d481b9b8"
+        },
+        {
+          "path": "Tests/RiftletCoreTests/DispatchLifecycleTests.swift",
+          "mode": "100644",
+          "blob": "a582a37bd29959cf9643ae99dde048788d4433ef"
+        },
+        {
+          "path": "Tests/RiftletCoreTests/LateFailureCompensationTests.swift",
+          "mode": "100644",
+          "blob": "cf8af6677258fef45f77145c9a91da6c6f55035d"
+        },
+        {
+          "path": "Tests/RiftletCoreTests/LifecycleMigrationTests.swift",
+          "mode": "100644",
+          "blob": "3f76716a7a25144cb6a79aa95f81ca8a325c4857"
+        },
+        {
+          "path": "Tests/WebPageProgram/acceptance-program.test.cjs",
+          "mode": "100644",
+          "blob": "02762f7f0d9b01c56316e3454612ed0a7e4134b6"
+        }
+      ],
+      "changedPathManifestSHA256": "1c3ba5113e0e79b0e6046a4ff7b511b79b5f42b988efe82d9f4e797a34394823",
+      "changedProductAndTestPaths": 18,
+      "unchangedPriorObjects": 971,
+      "sourceBlobCount": 989,
+      "nonAuthorReviews": [
+        {
+          "reviewer": "lifecycle_safety_review",
+          "role": "independent non-author agent",
+          "reviewedCommit": "b714dc44b27cccb76356fe15fb4854dba599a689",
+          "reviewedTree": "f043c283eeb49e1f3f8b3c2640ea43c7bbeeabde",
+          "scope": "Web page, Adapter, current-call rejection, Coordinator identity, continuation and original-operation lifecycle",
+          "conclusion": "PASS_SOURCE_ONLY",
+          "confirmedBlockingFindings": []
+        },
+        {
+          "reviewer": "integration_scope_review",
+          "role": "independent non-author agent",
+          "reviewedCommit": "b714dc44b27cccb76356fe15fb4854dba599a689",
+          "reviewedTree": "f043c283eeb49e1f3f8b3c2640ea43c7bbeeabde",
+          "scope": "Exact four-commit scope, SQLite migrations, atomic independent slots, locks, original UNKNOWN and data preservation",
+          "conclusion": "PASS_SOURCE_ONLY",
+          "confirmedBlockingFindings": []
+        },
+        {
+          "reviewer": "release_composition_review",
+          "role": "independent non-author agent",
+          "reviewedCommit": "b714dc44b27cccb76356fe15fb4854dba599a689",
+          "reviewedTree": "f043c283eeb49e1f3f8b3c2640ea43c7bbeeabde",
+          "scope": "Entire composed Git tree, preserved product, immutable historical gates, fixed website overlay, source and runtime distinction",
+          "conclusion": "PASS_SOURCE_ONLY",
+          "confirmedBlockingFindings": []
+        }
+      ],
+      "localVerification": [
+        {
+          "name": "page-program",
+          "command": "node Tests/WebPageProgram/acceptance-program.test.cjs",
+          "passed": 106,
+          "failed": 0,
+          "logSHA256": "3d4195dbc579099ddbc90d8f96b20b518d036e86c4fe66f791da1ffafe246f59",
+          "scope": "Local Linux offline controlled fixtures; not physical Mac or real Chrome."
+        },
+        {
+          "name": "legacy-observation",
+          "command": "node Tests/WebPageProgram/legacy-web-observe.test.cjs",
+          "passed": 61,
+          "failed": 0,
+          "logSHA256": "a86ffa4f0b55db39fe18b7fbced4d833fa2a15ba5d0e1827ecbd3c55b59db60e",
+          "scope": "Local Linux offline controlled fixtures; not physical Mac or real Chrome."
+        },
+        {
+          "name": "final-composition-regressions",
+          "command": "python3 -B -m unittest discover -s Tests/FinalProductIsolation -v",
+          "passed": 24,
+          "failed": 0,
+          "logSHA256": "f5ead5e1f7c00c23bdb4430b7fa898534f6de6584f1032ac9e75c7fc58f2c672",
+          "scope": "Local Linux offline controlled fixtures; not physical Mac or real Chrome."
+        }
+      ],
+      "gateChange": "Only REVIEWED_SOURCE literal; four historical audit pins/blobs, three metadata exceptions, main pin and fifteen website objects unchanged.",
+      "preservedProduct": [
+        "Feedback endpoint/engine/UI/cloud source",
+        "Thin Edge UI and magnet motion",
+        "capture/settings/resources/packaging/licenses",
+        "original UNKNOWN/identity/receipts/media",
+        "restricted original candidate start and completion admission"
+      ],
+      "formalCI": {
+        "status": "PENDING_ACTUAL_PR1_RUNS",
+        "sourceAdmission": "PENDING",
+        "nativeARM": "PENDING",
+        "nativeIntel": "PENDING",
+        "feedback": "PENDING",
+        "priorSpecialistRunIsNotFormalCI": true
+      },
+      "newUnifiedPackages": {
+        "status": "PENDING_FORMAL_CI_ARTIFACTS"
+      },
+      "boundaries": {
+        "realWebContinuation": "CLOSED",
+        "ordinaryRealUpload": "CLOSED",
+        "safeRetry": "CLOSED",
+        "realChrome": "NOT_RUN",
+        "physicalMac": "NOT_RUN",
+        "publicRelease": "NOT_PERFORMED",
+        "mainMerge": "NOT_PERFORMED"
+      },
+      "evidenceQualifications": [
+        "48-operation and 32-to-33 tests are deterministic fixtures, not new real uploads.",
+        "Old-v13 no-renewal fixture is a capability-removed current source fixture, not a frozen historic-v13 live upgrade.",
+        "Concurrent v3 extension is tested; concurrent v1/v2 opening may conservatively fail and roll back as in the prior implementation.",
+        "Existing H/H2 packages and cloud evidence retain their original source and scope."
+      ],
+      "remainingP0": [
+        "Real Chrome idle/cold first attachment and continuous use",
+        "Independent A/B attachment evidence before any Web continuation admission",
+        "Real navigation/blur/refresh, delayed result and lost-receipt/restart behavior",
+        "Normal-mode upload and safe-retry release admission",
+        "Previously unexecuted physical Mac Feedback UI-to-cloud acceptance"
+      ]
+    }
+  },
+  "handoffBranchRole": {
+    "role": "EVIDENCE_ONLY_NOT_PRODUCT_BUILD_SOURCE",
+    "productPR": 1,
+    "productHead": "edbdc7aae45c35878694e9fa376757dac7b630a8",
+    "handoffPR": 15,
+    "handoffParent": "623d3725d0b3096f1dc7332e6cae11f47f7002c2",
+    "changedPaths": [
+      "engineering/evidence/2026-10-29-final-product/README.md",
+      "engineering/evidence/2026-10-29-final-product/results.json"
+    ],
+    "handoffCodeAndGateRemainAtPriorPR15": "Do not build or label this evidence branch as the new product. Its previous code and C2 gate are intentionally untouched; the current product gate is in PR1 H and pins b714."
+  }
 }

@@ -1,3 +1,106 @@
+# 冷首击与持续使用生命周期：正式集成完成 — 2026-10-30
+
+**PR #1 的正式整合、非作者审查、Native ARM/Intel 与 Feedback 组合 CI，以及两份新统一 App 实包核验均已完成。两套正式工作流都是 attempt 1 成功，无重跑。**
+
+**本 PR #15 分支只交付两份 metadata；产品与构建的唯一来源是 PR #1 `edbdc7aae45c35878694e9fa376757dac7b630a8`。PR #15 保留此前代码和旧 gate，不能将本交接分支 SHA 当作新 App 源码或构建来源。** PR #1/#15 保持 Draft，main 未合并，未公开发行，未要求创始人体验。
+
+## 精确来源与最小范围
+
+| 对象 | 精确身份 |
+|---|---|
+| 正式产品 HEAD | `edbdc7aae45c35878694e9fa376757dac7b630a8` |
+| 非作者已审源码 pin | `b714dc44b27cccb76356fe15fb4854dba599a689` |
+| 已审源码 tree | `f043c283eeb49e1f3f8b3c2640ea43c7bbeeabde` |
+| 正式 H tree | `b0c34e307b3c7f804f6b80432b314a2ed232d097` |
+| 实际正式 CI checkout | `9b6063677672f2af6d9c9f0adf4ce115fa238385` |
+| 实际 checkout tree | `108d0222e41a28340b9978c94de5f7be477b031c` |
+| 原正式基线 | `98e66a956d55b5fac71718bc627dd89705b2a506` |
+| 保持不变的 main | `eba1a4fc77648a665e1d5c1f2609df1314c3b079` |
+
+按顺序只取 `973a3e8c`、`9790cc3a`、`90dc466a`、`f7f8acdd` 的产品及测试差异：**18 路径，10 Sources + 8 Tests，5 新增、13 修改，971 个基线其他对象不变**。整树与专项已测源相比唯一差异是排除专项 workflow。没有合并技术分支、带入 `f02ddafb`、研究实验或 TEST-ONLY overlay。
+
+三路非作者分别完成生命周期/身份安全、SQLite/原子槽位、全产品组合审查，均固定实际源码 b714、无确认阻断。H 只在已审源码之后更新来源 pin 和两份既有交接；另经非作者精确复审。四份历史 gate、原工作流、三个 metadata 例外及15个 main 网站对象保持原样，未降低门禁。
+
+Feedback固定云端端点、薄界、磁力、截图设置、Resources、Package、服务及包装对象保留。原UNKNOWN、媒体、完整身份和审计保留。**真实Web continuation、普通真实上传、safe-retry仍关闭；A开始上传本身不能放行B。** 新B仍需要独立证据、原append返回、完整目标/nonce/运行期owner及原子SQLite事务。精确类型化未输入恢复不适用于commit已调用、回执丢失或旧UNKNOWN。
+
+## 本轮实际正式 CI
+
+| 正式工作流 | 结果与范围 |
+|---|---|
+| [Native 41024560197](https://github.com/haohongfei2001-png/Riftlet/actions/runs/41024560197) | **success / attempt1**；ARM `123959480040`、Intel `123959479659`、source `123959479843` 全部成功；2026-10-30 16:20:32 北京时间结束。 |
+| [Feedback 41024560240](https://github.com/haohongfei2001-png/Riftlet/actions/runs/41024560240) | **success / attempt1**；Feedback `123959479892`、source `123959479708` 成功；2026-10-30 16:13:18 北京时间结束。 |
+
+两份来源日志的实际checkout双亲为 main eba1a4fc 与正式 H，**各32/32检查通过，父提交986、合流后997个保护对象完全一致**。14组构建输入与正式 H 逐对象相同。没有把专项41017793874或旧H/H2运行当作本轮结果。
+
+两架构完整、未筛选 `swift test --parallel` 均成功，每架构枚举779个唯一方法；这不是1558个不同用例，也不代表779次物理操作或零环境条件skip。页面106、legacy61均通过。13项dispatch生命周期、6项迁移及旧UNKNOWN/重启、两连接、持锁、原子槽位、列/索引回滚、安全拒绝均在完整执行中；严格磁力另9项详细用例通过，包含自然结束与停表不能伪造自然结束的反例。原包装12+13、release、bundle、严格ad-hoc codesign、4个App及GUI helper自检、统一Beta原验包均通过。
+
+Feedback为**49个唯一原生/UI方法、24个服务用例、8套共117项隔离回归**通过；关闭测试2方法×3轮为重复，不追加唯一数。服务测试为受控HTTP/SQLite，不是再次部署或真实原生到云端验收。
+
+原生视觉门禁：ARM原46场景119PNG/5MOV，Intel104PNG/5MOV；补充静态均6/6，系统可访问性变体分别18PNG/1MOV与14PNG/1MOV。owned capture保持**PARTIAL**：ARM window/region成功、fullScreen未运行；Intel region成功、window/fullScreen未运行，原因均为原 `FOREIGN_OVERLAP_VETO` 安全否决。原专项分支条件不适用步骤仍skipped，没有新增跳过；本轮不宣称物理GUI或新艺术验收。
+
+## 新统一 App：本轮正式 Native 的原始包
+
+| 架构 | 原始制品 | 内层统一包 bytes | 内层 SHA-256 |
+|---|---|---:|---|
+| ARM64 | [artifact12963810366](https://github.com/haohongfei2001-png/Riftlet/actions/runs/41024560197/artifacts/12963810366) | 2,038,878 | `3c1761e9e6632c59152530eab895536e3bd06e2da1be54b2c9300bfff7523d4f` |
+| Intel x86_64 | [artifact12963282793](https://github.com/haohongfei2001-png/Riftlet/actions/runs/41024560197/artifacts/12963282793) | 2,148,795 | `594abfd488b1882efcf916e352f6f7015bfc8a4436427217034674c380585a7c` |
+
+两者都来自外层 `build/Riftlet-Internal-Beta.zip`，内层原始字节不变。已分别独立核对API digest、完整ZIP/CRC、所有解包字节、原可执行权限、原仓库验包脚本、实际Mach-O架构、14组manifest输入、资源/许可证、固定Feedback端点与模式边界。
+
+版本0.1.0/build1、最低声明macOS13，实际本轮CI为15.7.9；development ad-hoc，非Developer ID、未公证、真实Gatekeeper未运行。两包包含完整App、显式受限候选启动器、中文说明与build-info。普通App仍仅收录；旧H真实验收字段保持历史范围，不冒称本轮新真机结果。原日志和四份独审记录及摘要完整记录在 [results.json](results.json) 的 `coldClickLifecycleIntegration`。
+
+## 剩余 P0 与本轮停止点
+
+**无本轮已确认的源码、正式CI或实包阻断。产品真实验收仍未关闭：**
+
+1. Chrome空闲后的真实冷首击、长期附加/移除及旧页面状态升级连续性。
+2. A未完成时B不替换/取消A的独立真实附件证明；证明前真实Web continuation仍关闭。
+3. 真实导航/失焦/刷新、迟到结果、丢回执和重启观察；不重传旧UNKNOWN、不清理原数据。
+4. 普通模式真实上传和safe-retry的正式开放验收，按各自证据独立决定。
+5. 保留已有真实Mac Feedback窗口至云端、IME/Keychain/VoiceOver/重启及截图隔离验收。
+
+本轮不操作真实Chrome/用户Mac，不修改云端/官网，不安排后台执行器。**完成交接后停止追加工程打磨；下一轮只推进用户指定的真实附加、持续使用和产品开放验收。**
+
+---
+
+<details>
+<summary>来源准入时的历史检查点及完整前序交接（其中pending只描述当时）</summary>
+
+# 冷首击与持续使用生命周期正式集成 — 2026-10-30
+
+**精确合流源码已完成非作者审查；此提交是来源准入检查点，正式组合 CI 与新 App 制品尚待实际运行。** 正式产品仍由 Draft PR #1 承载，PR #15 只用于必要交接。不合并 main、不公开发行、不要求创始人提前体验。
+
+- 原正式产品：`98e66a956d55b5fac71718bc627dd89705b2a506`。
+- 实际合流源码／本轮审查 pin：`b714dc44b27cccb76356fe15fb4854dba599a689`。
+- 精确源码树：`f043c283eeb49e1f3f8b3c2640ea43c7bbeeabde`。
+- 指定提交依次取用：`973a3e8c`、`9790cc3a`、`90dc466a`、`f7f8acdd`；18 个产品／测试文件，5 新增、13 修改，971 个基线其他对象保持原样。
+- 整树与专项已测 `f7f8acdd` 的唯一差异是排除 `.github/workflows/transfer-lifecycle.yml`；没有纳入 `f02ddafb`、研究实验或 TEST-ONLY overlay。
+- 专项依据：[最终交接 c99900c6](https://github.com/haohongfei2001-png/Riftlet/tree/c99900c6cc5c4a1f9f575576226d46252a1d6065/engineering/evidence/2026-10-30-transfer-lifecycle)。专项 CI `41017793874` 只作来源验证，不代替本轮正式组合 CI。
+
+## 独立审查与固定来源
+
+`lifecycle_safety_review`、`integration_scope_review`、`release_composition_review` 三位非作者分别完成 Web/Adapter/Core、SQLite/范围、完整产品组合终审，均固定上述实际合流 SHA，结论 `PASS_SOURCE_ONLY`，无确认阻断。18 路径 mode/blob 与已测来源逐一相同；完整 manifest 与审查范围写入 [results.json](results.json) 的 `coldClickLifecycleIntegration`。
+
+正式 gate 仅更新 `REVIEWED_SOURCE`。四份历史审计的 revision/blob、三个 metadata 例外、固定 main `eba1a4fc` 及15个网站对象全部保持。独立审查曾先用旧 pin 执行新源码：只有5新增路径、13修改对象导致的两项预期拒绝，其余23项及四份历史审计通过；没有先放宽 gate 再审查。
+
+本地离线页面106、legacy观察61、组合gate反例24均通过。完整 Native ARM/Intel、Feedback、严格磁力自然完成、原生视觉、签名和统一包验证将由原有正式工作流执行；本段不预报其结果。
+
+## 产品与安全边界
+
+48次与32→33相关回归覆盖旧身份保留、活跃载荷释放和迟到附件审计。类型化 pre-input rejection 仅在当前调用的完整身份/nonce/零输入/未commit证明满足时恢复；commit已调用、回执丢失、旧UNKNOWN和身份不明保持保守。新B须有独立 continuation 资格、原append返回和同一原子SQLite事务，不因A开始上传直接放行。
+
+Feedback云端端点、薄界、磁力、截图设置、资源和原安全准入保留。**真实Web continuation仍关闭，普通模式真实上传和safe-retry仍关闭。** SQLite旧列、原目标、操作/回执与UNKNOWN均保留；v1/v2整体迁移和v3扩展失败回滚。并发v3扩展有定向回归，不能泛称旧v1/v2并发开启均成功；旧v13能力fixture也不等于真实历史页面升级验收。
+
+## 本轮剩余 P0 与停止点
+
+正式组合CI、新统一App及其独立核验尚待完成；最终实际run/head/package结果以PR #1和PR #15后继交接为准。随后停止扩展工程，转向Chrome空闲后的真实附加、持续使用、独立双附件证据、真实导航/失焦/刷新及丢回执/重启、普通模式与safe-retry开放验收，另保留既有真实Mac Feedback窗口到云端验收。此轮真实Chrome/物理Mac全部NOT_RUN。
+
+---
+
+## 保留的上一轮已完成正式交接
+
+以下原文继承 PR #15 `623d3725`，完整保留其成功、失败、运行与制品原始来源；不把旧包或旧CI改称本轮结果。
+
 # Formal PR #1 integration and completed CI handoff — 2026-10-29
 
 **Feedback is in the actual formal engineering branch, both original formal workflows completed successfully, and the existing independently verified H2 unified App packages remain the delivery artifacts.** Root fast-forwarded PR #15 to approved evidence E `53ea3a1de76a30ab0d8cb221ff7e4e4fa2bce83f`, then PR #1 (`codex/engineering-foundation-20261027`) to H2 `98e66a956d55b5fac71718bc627dd89705b2a506`. PR #1 and PR #15 remain Open/Draft. PR #18 is Closed/Merged because its ancestor entered its target; main remains `eba1a4fc77648a665e1d5c1f2609df1314c3b079`. No main merge or public release occurred. This successor changes only the two existing metadata files, with no source, admission, workflow, screenshot, website or cloud changes.
@@ -354,3 +457,5 @@ The current source `de0fbdfe8ca08c1efe30eca931c481598cc2970f` fixes two code-vis
 The failed PR Intel records-page log does show a real Feedback window; its shared missingWindow enum cannot identify the exact failed preparation guard. Controller creation does not finish asynchronous draft/record loads. The helper now waits at most two seconds for the same controller's actual fixture draft, editable editor and both exact record identities/bodies/states, then clicks the existing disclosure once. Every original visibility/body/state/scroll assertion, 700ms/350ms delay and seven-second static process bound remains. There is no product change, record action, transport call or capture retry.
 
 The original 46-case / 5-MOV driver remains byte-identical (SHA256 `f1f7ba966e1e57640490338dad4bc248c3da3de1f4ab5e56f47bd498d0664747`). Product 560ms motion, strict natural finish, 64-pixel/channel-delta-greater-than-8 comparison, original keyframes and 6.45-second recording bound remain unchanged. All three exact Git blobs received non-author review. Preparation facts do not replace new original WindowServer pixels or complete workflows. Physical Mac, real system-screenshot end-to-end, real ChatGPT and cloud Feedback remain independently NOT_RUN; the authorized Mac remains Offline.
+
+</details>
