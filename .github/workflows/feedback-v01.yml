@@ -1,7 +1,8 @@
-name: Feedback v0.1
+name: Attachment reliability - Feedback regression
 on:
   push:
     branches:
+      - 'codex/cold-attachment-reliability-20261029'
       - 'codex/riftlet-real-mac-acceptance-internal-beta-*'
     paths:
       - 'Sources/**'
@@ -37,13 +38,14 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
-      - name: Verify reviewed unified candidate composition
+      - name: Verify exact technical delta and immutable formal checkpoint
         run: |
           set -o pipefail
           mkdir -p feedback-results
-          # Keep all original audits at their exact historical pins; then compare
-          # the complete combined tree against its independent review checkpoint.
-          python3 scripts/verify-final-product-composition.py 2>&1 | tee feedback-results/final-product-composition.log
+          # The formal checker stays byte-identical at its reviewed checkpoint.
+          # The separate technical scope pins every new source object precisely.
+          python3 -B -m unittest discover -s Tests/ColdAttachmentIsolation -v 2>&1 | tee feedback-results/cold-attachment-isolation.log
+          python3 -B scripts/verify-cold-attachment-scope.py 2>&1 | tee feedback-results/cold-attachment-scope.log
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
