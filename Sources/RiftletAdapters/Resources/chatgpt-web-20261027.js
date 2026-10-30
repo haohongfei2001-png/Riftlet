@@ -384,7 +384,7 @@ function riftletWebAcceptance(command, native) {
     const ids = new WeakMap(), operations = new Map();
     let nextNode = 0, invalid = false, inputRevoked = false, sequence = 0;
     const nodeID = n => { if (!ids.has(n)) ids.set(n, 'node-' + (++nextNode)); return ids.get(n); };
-    const target = {adapterID: 'chatgpt-web', surface: 'webChat', ...native,
+    let target = {adapterID: 'chatgpt-web', surface: 'webChat', ...native,
       documentID, composerID: nodeID(editor) + ':' + nodeID(form), draftGeneration: crypto.randomUUID(),
       ...(logicalDraftIdentity ? {logicalDraftIdentity} : {})};
     // Existing attachments are never read beyond node membership or changed.
@@ -416,6 +416,18 @@ function riftletWebAcceptance(command, native) {
       if (!observationIdentityValid() || inputRevoked) return false;
       if (!composerAvailable()) { revokeInput(); return false; }
       return document.visibilityState === 'visible' && document.hasFocus();
+    };
+    // A focus-only revocation need not consume another retained operation slot.
+    // Renew only an empty, continuously observed binding. The old target object
+    // is never changed or re-authorized, and native capture still must publish a
+    // fresh ACK before a later click. Any begin (even without commit) permanently
+    // excludes this path: its original operation and observation stay retained.
+    const renewEmptyInputLease = () => {
+      if (!inputRevoked || invalid || operations.size !== 0 || !observationIdentityValid()
+          || !composerAvailable() || document.visibilityState !== 'visible' || !document.hasFocus()) return false;
+      target = {...target, documentID: crypto.randomUUID(), draftGeneration: crypto.randomUUID()};
+      inputRevoked = false;
+      return true;
     };
     const markBad = (op, error = false) => {
       // Preserve a previously proved, still-bound attachment's identity when its
@@ -706,8 +718,8 @@ function riftletWebAcceptance(command, native) {
       monitorAlive = monitor.bind(form, editor, input, logicalDraftIdentity, route, checkBinding, invalidate);
       if (!checkBinding() || !monitorAlive()) { invalidate(); fail('UNPROVEN_MONITORED_BINDING'); }
     }
-    const state = {target, valid, observationIdentityValid, invalidate, revokeInput, drain, continuityEvents, operations, sample, tick, ownCards, markBad, currentMember,
-      currentSource, input, form, nodeID, next: null};
+    const state = {get target() { return target; }, valid, observationIdentityValid, invalidate, revokeInput, drain, continuityEvents, operations, sample, tick, ownCards, markBad, currentMember,
+      currentSource, input, form, nodeID, renewEmptyInputLease, next: null};
     if (registry.tail) registry.tail.next = state;
     else registry.head = state;
     registry.tail = state;
@@ -731,6 +743,9 @@ function riftletWebAcceptance(command, native) {
     let current = registry.tail;
     current?.drain();
     if (!current || !current.valid() || !contextMatches(current.target)) {
+      // Historical v13 closures have no renewal capability. Leave those states
+      // and all their operations untouched and use their original bounded path.
+      if (current && contextMatches(current.target) && current.renewEmptyInputLease?.()) return current.target;
       if (current) current.revokeInput();
       if (registry.count >= MAX_GENERATIONS) fail('LEASE_GENERATION_LIMIT');
       current = install(registry);

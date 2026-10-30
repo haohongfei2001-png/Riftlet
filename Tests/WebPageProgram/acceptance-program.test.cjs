@@ -12,7 +12,7 @@ const png = Buffer.from([137,80,78,71,13,10,26,10,1,2,3,4,5,6,7,8]);
 const digest = b => createHash('sha256').update(b).digest('hex');
 const native = {applicationID:'com.google.Chrome', sessionID:'4242:1', windowID:'17', tabID:'19'};
 
-function fixture({blockedDigest = false, blockedInputDigest = false, route = 'https://chatgpt.com/', mode = 'chat', thread = false} = {}) {
+function fixture({blockedDigest = false, blockedInputDigest = false, route = 'https://chatgpt.com/', mode = 'chat', thread = false, programSource = source} = {}) {
   const events = new Map(), globalEvents = new Map(), navigationEvents = new Map();
   let focused = true, releaseDigest, digestCalls = 0;
   const mutationObservers=[];
@@ -137,7 +137,7 @@ function fixture({blockedDigest = false, blockedInputDigest = false, route = 'ht
   });
   vm.runInContext('globalThis.top=globalThis', context);
   const pageWindow = vm.runInContext('globalThis', context);
-  const program = vm.runInContext('(' + source + ')', context);
+  const program = vm.runInContext('(' + programSource + ')', context);
   const call = command => program(command, native);
   const target = () => call({action:'captureTarget'});
   const bind = (id = '11111111-1111-4111-8111-111111111111', bytes = png) => {
@@ -181,7 +181,7 @@ function fixture({blockedDigest = false, blockedInputDigest = false, route = 'ht
     navigationEvent:type=>{for(const fn of navigationEvents.get(type)||[])fn();},
     documentEvent:(type,target,isTrusted=true)=>{for(const fn of events.get(type)||[])fn({type,target,isTrusted});},
     windowEvent:(type,target=pageWindow)=>{for(const fn of globalEvents.get(type)||[]) fn({type,target});},release:()=>releaseDigest?.(),focus:v=>{focused=v;},
-    replaceEditor:n=>{currentEditor=n;},events,context};
+    replaceEditor:n=>{currentEditor=n;},events,globalEvents,mutationObservers,context};
 }
 
 test('bundled program executes one exact-byte attachment and leaves draft/old attachment intact', async () => {
@@ -339,7 +339,7 @@ test('returning to a tab can bind a fresh lease while original UNKNOWN stays obs
   assert.equal(registry.count,2);
 });
 
-test('lease generations are bounded and older state cannot bypass current admission', () => {
+test('operation-bearing lease generations remain bounded and older state cannot bypass current admission', () => {
   for(const key of ['__riftletWebAcceptance20261027v1','__riftletWebAcceptance20261027v2','__riftletWebAcceptance20261027v3','__riftletWebAcceptance20261027v4','__riftletWebAcceptance20261027v5','__riftletWebAcceptance20261027v6','__riftletWebAcceptance20261027v7']) {
     const legacy=fixture({mode:'missing'});
     legacy.context[key]={valid:()=>true,target:{...native,surface:'webChat'}};
@@ -348,14 +348,172 @@ test('lease generations are bounded and older state cannot bypass current admiss
   }
   const f=fixture();let first;
   for(let i=0;i<32;i++) {
-    const target=f.target();first ||= target;
+    const op=f.bind('11111111-1111-4111-8111-'+String(i).padStart(12,'0'));first ||= op.target;
+    // Even begin without commit is retained. Empty-focus renewal must never
+    // discard a staged input, an UNKNOWN or an original operation tombstone.
+    f.stage(op);
     f.document.visibilityState='hidden';for(const fn of f.events.get('visibilitychange')||[]) fn();
     f.document.visibilityState='visible';
   }
   assert.throws(()=>f.target(),/LEASE_GENERATION_LIMIT/);
   const registry=f.context.__riftletWebAcceptance20261027v13;
   assert.equal(registry.count,32);assert.equal(registry.head.target.documentID,first.documentID);
+  for(let state=registry.head;state;state=state.next)assert.equal(state.operations.size,1);
   assert.equal(f.call({action:'validate',target:first}).valid,false);assert.equal(f.input.inputCount,0);
+});
+
+test('empty focus-only leases renew without accumulating monitors, listeners or retained generations', async () => {
+  for(const thread of [false,true]) {
+    const f=fixture({thread}),original=f.target(),registry=f.context.__riftletWebAcceptance20261027v13;
+    const state=registry.tail,oldTargets=[original],originalJSON=JSON.stringify(original);
+    const eventCounts=()=>JSON.stringify([...f.events,...f.globalEvents].map(([type,list])=>[type,list.length]));
+    const listeners=eventCounts(),observers=f.mutationObservers.length;
+    for(let i=0;i<96;i++) {
+      const previous=state.target,previousJSON=JSON.stringify(previous);
+      f.focus(false);f.windowEvent('blur');
+      f.document.visibilityState='hidden';for(const fn of f.events.get('visibilitychange')||[])fn();
+      assert.equal(f.call({action:'validate',target:previous}).valid,false);
+      f.focus(true);f.windowEvent('focus');
+      f.document.visibilityState='visible';for(const fn of f.events.get('visibilitychange')||[])fn();
+      const fresh=f.target();oldTargets.push(fresh);
+      assert.notEqual(fresh,previous);assert.notEqual(fresh.documentID,previous.documentID);
+      assert.notEqual(fresh.draftGeneration,previous.draftGeneration);
+      assert.equal(JSON.stringify(previous),previousJSON);
+      assert.equal(f.call({action:'validate',target:previous}).valid,false);
+      assert.equal(f.call({action:'validate',target:fresh}).valid,true);
+      assert.equal(registry.tail,state);assert.equal(registry.head,state);assert.equal(registry.count,1);
+      assert.equal(state.operations.size,0);assert.equal(f.input.inputCount,0);
+    }
+    assert.equal(JSON.stringify(original),originalJSON);assert.equal(eventCounts(),listeners);
+    assert.equal(f.mutationObservers.length,observers);
+    if(thread) {
+      const monitor=registry.rootMonitors.get(f.fibers.root.stateNode),before=monitor.diagnostics.checks;
+      threadCommit(f);assert.equal(monitor.diagnostics.checks-before,1);
+    }
+    for(const target of oldTargets.slice(0,-1)) {
+      const identity={operationID:'33333333-3333-4333-8333-333333333333',assetID:'44444444-4444-4444-8444-444444444444',attempt:1,assetSHA256:digest(png),target};
+      assert.equal(f.call({action:'validate',target}).valid,false);
+      assert.throws(()=>f.call({action:'begin',target,identity}),/TARGET_INVALID/);
+      assert.equal(f.call({action:'observe',target,identity}).observation.state,'invalidated');
+    }
+    // A fresh independently captured lease can perform its own one input. No
+    // preceding rejected target was retried or assigned this new identity.
+    const op=f.bind();f.stage(op);f.commit(op);await f.settle();assert.equal(f.input.inputCount,1);
+  }
+});
+
+test('empty renewal leaves prior UNKNOWN and even uncommitted operations on their original state', async () => {
+  for(const committed of [false,true]) {
+    const f=fixture({thread:true}),old=f.bind();f.stage(old);
+    if(committed){f.commit(old);await f.settle();}
+    const registry=f.context.__riftletWebAcceptance20261027v13,originalState=registry.tail;
+    const originalOperation=originalState.operations.get(old.identity.operationID);
+    const originalTarget=originalState.target,originalTargetJSON=JSON.stringify(originalTarget);
+    f.windowEvent('blur');f.windowEvent('focus');f.target();const emptyState=registry.tail;
+    assert.notEqual(emptyState,originalState);assert.equal(registry.count,2);
+    for(let i=0;i<96;i++){f.windowEvent('blur');f.windowEvent('focus');f.target();}
+    assert.equal(registry.count,2);assert.equal(registry.tail,emptyState);
+    assert.equal(registry.head,originalState);assert.equal(originalState.target,originalTarget);
+    assert.equal(JSON.stringify(originalState.target),originalTargetJSON);
+    assert.equal(originalState.operations.get(old.identity.operationID),originalOperation);
+    assert.equal(originalOperation.committed,committed);
+    assert.equal(f.observe(old).state,committed?'inputTriggered':'unknown');
+    assert.equal(f.input.inputCount,committed?1:0);
+    assert.throws(()=>f.stage(old),/TARGET_INVALID/);assert.throws(()=>f.commit(old),/TARGET_INVALID/);
+    const transplant=f.bind(old.identity.operationID);assert.throws(()=>f.stage(transplant),/BEGIN_REFUSED/);
+    assert.equal(f.input.inputCount,committed?1:0);
+  }
+});
+
+test('empty renewal cannot cross an observed business ABA, DOM detach or navigation boundary', () => {
+  const changes=[
+    f=>{threadCommit(f,'local-chatgpt:00000000-0000-0000-0000-000000000000');threadCommit(f);},
+    f=>f.queueMutation([{type:'childList',target:f.body,removedNodes:[f.form],addedNodes:[f.form]}]),
+    f=>f.navigationEvent('navigate')
+  ];
+  for(const change of changes) {
+    const f=fixture({thread:true}),old=f.target(),registry=f.context.__riftletWebAcceptance20261027v13,state=registry.tail;
+    f.windowEvent('blur');change(f);f.windowEvent('focus');const fresh=f.target();
+    assert.notEqual(registry.tail,state);assert.equal(registry.count,2);
+    assert.equal(state.target,old);assert.notEqual(fresh.draftGeneration,old.draftGeneration);
+    assert.equal(f.call({action:'validate',target:old}).valid,false);assert.equal(f.input.inputCount,0);
+  }
+});
+
+test('empty renewal refuses unavailable focus, composer and modal without changing the old target', () => {
+  const changes=[
+    f=>{f.focus(false);return()=>f.focus(true);},
+    f=>{f.document.visibilityState='hidden';return()=>{f.document.visibilityState='visible';};},
+    f=>{f.input.disabled=true;return()=>{f.input.disabled=false;};},
+    f=>{const modal=f.body.append(new f.Node('div',{role:'dialog','aria-modal':'true'}));return()=>{modal.attrs.hidden='';modal.rendered=false;};}
+  ];
+  for(const change of changes) {
+    const f=fixture({thread:true}),old=f.target(),registry=f.context.__riftletWebAcceptance20261027v13,state=registry.tail;
+    f.windowEvent('blur');const restore=change(f);
+    assert.throws(()=>f.target(),/UNSUPPORTED_TEST_SURFACE|COMPOSER_UNAVAILABLE/);
+    assert.equal(state.target,old);assert.equal(registry.count,1);assert.equal(state.operations.size,0);
+    assert.equal(f.call({action:'validate',target:old}).valid,false);assert.equal(f.input.inputCount,0);
+    restore();f.windowEvent('focus');const fresh=f.target();
+    assert.notEqual(fresh,old);assert.equal(registry.tail,state);assert.equal(registry.count,1);
+    assert.equal(f.call({action:'validate',target:old}).valid,false);
+  }
+});
+
+test('empty renewal cannot transfer a state to another native session, window or tab', () => {
+  for(const key of ['sessionID','windowID','tabID']) {
+    const f=fixture({thread:true}),old=f.target(),registry=f.context.__riftletWebAcceptance20261027v13,state=registry.tail;
+    const program=vm.runInContext('('+source+')',f.context),different={...native,[key]:key==='sessionID'?'4242:2':'23'};
+    f.windowEvent('blur');f.windowEvent('focus');const fresh=program({action:'captureTarget'},different);
+    assert.notEqual(registry.tail,state);assert.equal(state.target,old);assert.equal(registry.count,2);
+    assert.equal(fresh[key],different[key]);assert.equal(f.call({action:'validate',target:old}).valid,false);
+    assert.equal(program({action:'validate',target:fresh},different).valid,true);assert.equal(f.input.inputCount,0);
+  }
+});
+
+test('empty renewal does not recover a lost monitor or choose among ambiguous business composers', () => {
+  for(const lostMonitor of [false,true]) {
+    const f=fixture({thread:true}),old=f.target(),registry=f.context.__riftletWebAcceptance20261027v13,state=registry.tail;
+    const root=f.fibers.root.stateNode,monitor=registry.rootMonitors.get(root),operations=state.operations;
+    const observerCount=f.mutationObservers.length;
+    f.windowEvent('blur');
+    if(lostMonitor)Object.defineProperty(root,'current',{value:root.current,writable:true,configurable:true,enumerable:true});
+    else f.body.append(new f.Node('form',{'data-chatgpt-composer':'','data-composer-placement':'thread','data-thread-find-composer':'true'}));
+    f.windowEvent('focus');
+    assert.throws(()=>f.target(),lostMonitor?/ROOT_MONITOR_LOST/:/UNOBSERVED_THREAD_COMPOSER/);
+    assert.equal(registry.tail,state);assert.equal(state.target,old);assert.equal(state.operations,operations);
+    assert.equal(operations.size,0);assert.equal(registry.count,1);
+    assert.equal(f.mutationObservers.length,observerCount);assert.equal(f.input.inputCount,0);
+    assert.equal(f.call({action:'validate',target:old}).valid,false);
+    if(lostMonitor){assert.equal(monitor.diagnostics.stopped,true);assert.equal(monitor.diagnostics.reason,'DESCRIPTOR_LOST');}
+  }
+});
+
+test('already loaded v13 state without renewal capability uses the original bounded install path', () => {
+  // Capability absence models an already-loaded closure. It is intentionally
+  // not claimed to be execution of another frozen historical source file.
+  const prior=source.replace('currentSource, input, form, nodeID, renewEmptyInputLease, next: null',
+    'currentSource, input, form, nodeID, next: null');assert.notEqual(prior,source);
+  for(const count of [1,32]) {
+    const f=fixture({programSource:prior,thread:true}),old=[];
+    for(let i=0;i<count;i++){old.push(f.target());f.windowEvent('blur');f.windowEvent('focus');}
+    const registry=f.context.__riftletWebAcceptance20261027v13,state=registry.tail;
+    const root=f.fibers.root.stateNode,descriptor=Object.getOwnPropertyDescriptor(root,'current');
+    const monitor=registry.rootMonitors.get(root),operations=state.operations,validate=state.valid,drain=state.drain;
+    const current=vm.runInContext('('+source+')',f.context);
+    assert.equal(state.renewEmptyInputLease,undefined);
+    if(count===32)assert.throws(()=>current({action:'captureTarget'},native),/LEASE_GENERATION_LIMIT/);
+    else {
+      current({action:'captureTarget'},native);assert.notEqual(registry.tail,state);
+      for(let i=0;i<64;i++){f.windowEvent('blur');f.windowEvent('focus');current({action:'captureTarget'},native);}
+    }
+    assert.equal(registry.count,count===32?32:2);assert.equal(state.target,old.at(-1));
+    assert.equal(state.operations,operations);assert.equal(state.valid,validate);assert.equal(state.drain,drain);
+    assert.deepEqual(Object.getOwnPropertyDescriptor(root,'current'),descriptor);
+    assert.equal(registry.rootMonitors.get(root),monitor);assert.equal(monitor.diagnostics.stopped,false);
+    assert.equal(monitor.diagnostics.restored,false);
+    for(const target of old)assert.equal(current({action:'validate',target},native).valid,false);
+    assert.equal(f.input.inputCount,0);
+  }
 });
 
 test('Window focus/blur, pageshow and every visibility transition revoke the epoch', async () => {
