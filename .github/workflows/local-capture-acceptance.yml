@@ -1,0 +1,78 @@
+name: Isolated native capture and private import
+on:
+  push:
+    branches: ['codex/riftlet-natural-first-click-20261030']
+    paths: ['.github/workflows/local-capture-acceptance.yml']
+permissions:
+  contents: read
+concurrency:
+  group: local-capture-acceptance-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  owned-fixture:
+    runs-on: macos-15
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Record exact unchanged native source
+        run: |
+          set -euo pipefail
+          mkdir -p test-results
+          base=e5d77d3c82bf2769387049e533e93073d36ee6fb
+          git merge-base --is-ancestor "$base" HEAD
+          git diff --exit-code "$base" HEAD -- Sources Tests Package.swift
+          git rev-parse HEAD | tee test-results/head.txt
+          git ls-tree HEAD Sources Tests Package.swift | tee test-results/native-trees.txt
+          swift --version | tee test-results/compiler.txt
+          sw_vers | tee test-results/os.txt
+      - name: Run the one existing actual Apple capture and import test
+        timeout-minutes: 15
+        env:
+          RIFTLET_REAL_CAPTURE_FIXTURE: '1'
+        run: |
+          set -euo pipefail
+          # GITHUB_ACTIONS is supplied by GitHub, not forged by a local runner.
+          # The existing test checks permission and owned-fixture coverage;
+          # it never requests capture permission or uses a real user's desktop.
+          # No parallel execution, full suite, retry, or new capture probe.
+          swift test --filter 'BuiltInCaptureNativeProbeTests.testActualAppleCapturePublicationAndPrivateImport' 2>&1 | tee test-results/native-capture.log
+      - name: Preserve the original native outcome without upgrading skips
+        if: always()
+        run: |
+          set -euo pipefail
+          # verify-capture-probe-outcome.py accepts a different standalone
+          # benchmark schema. Do not fabricate its samples from this XCTest.
+          # Job success means no assertion failure, not that all modes ran.
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path('test-results')
+          records = []
+          for line in (root / 'native-capture.log').read_text().splitlines():
+              try:
+                  value = json.loads(line)
+              except ValueError:
+                  continue
+              if isinstance(value, dict) and value.get('probe') == 'built-in-native-engine':
+                  records.append(value)
+          summaries = [r for r in records if r.get('event') == 'summary']
+          assert len(summaries) == 1, 'MISSING_OR_DUPLICATE_NATIVE_SUMMARY'
+          assert not any(r.get('status') == 'FAIL' for r in records), 'NATIVE_PROBE_FAILED'
+          assert summaries[0].get('status') in {'PASS', 'PARTIAL', 'NOT_RUN'}, 'UNKNOWN_NATIVE_OUTCOME'
+          (root / 'native-outcome.json').write_text(json.dumps(records, indent=2) + '\n')
+          print(json.dumps(summaries[0], sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: local-capture-${{ github.sha }}
+          path: |
+            test-results/*.log
+            test-results/*.json
+            test-results/*.txt
+          retention-days: 14
+# Specialist execution only. Exclude this workflow from formal integration.
+# Physical input, ChatGPT attachment and production admission are not granted.
