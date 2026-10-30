@@ -1,3 +1,15 @@
+# Independent ordinary-entry preparation — 2026-10-30
+
+Closed-source checkpoint `ea1af082853d4b6a6e932c66b21ed5b7d1e8681e` is based on formal `edbdc7aae45c35878694e9fa376757dac7b630a8`. Product patch `4f5285e` prepares ordinary composition and preserves historical UNKNOWN during local recovery. Website compatibility patch `0033517` pins actual main `ea22efe25e080bd2e4a4ccf4538dbf2286c803a6` and 28 exact website objects. The following commit only activates its source-review pin and records this scope; it grants no upload admission.
+
+Non-author `ordinary_main_gate` reviewed App/Adapters/Core/tests and confirmed exact source; non-author `ordinary_entry_review` reviewed App and website gate, while root inspected exact website objects/audit preservation. The concrete UNKNOWN reason/time rewrite found during review was fixed; no unresolved source blocker remains. Review references bind evidence artifacts, not a runtime executable attestation. Candidate profiles cannot enable ordinary input. **Ordinary input/start/completion, retry and continuation remain closed.**
+
+Local adapter/App compilation and development packaging PASS; strict bundle/signature checks PASS (ad-hoc, not notarized). Local XCTest is unavailable in CLT, so native test execution is not claimed here. Website isolation fixtures: 25 PASS. Actual old formal + new main object merge: updated gate 32 PASS, previous gate rejects; no main/site files or refs modified. Existing Native workflow has one precise additional branch trigger for this isolated work only. CI status will be recorded after execution, never inferred from earlier runs.
+
+Details and missing final ordinary-App E2E evidence: [ordinary readiness](../../../docs/ORDINARY_CAPTURE_READINESS_2026-10-30.md). No Chrome actions, user database access, old operation replay, selection research or public release occurred in this increment. All prior evidence below is preserved.
+
+---
+
 # 冷首击与持续使用生命周期正式集成 — 2026-10-30
 
 **精确合流源码已完成非作者审查；此提交是来源准入检查点，正式组合 CI 与新 App 制品尚待实际运行。** 正式产品仍由 Draft PR #1 承载，PR #15 只用于必要交接。不合并 main、不公开发行、不要求创始人提前体验。

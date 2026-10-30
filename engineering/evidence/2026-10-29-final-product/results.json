@@ -11151,5 +11151,21 @@
       "Normal-mode upload and safe-retry release admission",
       "Previously unexecuted physical Mac Feedback UI-to-cloud acceptance"
     ]
+  },
+  "ordinaryEntryPreparation": {
+    "source": "ea1af082853d4b6a6e932c66b21ed5b7d1e8681e",
+    "baseline": "edbdc7aae45c35878694e9fa376757dac7b630a8",
+    "main": "ea22efe25e080bd2e4a4ccf4538dbf2286c803a6",
+    "review": "PASS_CLOSED_SOURCE_ONLY",
+    "ordinaryInput": false,
+    "ordinaryStart": false,
+    "ordinaryCompletion": false,
+    "safeRetry": false,
+    "webContinuation": false,
+    "localBuild": "PASS",
+    "localNativeTests": "NOT_RUN_XCTEST_UNAVAILABLE",
+    "websiteIsolationTests": 25,
+    "finalOrdinaryAppE2E": "NOT_RUN",
+    "ci": "PENDING"
   }
 }
