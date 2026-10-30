@@ -49,7 +49,32 @@ def read_nonempty(path, code):
     return data
 
 
-def verify_bundle(app, repository=None):
+ORDINARY_ACCEPTANCE_OVERRIDES = {
+    "CFBundleIdentifier": "com.riftlet.ordinary-acceptance",
+    "CFBundleName": "Riftlet Ordinary Test",
+    "CFBundleDisplayName": "Riftlet Ordinary Test",
+    "RiftletBuildChannel": "ordinary-acceptance",
+    "NSAppleEventsUsageDescription": "Riftlet Ordinary Test 是隔离的内部普通入口验收构建，仅在你点击后向已授权 Chrome 的当前受支持 ChatGPT 草稿附加系统截图，绝不自动发送消息。普通产品上传、安全重试与未决多附件并行仍未开放。",
+}
+
+
+def ordinary_acceptance_plist(source):
+    return {**source, **ORDINARY_ACCEPTANCE_OVERRIDES}
+
+
+def verify_ordinary_build_info(info, channel="ordinary-acceptance"):
+    require(channel in {"development", "ordinary-acceptance"}, "invalid_expected_channel")
+    internal = channel == "ordinary-acceptance"
+    expected = {"internalAcceptance": internal, "mode": "capture",
+                "dataDirectory": "Riftlet-Ordinary-Acceptance" if internal else "Riftlet", "input": internal,
+                "start": internal, "completion": internal, "safeRetry": False, "continuation": False}
+    require(isinstance(info, dict) and set(info) == set(expected), "invalid_ordinary_build_info")
+    require(all(type(info[key]) is type(value) and info[key] == value for key, value in expected.items()),
+            "invalid_ordinary_build_info")
+
+
+def verify_bundle(app, repository=None, channel="development"):
+    require(channel in {"development", "ordinary-acceptance"}, "invalid_expected_channel")
     app = Path(app)
     require(app.suffix == ".app" and app.is_dir() and not app.is_symlink(), "invalid_app_root")
     # Reject links and special files so a packaged dependency cannot escape the
@@ -76,6 +101,8 @@ def verify_bundle(app, repository=None):
         "LSApplicationCategoryType": "public.app-category.utilities",
         "RiftletBuildChannel": "development",
     }
+    if channel == "ordinary-acceptance":
+        exact_values.update(ORDINARY_ACCEPTANCE_OVERRIDES)
     for key, value in exact_values.items():
         require(info.get(key) == value, "invalid_" + key)
     for key, value in {"LSUIElement": True, "NSHighResolutionCapable": True,
@@ -121,9 +148,13 @@ def verify_bundle(app, repository=None):
 
     if repository is not None:
         repository = Path(repository)
-        require((contents / "Info.plist").read_bytes() ==
-                read_nonempty(repository / "Resources/Info.plist", "missing_source_plist"),
-                "plist_differs_from_source")
+        source_plist = read_nonempty(repository / "Resources/Info.plist", "missing_source_plist")
+        if channel == "ordinary-acceptance":
+            # Only these fixed internal-channel substitutions are permitted.
+            # Comparing the complete dictionary rejects added/removed keys too.
+            require(info == ordinary_acceptance_plist(plistlib.loads(source_plist)), "plist_differs_from_source")
+        else:
+            require((contents / "Info.plist").read_bytes() == source_plist, "plist_differs_from_source")
         source_resources = repository / "Sources/RiftletAdapters/Resources"
         for name, data in packaged_resources.items():
             require(data == read_nonempty(source_resources / name, "missing_source_resource"),
@@ -134,7 +165,7 @@ def verify_bundle(app, repository=None):
         actual = {p.relative_to(notices).as_posix(): p.read_bytes()
                   for p in notices.rglob("*") if p.is_file()}
         require(actual == expected, "notices_differ_from_source")
-    return {"channel": "development", "version": info["CFBundleShortVersionString"],
+    return {"channel": channel, "version": info["CFBundleShortVersionString"],
             "minimum_macos": info["LSMinimumSystemVersion"],
             "developer_id_signed": False, "notarized": False}
 
@@ -143,16 +174,17 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("app", type=Path)
     parser.add_argument("--repository", type=Path)
+    parser.add_argument("--channel", choices=("development", "ordinary-acceptance"), default="development")
     args = parser.parse_args()
     try:
-        result = verify_bundle(args.app, args.repository)
+        result = verify_bundle(args.app, args.repository, args.channel)
     except (VerificationError, OSError) as error:
         # Do not expose machine paths in CI artifacts or future diagnostics.
         code = str(error) if isinstance(error, VerificationError) else "bundle_io_error"
         print("RIFTLET_BUNDLE_CHECK_FAIL: " + code, file=sys.stderr)
         return 1
     print("RIFTLET_BUNDLE_CHECK_PASS: layout, permissions text, resources, notices; "
-          "development " + result["version"] + "; NOT_NOTARIZED; GATEKEEPER_NOT_RUN")
+          + result["channel"] + " " + result["version"] + "; NOT_NOTARIZED; GATEKEEPER_NOT_RUN")
     return 0
 
 

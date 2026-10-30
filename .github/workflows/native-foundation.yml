@@ -204,6 +204,12 @@ jobs:
           "$riftlet_check_dir/Riftlet.app/Contents/MacOS/Riftlet" --first-use-self-check 2>&1 | tee test-results/first-use-self-check.log
           "$riftlet_check_dir/Riftlet.app/Contents/MacOS/Riftlet" --system-screenshot-candidate-self-check 2>&1 | tee test-results/system-screenshot-candidate-self-check.log
           ditto -c -k --sequesterRsrc --keepParent build/Riftlet.app build/Riftlet-macOS-development.zip
+      - name: Verify isolated ordinary-entry acceptance build
+        if: matrix.runner == 'macos-15'
+        run: |
+          set -o pipefail
+          swift test --scratch-path build/ordinary-test-swift -Xswiftc -D -Xswiftc RIFTLET_ORDINARY_ACCEPTANCE --filter OrdinaryCaptureConfigurationTests 2>&1 | tee test-results/ordinary-acceptance-tests.log
+          bash scripts/build-ordinary-acceptance.sh 2>&1 | tee test-results/ordinary-acceptance-package.log
       - name: Package unified internal Beta with explicit candidate entry
         env:
           RIFTLET_BUILD_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
