@@ -1,0 +1,51 @@
+name: Transfer lifecycle specialist verification
+on:
+  push:
+    branches: ['codex/riftlet-transfer-lifecycle-20261030']
+    paths: ['Sources/**', 'Tests/**', '.github/workflows/transfer-lifecycle.yml']
+permissions:
+  contents: read
+concurrency:
+  group: lifecycle-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  native:
+    runs-on: macos-15
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Source and ephemeral runner baseline
+        run: |
+          set -euo pipefail
+          mkdir -p test-results
+          git rev-parse HEAD | tee test-results/head.txt
+          git diff --exit-code 98e66a956d55b5fac71718bc627dd89705b2a506 HEAD -- Sources/RiftletApp/FeedbackHost.swift Sources/RiftletUI Resources Package.swift
+          defaults write com.apple.universalaccess reduceMotion -bool false
+          defaults write com.apple.universalaccess reduceTransparency -bool false
+          swift --version | tee test-results/compiler.txt
+      - name: Deterministic page regression
+        run: |
+          set -euo pipefail
+          node --test Tests/WebPageProgram/*.test.cjs 2>&1 | tee test-results/page.log
+      - name: Complete native suite
+        run: |
+          set -euo pipefail
+          swift test --parallel 2>&1 | tee test-results/native.log
+      - name: Build signed development App and offline checks
+        run: |
+          set -euo pipefail
+          bash scripts/build-macos.sh 2>&1 | tee test-results/build.log
+          build/Riftlet.app/Contents/MacOS/Riftlet --self-check 2>&1 | tee test-results/self-check.log
+          build/Riftlet.app/Contents/MacOS/Riftlet --web-acceptance-self-check 2>&1 | tee test-results/web-check.log
+          build/Riftlet.app/Contents/MacOS/Riftlet --system-screenshot-candidate-self-check 2>&1 | tee test-results/candidate-check.log
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: lifecycle-${{ github.sha }}
+          path: test-results/
+          retention-days: 14
+# Independent test executor only, not a replacement for formal composition admission.
+# No Chrome, real uploads, user databases, source-review pins, publication or release.
