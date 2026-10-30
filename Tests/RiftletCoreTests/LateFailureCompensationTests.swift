@@ -147,6 +147,8 @@ final class LateFailureCompensationTests: XCTestCase {
     private func restoreLegacyOperationsSchema() throws -> SQLiteDatabase {
         let legacy = try SQLiteDatabase(url: root.appendingPathComponent("queue.sqlite"))
         try legacy.transaction {
+            // This isolated fixture is reconstructing v1, before this extension existed.
+            try legacy.execute("DELETE FROM metadata WHERE key='transfer-dispatch-slots-v1'")
             try legacy.execute("DROP TABLE upload_starts")
             try legacy.execute("DROP INDEX visible_queue_order")
             for column in ["visibility", "visibility_revision", "visibility_reason", "last_interaction_at"] {
