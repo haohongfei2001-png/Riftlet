@@ -35,7 +35,7 @@ function riftletWebAcceptance(command, native) {
 
   // Pure bounded reader of the observed current committed React ancestry.
   // No pendingProps, endpoint calls, DOM text extraction or alternate guessing.
-  function readThreadBinding(form) {
+  function readThreadBinding(form, home = false) {
     const keys = Object.keys(form).filter(k => k.startsWith('__reactFiber$'));
     if (keys.length !== 1) return null;
     const installed = Object.getOwnPropertyDescriptor(form, keys[0])?.value;
@@ -72,16 +72,16 @@ function riftletWebAcceptance(command, native) {
       // Both exact forms were observed in current committed ordinary-thread props.
       // Preserve the full value; a local-to-persisted transition is a new binding.
       const format = typeof id === 'string' && /^(local-chatgpt:)?[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/.exec(id);
-      if (!format || (identity !== null && identity !== id)) return null;
+      if (!format || (home && !format[1]) || (identity !== null && identity !== id)) return null;
       identity = id;
       profileID = format[1] ? 'chatgpt-composer-react-20261027-v1' : 'chatgpt-composer-react-persisted-20261027-v1';
       if (mode) {
-        if (props.isHome !== false || props.isWork !== false || props.readOnly !== false) return null;
+        if (props.isHome !== home || props.isWork !== false || props.readOnly !== false) return null;
         modeSeen = true;
       }
       if (draft) {
         if (props.draftKey !== id || props.isWorkConversation !== false || props.isTemporaryChat !== false
-            || props.readOnly !== false || props.surfacePlacement?.kind !== 'thread') return null;
+            || props.readOnly !== false || props.surfacePlacement?.kind !== (home ? 'home' : 'thread')) return null;
         draftSeen = true;
       }
     }
@@ -332,11 +332,16 @@ function riftletWebAcceptance(command, native) {
     if (native.applicationID !== 'com.google.Chrome' || !native.sessionID
         || !/^\d+$/.test(native.windowID) || !/^\d+$/.test(native.tabID)) fail('NATIVE_CONTEXT_REQUIRED');
     const modeSelector = '[role=group][aria-label="撰写器模式"]';
-    const threadFormSelector = 'form[data-chatgpt-composer][data-composer-placement=thread][data-thread-find-composer=true]';
+    const homeFormSelector = 'form[data-chatgpt-composer][data-composer-placement=home][data-thread-find-composer=true]';
+    // The modern Home surface has an independently observed committed local
+    // business identity. Never fall back to legacy header proof if it conflicts.
+    const businessHome = home && document.querySelectorAll(homeFormSelector).length > 0;
+    const threadFormSelector = businessHome ? homeFormSelector
+      : 'form[data-chatgpt-composer][data-composer-placement=thread][data-thread-find-composer=true]';
     const threadEditorSelector = '[contenteditable=true][role=textbox][aria-label="询问 ChatGPT"]';
     let modeGroup = null, modeHeader = null, chatMode = null, workMode = null;
     let form, editor, logicalDraftIdentity, boundRoot = null, monitorAlive = null, modeMatches;
-    if (home) {
+    if (home && !businessHome) {
       const modeGroups = [...document.querySelectorAll(modeSelector)];
       if (modeGroups.length !== 1 || !modeGroups[0].closest('header')) fail('UNPROVEN_CHAT_MODE');
       modeGroup = modeGroups[0]; modeHeader = modeGroup.closest('header');
@@ -364,12 +369,12 @@ function riftletWebAcceptance(command, native) {
       const editors = [...form.querySelectorAll(threadEditorSelector)];
       if (editors.length !== 1) fail('AMBIGUOUS_COMPOSER');
       editor = editors[0];
-      const binding = readThreadBinding(form);
+      const binding = readThreadBinding(form, businessHome);
       if (!binding) fail('UNPROVEN_THREAD_IDENTITY');
       logicalDraftIdentity = binding.logical; boundRoot = binding.root;
       modeMatches = () => {
         const forms = document.querySelectorAll(threadFormSelector);
-        const binding = readThreadBinding(form);
+        const binding = readThreadBinding(form, businessHome);
         return forms.length === 1 && forms[0] === form && binding?.root === boundRoot
           && sameLogical(binding?.logical, logicalDraftIdentity) && (!monitorAlive || monitorAlive());
       };
@@ -410,7 +415,7 @@ function riftletWebAcceptance(command, native) {
     };
     if (!composerAvailable()) fail('COMPOSER_UNAVAILABLE');
     // Reject a missing/lost monitor before registering any generation listeners.
-    const monitor = thread ? rootMonitor(registry, boundRoot) : null;
+    const monitor = boundRoot ? rootMonitor(registry, boundRoot) : null;
     const ids = new WeakMap(), operations = new Map();
     let nextNode = 0, invalid = false, inputRevoked = false, sequence = 0;
     const retiredTargets = [];
@@ -770,9 +775,9 @@ function riftletWebAcceptance(command, native) {
         continuityEvents[type]++; invalidate();
       });
     }
-    if (thread) {
+    if (boundRoot) {
       const checkBinding = () => {
-        const binding = readThreadBinding(form), forms = document.querySelectorAll(threadFormSelector);
+        const binding = readThreadBinding(form, businessHome), forms = document.querySelectorAll(threadFormSelector);
         const editors = form.querySelectorAll(threadEditorSelector);
         const inputs = form.querySelectorAll('input[type=file][aria-label="附加文件"]');
         return binding?.root === boundRoot && sameLogical(binding?.logical, logicalDraftIdentity)

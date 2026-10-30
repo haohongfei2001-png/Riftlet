@@ -108,7 +108,7 @@ final class OrdinaryCaptureConfigurationTests: XCTestCase {
         XCTAssertEqual(OrdinaryAttachmentAdmission.internalAcceptance().targetScope, .ordinary)
         XCTAssertTrue(Set(current.receiptPolicy.admittedProfiles.keys).isDisjoint(with: SystemScreenshotCandidateConfiguration.completedAttachmentProfiles.keys))
         XCTAssertTrue(current.supportText.contains("本地身份"))
-        XCTAssertTrue(current.supportText.contains("首页尚未支持"))
+        XCTAssertTrue(current.supportText.contains("新聊天及已有聊天"))
         let onlyInput = OrdinaryAttachmentAdmission.internalAcceptance(start: false, completion: false, currentDrafts: true)
         XCTAssertTrue(onlyInput.allowsInput)
         XCTAssertTrue(onlyInput.receiptPolicy.uploadStartProfiles.isEmpty)
