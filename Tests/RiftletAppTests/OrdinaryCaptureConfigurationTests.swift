@@ -21,6 +21,18 @@ final class OrdinaryCaptureConfigurationTests: XCTestCase {
     }
 
     func testDefaultOrdinaryEntryCannotBeEnabledByRuntimeArgumentsOrCandidatePolicy() throws {
+        #if RIFTLET_ORDINARY_ACCEPTANCE
+        XCTAssertEqual(try ApplicationMode.resolve([]), .capture)
+        XCTAssertEqual(ApplicationMode.capture.directoryName, "Riftlet-Ordinary-Acceptance")
+        XCTAssertEqual(ApplicationMode.capture.menuTitle, "Riftlet ORDINARY TEST")
+        XCTAssertTrue(ApplicationMode.capture.usesWebAdapter)
+        XCTAssertTrue(ApplicationMode.capture.observesAttachments)
+        for option in ["--simulate", "--web-acceptance", "--system-screenshot-candidate"] {
+            XCTAssertThrowsError(try ApplicationMode.resolve([option]))
+        }
+        XCTAssertEqual(OrdinaryCaptureConfiguration.admission.purpose, .internalAcceptance)
+        XCTAssertTrue(ProductStatus.supportDescription.contains("非生产准入"))
+        #else
         for arguments in [[], ["--acceptance-trace"], ["--enable-production-upload"], ["--ordinary-upload"]] {
             let mode = try ApplicationMode.resolve(arguments)
             XCTAssertEqual(mode, .capture)
@@ -37,22 +49,27 @@ final class OrdinaryCaptureConfigurationTests: XCTestCase {
         XCTAssertTrue(ProductStatus.supportDescription.contains("尚待最终 App"))
         XCTAssertEqual(ApplicationMode.capture.directoryName, "Riftlet")
         XCTAssertEqual(ApplicationMode.systemScreenshotCandidate.directoryName, "Riftlet-System-Screenshot-Candidate")
+        #endif
     }
 
     func testInputStartAndCompletionDecisionsAreIndependentAndBuildBound() {
         let proof = evidence()
-        let input = OrdinaryAttachmentAdmission(input: proof, start: nil, completion: nil)
+        let input = OrdinaryAttachmentAdmission.internalAcceptance(start: false, completion: false)
         XCTAssertTrue(input.allowsInput)
         XCTAssertTrue(ApplicationMode.capture.usesWebAdapter(ordinary: input))
         XCTAssertTrue(input.receiptPolicy.uploadStartProfiles.isEmpty)
         XCTAssertTrue(input.receiptPolicy.admittedProfiles.isEmpty)
-        let start = OrdinaryAttachmentAdmission(input: proof, start: proof, completion: nil)
+        let start = OrdinaryAttachmentAdmission.internalAcceptance(start: true, completion: false)
         XCTAssertEqual(Set(start.receiptPolicy.uploadStartProfiles.keys), [OrdinarySystemScreenshotScope.admittedUploadStartProfileID])
         XCTAssertTrue(start.receiptPolicy.admittedProfiles.isEmpty)
-        let complete = OrdinaryAttachmentAdmission(input: proof, start: nil, completion: proof)
+        let complete = OrdinaryAttachmentAdmission.internalAcceptance(start: false, completion: true)
         XCTAssertTrue(complete.receiptPolicy.uploadStartProfiles.isEmpty)
         XCTAssertEqual(Set(complete.receiptPolicy.admittedProfiles.keys), [OrdinarySystemScreenshotScope.admittedCompletionProfileID])
         XCTAssertTrue(complete.receiptPolicy.retrySafeProfiles.isEmpty)
+        let fakeApproval = OrdinaryAttachmentAdmission(input: proof, start: proof, completion: proof)
+        XCTAssertFalse(fakeApproval.allowsInput); XCTAssertFalse(fakeApproval.allowsStart); XCTAssertFalse(fakeApproval.allowsCompletion)
+        XCTAssertEqual(fakeApproval.purpose, .production)
+        XCTAssertTrue(complete.receiptPolicy.continuationProfiles.isEmpty)
         let noInput = OrdinaryAttachmentAdmission(input: nil, start: proof, completion: proof)
         XCTAssertFalse(noInput.allowsInput); XCTAssertFalse(noInput.allowsStart); XCTAssertFalse(noInput.allowsCompletion)
         let different = OrdinaryAttachmentAdmission(input: proof, start: evidence(app: String(repeating: "e", count: 64)), completion: evidence(app: "malformed"))
@@ -65,14 +82,13 @@ final class OrdinaryCaptureConfigurationTests: XCTestCase {
         defer { try? FileManager.default.removeItem(at: root) }
         let store = try QueueStore(databaseURL: root.appendingPathComponent("queue.sqlite"))
         let spy = OrdinaryBridgeSpy()
-        let closed = try ApplicationAttachmentComposition.make(mode: .capture, root: root, store: store, executor: spy)
+        let closed = try ApplicationAttachmentComposition.make(mode: .capture, root: root, store: store, executor: spy, ordinary: .closed)
         do { _ = try await closed.adapter.captureTarget(); XCTFail("Closed ordinary entry used Web") }
         catch RiftletError.adapterUnavailable {}
         let zero = await spy.calls; XCTAssertEqual(zero, 0)
         // Counterfactual source-owned admission tests wiring; never shipped as a runtime switch.
-        let proof = evidence()
         let scoped = try ApplicationAttachmentComposition.make(mode: .capture, root: root, store: store, executor: spy,
-            ordinary: .init(input: proof, start: proof, completion: proof))
+            ordinary: .internalAcceptance())
         do { _ = try await scoped.adapter.captureTarget(); XCTFail("Fake executor should reject") }
         catch WebAdapterError.browserNotFrontmost {}
         let one = await spy.calls; XCTAssertEqual(one, 1)
@@ -81,6 +97,9 @@ final class OrdinaryCaptureConfigurationTests: XCTestCase {
     }
 
     @MainActor func testOrdinaryReopenPreservesUnknownMediaHistoryAndPreferencesWithoutRegistration() async throws {
+        #if RIFTLET_ORDINARY_ACCEPTANCE
+        throw XCTSkip("Closed ordinary startup is tested by the default build; internal variant intentionally observes its isolated root")
+        #else
         let base = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: base) }
         let root = base.appendingPathComponent(ApplicationMode.capture.directoryName)
@@ -134,5 +153,6 @@ final class OrdinaryCaptureConfigurationTests: XCTestCase {
             let op = try await second.prepare(assetID: b.id, target: target)
             try await second.markDispatchIntent(op.id); XCTFail("Legacy UNKNOWN lock was released")
         } catch RiftletError.targetBusy {}
+        #endif
     }
 }

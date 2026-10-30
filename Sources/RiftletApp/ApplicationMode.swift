@@ -12,6 +12,7 @@ enum ApplicationMode: CaseIterable, Equatable {
             ("--system-screenshot-candidate", .systemScreenshotCandidate)
         ]
         let selected = selections.filter { arguments.contains($0.0) }
+        guard !OrdinaryCaptureConfiguration.isInternalAcceptance || selected.isEmpty else { throw RiftletError.modeMismatch }
         guard selected.count <= 1 else { throw RiftletError.modeMismatch }
         return selected.first?.1 ?? .capture
     }
@@ -26,7 +27,7 @@ enum ApplicationMode: CaseIterable, Equatable {
     var storeMode: StoreMode { self == .simulation ? .simulation : .production }
     var directoryName: String {
         switch self {
-        case .capture: return "Riftlet"
+        case .capture: return OrdinaryCaptureConfiguration.dataDirectoryName
         case .simulation: return "Riftlet-Simulation"
         case .webAcceptance: return "Riftlet-Web-Acceptance"
         case .systemScreenshotCandidate: return "Riftlet-System-Screenshot-Candidate"
@@ -42,7 +43,7 @@ enum ApplicationMode: CaseIterable, Equatable {
     }
     var menuTitle: String {
         switch self {
-        case .capture: return "Riftlet"
+        case .capture: return OrdinaryCaptureConfiguration.menuTitle
         case .simulation: return "Riftlet SIM"
         case .webAcceptance: return "Riftlet WEB TEST"
         case .systemScreenshotCandidate: return "Riftlet REAL TEST"
