@@ -229,6 +229,41 @@ class FinalProductCompositionTests(unittest.TestCase):
         self.assertEqual(report["compositionMode"], "fixed-main-test-merge")
         self.assertEqual(set(report["mainOverlayObjects"]), {path for path, _ in self.overlay})
 
+    def testReviewedWebsiteSuccessorNeedsExactNewPinAndKeepsHistoricalAssets(self):
+        old_policy = self.policy
+        old_main = self.main
+        self.git("checkout", "-q", "--detach", old_main)
+        self.write("website/index.html", "new independently reviewed website\n")
+        self.write("website/v2.css", "new website stylesheet\n")
+        self.write("website/font.woff2", "opaque fixture font bytes\n")
+        self.main = self.commit("website-only successor")
+        paths = ("website/index.html", "website/hero.js", "website/v2.css", "website/font.woff2")
+        self.overlay = tuple((path, self.object(self.main, path)) for path in paths)
+        self.policy = replace(self.policy, main_revision=self.main, main_objects=self.overlay)
+        merged = self.make_test_merge()
+        self.check(merged, policy=old_policy)
+        self.check(merged, policy=replace(self.policy, main_objects=old_policy.main_objects))
+        report = self.check(merged, expected="PASS")
+        self.assertEqual(report["mainOverlayObjects"]["website/hero.js"]["oid"],
+                         self.object(old_main, "website/hero.js"))
+
+        # A broad directory allowance would accept these; exact objects must not.
+        for mutation in ("remove-old", "change-new", "executable-font"):
+            with self.subTest(mutation=mutation):
+                self.git("checkout", "-q", "--detach", merged)
+                if mutation == "remove-old":
+                    self.git("rm", "-q", "website/hero.js")
+                elif mutation == "change-new":
+                    self.write("website/v2.css", "unreviewed new stylesheet\n")
+                    self.git("add", "website/v2.css")
+                else:
+                    self.git("update-index", "--chmod=+x", "website/font.woff2")
+                tree = self.git("write-tree")
+                invalid = self.git("commit-tree", tree, "-p", self.main, "-p", self.reviewed,
+                                   "-m", "invalid website successor")
+                self.check(invalid)
+                self.git("reset", "--hard", merged)
+
     def testWebsiteOverlayOnOrdinaryCandidateIsRejected(self):
         self.make_test_merge()
         changed = self.commit("website without matching merge parents")
