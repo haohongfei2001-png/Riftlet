@@ -1,0 +1,111 @@
+{
+  "schemaVersion": 1,
+  "sourceSHA": "20555b1b115ae4a5a6157ec7d9a73bb0795998f1",
+  "diagnosticSourceSHA": "95fdd19018c0f350fdc43e7af270ccac9969e3da",
+  "formalProductSHA": "edbdc7aae45c35878694e9fa376757dac7b630a8",
+  "package": {
+    "ordinaryInternalAcceptance": true,
+    "normalLaunchWithAcceptanceTrace": true,
+    "systemCandidateArgument": false,
+    "productionRelease": false,
+    "binarySHA256": "64ce272bd527fde7b3cf634f551e3d5c2296d549d562d0ebd4be6aabd0fd8d01",
+    "instrumentedPageSHA256": "47097eb39014711baab5a4e39096deb00022725f60919ac61fa6444ac1e26170"
+  },
+  "environment": {
+    "macOS": "27.0",
+    "build": "26A428",
+    "mouseSource": "CGEvent",
+    "physical": "NOT_RUN"
+  },
+  "source": {
+    "kind": "macOS Screenshot.app selected-window UI",
+    "bytes": 5253662,
+    "width": 1664,
+    "height": 1524,
+    "bitDepth": 8,
+    "colorType": 6,
+    "interlaced": false,
+    "systemMetadataVerified": true,
+    "originalAndPrivateCopySHA256": "b18b56d314a4b977fe3530a83be3dc11d5dfdb4acbb8c79dbc20abf9b32a7ef9",
+    "systemCompletionT0": null
+  },
+  "result": {
+    "captureImport": "PASS",
+    "preClickACKAndOriginalTarget": "PASS",
+    "nativeMicroimageSingleCGEventClick": "PASS",
+    "fileSetterAndChange": "PASS",
+    "chatGPTNewAttachment": "FAIL",
+    "uploadStarted": "FAIL",
+    "swallow": "NOT_RUN",
+    "complete": "FAIL",
+    "limitation": "ChatGPT displayed attachment quota exhausted; no original card/start/proof was observed",
+    "newFirstInvalidation": null,
+    "oldO1FirstCause": "UNDETERMINED",
+    "textHashPreserved": true,
+    "selectionPreserved": [
+      60,
+      53
+    ],
+    "stableOldImageNodesPreserved": 2,
+    "inputCount": 1,
+    "newOperations": 1,
+    "persistedStarts": 0,
+    "finalPhase": "unknown",
+    "visibility": "visible"
+  },
+  "timeline": {
+    "clock": "same boot native systemUptime seconds; page event interval mapped via before/after MAIN receipt, not a backdated ACK",
+    "initialEffectiveACK": 733539.3347962501,
+    "mouseDown": 733584.454472958,
+    "mouseUp": 733584.537856875,
+    "selectionSubmission": 733584.5451065834,
+    "inputChangeBound": [
+      733585.4871968332,
+      733585.512821
+    ],
+    "unknownVisibilityObservedUpperBound": 733595.5334110834,
+    "firstOperationRead": 733614.4862962917
+  },
+  "restart": {
+    "sameBinaryAndDataRoot": true,
+    "operationsAndIdentityAndPhaseUnchanged": true,
+    "assetAndVisibilityUnchanged": true,
+    "allCheckpointValuesUnchanged": true,
+    "mediaAndJournalsUnchanged": true,
+    "compensationsUnchanged": true,
+    "newOperations": 0,
+    "startsBefore": 0,
+    "startsAfter": 0
+  },
+  "attemptAccounting": {
+    "captureLayerGuardRefusals": 2,
+    "fullRegionGestureWithoutFileWithin15Seconds": 1,
+    "laterRegionPNGImportedAndNeverSelected": 1,
+    "systemWindowCaptureGesture": 1,
+    "newWindowPNGSelectedOnce": 1,
+    "foregroundPreparationRefusals": 2,
+    "syntheticShiftClickGuardRefusals": 1,
+    "actualMicroimageClicks": 1,
+    "fileInputs": 1,
+    "committedUnknown": 1,
+    "automaticResends": 0
+  },
+  "scope": {
+    "coldNoACK": "NOT_RUN",
+    "physicalMouse": "NOT_RUN",
+    "successfulUploadSelectionPreservation": "NOT_RUN",
+    "pendingAttachmentConcurrency": "NOT_RUN",
+    "safeRetry": false,
+    "webContinuation": false,
+    "ordinaryProductionAdmission": false,
+    "builtinSourceAdmission": false
+  },
+  "privateManifestSHA256": "5a67cca9c1060b59aab91db343369cae448a3ae9c73c11f4c0656c09cf365d01",
+  "validation": {
+    "newProductionCode": false,
+    "fullCI": "NOT_RUN; no production source change or repeated CI",
+    "currentInternalBuild": "PASS",
+    "sourceDiagnosticRegressions": "14 PASS previously independently reproduced; not rerun as a new result",
+    "nonAuthorReview": "PASS; first_cause_review, private evidence and public scope, causal wording corrected"
+  }
+}
