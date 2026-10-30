@@ -1,0 +1,37 @@
+{
+  "originalOperationsPreserved": true,
+  "originalOperationCount": 5,
+  "compensations": {
+    "before": 0,
+    "after": 0,
+    "oldRowsExact": true
+  },
+  "upload_starts": {
+    "before": 1,
+    "after": 3,
+    "oldRowsExact": true
+  },
+  "checkpoints": {
+    "before": 20,
+    "after": 33,
+    "oldRowsExact": true
+  },
+  "originalMedia": {
+    "count": 22,
+    "missingOrChanged": []
+  },
+  "integrity": "ok",
+  "originalOperationMutableChanges": {
+    "count": 3,
+    "fields": [
+      "updated_at"
+    ],
+    "reason": "read-only observation timestamps; identities, attempts, phases retained"
+  },
+  "historicalCandidateDataRootReused": true,
+  "startupBacklogImportedNotClicked": 4,
+  "assetCounts": {
+    "before": 11,
+    "after": 18
+  }
+}

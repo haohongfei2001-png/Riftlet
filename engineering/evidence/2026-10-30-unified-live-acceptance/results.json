@@ -1,0 +1,203 @@
+{
+  "sourceSHA": "edbdc7aae45c35878694e9fa376757dac7b630a8",
+  "eventSource": "CGEvent through WindowServer/AppKit",
+  "physical": "NOT_RUN",
+  "ordinaryProductionEnabled": false,
+  "safeRetryEnabled": false,
+  "webContinuationEnabled": false,
+  "samples": [
+    {
+      "sample": "trial2",
+      "bytes": 1167012,
+      "sourceSHA256": "3b00c3efb811f27a6de89bcd7f19b9e18bcfd80d79935051430668d865c3af6d",
+      "dimensions": [
+        702,
+        482
+      ],
+      "encoding": "noninterlaced RGBA8 PNG",
+      "systemMetadata": {
+        "kMDItemIsScreenCapture": true,
+        "kMDItemScreenCaptureType": "selection"
+      },
+      "sourcePrivateBytesMatch": true,
+      "ackLeadMS": 37665.41287500877,
+      "prebound": true,
+      "freezeAccepted": true,
+      "begin": 1,
+      "chunk": 5,
+      "commit": 1,
+      "pageInputCount": 1,
+      "progress": [
+        7.144515106668156,
+        12.860127192002679
+      ],
+      "pageInputToStartMS": 2298.100000023842,
+      "clickToSwallowStartMS": 3004.036125028506,
+      "clickToCloseCallbackMS": 3129.365291679278,
+      "animationCallbackMS": 125.3291666507721,
+      "clickToSuccessObservationMS": 8147.525958367623,
+      "pixelPresentationMeasured": false,
+      "phase": "succeeded",
+      "assetStatus": "used",
+      "visibility": "swallowed",
+      "safeToRetry": false,
+      "browserIndependentSRGB": {
+        "pending": false,
+        "noInput": true,
+        "noNetwork": true,
+        "source": {
+          "width": 702,
+          "height": 482,
+          "hash": "d6fb15838c6e838a9cf4002f7ebfeb1112672eab3b5b06b50e0d6cbadb890b3d"
+        },
+        "preview": {
+          "width": 702,
+          "height": 482,
+          "hash": "d6fb15838c6e838a9cf4002f7ebfeb1112672eab3b5b06b50e0d6cbadb890b3d"
+        },
+        "sourceUnchanged": true,
+        "pixelEqual": true
+      },
+      "nativeImageIOIndependentSRGB": {
+        "comparedBytes": 1353456,
+        "explicitSRGB": true,
+        "height": 482,
+        "pixelEqual": false,
+        "previewPixelSHA256": "d6fb15838c6e838a9cf4002f7ebfeb1112672eab3b5b06b50e0d6cbadb890b3d",
+        "rgbaPremultiplied": true,
+        "sourcePixelSHA256": "2cff79dabdf6e0c80bc4c4be6c9e2b402a654c51efe264cf1889610646e79258",
+        "width": 702
+      },
+      "textPreserved": true,
+      "oldAttachmentsBefore": 0,
+      "attachmentsAfter": 1,
+      "oldAttachmentRetained": "NOT_EXERCISED",
+      "selectionBefore": {
+        "collapsed": false,
+        "offsets": [
+          8,
+          15
+        ]
+      },
+      "selectionAfter": {
+        "collapsed": false,
+        "offsets": [
+          8,
+          15
+        ]
+      },
+      "selectionPreservation": "PASS",
+      "captureTiming": {
+        "softwareGesturePostedUptime": 710640.5889662501,
+        "completeFileAndImportObservedMonotonic": 710701.592333916,
+        "captureActualCompletionT0": "NOT_OBSERVED",
+        "firstClickableT2": "NOT_MEASURED",
+        "fifteenSecondProbeCompletedFileCount": 0,
+        "firstSeenToImportMS": 166.92495346069336,
+        "notes": "New complete PNG observed later, about 60 seconds after region gesture. Not attributed to watcher. No clock backfill."
+      }
+    },
+    {
+      "sample": "trial3",
+      "bytes": 1167115,
+      "sourceSHA256": "248f8be525e0a9359a0ed1d1388982ea63ed61d9070aea84bac2f9ea743a6b56",
+      "dimensions": [
+        702,
+        482
+      ],
+      "encoding": "noninterlaced RGBA8 PNG",
+      "systemMetadata": {
+        "kMDItemIsScreenCapture": true,
+        "kMDItemScreenCaptureType": "selection"
+      },
+      "sourcePrivateBytesMatch": true,
+      "ackLeadMS": 291.2005832185969,
+      "prebound": true,
+      "freezeAccepted": true,
+      "begin": 1,
+      "chunk": 5,
+      "commit": 1,
+      "pageInputCount": 1,
+      "progress": [
+        7.143816922840669,
+        14.287633845681338
+      ],
+      "pageInputToStartMS": 1432.7000000476837,
+      "clickToSwallowStartMS": 1930.8704168070108,
+      "clickToCloseCallbackMS": 2055.4891667561606,
+      "animationCallbackMS": 124.61874994914979,
+      "clickToSuccessObservationMS": 4844.795750104822,
+      "pixelPresentationMeasured": false,
+      "phase": "succeeded",
+      "assetStatus": "used",
+      "visibility": "swallowed",
+      "safeToRetry": false,
+      "browserIndependentSRGB": {
+        "pending": false,
+        "noInput": true,
+        "noNetwork": true,
+        "source": {
+          "width": 702,
+          "height": 482,
+          "hash": "846dd8299cc56302c5c6b4f9dd4e6b0705dca2bd4c8dc38afe8c72b959907b37"
+        },
+        "preview": {
+          "width": 702,
+          "height": 482,
+          "hash": "846dd8299cc56302c5c6b4f9dd4e6b0705dca2bd4c8dc38afe8c72b959907b37"
+        },
+        "sourceUnchanged": true,
+        "pixelEqual": true
+      },
+      "nativeImageIOIndependentSRGB": {
+        "comparedBytes": 1353456,
+        "explicitSRGB": true,
+        "height": 482,
+        "pixelEqual": false,
+        "previewPixelSHA256": "846dd8299cc56302c5c6b4f9dd4e6b0705dca2bd4c8dc38afe8c72b959907b37",
+        "rgbaPremultiplied": true,
+        "sourcePixelSHA256": "f9a8dbc5ea5ad3e58a69d7dbc3b2ea20be6a6ec9f111a3536613fc864b7c1c71",
+        "width": 702
+      },
+      "textPreserved": true,
+      "oldAttachmentsBefore": 1,
+      "attachmentsAfter": 2,
+      "oldAttachmentRetained": "PASS",
+      "selectionBefore": {
+        "collapsed": false,
+        "offsets": [
+          8,
+          15
+        ]
+      },
+      "selectionAfter": {
+        "collapsed": true,
+        "offsets": [
+          0,
+          0
+        ]
+      },
+      "selectionPreservation": "FAIL",
+      "captureTiming": {
+        "softwareGesturePostedUptime": 711579.6008525834,
+        "completeFileAndImportObservedMonotonic": 711640.568729083,
+        "captureActualCompletionT0": "NOT_OBSERVED",
+        "firstClickableT2": "NOT_MEASURED",
+        "fifteenSecondProbeCompletedFileCount": 0,
+        "firstSeenToImportMS": 181.5199851989746,
+        "notes": "New complete PNG observed later, about 60 seconds after region gesture. Not attributed to watcher. No clock backfill."
+      }
+    }
+  ],
+  "attemptAccounting": {
+    "newSystemPNGs": 3,
+    "nativeMouseSequences": 3,
+    "persistedNewOperations": 2,
+    "started": 2,
+    "succeeded": 2,
+    "newUnknown": 0,
+    "firstSample": "One CGEvent sequence; no persisted operation. Trace cap reached before click: routing/rejection cause NOT_PROVEN. Never retried.",
+    "preEventHelperRefusals": "Two stale-window guards in first sample; one document-focus baseline guard before trial3. These posted no mouseDown/up.",
+    "successRate": "No natural-physical success-rate estimate. Two verified completions across three software click sequences; one unauditable."
+  }
+}
