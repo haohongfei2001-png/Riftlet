@@ -1,0 +1,20 @@
+{
+  "date": "2026-10-30",
+  "browser": "Chromium 144.0.7559.96",
+  "platform": "Linux",
+  "device_scale_factor": 1,
+  "layout_widths": [320, 390, 768, 1024, 1440, 1920],
+  "languages": ["zh-CN", "en"],
+  "model": {"passed": 15, "total": 15},
+  "browser_checks": {"A_passed": 38, "A_total": 38, "B_passed": 38, "B_total": 38},
+  "modular_portable_exact_pixel_matches": 4,
+  "normal_motion_checks_passed": 2,
+  "render_method": "source inlined into isolated page.set_content document; external network aborted; browser policy unchanged",
+  "main_source_commit": "eba1a4fc77648a665e1d5c1f2609df1314c3b079",
+  "candidate_html_git_blob": "031bff610cf754830e57a495503fcc3a6175f84d",
+  "model_git_blob": "14c81f61af63b1781e07547c3ceefde299b7ebc0",
+  "controller_git_blob": "a70ff49181b62a7fc68b7194c7d17c62c1b0b9f6",
+  "refinement_css_git_blob": "af3caa7ae7d51f54749c44050cbe964198d7977e",
+  "not_tested": ["Safari", "physical iPhone", "real Mac", "VoiceOver", "live CDN", "production ChatGPT attachment", "brand preference study", "conversion lift"],
+  "interrupted_runs": "Two combined harness invocations were interrupted by the execution time budget. The A and B suites subsequently completed separately."
+}
