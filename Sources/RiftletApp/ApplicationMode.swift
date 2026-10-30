@@ -17,7 +17,11 @@ enum ApplicationMode: CaseIterable, Equatable {
     }
 
     var collectsSystemScreenshots: Bool { self == .capture || self == .systemScreenshotCandidate }
-    var usesWebAdapter: Bool { self == .webAcceptance || self == .systemScreenshotCandidate }
+    var usesWebAdapter: Bool { usesWebAdapter(ordinary: OrdinaryCaptureConfiguration.admission) }
+    func usesWebAdapter(ordinary: OrdinaryAttachmentAdmission) -> Bool {
+        self == .webAcceptance || self == .systemScreenshotCandidate || (self == .capture && ordinary.allowsInput)
+    }
+    var observesAttachments: Bool { self != .capture || usesWebAdapter }
     var generatesSyntheticImages: Bool { self == .simulation || self == .webAcceptance }
     var storeMode: StoreMode { self == .simulation ? .simulation : .production }
     var directoryName: String {
@@ -30,7 +34,7 @@ enum ApplicationMode: CaseIterable, Equatable {
     }
     var attachmentState: SetupAttachmentState {
         switch self {
-        case .capture: return .productionDisabled
+        case .capture: return usesWebAdapter ? .available : .productionDisabled
         case .simulation: return .offlineSimulation
         case .webAcceptance: return .syntheticWeb
         case .systemScreenshotCandidate: return .systemScreenshotCandidate

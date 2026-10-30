@@ -244,7 +244,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         // Journal recovery may add records. Validate the isolated synthetic store
         // after recovery as well, before any real adapter is constructed.
         if mode.generatesSyntheticImages { try await seedSyntheticImages(store: store) }
-        if mode == .systemScreenshotCandidate {
+        if mode == .systemScreenshotCandidate || (mode == .capture && mode.usesWebAdapter) {
             _ = try await PrivateAssetImporter(privateRoot: root, store: store).recover()
             try await SystemScreenshotCandidateConfiguration.validateStore(store)
         }
@@ -348,7 +348,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                             self.applyAutomationPermission(.denied)
                         }
                     }
-                    feedback(self.mode == .capture ? "此版本尚未启用真实截图附加；图片保留。"
+                    feedback(!self.mode.usesWebAdapter && self.mode == .capture ? "此版本尚未启用真实截图附加；图片保留。"
                         : (ProductStatus.clickFeedback(error)?.text ?? self.setupIssue?.text
                            ?? "当前附件目标暂不可用；图片保留，可在运行状态中查看原因。"), .immediate)
                     self.feedback.diagnostics.record(.selectionRejected)
@@ -413,8 +413,8 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         // Durable crash recovery remains local even when Automation is denied.
         // No page observation is attempted until a passive check says allowed.
         try await store.recoverInterruptedOperations()
-        originalRecoveryIDs = try await store.unresolvedOperations().map(\.id)
-        startupCompletedIDs = mode != .capture ? Set(try await store.successfulOperations().map(\.id)) : []
+        originalRecoveryIDs = mode.observesAttachments ? try await store.unresolvedOperations().map(\.id) : nil
+        startupCompletedIDs = mode.observesAttachments ? Set(try await store.successfulOperations().map(\.id)) : []
         recordAcceptance(["event": "local_recovery_complete", "uptime": ProcessInfo.processInfo.systemUptime])
         var attachmentPermission: AutomationPermissionState = .notNeeded
         if mode.usesWebAdapter {
@@ -554,7 +554,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     }
 
     private func startOriginalRecovery() {
-        guard !terminating, let ids = originalRecoveryIDs, let transfer else { return }
+        guard mode.observesAttachments, !terminating, let ids = originalRecoveryIDs, let transfer else { return }
         originalRecoveryIDs = nil
         originalRecoveryTask = Task { [weak self] in
             guard let self else { return }
@@ -588,7 +588,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         attachmentObservationStarted = true
         if mode.usesWebAdapter, let armingAdapter { startArming(adapter: armingAdapter) }
         else { startOriginalRecovery() }
-        guard mode != .capture else { return }
+        guard mode.observesAttachments else { return }
         completionWatch = Task { [weak self] in
             while !Task.isCancelled {
                 do { try await Task.sleep(nanoseconds: self?.simulation == true ? 400_000_000 : 5_000_000_000) } catch { return }

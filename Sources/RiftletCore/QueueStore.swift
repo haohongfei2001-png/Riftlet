@@ -505,7 +505,9 @@ public actor QueueStore {
     public func recoverInterruptedOperations() throws {
         try database.transaction {
             for op in try unresolvedOperations() {
-                if op.phase == .compensated { continue }
+                // Already unresolved historical results keep their original reason and
+                // timestamp; another launch is not a new observation.
+                if op.phase == .compensated || op.phase == .unknown { continue }
                 if op.phase == .prepared {
                     try update(op, phase: .failed, status: .failed, reason: "Restart before dispatch intent; no input occurred")
                 } else {

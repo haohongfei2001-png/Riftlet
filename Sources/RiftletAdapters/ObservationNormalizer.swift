@@ -7,7 +7,7 @@ public enum ObservationCompletionSignal: Equatable, Sendable { case attached, re
 public enum ObservationFailureSignal: Equatable, Sendable { case terminalErrorAndNoResidual }
 
 public enum DevelopmentObservationScope: Sendable {
-    case syntheticOnly, systemScreenshotCandidate
+    case syntheticOnly, systemScreenshotCandidate, ordinarySystemScreenshot
 }
 
 public struct ObservationProfile: Sendable {
@@ -58,8 +58,13 @@ public struct ObservationNormalizer: Sendable {
             throw ObservationError.syntheticEvidenceForRealAsset
         }
         if envelope.provenance.source == .integratedDevelopment && request.asset.origin != .synthetic {
-            guard case .systemScreenshotCandidate = developmentScope,
-                  SystemScreenshotWebCandidate.matches(profile) else {
+            let matches: Bool
+            switch developmentScope {
+            case .syntheticOnly: matches = false
+            case .systemScreenshotCandidate: matches = SystemScreenshotWebCandidate.matches(profile)
+            case .ordinarySystemScreenshot: matches = OrdinarySystemScreenshotScope.matches(profile)
+            }
+            guard matches else {
                 throw ObservationError.syntheticEvidenceForRealAsset
             }
             // Candidate interpretation only. It keeps the original provenance;

@@ -17,6 +17,117 @@ final class SystemScreenshotCandidateAdmissionTests: XCTestCase {
 
     override func tearDownWithError() throws { try FileManager.default.removeItem(at: directory) }
 
+    func testOrdinaryScopeRegistrationIsIndependentAndCandidatePolicyCannotConsumeIt() async throws {
+        let (store, request, _) = try await fixture()
+        let bridge = AdmissionTestBridge(states: [.uploadStarted, .attached])
+        let client = try ordinaryAdapter(store, bridge)
+        let start = try await client.append(request)
+        XCTAssertEqual(start.profileID, OrdinarySystemScreenshotScope.admittedCompletionProfileID)
+        XCTAssertEqual(start.uploadStartEvidence?.profileID, OrdinarySystemScreenshotScope.admittedUploadStartProfileID)
+        XCTAssertFalse(policy().allowsUploadStart(receipt: start, asset: request.asset, mode: .production))
+        XCTAssertFalse(ReceiptPolicy().allowsUploadStart(receipt: start, asset: request.asset, mode: .production))
+        let fence = try await checkpoint(store, request)
+        let ordinary = try await store.checkpoint(for: SystemScreenshotCandidateAdmission.checkpointKey(for: request, scope: .ordinary))
+        XCTAssertNotNil(ordinary); XCTAssertEqual(fence, ordinary)
+        await assertRejected { try await adapter(store, bridge).append(request) }
+        try await store.markUnknown(request.operation.id, reason: "software-only pending")
+        let original = try await refreshed(request, in: store)
+        let complete = try await ordinaryAdapter(store, bridge).reconcile(original)
+        XCTAssertEqual(complete.profileID, OrdinarySystemScreenshotScope.admittedCompletionProfileID)
+        let ordinaryObservation = try await store.checkpoint(for: SystemScreenshotObservationJournal.checkpointKey(original, slot: .attached, scope: .ordinary))
+        let candidateObservation = try await store.checkpoint(for: SystemScreenshotObservationJournal.checkpointKey(original, slot: .attached))
+        XCTAssertNotNil(ordinaryObservation); XCTAssertNil(candidateObservation)
+        XCTAssertFalse(policy().allowsConsumption(receipt: complete, asset: request.asset, mode: .production))
+        let actions = await bridge.actions
+        XCTAssertEqual(actions, [.begin, .chunk, .commit, .observe])
+    }
+
+    func testOrdinaryLegacyUnknownIsObserveOnlyAndCannotBorrowCandidateRegistration() async throws {
+        let (store, request, _) = try await fixture()
+        try await SystemScreenshotCandidateAdmission(store: store).enroll(request)
+        try await store.markUnknown(request.operation.id, reason: "legacy candidate")
+        let original = try await refreshed(request, in: store)
+        let bridge = AdmissionTestBridge(states: [.attached])
+        let receipt = try await ordinaryAdapter(store, bridge).reconcile(original)
+        XCTAssertEqual(receipt.profileID, OrdinarySystemScreenshotScope.completionProfileID)
+        let marker = try await store.checkpoint(for: SystemScreenshotCandidateAdmission.checkpointKey(for: request, scope: .ordinary))
+        XCTAssertNil(marker)
+        let actions = await bridge.actions
+        XCTAssertEqual(actions, [.observe])
+        await assertRejected { try await ordinaryAdapter(store, bridge).append(original) }
+    }
+
+    func testCrossScopeConcurrentRegistrationHasOnlyOneWinner() async throws {
+        let (store, request, database) = try await fixture()
+        let second = try QueueStore(databaseURL: database)
+        let candidate = SystemScreenshotCandidateAdmission(store: store)
+        let ordinary = SystemScreenshotCandidateAdmission(store: second, scope: .ordinary)
+        let winners = await withTaskGroup(of: Bool.self) { group in
+            group.addTask { do { try await candidate.enroll(request); return true } catch { return false } }
+            group.addTask { do { try await ordinary.enroll(request); return true } catch { return false } }
+            var values: [Bool] = []; for await value in group { values.append(value) }; return values
+        }
+        XCTAssertEqual(winners.filter { $0 }.count, 1)
+        await assertRejected { try await candidate.enroll(request) }
+        await assertRejected { try await ordinary.enroll(request) }
+    }
+
+    func testPartialOrdinaryFenceCannotBeReenrolledOrPromotedByObservation() async throws {
+        let (store, request, _) = try await fixture()
+        try await SystemScreenshotCandidateAdmission(store: store).enroll(request)
+        let old = try await checkpoint(store, request)
+        var marker = try XCTUnwrap(JSONSerialization.jsonObject(with: XCTUnwrap(old)) as? [String: Any])
+        marker["startProfileID"] = OrdinarySystemScreenshotScope.admittedUploadStartProfileID
+        marker["completionProfileID"] = OrdinarySystemScreenshotScope.admittedCompletionProfileID
+        try await store.saveCheckpoint(JSONSerialization.data(withJSONObject: marker, options: [.sortedKeys]),
+            for: SystemScreenshotCandidateAdmission.checkpointKey(for: request))
+        let ordinary = SystemScreenshotCandidateAdmission(store: store, scope: .ordinary)
+        await assertRejected { try await ordinary.enroll(request) }
+        await assertRejected { try await SystemScreenshotCandidateAdmission(store: store).enroll(request) }
+        try await store.markUnknown(request.operation.id, reason: "partial ordinary reservation")
+        let original = try await refreshed(request, in: store)
+        let bridge = AdmissionTestBridge(states: [.attached])
+        let receipt = try await ordinaryAdapter(store, bridge).reconcile(original)
+        XCTAssertEqual(receipt.profileID, OrdinarySystemScreenshotScope.completionProfileID)
+        let after = try await store.checkpoint(for: SystemScreenshotCandidateAdmission.checkpointKey(for: request, scope: .ordinary))
+        XCTAssertNil(after)
+        await assertRejected { try await SystemScreenshotCandidateAdmission(store: store).admits(original) }
+        let actions = await bridge.actions; XCTAssertEqual(actions, [.observe])
+    }
+
+    func testOrdinaryRejectsWrongProfileOrCandidateComponentsBeforeAnyBridgeCall() async throws {
+        let (store, request, _) = try await fixture()
+        let bridge = AdmissionTestBridge(states: [.attached])
+        for profile in [
+            ObservationProfile(adapterID: "wrong", surface: .webChat, profileID: OrdinarySystemScreenshotScope.completionProfileID,
+                completionSignal: .attached, uploadStartProfileID: OrdinarySystemScreenshotScope.uploadStartProfileID),
+            ObservationProfile(adapterID: "chatgpt-web", surface: .simulation, profileID: OrdinarySystemScreenshotScope.completionProfileID,
+                completionSignal: .attached, uploadStartProfileID: OrdinarySystemScreenshotScope.uploadStartProfileID),
+            SystemScreenshotWebCandidate.profile] {
+            let client = WebAttachmentAdapter(mediaDirectory: directory, executor: bridge, program: try ChatGPTWebPageProgram.load(),
+                mode: .ordinarySystemScreenshot, profile: profile, polling: .disabled,
+                candidateJournal: SystemScreenshotObservationJournal(store: store, scope: .ordinary),
+                candidateAdmission: SystemScreenshotCandidateAdmission(store: store, scope: .ordinary))
+            await assertRejected { try await client.append(request) }
+        }
+        let wrongJournal = WebAttachmentAdapter(mediaDirectory: directory, executor: bridge, program: try ChatGPTWebPageProgram.load(),
+            mode: .ordinarySystemScreenshot, profile: OrdinarySystemScreenshotScope.profile, polling: .disabled,
+            candidateJournal: SystemScreenshotObservationJournal(store: store),
+            candidateAdmission: SystemScreenshotCandidateAdmission(store: store, scope: .ordinary))
+        await assertRejected { try await wrongJournal.append(request) }
+        let wrongOrigin = try replacing(request.asset, "origin", with: AssetOrigin.applicationScreenshot.rawValue)
+        await assertRejected { try await ordinaryAdapter(store, bridge).preflight(asset: wrongOrigin, fileURL: request.fileURL) }
+        let actions = await bridge.actions; XCTAssertTrue(actions.isEmpty)
+    }
+
+    private func ordinaryAdapter(_ store: QueueStore, _ bridge: AdmissionTestBridge) throws -> WebAttachmentAdapter {
+        WebAttachmentAdapter(mediaDirectory: directory, executor: bridge,
+            program: try ChatGPTWebPageProgram.load(), mode: .ordinarySystemScreenshot,
+            profile: OrdinarySystemScreenshotScope.profile, polling: .disabled,
+            candidateJournal: SystemScreenshotObservationJournal(store: store, scope: .ordinary),
+            candidateAdmission: SystemScreenshotCandidateAdmission(store: store, scope: .ordinary))
+    }
+
     func testNewAppendStartsOnceAndRestartedCompletionNeedsItsSeparateAdmission() async throws {
         let (store, request, database) = try await fixture()
         let bridge = AdmissionTestBridge(states: [.uploadStarted, .attached, .attached])

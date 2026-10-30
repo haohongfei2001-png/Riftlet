@@ -25,7 +25,7 @@ enum SystemScreenshotCandidateConfiguration {
 }
 
 /// This factory is used by the App and software integration tests. Constructing
-/// an ordinary-capture composition never initializes the Chrome executor.
+/// a closed ordinary-capture composition never initializes the Chrome executor.
 struct ApplicationAttachmentComposition {
     let adapter: any AttachmentAdapter
     let policy: ReceiptPolicy
@@ -33,10 +33,21 @@ struct ApplicationAttachmentComposition {
     @MainActor static func make(mode: ApplicationMode, root: URL, store: QueueStore,
                                 executor: (any WebBridgeExecutor)? = nil,
                                 traceEnabled: Bool = false,
-                                polling: WebObservationPolling = .acceptance) throws -> Self {
+                                polling: WebObservationPolling = .acceptance,
+                                ordinary: OrdinaryAttachmentAdmission = OrdinaryCaptureConfiguration.admission) throws -> Self {
         let media = root.appendingPathComponent("media")
         switch mode {
-        case .capture: return Self(adapter: UnavailableAdapter(), policy: .init())
+        case .capture:
+            // Closed means no Chrome executor, page load, permission probe or
+            // registration. Test injection here is not a runtime switch.
+            guard ordinary.allowsInput else { return Self(adapter: UnavailableAdapter(), policy: .init()) }
+            return Self(adapter: WebAttachmentAdapter(mediaDirectory: media,
+                executor: executor ?? ChromeAppleEventsExecutor(traceEnabled: traceEnabled),
+                program: try ChatGPTWebPageProgram.load(), mode: .ordinarySystemScreenshot,
+                profile: OrdinarySystemScreenshotScope.profile, polling: polling,
+                candidateJournal: SystemScreenshotObservationJournal(store: store, scope: .ordinary),
+                candidateAdmission: SystemScreenshotCandidateAdmission(store: store, scope: .ordinary)),
+                policy: ordinary.receiptPolicy)
         case .simulation: return Self(adapter: SimulationAdapter(), policy: .init())
         case .webAcceptance:
             return Self(adapter: WebAttachmentAdapter(mediaDirectory: media,

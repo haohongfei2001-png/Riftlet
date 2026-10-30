@@ -3,7 +3,7 @@ import CryptoKit
 import Darwin
 import RiftletCore
 
-public enum WebAdapterMode: Sendable { case disabled, syntheticDevelopment, systemScreenshotCandidate }
+public enum WebAdapterMode: Sendable { case disabled, syntheticDevelopment, systemScreenshotCandidate, ordinarySystemScreenshot }
 public enum WebBridgeAction: String, Codable, Sendable {
     case captureTarget, validate, begin, chunk, commit, observe, discard
 }
@@ -90,7 +90,9 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
                 candidateAdmission: SystemScreenshotCandidateAdmission? = nil) {
         id = profile.adapterID; self.mediaDirectory = mediaDirectory.standardizedFileURL
         self.executor = executor; self.program = program; self.mode = mode
-        if case .systemScreenshotCandidate = mode {
+        if case .ordinarySystemScreenshot = mode {
+            normalizer = ObservationNormalizer(profile: profile, developmentScope: .ordinarySystemScreenshot)
+        } else if case .systemScreenshotCandidate = mode {
             normalizer = ObservationNormalizer(profile: profile, developmentScope: .systemScreenshotCandidate)
         } else { normalizer = ObservationNormalizer(profile: profile) }
         self.polling = polling
@@ -98,8 +100,16 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
         self.candidateAdmission = candidateAdmission
     }
 
+    private var screenshotScope: SystemScreenshotAdmissionScope? {
+        switch mode {
+        case .systemScreenshotCandidate: return .candidate
+        case .ordinarySystemScreenshot: return .ordinary
+        default: return nil
+        }
+    }
+
     public func preflight(asset: ImportedAsset, fileURL: URL) async throws {
-        if case .systemScreenshotCandidate = mode {
+        if screenshotScope != nil {
             try requireEnabled()
             try SystemScreenshotWebCandidate.preflight(asset, fileURL: fileURL, mediaDirectory: mediaDirectory,
                 restrictedAdmission: candidateAdmission != nil)
@@ -153,7 +163,7 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
             try await preflight(asset: request.asset, fileURL: request.fileURL)
             file = try PrivateUploadFile(request: request, mediaDirectory: mediaDirectory)
             let verifiedHeader = try file.verifyAndRewind()
-            if case .systemScreenshotCandidate = mode, let candidateAdmission {
+            if screenshotScope != nil, let candidateAdmission {
                 try SystemScreenshotWebCandidate.validateHeader(Array(verifiedHeader), asset: request.asset,
                     restrictedAdmission: true)
                 try await candidateAdmission.enroll(request)
@@ -284,10 +294,16 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
         guard let program, !program.sourceID.isEmpty, !program.functionSource.isEmpty,
               program.functionSource.utf8.count <= 128 * 1024,
               (64 * 1024...256 * 1024).contains(program.maximumChunkBytes) else { throw WebAdapterError.programUnavailable }
-        if case .systemScreenshotCandidate = mode {
-            guard program.sourceID == SystemScreenshotWebCandidate.sourceID,
-                  SystemScreenshotWebCandidate.matches(normalizer.profile),
-                  normalizer.profile.profileID == SystemScreenshotWebCandidate.completionProfileID,
+        if let scope = screenshotScope {
+            guard candidateJournal?.scope == scope,
+                  candidateAdmission == nil || candidateAdmission?.scope == scope,
+                  (scope != .ordinary || candidateAdmission != nil),
+                  program.sourceID == SystemScreenshotWebCandidate.sourceID,
+                  normalizer.profile.adapterID == scope.legacyProfile.adapterID,
+                  normalizer.profile.surface == scope.legacyProfile.surface,
+                  normalizer.profile.profileID == scope.legacyProfile.profileID,
+                  normalizer.profile.uploadStartProfileID == scope.legacyProfile.uploadStartProfileID,
+                  normalizer.profile.completionSignal == .attached, normalizer.profile.failureSignal == nil,
                   candidateJournal != nil else {
                 throw WebAdapterError.programUnavailable
             }
@@ -299,13 +315,13 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
         case .disabled: throw WebAdapterError.disabled
         case .syntheticDevelopment:
             guard asset.origin == .synthetic else { throw WebAdapterError.syntheticAssetsOnly }
-        case .systemScreenshotCandidate:
+        case .systemScreenshotCandidate, .ordinarySystemScreenshot:
             guard asset.origin == .systemScreenshot else { throw SystemScreenshotInputError.systemScreenshotsOnly }
         }
     }
 
     private func checkNewInputScope(_ target: TargetLease) throws {
-        if case .systemScreenshotCandidate = mode, candidateAdmission != nil {
+        if screenshotScope != nil, candidateAdmission != nil {
             try SystemScreenshotWebCandidate.validateAdmittedTarget(target)
         }
     }
@@ -316,13 +332,13 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
 
     private func normalize(_ envelope: AttachmentObservationEnvelope, for request: TransferRequest) async throws -> TransferReceipt {
         var scopedNormalizer = normalizer
-        if case .systemScreenshotCandidate = mode, let candidateAdmission,
+        if let scope = screenshotScope, let candidateAdmission,
            try await candidateAdmission.admits(request) {
-            scopedNormalizer = ObservationNormalizer(profile: SystemScreenshotWebCandidate.admittedProfile,
-                developmentScope: .systemScreenshotCandidate)
+            scopedNormalizer = ObservationNormalizer(profile: scope.admittedProfile,
+                developmentScope: scope.observationScope)
         }
         let receipt = try scopedNormalizer.receipt(from: envelope, for: request)
-        if case .systemScreenshotCandidate = mode {
+        if screenshotScope != nil {
             guard envelope.provenance.source == .integratedDevelopment, let candidateJournal else {
                 throw ObservationError.syntheticEvidenceForRealAsset
             }
