@@ -45,3 +45,7 @@ Ordinary production, builtin sources, continuation and safe retry remain closed.
 ## Independent review
 
 Non-author `first_cause_review` independently read the private raw input/operation/page/selection/restart evidence and both public files. PASS after tightening two causal statements: quota-notice first appearance was not timed, and the specific handler clearing input.files was not individually traced. The review approves these limited findings and continued conservative UNKNOWN handling, not production admission or O1 root-cause resolution.
+
+## Subsequent correction — O3, 2026-10-31
+
+The account-wide capacity inference above was too broad. A new empty independent persisted chat on the same account subsequently completed one new screenshot upload. O2's observed quota notice and UNKNOWN remain valid historical facts, but are not evidence that all account uploads were blocked. See [O3](../2026-10-31-ordinary-o3/README.md) for the limited success and remaining selection failure; no universal two-image limit or O1 cause is established.

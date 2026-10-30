@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "sourceSHA": "20555b1b115ae4a5a6157ec7d9a73bb0795998f1",
+  "diagnosticSourceSHA": "95fdd19018c0f350fdc43e7af270ccac9969e3da",
+  "formalProductSHA": "edbdc7aae45c35878694e9fa376757dac7b630a8",
+  "package": {
+    "ordinaryInternalAcceptance": true,
+    "normalLaunchWithAcceptanceTrace": true,
+    "systemCandidateArgument": false,
+    "productionRelease": false,
+    "binarySHA256": "64ce272bd527fde7b3cf634f551e3d5c2296d549d562d0ebd4be6aabd0fd8d01",
+    "instrumentedPageSHA256": "47097eb39014711baab5a4e39096deb00022725f60919ac61fa6444ac1e26170"
+  },
+  "environment": {
+    "macOS": "27.0",
+    "build": "26A428",
+    "mouseSource": "CGEvent",
+    "physical": "NOT_RUN"
+  },
+  "source": {
+    "kind": "retained never-input macOS system selection PNG",
+    "newlyCapturedThisTurn": false,
+    "bytes": 1167052,
+    "width": 702,
+    "height": 482,
+    "bitDepth": 8,
+    "colorType": 6,
+    "interlaced": false,
+    "systemMetadataVerified": true,
+    "originalAndPrivateCopySHA256": "91a0a724acc3fe49edcc384c5e5f1d596c238d3ed5aee67f38eab70bad7ac7f8",
+    "systemCompletionT0": null
+  },
+  "result": {
+    "uniqueInput": "PASS",
+    "uploadStarted": "PASS",
+    "nativeSwallow": "PASS",
+    "strictAttachedProof": "PASS",
+    "finalPhase": "succeeded",
+    "assetState": "used",
+    "visibility": "swallowed",
+    "newOperations": 1,
+    "inputCount": 1,
+    "persistedStarts": 1,
+    "textHashPreserved": true,
+    "selectionPreservation": "FAIL",
+    "selectionBefore": [
+      37,
+      30
+    ],
+    "selectionAfter": [
+      0,
+      0
+    ],
+    "selectionCause": "UNDETERMINED",
+    "initialAttachments": 0,
+    "finalAttachments": 1,
+    "oldAttachmentPreservation": "NOT_EXERCISED",
+    "oldO1FirstCause": "UNDETERMINED",
+    "actualMicroimageClicks": 2,
+    "zeroInputRejectedClicks": 1,
+    "physical": "NOT_RUN",
+    "coldNoACKSuccess": "NOT_RUN"
+  },
+  "timeline": {
+    "clock": "same boot native systemUptime seconds",
+    "effectiveACK": 736609.4556127917,
+    "mouseDown": 736739.592806416,
+    "mouseUp": 736739.676351875,
+    "submission": 736739.6840737084,
+    "swallowedVisibilityObserved": 736741.5222669584,
+    "swallowActualStart": 736741.5233432084,
+    "swallowClose": 736741.6502661667,
+    "finalPersistenceObservedUpperBound": 736755.148123875,
+    "clickToSwallowSeconds": 1.9305367923807353,
+    "clickToCloseSeconds": 2.0574597506783903,
+    "pixelPresentationMeasured": false
+  },
+  "preservation": {
+    "oldUnknownIdentityAttemptPhasePreserved": true,
+    "oldObservationFieldsMayChange": true,
+    "newSucceededOperationUnchangedOnRestart": true,
+    "restartNewOperations": 0,
+    "sameDataRoot": true
+  },
+  "admission": {
+    "ordinaryProduction": false,
+    "builtin": false,
+    "webContinuation": false,
+    "safeRetry": false
+  },
+  "privateManifest": {
+    "files": 105,
+    "sha256": "3bfdb8ace2bc806276ad31a279fe2a1bf8a8290e7f360183f4c0846b62e788e8"
+  },
+  "productionSourceChanged": false,
+  "newFullCI": "NOT_RUN: evidence-only; same previously built package",
+  "review": "first_cause_review independent raw evidence review; scoped findings only"
+}
