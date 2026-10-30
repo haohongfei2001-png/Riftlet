@@ -103,7 +103,8 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
     private var screenshotScope: SystemScreenshotAdmissionScope? {
         switch mode {
         case .systemScreenshotCandidate: return .candidate
-        case .ordinarySystemScreenshot: return .ordinary
+        case .ordinarySystemScreenshot:
+            return candidateAdmission?.scope == .ordinaryCurrentDraftInternal ? .ordinaryCurrentDraftInternal : .ordinary
         default: return nil
         }
     }
@@ -297,7 +298,7 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
         if let scope = screenshotScope {
             guard candidateJournal?.scope == scope,
                   candidateAdmission == nil || candidateAdmission?.scope == scope,
-                  (scope != .ordinary || candidateAdmission != nil),
+                  (scope == .candidate || candidateAdmission != nil),
                   program.sourceID == SystemScreenshotWebCandidate.sourceID,
                   normalizer.profile.adapterID == scope.legacyProfile.adapterID,
                   normalizer.profile.surface == scope.legacyProfile.surface,
@@ -321,8 +322,8 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
     }
 
     private func checkNewInputScope(_ target: TargetLease) throws {
-        if screenshotScope != nil, candidateAdmission != nil {
-            try SystemScreenshotWebCandidate.validateAdmittedTarget(target)
+        if let scope = screenshotScope, candidateAdmission != nil {
+            try scope.validateTarget(target)
         }
     }
 
@@ -332,8 +333,11 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
 
     private func normalize(_ envelope: AttachmentObservationEnvelope, for request: TransferRequest) async throws -> TransferReceipt {
         var scopedNormalizer = normalizer
-        if let scope = screenshotScope, let candidateAdmission,
-           try await candidateAdmission.admits(request) {
+        var originalScope: SystemScreenshotAdmissionScope?
+        if screenshotScope != nil, let candidateAdmission {
+            originalScope = try await candidateAdmission.admittedObservationScope(for: request)
+        }
+        if let scope = originalScope {
             scopedNormalizer = ObservationNormalizer(profile: scope.admittedProfile,
                 developmentScope: scope.observationScope)
         }
@@ -345,7 +349,11 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
             // Preserve the first original positive/negative observations in
             // SQLite, independently of the latest receipt and admitted starts.
             // Failure after commit remains UNKNOWN; this never retries input.
-            try await candidateJournal.record(envelope, for: request)
+            if screenshotScope == .ordinaryCurrentDraftInternal, originalScope == .ordinary {
+                try await candidateJournal.recordForOriginalOrdinary(envelope, for: request)
+            } else {
+                try await candidateJournal.record(envelope, for: request)
+            }
         }
         return receipt
     }

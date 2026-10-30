@@ -44,9 +44,9 @@ struct ApplicationAttachmentComposition {
             return Self(adapter: WebAttachmentAdapter(mediaDirectory: media,
                 executor: executor ?? ChromeAppleEventsExecutor(traceEnabled: traceEnabled),
                 program: try ChatGPTWebPageProgram.load(), mode: .ordinarySystemScreenshot,
-                profile: OrdinarySystemScreenshotScope.profile, polling: polling,
-                candidateJournal: SystemScreenshotObservationJournal(store: store, scope: .ordinary),
-                candidateAdmission: SystemScreenshotCandidateAdmission(store: store, scope: .ordinary)),
+                profile: ordinary.observationProfile, polling: polling,
+                candidateJournal: SystemScreenshotObservationJournal(store: store, scope: ordinary.targetScope),
+                candidateAdmission: SystemScreenshotCandidateAdmission(store: store, scope: ordinary.targetScope)),
                 policy: ordinary.receiptPolicy)
         case .simulation: return Self(adapter: SimulationAdapter(), policy: .init())
         case .webAcceptance:

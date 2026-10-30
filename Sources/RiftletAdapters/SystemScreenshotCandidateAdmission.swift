@@ -25,7 +25,7 @@ public actor SystemScreenshotCandidateAdmission {
     /// only; they can never authorize another append, even for the same request.
     func enroll(_ request: TransferRequest) async throws {
         try SystemScreenshotWebCandidate.validateMetadata(request.asset)
-        try SystemScreenshotWebCandidate.validateAdmittedTarget(request.operation.target)
+        try scope.validateTarget(request.operation.target)
         guard request.operation.phase == .dispatchIntent else { throw WebAdapterError.invalidRequest }
         let key = Self.checkpointKey(for: request, scope: scope)
         guard try await store.checkpoint(for: key) == nil else { throw WebAdapterError.invalidRequest }
@@ -42,7 +42,7 @@ public actor SystemScreenshotCandidateAdmission {
         // unchanged protects old candidate registrations and prevents two scopes
         // from independently claiming the same dispatch intent in two connections.
         let fenceKey = Self.checkpointKey(for: request)
-        if scope == .ordinary {
+        if scope != .candidate {
             guard try await store.checkpoint(for: fenceKey) == nil else { throw WebAdapterError.invalidRequest }
             let fenced = try await store.claimDispatchCheckpoint(proposed, for: fenceKey,
                 operation: request.operation, asset: request.asset)
@@ -57,7 +57,7 @@ public actor SystemScreenshotCandidateAdmission {
     /// F and older UNKNOWN records keep their unadmitted v1 observations/locks.
     func admits(_ request: TransferRequest) async throws -> Bool {
         guard let data = try await store.checkpoint(for: Self.checkpointKey(for: request, scope: scope)) else { return false }
-        if scope == .ordinary {
+        if scope != .candidate {
             guard try await store.checkpoint(for: Self.checkpointKey(for: request)) == data else {
                 throw WebAdapterError.invalidRequest
             }
@@ -83,8 +83,18 @@ public actor SystemScreenshotCandidateAdmission {
         let encoder = JSONEncoder(); encoder.outputFormatting = [.sortedKeys]
         guard (try? encoder.encode(registration)) == data else { throw WebAdapterError.invalidRequest }
         try SystemScreenshotWebCandidate.validateMetadata(request.asset)
-        try SystemScreenshotWebCandidate.validateAdmittedTarget(request.operation.target)
+        try scope.validateTarget(request.operation.target)
         return true
+    }
+
+    /// Read-only compatibility for operations enrolled by the preceding ordinary
+    /// internal App in this same store. Never enrolls, repairs partial fences or
+    /// borrows candidate registrations. Malformed current registrations throw.
+    func admittedObservationScope(for request: TransferRequest) async throws -> SystemScreenshotAdmissionScope? {
+        if try await admits(request) { return scope }
+        guard scope == .ordinaryCurrentDraftInternal else { return nil }
+        let prior = SystemScreenshotCandidateAdmission(store: store, scope: .ordinary)
+        return try await prior.admits(request) ? .ordinary : nil
     }
 
     static func checkpointKey(for request: TransferRequest, scope: SystemScreenshotAdmissionScope = .candidate) -> String {

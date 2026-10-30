@@ -52,6 +52,17 @@ public actor SystemScreenshotObservationJournal {
         }
     }
 
+    /// Only an exact original ordinary registration can retain its historical
+    /// journal while observed by the successor internal scope. This cannot create
+    /// registration or authorize input, and validates against this journal's store.
+    func recordForOriginalOrdinary(_ envelope: AttachmentObservationEnvelope, for request: TransferRequest) async throws {
+        guard scope == .ordinaryCurrentDraftInternal,
+              try await SystemScreenshotCandidateAdmission(store: store, scope: .ordinary).admits(request) else {
+            throw SystemScreenshotObservationJournalError.invalidOperation
+        }
+        try await SystemScreenshotObservationJournal(store: store, scope: .ordinary).record(envelope, for: request)
+    }
+
     /// These are code-owned audit categories, never values selected by page JSON.
     enum Slot: String, CaseIterable {
         case input, start, attached, ready, errorOrInvalidated, unknown

@@ -96,6 +96,24 @@ final class OrdinaryCaptureConfigurationTests: XCTestCase {
         XCTAssertTrue(scoped.policy.retrySafeProfiles.isEmpty)
     }
 
+    func testCurrentDraftInternalScopeCannotBorrowPersistedProductionOrCandidateApproval() {
+        let current = OrdinaryAttachmentAdmission.internalAcceptance(currentDrafts: true)
+        XCTAssertEqual(current.targetScope, .ordinaryCurrentDraftInternal)
+        XCTAssertEqual(current.observationProfile, OrdinaryCurrentDraftInternalScope.profile)
+        XCTAssertEqual(Set(current.receiptPolicy.uploadStartProfiles.keys), [OrdinaryCurrentDraftInternalScope.admittedUploadStartProfileID, OrdinarySystemScreenshotScope.admittedUploadStartProfileID])
+        XCTAssertEqual(Set(current.receiptPolicy.admittedProfiles.keys), [OrdinaryCurrentDraftInternalScope.admittedCompletionProfileID, OrdinarySystemScreenshotScope.admittedCompletionProfileID])
+        XCTAssertTrue(current.receiptPolicy.retrySafeProfiles.isEmpty)
+        XCTAssertEqual(OrdinaryAttachmentAdmission.closed.targetScope, .ordinary)
+        XCTAssertEqual(OrdinaryAttachmentAdmission.internalAcceptance().targetScope, .ordinary)
+        XCTAssertTrue(Set(current.receiptPolicy.admittedProfiles.keys).isDisjoint(with: SystemScreenshotCandidateConfiguration.completedAttachmentProfiles.keys))
+        XCTAssertTrue(current.supportText.contains("本地身份"))
+        XCTAssertTrue(current.supportText.contains("首页尚未支持"))
+        let onlyInput = OrdinaryAttachmentAdmission.internalAcceptance(start: false, completion: false, currentDrafts: true)
+        XCTAssertTrue(onlyInput.allowsInput)
+        XCTAssertTrue(onlyInput.receiptPolicy.uploadStartProfiles.isEmpty)
+        XCTAssertTrue(onlyInput.receiptPolicy.admittedProfiles.isEmpty)
+    }
+
     @MainActor func testOrdinaryReopenPreservesUnknownMediaHistoryAndPreferencesWithoutRegistration() async throws {
         #if RIFTLET_ORDINARY_ACCEPTANCE
         throw XCTSkip("Closed ordinary startup is tested by the default build; internal variant intentionally observes its isolated root")
