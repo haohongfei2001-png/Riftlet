@@ -11221,7 +11221,15 @@
     "reviewedSource": "10a8fe93e739b3025e29d887e33f85c3ca69c619",
     "sourceReview": "PASS non-author ordinary_entry_review; not production admission",
     "sourceBuild": "PASS native App; 17 packaging tests",
-    "ci": "PENDING new exact source run",
+    "ci": {
+      "conclusion": "success",
+      "head_sha": "7bd2d25c759bdc77e2545027e13cd929e1980d0a",
+      "id": 41066263763,
+      "status": "completed",
+      "updated_at": "2026-10-30T14:00:12Z",
+      "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/41066263763",
+      "scope": "source admission; full macOS ARM/Intel; ARM internal authorization tests and isolated package; software evidence, not physical acceptance"
+    },
     "runtime": {
       "normalCaptureMode": "PASS isolated internal compile authorization",
       "newSystemPNGImport": "PASS",
@@ -11231,7 +11239,7 @@
       "completion": "FAIL no attached content proof",
       "state": "UNKNOWN retained; no retry",
       "textSelection": "PASS expected nonempty text and inherited real-keyboard 8..15 selection retained",
-      "oldAttachments": "NOT_RUN baseline zero",
+      "oldAttachments": "NOT_RUN no qualified stable old-attachment baseline retained",
       "unfocusedEditor": "NOT_RUN",
       "physicalMouse": "NOT_RUN",
       "sameRootRestart": "PASS original operation/asset/media retained; no input replay"
@@ -11240,6 +11248,7 @@
     "safeRetry": "CLOSED",
     "continuation": "CLOSED",
     "builtInSource": "CLOSED",
-    "rawEvidenceManifestSHA256": "95066b87ee6fa19774ad17258629f81dc382f3ad18d61f9e09f241743f25177d"
+    "rawEvidenceManifestSHA256": "95066b87ee6fa19774ad17258629f81dc382f3ad18d61f9e09f241743f25177d",
+    "runtimeReview": "PASS non-author raw-event and SQLite review; old-attachment baseline coverage narrowed"
   }
 }
