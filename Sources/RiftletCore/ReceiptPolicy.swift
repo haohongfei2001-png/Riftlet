@@ -12,18 +12,24 @@ public struct ReceiptPolicy: Sendable {
     public let uploadStartProfiles: [String: TargetSurface]
     public let syntheticUploadStartProfiles: [String: TargetSurface]
     public let syntheticRetrySafeProfiles: [String: TargetSurface]
+    public let continuationProfiles: [String: TargetSurface]
+    public let syntheticContinuationProfiles: [String: TargetSurface]
 
     public init(admittedProfiles: [String: TargetSurface] = [:], retrySafeProfiles: [String: TargetSurface] = [:],
                 syntheticAcceptanceProfiles: [String: TargetSurface] = [:],
                 uploadStartProfiles: [String: TargetSurface] = [:],
                 syntheticUploadStartProfiles: [String: TargetSurface] = [:],
-                syntheticRetrySafeProfiles: [String: TargetSurface] = [:]) {
+                syntheticRetrySafeProfiles: [String: TargetSurface] = [:],
+                continuationProfiles: [String: TargetSurface] = [:],
+                syntheticContinuationProfiles: [String: TargetSurface] = [:]) {
         self.admittedProfiles = admittedProfiles
         self.retrySafeProfiles = retrySafeProfiles
         self.syntheticAcceptanceProfiles = syntheticAcceptanceProfiles
         self.uploadStartProfiles = uploadStartProfiles
         self.syntheticUploadStartProfiles = syntheticUploadStartProfiles
         self.syntheticRetrySafeProfiles = syntheticRetrySafeProfiles
+        self.continuationProfiles = continuationProfiles
+        self.syntheticContinuationProfiles = syntheticContinuationProfiles
     }
 
     public func allowsUploadStart(receipt: TransferReceipt, asset: ImportedAsset, mode: StoreMode) -> Bool {
@@ -46,6 +52,18 @@ public struct ReceiptPolicy: Sendable {
             return asset.origin == .synthetic && surface == receipt.target.surface
         }
         return uploadStartProfiles[evidence.profileID] == receipt.target.surface
+    }
+
+    public func allowsContinuation(receipt: TransferReceipt, asset: ImportedAsset, mode: StoreMode) -> Bool {
+        guard allowsUploadStart(receipt: receipt, asset: asset, mode: mode),
+              let evidence = receipt.continuationEvidence, evidence.version == 1,
+              !evidence.evidenceID.isEmpty, evidence.evidenceID.utf8.count <= 256,
+              !evidence.profileID.isEmpty, evidence.profileID.utf8.count <= 128 else { return false }
+        if mode == .simulation { return evidence.profileID == "simulation-independent-attachment-v1" }
+        if let surface = syntheticContinuationProfiles[evidence.profileID] {
+            return asset.origin == .synthetic && surface == receipt.target.surface
+        }
+        return continuationProfiles[evidence.profileID] == receipt.target.surface
     }
 
     public func allowsConsumption(receipt: TransferReceipt, asset: ImportedAsset, mode: StoreMode) -> Bool {

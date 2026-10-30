@@ -4,9 +4,11 @@ public struct TransferRequest: Sendable {
     public let operation: TransferOperation
     public let asset: ImportedAsset
     public let fileURL: URL
+    public let invocationID: UUID?
 
-    public init(operation: TransferOperation, asset: ImportedAsset, fileURL: URL) {
+    public init(operation: TransferOperation, asset: ImportedAsset, fileURL: URL, invocationID: UUID? = nil) {
         self.operation = operation; self.asset = asset; self.fileURL = fileURL
+        self.invocationID = invocationID
     }
 }
 
@@ -30,6 +32,7 @@ public extension AttachmentAdapter {
 
 public actor TransferCoordinator {
     private let store: QueueStore
+    private let dispatchOwnerID = UUID()
     private let adapter: any AttachmentAdapter
     private let mediaDirectory: URL
     private let policy: ReceiptPolicy
@@ -332,7 +335,7 @@ public actor TransferCoordinator {
                     advanceWaiting(id, selection: accepted); await onChange(); continue
                 }
             }
-            do { try await store.markDispatchIntent(id, selection: accepted) }
+            do { try await store.markDispatchIntent(id, selection: accepted, ownerID: dispatchOwnerID, policy: policy) }
             catch RiftletError.targetBusy {
                 if accepted != nil {
                     // Keep the original prepared operation at the FIFO head. Only
@@ -354,10 +357,19 @@ public actor TransferCoordinator {
                 let committedRequest = try await self.request(for: committed)
                 let receipt = try await adapter.append(committedRequest)
                 _ = try await store.apply(receipt, policy: policy)
+                if let invocationID = committedRequest.invocationID {
+                    try await store.recordAppendReturned(receipt, invocationID: invocationID, ownerID: dispatchOwnerID)
+                }
                 if receipt.outcome == .inputTriggered || receipt.outcome == .attachedCandidate {
                     // Observation may return a candidate, never a synthetic success timeout.
                     try await store.markUnknown(id, reason: "Input observed; conclusive completion is unavailable")
                 }
+            } catch let rejection as PreInputRejection {
+                do {
+                    guard rejection.operationID == id else { throw RiftletError.mismatchedReceipt }
+                    try await store.recordPreInputRejection(rejection)
+                }
+                catch { try await store.markUnknown(id, reason: "Invalid pre-input proof; original operation retained") }
             } catch {
                 // Includes a transport crash or a malformed/mismatched reply after intent.
                 try await store.markUnknown(id, reason: "No trustworthy completion after input intent")
@@ -429,7 +441,8 @@ public actor TransferCoordinator {
 
     private func request(for op: TransferOperation) async throws -> TransferRequest {
         guard let asset = try await store.asset(id: op.assetID) else { throw RiftletError.assetNotFound }
-        return TransferRequest(operation: op, asset: asset.image, fileURL: mediaDirectory.appendingPathComponent(asset.image.fileName))
+        return TransferRequest(operation: op, asset: asset.image, fileURL: mediaDirectory.appendingPathComponent(asset.image.fileName),
+                               invocationID: try await store.dispatchInvocationID(for: op.id))
     }
 }
 

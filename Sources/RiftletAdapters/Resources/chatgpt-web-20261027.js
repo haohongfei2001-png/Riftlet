@@ -12,7 +12,8 @@ function riftletWebAcceptance(command, native) {
   // v13 may borrow one intact, known v9/v10/v12 root monitor without replacing its descriptor.
   // Its old native requests remain UNKNOWN instead of acquiring a new lease.
   const KEY = '__riftletWebAcceptance20261027v13';
-  const MAX_GENERATIONS = 32;
+  const MAX_GENERATIONS = 32; // Frozen legacy monitor compatibility bound.
+  const MAX_ACTIVE_PAYLOADS = 32; // Concurrent retained byte payloads, not lifetime identities.
   const MAX_CHUNK_BYTES = 256 * 1024;
   const MAX_BYTES = 8 * 1024 * 1024, MAX_PIXELS = 16 * 1024 * 1024;
   const TARGET_KEYS = ['adapterID', 'surface', 'applicationID', 'sessionID', 'windowID', 'tabID', 'documentID', 'composerID', 'draftGeneration'];
@@ -168,6 +169,14 @@ function riftletWebAcceptance(command, native) {
       group.invalidate.add(invalidate);
       return () => intact() && group.alive;
     }};
+    // New monitors can release our own invalidated binding without touching a
+    // historical descriptor or removing any original operation identity.
+    monitor.release = (form, invalidate) => {
+      const group = groups.get(form);
+      if (!group) return;
+      group.invalidate.delete(invalidate);
+      if (group.invalidate.size === 0) groups.delete(form);
+    };
     // A retained failed monitor is a tombstone: descriptor loss cannot rearm it.
     registry.rootMonitors.set(root, monitor);
     try { Object.defineProperty(root, 'current', {get, set, enumerable: original.enumerable, configurable: original.configurable}); }
@@ -258,7 +267,21 @@ function riftletWebAcceptance(command, native) {
         return true;
       } catch { disqualify('OWNER_LOST'); return false; }
     };
-    const borrowed = {intact, diagnostics, stop() { disqualify('EXPLICIT_STOP'); return {...diagnostics}; },
+    const makeBorrowedCheck = group => () => {
+      if (!active || !group.alive || !group.check) return false;
+      try { diagnostics.checks++; return intact() && group.check(); }
+      catch { invalidateGroup(group); return false; }
+    };
+    const makeBorrowedInvalidator = group => () => invalidateGroup(group);
+    const borrowed = {intact, diagnostics, release(form, invalidate) {
+      const group = groups.get(form);
+      if (!group) return;
+      group.invalidators.delete(invalidate);
+      if (group.invalidators.size === 0) {
+        group.alive = false; group.check = null; group.editor = null; group.input = null;
+        groups.delete(form); diagnostics.groups = groups.size;
+      }
+    }, stop() { disqualify('EXPLICIT_STOP'); return {...diagnostics}; },
       bind(form, editor, input, logical, route, check, invalidate) {
         if (!intact()) fail('ROOT_MONITOR_LOST');
         let group = groups.get(form);
@@ -268,19 +291,18 @@ function riftletWebAcceptance(command, native) {
           // Private per-form token prevents the old bind implementation from
           // reusing an old generation's check or changing its invalidators.
           const token = group?.token || {};
-          group = {token, editor, input, logical, route, alive: true, invalidators: new Set()};
+          group = {token, editor, input, logical, route, check, alive: true, invalidators: new Set()};
           groups.set(form, group); diagnostics.groups = groups.size;
           const currentGroup = group;
-          const safeCheck = () => {
-            if (!active || !currentGroup.alive) return false;
-            try { diagnostics.checks++; return intact() && check(); }
-            // A new borrower's exception must not escape into the old setter,
-            // whose catch would otherwise invalidate unrelated old proofs.
-            catch { invalidateGroup(currentGroup); return false; }
-          };
-          try { group.ownerAlive = functions.bind(token, editor, input, logical, route, safeCheck, () => invalidateGroup(currentGroup)); }
+          // The historical owner retains only a plain token and a detachable
+          // data cell, never our form/editor/input or install closure.
+          const safeCheck = makeBorrowedCheck(currentGroup);
+          try { group.ownerAlive = functions.bind(token, token, token, logical, route, safeCheck, makeBorrowedInvalidator(currentGroup)); }
           catch { invalidateGroup(group); fail('ROOT_MONITOR_LOST'); }
         }
+        // Retired callbacks belong only to invalidated new states, whose operation
+        // records remain in the registry. They cannot observe this binding again.
+        for (const callback of group.invalidators) if (callback.retired === true) group.invalidators.delete(callback);
         if (group.invalidators.size >= MAX_GENERATIONS) fail('ROOT_MONITOR_LIMIT');
         group.invalidators.add(invalidate);
         return () => {
@@ -292,6 +314,14 @@ function riftletWebAcceptance(command, native) {
     registry.rootMonitors.set(root, borrowed);
     if (!intact()) fail('ROOT_MONITOR_LOST');
     return borrowed;
+  }
+
+  function retiredBinding(targets, operations, next, continuityEvents) {
+    const no = () => false, noop = () => {};
+    return {retired: true, target: targets[targets.length - 1],
+      ownsTarget: candidate => targets.some(t => sameTarget(t, candidate)),
+      operations, next, continuityEvents: {...continuityEvents},
+      valid: no, observationIdentityValid: no, drain: noop, revokeInput: noop, invalidate: noop, markBad: noop, sample: noop};
   }
 
   function install(registry) {
@@ -383,6 +413,11 @@ function riftletWebAcceptance(command, native) {
     const monitor = thread ? rootMonitor(registry, boundRoot) : null;
     const ids = new WeakMap(), operations = new Map();
     let nextNode = 0, invalid = false, inputRevoked = false, sequence = 0;
+    const retiredTargets = [];
+    const listeners = [];
+    const listen = (owner, type, handler, options) => { owner.addEventListener(type, handler, options); listeners.push([owner,type,handler,options]); };
+    let stopObservation = () => {};
+    let state = null;
     const nodeID = n => { if (!ids.has(n)) ids.set(n, 'node-' + (++nextNode)); return ids.get(n); };
     let target = {adapterID: 'chatgpt-web', surface: 'webChat', ...native,
       documentID, composerID: nodeID(editor) + ':' + nodeID(form), draftGeneration: crypto.randomUUID(),
@@ -399,14 +434,36 @@ function riftletWebAcceptance(command, native) {
         && currentInputs.length === 1 && currentInputs[0] === input
         && baseline.every(c => c.isConnected && form.contains(c));
     };
-    const tick = () => { if (++sequence > 4096) invalid = true; return sequence; };
+    const tick = () => { if (++sequence > Number.MAX_SAFE_INTEGER - 1) invalid = true; return sequence; };
     const revokeInput = () => {
       inputRevoked = true;
-      for (const op of operations.values()) if (!op.committed) { op.file = null; op.chunks = []; }
+      for (const op of operations.values()) if (!op.committed) { op.file = null; op.chunks = []; op.invalid = true; }
     };
     const invalidate = () => {
-      invalid = true; revokeInput(); tick();
-      for (const op of operations.values()) { op.file = null; op.chunks = []; op.proof = null; }
+      if (invalid) return;
+      invalid = true; invalidate.retired = true; revokeInput(); tick(); stopObservation();
+      const audit = new Map();
+      for (const [id, op] of operations) {
+        const record = {};
+        for (const key of ['identity','invocationID','name','bytes','nextChunk','received','committed',
+          'error','inputCount','fileHashVerified','inputSequence','inputObservedAtMS','progressValue',
+          'startDisqualified','uploadStart','started','hundred','ended','loaded','uploading','errorAttachmentID']) {
+          if (op[key] !== undefined) record[key] = op[key];
+        }
+        record.invalid = true;
+        if (op.proof) record.proofAudit = {identity:op.proof.identity, loadSequence:op.proof.loadSequence,
+          completed:op.proof.completed, completedAtMS:op.proof.completedAtMS};
+        if (op.card && op.image) record.lastAttachmentID = op.identity.target.documentID + ':' + nodeID(op.card) + ':' + nodeID(op.image);
+        audit.set(id, record);
+        op.file = null; op.chunks = []; op.proof = null;
+        op.card = null; op.image = null; op.progressNode = null;
+      }
+      monitor?.release?.(form, invalidate);
+      if (state) {
+        const retired = retiredBinding([...retiredTargets,target], audit, state.next, continuityEvents);
+        for (const key of Object.keys(state)) delete state[key];
+        Object.assign(state, retired);
+      }
     };
     const observationIdentityValid = () => {
       if (!identitySnapshotValid()) { if (!invalid) invalidate(); return false; }
@@ -418,13 +475,13 @@ function riftletWebAcceptance(command, native) {
       return document.visibilityState === 'visible' && document.hasFocus();
     };
     // A focus-only revocation need not consume another retained operation slot.
-    // Renew only an empty, continuously observed binding. The old target object
+    // Renew only a continuously observed binding; original operation leases stay read-only. The old target object
     // is never changed or re-authorized, and native capture still must publish a
-    // fresh ACK before a later click. Any begin (even without commit) permanently
-    // excludes this path: its original operation and observation stay retained.
+    // fresh ACK before a later click. Retained operations keep immutable original targets.
     const renewEmptyInputLease = () => {
-      if (!inputRevoked || invalid || operations.size !== 0 || !observationIdentityValid()
+      if (!inputRevoked || invalid || !observationIdentityValid()
           || !composerAvailable() || document.visibilityState !== 'visible' || !document.hasFocus()) return false;
+      if (operations.size) retiredTargets.push(target);
       target = {...target, documentID: crypto.randomUUID(), draftGeneration: crypto.randomUUID()};
       inputRevoked = false;
       return true;
@@ -436,9 +493,12 @@ function riftletWebAcceptance(command, native) {
       if (error && op.proof && currentMember(op)
           && op.proof.card === op.card && op.proof.image === op.image
           && sameIdentity(op.proof.identity, op.identity)) {
-        op.errorAttachmentID = target.documentID + ':' + nodeID(op.card) + ':' + nodeID(op.image);
+        op.errorAttachmentID = op.identity.target.documentID + ':' + nodeID(op.card) + ':' + nodeID(op.image);
       }
       op.invalid = true; op.error ||= error; op.proof = null; op.file = null; op.chunks = [];
+      // Detached attachment nodes cannot later prove this operation. Keep the
+      // immutable identity/start/error audit, release detached preview payloads.
+      if (!op.card?.isConnected || !form.contains(op.card)) { op.card = null; op.image = null; op.progressNode = null; }
     };
     const ownCards = name => [...form.querySelectorAll('[role=button][aria-label]')]
       .filter(c => c.getAttribute('aria-label') === name);
@@ -642,6 +702,12 @@ function riftletWebAcceptance(command, native) {
       if (relevant) sampleAll('mutation');
     };
     const observer = new MutationObserver(processRecords);
+    stopObservation = () => {
+      observer.disconnect();
+      for (const [owner,type,handler,options] of listeners) owner.removeEventListener?.(type,handler,options);
+      listeners.length = 0;
+    };
+
     const drain = () => {
       // A hash Promise can run before an already queued MutationObserver
       // callback. Drain synchronously before target admission and final input
@@ -659,7 +725,7 @@ function riftletWebAcceptance(command, native) {
         observer.observe(ancestor, {childList: true});
       }
     }
-    document.addEventListener('change', event => {
+    listen(document, 'change', event => {
       if (!observationIdentityValid() || event.target !== input || !(event.target instanceof HTMLInputElement)) return;
       for (const file of event.target.files || []) {
         const op = [...operations.values()].find(o => o.name === file.name);
@@ -675,22 +741,22 @@ function riftletWebAcceptance(command, native) {
         }).catch(() => markBad(op));
       }
     }, true);
-    for (const type of ['load', 'error']) document.addEventListener(type, event => {
+    for (const type of ['load', 'error']) listen(document, type, event => {
       if (event.target?.tagName === 'IMG') sampleAll(type, event.target);
     }, true);
-    for (const type of ['pagehide', 'popstate', 'hashchange']) addEventListener(type, invalidate);
-    addEventListener('pageshow', revokeInput);
+    for (const type of ['pagehide', 'popstate', 'hashchange']) listen(globalThis, type, invalidate);
+    listen(globalThis, 'pageshow', revokeInput);
     // The Window epoch changes across applications/windows even while both
     // pages remain visible. Input-to-input focus inside this draft is unrelated.
-    for (const type of ['blur', 'focus']) addEventListener(type, event => {
+    for (const type of ['blur', 'focus']) listen(globalThis, type, event => {
       if (event.target === globalThis) revokeInput();
     });
-    document.addEventListener('visibilitychange', revokeInput);
+    listen(document, 'visibilitychange', revokeInput);
     // A click in the body/sidebar is not a draft change. Recheck the same
     // binding after the page handles that interaction; navigation and root
     // commit guards independently revoke real transitions, including ABA.
     const continuityEvents = {outsideInteraction: 0, navigate: 0, currententrychange: 0};
-    for (const type of ['pointerdown', 'click', 'keydown']) document.addEventListener(type, event => {
+    for (const type of ['pointerdown', 'click', 'keydown']) listen(document, type, event => {
       if (event.isTrusted === true && event.target && !form.contains(event.target)) {
         continuityEvents.outsideInteraction++;
         queueMicrotask(() => {
@@ -700,7 +766,7 @@ function riftletWebAcceptance(command, native) {
       }
     }, true);
     if (typeof globalThis.navigation?.addEventListener === 'function') {
-      for (const type of ['navigate', 'currententrychange']) globalThis.navigation.addEventListener(type, () => {
+      for (const type of ['navigate', 'currententrychange']) listen(globalThis.navigation, type, () => {
         continuityEvents[type]++; invalidate();
       });
     }
@@ -718,7 +784,7 @@ function riftletWebAcceptance(command, native) {
       monitorAlive = monitor.bind(form, editor, input, logicalDraftIdentity, route, checkBinding, invalidate);
       if (!checkBinding() || !monitorAlive()) { invalidate(); fail('UNPROVEN_MONITORED_BINDING'); }
     }
-    const state = {get target() { return target; }, valid, observationIdentityValid, invalidate, revokeInput, drain, continuityEvents, operations, sample, tick, ownCards, markBad, currentMember,
+    state = {lifecycleVersion: 1, ownsTarget: candidate => sameTarget(candidate,target) || retiredTargets.some(t => sameTarget(t,candidate)), get target() { return target; }, valid, observationIdentityValid, invalidate, revokeInput, drain, continuityEvents, operations, sample, tick, ownCards, markBad, currentMember,
       currentSource, input, form, nodeID, renewEmptyInputLease, next: null};
     if (registry.tail) registry.tail.next = state;
     else registry.head = state;
@@ -732,7 +798,8 @@ function riftletWebAcceptance(command, native) {
   // install/rearm a document, and cannot redirect an old UNKNOWN into a new one.
   const generations = function* () {
     let current = registry?.head;
-    for (let i = 0; current && i < MAX_GENERATIONS; i++, current = current.next) yield current;
+    const seen = new Set();
+    while (current && !seen.has(current)) { seen.add(current); yield current; current = current.next; }
   };
   if (command.action === 'captureTarget') {
     if (!registry) {
@@ -747,20 +814,20 @@ function riftletWebAcceptance(command, native) {
       // and all their operations untouched and use their original bounded path.
       if (current && contextMatches(current.target) && current.renewEmptyInputLease?.()) return current.target;
       if (current) current.revokeInput();
-      if (registry.count >= MAX_GENERATIONS) fail('LEASE_GENERATION_LIMIT');
+      // Identity tombstones are retained; lifetime count is not a resource quota.
       current = install(registry);
     }
     return current.target;
   }
-  const state = [...generations()].find(generation => sameTarget(command.target, generation.target));
+  const state = [...generations()].find(generation => (generation.ownsTarget?.(command.target) ?? sameTarget(command.target, generation.target)));
   state?.drain();
   if (command.action === 'validate') {
-    return {target: command.target, valid: !!state && state === registry.tail && state.valid()
+    return {target: command.target, valid: !!state && state === registry.tail && sameTarget(command.target,state.target) && state.valid()
       && contextMatches(state.target)};
   }
   const identity = command.identity;
   if (!identity || !sameTarget(identity.target, command.target)) fail('IDENTITY_REQUIRED');
-  if (!state || !(command.action === 'observe' ? state.observationIdentityValid() : state.valid()) || !contextMatches(state.target) || !sameTarget(identity.target, state.target)
+  if (!state || !(command.action === 'observe' ? state.observationIdentityValid() : state.valid()) || !contextMatches(state.target) || !(command.action === 'observe' ? (state.ownsTarget?.(identity.target) ?? sameTarget(identity.target,state.target)) : sameTarget(identity.target,state.target))
       || (command.action !== 'observe' && state !== registry.tail)) {
     if (command.action === 'observe') return blankObservation(identity);
     fail('TARGET_INVALID');
@@ -768,24 +835,33 @@ function riftletWebAcceptance(command, native) {
   const acknowledge = (op, nextChunk) => ({operationID: op.identity.operationID, attempt: op.identity.attempt, nextChunk});
   let op = state.operations.get(identity.operationID);
   if (command.action === 'begin') {
-    if ([...generations()].some(generation => generation.operations.has(identity.operationID)) || state.operations.size >= 32 || !Number.isSafeInteger(identity.attempt) || identity.attempt < 1
+    if ([...generations()].some(generation => generation.operations.has(identity.operationID)) || !Number.isSafeInteger(identity.attempt) || identity.attempt < 1
         || !/^[a-f0-9]{64}$/.test(identity.assetSHA256)
-        || !/^[a-fA-F0-9-]{36}$/.test(identity.operationID) || !/^[a-fA-F0-9-]{36}$/.test(identity.assetID)
+        || !/^[a-fA-F0-9]{8}-(?:[a-fA-F0-9]{4}-){3}[a-fA-F0-9]{12}$/.test(identity.operationID) || !/^[a-fA-F0-9]{8}-(?:[a-fA-F0-9]{4}-){3}[a-fA-F0-9]{12}$/.test(identity.assetID)
+        || (command.invocationID !== undefined && (typeof command.invocationID !== 'string' || !/^[a-fA-F0-9]{8}-(?:[a-fA-F0-9]{4}-){3}[a-fA-F0-9]{12}$/.test(command.invocationID)))
         || command.uploadName !== 'riftlet-' + identity.operationID + '.png'
         || command.mediaType !== 'image/png' || !Number.isSafeInteger(command.byteCount)
         || command.byteCount < 8 || command.byteCount > MAX_BYTES || state.ownCards(command.uploadName).length) fail('BEGIN_REFUSED');
-    op = {identity, name: command.uploadName, bytes: command.byteCount, chunks: [], nextChunk: 0, received: 0,
+    if ([...generations()].flatMap(g => [...g.operations.values()]).filter(o => !o.invalid && (!o.committed || o.file || (o.committed && !o.fileHashVerified))).length >= MAX_ACTIVE_PAYLOADS) {
+      if (state.lifecycleVersion !== 1 || typeof command.invocationID !== 'string' || !/^[a-fA-F0-9]{8}-(?:[a-fA-F0-9]{4}-){3}[a-fA-F0-9]{12}$/.test(command.invocationID)) fail('BEGIN_REFUSED');
+      state.operations.set(identity.operationID, {identity, invocationID:command.invocationID,
+        name:command.uploadName, committed:false, invalid:true, inputCount:0});
+      return {identity, invocationID:command.invocationID, retiredBeforeInput:true,
+        inputCount:0, commitInvoked:false, rejectedBeforeBegin:true, reason:'ACTIVE_PAYLOAD_LIMIT'};
+    }
+    op = {identity, invocationID: command.invocationID, name: command.uploadName, bytes: command.byteCount, chunks: [], nextChunk: 0, received: 0,
       committed: false, invalid: false, error: false, inputCount: 0, fileHashVerified: false,
       inputSequence: 0, inputObservedAtMS: null, progressNode: null, progressValue: null,
       startDisqualified: false, uploadStart: null,
       started: 0, hundred: 0, ended: 0, loaded: 0, uploading: false, proof: null};
     state.operations.set(identity.operationID, op);
-    return acknowledge(op, 0);
+    return {...acknowledge(op, 0), ...(state.lifecycleVersion === 1 && typeof op.invocationID === 'string' ? {allocated:true,identity:op.identity,invocationID:op.invocationID} : {})};
   }
   if (!op || !sameIdentity(identity, op.identity)) {
     if (command.action === 'observe') return blankObservation(identity);
     fail('ORIGINAL_OPERATION_REQUIRED');
   }
+  if (command.action !== 'observe' && op.invocationID && command.invocationID !== op.invocationID) fail('INVOCATION_MISMATCH');
   if (command.action === 'chunk') {
     if (op.committed || op.invalid || command.chunkIndex !== op.nextChunk
         || typeof command.chunkBase64 !== 'string' || command.chunkBase64.length > 4 * Math.ceil(MAX_CHUNK_BYTES / 3)
@@ -797,7 +873,7 @@ function riftletWebAcceptance(command, native) {
   }
   if (command.action === 'discard') {
     if (!op.committed) { op.chunks = []; op.invalid = true; }
-    return {discarded: !op.committed}; // Never remove an attachment or reset a dispatch tombstone.
+    return {discarded: !op.committed, ...(state.lifecycleVersion === 1 && !op.committed && op.inputCount === 0 && typeof op.invocationID === 'string' && command.invocationID === op.invocationID ? {identity:op.identity,invocationID:op.invocationID,retiredBeforeInput:true,inputCount:0,commitInvoked:false} : {})}; // Never remove an attachment or reset a dispatch tombstone.
   }
   if (command.action === 'commit') {
     if (op.committed || op.invalid || op.received !== op.bytes || command.chunkIndex !== op.nextChunk) fail('COMMIT_REFUSED');
@@ -830,7 +906,7 @@ function riftletWebAcceptance(command, native) {
 
   state.sample(op);
   const envelope = blankObservation(identity, 'unknown'), observation = envelope.observation;
-  observation.belongsToOriginalDraft = state.observationIdentityValid() && sameTarget(identity.target, state.target);
+  observation.belongsToOriginalDraft = state.observationIdentityValid() && (state.ownsTarget?.(identity.target) ?? sameTarget(identity.target,state.target));
   observation.hasError = op.error;
   observation.isUploading = op.uploading;
   if (!observation.belongsToOriginalDraft || op.invalid) {
@@ -845,7 +921,7 @@ function riftletWebAcceptance(command, native) {
     observation.state = 'invalidated'; return envelope;
   }
   if (op.inputCount === 1) observation.state = 'inputTriggered';
-  if (op.card && op.image) observation.attachmentID = state.target.documentID + ':' + state.nodeID(op.card) + ':' + state.nodeID(op.image);
+  if (op.card && op.image) observation.attachmentID = op.identity.target.documentID + ':' + state.nodeID(op.card) + ':' + state.nodeID(op.image);
   // A stored start is not itself a current upload claim. Completion, errors,
   // missing/replaced progress, or an invalid original binding cannot replay it.
   if (op.uploadStart && !op.startDisqualified && !op.error && !op.proof && !op.ended
