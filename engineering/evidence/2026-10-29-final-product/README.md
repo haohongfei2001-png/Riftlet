@@ -1,3 +1,58 @@
+# O1 cause audit and bounded MAIN diagnostic — 2026-10-30
+
+**Diagnostic defect fixed; O1's first invalidation trigger remains unproved. No product upload fix or new successful upload is claimed.** New real E2E is **NOT_RUN / resource acquisition blocked**. Production input/start/completion admission, builtin sources, continuation and safe retry stay closed.
+
+- Exact independently reviewed diagnostic source: `df6d6da630ef7b9d2096814fe573a9a6eda6483d`. `b179f85` adds the bounded read-only snapshot/VM regressions; `df6d6da` adds its native MAIN executor and ARM CI test/compile step. Non-author `ordinary_entry_review` approved this source, not production admission.
+- `Sources/` and `Resources/` are unchanged in this increment. The page JS blob is exactly `4064ea89fef391048d4ff7ba9684bfdc60ffcc8f` in formal `edbdc7aa`, O1's source and current diagnostic source. Ordinary/candidate mode differences are source-scope registration, receipt policy and journal namespaces; there is no distinct ordinary page mutation algorithm to blame without evidence.
+- The original O1 archive's 49 manifest entries verify unchanged. No O1 input, unknown resolution, database cleanup or old operation replay occurred. New private audit manifest SHA-256: `eafb8c3fab138ad8348fb03e32028283007a19407456bf9cce255e9e43a1ea35` (13 files before manifest). No private identities, screenshots, chat text or raw logs are published.
+
+## What O1 actually establishes
+
+The three persisted journal observations have exactly the same original operation/asset/attempt/hash/full target. The first retained inputTriggered has an original attachment identity, `belongsToOriginalDraft=true`, `isUploading=true`, `hasError=false`. Under this page implementation, one matching attachment card/image and a progress node had been observed. It was not merely a successful native input command with no page reaction. This does **not** prove two increasing intermediate progress values or actual upload bytes.
+
+The first retained invalidated still has `belongsToOriginalDraft=true`, `isUploading=true`, `hasError=false`. The program's invalidated branch therefore reflects **operation-level invalidation while the original draft observation binding still held**. Missing state/whole-target invalidation would produce a different, false-belongs result. `isUploading` can retain its previous value after invalidation and must not be treated as current upload activity.
+
+This narrows but does not uniquely identify the trigger: card/image removal or replacement, relevant attribute change, unexpected progress structure, preview/load/source checks and input-hash checks can all set `op.invalid`. No first-cause reason or mutation record was retained for this operation. The journal stores first observations by category but no observation timestamp; native trace has observe call boundaries, not each response classification. Therefore we cannot assign the first invalidated to an exact observe call or use the later empty DOM as its cause.
+
+Native target digests remained consistent around commit. The retained bounded driver samples show correct route, visible/focused document and expected text/noncollapsed selection for approximately 20 seconds after input. SQLite UNKNOWN visibility was observed by uptime `723004.254279`, around ten seconds after the commit reply `722994.238843`. This is an outcome time bound, **not a measured invalidation event**. Later foreground changes and today's missing tab cannot be backdated into a cause.
+
+| Possible explanation | Current conclusion |
+|---|---|
+| File never reached ChatGPT | Contradicted by original inputTriggered plus matching attachment observation |
+| Actual upload began, then observation was lost | Possible; no independent positive start proof |
+| Page removed/replaced/withdrew the attachment | Possible; first causal DOM event not retained |
+| Global target/document invalid at the first retained invalidated | Not supported: original-draft membership was true |
+| Network failure or safe terminal failure | NOT_PROVEN; no retry/visibility rebirth allowed |
+| Ordinary-specific page regression | NOT_PROVEN; same page code and transport |
+
+## Confirmed diagnostic error and fix
+
+The previous `operation.swift` queried `window.__riftlet…` directly through Chrome execute-JavaScript Apple Events. That is not the production MAIN-world channel. The production executor explicitly submits through `MainWorldCommandEnvelope` and reads a nonce-bound DOM receipt. The old query's `operations:[]` consequently cannot establish that the MAIN registry/original operation disappeared. Its registry name, linked-list fields and exact operation ID were correct; its execution world was wrong. The old probe also requested nonexistent progress sample field names.
+
+The replacement is test-only and is not packaged in Riftlet:
+
+```sh
+xcrun swiftc -parse-as-library Sources/RiftletAdapters/MainWorldCommandEnvelope.swift engineering/diagnostics/original-operation-main.swift -o /tmp/riftlet-original-operation-main
+/tmp/riftlet-original-operation-main <private-original-identity.json> engineering/diagnostics/original-operation-snapshot.js
+node --test engineering/diagnostics/original-operation-snapshot.test.cjs
+```
+
+The private input is `{identity: {operationID, assetID, attempt, assetSHA256, target}}` copied from the original durable operation, never a newly captured target. The runner fixes PID/launch session/window/tab/original persisted route and passively checks permission, submits once through the **unmodified production envelope**, then only reads its original nonce under the receipt budget. Structured errors name the failed stage. It does not activate windows, capture/renew a target, focus an editor, input a file, send a chat or retry submission.
+
+The snapshot reads own-data registry fields with exact operation/asset/attempt/hash/target/native correspondence, at most 512 generations and four monitor diagnostics; rejects cycles, duplicate identity and mismatches; does not invoke `valid`, `drain`, `sample`, target getters or any state method. It exports closed statuses, flags, numeric counts/sequences and presence/connection booleans, not body text, source URLs, filenames, target identifiers or proof contents. A snapshot is **not** a reconstructed first-cause event and never grants a lease or receipt.
+
+Local Swift compilation and five deterministic Node VM cases PASS: isolated absence versus retained MAIN fixture, retired operation, wrong identity/native context, cycle/cap/duplicate and privacy/getter sentinels. These are not real Chrome MAIN recovery acceptance. New CI is pending at this checkpoint; previous native CI `41066263763` covers unchanged App source, not these new diagnostics.
+
+## Current real-environment boundary and resumption
+
+The fixed runner stopped at `original-route-read`, native `-1728`, before MAIN submission. A bounded read-only inventory did not find the original tab. It does not prove when or why that original page vanished, nor the O1 markBad cause.
+
+Another previously authorized successful-test chat has a different logical identity from O1 but was not open in the bounded inventory. A single native attempt to acquire a new independent window for that known test chat returned `-1712` before window/tab identity was obtained. **Creation outcome is uncertain**, not definitely absent. No navigation/input was reached, no creation retry or speculative takeover/close was attempted. New screenshot/input/start/swallow/completion/restart acceptance is NOT_RUN in this increment. Existing O1 data remains UNKNOWN.
+
+Resume only when an independently owned, qualified persisted test draft/window is available. Keep O1 read-only. Reuse this MAIN snapshot plus the existing bounded DOM/selection observer for a new operation, correlate original identity and native/document clocks, and retain the first invalidfalse→true interval and corresponding mutation records. If those records still do not distinguish the branch, do not infer a unique cause. No stale Range restoration, target substitution, timeout unlock, registry deletion or production criterion change is proposed. Formal PR #1/main remain untouched; source integration belongs to the formal owner.
+
+---
+
 # Ordinary-entry internal runtime — 2026-10-30 continuation
 
 **Actual ordinary-mode input: limited PASS. Full start/swallow/completion loop: FAIL / unresolved UNKNOWN. Production admission remains CLOSED.** This supersedes only the ordinary runtime NOT_RUN statement in the previous handoff below; previous evidence is retained.

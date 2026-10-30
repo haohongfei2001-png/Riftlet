@@ -11250,5 +11250,30 @@
     "builtInSource": "CLOSED",
     "rawEvidenceManifestSHA256": "95066b87ee6fa19774ad17258629f81dc382f3ad18d61f9e09f241743f25177d",
     "runtimeReview": "PASS non-author raw-event and SQLite review; old-attachment baseline coverage narrowed"
+  },
+  "ordinaryO1CauseAudit": {
+    "reviewedSource": "df6d6da630ef7b9d2096814fe573a9a6eda6483d",
+    "review": "PASS non-author diagnostic source; no production admission",
+    "confirmedDefect": "old original-operation probe queried isolated rather than MAIN world",
+    "retainedInvalidation": "original-draft membership true, operation invalid, no observed error; precise first branch not captured",
+    "productSourceChange": false,
+    "originalArchiveIntegrity": "PASS 49 entries unchanged",
+    "localDiagnostics": "PASS Swift compile and 5 Node VM cases",
+    "ci": "PENDING",
+    "originalLiveRead": {
+      "status": -1728,
+      "stage": "original-route-read",
+      "mainSubmission": false
+    },
+    "independentWindowAcquisition": {
+      "status": -1712,
+      "outcome": "uncertain before identity obtained; not retried"
+    },
+    "newEndToEnd": "NOT_RUN resource acquisition blocked",
+    "privateManifestSHA256": "eafb8c3fab138ad8348fb03e32028283007a19407456bf9cce255e9e43a1ea35",
+    "productionAdmission": "CLOSED",
+    "continuation": "CLOSED",
+    "safeRetry": "CLOSED",
+    "builtInSource": "CLOSED"
   }
 }
