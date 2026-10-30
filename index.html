@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#fcfbf8">
 <meta name="description" content="照常截图，轻点屏幕边缘。Riftlet 把图片接入当前 ChatGPT 草稿，让你接着想、接着聊。为 Mac 打磨的轻巧工具，内部测试中。">
-<title>Riftlet — 不必找。就在那儿。</title><link rel="icon" href="website-assets/riftlet.svg" type="image/svg+xml"><link rel="stylesheet" href="website-v2.css"><script src="website-v2.js" defer></script>
+<title>Riftlet</title><link rel="icon" href="website-assets/riftlet.svg" type="image/svg+xml"><link rel="stylesheet" href="website-v2.css"><script src="website-v2.js" defer></script>
 <meta name="color-scheme" content="light">
 <meta name="riftlet-website-version" content="2026-10-30-v2">
 <link rel="canonical" href="https://riftlet.com/">
 <link rel="manifest" href="site.webmanifest?v=20261030">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Riftlet">
-<meta property="og:title" content="Riftlet — 不必找。就在那儿。">
+<meta property="og:title" content="Riftlet">
 <meta property="og:description" content="照常截图，轻点屏幕边缘。图片来到当前 ChatGPT 草稿，接着说你想说的。为 Mac 打磨，内部测试中。">
 <meta property="og:url" content="https://riftlet.com/">
 <meta property="og:locale" content="zh_CN">
@@ -19,7 +19,7 @@
 <meta property="og:image:height" content="1086">
 <meta property="og:image:alt" content="Riftlet 网页交互示意中的玻璃与光配色研究">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Riftlet — 不必找。就在那儿。">
+<meta name="twitter:title" content="Riftlet">
 <meta name="twitter:description" content="照常截图，轻点屏幕边缘。图片来到当前 ChatGPT 草稿，接着说你想说的。">
 <meta name="twitter:image" content="https://riftlet.com/website-assets/glass-study.png">
 </head>
@@ -60,7 +60,7 @@
 <article class="draft-card" id="draft-card" aria-label="当前对话草稿示意"><div class="draft-top"><span class="chat-mark" aria-hidden="true"><svg><use href="#i-chat"/></svg></span><span>ChatGPT</span><span class="draft-top-divider"></span><span data-en="Your current draft">你正在写的草稿</span><span class="draft-menu" aria-hidden="true">···</span></div><div class="draft-content"><div class="attachments" id="attachments" aria-label="演示草稿的附件"><div class="existing-file"><svg aria-hidden="true"><use href="#i-file"/></svg><span data-en="My notes">我的笔记</span><span class="existing-file-dot" aria-hidden="true"></span></div></div><label class="sr-only" for="draft" data-en="Editable example draft. Nothing is sent.">可编辑的演示草稿，不会发送</label><textarea id="draft" rows="2" spellcheck="false">这组颜色，为什么看起来这么轻盈？</textarea><div class="draft-bottom"><span class="add-symbol" aria-hidden="true">＋</span><span class="draft-safety" data-en="Your words stay. You choose when to send.">文字留着，发送由你。</span><span class="send-symbol" role="img" aria-label="示意发送图标，不会发送">↑</span></div></div></article>
 
 </div>
-<div class="demo-foot"><p id="demo-status" aria-live="polite" aria-atomic="true">点一下右侧微图，试试这一小步。</p><button class="replay-button" id="restart" type="button" aria-label="重新演示"><svg aria-hidden="true"><use href="#i-replay"/></svg></button></div><p class="demo-disclosure" data-en="An interactive illustration. No screen access, uploads or messages.">网页交互示意 · 不读取屏幕、不上传、不发送</p>
+<div class="demo-foot"><p id="demo-status" aria-live="polite" aria-atomic="true">点一下右侧微图，试试这一小步。</p><button class="replay-button" id="restart" type="button" aria-label="重新演示"><svg aria-hidden="true"><use href="#i-replay"/></svg></button></div>
 </div></section>
 <section class="details-section section-wrap" id="details" aria-labelledby="details-title">
 <div class="details-panel"><div class="details-copy"><span class="section-kicker" data-en="A PLACE AT THE EDGE">在屏幕边缘</span><h2 id="details-title" data-en="Close at hand.<br><em>Light on your screen.</em>">只占一点边缘，<br><em>留给你整片思路。</em></h2><p data-en="A few recent screenshots, just as you remember them. No filenames to search. No panel to open.">刚截下的几张图，保留原来的模样。<br>不必翻文件名，也不用展开面板。</p><div class="edge-switch" role="group" aria-label="边缘状态"><button type="button" id="edge-full" class="active" aria-pressed="true" data-en="With screenshots">有截图时</button><button type="button" id="edge-empty" aria-pressed="false" data-en="All done">用完以后</button></div><p class="edge-switch-note" id="edge-switch-note">想用的内容，安静地在这里。</p></div>

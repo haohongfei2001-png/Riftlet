@@ -15,7 +15,7 @@
     captured: ['新截图在边缘了。点它，接着聊。', 'There it is. Tap it to keep going.'],
     checking: ['正在接入当前草稿…', 'Connecting to your current draft…'],
     uploading: ['已经开始接入，边缘轻轻收起。', 'The handoff has started. The edge clears.'],
-    ready: ['图片放进草稿了，接着说你想说的。', 'Ready in your draft. Keep the thought going.'],
+    ready: ['', ''],
     full: ['边缘已有三张图。先用一张，再截新的。', 'Three screenshots are close at hand. Use one first.'],
     empty: ['这一步完成了。再截一张，或重新体验。', 'All done. Capture another, or start again.'],
     paused: ['演示已暂停。回来后可以重新体验。', 'The demo is paused. Play it again when you’re ready.']
@@ -158,7 +158,7 @@
   function translate() {
     const isEnglish = language === 'en';
     document.documentElement.lang = isEnglish ? 'en' : 'zh-CN';
-    document.title = isEnglish ? 'Riftlet — Right there. Right with you.' : 'Riftlet — 不必找。就在那儿。';
+    document.title = 'Riftlet';
     translateNodes.forEach(el => { el.innerHTML = isEnglish ? el.dataset.en.replace(/<br>/g, '<br> ') : chineseContent.get(el); });
     const button = $('#language-toggle');
     button.textContent = isEnglish ? '中文' : 'EN';
