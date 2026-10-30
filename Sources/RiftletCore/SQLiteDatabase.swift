@@ -34,7 +34,11 @@ final class SQLiteDatabase {
                 if version == "0" { try migrate() }
                 if version == "0" || version == "1" { try migrateCompensation() }
                 try migrateVisibility()
+                try migrateDispatchSlots()
             }
+        }
+        if version == "3", !(try rows("PRAGMA table_info(operations)")).contains(where: { $0[1] == "dispatch_exclusive" }) {
+            try transaction { try migrateDispatchSlots() }
         }
         guard try rows("PRAGMA quick_check").first?.first == "ok" else {
             throw RiftletError.database("Integrity check failed; database preserved")
@@ -42,6 +46,18 @@ final class SQLiteDatabase {
     }
 
     deinit { if let handle { sqlite3_close(handle) } }
+
+    /// Additive v3 extension: original rows and target identities remain intact.
+    /// The original exclusive index still guards every legacy/ordinary dispatch.
+    /// Only the new transactionally admitted successor may occupy an independent slot.
+    private func migrateDispatchSlots() throws {
+        // Re-read after BEGIN IMMEDIATE: another opener may have migrated first.
+        guard !(try rows("PRAGMA table_info(operations)")).contains(where: { $0[1] == "dispatch_exclusive" }) else { return }
+        try execute("ALTER TABLE operations ADD COLUMN dispatch_exclusive INTEGER NOT NULL DEFAULT 1 CHECK(dispatch_exclusive IN (0,1))")
+        try execute("DROP INDEX one_dispatched_per_target")
+        try execute("CREATE UNIQUE INDEX one_dispatched_per_target ON operations(target_key) WHERE dispatch_exclusive=1 AND phase IN ('dispatchIntent','inputTriggered','attachmentPresent','unknown')")
+        try execute("INSERT INTO metadata(key,value) VALUES('transfer-dispatch-slots-v1','1')")
+    }
 
     private func migrate() throws {
         try execute("""

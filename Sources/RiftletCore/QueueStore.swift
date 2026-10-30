@@ -288,22 +288,28 @@ public actor QueueStore {
     }
 
     /// Commit intent BEFORE the caller performs any external input.
-    public func markDispatchIntent(_ id: UUID, selection: AcceptedSelection? = nil) throws {
-        // Acquire SQLite's write transaction before taking the cancellation lock:
-        // a contended BEGIN must not block synchronous MainActor revocation.
+    @discardableResult
+    public func markDispatchIntent(_ id: UUID, selection: AcceptedSelection? = nil,
+                                   ownerID: UUID? = nil, policy: ReceiptPolicy = .init()) throws -> UUID {
         try database.transaction {
-            let op = try validatedDispatchOperation(id, selection: selection)
-            if let selection {
-                try selection.authorizeDispatch {
-                    try update(op, phase: .dispatchIntent, status: .transferring, reason: "dispatch-intent committed")
-                }
-            } else {
-                try update(op, phase: .dispatchIntent, status: .transferring, reason: "dispatch-intent committed")
+            let (op, follows) = try validatedDispatchOperation(id, selection: selection, ownerID: ownerID, policy: policy)
+            guard let asset = try asset(id: op.assetID) else { throw RiftletError.assetNotFound }
+            let invocationID = UUID()
+            let call = DispatchCallRecord(version: 1, operationID: op.id, assetID: op.assetID,
+                attempt: op.attempt, assetSHA256: asset.image.sha256, target: op.target,
+                invocationID: invocationID, ownerID: ownerID, returnedReceipt: nil)
+            let write = {
+                try self.database.execute("UPDATE operations SET dispatch_exclusive=? WHERE id=?", [follows ? "0" : "1", op.id.uuidString])
+                try self.update(op, phase: .dispatchIntent, status: .transferring, reason: "dispatch-intent committed")
+                try self.saveCheckpoint(JSONEncoder().encode(call), for: self.callKey(op.id))
             }
+            if let selection { try selection.authorizeDispatch(write) } else { try write() }
+            return invocationID
         }
     }
 
-    private func validatedDispatchOperation(_ id: UUID, selection: AcceptedSelection?) throws -> TransferOperation {
+    private func validatedDispatchOperation(_ id: UUID, selection: AcceptedSelection?,
+                                            ownerID: UUID?, policy: ReceiptPolicy) throws -> (TransferOperation, Bool) {
         let op = try requiredOperation(id)
         guard op.phase == .prepared, let record = try asset(id: op.assetID),
               record.visibility == .visible else { throw RiftletError.invalidTransition }
@@ -312,11 +318,72 @@ public actor QueueStore {
                   selection.visibilityRevision == record.visibilityRevision,
                   record.activeOperationID == op.id, try !userHidden() else { throw RiftletError.invalidTransition }
         }
-        let active = try unresolvedOperations().filter { $0.phase != .prepared }
-        guard !active.contains(where: { $0.target.conflictsForDispatch(with: op.target) }) else {
-            throw RiftletError.targetBusy
+        var follows = false
+        for active in try unresolvedOperations() where active.phase != .prepared && active.target.conflictsForDispatch(with: op.target) {
+            follows = true
+            guard selection != nil, try allowsFollowing(active, next: op, ownerID: ownerID, policy: policy) else {
+                throw RiftletError.targetBusy
+            }
         }
-        return op
+        return (op, follows)
+    }
+
+    private func callKey(_ id: UUID) -> String { "transfer-dispatch-call-v1:" + id.uuidString }
+    private func dispatchCall(_ id: UUID) throws -> DispatchCallRecord? {
+        guard let data = try checkpoint(for: callKey(id)) else { return nil }
+        return try JSONDecoder().decode(DispatchCallRecord.self, from: data)
+    }
+    public func dispatchInvocationID(for id: UUID) throws -> UUID? { try dispatchCall(id)?.invocationID }
+
+    /// Only the original append return path writes this, never reconcile/recovery.
+    public func recordAppendReturned(_ receipt: TransferReceipt, invocationID: UUID, ownerID: UUID) throws {
+        try database.transaction {
+            let op = try requiredOperation(receipt.operationID)
+            guard var call = try dispatchCall(op.id), call.version == 1,
+                  call.invocationID == invocationID, call.ownerID == ownerID,
+                  call.operationID == receipt.operationID, call.assetID == receipt.assetID,
+                  call.attempt == receipt.attempt, call.assetSHA256 == receipt.assetSHA256,
+                  call.target == receipt.target, op.phase != .prepared else { throw RiftletError.mismatchedReceipt }
+            guard call.returnedReceipt == nil || call.returnedReceipt == receipt else { throw RiftletError.invalidTransition }
+            call.returnedReceipt = receipt
+            try saveCheckpoint(JSONEncoder().encode(call), for: callKey(op.id))
+        }
+    }
+
+    private func allowsFollowing(_ prior: TransferOperation, next: TransferOperation,
+                                 ownerID: UUID?, policy: ReceiptPolicy) throws -> Bool {
+        guard prior.id != next.id, prior.assetID != next.assetID,
+              prior.phase != .compensated, prior.target == next.target,
+              prior.target.logicalDraftIdentity?.isRecognized == true,
+              let ownerID, let call = try dispatchCall(prior.id), call.version == 1,
+              call.ownerID == ownerID, call.operationID == prior.id,
+              call.assetID == prior.assetID, call.attempt == prior.attempt, call.target == prior.target,
+              let returned = call.returnedReceipt,
+              let start = try uploadStartReceipt(for: prior.id), returned == start,
+              let evidence = returned.continuationEvidence, evidence.invocationID == call.invocationID,
+              let asset = try asset(id: prior.assetID), call.assetSHA256 == asset.image.sha256,
+              policy.allowsContinuation(receipt: returned, asset: asset.image, mode: mode) else { return false }
+        return true
+    }
+
+    /// A no-input proof retires only this original invocation. It neither clears
+    /// UNKNOWN nor replays a click. A subsequent attempt needs a new selection.
+    public func recordPreInputRejection(_ proof: PreInputRejection) throws {
+        try database.transaction {
+            let op = try requiredOperation(proof.operationID)
+            guard op.phase == .dispatchIntent, let asset = try asset(id: op.assetID),
+                  asset.activeOperationID == op.id, op.assetID == proof.assetID,
+                  op.attempt == proof.attempt, op.target == proof.target,
+                  asset.image.sha256 == proof.assetSHA256,
+                  let call = try dispatchCall(op.id), call.version == 1,
+                  call.operationID == proof.operationID, call.invocationID == proof.invocationID,
+                  call.assetID == proof.assetID, call.attempt == proof.attempt,
+                  call.assetSHA256 == proof.assetSHA256, call.target == proof.target,
+                  call.returnedReceipt == nil, try receipt(for: op.id) == nil,
+                  try uploadStartReceipt(for: op.id) == nil else { throw RiftletError.mismatchedReceipt }
+            try saveCheckpoint(JSONEncoder().encode(proof), for: "transfer-no-input-v1:" + op.id.uuidString)
+            try update(op, phase: .failed, status: .failed, reason: "Verified pre-input rejection: " + proof.stage.rawValue)
+        }
     }
 
     /// Keep the read-only no-op and conditional cancellation in one actor turn.
@@ -353,6 +420,18 @@ public actor QueueStore {
                   record.activeOperationID == op.id else { throw RiftletError.mismatchedReceipt }
             if let started = try uploadStartReceipt(for: op.id), let attachmentID = receipt.attachmentID,
                attachmentID != started.attachmentID { throw RiftletError.mismatchedReceipt }
+            if let attachmentID = receipt.attachmentID,
+               try uploadStartReceipt(for: op.id) == nil, op.phase != .succeeded,
+               policy.allowsUploadStart(receipt: receipt, asset: record.image, mode: mode)
+                || policy.allowsConsumption(receipt: receipt, asset: record.image, mode: mode) {
+                let starts = try database.rows("SELECT s.receipt_json FROM upload_starts s JOIN operations o ON o.id=s.operation_id WHERE o.target_key=? AND o.id<>? AND o.phase NOT IN ('failed','succeeded')", [op.target.stableKey, op.id.uuidString])
+                for row in starts {
+                    if let raw = row.first ?? nil,
+                       try JSONDecoder().decode(TransferReceipt.self, from: Data(raw.utf8)).attachmentID == attachmentID {
+                        throw RiftletError.mismatchedReceipt
+                    }
+                }
+            }
             // A positive terminal receipt is not immune to a later, independently
             // identified error. Preserve both facts atomically; never re-upload.
             if op.phase == .succeeded {

@@ -33,20 +33,21 @@ public struct WebBridgeCommand: Encodable, Sendable {
     public let byteCount: Int64?
     public let chunkIndex: Int?
     public let chunkBase64: String?
+    public let invocationID: UUID?
     /// Host diagnostics only, deliberately excluded from the page payload.
     public let captureInvocation: CaptureInvocationContext?
 
     private enum CodingKeys: String, CodingKey {
-        case action, target, identity, uploadName, mediaType, byteCount, chunkIndex, chunkBase64
+        case action, target, identity, uploadName, mediaType, byteCount, chunkIndex, chunkBase64, invocationID
     }
 
     init(action: WebBridgeAction, target: TargetLease? = nil, identity: ObservationIdentity? = nil,
          uploadName: String? = nil, mediaType: String? = nil, byteCount: Int64? = nil,
-         chunkIndex: Int? = nil, chunkBase64: String? = nil,
+         chunkIndex: Int? = nil, chunkBase64: String? = nil, invocationID: UUID? = nil,
          captureInvocation: CaptureInvocationContext? = nil) {
         self.action = action; self.target = target; self.identity = identity
         self.uploadName = uploadName; self.mediaType = mediaType; self.byteCount = byteCount
-        self.chunkIndex = chunkIndex; self.chunkBase64 = chunkBase64
+        self.chunkIndex = chunkIndex; self.chunkBase64 = chunkBase64; self.invocationID = invocationID
         self.captureInvocation = captureInvocation
     }
 }
@@ -76,6 +77,9 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
     private let candidateJournal: SystemScreenshotObservationJournal?
     private let candidateAdmission: SystemScreenshotCandidateAdmission?
     private var inputInFlight = false
+    // Lightweight identity tombstones, never file buffers. A repeated request
+    // must not turn an earlier external input into local-before-begin proof.
+    private var enteredOperations = Set<UUID>()
 
     public init(mediaDirectory: URL, executor: any WebBridgeExecutor,
                 program: WebPageProgram? = nil, mode: WebAdapterMode = .disabled,
@@ -137,20 +141,30 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
         guard request.operation.assetID == request.asset.id,
               request.operation.phase == .dispatchIntent else { throw WebAdapterError.invalidRequest }
         guard !inputInFlight else { throw WebAdapterError.inputInFlight }
+        guard enteredOperations.insert(request.operation.id).inserted else { throw WebAdapterError.invalidRequest }
         inputInFlight = true
         defer { inputInFlight = false }
 
-        try await preflight(asset: request.asset, fileURL: request.fileURL)
-
         guard let maximumChunkBytes = program?.maximumChunkBytes else { throw WebAdapterError.programUnavailable }
-        // Two passes through the same no-follow descriptor: do not transfer an
-        // already-corrupt file, and do not commit if bytes change while chunking.
-        let file = try PrivateUploadFile(request: request, mediaDirectory: mediaDirectory)
-        let verifiedHeader = try file.verifyAndRewind()
-        if case .systemScreenshotCandidate = mode, let candidateAdmission {
-            try SystemScreenshotWebCandidate.validateHeader(Array(verifiedHeader), asset: request.asset,
-                restrictedAdmission: true)
-            try await candidateAdmission.enroll(request)
+        let file: PrivateUploadFile
+        do {
+            // No bridge command has occurred in this invocation. The durable
+            // dispatch nonce is allocated by Core's one-shot intent claim.
+            try await preflight(asset: request.asset, fileURL: request.fileURL)
+            file = try PrivateUploadFile(request: request, mediaDirectory: mediaDirectory)
+            let verifiedHeader = try file.verifyAndRewind()
+            if case .systemScreenshotCandidate = mode, let candidateAdmission {
+                try SystemScreenshotWebCandidate.validateHeader(Array(verifiedHeader), asset: request.asset,
+                    restrictedAdmission: true)
+                try await candidateAdmission.enroll(request)
+            }
+        } catch {
+            if let invocationID = request.invocationID {
+                throw PreInputRejection(operationID: request.operation.id, assetID: request.asset.id,
+                    attempt: request.operation.attempt, assetSHA256: request.asset.sha256,
+                    target: request.operation.target, invocationID: invocationID, stage: .localBeforeBegin)
+            }
+            throw error
         }
         let identity = ObservationIdentity(operationID: request.operation.id, assetID: request.asset.id,
             attempt: request.operation.attempt, assetSHA256: request.asset.sha256, target: request.operation.target)
@@ -158,18 +172,37 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
         let uploadName = "riftlet-\(request.operation.id.uuidString).\(suffix)"
         var began = false
         var committing = false
+        var freshlyAllocated = false
         do {
             let begin = WebBridgeCommand(action: .begin, target: identity.target, identity: identity,
-                uploadName: uploadName, mediaType: request.asset.mediaType, byteCount: request.asset.byteCount)
+                uploadName: uploadName, mediaType: request.asset.mediaType, byteCount: request.asset.byteCount,
+                invocationID: request.invocationID)
             let beginReply = try await perform(begin)
+            // The page may reserve and permanently retire a brand-new identity
+            // when its live byte budget is full. This is an explicit response,
+            // never inferred from BEGIN_REFUSED or a missing native reply.
+            if let invocationID = request.invocationID,
+               let proof = try? decode(BeginRejectionProof.self, from: beginReply),
+               proof.identity == identity, proof.invocationID == invocationID,
+               proof.rejectedBeforeBegin, proof.reason == "ACTIVE_PAYLOAD_LIMIT",
+               proof.retiredBeforeInput, !proof.commitInvoked, proof.inputCount == 0 {
+                throw PreInputRejection(operationID: identity.operationID, assetID: identity.assetID,
+                    attempt: identity.attempt, assetSHA256: identity.assetSHA256, target: identity.target,
+                    invocationID: invocationID, stage: .pageRejectedBeforeBegin)
+            }
             try acknowledge(beginReply, identity: identity, nextChunk: 0)
+            if let invocationID = request.invocationID,
+               let allocation = try? decode(AllocationAcknowledgement.self, from: beginReply) {
+                freshlyAllocated = allocation.allocated && allocation.identity == identity
+                    && allocation.invocationID == invocationID
+            }
             began = true
             var index = 0
             var hash = SHA256()
             while let chunk = try file.nextChunk(maximumBytes: maximumChunkBytes) {
                 hash.update(data: chunk)
                 let command = WebBridgeCommand(action: .chunk, target: identity.target, identity: identity,
-                    chunkIndex: index, chunkBase64: chunk.base64EncodedString())
+                    chunkIndex: index, chunkBase64: chunk.base64EncodedString(), invocationID: request.invocationID)
                 let chunkReply = try await perform(command)
                 try acknowledge(chunkReply, identity: identity, nextChunk: index + 1)
                 index += 1
@@ -179,11 +212,24 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
             // page function must validate target + all chunks/hash atomically here.
             committing = true
             let response = try await perform(.init(action: .commit, target: identity.target,
-                                                   identity: identity, chunkIndex: index))
+                                                   identity: identity, chunkIndex: index, invocationID: request.invocationID))
             return try await observeCompletion(initial: response, identity: identity, request: request)
         } catch {
             if began && !committing {
-                _ = try? await perform(.init(action: .discard, target: identity.target, identity: identity))
+                let retired = try? await perform(.init(action: .discard, target: identity.target,
+                    identity: identity, invocationID: request.invocationID))
+                // Only a fresh, fully bound allocation followed by an exact
+                // irreversible pre-input retirement proves this call had no
+                // external input. Legacy ACKs, lost replies and commit calls do
+                // not qualify. Never infer this from an exception label.
+                if freshlyAllocated, let invocationID = request.invocationID, let retired,
+                   let proof = try? decode(RetirementProof.self, from: retired),
+                   proof.identity == identity, proof.invocationID == invocationID,
+                   proof.retiredBeforeInput, !proof.commitInvoked, proof.inputCount == 0 {
+                    throw PreInputRejection(operationID: identity.operationID, assetID: identity.assetID,
+                        attempt: identity.attempt, assetSHA256: identity.assetSHA256, target: identity.target,
+                        invocationID: invocationID, stage: .pageRetiredBeforeCommit)
+                }
             }
             // Coordinator owns the durable UNKNOWN result; never select another
             // transport or retry commit after an uncertain external side effect.
@@ -335,6 +381,27 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
     }
 
     private struct ValidationReply: Decodable { let target: TargetLease; let valid: Bool }
+    private struct BeginRejectionProof: Decodable {
+        let identity: ObservationIdentity
+        let invocationID: UUID
+        let retiredBeforeInput: Bool
+        let inputCount: Int
+        let commitInvoked: Bool
+        let rejectedBeforeBegin: Bool
+        let reason: String
+    }
+    private struct AllocationAcknowledgement: Decodable {
+        let allocated: Bool
+        let identity: ObservationIdentity
+        let invocationID: UUID
+    }
+    private struct RetirementProof: Decodable {
+        let identity: ObservationIdentity
+        let invocationID: UUID
+        let retiredBeforeInput: Bool
+        let commitInvoked: Bool
+        let inputCount: Int
+    }
     private struct Acknowledgement: Decodable {
         let operationID: UUID
         let attempt: Int

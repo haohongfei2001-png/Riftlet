@@ -38,6 +38,77 @@ final class WebAttachmentAdapterTests: XCTestCase {
             program: withProgram ? program : nil, mode: mode, polling: .disabled)
     }
 
+    func testRepeatedOriginalRequestCannotProduceLocalRejectionAfterInput() async throws {
+        let (_, original, bytes) = try await fixture()
+        let request = TransferRequest(operation: original.operation, asset: original.asset,
+            fileURL: original.fileURL, invocationID: UUID())
+        let bridge = FakeWebBridge()
+        let client = adapter(bridge)
+        _ = try await client.append(request)
+        let before = await bridge.recordedActions()
+        try Data(repeating: 42, count: bytes.count).write(to: request.fileURL)
+        do { _ = try await client.append(request); XCTFail("Repeated request accepted") }
+        catch WebAdapterError.invalidRequest {}
+        let after = await bridge.recordedActions()
+        XCTAssertEqual(after, before)
+    }
+
+    func testCorruptFileWithNewDispatchNonceRecoversBeforeAnyBridgeCommand() async throws {
+        let (_, original, bytes) = try await fixture()
+        try Data(repeating: 42, count: bytes.count).write(to: original.fileURL)
+        let nonce = UUID()
+        let request = TransferRequest(operation: original.operation, asset: original.asset,
+            fileURL: original.fileURL, invocationID: nonce)
+        let bridge = FakeWebBridge()
+        do { _ = try await adapter(bridge).append(request); XCTFail("Corrupt file accepted") }
+        catch let proof as PreInputRejection {
+            XCTAssertEqual(proof.stage, .localBeforeBegin)
+            XCTAssertEqual(proof.operationID, original.operation.id)
+            XCTAssertEqual(proof.invocationID, nonce)
+        }
+        let actions = await bridge.recordedActions()
+        XCTAssertTrue(actions.isEmpty)
+    }
+
+    func testOnlyFreshIdentityBoundRetirementCanProveNoInput() async throws {
+        for fault in RetirementFault.allCases {
+            let (_, original, _) = try await fixture()
+            let nonce = UUID()
+            let request = TransferRequest(operation: original.operation, asset: original.asset,
+                fileURL: original.fileURL, invocationID: nonce)
+            let bridge = RetirementBridge(fault: fault)
+            let client = WebAttachmentAdapter(mediaDirectory: directory, executor: bridge,
+                program: program, mode: .syntheticDevelopment, polling: .disabled)
+            do { _ = try await client.append(request); XCTFail("Expected rejection: \(fault)") }
+            catch let proof as PreInputRejection {
+                XCTAssertTrue(fault == .none || fault == .beginCapacity)
+                XCTAssertEqual(proof.operationID, request.operation.id)
+                XCTAssertEqual(proof.assetID, request.asset.id)
+                XCTAssertEqual(proof.attempt, request.operation.attempt)
+                XCTAssertEqual(proof.assetSHA256, request.asset.sha256)
+                XCTAssertEqual(proof.target, request.operation.target)
+                XCTAssertEqual(proof.invocationID, nonce)
+                XCTAssertEqual(proof.stage, fault == .beginCapacity ? .pageRejectedBeforeBegin : .pageRetiredBeforeCommit)
+            } catch { XCTAssertFalse(fault == .none || fault == .beginCapacity, "Exact proof should qualify") }
+            let actions = await bridge.actions()
+            XCTAssertEqual(actions.filter { $0 == .begin }.count, 1)
+            XCTAssertEqual(actions.filter { $0 == .commit }.count, fault == .commitReplyLost ? 1 : 0)
+            if fault == .commitReplyLost || fault == .beginReplyLost || fault == .beginCapacity {
+                XCTAssertFalse(actions.contains(.discard))
+            }
+        }
+    }
+
+    func testLegacyRequestWithoutInvocationCannotRecoverFromRetirement() async throws {
+        let (_, request, _) = try await fixture()
+        let bridge = RetirementBridge(fault: .none)
+        let client = WebAttachmentAdapter(mediaDirectory: directory, executor: bridge,
+            program: program, mode: .syntheticDevelopment, polling: .disabled)
+        do { _ = try await client.append(request); XCTFail("Expected rejection") }
+        catch is PreInputRejection { XCTFail("Legacy request was granted recovery") }
+        catch {}
+    }
+
     func testPositiveStartReturnsBeforeFinalAndReconcileNeverReinputs() async throws {
         let (store, request, _) = try await fixture()
         let executor = FakeWebBridge(behavior: .startedThenAttached)
@@ -393,5 +464,59 @@ private actor FakeWebBridge: WebBridgeExecutor {
             hasError: state == .invalidated, isUploading: start != nil, uploadStart: start)
         return try JSONEncoder().encode(AttachmentObservationEnvelope(schemaVersion: start == nil ? 1 : 2,
             provenance: .init(source: .syntheticFixture, evidenceID: "W1-fake-bridge"), observation: item))
+    }
+}
+
+private enum RetirementFault: CaseIterable, Sendable {
+    case none, wrongInvocation, wrongIdentity, inputPresent, committed, missingProof
+    case wrongAllocation, legacyAllocation, beginReplyLost, discardReplyLost, commitReplyLost
+    case beginCapacity, beginCapacityWrongIdentity, beginCapacityWrongNonce, beginCapacityWrongReason
+}
+
+/// Deterministic transport fixture, not evidence of actual ChatGPT behavior.
+private actor RetirementBridge: WebBridgeExecutor {
+    let fault: RetirementFault
+    var recorded: [WebBridgeAction] = []
+    init(fault: RetirementFault) { self.fault = fault }
+    func actions() -> [WebBridgeAction] { recorded }
+    func execute(_ command: WebBridgeCommand, program: WebPageProgram) async throws -> Data {
+        recorded.append(command.action)
+        let identity = try XCTUnwrap(command.identity)
+        let json = try JSONSerialization.jsonObject(with: JSONEncoder().encode(identity))
+        let nonce = command.invocationID ?? UUID()
+        switch command.action {
+        case .begin:
+            if fault == .beginReplyLost { throw WebAdapterError.nativeExecutionFailed }
+            if [.beginCapacity, .beginCapacityWrongIdentity, .beginCapacityWrongNonce, .beginCapacityWrongReason].contains(fault) {
+                var bound = json as! [String: Any]
+                if fault == .beginCapacityWrongIdentity { bound["assetID"] = UUID().uuidString }
+                return try JSONSerialization.data(withJSONObject: ["identity": bound,
+                    "invocationID": (fault == .beginCapacityWrongNonce ? UUID() : nonce).uuidString,
+                    "retiredBeforeInput": true, "inputCount": 0, "commitInvoked": false,
+                    "rejectedBeforeBegin": true,
+                    "reason": fault == .beginCapacityWrongReason ? "BEGIN_REFUSED" : "ACTIVE_PAYLOAD_LIMIT"])
+            }
+            var ack: [String: Any] = ["operationID": identity.operationID.uuidString,
+                "attempt": identity.attempt, "nextChunk": 0]
+            if fault != .legacyAllocation {
+                ack["allocated"] = fault != .wrongAllocation
+                ack["identity"] = json; ack["invocationID"] = nonce.uuidString
+            }
+            return try JSONSerialization.data(withJSONObject: ack)
+        case .chunk:
+            if fault != .commitReplyLost { throw WebAdapterError.nativeExecutionFailed }
+            return try JSONSerialization.data(withJSONObject: ["operationID": identity.operationID.uuidString,
+                "attempt": identity.attempt, "nextChunk": (command.chunkIndex ?? 0) + 1])
+        case .discard:
+            if fault == .discardReplyLost { throw WebAdapterError.nativeExecutionFailed }
+            if fault == .missingProof { return Data("{}".utf8) }
+            var bound = json as! [String: Any]
+            if fault == .wrongIdentity { bound["assetID"] = UUID().uuidString }
+            return try JSONSerialization.data(withJSONObject: ["identity": bound,
+                "invocationID": (fault == .wrongInvocation ? UUID() : nonce).uuidString,
+                "retiredBeforeInput": true, "inputCount": fault == .inputPresent ? 1 : 0,
+                "commitInvoked": fault == .committed])
+        default: throw WebAdapterError.nativeExecutionFailed
+        }
     }
 }

@@ -86,6 +86,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private var captureControl = CaptureControlGate()
     private var requestingPermission = false
     private var automationPermission: AutomationPermissionState = .notNeeded
+    private var permissionPublication = AutomationPermissionPublication()
     private var attachmentObservationStarted = false
     private var attachmentObservationStarting = false
     private var terminating = false
@@ -315,8 +316,8 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 }
                 do {
                     if self.mode.usesWebAdapter, originalSelection == nil {
-                        self.applyAutomationPermission(await self.inspectAutomationPermission(reason: "selection", assetID: id, expectedSession: frozen?.sessionID))
-                        guard self.automationPermission == .granted else {
+                        let permission = await self.inspectAutomationPermission(reason: "selection", assetID: id, expectedSession: frozen?.sessionID)
+                        guard permission == .granted else {
                             feedback("Chrome 附件访问暂不可用；图片保留。请在运行状态中查看原因。", .immediate)
                             self.finishOriginalSelection(id, token: originalSelection, revision: revision, ownerID: selectionOwner); self.updateSetup()
                             return
@@ -341,7 +342,11 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                     if self.mode.usesWebAdapter {
                         self.setupIssue = ProductStatus.clickIssue(error,
                             frontmostBundleID: NSWorkspace.shared.frontmostApplication?.bundleIdentifier, webAcceptance: true)
-                        if self.setupIssue == .permissionDenied { self.applyAutomationPermission(.denied) }
+                        if self.setupIssue == .permissionDenied, let originalSelection,
+                           originalSelection.hostEpoch == self.armSession,
+                           originalSelection.target.sessionID == self.foregroundChromeSession {
+                            self.applyAutomationPermission(.denied)
+                        }
                     }
                     feedback(self.mode == .capture ? "此版本尚未启用真实截图附加；图片保留。"
                         : (ProductStatus.clickFeedback(error)?.text ?? self.setupIssue?.text
@@ -411,13 +416,16 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         originalRecoveryIDs = try await store.unresolvedOperations().map(\.id)
         startupCompletedIDs = mode != .capture ? Set(try await store.successfulOperations().map(\.id)) : []
         recordAcceptance(["event": "local_recovery_complete", "uptime": ProcessInfo.processInfo.systemUptime])
+        var attachmentPermission: AutomationPermissionState = .notNeeded
         if mode.usesWebAdapter {
             // Process identity only, not permission or a page/attachment lease.
             lastForegroundSession = foregroundChromeSession
             installPassivePermissionRecovery()
-            applyAutomationPermission(await inspectAutomationPermission(reason: "startup"))
+            attachmentPermission = await inspectAutomationPermission(reason: "startup")
         }
-        try await startAttachmentObservationIfPermitted()
+        if !mode.usesWebAdapter || attachmentPermission == .granted {
+            try await startAttachmentObservationIfPermitted()
+        }
         if !mode.collectsSystemScreenshots {
             statusLine?.title = simulation ? "SIMULATION · synthetic images only · no ChatGPT input"
                 : "WEB ACCEPTANCE · generated images · real Chrome input"
@@ -431,6 +439,11 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                                          onImported: { [weak self] record, observation in
                                              Task { @MainActor [weak self] in
                                                  guard let self, !self.terminating else { return }
+                                                 // A committed new screenshot is an observation
+                                                 // demand, never a click or input authorization.
+                                                 // Start prebinding before preview work and the
+                                                 // later multi-read refresh/source lookup.
+                                                 if self.mode.usesWebAdapter { self.requestArm(reason: "captureDurable") }
                                                  self.recordArrivalTrace(["event": "captureDurableObserved",
                                                     "assetID": record.id.uuidString, "uptime": observation.readyUptime,
                                                     "firstSeenWallTime": record.image.firstSeenAt.timeIntervalSince1970])
@@ -473,8 +486,8 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         let resumer = PassivePermissionResume(inspect: { [weak self] in
             guard let self else { return .unavailable }
             return await self.inspectAutomationPermission(reason: "passiveResume")
-        }, onResult: { [weak self] result in
-            self?.applyAutomationPermission(result); self?.updateSetup()
+        }, onResult: { [weak self] _ in
+            self?.updateSetup()
         }, resume: { [weak self] in
             guard let self, !self.terminating else { return }
             do { try await self.startAttachmentObservationIfPermitted() }
@@ -506,14 +519,30 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     /// trace logs these bounds; a session string grants no page authority.
     private func inspectAutomationPermission(reason: String, assetID: UUID? = nil,
                                              invocation: CaptureInvocationContext? = nil,
-                                             expectedSession: String? = nil) async -> AutomationPermissionState {
+                                             expectedSession: String? = nil,
+                                             requestFromUserAction: Bool = false) async -> AutomationPermissionState {
         let started = ProcessInfo.processInfo.systemUptime
-        let result = await permissionGate.inspect(expectedSession: expectedSession)
-        guard mode.usesWebAdapter, CommandLine.arguments.contains("--acceptance-trace") else { return result }
+        let foreground = foregroundChromeSession
+        let receiver = expectedSession ?? foreground
+        let request = permissionPublication.begin(hostEpoch: armSession, foregroundSession: foreground,
+                                                  receiverSession: receiver)
+        let result: AutomationPermissionState
+        if requestFromUserAction { result = await permissionGate.requestFromUserAction(expectedSession: receiver) }
+        else { result = await permissionGate.inspect(expectedSession: receiver) }
+        let resolution = permissionPublication.resolve(request, state: result, hostEpoch: armSession,
+            foregroundSession: foregroundChromeSession, terminating: terminating)
+        if resolution == .publish { applyAutomationPermission(result) }
+        // A stale grant cannot authorize this caller even when another fresh
+        // check has since set the shared status to granted. A stale failure is
+        // diagnostic only and cannot clear that newer ACK/selection authority.
+        let usableResult: AutomationPermissionState = resolution.mayUseResult ? result : .unavailable
+        guard mode.usesWebAdapter, CommandLine.arguments.contains("--acceptance-trace") else { return usableResult }
         var fields: [String: Any] = ["event": "permission_check", "purpose": reason,
             "permissionRequestID": UUID().uuidString, "startedUptime": started,
             "endedUptime": ProcessInfo.processInfo.systemUptime, "result": String(describing: result),
-            "askedUser": false, "originalSessionBound": expectedSession != nil]
+            "usableResult": String(describing: usableResult), "publication": resolution.rawValue,
+            "promptPermissionAllowed": requestFromUserAction, "originalSessionBound": receiver != nil]
+        if !requestFromUserAction { fields["askedUser"] = false }
         if let assetID { fields["assetID"] = assetID.uuidString }
         if let invocation {
             fields["captureRequestID"] = invocation.requestID.uuidString
@@ -521,7 +550,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             fields["hostEpoch"] = invocation.hostEpoch.uuidString
         }
         recordAcceptance(fields)
-        return result
+        return usableResult
     }
 
     private func startOriginalRecovery() {
@@ -536,8 +565,8 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 // Recheck permission independently after prebinding. This never
                 // captures a target or replays a previously refused selection.
                 if self.mode.usesWebAdapter {
-                    self.applyAutomationPermission(await self.inspectAutomationPermission(reason: "originalRecovery"))
-                    guard self.automationPermission == .granted else { return }
+                    let permission = await self.inspectAutomationPermission(reason: "originalRecovery")
+                    guard permission == .granted else { return }
                 }
                 try Task.checkCancellation()
                 try await transfer.recoverOriginalObservations(operationIDs: ids)
@@ -566,12 +595,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 guard let self else { return }
                 guard self.originalRecoveryTask == nil, self.originalRecoveryIDs == nil else { continue }
                 if self.mode.usesWebAdapter {
-                    self.applyAutomationPermission(await self.inspectAutomationPermission(reason: "backgroundObservation"))
+                    let permission = await self.inspectAutomationPermission(reason: "backgroundObservation")
                     self.updateSetup()
-                    guard self.automationPermission == .granted else {
-                        self.armedTarget = nil; self.armedCaptureDiagnostics = nil; self.frozenPress = nil
-                        continue
-                    }
+                    guard permission == .granted else { continue }
                 }
                 do { try await transfer.observePending(limit: self.simulation ? 8 : 4) }
                 catch { self.showIssue("附件结果暂时无法核实；本机图片与原操作仍保留，不会自动重新附加。") }
@@ -679,9 +705,11 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                     if setupIssue == .sourceAccess, captureStatus?.sourceAccessible == true { setupIssue = nil }
                 } catch { receiveCaptureDiagnostic(.classify(error, context: .source)) }
             }
-            applyAutomationPermission(await inspectAutomationPermission(reason: "setupRecheck"))
-            do { try await startAttachmentObservationIfPermitted() }
-            catch { setupIssue = .targetUnavailable }
+            let permission = await inspectAutomationPermission(reason: "setupRecheck")
+            if !mode.usesWebAdapter || permission == .granted {
+                do { try await startAttachmentObservationIfPermitted() }
+                catch { setupIssue = .targetUnavailable }
+            }
             await refresh()
             checkStorage()
         }
@@ -726,9 +754,10 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         updateSetup()
         Task {
             defer { requestingPermission = false; updateSetup() }
-            applyAutomationPermission(await permissionGate.requestFromUserAction(expectedSession: lastForegroundSession))
-            if automationPermission == .denied { setupIssue = .permissionDenied }
-            else if automationPermission == .granted {
+            let permission = await inspectAutomationPermission(reason: "userRequest", expectedSession: lastForegroundSession,
+                                                                requestFromUserAction: true)
+            if permission == .denied { setupIssue = .permissionDenied }
+            else if permission == .granted {
                 if setupIssue == .permissionDenied { setupIssue = nil }
                 do { try await startAttachmentObservationIfPermitted() }
                 catch { setupIssue = .targetUnavailable }
@@ -832,7 +861,6 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         guard permits() else { return false }
         let permission = await inspectAutomationPermission(reason: "acceptedSelectionValidation", assetID: selection.assetID,
             expectedSession: selection.target.sessionID)
-        applyAutomationPermission(permission)
         let accepted = permission == .granted && permits()
         var fields: [String: Any] = ["event": "accepted_selection_validation", "selectionID": selection.id.uuidString,
             "assetID": selection.assetID.uuidString, "hostEpoch": selection.hostEpoch.uuidString,
@@ -950,13 +978,15 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             let taskEntered = ProcessInfo.processInfo.systemUptime
             var result: TargetLease?
             var diagnostics: CapturedTargetDiagnostics?
+            var captureAttempted = false
             var errorCode = "browserNotFrontmost"
             if let originalSession = self.foregroundChromeSession {
                 do {
-                    self.applyAutomationPermission(await self.inspectAutomationPermission(reason: "targetArming", invocation: invocation, expectedSession: originalSession))
-                    guard self.automationPermission == .granted,
+                    let permission = await self.inspectAutomationPermission(reason: "targetArming", invocation: invocation, expectedSession: originalSession)
+                    guard permission == .granted,
                           self.foregroundChromeSession == originalSession,
                           self.armSession == attempt.epoch else { throw WebAdapterError.disabled }
+                    captureAttempted = true
                     if let web = adapter as? WebAttachmentAdapter {
                         diagnostics = try await web.captureTargetWithDiagnostics(context: invocation)
                         result = diagnostics?.target
@@ -976,27 +1006,38 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             var publication: TimeInterval?
             var reused = false
             var publicationResult = "rejectedEpochOrStopped"
-            if completion.acceptsAcknowledgement {
-                if let target = result, target.sessionID == self.foregroundChromeSession {
-                    reused = self.armedTarget?.target == target
-                    if !reused {
-                        self.armedTarget = ArmedTarget(target: target,
-                            acknowledgedUptime: ProcessInfo.processInfo.systemUptime, hostSession: attempt.epoch)
-                        self.armedCaptureDiagnostics = diagnostics
-                    }
-                    // Actual acceptance on MainActor, never the earlier native
-                    // arrival. Reused targets keep their original effective ACK.
-                    publication = ProcessInfo.processInfo.systemUptime
-                    publicationResult = reused ? "acceptedExistingTarget" : "publishedNewTarget"
-                } else {
-                    self.armedTarget = nil; self.armedCaptureDiagnostics = nil
-                    publicationResult = result == nil ? "captureFailed" : "foregroundSessionChanged"
+            let disposition = AutomationPermissionPublication.targetDisposition(
+                epochAccepted: completion.acceptsAcknowledgement, captureAttempted: captureAttempted,
+                returnedSession: result?.sessionID, existingSession: self.armedTarget?.target.sessionID,
+                existingEpochMatches: self.armedTarget?.hostSession == attempt.epoch,
+                foregroundSession: self.foregroundChromeSession)
+            switch disposition {
+            case .publish:
+                guard let target = result else { preconditionFailure("A published capture requires a returned target") }
+                reused = self.armedTarget?.target == target
+                if !reused {
+                    self.armedTarget = ArmedTarget(target: target,
+                        acknowledgedUptime: ProcessInfo.processInfo.systemUptime, hostSession: attempt.epoch)
+                    self.armedCaptureDiagnostics = diagnostics
                 }
+                // Actual acceptance on MainActor, never the earlier native
+                // arrival. Reused targets keep their original effective ACK.
+                publication = ProcessInfo.processInfo.systemUptime
+                publicationResult = reused ? "acceptedExistingTarget" : "publishedNewTarget"
+            case .clear:
+                self.armedTarget = nil; self.armedCaptureDiagnostics = nil
+                publicationResult = result != nil ? "foregroundSessionChanged"
+                    : (captureAttempted ? "captureFailed" : "captureNotAttempted")
+            case .retainExisting:
+                publicationResult = "captureNotAttemptedRetainedExisting"
+            case .staleEpoch:
+                break
             }
             var fields: [String: Any] = ["event": "arm_completion", "reason": reason, "startedUptime": started,
                 "taskEnteredUptime": taskEntered, "endedUptime": ProcessInfo.processInfo.systemUptime, "error": errorCode,
                 "captureRequestID": invocation.requestID.uuidString, "armAttemptID": attempt.id.uuidString,
                 "hostEpoch": attempt.epoch.uuidString, "publicationResult": publicationResult,
+                "captureAttempted": captureAttempted,
                 "reusedExistingArmedTarget": reused,
                 "epochAccepted": completion.acceptsAcknowledgement, "armed": self.armedTarget != nil]
             if let diagnostics {

@@ -67,7 +67,7 @@ final class SystemScreenshotWebCandidateTests: XCTestCase {
         XCTAssertEqual(try Data(contentsOf: file), bytes)
     }
 
-    func testHashCorruptionAfterHeaderRetainsConservativeUnknownWithoutAnyInput() async throws {
+    func testHashCorruptionBeforeBeginHasTypedNoInputRetirement() async throws {
         let bytes = try png()
         let image = asset(size: Int64(bytes.count), width: 12, height: 8, hash: hash(bytes))
         var damaged = bytes; damaged[damaged.count - 1] ^= 1
@@ -78,7 +78,9 @@ final class SystemScreenshotWebCandidateTests: XCTestCase {
         let coordinator = TransferCoordinator(store: store, adapter: try adapter(store, bridge), mediaDirectory: directory)
         try await coordinator.select(image.id, frozenTarget: CandidateGateBridge.target)
         let record = try await store.asset(id: image.id)
-        XCTAssertEqual(record?.status, .unknown); XCTAssertEqual(record?.visibility, .visible)
+        XCTAssertEqual(record?.status, .failed); XCTAssertEqual(record?.visibility, .visible)
+        let proof = try await store.checkpoint(for: "transfer-no-input-v1:" + record!.activeOperationID!.uuidString)
+        XCTAssertNotNil(proof)
         let actions = await bridge.actions
         XCTAssertEqual(actions, [.validate], "The descriptor hash must refuse before begin or commit")
     }

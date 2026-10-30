@@ -214,13 +214,15 @@ public struct TransferReceipt: Codable, Equatable, Sendable {
     public let safeToRetry: Bool
     public let reason: String
     public let uploadStartEvidence: UploadStartEvidence?
+    public let continuationEvidence: AttachmentContinuationEvidence?
 
     public init(operationID: UUID, assetID: UUID, attempt: Int, assetSHA256: String,
                 target: TargetLease, outcome: ReceiptOutcome, profileID: String,
                 attachmentID: String? = nil, positiveReady: Bool = false,
                 belongsToOriginalDraft: Bool = false, hasError: Bool = false,
                 isUploading: Bool = false, safeToRetry: Bool = false, reason: String = "",
-                uploadStartEvidence: UploadStartEvidence? = nil) {
+                uploadStartEvidence: UploadStartEvidence? = nil,
+                continuationEvidence: AttachmentContinuationEvidence? = nil) {
         self.operationID = operationID; self.assetID = assetID; self.attempt = attempt
         self.assetSHA256 = assetSHA256; self.target = target; self.outcome = outcome
         self.profileID = profileID; self.attachmentID = attachmentID
@@ -228,6 +230,7 @@ public struct TransferReceipt: Codable, Equatable, Sendable {
         self.hasError = hasError; self.isUploading = isUploading; self.safeToRetry = safeToRetry
         self.reason = reason
         self.uploadStartEvidence = uploadStartEvidence
+        self.continuationEvidence = continuationEvidence
     }
 }
 
