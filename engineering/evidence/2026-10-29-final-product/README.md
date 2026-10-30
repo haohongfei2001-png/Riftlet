@@ -1,3 +1,53 @@
+# Ordinary-entry internal runtime — 2026-10-30 continuation
+
+**Actual ordinary-mode input: limited PASS. Full start/swallow/completion loop: FAIL / unresolved UNKNOWN. Production admission remains CLOSED.** This supersedes only the ordinary runtime NOT_RUN statement in the previous handoff below; previous evidence is retained.
+
+## Exact source and build
+
+- App/config/tests: `9e43ad3223749b23ad346870222eb2fc845aa26c`; packaging/CI successor, independently reviewed source: `10a8fe93e739b3025e29d887e33f85c3ca69c619`. App, adapter and resource bytes are identical between those two commits.
+- New commits are separable: explicit internal authority and production exact-review membership (`9e43ad3`), isolated wrapper/package/binary checks plus ARM CI (`10a8fe9`). Retain earlier ordinary wiring and exact `ea22efe` website-source gate. No formal ref or website changed.
+- `bash scripts/build-ordinary-acceptance.sh` creates a unique package with a separate compile scratch directory. Normal `.capture`, no system-candidate mode argument; this run used only `--acceptance-trace` for diagnostics. Bundle `com.riftlet.ordinary-acceptance`, visible label `Riftlet ORDINARY TEST`, isolated `Riftlet-Ordinary-Acceptance` root. The root did not exist before this run. No candidate database migration/import.
+- Actual binary SHA-256 `0510da3de4492d560d55b6140c5eb539267e61dbd18fc776a6e587e522054d62`; build, strict package resources, signature and runtime identity verification PASS. Packaging was built from the reviewed internal packaging bytes; its subsequent default-channel identity-check addition did not change App bytes.
+- Default production evidence registry is empty. Valid-looking hashes alone never approve input/start/completion. Internal test authority is an explicit compile-time purpose, not a fake source review. Builtin/edited sources, continuation and safe retry remain closed in both channels.
+- Non-author `ordinary_entry_review` approved exact `10a8fe9` source and packaging, including the ARM-only internal test/build step. This is source approval, not production admission. New CI pending at this checkpoint; old CI `41057352788` is not claimed for this new source.
+
+## Actual trial O1
+
+A new safe original color test display was captured by the macOS screenshot UI/shortcut route; no CLI output or fabricated metadata was substituted. Software CGEvent, not human physical input. The first 15-second observation window found no file; a genuine system PNG appeared later, before the bounded second readiness attempt. The second attempt did not qualify the actual selection surface and did not post a selection gesture. Do not assign an exact screenshot-completion T0 or claim the first gesture's completion was measured. The old helper's `runningRiftlet:false` checks only the old bundle discriminator; the new internal PID/executable was independently verified running.
+
+- Genuine screenshot metadata present; 1,167,212 bytes, 702 × 482, noninterlaced RGBA8. Original and imported private copy SHA-256 both `229133036041f1bff294c2bb46daf28b22b4b68cbcc78f85b01b5a03dda9083b`. Visual inspection showed only the safe test display.
+- One new asset naturally imported and appeared as a native input window. Before clicking: authorized persisted zh Chrome test chat, exact original process/window/tab/document/composer/draft binding, visible and focused document, nonempty expected test text, inherited real-keyboard selection 8..15. Editor was focused; **unfocused-editor coverage NOT_RUN here**. Existing attachment count was zero: **old-attachment preservation NOT_RUN**, not vacuous PASS.
+- Two locator guards stopped before mouseDown: stale input-window ID, then an overconservative top-visual-window test. An existing Screenshot.app overlay was left untouched. Exact AX hit-test identified the expected Riftlet input-window PID and bounds beneath that overlay. The final one down/up used the native CGEvent route; this was not AXPress. Actual App selection receipt, rather than event-post success or session-tap target PID, proves routing.
+- Selection was accepted with full pre-event ACK; no ACK backfill. Exactly one operation/attempt, begin once, five distinct chunks, commit once. First journal `inputTriggered` was associated with the original operation/hash/target/attachment. This is a limited actual input PASS, not final pixel/preview identity proof.
+- No positively evidenced upload start; `upload_starts=0`. Journal recorded unknown → inputTriggered → invalidated. Original attachment was no longer present on subsequent read-only page inspection. The current probe did not locate the original registry operation; no cause for this absence was inferred. No trustworthy UI error or final content proof was retained. **Do not label this verified network failure or safe failure.** Exact first invalidation cause remains unresolved.
+- SQLite: one asset UNKNOWN, one operation UNKNOWN, visible; no swallow or window-close success. No repeat input, no automatic send, no retry. Original text equality and noncollapsed 8..15 selection remained on the bounded post-click samples. No new Range/focus restoration code was added.
+
+## Time chain (same boot, monotonic seconds)
+
+| Event | Uptime | Meaning |
+|---|---:|---|
+| Imported visibility observed | 722600.990855 | upper bound on committed visibility, not exact T0/T2 |
+| Effective complete ACK published | 722846.634379 | earlier than original click |
+| Original mouseDown | 722993.682429 | sole input selection |
+| App selection handler | 722993.695113 | accepted original frozen target |
+| mouseUp | 722993.766155 | sole release |
+| begin start / reply | 722993.889636 / 722993.923890 | successful native bridge |
+| chunk 0–4 replies | 722993.965433–722994.102914 | five chunks |
+| commit start / reply | 722994.104073 / 722994.238843 | one commit, about 0.556 s after down |
+| start / swallow / final success | NOT_OBSERVED | no substituted timestamp |
+
+The click condition used visible qualified page and the actual thumbnail window. The driver did not query internal armed status or wait for a future ACK. This was nevertheless a prebound software sample, not a cold-click or physical-mouse success rate.
+
+## Retention and opening decision
+
+Normal termination/restart of the **same new internal root and exact binary** retained exact original operation ID/attempt/target/UNKNOWN phase, asset data/status and private-media hashes. No new begin/chunk/commit on restart; start count stayed zero. Earlier candidate/ordinary user roots, old UNKNOWN, media and audit were neither opened nor modified. No claim of exercising legacy user-root restart this round.
+
+Private raw files, system PNG, imported copy, read-only SQLite snapshots and drivers are retained in the local acceptance archive; public evidence omits their private paths, chat text, actual target IDs, URLs and images. Private manifest SHA-256: `95066b87ee6fa19774ad17258629f81dc382f3ad18d61f9e09f241743f25177d` (49 files before manifest). Original Downloads screenshot remains.
+
+**Production opening denied at this checkpoint.** Remaining evidence: exact cause of O1 invalidation from original-operation read-only facts; a new independently qualified trial only when safe, with real noncollapsed selection and a stable old attachment; positive start, native swallow, independent final content proof; exact final ordinary production package E2E after independent input/start/completion admission. No old O1 retransmission. Physical mouse, unfocused editor, builtin sources, continuation and safe-retry remain separate unpassed scopes. Formal owner alone integrates into Draft PR #1; no main merge or public release.
+
+---
+
 # Ordinary-entry final handoff — 2026-10-30
 
 **Code preparation and source/software verification PASS; ordinary upload remains CLOSED and its final App E2E remains NOT_RUN.**

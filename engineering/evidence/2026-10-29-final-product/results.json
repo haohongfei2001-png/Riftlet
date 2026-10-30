@@ -11216,5 +11216,30 @@
     },
     "nativeTestScope": "Software fixtures on macOS ARM/Intel; 788 scheduled entries in full suite plus existing focused checks; not physical or real ordinary-upload E2E",
     "dataAccess": "No existing user DB/media/UNKNOWN read or changed; isolated fixture stores only"
+  },
+  "ordinaryEntryInternalRuntime": {
+    "reviewedSource": "10a8fe93e739b3025e29d887e33f85c3ca69c619",
+    "sourceReview": "PASS non-author ordinary_entry_review; not production admission",
+    "sourceBuild": "PASS native App; 17 packaging tests",
+    "ci": "PENDING new exact source run",
+    "runtime": {
+      "normalCaptureMode": "PASS isolated internal compile authorization",
+      "newSystemPNGImport": "PASS",
+      "uniqueNativeCGEventInput": "PASS limited original input and target association",
+      "uploadStarted": "FAIL no positive start proof",
+      "swallow": "NOT_RUN start prerequisite absent",
+      "completion": "FAIL no attached content proof",
+      "state": "UNKNOWN retained; no retry",
+      "textSelection": "PASS expected nonempty text and inherited real-keyboard 8..15 selection retained",
+      "oldAttachments": "NOT_RUN baseline zero",
+      "unfocusedEditor": "NOT_RUN",
+      "physicalMouse": "NOT_RUN",
+      "sameRootRestart": "PASS original operation/asset/media retained; no input replay"
+    },
+    "productionAdmission": "CLOSED",
+    "safeRetry": "CLOSED",
+    "continuation": "CLOSED",
+    "builtInSource": "CLOSED",
+    "rawEvidenceManifestSHA256": "95066b87ee6fa19774ad17258629f81dc382f3ad18d61f9e09f241743f25177d"
   }
 }
