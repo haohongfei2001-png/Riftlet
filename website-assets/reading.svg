@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="520" viewBox="0 0 400 520" role="img" aria-labelledby="title desc">
+<title id="title">A local approximation of x squared</title><desc id="desc">For f(x)=x squared at x=1, the tangent is y=2x−1, giving f(1+h) approximately 1+2h for small h. The exact error is h squared.</desc>
+<rect width="400" height="520" rx="10" fill="#FAF5E9"/>
+<text x="32" y="42" fill="#8D856F" font-family="system-ui, sans-serif" font-size="12" letter-spacing="2.1">THE NEXT LINE</text>
+<path d="M32 59H368" stroke="#E0D9CA"/>
+<text x="32" y="111" fill="#33453B" font-family="Georgia, 'Times New Roman', serif" font-size="38" font-style="italic">f(x) = x²</text>
+<text x="32" y="147" fill="#877E6D" font-family="system-ui, sans-serif" font-size="18">Near x = 1</text>
+<rect x="24" y="170" width="352" height="75" rx="7" fill="#E8EDDD"/>
+<text x="42" y="218" fill="#335D47" font-family="Georgia, 'Times New Roman', serif" font-size="30" font-style="italic">f(1+h) ≈ 1+2h</text>
+<!-- Coordinates: screen X=62+130x; screen Y=445-45y. Curve y=x² and tangent y=2x-1 meet at (1,1). -->
+<g fill="none">
+<path d="M62 452V270M55 445H350" stroke="#BEB7A6" stroke-width="1.5"/>
+<path d="M62 270l-4 7m4-7 4 7M350 445l-7-4m7 4-7 4" stroke="#BEB7A6" stroke-width="1.5"/>
+<path d="M62 445Q185.5 445 309 282.55" stroke="#348A77" stroke-width="3"/>
+<path d="M140 436L309 319" stroke="#D48B6E" stroke-width="2"/>
+<path d="M192 400V445M62 400H192" stroke="#A6B5A1" stroke-dasharray="4 5"/>
+</g>
+<circle cx="192" cy="400" r="5" fill="#348A77" stroke="#FAF5E9" stroke-width="2"/>
+<g font-family="Georgia, 'Times New Roman', serif" font-size="17" font-style="italic"><text x="309" y="276" fill="#348A77">x²</text><text x="291" y="348" fill="#AE7057">2x−1</text><text x="187" y="468" fill="#8D856F">1</text></g>
+<text x="32" y="501" fill="#8D856F" font-family="system-ui, sans-serif" font-size="13">For small h · error = h²</text>
+</svg>

@@ -4,8 +4,8 @@
   "description": "A little space at the edge of your screen.",
   "start_url": "./",
   "display": "browser",
-  "background_color": "#F7F8F4",
-  "theme_color": "#F7F8F4",
+  "background_color": "#fcfbf8",
+  "theme_color": "#fcfbf8",
   "icons": [
     {
       "src": "favicon.svg?v=product-1",

@@ -1,100 +1,90 @@
 <!doctype html>
 <html lang="zh-CN">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="color-scheme" content="light"><meta name="theme-color" content="#F7F8F4">
-<title>Riftlet — 不必找。就在那儿。</title>
-<meta name="description" content="Riftlet 为刚刚截下的内容留一个熟悉的位置。截图留在屏幕边缘，轻点放入对话草稿。首个 macOS 版本正在准备中。">
-<meta property="og:type" content="website"><meta property="og:site_name" content="Riftlet">
-<meta property="og:title" content="Riftlet — 不必找。就在那儿。">
-<meta property="og:description" content="截图留在屏幕边缘。记住位置，轻点取用。首个 macOS 版本正在准备中。">
-<meta property="og:url" content="https://riftlet.com/">
-<meta name="twitter:card" content="summary"><meta name="twitter:title" content="Riftlet — Close at hand.">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#fcfbf8">
+<meta name="description" content="照常截图，轻点屏幕边缘。Riftlet 把图片接入当前 ChatGPT 草稿，让你接着想、接着聊。为 Mac 打磨的轻巧工具，内部测试中。">
+<title>Riftlet — 不必找。就在那儿。</title><link rel="icon" href="website-assets/riftlet.svg" type="image/svg+xml"><link rel="stylesheet" href="website-v2.css"><script src="website-v2.js" defer></script>
+<meta name="color-scheme" content="light">
+<meta name="riftlet-website-version" content="2026-10-30-v2">
 <link rel="canonical" href="https://riftlet.com/">
-<link rel="icon" type="image/svg+xml" href="favicon.svg?v=product-1">
-<link rel="manifest" href="site.webmanifest?v=product-1">
-<link rel="stylesheet" href="website-product.css?v=product-1">
-<link rel="stylesheet" href="website-hero.css?v=hero-1">
-<script src="website-product.js?v=product-1" defer></script>
-<script src="website-hero.js?v=hero-1" defer></script>
+<link rel="manifest" href="site.webmanifest?v=20261030">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Riftlet">
+<meta property="og:title" content="Riftlet — 不必找。就在那儿。">
+<meta property="og:description" content="照常截图，轻点屏幕边缘。图片来到当前 ChatGPT 草稿，接着说你想说的。为 Mac 打磨，内部测试中。">
+<meta property="og:url" content="https://riftlet.com/">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://riftlet.com/website-assets/glass-study.png">
+<meta property="og:image:width" content="1448">
+<meta property="og:image:height" content="1086">
+<meta property="og:image:alt" content="Riftlet 网页交互示意中的玻璃与光配色研究">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Riftlet — 不必找。就在那儿。">
+<meta name="twitter:description" content="照常截图，轻点屏幕边缘。图片来到当前 ChatGPT 草稿，接着说你想说的。">
+<meta name="twitter:image" content="https://riftlet.com/website-assets/glass-study.png">
 </head>
-<body>
-<a class="skip-link" href="#main" data-en="Skip to content">跳转到正文</a>
-<svg class="symbol-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
-<symbol id="mark" viewBox="0 0 64 80"><path d="M13 9h21v62H13c-5 0-9-4-9-9V18c0-5 4-9 9-9Z" fill="currentColor"/><path d="M40 9h5c12 0 19 9 19 20 0 10-7 17-17 20l17 22H48L40 59V9Z" fill="currentColor"/></symbol>
-<symbol id="capture-a" viewBox="0 0 240 160"><rect width="240" height="160" fill="#F1CDB5"/><path d="M147 0h93v160h-93z" fill="#E0AA87"/><path d="M153 0C65 41 56 120 117 160H48C-2 99 21 28 88 0Z" fill="#314F45"/><path d="M183 0C105 50 99 108 152 160h27c-49-59-38-110 33-160Z" fill="#FAEEE2"/><text x="18" y="26" font-family="Georgia,serif" font-size="16" fill="#314F45">a place between</text><text x="18" y="146" font-family="sans-serif" font-size="7" letter-spacing="2" fill="#314F45">FORM / SPACE / INTERVAL</text></symbol>
-<symbol id="capture-b" viewBox="0 0 240 170"><rect width="240" height="170" fill="#FDFCF8"/><rect x="0" width="240" height="18" fill="#E8ECE6"/><circle cx="10" cy="9" r="2" fill="#9BAB9A"/><circle cx="17" cy="9" r="2" fill="#9BAB9A"/><circle cx="24" cy="9" r="2" fill="#9BAB9A"/><text x="21" y="47" font-size="17" font-family="Georgia,serif" fill="#304E3D">Keep the interval.</text><text x="21" y="63" font-size="6" letter-spacing="1" font-family="sans-serif" fill="#657C6B">EXCERPT FROM A DESIGN NOTE</text><path d="M21 83h176M21 93h165M21 103h188M21 113h154" stroke="#B5C4B5" stroke-width="2"/><rect x="21" y="131" width="42" height="19" rx="2" fill="#A5CEC1"/><rect x="68" y="131" width="42" height="19" rx="2" fill="#F1CDB5"/><rect x="115" y="131" width="42" height="19" rx="2" fill="#D5DBEB"/><rect x="162" y="131" width="42" height="19" rx="2" fill="#26312D"/></symbol>
-<symbol id="capture-c" viewBox="0 0 110 160"><rect width="110" height="160" fill="#19B7A4"/><path d="M66 0v160" stroke="#0D6F63" stroke-width="1"/><path d="M38 0v160" stroke="#88D7C7" stroke-width="1"/><ellipse cx="68" cy="77" rx="39" ry="55" fill="#D5EEE1"/><path d="M68 22v110C18 131 18 22 68 22Z" fill="#0E5B4F"/><text x="9" y="150" font-size="7" letter-spacing="1" font-family="sans-serif" fill="#103D32">CLOSE AT HAND</text></symbol>
-<symbol id="hero-page-art" viewBox="0 0 288 150"><rect width="288" height="150" rx="2" fill="#F8F8F2"/><rect width="106" height="150" fill="#F1CDB5"/><path d="M90 14C28 39 21 95 62 138H31C-4 95 8 36 60 14Z" fill="#314F45"/><path d="M106 45C77 60 73 104 101 138h5" fill="#FAEEE2"/><text x="122" y="25" font-family="sans-serif" font-size="9" letter-spacing="1" fill="#087C70">HOMEPAGE / 01</text><text x="122" y="52" font-family="Georgia,serif" font-size="20" fill="#26312D">Less, but closer.</text><path d="M123 70h144M123 79h128" stroke="#B7C6B7" stroke-width="2"/><rect x="123" y="95" width="9" height="9" rx="2" fill="#19B7A4"/><path d="m125 99 2 2 3-4" stroke="#102A27" fill="none"/><path d="M140 100h95" stroke="#93AB98" stroke-width="2"/><rect x="123" y="115" width="9" height="9" rx="2" fill="none" stroke="#A1B4A2"/><path d="M140 120h111" stroke="#B7C6B7" stroke-width="2"/></symbol>
+<body id="top">
+<svg class="symbols" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><defs>
+<symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></symbol>
+<symbol id="i-out" viewBox="0 0 24 24"><path d="m6 18 12-12M6 6h12v12"/></symbol>
+<symbol id="i-capture" viewBox="0 0 24 24"><path d="M8 4H5a1 1 0 0 0-1 1v3m12-4h3a1 1 0 0 1 1 1v3M4 16v3a1 1 0 0 0 1 1h3m12-4v3a1 1 0 0 1-1 1h-3M8 8h8v8H8z"/></symbol>
+<symbol id="i-play" viewBox="0 0 24 24"><path d="m9 6 9 6-9 6Z"/></symbol>
+<symbol id="i-replay" viewBox="0 0 24 24"><path d="M4 10a8 8 0 1 1 1 7M4 4v6h6"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+<symbol id="i-file" viewBox="0 0 24 24"><path d="M13 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9l-6-6Z"/><path d="M13 3v6h6M9 13h6m-6 4h4"/></symbol>
+<symbol id="i-edge" viewBox="0 0 24 24"><path d="M18 3v18M13 6H5a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h8m0 3H8a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h5"/></symbol>
+<symbol id="i-chat" viewBox="0 0 24 24"><path d="M6 4h12a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H9l-6 3V7a3 3 0 0 1 3-3Z"/><path d="M8 9h8m-8 4h5"/></symbol>
+<symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
 </defs></svg>
-<div class="wrap" id="top">
-<header class="nav">
-<a class="wordmark" href="#top" aria-label="Riftlet"><img class="brand-icon" src="favicon.svg?v=product-1" width="38" height="38" alt="">Riftlet</a>
-<nav class="navlinks" aria-label="Navigation"><a href="#experience" data-en="Try it">体验</a><a class="nav-idea" href="#idea" data-en="Why Riftlet">理念</a><a class="nav-release" href="#availability" data-en="Get Riftlet">进展</a><button class="language-toggle" id="language-toggle" type="button" aria-label="Switch to English">EN</button></nav>
-</header>
+<a class="skip-link" href="#main" data-en="Skip to content">跳转到正文</a>
+<header class="site-header" id="site-header"><div class="nav-wrap">
+<a class="brand" href="#top" aria-label="Riftlet 首页"><img src="website-assets/riftlet.svg" width="31" height="31" alt=""><span>Riftlet</span></a>
+<nav class="main-nav" aria-label="主导航"><a href="#details" data-en="The little details">细节</a><a href="#moments" data-en="In your day">日常</a><a href="#questions" data-en="Good to know">常见问题</a></nav>
+<div class="nav-actions"><button class="language-button" id="language-toggle" type="button" aria-label="Switch to English">EN</button><button class="nav-release" type="button" data-release><span data-en="Coming to Mac">为 Mac 而来</span><svg aria-hidden="true"><use href="#i-out"/></svg></button></div>
+</div></header>
 <main id="main">
-<section class="hero hero-product" aria-labelledby="hero-title">
-  <div class="hero-copy">
-    <div class="kicker" data-en="SYSTEM SCREENSHOTS. ONE CLICK AWAY.">系统截图 · 一点即用</div>
-    <h1 id="hero-title" data-en="No searching.<br><span>Right there.</span>">不必找。<br><span>就在那儿。</span></h1>
-    <p data-en="Take a screenshot as usual. Click its place at the screen’s edge. Your image is in the ChatGPT draft. Nothing is sent.">照常截图，点一下屏幕边缘。<br>图片进入 ChatGPT 草稿，发送仍由你。</p>
-    <div class="actions">
-      <button class="main-action" id="hero-play" type="button"><span data-hero-copy="play">看一次完整操作</span><span aria-hidden="true">↗</span></button>
-      <a class="quiet-link" href="#experience" data-en="Try it yourself">自己试一试</a>
-    </div>
-    <p class="hero-note" data-en="The first macOS release is in the works. Not yet available to download.">首个 macOS 版本正在准备中，暂未开放下载。</p>
-  </div>
-  <div class="hero-scene" id="hero-scene" data-phase="idle" aria-label="截图进入草稿的网页演示">
-    <div class="hero-halo" aria-hidden="true"></div>
-    <div class="hero-scene-heading"><span data-en="YOUR DESKTOP, A LITTLE LESS INTERRUPTED.">你的桌面，少一点打断。</span><span class="hero-demo-label" data-en="Web demo">网页演示</span></div>
-    <div class="hero-desktop">
-      <div class="hero-desktop-bar" aria-hidden="true"><span class="hero-dots"><i></i><i></i><i></i></span><span data-en="A familiar workspace">熟悉的工作空间</span></div>
-      <div class="hero-source">
-        <div class="hero-source-bar"><span data-en="Homepage notes">首页笔记</span><button id="hero-capture" type="button" aria-label="模拟截取示例内容"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5M8 8h8v8H8z"/></svg><span data-hero-copy="capture">模拟截图</span></button></div>
-        <div class="hero-capture-region">
-          <svg class="hero-source-art" viewBox="0 0 288 150" role="img" aria-label="合成的页面排版与修改笔记"><use href="#hero-page-art"/></svg>
-          <span class="hero-selection" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
-        </div>
-      </div>
-      <div class="hero-connector" aria-hidden="true"><span></span></div>
-      <div class="hero-composer">
-        <div class="hero-composer-title"><span class="hero-chat-glyph" aria-hidden="true">↳</span><span data-en="ChatGPT · Demo draft">ChatGPT · 草稿演示</span></div>
-        <div id="hero-attachments" class="hero-attachments" aria-label="首屏演示附件"></div>
-        <label class="sr-only" for="hero-draft" data-en="Editable demo draft. Nothing will be sent.">可编辑的演示草稿，不会发送</label>
-        <textarea id="hero-draft" rows="2" spellcheck="false">帮我看看这个页面，还能如何改进？</textarea>
-        <div class="hero-composer-bottom"><span aria-hidden="true">＋</span><span data-en="In your draft. Never auto-sent.">只放进草稿，不替你发送</span><span class="hero-send" aria-hidden="true">↑</span></div>
-      </div>
-      <div class="hero-edge" id="hero-edge" aria-label="首屏截图队列">
-        <span class="hero-edge-line" aria-hidden="true"></span>
-        <button class="hero-shot" type="button" data-shot="1" data-state="available" style="--slot:0;--shot-width:48px;--shot-height:32px" aria-label="把截图 1 放入演示草稿"><span class="hero-shot-mask"><svg viewBox="0 0 240 160" aria-hidden="true"><use href="#capture-a"/></svg></span><span class="hero-shot-number">1</span></button>
-        <button class="hero-shot" type="button" data-shot="2" data-state="available" style="--slot:1;--shot-width:33px;--shot-height:48px" aria-label="把截图 2 放入演示草稿"><span class="hero-shot-mask"><svg viewBox="0 0 110 160" aria-hidden="true"><use href="#capture-c"/></svg></span><span class="hero-shot-number">2</span></button>
-        <button class="hero-shot" type="button" data-shot="3" data-state="absent" style="--slot:2;--shot-width:48px;--shot-height:25px" aria-label="把新截图放入演示草稿" disabled><span class="hero-shot-mask"><svg viewBox="0 0 288 150" aria-hidden="true"><use href="#hero-page-art"/></svg></span><span class="hero-shot-number">3</span></button>
-        <span class="hero-cursor" aria-hidden="true"><svg viewBox="0 0 25 30"><path d="M3 2v23l6-6 5 9 4-2-5-9h9Z"/></svg></span>
-      </div>
-      <div class="hero-edge-hint"><span data-hero-copy="hint">你的截图，在这里</span><span aria-hidden="true">↗</span></div>
-    </div>
-    <div class="hero-sequence" aria-label="使用过程"><span data-step="capture"><b>01</b><span data-en="Capture as usual">照常截图</span></span><i aria-hidden="true">→</i><span data-step="click"><b>02</b><span data-en="Click the edge">点击边缘</span></span><i aria-hidden="true">→</i><span data-step="ready" data-en="In your draft">进入草稿</span></div>
-    <div class="hero-scene-foot"><p id="hero-status" aria-live="polite" aria-atomic="true" data-hero-copy="idle">两次操作，回到你的思路。</p><button id="hero-pause" type="button" hidden data-hero-copy="pause">暂停演示</button></div>
-    <p class="hero-local-note" data-en="Illustrated web demo. No screen access, uploads or messages.">网页示意演示，不读取屏幕、不上传、不发送。</p>
-  </div>
-</section>
-<section class="principle" id="idea" aria-labelledby="idea-title"><h2 id="idea-title" data-en="Let the place be the clue.<br>Let the interface step aside.">让位置成为线索，<br>让界面退到边缘。</h2><p data-en="No filenames to read. No panel to unfold.<br>Just enough of what you captured to recognise its place.<br>Keep working. It stays close at hand.">不必读文件名，也不用展开一整块面板。<br>刚刚的内容，只露出一点，就足够找到。<br>你继续工作，它安静地留在手边。</p></section>
-<section class="section" id="experience" aria-labelledby="experience-title">
-<div class="section-heading"><div><div class="kicker" data-en="TRY IT HERE">亲手试一试</div><h2 id="experience-title" data-en="Capture. Click.<br>Carry on.">截下来。点一下。<br>继续你的工作。</h2></div><p data-en="Click a thumbnail on the right. Watch it become an attachment in the demo draft, then slip back into the edge.">点右侧的一张截图，看看它怎样进入草稿。<br>图片就绪后，边缘的缩略图才会收起。</p></div>
-<div class="demo-stepbar"><span><b>01</b><span data-en="Take a screenshot">照常截图</span></span><span><b>02</b><span data-en="Click its place">点击边缘</span></span><span data-en="In your draft. Not sent.">进入草稿，不发送</span></div>
-<div class="desktop-frame"><div class="desktop-bar"><strong data-en="Interactive demo">交互演示</strong><span data-en="Browser only">仅在当前网页运行</span><span class="bar-time">Riftlet</span></div><div class="desktop" id="desktop"><div class="desk-art"></div><div class="chat"><div class="chatbar"><i class="traffic"></i><i class="traffic"></i><i class="traffic"></i><span data-en="Your draft · Demo">你的草稿 · 演示</span></div><div class="chat-main"><div class="chat-intro"><svg class="chat-glyph" viewBox="0 0 32 28" aria-hidden="true"><path d="M5 4h22v17H14l-7 5v-5H5Z" fill="none" stroke="currentColor" stroke-width="1.3"/></svg><strong data-en="Stay with your thought.">继续你的思路。</strong><span data-en="The image comes to you.">让图片来到手边。</span></div><div class="composer"><div class="attachments" id="attachments" aria-label="Demo attachments"></div><label class="sr-only" for="draft" data-en="Demo draft. Text is never sent.">演示草稿，文字不会发送</label><textarea id="draft" spellcheck="false">帮我比较这两张截图中的区别。</textarea><div class="composer-foot"><span data-en="Added to the draft">只进入草稿</span><span class="no-send" data-en="Never auto-sent">不会自动发送</span></div></div></div></div><div class="edge" id="edge" aria-label="Screenshot queue"><div class="edge-line"></div><div class="edge-items" id="edge-items"></div></div></div></div>
-<div class="demo-bottom"><p id="status" class="demo-status" role="status" aria-live="polite" aria-atomic="true" data-status="initial">点一下右侧的任一截图。</p><div class="demo-controls"><button id="reset" type="button" data-en="Start again">重新体验</button><button id="theme" class="dark-toggle" type="button" aria-pressed="false">深色桌面</button></div></div>
-<details class="demo-options"><summary data-en="What happens when it doesn’t work?">没有成功时，会怎样？</summary><p data-en="A failed attachment returns to its place. An unconfirmed result stays there without another upload. Choose a scenario, then click a remaining screenshot.">失败时，截图会回到原处；无法确认结果时，也会保留，不重复上传。选择一种情况，再点击尚未使用的截图。</p><div class="demo-controls"><label for="outcome" data-en="Demo scenario">演示情境</label><select id="outcome"><option value="success" data-en="Attachment ready">正常附加</option><option value="failure" data-en="Attachment failed">附加失败</option><option value="unknown" data-en="Result unconfirmed">结果未确认</option></select></div></details>
-<p class="demo-note" data-en="This is an interactive demonstration, not a connection to ChatGPT. It does not read your screenshots or clipboard, upload files, or send messages.">这是交互演示，不连接真实 ChatGPT，不读取你的截图或剪贴板，也不会上传文件或发送消息。</p><noscript><p class="demo-note">启用 JavaScript 后可体验交互。其他产品信息仍可正常阅读。</p></noscript>
-</section>
-<section class="promise" aria-label="Riftlet principles">
-<article><span class="eyebrow" aria-hidden="true">01 / SPACE</span><h3 data-en="A place, not a panel.">一个位置，不是一块面板。</h3><p data-en="A glimpse is enough. The edge keeps your recent captures within reach without taking over your workspace.">只露出一点内容，把更多空间留给手头的工作。刚刚截下的图，在熟悉的位置等你。</p></article>
-<article><span class="eyebrow" aria-hidden="true">02 / INTENT</span><h3 data-en="Your draft. Your decision.">放进草稿，发送由你。</h3><p data-en="Adding an image should not interrupt what you are writing. You decide what to say and when to send it.">图片附上，已经写下的文字保留。说什么、何时发送，始终由你决定。</p></article>
-<article><span class="eyebrow" aria-hidden="true">03 / TRUST</span><h3 data-en="Not ready? Still here.">没成功，就留在原处。</h3><p data-en="A click is not a confirmation. The image stays available until the attachment is ready; a failed attempt brings it back.">点击不等于成功。图片准备好才收起；失败则回到原位，结果不明也不会悄悄消失。</p></article>
-</section>
-<section class="closing" id="availability" aria-labelledby="closing-title"><h2 class="end-title" id="closing-title" data-en="Remember where it is.<br>Then forget the tool.">记得它在哪里，<br>然后忘记工具本身。</h2><div class="release"><div class="release-brand"><img src="favicon.svg?v=product-1" width="56" height="56" alt=""><div><strong>Riftlet for macOS</strong><span class="release-state" data-en="In the works · Not yet available">正在准备中 · 暂未开放下载</span></div></div><p data-en="Starting with system screenshots and ChatGPT drafts. Follow the project for progress toward the first release.">从系统截图与 ChatGPT 对话草稿开始。<br>首个版本的进展，将在项目主页持续记录。</p><a class="main-action" href="https://github.com/haohongfei2001-png/Riftlet" target="_blank" rel="noopener noreferrer"><span data-en="Follow development">查看开发进展</span><span aria-hidden="true">↗</span></a><p class="roadmap" data-en="On the horizon: clipboard history, Windows, and more places to paste.">后续方向：剪贴板、Windows，以及更多输入框。</p></div></section>
-</main>
-<footer class="footer"><a class="footer-brand" href="#top" aria-label="Riftlet"><img src="favicon.svg?v=product-1" width="28" height="28" alt="">Riftlet</a><div class="footer-links"><a href="#experience" data-en="Try it">体验</a><a href="https://github.com/haohongfei2001-png/Riftlet" target="_blank" rel="noopener noreferrer">GitHub ↗</a></div><span class="copyright">© 2026 Riftlet</span></footer>
-<details class="privacy-note" id="privacy"><summary data-en="About this website’s privacy">网站隐私说明</summary><p data-en="The demo runs in this page using sample artwork. It cannot read your system screenshots, clipboard, or conversations. Demo text and attachments stay in memory and disappear when the page is closed or reloaded. There are no accounts, submission forms, or third-party analytics scripts on this page.">演示使用示例图片，在当前页面内运行，不读取系统截图、剪贴板或真实对话。演示中的文字与附件仅保存在页面内存中，关闭或重新加载页面后清除。本页没有账户、提交表单或第三方分析脚本。</p></details>
+<section class="hero section-wrap" aria-labelledby="hero-title">
+<div class="hero-copy"><p class="eyebrow"><span class="status-dot"></span><span data-en="A little companion for your Mac">一个轻巧的 Mac 小工具</span></p>
+<h1 id="hero-title" data-en="Right there.<br><em>Right with you.</em>">不必找。<br><em>就在那儿。</em></h1>
+<p class="hero-description" data-en="Take a screenshot. Tap the edge.<br>It joins your current ChatGPT draft,<br>ready for whatever comes next.">照常截图，轻点屏幕边缘。<br>图片来到当前 ChatGPT 草稿，<br>接着说你想说的。</p>
+<div class="hero-actions"><button class="button button-primary" id="play-demo" type="button"><svg class="play-icon" aria-hidden="true"><use href="#i-play"/></svg><span data-en="See it in motion">看它轻轻接上</span></button><a class="text-link" href="#details"><span data-en="A closer look">认识这个小工具</span><svg aria-hidden="true"><use href="#i-arrow"/></svg></a></div>
+<p class="availability-note" data-en="Made for macOS · Currently in private testing">为 macOS 打磨 · 目前正在内部测试</p></div>
+<div class="hero-demo" id="experience">
+<div class="demo-stage" id="demo-stage" data-scene="design" data-state="idle" aria-label="截图接入草稿的交互示意">
+<div class="ambient ambient-peach" aria-hidden="true"></div><div class="ambient ambient-blue" aria-hidden="true"></div>
+<div class="desktop-surface" aria-hidden="true"><span class="surface-dot"></span><span class="surface-title" data-en="A corner of your day">你正在专注的日常</span><span class="surface-spark">✳</span></div>
+<div class="source-underlay" aria-hidden="true"></div>
+<article class="source-card" id="source-card"><div class="source-toolbar"><span class="source-label" id="source-label">色彩笔记</span><button class="capture-button" id="capture" type="button" aria-label="截一张示例"><svg aria-hidden="true"><use href="#i-capture"/></svg><span class="capture-tip" data-en="Capture this">截下这一处</span></button></div><div class="source-visual" id="source-visual"><img id="source-image" src="website-assets/glass-study.png" alt="青绿弧形玻璃与珊瑚色玻璃球的原创静物" width="1448" height="1086" fetchpriority="high"><div class="capture-outline" aria-hidden="true"><i></i><i></i><i></i><i></i></div></div><div class="source-bottom"><span id="source-title">A study in light.</span><span class="colour-dots" aria-hidden="true"><i></i><i></i><i></i></span></div></article>
+<div class="edge-hint" aria-hidden="true"><span data-en="Just a little tap">轻轻一点</span><svg viewBox="0 0 56 34"><path d="M3 8c16-8 35-2 43 17m-1-11 3 13-13-3"/></svg></div>
+<div class="edge-zone" id="edge-zone" aria-label="屏幕边缘的示例截图"><span class="edge-line" aria-hidden="true"></span><div class="edge-shots" id="edge-shots"></div></div>
+<article class="draft-card" id="draft-card" aria-label="当前对话草稿示意"><div class="draft-top"><span class="chat-mark" aria-hidden="true"><svg><use href="#i-chat"/></svg></span><span>ChatGPT</span><span class="draft-top-divider"></span><span data-en="Your current draft">你正在写的草稿</span><span class="draft-menu" aria-hidden="true">···</span></div><div class="draft-content"><div class="attachments" id="attachments" aria-label="演示草稿的附件"><div class="existing-file"><svg aria-hidden="true"><use href="#i-file"/></svg><span data-en="My notes">我的笔记</span><span class="existing-file-dot" aria-hidden="true"></span></div></div><label class="sr-only" for="draft" data-en="Editable example draft. Nothing is sent.">可编辑的演示草稿，不会发送</label><textarea id="draft" rows="2" spellcheck="false">这组颜色，为什么看起来这么轻盈？</textarea><div class="draft-bottom"><span class="add-symbol" aria-hidden="true">＋</span><span class="draft-safety" data-en="Your words stay. You choose when to send.">文字留着，发送由你。</span><span class="send-symbol" role="img" aria-label="示意发送图标，不会发送">↑</span></div></div></article>
+
 </div>
+<div class="demo-foot"><p id="demo-status" aria-live="polite" aria-atomic="true">点一下右侧微图，试试这一小步。</p><button class="replay-button" id="restart" type="button" aria-label="重新演示"><svg aria-hidden="true"><use href="#i-replay"/></svg></button></div><p class="demo-disclosure" data-en="An interactive illustration. No screen access, uploads or messages.">网页交互示意 · 不读取屏幕、不上传、不发送</p>
+</div></section>
+<section class="details-section section-wrap" id="details" aria-labelledby="details-title">
+<div class="details-panel"><div class="details-copy"><span class="section-kicker" data-en="A PLACE AT THE EDGE">在屏幕边缘</span><h2 id="details-title" data-en="Close at hand.<br><em>Light on your screen.</em>">只占一点边缘，<br><em>留给你整片思路。</em></h2><p data-en="A few recent screenshots, just as you remember them. No filenames to search. No panel to open.">刚截下的几张图，保留原来的模样。<br>不必翻文件名，也不用展开面板。</p><div class="edge-switch" role="group" aria-label="边缘状态"><button type="button" id="edge-full" class="active" aria-pressed="true" data-en="With screenshots">有截图时</button><button type="button" id="edge-empty" aria-pressed="false" data-en="All done">用完以后</button></div><p class="edge-switch-note" id="edge-switch-note">想用的内容，安静地在这里。</p></div>
+<div class="detail-visual" id="detail-visual" data-empty="false" aria-label="截图边缘的局部放大示意"><div class="detail-orbit" aria-hidden="true"></div>
+<div class="detail-workspace"><div class="workspace-toolbar"><svg aria-hidden="true"><use href="#i-file"/></svg><span data-en="Your reading, uninterrupted">继续你正在读的</span><span class="reader-page" aria-hidden="true">02 / 12</span></div><div class="reading-viewport"><img src="website-assets/reading.svg" alt="正在阅读的一阶近似示例" width="400" height="520" loading="lazy"></div></div>
+<div class="detail-edge" id="detail-edge"><span class="detail-edge-line"></span><div class="detail-shot detail-shot-one"><img src="website-assets/glass-study.png" alt="横向截图" width="1448" height="1086" loading="lazy"></div><div class="detail-shot detail-shot-two"><img src="website-assets/reading.svg" alt="纵向截图" width="400" height="520" loading="lazy"></div><div class="detail-shot detail-shot-three"><img src="website-assets/error.svg" alt="代码截图" width="400" height="270" loading="lazy"></div></div><span class="detail-caption" data-en="A closer look · Original proportions">局部放大示意 · 保留图片原比例</span>
+</div></div>
+<div class="little-details"><article><span class="detail-icon tint-peach"><svg aria-hidden="true"><use href="#i-capture"/></svg></span><div><h3 data-en="Your familiar gesture.">还是熟悉的截图方式。</h3><p data-en="Start with the screenshot shortcut you already use.">从你原本就在用的系统截图开始。</p></div></article><article><span class="detail-icon tint-blue"><svg aria-hidden="true"><use href="#i-edge"/></svg></span><div><h3 data-en="Only as much as you need.">只留下需要的一点。</h3><p data-en="When the queue is empty, the edge disappears too.">没有要用的图时，边缘也一起收起。</p></div></article><article><span class="detail-icon tint-green"><svg aria-hidden="true"><use href="#i-chat"/></svg></span><div><h3 data-en="Still your conversation.">接下来，依然由你。</h3><p data-en="Your draft stays. Riftlet never sends for you.">保留已有草稿，不替你发送消息。</p></div></article></div>
+</section>
+<section class="moments-section section-wrap" id="moments" aria-labelledby="moments-title"><div class="section-heading"><div><span class="section-kicker" data-en="THE THINGS THAT CATCH YOUR EYE">那些让你停留的片刻</span><h2 id="moments-title" data-en="A little curiosity.<br><em>Something to talk about.</em>">每一种好奇，<br><em>都可以接着聊。</em></h2></div><p data-en="An idea. A tricky error. A line you want to understand.<br>Bring the exact part into the conversation.">一个灵感，一段报错，或没读懂的一行。<br>把真正想问的那一处，带进对话。</p></div>
+<div class="moment-grid">
+<button class="moment-card" type="button" data-scene="design"><span class="moment-picture picture-design"><span class="mini-source"><span class="mini-source-top">COLOUR NOTES<span>01</span></span><img src="website-assets/glass-study.png" alt="玻璃与光的配色研究示例" width="1448" height="1086" loading="lazy"><span class="mini-source-bottom">Good things, in a different light.</span></span><span class="picture-tab" aria-hidden="true"></span></span><span class="moment-card-copy"><span class="moment-type" data-en="A visual idea">设计灵感</span><span class="moment-title"><span data-en="“Why does this feel so light?”">“为什么看起来这么轻盈？”</span><svg aria-hidden="true"><use href="#i-out"/></svg></span><span class="moment-description" data-en="Give the details you notice a little more context.">把注意到的细节，变成具体的讨论。</span></span></button>
+<button class="moment-card" type="button" data-scene="code"><span class="moment-picture picture-code"><span class="mini-code"><span class="mini-code-top"><i></i><i></i><i></i><span>app.js</span></span><img src="website-assets/error.svg" alt="代码错误示例" width="400" height="270" loading="lazy"></span></span><span class="moment-card-copy"><span class="moment-type" data-en="A tricky problem">代码排错</span><span class="moment-title"><span data-en="“Where should I start?”">“这一步，卡在哪里了？”</span><svg aria-hidden="true"><use href="#i-out"/></svg></span><span class="moment-description" data-en="Bring the error along with the question.">让问题有个清楚的位置，接着往下解。</span></span></button>
+<button class="moment-card" type="button" data-scene="reading"><span class="moment-picture picture-reading"><span class="reading-paper"><img src="website-assets/reading.svg" alt="泰勒展开的阅读摘记示例" width="400" height="520" loading="lazy"></span><span class="reading-bookmark" aria-hidden="true"></span></span><span class="moment-card-copy"><span class="moment-type" data-en="A deeper question">阅读学习</span><span class="moment-title"><span data-en="“How does this follow?”">“这一行，是怎么得到的？”</span><svg aria-hidden="true"><use href="#i-out"/></svg></span><span class="moment-description" data-en="Pick up the thread right where you paused.">从停下的那一处，继续理解。</span></span></button>
+</div><p class="moments-hint" data-en="Choose a scene to try it in the demo above.">点一个场景，在上方演示中亲手试试。</p></section>
+<section class="faq-section section-wrap" id="questions" aria-labelledby="faq-title"><div class="faq-heading"><span class="section-kicker" data-en="GOOD TO KNOW">开始之前</span><h2 id="faq-title" data-en="A few little<br>questions.">你可能还想<br>知道的几件事。</h2></div><div class="faq-list">
+<details><summary><span data-en="Can I download Riftlet yet?">现在可以下载吗？</span><span class="faq-plus" aria-hidden="true"></span></summary><p data-en="Riftlet is currently in private testing. There is no public download yet. Release updates will be shared on the project’s GitHub page. The demo here illustrates the experience; it is not the Mac app.">Riftlet 目前正在内部测试，暂未开放公开下载。公开版本与下载信息会在项目 GitHub 页面公布。这里的交互演示用于说明体验，并非 Mac App。</p></details>
+<details><summary><span data-en="Does it send the message for me?">点一下，会直接发送消息吗？</span><span class="faq-plus" aria-hidden="true"></span></summary><p data-en="No. Attaching an image and sending a message are separate. The image may upload to ChatGPT when you attach it, while your words and existing attachments remain in the draft. You decide when to send.">不会。附加图片与发送消息是两件事。附加时图片可能已经上传至 ChatGPT，草稿中的文字和已有附件仍会保留。何时发送，始终由你决定。</p></details>
+<details><summary><span data-en="Which apps will it work with?">支持哪些系统和应用？</span><span class="faq-plus" aria-hidden="true"></span></summary><p data-en="The first release is being built for macOS, with current testing focused on ChatGPT in Chrome. Final system requirements and supported surfaces will be confirmed with the public release.">首个版本面向 macOS，目前重点测试 Chrome 中的 ChatGPT。最终系统要求和支持范围，会随公开版本明确公布。</p></details>
+<details><summary><span data-en="Where do my screenshots go?">截图和反馈会发到哪里？</span><span class="faq-plus" aria-hidden="true"></span></summary><p data-en="Riftlet manages screenshot copies and history locally. Images you choose to attach go to ChatGPT. Feedback you actively submit goes to the developer’s feedback service, with optional diagnostics available to preview. This website demo uses only example content.">Riftlet 在本机管理截图副本与历史。你主动附加的图片会传给 ChatGPT；主动提交的反馈会送到开发者反馈服务，可选诊断支持预览。本网页演示仅使用示例内容。</p></details>
+</div></section>
+<section class="closing section-wrap" id="release"><div class="closing-mark"><img src="website-assets/riftlet.svg" width="49" height="49" alt="Riftlet"></div><h2 data-en="A small place.<br><em>For your next thought.</em>">下一句想法，<br><em>就在手边。</em></h2><p data-en="A lighter way to keep going.<br>The first Mac release is taking shape.">让每一次接着想，都轻一点。<br>首个 Mac 版本，正在打磨。</p><a class="button button-primary" href="https://github.com/haohongfei2001-png/Riftlet" target="_blank" rel="noopener noreferrer"><span data-en="Follow the project">查看发布进展</span><svg aria-hidden="true"><use href="#i-out"/></svg></a><span class="closing-note" data-en="Private testing · No public download yet">内部测试中 · 暂未开放公开下载</span></section>
+</main>
+<footer class="site-footer section-wrap"><a class="brand" href="#top" aria-label="Riftlet 首页"><img src="website-assets/riftlet.svg" width="25" height="25" alt=""><span>Riftlet</span></a><p data-en="A little closer to your next thought.">把下一步，放得近一点。</p><a href="https://github.com/haohongfei2001-png/Riftlet" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a><div class="footer-legal"><span>© 2026 Riftlet</span><span data-en="An independent macOS project. Not affiliated with OpenAI.">独立 macOS 项目，与 OpenAI 无隶属关系。</span></div></footer>
+<dialog class="release-dialog" id="release-dialog" aria-labelledby="release-dialog-title"><button type="button" class="dialog-close" id="dialog-close" aria-label="关闭"><svg aria-hidden="true"><use href="#i-close"/></svg></button><img src="website-assets/riftlet.svg" width="44" height="44" alt=""><p class="section-kicker" data-en="A LITTLE MORE CARE">再多一点打磨</p><h2 id="release-dialog-title" data-en="Coming to your Mac.">正在来到你的 Mac。</h2><p data-en="Riftlet is in private testing. The public release and download will be announced on GitHub. You can explore the illustrated experience on this page today.">Riftlet 正在内部测试。正式公开的版本和下载信息，会在 GitHub 公布。你现在可以先在这张网页上，体验它轻巧的工作方式。</p><a class="button button-primary" href="https://github.com/haohongfei2001-png/Riftlet" target="_blank" rel="noopener noreferrer"><span data-en="View project progress">查看项目进展</span><svg aria-hidden="true"><use href="#i-out"/></svg></a></dialog>
+<noscript><p class="noscript-note">交互演示需要 JavaScript，页面介绍与常见问题仍可阅读。</p></noscript>
 </body></html>

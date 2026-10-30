@@ -1,33 +1,40 @@
 # Riftlet website
 
-The public homepage is a product website, not a design report. This revision follows the user's explicit request to use the teal rounded-square R icon and remove palette/identity research from the live site.
+The official public homepage is served at https://riftlet.com/ from the repository root on `main` through the existing GitHub Pages branch-source deployment.
 
-## Active files
+## Current version: 2026-10-30 v2
 
-- `index.html`: product introduction, interactive demo, principles and release status.
-- `website-product.css`: archived first-screen composition plus product-page layout and responsive rules.
-- `website-product.js`: Chinese/English copy and browser-local synthetic demonstration.
-- `favicon.svg`: the user-selected teal square and original split-R geometry, used in navigation, release block and footer.
-- `site.webmanifest`: the same brand icon.
+The owner explicitly approved the second design and authorized publication. This release retains the approved typography, composition, color, artwork and interaction. Production preparation only changes asset paths, removes the design-preview footer label and restores public-page metadata.
 
-The previous `site.css`, `site.js` and `website-locale.js` are not loaded by the current page. They are retained to avoid unrelated deletion. Original design studies under `design/` remain unchanged.
+### Active files
 
-## Product honesty
+- `index.html`: Chinese/English product homepage and synthetic interaction demo.
+- `website-v2.css`: approved responsive layout, local font definitions and reduced-motion styles.
+- `website-v2.js`: synthetic capture, edge queue, draft attachments, scenes, locale and release dialog.
+- `website-assets/`: approved artwork, logo, precise example SVGs, local fonts, OFL licenses and font source records.
+- `site.webmanifest`: existing browser manifest, with the page background/theme colors updated.
+- `favicon.svg`, `robots.txt`, `sitemap.xml`, `CNAME` and `.nojekyll`: retained existing production files.
 
-The homepage is the official public product page. The desktop application is not offered for download by this page. macOS is the first planned release; clipboard, Windows and more targets are future directions, not shipped functionality.
+Old `site.*`, `website-product.*`, `website-hero.*` and `website-locale.js` files are retained for history and are not loaded by the current homepage. Older `website/test-*` scripts target those historical implementations; they are not the v2 acceptance gate.
 
-The demonstration uses synthetic SVG artwork only. It never reads the visitor's screenshots, clipboard or chats, performs file uploads, or sends messages. It appends to a local demo draft. Unknown outcomes retain the item and do not re-dispatch. Reset and language switching preserve visitor-entered draft text. Nothing is stored beyond the page session.
+## Product and demo boundaries
 
-## Deployment
+The website is public; the native Mac app remains in private testing with no public download offered. Current testing focuses on ChatGPT in Chrome. This website does not expand native support or claim real-upload acceptance.
 
-Existing GitHub Pages branch-source deployment remains unchanged: `main`, repository root, custom domain `riftlet.com`. No hosting, DNS, CNAME or deployment-workflow configuration is modified by this revision.
+The demo uses synthetic content only. It does not read the screen, clipboard or conversations, call external APIs, upload images, send messages or persist text. Deliberate GitHub links open the public project. Local static font and image requests are the only resources needed to render the page.
+
+The illustrated handoff separates simulated upload-start evidence from final attachment readiness. A thumbnail clears after the synthetic positive start, while readiness arrives later. This is an illustration, not proof of native timing or failure handling. Existing draft text and the original example attachment are preserved. Empty queues hide the edge. The demo never sends a message.
+
+## Deployment and rollback
+
+Keep GitHub Pages on `main`, repository root, custom domain `riftlet.com`. Do not add a new hosting service or alter DNS to publish this static page. A website commit triggers the existing Pages build and deployment.
+
+A rollback can restore only this release's changed paths from the pre-release base `eba1a4fc77648a665e1d5c1f2609df1314c3b079` in a new commit. Do not force-reset unrelated work or merge the native product branch to publish the website.
 
 ## Verification
 
-Run `node --check website-product.js` and `node website/test-product.cjs`.
+Run `node --check website-v2.js`. Static validation covers duplicate IDs, anchor targets, local image/script/style/font references, JSON and SVG parsing. Browser QA of the approved design covered desktop and 390/768 CSS-pixel responsive documents, font loading, Chinese/English switching, capture/attach/replay, scene switching, draft preservation, empty-edge behavior, FAQ and the release dialog.
 
-The test suite uses a small DOM double with controlled timers. It verifies 11 scenarios, including pending/ready separation, duplicate-click suppression, serial ordering, failure/retry, unknown preservation, stale completion after reset, pointer-slot stability, locale/draft preservation and attachment removal. These are unit tests, not browser rendering or real-platform evidence.
+Production validation must check a successful Pages deployment for the published commit and the actual domain's new version marker and asset responses. The earlier browser QA was not physical-device, Safari, VoiceOver, native Mac app or real ChatGPT upload acceptance.
 
-Static checks cover HTML IDs, anchor targets, local asset existence, stylesheet syntax, script syntax, manifest JSON, absence of public design-report sections, and exact source-SVG geometry.
-
-Real Chromium navigation was blocked by the environment (`ERR_BLOCKED_BY_ADMINISTRATOR`). No policy was changed and no bypass was attempted. Desktop/mobile pixel-level rendering and a fresh public-site interaction check remain unverified in this environment. Responsive rules and local font stacks are inherited from the original composition; fonts may differ across systems.
+See `RELEASE_2026-10-30.md` for this release's scope and asset provenance.
