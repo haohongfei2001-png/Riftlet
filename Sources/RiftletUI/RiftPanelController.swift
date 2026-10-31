@@ -688,7 +688,13 @@ public final class RiftPanelController {
                 Task { @MainActor [weak self] in self?.motionPolicyChanged() }
             }
         observers.append((NSWorkspace.shared.notificationCenter, accessibility))
-
+        // A non-activating preview is never key. Observe the actual foreground
+        // application boundary instead of relying on a nonexistent resignKey.
+        let activation = NSWorkspace.shared.notificationCenter.addObserver(
+            forName: NSWorkspace.didActivateApplicationNotification, object: nil, queue: .main) { [weak self] _ in
+                MainActor.assumeIsolated { self?.peek.cancel() }
+            }
+        observers.append((NSWorkspace.shared.notificationCenter, activation))
     }
 
     private func observe(_ name: Notification.Name, center: NotificationCenter) {
@@ -1479,7 +1485,13 @@ public final class RiftPanelController {
         guard let row = rowWindows[id], let screen, !closed, !userHidden, !captureSuppressed,
               !gate.isHolding, !transitioning, !interaction.snapshot.isSelecting else { return }
         let revision = row.view.record.visibilityRevision
-        peek.schedule(id: id, immediate: immediate, leftSide: configuration.placement?.side == .left, stillValid: { [weak self] in
+        let page = rowWindows.values.filter { $0.view.record.visibility == .visible }
+            .sorted { $0.view.ordinal < $1.view.ordinal }.map { item in
+                RiftPeekItem(id: item.view.record.id, visibilityRevision: item.view.record.visibilityRevision,
+                    imageSize: item.view.geometry.imageFrame.size)
+            }
+        peek.schedule(id: id, immediate: immediate, leftSide: configuration.placement?.side == .left,
+            rank: row.view.ordinal, page: page, stillValid: { [weak self] in
             guard let self else { return false }
             return !self.closed && !self.userHidden && !self.captureSuppressed && !self.gate.isHolding
                 && !self.transitioning && !self.interaction.snapshot.isSelecting

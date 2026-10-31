@@ -97,6 +97,31 @@ enum RiftPeekGeometry {
         let y = max(visible.minY + 12, min(visible.maxY - height - 12, owner.midY - height / 2))
         return CGRect(x: right - width, y: y, width: width, height: height)
     }
+    static func sessionFrame(canvas: CGSize, owner: CGRect, visible: CGRect,
+                             leading: CGFloat, leftSide: Bool) -> CGRect? {
+        if leftSide {
+            let mirror = visible.minX + visible.maxX
+            guard let result = sessionFrame(canvas: canvas, owner: owner, visible: visible,
+                leading: mirror - leading, leftSide: false) else { return nil }
+            return CGRect(x: mirror - result.maxX, y: result.minY, width: result.width, height: result.height)
+        }
+        let right = min(visible.maxX - 12, leading - 12)
+        let available = CGSize(width: right - visible.minX - 28, height: visible.height - 56)
+        guard canvas.width > 0, canvas.height > 0,
+              [canvas.width, canvas.height, available.width, available.height, owner.midY].allSatisfy(\.isFinite) else { return nil }
+        let scale = min(1, min(available.width / canvas.width, available.height / canvas.height))
+        guard scale > 0 else { return nil }
+        let size = CGSize(width: canvas.width * scale + 16, height: canvas.height * scale + 32)
+        let y = max(visible.minY + 12, min(visible.maxY - size.height - 12, owner.midY - size.height / 2))
+        return CGRect(x: right - size.width, y: y, width: size.width, height: size.height)
+    }
+
+}
+
+struct RiftPeekItem: Equatable {
+    let id: UUID
+    let visibilityRevision: Int64
+    let imageSize: CGSize
 }
 
 /// Bounded, full-aspect hover preview; no source mutation or attachment API.
@@ -105,6 +130,21 @@ enum RiftPeekGeometry {
     private let surface = RiftSurfaceView()
     private let image = NSImageView()
     private let note = NSTextField(wrappingLabelWithString: "")
+    typealias Scheduler = (TimeInterval, @escaping @MainActor () -> Void) -> Void
+    private let later: Scheduler
+    private let rankLabel = NSTextField(labelWithString: "")
+    private var page: [RiftPeekItem] = []
+    private var fixedFrame: CGRect?
+    private var warm = false
+    private var candidate: UUID?
+    private var requestEpoch: UInt = 0
+    private var eligible = false
+    private var decoded: CGImage?
+    private var present: (() -> Void)?
+    private var runningDecode = false
+    private var pendingDecode: (() -> Void)?
+    private(set) var displayedAssetID: UUID?
+    private(set) var displayedRank: Int?
     private var epoch: UInt = 0
     private var leaveEpoch: UInt = 0
     private(set) var assetID: UUID?
@@ -112,7 +152,15 @@ enum RiftPeekGeometry {
     var onNoteVisibilityChange: ((UUID, Bool) -> Void)?
     var presentationPanel: NSPanel { panel }
     var isNoteVisible: Bool { noteText != nil && panel.isVisible }
-    init() {
+    init(schedule: @escaping Scheduler = { delay, action in
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay) { action() }
+    }) {
+        later = schedule
+        surface.addSubview(rankLabel)
+        rankLabel.font = .monospacedDigitSystemFont(ofSize: 11, weight: .regular)
+        rankLabel.textColor = RiftVisualStyle.secondary
+        rankLabel.alignment = .center
+        rankLabel.isHidden = true
         surface.cornerRadius = 10
         surface.addSubview(image)
         surface.addSubview(note)
@@ -128,6 +176,9 @@ enum RiftPeekGeometry {
         let visibleNote = isNoteVisible ? assetID : nil
         epoch &+= 1; leaveEpoch &+= 1; assetID = nil; panel.orderOut(nil); panel.alphaValue = 1
         image.image = nil; noteText = nil; note.isHidden = true
+        requestEpoch &+= 1; candidate = nil; decoded = nil; eligible = false
+        present = nil; pendingDecode = nil; page = []; fixedFrame = nil; warm = false
+        displayedAssetID = nil; displayedRank = nil; rankLabel.isHidden = true
         if let visibleNote { onNoteVisibilityChange?(visibleNote, false) }
     }
     func leave() {
@@ -135,44 +186,95 @@ enum RiftPeekGeometry {
         // It must not survive the image-preview leave animation.
         if noteText != nil { cancel(); return }
         leaveEpoch &+= 1; let token = leaveEpoch
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
+        later(0.1) { [weak self] in
             guard let self, self.leaveEpoch == token else { return }
-            NSAnimationContext.runAnimationGroup { context in
-                context.duration = 0.08; self.panel.animator().alphaValue = 0
-            } completionHandler: { [weak self] in
-                MainActor.assumeIsolated {
+            // Bounded, epoch-guarded opacity steps cannot outlive re-entry.
+            // NSWindow's animator otherwise keeps writing alpha after cancellation.
+            for step in 1...5 {
+                self.later(Double(step) * 0.016) { [weak self] in
                     guard let self, self.leaveEpoch == token else { return }
-                    self.cancel()
+                    self.panel.alphaValue = 1 - Double(step) / 5
+                    if step == 5 { self.cancel() }
                 }
             }
         }
     }
-    func schedule(id: UUID, immediate: Bool = false, leftSide: Bool = false, stillValid: @escaping () -> Bool,
+    func schedule(id: UUID, immediate: Bool = false, leftSide: Bool = false,
+                  rank: Int = 0, page incomingPage: [RiftPeekItem] = [],
+                  stillValid: @escaping () -> Bool,
                   load: @escaping (@escaping (CGImage?) -> Void) -> Void,
                   anchor: @escaping () -> (CGRect, CGRect, CGFloat)?) {
+        guard stillValid() else { cancel(); return }
         leaveEpoch &+= 1
-        if assetID == id && noteText == nil && panel.isVisible { panel.alphaValue = 1; return }
-        // A pending/abandoned decode must be rescheduled after re-entry.
-        // The leave timer has its own epoch and cannot invalidate the new hover.
-        cancel(); assetID = id; let token = epoch
-        DispatchQueue.main.asyncAfter(deadline: .now() + (immediate ? 0 : 0.45)) { [weak self] in
-            guard let self, self.epoch == token, stillValid() else { return }
-            load { [weak self] cg in
-                guard let self, self.epoch == token, stillValid(), let cg, let (row, visible, leading) = anchor() else { return }
-                guard let frame = RiftPeekGeometry.frame(imageSize: CGSize(width: cg.width, height: cg.height),
-                    owner: row, visible: visible, leadingInputEdge: leading, leftSide: leftSide) else { self.cancel(); return }
-                let size = CGSize(width: frame.width - 16, height: frame.height - 16)
-                self.surface.cornerRadius = 10; self.image.isHidden = false
-                self.panel.setFrame(frame, display: true)
-                self.image.frame = CGRect(origin: CGPoint(x: 8, y: 8), size: size)
-                self.image.image = NSImage(cgImage: cg, size: size)
-                self.panel.alphaValue = 0; self.panel.orderFrontRegardless()
-                NSAnimationContext.runAnimationGroup { context in
-                    context.duration = 0.08
-                    self.panel.animator().alphaValue = 1
+        if noteText != nil || page != incomingPage { cancel() }
+        page = incomingPage
+        if candidate == id { panel.alphaValue = 1; present?(); return }
+        requestEpoch &+= 1
+        let request = requestEpoch, session = epoch
+        candidate = id; assetID = id; eligible = immediate; decoded = nil
+        displayedAssetID = nil; displayedRank = nil; image.image = nil
+        rankLabel.stringValue = rank > 0 ? "\(rank)" : ""
+        rankLabel.isHidden = false
+        let valid = { [weak self] in
+            guard let self else { return false }
+            return self.epoch == session && self.requestEpoch == request
+                && self.candidate == id && self.noteText == nil
+        }
+        present = { [weak self] in
+            guard let self, valid(), stillValid(), self.eligible,
+                  let (row, visible, leading) = anchor() else { return }
+            if self.fixedFrame == nil {
+                let sizes: [CGSize]
+                if !incomingPage.isEmpty { sizes = incomingPage.map(\.imageSize) }
+                else if let cg = self.decoded { sizes = [CGSize(width: cg.width, height: cg.height)] }
+                else { return }
+                let fits = sizes.filter { $0.width > 0 && $0.height > 0 && $0.width.isFinite && $0.height.isFinite }.map { size in
+                    let scale = min(320 / size.width, 240 / size.height)
+                    return CGSize(width: size.width * scale, height: size.height * scale)
                 }
+                let canvas = CGSize(width: fits.map(\.width).max() ?? 0, height: fits.map(\.height).max() ?? 0)
+                guard let frame = RiftPeekGeometry.sessionFrame(canvas: canvas, owner: row,
+                    visible: visible, leading: leading, leftSide: leftSide) else { self.cancel(); return }
+                self.fixedFrame = frame
+            }
+            guard let frame = self.fixedFrame else { return }
+            self.surface.cornerRadius = 10; self.image.isHidden = false
+            self.panel.setFrame(frame, display: true)
+            self.image.frame = CGRect(x: 8, y: 24, width: frame.width - 16, height: frame.height - 32)
+            self.rankLabel.frame = CGRect(x: 8, y: 8, width: frame.width - 16, height: 16)
+            // One main-actor transaction owns all three values; never crossfade text images.
+            if let cg = self.decoded {
+                self.image.image = NSImage(cgImage: cg, size: CGSize(width: cg.width, height: cg.height))
+                self.displayedAssetID = id; self.displayedRank = rank
+            } else {
+                self.image.image = nil; self.displayedAssetID = nil; self.displayedRank = nil
+            }
+            self.rankLabel.stringValue = rank > 0 ? "\(rank)" : ""
+            self.panel.alphaValue = 1; self.panel.orderFrontRegardless(); self.warm = true
+        }
+        let delay: TimeInterval = immediate ? 0 : (warm ? 0.09 : 0.45)
+        later(delay) { [weak self] in
+            guard let self, valid() else { return }
+            self.eligible = true; self.present?()
+        }
+        // Only one actual cache/decode request may run; intermediate hover intents
+        // replace this slot rather than accumulating on ImageIO's serial queue.
+        pendingDecode = { [weak self] in
+            guard let self, valid() else { return }
+            self.runningDecode = true
+            load { [weak self] cg in
+                guard let self else { return }
+                self.runningDecode = false
+                if valid() { self.decoded = cg; self.present?() }
+                self.startLatestDecode()
             }
         }
+        startLatestDecode()
+    }
+
+    private func startLatestDecode() {
+        guard !runningDecode, let next = pendingDecode else { return }
+        pendingDecode = nil; next()
     }
 
     /// Reuses the same pointer-free surface as image peek. The caller owns the
@@ -183,7 +285,7 @@ enum RiftPeekGeometry {
         if assetID == id, noteText == text { return }
         cancel(); assetID = id; noteText = text
         let token = epoch
-        DispatchQueue.main.asyncAfter(deadline: .now() + max(0, delay)) { [weak self] in
+        later(max(0, delay)) { [weak self] in
             guard let self, self.epoch == token else { return }
             guard stillValid(), let (row, visible, leading) = anchor() else { self.cancel(); return }
             let right = leftSide ? visible.maxX - 12 : min(visible.maxX - 12, leading - 12)
@@ -207,7 +309,7 @@ enum RiftPeekGeometry {
             self.surface.needsDisplay = true
             self.panel.alphaValue = 1; self.panel.orderFrontRegardless()
             self.onNoteVisibilityChange?(id, true)
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2.4) { [weak self] in
+            self.later(2.4) { [weak self] in
                 guard let self, self.epoch == token else { return }
                 self.cancel()
             }

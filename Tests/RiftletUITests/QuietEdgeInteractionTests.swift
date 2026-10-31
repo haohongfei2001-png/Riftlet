@@ -163,7 +163,8 @@ final class QuietEdgeInteractionTests: XCTestCase {
     @MainActor func testFeedbackReusesPointerFreePeekAndInvalidatesOldDecodeAndWaitingDeadline() async throws {
         _ = NSApplication.shared
         guard let screen = NSScreen.screens.first else { throw XCTSkip("No AppKit display") }
-        let peek = RiftPeek(); defer { peek.close() }
+        let clock = RiftPeekTestClock()
+        let peek = RiftPeek(schedule: clock.schedule); defer { peek.close() }
         let context = try XCTUnwrap(CGContext(data: nil, width: 4, height: 4, bitsPerComponent: 8,
             bytesPerRow: 16, space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue))
         let cg = try XCTUnwrap(context.makeImage()), id = UUID()
@@ -175,15 +176,16 @@ final class QuietEdgeInteractionTests: XCTestCase {
         let panel = peek.presentationPanel
         peek.scheduleNote(id: id, text: "正在等待附加", delay: 0.25, stillValid: { true }, anchor: anchor)
         delivery?(cg)
-        try await Task.sleep(nanoseconds: 100_000_000)
+        clock.advance(by: 0.1)
         XCTAssertFalse(panel.isVisible, "An old image decode cannot bypass the waiting delay")
         peek.leave()
-        try await Task.sleep(nanoseconds: 200_000_000)
+        clock.advance(by: 0.2)
         XCTAssertFalse(panel.isVisible, "Leaving the island cancels the pending explanation")
         XCTAssertNil(peek.assetID)
         peek.scheduleNote(id: id, text: "图片已保留，当前聊天暂时不能接收图片。", delay: 0,
             stillValid: { true }, anchor: anchor)
-        try await eventually { peek.isNoteVisible }
+        clock.advance(by: 0)
+        XCTAssertTrue(peek.isNoteVisible)
         XCTAssertTrue(panel.ignoresMouseEvents); XCTAssertFalse(panel.canBecomeKey); XCTAssertFalse(panel.canBecomeMain)
         XCTAssertLessThanOrEqual(panel.frame.width, 240)
         XCTAssertLessThanOrEqual(panel.frame.maxX, row.minX - 12)
@@ -191,7 +193,7 @@ final class QuietEdgeInteractionTests: XCTestCase {
         // A repeated projection does not renew the bounded display lifetime.
         peek.scheduleNote(id: id, text: "图片已保留，当前聊天暂时不能接收图片。", delay: 0,
             stillValid: { true }, anchor: anchor)
-        try await Task.sleep(nanoseconds: 2_600_000_000)
+        clock.advance(by: 2.6)
         XCTAssertFalse(panel.isVisible); XCTAssertNil(peek.assetID)
     }
 
