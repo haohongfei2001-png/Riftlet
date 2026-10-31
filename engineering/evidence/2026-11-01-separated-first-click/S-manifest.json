@@ -1,0 +1,21 @@
+{
+  "alias": "S",
+  "source": "macOS CLI window control; not normal system shortcut",
+  "inputSource": "CGEvent software",
+  "runtimeSource": "307335f6f1511fc49d57275ab19cf9c55496ba5a",
+  "files": {
+    "engine-control.json": "6a0a6b7157e34fe787c839ffec5071bb496ca7f1392fd9997effd809a6acf95d",
+    "cross-root-exclusion.json": "bbdd9318341be2e965bc3a5c1c8a9e3914c8f6b15effbba227947cf443cb98aa",
+    "original-private-equality.json": "25363660ca9040d13025eea664ae045259be96ba4f321e941f3212b923953c95",
+    "prepared-range.jsonl": "4ec38c2fe3a2626f5ee84c6899ea62d33e98031a509faeb70185a2e4c868302f",
+    "trial.jsonl": "17a65d7dde3e447b3210e5f3ee31e11893ba89acc046c84b5813c0c97d06e92f",
+    "click.jsonl": "f713eda3e87652f4d6b5561943a9ef2c6fbad554f53772a6a824744a56796658",
+    "native-identity.jsonl": "ef8dabea55e9169f72ce14cda25a30c146005a4d4b4b2bcb7555d27efc257e1b",
+    "app.log": "3a95f3660cb43ba9ca9110e6fe64adf8b924d1040ad8a657cfac854370589a88",
+    "final-draft.jsonl": "46686da129320c1f129ebe32f37efe28e53c385e0392ddea1ddb969a5a5559d3",
+    "observer-final.jsonl": "fa4c1d5d8d7f9ba8232c039e2b0b02a127b779659b90393a2566820069f78e0d",
+    "final-records.json": "fc9ca24101069d545c59c026f55e3efdcc18960020a8accc5ee274589337cd15",
+    "original-op-source-bound.jsonl": "28638543bae241d8b30a50e4bbc1345ceca8395fa3ef7542aa6595442138ad41",
+    "noncollapsed-independent-review.json": "45c1e4714755dd3ffbefd0237f27fbf027b928c6908dfaf490775c2665ccc317"
+  }
+}

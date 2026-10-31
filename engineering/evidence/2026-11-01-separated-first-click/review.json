@@ -1,0 +1,8 @@
+{
+  "reviewer": "final_acceptance_review",
+  "result": "PASS_LIMITED_EVIDENCE_NO_BLOCKING_FINDINGS",
+  "privateReviewSHA256": "878d0f2f57882f46fb5ab0b480e258bda8f56d04ab791ceef2d148dd5f224b7e",
+  "wordingCorrectionApplied": "focus handler snapshot nowMS is distinct from earlier DOM eventMS; native identity switch time unresolved",
+  "scope": "U/S event and page evidence, strict completion failure, clock bounds, SQLite/media preservation, manifest/privacy",
+  "production": "NO_GO"
+}

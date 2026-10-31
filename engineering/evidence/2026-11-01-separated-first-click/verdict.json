@@ -1,0 +1,16 @@
+{
+  "naturalShortcut": "BLOCKED",
+  "naturalNoACKFirstClick": "NOT_RUN",
+  "U_unfocusedUniqueInputStartCompletion": "MAC_PASS_LIMITED",
+  "U_bodyTwoOldAttachments": "MAC_PASS_LIMITED",
+  "S_uniqueInputStart": "MAC_PASS_LIMITED",
+  "S_bodyNoncollapsedThreeOldAttachments45s": "MAC_PASS_LIMITED",
+  "S_verifiedCompletion": "FAIL",
+  "S_operation": "UNKNOWN",
+  "newPhysicalFirstClick": "NOT_RUN",
+  "originalTargetSwitchInstant": "UNRESOLVED",
+  "production": "NO_GO",
+  "productSourceChanged": false,
+  "newInputs": 2,
+  "automaticRetries": 0
+}
