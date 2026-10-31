@@ -1,0 +1,8 @@
+{
+  "scope": "Evidence-only independent review; not source admission or production approval",
+  "reviewedEvidenceCommit": "8961608374fbefcf154ce0ac2abf93a0c9e90d22",
+  "reviewerRole": "final_acceptance_review",
+  "result": "PASS",
+  "privateReportSHA256": "7c6fa6cd35d2733a28343ef00a84f2fa3adb43435bd2f938b35e364a85833cb0",
+  "findings": "No blocking factual or privacy issue. Limited prebound software success; selection criterion remains FAIL with unknown attribution; cold and physical are NOT_RUN. Production remains NO_GO."
+}
