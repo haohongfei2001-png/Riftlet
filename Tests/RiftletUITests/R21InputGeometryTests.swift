@@ -46,4 +46,36 @@ final class R21InputGeometryTests: XCTestCase {
             }
         }
     }
+
+    @MainActor func testAppendOutsideCurrentPagePreservesNativePreview() async throws {
+        _ = NSApplication.shared
+        guard NSScreen.main != nil else { throw XCTSkip("No native screen") }
+        let root = URL(fileURLWithPath:#filePath).deletingLastPathComponent().deletingLastPathComponent()
+            .appendingPathComponent("NativeVisualEvidence/R21Fixtures")
+        let records = (1...4).map { index in
+            AssetRecord(image:ImportedAsset(id:UUID(),sourceKey:"r21-append-\(index)",fileName:"codex1.png",
+                sha256:String(repeating:"a",count:64),byteCount:0,pixelWidth:1920,pixelHeight:1080,
+                mediaType:"image/png",origin:.synthetic),sequence:Int64(index))
+        }
+        let preexistingWindows = Set(NSApp.windows.map(\.windowNumber))
+        let controller = RiftPanelController(mediaDirectory:root,onSelect:{ _ in })
+        defer { controller.close() }
+        controller.render(Array(records.prefix(3)))
+        let row = try XCTUnwrap(controller.diagnosticSnapshot.rows.first)
+        let visual = try XCTUnwrap(NSApp.windows.first { $0.windowNumber == row.windowNumber })
+        XCTAssertEqual(visual.contentView?.accessibilityCustomActions()?.first?.handler?(),true)
+        func preview() -> NSWindow? {
+            NSApp.windows.first { panel in
+                !preexistingWindows.contains(panel.windowNumber) &&
+                panel.isVisible && panel.contentView?.subviews.contains(where: { ($0 as? NSImageView)?.image != nil }) == true
+            }
+        }
+        let deadline = ProcessInfo.processInfo.systemUptime + 5
+        while preview() == nil && ProcessInfo.processInfo.systemUptime < deadline { try await Task.sleep(nanoseconds:10_000_000) }
+        let panel = try XCTUnwrap(preview()), frame = panel.frame
+        _ = controller.noteCaptureReady(records[3].id,uptime:ProcessInfo.processInfo.systemUptime)
+        XCTAssertTrue(panel.isVisible,"Arrival alone must not revoke an unchanged visible page")
+        controller.render(records)
+        XCTAssertTrue(panel.isVisible); XCTAssertEqual(panel.frame,frame)
+    }
 }

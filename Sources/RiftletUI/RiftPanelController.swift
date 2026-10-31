@@ -715,7 +715,11 @@ public final class RiftPanelController {
     /// One pending candidate and at most one flying copy; bursts settle statically.
     @discardableResult
     public func noteCaptureReady(_ assetID: UUID, uptime: TimeInterval) -> UUID? {
-        cancelDecorations(reason: .captureObserved)
+        // An appended screenshot can leave the current page unchanged. Cancel
+        // only arrival decoration here; apply() revokes preview on an actual
+        // visible identity/geometry change, not on unrelated queue arrival.
+        arrivalCandidate = nil
+        flight.cancel(reason: .captureObserved)
         finishQueueTransition(allowShift: false)
         let now = ProcessInfo.processInfo.systemUptime
         guard uptime.isFinite, uptime >= 0, uptime <= now else { return nil }
