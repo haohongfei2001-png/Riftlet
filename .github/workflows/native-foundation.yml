@@ -2,42 +2,14 @@ name: Native foundation
 on:
   push:
     branches:
+      - main
       - 'codex/riftlet-real-mac-acceptance-*'
       - 'codex/riftlet-real-mac-round*'
       - 'codex/system-capture-candidate-20261028'
       - 'codex/system-screenshot-real-20261028'
       - 'codex/arrival-none-magnet-native-20261028'
-    paths:
-      - 'Sources/**'
-      - 'Tests/**'
-      - 'Resources/**'
-      - 'Package.swift'
-      - 'scripts/**'
-      - 'packaging/**'
-      - '.github/workflows/native-foundation.yml'
-      - 'engineering/evidence/2026-10-27-real-mac-round2/network-fault.*'
-      - 'engineering/evidence/2026-10-27-real-mac-round3/network-probe.*'
-      - 'engineering/evidence/2026-10-27-real-mac-round5/*.js'
-      - 'engineering/evidence/2026-10-27-real-mac-round5/*.cjs'
-      - 'engineering/evidence/2026-10-28-system-screenshot-stage2/*.js'
-      - 'engineering/evidence/2026-10-28-system-screenshot-stage2/*.cjs'
   pull_request:
-    paths:
-      - 'Sources/**'
-      - 'Tests/**'
-      - 'Resources/**'
-      - 'ThirdPartyNotices/**'
-      - 'research/web-attachment-handoff-2026-10-27/**'
-      - 'Package.swift'
-      - 'scripts/**'
-      - 'packaging/**'
-      - '.github/workflows/native-foundation.yml'
-      - 'engineering/evidence/2026-10-27-real-mac-round2/network-fault.*'
-      - 'engineering/evidence/2026-10-27-real-mac-round3/network-probe.*'
-      - 'engineering/evidence/2026-10-27-real-mac-round5/*.js'
-      - 'engineering/evidence/2026-10-27-real-mac-round5/*.cjs'
-      - 'engineering/evidence/2026-10-28-system-screenshot-stage2/*.js'
-      - 'engineering/evidence/2026-10-28-system-screenshot-stage2/*.cjs'
+    branches: [main]
 permissions:
   contents: read
 concurrency:
@@ -45,6 +17,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   source_admission:
+    name: Native source admission
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -52,7 +25,7 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
-      - name: Verify exact final source admission and immutable inherited audits
+      - name: Verify mainline review, actual merge and immutable inherited audits
         run: |
           set -o pipefail
           mkdir -p test-results
@@ -60,7 +33,8 @@ jobs:
           python3 -B -m unittest discover -s Tests/UnifiedCandidateIsolation -v 2>&1 | tee test-results/unified-isolation-tests.log
           python3 -B -m unittest discover -s Tests/ThinEdgeIsolation -v 2>&1 | tee test-results/thin-edge-isolation-tests.log
           python3 -B -m unittest discover -s Tests/BuiltInCaptureIsolation -v 2>&1 | tee test-results/builtin-isolation-tests.log
-          python3 -B scripts/verify-final-product-composition.py 2>&1 | tee test-results/final-product-composition.log
+          python3 -B -m unittest discover -s Tests/MainlineIsolation -v 2>&1 | tee test-results/mainline-isolation-tests.log
+          python3 -B scripts/verify-mainline-composition.py --github-event 2>&1 | tee test-results/mainline-composition.log
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
@@ -68,12 +42,17 @@ jobs:
           path: test-results/
           retention-days: 14
   macos:
+    name: ${{ matrix.check }}
     # Native verification is independent, not an exception to admission. The
     # workflow fails if source_admission fails; no unreviewed tree is promoted.
     strategy:
       fail-fast: false
       matrix:
-        runner: [macos-15, macos-15-intel]
+        include:
+          - runner: macos-15
+            check: Native ARM64
+          - runner: macos-15-intel
+            check: Native Intel
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 20
     steps:
