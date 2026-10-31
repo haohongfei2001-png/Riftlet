@@ -1,0 +1,170 @@
+{
+  "schemaVersion": 1,
+  "testedSource": "307335f6f1511fc49d57275ab19cf9c55496ba5a",
+  "testedTree": "145562bc8d01237b6be3206d1e4244810b4eb880",
+  "environment": {
+    "os": "macOS 27.0 (26A428)",
+    "architecture": "arm64",
+    "chrome": "156.0.8078.79",
+    "mode": "systemScreenshotCandidate",
+    "eventSource": "CGEvent",
+    "physical": false
+  },
+  "originalArtifact": {
+    "runID": "41214945466",
+    "executableSHA256": "804302e5e07ff8bb295672530a6cc53a37fe744f15e1d8bd0cb9184b79aeb24a",
+    "arm64ZIP": "6d9dd76efc1015b5e06d2dd215ebd59503c6b31335bb6eba980a9067c509588a",
+    "intelZIP": "b0ec2ad1eeb0cdaee816f2482198b46dd0aed1fcbe46f065617103f6735de5cc"
+  },
+  "ci": {
+    "status": "CLOUD_PASS",
+    "native": "41214945466",
+    "feedback": "41214945392",
+    "rerunForEvidence": false,
+    "testsPerArchitecture": 851
+  },
+  "sample": {
+    "newOperation": true,
+    "originalRetainedSystemPNG": true,
+    "bytes": 1195991,
+    "width": 702,
+    "height": 494,
+    "rgbaBits": 8,
+    "noninterlaced": true,
+    "originalAndPrivateBytesMatch": true,
+    "previouslyInput": false,
+    "recaptured": false
+  },
+  "checks": {
+    "uniqueInput": {
+      "status": "MAC_PASS",
+      "begin": 1,
+      "chunk": 5,
+      "commit": 1,
+      "pageFileChangeCapture": 1,
+      "startEvidenceInputCount": 1,
+      "attempt": 1,
+      "newOperations": 1
+    },
+    "clickTarget": {
+      "status": "MAC_PASS",
+      "fullPreEventACK": true,
+      "freezeAccepted": true,
+      "sameOriginalTargetAcrossInputStartComplete": true,
+      "effectiveACKBeforeMouseDownMS": 2185.78,
+      "latestRevalidationBeforeMouseDownMS": 26.37,
+      "latestMainPublicationBeforeMouseDownMS": 25.32
+    },
+    "uploadStart": {
+      "status": "MAC_PASS",
+      "signal": "correlatedProgress",
+      "previousPercent": 6.971472945576106,
+      "currentPercent": 13.942945891152212,
+      "inputBeforeStartPageMS": 1127.7000000477,
+      "durableStartsForOperation": 1
+    },
+    "swallow": {
+      "status": "MAC_PASS",
+      "nativeAppKitCloseRecorded": true,
+      "independentPixelDisappearanceMeasured": false
+    },
+    "completion": {
+      "status": "MAC_PASS",
+      "journal": "attached",
+      "exactImageIdentity": true,
+      "belongsToOriginalDraft": true,
+      "receipt": "verifiedReady",
+      "operation": "succeeded",
+      "asset": "used",
+      "visibility": "swallowed",
+      "pageImageLoaded": true,
+      "pageImageDimensions": [
+        702,
+        494
+      ]
+    },
+    "selection": {
+      "status": "FAIL",
+      "scope": "Complete trial preservation criterion not established; no proven Riftlet-caused collapse",
+      "noncollapsedAtFileChange": [
+        55,
+        48
+      ],
+      "sameRangeAcrossObservedBlurReturn": true,
+      "firstLaterCollapsePrecededBy": "keydown then compositionstart then text-node characterData and editor input",
+      "laterTextHashMatches": false,
+      "programmaticRangeRestore": false,
+      "forcedEditorFocus": false,
+      "historicalFailureResolved": false
+    },
+    "oldAttachments": {
+      "status": "NOT_RUN",
+      "baselineCount": 0,
+      "reason": "Nonempty old-attachment preservation cannot be inferred from an empty baseline"
+    },
+    "naturalColdFirstClick": {
+      "status": "NOT_RUN",
+      "reason": "Startup attempt stopped before click at AX locator; later single click delayed by navigation/geometry diagnosis and was prebound"
+    },
+    "unfocusedEditor": {
+      "status": "NOT_RUN",
+      "reason": "This trial used an already-active editor for keyboard selection"
+    },
+    "physicalMouse": {
+      "status": "NOT_RUN"
+    },
+    "productionOpen": {
+      "status": "BLOCKED",
+      "reason": "This restricted candidate evidence is not ordinary production admission"
+    }
+  },
+  "timingMSFromMouseDown": {
+    "selectionHandler": 1.2685833,
+    "selectionSubmission": 86.21825,
+    "commitReturned": 461.3830417,
+    "durableSwallowedObservedUpperBound": 1802.5085834,
+    "swallowActualStart": 1802.793125,
+    "appKitClose": 1924.7800417,
+    "succeededObservedUpperBound": 7276.163
+  },
+  "clockScope": {
+    "native": "same boot systemUptime and CGEvent timestamp",
+    "page": "performance.now; only intra-page deltas asserted",
+    "systemCaptureT0": "NOT_RUN",
+    "preciseFirstClickableT2": "NOT_RUN"
+  },
+  "preservation": {
+    "oldAssetsRetained": 18,
+    "newLocalImports": 11,
+    "newUploadedAssets": 1,
+    "otherImportedImagesUploaded": 0,
+    "oldOperationsRetained": 7,
+    "oldOperationChanges": [
+      "updated_at only on three original read-only recovery observations"
+    ],
+    "oldAssetChanges": [
+      "automaticArchive visibility fields on eight records"
+    ],
+    "oldStartsUnchanged": 3,
+    "oldCheckpointsUnchanged": 33,
+    "compensationsUnchanged": true,
+    "protectedFilesHashed": 36,
+    "protectedFilesChanged": 0,
+    "originalPNGUnchanged": true,
+    "candidateGracefullyExited": true
+  },
+  "harnessLimitations": [
+    "Original locator assumed pre-R2.1 input geometry and safely refused before click; corrected privately to contained image input window",
+    "Post-click SQLite sampler initially queried nonexistent upload_starts.asset_id; stopped only readout, recovered by operation_id join without replay",
+    "Pre-input text editing events and later IME activity had no native sender attribution; isTrusted does not prove physical input"
+  ],
+  "boundaries": {
+    "chatMessagesSentByExecutor": 0,
+    "oldUnknownReplay": 0,
+    "ordinaryProductionOpened": false,
+    "safeRetryOpened": false,
+    "webContinuationOpened": false,
+    "builtInSourceOpened": false,
+    "productCodeChangedThisTrial": false
+  }
+}

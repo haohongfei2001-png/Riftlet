@@ -1,0 +1,77 @@
+[
+  {
+    "privateEvidenceAlias": "original-click.jsonl",
+    "sha256": "b2b96392ff1383a52cae3bf9b4cd7c843a47fcc5b345838a9b7681bf1cb88907",
+    "bytes": 569
+  },
+  {
+    "privateEvidenceAlias": "before-click-resumed.jsonl",
+    "sha256": "db1f23f0ba8fddf8f9607f4d9de9d29a33ce5d60ea90657914b86db0c08a9ecf",
+    "bytes": 522
+  },
+  {
+    "privateEvidenceAlias": "selection-preparation-resumed.jsonl",
+    "sha256": "a926c6b22ecbdf8e678bcae6cf2ebd4f9073e273dbf62d033d339685ece51907",
+    "bytes": 3841
+  },
+  {
+    "privateEvidenceAlias": "observer-after-click.jsonl",
+    "sha256": "23836a1838e32c68194be0a700a5a8147245d10ac22cff04d2717a1c8238b6ef",
+    "bytes": 33304
+  },
+  {
+    "privateEvidenceAlias": "observer-after-completion.jsonl",
+    "sha256": "b182a3cb12a1c7edb253fd4b022d4449d09529a435dad9a9cf516196a6e079fe",
+    "bytes": 133475
+  },
+  {
+    "privateEvidenceAlias": "final-draft-check.jsonl",
+    "sha256": "e78e186270d76607b0b1e2b0fbf41cb2f6274a25820c20f0cce295315df42b7e",
+    "bytes": 541
+  },
+  {
+    "privateEvidenceAlias": "observation-before-navigation.jsonl",
+    "sha256": "79ba52bbfa87db23651f5e4e2c6fe178150c7c89ed75a99358d7948ef7b94d8f",
+    "bytes": 36242
+  },
+  {
+    "privateEvidenceAlias": "selection-preinput-review.json",
+    "sha256": "4f7288b1e3484db50a9592c755cbc676bb52dd611590e1d09d7d6301f21ea0dc",
+    "bytes": 4269
+  },
+  {
+    "privateEvidenceAlias": "latest-operation.json",
+    "sha256": "659cf059c3836efc56b54258d4af820d2f18b2d3ebf2b1012045028d9ded1e6e",
+    "bytes": 4912
+  },
+  {
+    "privateEvidenceAlias": "decoded-checkpoints-original-operation.json",
+    "sha256": "ab3f866c3c6aa3eaaef2ee01fe571757f0d9d9665a873833a4dc2cc3b6a12d6e",
+    "bytes": 11205
+  },
+  {
+    "privateEvidenceAlias": "original-operation-trace.log",
+    "sha256": "2ec446a907fd51730f331bfbe8d2edb8d18565a21cf4e2132cb4c35b6d62e820",
+    "bytes": 6213
+  },
+  {
+    "privateEvidenceAlias": "preservation-after-trial.json",
+    "sha256": "440bbec90b31be16902cbf2d5bb130b3582cc6461fa7bac664bc193102020ae0",
+    "bytes": 2921
+  },
+  {
+    "privateEvidenceAlias": "after-graceful-quit.sqlite",
+    "sha256": "d48cc1dea09f9c04d7bf40a8684bb3aebe4a21a83b2484c7bfd1ee366d6f7635",
+    "bytes": 233472
+  },
+  {
+    "privateEvidenceAlias": "final-candidate.log",
+    "sha256": "13bbbdfbc82bbf8cafbae6d65728570819f099c2e50f218dfece77ed8ca483c3",
+    "bytes": 1567284
+  },
+  {
+    "privateEvidenceAlias": "resume-trial.jsonl",
+    "sha256": "df43914f1c02a0223a72e03c85880046ee554db3de82bd8523d0116420aa47c0",
+    "bytes": 438
+  }
+]
