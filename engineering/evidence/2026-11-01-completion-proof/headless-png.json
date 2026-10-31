@@ -1,0 +1,60 @@
+{
+  "sourceSHA256": "3571d0d3f8a527fa751c7dfa2aa8d45b0f7153fda0fa2c035c657885f487d78c",
+  "browser": "151.0.7922.34",
+  "driver": "1.62.1",
+  "scope": "headless synthetic DOM with real PNG decoder and sRGB canvas; not live ChatGPT, transport or original server bytes",
+  "cases": [
+    {
+      "name": "old encoding gate reproduces missing proof",
+      "result": "PASS",
+      "observation": "inputTriggered",
+      "originalBytes": 1152567,
+      "previewBytes": 10082998,
+      "counts": {
+        "change": 1,
+        "send": 0,
+        "oversizedDecode": 0
+      },
+      "network": "intercepted synthetic document only"
+    },
+    {
+      "name": "expanded PNG exact same dimensions and pixels",
+      "result": "PASS",
+      "observation": "attached",
+      "originalBytes": 1152567,
+      "previewBytes": 10082998,
+      "counts": {
+        "change": 1,
+        "send": 0,
+        "oversizedDecode": 0
+      },
+      "network": "intercepted synthetic document only"
+    },
+    {
+      "name": "one visible channel changed",
+      "result": "PASS",
+      "observation": "invalidated",
+      "originalBytes": 1152567,
+      "previewBytes": 10082998,
+      "counts": {
+        "change": 1,
+        "send": 0,
+        "oversizedDecode": 0
+      },
+      "network": "intercepted synthetic document only"
+    },
+    {
+      "name": "smaller preview cannot prove original",
+      "result": "PASS",
+      "observation": "invalidated",
+      "originalBytes": 1152567,
+      "previewBytes": 2521143,
+      "counts": {
+        "change": 1,
+        "send": 0,
+        "oversizedDecode": 0
+      },
+      "network": "intercepted synthetic document only"
+    }
+  ]
+}

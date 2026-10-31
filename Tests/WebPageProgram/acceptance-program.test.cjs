@@ -206,6 +206,70 @@ test('observed PNG re-encoding can match exact sRGB RGBA; a mismatched preview c
   assert.equal(g.observe(bad).state,'invalidated');
 });
 
+// The DOM fixture models pixels, not a real PNG decoder or a ChatGPT server.
+// Oversized encoded previews must not allocate another base64 byte copy.
+const expandedPreview = () => Buffer.alloc(8 * 1024 * 1024 + 128, 19);
+test('same-size re-encoded preview above byte-copy cap uses exact bounded pixels, never oversized atob', async () => {
+  const f=fixture(),op=f.bind();f.stage(op);f.commit(op);await f.settle();
+  f.context.atob=()=>assert.fail('oversized preview must not be decoded as bytes');
+  const v=f.makeCard(op);f.finish(v,expandedPreview());await f.settle();
+  assert.equal(f.observe(op).state,'attached');assert.equal(f.input.inputCount,1);
+  assert.throws(()=>f.commit(op),/COMMIT_REFUSED/);
+});
+
+for (const defect of ['one-channel','scaled','too-many-pixels','bad-dimensions','decode-error']) {
+  test('expanded preview cannot complete with '+defect, async () => {
+    const f=fixture(),op=f.bind();f.stage(op);f.commit(op);await f.settle();const v=f.makeCard(op);
+    f.context.atob=()=>assert.fail('oversized preview byte decode');
+    if(defect==='one-channel')v.image.rgba=new Uint8Array([13,20,30,255,40,50,60,255]);
+    if(defect==='scaled')v.image.naturalWidth=1;
+    if(defect==='too-many-pixels'){v.image.naturalWidth=4097;v.image.naturalHeight=4096;}
+    if(defect==='bad-dimensions')v.image.naturalWidth=NaN;
+    if(defect==='decode-error')f.context.Image=class { set src(value){queueMicrotask(()=>this.onerror());} };
+    f.finish(v,expandedPreview());await f.settle();
+    assert.notEqual(f.observe(op).state,'attached');assert.equal(f.observe(op).exactImageIdentity,false);
+    assert.equal(f.observe(op).automaticRetryExcluded,false);assert.equal(f.input.inputCount,1);
+  });
+}
+
+for(const change of ['same-name','source','repeat-load','late-error','draft','process','attempt']) {
+  test('expanded pixel proof cannot outlive original '+change, async () => {
+    const f=fixture(),op=f.bind();f.stage(op);f.commit(op);await f.settle();const v=f.makeCard(op);
+    const digest=f.context.crypto.subtle.digest;let release;
+    const gate=new Promise(resolve=>{release=resolve;});
+    f.context.crypto.subtle.digest=async(...args)=>{await gate;return digest(...args);};
+    f.finish(v,expandedPreview());
+    if(change==='same-name')f.makeCard(op);
+    if(change==='source'){v.image.src='data:image/png;base64,AAAA';f.mutate([{type:'attributes',target:v.image,attributeName:'src'}]);}
+    if(change==='repeat-load')f.documentEvent('load',v.image);
+    if(change==='late-error'){v.card.attrs['data-state']='error';f.mutate([]);}
+    if(change==='draft')f.context.location.href='https://chatgpt.com/c/another-draft';
+    release();await f.settle();
+    if(change==='process'){
+      const call=vm.runInContext('('+source+')',f.context);
+      assert.equal(call(op.command('observe'),{...native,sessionID:'other-process'}).observation.state,'invalidated');
+    }else if(change==='attempt'){
+      assert.equal(f.call({...op.command('observe'),identity:{...op.identity,attempt:2}}).observation.state,'invalidated');
+    }else assert.notEqual(f.observe(op).state,'attached');
+    assert.equal(f.input.inputCount,1);
+  });
+}
+
+test('installing updated caller never upgrades a retained old observer or reinputs its UNKNOWN', async () => {
+  const guard="if (!/^data:image\\/png;base64,/.test(source)) return;";
+  assert.equal(source.split(guard).length,2);
+  const oldGuard=source.replace(guard,"if (!/^data:image\\/png;base64,/.test(source) || source.length > Math.ceil(MAX_BYTES * 4 / 3) + 64) return;");
+  const f=fixture({programSource:oldGuard}),op=f.bind();f.stage(op);f.commit(op);await f.settle();
+  const v=f.makeCard(op);f.finish(v,expandedPreview());await f.settle();
+  const registry=f.context.__riftletWebAcceptance20261027v13,state=registry.head,sample=state.sample;
+  const record=state.operations.get(op.identity.operationID);
+  assert.equal(record.proof,null);
+  const updated=vm.runInContext('('+source+')',f.context);
+  assert.notEqual(updated(op.command('observe'),native).observation.state,'attached');
+  assert.equal(state.sample,sample);assert.equal(record.proof,null);assert.equal(f.input.inputCount,1);
+  assert.throws(()=>updated({...op.command('commit'),chunkIndex:1},native),/COMMIT_REFUSED/);
+});
+
 test('missing progress, hundred-percent only and another card completion cannot prove ATTACHED', async () => {
   const f=fixture(),a=f.bind();f.stage(a);f.commit(a);await f.settle();const av=f.makeCard(a);
   av.progress.attrs['aria-valuenow']='100';f.mutate([]);assert.notEqual(f.observe(a).state,'attached');
