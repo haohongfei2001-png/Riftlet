@@ -297,6 +297,7 @@ private final class ScreenshotEntryRailView: NSView {
 /// geometry and editing. A completed screenshot never closes this rail.
 @MainActor
 public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
+    public var onGeometryChange: (() -> Void)?
     public var onBegin: ((ScreenshotMode) -> Void)?
     public var onMode: ((ScreenshotMode) -> Void)?
     public var onCancel: (() -> Void)?
@@ -336,6 +337,8 @@ public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
     private var localMonitor: Any?
     private var accessibilityObserver: NSObjectProtocol?
     private var frameTimer: Timer?
+    private var requestedAnchor: CGPoint?
+    private var pendingGeometry: (NSScreen?, CGPoint?, [CGRect], ScreenshotEntryConfiguration?)?
     private var pressedSlot: ScreenshotEntrySlot?
     private var suppressionStarted: TimeInterval?
     private var menu: NSMenu?
@@ -367,6 +370,13 @@ public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
             view.onPress = { [weak self] pressed in
                 guard let self, !self.closed, self.isEnabled else { return }
                 self.pressedSlot = pressed ? slot : nil
+                if !pressed {
+                    Task { @MainActor [weak self] in
+                        guard let self, !self.closed, !self.isHidden, self.pressedSlot == nil, let pending = self.pendingGeometry else { return }
+                        self.pendingGeometry = nil
+                        self.configure(screen: pending.0, anchor: pending.1, queueFrames: pending.2, configuration: pending.3)
+                    }
+                }
                 self.requestFrame()
             }
             view.onInvoke = { [weak self] in self?.perform(slot: slot) }
@@ -465,6 +475,12 @@ public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
                           queueFrames: [CGRect] = [],
                           configuration: ScreenshotEntryConfiguration? = nil) {
         guard !closed else { return }
+        guard pressedSlot == nil else {
+            pendingGeometry = (screen, anchor, queueFrames, configuration)
+            return
+        }
+        pendingGeometry = nil
+        requestedAnchor = anchor
         if let configuration { self.configuration = configuration.validated }
         suppliedScreen = screen
         self.queueFrames = queueFrames.filter {
@@ -472,8 +488,10 @@ public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
                 && [$0.minX, $0.minY, $0.width, $0.height].allSatisfy { $0.isFinite }
         }
         layout = screen.flatMap {
-            ScreenshotEntryLayout.make(screenFrame: $0.frame, visibleFrame: $0.visibleFrame,
-                                       anchor: anchor, configuration: self.configuration)
+            ScreenshotEntryLayout.avoidingInputs(screenFrame: $0.frame, visibleFrame: $0.visibleFrame,
+                                       anchor: anchor ?? CGPoint(x: $0.frame.maxX - self.configuration.anchorRightInset,
+                                                                 y: $0.frame.maxY - self.configuration.anchorFromTop),
+                                       inputs: self.queueFrames, configuration: self.configuration, expanded: self.session.isExpanded)
         }
         if let layout {
             decoration.setFrame(layout.visualWindowFrame, display: true)
@@ -484,6 +502,7 @@ public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
         reconcileObservation()
         observePointer()
         requestFrame()
+        onGeometryChange?()
     }
 
     /// Changing this preference never changes the running session or its slots.
@@ -506,6 +525,7 @@ public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
         isBusy = false
         if expanded { options = initialOptions }
         pressedSlot = nil
+        configure(screen: suppliedScreen, anchor: requestedAnchor, queueFrames: queueFrames)
         if !expanded {
             setCapturePresentation(nil)
             closePreferences()
@@ -534,6 +554,7 @@ public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
         guard !closed, hidden != isHidden else { return }
         isHidden = hidden
         if hidden {
+            pendingGeometry = nil
             setCapturePresentation(nil)
             inputs.forEach { $0.view.releasePress() }
             closePreferences(); orderOut()
@@ -642,6 +663,7 @@ public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
     public func close() {
         guard !closed else { return }
         closed = true
+        pendingGeometry = nil
         isEnabled = false
         capturePresentation = nil; captureStatusText = nil
         closePreferences()
@@ -771,13 +793,21 @@ public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
               let text = captureStatusText, let layout, let screen = suppliedScreen else {
             captureStatusPanel.orderOut(nil); return
         }
-        // Stay to the left of every real queue/entry input island. A narrow
-        // desktop falls back to the X's AX help instead of obscuring controls.
+        // Use the inward free column on either edge. A left-side queue must
+        // not reuse the old right-only status rectangle over its controls.
         let safe = screen.visibleFrame.insetBy(dx: 12, dy: 12)
-        let leading = (queueFrames + layout.controlFrames).map(\.minX).min() ?? safe.maxX
-        let right = min(safe.maxX, leading - 12)
-        let width = min(CGFloat(240), right - safe.minX)
+        let obstacles = queueFrames + layout.controlFrames
+        let leading = obstacles.map(\.minX).min() ?? safe.maxX
+        let trailing = obstacles.map(\.maxX).max() ?? safe.minX
+        let leftEnd = min(safe.maxX, leading - 12)
+        let rightStart = max(safe.minX, trailing + 12)
+        let leftWidth = min(CGFloat(240),leftEnd - safe.minX)
+        let rightWidth = min(CGFloat(240),safe.maxX - rightStart)
+        let preferRight = layout.anchor.x < safe.midX
+        let useRight = preferRight ? rightWidth >= 144 : leftWidth < 144 && rightWidth >= 144
+        let width = useRight ? rightWidth : leftWidth
         guard width >= 144 else { captureStatusPanel.orderOut(nil); return }
+        let x = useRight ? rightStart : leftEnd - width
         let paragraph = NSMutableParagraphStyle()
         paragraph.minimumLineHeight = 18; paragraph.maximumLineHeight = 18
         paragraph.lineBreakMode = .byWordWrapping
@@ -789,7 +819,7 @@ public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
         let height = ceil(max(18, measured)) + 24
         guard height <= safe.height else { captureStatusPanel.orderOut(nil); return }
         let y = max(safe.minY, min(layout.anchor.y - height / 2, safe.maxY - height))
-        captureStatusPanel.setFrame(CGRect(x: right - width, y: y, width: width, height: height), display: true)
+        captureStatusPanel.setFrame(CGRect(x: x, y: y, width: width, height: height), display: true)
         captureStatusLabel.attributedStringValue = attributed
         captureStatusLabel.frame = CGRect(x: 12, y: 12, width: width - 24, height: height - 24)
         if !captureStatusPanel.isVisible { captureStatusPanel.orderFrontRegardless() }

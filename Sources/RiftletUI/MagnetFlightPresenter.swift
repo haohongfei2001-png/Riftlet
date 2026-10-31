@@ -232,9 +232,9 @@ public final class MagnetFlightPresenter {
         // Use actual native window coordinates, preserving a fractional edge if
         // WindowServer rounds the transparent panel's outer rectangle.
         clipMask.frame = root.bounds
-        let clip = CGRect(x: plan.screenFrame.minX - panel.frame.minX,
+        let clip = CGRect(x: (plan.leftSide ? plan.clippingEdgeX : plan.screenFrame.minX) - panel.frame.minX,
                           y: plan.screenFrame.minY - panel.frame.minY,
-                          width: plan.clippingEdgeX - plan.screenFrame.minX,
+                          width: plan.leftSide ? plan.screenFrame.maxX - plan.clippingEdgeX : plan.clippingEdgeX - plan.screenFrame.minX,
                           height: plan.screenFrame.height)
         clipMask.path = CGPath(rect: clip, transform: nil)
         clipMask.fillColor = NSColor.black.cgColor

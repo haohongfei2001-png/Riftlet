@@ -497,6 +497,12 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
                     try await Task.sleep(nanoseconds: 700_000_000)
                     try await self.visualWindows?.prepareEvidencePage()
                     if CommandLine.arguments.contains("--visual-last-page") { self.rift?.showLatest() }
+                    if let i = CommandLine.arguments.firstIndex(of: "--r2-page"), i + 1 < CommandLine.arguments.count,
+                       let page = Int(CommandLine.arguments[i + 1]), page >= 0, page <= 16,
+                       let rift = self.rift {
+                        let offset = page * rift.configuration.visibleCountPreference
+                        if self.records.indices.contains(offset) { rift.showAsset(self.records[offset].id) }
+                    }
                     if let index = CommandLine.arguments.firstIndex(of: "--visual-preview-index"),
                        index + 1 < CommandLine.arguments.count,
                        let ordinal = Int(CommandLine.arguments[index + 1]),
@@ -546,6 +552,15 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
            }) { configuration.preferredDisplayID = id }
         if arguments.contains("--probe-compact") { configuration.fitWidth = 48; configuration.fitHeight = 32 }
         if arguments.contains("--probe-large") { configuration.fitWidth = 128; configuration.fitHeight = 96; configuration.rowPitch = 100 }
+        func argument(_ name: String) -> String? {
+            guard let i = arguments.firstIndex(of: name), i + 1 < arguments.count else { return nil }
+            return arguments[i + 1]
+        }
+        if let raw = argument("--r2-occlusion"), let value = Double(raw) { configuration.hiddenFraction = value }
+        if let raw = argument("--r2-inset"), let value = Double(raw) { configuration.outerInset = value }
+        if let raw = argument("--r2-capacity"), let value = Int(raw) { configuration.visibleCountPreference = value }
+        if let raw = argument("--r2-placement"), let value = RiftPlacement(rawValue: raw) { configuration.placement = value }
+        do { try configuration.validate() } catch { record("invalid_visual_configuration"); return }
         let reduceOverride: (() -> Bool)? = arguments.contains("--visual-reduced-motion") ? { true } : nil
         rift = RiftPanelController(mediaDirectory: mediaRoot, configuration: configuration,
             arrivalMode: visualArrival ? .magnet : .none, reduceMotionOverride: reduceOverride,
@@ -631,11 +646,8 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
 
     private func updateEntryGeometry() {
         guard let entry = visualEntry, let rift, let screen = rift.preferredScreen else { return }
-        let anchor = CGPoint(x: screen.visibleFrame.maxX - rift.configuration.outerInset - 18,
-                             y: screen.visibleFrame.maxY - rift.configuration.firstCenterFromTop + 66)
-        rift.setCaptureHeaderAnchor(anchor)
-        let queueFrames = rift.diagnosticSnapshot.rows.flatMap { [$0.imageInputFrame, $0.numberInputFrame] }
-        entry.configure(screen: screen, anchor: anchor, queueFrames: queueFrames)
+        entry.configure(screen: screen, anchor: rift.screenshotEntryAnchor,
+                        queueFrames: rift.screenshotEntryExclusionFrames)
     }
 
     private func recordEntryGeometry() {

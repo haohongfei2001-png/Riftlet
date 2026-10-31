@@ -272,11 +272,18 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             try await SystemScreenshotCandidateConfiguration.validateStore(store)
         }
         let configurationURL = root.appendingPathComponent("rift-configuration.json")
-        let configuration: RiftConfiguration
+        var configuration: RiftConfiguration
         if FileManager.default.fileExists(atPath: configurationURL.path) {
             configuration = try JSONDecoder().decode(RiftConfiguration.self, from: Data(contentsOf: configurationURL))
         } else {
             configuration = RiftConfiguration()
+            if let screen = NSScreen.screens.first,
+               let id = (screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.uint32Value {
+                configuration.preferredDisplayID = id
+                if let uuid = CGDisplayCreateUUIDFromDisplayID(id)?.takeRetainedValue() {
+                    configuration.preferredDisplayUUID = CFUUIDCreateString(nil, uuid) as String
+                }
+            }
             let encoder = JSONEncoder(); encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
             try encoder.encode(configuration).write(to: configurationURL, options: [.atomic])
         }
@@ -300,7 +307,8 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 self?.recordArrivalTrace(fields)
             },
             holdsSelectionUntilFinished: true, interactionFence: interactionFence,
-            onRemove: { [weak self] id in self?.removeVisible(id) }) { [weak self] id in
+            onRemove: { [weak self] id in self?.removeVisible(id) },
+            onOpenOriginal: { [weak self] id in self?.openOriginal(id) }) { [weak self] id in
             guard let self else { return }
             let press = self.frozenPress?.id == id ? self.frozenPress : nil
             let frozen = press?.target
@@ -417,6 +425,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             onReveal: { [weak self] id in self?.revealHistory(id) },
             onNextPage: { [weak self] in self?.changeHistoryPage(1) },
             onPreviousPage: { [weak self] in self?.changeHistoryPage(-1) })
+        history?.onPreviewVisibilityChanged = { [weak self] visible in self?.rift?.setDetailPresented(visible) }
         let composition = try ApplicationAttachmentComposition.make(mode: mode, root: root, store: store,
             traceEnabled: CommandLine.arguments.contains("--acceptance-trace"))
         let adapter = composition.adapter
@@ -1313,6 +1322,19 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         Task { await refreshHistory() }
     }
 
+    private func openOriginal(_ id: UUID) {
+        guard let store else { return }
+        screenshotEntry?.cancel()
+        rift?.setDetailPresented(true)
+        Task {
+            do {
+                guard let record = try await store.asset(id: id) else { rift?.setDetailPresented(false); return }
+                guard !terminating else { rift?.setDetailPresented(false); return }
+                history?.openOriginal(entry: RiftHistoryEntry(record: record))
+            } catch { rift?.setDetailPresented(false); showIssue("原图暂不可读取，截图与记录仍保留。") }
+        }
+    }
+
     private func restoreHistory(_ id: UUID) {
         guard let store else { return }
         Task {
@@ -1555,7 +1577,8 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private func settingsSnapshot() -> RiftSettingsSnapshot {
         let displays = NSScreen.screens.compactMap { screen -> RiftSettingsDisplay? in
             guard let id = (screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.uint32Value else { return nil }
-            return RiftSettingsDisplay(id: id, name: screen.localizedName)
+            let uuid = CGDisplayCreateUUIDFromDisplayID(id).map { CFUUIDCreateString(nil, $0.takeRetainedValue()) as String }
+            return RiftSettingsDisplay(id: id, name: screen.localizedName, uuid: uuid)
         }
         return RiftSettingsSnapshot(entryAvailable: screenshotEntry != nil,
             entryEnabled: screenshotEntry?.isEnabled ?? false,
@@ -1564,7 +1587,8 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             arrivalMode: arrivalPreferences?.mode ?? .provisionalFallback,
             hasArrivalSelection: arrivalPreferences?.selectedMode != nil,
             displays: displays, preferredDisplayID: rift?.configuration.preferredDisplayID,
-            archiveAfterHours: lifecycleSettings.archiveAfterSeconds.map { $0 / 3600 })
+            archiveAfterHours: lifecycleSettings.archiveAfterSeconds.map { $0 / 3600 },
+            configuration: rift?.requestedConfiguration ?? .init(), displayRestoreAvailable: rift?.displayRestoreAvailable ?? false)
     }
 
     private func applySettings(_ change: RiftSettingsChange) throws -> RiftSettingsSnapshot {
@@ -1582,13 +1606,29 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             arrivalPreferences = value; arrivalCapture?.cancel(); rift?.setArrivalMode(mode)
         case .preferredDisplay(let displayID):
             guard let rift else { throw CocoaError(.fileWriteUnknown) }
-            var configuration = rift.configuration; configuration.preferredDisplayID = displayID
+            let chosenID = displayID ?? (NSScreen.screens.first?.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.uint32Value
+            var configuration = rift.requestedConfiguration; configuration.preferredDisplayID = chosenID
+            configuration.preferredDisplayUUID = chosenID.flatMap { id in
+                CGDisplayCreateUUIDFromDisplayID(id).map { CFUUIDCreateString(nil, $0.takeRetainedValue()) as String }
+            }
+            configuration.placementSource = .user
             try configuration.validate()
             let encoder = JSONEncoder(); encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
             try encoder.encode(configuration).write(to: root.appendingPathComponent("rift-configuration.json"), options: .atomic)
             cancelSelections(reason: "displayPreferenceChanged"); frozenPress = nil
             screenshotEntry?.cancel(); arrivalCapture?.cancel()
             try rift.updateConfiguration(configuration); screenshotEntry?.configure()
+        case .geometry(let fraction, let inset, let count):
+            guard let rift else { throw CocoaError(.fileWriteUnknown) }
+            var config = rift.requestedConfiguration
+            config.hiddenFraction = fraction; config.outerInset = inset; config.visibleCountPreference = count
+            try persistRiftConfiguration(config, root: root)
+        case .placement(let placement):
+            guard let rift else { throw CocoaError(.fileWriteUnknown) }
+            var config = rift.requestedConfiguration; config.placement = placement; config.placementSource = .user
+            try persistRiftConfiguration(config, root: root)
+        case .restorePreferredDisplay:
+            rift?.restorePreferredDisplay(); screenshotEntry?.configure()
         case .archiveAfterHours(let hours):
             var value = lifecycleSettings
             value.archiveAfterSeconds = hours.map { $0 * 3600 }
@@ -1598,6 +1638,15 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         }
         updateControlTitles()
         return settingsSnapshot()
+    }
+
+    private func persistRiftConfiguration(_ config: RiftConfiguration, root: URL) throws {
+        try config.validate()
+        let encoder = JSONEncoder(); encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        try encoder.encode(config).write(to: root.appendingPathComponent("rift-configuration.json"), options: .atomic)
+        arrivalCapture?.cancel()
+        try rift?.updateConfiguration(config)
+        screenshotEntry?.configure()
     }
 
     private func recordArrivalTrace(_ fields: [String: Any]) {

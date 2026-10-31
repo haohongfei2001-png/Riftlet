@@ -13,6 +13,22 @@ final class MagnetMotionPlanTests: XCTestCase {
                                       clippingEdgeX: 1432, screenFrame: screen, parameters: parameters))
     }
 
+    func testLeftArrivalReflectsGeometryWithoutMirroringContentOrWeakeningSourceGuard() throws {
+        let right = try plan()
+        func mirror(_ r: CGRect) -> CGRect { CGRect(x: screen.minX + screen.maxX - r.maxX, y:r.minY, width:r.width, height:r.height) }
+        let left = try XCTUnwrap(MagnetMotionPlan(sourceRect:mirror(source),targetImageFrame:mirror(destination),clippingEdgeX:8,screenFrame:screen,leftSide:true))
+        for i in 0...100 {
+            let t=right.totalDuration*Double(i)/100
+            let expected=mirror(right.sample(at:t).frame), actual=left.sample(at:t).frame
+            XCTAssertEqual(expected.minX,actual.minX,accuracy:0.000001)
+            XCTAssertEqual(expected.width,actual.width,accuracy:0.000001)
+            XCTAssertEqual(expected.minY,actual.minY,accuracy:0.000001)
+            let visible=left.visibleFrame(at:t)
+            if !visible.isEmpty { XCTAssertGreaterThanOrEqual(visible.minX,8) }
+        }
+        XCTAssertNil(MagnetMotionPlan(sourceRect:source.offsetBy(dx: -2000,dy:0),targetImageFrame:mirror(destination),clippingEdgeX:8,screenFrame:screen,leftSide:true))
+    }
+
     func testOneContinuousImageEndsAtExactLayoutWithFixedOcclusion() throws {
         let p = try plan()
         XCTAssertEqual(p.totalDuration, 0.560, accuracy: 0.000001)

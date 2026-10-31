@@ -44,13 +44,6 @@ final class ScreenshotEntryHost {
         preferences = try ScreenshotEntryPreferences.load(from: preferencesURL)
         let firstInstallation = !FileManager.default.fileExists(atPath: preferencesURL.path)
         if firstInstallation {
-            let adjusted = ScreenshotEntryPreferences.initialLayout(rift.configuration)
-            if adjusted != rift.configuration {
-                try adjusted.validate()
-                let encoder = JSONEncoder(); encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-                try encoder.encode(adjusted).write(to: root.appendingPathComponent("rift-configuration.json"), options: .atomic)
-                try rift.updateConfiguration(adjusted)
-            }
             try savePreferences(preferences, preferencesURL)
         }
         importer = PrivateAssetImporter(privateRoot: root, store: store)
@@ -76,6 +69,10 @@ final class ScreenshotEntryHost {
     }
 
     private func wireCallbacks() {
+        entry.onGeometryChange = { [weak self] in
+            guard let self else { return }
+            self.rift.setExtraPreviewExclusions(self.entry.inputFrames)
+        }
         entry.onBegin = { [weak self] mode in
             guard let self, !self.closed, self.isEnabled, !self.userHidden else { return }
             self.startCapture(mode: mode)
@@ -125,11 +122,9 @@ final class ScreenshotEntryHost {
         guard let screen = rift.preferredScreen else {
             entry.configure(screen: nil); return
         }
-        let placement = ScreenshotEntryPreferences.placement(in: screen.visibleFrame, configuration: rift.configuration)
-        rift.setCaptureHeaderAnchor(placement.queueHeader)
-        guard placement.queueHeader != nil else { entry.configure(screen: nil); return }
-        let queue = rift.diagnosticSnapshot.rows.flatMap { [$0.imageInputFrame, $0.numberInputFrame] }
-        entry.configure(screen: screen, anchor: placement.anchor, queueFrames: queue)
+        guard let anchor = rift.screenshotEntryAnchor else { entry.configure(screen: nil); return }
+        entry.configure(screen: screen, anchor: anchor, queueFrames: rift.screenshotEntryExclusionFrames)
+        rift.setExtraPreviewExclusions(entry.inputFrames)
     }
 
     func beginFromMenu() {
@@ -259,7 +254,7 @@ final class ScreenshotEntryHost {
                     editedPNG: editedData, outputDirectory: directory)
                 guard let self, !self.closed else { return }
                 await self.onChange()
-                self.rift.showLatest(); self.configure()
+                self.configure()
             } catch {
                 guard let self, !self.closed else { return }
                 self.onIssue("截图原文件已保留，暂未加入裂缝。请检查可用存储空间后重试。")
@@ -291,6 +286,7 @@ final class ScreenshotEntryHost {
         screenObserver = nil
         windowCloseObserver = nil
         rift.onGeometryChange = nil
+        entry.onGeometryChange = nil
         entry.close()
     }
 }

@@ -29,12 +29,19 @@ public struct RiftLayoutResult: Equatable, Sendable {
     public let capacity: Int
     public let totalCount: Int
     public var pagerFrame: CGRect = .zero
+    public var earlierArrowFrame: CGRect = .zero
+    public var laterArrowFrame: CGRect = .zero
+    public var cameraAnchor: CGPoint = .zero
     public var hasEarlier: Bool { firstVisibleIndex > 0 }
     public var hasLater: Bool { firstVisibleIndex + rows.count < totalCount }
 }
 
 /// Deterministic geometry, independent of NSWindow and of upload semantics.
 public enum RiftLayout {
+    static func survivingAnchorIndex(previous: [UUID], current: [UUID], fallback: Int) -> Int {
+        previous.lazy.compactMap { current.firstIndex(of: $0) }.first ?? fallback
+    }
+
     /// Arrow paging uses disjoint fixed-capacity pages. An arbitrary in-range
     /// index is still accepted so the existing wheel can browse one row at a time.
     public static func lastPageStart(totalCount: Int, capacity: Int) -> Int {
@@ -44,10 +51,9 @@ public enum RiftLayout {
 
     public static func pageStart(from index: Int, direction: Int, totalCount: Int, capacity: Int) -> Int {
         guard capacity > 0, totalCount > 0 else { return 0 }
-        let bounded = min(max(0, index), lastPageStart(totalCount: totalCount, capacity: capacity))
-        let current = (bounded / capacity) * capacity
-        if direction < 0 { return max(0, bounded == current ? current - capacity : current) }
-        if direction > 0 { return min(lastPageStart(totalCount: totalCount, capacity: capacity), current + capacity) }
+        let bounded = min(max(0, index), max(0, totalCount - 1))
+        if direction < 0 { return max(0, bounded - capacity) }
+        if direction > 0 { return bounded + capacity < totalCount ? bounded + capacity : bounded }
         return bounded
     }
 
@@ -96,23 +102,28 @@ public enum RiftLayout {
         let height = max(c.fitHeight, c.minimumHitHeight)
         // Preserve a genuine empty strip between row windows even for experimental dimensions.
         let pitch = max(c.rowPitch, height + 4)
-        let firstCenter = Double(visibleFrame.maxY) - c.firstCenterFromTop
-        let bottom = Double(visibleFrame.minY) + c.screenPadding
-        let room = firstCenter - bottom - height / 2
-        let unpaged = room >= 0 ? Int(floor(room / pitch)) + 1 : 0
-        let overflow = active.count > unpaged
-        let reserved = overflow ? 28.0 : 0
-        let remaining = room - reserved
-        let capacity = remaining >= 0 ? Int(floor(remaining / pitch)) + 1 : 0
-        let index = min(max(0, firstVisibleIndex), lastPageStart(totalCount: active.count, capacity: capacity))
+        let capacity = visibleFrame.height >= 200
+            ? min(c.visibleCountPreference, Int(floor((visibleFrame.height - 200) / pitch)) + 1) : 0
+        let firstMin = Double(visibleFrame.minY) + Double(max(0, capacity - 1)) * pitch + 76
+        let firstMax = Double(visibleFrame.maxY) - 124
+        let firstCenter: Double
+        switch c.placement?.vertical {
+        case .top: firstCenter = firstMax
+        case .bottom: firstCenter = firstMin
+        case .middle: firstCenter = min(firstMax, max(firstMin, Double(visibleFrame.midY) + Double(max(0, capacity - 1)) * pitch / 2))
+        case nil: firstCenter = Double(visibleFrame.maxY) - c.firstCenterFromTop
+        }
+        let index = active.count <= capacity ? 0 : (firstVisibleIndex >= active.count ? lastPageStart(totalCount: active.count, capacity: capacity) : max(0, firstVisibleIndex))
         let count = min(capacity, max(0, active.count - index))
         let fittedRows = (0..<count).map { offset in
             metrics(for: active[index + offset], ordinal: index + offset + 1, configuration: c)
         }
-        // Fixed plane and first slot: a long queue pages, never lifts the first row.
-        let edgeX = Double(visibleFrame.maxX) - c.outerInset
-        let fitsHorizontally = max(fittedRows.map(\.width).max() ?? 0, overflow ? 112 : 0) <= Double(visibleFrame.width) - c.outerInset
-        let fitsEntry = c.firstCenterFromTop >= 180 && visibleFrame.height >= c.firstCenterFromTop + height / 2 + c.screenPadding
+        let left = c.placement?.side == .left
+        let maximumWidth = max(fittedRows.map(\.width).max() ?? 0, 36)
+        let effectiveInset = min(c.outerInset, max(0, Double(visibleFrame.width) - maximumWidth))
+        let edgeX = Double(visibleFrame.maxX) - effectiveInset
+        let fitsHorizontally = maximumWidth <= Double(visibleFrame.width)
+        let fitsEntry = capacity > 0 && firstCenter + 112 <= visibleFrame.maxY && firstCenter - Double(max(0, capacity - 1)) * pitch - 64 >= visibleFrame.minY
         var rows: [RiftRowLayout] = []
         for (offset, item) in fittedRows.enumerated() where fitsHorizontally && fitsEntry {
             let ordinal = item.ordinal
@@ -137,8 +148,8 @@ public enum RiftLayout {
         }
         let rawLine: CGRect
         if let first = rows.first, let last = rows.last {
-            let top = Double(first.frame.maxY) + c.lineExtension
-            let bottom = Double(last.frame.minY) - c.lineExtension
+            let top = Double(first.frame.minY + first.imageFrame.maxY)
+            let bottom = Double(last.frame.minY + last.imageFrame.minY)
             let scale = backingScale.isFinite && backingScale > 0 ? backingScale : 1
             let lineWidth = highContrast ? 1.0 : 1 / scale
             // Single physical pixel, aligned in the same screen backing space.
@@ -150,13 +161,40 @@ public enum RiftLayout {
             rawLine = .zero
         }
         let line = rawLine.intersection(visibleFrame)
-        let pager = overflow && !rows.isEmpty
-            ? CGRect(x: edgeX - 112, y: firstCenter - Double(max(0, capacity - 1)) * pitch - height / 2 - 28,
-                     width: 112, height: 20) : .zero
-        return RiftLayoutResult(rows: rows, lineFrame: line.isNull ? .zero : line,
+        let up = index > 0 && !rows.isEmpty ? CGRect(x: edgeX - 24, y: firstCenter + 40, width: 24, height: 24) : .zero
+        let down = index + count < active.count && !rows.isEmpty ? CGRect(x: edgeX - 24, y: firstCenter - Double(max(0, capacity - 1)) * pitch - 64, width: 24, height: 24) : .zero
+        func reflected(_ r: CGRect) -> CGRect {
+            guard left, !r.isEmpty else { return r }
+            return CGRect(x: visibleFrame.minX + visibleFrame.maxX - r.maxX, y: r.minY, width: r.width, height: r.height)
+        }
+        if left {
+            rows = rows.map { r in
+                var v = r
+                let width = r.frame.width
+                v = RiftRowLayout(assetID: r.assetID, ordinal: r.ordinal, frame: reflected(r.frame),
+                    imageFrame: CGRect(x: width - r.imageFrame.maxX, y: r.imageFrame.minY, width: r.imageFrame.width, height: r.imageFrame.height),
+                    imageClipFrame: CGRect(x: width - r.imageClipFrame.maxX, y: r.imageClipFrame.minY, width: r.imageClipFrame.width, height: r.imageClipFrame.height),
+                    numberFrame: CGRect(x: width - r.numberFrame.maxX, y: r.numberFrame.minY, width: r.numberFrame.width, height: r.numberFrame.height), numberIsPad: r.numberIsPad)
+                return v
+            }
+        }
+        return RiftLayoutResult(rows: rows, lineFrame: reflected(line.isNull ? .zero : line),
                                 firstVisibleIndex: index, capacity: capacity, totalCount: active.count,
-                                pagerFrame: pager)
+                                pagerFrame: .zero, earlierArrowFrame: reflected(up), laterArrowFrame: reflected(down),
+                                cameraAnchor: CGPoint(x: left ? visibleFrame.minX + effectiveInset + 18 : edgeX - 18, y: firstCenter + 94))
+
     }
+}
+
+/// Presentation-only page entry; no queue identity or transfer authority.
+struct RiftPageTransition: Equatable {
+    let duration: TimeInterval
+    let offsetY: CGFloat
+    init(direction: Int, reduceMotion: Bool) {
+        duration = reduceMotion ? 0.08 : 0.18
+        offsetY = reduceMotion ? 0 : (direction > 0 ? -24 : 24)
+    }
+    func initialFrame(for final: CGRect) -> CGRect { final.offsetBy(dx: 0, dy: offsetY) }
 }
 
 /// Shared across all row windows: a double-click must not select a replacement row.

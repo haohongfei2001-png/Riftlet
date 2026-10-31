@@ -222,7 +222,13 @@ final class HistoryPreviewTests: XCTestCase {
             XCTAssertNotNil(image.image)
             content.layoutSubtreeIfNeeded()
             XCTAssertEqual(image.bounds.size, emptyViewport,
-                "Decoded bitmap dimensions must not change the viewport used to request it")
+                "Decoded bitmap dimensions must not change the viewport used to request it; scroll=\(image.enclosingScrollView?.frame ?? .zero), content=\(image.enclosingScrollView?.contentSize ?? .zero), style=\(image.enclosingScrollView?.scrollerStyle.rawValue ?? -1)")
+            let scroll = try XCTUnwrap(image.enclosingScrollView)
+            XCTAssertFalse(scroll.hasHorizontalScroller); XCTAssertFalse(scroll.hasVerticalScroller)
+            for style in [NSScroller.Style.legacy, .overlay] {
+                scroll.scrollerStyle = style; scroll.tile(); content.layoutSubtreeIfNeeded()
+                XCTAssertEqual(scroll.contentSize,emptyViewport,"Fit mode cannot acquire a late native gutter")
+            }
             XCTAssertTrue(preview.title.contains(String(asset.id.uuidString.prefix(8))))
         }
         XCTAssertEqual(actions, 0)
@@ -280,4 +286,32 @@ final class HistoryPreviewTests: XCTestCase {
         XCTAssertEqual(actions, 0)
         XCTAssertEqual(try Data(contentsOf: directory.appendingPathComponent(assetA.fileName)), bytesB)
     }
+    @MainActor func testExplicitOriginalOutsideHistoryPageHasZoomAndBalancedFence() async throws {
+        _ = NSApplication.shared
+        guard !NSScreen.screens.isEmpty else { throw XCTSkip("AppKit display unavailable") }
+        let (directory,asset) = try fixture(width:1280,height:720)
+        var fence:[Bool]=[]; var actions=0
+        let controller=RiftHistoryController(mediaDirectory:directory,onRestore:{_ in actions += 1},onRemove:{_ in actions += 1},onReveal:{_ in actions += 1})
+        defer {controller.close()}
+        controller.onPreviewVisibilityChanged={fence.append($0)}
+        controller.update(entries:[])
+        controller.openOriginal(entry:.init(record:AssetRecord(image:asset,sequence:1)))
+        XCTAssertFalse(controller.isVisible,"Direct original does not require opening or replacing history page")
+        let panel=try XCTUnwrap(NSApp.windows.first{$0.identifier?.rawValue == "RiftletHistoryPreview" && $0.isVisible})
+        func descendants(_ v:NSView)->[NSView]{[v]+v.subviews.flatMap(descendants)}
+        let content=try XCTUnwrap(panel.contentView)
+        let zoom=try XCTUnwrap(descendants(content).compactMap{$0 as? NSSegmentedControl}.first{$0.identifier?.rawValue == "history.preview.zoom"})
+        let image=try XCTUnwrap(descendants(content).compactMap{$0 as? NSImageView}.first{$0.identifier?.rawValue == "history.preview.image"})
+        for segment in [1,2] {
+            zoom.selectedSegment=segment;_ = zoom.sendAction(zoom.action,to:zoom.target)
+            XCTAssertEqual(image.frame.size,CGSize(width:1280*segment,height:720*segment))
+            let scroll = try XCTUnwrap(image.enclosingScrollView)
+            XCTAssertTrue(scroll.hasHorizontalScroller); XCTAssertTrue(scroll.hasVerticalScroller)
+            let deadline=ProcessInfo.processInfo.systemUptime+2
+            while image.image == nil && ProcessInfo.processInfo.systemUptime<deadline {try await Task.sleep(nanoseconds:20_000_000)}
+            XCTAssertNotNil(image.image)
+        }
+        panel.close();XCTAssertEqual(fence,[true,false]);XCTAssertEqual(actions,0)
+    }
+
 }

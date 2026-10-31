@@ -42,7 +42,7 @@ final class RiftLineView: NSView {
             p.isOpaque = false; p.backgroundColor = .clear; p.hasShadow = false
             p.isReleasedWhenClosed = false; p.hidesOnDeactivate = false; p.level = .floating
             p.collectionBehavior = countPanel.collectionBehavior
-            let b = NSButton(title: index == 0 ? "‹" : "›", target: self, action: #selector(step(_:)))
+            let b = NSButton(title: index == 0 ? "⌃" : "⌄", target: self, action: #selector(step(_:)))
             b.tag = index == 0 ? -1 : 1; b.isBordered = false; b.font = .systemFont(ofSize: 16)
             b.contentTintColor = RiftVisualStyle.secondary
             b.setAccessibilityLabel(index == 0 ? "查看前面的截图" : "查看后面的截图")
@@ -52,17 +52,15 @@ final class RiftLineView: NSView {
     }
     @objc private func step(_ sender: NSButton) { onStep?(sender.tag) }
     func update(_ layout: RiftLayoutResult, hidden: Bool, level: NSWindow.Level) {
-        guard !hidden, !layout.pagerFrame.isEmpty else { hide(); return }
-        let f = layout.pagerFrame
-        count.stringValue = "\(layout.firstVisibleIndex + 1)–\(layout.firstVisibleIndex + layout.rows.count) / \(layout.totalCount)"
-        countPanel.setFrame(CGRect(x: f.minX + 22, y: f.minY + 2, width: f.width - 44, height: 16), display: true)
-        countPanel.level = level; countPanel.orderFrontRegardless()
-        for (i, p) in panels.enumerated() {
-            p.setFrame(CGRect(x: i == 0 ? f.minX : f.maxX - 20, y: f.minY, width: 20, height: 20), display: true)
-            buttons[i].isEnabled = i == 0 ? layout.hasEarlier : layout.hasLater
-            p.level = level; p.orderFrontRegardless()
+        countPanel.orderOut(nil)
+        for (i, panel) in panels.enumerated() {
+            let frame = i == 0 ? layout.earlierArrowFrame : layout.laterArrowFrame
+            guard !hidden, !frame.isEmpty else { panel.orderOut(nil); continue }
+            buttons[i].isEnabled = true
+            panel.setFrame(frame, display: true); panel.level = level; panel.orderFrontRegardless()
         }
     }
+
     func hide() { countPanel.orderOut(nil); panels.forEach { $0.orderOut(nil) } }
     func close() { countPanel.close(); panels.forEach { $0.close() } }
 }
@@ -70,10 +68,16 @@ final class RiftLineView: NSView {
 /// Keep the full preview clear of every visible thumbnail/number input island,
 /// while its vertical position continues to belong to the hovered row.
 enum RiftPeekGeometry {
-    static func frame(imageSize: CGSize, owner: CGRect, visible: CGRect, leadingInputEdge: CGFloat) -> CGRect? {
+    static func frame(imageSize: CGSize, owner: CGRect, visible: CGRect, leadingInputEdge: CGFloat, leftSide: Bool = false) -> CGRect? {
         guard [imageSize.width, imageSize.height, owner.midY, visible.minX, visible.minY,
                visible.maxX, visible.maxY, leadingInputEdge].allSatisfy(\.isFinite),
               imageSize.width > 0, imageSize.height > 0 else { return nil }
+        if leftSide {
+            let mirror = visible.minX + visible.maxX
+            guard let r = frame(imageSize: imageSize, owner: owner, visible: visible,
+                leadingInputEdge: mirror - leadingInputEdge) else { return nil }
+            return CGRect(x: mirror - r.maxX, y: r.minY, width: r.width, height: r.height)
+        }
         let right = min(visible.maxX - 12, leadingInputEdge - 12)
         let availableWidth = right - (visible.minX + 12) - 16
         let availableHeight = visible.height - 24 - 16
@@ -136,7 +140,7 @@ enum RiftPeekGeometry {
             }
         }
     }
-    func schedule(id: UUID, immediate: Bool = false, stillValid: @escaping () -> Bool,
+    func schedule(id: UUID, immediate: Bool = false, leftSide: Bool = false, stillValid: @escaping () -> Bool,
                   load: @escaping (@escaping (CGImage?) -> Void) -> Void,
                   anchor: @escaping () -> (CGRect, CGRect, CGFloat)?) {
         leaveEpoch &+= 1
@@ -149,7 +153,7 @@ enum RiftPeekGeometry {
             load { [weak self] cg in
                 guard let self, self.epoch == token, stillValid(), let cg, let (row, visible, leading) = anchor() else { return }
                 guard let frame = RiftPeekGeometry.frame(imageSize: CGSize(width: cg.width, height: cg.height),
-                    owner: row, visible: visible, leadingInputEdge: leading) else { self.cancel(); return }
+                    owner: row, visible: visible, leadingInputEdge: leading, leftSide: leftSide) else { self.cancel(); return }
                 let size = CGSize(width: frame.width - 16, height: frame.height - 16)
                 self.surface.cornerRadius = 10; self.image.isHidden = false
                 self.panel.setFrame(frame, display: true)
@@ -166,7 +170,7 @@ enum RiftPeekGeometry {
 
     /// Reuses the same pointer-free surface as image peek. The caller owns the
     /// selection/operation identity and validates it again at the deadline.
-    func scheduleNote(id: UUID, text: String, delay: TimeInterval,
+    func scheduleNote(id: UUID, text: String, delay: TimeInterval, leftSide: Bool = false,
                       stillValid: @escaping () -> Bool,
                       anchor: @escaping () -> (CGRect, CGRect, CGFloat)?) {
         if assetID == id, noteText == text { return }
@@ -175,8 +179,8 @@ enum RiftPeekGeometry {
         DispatchQueue.main.asyncAfter(deadline: .now() + max(0, delay)) { [weak self] in
             guard let self, self.epoch == token else { return }
             guard stillValid(), let (row, visible, leading) = anchor() else { self.cancel(); return }
-            let right = min(visible.maxX - 12, leading - 12)
-            let width = min(240, right - visible.minX - 12)
+            let right = leftSide ? visible.maxX - 12 : min(visible.maxX - 12, leading - 12)
+            let width = min(240, leftSide ? right - leading - 12 : right - visible.minX - 12)
             guard width >= 96 else { self.cancel(); return }
             let paragraph = NSMutableParagraphStyle()
             paragraph.lineBreakMode = .byWordWrapping
@@ -191,7 +195,7 @@ enum RiftPeekGeometry {
             let y = max(visible.minY + 12, min(visible.maxY - height - 12, row.midY - height / 2))
             self.surface.cornerRadius = 8; self.image.isHidden = true
             self.note.attributedStringValue = attributed; self.note.isHidden = false
-            self.panel.setFrame(CGRect(x: right - width, y: y, width: width, height: height), display: true)
+            self.panel.setFrame(CGRect(x: leftSide ? leading + 12 : right - width, y: y, width: width, height: height), display: true)
             self.note.frame = CGRect(x: 12, y: 12, width: width - 24, height: height - 24)
             self.surface.needsDisplay = true
             self.panel.alphaValue = 1; self.panel.orderFrontRegardless()

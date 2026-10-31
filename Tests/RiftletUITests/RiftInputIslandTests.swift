@@ -56,7 +56,7 @@ final class RiftInputIslandTests: XCTestCase {
         // region centers and the measured CLEAR point must remain unambiguous.
         XCTAssertTrue(image.frame.contains(CGPoint(x: row.imageClipFrame.midX, y: row.imageClipFrame.midY)))
         XCTAssertTrue(number.frame.contains(CGPoint(x: row.numberFrame.midX, y: row.numberFrame.midY)))
-        let clear = CGPoint(x: row.frame.minX + 1.5, y: row.frame.minY + 2)
+        let clear = CGPoint(x: row.frame.maxX - 1.5, y: row.frame.minY + 2)
         XCTAssertFalse(image.frame.contains(clear)); XCTAssertFalse(number.frame.contains(clear))
         panel.setUserHidden(true)
         XCTAssertFalse(visual.isVisible); XCTAssertFalse(image.isVisible); XCTAssertFalse(number.isVisible)
@@ -86,7 +86,7 @@ final class RiftInputIslandTests: XCTestCase {
         XCTAssertEqual(selected, [asset.id, asset.id])
         XCTAssertEqual(boundaries.last?.windowNumber, number.windowNumber)
         imageView.mouseDown(with: try event(.leftMouseDown, window: image, screen: imagePoint, time: 14))
-        let clear = CGPoint(x: row.frame.minX + 1.5, y: row.frame.minY + 2)
+        let clear = CGPoint(x: row.frame.maxX - 1.5, y: row.frame.minY + 2)
         imageView.mouseUp(with: try event(.leftMouseUp, window: image, screen: clear, time: 14.1))
         XCTAssertEqual(selected.count, 2); XCTAssertFalse(panel.diagnosticSnapshot.isHolding)
         // A double-click cannot turn into an independent new selection.
@@ -122,6 +122,9 @@ final class RiftInputIslandTests: XCTestCase {
         XCTAssertEqual(shiftedImage.frame, after.imageInputFrame)
         XCTAssertTrue(shiftedImage.frame.contains(CGPoint(x: after.imageClipFrame.midX, y: after.imageClipFrame.midY)))
         XCTAssertTrue(shiftedNumber.frame.contains(CGPoint(x: after.numberFrame.midX, y: after.numberFrame.midY)))
+        advanceQuietEdgeRefill(panel)
+        try await Task.sleep(nanoseconds: 50_000_000)
+        // The deferred configuration is applied only after the same safe boundary.
         let oldWindows = [shiftedImage, shiftedNumber, try window(after.windowNumber)]
         var config = panel.configuration; config.fitWidth += 5
         try panel.updateConfiguration(config)

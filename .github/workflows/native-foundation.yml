@@ -232,6 +232,13 @@ jobs:
           python3 -B scripts/capture-supplemental-native-visual-evidence.py --self-check 2>&1 | tee test-results/native-visual-supplemental-self-check.log
           riftlet_bin_dir="$(swift build -c release --show-bin-path)"
           python3 -B scripts/capture-supplemental-native-visual-evidence.py --helper "$riftlet_bin_dir/RiftletGUIAcceptance" --expected-system-accessibility normal --output "$PWD/test-results/native-visual-supplemental" 2>&1 | tee test-results/native-visual-supplemental.log
+      - name: Capture Quiet Edge R2 native geometry
+        env:
+          RIFTLET_BUILD_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -o pipefail
+          riftlet_bin_dir="$(swift build -c release --show-bin-path)"
+          python3 -B scripts/capture-quiet-edge-r2-evidence.py --helper "$riftlet_bin_dir/RiftletGUIAcceptance" --output "$PWD/test-results/quiet-edge-r2"
       - name: Capture bounded actual system accessibility variants
         env:
           RIFTLET_BUILD_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}

@@ -20,6 +20,7 @@ final class RiftCapturePresentationTests: XCTestCase {
         _ = NSApplication.shared
         guard !NSScreen.screens.isEmpty else { throw XCTSkip("No AppKit display") }
         var configuration = RiftConfiguration()
+        configuration.placement = .rightMiddle
         configuration.fitHeight = 48; configuration.rowPitch = 62
         configuration.outerInset = 14; configuration.firstCenterFromTop = 332
         configuration.arrivalDuration = 0.01
@@ -27,22 +28,21 @@ final class RiftCapturePresentationTests: XCTestCase {
                                    configuration: configuration, reduceMotionOverride: { false }, onSelect: { _ in })
     }
 
-    @MainActor func testLongQueueNeverReflowsUpIntoTheCaptureEntry() throws {
+    @MainActor func testCaptureHeaderNeverMovesQueueOrExtendsItsLine() throws {
         let controller = try controller(); defer { controller.close() }
         let frame = try XCTUnwrap(controller.preferredScreen).visibleFrame
-        let anchor = CGPoint(x: frame.maxX - 32, y: max(frame.minY + 150, frame.maxY - 246))
+        let input = records(80); controller.render(input)
+        let before = controller.diagnosticSnapshot
+        let anchor = CGPoint(x: frame.maxX - 32, y: frame.maxY - 246)
         controller.setCaptureHeaderAnchor(anchor)
-        let input = records(80)
-        controller.render(input)
-        XCTAssertFalse(controller.diagnosticSnapshot.rows.isEmpty)
-        for row in controller.diagnosticSnapshot.rows {
-            XCTAssertLessThanOrEqual(row.frame.maxY, anchor.y - 62 + 1)
-            XCTAssertTrue(frame.contains(row.frame))
-        }
+        XCTAssertEqual(controller.diagnosticSnapshot.rows.map(\.frame),before.rows.map(\.frame))
+        XCTAssertEqual(controller.diagnosticSnapshot.lineFrame,before.lineFrame)
+        XCTAssertEqual(before.rows.count,3)
         controller.showLatest()
-        XCTAssertEqual(controller.diagnosticSnapshot.rows.last?.assetID, input.last?.id)
-        XCTAssertTrue(controller.diagnosticSnapshot.rows.allSatisfy { $0.frame.maxY <= anchor.y - 61 })
-        XCTAssertGreaterThanOrEqual(controller.diagnosticSnapshot.lineFrame.maxY, anchor.y + 17)
+        XCTAssertEqual(controller.diagnosticSnapshot.rows.last?.assetID,input.last?.id)
+        XCTAssertTrue(controller.diagnosticSnapshot.rows.allSatisfy { frame.contains($0.frame) })
+        let last = try XCTUnwrap(controller.diagnosticSnapshot.rows.last)
+        XCTAssertGreaterThanOrEqual(controller.diagnosticSnapshot.lineFrame.minY,last.frame.minY)
     }
 
     @MainActor func testExposureSuppressionRetainsRowsAndUserHideWinsOverRestore() throws {
@@ -68,6 +68,19 @@ final class RiftCapturePresentationTests: XCTestCase {
         XCTAssertTrue(controller.diagnosticSnapshot.rows.isEmpty)
         controller.setUserHidden(false)
         XCTAssertEqual(controller.diagnosticSnapshot.rows.count, 3)
+    }
+
+    @MainActor func testIndependentCameraHasAnchorBeforeFirstQueueRender() throws {
+        let controller = try controller(); defer { controller.close() }
+        let frame = try XCTUnwrap(controller.preferredScreen).visibleFrame
+        let anchor = try XCTUnwrap(controller.screenshotEntryAnchor)
+        XCTAssertTrue(frame.contains(anchor))
+        XCTAssertTrue(controller.diagnosticSnapshot.rows.isEmpty)
+        XCTAssertEqual(controller.diagnosticSnapshot.lineFrame, .zero)
+        controller.render([])
+        XCTAssertEqual(controller.screenshotEntryAnchor, anchor)
+        controller.close()
+        XCTAssertNil(controller.screenshotEntryAnchor)
     }
 
     @MainActor func testEmptyQueueNeverDrawsALineEvenWithCaptureHeader() throws {

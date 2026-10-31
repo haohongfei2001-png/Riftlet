@@ -32,6 +32,21 @@ final class MagnetFlightPresenterTests: XCTestCase {
         return (plan, try XCTUnwrap(context.makeImage()), screen.backingScaleFactor)
     }
 
+    @MainActor func testActualLeftFlightLayerMaskClipsTheCorrectHalfPlane() throws {
+        let (right,image,scale)=try fixture()
+        let axis=right.screenFrame.minX+right.screenFrame.maxX
+        func mirror(_ r:CGRect)->CGRect { CGRect(x:axis-r.maxX,y:r.minY,width:r.width,height:r.height) }
+        let left=try XCTUnwrap(MagnetMotionPlan(sourceRect:mirror(right.sourceRect),targetImageFrame:mirror(right.finalFrame),clippingEdgeX:axis-right.clippingEdgeX,screenFrame:right.screenFrame,leftSide:true))
+        let presenter=MagnetFlightPresenter();defer{presenter.close()}
+        XCTAssertTrue(presenter.start(assetID:UUID(),image:image,plan:left,backingScale:scale){_ in})
+        let window=try XCTUnwrap(NSApp.windows.first{$0.windowNumber==presenter.diagnostics.windowNumber})
+        let mask=try XCTUnwrap(window.contentView?.layer?.mask as? CAShapeLayer)
+        let bounds=try XCTUnwrap(mask.path).boundingBoxOfPath
+        XCTAssertEqual(bounds.minX+window.frame.minX,left.clippingEdgeX,accuracy:0.001)
+        XCTAssertEqual(bounds.maxX+window.frame.minX,left.screenFrame.maxX,accuracy:0.001)
+        XCTAssertGreaterThan(bounds.width,0)
+    }
+
     @MainActor func testDecorationOwnsOneMouseTransparentNonactivatingWindowAndReleasesSynchronously() throws {
         let (plan, image, scale) = try fixture()
         let presenter = MagnetFlightPresenter()

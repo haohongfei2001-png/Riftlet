@@ -37,35 +37,6 @@ final class ScreenshotEntryIntegrationTests: XCTestCase {
         XCTAssertThrowsError(try ScreenshotEntryPreferences.load(from: url))
     }
 
-    func testOnlyUntouchedLegacyPlacementAdoptsTheReferenceSpacing() {
-        var old = RiftConfiguration(); old.preferredDisplayID = 42; old.outerInset = 8; old.firstCenterFromTop = 180
-        let migrated = ScreenshotEntryPreferences.initialLayout(old)
-        XCTAssertEqual(migrated.fitWidth, 72); XCTAssertEqual(migrated.fitHeight, 56)
-        XCTAssertEqual(migrated.rowPitch, 60); XCTAssertEqual(migrated.firstCenterFromTop, 202)
-        XCTAssertEqual(migrated.outerInset, 14); XCTAssertEqual(migrated.preferredDisplayID, 42)
-        var custom = old; custom.firstCenterFromTop = 214
-        XCTAssertEqual(ScreenshotEntryPreferences.initialLayout(custom), custom)
-        var customGap = old; customGap.numberGap = 17
-        XCTAssertEqual(ScreenshotEntryPreferences.initialLayout(customGap).numberGap, 17,
-                       "First capture setup must preserve a separately customized number gap")
-        XCTAssertEqual(ScreenshotEntryPreferences.initialLayout(migrated), migrated)
-    }
-
-    func testEntryAndQueueShareFixedPlaneAndShortDisplaysDoNotRelocate() {
-        let config = RiftConfiguration()
-        let frame = CGRect(x: -1440, y: -100, width: 1440, height: 900)
-        let placement = ScreenshotEntryPreferences.placement(in: frame, configuration: config)
-        XCTAssertNotNil(placement.queueHeader)
-        XCTAssertEqual(placement.anchor.x, frame.maxX - 14 - 18)
-        XCTAssertEqual(placement.anchor.y, frame.maxY - 202 + 66)
-        let short = CGRect(x: 0, y: 0, width: 900, height: 140)
-        let fallback = ScreenshotEntryPreferences.placement(in: short, configuration: config)
-        XCTAssertNil(fallback.queueHeader, "A very short display hides the edge entry instead of relocating it")
-        XCTAssertEqual(fallback.anchor.x, short.maxX - 14 - 18)
-        var custom = config; custom.firstCenterFromTop = 2000
-        XCTAssertNil(ScreenshotEntryPreferences.placement(in: frame, configuration: custom).queueHeader)
-    }
-
     func testRealApplicationImageCanSurviveCandidateRestartWithoutBeingAdmitted() async throws {
         let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: root) }

@@ -58,6 +58,12 @@ final class AcceptanceWindowScenes {
                     case .defaultCaptureMode(let mode): self.settingsFixture.defaultCaptureMode = mode
                     case .arrivalMode(let mode):
                         self.settingsFixture.arrivalMode = mode; self.settingsFixture.hasArrivalSelection = true
+                    case .geometry(let hidden, let inset, let count):
+                        self.settingsFixture.configuration.hiddenFraction = hidden
+                        self.settingsFixture.configuration.outerInset = inset
+                        self.settingsFixture.configuration.visibleCountPreference = count
+                    case .placement(let placement): self.settingsFixture.configuration.placement = placement
+                    case .restorePreferredDisplay: self.settingsFixture.displayRestoreAvailable = false
                     case .preferredDisplay(let id): self.settingsFixture.preferredDisplayID = id
                     case .archiveAfterHours(let hours): self.settingsFixture.archiveAfterHours = hours
                     }
