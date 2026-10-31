@@ -1,0 +1,42 @@
+{
+  "runtimeSource": "307335f6f1511fc49d57275ab19cf9c55496ba5a",
+  "newOperations": 0,
+  "newUploadStarts": 0,
+  "newCheckpoints": 0,
+  "retainedAssets": 29,
+  "retainedOperations": 9,
+  "retainedUploadStarts": 5,
+  "retainedCheckpoints": 46,
+  "protectedFilesUnchanged": 58,
+  "ownedAppExited": true,
+  "statuses": {
+    "naturalColdNoPriorACK": "NOT_RUN",
+    "unprovedEventSafelyRefused": "MAC_PASS_LIMITED",
+    "unfocusedOldAttachmentBaseline": "MAC_PASS_BASELINE_ONLY",
+    "unfocusedAttachmentCompletion": "NOT_RUN",
+    "physicalMouse": "NOT_RUN",
+    "continuousNewScreenshots": "NOT_RUN",
+    "production": "NO_GO"
+  },
+  "physicalIntervals": {
+    "count": 2,
+    "targetMouseDownUp": 0,
+    "humanConfirmationReceived": false,
+    "newInput": 0
+  },
+  "files": {
+    "cold-native-events": "b05986182f2b3bf5878d0affc577f8227419e89f3acda89d133fe273b93b8d03",
+    "cold-click": "783dce7a26c6095872ea1cbed8ead25c6027920b283c454fb397c6ca55947bb3",
+    "cold-app-trace": "8f5394f6e605bad5ce20ca22a90506fa483b3a808f69b869d83a148dbe622277",
+    "cold-review": "41ee39a794faeb1a67525dbd93b261dd169411016e40247f849735a1b4458830",
+    "physical-mouse-first": "9e30e501e85a4966d29dbf1781f76bea468bddead7f67aee02bcd6337c7c1dc0",
+    "physical-mouse-extension": "4961ba468a6e3467b31b5fb07fa37c307df83e441f27476004f591705d8b8503",
+    "physical-readonly-first": "192352573b3a0ca5082961936466a1398cc566844c76203f50d5efde4498acc2",
+    "physical-readonly-extension": "c3dbf14807b8dfaa57f0e3cedf6a5d0837224e5ae3dd23edc49b09fb167681db",
+    "physical-final-state": "fc22ee5fe867627a42e3c31b5ee2a6c955287779575d3a61eb964f740f84d344",
+    "cross-root-exclusion": "544bff0866a4a51ecd42ac4664263d7f22b4bc4078e1528fc4caff1cce4fa80a",
+    "preservation": "90fb338ea5ad683d57e8b6c536e6dc27eafb71e1de8794c62b8865ba03779179",
+    "final-sqlite": "5923f1440f3e4d9060155bf862ed055304d4eac09410267bde2ef4d65cfe59fe"
+  },
+  "scope": "Initial cold component and first two listener intervals only; see resumed-result.json for later input"
+}

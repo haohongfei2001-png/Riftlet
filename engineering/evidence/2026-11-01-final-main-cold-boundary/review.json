@@ -1,0 +1,8 @@
+{
+  "reviewer": "final_acceptance_review",
+  "result": "PASS_LIMITED_EVIDENCE",
+  "privateReviewSHA256": "064dedc6667ac24dc23fcd71ea4e13105ce9ae8141a1bb7bf2fd5101286e2adf",
+  "scope": "Source branch and causal trace, one real input/completion, existing attachment preservation, pre-input qualification failure, privacy, SQLite/media preservation",
+  "productSourceChanged": false,
+  "production": "NO_GO"
+}
