@@ -1,0 +1,3321 @@
+{
+  "schemaVersion": 1,
+  "status": "PR1_MERGED_GOVERNANCE_SOURCE_AWAITING_EXACT_COMMIT_REVIEW_AND_FORMAL_CI",
+  "pr1Merge": "58f894af0f5d9bb0250c1e41750528232696b60c",
+  "pr1Head": "253ac8db92bfba9083d485b71b84c594223da217",
+  "oldMain": "fccd809e9d55e0b221e75e6dcd7c21f6d357ee74",
+  "tree": "d7a16bf0d5550c3d54972d6fd4ac7c74133167eb",
+  "reports": {
+    "premergeSourceAndPrivacy": {
+      "fileName": "premerge-independent-review.json",
+      "bytes": 22232,
+      "sha256": "5776c3e1991fa89bb892271f98bff418809e0d3b11845661e2aff5e22193e37d",
+      "report": {
+        "schemaVersion": 1,
+        "createdUTC": "2026-10-31T09:27:05.137773+00:00",
+        "reviewer": "/root/premerge_audit — independent non-author read-only merge preflight",
+        "decision": "PASS_FOR_EXACT_STANDARD_PR1_MERGE",
+        "blockingFindings": [],
+        "identity": {
+          "head": "253ac8db92bfba9083d485b71b84c594223da217",
+          "tree": "868d6ddf83ade781cab67dc2bd39e2189168c0a8",
+          "reviewedSource": "1c1ed6051d6fbc984d3e9e2071b741f1f1805f32",
+          "reviewedTree": "5f07fe7cedfbfa08cca21740c97fd5bcaf18535f",
+          "checkout": "a589d1bddcb387fd45e71522265a811d4caacdc3",
+          "checkoutTree": "d7a16bf0d5550c3d54972d6fd4ac7c74133167eb",
+          "parents": [
+            "fccd809e9d55e0b221e75e6dcd7c21f6d357ee74",
+            "253ac8db92bfba9083d485b71b84c594223da217"
+          ],
+          "main": "fccd809e9d55e0b221e75e6dcd7c21f6d357ee74"
+        },
+        "sourceObjects": {
+          "mergeFileCount": 1030,
+          "regularModes": {
+            "100644": 1027,
+            "100755": 3
+          },
+          "symlinkOrSubmoduleEntries": 0,
+          "officialHeadToMergeDelta": 28,
+          "all28DeltaObjectsEqualApprovedMain": true,
+          "allOtherOfficialHeadObjectsAndModesExact": true,
+          "buildInputComparison": [
+            {
+              "architecture": "arm64",
+              "bytes": 2130090,
+              "sha256": "e1a5dc7767a025ded420af158e59e4ebff46e3bc263ca2b202ad1c1eec6b05dd",
+              "deliveryMatchesApproved": true,
+              "buildInputObjects": {
+                "Sources": {
+                  "expected": "3d7f4f30b96ac77b07190b4422eb6dc2efa4d009",
+                  "observed": {
+                    "253ac8db92bfba9083d485b71b84c594223da217": "3d7f4f30b96ac77b07190b4422eb6dc2efa4d009",
+                    "a589d1bddcb387fd45e71522265a811d4caacdc3": "3d7f4f30b96ac77b07190b4422eb6dc2efa4d009"
+                  },
+                  "match": true
+                },
+                "Tests": {
+                  "expected": "fe48dce41044a0744bb1d03951930919a69e213e",
+                  "observed": {
+                    "253ac8db92bfba9083d485b71b84c594223da217": "fe48dce41044a0744bb1d03951930919a69e213e",
+                    "a589d1bddcb387fd45e71522265a811d4caacdc3": "fe48dce41044a0744bb1d03951930919a69e213e"
+                  },
+                  "match": true
+                },
+                "Resources": {
+                  "expected": "2b6d3694992cae6b3a3d7547a11db78c2e8c6265",
+                  "observed": {
+                    "253ac8db92bfba9083d485b71b84c594223da217": "2b6d3694992cae6b3a3d7547a11db78c2e8c6265",
+                    "a589d1bddcb387fd45e71522265a811d4caacdc3": "2b6d3694992cae6b3a3d7547a11db78c2e8c6265"
+                  },
+                  "match": true
+                },
+                "Package.swift": {
+                  "expected": "d3cdd0d51ad937b1afb243cd866cf0071f408d49",
+                  "observed": {
+                    "253ac8db92bfba9083d485b71b84c594223da217": "d3cdd0d51ad937b1afb243cd866cf0071f408d49",
+                    "a589d1bddcb387fd45e71522265a811d4caacdc3": "d3cdd0d51ad937b1afb243cd866cf0071f408d49"
+                  },
+                  "match": true
+                },
+                "scripts": {
+                  "expected": "11d694dda4eac4d495fba4156d8c21a35bdf03d9",
+                  "observed": {
+                    "253ac8db92bfba9083d485b71b84c594223da217": "11d694dda4eac4d495fba4156d8c21a35bdf03d9",
+                    "a589d1bddcb387fd45e71522265a811d4caacdc3": "11d694dda4eac4d495fba4156d8c21a35bdf03d9"
+                  },
+                  "match": true
+                },
+                "packaging": {
+                  "expected": "0ec93cd8e362771a8e493a60d59dc058c6be6b99",
+                  "observed": {
+                    "253ac8db92bfba9083d485b71b84c594223da217": "0ec93cd8e362771a8e493a60d59dc058c6be6b99",
+                    "a589d1bddcb387fd45e71522265a811d4caacdc3": "0ec93cd8e362771a8e493a60d59dc058c6be6b99"
+                  },
+                  "match": true
+                },
+                ".github": {
+                  "expected": "b5a690d4f987b1613d9401fa072bc146a750e6a7",
+                  "observed": {
+                    "253ac8db92bfba9083d485b71b84c594223da217": "b5a690d4f987b1613d9401fa072bc146a750e6a7",
+                    "a589d1bddcb387fd45e71522265a811d4caacdc3": "b5a690d4f987b1613d9401fa072bc146a750e6a7"
+                  },
+                  "match": true
+                },
+                "services/feedback": {
+                  "expected": "cd061e75995151143acea4076b814293b10c39da",
+                  "observed": {
+                    "253ac8db92bfba9083d485b71b84c594223da217": "cd061e75995151143acea4076b814293b10c39da",
+                    "a589d1bddcb387fd45e71522265a811d4caacdc3": "cd061e75995151143acea4076b814293b10c39da"
+                  },
+                  "match": true
+                },
+                "ThirdPartyNotices": {
+                  "expected": "89a07e01c183f61fca6bc7d7127322b00fa03ded",
+                  "observed": {
+                    "253ac8db92bfba9083d485b71b84c594223da217": "89a07e01c183f61fca6bc7d7127322b00fa03ded",
+                    "a589d1bddcb387fd45e71522265a811d4caacdc3": "89a07e01c183f61fca6bc7d7127322b00fa03ded"
+                  },
+                  "match": true
+                },
+                "research": {
+                  "expected": "7ed0708f7cb3faed95a37fe319e3f0400f3b51dd",
+                  "observed": {
+                    "253ac8db92bfba9083d485b71b84c594223da217": "7ed0708f7cb3faed95a37fe319e3f0400f3b51dd",
+                    "a589d1bddcb387fd45e71522265a811d4caacdc3": "7ed0708f7cb3faed95a37fe319e3f0400f3b51dd"
+                  },
+                  "match": true
+                },
+                "engineering/evidence/2026-10-27-real-mac-round2": {
+                  "expected": "8bf31e0794f1cbd840c4d0b6ac7ac791b326eb81",
+                  "observed": {
+                    "253ac8db92bfba9083d485b71b84c594223da217": "8bf31e0794f1cbd840c4d0b6ac7ac791b326eb81",
+                    "a589d1bddcb387fd45e71522265a811d4caacdc3": "8bf31e0794f1cbd840c4d0b6ac7ac791b326eb81"
+                  },
+                  "match": true
+                },
+                "engineering/evidence/2026-10-27-real-mac-round3": {
+                  "expected": "8865f33d33623d5a5630d70336ff306680cd43e8",
+                  "observed": {
+                    "253ac8db92bfba9083d485b71b84c594223da217": "8865f33d33623d5a5630d70336ff306680cd43e8",
+                    "a589d1bddcb387fd45e71522265a811d4caacdc3": "8865f33d33623d5a5630d70336ff306680cd43e8"
+                  },
+                  "match": true
+                },
+                "engineering/evidence/2026-10-27-real-mac-round5": {
+                  "expected": "5a22c1bbeffbc0188b5bf4c2da951fce20a85a54",
+                  "observed": {
+                    "253ac8db92bfba9083d485b71b84c594223da217": "5a22c1bbeffbc0188b5bf4c2da951fce20a85a54",
+                    "a589d1bddcb387fd45e71522265a811d4caacdc3": "5a22c1bbeffbc0188b5bf4c2da951fce20a85a54"
+                  },
+                  "match": true
+                },
+                "engineering/evidence/2026-10-28-system-screenshot-stage2": {
+                  "expected": "51e8dba0abbbed28e2ab9274f9736c955537f25f",
+                  "observed": {
+                    "253ac8db92bfba9083d485b71b84c594223da217": "51e8dba0abbbed28e2ab9274f9736c955537f25f",
+                    "a589d1bddcb387fd45e71522265a811d4caacdc3": "51e8dba0abbbed28e2ab9274f9736c955537f25f"
+                  },
+                  "match": true
+                }
+              },
+              "sourceHeadSHA": "253ac8db92bfba9083d485b71b84c594223da217",
+              "checkoutSHA": "a589d1bddcb387fd45e71522265a811d4caacdc3",
+              "ciRunID": "41182699411",
+              "ordinaryAppDefault": "capture-upload-disabled"
+            },
+            {
+              "architecture": "x86_64",
+              "bytes": 2248101,
+              "sha256": "c13799c45edb9f21be26aaf76830aae5041ef3ccf3756fddb3aa86f3e4d35803",
+              "deliveryMatchesApproved": true,
+              "buildInputObjects": {
+                "Sources": {
+                  "expected": "3d7f4f30b96ac77b07190b4422eb6dc2efa4d009",
+                  "observed": {
+                    "253ac8db92bfba9083d485b71b84c594223da217": "3d7f4f30b96ac77b07190b4422eb6dc2efa4d009",
+                    "a589d1bddcb387fd45e71522265a811d4caacdc3": "3d7f4f30b96ac77b07190b4422eb6dc2efa4d009"
+                  },
+                  "match": true
+                },
+                "Tests": {
+                  "expected": "fe48dce41044a0744bb1d03951930919a69e213e",
+                  "observed": {
+                    "253ac8db92bfba9083d485b71b84c594223da217": "fe48dce41044a0744bb1d03951930919a69e213e",
+                    "a589d1bddcb387fd45e71522265a811d4caacdc3": "fe48dce41044a0744bb1d03951930919a69e213e"
+                  },
+                  "match": true
+                },
+                "Resources": {
+                  "expected": "2b6d3694992cae6b3a3d7547a11db78c2e8c6265",
+                  "observed": {
+                    "253ac8db92bfba9083d485b71b84c594223da217": "2b6d3694992cae6b3a3d7547a11db78c2e8c6265",
+                    "a589d1bddcb387fd45e71522265a811d4caacdc3": "2b6d3694992cae6b3a3d7547a11db78c2e8c6265"
+                  },
+                  "match": true
+                },
+                "Package.swift": {
+                  "expected": "d3cdd0d51ad937b1afb243cd866cf0071f408d49",
+                  "observed": {
+                    "253ac8db92bfba9083d485b71b84c594223da217": "d3cdd0d51ad937b1afb243cd866cf0071f408d49",
+                    "a589d1bddcb387fd45e71522265a811d4caacdc3": "d3cdd0d51ad937b1afb243cd866cf0071f408d49"
+                  },
+                  "match": true
+                },
+                "scripts": {
+                  "expected": "11d694dda4eac4d495fba4156d8c21a35bdf03d9",
+                  "observed": {
+                    "253ac8db92bfba9083d485b71b84c594223da217": "11d694dda4eac4d495fba4156d8c21a35bdf03d9",
+                    "a589d1bddcb387fd45e71522265a811d4caacdc3": "11d694dda4eac4d495fba4156d8c21a35bdf03d9"
+                  },
+                  "match": true
+                },
+                "packaging": {
+                  "expected": "0ec93cd8e362771a8e493a60d59dc058c6be6b99",
+                  "observed": {
+                    "253ac8db92bfba9083d485b71b84c594223da217": "0ec93cd8e362771a8e493a60d59dc058c6be6b99",
+                    "a589d1bddcb387fd45e71522265a811d4caacdc3": "0ec93cd8e362771a8e493a60d59dc058c6be6b99"
+                  },
+                  "match": true
+                },
+                ".github": {
+                  "expected": "b5a690d4f987b1613d9401fa072bc146a750e6a7",
+                  "observed": {
+                    "253ac8db92bfba9083d485b71b84c594223da217": "b5a690d4f987b1613d9401fa072bc146a750e6a7",
+                    "a589d1bddcb387fd45e71522265a811d4caacdc3": "b5a690d4f987b1613d9401fa072bc146a750e6a7"
+                  },
+                  "match": true
+                },
+                "services/feedback": {
+                  "expected": "cd061e75995151143acea4076b814293b10c39da",
+                  "observed": {
+                    "253ac8db92bfba9083d485b71b84c594223da217": "cd061e75995151143acea4076b814293b10c39da",
+                    "a589d1bddcb387fd45e71522265a811d4caacdc3": "cd061e75995151143acea4076b814293b10c39da"
+                  },
+                  "match": true
+                },
+                "ThirdPartyNotices": {
+                  "expected": "89a07e01c183f61fca6bc7d7127322b00fa03ded",
+                  "observed": {
+                    "253ac8db92bfba9083d485b71b84c594223da217": "89a07e01c183f61fca6bc7d7127322b00fa03ded",
+                    "a589d1bddcb387fd45e71522265a811d4caacdc3": "89a07e01c183f61fca6bc7d7127322b00fa03ded"
+                  },
+                  "match": true
+                },
+                "research": {
+                  "expected": "7ed0708f7cb3faed95a37fe319e3f0400f3b51dd",
+                  "observed": {
+                    "253ac8db92bfba9083d485b71b84c594223da217": "7ed0708f7cb3faed95a37fe319e3f0400f3b51dd",
+                    "a589d1bddcb387fd45e71522265a811d4caacdc3": "7ed0708f7cb3faed95a37fe319e3f0400f3b51dd"
+                  },
+                  "match": true
+                },
+                "engineering/evidence/2026-10-27-real-mac-round2": {
+                  "expected": "8bf31e0794f1cbd840c4d0b6ac7ac791b326eb81",
+                  "observed": {
+                    "253ac8db92bfba9083d485b71b84c594223da217": "8bf31e0794f1cbd840c4d0b6ac7ac791b326eb81",
+                    "a589d1bddcb387fd45e71522265a811d4caacdc3": "8bf31e0794f1cbd840c4d0b6ac7ac791b326eb81"
+                  },
+                  "match": true
+                },
+                "engineering/evidence/2026-10-27-real-mac-round3": {
+                  "expected": "8865f33d33623d5a5630d70336ff306680cd43e8",
+                  "observed": {
+                    "253ac8db92bfba9083d485b71b84c594223da217": "8865f33d33623d5a5630d70336ff306680cd43e8",
+                    "a589d1bddcb387fd45e71522265a811d4caacdc3": "8865f33d33623d5a5630d70336ff306680cd43e8"
+                  },
+                  "match": true
+                },
+                "engineering/evidence/2026-10-27-real-mac-round5": {
+                  "expected": "5a22c1bbeffbc0188b5bf4c2da951fce20a85a54",
+                  "observed": {
+                    "253ac8db92bfba9083d485b71b84c594223da217": "5a22c1bbeffbc0188b5bf4c2da951fce20a85a54",
+                    "a589d1bddcb387fd45e71522265a811d4caacdc3": "5a22c1bbeffbc0188b5bf4c2da951fce20a85a54"
+                  },
+                  "match": true
+                },
+                "engineering/evidence/2026-10-28-system-screenshot-stage2": {
+                  "expected": "51e8dba0abbbed28e2ab9274f9736c955537f25f",
+                  "observed": {
+                    "253ac8db92bfba9083d485b71b84c594223da217": "51e8dba0abbbed28e2ab9274f9736c955537f25f",
+                    "a589d1bddcb387fd45e71522265a811d4caacdc3": "51e8dba0abbbed28e2ab9274f9736c955537f25f"
+                  },
+                  "match": true
+                }
+              },
+              "sourceHeadSHA": "253ac8db92bfba9083d485b71b84c594223da217",
+              "checkoutSHA": "a589d1bddcb387fd45e71522265a811d4caacdc3",
+              "ciRunID": "41182699411",
+              "ordinaryAppDefault": "capture-upload-disabled"
+            }
+          ],
+          "independentReviewRecordCount": 9,
+          "independentReviewRecords": [
+            {
+              "name": "sourceCode",
+              "fileName": "ownership-s3-review.json",
+              "sha256": "409e9f3691def0f00ab66eb6b69167c07ee180a655c6ad8713034d34b72f8436",
+              "bytes": 4880,
+              "originalReportAndEmbeddedRecordMatch": true
+            },
+            {
+              "name": "sourceTree",
+              "fileName": "s3-independent-review.json",
+              "sha256": "13ec7e9a25e528cabd915cbdda2c4b4cf441224395b18072726866ed0fca4259",
+              "bytes": 8308,
+              "originalReportAndEmbeddedRecordMatch": true
+            },
+            {
+              "name": "sourceCausalAndAcceptance",
+              "fileName": "acceptance-s3-review.json",
+              "sha256": "f20092d3bc6fd854df05aad12a870a47f4a8f63ef2752f0eddf022749119cfbd",
+              "bytes": 23039,
+              "originalReportAndEmbeddedRecordMatch": true
+            },
+            {
+              "name": "finalMetadataCodeReview",
+              "fileName": "ownership-h3-review.json",
+              "sha256": "e236343123b33d4daed0729d4da0d9d2ce3a31580fd4a734737bc0733a1eb4d7",
+              "bytes": 5094,
+              "originalReportAndEmbeddedRecordMatch": true
+            },
+            {
+              "name": "finalMetadataTreeReview",
+              "fileName": "h3-independent-review.json",
+              "sha256": "652d735f1427566c29f96f78f80b6b25ba1906efa7097c98cd20d695fcfeb1cc",
+              "bytes": 9427,
+              "originalReportAndEmbeddedRecordMatch": true
+            },
+            {
+              "name": "actualMergeAndSourceJobs",
+              "fileName": "h3-formal-source-independent-review.json",
+              "sha256": "161c22e2e3ababeed645ff4f95e84fc9c8648a5cf9f1e65de9001bec0ea68ff2",
+              "bytes": 16407,
+              "originalReportAndEmbeddedRecordMatch": true
+            },
+            {
+              "name": "completeFormalCI",
+              "fileName": "ownership-h3-ci-review.json",
+              "sha256": "4eca5950b86c999f0ef68aa00680142d7edead00790c37e20aa39364d40acb9e",
+              "bytes": 41059,
+              "originalReportAndEmbeddedRecordMatch": true
+            },
+            {
+              "name": "bothArchitectureR2Geometry",
+              "fileName": "h3-both-architectures-geometry-independent-review.json",
+              "sha256": "de9bc7458bffe763665f284441b5e465d2ed5405442c9d2ffe0d1761a720ec03",
+              "bytes": 83168,
+              "originalReportAndEmbeddedRecordMatch": true
+            },
+            {
+              "name": "bothPackagesAndSupplementalVisuals",
+              "fileName": "h3-acceptance-final-artifacts-and-visual-review.json",
+              "sha256": "a2ef7aa9f692bbe2aa953ea05eaeb50abf9416d1a84d9fbbd32d3535162ddfd4",
+              "bytes": 15043,
+              "originalReportAndEmbeddedRecordMatch": true
+            }
+          ],
+          "r21ScopeNote": "Review covers only the frozen already-approved PR1 tree and website overlay; no new R2.1 files are substituted, and no PR24 ref or working tree was moved by this reviewer."
+        },
+        "privacyReview": {
+          "scope": "Entire exact merged tree plus every blob newly reachable from its 254 commits relative to fixed main, plus archive members and commit metadata. No real private Mac evidence outside git accessed.",
+          "newlyReachableCommits": 254,
+          "newlyReachableObjects": 4026,
+          "scannedUniqueBlobs": 2195,
+          "scannedBlobBytes": 84536126,
+          "utf8Blobs": 2054,
+          "binaryBlobs": 141,
+          "historicalUniquePaths": 1113,
+          "historicalPathObjectPairs": 2223,
+          "secretPatterns": [
+            "private-key",
+            "github-token",
+            "openai-key",
+            "aws-access-key",
+            "google-api-key",
+            "slack-token",
+            "stripe-live-key",
+            "jwt",
+            "url-credential",
+            "literal-secret-assignment",
+            "session-cookie-literal",
+            "generic-token-assignment",
+            "real-user-home-path",
+            "chat-conversation-url"
+          ],
+          "confirmedCredentialFindings": 0,
+          "sensitiveFilenameFindings": 0,
+          "nonRegularHistoricalEntries": 0,
+          "commitCredentialFindings": 0,
+          "matchesClassified": {
+            "chat-conversation-url": 20,
+            "real-user-home-path": 265,
+            "literal-secret-assignment": 6,
+            "generic-token-assignment": 6,
+            "url-credential": 1
+          },
+          "falsePositiveRationale": [
+            "Six credential-shaped assignments are named PRIVATE_* sentinel strings in privacy-redaction synthetic unit tests. Generic-token scanning reports the same six again; they are not twelve distinct credentials.",
+            "One proxy URL contains fixture-user/fixture-password at the reserved synthetic-proxy.invalid host in a CONNECT-header isolation test.",
+            "All 20 conversation URL matches are the synthetic url-is-not-business-id fixture across test versions; no real conversation URL found.",
+            "254 home-path matches are GitHub Actions /Users/runner/ build logs. The remaining 11 use explicit synthetic/local/person fixture paths in tests; no personal home path found."
+          ],
+          "archiveReview": {
+            "archives": 2,
+            "fileMembers": 169,
+            "membersByteIdenticalToScannedGitBlobs": 132,
+            "remainingImagesDecodedAndViewed": 36,
+            "remainingPDFTextBytes": 4381,
+            "remainingPDFTextEqualTrackedVersion": true,
+            "unsafePaths": 0,
+            "encryptedOrUnreadableMembers": 0
+          },
+          "mediaReview": {
+            "uniqueImageBlobsDecoded": 120,
+            "allImageBlobsViewedInInventoryContactSheets": true,
+            "additionalIndividualViews": [
+              "three final-system interactive prototype JPEGs",
+              "historical private-repository Actions-settings PNG"
+            ],
+            "classification": "Authored design mockups, synthetic test images, sanitized capture color bands, CI/helper-owned native synthetic windows, and one pre-existing administrative settings screenshot.",
+            "historicalAdministrativeScreenshot": {
+              "oid": "1e40f29b41d0152b5092d8caffdd5c27d8a99a7f",
+              "path": "engineering/evidence/2026-10-29-feedback-delivery/private-repository-actions-disabled.png",
+              "firstCommit": "2d5174117deff5822ea079d98eca03146d72f83f",
+              "removedFromTreeCommit": "14bfc1f8ed74ad55daa125fcde8b35b2763ff4d9",
+              "presentInFinalTree": false,
+              "reachableInMergeHistory": true,
+              "observation": "Individually viewed: known owner/repository name, Actions-disabled and retention configuration only. No private Issue body, email, personal conversation, credentials, browser address/session, user screenshot or product screenshot.",
+              "priorPolicyFinding": "PR13 recorded P1 against a raw Settings screenshot in public evidence. Commit14bfc1f8 replaced it with minimal text and explicitly preserved shared history; its independent review found no secret/private content and did not require rotation or history rewriting.",
+              "currentAssessment": "Disclosed historical policy residual, not an unresolved sensitive-data blocker. Current public tree excludes the PNG; preserving dual-parent history makes the old object reachable. This does not claim zero raw screenshots in all history or permanent purge, nor does prior public exposure alone justify the decision."
+            },
+            "realU1OriginalIncluded": false,
+            "originalPrivateMacEvidenceRead": false,
+            "movieScope": "Existing movie bytes inventoried and scanned; controlled synthetic-render provenance and representative committed frames reviewed. Movies were not played frame by frame and no performance claim is made."
+          },
+          "nonSecretOperationalMetadata": "Existing Cloudflare account/database IDs, fixed public Receiver endpoint and dedicated private Feedback repository identity are configuration/audit identifiers, not authentication credentials; no secret values found."
+        },
+        "boundaries": [
+          "Approval applies only while PR1 HEAD253ac8d and mainfccd809 remain exact and resulting merge tree equals d7a16bf0d5550c3d54972d6fd4ac7c74133167eb with the stated ordered parents.",
+          "Source-level and artifact provenance review does not grant ordinary production input/start/completion, built-in upload, safe-retry or Web continuation.",
+          "Existing restricted candidate scope remains unchanged; this review does not broaden it.",
+          "Original ARM/Intel App ZIP bytes and all14 build-input objects match approved CI41182699411. This is evidence reuse, not a fresh main build or device acceptance.",
+          "No edits, deletion, migration, native execution, App launch, remote write, external send or user-data access performed.",
+          "Pattern scans and media provenance review cannot prove arbitrary secret encodings or steganography absent; result means no unresolved leakage finding within the documented comprehensive blob inventory and review."
+        ],
+        "evidenceFiles": [
+          {
+            "name": "raw-scan.json",
+            "bytes": 1119517,
+            "sha256": "8d252079b59458a814acf270696eb57d8a22413dd788a67bf733f220af0f9fa2"
+          },
+          {
+            "name": "ancestry-path-audit.json",
+            "bytes": 199485,
+            "sha256": "8fb133d6e752c5a22da71691f14c90692b06dcd933b96997c4230fd35ade98a8"
+          },
+          {
+            "name": "media-image-metadata.json",
+            "bytes": 38415,
+            "sha256": "935bf6280cf3e72658d675b655a6f091eed286066fc16fcbcc92d0c0fe053b5a"
+          },
+          {
+            "name": "scan.py",
+            "bytes": 8521,
+            "sha256": "a6c84dafd8bb67d8a0e491fc02c4d1e258b932691b36fcd7e704cd8ac1ce9d8f"
+          }
+        ],
+        "productEvidenceRecord": {
+          "fileName": "Riftlet-Quiet-Edge-R2-253ac8d-Verification.json",
+          "bytes": 315535,
+          "sha256": "dcbc18a7d14b3ace194ec87a47feb33ea8ea372abb3c6775dd8eabd6dc114a27"
+        }
+      }
+    },
+    "postmergeSource": {
+      "fileName": "postmerge-independent-review.json",
+      "bytes": 5880,
+      "sha256": "b464966a0e038cd60e38ccefb9594e5ade85783998e8ce19458b3e18b652a88a",
+      "report": {
+        "schemaVersion": 1,
+        "createdUTC": "2026-10-31T09:34:12.102422+00:00",
+        "reviewer": "/root/premerge_audit independent post-merge verification",
+        "decision": "PASS_EXACT_MAIN_MERGE_AND_UNCHANGED_APPROVED_INPUTS",
+        "main": "58f894af0f5d9bb0250c1e41750528232696b60c",
+        "tree": "d7a16bf0d5550c3d54972d6fd4ac7c74133167eb",
+        "orderedParents": [
+          "fccd809e9d55e0b221e75e6dcd7c21f6d357ee74",
+          "253ac8db92bfba9083d485b71b84c594223da217"
+        ],
+        "sourcePRHead": "253ac8db92bfba9083d485b71b84c594223da217",
+        "priorTestedCheckout": "a589d1bddcb387fd45e71522265a811d4caacdc3",
+        "all1030ObjectsAndModesEqualPriorTestedCheckout": true,
+        "changedPathsAgainstPriorCheckout": [],
+        "buildInputObjects": {
+          "Sources": {
+            "expectedApprovedAppInput": "3d7f4f30b96ac77b07190b4422eb6dc2efa4d009",
+            "actualMain": "3d7f4f30b96ac77b07190b4422eb6dc2efa4d009",
+            "result": "PASS"
+          },
+          "Tests": {
+            "expectedApprovedAppInput": "fe48dce41044a0744bb1d03951930919a69e213e",
+            "actualMain": "fe48dce41044a0744bb1d03951930919a69e213e",
+            "result": "PASS"
+          },
+          "Resources": {
+            "expectedApprovedAppInput": "2b6d3694992cae6b3a3d7547a11db78c2e8c6265",
+            "actualMain": "2b6d3694992cae6b3a3d7547a11db78c2e8c6265",
+            "result": "PASS"
+          },
+          "Package.swift": {
+            "expectedApprovedAppInput": "d3cdd0d51ad937b1afb243cd866cf0071f408d49",
+            "actualMain": "d3cdd0d51ad937b1afb243cd866cf0071f408d49",
+            "result": "PASS"
+          },
+          "scripts": {
+            "expectedApprovedAppInput": "11d694dda4eac4d495fba4156d8c21a35bdf03d9",
+            "actualMain": "11d694dda4eac4d495fba4156d8c21a35bdf03d9",
+            "result": "PASS"
+          },
+          "packaging": {
+            "expectedApprovedAppInput": "0ec93cd8e362771a8e493a60d59dc058c6be6b99",
+            "actualMain": "0ec93cd8e362771a8e493a60d59dc058c6be6b99",
+            "result": "PASS"
+          },
+          ".github": {
+            "expectedApprovedAppInput": "b5a690d4f987b1613d9401fa072bc146a750e6a7",
+            "actualMain": "b5a690d4f987b1613d9401fa072bc146a750e6a7",
+            "result": "PASS"
+          },
+          "services/feedback": {
+            "expectedApprovedAppInput": "cd061e75995151143acea4076b814293b10c39da",
+            "actualMain": "cd061e75995151143acea4076b814293b10c39da",
+            "result": "PASS"
+          },
+          "ThirdPartyNotices": {
+            "expectedApprovedAppInput": "89a07e01c183f61fca6bc7d7127322b00fa03ded",
+            "actualMain": "89a07e01c183f61fca6bc7d7127322b00fa03ded",
+            "result": "PASS"
+          },
+          "research": {
+            "expectedApprovedAppInput": "7ed0708f7cb3faed95a37fe319e3f0400f3b51dd",
+            "actualMain": "7ed0708f7cb3faed95a37fe319e3f0400f3b51dd",
+            "result": "PASS"
+          },
+          "engineering/evidence/2026-10-27-real-mac-round2": {
+            "expectedApprovedAppInput": "8bf31e0794f1cbd840c4d0b6ac7ac791b326eb81",
+            "actualMain": "8bf31e0794f1cbd840c4d0b6ac7ac791b326eb81",
+            "result": "PASS"
+          },
+          "engineering/evidence/2026-10-27-real-mac-round3": {
+            "expectedApprovedAppInput": "8865f33d33623d5a5630d70336ff306680cd43e8",
+            "actualMain": "8865f33d33623d5a5630d70336ff306680cd43e8",
+            "result": "PASS"
+          },
+          "engineering/evidence/2026-10-27-real-mac-round5": {
+            "expectedApprovedAppInput": "5a22c1bbeffbc0188b5bf4c2da951fce20a85a54",
+            "actualMain": "5a22c1bbeffbc0188b5bf4c2da951fce20a85a54",
+            "result": "PASS"
+          },
+          "engineering/evidence/2026-10-28-system-screenshot-stage2": {
+            "expectedApprovedAppInput": "51e8dba0abbbed28e2ab9274f9736c955537f25f",
+            "actualMain": "51e8dba0abbbed28e2ab9274f9736c955537f25f",
+            "result": "PASS"
+          }
+        },
+        "githubState": {
+          "observedUTC": "2026-10-31T09:34:11.478Z",
+          "main": {
+            "ref": "refs/heads/main",
+            "sha": "58f894af0f5d9bb0250c1e41750528232696b60c"
+          },
+          "pr1": {
+            "head": "253ac8db92bfba9083d485b71b84c594223da217",
+            "draft": false,
+            "state": "closed",
+            "merged": true,
+            "merge_commit_sha": "58f894af0f5d9bb0250c1e41750528232696b60c",
+            "merged_at": "2026-10-31T09:33:08Z"
+          },
+          "pr24": {
+            "head": "c63309c3850fd16969dc0117d47da5bc854e9cc8",
+            "ref": "codex/riftlet-r21-microimages-20261031",
+            "base": "253ac8db92bfba9083d485b71b84c594223da217",
+            "baseRef": "codex/engineering-foundation-20261027",
+            "draft": true,
+            "state": "open",
+            "merged": false
+          }
+        },
+        "pr24HeadAncestorOfMain": false,
+        "legacySourceGate": {
+          "result": "PASS",
+          "checks": 32,
+          "allChecksPASS": true,
+          "historicalAudits": {
+            "builtin-capture": {
+              "result": "PASS",
+              "checks": 13
+            },
+            "feedback-reliability": {
+              "result": "PASS",
+              "checks": 42
+            },
+            "thin-edge": {
+              "result": "PASS",
+              "checks": 17
+            },
+            "unified-thin-edge": {
+              "result": "PASS",
+              "checks": 17
+            }
+          },
+          "artifact": "postmerge-legacy-source-gate.json",
+          "sha256": "4c1cfef73f1849c40a4d0b8b1a5fafdd8942942bd866d3acc042d029a6f09a94"
+        },
+        "priorPrivacyReview": {
+          "file": "premerge-independent-review.json",
+          "sha256": "5776c3e1991fa89bb892271f98bff418809e0d3b11845661e2aff5e22193e37d",
+          "stillAppliesByExactTreeAndSameAncestors": true,
+          "historicalSettingsScreenshotDisclosureUnchanged": true
+        },
+        "worktree": {
+          "headUnchanged": "253ac8db92bfba9083d485b71b84c594223da217",
+          "clean": true,
+          "noRepoWritesPerformed": true
+        },
+        "limits": [
+          "No fresh native build or actual App execution claimed; exact source/build input equality links main to the already validated original ARM/Intel Apps.",
+          "PR24 remains open Draft against the old formal branch and its HEAD is not a main ancestor; no mutation was made to it.",
+          "Production gates and real-device acceptance unchanged.",
+          "Standard merge creates a different commit ID but exactly the tested tree and ordered parents; prior App manifest retains original253/a589 identities honestly."
+        ]
+      }
+    },
+    "websiteBefore": {
+      "fileName": "premerge.json",
+      "bytes": 36398,
+      "sha256": "295423d7f7575c8638c696cf3cc9010fd960907369caff15440ecbb02ec2dbbc",
+      "report": {
+        "schemaVersion": 1,
+        "timeUTC": "2026-10-31T09:22:53.466260+00:00",
+        "base": "fccd809e9d55e0b221e75e6dcd7c21f6d357ee74",
+        "revision": "a589d1bddcb387fd45e71522265a811d4caacdc3",
+        "tree": "d7a16bf0d5550c3d54972d6fd4ac7c74133167eb",
+        "approvedWebsiteObjectCount": 28,
+        "additionalInheritedWebsiteConfigurationCount": 6,
+        "objects": [
+          {
+            "path": "favicon.svg",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "0b3bd76e4db66be4eaff53c3274121c6da866b82"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "0b3bd76e4db66be4eaff53c3274121c6da866b82"
+            },
+            "exact": true,
+            "approvedOverlay": true
+          },
+          {
+            "path": "index.html",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "4097707b40721b9a01ae4d1efc4b544881c10b6e"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "4097707b40721b9a01ae4d1efc4b544881c10b6e"
+            },
+            "exact": true,
+            "approvedOverlay": true
+          },
+          {
+            "path": "site.webmanifest",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "de02f57e7457770f012f33197d13d381402c8699"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "de02f57e7457770f012f33197d13d381402c8699"
+            },
+            "exact": true,
+            "approvedOverlay": true
+          },
+          {
+            "path": "website-assets/error.svg",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "7ae4e464d40b0fca66a92c7be38ba0aed0fecf44"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "7ae4e464d40b0fca66a92c7be38ba0aed0fecf44"
+            },
+            "exact": true,
+            "approvedOverlay": true
+          },
+          {
+            "path": "website-assets/fonts/FONT-SOURCES.json",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "4185934e8b50c7bb22adb4eb13b1470c30770c05"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "4185934e8b50c7bb22adb4eb13b1470c30770c05"
+            },
+            "exact": true,
+            "approvedOverlay": true
+          },
+          {
+            "path": "website-assets/fonts/Instrument-Serif-OFL.txt",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "669ce7917bec662fcf7244d37f49c4277f6fbd73"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "669ce7917bec662fcf7244d37f49c4277f6fbd73"
+            },
+            "exact": true,
+            "approvedOverlay": true
+          },
+          {
+            "path": "website-assets/fonts/Noto-Serif-SC-OFL.txt",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "94d1bf7b52481343e2983fb7751e8b7abe1ea07b"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "94d1bf7b52481343e2983fb7751e8b7abe1ea07b"
+            },
+            "exact": true,
+            "approvedOverlay": true
+          },
+          {
+            "path": "website-assets/fonts/instrument-serif-italic.woff2",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "ce3c417c8d0e9f012bb697d25a0874d148ea89e6"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "ce3c417c8d0e9f012bb697d25a0874d148ea89e6"
+            },
+            "exact": true,
+            "approvedOverlay": true
+          },
+          {
+            "path": "website-assets/fonts/instrument-serif.woff2",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "17653042acca7f87268c8c29dc8c0cc094c0b124"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "17653042acca7f87268c8c29dc8c0cc094c0b124"
+            },
+            "exact": true,
+            "approvedOverlay": true
+          },
+          {
+            "path": "website-assets/fonts/noto-serif-sc.woff2",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "0b168de5852c35da7b650c48dd5a248f389910c0"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "0b168de5852c35da7b650c48dd5a248f389910c0"
+            },
+            "exact": true,
+            "approvedOverlay": true
+          },
+          {
+            "path": "website-assets/glass-study.png",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "2f4593262ab240d0b16e2b2c2b6ea098dbfdf492"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "2f4593262ab240d0b16e2b2c2b6ea098dbfdf492"
+            },
+            "exact": true,
+            "approvedOverlay": true
+          },
+          {
+            "path": "website-assets/reading.svg",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "336ad5196625501271106b8f82561c45759c2750"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "336ad5196625501271106b8f82561c45759c2750"
+            },
+            "exact": true,
+            "approvedOverlay": true
+          },
+          {
+            "path": "website-assets/riftlet.svg",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "8742e132f43b61819e8550ad24eb8552d8621d9f"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "8742e132f43b61819e8550ad24eb8552d8621d9f"
+            },
+            "exact": true,
+            "approvedOverlay": true
+          },
+          {
+            "path": "website-hero.css",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "5349abef4838f4590e8d6421069816cc99bec460"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "5349abef4838f4590e8d6421069816cc99bec460"
+            },
+            "exact": true,
+            "approvedOverlay": true
+          },
+          {
+            "path": "website-hero.js",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "dad41af6d6d2d421afc7a07042eeb7b8cc301d9e"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "dad41af6d6d2d421afc7a07042eeb7b8cc301d9e"
+            },
+            "exact": true,
+            "approvedOverlay": true
+          },
+          {
+            "path": "website-locale.js",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "451ab3500e55129f4ccedf4de7ec3d818d09ea85"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "451ab3500e55129f4ccedf4de7ec3d818d09ea85"
+            },
+            "exact": true,
+            "approvedOverlay": true
+          },
+          {
+            "path": "website-product.css",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "89db114f288ef3d2dd9e66a67072fae2aad1da77"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "89db114f288ef3d2dd9e66a67072fae2aad1da77"
+            },
+            "exact": true,
+            "approvedOverlay": true
+          },
+          {
+            "path": "website-product.js",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "7d8510923fe7d959f483610486bcac1ca5a12a9a"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "7d8510923fe7d959f483610486bcac1ca5a12a9a"
+            },
+            "exact": true,
+            "approvedOverlay": true
+          },
+          {
+            "path": "website-v2.css",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "9cde1e595f320134468c6689c716601790c522f0"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "9cde1e595f320134468c6689c716601790c522f0"
+            },
+            "exact": true,
+            "approvedOverlay": true
+          },
+          {
+            "path": "website-v2.js",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "60e3a5293a146d39031831dc82a2300f2db2c769"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "60e3a5293a146d39031831dc82a2300f2db2c769"
+            },
+            "exact": true,
+            "approvedOverlay": true
+          },
+          {
+            "path": "website/HERO_REVISION_2026-10-27.md",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "3fd19dca32f5d1758bb24491e1d566d33e5a3359"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "3fd19dca32f5d1758bb24491e1d566d33e5a3359"
+            },
+            "exact": true,
+            "approvedOverlay": true
+          },
+          {
+            "path": "website/README.md",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "4110cc04e441b13ea0be632af4bbc99dac549178"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "4110cc04e441b13ea0be632af4bbc99dac549178"
+            },
+            "exact": true,
+            "approvedOverlay": true
+          },
+          {
+            "path": "website/RELEASE_2026-10-30.md",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "dcc6be2aca5457821f064706aeed9087348963e1"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "dcc6be2aca5457821f064706aeed9087348963e1"
+            },
+            "exact": true,
+            "approvedOverlay": true
+          },
+          {
+            "path": "website/RESTORE_ART_DIRECTION_2026-10-27.md",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "c4b404a16baf599e3365fb486b534eed768a0f81"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "c4b404a16baf599e3365fb486b534eed768a0f81"
+            },
+            "exact": true,
+            "approvedOverlay": true
+          },
+          {
+            "path": "website/test-hero-layout.py",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "99d162db1247a6a4578a87ac82992a23e0cc8914"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "99d162db1247a6a4578a87ac82992a23e0cc8914"
+            },
+            "exact": true,
+            "approvedOverlay": true
+          },
+          {
+            "path": "website/test-hero-motion.py",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "da33a99adc0099efce9b2eeec4ec8afcb36f6196"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "da33a99adc0099efce9b2eeec4ec8afcb36f6196"
+            },
+            "exact": true,
+            "approvedOverlay": true
+          },
+          {
+            "path": "website/test-hero.py",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "8d48acc7c765af2c58a5eb692b2a9df3a34abe9c"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "8d48acc7c765af2c58a5eb692b2a9df3a34abe9c"
+            },
+            "exact": true,
+            "approvedOverlay": true
+          },
+          {
+            "path": "website/test-product.cjs",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "b1ca496f318e11a709561de15d3f8299e720d2bf"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "b1ca496f318e11a709561de15d3f8299e720d2bf"
+            },
+            "exact": true,
+            "approvedOverlay": true
+          },
+          {
+            "path": "CNAME",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "9d5b3fa390ba9f35e6b20ad97524d8ebfddec52f"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "9d5b3fa390ba9f35e6b20ad97524d8ebfddec52f"
+            },
+            "exact": true,
+            "approvedOverlay": false
+          },
+          {
+            "path": ".nojekyll",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+            },
+            "exact": true,
+            "approvedOverlay": false
+          },
+          {
+            "path": "site.css",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "37d7c46b8dddb813f96a543e0d533a60bd392ef5"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "37d7c46b8dddb813f96a543e0d533a60bd392ef5"
+            },
+            "exact": true,
+            "approvedOverlay": false
+          },
+          {
+            "path": "site.js",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "2e22dd42a2333f59e31bf28fec11fb7813c1c6f2"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "2e22dd42a2333f59e31bf28fec11fb7813c1c6f2"
+            },
+            "exact": true,
+            "approvedOverlay": false
+          },
+          {
+            "path": "robots.txt",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "2154875108ef03595237ab62cc5f1907a1e8a5fa"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "2154875108ef03595237ab62cc5f1907a1e8a5fa"
+            },
+            "exact": true,
+            "approvedOverlay": false
+          },
+          {
+            "path": "sitemap.xml",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "0d5e2b239c54fcfe6d1951263de271b485f816e4"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "0d5e2b239c54fcfe6d1951263de271b485f816e4"
+            },
+            "exact": true,
+            "approvedOverlay": false
+          }
+        ],
+        "objectResult": "PASS",
+        "domain": "riftlet.com",
+        "deploymentMechanism": "Existing GitHub Pages dynamic branch build; .nojekyll retained. No deployment settings or DNS mutation.",
+        "limitations": [
+          "Byte equality validates unchanged presentation inputs; this is not a fresh browser pixel or interaction review.",
+          "Pages config API is not available through current GitHub fetch connector; deployed URL, source CNAME, and actual Pages workflow provide observed deployment evidence."
+        ],
+        "live": [
+          {
+            "path": "favicon.svg",
+            "requestedURL": "https://riftlet.com/favicon.svg",
+            "finalURL": "https://riftlet.com/favicon.svg",
+            "httpStatus": 200,
+            "bytes": 342,
+            "sha256": "546d57a4d36d5f975a969f8a8bd73ffac35cc8271057767d246e81a1b7d19343",
+            "expectedBytes": 342,
+            "expectedSHA256": "546d57a4d36d5f975a969f8a8bd73ffac35cc8271057767d246e81a1b7d19343",
+            "exactBytes": true,
+            "contentType": "image/svg+xml",
+            "etag": "\"6ae4c2f2-156\"",
+            "lastModified": "Fri, 30 Oct 2026 16:16:50 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "index.html",
+            "requestedURL": "https://riftlet.com/",
+            "finalURL": "https://riftlet.com/",
+            "httpStatus": 200,
+            "bytes": 20001,
+            "sha256": "41ec2e00d28213f41113e7aa83196d6afdcffe4f7613aba00787e7220f3a7fc1",
+            "expectedBytes": 20001,
+            "expectedSHA256": "41ec2e00d28213f41113e7aa83196d6afdcffe4f7613aba00787e7220f3a7fc1",
+            "exactBytes": true,
+            "contentType": "text/html; charset=utf-8",
+            "etag": "\"6ae4c2f2-4e21\"",
+            "lastModified": "Fri, 30 Oct 2026 16:16:50 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "site.webmanifest",
+            "requestedURL": "https://riftlet.com/site.webmanifest",
+            "finalURL": "https://riftlet.com/site.webmanifest",
+            "httpStatus": 200,
+            "bytes": 366,
+            "sha256": "e18f942837780356537c157b253d0d9c8a466437f4bcbb892c85ad3f7ea05d94",
+            "expectedBytes": 366,
+            "expectedSHA256": "e18f942837780356537c157b253d0d9c8a466437f4bcbb892c85ad3f7ea05d94",
+            "exactBytes": true,
+            "contentType": "application/manifest+json; charset=utf-8",
+            "etag": "\"6ae4c2f2-16e\"",
+            "lastModified": "Fri, 30 Oct 2026 16:16:50 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "website-assets/error.svg",
+            "requestedURL": "https://riftlet.com/website-assets/error.svg",
+            "finalURL": "https://riftlet.com/website-assets/error.svg",
+            "httpStatus": 200,
+            "bytes": 1136,
+            "sha256": "18ab8d07caeb7a6d800135bbd55d50929e56a5a175466a4b913ed6a2ed9a7bb4",
+            "expectedBytes": 1136,
+            "expectedSHA256": "18ab8d07caeb7a6d800135bbd55d50929e56a5a175466a4b913ed6a2ed9a7bb4",
+            "exactBytes": true,
+            "contentType": "image/svg+xml",
+            "etag": "\"6ae4c2f2-470\"",
+            "lastModified": "Fri, 30 Oct 2026 16:16:50 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "website-assets/fonts/FONT-SOURCES.json",
+            "requestedURL": "https://riftlet.com/website-assets/fonts/FONT-SOURCES.json",
+            "finalURL": "https://riftlet.com/website-assets/fonts/FONT-SOURCES.json",
+            "httpStatus": 200,
+            "bytes": 8565,
+            "sha256": "351416fd89934cd60e14992f5f0ddb4520cc016dadf28e065a7fc1e4940865f5",
+            "expectedBytes": 8565,
+            "expectedSHA256": "351416fd89934cd60e14992f5f0ddb4520cc016dadf28e065a7fc1e4940865f5",
+            "exactBytes": true,
+            "contentType": "application/json; charset=utf-8",
+            "etag": "\"6ae4c2f2-2175\"",
+            "lastModified": "Fri, 30 Oct 2026 16:16:50 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "website-assets/fonts/Instrument-Serif-OFL.txt",
+            "requestedURL": "https://riftlet.com/website-assets/fonts/Instrument-Serif-OFL.txt",
+            "finalURL": "https://riftlet.com/website-assets/fonts/Instrument-Serif-OFL.txt",
+            "httpStatus": 200,
+            "bytes": 4405,
+            "sha256": "129ed7618959716959f2941fdd5b49e0ad6e6c1d78726761786a00253d865521",
+            "expectedBytes": 4405,
+            "expectedSHA256": "129ed7618959716959f2941fdd5b49e0ad6e6c1d78726761786a00253d865521",
+            "exactBytes": true,
+            "contentType": "text/plain; charset=utf-8",
+            "etag": "\"6ae4c2f2-1135\"",
+            "lastModified": "Fri, 30 Oct 2026 16:16:50 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "website-assets/fonts/Noto-Serif-SC-OFL.txt",
+            "requestedURL": "https://riftlet.com/website-assets/fonts/Noto-Serif-SC-OFL.txt",
+            "finalURL": "https://riftlet.com/website-assets/fonts/Noto-Serif-SC-OFL.txt",
+            "httpStatus": 200,
+            "bytes": 4350,
+            "sha256": "5e0da210fb04058a8c0087985d2d456b931c2579811a49655721d3cf0c36b6d6",
+            "expectedBytes": 4350,
+            "expectedSHA256": "5e0da210fb04058a8c0087985d2d456b931c2579811a49655721d3cf0c36b6d6",
+            "exactBytes": true,
+            "contentType": "text/plain; charset=utf-8",
+            "etag": "\"6ae4c2f2-10fe\"",
+            "lastModified": "Fri, 30 Oct 2026 16:16:50 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "website-assets/fonts/instrument-serif-italic.woff2",
+            "requestedURL": "https://riftlet.com/website-assets/fonts/instrument-serif-italic.woff2",
+            "finalURL": "https://riftlet.com/website-assets/fonts/instrument-serif-italic.woff2",
+            "httpStatus": 200,
+            "bytes": 15684,
+            "sha256": "6ee678c33f388dd7ba59700ebea635deb98821baafd817b09891f7927177f702",
+            "expectedBytes": 15684,
+            "expectedSHA256": "6ee678c33f388dd7ba59700ebea635deb98821baafd817b09891f7927177f702",
+            "exactBytes": true,
+            "contentType": "font/woff2",
+            "etag": "\"6ae4c2f2-3d44\"",
+            "lastModified": "Fri, 30 Oct 2026 16:16:50 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "website-assets/fonts/instrument-serif.woff2",
+            "requestedURL": "https://riftlet.com/website-assets/fonts/instrument-serif.woff2",
+            "finalURL": "https://riftlet.com/website-assets/fonts/instrument-serif.woff2",
+            "httpStatus": 200,
+            "bytes": 15040,
+            "sha256": "60c06664b5a95c7de6cc3e00d1f9034d78bd1e40b564016b241674449a067d4d",
+            "expectedBytes": 15040,
+            "expectedSHA256": "60c06664b5a95c7de6cc3e00d1f9034d78bd1e40b564016b241674449a067d4d",
+            "exactBytes": true,
+            "contentType": "font/woff2",
+            "etag": "\"6ae4c2f2-3ac0\"",
+            "lastModified": "Fri, 30 Oct 2026 16:16:50 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "website-assets/fonts/noto-serif-sc.woff2",
+            "requestedURL": "https://riftlet.com/website-assets/fonts/noto-serif-sc.woff2",
+            "finalURL": "https://riftlet.com/website-assets/fonts/noto-serif-sc.woff2",
+            "httpStatus": 200,
+            "bytes": 64288,
+            "sha256": "e99295774744be5b2ffc3c8e52c4b32072e766030dc02cfd936354a461d52140",
+            "expectedBytes": 64288,
+            "expectedSHA256": "e99295774744be5b2ffc3c8e52c4b32072e766030dc02cfd936354a461d52140",
+            "exactBytes": true,
+            "contentType": "font/woff2",
+            "etag": "\"6ae4c2f2-fb20\"",
+            "lastModified": "Fri, 30 Oct 2026 16:16:50 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "website-assets/glass-study.png",
+            "requestedURL": "https://riftlet.com/website-assets/glass-study.png",
+            "finalURL": "https://riftlet.com/website-assets/glass-study.png",
+            "httpStatus": 200,
+            "bytes": 1940321,
+            "sha256": "41d79d326388250273405565626ce0fecdb65f777f3844bc33147c8654446a63",
+            "expectedBytes": 1940321,
+            "expectedSHA256": "41d79d326388250273405565626ce0fecdb65f777f3844bc33147c8654446a63",
+            "exactBytes": true,
+            "contentType": "image/png",
+            "etag": "\"6ae4c2f2-1d9b61\"",
+            "lastModified": "Fri, 30 Oct 2026 16:16:50 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "website-assets/reading.svg",
+            "requestedURL": "https://riftlet.com/website-assets/reading.svg",
+            "finalURL": "https://riftlet.com/website-assets/reading.svg",
+            "httpStatus": 200,
+            "bytes": 1960,
+            "sha256": "c715b7a8f635f63240cd59d3473d427815c17750a87884556d8f171d526b2579",
+            "expectedBytes": 1960,
+            "expectedSHA256": "c715b7a8f635f63240cd59d3473d427815c17750a87884556d8f171d526b2579",
+            "exactBytes": true,
+            "contentType": "image/svg+xml",
+            "etag": "\"6ae4c2f2-7a8\"",
+            "lastModified": "Fri, 30 Oct 2026 16:16:50 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "website-assets/riftlet.svg",
+            "requestedURL": "https://riftlet.com/website-assets/riftlet.svg",
+            "finalURL": "https://riftlet.com/website-assets/riftlet.svg",
+            "httpStatus": 200,
+            "bytes": 343,
+            "sha256": "f31d71318e1aaef2464bbcc25c5a105fa6959d10006eb7c64d30aac42fbb3e90",
+            "expectedBytes": 343,
+            "expectedSHA256": "f31d71318e1aaef2464bbcc25c5a105fa6959d10006eb7c64d30aac42fbb3e90",
+            "exactBytes": true,
+            "contentType": "image/svg+xml",
+            "etag": "\"6ae4c2f2-157\"",
+            "lastModified": "Fri, 30 Oct 2026 16:16:50 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "website-hero.css",
+            "requestedURL": "https://riftlet.com/website-hero.css",
+            "finalURL": "https://riftlet.com/website-hero.css",
+            "httpStatus": 200,
+            "bytes": 9908,
+            "sha256": "400febbc44540f7438f2d41a36f0cb771b805fa42782007cd8d34cbba9aa1472",
+            "expectedBytes": 9908,
+            "expectedSHA256": "400febbc44540f7438f2d41a36f0cb771b805fa42782007cd8d34cbba9aa1472",
+            "exactBytes": true,
+            "contentType": "text/css; charset=utf-8",
+            "etag": "\"6ae4c2f2-26b4\"",
+            "lastModified": "Fri, 30 Oct 2026 16:16:50 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "website-hero.js",
+            "requestedURL": "https://riftlet.com/website-hero.js",
+            "finalURL": "https://riftlet.com/website-hero.js",
+            "httpStatus": 200,
+            "bytes": 9332,
+            "sha256": "5f917a2e0926118a72170b3b76ec14f80b731a23a09326b3f1f49a4bed9383d2",
+            "expectedBytes": 9332,
+            "expectedSHA256": "5f917a2e0926118a72170b3b76ec14f80b731a23a09326b3f1f49a4bed9383d2",
+            "exactBytes": true,
+            "contentType": "application/javascript; charset=utf-8",
+            "etag": "\"6ae4c2f2-2474\"",
+            "lastModified": "Fri, 30 Oct 2026 16:16:50 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "website-locale.js",
+            "requestedURL": "https://riftlet.com/website-locale.js",
+            "finalURL": "https://riftlet.com/website-locale.js",
+            "httpStatus": 200,
+            "bytes": 12227,
+            "sha256": "96a2e44901d78e26ec9c92eae447fcd8abdcc9ab2cb73a70a7cbc879f2c5b564",
+            "expectedBytes": 12227,
+            "expectedSHA256": "96a2e44901d78e26ec9c92eae447fcd8abdcc9ab2cb73a70a7cbc879f2c5b564",
+            "exactBytes": true,
+            "contentType": "application/javascript; charset=utf-8",
+            "etag": "\"6ae4c2f2-2fc3\"",
+            "lastModified": "Fri, 30 Oct 2026 16:16:50 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "website-product.css",
+            "requestedURL": "https://riftlet.com/website-product.css",
+            "finalURL": "https://riftlet.com/website-product.css",
+            "httpStatus": 200,
+            "bytes": 19248,
+            "sha256": "71a1e762dbf88df03d2e2217c247117ca619d63fa75817b7537bd4210dc8a3ab",
+            "expectedBytes": 19248,
+            "expectedSHA256": "71a1e762dbf88df03d2e2217c247117ca619d63fa75817b7537bd4210dc8a3ab",
+            "exactBytes": true,
+            "contentType": "text/css; charset=utf-8",
+            "etag": "\"6ae4c2f2-4b30\"",
+            "lastModified": "Fri, 30 Oct 2026 16:16:50 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "website-product.js",
+            "requestedURL": "https://riftlet.com/website-product.js",
+            "finalURL": "https://riftlet.com/website-product.js",
+            "httpStatus": 200,
+            "bytes": 10922,
+            "sha256": "d4e5f90199250daf1ffc217550468598ebcd5b44d7c17d2785eb22d394873592",
+            "expectedBytes": 10922,
+            "expectedSHA256": "d4e5f90199250daf1ffc217550468598ebcd5b44d7c17d2785eb22d394873592",
+            "exactBytes": true,
+            "contentType": "application/javascript; charset=utf-8",
+            "etag": "\"6ae4c2f2-2aaa\"",
+            "lastModified": "Fri, 30 Oct 2026 16:16:50 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "website-v2.css",
+            "requestedURL": "https://riftlet.com/website-v2.css",
+            "finalURL": "https://riftlet.com/website-v2.css",
+            "httpStatus": 200,
+            "bytes": 49934,
+            "sha256": "8f4f55c20f5e24216d07e230b874f9e6797e041fd5349c9cb96fa6c1a40d0877",
+            "expectedBytes": 49934,
+            "expectedSHA256": "8f4f55c20f5e24216d07e230b874f9e6797e041fd5349c9cb96fa6c1a40d0877",
+            "exactBytes": true,
+            "contentType": "text/css; charset=utf-8",
+            "etag": "\"6ae4c2f2-c30e\"",
+            "lastModified": "Fri, 30 Oct 2026 16:16:50 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "website-v2.js",
+            "requestedURL": "https://riftlet.com/website-v2.js",
+            "finalURL": "https://riftlet.com/website-v2.js",
+            "httpStatus": 200,
+            "bytes": 12645,
+            "sha256": "be4b4d9fad81c7751330a3e27d7c26cd29800e162d5fcb54279be834ed294223",
+            "expectedBytes": 12645,
+            "expectedSHA256": "be4b4d9fad81c7751330a3e27d7c26cd29800e162d5fcb54279be834ed294223",
+            "exactBytes": true,
+            "contentType": "application/javascript; charset=utf-8",
+            "etag": "\"6ae4c2f2-3165\"",
+            "lastModified": "Fri, 30 Oct 2026 16:16:50 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "website/HERO_REVISION_2026-10-27.md",
+            "requestedURL": "https://riftlet.com/website/HERO_REVISION_2026-10-27.md",
+            "finalURL": "https://riftlet.com/website/HERO_REVISION_2026-10-27.md",
+            "httpStatus": 200,
+            "bytes": 3808,
+            "sha256": "0f9ae0bb112f78ea088c76e8fca6a1ae5e83aafe96a82326c91e7f1280449665",
+            "expectedBytes": 3808,
+            "expectedSHA256": "0f9ae0bb112f78ea088c76e8fca6a1ae5e83aafe96a82326c91e7f1280449665",
+            "exactBytes": true,
+            "contentType": "text/markdown; charset=utf-8",
+            "etag": "\"6ae4c2f2-ee0\"",
+            "lastModified": "Fri, 30 Oct 2026 16:16:50 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "website/README.md",
+            "requestedURL": "https://riftlet.com/website/README.md",
+            "finalURL": "https://riftlet.com/website/README.md",
+            "httpStatus": 200,
+            "bytes": 3579,
+            "sha256": "dea1ed8e18c518288315fc8f898fec00e28088d6c13b6b9b39ab9be0c8ecc698",
+            "expectedBytes": 3579,
+            "expectedSHA256": "dea1ed8e18c518288315fc8f898fec00e28088d6c13b6b9b39ab9be0c8ecc698",
+            "exactBytes": true,
+            "contentType": "text/markdown; charset=utf-8",
+            "etag": "\"6ae4c2f2-dfb\"",
+            "lastModified": "Fri, 30 Oct 2026 16:16:50 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "website/RELEASE_2026-10-30.md",
+            "requestedURL": "https://riftlet.com/website/RELEASE_2026-10-30.md",
+            "finalURL": "https://riftlet.com/website/RELEASE_2026-10-30.md",
+            "httpStatus": 200,
+            "bytes": 2386,
+            "sha256": "76ba82b2bd95b604b1fa8a685e6855b080d6a24b7aca7525e86eaa59c59b61d6",
+            "expectedBytes": 2386,
+            "expectedSHA256": "76ba82b2bd95b604b1fa8a685e6855b080d6a24b7aca7525e86eaa59c59b61d6",
+            "exactBytes": true,
+            "contentType": "text/markdown; charset=utf-8",
+            "etag": "\"6ae4c2f2-952\"",
+            "lastModified": "Fri, 30 Oct 2026 16:16:50 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "website/RESTORE_ART_DIRECTION_2026-10-27.md",
+            "requestedURL": "https://riftlet.com/website/RESTORE_ART_DIRECTION_2026-10-27.md",
+            "finalURL": "https://riftlet.com/website/RESTORE_ART_DIRECTION_2026-10-27.md",
+            "httpStatus": 200,
+            "bytes": 2303,
+            "sha256": "da0148962529397506fb94e3b6db2a5e2a820a33384c7f937988887c47eab6fd",
+            "expectedBytes": 2303,
+            "expectedSHA256": "da0148962529397506fb94e3b6db2a5e2a820a33384c7f937988887c47eab6fd",
+            "exactBytes": true,
+            "contentType": "text/markdown; charset=utf-8",
+            "etag": "\"6ae4c2f2-8ff\"",
+            "lastModified": "Fri, 30 Oct 2026 16:16:50 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "website/test-hero-layout.py",
+            "requestedURL": "https://riftlet.com/website/test-hero-layout.py",
+            "finalURL": "https://riftlet.com/website/test-hero-layout.py",
+            "httpStatus": 200,
+            "bytes": 1737,
+            "sha256": "c0575fce234bc45a9091462ee18e7ce7bea60dca5a1c7c6a97d163d9064aa442",
+            "expectedBytes": 1737,
+            "expectedSHA256": "c0575fce234bc45a9091462ee18e7ce7bea60dca5a1c7c6a97d163d9064aa442",
+            "exactBytes": true,
+            "contentType": "application/octet-stream",
+            "etag": "\"6ae4c2f2-6c9\"",
+            "lastModified": "Fri, 30 Oct 2026 16:16:50 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "website/test-hero-motion.py",
+            "requestedURL": "https://riftlet.com/website/test-hero-motion.py",
+            "finalURL": "https://riftlet.com/website/test-hero-motion.py",
+            "httpStatus": 200,
+            "bytes": 1400,
+            "sha256": "82acc0ff1aaf16cd449465f9619f307e094d033b33d378aebf96c6658d9d456e",
+            "expectedBytes": 1400,
+            "expectedSHA256": "82acc0ff1aaf16cd449465f9619f307e094d033b33d378aebf96c6658d9d456e",
+            "exactBytes": true,
+            "contentType": "application/octet-stream",
+            "etag": "\"6ae4c2f2-578\"",
+            "lastModified": "Fri, 30 Oct 2026 16:16:50 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "website/test-hero.py",
+            "requestedURL": "https://riftlet.com/website/test-hero.py",
+            "finalURL": "https://riftlet.com/website/test-hero.py",
+            "httpStatus": 200,
+            "bytes": 7528,
+            "sha256": "bd76ff309f7486dd455e1081867def647aad5f572c8b2854f62ba3a6dde85998",
+            "expectedBytes": 7528,
+            "expectedSHA256": "bd76ff309f7486dd455e1081867def647aad5f572c8b2854f62ba3a6dde85998",
+            "exactBytes": true,
+            "contentType": "application/octet-stream",
+            "etag": "\"6ae4c2f2-1d68\"",
+            "lastModified": "Fri, 30 Oct 2026 16:16:50 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "website/test-product.cjs",
+            "requestedURL": "https://riftlet.com/website/test-product.cjs",
+            "finalURL": "https://riftlet.com/website/test-product.cjs",
+            "httpStatus": 200,
+            "bytes": 9578,
+            "sha256": "e8e4c82e53eed7c34ad2c87f4d8ff17a01b9d5d9529bc2c516237c3d3724f7b1",
+            "expectedBytes": 9578,
+            "expectedSHA256": "e8e4c82e53eed7c34ad2c87f4d8ff17a01b9d5d9529bc2c516237c3d3724f7b1",
+            "exactBytes": true,
+            "contentType": "application/node",
+            "etag": "\"6ae4c2f2-256a\"",
+            "lastModified": "Fri, 30 Oct 2026 16:16:50 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "CNAME",
+            "requestedURL": "https://riftlet.com/CNAME",
+            "finalURL": "https://riftlet.com/CNAME",
+            "httpStatus": 200,
+            "bytes": 12,
+            "sha256": "37df7d8da26a03fbbc5f6bbc9055b1c150ac23d55a4315fe27390bc423e13f3c",
+            "expectedBytes": 12,
+            "expectedSHA256": "37df7d8da26a03fbbc5f6bbc9055b1c150ac23d55a4315fe27390bc423e13f3c",
+            "exactBytes": true,
+            "contentType": "application/octet-stream",
+            "etag": "\"6ae4c2f2-c\"",
+            "lastModified": "Fri, 30 Oct 2026 16:16:50 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": ".nojekyll",
+            "requestedURL": "https://riftlet.com/.nojekyll",
+            "finalURL": "https://riftlet.com/.nojekyll",
+            "httpStatus": 200,
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "expectedBytes": 0,
+            "expectedSHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "exactBytes": true,
+            "contentType": "application/octet-stream",
+            "etag": "\"6ae4c2f2-0\"",
+            "lastModified": "Fri, 30 Oct 2026 16:16:50 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "site.css",
+            "requestedURL": "https://riftlet.com/site.css",
+            "finalURL": "https://riftlet.com/site.css",
+            "httpStatus": 200,
+            "bytes": 27067,
+            "sha256": "55277e68f81c5dab78c5361015bff7308a63aade4539f994b0009c10756e85b3",
+            "expectedBytes": 27067,
+            "expectedSHA256": "55277e68f81c5dab78c5361015bff7308a63aade4539f994b0009c10756e85b3",
+            "exactBytes": true,
+            "contentType": "text/css; charset=utf-8",
+            "etag": "\"6ae4c2f2-69bb\"",
+            "lastModified": "Fri, 30 Oct 2026 16:16:50 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "site.js",
+            "requestedURL": "https://riftlet.com/site.js",
+            "finalURL": "https://riftlet.com/site.js",
+            "httpStatus": 200,
+            "bytes": 17820,
+            "sha256": "b775500d98b25c3bcd3875b77447b9e9cf3050b2df2f03c95445e824d3ecdfba",
+            "expectedBytes": 17820,
+            "expectedSHA256": "b775500d98b25c3bcd3875b77447b9e9cf3050b2df2f03c95445e824d3ecdfba",
+            "exactBytes": true,
+            "contentType": "application/javascript; charset=utf-8",
+            "etag": "\"6ae4c2f2-459c\"",
+            "lastModified": "Fri, 30 Oct 2026 16:16:50 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "robots.txt",
+            "requestedURL": "https://riftlet.com/robots.txt",
+            "finalURL": "https://riftlet.com/robots.txt",
+            "httpStatus": 200,
+            "bytes": 64,
+            "sha256": "a3b2d2e9db17520624109c6748e80fa275d65e0721c2d10d6dc5b7bf5a771d30",
+            "expectedBytes": 64,
+            "expectedSHA256": "a3b2d2e9db17520624109c6748e80fa275d65e0721c2d10d6dc5b7bf5a771d30",
+            "exactBytes": true,
+            "contentType": "text/plain; charset=utf-8",
+            "etag": "\"6ae4c2f2-40\"",
+            "lastModified": "Fri, 30 Oct 2026 16:16:50 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "sitemap.xml",
+            "requestedURL": "https://riftlet.com/sitemap.xml",
+            "finalURL": "https://riftlet.com/sitemap.xml",
+            "httpStatus": 200,
+            "bytes": 151,
+            "sha256": "ba267c777eb993e7f3cefb2fdc80a5350a1b9ea0b10433d7376e7310ae76f2ff",
+            "expectedBytes": 151,
+            "expectedSHA256": "ba267c777eb993e7f3cefb2fdc80a5350a1b9ea0b10433d7376e7310ae76f2ff",
+            "exactBytes": true,
+            "contentType": "application/xml",
+            "etag": "\"6ae4c2f2-97\"",
+            "lastModified": "Fri, 30 Oct 2026 16:16:50 GMT",
+            "server": "envoy"
+          }
+        ],
+        "livePublicContentResult": "PASS",
+        "pagesDeployment": {
+          "runID": 41088370226,
+          "runURL": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/41088370226",
+          "source": "fccd809e9d55e0b221e75e6dcd7c21f6d357ee74",
+          "conclusion": "success",
+          "jobs": {
+            "build": 124175426135,
+            "report-build-status": 124175523573,
+            "deploy": 124175523934
+          },
+          "observedEnvironmentURL": "https://riftlet.com/",
+          "buildMode": "Existing .nojekyll branch-root upload; no Jekyll compilation step",
+          "logs": {
+            "124175426135": {
+              "file": "premerge-pages-124175426135.log",
+              "sha256": "946018ce62f1343ea085f9914b245e349fd85962723e40320f53b2fd546e6fbb"
+            },
+            "124175523934": {
+              "file": "premerge-pages-124175523934.log",
+              "sha256": "75c7f38fd32887b18c8c662a0aaadb9e44752f762838cb3f41f3fb6550c311cd"
+            }
+          }
+        },
+        "mainMigrationRiskAssessment": {
+          "websiteResult": "PASS; all34website/config objects exact and public bytes match",
+          "additionalProductFiles": "Existing .nojekyll Pages root publisher will copy eligible added public repository files as static data. The separate full-tree privacy review is still required before merge. Swift/Python sources do not execute on Pages.",
+          "remainingVerification": "Actual standard merge parents/tree, subsequent Pages run and repeated same34live content checks."
+        }
+      }
+    },
+    "websiteAfterPR1": {
+      "fileName": "post-pr1.json",
+      "bytes": 36538,
+      "sha256": "3b0c3800d15f430a3c4bb886b88e492065f7608c3ad73aecf0b1339e4cea6428",
+      "report": {
+        "schemaVersion": 1,
+        "timeUTC": "2026-10-31T09:34:13.277289+00:00",
+        "base": "fccd809e9d55e0b221e75e6dcd7c21f6d357ee74",
+        "revision": "58f894af0f5d9bb0250c1e41750528232696b60c",
+        "tree": "d7a16bf0d5550c3d54972d6fd4ac7c74133167eb",
+        "approvedWebsiteObjectCount": 28,
+        "additionalInheritedWebsiteConfigurationCount": 6,
+        "objects": [
+          {
+            "path": "favicon.svg",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "0b3bd76e4db66be4eaff53c3274121c6da866b82"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "0b3bd76e4db66be4eaff53c3274121c6da866b82"
+            },
+            "exact": true,
+            "approvedOverlay": true
+          },
+          {
+            "path": "index.html",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "4097707b40721b9a01ae4d1efc4b544881c10b6e"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "4097707b40721b9a01ae4d1efc4b544881c10b6e"
+            },
+            "exact": true,
+            "approvedOverlay": true
+          },
+          {
+            "path": "site.webmanifest",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "de02f57e7457770f012f33197d13d381402c8699"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "de02f57e7457770f012f33197d13d381402c8699"
+            },
+            "exact": true,
+            "approvedOverlay": true
+          },
+          {
+            "path": "website-assets/error.svg",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "7ae4e464d40b0fca66a92c7be38ba0aed0fecf44"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "7ae4e464d40b0fca66a92c7be38ba0aed0fecf44"
+            },
+            "exact": true,
+            "approvedOverlay": true
+          },
+          {
+            "path": "website-assets/fonts/FONT-SOURCES.json",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "4185934e8b50c7bb22adb4eb13b1470c30770c05"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "4185934e8b50c7bb22adb4eb13b1470c30770c05"
+            },
+            "exact": true,
+            "approvedOverlay": true
+          },
+          {
+            "path": "website-assets/fonts/Instrument-Serif-OFL.txt",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "669ce7917bec662fcf7244d37f49c4277f6fbd73"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "669ce7917bec662fcf7244d37f49c4277f6fbd73"
+            },
+            "exact": true,
+            "approvedOverlay": true
+          },
+          {
+            "path": "website-assets/fonts/Noto-Serif-SC-OFL.txt",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "94d1bf7b52481343e2983fb7751e8b7abe1ea07b"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "94d1bf7b52481343e2983fb7751e8b7abe1ea07b"
+            },
+            "exact": true,
+            "approvedOverlay": true
+          },
+          {
+            "path": "website-assets/fonts/instrument-serif-italic.woff2",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "ce3c417c8d0e9f012bb697d25a0874d148ea89e6"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "ce3c417c8d0e9f012bb697d25a0874d148ea89e6"
+            },
+            "exact": true,
+            "approvedOverlay": true
+          },
+          {
+            "path": "website-assets/fonts/instrument-serif.woff2",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "17653042acca7f87268c8c29dc8c0cc094c0b124"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "17653042acca7f87268c8c29dc8c0cc094c0b124"
+            },
+            "exact": true,
+            "approvedOverlay": true
+          },
+          {
+            "path": "website-assets/fonts/noto-serif-sc.woff2",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "0b168de5852c35da7b650c48dd5a248f389910c0"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "0b168de5852c35da7b650c48dd5a248f389910c0"
+            },
+            "exact": true,
+            "approvedOverlay": true
+          },
+          {
+            "path": "website-assets/glass-study.png",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "2f4593262ab240d0b16e2b2c2b6ea098dbfdf492"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "2f4593262ab240d0b16e2b2c2b6ea098dbfdf492"
+            },
+            "exact": true,
+            "approvedOverlay": true
+          },
+          {
+            "path": "website-assets/reading.svg",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "336ad5196625501271106b8f82561c45759c2750"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "336ad5196625501271106b8f82561c45759c2750"
+            },
+            "exact": true,
+            "approvedOverlay": true
+          },
+          {
+            "path": "website-assets/riftlet.svg",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "8742e132f43b61819e8550ad24eb8552d8621d9f"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "8742e132f43b61819e8550ad24eb8552d8621d9f"
+            },
+            "exact": true,
+            "approvedOverlay": true
+          },
+          {
+            "path": "website-hero.css",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "5349abef4838f4590e8d6421069816cc99bec460"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "5349abef4838f4590e8d6421069816cc99bec460"
+            },
+            "exact": true,
+            "approvedOverlay": true
+          },
+          {
+            "path": "website-hero.js",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "dad41af6d6d2d421afc7a07042eeb7b8cc301d9e"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "dad41af6d6d2d421afc7a07042eeb7b8cc301d9e"
+            },
+            "exact": true,
+            "approvedOverlay": true
+          },
+          {
+            "path": "website-locale.js",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "451ab3500e55129f4ccedf4de7ec3d818d09ea85"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "451ab3500e55129f4ccedf4de7ec3d818d09ea85"
+            },
+            "exact": true,
+            "approvedOverlay": true
+          },
+          {
+            "path": "website-product.css",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "89db114f288ef3d2dd9e66a67072fae2aad1da77"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "89db114f288ef3d2dd9e66a67072fae2aad1da77"
+            },
+            "exact": true,
+            "approvedOverlay": true
+          },
+          {
+            "path": "website-product.js",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "7d8510923fe7d959f483610486bcac1ca5a12a9a"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "7d8510923fe7d959f483610486bcac1ca5a12a9a"
+            },
+            "exact": true,
+            "approvedOverlay": true
+          },
+          {
+            "path": "website-v2.css",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "9cde1e595f320134468c6689c716601790c522f0"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "9cde1e595f320134468c6689c716601790c522f0"
+            },
+            "exact": true,
+            "approvedOverlay": true
+          },
+          {
+            "path": "website-v2.js",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "60e3a5293a146d39031831dc82a2300f2db2c769"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "60e3a5293a146d39031831dc82a2300f2db2c769"
+            },
+            "exact": true,
+            "approvedOverlay": true
+          },
+          {
+            "path": "website/HERO_REVISION_2026-10-27.md",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "3fd19dca32f5d1758bb24491e1d566d33e5a3359"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "3fd19dca32f5d1758bb24491e1d566d33e5a3359"
+            },
+            "exact": true,
+            "approvedOverlay": true
+          },
+          {
+            "path": "website/README.md",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "4110cc04e441b13ea0be632af4bbc99dac549178"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "4110cc04e441b13ea0be632af4bbc99dac549178"
+            },
+            "exact": true,
+            "approvedOverlay": true
+          },
+          {
+            "path": "website/RELEASE_2026-10-30.md",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "dcc6be2aca5457821f064706aeed9087348963e1"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "dcc6be2aca5457821f064706aeed9087348963e1"
+            },
+            "exact": true,
+            "approvedOverlay": true
+          },
+          {
+            "path": "website/RESTORE_ART_DIRECTION_2026-10-27.md",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "c4b404a16baf599e3365fb486b534eed768a0f81"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "c4b404a16baf599e3365fb486b534eed768a0f81"
+            },
+            "exact": true,
+            "approvedOverlay": true
+          },
+          {
+            "path": "website/test-hero-layout.py",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "99d162db1247a6a4578a87ac82992a23e0cc8914"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "99d162db1247a6a4578a87ac82992a23e0cc8914"
+            },
+            "exact": true,
+            "approvedOverlay": true
+          },
+          {
+            "path": "website/test-hero-motion.py",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "da33a99adc0099efce9b2eeec4ec8afcb36f6196"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "da33a99adc0099efce9b2eeec4ec8afcb36f6196"
+            },
+            "exact": true,
+            "approvedOverlay": true
+          },
+          {
+            "path": "website/test-hero.py",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "8d48acc7c765af2c58a5eb692b2a9df3a34abe9c"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "8d48acc7c765af2c58a5eb692b2a9df3a34abe9c"
+            },
+            "exact": true,
+            "approvedOverlay": true
+          },
+          {
+            "path": "website/test-product.cjs",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "b1ca496f318e11a709561de15d3f8299e720d2bf"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "b1ca496f318e11a709561de15d3f8299e720d2bf"
+            },
+            "exact": true,
+            "approvedOverlay": true
+          },
+          {
+            "path": "CNAME",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "9d5b3fa390ba9f35e6b20ad97524d8ebfddec52f"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "9d5b3fa390ba9f35e6b20ad97524d8ebfddec52f"
+            },
+            "exact": true,
+            "approvedOverlay": false
+          },
+          {
+            "path": ".nojekyll",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+            },
+            "exact": true,
+            "approvedOverlay": false
+          },
+          {
+            "path": "site.css",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "37d7c46b8dddb813f96a543e0d533a60bd392ef5"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "37d7c46b8dddb813f96a543e0d533a60bd392ef5"
+            },
+            "exact": true,
+            "approvedOverlay": false
+          },
+          {
+            "path": "site.js",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "2e22dd42a2333f59e31bf28fec11fb7813c1c6f2"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "2e22dd42a2333f59e31bf28fec11fb7813c1c6f2"
+            },
+            "exact": true,
+            "approvedOverlay": false
+          },
+          {
+            "path": "robots.txt",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "2154875108ef03595237ab62cc5f1907a1e8a5fa"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "2154875108ef03595237ab62cc5f1907a1e8a5fa"
+            },
+            "exact": true,
+            "approvedOverlay": false
+          },
+          {
+            "path": "sitemap.xml",
+            "expected": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "0d5e2b239c54fcfe6d1951263de271b485f816e4"
+            },
+            "actual": {
+              "mode": "100644",
+              "type": "blob",
+              "oid": "0d5e2b239c54fcfe6d1951263de271b485f816e4"
+            },
+            "exact": true,
+            "approvedOverlay": false
+          }
+        ],
+        "objectResult": "PASS",
+        "domain": "riftlet.com",
+        "deploymentMechanism": "Existing GitHub Pages dynamic branch build; .nojekyll retained. No deployment settings or DNS mutation.",
+        "limitations": [
+          "Byte equality validates unchanged presentation inputs; this is not a fresh browser pixel or interaction review.",
+          "Pages config API is not available through current GitHub fetch connector; deployed URL, source CNAME, and actual Pages workflow provide observed deployment evidence."
+        ],
+        "live": [
+          {
+            "path": "favicon.svg",
+            "requestedURL": "https://riftlet.com/favicon.svg",
+            "finalURL": "https://riftlet.com/favicon.svg",
+            "httpStatus": 200,
+            "bytes": 342,
+            "sha256": "546d57a4d36d5f975a969f8a8bd73ffac35cc8271057767d246e81a1b7d19343",
+            "expectedBytes": 342,
+            "expectedSHA256": "546d57a4d36d5f975a969f8a8bd73ffac35cc8271057767d246e81a1b7d19343",
+            "exactBytes": true,
+            "contentType": "image/svg+xml",
+            "etag": "\"6ae5b5f8-156\"",
+            "lastModified": "Sat, 31 Oct 2026 09:33:44 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "index.html",
+            "requestedURL": "https://riftlet.com/",
+            "finalURL": "https://riftlet.com/",
+            "httpStatus": 200,
+            "bytes": 20001,
+            "sha256": "41ec2e00d28213f41113e7aa83196d6afdcffe4f7613aba00787e7220f3a7fc1",
+            "expectedBytes": 20001,
+            "expectedSHA256": "41ec2e00d28213f41113e7aa83196d6afdcffe4f7613aba00787e7220f3a7fc1",
+            "exactBytes": true,
+            "contentType": "text/html; charset=utf-8",
+            "etag": "\"6ae5b5f8-4e21\"",
+            "lastModified": "Sat, 31 Oct 2026 09:33:44 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "site.webmanifest",
+            "requestedURL": "https://riftlet.com/site.webmanifest",
+            "finalURL": "https://riftlet.com/site.webmanifest",
+            "httpStatus": 200,
+            "bytes": 366,
+            "sha256": "e18f942837780356537c157b253d0d9c8a466437f4bcbb892c85ad3f7ea05d94",
+            "expectedBytes": 366,
+            "expectedSHA256": "e18f942837780356537c157b253d0d9c8a466437f4bcbb892c85ad3f7ea05d94",
+            "exactBytes": true,
+            "contentType": "application/manifest+json; charset=utf-8",
+            "etag": "\"6ae5b5f8-16e\"",
+            "lastModified": "Sat, 31 Oct 2026 09:33:44 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "website-assets/error.svg",
+            "requestedURL": "https://riftlet.com/website-assets/error.svg",
+            "finalURL": "https://riftlet.com/website-assets/error.svg",
+            "httpStatus": 200,
+            "bytes": 1136,
+            "sha256": "18ab8d07caeb7a6d800135bbd55d50929e56a5a175466a4b913ed6a2ed9a7bb4",
+            "expectedBytes": 1136,
+            "expectedSHA256": "18ab8d07caeb7a6d800135bbd55d50929e56a5a175466a4b913ed6a2ed9a7bb4",
+            "exactBytes": true,
+            "contentType": "image/svg+xml",
+            "etag": "\"6ae5b5f8-470\"",
+            "lastModified": "Sat, 31 Oct 2026 09:33:44 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "website-assets/fonts/FONT-SOURCES.json",
+            "requestedURL": "https://riftlet.com/website-assets/fonts/FONT-SOURCES.json",
+            "finalURL": "https://riftlet.com/website-assets/fonts/FONT-SOURCES.json",
+            "httpStatus": 200,
+            "bytes": 8565,
+            "sha256": "351416fd89934cd60e14992f5f0ddb4520cc016dadf28e065a7fc1e4940865f5",
+            "expectedBytes": 8565,
+            "expectedSHA256": "351416fd89934cd60e14992f5f0ddb4520cc016dadf28e065a7fc1e4940865f5",
+            "exactBytes": true,
+            "contentType": "application/json; charset=utf-8",
+            "etag": "\"6ae5b5f8-2175\"",
+            "lastModified": "Sat, 31 Oct 2026 09:33:44 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "website-assets/fonts/Instrument-Serif-OFL.txt",
+            "requestedURL": "https://riftlet.com/website-assets/fonts/Instrument-Serif-OFL.txt",
+            "finalURL": "https://riftlet.com/website-assets/fonts/Instrument-Serif-OFL.txt",
+            "httpStatus": 200,
+            "bytes": 4405,
+            "sha256": "129ed7618959716959f2941fdd5b49e0ad6e6c1d78726761786a00253d865521",
+            "expectedBytes": 4405,
+            "expectedSHA256": "129ed7618959716959f2941fdd5b49e0ad6e6c1d78726761786a00253d865521",
+            "exactBytes": true,
+            "contentType": "text/plain; charset=utf-8",
+            "etag": "\"6ae5b5f8-1135\"",
+            "lastModified": "Sat, 31 Oct 2026 09:33:44 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "website-assets/fonts/Noto-Serif-SC-OFL.txt",
+            "requestedURL": "https://riftlet.com/website-assets/fonts/Noto-Serif-SC-OFL.txt",
+            "finalURL": "https://riftlet.com/website-assets/fonts/Noto-Serif-SC-OFL.txt",
+            "httpStatus": 200,
+            "bytes": 4350,
+            "sha256": "5e0da210fb04058a8c0087985d2d456b931c2579811a49655721d3cf0c36b6d6",
+            "expectedBytes": 4350,
+            "expectedSHA256": "5e0da210fb04058a8c0087985d2d456b931c2579811a49655721d3cf0c36b6d6",
+            "exactBytes": true,
+            "contentType": "text/plain; charset=utf-8",
+            "etag": "\"6ae5b5f8-10fe\"",
+            "lastModified": "Sat, 31 Oct 2026 09:33:44 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "website-assets/fonts/instrument-serif-italic.woff2",
+            "requestedURL": "https://riftlet.com/website-assets/fonts/instrument-serif-italic.woff2",
+            "finalURL": "https://riftlet.com/website-assets/fonts/instrument-serif-italic.woff2",
+            "httpStatus": 200,
+            "bytes": 15684,
+            "sha256": "6ee678c33f388dd7ba59700ebea635deb98821baafd817b09891f7927177f702",
+            "expectedBytes": 15684,
+            "expectedSHA256": "6ee678c33f388dd7ba59700ebea635deb98821baafd817b09891f7927177f702",
+            "exactBytes": true,
+            "contentType": "font/woff2",
+            "etag": "\"6ae5b5f8-3d44\"",
+            "lastModified": "Sat, 31 Oct 2026 09:33:44 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "website-assets/fonts/instrument-serif.woff2",
+            "requestedURL": "https://riftlet.com/website-assets/fonts/instrument-serif.woff2",
+            "finalURL": "https://riftlet.com/website-assets/fonts/instrument-serif.woff2",
+            "httpStatus": 200,
+            "bytes": 15040,
+            "sha256": "60c06664b5a95c7de6cc3e00d1f9034d78bd1e40b564016b241674449a067d4d",
+            "expectedBytes": 15040,
+            "expectedSHA256": "60c06664b5a95c7de6cc3e00d1f9034d78bd1e40b564016b241674449a067d4d",
+            "exactBytes": true,
+            "contentType": "font/woff2",
+            "etag": "\"6ae5b5f8-3ac0\"",
+            "lastModified": "Sat, 31 Oct 2026 09:33:44 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "website-assets/fonts/noto-serif-sc.woff2",
+            "requestedURL": "https://riftlet.com/website-assets/fonts/noto-serif-sc.woff2",
+            "finalURL": "https://riftlet.com/website-assets/fonts/noto-serif-sc.woff2",
+            "httpStatus": 200,
+            "bytes": 64288,
+            "sha256": "e99295774744be5b2ffc3c8e52c4b32072e766030dc02cfd936354a461d52140",
+            "expectedBytes": 64288,
+            "expectedSHA256": "e99295774744be5b2ffc3c8e52c4b32072e766030dc02cfd936354a461d52140",
+            "exactBytes": true,
+            "contentType": "font/woff2",
+            "etag": "\"6ae5b5f8-fb20\"",
+            "lastModified": "Sat, 31 Oct 2026 09:33:44 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "website-assets/glass-study.png",
+            "requestedURL": "https://riftlet.com/website-assets/glass-study.png",
+            "finalURL": "https://riftlet.com/website-assets/glass-study.png",
+            "httpStatus": 200,
+            "bytes": 1940321,
+            "sha256": "41d79d326388250273405565626ce0fecdb65f777f3844bc33147c8654446a63",
+            "expectedBytes": 1940321,
+            "expectedSHA256": "41d79d326388250273405565626ce0fecdb65f777f3844bc33147c8654446a63",
+            "exactBytes": true,
+            "contentType": "image/png",
+            "etag": "\"6ae5b5f8-1d9b61\"",
+            "lastModified": "Sat, 31 Oct 2026 09:33:44 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "website-assets/reading.svg",
+            "requestedURL": "https://riftlet.com/website-assets/reading.svg",
+            "finalURL": "https://riftlet.com/website-assets/reading.svg",
+            "httpStatus": 200,
+            "bytes": 1960,
+            "sha256": "c715b7a8f635f63240cd59d3473d427815c17750a87884556d8f171d526b2579",
+            "expectedBytes": 1960,
+            "expectedSHA256": "c715b7a8f635f63240cd59d3473d427815c17750a87884556d8f171d526b2579",
+            "exactBytes": true,
+            "contentType": "image/svg+xml",
+            "etag": "\"6ae5b5f8-7a8\"",
+            "lastModified": "Sat, 31 Oct 2026 09:33:44 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "website-assets/riftlet.svg",
+            "requestedURL": "https://riftlet.com/website-assets/riftlet.svg",
+            "finalURL": "https://riftlet.com/website-assets/riftlet.svg",
+            "httpStatus": 200,
+            "bytes": 343,
+            "sha256": "f31d71318e1aaef2464bbcc25c5a105fa6959d10006eb7c64d30aac42fbb3e90",
+            "expectedBytes": 343,
+            "expectedSHA256": "f31d71318e1aaef2464bbcc25c5a105fa6959d10006eb7c64d30aac42fbb3e90",
+            "exactBytes": true,
+            "contentType": "image/svg+xml",
+            "etag": "\"6ae5b5f8-157\"",
+            "lastModified": "Sat, 31 Oct 2026 09:33:44 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "website-hero.css",
+            "requestedURL": "https://riftlet.com/website-hero.css",
+            "finalURL": "https://riftlet.com/website-hero.css",
+            "httpStatus": 200,
+            "bytes": 9908,
+            "sha256": "400febbc44540f7438f2d41a36f0cb771b805fa42782007cd8d34cbba9aa1472",
+            "expectedBytes": 9908,
+            "expectedSHA256": "400febbc44540f7438f2d41a36f0cb771b805fa42782007cd8d34cbba9aa1472",
+            "exactBytes": true,
+            "contentType": "text/css; charset=utf-8",
+            "etag": "\"6ae5b5f8-26b4\"",
+            "lastModified": "Sat, 31 Oct 2026 09:33:44 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "website-hero.js",
+            "requestedURL": "https://riftlet.com/website-hero.js",
+            "finalURL": "https://riftlet.com/website-hero.js",
+            "httpStatus": 200,
+            "bytes": 9332,
+            "sha256": "5f917a2e0926118a72170b3b76ec14f80b731a23a09326b3f1f49a4bed9383d2",
+            "expectedBytes": 9332,
+            "expectedSHA256": "5f917a2e0926118a72170b3b76ec14f80b731a23a09326b3f1f49a4bed9383d2",
+            "exactBytes": true,
+            "contentType": "application/javascript; charset=utf-8",
+            "etag": "\"6ae5b5f8-2474\"",
+            "lastModified": "Sat, 31 Oct 2026 09:33:44 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "website-locale.js",
+            "requestedURL": "https://riftlet.com/website-locale.js",
+            "finalURL": "https://riftlet.com/website-locale.js",
+            "httpStatus": 200,
+            "bytes": 12227,
+            "sha256": "96a2e44901d78e26ec9c92eae447fcd8abdcc9ab2cb73a70a7cbc879f2c5b564",
+            "expectedBytes": 12227,
+            "expectedSHA256": "96a2e44901d78e26ec9c92eae447fcd8abdcc9ab2cb73a70a7cbc879f2c5b564",
+            "exactBytes": true,
+            "contentType": "application/javascript; charset=utf-8",
+            "etag": "\"6ae5b5f8-2fc3\"",
+            "lastModified": "Sat, 31 Oct 2026 09:33:44 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "website-product.css",
+            "requestedURL": "https://riftlet.com/website-product.css",
+            "finalURL": "https://riftlet.com/website-product.css",
+            "httpStatus": 200,
+            "bytes": 19248,
+            "sha256": "71a1e762dbf88df03d2e2217c247117ca619d63fa75817b7537bd4210dc8a3ab",
+            "expectedBytes": 19248,
+            "expectedSHA256": "71a1e762dbf88df03d2e2217c247117ca619d63fa75817b7537bd4210dc8a3ab",
+            "exactBytes": true,
+            "contentType": "text/css; charset=utf-8",
+            "etag": "\"6ae5b5f8-4b30\"",
+            "lastModified": "Sat, 31 Oct 2026 09:33:44 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "website-product.js",
+            "requestedURL": "https://riftlet.com/website-product.js",
+            "finalURL": "https://riftlet.com/website-product.js",
+            "httpStatus": 200,
+            "bytes": 10922,
+            "sha256": "d4e5f90199250daf1ffc217550468598ebcd5b44d7c17d2785eb22d394873592",
+            "expectedBytes": 10922,
+            "expectedSHA256": "d4e5f90199250daf1ffc217550468598ebcd5b44d7c17d2785eb22d394873592",
+            "exactBytes": true,
+            "contentType": "application/javascript; charset=utf-8",
+            "etag": "\"6ae5b5f8-2aaa\"",
+            "lastModified": "Sat, 31 Oct 2026 09:33:44 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "website-v2.css",
+            "requestedURL": "https://riftlet.com/website-v2.css",
+            "finalURL": "https://riftlet.com/website-v2.css",
+            "httpStatus": 200,
+            "bytes": 49934,
+            "sha256": "8f4f55c20f5e24216d07e230b874f9e6797e041fd5349c9cb96fa6c1a40d0877",
+            "expectedBytes": 49934,
+            "expectedSHA256": "8f4f55c20f5e24216d07e230b874f9e6797e041fd5349c9cb96fa6c1a40d0877",
+            "exactBytes": true,
+            "contentType": "text/css; charset=utf-8",
+            "etag": "\"6ae5b5f8-c30e\"",
+            "lastModified": "Sat, 31 Oct 2026 09:33:44 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "website-v2.js",
+            "requestedURL": "https://riftlet.com/website-v2.js",
+            "finalURL": "https://riftlet.com/website-v2.js",
+            "httpStatus": 200,
+            "bytes": 12645,
+            "sha256": "be4b4d9fad81c7751330a3e27d7c26cd29800e162d5fcb54279be834ed294223",
+            "expectedBytes": 12645,
+            "expectedSHA256": "be4b4d9fad81c7751330a3e27d7c26cd29800e162d5fcb54279be834ed294223",
+            "exactBytes": true,
+            "contentType": "application/javascript; charset=utf-8",
+            "etag": "\"6ae5b5f8-3165\"",
+            "lastModified": "Sat, 31 Oct 2026 09:33:44 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "website/HERO_REVISION_2026-10-27.md",
+            "requestedURL": "https://riftlet.com/website/HERO_REVISION_2026-10-27.md",
+            "finalURL": "https://riftlet.com/website/HERO_REVISION_2026-10-27.md",
+            "httpStatus": 200,
+            "bytes": 3808,
+            "sha256": "0f9ae0bb112f78ea088c76e8fca6a1ae5e83aafe96a82326c91e7f1280449665",
+            "expectedBytes": 3808,
+            "expectedSHA256": "0f9ae0bb112f78ea088c76e8fca6a1ae5e83aafe96a82326c91e7f1280449665",
+            "exactBytes": true,
+            "contentType": "text/markdown; charset=utf-8",
+            "etag": "\"6ae5b5f8-ee0\"",
+            "lastModified": "Sat, 31 Oct 2026 09:33:44 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "website/README.md",
+            "requestedURL": "https://riftlet.com/website/README.md",
+            "finalURL": "https://riftlet.com/website/README.md",
+            "httpStatus": 200,
+            "bytes": 3579,
+            "sha256": "dea1ed8e18c518288315fc8f898fec00e28088d6c13b6b9b39ab9be0c8ecc698",
+            "expectedBytes": 3579,
+            "expectedSHA256": "dea1ed8e18c518288315fc8f898fec00e28088d6c13b6b9b39ab9be0c8ecc698",
+            "exactBytes": true,
+            "contentType": "text/markdown; charset=utf-8",
+            "etag": "\"6ae5b5f8-dfb\"",
+            "lastModified": "Sat, 31 Oct 2026 09:33:44 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "website/RELEASE_2026-10-30.md",
+            "requestedURL": "https://riftlet.com/website/RELEASE_2026-10-30.md",
+            "finalURL": "https://riftlet.com/website/RELEASE_2026-10-30.md",
+            "httpStatus": 200,
+            "bytes": 2386,
+            "sha256": "76ba82b2bd95b604b1fa8a685e6855b080d6a24b7aca7525e86eaa59c59b61d6",
+            "expectedBytes": 2386,
+            "expectedSHA256": "76ba82b2bd95b604b1fa8a685e6855b080d6a24b7aca7525e86eaa59c59b61d6",
+            "exactBytes": true,
+            "contentType": "text/markdown; charset=utf-8",
+            "etag": "\"6ae5b5f8-952\"",
+            "lastModified": "Sat, 31 Oct 2026 09:33:44 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "website/RESTORE_ART_DIRECTION_2026-10-27.md",
+            "requestedURL": "https://riftlet.com/website/RESTORE_ART_DIRECTION_2026-10-27.md",
+            "finalURL": "https://riftlet.com/website/RESTORE_ART_DIRECTION_2026-10-27.md",
+            "httpStatus": 200,
+            "bytes": 2303,
+            "sha256": "da0148962529397506fb94e3b6db2a5e2a820a33384c7f937988887c47eab6fd",
+            "expectedBytes": 2303,
+            "expectedSHA256": "da0148962529397506fb94e3b6db2a5e2a820a33384c7f937988887c47eab6fd",
+            "exactBytes": true,
+            "contentType": "text/markdown; charset=utf-8",
+            "etag": "\"6ae5b5f8-8ff\"",
+            "lastModified": "Sat, 31 Oct 2026 09:33:44 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "website/test-hero-layout.py",
+            "requestedURL": "https://riftlet.com/website/test-hero-layout.py",
+            "finalURL": "https://riftlet.com/website/test-hero-layout.py",
+            "httpStatus": 200,
+            "bytes": 1737,
+            "sha256": "c0575fce234bc45a9091462ee18e7ce7bea60dca5a1c7c6a97d163d9064aa442",
+            "expectedBytes": 1737,
+            "expectedSHA256": "c0575fce234bc45a9091462ee18e7ce7bea60dca5a1c7c6a97d163d9064aa442",
+            "exactBytes": true,
+            "contentType": "application/octet-stream",
+            "etag": "\"6ae5b5f8-6c9\"",
+            "lastModified": "Sat, 31 Oct 2026 09:33:44 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "website/test-hero-motion.py",
+            "requestedURL": "https://riftlet.com/website/test-hero-motion.py",
+            "finalURL": "https://riftlet.com/website/test-hero-motion.py",
+            "httpStatus": 200,
+            "bytes": 1400,
+            "sha256": "82acc0ff1aaf16cd449465f9619f307e094d033b33d378aebf96c6658d9d456e",
+            "expectedBytes": 1400,
+            "expectedSHA256": "82acc0ff1aaf16cd449465f9619f307e094d033b33d378aebf96c6658d9d456e",
+            "exactBytes": true,
+            "contentType": "application/octet-stream",
+            "etag": "\"6ae5b5f8-578\"",
+            "lastModified": "Sat, 31 Oct 2026 09:33:44 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "website/test-hero.py",
+            "requestedURL": "https://riftlet.com/website/test-hero.py",
+            "finalURL": "https://riftlet.com/website/test-hero.py",
+            "httpStatus": 200,
+            "bytes": 7528,
+            "sha256": "bd76ff309f7486dd455e1081867def647aad5f572c8b2854f62ba3a6dde85998",
+            "expectedBytes": 7528,
+            "expectedSHA256": "bd76ff309f7486dd455e1081867def647aad5f572c8b2854f62ba3a6dde85998",
+            "exactBytes": true,
+            "contentType": "application/octet-stream",
+            "etag": "\"6ae5b5f8-1d68\"",
+            "lastModified": "Sat, 31 Oct 2026 09:33:44 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "website/test-product.cjs",
+            "requestedURL": "https://riftlet.com/website/test-product.cjs",
+            "finalURL": "https://riftlet.com/website/test-product.cjs",
+            "httpStatus": 200,
+            "bytes": 9578,
+            "sha256": "e8e4c82e53eed7c34ad2c87f4d8ff17a01b9d5d9529bc2c516237c3d3724f7b1",
+            "expectedBytes": 9578,
+            "expectedSHA256": "e8e4c82e53eed7c34ad2c87f4d8ff17a01b9d5d9529bc2c516237c3d3724f7b1",
+            "exactBytes": true,
+            "contentType": "application/node",
+            "etag": "\"6ae5b5f8-256a\"",
+            "lastModified": "Sat, 31 Oct 2026 09:33:44 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "CNAME",
+            "requestedURL": "https://riftlet.com/CNAME",
+            "finalURL": "https://riftlet.com/CNAME",
+            "httpStatus": 200,
+            "bytes": 12,
+            "sha256": "37df7d8da26a03fbbc5f6bbc9055b1c150ac23d55a4315fe27390bc423e13f3c",
+            "expectedBytes": 12,
+            "expectedSHA256": "37df7d8da26a03fbbc5f6bbc9055b1c150ac23d55a4315fe27390bc423e13f3c",
+            "exactBytes": true,
+            "contentType": "application/octet-stream",
+            "etag": "\"6ae5b5f8-c\"",
+            "lastModified": "Sat, 31 Oct 2026 09:33:44 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": ".nojekyll",
+            "requestedURL": "https://riftlet.com/.nojekyll",
+            "finalURL": "https://riftlet.com/.nojekyll",
+            "httpStatus": 200,
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "expectedBytes": 0,
+            "expectedSHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "exactBytes": true,
+            "contentType": "application/octet-stream",
+            "etag": "\"6ae5b5f8-0\"",
+            "lastModified": "Sat, 31 Oct 2026 09:33:44 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "site.css",
+            "requestedURL": "https://riftlet.com/site.css",
+            "finalURL": "https://riftlet.com/site.css",
+            "httpStatus": 200,
+            "bytes": 27067,
+            "sha256": "55277e68f81c5dab78c5361015bff7308a63aade4539f994b0009c10756e85b3",
+            "expectedBytes": 27067,
+            "expectedSHA256": "55277e68f81c5dab78c5361015bff7308a63aade4539f994b0009c10756e85b3",
+            "exactBytes": true,
+            "contentType": "text/css; charset=utf-8",
+            "etag": "\"6ae5b5f8-69bb\"",
+            "lastModified": "Sat, 31 Oct 2026 09:33:44 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "site.js",
+            "requestedURL": "https://riftlet.com/site.js",
+            "finalURL": "https://riftlet.com/site.js",
+            "httpStatus": 200,
+            "bytes": 17820,
+            "sha256": "b775500d98b25c3bcd3875b77447b9e9cf3050b2df2f03c95445e824d3ecdfba",
+            "expectedBytes": 17820,
+            "expectedSHA256": "b775500d98b25c3bcd3875b77447b9e9cf3050b2df2f03c95445e824d3ecdfba",
+            "exactBytes": true,
+            "contentType": "application/javascript; charset=utf-8",
+            "etag": "\"6ae5b5f8-459c\"",
+            "lastModified": "Sat, 31 Oct 2026 09:33:44 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "robots.txt",
+            "requestedURL": "https://riftlet.com/robots.txt",
+            "finalURL": "https://riftlet.com/robots.txt",
+            "httpStatus": 200,
+            "bytes": 64,
+            "sha256": "a3b2d2e9db17520624109c6748e80fa275d65e0721c2d10d6dc5b7bf5a771d30",
+            "expectedBytes": 64,
+            "expectedSHA256": "a3b2d2e9db17520624109c6748e80fa275d65e0721c2d10d6dc5b7bf5a771d30",
+            "exactBytes": true,
+            "contentType": "text/plain; charset=utf-8",
+            "etag": "\"6ae5b5f8-40\"",
+            "lastModified": "Sat, 31 Oct 2026 09:33:44 GMT",
+            "server": "envoy"
+          },
+          {
+            "path": "sitemap.xml",
+            "requestedURL": "https://riftlet.com/sitemap.xml",
+            "finalURL": "https://riftlet.com/sitemap.xml",
+            "httpStatus": 200,
+            "bytes": 151,
+            "sha256": "ba267c777eb993e7f3cefb2fdc80a5350a1b9ea0b10433d7376e7310ae76f2ff",
+            "expectedBytes": 151,
+            "expectedSHA256": "ba267c777eb993e7f3cefb2fdc80a5350a1b9ea0b10433d7376e7310ae76f2ff",
+            "exactBytes": true,
+            "contentType": "application/xml",
+            "etag": "\"6ae5b5f8-97\"",
+            "lastModified": "Sat, 31 Oct 2026 09:33:44 GMT",
+            "server": "envoy"
+          }
+        ],
+        "livePublicContentResult": "PASS",
+        "actualMain": {
+          "sha": "58f894af0f5d9bb0250c1e41750528232696b60c",
+          "tree": "d7a16bf0d5550c3d54972d6fd4ac7c74133167eb",
+          "parents": [
+            "fccd809e9d55e0b221e75e6dcd7c21f6d357ee74",
+            "253ac8db92bfba9083d485b71b84c594223da217"
+          ],
+          "independentRemoteRefRead": true,
+          "independentLocalCommitObjectRead": true
+        },
+        "pagesDeployment": {
+          "runID": 41189158797,
+          "runURL": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/41189158797",
+          "source": "58f894af0f5d9bb0250c1e41750528232696b60c",
+          "conclusion": "success",
+          "runAttempt": 1,
+          "completedUTC": "2026-10-31T09:33:54Z",
+          "jobs": {
+            "build": {
+              "id": 124502161016,
+              "conclusion": "success"
+            },
+            "deploy": {
+              "id": 124502199314,
+              "conclusion": "success"
+            },
+            "report-build-status": {
+              "id": 124502199402,
+              "conclusion": "success"
+            }
+          },
+          "observedEnvironmentURL": "https://riftlet.com/",
+          "logs": {
+            "124502161016": {
+              "file": "post-pr1-pages-124502161016.log",
+              "sha256": "f2187409bc738767ec12826b800fc6ebf0bfa4d977f89231de48ef4b71e37082"
+            },
+            "124502199314": {
+              "file": "post-pr1-pages-124502199314.log",
+              "sha256": "7a41879bf2328098a9debdd939593cccfcadda15e4313e1413be495413900095"
+            }
+          }
+        },
+        "all34PostdeployHTTPBodyHashesEqualPremerge": true,
+        "all34PostdeployHTTPBodiesEqualApprovedMain": true,
+        "sourceAndDeployAndPublicContentResult": "PASS"
+      }
+    },
+    "governanceDesign": {
+      "fileName": "design-review.json",
+      "bytes": 9419,
+      "sha256": "da5a556ff43b51ce32056fb8acae4ad120f4a3c03ba7b28f8be210243f3ea190",
+      "report": {
+        "schemaVersion": 1,
+        "role": "independent architecture reviewer, not implementation author",
+        "reviewedInput": "253ac8db92bfba9083d485b71b84c594223da217",
+        "decision": "CONDITIONAL_DESIGN_APPROVAL_PENDING_EXACT_IMPLEMENTATION",
+        "confirmedCurrentDefects": [
+          "Native and Feedback workflows do not trigger on push to main.",
+          "Path filters can leave required workflows Pending for documentation/site-only future PRs.",
+          "Both workflows expose source_admission as the same job name, making required-check matching ambiguous.",
+          "Current final composition gate recognizes website overlay only when exact fccd website main is an immediate parent; ordinary descendants after main merge fail the full protected-tree comparison.",
+          "Existing review pin is PR-controlled code; it establishes byte agreement with a declared checkpoint but cannot independently prove non-author review."
+        ],
+        "minimumRecommendedPolicy": {
+          "historicalInvariants": "Keep existing four historical audit blobs, original revisions and ancestry checks exact. Keep legacy final gate at 253 and its accepted PR1 merge source as an additional pinned historical audit rather than rewriting historical evidence.",
+          "bootstrap": "Use actual independently verified two-parent PR1 merge M as immutable mainline anchor. Assert its exact tree and ordered parents [fccd,253]. Use 253 legacy gate bytes to verify M, retaining its 28 individually pinned website objects.",
+          "reviewCheckpoint": "For each formal development PR, make source checkpoint S based on the current actual main B, review S independently, then publish only narrowly named policy/evidence metadata H. Full protected objects/modes/path set in H must equal S. Pin B and S only after their actual independent reviews; CLI/environment cannot supply arbitrary approval pins.",
+          "ordinaryCandidate": "Check B is an ancestor of S and S is an ancestor of candidate H; check anchor M is ancestor of B; compare complete protected tree to S, with only named existing regular plain-text metadata exceptions.",
+          "actualPullRequest": "Validate actual checkout equals GITHUB_SHA, ordered parents exactly [B,H], event base/head identities agree with actual parents, B equals declared reviewed base, H contains S, and merge protected tree exactly equals candidate and S. If B moved, fail until re-integration/review. Do not grant a directory allowance.",
+          "mainPush": "Validate actual main checkout equals GITHUB_SHA/after; actual two ordered parents are [B,H]; push before equals B; candidate parent tree passes same source/checkpoint rules. Reject direct single-parent or extra-parent updates in CI, even if bytes otherwise match. Standard GitHub merge SHA may differ from prior test merge but tree and ordered parents must agree.",
+          "workingTree": "Inspect committed git objects with git --no-replace-objects and sanitized GIT_* environment. Reject dirty/checkout mismatch in formal event mode so running build inputs cannot silently differ from audited tree.",
+          "website": "Retain original fixed fccd website source and all28 exact approved website objects. New unified source already contains them; no loose overlay or new website-root allowance. Any future website change needs a distinct explicit reviewed pin update.",
+          "reviewBoundary": "Do not describe policy pin updates as cryptographic review proof. Required non-author review or a separately trusted review attestation is still needed to protect policy/workflow edits. No generic trust-on-first-use of arbitrary HEAD/base commits."
+        },
+        "workflowChanges": [
+          "Add main push with no path filters; enable pull_request for all formal main-target PR changes without paths. Preserve active specialist branch behavior until its owner deliberately migrates; do not retarget PR24 in this governance PR.",
+          "Give all required jobs unique stable names across the two workflows; verify actual resulting check names before protecting branch.",
+          "Keep every existing Native ARM/Intel, Feedback service/native, packaging, visual, source-isolation, archived evidence step and its strict failures. Existing specialist-only steps remain at original scope; do not broaden them merely to remove old conditionals.",
+          "Keep contents:read, checkout persist-credentials:false, pinned actions, and actual PR merge checkout. Do not switch to pull_request_target or execute untrusted source with write tokens.",
+          "Avoid job-level skip guards on required checks. If adding aggregate required checks, use always()+needs and explicitly reject any dependency result other than success.",
+          "Record event/source head/actual checkout/tree/parents in source report and artifacts. Do not relabel old CI as postmerge execution."
+        ],
+        "negativeTests": [
+          "unreviewed product, test, workflow, neighbor, addition, deletion and mode change all fail",
+          "missing/wrong reviewed source or base pin fails",
+          "same tree without source/base/anchor ancestry fails",
+          "candidate parent contains unreviewed bytes concealed by merge tree fails",
+          "reversed/wrong/extra merge parents fail",
+          "event SHA/head/base or push before/after does not equal actual commit graph fails",
+          "single-parent direct main push fails",
+          "unknown newer main with otherwise matching bytes fails until reviewed",
+          "any one of28 website objects changed/deleted/executable and unexpected neighbor fails",
+          "historical gate changed even if included in reviewed checkpoint fails",
+          "metadata absent/symlink/executable/deleted fails; metadata neighbor not exempt",
+          "environment/Git replace refs cannot redirect approved objects",
+          "legacy fixture suite retains all prior PASS/rejection behavior",
+          "workflow contract tests ensure both architectures/Feedback/unique names/unfiltered main events/read-only token/no new skip remain"
+        ],
+        "branchProtection": {
+          "requirements": [
+            "Pull requests required",
+            "At least one non-author approving review if an actual eligible reviewer is available; dismiss stale approvals and require latest reviewable push approval",
+            "Strict up-to-date required checks from GitHub Actions",
+            "Conversation resolution",
+            "Enforce admins/no bypass",
+            "No force pushes or deletions",
+            "Do not require linear history, which would prohibit requested standard merge commits"
+          ],
+          "candidateCheckNames": [
+            "Native source admission",
+            "Native ARM64",
+            "Native Intel",
+            "Feedback source admission",
+            "Feedback native and service"
+          ],
+          "permissions": "Administration repository write is required for configuration; owner metadata alone does not mean the installed App token has it.",
+          "limitation": "A sole owner cannot supply a GitHub approving review on their own PR. Agent non-author review records must not be labeled GitHub APPROVED reviews. Do not fabricate an identity or bypass an established rule; configure real enforceable controls and record any unavailable permission/reviewer."
+        },
+        "primarySources": [
+          "https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches",
+          "https://docs.github.com/en/pull-requests/how-tos/merge-and-close-pull-requests/troubleshooting-required-status-checks",
+          "https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows",
+          "https://docs.github.com/en/rest/branches/branch-protection"
+        ],
+        "selectedImplementationDirection": {
+          "proposal": "Successor scripts/verify-mainline-composition.py plus exactly one excluded engineering/mainline/source-admission.json, leaving all old gates byte-for-byte unchanged.",
+          "decision": "CONDITIONAL_APPROVAL; exact source review still required",
+          "why": "Keeps historical behavior replayable while giving mainline a clean, one-record source review checkpoint. Avoids growing legacy metadata exception list or trusting arbitrary HEAD automatically.",
+          "conditions": [
+            "Pin PR1 source253 and actual merged foundationM, exact tree and ordered parents; run legacy pinned gate at253 andM.",
+            "Single excluded JSON must already exist in reviewed G as regular100644, obey exact schema, identify exact base and source tree, and bind full independent reports/hashes. Actual merge and candidate must carry the identical JSON blob.",
+            "All other objects/modes/paths equal reviewedG; current build checkout must be the inspected commit.",
+            "Freeze all pre-existing engineering/evidence and research objects, historical scripts and exact website objects from foundation; adding a new path requires explicit checkpoint review.",
+            "Require ordered actual parents [base,candidate], source/base/anchor ancestry, complete merge tree equal candidate, and event SHA/head/base or main push before/after bound to those actual objects.",
+            "No direct-main single-parent acceptance, policy pin CLI override, event-name-only admission or whole-directory allowance.",
+            "Explicitly acknowledge JSON and code are inside repository and not a cryptographic independent approval. Maintain real non-author engineering review records and configure GitHub enforcement when authority exists.",
+            "If Administration write unavailable, report that remote branch-protection enforcement remains unavailable; do not claim a CI script alone prevents direct changes."
+          ]
+        }
+      }
+    },
+    "draftCheckoutRejectionFindings": {
+      "fileName": "independent-mainline-before-cleanliness-fix.json",
+      "bytes": 2931,
+      "sha256": "f13adb9085a12e72b9c21b50ac3cd555e698ca9947046fbe064b376736518a93",
+      "report": {
+        "schemaVersion": 1,
+        "createdUTC": "2026-10-31T09:39:27.456964+00:00",
+        "reviewer": "/root/premerge_audit",
+        "scope": "Independent disposable clone using real foundation and original immutable historical audits; all source/review commits synthetic local-only. No native or network operations.",
+        "draftGateSHA256": "400f0b96e6d03d7474213076d227354448c3ca49a10eaea18c3dc907731291d9",
+        "results": [
+          {
+            "name": "positive exact PR merge",
+            "expected": "PASS",
+            "actual": "PASS",
+            "matchesExpectation": true,
+            "failedChecks": [],
+            "checks": 66
+          },
+          {
+            "name": "untracked extra Swift file must not attest pristine checkout",
+            "expected": "FAIL",
+            "actual": "PASS",
+            "matchesExpectation": false,
+            "failedChecks": [],
+            "checks": 66
+          },
+          {
+            "name": "assume-unchanged cannot hide source bytes",
+            "expected": "FAIL",
+            "actual": "PASS",
+            "matchesExpectation": false,
+            "failedChecks": [],
+            "checks": 66
+          },
+          {
+            "name": "skip-worktree cannot hide source bytes",
+            "expected": "FAIL",
+            "actual": "PASS",
+            "matchesExpectation": false,
+            "failedChecks": [],
+            "checks": 66
+          },
+          {
+            "name": "strict production schema rejects numeric zero in place of false",
+            "expected": "FAIL",
+            "actual": "FAIL",
+            "matchesExpectation": true,
+            "failedChecks": [
+              {
+                "id": "audit:inputs",
+                "result": "FAIL",
+                "error": "Production admission boundary changed"
+              }
+            ],
+            "checks": 7
+          },
+          {
+            "name": "actually indexed gitlink rejected even with exact synthetic approval",
+            "expected": "FAIL",
+            "actual": "FAIL",
+            "matchesExpectation": true,
+            "failedChecks": [
+              {
+                "id": "candidate:exact-paths",
+                "result": "FAIL",
+                "missing": [
+                  "Vendor/Injected"
+                ],
+                "unexpected": []
+              },
+              {
+                "id": "candidate:exact-objects",
+                "result": "FAIL",
+                "protectedFileCount": 1032,
+                "differences": [
+                  "Vendor/Injected"
+                ]
+              },
+              {
+                "id": "checkout:exact-paths",
+                "result": "FAIL",
+                "missing": [
+                  "Vendor/Injected"
+                ],
+                "unexpected": []
+              },
+              {
+                "id": "checkout:exact-objects",
+                "result": "FAIL",
+                "protectedFileCount": 1032,
+                "differences": [
+                  "Vendor/Injected"
+                ]
+              },
+              {
+                "id": "reviewed:regular-files",
+                "result": "FAIL",
+                "differences": [
+                  "Vendor/Injected"
+                ]
+              }
+            ],
+            "checks": 66
+          }
+        ],
+        "unexpectedPasses": [
+          "untracked extra Swift file must not attest pristine checkout",
+          "assume-unchanged cannot hide source bytes",
+          "skip-worktree cannot hide source bytes"
+        ]
+      }
+    },
+    "correctedIndependentRejectionProbes": {
+      "fileName": "independent-mainline-draft-probes.json",
+      "bytes": 4385,
+      "sha256": "f29bedd20cd5fc164b1d7b9fb085b2229d49f693cb6ce396075a6a5b1946afdd",
+      "report": {
+        "schemaVersion": 1,
+        "createdUTC": "2026-10-31T09:42:15.145684+00:00",
+        "reviewer": "/root/premerge_audit",
+        "scope": "Independent disposable clone using real foundation and original immutable historical audits; all source/review commits synthetic local-only. No native or network operations.",
+        "draftGateSHA256": "5a32959a5a584a23b02195af0dee6220f5d74c73c237cff3f781da5f2fbfb397",
+        "results": [
+          {
+            "name": "positive exact PR merge",
+            "expected": "PASS",
+            "actual": "PASS",
+            "matchesExpectation": true,
+            "failedChecks": [],
+            "checks": 67
+          },
+          {
+            "name": "untracked extra Swift file must not attest pristine checkout",
+            "expected": "FAIL",
+            "actual": "FAIL",
+            "matchesExpectation": true,
+            "failedChecks": [
+              {
+                "id": "checkout:no-untracked-inputs",
+                "result": "FAIL",
+                "unexpected": [
+                  "Sources/RiftletApp/IndependentInjected.swift"
+                ]
+              }
+            ],
+            "checks": 67
+          },
+          {
+            "name": "gitignored extra Swift file must not bypass input inventory",
+            "expected": "FAIL",
+            "actual": "FAIL",
+            "matchesExpectation": true,
+            "failedChecks": [
+              {
+                "id": "checkout:no-untracked-inputs",
+                "result": "FAIL",
+                "unexpected": [
+                  "Sources/RiftletApp/IndependentIgnored.swift"
+                ]
+              }
+            ],
+            "checks": 67
+          },
+          {
+            "name": "untracked SwiftPM configuration is a build input",
+            "expected": "FAIL",
+            "actual": "FAIL",
+            "matchesExpectation": true,
+            "failedChecks": [
+              {
+                "id": "checkout:no-untracked-inputs",
+                "result": "FAIL",
+                "unexpected": [
+                  ".swiftpm/configuration/mirrors.json"
+                ]
+              }
+            ],
+            "checks": 67
+          },
+          {
+            "name": "explicit source-job output directories remain allowed",
+            "expected": "PASS",
+            "actual": "PASS",
+            "matchesExpectation": true,
+            "failedChecks": [],
+            "checks": 67
+          },
+          {
+            "name": "assume-unchanged cannot hide source bytes",
+            "expected": "FAIL",
+            "actual": "FAIL",
+            "matchesExpectation": true,
+            "failedChecks": [
+              {
+                "id": "checkout:actual-bytes-and-modes",
+                "result": "FAIL",
+                "differences": [
+                  "Sources/RiftletApp/RiftletMain.swift"
+                ]
+              }
+            ],
+            "checks": 67
+          },
+          {
+            "name": "skip-worktree cannot hide source bytes",
+            "expected": "FAIL",
+            "actual": "FAIL",
+            "matchesExpectation": true,
+            "failedChecks": [
+              {
+                "id": "checkout:actual-bytes-and-modes",
+                "result": "FAIL",
+                "differences": [
+                  "Sources/RiftletApp/RiftletMain.swift"
+                ]
+              }
+            ],
+            "checks": 67
+          },
+          {
+            "name": "strict production schema rejects numeric zero in place of false",
+            "expected": "FAIL",
+            "actual": "FAIL",
+            "matchesExpectation": true,
+            "failedChecks": [
+              {
+                "id": "audit:inputs",
+                "result": "FAIL",
+                "error": "Production admission boundary changed"
+              }
+            ],
+            "checks": 7
+          },
+          {
+            "name": "actually indexed gitlink rejected even with exact synthetic approval",
+            "expected": "FAIL",
+            "actual": "FAIL",
+            "matchesExpectation": true,
+            "failedChecks": [
+              {
+                "id": "candidate:exact-paths",
+                "result": "FAIL",
+                "missing": [
+                  "Vendor/Injected"
+                ],
+                "unexpected": []
+              },
+              {
+                "id": "candidate:exact-objects",
+                "result": "FAIL",
+                "protectedFileCount": 1032,
+                "differences": [
+                  "Vendor/Injected"
+                ]
+              },
+              {
+                "id": "checkout:exact-paths",
+                "result": "FAIL",
+                "missing": [
+                  "Vendor/Injected"
+                ],
+                "unexpected": []
+              },
+              {
+                "id": "checkout:exact-objects",
+                "result": "FAIL",
+                "protectedFileCount": 1032,
+                "differences": [
+                  "Vendor/Injected"
+                ]
+              },
+              {
+                "id": "reviewed:regular-files",
+                "result": "FAIL",
+                "differences": [
+                  "Vendor/Injected"
+                ]
+              }
+            ],
+            "checks": 67
+          }
+        ],
+        "unexpectedPasses": []
+      }
+    },
+    "governanceScopeReview": {
+      "fileName": "governance-draft-scope-review.json",
+      "bytes": 3894,
+      "sha256": "c658e942259a720876b4669540d0478e973d042d77a639e174e17942dfbff80e",
+      "report": {
+        "schemaVersion": 1,
+        "createdUTC": "2026-10-31T09:42:38.942298+00:00",
+        "reviewer": "/root/premerge_audit",
+        "status": "DRAFT_SCOPE_REVIEW_NOT_COMMITTED_SOURCE_APPROVAL",
+        "base": "58f894af0f5d9bb0250c1e41750528232696b60c",
+        "trackedRuntimeAndHistoryUnchanged": {
+          "Sources": true,
+          "Resources": true,
+          "Package.swift": true,
+          "packaging": true,
+          "services/feedback": true,
+          "ThirdPartyNotices": true,
+          "engineering/evidence": false,
+          "research": true
+        },
+        "workflowExecutionSteps": {
+          "native-foundation.yml": {
+            "job": "macos",
+            "stepCount": 26,
+            "allOriginalExecutionStepsIdentical": true,
+            "changedJobKeys": [
+              "name",
+              "strategy"
+            ]
+          },
+          "feedback-v01.yml": {
+            "job": "feedback",
+            "stepCount": 8,
+            "allOriginalExecutionStepsIdentical": true,
+            "changedJobKeys": [
+              "name"
+            ]
+          }
+        },
+        "historicalInstructionsPreserved": {
+          "AGENTS.md": {
+            "oldSHA256": "a1b77a7af1ba185324d37f25c3522d059c181b1138f7c501acec416179ffee92",
+            "oldCompleteBytesRetainedAsSuffix": true,
+            "newPrefixBytes": 1634
+          },
+          "docs/EXECUTION_BOARD.md": {
+            "oldSHA256": "1f4cba002caa8f4812f595fe408c1a4984bd43705ad9990e18fb2b6fcfec1709",
+            "oldCompleteBytesRetainedAsSuffix": true,
+            "newPrefixBytes": 768
+          }
+        },
+        "draftFiles": [
+          {
+            "path": ".github/workflows/feedback-v01.yml",
+            "sha256": "350fe85a5d0a7d5be835cec5d06c4f4db89f132b95a197e30d4cf4a4972cdbaf",
+            "bytes": 4703
+          },
+          {
+            "path": ".github/workflows/native-foundation.yml",
+            "sha256": "12b7ffbbdcd0d08dc2a5f46fa2677aa34720d4f385286248d2b7d07bd7e7eadb",
+            "bytes": 17663
+          },
+          {
+            "path": "AGENTS.md",
+            "sha256": "4a3c51db1a655d4927276d1989a8571565909f5e3061537bf472f21dcbcc7640",
+            "bytes": 17081
+          },
+          {
+            "path": "Tests/MainlineIsolation/test_composition.py",
+            "sha256": "0ba8326676819c1719c90fe778f67a56502bf3bee4a0cfa4e73788056bb90a2b",
+            "bytes": 23361
+          },
+          {
+            "path": "docs/EXECUTION_BOARD.md",
+            "sha256": "3c4edf641c8b556ee4dde1d3afb3da5d412b84cf1f8ecc5d1ee623f599f150d2",
+            "bytes": 60541
+          },
+          {
+            "path": "docs/MAINLINE_GOVERNANCE.md",
+            "sha256": "75ef2bf7f9c7b85d0c880fcf41d9317c56beee7adb16257139920ffa8c62278e",
+            "bytes": 10405
+          },
+          {
+            "path": "engineering/evidence/2026-10-31-mainline-migration/preflight.json",
+            "sha256": "6186a775287090c0214fa1ec931c4467ab99e6ff91f9818b4400785b454f85ed",
+            "bytes": 141136
+          },
+          {
+            "path": "engineering/mainline/branch-protection.request.json",
+            "sha256": "64d1e8f94914a8c34c392b253512582361e28047289354badaf8cf5bf0391aed",
+            "bytes": 786
+          },
+          {
+            "path": "engineering/mainline/source-admission.json",
+            "sha256": "118144eacddd75ed22f08fdfaef82632fd69c1d4a462198a64cf8eca368590f0",
+            "bytes": 442
+          },
+          {
+            "path": "scripts/verify-mainline-composition.py",
+            "sha256": "5a32959a5a584a23b02195af0dee6220f5d74c73c237cff3f781da5f2fbfb397",
+            "bytes": 20573
+          }
+        ],
+        "admissionPlaceholderNotApprovingSource": true,
+        "assessment": [
+          "Main push and main-target PR triggers now unfiltered; no runtime test or packaging step removed or weakened.",
+          "Explicit five distinct required-check names resolve prior duplicate source_admission ambiguity; per-architecture runners preserved.",
+          "Successor fixed-foundation/base/source/admission-only protocol retains old gate bytes, historical evidence, website34objects and actual event/ordered-parent checks.",
+          "Three independently reproduced actual-checkout pollution holes are corrected via direct filesystem bytes/modes and inventory; committed G still requires exact review.",
+          "One checked-in branch protection request is merely desired policy; no remote enforcement or human GitHub approval claimed."
+        ]
+      }
+    }
+  },
+  "localGovernanceTests": {
+    "count": 34,
+    "result": "PASS",
+    "logSHA256": "a41a6bbe18a1e4cc22e329255aea3b6f4e33227fadd565fc030f74e9219dfd67",
+    "log": "testAbsentSelfApprovalHashMismatchAndMismatchedEmbeddedReportFail (test_composition.MainlineCompositionTests.testAbsentSelfApprovalHashMismatchAndMismatchedEmbeddedReportFail) ... ok\ntestActualPRMergeAndMainPushPassWithSameTree (test_composition.MainlineCompositionTests.testActualPRMergeAndMainPushPassWithSameTree) ... ok\ntestAdmissionMissingExecutableAndSymlinkFail (test_composition.MainlineCompositionTests.testAdmissionMissingExecutableAndSymlinkFail) ... ok\ntestAdmissionMustAlreadyExistInReviewedSource (test_composition.MainlineCompositionTests.testAdmissionMustAlreadyExistInReviewedSource) ... ok\ntestBadFoundationOrEmptyPreservationPolicyFails (test_composition.MainlineCompositionTests.testBadFoundationOrEmptyPreservationPolicyFails) ... ok\ntestDirtyTrackedCheckoutFailsFormalEvent (test_composition.MainlineCompositionTests.testDirtyTrackedCheckoutFailsFormalEvent) ... ok\ntestDuplicateUnknownAndOversizedJSONFieldsFail (test_composition.MainlineCompositionTests.testDuplicateUnknownAndOversizedJSONFieldsFail) ... ok\ntestEveryProductionBoundaryRemainsClosed (test_composition.MainlineCompositionTests.testEveryProductionBoundaryRemainsClosed) ... ok\ntestEvidenceAddedByEarlierMainPRBecomesImmutable (test_composition.MainlineCompositionTests.testEvidenceAddedByEarlierMainPRBecomesImmutable) ... ok\ntestFailingHistoricalAuditCannotBeIgnored (test_composition.MainlineCompositionTests.testFailingHistoricalAuditCannotBeIgnored) ... ok\ntestGitEnvironmentAndReplaceRefsCannotRedirectApprovedObjects (test_composition.MainlineCompositionTests.testGitEnvironmentAndReplaceRefsCannotRedirectApprovedObjects) ... ok\ntestIgnoredOrUntrackedCompilerInputFailsButCIReportsDoNot (test_composition.MainlineCompositionTests.testIgnoredOrUntrackedCompilerInputFailsButCIReportsDoNot) ... ok\ntestImmutableEvidenceAndHistoricalGatesCannotBeRepinnedAsNewSource (test_composition.MainlineCompositionTests.testImmutableEvidenceAndHistoricalGatesCannotBeRepinnedAsNewSource) ... ok\ntestIndexFlagsCannotHideChangedActualSource (test_composition.MainlineCompositionTests.testIndexFlagsCannotHideChangedActualSource) ... ok\ntestMergeAdmissionMustBeByteIdenticalToCandidate (test_composition.MainlineCompositionTests.testMergeAdmissionMustBeByteIdenticalToCandidate) ... ok\ntestMergeCannotHideUnreviewedCandidateBytes (test_composition.MainlineCompositionTests.testMergeCannotHideUnreviewedCandidateBytes) ... ok\ntestMissingFormalEventAndCLIApprovalOverrideFail (test_composition.MainlineCompositionTests.testMissingFormalEventAndCLIApprovalOverrideFail) ... ok\ntestMissingOrWrongSourceAndBasePinsFail (test_composition.MainlineCompositionTests.testMissingOrWrongSourceAndBasePinsFail) ... ok\ntestMovedBaseNeedsFreshReviewEvenIfMergeTreeUnchanged (test_composition.MainlineCompositionTests.testMovedBaseNeedsFreshReviewEvenIfMergeTreeUnchanged) ... ok\ntestNextReviewedPRUsesNewMainBaseWithoutRepinningFoundation (test_composition.MainlineCompositionTests.testNextReviewedPRUsesNewMainBaseWithoutRepinningFoundation) ... ok\ntestPRSHAHeadBaseRefAndRepositoryMismatchFail (test_composition.MainlineCompositionTests.testPRSHAHeadBaseRefAndRepositoryMismatchFail) ... ok\ntestProductTestWorkflowAndPolicyEditsCannotBorrowOldReview (test_composition.MainlineCompositionTests.testProductTestWorkflowAndPolicyEditsCannotBorrowOldReview) ... ok\ntestProductionFalseCannotBeReplacedByNumber (test_composition.MainlineCompositionTests.testProductionFalseCannotBeReplacedByNumber) ... ok\ntestPushBeforeAfterRefForcedAndDeletedMismatchFail (test_composition.MainlineCompositionTests.testPushBeforeAfterRefForcedAndDeletedMismatchFail) ... ok\ntestReversedExtraOrWrongMergeParentsFail (test_composition.MainlineCompositionTests.testReversedExtraOrWrongMergeParentsFail) ... ok\ntestReviewedCandidatePasses (test_composition.MainlineCompositionTests.testReviewedCandidatePasses) ... ok\ntestSingleParentDirectMainPushFails (test_composition.MainlineCompositionTests.testSingleParentDirectMainPushFails) ... ok\ntestSourceMustDescendExactFoundationAndBase (test_composition.MainlineCompositionTests.testSourceMustDescendExactFoundationAndBase) ... ok\ntestSwiftPMConfigurationIsNotAnExemptOutput (test_composition.MainlineCompositionTests.testSwiftPMConfigurationIsNotAnExemptOutput) ... ok\ntestSymlinkOrSubmoduleCannotBeAdmittedEvenAtReviewedCheckpoint (test_composition.MainlineCompositionTests.testSymlinkOrSubmoduleCannotBeAdmittedEvenAtReviewedCheckpoint) ... ok\ntestUnreviewedNeighborAdditionDeletionAndModeFail (test_composition.MainlineCompositionTests.testUnreviewedNeighborAdditionDeletionAndModeFail) ... ok\ntestWebsiteChangeCannotBeRepinnedAsNewSource (test_composition.MainlineCompositionTests.testWebsiteChangeCannotBeRepinnedAsNewSource) ... ok\ntestFormalMainEventsAreUnfilteredAndTokenRemainsReadOnly (test_composition.WorkflowContractTests.testFormalMainEventsAreUnfilteredAndTokenRemainsReadOnly) ... ok\ntestRequiredNamesArchitecturesAndFullExecutionArePreserved (test_composition.WorkflowContractTests.testRequiredNamesArchitecturesAndFullExecutionArePreserved) ... ok\n\n----------------------------------------------------------------------\nRan 34 tests in 9.225s\n\nOK\n"
+  },
+  "necessaryDraftCorrections": [
+    "Freeze both foundation and already accepted reviewed-base evidence; new evidence cannot be rewritten by a later source checkpoint.",
+    "Validate boolean types as well as values; integer zero is not production false.",
+    "Compare actual checkout bytes and modes independently of Git flags, and reject untracked/ignored inputs. Only Git metadata and the two source-job report roots are exempt; SwiftPM/build configuration is not."
+  ],
+  "reviewBoundary": "Draft findings and local tests are not approval. Exact committed source reports and subsequent admission-only delta must be reviewed before formal merge; current admission record is deliberately unapproved.",
+  "branchProtectionObservation": {
+    "protected": false,
+    "rulesets": [],
+    "protectionGET": "403 Resource not accessible by integration",
+    "missingPermission": "Repository Administration: write and supported configuration surface",
+    "requestApplied": false
+  },
+  "excludedWork": {
+    "pr24HeadObserved": "c63309c3850fd16969dc0117d47da5bc854e9cc8",
+    "pr24Modified": false,
+    "productionAdmissionChanged": false,
+    "publicRelease": false,
+    "userDataAccessed": false
+  }
+}

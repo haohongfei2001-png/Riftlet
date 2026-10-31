@@ -1,3 +1,15 @@
+# Official mainline migration — 2026-10-31
+
+PR #1 is standard-merged into main as `58f894af0f5d9bb0250c1e41750528232696b60c`;
+its tree equals the reviewed R2 actual CI merge. The integration lead owns the
+separate mainline CI-governance PR, its independent review, full PR/main CI and
+postmerge verification. This is the current authorized engineering packet.
+Use [mainline governance](MAINLINE_GOVERNANCE.md) and the committed admission
+record for subsequent formal work. The older Draft-only/no-main statements below
+remain historical. PR #24 stays independent and unmodified; production admission
+and final physical acceptance boundaries remain unchanged. No new product work,
+private data cleanup, public release or founder Beta request is part of this packet.
+
 ## Feedback cloud closeout — 2026-10-29 15:39 UTC
 
 Real Receiver/D1/cron and three unique private Issues/body matches are verified. Owner permanently deleted exactlyIssues1/2/3; independent authorized checks returned explicit deleted410 plus a correct private repo and empty complete state=all list. After independent semantic review, guarded D1 closure and original-capability GETs verify all8rows deleted/body0/pendingDelete0/probe0/limits100,20; three final GET assertions pass. Normal cron recovered original diagnostic Issue2 while retaining deletion intent and original attempt time; no direct diagnostic201/branch capture is claimed. Ordinary Receiver39f6277e andDelivery3c749b91 restored, temporary variables/probe removed; two-site manual redirect fix24local tests is reviewed. Independent final cloud review approved activation, and root applied only the fixed real HTTPS Host literal, leaving other Host bytes unchanged. Configuration does not claim per-report receipt. Exact successor source/admission/fullCI/unifiedApp results are resolved from final-product metadata and the formal PR handoff; H ARM/Intel/FeedbackCI and its local-outbox-only packages remain historical, never relabeled as the new enabled build. [Final cloud evidence](../engineering/evidence/2026-10-29-feedback-cloud/README.md). RealMac work remains prepared forCodex, not executed/scheduled. Earlier browser disconnection/uncreated-resource/pending-cleanup states are historical. Preserve all independent screenshot tasks below, original UNKNOWN/data, workflows/gates/main and no-public-release boundary.

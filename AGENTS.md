@@ -1,3 +1,28 @@
+# Current official mainline — 2026-10-31
+
+The user explicitly authorized PR #1's standard two-parent merge into main and
+a separate reviewed CI-governance PR. PR #1 is merged as
+`58f894af0f5d9bb0250c1e41750528232696b60c`, preserving the exact reviewed/tested
+tree. Main is now the sole formal product source; older instructions below to
+keep PR #1 Draft or never merge main are historical and superseded for this
+authorized integration. Read `docs/MAINLINE_GOVERNANCE.md` before new formal work.
+
+Use short-lived PRs from actual current main. Preserve the original source gates
+and historical evidence. The successor gate requires an independently reviewed
+source checkpoint and a direct admission-only child; actual PR/main merge trees,
+ordered parents and Actions events must agree. Passing builds do not approve
+source. Do not auto-pin arbitrary HEAD, relax gates, squash/rebase/force-push,
+directly change main or bypass remote protection. The checked-in branch-protection
+request is not proof of application; consult the latest actual permission/result.
+
+PR #24 is independent R2.1 work, excluded from this migration; preserve its branch
+and coordinate only at its owner's completed handoff. PR #23 is already integrated.
+Do not alter product behavior, clear/replay UNKNOWN or media, expand the existing
+restricted candidate, open ordinary production/built-in upload/safe-retry/Web
+continuation, publish a release or ask the founder to try a Beta for governance.
+Final source admission is `engineering/mainline/source-admission.json`; completed
+CI and artifact identities are recorded in the corresponding formal PR delivery.
+
 # Current Feedback cloud closeout — 2026-10-29 15:39 UTC
 
 Real Receiver/D1/cron produced3 unique private Issues with exact bodies. Owner permanent deletion, independent same-authorized-repo explicit410/deleted and empty-all-list verification, exact guarded D1 closure and original-capability deleted GETs are complete. Final D1 rows8/deleted8/body0/pendingDelete0/probe0/limits100,20; keep tombstones and historical Issue identities. The diagnostic actual creation->uncertain->original-Issue reconciliation is observed, but its HTTP201 and discard-branch execution were not directly captured. Do not label these synthetic service tests native E2E. Workers two-site redirect:error->manual fix has24 local cases after3 old-source failures; ordinary Receiver39f6277e/Delivery3c749b91 are restored with no temporary instrumentation. Final cloud review approved activation and root has applied the exact one-line fixed HTTPS endpoint to FeedbackHost; all other Host bytes are unchanged. Source is configured, not a claim that every feedback is received or delivered. H CI/local-outbox-only packages remain historical. Resolve exact successor source/admission/full CI/unified package from final-product metadata and the formal PR handoff; never guess outcomes or weaken gates. Current evidence: `engineering/evidence/2026-10-29-feedback-cloud/README.md`. Browser/authorization are available; old disconnect/resource-uncreated/deletion-pending statements are historical. Real Mac connection/UI/IME/VoiceOver/restart/screenshot-isolation acceptance is prepared for Codex, not scheduled or executed. Preserve independent screenshot work, all protected boundaries/history, main and no-public-release constraints.

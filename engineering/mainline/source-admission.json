@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "reviewedBase": "58f894af0f5d9bb0250c1e41750528232696b60c",
+  "reviewedSource": null,
+  "reviewedTree": null,
+  "authorRole": "/root",
+  "reviews": [],
+  "productionAdmission": {
+    "ordinaryInput": false,
+    "ordinaryStart": false,
+    "ordinaryCompletion": false,
+    "builtInUpload": false,
+    "safeRetry": false,
+    "webContinuation": false,
+    "existingRestrictedCandidate": "UNCHANGED_NO_EXPANSION"
+  }
+}
