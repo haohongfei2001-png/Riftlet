@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "Quiet Edge R2 integrated on sole Draft PR #1 with preserved ownership. Independent native image review rejected a pre-existing helper backdrop ordering defect after green historical CI; minimal exact fixture source now independently approved. New final same-head CI, visuals and original App artifacts resolve from PR #1. Production upload remains closed.",
+  "status": "Quiet Edge R2 and ownership remain integrated on sole Draft PR #1. Exact four-file visual fixture correction retained; a historical ARM regression exposed an unsound timed test observation. Minimal test-only S3 independently reviewed without changing product behavior, assertions, deadlines, workflows or safety. New final same-head CI, original visuals and App archives resolve from PR #1; production upload remains closed.",
   "inputs": {
     "unified": "2c8cd0371de5e07fd7794f76335381a40403030d",
     "builtin": "6b60f67f6d35272eecff901c507bd75a77874ed6",
@@ -8,18 +8,20 @@
     "experience": "69600ab3c7fa9e373582613bd55d22075234b65a"
   },
   "nonAuthorReview": {
-    "status": "PASS_EXACT_FIXTURE_SOURCE_S2",
-    "source": "1459ab26b88eec15fdc9102f05f4f540dff29f07",
-    "tree": "02d06aa465385a1580fe133b723e10f7985c6a12",
+    "status": "PASS_EXACT_S3_TEST_OBSERVATION_REPAIR",
+    "source": "1c1ed6051d6fbc984d3e9e2071b741f1f1805f32",
+    "tree": "5f07fe7cedfbfa08cca21740c97fd5bcaf18535f",
     "reviewers": [
       "/root/ownership_review",
-      "/root/admission_review"
+      "/root/admission_review",
+      "/root/acceptance_review"
     ],
-    "scope": "Independent non-author exact-source review of the four acceptance files and identity preservation of every other object. Prior complete R2/ownership integration approvals remain intact. Not GitHub human approval, physical Mac acceptance or production admission.",
+    "scope": "Independent exact-source and full-tree review; acceptance reviewer also independently diagnosed the original observation ambiguity and advised the no-yield/event-counter approach before root authored the patch. All prior complete product and fixture approvals remain intact. Not GitHub human approval, final native execution, physical acceptance or production admission.",
     "blockingFindings": [],
-    "productReviewSHA256": "1fce4b8c945ceefef1cc9e4844f4684c3faa78aeb051c2bddbc8b5d75ead0a17",
-    "sourceReviewSHA256": "6cfed0bc78e9dbf4b81453ec2c2d6744e4d5a9d19e309647f61ace82cc9cf2df",
-    "records": "quietEdgeR2VisualFixtureCorrection.independentReviews"
+    "codeReviewSHA256": "409e9f3691def0f00ab66eb6b69167c07ee180a655c6ad8713034d34b72f8436",
+    "sourceReviewSHA256": "13ec7e9a25e528cabd915cbdda2c4b4cf441224395b18072726866ed0fca4259",
+    "causalAndAcceptanceReviewSHA256": "f20092d3bc6fd854df05aad12a870a47f4a8f63ef2752f0eddf022749119cfbd",
+    "records": "quietEdgeR2TimingRegressionCorrection.independentReviews"
   },
   "historicalNonAuthorReviewThroughPR17": {
     "status": "PASS",
@@ -190,8 +192,8 @@
     "uploadAdmissionExpanded": false,
     "userDataChanged": false
   },
-  "reviewedSource": "1459ab26b88eec15fdc9102f05f4f540dff29f07",
-  "reviewedTree": "02d06aa465385a1580fe133b723e10f7985c6a12",
+  "reviewedSource": "1c1ed6051d6fbc984d3e9e2071b741f1f1805f32",
+  "reviewedTree": "5f07fe7cedfbfa08cca21740c97fd5bcaf18535f",
   "continuationFailures": [
     {
       "head": "b3cec64f0ecbf869aff3b17b88d55323d1765393",
@@ -2783,11 +2785,11 @@
     "release": "No main merge, public release or notarization claim",
     "historicalScope": "C1/H receiver-only checkpoint before reconnection and later real delivery/deletion. Original pending/blocking and nil-endpoint statements are preserved as historical facts, superseded by feedbackCloudCloseoutContinuation."
   },
-  "reviewedSourceFieldStatus": "Two independent reviewers approved exact S2 before updating only REVIEWED_SOURCE. Metadata exceptions, historical audit blobs, fixed-main overlay and ancestry/object rules unchanged. Source admission does not grant runtime or production approval.",
+  "reviewedSourceFieldStatus": "Three independent exact S3 reviews precede the pin-only update. Every other policy byte, metadata exception, historical audit blob, fixed-main overlay and ancestry/object rule remains intact. No runtime or production admission is inferred.",
   "sourceEndpointConfigured": true,
   "sourceEndpoint": "https://riftlet-feedback-receiver.haohongfei2001.workers.dev/v1/feedback",
   "sourceEndpointScope": "Exact committed source and both independently checked ARM/Intel unified Beta packages contain the configured HTTPS endpoint. This is source/compiled-byte/package proof, not an actual native-window send or a per-feedback receipt.",
-  "historicalSectionScope": "historicalNonAuthorReviewThroughPR17, historical8525Runtime, completedRuntimeHistory, precedingSourceReviewCheckpoint, pr17ReliabilityIntegration and feedbackCloudContinuation retain their original checkpoint facts and limitations; they do not describe current cloud deployment or C2 review. historicalHRuntime preserves the exact prior H record; precedingH2AdmissionCheckpoint and the original pending subfields of feedbackCloudCloseoutContinuation are admission-time history superseded only by actual h2RuntimeVerification/latestCompletedRuntime. The exact latestCompletedRuntime and h2RuntimeVerification records remain E-era H2/PR18 package/runtime provenance. Current formal PR1 complete CI is recorded in formalPR1Continuation; E NOT_RUN and pre-promotion statements are retained historical snapshots, not current blockers. All records through formalPR1Continuation retain their completed 2026-10-29 historical scope. coldClickLifecycleIntegration is the current 2026-10-30 checkpoint and does not relabel prior CI or artifacts. All records preceding quietEdgeR2Integration retain their exact earlier checkpoint scope. precedingQuietEdgeR2IntegrationCheckpoint preserves every replaced top-level field, including the original C2 nonAuthorReview. quietEdgeR2Integration is the R2 source-admission record; actual final runtime results resolve from PR #1. quietEdgeR2VisualFixtureCorrection preserves the rejected 107898ee visual finding, its actual successful CI and exact minimal correction. precedingQuietEdgeR2FixtureCheckpoint preserves every replaced top-level value. Earlier reports, old frames and their historical boundaries are not relabeled.",
+  "historicalSectionScope": "historicalNonAuthorReviewThroughPR17, historical8525Runtime, completedRuntimeHistory, precedingSourceReviewCheckpoint, pr17ReliabilityIntegration and feedbackCloudContinuation retain their original checkpoint facts and limitations; they do not describe current cloud deployment or C2 review. historicalHRuntime preserves the exact prior H record; precedingH2AdmissionCheckpoint and the original pending subfields of feedbackCloudCloseoutContinuation are admission-time history superseded only by actual h2RuntimeVerification/latestCompletedRuntime. The exact latestCompletedRuntime and h2RuntimeVerification records remain E-era H2/PR18 package/runtime provenance. Current formal PR1 complete CI is recorded in formalPR1Continuation; E NOT_RUN and pre-promotion statements are retained historical snapshots, not current blockers. All records through formalPR1Continuation retain their completed 2026-10-29 historical scope. coldClickLifecycleIntegration is the current 2026-10-30 checkpoint and does not relabel prior CI or artifacts. All records preceding quietEdgeR2Integration retain their exact earlier checkpoint scope. precedingQuietEdgeR2IntegrationCheckpoint preserves every replaced top-level field, including the original C2 nonAuthorReview. quietEdgeR2Integration is the R2 source-admission record; actual final runtime results resolve from PR #1. quietEdgeR2VisualFixtureCorrection preserves the rejected 107898ee visual finding, its actual successful CI and exact minimal correction. precedingQuietEdgeR2FixtureCheckpoint preserves every replaced top-level value. Earlier reports, old frames and their historical boundaries are not relabeled. quietEdgeR2TimingRegressionCorrection preserves the e1c46ed0 failed ARM regression, actual other job outcomes, precise source/metadata reviews and minimal one-test correction. precedingQuietEdgeR2TimingCheckpoint retains every replaced top-level value. No historical success or failure is relabeled as final runtime.",
   "feedbackCloudCloseoutContinuation": {
     "source": "4223a9dc80bd982e4b95305a1bd1e8f15ce7393c",
     "sourceTree": "a8eebcbfe47b4b3ad6f97412b4760def444910e3",
@@ -10113,8 +10115,8 @@
       "scope": "Four actual completed-success E workflow statuses only, separate from complete formal PR1 log review. No additional reviewed test counts, new package byte review or future workflow claim."
     }
   },
-  "currentRuntimeEvidenceField": "quietEdgeR2VisualFixtureCorrection",
-  "latestCompletedRuntimeRole": "107898ee Native/Feedback execution success is historical and not final visual delivery approval. All preceding named runtime records retain their original head/run/artifact scope. Final corrected same-head results and packages resolve from PR #1 without a further untested source commit.",
+  "currentRuntimeEvidenceField": "quietEdgeR2TimingRegressionCorrection",
+  "latestCompletedRuntimeRole": "Historical e1c46ed0 Native ARM full-suite failure is retained, alongside actual Intel/Feedback execution and successful source gates, without final runtime approval. Earlier 107898ee green CI and rejected visual remain historical. Final corrected same-head results and original packages resolve from PR #1 without another untested source commit.",
   "precedingLifecycleAdmissionCheckpoint": {
     "status": "FORMAL_PR1_COMPLETE_NATIVE_AND_FEEDBACK_CI_PASS_H2_DELIVERY_PACKAGES_PRESERVED_REAL_MAC_NOT_RUN",
     "reviewedSource": "4223a9dc80bd982e4b95305a1bd1e8f15ce7393c",
@@ -11903,7 +11905,7 @@
       ]
     }
   },
-  "handoffBranchRole": "Sole formal Draft PR #1; complete R2 history already integrated, followed by four-file acceptance-only correction. No new candidate branch, main modification or public release.",
+  "handoffBranchRole": "Sole formal Draft PR #1. S3 is a one-test-file successor of e1c46ed0 after the full R2/ownership and evidence-fixture integration; no new candidate branch, main modification or public release.",
   "precedingOrdinaryIntegrationCheckpoint": {
     "previousFormalHead": "edbdc7aae45c35878694e9fa376757dac7b630a8",
     "completeHandoff": "bf3b97a432f65451c1b4232035e25c9d42b21523",
@@ -19491,5 +19493,1843 @@
       "signing": "Development ad-hoc; Developer ID/notarization/Gatekeeper not claimed"
     },
     "codexNext": "Use the existing six-item final-device checklist with final PR #1 source/checkout/archive hashes. Perform available checks without founder involvement; physical or new-permission cases remain individually deferred."
+  },
+  "precedingQuietEdgeR2TimingCheckpoint": {
+    "status": "Quiet Edge R2 integrated on sole Draft PR #1 with preserved ownership. Independent native image review rejected a pre-existing helper backdrop ordering defect after green historical CI; minimal exact fixture source now independently approved. New final same-head CI, visuals and original App artifacts resolve from PR #1. Production upload remains closed.",
+    "reviewedSource": "1459ab26b88eec15fdc9102f05f4f540dff29f07",
+    "reviewedTree": "02d06aa465385a1580fe133b723e10f7985c6a12",
+    "nonAuthorReview": {
+      "status": "PASS_EXACT_FIXTURE_SOURCE_S2",
+      "source": "1459ab26b88eec15fdc9102f05f4f540dff29f07",
+      "tree": "02d06aa465385a1580fe133b723e10f7985c6a12",
+      "reviewers": [
+        "/root/ownership_review",
+        "/root/admission_review"
+      ],
+      "scope": "Independent non-author exact-source review of the four acceptance files and identity preservation of every other object. Prior complete R2/ownership integration approvals remain intact. Not GitHub human approval, physical Mac acceptance or production admission.",
+      "blockingFindings": [],
+      "productReviewSHA256": "1fce4b8c945ceefef1cc9e4844f4684c3faa78aeb051c2bddbc8b5d75ead0a17",
+      "sourceReviewSHA256": "6cfed0bc78e9dbf4b81453ec2c2d6744e4d5a9d19e309647f61ace82cc9cf2df",
+      "records": "quietEdgeR2VisualFixtureCorrection.independentReviews"
+    },
+    "currentRuntimeEvidenceField": "quietEdgeR2VisualFixtureCorrection",
+    "latestCompletedRuntimeRole": "107898ee Native/Feedback execution success is historical and not final visual delivery approval. All preceding named runtime records retain their original head/run/artifact scope. Final corrected same-head results and packages resolve from PR #1 without a further untested source commit.",
+    "handoffBranchRole": "Sole formal Draft PR #1; complete R2 history already integrated, followed by four-file acceptance-only correction. No new candidate branch, main modification or public release.",
+    "reviewedSourceFieldStatus": "Two independent reviewers approved exact S2 before updating only REVIEWED_SOURCE. Metadata exceptions, historical audit blobs, fixed-main overlay and ancestry/object rules unchanged. Source admission does not grant runtime or production approval.",
+    "physicalMac": "CURRENT_COMBINED_PACKAGE_NOT_RUN_DEVICE_OFFLINE_AT_THIS_SESSION_OBSERVATION; physical operations/new permissions deferred individually to Codex",
+    "realChatGPT": "INHERITED_INTERNAL_ORDINARY_U1_LIMITED_PASS_ONLY; final default App NOT_RUN; selection FAIL and production admission CLOSED",
+    "historicalSectionScope": "historicalNonAuthorReviewThroughPR17, historical8525Runtime, completedRuntimeHistory, precedingSourceReviewCheckpoint, pr17ReliabilityIntegration and feedbackCloudContinuation retain their original checkpoint facts and limitations; they do not describe current cloud deployment or C2 review. historicalHRuntime preserves the exact prior H record; precedingH2AdmissionCheckpoint and the original pending subfields of feedbackCloudCloseoutContinuation are admission-time history superseded only by actual h2RuntimeVerification/latestCompletedRuntime. The exact latestCompletedRuntime and h2RuntimeVerification records remain E-era H2/PR18 package/runtime provenance. Current formal PR1 complete CI is recorded in formalPR1Continuation; E NOT_RUN and pre-promotion statements are retained historical snapshots, not current blockers. All records through formalPR1Continuation retain their completed 2026-10-29 historical scope. coldClickLifecycleIntegration is the current 2026-10-30 checkpoint and does not relabel prior CI or artifacts. All records preceding quietEdgeR2Integration retain their exact earlier checkpoint scope. precedingQuietEdgeR2IntegrationCheckpoint preserves every replaced top-level field, including the original C2 nonAuthorReview. quietEdgeR2Integration is the R2 source-admission record; actual final runtime results resolve from PR #1. quietEdgeR2VisualFixtureCorrection preserves the rejected 107898ee visual finding, its actual successful CI and exact minimal correction. precedingQuietEdgeR2FixtureCheckpoint preserves every replaced top-level value. Earlier reports, old frames and their historical boundaries are not relabeled."
+  },
+  "quietEdgeR2TimingRegressionCorrection": {
+    "stage": "SOURCE_ADMISSION_CHECKPOINT",
+    "refs": {
+      "precedingFormalHead": "e1c46ed0f8176bec08a9b91914e513e7bf861240",
+      "reviewedSource": "1c1ed6051d6fbc984d3e9e2071b741f1f1805f32",
+      "reviewedTree": "5f07fe7cedfbfa08cca21740c97fd5bcaf18535f",
+      "parents": [
+        "e1c46ed0f8176bec08a9b91914e513e7bf861240"
+      ],
+      "fixedMain": "fccd809e9d55e0b221e75e6dcd7c21f6d357ee74"
+    },
+    "delta": {
+      "changedPaths": {
+        "Tests/RiftletUITests/QuietEdgeInteractionTests.swift": {
+          "actual": {
+            "mode": "100644",
+            "oid": "cbd7ce6b47ff73f927a5d00f9e70bc0f753db2b6",
+            "type": "blob"
+          },
+          "expected": {
+            "mode": "100644",
+            "oid": "8ce29fd514768a3d6f10ad1159fcd9aaa63c1d2a",
+            "type": "blob"
+          }
+        }
+      },
+      "newPaths": 0,
+      "deletedPaths": 0,
+      "sourceFileCount": 1006,
+      "unchangedObjectsAndModes": 1005,
+      "scope": "Only the existing testFeedbackReusesPointerFreePeekAndInvalidatesOldDecodeAndWaitingDeadline method in QuietEdgeInteractionTests.swift; its seven test names and every original assertion remain. All other source, tests, fixture, workflow, package and history objects unchanged."
+    },
+    "independentReviews": {
+      "codeAndNativeTiming": {
+        "sha256": "409e9f3691def0f00ab66eb6b69167c07ee180a655c6ad8713034d34b72f8436",
+        "record": {
+          "schemaVersion": 1,
+          "reviewer": "/root/ownership_review independent non-author source review",
+          "createdUTC": "2026-10-31T07:46:12.905498+00:00",
+          "decision": "PASS_EXACT_S3_TEST_OBSERVATION_REPAIR",
+          "source": "1c1ed6051d6fbc984d3e9e2071b741f1f1805f32",
+          "tree": "5f07fe7cedfbfa08cca21740c97fd5bcaf18535f",
+          "soleParent": "e1c46ed0f8176bec08a9b91914e513e7bf861240",
+          "blockingFindings": [],
+          "onlyChangedFile": {
+            "path": "Tests/RiftletUITests/QuietEdgeInteractionTests.swift",
+            "oldBlob": "8ce29fd514768a3d6f10ad1159fcd9aaa63c1d2a",
+            "newBlob": "cbd7ce6b47ff73f927a5d00f9e70bc0f753db2b6",
+            "newSHA256": "0c308d004379528a4043e0ef7a27a320d2fb29b1aa4e898ae69e189ec4123cd1"
+          },
+          "exactScope": "Only the existing failed test method changes; all other bytes in its test file and every other repository path remain unchanged. No test methods added/removed; expected full Swift enumeration remains 824.",
+          "observedFailureBoundary": {
+            "source": "e1c46ed0f8176bec08a9b91914e513e7bf861240",
+            "armJob": 124479451058,
+            "case": "testFeedbackReusesPointerFreePeekAndInvalidatesOldDecodeAndWaitingDeadline",
+            "line": 179,
+            "observed": "XCTAssertFalse failed after a 100ms async sleep; full case duration 4.007s.",
+            "notProven": "The old log does not timestamp actual resumption or distinguish stale-image presentation from a legitimate 250ms note callback. It cannot prove a specific scheduler delay or justify labelling the failure flaky.",
+            "sourceAnalysis": "Task.sleep provides no upper-bound guarantee on resumption. The previous assertion after yielding could inspect a legitimately shown note and therefore did not isolate stale decode delivery."
+          },
+          "reviewedCorrections": [
+            {
+              "check": "Synchronous stale decode assertion",
+              "result": "PASS",
+              "reason": "Captured delivery callback is invoked synchronously by the MainActor test. Panel visibility and note-presentation count are checked before any yield, so the queued legitimate note cannot be conflated with that immediate decode. Original stale-image safety assertion remains."
+            },
+            {
+              "check": "Cancellation beyond deadline",
+              "result": "PASS",
+              "reason": "leave() synchronously cancels a pending note before suspension. The subsequent 300ms sleep is used only as a lower bound beyond the unchanged 250ms deadline, avoiding the former upper-bound scheduling assumption."
+            },
+            {
+              "check": "Transient presentation evidence",
+              "result": "PASS",
+              "reason": "Observer records every visible=true note callback. Requiring zero after cancellation detects even an incorrect note that showed and expired while the test was delayed; current hidden state alone no longer suffices."
+            },
+            {
+              "check": "Positive control",
+              "result": "PASS",
+              "reason": "Existing legitimate zero-delay note must become visible and produce exactly [id], proving observer wiring is exercised. Existing pointer-free/non-key geometry and repeated-projection bounded lifetime checks remain."
+            },
+            {
+              "check": "No product workaround or relaxed gate",
+              "result": "PASS",
+              "reason": "No product callback, epoch, cancellation, real deadline, visibility policy, source admission, fixture helper or workflow changed. No skip/retry filter, timeout override or alternate product path was introduced."
+            }
+          ],
+          "nativeExecution": "NOT_RUN for S3; existing H2 failure retained. Source review approves the observation repair, while new exact-head complete macOS runs must prove runtime outcome.",
+          "oldGate": {
+            "path": "/tmp/riftlet-r2-integration/s3-before-admission.json",
+            "sha256": "ce6c6462f17c238216bedbd9e804d8ce34065c10c318a07fb7d4a0bcd7fa131e",
+            "pin": "1459ab26b88eec15fdc9102f05f4f540dff29f07",
+            "result": "24/25 PASS; only exact-objects rejects this one reviewed test blob",
+            "historicalChecks": "All original historical audit checks PASS"
+          },
+          "priorFailureRecord": {
+            "path": "/tmp/riftlet-r2-integration/ownership-h2-arm-failure.json",
+            "sha256": "c6c014b0ea98dbfc642275b9da198101023be9266a2842c5d54d6061427f4f24"
+          },
+          "preservedBoundaries": [
+            "All product/source/UI/Main/ownership and 5 ownership/4 WAL cases preserved.",
+            "S2 background identity/order capture guard and manifest 20-test correction preserved.",
+            "Ordinary production input/start/completion, built-in upload, safe-retry and Web continuation remain unchanged/closed.",
+            "No physical or real-upload claim from this software test repair."
+          ],
+          "next": "Permit metadata-only pin successor to approved S3, independently review it, then publish after H2 execution evidence is preserved and run complete final Native ARM/Intel + Feedback.",
+          "actions": "Read-only exact commit/method comparison, prior source logic and existing failure/gate evidence review; no tests/reruns or repository mutation."
+        }
+      },
+      "fullTreeSource": {
+        "sha256": "13ec7e9a25e528cabd915cbdda2c4b4cf441224395b18072726866ed0fca4259",
+        "record": {
+          "schemaVersion": 1,
+          "reviewer": "/root/admission_review independent read-only source and test-semantics review",
+          "result": "PASS_S3_SOURCE_ELIGIBLE_FOR_EXACT_METADATA_ADMISSION",
+          "source": "1c1ed6051d6fbc984d3e9e2071b741f1f1805f32",
+          "tree": "5f07fe7cedfbfa08cca21740c97fd5bcaf18535f",
+          "parent": "e1c46ed0f8176bec08a9b91914e513e7bf861240",
+          "treeReview": {
+            "source": "1c1ed6051d6fbc984d3e9e2071b741f1f1805f32",
+            "tree": "5f07fe7cedfbfa08cca21740c97fd5bcaf18535f",
+            "parent": "e1c46ed0f8176bec08a9b91914e513e7bf861240",
+            "totalObjects": 1006,
+            "unchangedObjectsAndModes": 1005,
+            "changed": [
+              {
+                "path": "Tests/RiftletUITests/QuietEdgeInteractionTests.swift",
+                "before": {
+                  "mode": "100644",
+                  "type": "blob",
+                  "oid": "8ce29fd514768a3d6f10ad1159fcd9aaa63c1d2a"
+                },
+                "after": {
+                  "mode": "100644",
+                  "type": "blob",
+                  "oid": "cbd7ce6b47ff73f927a5d00f9e70bc0f753db2b6"
+                }
+              }
+            ],
+            "additions": [],
+            "deletions": [],
+            "allOutsideTargetMethodExact": true,
+            "allOriginalAssertionLinesPreserved": true,
+            "oldAssertionLines": [
+              "XCTAssertFalse(panel.isVisible, \"An old image decode cannot bypass the waiting delay\")",
+              "XCTAssertFalse(panel.isVisible, \"Leaving the island cancels the pending explanation\")",
+              "XCTAssertNil(peek.assetID)",
+              "XCTAssertTrue(panel.ignoresMouseEvents); XCTAssertFalse(panel.canBecomeKey); XCTAssertFalse(panel.canBecomeMain)",
+              "XCTAssertLessThanOrEqual(panel.frame.width, 240)",
+              "XCTAssertLessThanOrEqual(panel.frame.maxX, row.minX - 12)",
+              "XCTAssertTrue(screen.visibleFrame.contains(panel.frame))",
+              "XCTAssertFalse(panel.isVisible); XCTAssertNil(peek.assetID)"
+            ],
+            "addedAssertionLines": [
+              "XCTAssertTrue(notePresentations.isEmpty)",
+              "XCTAssertTrue(notePresentations.isEmpty, \"A cancelled explanation must never have been presented\")",
+              "XCTAssertEqual(notePresentations, [id], \"The visibility observer records the valid explanation\")"
+            ],
+            "allTestMethodNamesAndCountUnchanged": true,
+            "testMethodCount": 7,
+            "original2600msLifetimeCheckUnchanged": true,
+            "productRiftPeekBlobUnchanged": true,
+            "sourcePolicyExactUnchangedSHA256": "85e9745d9571135195a88d4303dff3b40ae69565ee1aac03852af6cbaa65421c",
+            "cleanStatus": ""
+          },
+          "scope": "One existing Swift UI test method only; no implementation, workflow, production admission, history or source policy changes.",
+          "observedPriorFailure": {
+            "head": "e1c46ed0f8176bec08a9b91914e513e7bf861240",
+            "checkout": "c792f562792610fbbc7435687563db146876693b",
+            "run": 41181427673,
+            "job": 124479451058,
+            "case": "RiftletUITests.QuietEdgeInteractionTests.testFeedbackReusesPointerFreePeekAndInvalidatesOldDecodeAndWaitingDeadline",
+            "assertion": "XCTAssertFalse failed - An old image decode cannot bypass the waiting delay",
+            "durationSeconds": 4.007,
+            "rawLogReadIndependently": true,
+            "rawLogHashMatchesFailureRecord": true,
+            "inferenceLimit": "The failure log records a visible panel after the test sleep; it does not measure the exact wake-up time or prove a particular runner scheduling cause. No packaged App or later ARM native visuals were produced in this failed attempt."
+          },
+          "semanticReview": {
+            "mainActorBoundary": "Target method and RiftPeek run on MainActor. The retained decode callback body executes synchronously and checks epoch before any panel mutation; there is no queued inner decode presentation in this callback.",
+            "oldTestProblem": "After invoking the stale callback, sleeping100ms and asserting hidden before a legitimate250ms note deadline implicitly assumes task resumption within that remaining interval. Task sleep provides a minimum delay, not that upper bound. The observation can conflate legal note presentation with stale decode.",
+            "newStaleCallbackCheck": "The identical old hidden-panel assertion now runs directly after callback delivery, with no actor yield. An epoch-check regression that synchronously shows the stale image still fails. Added empty presentation-history assertion confirms no note presentation occurred before cancellation.",
+            "cancellationCheck": "scheduleNote invalidates the previous decode epoch. leave sees pending noteText and synchronously calls cancel, incrementing epoch, ordering panel out and clearing assetID. The test waits300ms beyond the unchanged250ms requested note deadline; resuming later does not invalidate the expected cancelled state. Original hidden-panel and nil-asset assertions remain, plus no visibility-true event may have occurred.",
+            "observerPositiveControl": "The existing product onNoteVisibilityChange callback appends only actual visible=true events. An uncancelled delay0 note must become visible and record exactly[id], proving the observer is connected and detecting duplicate/wrong note presentation.",
+            "otherOriginalAssertions": "Pointer-free/key/main restrictions, width<=240, left separation>=12, screen containment, repeated-projection no-renewal and existing2600ms lifetime check all remain unchanged.",
+            "productLifetime": "The existing product2400ms note lifetime is untouched.",
+            "testInventory": "All7test method names retained; all code outside the target method is byte-identical.",
+            "noWeakening": "No test deletion, retry, skip, source exclusion, deadline expansion for a production requirement, timeout-tolerated pass, or assertion removal. The existing synchronous stale-decode requirement is checked at its actual boundary and cancellation observation gains an event history plus positive control."
+          },
+          "preservation": {
+            "all1005OtherObjectsAndModesUnchanged": true,
+            "allProductCodeIncludingRiftPeekUnchanged": true,
+            "allWorkflowAndCICommandsUnchanged": true,
+            "threeMetadataUnchanged": true,
+            "gatePolicyExactUnchangedSHA256": "85e9745d9571135195a88d4303dff3b40ae69565ee1aac03852af6cbaa65421c",
+            "historicalSourcesAndOriginalFailureRetained": true,
+            "ordinaryProductionUploadBuiltinUploadSafeRetryWebContinuation": "unchangedclosed"
+          },
+          "oldPinGate": {
+            "file": "s3-before-admission.json",
+            "reviewedSource": "1459ab26b88eec15fdc9102f05f4f540dff29f07",
+            "revision": "1c1ed6051d6fbc984d3e9e2071b741f1f1805f32",
+            "result": "EXPECTED_FAIL_BEFORE_NEW_SOURCE_ADMISSION",
+            "passed": 24,
+            "total": 25,
+            "onlyFailure": "composition:exact-objects for the single reviewed QuietEdgeInteractionTests.swift blob",
+            "protectedCount": 1003,
+            "historicalAudits": {
+              "builtin-capture": {
+                "result": "PASS",
+                "passed": 13,
+                "total": 13
+              },
+              "feedback-reliability": {
+                "result": "PASS",
+                "passed": 42,
+                "total": 42
+              },
+              "thin-edge": {
+                "result": "PASS",
+                "passed": 17,
+                "total": 17
+              },
+              "unified-thin-edge": {
+                "result": "PASS",
+                "passed": 17,
+                "total": 17
+              }
+            }
+          },
+          "engineeringConclusion": "No source-review blocker. Exact S3 may become the sole new REVIEWED_SOURCE via only the existing three metadata paths, preserving H2 failure records and all prior evidence. New full formal NativeARM/Intel/Feedback and artifact review remain required.",
+          "notClaimed": [
+            "This Linux read-only review did not compile or execute AppKit tests.",
+            "No exact scheduler lateness measurement is inferred from H2 failure.",
+            "No final runtime/App/physical input/upload acceptance is granted by this source review.",
+            "H2 failed ARM attempt remains failed; it is not retroactively relabeled after this test-only correction."
+          ],
+          "evidenceFiles": {
+            "s3-tree-independent-review.json": {
+              "bytes": 1927,
+              "sha256": "4e66168954dcb4e2ca6e8480b074a62a7cfdcd97f0698ab66dd7e0e1937dfd28"
+            },
+            "s3-before-admission.json": {
+              "bytes": 1396183,
+              "sha256": "ce6c6462f17c238216bedbd9e804d8ce34065c10c318a07fb7d4a0bcd7fa131e"
+            },
+            "ownership-h2-arm-failure.json": {
+              "bytes": 3591,
+              "sha256": "c6c014b0ea98dbfc642275b9da198101023be9266a2842c5d54d6061427f4f24"
+            },
+            "ownership-h2-native-arm-job.log": {
+              "bytes": 476664,
+              "sha256": "c7b3bc78fd94fdd18795d69523b2c457a7c75429e58a5fe08c567c7f17acacbe"
+            }
+          }
+        }
+      },
+      "causalAndAcceptance": {
+        "sha256": "f20092d3bc6fd854df05aad12a870a47f4a8f63ef2752f0eddf022749119cfbd",
+        "record": {
+          "schemaVersion": 1,
+          "reviewer": "acceptance_review (independent read-only subagent)",
+          "reviewedAtUTC": "2026-10-31T07:45:23.195305+00:00",
+          "repository": "haohongfei2001-png/Riftlet",
+          "reviewType": "exact-source minimal test timing correction after observed native CI failure",
+          "reviewedSourceSHA": "1c1ed6051d6fbc984d3e9e2071b741f1f1805f32",
+          "reviewedSourceTree": "5f07fe7cedfbfa08cca21740c97fd5bcaf18535f",
+          "parentSHA": "e1c46ed0f8176bec08a9b91914e513e7bf861240",
+          "worktreeAtInitialReview": {
+            "head": "1c1ed6051d6fbc984d3e9e2071b741f1f1805f32",
+            "porcelain": ""
+          },
+          "conclusion": "PASS_SOURCE_REVIEW_NO_BLOCKING_FINDINGS",
+          "blockingFindings": [],
+          "sourceScope": "Only one existing test method in one test file; no product code, workflow, source gate, packaging, upload admission, or user-data behavior changed.",
+          "changedPaths": [
+            "M\tTests/RiftletUITests/QuietEdgeInteractionTests.swift"
+          ],
+          "completeChangedFileRead": true,
+          "testFile": {
+            "before": {
+              "path": "Tests/RiftletUITests/QuietEdgeInteractionTests.swift",
+              "gitBlob": "8ce29fd514768a3d6f10ad1159fcd9aaa63c1d2a",
+              "sha256": "edc9d9c2df4c4fbb95054e4aa0413ebde1648ee738da2702515d7df7d493f0e9",
+              "byteCount": 19303,
+              "lineCount": 291
+            },
+            "after": {
+              "path": "Tests/RiftletUITests/QuietEdgeInteractionTests.swift",
+              "gitBlob": "cbd7ce6b47ff73f927a5d00f9e70bc0f753db2b6",
+              "sha256": "0c308d004379528a4043e0ef7a27a320d2fb29b1aa4e898ae69e189ec4123cd1",
+              "byteCount": 20071,
+              "lineCount": 302
+            },
+            "fullUnifiedDiffSha256": "287e2a65c973590a0a27c10e085d41475dde06ad26e9d6f171c01b6f1b89273a",
+            "fullUnifiedDiff": "diff --git a/Tests/RiftletUITests/QuietEdgeInteractionTests.swift b/Tests/RiftletUITests/QuietEdgeInteractionTests.swift\nindex 8ce29fd514768a3d6f10ad1159fcd9aaa63c1d2a..cbd7ce6b47ff73f927a5d00f9e70bc0f753db2b6 100644\n--- a/Tests/RiftletUITests/QuietEdgeInteractionTests.swift\n+++ b/Tests/RiftletUITests/QuietEdgeInteractionTests.swift\n@@ -170,20 +170,31 @@ final class QuietEdgeInteractionTests: XCTestCase {\n         let row = CGRect(x: screen.visibleFrame.maxX - 90, y: screen.visibleFrame.midY, width: 70, height: 44)\n         let anchor = { (row, screen.visibleFrame, row.minX) as (CGRect, CGRect, CGFloat)? }\n         var delivery: ((CGImage?) -> Void)?\n+        var notePresentations: [UUID] = []\n+        peek.onNoteVisibilityChange = { id, visible in\n+            if visible { notePresentations.append(id) }\n+        }\n         peek.schedule(id: id, immediate: true, stillValid: { true }, load: { delivery = $0 }, anchor: anchor)\n         try await eventually { delivery != nil }\n         let panel = peek.presentationPanel\n         peek.scheduleNote(id: id, text: \"正在等待附加\", delay: 0.25, stillValid: { true }, anchor: anchor)\n         delivery?(cg)\n-        try await Task.sleep(nanoseconds: 100_000_000)\n+        // The retained decode callback runs synchronously on this main actor.\n+        // Assert before yielding: a sleeping task is not guaranteed to resume\n+        // before the legitimate 250 ms note deadline on a busy native runner.\n         XCTAssertFalse(panel.isVisible, \"An old image decode cannot bypass the waiting delay\")\n+        XCTAssertTrue(notePresentations.isEmpty)\n         peek.leave()\n-        try await Task.sleep(nanoseconds: 200_000_000)\n+        // Only a lower bound is needed after synchronous cancellation. Keep\n+        // the real deadline and observe beyond it, even if this task resumes late.\n+        try await Task.sleep(nanoseconds: 300_000_000)\n         XCTAssertFalse(panel.isVisible, \"Leaving the island cancels the pending explanation\")\n         XCTAssertNil(peek.assetID)\n+        XCTAssertTrue(notePresentations.isEmpty, \"A cancelled explanation must never have been presented\")\n         peek.scheduleNote(id: id, text: \"图片已保留，当前聊天暂时不能接收图片。\", delay: 0,\n             stillValid: { true }, anchor: anchor)\n         try await eventually { peek.isNoteVisible }\n+        XCTAssertEqual(notePresentations, [id], \"The visibility observer records the valid explanation\")\n         XCTAssertTrue(panel.ignoresMouseEvents); XCTAssertFalse(panel.canBecomeKey); XCTAssertFalse(panel.canBecomeMain)\n         XCTAssertLessThanOrEqual(panel.frame.width, 240)\n         XCTAssertLessThanOrEqual(panel.frame.maxX, row.minX - 12)\n",
+            "allOriginalAssertionLines": [
+              "XCTAssertFalse(panel.isVisible, \"An old image decode cannot bypass the waiting delay\")",
+              "XCTAssertFalse(panel.isVisible, \"Leaving the island cancels the pending explanation\")",
+              "XCTAssertNil(peek.assetID)",
+              "XCTAssertTrue(panel.ignoresMouseEvents); XCTAssertFalse(panel.canBecomeKey); XCTAssertFalse(panel.canBecomeMain)",
+              "XCTAssertLessThanOrEqual(panel.frame.width, 240)",
+              "XCTAssertLessThanOrEqual(panel.frame.maxX, row.minX - 12)",
+              "XCTAssertTrue(screen.visibleFrame.contains(panel.frame))",
+              "XCTAssertFalse(panel.isVisible); XCTAssertNil(peek.assetID)"
+            ]
+          },
+          "checks": {
+            "exactSourceTree": true,
+            "exactSingleParent": true,
+            "singleTestFileChanged": true,
+            "entireCommitDiffEqualsTestFileDiff": true,
+            "onlyTargetMethodChanged": true,
+            "allOriginalAssertionLinesRetained": true,
+            "sameProductionWaitingDelay250ms": true,
+            "staleDeliveryAssertionHasNoSuspension": true,
+            "staleDeliveryAssertImmediatelyAfterComments": true,
+            "eventCollectorIncludesOnlyTrueUUIDs": true,
+            "noPresentationBeforeLeave": true,
+            "postCancelWait300ms": true,
+            "cancelledEventHistoryAssert": true,
+            "validPresentationUUIDPositiveControl": true,
+            "boundedLifetime2600msRetained": true,
+            "noNewSkipOrTestRemoval": true
+          },
+          "productChainFiles": [
+            {
+              "path": "Sources/RiftletUI/RiftEdgeAccessories.swift",
+              "gitBlob": "1fa06e6059319400f800d0e434c1dd48c618879a",
+              "sha256": "df5819aab62485b19c484ccd14db10aa7cb903d057feea07903b1b2ba83453cd",
+              "byteCount": 11647,
+              "lineCount": 210,
+              "unchangedFromParent": true
+            },
+            {
+              "path": "Sources/RiftletUI/ThumbnailCache.swift",
+              "gitBlob": "0e9abfc49a7e1fc486bc22516f407109686f5475",
+              "sha256": "ae460297ca7c8b6deef9c6b78111f90b557e0afb532d193d9f30850e01f1bf25",
+              "byteCount": 2939,
+              "lineCount": 63,
+              "unchangedFromParent": true
+            },
+            {
+              "path": "Sources/RiftletUI/RiftPanelController.swift",
+              "gitBlob": "2983d8c4813922838c1f6bc3b7ed46dc23220f26",
+              "sha256": "b51a47a8a8c2df06249cce448efb3a942f9b8c78576919ee8da311e23a411b49",
+              "byteCount": 84636,
+              "lineCount": 1589,
+              "unchangedFromParent": true
+            }
+          ],
+          "productThreadChain": [
+            {
+              "finding": "RiftPeek is MainActor; cancel synchronously increments epoch, clears asset/note, and hides panel; leave immediately calls cancel for any pending or visible note.",
+              "evidence": {
+                "path": "Sources/RiftletUI/RiftEdgeAccessories.swift",
+                "startLine": 96,
+                "endLine": 131,
+                "excerpt": "@MainActor final class RiftPeek {\n    private let panel = EdgeDecorationPanel()\n    private let surface = RiftSurfaceView()\n    private let image = NSImageView()\n    private let note = NSTextField(wrappingLabelWithString: \"\")\n    private var epoch: UInt = 0\n    private var leaveEpoch: UInt = 0\n    private(set) var assetID: UUID?\n    private(set) var noteText: String?\n    var onNoteVisibilityChange: ((UUID, Bool) -> Void)?\n    var presentationPanel: NSPanel { panel }\n    var isNoteVisible: Bool { noteText != nil && panel.isVisible }\n    init() {\n        surface.cornerRadius = 10\n        surface.addSubview(image)\n        surface.addSubview(note)\n        note.font = .systemFont(ofSize: 13)\n        note.textColor = RiftVisualStyle.ink\n        note.isHidden = true\n        note.setAccessibilityElement(false)\n        image.imageScaling = .scaleProportionallyUpOrDown\n        panel.contentView = surface\n        panel.setAccessibilityHidden(true)\n    }\n    func cancel() {\n        let visibleNote = isNoteVisible ? assetID : nil\n        epoch &+= 1; leaveEpoch &+= 1; assetID = nil; panel.orderOut(nil); panel.alphaValue = 1\n        image.image = nil; noteText = nil; note.isHidden = true\n        if let visibleNote { onNoteVisibilityChange?(visibleNote, false) }\n    }\n    func leave() {\n        // A waiting explanation is only valid on its original input island.\n        // It must not survive the image-preview leave animation.\n        if noteText != nil { cancel(); return }\n        leaveEpoch &+= 1; let token = leaveEpoch\n        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in"
+              }
+            },
+            {
+              "finding": "schedule captures epoch and the retained image delivery synchronously guards epoch before image assignment or panel presentation. No async/await occurs inside that delivery.",
+              "evidence": {
+                "path": "Sources/RiftletUI/RiftEdgeAccessories.swift",
+                "startLine": 143,
+                "endLine": 168,
+                "excerpt": "    func schedule(id: UUID, immediate: Bool = false, leftSide: Bool = false, stillValid: @escaping () -> Bool,\n                  load: @escaping (@escaping (CGImage?) -> Void) -> Void,\n                  anchor: @escaping () -> (CGRect, CGRect, CGFloat)?) {\n        leaveEpoch &+= 1\n        if assetID == id && noteText == nil && panel.isVisible { panel.alphaValue = 1; return }\n        // A pending/abandoned decode must be rescheduled after re-entry.\n        // The leave timer has its own epoch and cannot invalidate the new hover.\n        cancel(); assetID = id; let token = epoch\n        DispatchQueue.main.asyncAfter(deadline: .now() + (immediate ? 0 : 0.45)) { [weak self] in\n            guard let self, self.epoch == token, stillValid() else { return }\n            load { [weak self] cg in\n                guard let self, self.epoch == token, stillValid(), let cg, let (row, visible, leading) = anchor() else { return }\n                guard let frame = RiftPeekGeometry.frame(imageSize: CGSize(width: cg.width, height: cg.height),\n                    owner: row, visible: visible, leadingInputEdge: leading, leftSide: leftSide) else { self.cancel(); return }\n                let size = CGSize(width: frame.width - 16, height: frame.height - 16)\n                self.surface.cornerRadius = 10; self.image.isHidden = false\n                self.panel.setFrame(frame, display: true)\n                self.image.frame = CGRect(origin: CGPoint(x: 8, y: 8), size: size)\n                self.image.image = NSImage(cgImage: cg, size: size)\n                self.panel.alphaValue = 0; self.panel.orderFrontRegardless()\n                NSAnimationContext.runAnimationGroup { context in\n                    context.duration = 0.08\n                    self.panel.animator().alphaValue = 1\n                }\n            }\n        }"
+              }
+            },
+            {
+              "finding": "scheduleNote synchronously cancels first, sets note identity, captures the new epoch, and revalidates it at the main-queue deadline. A repeated same-ID/same-text request returns without extending the 2.4-second lifetime.",
+              "evidence": {
+                "path": "Sources/RiftletUI/RiftEdgeAccessories.swift",
+                "startLine": 173,
+                "endLine": 211,
+                "excerpt": "    func scheduleNote(id: UUID, text: String, delay: TimeInterval, leftSide: Bool = false,\n                      stillValid: @escaping () -> Bool,\n                      anchor: @escaping () -> (CGRect, CGRect, CGFloat)?) {\n        if assetID == id, noteText == text { return }\n        cancel(); assetID = id; noteText = text\n        let token = epoch\n        DispatchQueue.main.asyncAfter(deadline: .now() + max(0, delay)) { [weak self] in\n            guard let self, self.epoch == token else { return }\n            guard stillValid(), let (row, visible, leading) = anchor() else { self.cancel(); return }\n            let right = leftSide ? visible.maxX - 12 : min(visible.maxX - 12, leading - 12)\n            let width = min(240, leftSide ? right - leading - 12 : right - visible.minX - 12)\n            guard width >= 96 else { self.cancel(); return }\n            let paragraph = NSMutableParagraphStyle()\n            paragraph.lineBreakMode = .byWordWrapping\n            paragraph.minimumLineHeight = 18; paragraph.maximumLineHeight = 18\n            let attributed = NSAttributedString(string: text, attributes: [\n                .font: NSFont.systemFont(ofSize: 13), .foregroundColor: RiftVisualStyle.ink,\n                .paragraphStyle: paragraph])\n            let measured = attributed.boundingRect(with: CGSize(width: width - 24, height: .greatestFiniteMagnitude),\n                options: [.usesLineFragmentOrigin, .usesFontLeading])\n            let height = ceil(measured.height) + 26\n            guard height <= visible.height - 24 else { self.cancel(); return }\n            let y = max(visible.minY + 12, min(visible.maxY - height - 12, row.midY - height / 2))\n            self.surface.cornerRadius = 8; self.image.isHidden = true\n            self.note.attributedStringValue = attributed; self.note.isHidden = false\n            self.panel.setFrame(CGRect(x: leftSide ? leading + 12 : right - width, y: y, width: width, height: height), display: true)\n            self.note.frame = CGRect(x: 12, y: 12, width: width - 24, height: height - 24)\n            self.surface.needsDisplay = true\n            self.panel.alphaValue = 1; self.panel.orderFrontRegardless()\n            self.onNoteVisibilityChange?(id, true)\n            DispatchQueue.main.asyncAfter(deadline: .now() + 2.4) { [weak self] in\n                guard let self, self.epoch == token else { return }\n                self.cancel()\n            }\n        }\n    }\n    func close() { cancel(); panel.close() }\n}"
+              }
+            },
+            {
+              "finding": "The real controller forwards peek image delivery through ThumbnailCache.image.",
+              "evidence": {
+                "path": "Sources/RiftletUI/RiftPanelController.swift",
+                "startLine": 1423,
+                "endLine": 1452,
+                "excerpt": "    private func schedulePeek(_ id: UUID, immediate: Bool = false) {\n        // An explicit preview action still opens the image. Ordinary hover\n        // reads the current reason first, on the very same pointer-free panel.\n        if !immediate, let state = feedbackStates[id] {\n            scheduleFeedback(id, state: state, delay: 0.45, requiresPointer: true)\n            return\n        }\n        guard let row = rowWindows[id], let screen, !closed, !userHidden, !captureSuppressed,\n              !gate.isHolding, !transitioning, !interaction.snapshot.isSelecting else { return }\n        let revision = row.view.record.visibilityRevision\n        peek.schedule(id: id, immediate: immediate, leftSide: configuration.placement?.side == .left, stillValid: { [weak self] in\n            guard let self else { return false }\n            return !self.closed && !self.userHidden && !self.captureSuppressed && !self.gate.isHolding\n                && !self.transitioning && !self.interaction.snapshot.isSelecting\n                && self.rowWindows[id]?.view === row.view && row.view.record.visibility == .visible\n                && row.view.record.visibilityRevision == revision\n                && (immediate || self.hoveredIDs.contains(id))\n        }, load: { [weak self] completion in\n            self?.cache.image(for: row.view.record.image, maxPixelSize: Int(320 * screen.backingScaleFactor), completion: completion)\n        }, anchor: { [weak self] in\n            guard let self, let screen = self.screen else { return nil }\n            let inputs = self.rowWindows.values.flatMap { [$0.imageInput, $0.numberInput] }\n                .filter { $0.isVisible && !$0.frame.isEmpty }\n            let frames = inputs.map(\\.frame) + self.screenshotEntryExclusionFrames + self.extraPreviewExclusions\n            guard let leading = self.configuration.placement?.side == .left\n                ? frames.map(\\.maxX).max() : frames.map(\\.minX).min() else { return nil }\n            return (row.panel.frame, screen.visibleFrame, leading)\n        })\n    }\n"
+              }
+            },
+            {
+              "finding": "ThumbnailCache is MainActor: cache hits synchronously complete; utility-queue decodes dispatch to the main queue, check their generation, then call retained completions.",
+              "evidence": {
+                "path": "Sources/RiftletUI/ThumbnailCache.swift",
+                "startLine": 10,
+                "endLine": 63,
+                "excerpt": "/// Only visible thumbnails are decoded, on a serial utility queue, at their actual display scale.\n@MainActor\nfinal class ThumbnailCache {\n    private let cache = NSCache<NSString, ThumbnailBox>()\n    private let queue = DispatchQueue(label: \"Riftlet.thumbnail\", qos: .utility)\n    private var pending: [String: [(CGImage?) -> Void]] = [:]\n    private let directory: URL\n    private var generation: UInt = 0\n\n    init(directory: URL) {\n        self.directory = directory\n        cache.totalCostLimit = 16 * 1_024 * 1_024\n        cache.countLimit = 32\n    }\n\n    func image(for asset: ImportedAsset, maxPixelSize: Int, completion: @escaping (CGImage?) -> Void) {\n        let pixelSize = min(768, max(1, maxPixelSize))\n        let key = \"\\(asset.id.uuidString):\\(pixelSize)\"\n        if let cached = cache.object(forKey: key as NSString) { completion(cached.image); return }\n        if pending[key] != nil { pending[key, default: []].append(completion); return }\n        guard !asset.fileName.isEmpty, asset.fileName == URL(fileURLWithPath: asset.fileName).lastPathComponent,\n              asset.fileName != \".\", asset.fileName != \"..\" else { completion(nil); return }\n        pending[key] = [completion]\n        let epoch = generation\n        let url = directory.appendingPathComponent(asset.fileName)\n        queue.async { [weak self] in\n            guard let self else { return }\n            let options: [CFString: Any] = [kCGImageSourceShouldCache: false]\n            var image: CGImage?\n            if let source = CGImageSourceCreateWithURL(url as CFURL, options as CFDictionary),\n               CGImageSourceGetStatus(source) == .statusComplete {\n                let thumbnailOptions: [CFString: Any] = [\n                    kCGImageSourceCreateThumbnailFromImageAlways: true,\n                    kCGImageSourceCreateThumbnailWithTransform: true,\n                    kCGImageSourceShouldCacheImmediately: true,\n                    kCGImageSourceThumbnailMaxPixelSize: pixelSize\n                ]\n                image = CGImageSourceCreateThumbnailAtIndex(source, 0, thumbnailOptions as CFDictionary)\n            }\n            let renderedImage = image\n            DispatchQueue.main.async { [self] in\n                guard self.generation == epoch else { return }\n                if let renderedImage {\n                    self.cache.setObject(ThumbnailBox(renderedImage), forKey: key as NSString,\n                                         cost: renderedImage.bytesPerRow * renderedImage.height)\n                }\n                let callbacks = self.pending.removeValue(forKey: key) ?? []\n                callbacks.forEach { $0(renderedImage) }\n            }\n        }\n    }\n\n    func clear() { generation &+= 1; cache.removeAllObjects(); pending.removeAll() }\n}"
+              }
+            }
+          ],
+          "observedPriorFailure": {
+            "sourceSHA": "e1c46ed0f8176bec08a9b91914e513e7bf861240",
+            "checkoutSHA": "c792f562792610fbbc7435687563db146876693b",
+            "nativeRunID": 41181427673,
+            "rawLogLocalPath": "/tmp/riftlet-r2-integration/ownership-h2-native-arm-job.log",
+            "rawLogSha256": "c7b3bc78fd94fdd18795d69523b2c457a7c75429e58a5fe08c567c7f17acacbe",
+            "matchingRawLogLines": [
+              {
+                "line": 5519,
+                "text": "2026-10-31T07:41:12.0736200Z /Users/runner/work/Riftlet/Riftlet/Tests/RiftletUITests/QuietEdgeInteractionTests.swift:179: error: -[RiftletUITests.QuietEdgeInteractionTests testFeedbackReusesPointerFreePeekAndInvalidatesOldDecodeAndWaitingDeadline] : XCTAssertFalse failed - An old image decode cannot bypass the waiting delay"
+              },
+              {
+                "line": 5520,
+                "text": "2026-10-31T07:41:12.0737830Z Test Case '-[RiftletUITests.QuietEdgeInteractionTests testFeedbackReusesPointerFreePeekAndInvalidatesOldDecodeAndWaitingDeadline]' failed (4.007 seconds)."
+              }
+            ],
+            "logProves": "The line-179 visibility assertion failed and the test completed with a reported 4.007-second duration.",
+            "logDoesNotProve": "The log does not identify whether the visible panel held an image or note, nor the specific main-queue ordering, task resumption time, or causal delay.",
+            "sourceEstablishedRisk": "The old test suspended for 100 ms before asserting invisibility while a legitimate note could appear after 250 ms. Task suspension imposes a lower bound, not an upper bound on resumption; late resumption can inspect the legitimate note and falsely label it a stale image.",
+            "productDefectEvidence": "No bypass of the current synchronous epoch guard was found in the inspected product chain. This is a source-review conclusion, not a measured reconstruction of that failed run."
+          },
+          "whyFixPreservesIntent": [
+            "The original stale-decode rejection assertion now executes in the same MainActor turn as the retained callback, before yielding to the legitimate note deadline.",
+            "Leaving immediately invalidates the pending note. The subsequent 300 ms wait uses only a lower bound beyond the original unchanged 250 ms deadline.",
+            "The zero presentation-event history detects an incorrectly displayed then dismissed note, which a final panel-state check alone could miss under delayed resumption.",
+            "The valid delay-zero note must record exactly the expected UUID, providing a positive control for the added observer.",
+            "Pointer-free/nonactivating panel, maximum width, inward placement, on-screen geometry, and the original 2.6-second bounded lifetime assertions are retained."
+          ],
+          "executionScope": {
+            "performed": "Read exact Git objects, read complete changed file and full commit diff, inspect existing raw failed-job log, and verify recorded source invariants.",
+            "nativeSwiftTestsRunByThisReview": false,
+            "appExecuted": false,
+            "remoteModified": false,
+            "productOrRefsModified": false,
+            "nextRequiredEvidence": "Final admitted H3 Native ARM/Intel and Feedback workflows plus exact-source final App artifact and visual review. This source review does not claim that CI or App verification already passed."
+          },
+          "admissionBoundaries": {
+            "productionUpload": "NO-GO_UNCHANGED",
+            "builtInScreenshotUpload": "CLOSED_UNCHANGED",
+            "safeRetry": "CLOSED_UNCHANGED",
+            "webContinuation": "CLOSED_UNCHANGED",
+            "historicalSelectionPreservation": "FAIL_UNCHANGED",
+            "privateOriginalEvidence111Files": "NOT_REVERIFIED",
+            "physicalMouseOrNewSystemPermissions": "NOT_EXECUTED"
+          }
+        }
+      }
+    },
+    "historicalFailedH2": {
+      "head": "e1c46ed0f8176bec08a9b91914e513e7bf861240",
+      "checkout": "c792f562792610fbbc7435687563db146876693b",
+      "nativeRun": 41181427673,
+      "feedbackRun": 41181427670,
+      "armFailure": {
+        "sha256": "c6c014b0ea98dbfc642275b9da198101023be9266a2842c5d54d6061427f4f24",
+        "record": {
+          "reviewer": "/root/ownership_review independent raw-log review",
+          "createdUTC": "2026-10-31T07:42:38.908493+00:00",
+          "decision": "FAIL_H2_ARM_FULL_SWIFT; NO_FINAL_RUNTIME_APPROVAL",
+          "head": "e1c46ed0f8176bec08a9b91914e513e7bf861240",
+          "actualCheckout": "c792f562792610fbbc7435687563db146876693b",
+          "run": 41181427673,
+          "job": 124479451058,
+          "originalLog": {
+            "path": "/tmp/riftlet-r2-integration/ownership-h2-native-arm-job.log",
+            "bytes": 476664,
+            "sha256": "c7b3bc78fd94fdd18795d69523b2c457a7c75429e58a5fe08c567c7f17acacbe",
+            "characters": 476654
+          },
+          "compile": "Build complete; no compile blocker in fixture change or optional identity operator.",
+          "fullSwift": {
+            "enumeratedRows": 824,
+            "enumeratedUnique": 824,
+            "declaredTotals": [
+              824
+            ],
+            "allIndicesThrough824": true,
+            "step": "failure exit 1",
+            "ownershipEnumerated": 5,
+            "sqliteWALEnumerated": 4
+          },
+          "observedFailure": {
+            "case": "RiftletUITests.QuietEdgeInteractionTests.testFeedbackReusesPointerFreePeekAndInvalidatesOldDecodeAndWaitingDeadline",
+            "file": "Tests/RiftletUITests/QuietEdgeInteractionTests.swift",
+            "line": 179,
+            "assertion": "XCTAssertFalse failed - An old image decode cannot bypass the waiting delay",
+            "durationSeconds": 4.007,
+            "observedFailedCases": 1,
+            "cause": "Not classified as flaky or product defect by this log alone; root performing targeted causal analysis. Product/test blob did not change in S2 fixture repair."
+          },
+          "completedSuccessSteps": [
+            "Set up job",
+            "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+            "Record compiler and OS",
+            "Replay archived Web evidence offline",
+            "Exercise integrated page program with synthetic DOM",
+            "Exercise round-two fault harness offline",
+            "Exercise round-three diagnostic probe offline",
+            "Verify round-five diagnostic evidence helpers offline",
+            "Verify system-screenshot stage-two diagnostic fixtures",
+            "Establish and verify actual CI accessibility baseline",
+            "Compile screenshot comparison probe and report environment capabilities",
+            "Reject actual screenshot output failures independently of software tests",
+            "Archive evidence",
+            "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+            "Complete job"
+          ],
+          "skippedSteps": [
+            "Verify isolated arrival delta and report native motion outcomes",
+            "Verify packaging rejection paths offline",
+            "Report software panel lifecycle outcomes",
+            "Exercise the production screenshot engine and private import with an owned fixture",
+            "Verify strict magnet completion and resource cleanup separately",
+            "Package native application",
+            "Run packaged executable with synthetic data",
+            "Package unified internal Beta with explicit candidate entry",
+            "Validate and archive synthetic GUI acceptance helper",
+            "Capture isolated native visual evidence at original pixels",
+            "Capture additional integrated experience windows at original pixels",
+            "Capture Quiet Edge R2 native geometry",
+            "Capture bounded actual system accessibility variants"
+          ],
+          "scope": "Later detailed suites, native owned import fixture, packaging, manifest20 and native visuals did not execute on ARM after Swift failure; preceding capture backend probe and always-run output contract are separate evidence.",
+          "next": "Preserve this exact failed run. Await Intel/Feedback for scope; independently review only necessary correction and its new source/CI.",
+          "actions": "No rerun, test execution, code edit, branch operation or package audit."
+        }
+      },
+      "fullRuntimeReview": {
+        "sha256": "bbf82ccb323a7c798f05310ee30731f903651be55f40d97326699819c529203e",
+        "record": {
+          "schemaVersion": 1,
+          "reviewer": "/root/ownership_review independent completed raw-job-log review",
+          "createdUTC": "2026-10-31T07:56:23.838530+00:00",
+          "decision": "FAIL_H2_FORMAL_NATIVE; HISTORY_PRESERVED; NEW_EXACT_HEAD_CI_REQUIRED",
+          "source": "e1c46ed0f8176bec08a9b91914e513e7bf861240",
+          "sourceTree": "f4f5058e665bce14bc03e5e28e9905dbc3ec2253",
+          "reviewedSource": "1459ab26b88eec15fdc9102f05f4f540dff29f07",
+          "checkout": "c792f562792610fbbc7435687563db146876693b",
+          "checkoutTree": "78b44f7fc16f3ee9bfa6e538c7590e463f1b91be",
+          "mergeParents": [
+            "fccd809e9d55e0b221e75e6dcd7c21f6d357ee74",
+            "e1c46ed0f8176bec08a9b91914e513e7bf861240"
+          ],
+          "workflowResults": [
+            {
+              "id": 41181427670,
+              "name": "Feedback v0.1",
+              "status": "completed",
+              "conclusion": "success",
+              "run_number": 95,
+              "jobs_url": "https://api.github.com/repos/haohongfei2001-png/Riftlet/actions/runs/41181427670/jobs",
+              "logs_url": "https://api.github.com/repos/haohongfei2001-png/Riftlet/actions/runs/41181427670/logs",
+              "workflow_id": 399083617
+            },
+            {
+              "id": 41181427673,
+              "name": "Native foundation",
+              "status": "completed",
+              "conclusion": "failure",
+              "run_number": 189,
+              "jobs_url": "https://api.github.com/repos/haohongfei2001-png/Riftlet/actions/runs/41181427673/jobs",
+              "logs_url": "https://api.github.com/repos/haohongfei2001-png/Riftlet/actions/runs/41181427673/logs",
+              "workflow_id": 397402349
+            }
+          ],
+          "apiSnapshot": {
+            "path": "/tmp/riftlet-r2-integration/ownership-h2-final-ci-api.json",
+            "sha256": "730f31717c0bf12f556f366375b0f9a3f4ed165c46cf03ec7bd3e900346c9f11"
+          },
+          "sourceAdmission": {
+            "nativeJob": 124479450869,
+            "feedbackJob": 124479450853,
+            "checksPerJob": "32/32 PASS",
+            "independentReport": "/tmp/riftlet-r2-integration/h2-formal-source-independent-review.json",
+            "sha256": "643f9a9c05fa60f6c523644fc3ba01854440a469616551148e44d9cc26618360",
+            "scope": "Exact source admission only; both successes do not override ARM runtime failure."
+          },
+          "arm": {
+            "record": {
+              "reviewer": "/root/ownership_review independent raw-log review",
+              "createdUTC": "2026-10-31T07:42:38.908493+00:00",
+              "decision": "FAIL_H2_ARM_FULL_SWIFT; NO_FINAL_RUNTIME_APPROVAL",
+              "head": "e1c46ed0f8176bec08a9b91914e513e7bf861240",
+              "actualCheckout": "c792f562792610fbbc7435687563db146876693b",
+              "run": 41181427673,
+              "job": 124479451058,
+              "originalLog": {
+                "path": "/tmp/riftlet-r2-integration/ownership-h2-native-arm-job.log",
+                "bytes": 476664,
+                "sha256": "c7b3bc78fd94fdd18795d69523b2c457a7c75429e58a5fe08c567c7f17acacbe",
+                "characters": 476654
+              },
+              "compile": "Build complete; no compile blocker in fixture change or optional identity operator.",
+              "fullSwift": {
+                "enumeratedRows": 824,
+                "enumeratedUnique": 824,
+                "declaredTotals": [
+                  824
+                ],
+                "allIndicesThrough824": true,
+                "step": "failure exit 1",
+                "ownershipEnumerated": 5,
+                "sqliteWALEnumerated": 4
+              },
+              "observedFailure": {
+                "case": "RiftletUITests.QuietEdgeInteractionTests.testFeedbackReusesPointerFreePeekAndInvalidatesOldDecodeAndWaitingDeadline",
+                "file": "Tests/RiftletUITests/QuietEdgeInteractionTests.swift",
+                "line": 179,
+                "assertion": "XCTAssertFalse failed - An old image decode cannot bypass the waiting delay",
+                "durationSeconds": 4.007,
+                "observedFailedCases": 1,
+                "cause": "Not classified as flaky or product defect by this log alone; root performing targeted causal analysis. Product/test blob did not change in S2 fixture repair."
+              },
+              "completedSuccessSteps": [
+                "Set up job",
+                "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+                "Record compiler and OS",
+                "Replay archived Web evidence offline",
+                "Exercise integrated page program with synthetic DOM",
+                "Exercise round-two fault harness offline",
+                "Exercise round-three diagnostic probe offline",
+                "Verify round-five diagnostic evidence helpers offline",
+                "Verify system-screenshot stage-two diagnostic fixtures",
+                "Establish and verify actual CI accessibility baseline",
+                "Compile screenshot comparison probe and report environment capabilities",
+                "Reject actual screenshot output failures independently of software tests",
+                "Archive evidence",
+                "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+                "Complete job"
+              ],
+              "skippedSteps": [
+                "Verify isolated arrival delta and report native motion outcomes",
+                "Verify packaging rejection paths offline",
+                "Report software panel lifecycle outcomes",
+                "Exercise the production screenshot engine and private import with an owned fixture",
+                "Verify strict magnet completion and resource cleanup separately",
+                "Package native application",
+                "Run packaged executable with synthetic data",
+                "Package unified internal Beta with explicit candidate entry",
+                "Validate and archive synthetic GUI acceptance helper",
+                "Capture isolated native visual evidence at original pixels",
+                "Capture additional integrated experience windows at original pixels",
+                "Capture Quiet Edge R2 native geometry",
+                "Capture bounded actual system accessibility variants"
+              ],
+              "scope": "Later detailed suites, native owned import fixture, packaging, manifest20 and native visuals did not execute on ARM after Swift failure; preceding capture backend probe and always-run output contract are separate evidence.",
+              "next": "Preserve this exact failed run. Await Intel/Feedback for scope; independently review only necessary correction and its new source/CI.",
+              "actions": "No rerun, test execution, code edit, branch operation or package audit."
+            },
+            "sha256": "c6c014b0ea98dbfc642275b9da198101023be9266a2842c5d54d6061427f4f24"
+          },
+          "intel": {
+            "job": 124479450964,
+            "result": "PASS_FULL_EXECUTION_LOG",
+            "originalLog": {
+              "path": "/tmp/riftlet-r2-integration/ownership-h2-native-intel-job.log",
+              "bytes": 668552,
+              "sha256": "4392ab353d5842ec5950b854137b9979caa3d127917b4ecb51cb1472ff7b710a"
+            },
+            "fullSwift": {
+              "enumeratedUnique": 824,
+              "allIndicesPresent": true,
+              "ownership5": [
+                "RiftletAppTests.ApplicationInstanceOwnershipTests.testCloseIsIdempotentAndAllowsNextOwnerWithoutDeletingHistory",
+                "RiftletAppTests.ApplicationInstanceOwnershipTests.testHistoricalFeedbackFirstOrderingCanSplitRealStoreAndAppLocks",
+                "RiftletAppTests.ApplicationInstanceOwnershipTests.testModesRemainIndependentAndLinkedLockIsRefusedWithoutChangingTarget",
+                "RiftletAppTests.ApplicationInstanceOwnershipTests.testOwnershipBeforeSidecarsRejectsLoserWithoutOpeningItsFeedbackStore",
+                "RiftletAppTests.ApplicationInstanceOwnershipTests.testTerminationRetainsOwnershipAfterObjectDestructionWhileSidecarLives"
+              ],
+              "wal4": [
+                "RiftletCoreTests.SQLiteWALInitializationTests.testConcurrentRollbackJournalOpenersKeepOriginalRows",
+                "RiftletCoreTests.SQLiteWALInitializationTests.testHeldReaderBoundsBusyInitializationAndPreservesOriginalDatabase",
+                "RiftletCoreTests.SQLiteWALInitializationTests.testNonBusyCorruptionFailsPromptlyWithStageAndNoRewrite",
+                "RiftletCoreTests.SQLiteWALInitializationTests.testPrepareAndStepShareOneWALInitializationBudget"
+              ],
+              "r2AddedNamesEnumerated": 22,
+              "detailedUniquePassed": 356,
+              "detailedPassEvents": 362,
+              "explicitFailedCases": 0,
+              "explicitSkippedCases": 0,
+              "failedARMCaseOnIntel": {
+                "case": "RiftletUITests.QuietEdgeInteractionTests.testFeedbackReusesPointerFreePeekAndInvalidatesOldDecodeAndWaitingDeadline",
+                "enumerated": true,
+                "detailedResult": "PASS",
+                "interpretation": "This distinct successful observation does not prove the ARM failure callback order or scheduler timing."
+              }
+            },
+            "detailedSuiteCounts": {
+              "RiftletAdaptersTests.ChromeActiveTabDescriptorTests": 5,
+              "RiftletAdaptersTests.SystemScreenshotCandidateAdmissionTests": 23,
+              "RiftletAdaptersTests.SystemScreenshotObservationJournalTests": 8,
+              "RiftletAdaptersTests.SystemScreenshotWebCandidateTests": 7,
+              "RiftletAppTests.BuiltInScreenshotHostTests": 6,
+              "RiftletAppTests.DeferredChromeActivityBindingTests": 3,
+              "RiftletAppTests.PassivePermissionResumeTests": 8,
+              "RiftletAppTests.ScreenshotEntryIntegrationTests": 4,
+              "RiftletAppTests.ScreenshotEntryPreferencesTests": 5,
+              "RiftletAppTests.ScreenshotMarkupFidelityTests": 1,
+              "RiftletAppTests.SelectionAuthorityTests": 4,
+              "RiftletAppTests.SelectionSubmissionQueueTests": 6,
+              "RiftletAppTests.SystemScreenshotCandidateIntegrationTests": 6,
+              "RiftletAppTests.WebAcceptanceIntegrationTests": 5,
+              "RiftletCaptureTests.BuiltInCaptureNativeProbeTests": 1,
+              "RiftletCaptureTests.CapturePreferenceObservationTests": 2,
+              "RiftletCaptureTests.CaptureSourceBindingTests": 15,
+              "RiftletCaptureTests.CompletedScreenshotImporterTests": 7,
+              "RiftletCaptureTests.InteractiveScreenshotControllerTests": 18,
+              "RiftletCaptureTests.InteractiveScreenshotProcessTests": 15,
+              "RiftletCaptureTests.InteractiveScreenshotTests": 16,
+              "RiftletCaptureTests.ReleaseCaptureTests": 15,
+              "RiftletCaptureTests.SystemScreenshotFidelityTests": 2,
+              "RiftletCoreTests.AcceptedSelectionQueueTests": 18,
+              "RiftletFeedbackTests.FeedbackAutomaticRetryTests": 3,
+              "RiftletFeedbackTests.FeedbackCredentialIntentTests": 3,
+              "RiftletFeedbackTests.FeedbackDurabilityTests": 4,
+              "RiftletFeedbackTests.FeedbackFlightTests": 5,
+              "RiftletFeedbackTests.FeedbackPrivacyCleanupTests": 4,
+              "RiftletFeedbackTests.FeedbackTests": 11,
+              "RiftletFeedbackUITests.FeedbackCloseTests": 2,
+              "RiftletFeedbackUITests.FeedbackRecordsTests": 4,
+              "RiftletFeedbackUITests.FeedbackTextLimitTests": 3,
+              "RiftletFeedbackUITests.FeedbackVisualCandidateTests": 2,
+              "RiftletFeedbackUITests.FeedbackWindowTests": 8,
+              "RiftletUITests.MagnetFlightPresenterTests": 10,
+              "RiftletUITests.PresentationBoundaryTests": 7,
+              "RiftletUITests.QuietEdgeInteractionTests": 7,
+              "RiftletUITests.QuietEdgeWindowTests": 2,
+              "RiftletUITests.RiftCapturePresentationTests": 5,
+              "RiftletUITests.RiftInputIslandTests": 3,
+              "RiftletUITests.RiftLayoutTests": 18,
+              "RiftletUITests.RiftLifecycleTests": 15,
+              "RiftletUITests.RiftPeekGeometryTests": 3,
+              "RiftletUITests.RiftSetupControllerTests": 4,
+              "RiftletUITests.ScreenshotEntryControllerTests": 13,
+              "RiftletUITests.ScreenshotEntryModelTests": 11,
+              "RiftletUITests.UnifiedSettingsTests": 9
+            },
+            "offlineTests": {
+              "packaging": 17,
+              "internalBetaPackaging": 13,
+              "manifestWithNewBackdropRejectionTests": 20,
+              "TAPTotalsInOrder": [
+                19,
+                109,
+                61,
+                9,
+                4,
+                2,
+                12
+              ],
+              "TAPFailures": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            "ownedCaptureFixture": {
+              "summary": {
+                "completedModes": [
+                  "region"
+                ],
+                "connectedDisplayCount": 1,
+                "displayScale": 1,
+                "event": "summary",
+                "notRunModes": [
+                  "window",
+                  "fullScreen"
+                ],
+                "physicalInteractionAcceptance": "NOT_RUN",
+                "pixelColorAcceptance": "NOT_GRANTED",
+                "probe": "built-in-native-engine",
+                "rawImagesPublished": false,
+                "realUploadAcceptance": "NOT_RUN",
+                "schemaVersion": 1,
+                "scope": "ACTUAL_APPLE_CAPTURE_PUBLISH_READBACK_PRIVATE_IMPORT_OWNED_SYNTHETIC_FIXTURE",
+                "selectedDisplayPointHeight": 1080,
+                "selectedDisplayPointWidth": 1920,
+                "status": "PARTIAL"
+              },
+              "modeRecords": [
+                {
+                  "completedModes": [],
+                  "engineReturned": true,
+                  "event": "mode",
+                  "mode": "window",
+                  "phase": "AFTER_CAPTURE_BEFORE_IMPORT_OR_METADATA",
+                  "physicalInteractionAcceptance": "NOT_RUN",
+                  "pixelColorAcceptance": "NOT_GRANTED",
+                  "probe": "built-in-native-engine",
+                  "rawImagesPublished": false,
+                  "realUploadAcceptance": "NOT_RUN",
+                  "reason": "FOREIGN_OVERLAP_VETO",
+                  "schemaVersion": 1,
+                  "scope": "ACTUAL_APPLE_CAPTURE_PUBLISH_READBACK_PRIVATE_IMPORT_OWNED_SYNTHETIC_FIXTURE",
+                  "status": "NOT_RUN"
+                },
+                {
+                  "capturePublishReadbackMS": 320.7061389999808,
+                  "completedModes": [
+                    "region"
+                  ],
+                  "displayScale": 1,
+                  "event": "mode",
+                  "finalOriginalHidden": true,
+                  "hasSystemScreenshotMetadata": true,
+                  "mode": "region",
+                  "ordinaryCollectorExcluded": true,
+                  "origin": "applicationScreenshot",
+                  "originalEqualsPrivateCopy": true,
+                  "originalVerificationMS": 1.6168240000524747,
+                  "physicalInteractionAcceptance": "NOT_RUN",
+                  "pixelColorAcceptance": "NOT_GRANTED",
+                  "pixelHeight": 96,
+                  "pixelWidth": 128,
+                  "privateImportMS": 11.874318999957723,
+                  "probe": "built-in-native-engine",
+                  "rawImagesPublished": false,
+                  "rawPNGBytes": 7612,
+                  "rawPNGSHA256": "e0afe7554a57b382babc4158ae1ce8e1167ccb71b40d3368b3ca0bf0b0cba7ab",
+                  "realUploadAcceptance": "NOT_RUN",
+                  "reimportDeduplicated": true,
+                  "schemaVersion": 1,
+                  "scope": "ACTUAL_APPLE_CAPTURE_PUBLISH_READBACK_PRIVATE_IMPORT_OWNED_SYNTHETIC_FIXTURE",
+                  "status": "PASS"
+                },
+                {
+                  "completedModes": [
+                    "region"
+                  ],
+                  "event": "mode",
+                  "mode": "fullScreen",
+                  "phase": "BEFORE_CAPTURE",
+                  "physicalInteractionAcceptance": "NOT_RUN",
+                  "pixelColorAcceptance": "NOT_GRANTED",
+                  "probe": "built-in-native-engine",
+                  "rawImagesPublished": false,
+                  "realUploadAcceptance": "NOT_RUN",
+                  "reason": "FOREIGN_OVERLAP_VETO",
+                  "schemaVersion": 1,
+                  "scope": "ACTUAL_APPLE_CAPTURE_PUBLISH_READBACK_PRIVATE_IMPORT_OWNED_SYNTHETIC_FIXTURE",
+                  "status": "NOT_RUN"
+                }
+              ]
+            },
+            "captureFileOutputContract": {
+              "capturedSamples": 15,
+              "fixtureRefusals": 0,
+              "omittedVariants": 1,
+              "outputErrorCount": 0,
+              "physicalAcceptance": "NOT_RUN",
+              "pixelColorAcceptance": "NOT_GRANTED",
+              "reason": "VALID_EXACT_PATH_PNG_SAMPLES",
+              "schemaVersion": 1,
+              "scope": "SCREENCAPTURE_FILE_OUTPUT_ONLY",
+              "status": "PASS_FILE_OUTPUT_ONLY",
+              "uploadAdmission": "NOT_GRANTED"
+            },
+            "packagingMarkers": [
+              "RIFTLET_BUNDLE_CHECK_PASS: layout, permissions text, resources, notices; development 0.1.0; NOT_NOTARIZED; GATEKEEPER_NOT_RUN",
+              "RIFTLET_ORDINARY_BINARY_IDENTITY_PASS: development; fixed capture policy/root; no retry or continuation",
+              "RIFTLET_SELF_CHECK_PASS: private import, durable upload-start visibility, delayed synthetic completion, restart",
+              "RIFTLET_WEB_ACCEPTANCE_SELF_CHECK_PASS: bundled page source, synthetic-only start/completion policy, isolated modes; CHROME_NOT_RUN; GUI_NOT_RUN",
+              "RIFTLET_FIRST_USE_SELF_CHECK_PASS: presentation persistence, disabled-production permission isolation, honest status; PERMISSIONS_NOT_REQUESTED; GUI_NOT_RUN",
+              "RIFTLET_SYSTEM_SCREENSHOT_CANDIDATE_SELF_CHECK_PASS: original-byte import, one software input, restricted start then independent completion, durable new-operation registration, legacy UNKNOWN unchanged, read-only restart; GENERATED_FIXTURE; CHROME_NOT_RUN; SYSTEM_SCREENSHOT_NOT_RUN; GUI_NOT_RUN",
+              "RIFTLET_BUNDLE_CHECK_PASS: layout, permissions text, resources, notices; development 0.1.0; NOT_NOTARIZED; GATEKEEPER_NOT_RUN",
+              "RIFTLET_INTERNAL_BETA_CHECK_PASS: source=e1c46ed0f8176bec08a9b91914e513e7bf861240; checkout=c792f562792610fbbc7435687563db146876693b; explicit candidate; Feedback=https-receiver-configured; GUI_NOT_RUN; GATEKEEPER_NOT_RUN",
+              "RIFTLET_INTERNAL_BETA_PACKAGE_PASS: complete App, explicit candidate launcher, Feedback capability recorded in exact build manifest; NOT_PUBLIC_RELEASE"
+            ],
+            "visualExecution": {
+              "ordinaryOriginalImages": 98,
+              "ordinaryMovies": 5,
+              "supplementalStaticCases": 6,
+              "r2CaseStep": "success",
+              "r2CasesRequiredByExactScript": 12,
+              "accessibilityOriginalImages": 14,
+              "accessibilityMovies": 1,
+              "scope": "Native synthetic WindowServer execution and new strict backdrop manifest guard. No independent inspection of this old Intel archive/images requested; not final H3 visual approval."
+            },
+            "workflowSkippedSteps": [
+              "Verify isolated arrival delta and report native motion outcomes"
+            ],
+            "artifact": {
+              "id": 13034724103,
+              "uploadedZipSHA256": "9780a59aa7935025f898d55d23038900fd6aa8eba92361dc3eab212a004a47d8",
+              "role": "Historical H2; not final deliverable"
+            }
+          },
+          "feedback": {
+            "run": 41181427670,
+            "job": 124479450912,
+            "result": "PASS",
+            "originalLog": {
+              "path": "/tmp/riftlet-r2-integration/ownership-h2-feedback-job.log",
+              "bytes": 133874,
+              "sha256": "d05b1478f96cb370127dd96748e20910bcc3945e3c7b267849a2cc5c31dbd671"
+            },
+            "isolation": {
+              "groups": 8,
+              "counts": [
+                4,
+                14,
+                11,
+                14,
+                21,
+                24,
+                5,
+                25
+              ],
+              "total": 118,
+              "result": "OK"
+            },
+            "service": {
+              "total": 24,
+              "passed": 24,
+              "failed": 0,
+              "skipped": 0
+            },
+            "nativeUI": {
+              "uniquePassed": 49,
+              "passEvents": 55,
+              "additionalCloseRepetition": "3 x 2 pass, not new unique cases",
+              "failed": 0,
+              "explicitSkipped": 0
+            },
+            "demo": "PASS_OFFLINE_SYNTHETIC; CLOUD_NOT_RUN; PHYSICAL_GUI_NOT_RUN; NOT_NOTARIZED",
+            "workflowSkippedSteps": [
+              "Verify actual Feedback and current screenshot composition"
+            ]
+          },
+          "failureInterpretation": {
+            "observed": "ARM one explicit case failure at QuietEdgeInteractionTests.swift:179 after asynchronous wait; Intel same case detailed PASS.",
+            "notClaimed": "No precise callback/resumption timestamps in failing log; do not assert that a specific scheduling delay is proven or call this an unexplained harmless flake.",
+            "reviewedMinimalRepair": "S3 1c1ed6051d6fbc984d3e9e2071b741f1f1805f32 changes only this existing test observation to synchronous stale-decode assertions, cancellation before yield and visibility-event history; no product deadline or implementation change.",
+            "required": "New S3 metadata successor must run complete original Native ARM/Intel and Feedback, with source/actual checkout and final artifacts consistent."
+          },
+          "boundaries": [
+            "H2 Native overall FAILURE is preserved; no partial successes promoted to final runtime PASS.",
+            "ARM did not execute later detailed/fixture/package/manifest20/visual steps after its full Swift failure.",
+            "Intel capture fixture remains PARTIAL: region PASS, window/fullscreen FOREIGN_OVERLAP_VETO NOT_RUN; no physical/real upload/pixel color admission.",
+            "824 denotes full parallel enumeration, not 824 individually printed PASS outcomes; 356 is Intel detailed unique PASS evidence.",
+            "20 manifest tests and new native backdrop guard executed successfully on Intel; final H3 fresh visuals still required.",
+            "Feedback runs are software/native UI plus mocked service/offline demo; no new cloud or physical GUI result.",
+            "Old branch-specific arrival step and original Feedback composition step skipped as configured; formal source jobs both actually passed.",
+            "No old H2 App ZIP or PNG was reviewed as final; no main merge, public release or production upload/retry/continuation opening."
+          ],
+          "actions": "Read completed logs once, save full originals, parse/check identity/outcomes. No rerun, source edits, old package/image audit or new test execution."
+        }
+      },
+      "sourceGateReview": {
+        "sha256": "643f9a9c05fa60f6c523644fc3ba01854440a469616551148e44d9cc26618360",
+        "record": {
+          "schemaVersion": 1,
+          "reviewer": "/root/admission_review independent read-only source reviewer",
+          "result": "PASS_FORMAL_H2_MERGE_AND_BOTH_SOURCE_JOBS",
+          "formalHead": "e1c46ed0f8176bec08a9b91914e513e7bf861240",
+          "reviewedSource": "1459ab26b88eec15fdc9102f05f4f540dff29f07",
+          "actualCheckout": "c792f562792610fbbc7435687563db146876693b",
+          "checkoutTree": "78b44f7fc16f3ee9bfa6e538c7590e463f1b91be",
+          "actualParents": [
+            "fccd809e9d55e0b221e75e6dcd7c21f6d357ee74",
+            "e1c46ed0f8176bec08a9b91914e513e7bf861240"
+          ],
+          "mainDirectRef": "fccd809e9d55e0b221e75e6dcd7c21f6d357ee74",
+          "formalPR": {
+            "state": "open",
+            "draft": true,
+            "head": "e1c46ed0f8176bec08a9b91914e513e7bf861240",
+            "baseRef": "main",
+            "embeddedBaseSHA": "5a3ab5d7a761d5397f8bc15b6f40d761b29e58d2",
+            "merge_commit_sha": "c792f562792610fbbc7435687563db146876693b",
+            "updated_at": "2026-10-31T07:39:31Z"
+          },
+          "embeddedBaseSHANote": "PR payload base.sha is5a3ab5d7 and is not used as authority; direct refs/heads/main and raw actual merge parent independently bothfccd809. No main change observed.",
+          "treeVerification": {
+            "result": "PASS_EXACT_LOCAL_FETCHED_MERGE_TREE",
+            "head": "e1c46ed0f8176bec08a9b91914e513e7bf861240",
+            "merge": "c792f562792610fbbc7435687563db146876693b",
+            "tree": "78b44f7fc16f3ee9bfa6e538c7590e463f1b91be",
+            "parents": [
+              "fccd809e9d55e0b221e75e6dcd7c21f6d357ee74",
+              "e1c46ed0f8176bec08a9b91914e513e7bf861240"
+            ],
+            "main": "fccd809e9d55e0b221e75e6dcd7c21f6d357ee74",
+            "headObjects": 1006,
+            "mergeObjects": 1030,
+            "protectedMergeObjects": 1027,
+            "exactHeadPlusPinnedMainOverlay": true,
+            "websiteOverlay": {
+              "objects": 28,
+              "added": 24,
+              "replaced": 4,
+              "allModesAndBlobsMatchFixedMain": true,
+              "changes": [
+                {
+                  "path": "favicon.svg",
+                  "head": {
+                    "mode": "100644",
+                    "type": "blob",
+                    "oid": "ad0c5f60a543f27258674b00c322ffa118dea708"
+                  },
+                  "merge": {
+                    "mode": "100644",
+                    "type": "blob",
+                    "oid": "0b3bd76e4db66be4eaff53c3274121c6da866b82"
+                  }
+                },
+                {
+                  "path": "index.html",
+                  "head": {
+                    "mode": "100644",
+                    "type": "blob",
+                    "oid": "4654594b1d201018fd11b1de3792cf76fb83aacd"
+                  },
+                  "merge": {
+                    "mode": "100644",
+                    "type": "blob",
+                    "oid": "4097707b40721b9a01ae4d1efc4b544881c10b6e"
+                  }
+                },
+                {
+                  "path": "site.webmanifest",
+                  "head": {
+                    "mode": "100644",
+                    "type": "blob",
+                    "oid": "d7444955506ac64d5c72967833d29a522f648e3a"
+                  },
+                  "merge": {
+                    "mode": "100644",
+                    "type": "blob",
+                    "oid": "de02f57e7457770f012f33197d13d381402c8699"
+                  }
+                },
+                {
+                  "path": "website-assets/error.svg",
+                  "head": null,
+                  "merge": {
+                    "mode": "100644",
+                    "type": "blob",
+                    "oid": "7ae4e464d40b0fca66a92c7be38ba0aed0fecf44"
+                  }
+                },
+                {
+                  "path": "website-assets/fonts/FONT-SOURCES.json",
+                  "head": null,
+                  "merge": {
+                    "mode": "100644",
+                    "type": "blob",
+                    "oid": "4185934e8b50c7bb22adb4eb13b1470c30770c05"
+                  }
+                },
+                {
+                  "path": "website-assets/fonts/Instrument-Serif-OFL.txt",
+                  "head": null,
+                  "merge": {
+                    "mode": "100644",
+                    "type": "blob",
+                    "oid": "669ce7917bec662fcf7244d37f49c4277f6fbd73"
+                  }
+                },
+                {
+                  "path": "website-assets/fonts/Noto-Serif-SC-OFL.txt",
+                  "head": null,
+                  "merge": {
+                    "mode": "100644",
+                    "type": "blob",
+                    "oid": "94d1bf7b52481343e2983fb7751e8b7abe1ea07b"
+                  }
+                },
+                {
+                  "path": "website-assets/fonts/instrument-serif-italic.woff2",
+                  "head": null,
+                  "merge": {
+                    "mode": "100644",
+                    "type": "blob",
+                    "oid": "ce3c417c8d0e9f012bb697d25a0874d148ea89e6"
+                  }
+                },
+                {
+                  "path": "website-assets/fonts/instrument-serif.woff2",
+                  "head": null,
+                  "merge": {
+                    "mode": "100644",
+                    "type": "blob",
+                    "oid": "17653042acca7f87268c8c29dc8c0cc094c0b124"
+                  }
+                },
+                {
+                  "path": "website-assets/fonts/noto-serif-sc.woff2",
+                  "head": null,
+                  "merge": {
+                    "mode": "100644",
+                    "type": "blob",
+                    "oid": "0b168de5852c35da7b650c48dd5a248f389910c0"
+                  }
+                },
+                {
+                  "path": "website-assets/glass-study.png",
+                  "head": null,
+                  "merge": {
+                    "mode": "100644",
+                    "type": "blob",
+                    "oid": "2f4593262ab240d0b16e2b2c2b6ea098dbfdf492"
+                  }
+                },
+                {
+                  "path": "website-assets/reading.svg",
+                  "head": null,
+                  "merge": {
+                    "mode": "100644",
+                    "type": "blob",
+                    "oid": "336ad5196625501271106b8f82561c45759c2750"
+                  }
+                },
+                {
+                  "path": "website-assets/riftlet.svg",
+                  "head": null,
+                  "merge": {
+                    "mode": "100644",
+                    "type": "blob",
+                    "oid": "8742e132f43b61819e8550ad24eb8552d8621d9f"
+                  }
+                },
+                {
+                  "path": "website-hero.css",
+                  "head": null,
+                  "merge": {
+                    "mode": "100644",
+                    "type": "blob",
+                    "oid": "5349abef4838f4590e8d6421069816cc99bec460"
+                  }
+                },
+                {
+                  "path": "website-hero.js",
+                  "head": null,
+                  "merge": {
+                    "mode": "100644",
+                    "type": "blob",
+                    "oid": "dad41af6d6d2d421afc7a07042eeb7b8cc301d9e"
+                  }
+                },
+                {
+                  "path": "website-locale.js",
+                  "head": null,
+                  "merge": {
+                    "mode": "100644",
+                    "type": "blob",
+                    "oid": "451ab3500e55129f4ccedf4de7ec3d818d09ea85"
+                  }
+                },
+                {
+                  "path": "website-product.css",
+                  "head": null,
+                  "merge": {
+                    "mode": "100644",
+                    "type": "blob",
+                    "oid": "89db114f288ef3d2dd9e66a67072fae2aad1da77"
+                  }
+                },
+                {
+                  "path": "website-product.js",
+                  "head": null,
+                  "merge": {
+                    "mode": "100644",
+                    "type": "blob",
+                    "oid": "7d8510923fe7d959f483610486bcac1ca5a12a9a"
+                  }
+                },
+                {
+                  "path": "website-v2.css",
+                  "head": null,
+                  "merge": {
+                    "mode": "100644",
+                    "type": "blob",
+                    "oid": "9cde1e595f320134468c6689c716601790c522f0"
+                  }
+                },
+                {
+                  "path": "website-v2.js",
+                  "head": null,
+                  "merge": {
+                    "mode": "100644",
+                    "type": "blob",
+                    "oid": "60e3a5293a146d39031831dc82a2300f2db2c769"
+                  }
+                },
+                {
+                  "path": "website/HERO_REVISION_2026-10-27.md",
+                  "head": null,
+                  "merge": {
+                    "mode": "100644",
+                    "type": "blob",
+                    "oid": "3fd19dca32f5d1758bb24491e1d566d33e5a3359"
+                  }
+                },
+                {
+                  "path": "website/README.md",
+                  "head": {
+                    "mode": "100644",
+                    "type": "blob",
+                    "oid": "77ce3da171f528144c44420bed75260e22583f4d"
+                  },
+                  "merge": {
+                    "mode": "100644",
+                    "type": "blob",
+                    "oid": "4110cc04e441b13ea0be632af4bbc99dac549178"
+                  }
+                },
+                {
+                  "path": "website/RELEASE_2026-10-30.md",
+                  "head": null,
+                  "merge": {
+                    "mode": "100644",
+                    "type": "blob",
+                    "oid": "dcc6be2aca5457821f064706aeed9087348963e1"
+                  }
+                },
+                {
+                  "path": "website/RESTORE_ART_DIRECTION_2026-10-27.md",
+                  "head": null,
+                  "merge": {
+                    "mode": "100644",
+                    "type": "blob",
+                    "oid": "c4b404a16baf599e3365fb486b534eed768a0f81"
+                  }
+                },
+                {
+                  "path": "website/test-hero-layout.py",
+                  "head": null,
+                  "merge": {
+                    "mode": "100644",
+                    "type": "blob",
+                    "oid": "99d162db1247a6a4578a87ac82992a23e0cc8914"
+                  }
+                },
+                {
+                  "path": "website/test-hero-motion.py",
+                  "head": null,
+                  "merge": {
+                    "mode": "100644",
+                    "type": "blob",
+                    "oid": "da33a99adc0099efce9b2eeec4ec8afcb36f6196"
+                  }
+                },
+                {
+                  "path": "website/test-hero.py",
+                  "head": null,
+                  "merge": {
+                    "mode": "100644",
+                    "type": "blob",
+                    "oid": "8d48acc7c765af2c58a5eb692b2a9df3a34abe9c"
+                  }
+                },
+                {
+                  "path": "website/test-product.cjs",
+                  "head": null,
+                  "merge": {
+                    "mode": "100644",
+                    "type": "blob",
+                    "oid": "b1ca496f318e11a709561de15d3f8299e720d2bf"
+                  }
+                }
+              ]
+            },
+            "extraPaths": [],
+            "missingPaths": [],
+            "unexpectedObjectOrModeDifferences": [],
+            "sourceGatePolicyMatchesFormalHead": true
+          },
+          "sourceJobs": [
+            {
+              "workflow": "native",
+              "runID": 41181427673,
+              "jobID": 124479450869,
+              "event": "pull_request",
+              "attempt": 1,
+              "APIHeadSHA": "e1c46ed0f8176bec08a9b91914e513e7bf861240",
+              "actualCheckoutFromLog": "c792f562792610fbbc7435687563db146876693b",
+              "result": "success",
+              "allStepsSuccess": true,
+              "gateChecks": "32/32 PASS",
+              "parentProtectedObjectCount": 1003,
+              "mergeProtectedObjectCount": 1027,
+              "decodedUTF8Log": {
+                "file": "h2-native-source-job.log",
+                "bytes": 2472569,
+                "sha256": "0b2f6ac1cd9354d78c436db58b315c4b855992dd844c1b94edc1a56edbe95ed1",
+                "fnv64": "7ecd3765dd44522e",
+                "utf16CodeUnits": 2472565
+              }
+            },
+            {
+              "workflow": "feedback",
+              "runID": 41181427670,
+              "jobID": 124479450853,
+              "event": "pull_request",
+              "attempt": 1,
+              "APIHeadSHA": "e1c46ed0f8176bec08a9b91914e513e7bf861240",
+              "actualCheckoutFromLog": "c792f562792610fbbc7435687563db146876693b",
+              "result": "success",
+              "allStepsSuccess": true,
+              "gateChecks": "32/32 PASS",
+              "parentProtectedObjectCount": 1003,
+              "mergeProtectedObjectCount": 1027,
+              "decodedUTF8Log": {
+                "file": "h2-feedback-source-job.log",
+                "bytes": 2458093,
+                "sha256": "871752dc67ca94a7c15c288056c793bbfe4de6f375dd02b661d1bdda37fd3551",
+                "fnv64": "c46cca3afc75b63e",
+                "utf16CodeUnits": 2458089
+              }
+            }
+          ],
+          "gateReportsExactlyEqualAcrossWorkflows": true,
+          "loggedProtectedObjectsExactlyEqualLocalActualMergeTree": true,
+          "historicalAudits": {
+            "builtin-capture": {
+              "result": "PASS",
+              "passed": 13,
+              "total": 13
+            },
+            "feedback-reliability": {
+              "result": "PASS",
+              "passed": 42,
+              "total": 42
+            },
+            "thin-edge": {
+              "result": "PASS",
+              "passed": 17,
+              "total": 17
+            },
+            "unified-thin-edge": {
+              "result": "PASS",
+              "passed": 17,
+              "total": 17
+            }
+          },
+          "nativeSourceJobAuditFixtureTests": {
+            "Tests/FinalProductIsolation": 25,
+            "Tests/UnifiedCandidateIsolation": 24,
+            "Tests/ThinEdgeIsolation": 21,
+            "Tests/BuiltInCaptureIsolation": 5,
+            "result": "All4reportedOKinrawlog;total75"
+          },
+          "policy": {
+            "reviewPinExact": "1459ab26b88eec15fdc9102f05f4f540dff29f07",
+            "main28OverlayExact": true,
+            "metadataExceptionsRemainExactly3": true,
+            "allInheritedAuditBlobsAndAncestryRulesRetained": true,
+            "actualParentObjectCount": 1003,
+            "actualMergeObjectCount": 1027,
+            "fullTreePathModeAndBlobEquality": true,
+            "gateScriptInMergeMatchesIndependentlyReviewedH2": true,
+            "noBypassOrRuleRelaxation": true
+          },
+          "boundaries": [
+            "This report covers formal actual merge and both source jobs only. Native ARM/Intel execution and Feedback execution jobs are reviewed by ownership reviewer.",
+            "No final corrected image or packagedApp claim is made before new artifact review.",
+            "All ordinary production upload,builtin upload,safe-retry,Web continuation gates remainclosed.",
+            "Final visual scope will inspect all24R2originalPNGs acrossARM/Intel,originalhashes/source/checkout,actualbackdropidentity/order,leftTopcamera pixels; idlealpha0rightcamera remainsunverifiedvisible."
+          ],
+          "evidenceFiles": {
+            "h2-source-api-independent-snapshot.json": {
+              "bytes": 51691,
+              "sha256": "8d21eca039573ae2db74caac459a3fa102f1def52448c90e2d4abff60d2be715"
+            },
+            "h2-merge-tree-independent-review.json": {
+              "bytes": 7661,
+              "sha256": "68f8d1cc2d36b3140ead3439518817b288e549363914431e9266c45903f2902b"
+            },
+            "h2-native-source-gate-from-log.json": {
+              "bytes": 1404310,
+              "sha256": "6087ee389c794d254e7169f1240f61959f467a356da714f338fb80f787b1cfdb"
+            },
+            "h2-feedback-source-gate-from-log.json": {
+              "bytes": 1404310,
+              "sha256": "6087ee389c794d254e7169f1240f61959f467a356da714f338fb80f787b1cfdb"
+            },
+            "h2-independent-review.json": {
+              "bytes": 7897,
+              "sha256": "1530f78c517dc98e5c4bcd9494330afb0a4990abe8f164f5a39510167a8f015f"
+            },
+            "s2-independent-review.json": {
+              "bytes": 8960,
+              "sha256": "6cfed0bc78e9dbf4b81453ec2c2d6744e4d5a9d19e309647f61ace82cc9cf2df"
+            }
+          },
+          "decodedLogsExactlyPreservedFromToolStrings": {
+            "checked": "MatchingUTF8bytes,UTF16codeunitcounts,FNV64computedindependentlyontoolstringsandwrittenfiles;terminalLFpreserved",
+            "nativeFNV64": "7ecd3765dd44522e",
+            "feedbackFNV64": "c46cca3afc75b63e"
+          }
+        }
+      },
+      "metadataReviews": {
+        "ownership": {
+          "sha256": "bdabc1f54bb1c25a14c533a3f6bfbc99dafecc95890f58f245314640aca89328",
+          "record": {
+            "schemaVersion": 1,
+            "reviewer": "/root/ownership_review independent non-author",
+            "createdUTC": "2026-10-31T07:38:00.188404+00:00",
+            "decision": "PASS_EXACT_H2_METADATA_SUCCESSOR",
+            "approvedHead": "e1c46ed0f8176bec08a9b91914e513e7bf861240",
+            "tree": "f4f5058e665bce14bc03e5e28e9905dbc3ec2253",
+            "soleParent": "1459ab26b88eec15fdc9102f05f4f540dff29f07",
+            "blockingFindings": [],
+            "onlyChangedPaths": [
+              "engineering/evidence/2026-10-29-final-product/README.md",
+              "engineering/evidence/2026-10-29-final-product/results.json",
+              "scripts/verify-final-product-composition.py"
+            ],
+            "gatePolicy": "Only REVIEWED_SOURCE literal 86a6646 -> independently approved S2 1459ab26; all other bytes unchanged.",
+            "unchangedRuntime": "All product, Swift tests, fixture source/test/verifier, workflow, packaging, resources and services unchanged from S2.",
+            "oldMetadata": {
+              "priorTopLevelFields": 49,
+              "changedTopLevelFields": [
+                "status",
+                "nonAuthorReview",
+                "physicalMac",
+                "reviewedSource",
+                "reviewedTree",
+                "reviewedSourceFieldStatus",
+                "historicalSectionScope",
+                "currentRuntimeEvidenceField",
+                "latestCompletedRuntimeRole",
+                "handoffBranchRole"
+              ],
+              "allOtherOldFieldsEqualAtOriginalLocations": true,
+              "allChangedOldValuesExactlyPreservedIn": "precedingQuietEdgeR2FixtureCheckpoint",
+              "noOldFieldsRemoved": true,
+              "completeOldREADMEBytePreservedAsSuffix": true
+            },
+            "embeddedSourceReviews": {
+              "fixtureCode": {
+                "path": "/tmp/riftlet-r2-integration/ownership-r2-fixture-s2-review.json",
+                "sha256": "1fce4b8c945ceefef1cc9e4844f4684c3faa78aeb051c2bddbc8b5d75ead0a17"
+              },
+              "fullTreeSource": {
+                "path": "/tmp/riftlet-r2-integration/s2-independent-review.json",
+                "sha256": "6cfed0bc78e9dbf4b81453ec2c2d6744e4d5a9d19e309647f61ace82cc9cf2df"
+              }
+            },
+            "targetedRegressionArchive": {
+              "beforeExactOriginal": true,
+              "beforeSHA256": "247fecba6fbee99bbbd4341488154e9c903b273216eab64372f519b84f019e8c",
+              "beforeResult": "20 tests; 7 expected ValueError-not-raised failures",
+              "afterExactOriginal": true,
+              "afterSHA256": "1ecd3da69e69eb4aefddc92da9c6763a0cb198fe4058d24e02c2b901411e4eba",
+              "afterResult": "20 tests; OK",
+              "old18TestsPreserved": true
+            },
+            "historical107CI": {
+              "exactOriginalReportArchived": true,
+              "sha256": "54423303890e733226af2d5ae985f0883ee07987f196881e40b451a940c86207",
+              "decision": "HISTORICAL_CI_EXECUTION_PASS_FINAL_VISUAL_DELIVERY_NOT_APPROVED",
+              "rejectedVisualClearlyPreserved": true,
+              "newFinalRuntimeNotBorrowed": true
+            },
+            "currentVerificationScope": {
+              "stage": "PENDING_FINAL_H_RUNTIME_AT_SOURCE_CHECKPOINT",
+              "resolution": "PR #1 final delivery records exact final HEAD, actual merge checkout, new complete Native ARM/Intel and Feedback runs, both source gates, corrected original native visuals and independently verified original App archives. Do not deliver 107898ee artifacts as latest. No further untested source commit after final CI."
+            },
+            "admissions": {
+              "ordinaryInput": false,
+              "ordinaryStart": false,
+              "ordinaryCompletion": false,
+              "builtInUpload": false,
+              "safeRetry": false,
+              "webContinuation": false,
+              "existingRestrictedCandidate": "unchanged"
+            },
+            "release": {
+              "draft": true,
+              "mergeMain": false,
+              "publicRelease": false,
+              "signing": "Development ad-hoc; Developer ID/notarization/Gatekeeper not claimed"
+            },
+            "localSourceGateAlreadyExecutedByRoot": {
+              "path": "/tmp/riftlet-r2-integration/h2-source-admission.json",
+              "sha256": "81dd68f865bae388d4db7e07a0396973502d23451ca7576db7dc38fa11498d7b",
+              "reviewedExactHead": "e1c46ed0f8176bec08a9b91914e513e7bf861240",
+              "pin": "1459ab26b88eec15fdc9102f05f4f540dff29f07",
+              "result": "25/25 PASS",
+              "reviewerDidNotRerun": true
+            },
+            "next": "Publish exact H2 on existing Draft PR1 and require original complete Native ARM/Intel, Feedback, source gates, fresh native visual visibility evidence and App artifacts from that H2.",
+            "actions": "Read-only pinned diff, JSON semantic/byte checks and original-log/gate-result review; this temporary report only, no tests or repository mutation."
+          }
+        },
+        "admission": {
+          "sha256": "1530f78c517dc98e5c4bcd9494330afb0a4990abe8f164f5a39510167a8f015f",
+          "record": {
+            "schemaVersion": 1,
+            "reviewer": "/root/admission_review independent read-only review",
+            "result": "PASS_METADATA_ONLY_H2_READY_FOR_FORMAL_REF",
+            "head": "e1c46ed0f8176bec08a9b91914e513e7bf861240",
+            "tree": "f4f5058e665bce14bc03e5e28e9905dbc3ec2253",
+            "source": "1459ab26b88eec15fdc9102f05f4f540dff29f07",
+            "sourceTree": "02d06aa465385a1580fe133b723e10f7985c6a12",
+            "parents": [
+              "1459ab26b88eec15fdc9102f05f4f540dff29f07"
+            ],
+            "treeReview": {
+              "head": "e1c46ed0f8176bec08a9b91914e513e7bf861240",
+              "tree": "f4f5058e665bce14bc03e5e28e9905dbc3ec2253",
+              "parents": [
+                "1459ab26b88eec15fdc9102f05f4f540dff29f07"
+              ],
+              "source": "1459ab26b88eec15fdc9102f05f4f540dff29f07",
+              "sourceObjects": 1006,
+              "headObjects": 1006,
+              "protectedObjectsIdentical": 1003,
+              "exactThreeMetadata": [
+                {
+                  "path": "engineering/evidence/2026-10-29-final-product/README.md",
+                  "source": {
+                    "mode": "100644",
+                    "type": "blob",
+                    "oid": "a33a3b3df5e0682e49f5c758486b0d80b8d76242"
+                  },
+                  "head": {
+                    "mode": "100644",
+                    "type": "blob",
+                    "oid": "647d7de6e49882a10ab0032ba65a520f801316fe"
+                  }
+                },
+                {
+                  "path": "engineering/evidence/2026-10-29-final-product/results.json",
+                  "source": {
+                    "mode": "100644",
+                    "type": "blob",
+                    "oid": "64f318d193fe9b7efa389ba05eb79691c961fcf1"
+                  },
+                  "head": {
+                    "mode": "100644",
+                    "type": "blob",
+                    "oid": "bfd407a366f583d5f05248cf57c1e2258060e7ca"
+                  }
+                },
+                {
+                  "path": "scripts/verify-final-product-composition.py",
+                  "source": {
+                    "mode": "100644",
+                    "type": "blob",
+                    "oid": "00941ddbc9b579b66d0d8367c0322fead46c1033"
+                  },
+                  "head": {
+                    "mode": "100644",
+                    "type": "blob",
+                    "oid": "fdabb08405c7b77ef457f80c32db1aefd7b7d906"
+                  }
+                }
+              ],
+              "allModesUnchanged": true,
+              "added": [],
+              "removed": []
+            },
+            "pinChange": {
+              "onlyLiteralChanged": true,
+              "from": "86a6646abbe05c4dbe186f022b08d779950de5ae",
+              "to": "1459ab26b88eec15fdc9102f05f4f540dff29f07",
+              "oldGateSHA256": "82e44ea966b8aae316bf2cb9c90ac79cb54e1586259d5d277d55141b63e990a8",
+              "newGateSHA256": "85e9745d9571135195a88d4303dff3b40ae69565ee1aac03852af6cbaa65421c",
+              "allPolicyHistoryAncestorParentMainOverlayAndMetadataRulesUnchanged": true
+            },
+            "readme": {
+              "oldCompleteTextRetainedAsExactSuffix": true,
+              "oldBytes": 103404,
+              "newPrefixBytes": 3871,
+              "oldSHA256": "9ab64be52c9b4da38afbcff33fcdd131a625fa14ae77ee161fd4fa7f12ba2c60",
+              "newSHA256": "e7eea51badefd05f8748313e68fb26e264351a5c7d6c579cb8d2cdd28bff99c7",
+              "newStatementsReviewed": "Accurately identifies107 CI success as historical, leftTop visual rejection,4-file fixture repair,source-only admission,new final CI/artifacts pending,and production admissions closed."
+            },
+            "resultsPreservation": {
+              "oldTopLevelFields": 49,
+              "oldFieldsDeleted": [],
+              "oldFieldsUnchangedInPlace": 39,
+              "replacedOldFields": [
+                "status",
+                "nonAuthorReview",
+                "physicalMac",
+                "reviewedSource",
+                "reviewedTree",
+                "reviewedSourceFieldStatus",
+                "historicalSectionScope",
+                "currentRuntimeEvidenceField",
+                "latestCompletedRuntimeRole",
+                "handoffBranchRole"
+              ],
+              "checkpointField": "precedingQuietEdgeR2FixtureCheckpoint",
+              "checkpointContains11ExactOldValues": true,
+              "all49OldFieldsPreservedSemantically": true,
+              "allPriorNestedHistoricalMetadataUnchangedOrPreserved": true,
+              "newCurrentRecord": "quietEdgeR2VisualFixtureCorrection"
+            },
+            "embeddedIndependentEvidence": [
+              {
+                "record": "independentReviews.fixtureCode",
+                "originalFile": "/tmp/riftlet-r2-integration/ownership-r2-fixture-s2-review.json",
+                "originalSHA256": "1fce4b8c945ceefef1cc9e4844f4684c3faa78aeb051c2bddbc8b5d75ead0a17",
+                "exactSemanticContentMatch": true
+              },
+              {
+                "record": "independentReviews.fullTreeSource",
+                "originalFile": "/tmp/riftlet-r2-integration/s2-independent-review.json",
+                "originalSHA256": "6cfed0bc78e9dbf4b81453ec2c2d6744e4d5a9d19e309647f61ace82cc9cf2df",
+                "exactSemanticContentMatch": true
+              },
+              {
+                "record": "rejectedHistoricalVisual.causalReview",
+                "originalFile": "/tmp/riftlet-r2-integration/geometry-visual-review/left-top-camera-fixture-causal-review.json",
+                "originalSHA256": "17efc4000b735278b8613867e0949591a2acf91ba07c2937c43f7c80c1f3c83c",
+                "exactSemanticContentMatch": true
+              },
+              {
+                "record": "rejectedHistoricalVisual.original12SceneObservations",
+                "originalFile": "/tmp/riftlet-r2-integration/geometry-visual-review/arm64-original-scene-observations.json",
+                "originalSHA256": "35857fa347725d3b381b5f541e3bbc9aced810f7fbf3bbc00c12b789d78d00a0",
+                "exactSemanticContentMatch": true
+              },
+              {
+                "record": "rejectedHistoricalVisual.historicalFullCIReview",
+                "originalFile": "/tmp/riftlet-r2-integration/ownership-r2-107898-ci-review.json",
+                "originalSHA256": "54423303890e733226af2d5ae985f0883ee07987f196881e40b451a940c86207",
+                "exactSemanticContentMatch": true
+              }
+            ],
+            "embeddedDirectedRegressionLogs": [
+              {
+                "phase": "before",
+                "path": "fixture-before-fix.log",
+                "sha256": "247fecba6fbee99bbbd4341488154e9c903b273216eab64372f519b84f019e8c",
+                "rawTextAndNewlinesMatch": true
+              },
+              {
+                "phase": "after",
+                "path": "fixture-after-fix.log",
+                "sha256": "1ecd3da69e69eb4aefddc92da9c6763a0cb198fe4058d24e02c2b901411e4eba",
+                "rawTextAndNewlinesMatch": true
+              }
+            ],
+            "historical107VisualRejection": {
+              "decision": "HISTORICAL_CI_EXECUTION_PASS_FINAL_VISUAL_DELIVERY_NOT_APPROVED",
+              "actualOriginalPNGHashRetained": "85a7a8de6f723b0d1848d814d4d28450c941b5a90b4012f23e51de0ea2329efe",
+              "causalAndAll12OriginalObservationsEmbeddedExactly": true,
+              "oldCISuccessNotPromotedToVisualAcceptance": true
+            },
+            "localGateReadOnlyVerification": {
+              "executedBy": "root; this reviewer read exact output without rerunning",
+              "file": "h2-source-admission.json",
+              "sha256": "81dd68f865bae388d4db7e07a0396973502d23451ca7576db7dc38fa11498d7b",
+              "headMatches": true,
+              "treeMatches": true,
+              "pinMatches": true,
+              "result": "PASS",
+              "passed": 25,
+              "total": 25,
+              "protectedObjects": 1003,
+              "historicalAudits": {
+                "builtin-capture": {
+                  "result": "PASS",
+                  "passed": 13,
+                  "total": 13
+                },
+                "feedback-reliability": {
+                  "result": "PASS",
+                  "passed": 42,
+                  "total": 42
+                },
+                "thin-edge": {
+                  "result": "PASS",
+                  "passed": 17,
+                  "total": 17
+                },
+                "unified-thin-edge": {
+                  "result": "PASS",
+                  "passed": 17,
+                  "total": 17
+                }
+              }
+            },
+            "scopeHonesty": {
+              "formalVerificationStage": "PENDING_FINAL_H_RUNTIME_AT_SOURCE_CHECKPOINT",
+              "allProductionAdmissionsRemainFalse": true,
+              "priorRestrictedCandidateUnchanged": true,
+              "internalU1AndSelectionFailAndUnreadPrivate111BoundariesPreserved": true,
+              "physicalMacAndFinalDefaultAppNotRunPreserved": true,
+              "notGitHubHumanApproval": true
+            },
+            "engineeringConclusion": "No blocking issue found. Existing sole formal PR1 branch may advance non-force from107898ee toH2 with expected-current protection. Keep Draft/main unchanged. New actual merge tree, both source jobs, fullNative/Feedback,originalARM/Intelpackages and24originalR2PNGs remain required before final delivery.",
+            "nextReviewScope": "After publish: exact actual merge parents/tree and bothsourcejobs; after artifact availability: all12R2originalPNGs on each ofARM/Intel,total24,with source/checkout/hash and actual backdrop identity atlastposition. Verify leftTop camera pixels; do not call right idlealpha0 visible-camera acceptance."
+          }
+        }
+      },
+      "qualification": "Successful source gates do not override the native ARM failure. ARM compiled and enumerated 824 methods but did not run later package/visual steps. Final corrected source requires new complete formal CI; these artifacts are not latest delivery."
+    },
+    "analysis": {
+      "observedFailure": "The old test assertion at line 179 found a visible panel after a nominal 100ms sleep; total method duration was 4.007s.",
+      "logLimitation": "The log does not identify note versus image contents or record each suspension/resumption. It does not prove the exact scheduling sequence of this failure.",
+      "confirmedTestDefect": "A lower-bound sleep was incorrectly used as an upper-bound observation before the legitimate 250ms note deadline; a delayed resume can observe a valid note and misclassify it as stale image delivery.",
+      "productSourceEvidence": "scheduleNote synchronously cancels and advances epoch; retained image completion first synchronously checks epoch. ThumbnailCache cache-hit delivery is MainActor synchronous and worker completion returns on DispatchQueue.main with a cache-generation guard. No stale-decode bypass was established.",
+      "productBehavior": "Unchanged; no scheduler, duration, window, upload, ownership or capture changes."
+    },
+    "correction": {
+      "staleDecode": "Execute the original hidden-panel assertion directly after the synchronous retained callback in the same MainActor segment, with no await.",
+      "cancelledNote": "Call leave synchronously before yielding, then wait 300ms past the unchanged 250ms deadline; no upper bound on wake time is assumed.",
+      "visibilityHistory": "Record actual note-visible events, require zero for cancellation, then exactly the original ID once for the valid note control. A wrong note cannot escape merely by expiring before observation.",
+      "preservedAssertions": "All original hidden/nil, pointer-free, non-key/non-main, geometry and 2.6s lifetime assertions; unchanged 250ms production scheduling argument.",
+      "notUsed": [
+        "skip",
+        "failure suppression",
+        "longer product deadline",
+        "product scheduler injection",
+        "blind CI rerun"
+      ]
+    },
+    "localVerification": {
+      "diffCheck": "PASS",
+      "swiftNativeExecution": "NOT_RUN_LOCAL_LINUX",
+      "scope": "Exact source review only; formal native full and detailed tests remain required."
+    },
+    "sourceAdmissionBeforePin": {
+      "revision": "1c1ed6051d6fbc984d3e9e2071b741f1f1805f32",
+      "reviewedSource": "1459ab26b88eec15fdc9102f05f4f540dff29f07",
+      "result": "FAIL",
+      "checks": 25,
+      "passed": 24,
+      "failed": [
+        {
+          "differences": {
+            "Tests/RiftletUITests/QuietEdgeInteractionTests.swift": {
+              "actual": {
+                "mode": "100644",
+                "oid": "cbd7ce6b47ff73f927a5d00f9e70bc0f753db2b6",
+                "type": "blob"
+              },
+              "expected": {
+                "mode": "100644",
+                "oid": "8ce29fd514768a3d6f10ad1159fcd9aaa63c1d2a",
+                "type": "blob"
+              }
+            }
+          },
+          "id": "composition:exact-objects",
+          "protectedFileCount": 1003,
+          "result": "FAIL"
+        }
+      ],
+      "pathSetUnchanged": true,
+      "historicalAudits": {
+        "builtin-capture": {
+          "result": "PASS",
+          "checks": 13
+        },
+        "feedback-reliability": {
+          "result": "PASS",
+          "checks": 42
+        },
+        "thin-edge": {
+          "result": "PASS",
+          "checks": 17
+        },
+        "unified-thin-edge": {
+          "result": "PASS",
+          "checks": 17
+        }
+      }
+    },
+    "sourceAdmissionChange": {
+      "reviewPinOnly": "1c1ed6051d6fbc984d3e9e2071b741f1f1805f32",
+      "metadataExceptionsUnchanged": true,
+      "historicalAuditBlobsUnchanged": true,
+      "fixedMain28ObjectsUnchanged": true,
+      "mergeParentsAndAncestryRulesUnchanged": true,
+      "expectedProtectedSourceObjects": 1003,
+      "expectedProtectedMergeObjects": 1027
+    },
+    "formalVerification": {
+      "stage": "PENDING_FINAL_H_RUNTIME_AT_SOURCE_CHECKPOINT",
+      "resolution": "Final PR #1 delivery binds one exact HEAD, actual merge checkout, new full Native ARM/Intel and Feedback runs, both source gates, all corrected original native scenes and independently verified original App archives. No further untested source commit after final CI."
+    },
+    "inheritedRealAcceptance": {
+      "record": "ownershipReliabilityIntegration.inheritedRealAcceptance",
+      "unchanged": true,
+      "internalU1Only": true,
+      "selectionPreservation": "FAIL retained",
+      "private111EvidenceFilesReread": false,
+      "finalDefaultApp": "NOT_RUN"
+    },
+    "deviceObservation": {
+      "device": "authorized MacBook Air",
+      "status": "OFFLINE",
+      "effect": "Only true device operations deferred; no App/browser/user data/OS permissions touched."
+    },
+    "admissions": {
+      "ordinaryInput": false,
+      "ordinaryStart": false,
+      "ordinaryCompletion": false,
+      "builtInUpload": false,
+      "safeRetry": false,
+      "webContinuation": false,
+      "existingRestrictedCandidate": "unchanged"
+    },
+    "release": {
+      "draft": true,
+      "mergeMain": false,
+      "publicRelease": false,
+      "signing": "Development ad-hoc; Developer ID/notarization/Gatekeeper not claimed"
+    },
+    "codexNext": "Use the six-item final-device checklist and exact final PR #1 head/checkout/package hashes. No repeated R2 research or new candidate; perform independently available work and list physical/new-permission gaps individually."
   }
 }

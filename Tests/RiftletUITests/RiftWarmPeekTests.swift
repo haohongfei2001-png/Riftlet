@@ -135,4 +135,41 @@ final class RiftWarmPeekTests: XCTestCase {
         XCTAssertEqual(peek.presentationPanel.alphaValue, 1)
     }
 
+    @MainActor func testFeedbackDeadlineDeterministicallyRejectsStaleDecode() async throws {
+        _ = NSApplication.shared
+        guard let screen = NSScreen.screens.first else { throw XCTSkip("No AppKit display") }
+        let clock = RiftPeekTestClock()
+        let peek = RiftPeek(schedule: clock.schedule); defer { peek.close() }
+        let context = try XCTUnwrap(CGContext(data: nil, width: 4, height: 4, bitsPerComponent: 8,
+            bytesPerRow: 16, space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue))
+        let cg = try XCTUnwrap(context.makeImage()), id = UUID()
+        let row = CGRect(x: screen.visibleFrame.maxX - 90, y: screen.visibleFrame.midY, width: 70, height: 44)
+        let anchor = { (row, screen.visibleFrame, row.minX) as (CGRect, CGRect, CGFloat)? }
+        var delivery: ((CGImage?) -> Void)?
+        peek.schedule(id: id, immediate: true, stillValid: { true }, load: { delivery = $0 }, anchor: anchor)
+        XCTAssertNotNil(delivery)
+        let panel = peek.presentationPanel
+        peek.scheduleNote(id: id, text: "正在等待附加", delay: 0.25, stillValid: { true }, anchor: anchor)
+        delivery?(cg)
+        clock.advance(by: 0.1)
+        XCTAssertFalse(panel.isVisible, "An old image decode cannot bypass the waiting delay")
+        peek.leave()
+        clock.advance(by: 0.2)
+        XCTAssertFalse(panel.isVisible, "Leaving the island cancels the pending explanation")
+        XCTAssertNil(peek.assetID)
+        peek.scheduleNote(id: id, text: "图片已保留，当前聊天暂时不能接收图片。", delay: 0,
+            stillValid: { true }, anchor: anchor)
+        clock.advance(by: 0)
+        XCTAssertTrue(peek.isNoteVisible)
+        XCTAssertTrue(panel.ignoresMouseEvents); XCTAssertFalse(panel.canBecomeKey); XCTAssertFalse(panel.canBecomeMain)
+        XCTAssertLessThanOrEqual(panel.frame.width, 240)
+        XCTAssertLessThanOrEqual(panel.frame.maxX, row.minX - 12)
+        XCTAssertTrue(screen.visibleFrame.contains(panel.frame))
+        // A repeated projection does not renew the bounded display lifetime.
+        peek.scheduleNote(id: id, text: "图片已保留，当前聊天暂时不能接收图片。", delay: 0,
+            stillValid: { true }, anchor: anchor)
+        clock.advance(by: 2.6)
+        XCTAssertFalse(panel.isVisible); XCTAssertNil(peek.assetID)
+    }
+
 }
