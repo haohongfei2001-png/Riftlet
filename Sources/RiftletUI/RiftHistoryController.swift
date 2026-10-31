@@ -379,9 +379,11 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         status.widthAnchor.constraint(equalTo: footer.widthAnchor).isActive = true
         actions.widthAnchor.constraint(equalTo: footer.widthAnchor).isActive = true
         footer.heightAnchor.constraint(equalToConstant: 52).isActive = true
-        let scroll = NSScrollView(); scroll.hasHorizontalScroller = true; scroll.hasVerticalScroller = true
-        // Keep native gutters stable: hiding a legacy scroller after the
-        // decoded canvas fits otherwise changes the very viewport used to load it.
+        let scroll = NSScrollView()
+        // Fit is a viewport, not a scrolling canvas. Native scrollbar policy
+        // may settle asynchronously after presentation; no gutters are needed
+        // until the user explicitly chooses a zoomed original.
+        scroll.hasHorizontalScroller = false; scroll.hasVerticalScroller = false
         scroll.autohidesScrollers = false; scroll.documentView = view; scroll.drawsBackground = false
         previewScroll = scroll; previewZoom = nil
         footer.setContentHuggingPriority(.defaultHigh, for: .vertical)
@@ -439,7 +441,10 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         previewResize?.cancel(); previewResize = nil
         HistoryPreviewLoader.shared.invalidate(owner: previewOwner)
         guard let panel = previewWindow, let entry = previewEntry, let view = previewImage else { return }
+        previewScroll?.hasHorizontalScroller = previewZoom != nil
+        previewScroll?.hasVerticalScroller = previewZoom != nil
         panel.contentView?.layoutSubtreeIfNeeded()
+        previewScroll?.tile()
         let canvas = previewZoom.map { zoom in CGSize(width: Double(entry.record.image.pixelWidth) * zoom, height: Double(entry.record.image.pixelHeight) * zoom) } ?? previewScroll?.contentSize ?? view.bounds.size
         view.frame = CGRect(origin: .zero, size: canvas)
         if clearImage || previewVerifiedAsset != entry.record.image {
@@ -454,6 +459,7 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
             guard let self, let panel, self.previewWindow === panel, self.previewEpoch == epoch,
                   self.previewEntry?.record.image == entry.record.image, panel.isVisible else { return }
             panel.contentView?.layoutSubtreeIfNeeded()
+            self.previewScroll?.tile()
             let viewport: CGSize
             if let zoom = self.previewZoom {
                 viewport = CGSize(width: Double(entry.record.image.pixelWidth) * zoom, height: Double(entry.record.image.pixelHeight) * zoom)

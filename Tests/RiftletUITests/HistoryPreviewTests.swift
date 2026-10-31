@@ -222,7 +222,13 @@ final class HistoryPreviewTests: XCTestCase {
             XCTAssertNotNil(image.image)
             content.layoutSubtreeIfNeeded()
             XCTAssertEqual(image.bounds.size, emptyViewport,
-                "Decoded bitmap dimensions must not change the viewport used to request it")
+                "Decoded bitmap dimensions must not change the viewport used to request it; scroll=\(image.enclosingScrollView?.frame ?? .zero), content=\(image.enclosingScrollView?.contentSize ?? .zero), style=\(image.enclosingScrollView?.scrollerStyle.rawValue ?? -1)")
+            let scroll = try XCTUnwrap(image.enclosingScrollView)
+            XCTAssertFalse(scroll.hasHorizontalScroller); XCTAssertFalse(scroll.hasVerticalScroller)
+            for style in [NSScroller.Style.legacy, .overlay] {
+                scroll.scrollerStyle = style; scroll.tile(); content.layoutSubtreeIfNeeded()
+                XCTAssertEqual(scroll.contentSize,emptyViewport,"Fit mode cannot acquire a late native gutter")
+            }
             XCTAssertTrue(preview.title.contains(String(asset.id.uuidString.prefix(8))))
         }
         XCTAssertEqual(actions, 0)
@@ -299,6 +305,8 @@ final class HistoryPreviewTests: XCTestCase {
         for segment in [1,2] {
             zoom.selectedSegment=segment;_ = zoom.sendAction(zoom.action,to:zoom.target)
             XCTAssertEqual(image.frame.size,CGSize(width:1280*segment,height:720*segment))
+            let scroll = try XCTUnwrap(image.enclosingScrollView)
+            XCTAssertTrue(scroll.hasHorizontalScroller); XCTAssertTrue(scroll.hasVerticalScroller)
             let deadline=ProcessInfo.processInfo.systemUptime+2
             while image.image == nil && ProcessInfo.processInfo.systemUptime<deadline {try await Task.sleep(nanoseconds:20_000_000)}
             XCTAssertNotNil(image.image)
