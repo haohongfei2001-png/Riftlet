@@ -93,12 +93,13 @@ private final class RiftRowView: NSView, NSMenuDelegate {
     private var arrivalImageOwner: UUID?
     var onDown: ((NSEvent) -> Bool)?
     var onUp: ((Bool, CGPoint?) -> Void)?
-    var onScroll: ((CGFloat) -> Void)?
+    var onScroll: ((NSEvent) -> Void)?
     var onAccessiblePress: (() -> Bool)?
     var onPreview: (() -> Bool)?
     var onApproach: (() -> Void)?
     var onHover: ((Bool) -> Void)?
     var onRemove: (() -> Void)?
+    var onOpenOriginal: (() -> Void)?
     var onMenuVisibility: ((Bool) -> Void)?
     var feedback: String?
     private var approachTracking: NSTrackingArea?
@@ -124,6 +125,8 @@ private final class RiftRowView: NSView, NSMenuDelegate {
         setAccessibilityRole(.button)
         setAccessibilityCustomActions([NSAccessibilityCustomAction(name: "预览完整截图", handler: { [weak self] in
             self?.onPreview?() ?? false
+        }), NSAccessibilityCustomAction(name: "查看原图", handler: { [weak self] in
+            guard let action = self?.onOpenOriginal else { return false }; action(); return true
         })])
         updateDescription()
     }
@@ -159,11 +162,14 @@ private final class RiftRowView: NSView, NSMenuDelegate {
     override func menu(for event: NSEvent) -> NSMenu? {
         guard record.visibility == .visible else { return nil }
         let menu = NSMenu()
+        let original = NSMenuItem(title: "查看原图", action: #selector(openOriginal(_:)), keyEquivalent: "")
+        original.target = self; menu.addItem(original)
         let remove = NSMenuItem(title: "从裂缝移除", action: #selector(removeFromRift(_:)), keyEquivalent: "")
         remove.target = self; menu.addItem(remove); menu.delegate = self
         return menu
     }
 
+    @objc private func openOriginal(_ sender: NSMenuItem) { onOpenOriginal?() }
     @objc private func removeFromRift(_ sender: NSMenuItem) { onRemove?() }
     func menuWillOpen(_ menu: NSMenu) { onMenuVisibility?(true) }
     func menuDidClose(_ menu: NSMenu) { onMenuVisibility?(false) }
@@ -173,8 +179,9 @@ private final class RiftRowView: NSView, NSMenuDelegate {
         frame.size = geometry.frame.size
         CATransaction.begin(); CATransaction.setDisableActions(true)
         imageClip.frame = geometry.imageClipFrame
+        imageClip.maskedCorners = configuration.placement?.side == .left ? [.layerMaxXMinYCorner, .layerMaxXMaxYCorner] : [.layerMinXMinYCorner, .layerMinXMaxYCorner]
         imageLayer.setAffineTransform(.identity)
-        imageLayer.frame = CGRect(origin: .zero, size: geometry.imageFrame.size)
+        imageLayer.frame = CGRect(x: geometry.imageFrame.minX - geometry.imageClipFrame.minX, y: 0, width: geometry.imageFrame.width, height: geometry.imageFrame.height)
         imageLayer.setAffineTransform(CGAffineTransform(translationX: imageOffset, y: 0))
         CATransaction.commit()
         needsDisplay = true
@@ -292,7 +299,7 @@ private final class RiftRowView: NSView, NSMenuDelegate {
         onUp?(geometry.containsSelectionPoint(convert(event.locationInWindow, from: nil)),
               event.window?.convertPoint(toScreen: event.locationInWindow))
     }
-    override func scrollWheel(with event: NSEvent) { onScroll?(event.scrollingDeltaY) }
+    override func scrollWheel(with event: NSEvent) { onScroll?(event) }
     override func accessibilityPerformPress() -> Bool { onAccessiblePress?() ?? false }
 }
 
@@ -332,7 +339,7 @@ private final class RiftInputView: NSView {
         // replacement row under the release point.
         rowView?.onUp?(isInsideOriginalRow(event), event.window?.convertPoint(toScreen: event.locationInWindow))
     }
-    override func scrollWheel(with event: NSEvent) { rowView?.onScroll?(event.scrollingDeltaY) }
+    override func scrollWheel(with event: NSEvent) { rowView?.onScroll?(event) }
     override func menu(for event: NSEvent) -> NSMenu? { rowView?.menu(for: event) }
     override func updateTrackingAreas() {
         super.updateTrackingAreas()
@@ -423,6 +430,7 @@ public enum RiftFeedbackTiming: Equatable, Sendable { case immediate, waiting }
 @MainActor
 public final class RiftPanelController {
     public private(set) var configuration: RiftConfiguration
+    public var requestedConfiguration: RiftConfiguration { deferredConfiguration ?? configuration }
     public private(set) var arrivalMode: ArrivalMotionMode
     public var effectiveArrivalMode: ArrivalMotionMode { arrivalMode.effective(reduceMotion: reduceMotion) }
     public var arrivalDestinationDisplayID: UInt32? {
@@ -435,7 +443,15 @@ public final class RiftPanelController {
     /// any asset/transfer state. Header reservation also bounds long queues.
     public private(set) var captureSuppressed = false
     private var captureSessionActive = false
-    private var captureHeaderAnchor: CGPoint?
+    public var screenshotEntryAnchor: CGPoint? { pagerLayout?.cameraAnchor }
+    public var screenshotEntryExclusionFrames: [CGRect] {
+        guard let layout = pagerLayout else { return [] }
+        return layout.rows.flatMap { r in [r.imageClipFrame.offsetBy(dx: r.frame.minX, dy: r.frame.minY), r.numberFrame.offsetBy(dx: r.frame.minX, dy: r.frame.minY)] } + [layout.earlierArrowFrame, layout.laterArrowFrame].filter { !$0.isEmpty }
+    }
+    private var deferredConfiguration: RiftConfiguration?
+    private var viewportAnchor: UUID?
+    private var wheelGestureUsed = false
+    private var lastWheelTime: TimeInterval = 0
     public var onGeometryChange: (() -> Void)?
     private let cache: ThumbnailCache
     private let onSelect: (UUID) -> Void
@@ -445,6 +461,12 @@ public final class RiftPanelController {
     private let onPresentationBoundary: (RiftPresentationBoundary) -> Void
     private let onArrivalBoundary: (RiftArrivalBoundary) -> Void
     private let onRemove: (UUID) -> Void
+    private let onOpenOriginal: (UUID) -> Void
+    private var extraPreviewExclusions: [CGRect] = []
+    public func setExtraPreviewExclusions(_ frames: [CGRect]) {
+        guard frames != extraPreviewExclusions else { return }
+        extraPreviewExclusions = frames; peek.cancel()
+    }
     private let onInteractionChange: (RiftInteractionSnapshot) -> Void
     private let holdsSelectionUntilFinished: Bool
     private let interactionFence: QueueInteractionFence?
@@ -467,6 +489,50 @@ public final class RiftPanelController {
     private var rowWindows: [UUID: RowWindow] = [:]
     private var lastRecords: [AssetRecord] = []
     private var deferredRecords: [AssetRecord]?
+    private var pendingRefillRecords: [AssetRecord]?
+    private var refillTimer: Timer?
+    private var refillOutsideSince: TimeInterval?
+    private let detailProtectionToken = UUID()
+    private var detailPresented = false
+    public func setDetailPresented(_ presented: Bool) {
+        detailPresented = presented
+        mutateInteraction { state in
+            if presented { state.beginAnimation(detailProtectionToken) }
+            else { state.endAnimation(detailProtectionToken) }
+        }
+        if !presented { flushDeferred() }
+    }
+    private var committingRefill = false
+    private var refillNotBefore: TimeInterval = 0
+    private func deferRefill(_ records: [AssetRecord]) {
+        // Tombstones preserve slot geometry, never a decorative line to an absent image.
+        let frames = rowWindows.values.map { row in
+            row.view.geometry.imageFrame.offsetBy(dx: row.view.geometry.frame.minX, dy: row.view.geometry.frame.minY)
+        }
+        if let top = frames.map(\.maxY).max(), let bottom = frames.map(\.minY).min(), let old = pagerLayout?.lineFrame {
+            decoration.setFrame(CGRect(x:old.minX,y:bottom,width:old.width,height:top-bottom),display:true)
+        } else { decoration.orderOut(nil) }
+        pendingRefillRecords = records
+        refillNotBefore = ProcessInfo.processInfo.systemUptime + NSEvent.doubleClickInterval
+        refillOutsideSince = nil
+        guard refillTimer == nil else { return }
+        refillTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
+            MainActor.assumeIsolated { self?.tryRefill() }
+        }
+    }
+    private func tryRefill() {
+        guard !closed, let records = pendingRefillRecords else { refillTimer?.invalidate(); refillTimer = nil; return }
+        refreshHoverFromPointer()
+        let envelope = pagerLayout?.rows.reduce(CGRect.null) { $0.union($1.frame) } ?? .null
+        let now = ProcessInfo.processInfo.systemUptime
+        guard !gate.isHolding, !transitioning, !detailPresented, !interaction.snapshot.blocksAutomaticArchive,
+              !envelope.contains(NSEvent.mouseLocation) else { refillOutsideSince = nil; return }
+        if refillOutsideSince == nil { refillOutsideSince = now }
+        guard now >= refillNotBefore, now - (refillOutsideSince ?? now) >= 0.35 else { return }
+        pendingRefillRecords = nil; refillTimer?.invalidate(); refillTimer = nil
+        committingRefill = true; render(records); committingRefill = false
+        flushDeferred()
+    }
     private var firstVisibleIndex = 0
     private var pageCapacity = 0
     private var gate = PointerSelectionGate()
@@ -526,6 +592,7 @@ public final class RiftPanelController {
                 holdsSelectionUntilFinished: Bool = false,
                 interactionFence: QueueInteractionFence? = nil,
                 onRemove: @escaping (UUID) -> Void = { _ in },
+                onOpenOriginal: @escaping (UUID) -> Void = { _ in },
                 onInteractionChange: @escaping (RiftInteractionSnapshot) -> Void = { _ in },
                 onSelect: @escaping (UUID) -> Void) {
         // Configuration loaded from user data should be validated before construction.
@@ -541,6 +608,7 @@ public final class RiftPanelController {
         self.onPresentationBoundary = onPresentationBoundary
         self.onArrivalBoundary = onArrivalBoundary
         self.onRemove = onRemove
+        self.onOpenOriginal = onOpenOriginal
         self.onInteractionChange = onInteractionChange
         self.holdsSelectionUntilFinished = holdsSelectionUntilFinished
         self.interactionFence = interactionFence
@@ -576,7 +644,7 @@ public final class RiftPanelController {
         reduceMotion ? min(0.08, normal) : normal
     }
 
-    private var pressOffset: CGFloat { reduceMotion ? 0 : configuration.inwardDistance }
+    private var pressOffset: CGFloat { reduceMotion ? 0 : (configuration.placement?.side == .left ? -configuration.inwardDistance : configuration.inwardDistance) }
 
     /// Called immediately after import, independently of optional metadata/decode.
     /// One pending candidate and at most one flying copy; bursts settle statically.
@@ -643,14 +711,24 @@ public final class RiftPanelController {
         finish(allowShift)
     }
 
+    private var displaySession = RiftDisplaySessionSelection()
+    private var restoreDisplayRequested = false
+    public var displayRestoreAvailable: Bool { displaySession.restoreAvailable }
+    public func restorePreferredDisplay() {
+        guard !gate.isHolding, !transitioning, !interaction.snapshot.isSelecting else { return }
+        restoreDisplayRequested = true; reflow()
+    }
     private var screen: NSScreen? {
         let screens = NSScreen.screens
-        let ids = screens.compactMap {
-            ($0.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.uint32Value
+        let displays = screens.compactMap { screen -> RiftDisplaySessionSelection.Display? in
+            guard let id = (screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.uint32Value else { return nil }
+            let uuid = CGDisplayCreateUUIDFromDisplayID(id).map { CFUUIDCreateString(nil, $0.takeRetainedValue()) as String }
+            return .init(id: id, uuid: uuid)
         }
-        let mainID = (NSScreen.main?.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.uint32Value
-        guard let selected = RiftDisplaySelection.choose(preferred: configuration.preferredDisplayID,
-                                                          main: mainID, available: ids) else { return screens.first }
+        let mainID = (NSScreen.screens.first?.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.uint32Value
+        defer { restoreDisplayRequested = false }
+        guard let selected = displaySession.resolve(preferred: configuration.preferredDisplayID, uuid: configuration.preferredDisplayUUID,
+            main: mainID, available: displays, restore: restoreDisplayRequested) else { return screens.first }
         return screens.first {
             ($0.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.uint32Value == selected
         }
@@ -660,11 +738,7 @@ public final class RiftPanelController {
 
     public var preferredScreen: NSScreen? { screen }
 
-    public func setCaptureHeaderAnchor(_ anchor: CGPoint?) {
-        guard !closed, captureHeaderAnchor != anchor else { return }
-        captureHeaderAnchor = anchor
-        reflow()
-    }
+    public func setCaptureHeaderAnchor(_ anchor: CGPoint?) { /* R2 camera never extends the slit. */ }
 
     public func setCaptureSessionActive(_ active: Bool) {
         guard !closed else { return }
@@ -796,7 +870,7 @@ public final class RiftPanelController {
         }
         if requiresPointer && island == nil { return }
         let token = generation
-        peek.scheduleNote(id: id, text: state.text, delay: delay, stillValid: { [weak self] in
+        peek.scheduleNote(id: id, text: state.text, delay: delay, leftSide: configuration.placement?.side == .left, stillValid: { [weak self] in
             guard let self else { return false }
             return !self.closed && !self.userHidden && !self.captureSuppressed
                 && !self.gate.isHolding && !self.transitioning && self.generation == token
@@ -808,7 +882,9 @@ public final class RiftPanelController {
             guard let self, let screen = self.screen else { return nil }
             let inputs = self.rowWindows.values.flatMap { [$0.imageInput, $0.numberInput] }
                 .filter { $0.isVisible && !$0.frame.isEmpty }
-            guard let leading = inputs.map({ $0.frame.minX }).min() else { return nil }
+            let frames = inputs.map(\.frame) + self.screenshotEntryExclusionFrames + self.extraPreviewExclusions
+            guard let leading = self.configuration.placement?.side == .left
+                ? frames.map(\.maxX).max() : frames.map(\.minX).min() else { return nil }
             return (row.panel.frame, screen.visibleFrame, leading)
         })
     }
@@ -829,8 +905,13 @@ public final class RiftPanelController {
     }
 
     private func flushDeferred() {
-        guard !gate.isHolding, !transitioning, !interaction.snapshot.isSelecting,
-              let records = deferredRecords else { return }
+        guard !gate.isHolding, !transitioning, !interaction.snapshot.isSelecting, pendingRefillRecords == nil else { return }
+        if let config = deferredConfiguration {
+            deferredConfiguration = nil
+            if configuration.preferredDisplayID != config.preferredDisplayID || configuration.preferredDisplayUUID != config.preferredDisplayUUID { displaySession.userSelectedDisplay() }
+            configuration = config; reflow()
+        }
+        guard let records = deferredRecords else { return }
         deferredRecords = nil; render(records)
     }
 
@@ -847,6 +928,7 @@ public final class RiftPanelController {
     public func render(_ records: [AssetRecord]) {
         guard !closed else { return }
         if userHidden { lastRecords = records; deferredRecords = nil; return }
+        if pendingRefillRecords != nil { pendingRefillRecords = records }
         let includesArchive = containsNewArchive(records)
         if includesArchive && interaction.snapshot.blocksAutomaticArchive {
             // Do not cancel the very decoration that currently protects a
@@ -878,6 +960,15 @@ public final class RiftPanelController {
             $0.visibility == .swallowed && $0.visibilityReason == .uploadStarted
                 && rowWindows[$0.id]?.view.record.visibility == .visible
         }
+        if swallowed.isEmpty, !committingRefill {
+            let visible = Set(records.filter { $0.visibility == .visible }.map(\.id))
+            let removed = rowWindows.keys.filter { !visible.contains($0) }
+            if !removed.isEmpty {
+                for id in removed { rowWindows.removeValue(forKey: id)?.close() }
+                deferRefill(records); return
+            }
+        }
+        if swallowed.isEmpty, pendingRefillRecords != nil, !committingRefill { return }
         guard !swallowed.isEmpty else { apply(records); return }
         cancelDecorations()
         let token = generation
@@ -893,7 +984,7 @@ public final class RiftPanelController {
                 recordPresentation(.swallowClose, record: record, duration: 0)
             }
             deferredRecords = nil
-            apply(records)
+            deferRefill(records)
             return
         }
         setTransitioning(true); deferredRecords = records
@@ -903,7 +994,7 @@ public final class RiftPanelController {
             // timer can run; that timer must never undo the inward exit motion.
             window.view.record = record
             recordPresentation(.swallowActualStart, record: record, duration: swallowTime)
-            window.view.animateImage(to: self.reduceMotion ? 0 : 56, duration: swallowTime, power: 1.35)
+            window.view.animateImage(to: self.reduceMotion ? 0 : (self.configuration.placement?.side == .left ? -56 : 56), duration: swallowTime, power: 1.35)
             NSAnimationContext.runAnimationGroup { context in
                 context.duration = swallowTime
                 window.panels.forEach { $0.animator().alphaValue = 0 }
@@ -924,7 +1015,7 @@ public final class RiftPanelController {
             self.setTransitioning(false)
             let next = self.deferredRecords ?? records
             self.deferredRecords = nil
-            self.apply(next, animateShift: allowShift)
+            self.deferRefill(next)
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + swallowTime) { [weak self] in
             guard let self, self.queueTransitionEpoch == transition else { return }
@@ -940,9 +1031,11 @@ public final class RiftPanelController {
             rowWindows.values.forEach { $0.orderOut() }
             decoration.orderOut(nil); lastRecords = records; return
         }
-        let oldIDs = Set(lastRecords.filter { $0.visibility == .visible }.map(\.id))
-        let hasNewCapture = !lastRecords.isEmpty && records.contains {
-            $0.visibility == .visible && $0.visibilityReason == .capture && !oldIDs.contains($0.id)
+        if let anchor = viewportAnchor {
+            let active = records.filter { $0.visibility == .visible }
+            let survivors = [anchor] + (pagerLayout?.rows.map(\.assetID) ?? [])
+            firstVisibleIndex = RiftLayout.survivingAnchorIndex(previous: survivors,
+                current: active.map(\.id), fallback: firstVisibleIndex)
         }
         let queueFrame = screen.visibleFrame
         let makeLayout = { (index: Int) in
@@ -951,11 +1044,8 @@ public final class RiftPanelController {
                 backingScale: screen.backingScaleFactor,
                 highContrast: NSWorkspace.shared.accessibilityDisplayShouldIncreaseContrast)
         }
-        var layout = makeLayout(firstVisibleIndex)
-        if hasNewCapture && layout.totalCount > layout.capacity {
-            firstVisibleIndex = RiftLayout.lastPageStart(totalCount: layout.totalCount, capacity: layout.capacity)
-            layout = makeLayout(firstVisibleIndex)
-        }
+        let layout = makeLayout(firstVisibleIndex)
+        viewportAnchor = layout.rows.first?.assetID
         let shiftTime = reduceMotion ? 0 : configuration.shiftDuration
         let movingFrames = Dictionary(uniqueKeysWithValues: layout.rows.compactMap { geometry -> (UUID, CGRect)? in
             guard animateShift, shiftTime > 0, let row = rowWindows[geometry.assetID],
@@ -1065,10 +1155,7 @@ public final class RiftPanelController {
                 else if isNew, self.arrivalCandidate?.assetID == record.id { self.arrivalCandidate = nil }
             }
         }
-        var lineFrame = layout.lineFrame
-        if !lineFrame.isEmpty, let header = captureHeaderAnchor {
-            lineFrame.size.height = max(lineFrame.maxY, header.y + 18) - lineFrame.minY
-        }
+        let lineFrame = layout.lineFrame
         decoration.setFrame(lineFrame, display: true)
         decoration.contentView?.frame = CGRect(origin: .zero, size: lineFrame.size)
         if !layout.rows.isEmpty && !layout.lineFrame.isEmpty { present(decoration) }
@@ -1130,9 +1217,11 @@ public final class RiftPanelController {
               source.displayID == displayID, source.displayFrame == screen.frame,
               source.backingScale == screen.backingScaleFactor else { return false }
         let target = row.panel.convertToScreen(row.view.convert(row.view.geometry.imageFrame, to: nil))
-        let edge = row.panel.convertToScreen(row.view.convert(row.view.geometry.imageClipFrame, to: nil)).maxX
+        let clip = row.panel.convertToScreen(row.view.convert(row.view.geometry.imageClipFrame, to: nil))
+        let left = configuration.placement?.side == .left
+        let edge = left ? clip.minX : clip.maxX
         guard let plan = MagnetMotionPlan(sourceRect: source.rect, targetImageFrame: target,
-            clippingEdgeX: edge, screenFrame: screen.frame, parameters: magnetParameters) else { return false }
+            clippingEdgeX: edge, screenFrame: screen.frame, parameters: magnetParameters, leftSide: left) else { return false }
         let token = UUID(), epoch = generation, revision = row.view.record.visibilityRevision
         let started = flight.start(assetID: id, image: image, plan: plan,
             backingScale: screen.backingScaleFactor,
@@ -1214,6 +1303,10 @@ public final class RiftPanelController {
             if open { self.peek.cancel() }
             self.mutateInteraction { $0.setMenu(id, open: open) }
             if !open { self.flushDeferred() }
+        }
+        window.view.onOpenOriginal = { [weak self] in
+            guard let self, !self.gate.isHolding, !self.transitioning, self.rowWindows[id] != nil else { return }
+            self.peek.cancel(); self.onOpenOriginal(id)
         }
         window.view.onRemove = { [weak self] in
             guard let self, !self.gate.isHolding, !self.transitioning,
@@ -1323,7 +1416,7 @@ public final class RiftPanelController {
         guard let row = rowWindows[id], let screen, !closed, !userHidden, !captureSuppressed,
               !gate.isHolding, !transitioning, !interaction.snapshot.isSelecting else { return }
         let revision = row.view.record.visibilityRevision
-        peek.schedule(id: id, immediate: immediate, stillValid: { [weak self] in
+        peek.schedule(id: id, immediate: immediate, leftSide: configuration.placement?.side == .left, stillValid: { [weak self] in
             guard let self else { return false }
             return !self.closed && !self.userHidden && !self.captureSuppressed && !self.gate.isHolding
                 && !self.transitioning && !self.interaction.snapshot.isSelecting
@@ -1336,32 +1429,60 @@ public final class RiftPanelController {
             guard let self, let screen = self.screen else { return nil }
             let inputs = self.rowWindows.values.flatMap { [$0.imageInput, $0.numberInput] }
                 .filter { $0.isVisible && !$0.frame.isEmpty }
-            guard let leading = inputs.map({ $0.frame.minX }).min() else { return nil }
+            let frames = inputs.map(\.frame) + self.screenshotEntryExclusionFrames + self.extraPreviewExclusions
+            guard let leading = self.configuration.placement?.side == .left
+                ? frames.map(\.maxX).max() : frames.map(\.minX).min() else { return nil }
             return (row.panel.frame, screen.visibleFrame, leading)
         })
     }
 
     private func page(_ direction: Int) {
-        guard !userHidden, !gate.isHolding, !transitioning, !interaction.snapshot.isSelecting else { return }
-        cancelDecorations()
-        firstVisibleIndex = RiftLayout.pageStart(from: firstVisibleIndex, direction: direction,
+        guard !userHidden, !gate.isHolding, !transitioning, !interaction.snapshot.isSelecting, pendingRefillRecords == nil else { return }
+        let next = RiftLayout.pageStart(from: firstVisibleIndex, direction: direction,
             totalCount: lastRecords.filter { $0.visibility == .visible }.count, capacity: pageCapacity)
+        guard next != firstVisibleIndex else { return }
+        cancelDecorations()
+        viewportAnchor = nil; firstVisibleIndex = next
         apply(lastRecords)
+        let epoch = generation
+        let plan = RiftPageTransition(direction: direction, reduceMotion: reduceMotion)
+        let destinations = rowWindows.values.flatMap { $0.panels }.map { ($0, $0.frame) }
+        setTransitioning(true)
+        for row in rowWindows.values { row.imageInput.ignoresMouseEvents = true; row.numberInput.ignoresMouseEvents = true }
+        for (panel, frame) in destinations { panel.alphaValue = 0; panel.setFrame(plan.initialFrame(for: frame), display: true) }
+        NSAnimationContext.runAnimationGroup { context in
+            context.duration = plan.duration
+            for (panel, frame) in destinations {
+                panel.animator().setFrame(frame, display: true)
+                panel.animator().alphaValue = 1
+            }
+        } completionHandler: { [weak self] in
+            MainActor.assumeIsolated {
+                guard let self, !self.closed, self.generation == epoch else { return }
+                for row in self.rowWindows.values { row.imageInput.ignoresMouseEvents = false; row.numberInput.ignoresMouseEvents = false }
+                self.setTransitioning(false); self.flushDeferred()
+            }
+        }
     }
 
-    private func scroll(_ delta: CGFloat) {
-        guard !userHidden, !gate.isHolding, !transitioning, !interaction.snapshot.isSelecting else { return }
-        scrollAccumulator += delta
+    private func scroll(_ event: NSEvent) {
+        guard event.momentumPhase.isEmpty else { return }
+        if event.phase.contains(.began) || (event.phase.isEmpty && event.timestamp - lastWheelTime > 0.35) {
+            wheelGestureUsed = false; scrollAccumulator = 0
+        }
+        lastWheelTime = event.timestamp
+        guard !wheelGestureUsed else { return }
+        scrollAccumulator += event.scrollingDeltaY
         guard abs(scrollAccumulator) >= 8 else { return }
-        cancelDecorations()
-        firstVisibleIndex = max(0, firstVisibleIndex + (scrollAccumulator < 0 ? 1 : -1))
+        wheelGestureUsed = true
+        page(scrollAccumulator < 0 ? 1 : -1)
         scrollAccumulator = 0
-        apply(lastRecords)
     }
 
     public func showLatest() {
-        guard !userHidden, !gate.isHolding, !transitioning, !interaction.snapshot.isSelecting else { return }
+        guard !userHidden, !gate.isHolding, !transitioning, !interaction.snapshot.isSelecting, pendingRefillRecords == nil else { return }
         cancelDecorations()
+        viewportAnchor = nil
         firstVisibleIndex = lastRecords.filter { $0.visibility == .visible }.count
         apply(lastRecords)
     }
@@ -1369,22 +1490,29 @@ public final class RiftPanelController {
     /// Explicit history restoration may reveal one existing item without
     /// changing its sort order or reversing the independent user-hidden intent.
     public func showAsset(_ assetID: UUID) {
-        guard !userHidden, !gate.isHolding, !transitioning, !interaction.snapshot.isSelecting,
+        guard !userHidden, !gate.isHolding, !transitioning, !interaction.snapshot.isSelecting, pendingRefillRecords == nil,
               let index = lastRecords.filter({ $0.visibility == .visible }).firstIndex(where: { $0.id == assetID }) else { return }
         guard !visibleRange.contains(index) else { return }
         cancelDecorations()
+        viewportAnchor = nil
         firstVisibleIndex = index
         apply(lastRecords)
     }
 
     public func showOldest() {
-        guard !userHidden, !gate.isHolding, !transitioning, !interaction.snapshot.isSelecting else { return }
+        guard !userHidden, !gate.isHolding, !transitioning, !interaction.snapshot.isSelecting, pendingRefillRecords == nil else { return }
         cancelDecorations()
+        viewportAnchor = nil
         firstVisibleIndex = 0; apply(lastRecords)
     }
 
     public func updateConfiguration(_ configuration: RiftConfiguration) throws {
         try configuration.validate()
+        guard !gate.isHolding, !interaction.snapshot.isSelecting, !transitioning, pendingRefillRecords == nil else {
+            deferredConfiguration = configuration; return
+        }
+        deferredConfiguration = nil
+        if self.configuration.preferredDisplayID != configuration.preferredDisplayID || self.configuration.preferredDisplayUUID != configuration.preferredDisplayUUID { displaySession.userSelectedDisplay() }
         self.configuration = configuration
         reflow()
     }
@@ -1401,11 +1529,13 @@ public final class RiftPanelController {
         let held = interaction.heldID
         gate.cancel()
         if let held { selectionVersions.removeValue(forKey: held) }
-        lastRecords = deferredRecords ?? lastRecords
+        lastRecords = pendingRefillRecords ?? deferredRecords ?? lastRecords
+        pendingRefillRecords = nil; refillTimer?.invalidate(); refillTimer = nil
         deferredRecords = nil
         hoveredIDs.removeAll(); pointerApproach.update(hovered: [])
         pressRegions.removeAll(); shortAnimationTokens.removeAll()
         mutateInteraction { $0.resetPresentation() }
+        if detailPresented { mutateInteraction { $0.beginAnimation(detailProtectionToken) } }
         rowWindows.values.forEach { $0.close() }
         rowWindows.removeAll()
         feedbackStates.removeAll()
@@ -1415,6 +1545,7 @@ public final class RiftPanelController {
 
     private func reflow() {
         guard !closed else { return }
+        guard !gate.isHolding, !interaction.snapshot.isSelecting, pendingRefillRecords == nil else { return }
         let pending = deferredRecords
         let displayed = lastRecords
         let protectedArchive = pending.map { containsNewArchive($0) && interaction.snapshot.blocksAutomaticArchive } ?? false
@@ -1435,6 +1566,7 @@ public final class RiftPanelController {
         selectionVersions.removeAll(); hoveredIDs.removeAll(); pointerApproach.update(hovered: []); feedbackStates.removeAll()
         mutateInteraction { $0.close() }
         observers.forEach { $0.0.removeObserver($0.1) }; observers.removeAll()
+        refillTimer?.invalidate(); refillTimer = nil; pendingRefillRecords = nil
         rowWindows.values.forEach { $0.close() }; rowWindows.removeAll()
         decoration.close(); pager.close(); peek.close(); cache.clear()
     }

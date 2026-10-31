@@ -43,6 +43,27 @@ final class RiftLayoutTests: XCTestCase {
         }
     }
 
+    func testDeletedAnchorAndEarlierRemovalRetainFirstSurvivingDisplayedIdentity() {
+        let ids = (0..<8).map { _ in UUID() }
+        // Displayed D E F; A and D disappear in the same durable refresh.
+        let current = [ids[1],ids[2],ids[4],ids[5],ids[6],ids[7]]
+        XCTAssertEqual(RiftLayout.survivingAnchorIndex(previous:Array(ids[3...5]),current:current,fallback:3),2)
+        XCTAssertEqual(current[2],ids[4])
+        XCTAssertEqual(RiftLayout.pageStart(from:2,direction:1,totalCount:8,capacity:3),5)
+    }
+
+    func testPageMotionMovesOnlyVerticalGeometryAndRespectsReducedMotion() {
+        let final = CGRect(x: -400, y: 200, width: 72, height: 56)
+        let down = RiftPageTransition(direction: 1, reduceMotion: false)
+        let up = RiftPageTransition(direction: -1, reduceMotion: false)
+        XCTAssertEqual(down.duration,0.18)
+        XCTAssertEqual(down.initialFrame(for:final),final.offsetBy(dx:0,dy:-24))
+        XCTAssertEqual(up.initialFrame(for:final),final.offsetBy(dx:0,dy:24))
+        let reduced=RiftPageTransition(direction:1,reduceMotion:true)
+        XCTAssertEqual(reduced.duration,0.08)
+        XCTAssertEqual(reduced.initialFrame(for:final),final)
+    }
+
     func testAspectRatioAndOcclusionDoNotStretchImage() {
         let result = RiftLayout.make(records: records(1, width: 1_920, height: 1_080),
                                      visibleFrame: CGRect(x: 0, y: 0, width: 1_440, height: 900),
@@ -50,18 +71,18 @@ final class RiftLayoutTests: XCTestCase {
         let row = result.rows[0]
         XCTAssertEqual(row.imageFrame.width / row.imageFrame.height, 1_920.0 / 1_080.0, accuracy: 0.0001)
         XCTAssertEqual(row.imageClipFrame.width, row.imageFrame.width * 0.75, accuracy: 0.0001)
-        XCTAssertEqual(row.frame.maxX, 1_426)
-        XCTAssertEqual(row.imageClipFrame.maxX, row.frame.width)
+        XCTAssertEqual(row.frame.minX, 6)
+        XCTAssertEqual(row.imageClipFrame.minX, 0)
     }
 
     func testTwelvePortraitsPageBelowStableFirstSlotWithWindowFreeGaps() {
         let viewport = CGRect(x: 0, y: 0, width: 1_440, height: 900)
         let result = RiftLayout.make(records: records(12), visibleFrame: viewport, configuration: .init())
-        XCTAssertEqual(result.rows.count, 11)
-        XCTAssertEqual(result.rows.map(\.ordinal), Array(1...11))
+        XCTAssertEqual(result.rows.count, 3)
+        XCTAssertEqual(result.rows.map(\.ordinal), Array(1...3))
         XCTAssertTrue(result.hasLater)
-        XCTAssertTrue(viewport.contains(result.pagerFrame))
-        XCTAssertEqual(result.rows.first?.frame.midY, viewport.maxY - 202)
+        XCTAssertTrue(viewport.contains(result.laterArrowFrame))
+        XCTAssertEqual(result.rows.first?.frame.midY, viewport.midY + 60)
         let shortQueue = RiftLayout.make(records: records(2), visibleFrame: viewport, configuration: .init())
         XCTAssertEqual(result.rows.first?.frame.midY, shortQueue.rows.first?.frame.midY)
         for row in result.rows { XCTAssertTrue(viewport.contains(row.frame)) }
@@ -82,7 +103,7 @@ final class RiftLayoutTests: XCTestCase {
             XCTAssertEqual(row.numberFrame.height, 24)
             XCTAssertEqual(row.imageFrame.width / row.imageFrame.height, Double(size.0) / Double(size.1), accuracy: 0.00001)
             XCTAssertEqual(result.lineFrame.width, 0.5)
-            XCTAssertEqual(row.frame.maxX, frame.maxX - 14)
+            XCTAssertEqual(row.frame.minX, frame.minX + 6)
             XCTAssertFalse(row.numberFrame.intersects(row.imageClipFrame))
         }
         let highContrast = RiftLayout.make(records: records(1), visibleFrame: frame,
@@ -99,14 +120,14 @@ final class RiftLayoutTests: XCTestCase {
         // A two-digit ordinal extends its visible input island to the left.
         // The image and fixed plane must not move with that envelope change.
         XCTAssertGreaterThan(lastPageRow.numberFrame.width, firstRow.numberFrame.width)
-        XCTAssertEqual(firstRow.frame.maxX, lastPageRow.frame.maxX)
+        XCTAssertEqual(firstRow.frame.minX, lastPageRow.frame.minX)
         XCTAssertEqual(firstRow.frame.midY, lastPageRow.frame.midY)
         XCTAssertEqual(firstRow.imageClipFrame.offsetBy(dx: firstRow.frame.minX, dy: firstRow.frame.minY),
                        lastPageRow.imageClipFrame.offsetBy(dx: lastPageRow.frame.minX, dy: lastPageRow.frame.minY))
         XCTAssertEqual(first.lineFrame.minX, last.lineFrame.minX)
         XCTAssertEqual(first.lineFrame.width, last.lineFrame.width)
         XCTAssertEqual(first.lineFrame.maxY, last.lineFrame.maxY)
-        XCTAssertEqual(last.lineFrame.minY, last.rows.last!.frame.minY - RiftConfiguration().lineExtension)
+        XCTAssertEqual(last.lineFrame.minY, last.rows.last!.frame.minY + last.rows.last!.imageFrame.minY)
         XCTAssertEqual(last.firstVisibleIndex, ((input.count - 1) / first.capacity) * first.capacity)
         XCTAssertEqual(first.capacity, last.capacity)
         XCTAssertEqual(lastPageRow.assetID, input[last.firstVisibleIndex].id)
@@ -118,30 +139,24 @@ final class RiftLayoutTests: XCTestCase {
         XCTAssertEqual(last.rows.last?.ordinal, 26)
         XCTAssertFalse(last.hasLater)
         XCTAssertEqual(first.pagerFrame, last.pagerFrame)
-        XCTAssertTrue(frame.contains(first.pagerFrame))
-        XCTAssertLessThanOrEqual(first.pagerFrame.maxY + 8, first.rows.last!.frame.minY)
+        XCTAssertTrue(frame.contains(first.laterArrowFrame))
+        XCTAssertLessThanOrEqual(first.laterArrowFrame.maxY + 8, first.rows.last!.frame.minY)
     }
 
     func testArrowPagesNeverRepeatItemsAndPartialLastPageReturnsToPreviousPage() {
-        let input = records(16)
-        let frame = CGRect(x: 0, y: 0, width: 1440, height: 1080)
+        let input = records(8), frame = CGRect(x: 0, y: 0, width: 1440, height: 1080)
         let first = RiftLayout.make(records: input, visibleFrame: frame, configuration: .init())
-        XCTAssertEqual(first.capacity, 14)
-        let next = RiftLayout.pageStart(from: first.firstVisibleIndex, direction: 1,
-            totalCount: input.count, capacity: first.capacity)
-        let last = RiftLayout.make(records: input, visibleFrame: frame, configuration: .init(), firstVisibleIndex: next)
-        XCTAssertEqual(first.rows.map(\.ordinal), Array(1...14))
-        XCTAssertEqual(last.rows.map(\.ordinal), [15, 16])
-        XCTAssertTrue(Set(first.rows.map(\.assetID)).isDisjoint(with: last.rows.map(\.assetID)))
-        XCTAssertEqual(RiftLayout.pageStart(from: last.firstVisibleIndex, direction: -1,
-            totalCount: input.count, capacity: last.capacity), 0)
-        let oneLeft = RiftLayout.make(records: Array(input.prefix(15)), visibleFrame: frame,
-            configuration: .init(), firstVisibleIndex: last.firstVisibleIndex)
-        XCTAssertEqual(oneLeft.rows.map(\.ordinal), [15])
-        let noTail = RiftLayout.make(records: Array(input.prefix(14)), visibleFrame: frame,
-            configuration: .init(), firstVisibleIndex: last.firstVisibleIndex)
-        XCTAssertEqual(noTail.firstVisibleIndex, 0)
-        XCTAssertEqual(noTail.rows.count, 14)
+        let middle = RiftLayout.make(records: input, visibleFrame: frame, configuration: .init(), firstVisibleIndex: 3)
+        let last = RiftLayout.make(records: input, visibleFrame: frame, configuration: .init(), firstVisibleIndex: 6)
+        XCTAssertEqual(first.rows.map(\.ordinal), [1,2,3])
+        XCTAssertEqual(middle.rows.map(\.ordinal), [4,5,6])
+        XCTAssertEqual(last.rows.map(\.ordinal), [7,8])
+        XCTAssertTrue(first.earlierArrowFrame.isEmpty); XCTAssertFalse(first.laterArrowFrame.isEmpty)
+        XCTAssertFalse(middle.earlierArrowFrame.isEmpty); XCTAssertFalse(middle.laterArrowFrame.isEmpty)
+        XCTAssertFalse(last.earlierArrowFrame.isEmpty); XCTAssertTrue(last.laterArrowFrame.isEmpty)
+        XCTAssertEqual(first.laterArrowFrame, middle.laterArrowFrame)
+        XCTAssertEqual(first.cameraAnchor, last.cameraAnchor)
+        XCTAssertEqual(RiftLayout.pageStart(from:6,direction:-1,totalCount:8,capacity:3),3)
     }
 
     func testWheelOffsetRemainsAvailableAndArrowReturnsToPageBoundary() {
@@ -150,7 +165,7 @@ final class RiftLayoutTests: XCTestCase {
         XCTAssertEqual(wheel.firstVisibleIndex, 3)
         XCTAssertEqual(wheel.rows.first?.ordinal, 4)
         XCTAssertEqual(RiftLayout.pageStart(from: 3, direction: -1, totalCount: 40, capacity: wheel.capacity), 0)
-        XCTAssertEqual(RiftLayout.pageStart(from: 3, direction: 1, totalCount: 40, capacity: wheel.capacity), wheel.capacity)
+        XCTAssertEqual(RiftLayout.pageStart(from: 3, direction: 1, totalCount: 40, capacity: wheel.capacity), 6)
         XCTAssertEqual(RiftLayout.lastPageStart(totalCount: 0, capacity: 0), 0)
         XCTAssertEqual(RiftLayout.pageStart(from: 8, direction: 1, totalCount: 40, capacity: 0), 0)
     }
@@ -253,5 +268,34 @@ final class RiftLayoutTests: XCTestCase {
         XCTAssertTrue(gate.begin(assetID: UUID(), screenPoint: .zero,
                                  timestamp: 2, clickCount: 1, doubleClickInterval: 0.5, acceptsSelection: true))
         XCTAssertNil(gate.end(inside: false))
+    }
+    func testR2GeometryMatrixPreservesVisibleIslandsAndIndependentCamera() {
+        let input = records(31, width: 1600, height: 900)
+        for placement in RiftPlacement.allCases {
+            for hidden in [0.0, 0.25, 0.75, 0.9] {
+                for inset in [0.0, 6, 256] {
+                    for count in [1,3,10] {
+                        var c = RiftConfiguration(); c.placement = placement
+                        c.hiddenFraction = hidden; c.outerInset = inset; c.visibleCountPreference = count
+                        let frame = CGRect(x: -1920, y: -300, width: 1920, height: 1080)
+                        for index in [0,count,count*3] {
+                            let l = RiftLayout.make(records: input, visibleFrame: frame, configuration:c, firstVisibleIndex:index, backingScale:2)
+                            XCTAssertEqual(l.capacity,count); XCTAssertEqual(l.rows.count,min(count,31-index))
+                            for r in l.rows {
+                                XCTAssertTrue(frame.contains(r.frame))
+                                XCTAssertFalse(r.imageClipFrame.intersects(r.numberFrame))
+                                XCTAssertEqual(r.imageFrame.width/r.imageFrame.height,1600.0/900,accuracy:0.0001)
+                                if hidden >= 0.75 { XCTAssertTrue(r.numberIsPad) }
+                            }
+                            let camera = CGRect(x:l.cameraAnchor.x-18,y:l.cameraAnchor.y-18,width:36,height:36)
+                            XCTAssertTrue(frame.contains(camera))
+                            XCTAssertFalse(camera.intersects(l.earlierArrowFrame))
+                            XCTAssertEqual(l.lineFrame.maxY,l.rows.first!.frame.minY+l.rows.first!.imageFrame.maxY,accuracy:0.001)
+                            XCTAssertEqual(l.lineFrame.minY,l.rows.last!.frame.minY+l.rows.last!.imageFrame.minY,accuracy:0.001)
+                        }
+                    }
+                }
+            }
+        }
     }
 }

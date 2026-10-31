@@ -344,4 +344,23 @@ final class ScreenshotEntryControllerTests: XCTestCase {
         XCTAssertFalse(controller.diagnosticSnapshot.hasScheduledFrame)
     }
 
+    @MainActor func testNewGeometryAfterReleaseSupersedesDeferredHeldGeometry() async throws {
+        let controller=try controller();defer{controller.close()}
+        let screen=try XCTUnwrap(NSScreen.screens.first)
+        let f=screen.visibleFrame
+        let a=CGPoint(x:f.midX,y:f.midY),b=CGPoint(x:f.midX-80,y:f.midY),c=CGPoint(x:f.midX+80,y:f.midY)
+        controller.configure(screen:screen,anchor:a)
+        let input=try view(controller,slot:.anchor), panel=try XCTUnwrap(input.window)
+        input.mouseDown(with:try event(.leftMouseDown,window:panel,time:10))
+        let original=controller.diagnosticSnapshot.controls.map(\.frame)
+        controller.configure(screen:screen,anchor:b)
+        XCTAssertEqual(controller.diagnosticSnapshot.controls.map(\.frame),original)
+        input.mouseUp(with:try event(.leftMouseUp,window:panel,time:10.1))
+        controller.configure(screen:screen,anchor:c)
+        let latest=controller.diagnosticSnapshot.controls.map(\.frame)
+        XCTAssertNotEqual(latest,original)
+        try await Task.sleep(nanoseconds:30_000_000)
+        XCTAssertEqual(controller.diagnosticSnapshot.controls.map(\.frame),latest,"Queued release callback must not restore older B after newer C")
+    }
+
 }

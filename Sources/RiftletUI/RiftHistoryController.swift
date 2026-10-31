@@ -83,6 +83,9 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
     private var previewWindow: NSWindow?
     private var previewImage: NSImageView?
     private var previewStatus: NSTextField?
+    private var previewScroll: NSScrollView?
+    private var previewZoom: Double?
+    public var onPreviewVisibilityChanged: ((Bool) -> Void)?
     private var previewEntry: RiftHistoryEntry?
     private var previewVerifiedAsset: ImportedAsset?
     private let previewOwner = UUID()
@@ -140,7 +143,7 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         NSApp.activate(ignoringOtherApps: true)
     }
 
-    public func close() { historyWindow.close() }
+    public func close() { previewWindow?.close(); historyWindow.close() }
 
     public func windowWillClose(_ notification: Notification) {
         if let previewWindow, notification.object as? NSWindow === previewWindow {
@@ -340,7 +343,14 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         }
     }
     @objc private func previewSelected() {
-        guard let entry = selectedEntry else { return }
+        guard let entry = selectedEntry else { return }; openOriginal(entry: entry)
+    }
+    public func openOriginal(id: UUID) {
+        guard let entry = entries.first(where: { $0.id == id }) else { return }
+        openOriginal(entry: entry)
+    }
+    /// Caller supplies an original local record, never a thumbnail bitmap.
+    public func openOriginal(entry: RiftHistoryEntry) {
         if let panel = previewWindow {
             previewEntry = entry; updatePreviewIdentity(); observePreviewFile()
             requestPreview(clearImage: true); panel.makeKeyAndOrderFront(nil); return
@@ -356,18 +366,23 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         status.identifier = .init("history.preview.status")
         let reveal = NSButton(title: "在 Finder 中显示", target: self, action: #selector(revealPreview))
         RiftVisualStyle.style(reveal)
-        let footer = NSStackView(views: [status, reveal]); footer.spacing = 12
+        let zoom = NSSegmentedControl(labels: ["适合", "100%", "200%"], trackingMode: .selectOne, target: self, action: #selector(changePreviewZoom(_:)))
+        zoom.selectedSegment = 0; zoom.identifier = .init("history.preview.zoom"); zoom.setAccessibilityLabel("原图缩放：适合、100% 逻辑尺寸、200%")
+        let footer = NSStackView(views: [status, zoom, reveal]); footer.spacing = 12
+        let scroll = NSScrollView(); scroll.hasHorizontalScroller = true; scroll.hasVerticalScroller = true
+        scroll.autohidesScrollers = true; scroll.documentView = view; scroll.drawsBackground = false
+        previewScroll = scroll; previewZoom = nil
         footer.setContentHuggingPriority(.defaultHigh, for: .vertical)
         footer.setContentCompressionResistancePriority(.required, for: .vertical)
         status.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         if let content = panel.contentView {
-            for item in [view, footer] { item.translatesAutoresizingMaskIntoConstraints = false; content.addSubview(item) }
+            for item in [scroll, footer] { item.translatesAutoresizingMaskIntoConstraints = false; content.addSubview(item) }
             NSLayoutConstraint.activate([
-                view.leadingAnchor.constraint(equalTo: content.leadingAnchor, constant: 16),
-                view.trailingAnchor.constraint(equalTo: content.trailingAnchor, constant: -16),
-                view.topAnchor.constraint(equalTo: content.topAnchor, constant: 12),
-                view.bottomAnchor.constraint(equalTo: footer.topAnchor, constant: -12),
-                view.heightAnchor.constraint(greaterThanOrEqualToConstant: 1),
+                scroll.leadingAnchor.constraint(equalTo: content.leadingAnchor, constant: 16),
+                scroll.trailingAnchor.constraint(equalTo: content.trailingAnchor, constant: -16),
+                scroll.topAnchor.constraint(equalTo: content.topAnchor, constant: 12),
+                scroll.bottomAnchor.constraint(equalTo: footer.topAnchor, constant: -12),
+                scroll.heightAnchor.constraint(greaterThanOrEqualToConstant: 1),
                 footer.leadingAnchor.constraint(equalTo: content.leadingAnchor, constant: 16),
                 footer.trailingAnchor.constraint(equalTo: content.trailingAnchor, constant: -16),
                 footer.bottomAnchor.constraint(equalTo: content.bottomAnchor, constant: -12),
@@ -375,6 +390,7 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         }
         previewWindow = panel; previewImage = view; previewStatus = status; previewEntry = entry
         updatePreviewIdentity(); panel.center(); panel.makeKeyAndOrderFront(nil)
+        onPreviewVisibilityChanged?(true)
         observePreviewFile(); requestPreview(clearImage: true)
     }
 
@@ -411,6 +427,9 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         previewResize?.cancel(); previewResize = nil
         HistoryPreviewLoader.shared.invalidate(owner: previewOwner)
         guard let panel = previewWindow, let entry = previewEntry, let view = previewImage else { return }
+        panel.contentView?.layoutSubtreeIfNeeded()
+        let canvas = previewZoom.map { zoom in CGSize(width: Double(entry.record.image.pixelWidth) * zoom, height: Double(entry.record.image.pixelHeight) * zoom) } ?? previewScroll?.contentSize ?? view.bounds.size
+        view.frame = CGRect(origin: .zero, size: canvas)
         if clearImage || previewVerifiedAsset != entry.record.image {
             // ThumbnailCache has a display-only asset key, not a checked file
             // identity/hash. Never place that unverified bitmap under this
@@ -423,7 +442,11 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
             guard let self, let panel, self.previewWindow === panel, self.previewEpoch == epoch,
                   self.previewEntry?.record.image == entry.record.image, panel.isVisible else { return }
             panel.contentView?.layoutSubtreeIfNeeded()
-            let viewport = view.bounds.size
+            let viewport: CGSize
+            if let zoom = self.previewZoom {
+                viewport = CGSize(width: Double(entry.record.image.pixelWidth) * zoom, height: Double(entry.record.image.pixelHeight) * zoom)
+            } else { viewport = self.previewScroll?.contentSize ?? view.bounds.size }
+            view.frame = CGRect(origin: .zero, size: viewport)
             guard viewport.width > 0, viewport.height > 0 else { return }
             let request = HistoryPreviewRequest(asset: entry.record.image, directory: self.mediaDirectory,
                 viewport: viewport, backing: panel.backingScaleFactor)
@@ -436,8 +459,8 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
                         self.previewImage?.image = NSImage(cgImage: loaded.image,
                             size: loaded.displaySize(backing: panel.backingScaleFactor))
                         self.previewVerifiedAsset = entry.record.image
-                        self.previewImage?.imageScaling = .scaleProportionallyDown
-                        self.previewStatus?.stringValue = "已按窗口显示"
+                        self.previewImage?.imageScaling = self.previewZoom == nil ? .scaleProportionallyDown : .scaleProportionallyUpOrDown
+                        self.previewStatus?.stringValue = self.previewZoom == nil ? "已按窗口显示" : "原件校验预览 · 显示解码受内存上限保护"
                     default:
                         self.previewImage?.image = nil; self.previewVerifiedAsset = nil
                         self.previewStatus?.stringValue = "无法加载清晰预览，图片记录仍保留"
@@ -454,8 +477,13 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         previewFileObserver?.cancel(); previewFileObserver = nil
         previewImage?.image = nil; previewImage = nil; previewStatus = nil
         previewEntry = nil; previewVerifiedAsset = nil; previewWindow = nil
+        previewScroll = nil; previewZoom = nil; onPreviewVisibilityChanged?(false)
     }
 
+    @objc private func changePreviewZoom(_ sender: NSSegmentedControl) {
+        previewZoom = sender.selectedSegment == 0 ? nil : (sender.selectedSegment == 1 ? 1 : 2)
+        requestPreview(clearImage: true)
+    }
     @objc private func revealPreview() { if let entry = previewEntry { onReveal(entry.id) } }
 
     @objc private func filterChanged(_ sender: NSButton) { filterIndex = sender.tag; refresh() }

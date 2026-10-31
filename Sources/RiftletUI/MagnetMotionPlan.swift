@@ -62,6 +62,7 @@ public struct MagnetMotionSample: Equatable, Sendable {
 /// This type validates geometry, not screenshot-metadata provenance. The caller
 /// must independently establish a credible source rectangle before construction.
 public struct MagnetMotionPlan: Equatable, Sendable {
+    public let leftSide: Bool
     public let sourceRect: CGRect
     public let screenFrame: CGRect
     public let clippingEdgeX: CGFloat
@@ -79,7 +80,20 @@ public struct MagnetMotionPlan: Equatable, Sendable {
 
     public init?(sourceRect: CGRect, targetImageFrame: CGRect,
                  clippingEdgeX: CGFloat, screenFrame: CGRect,
-                 parameters: MagnetMotionParameters = .init()) {
+                 parameters: MagnetMotionParameters = .init(), leftSide: Bool = false) {
+        if leftSide {
+            let axis = screenFrame.minX + screenFrame.maxX
+            func reflect(_ r: CGRect) -> CGRect { CGRect(x: axis - r.maxX, y: r.minY, width: r.width, height: r.height) }
+            guard let right = MagnetMotionPlan(sourceRect: reflect(sourceRect), targetImageFrame: reflect(targetImageFrame),
+                clippingEdgeX: axis - clippingEdgeX, screenFrame: screenFrame, parameters: parameters) else { return nil }
+            self.leftSide = true; self.sourceRect = sourceRect; self.screenFrame = screenFrame
+            self.clippingEdgeX = clippingEdgeX; self.initialFrame = reflect(right.initialFrame)
+            self.smallFrame = reflect(right.smallFrame); self.finalFrame = targetImageFrame
+            self.occludedFrame = reflect(right.occludedFrame); self.overlayFrame = reflect(right.overlayFrame)
+            self.parameters = parameters; self.direction = CGVector(dx: -right.direction.dx, dy: right.direction.dy)
+            return
+        }
+        self.leftSide = false
         guard parameters.isValid,
               Self.validRect(sourceRect), Self.validRect(targetImageFrame),
               Self.validRect(screenFrame),
@@ -206,7 +220,8 @@ public struct MagnetMotionPlan: Equatable, Sendable {
         let clip = CGRect(x: screenFrame.minX, y: screenFrame.minY,
                           width: clippingEdgeX - screenFrame.minX, height: screenFrame.height)
         let frame = sample(at: elapsed).frame
-        let visible = frame.intersection(clip)
+        let actualClip = leftSide ? CGRect(x: clippingEdgeX, y: screenFrame.minY, width: screenFrame.maxX - clippingEdgeX, height: screenFrame.height) : clip
+        let visible = frame.intersection(actualClip)
         return visible.isEmpty ? CGRect(x: clippingEdgeX, y: frame.minY, width: 0, height: frame.height) : visible
     }
 

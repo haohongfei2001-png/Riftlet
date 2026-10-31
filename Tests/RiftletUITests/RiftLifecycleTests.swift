@@ -14,6 +14,36 @@ final class RiftLifecycleTests: XCTestCase {
         return AssetRecord(image: asset, sequence: Int64(index), status: status, visibility: visibility, visibilityReason: reason)
     }
 
+    @MainActor func testProtectedRefillCannotResurrectAndDoesNotSuppressAnotherUploadStart() throws {
+        _ = NSApplication.shared
+        guard !NSScreen.screens.isEmpty else { throw XCTSkip("No AppKit display") }
+        var c = RiftConfiguration(); c.swallowDuration = 0
+        let panel = RiftPanelController(mediaDirectory: FileManager.default.temporaryDirectory,
+            configuration:c, reduceMotionOverride:{true}, onSelect:{_ in})
+        defer { panel.close() }
+        let a=record(1),b=record(2),d=record(3),e=record(4)
+        panel.render([a,b,d,e])
+        panel.setDetailPresented(true)
+        XCTAssertTrue(panel.interactionSnapshot.blocksAutomaticArchive)
+        let goneA=record(1,image:a.image,status:.unknown,visibility:.swallowed,reason:.uploadStarted)
+        panel.render([goneA,b,d,e])
+        XCTAssertFalse(panel.diagnosticSnapshot.rows.contains { $0.assetID==a.id })
+        panel.showLatest(); panel.showOldest()
+        XCTAssertFalse(panel.diagnosticSnapshot.rows.contains { $0.assetID==a.id })
+        let goneB=record(2,image:b.image,status:.unknown,visibility:.swallowed,reason:.uploadStarted)
+        panel.render([goneA,goneB,d,e])
+        XCTAssertFalse(panel.diagnosticSnapshot.rows.contains { $0.assetID==b.id }, "A pending refill cannot suppress B's own positive upload start")
+        XCTAssertFalse(panel.diagnosticSnapshot.rows.contains { $0.assetID==e.id }, "No replacement under protected detail/interaction")
+        let removedD=record(3,image:d.image,visibility:.removed)
+        panel.render([goneA,goneB,removedD,e])
+        XCTAssertFalse(panel.diagnosticSnapshot.rows.contains { $0.assetID==d.id }, "Subsequent durable removal closes its original island while refill remains protected")
+        panel.setUserHidden(true)
+        let f=record(5)
+        panel.render([goneA,goneB,removedD,e,f])
+        panel.setUserHidden(false)
+        XCTAssertEqual(Set(panel.diagnosticSnapshot.rows.map(\.assetID)),Set([e.id,f.id]))
+    }
+
     func testVisibilityIsIndependentOfBackendStatusAndOrdinalsStayContinuous() {
         let records = [record(1), record(2, status: .transferring, visibility: .swallowed),
                        record(3, status: .unknown, visibility: .swallowed),

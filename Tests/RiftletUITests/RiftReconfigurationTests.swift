@@ -14,7 +14,7 @@ final class RiftReconfigurationTests: XCTestCase {
         }
     }
 
-    func testLargeValidInsetHidesUnfittingRowsWithoutDiscardingTheirIdentity() throws {
+    func testLargeInsetClampsEffectiveGeometryWithoutOverwritingPreference() throws {
         var configuration = RiftConfiguration()
         configuration.fitWidth = 256
         configuration.fitHeight = 256
@@ -24,13 +24,12 @@ final class RiftReconfigurationTests: XCTestCase {
         let frame = CGRect(x: -480, y: 50, width: 480, height: 900)
         let input = records(3)
         let layout = RiftLayout.make(records: input, visibleFrame: frame, configuration: configuration)
-        // A valid preference is not proof that it fits every display: this
-        // leaves 224pt for a 256pt image plus its visible number. Do not shift
-        // the fixed plane or create partially offscreen input islands to fit.
-        XCTAssertTrue(layout.rows.isEmpty)
-        XCTAssertEqual(layout.lineFrame, .zero)
-        XCTAssertEqual(layout.pagerFrame, .zero)
-        XCTAssertEqual(layout.totalCount, input.count, "Hidden edges retain the history/queue records")
+        // R2 preserves the saved distance but clamps effective geometry so
+        // input stays reachable on a temporary narrow display.
+        XCTAssertFalse(layout.rows.isEmpty)
+        XCTAssertTrue(layout.rows.allSatisfy { frame.contains($0.frame) })
+        XCTAssertEqual(configuration.outerInset,256)
+        XCTAssertEqual(layout.totalCount,input.count)
 
         let widerFrame = CGRect(x: -800, y: 50, width: 800, height: 900)
         var reached = Set<UUID>()
@@ -43,7 +42,7 @@ final class RiftReconfigurationTests: XCTestCase {
             for row in restored.rows {
                 XCTAssertTrue(widerFrame.contains(row.frame), "The full hit envelope must fit after display recovery")
                 XCTAssertEqual(row.imageFrame.width / row.imageFrame.height, 1_920.0 / 1_080.0, accuracy: 0.0001)
-                XCTAssertEqual(row.frame.maxX, widerFrame.maxX - configuration.outerInset, accuracy: 0.0001)
+                XCTAssertEqual(row.frame.minX, widerFrame.minX + configuration.outerInset, accuracy: 0.0001)
                 XCTAssertEqual(row.assetID, input[row.ordinal - 1].id)
                 reached.insert(row.assetID)
             }
@@ -63,9 +62,9 @@ final class RiftReconfigurationTests: XCTestCase {
         configuration.rowPitch = 20
         try configuration.validate()
         let changed = RiftLayout.make(records: input, visibleFrame: frame, configuration: configuration)
-        XCTAssertLessThan(changed.capacity, original.capacity, "Larger rows must page instead of overlapping")
+        XCTAssertEqual(changed.capacity, 3, "User capacity remains three when the larger envelope fits")
         XCTAssertEqual(changed.rows.map(\.assetID), Array(input.prefix(changed.rows.count)).map(\.id))
-        XCTAssertEqual(changed.rows.first?.frame.midY, original.rows.first?.frame.midY)
+        XCTAssertNotEqual(changed.rows.first?.frame.midY, original.rows.first?.frame.midY, "Explicit size change recomputes middle semantics")
         XCTAssertTrue(changed.hasLater)
         var reached = Set<UUID>()
         for start in 0..<input.count {
@@ -76,7 +75,7 @@ final class RiftReconfigurationTests: XCTestCase {
             XCTAssertTrue(frame.contains(page.pagerFrame))
             for row in page.rows {
                 XCTAssertTrue(frame.contains(row.frame))
-                XCTAssertEqual(row.frame.maxX, frame.maxX - configuration.outerInset)
+                XCTAssertEqual(row.frame.minX, frame.minX + configuration.outerInset)
                 XCTAssertEqual(row.assetID, input[row.ordinal - 1].id)
                 XCTAssertEqual(row.imageClipFrame.width / row.imageFrame.width, 0.6, accuracy: 0.0001)
                 XCTAssertEqual(row.imageFrame.width / row.imageFrame.height, 1_920.0 / 1_080.0, accuracy: 0.0001)
@@ -109,7 +108,8 @@ final class RiftReconfigurationTests: XCTestCase {
     func testSwallowedCompactionKeepsHeldSelectionBoundToOriginalAsset() {
         let input = records(12)
         let frame = CGRect(x: 0, y: 0, width: 1_440, height: 900)
-        let initial = RiftLayout.make(records: input, visibleFrame: frame, configuration: .init())
+        var configuration = RiftConfiguration(); configuration.visibleCountPreference = 10
+        let initial = RiftLayout.make(records: input, visibleFrame: frame, configuration: configuration)
         let held = initial.rows[8]
         var gate = PointerSelectionGate()
         XCTAssertTrue(gate.begin(assetID: held.assetID,
@@ -120,7 +120,7 @@ final class RiftReconfigurationTests: XCTestCase {
                         status: index < 2 ? .transferring : (index == 8 ? .unknown : .failed),
                         visibility: index < 2 ? .swallowed : .visible)
         }
-        let after = RiftLayout.make(records: changed, visibleFrame: frame, configuration: .init())
+        let after = RiftLayout.make(records: changed, visibleFrame: frame, configuration: configuration)
         XCTAssertEqual(after.rows.map(\.ordinal), Array(1...10))
         XCTAssertEqual(gate.end(inside: true), input[8].id)
         XCTAssertEqual(after.rows.first(where: { $0.assetID == input[8].id })?.ordinal, 7)

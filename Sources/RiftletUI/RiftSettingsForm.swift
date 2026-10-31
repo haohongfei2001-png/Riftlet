@@ -7,7 +7,8 @@ public enum RiftSettingsSection: Int, CaseIterable { case status, captureEntry, 
 public struct RiftSettingsDisplay: Equatable, Sendable {
     public let id: UInt32
     public let name: String
-    public init(id: UInt32, name: String) { self.id = id; self.name = name }
+    public let uuid: String?
+    public init(id: UInt32, name: String, uuid: String? = nil) { self.id = id; self.name = name; self.uuid = uuid }
 }
 
 public struct RiftSettingsSnapshot: Equatable, Sendable {
@@ -19,24 +20,30 @@ public struct RiftSettingsSnapshot: Equatable, Sendable {
     public var hasArrivalSelection: Bool
     public var displays: [RiftSettingsDisplay]
     public var preferredDisplayID: UInt32?
+    public var configuration: RiftConfiguration
+    public var displayRestoreAvailable: Bool
     public var archiveAfterHours: Double?
 
     public init(entryAvailable: Bool = false, entryEnabled: Bool = true,
                 capturePreferencesSaveFailed: Bool = false,
                 defaultCaptureMode: ScreenshotMode = .window, arrivalMode: ArrivalMotionMode = .none,
                 hasArrivalSelection: Bool = false, displays: [RiftSettingsDisplay] = [],
-                preferredDisplayID: UInt32? = nil, archiveAfterHours: Double? = nil) {
+                preferredDisplayID: UInt32? = nil, archiveAfterHours: Double? = nil,
+                configuration: RiftConfiguration = .init(), displayRestoreAvailable: Bool = false) {
         self.entryAvailable = entryAvailable; self.entryEnabled = entryEnabled
         self.capturePreferencesSaveFailed = capturePreferencesSaveFailed
         self.defaultCaptureMode = defaultCaptureMode; self.arrivalMode = arrivalMode
         self.hasArrivalSelection = hasArrivalSelection; self.displays = displays
         self.preferredDisplayID = preferredDisplayID; self.archiveAfterHours = archiveAfterHours
+        self.configuration = configuration; self.displayRestoreAvailable = displayRestoreAvailable
     }
 }
 
 public enum RiftSettingsChange: Equatable, Sendable {
     case entryEnabled(Bool), defaultCaptureMode(ScreenshotMode), arrivalMode(ArrivalMotionMode)
     case preferredDisplay(UInt32?), archiveAfterHours(Double?)
+    case geometry(hiddenFraction: Double, outerInset: Double, visibleCount: Int)
+    case placement(RiftPlacement), restorePreferredDisplay
 }
 
 /// Embedded settings reuse the existing host persistence. A failed write keeps
@@ -50,6 +57,15 @@ final class RiftSettingsForm: NSObject {
     private let captureMode = NSPopUpButton(frame: .zero, pullsDown: false)
     private let arrivalMode = NSPopUpButton(frame: .zero, pullsDown: false)
     private let display = NSPopUpButton(frame: .zero, pullsDown: false)
+    private let occlusion = NSTextField(string: "25")
+    private let inset = NSTextField(string: "6")
+    private let count = NSTextField(string: "3")
+    private let occlusionSlider = RiftPreferenceSlider(value: 25, minValue: 0, maxValue: 90, target: nil, action: nil)
+    private let insetSlider = RiftPreferenceSlider(value: 6, minValue: 0, maxValue: 256, target: nil, action: nil)
+    private let countSlider = RiftPreferenceSlider(value: 3, minValue: 1, maxValue: 10, target: nil, action: nil)
+    private let geometrySave = NSButton(title: "保存布局", target: nil, action: nil)
+    private let restoreDisplay = NSButton(title: "回到已选显示器", target: nil, action: nil)
+    private var placementButtons: [NSButton] = []
     private let hours = NSTextField(string: "0")
     private let archiveSave = NSButton(title: "保存", target: nil, action: nil)
     private let preview = ArrivalPreviewView(frame: .zero)
@@ -79,6 +95,26 @@ final class RiftSettingsForm: NSObject {
         for control in [captureMode, arrivalMode, display] {
             control.font = RiftVisualStyle.bodyFont
             control.widthAnchor.constraint(equalToConstant: 190).isActive = true
+        }
+        for (field, label) in [(occlusion,"截图遮挡百分比，0 至 90"), (inset,"距屏幕边缘点数，0 至 256"), (count,"常驻截图数量，1 至 10，不限制收录") ] {
+            field.font = RiftVisualStyle.bodyFont; field.widthAnchor.constraint(equalToConstant: 64).isActive = true
+            field.alignment = .right; field.setAccessibilityLabel(label)
+            field.target = self; field.action = #selector(saveGeometry); field.cell?.sendsActionOnEndEditing = false
+        }
+        occlusion.identifier = .init("settings.occlusion"); inset.identifier = .init("settings.inset"); count.identifier = .init("settings.visibleCount")
+        geometrySave.identifier = .init("settings.geometrySave"); restoreDisplay.identifier = .init("settings.restoreDisplay")
+        for (slider, label, id) in [(occlusionSlider,"截图遮挡百分比","occlusion"),(insetSlider,"距屏幕边缘点数","inset"),(countSlider,"常驻截图数量","visibleCount")] {
+            slider.isContinuous = false; slider.target = self; slider.action = #selector(sliderChanged(_:))
+            slider.setAccessibilityLabel(label); slider.identifier = .init("settings.slider." + id)
+            slider.widthAnchor.constraint(equalToConstant: 140).isActive = true
+        }
+        countSlider.numberOfTickMarks = 10; countSlider.allowsTickMarkValuesOnly = true
+        geometrySave.target = self; geometrySave.action = #selector(saveGeometry); RiftVisualStyle.style(geometrySave)
+        restoreDisplay.target = self; restoreDisplay.action = #selector(restorePreferred); RiftVisualStyle.style(restoreDisplay)
+        placementButtons = RiftPlacement.allCases.enumerated().map { index, placement in
+            let button = NSButton(title: placement.title, target: self, action: #selector(selectPlacement(_:)))
+            button.tag = index; button.identifier = .init("settings.placement." + placement.rawValue); button.setButtonType(.pushOnPushOff); button.bezelStyle = .rounded
+            button.setAccessibilityLabel("裂缝位置：" + placement.title); return button
         }
         entry.font = RiftVisualStyle.bodyFont
         hours.font = RiftVisualStyle.bodyFont; hours.alignment = .right
@@ -113,20 +149,31 @@ final class RiftSettingsForm: NSObject {
         captureMode.isEnabled = enabled && value.entryAvailable
         arrivalMode.selectItem(at: ArrivalMotionMode.allCases.firstIndex(of: value.arrivalMode) ?? 0)
         arrivalMode.isEnabled = enabled
-        if old.displays != value.displays || old.preferredDisplayID != value.preferredDisplayID || display.numberOfItems == 0 {
+        let uuidMatches = value.configuration.preferredDisplayUUID.map { uuid in value.displays.filter { $0.uuid == uuid } } ?? []
+        let selectedDisplayID = uuidMatches.count == 1 ? uuidMatches.first?.id : value.preferredDisplayID
+        if old.displays != value.displays || old.preferredDisplayID != value.preferredDisplayID || old.configuration.preferredDisplayUUID != value.configuration.preferredDisplayUUID || display.numberOfItems == 0 {
             display.removeAllItems(); displayIDs = [nil]
-            display.addItem(withTitle: "跟随主显示器")
+            display.addItem(withTitle: "使用主显示器")
             for choice in value.displays { display.addItem(withTitle: choice.name); displayIDs.append(choice.id) }
-            if let selected = value.preferredDisplayID, !value.displays.contains(where: { $0.id == selected }) {
+            if let selected = selectedDisplayID, !value.displays.contains(where: { $0.id == selected }) {
                 display.addItem(withTitle: "已选显示器（未连接）"); displayIDs.append(selected)
             }
         }
         // Selection is restored even when the menu's item list is unchanged.
         // In particular, a failed host write must not display the unsaved item.
-        display.selectItem(at: displayIDs.firstIndex(where: { $0 == value.preferredDisplayID }) ?? 0)
+        display.selectItem(at: displayIDs.firstIndex(where: { $0 == selectedDisplayID }) ?? 0)
         display.isEnabled = enabled
-        let disconnected = value.preferredDisplayID.map { selected in !value.displays.contains { $0.id == selected } } ?? false
-        displayHint.stringValue = disconnected ? "已选显示器暂未连接，当前使用可用主屏；连接恢复后自动回到原选择。" : "选择会保留。显示器断开时，临时使用可用主屏。"
+        let disconnected = selectedDisplayID.map { selected in !value.displays.contains { $0.id == selected } } ?? false
+        displayHint.stringValue = disconnected ? "已选显示器暂未连接，当前使用可用主屏；连接后可明确恢复原选择。" : "选择会保留。显示器断开时，临时使用可用主屏。"
+        restoreDisplay.isHidden = !value.displayRestoreAvailable; restoreDisplay.isEnabled = enabled
+        if occlusion.currentEditor() == nil { occlusion.stringValue = String(format:"%.6g",value.configuration.hiddenFraction * 100) }
+        if inset.currentEditor() == nil { inset.stringValue = String(format:"%.6g",value.configuration.outerInset) }
+        if count.currentEditor() == nil { count.stringValue = String(value.configuration.visibleCountPreference) }
+        for (slider, saved) in [(occlusionSlider,value.configuration.hiddenFraction * 100),(insetSlider,value.configuration.outerInset),(countSlider,Double(value.configuration.visibleCountPreference))] {
+            if !slider.isTrackingPreference { slider.doubleValue = saved }; slider.isEnabled = enabled
+        }
+        for field in [occlusion,inset,count] { field.isEnabled = enabled }; geometrySave.isEnabled = enabled
+        for (index, button) in placementButtons.enumerated() { button.isEnabled = enabled; button.state = value.configuration.placement == RiftPlacement.allCases[index] ? .on : .off }
         entryHint.stringValue = value.entryAvailable ? "默认方式在下一次入口会话生效；当前截图模式与槽位保持。关闭内置截图仍可收录系统截图。" : "此运行模式未启用截图入口；已有本地截图和历史保持可用。"
         if value.capturePreferencesSaveFailed {
             entryHint.stringValue = Self.captureSaveFailureMessage(value)
@@ -150,7 +197,11 @@ final class RiftSettingsForm: NSObject {
             replay.identifier = .init("settings.motionPreview"); RiftVisualStyle.style(replay)
             let previewActions = NSStackView(views: [RiftVisualStyle.label("示意图 · 不会截图或上传", role: "secondary"), NSView(), replay])
             previewActions.spacing = 8
-            return [card([row("裂缝所在显示器", display), displayHint]),
+            let positions = NSStackView(views: (0..<3).map { NSStackView(views: [placementButtons[$0], placementButtons[$0 + 3]]) })
+            positions.orientation = .vertical; positions.spacing = 4
+            return [card([row("裂缝所在显示器", display), displayHint, restoreDisplay, row("位置", positions),
+                row("遮挡（%）", NSStackView(views:[occlusionSlider,occlusion])), row("距边（pt）", NSStackView(views:[insetSlider,inset])), row("常驻数量", NSStackView(views:[countSlider,count])), geometrySave,
+                RiftVisualStyle.label("常驻数量只改变当前显示，不限制截图收录。新图不会自动翻页。", role: "secondary")]),
                 card([row("入缝动效", arrivalMode), preview, previewActions, motionHint]), message]
         case .privacy:
             let input = NSStackView(views: [hours, RiftVisualStyle.label("小时"), archiveSave]); input.spacing = 8
@@ -196,6 +247,11 @@ final class RiftSettingsForm: NSObject {
             }
         } catch {
             update(snapshot, enabled: enabled)
+            if case .geometry = change {
+                occlusion.stringValue = String(format: "%.6g", snapshot.configuration.hiddenFraction * 100)
+                inset.stringValue = String(format: "%.6g", snapshot.configuration.outerInset)
+                count.stringValue = String(snapshot.configuration.visibleCountPreference)
+            }
             message.stringValue = "未能保存，仍保留原来的设置。请稍后重试。"; message.textColor = .systemOrange
         }
         message.isHidden = false; RiftVisualStyle.applyTextStyle(message)
@@ -219,6 +275,37 @@ final class RiftSettingsForm: NSObject {
     @objc private func selectDisplay() {
         guard display.isEnabled, displayIDs.indices.contains(display.indexOfSelectedItem) else { return }
         apply(.preferredDisplay(displayIDs[display.indexOfSelectedItem]))
+    }
+    @objc private func selectPlacement(_ sender: NSButton) {
+        guard enabled, RiftPlacement.allCases.indices.contains(sender.tag) else { return }
+        apply(.placement(RiftPlacement.allCases[sender.tag]))
+    }
+    @objc private func restorePreferred() { guard enabled else { return }; apply(.restorePreferredDisplay) }
+    @objc private func sliderChanged(_ slider: NSSlider) {
+        guard enabled else { return }
+        var c = snapshot.configuration
+        if slider === occlusionSlider { c.hiddenFraction = slider.doubleValue / 100 }
+        else if slider === insetSlider { c.outerInset = slider.doubleValue }
+        else if slider === countSlider { c.visibleCountPreference = Int(slider.doubleValue.rounded()) }
+        apply(.geometry(hiddenFraction:c.hiddenFraction,outerInset:c.outerInset,visibleCount:c.visibleCountPreference))
+        // A failed host write restores the slider even during its final tracking callback.
+        occlusionSlider.doubleValue = snapshot.configuration.hiddenFraction * 100
+        insetSlider.doubleValue = snapshot.configuration.outerInset
+        countSlider.doubleValue = Double(snapshot.configuration.visibleCountPreference)
+    }
+    @objc private func saveGeometry() {
+        func number(_ field: NSTextField) -> Double? {
+            let s = field.stringValue.trimmingCharacters(in: .whitespacesAndNewlines)
+                .replacingOccurrences(of: Locale.current.decimalSeparator ?? ".", with: ".")
+            guard s.range(of: #"^(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)$"#, options:.regularExpression) != nil,
+                  let n = Double(s), n.isFinite else { return nil }; return n
+        }
+        guard enabled, let h = number(occlusion), (0...90).contains(h),
+              let d = number(inset), (0...256).contains(d), let n = number(count), (1...10).contains(n), n.rounded() == n else {
+            message.stringValue = "请输入遮挡 0–90%、距边 0–256 pt、常驻 1–10 张整数。"
+            message.textColor = .systemOrange; message.isHidden = false; return
+        }
+        apply(.geometry(hiddenFraction:h / 100,outerInset:d,visibleCount:Int(n)))
     }
     @objc private func saveArchive() {
         guard hours.isEnabled else { return }
@@ -260,5 +347,14 @@ final class RiftSettingsForm: NSObject {
         if play { preview.window?.contentView?.layoutSubtreeIfNeeded() }
         preview.show(snapshot.arrivalMode.effective(reduceMotion: reduced), animate: play && preview.window?.isVisible == true,
                      reason: "form.refresh play=\(play) redraw=\(redraw)")
+    }
+}
+
+@MainActor private final class RiftPreferenceSlider: NSSlider {
+    private(set) var isTrackingPreference = false
+    override func mouseDown(with event: NSEvent) {
+        isTrackingPreference = true
+        defer { isTrackingPreference = false }
+        super.mouseDown(with: event)
     }
 }

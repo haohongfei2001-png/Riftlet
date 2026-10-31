@@ -47,9 +47,9 @@ public struct ScreenshotEntryLayout: Equatable, Sendable {
     /// A nil result means this screen has no room for the complete control rail.
     public static func make(screenFrame: CGRect, visibleFrame: CGRect,
                             anchor proposedAnchor: CGPoint? = nil,
-                            configuration input: ScreenshotEntryConfiguration = .init()) -> Self? {
+                            configuration input: ScreenshotEntryConfiguration = .init(), expanded: Bool = true) -> Self? {
         let c = input.validated
-        let size = c.controlSize, height = size + 3 * c.slotPitch
+        let size = c.controlSize, height = size + (expanded ? 3 * c.slotPitch : 0)
         guard [screenFrame.minX, screenFrame.minY, screenFrame.width, screenFrame.height,
                visibleFrame.minX, visibleFrame.minY, visibleFrame.width, visibleFrame.height]
             .allSatisfy({ $0.isFinite }), screenFrame.width > 0, screenFrame.height > 0,
@@ -75,6 +75,35 @@ public struct ScreenshotEntryLayout: Equatable, Sendable {
                     visualWindowFrame: rail.insetBy(dx: -c.shadowOutset, dy: -c.shadowOutset),
                     controlFrames: controls)
     }
+    /// Folded camera uses only its 36pt extent. Expanded rail clamps independently
+    /// and never displaces a screenshot or changes its fixed mode order.
+    public static func avoidingInputs(screenFrame: CGRect, visibleFrame: CGRect,
+                                     anchor: CGPoint, inputs: [CGRect],
+                                     configuration: ScreenshotEntryConfiguration = .init(), expanded: Bool = true) -> Self? {
+        let c = configuration.validated
+        let obstacles = inputs.filter { !$0.isEmpty && !$0.isNull && !$0.isInfinite }
+        let inward: CGFloat = anchor.x < visibleFrame.midX ? 1 : -1
+        var candidates = [anchor]
+        // Prefer the neighboring inward column, then the opposite side if the
+        // display is unusually narrow. Never change the queue's geometry.
+        for direction in [inward, -inward] {
+            let bounds = obstacles.reduce(CGRect.null) { $0.union($1) }
+            if !bounds.isNull {
+                candidates.append(CGPoint(x: direction > 0 ? bounds.maxX + 12 + c.controlSize / 2
+                                                           : bounds.minX - 12 - c.controlSize / 2,
+                                          y: anchor.y))
+            }
+        }
+        for candidate in candidates {
+            guard let layout = make(screenFrame: screenFrame, visibleFrame: visibleFrame,
+                                    anchor: candidate, configuration: c, expanded: expanded) else { continue }
+            if !obstacles.contains(where: { layout.railFrame.insetBy(dx: -12, dy: -12).intersects($0) }) {
+                return layout
+            }
+        }
+        return nil
+    }
+
 }
 
 enum ScreenshotEntryAction: Equatable {

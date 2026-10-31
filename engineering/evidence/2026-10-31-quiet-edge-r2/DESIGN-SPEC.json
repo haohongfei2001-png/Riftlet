@@ -1,0 +1,258 @@
+{
+  "schema": "riftlet-quiet-edge-daily-form-design-v2",
+  "revision": "R2-user-directed",
+  "status": "current-user-revised-design-not-implemented",
+  "date": "2026-10-30",
+  "formalHead": "edbdc7aae45c35878694e9fa376757dac7b630a8",
+  "formalPR": 1,
+  "handoffPR15Head": "bf3b97a432f65451c1b4232035e25c9d42b21523",
+  "scope": "independent design prototype only; no App implementation or repository mutation",
+  "supersedes": [
+    "R1 default 0% resting occlusion",
+    "mandatory internal-seam inset 14pt",
+    "continuous-height drag as product positioning UI",
+    "horizontal pager",
+    "capture header extending the slit"
+  ],
+  "units": {
+    "layout": "AppKit logical points",
+    "desktopExports": "1 PNG pixel per logical point",
+    "comparisonComponents": "magnification labeled on each board; not 100% desktop",
+    "preview100Percent": "1 source pixel per logical point; not physical pixel 1:1",
+    "prototypeApproximation": "500ms browser double-click proxy; exact native press/reflow/peek fade and magnet curve not frame-verified"
+  },
+  "defaults": {
+    "visibleCountPreference": 3,
+    "hiddenFraction": 0.25,
+    "outerInset": 6,
+    "display": "primary screen at first recommendation",
+    "side": "left",
+    "vertical": "middle"
+  },
+  "adjustable": {
+    "hiddenFraction": {
+      "min": 0,
+      "max": 0.9,
+      "default": 0.25
+    },
+    "outerInsetPoints": {
+      "min": 0,
+      "max": 256,
+      "default": 6,
+      "zeroIsValid": true,
+      "seamOverride": false
+    },
+    "visibleCountPreference": {
+      "min": 1,
+      "max": 10,
+      "integer": true,
+      "default": 3
+    }
+  },
+  "geometry": {
+    "fitEnvelope": [
+      72,
+      56
+    ],
+    "rowPitch": 60,
+    "slotHalfHeight": 28,
+    "upArrow": {
+      "size": [
+        24,
+        24
+      ],
+      "top": "first-64"
+    },
+    "cameraCollapsed": {
+      "size": [
+        36,
+        36
+      ],
+      "top": "first-112",
+      "gapToUpArrow": 12
+    },
+    "downArrow": {
+      "size": [
+        24,
+        24
+      ],
+      "top": "first+(N-1)*60+40"
+    },
+    "safeMarginTopBottom": 12,
+    "firstMin": "F.top+124",
+    "firstMax": "F.bottom-((N-1)*60+76)",
+    "maximumVisibleEnvelopeHeight": "176+(N-1)*60",
+    "requiredVisibleFrameHeight": "200+(N-1)*60",
+    "effectiveCount": "if F.height<200 then 0 else min(preference, floor((F.height-200)/60)+1)",
+    "preservePreferredCountWhenTemporarilyReduced": true,
+    "top": "firstMin",
+    "middle": "clamp(F.midY-(N-1)*30,firstMin,firstMax)",
+    "bottom": "firstMax",
+    "geometryUsesCapacityNotCurrentPageLength": true,
+    "drawOnlyActualRows": true,
+    "line": {
+      "start": "actual first fitted image top",
+      "end": "actual last fitted image bottom",
+      "emptyDrawsNothing": true,
+      "connectsCameraOrArrows": false,
+      "zeroRightInset": "draw stroke inside screen; keep occlusion plane at outer edge"
+    },
+    "threeLandscapeLineHeight": 160.5,
+    "threeFullHeightLineHeight": 176,
+    "distancePolicy": "respect saved 0..256 including internal seam; only clamp effective geometry when needed for reachable input; never overwrite preference"
+  },
+  "appearance": {
+    "numberFontSize": 11,
+    "numberGap": 8,
+    "numberPad": [
+      22,
+      24
+    ],
+    "numberPadWhen": "exposed image width<24 or fitted height<20",
+    "imageCornerRadius": 1.5,
+    "hairline": "1/backingScaleFactor",
+    "highContrastLine": 1,
+    "microBorder": "1 physical pixel, light ink 18%, dark light 25%",
+    "microShadow": {
+      "dy": 1,
+      "blur": 3,
+      "lightAlpha": 0.08,
+      "darkAlpha": 0.2
+    },
+    "inputIslands": "actual visible image and visible number only; no invisible enlarged click rectangle"
+  },
+  "navigation": {
+    "axis": "vertical",
+    "transitionMs": 180,
+    "reduceMotionTransitionMs": 80,
+    "firstOverflowPage": "down only",
+    "middlePage": "up and down",
+    "lastPage": "up only",
+    "nonOverflowingQueue": "neither",
+    "arrowVisibilityDoesNotReflowRowsOrCamera": true,
+    "hiddenArrow": "no active native input window or AX control",
+    "pageStep": "effective capacity N with stable identity anchor",
+    "wheel": "one group per native gesture; suppress momentum tail; browser approximates with quiet gap"
+  },
+  "viewport": {
+    "order": "preserve sort_at / sequence, oldest at top",
+    "identity": "UUID + visibilityRevision",
+    "ordinal": "current visible queue rank + 1; frozen within interaction epoch",
+    "anchor": "first surviving visible asset ID; never only page index",
+    "newArrival": "no automatic page jump",
+    "capacityChange": "explicit user change recomputes chosen top/middle/bottom semantics after input boundary; preserve asset anchor unless entire remaining queue fits, then show all",
+    "refill": "tombstone during protection; compact once at safe boundary",
+    "safeBoundary": [
+      "pointer outside passive group envelope for 350ms",
+      "system double-click interval elapsed",
+      "no pointer-down, native selection fence, menu, detail, queue keyboard focus, paging or active visual transaction"
+    ],
+    "passiveEnvelope": "observation only, not an input window"
+  },
+  "placement": {
+    "productControls": [
+      "display selector",
+      "left/right by top/middle/bottom six-position grid"
+    ],
+    "firstRecommendation": "once only: selected primary left-middle when unknown; explicit known fixed left Dock or Stage Manager may suggest right-middle",
+    "recommendAgainAfterSceneOrTopologyChanges": false,
+    "userChoicePriority": true,
+    "persist": [
+      "displayIdentity/UUID with ambiguity handling",
+      "side",
+      "vertical",
+      "placementSource",
+      "visibleCountPreference",
+      "outerInset",
+      "hiddenFraction"
+    ],
+    "legacyAbsolutePosition": "preserve until explicit six-position choice; do not silently remap and claim no movement",
+    "disconnect": "temporary fallback without overwriting preference",
+    "reconnect": "explicit restore offer in current session",
+    "fallbackExplicitChoice": "new user preference supersedes old restore offer",
+    "topology": "re-enumerate per-screen frame/visibleFrame, support negative global coordinates and mixed scale",
+    "noBlankSpaceDetection": true
+  },
+  "camera": {
+    "independentFromSlit": true,
+    "collapsedSize": [
+      36,
+      36
+    ],
+    "expandedRailSize": [
+      36,
+      132
+    ],
+    "expandedPlacement": "independent screen clamp and collision check against all image/number/arrow inputs; inner neighboring column when necessary; never push queue",
+    "sessionOrder": "preserve existing fixed mode slots and moving cancel cover",
+    "afterCapture": "remain expanded until explicit cancel",
+    "noSafeRailSpace": "keep queue and menu capture entry; do not hide queue because camera does not fit",
+    "prototypeImplementsRealExpandedCaptureModes": false
+  },
+  "preview": {
+    "hoverMs": 450,
+    "maxImage": [
+      320,
+      240
+    ],
+    "padding": 8,
+    "leaveDelayMs": 100,
+    "fadeOutMs": 80,
+    "hitTest": false,
+    "occlusion": 0,
+    "placement": "beyond inward extreme of all input islands + 12pt, within same screen",
+    "fineView": "explicit context menu / separate accessibility action; reuse history preview carrier",
+    "zoom": "fit, 100% logical, larger zoom and scroll",
+    "globalSpaceShortcut": false,
+    "budgets": "retain source validation, cancellation, 64MB/16M display limits; never upscale 768px thumbnail as original"
+  },
+  "motion": {
+    "choices": [
+      "none",
+      "magnet"
+    ],
+    "magnetMs": 560,
+    "pressMs": 60,
+    "swallowMs": 120,
+    "swallowTrigger": "strict uploadStarted only",
+    "reflowMs": 160,
+    "reduceMotion": "no spatial displacement; up to 80ms opacity",
+    "crossScreen": "preserve existing none fallback",
+    "imageMirroring": false,
+    "paginationMs": 180,
+    "parameterChange": "cancel old decorative geometry without changing durable transfer authority"
+  },
+  "unchanged": [
+    "capture/import/dedupe",
+    "original screenshot file contents",
+    "selection authority and original input",
+    "ordinary upload admission",
+    "strict start/completion distinction",
+    "UNKNOWN handling",
+    "history",
+    "Feedback",
+    "logo and website",
+    "screenshot entry mode order and explicit cancel",
+    "no smart thumbnails, OCR, AI summary or smart cropping introduced"
+  ],
+  "verification": {
+    "model": {
+      "tests": 46,
+      "pass": 46,
+      "fail": 0,
+      "skipped": 0
+    },
+    "browserFlowsPassed": 33,
+    "browserFlowsFailed": 0,
+    "externalNetworkRequests": 0,
+    "browserScriptErrors": [],
+    "currentR2BoardCount": 27,
+    "nativeAppRun": false,
+    "realMacUsed": false,
+    "realChromeUsed": false,
+    "productionCodeWritten": false,
+    "pullRequestMutated": false,
+    "deployed": false,
+    "visualClaim": "designed reconstruction; any retained native evidence is historical, not current native acceptance"
+  }
+}

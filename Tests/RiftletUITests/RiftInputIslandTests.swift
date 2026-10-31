@@ -56,7 +56,7 @@ final class RiftInputIslandTests: XCTestCase {
         // region centers and the measured CLEAR point must remain unambiguous.
         XCTAssertTrue(image.frame.contains(CGPoint(x: row.imageClipFrame.midX, y: row.imageClipFrame.midY)))
         XCTAssertTrue(number.frame.contains(CGPoint(x: row.numberFrame.midX, y: row.numberFrame.midY)))
-        let clear = CGPoint(x: row.frame.minX + 1.5, y: row.frame.minY + 2)
+        let clear = CGPoint(x: row.frame.maxX - 1.5, y: row.frame.minY + 2)
         XCTAssertFalse(image.frame.contains(clear)); XCTAssertFalse(number.frame.contains(clear))
         panel.setUserHidden(true)
         XCTAssertFalse(visual.isVisible); XCTAssertFalse(image.isVisible); XCTAssertFalse(number.isVisible)
@@ -86,7 +86,7 @@ final class RiftInputIslandTests: XCTestCase {
         XCTAssertEqual(selected, [asset.id, asset.id])
         XCTAssertEqual(boundaries.last?.windowNumber, number.windowNumber)
         imageView.mouseDown(with: try event(.leftMouseDown, window: image, screen: imagePoint, time: 14))
-        let clear = CGPoint(x: row.frame.minX + 1.5, y: row.frame.minY + 2)
+        let clear = CGPoint(x: row.frame.maxX - 1.5, y: row.frame.minY + 2)
         imageView.mouseUp(with: try event(.leftMouseUp, window: image, screen: clear, time: 14.1))
         XCTAssertEqual(selected.count, 2); XCTAssertFalse(panel.diagnosticSnapshot.isHolding)
         // A double-click cannot turn into an independent new selection.

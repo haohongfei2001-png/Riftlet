@@ -59,27 +59,4 @@ struct ScreenshotEntryPreferences: Codable, Equatable {
         try FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: url.path)
     }
 
-    /// Adopt the visual candidate's spacing only for the old untouched design
-    /// defaults. A user's adjusted placement/size is never overwritten.
-    static func initialLayout(_ existing: RiftConfiguration) -> RiftConfiguration {
-        guard existing.fitWidth == 72, existing.fitHeight == 56,
-              existing.rowPitch == 60, existing.outerInset == 8,
-              existing.firstCenterFromTop == 180 else { return existing }
-        var result = existing
-        result.fitHeight = 56
-        result.rowPitch = 60
-        result.outerInset = 14
-        result.firstCenterFromTop = 202
-        return result
-    }
-
-    static func placement(in frame: CGRect, configuration c: RiftConfiguration) -> (anchor: CGPoint, queueHeader: CGPoint?) {
-        let anchor = CGPoint(x: frame.maxX - c.outerInset - 18,
-                             y: frame.maxY - c.firstCenterFromTop + 66)
-        // No leftward rescue or queue shift. The host hides an entry that cannot
-        // fit its fixed 36 x 132 expanded rail on a very short visible screen.
-        let fits = anchor.x - 18 >= frame.minX + 12 && anchor.y + 114 <= frame.maxY - 12
-            && anchor.y - 18 >= frame.minY + 12
-        return (anchor, fits ? anchor : nil)
-    }
 }
