@@ -223,7 +223,7 @@ public final class MagnetFlightPresenter {
         let imageLayer = CALayer()
         imageLayer.contents = image
         imageLayer.contentsGravity = .resize
-        imageLayer.cornerRadius = 1.5
+        imageLayer.cornerRadius = 2
         imageLayer.masksToBounds = true
         imageLayer.contentsScale = backingScale
         imageLayer.minificationFilter = .trilinear
@@ -239,7 +239,53 @@ public final class MagnetFlightPresenter {
         clipMask.path = CGPath(rect: clip, transform: nil)
         clipMask.fillColor = NSColor.black.cgColor
         root.mask = clipMask
+        // Decorations consume the existing trajectory; they own no timer,
+        // receipt, source rectangle or input window. Their explicit paths share
+        // the root's original fixed half-plane with the unchanged pixel layer.
+        let dark = view.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
+        let contrast = NSWorkspace.shared.accessibilityDisplayShouldIncreaseContrast
+        let pixel = 1 / backingScale
+        let outerWidth: CGFloat = contrast ? 1 : pixel
+        let sampled = plan.keyframeTimes.map { plan.sample(at: $0).frame.offsetBy(dx: -panel.frame.minX, dy: -panel.frame.minY) }
+        func paths(inset: CGFloat) -> [CGPath] {
+            sampled.map { frame in
+                let rect = frame.insetBy(dx: inset, dy: inset)
+                guard rect.size.width > 0, rect.size.height > 0 else { return CGMutablePath() }
+                return CGPath(roundedRect: rect, cornerWidth: min(2, rect.width / 2, rect.height / 2),
+                              cornerHeight: min(2, rect.width / 2, rect.height / 2), transform: nil)
+            }
+        }
+        func decorate(_ layer: CAShapeLayer, paths values: [CGPath], shadow: Bool = false) {
+            layer.frame = root.bounds; layer.contentsScale = backingScale
+            layer.path = values.last
+            if shadow { layer.shadowPath = values.last }
+            for key in shadow ? ["path", "shadowPath"] : ["path"] {
+                let a = CAKeyframeAnimation(keyPath: key)
+                a.values = values; a.keyTimes = plan.keyframeTimes.map { NSNumber(value: $0 / plan.totalDuration) }
+                a.duration = plan.totalDuration; a.calculationMode = .linear
+                a.timingFunction = CAMediaTimingFunction(name: .linear)
+                a.beginTime = layer.convertTime(assetReadyCA, from: nil); a.fillMode = .backwards
+                layer.add(a, forKey: "riftlet.magnet.ornament." + key)
+            }
+        }
+        let shadow = CAShapeLayer(), tight = CAShapeLayer(), outline = CAShapeLayer(), inner = CAShapeLayer()
+        for l in [shadow, tight] {
+            l.fillColor = RiftThumbnailAppearance.color(dark ? 0x30373E : 0xF1F3F4).cgColor
+            l.shadowColor = RiftThumbnailAppearance.color(0x081017).cgColor
+            root.addSublayer(l)
+        }
+        shadow.shadowRadius = 1.25; shadow.shadowOpacity = dark ? 0.20 : 0.12; shadow.shadowOffset = CGSize(width: 0, height: -1)
+        tight.shadowRadius = 0.25; tight.shadowOpacity = 0.06; tight.shadowOffset = CGSize(width: 0, height: -0.5)
+        decorate(shadow, paths: paths(inset: 0), shadow: true)
+        decorate(tight, paths: paths(inset: 0), shadow: true)
         root.addSublayer(imageLayer)
+        outline.fillColor = nil; outline.lineWidth = outerWidth
+        outline.strokeColor = RiftThumbnailAppearance.color(dark ? 0 : 0x111B21, contrast ? (dark ? 0.80 : 0.72) : (dark ? 0.46 : 0.30)).cgColor
+        inner.fillColor = nil; inner.lineWidth = pixel
+        inner.strokeColor = RiftThumbnailAppearance.color(dark ? 0xEEF5FA : 0xFFFFFF, contrast ? 0.85 : (dark ? 0.32 : 0.64)).cgColor
+        root.addSublayer(outline); root.addSublayer(inner)
+        decorate(outline, paths: paths(inset: outerWidth / 2))
+        decorate(inner, paths: paths(inset: outerWidth + pixel / 2))
 
         let end = MagnetAnimationEnd(observe: onAnimationObservation) { [weak self] finished in
             guard finished else { return }

@@ -172,7 +172,7 @@ final class ArrivalModesTests: XCTestCase {
         XCTAssertEqual(panel.diagnosticSnapshot.rows.map(\.assetID), [record.id], "A press alone must never swallow")
         XCTAssertEqual(try row(panel, id: record.id).0.imageInputFrame, before.imageInputFrame,
                        "The press decoration must not move the original input target")
-        XCTAssertGreaterThan(abs(image.affineTransform().tx), 0, "None disables arrival, not normal press feedback")
+        XCTAssertEqual(image.affineTransform().tx, 0, "R2.1 press feedback changes ornament strength without moving source pixels")
         try await eventually("The press response did not return independently of an upload result", diagnostics: {
             "modelX=\(image.affineTransform().tx), presentationX=\(String(describing: image.presentation()?.affineTransform().tx)), "
                 + "animations=\(image.animationKeys() ?? []), interaction=\(panel.interactionSnapshot)"
@@ -258,7 +258,18 @@ final class ArrivalModesTests: XCTestCase {
         let image = try row(panel, id: first.id).3
         panel.render([state(first, status: .transferring, visibility: .swallowed, reason: .uploadStarted)])
         XCTAssertEqual(image.affineTransform().tx, 0, "Reduced motion must not translate the screenshot")
-        let animation = try XCTUnwrap(image.animation(forKey: "rift.translation") as? CAKeyframeAnimation)
+        // R2.1 translates the image and ornaments together. Inspect the
+        // actual motion owner along the content ancestry, not a private depth.
+        var owner: CALayer? = image
+        var translation: CAKeyframeAnimation?
+        while let layer = owner {
+            XCTAssertEqual(layer.affineTransform().tx, 0)
+            if let animation = layer.animation(forKey: "rift.translation") as? CAKeyframeAnimation {
+                translation = animation; break
+            }
+            owner = layer.superlayer
+        }
+        let animation = try XCTUnwrap(translation)
         let samples = try XCTUnwrap(animation.values as? [NSNumber])
         XCTAssertFalse(samples.isEmpty)
         XCTAssertTrue(samples.allSatisfy { $0.doubleValue == 0 })

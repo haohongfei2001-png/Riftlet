@@ -218,6 +218,13 @@ jobs:
           set -o pipefail
           riftlet_bin_dir="$(swift build -c release --show-bin-path)"
           python3 -B scripts/capture-quiet-edge-r2-evidence.py --helper "$riftlet_bin_dir/RiftletGUIAcceptance" --output "$PWD/test-results/quiet-edge-r2"
+      - name: Capture R2.1 microimage visual increment
+        env:
+          RIFTLET_BUILD_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -o pipefail
+          riftlet_bin_dir="$(swift build -c release --show-bin-path)"
+          python3 -B scripts/capture-r21-microimage-evidence.py --helper "$riftlet_bin_dir/RiftletGUIAcceptance" --output "$PWD/test-results/r21-microimages"
       - name: Capture bounded actual system accessibility variants
         env:
           RIFTLET_BUILD_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}

@@ -1,3 +1,16 @@
+# R2.1 final UI integration and device-acceptance phase — 2026-10-31
+
+The current authorized packet integrates reviewed R2.1 PR #24 into actual main
+through the existing exact G/H protocol, complete PR/main CI, independent native
+visual and original-package review, and a standard merge. Preserve the original
+specialist history without copying unnecessary archived evidence into main.
+After this final functional UI upgrade, freeze layout/style iteration and use
+[the final device checklist](R21_UI_FREEZE_AND_MAC_ACCEPTANCE.md). Work then
+focuses on real usability, stability and first-release readiness; only observed
+blocking defects receive minimal reviewed fixes. No production-profile expansion,
+old UNKNOWN replay, data deletion, public release or founder Beta request.
+The earlier PR24 exclusion and migration-only packet below are historical.
+
 # Official mainline migration — 2026-10-31
 
 PR #1 is standard-merged into main as `58f894af0f5d9bb0250c1e41750528232696b60c`;
