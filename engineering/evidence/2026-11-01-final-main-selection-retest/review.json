@@ -1,0 +1,8 @@
+{
+  "scope": "Evidence-only independent review; not source or production admission",
+  "reviewedEvidenceCommit": "a1814f98d3b2e888ce33872929591cca4509cea4",
+  "reviewerRole": "final_acceptance_review",
+  "result": "PASS",
+  "privateReportSHA256": "997dfa9ad80396fbeec41a35e27b6b827f3245459b4f659115122e32420599e0",
+  "conclusion": "Limited MAC_PASS for unique restricted upload and fresh post-success body/selection snapshot. Cold, physical, unfocused and nonempty old-attachment cases remain unproved. Production NO_GO unchanged."
+}
