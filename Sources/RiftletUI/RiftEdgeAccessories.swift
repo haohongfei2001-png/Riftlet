@@ -15,9 +15,16 @@ private final class EdgeDecorationPanel: NSPanel {
 }
 
 final class RiftLineView: NSView {
+    var excludedContactBands: [CGRect] = [] { didSet { needsDisplay = true } }
     override func draw(_ rect: NSRect) {
         RiftVisualStyle.edge.setFill()
-        bounds.fill()
+        let path = NSBezierPath(rect: bounds)
+        path.windingRule = .evenOdd
+        for band in excludedContactBands {
+            let clipped = band.intersection(bounds)
+            if !clipped.isEmpty { path.appendRect(clipped) }
+        }
+        path.fill()
     }
 }
 

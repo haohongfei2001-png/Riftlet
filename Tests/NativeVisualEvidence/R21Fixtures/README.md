@@ -1,0 +1,1 @@
+R2.1 authored synthetic design fixtures, copied byte-for-byte from the user supplied R2.1 design package. These are not user screenshots or product upload evidence. The manifest records original SHA-256 and provenance. The helper may only read these fixed names; it never connects a capture service or adapter.

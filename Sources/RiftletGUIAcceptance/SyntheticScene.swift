@@ -11,15 +11,26 @@ import RiftletUI
 enum SyntheticScene {
     static let supportedCounts = [2, 3, 12, 16]
 
-    static func makeMedia(in directory: URL) throws -> [AssetRecord] {
+    static func makeMedia(in directory: URL, r21Fixtures: URL? = nil) throws -> [AssetRecord] {
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true,
                                                 attributes: [.posixPermissions: 0o700])
         return try (1...16).map { index in
             let id = UUID(uuidString: String(format: "00000000-0000-4000-8000-%012d", index))!
-            let dimensions = [(360, 220), (220, 360), (256, 256), (96, 768), (768, 96)][(index - 1) % 5]
+            var dimensions = [(360, 220), (220, 360), (256, 256), (96, 768), (768, 96)][(index - 1) % 5]
             let fileName = String(format: "acceptance-%02d.png", index)
             let file = directory.appendingPathComponent(fileName)
-            try writeImage(to: file, index: index, width: dimensions.0, height: dimensions.1)
+            if let r21Fixtures {
+                let names = ["codex1.png", "codex2.png", "codex3.png", "alpha.png", "long.png", "wide.png"]
+                let source = r21Fixtures.appendingPathComponent(names[(index - 1) % names.count])
+                let data = try Data(contentsOf: source)
+                guard data.count < 8 * 1_024 * 1_024,
+                      let decodedSource = CGImageSourceCreateWithData(data as CFData, nil),
+                      let cg = CGImageSourceCreateImageAtIndex(decodedSource, 0, nil) else { throw Failure.invalidFixture }
+                dimensions = (cg.width, cg.height)
+                try data.write(to: file, options: .withoutOverwriting)
+            } else {
+                try writeImage(to: file, index: index, width: dimensions.0, height: dimensions.1)
+            }
             let bytes = try Data(contentsOf: file)
             let time = Date(timeIntervalSince1970: 1_700_000_000 + Double(index))
             return AssetRecord(image: ImportedAsset(

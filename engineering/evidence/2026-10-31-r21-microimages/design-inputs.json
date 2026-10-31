@@ -1,0 +1,14 @@
+{
+  "baseline": "e1c46ed0f8176bec08a9b91914e513e7bf861240",
+  "designRevision": "R2.1-final-design",
+  "packageSHA256": "b07e2d3bbf1f4277c1f2dd243a058f15ecc333bb348213eb3b5661ef2c952fc0",
+  "files": {
+    "DESIGN-SPEC-R2.1.json": "e92b7ba03296e124c2da672ebb5f663497124c37059018b4238c297fa3aec328",
+    "Riftlet-R2.1-Visual-Review.pdf": "c2259a9f7e85b5325e9fc5942d1c2cde1d3408dfe3f967f7fd480eeea2fee8cc",
+    "Riftlet-R2.1-Microimage-Prototype.html": "38fcab8d6e4357144606fd1d625ad89df7c3f4e2429dbba89ffb694a5d903ed4",
+    "references/Engineering-Handoff.md": "ff1052d179661e638d5bfb908a9f6707615ea3e1674ab0654829c63fd04e9004"
+  },
+  "pdfPages": 20,
+  "originalsRead": true,
+  "nativeAcceptance": "pending"
+}
