@@ -87,6 +87,9 @@ private final class RiftRowView: NSView, NSMenuDelegate {
     var ordinal: Int
     let imageClip = CALayer()
     let imageLayer = CALayer()
+    private var ornament: RiftThumbnailDecoration!
+    private var visualHovered = false
+    private var visualPressed = false
     var imageOffset: CGFloat = 0
     var requestedPixelSize: Int = 0
     var reportedImageReady = false
@@ -117,6 +120,7 @@ private final class RiftRowView: NSView, NSMenuDelegate {
         imageClip.maskedCorners = [.layerMinXMinYCorner, .layerMinXMaxYCorner]
         layer?.addSublayer(imageClip)
         imageClip.addSublayer(imageLayer)
+        ornament = RiftThumbnailDecoration(parent: layer!, imageClip: imageClip)
         imageLayer.contentsGravity = .resizeAspect
         imageLayer.minificationFilter = .trilinear
         imageLayer.magnificationFilter = .linear
@@ -176,15 +180,37 @@ private final class RiftRowView: NSView, NSMenuDelegate {
 
     func updateGeometry(_ geometry: RiftRowLayout) {
         self.geometry = geometry
-        frame.size = geometry.frame.size
+        frame.size = CGSize(width: geometry.frame.width + 8, height: geometry.frame.height + 8)
+        bounds = CGRect(x: -4, y: -4, width: frame.width, height: frame.height)
         CATransaction.begin(); CATransaction.setDisableActions(true)
         imageClip.frame = geometry.imageClipFrame
         imageClip.maskedCorners = configuration.placement?.side == .left ? [.layerMaxXMinYCorner, .layerMaxXMaxYCorner] : [.layerMinXMinYCorner, .layerMinXMaxYCorner]
         imageLayer.setAffineTransform(.identity)
         imageLayer.frame = CGRect(x: geometry.imageFrame.minX - geometry.imageClipFrame.minX, y: 0, width: geometry.imageFrame.width, height: geometry.imageFrame.height)
-        imageLayer.setAffineTransform(CGAffineTransform(translationX: imageOffset, y: 0))
+        ornament.moving.setAffineTransform(CGAffineTransform(translationX: imageOffset, y: 0))
+        refreshOrnaments()
         CATransaction.commit()
         needsDisplay = true
+    }
+
+    func setVisualState(hovered: Bool? = nil, pressed: Bool? = nil) {
+        if let hovered { visualHovered = hovered }
+        if let pressed { visualPressed = pressed }
+        CATransaction.begin(); CATransaction.setAnimationDuration(pressed == nil ? 0.09 : 0.06)
+        refreshOrnaments(); CATransaction.commit(); needsDisplay = true
+    }
+    private func refreshOrnaments() {
+        guard ornament != nil else { return }
+        ornament.update(view: self, imageClip: imageClip, rect: geometry.imageClipFrame,
+                        left: configuration.placement?.side == .left, hidden: configuration.hiddenFraction > 0,
+                        hovered: visualHovered, pressed: visualPressed)
+        if arrivalImageOwner != nil { ornament.lip.isHidden = true }
+    }
+    override func viewDidChangeBackingProperties() {
+        super.viewDidChangeBackingProperties(); updateGeometry(geometry)
+    }
+    override func viewDidChangeEffectiveAppearance() {
+        super.viewDidChangeEffectiveAppearance(); updateGeometry(geometry)
     }
 
     func setImage(_ image: CGImage?, arrivalOwner: UUID? = nil) {
@@ -194,6 +220,8 @@ private final class RiftRowView: NSView, NSMenuDelegate {
             // Ordering the flight window must never expose this target first.
             arrivalImageOwner = arrivalOwner
             imageLayer.isHidden = true
+            ornament.plane.isHidden = true
+            ornament.lip.isHidden = true
         }
         imageLayer.contents = image
         CATransaction.commit()
@@ -213,6 +241,8 @@ private final class RiftRowView: NSView, NSMenuDelegate {
         arrivalImageOwner = nil
         CATransaction.begin(); CATransaction.setDisableActions(true)
         imageLayer.isHidden = false
+        ornament.plane.isHidden = false
+        refreshOrnaments()
         CATransaction.commit()
     }
 
@@ -237,26 +267,35 @@ private final class RiftRowView: NSView, NSMenuDelegate {
     override func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)
         let font = NSFont.monospacedDigitSystemFont(ofSize: configuration.numberFontSize, weight: .regular)
-        let text = NSAttributedString(string: String(ordinal), attributes: [
-            .font: font, .foregroundColor: RiftVisualStyle.secondary
-        ])
-        if geometry.numberIsPad {
-            RiftVisualStyle.surface.withAlphaComponent(NSWorkspace.shared.accessibilityDisplayShouldReduceTransparency ? 1 : 0.8).setFill()
-            let stroke: CGFloat = NSWorkspace.shared.accessibilityDisplayShouldIncreaseContrast ? 1 : 1 / max(1, window?.backingScaleFactor ?? 1)
-            let pad = NSBezierPath(roundedRect: geometry.numberFrame.insetBy(dx: stroke / 2, dy: stroke / 2), xRadius: 5, yRadius: 5)
-            pad.fill(); RiftVisualStyle.separator.setStroke(); pad.lineWidth = stroke; pad.stroke()
+        let dark = effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
+        let opaque = NSWorkspace.shared.accessibilityDisplayShouldReduceTransparency
+        let pad = geometry.numberIsPad
+        let base: UInt32 = pad ? (visualPressed ? (dark ? 0x384448 : 0xE9EEEC) : visualHovered ? (dark ? 0x292F34 : 0xFBFCFA) : (dark ? 0x30373B : 0xF4F6F5)) : (dark ? 0x242D32 : 0xF8FAF9)
+        let alpha: CGFloat = opaque ? 1 : pad ? (dark ? 245.0/255 : 242.0/255) : visualHovered ? 0.98 : 0.94
+        RiftThumbnailAppearance.color(base, alpha).setFill()
+        let surface = NSBezierPath(roundedRect: geometry.numberFrame, xRadius: pad ? 3 : 2, yRadius: pad ? 3 : 2)
+        surface.fill()
+        if pad {
+            let pixel = 1 / max(1, window?.backingScaleFactor ?? 1)
+            let border = NSBezierPath(roundedRect: geometry.numberFrame.insetBy(dx: pixel/2, dy: pixel/2), xRadius: 3, yRadius: 3)
+            RiftThumbnailAppearance.color(dark ? 0xF0F7FF : 0x101A1F, dark ? 61.0/255 : 64.0/255).setStroke()
+            border.lineWidth = pixel; border.stroke()
         }
+        let ink: UInt32 = visualHovered ? (dark ? 0xF1F5F8 : 0x22323A) : (dark ? 0xD6DFE4 : 0x46545D)
+        let text = NSAttributedString(string: String(ordinal), attributes: [
+            .font: font, .foregroundColor: RiftThumbnailAppearance.color(ink)
+        ])
         let textSize = text.size()
         text.draw(at: CGPoint(x: geometry.numberFrame.midX - textSize.width / 2,
                               y: geometry.numberFrame.midY - textSize.height / 2))
         let underlineY = geometry.numberFrame.minY - 2
-        let length = min(8, geometry.numberFrame.width)
+        let length = min(6, geometry.numberFrame.width)
         let x = geometry.numberFrame.maxX - length
         if record.status == .transferring || record.status == .unknown {
             NSColor.secondaryLabelColor.withAlphaComponent(0.7).setFill()
-            CGRect(x: x, y: underlineY, width: length, height: 0.7).fill()
+            CGRect(x: x, y: underlineY, width: length, height: 1).fill()
             if record.status == .unknown {
-                CGRect(x: x, y: underlineY - 3, width: length, height: 0.7).fill()
+                CGRect(x: x, y: underlineY - 3, width: length, height: 1).fill()
             }
         }
         if record.status == .missing {
@@ -267,7 +306,7 @@ private final class RiftRowView: NSView, NSMenuDelegate {
     }
 
     func animateImage(to offset: CGFloat, duration: TimeInterval, power: Double? = nil) {
-        let start = imageLayer.presentation()?.affineTransform().tx ?? imageOffset
+        let start = ornament.moving.presentation()?.affineTransform().tx ?? imageOffset
         let animation: CAKeyframeAnimation?
         if duration > 0 {
             let keyframes = CAKeyframeAnimation(keyPath: "transform.translation.x")
@@ -285,9 +324,9 @@ private final class RiftRowView: NSView, NSMenuDelegate {
         // separate model commit can expose a fully swallowed frame before the
         // animation is installed, then briefly reveal that image again.
         CATransaction.begin(); CATransaction.setDisableActions(true)
-        imageLayer.setAffineTransform(CGAffineTransform(translationX: offset, y: 0))
-        if let animation { imageLayer.add(animation, forKey: "rift.translation") }
-        else { imageLayer.removeAllAnimations() }
+        ornament.moving.setAffineTransform(CGAffineTransform(translationX: offset, y: 0))
+        if let animation { ornament.moving.add(animation, forKey: "rift.translation") }
+        else { ornament.moving.removeAllAnimations() }
         CATransaction.commit()
     }
 
@@ -378,9 +417,10 @@ private struct RowWindow {
     var panels: [RiftPanel] { [panel, imageInput, numberInput] }
 
     init(record: AssetRecord, geometry: RiftRowLayout, configuration: RiftConfiguration) {
-        panel = RiftPanel(frame: geometry.frame, decorative: true)
+        panel = RiftPanel(frame: geometry.frame.insetBy(dx: -4, dy: -4), decorative: true)
         view = RiftRowView(record: record, geometry: geometry, configuration: configuration)
         panel.contentView = view
+        view.updateGeometry(geometry)
         imageInput = RiftPanel(frame: .zero)
         numberInput = RiftPanel(frame: .zero)
         for input in [imageInput, numberInput] {
@@ -388,6 +428,11 @@ private struct RowWindow {
             input.setAccessibilityHidden(true)
         }
         syncInputFrames()
+    }
+
+    func setVisualFrame(_ frame: CGRect) {
+        panel.setFrame(frame.insetBy(dx: -4, dy: -4), display: true)
+        view.bounds = CGRect(x: -4, y: -4, width: frame.width + 8, height: frame.height + 8)
     }
 
     func syncInputFrames() {
@@ -643,6 +688,13 @@ public final class RiftPanelController {
                 Task { @MainActor [weak self] in self?.motionPolicyChanged() }
             }
         observers.append((NSWorkspace.shared.notificationCenter, accessibility))
+        // A non-activating preview is never key. Observe the actual foreground
+        // application boundary instead of relying on a nonexistent resignKey.
+        let activation = NSWorkspace.shared.notificationCenter.addObserver(
+            forName: NSWorkspace.didActivateApplicationNotification, object: nil, queue: .main) { [weak self] _ in
+                MainActor.assumeIsolated { self?.peek.cancel() }
+            }
+        observers.append((NSWorkspace.shared.notificationCenter, activation))
     }
 
     private func observe(_ name: Notification.Name, center: NotificationCenter) {
@@ -658,13 +710,16 @@ public final class RiftPanelController {
         reduceMotion ? min(0.08, normal) : normal
     }
 
-    private var pressOffset: CGFloat { reduceMotion ? 0 : (configuration.placement?.side == .left ? -configuration.inwardDistance : configuration.inwardDistance) }
 
     /// Called immediately after import, independently of optional metadata/decode.
     /// One pending candidate and at most one flying copy; bursts settle statically.
     @discardableResult
     public func noteCaptureReady(_ assetID: UUID, uptime: TimeInterval) -> UUID? {
-        cancelDecorations(reason: .captureObserved)
+        // An appended screenshot can leave the current page unchanged. Cancel
+        // only arrival decoration here; apply() revokes preview on an actual
+        // visible identity/geometry change, not on unrelated queue arrival.
+        arrivalCandidate = nil
+        flight.cancel(reason: .captureObserved)
         finishQueueTransition(allowShift: false)
         let now = ProcessInfo.processInfo.systemUptime
         guard uptime.isFinite, uptime >= 0, uptime <= now else { return nil }
@@ -1009,7 +1064,7 @@ public final class RiftPanelController {
             // timer can run; that timer must never undo the inward exit motion.
             window.view.record = record
             recordPresentation(.swallowActualStart, record: record, duration: swallowTime)
-            window.view.animateImage(to: self.reduceMotion ? 0 : (self.configuration.placement?.side == .left ? -56 : 56), duration: swallowTime, power: 1.35)
+            window.view.animateImage(to: self.reduceMotion ? 0 : (self.configuration.placement?.side == .left ? -1 : 1) * (window.view.geometry.imageClipFrame.width + 4), duration: swallowTime, power: 1.35)
             NSAnimationContext.runAnimationGroup { context in
                 context.duration = swallowTime
                 window.panels.forEach { $0.animator().alphaValue = 0 }
@@ -1064,8 +1119,8 @@ public final class RiftPanelController {
         let shiftTime = reduceMotion ? 0 : configuration.shiftDuration
         let movingFrames = Dictionary(uniqueKeysWithValues: layout.rows.compactMap { geometry -> (UUID, CGRect)? in
             guard animateShift, shiftTime > 0, let row = rowWindows[geometry.assetID],
-                  row.panel.frame != geometry.frame else { return nil }
-            return (geometry.assetID, row.panel.frame)
+                  row.panel.frame.insetBy(dx: 4, dy: 4) != geometry.frame else { return nil }
+            return (geometry.assetID, row.panel.frame.insetBy(dx: 4, dy: 4))
         })
         let shouldShift = !movingFrames.isEmpty
         firstVisibleIndex = layout.firstVisibleIndex
@@ -1121,7 +1176,7 @@ public final class RiftPanelController {
                 window.view.ordinal = geometry.ordinal
             }
             updateFeedbackDescription(window)
-            window.panel.setFrame(movingFrames[record.id] ?? geometry.frame, display: true)
+            window.setVisualFrame(movingFrames[record.id] ?? geometry.frame)
             window.syncInputFrames()
             window.panels.forEach { present($0) }
             // The press response ends independently of upload completion. A
@@ -1173,6 +1228,9 @@ public final class RiftPanelController {
         let lineFrame = layout.lineFrame
         decoration.setFrame(lineFrame, display: true)
         decoration.contentView?.frame = CGRect(origin: .zero, size: lineFrame.size)
+        (decoration.contentView as? RiftLineView)?.excludedContactBands = layout.rows.map { row in
+            CGRect(x: 0, y: row.frame.minY + row.imageClipFrame.minY - lineFrame.minY, width: lineFrame.width, height: row.imageClipFrame.height)
+        }
         if !layout.rows.isEmpty && !layout.lineFrame.isEmpty { present(decoration) }
         else { decoration.orderOut(nil) }
         pagerLayout = layout; updatePager()
@@ -1190,7 +1248,7 @@ public final class RiftPanelController {
                     guard let row = self.rowWindows[geometry.assetID] else { continue }
                     row.view.updateGeometry(geometry)
                     row.view.ordinal = geometry.ordinal; row.view.updateDescription()
-                    row.panel.setFrame(geometry.frame, display: true)
+                    row.setVisualFrame(geometry.frame)
                     row.syncInputFrames()
                 }
                 self.setTransitioning(false)
@@ -1208,7 +1266,7 @@ public final class RiftPanelController {
                     // until completion, including the 10→9 digit boundary.
                     var frame = start
                     frame.origin.y = start.minY + (geometry.frame.minY - start.minY) * eased
-                    row.panel.setFrame(frame, display: true)
+                    row.setVisualFrame(frame)
                     row.syncInputFrames()
                 }
                 if t >= 1 { self.finishQueueTransition(allowShift: false) }
@@ -1289,15 +1347,16 @@ public final class RiftPanelController {
         guard let row = rowWindows[id], !userHidden, row.view.record.visibility == .visible else { return }
         let time = duration(0.08)
         trackAnimation(time)
-        row.view.animateImage(to: 0, duration: time)
+        row.view.setVisualState(pressed: false)
     }
 
     private func wire(_ window: RowWindow, id: UUID) {
-        window.view.onHover = { [weak self] inside in
+        window.view.onHover = { [weak self, weak view = window.view] inside in
             guard let self, !self.userHidden, !self.closed else { return }
             // Use both input islands so an exit from one cannot clear a hover
             // already inside the other. Event-driven only; no polling timer.
             self.refreshHoverFromPointer()
+            view?.setVisualState(hovered: self.hoveredIDs.contains(id))
             if self.hoveredIDs.contains(id) { self.schedulePeek(id) }
             else if self.peek.assetID == id { self.peek.leave() }
             self.flushDeferred()
@@ -1356,7 +1415,7 @@ public final class RiftPanelController {
                     windowNumber: event.windowNumber, clickCount: event.clickCount))
                 let time = self.duration(self.configuration.pressDuration)
                 self.trackAnimation(time)
-                view.animateImage(to: self.pressOffset, duration: time)
+                view.setVisualState(pressed: true)
             }
             return accepted
         }
@@ -1406,7 +1465,7 @@ public final class RiftPanelController {
                 eventUptime: invocationUptime))
             let time = self.duration(self.configuration.pressDuration)
             self.trackAnimation(time)
-            view.animateImage(to: self.pressOffset, duration: time)
+            view.setVisualState(pressed: true)
             self.onSelect(id)
             if !self.holdsSelectionUntilFinished { self.finishSelection(id) }
             let epoch = self.generation
@@ -1430,7 +1489,13 @@ public final class RiftPanelController {
         guard let row = rowWindows[id], let screen, !closed, !userHidden, !captureSuppressed,
               !gate.isHolding, !transitioning, !interaction.snapshot.isSelecting else { return }
         let revision = row.view.record.visibilityRevision
-        peek.schedule(id: id, immediate: immediate, leftSide: configuration.placement?.side == .left, stillValid: { [weak self] in
+        let page = rowWindows.values.filter { $0.view.record.visibility == .visible }
+            .sorted { $0.view.ordinal < $1.view.ordinal }.map { item in
+                RiftPeekItem(id: item.view.record.id, visibilityRevision: item.view.record.visibilityRevision,
+                    imageSize: item.view.geometry.imageFrame.size)
+            }
+        peek.schedule(id: id, immediate: immediate, leftSide: configuration.placement?.side == .left,
+            rank: row.view.ordinal, page: page, stillValid: { [weak self] in
             guard let self else { return false }
             return !self.closed && !self.userHidden && !self.captureSuppressed && !self.gate.isHolding
                 && !self.transitioning && !self.interaction.snapshot.isSelecting

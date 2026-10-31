@@ -106,13 +106,15 @@ final class RiftCapturePresentationTests: XCTestCase {
         // OS versions. Inspect the actual named content, never its array order.
         func descendants(_ layer: CALayer) -> [CALayer] { [layer] + (layer.sublayers ?? []).flatMap(descendants) }
         let imageLayer = try XCTUnwrap(descendants(try XCTUnwrap(visual.contentView?.layer)).first { $0.name == "rift.image.content" })
+        let rootLayer = try XCTUnwrap(visual.contentView?.layer)
+        let restingX = imageLayer.convert(.zero, to: rootLayer).x
         let swallowed = AssetRecord(image: input[0].image, sequence: input[0].sequence,
             status: .transferring, visibility: .swallowed, visibilityRevision: 1, visibilityReason: .uploadStarted)
         controller.render([swallowed, input[1]])
-        let destination = imageLayer.affineTransform().tx
+        let destination = imageLayer.convert(.zero, to: rootLayer).x - restingX
         XCTAssertGreaterThan(destination, 0)
         controller.setCaptureSuppressed(true); controller.setCaptureSuppressed(false)
-        XCTAssertEqual(imageLayer.affineTransform().tx, destination, "Exposure restoration must not animate the image back out")
+        XCTAssertEqual(imageLayer.convert(.zero, to: rootLayer).x - restingX, destination, "Exposure restoration must not animate the image back out")
         try await Task.sleep(nanoseconds: 350_000_000)
         XCTAssertFalse(visual.isVisible)
         XCTAssertEqual(controller.diagnosticSnapshot.rows.map(\.assetID), [input[1].id])

@@ -1,0 +1,68 @@
+[
+  {
+    "id": "alpha",
+    "file": "alpha.png",
+    "width": 1200,
+    "height": 900,
+    "mode": "RGBA",
+    "sha256": "308d1cf857e5290b91395e795cc0ca471c27b58d329b094398277a99b47b06c8",
+    "bytes": 241030,
+    "provenance": "New synthetic source PNG from authored HTML, Chromium1x; not product execution evidence",
+    "source": "../source/fixtures/alpha-source.html"
+  },
+  {
+    "id": "codex1",
+    "file": "codex1.png",
+    "width": 1920,
+    "height": 1080,
+    "mode": "RGB",
+    "sha256": "6eb95c4f380e108cc8ca7be332c149c367d6e3ec89438ece49d68bb7c43a99fd",
+    "bytes": 152530,
+    "provenance": "R2 original synthetic design fixture, preserved byte-for-byte",
+    "source": "Riftlet-Quiet-Edge-Design-Package.zip v1 / assets/codex1.png"
+  },
+  {
+    "id": "codex2",
+    "file": "codex2.png",
+    "width": 1920,
+    "height": 1080,
+    "mode": "RGB",
+    "sha256": "72753cf19e22aca12989686b5b231cfc2bda4b371e3eb36069c71b6c0081a092",
+    "bytes": 152566,
+    "provenance": "R2 original synthetic design fixture, preserved byte-for-byte",
+    "source": "Riftlet-Quiet-Edge-Design-Package.zip v1 / assets/codex2.png"
+  },
+  {
+    "id": "codex3",
+    "file": "codex3.png",
+    "width": 1920,
+    "height": 1080,
+    "mode": "RGB",
+    "sha256": "82ef996d497e3e20f93ff8230da27d086982d34dd58287025cc9f7fccdcb25a9",
+    "bytes": 153179,
+    "provenance": "R2 original synthetic design fixture, preserved byte-for-byte",
+    "source": "Riftlet-Quiet-Edge-Design-Package.zip v1 / assets/codex3.png"
+  },
+  {
+    "id": "long",
+    "file": "long.png",
+    "width": 720,
+    "height": 2880,
+    "mode": "RGB",
+    "sha256": "a93b5e37f37af917609742a078b923285e07e9ba91345439d25550e6e49fb59c",
+    "bytes": 404286,
+    "provenance": "R2 original synthetic design fixture, preserved byte-for-byte",
+    "source": "Riftlet-Quiet-Edge-Design-Package.zip v1 / assets/long.png"
+  },
+  {
+    "id": "wide",
+    "file": "wide.png",
+    "width": 1920,
+    "height": 240,
+    "mode": "RGB",
+    "sha256": "9e9cdab3a144a5f048ee16b5dbc8eb2b931ab86b20be5e384235f4bdc10cfc3f",
+    "bytes": 29091,
+    "provenance": "R2 original synthetic design fixture, preserved byte-for-byte",
+    "source": "Riftlet-Quiet-Edge-Design-Package.zip v1 / assets/wide.png"
+  }
+]

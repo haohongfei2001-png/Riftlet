@@ -1,3 +1,17 @@
+# Current application of this protocol — R2.1 and UI freeze
+
+On 2026-10-31 the user authorized final R2.1 integration from actual main
+`749f3ae81b8a75a9462506bfeb3d3cf2796ed154`, using the unchanged protocol below.
+The earlier migration's PR #24 exclusion is now superseded for this completed
+handoff. The four UI files and necessary regressions/native fixtures are reviewed
+as one combined increment; old baselines do not replace current main. Follow
+[R2.1 integration and final device acceptance](R21_UI_FREEZE_AND_MAC_ACCEPTANCE.md).
+After its successful standard merge, functional visual iteration in this phase
+is frozen except for blocking acceptance defects or new explicit user direction.
+Production boundaries, immutable history/site objects, independent review and
+all actual-merge/main-push checks below remain mandatory. The checked-in main
+protection request is still not evidence of remote enforcement.
+
 # Riftlet mainline governance
 
 ## Official source and scope

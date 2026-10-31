@@ -158,7 +158,13 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
             let root = FileManager.default.temporaryDirectory
                 .appendingPathComponent("riftlet-gui-acceptance-\(UUID().uuidString)", isDirectory: true)
             mediaRoot = root
-            fixtures = try SyntheticScene.makeMedia(in: root)
+            let args = CommandLine.arguments
+            let fixtureRoot: URL?
+            if let i = args.firstIndex(of: "--r21-fixtures"), i + 1 < args.count {
+                guard args.contains("--visual-clean"), NativeVisualEvidence.requested else { throw SyntheticScene.Failure.invalidFixture }
+                fixtureRoot = URL(fileURLWithPath: args[i + 1], isDirectory: true)
+            } else { fixtureRoot = nil }
+            fixtures = try SyntheticScene.makeMedia(in: root, r21Fixtures: fixtureRoot)
             if let index = CommandLine.arguments.firstIndex(of: "--appearance"), index + 1 < CommandLine.arguments.count {
                 let name = CommandLine.arguments[index + 1]
                 if name == "light" || name == "dark" {

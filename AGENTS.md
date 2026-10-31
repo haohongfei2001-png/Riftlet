@@ -1,3 +1,19 @@
+# Current R2.1 final UI integration and freeze — 2026-10-31
+
+The latest user explicitly authorizes the reviewed PR #24 R2.1 increment to be
+integrated from actual main through a short-lived formal PR, independently
+reviewed, admitted, tested and standard-merged. This supersedes the earlier
+migration-only exclusion of PR #24; all mainline source-admission rules remain.
+Read `docs/R21_UI_FREEZE_AND_MAC_ACCEPTANCE.md` and `docs/MAINLINE_GOVERNANCE.md`.
+After the successful merge, this phase's functional UI is frozen: no additional
+layouts, microimage styles or long-lived design candidates unless new explicit
+user direction supersedes it. Only blocking final-acceptance defects justify
+minimal reviewed fixes. Prioritize real usability, stability and first-release
+readiness. Preserve all data, historical evidence, existing input/target/start/
+completion boundaries and the closed production profiles. No public release or
+founder Beta trial. Final identities and completed CI/package results live in
+the formal integration PR, source-admission record and actual App manifest.
+
 # Current official mainline — 2026-10-31
 
 The user explicitly authorized PR #1's standard two-parent merge into main and
