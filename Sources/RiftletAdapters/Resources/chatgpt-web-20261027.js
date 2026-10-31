@@ -522,10 +522,13 @@ function riftletWebAcceptance(command, native) {
         || /上传失败|Upload failed/i.test(n.textContent || ''));
     };
 
-    async function pixels(image) {
+    async function pixels(image, expected = null) {
       const width = image.naturalWidth, height = image.naturalHeight;
       if (!Number.isSafeInteger(width) || !Number.isSafeInteger(height) || width < 1 || height < 1
           || width * height > MAX_PIXELS) fail('UNSUPPORTED_PIXEL_SIZE');
+      // A scaled preview cannot prove the full original image. Reject before
+      // allocating its canvas; do not resample, crop or tolerate pixel changes.
+      if (expected && (width !== expected.width || height !== expected.height)) fail('PREVIEW_DIMENSIONS_CHANGED');
       const canvas = new OffscreenCanvas(width, height);
       // Match the page's ordinary sRGB preview rendering. On the tested Mac,
       // willReadFrequently changes color-profile rounding by one channel level.
@@ -546,15 +549,24 @@ function riftletWebAcceptance(command, native) {
       if (op.proofPending || op.proof || !op.fileHashVerified || !op.loaded || !op.ended
           || !currentMember(op) || op.uploading || !op.image.complete) return;
       const source = currentSource(op.image), card = op.card, image = op.image;
-      if (!/^data:image\/png;base64,/.test(source) || source.length > Math.ceil(MAX_BYTES * 4 / 3) + 64) return;
+      if (!/^data:image\/png;base64,/.test(source)) return;
       op.proofPending = true;
       const loadSequence = op.loaded, sourceFile = op.file;
       (async () => {
-        const previewBytes = Uint8Array.from(atob(source.slice(source.indexOf(',') + 1)), c => c.charCodeAt(0));
-        const previewHash = await hash(previewBytes);
-        let matched = previewBytes.byteLength === op.bytes && previewHash === op.identity.assetSHA256;
+        let matched = false;
+        // MAX_BYTES bounds the original input AND any additional base64 decode.
+        // Re-encoding can enlarge a preview without changing one pixel. In that
+        // case inspect the already loaded image under the existing pixel bound,
+        // rather than copying/decoding its oversized Data URI or raising a cap.
+        if (source.length - 'data:image/png;base64,'.length <= Math.floor(MAX_BYTES / 3) * 4) {
+          const previewBytes = Uint8Array.from(atob(source.slice(source.indexOf(',') + 1)), c => c.charCodeAt(0));
+          if (previewBytes.byteLength <= MAX_BYTES) {
+            const previewHash = await hash(previewBytes);
+            matched = previewBytes.byteLength === op.bytes && previewHash === op.identity.assetSHA256;
+          }
+        }
         if (!matched) {
-          const original = await decodeOriginal(sourceFile), preview = await pixels(image);
+          const original = await decodeOriginal(sourceFile), preview = await pixels(image, original);
           matched = original.width === preview.width && original.height === preview.height && original.sha256 === preview.sha256;
         }
         // Async proof is bound to the full operation, original nodes/source and
