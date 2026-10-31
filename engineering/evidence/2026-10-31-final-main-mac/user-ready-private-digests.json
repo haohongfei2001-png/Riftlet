@@ -1,0 +1,65 @@
+{
+  "privateEvidenceOnly": true,
+  "files": [
+    {
+      "label": "qualify.jsonl",
+      "bytes": 524,
+      "sha256": "e9c98377d0c6210d0c3f99b136aee40711846bb0d668545091d541930ae8f79c"
+    },
+    {
+      "label": "new-system-shortcut.jsonl",
+      "bytes": 11344,
+      "sha256": "c33f3225431f807cb6ab193b0b95ce2106267f54b4572133bd15e4196270f899"
+    },
+    {
+      "label": "new-system-shortcut-ready.jsonl",
+      "bytes": 6376,
+      "sha256": "51bb1467054da017244575fb7ae2dc35fdc2fa70c204895c19b647817136ab5b"
+    },
+    {
+      "label": "new-system-window-shortcut.jsonl",
+      "bytes": 6419,
+      "sha256": "939512eadfa58235d23dd2c4478be5243173d34e67c78e1c7014705d21dff160"
+    },
+    {
+      "label": "new-capture-candidates.json",
+      "bytes": 532,
+      "sha256": "2f65216071869297c35755a96dac90a18a2929cf2e819bb4ad390c3bf1e6ee99"
+    },
+    {
+      "label": "selection-preparation.jsonl",
+      "bytes": 59,
+      "sha256": "177966c05a7743940b0125f2a2768fb12d6854212b42ff778caa5a151d5a8a9f"
+    },
+    {
+      "label": "selection-preparation-refused-attempt1.jsonl",
+      "bytes": 159,
+      "sha256": "2c8b4980dfa63d52b90bf8c6251a3181c1533cc412ddcee6b85e6347ba3767ec"
+    },
+    {
+      "label": "selection-preparation-final.jsonl",
+      "bytes": 303,
+      "sha256": "cdb3d93e78500bc8f77d2cc93f5413004295cfe489f22c7e65ee343b03a67d14"
+    },
+    {
+      "label": "new-target-inventory.jsonl",
+      "bytes": 145,
+      "sha256": "2db98b8e2386855cd34014fbbfbbd8d983103d67146f2049669493d599616d1b"
+    },
+    {
+      "label": "native-trial.jsonl",
+      "bytes": 122,
+      "sha256": "fa1ff73fa390e1789a8091e3ab9ecfc12ffe918ee99514b659160ac68ae3f906"
+    },
+    {
+      "label": "final-preservation.json",
+      "bytes": 860,
+      "sha256": "d7bc6461fc211d95abadbfdc86e3ff07e439d3d7198e3ea6626be8142fa26229"
+    },
+    {
+      "label": "resource-receipt.json",
+      "bytes": 579,
+      "sha256": "85ac18d5fa55537a85b08e5383cba7cb13be754c00cf416bc49b3ccd389730eb"
+    }
+  ]
+}
