@@ -25,3 +25,9 @@ Independent review identified and resolved folded-camera clamp coupling, stale p
 ## Integration
 
 Take reviewed source changes on the latest formal branch. Main edits only wire configuration and original preview: preserve concurrent reliability changes rather than overwriting Main. This branch does not import other research branches or change ordinary upload/safe-retry/continuation admission. Formal PR1/PR15/main remain untouched. Draft PR, exact source/CI/artifact references follow in final handoff. No public release or founder Beta participation.
+
+## Retained CI correction history
+
+17ea015 Native run41173874025 exposed left-layout expectations, protected-refill timing, original-preview viewport and camera/status cases; it is FAIL, not retroactively relabeled. Feedback test job41173874267 passed separately; formal source admission failed.
+
+01580d8 Native run41174498865 passed the revised UUID/refill/magnet paths but still failed the preview and initial empty-camera cases on both architectures; ARM also exposed screen-height constraints in the settings scroll test. The concrete empty-camera defect was a nil anchor before first render, making Host configure no screen. The corrected getter derives the normal R2 layout without creating a row. Preview loading text changed footer height; fixed separate status/action rows preserve its viewport. The scroll-width regression now uses the actual native form/scroll view in a test-only unconstrained viewport, not a physically impossible tall CI window. Feedback job41174498869 passed. Exact formal composition remains blocked by exact-path/exact-object checks; inherited audits were not edited.

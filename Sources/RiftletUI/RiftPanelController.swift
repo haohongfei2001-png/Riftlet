@@ -443,7 +443,15 @@ public final class RiftPanelController {
     /// any asset/transfer state. Header reservation also bounds long queues.
     public private(set) var captureSuppressed = false
     private var captureSessionActive = false
-    public var screenshotEntryAnchor: CGPoint? { pagerLayout?.cameraAnchor }
+    public var screenshotEntryAnchor: CGPoint? {
+        guard !closed else { return nil }
+        if let layout = pagerLayout { return layout.cameraAnchor }
+        // The independent camera must exist before the first queue render.
+        // Resolve geometry only; do not synthesize a row or change saved intent.
+        guard let screen else { return nil }
+        return RiftLayout.make(records: lastRecords, visibleFrame: screen.visibleFrame,
+            configuration: configuration, firstVisibleIndex: firstVisibleIndex).cameraAnchor
+    }
     public var screenshotEntryExclusionFrames: [CGRect] {
         guard let layout = pagerLayout else { return [] }
         return layout.rows.flatMap { r in [r.imageClipFrame.offsetBy(dx: r.frame.minX, dy: r.frame.minY), r.numberFrame.offsetBy(dx: r.frame.minX, dy: r.frame.minY)] } + [layout.earlierArrowFrame, layout.laterArrowFrame].filter { !$0.isEmpty }

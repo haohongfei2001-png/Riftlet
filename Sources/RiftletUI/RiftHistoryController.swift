@@ -368,7 +368,17 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         RiftVisualStyle.style(reveal)
         let zoom = NSSegmentedControl(labels: ["适合", "100%", "200%"], trackingMode: .selectOne, target: self, action: #selector(changePreviewZoom(_:)))
         zoom.selectedSegment = 0; zoom.identifier = .init("history.preview.zoom"); zoom.setAccessibilityLabel("原图缩放：适合、100% 逻辑尺寸、200%")
-        let footer = NSStackView(views: [status, zoom, reveal]); footer.spacing = 12
+        // A status transition must not resize the image viewport. Keep status
+        // on its own fixed single-line row; its full value remains accessible.
+        status.maximumNumberOfLines = 1; status.lineBreakMode = .byTruncatingTail
+        status.heightAnchor.constraint(equalToConstant: 18).isActive = true
+        let actions = NSStackView(views: [zoom, NSView(), reveal]); actions.spacing = 12
+        actions.heightAnchor.constraint(equalToConstant: 28).isActive = true
+        let footer = NSStackView(views: [status, actions]); footer.orientation = .vertical
+        footer.alignment = .leading; footer.spacing = 6
+        status.widthAnchor.constraint(equalTo: footer.widthAnchor).isActive = true
+        actions.widthAnchor.constraint(equalTo: footer.widthAnchor).isActive = true
+        footer.heightAnchor.constraint(equalToConstant: 52).isActive = true
         let scroll = NSScrollView(); scroll.hasHorizontalScroller = true; scroll.hasVerticalScroller = true
         // Keep native gutters stable: hiding a legacy scroller after the
         // decoded canvas fits otherwise changes the very viewport used to load it.

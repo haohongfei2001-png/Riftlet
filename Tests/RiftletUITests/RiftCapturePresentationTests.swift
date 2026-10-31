@@ -70,6 +70,19 @@ final class RiftCapturePresentationTests: XCTestCase {
         XCTAssertEqual(controller.diagnosticSnapshot.rows.count, 3)
     }
 
+    @MainActor func testIndependentCameraHasAnchorBeforeFirstQueueRender() throws {
+        let controller = try controller(); defer { controller.close() }
+        let frame = try XCTUnwrap(controller.preferredScreen).visibleFrame
+        let anchor = try XCTUnwrap(controller.screenshotEntryAnchor)
+        XCTAssertTrue(frame.contains(anchor))
+        XCTAssertTrue(controller.diagnosticSnapshot.rows.isEmpty)
+        XCTAssertEqual(controller.diagnosticSnapshot.lineFrame, .zero)
+        controller.render([])
+        XCTAssertEqual(controller.screenshotEntryAnchor, anchor)
+        controller.close()
+        XCTAssertNil(controller.screenshotEntryAnchor)
+    }
+
     @MainActor func testEmptyQueueNeverDrawsALineEvenWithCaptureHeader() throws {
         let controller = try controller(); defer { controller.close() }
         let frame = try XCTUnwrap(controller.preferredScreen).visibleFrame

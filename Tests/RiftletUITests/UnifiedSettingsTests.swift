@@ -218,27 +218,28 @@ final class UnifiedSettingsTests: XCTestCase {
         let preview: ArrivalPreviewView = try control("settings.motionPreviewImage")
         let window = try XCTUnwrap(preview.window)
         let scroll = try XCTUnwrap(preview.enclosingScrollView)
-        // Exercise native styles on this test window only; never change the
-        // user's preference or force a particular style in product code.
+        // R2's complete form exceeds small CI displays. Exercise the real
+        // native scroll/form in an unconstrained test-only viewport rather
+        // than asking WindowServer for an impossible off-screen tall window.
+        window.contentView?.layoutSubtreeIfNeeded()
+        let width = scroll.frame.width
+        let canvas = NSView(frame:NSRect(x:0,y:0,width:width,height:1600))
+        scroll.removeFromSuperview(); scroll.translatesAutoresizingMaskIntoConstraints = true
+        canvas.addSubview(scroll)
         for style in [NSScroller.Style.legacy, .overlay] {
             scroll.scrollerStyle = style
             var expectedWidth: CGFloat?
             var overflow: [Bool] = []
-            // R2 adds geometry sliders and six positions. Derive the fitting
-            // height from the actual document instead of the old 700pt form.
-            window.contentView?.layoutSubtreeIfNeeded()
-            let documentHeight = try XCTUnwrap(scroll.documentView).frame.height
-            let chromeHeight = window.frame.height - scroll.contentView.bounds.height
-            let fittingHeight = documentHeight + chromeHeight + 40
-            for height in [CGFloat(480), fittingHeight, CGFloat(520)] {
-                var frame = window.frame; frame.size.height = height
-                window.setFrame(frame, display: true)
-                window.contentView?.layoutSubtreeIfNeeded()
+            let document = try XCTUnwrap(scroll.documentView)
+            scroll.frame = NSRect(x:0,y:0,width:width,height:400)
+            scroll.layoutSubtreeIfNeeded(); document.layoutSubtreeIfNeeded()
+            let fittingHeight = max(document.fittingSize.height,document.frame.height) + 40
+            for height in [CGFloat(400), fittingHeight, CGFloat(440)] {
+                scroll.frame = NSRect(x:0,y:0,width:width,height:height)
+                scroll.tile(); scroll.layoutSubtreeIfNeeded(); document.layoutSubtreeIfNeeded()
                 await Task.yield()
-                window.contentView?.layoutSubtreeIfNeeded()
                 scroll.reflectScrolledClipView(scroll.contentView)
-                window.contentView?.layoutSubtreeIfNeeded()
-                let document = try XCTUnwrap(scroll.documentView)
+                scroll.layoutSubtreeIfNeeded(); document.layoutSubtreeIfNeeded()
                 overflow.append(document.frame.height > scroll.contentView.bounds.height)
                 if let expectedWidth {
                     XCTAssertEqual(preview.bounds.width, expectedWidth,
@@ -246,8 +247,8 @@ final class UnifiedSettingsTests: XCTestCase {
                 } else { expectedWidth = preview.bounds.width }
                 XCTAssertGreaterThan(preview.bounds.width, 100)
             }
-            XCTAssertTrue(overflow[0], "The compact window must actually exercise scrolling")
-            XCTAssertFalse(overflow[1], "The larger window must actually exercise a fitting document")
+            XCTAssertTrue(overflow[0], "The compact viewport must actually exercise scrolling")
+            XCTAssertFalse(overflow[1], "The fitting viewport must actually contain the R2 document")
         }
     }
 
