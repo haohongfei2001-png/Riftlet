@@ -170,20 +170,31 @@ final class QuietEdgeInteractionTests: XCTestCase {
         let row = CGRect(x: screen.visibleFrame.maxX - 90, y: screen.visibleFrame.midY, width: 70, height: 44)
         let anchor = { (row, screen.visibleFrame, row.minX) as (CGRect, CGRect, CGFloat)? }
         var delivery: ((CGImage?) -> Void)?
+        var notePresentations: [UUID] = []
+        peek.onNoteVisibilityChange = { id, visible in
+            if visible { notePresentations.append(id) }
+        }
         peek.schedule(id: id, immediate: true, stillValid: { true }, load: { delivery = $0 }, anchor: anchor)
         try await eventually { delivery != nil }
         let panel = peek.presentationPanel
         peek.scheduleNote(id: id, text: "正在等待附加", delay: 0.25, stillValid: { true }, anchor: anchor)
         delivery?(cg)
-        try await Task.sleep(nanoseconds: 100_000_000)
+        // The retained decode callback runs synchronously on this main actor.
+        // Assert before yielding: a sleeping task is not guaranteed to resume
+        // before the legitimate 250 ms note deadline on a busy native runner.
         XCTAssertFalse(panel.isVisible, "An old image decode cannot bypass the waiting delay")
+        XCTAssertTrue(notePresentations.isEmpty)
         peek.leave()
-        try await Task.sleep(nanoseconds: 200_000_000)
+        // Only a lower bound is needed after synchronous cancellation. Keep
+        // the real deadline and observe beyond it, even if this task resumes late.
+        try await Task.sleep(nanoseconds: 300_000_000)
         XCTAssertFalse(panel.isVisible, "Leaving the island cancels the pending explanation")
         XCTAssertNil(peek.assetID)
+        XCTAssertTrue(notePresentations.isEmpty, "A cancelled explanation must never have been presented")
         peek.scheduleNote(id: id, text: "图片已保留，当前聊天暂时不能接收图片。", delay: 0,
             stillValid: { true }, anchor: anchor)
         try await eventually { peek.isNoteVisible }
+        XCTAssertEqual(notePresentations, [id], "The visibility observer records the valid explanation")
         XCTAssertTrue(panel.ignoresMouseEvents); XCTAssertFalse(panel.canBecomeKey); XCTAssertFalse(panel.canBecomeMain)
         XCTAssertLessThanOrEqual(panel.frame.width, 240)
         XCTAssertLessThanOrEqual(panel.frame.maxX, row.minX - 12)
