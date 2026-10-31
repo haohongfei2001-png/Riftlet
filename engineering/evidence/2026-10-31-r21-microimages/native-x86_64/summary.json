@@ -1,0 +1,39 @@
+{
+  "source": "1e834902794048942f112aee98bc5fcec5566930",
+  "checkout": "e3dee8ae81dff89762f4ee513e3c93cf3723a261",
+  "scope": "actual WindowServer synthetic fixture pixels; not physical input or real upload",
+  "cases": [
+    {
+      "name": "left-0",
+      "status": "CAPTURED_NATIVE_WINDOWSERVER"
+    },
+    {
+      "name": "left-0.25",
+      "status": "CAPTURED_NATIVE_WINDOWSERVER"
+    },
+    {
+      "name": "left-0.9",
+      "status": "CAPTURED_NATIVE_WINDOWSERVER"
+    },
+    {
+      "name": "right-0",
+      "status": "CAPTURED_NATIVE_WINDOWSERVER"
+    },
+    {
+      "name": "right-0.25",
+      "status": "CAPTURED_NATIVE_WINDOWSERVER"
+    },
+    {
+      "name": "right-0.9",
+      "status": "CAPTURED_NATIVE_WINDOWSERVER"
+    },
+    {
+      "name": "preview",
+      "status": "CAPTURED_NATIVE_WINDOWSERVER"
+    },
+    {
+      "name": "strict-start",
+      "status": "CAPTURED_NATIVE_WINDOWSERVER"
+    }
+  ]
+}

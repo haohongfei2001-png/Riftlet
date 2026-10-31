@@ -1,0 +1,150 @@
+{
+  "appearance" : "NSAppearanceNameDarkAqua",
+  "captureKind" : "owned-product-composite",
+  "checkout" : "e3dee8ae81dff89762f4ee513e3c93cf3723a261",
+  "crossApplicationFocus" : "NOT_RUN",
+  "events" : [
+    {
+      "boundaryUptime" : 1291.6738551810001,
+      "event" : "native_arrival_boundary",
+      "mode" : "none",
+      "phase" : "imageDecoded",
+      "reason" : "none",
+      "receiptEvidence" : false,
+      "uptime" : 1291.6739090810001
+    },
+    {
+      "boundaryUptime" : 1291.675281777,
+      "event" : "native_arrival_boundary",
+      "mode" : "none",
+      "phase" : "imageDecoded",
+      "reason" : "none",
+      "receiptEvidence" : false,
+      "uptime" : 1291.675306312
+    },
+    {
+      "boundaryUptime" : 1291.6762245370001,
+      "event" : "native_arrival_boundary",
+      "mode" : "none",
+      "phase" : "imageDecoded",
+      "reason" : "none",
+      "receiptEvidence" : false,
+      "uptime" : 1291.676248366
+    },
+    {
+      "boundaryUptime" : 1291.6771249870001,
+      "event" : "native_arrival_boundary",
+      "mode" : "none",
+      "phase" : "imageDecoded",
+      "reason" : "none",
+      "receiptEvidence" : false,
+      "uptime" : 1291.677153632
+    },
+    {
+      "boundaryUptime" : 1291.678278434,
+      "event" : "native_arrival_boundary",
+      "mode" : "none",
+      "phase" : "imageDecoded",
+      "reason" : "none",
+      "receiptEvidence" : false,
+      "uptime" : 1291.67830314
+    },
+    {
+      "boundaryUptime" : 1291.6971176940001,
+      "event" : "native_arrival_boundary",
+      "mode" : "none",
+      "phase" : "imageDecoded",
+      "reason" : "none",
+      "receiptEvidence" : false,
+      "uptime" : 1291.697145762
+    }
+  ],
+  "fixtureLayerIsolation" : true,
+  "frames" : [
+    {
+      "backdropWindowNumber" : 3263,
+      "backingScaleFactor" : 1,
+      "bytes" : 71067,
+      "captureEndedUptime" : 1292.7499690710001,
+      "captureStartedUptime" : 1292.7377308700002,
+      "checkout" : "e3dee8ae81dff89762f4ee513e3c93cf3723a261",
+      "elapsedSeconds" : 1.1688324070000817,
+      "file" : "native.png",
+      "method" : "CGImage(windowListFromArrayScreenBounds:windowArray:imageOption:); only NSApp-owned windows",
+      "minimumProductDifferencePixels" : 64,
+      "name" : "native",
+      "ownWindowNumbersFrontToBack" : [
+        3266,
+        3268,
+        3287,
+        3286,
+        3285,
+        3284,
+        3283,
+        3282,
+        3281,
+        3280,
+        3279,
+        3278,
+        3277,
+        3276,
+        3275,
+        3274,
+        3273,
+        3271,
+        3270,
+        3269,
+        3263
+      ],
+      "physicalInput" : "NOT_RUN",
+      "pixels" : [
+        1920,
+        970
+      ],
+      "pixelScaleX" : 1,
+      "pixelScaleY" : 1,
+      "pngProcessing" : "One awaited background task; immutable original self-window image pair",
+      "pngProcessingOnMainThread" : false,
+      "points" : [
+        1920,
+        970
+      ],
+      "productDifferencePixelCount" : 12549,
+      "productPixelComparison" : "original own-window composite versus original opaque own backdrop; channel delta > 8",
+      "productWindowCount" : 20,
+      "receiptEvidence" : false,
+      "resized" : false,
+      "selectedOwnWindowCount" : 21,
+      "sha256" : "f9a5dfc8050c23bed63cd892ce3b467ac3bf31ea43609c66b8bbb6d8f32b648c",
+      "source" : "1e834902794048942f112aee98bc5fcec5566930",
+      "status" : "CAPTURED_NATIVE_WINDOWSERVER",
+      "syntheticOnly" : true,
+      "windowOrdering" : "NSApplication.enumerateWindows(orderedFrontToBack)"
+    }
+  ],
+  "frameTiming" : "Measured capture timestamps; variable cadence; capture overhead included",
+  "helperReducedMotionOverride" : false,
+  "os" : "Version 15.7.9 (Build 24G830)",
+  "otherApplicationPixelsCaptured" : false,
+  "performanceBenchmark" : false,
+  "physicalInput" : "NOT_RUN",
+  "productionWindowOrder" : "NOT_RUN",
+  "realScreenshot" : "NOT_RUN",
+  "realUpload" : "NOT_RUN",
+  "schemaVersion" : 1,
+  "screenCapturePermissionRequested" : false,
+  "source" : "1e834902794048942f112aee98bc5fcec5566930",
+  "status" : "CAPTURED_NATIVE_WINDOWSERVER",
+  "syntheticOnly" : true,
+  "systemAccessibilityAtEnd" : {
+    "increaseContrast" : false,
+    "reduceMotion" : false,
+    "reduceTransparency" : false
+  },
+  "systemAccessibilityAtStart" : {
+    "increaseContrast" : false,
+    "reduceMotion" : false,
+    "reduceTransparency" : false
+  },
+  "visualVerdict" : "REQUIRES_INDEPENDENT_REVIEW"
+}

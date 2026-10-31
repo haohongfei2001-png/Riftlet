@@ -1,0 +1,7 @@
+{
+  "source": "1e834902794048942f112aee98bc5fcec5566930",
+  "platform": "arm64",
+  "executableSHA256": "fbbc139ef50f434843b92a823a2d78ea78fbff47e81658568f549deb37da03c4",
+  "sourceClean": true,
+  "scope": "local development ad-hoc package; compiled and bundle-verified; not notarized, not launched for live acceptance"
+}

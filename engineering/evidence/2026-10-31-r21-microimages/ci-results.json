@@ -1,0 +1,50 @@
+{
+  "source": "1e834902794048942f112aee98bc5fcec5566930",
+  "checkout": "e3dee8ae81dff89762f4ee513e3c93cf3723a261",
+  "tree": "2874b0d90726cef30d1a64692af5bbd5d708935b",
+  "nativeRun": 41183924489,
+  "feedbackRun": 41183924475,
+  "jobs": {
+    "arm64": {
+      "id": 124486831925,
+      "result": "PASS"
+    },
+    "intel": {
+      "id": 124486832013,
+      "result": "PASS"
+    },
+    "feedback": {
+      "id": 124486831808,
+      "result": "PASS"
+    },
+    "nativeSourceAdmission": {
+      "id": 124486831784,
+      "result": "FAIL_UNCHANGED_FORMAL_PIN"
+    },
+    "feedbackSourceAdmission": {
+      "id": 124486831974,
+      "result": "FAIL_UNCHANGED_FORMAL_PIN"
+    }
+  },
+  "artifacts": [
+    {
+      "architecture": "arm64",
+      "id": 13036486954,
+      "sha256": "f1088027af3dbfceeee6336a14432191927e1738786ff13186557a6bb169c760"
+    },
+    {
+      "architecture": "x86_64",
+      "id": 13036216857,
+      "sha256": "21286aecb2106a94e76b21721489e0266f917ee026547cc5526190a160097db0"
+    }
+  ],
+  "sourceReview": "PASS_NONAUTHOR",
+  "nativeVisualReview": "LIMITED_PASS_NONAUTHOR_ARM_AND_INTEL_1X_SYNTHETIC",
+  "notRun": [
+    "physical pointer",
+    "2x and mixed DPI hardware",
+    "real upload",
+    "real-pointer warm preview movie",
+    "final combined source admission"
+  ]
+}

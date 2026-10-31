@@ -10,5 +10,5 @@
   },
   "pdfPages": 20,
   "originalsRead": true,
-  "nativeAcceptance": "pending"
+  "nativeAcceptance": "Limited 1x synthetic WindowServer PASS; see ci-results.json and README.md for independent review and NOT_RUN boundaries"
 }
