@@ -1,0 +1,17 @@
+{
+  "sourceSHA": "2d5174117deff5822ea079d98eca03146d72f83f",
+  "sourceCopiedFiles": 14,
+  "sourceHashMismatches": [],
+  "platform": "Ubuntu 24.04 x86_64 Linux",
+  "swiftVersion": "6.2.1 (swift-6.2.1-RELEASE)",
+  "runtimeSource": "https://download.swift.org/swift-6.2.1-release/ubuntu2404/swift-6.2.1-RELEASE/swift-6.2.1-RELEASE-ubuntu24.04.tar.gz",
+  "runtimeSignature": "Good signature from Swift 6.x Release Signing Key; EF80A866B47A981F",
+  "tests": 30,
+  "failures": 0,
+  "testDurationSeconds": 5.586,
+  "scope": "Linux pure Feedback/SQLite tests, including real timer retries; not macOS/AppKit/Keychain/live cloud acceptance",
+  "completedUTC": "2026-10-28T17:01:56.179057+00:00",
+  "logSHA256": "cf51732d896ef24ed5800abd57f42a03dc0989fe052d8f1d97673e79a56ff407",
+  "initialSandboxAttempt": "Swift compiler SIGILL before tests; preserved, normal approved escalation repeated exact source/command successfully",
+  "globalConfigurationChanged": false
+}

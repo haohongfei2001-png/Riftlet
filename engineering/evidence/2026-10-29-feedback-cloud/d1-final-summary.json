@@ -1,0 +1,13 @@
+{
+  "scope": "Actual dedicated D1 final direct count after exact deletion closeout; content-free tombstones remain and provider backups are not claimed erased.",
+  "observation": {
+    "content": [
+      {
+        "type": "text",
+        "text": "observed_utc\trows\tdeleted\tbody_present\tpending_delete\tprobe_tables\tdaily\thourly\n2026-10-29T15:39:00.373Z\t8\t8\t0\t0\t0\t100\t20"
+      }
+    ],
+    "structuredContent": null,
+    "isError": false
+  }
+}

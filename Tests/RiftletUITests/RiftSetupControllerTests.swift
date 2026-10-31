@@ -1,0 +1,170 @@
+import AppKit
+import XCTest
+@testable import RiftletUI
+
+final class RiftSetupControllerTests: XCTestCase {
+    @MainActor func testBuiltInSwitchAndDefaultModeAreInlineAndIndependentOfHidePause() throws {
+        try prepareAppKit()
+        var enabled: [Bool] = [], modes: [String] = [], hidden = 0, paused = 0
+        var saved = RiftSettingsSnapshot(entryAvailable: true, entryEnabled: true, defaultCaptureMode: .region)
+        let controller = RiftSetupController(onRecheck: {}, onOpenSource: {}, onPermission: {}, onDismiss: {},
+            onToggleHidden: { hidden += 1 }, onToggleCollection: { paused += 1 },
+            onSettingsChange: { change in
+                switch change {
+                case .entryEnabled(let value): enabled.append(value); saved.entryEnabled = value
+                case .defaultCaptureMode(let value): modes.append(value.rawValue); saved.defaultCaptureMode = value
+                default: XCTFail("Unrelated preference changed")
+                }
+                return saved
+            })
+        defer { controller.close() }
+        controller.update(snapshot: .init(collection: .paused, isHidden: true, isChecking: true,
+            builtInScreenshotEnabled: true, defaultScreenshotMode: .region))
+        controller.updateSettings(saved)
+        try button("setup.section.1").performClick(nil)
+        let toggle = try button("settings.entryEnabled")
+        let picker = try XCTUnwrap(try button("settings.captureMode") as? NSPopUpButton)
+        XCTAssertTrue(toggle.isEnabled, "Collection work must not prevent stopping built-in capture")
+        XCTAssertEqual(toggle.state, .on)
+        XCTAssertEqual(toggle.accessibilityLabel(), "启用内置截图")
+        XCTAssertEqual(picker.titleOfSelectedItem, "区域")
+        toggle.performClick(nil)
+        XCTAssertEqual(enabled, [false]); XCTAssertEqual(hidden, 0); XCTAssertEqual(paused, 0)
+        controller.update(snapshot: .init(collection: .paused, isHidden: true,
+            builtInScreenshotEnabled: false, defaultScreenshotMode: .region))
+        controller.updateSettings(saved)
+        XCTAssertEqual(toggle.state, .off)
+        XCTAssertTrue(picker.isEnabled, "Off does not discard the next-session preference")
+        picker.selectItem(withTitle: "全屏")
+        XCTAssertTrue(NSApp.sendAction(try XCTUnwrap(picker.action), to: picker.target, from: picker))
+        XCTAssertEqual(modes, ["fullScreen"])
+        XCTAssertEqual(enabled, [false]); XCTAssertEqual(hidden, 0); XCTAssertEqual(paused, 0)
+        XCTAssertFalse(controller.isVisible, "A settings refresh must not open the window")
+        controller.update(snapshot: .init())
+        controller.updateSettings(.init())
+        XCTAssertFalse(toggle.isEnabled); XCTAssertFalse(picker.isEnabled)
+    }
+
+    @MainActor private func prepareAppKit() throws {
+        _ = NSApplication.shared
+        guard !NSScreen.screens.isEmpty else {
+            throw XCTSkip("No window server; first-use software window needs AppKit, real permission UI remains NOT_RUN")
+        }
+    }
+
+    @MainActor private func button(_ identifier: String) throws -> NSButton {
+        let window = try XCTUnwrap(NSApp.windows.first { $0.identifier == RiftSetupController.windowIdentifier })
+        func find(_ view: NSView) -> NSButton? {
+            if let button = view as? NSButton, button.identifier?.rawValue == identifier { return button }
+            for child in view.subviews { if let value = find(child) { return value } }
+            return nil
+        }
+        return try XCTUnwrap(find(try XCTUnwrap(window.contentView)))
+    }
+
+    @MainActor func testBackgroundUpdatesNeverShowOrReopenGuidance() throws {
+        try prepareAppKit()
+        var dismissals = 0
+        let controller = RiftSetupController(onRecheck: {}, onOpenSource: {}, onPermission: {},
+                                            onDismiss: { dismissals += 1 })
+        defer { controller.close() }
+        controller.update(snapshot: .init(source: .accessible, collection: .collecting, visibleCount: 1))
+        XCTAssertFalse(controller.isVisible)
+        controller.show()
+        XCTAssertTrue(controller.isVisible)
+        try button("setup.done").performClick(nil)
+        XCTAssertFalse(controller.isVisible)
+        XCTAssertEqual(dismissals, 1)
+        controller.update(snapshot: .init(source: .accessible, collection: .collecting,
+                                          isHidden: true, visibleCount: 2, pendingCount: 1))
+        XCTAssertFalse(controller.isVisible)
+        XCTAssertEqual(dismissals, 1)
+        controller.show()
+        controller.close()
+        XCTAssertEqual(dismissals, 1, "Owner teardown must not count as a deliberate dismissal")
+    }
+
+    @MainActor func testStaleDeniedPermissionCannotOfferOrInvokeAuthorizationInCaptureOnlyMode() throws {
+        try prepareAppKit()
+        var requests = 0, sources = 0, rechecks = 0
+        let controller = RiftSetupController(onRecheck: { rechecks += 1 }, onOpenSource: { sources += 1 },
+                                            onPermission: { requests += 1 }, onDismiss: {})
+        defer { controller.close() }
+        controller.update(snapshot: .init(attachment: .productionDisabled, permission: .denied))
+        let permission = try button("setup.permission")
+        XCTAssertTrue(permission.isHidden)
+        XCTAssertFalse(permission.isEnabled)
+        permission.performClick(nil)
+        try button("setup.source").performClick(nil)
+        XCTAssertEqual(requests, 0)
+        XCTAssertEqual(sources, 0)
+        try button("setup.recheck").performClick(nil)
+        XCTAssertEqual(rechecks, 1)
+        XCTAssertFalse(controller.isVisible, "A status refresh must not open the window")
+        controller.update(snapshot: .init(sourceLocation: "/tmp/synthetic-screenshots", attachment: .syntheticWeb,
+                                          permission: .denied))
+        XCTAssertFalse(permission.isHidden)
+        XCTAssertTrue(permission.isEnabled)
+        XCTAssertEqual(permission.title, "打开自动化设置…")
+        permission.performClick(nil)
+        try button("setup.source").performClick(nil)
+        XCTAssertEqual(requests, 1)
+        XCTAssertEqual(sources, 1)
+        controller.update(snapshot: .init(attachment: .syntheticWeb, permission: .denied, isChecking: true))
+        XCTAssertFalse(permission.isEnabled)
+        permission.performClick(nil)
+        XCTAssertEqual(requests, 1, "A check/consent already in flight cannot start another permission action")
+    }
+
+    @MainActor func testNativeControlsKeepHideAndPauseIndependentAndAccessible() throws {
+        try prepareAppKit()
+        var hidden = 0, paused = 0, history = 0, rechecks = 0, sourceGrants = 0
+        let controller = RiftSetupController(onRecheck: { rechecks += 1 }, onOpenSource: {}, onPermission: {}, onDismiss: {},
+            onChooseSourceAccess: { sourceGrants += 1 },
+            onToggleHidden: { hidden += 1 }, onToggleCollection: { paused += 1 }, onOpenHistory: { history += 1 })
+        defer { controller.close() }
+        controller.update(snapshot: .init(collection: .paused, isHidden: true))
+        let hide = try button("setup.hide"), pause = try button("setup.pause")
+        XCTAssertEqual(hide.title, "显示裂缝")
+        XCTAssertEqual(pause.title, "继续收录")
+        XCTAssertEqual(hide.accessibilityLabel(), "显示裂缝")
+        XCTAssertEqual(pause.accessibilityLabel(), "继续收录")
+        XCTAssertEqual(try button("setup.done").keyEquivalent, "\r")
+        hide.performClick(nil)
+        XCTAssertEqual(hidden, 1)
+        XCTAssertEqual(paused, 0)
+        pause.performClick(nil)
+        XCTAssertEqual(paused, 1)
+        try button("setup.history").performClick(nil)
+        XCTAssertEqual(history, 1)
+        let window = try XCTUnwrap(NSApp.windows.first { $0.identifier == RiftSetupController.windowIdentifier })
+        XCTAssertEqual(window.animationBehavior, .none)
+        XCTAssertFalse(controller.isVisible)
+        controller.update(snapshot: .init(sourceLocation: "/tmp/synthetic-source", collection: .paused,
+            isHidden: true, isChecking: true))
+        let recheck = try button("setup.recheck"), access = try button("setup.sourceAccess")
+        XCTAssertFalse(recheck.isEnabled)
+        XCTAssertFalse(pause.isEnabled)
+        XCTAssertFalse(access.isEnabled)
+        XCTAssertEqual(recheck.title, "正在检查…")
+        XCTAssertEqual(recheck.accessibilityLabel(), "正在检查…")
+        recheck.performClick(nil); pause.performClick(nil); access.performClick(nil)
+        XCTAssertEqual(rechecks, 0)
+        XCTAssertEqual(paused, 1)
+        XCTAssertEqual(sourceGrants, 0)
+        XCTAssertTrue(hide.isEnabled)
+        hide.performClick(nil)
+        XCTAssertEqual(hidden, 2, "Hiding remains independent of collection/recheck work")
+        controller.update(snapshot: .init(sourceLocation: "/tmp/synthetic-source", source: .accessible,
+            collection: .paused, isHidden: true))
+        XCTAssertTrue(access.isHidden)
+        XCTAssertFalse(access.isEnabled)
+        access.performClick(nil)
+        XCTAssertEqual(sourceGrants, 0, "A readable source needs no repeated authorization")
+        controller.update(snapshot: .init(sourceLocation: "/tmp/synthetic-source", source: .unavailable))
+        XCTAssertFalse(access.isHidden)
+        XCTAssertTrue(access.isEnabled)
+        access.performClick(nil)
+        XCTAssertEqual(sourceGrants, 1, "Recovery remains an explicit action for the actual inaccessible source")
+    }
+}

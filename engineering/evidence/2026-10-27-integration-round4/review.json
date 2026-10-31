@@ -1,0 +1,102 @@
+{
+  "schemaVersion": 1,
+  "source": "c85020b0ae250eaa37f7ed812c3c43587dca5a91",
+  "status": "PASS: non-author source review and independently verified integrated macOS CI",
+  "actualConcurrency": {
+    "rootPlusActiveLanes": 4,
+    "rootImplementation": [
+      "Core exact profile recognition",
+      "App publication and selection diagnostics",
+      "host-only adapter/executor seam",
+      "shared docs and formal integration"
+    ],
+    "exclusiveNewTestAuthor": "round4_core_tests"
+  },
+  "reviews": [
+    {
+      "reviewer": "round4_web_review",
+      "role": "non-author Web/Chrome and cross-review of new Core tests",
+      "scope": [
+        "35e9851/c9c68a6 Web v8 and legacy observer",
+        "root capture diagnostic seam and five tests",
+        "other author persisted Core seven tests"
+      ],
+      "result": "No new blocking runtime defect in scoped disabled-production integration; initial syntax miss corrected after CI",
+      "actualExecution": {
+        "pageVM": 48,
+        "legacyVM": 14
+      },
+      "findingsRetained": [
+        "Unobservable business ABA counterexample is failure evidence despite passing limitation test",
+        "Web still emits no uploadStarted receipt or early return",
+        "Legacy fixtures equal original v6/v7 source blobs; no old input fallback"
+      ]
+    },
+    {
+      "reviewer": "round4_core_tests",
+      "role": "non-author review of root Models patch; author of seven new Core tests",
+      "scope": [
+        "Models.swift exact persisted profile branch",
+        "unchanged full target equality, serialization and cross-profile locks"
+      ],
+      "result": "No blocking product defect; no trim, alias, backfill or production admission",
+      "testExecution": "Not locally run; Linux has no Swift; actual macOS CI reported separately"
+    },
+    {
+      "reviewer": "round4_evidence_app_review",
+      "role": "non-author evidence/App/diagnostic/document review",
+      "scope": [
+        "all 11 original evidence files (7 JSON +4 text)",
+        "incoming c9c68a6 actual CI logs",
+        "root App/adapter diagnostics",
+        "uploadStarted section7/current handoff/adapter contract"
+      ],
+      "result": "No blocking runtime defect; scoped conclusions match archived facts",
+      "verifiedHistoricalCI": {
+        "runID": 40478928761,
+        "jobID": 122104022158,
+        "source": "c9c68a66c4b6ff55ffe8048cff6f1cf781600519",
+        "nativeTests": 235,
+        "pageVM": 48,
+        "legacyVM": 14
+      },
+      "clarificationImplemented": "Document separately sampled effectiveAckUptime/mainPublishedUptime; their tiny interval alone cannot prove a safely optimizable publication race",
+      "evidenceBoundaries": [
+        "ACK preceded physical event by about8.36s, not cold gap",
+        "3.40ms callback delay is not upload speed; commit queued about2.82s later",
+        "baseline empty; selection before blur/setup cannot prove preservation",
+        "real preservation audit usedschema2; integratedv3 tested separately",
+        "no raw chat URL/text/token/userpath found in public incoming evidence"
+      ]
+    }
+  ],
+  "ciFindingAndResolution": {
+    "runID": 40484533371,
+    "finding": "Missing outer target(...) closing parenthesis in new test line227; static review missed syntax error",
+    "rootFix": "c85020b0ae250eaa37f7ed812c3c43587dca5a91",
+    "changes": "Single closing parenthesis only; assertions and product logic unchanged",
+    "nonAuthorRecheck": [
+      "round4_web_review",
+      "round4_evidence_app_review"
+    ],
+    "notClaimed": "Initial static review was not compilation evidence"
+  },
+  "rootReview": [
+    "Independently read source diffs, original click/preservation/no-replay JSON and requests",
+    "Reviewed agent-authored Core test byte-preservation and actual SQLite assertions",
+    "Compared exact Git objects for retained lifecycle/Capture/UI/policies/website/design/research/notices and all round4 evidence"
+  ],
+  "unresolvedReviewConditions": [
+    "Real upload-start/early-return and physical acceptance remain with local Codex",
+    "No production/safe-retry admission from this integration"
+  ],
+  "evidenceCountCorrection": "Root Git manifest found 11 files/7 JSON; reviewer rechecked and corrected initial oral 12/8 count. No file was missing; original tree matches 03a67cc.",
+  "independentIntegratedCIReview": {
+    "reviewer": "round4_evidence_app_review",
+    "runID": 40484855920,
+    "jobID": 122123985228,
+    "result": "Independently fetched complete actual logs and artifact metadata; matches 306 unique native, 13 detailed passed/0skip, 48page,14legacy,replay/fault/probe,Release/signature/three selfchecks",
+    "newTwelveRegressionsPresent": true,
+    "rootAlsoVerifiedAll12CIInputObjects": true
+  }
+}

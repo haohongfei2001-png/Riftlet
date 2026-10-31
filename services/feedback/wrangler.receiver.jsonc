@@ -1,0 +1,12 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "riftlet-feedback-receiver",
+  "account_id": "b10365c5c641bd88cb1b9f35a4172d37",
+  "main": "receiver.mjs",
+  "compatibility_date": "2026-10-29",
+  "workers_dev": true,
+  "preview_urls": false,
+  "observability": { "enabled": false },
+  "vars": { "ACCEPT_ENABLED": "true" },
+  "d1_databases": [{ "binding": "DB", "database_name": "riftlet-feedback", "database_id": "4167f4a2-5dfd-422d-86ca-077176fc8600" }]
+}

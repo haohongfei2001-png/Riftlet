@@ -1,0 +1,26 @@
+{
+  "event": "read-pixel-proof",
+  "windowId": "lab-a5751d2f2e80b75b",
+  "tabId": "lab-993adfb969d1b514",
+  "monotonicSeconds": 394493.009334416,
+  "exitCode": 0,
+  "error": null,
+  "result": {
+    "state": "COMPLETE",
+    "name": "Riftlet_09c8657c-3f0e-4767-85fa-54cd7739edc0.png",
+    "source": {
+      "width": 1600,
+      "height": 1000,
+      "rgbaSha256": "e7109aefc2d301c9a01fd501239527797d49b9ae0ef28e27f33d9163efa2b073"
+    },
+    "preview": {
+      "width": 1600,
+      "height": 1000,
+      "rgbaSha256": "e7109aefc2d301c9a01fd501239527797d49b9ae0ef28e27f33d9163efa2b073"
+    },
+    "match": true,
+    "sameCardAndSrc": true,
+    "targetValid": true,
+    "networkRequests": 0
+  }
+}

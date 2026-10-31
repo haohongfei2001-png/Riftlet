@@ -1,0 +1,219 @@
+{
+  "sourceSHA": "a5db972b7c4da20d30266ec8d1411fff9f434c13",
+  "ciTreeSHA": "3f4e18a15d8cc77a367beca30ade338906df9d8d",
+  "baselineSHA": "4b7228a07a23381d3de467a44dd8490d73e26e7e",
+  "environment": {
+    "macOS": "27.0 (26A428)",
+    "architecture": "arm64",
+    "chrome": "156.0.8078.73"
+  },
+  "imageA": {
+    "origin": "systemScreenshot",
+    "sha256": "20e6f83d771dd6e67081240e49bea2b34eea5e86ef2e8be6245c43f53551f764",
+    "byteCount": 40639,
+    "pixelWidth": 424,
+    "pixelHeight": 344
+  },
+  "sourceAndPrivateCopyHashEqual": true,
+  "systemMetadata": {
+    "isScreenCapture": true,
+    "captureType": "selection",
+    "metadataWrittenByAgent": false
+  },
+  "captureTiming": {
+    "firstSeenToImportMS": 196.465,
+    "T0": null,
+    "T1": null,
+    "T2": null
+  },
+  "beforeFix": {
+    "mouseSelections": 6,
+    "allRefused": true,
+    "operationCount": 0,
+    "note": "nil optional equality in foregroundSessionMatches is not foreground proof"
+  },
+  "afterFix": {
+    "clicks": [
+      {
+        "asset": "A",
+        "source": "mouse",
+        "relativeEventMS": 0.0,
+        "freezeResult": "accepted",
+        "ackLeadMS": 7801.743,
+        "targetDigest": "2d34e45195f25ee46527b0357ac458d3f1031d317b5dd2d970a40e75ea9ea033",
+        "hostEpochMatches": true,
+        "foregroundSessionMatches": true
+      },
+      {
+        "asset": "B",
+        "source": "mouse",
+        "relativeEventMS": 7983.357,
+        "freezeResult": "accepted",
+        "ackLeadMS": 15785.1,
+        "targetDigest": "2d34e45195f25ee46527b0357ac458d3f1031d317b5dd2d970a40e75ea9ea033",
+        "hostEpochMatches": true,
+        "foregroundSessionMatches": true
+      }
+    ],
+    "inputTransport": [
+      {
+        "event": "begin",
+        "relativeStartMS": 304.306,
+        "relativeEndMS": 367.057,
+        "transportSucceeded": true
+      },
+      {
+        "event": "chunk",
+        "relativeStartMS": 368.603,
+        "relativeEndMS": 433.049,
+        "transportSucceeded": true
+      },
+      {
+        "event": "commit",
+        "relativeStartMS": 434.36,
+        "relativeEndMS": 542.616,
+        "transportSucceeded": true
+      }
+    ],
+    "observations": [
+      {
+        "slot": "unknown",
+        "state": "unknown",
+        "asset": "A",
+        "attempt": 1,
+        "provenance": "integratedDevelopment",
+        "persistentIdentityMatches": true,
+        "belongsToOriginalDraft": true,
+        "exactImageIdentity": false,
+        "isUploading": false,
+        "hasError": false,
+        "attachmentIdentityDigest": null
+      },
+      {
+        "slot": "input",
+        "state": "inputTriggered",
+        "asset": "A",
+        "attempt": 1,
+        "provenance": "integratedDevelopment",
+        "persistentIdentityMatches": true,
+        "belongsToOriginalDraft": true,
+        "exactImageIdentity": false,
+        "isUploading": true,
+        "hasError": false,
+        "attachmentIdentityDigest": "9a41a0782020122b3c2f67be5e3dcfe81758d659a844558b11a3a5ab79918ffe"
+      },
+      {
+        "slot": "attached",
+        "state": "attached",
+        "asset": "A",
+        "attempt": 1,
+        "provenance": "integratedDevelopment",
+        "persistentIdentityMatches": true,
+        "belongsToOriginalDraft": true,
+        "exactImageIdentity": true,
+        "isUploading": false,
+        "hasError": false,
+        "attachmentIdentityDigest": "9a41a0782020122b3c2f67be5e3dcfe81758d659a844558b11a3a5ab79918ffe"
+      },
+      {
+        "slot": "errorOrInvalidated",
+        "state": "invalidated",
+        "asset": "A",
+        "attempt": 1,
+        "provenance": "integratedDevelopment",
+        "persistentIdentityMatches": true,
+        "belongsToOriginalDraft": true,
+        "exactImageIdentity": false,
+        "isUploading": false,
+        "hasError": false,
+        "attachmentIdentityDigest": null
+      }
+    ],
+    "operations": [
+      {
+        "asset": "A",
+        "attempt": 1,
+        "phase": "unknown",
+        "reason": "observer-v2:invalidated:integratedDevelopment"
+      },
+      {
+        "asset": "B",
+        "attempt": 1,
+        "phase": "failed",
+        "reason": "activation"
+      }
+    ],
+    "uploadStarts": 0,
+    "compensations": 0,
+    "databaseIntegrity": "ok",
+    "schemaVersion": 3
+  },
+  "admission": {
+    "start": false,
+    "complete": false,
+    "safeFailure": false
+  },
+  "privateEvidenceHashes": [
+    {
+      "name": "after-fix.jsonl",
+      "sha256": "5def8a40379fe4369da41e503f1656b79dca15650940b8d4ebddef25ccacd4fa",
+      "bytes": 1429466
+    },
+    {
+      "name": "after-fix.sqlite",
+      "sha256": "3538366ae032f470217bd0b99d907a244b8e0265f36f271f78dbcb4fa21224d0",
+      "bytes": 102400
+    },
+    {
+      "name": "arm-lost-wake.swift",
+      "sha256": "0f8704d37941050337ce1b263b8fa28dc2b7e6d8c14f3173b6965c39e3a0a575",
+      "bytes": 4424
+    },
+    {
+      "name": "baseline-build.log",
+      "sha256": "e6fc471329f78ed31c17a1209a3d9d1fa6023925f44e2d2145e2ccda658e34f8",
+      "bytes": 5176
+    },
+    {
+      "name": "before-fix.jsonl",
+      "sha256": "feb84b9520de93b0070825aa4dcfd9e8c3532f37fae8a1f1d1d29afbe9019885",
+      "bytes": 125874
+    },
+    {
+      "name": "before-fix.sqlite",
+      "sha256": "d3d4a6145c955b39a1eee3e300bb0ca5c8ae39bd45876a29a360fcbb2964c1f0",
+      "bytes": 94208
+    },
+    {
+      "name": "candidate-self-check.log",
+      "sha256": "9ddaa9b558b2b7740624c26f7048b5639320f0c93336dc12cf68db390ef5d855",
+      "bytes": 238
+    },
+    {
+      "name": "fixed-build.log",
+      "sha256": "6b074e2bbe1d3ded0fa5d43a1ff8430a918814ed579433609815e68dd30c36e8",
+      "bytes": 1015
+    }
+  ],
+  "appExecutableSHA256": "879eae2794c08491630c243e985c9577eb6b62e4d0e9deec67c315d923d37316",
+  "ci": {
+    "runID": 40647857737,
+    "status": "completed",
+    "conclusion": "success",
+    "headSHA": "3f4e18a15d8cc77a367beca30ade338906df9d8d"
+  },
+  "sameProcessRecovery": {
+    "firstUnavailableUptime": 526353.5207643333,
+    "armCompletionsAfterUnavailable": 475,
+    "successfulCompletionsAfterUnavailable": 248,
+    "firstSuccessfulUptime": 526378.2302765417
+  },
+  "acceptance": {
+    "SC_INPUT": "PASS_LIMITED_UNIQUE_INPUT_AFTER_REJECTED_CLICKS",
+    "SC_START": "FAIL_POSITIVE_START_NOT_OBSERVED",
+    "SC_COMPLETE": "FAIL_FULL_ACCEPTANCE_INCOMPLETE",
+    "attachedCandidateObservation": "PASS",
+    "draftPreservation": "NOT_RUN",
+    "unboundColdFirstClick": "FAIL"
+  }
+}

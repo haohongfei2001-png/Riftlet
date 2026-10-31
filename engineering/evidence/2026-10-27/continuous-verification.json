@@ -1,0 +1,268 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-27",
+  "timezone": "Asia/Shanghai",
+  "authoring_environment": "Linux; native execution on GitHub macOS Actions",
+  "branch": "codex/engineering-foundation-20261027",
+  "pull_request": 1,
+  "runs": [
+    {
+      "source_sha": "94df78c74e75cf79b7832e62a228c6fd37913cf9",
+      "run_id": 40386356404,
+      "job_id": 121795551358,
+      "run_url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/40386356404",
+      "status": "completed",
+      "conclusion": "success",
+      "test_count": 63,
+      "suites": {
+        "RiftletCaptureTests": 12,
+        "RiftletAdaptersTests": 14,
+        "RiftletCoreTests": 27,
+        "RiftletUITests": 10
+      },
+      "release_build": "PASS",
+      "app_signature": "PASS",
+      "packaged_self_check": "PASS",
+      "gui_helper_fixture_self_check": "PASS",
+      "interactive_gui": "NOT_RUN",
+      "real_chatgpt": "NOT_RUN",
+      "artifact_id": 12680822072,
+      "artifact_sha256": "eafe17d426e5e731e6575d4fb0a64f4840c998aae6afef73c52fd535c6796dca",
+      "artifact_retention_days": 14,
+      "compiler": "Apple Swift 5.10",
+      "os": "macOS 14.8.9",
+      "architecture": "arm64",
+      "pr_test_merge_sha": "ef50cb4e6940bd13af4e4d0b7fae2b23df9fffcd"
+    },
+    {
+      "source_sha": "3e7b8eac6c3bd235f4e376172d6085ab0d5b4426",
+      "run_id": 40387437225,
+      "job_id": 121799323747,
+      "run_url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/40387437225",
+      "status": "completed",
+      "conclusion": "success",
+      "test_count": 98,
+      "suites": {
+        "RiftletCaptureTests": 31,
+        "RiftletAdaptersTests": 23,
+        "RiftletCoreTests": 27,
+        "RiftletUITests": 17
+      },
+      "release_build": "PASS",
+      "app_signature": "PASS",
+      "packaged_self_check": "PASS",
+      "gui_helper_fixture_self_check": "PASS",
+      "interactive_gui": "NOT_RUN",
+      "real_chatgpt": "NOT_RUN",
+      "artifact_id": 12682245799,
+      "artifact_sha256": "275ce998b85cad241b394b1e37c0cca60a08a908cc8955f48adbbb0e8a277e43",
+      "artifact_retention_days": 14,
+      "compiler": "Apple Swift 5.10",
+      "os": "macOS 14.8.9",
+      "architecture": "arm64",
+      "pr_test_merge_sha": "5454284bf5fd950bd31133dcd4ca9e0eb8cab349"
+    },
+    {
+      "source_sha": "1afd849a9b2d2cfada0d01cd47b5f1ee31f83d37",
+      "pr_test_merge_sha": "6311b2d354c49dccd1fa7331b64d974cf39d542a",
+      "run_id": 40388958638,
+      "job_id": 121804600260,
+      "run_url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/40388958638",
+      "status": "completed",
+      "conclusion": "success",
+      "test_count": 127,
+      "suites": {
+        "RiftletCaptureTests": 41,
+        "RiftletAdaptersTests": 42,
+        "RiftletCoreTests": 27,
+        "RiftletUITests": 17
+      },
+      "release_build": "PASS",
+      "app_signature": "PASS",
+      "packaged_self_check": "PASS",
+      "gui_helper_fixture_self_check": "PASS",
+      "interactive_gui": "NOT_RUN",
+      "real_chatgpt": "NOT_RUN",
+      "artifact_id": 12681154409,
+      "artifact_sha256": "2222c4c04e2568f04cfcd80bcc028a92bbcf645318f3e9d97fd053737cca9607",
+      "artifact_retention_days": 14,
+      "compiler": "Apple Swift 5.10",
+      "os": "macOS 14.8.9",
+      "architecture": "arm64"
+    },
+    {
+      "source_sha": "e76e7985c05197c487dd4e7f585dc028ed64b1af",
+      "pr_test_merge_sha": "847471105ad2520e897a0d32e3a3e8337e5db0e1",
+      "run_id": 40389753080,
+      "job_id": 121807449326,
+      "run_url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/40389753080",
+      "status": "completed",
+      "conclusion": "success",
+      "test_count": 134,
+      "suites": {
+        "RiftletCaptureTests": 48,
+        "RiftletAdaptersTests": 42,
+        "RiftletCoreTests": 27,
+        "RiftletUITests": 17
+      },
+      "release_build": "PASS",
+      "app_signature": "PASS",
+      "packaged_self_check": "PASS",
+      "gui_helper_fixture_self_check": "PASS",
+      "interactive_gui": "NOT_RUN",
+      "real_chatgpt": "NOT_RUN",
+      "artifact_id": 12682330742,
+      "artifact_sha256": "5f7c9eb727e8fb751c569b0b2e6e67254e7bf01f63d327b928f439dd62179d19",
+      "artifact_retention_days": 14,
+      "compiler": "Apple Swift 5.10",
+      "os": "macOS 14.8.9",
+      "architecture": "arm64"
+    }
+  ],
+  "parallel_execution": {
+    "integration_lead": "root",
+    "independent_lanes": [
+      "capture_c1",
+      "ui_u1",
+      "adapter_w0"
+    ],
+    "observed_peak_implementation_agents": 3,
+    "constant_background_service": false
+  },
+  "real_attached": {
+    "status": "USER_REPORTED_SCOPED_PASS",
+    "raw_source_and_full_evidence": "NOT_OBTAINED",
+    "production_success_profiles": 0,
+    "production_retry_profiles": 0
+  },
+  "reviews": [
+    {
+      "tasks": [
+        "Q1"
+      ],
+      "author": "root",
+      "reviewers": [
+        "ui_u1",
+        "adapter_w0"
+      ],
+      "result": "PASS_SOURCE_SCOPE"
+    },
+    {
+      "tasks": [
+        "U1",
+        "U2",
+        "D1 module"
+      ],
+      "author": "ui_u1",
+      "reviewers": [
+        "root"
+      ],
+      "result": "PASS_SOURCE_SCOPE"
+    },
+    {
+      "tasks": [
+        "W0",
+        "W1"
+      ],
+      "author": "adapter_w0",
+      "reviewers": [
+        "root",
+        "ui_u1"
+      ],
+      "result": "PASS_DISABLED_SYNTHETIC_SCOPE"
+    },
+    {
+      "tasks": [
+        "C1 module"
+      ],
+      "author": "capture_c1",
+      "reviewers": [
+        "root"
+      ],
+      "result": "PASS_SOURCE_SCOPE"
+    },
+    {
+      "tasks": [
+        "C1 App wiring",
+        "D1 App wiring"
+      ],
+      "author": "root",
+      "reviewers": [
+        "ui_u1"
+      ],
+      "result": "PASS_SOURCE_SCOPE"
+    },
+    {
+      "tasks": [
+        "C1 handoff/generation/unreadable recovery"
+      ],
+      "author": "capture_c1",
+      "reviewers": [
+        "root",
+        "ui_u1"
+      ],
+      "result": "PASS_AFTER_FINDINGS_FIXED"
+    },
+    {
+      "tasks": [
+        "C2 storage fault recovery"
+      ],
+      "authors": [
+        "capture_c1",
+        "root"
+      ],
+      "reviewers": [
+        "ui_u1"
+      ],
+      "additional_review": "capture_c1 read-only review of root additions",
+      "result": "PASS_AFTER_FINDINGS_FIXED"
+    },
+    {
+      "tasks": [
+        "M0 injected Mac/pasteboard flow"
+      ],
+      "author": "adapter_w0",
+      "reviewers": [
+        "root",
+        "ui_u1"
+      ],
+      "result": "PASS_DISABLED_SYNTHETIC_SCOPE"
+    },
+    {
+      "tasks": [
+        "FIFO nonblocking regular-file opens and test harness"
+      ],
+      "author": "root",
+      "reviewers": [
+        "ui_u1"
+      ],
+      "result": "PASS_AFTER_FINDINGS_FIXED"
+    }
+  ],
+  "latest_tested_native_sha": "e76e7985c05197c487dd4e7f585dc028ed64b1af",
+  "last_observed_main": "3f5248d6b1c0d32ad80141cbdee4ee16945e6f7b",
+  "main_delta_scope": "Website/icon files only; observed but not modified or merged by this session",
+  "remaining_acceptance": {
+    "N1": "Interactive Mac focus, click-through, physical screens, actual Screenshot.app preferences/TCC/sleep, resources and latency",
+    "W2": "Actual reviewed page program plus complete scoped source/evidence; real click-time tab/lease, image/completion and independent retry admission",
+    "M1": "Real native AX/NSPasteboard backend; file/target/owner input fragment; cross-instance and restart clipboard coordination; per-surface evidence"
+  },
+  "test_limits": [
+    "Import fault hooks are deterministic in-process interruptions with real files/SQLite reopening, not SIGKILL or power loss.",
+    "Synthetic Web/Mac flows do not access real ChatGPT or the general pasteboard.",
+    "Native test runners and self-checks do not prove interactive GUI acceptance."
+  ],
+  "checkpoint_review": {
+    "author": "root",
+    "reviewer": "ui_u1",
+    "result": "PASS_AFTER_W2_IMPLEMENTATION_SCOPE_CORRECTED",
+    "checks": [
+      "Four GitHub runs/jobs/artifacts read back and matched",
+      "134 independent test definitions matched suite totals",
+      "Relative Markdown links resolved",
+      "Latest main delta confirmed website-only",
+      "Native worktree equal to tested e76e7985; checkpoint is docs/evidence-only"
+    ],
+    "human_github_approval_claimed": false
+  }
+}

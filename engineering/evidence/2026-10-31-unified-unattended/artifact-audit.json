@@ -1,0 +1,101 @@
+{
+  "schemaVersion": 1,
+  "result": "PASS_ARTIFACT_PROVENANCE_ONLY",
+  "formalSourceSHA": "2bddb61a19114167b7485c392600c4b91dc62725",
+  "actualCICheckoutSHA": "f2610e795c2eb41242289a32d0517edde094b587",
+  "mergeParents": [
+    "fccd809e9d55e0b221e75e6dcd7c21f6d357ee74",
+    "2bddb61a19114167b7485c392600c4b91dc62725"
+  ],
+  "mergeDifferenceFromFormalHead": "28 website-only files; build input objects equal",
+  "nativeCI": {
+    "runID": 41126228170,
+    "event": "pull_request",
+    "conclusion": "success",
+    "sourceAdmission": "success",
+    "armNativeAndPackaging": "success",
+    "intelNativeAndPackaging": "success"
+  },
+  "feedbackCI": {
+    "runID": 41126227847,
+    "event": "pull_request",
+    "conclusion": "success",
+    "actualCheckoutVerifiedInLog": true
+  },
+  "artifacts": [
+    {
+      "artifactID": 13011261938,
+      "artifactName": "native-foundation-macos-15-f2610e795c2eb41242289a32d0517edde094b587",
+      "architecture": "arm64",
+      "betaZIP_SHA256": "e0bd00668dd31b95e14880b337cfe802f38e7fbab0cc2bb838e71aa6ae249c83",
+      "developmentZIP_SHA256": "e11a60912aa9dfb42ee69201ad43637feb3e660f9899c9bd89f9d2b6069d1c38",
+      "binarySHA256": "7bc97eca7c9ce66ce1a5e4554145131d5e02059c2cddc009b14bee12b210b475",
+      "sourceHeadSHA": "2bddb61a19114167b7485c392600c4b91dc62725",
+      "checkoutSHA": "f2610e795c2eb41242289a32d0517edde094b587",
+      "manifestBuildInputObjects": {
+        "Sources": "73634671c55e203a5fabf27e225eecf44db6777e",
+        "Tests": "afc45e9fcf4bbf4b1a83ee8820c031f3cac18985",
+        "Resources": "2b6d3694992cae6b3a3d7547a11db78c2e8c6265",
+        "Package.swift": "d3cdd0d51ad937b1afb243cd866cf0071f408d49",
+        "scripts": "ba58cd0007933ec8bc525d182e3c3656b968c58f",
+        "packaging": "0ec93cd8e362771a8e493a60d59dc058c6be6b99",
+        ".github": "2465b859b0e3b4627bfdaaa2b54bc030e728ea0e",
+        "services/feedback": "cd061e75995151143acea4076b814293b10c39da",
+        "ThirdPartyNotices": "89a07e01c183f61fca6bc7d7127322b00fa03ded",
+        "research": "7ed0708f7cb3faed95a37fe319e3f0400f3b51dd",
+        "engineering/evidence/2026-10-27-real-mac-round2": "8bf31e0794f1cbd840c4d0b6ac7ac791b326eb81",
+        "engineering/evidence/2026-10-27-real-mac-round3": "8865f33d33623d5a5630d70336ff306680cd43e8",
+        "engineering/evidence/2026-10-27-real-mac-round5": "5a22c1bbeffbc0188b5bf4c2da951fce20a85a54",
+        "engineering/evidence/2026-10-28-system-screenshot-stage2": "51e8dba0abbbed28e2ab9274f9736c955537f25f"
+      },
+      "all14BuildInputObjectsMatchFormalHead": true,
+      "allManifestFileHashesMatch": true,
+      "betaAndDevelopmentBinaryIdentical": true,
+      "binaryArchitectureMatchesManifest": true,
+      "launchArgument": "--system-screenshot-candidate",
+      "ordinaryAppDefault": "capture-upload-disabled",
+      "executedLocally": false
+    },
+    {
+      "artifactID": 13012235205,
+      "artifactName": "native-foundation-macos-15-intel-f2610e795c2eb41242289a32d0517edde094b587",
+      "architecture": "x86_64",
+      "betaZIP_SHA256": "ab1b99108202b3eef5857473e7452617882c84aa7561a26ac274bb133c255868",
+      "developmentZIP_SHA256": "cbb76d4820d5953a9010ce05f668dddba0fbe7c73f896c6aff05e8070396dceb",
+      "binarySHA256": "5d80bd630d95dd36163bcf405d1d43178984b24efa50f4e4c1b0661a26d0546c",
+      "sourceHeadSHA": "2bddb61a19114167b7485c392600c4b91dc62725",
+      "checkoutSHA": "f2610e795c2eb41242289a32d0517edde094b587",
+      "manifestBuildInputObjects": {
+        "Sources": "73634671c55e203a5fabf27e225eecf44db6777e",
+        "Tests": "afc45e9fcf4bbf4b1a83ee8820c031f3cac18985",
+        "Resources": "2b6d3694992cae6b3a3d7547a11db78c2e8c6265",
+        "Package.swift": "d3cdd0d51ad937b1afb243cd866cf0071f408d49",
+        "scripts": "ba58cd0007933ec8bc525d182e3c3656b968c58f",
+        "packaging": "0ec93cd8e362771a8e493a60d59dc058c6be6b99",
+        ".github": "2465b859b0e3b4627bfdaaa2b54bc030e728ea0e",
+        "services/feedback": "cd061e75995151143acea4076b814293b10c39da",
+        "ThirdPartyNotices": "89a07e01c183f61fca6bc7d7127322b00fa03ded",
+        "research": "7ed0708f7cb3faed95a37fe319e3f0400f3b51dd",
+        "engineering/evidence/2026-10-27-real-mac-round2": "8bf31e0794f1cbd840c4d0b6ac7ac791b326eb81",
+        "engineering/evidence/2026-10-27-real-mac-round3": "8865f33d33623d5a5630d70336ff306680cd43e8",
+        "engineering/evidence/2026-10-27-real-mac-round5": "5a22c1bbeffbc0188b5bf4c2da951fce20a85a54",
+        "engineering/evidence/2026-10-28-system-screenshot-stage2": "51e8dba0abbbed28e2ab9274f9736c955537f25f"
+      },
+      "all14BuildInputObjectsMatchFormalHead": true,
+      "allManifestFileHashesMatch": true,
+      "betaAndDevelopmentBinaryIdentical": true,
+      "binaryArchitectureMatchesManifest": true,
+      "launchArgument": "--system-screenshot-candidate",
+      "ordinaryAppDefault": "capture-upload-disabled",
+      "executedLocally": false
+    }
+  ],
+  "limits": [
+    "No App was executed by this artifact audit",
+    "Intel App never executed on ARM",
+    "CI artifacts do not contain later local startup ownership patch",
+    "Ordinary upload remains disabled; explicit restricted candidate launcher only",
+    "No Developer ID signing or notarization; not public release",
+    "Artifact provenance is not real Chrome, physical input or final successor App acceptance"
+  ]
+}

@@ -1,0 +1,102 @@
+{
+  "schemaVersion": 1,
+  "scope": "one fresh real system PNG; admitted restricted candidate; ordinary persisted zh ChatGPT thread; prebound CGEvent click",
+  "sourceSHA": "e421e6687651c2fac1441410c1af2bd5b8151e55",
+  "result": "PASS_LIMITED",
+  "SC_INPUT": "PASS",
+  "SC_START": "PASS",
+  "SC_COMPLETE": "PASS",
+  "SC_UX_FAST_SWALLOW": "PASS_SOFTWARE_NATIVE_WINDOW",
+  "physicalMouse": "NOT_RUN",
+  "image": {
+    "alias": "H",
+    "byteCount": 1789589,
+    "width": 1652,
+    "height": 1010,
+    "bitDepth": 8,
+    "colorType": 6,
+    "interlace": 0,
+    "nativeScreenshotMetadata": true,
+    "originalAndPrivateSHA256": "43721c40157a71eeb54751d8bd35d06a1dad250432559e4fe4a5b1178e53de2a",
+    "previewFileSHA256": "d6e9df91276abf75e6b0e9de246dbd6763aac20279724b9eafda95e534d43c11",
+    "originalAndPreviewRGBASHA256": "9642bb7d677b407adca96515d302ac9b97bfb45e7e654df172bc00f6e01fa826",
+    "equalRGBAChannels": 6674080,
+    "differentChannels": 0,
+    "serverOriginalBytesPreservation": "NOT_CLAIMED"
+  },
+  "identity": {
+    "oneNewOperation": true,
+    "attempt": 1,
+    "fullClickTargetMatchesOperationAndPageAndQualification": true,
+    "logicalDraftDiffersFromAllLegacyOperations": true,
+    "freezeAccepted": true,
+    "foregroundSessionMatches": true,
+    "hostEpochMatches": true,
+    "ACKPrecedesOriginalClick": true
+  },
+  "input": {
+    "begin": 1,
+    "chunk": 7,
+    "commit": 1,
+    "pageInputCount": 1,
+    "independentChangeCount": 1,
+    "automaticSend": false
+  },
+  "start": {
+    "previousProgress": 4.710072392734034,
+    "currentProgress": 9.420144785468068,
+    "inputBeforeStart": true,
+    "startBeforeFinal": true,
+    "startInputCount": 1,
+    "startInputSequence": 2,
+    "startSequence": 16
+  },
+  "completion": {
+    "identityIsOriginal": true,
+    "nodesAreOriginal": true,
+    "sourceIsOriginal": true,
+    "operationInvalid": false,
+    "operationError": false,
+    "inputSequence": 2,
+    "hundredSequence": 30,
+    "endedSequence": 41,
+    "loadedSequence": 42,
+    "proofCompletedSequence": 44
+  },
+  "preservation": {
+    "nonemptyTextLength": 48,
+    "selectionOffsets": [
+      8,
+      11
+    ],
+    "selectionWithinOriginalEditor": true,
+    "editorFocusedBeforeInput": false,
+    "oldStableAttachments": 1,
+    "finalAttachments": 2,
+    "postInputSamples": 24,
+    "allRecordedSamplesPreserved": true,
+    "baselineAttachmentBytesEqual": true,
+    "messageNodesUnchanged": true,
+    "firstObservedPageFocusLossAfterInputMS": 12537.0
+  },
+  "sqlite": {
+    "schema": 3,
+    "newOperationPhase": "succeeded",
+    "newAssetStatus": "used",
+    "newVisibility": "swallowed",
+    "newVisibilityReason": "uploadStarted",
+    "visibilityRevision": 1,
+    "uploadStartsBefore": 0,
+    "uploadStartsAfter": 1,
+    "startProfile": "chatgpt-web-system-screenshot-start-restricted-20261028-v2",
+    "completionProfile": "chatgpt-web-system-screenshot-attached-restricted-20261028-v2",
+    "safeRetry": false
+  },
+  "unchangedBoundaries": {
+    "ordinaryProduction": "CLOSED",
+    "safeFailure": "CLOSED",
+    "safeRetry": "CLOSED",
+    "oldUnknowns": "UNKNOWN_VISIBLE_LOCKED",
+    "legacyAdmissionNotBackfilled": true
+  }
+}

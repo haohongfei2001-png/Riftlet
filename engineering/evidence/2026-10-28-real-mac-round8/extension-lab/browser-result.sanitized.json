@@ -1,0 +1,265 @@
+{
+  "schema": 1,
+  "date": "2026-10-28",
+  "scope": "synthetic headless MV3 extension to actual stdio Native Messaging host only",
+  "runtimeExecutor": "root",
+  "independentEvidenceReviewer": "late_failure",
+  "repositoryHEADDuringReview": "85250a869f06d99e3d3ab046116f560bac572fd9",
+  "labSourceStatusAtExecution": "uncommitted isolated evidence lab; hashes identify reviewed files; executed temporary worker/content copies independently matched; not a product source build",
+  "browser": {
+    "family": "Google Chrome for Testing",
+    "installedBundleVersion": "156.0.8078.4",
+    "versionEvidence": "read installed bundle Info.plist; Browser.getVersion was not collected",
+    "headless": true,
+    "freshTemporaryUserDataDirectory": true,
+    "nativeManifestScope": "that temporary user-data directory / NativeMessagingHosts",
+    "originalChromeModified": false
+  },
+  "offlineChecks": {
+    "pythonTests": 15,
+    "nodeVMTests": 7,
+    "result": "PASS",
+    "includesActualStdioSubprocess": true,
+    "realBrowserRestartTested": false
+  },
+  "review": {
+    "nonAuthor": "web_safety",
+    "result": "PASS for metadata-only lab scope",
+    "resolvedIssues": [
+      "Correlate second-document ACK with a different Chrome-owned documentID, not ACK count",
+      "Require final pageState to verify second fixture",
+      "Separate Chromium 32-hex document token from UUID nonces and epochs"
+    ]
+  },
+  "priorAttempts": [
+    {
+      "attempt": 1,
+      "result": "BLOCKED",
+      "reason": "worker-inspection-failed",
+      "finding": "DevTools target existed before labSnapshot initialization; later empty snapshot was readable",
+      "correction": "Bounded function-ready wait; unrelated Runtime exceptions still fail"
+    },
+    {
+      "attempt": 2,
+      "result": "BLOCKED",
+      "reason": "bounded-wait-expired",
+      "finding": "beforeDocument normal; sourceInvalidated only, no contentSignal/nativeConnected",
+      "correction": "Added source refusal closed enums and read-only page/exception diagnostics"
+    },
+    {
+      "attempt": 3,
+      "result": "BLOCKED",
+      "reason": "documentID schema mismatch",
+      "finding": "sourceRefused=documentID; lowercase and case-insensitive UUID tests false, active lifecycle and complete synthetic page true",
+      "correction": "Official Chromium source confirmed 32-hex UnguessableToken; separate strict nonzero document validator and regression tests"
+    }
+  ],
+  "priorAttemptRecordScope": "Failure summaries were observed in the root execution/session reports; this directory does not contain their original full JSON snapshots.",
+  "verifiedAssertions": [
+    "Before document navigation there was no native channel or candidate",
+    "Document-start source signal preceded nativeConnected and invalidateAck sequence 1",
+    "Native publishAck sequence 2 corresponded to first browser-owned document token",
+    "Navigation invalidation acknowledgements sequences 3,4,5 cleared candidate state",
+    "Second native publishAck sequence 6 corresponded to a distinct document token and verified second synthetic fixture",
+    "No protocol exceptions reported; all inputAuthority fields false"
+  ],
+  "notProved": [
+    "real native foreground mouse event",
+    "absence of startup no-evidence interval",
+    "delivery of every invalidation before an arbitrary native click",
+    "ChatGPT business draft identity or composer readiness",
+    "real browser worker restart behavior",
+    "attachment input/start/completion/retry",
+    "latency advantage over Apple Events",
+    "production admission"
+  ],
+  "productionProfilesChanged": false,
+  "browserObservation": {
+    "scope": "isolated synthetic headless extension to native host",
+    "inputAuthority": false,
+    "uploadCount": 0,
+    "provesNativeForegroundClick": false,
+    "provesBusinessDraft": false,
+    "beforeDocument": {
+      "channelPresent": false,
+      "closed": false,
+      "inputAuthority": false,
+      "events": []
+    },
+    "firstPublication": {
+      "channelPresent": true,
+      "closed": false,
+      "inputAuthority": false,
+      "events": [
+        {
+          "event": "sourceInvalidated"
+        },
+        {
+          "event": "sourceInvalidated"
+        },
+        {
+          "event": "sourceInvalidated"
+        },
+        {
+          "event": "sourceConnection"
+        },
+        {
+          "event": "contentSignal",
+          "phase": "document_start",
+          "documentID": "9FFAEFA24820950A8581CBE5306CEE1C",
+          "frameID": 0
+        },
+        {
+          "event": "contentSignal",
+          "phase": "dom_ready",
+          "documentID": "9FFAEFA24820950A8581CBE5306CEE1C",
+          "frameID": 0
+        },
+        {
+          "event": "nativeConnected"
+        },
+        {
+          "event": "invalidateAck",
+          "sequence": 1,
+          "candidatePresent": false,
+          "publishedNS": null
+        },
+        {
+          "event": "publishAck",
+          "sequence": 2,
+          "candidatePresent": true,
+          "publishedNS": "475146269057750",
+          "documentID": "9FFAEFA24820950A8581CBE5306CEE1C",
+          "phase": "document_start"
+        },
+        {
+          "event": "staleOrInactive"
+        }
+      ]
+    },
+    "secondDocument": {
+      "channelPresent": true,
+      "closed": false,
+      "inputAuthority": false,
+      "events": [
+        {
+          "event": "sourceInvalidated"
+        },
+        {
+          "event": "sourceInvalidated"
+        },
+        {
+          "event": "sourceInvalidated"
+        },
+        {
+          "event": "sourceConnection"
+        },
+        {
+          "event": "contentSignal",
+          "phase": "document_start",
+          "documentID": "9FFAEFA24820950A8581CBE5306CEE1C",
+          "frameID": 0
+        },
+        {
+          "event": "contentSignal",
+          "phase": "dom_ready",
+          "documentID": "9FFAEFA24820950A8581CBE5306CEE1C",
+          "frameID": 0
+        },
+        {
+          "event": "nativeConnected"
+        },
+        {
+          "event": "invalidateAck",
+          "sequence": 1,
+          "candidatePresent": false,
+          "publishedNS": null
+        },
+        {
+          "event": "publishAck",
+          "sequence": 2,
+          "candidatePresent": true,
+          "publishedNS": "475146269057750",
+          "documentID": "9FFAEFA24820950A8581CBE5306CEE1C",
+          "phase": "document_start"
+        },
+        {
+          "event": "staleOrInactive"
+        },
+        {
+          "event": "sourceInvalidated"
+        },
+        {
+          "event": "invalidateAck",
+          "sequence": 3,
+          "candidatePresent": false,
+          "publishedNS": null
+        },
+        {
+          "event": "sourceInvalidated"
+        },
+        {
+          "event": "sourceConnection"
+        },
+        {
+          "event": "contentSignal",
+          "phase": "document_start",
+          "documentID": "720991533E499D11DBAB27F867EDDC2D",
+          "frameID": 0
+        },
+        {
+          "event": "contentSignal",
+          "phase": "dom_ready",
+          "documentID": "720991533E499D11DBAB27F867EDDC2D",
+          "frameID": 0
+        },
+        {
+          "event": "invalidateAck",
+          "sequence": 4,
+          "candidatePresent": false,
+          "publishedNS": null
+        },
+        {
+          "event": "invalidateAck",
+          "sequence": 5,
+          "candidatePresent": false,
+          "publishedNS": null
+        },
+        {
+          "event": "publishAck",
+          "sequence": 6,
+          "candidatePresent": true,
+          "publishedNS": "475146345802833",
+          "documentID": "720991533E499D11DBAB27F867EDDC2D",
+          "phase": "document_start"
+        },
+        {
+          "event": "staleOrInactive"
+        }
+      ]
+    },
+    "pageState": {
+      "readyState": "complete",
+      "syntheticScope": true,
+      "hasFixtureTitle": true,
+      "isSecondFixture": true,
+      "secureContext": true
+    },
+    "result": "browser-native-publication-observed",
+    "protocolDiagnostics": []
+  },
+  "labFileSHA256AtReview": {
+    "native_host.py": "1f29f8f9a2c5745267caae77806f0ab4e9945bdb9e8356b349a58d6ba26daf63",
+    "browser-lab.mjs": "6c175fccc5d10ad072953e1e8f1e252e27fb678341200c8d242e2385b2bccc83",
+    "publication-check.mjs": "3d57b71c5e0f8888e701e99be3b92b243448ef676e189b00229e8a919925f665",
+    "extension/manifest.json": "3db03042696937c730a2cc7030c0b886a7be436ece7c975da16bc203e3c10fe6",
+    "extension/content.js": "dca859ffd0f845274f3974200e919badbdd4f57d9f230be15dae34f834becee8",
+    "extension/worker.js": "2d1f662f22d5bfb10e850a4e7efdbaf49bbb5284cba60d80d9f739e45cb5d0f2",
+    "test_native.py": "7be2a1ba788297a0b0b8d3ca2631d53f04de563cf2bbeb1a6a1d74a5829e2b34",
+    "worker.test.cjs": "1eb88578c1037bdb12b52ea50d45dfe69de643e0dd878745d1f60e569457187a"
+  },
+  "executedExtensionCopiesMatchReviewedFiles": {
+    "worker.js": true,
+    "content.js": true
+  }
+}

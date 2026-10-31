@@ -1,0 +1,30 @@
+# Source head: 97f10b0bf03fbd9421083a15eefec0eb22ead606
+# Run: https://github.com/haohongfei2001-png/Riftlet/actions/runs/40437937532
+# Job: 121971048580; result: completed/success
+# This is CI compilation, filesystem/Core tests and synthetic VM/self-check evidence.
+# No real Chrome, GUI, or system screenshot-to-live-attachment loop ran in this job.
+2026-10-27T02:21:30.1717640Z Apple Swift version 5.10 (swiftlang-5.10.0.13 clang-1500.3.9.4)
+2026-10-27T02:21:30.1720070Z Target: arm64-apple-macosx14.0
+2026-10-27T02:21:30.2025960Z ProductName:		macOS
+2026-10-27T02:21:30.2026650Z ProductVersion:		14.8.9
+2026-10-27T02:21:30.2027110Z BuildVersion:		23J631
+2026-10-27T02:21:30.2054870Z arm64
+2026-10-27T02:21:30.4229060Z v22.23.2
+2026-10-27T02:21:31.1104860Z # fail 0
+2026-10-27T02:21:31.1154340Z   "packageFilesVerified": 55,
+2026-10-27T02:21:31.1154600Z   "historicalV1Tests": 19,
+2026-10-27T02:21:31.1154870Z   "realExceptionTracePrefixes": 89,
+2026-10-27T02:21:31.1155240Z   "lateErrorChecks": "2 SIMULATED, not actual post-preview failure",
+2026-10-27T02:21:31.1155670Z   "actualInputOperations": 3,
+2026-10-27T02:21:31.1158060Z   "browserActions": 0,
+2026-10-27T02:21:31.1158230Z   "networkRequests": 0
+2026-10-27T02:21:31.4083630Z # tests 9
+2026-10-27T02:21:31.4087040Z # pass 9
+2026-10-27T02:21:31.4087750Z # fail 0
+2026-10-27T02:21:56.0294090Z Build complete! (23.19s)
+2026-10-27T02:22:08.6097730Z [139/139] Testing RiftletCaptureTests.ImportFaultTests/testRealSQLiteWriterLockLeavesJournalAndCanResumeSameIdentity
+2026-10-27T02:22:32.1307820Z Build complete! (22.97s)
+2026-10-27T02:22:32.5050320Z Created build/Riftlet.app (development ad-hoc signature; not notarized).
+2026-10-27T02:22:33.4533830Z RIFTLET_SELF_CHECK_PASS: private import, durable queue, synthetic receipt, restart
+2026-10-27T02:22:33.5212350Z RIFTLET_WEB_ACCEPTANCE_SELF_CHECK_PASS: bundled page source, synthetic-only policy, isolated modes; CHROME_NOT_RUN; GUI_NOT_RUN
+2026-10-27T02:22:33.9137550Z RIFTLET_GUI_HELPER_SELF_CHECK_PASS: 12 synthetic PNGs; scenes 2/3/12; layout/status fixtures; GUI_NOT_RUN

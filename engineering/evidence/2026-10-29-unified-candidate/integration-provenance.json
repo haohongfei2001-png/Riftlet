@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "recordedAtUTC": "2026-10-28T19:21:41.571333+00:00",
+  "repository": "haohongfei2001-png/Riftlet",
+  "formal": "0e7ea8be148e1124b387e799fd886a7830e96559",
+  "candidate": "443d21da1a55c0061eafced823b5406879b96024",
+  "design": "7e03bd2c26c6aa43dbac07b073e00d08d1951b71",
+  "sourceCI": "00dedc7f8164643c3435e3f87aa462e28af0b1c8",
+  "sourceRun": 40742061755,
+  "mergeBase": "1920e0562db893a3292af89a89270a26ddb46a5f",
+  "mergeCommit": "0c13806e5822e71fdfed65eb0df579c5d1a8c73e",
+  "mergeTree": "f8fba91ea5bb937c105455fe1a3bc32eac8c96e7",
+  "localReviewedMergeEquivalent": "8dae90d25b38c10faa11d98cfe4f576c27b1b31e",
+  "localMergeNote": "Same ordered parents and byte-identical tree; GitHub creates its own author/date metadata. No working file changes when aligning to remote object.",
+  "main": "eba1a4fc77648a665e1d5c1f2609df1314c3b079",
+  "pr1": {
+    "state": "open",
+    "draft": true,
+    "merged": false
+  },
+  "ancestorFeatures": [
+    "5d6a683652d255af8c1d3e0d9533587fcc27a24d",
+    "d552a7388af3890bf693bb3fb24f4b8fc5bc12e7"
+  ],
+  "cherryPicks": 0,
+  "conflicts": {
+    "Sources/RiftletFeedbackUI/FeedbackWindowController.swift": "Preserve visual hunk from candidate and latest private-destination disclosure from formal. No whole-file replacement.",
+    "docs/EXECUTION_BOARD.md": "Keep both chronological handoffs.",
+    "docs/INTEGRATION_HANDOFF.md": "Keep both chronological handoffs."
+  },
+  "macDevice": {
+    "name": "hhfdeMacBook-Air.local",
+    "status": "Offline",
+    "id": "ea7c2cb7-378e-4226-a030-4f3e02a6ba2f",
+    "lastSeenAtCheck": "2h ago"
+  },
+  "oldHUploadsRepeated": 0,
+  "oldDataTouched": false,
+  "productionEnabled": false,
+  "safeRetryEnabled": false,
+  "feedbackEndpoint": null,
+  "cloudDeploymentAttempted": false
+}

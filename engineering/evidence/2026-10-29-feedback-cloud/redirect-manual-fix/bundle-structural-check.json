@@ -1,0 +1,13 @@
+{
+  "bundle": "/tmp/riftlet-feedback-bundler-20261029/acceptance/delivery-manual-loss.bundle.mjs",
+  "sha256": "bef68180db2c353466e629500651e61c5d8999bff516a450d59e502f6c8b7154",
+  "checks": {
+    "manualRedirectCount": 2,
+    "errorRedirectCount": 0,
+    "temporaryLossGuardCount": 1,
+    "probeTableAbsent": true,
+    "scheduledUsesOriginalDispatch": true,
+    "status201GatePresent": true
+  },
+  "limit": "Structural source-to-bundle boundary check; not actual cloud execution"
+}

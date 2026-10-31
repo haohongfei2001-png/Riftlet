@@ -1,0 +1,85 @@
+{
+  "files": [
+    {
+      "path": "01_TECHNICAL_DECISION.md",
+      "bytes": 26507,
+      "sha256": "151baad726edad38c43e4cfe21d1e7b678203cc80cba839a0077cd7ae146a52f"
+    },
+    {
+      "path": "02_REUSE_MAP.md",
+      "bytes": 14658,
+      "sha256": "5d593adac97d933e1605edb239f4cfdfdce824bcb92e961708546b809b593b11"
+    },
+    {
+      "path": "03_MAC_VALIDATION.md",
+      "bytes": 14084,
+      "sha256": "0e95a7e3a2c07ed2e6e6d3daa0032d7f9beaf6f3fa05448fe5d07bd0fdd96fa2"
+    },
+    {
+      "path": "04_EVIDENCE.md",
+      "bytes": 5399,
+      "sha256": "73c343c4bf7b157994a7d93e932ac88830382eab4a2680967f5b04ba9666fa6f"
+    },
+    {
+      "path": "README.md",
+      "bytes": 3948,
+      "sha256": "3e4b4058ca54efea4f1e6a66dbe8bfe8d35ca22a2937505b7e513800642c9c52"
+    },
+    {
+      "path": "SOURCE_MANIFEST.json",
+      "bytes": 24016,
+      "sha256": "e1bdcf9cac2ce147da80e108b9f6317bcbe23d814879ffd9275c49efd2049d5f"
+    },
+    {
+      "path": "evidence/oracle/LICENSE",
+      "bytes": 1074,
+      "sha256": "14293556b79940745123d0160c71d27ed0e9fe9b8a848093f3ed78f4853caafe"
+    },
+    {
+      "path": "evidence/oracle/offline-adversarial-results.json",
+      "bytes": 2794,
+      "sha256": "c96855a052240091431098bb5d5ce02447c949484b497f33c31ca7ed531018ba"
+    },
+    {
+      "path": "evidence/oracle/offline-adversarial.mjs",
+      "bytes": 5724,
+      "sha256": "62899110a58f899211b619d9a13f8c1f02db2ddd674298770bc8964d6a3816ed"
+    },
+    {
+      "path": "evidence/oracle/source-index.json",
+      "bytes": 2924,
+      "sha256": "3a3aaa4e4a2c9d323e785d8b93aae2fbc8d5eea3fda97fb32011571bf103c3cf"
+    },
+    {
+      "path": "evidence/oracle/src/browser/actions/attachmentEvidence.ts",
+      "bytes": 5924,
+      "sha256": "cc45f2fd2aa294a4f5a1e00f37f2c3b72c46851388e111482f8b7de6aa94fba1"
+    },
+    {
+      "path": "evidence/oracle/src/browser/actions/attachmentProgress.ts",
+      "bytes": 2975,
+      "sha256": "60f4dcd50bfacce69067058e01dc5c6f55af4b82d53fef74502887d1dbd45a8e"
+    },
+    {
+      "path": "evidence/oracle/src/browser/actions/attachments.ts",
+      "bytes": 92061,
+      "sha256": "1eab07159a543eed7e876bbdbb698a1898b443508e74e71c48a59d37aca681b4"
+    },
+    {
+      "path": "evidence/oracle/src/browser/actions/composerRoot.ts",
+      "bytes": 2166,
+      "sha256": "c88d793a7fe3ce045a8dd5fb43fefdb5cd92de696b8b403a5080110b182ef3b3"
+    },
+    {
+      "path": "evidence/oracle/src/browser/constants.ts",
+      "bytes": 7774,
+      "sha256": "f99ffa2edeb84e624b1560f6ebac5b3572d152c2c2fcab007d3947486caf16ba"
+    },
+    {
+      "path": "evidence/oracle/tests/browser/domFixture.ts",
+      "bytes": 7392,
+      "sha256": "4b798c87667910c615f16e1c74f978f470d58b461d66f56691d8fec48bda3408"
+    }
+  ],
+  "note": "Hashes exclude PACKAGE_INDEX.json itself."
+}

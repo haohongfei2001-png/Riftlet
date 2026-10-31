@@ -1,0 +1,15 @@
+case,result,evidence_scope
+MID_ABORT,PASS_SCOPED,"Real matched XHR native abort before byte completion; 81875/5506018; no final data preview; UI UNKNOWN, original retained"
+AFTER_100_ABORT,PASS_SCOPED,Real matched XHR native abort; own UI100 and native25265/25265; status0; no final data preview; not server HTTP5xx
+CONCURRENT_DISTINCT_ATTACHMENTS,PASS_SCOPED,Two overlapping real uploads with distinct names/cards; first completion not borrowed by other
+TYPE_DURING_UPLOAD,PASS_SCOPED,Synthetic text inserted during real upload; length52 preserved; same composer remains valid
+TEMPORARY_DRAFT_ROUTE_TRANSITION,PASS_SCOPED,Real upload active then observed Temporary Chat control; route changed; old binding invalidated; no success
+HOME_CLICK,NOT_EXERCISED,Home clicked on Home did not change draft; excluded from passing transition evidence
+ACTIVE_TAB_SWITCH,NOT_TESTED,"No browser active-tab switch performed by probe; label TAB_SWITCH is historical, actual case is temporary draft route transition"
+SAME_URL_SAME_NODES_DRAFT_TRANSITION,NOT_TESTED,No actual sample; no assertion that node and URL checks alone identify every draft generation
+SERVER_FINALIZATION_HTTP_5XX_OR_REJECTION,NOT_TESTED,No fabricated server response; actual failure tested is native client interruption
+FAILURE_AFTER_FINAL_PREVIEW,NOT_TESTED,No actual post-preview failure sample
+DURABLE_DUPLICATE_REFUSAL,PASS,MID and POST100 dispatcher refused at exclusive intent open before browser call; transport unchanged
+ORIGINAL_RETENTION,PASS,All six isolated fixture copies exist and original hashes match
+FAULT_HOOK_CLEANUP,PASS,"MAIN network wrappers restored, bridge STOPPED; supplemental error observer stopped"
+STRICT_INTERNAL_READY,NOT_PROVEN,No positive application completion receipt claimed

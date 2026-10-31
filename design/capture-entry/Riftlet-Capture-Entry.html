@@ -1,0 +1,931 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <meta name="description" content="Synthetic offline interaction reference for Riftlet's native capture entry. No OS capture or upload.">
+  <title>Riftlet · Capture Entry Reference</title>
+  <style>
+    :root { color-scheme:light dark; }
+    body { margin:0; padding:16px; background:light-dark(#fff,#15171b); }
+  </style>
+</head>
+<body>
+<!--
+# Capture-entry reference: icon notices
+
+The 22 inline SVG icon definitions were retained from the approved prototype's
+Lucide v1.17.0 bundle. Only the definitions in use are included; the Lucide
+JavaScript runtime, the chat preview wrapper, and external CDNs are not bundled.
+The authored desktop illustration and interaction code are separate from these
+icon definitions. No real desktop or chat screenshots are included.
+
+Source and license: https://github.com/lucide-icons/lucide
+License text checked against https://raw.githubusercontent.com/lucide-icons/lucide/main/LICENSE
+on 2026-10-28.
+
+## Lucide — ISC License
+
+Copyright (c) 2026 Lucide Icons and Contributors
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted, provided that the above
+copyright notice and this permission notice appear in all copies.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+## Feather-derived icons — MIT License
+
+The Lucide license identifies the following included icons as Feather-derived:
+check, chevron-left, chevron-right, compass, monitor, search, smile, x.
+
+Copyright (c) 2013-present Cole Bemis
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+-->
+<!-- Inline Lucide v1.17.0 icon definitions: ISC; Feather-derived icons: MIT. Full notices in THIRD_PARTY_NOTICES.md and the built standalone. -->
+<div id="riftlet-capture-reference-design">
+  <div class="viz-controls">
+    <button type="button" class="btn" data-demo>演示靠近</button>
+    <button type="button" class="btn" data-seed>已有 3 张</button>
+    <button type="button" class="btn" data-theme>深色桌面</button>
+  </div>
+  <div class="rf-desktop" data-simulation="synthetic-only" data-phase="rest" data-appearance="light" data-reveal="0" data-total="0" role="group" aria-label="Riftlet 截图交互原型，向桌面右侧中部移动可显现入口">
+    <div class="rf-wallpaper" aria-hidden="true"></div>
+    <div class="rf-menubar" aria-hidden="true"><b>Finder</b><span>文件</span><span>编辑</span><span>显示</span><span class="rf-menu-right"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-wifi" aria-hidden="true"><path d="M12 20h.01"></path><path d="M2 8.82a15 15 0 0 1 20 0"></path><path d="M5 12.859a10 10 0 0 1 14 0"></path><path d="M8.5 16.429a5 5 0 0 1 7 0"></path></svg><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-battery-full" aria-hidden="true"><path d="M10 10v4"></path><path d="M14 10v4"></path><path d="M22 14v-4"></path><path d="M6 10v4"></path><rect x="2" y="6" width="16" height="12" rx="2"></rect></svg><span>周三 10:09</span></span></div>
+    <section class="rf-window rf-finder" data-window="finder" aria-label="Finder 窗口">
+      <div class="rf-window-top"><div class="rf-lights" aria-hidden="true"><i></i><i></i><i></i></div><span>文稿</span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search" aria-hidden="true"><path d="m21 21-4.34-4.34"></path><circle cx="11" cy="11" r="8"></circle></svg></div>
+      <div class="rf-finder-body"><div class="rf-sidebar"><span>个人收藏</span><div><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock-3" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6h4"></path></svg>最近使用</div><div><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-monitor" aria-hidden="true"><rect width="20" height="14" x="2" y="3" rx="2"></rect><line x1="8" x2="16" y1="21" y2="21"></line><line x1="12" x2="12" y1="17" y2="21"></line></svg>桌面</div><div class="rf-sidebar-selected"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-text" aria-hidden="true"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"></path><path d="M14 2v5a1 1 0 0 0 1 1h5"></path><path d="M10 9H8"></path><path d="M16 13H8"></path><path d="M16 17H8"></path></svg>文稿</div></div><div class="rf-files"><div><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-folder" aria-hidden="true"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"></path></svg><span>设计参考</span></div><div><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-folder" aria-hidden="true"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"></path></svg><span>项目资料</span></div><div><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-text" aria-hidden="true"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"></path><path d="M14 2v5a1 1 0 0 0 1 1h5"></path><path d="M10 9H8"></path><path d="M16 13H8"></path><path d="M16 17H8"></path></svg><span>片段与思考</span></div></div></div>
+    </section>
+    <section class="rf-window rf-notes" data-window="notes" aria-label="备忘录窗口">
+      <div class="rf-window-top"><div class="rf-lights" aria-hidden="true"><i></i><i></i><i></i></div><span>备忘录</span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-pen" aria-hidden="true"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"></path></svg></div>
+      <div class="rf-note-body"><div class="rf-note-date">10 月 28 日 · 10:09</div><h3>空间与片段</h3><p>让工具安静地存在。<br>需要的时候，刚好在手边。</p><div class="rf-note-art" aria-label="设计参考图"><div class="rf-art-plane"></div><div class="rf-art-cut"></div><span>SPACE / FRAGMENTS</span></div><div class="rf-note-foot">保存一刻，继续思考。</div></div>
+    </section>
+    <div class="rf-dock" aria-hidden="true"><span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-smile" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" x2="9.01" y1="9" y2="9"></line><line x1="15" x2="15.01" y1="9" y2="9"></line></svg></span><span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-compass" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="m16.24 7.76-1.804 5.411a2 2 0 0 1-1.265 1.265L7.76 16.24l1.804-5.411a2 2 0 0 1 1.265-1.265z"></path></svg></span><span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sticky-note" aria-hidden="true"><path d="M21 9a2.4 2.4 0 0 0-.706-1.706l-3.588-3.588A2.4 2.4 0 0 0 15 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2z"></path><path d="M15 3v5a1 1 0 0 0 1 1h5"></path></svg></span><span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-image" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"></rect><circle cx="9" cy="9" r="2"></circle><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"></path></svg></span><span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings" aria-hidden="true"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"></path><circle cx="12" cy="12" r="3"></circle></svg></span></div>
+    <div class="rf-queue" aria-label="截图队列"></div>
+    <div class="rf-rift" aria-hidden="true"><span class="rf-rift-depth"></span><span class="rf-rift-core"></span><span class="rf-rift-rim"></span></div>
+    <button type="button" class="rf-page cursor-interaction" data-page hidden></button>
+    <div class="rf-selection-layer" hidden aria-label="截图目标选择区"></div>
+    <div class="rf-target" hidden aria-hidden="true"></div>
+    <div class="rf-camera" hidden aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-camera" aria-hidden="true"><path d="M13.997 4a2 2 0 0 1 1.76 1.05l.486.9A2 2 0 0 0 18.003 7H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1.997a2 2 0 0 0 1.759-1.048l.489-.904A2 2 0 0 1 10.004 4z"></path><circle cx="12" cy="13" r="3"></circle></svg></div>
+    <div class="rf-toolbar" id="rf-anchored-tools" role="toolbar" aria-label="截图方式">
+      <button type="button" class="rf-entry cursor-interaction" data-slot="base" data-mode="window" aria-label="截图，默认选择窗口" aria-controls="rf-capture-reference-upper" aria-expanded="false"><span class="rf-entry-surface" aria-hidden="true"></span><span class="rf-entry-glyph" aria-hidden="true"><span class="rf-camera-symbol"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-camera" aria-hidden="true"><path d="M13.997 4a2 2 0 0 1 1.76 1.05l.486.9A2 2 0 0 0 18.003 7H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1.997a2 2 0 0 0 1.759-1.048l.489-.904A2 2 0 0 1 10.004 4z"></path><circle cx="12" cy="13" r="3"></circle></svg></span><span class="rf-entry-mode" hidden><span class="rf-tool-symbol" data-symbol="window" hidden><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-app-window" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="M10 4v4"></path><path d="M2 8h20"></path><path d="M6 4v4"></path></svg></span><span class="rf-tool-symbol" data-symbol="region" hidden><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-scan" aria-hidden="true"><path d="M3 7V5a2 2 0 0 1 2-2h2"></path><path d="M17 3h2a2 2 0 0 1 2 2v2"></path><path d="M21 17v2a2 2 0 0 1-2 2h-2"></path><path d="M7 21H5a2 2 0 0 1-2-2v-2"></path></svg></span><span class="rf-tool-symbol" data-symbol="full" hidden><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-monitor" aria-hidden="true"><rect width="20" height="14" x="2" y="3" rx="2"></rect><line x1="8" x2="16" y1="21" y2="21"></line><line x1="12" x2="12" y1="17" y2="21"></line></svg></span></span></span></button>
+      <div class="rf-tools-upper" id="rf-anchored-upper" aria-hidden="true" inert>
+        <button type="button" class="rf-tool-button cursor-interaction" data-slot="near" data-mode="region" disabled aria-label="截取区域" data-tooltip="截取区域" data-tooltip-placement="left"><span class="rf-tool-symbol" data-symbol="window" hidden><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-app-window" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="M10 4v4"></path><path d="M2 8h20"></path><path d="M6 4v4"></path></svg></span><span class="rf-tool-symbol" data-symbol="region" hidden><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-scan" aria-hidden="true"><path d="M3 7V5a2 2 0 0 1 2-2h2"></path><path d="M17 3h2a2 2 0 0 1 2 2v2"></path><path d="M21 17v2a2 2 0 0 1-2 2h-2"></path><path d="M7 21H5a2 2 0 0 1-2-2v-2"></path></svg></span><span class="rf-tool-symbol" data-symbol="full" hidden><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-monitor" aria-hidden="true"><rect width="20" height="14" x="2" y="3" rx="2"></rect><line x1="8" x2="16" y1="21" y2="21"></line><line x1="12" x2="12" y1="17" y2="21"></line></svg></span></button>
+        <button type="button" class="rf-tool-button cursor-interaction" data-slot="far" data-mode="full" disabled aria-label="截取全屏" data-tooltip="截取全屏" data-tooltip-placement="left"><span class="rf-tool-symbol" data-symbol="window" hidden><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-app-window" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="M10 4v4"></path><path d="M2 8h20"></path><path d="M6 4v4"></path></svg></span><span class="rf-tool-symbol" data-symbol="region" hidden><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-scan" aria-hidden="true"><path d="M3 7V5a2 2 0 0 1 2-2h2"></path><path d="M17 3h2a2 2 0 0 1 2 2v2"></path><path d="M21 17v2a2 2 0 0 1-2 2h-2"></path><path d="M7 21H5a2 2 0 0 1-2-2v-2"></path></svg></span><span class="rf-tool-symbol" data-symbol="full" hidden><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-monitor" aria-hidden="true"><rect width="20" height="14" x="2" y="3" rx="2"></rect><line x1="8" x2="16" y1="21" y2="21"></line><line x1="12" x2="12" y1="17" y2="21"></line></svg></span></button>
+        <button type="button" class="rf-tool-button cursor-interaction" data-more disabled aria-label="更多截图选项" aria-expanded="false" aria-controls="rf-anchored-options" data-tooltip="更多选项" data-tooltip-placement="left"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-ellipsis" aria-hidden="true"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg></button>
+      </div>
+      <div class="rf-active-cover-clip" aria-hidden="true"><span class="rf-active-cover"><span class="rf-active-cover-fill"></span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x" aria-hidden="true"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></span></div>
+    </div>
+    <div class="rf-options" id="rf-anchored-options" role="group" aria-label="本次截图选项" hidden>
+      <div class="rf-options-main">
+      <div class="rf-option-caption">本次截图</div>
+      <button type="button" class="rf-option-row cursor-interaction" data-edit-option aria-pressed="false"><span>截后编辑</span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg></button>
+      <button type="button" class="rf-option-row cursor-interaction" data-pointer-option aria-pressed="false"><span>包括鼠标指针</span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg></button>
+      <div class="rf-option-divider"></div><div class="rf-option-caption">定时</div>
+      <div class="rf-timers" aria-label="截图延时"><button type="button" class="cursor-interaction" data-delay="0" aria-pressed="true">无</button><button type="button" class="cursor-interaction" data-delay="5" aria-pressed="false">5 秒</button><button type="button" class="cursor-interaction" data-delay="10" aria-pressed="false">10 秒</button></div>
+      <div class="rf-option-divider"></div><button type="button" class="rf-option-row cursor-interaction" data-settings><span>设置</span><span data-default-label>窗口</span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg></button>
+      <button type="button" class="rf-option-row cursor-interaction" data-cancel><span>取消截图</span><kbd>esc</kbd></button>
+      </div>
+      <div class="rf-settings" hidden>
+        <button type="button" class="rf-option-row rf-settings-back cursor-interaction" data-settings-back aria-label="返回截图选项"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-left" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg><span>设置</span></button>
+        <div class="rf-option-divider"></div><div class="rf-option-caption">默认截图方式</div>
+        <button type="button" class="rf-option-row cursor-interaction" data-default-mode="window" aria-pressed="true"><span>窗口截图</span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg></button>
+        <button type="button" class="rf-option-row cursor-interaction" data-default-mode="region" aria-pressed="false"><span>区域截图</span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg></button>
+        <button type="button" class="rf-option-row cursor-interaction" data-default-mode="full" aria-pressed="false"><span>全屏截图</span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg></button>
+      </div>
+    </div>
+    <button type="button" class="rf-countdown cursor-interaction" hidden aria-label="取消定时截图"><span data-countdown>5</span><span>取消</span></button>
+    <div class="rf-origin" hidden aria-hidden="true"><img alt="" draggable="false"></div>
+    <div class="rf-editor" hidden role="group" aria-label="本次截图标注">
+      <div class="rf-editor-heading"><span>截图标注</span><span>拖动添加矩形</span></div><div class="rf-editor-work"><canvas aria-label="拖动添加矩形标注"></canvas></div><div class="rf-editor-actions"><button type="button" class="cursor-interaction" data-undo>撤销</button><button type="button" class="cursor-interaction" data-original>保留原图</button><button type="button" class="rf-done cursor-interaction" data-edit-done>完成</button></div>
+    </div>
+    <div class="rf-demo-pointer" hidden aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-mouse-pointer-2" aria-hidden="true"><path d="M4.037 4.688a.495.495 0 0 1 .651-.651l16 6.5a.5.5 0 0 1-.063.947l-6.124 1.58a2 2 0 0 0-1.438 1.435l-1.579 6.126a.5.5 0 0 1-.947.063z"></path></svg></div>
+  </div>
+  <div class="rf-preview-status"><span data-status role="status" aria-live="polite">向右侧中部靠近；点入口，再点窗口。</span><span data-opacity aria-hidden="true">线条 0% · 背景 0%</span></div>
+  <p class="rf-simulation-note">离线交互参照 · 桌面与图片均为合成内容；取用仅演示，不访问系统屏幕或任何聊天。</p>
+  <style>
+    #riftlet-capture-reference-design { --muted-foreground:#737782; font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Noto Sans CJK SC",sans-serif; color:#292b33; }
+    #riftlet-capture-reference-design .viz-controls { display:flex; flex-wrap:wrap; gap:8px; }
+    #riftlet-capture-reference-design .btn { font:inherit; font-size:12px; line-height:16px; padding:7px 11px; border:1px solid #d5d9e0; border-radius:8px; color:#292b33; background:#f7f8fa; cursor:pointer; }
+    #riftlet-capture-reference-design .btn:hover { background:#edf0f5; }
+    #riftlet-capture-reference-design .rf-simulation-note { margin:10px 0 0; color:#737782; font-size:11px; line-height:1.6; }
+    #riftlet-capture-reference-design svg.lucide { display:block; width:16px!important; height:16px!important; flex:none; margin:0!important; stroke-width:1.6; }
+    #riftlet-capture-reference-design button { cursor:pointer; }
+    #riftlet-capture-reference-design button:focus-visible { outline:2px solid #6387ba; outline-offset:2px; }
+    #riftlet-capture-reference-design { width:100%; }
+    #riftlet-capture-reference-design .viz-controls { margin-bottom:12px; }
+    #riftlet-capture-reference-design .rf-preview-status { display:flex; flex-wrap:wrap; justify-content:space-between; gap:6px 16px; margin-top:10px; font-size:12px; color:var(--muted-foreground); }
+    #riftlet-capture-reference-design .rf-desktop { --rf-ink:light-dark(#292b33,#edf0f7); --rf-sub:light-dark(#71747d,#a9b1c3); --rf-paper:light-dark(#fcfcfd,#272b35); --rf-chrome:light-dark(#f3f3f5,#333845); --rf-border:light-dark(#00000016,#ffffff21); --rf-glass:light-dark(#f4f6facf,#282e3cdb); --rf-edge:light-dark(#ffffffce,#a3b2cd45); --rf-selected:light-dark(#d9dfe9aa,#67748d80); --rf-shadow:light-dark(#1f264233,#00000050); --rf-reveal:0; --rf-line-alpha:0; --rf-rift-h:36px; --rf-anchor-y:246px; position:relative; height:560px; overflow:clip; isolation:isolate; border-radius:12px; background:light-dark(#8999bf,#303e69); color:var(--rf-ink); font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Noto Sans CJK SC",sans-serif; font-size:12px; line-height:1.5; user-select:none; -webkit-user-select:none; }
+    #riftlet-capture-reference-design .rf-desktop[data-appearance="light"] { color-scheme:light; }
+    #riftlet-capture-reference-design .rf-desktop[data-appearance="dark"] { color-scheme:dark; }
+    #riftlet-capture-reference-design .rf-desktop * { box-sizing:border-box; }
+    #riftlet-capture-reference-design .rf-desktop button { font-family:inherit; color:inherit; font-size:12px; line-height:1.3; -webkit-tap-highlight-color:transparent; }
+    #riftlet-capture-reference-design .rf-wallpaper { position:absolute; inset:0; background:radial-gradient(ellipse at 88% 8%,light-dark(#e6d8d4,#526699) 0%,transparent 45%),radial-gradient(ellipse at 18% 96%,light-dark(#b2cae0,#475d88) 0%,transparent 58%),linear-gradient(128deg,light-dark(#b2b5d3,#303459) 4%,light-dark(#839cc4,#283a61) 50%,light-dark(#d4b8b3,#7b637b) 100%); }
+    #riftlet-capture-reference-design .rf-wallpaper::after { content:""; position:absolute; width:105%; height:110%; top:30%; left:18%; border-radius:46% 50% 0 0; transform:rotate(-28deg); background:linear-gradient(130deg,light-dark(#e1d9e16e,#b2b5d32a),transparent 45%); box-shadow:inset 1px 5px 28px light-dark(#e5e5f460,#d1dbf21b); }
+    #riftlet-capture-reference-design .rf-menubar { position:absolute; z-index:3; top:0; left:0; right:0; height:27px; display:flex; align-items:center; gap:17px; padding:0 16px; background:light-dark(#f4f4fb4d,#14213e40); backdrop-filter:blur(18px); font-size:11px; }
+    #riftlet-capture-reference-design .rf-menubar b { font-weight:600; }
+    #riftlet-capture-reference-design .rf-menu-right { margin-left:auto; display:flex; align-items:center; gap:12px; }
+    #riftlet-capture-reference-design .rf-menu-right svg { width:14px; height:14px; }
+    #riftlet-capture-reference-design .rf-window { position:absolute; border:1px solid var(--rf-border); border-radius:13px; background:var(--rf-paper); box-shadow:0 14px 32px var(--rf-shadow),0 0 0 .5px light-dark(#ffffff80,#ffffff0b); overflow:hidden; }
+    #riftlet-capture-reference-design .rf-finder { z-index:4; left:5.8%; top:65px; width:55%; height:286px; }
+    #riftlet-capture-reference-design .rf-notes { z-index:5; left:29%; top:130px; width:53%; height:343px; }
+    #riftlet-capture-reference-design .rf-window-top { height:43px; display:flex; gap:14px; align-items:center; padding:0 13px; background:var(--rf-chrome); border-bottom:1px solid var(--rf-border); font-size:12px; font-weight:500; }
+    #riftlet-capture-reference-design .rf-window-top>svg,#riftlet-capture-reference-design .rf-window-top>i { width:15px; height:15px; margin-left:auto; color:var(--rf-sub); }
+    #riftlet-capture-reference-design .rf-lights { display:flex; gap:6px; flex-shrink:0; }
+    #riftlet-capture-reference-design .rf-lights i { width:10px; height:10px; border-radius:50%; background:#ff5f57; box-shadow:inset 0 0 0 .5px #00000018; }
+    #riftlet-capture-reference-design .rf-lights i:nth-child(2) { background:#febc2e; }
+    #riftlet-capture-reference-design .rf-lights i:nth-child(3) { background:#28c840; }
+    #riftlet-capture-reference-design .rf-finder-body { display:flex; height:calc(100% - 43px); }
+    #riftlet-capture-reference-design .rf-sidebar { width:112px; flex-shrink:0; padding:16px 7px; background:var(--rf-chrome); }
+    #riftlet-capture-reference-design .rf-sidebar>span { color:var(--rf-sub); font-size:11px; display:block; padding:0 9px 8px; }
+    #riftlet-capture-reference-design .rf-sidebar>div { display:flex; gap:7px; align-items:center; padding:6px 8px; margin-bottom:2px; border-radius:6px; white-space:nowrap; }
+    #riftlet-capture-reference-design .rf-sidebar svg { width:14px; height:14px; color:light-dark(#5382bf,#7caceb); flex-shrink:0; }
+    #riftlet-capture-reference-design .rf-sidebar-selected { background:var(--rf-selected); }
+    #riftlet-capture-reference-design .rf-files { min-width:0; padding:13px 15px; flex:1; }
+    #riftlet-capture-reference-design .rf-files>div { display:flex; gap:9px; align-items:center; padding:9px 0; white-space:nowrap; }
+    #riftlet-capture-reference-design .rf-files svg { width:21px; height:21px; color:light-dark(#5a95cf,#79a8dc); flex-shrink:0; }
+    #riftlet-capture-reference-design .rf-note-body { padding:16px 23px; }
+    #riftlet-capture-reference-design .rf-note-date { color:var(--rf-sub); font-size:11px; text-align:center; }
+    #riftlet-capture-reference-design .rf-note-body h3,#riftlet-capture-reference-design .rf-note-body p { font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol"; }
+    #riftlet-capture-reference-design .rf-note-body h3 { font-size:22px; line-height:1.3; font-weight:600; letter-spacing:-.4px; margin:13px 0 7px; }
+    #riftlet-capture-reference-design .rf-note-body p { font-size:12px; line-height:1.8; margin:0 0 14px; }
+    #riftlet-capture-reference-design .rf-note-art { position:relative; height:102px; overflow:hidden; border-radius:2px; background:linear-gradient(125deg,light-dark(#afbac9,#4a5871),light-dark(#d7dae1,#77849b)); }
+    #riftlet-capture-reference-design .rf-art-plane { position:absolute; width:77%; height:130%; right:-7%; top:-12%; transform:rotate(18deg); background:linear-gradient(90deg,light-dark(#c5cbd5,#8490a6),light-dark(#e2e4e9,#a4aec0)); box-shadow:-2px 0 15px light-dark(#4e5e733b,#0a132d33); }
+    #riftlet-capture-reference-design .rf-art-cut { position:absolute; left:31%; top:0; bottom:0; width:2px; background:light-dark(#566681,#1c2a46); box-shadow:1px 0 light-dark(#f1f4fc,#c3d1e6); }
+    #riftlet-capture-reference-design .rf-note-art>span { position:absolute; left:12px; bottom:8px; color:light-dark(#303e56,#dce6f7); font-size:11px; letter-spacing:.6px; }
+    #riftlet-capture-reference-design .rf-note-foot { margin-top:12px; font-size:11px; color:var(--rf-sub); }
+    #riftlet-capture-reference-design .rf-dock { position:absolute; bottom:10px; left:50%; transform:translateX(-50%); display:flex; gap:9px; padding:7px 10px; border:1px solid light-dark(#ffffff65,#ffffff24); border-radius:17px; background:light-dark(#e7ecf78c,#2d385480); backdrop-filter:blur(20px); box-shadow:0 3px 10px #18213b12; }
+    #riftlet-capture-reference-design .rf-dock>span { width:30px; height:30px; display:grid; place-items:center; border-radius:8px; background:light-dark(#f4f6fbda,#4f5e7fe0); box-shadow:0 1px 2px #18213b18; }
+    #riftlet-capture-reference-design .rf-dock svg { width:21px; height:21px; color:light-dark(#4a5a76,#d4e2f7); }
+    #riftlet-capture-reference-design .rf-entry { position:absolute; z-index:1; left:0; bottom:0; width:36px; height:36px; padding:0; border:0; border-radius:10px; background:transparent; }
+    #riftlet-capture-reference-design .rf-entry-surface { position:absolute; left:var(--rf-rail-inset,0px); bottom:var(--rf-rail-inset,0px); width:var(--rf-rail-width,36px); height:var(--rf-rail-height,36px); border-radius:calc(10px + 2px * var(--rf-rail-open,0)); border:1px solid var(--rf-edge); background:var(--rf-glass); box-shadow:0 calc(2px + 1px * var(--rf-rail-open,0)) calc(7px + 5px * var(--rf-rail-open,0)) var(--rf-shadow),inset 0 0 0 .5px light-dark(var(--rf-inset-light,#52607521),#040b1938); backdrop-filter:blur(18px) saturate(1.15); opacity:var(--rf-surface-alpha,0); filter:none; pointer-events:none; }
+    #riftlet-capture-reference-design .rf-entry-glyph { position:absolute; inset:0; display:grid; place-items:center; opacity:var(--rf-glyph-alpha,0); filter:none; pointer-events:none; }
+    #riftlet-capture-reference-design .rf-entry-glyph>span { display:grid; place-items:center; }
+    #riftlet-capture-reference-design .rf-desktop[data-phase="select"] [data-active="true"] [data-symbol] { opacity:0; }
+    #riftlet-capture-reference-design .rf-entry-glyph svg { width:17px; height:17px; stroke-width:1.65; }
+    #riftlet-capture-reference-design .rf-rift { position:absolute; z-index:29; top:calc(var(--rf-anchor-y) - 18px); right:12px; width:3px; height:var(--rf-rift-h); opacity:var(--rf-line-alpha); mask-image:linear-gradient(to bottom,transparent,#000 4px,#000 calc(100% - 5px),transparent); pointer-events:none; }
+    #riftlet-capture-reference-design .rf-rift>span { position:absolute; top:0; bottom:0; }
+    #riftlet-capture-reference-design .rf-rift-depth { left:0; width:2px; background:linear-gradient(to right,transparent,#101a3c55); }
+    #riftlet-capture-reference-design .rf-rift-core { left:1px; width:1px; background:light-dark(#334155e6,#0c1423); }
+    #riftlet-capture-reference-design .rf-rift-rim { left:2px; width:.65px; background:linear-gradient(to bottom,transparent,light-dark(#d0ebfc45,#a3c7ef20) 3px,light-dark(#e4f4ff,#b8d6f2) 12px,light-dark(#c3deed99,#a0bfde70) 22px,light-dark(#b7cede50,#a6c9e43b) 32px); }
+    #riftlet-capture-reference-design .rf-queue { position:absolute; z-index:28; inset:0; pointer-events:none; }
+    #riftlet-capture-reference-design .rf-thumb { position:absolute; right:14px; height:48px; width:54px; padding:0; border:0; border-radius:0; background:transparent; pointer-events:auto; transition:top 85ms ease-out; }
+    #riftlet-capture-reference-design .rf-thumb-clip { position:absolute; inset:0 0 0 auto; width:54px; overflow:hidden; }
+    #riftlet-capture-reference-design .rf-thumb img { position:absolute; left:0; width:72px; height:48px; display:block; object-fit:contain; }
+    #riftlet-capture-reference-design .rf-thumb-index { position:absolute; top:16px; right:calc(100% + 9px); font-size:11px; color:light-dark(#35435b,#d2dff5); }
+    #riftlet-capture-reference-design .rf-thumb.is-arriving .rf-thumb-clip { animation:rf-capture-emerge 100ms ease-out both; }
+    #riftlet-capture-reference-design .rf-thumb.is-leaving .rf-thumb-clip { animation:rf-capture-vanish 80ms ease-in both; }
+    #riftlet-capture-reference-design .rf-thumb.is-leaving .rf-thumb-index { visibility:hidden; }
+    #riftlet-capture-reference-design .rf-page { position:absolute; z-index:30; right:12px; bottom:19px; padding:5px 2px; border:0; border-radius:5px; background:light-dark(#e4e9f160,#24365480); font-size:11px; }
+    #riftlet-capture-reference-design .rf-selection-layer { position:absolute; z-index:20; inset:0; cursor:none; touch-action:none; }
+    #riftlet-capture-reference-design .rf-selection-layer[data-mode="region"] { cursor:crosshair; }
+    #riftlet-capture-reference-design .rf-target { position:absolute; z-index:21; border:1px solid #edf6ff; border-radius:12px; background:#3375d219; box-shadow:0 0 0 1px #234e8b66,0 0 0 1100px #17213c2e; pointer-events:none; }
+    #riftlet-capture-reference-design .rf-target[data-kind="region"],#riftlet-capture-reference-design .rf-target[data-kind="full"] { border-radius:0; background:transparent; }
+    #riftlet-capture-reference-design .rf-camera { position:absolute; z-index:25; pointer-events:none; width:26px; height:23px; display:grid; place-items:center; color:#fff; filter:drop-shadow(0 1px 1px #13213b); }
+    #riftlet-capture-reference-design .rf-camera svg { width:23px; height:21px; fill:#17263ccf; stroke-width:1.8; }
+    #riftlet-capture-reference-design .rf-toolbar { position:absolute; z-index:31; top:calc(var(--rf-anchor-y) + 18px - 132px); right:14px; width:36px; height:132px; padding:0; border:0; background:transparent; pointer-events:none; }
+    #riftlet-capture-reference-design .rf-tools-upper { position:absolute; z-index:2; top:3px; left:3px; right:3px; display:flex; flex-direction:column-reverse; gap:2px; height:94px; opacity:var(--rf-glyph-alpha,0); mask-image:linear-gradient(to top,#000 var(--rf-upper-solid,0px),transparent var(--rf-upper-edge,0px)); pointer-events:none; }
+    #riftlet-capture-reference-design .rf-tool-button { flex:none; display:grid; place-items:center; width:30px; height:30px; padding:0; border:0; border-radius:8px; background:transparent; pointer-events:none; }
+    #riftlet-capture-reference-design .rf-desktop[data-phase="select"] .rf-tool-button { pointer-events:auto; }
+    #riftlet-capture-reference-design .rf-tool-button:hover { background:var(--rf-selected); }
+    #riftlet-capture-reference-design .rf-toolbar svg { width:17px; height:17px; stroke-width:1.65; }
+    #riftlet-capture-reference-design .rf-tool-symbol { display:grid; place-items:center; width:17px; height:17px; }
+    #riftlet-capture-reference-design .rf-active-cover-clip { position:absolute; z-index:3; inset:0; clip-path:inset(var(--rf-cover-top,96px) var(--rf-cover-side,0px) var(--rf-cover-bottom,0px) round calc(10px + 2px * var(--rf-rail-open,0))); pointer-events:none; visibility:hidden; }
+    #riftlet-capture-reference-design .rf-desktop[data-phase="select"] .rf-active-cover-clip { visibility:visible; }
+    #riftlet-capture-reference-design .rf-active-cover { position:absolute; left:3px; bottom:3px; width:30px; height:30px; display:grid; place-items:center; border-radius:8px; transform:translateY(var(--rf-active-offset,0px)); transition:transform 105ms cubic-bezier(.2,.7,.2,1); opacity:var(--rf-glyph-alpha,0); pointer-events:none; }
+    #riftlet-capture-reference-design .rf-active-cover-fill { position:absolute; inset:0; border-radius:8px; background:var(--rf-selected); box-shadow:inset 0 0 0 .5px var(--rf-border); opacity:calc(var(--rf-rail-open,0) * var(--rf-surface-alpha,0)); }
+    #riftlet-capture-reference-design .rf-active-cover>svg { position:relative; }
+    #riftlet-capture-reference-design .rf-options { position:absolute; z-index:32; top:calc(var(--rf-anchor-y) - 106px); right:58px; width:190px; padding:6px; border-radius:12px; border:1px solid var(--rf-edge); background:var(--rf-glass); box-shadow:0 5px 20px var(--rf-shadow); backdrop-filter:blur(20px); }
+    #riftlet-capture-reference-design .rf-option-caption { padding:4px 8px; font-size:11px; color:var(--rf-sub); }
+    #riftlet-capture-reference-design .rf-option-row { display:flex; justify-content:space-between; align-items:center; width:100%; min-height:29px; padding:5px 8px; background:transparent; border:0; border-radius:6px; text-align:left; }
+    #riftlet-capture-reference-design .rf-option-row:hover { background:var(--rf-selected); }
+    #riftlet-capture-reference-design .rf-option-row svg { width:14px; height:14px; visibility:hidden; }
+    #riftlet-capture-reference-design .rf-option-row[aria-pressed="true"] svg { visibility:visible; }
+    #riftlet-capture-reference-design [data-settings] svg,#riftlet-capture-reference-design [data-settings-back] svg { visibility:visible; }
+    #riftlet-capture-reference-design [data-settings]>span:first-child { flex:1; }
+    #riftlet-capture-reference-design [data-default-label] { color:var(--rf-sub); margin-right:5px; font-size:11px; }
+    #riftlet-capture-reference-design .rf-settings-back { justify-content:flex-start; gap:7px; }
+    #riftlet-capture-reference-design .rf-option-row kbd { color:var(--rf-sub); font:11px inherit; }
+    #riftlet-capture-reference-design .rf-option-divider { height:1px; margin:5px 7px; background:var(--rf-border); }
+    #riftlet-capture-reference-design .rf-timers { display:flex; gap:3px; padding:0 5px 3px; }
+    #riftlet-capture-reference-design .rf-timers button { flex:1; padding:5px 0; border:0; border-radius:6px; background:transparent; }
+    #riftlet-capture-reference-design .rf-timers button[aria-pressed="true"] { background:var(--rf-selected); }
+    #riftlet-capture-reference-design .rf-countdown { position:absolute; z-index:33; right:14px; top:calc(var(--rf-anchor-y) - 18px); display:flex; align-items:center; gap:12px; padding:9px 12px; border:1px solid var(--rf-edge); border-radius:11px; background:var(--rf-glass); box-shadow:0 3px 12px var(--rf-shadow); backdrop-filter:blur(18px); }
+    #riftlet-capture-reference-design .rf-countdown [data-countdown] { min-width:16px; font-size:16px; font-variant-numeric:tabular-nums; }
+    #riftlet-capture-reference-design .rf-origin { position:absolute; z-index:23; pointer-events:none; overflow:hidden; animation:rf-capture-depart 80ms ease-in forwards; }
+    #riftlet-capture-reference-design .rf-origin img { display:block; width:100%; height:100%; }
+    #riftlet-capture-reference-design .rf-editor { position:absolute; z-index:40; left:28px; right:70px; top:54px; bottom:30px; display:flex; flex-direction:column; gap:12px; padding:16px; border:1px solid var(--rf-edge); border-radius:14px; background:var(--rf-paper); box-shadow:0 10px 35px var(--rf-shadow); }
+    #riftlet-capture-reference-design .rf-editor-heading { display:flex; justify-content:space-between; gap:8px; font-size:12px; }
+    #riftlet-capture-reference-design .rf-editor-heading>span:last-child { color:var(--rf-sub); font-size:11px; }
+    #riftlet-capture-reference-design .rf-editor-work { flex:1; min-height:0; display:flex; justify-content:center; align-items:center; background:var(--rf-chrome); overflow:hidden; }
+    #riftlet-capture-reference-design .rf-editor canvas { max-width:100%; max-height:100%; width:auto; height:auto; object-fit:contain; display:block; cursor:crosshair; touch-action:none; }
+    #riftlet-capture-reference-design .rf-editor-actions { display:flex; gap:7px; }
+    #riftlet-capture-reference-design .rf-editor-actions button { border:1px solid var(--rf-border); border-radius:7px; padding:7px 10px; background:var(--rf-chrome); }
+    #riftlet-capture-reference-design .rf-editor-actions .rf-done { margin-left:auto; background:var(--rf-ink); color:var(--rf-paper); border-color:var(--rf-ink); }
+    #riftlet-capture-reference-design .rf-demo-pointer { position:absolute; z-index:45; pointer-events:none; color:light-dark(#1b263c,#f0f4ff); filter:drop-shadow(0 1px 1px light-dark(#ffffffbb,#16233b)); }
+    #riftlet-capture-reference-design .rf-demo-pointer svg { width:20px; height:20px; fill:light-dark(#f3f6fc,#18273b); }
+    #riftlet-capture-reference-design .rf-desktop[data-phase="edit"] .rf-queue,#riftlet-capture-reference-design .rf-desktop[data-phase="edit"] .rf-rift,#riftlet-capture-reference-design .rf-desktop[data-phase="edit"] .rf-page,#riftlet-capture-reference-design .rf-desktop[data-phase="countdown"] .rf-queue,#riftlet-capture-reference-design .rf-desktop[data-phase="countdown"] .rf-rift,#riftlet-capture-reference-design .rf-desktop[data-phase="countdown"] .rf-page { visibility:hidden; }
+    #riftlet-capture-reference-design .rf-desktop [hidden] { display:none!important; }
+    @keyframes rf-capture-emerge { from { clip-path:inset(0 0 0 100%); } to { clip-path:inset(0); } }
+    @keyframes rf-capture-vanish { from { clip-path:inset(0); } to { clip-path:inset(0 0 0 100%); } }
+    @keyframes rf-capture-depart { from { clip-path:inset(0); opacity:.65; } to { clip-path:inset(0 49.8%); opacity:0; } }
+    @media(max-width:540px) { #riftlet-capture-reference-design .rf-finder { left:5%; width:65%; } #riftlet-capture-reference-design .rf-notes { left:17%; width:65%; } #riftlet-capture-reference-design .rf-sidebar { width:91px; padding-left:4px; padding-right:4px; } #riftlet-capture-reference-design .rf-sidebar>div { gap:4px; padding-left:5px; padding-right:4px; font-size:11px; } #riftlet-capture-reference-design .rf-files { padding:13px 10px; } #riftlet-capture-reference-design .rf-files>div { gap:5px; font-size:11px; } #riftlet-capture-reference-design .rf-note-body { padding:15px; } #riftlet-capture-reference-design .rf-menubar { gap:12px; padding:0 11px; } #riftlet-capture-reference-design .rf-menu-right { gap:8px; } #riftlet-capture-reference-design .rf-menu-right>svg { display:none; } #riftlet-capture-reference-design .rf-editor { left:10px; right:10px; padding:12px; } }
+    @media(pointer:coarse) { #riftlet-capture-reference-design .rf-entry { width:44px; height:44px; left:3px; bottom:3px; } #riftlet-capture-reference-design .rf-active-cover { width:44px; height:44px; } #riftlet-capture-reference-design .rf-entry-surface,#riftlet-capture-reference-design .rf-entry-glyph { opacity:1; } #riftlet-capture-reference-design .rf-toolbar { width:50px; height:188px; right:11px; top:calc(var(--rf-anchor-y) + 25px - 188px); } #riftlet-capture-reference-design .rf-tools-upper { height:136px; } #riftlet-capture-reference-design .rf-tool-button { width:44px; height:44px; } #riftlet-capture-reference-design .rf-options { right:72px; width:190px; } #riftlet-capture-reference-design .rf-option-row,#riftlet-capture-reference-design .rf-timers button,#riftlet-capture-reference-design .rf-editor-actions button { min-height:44px; } #riftlet-capture-reference-design .rf-option-caption { padding-top:2px; padding-bottom:2px; } #riftlet-capture-reference-design .rf-page { min-height:44px; } }
+    @media(prefers-reduced-motion:reduce) { #riftlet-capture-reference-design .rf-desktop *,#riftlet-capture-reference-design .rf-desktop *::before,#riftlet-capture-reference-design .rf-desktop *::after { animation:none!important; transition:none!important; } }
+  </style>
+  <script>
+    /**
+ * Synchronous canvas illustration of the local Riftlet desktop mockup.
+ * This is not an OS screenshot and never reads another app or the real screen.
+ * Only the explicit desktop/background/window/dock allowlist is painted.
+ * rect uses the same CSS-pixel desktop coordinates as getBoundingClientRect().
+ * windowId isolates that window before applying rect, so another window cannot
+ * obscure it. Pass the selected window's complete desktop-relative rectangle.
+ */
+function createRiftletCaptureReferenceSnapshotRenderer(desktop) {
+  if (!desktop || desktop.nodeType !== 1) throw new TypeError('A desktop element is required.');
+  const doc = desktop.ownerDocument;
+  const view = doc.defaultView;
+  const number = (value, fallback = 0) => Number.isFinite(parseFloat(value)) ? parseFloat(value) : fallback;
+
+  function split(value, separator = ',') {
+    const parts = [];
+    let depth = 0, start = 0, quote = '';
+    for (let i = 0; i < value.length; i++) {
+      const ch = value[i];
+      if (quote) { if (ch === quote && value[i - 1] !== '\\') quote = ''; continue; }
+      if (ch === '"' || ch === "'") { quote = ch; continue; }
+      if (ch === '(') depth++;
+      if (ch === ')') depth--;
+      if (depth === 0 && (separator === ' ' ? /\s/.test(ch) : ch === separator)) {
+        const part = value.slice(start, i).trim();
+        if (part) parts.push(part);
+        start = i + 1;
+      }
+    }
+    const tail = value.slice(start).trim();
+    if (tail) parts.push(tail);
+    return parts;
+  }
+
+  function length(value, extent) {
+    return /%$/.test(value) ? number(value) * extent / 100 : number(value);
+  }
+
+  return function snapshot(rect, options = {}) {
+    const desktopBox = desktop.getBoundingClientRect();
+    const width = desktopBox.width, height = desktopBox.height;
+    if (!(width > 0 && height > 0)) throw new RangeError('The desktop must have a visible layout.');
+    const crop = rect || { x: 0, y: 0, w: width, h: height };
+    if (![crop.x, crop.y, crop.w, crop.h].every(Number.isFinite) || crop.w <= 0 || crop.h <= 0) {
+      throw new RangeError('Snapshot rect must contain finite x, y and positive w, h.');
+    }
+    const windowId = options.windowId || null;
+    if (windowId !== null && windowId !== 'finder' && windowId !== 'notes') {
+      throw new RangeError('windowId must be finder, notes, or null.');
+    }
+    const target = windowId ? desktop.querySelector('[data-window="' + windowId + '"]') : null;
+    if (windowId && !target) throw new RangeError('The selected mock window is missing.');
+
+    // Limit pixel allocation while retaining Retina detail on ordinary screens.
+    const ratio = Math.max(0.25, Math.min(view.devicePixelRatio || 1, 2, 8192 / Math.max(width, height, crop.w, crop.h)));
+    const canvas = doc.createElement('canvas');
+    canvas.width = Math.max(1, Math.ceil(width * ratio));
+    canvas.height = Math.max(1, Math.ceil(height * ratio));
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('Canvas 2D is unavailable.');
+    ctx.scale(ratio, ratio);
+    const styleCache = new WeakMap();
+    const styles = el => {
+      if (!styleCache.has(el)) styleCache.set(el, view.getComputedStyle(el));
+      return styleCache.get(el);
+    };
+    const dark = styles(desktop).colorScheme.split(/\s+/).includes('dark') &&
+      (desktop.dataset.appearance !== 'light');
+    const bounds = el => {
+      const b = el.getBoundingClientRect();
+      return { x: b.left - desktopBox.left, y: b.top - desktopBox.top, w: b.width, h: b.height };
+    };
+
+    function color(value, el) {
+      value = (value || 'transparent').trim();
+      if (value === 'currentColor') return styles(el).color;
+      if (value.startsWith('light-dark(')) {
+        const choices = split(value.slice(11, -1));
+        return color(choices[dark ? 1 : 0] || choices[0], el);
+      }
+      return value;
+    }
+
+    function radii(cs, box) {
+      return ['borderTopLeftRadius', 'borderTopRightRadius', 'borderBottomRightRadius', 'borderBottomLeftRadius'].map(key => {
+        const v = cs[key].split(/\s+/);
+        return { x: Math.min(box.w / 2, length(v[0], box.w)), y: Math.min(box.h / 2, length(v[1] || v[0], box.h)) };
+      });
+    }
+
+    function rounded(box, cs, begin = true) {
+      if (begin) ctx.beginPath();
+      if (typeof ctx.roundRect === 'function') ctx.roundRect(box.x, box.y, box.w, box.h, radii(cs, box));
+      else ctx.rect(box.x, box.y, box.w, box.h);
+    }
+
+    function stops(parts, el, extent) {
+      const values = parts.map(part => {
+        const match = part.match(/\s+(-?\d*\.?\d+)(%|px)$/);
+        return { color: color(match ? part.slice(0, match.index) : part, el), at: match ? number(match[1]) / (match[2] === '%' ? 100 : Math.max(1, extent)) : null };
+      });
+      if (!values.length) return [];
+      if (values[0].at === null) values[0].at = 0;
+      if (values[values.length - 1].at === null) values[values.length - 1].at = 1;
+      for (let i = 1; i < values.length; i++) {
+        if (values[i].at !== null) continue;
+        const start = i - 1;
+        let end = i;
+        while (end < values.length && values[end].at === null) end++;
+        for (let j = i; j < end; j++) values[j].at = values[start].at + (values[end].at - values[start].at) * (j - start) / (end - start);
+        i = end;
+      }
+      let previous = 0;
+      return values.map(stop => ({ ...stop, at: previous = Math.max(previous, Math.min(1, Math.max(0, stop.at))) }));
+    }
+
+    function addStops(gradient, parts, el, extent) {
+      for (const stop of stops(parts, el, extent)) {
+        try { gradient.addColorStop(stop.at, stop.color); } catch (_) { /* Unsupported decorative color only. */ }
+      }
+    }
+
+    function gradient(value, box, el) {
+      if (value.startsWith('linear-gradient(')) {
+        const parts = split(value.slice(16, -1));
+        let angle = 180;
+        if (/deg$/.test(parts[0])) angle = number(parts.shift());
+        else if (parts[0].startsWith('to ')) {
+          const direction = parts.shift();
+          const dx = direction.includes('right') ? 1 : direction.includes('left') ? -1 : 0;
+          const dy = direction.includes('bottom') ? 1 : direction.includes('top') ? -1 : 0;
+          angle = Math.atan2(dx, -dy) * 180 / Math.PI;
+        }
+        const theta = angle * Math.PI / 180;
+        const span = Math.abs(box.w * Math.sin(theta)) + Math.abs(box.h * Math.cos(theta));
+        const dx = Math.sin(theta) * span / 2, dy = -Math.cos(theta) * span / 2;
+        const cx = box.x + box.w / 2, cy = box.y + box.h / 2;
+        const g = ctx.createLinearGradient(cx - dx, cy - dy, cx + dx, cy + dy);
+        addStops(g, parts, el, span);
+        ctx.fillStyle = g; ctx.fillRect(box.x, box.y, box.w, box.h);
+      } else if (value.startsWith('radial-gradient(')) {
+        const parts = split(value.slice(16, -1));
+        const shape = /^(ellipse|circle|at\s|closest|farthest)/.test(parts[0]) ? parts.shift() : '';
+        const at = shape.match(/at\s+([\d.]+)%\s+([\d.]+)%/);
+        const px = at ? number(at[1]) / 100 : 0.5, py = at ? number(at[2]) / 100 : 0.5;
+        const cx = box.x + box.w * px, cy = box.y + box.h * py;
+        let rx = Math.max(1, box.w * Math.max(px, 1 - px)), ry = Math.max(1, box.h * Math.max(py, 1 - py));
+        const reach = Math.sqrt(2); rx *= reach; ry *= reach;
+        if (shape.includes('circle')) rx = ry = Math.hypot(rx / reach, ry / reach);
+        ctx.save(); ctx.translate(cx, cy); ctx.scale(rx, ry);
+        const g = ctx.createRadialGradient(0, 0, 0, 0, 0, 1);
+        addStops(g, parts, el, Math.max(rx, ry));
+        ctx.fillStyle = g; ctx.fillRect((box.x - cx) / rx, (box.y - cy) / ry, box.w / rx, box.h / ry);
+        ctx.restore();
+      }
+    }
+
+    function shadows(box, cs, el) {
+      for (const shadow of split(cs.boxShadow || 'none').reverse()) {
+        if (shadow === 'none' || /\binset\b/.test(shadow)) continue;
+        const tokens = split(shadow, ' ');
+        const sizes = tokens.filter(token => /^-?\d*\.?\d+(px)?$/.test(token)).map(number);
+        const tone = tokens.find(token => !/^-?\d*\.?\d+(px)?$/.test(token)) || 'transparent';
+        const spread = sizes[3] || 0;
+        ctx.save(); ctx.beginPath(); ctx.rect(-16384, -16384, 32768, 32768); rounded(box, cs, false); ctx.clip('evenodd');
+        ctx.shadowOffsetX = sizes[0] || 0; ctx.shadowOffsetY = sizes[1] || 0;
+        ctx.shadowBlur = Math.max(0, (sizes[2] || 0) * 0.65); ctx.shadowColor = color(tone, el);
+        ctx.fillStyle = color(tone, el);
+        rounded({ x: box.x - spread, y: box.y - spread, w: Math.max(0, box.w + spread * 2), h: Math.max(0, box.h + spread * 2) }, cs);
+        ctx.fill(); ctx.restore();
+      }
+    }
+
+    function background(box, cs, el, withShadow = true) {
+      if (box.w <= 0 || box.h <= 0) return;
+      if (withShadow) shadows(box, cs, el);
+      ctx.save(); rounded(box, cs); ctx.clip();
+      ctx.fillStyle = color(cs.backgroundColor, el); ctx.fillRect(box.x, box.y, box.w, box.h);
+      for (const layer of split(cs.backgroundImage || 'none').reverse()) gradient(layer, box, el);
+      ctx.restore();
+    }
+
+    function border(box, cs, el) {
+      const widths = ['Top', 'Right', 'Bottom', 'Left'].map(side => number(cs['border' + side + 'Width']));
+      if (widths.every(value => value === 0)) return;
+      const colors = ['Top', 'Right', 'Bottom', 'Left'].map(side => color(cs['border' + side + 'Color'], el));
+      ctx.save();
+      if (widths.every(value => value === widths[0]) && colors.every(value => value === colors[0])) {
+        const inset = widths[0] / 2;
+        ctx.strokeStyle = colors[0]; ctx.lineWidth = widths[0];
+        rounded({ x: box.x + inset, y: box.y + inset, w: Math.max(0, box.w - widths[0]), h: Math.max(0, box.h - widths[0]) }, cs); ctx.stroke();
+      } else {
+        const sides = [[box.x, box.y, box.w, widths[0]], [box.x + box.w - widths[1], box.y, widths[1], box.h], [box.x, box.y + box.h - widths[2], box.w, widths[2]], [box.x, box.y, widths[3], box.h]];
+        sides.forEach((side, i) => { if (widths[i]) { ctx.fillStyle = colors[i]; ctx.fillRect(...side); } });
+      }
+      ctx.restore();
+    }
+
+    function textNode(node) {
+      if (!node.nodeValue || !node.nodeValue.trim()) return;
+      const el = node.parentElement, cs = styles(el), size = number(cs.fontSize, 12);
+      ctx.save();
+      ctx.font = [cs.fontStyle, cs.fontWeight, cs.fontSize, cs.fontFamily].join(' ');
+      ctx.fillStyle = color(cs.color, el); ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+      const range = doc.createRange();
+      let offset = 0;
+      for (let glyph of node.nodeValue) {
+        const count = glyph.length;
+        range.setStart(node, offset); range.setEnd(node, offset + count); offset += count;
+        if (!glyph.trim()) continue;
+        const box = range.getBoundingClientRect();
+        if (box.width <= 0 || box.height <= 0) continue;
+        if (cs.textTransform === 'uppercase') glyph = glyph.toUpperCase();
+        if (cs.textTransform === 'lowercase') glyph = glyph.toLowerCase();
+        const m = ctx.measureText(glyph);
+        const ascent = Number.isFinite(m.fontBoundingBoxAscent) ? m.fontBoundingBoxAscent : size * 0.82;
+        ctx.fillText(glyph, box.left - desktopBox.left, box.top - desktopBox.top + ascent);
+      }
+      range.detach(); ctx.restore();
+    }
+
+    // Paint paths from the already-present SVG DOM; no icon package is required.
+    function svg(el, box) {
+      const values = (el.getAttribute('viewBox') || '0 0 24 24').split(/[\s,]+/).map(Number);
+      const [vx, vy, vw, vh] = values.length === 4 ? values : [0, 0, 24, 24];
+      if (!vw || !vh) return;
+      ctx.save(); ctx.translate(box.x, box.y); ctx.scale(box.w / vw, box.h / vh); ctx.translate(-vx, -vy);
+      function paint(node) {
+        if (node.nodeType !== 1) return;
+        const cs = styles(node), tag = node.tagName.toLowerCase();
+        const attr = (name, fallback = 0) => number(node.getAttribute(name), fallback);
+        ctx.save();
+        const transform = node.getAttribute('transform');
+        if (transform) {
+          try { const m = new view.DOMMatrix(transform); ctx.transform(m.a, m.b, m.c, m.d, m.e, m.f); } catch (_) { /* Lucide shapes normally have no transform. */ }
+        }
+        let path = null;
+        if (tag === 'path') path = new view.Path2D(node.getAttribute('d') || '');
+        else if (['line', 'polyline', 'polygon', 'rect', 'circle', 'ellipse'].includes(tag)) {
+          path = new view.Path2D();
+          if (tag === 'line') { path.moveTo(attr('x1'), attr('y1')); path.lineTo(attr('x2'), attr('y2')); }
+          if (tag === 'polyline' || tag === 'polygon') {
+            const points = (node.getAttribute('points') || '').trim().split(/[\s,]+/).map(Number);
+            for (let i = 0; i + 1 < points.length; i += 2) i ? path.lineTo(points[i], points[i + 1]) : path.moveTo(points[i], points[i + 1]);
+            if (tag === 'polygon') path.closePath();
+          }
+          if (tag === 'rect') {
+            if (typeof path.roundRect === 'function') path.roundRect(attr('x'), attr('y'), attr('width'), attr('height'), attr('rx', attr('ry')));
+            else path.rect(attr('x'), attr('y'), attr('width'), attr('height'));
+          }
+          if (tag === 'circle') path.arc(attr('cx'), attr('cy'), attr('r'), 0, Math.PI * 2);
+          if (tag === 'ellipse') path.ellipse(attr('cx'), attr('cy'), attr('rx'), attr('ry'), 0, 0, Math.PI * 2);
+        }
+        if (path) {
+          if (cs.fill && cs.fill !== 'none') { ctx.fillStyle = color(cs.fill, node); ctx.fill(path); }
+          if (cs.stroke && cs.stroke !== 'none') {
+            ctx.strokeStyle = color(cs.stroke, node); ctx.lineWidth = number(cs.strokeWidth, 2);
+            ctx.lineCap = cs.strokeLinecap || 'round'; ctx.lineJoin = cs.strokeLinejoin || 'round'; ctx.stroke(path);
+          }
+        }
+        if (tag === 'g' || tag === 'svg') for (const child of node.children) paint(child);
+        ctx.restore();
+      }
+      for (const child of el.children) paint(child);
+      ctx.restore();
+    }
+
+    function transformedPlane(el, cs) {
+      const parent = el.offsetParent || el.parentElement, p = bounds(parent);
+      const sx = p.w / (parent.offsetWidth || p.w), sy = p.h / (parent.offsetHeight || p.h);
+      const w = el.offsetWidth, h = el.offsetHeight;
+      const origin = cs.transformOrigin.split(/\s+/);
+      const ox = length(origin[0], w), oy = length(origin[1] || origin[0], h);
+      const m = new view.DOMMatrix(cs.transform);
+      ctx.save(); ctx.translate(p.x + (el.offsetLeft + parent.clientLeft) * sx, p.y + (el.offsetTop + parent.clientTop) * sy);
+      ctx.scale(sx, sy); ctx.translate(ox, oy); ctx.transform(m.a, m.b, m.c, m.d, m.e, m.f); ctx.translate(-ox, -oy);
+      background({ x: 0, y: 0, w, h }, cs, el); border({ x: 0, y: 0, w, h }, cs, el); ctx.restore();
+    }
+
+    function element(el) {
+      const cs = styles(el);
+      if (cs.display === 'none' || cs.visibility === 'hidden' || number(cs.opacity, 1) <= 0) return;
+      const box = bounds(el);
+      if (box.w <= 0 || box.h <= 0) return;
+      ctx.save(); ctx.globalAlpha *= number(cs.opacity, 1);
+      if (el.tagName.toLowerCase() === 'svg') { svg(el, box); ctx.restore(); return; }
+      if (el.classList.contains('rf-art-plane') && cs.transform !== 'none') { transformedPlane(el, cs); ctx.restore(); return; }
+      background(box, cs, el);
+      ctx.save();
+      if (cs.overflowX !== 'visible' || cs.overflowY !== 'visible') { rounded(box, cs); ctx.clip(); }
+      for (const child of el.childNodes) {
+        if (child.nodeType === 3) textNode(child);
+        else if (child.nodeType === 1) element(child);
+      }
+      ctx.restore(); border(box, cs, el); ctx.restore();
+    }
+
+    function wallpaper() {
+      const el = desktop.querySelector('.rf-wallpaper');
+      ctx.fillStyle = color(styles(desktop).backgroundColor, desktop); ctx.fillRect(0, 0, width, height);
+      if (!el) return;
+      element(el);
+      const cs = view.getComputedStyle(el, '::after');
+      if (!cs.content || cs.content === 'none' || cs.display === 'none') return;
+      const parent = bounds(el), w = length(cs.width, parent.w), h = length(cs.height, parent.h);
+      const x = parent.x + length(cs.left, parent.w), y = parent.y + length(cs.top, parent.h);
+      const origin = cs.transformOrigin.split(/\s+/), ox = length(origin[0], w), oy = length(origin[1] || origin[0], h);
+      ctx.save(); ctx.translate(x + ox, y + oy);
+      if (cs.transform !== 'none') { const m = new view.DOMMatrix(cs.transform); ctx.transform(m.a, m.b, m.c, m.d, m.e, m.f); }
+      ctx.translate(-ox, -oy); background({ x: 0, y: 0, w, h }, cs, el, false); ctx.restore();
+    }
+
+    if (target) {
+      element(target);
+    } else {
+      wallpaper();
+      const layers = [...desktop.children].filter(el => el.matches('.rf-menubar, .rf-window[data-window], .rf-dock'));
+      layers.sort((a, b) => number(styles(a).zIndex) - number(styles(b).zIndex));
+      // Dock is after windows in the desktop mockup, and sits below their bounds.
+      for (const el of layers) element(el);
+    }
+
+    const pointer = options.pointer;
+    if (options.showPointer && pointer && Number.isFinite(pointer.x) && Number.isFinite(pointer.y)) {
+      const pointerIcon = desktop.querySelector('.rf-demo-pointer svg');
+      if (pointerIcon) svg(pointerIcon, { x: pointer.x, y: pointer.y, w: 18, h: 18 });
+    }
+
+    const output = doc.createElement('canvas');
+    output.width = Math.max(1, Math.ceil(crop.w * ratio));
+    output.height = Math.max(1, Math.ceil(crop.h * ratio));
+    const out = output.getContext('2d');
+    if (!out) throw new Error('Canvas 2D is unavailable.');
+    out.drawImage(canvas, -crop.x * ratio, -crop.y * ratio);
+    return output.toDataURL('image/png');
+  };
+}
+
+    (() => {
+      const root=document.getElementById('riftlet-capture-reference-design');
+      if(!root)return;
+      const $=s=>root.querySelector(s), all=s=>[...root.querySelectorAll(s)];
+      const desktop=$('.rf-desktop'),entry=$('.rf-entry'),toolbar=$('.rf-toolbar'),queue=$('.rf-queue');
+      const layer=$('.rf-selection-layer'),target=$('.rf-target'),camera=$('.rf-camera'),options=$('.rf-options');
+      const editor=$('.rf-editor'),editCanvas=$('.rf-editor canvas'),origin=$('.rf-origin'),demoPointer=$('.rf-demo-pointer');
+      const reduced=matchMedia('(prefers-reduced-motion:reduce)'),coarse=matchMedia('(pointer:coarse)');
+      const snapshot=createRiftletCaptureReferenceSnapshotRenderer(desktop);
+      const names={window:'窗口',full:'全屏',region:'区域'};
+      let dark=matchMedia('(prefers-color-scheme:dark)').matches;
+      let phase='rest',mode='window',defaultMode='window',menuOpen=false,settingsOpen=false,editAfter=false,showPointer=false,delay=0;
+      let assets=[],nextID=1,pageStart=0,pending=null,epoch=0,countdownTimer=0;
+      let point=null,previousPoint=null,velocity={x:0,y:0},lastPointerAt=0,reveal=coarse.matches?1:0,opticFrame=0;
+      let lastOpticalAt=0,forecast=0,glyphMemory=0,surfaceMemory=0,glyphAlpha=coarse.matches?1:0,surfaceAlpha=coarse.matches?1:0;
+      let slots={base:'window',near:'region',far:'full'}; // immutable for one open session
+      const rail={value:0,from:0,goal:0,start:0,duration:180};
+      let pointerDown=false,pressedEntry=false,gesture=null,hoverWindow=null,currentRect=null;
+      let demoFrame=0,demoActive=false,demoEpoch=0;
+      let editorImage=null,marks=[],draftMark=null,editGesture=null,lastTake=null,pressedAsset=null;
+      const now=()=>performance.now(),clamp=x=>Math.max(0,Math.min(1,x));
+      const smooth=(lo,hi,v)=>{const x=clamp((v-lo)/(hi-lo));return x*x*x*(x*(x*6-15)+10);};
+      const say=t=>{$('[data-status]').textContent=t;};
+      const rectOf=el=>{const a=el.getBoundingClientRect(),b=desktop.getBoundingClientRect();return{x:a.left-b.left,y:a.top-b.top,w:a.width,h:a.height};};
+      const local=e=>{const r=desktop.getBoundingClientRect();return{x:Math.max(0,Math.min(desktop.clientWidth,e.clientX-r.left)),y:Math.max(0,Math.min(desktop.clientHeight,e.clientY-r.top))};};
+      const inside=(p,r)=>p.x>=r.x&&p.x<=r.x+r.w&&p.y>=r.y&&p.y<=r.y+r.h;
+      const anchor=()=>({x:desktop.clientWidth-(coarse.matches?36:32),y:246});
+      const regionRect=(a,b)=>({x:Math.min(a.x,b.x),y:Math.min(a.y,b.y),w:Math.abs(a.x-b.x),h:Math.abs(a.y-b.y)});
+      // Prototype parameters, in desktop CSS pixels. Stroke and material each
+      // own a spatial envelope and temporal response; neither can limit the other.
+      // The stroke reaches its plateau before the nearest quarter of the screen.
+      const optics={exitScale:1.5,forecastMs:700,forecastDecay:240,
+        glyph:{full:.35,enter:.60,rise:18,fall:170,up:.26,down:.08},
+        surface:{full:.08,enter:.46,rise:96,fall:150,up:.065,down:.06}};
+      const opticalPoint=e=>{const r=desktop.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top};};
+      const field=(distance,channel,release=false)=>1-smooth(channel.full*desktop.clientWidth,channel.enter*desktop.clientWidth*(release?optics.exitScale:1),distance);
+      const distanceToEntry=()=>{if(!point)return Infinity;const a=anchor();return Math.hypot(a.x-point.x,a.y-point.y);};
+      function updateHitTarget(){entry.style.pointerEvents=phase==='select'||(phase==='rest'&&(coarse.matches||entry.matches(':focus-visible')||(point&&inside(point,rectOf(entry)))))?'auto':'none';}
+      function paintReveal(){
+        reveal=glyphAlpha;
+        desktop.style.setProperty('--rf-reveal',String(reveal));desktop.style.setProperty('--rf-glyph-alpha',String(glyphAlpha));desktop.style.setProperty('--rf-surface-alpha',String(surfaceAlpha));
+        desktop.style.setProperty('--rf-line-alpha',String(assets.length?1:surfaceAlpha*.45));
+        desktop.dataset.reveal=reveal.toFixed(5);desktop.dataset.glyphAlpha=glyphAlpha.toFixed(5);desktop.dataset.surfaceAlpha=surfaceAlpha.toFixed(5);
+        $('[data-opacity]').textContent='线条 '+Math.round(glyphAlpha*100)+'% · 背景 '+Math.round(surfaceAlpha*100)+'%';updateHitTarget();
+      }
+      function paintRail(){
+        const p=rail.value,touch=coarse.matches,base=touch?44:36;
+        desktop.style.setProperty('--rf-rail-open',String(p));desktop.dataset.railOpen=p.toFixed(5);
+        desktop.style.setProperty('--rf-rail-height',(base+(touch?144:96)*p)+'px');
+        desktop.style.setProperty('--rf-rail-width',(base+(touch?6:0)*p)+'px');
+        desktop.style.setProperty('--rf-rail-inset',(touch?-3*p:0)+'px');
+        desktop.style.setProperty('--rf-inset-light','rgba(82,96,117,'+((33+7*p)/255)+')');
+        // Keep the reveal edge inside the same growing glass. Feather only
+        // inward, then remove the feather as the rail reaches its full height.
+        const edge=p===0?0:Math.max(0,touch?141*p-2:96*p+1),feather=12*smooth(0,.2,p)*(1-smooth(.8,1,p));
+        desktop.style.setProperty('--rf-upper-solid',Math.max(0,edge-feather)+'px');desktop.style.setProperty('--rf-upper-edge',edge+'px');
+        desktop.style.setProperty('--rf-cover-top',((touch?141:96)*(1-p))+'px');desktop.style.setProperty('--rf-cover-side',(touch?3*(1-p):0)+'px');desktop.style.setProperty('--rf-cover-bottom',(touch?3*(1-p):0)+'px');
+      }
+      function setRail(goal){
+        if(rail.goal===goal)return;
+        rail.from=rail.value;rail.goal=goal;rail.start=now();rail.duration=Math.max(64,180*Math.abs(goal-rail.value));
+        if(reduced.matches){rail.value=goal;paintRail();}
+        requestOptics();
+      }
+      function advanceRail(t){
+        if(rail.value===rail.goal)return;
+        const progress=clamp((t-rail.start)/rail.duration);
+        rail.value=progress===1?rail.goal:rail.from+(rail.goal-rail.from)*smooth(0,1,progress);paintRail();
+      }
+      function entryAvailability(){
+        if(!point)return 1;let available=1;
+        for(const thumb of queue.children){const r=rectOf(thumb),rx=Math.max(r.x-point.x,0,point.x-r.x-r.w),ry=Math.max(r.y-point.y,0,point.y-r.y-r.h);available*=smooth(0,30,Math.hypot(rx,ry));}
+        return available;
+      }
+      function targetAlphas(t=now()){
+        if(phase==='select')return {glyph:1,surface:1};
+        if(phase!=='rest')return {glyph:0,surface:0};
+        if(coarse.matches||pressedEntry||entry.matches(':focus-visible'))return {glyph:1,surface:1};
+        if(!point||(pointerDown&&!pressedEntry)){glyphMemory=0;surfaceMemory=0;return {glyph:0,surface:0};}
+        const d=distanceToEntry();
+        // Spatial hysteresis has no timer: after a reveal, a resting pointer
+        // retains visibility. Only moving farther out lowers that envelope.
+        glyphMemory=Math.max(field(d,optics.glyph),Math.min(glyphMemory,field(d,optics.glyph,true)));
+        surfaceMemory=Math.max(field(d,optics.surface),Math.min(surfaceMemory,field(d,optics.surface,true)));
+        const prediction=forecast*Math.exp(-Math.max(0,t-lastPointerAt)/optics.forecastDecay),available=entryAvailability();
+        return {glyph:Math.max(glyphMemory,prediction)*available,surface:Math.max(surfaceMemory,.18*prediction)*available};
+      }
+      function stepAlpha(value,goal,channel,dt){
+        const rising=goal>value,tau=rising?channel.rise:channel.fall;
+        const delta=(goal-value)*(1-Math.exp(-dt/tau)),cap=(rising?channel.up:channel.down)*Math.min(1,dt/(1000/60));
+        let next=clamp(value+Math.max(-cap,Math.min(cap,delta)));
+        if(goal===0&&next<.00015)next=0;else if(goal===1&&next>.99985)next=1;
+        return next;
+      }
+      function opticalFrame(t){
+        opticFrame=0;
+        const dt=lastOpticalAt?Math.min(34,Math.max(1,t-lastOpticalAt)):1000/60;lastOpticalAt=t;
+        const targetValue=targetAlphas(t);
+        glyphAlpha=stepAlpha(glyphAlpha,targetValue.glyph,optics.glyph,dt);
+        surfaceAlpha=stepAlpha(surfaceAlpha,targetValue.surface,optics.surface,dt);
+        advanceRail(t);paintReveal();
+        const movingForecast=phase==='rest'&&point&&forecast*Math.exp(-Math.max(0,t-lastPointerAt)/optics.forecastDecay)>.00015;
+        if(Math.abs(glyphAlpha-targetValue.glyph)>.00015||Math.abs(surfaceAlpha-targetValue.surface)>.00015||movingForecast||rail.value!==rail.goal)opticFrame=requestAnimationFrame(opticalFrame);else lastOpticalAt=0;
+      }
+      function requestOptics(){updateHitTarget();if(!opticFrame)opticFrame=requestAnimationFrame(opticalFrame);}
+      function observePointer(p,buttons=0,t=now()){
+        pointerDown=Boolean(buttons);let raw=null;
+        if(previousPoint){const dt=t-previousPoint.t;if(dt>0&&dt<180){raw={x:(p.x-previousPoint.x)/Math.max(2,dt),y:(p.y-previousPoint.y)/Math.max(2,dt)};const weight=1-Math.exp(-dt/28);velocity={x:velocity.x+(raw.x-velocity.x)*weight,y:velocity.y+(raw.y-velocity.y)*weight};}else velocity={x:0,y:0};}
+        previousPoint={...p,t};point=p;lastPointerAt=t;forecast=0;
+        if(raw){
+          const a=anchor(),dx=a.x-p.x,dy=a.y-p.y,d=Math.hypot(dx,dy),speed=Math.hypot(velocity.x,velocity.y),dot=dx*velocity.x+dy*velocity.y;
+          const alignment=dot/Math.max(.001,d*speed),arrival=dot/Math.max(.0001,speed*speed),miss=Math.hypot(dx-velocity.x*arrival,dy-velocity.y*arrival),toward=dx*raw.x+dy*raw.y;
+          if(toward>0&&arrival>0)forecast=smooth(.5,.96,alignment)*Math.exp(-miss*miss/(100*100))*(1-smooth(180,optics.forecastMs,arrival))*(1-smooth(.82*desktop.clientWidth,1.35*desktop.clientWidth,d))*smooth(.02,.18,speed);
+        }
+        requestOptics();
+      }
+      function resumeEntry(afterCancel=false){
+        forecast=0;velocity={x:0,y:0};previousPoint=null;pressedEntry=false;
+        glyphMemory=point?field(distanceToEntry(),optics.glyph,afterCancel):0;
+        surfaceMemory=point?field(distanceToEntry(),optics.surface,afterCancel):0;
+        // Keep the actual on-screen stroke and glass alpha. Cancel changes the
+        // action immediately, while the same material retracts from its current size.
+        requestOptics();
+      }
+      function leaveDesktop(){
+        if(demoActive)return;
+        point=null;previousPoint=null;velocity={x:0,y:0};forecast=0;glyphMemory=0;surfaceMemory=0;pointerDown=false;pressedEntry=false;camera.hidden=true;target.hidden=true;requestOptics();
+      }
+      function setTheme(){desktop.dataset.appearance=dark?'dark':'light';$('[data-theme]').textContent=dark?'浅色桌面':'深色桌面';}
+      function fitThumb(button){
+        const img=button.querySelector('img');if(!img.naturalWidth||!img.naturalHeight)return;
+        const scale=Math.min(72/img.naturalWidth,48/img.naturalHeight),w=img.naturalWidth*scale,h=img.naturalHeight*scale;
+        button.style.width=Math.max(coarse.matches?44:28,w*.75)+'px';button.querySelector('.rf-thumb-clip').style.width=w*.75+'px';
+        img.style.width=w+'px';img.style.height=h+'px';img.style.top=(48-h)/2+'px';
+      }
+      function renderQueue(){
+        pageStart=Math.max(0,Math.min(pageStart,Math.max(0,assets.length-3)));
+        const visible=assets.slice(pageStart,pageStart+3),ids=new Set(visible.map(a=>String(a.id)));
+        [...queue.children].forEach(el=>{if(!ids.has(el.dataset.asset))el.remove();});
+        visible.forEach((asset,index)=>{
+          let button=queue.querySelector('[data-asset="'+asset.id+'"]');
+          if(!button){
+            button=document.createElement('button');button.type='button';button.className='rf-thumb cursor-interaction';button.dataset.asset=String(asset.id);
+            button.innerHTML='<span class="rf-thumb-index"></span><span class="rf-thumb-clip"><img alt="" draggable="false"></span>';
+            button.addEventListener('pointerdown',event=>{event.stopPropagation();pressedAsset=asset.id;gesture=null;target.hidden=true;camera.hidden=true;});
+            button.addEventListener('click',event=>{event.stopPropagation();if(event.detail===0||pressedAsset===asset.id){pressedAsset=null;consume(asset.id,event);}});
+            button.querySelector('img').addEventListener('load',()=>fitThumb(button));queue.appendChild(button);
+          }
+          if(button.querySelector('img').src!==asset.image)button.querySelector('img').src=asset.image;
+          button.style.top=(308+index*62)+'px';button.querySelector('.rf-thumb-index').textContent=String(pageStart+index+1);
+          button.classList.toggle('is-arriving',asset.state==='arriving');button.classList.toggle('is-leaving',asset.state==='leaving');button.disabled=asset.state==='leaving';
+          button.setAttribute('aria-label','演示取用第 '+(pageStart+index+1)+' 张'+names[asset.mode]+'截图');fitThumb(button);
+        });
+        desktop.style.setProperty('--rf-rift-h',(visible.length?128+(visible.length-1)*62:36)+'px');
+        $('[data-page]').hidden=assets.length<=3;$('[data-page]').textContent=(pageStart+1)+'–'+Math.min(pageStart+3,assets.length)+' / '+assets.length+' ›';
+        $('[data-seed]').textContent=assets.length?'清空截图':'已有 3 张';desktop.dataset.total=String(assets.length);paintReveal();requestOptics();
+      }
+      function render(){
+        desktop.dataset.phase=phase;desktop.dataset.mode=mode;toolbar.hidden=phase!=='select'&&phase!=='rest';layer.hidden=phase!=='select';layer.dataset.mode=mode;setRail(phase==='select'?1:0);
+        options.hidden=phase!=='select'||!menuOpen;editor.hidden=phase!=='edit';$('.rf-countdown').hidden=phase!=='countdown';
+        const selecting=phase==='select';
+        entry.setAttribute('aria-expanded',String(selecting));entry.dataset.activeMode=mode;
+        $('.rf-camera-symbol').hidden=selecting;$('.rf-entry-mode').hidden=!selecting;
+        const upper=$('.rf-tools-upper');upper.inert=!selecting;upper.setAttribute('aria-hidden',String(!selecting));
+        all('.rf-tool-button').forEach(button=>button.disabled=!selecting);
+        $('[data-more]').setAttribute('aria-expanded',String(menuOpen));
+        all('.rf-toolbar button[data-slot]').forEach(button=>{
+          const value=slots[button.dataset.slot],active=selecting&&mode===value;button.dataset.mode=value;button.dataset.active=String(active);
+          button.setAttribute('aria-pressed',String(active));button.dataset.action=active?'cancel':'mode';
+          button.querySelectorAll('[data-symbol]').forEach(symbol=>symbol.hidden=symbol.dataset.symbol!==value);
+          const label=active?'取消'+names[value]+'截图':'截取'+names[value];button.setAttribute('aria-label',label);button.dataset.tooltip=label;button.title=label;
+        });
+        if(!selecting){entry.dataset.action='capture';entry.setAttribute('aria-label','截图，直接进入'+names[defaultMode]+'模式');entry.removeAttribute('aria-pressed');}
+        const activeSlot=selecting?Object.keys(slots).find(slot=>slots[slot]===mode):'base';
+        const index={base:0,near:1,far:2}[activeSlot];desktop.dataset.activeSlot=activeSlot;
+        desktop.style.setProperty('--rf-active-offset',String(-(coarse.matches?46:32)*index)+'px');
+        $('.rf-options-main').hidden=settingsOpen;$('.rf-settings').hidden=!settingsOpen;
+        options.setAttribute('aria-label',settingsOpen?'截图设置':'本次截图选项');$('[data-default-label]').textContent=names[defaultMode];desktop.dataset.defaultMode=defaultMode;
+        all('.rf-settings button[data-default-mode]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.defaultMode===defaultMode)));
+        $('[data-edit-option]').setAttribute('aria-pressed',String(editAfter));$('[data-pointer-option]').setAttribute('aria-pressed',String(showPointer));
+        all('[data-delay]').forEach(b=>b.setAttribute('aria-pressed',String(Number(b.dataset.delay)===delay)));
+        layer.style.cursor=menuOpen?'default':mode==='region'?'crosshair':'none';
+        if(phase!=='select'||menuOpen){camera.hidden=true;target.hidden=true;}
+        renderQueue();
+      }
+      function stopDemo(){demoActive=false;demoEpoch++;cancelAnimationFrame(demoFrame);demoFrame=0;demoPointer.hidden=true;}
+      function settleAssets(){assets.forEach(a=>{if(a.state==='arriving')a.state='ready';});}
+      function resetCaptureOptions(){menuOpen=false;settingsOpen=false;editAfter=false;showPointer=false;delay=0;}
+      function beginCapture(){
+        if(phase!=='rest')return;stopDemo();epoch++;clearTimeout(countdownTimer);settleAssets();resetCaptureOptions();
+        phase='select';mode=defaultMode;slots=mode==='window'?{base:'window',near:'region',far:'full'}:mode==='region'?{base:'region',near:'window',far:'full'}:{base:'full',near:'region',far:'window'};gesture=null;currentRect=null;hoverWindow=null;pressedEntry=false;origin.hidden=true;render();
+        say(mode==='region'?'区域 · 拖动框选，松开即截；Esc 取消。':names[mode]+' · 指向目标，点击即截；Esc 取消。');
+      }
+      function cancelCapture(event){
+        if(phase==='rest')return;
+        if(event&&event.detail>0&&Number.isFinite(event.clientX))point=opticalPoint(event);
+        epoch++;clearTimeout(countdownTimer);gesture=null;pending=null;menuOpen=false;settingsOpen=false;editGesture=null;phase='rest';pointerDown=false;target.hidden=true;camera.hidden=true;origin.hidden=true;resumeEntry(true);render();
+        say(assets.length?'已取消，原有截图保留。':'已取消。');
+      }
+      function windowAt(p){return all('[data-window]').reverse().find(el=>inside(p,rectOf(el)))||null;}
+      function placeTarget(rect,kind){
+        currentRect={...rect};target.hidden=false;target.dataset.kind=kind;
+        target.style.left=rect.x+'px';target.style.top=rect.y+'px';target.style.width=rect.w+'px';target.style.height=rect.h+'px';
+      }
+      function updateTarget(p,onControl=false){
+        if(phase!=='select'||menuOpen||onControl){camera.hidden=true;target.hidden=true;return;}
+        if(mode==='region'){camera.hidden=true;if(gesture&&gesture.owner==='target'&&gesture.mode==='region')placeTarget(regionRect(gesture.start,p),'region');else target.hidden=true;return;}
+        hoverWindow=mode==='window'?windowAt(p):null;
+        const rect=mode==='full'?{x:1,y:1,w:desktop.clientWidth-2,h:desktop.clientHeight-2}:hoverWindow?rectOf(hoverWindow):null;
+        camera.hidden=false;camera.style.left=Math.min(desktop.clientWidth-29,p.x+5)+'px';camera.style.top=Math.min(desktop.clientHeight-25,p.y+4)+'px';
+        if(!rect){target.hidden=true;currentRect=null;return;}placeTarget(rect,mode);
+        desktop.dataset.target=hoverWindow?hoverWindow.dataset.window:mode;
+      }
+      function chooseMode(slot,event){
+        if(phase!=='select')return;
+        const value=slots[slot];if(!value)return;if(value===mode){cancelCapture(event);return;}
+        // A mode changes only the active cover. No icon or slot is reassigned.
+        gesture=null;mode=value;menuOpen=false;settingsOpen=false;currentRect=null;hoverWindow=null;render();target.hidden=true;camera.hidden=true;
+        say(value==='region'?'区域 · 拖动框选，松开即截；截图后继续保持展开。':value==='full'?'全屏 · 点击这块屏幕即截；截图后继续保持展开。':'窗口 · 指向目标，点击即截；截图后继续保持展开。');
+      }
+      function closeMenu(){menuOpen=false;settingsOpen=false;render();}
+      function materialize(asset){
+        if(!asset)return;
+        pending=null;phase='select';pointerDown=false;gesture=null;currentRect=null;hoverWindow=null;resetCaptureOptions();
+        target.hidden=true;camera.hidden=true;asset.state=reduced.matches?'ready':'arriving';assets.push(asset);pageStart=Math.max(0,assets.length-3);render();
+        say('已生成'+names[asset.mode]+'演示图片，共 '+assets.length+' 张；可继续截图，点 X 或 Esc 收起。');
+        if(!reduced.matches)setTimeout(()=>{if(assets.includes(asset)&&asset.state==='arriving'){asset.state='ready';renderQueue();}},105);
+      }
+      function sourceFeedback(asset){
+        if(reduced.matches)return;const r=asset.rect;origin.style.left=r.x+'px';origin.style.top=r.y+'px';origin.style.width=r.w+'px';origin.style.height=r.h+'px';origin.style.borderRadius=asset.mode==='window'?'12px':'0';
+        origin.querySelector('img').src=asset.image;origin.dataset.asset=String(asset.id);origin.hidden=false;origin.style.animation='none';void origin.offsetWidth;origin.style.animation='';
+        setTimeout(()=>{if(origin.dataset.asset===String(asset.id))origin.hidden=true;},90);
+      }
+      function performCapture(rect,windowId,settings){
+        const asset={id:nextID++,mode,rect:{...rect},windowId,image:snapshot(rect,{windowId,showPointer:settings.showPointer,pointer:settings.pointer}),state:'ready'};
+        if(settings.editAfter){pending=asset;openEditor();}else{materialize(asset);sourceFeedback(asset);}
+      }
+      function requestCapture(rect,windowId=null){
+        if(phase!=='select'||menuOpen)return;
+        const settings={editAfter,showPointer,pointer:point?{...point}:null};const token=epoch;gesture=null;currentRect=null;target.hidden=true;camera.hidden=true;
+        if(!delay){performCapture(rect,windowId,settings);return;}
+        phase='countdown';menuOpen=false;const end=now()+delay*1000;render();
+        const tick=()=>{if(token!==epoch||phase!=='countdown')return;const left=Math.max(0,Math.ceil((end-now())/1000));$('[data-countdown]').textContent=String(left);if(left>0){countdownTimer=setTimeout(tick,100);}else performCapture(rect,windowId,settings);};
+        say(delay+' 秒后截取'+names[mode]+'，Esc 可取消。');tick();
+      }
+      function consume(id,event){
+        if(!['rest','select'].includes(phase)||event.detail>1)return;
+        if(event.detail!==0&&lastTake&&now()-lastTake.t<420&&Math.hypot(event.clientX-lastTake.x,event.clientY-lastTake.y)<7)return;
+        const asset=assets.find(a=>a.id===id);if(!asset||asset.state==='leaving')return;stopDemo();settleAssets();gesture=null;target.hidden=true;camera.hidden=true;if(menuOpen)closeMenu();
+        if(event.detail!==0)lastTake={t:now(),x:event.clientX,y:event.clientY};asset.state='leaving';renderQueue();
+        setTimeout(()=>{const index=assets.findIndex(a=>a.id===id);if(index>=0)assets.splice(index,1);renderQueue();say('SIMULATED · 已演示取用；未上传图片，也未连接任何聊天输入框。');},reduced.matches?0:85);
+      }
+      function openEditor(){
+        phase='edit';gesture=null;menuOpen=false;marks=[];draftMark=null;editorImage=null;editGesture=null;editCanvas.width=1;editCanvas.height=1;render();say('仅本次截后编辑；拖动添加标注。');
+        const id=pending.id,token=epoch;const image=new Image();image.onload=()=>{if(phase!=='edit'||!pending||pending.id!==id||token!==epoch)return;editorImage=image;editCanvas.width=image.naturalWidth;editCanvas.height=image.naturalHeight;drawEditor();};image.src=pending.image;
+      }
+      function drawEditor(){
+        if(!editorImage)return;const c=editCanvas.getContext('2d');c.clearRect(0,0,editCanvas.width,editCanvas.height);c.drawImage(editorImage,0,0);c.strokeStyle='#e4433c';c.lineWidth=Math.max(3,editCanvas.width/230);
+        for(const mark of [...marks,...(draftMark?[draftMark]:[])])c.strokeRect(mark.x,mark.y,mark.w,mark.h);$('[data-undo]').disabled=!marks.length;
+      }
+      function finishEditor(keepOriginal=false){if(phase!=='edit'||!pending)return;const asset=pending;if(!keepOriginal&&editorImage)asset.image=editCanvas.toDataURL('image/png');materialize(asset);sourceFeedback(asset);}
+      const editPoint=e=>{const r=editCanvas.getBoundingClientRect();return{x:Math.max(0,Math.min(editCanvas.width,(e.clientX-r.left)*editCanvas.width/r.width)),y:Math.max(0,Math.min(editCanvas.height,(e.clientY-r.top)*editCanvas.height/r.height))};};
+      entry.addEventListener('pointerdown',()=>{pressedEntry=true;requestOptics();});
+      entry.addEventListener('pointercancel',()=>{pressedEntry=false;requestOptics();});
+      entry.addEventListener('click',event=>{if(phase==='select')chooseMode('base',event);else beginCapture();});
+      entry.addEventListener('focus',requestOptics);entry.addEventListener('blur',requestOptics);
+      all('.rf-tools-upper button[data-slot]').forEach(button=>button.addEventListener('click',event=>chooseMode(button.dataset.slot,event)));
+      $('[data-more]').addEventListener('click',()=>{if(phase!=='select')return;gesture=null;settingsOpen=false;menuOpen=!menuOpen;render();});
+      $('[data-settings]').addEventListener('click',()=>{settingsOpen=true;render();});
+      $('[data-settings-back]').addEventListener('click',()=>{settingsOpen=false;render();});
+      all('.rf-settings button[data-default-mode]').forEach(button=>button.addEventListener('click',()=>{defaultMode=button.dataset.defaultMode;render();say('默认已设为'+names[defaultMode]+'；本次三个位置保持，下次打开按该设置排列。');}));
+      $('[data-edit-option]').addEventListener('click',()=>{editAfter=!editAfter;closeMenu();say(editAfter?'本次截图后编辑；现在可以直接选择目标。':'本次截图直接进入裂缝。');});
+      $('[data-pointer-option]').addEventListener('click',()=>{showPointer=!showPointer;closeMenu();say(showPointer?'本次包括鼠标指针；现在选择截图目标。':'本次不包括鼠标指针。');});
+      all('[data-delay]').forEach(button=>button.addEventListener('click',()=>{delay=Number(button.dataset.delay);closeMenu();say(delay?'选定目标后开始 '+delay+' 秒计时。':'选定目标即截。');}));
+      $('[data-cancel]').addEventListener('click',cancelCapture);$('.rf-countdown').addEventListener('click',cancelCapture);
+      document.addEventListener('pointermove',event=>{
+        if(!root.isConnected)return;if(demoActive&&event.isTrusted)stopDemo();
+        const coalesced=typeof event.getCoalescedEvents==='function'?event.getCoalescedEvents():[];
+        for(const sample of (coalesced.length?coalesced:[event]))observePointer(opticalPoint(sample),event.buttons,Math.abs(now()-sample.timeStamp)<1000?sample.timeStamp:now());
+        if(phase==='select')updateTarget(local(event),!desktop.contains(event.target)||Boolean(event.target.closest('.rf-toolbar,.rf-options,.rf-thumb,.rf-page')));
+      });
+      document.documentElement.addEventListener('pointerleave',leaveDesktop);
+      document.addEventListener('pointerup',()=>{pointerDown=false;pressedEntry=false;requestOptics();});
+      layer.addEventListener('pointerdown',event=>{
+        if(phase!=='select'||event.button!==0)return;stopDemo();event.preventDefault();const p=local(event);point=p;
+        if(menuOpen){closeMenu();gesture={owner:'dismiss',id:event.pointerId};layer.setPointerCapture(event.pointerId);return;}
+        const win=mode==='window'?windowAt(p):null;
+        gesture={owner:'target',id:event.pointerId,start:p,mode,windowId:win?win.dataset.window:null,rect:mode==='window'&&win?rectOf(win):null};
+        layer.setPointerCapture(event.pointerId);if(mode==='region')placeTarget({x:p.x,y:p.y,w:1,h:1},'region');else updateTarget(p);
+      });
+      layer.addEventListener('pointerup',event=>{
+        const active=gesture;gesture=null;if(layer.hasPointerCapture(event.pointerId))layer.releasePointerCapture(event.pointerId);
+        if(!active||active.owner!=='target'||active.id!==event.pointerId||phase!=='select'||active.mode!==mode)return;
+        const p=local(event);point=p;
+        if(mode==='region'){const rect=regionRect(active.start,p);if(rect.w>=1&&rect.h>=1&&Math.hypot(rect.w,rect.h)>=3)requestCapture(rect);else{target.hidden=true;say('拖动框选一个区域，松开即可截图。');}return;}
+        if(Math.hypot(p.x-active.start.x,p.y-active.start.y)>8)return;
+        if(mode==='full'){requestCapture({x:0,y:0,w:desktop.clientWidth,h:desktop.clientHeight});return;}
+        const win=windowAt(p);if(win&&win.dataset.window===active.windowId)requestCapture(active.rect,active.windowId);
+      });
+      layer.addEventListener('pointercancel',()=>{gesture=null;target.hidden=true;});
+      editCanvas.addEventListener('pointerdown',event=>{if(phase!=='edit'||!editorImage||event.button!==0)return;editGesture={id:event.pointerId,start:editPoint(event)};editCanvas.setPointerCapture(event.pointerId);event.preventDefault();});
+      editCanvas.addEventListener('pointermove',event=>{if(!editGesture||editGesture.id!==event.pointerId)return;draftMark=regionRect(editGesture.start,editPoint(event));drawEditor();});
+      editCanvas.addEventListener('pointerup',event=>{if(!editGesture||editGesture.id!==event.pointerId)return;const mark=regionRect(editGesture.start,editPoint(event));editGesture=null;draftMark=null;if(mark.w>=4&&mark.h>=4)marks.push(mark);if(editCanvas.hasPointerCapture(event.pointerId))editCanvas.releasePointerCapture(event.pointerId);drawEditor();});
+      editCanvas.addEventListener('pointercancel',()=>{editGesture=null;draftMark=null;drawEditor();});
+      $('[data-undo]').addEventListener('click',()=>{marks.pop();drawEditor();});$('[data-original]').addEventListener('click',()=>finishEditor(true));$('[data-edit-done]').addEventListener('click',()=>finishEditor(false));
+      document.addEventListener('keydown',event=>{
+        if(event.key!=='Escape'||!root.isConnected)return;stopDemo();
+        if(phase==='edit'){finishEditor(true);event.preventDefault();return;}
+        if(menuOpen){closeMenu();event.preventDefault();return;}
+        if(phase!=='rest'){cancelCapture();event.preventDefault();}
+      });
+      $('[data-page]').addEventListener('click',()=>{pageStart=pageStart===0?Math.max(0,assets.length-3):Math.max(0,pageStart-3);renderQueue();});
+      $('[data-theme]').addEventListener('click',()=>{dark=!dark;setTheme();});
+      $('[data-seed]').addEventListener('click',()=>{
+        stopDemo();cancelCapture();if(assets.length){assets=[];pageStart=0;say('已清空，远离时入口完全隐去。');}
+        else{const ids=['finder','notes',null];assets=ids.map(windowId=>{const r=windowId?rectOf($('[data-window="'+windowId+'"]')):{x:desktop.clientWidth*.25,y:173,w:desktop.clientWidth*.48,h:183};return{id:nextID++,mode:windowId?'window':'region',windowId,rect:r,image:snapshot(r,{windowId}),state:'ready'};});pageStart=0;say('已有 3 张；靠近上方入口仍可继续截图。');}
+        render();
+      });
+      $('[data-demo]').addEventListener('click',()=>{
+        stopDemo();if(phase!=='rest')cancelCapture();demoActive=true;const token=++demoEpoch,start=now(),a=anchor(),from={x:Math.max(15,a.x-780),y:Math.max(60,a.y-80)};demoPointer.hidden=false;previousPoint=null;
+        if(reduced.matches){demoActive=false;demoPointer.hidden=true;observePointer(a);say('入口已就位，可直接截取'+names[defaultMode]+'。');return;}
+        function frame(t){if(token!==demoEpoch)return;const k=clamp((t-start)/360),p={x:from.x+(a.x-from.x)*k,y:from.y+(a.y-from.y)*k};observePointer(p,0,t);demoPointer.style.left=p.x+'px';demoPointer.style.top=p.y+'px';if(k<1)demoFrame=requestAnimationFrame(frame);else{demoActive=false;demoPointer.hidden=true;say('快速靠近后可直接点击；背景继续平顺显现。');}}demoFrame=requestAnimationFrame(frame);
+      });
+      new ResizeObserver(()=>{if(phase==='select'){gesture=null;target.hidden=true;camera.hidden=true;}paintRail();renderQueue();}).observe(desktop);
+      all('[data-tooltip]').forEach(element=>element.title=element.dataset.tooltip);
+      setTheme();paintRail();render();
+    })();
+  </script>
+</div>
+
+</body>
+</html>

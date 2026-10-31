@@ -1,0 +1,118 @@
+{
+  "scope": "Historical first source-read snapshot; follow-up changes reviewed separately. This is not the final source pin or a current-tree manifest.",
+  "base": "8dae90d25b38c10faa11d98cfe4f576c27b1b31e",
+  "objects": [
+    {
+      "path": "Sources/RiftletApp/RiftletMain.swift",
+      "gitBlob": "7ccba3bd406d3edc6d68047a68f368648c798489",
+      "sha256": "136115bee9237af6b3f438407f1213138b7e5f9320f595048d053127d17291b0"
+    },
+    {
+      "path": "Sources/RiftletApp/ScreenshotEntryHost.swift",
+      "gitBlob": "e836f7b0f5abcec045f07a1513a64664decff97b",
+      "sha256": "a52a6700bbbcefd362c2229a9e129ac0811ca615bebd19ab87c4190ee7c97639"
+    },
+    {
+      "path": "Sources/RiftletApp/ScreenshotEntryPreferences.swift",
+      "gitBlob": "a5711fec2c1384c3707dac2f0e12a857e80d48f2",
+      "sha256": "e48a80b81358924222508494eaf29d9c665d479e9872e72c66812720ab9e0f4f"
+    },
+    {
+      "path": "Sources/RiftletFeedbackUI/FeedbackWindowController.swift",
+      "gitBlob": "8cb269dadb89b21bc431cc94c9af95041ae81694",
+      "sha256": "69f9b1241f80fe0e383246616c784acccfe87db173cd86726cdddc8a0d84600a"
+    },
+    {
+      "path": "Sources/RiftletGUIAcceptance/AcceptanceMain.swift",
+      "gitBlob": "31614e21dc9e3bdda37d8c67a4d3e2fe1f4915c8",
+      "sha256": "c0f82d6c2584ae7c67257ee5d766b58e1df1e61a7cb75cb555323f92203c023d"
+    },
+    {
+      "path": "Sources/RiftletGUIAcceptance/AcceptanceWindowScenes.swift",
+      "gitBlob": "fea239786102b0b923c01fe1d5d997aed1b1e210",
+      "sha256": "aa751cf237905e70ec69d185327e7ec7ce01e0d83192e3bc9af23ef91b61dbbf"
+    },
+    {
+      "path": "Sources/RiftletGUIAcceptance/NativeVisualEvidence.swift",
+      "gitBlob": "0abade0d1987015b6e2620ede4e9fafb4853f6bf",
+      "sha256": "efb0b4a75dde8e53ee0eaf2b59aac880e9fb1e0641c14f58aa3968892309ce02"
+    },
+    {
+      "path": "Sources/RiftletUI/ArrivalMotionSettingsController.swift",
+      "gitBlob": "e3715e76e53140bdf47839a285abd4fa163139cb",
+      "sha256": "972740add276f96fe7357bca377d7d8cb8fb966863995477a7b1d95bdd3c42ca"
+    },
+    {
+      "path": "Sources/RiftletUI/RiftHistoryController.swift",
+      "gitBlob": "3ce3d059809dc66d6b39272592adc7bc714b5c86",
+      "sha256": "24c0fa4b9f59f1f5d534dafe616040e25bb3a9bbac7c044803163bc733fdbed8"
+    },
+    {
+      "path": "Sources/RiftletUI/RiftLayout.swift",
+      "gitBlob": "fc41dd08af2d20d4997626d0f98ba0600bb66563",
+      "sha256": "4d82a8b1330e2b1fab759d6eb5e44a77461f90b93fb5ca9dfce237062ddaa390"
+    },
+    {
+      "path": "Sources/RiftletUI/RiftPanelController.swift",
+      "gitBlob": "81b46658a3c8961d5a008a2e1b62ea28e4c112e6",
+      "sha256": "44c1198f69ae059f841412db631fe5b77d7039c082ad54fdabc7d823f617f6b3"
+    },
+    {
+      "path": "Sources/RiftletUI/RiftSettingsForm.swift",
+      "gitBlob": "c12a02199905d64c022b7dbc3dcc8d8225b3ff29",
+      "sha256": "3425b3b24de4fbc987813f2baf0c1bcf1161b86d23ea625bf23d4560eaf0573b"
+    },
+    {
+      "path": "Sources/RiftletUI/RiftSetupController.swift",
+      "gitBlob": "1de6ea7eee18e103f71fae9802170de1d8dd8470",
+      "sha256": "da0b8d00d4077b34f988bd3b2b0bbfddfb35cfd5530952117c331095d3a4d047"
+    },
+    {
+      "path": "Sources/RiftletUI/RiftVisualStyle.swift",
+      "gitBlob": "a410736426888e33736ddf39afdef07590bfc84e",
+      "sha256": "7108837e90c63e73e6f7931597eea594dd5d14c230cdb4d1d796677cb0a5e888"
+    },
+    {
+      "path": "Sources/RiftletUI/ScreenshotEntryController.swift",
+      "gitBlob": "31c28a0ab373d0a0f09e91d811ed7a016bf02a6d",
+      "sha256": "199f432122fa6cbf6f951dd79e00b0183a1809c4428b2a95edc8b88528e88c1c"
+    },
+    {
+      "path": "Tests/NativeVisualEvidence/test_capture.py",
+      "gitBlob": "41654591a3c39128362c63d40dfe1e6c070aba1d",
+      "sha256": "ee148ee644d64678e5dd7dd996a066443bcae8542455ef96f835dde0038c98a5"
+    },
+    {
+      "path": "Tests/RiftletAppTests/ScreenshotEntryIntegrationTests.swift",
+      "gitBlob": "78c3454b06eca74b6034abeac6925fc084beed3e",
+      "sha256": "fa54ae72e3289128a201e697d980baa654c1fa07161bb8415a2adffadb7b3e79"
+    },
+    {
+      "path": "Tests/RiftletFeedbackUITests/FeedbackVisualCandidateTests.swift",
+      "gitBlob": "80ad444176592a9fc936d826c4d827d50ab2eb66",
+      "sha256": "cc4f4e31d8b3ff5aa7f704ebcff0dfdddec8767dd524a03228a7ca9e1142eccd"
+    },
+    {
+      "path": "Tests/RiftletUITests/QuietEdgeInteractionTests.swift",
+      "gitBlob": "1d89e6915bf38355abceb6ac0d4811c972cd938b",
+      "sha256": "10a4a1b56ac3ad55166cb2847c2abcd6003f84474cf0f65730a48ed955aa899c"
+    },
+    {
+      "path": "Tests/RiftletUITests/RiftLayoutTests.swift",
+      "gitBlob": "d1e34a79a2a23d8a7a2b0e73e5777b73d7b632d6",
+      "sha256": "4e8e42fe3554e7902715af7b0656ab5f9c24c83f63a4a26bdc8cd04c8c8cd76e"
+    },
+    {
+      "path": "Tests/RiftletUITests/UnifiedSettingsTests.swift",
+      "gitBlob": "ea46e8db9d9f931fb8082b4202e5be166ebfabd0",
+      "sha256": "e7039c6cf477cccfe207b463a33e09004bea4e3a1daeb2054fd82576b3c5681c"
+    },
+    {
+      "path": "scripts/capture-native-visual-evidence.py",
+      "gitBlob": "b3cd84aa6feb7e7e3728c6e6450e0b1fc8b91157",
+      "sha256": "c43084d03bf72647fe0e1eaf8f1a7dc9e27f89901d1fc050ddaa88a34ca84690"
+    }
+  ],
+  "phase": "INITIAL_SOURCE_READ_SNAPSHOT_ONLY",
+  "currentTreeClaim": false
+}

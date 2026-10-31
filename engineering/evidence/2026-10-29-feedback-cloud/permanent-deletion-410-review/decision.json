@@ -1,0 +1,28 @@
+{
+  "decision": "APPROVE execution of original exact guarded closeout SQL for these three completed permanent deletions",
+  "independentRawObservationReviewed": true,
+  "actualStatus410MatchesOfficialSemantics": true,
+  "rawProviderMessage": "This issue was deleted",
+  "sameAuthorizedPrivateRepoAndCompleteEmptyListVerified": true,
+  "ownerPermanentDeletionEvidenceReviewed": true,
+  "normalLateReconcilePreservedDeletionIntent": true,
+  "allOriginalSQLAndOriginal404PreparationUnchanged": true,
+  "liveDatabaseChangesByThisReview": 0,
+  "sharedFilesChangedByThisReview": 0,
+  "hostActivation": "HOLD pending actual D1 guarded closeout and original-capability final GETs",
+  "documentationRequired": "Record observed410 Gone and explicit deleted message; retain historical404-only expectation as corrected, do not relabel410 as404 or accept arbitrary errors.",
+  "correctedGateSHA256": "d3d4dd61b140a754d1eba9ac6dd20524ad426df72222cc5721155d68c4c79b39",
+  "reviewedEvidenceSHA256": {
+    "/tmp/riftlet-cloud-private-permanent-delete-20261029T153426Z/connector-observations.json": "a26531741b26800ed33fa8d5a3d2dec6abfbad2e293becf3187b562b481f18d2",
+    "/tmp/riftlet-cloud-verification-20261029/delivery-phase/permanent-delete-api-observation-20261029T153426Z/summary.json": "385d31e82e5b7a6599f3ae18392989ca460c64d99f4ab6426d9ee5cc6e4a114d",
+    "/workspace/scratch/3e5b090206d5/riftlet/engineering/evidence/2026-10-29-feedback-cloud/github-owner-permanent-deletion.json": "412e309a43356fdfbc1a5a2791c5a665c373dcb72ad9f1023e27b078a1284f8a",
+    "/workspace/scratch/3e5b090206d5/riftlet/engineering/evidence/2026-10-29-feedback-cloud/d1-late-reconcile.json": "c6d44703d0e389c661bfe925bf89bebe586fa6f89ff67e76d8a73f1a0d26e210",
+    "/tmp/riftlet-cloud-verification-20261029/delivery-phase/deletion-closeout-prepared/verification-gate.json": "ff88fd5ee1cffe88cea1b3ec71af3dab5eefd9f8de39648199858b92d84647ca",
+    "/tmp/riftlet-cloud-verification-20261029/delivery-phase/deletion-closeout-prepared/closeout-plain.sql": "6406a4c9c3312b18f54f7bb2286f238154bda0fa06cfda7f2f60e5782b5dd244",
+    "/tmp/riftlet-cloud-verification-20261029/delivery-phase/deletion-closeout-prepared/closeout-diagnostic.sql": "08764f0670c727e2c793f44bd65a81b959192441054371a13fd880a7c6c62430",
+    "/tmp/riftlet-cloud-verification-20261029/delivery-phase/deletion-closeout-prepared/closeout-lost_receipt.sql": "f155f0a1e4d051dc80761c4524de2565e1a52827b613bd2f22ce46c0e9332eee",
+    "/tmp/riftlet-cloud-verification-20261029/delivery-phase/deletion-closeout-prepared/closeout-all-three.sql": "7aecce4ffc5d5f08b697b13f2dc40c1d54c7aef440b3274b040ccca6fb5e2356"
+  },
+  "platformRequestsByThisReview": 0,
+  "officialDocumentationReadIndependently": true
+}

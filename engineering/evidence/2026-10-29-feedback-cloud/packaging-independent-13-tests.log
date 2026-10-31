@@ -1,0 +1,18 @@
+test_complete_package_is_verified_without_launch (test_package.InternalBetaPackagingTests.test_complete_package_is_verified_without_launch) ... ok
+test_configured_receiver_is_a_capability_not_cloud_success (test_package.InternalBetaPackagingTests.test_configured_receiver_is_a_capability_not_cloud_success) ... ok
+test_disabled_manifest_cannot_hide_configured_receiver_or_coerce_boolean (test_package.InternalBetaPackagingTests.test_disabled_manifest_cannot_hide_configured_receiver_or_coerce_boolean) ... ok
+test_host_source_requires_one_explicit_reviewable_literal (test_package.InternalBetaPackagingTests.test_host_source_requires_one_explicit_reviewable_literal) ... ok
+test_incomplete_build_identity_is_rejected (test_package.InternalBetaPackagingTests.test_incomplete_build_identity_is_rejected) ... ok
+test_launcher_uses_adjacent_app_and_one_explicit_mode_with_spaces (test_package.InternalBetaPackagingTests.test_launcher_uses_adjacent_app_and_one_explicit_mode_with_spaces) ... ok
+test_linked_entry_and_missing_execute_permission_are_rejected (test_package.InternalBetaPackagingTests.test_linked_entry_and_missing_execute_permission_are_rejected) ... ok
+test_manifest_configuration_must_match_its_committed_host (test_package.InternalBetaPackagingTests.test_manifest_configuration_must_match_its_committed_host) ... ok
+test_manifest_creation_derives_capability_from_committed_host (test_package.InternalBetaPackagingTests.test_manifest_creation_derives_capability_from_committed_host) ... ok
+test_missing_executable_does_not_launch_or_fall_back_to_installed_app (test_package.InternalBetaPackagingTests.test_missing_executable_does_not_launch_or_fall_back_to_installed_app) ... ok
+test_modified_launcher_and_resource_are_rejected (test_package.InternalBetaPackagingTests.test_modified_launcher_and_resource_are_rejected) ... ok
+test_receiver_manifest_rejects_missing_and_unsafe_addresses (test_package.InternalBetaPackagingTests.test_receiver_manifest_rejects_missing_and_unsafe_addresses) ... ok
+test_wrong_mode_or_cloud_success_claim_is_rejected (test_package.InternalBetaPackagingTests.test_wrong_mode_or_cloud_success_claim_is_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.243s
+
+OK

@@ -1,0 +1,53 @@
+{
+  "baselineSHA": "3bb13999b0f444c7748804eef1976e179a52a85e",
+  "formalHeadCheckedAtStart": "2449d40a88225acba9d413cc6a4cb5d84fcae6a1",
+  "branch": "codex/riftlet-real-mac-round6-20261027",
+  "finalSourceSHA": "c000cc1b930b278ae22b29e6b01941a9faf0a87d",
+  "uploadTestSourceSHA": "7878de3138d1c140369c3cfbe69a28dd2770294c",
+  "ci": [
+    {
+      "sourceSHA": "7878de3138d1c140369c3cfbe69a28dd2770294c",
+      "run": 40510840772,
+      "result": "PASS",
+      "nativeTests": 320,
+      "pageTests": 72,
+      "legacyTests": 54,
+      "lifecycleSubset": 13,
+      "releaseSignatureThreeSelfChecks": "PASS"
+    },
+    {
+      "sourceSHA": "c000cc1b930b278ae22b29e6b01941a9faf0a87d",
+      "run": 40513086114,
+      "result": "NOT_RUN_QUEUED",
+      "job": 122219591897,
+      "limitation": "Latest observed workflow and job queued, no steps started; not retriggered. Pro must inspect this exact source run before integration."
+    }
+  ],
+  "localFinalSource": {
+    "releaseBuildAndAdHocSignature": "PASS",
+    "foundationDescriptorTestGroups": 5,
+    "foundationDescriptorResult": "PASS",
+    "XCTest": "NOT_RUN_LOCAL_CLT_MISSING_XCTEST",
+    "realChromeCapture": "PASS_READ_ONLY_3_CAPTURES_6_FAST_IDENTITY_READS",
+    "newUploadOnFinalSource": "NOT_RUN",
+    "diffCheck": "PASS"
+  },
+  "productResults": {
+    "clickToSwallowMeasuredSpeed": "PASS_SINGLE_SAMPLE_33_42_PERCENT_LOWER",
+    "strictNoACKColdClick": "FAIL_SAFE_REFUSAL",
+    "sameDraftConsecutiveClick": "FAIL_TARGET_BUSY_WITH_ZERO_SECOND_INPUT",
+    "humanPhysicalGUI": "NOT_RUN",
+    "ABA": "NOT_RUN_NEW_ROUND",
+    "safeFailureRebirth": "NOT_RUN",
+    "MID": "NOT_RUN",
+    "systemScreenshotSelfInclusion": "NOT_RUN_NEW_ROUND"
+  },
+  "scope": {
+    "coreUIAppChanged": false,
+    "formalBranchOrPR1Changed": false,
+    "productionScreenshotUploadEnabled": false,
+    "safeRetryEnabled": false,
+    "messagesSentToChatGPT": 0,
+    "runtimeAppStopped": true
+  }
+}

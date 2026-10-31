@@ -2,13 +2,22 @@
 
 **Riftlet** is a proposed tiny, native macOS screenshot-to-chat bridge: **take a system screenshot, then click its micro-thumbnail once**. The intended result is an image appended to the correct ChatGPT draft—not a sent message.
 
-**Status (2026-10-26): Pre-development design/research.** There is no approved final design, no proven real-ChatGPT end-to-end attachment/ready chain, and no shipped Riftlet app. This public repository archives decisions and research; it is not an invitation to start implementation.
+**Status (2026-10-28): Active native development.** This branch contains automatic screenshot-source rebinding, SQLite v3 capture/queue state, upload-start-driven visual exit, persistent hide/removal/archive, lightweight native history, isolated Web/Mac adapter foundations and a synthetic GUI acceptance helper. There is no approved final visual design or admitted production ChatGPT adapter yet. **Native tests, Release packaging/signature and synthetic executable self-checks run on macOS14 ARM64 CI; the latest exact tested input and outcome are recorded below.** Exact tested commits/counts and remaining real-environment cases are in [the verification record](docs/VERIFICATION.md); [the execution board](docs/EXECUTION_BOARD.md) is the continuation checkpoint.
+
+**Execution update:** routine engineering now proceeds autonomously with parallel module ownership and independent technical review; no per-increment user approval is required. The [v2 dependency plan](docs/ENGINEERING_PLAN.md) separates implementation from real-evidence admission, and the [live execution board](docs/EXECUTION_BOARD.md) identifies ready work, scoped waits and the next concrete actions. Production attachment profiles remain disabled until their evidence gates pass.
+
+**Latest functional increment:** an explicit **system-screenshot Web candidate** now connects existing Capture to the existing Web v12 bridge in its own data directory. It accepts eligible original PNGs, preserves unsupported files locally, records bounded original observations in SQLite v3, and retains the same Coordinator, click ordering, permissions and original-operation recovery. **Ordinary capture remains upload-disabled. All three real-candidate start/completion/safe-failure policies are empty:** unadmitted observations remain UNKNOWN and visible, without swallow, success or replay. [Implemented candidate, format limits and genuine-evidence gates](docs/SYSTEM_SCREENSHOT_WEB_CANDIDATE.md).
+
+**Web integration boundary:** a real generated-image/software-AX sample proves B waits until A finally succeeds, then each original operation inputs once. The same nonempty draft preserves text, selection and three old attachments. This is scoped sequential completion, not start-stage parallel upload. Missing-ACK cold click remains a product failure; CLEAR underlying click-through remains FAIL, GAP/IMAGE/NUMBER are software-only and physical GUI is unaccepted. Production screenshot upload and safe retry remain disabled. [Current interfaces](docs/ADAPTER_CONTRACT.md#第七轮已集成的原选择等待) · [handoff](docs/INTEGRATION_HANDOFF.md).
+
+**Current tested source:** [`4d352c2`](https://github.com/haohongfei2001-png/Riftlet/commit/4d352c28dcb70e8f6dc42ef93d9df46042a9215d), implemented on formal `b839230` in `codex/system-capture-candidate-20261028`, then fast-forwarded into Draft PR #1. [Independent candidate macOS CI](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40551804340) passes **433 native tests**, 72 current-page/54 legacy, replay/fixtures/packaging, Release/signature and five App/helper self-checks. Fourteen detailed suites report 100 passed/0 skipped, already included in 433. The [formal combined CI](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40553084871) also passes all 17 steps on the PR test merge. Its actual checkout, [development App/helper/logs](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40553084871/artifacts/12756447786) and non-author review are recorded in [permanent evidence](engineering/evidence/2026-10-28-system-screenshot-candidate/README.md). These generated-file/fake-bridge tests are not genuine system-screenshot or GUI acceptance. First ordinary launch opens first-use guidance. ARM64/ad-hoc, not a notarized public release. [Previous round-seven integration and real-evidence scope](engineering/evidence/2026-10-28-integration-round7/README.md) remain intact.
 
 ## The distinctive interaction
+
 - Extremely fine vertical **spatial rift** at the screen edge; tiny, aspect-ratio-preserving, roughly coin-sized screenshots protrude partly from it.
 - Oldest at top. Everyday pending queue is normally **2–3 images**, occasionally 10+; each screenshot shows only the image and a simple number.
 - Normal use takes **exactly two user actions**: macOS screenshot; click its thumbnail. No upload shortcut, drag-and-drop, file picker, extra confirmation or manual paste.
-- Only a **verified ready attachment in the correct draft** triggers final swallow and queue shift. A definitive failure reverses/recreates the thumbnail; an unknown result preserves it and never blindly re-uploads.
+- On **positive evidence that this screenshot actually started uploading to the current click-time ChatGPT draft**, it **swallows and disappears very quickly**—without waiting for verified READY. Only explicit or extremely high-confidence actual failure makes it reappear. UNKNOWN after start is retained in internal local history without blind re-upload or indefinite visible queue blockage. Zero visible screenshots means **no visible rift**. Stale screenshots auto-archive; users can remove one or many. Core/UI/App implement this lifecycle; the isolated generated-image Web path has reviewed start evidence, while production start and safe-failure admission remain separate. **Further clarified:** no valid composer/attachment entry means no disappearance; classified failure rebirths as an ordinary clickable screenshot; no extra success Toast because the user sees the attachment in the ChatGPT draft; clearing queue never remotely removes attachments. Faster repeated clicks are conditional on reliability; hold-to-drag is only under consideration.
 - Never automatically send a ChatGPT message.
 
 The **Screenshot Rift** name appears in the dated original studies; **Riftlet** is the present repository name. Initial repository wording about clipboard content and arbitrary applications is not an approved V1 requirement; those are potential later extensions.
@@ -18,7 +27,18 @@ The **Screenshot Rift** name appears in the dated original studies; **Riftlet** 
 | Subject | Document |
 | --- | --- |
 | User product requirements | [docs/PRODUCT.md](docs/PRODUCT.md) |
+| Implemented upload-start interface and isolated demo | [docs/UPLOAD_STARTED_CONTRACT_V1.md](docs/UPLOAD_STARTED_CONTRACT_V1.md) |
+| Real system-screenshot internal candidate and admission gaps | [docs/SYSTEM_SCREENSHOT_WEB_CANDIDATE.md](docs/SYSTEM_SCREENSHOT_WEB_CANDIDATE.md) |
+| Latest fast-swallow / ephemeral-rift contract | [docs/INTERACTION_CONTRACT_2026-10-27.md](docs/INTERACTION_CONTRACT_2026-10-27.md) |
+| First-use implementation and real-Mac acceptance | [docs/FIRST_USE_ACCEPTANCE.md](docs/FIRST_USE_ACCEPTANCE.md) |
+| Consumer release UX baseline | [docs/RELEASE_UX_REQUIREMENTS_2026-10-27.md](docs/RELEASE_UX_REQUIREMENTS_2026-10-27.md) |
+| Pro focused feasibility review brief | [docs/PRO_FEASIBILITY_REVIEW_BRIEF_2026-10-27.md](docs/PRO_FEASIBILITY_REVIEW_BRIEF_2026-10-27.md) |
+| Pro feasibility conclusions and implementation handoff (research, not acceptance) | [docs/PRO_FEASIBILITY_REVIEW_FINDINGS_2026-10-27.md](docs/PRO_FEASIBILITY_REVIEW_FINDINGS_2026-10-27.md) |
 | Decided vs. proposed | [docs/DECISIONS.md](docs/DECISIONS.md) |
+| Executable engineering plan | [docs/ENGINEERING_PLAN.md](docs/ENGINEERING_PLAN.md) |
+| Autonomous parallel work queue | [docs/EXECUTION_BOARD.md](docs/EXECUTION_BOARD.md) |
+| Exact implemented reuse and licenses | [docs/REUSE_IMPLEMENTATION.md](docs/REUSE_IMPLEMENTATION.md) |
+| Code, CI and remaining acceptance evidence | [docs/VERIFICATION.md](docs/VERIFICATION.md) |
 | Current visual design brief | [docs/DESIGN_BRIEF.md](docs/DESIGN_BRIEF.md) |
 | Archived art direction and offline visual sample | [design/explorations/art-direction-2026-10-26/README.md](design/explorations/art-direction-2026-10-26/README.md) |
 | All archived visual studies | [design/README.md](design/README.md) |
@@ -30,7 +50,22 @@ The **Screenshot Rift** name appears in the dated original studies; **Riftlet** 
 | Codex first experiment evidence | [research/CODEX_EXPERIMENT_STATUS_2026-10-26.md](research/CODEX_EXPERIMENT_STATUS_2026-10-26.md) |
 | Original sources, limits | [research/SOURCES.md](research/SOURCES.md) |
 
-**Next stage is visual/interaction design, not production development.** Please do not commit real user screenshots, private chats, credentials, unrelated project files or test browser profiles to this public repository.
+**Engineering proceeds on an isolated Draft PR; no unreviewed merge or release.** Please do not commit real user screenshots, private chats, credentials, unrelated project files or test browser profiles to this public repository.
+
+## Build the native foundation (macOS 13+)
+
+```bash
+swift test --parallel
+bash scripts/build-macos.sh
+build/Riftlet.app/Contents/MacOS/Riftlet --self-check
+open build/Riftlet.app --args --simulate
+```
+
+Simulation uses only synthetic images in its own data directory and never connects to ChatGPT. Run without `--simulate` to collect actual system screenshot files; the production upload adapter remains disabled, so clicks retain the screenshot. This is an engineering build with an ad-hoc signature, not a notarized release. [Real Mac acceptance](docs/MAC_ACCEPTANCE.md) lists the remaining GUI checks.
+
+The separate **Web acceptance mode** uses the real native bridge, generated images and an isolated queue. Its inherited page scope is the observed Chinese Home/ordinary Chat form and bounded PNG input; this increment does not broaden that scope or add a start/failure profile. See [the exact startup and acceptance steps](docs/MAC_ACCEPTANCE.md#w2-integrated-web-acceptance-entry--available-live-test-not_run). It never sends a message or retries an UNKNOWN input, and its development completion profile cannot consume system screenshots. Local Codex owns the next live test from the formal checkpoint; this remains a development-only adapter.
+
+The separate **real system-screenshot internal candidate** is available from the ordinary App's “打开真实截图内部候选…” menu or `--system-screenshot-candidate`. It uses `Riftlet-System-Screenshot-Candidate`, never the generated-image queue, and is visibly marked `Riftlet REAL TEST`. Original PNG input is bounded to 8 MiB and 16,777,216 pixels; other locally supported formats are retained with an explicit explanation. It does not yet admit real upload start/completion/retry or perform fast swallow. [Exact entry, evidence journal and next real-Mac acceptance](docs/SYSTEM_SCREENSHOT_WEB_CANDIDATE.md).
 
 
 ## Prelaunch website (2026-10-27)

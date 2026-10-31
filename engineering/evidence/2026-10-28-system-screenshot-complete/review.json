@@ -1,0 +1,19 @@
+{
+  "reviewer": "non-author native_gui agent",
+  "mode": "read-only source, raw private evidence, database snapshots and public redaction review; no GUI or changes",
+  "result": "PASS with explicit scope limits",
+  "reviewed": [
+    "exact built resource and source48574df",
+    "one native selection and 1 begin/26 chunk/1 commit/input1",
+    "pre-event full ACK and exact identity/attachment chain",
+    "strict sRGB original/preview independent digest equality",
+    "48 characters and noncollapsed editor-contained selection",
+    "one original attachment node/source/dimensions/completion retained",
+    "old UNKNOWN identity/attempt preservation and bounded prep log limitation",
+    "original old page lookup unavailable is not replayed",
+    "same-source prior CI not relabeled new run",
+    "public privacy and private hash verification"
+  ],
+  "physicalMouse": "NOT_RUN",
+  "productionEnablement": "not admitted"
+}

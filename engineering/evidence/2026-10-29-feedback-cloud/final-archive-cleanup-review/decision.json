@@ -1,0 +1,102 @@
+{
+  "decision": "APPROVE root removing only the seven exact listed temporary test directories after retaining safe archive and this safe410extract; no other paths",
+  "archiveManifestSHA256": "8cb4b2f8b97d74231aaa47dc14bda675db574c70d080bf17bd55134f3d9f582b",
+  "eventsSHA256": "839473fea9af437543a4a5b6c585338f4225012134e8004589d50d4bcbd0cdda",
+  "deduplicationVerifiedFromActualTwoPrimaryLogs": true,
+  "primaryEventCounts": [
+    40,
+    24
+  ],
+  "uniqueEvents": 64,
+  "httpContractChecksPassed": 54,
+  "discardAttempts": 4,
+  "preWriteDNSFailuresPreserved": 1,
+  "independentIssueBodyChecksAcrossTwoListings": 6,
+  "distinctCreatedIssues": 3,
+  "allArchiveDigestsMatch": true,
+  "originalPrivateIssueBodiesMatchArchivedDigests": true,
+  "noRawPrivateBodyOrCredentialFieldsInArchive": true,
+  "privateStateContentsRead": false,
+  "originalInventorySHA256": "b7fbccbb0e2eaa37423da49354b18fdabdfe519a55175237b635bd4ed994d9d1",
+  "exactCleanupPaths": [
+    "/tmp/riftlet-feedback-live-20261029",
+    "/tmp/riftlet-feedback-delivery-live-20261029",
+    "/tmp/riftlet-cloud-private-issues-20261029T145732Z",
+    "/tmp/riftlet-cloud-private-issues-20261029T152210Z",
+    "/tmp/riftlet-cloud-private-issues-20261029T153205Z",
+    "/tmp/riftlet-cloud-private-permanent-delete-20261029T153426Z",
+    "/tmp/riftlet-cloud-verification-20261029/offline-selfcheck"
+  ],
+  "preRemovalMetadata": [
+    {
+      "path": "/tmp/riftlet-feedback-live-20261029",
+      "fileCount": 2,
+      "directoryMode": "0700",
+      "filesMode": "0600",
+      "symlinks": 0,
+      "unexpectedChildren": 0
+    },
+    {
+      "path": "/tmp/riftlet-feedback-delivery-live-20261029",
+      "fileCount": 2,
+      "directoryMode": "0700",
+      "filesMode": "0600",
+      "symlinks": 0,
+      "unexpectedChildren": 0
+    },
+    {
+      "path": "/tmp/riftlet-cloud-private-issues-20261029T145732Z",
+      "fileCount": 2,
+      "directoryMode": "0700",
+      "filesMode": "0600",
+      "symlinks": 0,
+      "unexpectedChildren": 0
+    },
+    {
+      "path": "/tmp/riftlet-cloud-private-issues-20261029T152210Z",
+      "fileCount": 3,
+      "directoryMode": "0700",
+      "filesMode": "0600",
+      "symlinks": 0,
+      "unexpectedChildren": 0
+    },
+    {
+      "path": "/tmp/riftlet-cloud-private-issues-20261029T153205Z",
+      "fileCount": 2,
+      "directoryMode": "0700",
+      "filesMode": "0600",
+      "symlinks": 0,
+      "unexpectedChildren": 0
+    },
+    {
+      "path": "/tmp/riftlet-cloud-private-permanent-delete-20261029T153426Z",
+      "fileCount": 6,
+      "directoryMode": "0700",
+      "filesMode": "0600",
+      "symlinks": 0,
+      "unexpectedChildren": 0
+    },
+    {
+      "path": "/tmp/riftlet-cloud-verification-20261029/offline-selfcheck",
+      "fileCount": 1,
+      "directoryMode": "0700",
+      "filesMode": "0600",
+      "symlinks": 0,
+      "unexpectedChildren": 0
+    }
+  ],
+  "provider410SafeExtractSHA256": "80f0c336869d1771c65ad31f731a29afa9ff8d2a3ce1ac7ed55ac6fc6f3184d5",
+  "preserve": [
+    "All public-safe archive files and manifest",
+    "Task Git repository/evidence/current source",
+    "Cloud D1 content-free tombstones and all cloud service settings",
+    "Server credentials, browser session, signing materials and unrelated files"
+  ],
+  "limits": [
+    "This permits removal of temporary task capabilities and private raw observations after review; no files have been removed by this reviewer",
+    "Ordinary file removal does not prove physical-media erasure or remote backup removal",
+    "Safe archives preserve410as410, original404expectation correction, original failedDNS attempt, and no nativeMac or directdiagnostic201capture claim"
+  ],
+  "platformRequests": 0,
+  "sharedMutations": 0
+}

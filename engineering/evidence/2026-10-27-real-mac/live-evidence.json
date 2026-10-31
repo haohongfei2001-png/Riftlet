@@ -1,0 +1,398 @@
+{
+  "schemaVersion": 1,
+  "privacy": "Only generated-fixture operation identities, receipts and sanitized system-capture metadata. No media, chat text, URLs, credentials or private paths.",
+  "environment": {
+    "macOS": "27.0 (26A428)",
+    "chip": "Apple M5",
+    "architecture": "arm64",
+    "Chrome": "156.0.8078.48",
+    "Swift": "6.4 CLT"
+  },
+  "operations": [
+    {
+      "operationID": "C7FFAF4E-C9A1-4D6A-A154-C7884A4889EC",
+      "sourceSHA": "268e70b3a20ec141fd5f7f079a56585f29b06adf",
+      "attempt": 4,
+      "phaseAtFinalRead": "succeeded",
+      "target": {
+        "adapterID": "chatgpt-web",
+        "tabID": "557755603",
+        "composerID": "node-1:node-2",
+        "draftGeneration": "f78c8305-8426-4849-a6c6-eb9fa059bba8",
+        "windowID": "557754817",
+        "documentID": "d8e9b558-d9e2-467a-a578-e6f06df946bf",
+        "surface": "webChat",
+        "sessionID": "59763:1792987929.996921",
+        "applicationID": "com.google.Chrome"
+      },
+      "createdUTC": "2026-10-27T03:30:22.119847+00:00",
+      "receipt": {
+        "profileID": "chatgpt-web-home-zh-attached-development-20261027-v1",
+        "assetID": "A6916D96-2468-479B-8C40-629F89C89675",
+        "assetSHA256": "ee3e7801c47bde7e5fde0a457a899d1ce6425ca2baf82831b57ca63e12e97024",
+        "reason": "observer-v1:attached:integratedDevelopment",
+        "positiveReady": true,
+        "belongsToOriginalDraft": true,
+        "operationID": "C7FFAF4E-C9A1-4D6A-A154-C7884A4889EC",
+        "attachmentID": "d8e9b558-d9e2-467a-a578-e6f06df946bf:node-3:node-4",
+        "target": {
+          "windowID": "557754817",
+          "tabID": "557755603",
+          "adapterID": "chatgpt-web",
+          "composerID": "node-1:node-2",
+          "draftGeneration": "f78c8305-8426-4849-a6c6-eb9fa059bba8",
+          "surface": "webChat",
+          "sessionID": "59763:1792987929.996921",
+          "applicationID": "com.google.Chrome",
+          "documentID": "d8e9b558-d9e2-467a-a578-e6f06df946bf"
+        },
+        "isUploading": false,
+        "outcome": "verifiedReady",
+        "safeToRetry": false,
+        "attempt": 4,
+        "hasError": false
+      },
+      "reason": "observer-v1:attached:integratedDevelopment"
+    },
+    {
+      "operationID": "534E778D-5612-426E-A279-FF5E0B57EE15",
+      "sourceSHA": "268e70b3a20ec141fd5f7f079a56585f29b06adf",
+      "attempt": 1,
+      "phaseAtFinalRead": "succeeded",
+      "target": {
+        "windowID": "557754817",
+        "tabID": "557755603",
+        "adapterID": "chatgpt-web",
+        "composerID": "node-1:node-2",
+        "draftGeneration": "f78c8305-8426-4849-a6c6-eb9fa059bba8",
+        "surface": "webChat",
+        "sessionID": "59763:1792987929.996921",
+        "applicationID": "com.google.Chrome",
+        "documentID": "d8e9b558-d9e2-467a-a578-e6f06df946bf"
+      },
+      "createdUTC": "2026-10-27T03:31:12.789861+00:00",
+      "receipt": {
+        "assetSHA256": "21c046bd07f9ab974390869b7d43ab01d1c264aaa6b0ad160e84a9b07b235dde",
+        "assetID": "3396BBE1-84E1-4475-A2DE-F1EF5C19CEDF",
+        "profileID": "chatgpt-web-home-zh-attached-development-20261027-v1",
+        "reason": "observer-v1:attached:integratedDevelopment",
+        "operationID": "534E778D-5612-426E-A279-FF5E0B57EE15",
+        "belongsToOriginalDraft": true,
+        "attachmentID": "d8e9b558-d9e2-467a-a578-e6f06df946bf:node-5:node-6",
+        "positiveReady": true,
+        "isUploading": false,
+        "target": {
+          "windowID": "557754817",
+          "adapterID": "chatgpt-web",
+          "composerID": "node-1:node-2",
+          "surface": "webChat",
+          "sessionID": "59763:1792987929.996921",
+          "documentID": "d8e9b558-d9e2-467a-a578-e6f06df946bf",
+          "applicationID": "com.google.Chrome",
+          "draftGeneration": "f78c8305-8426-4849-a6c6-eb9fa059bba8",
+          "tabID": "557755603"
+        },
+        "outcome": "verifiedReady",
+        "safeToRetry": false,
+        "attempt": 1,
+        "hasError": false
+      },
+      "reason": "observer-v1:attached:integratedDevelopment"
+    },
+    {
+      "operationID": "DC0108C2-F86F-4066-95F9-953D6BE753A2",
+      "sourceSHA": "0100f4654b079cc05f0bca141a9bf2134d6d6d3e",
+      "attempt": 1,
+      "phaseAtFinalRead": "succeeded",
+      "target": {
+        "windowID": "557754817",
+        "applicationID": "com.google.Chrome",
+        "tabID": "557755603",
+        "sessionID": "59763:1792987929.996921",
+        "draftGeneration": "9ebd86a6-b323-49aa-99ec-e4c26a1b54ac",
+        "composerID": "node-1:node-2",
+        "documentID": "468b246b-fce8-4937-a952-f673a43837a3",
+        "adapterID": "chatgpt-web",
+        "surface": "webChat"
+      },
+      "createdUTC": "2026-10-27T03:46:40.380628+00:00",
+      "receipt": {
+        "hasError": false,
+        "assetSHA256": "52dd944f512634478d7ce0d29ae8ab2c5e727aaa64e6c9fba87b2da856ec03f9",
+        "assetID": "1246190E-6539-4C44-B4C0-3A9EDF6AABF8",
+        "safeToRetry": false,
+        "reason": "observer-v1:attached:integratedDevelopment",
+        "positiveReady": true,
+        "belongsToOriginalDraft": true,
+        "profileID": "chatgpt-web-home-zh-attached-development-20261027-v1",
+        "outcome": "verifiedReady",
+        "target": {
+          "windowID": "557754817",
+          "applicationID": "com.google.Chrome",
+          "tabID": "557755603",
+          "sessionID": "59763:1792987929.996921",
+          "draftGeneration": "9ebd86a6-b323-49aa-99ec-e4c26a1b54ac",
+          "composerID": "node-1:node-2",
+          "documentID": "468b246b-fce8-4937-a952-f673a43837a3",
+          "adapterID": "chatgpt-web",
+          "surface": "webChat"
+        },
+        "isUploading": false,
+        "attachmentID": "468b246b-fce8-4937-a952-f673a43837a3:node-3:node-4",
+        "operationID": "DC0108C2-F86F-4066-95F9-953D6BE753A2",
+        "attempt": 1
+      },
+      "reason": "observer-v1:attached:integratedDevelopment"
+    },
+    {
+      "operationID": "1C95A118-5B48-40E2-94E7-31FD4CE25A90",
+      "sourceSHA": "f58b22762d1dc42368a6e13fe2ef3a8e2d156106",
+      "attempt": 1,
+      "phaseAtFinalRead": "compensated",
+      "target": {
+        "windowID": "557754817",
+        "composerID": "node-1:node-2",
+        "sessionID": "59763:1792987929.996921",
+        "surface": "webChat",
+        "documentID": "2d867dbd-f675-4db2-86bf-3974e9ab605c",
+        "draftGeneration": "9a178045-87a6-42d6-967f-1ea87abdfa84",
+        "tabID": "557755603",
+        "adapterID": "chatgpt-web",
+        "applicationID": "com.google.Chrome"
+      },
+      "createdUTC": "2026-10-27T04:03:20.796407+00:00",
+      "receipt": {
+        "isUploading": false,
+        "belongsToOriginalDraft": true,
+        "operationID": "1C95A118-5B48-40E2-94E7-31FD4CE25A90",
+        "attachmentID": "2d867dbd-f675-4db2-86bf-3974e9ab605c:node-3:node-4",
+        "assetID": "89F7078D-942F-47A9-85B9-16E142B3378E",
+        "target": {
+          "windowID": "557754817",
+          "composerID": "node-1:node-2",
+          "sessionID": "59763:1792987929.996921",
+          "surface": "webChat",
+          "documentID": "2d867dbd-f675-4db2-86bf-3974e9ab605c",
+          "draftGeneration": "9a178045-87a6-42d6-967f-1ea87abdfa84",
+          "tabID": "557755603",
+          "adapterID": "chatgpt-web",
+          "applicationID": "com.google.Chrome"
+        },
+        "hasError": true,
+        "safeToRetry": false,
+        "reason": "observer-v1:invalidated:integratedDevelopment",
+        "profileID": "chatgpt-web-home-zh-attached-development-20261027-v1",
+        "positiveReady": false,
+        "attempt": 1,
+        "outcome": "unknown",
+        "assetSHA256": "ee3e7801c47bde7e5fde0a457a899d1ce6425ca2baf82831b57ca63e12e97024"
+      },
+      "reason": "Identity-correlated late failure; observation only"
+    },
+    {
+      "operationID": "36A24D96-9A22-4446-B78D-CDE518ED1D5E",
+      "sourceSHA": "1909771d45ad00290dffe245b9a42e6e9f55203c",
+      "attempt": 1,
+      "phaseAtFinalRead": "failed",
+      "target": {
+        "applicationID": "com.google.Chrome",
+        "documentID": "0ccf6333-79eb-4c11-9e19-49ccc60e34b2",
+        "adapterID": "chatgpt-web",
+        "surface": "webChat",
+        "windowID": "557754817",
+        "sessionID": "59763:1792987929.996921",
+        "composerID": "node-1:node-2",
+        "draftGeneration": "fd5a5276-993b-4335-b357-e1600d2a1e8a",
+        "tabID": "557755603"
+      },
+      "createdUTC": "2026-10-27T04:18:53.119944+00:00",
+      "receipt": null,
+      "reason": "Original draft has an unresolved upload; no input occurred"
+    },
+    {
+      "operationID": "5B04733C-70F8-404B-A01C-59799BFE2CDC",
+      "sourceSHA": "1909771d45ad00290dffe245b9a42e6e9f55203c",
+      "attempt": 1,
+      "phaseAtFinalRead": "succeeded",
+      "target": {
+        "applicationID": "com.google.Chrome",
+        "documentID": "7d2791d6-4c39-4686-8cc6-35e6e1ede9ac",
+        "adapterID": "chatgpt-web",
+        "surface": "webChat",
+        "windowID": "557754817",
+        "sessionID": "59763:1792987929.996921",
+        "composerID": "node-1:node-2",
+        "draftGeneration": "e7491850-3178-4f4f-89ec-7fb7e9a81efe",
+        "tabID": "557755611"
+      },
+      "createdUTC": "2026-10-27T04:19:42.465908+00:00",
+      "receipt": {
+        "attempt": 1,
+        "assetID": "85C2C7A0-36EE-41DD-88EC-238B2040B921",
+        "attachmentID": "7d2791d6-4c39-4686-8cc6-35e6e1ede9ac:node-3:node-4",
+        "assetSHA256": "52dd944f512634478d7ce0d29ae8ab2c5e727aaa64e6c9fba87b2da856ec03f9",
+        "outcome": "verifiedReady",
+        "safeToRetry": false,
+        "reason": "observer-v1:attached:integratedDevelopment",
+        "belongsToOriginalDraft": true,
+        "target": {
+          "applicationID": "com.google.Chrome",
+          "documentID": "7d2791d6-4c39-4686-8cc6-35e6e1ede9ac",
+          "adapterID": "chatgpt-web",
+          "surface": "webChat",
+          "windowID": "557754817",
+          "sessionID": "59763:1792987929.996921",
+          "composerID": "node-1:node-2",
+          "draftGeneration": "e7491850-3178-4f4f-89ec-7fb7e9a81efe",
+          "tabID": "557755611"
+        },
+        "hasError": false,
+        "operationID": "5B04733C-70F8-404B-A01C-59799BFE2CDC",
+        "profileID": "chatgpt-web-home-zh-attached-development-20261027-v1",
+        "positiveReady": true,
+        "isUploading": false
+      },
+      "reason": "observer-v1:attached:integratedDevelopment"
+    }
+  ],
+  "compensations": [
+    {
+      "failure": {
+        "isUploading": false,
+        "belongsToOriginalDraft": true,
+        "operationID": "1C95A118-5B48-40E2-94E7-31FD4CE25A90",
+        "attachmentID": "2d867dbd-f675-4db2-86bf-3974e9ab605c:node-3:node-4",
+        "assetID": "89F7078D-942F-47A9-85B9-16E142B3378E",
+        "target": {
+          "windowID": "557754817",
+          "composerID": "node-1:node-2",
+          "sessionID": "59763:1792987929.996921",
+          "surface": "webChat",
+          "documentID": "2d867dbd-f675-4db2-86bf-3974e9ab605c",
+          "draftGeneration": "9a178045-87a6-42d6-967f-1ea87abdfa84",
+          "tabID": "557755603",
+          "adapterID": "chatgpt-web",
+          "applicationID": "com.google.Chrome"
+        },
+        "hasError": true,
+        "safeToRetry": false,
+        "reason": "observer-v1:invalidated:integratedDevelopment",
+        "profileID": "chatgpt-web-home-zh-attached-development-20261027-v1",
+        "positiveReady": false,
+        "attempt": 1,
+        "outcome": "unknown",
+        "assetSHA256": "ee3e7801c47bde7e5fde0a457a899d1ce6425ca2baf82831b57ca63e12e97024"
+      },
+      "createdAt": 814766618.84364,
+      "originalSuccess": {
+        "isUploading": false,
+        "belongsToOriginalDraft": true,
+        "operationID": "1C95A118-5B48-40E2-94E7-31FD4CE25A90",
+        "attachmentID": "2d867dbd-f675-4db2-86bf-3974e9ab605c:node-3:node-4",
+        "assetID": "89F7078D-942F-47A9-85B9-16E142B3378E",
+        "target": {
+          "windowID": "557754817",
+          "composerID": "node-1:node-2",
+          "sessionID": "59763:1792987929.996921",
+          "surface": "webChat",
+          "documentID": "2d867dbd-f675-4db2-86bf-3974e9ab605c",
+          "draftGeneration": "9a178045-87a6-42d6-967f-1ea87abdfa84",
+          "tabID": "557755603",
+          "adapterID": "chatgpt-web",
+          "applicationID": "com.google.Chrome"
+        },
+        "hasError": false,
+        "safeToRetry": false,
+        "reason": "observer-v1:attached:integratedDevelopment",
+        "profileID": "chatgpt-web-home-zh-attached-development-20261027-v1",
+        "positiveReady": true,
+        "attempt": 1,
+        "outcome": "verifiedReady",
+        "assetSHA256": "ee3e7801c47bde7e5fde0a457a899d1ce6425ca2baf82831b57ca63e12e97024"
+      }
+    }
+  ],
+  "capture": {
+    "sourceSHA": "268e70b3a20ec141fd5f7f079a56585f29b06adf",
+    "method": "macOS screencapture -x -o -l; safe helper window; not physical hotkey evidence",
+    "first": {
+      "sha256": "18dabca77381a9c27d9170f01ada2d4b1564690afe8dd45676182be2c346dd7f",
+      "bytes": 550185,
+      "file_mtime": 1793072278.4755797,
+      "systemScreenshotMetadata": true,
+      "matching_records": 1,
+      "status": "pending",
+      "firstSeenAt": 814765078.515955,
+      "privateHashMatches": true
+    },
+    "subsequent": [
+      {
+        "offlineCapture": false,
+        "countBefore": 1,
+        "countAfter": 2,
+        "newRecords": 1,
+        "captureCommandSeconds": 0.1269068717956543,
+        "afterCaptureUntilObservedSeconds": 0.3113532066345215,
+        "originalExists": true,
+        "privateHashMatches": true
+      },
+      {
+        "offlineCapture": true,
+        "countBefore": 2,
+        "countAfter": 3,
+        "newRecords": 1,
+        "captureCommandSeconds": 0.12824511528015137,
+        "afterCaptureUntilObservedSeconds": 0.43802595138549805,
+        "originalExists": true,
+        "privateHashMatches": true
+      }
+    ]
+  },
+  "liveAssertions": {
+    "totalVerifiedGeneratedInputs": 5,
+    "messageSendActions": 0,
+    "v3LateFailure": {
+      "fault": "DOM role=alert inserted into own generated card; NOT a network abort",
+      "inputCountAfterObservationClick": 1,
+      "inputCountAfterRestart": 1,
+      "restoredQueueStatus": "unknown",
+      "phase": "compensated",
+      "auditRows": 1,
+      "testNodeRemoved": true
+    },
+    "v3TabABA": {
+      "beforeValid": true,
+      "afterValid": false,
+      "inputCountBefore": 1,
+      "inputCountAfter": 1
+    },
+    "v4RearmedSameTabBlocked": {
+      "operationID": "36A24D96-9A22-4446-B78D-CDE518ED1D5E",
+      "inputOccurred": false,
+      "phase": "failed"
+    },
+    "v4NewTab": {
+      "operationID": "5B04733C-70F8-404B-A01C-59799BFE2CDC",
+      "selection": "native AXPress",
+      "inputCount": 1,
+      "fileHashVerified": true,
+      "independentPixelProof": true,
+      "existingControlledDraftPreserved": true,
+      "editorFocusRetained": true
+    }
+  },
+  "notProved": [
+    "network interruption",
+    "post-100-percent network failure",
+    "physical hit-through",
+    "full existing-thread support",
+    "arbitrary first click before prearm",
+    "real-system-screenshot upload product loop"
+  ],
+  "timestampEncoding": {
+    "operations.createdUTC": "SQLite created_at is Unix seconds, converted directly to UTC",
+    "compensations.createdAt": "Swift Codable Date seconds since 2001-01-01 UTC",
+    "capture.first.firstSeenAt": "Swift Codable Date seconds since 2001-01-01 UTC",
+    "capture.first.file_mtime": "Unix seconds"
+  }
+}

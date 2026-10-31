@@ -1,0 +1,155 @@
+{
+  "run_id": 40673128250,
+  "job_id": 122764686050,
+  "status": "completed",
+  "conclusion": "success",
+  "source_sha": "34caed4a5c5b7264c1699b62ea1438e1ce5646ca",
+  "checkout_sha": "34caed4a5c5b7264c1699b62ea1438e1ce5646ca",
+  "run_updated_at": "2026-10-28T10:36:20Z",
+  "runner": "macos-14 / macOS 14.8.9 build 23J631 / arm64 / Apple Swift 5.10",
+  "native_unique_tests": 457,
+  "native_modules": {
+    "RiftletAdaptersTests": 150,
+    "RiftletAppTests": 48,
+    "RiftletCaptureTests": 65,
+    "RiftletCoreTests": 138,
+    "RiftletUITests": 56
+  },
+  "detailed_suites": [
+    {
+      "suite": "RiftLifecycleTests",
+      "tests": 13,
+      "failures": 0
+    },
+    {
+      "suite": "RiftInputIslandTests",
+      "tests": 3,
+      "failures": 0
+    },
+    {
+      "suite": "DeferredChromeActivityBindingTests",
+      "tests": 3,
+      "failures": 0
+    },
+    {
+      "suite": "RiftSetupControllerTests",
+      "tests": 3,
+      "failures": 0
+    },
+    {
+      "suite": "ReleaseCaptureTests",
+      "tests": 15,
+      "failures": 0
+    },
+    {
+      "suite": "PresentationBoundaryTests",
+      "tests": 4,
+      "failures": 0
+    },
+    {
+      "suite": "WebAcceptanceIntegrationTests",
+      "tests": 5,
+      "failures": 0
+    },
+    {
+      "suite": "PassivePermissionResumeTests",
+      "tests": 8,
+      "failures": 0
+    },
+    {
+      "suite": "ChromeActiveTabDescriptorTests",
+      "tests": 5,
+      "failures": 0
+    },
+    {
+      "suite": "AcceptedSelectionQueueTests",
+      "tests": 18,
+      "failures": 0
+    },
+    {
+      "suite": "SelectionAuthorityTests",
+      "tests": 4,
+      "failures": 0
+    },
+    {
+      "suite": "SelectionSubmissionQueueTests",
+      "tests": 3,
+      "failures": 0
+    },
+    {
+      "suite": "SystemScreenshotWebCandidateTests",
+      "tests": 7,
+      "failures": 0
+    },
+    {
+      "suite": "SystemScreenshotCandidateAdmissionTests",
+      "tests": 13,
+      "failures": 0
+    },
+    {
+      "suite": "SystemScreenshotObservationJournalTests",
+      "tests": 8,
+      "failures": 0
+    },
+    {
+      "suite": "SystemScreenshotCandidateIntegrationTests",
+      "tests": 6,
+      "failures": 0
+    },
+    {
+      "suite": "SystemScreenshotFidelityTests",
+      "tests": 2,
+      "failures": 0
+    }
+  ],
+  "detailed_total_already_in_native": 120,
+  "tap_suite_totals": [
+    19,
+    86,
+    61,
+    9,
+    4,
+    2,
+    12
+  ],
+  "tap_failures": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "packaging_unit_tests": 12,
+  "packaged_self_checks": [
+    "RIFTLET_SELF_CHECK_PASS: private import, durable upload-start visibility, delayed synthetic completion, restart",
+    "RIFTLET_WEB_ACCEPTANCE_SELF_CHECK_PASS: bundled page source, synthetic-only start/completion policy, isolated modes; CHROME_NOT_RUN; GUI_NOT_RUN",
+    "RIFTLET_FIRST_USE_SELF_CHECK_PASS: presentation persistence, disabled-production permission isolation, honest status; PERMISSIONS_NOT_REQUESTED; GUI_NOT_RUN",
+    "RIFTLET_SYSTEM_SCREENSHOT_CANDIDATE_SELF_CHECK_PASS: original-byte import, one software input, restricted start then independent completion, durable new-operation registration, legacy UNKNOWN unchanged, read-only restart; GENERATED_FIXTURE; CHROME_NOT_RUN; SYSTEM_SCREENSHOT_NOT_RUN; GUI_NOT_RUN",
+    "RIFTLET_GUI_HELPER_SELF_CHECK_PASS: 12 synthetic PNGs; scenes 2/3/12; layout/status fixtures; GUI_NOT_RUN"
+  ],
+  "artifact": {
+    "id": 12809587008,
+    "size_bytes": 1972728,
+    "digest": "sha256:7c4165ec311fc0ea19d0507c4980ad08e2b4ad05839de3211d5151593d6565c8",
+    "expires_at": "2026-11-11T10:36:15Z"
+  },
+  "build_input_git_objects": {
+    "Sources": "0ac0978a515def97e75be91c6437bf90d398eab8",
+    "Tests": "51696d31af3b6b3725b20646e1ca3598adea4606",
+    "Resources": "760e5d2e74f2237ca17597edd042f2f1d13439ac",
+    "Package.swift": "5903d370088c75c20e1c3bc6d9cf2606fc9183fa",
+    "scripts": "61321695dacf3fc9c5982713ac751f01e039f8c9",
+    ".github": "933ba402795849cf64270a4645700868eb5ff7d3",
+    "ThirdPartyNotices": "89a07e01c183f61fca6bc7d7127322b00fa03ded",
+    "research": "7ed0708f7cb3faed95a37fe319e3f0400f3b51dd",
+    "engineering/evidence/2026-10-28-system-screenshot-stage2": "51e8dba0abbbed28e2ab9274f9736c955537f25f",
+    "engineering/evidence/2026-10-27-real-mac-round2": "8bf31e0794f1cbd840c4d0b6ac7ac791b326eb81",
+    "engineering/evidence/2026-10-27-real-mac-round3": "dfb9ec12e223366dd37d1e44c8c34a4756bbf96b",
+    "engineering/evidence/2026-10-27-real-mac-round5": "5a22c1bbeffbc0188b5bf4c2da951fce20a85a54"
+  },
+  "saved_log_sha256": "4388ddd293cbce26d7ef8dc0ac561ae46d918779c117a5906fb27232e2c5fdc2",
+  "saved_log_normalization": "UTF-8 tool text, leading BOM removed, terminal newline normalized; no log lines omitted",
+  "real_mac_new_fast_swallow": "NOT_RUN; requires another fresh system screenshot, never F or old UNKNOWN"
+}

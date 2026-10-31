@@ -1,0 +1,138 @@
+{
+  "schemaVersion": 1,
+  "project": "Riftlet",
+  "task": "M1 native backend independent increment",
+  "recordedDate": "2026-10-27",
+  "timeZone": "Asia/Shanghai",
+  "repository": "haohongfei2001-png/Riftlet",
+  "branch": "codex/m1-native-backend-20261027",
+  "pullRequest": 3,
+  "integrationPullRequest": 1,
+  "targetBranch": "codex/engineering-foundation-20261027",
+  "baseSHA": "485fa87a31140f9d2e428db69ec5e0599b1f96ae",
+  "sourceSHA": "7dfa8ecbd221095f6c99d289aba794b51ce37e95",
+  "sourceTree": "6d0797e84b79c4802b187922d3f3b1553f83f63b",
+  "commits": [
+    {
+      "sha": "7cb9656e31084ee2880ed3a6d94e56a8fd36b0f3",
+      "scope": "M1 native drivers, durable coordinator, M0 composition, 34 targeted regressions"
+    },
+    {
+      "sha": "7dfa8ecbd221095f6c99d289aba794b51ce37e95",
+      "scope": "Native pasteboard fixture-only corrections; production code unchanged"
+    }
+  ],
+  "ci": {
+    "runID": 40446467852,
+    "jobID": 121998836427,
+    "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/40446467852",
+    "status": "completed",
+    "conclusion": "success",
+    "temporaryTestMerge": "c1ef59f3f9d014987aa1f7e1731de028d9649f79",
+    "updatedAtUTC": "2026-10-27T03:52:40Z",
+    "environment": {
+      "os": "macOS",
+      "version": "14.8.9",
+      "build": "23J631",
+      "architecture": "arm64",
+      "swift": "5.10 (swiftlang-5.10.0.13 clang-1500.3.9.4)"
+    },
+    "nativeTests": {
+      "total": 173,
+      "failed": 0,
+      "byTarget": {
+        "RiftletCaptureTests": 48,
+        "RiftletAdaptersTests": 78,
+        "RiftletCoreTests": 30,
+        "RiftletUITests": 17
+      },
+      "newM1Tests": 34,
+      "scope": "8 actual named NSPasteboard; 10 AX primitive/test-double cases; 10 actual journal/lock/process cases; 6 SQLite/coordinated adapter cases"
+    },
+    "pageVM": {
+      "passed": 9,
+      "failed": 0,
+      "scope": "inherited bundled page program; synthetic DOM; no new browser interaction"
+    },
+    "archivedWebReplay": {
+      "manifestEntries": 55,
+      "classifierCases": 19,
+      "realTracePrefixes": 89,
+      "simulatedLateErrors": 2,
+      "scope": "inherited offline evidence replay; not new live evidence"
+    },
+    "checks": [
+      "swift test --parallel",
+      "release build",
+      "ad-hoc app packaging and signature verification",
+      "packaged synthetic import/queue/restart self-check",
+      "relocated Web resource/policy self-check: CHROME_NOT_RUN; GUI_NOT_RUN",
+      "synthetic GUI helper fixture self-check: GUI_NOT_RUN"
+    ],
+    "artifact": {
+      "id": 12707859277,
+      "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/40446467852/artifacts/12707859277",
+      "digest": "sha256:fc9da0dc19092ae6e09da94817b63a282f14ccf87cb3c4382a9deeb304b59c3c",
+      "sizeBytes": 1005479,
+      "expiresAtUTC": "2026-11-10T03:52:35Z"
+    }
+  },
+  "initialFailure": {
+    "runID": 40446176770,
+    "jobID": 121997895314,
+    "headSHA": "7cb9656e31084ee2880ed3a6d94e56a8fd36b0f3",
+    "nativeTests": 173,
+    "failures": 2,
+    "compiled": true,
+    "packageAndSelfChecks": "SKIPPED after test failure",
+    "reasons": [
+      "AppKit synthesized an additional UTF-16 representation beyond authored fixture types",
+      "Legacy filePromise raw value is not a UTI accepted by NSPasteboardItem.setData"
+    ],
+    "correction": "Test fixtures now assert authored bytes plus actual advertised full type set/full snapshot restore, and use an actual modern NSFilePromiseReceiver-reported promise type. No driver relaxation."
+  },
+  "execution": {
+    "peakConcurrentAgentsIncludingRoot": 4,
+    "root": "coordinator, M0 adapter integration, journal/SQLite recovery tests, refs and documentation",
+    "nativeAXAuthor": "m1_ax",
+    "nativePasteboardAuthor": "m1_pasteboard",
+    "independentReviewer": "m1_review",
+    "crossReview": [
+      "m1_ax reviewed root recovery",
+      "m1_pasteboard reviewed root coordinator and settlement"
+    ],
+    "userMacOperations": 0,
+    "generalPasteboardOperations": 0,
+    "realChatGPTMacInputs": 0,
+    "clientAXQueriesOrActions": 0,
+    "chatMessagesSent": 0
+  },
+  "scope": {
+    "nativeBackend": "IMPLEMENTED_AND_CI_VERIFIED within listed API/test scope",
+    "clientStructureAndAttachmentAcceptance": "NOT_RUN; requires actual version/surface evidence",
+    "productionMacAdapter": "DISABLED",
+    "builtInClientProfiles": [],
+    "appComposition": "unchanged; no Mac native backend constructed",
+    "webAndN1": "Owned independently by user's local Codex; not retested or modified here"
+  },
+  "limitations": [
+    "No OS atomic AX/pasteboard/file transaction; flock covers only cooperating instances sharing one directory",
+    "NSPasteboard provider work can allocate/block before returned-data limits; no general-board privacy/permission acceptance",
+    "AX timeout is per exact object/call, not whole-fragment deadline; synchronous MainActor file/AX work unmeasured live",
+    "Maximum 256 permanent journal tombstones; full journal fails closed, no cleanup",
+    "ClipboardWriteIntent/clipboardOwned without inputIntent conservatively retained after restart; lost snapshots never restored",
+    "Atomic rename/fsync and injected/reopen tests are not OS power-loss certification",
+    "No actual ChatGPT Mac AX structure, menu identity, selection preservation, per-image completion or safe-retry profile"
+  ],
+  "sourceSHA256": {
+    "Sources/RiftletAdapters/MacAttachmentAdapter.swift": "90b9fff4ff2115e8f2db3374cde7e4dad4deb091054a73b2ae18875fe6e7e884",
+    "Sources/RiftletAdapters/MacClipboardCoordinator.swift": "9f23917cbb6ea83aac89a567ec1664add6969555152d485f717754d5f9a0ca8d",
+    "Sources/RiftletAdapters/NativeMacAXDriver.swift": "03f3ba0d919e581d6b1a4c86ad62aee9163fa1e9f4cca2c7beb3fe0d3344554d",
+    "Sources/RiftletAdapters/NativeMacAttachmentExecutor.swift": "cec5e01cb4a563caca00555008946c5c660a5adc7d2285100076509a9c40bc9f",
+    "Sources/RiftletAdapters/NativePasteboardDriver.swift": "e0911ca17de563f2b15f3f7e8cc056850b5c04f95d8400d13e7596e259869014",
+    "Tests/RiftletAdaptersTests/MacClipboardCoordinatorTests.swift": "151017d644e29fd35958a57b776120484bb590d2e985a85de147262db89dffaa",
+    "Tests/RiftletAdaptersTests/MacCoordinatedAdapterTests.swift": "08a092132738616911a510f06619a405030881e5b9c889348ef8bc115925d3c2",
+    "Tests/RiftletAdaptersTests/NativeMacAXDriverTests.swift": "911b751536d0f1a0d99d387bd8bcef48e6528e747a421bba171b1b92256c0ab6",
+    "Tests/RiftletAdaptersTests/NativePasteboardDriverTests.swift": "6d203d8580277e4bcb553a86ac49c06302ad77e7aa37afcbf8231f24d2c7dd56"
+  }
+}

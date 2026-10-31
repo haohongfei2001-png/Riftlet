@@ -1,0 +1,114 @@
+name: Feedback v0.1
+on:
+  push:
+    branches:
+      - 'codex/riftlet-real-mac-acceptance-internal-beta-*'
+    paths:
+      - 'Sources/**'
+      - 'Tests/**'
+      - 'Package.swift'
+      - 'services/feedback/**'
+      - 'scripts/**'
+      - 'packaging/**'
+      - '.github/workflows/feedback-v01.yml'
+  pull_request:
+    paths:
+      - 'Sources/**'
+      - 'Tests/**'
+      - 'Package.swift'
+      - 'services/feedback/**'
+      - 'scripts/build-feedback-demo.sh'
+      - 'scripts/verify-feedback-isolation.sh'
+      - 'scripts/verify-internal-beta-integration.py'
+      - 'scripts/verify-capture-entry-integration.py'
+      - 'packaging/**'
+      - '.github/workflows/feedback-v01.yml'
+permissions:
+  contents: read
+concurrency:
+  group: feedback-v01-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  source_admission:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify reviewed unified candidate composition
+        run: |
+          set -o pipefail
+          mkdir -p feedback-results
+          # Keep all original audits at their exact historical pins; then compare
+          # the complete combined tree against its independent review checkpoint.
+          python3 scripts/verify-final-product-composition.py 2>&1 | tee feedback-results/final-product-composition.log
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: feedback-source-admission-${{ github.sha }}
+          path: feedback-results/
+          retention-days: 14
+  feedback:
+    runs-on: macos-15
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify isolation audit regressions
+        run: |
+          set -o pipefail
+          mkdir -p feedback-results
+          python3 -m unittest discover -s Tests/FeedbackIsolation -v 2>&1 | tee feedback-results/isolation-tests.log
+          python3 -m unittest discover -s Tests/InternalBetaIsolation -v 2>&1 | tee feedback-results/internal-beta-isolation-tests.log
+          python3 -m unittest discover -s Tests/CaptureEntryIsolation -v 2>&1 | tee feedback-results/capture-entry-isolation-tests.log
+          python3 -m unittest discover -s Tests/ArrivalIsolation -v 2>&1 | tee feedback-results/arrival-isolation-tests.log
+          python3 -m unittest discover -s Tests/ThinEdgeIsolation -v 2>&1 | tee feedback-results/thin-edge-isolation-tests.log
+          python3 -m unittest discover -s Tests/UnifiedCandidateIsolation -v 2>&1 | tee feedback-results/unified-isolation-tests.log
+          python3 -m unittest discover -s Tests/BuiltInCaptureIsolation -v 2>&1 | tee feedback-results/builtin-isolation-tests.log
+          python3 -m unittest discover -s Tests/FinalProductIsolation -v 2>&1 | tee feedback-results/final-isolation-tests.log
+      - name: Verify actual Feedback and current screenshot composition
+        if: github.event.pull_request.head.ref == 'codex/feedback-v01-20261028'
+        env:
+          FEEDBACK_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          FEEDBACK_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: bash scripts/verify-feedback-isolation.sh
+      - name: Environment and service fault tests
+        run: |
+          set -o pipefail
+          mkdir -p feedback-results
+          swift --version
+          sw_vers
+          node --version
+          node --experimental-sqlite --test services/feedback/feedback.test.mjs services/feedback/retention.test.mjs 2>&1 | tee feedback-results/service.log
+      - name: Native feedback and software AppKit tests
+        run: |
+          set -o pipefail
+          swift test --filter 'RiftletFeedbackTests|RiftletFeedbackUITests' 2>&1 | tee feedback-results/native.log
+          # Repeat the same regression without inflating the unique test count.
+          for attempt in 1 2 3; do
+            swift test --skip-build --filter FeedbackCloseTests 2>&1 | tee "feedback-results/close-repeat-$attempt.log"
+          done
+      - name: Package isolated offline feedback demo
+        run: |
+          set -o pipefail
+          bash scripts/build-feedback-demo.sh 2>&1 | tee feedback-results/demo-build.log
+      - name: Archive exact feedback source for reproducibility
+        if: always()
+        run: |
+          mkdir -p feedback-results
+          git rev-parse HEAD > feedback-results/checkout-sha.txt
+          # The shared visual system now depends on UI/Core/Capture. Archive the
+          # complete source so this is a reproducible composition, not a partial demo.
+          git archive --format=tar HEAD > feedback-results/source.tar
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: feedback-v01-${{ github.sha }}
+          path: |
+            feedback-results/
+            build/Riftlet-Feedback-Demo.zip
+          retention-days: 14

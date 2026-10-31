@@ -1,0 +1,40 @@
+[
+  {
+    "store": "Riftlet",
+    "schema": 2,
+    "quickCheck": "ok",
+    "baselineMediaCount": 3,
+    "baselineMediaPreserved": true,
+    "baselineOperationsCount": 0,
+    "baselineTargetsUnchanged": true,
+    "baselineCompensationsUnchanged": true,
+    "baselineCompensatedStillCompensated": true,
+    "assetsByStatus": {
+      "pending": 5
+    },
+    "operationsByPhase": {},
+    "compensationCount": 0
+  },
+  {
+    "store": "Riftlet-Web-Acceptance",
+    "schema": 2,
+    "quickCheck": "ok",
+    "baselineMediaCount": 6,
+    "baselineMediaPreserved": true,
+    "baselineOperationsCount": 9,
+    "baselineTargetsUnchanged": true,
+    "baselineCompensationsUnchanged": true,
+    "baselineCompensatedStillCompensated": true,
+    "assetsByStatus": {
+      "unknown": 4,
+      "used": 6
+    },
+    "operationsByPhase": {
+      "compensated": 3,
+      "failed": 6,
+      "succeeded": 6,
+      "unknown": 1
+    },
+    "compensationCount": 3
+  }
+]

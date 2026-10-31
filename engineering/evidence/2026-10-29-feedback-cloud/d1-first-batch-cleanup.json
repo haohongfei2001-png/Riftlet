@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 1,
+  "scope": "Direct authenticated Cloudflare D1 Console observation; synthetic acceptance IDs only; not backup erasure proof",
+  "databaseID": "4167f4a2-5dfd-422d-86ca-077176fc8600",
+  "observedAt": "2026-10-29T14:32:54.635Z",
+  "table": "id\tstate\tpayload_hash\tdelete_requested\tissue_number\tpayload_is_null\n083ca5ca-d1f4-44f6-9a3e-1c32f8850cc9\tdeleted\t5ba81029befc2af2c5dd7384ceba150b1a4a7d856e3d1691bcc092f1e2be4b9e\t1\t<null>\t1\n0fa0a07f-76d3-4815-bee3-22f60dcdbdcb\tdeleted\t72b7d9f0acb1b5b5d9a34c8397f4c84e9980bec9f8e051c93d239636dfbf7e4e\t1\t<null>\t1\n35bc1586-1b37-41ed-b6e5-87221bd6a3d2\tdeleted\tc84f0e2c97ec6572ddf6b16e9e2ba5e20e3389587c59ba94272308b17ced9d02\t1\t<null>\t1\n6b8a8849-6ffc-4805-ae4e-e37cfa00f342\tdeleted\t359fc12aea66375f9e30ec979e4cc1195805d21800301801531600483237f01b\t1\t<null>\t1\nbd84bc6b-905b-4835-8a2e-277896131723\tdeleted\t\t1\t<null>\t1"
+}

@@ -1,0 +1,32 @@
+[
+  {
+    "assetID": "00000000-0000-4000-8000-000000000001",
+    "event": "thumbnail_press",
+    "eventUptime": 436546.42535954167,
+    "frontmostBundle": "com.google.Chrome",
+    "helperActive": false,
+    "keyWindow": -1,
+    "mainWindow": -1,
+    "probeEditorFocused": true,
+    "selectionCount": 0,
+    "source": "accessibility",
+    "syntheticOnly": true,
+    "underlyingClickCount": 0,
+    "uptime": 436546.4253671667
+  },
+  {
+    "assetID": "00000000-0000-4000-8000-000000000001",
+    "event": "thumbnail_selected",
+    "frontmostBundle": "com.google.Chrome",
+    "helperActive": false,
+    "keyWindow": -1,
+    "mainWindow": -1,
+    "probeEditorFocused": true,
+    "selectionCount": 1,
+    "sequence": 1,
+    "stateBefore": "pending",
+    "syntheticOnly": true,
+    "underlyingClickCount": 0,
+    "uptime": 436546.42870420835
+  }
+]

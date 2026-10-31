@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "sessionId": "round2-mid-8bef8257-eec6-4321-a6b8-95eb671eec24",
+  "operationID": "3F083AE5-D79D-4F0A-9940-D1EFE00DEE23",
+  "uploadName": "riftlet-3F083AE5-D79D-4F0A-9940-D1EFE00DEE23.png",
+  "bindNextGeneratedInput": true,
+  "state": "STOPPED",
+  "mode": "MID",
+  "inputCount": 1,
+  "changeHashOK": true,
+  "createCount": 2,
+  "uniqueCreationURL": false,
+  "createHashOK": false,
+  "ui100": true,
+  "faultInjected": false,
+  "pendingRequests": 0,
+  "requestsInitiatedByBridge": 0,
+  "events": [
+    {
+      "sequence": 1,
+      "monotonicMs": 10383085.199999988,
+      "event": "bridge_installed",
+      "oneAbortMaximum": true,
+      "requestsInitiatedByBridge": 0
+    },
+    {
+      "sequence": 2,
+      "monotonicMs": 10410109.399999976,
+      "event": "own_input_observed",
+      "inputCount": 1,
+      "byteCount": 3147775
+    },
+    {
+      "sequence": 3,
+      "monotonicMs": 10410197.5,
+      "event": "own_input_hash",
+      "matched": true
+    },
+    {
+      "sequence": 4,
+      "monotonicMs": 10410402.399999976,
+      "event": "own_creation_request",
+      "ordinal": 1,
+      "afterFault": false
+    },
+    {
+      "sequence": 5,
+      "monotonicMs": 10410839.599999964,
+      "event": "own_creation_response",
+      "ordinal": 1,
+      "status": 200
+    },
+    {
+      "sequence": 6,
+      "monotonicMs": 10411118.799999952,
+      "event": "own_creation_linkage",
+      "uniqueURL": true,
+      "inputHashMatched": true
+    },
+    {
+      "sequence": 7,
+      "monotonicMs": 10413251,
+      "event": "own_ui_progress100"
+    },
+    {
+      "sequence": 8,
+      "monotonicMs": 10414670.899999976,
+      "event": "own_creation_request",
+      "ordinal": 2,
+      "afterFault": false
+    },
+    {
+      "sequence": 9,
+      "monotonicMs": 10415034.799999952,
+      "event": "own_creation_response",
+      "ordinal": 2,
+      "status": 200
+    },
+    {
+      "sequence": 10,
+      "monotonicMs": 10443086.299999952,
+      "event": "bridge_stopped",
+      "reason": "DEADLINE_60S",
+      "originalsRestored": true,
+      "faultInjected": false,
+      "pendingRequests": 0
+    }
+  ]
+}

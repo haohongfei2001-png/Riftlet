@@ -1,0 +1,135 @@
+{
+  "baseline": "e89d49f763036781c90618422da256e03cbca2ac",
+  "implementation": "4e080aaaf995708f15334011ec3a012fcd968944",
+  "compiler_fix": "2449d40a88225acba9d413cc6a4cb5d84fcae6a1",
+  "actual_concurrency": "root plus 3 independent implementation/review agents, shared isolated worktree with exclusive paths; no real Mac executor used",
+  "authorship": [
+    {
+      "author": "root",
+      "paths": [
+        "Sources/RiftletApp/**",
+        "Tests/RiftletAppTests/**",
+        "Package.swift",
+        ".github/workflows/native-foundation.yml",
+        "docs/**"
+      ],
+      "reviewers": [
+        "release_capture",
+        "release_ui",
+        "release_packaging"
+      ]
+    },
+    {
+      "author": "release_capture",
+      "paths": [
+        "Sources/RiftletCapture/**",
+        "Tests/RiftletCaptureTests/ReleaseCaptureTests.swift"
+      ],
+      "reviewers": [
+        "release_packaging",
+        "root"
+      ]
+    },
+    {
+      "author": "release_ui",
+      "paths": [
+        "Sources/RiftletUI/SetupPresentation.swift",
+        "Sources/RiftletUI/RiftSetupController.swift",
+        "Tests/RiftletUITests/SetupPresentationTests.swift",
+        "Tests/RiftletUITests/RiftSetupControllerTests.swift"
+      ],
+      "reviewers": [
+        "release_packaging",
+        "root"
+      ]
+    },
+    {
+      "author": "release_packaging",
+      "paths": [
+        "Resources/Info.plist",
+        "scripts/build-macos.sh",
+        "scripts/verify-app-bundle.py",
+        "Tests/Packaging/test_verify_app_bundle.py"
+      ],
+      "reviewers": [
+        "release_ui",
+        "root"
+      ]
+    }
+  ],
+  "resolved_findings": [
+    "Paused or unexamined source is not denied permission; current location readability requires the same actual source.",
+    "Failed desired-location switch retains its diagnostic when old source reads successfully.",
+    "Preference access denial cannot silently fall back to Desktop; fallback only actual ENOENT.",
+    "Async diagnostic callbacks check generation/revision so stale starts/imports cannot stop/overwrite replacement state.",
+    "Private media IO provenance is not mislabeled as source access.",
+    "Only positively marked system screenshots produce encoding/size diagnostics.",
+    "Throwing recovery/completed-record queries precede installation and latching of armer/watch.",
+    "Permission query rechecks PID, launchDate and bundle identity; no bundle-ID launch, no implicit consent request.",
+    "CaptureControlGate serializes source recheck/Pause; advanced geometry reload no longer mutates source.",
+    "Recovering source diagnostics clear only on evidence; paused unreadable preferences stay visible.",
+    "Unsaved hide/pause flags survive background refresh and clear only matching successful write; restart risk explicit.",
+    "UI busy controls and callbacks agree; hide/history remain independent; dynamic AX labels remain accurate.",
+    "No nonexistent native format picker suggested; wrong source-file type cannot launch file handler.",
+    "Generated bundle replacement preserves prior artifact on failed rollback.",
+    "Compiler exposed missing try in two second XCTest autoclosures; root adds exactly two try keywords; non-author release_ui reviewed."
+  ],
+  "static_review_status": "PASS after resolved findings; first compile miss retained, not called an executed test",
+  "first_ci_failure": {
+    "run": 40507790526,
+    "job": 122201463483,
+    "source": "4e080aaaf995708f15334011ec3a012fcd968944",
+    "phase": "compile",
+    "native_tests": "NOT_RUN",
+    "release_self_checks": "SKIPPED",
+    "file": "Tests/RiftletCaptureTests/ReleaseCaptureTests.swift",
+    "lines": [
+      206,
+      258
+    ]
+  },
+  "physical_acceptance": "TCC, Folder picker/bookmark, Finder install/restart, VoiceOver, physical GUI, HDR, new Web permission-path latency NOT_RUN",
+  "gates": "Core/Web/production/SQLite/UNKNOWN/compensation unchanged; no real user screenshot input; no release/main merge",
+  "verified_code_tree": "ab4033e3e6bff625361934633246e10ed27c24aa",
+  "final_review_delta": [
+    "Unsaved Hide/Pause separate sticky flags and truthful restart warning independently re-reviewed at tree276df963.",
+    "Two try fix independently reviewed by release_ui; author acknowledged static review miss."
+  ],
+  "native_ci": {
+    "run": 40508109228,
+    "source": "2449d40a88225acba9d413cc6a4cb5d84fcae6a1",
+    "conclusion": "PASS",
+    "independent_log_review": {
+      "status": "PASS",
+      "reviewers": [
+        "release_packaging",
+        "release_capture"
+      ],
+      "method": "Each reviewer fetched actual GitHub metadata and full successful job log independently; release_packaging also fetched failed log and artifact metadata and compared actual checkout Git objects.",
+      "confirmed": [
+        "344 unique native tests; detailed lifecycle13/setup3/capture15 passed with zero skipped",
+        "HEIC and controlled POSIX denied-parent cases explicitly passed",
+        "12 packaging; page48/legacy14; replay55/19/89/2 SIMULATED; fault8/probe12",
+        "Release, ad-hoc signature, bundle marker and four App/helper self-checks",
+        "Actual merge-checkout build inputs identical; main unchanged",
+        "First run compile-only failure and exactly two-try fix; no failed-run native PASS claimed",
+        "Artifact size, GitHub digest, expiration and physical/permission/Web NOT_RUN limits"
+      ]
+    }
+  },
+  "final_document_review": {
+    "reviewer": "release_packaging",
+    "status": "PASS",
+    "reviewed_tree_before_this_record_only": "61c4c50ababcbabf96291b3b75256ae315276522",
+    "scope": "11 documentation/evidence files; no source/build delta",
+    "independent_checks": [
+      "344 and 38 actual name sets exact",
+      "249 timestamped excerpt lines present verbatim in independently fetched successful/failed logs",
+      "Actual successful and failed artifact metadata match",
+      "12 actual CI input Git objects and 12 baseline-protected Git objects equal",
+      "First-use entry, Codex boundary and TCC/physical/production exclusions accurate",
+      "Staged whitespace PASS"
+    ],
+    "remaining_findings": []
+  }
+}

@@ -1,0 +1,502 @@
+{
+  "schemaVersion": 1,
+  "verdict": "SCOPED_SYNTHETIC_AX_START_SWALLOW_READY_OBSERVED",
+  "runtimeSourceSHA": "53ebcc4da4b0df508edc11f6ead9ea4d8a843dad",
+  "pageSourceID": "chatgpt-web-zh-20261027-integrated-v11",
+  "runtimeExecutableSHA256": "30fa313bc0aee80176263dfcb8f09f7575c35018cac5a579c62543ab12d97268",
+  "runtimeProvenance": "coordinator recorded actual run; App stopped before final trace collection",
+  "temporaryOverlays": [
+    {
+      "name": "acceptance-synthetic-identifier-overlay.patch",
+      "sha256": "d9638001fc0afb8bfbc13ad9b9f36a66ebc8289121c71b07d75058fd7b3ca7f0"
+    },
+    {
+      "name": "app-acceptance-overlay.patch",
+      "sha256": "f686da6cf50b0f1c4e10d0d952b0ab88a4489a0120aefb9e7a4a27a9b0dbfea6"
+    }
+  ],
+  "syntheticUploadStartGrant": true,
+  "productionAdmission": false,
+  "generatedAsset": true,
+  "assetID": "A69D72AA-1616-4D12-BC70-8FA5A77B8AE0",
+  "operationID": "D53F7E0E-871B-4118-84DB-FB00772E1FE7",
+  "attempt": 1,
+  "assetSHA256": "494d7d015dc1a91073b356e1d6d64a546497aab37f8c47c4f82c630d7033f5bb",
+  "inputCount": 1,
+  "targetDigest": "af15d55ae0fd2a0eaab29660f3a2c19c2a103dfe23bfb8029512a1dfaf3c85b9",
+  "completeTargetPublic": false,
+  "rawSources": [
+    {
+      "name": "riftlet-round5-final-press.json",
+      "sha256": "ea3f4af70c5f94d7c56bcb71ba77d583119527757dd877d130fd7a1b6f0b1846"
+    },
+    {
+      "name": "riftlet-round5-final.jsonl",
+      "sha256": "cf7fa890dbead121c225048160dcecbb8b50bf400051ffa62d9237af24e19a49"
+    },
+    {
+      "name": "riftlet-round5-final-page.json",
+      "sha256": "4eadbd879bdcad140edcf36d31f8bb31f09322fd343aaa0a5f0507c2a79a1dfe"
+    },
+    {
+      "name": "riftlet-round5-final-progress.json",
+      "sha256": "8cce8abcbaa0f779036b438f7613588073f0e00c961f72768477a87c204dad42"
+    },
+    {
+      "name": "riftlet-round5-final-store-private.jsonl",
+      "sha256": "8bbf4f259de5fea17a699fd6fe1f5e52a89d00d3b0d7f3e9fab0235b77ce8550"
+    },
+    {
+      "name": "riftlet-round5-final-store-snapshot-private.json",
+      "sha256": "160d0a56e658a14ae7b973ca8e7a682a6b19af3e23502e24f333ad9c44deaafb"
+    },
+    {
+      "name": "riftlet-round5-upload-starts-private.json",
+      "sha256": "79503e537dc4511a9a039aef01f3728b1f044524f9d85f7ca0254eaf965e5c14"
+    }
+  ],
+  "setupScope": {
+    "preboundACK": true,
+    "effectiveACKAgeAtBoundaryMS": 24419.531166611705,
+    "editorFocusedAtInput": true,
+    "emptyDraftText": true,
+    "oldAttachmentCount": 0,
+    "emptyTextAndZeroOldAttachmentsProvenance": "coordinator recorded setup; no original text or attachment content published",
+    "coldClickTested": false,
+    "physicalHumanInput": false
+  },
+  "input": {
+    "source": "helperAX",
+    "physical": false,
+    "axActionAttempted": true,
+    "axErrorCode": 0,
+    "result": "axPressReturnedSuccess",
+    "foregroundPIDUnchanged": true,
+    "identityChecksAllTrue": true,
+    "buttonChecksAllTrue": true,
+    "windowChecksAllTrue": true,
+    "selectionSource": "accessibility",
+    "freezeResult": "accepted",
+    "fileChangeEventCount": 1,
+    "nativeBeginCount": 1,
+    "nativeCommitCount": 1
+  },
+  "pageStart": {
+    "version": 1,
+    "signal": "correlatedProgress",
+    "evidenceID": "e948f80c-8d5a-4176-aeee-a7be66d4d073",
+    "inputCount": 1,
+    "inputSequence": 2,
+    "startSequence": 31,
+    "previousProgress": 4.084106969654981,
+    "currentProgress": 8.622003602604961,
+    "inputObservedAtMS": 154145.80000001192,
+    "startObservedAtMS": 156323.70000004768,
+    "sincePageInputObservedMS": 2177.900000035763
+  },
+  "pageProof": {
+    "proofCompletedAtMS": 161791.5,
+    "proofCompletedSequence": 50,
+    "startToProofMS": 5467.799999952316,
+    "inputToProofMS": 7645.699999988079
+  },
+  "pageToNativeClockBounds": {
+    "method": "native snapshot bridge before/after bounds; event host time lies between bridge endpoints plus (eventPageMS-pageNowMS)/1000; interval only, not precise clock synchronization",
+    "bridgeBeforeAfterAXMS": 35471.74416593043,
+    "bridgeAfterAfterAXMS": 35735.17499997979,
+    "pageSnapshotNowMS": 186860.10000002384,
+    "intervalWidthMS": 263.43083404935896,
+    "pageStartAfterAX": {
+      "lowerAfterAXMS": 4935.344165947754,
+      "upperAfterAXMS": 5198.774999997113
+    },
+    "pageProofAfterAX": {
+      "lowerAfterAXMS": 10403.144165931735,
+      "upperAfterAXMS": 10666.574999981094
+    },
+    "closePrecedesEarliestProofMS": 4892.911832605023,
+    "pageStartToAppKitActualStartMS": {
+      "lower": 58.774833334609866,
+      "upper": 322.20566738396883
+    },
+    "closeToPageProofMS": {
+      "lower": 4892.911832605023,
+      "upper": 5156.342666654382
+    }
+  },
+  "persistentStartAudit": {
+    "table": "upload_starts",
+    "snapshotRowCount": 2,
+    "identityMatchesOriginalOperation": true,
+    "targetDigestMatchesSelectionAndFinalReceipt": true,
+    "startEvidenceIDMatchesPage": true,
+    "firstReceiptOutcome": "uploadStarted",
+    "positiveReady": false,
+    "isUploading": true,
+    "belongsToOriginalDraft": true,
+    "uploadStartEvidence": {
+      "evidenceID": "e948f80c-8d5a-4176-aeee-a7be66d4d073",
+      "version": 1,
+      "profileID": "chatgpt-web-zh-progress-start-development-20261027-v1",
+      "signal": "correlatedProgress",
+      "inputCount": 1
+    },
+    "allFirstStartRowsRetained": [
+      {
+        "operationID": "3DBE58C7-B04D-4566-A252-BED937799A95",
+        "assetID": "A484A063-19CD-4294-9EB0-0ED8F1A8A790",
+        "attempt": 1,
+        "assetSHA256": "494d7d015dc1a91073b356e1d6d64a546497aab37f8c47c4f82c630d7033f5bb",
+        "outcome": "uploadStarted",
+        "uploadStartEvidence": {
+          "profileID": "chatgpt-web-zh-progress-start-development-20261027-v1",
+          "inputCount": 1,
+          "version": 1,
+          "signal": "correlatedProgress",
+          "evidenceID": "c852b572-8689-47a4-bbeb-d28d0937f5bc"
+        }
+      },
+      {
+        "operationID": "D53F7E0E-871B-4118-84DB-FB00772E1FE7",
+        "assetID": "A69D72AA-1616-4D12-BC70-8FA5A77B8AE0",
+        "attempt": 1,
+        "assetSHA256": "494d7d015dc1a91073b356e1d6d64a546497aab37f8c47c4f82c630d7033f5bb",
+        "outcome": "uploadStarted",
+        "uploadStartEvidence": {
+          "evidenceID": "e948f80c-8d5a-4176-aeee-a7be66d4d073",
+          "version": 1,
+          "profileID": "chatgpt-web-zh-progress-start-development-20261027-v1",
+          "signal": "correlatedProgress",
+          "inputCount": 1
+        }
+      }
+    ]
+  },
+  "storeObservations": [
+    {
+      "sinceAXActionMS": -23964.66054202756,
+      "status": "pending",
+      "visibility": "visible",
+      "visibilityReason": "capture",
+      "visibilityRevision": 0,
+      "operationID": null,
+      "phase": null,
+      "latestReceiptOutcome": null
+    },
+    {
+      "sinceAXActionMS": 47.42191598052159,
+      "status": "transferring",
+      "visibility": "visible",
+      "visibilityReason": "capture",
+      "visibilityRevision": 0,
+      "operationID": "D53F7E0E-871B-4118-84DB-FB00772E1FE7",
+      "phase": "prepared",
+      "latestReceiptOutcome": null
+    },
+    {
+      "sinceAXActionMS": 157.67604095162824,
+      "status": "transferring",
+      "visibility": "visible",
+      "visibilityReason": "capture",
+      "visibilityRevision": 0,
+      "operationID": "D53F7E0E-871B-4118-84DB-FB00772E1FE7",
+      "phase": "dispatchIntent",
+      "latestReceiptOutcome": null
+    },
+    {
+      "sinceAXActionMS": 5281.862582953181,
+      "status": "transferring",
+      "visibility": "swallowed",
+      "visibilityReason": "uploadStarted",
+      "visibilityRevision": 1,
+      "operationID": "D53F7E0E-871B-4118-84DB-FB00772E1FE7",
+      "phase": "inputTriggered",
+      "latestReceiptOutcome": "uploadStarted"
+    },
+    {
+      "sinceAXActionMS": 26893.080415960867,
+      "status": "used",
+      "visibility": "swallowed",
+      "visibilityReason": "uploadStarted",
+      "visibilityRevision": 1,
+      "operationID": "D53F7E0E-871B-4118-84DB-FB00772E1FE7",
+      "phase": "succeeded",
+      "latestReceiptOutcome": "verifiedReady"
+    }
+  ],
+  "presentation": {
+    "measurement": "instrumented AppKit code boundaries, not pixels",
+    "events": [
+      {
+        "phase": "swallowScheduled",
+        "sinceAXActionMS": 5257.461750006769,
+        "visibilityRevision": 1,
+        "generation": 0,
+        "requestedAnimationSeconds": 0.24,
+        "pixelPresentationMeasured": false
+      },
+      {
+        "phase": "swallowActualStart",
+        "sinceAXActionMS": 5257.549833331723,
+        "visibilityRevision": 1,
+        "generation": 0,
+        "requestedAnimationSeconds": 0.24,
+        "pixelPresentationMeasured": false
+      },
+      {
+        "phase": "swallowClose",
+        "sinceAXActionMS": 5510.232333326712,
+        "visibilityRevision": 1,
+        "generation": 0,
+        "requestedAnimationSeconds": 0.24,
+        "pixelPresentationMeasured": false
+      }
+    ],
+    "snapshotCommitUpperBoundAfterAXMS": 5257.129875011742,
+    "exactCommitMeasured": false,
+    "scheduledToCloseMS": 252.7705833199434,
+    "actualStartToCloseMS": 252.68249999498948,
+    "clickToCloseMS": 5510.232333326712,
+    "retainedAcceptanceConfiguration": {
+      "provenance": "Coordinator verified retained Web-Acceptance configuration; not changed in this run",
+      "swallowDurationSeconds": 0.24,
+      "shiftDurationSeconds": 0.18,
+      "returnDurationSeconds": 0.18,
+      "reducedMotionDurationSeconds": 0.1,
+      "formalDefaultSwallowDurationSeconds": 0.12,
+      "formalDefaultTimingMeasured": false
+    }
+  },
+  "finalPage": {
+    "hasProof": true,
+    "committed": true,
+    "invalid": false,
+    "error": false,
+    "uploading": false,
+    "startDisqualified": true
+  },
+  "finalStore": {
+    "status": "used",
+    "visibility": "swallowed",
+    "visibilityReason": "uploadStarted",
+    "operationPhase": "succeeded",
+    "receipt": {
+      "outcome": "verifiedReady",
+      "positiveReady": true,
+      "isUploading": false,
+      "hasError": false,
+      "belongsToOriginalDraft": true,
+      "safeToRetry": false,
+      "profileID": "chatgpt-web-zh-attached-development-20261027-v2"
+    },
+    "firstAppSuccessObservationAfterAXMS": 26868.679874984082,
+    "firstExternalStoreSuccessObservationAfterAXMS": 26893.080415960867,
+    "timingMeaning": "persisted READY observation upper bounds, not page-proof time or exact SQLite commit time"
+  },
+  "finalPreservation": {
+    "textPreserved": true,
+    "oldCardsPreserved": true,
+    "pageFocused": true,
+    "editorFocused": true
+  },
+  "selectionPreservedAtInput": true,
+  "progressProbe": {
+    "mode": "PROGRESS_DIAGNOSTIC_ONLY",
+    "state": "STOPPED",
+    "samples": [
+      {
+        "sequence": 1,
+        "batchID": null,
+        "event": "original_input",
+        "inputCount": 1,
+        "inputSequence": 2,
+        "hashVerified": false,
+        "adapterStartDisqualified": false,
+        "hasAdapterStart": false,
+        "hasAdapterProof": false,
+        "cardCount": 0,
+        "cardIsOriginal": false,
+        "progressCount": 0,
+        "nodeIsOriginal": false,
+        "exactProgressLabel": false,
+        "valueKind": "no-node",
+        "value": null,
+        "imageCount": 0,
+        "imageIsOriginal": false,
+        "sinceProbeOriginalInputMS": 0.0
+      },
+      {
+        "sequence": 2,
+        "batchID": 1,
+        "event": "mutation_snapshot",
+        "inputCount": 1,
+        "inputSequence": 2,
+        "hashVerified": false,
+        "adapterStartDisqualified": false,
+        "hasAdapterStart": false,
+        "hasAdapterProof": false,
+        "cardCount": 1,
+        "cardIsOriginal": true,
+        "progressCount": 1,
+        "nodeIsOriginal": true,
+        "exactProgressLabel": true,
+        "valueKind": "missing",
+        "value": null,
+        "imageCount": 1,
+        "imageIsOriginal": true,
+        "sinceProbeOriginalInputMS": 68.39999997615814
+      },
+      {
+        "sequence": 5,
+        "batchID": 2,
+        "event": "mutation_snapshot",
+        "inputCount": 1,
+        "inputSequence": 2,
+        "hashVerified": true,
+        "adapterStartDisqualified": false,
+        "hasAdapterStart": false,
+        "hasAdapterProof": false,
+        "cardCount": 1,
+        "cardIsOriginal": true,
+        "progressCount": 1,
+        "nodeIsOriginal": true,
+        "exactProgressLabel": true,
+        "valueKind": "finite",
+        "value": 4.084106969654981,
+        "imageCount": 1,
+        "imageIsOriginal": true,
+        "sinceProbeOriginalInputMS": 1962.5
+      },
+      {
+        "sequence": 7,
+        "batchID": 3,
+        "event": "mutation_snapshot",
+        "inputCount": 1,
+        "inputSequence": 2,
+        "hashVerified": true,
+        "adapterStartDisqualified": false,
+        "hasAdapterStart": true,
+        "hasAdapterProof": false,
+        "cardCount": 1,
+        "cardIsOriginal": true,
+        "progressCount": 1,
+        "nodeIsOriginal": true,
+        "exactProgressLabel": true,
+        "valueKind": "finite",
+        "value": 8.622003602604961,
+        "imageCount": 1,
+        "imageIsOriginal": true,
+        "sinceProbeOriginalInputMS": 2177.699999988079
+      },
+      {
+        "sequence": 37,
+        "batchID": 18,
+        "event": "mutation_snapshot",
+        "inputCount": 1,
+        "inputSequence": 2,
+        "hashVerified": true,
+        "adapterStartDisqualified": false,
+        "hasAdapterStart": true,
+        "hasAdapterProof": false,
+        "cardCount": 1,
+        "cardIsOriginal": true,
+        "progressCount": 1,
+        "nodeIsOriginal": true,
+        "exactProgressLabel": true,
+        "valueKind": "finite",
+        "value": 100,
+        "imageCount": 1,
+        "imageIsOriginal": true,
+        "sinceProbeOriginalInputMS": 3775.399999976158
+      },
+      {
+        "sequence": 38,
+        "batchID": 18,
+        "event": "progress_attribute",
+        "attribute": "value",
+        "nodeIsOriginal": true,
+        "underOriginalCard": true,
+        "exactProgressLabel": true,
+        "oldValueKind": "finite",
+        "oldValue": 97.11098794512955,
+        "valueKind": "finite",
+        "value": 100,
+        "sinceProbeOriginalInputMS": 3775.399999976158
+      },
+      {
+        "sequence": 39,
+        "batchID": 19,
+        "event": "mutation_snapshot",
+        "inputCount": 1,
+        "inputSequence": 2,
+        "hashVerified": true,
+        "adapterStartDisqualified": true,
+        "hasAdapterStart": true,
+        "hasAdapterProof": false,
+        "cardCount": 1,
+        "cardIsOriginal": true,
+        "progressCount": 0,
+        "nodeIsOriginal": false,
+        "exactProgressLabel": false,
+        "valueKind": "no-node",
+        "value": null,
+        "imageCount": 1,
+        "imageIsOriginal": true,
+        "sinceProbeOriginalInputMS": 7459.899999976158
+      },
+      {
+        "sequence": 40,
+        "batchID": 19,
+        "event": "original_progress_membership",
+        "removed": true,
+        "added": false,
+        "underOriginalCard": false,
+        "valueKind": "finite",
+        "value": 100,
+        "sinceProbeOriginalInputMS": 7459.899999976158
+      },
+      {
+        "sequence": 41,
+        "batchID": null,
+        "event": "original_image_load",
+        "imageIsOriginal": true,
+        "underOriginalCard": true,
+        "exactImageLabel": true,
+        "complete": true,
+        "naturalWidth": 1024,
+        "naturalHeight": 1024,
+        "sourceKind": "data-png",
+        "sinceProbeOriginalInputMS": 7627.199999988079
+      }
+    ]
+  },
+  "sourceRepair": {
+    "sourcePath": "Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js",
+    "sourceLine": 494,
+    "change": "spread native removedNodes into an Array before .some; retain mutation observation after start early return",
+    "scope": "this real run obtained later proof; no general browser/version or retry admission"
+  },
+  "logCompleteness": {
+    "appStoppedAtCollection": true,
+    "appAcceptanceEventCount": 976,
+    "appAcceptanceCap": 2048,
+    "appAcceptanceCapReached": false,
+    "targetPresentationEventCount": 3,
+    "oneEachScheduledStartedClosed": true,
+    "targetReadyObservationCount": 51
+  },
+  "limits": [
+    "One generated image, prebound ACK, focused editor, empty text and zero pre-existing attachments.",
+    "Software AX input, not physical-human/cold-click acceptance.",
+    "AppKit code close is not pixel-presentation timing; diagnostics add overhead.",
+    "About 252.683 ms is the animation code segment; click-to-close is about 5.510 s and persisted READY is observed around 26.9 s.",
+    "Page-to-host mapping provides a roughly 263 ms interval only.",
+    "No production screenshot, safe retry, same-draft concurrency or richer draft preservation admission.",
+    "The measured animation used retained acceptance swallowDuration=0.24 s; it does not measure the formal 0.120 s default."
+  ],
+  "unattributedDiagnostics": {
+    "observeNativeEventFailedMinus1728Count": 32,
+    "operationIDIncluded": false,
+    "attribution": "No attribution to this new operation; no claim that this explains the entire persisted READY observation delay."
+  }
+}

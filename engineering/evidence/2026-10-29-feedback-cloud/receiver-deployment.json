@@ -1,0 +1,40 @@
+{
+  "scope": "Actual Receiver deployment source and saved configuration; complete private-Issue pipeline NOT_RUN",
+  "endpoint": "https://riftlet-feedback-receiver.haohongfei2001.workers.dev/v1/feedback",
+  "businessBundleObservedActiveVersionPrefix": "07497aa3",
+  "finalVersionAfterSecretAndFlagDeployments": null,
+  "finalVersionStatus": "BLOCKED_PENDING_FRESH_PLATFORM_READ",
+  "editorNativeSelectAllCopyExactSourceComparison": {
+    "matched": true,
+    "characters": 9610
+  },
+  "bundleSHA256": "21fe26d707f0310358fb4878a45647c66fc1d0420687b7639a66d09323620677",
+  "bundler": {
+    "package": "esbuild",
+    "version": "0.25.12",
+    "format": "esm",
+    "target": "es2022",
+    "entrypoint": "services/feedback/receiver.mjs"
+  },
+  "sourceBlobs": {
+    "services/feedback/receiver.mjs": "a73ec7f5059df4c0563fe61e80798b3474a62010",
+    "services/feedback/contract.mjs": "788daf50b5ce4b36c28eb22e21db046013bca5df"
+  },
+  "observedSavedSettings": {
+    "DB": "4167f4a2-5dfd-422d-86ca-077176fc8600",
+    "workers_dev": true,
+    "compatibility_date": "2026-10-29",
+    "ACCEPT_ENABLED": "true",
+    "Logs": false,
+    "Traces": false,
+    "Issues": false,
+    "IP_HMAC_KEY": "Secret present; 32 random bytes; value omitted"
+  },
+  "firstBusinessHTTPProbe": {
+    "observedUTC": "2026-10-29T13:48:35Z",
+    "authorizationSent": false,
+    "status": 401,
+    "error": "unauthorized"
+  },
+  "credentialValuesIncluded": false
+}

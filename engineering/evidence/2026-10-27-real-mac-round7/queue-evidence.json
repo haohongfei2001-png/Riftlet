@@ -1,0 +1,850 @@
+{
+  "schemaVersion": 1,
+  "verdict": "SCOPED_ORIGINAL_CLICK_QUEUE_RELEASE_AFTER_READY_OBSERVED",
+  "runtime": {
+    "sourceSHA": "f6417c6faaf8aa21ac587b07f25ea2a159af021f",
+    "executableSHA256": "07453578abcdf96256430380ce3bc5ac6120dc586fba9a880954992e2f8e0089",
+    "overlays": [],
+    "provenance": "Runtime coordinator supplied exact built source/executable; stopped after both succeeded",
+    "productionAdmission": false
+  },
+  "rawSources": [
+    {
+      "name": "riftlet-round7-queue-live.jsonl",
+      "bytes": 605832,
+      "sha256": "a09e5aa3cf910b7a45f146f1734a9dea764810225bb0d27f812fb04f6bc85d28"
+    },
+    {
+      "name": "riftlet-round7-queue-live-sequence.json",
+      "bytes": 8223,
+      "sha256": "515d4854a36a18daddae46d38fc824687048e53ffd461d09fb6ed9f9c5900442"
+    },
+    {
+      "name": "riftlet-round7-fixtures.json",
+      "bytes": 437,
+      "sha256": "620ee8a6ba7ac8cb3e8009ba1fc476ab0b7faf9bc7ab4fd1d774c596a808e86e"
+    },
+    {
+      "name": "riftlet-round7-perf-sequence.json",
+      "bytes": 2616,
+      "sha256": "12b6e27ce169433e910ee70eaac993357031f5d82788fc6f7f052bf9a70ca59c"
+    }
+  ],
+  "setup": {
+    "prepared": true,
+    "createdGeneratedText": false,
+    "textNonempty": true,
+    "oldCards": 3,
+    "selectionPresent": true,
+    "selectionNoncollapsed": true,
+    "editorFocused": false,
+    "pageFocused": true
+  },
+  "inputMode": {
+    "source": "helperAX",
+    "physical": false,
+    "twoAcceptedSelections": true,
+    "notColdClick": true
+  },
+  "identityComparison": {
+    "sameFullLease": true,
+    "sameLogicalIdentity": true,
+    "logicalIdentityDigest": "c06ee1a583154f67c8d28ee47e00842f9c4206c20c3c82e9ef32e55584664bad",
+    "differentAssets": true,
+    "differentHashes": true,
+    "targetDigest": "f02a6a414d37bb301e90d6a64d614b17a49170444bbb9605b485c8e040d3e5fe"
+  },
+  "operations": [
+    {
+      "label": "A",
+      "stored": {
+        "assetID": "E4CF6A7D-E1BB-496E-841B-E970EC1130B3",
+        "operationID": "682B6E20-FC6F-46DA-BB6D-7B8ECA820908",
+        "assetSHA256": "494d7d015dc1a91073b356e1d6d64a546497aab37f8c47c4f82c630d7033f5bb",
+        "byteCount": 3147775,
+        "targetDigest": "f02a6a414d37bb301e90d6a64d614b17a49170444bbb9605b485c8e040d3e5fe",
+        "receiptOutcome": "verifiedReady",
+        "positiveReady": true,
+        "safeToRetry": false,
+        "startAuditRowCount": 1,
+        "startEvidence": {
+          "inputCount": 1,
+          "profileID": "chatgpt-web-zh-progress-start-development-20261027-v1",
+          "version": 1,
+          "signal": "correlatedProgress",
+          "evidenceID": "518a844c-2b1e-4c6d-adef-44bea4d66174"
+        },
+        "status": "used",
+        "visibility": "swallowed",
+        "visibility_revision": 1,
+        "visibility_reason": "uploadStarted",
+        "attempt": 1,
+        "phase": "succeeded",
+        "reason": "observer-v2:attached:integratedDevelopment"
+      },
+      "selectionBoundary": {
+        "ackUptime": 467409.9264001667,
+        "armInFlight": false,
+        "assetID": "E4CF6A7D-E1BB-496E-841B-E970EC1130B3",
+        "callbackUptime": 467409.9898122917,
+        "effectiveArmAttemptID": "843EDD7D-5199-48CC-B4C3-A00F86AB9D40",
+        "effectiveCaptureRequestID": "0DE82F74-E410-4BC3-831B-EB5E618DDC0D",
+        "event": "selection_boundary",
+        "eventUptime": 467409.9895416667,
+        "foregroundSessionMatches": true,
+        "freezeResult": "accepted",
+        "frozen": true,
+        "hostEpoch": "BD70CE7F-2696-4517-AA10-92FD6F3FB977",
+        "hostEpochMatches": true,
+        "originalEventUptime": 467409.9895416667,
+        "refusalReason": "none",
+        "selectionHandlerUptime": 467409.9898122917,
+        "source": "accessibility",
+        "targetDigest": "f02a6a414d37bb301e90d6a64d614b17a49170444bbb9605b485c8e040d3e5fe"
+      },
+      "acceptedSelection": {
+        "accepted": true,
+        "acceptedUptime": 467409.989578125,
+        "armAttemptID": "843EDD7D-5199-48CC-B4C3-A00F86AB9D40",
+        "assetID": "E4CF6A7D-E1BB-496E-841B-E970EC1130B3",
+        "captureRequestID": "0DE82F74-E410-4BC3-831B-EB5E618DDC0D",
+        "deadlineUptime": 467439.989578125,
+        "effectiveAckUptime": 467409.9264001667,
+        "event": "accepted_selection_validation",
+        "hostEpoch": "BD70CE7F-2696-4517-AA10-92FD6F3FB977",
+        "originalEventUptime": 467409.9895416667,
+        "selectionID": "99AC10E6-D5E2-4633-BD12-7547A5A2F86B",
+        "targetDigest": "f02a6a414d37bb301e90d6a64d614b17a49170444bbb9605b485c8e040d3e5fe",
+        "uptime": 467410.0059202917,
+        "visibilityRevision": 0
+      },
+      "acceptedValidationObservations": [
+        {
+          "accepted": true,
+          "acceptedUptime": 467409.989578125,
+          "armAttemptID": "843EDD7D-5199-48CC-B4C3-A00F86AB9D40",
+          "assetID": "E4CF6A7D-E1BB-496E-841B-E970EC1130B3",
+          "captureRequestID": "0DE82F74-E410-4BC3-831B-EB5E618DDC0D",
+          "deadlineUptime": 467439.989578125,
+          "effectiveAckUptime": 467409.9264001667,
+          "event": "accepted_selection_validation",
+          "hostEpoch": "BD70CE7F-2696-4517-AA10-92FD6F3FB977",
+          "originalEventUptime": 467409.9895416667,
+          "selectionID": "99AC10E6-D5E2-4633-BD12-7547A5A2F86B",
+          "targetDigest": "f02a6a414d37bb301e90d6a64d614b17a49170444bbb9605b485c8e040d3e5fe",
+          "uptime": 467410.0059202917,
+          "visibilityRevision": 0
+        },
+        {
+          "accepted": true,
+          "acceptedUptime": 467409.989578125,
+          "armAttemptID": "843EDD7D-5199-48CC-B4C3-A00F86AB9D40",
+          "assetID": "E4CF6A7D-E1BB-496E-841B-E970EC1130B3",
+          "captureRequestID": "0DE82F74-E410-4BC3-831B-EB5E618DDC0D",
+          "deadlineUptime": 467439.989578125,
+          "effectiveAckUptime": 467409.9264001667,
+          "event": "accepted_selection_validation",
+          "hostEpoch": "BD70CE7F-2696-4517-AA10-92FD6F3FB977",
+          "originalEventUptime": 467409.9895416667,
+          "selectionID": "99AC10E6-D5E2-4633-BD12-7547A5A2F86B",
+          "targetDigest": "f02a6a414d37bb301e90d6a64d614b17a49170444bbb9605b485c8e040d3e5fe",
+          "uptime": 467410.0292094167,
+          "visibilityRevision": 0
+        },
+        {
+          "accepted": true,
+          "acceptedUptime": 467409.989578125,
+          "armAttemptID": "843EDD7D-5199-48CC-B4C3-A00F86AB9D40",
+          "assetID": "E4CF6A7D-E1BB-496E-841B-E970EC1130B3",
+          "captureRequestID": "0DE82F74-E410-4BC3-831B-EB5E618DDC0D",
+          "deadlineUptime": 467439.989578125,
+          "effectiveAckUptime": 467409.9264001667,
+          "event": "accepted_selection_validation",
+          "hostEpoch": "BD70CE7F-2696-4517-AA10-92FD6F3FB977",
+          "originalEventUptime": 467409.9895416667,
+          "selectionID": "99AC10E6-D5E2-4633-BD12-7547A5A2F86B",
+          "targetDigest": "f02a6a414d37bb301e90d6a64d614b17a49170444bbb9605b485c8e040d3e5fe",
+          "uptime": 467410.0657247084,
+          "visibilityRevision": 0
+        }
+      ],
+      "enqueued": {
+        "assetID": "E4CF6A7D-E1BB-496E-841B-E970EC1130B3",
+        "event": "selection_enqueued",
+        "selectionOrdinal": 0,
+        "uptime": 467409.9899719167
+      },
+      "submissionStarted": {
+        "assetID": "E4CF6A7D-E1BB-496E-841B-E970EC1130B3",
+        "event": "selection_submission_started",
+        "selectionOrdinal": 0,
+        "uptime": 467409.990137625
+      },
+      "helperInput": {
+        "actionUptime": 467409.9895266667,
+        "completionUptime": 467409.99001858337,
+        "source": "helperAX",
+        "physical": false,
+        "axActionAttempted": true,
+        "axErrorCode": 0,
+        "result": "axPressReturnedSuccess"
+      },
+      "foregroundUnchanged": true,
+      "firstPreparedPresentationObservation": {
+        "assetID": "E4CF6A7D-E1BB-496E-841B-E970EC1130B3",
+        "commitUpperBoundUptime": 467410.00817545835,
+        "event": "committed_visibility_observed",
+        "exactCommitMeasured": false,
+        "operationID": "682B6E20-FC6F-46DA-BB6D-7B8ECA820908",
+        "status": "transferring",
+        "visibility": "visible",
+        "visibilityReason": "capture",
+        "visibilityRevision": 0
+      },
+      "firstSwallowedObservation": {
+        "assetID": "E4CF6A7D-E1BB-496E-841B-E970EC1130B3",
+        "commitUpperBoundUptime": 467412.56308420835,
+        "event": "committed_visibility_observed",
+        "exactCommitMeasured": false,
+        "operationID": "682B6E20-FC6F-46DA-BB6D-7B8ECA820908",
+        "status": "transferring",
+        "visibility": "swallowed",
+        "visibilityReason": "uploadStarted",
+        "visibilityRevision": 1
+      },
+      "firstReadyPersistenceObservation": {
+        "assetID": "E4CF6A7D-E1BB-496E-841B-E970EC1130B3",
+        "attempt": 1,
+        "commitUpperBoundUptime": 467419.5214874167,
+        "event": "ready_persistence_observed",
+        "exactCommitMeasured": false,
+        "operationID": "682B6E20-FC6F-46DA-BB6D-7B8ECA820908",
+        "phase": "succeeded"
+      },
+      "presentation": [
+        {
+          "actualDuration": 0.24,
+          "assetID": "E4CF6A7D-E1BB-496E-841B-E970EC1130B3",
+          "event": "presentation_boundary",
+          "generation": 0,
+          "operationID": "682B6E20-FC6F-46DA-BB6D-7B8ECA820908",
+          "phase": "swallowScheduled",
+          "pixelPresentationMeasured": false,
+          "uptime": 467412.5634885,
+          "visibilityRevision": 1
+        },
+        {
+          "actualDuration": 0.24,
+          "assetID": "E4CF6A7D-E1BB-496E-841B-E970EC1130B3",
+          "event": "presentation_boundary",
+          "generation": 0,
+          "operationID": "682B6E20-FC6F-46DA-BB6D-7B8ECA820908",
+          "phase": "swallowActualStart",
+          "pixelPresentationMeasured": false,
+          "uptime": 467412.5635132917,
+          "visibilityRevision": 1
+        },
+        {
+          "actualDuration": 0.24,
+          "assetID": "E4CF6A7D-E1BB-496E-841B-E970EC1130B3",
+          "event": "presentation_boundary",
+          "generation": 0,
+          "operationID": "682B6E20-FC6F-46DA-BB6D-7B8ECA820908",
+          "phase": "swallowClose",
+          "pixelPresentationMeasured": false,
+          "uptime": 467412.8064860417,
+          "visibilityRevision": 1
+        }
+      ],
+      "pageOperation": {
+        "operationID": "682B6E20-FC6F-46DA-BB6D-7B8ECA820908",
+        "assetID": "E4CF6A7D-E1BB-496E-841B-E970EC1130B3",
+        "attempt": 1,
+        "hash": "494d7d015dc1a91073b356e1d6d64a546497aab37f8c47c4f82c630d7033f5bb",
+        "inputCount": 1,
+        "inputSequence": 2,
+        "inputObservedAtMS": 849234.1000000238,
+        "start": {
+          "version": 1,
+          "signal": "correlatedProgress",
+          "evidenceID": "518a844c-2b1e-4c6d-adef-44bea4d66174",
+          "inputCount": 1,
+          "inputSequence": 2,
+          "startSequence": 16,
+          "previousProgress": 4.084106969654981,
+          "currentProgress": 4.9916862962449775,
+          "inputObservedAtMS": 849234.1000000238,
+          "startObservedAtMS": 850984.7000000477
+        },
+        "proofCompletedAtMS": 856135.7000000477,
+        "proofCompletedSequence": 32,
+        "hasProof": true,
+        "committed": true,
+        "invalid": false,
+        "error": false,
+        "uploading": false,
+        "startDisqualified": true,
+        "progressCount": 0,
+        "originalProgressNode": false,
+        "exactProgressLabel": false
+      }
+    },
+    {
+      "label": "B",
+      "stored": {
+        "assetID": "4D760E58-DB9A-4F6D-965E-A021B58B7E24",
+        "operationID": "F765CD23-ADF3-4B21-856E-A97595E9A661",
+        "assetSHA256": "e07f92326974632599d0d77be4b7516ed6ea422701567ebbb14c8071a2f11ec6",
+        "byteCount": 1770843,
+        "targetDigest": "f02a6a414d37bb301e90d6a64d614b17a49170444bbb9605b485c8e040d3e5fe",
+        "receiptOutcome": "verifiedReady",
+        "positiveReady": true,
+        "safeToRetry": false,
+        "startAuditRowCount": 1,
+        "startEvidence": {
+          "inputCount": 1,
+          "profileID": "chatgpt-web-zh-progress-start-development-20261027-v1",
+          "version": 1,
+          "signal": "correlatedProgress",
+          "evidenceID": "acedd281-222a-48d6-8e36-df597df17cac"
+        },
+        "status": "used",
+        "visibility": "swallowed",
+        "visibility_revision": 1,
+        "visibility_reason": "uploadStarted",
+        "attempt": 1,
+        "phase": "succeeded",
+        "reason": "observer-v2:attached:integratedDevelopment"
+      },
+      "selectionBoundary": {
+        "ackUptime": 467409.9264001667,
+        "armInFlight": false,
+        "assetID": "4D760E58-DB9A-4F6D-965E-A021B58B7E24",
+        "callbackUptime": 467413.1189025,
+        "effectiveArmAttemptID": "843EDD7D-5199-48CC-B4C3-A00F86AB9D40",
+        "effectiveCaptureRequestID": "0DE82F74-E410-4BC3-831B-EB5E618DDC0D",
+        "event": "selection_boundary",
+        "eventUptime": 467413.1187125417,
+        "foregroundSessionMatches": true,
+        "freezeResult": "accepted",
+        "frozen": true,
+        "hostEpoch": "BD70CE7F-2696-4517-AA10-92FD6F3FB977",
+        "hostEpochMatches": true,
+        "originalEventUptime": 467413.1187125417,
+        "refusalReason": "none",
+        "selectionHandlerUptime": 467413.1189025,
+        "source": "accessibility",
+        "targetDigest": "f02a6a414d37bb301e90d6a64d614b17a49170444bbb9605b485c8e040d3e5fe"
+      },
+      "acceptedSelection": {
+        "accepted": true,
+        "acceptedUptime": 467413.11872308335,
+        "armAttemptID": "843EDD7D-5199-48CC-B4C3-A00F86AB9D40",
+        "assetID": "4D760E58-DB9A-4F6D-965E-A021B58B7E24",
+        "captureRequestID": "0DE82F74-E410-4BC3-831B-EB5E618DDC0D",
+        "deadlineUptime": 467443.11872308335,
+        "effectiveAckUptime": 467409.9264001667,
+        "event": "accepted_selection_validation",
+        "hostEpoch": "BD70CE7F-2696-4517-AA10-92FD6F3FB977",
+        "originalEventUptime": 467413.1187125417,
+        "selectionID": "A6248B6F-AC26-491D-B264-50BF649C37EB",
+        "targetDigest": "f02a6a414d37bb301e90d6a64d614b17a49170444bbb9605b485c8e040d3e5fe",
+        "uptime": 467413.1360319167,
+        "visibilityRevision": 0
+      },
+      "acceptedValidationObservations": [
+        {
+          "accepted": true,
+          "acceptedUptime": 467413.11872308335,
+          "armAttemptID": "843EDD7D-5199-48CC-B4C3-A00F86AB9D40",
+          "assetID": "4D760E58-DB9A-4F6D-965E-A021B58B7E24",
+          "captureRequestID": "0DE82F74-E410-4BC3-831B-EB5E618DDC0D",
+          "deadlineUptime": 467443.11872308335,
+          "effectiveAckUptime": 467409.9264001667,
+          "event": "accepted_selection_validation",
+          "hostEpoch": "BD70CE7F-2696-4517-AA10-92FD6F3FB977",
+          "originalEventUptime": 467413.1187125417,
+          "selectionID": "A6248B6F-AC26-491D-B264-50BF649C37EB",
+          "targetDigest": "f02a6a414d37bb301e90d6a64d614b17a49170444bbb9605b485c8e040d3e5fe",
+          "uptime": 467413.1360319167,
+          "visibilityRevision": 0
+        },
+        {
+          "accepted": true,
+          "acceptedUptime": 467413.11872308335,
+          "armAttemptID": "843EDD7D-5199-48CC-B4C3-A00F86AB9D40",
+          "assetID": "4D760E58-DB9A-4F6D-965E-A021B58B7E24",
+          "captureRequestID": "0DE82F74-E410-4BC3-831B-EB5E618DDC0D",
+          "deadlineUptime": 467443.11872308335,
+          "effectiveAckUptime": 467409.9264001667,
+          "event": "accepted_selection_validation",
+          "hostEpoch": "BD70CE7F-2696-4517-AA10-92FD6F3FB977",
+          "originalEventUptime": 467413.1187125417,
+          "selectionID": "A6248B6F-AC26-491D-B264-50BF649C37EB",
+          "targetDigest": "f02a6a414d37bb301e90d6a64d614b17a49170444bbb9605b485c8e040d3e5fe",
+          "uptime": 467413.1666733334,
+          "visibilityRevision": 0
+        },
+        {
+          "accepted": true,
+          "acceptedUptime": 467413.11872308335,
+          "armAttemptID": "843EDD7D-5199-48CC-B4C3-A00F86AB9D40",
+          "assetID": "4D760E58-DB9A-4F6D-965E-A021B58B7E24",
+          "captureRequestID": "0DE82F74-E410-4BC3-831B-EB5E618DDC0D",
+          "deadlineUptime": 467443.11872308335,
+          "effectiveAckUptime": 467409.9264001667,
+          "event": "accepted_selection_validation",
+          "hostEpoch": "BD70CE7F-2696-4517-AA10-92FD6F3FB977",
+          "originalEventUptime": 467413.1187125417,
+          "selectionID": "A6248B6F-AC26-491D-B264-50BF649C37EB",
+          "targetDigest": "f02a6a414d37bb301e90d6a64d614b17a49170444bbb9605b485c8e040d3e5fe",
+          "uptime": 467413.2363505417,
+          "visibilityRevision": 0
+        },
+        {
+          "accepted": true,
+          "acceptedUptime": 467413.11872308335,
+          "armAttemptID": "843EDD7D-5199-48CC-B4C3-A00F86AB9D40",
+          "assetID": "4D760E58-DB9A-4F6D-965E-A021B58B7E24",
+          "captureRequestID": "0DE82F74-E410-4BC3-831B-EB5E618DDC0D",
+          "deadlineUptime": 467443.11872308335,
+          "effectiveAckUptime": 467409.9264001667,
+          "event": "accepted_selection_validation",
+          "hostEpoch": "BD70CE7F-2696-4517-AA10-92FD6F3FB977",
+          "originalEventUptime": 467413.1187125417,
+          "selectionID": "A6248B6F-AC26-491D-B264-50BF649C37EB",
+          "targetDigest": "f02a6a414d37bb301e90d6a64d614b17a49170444bbb9605b485c8e040d3e5fe",
+          "uptime": 467413.99265925004,
+          "visibilityRevision": 0
+        },
+        {
+          "accepted": true,
+          "acceptedUptime": 467413.11872308335,
+          "armAttemptID": "843EDD7D-5199-48CC-B4C3-A00F86AB9D40",
+          "assetID": "4D760E58-DB9A-4F6D-965E-A021B58B7E24",
+          "captureRequestID": "0DE82F74-E410-4BC3-831B-EB5E618DDC0D",
+          "deadlineUptime": 467443.11872308335,
+          "effectiveAckUptime": 467409.9264001667,
+          "event": "accepted_selection_validation",
+          "hostEpoch": "BD70CE7F-2696-4517-AA10-92FD6F3FB977",
+          "originalEventUptime": 467413.1187125417,
+          "selectionID": "A6248B6F-AC26-491D-B264-50BF649C37EB",
+          "targetDigest": "f02a6a414d37bb301e90d6a64d614b17a49170444bbb9605b485c8e040d3e5fe",
+          "uptime": 467414.0383202084,
+          "visibilityRevision": 0
+        },
+        {
+          "accepted": true,
+          "acceptedUptime": 467413.11872308335,
+          "armAttemptID": "843EDD7D-5199-48CC-B4C3-A00F86AB9D40",
+          "assetID": "4D760E58-DB9A-4F6D-965E-A021B58B7E24",
+          "captureRequestID": "0DE82F74-E410-4BC3-831B-EB5E618DDC0D",
+          "deadlineUptime": 467443.11872308335,
+          "effectiveAckUptime": 467409.9264001667,
+          "event": "accepted_selection_validation",
+          "hostEpoch": "BD70CE7F-2696-4517-AA10-92FD6F3FB977",
+          "originalEventUptime": 467413.1187125417,
+          "selectionID": "A6248B6F-AC26-491D-B264-50BF649C37EB",
+          "targetDigest": "f02a6a414d37bb301e90d6a64d614b17a49170444bbb9605b485c8e040d3e5fe",
+          "uptime": 467414.076252125,
+          "visibilityRevision": 0
+        },
+        {
+          "accepted": true,
+          "acceptedUptime": 467413.11872308335,
+          "armAttemptID": "843EDD7D-5199-48CC-B4C3-A00F86AB9D40",
+          "assetID": "4D760E58-DB9A-4F6D-965E-A021B58B7E24",
+          "captureRequestID": "0DE82F74-E410-4BC3-831B-EB5E618DDC0D",
+          "deadlineUptime": 467443.11872308335,
+          "effectiveAckUptime": 467409.9264001667,
+          "event": "accepted_selection_validation",
+          "hostEpoch": "BD70CE7F-2696-4517-AA10-92FD6F3FB977",
+          "originalEventUptime": 467413.1187125417,
+          "selectionID": "A6248B6F-AC26-491D-B264-50BF649C37EB",
+          "targetDigest": "f02a6a414d37bb301e90d6a64d614b17a49170444bbb9605b485c8e040d3e5fe",
+          "uptime": 467414.1188865,
+          "visibilityRevision": 0
+        },
+        {
+          "accepted": true,
+          "acceptedUptime": 467413.11872308335,
+          "armAttemptID": "843EDD7D-5199-48CC-B4C3-A00F86AB9D40",
+          "assetID": "4D760E58-DB9A-4F6D-965E-A021B58B7E24",
+          "captureRequestID": "0DE82F74-E410-4BC3-831B-EB5E618DDC0D",
+          "deadlineUptime": 467443.11872308335,
+          "effectiveAckUptime": 467409.9264001667,
+          "event": "accepted_selection_validation",
+          "hostEpoch": "BD70CE7F-2696-4517-AA10-92FD6F3FB977",
+          "originalEventUptime": 467413.1187125417,
+          "selectionID": "A6248B6F-AC26-491D-B264-50BF649C37EB",
+          "targetDigest": "f02a6a414d37bb301e90d6a64d614b17a49170444bbb9605b485c8e040d3e5fe",
+          "uptime": 467419.45015287504,
+          "visibilityRevision": 0
+        },
+        {
+          "accepted": true,
+          "acceptedUptime": 467413.11872308335,
+          "armAttemptID": "843EDD7D-5199-48CC-B4C3-A00F86AB9D40",
+          "assetID": "4D760E58-DB9A-4F6D-965E-A021B58B7E24",
+          "captureRequestID": "0DE82F74-E410-4BC3-831B-EB5E618DDC0D",
+          "deadlineUptime": 467443.11872308335,
+          "effectiveAckUptime": 467409.9264001667,
+          "event": "accepted_selection_validation",
+          "hostEpoch": "BD70CE7F-2696-4517-AA10-92FD6F3FB977",
+          "originalEventUptime": 467413.1187125417,
+          "selectionID": "A6248B6F-AC26-491D-B264-50BF649C37EB",
+          "targetDigest": "f02a6a414d37bb301e90d6a64d614b17a49170444bbb9605b485c8e040d3e5fe",
+          "uptime": 467419.4965419167,
+          "visibilityRevision": 0
+        },
+        {
+          "accepted": true,
+          "acceptedUptime": 467413.11872308335,
+          "armAttemptID": "843EDD7D-5199-48CC-B4C3-A00F86AB9D40",
+          "assetID": "4D760E58-DB9A-4F6D-965E-A021B58B7E24",
+          "captureRequestID": "0DE82F74-E410-4BC3-831B-EB5E618DDC0D",
+          "deadlineUptime": 467443.11872308335,
+          "effectiveAckUptime": 467409.9264001667,
+          "event": "accepted_selection_validation",
+          "hostEpoch": "BD70CE7F-2696-4517-AA10-92FD6F3FB977",
+          "originalEventUptime": 467413.1187125417,
+          "selectionID": "A6248B6F-AC26-491D-B264-50BF649C37EB",
+          "targetDigest": "f02a6a414d37bb301e90d6a64d614b17a49170444bbb9605b485c8e040d3e5fe",
+          "uptime": 467419.5403573334,
+          "visibilityRevision": 0
+        },
+        {
+          "accepted": true,
+          "acceptedUptime": 467413.11872308335,
+          "armAttemptID": "843EDD7D-5199-48CC-B4C3-A00F86AB9D40",
+          "assetID": "4D760E58-DB9A-4F6D-965E-A021B58B7E24",
+          "captureRequestID": "0DE82F74-E410-4BC3-831B-EB5E618DDC0D",
+          "deadlineUptime": 467443.11872308335,
+          "effectiveAckUptime": 467409.9264001667,
+          "event": "accepted_selection_validation",
+          "hostEpoch": "BD70CE7F-2696-4517-AA10-92FD6F3FB977",
+          "originalEventUptime": 467413.1187125417,
+          "selectionID": "A6248B6F-AC26-491D-B264-50BF649C37EB",
+          "targetDigest": "f02a6a414d37bb301e90d6a64d614b17a49170444bbb9605b485c8e040d3e5fe",
+          "uptime": 467419.5833935,
+          "visibilityRevision": 0
+        }
+      ],
+      "enqueued": {
+        "assetID": "4D760E58-DB9A-4F6D-965E-A021B58B7E24",
+        "event": "selection_enqueued",
+        "selectionOrdinal": 1,
+        "uptime": 467413.119019625
+      },
+      "submissionStarted": {
+        "assetID": "4D760E58-DB9A-4F6D-965E-A021B58B7E24",
+        "event": "selection_submission_started",
+        "selectionOrdinal": 1,
+        "uptime": 467413.119142375
+      },
+      "helperInput": {
+        "actionUptime": 467413.1186970417,
+        "completionUptime": 467413.1190592084,
+        "source": "helperAX",
+        "physical": false,
+        "axActionAttempted": true,
+        "axErrorCode": 0,
+        "result": "axPressReturnedSuccess"
+      },
+      "foregroundUnchanged": true,
+      "firstPreparedPresentationObservation": {
+        "assetID": "4D760E58-DB9A-4F6D-965E-A021B58B7E24",
+        "commitUpperBoundUptime": 467413.13721770834,
+        "event": "committed_visibility_observed",
+        "exactCommitMeasured": false,
+        "operationID": "F765CD23-ADF3-4B21-856E-A97595E9A661",
+        "status": "transferring",
+        "visibility": "visible",
+        "visibilityReason": "capture",
+        "visibilityRevision": 0
+      },
+      "firstSwallowedObservation": {
+        "assetID": "4D760E58-DB9A-4F6D-965E-A021B58B7E24",
+        "commitUpperBoundUptime": 467425.07778050005,
+        "event": "committed_visibility_observed",
+        "exactCommitMeasured": false,
+        "operationID": "F765CD23-ADF3-4B21-856E-A97595E9A661",
+        "status": "transferring",
+        "visibility": "swallowed",
+        "visibilityReason": "uploadStarted",
+        "visibilityRevision": 1
+      },
+      "firstReadyPersistenceObservation": {
+        "assetID": "4D760E58-DB9A-4F6D-965E-A021B58B7E24",
+        "attempt": 1,
+        "commitUpperBoundUptime": 467435.5064595417,
+        "event": "ready_persistence_observed",
+        "exactCommitMeasured": false,
+        "operationID": "F765CD23-ADF3-4B21-856E-A97595E9A661",
+        "phase": "succeeded"
+      },
+      "presentation": [
+        {
+          "actualDuration": 0.24,
+          "assetID": "4D760E58-DB9A-4F6D-965E-A021B58B7E24",
+          "event": "presentation_boundary",
+          "generation": 0,
+          "operationID": "F765CD23-ADF3-4B21-856E-A97595E9A661",
+          "phase": "swallowScheduled",
+          "pixelPresentationMeasured": false,
+          "uptime": 467425.0784301667,
+          "visibilityRevision": 1
+        },
+        {
+          "actualDuration": 0.24,
+          "assetID": "4D760E58-DB9A-4F6D-965E-A021B58B7E24",
+          "event": "presentation_boundary",
+          "generation": 0,
+          "operationID": "F765CD23-ADF3-4B21-856E-A97595E9A661",
+          "phase": "swallowActualStart",
+          "pixelPresentationMeasured": false,
+          "uptime": 467425.0785232084,
+          "visibilityRevision": 1
+        },
+        {
+          "actualDuration": 0.24,
+          "assetID": "4D760E58-DB9A-4F6D-965E-A021B58B7E24",
+          "event": "presentation_boundary",
+          "generation": 0,
+          "operationID": "F765CD23-ADF3-4B21-856E-A97595E9A661",
+          "phase": "swallowClose",
+          "pixelPresentationMeasured": false,
+          "uptime": 467425.3312747084,
+          "visibilityRevision": 1
+        }
+      ],
+      "pageOperation": {
+        "operationID": "F765CD23-ADF3-4B21-856E-A97595E9A661",
+        "assetID": "4D760E58-DB9A-4F6D-965E-A021B58B7E24",
+        "attempt": 1,
+        "hash": "e07f92326974632599d0d77be4b7516ed6ea422701567ebbb14c8071a2f11ec6",
+        "inputCount": 1,
+        "inputSequence": 35,
+        "inputObservedAtMS": 858592.7000000477,
+        "start": {
+          "version": 1,
+          "signal": "correlatedProgress",
+          "evidenceID": "acedd281-222a-48d6-8e36-df597df17cac",
+          "inputCount": 1,
+          "inputSequence": 35,
+          "startSequence": 66,
+          "previousProgress": 7.258640059615661,
+          "currentProgress": 8.065155621795178,
+          "inputObservedAtMS": 858592.7000000477,
+          "startObservedAtMS": 863719.9000000358
+        },
+        "proofCompletedAtMS": 866664.5,
+        "proofCompletedSequence": 91,
+        "hasProof": true,
+        "committed": true,
+        "invalid": false,
+        "error": false,
+        "uploading": false,
+        "startDisqualified": true,
+        "progressCount": 0,
+        "originalProgressNode": false,
+        "exactProgressLabel": false
+      }
+    }
+  ],
+  "databaseTimeline": [
+    {
+      "stage": "beforeB",
+      "Astate": [
+        "682B6E20-FC6F-46DA-BB6D-7B8ECA820908",
+        "inputTriggered",
+        "observer-v2:uploadStarted:integratedDevelopment"
+      ],
+      "close": {
+        "actualDuration": 0.24,
+        "assetID": "E4CF6A7D-E1BB-496E-841B-E970EC1130B3",
+        "event": "presentation_boundary",
+        "generation": 0,
+        "operationID": "682B6E20-FC6F-46DA-BB6D-7B8ECA820908",
+        "phase": "swallowClose",
+        "pixelPresentationMeasured": false,
+        "uptime": 467412.8064860417,
+        "visibilityRevision": 1
+      },
+      "hostUptime": 467413.061391541
+    },
+    {
+      "stage": "dbState",
+      "state": [
+        [
+          "E4CF6A7D-E1BB-496E-841B-E970EC1130B3",
+          "682B6E20-FC6F-46DA-BB6D-7B8ECA820908",
+          1,
+          "inputTriggered",
+          "observer-v2:uploadStarted:integratedDevelopment"
+        ]
+      ],
+      "hostUptime": 467413.121651625
+    },
+    {
+      "stage": "dbState",
+      "state": [
+        [
+          "E4CF6A7D-E1BB-496E-841B-E970EC1130B3",
+          "682B6E20-FC6F-46DA-BB6D-7B8ECA820908",
+          1,
+          "inputTriggered",
+          "observer-v2:uploadStarted:integratedDevelopment"
+        ],
+        [
+          "4D760E58-DB9A-4F6D-965E-A021B58B7E24",
+          "F765CD23-ADF3-4B21-856E-A97595E9A661",
+          1,
+          "prepared",
+          ""
+        ]
+      ],
+      "hostUptime": 467413.226635916
+    },
+    {
+      "stage": "dbState",
+      "state": [
+        [
+          "E4CF6A7D-E1BB-496E-841B-E970EC1130B3",
+          "682B6E20-FC6F-46DA-BB6D-7B8ECA820908",
+          1,
+          "succeeded",
+          "observer-v2:attached:integratedDevelopment"
+        ],
+        [
+          "4D760E58-DB9A-4F6D-965E-A021B58B7E24",
+          "F765CD23-ADF3-4B21-856E-A97595E9A661",
+          1,
+          "dispatchIntent",
+          "dispatch-intent committed"
+        ]
+      ],
+      "hostUptime": 467419.588386666
+    },
+    {
+      "stage": "dbState",
+      "state": [
+        [
+          "E4CF6A7D-E1BB-496E-841B-E970EC1130B3",
+          "682B6E20-FC6F-46DA-BB6D-7B8ECA820908",
+          1,
+          "succeeded",
+          "observer-v2:attached:integratedDevelopment"
+        ],
+        [
+          "4D760E58-DB9A-4F6D-965E-A021B58B7E24",
+          "F765CD23-ADF3-4B21-856E-A97595E9A661",
+          1,
+          "inputTriggered",
+          "observer-v2:uploadStarted:integratedDevelopment"
+        ]
+      ],
+      "hostUptime": 467425.144809791
+    },
+    {
+      "stage": "dbState",
+      "state": [
+        [
+          "E4CF6A7D-E1BB-496E-841B-E970EC1130B3",
+          "682B6E20-FC6F-46DA-BB6D-7B8ECA820908",
+          1,
+          "succeeded",
+          "observer-v2:attached:integratedDevelopment"
+        ],
+        [
+          "4D760E58-DB9A-4F6D-965E-A021B58B7E24",
+          "F765CD23-ADF3-4B21-856E-A97595E9A661",
+          1,
+          "succeeded",
+          "observer-v2:attached:integratedDevelopment"
+        ]
+      ],
+      "hostUptime": 467435.586612208
+    }
+  ],
+  "readOnlyFinalStoreSnapshot": {
+    "connectionMode": "ro",
+    "hostUptimeBounds": [
+      467671.379273458,
+      467671.386731875
+    ]
+  },
+  "pagePreservation": {
+    "pageFocused": true,
+    "editorFocused": false,
+    "textPreserved": true,
+    "oldCardsPreserved": true,
+    "fileEvents": [
+      {
+        "t": 849234,
+        "isTrusted": false,
+        "files": 1,
+        "pageFocused": true,
+        "editorFocused": false,
+        "textPreserved": true,
+        "cardsPreserved": true,
+        "selectionPreserved": true
+      },
+      {
+        "t": 858592.6000000238,
+        "isTrusted": false,
+        "files": 1,
+        "pageFocused": true,
+        "editorFocused": false,
+        "textPreserved": true,
+        "cardsPreserved": true,
+        "selectionPreserved": true
+      }
+    ]
+  },
+  "pageClock": {
+    "nowMS": 874447.8000000119,
+    "snapshotHostAfterUptime": 467435.862890583,
+    "noBridgeBeforeBoundInThisFile": true,
+    "comparisonRule": "Only within-page intervals; no invented exact host-page synchronization"
+  },
+  "earlierUnsuccessfulPreRun": {
+    "helperPress": {
+      "assetID": "E4CF6A7D-E1BB-496E-841B-E970EC1130B3",
+      "actionUptime": 467247.4029593334,
+      "result": "axPressReturnedSuccess",
+      "source": "helperAX",
+      "physical": false,
+      "axActionAttempted": true,
+      "axErrorCode": 0
+    },
+    "BNotRun": {
+      "stage": "BNotRun",
+      "reason": "NoSwallowCloseInBound",
+      "hostUptime": 467282.416161
+    },
+    "databaseOperationSnapshot": {
+      "stage": "dbState",
+      "state": [],
+      "hostUptime": 467282.42395
+    },
+    "pageInputEventCount": 0,
+    "pageOperationCount": 0,
+    "pageSnapshotHostUptime": 467322.727505875,
+    "limitation": "Earlier runtime App trace cap had been exhausted (coordinator report, consistent with bounded 2048 source logger); missing selection log cannot identify rejection cause. No operation/input observed in this separate pre-run; this is not an UNKNOWN replay."
+  },
+  "logCompleteness": {
+    "appAcceptanceEvents": 1671,
+    "cap": 2048,
+    "capReached": false,
+    "totalJSONRecords": 2062,
+    "presentationEvents": 6
+  },
+  "limits": [
+    "One same-draft pair; B waits for persisted A READY, not start-stage unlock.",
+    "Original pre-event ACK, epoch and lease remain fixed; no new user input or target capture is inferred for B release. Armer capture calls are separate background activity.",
+    "Software AX, not physical pointer or hardware input; no production screenshot admission or safe retry grant.",
+    "Nonempty text/noncollapsed selection/three existing cards were checked using preservation booleans; no content published.",
+    "Commit timestamps are observation upper bounds; AppKit close is code timing, not pixels."
+  ]
+}

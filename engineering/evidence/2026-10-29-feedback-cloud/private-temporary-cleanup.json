@@ -1,0 +1,72 @@
+{
+  "schema": 1,
+  "kind": "TASK_PRIVATE_TEMPORARY_FILES_REMOVED",
+  "observedUTC": "2026-10-29T15:47:56.261645+00:00",
+  "review": "final-archive-cleanup-review/decision.json",
+  "safeProviderEvidence": "final-archive-cleanup-review/provider-410-safe-extract.json",
+  "archive": "final-acceptance/manifest.json",
+  "inventorySHA256": "b7fbccbb0e2eaa37423da49354b18fdabdfe519a55175237b635bd4ed994d9d1",
+  "directories": [
+    {
+      "path": "/tmp/riftlet-feedback-live-20261029",
+      "fileCount": 2,
+      "directoryMode": "0700",
+      "fileModes": "0600",
+      "noSymlinksOrUnexpectedEntries": true,
+      "absentAfterRemoval": true
+    },
+    {
+      "path": "/tmp/riftlet-feedback-delivery-live-20261029",
+      "fileCount": 2,
+      "directoryMode": "0700",
+      "fileModes": "0600",
+      "noSymlinksOrUnexpectedEntries": true,
+      "absentAfterRemoval": true
+    },
+    {
+      "path": "/tmp/riftlet-cloud-private-issues-20261029T145732Z",
+      "fileCount": 2,
+      "directoryMode": "0700",
+      "fileModes": "0600",
+      "noSymlinksOrUnexpectedEntries": true,
+      "absentAfterRemoval": true
+    },
+    {
+      "path": "/tmp/riftlet-cloud-private-issues-20261029T152210Z",
+      "fileCount": 3,
+      "directoryMode": "0700",
+      "fileModes": "0600",
+      "noSymlinksOrUnexpectedEntries": true,
+      "absentAfterRemoval": true
+    },
+    {
+      "path": "/tmp/riftlet-cloud-private-issues-20261029T153205Z",
+      "fileCount": 2,
+      "directoryMode": "0700",
+      "fileModes": "0600",
+      "noSymlinksOrUnexpectedEntries": true,
+      "absentAfterRemoval": true
+    },
+    {
+      "path": "/tmp/riftlet-cloud-private-permanent-delete-20261029T153426Z",
+      "fileCount": 6,
+      "directoryMode": "0700",
+      "fileModes": "0600",
+      "noSymlinksOrUnexpectedEntries": true,
+      "absentAfterRemoval": true
+    },
+    {
+      "path": "/tmp/riftlet-cloud-verification-20261029/offline-selfcheck",
+      "fileCount": 1,
+      "directoryMode": "0700",
+      "fileModes": "0600",
+      "noSymlinksOrUnexpectedEntries": true,
+      "absentAfterRemoval": true
+    }
+  ],
+  "directoryCount": 7,
+  "fileCount": 18,
+  "allAbsent": true,
+  "scope": "Only exact task-generated acceptance capabilities and raw private Issue copies after evidence review. No platform token, browser state, server Secret, server tombstone, repository or Mac data removed.",
+  "limitations": "Ordinary file removal does not prove physical media erasure, remote provider backup erasure or native App SQLite/Keychain cleanup."
+}

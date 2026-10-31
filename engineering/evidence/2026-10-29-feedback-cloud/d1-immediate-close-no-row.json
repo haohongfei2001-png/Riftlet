@@ -1,0 +1,13 @@
+{
+  "scope": "Actual Cloudflare D1 Console observation after immediate-close request, before three-second-linger attempt",
+  "databaseId": "4167f4a2-5dfd-422d-86ca-077176fc8600",
+  "observedBetweenUTC": ["2026-10-29T14:01:17Z", "2026-10-29T14:06:45Z"],
+  "timestampPrecision": "bounded by the two preserved request events; no exact Console capture timestamp was saved",
+  "id": "083ca5ca-d1f4-44f6-9a3e-1c32f8850cc9",
+  "query": "SELECT id,state,payload_hash,delete_requested,issue_number,(payload IS NULL) AS payload_is_null,created,(SELECT COUNT(*) FROM feedback WHERE id='083ca5ca-d1f4-44f6-9a3e-1c32f8850cc9') AS identity_rows FROM feedback WHERE id='083ca5ca-d1f4-44f6-9a3e-1c32f8850cc9';",
+  "actualConsoleResult": "This query returned no data.",
+  "consoleResponseTimeMilliseconds": 1128,
+  "queryTimeMilliseconds": 0.41,
+  "interpretation": "No persisted row was observed for this attempt. Request bytes written did not establish durable receipt. The later linger attempt and authenticated status GET are separate evidence.",
+  "capturePitfall": "When a query returns no data the first table in the Console DOM belongs to an older query. Root read the query and its no-data message together and did not treat that older table as proof."
+}

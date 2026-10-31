@@ -1,0 +1,126 @@
+{
+  "source": "caa6a65b69c6038154a2fff65f2fb1157125bb7e",
+  "parents": [
+    "e655b1e04241990ec35acbb79b5b6bc8ee95b960",
+    "3bb13999b0f444c7748804eef1976e179a52a85e"
+  ],
+  "status": "PASS",
+  "actual_concurrency": "root plus 3 independent agents, exclusive shared-worktree files; no real Mac executor accessed",
+  "authorship": [
+    {
+      "author": "local Codex round5",
+      "paths": [
+        "Sources/RiftletAdapters/**",
+        "Sources/RiftletGUIAcceptance/**",
+        "Tests/RiftletAdaptersTests/**",
+        "Tests/WebPageProgram/**",
+        "engineering/evidence/2026-10-27-real-mac-round5/**"
+      ],
+      "reviewers": [
+        "root",
+        "round5_web_review",
+        "round5_evidence_review"
+      ]
+    },
+    {
+      "author": "root",
+      "paths": [
+        "Sources/RiftletApp/RiftletMain.swift",
+        "Sources/RiftletApp/WebAcceptanceConfiguration.swift",
+        "Tests/RiftletAppTests/WebAcceptanceIntegrationTests.swift",
+        ".github/workflows/native-foundation.yml",
+        "formal integration/docs/remote refs"
+      ],
+      "reviewers": [
+        "round5_permission_review",
+        "round5_evidence_review"
+      ]
+    },
+    {
+      "author": "local Codex overlay, integrated by root",
+      "paths": [
+        "Sources/RiftletUI/RiftPanelController.swift"
+      ],
+      "reviewers": [
+        "round5_web_review",
+        "round5_evidence_review"
+      ]
+    },
+    {
+      "author": "round5_permission_review",
+      "paths": [
+        "Sources/RiftletApp/PassivePermissionResume.swift",
+        "Tests/RiftletAppTests/PassivePermissionResumeTests.swift"
+      ],
+      "reviewers": [
+        "root"
+      ]
+    },
+    {
+      "author": "round5_web_review",
+      "paths": [
+        "Tests/RiftletUITests/PresentationBoundaryTests.swift"
+      ],
+      "reviewers": [
+        "root"
+      ]
+    }
+  ],
+  "resolved_findings": [
+    "Initial Chrome unavailable/denied previously prevented all armer/watch installation and left no automatic host-event recovery. Added event-driven passive activation/wake resumption; no prompt/cache/click replay.",
+    "Coalesce resumption events, retain in-flight slot across cancellation/restart and reject late old-generation grants.",
+    "Check cancellation and application termination after original recovery/query awaits before installing observers.",
+    "Use one code-owned WebAcceptanceConfiguration policy for runtime and packaged self-check; only generated-image start admitted.",
+    "Preserve original frozen target across passive permission await; changed target and absent click-time ACK cannot trigger recapture/input.",
+    "Add trace-only permission call bounds with asset/capture/attempt/epoch association, never replacing ACK or upload evidence.",
+    "Keep all source overlays opt-in diagnostics and synthetic metadata; failed CUA window ordering excluded."
+  ],
+  "source_reviews": {
+    "v11_start_decoder_early_return_legacy": "PASS; 68 current and45 legacy VM cases independently executed",
+    "real_evidence_and_overlay_admission": "PASS within explicit synthetic scope; original27 evidence files/hashes verified",
+    "app_policy_diagnostics_and_component_tests": "PASS",
+    "app_permission_composition": "PASS",
+    "ui_presentation_and_synthetic_identifier": "PASS",
+    "passive_resumer_and_ui_test_nonauthor_root_review": "PASS"
+  },
+  "ci_review": {
+    "reviewer": "round5_evidence_review",
+    "run": 40515643640,
+    "job": 122228775354,
+    "status": "PASS",
+    "native_unique_names": 369,
+    "detailed_passed_no_skips": {
+      "lifecycle": 13,
+      "setup": 3,
+      "capture": 15,
+      "presentation": 4,
+      "web_composition": 5,
+      "passive_permission": 8
+    },
+    "actual_source_and_artifacts_independently_fetched": true
+  },
+  "remaining_scope_limits": [
+    "No new real Mac permission/latency proof",
+    "Native permission checker selects first running Chrome; cross-instance conservative mismatch remains unverified, not relaxed",
+    "Old real performance belongs to e89d49f-based overlay binary, not this source",
+    "Raw evidence patch context whitespace retained verbatim"
+  ],
+  "not_a_human_github_approval": true,
+  "final_document_review": {
+    "reviewer": "round5_evidence_review",
+    "status": "PASS",
+    "scope": "8 document deltas and 4 new permanent evidence files; no blocking findings",
+    "independent_checks": [
+      "All 369 names match independently retrieved complete CI log",
+      "All 134 excerpt lines follow one explicit metadata header and occur verbatim in full CI log",
+      "27 original evidence byte/hash/blob entries, 18 baseline objects and 13 source build inputs verified",
+      "Old e89-plus-overlay performance and new real permission/physical GUI NOT_RUN remain explicit",
+      "Failed CUA ordering and production/Web safe retry admission excluded"
+    ],
+    "wording_nits_resolved": [
+      "First ordinary launch, not every launch, opens first-use guidance",
+      "Use actual permissionRequestID field name in handoff"
+    ],
+    "approval_scope": "AI non-author engineering review; not human GitHub approval or release authorization"
+  }
+}

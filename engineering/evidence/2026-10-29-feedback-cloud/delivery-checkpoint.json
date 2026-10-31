@@ -1,0 +1,339 @@
+{
+  "schema": 1,
+  "kind": "CLOUD_SERVICE_FINAL_NATIVE_NOT_RUN",
+  "evidenceCutoffUTC": "2026-10-29T15:39:38.614578Z",
+  "sourceBaseHead": "2f30885644c9dc597e47d8f1dc89b9e16828092a",
+  "preparedBy": "/root/codex_handoff",
+  "networkRequestsByThisAuthor": 0,
+  "sourceMutationByThisAuthor": false,
+  "receiver": {
+    "endpoint": "https://riftlet-feedback-receiver.haohongfei2001.workers.dev/v1/feedback",
+    "lastObservedRestoredVersion": "39f6277e-11f2-455b-be27-8f0b6a795685",
+    "versionObservedUTC": "2026-10-29T14:52:36.294Z",
+    "laterFinalVersion": "39f6277e-11f2-455b-be27-8f0b6a795685",
+    "acceptanceEnabledAtRestoredSnapshot": true,
+    "killSwitchPOST503": true,
+    "killSwitchAuthorizedOldGET200": true,
+    "dailyBudgetHTTP429": true,
+    "dailyBudgetRejectedRowCount": 0,
+    "dailyQuotaBeforeAndAfterRejection": 5,
+    "feedbackTotalRowsBeforeAndAfterRejection": 5,
+    "restoredLimits": {
+      "daily": 100,
+      "hourly": 20,
+      "observedUTC": "2026-10-29T14:51:41.474Z"
+    },
+    "finalVersionConfirmedByIntegrationLead": "39f6277e-11f2-455b-be27-8f0b6a795685"
+  },
+  "d1BeforeDelivery": {
+    "name": "riftlet-feedback",
+    "id": "4167f4a2-5dfd-422d-86ca-077176fc8600",
+    "oldFiveActivePayloadsCleared": true,
+    "oldFiveDirectCleanupObservedUTC": "2026-10-29T14:32:54.635Z",
+    "oldFiveDeleteRequested": 1,
+    "oldFiveState": "deleted",
+    "oldFiveIssueNumber": null,
+    "backupErasureProven": false,
+    "secondBatch": {
+      "plain": {
+        "id": "9650fede-d514-4672-81f7-c92d2fa1afd2",
+        "payloadSHA256": "2b3a680c716322a8c7c8b0c1c2944b29fee5fab909b0c2765746ed8b27208187",
+        "hasDiagnostic": false
+      },
+      "diagnostic": {
+        "id": "5b11fd1c-80a9-4a41-8790-0b1296bd6401",
+        "payloadSHA256": "5283bdc742aaf2bdb42da5c8ae827ea3158a9516c71abff564522a4b3b665563",
+        "hasDiagnostic": true
+      },
+      "lost_receipt": {
+        "id": "2b2dd0e6-c966-4910-93a0-e96b5510a056",
+        "payloadSHA256": "48ed5dbab4d657845d865647e580b32e887654fed17cfcd912824bc6b7ec05fc",
+        "hasDiagnostic": false
+      }
+    },
+    "secondBatchEachCount": 1,
+    "secondBatchDirectObservationUTC": "2026-10-29T14:53:12.901Z",
+    "secondBatchStateAtObservation": "pending",
+    "afterOriginalClientLostResponseRetry": {
+      "id": "2b2dd0e6-c966-4910-93a0-e96b5510a056",
+      "rowCount": 1,
+      "createdBefore": 1793285562,
+      "createdAfter": 1793285562,
+      "payloadSHA256": "48ed5dbab4d657845d865647e580b32e887654fed17cfcd912824bc6b7ec05fc",
+      "samePayloadHash": true,
+      "directObservedUTC": "2026-10-29T14:54:22.535Z"
+    }
+  },
+  "codeFix": {
+    "rootCause": "Workers redirect:error rejected before GitHub request; two fetch sites now use manual, without following redirects.",
+    "productionPaths": [
+      "services/feedback/delivery.mjs",
+      "services/feedback/feedback.test.mjs"
+    ],
+    "oldSourceWithThreeNewCases": {
+      "namedPass": 21,
+      "namedFail": 3
+    },
+    "fixedSourceLocalNamedCases": {
+      "pass": 24,
+      "fail": 0
+    },
+    "eachNewCaseChecks": [
+      301,
+      302,
+      307,
+      308
+    ],
+    "review": "redirect-manual-fix/decision.json",
+    "notYetFinalSourceCI": true
+  },
+  "delivery": {
+    "actualCronReportedUTC": "2026-10-29T15:20:59Z",
+    "actualD1ReportedUTC": "2026-10-29T15:21:30.844Z",
+    "privateDestinationVerifiedUTC": "2026-10-29T15:22:10.156Z",
+    "repository": "haohongfei2001-png/Riftlet-Feedback",
+    "repositoryID": "1437354611",
+    "private": true,
+    "completeAllStateListingCount": 3,
+    "issueMappings": [
+      {
+        "case": "plain",
+        "feedbackID": "9650fede-d514-4672-81f7-c92d2fa1afd2",
+        "issueNumber": 1,
+        "issueID": 6102832918,
+        "issueNodeID": "I_kwDOVaxKc88AAAABa8HXFg",
+        "issueURL": "https://github.com/haohongfei2001-png/Riftlet-Feedback/issues/1",
+        "createdUTC": "2026-10-29T15:21:01Z",
+        "updatedUTC": "2026-10-29T15:21:01Z",
+        "stateAtListing": "open",
+        "matchingIssueCount": 1,
+        "exactBodyMatches": true,
+        "bodySHA256": "0cfd8e965cf0c6c709abcf8346640fd1a1ab48fc395664439b875665ba5c1985",
+        "isPullRequest": false
+      },
+      {
+        "case": "diagnostic",
+        "feedbackID": "5b11fd1c-80a9-4a41-8790-0b1296bd6401",
+        "issueNumber": 2,
+        "issueID": 6102833425,
+        "issueNodeID": "I_kwDOVaxKc88AAAABa8HZEQ",
+        "issueURL": "https://github.com/haohongfei2001-png/Riftlet-Feedback/issues/2",
+        "createdUTC": "2026-10-29T15:21:03Z",
+        "updatedUTC": "2026-10-29T15:21:03Z",
+        "stateAtListing": "open",
+        "matchingIssueCount": 1,
+        "exactBodyMatches": true,
+        "bodySHA256": "79ceac26b2611ed4fd5c6ac7d1821308ebcb2030fb0298554c8e54ef9015e641",
+        "isPullRequest": false
+      },
+      {
+        "case": "lost_receipt",
+        "feedbackID": "2b2dd0e6-c966-4910-93a0-e96b5510a056",
+        "issueNumber": 3,
+        "issueID": 6102833995,
+        "issueNodeID": "I_kwDOVaxKc88AAAABa8HbSw",
+        "issueURL": "https://github.com/haohongfei2001-png/Riftlet-Feedback/issues/3",
+        "createdUTC": "2026-10-29T15:21:05Z",
+        "updatedUTC": "2026-10-29T15:21:05Z",
+        "stateAtListing": "open",
+        "matchingIssueCount": 1,
+        "exactBodyMatches": true,
+        "bodySHA256": "4dba89c743b28ac5322e927686a28e92fb58524af3b01e05d1e0447e45a78704",
+        "isPullRequest": false
+      }
+    ],
+    "normalProductionRestoredVersion": "3c749b91-ace3-45d9-86e5-62e2dab06c35",
+    "normalProductionBundleSHA256": "0236e5582362b1f74d21aad2ab04ef0d3333fed75f3e49fd7d924ccbef8ce7db",
+    "temporaryVariablesRemovedAndReadBack": true,
+    "restorationEvidenceSource": "production-bundle-independent-review.json and final-operational-ui-readback.json: ordinary active bundle copied exactly; direct production variable list omits temporary fault variable. Historical action sequence separately labeled as operator observation.",
+    "productionBundleReview": "production-bundle-independent-review.json",
+    "nativeOriginOfTests": false,
+    "uiSourceCopyBytes": 6356,
+    "uiSourceExactMatchesProductionBundle": true
+  },
+  "lostGitHubResponse": {
+    "feedbackID": "5b11fd1c-80a9-4a41-8790-0b1296bd6401",
+    "issueNumber": 2,
+    "actualIssueCreationObserved": true,
+    "actualHTTP201DirectlyCaptured": false,
+    "discard201BranchExecutionDirectlyCaptured": false,
+    "injectionScope": "Reviewed temporary exact-ID response-discard source was deployed. Direct evidence establishes actual Issue creation -> D1 uncertain/null identity -> delete intent -> normal original-Issue reconciliation; it does not directly capture the201 status or branch execution.",
+    "d1UncertainAndIssueIdentityNullObservedUTC": "2026-10-29T15:21:30.844Z",
+    "authorizedDELETEObservedUTC": "2026-10-29T15:22:36.172017Z",
+    "directD1AfterDeleteReportedUTC": "2026-10-29T15:23:17Z",
+    "directD1PayloadNull": true,
+    "directD1DeleteRequested": 1,
+    "lateReconcileObservedUTC": "2026-10-29T15:31:23.323Z",
+    "lateReconcileState": "deletion_pending",
+    "lateReconcileOriginalIssueNumber": 2,
+    "lateReconcileOriginalIssueNodeID": "I_kwDOVaxKc88AAAABa8HZEQ",
+    "attemptAtUnchanged": 1793287259,
+    "checkedAt": 1793287858,
+    "lateCompleteGitHubObservationUTC": "2026-10-29T15:32:05.141Z",
+    "lateGitHubOnlyOriginalThreeIssuesUnchanged": true,
+    "lateReconcileSource": "d1-late-reconcile.json; delivery-phase/late-reconcile-snapshot-20261029T153217Z/summary.json",
+    "directSecondPOSTNetworkTraceCaptured": false,
+    "noBlindRecreationScope": "Reviewed reconciliation code does not POST again; original durable attempt timestamp retained and complete Issue list remains exactly the same three identities/bodies/timestamps."
+  },
+  "deletion": {
+    "ownerPermanentDeletionCompletedByUTC": "2026-10-29T15:33:48Z",
+    "ownerEvidence": "github-owner-permanent-deletion.json",
+    "independentAPIObservedUTC": "2026-10-29T15:34:26.371Z",
+    "sameAuthorizedRepositoryReadSucceeded": true,
+    "privateRepositoryID": "1437354611",
+    "allThreePreciseIssueGETStatus": 410,
+    "allThreeProviderExplicitlyDeleted": true,
+    "completeStateAllListSucceeded": true,
+    "completeStateAllListCount": 0,
+    "originalPrepared404ExpectationPreservedAsCorrectedHistory": true,
+    "officialSemanticsReference": "https://docs.github.com/en/rest/issues/issues#get-an-issue",
+    "nonAuthorDecision": "permanent-deletion-410-review/decision.json",
+    "correctedGate": "permanent-deletion-410-review/corrected-verification-gate.json",
+    "guardedSQLExecutedAfterReview": true,
+    "guardedSQLScope": "Each original feedback UUID AND exact Issue number/node ID AND delete_requested=1 AND payloadNULL AND current deletion_pending; no broad update or tombstone reset.",
+    "d1RowsVerifiedUTC": "2026-10-29T15:38:01.664Z",
+    "d1RowsFinal": "All8 state=deleted/delete_requested=1/payloadNULL; three delivered identities retain original Issue1/2/3 references.",
+    "d1AggregateUTC": "2026-10-29T15:39:00.373Z",
+    "d1Aggregate": {
+      "rows": 8,
+      "deleted": 8,
+      "bodyPresent": 0,
+      "pendingDelete": 0,
+      "probeTables": 0,
+      "daily": 100,
+      "hourly": 20
+    },
+    "finalOriginalCapabilityGETs": [
+      {
+        "case": "plain",
+        "id": "9650fede-d514-4672-81f7-c92d2fa1afd2",
+        "observedUTC": "2026-10-29T15:39:38.227137+00:00",
+        "exactStatus200": true,
+        "exactStateDeleted": true,
+        "durableIsBooleanTrue": true,
+        "exactIdentityMatches": true,
+        "semanticCheck": "PASS"
+      },
+      {
+        "case": "diagnostic",
+        "id": "5b11fd1c-80a9-4a41-8790-0b1296bd6401",
+        "observedUTC": "2026-10-29T15:39:38.438143+00:00",
+        "exactStatus200": true,
+        "exactStateDeleted": true,
+        "durableIsBooleanTrue": true,
+        "exactIdentityMatches": true,
+        "semanticCheck": "PASS"
+      },
+      {
+        "case": "lost_receipt",
+        "id": "2b2dd0e6-c966-4910-93a0-e96b5510a056",
+        "observedUTC": "2026-10-29T15:39:38.614578+00:00",
+        "exactStatus200": true,
+        "exactStateDeleted": true,
+        "durableIsBooleanTrue": true,
+        "exactIdentityMatches": true,
+        "semanticCheck": "PASS"
+      }
+    ],
+    "finalGETSemanticChecksPass": 3,
+    "finalGETSemanticChecksFail": 0,
+    "remoteTestFeedbackCleanupObligationsOpen": 0,
+    "localNativeSQLiteOrKeychainTestCleanupClaimed": false,
+    "temporaryAcceptanceCredentialFilesRemoval": "Not asserted by this checkpoint; integration lead owns exact private temporary-state disposal after evidence collection. No credential values are in public evidence.",
+    "backupErasureClaimed": false,
+    "status": "CLOUD PASS for the recorded remote synthetic-feedback deletion chain, including owner action + independent410/private-access/list proof + exact D1 closeout + original-capability deleted GETs."
+  },
+  "client": {
+    "headAtCheckpoint": "2f30885644c9dc597e47d8f1dc89b9e16828092a",
+    "endpointAtH": null,
+    "nativeCIAtH": "PASS ARM/Intel",
+    "feedbackUniqueCIAtH": 49,
+    "serviceCIAtH": 21,
+    "newServiceLocalCases": 24,
+    "successorSource": "Resolve immutable reviewed source/head/tree from engineering/evidence/2026-10-29-final-product/results.json and formal PR final handoff",
+    "successorAdmissionAndCI": "Use actual completed source admission/workflow/artifact references in final-product metadata and PR#1 final handoff; historical H CI/packages are not relabeled",
+    "physicalMac": "NOT_RUN",
+    "realNativeE2E": "NOT_RUN",
+    "executorScheduled": false,
+    "hostSourceConfiguredEndpoint": "https://riftlet-feedback-receiver.haohongfei2001.workers.dev/v1/feedback",
+    "hostActivationIndependentDecision": "host-activation-gate/decision.json",
+    "hostChangeActualScope": "Exactly one nil-to-fixed-URL literal line; all other Host bytes unchanged, independently compared locally",
+    "configurationIsNotPerFeedbackReceipt": true,
+    "nativeToCloud": "NOT_RUN"
+  },
+  "history": {
+    "previousCurrentJSON": "deployment-checkpoint.json at H; historical 14:17 checkpoint",
+    "oldRawHTTP": "live-http/events.jsonl unchanged",
+    "firstBatchCleanup": "d1-first-batch-cleanup.json",
+    "preFixAbsentIssues": "delivery-phase/github-observation-20261029T145732Z/summary.json; historical empty list, not current",
+    "preFixRuntimeDiagnosis": "delivery-preflight-live-observations.json; preserve original failures"
+  },
+  "finalFieldsRequired": [
+    "Use final-product immutable metadata and formal PR handoff for actual successor source/admission/full CI/package references; no predicted self-SHA.",
+    "Verify selected unified Beta build-info binds its committed source and real HTTPS endpoint; do not reuse historical H local-outbox-only artifact.",
+    "Keep physical Mac work NOT_RUN and prepared for Codex without an executor claim."
+  ],
+  "temporaryProbeCleanup": {
+    "observedUTC": "2026-10-29T15:27:23.018Z",
+    "temporaryProbeTables": 0,
+    "reports": 8,
+    "activePayloads": 0,
+    "limits": {
+      "daily": 100,
+      "hourly": 20
+    },
+    "operation": "Exact temporary probe-table DROP by integration lead, followed by independent actual SELECT; source reported to this author, raw observation to be indexed.",
+    "doesNotProvePermanentIssueDeletion": true
+  },
+  "operationalConstraints": {
+    "d1TimeTravel": {
+      "authenticatedObservedUTCApprox": "2026-10-29T14:58Z",
+      "actualUIValue": "past 7 days",
+      "restoreExecuted": false,
+      "onlineScrubbingDoesNotClearRecoverableHistory": true,
+      "physicalBackupImmediateErasureClaim": false
+    },
+    "githubActions": {
+      "observedEnabledUTCApprox": "2026-10-29T14:49Z",
+      "disabledSavedAndReloadVerifiedUTCApprox": "2026-10-29T14:50Z",
+      "currentDisabled": true,
+      "historicalCreationTimeDisabledStatementNotUsedAsCurrentEvidence": true
+    },
+    "deliveryCredential": {
+      "repositoryCount": 1,
+      "repository": "haohongfei2001-png/Riftlet-Feedback",
+      "Metadata": "read",
+      "Issues": "read-write",
+      "expiresOn": "2026-11-28",
+      "rotationObligation": "Authorized maintainer before expiry, then install and verify",
+      "rotationExecutorScheduled": false
+    },
+    "noPaidUpgrade": true,
+    "noDNSChange": true,
+    "dedicatedPrivateRepositoryCount": 1,
+    "evidenceSource": "Earlier action sequence is integration-lead operator observation. final-operational-ui-readback.json archives later direct non-secret UI snapshots for current Actions disabled, D1 past 7 days and production Delivery variables.",
+    "directReadbackEvidence": "final-operational-ui-readback.json"
+  },
+  "scope": "Real service-script HTTPS/D1/private-GitHub creation, reconciliation and deletion closure; not actual Riftlet App native-window E2E. C2/H2 source/CI/package identity remains integration-lead work.",
+  "finalEventAggregation": {
+    "primaryUniqueEvents": 64,
+    "HTTPContractChecksPass": 54,
+    "historicalDropAttempts": 4,
+    "issueBodyChecksAcrossTwoListings": 6,
+    "distinctCreatedIssues": 3,
+    "finalDeletedSemanticChecks": 3,
+    "eventsSHA256": "839473fea9af437543a4a5b6c585338f4225012134e8004589d50d4bcbd0cdda",
+    "evidence": "final-acceptance/summary.json"
+  },
+  "postCheckpointPrivateFileCleanup": {
+    "observedUTC": "2026-10-29T15:47:56.261645+00:00",
+    "directoryCount": 7,
+    "fileCount": 18,
+    "allAbsent": true,
+    "evidence": "private-temporary-cleanup.json",
+    "review": "final-archive-cleanup-review/decision.json",
+    "physicalErasureProven": false,
+    "nativeMacCleanupExecuted": false
+  },
+  "directOperationalUIReadback": "final-operational-ui-readback.json"
+}

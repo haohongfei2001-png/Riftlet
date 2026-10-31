@@ -1,0 +1,36 @@
+{
+  "endpoint": "https://riftlet-feedback-receiver.haohongfei2001.workers.dev/v1/feedback",
+  "scope": "Real HTTPS service checks; diagnostics are synthetic; no native Mac acceptance",
+  "reports": {
+    "plain": {
+      "id": "6b8a8849-6ffc-4805-ae4e-e37cfa00f342",
+      "originalPayloadSHA256": "359fc12aea66375f9e30ec979e4cc1195805d21800301801531600483237f01b",
+      "syntheticDiagnostics": false,
+      "finalHTTPState": "deleted"
+    },
+    "diagnostic": {
+      "id": "0fa0a07f-76d3-4815-bee3-22f60dcdbdcb",
+      "originalPayloadSHA256": "72b7d9f0acb1b5b5d9a34c8397f4c84e9980bec9f8e051c93d239636dfbf7e4e",
+      "syntheticDiagnostics": true,
+      "finalHTTPState": "deleted"
+    },
+    "lost_receipt": {
+      "id": "083ca5ca-d1f4-44f6-9a3e-1c32f8850cc9",
+      "originalPayloadSHA256": "5ba81029befc2af2c5dd7384ceba150b1a4a7d856e3d1691bcc092f1e2be4b9e",
+      "syntheticDiagnostics": false,
+      "finalHTTPState": "deleted"
+    },
+    "delete_before_submit": {
+      "id": "bd84bc6b-905b-4835-8a2e-277896131723",
+      "originalPayloadSHA256": "63039307d70dd8ad66341e5c1b61d3460b5746f70ac650f7d0a81da64dac2297",
+      "syntheticDiagnostics": false,
+      "finalHTTPState": "deleted"
+    },
+    "pending_delete": {
+      "id": "35bc1586-1b37-41ed-b6e5-87221bd6a3d2",
+      "originalPayloadSHA256": "c84f0e2c97ec6572ddf6b16e9e2ba5e20e3389587c59ba94272308b17ced9d02",
+      "syntheticDiagnostics": false,
+      "finalHTTPState": "deleted"
+    }
+  }
+}

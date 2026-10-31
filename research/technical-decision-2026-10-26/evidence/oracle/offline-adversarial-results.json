@@ -1,0 +1,104 @@
+{
+  "scope": "OFFLINE_FIXTURE_ONLY; NOT a ChatGPT or macOS integration test",
+  "sourceCommit": "fde96271db1611c0287fcfde3053c19325280d10",
+  "runtime": "v24.22.1",
+  "fixtureSource": "tests/browser/domFixture.ts (unchanged original source, TypeScript-transpiled in memory)",
+  "functionSource": "attachmentEvidence.ts and waitForAttachmentCompletion in attachments.ts (original logic)",
+  "resultCount": 4,
+  "results": [
+    {
+      "case": "unique_unrelated_card_claimed_for_requested_asset",
+      "begin": true,
+      "confirmed": true,
+      "wantedReportedPresent": true,
+      "requestedAssetWasInserted": false,
+      "status": "COUNTEREXAMPLE_REPRODUCED"
+    },
+    {
+      "case": "file_input_only_no_card_no_send_button",
+      "fixture": {
+        "send": false,
+        "inputFiles": [
+          "wanted.png"
+        ]
+      },
+      "resolved": true,
+      "elapsedSimulatedMs": 1750,
+      "observations": 8,
+      "firstObservation": {
+        "state": "missing",
+        "uploading": false,
+        "filesAttached": false,
+        "attachedNames": [],
+        "inputNames": [
+          "wanted.png"
+        ],
+        "fileCount": 0,
+        "confirmedNames": []
+      },
+      "status": "COUNTEREXAMPLE_REPRODUCED"
+    },
+    {
+      "case": "explicit_error_card_send_enabled",
+      "fixture": {
+        "send": true,
+        "card": {
+          "state": "error"
+        }
+      },
+      "resolved": true,
+      "elapsedSimulatedMs": 2000,
+      "observations": 5,
+      "firstObservation": {
+        "state": "ready",
+        "uploading": false,
+        "filesAttached": true,
+        "attachedNames": [
+          "wanted.png",
+          "wanted.png",
+          "wanted.png",
+          "wanted.png",
+          "remove attachment wanted.png",
+          "wanted.png",
+          "remove attachment wanted.png",
+          "wanted.png",
+          "wanted.png"
+        ],
+        "inputNames": [],
+        "fileCount": 0,
+        "confirmedNames": []
+      },
+      "status": "COUNTEREXAMPLE_REPRODUCED"
+    },
+    {
+      "case": "card_exists_send_button_absent_no_ready_signal",
+      "fixture": {
+        "send": false,
+        "card": {}
+      },
+      "resolved": true,
+      "elapsedSimulatedMs": 0,
+      "observations": 1,
+      "firstObservation": {
+        "state": "missing",
+        "uploading": false,
+        "filesAttached": true,
+        "attachedNames": [
+          "wanted.png",
+          "wanted.png",
+          "wanted.png",
+          "wanted.png",
+          "remove attachment wanted.png",
+          "wanted.png",
+          "remove attachment wanted.png",
+          "wanted.png",
+          "wanted.png"
+        ],
+        "inputNames": [],
+        "fileCount": 0,
+        "confirmedNames": []
+      },
+      "status": "COUNTEREXAMPLE_REPRODUCED"
+    }
+  ]
+}

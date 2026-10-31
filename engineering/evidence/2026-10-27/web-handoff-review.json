@@ -1,0 +1,78 @@
+{
+  "reviewer": "w2_evidence_review (non-author of handoff and integration)",
+  "sourceCommit": "6f4156988f32fa06d4df9f06a43f564b560e0a1d",
+  "sourceDirectory": "research/web-attachment-handoff-2026-10-27",
+  "reviewVerdict": "PASS_FOR_SCOPED_DEVELOPMENT_NOT_PRODUCTION_ADMISSION",
+  "reviewEnvironment": {
+    "os": "Linux",
+    "architecture": "x86_64",
+    "python": "3.12.14",
+    "node": "24.22.1"
+  },
+  "checks": [
+    {
+      "command": "python3 research/web-attachment-handoff-2026-10-27/replay.py",
+      "result": "PASS",
+      "manifestFilesVerified": 55,
+      "realTraceNegativePrefixes": 89,
+      "simulatedLateErrorVetoChecks": 2,
+      "recordedRealInputOperations": 3,
+      "browserActions": 0,
+      "networkRequests": 0
+    },
+    {
+      "command": "node research/web-attachment-handoff-2026-10-27/src/attached/test-attached-v1.cjs",
+      "result": "PASS",
+      "testCases": 19,
+      "passed": 19,
+      "failed": 0,
+      "note": "Direct execution independently confirms all cases; node --test output in this environment reports the single file wrapper."
+    }
+  ],
+  "recordedEvidence": {
+    "IDENTITY": "ATTACHED",
+    "OTHER": "ATTACHED",
+    "MID": "UNKNOWN",
+    "POST100": "UNKNOWN",
+    "TAB_SWITCH": "UNKNOWN (actual temporary-chat route transition, not active browser tab switch)"
+  },
+  "safeReuse": [
+    "Synchronous target guard, File/DataTransfer, native files setter and bubbling change from src/input/shared-adapter.js",
+    "Per-file input hashes and own card/image node continuity from src/observers/exception-observer.template.js",
+    "Own progress -> 100 -> no progress -> final data image load with exact bytes or decoded sRGB RGBA+dimensions from src/attached/attached_exception_audit.py and preview proof scripts",
+    "Existing Core durable dispatch intent, identity tuple, observation envelope and separate receipt admission must remain authoritative"
+  ],
+  "mandatoryIntegrationGuards": [
+    "Bind async preview proof to full original operation/asset/attempt/hash and target lease, exact card/image/source and completion sequence; archive exception proof lacks full tuple/time and cannot be admitted as external JSON directly",
+    "Recheck source/target immediately before dispatch and successful observation; no first-composer or first-tab fallback",
+    "No retry-safe profile: actual abort/status0 does not prove absence of remote residual",
+    "Observe only on UNKNOWN; lost observer/document remains UNKNOWN",
+    "Preserve original bytes and used media; default production registries remain empty until actual integrated target and completion admission",
+    "No fault bridge/network hooks, private endpoint guessing, chat text logs or Send in production program"
+  ],
+  "notProven": [
+    "Active browser tab switches and click-time exact tab capture",
+    "Generic multiple-profile resolver",
+    "Same-URL same-DOM implicit draft replacement",
+    "Actual server finalization rejection or actual failure after final preview",
+    "Integrated Swift App system screenshot -> first rift click -> observed attachment -> safe swallow",
+    "Native process/browser restart complete recovery",
+    "Production reversible post-consumption late failure handling",
+    "Web Work and native Mac client",
+    "PNG-external formats and uncalibrated image scaling/lossy/color conversion"
+  ],
+  "privacyReview": "Published package contains generated fixtures and sanitized trace projections, no live account/profile/window/tab identifiers or signed URL; the archived source includes lab-only tooling and must remain excluded from bundled runtime.",
+  "evidencePaths": [
+    "README.md",
+    "INTEGRATION.md",
+    "LIMITATIONS.md",
+    "environment.json",
+    "cases.csv",
+    "evidence/exceptions/main/attached-exception-audit.json",
+    "evidence/exceptions/main/pixel-proof.json",
+    "evidence/exceptions/main/concurrent-preview-proof.json",
+    "evidence/exceptions/main/recovery-verification.json",
+    "evidence/input/ae-observations.ndjson",
+    "MANIFEST.json"
+  ]
+}

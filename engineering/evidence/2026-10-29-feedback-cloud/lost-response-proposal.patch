@@ -1,0 +1,17 @@
+--- a/services/feedback/delivery.mjs
++++ b/services/feedback/delivery.mjs
+@@ -80,6 +80,14 @@
+         body:JSON.stringify({title:title(record.id),body:body(record)})
+       });
+       if(response.status!==201) throw new Error('uncertain');
++      // TEMPORARY ACCEPTANCE BUILD ONLY. Exact explicitly synthetic UUID.
++      // A real GitHub POST has returned201, but dispatch deliberately loses
++      // its response before issue identity is parsed or persisted in D1.
++      // Remove this instrumentation and its variable before ordinary service.
++      if(env.ACCEPTANCE_DISCARD_201_FOR_ID === record.id) {
++        if(response.body) await response.body.cancel().catch(()=>{});
++        throw new Error('acceptance_discarded_real_201');
++      }
+       const issue=await response.json();
+       if(!Number.isSafeInteger(issue.number)||typeof issue.node_id!=='string') throw new Error('uncertain');
+       await env.DB.prepare("UPDATE feedback SET issue_number=?,issue_node_id=?,state=CASE WHEN delete_requested=1 THEN 'deletion_pending' ELSE 'delivered' END WHERE id=? AND state IN ('attempting','deletion_pending')")

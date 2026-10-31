@@ -1,0 +1,15 @@
+{
+  "scope": "Fresh read of the active Receiver version through the authorized Cloudflare editor. Clipboard comparison only, no source editing/deployment. The editor automatically issued unauthenticated preview GETs; these are not additional feedback acceptance cases.",
+  "observedByUTC": "2026-10-29T15:43:05Z",
+  "bundleSHA256": "21fe26d707f0310358fb4878a45647c66fc1d0420687b7639a66d09323620677",
+  "observation": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"activeReceiverVersion\":\"39f6277e-11f2-455b-be27-8f0b6a795685\",\"exactReviewedReceiverBundle\":true,\"bytes\":9610}"
+      }
+    ],
+    "structuredContent": null,
+    "isError": false
+  }
+}

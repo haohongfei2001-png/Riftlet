@@ -1,0 +1,130 @@
+{
+  "scope": "Actual authenticated Cloudflare UI observations. Fixed metadata only; no secrets or feedback payload. Absence before confirmed probe is historical, not a successful GitHub delivery.",
+  "observations": [
+    {
+      "key": "delivery-1459-observation",
+      "observation": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"observedAt\":\"2026-10-29T15:00:00.834Z\",\"d1\":\"observation\\tid\\tstate\\tchecked_at\\tattempt_at\\tdelete_requested\\tissue_number\\tissue_node_id\\ndelivery_after_propagation\\t2b2dd0e6-c966-4910-93a0-e96b5510a056\\tpending\\t0\\t<null>\\t0\\t<null>\\t<null>\\ndelivery_after_propagation\\t5b11fd1c-80a9-4a41-8790-0b1296bd6401\\tpending\\t0\\t<null>\\t0\\t<null>\\t<null>\\ndelivery_after_propagation\\t9650fede-d514-4672-81f7-c92d2fa1afd2\\tpending\\t0\\t<null>\\t0\\t<null>\\t<null>\",\"metrics\":\"All deployed versions\\nLast 24 hours\\nInvocations\\n3\\n↗ 100.0%\\nSubrequests\\n0\\nNo data\\nErrors\\n0\\nNo data\\nCPU Time\\n457 µs\\n↗ 100.0%\\nWall Time\\n1 ms\\n↗ 100.0%\\nRequest duration\\n319 µs\\n↗ 100.0%\\nActive deployment\\nVersion ID\\nDeployed\\nTraffic %\\nAbout traffic percentage\\nRequests/sec\\nError rate\\nMedian CPU time\\nb9856004\\n5 minutes ago\\n100%\\n100%\\n0 req/sec\\n0%\\n4.09ms\\nInvocations\\nCount\\nInvocations/s\\nce783bec\\n1\\n4a3b6b04\\n1\\nb9856004\\n1\\nSubrequests\\nAll\\n2xx\\n3xx\\n4xx\\n5xx\\nHost\\n\\t\\nRequests\\n\\t\\nRequest Duration\\n\\t\\nNo data available\\nErrors by version\\nCount\\nRPS\\nce783bec\\n0\\n4a3b6b04\\n0\\nb9856004\\n0\\nErrors by invocation status\\nCount\\nRPS\\nExceeded Memory\\n0\\nExceeded CPU Time Limits\\n0\\nInternal\\n0\\nLoad Shed\\n0\\nUncaught Exception\\n0\\nClient disconnected by version\\nCount\\nRPS\\nNo client disconnects in this time range.\\nClient disconnected by type\\nCount\\nRPS\\nCancelled\\n0\\nResponse stream disconnected\\n0\\nRequest Distribution\\nCount\\nRPS\\nUnable to load results\\nRetry\\nPlacement Performance\\nUnable to load results\\nRetry\\nCPU Time\\nP50\\n2.16\\nP90\\n2.27\\nP99\\n2.27\\nP999\\n2.27\\nWall Time\\nP50\\n326\\nP90\\n327\\nP99\\n327\\nP999\\n327\\nMemory usage\\nP50\\n1.57 MB\\nP90\\n1.57 MB\\nP99\\n1.57 MB\\nP999\\n1.57 MB\\nRequest duration\\nP50\\n0.32\\nP90\\n1.02\\nP99\\n1.02\\nP999\\n1.02\\nWorker Previews\\nNew\\n\\nEvery branch and pull request now gets its own preview environment.\\n\\nTake a tour\\nSupport\\nSystem Status\\nCareers\\nTerms of Use\\nReport Security Issues\\nPrivacy Policy\\nYour Privacy Choices\\n© 2026 Cloudflare, Inc.\"}"
+          }
+        ],
+        "structuredContent": null,
+        "isError": false
+      }
+    },
+    {
+      "key": "delivery-post-1500-tick",
+      "observation": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"observedAt\":\"2026-10-29T15:01:07.863Z\",\"d1\":\"observation\\tid\\tstate\\tchecked_at\\tattempt_at\\tdelete_requested\\tissue_number\\tissue_node_id\\npost_1500_tick\\t2b2dd0e6-c966-4910-93a0-e96b5510a056\\tpending\\t0\\t<null>\\t0\\t<null>\\t<null>\\npost_1500_tick\\t5b11fd1c-80a9-4a41-8790-0b1296bd6401\\tpending\\t0\\t<null>\\t0\\t<null>\\t<null>\\npost_1500_tick\\t9650fede-d514-4672-81f7-c92d2fa1afd2\\tpending\\t0\\t<null>\\t0\\t<null>\\t<null>\",\"cron\":\"Cron\\tExecution time (UTC)\\tCPU time (ms)\\tStatus\\nThere have been no events in the past week. New or recently renamed Workers may take up to 30 minutes before events appear.\"}"
+          }
+        ],
+        "structuredContent": null,
+        "isError": false
+      }
+    },
+    {
+      "key": "delivery-post-1505-tick",
+      "observation": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"observedAt\":\"2026-10-29T15:05:48.841Z\",\"d1\":\"observation\\tid\\tstate\\tchecked_at\\tattempt_at\\tdelete_requested\\tissue_number\\tissue_node_id\\npost_1505_tick\\t2b2dd0e6-c966-4910-93a0-e96b5510a056\\tpending\\t0\\t<null>\\t0\\t<null>\\t<null>\\npost_1505_tick\\t5b11fd1c-80a9-4a41-8790-0b1296bd6401\\tpending\\t0\\t<null>\\t0\\t<null>\\t<null>\\npost_1505_tick\\t9650fede-d514-4672-81f7-c92d2fa1afd2\\tpending\\t0\\t<null>\\t0\\t<null>\\t<null>\",\"cron\":\"Cron\\tExecution time (UTC)\\tCPU time (ms)\\tStatus\\nThere have been no events in the past week. New or recently renamed Workers may take up to 30 minutes before events appear.\"}"
+          }
+        ],
+        "structuredContent": null,
+        "isError": false
+      }
+    },
+    {
+      "key": "delivery-active-bundle-reverified",
+      "observation": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"observedAt\":\"2026-10-29T15:04:36.669Z\",\"activeVersion\":\"b9856004-b689-4682-82e5-7da3f9995852\",\"activeBundleEqualsReviewedTemporaryBundle\":true,\"characters\":6489}"
+          }
+        ],
+        "structuredContent": null,
+        "isError": false
+      }
+    },
+    {
+      "key": "delivery-scoped-token-policy",
+      "observation": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"observedAt\":\"2026-10-29T15:02:29.488Z\",\"credentialPolicy\":\"GitHub Apps\\nOAuth Apps\\nPersonal access tokens\\nFine-grained tokens\\nTokens (classic)\\n\\nRiftlet Feedback v0.1 delivery\\n\\nCloudflare scheduled delivery for private Riftlet-Feedback issues only. Internal Beta; rotate before 2026-11-28.\\n\\nEdit\\n\\nCreated today.\\n\\nDelete\\n\\nExpires on Sat, Nov 28 2026\\n\\nRegenerate token\\nAccess on  haohongfei2001-png\\nEdit\\nRepository access\\nhaohongfei2001-png/Riftlet-Feedback\\nUser permissions\\nThis token does not have any user permissions.\\nRepository permissions\\n Read access to metadata\\n Read and Write access to issues\"}"
+          },
+          {
+            "type": "text",
+            "text": "- banner:\n  - button \"Ask AI\":\n    - generic: Ask AI\n  - link \"Support\":\n    - /url: /?to=/:account/support\n    - generic: Support\n  - button \"User menu\":\n- region \"Notifications\""
+          }
+        ],
+        "structuredContent": null,
+        "isError": false
+      }
+    },
+    {
+      "key": "delivery-probe-version",
+      "observation": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"observedAt\":\"2026-10-29T15:10:14.563Z\",\"probeVersion\":\"5375b805-b9d2-4d15-a644-b95a25585252\"}"
+          }
+        ],
+        "structuredContent": null,
+        "isError": false
+      }
+    },
+    {
+      "key": "delivery-probe-1510-result",
+      "observation": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"observedAt\":\"2026-10-29T15:10:44.538Z\",\"probe\":\"probe_rows\\tstarted_ms\\tfinished_ms\\tphase\\thttp_status\\tflags_json\\n0\\t<null>\\t<null>\\t<null>\\t<null>\\t<null>\",\"cron\":\"Cron\\tExecution time (UTC)\\tCPU time (ms)\\tStatus\\nThere have been no events in the past week. New or recently renamed Workers may take up to 30 minutes before events appear.\"}"
+          }
+        ],
+        "structuredContent": null,
+        "isError": false
+      }
+    },
+    {
+      "key": "delivery-probe-settings-reloaded",
+      "observation": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"observedAt\":\"2026-10-29T15:12:31.493Z\",\"runtimeSettings\":\"Runtime variables and secrets\\nProduction\\nPreviews Base\\nAdd variable\\n\\nType\\n\\n\\t\\n\\nName\\n\\n\\t\\n\\nValue\\n\\n\\t\\nActions\\n\\n\\n\\nVariable\\n\\n\\t\\nACCEPTANCE_DISCARD_201_FOR_ID\\n\\t\\n5b11fd1c-80a9-4a41-8790-0b1296bd6401\\n\\t\\n\\n\\n\\nVariable\\n\\n\\t\\nDELIVERY_ENABLED\\n\\t\\ntrue\\n\\t\\n\\n\\n\\nVariable\\n\\n\\t\\nGITHUB_REPOSITORY\\n\\t\\nhaohongfei2001-png/Riftlet-Feedback\\n\\t\\n\\n\\n\\nSecret\\n\\n\\t\\nGITHUB_TOKEN\\n\\t\\nValue encrypted\\n\\t\\nBindings\\nProduction\\nPreviews Base\\nAdd binding\\n\\nType\\n\\n\\t\\n\\nName\\n\\n\\t\\n\\nValue\\n\\n\\t\\nActions\\n\\n\\n\\nD1 database\\n\\n\\t\\nDB\\n\\t\\nriftlet-feedback\\n\\t\\nObservability\\nProduction\\nPreviews Base\\nLogs\\nInclude Invocation logs\\nPersist logs to the Workers dashboard\\nTraces\\nPersist traces to the Workers dashboard\\nIssues\\nExports\\nNo destinations available. \\nCreate a destination\\n to export telemetry.\\nSampling\\nLogs\\n%\\nTraces\\n%\\nRuntime\\nProduction\\nPreviews Base\\nPlacement\\nDefault\\nCompatibility date\\n2026-10-29\\nCompatibility flags\\nCache\\nDisabled\\nBuilds\\nGit repository\\nGitHub\\nGitLab\\nOrigin\\nAPI token for external CI/CD\\n\\nCreate an account API token that can deploy only this Worker from GitHub Actions, GitLab CI, or another CI/CD system.\\n\\nCreate token\\nTrigger events\\nCron triggers\\nRuns\\nEvery 5 minutes\\nNext\\nThu, 29 Oct 2026 15:15:00\\nAdd\\nQueues\\nNo queue consumers configured\\nAdd\\nEmail triggers\\nNo routing rules send email to this Worker\\nGo to Email Routing\\nGeneral\\nName\\nDanger zone\\nDelete Worker\\nDelete\\nVariables and secrets\\nBindings\\nObservability\\nRuntime\\nBuilds\\nTrigger events\\nGeneral\\nDanger zone\\nWorker Previews\\nNew\\n\\nEvery branch and pull request now gets its own preview environment.\\n\\nTake a tour\\nSupport\\nSystem Status\\nCareers\\nTerms of Use\\nReport Security Issues\\nPrivacy Policy\\nYour Privacy Choices\\n© 2026 Cloudflare, Inc.\",\"cron\":\"Cron triggers\\nRuns\\nEvery 5 minutes\\nNext\\nThu, 29 Oct 2026 15:15:00\\nAdd\\nQueues\\nNo queue consumers configured\\nAdd\\nEmail triggers\\nNo routing rules send email to this Worker\\nGo to Email Routing\\nGeneral\\nName\\nDanger zone\\nDelete Worker\\nDelete\\nVariables and secrets\\nBindings\\nObservability\\nRuntime\\nBuilds\\nTrigger events\\nGeneral\\nDanger zone\\nWorker Previews\\nNew\\n\"}"
+          }
+        ],
+        "structuredContent": null,
+        "isError": false
+      }
+    },
+    {
+      "key": "delivery-probe-1515-observation",
+      "observation": {
+        "content": [
+          {
+            "type": "text",
+            "text": "observation\tprobe_rows\tstarted_ms\tfinished_ms\tphase\thttp_status\tflags_json\nprobe_1515\t1\t1793286958769\t1793286964457\trepository_request\t<null>\t{\"deliveryIsString\":true,\"deliveryIsBoolean\":false,\"deliveryMissing\":false,\"deliveryMatches\":true,\"dbPresent\":true,\"repositoryConfigValid\":true,\"tokenPresent\":true,\"tokenIsString\":true,\"retentionBatchOK\":true,\"httpOK\":null,\"privateMatches\":null,\"nameMatches\":null,\"pendingQueryOK\":false,\"eligibleRowsPresent\":null,\"failed\":true}"
+          },
+          {
+            "type": "text",
+            "text": "re.com/b10365c5c641bd88cb1b9f35a4172d37/one/email-security/settings\n            - generic: Email security settings\n        - button:\n          - generic: Browser isolation\n        - list:\n          - link:\n            - /url: https://dash.cloudflare.com/b10365c5c641bd88cb1b9f35a4172d37/one/browser-isolation/overview\n            - generic: Overview\n          - link:\n            - /url: https://dash.cloudflare.com/b10365c5c641bd88cb1b9f35a4172d37/one/browser-isolation/settings\n            - generic: Browser isolation settings\n        - button:\n          - generic: Reusable components\n        - list:\n          - link:\n            - /url: https://dash.cloudflare.com/b10365c5c641bd88cb1b9f35a4172d37/one/reusable-components/lists\n            - generic: Lists\n          - link:\n            - /url: https://dash.cloudflare.com/b10365c5c641bd88cb1b9f35a4172d37/one/reusable-components/tags\n            - generic: Tags\n          - link:\n            - /url: https://dash.cloudflare.com/b10365c5c641bd88cb1b9f35a4172d37/one/reusable-components/posture-checks\n            - generic: Posture checks\n          - link:\n            - /url: https://dash.cloudflare.com/b10365c5c641bd88cb1b9f35a4172d37/one/reusable-components/custom-pages\n            - generic: Custom pages\n        - button:\n          - generic: Integrations\n        - list:\n          - link:\n            - /url: https://dash.cloudflare.com/b10365c5c641bd88cb1b9f35a4172d37/one/integrations/cloud-and-saas\n            - generic: Cloud & SaaS\n          - link:\n            - /url: https://dash.cloudflare.com/b10365c5c641bd88cb1b9f35a4172d37/one/integrations/identity-providers\n            - generic: Identity providers\n          - link:\n            - /url: https://dash.cloudflare.com/b10365c5c641bd88cb1b9f35a4172d37/one/integrations/service-providers\n            - generic: Service providers\n          - link:\n            - /url: https://dash.cloudflare.com/b10365c5c641bd88cb1b9f35a4172d37/one/integrations/webhooks\n            - generic: Webhooks\n        - link:\n          - /url: https://dash.cloudflare.com/b10365c5c641bd88cb1b9f35a4172d37/one/settings\n          - generic: Settings\n      - button \"Networking\":\n        - generic: Networking\n      - list:\n        - link:\n          - /url: /b10365c5c641bd88cb1b9f35a4172d37/magic-networks/overview\n          - generic: Overview\n          - generic: New\n        - button:\n          - generic: Insights\n        - list:\n          - link:\n            - /url: /b10365c5c641bd88cb1b9f35a4172d37/networking-insights/analytics/network-analytics/flow-analytics\n            - generic: Network flow\n        - link:\n          - /url: /b10365c5c641bd88cb1b9f35a4172d37/tunnels\n          - generic: Tunnels\n        - link:\n          - /url: /b10365c5c641bd88cb1b9f35a4172d37/mesh\n          - generic: Mesh\n          - generic: Beta\n        - link:\n          - /url: /b10365c5c641bd88cb1b9f35a4172d37/magic-networks/routes\n          - generic: Routes\n          - generic: New\n        - button:\n          - generic: IP addresses\n        - list:\n          - link:\n            - /url: /b10365c5c641bd88cb1b9f35a4172d37/ip-addresses/address-space\n            - generic: Address space\n          - link:\n            - /url: /b10365c5c641bd88cb1b9f35a4172d37/ip-addresses/proxy-ips\n            - generic: Address maps\n      - button \"Threats & defense\":\n        - generic: Threats & defense\n      - list:\n        - link:\n          - /url: /b10365c5c641bd88cb1b9f35a4172d37/threats-defense\n          - generic: Overview\n        - link:\n          - /url: /b10365c5c641bd88cb1b9f35a4172d37/threat-intelligence\n          - generic: Threat intelligence\n        - link:\n          - /url: /b10365c5c641bd88cb1b9f35a4172d37/threat-intelligence/investigate\n          - generic: Investigate\n      - button \"Monetize New\":\n        - generic: Monetize\n        - generic: New\n      - list:\n        - link:\n          - /url: /b10365c5c641bd88cb1b9f35a4172d37/monetize/monetization-gateway\n          - generic: Monetization Gateway\n          - generic: Beta\n      - button \"Delivery & performance\":\n        - generic: Delivery & performance\n      - list:\n        - link:\n          - /url: /b10365c5c641bd88cb1b9f35a4172d37/bulk-redirects\n          - generic: Bulk redirects\n        - link:\n          - /url: /b10365c5c641bd88cb1b9f35a4172d37/load-balancing\n          - generic: Load Balancing\n        - link:\n          - /url: /b10365c5c641bd88cb1b9f35a4172d37/tag-management/zaraz\n          - generic: Web tag management\n    - list:\n      - button \"Manage account\":\n        - generic: Manage account\n      - list:\n        - link:\n          - /url: /b10365c5c641bd88cb1b9f35a4172d37/members\n          - generic: Members\n        - link:\n          - /url: /b10365c5c641bd88cb1b9f35a4172d37/billing\n          - generic: Billing\n        - link:\n          - /url: /b10365c5c641bd88cb1b9f35a4172d37/api-tokens\n          - generic: Account API tokens\n        - link:\n          - /url: /b10365c5c641bd88cb1b9f35a4172d37/oauth-clients\n          - generic: OAuth clients\n        - link:\n          - /url: /b10365c5c641bd88cb1b9f35a4172d37/audit-log\n          - generic: Audit logs\n        - link:\n          - /url: /b10365c5c641bd88cb1b9f35a4172d37/blocked-content\n          - generic: Blocked content\n        - link:\n          - /url: /b10365c5c641bd88cb1b9f35a4172d37/abuse-reports\n          - generic: Abuse reports\n        - link:\n          - /url: /b10365c5c641bd88cb1b9f35a4172d37/carbon\n          - generic: Carbon Impact Report\n        - link:\n          - /url: /b10365c5c641bd88cb1b9f35a4172d37/configurations\n          - generic: Configurations\n        - link:\n          - /url: /b10365c5c641bd88cb1b9f35a4172d37/tags\n          - generic: Tagged Resources\n          - generic: Beta\n  - button \"Collapse sidebar\" [expanded]:\n- banner:\n  - button \"Ask AI\":\n    - generic: Ask AI\n  - link \"Support\":\n    - /url: /?to=/:account/support\n    - generic: Support\n  - button \"User menu\":\n- banner:\n  - link \"Back to Settings\":\n    - /url: /b10365c5c641bd88cb1b9f35a4172d37/workers/services/view/riftlet-feedback-delivery/production/settings\n    - generic: Back to Settings\n  - heading \"Cron events\" [level=1]\n  - paragraph:\n    - text: Historical log of Cron events in the past week\n    - link \"Cron Events\":\n      - /url: https://developers.cloudflare.com/workers/configuration/cron-triggers\n      - generic: Cron Events\n- table:\n  - rowgroup:\n    - row \"Cron Execution time (UTC) CPU time (ms) Status\":\n      - columnheader \"Cron\"\n      - columnheader \"Execution time (UTC)\"\n      - columnheader \"CPU time (ms)\"\n      - columnheader \"Status\"\n  - rowgroup:\n    - row \"There have been no events in the past week. New or recently renamed Workers may take up to 30 minutes before events appear.\":\n      - cell \"There have been no events in the past week. New or recently renamed Workers may take up to 30 minutes before events appear.\"\n- contentinfo:\n  - list:\n    - link \"Support\":\n      - /url: https://support.cloudflare.com\n    - link \"System status\":\n      - /url: https://www.cloudflarestatus.com\n    - link \"Careers\":\n      - /url: https://www.cloudflare.com/careers/\n    - link \"Terms of Use\":\n      - /url: https://www.cloudflare.com/website-terms/\n    - link \"Report Security Issues\":\n      - /url: https://www.cloudflare.com/disclosure/\n    - link \"Privacy Policy\":\n      - /url: https://www.cloudflare.com/privacypolicy/\n    - button \"Your Privacy Choices\"\n    - generic: © 2026 Cloudflare, Inc.\n- region \"Notifications\""
+          }
+        ],
+        "structuredContent": null,
+        "isError": false
+      }
+    }
+  ]
+}

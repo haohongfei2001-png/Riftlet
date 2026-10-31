@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 1,
+  "task": "M1 native backend",
+  "sourceSHA": "7dfa8ecbd221095f6c99d289aba794b51ce37e95",
+  "verdict": "PASS within implemented backend and native CI scope; real client acceptance NOT_RUN",
+  "nonAuthorReviewer": "m1_review",
+  "reviewType": "Independent technical agent review; not human GitHub approval or merge authorization",
+  "authors": {
+    "root": [
+      "MacClipboardCoordinator.swift",
+      "MacAttachmentAdapter.swift integration",
+      "MacClipboardCoordinatorTests.swift",
+      "MacCoordinatedAdapterTests.swift"
+    ],
+    "m1_ax": [
+      "NativeMacAXDriver.swift",
+      "NativeMacAttachmentExecutor.swift",
+      "NativeMacAXDriverTests.swift"
+    ],
+    "m1_pasteboard": [
+      "NativePasteboardDriver.swift",
+      "NativePasteboardDriverTests.swift"
+    ]
+  },
+  "crossReview": [
+    "m1_ax reviewed root recovery and receipt settlement",
+    "m1_pasteboard reviewed root coordinator/M0/flow tests",
+    "root reviewed native drivers, final composition and fixtures"
+  ],
+  "findings": [
+    {
+      "id": "R1",
+      "severity": "high",
+      "problem": "nil NSPasteboard.pasteboardItems was interpreted as empty content",
+      "resolution": "Always treat nil as unreadable; only actual empty array may form empty snapshot",
+      "verification": "Apple API contract plus non-author source review; actual unreadable declared-type and empty-board tests pass, but no claim of injected nil server outage"
+    },
+    {
+      "id": "R2",
+      "severity": "high",
+      "problem": "resolved journal before Core receipt commit prevented original-operation recovery",
+      "resolution": "Exact resolved tombstone can reobserve, matching resolution idempotent; no new input or reconstructed snapshot",
+      "verification": "Coordinator reopen and actual SQLite adapter/store interruption regression passed"
+    },
+    {
+      "id": "R3",
+      "severity": "high",
+      "problem": "coordination failure still returned consumable/retryable observer receipt",
+      "resolution": "Coordination identity/phase/persistence/settlement errors return same-identity UNKNOWN; clipboard restore-only errors remain best effort after durable resolution",
+      "verification": "Fault after resolution rename; Core UNKNOWN remains recoverable; reopen observe settles with zero new paste/restore"
+    },
+    {
+      "id": "C1",
+      "severity": "test-fixture",
+      "problem": "macOS synthesized additional UTF-16 data beyond authored snapshot fixture",
+      "resolution": "Assert every provided byte, actual advertised native type set and exact full restored snapshot; no driver relaxation",
+      "verification": "Reviewed fixture-only commit7dfa8ec and successful macOS named-board run"
+    },
+    {
+      "id": "C2",
+      "severity": "test-fixture",
+      "problem": "Legacy filePromise constant cannot be stored as NSPasteboardItem UTI",
+      "resolution": "Use real modern NSFilePromiseReceiver-reported type excluding the legacy value; native/legacy promise rejection retained",
+      "verification": "Successful real named-board CI; test-only correction"
+    }
+  ],
+  "invariantsReviewed": [
+    "No guessed ChatGPT node/menu-title/version profile, no activation/focus setting/keyboard fallback/send",
+    "Exact same coordinator required by adapter/native executor before clipboard access",
+    "Private regular-file SHA/FD/path checks and one durable inputIntent before one AXPress",
+    "No clipboard bytes or source file paths in durable journal; lost snapshot never restored",
+    "flock held through mutation/observation/settlement; repeated intent refused across instance/reopen",
+    "performing guard spans awaits; no reentrant lease release for a newer operation",
+    "Unproved pre-input clipboard recovery cannot borrow remote positive observation",
+    "Both native client profile registry and default mode remain disabled; no App/Core/Web mutations"
+  ],
+  "ciIndependentReadback": {
+    "reviewer": "m1_review",
+    "runID": 40446467852,
+    "jobID": 121998836427,
+    "headSHA": "7dfa8ecbd221095f6c99d289aba794b51ce37e95",
+    "conclusion": "success",
+    "nativeTests": 173,
+    "pageVM": 9,
+    "releasePackageAndThreeSelfChecks": "PASS",
+    "artifactID": 12707859277,
+    "artifactDigest": "sha256:fc9da0dc19092ae6e09da94817b63a282f14ccf87cb3c4382a9deeb304b59c3c"
+  },
+  "untested": [
+    "Real client AX structures and menu action",
+    "Real client selection/draft/old attachment preservation",
+    "Per-image completion and failure/retry admission",
+    "General pasteboard permission/privacy and cross-application copy races",
+    "Real GUI latency/actual process crash/power loss"
+  ],
+  "sourceSHA256": {
+    "Sources/RiftletAdapters/MacAttachmentAdapter.swift": "90b9fff4ff2115e8f2db3374cde7e4dad4deb091054a73b2ae18875fe6e7e884",
+    "Sources/RiftletAdapters/MacClipboardCoordinator.swift": "9f23917cbb6ea83aac89a567ec1664add6969555152d485f717754d5f9a0ca8d",
+    "Sources/RiftletAdapters/NativeMacAXDriver.swift": "03f3ba0d919e581d6b1a4c86ad62aee9163fa1e9f4cca2c7beb3fe0d3344554d",
+    "Sources/RiftletAdapters/NativeMacAttachmentExecutor.swift": "cec5e01cb4a563caca00555008946c5c660a5adc7d2285100076509a9c40bc9f",
+    "Sources/RiftletAdapters/NativePasteboardDriver.swift": "e0911ca17de563f2b15f3f7e8cc056850b5c04f95d8400d13e7596e259869014",
+    "Tests/RiftletAdaptersTests/MacClipboardCoordinatorTests.swift": "151017d644e29fd35958a57b776120484bb590d2e985a85de147262db89dffaa",
+    "Tests/RiftletAdaptersTests/MacCoordinatedAdapterTests.swift": "08a092132738616911a510f06619a405030881e5b9c889348ef8bc115925d3c2",
+    "Tests/RiftletAdaptersTests/NativeMacAXDriverTests.swift": "911b751536d0f1a0d99d387bd8bcef48e6528e747a421bba171b1b92256c0ab6",
+    "Tests/RiftletAdaptersTests/NativePasteboardDriverTests.swift": "6d203d8580277e4bcb553a86ac49c06302ad77e7aa37afcbf8231f24d2c7dd56"
+  },
+  "checkpoint": "Documentation/evidence checkpoint must preserve the exact source/build/test tree above; final PR records its commit without creating a CI-recording loop."
+}

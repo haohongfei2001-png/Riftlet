@@ -1,0 +1,62 @@
+{
+  "repository": "steipete/oracle",
+  "commit": "fde96271db1611c0287fcfde3053c19325280d10",
+  "files": [
+    {
+      "path": "LICENSE",
+      "gitBlobSHA": "0ae0cb57d8c6c1417f796b39fc0d6a7f2f7c5c39",
+      "byteLength": 1074,
+      "url": "https://github.com/steipete/oracle/blob/fde96271db1611c0287fcfde3053c19325280d10/LICENSE",
+      "sha256": "14293556b79940745123d0160c71d27ed0e9fe9b8a848093f3ed78f4853caafe",
+      "exactPinnedBytesVerified": true
+    },
+    {
+      "path": "src/browser/constants.ts",
+      "gitBlobSHA": "29692696806a67d84f5bbd76150c814e34daec42",
+      "byteLength": 7774,
+      "url": "https://github.com/steipete/oracle/blob/fde96271db1611c0287fcfde3053c19325280d10/src/browser/constants.ts",
+      "sha256": "f99ffa2edeb84e624b1560f6ebac5b3572d152c2c2fcab007d3947486caf16ba",
+      "exactPinnedBytesVerified": true
+    },
+    {
+      "path": "src/browser/actions/attachmentEvidence.ts",
+      "gitBlobSHA": "56196e48c0dd1462cdbfab173c360ef6527b49dd",
+      "byteLength": 5924,
+      "url": "https://github.com/steipete/oracle/blob/fde96271db1611c0287fcfde3053c19325280d10/src/browser/actions/attachmentEvidence.ts",
+      "sha256": "cc45f2fd2aa294a4f5a1e00f37f2c3b72c46851388e111482f8b7de6aa94fba1",
+      "exactPinnedBytesVerified": true
+    },
+    {
+      "path": "src/browser/actions/attachmentProgress.ts",
+      "gitBlobSHA": "934c92518899870cf6eae98be97c1533a0cc51ba",
+      "byteLength": 2975,
+      "url": "https://github.com/steipete/oracle/blob/fde96271db1611c0287fcfde3053c19325280d10/src/browser/actions/attachmentProgress.ts",
+      "sha256": "60f4dcd50bfacce69067058e01dc5c6f55af4b82d53fef74502887d1dbd45a8e",
+      "exactPinnedBytesVerified": true
+    },
+    {
+      "path": "src/browser/actions/composerRoot.ts",
+      "gitBlobSHA": "9e5149820c9b53ffe4454a4114b146b89dac93ce",
+      "byteLength": 2166,
+      "url": "https://github.com/steipete/oracle/blob/fde96271db1611c0287fcfde3053c19325280d10/src/browser/actions/composerRoot.ts",
+      "sha256": "c88d793a7fe3ce045a8dd5fb43fefdb5cd92de696b8b403a5080110b182ef3b3",
+      "exactPinnedBytesVerified": true
+    },
+    {
+      "path": "src/browser/actions/attachments.ts",
+      "gitBlobSHA": "00c217d902a34e28b66cc0c3e5e7c71e4bd9eba3",
+      "byteLength": 92061,
+      "url": "https://github.com/steipete/oracle/blob/fde96271db1611c0287fcfde3053c19325280d10/src/browser/actions/attachments.ts",
+      "sha256": "1eab07159a543eed7e876bbdbb698a1898b443508e74e71c48a59d37aca681b4",
+      "exactPinnedBytesVerified": true
+    },
+    {
+      "path": "tests/browser/domFixture.ts",
+      "gitBlobSHA": "17b4f969cf2b427292c9bb5bd5edb9086fd6b7d4",
+      "byteLength": 7392,
+      "url": "https://github.com/steipete/oracle/blob/fde96271db1611c0287fcfde3053c19325280d10/tests/browser/domFixture.ts",
+      "sha256": "4b798c87667910c615f16e1c74f978f470d58b461d66f56691d8fec48bda3408",
+      "exactPinnedBytesVerified": true
+    }
+  ]
+}

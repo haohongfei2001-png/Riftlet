@@ -1,0 +1,52 @@
+{
+  "sourceSHA": "53ebcc4da4b0df508edc11f6ead9ea4d8a843dad",
+  "formalBaseline": "e89d49f763036781c90618422da256e03cbca2ac",
+  "branch": "codex/riftlet-real-mac-round5-20261027",
+  "ci": {
+    "runID": 40497953468,
+    "status": "PASS",
+    "nativeDiscoveredAndExecuted": 314,
+    "pageTests": 68,
+    "legacyTests": 45,
+    "lifecycleDetailedPassed": 13,
+    "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/40497953468"
+  },
+  "local": {
+    "os": "macOS 27.0 (26A428)",
+    "architecture": "arm64",
+    "swift": "6.4",
+    "chrome": "156.0.8078.48",
+    "releaseBuild": "PASS",
+    "overlayAppliedInTemporaryBuildOnly": true,
+    "formalCoreUIAppDiffEmpty": true,
+    "testedExecutableSHA256": "30fa313bc0aee80176263dfcb8f09f7575c35018cac5a579c62543ab12d97268"
+  },
+  "scope": {
+    "realUploadStart": "PASS_SYNTHETIC_ONLY",
+    "actualAppKitFastSwallow": "PASS_CODE_PATH_ONLY",
+    "independentFinalReady": "PASS",
+    "pixelPresentation": "NOT_RUN",
+    "physicalMouse": "NOT_RUN",
+    "coldFirstClickWithoutACK": "NOT_RUN",
+    "realMID": "NOT_EXERCISED",
+    "productionScreenshotsEnabled": false,
+    "safeRetryEnabled": false,
+    "formalSyntheticStartRegistryEnabled": false,
+    "temporarySyntheticStartRegistryEnabled": true
+  },
+  "runtime": {
+    "mode": "web-acceptance",
+    "databaseSchema": 3,
+    "finalAssetID": "A69D72AA-1616-4D12-BC70-8FA5A77B8AE0",
+    "finalOperationID": "D53F7E0E-871B-4118-84DB-FB00772E1FE7",
+    "inputCount": 1,
+    "finalPhase": "succeeded",
+    "visibility": "swallowed",
+    "visibilityReason": "uploadStarted",
+    "testAppExited": true
+  },
+  "review": {
+    "reviewer": "independent late_failure role",
+    "result": "PASS within reported synthetic real-environment scope; production/retry unchanged"
+  }
+}

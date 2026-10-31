@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "reviewDate": "2026-10-27",
+  "result": "NO_BLOCKING_FINDING_IN_REVIEWED_SCOPE",
+  "source": {
+    "repository": "haohongfei2001-png/Riftlet",
+    "branch": "codex/riftlet-real-mac-round3-20261027",
+    "head": "159b3ef3e6c87ea468ba334dff64ad8db640d80c",
+    "parent": "11aec0407dbef7e5fcec4be4f7ae03eecbf2749d"
+  },
+  "reviewScope": {
+    "method": "Read-only source review and independent inspection of GitHub run metadata, job steps and actual job logs.",
+    "nonAuthorReview": [
+      "Shared bounded root.current monitor, committed-fiber identity checks, irreversible ABA invalidation and latest-value descriptor restoration",
+      "Chrome activity hints, coalesced target arming and frozen click target integration",
+      "Native foreground/tab recheck, bounded trace and closed MAIN-world rejection labels",
+      "GUI helper evidence limitations and CI workflow"
+    ],
+    "reviewerAuthoredPaths": [
+      "engineering/evidence/2026-10-27-real-mac-round3/network-probe.template.js",
+      "engineering/evidence/2026-10-27-real-mac-round3/network-probe.test.cjs"
+    ],
+    "authorshipDisclosure": "The diagnostic probe is reviewer-authored and is not claimed as independently non-author reviewed here.",
+    "blockingFindings": [],
+    "limitations": [
+      "Native trace succeeded describes bridge-block completion; a later foreground check may reject publication of its ACK.",
+      "Synthetic same-identity commits and alternate-fiber checks do not establish real typing performance or live business ABA acceptance.",
+      "The root monitor observes admitted root.current assignments; unsupported descriptor bypass or in-place mutation is not newly admitted.",
+      "Two exact-name JSON requests remain separate candidates and do not establish retry, compression or MID transport identity."
+    ]
+  },
+  "ci": {
+    "runID": 40467839636,
+    "attempt": 1,
+    "event": "push",
+    "status": "completed",
+    "conclusion": "success",
+    "headVerified": true,
+    "headSHA": "159b3ef3e6c87ea468ba334dff64ad8db640d80c",
+    "runURL": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/40467839636",
+    "jobID": 122067457974,
+    "jobURL": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/40467839636/job/122067457974",
+    "startedAtUTC": "2026-10-27T07:33:31Z",
+    "updatedAtUTC": "2026-10-27T07:35:07Z",
+    "environment": "macOS 14.8.9 arm64; Apple Swift 5.10; Node v22.23.2",
+    "logVerifiedChecks": {
+      "archivedEvidenceReplay": { "passed": 19, "failed": 0, "kind": "offline TAP tests" },
+      "integratedPageProgram": { "passed": 38, "failed": 0, "kind": "synthetic DOM VM tests" },
+      "round2FaultHarness": { "passedGroups": 8, "kind": "offline fixture groups" },
+      "round3DiagnosticProbe": { "passedGroups": 12, "kind": "offline fixture groups; real MID interception/abort NOT_RUN" },
+      "swift": { "uniqueTestEntries": 228, "stepConclusion": "success", "countBasis": "228 distinct Testing entries, ending [228/228], in successful swift test --parallel step" },
+      "releasePackaging": "success"
+    },
+    "selfChecks": [
+      { "marker": "RIFTLET_SELF_CHECK_PASS", "scope": "private import, durable queue, synthetic receipt, restart" },
+      { "marker": "RIFTLET_WEB_ACCEPTANCE_SELF_CHECK_PASS", "scope": "relocated packaged app; bundled page source, synthetic-only policy, isolated modes; CHROME_NOT_RUN; GUI_NOT_RUN" },
+      { "marker": "RIFTLET_GUI_HELPER_SELF_CHECK_PASS", "scope": "12 synthetic PNGs; scenes 2/3/12; layout/status fixtures; GUI_NOT_RUN" }
+    ],
+    "nonBlockingWarnings": ["Existing NativePasteboardDriver filePromise deprecation warning"]
+  },
+  "liveAdmission": {
+    "UX-01": "NOT_ADMITTED",
+    "sameDOMBusinessABA": "NOT_ADMITTED",
+    "MID": "NOT_ADMITTED",
+    "physicalGUIAcceptance": "NOT_ADMITTED",
+    "productionProfiles": "DISABLED",
+    "ciReplacesLiveAcceptance": false,
+    "statement": "This review performs no browser, upload or physical GUI acceptance. Passing CI and synthetic fixtures do not admit UX-01, real ABA, MID or physical interaction behavior."
+  }
+}

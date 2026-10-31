@@ -1,0 +1,80 @@
+{
+  "sourceSHA": "1909771d45ad00290dffe245b9a42e6e9f55203c",
+  "baseSHA": "485fa87a31140f9d2e428db69ec5e0599b1f96ae",
+  "branch": "codex/riftlet-real-mac-acceptance-20261027",
+  "ci": {
+    "conclusion": "success",
+    "runID": 40449181125,
+    "jobID": 122007591817,
+    "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/40449181125",
+    "completedUTC": "2026-10-27T04:21:48Z",
+    "nativeTests": 164,
+    "pageVMTests": 20,
+    "archivedReplayCases": 19,
+    "checks": [
+      "release build",
+      "ad-hoc app signature",
+      "packaged --self-check",
+      "relocated --web-acceptance-self-check",
+      "GUI helper --self-check"
+    ],
+    "artifacts": [
+      {
+        "id": 12709810660,
+        "name": "native-foundation-1909771d45ad00290dffe245b9a42e6e9f55203c",
+        "size_in_bytes": 968328,
+        "digest": "sha256:8f211be3385df1261c89ebfe81ef7d8d37ef628f2186bc3bc0ca742fb1b5785c",
+        "expired": false,
+        "expires_at": "2026-11-10T04:21:41Z"
+      }
+    ]
+  },
+  "priorCI": [
+    {
+      "sourceSHA": "268e70b3a20ec141fd5f7f079a56585f29b06adf",
+      "runID": 40444253690,
+      "nativeTests": 154,
+      "pageVMTests": 13,
+      "conclusion": "success"
+    },
+    {
+      "sourceSHA": "f58b22762d1dc42368a6e13fe2ef3a8e2d156106",
+      "runID": 40447541805,
+      "nativeTests": 159,
+      "pageVMTests": 19,
+      "conclusion": "success"
+    }
+  ],
+  "local": {
+    "releaseBuild": "PASS",
+    "packagedAppSignature": "PASS",
+    "packagedSelfCheck": "PASS",
+    "packagedWebAcceptanceSelfCheck": "PASS",
+    "pageVM": "20/20 PASS",
+    "XCTest": "NOT_RUN: installed CLT has no XCTest.framework",
+    "standaloneCoreSQLiteSmokes": "PASS: compensation, migration rollback, observation, frozen target, tab serialization",
+    "files": [
+      {
+        "relativePath": "build/Riftlet.app/Contents/MacOS/Riftlet",
+        "sha256": "215293b7f03493eb1ec4f5c80788a4edb5e8447d6d170c0dfb6cbc347b4eae6a",
+        "bytes": 2236720
+      },
+      {
+        "relativePath": "build/Riftlet.app/Contents/Resources/Riftlet_RiftletAdapters.bundle/Contents/Resources/chatgpt-web-20261027.js",
+        "sha256": "9b6ab99ed74d117ee0e9109546db81e0acbedcf99dc0f8e045e384b54b3a7e6f",
+        "bytes": 25424
+      }
+    ]
+  },
+  "reviews": [
+    "late_failure: compensation and tab-lock implementation proposal/tests; actual SQLite smokes",
+    "web_safety: Chrome/page implementation, click binding and lock-scope review, evidence review",
+    "native_gui: non-author Core/App/UI review; no new wrong-target/UNKNOWN bypass found; unarmed-click limitation retained"
+  ],
+  "admission": {
+    "productionUploadEnabled": false,
+    "productionCompletionProfiles": [],
+    "safeRetryProfiles": []
+  },
+  "scope": "CI and self-checks are not live GUI or ChatGPT evidence; consult live-evidence.json and README.md"
+}

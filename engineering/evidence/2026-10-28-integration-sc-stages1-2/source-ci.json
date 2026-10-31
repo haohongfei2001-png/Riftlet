@@ -1,0 +1,160 @@
+{
+  "runID": 40662720558,
+  "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/40662720558",
+  "headSHA": "f2ae645451044649fbe73326952efbe084353869",
+  "event": "pull_request",
+  "status": "completed",
+  "conclusion": "success",
+  "createdAt": "2026-10-28T09:14:38Z",
+  "completedAt": "2026-10-28T09:16:55Z",
+  "actualCheckout": "3be371d10c2a7a0482faa2cf82eb6aca6399aaaa",
+  "actualCheckoutParents": [
+    "4b7228a07a23381d3de467a44dd8490d73e26e7e",
+    "f2ae645451044649fbe73326952efbe084353869"
+  ],
+  "checkoutTree": "33494e55f3e067782fa2b5f97d61450776f88286",
+  "reviewedTree": "33494e55f3e067782fa2b5f97d61450776f88286",
+  "wholeTreeEquality": true,
+  "jobs": [
+    {
+      "id": 122729461430,
+      "name": "macos",
+      "status": "completed",
+      "conclusion": "success",
+      "run_id": 40662720558,
+      "logs_url": null,
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Record compiler and OS",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Replay archived Web evidence offline",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Exercise integrated page program with synthetic DOM",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Exercise round-two fault harness offline",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6
+        },
+        {
+          "name": "Exercise round-three diagnostic probe offline",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7
+        },
+        {
+          "name": "Verify round-five diagnostic evidence helpers offline",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8
+        },
+        {
+          "name": "Verify system-screenshot stage-two diagnostic fixtures",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9
+        },
+        {
+          "name": "Native unit and integration tests",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10
+        },
+        {
+          "name": "Verify packaging rejection paths offline",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11
+        },
+        {
+          "name": "Report software panel lifecycle outcomes",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 12
+        },
+        {
+          "name": "Package native application",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 13
+        },
+        {
+          "name": "Run packaged executable with synthetic data",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 14
+        },
+        {
+          "name": "Validate and archive synthetic GUI acceptance helper",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 15
+        },
+        {
+          "name": "Archive evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 16
+        },
+        {
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 32
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 33
+        }
+      ]
+    }
+  ],
+  "artifacts": [
+    {
+      "id": 12804193464,
+      "name": "native-foundation-3be371d10c2a7a0482faa2cf82eb6aca6399aaaa",
+      "size_in_bytes": 1923964,
+      "url": "https://api.github.com/repos/haohongfei2001-png/Riftlet/actions/artifacts/12804193464",
+      "archive_download_url": "https://api.github.com/repos/haohongfei2001-png/Riftlet/actions/artifacts/12804193464/zip",
+      "expired": false,
+      "created_at": "2026-10-28T09:16:51Z",
+      "expires_at": "2026-11-11T09:16:50Z",
+      "updated_at": "2026-10-28T09:16:51Z",
+      "digest": "sha256:60c24150d4478730ba1a3540e097adc085fff9b8912868b552743f861aed5cb4",
+      "workflow_run": {
+        "id": 40662720558,
+        "repository_id": 1434252036,
+        "head_repository_id": 1434252036,
+        "head_branch": "codex/riftlet-real-mac-acceptance-sc-integration-20261028",
+        "head_sha": "f2ae645451044649fbe73326952efbe084353869"
+      }
+    }
+  ],
+  "scope": "New macOS integration source CI, no real screenshot input or production admission. Exact final documentation HEAD CI to be fixed in PR #1 handoff."
+}

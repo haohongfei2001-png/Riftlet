@@ -1,0 +1,6 @@
+{
+  "observedAt": "2026-10-29T14:00:19.183Z",
+  "table": "id\tstate\tpayload_hash\tdelete_requested\tissue_number\tpayload_is_null\tcreated\n0fa0a07f-76d3-4815-bee3-22f60dcdbdcb\tpending\t72b7d9f0acb1b5b5d9a34c8397f4c84e9980bec9f8e051c93d239636dfbf7e4e\t0\t<null>\t0\t1793281967\n6b8a8849-6ffc-4805-ae4e-e37cfa00f342\tpending\t359fc12aea66375f9e30ec979e4cc1195805d21800301801531600483237f01b\t0\t<null>\t0\t1793281966",
+  "databaseId": "4167f4a2-5dfd-422d-86ca-077176fc8600",
+  "source": "Cloudflare D1 Console, actual read-only query"
+}

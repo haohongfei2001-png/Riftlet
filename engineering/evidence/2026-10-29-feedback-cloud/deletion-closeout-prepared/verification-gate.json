@@ -1,0 +1,55 @@
+{
+  "scope": "Prepared conditional closeout and independent verification parameters only; no database or network action executed",
+  "databaseID": "4167f4a2-5dfd-422d-86ca-077176fc8600",
+  "repository": "haohongfei2001-png/Riftlet-Feedback",
+  "repositoryID": "1437354611",
+  "targets": [
+    {
+      "case": "plain",
+      "id": "9650fede-d514-4672-81f7-c92d2fa1afd2",
+      "issue_number": 1,
+      "issue_node_id": "I_kwDOVaxKc88AAAABa8HXFg"
+    },
+    {
+      "case": "diagnostic",
+      "id": "5b11fd1c-80a9-4a41-8790-0b1296bd6401",
+      "issue_number": 2,
+      "issue_node_id": "I_kwDOVaxKc88AAAABa8HZEQ"
+    },
+    {
+      "case": "lost_receipt",
+      "id": "2b2dd0e6-c966-4910-93a0-e96b5510a056",
+      "issue_number": 3,
+      "issue_node_id": "I_kwDOVaxKc88AAAABa8HbSw"
+    }
+  ],
+  "executionGate": [
+    "Root observes real owner UI permanent deletion for exactly Issues #1, #2, #3",
+    "Independent current GitHub repository metadata read succeeds with same ID/name and private visibility",
+    "Each exact Issue API request explicitly reports HTTP 404 under the same authorized connection",
+    "The same authorized connection successfully returns the complete state=all Issue list with zero items",
+    "Root has verified normal late reconcile preserved the diagnostic deletion intent and resolved original Issue #2 identity; all SQL guards match"
+  ],
+  "readOnlyRequests": {
+    "repositoryMetadata": {
+      "repository_full_name": "haohongfei2001-png/Riftlet-Feedback"
+    },
+    "issueURLs": [
+      "https://api.github.com/repos/haohongfei2001-png/Riftlet-Feedback/issues/1",
+      "https://api.github.com/repos/haohongfei2001-png/Riftlet-Feedback/issues/2",
+      "https://api.github.com/repos/haohongfei2001-png/Riftlet-Feedback/issues/3"
+    ],
+    "completeListURL": "https://api.github.com/repos/haohongfei2001-png/Riftlet-Feedback/issues?state=all&per_page=100&page=1"
+  },
+  "evidenceRules": [
+    "404 alone is insufficient: require successful private repo metadata and successful complete Issues list under the same connection",
+    "401, 403, missing-scope, disconnected-auth, transport failures, unavailable metadata/list, or an error with no explicit HTTP status are BLOCKED or UNKNOWN, never deletion PASS",
+    "A nonempty list or any surviving exact Issue is not complete cleanup; preserve the actual response",
+    "Closing an Issue does not qualify: state=all must be empty and exact Issue resource must be unavailable after root observed permanent deletion",
+    "Private raw connector output stays in 0700 directory with 0600 files; public evidence contains only metadata, timestamps, hashes, booleans and explicit status",
+    "Only root executes conditional state transitions after the entire gate; zero changed rows requires inspecting the existing guards rather than loosening them",
+    "Keep tombstones and remaining retention/backup limits; this cannot prove erasure of provider backups"
+  ],
+  "mutationRule": "Only SET state=deleted with exact feedbackID, Issue number/node, delete_requested=1, payload IS NULL and state=deletion_pending; no other fields, clock changes, row deletion or identity reuse",
+  "status": "PREPARED_NOT_EXECUTED"
+}

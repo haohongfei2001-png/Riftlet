@@ -1,0 +1,96 @@
+{
+  "schema": 3,
+  "tables": {
+    "assets": {
+      "before": 8,
+      "after": 8
+    },
+    "operations": {
+      "before": 5,
+      "after": 5
+    },
+    "checkpoints": {
+      "before": 20,
+      "after": 20
+    },
+    "compensations": {
+      "before": 0,
+      "after": 0
+    },
+    "upload_starts": {
+      "before": 1,
+      "after": 1
+    },
+    "metadata": {
+      "before": 1,
+      "after": 2
+    }
+  },
+  "changedColumns": {
+    "assets": {},
+    "operations": {
+      "updated_at": 3,
+      "receipt_json": 1
+    },
+    "checkpoints": {},
+    "upload_starts": {},
+    "metadata": {}
+  },
+  "allOriginalRowsPresent": true,
+  "originalFiles": {
+    "count": 19,
+    "missingCount": 0,
+    "changedCount": 0,
+    "changedCategories": []
+  },
+  "assetStates": [
+    [
+      "failed",
+      "visible",
+      1
+    ],
+    [
+      "pending",
+      "visible",
+      3
+    ],
+    [
+      "unknown",
+      "visible",
+      3
+    ],
+    [
+      "used",
+      "swallowed",
+      1
+    ]
+  ],
+  "operationStates": [
+    [
+      "failed",
+      1
+    ],
+    [
+      "succeeded",
+      1
+    ],
+    [
+      "unknown",
+      3
+    ]
+  ],
+  "mediaPreserved": true,
+  "protectedOperationsUnchanged": true,
+  "checkpointRowsUnchanged": true,
+  "originalSystemImagesExpected": 8,
+  "matchingSourceBytesStillPresent": 8,
+  "allOriginalSourcesPreserved": true,
+  "receiptSemanticContentUnchanged": true,
+  "ordinaryDataWriterOpened": false,
+  "feedbackDraftOnly": {
+    "reports": 0,
+    "submissions": 0,
+    "credentialIntents": 0
+  },
+  "userHiddenFinal": false
+}

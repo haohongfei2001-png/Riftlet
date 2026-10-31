@@ -1,0 +1,87 @@
+2026-10-27T08:04:56.8615040Z HEAD is now at f202d50 Merge aa4fd2b9ed64efb83d9b7c8b29102cbd91d03e2b into eba1a4fc77648a665e1d5c1f2609df1314c3b079
+2026-10-27T08:04:59.6748640Z Apple Swift version 5.10 (swiftlang-5.10.0.13 clang-1500.3.9.4)
+2026-10-27T08:04:59.6940990Z ProductVersion:		14.8.9
+2026-10-27T08:04:59.6942350Z BuildVersion:		23J631
+2026-10-27T08:05:00.6223660Z # fail 0
+2026-10-27T08:05:00.6259330Z   "packageFilesVerified": 55,
+2026-10-27T08:05:00.6259590Z   "historicalV1Tests": 19,
+2026-10-27T08:05:00.6259840Z   "realExceptionTracePrefixes": 89,
+2026-10-27T08:05:00.6260290Z   "lateErrorChecks": "2 SIMULATED, not actual post-preview failure",
+2026-10-27T08:05:01.1788620Z # tests 38
+2026-10-27T08:05:01.1792630Z # pass 38
+2026-10-27T08:05:01.1793470Z # fail 0
+2026-10-27T08:05:01.4761920Z PASS exact POST100 one-abort, app retry passthrough, deadline restoration
+2026-10-27T08:05:01.4964530Z PASS MID native progress bound
+2026-10-27T08:05:01.5132170Z PASS wrong File hash closes without fault
+2026-10-27T08:05:01.5151840Z PASS unrelated URL immediate pass, duplicate input closes
+2026-10-27T08:05:01.5328520Z PASS next generated input atomically freezes UUID/name, exact bytes abort, duplicate closes
+2026-10-27T08:05:01.5341300Z PASS next-input unexpected name closes without adopting identity
+2026-10-27T08:05:01.5655210Z PASS event-bound stop publishes STOPPED receipt and restores hooks
+2026-10-27T08:05:01.6001960Z PASS deadline releases pending clone reader without cancelling or consuming original response
+2026-10-27T08:05:02.0116620Z PASS no inspection before own input; original fetch Promise and arguments preserved
+2026-10-27T08:05:02.0851840Z PASS exact-name response association, immutable Blob hash, no request/signal replacement or abort
+2026-10-27T08:05:02.1524340Z PASS slow clone never delays original response; deadline cancels clone only; no post-stop receipt mutation
+2026-10-27T08:05:02.2436910Z PASS two own-name JSON requests remain separate route candidates; never labelled retry
+2026-10-27T08:05:02.2893450Z PASS request preceding clone parse is associated later without delaying native send
+2026-10-27T08:05:02.3602910Z PASS different-size body records hash mismatch only, without inferring compression/retry
+2026-10-27T08:05:02.4509930Z PASS Request streams and mutable buffers remain unread; shape evidence does not invent hashes
+2026-10-27T08:05:02.5043310Z PASS exact named multipart file-part hash; no field names or values logged
+2026-10-27T08:05:02.5514980Z PASS dynamic generated-input binding; duplicate/wrong-name/wrong-hash closes and restores
+2026-10-27T08:05:02.5963160Z PASS native XHR exceptions and fetch rejections pass through unchanged
+2026-10-27T08:05:02.9916800Z PASS bounded temporary metadata, third-party hook preservation and active fault-hook refusal
+2026-10-27T08:05:03.0387160Z PASS bounded response clone reading does not truncate application response
+2026-10-27T08:05:03.0388430Z 12 read-only network-probe VM groups PASS; real MID interception/abort NOT_RUN
+2026-10-27T08:05:30.5044850Z Build complete! (25.40s)
+2026-10-27T08:05:34.3938360Z [45/228] Testing RiftletCoreTests.LateFailureCompensationTests/testCompensationCoexistsWithNewerInFlightImageAndBlocksFurtherDispatch
+2026-10-27T08:05:34.5525780Z [46/228] Testing RiftletCoreTests.LateFailureCompensationTests/testCompensationTransactionFailurePreservesSuccessAndCanBeRetriedOnce
+2026-10-27T08:05:35.3601360Z [47/228] Testing RiftletCoreTests.LateFailureCompensationTests/testCompletedObservationCompensatesOnlyMatchingAssetWithoutNewInput
+2026-10-27T08:05:35.4205440Z [48/228] Testing RiftletCoreTests.LateFailureCompensationTests/testCompletedObservationTransportFailurePreservesTerminalSuccess
+2026-10-27T08:05:35.4773690Z [49/228] Testing RiftletCoreTests.LateFailureCompensationTests/testCompletedObservationWithoutOriginalDraftMembershipDoesNotRevive
+2026-10-27T08:05:35.5494380Z [50/228] Testing RiftletCoreTests.LateFailureCompensationTests/testCorrelatedLateErrorRestoresOriginalQueuePositionAndPersistsBothFacts
+2026-10-27T08:05:35.6287400Z [51/228] Testing RiftletCoreTests.LateFailureCompensationTests/testMigrationFailureRollsBackSchemaReceiptsAndVersion
+2026-10-27T08:05:35.7036430Z [52/228] Testing RiftletCoreTests.LateFailureCompensationTests/testMissingRestoredBytesStayMissingAcrossObservationAndRestart
+2026-10-27T08:05:35.7647350Z [53/228] Testing RiftletCoreTests.LateFailureCompensationTests/testRepeatedFailureAndStaleSuccessCannotConsumeCompensationOrReplaceAudit
+2026-10-27T08:05:35.9591140Z [54/228] Testing RiftletCoreTests.LateFailureCompensationTests/testRestartWatchCapsCallerRequestedLimitAt64
+2026-10-27T08:05:36.0240490Z [55/228] Testing RiftletCoreTests.LateFailureCompensationTests/testRestartWatchQueryIsBoundedAndExcludesInactiveSuccesses
+2026-10-27T08:05:36.0844210Z [56/228] Testing RiftletCoreTests.LateFailureCompensationTests/testSelectingAndRecoveringCompensationOnlyObservesOriginalOperation
+2026-10-27T08:05:36.1562480Z [57/228] Testing RiftletCoreTests.LateFailureCompensationTests/testVersionOneMigrationPreservesReceiptsOrderAndLocks
+2026-10-27T08:05:36.2297020Z [58/228] Testing RiftletCoreTests.LateFailureCompensationTests/testWrongAttachmentProfileDraftAndNonErrorCannotRestoreUsedImage
+2026-10-27T08:05:36.2958170Z [59/228] Testing RiftletCoreTests.LogicalDraftIdentityTests/testDifferentAdmittedDraftsInSameTabDoNotConflict
+2026-10-27T08:05:36.3453860Z [60/228] Testing RiftletCoreTests.LogicalDraftIdentityTests/testDifferentTabsRemainIndependentIncludingLegacyFallback
+2026-10-27T08:05:36.4100850Z [61/228] Testing RiftletCoreTests.LogicalDraftIdentityTests/testLegacyCompensationKeepsWildcardLockAndOriginalAuditAfterReopen
+2026-10-27T08:05:36.4553450Z [62/228] Testing RiftletCoreTests.LogicalDraftIdentityTests/testLegacyJSONDecodesNilWithoutInventingLogicalIdentity
+2026-10-27T08:05:36.5015090Z [63/228] Testing RiftletCoreTests.LogicalDraftIdentityTests/testLegacyNilAndProvedIdentityConflictInBothDirections
+2026-10-27T08:05:36.5707830Z [64/228] Testing RiftletCoreTests.LogicalDraftIdentityTests/testLegacyUnknownKeepsWildcardLockAfterDatabaseReopen
+2026-10-27T08:05:36.6296530Z [65/228] Testing RiftletCoreTests.LogicalDraftIdentityTests/testLogicalDraftIdentityDoesNotRelaxReceiptTargetEquality
+2026-10-27T08:05:36.6817140Z [66/228] Testing RiftletCoreTests.LogicalDraftIdentityTests/testOtherSurfacesAndMissingTabKeepExactStableKeyBehavior
+2026-10-27T08:05:36.7433040Z [67/228] Testing RiftletCoreTests.LogicalDraftIdentityTests/testProvedUnknownAllowsDifferentDraftButStillBlocksSameDraftAfterReopen
+2026-10-27T08:05:36.7915270Z [68/228] Testing RiftletCoreTests.LogicalDraftIdentityTests/testSameLogicalDraftSurvivesRearmWindowMoveAndDocumentChange
+2026-10-27T08:05:36.8391160Z [69/228] Testing RiftletCoreTests.LogicalDraftIdentityTests/testUnknownProfileOrInvalidIDFallsBackToWholeTabConflict
+2026-10-27T08:05:38.1654330Z [84/228] Testing RiftletAdaptersTests.MacClipboardCoordinatorTests/testConsumedObservationRequiresExactTombstoneAndNeverDisplacesAnotherOwner
+2026-10-27T08:05:38.9797520Z [95/228] Testing RiftletAdaptersTests.MacCoordinatedAdapterTests/testCompletedMacObservationCompensatesAndRecoversWithoutReacquiringClipboard
+2026-10-27T08:05:39.3241100Z [101/228] Testing RiftletAdaptersTests.MainWorldCommandEnvelopeTests/testEmptyMissingMalformedAndScalarRepliesAreRejected
+2026-10-27T08:05:39.3669030Z [102/228] Testing RiftletAdaptersTests.MainWorldCommandEnvelopeTests/testErrorReplyAndUnexpectedFieldsAreRejected
+2026-10-27T08:05:39.4120340Z [103/228] Testing RiftletAdaptersTests.MainWorldCommandEnvelopeTests/testMatchingNonceAndObjectReturnsOnlyResult
+2026-10-27T08:05:39.4591880Z [104/228] Testing RiftletAdaptersTests.MainWorldCommandEnvelopeTests/testOnlyClosedCodeOwnedPageRejectionsAreDecoded
+2026-10-27T08:05:39.5183010Z [105/228] Testing RiftletAdaptersTests.MainWorldCommandEnvelopeTests/testOversizedReplyRejectedByUTF8ByteCount
+2026-10-27T08:05:39.5767220Z [106/228] Testing RiftletAdaptersTests.MainWorldCommandEnvelopeTests/testPageExceptionProducesOnlyCodeOwnedFailureAndCannotDecodeSuccess
+2026-10-27T08:05:39.6262870Z [107/228] Testing RiftletAdaptersTests.MainWorldCommandEnvelopeTests/testReadingLostReplyNeverExecutesCommandAgain
+2026-10-27T08:05:39.6841750Z [108/228] Testing RiftletAdaptersTests.MainWorldCommandEnvelopeTests/testWrongNonceAndAnotherEnvelopeReplyAreRejected
+2026-10-27T08:05:39.9881600Z [112/228] Testing RiftletAdaptersTests.NativeMacAXDriverTests/testCompletedAndCompensatedObserveNeverAcquireClipboardOrPermitPaste
+2026-10-27T08:05:43.5898580Z [192/228] Testing RiftletCoreTests.TargetArmSchedulerTests/testBurstDuringInflightCoalescesOneFollowupWithoutParallelWork
+2026-10-27T08:05:43.5911580Z [193/228] Testing RiftletCoreTests.TargetArmSchedulerTests/testInvalidatingInflightEpochRejectsACKAndWakesOnlyOneReplacement
+2026-10-27T08:05:43.5984920Z [194/228] Testing RiftletCoreTests.TargetArmSchedulerTests/testCompletionFromAnotherSchedulerCannotReleaseOwnFlight
+2026-10-27T08:05:43.6612940Z [195/228] Testing RiftletCoreTests.TargetArmSchedulerTests/testInvalidationBeforeBeginRetainsSingleWakeAndUsesNewestEpoch
+2026-10-27T08:05:43.6717080Z [196/228] Testing RiftletCoreTests.TargetArmSchedulerTests/testNoAutomaticRetryAfterCompletedAttemptWithoutNewDemand
+2026-10-27T08:05:43.6833140Z [197/228] Testing RiftletCoreTests.TargetArmSchedulerTests/testRestartWaitsForOldTransportAndRejectsItsACK
+2026-10-27T08:05:43.7331500Z [198/228] Testing RiftletCoreTests.TargetArmSchedulerTests/testStopRejectsACKWithoutCancelingOrRearming
+2026-10-27T08:05:43.7433510Z [199/228] Testing RiftletCoreTests.TargetArmSchedulerTests/testStoppedRequestsCannotStartWorkAndStartWakesOnce
+2026-10-27T08:05:44.6460630Z [224/228] Testing RiftletCoreTests.WebTargetLockTests/testCompensatedSameTabRearmRemainsLockedAcrossRestart
+2026-10-27T08:05:44.7047560Z [225/228] Testing RiftletCoreTests.WebTargetLockTests/testUnknownBlocksSameTabAfterRearmWindowMoveAndDocumentReplacement
+2026-10-27T08:05:44.7357460Z [226/228] Testing RiftletCoreTests.WebTargetLockTests/testPreparedLeaseDoesNotLockDispatchOfAnotherAsset
+2026-10-27T08:05:44.7358390Z [227/228] Testing RiftletCoreTests.WebTargetLockTests/testOtherSurfacesAndUnidentifiedChromeTabsKeepExactTargetLock
+2026-10-27T08:05:44.7573250Z [228/228] Testing RiftletCoreTests.WebTargetLockTests/testUnknownDoesNotLockAnotherTabOrBrowserSession
+2026-10-27T08:06:09.7079330Z Build complete! (24.61s)
+2026-10-27T08:06:10.9735900Z RIFTLET_SELF_CHECK_PASS: private import, durable queue, synthetic receipt, restart
+2026-10-27T08:06:11.0542090Z RIFTLET_WEB_ACCEPTANCE_SELF_CHECK_PASS: bundled page source, synthetic-only policy, isolated modes; CHROME_NOT_RUN; GUI_NOT_RUN
+2026-10-27T08:06:11.5561380Z RIFTLET_GUI_HELPER_SELF_CHECK_PASS: 12 synthetic PNGs; scenes 2/3/12; layout/status fixtures; GUI_NOT_RUN

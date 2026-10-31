@@ -1,0 +1,3 @@
+SELECT id,state,created,expires,checked_at,attempt_at,delete_requested,issue_number,issue_node_id,payload_hash,(payload IS NULL) AS payload_is_null,length(payload) AS payload_characters,json_valid(payload) AS payload_valid_json FROM feedback WHERE id IN ('6b8a8849-6ffc-4805-ae4e-e37cfa00f342','0fa0a07f-76d3-4815-bee3-22f60dcdbdcb','083ca5ca-d1f4-44f6-9a3e-1c32f8850cc9','bd84bc6b-905b-4835-8a2e-277896131723','35bc1586-1b37-41ed-b6e5-87221bd6a3d2') ORDER BY id;
+SELECT id,COUNT(*) AS row_count FROM feedback WHERE id IN ('6b8a8849-6ffc-4805-ae4e-e37cfa00f342','0fa0a07f-76d3-4815-bee3-22f60dcdbdcb','083ca5ca-d1f4-44f6-9a3e-1c32f8850cc9','bd84bc6b-905b-4835-8a2e-277896131723','35bc1586-1b37-41ed-b6e5-87221bd6a3d2') GROUP BY id;
+SELECT id,daily,hourly FROM limits WHERE id=1;

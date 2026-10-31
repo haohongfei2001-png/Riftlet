@@ -1,0 +1,50 @@
+{
+  "status": "GATE_SATISFIED_FOR_EXACT_THREE_ISSUES",
+  "scope": "Case-specific amendment of anticipated absent-resource status after actual official GitHub API semantics verification; original preparation and raw410 preserved",
+  "originalGateSHA256": "ff88fd5ee1cffe88cea1b3ec71af3dab5eefd9f8de39648199858b92d84647ca",
+  "originalExpectedStatus": 404,
+  "actualObservedStatus": 410,
+  "officialReference": "https://docs.github.com/en/rest/issues/issues#get-an-issue",
+  "officialSemanticsParaphrase": "A deleted issue returns410 Gone when the authenticated user has read access. Deleted or transferred issues may return404 when read access is absent. Therefore404-only was an inaccurate expectation for this authorized read context.",
+  "targets": [
+    {
+      "case": "plain",
+      "id": "9650fede-d514-4672-81f7-c92d2fa1afd2",
+      "issue_number": 1,
+      "issue_node_id": "I_kwDOVaxKc88AAAABa8HXFg"
+    },
+    {
+      "case": "diagnostic",
+      "id": "5b11fd1c-80a9-4a41-8790-0b1296bd6401",
+      "issue_number": 2,
+      "issue_node_id": "I_kwDOVaxKc88AAAABa8HZEQ"
+    },
+    {
+      "case": "lost_receipt",
+      "id": "2b2dd0e6-c966-4910-93a0-e96b5510a056",
+      "issue_number": 3,
+      "issue_node_id": "I_kwDOVaxKc88AAAABa8HbSw"
+    }
+  ],
+  "requiredObservedConditions": [
+    "Owner executed permanent Delete issue and confirmed Delete for each exact target",
+    "Same authorized connector successfully read correct repository ID/name, private visibility and read access",
+    "Each exact Issue endpoint explicitly returned structured provider status410 with exact message This issue was deleted",
+    "The same connection successfully returned complete state=all page1/per_page100 with empty array",
+    "Normal production cron resolved original diagnostic Issue2 identity without resetting its attempt time, and preserved delete1/payloadNULL/deletion_pending"
+  ],
+  "rejectedEvidence": [
+    "Any generic connector error without explicit status",
+    "401 or403, unavailable permissions or failed repository/list read",
+    "Redirect, missing response or transport failure",
+    "Issue closed only or list filtered to open only",
+    "A404 alone without established authorized resource context"
+  ],
+  "sqlChange": "NONE; original full-identity guarded SQL remains byte-identical",
+  "mustNotClaim": [
+    "Direct independent capture of diagnostic201",
+    "Provider backups immediately erased",
+    "Actual native App or Mac GUI acceptance",
+    "D1 finalization completed before executing and observing the guarded transition"
+  ]
+}

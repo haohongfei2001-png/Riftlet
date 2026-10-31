@@ -1,0 +1,137 @@
+{
+  "result": "PASS",
+  "scope": "13 editable SVG/PNG artboards; native runtime not tested",
+  "checks": [
+    {
+      "file": "00-overview.svg",
+      "width": 1500,
+      "height": 1392,
+      "text_elements": 729,
+      "raster_elements": 0,
+      "duplicate_ids": 0,
+      "external_links": 0,
+      "png_sha256": "9750c6a26a24e92de89abecd28f7fba36b8f01e355570ad27c3bd9cfc4717cae"
+    },
+    {
+      "file": "01-light-chat-1440.svg",
+      "width": 1440,
+      "height": 900,
+      "text_elements": 50,
+      "raster_elements": 0,
+      "duplicate_ids": 0,
+      "external_links": 0,
+      "png_sha256": "53087fad2e466232f2aab4a5a6c8b223f037c23e704e1bcfc7d444bf0d1fcd16"
+    },
+    {
+      "file": "02-dark-notes-1440.svg",
+      "width": 1440,
+      "height": 900,
+      "text_elements": 80,
+      "raster_elements": 0,
+      "duplicate_ids": 0,
+      "external_links": 0,
+      "png_sha256": "d21ec7671905957b505199190ff2ef7ae05f0faf89bd1667e81f55ced310d182"
+    },
+    {
+      "file": "03-compact-finder-1280.svg",
+      "width": 1280,
+      "height": 800,
+      "text_elements": 106,
+      "raster_elements": 0,
+      "duplicate_ids": 0,
+      "external_links": 0,
+      "png_sha256": "46b443c2e01ffa6159cff5fd603167af1a207272c29cb72f1c94a4e92d12faa5"
+    },
+    {
+      "file": "04-external-2560.svg",
+      "width": 2560,
+      "height": 1440,
+      "text_elements": 115,
+      "raster_elements": 0,
+      "duplicate_ids": 0,
+      "external_links": 0,
+      "png_sha256": "e8f0ec3048aee084aefed44b816cec96d0af322b04e78e647409a4815e7bbcde"
+    },
+    {
+      "file": "05-empty-desktop-1440.svg",
+      "width": 1440,
+      "height": 900,
+      "text_elements": 9,
+      "raster_elements": 0,
+      "duplicate_ids": 0,
+      "external_links": 0,
+      "png_sha256": "b621413071e0d0b2c1d2ecc8a2de98ee5c4c047d5b43c7306eef750c54dd75b5"
+    },
+    {
+      "file": "06-entry-expanded-1440.svg",
+      "width": 1440,
+      "height": 900,
+      "text_elements": 50,
+      "raster_elements": 0,
+      "duplicate_ids": 0,
+      "external_links": 0,
+      "png_sha256": "3ac0689cbecc91e33454a1c472bd1489c47b0caad3f90f4e7f8d3b02106821f8"
+    },
+    {
+      "file": "07-waiting-before-start-1440.svg",
+      "width": 1440,
+      "height": 900,
+      "text_elements": 52,
+      "raster_elements": 0,
+      "duplicate_ids": 0,
+      "external_links": 0,
+      "png_sha256": "594907bb347b7ca184b544c9a3185b4ed2f00dbc4eb4df9db0b23993bab842c7"
+    },
+    {
+      "file": "08-unknown-history-1440.svg",
+      "width": 1440,
+      "height": 900,
+      "text_elements": 102,
+      "raster_elements": 0,
+      "duplicate_ids": 0,
+      "external_links": 0,
+      "png_sha256": "69e8d5247a3ba4ff06a691e1cba445d12e860bd5ee80fe688f096599507984c5"
+    },
+    {
+      "file": "09-native-first-use.svg",
+      "width": 608,
+      "height": 608,
+      "text_elements": 24,
+      "raster_elements": 0,
+      "duplicate_ids": 0,
+      "external_links": 0,
+      "png_sha256": "cbeef2f42c60a7650a29b4f708080672abaf9384fd958897c42acabab04eb936"
+    },
+    {
+      "file": "10-native-settings.svg",
+      "width": 728,
+      "height": 608,
+      "text_elements": 29,
+      "raster_elements": 0,
+      "duplicate_ids": 0,
+      "external_links": 0,
+      "png_sha256": "1733ee28afa697f7707e2301c3a5a9a060c55fd20e0b906158b745308fd2e10d"
+    },
+    {
+      "file": "11-native-history.svg",
+      "width": 808,
+      "height": 648,
+      "text_elements": 63,
+      "raster_elements": 0,
+      "duplicate_ids": 0,
+      "external_links": 0,
+      "png_sha256": "79fb97ddfb3ca03c9dfe86c8ed0734070c06c996b47c4c75c8ab328d3dd232eb"
+    },
+    {
+      "file": "12-native-feedback.svg",
+      "width": 648,
+      "height": 628,
+      "text_elements": 23,
+      "raster_elements": 0,
+      "duplicate_ids": 0,
+      "external_links": 0,
+      "png_sha256": "140210aeb76f10ad7b6dac703539af192f9c831bd2545a56091826c009f07836"
+    }
+  ],
+  "final_alignment": "Single physical-pixel line only. At 2x: 0.5pt. Light rgba(24,40,33,.62); dark rgba(224,237,226,.28). Ordinal/image gap 8pt. 08–12 use same native window structures and glyph paths as prototype/windows.js. Final color-only alignment leaves 05 and 09–12 PNG hashes unchanged."
+}

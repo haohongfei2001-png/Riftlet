@@ -1,0 +1,594 @@
+{
+  "clocks": "native uptime relative to click and document performance relative to file input are kept separate",
+  "native": [
+    {
+      "action": "begin",
+      "startAfterClickMS": 177.00429167598486,
+      "endAfterClickMS": 223.91729173250496,
+      "transportSucceeded": true
+    },
+    {
+      "action": "chunk",
+      "startAfterClickMS": 225.55637499317527,
+      "endAfterClickMS": 288.0301250843331,
+      "transportSucceeded": true
+    },
+    {
+      "action": "chunk",
+      "startAfterClickMS": 290.5890833353624,
+      "endAfterClickMS": 354.2300417320803,
+      "transportSucceeded": true
+    },
+    {
+      "action": "chunk",
+      "startAfterClickMS": 355.632874998264,
+      "endAfterClickMS": 420.017791679129,
+      "transportSucceeded": true
+    },
+    {
+      "action": "chunk",
+      "startAfterClickMS": 421.5334167238325,
+      "endAfterClickMS": 486.3863750360906,
+      "transportSucceeded": true
+    },
+    {
+      "action": "chunk",
+      "startAfterClickMS": 487.70599998533726,
+      "endAfterClickMS": 553.886333364062,
+      "transportSucceeded": true
+    },
+    {
+      "action": "chunk",
+      "startAfterClickMS": 555.3338750032708,
+      "endAfterClickMS": 620.060708373785,
+      "transportSucceeded": true
+    },
+    {
+      "action": "chunk",
+      "startAfterClickMS": 621.5388333657756,
+      "endAfterClickMS": 686.5801666863263,
+      "transportSucceeded": true
+    },
+    {
+      "action": "chunk",
+      "startAfterClickMS": 688.0883750272915,
+      "endAfterClickMS": 752.7747083222494,
+      "transportSucceeded": true
+    },
+    {
+      "action": "chunk",
+      "startAfterClickMS": 754.4008750701323,
+      "endAfterClickMS": 821.7942083720118,
+      "transportSucceeded": true
+    },
+    {
+      "action": "chunk",
+      "startAfterClickMS": 822.9845416499302,
+      "endAfterClickMS": 886.3370417384431,
+      "transportSucceeded": true
+    },
+    {
+      "action": "chunk",
+      "startAfterClickMS": 887.7310833195224,
+      "endAfterClickMS": 952.9303333256394,
+      "transportSucceeded": true
+    },
+    {
+      "action": "chunk",
+      "startAfterClickMS": 955.2737916819751,
+      "endAfterClickMS": 1019.2048749886453,
+      "transportSucceeded": true
+    },
+    {
+      "action": "chunk",
+      "startAfterClickMS": 1023.420958314091,
+      "endAfterClickMS": 1086.473458330147,
+      "transportSucceeded": true
+    },
+    {
+      "action": "chunk",
+      "startAfterClickMS": 1089.4517083652318,
+      "endAfterClickMS": 1152.5849583558738,
+      "transportSucceeded": true
+    },
+    {
+      "action": "chunk",
+      "startAfterClickMS": 1238.6647500097752,
+      "endAfterClickMS": 1303.4428750397637,
+      "transportSucceeded": true
+    },
+    {
+      "action": "chunk",
+      "startAfterClickMS": 1306.8392917048186,
+      "endAfterClickMS": 1368.8717916375026,
+      "transportSucceeded": true
+    },
+    {
+      "action": "chunk",
+      "startAfterClickMS": 1371.9790000468493,
+      "endAfterClickMS": 1439.944333396852,
+      "transportSucceeded": true
+    },
+    {
+      "action": "chunk",
+      "startAfterClickMS": 1442.4899166915566,
+      "endAfterClickMS": 1502.6600416749716,
+      "transportSucceeded": true
+    },
+    {
+      "action": "chunk",
+      "startAfterClickMS": 1504.264666698873,
+      "endAfterClickMS": 1568.9195416634902,
+      "transportSucceeded": true
+    },
+    {
+      "action": "chunk",
+      "startAfterClickMS": 1570.3766667284071,
+      "endAfterClickMS": 1639.7194999735802,
+      "transportSucceeded": true
+    },
+    {
+      "action": "chunk",
+      "startAfterClickMS": 1641.2184999790043,
+      "endAfterClickMS": 1702.7295000152662,
+      "transportSucceeded": true
+    },
+    {
+      "action": "chunk",
+      "startAfterClickMS": 1704.4027916854247,
+      "endAfterClickMS": 1769.4452917203307,
+      "transportSucceeded": true
+    },
+    {
+      "action": "chunk",
+      "startAfterClickMS": 1771.0591250797734,
+      "endAfterClickMS": 1836.6455417126417,
+      "transportSucceeded": true
+    },
+    {
+      "action": "chunk",
+      "startAfterClickMS": 1838.0846250802279,
+      "endAfterClickMS": 1902.5672500720248,
+      "transportSucceeded": true
+    },
+    {
+      "action": "chunk",
+      "startAfterClickMS": 1903.7720416672528,
+      "endAfterClickMS": 1969.0805000718683,
+      "transportSucceeded": true
+    },
+    {
+      "action": "chunk",
+      "startAfterClickMS": 1970.4335833666846,
+      "endAfterClickMS": 2036.0238749999553,
+      "transportSucceeded": true
+    },
+    {
+      "action": "commit",
+      "startAfterClickMS": 2036.7533334065229,
+      "endAfterClickMS": 2146.395125077106,
+      "transportSucceeded": true
+    }
+  ],
+  "page": [
+    {
+      "event": "original_input",
+      "afterInputMS": 0.30000001192092896,
+      "value": null,
+      "valueKind": "no-node",
+      "inputCount": 1,
+      "hashVerified": false,
+      "nodeIsOriginal": false,
+      "cardIsOriginal": false,
+      "hasAdapterStart": false
+    },
+    {
+      "event": "mutation_snapshot",
+      "afterInputMS": 21.600000023841858,
+      "value": null,
+      "valueKind": "missing",
+      "inputCount": 1,
+      "hashVerified": false,
+      "nodeIsOriginal": true,
+      "cardIsOriginal": true,
+      "hasAdapterStart": false
+    },
+    {
+      "event": "original_image_load",
+      "afterInputMS": 53.19999998807907,
+      "sourceKind": "blob",
+      "complete": true
+    },
+    {
+      "event": "mutation_snapshot",
+      "afterInputMS": 1948.699999988079,
+      "value": 2.4538636176318533,
+      "valueKind": "finite",
+      "inputCount": 1,
+      "hashVerified": true,
+      "nodeIsOriginal": true,
+      "cardIsOriginal": true,
+      "hasAdapterStart": false
+    },
+    {
+      "event": "mutation_snapshot",
+      "afterInputMS": 2151.400000035763,
+      "value": 3.6807954264477796,
+      "valueKind": "finite",
+      "inputCount": 1,
+      "hashVerified": true,
+      "nodeIsOriginal": true,
+      "cardIsOriginal": true,
+      "hasAdapterStart": true
+    },
+    {
+      "event": "mutation_snapshot",
+      "afterInputMS": 2253.0,
+      "value": 5.153113597026891,
+      "valueKind": "finite",
+      "inputCount": 1,
+      "hashVerified": true,
+      "nodeIsOriginal": true,
+      "cardIsOriginal": true,
+      "hasAdapterStart": true
+    },
+    {
+      "event": "mutation_snapshot",
+      "afterInputMS": 2356.100000023842,
+      "value": 6.380045405842819,
+      "valueKind": "finite",
+      "inputCount": 1,
+      "hashVerified": true,
+      "nodeIsOriginal": true,
+      "cardIsOriginal": true,
+      "hasAdapterStart": true
+    },
+    {
+      "event": "mutation_snapshot",
+      "afterInputMS": 2460.0,
+      "value": 7.852363576421929,
+      "valueKind": "finite",
+      "inputCount": 1,
+      "hashVerified": true,
+      "nodeIsOriginal": true,
+      "cardIsOriginal": true,
+      "hasAdapterStart": true
+    },
+    {
+      "event": "mutation_snapshot",
+      "afterInputMS": 2560.199999988079,
+      "value": 10.551613555816967,
+      "valueKind": "finite",
+      "inputCount": 1,
+      "hashVerified": true,
+      "nodeIsOriginal": true,
+      "cardIsOriginal": true,
+      "hasAdapterStart": true
+    },
+    {
+      "event": "mutation_snapshot",
+      "afterInputMS": 2661.300000011921,
+      "value": 13.250863535212007,
+      "valueKind": "finite",
+      "inputCount": 1,
+      "hashVerified": true,
+      "nodeIsOriginal": true,
+      "cardIsOriginal": true,
+      "hasAdapterStart": true
+    },
+    {
+      "event": "mutation_snapshot",
+      "afterInputMS": 2759.199999988079,
+      "value": 15.21395442931749,
+      "valueKind": "finite",
+      "inputCount": 1,
+      "hashVerified": true,
+      "nodeIsOriginal": true,
+      "cardIsOriginal": true,
+      "hasAdapterStart": true
+    },
+    {
+      "event": "mutation_snapshot",
+      "afterInputMS": 2865.300000011921,
+      "value": 17.17704532342297,
+      "valueKind": "finite",
+      "inputCount": 1,
+      "hashVerified": true,
+      "nodeIsOriginal": true,
+      "cardIsOriginal": true,
+      "hasAdapterStart": true
+    },
+    {
+      "event": "mutation_snapshot",
+      "afterInputMS": 2964.699999988079,
+      "value": 18.649363494002085,
+      "valueKind": "finite",
+      "inputCount": 1,
+      "hashVerified": true,
+      "nodeIsOriginal": true,
+      "cardIsOriginal": true,
+      "hasAdapterStart": true
+    },
+    {
+      "event": "mutation_snapshot",
+      "afterInputMS": 3068.600000023842,
+      "value": 21.348613473397123,
+      "valueKind": "finite",
+      "inputCount": 1,
+      "hashVerified": true,
+      "nodeIsOriginal": true,
+      "cardIsOriginal": true,
+      "hasAdapterStart": true
+    },
+    {
+      "event": "mutation_snapshot",
+      "afterInputMS": 3373.300000011921,
+      "value": 23.311704367502603,
+      "valueKind": "finite",
+      "inputCount": 1,
+      "hashVerified": true,
+      "nodeIsOriginal": true,
+      "cardIsOriginal": true,
+      "hasAdapterStart": true
+    },
+    {
+      "event": "mutation_snapshot",
+      "afterInputMS": 3478.300000011921,
+      "value": 25.274795261608084,
+      "valueKind": "finite",
+      "inputCount": 1,
+      "hashVerified": true,
+      "nodeIsOriginal": true,
+      "cardIsOriginal": true,
+      "hasAdapterStart": true
+    },
+    {
+      "event": "mutation_snapshot",
+      "afterInputMS": 3582.699999988079,
+      "value": 27.23788615571357,
+      "valueKind": "finite",
+      "inputCount": 1,
+      "hashVerified": true,
+      "nodeIsOriginal": true,
+      "cardIsOriginal": true,
+      "hasAdapterStart": true
+    },
+    {
+      "event": "mutation_snapshot",
+      "afterInputMS": 3683.0,
+      "value": 29.20097704981905,
+      "valueKind": "finite",
+      "inputCount": 1,
+      "hashVerified": true,
+      "nodeIsOriginal": true,
+      "cardIsOriginal": true,
+      "hasAdapterStart": true
+    },
+    {
+      "event": "mutation_snapshot",
+      "afterInputMS": 3786.900000035763,
+      "value": 31.654840667450905,
+      "valueKind": "finite",
+      "inputCount": 1,
+      "hashVerified": true,
+      "nodeIsOriginal": true,
+      "cardIsOriginal": true,
+      "hasAdapterStart": true
+    },
+    {
+      "event": "mutation_snapshot",
+      "afterInputMS": 3890.600000023842,
+      "value": 33.61793156155638,
+      "valueKind": "finite",
+      "inputCount": 1,
+      "hashVerified": true,
+      "nodeIsOriginal": true,
+      "cardIsOriginal": true,
+      "hasAdapterStart": true
+    },
+    {
+      "event": "mutation_snapshot",
+      "afterInputMS": 3992.800000011921,
+      "value": 35.58102245566187,
+      "valueKind": "finite",
+      "inputCount": 1,
+      "hashVerified": true,
+      "nodeIsOriginal": true,
+      "cardIsOriginal": true,
+      "hasAdapterStart": true
+    },
+    {
+      "event": "mutation_snapshot",
+      "afterInputMS": 4411.800000011921,
+      "value": 39.752590605636016,
+      "valueKind": "finite",
+      "inputCount": 1,
+      "hashVerified": true,
+      "nodeIsOriginal": true,
+      "cardIsOriginal": true,
+      "hasAdapterStart": true
+    },
+    {
+      "event": "mutation_snapshot",
+      "afterInputMS": 4509.300000011921,
+      "value": 43.92415875561017,
+      "valueKind": "finite",
+      "inputCount": 1,
+      "hashVerified": true,
+      "nodeIsOriginal": true,
+      "cardIsOriginal": true,
+      "hasAdapterStart": true
+    },
+    {
+      "event": "mutation_snapshot",
+      "afterInputMS": 4614.800000011921,
+      "value": 48.09572690558432,
+      "valueKind": "finite",
+      "inputCount": 1,
+      "hashVerified": true,
+      "nodeIsOriginal": true,
+      "cardIsOriginal": true,
+      "hasAdapterStart": true
+    },
+    {
+      "event": "mutation_snapshot",
+      "afterInputMS": 4721.5,
+      "value": 52.02190869379528,
+      "valueKind": "finite",
+      "inputCount": 1,
+      "hashVerified": true,
+      "nodeIsOriginal": true,
+      "cardIsOriginal": true,
+      "hasAdapterStart": true
+    },
+    {
+      "event": "mutation_snapshot",
+      "afterInputMS": 4817.600000023842,
+      "value": 55.94809048200625,
+      "valueKind": "finite",
+      "inputCount": 1,
+      "hashVerified": true,
+      "nodeIsOriginal": true,
+      "cardIsOriginal": true,
+      "hasAdapterStart": true
+    },
+    {
+      "event": "mutation_snapshot",
+      "afterInputMS": 4921.0,
+      "value": 60.36504499374359,
+      "valueKind": "finite",
+      "inputCount": 1,
+      "hashVerified": true,
+      "nodeIsOriginal": true,
+      "cardIsOriginal": true,
+      "hasAdapterStart": true
+    },
+    {
+      "event": "mutation_snapshot",
+      "afterInputMS": 5025.5,
+      "value": 64.29122678195455,
+      "valueKind": "finite",
+      "inputCount": 1,
+      "hashVerified": true,
+      "nodeIsOriginal": true,
+      "cardIsOriginal": true,
+      "hasAdapterStart": true
+    },
+    {
+      "event": "mutation_snapshot",
+      "afterInputMS": 5126.800000011921,
+      "value": 68.21740857016552,
+      "valueKind": "finite",
+      "inputCount": 1,
+      "hashVerified": true,
+      "nodeIsOriginal": true,
+      "cardIsOriginal": true,
+      "hasAdapterStart": true
+    },
+    {
+      "event": "mutation_snapshot",
+      "afterInputMS": 5233.400000035763,
+      "value": 71.89820399661329,
+      "valueKind": "finite",
+      "inputCount": 1,
+      "hashVerified": true,
+      "nodeIsOriginal": true,
+      "cardIsOriginal": true,
+      "hasAdapterStart": true
+    },
+    {
+      "event": "mutation_snapshot",
+      "afterInputMS": 5333.900000035763,
+      "value": 76.06977214658744,
+      "valueKind": "finite",
+      "inputCount": 1,
+      "hashVerified": true,
+      "nodeIsOriginal": true,
+      "cardIsOriginal": true,
+      "hasAdapterStart": true
+    },
+    {
+      "event": "mutation_snapshot",
+      "afterInputMS": 5436.699999988079,
+      "value": 79.99595393479841,
+      "valueKind": "finite",
+      "inputCount": 1,
+      "hashVerified": true,
+      "nodeIsOriginal": true,
+      "cardIsOriginal": true,
+      "hasAdapterStart": true
+    },
+    {
+      "event": "mutation_snapshot",
+      "afterInputMS": 5540.699999988079,
+      "value": 84.41290844653574,
+      "valueKind": "finite",
+      "inputCount": 1,
+      "hashVerified": true,
+      "nodeIsOriginal": true,
+      "cardIsOriginal": true,
+      "hasAdapterStart": true
+    },
+    {
+      "event": "mutation_snapshot",
+      "afterInputMS": 5639.800000011921,
+      "value": 88.5844765965099,
+      "valueKind": "finite",
+      "inputCount": 1,
+      "hashVerified": true,
+      "nodeIsOriginal": true,
+      "cardIsOriginal": true,
+      "hasAdapterStart": true
+    },
+    {
+      "event": "mutation_snapshot",
+      "afterInputMS": 5742.100000023842,
+      "value": 95.45529472587909,
+      "valueKind": "finite",
+      "inputCount": 1,
+      "hashVerified": true,
+      "nodeIsOriginal": true,
+      "cardIsOriginal": true,
+      "hasAdapterStart": true
+    },
+    {
+      "event": "mutation_snapshot",
+      "afterInputMS": 5842.0,
+      "value": 97.41838561998456,
+      "valueKind": "finite",
+      "inputCount": 1,
+      "hashVerified": true,
+      "nodeIsOriginal": true,
+      "cardIsOriginal": true,
+      "hasAdapterStart": true
+    },
+    {
+      "event": "mutation_snapshot",
+      "afterInputMS": 5942.0,
+      "value": 100,
+      "valueKind": "finite",
+      "inputCount": 1,
+      "hashVerified": true,
+      "nodeIsOriginal": true,
+      "cardIsOriginal": true,
+      "hasAdapterStart": true
+    },
+    {
+      "event": "mutation_snapshot",
+      "afterInputMS": 8490.699999988079,
+      "value": null,
+      "valueKind": "no-node",
+      "inputCount": 1,
+      "hashVerified": true,
+      "nodeIsOriginal": false,
+      "cardIsOriginal": true,
+      "hasAdapterStart": true
+    },
+    {
+      "event": "original_image_load",
+      "afterInputMS": 8720.100000023842,
+      "sourceKind": "data-png",
+      "complete": true
+    }
+  ]
+}

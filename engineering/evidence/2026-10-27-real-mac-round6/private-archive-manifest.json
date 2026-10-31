@@ -1,0 +1,170 @@
+{
+  "scope": "Private local archive retained; only basenames/hashes here, not raw content or location",
+  "files": [
+    {
+      "file": "riftlet-round6-web-build.log",
+      "sha256": "e9ea0254d466c1d477e6b335c78766b3854f25d346fce6abe2585cb24f8a3b63",
+      "bytes": 1970
+    },
+    {
+      "file": "riftlet-round6-valid-cold-press.json",
+      "sha256": "4b463a2aee87d521c219470453f49b0af026a865491f9282f1ae47271f16c323",
+      "bytes": 1595
+    },
+    {
+      "file": "riftlet-round6-cold-combined.py",
+      "sha256": "8bd56b770a25203249c32381eb758552bf07405acab514da0d447490431dedd7",
+      "bytes": 1950
+    },
+    {
+      "file": "riftlet-round6-cold-early-press.json",
+      "sha256": "1717495d52a9aa642953fc0f29a5a589ce517daf8a28f70db34787e7c2edcd9b",
+      "bytes": 1571
+    },
+    {
+      "file": "riftlet-round6-cold-press.json",
+      "sha256": "f452452a131b77da30423d28a1399942f11b01a07549241a429b7efbbe6b1d5b",
+      "bytes": 1598
+    },
+    {
+      "file": "riftlet-round6-web-tests.log",
+      "sha256": "203c2faebd3cf42ed316aa0fc753d6f2cd23348b128f6de5183cb09d30e171d4",
+      "bytes": 5041
+    },
+    {
+      "file": "riftlet-round6-page-v12-test.log",
+      "sha256": "df63faa48ddfe173faeb657fb8467006e97659d30bfd5075dcb8129d35fbdddd",
+      "bytes": 7842
+    },
+    {
+      "file": "riftlet-round6-active-id-build.log",
+      "sha256": "d7e27fd75f07ba57375c0292f3baeba8d1cf262f5951ee642cf7d2345d777166",
+      "bytes": 1410
+    },
+    {
+      "file": "riftlet-round6-runtime-build.log",
+      "sha256": "af60bfb7f7a3cd8dd627e9c72017cbae029115c317f216c0a1dedb5bb65175bf",
+      "bytes": 4920
+    },
+    {
+      "file": "riftlet-round6-selection-live.jsonl",
+      "sha256": "f2714cb89a55d0f217860990971d154806dbe85e2c1fecf4bdf47488841d4157",
+      "bytes": 41260
+    },
+    {
+      "file": "riftlet-round6-active-id-foundation-tests.swift",
+      "sha256": "23e7cad4c9235959777ff6eb88a39adcc6b9d0ecf4065f7237700636405ee6f1",
+      "bytes": 7912
+    },
+    {
+      "file": "riftlet-round6-import-early.swift",
+      "sha256": "6b535a22dafddf4ffa8df98873077289a0732cf6c5190344bd3ee33a795091d8",
+      "bytes": 1024
+    },
+    {
+      "file": "riftlet-round6-independent-page-review.tap",
+      "sha256": "3fa8b1da028ff1e006beec172d6ed2ee39cf1501765302f63c5050dd25a1e042",
+      "bytes": 13131
+    },
+    {
+      "file": "riftlet-round6-selection-live-summary.json",
+      "sha256": "c27107ace99d63b509791f73bb782abff6a1c98ad15d07c14d9376b455a0ae2e",
+      "bytes": 6210
+    },
+    {
+      "file": "riftlet-round6-cold-early.py",
+      "sha256": "f1785c180bcaaa73032e2f5dfb7d8d22fdc571a77a4443204e1e8045ed1809f8",
+      "bytes": 1973
+    },
+    {
+      "file": "riftlet-round6-perf-sequence.json",
+      "sha256": "fb1a921293e782362cf3a4c1dc15ac02d938e7de3061d80d04cbe8d7ae848ea0",
+      "bytes": 3964
+    },
+    {
+      "file": "riftlet-round6-descriptor-shape-check.swift",
+      "sha256": "0255672032a9c7bd2ee7aaa792cb1cd21eeda162c41df569cc60ce2d2ebd3702",
+      "bytes": 850
+    },
+    {
+      "file": "riftlet-round6-cold.jsonl",
+      "sha256": "778cb7903f4a9ae829463e61abb35b9481dcff2f230dffc61ad44db1a0782ee1",
+      "bytes": 1015792
+    },
+    {
+      "file": "riftlet-round6-cold-boundary.jsonl",
+      "sha256": "e7cb5360b433c6f709678270303213b9cf7b357914e810e6349cd8981d1d7074",
+      "bytes": 737233
+    },
+    {
+      "file": "riftlet-round6-perf-page.json",
+      "sha256": "60798559080aeb719daa768fc7418a367352a3e8e158410da04f15ddca87f370",
+      "bytes": 1346
+    },
+    {
+      "file": "riftlet-round6-result.js",
+      "sha256": "1180c96053ffaf5b7f44c77c31c62eb25c4da7f9de25a098f99ab2cc2cf80b6a",
+      "bytes": 1252
+    },
+    {
+      "file": "riftlet-round6-selection-live.py",
+      "sha256": "3e16345707415b4aa8502345153982496734c7f14029817ebdf7417f2bdca8c8",
+      "bytes": 1726
+    },
+    {
+      "file": "riftlet-round6-cold-early.jsonl",
+      "sha256": "36e3abe367ecd794ec5693d0faebf22f4413aecb0af975370db8f3e545dd0896",
+      "bytes": 709718
+    },
+    {
+      "file": "riftlet-round6-descriptor.swift",
+      "sha256": "82b13f46d9d4a6dd3d011297ea07d010449355a011b46a1f61e60b55a3ed28f2",
+      "bytes": 999
+    },
+    {
+      "file": "riftlet-round6-import-boundary.swift",
+      "sha256": "574809e0f077208530c1f7e3bad1259e681c1c0a15b7b3f270c87d5e94444366",
+      "bytes": 1027
+    },
+    {
+      "file": "riftlet-round6-perf-sequence.py",
+      "sha256": "0cdeede2d38570c6131ab39874a549d1f3fbba8f8a5ccadd1e29efb0abd897d6",
+      "bytes": 2578
+    },
+    {
+      "file": "riftlet-round6-import-batch.swift",
+      "sha256": "7a5f04a660fae7539c21274aec3b4317ab68996077ef137ef9145638a10d7d12",
+      "bytes": 1047
+    },
+    {
+      "file": "riftlet-round6-cold-boundary-press.json",
+      "sha256": "40a77d69ef627ce76a88a189ba3ebf29e7a41179bbdb790728541ced0c061c82",
+      "bytes": 1569
+    },
+    {
+      "file": "riftlet-round6-valid-cold.jsonl",
+      "sha256": "d5f1eaf86a155a99d7b311095718c67f9b7d6ed98d9a7989ab76322802a2aef4",
+      "bytes": 879561
+    },
+    {
+      "file": "riftlet-round6-selection-build.log",
+      "sha256": "ddddff02b6cec4aa0e0e3c9e5d3f8a35b40c3f1de3836de4584adf46ae135af2",
+      "bytes": 4944
+    },
+    {
+      "file": "riftlet-round6-import-cold.swift",
+      "sha256": "7daec48a3318f163db79da9335e80cd29639572c331f11311651134713d8ee9d",
+      "bytes": 1018
+    },
+    {
+      "file": "riftlet-round6-write-consecutive-evidence.py",
+      "sha256": "1f19ed58c9bfc1a2f02523a2c6b68d49d2b8e8e7f1063987fd910a96021ea1aa",
+      "bytes": 8290
+    },
+    {
+      "file": "riftlet-round6-ci.log",
+      "sha256": "b3c53d78853e7cf469c56d20dccfa3abd1dfc1d919aea2e90914cc0ba697a63f",
+      "bytes": 235500
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+[
+  {
+    "operationID": "15805F35-1C74-4E8D-94C5-E1B728DF1E14",
+    "phase": "compensated",
+    "attempt": 3,
+    "logicalDraftProofPresent": false,
+    "compensation": {
+      "originalOutcome": "verifiedReady",
+      "failureOutcome": "unknown",
+      "sameAttachmentID": true,
+      "hasError": true,
+      "safeToRetry": false
+    }
+  },
+  {
+    "operationID": "7607529F-4BCD-42DC-88A0-8E7B1510D134",
+    "phase": "succeeded",
+    "attempt": 1,
+    "logicalDraftProofPresent": true
+  },
+  {
+    "operationID": "01FC359F-141D-4FE4-A93F-44FDA2364594",
+    "phase": "compensated",
+    "attempt": 1,
+    "logicalDraftProofPresent": true,
+    "compensation": {
+      "originalOutcome": "verifiedReady",
+      "failureOutcome": "unknown",
+      "sameAttachmentID": true,
+      "hasError": true,
+      "safeToRetry": false
+    }
+  },
+  {
+    "operationID": "174594CB-7A23-4D62-837F-90D558210BA3",
+    "phase": "failed",
+    "attempt": 1,
+    "logicalDraftProofPresent": true
+  },
+  {
+    "operationID": "FF0FFE74-424B-483A-B4D8-7D620E2E9B6C",
+    "phase": "unknown",
+    "attempt": 2,
+    "logicalDraftProofPresent": true
+  },
+  {
+    "operationID": "3F083AE5-D79D-4F0A-9940-D1EFE00DEE23",
+    "phase": "succeeded",
+    "attempt": 1,
+    "logicalDraftProofPresent": true
+  }
+]

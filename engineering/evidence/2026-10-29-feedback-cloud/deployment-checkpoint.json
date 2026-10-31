@@ -1,0 +1,656 @@
+{
+  "schema": 1,
+  "baseSource": "c15fd4b4a27659946ef49280131e875f4d5ab9d1",
+  "scope": "Actual Receiver and scoped real HTTPS evidence; Delivery uncreated; native-to-cloud NOT_RUN; Mac handoff prepared but no executor scheduled",
+  "accountID": "b10365c5c641bd88cb1b9f35a4172d37",
+  "d1": {
+    "name": "riftlet-feedback",
+    "id": "4167f4a2-5dfd-422d-86ca-077176fc8600",
+    "observedUTC": "2026-10-29T14:00:19.183Z",
+    "schemaApplied": true,
+    "tables": [
+      "limits",
+      "quota",
+      "feedback"
+    ],
+    "indexes": [
+      "feedback_delivery",
+      "feedback_expiry",
+      "feedback_live_expiry",
+      "feedback_state_created",
+      "quota_expiry"
+    ],
+    "trigger": "feedback_budget",
+    "limits": {
+      "id": 1,
+      "daily": 100,
+      "hourly": 20
+    },
+    "feedbackRows": null,
+    "evidence": "d1-first-receipts.json; actual Cloudflare D1 Console observation",
+    "provisioningObservedUTC": "2026-10-29T13:25:39Z",
+    "currentTotalRows": "NOT_REQUERIED_AFTER_SUBSEQUENT_HTTP_TESTS",
+    "confirmedRecords": [
+      {
+        "label": "plain",
+        "id": "6b8a8849-6ffc-4805-ae4e-e37cfa00f342",
+        "payloadSHA256": "359fc12aea66375f9e30ec979e4cc1195805d21800301801531600483237f01b",
+        "state": "pending",
+        "deleteRequested": false,
+        "issueNumber": null,
+        "payloadIsNull": false
+      },
+      {
+        "label": "diagnostic",
+        "id": "0fa0a07f-76d3-4815-bee3-22f60dcdbdcb",
+        "payloadSHA256": "72b7d9f0acb1b5b5d9a34c8397f4c84e9980bec9f8e051c93d239636dfbf7e4e",
+        "state": "pending",
+        "deleteRequested": false,
+        "issueNumber": null,
+        "payloadIsNull": false
+      }
+    ],
+    "pendingIndependentChecks": [
+      "For all five original IDs: unique tombstone, active payload NULL, delete_requested flag, final state, no Issue identity. Currently BLOCKED by no connected browser."
+    ]
+  },
+  "receiver": {
+    "name": "riftlet-feedback-receiver",
+    "host": "riftlet-feedback-receiver.haohongfei2001.workers.dev",
+    "endpoint": "https://riftlet-feedback-receiver.haohongfei2001.workers.dev/v1/feedback",
+    "businessCodeDeployed": true,
+    "deployedBusinessVersionPrefixObservedActive": "07497aa3",
+    "finalActiveVersionAfterSecretAndFlagChanges": null,
+    "finalActiveVersionStatus": "REQUIRES_FRESH_PLATFORM_READ",
+    "savedSettings": {
+      "DB": "4167f4a2-5dfd-422d-86ca-077176fc8600",
+      "logsEnabled": false,
+      "tracesEnabled": false,
+      "issuesEnabled": false,
+      "ACCEPT_ENABLED": "true",
+      "workersDev": true,
+      "compatibilityDate": "2026-10-29"
+    },
+    "ipHmacSecret": {
+      "name": "IP_HMAC_KEY",
+      "installed": true,
+      "randomBytes": 32,
+      "valueIncluded": false
+    },
+    "settingsEvidence": "Integration owner actual Cloudflare dashboard observations; final version ID pending after later Secret/flag changes",
+    "sourceConfigReconciliation": "Receiver Wrangler aligned to actual workers_dev=true, ACCEPT_ENABLED=true, compatibility_date=2026-10-29; Delivery remains disabled/date2026-10-28 planned config. Final active Receiver version remains pending platform read."
+  },
+  "delivery": {
+    "name": "riftlet-feedback-delivery",
+    "createdByThisContinuation": false,
+    "deploymentVerified": false,
+    "githubSecretInstalled": false,
+    "cronVerified": false,
+    "retentionCronExecutionVerified": false,
+    "desiredCron": "*/5 * * * *",
+    "publicRouteDesired": false
+  },
+  "privateRepository": {
+    "name": "haohongfei2001-png/Riftlet-Feedback",
+    "id": "1437354611",
+    "visibility": "private",
+    "verification": "GitHub get_repo connector re-read in this continuation",
+    "actionsDisabled": "previous provisioning checkpoint; not reverified through browser this continuation"
+  },
+  "testFeedback": {
+    "preparedIdentities": {
+      "plain": {
+        "id": "6b8a8849-6ffc-4805-ae4e-e37cfa00f342",
+        "payloadSHA256": "359fc12aea66375f9e30ec979e4cc1195805d21800301801531600483237f01b",
+        "hasDiagnostic": false
+      },
+      "diagnostic": {
+        "id": "0fa0a07f-76d3-4815-bee3-22f60dcdbdcb",
+        "payloadSHA256": "72b7d9f0acb1b5b5d9a34c8397f4c84e9980bec9f8e051c93d239636dfbf7e4e",
+        "hasDiagnostic": true
+      },
+      "lost_receipt": {
+        "id": "083ca5ca-d1f4-44f6-9a3e-1c32f8850cc9",
+        "payloadSHA256": "5ba81029befc2af2c5dd7384ceba150b1a4a7d856e3d1691bcc092f1e2be4b9e",
+        "hasDiagnostic": false
+      },
+      "delete_before_submit": {
+        "id": "bd84bc6b-905b-4835-8a2e-277896131723",
+        "payloadSHA256": "63039307d70dd8ad66341e5c1b61d3460b5746f70ac650f7d0a81da64dac2297",
+        "hasDiagnostic": false
+      },
+      "pending_delete": {
+        "id": "35bc1586-1b37-41ed-b6e5-87221bd6a3d2",
+        "payloadSHA256": "c84f0e2c97ec6572ddf6b16e9e2ba5e20e3389587c59ba94272308b17ced9d02",
+        "hasDiagnostic": false
+      }
+    },
+    "normalSubmissionIDs": [
+      "6b8a8849-6ffc-4805-ae4e-e37cfa00f342",
+      "0fa0a07f-76d3-4815-bee3-22f60dcdbdcb",
+      "35bc1586-1b37-41ed-b6e5-87221bd6a3d2"
+    ],
+    "deleteBeforeSubmitID": "bd84bc6b-905b-4835-8a2e-277896131723",
+    "droppedPOSTID": "083ca5ca-d1f4-44f6-9a3e-1c32f8850cc9",
+    "privateIssueDelivery": "NOT_RUN",
+    "privateIssuePermanentDeletion": "NOT_RUN",
+    "cleanupComplete": false,
+    "cleanupObligations": {
+      "plain": "Authorized final HTTP GET reports deleted; independent direct D1 payload NULL/flags/unique tombstone/no Issue check remains BLOCKED. Do not replay/reset this identity.",
+      "diagnostic": "Authorized final HTTP GET reports deleted; independent direct D1 payload NULL/flags/unique tombstone/no Issue check remains BLOCKED. Do not replay/reset this identity.",
+      "lost_receipt": "Authorized final HTTP GET reports deleted; independent direct D1 payload NULL/flags/unique tombstone/no Issue check remains BLOCKED. Do not replay/reset this identity.",
+      "delete_before_submit": "Authorized final HTTP GET reports deleted; independent direct D1 payload NULL/flags/unique tombstone/no Issue check remains BLOCKED. Do not replay/reset this identity.",
+      "pending_delete": "Authorized final HTTP GET reports deleted; independent direct D1 payload NULL/flags/unique tombstone/no Issue check remains BLOCKED. Do not replay/reset this identity.",
+      "privateState": "Temporarily retained0700/0600 as requested for final verification; root to clean exact directory when no longer needed; never commit secret values.",
+      "retention": "No D1 backup/Time Travel erasure or native SQLite/Keychain cleanup claim; required content-free tombstones remain under normal policy."
+    },
+    "httpCleanupComplete": true,
+    "allFiveFinalHTTPStatesDeleted": true,
+    "issuesCreatedByThisContinuation": 0
+  },
+  "nativeEndpointConfigured": false,
+  "nativeToCloud": "NOT_RUN",
+  "cloudPipeline": "PARTIAL_RECEIVER_HTTP_AND_TWO_D1_RECORDS; BLOCKED_DELIVERY_NOT_CREATED",
+  "blocker": "After repeated MCP timeouts since approximately14:04 UTC, the latest14:12 control-browser result is No connected browser was found. User is logged in to the correct account. Control-plane continuation/version reads/Delivery deployment are BLOCKED by absent connected browser, not missing authorization; real HTTPS executor remains available.",
+  "verification": {
+    "serviceLocal": "21/21 PASS, real SQLite and mock GitHub only",
+    "packagingLocal": "13/13 PASS, synthetic bundle and real temporary Git objects only",
+    "physicalMac": "NOT_RUN, user explicitly deferred to Codex",
+    "newHeadMacOSCI": "Pending source checkpoint publication; exact final runs recorded in associated PR",
+    "realReceiverHTTP": "36/36 PASS: historical28 plus3 cleanup DELETE and5 final GET;39events also retain3 original drop attempts",
+    "directD1": "Two original pending records and payload hashes verified at 14:00:19.183Z; later cases pending direct query",
+    "issueDelivery": "NOT_RUN",
+    "permanentIssueDeletion": "NOT_RUN",
+    "cloudDeletion": "All five IDs report deleted by real HTTPS; independent final D1 payload-null/flags/tombstones BLOCKED; no GitHub Issue created/deleted; backup erasure not claimed"
+  },
+  "constraints": [
+    "Reuse existing D1/receiver; no duplicate resources",
+    "No paid plan, website or DNS changes",
+    "No main merge or public release",
+    "No screenshot admission or old UNKNOWN changes",
+    "Keep Host nil until same-deployment real Receiver/D1/private-Issue chain and required deletion evidence are reviewed; final new source admission/macOS CI remain required"
+  ],
+  "checkpoint": "2026-10-29 14:17 UTC",
+  "historicalProvisioningCheckpoint": {
+    "schema": 1,
+    "baseSource": "c15fd4b4a27659946ef49280131e875f4d5ab9d1",
+    "scope": "Feedback-only cloud continuation; physical Mac acceptance deferred to Codex by user",
+    "accountID": "b10365c5c641bd88cb1b9f35a4172d37",
+    "d1": {
+      "name": "riftlet-feedback",
+      "id": "4167f4a2-5dfd-422d-86ca-077176fc8600",
+      "observedUTC": "2026-10-29T13:25:39Z",
+      "schemaApplied": true,
+      "tables": [
+        "limits",
+        "quota",
+        "feedback"
+      ],
+      "indexes": [
+        "feedback_delivery",
+        "feedback_expiry",
+        "feedback_live_expiry",
+        "feedback_state_created",
+        "quota_expiry"
+      ],
+      "trigger": "feedback_budget",
+      "limits": {
+        "id": 1,
+        "daily": 100,
+        "hourly": 20
+      },
+      "feedbackRows": 0,
+      "evidence": "Authenticated Cloudflare D1 Console: sqlite_master query and SELECT id,daily,hourly,(SELECT COUNT(*) FROM feedback) AS feedback_rows FROM limits"
+    },
+    "receiver": {
+      "name": "riftlet-feedback-receiver",
+      "host": "riftlet-feedback-receiver.haohongfei2001.workers.dev",
+      "displayedInitialVersionPrefix": "dc24c322",
+      "businessCodeDeployed": false,
+      "lastConfirmedCode": "Cloudflare Hello World bootstrap",
+      "settingsDraft": {
+        "logsEnabled": false,
+        "DB": "4167f4a2-5dfd-422d-86ca-077176fc8600"
+      },
+      "settingsDraftSaved": null,
+      "acceptEnabledSaved": null,
+      "ipHmacSecretInstalled": false
+    },
+    "httpsProbe": {
+      "atUTC": "2026-10-29T13:38:09.499085+00:00",
+      "url": "https://riftlet-feedback-receiver.haohongfei2001.workers.dev/v1/feedback",
+      "method": "GET",
+      "userAgent": "Riftlet-Cloud-Acceptance/0.1",
+      "authorizationSent": false,
+      "status": 200,
+      "body": "Hello World!",
+      "bodySHA256": "7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069",
+      "interpretation": "HTTPS hostname reachable; NOT a Feedback receiver or persistence PASS"
+    },
+    "earlierPreflight": {
+      "atUTC": "2026-10-29T13:37:17.622657+00:00",
+      "userAgent": "Python-urllib default",
+      "status": 403,
+      "server": "envoy",
+      "providerError": "error code: 1010",
+      "interpretation": "Preserved failed default-client probe; no protection was disabled. The existing honest acceptance-harness User-Agent subsequently reached the bootstrap."
+    },
+    "delivery": {
+      "name": "riftlet-feedback-delivery",
+      "createdByThisContinuation": false,
+      "deploymentVerified": false,
+      "githubSecretInstalled": false,
+      "cronVerified": false
+    },
+    "privateRepository": {
+      "name": "haohongfei2001-png/Riftlet-Feedback",
+      "id": "1437354611",
+      "visibility": "private",
+      "verification": "GitHub get_repo connector re-read in this continuation",
+      "actionsDisabled": "previous provisioning checkpoint; not reverified through browser this continuation"
+    },
+    "testFeedback": {
+      "submittedByThisContinuation": 0,
+      "issuesCreatedByThisContinuation": 0,
+      "deletionObligationsCreatedByThisContinuation": 0
+    },
+    "nativeEndpointConfigured": false,
+    "nativeToCloud": "NOT_RUN",
+    "cloudPipeline": "BLOCKED",
+    "blocker": "Browser connector returned MCP request timed out during configuration and subsequent reconnect. User login was successfully observed; do not relabel this as missing login or account permission.",
+    "verification": {
+      "serviceLocal": "21/21 PASS, real SQLite and mock GitHub only",
+      "packagingLocal": "13/13 PASS, synthetic bundle and real temporary Git objects only",
+      "physicalMac": "NOT_RUN, user explicitly deferred to Codex",
+      "newHeadMacOSCI": "Pending source checkpoint publication; exact final runs recorded in associated PR"
+    },
+    "constraints": [
+      "Reuse existing D1/receiver; no duplicate resources",
+      "No paid plan, website or DNS changes",
+      "No main merge or public release",
+      "No screenshot admission or old UNKNOWN changes",
+      "Do not point the App at Hello World; keep Host nil until real cloud verification"
+    ]
+  },
+  "historicalProvisioningCheckpointNote": "Preserves the earlier zero-row, HelloWorld and unsaved-settings checkpoint. These are historical observations, not the current service state.",
+  "httpsAcceptance": {
+    "completedChecks": 36,
+    "passed": 36,
+    "failed": 0,
+    "groups": {
+      "send": 5,
+      "strictValidation": 18,
+      "deletionScenarios": 4,
+      "lostReceiptReadOnlyStatus": 1,
+      "cleanupDelete": 3,
+      "cleanupReadOnlyStatus": 5,
+      "dropAttempts": 3
+    },
+    "firstHTTPUTC": "2026-10-29T13:52:46.276930+00:00",
+    "lastHTTPEventUTC": "2026-10-29T14:16:55.241892+00:00",
+    "eventCount": 39,
+    "eventsSHA256": "5168953e6196b380baed34ea0153350ff0aa318da67888086e484a11a323f628",
+    "summary": "live-http/summary.json",
+    "events": "live-http/events.jsonl",
+    "scope": "Real Receiver HTTP contract only; direct D1/private Issue/native evidence separate",
+    "dropResponseAttempts": [
+      {
+        "atUTC": "2026-10-29T13:53:13.088343+00:00",
+        "case": "lost_receipt",
+        "check": "request_sent_response_not_read",
+        "id": "083ca5ca-d1f4-44f6-9a3e-1c32f8850cc9",
+        "requestPayloadSHA256": "5ba81029befc2af2c5dd7384ceba150b1a4a7d856e3d1691bcc092f1e2be4b9e",
+        "transportOutcome": "unknown",
+        "receiptRead": false,
+        "scope": "Real HTTPS request; connection closed without reading a receipt; remote persistence must be checked separately",
+        "requestBytesWritten": false,
+        "exceptionType": "gaierror"
+      },
+      {
+        "atUTC": "2026-10-29T14:01:17.074152+00:00",
+        "case": "lost_receipt",
+        "check": "request_sent_response_not_read",
+        "id": "083ca5ca-d1f4-44f6-9a3e-1c32f8850cc9",
+        "requestPayloadSHA256": "5ba81029befc2af2c5dd7384ceba150b1a4a7d856e3d1691bcc092f1e2be4b9e",
+        "transportOutcome": "unknown",
+        "receiptRead": false,
+        "scope": "Real HTTPS request; connection closed without reading a receipt; remote persistence must be checked separately",
+        "requestBytesWritten": true
+      },
+      {
+        "atUTC": "2026-10-29T14:06:45.889277+00:00",
+        "case": "lost_receipt",
+        "check": "request_sent_response_not_read",
+        "id": "083ca5ca-d1f4-44f6-9a3e-1c32f8850cc9",
+        "requestPayloadSHA256": "5ba81029befc2af2c5dd7384ceba150b1a4a7d856e3d1691bcc092f1e2be4b9e",
+        "transportOutcome": "unknown",
+        "receiptRead": false,
+        "scope": "Real HTTPS request; connection closed without reading a receipt; remote persistence must be checked separately",
+        "requestBytesWritten": true,
+        "configuredPostWriteLingerMilliseconds": 3000,
+        "postWriteLingerCompleted": true
+      }
+    ],
+    "dropSecondRemoteObservation": "d1-immediate-close-no-row.json: actual Console no data, observed between14:01:17Z and14:06:45Z, exact Console capture time unavailable",
+    "dropThirdDirectD1Observation": "NOT_RUN; separate authenticated GET at14:11:33 reports received/durable=true",
+    "droppedOriginalRetryExecuted": false,
+    "cleanupEvents": [
+      {
+        "atUTC": "2026-10-29T14:16:42.388972+00:00",
+        "case": "plain",
+        "method": "DELETE",
+        "id": "6b8a8849-6ffc-4805-ae4e-e37cfa00f342",
+        "requestPayloadSHA256": null,
+        "scope": "real-HTTPS; D1 and private-Issue proof separate",
+        "httpStatus": 202,
+        "headers": {
+          "Content-Type": "application/json",
+          "Cache-Control": "no-store",
+          "X-Content-Type-Options": "nosniff",
+          "Retry-After": null,
+          "CF-Ray": "a522ccb14b9c1642-ORD"
+        },
+        "unexpectedResponseKeyCount": 0,
+        "response": {
+          "id": "6b8a8849-6ffc-4805-ae4e-e37cfa00f342",
+          "state": "deleted",
+          "durable": true
+        },
+        "responseSchemaValid": true,
+        "durationMilliseconds": 611.08,
+        "check": "authorized_delete",
+        "expectation": {
+          "httpStatus": 202,
+          "state": null
+        },
+        "httpCheck": "PASS"
+      },
+      {
+        "atUTC": "2026-10-29T14:16:43.001807+00:00",
+        "case": "diagnostic",
+        "method": "DELETE",
+        "id": "0fa0a07f-76d3-4815-bee3-22f60dcdbdcb",
+        "requestPayloadSHA256": null,
+        "scope": "real-HTTPS; D1 and private-Issue proof separate",
+        "httpStatus": 202,
+        "headers": {
+          "Content-Type": "application/json",
+          "Cache-Control": "no-store",
+          "X-Content-Type-Options": "nosniff",
+          "Retry-After": null,
+          "CF-Ray": "a522ccb51b0586d3-ORD"
+        },
+        "unexpectedResponseKeyCount": 0,
+        "response": {
+          "id": "0fa0a07f-76d3-4815-bee3-22f60dcdbdcb",
+          "state": "deleted",
+          "durable": true
+        },
+        "responseSchemaValid": true,
+        "durationMilliseconds": 269.375,
+        "check": "authorized_delete",
+        "expectation": {
+          "httpStatus": 202,
+          "state": null
+        },
+        "httpCheck": "PASS"
+      },
+      {
+        "atUTC": "2026-10-29T14:16:43.272475+00:00",
+        "case": "lost_receipt",
+        "method": "DELETE",
+        "id": "083ca5ca-d1f4-44f6-9a3e-1c32f8850cc9",
+        "requestPayloadSHA256": null,
+        "scope": "real-HTTPS; D1 and private-Issue proof separate",
+        "httpStatus": 202,
+        "headers": {
+          "Content-Type": "application/json",
+          "Cache-Control": "no-store",
+          "X-Content-Type-Options": "nosniff",
+          "Retry-After": null,
+          "CF-Ray": "a522ccb68fdf1642-ORD"
+        },
+        "unexpectedResponseKeyCount": 0,
+        "response": {
+          "id": "083ca5ca-d1f4-44f6-9a3e-1c32f8850cc9",
+          "state": "deleted",
+          "durable": true
+        },
+        "responseSchemaValid": true,
+        "durationMilliseconds": 250.931,
+        "check": "authorized_delete",
+        "expectation": {
+          "httpStatus": 202,
+          "state": null
+        },
+        "httpCheck": "PASS"
+      },
+      {
+        "atUTC": "2026-10-29T14:16:54.660813+00:00",
+        "case": "plain",
+        "method": "GET",
+        "id": "6b8a8849-6ffc-4805-ae4e-e37cfa00f342",
+        "requestPayloadSHA256": null,
+        "scope": "real-HTTPS; D1 and private-Issue proof separate",
+        "httpStatus": 200,
+        "headers": {
+          "Content-Type": "application/json",
+          "Cache-Control": "no-store",
+          "X-Content-Type-Options": "nosniff",
+          "Retry-After": null,
+          "CF-Ray": "a522ccfdb8b086d3-ORD"
+        },
+        "unexpectedResponseKeyCount": 0,
+        "response": {
+          "id": "6b8a8849-6ffc-4805-ae4e-e37cfa00f342",
+          "state": "deleted",
+          "durable": true
+        },
+        "responseSchemaValid": true,
+        "durationMilliseconds": 150.307,
+        "check": "authorized_status",
+        "expectation": {
+          "httpStatus": 200,
+          "state": null
+        },
+        "httpCheck": "PASS"
+      },
+      {
+        "atUTC": "2026-10-29T14:16:54.812286+00:00",
+        "case": "diagnostic",
+        "method": "GET",
+        "id": "0fa0a07f-76d3-4815-bee3-22f60dcdbdcb",
+        "requestPayloadSHA256": null,
+        "scope": "real-HTTPS; D1 and private-Issue proof separate",
+        "httpStatus": 200,
+        "headers": {
+          "Content-Type": "application/json",
+          "Cache-Control": "no-store",
+          "X-Content-Type-Options": "nosniff",
+          "Retry-After": null,
+          "CF-Ray": "a522ccfeaf951642-ORD"
+        },
+        "unexpectedResponseKeyCount": 0,
+        "response": {
+          "id": "0fa0a07f-76d3-4815-bee3-22f60dcdbdcb",
+          "state": "deleted",
+          "durable": true
+        },
+        "responseSchemaValid": true,
+        "durationMilliseconds": 144.64,
+        "check": "authorized_status",
+        "expectation": {
+          "httpStatus": 200,
+          "state": null
+        },
+        "httpCheck": "PASS"
+      },
+      {
+        "atUTC": "2026-10-29T14:16:54.958034+00:00",
+        "case": "lost_receipt",
+        "method": "GET",
+        "id": "083ca5ca-d1f4-44f6-9a3e-1c32f8850cc9",
+        "requestPayloadSHA256": null,
+        "scope": "real-HTTPS; D1 and private-Issue proof separate",
+        "httpStatus": 200,
+        "headers": {
+          "Content-Type": "application/json",
+          "Cache-Control": "no-store",
+          "X-Content-Type-Options": "nosniff",
+          "Retry-After": null,
+          "CF-Ray": "a522ccff882886d3-ORD"
+        },
+        "unexpectedResponseKeyCount": 0,
+        "response": {
+          "id": "083ca5ca-d1f4-44f6-9a3e-1c32f8850cc9",
+          "state": "deleted",
+          "durable": true
+        },
+        "responseSchemaValid": true,
+        "durationMilliseconds": 171.34,
+        "check": "authorized_status",
+        "expectation": {
+          "httpStatus": 200,
+          "state": null
+        },
+        "httpCheck": "PASS"
+      },
+      {
+        "atUTC": "2026-10-29T14:16:55.130557+00:00",
+        "case": "delete_before_submit",
+        "method": "GET",
+        "id": "bd84bc6b-905b-4835-8a2e-277896131723",
+        "requestPayloadSHA256": null,
+        "scope": "real-HTTPS; D1 and private-Issue proof separate",
+        "httpStatus": 200,
+        "headers": {
+          "Content-Type": "application/json",
+          "Cache-Control": "no-store",
+          "X-Content-Type-Options": "nosniff",
+          "Retry-After": null,
+          "CF-Ray": "a522cd009eff1642-ORD"
+        },
+        "unexpectedResponseKeyCount": 0,
+        "response": {
+          "id": "bd84bc6b-905b-4835-8a2e-277896131723",
+          "state": "deleted",
+          "durable": true
+        },
+        "responseSchemaValid": true,
+        "durationMilliseconds": 110.246,
+        "check": "authorized_status",
+        "expectation": {
+          "httpStatus": 200,
+          "state": null
+        },
+        "httpCheck": "PASS"
+      },
+      {
+        "atUTC": "2026-10-29T14:16:55.241892+00:00",
+        "case": "pending_delete",
+        "method": "GET",
+        "id": "35bc1586-1b37-41ed-b6e5-87221bd6a3d2",
+        "requestPayloadSHA256": null,
+        "scope": "real-HTTPS; D1 and private-Issue proof separate",
+        "httpStatus": 200,
+        "headers": {
+          "Content-Type": "application/json",
+          "Cache-Control": "no-store",
+          "X-Content-Type-Options": "nosniff",
+          "Retry-After": null,
+          "CF-Ray": "a522cd015f3886d3-ORD"
+        },
+        "unexpectedResponseKeyCount": 0,
+        "response": {
+          "id": "35bc1586-1b37-41ed-b6e5-87221bd6a3d2",
+          "state": "deleted",
+          "durable": true
+        },
+        "responseSchemaValid": true,
+        "durationMilliseconds": 112.285,
+        "check": "authorized_status",
+        "expectation": {
+          "httpStatus": 200,
+          "state": null
+        },
+        "httpCheck": "PASS"
+      }
+    ],
+    "allFiveFinalHTTPStatesDeleted": true,
+    "lostReceiptReceivedStatusBeforeCleanup": {
+      "atUTC": "2026-10-29T14:11:33.422431+00:00",
+      "case": "lost_receipt",
+      "method": "GET",
+      "id": "083ca5ca-d1f4-44f6-9a3e-1c32f8850cc9",
+      "requestPayloadSHA256": null,
+      "scope": "real-HTTPS; D1 and private-Issue proof separate",
+      "httpStatus": 200,
+      "headers": {
+        "Content-Type": "application/json",
+        "Cache-Control": "no-store",
+        "X-Content-Type-Options": "nosniff",
+        "Retry-After": null,
+        "CF-Ray": "a522c525f87f26c8-ORD"
+      },
+      "unexpectedResponseKeyCount": 0,
+      "response": {
+        "id": "083ca5ca-d1f4-44f6-9a3e-1c32f8850cc9",
+        "state": "received",
+        "durable": true
+      },
+      "responseSchemaValid": true,
+      "durationMilliseconds": 474.604,
+      "check": "authorized_status",
+      "expectation": {
+        "httpStatus": 200,
+        "state": null
+      },
+      "httpCheck": "PASS"
+    },
+    "finalLostReceiptReadOnlyStatus": {
+      "atUTC": "2026-10-29T14:16:54.958034+00:00",
+      "case": "lost_receipt",
+      "method": "GET",
+      "id": "083ca5ca-d1f4-44f6-9a3e-1c32f8850cc9",
+      "requestPayloadSHA256": null,
+      "scope": "real-HTTPS; D1 and private-Issue proof separate",
+      "httpStatus": 200,
+      "headers": {
+        "Content-Type": "application/json",
+        "Cache-Control": "no-store",
+        "X-Content-Type-Options": "nosniff",
+        "Retry-After": null,
+        "CF-Ray": "a522ccff882886d3-ORD"
+      },
+      "unexpectedResponseKeyCount": 0,
+      "response": {
+        "id": "083ca5ca-d1f4-44f6-9a3e-1c32f8850cc9",
+        "state": "deleted",
+        "durable": true
+      },
+      "responseSchemaValid": true,
+      "durationMilliseconds": 171.34,
+      "check": "authorized_status",
+      "expectation": {
+        "httpStatus": 200,
+        "state": null
+      },
+      "httpCheck": "PASS"
+    }
+  },
+  "githubDeliveryCredential": {
+    "created": true,
+    "kind": "fine-grained personal access token",
+    "repositoryCount": 1,
+    "repository": "haohongfei2001-png/Riftlet-Feedback",
+    "permissions": {
+      "Metadata": "read",
+      "Issues": "write"
+    },
+    "expiresOn": "2026-11-28",
+    "installedInDelivery": false,
+    "currentStorage": "Authorized browser session memory only",
+    "secretValueIncluded": false
+  },
+  "executorScheduled": false
+}

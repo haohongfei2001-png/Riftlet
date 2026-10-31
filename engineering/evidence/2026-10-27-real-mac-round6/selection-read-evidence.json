@@ -1,0 +1,104 @@
+{
+  "sourceSHA": "c000cc1b930b278ae22b29e6b01941a9faf0a87d",
+  "executableSHA256": "17d89ddcf72d9efa84a826436175843a0401bbfa16136b0afd48c88e527cd89c",
+  "overlay": "same two committed round5 acceptance patches; temporary copy only",
+  "result": "PASS_READ_ONLY_FAST_PATH",
+  "realCaptureCount": 3,
+  "fastIdentityReads": 6,
+  "nativeInputCommandCount": 0,
+  "selectionCount": 0,
+  "appStopped": true,
+  "samples": [
+    {
+      "requestID": "041C37EC-3DDD-4E9B-88F4-EA0C7FD25CDD",
+      "captureExecutionMS": 76.4752083341591,
+      "queueMS": 0.026124995201826096,
+      "receivedToValidatedMS": 4.383208346553147,
+      "validatedToAppPublishMS": 1.2167500099167228,
+      "publicationResult": "publishedNewTarget",
+      "reads": [
+        {
+          "authority": "DIAGNOSTIC_ONLY",
+          "check": "capture_selection",
+          "elapsedMS": 12.625208299141377,
+          "event": "active_identity",
+          "requestID": "041C37EC-3DDD-4E9B-88F4-EA0C7FD25CDD",
+          "route": "descriptor_fast",
+          "succeeded": true
+        },
+        {
+          "authority": "DIAGNOSTIC_ONLY",
+          "check": "capture_return_selection",
+          "elapsedMS": 4.131374997086823,
+          "event": "active_identity",
+          "requestID": "041C37EC-3DDD-4E9B-88F4-EA0C7FD25CDD",
+          "route": "descriptor_fast",
+          "succeeded": true
+        }
+      ]
+    },
+    {
+      "requestID": "08CBA009-AE8A-4172-88A4-2ED86CB41658",
+      "captureExecutionMS": 41.401624970603734,
+      "queueMS": 6.632041651755571,
+      "receivedToValidatedMS": 4.784208373166621,
+      "validatedToAppPublishMS": 0.7146249990910292,
+      "publicationResult": "acceptedExistingTarget",
+      "reads": [
+        {
+          "authority": "DIAGNOSTIC_ONLY",
+          "check": "capture_selection",
+          "elapsedMS": 8.697833342012018,
+          "event": "active_identity",
+          "requestID": "08CBA009-AE8A-4172-88A4-2ED86CB41658",
+          "route": "descriptor_fast",
+          "succeeded": true
+        },
+        {
+          "authority": "DIAGNOSTIC_ONLY",
+          "check": "capture_return_selection",
+          "elapsedMS": 4.287541669327766,
+          "event": "active_identity",
+          "requestID": "08CBA009-AE8A-4172-88A4-2ED86CB41658",
+          "route": "descriptor_fast",
+          "succeeded": true
+        }
+      ]
+    },
+    {
+      "requestID": "A88D20C0-4336-4A7E-BDD1-7129B7885598",
+      "captureExecutionMS": 42.52170835388824,
+      "queueMS": 0.13304164167493582,
+      "receivedToValidatedMS": 11.911583307664841,
+      "validatedToAppPublishMS": 0.4842500202357769,
+      "publicationResult": "acceptedExistingTarget",
+      "reads": [
+        {
+          "authority": "DIAGNOSTIC_ONLY",
+          "check": "capture_selection",
+          "elapsedMS": 5.372166691813618,
+          "event": "active_identity",
+          "requestID": "A88D20C0-4336-4A7E-BDD1-7129B7885598",
+          "route": "descriptor_fast",
+          "succeeded": true
+        },
+        {
+          "authority": "DIAGNOSTIC_ONLY",
+          "check": "capture_return_selection",
+          "elapsedMS": 11.606166663113981,
+          "event": "active_identity",
+          "requestID": "A88D20C0-4336-4A7E-BDD1-7129B7885598",
+          "route": "descriptor_fast",
+          "succeeded": true
+        }
+      ]
+    }
+  ],
+  "rawTraceSHA256": "f2714cb89a55d0f217860990971d154806dbe85e2c1fecf4bdf47488841d4157",
+  "limits": [
+    "No new click or upload performed on this source",
+    "Not proof of zero-ACK cold click success",
+    "Three captures in one controlled batch; no latency percentile claim",
+    "Legacy fallback not exercised live; unsupported descriptor shapes retain old path"
+  ]
+}

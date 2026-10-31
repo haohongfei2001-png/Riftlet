@@ -1,0 +1,422 @@
+{
+  "schemaVersion": 1,
+  "evidenceKind": "REAL_SYNTHETIC_ASSET_V9_START_FAILURE",
+  "runtimeSourceSHA": "1f9dec2dec9cf6ef61f36776a6e4f7c3439f4f8a",
+  "pageSourceID": "chatgpt-web-zh-20261027-integrated-v9",
+  "sourceQualification": "archived source plus synthetic AX identifier/enabled metadata-only overlay; no start grant or window-order overlay",
+  "productionAdmission": false,
+  "syntheticUploadStartGrant": false,
+  "v10Verdict": "NOT_ASSESSED_BY_THIS_EVIDENCE",
+  "publicTargetRepresentation": "targetDigest only; full target retained locally",
+  "rawSources": [
+    {
+      "name": "riftlet-round5-helper-enabled-press.json",
+      "sha256": "66a947f1f1a48dbb19292a0c8114ab9960e9634644e59155d540d992c60af4c8"
+    },
+    {
+      "name": "riftlet-round5-enabled.jsonl",
+      "sha256": "96656e01599ce96843ad11dc8fe3463d334599908dc75dd845ceda061b6e880e"
+    },
+    {
+      "name": "riftlet-round5-enabled-store-private.jsonl",
+      "sha256": "59cf39ee801a2d3914f30d8a4e30401b62c8c2df1d00aff803cd95ee59405548"
+    },
+    {
+      "name": "riftlet-round5-progress-press.json",
+      "sha256": "2629c4f8f75beb9169f97cbeaa0ad542b0d1cf8e159aff4a2db479cceba29815"
+    },
+    {
+      "name": "riftlet-round5-progress.jsonl",
+      "sha256": "e66fd5c8c5af35e849345a4d40e8bfc36bb9e9d9c23618bcab0d7e123c01e9d2"
+    },
+    {
+      "name": "riftlet-round5-progress-complete.json",
+      "sha256": "b6e5a82cccf517c41cbca4340eee8bfede23cae1e14b68c6795a25d2ab74ab84"
+    },
+    {
+      "name": "riftlet-round5-progress-final.json",
+      "sha256": "2d1f7e6a0ff6abcca0a10d7481505bb6d264472f29ee72c4902cc9a54774053f"
+    },
+    {
+      "name": "riftlet-round5-first-final.json",
+      "sha256": "243dda5ca7b28704a1fd5cb064d9a392d7867d449f281111bd8a7a067de4da78"
+    },
+    {
+      "name": "riftlet-round5-progress-store-private.json",
+      "sha256": "a948dbe78c0581c41e029c449dd184ca1c9f0a8e9238acc31aa12e6071670064"
+    }
+  ],
+  "rounds": [
+    {
+      "round": 1,
+      "assetID": "029C66A3-178B-4184-8A0E-3060AA8C83C7",
+      "operationID": "239F2076-9DCB-4BE0-93E8-4D924CB6877F",
+      "attempt": 1,
+      "assetSHA256": "494d7d015dc1a91073b356e1d6d64a546497aab37f8c47c4f82c630d7033f5bb",
+      "generatedAsset": true,
+      "ax": {
+        "source": "helperAX",
+        "physical": false,
+        "axActionAttempted": true,
+        "result": "axPressReturnedSuccess",
+        "axErrorCode": 0,
+        "foregroundPIDUnchanged": true,
+        "identityChecksAllTrue": true,
+        "buttonChecksAllTrue": true,
+        "windowChecksAllTrue": true,
+        "processIdentityStable": true,
+        "attachmentResultVerifiedByHelper": false
+      },
+      "selection": {
+        "source": "accessibility",
+        "frozen": true,
+        "freezeResult": "accepted",
+        "targetDigest": "ccaeec5fc920ae85c74df8d25c2765b4407847c84f6ef89ba69525ab0d535c6c",
+        "effectiveACKPrecedesOriginalBoundary": true,
+        "callbackDelayMS": 0.23450003936886787
+      },
+      "transportMutationCalls": {
+        "begin": 1,
+        "commit": 1
+      },
+      "inputCount": 1,
+      "inputCountEvidence": "first-final operations[0].inputCount",
+      "startEvidence": "first-final original operation start=null/startDisqualified=true; store ends in legacyCompletion",
+      "storeObservations": [
+        {
+          "sinceAXActionMS": -36200.90695901308,
+          "status": "pending",
+          "visibility": "visible",
+          "visibilityReason": "capture",
+          "visibilityRevision": 0,
+          "operationID": null,
+          "phase": null
+        },
+        {
+          "sinceAXActionMS": 20.818290940951556,
+          "status": "transferring",
+          "visibility": "visible",
+          "visibilityReason": "capture",
+          "visibilityRevision": 0,
+          "operationID": "239F2076-9DCB-4BE0-93E8-4D924CB6877F",
+          "phase": "prepared"
+        },
+        {
+          "sinceAXActionMS": 126.11749995267019,
+          "status": "transferring",
+          "visibility": "visible",
+          "visibilityReason": "capture",
+          "visibilityRevision": 0,
+          "operationID": "239F2076-9DCB-4BE0-93E8-4D924CB6877F",
+          "phase": "dispatchIntent"
+        },
+        {
+          "sinceAXActionMS": 10143.442374945153,
+          "status": "used",
+          "visibility": "swallowed",
+          "visibilityReason": "legacyCompletion",
+          "visibilityRevision": 1,
+          "operationID": "239F2076-9DCB-4BE0-93E8-4D924CB6877F",
+          "phase": "succeeded"
+        }
+      ],
+      "finalReceipt": {
+        "outcome": "verifiedReady",
+        "positiveReady": true,
+        "isUploading": false,
+        "hasError": false,
+        "belongsToOriginalDraft": true,
+        "safeToRetry": false,
+        "profileID": "chatgpt-web-zh-attached-development-20261027-v2"
+      },
+      "finalStatus": "succeeded",
+      "finalVisibilityReason": "legacyCompletion",
+      "finalReceiptObservationAfterAXMS": 10143.442374945153,
+      "timingMeaning": "store polling observation upper bound; not exact commit or animation completion",
+      "initialMissingProgressObserved": false,
+      "uploadStart": null,
+      "pageFinal": {
+        "hasProof": true,
+        "committed": true,
+        "invalid": false,
+        "error": false,
+        "uploading": false,
+        "startDisqualified": true
+      },
+      "pageProofAfterInputObservationMS": 7032.5,
+      "finalPreservation": {
+        "textPreserved": true,
+        "oldCardsPreserved": true,
+        "pageFocused": true,
+        "editorFocused": true
+      },
+      "fileChangeEventCount": 1,
+      "selectionPreservedAtInput": true,
+      "receiptTargetDigestMatchesSelection": true
+    },
+    {
+      "round": 2,
+      "assetID": "51847933-268A-4BCD-B708-2EB6FACBA5F0",
+      "operationID": "06102CDE-BD1F-45EE-8091-C02C07F2381D",
+      "attempt": 1,
+      "assetSHA256": "494d7d015dc1a91073b356e1d6d64a546497aab37f8c47c4f82c630d7033f5bb",
+      "generatedAsset": true,
+      "ax": {
+        "source": "helperAX",
+        "physical": false,
+        "axActionAttempted": true,
+        "result": "axPressReturnedSuccess",
+        "axErrorCode": 0,
+        "foregroundPIDUnchanged": true,
+        "identityChecksAllTrue": true,
+        "buttonChecksAllTrue": true,
+        "windowChecksAllTrue": true,
+        "processIdentityStable": true,
+        "attachmentResultVerifiedByHelper": false
+      },
+      "selection": {
+        "source": "accessibility",
+        "frozen": true,
+        "freezeResult": "accepted",
+        "targetDigest": "02dd81ae3d2922a26aaee278984f6a12b3c2120146ae6bd4905dd7412af2c304",
+        "effectiveACKPrecedesOriginalBoundary": true,
+        "callbackDelayMS": 0.3743750276044011
+      },
+      "transportMutationCalls": {
+        "begin": 1,
+        "commit": 1
+      },
+      "inputCount": 1,
+      "inputCountEvidence": "progress-final operations[0].inputCount and diagnostic original_input",
+      "fileChangeEventCount": 1,
+      "fileChangeEventSynthetic": true,
+      "firstProgressValueKind": "missing",
+      "firstFiniteProgress": 4.5378966329499795,
+      "nextFiniteProgress": 9.075793265899959,
+      "sameOriginalProgressNodeAtBothFiniteSamples": true,
+      "hashVerifiedAtBothFiniteSamples": true,
+      "startDisqualifiedAtMissingAndBothFiniteSamples": true,
+      "uploadStart": null,
+      "pageFinal": {
+        "hasProof": true,
+        "committed": true,
+        "invalid": false,
+        "error": false,
+        "uploading": false,
+        "startDisqualified": true
+      },
+      "pageProofAfterOriginalInputMS": 7521.300000011921,
+      "finalPreservation": {
+        "textPreserved": true,
+        "oldCardsPreserved": true,
+        "pageFocused": true,
+        "editorFocused": true
+      },
+      "selectionPreservedAtInput": true,
+      "coreFinalSuccessEvidence": "progress-store-private full row and original verifiedReady receipt; full target omitted publicly",
+      "progressSamples": [
+        {
+          "sequence": 1,
+          "event": "original_input",
+          "inputCount": 1,
+          "inputSequence": 2,
+          "hashVerified": false,
+          "adapterStartDisqualified": false,
+          "hasAdapterStart": false,
+          "hasAdapterProof": false,
+          "cardCount": 0,
+          "cardIsOriginal": false,
+          "progressCount": 0,
+          "nodeIsOriginal": false,
+          "exactProgressLabel": false,
+          "valueKind": "no-node",
+          "value": null,
+          "sinceOriginalInputMS": 0.0
+        },
+        {
+          "sequence": 2,
+          "event": "mutation_snapshot",
+          "inputCount": 1,
+          "inputSequence": 2,
+          "hashVerified": false,
+          "adapterStartDisqualified": true,
+          "hasAdapterStart": false,
+          "hasAdapterProof": false,
+          "cardCount": 1,
+          "cardIsOriginal": true,
+          "progressCount": 1,
+          "nodeIsOriginal": true,
+          "exactProgressLabel": true,
+          "valueKind": "missing",
+          "value": null,
+          "sinceOriginalInputMS": 13.600000023841858
+        },
+        {
+          "sequence": 3,
+          "event": "original_progress_membership",
+          "removed": false,
+          "added": true,
+          "sinceOriginalInputMS": 13.699999988079071
+        },
+        {
+          "sequence": 4,
+          "event": "mutation_snapshot",
+          "inputCount": 1,
+          "inputSequence": 2,
+          "hashVerified": true,
+          "adapterStartDisqualified": true,
+          "hasAdapterStart": false,
+          "hasAdapterProof": false,
+          "cardCount": 1,
+          "cardIsOriginal": true,
+          "progressCount": 1,
+          "nodeIsOriginal": true,
+          "exactProgressLabel": true,
+          "valueKind": "finite",
+          "value": 4.5378966329499795,
+          "sinceOriginalInputMS": 2207.199999988079
+        },
+        {
+          "sequence": 5,
+          "event": "progress_attribute",
+          "attribute": "value",
+          "nodeIsOriginal": true,
+          "underOriginalCard": true,
+          "exactProgressLabel": true,
+          "oldValueKind": "missing",
+          "oldValue": null,
+          "valueKind": "finite",
+          "value": 4.5378966329499795,
+          "sinceOriginalInputMS": 2207.199999988079
+        },
+        {
+          "sequence": 6,
+          "event": "mutation_snapshot",
+          "inputCount": 1,
+          "inputSequence": 2,
+          "hashVerified": true,
+          "adapterStartDisqualified": true,
+          "hasAdapterStart": false,
+          "hasAdapterProof": false,
+          "cardCount": 1,
+          "cardIsOriginal": true,
+          "progressCount": 1,
+          "nodeIsOriginal": true,
+          "exactProgressLabel": true,
+          "valueKind": "finite",
+          "value": 9.075793265899959,
+          "sinceOriginalInputMS": 2419.800000011921
+        },
+        {
+          "sequence": 7,
+          "event": "progress_attribute",
+          "attribute": "value",
+          "nodeIsOriginal": true,
+          "underOriginalCard": true,
+          "exactProgressLabel": true,
+          "oldValueKind": "finite",
+          "oldValue": 4.5378966329499795,
+          "valueKind": "finite",
+          "value": 9.075793265899959,
+          "sinceOriginalInputMS": 2419.800000011921
+        },
+        {
+          "sequence": 40,
+          "event": "mutation_snapshot",
+          "inputCount": 1,
+          "inputSequence": 2,
+          "hashVerified": true,
+          "adapterStartDisqualified": true,
+          "hasAdapterStart": false,
+          "hasAdapterProof": false,
+          "cardCount": 1,
+          "cardIsOriginal": true,
+          "progressCount": 1,
+          "nodeIsOriginal": true,
+          "exactProgressLabel": true,
+          "valueKind": "finite",
+          "value": 100,
+          "sinceOriginalInputMS": 4494.800000011921
+        },
+        {
+          "sequence": 42,
+          "event": "mutation_snapshot",
+          "inputCount": 1,
+          "inputSequence": 2,
+          "hashVerified": true,
+          "adapterStartDisqualified": true,
+          "hasAdapterStart": false,
+          "hasAdapterProof": false,
+          "cardCount": 1,
+          "cardIsOriginal": true,
+          "progressCount": 0,
+          "nodeIsOriginal": false,
+          "exactProgressLabel": false,
+          "valueKind": "no-node",
+          "value": null,
+          "sinceOriginalInputMS": 7330.699999988079
+        },
+        {
+          "sequence": 43,
+          "event": "original_progress_membership",
+          "removed": true,
+          "added": false,
+          "sinceOriginalInputMS": 7330.800000011921
+        },
+        {
+          "sequence": 44,
+          "event": "mutation_snapshot",
+          "inputCount": 1,
+          "inputSequence": 2,
+          "hashVerified": true,
+          "adapterStartDisqualified": true,
+          "hasAdapterStart": false,
+          "hasAdapterProof": true,
+          "cardCount": 1,
+          "cardIsOriginal": true,
+          "progressCount": 0,
+          "nodeIsOriginal": false,
+          "exactProgressLabel": false,
+          "valueKind": "no-node",
+          "value": null,
+          "sinceOriginalInputMS": 10473.699999988079
+        }
+      ],
+      "finalStatus": "succeeded",
+      "finalQueueStatus": "used",
+      "finalVisibility": "swallowed",
+      "finalVisibilityReason": "legacyCompletion",
+      "finalReceipt": {
+        "outcome": "verifiedReady",
+        "positiveReady": true,
+        "isUploading": false,
+        "hasError": false,
+        "belongsToOriginalDraft": true,
+        "safeToRetry": false,
+        "profileID": "chatgpt-web-zh-attached-development-20261027-v2"
+      },
+      "receiptTargetDigestMatchesSelection": true
+    }
+  ],
+  "rootCause": {
+    "sourceSHA": "1f9dec2dec9cf6ef61f36776a6e4f7c3439f4f8a",
+    "path": "Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js",
+    "lines": [
+      377,
+      379,
+      381,
+      392
+    ],
+    "mechanism": "missing aria-valuenow becomes NaN, permanently sets startDisqualified; later finite increases return immediately before start qualification",
+    "directlyObservedRound": 2,
+    "round1CausalLimit": "No initial-node diagnostic in supplied round1 files; do not claim the same initial missing-value trace was directly observed twice."
+  },
+  "limits": [
+    "Two generated-asset software AX inputs; no physical-human mouse proof.",
+    "No newly granted start profile; successful final attachment is separate from early-start admission.",
+    "AppKit swallow scheduled/start/close telemetry overlay was not enabled for these runs.",
+    "Store observation time is an upper bound and page performance time is a different clock.",
+    "No automatic send, retry, production screenshot admission or v10 PASS inferred."
+  ],
+  "sourceHashScope": "Read-time byte snapshots; a still-running local trace may append afterward. Selected operation evidence is explicitly extracted, not a claim that later log bytes were audited."
+}

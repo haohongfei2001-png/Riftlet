@@ -1,0 +1,76 @@
+{
+  "sourceSHA": "2d5174117deff5822ea079d98eca03146d72f83f",
+  "scope": "Linux pure Feedback package only; no AppKit or physical Mac claim",
+  "files": [
+    {
+      "path": "Sources/CSQLite/module.modulemap",
+      "gitBlob": "0a291b5e206495789da0b517a1e500707eabac9d",
+      "sha256": "bbfe59a972a3e8e09e347c04bc22c0eacd2544881af8a4b6068bfc30b38466e8"
+    },
+    {
+      "path": "Sources/CSQLite/shim.h",
+      "gitBlob": "f52e1f09e6bbfc8a3cb0c03c6f4624b77a664277",
+      "sha256": "b052d8e561e942f97b503033ecd2eaa2b35213bdbf374983efe9e68eabdfc024"
+    },
+    {
+      "path": "Sources/RiftletFeedback/FeedbackDiagnostics.swift",
+      "gitBlob": "1e6a4578cc8571c650922f36f7046ffd3a5e2510",
+      "sha256": "1679b37ce237106f5870ffae1f7cd089463e19ebc030a716de61b1b263d16bd8"
+    },
+    {
+      "path": "Sources/RiftletFeedback/FeedbackEngine.swift",
+      "gitBlob": "364bf1ad9f47ea820a82522ad7af3ab8a8ef7a91",
+      "sha256": "6b77e8cd2e7f11f0625e8dc395662036d5068da2df919d80498d7813f30ff198"
+    },
+    {
+      "path": "Sources/RiftletFeedback/FeedbackModels.swift",
+      "gitBlob": "736b9f9e1b4ff4ca03cef213107c91b8cc361c7b",
+      "sha256": "3c446e5957618146fc1168a1bbeb0c1c421d5c98fb023b358b5bcbce3bb54e74"
+    },
+    {
+      "path": "Sources/RiftletFeedback/FeedbackStore.swift",
+      "gitBlob": "e00e5722d09b38257777aa105828ced889d36ff2",
+      "sha256": "81a88a4236cb1ee3d637d2e57914884a4671f314ebfd8a83a548e6ff04c9cf69"
+    },
+    {
+      "path": "Sources/RiftletFeedback/FeedbackTransport.swift",
+      "gitBlob": "30cf617cec49f86b13790c233ea8018788ea292d",
+      "sha256": "0d17876ac65a13b4d29292b4a0975857e632daac302922b71f7ce31930c42222"
+    },
+    {
+      "path": "Sources/RiftletFeedback/ReportSecrets.swift",
+      "gitBlob": "7d2534f5dd76632ab5e30201f4cf2cbb8a2458f1",
+      "sha256": "73da2e45ced293e2f8cddd00db9617a19b9ed51c841e6c3aff82289e83ecaf86"
+    },
+    {
+      "path": "Tests/RiftletFeedbackTests/FeedbackAutomaticRetryTests.swift",
+      "gitBlob": "3cacdac27aac9e8bd6ef9396f5f5c3e72ed352f3",
+      "sha256": "c8c30bf216a7cf64a12b3d720ba3412f81a22971c2c8a6c10e22511ede1d9a5f"
+    },
+    {
+      "path": "Tests/RiftletFeedbackTests/FeedbackCredentialIntentTests.swift",
+      "gitBlob": "4c9fc56dae5b0cbb774cc0fd07a32d7fb9db2092",
+      "sha256": "086c7b70edc8907f0ac52ad256df0973c84fb58f255efa839b9d934689cd2ec3"
+    },
+    {
+      "path": "Tests/RiftletFeedbackTests/FeedbackDurabilityTests.swift",
+      "gitBlob": "68d209662e8533f8b2f0b81d7a3bf31897ad7e05",
+      "sha256": "10668dbf2e0ee6227276e3a502abe2ae63472a71b4fa67b6b134389a4b28dbb9"
+    },
+    {
+      "path": "Tests/RiftletFeedbackTests/FeedbackFlightTests.swift",
+      "gitBlob": "b580bfbdb5ab42e91c00ce265cdf24de7d920511",
+      "sha256": "68ab5ec8510190108a31505baee45c424676f647770b112fa06b038518107f1a"
+    },
+    {
+      "path": "Tests/RiftletFeedbackTests/FeedbackPrivacyCleanupTests.swift",
+      "gitBlob": "2ec47c6f7c984194e89f9bcadc26cc1ce4eef059",
+      "sha256": "5ac5dae9a1a588e425d3dae29b4fc63ecfb67d6944afc37bde7722d10de23898"
+    },
+    {
+      "path": "Tests/RiftletFeedbackTests/FeedbackTests.swift",
+      "gitBlob": "507fe2ff7485078ab3b6d4dd11b12448c70559ca",
+      "sha256": "e5dbc305222905278d8803a608b9ea5999cc2e909eea10b156859d5a54a8e77d"
+    }
+  ]
+}

@@ -1,4 +1,6 @@
-# Technical baseline (research, not a final architecture)
+# Technical baseline (historical research plus engineering update)
+
+**2026-10-27 update:** formal engineering is now authorized; implementation architecture is in [ENGINEERING_PLAN.md](ENGINEERING_PLAN.md). The latest user reports actual Chrome synthetic INPUT/identity and an ATTACHED candidate, while READY/anomaly admission is still open. The dated research below is retained as history, not a denial of this later evidence.
 
 As of **2026-10-26** the Pro report reviewed current platform documentation and fixed-version open-source code. It **did not** test real ChatGPT attachment injection on a Mac. A separate Codex probe only demonstrated narrow local Swift/AppKit compilation and partial Chrome navigation.
 

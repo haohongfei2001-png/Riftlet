@@ -1,0 +1,81 @@
+{
+  "kind": "OFFLINE_REPLAY_OF_REAL_TRACES_NOT_ADDITIONAL_LIVE_TESTS",
+  "verdicts": {
+    "IDENTITY": {
+      "state": "ATTACHED",
+      "reason": "OWNED_UI_LIFECYCLE_AND_CONTENT",
+      "strictREADY": "NOT_PROVEN",
+      "retainOriginal": true,
+      "automaticRetryAllowed": false,
+      "cardNode": "n4",
+      "imageNode": "n6",
+      "contentIdentity": "EXACT_DECODED_RGBA",
+      "evidenceSequences": {
+        "input": 4,
+        "uploading": 6,
+        "progress100": 25,
+        "progressEnded": 28,
+        "finalImageLoad": 29
+      }
+    },
+    "OTHER": {
+      "state": "ATTACHED",
+      "reason": "OWNED_UI_LIFECYCLE_AND_CONTENT",
+      "strictREADY": "NOT_PROVEN",
+      "retainOriginal": true,
+      "automaticRetryAllowed": false,
+      "cardNode": "n15",
+      "imageNode": "n17",
+      "contentIdentity": "EXACT_BYTES",
+      "evidenceSequences": {
+        "input": 9,
+        "uploading": 11,
+        "progress100": 16,
+        "progressEnded": 26,
+        "finalImageLoad": 27
+      }
+    },
+    "MID": {
+      "state": "UNKNOWN",
+      "reason": "OWN_ATTACHMENT_REMOVED",
+      "strictREADY": "NOT_PROVEN",
+      "retainOriginal": true,
+      "automaticRetryAllowed": false
+    },
+    "POST100": {
+      "state": "UNKNOWN",
+      "reason": "OWN_ATTACHMENT_REMOVED",
+      "strictREADY": "NOT_PROVEN",
+      "retainOriginal": true,
+      "automaticRetryAllowed": false
+    },
+    "TAB_SWITCH": {
+      "state": "UNKNOWN",
+      "reason": "TARGET_INVALIDATED",
+      "strictREADY": "NOT_PROVEN",
+      "retainOriginal": true,
+      "automaticRetryAllowed": false
+    }
+  },
+  "negativePrefixChecks": {
+    "MID": {
+      "realTracePrefixes": 40,
+      "falseAttached": 0,
+      "proof": "SYNTHETIC_GENEROUS_PROOF_FOR_NEGATIVE_REPLAY_ONLY"
+    },
+    "POST100": {
+      "realTracePrefixes": 49,
+      "falseAttached": 0,
+      "proof": "SYNTHETIC_GENEROUS_PROOF_FOR_NEGATIVE_REPLAY_ONLY"
+    }
+  },
+  "primaryWhenOtherFinished": {
+    "state": "UPLOADING",
+    "reason": "OWN_PROGRESS_PRESENT",
+    "strictREADY": "NOT_PROVEN",
+    "retainOriginal": true,
+    "automaticRetryAllowed": false
+  },
+  "strictREADY": "NOT_PROVEN",
+  "scope": "Selected exception samples; not exhaustive reliability certification"
+}

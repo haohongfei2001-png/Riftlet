@@ -1,0 +1,51 @@
+{
+  "observedUTC": "2026-10-29T14:57:32.888Z",
+  "source": "GitHub connector github_fetch, actual repository Issues REST list",
+  "repository": "haohongfei2001-png/Riftlet-Feedback",
+  "requestURL": "https://api.github.com/repos/haohongfei2001-png/Riftlet-Feedback/issues?state=all&per_page=100&page=1",
+  "state": "all",
+  "page": 1,
+  "perPage": 100,
+  "observedListingCount": 0,
+  "completeListingByShortPage": true,
+  "numberOfRemoteReads": 1,
+  "status": "NOT_YET",
+  "checks": [
+    {
+      "case": "plain",
+      "id": "9650fede-d514-4672-81f7-c92d2fa1afd2",
+      "expectedTitle": "Riftlet feedback RF-9650fede-d514-4672-81f7-c92d2fa1afd2",
+      "expectedBodySHA256": "0cfd8e965cf0c6c709abcf8346640fd1a1ab48fc395664439b875665ba5c1985",
+      "matchingIssueCount": 0,
+      "status": "NOT_YET",
+      "exactIssueBodyVerified": false
+    },
+    {
+      "case": "diagnostic",
+      "id": "5b11fd1c-80a9-4a41-8790-0b1296bd6401",
+      "expectedTitle": "Riftlet feedback RF-5b11fd1c-80a9-4a41-8790-0b1296bd6401",
+      "expectedBodySHA256": "79ceac26b2611ed4fd5c6ac7d1821308ebcb2030fb0298554c8e54ef9015e641",
+      "matchingIssueCount": 0,
+      "status": "NOT_YET",
+      "exactIssueBodyVerified": false
+    },
+    {
+      "case": "lost_receipt",
+      "id": "2b2dd0e6-c966-4910-93a0-e96b5510a056",
+      "expectedTitle": "Riftlet feedback RF-2b2dd0e6-c966-4910-93a0-e96b5510a056",
+      "expectedBodySHA256": "4dba89c743b28ac5322e927686a28e92fb58524af3b01e05d1e0447e45a78704",
+      "matchingIssueCount": 0,
+      "status": "NOT_YET",
+      "exactIssueBodyVerified": false
+    }
+  ],
+  "originalHelperUsedForExpectedBody": true,
+  "originalHelperInspectIssuesExecuted": false,
+  "inspectionDeferralReason": "No Issues exist yet; inspect_issues requires a delivered Issue and would mislabel expected cron startup as FAIL",
+  "privateVisibilityReverifiedByThisRead": false,
+  "rawConnectorObservationSHA256": "19d56346b53a1c2ab5613529093d53b1d7fce523327c6af71ea78dec01dca247",
+  "privateRawMode": "0700 directory / 0600 files",
+  "http201Proof": false,
+  "nativeMacAcceptance": false,
+  "remoteMutationsExecuted": false
+}

@@ -1,0 +1,123 @@
+sourceSHA=2d5174117deff5822ea079d98eca03146d72f83f
+platform=Linux x86_64 Ubuntu 24.04; Swift6.2.1; scope=pure Feedback only
+[0/1] Planning build
+Building for debugging...
+[0/11] Write swift-version-373B578237409B0B.txt
+[2/15] Emitting module RiftletFeedback
+[3/18] Compiling RiftletFeedback FeedbackDiagnostics.swift
+[4/18] Compiling RiftletFeedback FeedbackEngine.swift
+[5/18] Compiling RiftletFeedback FeedbackModels.swift
+[6/18] Compiling RiftletFeedback FeedbackStore.swift
+[7/18] Compiling RiftletFeedback FeedbackTransport.swift
+[8/18] Compiling RiftletFeedback ReportSecrets.swift
+[9/19] Wrapping AST for RiftletFeedback for debugging
+[11/23] Emitting module RiftletFeedbackTests
+[12/26] Compiling RiftletFeedbackTests FeedbackAutomaticRetryTests.swift
+[13/26] Compiling RiftletFeedbackTests FeedbackCredentialIntentTests.swift
+[14/26] Compiling RiftletFeedbackTests FeedbackDurabilityTests.swift
+[15/26] Compiling RiftletFeedbackTests FeedbackFlightTests.swift
+[16/26] Compiling RiftletFeedbackTests FeedbackPrivacyCleanupTests.swift
+[17/26] Compiling RiftletFeedbackTests FeedbackTests.swift
+[18/27] /tmp/riftlet-swift-verification/build/x86_64-unknown-linux-gnu/debug/RiftletFeedbackLinuxVerificationPackageDiscoveredTests.derived/all-discovered-tests.swift
+[19/27] Write sources
+[20/27] Wrapping AST for RiftletFeedbackTests for debugging
+[22/29] Emitting module RiftletFeedbackLinuxVerificationPackageDiscoveredTests
+[23/29] Compiling RiftletFeedbackLinuxVerificationPackageDiscoveredTests RiftletFeedbackTests.swift
+[24/30] Compiling RiftletFeedbackLinuxVerificationPackageDiscoveredTests all-discovered-tests.swift
+[25/31] /tmp/riftlet-swift-verification/build/x86_64-unknown-linux-gnu/debug/RiftletFeedbackLinuxVerificationPackageTests.derived/runner.swift
+[26/31] Write sources
+[27/31] Wrapping AST for RiftletFeedbackLinuxVerificationPackageDiscoveredTests for debugging
+[29/33] Compiling RiftletFeedbackLinuxVerificationPackageTests runner.swift
+[30/33] Emitting module RiftletFeedbackLinuxVerificationPackageTests
+[31/34] Wrapping AST for RiftletFeedbackLinuxVerificationPackageTests for debugging
+[32/34] Write Objects.LinkFileList
+[33/34] Linking RiftletFeedbackLinuxVerificationPackageTests.xctest
+Build complete! (12.35s)
+Test Suite 'All tests' started at 2026-10-28 12:01:50.557
+Test Suite 'debug.xctest' started at 2026-10-28 12:01:50.558
+Test Suite 'FeedbackAutomaticRetryTests' started at 2026-10-28 12:01:50.558
+Test Case 'FeedbackAutomaticRetryTests.testStopPreventsScheduledRetryFromDispatching' started at 2026-10-28 12:01:50.558
+Test Case 'FeedbackAutomaticRetryTests.testStopPreventsScheduledRetryFromDispatching' passed (1.223 seconds)
+Test Case 'FeedbackAutomaticRetryTests.testTimerRetriesDeletionWithoutResendingBody' started at 2026-10-28 12:01:51.782
+Test Case 'FeedbackAutomaticRetryTests.testTimerRetriesDeletionWithoutResendingBody' passed (1.034 seconds)
+Test Case 'FeedbackAutomaticRetryTests.testTimerRetriesWithoutAnotherUserActionAndPreservesEnvelopeAndCredential' started at 2026-10-28 12:01:52.816
+Test Case 'FeedbackAutomaticRetryTests.testTimerRetriesWithoutAnotherUserActionAndPreservesEnvelopeAndCredential' passed (1.027 seconds)
+Test Suite 'FeedbackAutomaticRetryTests' passed at 2026-10-28 12:01:53.844
+	 Executed 3 tests, with 0 failures (0 unexpected) in 3.285 (3.285) seconds
+Test Suite 'FeedbackCredentialIntentTests' started at 2026-10-28 12:01:53.844
+Test Case 'FeedbackCredentialIntentTests.testAbandonedCredentialCleanupResumesAfterRestartWithoutTouchingCommittedSecret' started at 2026-10-28 12:01:53.844
+Test Case 'FeedbackCredentialIntentTests.testAbandonedCredentialCleanupResumesAfterRestartWithoutTouchingCommittedSecret' passed (0.024 seconds)
+Test Case 'FeedbackCredentialIntentTests.testOverlappingSameDraftLeavesOnlyWinningReportCapability' started at 2026-10-28 12:01:53.868
+Test Case 'FeedbackCredentialIntentTests.testOverlappingSameDraftLeavesOnlyWinningReportCapability' passed (0.023 seconds)
+Test Case 'FeedbackCredentialIntentTests.testRepeatedCapacityFailuresKeepDraftAndDoNotAccumulateSecrets' started at 2026-10-28 12:01:53.892
+Test Case 'FeedbackCredentialIntentTests.testRepeatedCapacityFailuresKeepDraftAndDoNotAccumulateSecrets' passed (0.343 seconds)
+Test Suite 'FeedbackCredentialIntentTests' passed at 2026-10-28 12:01:54.235
+	 Executed 3 tests, with 0 failures (0 unexpected) in 0.391 (0.391) seconds
+Test Suite 'FeedbackDurabilityTests' started at 2026-10-28 12:01:54.235
+Test Case 'FeedbackDurabilityTests.testActualInsertFailureRollsBackSubmissionAndKeepsLatestDraft' started at 2026-10-28 12:01:54.235
+Test Case 'FeedbackDurabilityTests.testActualInsertFailureRollsBackSubmissionAndKeepsLatestDraft' passed (0.046 seconds)
+Test Case 'FeedbackDurabilityTests.testOutboxCapacityNeverEvictsTextAndKeepsTheNewDraft' started at 2026-10-28 12:01:54.281
+Test Case 'FeedbackDurabilityTests.testOutboxCapacityNeverEvictsTextAndKeepsTheNewDraft' passed (0.246 seconds)
+Test Case 'FeedbackDurabilityTests.testReadFailureDoesNotMasqueradeAsMissingIdempotencyRecord' started at 2026-10-28 12:01:54.527
+Test Case 'FeedbackDurabilityTests.testReadFailureDoesNotMasqueradeAsMissingIdempotencyRecord' passed (0.011 seconds)
+Test Case 'FeedbackDurabilityTests.testSidecarAndLockHavePrivatePermissions' started at 2026-10-28 12:01:54.537
+Test Case 'FeedbackDurabilityTests.testSidecarAndLockHavePrivatePermissions' passed (0.01 seconds)
+Test Suite 'FeedbackDurabilityTests' passed at 2026-10-28 12:01:54.547
+	 Executed 4 tests, with 0 failures (0 unexpected) in 0.312 (0.312) seconds
+Test Suite 'FeedbackFlightTests' started at 2026-10-28 12:01:54.548
+Test Case 'FeedbackFlightTests.testDanglingSidecarSymlinkRefusesWithoutCreatingItsDestination' started at 2026-10-28 12:01:54.548
+Test Case 'FeedbackFlightTests.testDanglingSidecarSymlinkRefusesWithoutCreatingItsDestination' passed (0.001 seconds)
+Test Case 'FeedbackFlightTests.testDeletionDuringStatusAutomaticallyDrainsAfterSuccessAndError' started at 2026-10-28 12:01:54.549
+Test Case 'FeedbackFlightTests.testDeletionDuringStatusAutomaticallyDrainsAfterSuccessAndError' passed (0.07 seconds)
+Test Case 'FeedbackFlightTests.testLateExpiryOrDeliveryCannotEraseDeletionIntentOrReviveDeletedRecord' started at 2026-10-28 12:01:54.618
+Test Case 'FeedbackFlightTests.testLateExpiryOrDeliveryCannotEraseDeletionIntentOrReviveDeletedRecord' passed (0.022 seconds)
+Test Case 'FeedbackFlightTests.testNewFrozenSubmissionDuringStatusIsNotStranded' started at 2026-10-28 12:01:54.640
+Test Case 'FeedbackFlightTests.testNewFrozenSubmissionDuringStatusIsNotStranded' passed (0.044 seconds)
+Test Case 'FeedbackFlightTests.testStopDuringStatusDoesNotDispatchQueuedDeletion' started at 2026-10-28 12:01:54.684
+Test Case 'FeedbackFlightTests.testStopDuringStatusDoesNotDispatchQueuedDeletion' passed (0.021 seconds)
+Test Suite 'FeedbackFlightTests' passed at 2026-10-28 12:01:54.706
+	 Executed 5 tests, with 0 failures (0 unexpected) in 0.158 (0.158) seconds
+Test Suite 'FeedbackPrivacyCleanupTests' started at 2026-10-28 12:01:54.706
+Test Case 'FeedbackPrivacyCleanupTests.testForgottenBodyIsScrubbedFromLiveDatabaseWithoutRemovingOtherFeedback' started at 2026-10-28 12:01:54.706
+Test Case 'FeedbackPrivacyCleanupTests.testForgottenBodyIsScrubbedFromLiveDatabaseWithoutRemovingOtherFeedback' passed (0.033 seconds)
+Test Case 'FeedbackPrivacyCleanupTests.testKeychainFailurePreservesCleanupRecordAndRetryDoesNotResend' started at 2026-10-28 12:01:54.739
+Test Case 'FeedbackPrivacyCleanupTests.testKeychainFailurePreservesCleanupRecordAndRetryDoesNotResend' passed (0.031 seconds)
+Test Case 'FeedbackPrivacyCleanupTests.testResolvedForgetRemovesOnlyItsCapabilityAndKeepsUnresolvedReport' started at 2026-10-28 12:01:54.770
+Test Case 'FeedbackPrivacyCleanupTests.testResolvedForgetRemovesOnlyItsCapabilityAndKeepsUnresolvedReport' passed (0.042 seconds)
+Test Case 'FeedbackPrivacyCleanupTests.testSQLiteFailureAfterCapabilityRemovalCanResumeWithoutRecreatingSecret' started at 2026-10-28 12:01:54.812
+Test Case 'FeedbackPrivacyCleanupTests.testSQLiteFailureAfterCapabilityRemovalCanResumeWithoutRecreatingSecret' passed (0.023 seconds)
+Test Suite 'FeedbackPrivacyCleanupTests' passed at 2026-10-28 12:01:54.835
+	 Executed 4 tests, with 0 failures (0 unexpected) in 0.129 (0.129) seconds
+Test Suite 'FeedbackTests' started at 2026-10-28 12:01:54.835
+Test Case 'FeedbackTests.testDeletionWinsLateReceiptAndUnattemptedCancellationNeedsNoNetwork' started at 2026-10-28 12:01:54.835
+Test Case 'FeedbackTests.testDeletionWinsLateReceiptAndUnattemptedCancellationNeedsNoNetwork' passed (0.036 seconds)
+Test Case 'FeedbackTests.testDiagnosticAllowlistIsBoundedAndKeepsVisibilityUnknownAndSuccessDistinct' started at 2026-10-28 12:01:54.871
+Test Case 'FeedbackTests.testDiagnosticAllowlistIsBoundedAndKeepsVisibilityUnknownAndSuccessDistinct' passed (0.002 seconds)
+Test Case 'FeedbackTests.testDraftCloseRestartRevisionAndConsentSnapshot' started at 2026-10-28 12:01:54.872
+Test Case 'FeedbackTests.testDraftCloseRestartRevisionAndConsentSnapshot' passed (0.012 seconds)
+Test Case 'FeedbackTests.testEndpointRejectsHTTPSecretsAndQueryAndUnknownDiagnostics' started at 2026-10-28 12:01:54.885
+Test Case 'FeedbackTests.testEndpointRejectsHTTPSecretsAndQueryAndUnknownDiagnostics' passed (0.0 seconds)
+Test Case 'FeedbackTests.testEnqueueIsAtomicFrozenAndIdempotentForOneDraft' started at 2026-10-28 12:01:54.885
+Test Case 'FeedbackTests.testEnqueueIsAtomicFrozenAndIdempotentForOneDraft' passed (0.025 seconds)
+Test Case 'FeedbackTests.testMissingCredentialAfterAttemptCannotBeLocallyCancelled' started at 2026-10-28 12:01:54.910
+Test Case 'FeedbackTests.testMissingCredentialAfterAttemptCannotBeLocallyCancelled' passed (0.029 seconds)
+Test Case 'FeedbackTests.testMissingKeychainCapabilityCannotBeReplacedOnRetry' started at 2026-10-28 12:01:54.939
+Test Case 'FeedbackTests.testMissingKeychainCapabilityCannotBeReplacedOnRetry' passed (0.025 seconds)
+Test Case 'FeedbackTests.testNetworkLossRetriesExactFrozenBytesAndSecretWithoutDuplicateReport' started at 2026-10-28 12:01:54.964
+Test Case 'FeedbackTests.testNetworkLossRetriesExactFrozenBytesAndSecretWithoutDuplicateReport' passed (1.133 seconds)
+Test Case 'FeedbackTests.testStoreLocksAndFutureSchemaCannotTouchScreenshotDatabase' started at 2026-10-28 12:01:56.097
+Test Case 'FeedbackTests.testStoreLocksAndFutureSchemaCannotTouchScreenshotDatabase' passed (0.011 seconds)
+Test Case 'FeedbackTests.testUncleanSessionIsNotDeclaredACrashAndSubmissionBoundsPreserveDraft' started at 2026-10-28 12:01:56.108
+Test Case 'FeedbackTests.testUncleanSessionIsNotDeclaredACrashAndSubmissionBoundsPreserveDraft' passed (0.017 seconds)
+Test Case 'FeedbackTests.testWrongOrNonDurableReceiptCannotAnnounceSuccess' started at 2026-10-28 12:01:56.126
+Test Case 'FeedbackTests.testWrongOrNonDurableReceiptCannotAnnounceSuccess' passed (0.02 seconds)
+Test Suite 'FeedbackTests' passed at 2026-10-28 12:01:56.146
+	 Executed 11 tests, with 0 failures (0 unexpected) in 1.311 (1.311) seconds
+Test Suite 'debug.xctest' passed at 2026-10-28 12:01:56.146
+	 Executed 30 tests, with 0 failures (0 unexpected) in 5.586 (5.586) seconds
+Test Suite 'All tests' passed at 2026-10-28 12:01:56.146
+	 Executed 30 tests, with 0 failures (0 unexpected) in 5.586 (5.586) seconds
+◇ Test run started.
+↳ Testing Library Version: 6.2.1 (c9d57c83568b06d)
+↳ Target Platform: x86_64-unknown-linux-gnu
+✔ Test run with 0 tests in 0 suites passed after 0.001 seconds.

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+<key>CFBundleExecutable</key><string>Riftlet</string>
+<key>CFBundleIdentifier</key><string>com.riftlet.app</string>
+<key>CFBundleName</key><string>Riftlet</string>
+<key>CFBundleDisplayName</key><string>Riftlet</string>
+<key>CFBundlePackageType</key><string>APPL</string>
+<key>CFBundleShortVersionString</key><string>0.1.0</string>
+<key>CFBundleVersion</key><string>1</string>
+<key>LSMinimumSystemVersion</key><string>13.0</string>
+<key>LSUIElement</key><true/>
+<key>NSHighResolutionCapable</key><true/>
+<key>NSScreenCaptureUsageDescription</key><string>Riftlet 仅在你主动截图时捕获所选窗口、区域或屏幕，并在本机保存截图。</string>
+<key>LSApplicationCategoryType</key><string>public.app-category.utilities</string>
+<key>RiftletBuildChannel</key><string>development</string>
+<key>RiftletDeveloperIDSigned</key><false/>
+<key>RiftletNotarized</key><false/>
+<key>NSAppleEventsUsageDescription</key><string>Riftlet 使用 Google Chrome 向当前 ChatGPT 草稿附加图片，绝不自动发送消息。普通模式尚未启用上传；生成图测试和需明确启动的真实截图内部候选各自隔离，候选只在点击后尝试输入，不代表生产准入。</string>
+<key>NSDesktopFolderUsageDescription</key><string>Riftlet 读取系统保存到桌面的新截图，并在本机保留私有副本；不会删除系统原截图。</string>
+<key>NSDocumentsFolderUsageDescription</key><string>当系统截图保存在文稿中时，Riftlet 读取新截图并在本机保留私有副本；不会删除系统原截图。</string>
+<key>NSDownloadsFolderUsageDescription</key><string>当系统截图保存在下载中时，Riftlet 读取新截图并在本机保留私有副本；不会删除系统原截图。</string>
+</dict></plist>

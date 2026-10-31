@@ -1,0 +1,85 @@
+{
+  "sourceSHA": "159b3ef3e6c87ea468ba334dff64ad8db640d80c",
+  "roots": [
+    {
+      "rootLabel": "Riftlet",
+      "schema": 2,
+      "quickCheck": "ok",
+      "tables": {
+        "assets": {
+          "before": 5,
+          "after": 6,
+          "allPriorRowsIdentical": true
+        },
+        "operations": {
+          "before": 0,
+          "after": 0,
+          "allPriorRowsIdentical": true,
+          "recoveryChanges": [],
+          "identityAttemptTargetPhaseRetained": true
+        },
+        "compensations": {
+          "before": 0,
+          "after": 0,
+          "allPriorRowsIdentical": true
+        }
+      },
+      "priorPrivateMediaCount": 5,
+      "priorPrivateMediaBytesUnchanged": true
+    },
+    {
+      "rootLabel": "Riftlet-Web-Acceptance",
+      "schema": 2,
+      "quickCheck": "ok",
+      "tables": {
+        "assets": {
+          "before": 10,
+          "after": 10,
+          "allPriorRowsIdentical": true
+        },
+        "operations": {
+          "before": 16,
+          "after": 16,
+          "allPriorRowsIdentical": false,
+          "recoveryChanges": [
+            {
+              "originalPhase": "compensated",
+              "currentPhase": "compensated",
+              "changedFields": [
+                "updated_at",
+                "reason"
+              ]
+            },
+            {
+              "originalPhase": "compensated",
+              "currentPhase": "compensated",
+              "changedFields": [
+                "updated_at",
+                "reason"
+              ]
+            },
+            {
+              "originalPhase": "unknown",
+              "currentPhase": "unknown",
+              "changedFields": [
+                "updated_at",
+                "receipt_json"
+              ]
+            }
+          ],
+          "identityAttemptTargetPhaseRetained": true
+        },
+        "compensations": {
+          "before": 3,
+          "after": 3,
+          "allPriorRowsIdentical": true
+        }
+      },
+      "priorPrivateMediaCount": 10,
+      "priorPrivateMediaBytesUnchanged": true
+    }
+  ],
+  "privateBackupRetained": true,
+  "oldBranchesRetained": true,
+  "clipboardCoordination": "No clipboard write/paste in this round; existing coordination records untouched by tested Web input path"
+}

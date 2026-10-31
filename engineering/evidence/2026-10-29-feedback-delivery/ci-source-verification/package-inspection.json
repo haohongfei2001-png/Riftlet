@@ -1,0 +1,46 @@
+{
+  "artifactBytes": 3564248,
+  "artifactSHA256": "4da84e09bd79cced5ee9734440132a29122c30db05b7bad3fafdce2aab90643e",
+  "internalBetaBytes": 1475586,
+  "internalBetaSHA256": "eee6b1bd04ce7f7dead12ad45ef745f6dc9e07d14c609c3d192c24b5042c87d4",
+  "manifest": {
+    "schemaVersion": 1,
+    "kind": "internal-beta-development",
+    "sourceHeadSHA": "7ef6cd4bfd6e22605b0d97db37e249a8d94797c1",
+    "checkoutSHA": "05e5f5e538a2780d039491a53317a21bd00f4dd0",
+    "ciRunID": "40733901373",
+    "architecture": "arm64",
+    "launchArgument": "--system-screenshot-candidate",
+    "ordinaryAppDefault": "capture-upload-disabled",
+    "dataDirectory": "Riftlet-System-Screenshot-Candidate",
+    "feedbackEndpointConfigured": false,
+    "feedbackDelivery": "local-outbox-only",
+    "realAcceptanceSourceSHA": "e421e6687651c2fac1441410c1af2bd5b8151e55",
+    "realAcceptanceEvidenceSHA": "c177174e400064d8ec8bb79685c33d01c4e93b89",
+    "realAcceptanceScope": "prebound-software-CGEvent-one-new-PNG; not a new combined-App Mac run",
+    "buildInputObjects": {
+      "Sources": "a390b0e5ed3bdb434ba42da061f3c2594cf35935",
+      "Tests": "426297306a9b35522542c8117ee180c702d2641a",
+      "Resources": "760e5d2e74f2237ca17597edd042f2f1d13439ac",
+      "Package.swift": "32845958fe38db6151c9eb9375eda4d6985219c6",
+      "scripts": "603dcac960970302007b7c31fa5a7440cd4e37e1",
+      "packaging": "34afc66d87f2e37a9e570d8632c1baae597ff731",
+      ".github": "734e3eca298af63e4c1a7453c34ae7b2e32527af",
+      "services/feedback": "f588f8baab717a67eee579d5ace73b6392b772e6",
+      "ThirdPartyNotices": "89a07e01c183f61fca6bc7d7127322b00fa03ded",
+      "research": "7ed0708f7cb3faed95a37fe319e3f0400f3b51dd",
+      "engineering/evidence/2026-10-27-real-mac-round2": "8bf31e0794f1cbd840c4d0b6ac7ac791b326eb81",
+      "engineering/evidence/2026-10-27-real-mac-round3": "dfb9ec12e223366dd37d1e44c8c34a4756bbf96b",
+      "engineering/evidence/2026-10-27-real-mac-round5": "5a22c1bbeffbc0188b5bf4c2da951fce20a85a54",
+      "engineering/evidence/2026-10-28-system-screenshot-stage2": "51e8dba0abbbed28e2ab9274f9736c955537f25f"
+    },
+    "sha256": {
+      "Start-Riftlet-Internal-Beta.command": "99ad3d30e2af2a3d6a39a7de039addd77cc7d06b72bcc1d44dfecf1e5428a450",
+      "README-zh-CN.txt": "63c17042c8397d4a99bd6f6dc6faa9b495fde98ef8c5e11975e8c0a079292476",
+      "Riftlet.app/Contents/MacOS/Riftlet": "918ed7d9ab83c384eae91f8b47d6c3f805f3a045203a74e162c6f2868e79d475",
+      "Riftlet.app/Contents/Info.plist": "e6a625188cb0c0539ea72024520df656c50c257133adcf5c210d9beaf0042d34",
+      "Riftlet.app/Contents/Resources/Riftlet_RiftletAdapters.bundle/chatgpt-web-20261027.js": "c0afbd8a652c7a0e8fe6875ddbbd54f075e9c60bcda512eeb4df610e72f8948b",
+      "Riftlet.app/Contents/Resources/Riftlet_RiftletAdapters.bundle/legacy-web-observe.js": "9a60f99e806289213e9df8bd9812337ebf58e334cd996679ef3a5de394805848"
+    }
+  }
+}

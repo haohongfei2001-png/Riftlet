@@ -1,0 +1,59 @@
+# Continuous implementation — actual macOS CI excerpts
+
+Testing lines identify scheduled tests; completed successful job/step status and zero-exit test command establish the result. These runs contain no interactive GUI or real ChatGPT test.
+
+## 94df78c74e75cf79b7832e62a228c6fd37913cf9
+Run 40386356404, job 121795551358, completed/success
+
+2026-10-26T19:26:08.3480130Z Image: macos-14-arm64
+2026-10-26T19:26:13.8196700Z Apple Swift version 5.10 (swiftlang-5.10.0.13 clang-1500.3.9.4)
+2026-10-26T19:26:13.8339320Z ProductVersion:		14.8.9
+2026-10-26T19:26:13.8340190Z BuildVersion:		23J631
+2026-10-26T19:26:13.8354010Z arm64
+2026-10-26T19:26:35.1698530Z Build complete! (20.01s)
+2026-10-26T19:26:39.8218540Z [63/63] Testing RiftletCoreTests.TransferCoordinatorTests/testStartupReconcilesOnlyDispatchedOriginalOperationWithoutCapturingNewTarget
+2026-10-26T19:26:56.9240320Z Build complete! (16.52s)
+2026-10-26T19:26:58.1936540Z RIFTLET_SELF_CHECK_PASS: private import, durable queue, synthetic receipt, restart
+2026-10-26T19:26:58.5561550Z RIFTLET_GUI_HELPER_SELF_CHECK_PASS: 12 synthetic PNGs; scenes 2/3/12; layout/status fixtures; GUI_NOT_RUN
+
+## 3e7b8eac6c3bd235f4e376172d6085ab0d5b4426
+Run 40387437225, job 121799323747, completed/success
+
+2026-10-26T19:31:04.0883400Z Image: macos-14-arm64
+2026-10-26T19:31:09.0675960Z Apple Swift version 5.10 (swiftlang-5.10.0.13 clang-1500.3.9.4)
+2026-10-26T19:31:09.0832950Z ProductVersion:		14.8.9
+2026-10-26T19:31:09.0833990Z BuildVersion:		23J631
+2026-10-26T19:31:09.0847720Z arm64
+2026-10-26T19:31:31.3293110Z Build complete! (20.60s)
+2026-10-26T19:31:36.0591600Z [98/98] Testing RiftletAdaptersTests.WebAttachmentAdapterTests/testRealAssetAndPreIntentAreRejectedBeforeBridgeSideEffects
+2026-10-26T19:31:52.0878290Z Build complete! (15.74s)
+2026-10-26T19:31:53.0807420Z RIFTLET_SELF_CHECK_PASS: private import, durable queue, synthetic receipt, restart
+2026-10-26T19:31:53.4388440Z RIFTLET_GUI_HELPER_SELF_CHECK_PASS: 12 synthetic PNGs; scenes 2/3/12; layout/status fixtures; GUI_NOT_RUN
+
+## 1afd849a9b2d2cfada0d01cd47b5f1ee31f83d37
+Run 40388958638, job 121804600260, completed/success
+
+2026-10-26T19:41:45.4970200Z Image: macos-14-arm64
+2026-10-26T19:41:52.7374680Z Apple Swift version 5.10 (swiftlang-5.10.0.13 clang-1500.3.9.4)
+2026-10-26T19:41:52.7569100Z ProductVersion:		14.8.9
+2026-10-26T19:41:52.7569910Z BuildVersion:		23J631
+2026-10-26T19:41:52.7584220Z arm64
+2026-10-26T19:42:15.3244490Z Build complete! (21.16s)
+2026-10-26T19:42:27.0101040Z [127/127] Testing RiftletCaptureTests.ImportFaultTests/testRealSQLiteWriterLockLeavesJournalAndCanResumeSameIdentity
+2026-10-26T19:42:44.6717770Z Build complete! (17.27s)
+2026-10-26T19:42:45.7407790Z RIFTLET_SELF_CHECK_PASS: private import, durable queue, synthetic receipt, restart
+2026-10-26T19:42:46.0921220Z RIFTLET_GUI_HELPER_SELF_CHECK_PASS: 12 synthetic PNGs; scenes 2/3/12; layout/status fixtures; GUI_NOT_RUN
+
+## e76e7985c05197c487dd4e7f585dc028ed64b1af
+Run 40389753080, job 121807449326, completed/success
+
+2026-10-26T19:47:15.5787280Z Image: macos-14-arm64
+2026-10-26T19:47:21.4297520Z Apple Swift version 5.10 (swiftlang-5.10.0.13 clang-1500.3.9.4)
+2026-10-26T19:47:21.4491340Z ProductVersion:		14.8.9
+2026-10-26T19:47:21.4491960Z BuildVersion:		23J631
+2026-10-26T19:47:21.4524600Z arm64
+2026-10-26T19:47:44.2664590Z Build complete! (21.53s)
+2026-10-26T19:47:56.5133700Z [134/134] Testing RiftletCaptureTests.ImportFaultTests/testRealSQLiteWriterLockLeavesJournalAndCanResumeSameIdentity
+2026-10-26T19:48:14.7886810Z Build complete! (17.84s)
+2026-10-26T19:48:16.0454090Z RIFTLET_SELF_CHECK_PASS: private import, durable queue, synthetic receipt, restart
+2026-10-26T19:48:16.4040880Z RIFTLET_GUI_HELPER_SELF_CHECK_PASS: 12 synthetic PNGs; scenes 2/3/12; layout/status fixtures; GUI_NOT_RUN

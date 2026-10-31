@@ -1,0 +1,252 @@
+Successful run40508109228 / job122202566296 / source2449d40; exact log lines below.
+2026-10-27T12:59:26.7582890Z Commit: abac92662cab4cc7352de4f9f9d2e2419aad9c29
+2026-10-27T12:59:26.7596890Z Contents: read
+2026-10-27T12:59:26.7897980Z Prepare all required actions
+2026-10-27T12:59:27.5458970Z ##[group]Setting up auth
+2026-10-27T12:59:29.4334380Z HEAD is now at f3531df Merge 2449d40a88225acba9d413cc6a4cb5d84fcae6a1 into eba1a4fc77648a665e1d5c1f2609df1314c3b079
+2026-10-27T12:59:31.4691230Z Apple Swift version 5.10 (swiftlang-5.10.0.13 clang-1500.3.9.4)
+2026-10-27T12:59:31.4804830Z ProductVersion:		14.8.9
+2026-10-27T12:59:31.4817940Z arm64
+2026-10-27T12:59:31.4906890Z ##[group]Run set -o pipefail
+2026-10-27T12:59:32.0675480Z # Subtest: SIMULATED: a loaded preview before upload ends cannot be borrowed as final load
+2026-10-27T12:59:32.0676060Z ok 4 - SIMULATED: a loaded preview before upload ends cannot be borrowed as final load
+2026-10-27T12:59:32.0677240Z # Subtest: SIMULATED: wrong final bytes reject filename-only identity
+2026-10-27T12:59:32.0677660Z ok 5 - SIMULATED: wrong final bytes reject filename-only identity
+2026-10-27T12:59:32.0678780Z # Subtest: SIMULATED: identical content from another operation cannot supply preview proof
+2026-10-27T12:59:32.0679270Z ok 6 - SIMULATED: identical content from another operation cannot supply preview proof
+2026-10-27T12:59:32.0680440Z # Subtest: SIMULATED: duplicate named card cannot be consumed
+2026-10-27T12:59:32.0680810Z ok 7 - SIMULATED: duplicate named card cannot be consumed
+2026-10-27T12:59:32.0681870Z # Subtest: SIMULATED: preexisting same-name card cannot be claimed
+2026-10-27T12:59:32.0682220Z ok 8 - SIMULATED: preexisting same-name card cannot be claimed
+2026-10-27T12:59:32.0683680Z # Subtest: SIMULATED: parallel user file event blocks uncalibrated concurrency
+2026-10-27T12:59:32.0684150Z ok 9 - SIMULATED: parallel user file event blocks uncalibrated concurrency
+2026-10-27T12:59:32.0685600Z # Subtest: SIMULATED: second dispatch / duplicate screenshot operation is not success
+2026-10-27T12:59:32.0698390Z ok 10 - SIMULATED: second dispatch / duplicate screenshot operation is not success
+2026-10-27T12:59:32.0698890Z   duration_ms: 0.501208
+2026-10-27T12:59:32.0699570Z # Subtest: SIMULATED: correlated failure vetoes completed preview; no auto retry
+2026-10-27T12:59:32.0700020Z ok 11 - SIMULATED: correlated failure vetoes completed preview; no auto retry
+2026-10-27T12:59:32.0700890Z   ...
+2026-10-27T12:59:32.0701160Z # Subtest: SIMULATED: image error after a successful load vetoes attachment success
+2026-10-27T12:59:32.0701610Z ok 12 - SIMULATED: image error after a successful load vetoes attachment success
+2026-10-27T12:59:32.0702460Z   duration_ms: 0.189625
+2026-10-27T12:59:32.0703070Z # Subtest: SIMULATED: switched document rejects delayed old receipts
+2026-10-27T12:59:32.0703440Z ok 13 - SIMULATED: switched document rejects delayed old receipts
+2026-10-27T12:59:32.0704400Z # Subtest: SIMULATED: same URL with replaced composer rejects receipt
+2026-10-27T12:59:32.0704870Z ok 14 - SIMULATED: same URL with replaced composer rejects receipt
+2026-10-27T12:59:32.0706260Z # Subtest: SIMULATED: reused DOM with observed epoch invalidation rejects receipt
+2026-10-27T12:59:32.0706710Z ok 15 - SIMULATED: reused DOM with observed epoch invalidation rejects receipt
+2026-10-27T12:59:32.0723210Z # Subtest: SIMULATED: removed attachment, dropped event and truncated buffer fail closed
+2026-10-27T12:59:32.0723880Z ok 16 - SIMULATED: removed attachment, dropped event and truncated buffer fail closed
+2026-10-27T12:59:32.0727640Z # Subtest: SIMULATED: restarting upload after final preview blocks consumption
+2026-10-27T12:59:32.0728280Z ok 17 - SIMULATED: restarting upload after final preview blocks consumption
+2026-10-27T12:59:32.0729650Z # Subtest: SIMULATED: elapsed time does not upgrade or downgrade the same causal evidence
+2026-10-27T12:59:32.0730670Z ok 18 - SIMULATED: elapsed time does not upgrade or downgrade the same causal evidence
+2026-10-27T12:59:32.0731780Z # Subtest: SIMULATED: current card relabel or loss of input proof vetoes a historical good trace
+2026-10-27T12:59:32.0732740Z ok 19 - SIMULATED: current card relabel or loss of input proof vetoes a historical good trace
+2026-10-27T12:59:32.0869610Z # tests 19
+2026-10-27T12:59:32.0869890Z # pass 19
+2026-10-27T12:59:32.0870010Z # fail 0
+2026-10-27T12:59:32.0897410Z {
+2026-10-27T12:59:32.0897640Z   "offlineOnly": true,
+2026-10-27T12:59:32.0897860Z   "packageFilesVerified": 55,
+2026-10-27T12:59:32.0898070Z   "historicalV1Tests": 19,
+2026-10-27T12:59:32.0898290Z   "realExceptionTracePrefixes": 89,
+2026-10-27T12:59:32.0898650Z   "lateErrorChecks": "2 SIMULATED, not actual post-preview failure",
+2026-10-27T12:59:32.0898980Z   "actualInputOperations": 3,
+2026-10-27T12:59:32.0899200Z   "exceptionVerdicts": {
+2026-10-27T12:59:32.0899390Z     "IDENTITY": "ATTACHED",
+2026-10-27T12:59:32.0899600Z     "OTHER": "ATTACHED",
+2026-10-27T12:59:32.0899790Z     "MID": "UNKNOWN",
+2026-10-27T12:59:32.0899980Z     "POST100": "UNKNOWN",
+2026-10-27T12:59:32.2388940Z   type: 'test'
+2026-10-27T12:59:32.2389080Z   ...
+2026-10-27T12:59:32.2565890Z   ---
+2026-10-27T12:59:32.2593750Z   duration_ms: 2.896333
+2026-10-27T12:59:32.2897130Z # Subtest: transient card/form detach and final src restore cannot reuse an earlier proof
+2026-10-27T12:59:32.2898720Z ok 7 - transient card/form detach and final src restore cannot reuse an earlier proof
+2026-10-27T12:59:32.2899220Z   ---
+2026-10-27T12:59:32.2899450Z   duration_ms: 18.185042
+2026-10-27T12:59:32.2899680Z   type: 'test'
+2026-10-27T12:59:32.2899870Z   ...
+2026-10-27T12:59:32.3589300Z   duration_ms: 4.02725
+2026-10-27T12:59:32.3589570Z   type: 'test'
+2026-10-27T12:59:32.3589810Z   ...
+2026-10-27T12:59:32.3918920Z   ...
+2026-10-27T12:59:32.4156890Z # Subtest: observed 373-level current ancestry is accepted but chains above 512 remain refused
+2026-10-27T12:59:32.4458890Z   duration_ms: 1.263625
+2026-10-27T12:59:32.4890660Z ok 46 - R01 final asynchronous commit rechecks blockers and focus without redirecting the frozen target
+2026-10-27T12:59:32.4891080Z   ---
+2026-10-27T12:59:32.4891230Z   duration_ms: 11.001
+2026-10-27T12:59:32.4891400Z   type: 'test'
+2026-10-27T12:59:32.4891550Z   ...
+2026-10-27T12:59:32.4951070Z # tests 48
+2026-10-27T12:59:32.4952170Z # pass 48
+2026-10-27T12:59:32.4959640Z # fail 0
+2026-10-27T12:59:32.6107590Z   duration_ms: 1.389583
+2026-10-27T12:59:32.6255890Z   ...
+2026-10-27T12:59:32.6408930Z ok 11 - v7 invalidation, missing proof and uncommitted original never gain authority
+2026-10-27T12:59:32.6511040Z # tests 14
+2026-10-27T12:59:32.6511420Z # pass 14
+2026-10-27T12:59:32.6516390Z # fail 0
+2026-10-27T12:59:32.8969210Z PASS next generated input atomically freezes UUID/name, exact bytes abort, duplicate closes
+2026-10-27T12:59:32.8974140Z PASS next-input unexpected name closes without adopting identity
+2026-10-27T12:59:33.1912890Z shell: /bin/bash -e {0}
+2026-10-27T12:59:34.2389770Z PASS bounded temporary metadata, third-party hook preservation and active fault-hook refusal
+2026-10-27T12:59:34.2830750Z 12 read-only network-probe VM groups PASS; real MID interception/abort NOT_RUN
+2026-10-27T12:59:36.4029890Z [0/28] Copying v7.js
+2026-10-27T12:59:38.9892640Z [21/35] Emitting module RiftletCore
+2026-10-27T12:59:44.3892160Z [32/60] Compiling RiftletUI RiftDisplaySelection.swift
+2026-10-27T12:59:45.6089720Z [39/62] Emitting module RiftletUI
+2026-10-27T12:59:46.4173890Z [46/78] Emitting module RiftletAdapters
+2026-10-27T12:59:50.4895980Z [77/99] Emitting module RiftletCaptureTests
+2026-10-27T12:59:50.8954710Z [82/101] Compiling RiftletCaptureTests StorageUsageTests.swift
+2026-10-27T12:59:51.7081140Z [89/104] Compiling RiftletCoreTests TargetArmSchedulerTests.swift
+2026-10-27T12:59:51.7283890Z [91/104] Compiling RiftletCoreTests WebTargetLockTests.swift
+2026-10-27T12:59:52.4689020Z [97/121] Emitting module RiftletApp
+2026-10-27T12:59:52.6198990Z [99/123] Compiling RiftletAdaptersTests MacClipboardCoordinatorTests.swift
+2026-10-27T12:59:55.8998910Z [122/130] Compiling RiftletAppTests CaptureControlGateTests.swift
+2026-10-27T12:59:56.8082590Z Build complete! (21.51s)
+2026-10-27T12:59:57.2275910Z [1/344] Testing RiftletAppTests.AutomationPermissionTests/testBackgroundInspectionNeverAsksUser
+2026-10-27T12:59:57.2319030Z [3/344] Testing RiftletAppTests.AutomationPermissionTests/testDeniedGrantedOrMissingBrowserNeverPromptAgain
+2026-10-27T12:59:57.2654430Z [4/344] Testing RiftletAppTests.AutomationPermissionTests/testOrdinaryCaptureCannotProbeOrRequestChrome
+2026-10-27T12:59:57.2774390Z [5/344] Testing RiftletAppTests.AutomationPermissionTests/testOnlyExplicitNeedCanRequestAfterPassiveCheck
+2026-10-27T12:59:57.2866410Z [6/344] Testing RiftletAppTests.AutomationPermissionTests/testNativePermissionCodesNeverConflateDenialWithUnavailable
+2026-10-27T12:59:57.3070330Z [7/344] Testing RiftletAppTests.CaptureControlGateTests/testStaleCompletionCannotUnlockLaterSourceControl
+2026-10-27T12:59:57.3194360Z [9/344] Testing RiftletAppTests.CaptureControlGateTests/testRecheckCannotRestartSourceAcrossAcceptedPause
+2026-10-27T13:00:00.4795050Z [47/344] Testing RiftletAppTests.FirstUseTests/testCaptureDiagnosticsRemainDistinctFromAttachmentPermission
+2026-10-27T13:00:00.5153800Z [48/344] Testing RiftletAppTests.FirstUseTests/testClickFeedbackCannotBlamePermissionForDisabledProduction
+2026-10-27T13:00:00.5527010Z [49/344] Testing RiftletAppTests.FirstUseTests/testFolderGrantCannotRedirectScreenshotSource
+2026-10-27T13:00:00.5889110Z [50/344] Testing RiftletAppTests.FirstUseTests/testPauseAndFirstCheckAreNotPermissionDenial
+2026-10-27T13:00:00.6305700Z [51/344] Testing RiftletAppTests.FirstUseTests/testPresentationPersistsButIsIsolatedFromDevelopmentModes
+2026-10-27T13:00:00.6698970Z [53/344] Testing RiftletAppTests.FirstUseTests/testUnknownPresentationCannotBecomeFailureOrRetryPermission
+2026-10-27T13:00:00.6700520Z [54/344] Testing RiftletAppTests.FirstUseTests/testSourceReadabilityNeverTransfersFromOldFolderToNewPreference
+2026-10-27T13:00:02.0893650Z [83/344] Testing RiftletCoreTests.InteractionLifecycleTests/testEveryStartIdentityMismatchCannotHideAnotherImage
+2026-10-27T13:00:02.3828850Z [89/344] Testing RiftletCoreTests.InteractionLifecycleTests/testLateUnsafeFailureKeepsCompensationInternalUntilRetryIsProved
+2026-10-27T13:00:03.5089370Z [104/344] Testing RiftletCoreTests.InteractionLifecycleTests/testUnknownAfterStartStaysInternalAcrossRestartWithoutNewAttempt
+2026-10-27T13:00:03.6260490Z [106/344] Testing RiftletCoreTests.LateFailureCompensationTests/testCompensationCoexistsWithNewerInFlightImageAndBlocksFurtherDispatch
+2026-10-27T13:00:03.6742610Z [107/344] Testing RiftletCoreTests.LateFailureCompensationTests/testCompensationTransactionFailurePreservesSuccessAndCanBeRetriedOnce
+2026-10-27T13:00:03.7209290Z [108/344] Testing RiftletCoreTests.LateFailureCompensationTests/testCompletedObservationCompensatesOnlyMatchingAssetWithoutNewInput
+2026-10-27T13:00:03.7649360Z [109/344] Testing RiftletCoreTests.LateFailureCompensationTests/testCompletedObservationTransportFailurePreservesTerminalSuccess
+2026-10-27T13:00:03.8094950Z [110/344] Testing RiftletCoreTests.LateFailureCompensationTests/testCompletedObservationWithoutOriginalDraftMembershipDoesNotRevive
+2026-10-27T13:00:03.8573170Z [111/344] Testing RiftletCoreTests.LateFailureCompensationTests/testCorrelatedLateErrorStaysInternalAndPersistsOriginalOrderAndBothFacts
+2026-10-27T13:00:03.9073320Z [112/344] Testing RiftletCoreTests.LateFailureCompensationTests/testMigrationFailureRollsBackSchemaReceiptsAndVersion
+2026-10-27T13:00:03.9547520Z [113/344] Testing RiftletCoreTests.LateFailureCompensationTests/testMissingRestoredBytesStayMissingAcrossObservationAndRestart
+2026-10-27T13:00:04.0019690Z [114/344] Testing RiftletCoreTests.LateFailureCompensationTests/testRepeatedFailureAndStaleSuccessCannotConsumeCompensationOrReplaceAudit
+2026-10-27T13:00:04.1330900Z [115/344] Testing RiftletCoreTests.LateFailureCompensationTests/testRestartWatchCapsCallerRequestedLimitAt64
+2026-10-27T13:00:04.1834930Z [116/344] Testing RiftletCoreTests.LateFailureCompensationTests/testRestartWatchQueryIsBoundedAndExcludesInactiveSuccesses
+2026-10-27T13:00:04.2283020Z [117/344] Testing RiftletCoreTests.LateFailureCompensationTests/testSelectingAndRecoveringCompensationOnlyObservesOriginalOperation
+2026-10-27T13:00:04.2813360Z [118/344] Testing RiftletCoreTests.LateFailureCompensationTests/testVersionOneMigrationPreservesReceiptsOrderAndLocks
+2026-10-27T13:00:04.3257110Z [119/344] Testing RiftletCoreTests.LateFailureCompensationTests/testWrongAttachmentProfileDraftAndNonErrorCannotRestoreUsedImage
+2026-10-27T13:00:04.5760390Z [125/344] Testing RiftletCoreTests.LifecycleMigrationTests/testFrozenVersionOneMigratesAllTheWayAndKeepsUnstartedUnknownVisible
+2026-10-27T13:00:04.6339880Z [126/344] Testing RiftletCoreTests.LifecycleMigrationTests/testFrozenVersionTwoMigratesVisibilityWithoutInventingStartOrRewritingFacts
+2026-10-27T13:00:04.6847420Z [127/344] Testing RiftletCoreTests.LifecycleMigrationTests/testLifecycleMigrationFailureRollsBackLegacySchemaAndEveryOriginalFact
+2026-10-27T13:00:04.7359020Z [128/344] Testing RiftletCoreTests.LifecycleMigrationTests/testUnsupportedFutureVersionPreservesLegacyRows
+2026-10-27T13:00:04.8089350Z [130/344] Testing RiftletCoreTests.LogicalDraftIdentityTests/testDifferentTabsRemainIndependentIncludingLegacyFallback
+2026-10-27T13:00:04.8960850Z [132/344] Testing RiftletCoreTests.LogicalDraftIdentityTests/testLegacyJSONDecodesNilWithoutInventingLogicalIdentity
+2026-10-27T13:00:05.6689160Z [150/344] Testing RiftletAdaptersTests.MacAttachmentAdapterTests/testUserCopyBetweenOwnerReadAndGuardedRestoreIsAlsoPreserved
+2026-10-27T13:00:05.7133890Z [151/344] Testing RiftletAdaptersTests.MacAttachmentAdapterTests/testUserCopyBetweenSnapshotAndWritePreventsPaste
+2026-10-27T13:00:06.2899870Z [160/344] Testing RiftletAdaptersTests.MacClipboardCoordinatorTests/testRecoveredPrewriteReservationCancelsOnlyItselfWithoutReplaying
+2026-10-27T13:00:06.8938720Z [173/344] Testing RiftletAdaptersTests.MainWorldCommandEnvelopeTests/testMatchingNonceAndObjectReturnsOnlyResult
+2026-10-27T13:00:07.6322670Z [189/344] Testing RiftletAdaptersTests.NativeMacAXDriverTests/testObserveLostBindingAndWrongIdentityCannotAttachOrPaste
+2026-10-27T13:00:07.9891660Z [196/344] Testing RiftletAdaptersTests.NativePasteboardDriverTests/testInvalidBoundsAndUnownedRestoreDoNotReadOrWriteClipboard
+2026-10-27T13:00:08.4028940Z [205/344] Testing RiftletAdaptersTests.ObservationNormalizerTests/testDevelopmentProvenanceCannotDriveARealScreenshotOperation
+2026-10-27T13:00:08.8440680Z [214/344] Testing RiftletCoreTests.PersistedLogicalDraftIdentityTests/testCrossProfileNilUnknownAndMalformedIdentitiesRemainConservative
+2026-10-27T13:00:08.8949460Z [215/344] Testing RiftletCoreTests.PersistedLogicalDraftIdentityTests/testFrozenStoredPersistedIdentitySurvivesReopenAndRecoveryWithoutRewritingOriginalFacts
+2026-10-27T13:00:08.9526670Z [216/344] Testing RiftletCoreTests.PersistedLogicalDraftIdentityTests/testLegacyAndCrossProfileCompensationKeepAuditAndLockAfterReopen
+2026-10-27T13:00:09.0245760Z [217/344] Testing RiftletCoreTests.PersistedLogicalDraftIdentityTests/testOldUnknownRowsKeepWholeTabProtectionAgainstPersistedDraftAfterReopen
+2026-10-27T13:00:09.0621520Z [218/344] Testing RiftletCoreTests.PersistedLogicalDraftIdentityTests/testPersistedDraftConflictIsCaseInsensitiveAcrossRearmWindowAndDocumentChanges
+2026-10-27T13:00:09.1081170Z [219/344] Testing RiftletCoreTests.PersistedLogicalDraftIdentityTests/testPersistedIdentityNeverRelaxesFullTargetEqualityForStartOrCompletion
+2026-10-27T13:00:09.1467300Z [220/344] Testing RiftletCoreTests.PersistedLogicalDraftIdentityTests/testRecognitionAcceptsOnlyExactProfileAndUnmodifiedUUIDFormat
+2026-10-27T13:00:09.5232390Z [235/344] Testing RiftletCoreTests.RecoveryBoundaryTests/testAssetWriteFailureRollsBackOperationAndReceiptTogether
+2026-10-27T13:00:09.5294280Z [236/344] Testing RiftletCoreTests.RecoveryBoundaryTests/testEveryIdentityMismatchLeavesOriginalOperationAndEvidenceUntouched
+2026-10-27T13:00:09.5422110Z [237/344] Testing RiftletCoreTests.RecoveryBoundaryTests/testFailedObservationKeepsMissingMediaButRemoteSuccessCanFinish
+2026-10-27T13:00:09.5759490Z [238/344] Testing RiftletCoreTests.RecoveryBoundaryTests/testOldSuccessfulReceiptCannotConsumeNewAttemptAfterProvedFailure
+2026-10-27T13:00:09.5825820Z [239/344] Testing RiftletCoreTests.RecoveryBoundaryTests/testRestartKeepsMissingMediaAndUnknownTargetLockUntilVerifiedRestore
+2026-10-27T13:00:09.5930570Z [240/344] Testing RiftletCoreTests.RecoveryBoundaryTests/testReceiptBeforeIntentRollsBackWithoutSavingEvidence
+2026-10-27T13:00:09.6299830Z [241/344] Testing RiftletCaptureTests.ReleaseCaptureTests/testDeniedPreferenceParentNeverFallsBackToDesktopAndRecoversAfterAccessReturns
+2026-10-27T13:00:09.6313350Z [242/344] Testing RiftletCaptureTests.ReleaseCaptureTests/testBindingDiagnosticCallbackCannotStopItsReplacementGeneration
+2026-10-27T13:00:09.6356970Z [243/344] Testing RiftletCoreTests.RecoveryBoundaryTests/testTerminalSuccessCannotBeReversedByUncorrelatedLateObservation
+2026-10-27T13:00:09.6783450Z [244/344] Testing RiftletCaptureTests.ReleaseCaptureTests/testDiagnosticClassificationSeparatesSourceStorageFormatAndSizeWithoutPrivateDetails
+2026-10-27T13:00:09.6790300Z [245/344] Testing RiftletCaptureTests.ReleaseCaptureTests/testDiagnosticCallbackCannotLetAnOldFailedStartStopNewCaptureGeneration
+2026-10-27T13:00:09.6887780Z [246/344] Testing RiftletCaptureTests.ReleaseCaptureTests/testExistingDurableJournalRecoveryBypassesFreshCopyCapacityGuard
+2026-10-27T13:00:09.7414370Z [247/344] Testing RiftletCaptureTests.ReleaseCaptureTests/testLowSpaceRefusesBeforeCopyWithoutMarkingSeenAndRecoversOnExplicitRetry
+2026-10-27T13:00:09.7958530Z [248/344] Testing RiftletCaptureTests.ReleaseCaptureTests/testOldSourceRecheckCannotClearFailedNewLocationUntilSwitchActuallySucceeds
+2026-10-27T13:00:09.9500750Z [249/344] Testing RiftletCaptureTests.ReleaseCaptureTests/testJPEGOrientationRetainsRawIdentityAndTransformedPreview
+2026-10-27T13:00:09.9505850Z [250/344] Testing RiftletCaptureTests.ReleaseCaptureTests/testHEICPreservesOriginalBytesWhenSystemEncoderIsAvailable
+2026-10-27T13:00:09.9527090Z [251/344] Testing RiftletCaptureTests.ReleaseCaptureTests/testOnlyMarkedNewUnsupportedFilesProduceFormatDiagnostic
+2026-10-27T13:00:10.0067980Z [252/344] Testing RiftletCaptureTests.ReleaseCaptureTests/testOversizedOrdinaryFileIsNotMislabeledAsUnsupportedScreenshot
+2026-10-27T13:00:10.0074940Z [253/344] Testing RiftletCaptureTests.ReleaseCaptureTests/testPDFAndMultiPageTIFFAreRejectedWithoutChangingOriginals
+2026-10-27T13:00:10.0239240Z [254/344] Testing RiftletCaptureTests.ReleaseCaptureTests/testPNGJPEGAndTIFFPreserveExactBytesColorProfileAndEncodedDimensions
+2026-10-27T13:00:10.0557190Z [255/344] Testing RiftletCaptureTests.ReleaseCaptureTests/testUnknownCapacityIsNotReportedAsProvenLowSpace
+2026-10-27T13:00:10.0605820Z [256/344] Testing RiftletCaptureTests.ReleaseCaptureTests/testSourceSnapshotAndExplicitRecheckRecoverMissingFolderWithoutNewScreenshot
+2026-10-27T13:00:10.1891540Z [266/344] Testing RiftletUITests.RiftLayoutTests/testVisibleFailureUnknownAndTransferKeepOriginalGeometry
+2026-10-27T13:00:11.0780260Z [287/344] Testing RiftletUITests.RiftSetupControllerTests/testStaleDeniedPermissionCannotOfferOrInvokeAuthorizationInCaptureOnlyMode
+2026-10-27T13:00:11.1136720Z [288/344] Testing RiftletUITests.RiftSetupControllerTests/testNativeControlsKeepHideAndPauseIndependentAndAccessible
+2026-10-27T13:00:11.1240750Z [289/344] Testing RiftletUITests.RiftSetupControllerTests/testBackgroundUpdatesNeverShowOrReopenGuidance
+2026-10-27T13:00:11.2068900Z [295/344] Testing RiftletUITests.SetupPresentationTests/testSupportScopeComesFromHostAndLocalStringsAreBounded
+2026-10-27T13:00:11.3340890Z [304/344] Testing RiftletCaptureTests.StorageUsageTests/testRootSymlinkIsRejectedInsteadOfFollowingIt
+2026-10-27T13:00:11.3928980Z [307/344] Testing RiftletCoreTests.SyntheticAcceptancePolicyTests/testDevelopmentReceiptCanOnlyConsumeSyntheticAssetAndPersistsThatBoundary
+2026-10-27T13:00:12.2722280Z [338/344] Testing RiftletCoreTests.WebTargetLockTests/testCompensatedSameTabRearmRemainsLockedAcrossRestart
+2026-10-27T13:00:12.3244680Z [341/344] Testing RiftletCoreTests.WebTargetLockTests/testPreparedLeaseDoesNotLockDispatchOfAnotherAsset
+2026-10-27T13:00:12.3444510Z [342/344] Testing RiftletCoreTests.WebTargetLockTests/testUnknownBlocksSameTabAfterRearmWindowMoveAndDocumentReplacement
+2026-10-27T13:00:12.3700930Z [343/344] Testing RiftletCoreTests.WebTargetLockTests/testOtherSurfacesAndUnidentifiedChromeTabsKeepExactTargetLock
+2026-10-27T13:00:12.3812940Z [344/344] Testing RiftletCoreTests.WebTargetLockTests/testUnknownDoesNotLockAnotherTabOrBrowserSession
+2026-10-27T13:00:12.6616430Z Ran 12 tests in 0.058s
+2026-10-27T13:00:14.0268910Z Test Case '-[RiftletUITests.RiftLifecycleTests testArchiveSnapshotWaitsForAnActiveArrivalInsteadOfRemovingItsRow]' started.
+2026-10-27T13:00:14.0270660Z Test Case '-[RiftletUITests.RiftLifecycleTests testArchiveSnapshotWaitsForAnActiveArrivalInsteadOfRemovingItsRow]' passed (0.116 seconds).
+2026-10-27T13:00:14.0272710Z Test Case '-[RiftletUITests.RiftLifecycleTests testBackendReadyAloneDoesNotTriggerVisualSwallow]' passed (0.072 seconds).
+2026-10-27T13:00:14.0274940Z Test Case '-[RiftletUITests.RiftLifecycleTests testCanceledPressDoesNotLeaveArchiveOrSelectionLocked]' passed (0.000 seconds).
+2026-10-27T13:00:14.0276870Z Test Case '-[RiftletUITests.RiftLifecycleTests testDelayedPressReleaseCannotReverseAnUploadStartSwallow]' passed (0.112 seconds).
+2026-10-27T13:00:14.0278850Z Test Case '-[RiftletUITests.RiftLifecycleTests testEmptyAndEntirelyHiddenQueuesHaveNoLegacyLine]' passed (0.000 seconds).
+2026-10-27T13:00:14.0280720Z Test Case '-[RiftletUITests.RiftLifecycleTests testFailureRebirthDoesNotAutoFollowNewestAndExplicitHistoryRevealFindsAnOldItem]' passed (0.089 seconds).
+2026-10-27T13:00:14.0282780Z Test Case '-[RiftletUITests.RiftLifecycleTests testHiddenIntentSurvivesNewImagesReflowAndLateAnimations]' passed (0.192 seconds).
+2026-10-27T13:00:14.0284440Z Test Case '-[RiftletUITests.RiftLifecycleTests testHideOrReflowDoesNotReleaseAnAcceptedAsynchronousSelection]' passed (0.000 seconds).
+2026-10-27T13:00:14.0286040Z Test Case '-[RiftletUITests.RiftLifecycleTests testHoverMenuAndOverlappingAnimationsProtectQueueUntilAllHaveEnded]' passed (0.000 seconds).
+2026-10-27T13:00:14.0287990Z Test Case '-[RiftletUITests.RiftLifecycleTests testLegacyCompletionRemovesSilentlyWithoutAReadySwallowAnimation]' passed (0.008 seconds).
+2026-10-27T13:00:14.0289560Z Test Case '-[RiftletUITests.RiftLifecycleTests testMouseReleaseProtectsSelectionUntilPrepareOrCancellation]' passed (0.000 seconds).
+2026-10-27T13:00:14.0291240Z Test Case '-[RiftletUITests.RiftLifecycleTests testSwallowPrecedesReadyAndFailureReturnsAnOrdinaryVisibleRow]' passed (0.109 seconds).
+2026-10-27T13:00:14.0292880Z Test Case '-[RiftletUITests.RiftLifecycleTests testVisibilityIsIndependentOfBackendStatusAndOrdinalsStayContinuous]' passed (0.000 seconds).
+2026-10-27T13:00:14.0293920Z 	 Executed 13 tests, with 0 failures (0 unexpected) in 0.697 (0.698) seconds
+2026-10-27T13:00:14.0294800Z 	 Executed 13 tests, with 0 failures (0 unexpected) in 0.697 (0.698) seconds
+2026-10-27T13:00:14.0295540Z 	 Executed 13 tests, with 0 failures (0 unexpected) in 0.697 (0.699) seconds
+2026-10-27T13:00:14.3779990Z Test Case '-[RiftletUITests.RiftSetupControllerTests testBackgroundUpdatesNeverShowOrReopenGuidance]' passed (0.063 seconds).
+2026-10-27T13:00:14.3782110Z Test Case '-[RiftletUITests.RiftSetupControllerTests testNativeControlsKeepHideAndPauseIndependentAndAccessible]' passed (0.008 seconds).
+2026-10-27T13:00:14.3784270Z Test Case '-[RiftletUITests.RiftSetupControllerTests testStaleDeniedPermissionCannotOfferOrInvokeAuthorizationInCaptureOnlyMode]' passed (0.007 seconds).
+2026-10-27T13:00:14.3785530Z 	 Executed 3 tests, with 0 failures (0 unexpected) in 0.078 (0.078) seconds
+2026-10-27T13:00:14.3786810Z 	 Executed 3 tests, with 0 failures (0 unexpected) in 0.078 (0.078) seconds
+2026-10-27T13:00:14.3787780Z 	 Executed 3 tests, with 0 failures (0 unexpected) in 0.078 (0.079) seconds
+2026-10-27T13:00:14.8230890Z Test Case '-[RiftletCaptureTests.ReleaseCaptureTests testBindingDiagnosticCallbackCannotStopItsReplacementGeneration]' passed (0.010 seconds).
+2026-10-27T13:00:14.8233340Z Test Case '-[RiftletCaptureTests.ReleaseCaptureTests testDeniedPreferenceParentNeverFallsBackToDesktopAndRecoversAfterAccessReturns]' passed (0.005 seconds).
+2026-10-27T13:00:14.8235530Z Test Case '-[RiftletCaptureTests.ReleaseCaptureTests testDiagnosticCallbackCannotLetAnOldFailedStartStopNewCaptureGeneration]' passed (0.006 seconds).
+2026-10-27T13:00:14.8237600Z Test Case '-[RiftletCaptureTests.ReleaseCaptureTests testDiagnosticClassificationSeparatesSourceStorageFormatAndSizeWithoutPrivateDetails]' passed (0.000 seconds).
+2026-10-27T13:00:14.8239760Z Test Case '-[RiftletCaptureTests.ReleaseCaptureTests testExistingDurableJournalRecoveryBypassesFreshCopyCapacityGuard]' passed (0.012 seconds).
+2026-10-27T13:00:14.8241830Z Test Case '-[RiftletCaptureTests.ReleaseCaptureTests testHEICPreservesOriginalBytesWhenSystemEncoderIsAvailable]' passed (0.088 seconds).
+2026-10-27T13:00:14.8252010Z Test Case '-[RiftletCaptureTests.ReleaseCaptureTests testJPEGOrientationRetainsRawIdentityAndTransformedPreview]' passed (0.012 seconds).
+2026-10-27T13:00:14.8253850Z Test Case '-[RiftletCaptureTests.ReleaseCaptureTests testLowSpaceRefusesBeforeCopyWithoutMarkingSeenAndRecoversOnExplicitRetry]' passed (0.008 seconds).
+2026-10-27T13:00:14.8255680Z Test Case '-[RiftletCaptureTests.ReleaseCaptureTests testOldSourceRecheckCannotClearFailedNewLocationUntilSwitchActuallySucceeds]' passed (0.007 seconds).
+2026-10-27T13:00:14.8257270Z Test Case '-[RiftletCaptureTests.ReleaseCaptureTests testOnlyMarkedNewUnsupportedFilesProduceFormatDiagnostic]' passed (0.009 seconds).
+2026-10-27T13:00:14.8259040Z Test Case '-[RiftletCaptureTests.ReleaseCaptureTests testOversizedOrdinaryFileIsNotMislabeledAsUnsupportedScreenshot]' passed (0.005 seconds).
+2026-10-27T13:00:14.8260590Z Test Case '-[RiftletCaptureTests.ReleaseCaptureTests testPDFAndMultiPageTIFFAreRejectedWithoutChangingOriginals]' passed (0.007 seconds).
+2026-10-27T13:00:14.8262410Z Test Case '-[RiftletCaptureTests.ReleaseCaptureTests testPNGJPEGAndTIFFPreserveExactBytesColorProfileAndEncodedDimensions]' passed (0.021 seconds).
+2026-10-27T13:00:14.8264210Z Test Case '-[RiftletCaptureTests.ReleaseCaptureTests testSourceSnapshotAndExplicitRecheckRecoverMissingFolderWithoutNewScreenshot]' passed (0.005 seconds).
+2026-10-27T13:00:14.8265710Z Test Case '-[RiftletCaptureTests.ReleaseCaptureTests testUnknownCapacityIsNotReportedAsProvenLowSpace]' passed (0.000 seconds).
+2026-10-27T13:00:14.8266620Z 	 Executed 15 tests, with 0 failures (0 unexpected) in 0.195 (0.196) seconds
+2026-10-27T13:00:14.8267390Z 	 Executed 15 tests, with 0 failures (0 unexpected) in 0.195 (0.196) seconds
+2026-10-27T13:00:14.8268160Z 	 Executed 15 tests, with 0 failures (0 unexpected) in 0.195 (0.197) seconds
+2026-10-27T13:00:34.7787590Z Build complete! (19.73s)
+2026-10-27T13:00:35.0107490Z RIFTLET_BUNDLE_CHECK_PASS: layout, permissions text, resources, notices; development 0.1.0; NOT_NOTARIZED; GATEKEEPER_NOT_RUN
+2026-10-27T13:00:35.0790890Z ##[group]Run set -o pipefail
+2026-10-27T13:00:35.3607020Z RIFTLET_SELF_CHECK_PASS: private import, durable upload-start visibility, delayed synthetic completion, restart
+2026-10-27T13:00:35.4086940Z RIFTLET_WEB_ACCEPTANCE_SELF_CHECK_PASS: bundled page source, synthetic-only policy, isolated modes; CHROME_NOT_RUN; GUI_NOT_RUN
+2026-10-27T13:00:35.4171980Z RIFTLET_FIRST_USE_SELF_CHECK_PASS: presentation persistence, disabled-production permission isolation, honest status; PERMISSIONS_NOT_REQUESTED; GUI_NOT_RUN
+2026-10-27T13:00:35.7362830Z RIFTLET_GUI_HELPER_SELF_CHECK_PASS: 12 synthetic PNGs; scenes 2/3/12; layout/status fixtures; GUI_NOT_RUN
+2026-10-27T13:00:36.5626950Z SHA256 digest of uploaded artifact zip is edb3bf6742907d35bdbbf37e260c65a13839067f41e280ac439027873e7a9412
+
+Initial failed run40507790526 (native NOT_RUN; Release SKIPPED); exact log lines:
+2026-10-27T12:57:06.4216360Z HEAD is now at 4cc2f96 Merge 4e080aaaf995708f15334011ec3a012fcd968944 into eba1a4fc77648a665e1d5c1f2609df1314c3b079
+2026-10-27T12:57:30.9974420Z /Users/runner/work/Riftlet/Riftlet/Tests/RiftletCaptureTests/ReleaseCaptureTests.swift:206:24: error: call can throw but is not marked with 'try'
+2026-10-27T12:57:31.0451650Z /Users/runner/work/Riftlet/Riftlet/Tests/RiftletCaptureTests/ReleaseCaptureTests.swift:258:53: error: call can throw but is not marked with 'try'
+2026-10-27T12:57:31.0460130Z /Users/runner/work/Riftlet/Riftlet/Tests/RiftletCaptureTests/ReleaseCaptureTests.swift:206:24: error: call can throw but is not marked with 'try'
+2026-10-27T12:57:31.0498780Z /Users/runner/work/Riftlet/Riftlet/Tests/RiftletCaptureTests/ReleaseCaptureTests.swift:258:53: error: call can throw but is not marked with 'try'
+2026-10-27T12:57:31.0507010Z error: fatalError
+2026-10-27T12:57:31.0509240Z error: fatalError

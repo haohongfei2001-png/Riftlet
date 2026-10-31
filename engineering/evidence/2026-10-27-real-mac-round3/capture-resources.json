@@ -1,0 +1,33 @@
+{
+  "sourceSHA": "159b3ef3e6c87ea468ba334dff64ad8db640d80c",
+  "status": "PASS_MEASUREMENT_ONLY",
+  "mode": "actual packaged capture-only App, 5 then 6 real screenshots, no helper, one system CLI region capture, no uploads",
+  "durationSeconds": 600.0023831250146,
+  "sampleIntervalSeconds": 10,
+  "sampleCount": 61,
+  "allKernelReadsSucceeded": true,
+  "cpuMeasurement": "ps cumulative CPU after final sample: 0:00.73; approximately 0.12 percent of one core over 600 seconds; includes startup, not peak CPU",
+  "residentMiBMin": 32.609375,
+  "residentMiBMax": 55.0,
+  "residentMiBEnd": 45.875,
+  "footprintMiBMin": 18.829063415527344,
+  "footprintMiBMax": 25.000938415527344,
+  "interruptWakeupsDelta": 299,
+  "packageIdleWakeupsDelta": 33,
+  "interruptWakeupsPerSecond": 0.49833135402347445,
+  "limits": [
+    "No AppKit/UI latency distribution",
+    "No full real ChatGPT upload load",
+    "No sleep/reboot/hot-plug test",
+    "Memory observations are not leak certification"
+  ],
+  "memorySummarySampleRange": {
+    "first": 1,
+    "last": 60
+  },
+  "excludedInitialSampleReason": "Sample 0 was taken immediately after process spawn and is reported separately, not included in post-start memory min/max.",
+  "initialMemoryMiB": {
+    "resident": 0.03125,
+    "footprint": 0.07819366455078125
+  }
+}

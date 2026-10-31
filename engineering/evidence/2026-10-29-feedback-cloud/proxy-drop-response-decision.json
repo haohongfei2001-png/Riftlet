@@ -1,0 +1,28 @@
+{
+  "reviewer": "/root/deployment_review",
+  "decision": "PASS",
+  "atUTC": "2026-10-29T14:00:54.019298+00:00",
+  "baseScriptSHA256": "ccdcddab7d6f5b344cce48c77efac2aa9a647b310031c78d5c2dbb2094e9e99c",
+  "reviewedSHA256": {
+    "cloud_acceptance.py": "e7dd5824bc15dabceaa3712d9b455199153698fad3fc5e8f5de4523cfb4a1515",
+    "proxy-drop-response.patch": "32601c409a00ef8fe24594fe17225133c9d8fd4167b06deeb1b83905771f869d",
+    "test_proxy_drop_response.py": "28969e4882db51a2d2a9bd8c8cdbcc6bd914edbad84e46c14033706e7a8e8a8e"
+  },
+  "offlineCases": 4,
+  "offlineResult": "4/4 PASS",
+  "testLogSHA256": "e41cc034522dda6650c9851a7ba934bd816c745f1abd9f95654a2ec73bba84eb",
+  "runtimeReviewed": "3.12.14",
+  "networkRequestsByReviewer": 0,
+  "sharedFilesModifiedByReviewer": false,
+  "approvedScope": "Only proxy-compatible drop-response using ordinary urllib ProxyHandler/NO_PROXY/CONNECT and original verified TLS; same frozen feedback identity/body/capability",
+  "observedBoundaries": [
+    "Proxy authorization is sent only in CONNECT headers",
+    "Origin request completes writing before getresponse override is called",
+    "Override closes without reading any origin status/header/body",
+    "Write/CONNECT/TLS failure leaves requestBytesWritten false",
+    "Written bytes remain unknown outcome, never a durable receipt",
+    "Only fixed exception class names enter errors, no proxy values or credentials"
+  ],
+  "realAcceptanceRemaining": "Run approved candidate on original prepared lost_receipt identity only, preserve actual event, independently query real D1 before retry; this offline review is not CLOUD PASS",
+  "historicalScope": "The earlier 25-file source review predates this patch and later live receiver progress; final full-source manifest must be refreshed before pinning"
+}

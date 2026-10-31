@@ -1,0 +1,143 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-27",
+  "reviewedSourceSHA": "d834a3a4a76cacedd0cb763044085c9c2093680c",
+  "productSourceSHA": "a09de4d6053d519e3c9bb7723493fe48cee750c2",
+  "status": "PASS within implementation/CI scope; production admission remains closed",
+  "concurrency": {
+    "actualMaximum": 4,
+    "integrationLead": "/root",
+    "independentLanes": [
+      "/root/interaction_ui",
+      "/root/interaction_history",
+      "/root/interaction_core_review"
+    ],
+    "sharedFiles": "Single writer /root; lanes owned scoped UI/history or new Core tests."
+  },
+  "components": [
+    {
+      "component": "Core / SQLite / Coordinator / App",
+      "author": "/root",
+      "nonAuthorReviewers": [
+        "/root/interaction_core_review",
+        "/root/interaction_history"
+      ],
+      "outcome": "PASS"
+    },
+    {
+      "component": "AppKit visible lifecycle",
+      "author": "/root/interaction_ui",
+      "nonAuthorReviewers": [
+        "/root/interaction_history",
+        "/root"
+      ],
+      "outcome": "PASS"
+    },
+    {
+      "component": "Native internal history",
+      "author": "/root/interaction_history",
+      "nonAuthorReviewers": [
+        "/root/interaction_ui",
+        "/root"
+      ],
+      "outcome": "PASS"
+    },
+    {
+      "component": "New Core regressions",
+      "author": "/root/interaction_core_review",
+      "nonAuthorReviewers": [
+        "/root"
+      ],
+      "outcome": "Reviewed and executed by actual macOS CI"
+    },
+    {
+      "component": "Retry fixture corrections / owner-lifetime fix",
+      "author": "/root",
+      "nonAuthorReviewers": [
+        "/root/interaction_core_review"
+      ],
+      "outcome": "PASS"
+    },
+    {
+      "component": "Shared uploadStarted contract / plan increment",
+      "author": "/root",
+      "nonAuthorReviewers": [
+        "/root/interaction_history"
+      ],
+      "outcome": "PASS against actual code"
+    },
+    {
+      "component": "Detailed panel CI reporting / final execution evidence",
+      "author": "/root",
+      "nonAuthorReviewers": [
+        "/root/interaction_ui"
+      ],
+      "outcome": "PASS, independently fetched run/jobs/logs/artifact"
+    }
+  ],
+  "findings": [
+    {
+      "id": "UI-press-release",
+      "finding": "A late press-return timer could reverse the start swallow.",
+      "fix": "Commit row visibility before animation and require visible state before press return; software timing regression.",
+      "fixedIn": "de56627"
+    },
+    {
+      "id": "history-coherence",
+      "finding": "An old used record could mask a compensated/UNKNOWN operation.",
+      "fix": "Prioritize unresolved facts; App reads a coherent atomic Core projection.",
+      "fixedIn": "de56627"
+    },
+    {
+      "id": "selection-release",
+      "finding": "Redundant App settlement could release a later selection; duplicate select could settle a suspended owner.",
+      "fix": "Remove duplicate App cleanup; duplicate Coordinator invocation cannot settle owner; boundary-controlled regression.",
+      "fixedIn": "de56627"
+    },
+    {
+      "id": "selection-drain",
+      "finding": "Keeping selection ownership through shared drain could discard a safely reborn image's new click.",
+      "fix": "End owner after durable preparation/refresh, protect old defer, prove three-input scenario with controlled gates.",
+      "fixedIn": "a09de4d"
+    },
+    {
+      "id": "finite-idle-time",
+      "finding": "Nonfinite interaction time could contaminate archive ordering.",
+      "fix": "Validate finite time at reservation entry.",
+      "fixedIn": "de56627"
+    },
+    {
+      "id": "failure-fixtures",
+      "finding": "Legacy absence-only claims no longer satisfy identified safe-failure policy.",
+      "fix": "Preserve UNKNOWN/clipboard exclusion/attempt; direct synthetic policy fixtures prove explicit attachment ID. Correct sustained-failure observe state.",
+      "fixedIn": "15ca4a8 + a09de4d"
+    },
+    {
+      "id": "panel-skip-evidence",
+      "finding": "Parallel progress did not prove seven WindowServer-dependent tests were not skipped.",
+      "fix": "Serial --skip-build detailed suite; 13 passed incl. 7 software panels, 0 skipped.",
+      "fixedIn": "d834a3a"
+    }
+  ],
+  "executionEvidence": {
+    "runID": 40479556833,
+    "jobID": 122106130530,
+    "reviewers": [
+      "/root",
+      "/root/interaction_ui"
+    ],
+    "independentResult": "287 native, 38 page, 8 fault, 12 probe, replay, release/signature/3 self-checks; 13 detailed passed, 7 software panels passed",
+    "physicalGUI": "NOT_CLAIMED",
+    "realUploadStartAndSafeFailure": "NOT_ADMITTED"
+  },
+  "outstandingBlockersForCurrentCode": [],
+  "outstandingEvidenceForProduction": [
+    "Actual versioned Web uploadStarted identity and early return",
+    "Original attachment safe termination and failure rebirth admission",
+    "Cold first click/ACK and valid unfocused composer",
+    "Real A→B→A / same-URL draft continuity and cross-version observer recovery",
+    "Real MID request identification/interruption",
+    "Physical pointer/focus/hold/Spaces/fullscreen/multimonitor behavior",
+    "Screenshot self-inclusion, end-to-end latency and new-version resource measurement"
+  ]
+}

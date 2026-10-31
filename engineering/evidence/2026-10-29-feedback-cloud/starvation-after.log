@@ -1,0 +1,17 @@
+✔ five-minute cron ticks cannot starve a pending report behind unresolved reconciliation scans (127.449952ms)
+ℹ {"tick":0,"elapsedSeconds":0,"externalRequests":41,"uncertainVisited":4,"pendingState":"pending","posts":0}
+ℹ {"tick":1,"elapsedSeconds":300,"externalRequests":41,"uncertainVisited":8,"pendingState":"pending","posts":0}
+ℹ {"tick":2,"elapsedSeconds":600,"externalRequests":42,"uncertainVisited":9,"pendingState":"delivered","posts":1}
+ℹ {"tick":3,"elapsedSeconds":900,"externalRequests":41,"uncertainVisited":9,"pendingState":"delivered","posts":1}
+ℹ {"tick":4,"elapsedSeconds":1200,"externalRequests":41,"uncertainVisited":9,"pendingState":"delivered","posts":1}
+ℹ {"tick":5,"elapsedSeconds":1500,"externalRequests":41,"uncertainVisited":9,"pendingState":"delivered","posts":1}
+ℹ {"tick":6,"elapsedSeconds":1800,"externalRequests":41,"uncertainVisited":9,"pendingState":"delivered","posts":1}
+ℹ {"tick":7,"elapsedSeconds":2100,"externalRequests":41,"uncertainVisited":9,"pendingState":"delivered","posts":1}
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 143.931131

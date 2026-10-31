@@ -1,0 +1,74 @@
+--- a/delivery.mjs
++++ b/delivery.mjs
+@@ -100,4 +100,70 @@
+     }
+   }
+ }
+-export default {async scheduled(_event,env,_ctx){try{await dispatch(env);}catch{/* No request/body/secret logging. */}}};
++// TEMPORARY DIAGNOSTIC BUILD. No dispatch/claim/Issue POST is invoked.
++// Restore the original approved build after capturing one bounded observation.
++const probeWriteSQL = `INSERT INTO feedback_delivery_probe(slot,started_ms,finished_ms,phase,http_status,flags_json)
++VALUES(1,?,?,?,?,?) ON CONFLICT(slot) DO UPDATE SET started_ms=excluded.started_ms,
++finished_ms=excluded.finished_ms,phase=excluded.phase,http_status=excluded.http_status,flags_json=excluded.flags_json
++WHERE excluded.started_ms>=feedback_delivery_probe.started_ms`;
++export async function probePreflight(event,env) {
++  const started=Date.now();let finished=null,phase='scheduled_entered',httpStatus=null;
++  const flags={deliveryIsString:typeof env.DELIVERY_ENABLED==='string',
++    deliveryIsBoolean:typeof env.DELIVERY_ENABLED==='boolean',deliveryMissing:env.DELIVERY_ENABLED===undefined,
++    deliveryMatches:env.DELIVERY_ENABLED==='true',dbPresent:!!env.DB,
++    repositoryConfigValid:/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(env.GITHUB_REPOSITORY??''),
++    tokenPresent:!!env.GITHUB_TOKEN,tokenIsString:typeof env.GITHUB_TOKEN==='string',
++    retentionBatchOK:false,httpOK:null,privateMatches:null,nameMatches:null,
++    pendingQueryOK:false,eligibleRowsPresent:null,failed:false};
++  // Only fixed phase codes, a bounded status, booleans/null and timestamps.
++  // A single fixed slot bounds storage and contains no report ID or payload.
++  const persist=()=>env.DB.prepare(probeWriteSQL)
++    .bind(started,finished,phase,httpStatus,JSON.stringify(flags)).run();
++  await persist();
++  try {
++    const now=Math.floor(Date.now()/1000);
++    phase='retention_batch';
++  await env.DB.batch([
++    env.DB.prepare("UPDATE feedback SET payload=NULL,day_bucket='',ip_bucket='',delete_requested=1,state=CASE WHEN state='pending' THEN 'expired' WHEN state='deleted' THEN 'deleted' ELSE 'deletion_pending' END WHERE expires<=? AND payload IS NOT NULL").bind(now),
++    env.DB.prepare('DELETE FROM quota WHERE expires<?').bind(now),
++    env.DB.prepare("UPDATE feedback SET state='uncertain' WHERE state='attempting' AND attempt_at<?").bind(now-300),
++    // Owner-confirmed deletion resolves the remote obligation even when the
++    // original Issue number remains. Unresolved deletion obligations never age out.
++    env.DB.prepare("DELETE FROM feedback WHERE created<? AND (state='deleted' OR (state='expired' AND issue_number IS NULL))").bind(now-365*86400)
++  ]);
++    flags.retentionBatchOK=true;
++    phase='delivery_flag';
++    if(env.DELIVERY_ENABLED!=='true') return;
++    phase='repository_configuration';
++    if(!flags.repositoryConfigValid || !env.GITHUB_TOKEN) return;
++    phase='repository_request';
++    const response=await get(env,'');
++    phase='repository_http';
++    httpStatus=Number.isInteger(response.status)&&response.status>=100&&response.status<=599?response.status:null;
++    flags.httpOK=response.ok===true;
++    if(!response.ok) return;
++    phase='repository_json';
++    const repo=await response.json();
++    phase='repository_match';
++    flags.privateMatches=repo?.private===true;
++    flags.nameMatches=typeof repo?.full_name==='string' && repo.full_name.toLowerCase()===env.GITHUB_REPOSITORY.toLowerCase();
++    // The exact original predicate is retained; observations never grant access.
++    if(!(repo.private===true && repo.full_name?.toLowerCase()===env.GITHUB_REPOSITORY.toLowerCase())) return;
++    phase='eligible_query';
++    const pending=await env.DB.prepare("SELECT * FROM feedback WHERE state IN ('pending','uncertain','deletion_pending') AND checked_at<? ORDER BY checked_at,created,id LIMIT 10").bind(now-300).all();
++    if(!Array.isArray(pending.results)) throw new Error('probe_result_shape');
++    flags.pendingQueryOK=true;flags.eligibleRowsPresent=pending.results.length>0;
++    // Mandatory stop before checked_at, creation claim, reconcile or any POST.
++    phase='preflight_complete';
++  } catch {
++    flags.failed=true; // Never retain exception type/message, body, headers or IP.
++  } finally {
++    finished=Date.now();await persist();
++  }
++}
++export default {async scheduled(event,env,_ctx){
++  try {await probePreflight(event,env);} catch {
++    // No foreign exception/cause escapes if the diagnostic store itself fails.
++    throw new Error('RIFTLET_DELIVERY_PROBE_STORAGE_UNAVAILABLE');
++  }
++}};

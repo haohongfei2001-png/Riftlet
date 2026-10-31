@@ -1,0 +1,269 @@
+{
+  "sourceSHA": "fcb052bfe6fad09af5de3c90d5954259e000a8ef",
+  "inputActions": 0,
+  "browserRestart": "NOT_RUN",
+  "v12Before": {
+    "bindingProved": true,
+    "editorFocused": true,
+    "pageFocused": true,
+    "owners": [
+      {
+        "version": 12,
+        "count": 2,
+        "monitor": true,
+        "stopped": false,
+        "operations": 0,
+        "commits": 670,
+        "checks": 43
+      }
+    ]
+  },
+  "v12ACK": {
+    "adapterValidatedUptime": 479011.9735967917,
+    "armAttemptID": "601F8B12-04E7-449A-87C9-C4E62397178E",
+    "armed": true,
+    "captureRequestID": "99983DD5-E05A-454C-A48B-072BDB436DBB",
+    "effectiveAckUptime": 479011.97411025,
+    "effectiveArmAttemptID": "601F8B12-04E7-449A-87C9-C4E62397178E",
+    "effectiveCaptureRequestID": "99983DD5-E05A-454C-A48B-072BDB436DBB",
+    "endedUptime": 479011.97411125,
+    "epochAccepted": true,
+    "error": "none",
+    "event": "arm_completion",
+    "hostEpoch": "A2AC2582-3AAA-40F5-9DC6-36BAA5941A71",
+    "mainPublishedUptime": 479011.97411112505,
+    "publicationResult": "publishedNewTarget",
+    "reason": "startup",
+    "reusedExistingArmedTarget": false,
+    "startedUptime": 479011.85422333336,
+    "targetDigest": "336f860baae7f36ba8447849e404c25011846abbde7556d02a0272c2513a269f",
+    "taskEnteredUptime": 479011.85750000004
+  },
+  "v12After": {
+    "descriptorSame": true,
+    "newRegistry": true,
+    "newCount": 1,
+    "newBorrower": true,
+    "borrowedFrom": 12,
+    "newGroups": 1,
+    "newChecks": 0,
+    "newStopped": false,
+    "old": [
+      {
+        "version": 12,
+        "registrySame": true,
+        "monitorSame": true,
+        "count": 2,
+        "stopped": false,
+        "checks": 43,
+        "commits": 673,
+        "elapsedMs": 11.499999761581421,
+        "maxElapsedMs": 3.300000011920929,
+        "operations": [
+          {
+            "originalStatePresent": true,
+            "operations": []
+          },
+          {
+            "originalStatePresent": true,
+            "operations": []
+          }
+        ]
+      }
+    ]
+  },
+  "returnV10ACK": {
+    "adapterValidatedUptime": 479012.54123487504,
+    "armAttemptID": "4F66C50C-02ED-44B8-BF3F-3C9AB09E588B",
+    "armed": true,
+    "captureRequestID": "08501AA2-67E0-4647-B893-56BD1D354851",
+    "effectiveAckUptime": 479012.5414255,
+    "effectiveArmAttemptID": "4F66C50C-02ED-44B8-BF3F-3C9AB09E588B",
+    "effectiveCaptureRequestID": "08501AA2-67E0-4647-B893-56BD1D354851",
+    "endedUptime": 479012.5414269167,
+    "epochAccepted": true,
+    "error": "none",
+    "event": "arm_completion",
+    "hostEpoch": "A2AC2582-3AAA-40F5-9DC6-36BAA5941A71",
+    "mainPublishedUptime": 479012.5414266667,
+    "publicationResult": "publishedNewTarget",
+    "reason": "chromeFocus",
+    "reusedExistingArmedTarget": false,
+    "startedUptime": 479012.47841358336,
+    "targetDigest": "e8d1af5663a16e27d6b9ef0cfae14ee42e84e64ab5376924c417475760e3050e",
+    "taskEnteredUptime": 479012.478427125
+  },
+  "returnV10After": {
+    "descriptorSame": true,
+    "newRegistry": true,
+    "newCount": 1,
+    "newBorrower": true,
+    "borrowedFrom": 10,
+    "newGroups": 1,
+    "newChecks": 109,
+    "newStopped": false,
+    "old": [
+      {
+        "version": 10,
+        "registrySame": true,
+        "monitorSame": true,
+        "count": 1,
+        "stopped": false,
+        "checks": 3804,
+        "commits": 14851,
+        "elapsedMs": 576.099996984005,
+        "maxElapsedMs": 4.800000011920929,
+        "operations": [
+          {
+            "originalStatePresent": true,
+            "operations": [
+              {
+                "same": true,
+                "proofSame": true,
+                "inputCountSame": true
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "version": 12,
+        "registrySame": true,
+        "monitorSame": true,
+        "count": 0,
+        "operations": []
+      }
+    ]
+  },
+  "freshTabID": 557755734,
+  "freshACK": null,
+  "freshBeforeReload": {
+    "bindingProved": true,
+    "editorFocused": true,
+    "pageFocused": true,
+    "owners": [
+      {
+        "version": 13,
+        "count": 0,
+        "monitor": false,
+        "operations": 0
+      }
+    ]
+  },
+  "freshAfterReload": {
+    "bindingProved": true,
+    "editorFocused": true,
+    "pageFocused": true,
+    "owners": [
+      {
+        "version": 13,
+        "count": 1,
+        "monitor": true,
+        "stopped": false,
+        "operations": 0,
+        "commits": 0,
+        "checks": 0
+      }
+    ]
+  },
+  "finalReturnACK": {
+    "adapterValidatedUptime": 479036.1766384584,
+    "armAttemptID": "BD23F5EC-F786-4C56-AD2B-AB2E2C9FBD35",
+    "armed": true,
+    "captureRequestID": "C51BC30F-6031-459F-B473-EF1942D21A17",
+    "effectiveAckUptime": 479036.1771207917,
+    "effectiveArmAttemptID": "BD23F5EC-F786-4C56-AD2B-AB2E2C9FBD35",
+    "effectiveCaptureRequestID": "C51BC30F-6031-459F-B473-EF1942D21A17",
+    "endedUptime": 479036.17712262506,
+    "epochAccepted": true,
+    "error": "none",
+    "event": "arm_completion",
+    "hostEpoch": "A2AC2582-3AAA-40F5-9DC6-36BAA5941A71",
+    "mainPublishedUptime": 479036.1771223334,
+    "publicationResult": "publishedNewTarget",
+    "reason": "chromeFocus",
+    "reusedExistingArmedTarget": false,
+    "startedUptime": 479036.11240520835,
+    "targetDigest": "e8d1af5663a16e27d6b9ef0cfae14ee42e84e64ab5376924c417475760e3050e",
+    "taskEnteredUptime": 479036.1124131667
+  },
+  "classification": {
+    "retainedV12": "PASS_READONLY_CAPTURE",
+    "retainedV10Return": "PASS_READONLY_CAPTURE",
+    "freshDocumentImmediateRecognition": "FAIL_WITHIN_10_SECOND_BOUND",
+    "reloadImmediateRecognition": "FAIL_WITHIN_12_SECOND_BOUND",
+    "eventualFreshDocumentRecognition": "PASS_LATE_ACK_ONLY",
+    "businessSameTabABA": "NOT_RUN",
+    "physicalMouse": "NOT_RUN",
+    "actualUpload": "NOT_RUN"
+  },
+  "lateFreshACKs": [
+    {
+      "adapterValidatedUptime": 479035.9132946667,
+      "armAttemptID": "FD571EAA-B6EA-4003-AC81-7AFA711B1DDA",
+      "armed": true,
+      "captureRequestID": "F597EF8E-257B-4954-BD8D-3396C07FAA76",
+      "effectiveAckUptime": 479035.9135254167,
+      "effectiveArmAttemptID": "FD571EAA-B6EA-4003-AC81-7AFA711B1DDA",
+      "effectiveCaptureRequestID": "F597EF8E-257B-4954-BD8D-3396C07FAA76",
+      "endedUptime": 479035.9135262084,
+      "epochAccepted": true,
+      "error": "none",
+      "event": "arm_completion",
+      "hostEpoch": "A2AC2582-3AAA-40F5-9DC6-36BAA5941A71",
+      "mainPublishedUptime": 479035.91352608334,
+      "publicationResult": "publishedNewTarget",
+      "reason": "chromeTitle",
+      "reusedExistingArmedTarget": false,
+      "startedUptime": 479035.6139610417,
+      "targetDigest": "48bdd6e1daa31961c67503a0eb60747018a181e3f69b02994febb6c85d6560b4",
+      "taskEnteredUptime": 479035.6139720834
+    }
+  ],
+  "observedRejections": {
+    "pageRejected(RiftletAdapters.WebPageRejection.unsupportedSurface)": 3,
+    "pageRejected(RiftletAdapters.WebPageRejection.unobservedThread)": 3,
+    "pageRejected(RiftletAdapters.WebPageRejection.composerUnavailable)": 16,
+    "nativeEventFailed(-1712)": 1
+  },
+  "lateAvailabilitySnapshot": {
+    "focused": false,
+    "visibility": "hidden",
+    "forms": 1,
+    "editorFocused": true,
+    "form": {
+      "connected": true,
+      "blocked": null,
+      "rendered": {
+        "rects": 1,
+        "display": "flex",
+        "visibility": "visible"
+      }
+    },
+    "editor": {
+      "connected": true,
+      "editable": true,
+      "blocked": null,
+      "rendered": {
+        "rects": 1,
+        "display": "block",
+        "visibility": "visible"
+      }
+    },
+    "input": {
+      "connected": true,
+      "disabled": false,
+      "matchesDisabled": false,
+      "blocked": null
+    },
+    "modal": [],
+    "dialogs": []
+  },
+  "limitations": [
+    "Retained pages share the same saved conversation. This is tab/document return, not real business A to B to A.",
+    "Fresh page and reload had composerUnavailable while loading; availability subconditions were not captured at those earlier rejection instants. The later structural availability snapshot was of a hidden, unfocused document, not a valid capture target; it cannot explain or authorize earlier events.",
+    "Late fresh ACK arrived after the bounded waiter had ended and before the post-reload read-only snapshot. It is not backdated or used for input.",
+    "No Chrome restart or permission revocation: existing user browser processes left running."
+  ],
+  "privateLogSHA256": "4b50886744b80744e7868a2eb69679163f8085299838d1dec173808d95e50cc2"
+}

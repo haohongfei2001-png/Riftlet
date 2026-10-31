@@ -1,0 +1,17 @@
+{
+  "formalBase": "1920e0562db893a3292af89a89270a26ddb46a5f",
+  "existingTrackedFileChanges": [],
+  "onlyNewPathPrefix": "design/final-system-20261028/",
+  "protectedBaseObjects": {
+    "Sources": "cba95d2d3b7489925ae277ae635f1077239475aa",
+    "Tests": "1ad37c911dedcd18e43c9991584ea8f1b229f436",
+    "Package.swift": "32845958fe38db6151c9eb9375eda4d6985219c6",
+    ".github": "85e87b11992d6d518cce544d39929517d863131f",
+    "engineering": "6223d67a64176c333bf26f8a4d4a8a2d167fa892",
+    "docs": "966c7c49f36830407af9e910e35cb0f5bb22bdbc"
+  },
+  "formalBranchUpdated": false,
+  "pr1Modified": false,
+  "nativeCIRequested": false,
+  "realUploadPerformed": false
+}

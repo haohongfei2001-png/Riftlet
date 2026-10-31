@@ -1,0 +1,1082 @@
+{
+  "date_beijing": "2026-10-28",
+  "source": "595142d0345adc0d06f54371f50406879310610d",
+  "source_tree": "6afc62ecbaf7aa73690027f8efa3f5eb8936fa12",
+  "history_and_preservation": {
+    "formalBase": "e3175f30fb9b92cd12a7c670febbbe3296657da1",
+    "sourceHandoff": "3b089b22449742fe7d9a76e74aa7ac99be37ba8e",
+    "integratedCode": "595142d0345adc0d06f54371f50406879310610d",
+    "sourceEvidenceTree": "6d9a155348cce46014ad407d6d3bda04ed5ed214",
+    "rawEvidenceFiles": [
+      {
+        "path": "engineering/evidence/2026-10-27-real-mac-round7/README.md",
+        "bytes": 7304,
+        "sha256": "fd844737e393b0dad4b4964ae45151c0962ac1b1eb599d4779251af6d61d4419",
+        "gitBlob": "6b5ffa840068e8e1c075650c4dcc8b76399b7061"
+      },
+      {
+        "path": "engineering/evidence/2026-10-27-real-mac-round7/ci-excerpt.txt",
+        "bytes": 2241,
+        "sha256": "ccdf8fe39c91ec42bb8bc356f86274806e20d7d84c463a45aa505eed2edfd506",
+        "gitBlob": "f1597a3950178a68eb0774e5391767d3963e9ad9"
+      },
+      {
+        "path": "engineering/evidence/2026-10-27-real-mac-round7/cold-analysis.md",
+        "bytes": 13030,
+        "sha256": "dadcb9d56442c93df7f9c748cf467372f415da66af131f0e79283c6c8cef48ff",
+        "gitBlob": "0a545aa63c855cbf28dabc6f219af7bfaabc0833"
+      },
+      {
+        "path": "engineering/evidence/2026-10-27-real-mac-round7/data-preservation.json",
+        "bytes": 843,
+        "sha256": "4eef020619878f64fb6a7d47a38be0e4275a3a752406d8af84ec83ab9748b855",
+        "gitBlob": "57b9f85d7ac2cae48b5f856c4c0765cbf65dcd36"
+      },
+      {
+        "path": "engineering/evidence/2026-10-27-real-mac-round7/gui-plan.md",
+        "bytes": 12563,
+        "sha256": "d60c59775b3277fdf4832f73c83677f2c98e59779dc2104bf2ce3717623f5834",
+        "gitBlob": "7a1fa675e542910e1a8735b068772981e8803ec6"
+      },
+      {
+        "path": "engineering/evidence/2026-10-27-real-mac-round7/gui-results.md",
+        "bytes": 3294,
+        "sha256": "86e9d04a60790fb1152d2f63d805de648f0110482cce96f560b817a85c889dc6",
+        "gitBlob": "e41d49840693f2c5c47a3b9da2cc8b22f7bac4e2"
+      },
+      {
+        "path": "engineering/evidence/2026-10-27-real-mac-round7/gui-software-after.json",
+        "bytes": 74026,
+        "sha256": "9772dc0f418c393338bfbf8f2efd59127b4f2d568c50c280230ed2c157977434",
+        "gitBlob": "92a00be7fa083a3fe9f1a6f75b61ddcb4b9b26fb"
+      },
+      {
+        "path": "engineering/evidence/2026-10-27-real-mac-round7/gui-software-before.json",
+        "bytes": 68751,
+        "sha256": "82fad99bb3d151a650333ea1203b5817ee539be546359207e2799992c4feeece",
+        "gitBlob": "5bf9aff0874b6fbf9ab5770c9a5094f955a16d32"
+      },
+      {
+        "path": "engineering/evidence/2026-10-27-real-mac-round7/performance-analysis.md",
+        "bytes": 4090,
+        "sha256": "0d5a46324602135a457979c76c330cea54171f0f5ce0d131c4f4217e9ee125d8",
+        "gitBlob": "026f9cec46d2ea12c4ed58d2f639ce4028ab49da"
+      },
+      {
+        "path": "engineering/evidence/2026-10-27-real-mac-round7/performance-evidence.json",
+        "bytes": 23447,
+        "sha256": "ffb280c4f7f3c8b72888669458bfffb3670ed223bef2a5588cc2469b72c1d5cf",
+        "gitBlob": "5c08138a44f9e24f85981d64c75a8964a3716985"
+      },
+      {
+        "path": "engineering/evidence/2026-10-27-real-mac-round7/private-manifest.json",
+        "bytes": 3297,
+        "sha256": "7e3eeeb9b67ea0fd5a9c58451c967002757b9331961660b15de0b0c058817826",
+        "gitBlob": "9c220cda0c3d6815eb9edf85db2bf73dce87579a"
+      },
+      {
+        "path": "engineering/evidence/2026-10-27-real-mac-round7/queue-analysis.md",
+        "bytes": 4790,
+        "sha256": "c8114f5007a87ee99e57b28156940fdaf2dfc65cf1fc63695aa0313e2b22a754",
+        "gitBlob": "85d6896fd72e073a6642ac478ee9ee8b10980ba9"
+      },
+      {
+        "path": "engineering/evidence/2026-10-27-real-mac-round7/queue-evidence.json",
+        "bytes": 33164,
+        "sha256": "0da1827200cf847612a74d138ec17950618a20be99c5ff665329dd5ca704055d",
+        "gitBlob": "38266320b585ae389bab579f2dec9ec548c4a3c0"
+      },
+      {
+        "path": "engineering/evidence/2026-10-27-real-mac-round7/review.json",
+        "bytes": 2365,
+        "sha256": "e16628d2e638af2ddad75ec083cdf605a210de10ebfbc3e225316c2061c8305e",
+        "gitBlob": "4a748f512ffdf9b944f2182d1e15f9099d5cc4e7"
+      },
+      {
+        "path": "engineering/evidence/2026-10-27-real-mac-round7/verification.json",
+        "bytes": 4913,
+        "sha256": "578c81460db88cd5c284a6700d290f9590f3a9cd32a4c4374ddbb45b136935bb",
+        "gitBlob": "46403790ac1e0d6391f9a9f9f34d17badc455c98"
+      }
+    ],
+    "unchangedFormalObjects": [
+      {
+        "path": "Sources/RiftletAdapters",
+        "gitObject": "de226421ce0f41053121d97d2a46e28d737ee4de"
+      },
+      {
+        "path": "Sources/RiftletCapture",
+        "gitObject": "c190891690d9f0fa4073fe5c6b2ddcc78ad633d1"
+      },
+      {
+        "path": "Sources/RiftletCore/SQLiteDatabase.swift",
+        "gitObject": "29667f9c23a99e3708fc891697cfd5a3be4a37b2"
+      },
+      {
+        "path": "Sources/RiftletCore/Models.swift",
+        "gitObject": "94e529e75394f4879fd37e7fd16e9ce914c87ff7"
+      },
+      {
+        "path": "Sources/RiftletCore/ReceiptPolicy.swift",
+        "gitObject": "2ac69b00c53f4622225ef3f14baeb534c27ffe0b"
+      },
+      {
+        "path": "Sources/RiftletApp/PassivePermissionResume.swift",
+        "gitObject": "aae1d2e7b5e8fbed41427e8a2f1d51fd569ec9c9"
+      },
+      {
+        "path": "Sources/RiftletApp/WebAcceptanceConfiguration.swift",
+        "gitObject": "01cdcd30fccd0511d7419217de81c1caccb81cca"
+      },
+      {
+        "path": "Sources/RiftletApp/ProductStatus.swift",
+        "gitObject": "f567a2a95345705194d72427f2c3244ded535cf0"
+      },
+      {
+        "path": "Sources/RiftletApp/CaptureControlGate.swift",
+        "gitObject": "0206f7118252e8364b6f2cb3b256651ac5cb2297"
+      },
+      {
+        "path": "Tests/RiftletAppTests/PassivePermissionResumeTests.swift",
+        "gitObject": "509063376e9ad4faa7af4dfdb6706c7ebd00fb61"
+      },
+      {
+        "path": "Resources",
+        "gitObject": "47d3247944cd78cc019a6f2cb696c0d071721b20"
+      },
+      {
+        "path": "Package.swift",
+        "gitObject": "5903d370088c75c20e1c3bc6d9cf2606fc9183fa"
+      },
+      {
+        "path": "scripts",
+        "gitObject": "61321695dacf3fc9c5982713ac751f01e039f8c9"
+      },
+      {
+        "path": "ThirdPartyNotices",
+        "gitObject": "89a07e01c183f61fca6bc7d7127322b00fa03ded"
+      },
+      {
+        "path": "design",
+        "gitObject": "229294880c55d443a5796c374d9d2b2cd7e42b15"
+      },
+      {
+        "path": "research",
+        "gitObject": "7ed0708f7cb3faed95a37fe319e3f0400f3b51dd"
+      }
+    ],
+    "preservedPriorEvidence": [
+      {
+        "path": "engineering/evidence/2026-10-27-integration-round2",
+        "gitObject": "2752545b943494c6405610f46e20bcb3723f695a"
+      },
+      {
+        "path": "engineering/evidence/2026-10-27-integration-round3",
+        "gitObject": "a6012390417f66038ed65066a13a8b6ced994b65"
+      },
+      {
+        "path": "engineering/evidence/2026-10-27-integration-round4",
+        "gitObject": "03295925aee492a1b8b74fa6538ec67e2cf0b25e"
+      },
+      {
+        "path": "engineering/evidence/2026-10-27-integration-round5",
+        "gitObject": "b7e874832a1c982a1b5cd387970f6198068aec9f"
+      },
+      {
+        "path": "engineering/evidence/2026-10-27-integration-round6",
+        "gitObject": "59d9b6429f8e1a674038273b692334bb5985f464"
+      },
+      {
+        "path": "engineering/evidence/2026-10-27-integration",
+        "gitObject": "8e7d92c6d8a9cbb2e302027b52af5cfe920a4a90"
+      },
+      {
+        "path": "engineering/evidence/2026-10-27-interaction-lifecycle",
+        "gitObject": "9e120bf85c5a7162780444efd9e1a8f2c6ee4d40"
+      },
+      {
+        "path": "engineering/evidence/2026-10-27-real-mac-round2",
+        "gitObject": "8bf31e0794f1cbd840c4d0b6ac7ac791b326eb81"
+      },
+      {
+        "path": "engineering/evidence/2026-10-27-real-mac-round3",
+        "gitObject": "dfb9ec12e223366dd37d1e44c8c34a4756bbf96b"
+      },
+      {
+        "path": "engineering/evidence/2026-10-27-real-mac-round4",
+        "gitObject": "929f5ce28e2b889af2771de722f5ec3ba675e1ee"
+      },
+      {
+        "path": "engineering/evidence/2026-10-27-real-mac-round5",
+        "gitObject": "5a22c1bbeffbc0188b5bf4c2da951fce20a85a54"
+      },
+      {
+        "path": "engineering/evidence/2026-10-27-real-mac-round6",
+        "gitObject": "55eacd6b1d654239f1b4660e91b850e01ba966d1"
+      },
+      {
+        "path": "engineering/evidence/2026-10-27-real-mac",
+        "gitObject": "a47222eebbfc84355a522327b83f511bb8c20265"
+      },
+      {
+        "path": "engineering/evidence/2026-10-27-release-ux",
+        "gitObject": "e102ac73a659299e02264e8aad3ef5656fc45a4c"
+      },
+      {
+        "path": "engineering/evidence/2026-10-27",
+        "gitObject": "114ed3cf5d35f8c3f49dfe8503110da3161c34bc"
+      }
+    ],
+    "sourceCodeDifferencesAfterReview": [
+      ".github/workflows/native-foundation.yml",
+      "Sources/RiftletCore/TransferCoordinator.swift",
+      "Tests/RiftletAppTests/SelectionAuthorityTests.swift",
+      "Tests/RiftletAppTests/SelectionSubmissionQueueTests.swift",
+      "Tests/RiftletCoreTests/AcceptedSelectionQueueTests.swift"
+    ],
+    "sourceBaselineMatchesFormalRound6": [
+      {
+        "path": "Sources",
+        "gitObject": "cc6548106820efd20bcc623cb927697c40381ed2"
+      },
+      {
+        "path": "Tests",
+        "gitObject": "5c50c7ca5d96d7b19d05e758e7339ec52cecf6f6"
+      },
+      {
+        "path": "Package.swift",
+        "gitObject": "5903d370088c75c20e1c3bc6d9cf2606fc9183fa"
+      },
+      {
+        "path": "Resources",
+        "gitObject": "47d3247944cd78cc019a6f2cb696c0d071721b20"
+      },
+      {
+        "path": "scripts",
+        "gitObject": "61321695dacf3fc9c5982713ac751f01e039f8c9"
+      }
+    ],
+    "uniqueHistoryPreserved": [
+      "336ecce8714981d967f50fcdaf62de44f0979660",
+      "f6417c6faaf8aa21ac587b07f25ea2a159af021f",
+      "9de6a85b0161713833dc25e3b3eb1e1a2f81a558",
+      "3b089b22449742fe7d9a76e74aa7ac99be37ba8e"
+    ],
+    "commonAncestors": [
+      "caa6a65b69c6038154a2fff65f2fb1157125bb7e",
+      "65f7d54121a637e8a97d2f25f8bcd8069393eb4d"
+    ],
+    "mergeCommit": "2aaaadb1c3461f93f268f1f93b0b08854745aa5f"
+  },
+  "ci_checkout": "1965e22a0f0b845489f9a8c72c90e692802ae027",
+  "ci_checkout_tree": "be910f1810971255153e02438b7f9b8fe7e937c6",
+  "ci_checkout_parents": [
+    "eba1a4fc77648a665e1d5c1f2609df1314c3b079",
+    "595142d0345adc0d06f54371f50406879310610d"
+  ],
+  "build_inputs": [
+    {
+      "path": "Sources",
+      "gitObject": "0077997795db7bbf7282805b36fe70aee191db6a"
+    },
+    {
+      "path": "Tests",
+      "gitObject": "3826911bd251594850b8396ae6ece37f71dcbf07"
+    },
+    {
+      "path": "Resources",
+      "gitObject": "47d3247944cd78cc019a6f2cb696c0d071721b20"
+    },
+    {
+      "path": "Package.swift",
+      "gitObject": "5903d370088c75c20e1c3bc6d9cf2606fc9183fa"
+    },
+    {
+      "path": "scripts",
+      "gitObject": "61321695dacf3fc9c5982713ac751f01e039f8c9"
+    },
+    {
+      "path": ".github/workflows/native-foundation.yml",
+      "gitObject": "075d2a2224ba45595d5ef765d8d86334cfd1a362"
+    },
+    {
+      "path": "ThirdPartyNotices",
+      "gitObject": "89a07e01c183f61fca6bc7d7127322b00fa03ded"
+    },
+    {
+      "path": "research/web-attachment-handoff-2026-10-27",
+      "gitObject": "aa05672779bf0b0481303fd285da81709410c759"
+    },
+    {
+      "path": "engineering/evidence/2026-10-27-real-mac-round2/network-fault.template.js",
+      "gitObject": "5dd4ced226f3eee3a342459be1e4bf693a53b95f"
+    },
+    {
+      "path": "engineering/evidence/2026-10-27-real-mac-round2/network-fault.test.cjs",
+      "gitObject": "8d45233406770e947400cfab4637808bffa3ddc4"
+    },
+    {
+      "path": "engineering/evidence/2026-10-27-real-mac-round3/network-probe.template.js",
+      "gitObject": "6b538be9a7f7c44455663f3df64f8d09f7a84014"
+    },
+    {
+      "path": "engineering/evidence/2026-10-27-real-mac-round3/network-probe.test.cjs",
+      "gitObject": "78780be3135a6b15b60478f73682c25e9d3d6947"
+    },
+    {
+      "path": "engineering/evidence/2026-10-27-real-mac-round5",
+      "gitObject": "5a22c1bbeffbc0188b5bf4c2da951fce20a85a54"
+    }
+  ],
+  "ci_inputs_equal": true,
+  "whole_tree_equal": false,
+  "ci_tree_scope": "Native, build, test and replay inputs match; the temporary PR checkout includes unrelated main website changes. No main merge.",
+  "ci_other_paths": [
+    "favicon.svg",
+    "index.html",
+    "site.webmanifest",
+    "website-hero.css",
+    "website-hero.js",
+    "website-locale.js",
+    "website-product.css",
+    "website-product.js",
+    "website/HERO_REVISION_2026-10-27.md",
+    "website/README.md",
+    "website/RESTORE_ART_DIRECTION_2026-10-27.md",
+    "website/test-hero-layout.py",
+    "website/test-hero-motion.py",
+    "website/test-hero.py",
+    "website/test-product.cjs"
+  ],
+  "run": {
+    "id": 40543025253,
+    "name": "Native foundation",
+    "event": "pull_request",
+    "head_branch": "codex/engineering-foundation-20261027",
+    "head_sha": "595142d0345adc0d06f54371f50406879310610d",
+    "run_attempt": 1,
+    "status": "completed",
+    "conclusion": "success",
+    "created_at": "2026-10-27T16:39:15Z",
+    "run_started_at": "2026-10-27T16:39:15Z",
+    "updated_at": "2026-10-27T16:41:17Z",
+    "html_url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/40543025253",
+    "completed_at_beijing": "2026-10-28T00:41:17+08:00"
+  },
+  "job": {
+    "id": 122326159138,
+    "name": "macos",
+    "status": "completed",
+    "conclusion": "success",
+    "run_id": 40543025253,
+    "logs_url": null,
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 1
+      },
+      {
+        "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 2
+      },
+      {
+        "name": "Record compiler and OS",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 3
+      },
+      {
+        "name": "Replay archived Web evidence offline",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 4
+      },
+      {
+        "name": "Exercise integrated page program with synthetic DOM",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 5
+      },
+      {
+        "name": "Exercise round-two fault harness offline",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 6
+      },
+      {
+        "name": "Exercise round-three diagnostic probe offline",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 7
+      },
+      {
+        "name": "Verify round-five diagnostic evidence helpers offline",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 8
+      },
+      {
+        "name": "Native unit and integration tests",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 9
+      },
+      {
+        "name": "Verify packaging rejection paths offline",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 10
+      },
+      {
+        "name": "Report software panel lifecycle outcomes",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 11
+      },
+      {
+        "name": "Package native application",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 12
+      },
+      {
+        "name": "Run packaged executable with synthetic data",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 13
+      },
+      {
+        "name": "Validate and archive synthetic GUI acceptance helper",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 14
+      },
+      {
+        "name": "Archive evidence",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 15
+      },
+      {
+        "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 30
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 31
+      }
+    ]
+  },
+  "native_count": 410,
+  "native_counts": {
+    "RiftletAppTests": 39,
+    "RiftletCoreTests": 134,
+    "RiftletAdaptersTests": 121,
+    "RiftletCaptureTests": 63,
+    "RiftletUITests": 53
+  },
+  "native_test_names": [
+    "RiftletAppTests.AcceptanceTraceDeduplicatorTests/testUnchangedRefreshDoesNotConsumeEventAndEveryVisibilityFieldChangeRemainsVisible",
+    "RiftletAppTests.AcceptanceTraceDeduplicatorTests/testReadyRecordsAreIndependentAndAttemptPhaseOrAssetChangesAreNotHidden",
+    "RiftletAppTests.AcceptanceTraceDeduplicatorTests/testBoundedEvictionMayRepeatButCannotSuppressTransition",
+    "RiftletCoreTests.AcceptedSelectionQueueTests/testAcceptedReclickCannotBorrowAnotherProcessPermissionForOldObservation",
+    "RiftletCoreTests.AcceptedSelectionQueueTests/testAcceptedReclickChecksPermissionBeforeObservingOriginalUnknown",
+    "RiftletCoreTests.AcceptedSelectionQueueTests/testAcceptedSettledCallbackCarriesExactTokenAndNeverLegacyAssetOnlyCallback",
+    "RiftletCoreTests.AcceptedSelectionQueueTests/testACKMustStrictlyPrecedeOriginalEventAndCannotBeFilledAfterward",
+    "RiftletCoreTests.AcceptedSelectionQueueTests/testCancellationDuringSuspendedValidationPreventsIntentEvenWithoutActorCancelDelivery",
+    "RiftletCoreTests.AcceptedSelectionQueueTests/testBoundedCapacityRejectsExtraClickBeforePreparationAndStopCancelsWaiting",
+    "RiftletCoreTests.AcceptedSelectionQueueTests/testChangedTargetAndRevokedHostPermissionCancelOriginalPrepared",
+    "RiftletCoreTests.AcceptedSelectionQueueTests/testIntentDatabaseFailureCannotDowngradeRevokedAcceptedSlotToLegacyDispatch",
+    "RiftletCoreTests.AcceptedSelectionQueueTests/testLateCancellationIDsDoNotCancelNewAcceptedClick",
+    "RiftletCoreTests.AcceptedSelectionQueueTests/testOriginalRecoverySnapshotDoesNotResetNewPreparedSelection",
+    "RiftletCoreTests.AcceptedSelectionQueueTests/testDeadlineCancelsPreparedWhileOriginalUnknownRemainsLocked",
+    "RiftletCoreTests.AcceptedSelectionQueueTests/testCompletionDuringParkedOnChangeDoesNotLoseDrainWake",
+    "RiftletCoreTests.AcceptedSelectionQueueTests/testRemovedOrHiddenWaitingSelectionDoesNotDispatchAfterACompletes",
+    "RiftletCoreTests.AcceptedSelectionQueueTests/testRestartCancelsPreparedWithoutRestoringTokenOrInput",
+    "RiftletCoreTests.AcceptedSelectionQueueTests/testSameDraftParksVisibleThenReconcileReleasesOriginalFIFOWithoutCapture",
+    "RiftletCoreTests.AcceptedSelectionQueueTests/testStoreChecksRevisionAndExactTargetInsideIntentAndRevokedTokenStaysUnusable",
+    "RiftletCoreTests.ArmedTargetTests/testOnlyPreexistingSameSessionAcknowledgementCanFreeze",
+    "RiftletCoreTests.AcceptedSelectionQueueTests/testUnknownAndWrongIdentityCannotReleaseDraftOrCreateAnotherAttempt",
+    "RiftletAppTests.AutomationPermissionTests/testBackgroundInspectionNeverAsksUser",
+    "RiftletAppTests.AutomationPermissionTests/testEveryDispatchPermissionCheckUsesOriginalSessionWithoutCaching",
+    "RiftletAppTests.AutomationPermissionTests/testDeniedGrantedOrMissingBrowserNeverPromptAgain",
+    "RiftletAppTests.AutomationPermissionTests/testNativePermissionCodesNeverConflateDenialWithUnavailable",
+    "RiftletAppTests.AutomationPermissionTests/testOnlyExplicitNeedCanRequestAfterPassiveCheck",
+    "RiftletAppTests.AutomationPermissionTests/testMultipleChromeInstancesSelectExactOriginalSessionOrForegroundNeverFirst",
+    "RiftletAppTests.AutomationPermissionTests/testOrdinaryCaptureCannotProbeOrRequestChrome",
+    "RiftletAppTests.CaptureControlGateTests/testStaleCompletionCannotUnlockLaterSourceControl",
+    "RiftletAppTests.CaptureControlGateTests/testRecheckCannotRestartSourceAcrossAcceptedPause",
+    "RiftletAdaptersTests.CaptureDiagnosticsTests/testConcurrentCapturesOfTheSameLeaseCannotJoinByDigestOrSwapRequestIdentity",
+    "RiftletAdaptersTests.CaptureDiagnosticsTests/testDiagnosticAndOrdinaryCaptureKeepOneCommandAndTheExactSameLease",
+    "RiftletAdaptersTests.CaptureDiagnosticsTests/testDisabledDiagnosticCaptureNeverReachesTheExecutor",
+    "RiftletAdaptersTests.CaptureDiagnosticsTests/testHostInvocationMetadataIsNeverEncodedIntoThePageCommand",
+    "RiftletAdaptersTests.CaptureDiagnosticsTests/testInvalidTargetAndNativeFailureDoNotReturnDiagnosticsOrRecapture",
+    "RiftletCaptureTests.CaptureSourceBindingTests/testFailedSwitchPreservesLastWorkingSource",
+    "RiftletCaptureTests.CaptureSourceBindingTests/testFilesCreatedAfterOldWatcherRetirementAreOutsideOldSourceScope",
+    "RiftletCaptureTests.CaptureSourceBindingTests/testInjectedLocationChangeKeepsEarlyArrivalAndIgnoresExistingHistory",
+    "RiftletCaptureTests.CaptureSourceBindingTests/testIncompleteOldSourceSurvivesSwitchAndProcessRestart",
+    "RiftletCaptureTests.CaptureSourceBindingTests/testInterruptedDepartureIntentRecoversFileAbsentFromEarlySnapshot",
+    "RiftletCaptureTests.CaptureSourceBindingTests/testLateProviderCallbackCannotRestartStoppedCollector",
+    "RiftletCaptureTests.CaptureSourceBindingTests/testOldSourceArrivalDuringAwaitedHandoffIsDurablyCollected",
+    "RiftletCaptureTests.CaptureSourceBindingTests/testPreferenceReaderRejectsMalformedOrRelativeLocation",
+    "RiftletCaptureTests.CaptureSourceBindingTests/testRestartAtNewDestinationKeepsScreenshotsMadeWhileStopped",
+    "RiftletCaptureTests.CaptureSourceBindingTests/testSameDestinationDoesNotRestartStabilityObservation",
+    "RiftletCaptureTests.CaptureSourceBindingTests/testNativePreferenceReplacementRebindsWithoutManualRefresh",
+    "RiftletCaptureTests.CaptureSourceBindingTests/testStopInvalidatesStartSuspendedBeforeStoreModeRead",
+    "RiftletCaptureTests.CaptureSourceBindingTests/testUnreadableLateCandidateKeepsDepartureUntilAccessReturns",
+    "RiftletCaptureTests.CaptureSourceBindingTests/testPreferenceParentReplacementAndSubsequentCreationRemainObserved",
+    "RiftletCaptureTests.CaptureSourceBindingTests/testUnrelatedPreferenceChangeDoesNotNotify",
+    "RiftletCaptureTests.CaptureTests/testPrivateCopyPreservesOriginalAndRealCodecAndPermissions",
+    "RiftletCaptureTests.CaptureTests/testOrdinaryImagesDoNotStarveLaterScreenshot",
+    "RiftletCaptureTests.CaptureTests/testMissingFalseAndNumericMetadataAreNotAccepted",
+    "RiftletCaptureTests.CaptureTests/testRecoveryAdoptsJournaledMediaAndDoesNotDeleteOriginal",
+    "RiftletCaptureTests.CaptureTests/testRecoveryFinishesJournaledStagingPromotion",
+    "RiftletCaptureTests.CaptureTests/testRecoveryPreservesAndMarksMissingCopy",
+    "RiftletCaptureTests.CaptureTests/testRecoveryRejectsSameLengthCorruption",
+    "RiftletCaptureTests.CaptureTests/testServiceBaselinesHistoryAndRecoversCaptureMadeWhileStopped",
+    "RiftletCaptureTests.CaptureTests/testSimulationRejectsRealOriginBeforePrivateCopy",
+    "RiftletCaptureTests.CaptureTests/testSymlinkSourceIsRejectedAndOriginalIsUntouched",
+    "RiftletAdaptersTests.ChromeActiveTabDescriptorTests/testMissingOrExtraFieldsAndNonNullNestedContainerRefuse",
+    "RiftletCaptureTests.CaptureTests/testRepeatedSourceEventDeduplicatesButIdenticalNewCaptureDoesNot",
+    "RiftletAdaptersTests.ChromeActiveTabDescriptorTests/testNoncanonicalZeroNegativeOverflowAndUnicodeIDsRefuseOnEitherLevel",
+    "RiftletAdaptersTests.ChromeActiveTabDescriptorTests/testObservedAbsoluteUnicodeIDChainReturnsBothIDsWithoutCoercion",
+    "RiftletAdaptersTests.ChromeActiveTabDescriptorTests/testRelativeSelectorsAndNumericDescriptorsAreNotTreatedAsFixedIDs",
+    "RiftletAdaptersTests.ChromeActiveTabDescriptorTests/testWrongObjectKindsOrDescriptorTypesRefuse",
+    "RiftletAdaptersTests.ClipboardOwnershipTests/testLaterUserCopyOrLostMarkerNeverProducesRestorePlan",
+    "RiftletAdaptersTests.ClipboardOwnershipTests/testMatchingOwnerRestoresCompleteOriginalSnapshotAfterAdmittedCompletion",
+    "RiftletAdaptersTests.ClipboardOwnershipTests/testPayloadFromAnotherOperationCannotBecomeThisOperationsLease",
+    "RiftletCaptureTests.CaptureTests/testTruncatedAndChangingFilesDoNotEnterQueue",
+    "RiftletAdaptersTests.ClipboardOwnershipTests/testPayloadHasRealFileURLPNGBytesAndUniqueOperationMarkerWithoutSystemAccess",
+    "RiftletAdaptersTests.ClipboardOwnershipTests/testSnapshotPreservesAllMaterializedItemsAndRejectsOversizedCapture",
+    "RiftletAdaptersTests.ClipboardOwnershipTests/testUnknownFailureInputAndWrongDraftNeverRestoreOnTimerAssumption",
+    "RiftletAppTests.FirstUseTests/testCaptureDiagnosticsRemainDistinctFromAttachmentPermission",
+    "RiftletAppTests.FirstUseTests/testClickFeedbackCannotBlamePermissionForDisabledProduction",
+    "RiftletCaptureTests.FileSafetyTests/testNamedPipeCannotBlockCollectorStartOrStop",
+    "RiftletAppTests.FirstUseTests/testFolderGrantCannotRedirectScreenshotSource",
+    "RiftletAppTests.FirstUseTests/testPauseAndFirstCheckAreNotPermissionDenial",
+    "RiftletAppTests.FirstUseTests/testPresentationPersistsButIsIsolatedFromDevelopmentModes",
+    "RiftletAppTests.FirstUseTests/testSourceReadabilityNeverTransfersFromOldFolderToNewPreference",
+    "RiftletAppTests.FirstUseTests/testUnknownPresentationCannotBecomeFailureOrRetryPermission",
+    "RiftletUITests.HistoryPresentationTests/testConfirmedFailureRequiresCurrentOperationAndCompleteReceiptIdentity",
+    "RiftletUITests.HistoryPresentationTests/testHistoryOrderingUsesCaptureTimeThenSequenceWithoutChangingIdentity",
+    "RiftletUITests.HistoryPresentationTests/testLocalPageSearchSupportsDateImageIdentityAndState",
+    "RiftletUITests.HistoryPresentationTests/testNewUnresolvedOperationObservationOverridesStaleUsedAssetSnapshot",
+    "RiftletCaptureTests.FileSafetyTests/testRegularFileReadersRejectFIFOWithoutWaitingForWriter",
+    "RiftletUITests.HistoryPresentationTests/testPreInputCancellationIsNotPresentedAsRemoteUploadFailure",
+    "RiftletUITests.HistoryPresentationTests/testRemovalEligibilityIsVisibilityOnlyAndDoesNotPretendToRemoveAttachments",
+    "RiftletUITests.HistoryPresentationTests/testRestoreRequiresCoreEligibilityAndDoesNotExposeSwallowedOrUnknownAsRetry",
+    "RiftletUITests.HistoryPresentationTests/testUnknownCannotBeDisplayedAsConfirmedFailureFromAnInconsistentSnapshot",
+    "RiftletUITests.HistoryPresentationTests/testVisibilityAndVerificationRemainSeparateHistoryFilters",
+    "RiftletCaptureTests.ImportFaultTests/testJournalRenameThenSyncFailureKeepsStageOwnedByRecovery",
+    "RiftletCaptureTests.ImportFaultTests/testIOFailureBeforeJournalDoesNotMarkSeenOrRetainPartialCopy",
+    "RiftletCaptureTests.ImportFaultTests/testEveryDurableBoundaryCanReopenWithoutDuplicateQueueOrOriginalLoss",
+    "RiftletCaptureTests.ImportFaultTests/testMalformedJournalDoesNotPreventUnrelatedValidRecovery",
+    "RiftletCaptureTests.ImportFaultTests/testMediaRenameThenSyncFailureRecoversWithoutRecopy",
+    "RiftletCaptureTests.ImportFaultTests/testPromotionCollisionDoesNotOverwriteUnrelatedPrivateBytes",
+    "RiftletCaptureTests.ImportFaultTests/testRecoveryIOFailureCannotAllocateAnotherPrivateIdentity",
+    "RiftletCaptureTests.ImportFaultTests/testRecoveryAndSourceRetryNeverResurrectUsedImage",
+    "RiftletCoreTests.InteractionLifecycleTests/testAcceptedPressCanUndoOnlyItsImmediatelyPrecedingAutomaticArchive",
+    "RiftletCaptureTests.ImportFaultTests/testUnreadablePendingJournalDoesNotCreateCopiesOnRepeatedRetry",
+    "RiftletCoreTests.InteractionLifecycleTests/testAdmittedStartHidesBeforeSuccessAndPersistsItsOwnEvidence",
+    "RiftletCoreTests.InteractionLifecycleTests/testAlreadySafeLateFailureRebirthsOnItsFirstProvedObservation",
+    "RiftletCoreTests.InteractionLifecycleTests/testBackgroundUnknownRecoveryOnlyObservesOriginalOperationAcrossRestart",
+    "RiftletCoreTests.InteractionLifecycleTests/testArchiveIsBoundedDurableAndDoesNotChangeHiddenIntentOrDeleteFiles",
+    "RiftletCoreTests.InteractionLifecycleTests/testCancelledSelectionReleasesArchiveReservation",
+    "RiftletCoreTests.InteractionLifecycleTests/testBlockedOrStaleInteractionFencePreventsIdleArchive",
+    "RiftletCoreTests.InteractionLifecycleTests/testClickIntentInputAndPlaceholderDoNotSwallowWithoutPositiveStart",
+    "RiftletCoreTests.InteractionLifecycleTests/testClearVisibleQueueDoesNotDeletePrivateBytesOrRewriteExternalFacts",
+    "RiftletCoreTests.InteractionLifecycleTests/testDuplicateSelectionCannotSettleOwnerWhileTargetCaptureIsSuspended",
+    "RiftletCoreTests.InteractionLifecycleTests/testEveryStartIdentityMismatchCannotHideAnotherImage",
+    "RiftletCoreTests.InteractionLifecycleTests/testFinalReadyDoesNotRepeatVisibleTransitionOrEraseStartedEvidence",
+    "RiftletCoreTests.InteractionLifecycleTests/testExplicitRemovalOverridesLateStartSuccessAndSafeFailure",
+    "RiftletCoreTests.InteractionLifecycleTests/testHiddenIntentPersistsThroughNewImportsAndIsSeparateFromCapturePause",
+    "RiftletCoreTests.InteractionLifecycleTests/testHistoryRestoreCannotReinputSwallowedUnknownOrSuccessfulImage",
+    "RiftletCoreTests.InteractionLifecycleTests/testInvalidSelectionSettlesAndReleasesArchiveProtectionWithoutInput",
+    "RiftletCoreTests.InteractionLifecycleTests/testLateUnsafeFailureKeepsCompensationInternalUntilRetryIsProved",
+    "RiftletCoreTests.InteractionLifecycleTests/testLegacyReadyExitsSilentlyWithoutInventingAnEarlierStart",
+    "RiftletCoreTests.InteractionLifecycleTests/testRemovedPreparedSelectionCannotDispatchAfterUserClear",
+    "RiftletCoreTests.InteractionLifecycleTests/testRepeatedStartKeepsFirstAuditAndDoesNotRepeatVisualTransition",
+    "RiftletCoreTests.InteractionLifecycleTests/testRunnableSimulationSeparatesEarlyExitFinalSuccessFailureAndUnknown",
+    "RiftletCoreTests.InteractionLifecycleTests/testSafelyRebornImageCanSettleNewSelectionWhileOriginalDrainAwaitsAnotherImage",
+    "RiftletCoreTests.InteractionLifecycleTests/testSafeFailureResetsIdleLifetimeBeforeNormalArchiveCanRun",
+    "RiftletCoreTests.InteractionLifecycleTests/testStalePressCannotUndoUserRemovalOrUnrelatedArchiveRevision",
+    "RiftletCoreTests.InteractionLifecycleTests/testSelectionReservationSurvivesTargetAwaitEvenWithIdleUISnapshot",
+    "RiftletCoreTests.InteractionLifecycleTests/testStartVisibilityAndAuditCommitAtomicallyUnderStorageFailure",
+    "RiftletCoreTests.InteractionLifecycleTests/testStartAdmissionRejectsConflictingFlagsAndMissingAttachment",
+    "RiftletCoreTests.InteractionLifecycleTests/testStrongSafeFailureRebirthsAnOrdinaryClickableScreenshot",
+    "RiftletCoreTests.InteractionLifecycleTests/testSyntheticRetryAdmissionIsIndependentAndCannotRebirthSystemScreenshot",
+    "RiftletCoreTests.InteractionLifecycleTests/testSyntheticStartAdmissionCannotHideSystemScreenshot",
+    "RiftletCoreTests.InteractionLifecycleTests/testUnadmittedStartAndMalformedStartCannotAcquireVisualPermission",
+    "RiftletCoreTests.InteractionLifecycleTests/testUnknownAfterStartStaysInternalAcrossRestartWithoutNewAttempt",
+    "RiftletCoreTests.InteractionLifecycleTests/testUnsafeOrWrongAttachmentFailureCannotReviveStartedImage",
+    "RiftletCoreTests.LateFailureCompensationTests/testCompensationCoexistsWithNewerInFlightImageAndBlocksFurtherDispatch",
+    "RiftletCoreTests.LateFailureCompensationTests/testCompensationTransactionFailurePreservesSuccessAndCanBeRetriedOnce",
+    "RiftletCoreTests.LateFailureCompensationTests/testCompletedObservationCompensatesOnlyMatchingAssetWithoutNewInput",
+    "RiftletCoreTests.LateFailureCompensationTests/testCompletedObservationWithoutOriginalDraftMembershipDoesNotRevive",
+    "RiftletCoreTests.LateFailureCompensationTests/testCompletedObservationTransportFailurePreservesTerminalSuccess",
+    "RiftletCoreTests.LateFailureCompensationTests/testCorrelatedLateErrorStaysInternalAndPersistsOriginalOrderAndBothFacts",
+    "RiftletCoreTests.LateFailureCompensationTests/testMigrationFailureRollsBackSchemaReceiptsAndVersion",
+    "RiftletCoreTests.LateFailureCompensationTests/testMissingRestoredBytesStayMissingAcrossObservationAndRestart",
+    "RiftletCoreTests.LateFailureCompensationTests/testRepeatedFailureAndStaleSuccessCannotConsumeCompensationOrReplaceAudit",
+    "RiftletCoreTests.LateFailureCompensationTests/testRestartWatchCapsCallerRequestedLimitAt64",
+    "RiftletCoreTests.LateFailureCompensationTests/testRestartWatchQueryIsBoundedAndExcludesInactiveSuccesses",
+    "RiftletCoreTests.LateFailureCompensationTests/testSelectingAndRecoveringCompensationOnlyObservesOriginalOperation",
+    "RiftletCoreTests.LateFailureCompensationTests/testVersionOneMigrationPreservesReceiptsOrderAndLocks",
+    "RiftletAdaptersTests.LegacyWebObservationProgramTests/testBrokenOldClosureCannotPublishPartialSuccessOrPrivateError",
+    "RiftletCoreTests.LateFailureCompensationTests/testWrongAttachmentProfileDraftAndNonErrorCannotRestoreUsedImage",
+    "RiftletAdaptersTests.LegacyWebObservationProgramTests/testCombinedSourceRetainsTransportBound",
+    "RiftletAdaptersTests.LegacyWebObservationProgramTests/testInputActionsNeverReadLegacyRegistries",
+    "RiftletAdaptersTests.LegacyWebObservationProgramTests/testMissingRegistryDelegatesOnlyOnceAndInstallsNothing",
+    "RiftletAdaptersTests.LegacyWebObservationProgramTests/testMissingOrMismatchedOriginalOperationReturnsDecodableUnknownWithoutFallback",
+    "RiftletAdaptersTests.LegacyWebObservationProgramTests/testV10UploadingOperationStaysSchemaOneWithoutStartEvidenceOrCurrentFallback",
+    "RiftletAdaptersTests.LegacyWebObservationProgramTests/testV11UploadingOperationStaysSchemaOneWithoutStartEvidenceOrCurrentFallback",
+    "RiftletAdaptersTests.LegacyWebObservationProgramTests/testV9UploadingOperationStaysSchemaOneWithoutStartEvidenceOrCurrentFallback",
+    "RiftletAdaptersTests.LegacyWebObservationProgramTests/testV8UploadingOperationStaysSchemaOneWithoutStartEvidenceOrCurrentFallback",
+    "RiftletAdaptersTests.LegacyWebObservationProgramTests/testWrappingPreservesCurrentCodeOwnedChunkLimit",
+    "RiftletCoreTests.LifecycleMigrationTests/testFrozenVersionOneMigratesAllTheWayAndKeepsUnstartedUnknownVisible",
+    "RiftletCoreTests.LifecycleMigrationTests/testLifecycleMigrationFailureRollsBackLegacySchemaAndEveryOriginalFact",
+    "RiftletCoreTests.LifecycleMigrationTests/testFrozenVersionTwoMigratesVisibilityWithoutInventingStartOrRewritingFacts",
+    "RiftletCoreTests.LogicalDraftIdentityTests/testDifferentAdmittedDraftsInSameTabDoNotConflict",
+    "RiftletCoreTests.LifecycleMigrationTests/testUnsupportedFutureVersionPreservesLegacyRows",
+    "RiftletCoreTests.LogicalDraftIdentityTests/testLegacyCompensationKeepsWildcardLockAndOriginalAuditAfterReopen",
+    "RiftletCoreTests.LogicalDraftIdentityTests/testDifferentTabsRemainIndependentIncludingLegacyFallback",
+    "RiftletCoreTests.LogicalDraftIdentityTests/testLegacyJSONDecodesNilWithoutInventingLogicalIdentity",
+    "RiftletCoreTests.LogicalDraftIdentityTests/testLegacyNilAndProvedIdentityConflictInBothDirections",
+    "RiftletCoreTests.LogicalDraftIdentityTests/testLogicalDraftIdentityDoesNotRelaxReceiptTargetEquality",
+    "RiftletCoreTests.LogicalDraftIdentityTests/testLegacyUnknownKeepsWildcardLockAfterDatabaseReopen",
+    "RiftletCoreTests.LogicalDraftIdentityTests/testOtherSurfacesAndMissingTabKeepExactStableKeyBehavior",
+    "RiftletCoreTests.LogicalDraftIdentityTests/testProvedUnknownAllowsDifferentDraftButStillBlocksSameDraftAfterReopen",
+    "RiftletCoreTests.LogicalDraftIdentityTests/testSameLogicalDraftSurvivesRearmWindowMoveAndDocumentChange",
+    "RiftletCoreTests.LogicalDraftIdentityTests/testUnknownProfileOrInvalidIDFallsBackToWholeTabConflict",
+    "RiftletAdaptersTests.MacAttachmentAdapterTests/testAbsenceOnlyFailureCannotReleaseClipboardOrRetryEvenWithProfileAdmission",
+    "RiftletAdaptersTests.MacAttachmentAdapterTests/testDisabledAdapterNeverReadsClipboardOrApplicationState",
+    "RiftletAdaptersTests.MacAttachmentAdapterTests/testMacSurfacesAreNotInterchangeable",
+    "RiftletAdaptersTests.MacAttachmentAdapterTests/testOldTargetOrWrongReceiptCannotRestoreTheClipboard",
+    "RiftletAdaptersTests.MacAttachmentAdapterTests/testPIDLaunchWindowComposerAndDraftAreDistinctSessionBindings",
+    "RiftletAdaptersTests.MacAttachmentAdapterTests/testSnapshotWritePasteAndAdmittedCompletionRestoreOriginalClipboard",
+    "RiftletAdaptersTests.MacAttachmentAdapterTests/testUnadmittedCompletionAndRealAssetsNeverGainClipboardAuthority",
+    "RiftletAdaptersTests.MacAttachmentAdapterTests/testUnadmittedFailureRetainsClipboardLeaseAndCannotRetry",
+    "RiftletAdaptersTests.MacAttachmentAdapterTests/testUnknownKeepsLeaseAndReconcileOnlyObservesWithoutSecondPaste",
+    "RiftletAdaptersTests.MacAttachmentAdapterTests/testUserCopyBeforeCompletionIsPreserved",
+    "RiftletAdaptersTests.MacAttachmentAdapterTests/testUserCopyBetweenOwnerReadAndGuardedRestoreIsAlsoPreserved",
+    "RiftletAdaptersTests.MacAttachmentAdapterTests/testUserCopyBetweenSnapshotAndWritePreventsPaste",
+    "RiftletAdaptersTests.MacAttachmentAdapterTests/testWrongTargetFailureObservationCannotReleasePendingClipboardLease",
+    "RiftletAdaptersTests.MacClipboardCoordinatorTests/testConsumedObservationRequiresExactTombstoneAndNeverDisplacesAnotherOwner",
+    "RiftletAdaptersTests.MacClipboardCoordinatorTests/testActualLockExcludesAnotherInstanceAndASeparateProcessUntilRelease",
+    "RiftletAdaptersTests.MacClipboardCoordinatorTests/testCorruptJournalAndSpecialFilesFailClosedWithoutOverwriting",
+    "RiftletAdaptersTests.MacClipboardCoordinatorTests/testFailureAfterIntentRenameRetainsExclusionAndDurableUncertainty",
+    "RiftletAdaptersTests.MacClipboardCoordinatorTests/testJournalCapacityNeverEvictsOldInputOrCancellationTombstones",
+    "RiftletAdaptersTests.MacClipboardCoordinatorTests/testOnlySeparateAdmissionResolvesAndTheLockOutlivesResolutionUntilSettlement",
+    "RiftletAdaptersTests.MacClipboardCoordinatorTests/testOwnerAndReceiptIdentityMismatchCannotAdvanceOrRelease",
+    "RiftletAdaptersTests.MacClipboardCoordinatorTests/testRecoveredPrewriteReservationCancelsOnlyItselfWithoutReplaying",
+    "RiftletAdaptersTests.MacClipboardCoordinatorTests/testResolvedTombstoneCanReobserveAfterCrashBeforeQueueReceiptCommit",
+    "RiftletAdaptersTests.MacClipboardCoordinatorTests/testRestartKeepsInputIntentAndNeverAuthorizesAnotherPaste",
+    "RiftletAdaptersTests.MacClipboardCoordinatorTests/testWriteIntentAndOwnedButUnprovedClipboardStayConservativeAfterRestart",
+    "RiftletAdaptersTests.MacCoordinatedAdapterTests/testClipboardMutationErrorPersistsUnknownAndCannotBorrowRemoteProof",
+    "RiftletAdaptersTests.MacCoordinatedAdapterTests/testCompletedMacObservationCompensatesAndRecoversWithoutReacquiringClipboard",
+    "RiftletAdaptersTests.MacCoordinatedAdapterTests/testCopyBeforeWriteCancelsReservationAndDoesNotLockUnrelatedWork",
+    "RiftletAdaptersTests.MacCoordinatedAdapterTests/testNativeCompositionMustShareExactCoordinatorBeforeAnyClipboardRead",
+    "RiftletAdaptersTests.MacCoordinatedAdapterTests/testResolutionIOFailureReturnsUnknownUntilOriginalProofCanBeReobserved",
+    "RiftletAdaptersTests.MacCoordinatedAdapterTests/testResolvedBeforeCoreCommitReopensAndSettlesQueueWithoutClipboardOrPaste",
+    "RiftletAdaptersTests.MacCoordinatedAdapterTests/testUnknownRestartObservesOriginalAndDoesNotReconstructOldClipboard",
+    "RiftletAdaptersTests.MainWorldCommandEnvelopeTests/testEmptyMissingMalformedAndScalarRepliesAreRejected",
+    "RiftletAdaptersTests.MainWorldCommandEnvelopeTests/testErrorReplyAndUnexpectedFieldsAreRejected",
+    "RiftletAdaptersTests.MainWorldCommandEnvelopeTests/testMatchingNonceAndObjectReturnsOnlyResult",
+    "RiftletAdaptersTests.MainWorldCommandEnvelopeTests/testOnlyClosedCodeOwnedPageRejectionsAreDecoded",
+    "RiftletAdaptersTests.MainWorldCommandEnvelopeTests/testOversizedReplyRejectedByUTF8ByteCount",
+    "RiftletAdaptersTests.MainWorldCommandEnvelopeTests/testPageExceptionProducesOnlyCodeOwnedFailureAndCannotDecodeSuccess",
+    "RiftletAdaptersTests.MainWorldCommandEnvelopeTests/testReadingLostReplyNeverExecutesCommandAgain",
+    "RiftletAdaptersTests.MainWorldCommandEnvelopeTests/testWrongNonceAndAnotherEnvelopeReplyAreRejected",
+    "RiftletAdaptersTests.NativeCaptureProofTests/testDigestJoinsSameTargetAndSeparatesDifferentLease",
+    "RiftletAdaptersTests.NativeCaptureProofTests/testNativeCaptureRejectsDifferentContextBeforeTracingACK",
+    "RiftletAdaptersTests.NativeMacAXDriverTests/testAXCannotCompleteKeepsUnknownAndNeverFallsBackOrRepeats",
+    "RiftletAdaptersTests.NativeMacAXDriverTests/testBindingRejectsLaunchVersionWindowComposerDraftAndUnadvertisedAction",
+    "RiftletAdaptersTests.NativeMacAXDriverTests/testCompletedAndCompensatedObserveNeverAcquireClipboardOrPermitPaste",
+    "RiftletAdaptersTests.NativeMacAXDriverTests/testChangedBytesSymlinkAndFIFOAreRejectedWithoutAXInput",
+    "RiftletAdaptersTests.NativeMacAXDriverTests/testDisabledMissingProfileAndPermissionNeverReachProviderOrInput",
+    "RiftletAdaptersTests.NativeMacAXDriverTests/testFinalDraftChangeAfterFirstCheckAndIntentDoesNotPasteOrRetry",
+    "RiftletAdaptersTests.NativeMacAXDriverTests/testNativePrimitiveConfigurationAndOpaqueObjectsWithoutPermissionPrompt",
+    "RiftletAdaptersTests.NativeMacAXDriverTests/testInputRequiresDurableReservationAndExactCurrentClipboardOwner",
+    "RiftletAdaptersTests.NativeMacAXDriverTests/testObserveLostBindingAndWrongIdentityCannotAttachOrPaste",
+    "RiftletAdaptersTests.NativeMacAXDriverTests/testOneAXActionIsUnknownAndRepeatedExecutorCannotRepeatDurableIntent",
+    "RiftletAdaptersTests.NativeMacAXDriverTests/testRealScreenshotOriginIsRefusedByNativeExecutor",
+    "RiftletAdaptersTests.NativePasteboardDriverTests/testAmbiguousOrMalformedMarkersNeverBecomeAnOwner",
+    "RiftletAdaptersTests.NativePasteboardDriverTests/testEmptyBoardCanBeRestoredAfterOwnedWrite",
+    "RiftletAdaptersTests.NativePasteboardDriverTests/testInterveningCopyAndForgedSameMarkerCannotAuthorizeRestoration",
+    "RiftletAdaptersTests.NativePasteboardDriverTests/testInvalidBoundsAndUnownedRestoreDoNotReadOrWriteClipboard",
+    "RiftletAdaptersTests.NativePasteboardDriverTests/testInterveningCopyPreventsAttachmentWriteAndLeavesNewCopy",
+    "RiftletAdaptersTests.NativePasteboardDriverTests/testOversizedOrPromiseRestorePreparationCannotClearOwnedPayload",
+    "RiftletAdaptersTests.NativePasteboardDriverTests/testNativeRoundTripPreservesEveryMaterializedItemAndRepresentation",
+    "RiftletAdaptersTests.NativePasteboardDriverTests/testUnreadablePromisedAndOversizedCaptureDeclineBeforeMutation",
+    "RiftletAdaptersTests.ObservationNormalizerTests/testAmbiguousFailureHasNoSafeRetryWithoutAllIndependentFacts",
+    "RiftletAdaptersTests.ObservationNormalizerTests/testClaimedRealProvenanceDoesNotGrantACompletionMappingOrAdmission",
+    "RiftletAdaptersTests.ObservationNormalizerTests/testCodeSelectedAttachedCompletionStillRequiresCorePolicyAdmission",
+    "RiftletAdaptersTests.ObservationNormalizerTests/testDecoderRejectsUnknownVersionOversizeAndPayloadAdmissionFields",
+    "RiftletAdaptersTests.ObservationNormalizerTests/testDefaultAttachedMappingCannotConsumeEvenWithAnAdmittedReceiptProfile",
+    "RiftletAdaptersTests.ObservationNormalizerTests/testDevelopmentProvenanceCannotDriveARealScreenshotOperation",
+    "RiftletAdaptersTests.ObservationNormalizerTests/testEveryRequestIdentityFieldIsBoundBeforeAnyReceiptCanBeApplied",
+    "RiftletAdaptersTests.ObservationNormalizerTests/testErrorUploadingUnprovenImageAndWrongMembershipNeverBecomeSuccess",
+    "RiftletAdaptersTests.ObservationNormalizerTests/testLegacyAbsenceFailureCannotGrantRetryEvenWithSeparateProfileAdmission",
+    "RiftletAdaptersTests.ObservationNormalizerTests/testInputUnknownAndNavigationCannotMasqueradeAsCompletion",
+    "RiftletAdaptersTests.ObservationNormalizerTests/testMappingDoesNotLeakAcrossSurfacesAndRejectsBlankAttachmentIdentity",
+    "RiftletAdaptersTests.ObservationNormalizerTests/testPreparedOperationCannotAcceptAnObservationBeforeDurableIntent",
+    "RiftletAdaptersTests.ObservationNormalizerTests/testVersionedFixtureIsExplicitlySyntheticAndRoundTrips",
+    "RiftletAdaptersTests.ObservationNormalizerTests/testSyntheticProductAttachedFixtureUsesExistingDurableSuccessTransaction",
+    "RiftletAppTests.PassivePermissionResumeTests/testEventBurstCoalescesWithoutParallelInspectionOrResume",
+    "RiftletAppTests.PassivePermissionResumeTests/testDeniedOrUnrequestedPermissionNeverResumes",
+    "RiftletAppTests.PassivePermissionResumeTests/testLaterHostEventResumesAfterBrowserWasUnavailable",
+    "RiftletAppTests.PassivePermissionResumeTests/testRestartWaitsForOldCallAndNeverUsesItsGrant",
+    "RiftletAppTests.PassivePermissionResumeTests/testResumeOwnsFlightUntilItsAwaitFinishesAndReceivesCancellation",
+    "RiftletAppTests.PassivePermissionResumeTests/testStartAloneDoesNotPollAndStoppedEventsCannotProbe",
+    "RiftletAppTests.PassivePermissionResumeTests/testStateCallbackCanStopBeforeGrantedResumption",
+    "RiftletAppTests.PassivePermissionResumeTests/testStopRejectsLateGrantedResultAndDropsPendingEvents",
+    "RiftletCoreTests.PersistedLogicalDraftIdentityTests/testCrossProfileNilUnknownAndMalformedIdentitiesRemainConservative",
+    "RiftletCoreTests.PersistedLogicalDraftIdentityTests/testFrozenStoredPersistedIdentitySurvivesReopenAndRecoveryWithoutRewritingOriginalFacts",
+    "RiftletCoreTests.PersistedLogicalDraftIdentityTests/testLegacyAndCrossProfileCompensationKeepAuditAndLockAfterReopen",
+    "RiftletCoreTests.PersistedLogicalDraftIdentityTests/testPersistedDraftConflictIsCaseInsensitiveAcrossRearmWindowAndDocumentChanges",
+    "RiftletCoreTests.PersistedLogicalDraftIdentityTests/testOldUnknownRowsKeepWholeTabProtectionAgainstPersistedDraftAfterReopen",
+    "RiftletCoreTests.PersistedLogicalDraftIdentityTests/testPersistedIdentityNeverRelaxesFullTargetEqualityForStartOrCompletion",
+    "RiftletCoreTests.PersistedLogicalDraftIdentityTests/testRecognitionAcceptsOnlyExactProfileAndUnmodifiedUUIDFormat",
+    "RiftletUITests.PresentationBoundaryTests/testControllerCloseCancelsPendingSwallowCloseCallback",
+    "RiftletUITests.PresentationBoundaryTests/testHideCancelsCloseAndHiddenSnapshotsDoNotInventPresentation",
+    "RiftletUITests.PresentationBoundaryTests/testOriginalStartIdentitySurvivesDeferredReadyAndClosesOnlyOnce",
+    "RiftletUITests.PresentationBoundaryTests/testSyntheticAXIdentityRequiresVisibleRowAndPreservesSelectionGuard",
+    "RiftletCoreTests.QueueStoreTests/testCandidateAttachedCannotConsumeEvenAdmittedProfile",
+    "RiftletCoreTests.QueueStoreTests/testApprovedEvidenceStillRejectsErrorAndUploading",
+    "RiftletCoreTests.QueueStoreTests/testCaptureOrderAndSequenceTieBreakerSurviveReopen",
+    "RiftletCoreTests.QueueStoreTests/testDuplicateClicksAllocateOnlyOneAttempt",
+    "RiftletCoreTests.QueueStoreTests/testFileEventsDeduplicateButSamePixelsRemainTwoCaptures",
+    "RiftletCoreTests.QueueStoreTests/testIntentCrashBecomesUnknownButPreIntentIsRetryable",
+    "RiftletCoreTests.QueueStoreTests/testMetadataRejectsTraversalAndCheckpointPersists",
+    "RiftletCoreTests.QueueStoreTests/testSimulationCannotOpenProductionStoreOrAcceptRealImage",
+    "RiftletCoreTests.QueueStoreTests/testSuccessTransactionPersistsUsedAndReceiptBeforeUIDisappears",
+    "RiftletCoreTests.QueueStoreTests/testUnadmittedReadyBecomesUnknownAndKeepsPrivateIdentity",
+    "RiftletCaptureTests.ImportFaultTests/testRealSQLiteWriterLockLeavesJournalAndCanResumeSameIdentity",
+    "RiftletCoreTests.QueueStoreTests/testUnknownLocksTargetAndFailureMustBeSafeToRetry",
+    "RiftletCoreTests.QueueStoreTests/testWrongDraftReceiptRejectedWithoutStateMutation",
+    "RiftletCoreTests.RecoveryBoundaryTests/testAssetWriteFailureRollsBackOperationAndReceiptTogether",
+    "RiftletCoreTests.RecoveryBoundaryTests/testEveryIdentityMismatchLeavesOriginalOperationAndEvidenceUntouched",
+    "RiftletCoreTests.RecoveryBoundaryTests/testOldSuccessfulReceiptCannotConsumeNewAttemptAfterProvedFailure",
+    "RiftletCoreTests.RecoveryBoundaryTests/testReceiptBeforeIntentRollsBackWithoutSavingEvidence",
+    "RiftletCoreTests.RecoveryBoundaryTests/testFailedObservationKeepsMissingMediaButRemoteSuccessCanFinish",
+    "RiftletCoreTests.RecoveryBoundaryTests/testTerminalSuccessCannotBeReversedByUncorrelatedLateObservation",
+    "RiftletCoreTests.RecoveryBoundaryTests/testRestartKeepsMissingMediaAndUnknownTargetLockUntilVerifiedRestore",
+    "RiftletCaptureTests.ReleaseCaptureTests/testBindingDiagnosticCallbackCannotStopItsReplacementGeneration",
+    "RiftletCaptureTests.ReleaseCaptureTests/testDiagnosticClassificationSeparatesSourceStorageFormatAndSizeWithoutPrivateDetails",
+    "RiftletCaptureTests.ReleaseCaptureTests/testDeniedPreferenceParentNeverFallsBackToDesktopAndRecoversAfterAccessReturns",
+    "RiftletCaptureTests.ReleaseCaptureTests/testDiagnosticCallbackCannotLetAnOldFailedStartStopNewCaptureGeneration",
+    "RiftletCaptureTests.ReleaseCaptureTests/testExistingDurableJournalRecoveryBypassesFreshCopyCapacityGuard",
+    "RiftletCaptureTests.ReleaseCaptureTests/testJPEGOrientationRetainsRawIdentityAndTransformedPreview",
+    "RiftletCaptureTests.ReleaseCaptureTests/testOldSourceRecheckCannotClearFailedNewLocationUntilSwitchActuallySucceeds",
+    "RiftletCaptureTests.ReleaseCaptureTests/testLowSpaceRefusesBeforeCopyWithoutMarkingSeenAndRecoversOnExplicitRetry",
+    "RiftletCaptureTests.ReleaseCaptureTests/testOversizedOrdinaryFileIsNotMislabeledAsUnsupportedScreenshot",
+    "RiftletCaptureTests.ReleaseCaptureTests/testOnlyMarkedNewUnsupportedFilesProduceFormatDiagnostic",
+    "RiftletCaptureTests.ReleaseCaptureTests/testHEICPreservesOriginalBytesWhenSystemEncoderIsAvailable",
+    "RiftletCaptureTests.ReleaseCaptureTests/testPDFAndMultiPageTIFFAreRejectedWithoutChangingOriginals",
+    "RiftletCaptureTests.ReleaseCaptureTests/testUnknownCapacityIsNotReportedAsProvenLowSpace",
+    "RiftletCaptureTests.ReleaseCaptureTests/testSourceSnapshotAndExplicitRecheckRecoverMissingFolderWithoutNewScreenshot",
+    "RiftletCaptureTests.ReleaseCaptureTests/testPNGJPEGAndTIFFPreserveExactBytesColorProfileAndEncodedDimensions",
+    "RiftletUITests.RiftLayoutTests/testAspectRatioAndOcclusionDoNotStretchImage",
+    "RiftletUITests.RiftLayoutTests/testConfiguredDimensionsRemainAdjustableAndNeverOverlapRows",
+    "RiftletUITests.RiftLayoutTests/testDoubleClickCannotContinueOntoReplacementWindow",
+    "RiftletUITests.RiftLayoutTests/testLegacyUsedFixtureDefaultsToSwallowedAndOrdinalsAreCurrentPositions",
+    "RiftletUITests.RiftLayoutTests/testInvalidConfigurationRejected",
+    "RiftletUITests.RiftLayoutTests/testMouseUpReturnsIdentityCapturedAtMouseDown",
+    "RiftletUITests.RiftLayoutTests/testObservedClearPaddingCannotBeginOrCompleteSelection",
+    "RiftletUITests.RiftLayoutTests/testOutsideMouseUpAndUnavailableRowsDoNotSelect",
+    "RiftletUITests.RiftLayoutTests/testSmallDisplayKeepsAllItemsReachableWithoutOffscreenWindows",
+    "RiftletUITests.RiftLifecycleTests/testArchiveSnapshotWaitsForAnActiveArrivalInsteadOfRemovingItsRow",
+    "RiftletUITests.RiftLayoutTests/testTwelvePortraitsFitReferenceViewportWithWindowFreeGaps",
+    "RiftletUITests.RiftLayoutTests/testVisibleFailureUnknownAndTransferKeepOriginalGeometry",
+    "RiftletUITests.RiftLifecycleTests/testCanceledPressDoesNotLeaveArchiveOrSelectionLocked",
+    "RiftletUITests.RiftLifecycleTests/testBackendReadyAloneDoesNotTriggerVisualSwallow",
+    "RiftletUITests.RiftLifecycleTests/testDelayedPressReleaseCannotReverseAnUploadStartSwallow",
+    "RiftletUITests.RiftLifecycleTests/testHiddenIntentSurvivesNewImagesReflowAndLateAnimations",
+    "RiftletUITests.RiftLifecycleTests/testEmptyAndEntirelyHiddenQueuesHaveNoLegacyLine",
+    "RiftletUITests.RiftLifecycleTests/testFailureRebirthDoesNotAutoFollowNewestAndExplicitHistoryRevealFindsAnOldItem",
+    "RiftletUITests.RiftLifecycleTests/testHoverMenuAndOverlappingAnimationsProtectQueueUntilAllHaveEnded",
+    "RiftletUITests.RiftLifecycleTests/testHideOrReflowDoesNotReleaseAnAcceptedAsynchronousSelection",
+    "RiftletUITests.RiftLifecycleTests/testLegacyCompletionRemovesSilentlyWithoutAReadySwallowAnimation",
+    "RiftletUITests.RiftLifecycleTests/testMouseReleaseProtectsSelectionUntilPrepareOrCancellation",
+    "RiftletUITests.RiftReconfigurationTests/testEveryRetainedItemRemainsReachableAcrossSmallDisplayWindows",
+    "RiftletUITests.RiftReconfigurationTests/testGeometryReconfigurationPreservesIdentityAndOcclusionRatio",
+    "RiftletUITests.RiftReconfigurationTests/testLargeValidInsetDoesNotPushFittingRowsOutsideNarrowDisplay",
+    "RiftletUITests.RiftLifecycleTests/testVisibilityIsIndependentOfBackendStatusAndOrdinalsStayContinuous",
+    "RiftletUITests.RiftLifecycleTests/testSwallowPrecedesReadyAndFailureReturnsAnOrdinaryVisibleRow",
+    "RiftletUITests.RiftReconfigurationTests/testMissingPreferredAndMainDisplayUsesAvailableDisplayOrNoScreen",
+    "RiftletUITests.RiftReconfigurationTests/testPreferredDisplayDisconnectAndReconnectChangesGeometryWithoutChangingAssets",
+    "RiftletUITests.RiftReconfigurationTests/testNoVerticalSpaceCreatesNoInputRowsWithoutDiscardingRecords",
+    "RiftletUITests.RiftReconfigurationTests/testSwallowedCompactionKeepsHeldSelectionBoundToOriginalAsset",
+    "RiftletUITests.RiftSetupControllerTests/testStaleDeniedPermissionCannotOfferOrInvokeAuthorizationInCaptureOnlyMode",
+    "RiftletUITests.RiftSetupControllerTests/testNativeControlsKeepHideAndPauseIndependentAndAccessible",
+    "RiftletUITests.RiftSetupControllerTests/testBackgroundUpdatesNeverShowOrReopenGuidance",
+    "RiftletAppTests.SelectionAuthorityTests/testBoundedAuthorityRejectsDuplicatesAndCapacityThenReclaimsExpiredTokens",
+    "RiftletAppTests.SelectionAuthorityTests/testOriginalIdentityIsRetainedAndEveryCancellationBoundaryRefuses",
+    "RiftletAppTests.SelectionAuthorityTests/testLateCompletionCannotRemoveNewSelectionAndForgedEqualFieldsHaveNoAuthority",
+    "RiftletAppTests.SelectionAuthorityTests/testUnpublishedTargetCannotBeTurnedIntoAcceptedSelectionAfterEvent",
+    "RiftletAppTests.SelectionSubmissionQueueTests/testSuspendedFirstPermissionCannotLetLaterSelectionOvertake",
+    "RiftletAppTests.SelectionSubmissionQueueTests/testCancellationOnlyRemovesOriginalIDAndQueueHasFiniteCapacity",
+    "RiftletUITests.SetupPresentationTests/testAutomationRecoveryIsActionableOnlyForTheCurrentCapability",
+    "RiftletUITests.SetupPresentationTests/testDisabledProductionCannotBePresentedAsPermissionFailure",
+    "RiftletUITests.SetupPresentationTests/testStorageAndFormatFailuresKeepTheirDistinctRecoveryMeaning",
+    "RiftletUITests.SetupPresentationTests/testHiddenPauseEmptyAndBackgroundCollectionAreSeparate",
+    "RiftletAppTests.SelectionSubmissionQueueTests/testUnsubmittedDeadlineExpiresWithoutRunningAndReleasesItsOwnReservation",
+    "RiftletUITests.SetupPresentationTests/testUnknownIsPendingAndDoesNotAuthorizeAnotherInput",
+    "RiftletUITests.SetupPresentationTests/testSupportScopeComesFromHostAndLocalStringsAreBounded",
+    "RiftletCaptureTests.StorageUsageTests/testAbsentAreasAreExplicitAndDoNotCreateDirectories",
+    "RiftletCaptureTests.StorageUsageTests/testByteOverflowBecomesUnknownInsteadOfWrapping",
+    "RiftletCaptureTests.StorageUsageTests/testCountsOnlyFixedManagedAreasAndDatabaseSidecars",
+    "RiftletCaptureTests.StorageUsageTests/testInaccessibleDirectoryIsReportedWithoutAPath",
+    "RiftletCaptureTests.StorageUsageTests/testEnumerationLimitIsExplicitlyPartialWithoutDeletingEntries",
+    "RiftletCaptureTests.StorageUsageTests/testInvalidRootAndLimitsFailWithoutNetworkOrDirectoryCreation",
+    "RiftletCaptureTests.StorageUsageTests/testRootSymlinkIsRejectedInsteadOfFollowingIt",
+    "RiftletCaptureTests.StorageUsageTests/testMetadataAccountingDoesNotNeedFileReadAccessOrOpenSpecialFiles",
+    "RiftletCaptureTests.StorageUsageTests/testSymlinksAndNestedDirectoriesAreNotTraversed",
+    "RiftletCoreTests.SyntheticAcceptancePolicyTests/testSyntheticAcceptanceNeverGrantsRetryEvenWithCollidingFailureRegistration",
+    "RiftletCoreTests.SyntheticAcceptancePolicyTests/testDevelopmentProfileDoesNotApplyToShippingDefaultAnotherSurfaceOrSimulation",
+    "RiftletCoreTests.SyntheticAcceptancePolicyTests/testDevelopmentReceiptCanOnlyConsumeSyntheticAssetAndPersistsThatBoundary",
+    "RiftletCoreTests.TargetArmSchedulerTests/testInvalidatingInflightEpochRejectsACKAndWakesOnlyOneReplacement",
+    "RiftletCoreTests.TargetArmSchedulerTests/testCompletionFromAnotherSchedulerCannotReleaseOwnFlight",
+    "RiftletCoreTests.TargetArmSchedulerTests/testBurstDuringInflightCoalescesOneFollowupWithoutParallelWork",
+    "RiftletCoreTests.TargetArmSchedulerTests/testInvalidationBeforeBeginRetainsSingleWakeAndUsesNewestEpoch",
+    "RiftletCoreTests.TargetArmSchedulerTests/testNoAutomaticRetryAfterCompletedAttemptWithoutNewDemand",
+    "RiftletCoreTests.TargetArmSchedulerTests/testRestartWaitsForOldTransportAndRejectsItsACK",
+    "RiftletCoreTests.TargetArmSchedulerTests/testStoppedRequestsCannotStartWorkAndStartWakesOnce",
+    "RiftletCoreTests.TargetArmSchedulerTests/testStopRejectsACKWithoutCancelingOrRearming",
+    "RiftletCoreTests.TransferCoordinatorTests/testAdapterReceivesCommittedDispatchIntentAndExistingPrivateFile",
+    "RiftletCoreTests.TransferCoordinatorTests/testChangedTargetBeforeDispatchNeverAppends",
+    "RiftletCoreTests.TransferCoordinatorTests/testCompensatedFrozenSelectionWithNilOnlyObservesOriginal",
+    "RiftletCoreTests.TransferCoordinatorTests/testAppendExceptionBecomesUnknownAndNextClickOnlyReconciles",
+    "RiftletCoreTests.TransferCoordinatorTests/testMissingFrozenTargetRejectsPendingWithoutCapturingOrPreparing",
+    "RiftletCoreTests.TransferCoordinatorTests/testRecoveryDoesNotFallbackToDifferentAdapter",
+    "RiftletCoreTests.TransferCoordinatorTests/testConcurrentSameAssetSelectionAppendsOnlyOnce",
+    "RiftletCoreTests.TransferCoordinatorTests/testFrozenTargetSelectionUsesClickTimeLeaseWithoutCapturingAgain",
+    "RiftletCoreTests.TransferCoordinatorTests/testSameTargetWaitingQueueAppendsABCInClickOrder",
+    "RiftletCoreTests.TransferCoordinatorTests/testUnknownFrozenSelectionWithNilOrNewLeaseOnlyObservesOriginal",
+    "RiftletAdaptersTests.UploadStartObservationTests/testLegacyAndPayloadPermissionsCannotBecomeStart",
+    "RiftletCoreTests.TransferCoordinatorTests/testStartupReconcilesOnlyDispatchedOriginalOperationWithoutCapturingNewTarget",
+    "RiftletCoreTests.TransferCoordinatorTests/testSlowerFirstTargetResolutionCannotReorderClicks",
+    "RiftletAdaptersTests.UploadStartObservationTests/testProgressSequenceTimeAndMembershipCounterexamplesReject",
+    "RiftletAdaptersTests.UploadStartObservationTests/testStartMappingAndAdmissionAreIndependentAndPreserveFirstAudit",
+    "RiftletAdaptersTests.UploadStartObservationTests/testWrongIdentityAndRealImageCannotUseSyntheticStart",
+    "RiftletAppTests.WebAcceptanceIntegrationTests/testConfiguredPolicyIsSyntheticOnlyAndNeverAdmitsRetry",
+    "RiftletAppTests.WebAcceptanceIntegrationTests/testDeniedPermissionAndMissingFrozenTargetNeverAppend",
+    "RiftletAppTests.WebAcceptanceIntegrationTests/testCorrelatedLateErrorKeepsStartHiddenAndRetainsCompensation",
+    "RiftletAdaptersTests.WebAttachmentAdapterTests/testBrowserReportedTargetChangeCannotValidateOldDraft",
+    "RiftletAppTests.WebAcceptanceIntegrationTests/testInputStartUnknownRestartAndReadyPreserveOneOperation",
+    "RiftletAppTests.WebAcceptanceIntegrationTests/testPermissionAwaitKeepsOriginalTargetAndRejectsChangedDraft",
+    "RiftletAdaptersTests.WebAttachmentAdapterTests/testCaptureValidateAndChunkedCommitPreserveExactBytesAndOperation",
+    "RiftletAdaptersTests.WebAttachmentAdapterTests/testCommitErrorHasOneInputAttemptAndUnknownReconcileOnlyObserves",
+    "RiftletAdaptersTests.WebAttachmentAdapterTests/testBundledProgramAndBoundedObservationReachCompletionWithoutAnotherInput",
+    "RiftletAdaptersTests.WebAttachmentAdapterTests/testDefaultDisabledAndMissingProgramDoNotExecuteAnyBrowserCommand",
+    "RiftletAdaptersTests.WebAttachmentAdapterTests/testCorruptOrSymlinkPrivateFileIsRejectedBeforeBegin",
+    "RiftletAdaptersTests.WebAttachmentAdapterTests/testFileMutationDuringTransferIsDetectedBeforeInputCommit",
+    "RiftletAdaptersTests.WebAttachmentAdapterTests/testLargeChunkWrongAcknowledgementNeverSendsTheNextChunkOrCommit",
+    "RiftletAdaptersTests.WebAttachmentAdapterTests/testObservationDeadlinePreservesUnknownAndNeverResubmits",
+    "RiftletAdaptersTests.WebAttachmentAdapterTests/testPositiveStartReturnsBeforeFinalAndReconcileNeverReinputs",
+    "RiftletAdaptersTests.WebAttachmentAdapterTests/testReconcileDoesNotNeedFileOrCauseAnotherInput",
+    "RiftletAdaptersTests.WebAttachmentAdapterTests/testLostLargeChunkReplyAndUncertainCommitNeverRetransmitOnReconcile",
+    "RiftletAdaptersTests.WebAttachmentAdapterTests/testRealAssetAndPreIntentAreRejectedBeforeBridgeSideEffects",
+    "RiftletAdaptersTests.WebAttachmentAdapterTests/testSucceededOperationChecksLateErrorWithoutFileOrAnyNewInput",
+    "RiftletAdaptersTests.WebAttachmentAdapterTests/testWrongChunkAcknowledgementDiscardsOnlyBufferAndNeverCommits",
+    "RiftletCoreTests.WebTargetLockTests/testCompensatedSameTabRearmRemainsLockedAcrossRestart",
+    "RiftletCoreTests.WebTargetLockTests/testOtherSurfacesAndUnidentifiedChromeTabsKeepExactTargetLock",
+    "RiftletCoreTests.WebTargetLockTests/testPreparedLeaseDoesNotLockDispatchOfAnotherAsset",
+    "RiftletCoreTests.WebTargetLockTests/testUnknownBlocksSameTabAfterRearmWindowMoveAndDocumentReplacement",
+    "RiftletCoreTests.WebTargetLockTests/testUnknownDoesNotLockAnotherTabOrBrowserSession",
+    "RiftletAdaptersTests.WebAttachmentAdapterTests/testReviewedLargerChunksPreserveAllBytesAcknowledgementsAndFrozenIdentity",
+    "RiftletAdaptersTests.WebAttachmentAdapterTests/testUnsupportedChunkCapacityAndOverEightMiBFileRefuseBeforeBridgeCommands"
+  ],
+  "detailed_passed": {
+    "RiftLifecycleTests": 13,
+    "RiftSetupControllerTests": 3,
+    "ReleaseCaptureTests": 15,
+    "PresentationBoundaryTests": 4,
+    "WebAcceptanceIntegrationTests": 5,
+    "PassivePermissionResumeTests": 8,
+    "ChromeActiveTabDescriptorTests": 5,
+    "AcceptedSelectionQueueTests": 17,
+    "SelectionAuthorityTests": 4,
+    "SelectionSubmissionQueueTests": 3
+  },
+  "detailed_total_included_in_native": 77,
+  "explicit_native_skips": 0,
+  "log": {
+    "characters": 209434,
+    "bytes": 209436,
+    "sha256": "cfbe5d4b8e6e765cca8707e6acc66c8a3d30d5f14737dbf20a8d20540b4b6a63"
+  },
+  "environment": {
+    "os": "macOS 14.8.9",
+    "build": "23J631",
+    "architecture": "arm64",
+    "swift": "Apple Swift 5.10"
+  },
+  "artifact": {
+    "id": 12751661331,
+    "name": "native-foundation-1965e22a0f0b845489f9a8c72c90e692802ae027",
+    "size_in_bytes": 1800286,
+    "url": "https://api.github.com/repos/haohongfei2001-png/Riftlet/actions/artifacts/12751661331",
+    "archive_download_url": "https://api.github.com/repos/haohongfei2001-png/Riftlet/actions/artifacts/12751661331/zip",
+    "expired": false,
+    "created_at": "2026-10-27T16:41:13Z",
+    "expires_at": "2026-11-10T16:41:12Z",
+    "updated_at": "2026-10-27T16:41:13Z",
+    "digest": "sha256:7c490ad62ebdbe588ff16862bd1d5a1a8f7fff92aecab3d0603a36e67ab5fb0e",
+    "workflow_run": {
+      "id": 40543025253,
+      "repository_id": 1434252036,
+      "head_repository_id": 1434252036,
+      "head_branch": "codex/engineering-foundation-20261027",
+      "head_sha": "595142d0345adc0d06f54371f50406879310610d"
+    },
+    "digest_scope": "GitHub artifact metadata; archive not locally downloaded or rehashed",
+    "expires_at_beijing": "2026-11-11T00:41:12+08:00"
+  },
+  "source_ci": {
+    "run": {
+      "id": 40525056642,
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "9de6a85b0161713833dc25e3b3eb1e1a2f81a558",
+      "event": "push",
+      "updated_at": "2026-10-27T14:52:45Z",
+      "attempt": 1,
+      "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/40525056642"
+    },
+    "job": 122262242521,
+    "native_count": 408,
+    "counts": {
+      "RiftletCoreTests": 132,
+      "RiftletAdaptersTests": 121,
+      "RiftletCaptureTests": 63,
+      "RiftletUITests": 53,
+      "RiftletAppTests": 39
+    },
+    "log_characters": 197542,
+    "artifact": {
+      "id": 12743881167,
+      "name": "native-foundation-9de6a85b0161713833dc25e3b3eb1e1a2f81a558",
+      "size_in_bytes": 1795153,
+      "url": "https://api.github.com/repos/haohongfei2001-png/Riftlet/actions/artifacts/12743881167",
+      "archive_download_url": "https://api.github.com/repos/haohongfei2001-png/Riftlet/actions/artifacts/12743881167/zip",
+      "expired": false,
+      "created_at": "2026-10-27T14:52:40Z",
+      "expires_at": "2026-11-10T14:52:38Z",
+      "updated_at": "2026-10-27T14:52:40Z",
+      "digest": "sha256:f33a40a2f066ebef1c633d3e8b168aeae60295d19c954d03ef7e20c7a20b617c",
+      "workflow_run": {
+        "id": 40525056642,
+        "repository_id": 1434252036,
+        "head_repository_id": 1434252036,
+        "head_branch": "codex/riftlet-real-mac-round7-20261027",
+        "head_sha": "9de6a85b0161713833dc25e3b3eb1e1a2f81a558"
+      }
+    }
+  },
+  "superseded_run": {
+    "id": 40542404369,
+    "source": "2aaaadb1c3461f93f268f1f93b0b08854745aa5f",
+    "conclusion": "cancelled",
+    "reason": "Superseded by reviewed permission-recipient fix; not counted as a passing run"
+  },
+  "results": {
+    "page_vm": 72,
+    "legacy_vm": 54,
+    "web_replay": {
+      "package_files": 55,
+      "historical_cases": 19,
+      "real_trace_prefixes": 89,
+      "late_error_checks": "2 explicitly SIMULATED"
+    },
+    "network_fault_fixture": 8,
+    "network_probe_fixture": 12,
+    "round5_diagnostic_helpers": [
+      9,
+      4,
+      2
+    ],
+    "packaging_rejection_tests": 12,
+    "release_build": "PASS",
+    "ad_hoc_signature": "PASS",
+    "bundle_and_executable_markers": [
+      "2026-10-27T16:41:11.0771520Z RIFTLET_BUNDLE_CHECK_PASS: layout, permissions text, resources, notices; development 0.1.0; NOT_NOTARIZED; GATEKEEPER_NOT_RUN",
+      "2026-10-27T16:41:11.4718390Z RIFTLET_SELF_CHECK_PASS: private import, durable upload-start visibility, delayed synthetic completion, restart",
+      "2026-10-27T16:41:11.5202970Z RIFTLET_WEB_ACCEPTANCE_SELF_CHECK_PASS: bundled page source, synthetic-only start/completion policy, isolated modes; CHROME_NOT_RUN; GUI_NOT_RUN",
+      "2026-10-27T16:41:11.5510010Z RIFTLET_FIRST_USE_SELF_CHECK_PASS: presentation persistence, disabled-production permission isolation, honest status; PERMISSIONS_NOT_REQUESTED; GUI_NOT_RUN",
+      "2026-10-27T16:41:11.9699120Z RIFTLET_GUI_HELPER_SELF_CHECK_PASS: 12 synthetic PNGs; scenes 2/3/12; layout/status fixtures; GUI_NOT_RUN"
+    ],
+    "migration_recovery_scope": "Actual XCTest exercises frozen v1->v2->v3 and v2->v3, rollback/future version, UNKNOWN/start/compensation/reopen and legacy/cross-profile locks",
+    "warning_scope": "New MainActor XCTest isolation warnings removed; existing filePromise deprecation remains"
+  },
+  "local_execution": {
+    "environment": "Linux scratch executor, not interactive macOS",
+    "completed": [
+      "72 current-page VM",
+      "54 legacy VM",
+      "55-file/19-case/89-prefix replay",
+      "12 packaging tests",
+      "Git tree and original evidence byte/hash comparison"
+    ],
+    "mac_native_locally": "NOT_RUN",
+    "real_browser": "NOT_RUN",
+    "physical_gui": "NOT_RUN"
+  },
+  "gates": {
+    "production_upload": false,
+    "production_start": false,
+    "production_completion": false,
+    "web_safe_retry": false,
+    "web_synthetic_retry": false,
+    "unknown_reupload": false,
+    "automatic_chat_send": false,
+    "main_merged": false,
+    "release_published": false,
+    "pr1": "open Draft",
+    "synthetic_web_start_completion": "Existing reviewed profiles only; unchanged WebAcceptanceConfiguration"
+  },
+  "real_evidence_scope": {
+    "source_for_two_images_and_cold": "f6417c6faaf8aa21ac587b07f25ea2a159af021f",
+    "source_for_gui_fix_and_source_ci": "9de6a85b0161713833dc25e3b3eb1e1a2f81a558",
+    "two_images": "PASS_SCOPED: software AX, generated PNGs, same original ordinary draft, B prepared until A succeeded, each original operation input=1",
+    "preservation": "Same sample only: nonempty text, noncollapsed selection and three old cards; editor not focused",
+    "performance_ms": {
+      "A_ax_to_appkit_close": 2816.959,
+      "B_ax_to_appkit_close": 12212.578,
+      "A_page_input_to_start": 1750.6,
+      "B_page_input_to_start": 5127.2
+    },
+    "performance_limit": "Source-specific single batch with retained 0.24s animation; B includes waiting, AppKit close not pixels, no exact host/page clock fusion, not a new formal-binary benchmark",
+    "cold": "FAIL product; no-pre-event-ACK refusal correct. Native validation +26.323250ms; effective App ACK +26.742000ms",
+    "clear": "PASS scoped prevention of selection; FAIL underlying click-through",
+    "gap_image_number": "PASS_SOFTWARE_ROUTING only in the guarded final CGEvent batch; initial GAP NOT_RUN",
+    "private_preservation": "Public sanitized assertions/hash references only; no private files, DB or raw logs independently reread",
+    "private_manifest": {
+      "entries": 19,
+      "bytes": 2382605,
+      "scope": "private evidence file manifest, not media/database inventory"
+    }
+  },
+  "not_run": [
+    "Formal patched binary real TCC/revocation/multi-process permission and latency",
+    "Missing-ACK cold-first-click product success",
+    "Real business A->B->A and same-URL matrix",
+    "Start-stage true parallel input",
+    "Real safe-failure termination/rebirth/retry",
+    "MID actual identified byte-request interruption",
+    "CLEAR underlying click-through fix",
+    "Physical mouse/cross-application continuous focus/held reorder/double click/multi-display/Spaces",
+    "System screenshot self-inclusion resolution and full T0/T1/T2 latency",
+    "Generic background permission preflight bound separately to every original recipient",
+    "Production screenshot end-to-end admission",
+    "Notarization/public distribution"
+  ]
+}

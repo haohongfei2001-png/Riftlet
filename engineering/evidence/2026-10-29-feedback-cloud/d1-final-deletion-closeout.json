@@ -1,0 +1,14 @@
+{
+  "scope": "Actual D1 state after owner permanent deletion, independent authorized410/private-repo/empty-all-list proof, non-author semantic review and exact guarded SQL. Tombstones and Issue identities retained; no backup erasure or local Keychain claim.",
+  "executedSQL": "UPDATE feedback SET state = 'deleted' WHERE id = '9650fede-d514-4672-81f7-c92d2fa1afd2' AND issue_number = 1 AND issue_node_id = 'I_kwDOVaxKc88AAAABa8HXFg' AND delete_requested = 1 AND payload IS NULL AND state = 'deletion_pending'; UPDATE feedback SET state = 'deleted' WHERE id = '5b11fd1c-80a9-4a41-8790-0b1296bd6401' AND issue_number = 2 AND issue_node_id = 'I_kwDOVaxKc88AAAABa8HZEQ' AND delete_requested = 1 AND payload IS NULL AND state = 'deletion_pending'; UPDATE feedback SET state = 'deleted' WHERE id = '2b2dd0e6-c966-4910-93a0-e96b5510a056' AND issue_number = 3 AND issue_node_id = 'I_kwDOVaxKc88AAAABa8HbSw' AND delete_requested = 1 AND payload IS NULL AND state = 'deletion_pending';",
+  "observations": {
+    "content": [
+      {
+        "type": "text",
+        "text": "observed_at\tid\tstate\tdelete_requested\tpayload_is_null\tissue_number\tissue_node_id\n2026-10-29T15:38:01.664Z\t083ca5ca-d1f4-44f6-9a3e-1c32f8850cc9\tdeleted\t1\t1\t<null>\t<null>\n2026-10-29T15:38:01.664Z\t0fa0a07f-76d3-4815-bee3-22f60dcdbdcb\tdeleted\t1\t1\t<null>\t<null>\n2026-10-29T15:38:01.664Z\t2b2dd0e6-c966-4910-93a0-e96b5510a056\tdeleted\t1\t1\t3\tI_kwDOVaxKc88AAAABa8HbSw\n2026-10-29T15:38:01.664Z\t35bc1586-1b37-41ed-b6e5-87221bd6a3d2\tdeleted\t1\t1\t<null>\t<null>\n2026-10-29T15:38:01.664Z\t5b11fd1c-80a9-4a41-8790-0b1296bd6401\tdeleted\t1\t1\t2\tI_kwDOVaxKc88AAAABa8HZEQ\n2026-10-29T15:38:01.664Z\t6b8a8849-6ffc-4805-ae4e-e37cfa00f342\tdeleted\t1\t1\t<null>\t<null>\n2026-10-29T15:38:01.664Z\t9650fede-d514-4672-81f7-c92d2fa1afd2\tdeleted\t1\t1\t1\tI_kwDOVaxKc88AAAABa8HXFg\n2026-10-29T15:38:01.664Z\tbd84bc6b-905b-4835-8a2e-277896131723\tdeleted\t1\t1\t<null>\t<null>"
+      }
+    ],
+    "structuredContent": null,
+    "isError": false
+  }
+}

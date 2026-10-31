@@ -1,0 +1,274 @@
+{
+  "officialBaseline": "4b7228a07a23381d3de467a44dd8490d73e26e7e",
+  "stage1Handoff": "5d2994c150646549830746cd83c264c600973689",
+  "stage2FinalSource": "48574df19f34e5681ee98815750e279540e9eb9b",
+  "stage2Handoff": "f2ae645451044649fbe73326952efbe084353869",
+  "reviewedSourceTree": "33494e55f3e067782fa2b5f97d61450776f88286",
+  "integrationMethod": "fast-forward, no cherry-pick or squash",
+  "commits": [
+    {
+      "sha": "a5db972b7c4da20d30266ec8d1411fff9f434c13",
+      "parents": [
+        "4b7228a07a23381d3de467a44dd8490d73e26e7e"
+      ],
+      "subject": "fix(app): consume target arming wake after permission loss"
+    },
+    {
+      "sha": "3f4e18a15d8cc77a367beca30ade338906df9d8d",
+      "parents": [
+        "a5db972b7c4da20d30266ec8d1411fff9f434c13"
+      ],
+      "subject": "ci: validate isolated real screenshot acceptance branch"
+    },
+    {
+      "sha": "5d2994c150646549830746cd83c264c600973689",
+      "parents": [
+        "3f4e18a15d8cc77a367beca30ade338906df9d8d"
+      ],
+      "subject": "docs: hand off real screenshot input evidence and remaining admission gaps"
+    },
+    {
+      "sha": "867d93f797952fd0402d50525f384f2f416c1b93",
+      "parents": [
+        "5d2994c150646549830746cd83c264c600973689"
+      ],
+      "subject": "fix: recognize intact v9 monitors during system screenshot acceptance"
+    },
+    {
+      "sha": "48574df19f34e5681ee98815750e279540e9eb9b",
+      "parents": [
+        "867d93f797952fd0402d50525f384f2f416c1b93"
+      ],
+      "subject": "fix: preserve exact preview matching with ordinary sRGB canvas rendering"
+    },
+    {
+      "sha": "f2ae645451044649fbe73326952efbe084353869",
+      "parents": [
+        "48574df19f34e5681ee98815750e279540e9eb9b"
+      ],
+      "subject": "docs: hand off real screenshot start evidence and exact-color completion fix"
+    }
+  ],
+  "buildInputs": [
+    {
+      "path": "Sources",
+      "sourceObject": "dc6f7dfbb1b5e0299e9b49d9bce004b0b2c16c5c",
+      "handoffObject": "dc6f7dfbb1b5e0299e9b49d9bce004b0b2c16c5c"
+    },
+    {
+      "path": "Tests",
+      "sourceObject": "ab37cf0ec90b88a3a1603aba761e7cc1b458d72b",
+      "handoffObject": "ab37cf0ec90b88a3a1603aba761e7cc1b458d72b"
+    },
+    {
+      "path": "Resources",
+      "sourceObject": "760e5d2e74f2237ca17597edd042f2f1d13439ac",
+      "handoffObject": "760e5d2e74f2237ca17597edd042f2f1d13439ac"
+    },
+    {
+      "path": "Package.swift",
+      "sourceObject": "5903d370088c75c20e1c3bc6d9cf2606fc9183fa",
+      "handoffObject": "5903d370088c75c20e1c3bc6d9cf2606fc9183fa"
+    },
+    {
+      "path": "scripts",
+      "sourceObject": "61321695dacf3fc9c5982713ac751f01e039f8c9",
+      "handoffObject": "61321695dacf3fc9c5982713ac751f01e039f8c9"
+    },
+    {
+      "path": ".github",
+      "sourceObject": "35c3180187756d0855c70b0c52f073cb02cf7f54",
+      "handoffObject": "35c3180187756d0855c70b0c52f073cb02cf7f54"
+    },
+    {
+      "path": "ThirdPartyNotices",
+      "sourceObject": "89a07e01c183f61fca6bc7d7127322b00fa03ded",
+      "handoffObject": "89a07e01c183f61fca6bc7d7127322b00fa03ded"
+    },
+    {
+      "path": "research",
+      "sourceObject": "7ed0708f7cb3faed95a37fe319e3f0400f3b51dd",
+      "handoffObject": "7ed0708f7cb3faed95a37fe319e3f0400f3b51dd"
+    }
+  ],
+  "preservedBaselineObjects": [
+    {
+      "path": "Sources/RiftletCore",
+      "object": "feb08412f024e8ddb2aaf6459db12a826d73a872"
+    },
+    {
+      "path": "Sources/RiftletCapture",
+      "object": "c190891690d9f0fa4073fe5c6b2ddcc78ad633d1"
+    },
+    {
+      "path": "Sources/RiftletUI",
+      "object": "167bf81cc8b626640f13666585eff7d7a9f96f24"
+    },
+    {
+      "path": "Sources/RiftletApp/SystemScreenshotCandidateConfiguration.swift",
+      "object": "e52a52a5e4313a9c0e492d59a97bf9bc91ee4b8a"
+    },
+    {
+      "path": "Sources/RiftletApp/ApplicationMode.swift",
+      "object": "175c92cd5cdbc6db9feb9154765ad8e5de1331f5"
+    },
+    {
+      "path": "Sources/RiftletApp/SelectionAuthority.swift",
+      "object": "7fb939da103866ab577862c5162aac672a642418"
+    },
+    {
+      "path": "Sources/RiftletApp/PassivePermissionResume.swift",
+      "object": "aae1d2e7b5e8fbed41427e8a2f1d51fd569ec9c9"
+    },
+    {
+      "path": "Sources/RiftletApp/AutomationPermission.swift",
+      "object": "2edeafda74fe7b57ffedbf410519774970df1ce9"
+    },
+    {
+      "path": "Package.swift",
+      "object": "5903d370088c75c20e1c3bc6d9cf2606fc9183fa"
+    },
+    {
+      "path": "Sources/RiftletAdapters/Resources/legacy-web-observe.js",
+      "object": "7fbbc1ba6e99529bdd931e9e8cfb4026102f2f8f"
+    },
+    {
+      "path": "Tests/RiftletAdaptersTests/Fixtures/LegacyWeb",
+      "object": "578086d7260a301cb96409c7957d408e44dcd8ce"
+    }
+  ],
+  "sourceEvidence": [
+    {
+      "path": "engineering/evidence/2026-10-28-system-screenshot-real/README.md",
+      "blob": "0b13cb12277d33c63b294874d3ce15044cddb894",
+      "sha256": "ed09287b9b96b1ab5af644129bb577e1703cb3fa2799988c939f750c916e4d40",
+      "bytes": 8302
+    },
+    {
+      "path": "engineering/evidence/2026-10-28-system-screenshot-real/data-preservation.md",
+      "blob": "0faeb19dce1ae8c8b66b958333d370ad0a8b22de",
+      "sha256": "c412143b4aed752839b3fcde0c8839ff0bd56116fd86601eae3d8a38f75f6c77",
+      "bytes": 1513
+    },
+    {
+      "path": "engineering/evidence/2026-10-28-system-screenshot-real/results.json",
+      "blob": "9802dda7ed19bce41a5a194e4b367c92272b02f4",
+      "sha256": "dda8b0db0827756e84f12b07188ec9a90fb1d995bd841120f0e6367b508aff23",
+      "bytes": 6372
+    },
+    {
+      "path": "engineering/evidence/2026-10-28-system-screenshot-real/review.md",
+      "blob": "b5ef10ace5cb4280dd1d608dc771b72d1c881724",
+      "sha256": "7382c614be02f2dd809707341d47ae7c4c2df040d7301d9c727ee0ada03f3bb8",
+      "bytes": 2390
+    },
+    {
+      "path": "engineering/evidence/2026-10-28-system-screenshot-real/validation.md",
+      "blob": "84002ef388dffb4c169863164ce6b252b74cb8c1",
+      "sha256": "75a7d27ef661c8e67efe514351c8cf3792574f5bb70ce50d9560aba3870a9eb7",
+      "bytes": 1864
+    },
+    {
+      "path": "engineering/evidence/2026-10-28-system-screenshot-stage2/README.md",
+      "blob": "bafa7fbd45de35210fc8e2b504b1bd9d783ac269",
+      "sha256": "17a3792de8c876ddc74c5b95c7d8f3a65945b6589124db7f75c1c1fa0581ccd6",
+      "bytes": 9305
+    },
+    {
+      "path": "engineering/evidence/2026-10-28-system-screenshot-stage2/page-evidence-helper.js",
+      "blob": "b656be071723ec4bcfdc36b0542d138f390c013d",
+      "sha256": "f8f0f8243a2363e4ea3ea10bedcfdc207394d0c66c67300e7e77e092833dba99",
+      "bytes": 7983
+    },
+    {
+      "path": "engineering/evidence/2026-10-28-system-screenshot-stage2/page-evidence-helper.test.cjs",
+      "blob": "428f032e3abf2031bd0dbd5a5aeb127a0d264ca8",
+      "sha256": "26341261119a29f313bf04e78b7d372f1111f526f249215e339cdfa703e6eee5",
+      "bytes": 10426
+    },
+    {
+      "path": "engineering/evidence/2026-10-28-system-screenshot-stage2/private-evidence-sha256.json",
+      "blob": "406556aca09e4dafad8f8f5ce087af87ae03c9ae",
+      "sha256": "020d99ef469504b6ef3f0d1758b45a424f669cefa22c9325b2cfd0b80361c05f",
+      "bytes": 1883
+    },
+    {
+      "path": "engineering/evidence/2026-10-28-system-screenshot-stage2/progress-diagnostic-probe.test.cjs",
+      "blob": "6bf542dd93520be9d3cb10671e2113cad14d3a89",
+      "sha256": "6036c7a37350cae86737f0ae3b44ef25716875929a2aa67445df152efb3871ba",
+      "bytes": 2857
+    },
+    {
+      "path": "engineering/evidence/2026-10-28-system-screenshot-stage2/result.json",
+      "blob": "e343c857b07765b210e82df8f374ae476384db52",
+      "sha256": "27ed1597bdaf87cfb432cd650cdfea91fe6cc99ab841bc143f8a170fcd577c7a",
+      "bytes": 21498
+    },
+    {
+      "path": "engineering/evidence/2026-10-28-system-screenshot-stage2/review.json",
+      "blob": "095845854bf295aa05a7921a2335eb85669022ee",
+      "sha256": "1ae80bf7a1801e09c6e35479621af8e39d9a774506d7f1f8b4dc4c4456ab0078",
+      "bytes": 790
+    },
+    {
+      "path": "engineering/evidence/2026-10-28-system-screenshot-stage2/start-observation-analysis.md",
+      "blob": "3e2b821096cccc29febf7b972148a23cd64621d2",
+      "sha256": "0c697524c1952e872e3d3acba2bfb9248f25d8e7b52eb06b580132c9fdea9ad9",
+      "bytes": 7562
+    },
+    {
+      "path": "engineering/evidence/2026-10-28-system-screenshot-stage2/v13-progress-diagnostic-probe.js",
+      "blob": "059a36aa6095d9b9568377a3c87df1c540cb62d5",
+      "sha256": "ea901891f8a5dfc2083f4108f5c0a38c577e0f9c2cc4b570ad4ad3f28e40f553",
+      "bytes": 9508
+    },
+    {
+      "path": "engineering/evidence/2026-10-28-system-screenshot-stage2/verification.json",
+      "blob": "da9cb16489855fc31007a8a87a594942bd4f4238",
+      "sha256": "0e05bfecca90920662c6391fb4f79b19422b44ef2c8c9831cd4f379c7d2e0b16",
+      "bytes": 2906
+    }
+  ],
+  "reviewArtifacts": [
+    {
+      "path": "review-docs-source-ci.md",
+      "sha256": "19440bc353a3dd18636e822bd554884e5317acd24c11fa65e0aa4467a08566be",
+      "bytes": 6462
+    },
+    {
+      "path": "review-evidence.md",
+      "sha256": "3f5a6d493f97f70f4875ba01a4aeaa4f9f3308eeb02b1cc26d14faa02542bdfe",
+      "bytes": 7174
+    },
+    {
+      "path": "review-logs/web-current.log",
+      "sha256": "ca7c9ac41d0d6ea0cbfca5b6ec12c83e640748cbdc0ece03050861c08b4a1fe4",
+      "bytes": 9520
+    },
+    {
+      "path": "review-logs/web-legacy.log",
+      "sha256": "fb0d35b7fb0cb27803e2d591a4b51d3018e8124f129d0a9f94ddc448b5db4fc4",
+      "bytes": 6112
+    },
+    {
+      "path": "review-logs/web-probes.log",
+      "sha256": "f13d0813691ab299d37dc7b42841825847e044bdf0387aed2639c85188af5551",
+      "bytes": 9832
+    },
+    {
+      "path": "review-permission.md",
+      "sha256": "ee84cc2aae5aecda2a77dc61fed5cf2d50676b6407dd8d0f132040c677386a40",
+      "bytes": 6376
+    },
+    {
+      "path": "review-web-probes.patch",
+      "sha256": "f29eb600995703cc3a85af69e89514d46e633dd645153724d77131451cb9a596",
+      "bytes": 2100
+    },
+    {
+      "path": "review-web.md",
+      "sha256": "601d65ef66aea9398abc7535115bc4c069b4fd06f7aa45a89d6c45dd1a9d5e88",
+      "bytes": 7261
+    }
+  ]
+}

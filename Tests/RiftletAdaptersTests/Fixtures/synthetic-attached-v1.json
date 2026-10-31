@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "provenance": {
+    "source": "syntheticFixture",
+    "evidenceID": "W0-synthetic-attached-v1"
+  },
+  "observation": {
+    "identity": {
+      "operationID": "00000000-0000-0000-0000-000000000001",
+      "assetID": "00000000-0000-0000-0000-000000000002",
+      "attempt": 1,
+      "assetSHA256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "target": {
+        "adapterID": "chatgpt-web",
+        "surface": "webChat",
+        "applicationID": "com.google.Chrome",
+        "sessionID": "fixture-session",
+        "windowID": "fixture-window",
+        "tabID": "fixture-tab",
+        "documentID": "fixture-document",
+        "composerID": "fixture-composer",
+        "draftGeneration": "fixture-generation"
+      }
+    },
+    "state": "attached",
+    "attachmentID": "fixture-attachment",
+    "exactImageIdentity": true,
+    "belongsToOriginalDraft": true,
+    "hasError": false,
+    "isUploading": false,
+    "attachmentAbsent": false,
+    "automaticRetryExcluded": false
+  }
+}

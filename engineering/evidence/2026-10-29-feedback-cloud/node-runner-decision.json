@@ -1,0 +1,79 @@
+{
+  "atUTC": "2026-10-29T14:17:28.423773+00:00",
+  "decision": "LOCAL_SERVICE_21_SUBTEST_PASS_WITH_ISOLATION_NONE; DEFAULT_ISOLATION_ASSERTIONS_PROPAGATE_BUT_ONLY_FILE_SUMMARY_VISIBLE",
+  "runtime": "Node v24.22.1 in shared Linux container; not macOS CI or real cloud validation",
+  "repository": "/workspace/scratch/3e5b090206d5/riftlet",
+  "noSharedSourceOrWorkflowChanges": true,
+  "commands": {
+    "detailed21": "node --experimental-sqlite --test-isolation=none --test --test-reporter=tap services/feedback/feedback.test.mjs services/feedback/retention.test.mjs",
+    "defaultFileLevel2": "node --experimental-sqlite --test --test-reporter=tap services/feedback/feedback.test.mjs services/feedback/retention.test.mjs"
+  },
+  "observations": {
+    "parentNODE_OPTIONSAbsent": true,
+    "parentNODE_TEST_CONTEXTAbsent": true,
+    "parentNODE_TEST_REPORTERAbsent": true,
+    "preloadedRequireCacheEntries": 0,
+    "detailed21": {
+      "tests": 21,
+      "pass": 21,
+      "fail": 0,
+      "skipped": 0,
+      "cancelled": 0,
+      "exitCode": 0
+    },
+    "defaultIsolation": {
+      "reportedFileLevelTests": 2,
+      "reportedPass": 2,
+      "reportedFail": 0,
+      "exitCode": 0,
+      "notClaimedAs21IndividualTests": true
+    },
+    "intentionalFailure": {
+      "testBodyExecutedBothModes": true,
+      "exitCodeBothModes": 1,
+      "defaultReportsFileLevelFailure": true,
+      "noneReportsSpecificAssertion": true,
+      "fixtureOnlyInTmp": true
+    },
+    "causeBoundary": "No NODE_OPTIONS or require.cache preload evidence; exact internal cause of hidden child subtests is not established. Default mode executes test bodies and propagates failure in the deliberate failure probe."
+  },
+  "nextValidation": "Use unchanged complete GitHub workflows to verify supported CI runtime and native macOS; do not alter CI to match this container.",
+  "files": {
+    "body-executions.jsonl": {
+      "bytes": 1334,
+      "sha256": "5fc345c0b75569247d249958e648326798cc2d91fa57d79140077dcb6e948329"
+    },
+    "default-isolation-intentional-failure.log": {
+      "bytes": 517,
+      "sha256": "ed30342240925367196e03219ba82eaf3c095d4885b1d3d4519f871a7bea2a0e"
+    },
+    "environment-observation.log": {
+      "bytes": 389,
+      "sha256": "25f0b181c106fe67452fcc9938da56448c0278ffba4e1d37adc29ab9aebceaa6"
+    },
+    "intentional-failure-results.json": {
+      "bytes": 3812,
+      "sha256": "a400f226aa578e4decef46e28c81bfafcdff9c3656e380b8a85a7587465280ca"
+    },
+    "must-fail.test.mjs": {
+      "bytes": 484,
+      "sha256": "241209e79fb06eef125ed94c207bd0b14a8296e3883228cbc3447b0a57f543fa"
+    },
+    "no-isolation-intentional-failure.log": {
+      "bytes": 947,
+      "sha256": "079d07b03724cb67fd24c308aeb179c3f6dfb8106492c1afe51985b33c6865d0"
+    },
+    "original-tool-results.json": {
+      "bytes": 7708,
+      "sha256": "49f4f1f06162d17da9c46eb64a51a1e9a23ce2b78d23f361f76af0ebf1ea9d30"
+    },
+    "service-21-subtests-no-isolation.log": {
+      "bytes": 5939,
+      "sha256": "5c04a552e3fc81de37b20d6f6a46eeecce107a9ddccb4855785e26cbd34dde56"
+    },
+    "service-default-isolation-file-level.log": {
+      "bytes": 407,
+      "sha256": "cc174440632994f5c3a96eb0ee8f83cad37cae88f0cfbcf8874c4c140eb7939f"
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "capture-D.json": "df2d0ebcb21bc3c5e8961719bee3f49386af392c8072d46b55a682adf9dd8022",
+  "baseline-D.json": "3d069521d146d4fdfe9897fc510c5b30124f47372ee098704c35f0a6f6b6b436",
+  "immediate-before-D.json": "a2efc45aa76d9f78bf97c3a95391aee07be0d33f57d31e2fdbf2a4c875490f5c",
+  "completion-D-private.json": "60fcec820e3e332ff45bda0c83ba29ad30c7c4e3ef486714b8ba71b23e5a108e",
+  "operation-D.json": "8dff56a7ab4d2bf70e682a578a2cc676f07b5fd00a1f0369aa60c1235ee73a37",
+  "target-before-D.json": "586a0d2dfe94bb229df709e601a2db5b7125f62e73983c3a0759a9e07ce1bfad",
+  "journal-D-start.json": "aabdb6ef4d1062af1b38b7bfe06f2cd15b5bc793c2f0a735c28fbc2630e430f9",
+  "journal-D-input.json": "d91ce25844b59bc6491837054739e6357996126028fd431205ab96b78b1d0abe",
+  "journal-D-unknown.json": "e744090cfea4d4ada655f836a05674694ef221c7bc7501b795bd766f3f24366c",
+  "journal-D-errorOrInvalidated.json": "e2a34d51ac3ca0bb5dd5488248d7e29ea38a60f687e76d96e02becd2b0460478",
+  "page-D.json": "4ec323fe3b67064615426d0adf136b9ec90eba073964d6273b1c8813a6b53ae6",
+  "browser-pixels-D.json": "b0cda05df821dc6637fd524c051cda1c979cb8cfaebd1e9e7f2329e9ca5e4025",
+  "browser-pixel-srgb-D.json": "c83b51858dc5913e4cc633e78d8e598ad00dd5bf9f187207373a964f1fcfda6e",
+  "pixel-comparison-D.json": "97bdbedaf9a6bed21b202a7c4db6a89b5b1bafb297ae2c3cf98d16f9636ed8be",
+  "preview-D.png": "0a5f6a920fc78ff30eca831dd8b83e0aeddbffe3021d40dca5c52fc5b9c10990",
+  "before.sqlite": "3538366ae032f470217bd0b99d907a244b8e0265f36f271f78dbcb4fa21224d0",
+  "after-stopped.sqlite": "5a97830077db544c86de0dc81b86dff527730db2e785b3b2add50de7354afc9d",
+  "fixed-live.jsonl": "2dbf5233557d511df490d4d54f7501f7fcc69dcedaf3d8e8d4f5ba7656e585fb",
+  "legacy-monitor-D.json": "ed2d5fda02fe6365b25c15946a5fd8c2713373a0ca9b8367d2425a0e5f91e019",
+  "preservation-data-report.json": "7d670205c6e488971581ecc6eea137ed5cf5f7578f7af836e27d1f94440d5b11"
+}

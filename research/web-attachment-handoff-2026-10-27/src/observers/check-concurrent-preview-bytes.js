@@ -1,0 +1,7 @@
+(() => {
+ const p=globalThis.__riftletExceptions,q=p?.query(),panel=document.getElementById('riftlet-exception-panel');
+ if(!q?.snapshot.valid||!panel)throw Error('TARGET_INVALID');const cfg=JSON.parse(panel.dataset.config),receipts=[];
+ if(globalThis.__riftletConcurrentPreviewProof)return JSON.stringify({started:false,reason:'EXISTING_PROOF_NO_REPEAT'});
+ globalThis.__riftletConcurrentPreviewProof={state:'PENDING',receipts};
+ Promise.all(['IDENTITY','OTHER'].map(async label=>{const f=cfg.fixtures.find(x=>x.label===label),cs=[...document.querySelectorAll('[role=button][aria-label]')].filter(x=>x.getAttribute('aria-label')===f.name);if(cs.length!==1)return {label,status:'UNKNOWN',reason:'NONUNIQUE_CARD'};const c=cs[0],i=c.querySelector('img'),src=i?.currentSrc||i?.src;if(!i?.complete||!/^data:image\/png;base64,/.test(src)||src.length>10000000)return {label,status:'UNKNOWN',reason:'PREVIEW_PROFILE_UNAVAILABLE'};const b=Uint8Array.from(atob(src.slice(src.indexOf(',')+1)),x=>x.charCodeAt(0)),h=await crypto.subtle.digest('SHA-256',b),sha=[...new Uint8Array(h)].map(x=>x.toString(16).padStart(2,'0')).join('');return {label,name:f.name,sha256:sha,bytes:b.length,match:sha===f.sha256&&b.length===f.bytes,sameCardAndSrc:c.isConnected&&i.closest('[role=button]')===c&&i.src===src,targetStillValid:p.query().snapshot.valid};})).then(rs=>globalThis.__riftletConcurrentPreviewProof={state:'COMPLETE',receipts:rs});return JSON.stringify({started:true});
+})();

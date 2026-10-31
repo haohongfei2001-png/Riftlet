@@ -1,0 +1,241 @@
+{
+  "schemaVersion": 1,
+  "publicContent": "Only synthetic fixture surfaces, no system/user screenshots or chat/DB/logs",
+  "assets": [
+    {
+      "file": "screens/setup-light.png",
+      "sha256": "1f8b4de2b092f5a459dc6a8fd62dea696c10880b891b86ae3a6e149c955ffe9a",
+      "bytes": 137629,
+      "pixels": [
+        1120,
+        1040
+      ],
+      "source": "46a909a35df16b76b6153fcb772a48740fb07ac6",
+      "resized": false,
+      "syntheticOnly": true,
+      "capture": "WindowServer screencapture; 2x backing, original pixels"
+    },
+    {
+      "file": "screens/settings-light.png",
+      "sha256": "335331c27360734122eb0ddba8bb89a911e01d80199a8563c620ddd8f55bef1d",
+      "bytes": 197561,
+      "pixels": [
+        1360,
+        1040
+      ],
+      "source": "46a909a35df16b76b6153fcb772a48740fb07ac6",
+      "resized": false,
+      "syntheticOnly": true,
+      "capture": "WindowServer screencapture; 2x backing, original pixels"
+    },
+    {
+      "file": "screens/history-light.png",
+      "sha256": "10c4a79ae3439c60cbf72b55ec713fafda7a364b82ba58d49e64cd8951ba81d1",
+      "bytes": 224989,
+      "pixels": [
+        1520,
+        1120
+      ],
+      "source": "46a909a35df16b76b6153fcb772a48740fb07ac6",
+      "resized": false,
+      "syntheticOnly": true,
+      "capture": "WindowServer screencapture; 2x backing, original pixels"
+    },
+    {
+      "file": "screens/feedback-light.png",
+      "sha256": "72e5ca5a2184f078842bd477a3a9001c64ddcd451f27f25d0907f9cdc35b97b7",
+      "bytes": 191524,
+      "pixels": [
+        1200,
+        1080
+      ],
+      "source": "46a909a35df16b76b6153fcb772a48740fb07ac6",
+      "resized": false,
+      "syntheticOnly": true,
+      "capture": "WindowServer screencapture; 2x backing, original pixels"
+    },
+    {
+      "file": "screens/motion-light.png",
+      "sha256": "e4f78887cea083e02b6978ddd701b3c704bdfdcb5669672143b0f2a2a4282b73",
+      "bytes": 96027,
+      "pixels": [
+        936,
+        744
+      ],
+      "source": "46a909a35df16b76b6153fcb772a48740fb07ac6",
+      "resized": false,
+      "syntheticOnly": true,
+      "capture": "WindowServer screencapture; 2x backing, original pixels"
+    },
+    {
+      "file": "screens/setup-dark.png",
+      "sha256": "35ef3be3c40421d54dd204e0d5e838d486405e09559912eacc8656ed668735bd",
+      "bytes": 133994,
+      "pixels": [
+        1120,
+        1040
+      ],
+      "source": "46a909a35df16b76b6153fcb772a48740fb07ac6",
+      "resized": false,
+      "syntheticOnly": true,
+      "capture": "WindowServer screencapture; 2x backing, original pixels"
+    },
+    {
+      "file": "screens/settings-dark.png",
+      "sha256": "540e218cf85df9446194201d1b7c2652432ab613723a4bf16cb6ddc1fc2837ba",
+      "bytes": 197249,
+      "pixels": [
+        1360,
+        1040
+      ],
+      "source": "46a909a35df16b76b6153fcb772a48740fb07ac6",
+      "resized": false,
+      "syntheticOnly": true,
+      "capture": "WindowServer screencapture; 2x backing, original pixels"
+    },
+    {
+      "file": "screens/history-dark.png",
+      "sha256": "99ce1457cbeb363629e59086e5a8f31661bbac0852a3292ae09c8b757fbe8c5f",
+      "bytes": 225253,
+      "pixels": [
+        1520,
+        1120
+      ],
+      "source": "46a909a35df16b76b6153fcb772a48740fb07ac6",
+      "resized": false,
+      "syntheticOnly": true,
+      "capture": "WindowServer screencapture; 2x backing, original pixels"
+    },
+    {
+      "file": "screens/feedback-dark.png",
+      "sha256": "2874494646d437368f35030219793b73261799883c7fafd27ab631d937453347",
+      "bytes": 189394,
+      "pixels": [
+        1200,
+        1080
+      ],
+      "source": "46a909a35df16b76b6153fcb772a48740fb07ac6",
+      "resized": false,
+      "syntheticOnly": true,
+      "capture": "WindowServer screencapture; 2x backing, original pixels"
+    },
+    {
+      "file": "screens/motion-dark.png",
+      "sha256": "5e0322145da88b6050cb3695d770ec59f15f28ad0fb3358d318fea31900a30c3",
+      "bytes": 94411,
+      "pixels": [
+        936,
+        744
+      ],
+      "source": "46a909a35df16b76b6153fcb772a48740fb07ac6",
+      "resized": false,
+      "syntheticOnly": true,
+      "capture": "WindowServer screencapture; 2x backing, original pixels"
+    },
+    {
+      "file": "screens/portrait-retina.png",
+      "sha256": "734c39050b8118ce2416f0e08d4b381b1b2ae0c75557bf364f4ada35afbeb06e",
+      "bytes": 158362,
+      "pixels": [
+        1600,
+        2560
+      ],
+      "source": "46a909a35df16b76b6153fcb772a48740fb07ac6",
+      "resized": false,
+      "syntheticOnly": true,
+      "capture": "WindowServer screencapture; 2x backing, original pixels"
+    },
+    {
+      "file": "screens/queue-light16.png",
+      "sha256": "e50f4bf5d98ab60cd8c293c12dc607c63ec867dd638d6e24bbc4287c944fa3ef",
+      "bytes": 233534,
+      "pixels": [
+        3840,
+        2160
+      ],
+      "source": "ad4854c849448bb37c387528bddf673732d8e362",
+      "resized": false,
+      "syntheticOnly": true,
+      "capture": "WindowServer screencapture; 2x backing, original pixels"
+    },
+    {
+      "file": "screens/queue-dark16-entry.png",
+      "sha256": "3d6e9add0919d38b2df1550c6c29e47d0ab77d3563dccae12f4a980cb00b1c25",
+      "bytes": 240303,
+      "pixels": [
+        3840,
+        2160
+      ],
+      "source": "ad4854c849448bb37c387528bddf673732d8e362",
+      "resized": false,
+      "syntheticOnly": true,
+      "capture": "WindowServer screencapture; 2x backing, original pixels"
+    },
+    {
+      "file": "screens/extreme-hover-safe.png",
+      "sha256": "3191a49664ff313e59287c7259c9d2000b1eaf4a0c5588fcca73984e98664f4f",
+      "bytes": 34783,
+      "pixels": [
+        840,
+        640
+      ],
+      "source": "ad4854c849448bb37c387528bddf673732d8e362",
+      "resized": false,
+      "syntheticOnly": true,
+      "capture": "WindowServer screencapture; 2x backing, original pixels"
+    },
+    {
+      "file": "screens/pager-last-page.png",
+      "sha256": "f5efca65c29392c96245afbfa937f1f671a73ebf6a83de8d7205ffa7ae5240bd",
+      "bytes": 62201,
+      "pixels": [
+        320,
+        1840
+      ],
+      "source": "ad4854c849448bb37c387528bddf673732d8e362",
+      "resized": false,
+      "syntheticOnly": true,
+      "capture": "WindowServer screencapture; 2x backing, original pixels"
+    },
+    {
+      "file": "motion/magnet.mov",
+      "sha256": "3be3451c66d9fe61682803eacb55257cdf700073e585d4d8ecddcc9111e6217b",
+      "bytes": 74499,
+      "source": "888a4b0075bc8faf944a3e7a75ebd9a7a7ff3acf",
+      "syntheticOnly": true,
+      "capture": "WindowServer screencapture video, 8s, original 3840x2160, no audio, variable frame rate"
+    },
+    {
+      "file": "motion/none.mov",
+      "sha256": "92e490ca37971a061134076f7ca38c726847b63d213632be24f4a02b49d318c8",
+      "bytes": 52731,
+      "source": "888a4b0075bc8faf944a3e7a75ebd9a7a7ff3acf",
+      "syntheticOnly": true,
+      "capture": "WindowServer screencapture video, 8s, original 3840x2160, no audio, variable frame rate"
+    },
+    {
+      "file": "motion/reduce-motion.mov",
+      "sha256": "4a04b9bbac014a3a783fb4ab3e065a48d60f7fd9ba0c2bb43b95d67af81991cc",
+      "bytes": 59399,
+      "source": "888a4b0075bc8faf944a3e7a75ebd9a7a7ff3acf",
+      "syntheticOnly": true,
+      "capture": "WindowServer screencapture video, 8s, original 3840x2160, no audio, variable frame rate"
+    },
+    {
+      "file": "motion/interrupt.mov",
+      "sha256": "4b8c14f39500ba1fc6184b5fb8991307ddf3d900c36f6c85efb8d3f434a7b196",
+      "bytes": 71687,
+      "source": "888a4b0075bc8faf944a3e7a75ebd9a7a7ff3acf",
+      "syntheticOnly": true,
+      "capture": "WindowServer screencapture video, 8s, original 3840x2160, no audio, variable frame rate"
+    },
+    {
+      "file": "motion/missing-source.mov",
+      "sha256": "ff87d6966df067a5e44f85fba5d829012218e175bdadd02f820e54c90a4ac1f8",
+      "bytes": 63188,
+      "source": "888a4b0075bc8faf944a3e7a75ebd9a7a7ff3acf",
+      "syntheticOnly": true,
+      "capture": "WindowServer screencapture video, 8s, original 3840x2160, no audio, variable frame rate"
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "officialBefore": "e421e6687651c2fac1441410c1af2bd5b8151e55",
+  "acceptanceHandoff": "c177174e400064d8ec8bb79685c33d01c4e93b89",
+  "feedbackHandoff": "f195bebbc22ed1a162b5866ca1fe6c7ccb9835b9",
+  "feedbackMergeBase": "4b7228a07a23381d3de467a44dd8490d73e26e7e",
+  "mainBefore": "eba1a4fc77648a665e1d5c1f2609df1314c3b079",
+  "reviewedMainBlob": "5b1c64348cc0661f0de359c45a54158e828d6c22",
+  "realMacRunSource": "e421e6687651c2fac1441410c1af2bd5b8151e55",
+  "realMacResult": "prebound CGEvent limited PASS; physical NOT_RUN; no-ACK cold-first-click unresolved",
+  "originalEvidenceUnmodified": true,
+  "feedbackEndpointConfigured": false,
+  "cloudDeployment": "NOT_RUN_NOT_AUTHORIZED",
+  "ordinaryProduction": "CLOSED",
+  "safeFailure": "CLOSED",
+  "safeRetry": "CLOSED",
+  "legacyUnknowns": "preserved; no input, clearing or unlock",
+  "reviewedSourceCIs": [
+    {
+      "id": 40674197202,
+      "head": "e421e6687651c2fac1441410c1af2bd5b8151e55",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 40664731113,
+      "head": "f195bebbc22ed1a162b5866ca1fe6c7ccb9835b9",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 40664731120,
+      "head": "f195bebbc22ed1a162b5866ca1fe6c7ccb9835b9",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ],
+  "ciNote": "These are source checkpoints, not the new combined Beta CI. Exact final runs and artifact are recorded separately in the PR #1 handoff."
+}

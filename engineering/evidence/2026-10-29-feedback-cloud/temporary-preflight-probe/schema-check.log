@@ -1,0 +1,1 @@
+PASS single-row fixed slot; older finish cannot overwrite newer start; same-invocation finish succeeds; phase/status/JSON/slot checks reject invalid values. SQLite in-memory only; Cloudflare D1 NOT_RUN.

@@ -1,0 +1,91 @@
+[
+  {
+    "store": "Riftlet",
+    "schema": 2,
+    "quickCheck": "ok",
+    "tables": {
+      "assets": {
+        "oldRows": 6,
+        "newRows": 6,
+        "changesToOldRows": []
+      },
+      "operations": {
+        "oldRows": 0,
+        "newRows": 0,
+        "changesToOldRows": []
+      },
+      "compensations": {
+        "oldRows": 0,
+        "newRows": 0,
+        "changesToOldRows": []
+      }
+    },
+    "otherTablesIdentical": {
+      "checkpoints": true,
+      "metadata": true
+    },
+    "oldMediaCount": 6,
+    "allOldMediaBytesUnchanged": true,
+    "statusCounts": [
+      [
+        "pending",
+        6
+      ]
+    ]
+  },
+  {
+    "store": "Riftlet-Web-Acceptance",
+    "schema": 2,
+    "quickCheck": "ok",
+    "tables": {
+      "assets": {
+        "oldRows": 10,
+        "newRows": 11,
+        "changesToOldRows": []
+      },
+      "operations": {
+        "oldRows": 16,
+        "newRows": 17,
+        "changesToOldRows": [
+          {
+            "columns": [
+              "updated_at"
+            ]
+          },
+          {
+            "columns": [
+              "updated_at"
+            ]
+          },
+          {
+            "columns": [
+              "updated_at",
+              "receipt_json"
+            ]
+          }
+        ]
+      },
+      "compensations": {
+        "oldRows": 3,
+        "newRows": 3,
+        "changesToOldRows": []
+      }
+    },
+    "otherTablesIdentical": {
+      "checkpoints": true,
+      "metadata": true
+    },
+    "oldMediaCount": 10,
+    "allOldMediaBytesUnchanged": true,
+    "statusCounts": [
+      [
+        "unknown",
+        4
+      ],
+      [
+        "used",
+        7
+      ]
+    ]
+  }
+]

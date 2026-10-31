@@ -1,0 +1,100 @@
+{
+  "sourceSHA": "48574df19f34e5681ee98815750e279540e9eb9b",
+  "actualWebRuntimeSource": "867d93f797952fd0402d50525f384f2f416c1b93",
+  "localBuild": "PASS",
+  "localCandidateSelfCheck": "PASS; generated fixture; no Chrome/system screenshot/GUI",
+  "pageTests": 86,
+  "legacyTests": 61,
+  "stage2HelperTests": 12,
+  "nativeTests": "CI only; no claim of local XCTest",
+  "macOSCI": {
+    "runID": 40656871851,
+    "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/40656871851",
+    "headSHA": "48574df19f34e5681ee98815750e279540e9eb9b",
+    "status": "completed",
+    "conclusion": "success",
+    "steps": [
+      {
+        "name": "Set up job",
+        "conclusion": "success"
+      },
+      {
+        "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+        "conclusion": "success"
+      },
+      {
+        "name": "Record compiler and OS",
+        "conclusion": "success"
+      },
+      {
+        "name": "Replay archived Web evidence offline",
+        "conclusion": "success"
+      },
+      {
+        "name": "Exercise integrated page program with synthetic DOM",
+        "conclusion": "success"
+      },
+      {
+        "name": "Exercise round-two fault harness offline",
+        "conclusion": "success"
+      },
+      {
+        "name": "Exercise round-three diagnostic probe offline",
+        "conclusion": "success"
+      },
+      {
+        "name": "Verify round-five diagnostic evidence helpers offline",
+        "conclusion": "success"
+      },
+      {
+        "name": "Verify system-screenshot stage-two diagnostic fixtures",
+        "conclusion": "success"
+      },
+      {
+        "name": "Native unit and integration tests",
+        "conclusion": "success"
+      },
+      {
+        "name": "Verify packaging rejection paths offline",
+        "conclusion": "success"
+      },
+      {
+        "name": "Report software panel lifecycle outcomes",
+        "conclusion": "success"
+      },
+      {
+        "name": "Package native application",
+        "conclusion": "success"
+      },
+      {
+        "name": "Run packaged executable with synthetic data",
+        "conclusion": "success"
+      },
+      {
+        "name": "Validate and archive synthetic GUI acceptance helper",
+        "conclusion": "success"
+      },
+      {
+        "name": "Archive evidence",
+        "conclusion": "success"
+      },
+      {
+        "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+        "conclusion": "success"
+      },
+      {
+        "name": "Complete job",
+        "conclusion": "success"
+      }
+    ]
+  },
+  "finalExecutableSHA256": "2173a9856bf8a515dad8210cb6fc5b4905a0cf8a985e87f2c37c4ceaf6ca332d",
+  "notProven": [
+    "new-input completion after pixel hint fix",
+    "nonempty old attachment preservation",
+    "physical mouse",
+    "server original-file byte preservation",
+    "no-ACK cold click",
+    "production admission"
+  ]
+}

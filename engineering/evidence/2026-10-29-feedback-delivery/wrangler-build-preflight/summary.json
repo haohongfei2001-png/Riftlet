@@ -1,0 +1,136 @@
+{
+  "source_checkpoint": {
+    "commit": "14bfc1f8ed74ad55daa125fcde8b35b2763ff4d9",
+    "files": [
+      {
+        "path": "services/feedback/receiver.mjs",
+        "sha256": "6bb7875e5cf9cdd5e31edf596da92e0a0138be20738382db4658b92f181c81ee"
+      },
+      {
+        "path": "services/feedback/delivery.mjs",
+        "sha256": "622d28ed6cc3922a40979d1346f04267d0f0e104feea88f7ed86cdcf195fa9e2"
+      },
+      {
+        "path": "services/feedback/contract.mjs",
+        "sha256": "25bff4c13114a078e57d4799bae196ca8df55d069dd146403e08d213d108a99a"
+      },
+      {
+        "path": "services/feedback/wrangler.receiver.jsonc",
+        "sha256": "1193e3f33ca8052f82dc233e712f4ba7d38305df36354b0f293da9ea87644eed"
+      },
+      {
+        "path": "services/feedback/wrangler.delivery.jsonc",
+        "sha256": "c86175c1a9d6b5fca3c92ef9c737e8326a5573da0e3a36cbae9d4c3bd4a2dff0"
+      }
+    ]
+  },
+  "source_still_identical": true,
+  "wrangler": {
+    "name": "wrangler",
+    "version": "4.154.0",
+    "engines": {
+      "node": ">=22.0.0"
+    },
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/cloudflare/workers-sdk.git",
+      "directory": "packages/wrangler"
+    }
+  },
+  "node_version": "v24.22.1",
+  "results": [
+    {
+      "worker": "receiver",
+      "started_at": "2026-10-28T17:12:24.605886+00:00",
+      "finished_at": "2026-10-28T17:12:26.343261+00:00",
+      "command": [
+        "node",
+        "/tmp/riftlet-feedback-wrangler-preflight-20261029/tool/node_modules/wrangler/bin/wrangler.js",
+        "deploy",
+        "--config",
+        "wrangler.receiver.jsonc",
+        "--dry-run",
+        "--outdir",
+        "/tmp/riftlet-feedback-wrangler-preflight-20261029/bundles/receiver",
+        "--metafile",
+        "/tmp/riftlet-feedback-wrangler-preflight-20261029/bundles/receiver/esbuild-meta.json"
+      ],
+      "cwd": "/tmp/riftlet-feedback-wrangler-preflight-20261029/source",
+      "exit_code": 0,
+      "mode": "LOCAL_DRY_RUN_ONLY",
+      "stdout_log": "/tmp/riftlet-feedback-wrangler-preflight-20261029/logs/receiver-dry-run.log",
+      "bundle_files": [
+        {
+          "path": "bundles/receiver/README.md",
+          "bytes": 126,
+          "sha256": "5b914fa4d978a405c5bfb7bd14aa72a5f62fae5703772dd892ec47ff2389f029"
+        },
+        {
+          "path": "bundles/receiver/esbuild-meta.json",
+          "bytes": 1074,
+          "sha256": "e8ae08b4b60f3aef8e635ce67d1fa6e52cbf92bcf1b6bb6901b1ff85efdcc0e3"
+        },
+        {
+          "path": "bundles/receiver/receiver.js",
+          "bytes": 10113,
+          "sha256": "562bd51abfc42c6d651b15d971152e64da2bb07090fa030aad33d9312a636846"
+        },
+        {
+          "path": "bundles/receiver/receiver.js.map",
+          "bytes": 17001,
+          "sha256": "df09ed6903a61b33fd8d3a83f2a40254f3481febc1567d16e271fed715c87b8e"
+        }
+      ]
+    },
+    {
+      "worker": "delivery",
+      "started_at": "2026-10-28T17:12:24.603787+00:00",
+      "finished_at": "2026-10-28T17:12:26.466829+00:00",
+      "command": [
+        "node",
+        "/tmp/riftlet-feedback-wrangler-preflight-20261029/tool/node_modules/wrangler/bin/wrangler.js",
+        "deploy",
+        "--config",
+        "wrangler.delivery.jsonc",
+        "--dry-run",
+        "--outdir",
+        "/tmp/riftlet-feedback-wrangler-preflight-20261029/bundles/delivery",
+        "--metafile",
+        "/tmp/riftlet-feedback-wrangler-preflight-20261029/bundles/delivery/esbuild-meta.json"
+      ],
+      "cwd": "/tmp/riftlet-feedback-wrangler-preflight-20261029/source",
+      "exit_code": 0,
+      "mode": "LOCAL_DRY_RUN_ONLY",
+      "stdout_log": "/tmp/riftlet-feedback-wrangler-preflight-20261029/logs/delivery-dry-run.log",
+      "bundle_files": [
+        {
+          "path": "bundles/delivery/README.md",
+          "bytes": 126,
+          "sha256": "d3b1110a3ba7cc5db13ca87e825aeffa2a93928c9bb160ec8346694e19e0643f"
+        },
+        {
+          "path": "bundles/delivery/delivery.js",
+          "bytes": 9073,
+          "sha256": "97cd5673218a419d98d5d34ec3546acb9db3f3495b9ad4f63dd1bce50f353b99"
+        },
+        {
+          "path": "bundles/delivery/delivery.js.map",
+          "bytes": 15530,
+          "sha256": "c65b2f1307983a4820e1c66c344c846cd7baaf5359915ee413cfd42e0b4d4adb"
+        },
+        {
+          "path": "bundles/delivery/esbuild-meta.json",
+          "bytes": 1093,
+          "sha256": "f44a5d56664fc9f5e60db9abb2f930a69b78d8c64520429312e37ffb408d4fad"
+        }
+      ]
+    }
+  ],
+  "scope": "Local bundle/config preflight only. No Cloudflare authentication, resource creation, upload, D1 execution or GitHub delivery. Not CLOUD PASS.",
+  "first_attempt": "Both failed before compilation because default global config directory /root/.config/.wrangler was absent; untouched repository/config copies succeeded after tool config was routed to the isolated /tmp config directory. Original failure logs preserved.",
+  "references": [
+    "https://developers.cloudflare.com/workers/wrangler/install-and-update/",
+    "https://developers.cloudflare.com/workers/wrangler/commands/workers/#deploy",
+    "https://developers.cloudflare.com/workers/wrangler/system-environment-variables/"
+  ]
+}

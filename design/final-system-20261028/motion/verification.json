@@ -1,0 +1,335 @@
+{
+  "renderer": "render-motion.py",
+  "renderer_sha256": "d1daf277ad9ad71b57b8e3fc5482e183e6a76e44cb7b56bfba2c655e453b1ec5",
+  "logical_size": [
+    1440,
+    900
+  ],
+  "raster_scale": 1,
+  "working_supersampling": 2,
+  "font_used": "riftlet-NotoSansCJKsc-Regular.otf",
+  "generated_from": "original geometric fixture, no screen capture",
+  "clips": [
+    {
+      "name": "01-magnetic-arrival",
+      "duration_seconds": 6.6,
+      "fps": 60,
+      "width": 1440,
+      "height": 900,
+      "expected_frames": 396,
+      "stills": [
+        {
+          "cycle": 1,
+          "asset_time_ms": 0.0,
+          "progress": 0,
+          "phase": "凝缩  0–123 ms",
+          "sample_time_ms": 700.0,
+          "is_synthetic": true
+        },
+        {
+          "cycle": 1,
+          "asset_time_ms": 123.0,
+          "progress": 0.2196428571428571,
+          "phase": "定向微颤  123–224 ms",
+          "sample_time_ms": 823.0,
+          "is_synthetic": true
+        },
+        {
+          "cycle": 1,
+          "asset_time_ms": 224.0,
+          "progress": 0.40000000000000013,
+          "phase": "连续加速  224–484 ms",
+          "sample_time_ms": 924.0,
+          "is_synthetic": true
+        },
+        {
+          "cycle": 1,
+          "asset_time_ms": 460.0,
+          "progress": 0.8214285714285713,
+          "phase": "连续加速  224–484 ms",
+          "sample_time_ms": 1160.0,
+          "is_synthetic": true
+        },
+        {
+          "cycle": 1,
+          "asset_time_ms": 484.0,
+          "progress": 0.8642857142857142,
+          "phase": "穿过固定边缘  484–560 ms",
+          "sample_time_ms": 1184.0,
+          "is_synthetic": true
+        },
+        {
+          "cycle": 1,
+          "asset_time_ms": 560.0,
+          "progress": 1,
+          "phase": "落位 · 可点击状态保持",
+          "sample_time_ms": 1260.0,
+          "is_synthetic": true
+        }
+      ],
+      "contact_sheet": "01-magnetic-arrival-contact-sheet.png",
+      "synthetic": true,
+      "renderer_sha256_at_render": "d1daf277ad9ad71b57b8e3fc5482e183e6a76e44cb7b56bfba2c655e453b1ec5",
+      "measured": {
+        "codec_name": "h264",
+        "width": 1440,
+        "height": 900,
+        "r_frame_rate": "60/1",
+        "duration": "6.600000",
+        "nb_read_frames": "396"
+      },
+      "sha256": "f62affa6864bc9a42812788d9118b44078775107f6a7aa820c9aede173ba4555",
+      "bytes": 135936
+    },
+    {
+      "name": "02-upload-start-swallow",
+      "duration_seconds": 7.2,
+      "fps": 60,
+      "width": 1440,
+      "height": 900,
+      "expected_frames": 432,
+      "stills": [
+        {
+          "time_ms": 400.0,
+          "visible_count": 3,
+          "phase": "原点击前 · 三张待用图片",
+          "starts_ms": [
+            1600,
+            3500,
+            5400
+          ],
+          "completions_ms": [
+            2600,
+            4500,
+            6400
+          ],
+          "sample_time_ms": 400.0,
+          "is_synthetic": true
+        },
+        {
+          "time_ms": 1200.0,
+          "visible_count": 3,
+          "phase": "1 / 已接受点击，等待真实开始",
+          "starts_ms": [
+            1600,
+            3500,
+            5400
+          ],
+          "completions_ms": [
+            2600,
+            4500,
+            6400
+          ],
+          "sample_time_ms": 1200.0,
+          "is_synthetic": true
+        },
+        {
+          "time_ms": 1650.0,
+          "visible_count": 3,
+          "phase": "1 / 模拟严格 uploadStarted → 120 ms",
+          "starts_ms": [
+            1600,
+            3500,
+            5400
+          ],
+          "completions_ms": [
+            2600,
+            4500,
+            6400
+          ],
+          "sample_time_ms": 1650.0,
+          "is_synthetic": true
+        },
+        {
+          "time_ms": 1900.0,
+          "visible_count": 2,
+          "phase": "后台独立确认附件内容",
+          "starts_ms": [
+            1600,
+            3500,
+            5400
+          ],
+          "completions_ms": [
+            2600,
+            4500,
+            6400
+          ],
+          "sample_time_ms": 1900.0,
+          "is_synthetic": true
+        },
+        {
+          "time_ms": 5600.0,
+          "visible_count": 0,
+          "phase": "零可见图片 → 裂缝彻底消失",
+          "starts_ms": [
+            1600,
+            3500,
+            5400
+          ],
+          "completions_ms": [
+            2600,
+            4500,
+            6400
+          ],
+          "sample_time_ms": 5600.0,
+          "is_synthetic": true
+        },
+        {
+          "time_ms": 6600.0,
+          "visible_count": 0,
+          "phase": "最终完成：后台 succeeded / used",
+          "starts_ms": [
+            1600,
+            3500,
+            5400
+          ],
+          "completions_ms": [
+            2600,
+            4500,
+            6400
+          ],
+          "sample_time_ms": 6600.0,
+          "is_synthetic": true
+        }
+      ],
+      "contact_sheet": "02-upload-start-swallow-contact-sheet.png",
+      "synthetic": true,
+      "measured": {
+        "codec_name": "h264",
+        "width": 1440,
+        "height": 900,
+        "r_frame_rate": "60/1",
+        "duration": "7.200000",
+        "nb_read_frames": "432"
+      },
+      "sha256": "1289ebf9199fb08992856d6c88a452fba94c748ae6e741f110129d704ea47fe5",
+      "bytes": 164015,
+      "renderer_sha256_at_render": "89b5d5ca7d24f592e6cf69450233ceb4c6d7a295edf2ab9b25c32e3f1183be54"
+    },
+    {
+      "name": "03-predictive-entry",
+      "duration_seconds": 8.4,
+      "fps": 60,
+      "width": 1440,
+      "height": 900,
+      "expected_frames": 504,
+      "stills": [
+        {
+          "time_ms": 200.0,
+          "phase": "线条先稳定，玻璃随后显现",
+          "expanded": false,
+          "expansion": 0,
+          "cover_slot": 0,
+          "glyph_alpha": 0.0017117101303939179,
+          "glass_alpha": 0,
+          "visible_count": 0,
+          "sample_time_ms": 200.0,
+          "is_synthetic": true
+        },
+        {
+          "time_ms": 800.0,
+          "phase": "线条先稳定，玻璃随后显现",
+          "expanded": false,
+          "expansion": 0,
+          "cover_slot": 0,
+          "glyph_alpha": 0.9999999989495821,
+          "glass_alpha": 0.8927305095048857,
+          "visible_count": 0,
+          "sample_time_ms": 800.0,
+          "is_synthetic": true
+        },
+        {
+          "time_ms": 1280.0,
+          "phase": "默认窗口 · 原槽成为取消",
+          "expanded": true,
+          "expansion": 1,
+          "cover_slot": 0,
+          "glyph_alpha": 1,
+          "glass_alpha": 0.9993018895503148,
+          "visible_count": 0,
+          "sample_time_ms": 1280.0,
+          "is_synthetic": true
+        },
+        {
+          "time_ms": 2150.0,
+          "phase": "100 ms 取消盖片迁移",
+          "expanded": true,
+          "expansion": 1,
+          "cover_slot": 0.49999999999999667,
+          "glyph_alpha": 1,
+          "glass_alpha": 0.999999916206551,
+          "visible_count": 0,
+          "sample_time_ms": 2150.0,
+          "is_synthetic": true
+        },
+        {
+          "time_ms": 3200.0,
+          "phase": "截图出现 · 仍保持区域会话",
+          "expanded": true,
+          "expansion": 1,
+          "cover_slot": 1,
+          "glyph_alpha": 1,
+          "glass_alpha": 0.9999999999985103,
+          "visible_count": 1,
+          "sample_time_ms": 3200.0,
+          "is_synthetic": true
+        },
+        {
+          "time_ms": 4900.0,
+          "phase": "全屏槽固定 · 连续捕获",
+          "expanded": true,
+          "expansion": 1,
+          "cover_slot": 2,
+          "glyph_alpha": 1,
+          "glass_alpha": 0.9999999999999997,
+          "visible_count": 2,
+          "sample_time_ms": 4900.0,
+          "is_synthetic": true
+        },
+        {
+          "time_ms": 5850.0,
+          "phase": "主动取消 → 回到原入口",
+          "expanded": false,
+          "expansion": 0,
+          "cover_slot": 2,
+          "glyph_alpha": 1,
+          "glass_alpha": 0.9999999999999997,
+          "visible_count": 2,
+          "sample_time_ms": 5850.0,
+          "is_synthetic": true
+        },
+        {
+          "time_ms": 7800.0,
+          "phase": "远离后渐隐 · 截图仍保留",
+          "expanded": false,
+          "expansion": 0,
+          "cover_slot": 2,
+          "glyph_alpha": 0.010072215136578327,
+          "glass_alpha": 0.001998735693886418,
+          "visible_count": 2,
+          "sample_time_ms": 7800.0,
+          "is_synthetic": true
+        }
+      ],
+      "contact_sheet": "03-predictive-entry-contact-sheet.png",
+      "synthetic": true,
+      "measured": {
+        "codec_name": "h264",
+        "width": 1440,
+        "height": 900,
+        "r_frame_rate": "60/1",
+        "duration": "8.400000",
+        "nb_read_frames": "504"
+      },
+      "sha256": "d69fa79224b98e33343214e01a7ef312097fa00d9657f14f8a1ac6527103271a",
+      "bytes": 182992,
+      "renderer_sha256_at_render": "89b5d5ca7d24f592e6cf69450233ceb4c6d7a295edf2ab9b25c32e3f1183be54"
+    }
+  ],
+  "boundaries": {
+    "native_acceptance": false,
+    "real_capture": false,
+    "real_upload": false,
+    "timings_are_design_recommendations": true
+  }
+}

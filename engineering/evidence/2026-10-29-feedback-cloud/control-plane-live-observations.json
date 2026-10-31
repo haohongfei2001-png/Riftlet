@@ -1,0 +1,94 @@
+{
+  "schemaVersion": 1,
+  "scope": "Actual browser-visible Cloudflare control plane observations; synthetic IDs and non-secret settings only; no native Mac claim",
+  "observations": [
+    {
+      "key": "cloud-phase-quota-before",
+      "items": [
+        {
+          "observedAt": "2026-10-29T14:47:18.207Z",
+          "quotaBefore": "daily\thourly\ttotal_rows\tday_quota_used\tnew_rows\n100\t20\t5\t5\t0",
+          "deliveryPreEnableVersion": "4ffecd8f-e472-4180-966d-64f1cb3c6961"
+        }
+      ]
+    },
+    {
+      "key": "cloud-quota-test-limit-confirmed",
+      "items": [
+        {
+          "observedAt": "2026-10-29T14:48:29.163Z",
+          "testLimit": "daily\thourly\n1\t20"
+        }
+      ]
+    },
+    {
+      "key": "cloud-quota-after-rejection",
+      "items": [
+        {
+          "observedAt": "2026-10-29T14:49:57.660Z",
+          "quotaAfterRejected": "daily\thourly\ttotal_rows\tday_quota_used\trejected_id_rows\n1\t20\t5\t5\t0",
+          "actionsDisabled": "checked",
+          "radioDOM": {
+            "checked": true
+          }
+        }
+      ]
+    },
+    {
+      "key": "cloud-quota-restored-confirmed",
+      "items": [
+        {
+          "observedAt": "2026-10-29T14:51:41.474Z",
+          "limitsRestored": "daily\thourly\n100\t20"
+        }
+      ]
+    },
+    {
+      "key": "delivery-three-d1-before-retry",
+      "items": [
+        {
+          "observedAt": "2026-10-29T14:53:12.901Z",
+          "firstResult": "id\tstate\tpayload_hash\tcreated\tchecked_at\tattempt_at\tdelete_requested\tissue_number\tissue_node_id\tpayload_is_null\trow_count\n2b2dd0e6-c966-4910-93a0-e96b5510a056\tpending\t48ed5dbab4d657845d865647e580b32e887654fed17cfcd912824bc6b7ec05fc\t1793285562\t0\t<null>\t0\t<null>\t<null>\t0\t1\n5b11fd1c-80a9-4a41-8790-0b1296bd6401\tpending\t5283bdc742aaf2bdb42da5c8ae827ea3158a9516c71abff564522a4b3b665563\t1793285553\t0\t<null>\t0\t<null>\t<null>\t0\t1\n9650fede-d514-4672-81f7-c92d2fa1afd2\tpending\t2b3a680c716322a8c7c8b0c1c2944b29fee5fab909b0c2765746ed8b27208187\t1793285540\t0\t<null>\t0\t<null>\t<null>\t0\t1"
+        }
+      ]
+    },
+    {
+      "key": "delivery-d1-after-retry",
+      "items": [
+        {
+          "observedAt": "2026-10-29T14:54:22.535Z",
+          "result": "observation\tid\tstate\tcreated\tpayload_hash\trow_count\tday_quota_used\npost_original_retry\t2b2dd0e6-c966-4910-93a0-e96b5510a056\tpending\t1793285562\t48ed5dbab4d657845d865647e580b32e887654fed17cfcd912824bc6b7ec05fc\t1\t8"
+        }
+      ]
+    },
+    {
+      "key": "receiver-restored-version",
+      "items": [
+        {
+          "observedAt": "2026-10-29T14:52:36.294Z",
+          "receiverRestoredVersion": "39f6277e-11f2-455b-be27-8f0b6a795685"
+        }
+      ]
+    },
+    {
+      "key": "delivery-enabled-injection-settings",
+      "items": [
+        {
+          "observedAt": "2026-10-29T14:54:47.382Z",
+          "variables": "Type\n\n\t\n\nName\n\n\t\n\nValue\n\n\t\nActions\n\n\n\nVariable\n\n\t\nACCEPTANCE_DISCARD_201_FOR_ID\n\t\n5b11fd1c-80a9-4a41-8790-0b1296bd6401\n\t\n\n\n\nVariable\n\n\t\nDELIVERY_ENABLED\n\t\ntrue\n\t\n\n\n\nVariable\n\n\t\nGITHUB_REPOSITORY\n\t\nhaohongfei2001-png/Riftlet-Feedback\n\t\n\n\n\nSecret\n\n\t\nGITHUB_TOKEN\n\t\nValue encrypted\n\t"
+        },
+        "Version\nCommit message\nStatus\nSource\nTriggered by\nCreated\nActions\nb9856004\nUpdated variable: DELIVERY_ENABLED\nReady\nDashboard\nby haohongfei2001\n26s ago\n4ffecd8f\nAdd variable: ACCEPTANCE_DISCARD_201_FOR_ID\nReady\nDashboard\nby haohongfei2001\n9m ago\nbd0381d7\nManually deployed\nReady\nDashboard\nby haohongfei2001\n10m ago\n6be9625e\nAdd secret: DELIVERY_ENABLED GITHUB_REPOSITORY ...\nReady\nDashboard\nby haohongfei2001\n13m ago\nce783bec\nAdded D1 database binding DB\nReady\nDashboard\nby haohongfei2001\n14m ago\n4a3b6b04\nManually deployed\nReady\nDashboard\nby haohongfei2001\n16m ago"
+      ]
+    },
+    {
+      "key": "delivery-first-tick",
+      "items": [
+        {
+          "observedAt": "2026-10-29T14:55:18.644Z",
+          "temporaryDeliveryVersion": "b9856004-b689-4682-82e5-7da3f9995852",
+          "result": "observation\tid\tstate\tpayload_hash\tcreated\tchecked_at\tattempt_at\tdelete_requested\tissue_number\tissue_node_id\tpayload_is_null\nfirst_delivery_tick\t2b2dd0e6-c966-4910-93a0-e96b5510a056\tpending\t48ed5dbab4d657845d865647e580b32e887654fed17cfcd912824bc6b7ec05fc\t1793285562\t0\t<null>\t0\t<null>\t<null>\t0\nfirst_delivery_tick\t5b11fd1c-80a9-4a41-8790-0b1296bd6401\tpending\t5283bdc742aaf2bdb42da5c8ae827ea3158a9516c71abff564522a4b3b665563\t1793285553\t0\t<null>\t0\t<null>\t<null>\t0\nfirst_delivery_tick\t9650fede-d514-4672-81f7-c92d2fa1afd2\tpending\t2b3a680c716322a8c7c8b0c1c2944b29fee5fab909b0c2765746ed8b27208187\t1793285540\t0\t<null>\t0\t<null>\t<null>\t0"
+        }
+      ]
+    }
+  ]
+}

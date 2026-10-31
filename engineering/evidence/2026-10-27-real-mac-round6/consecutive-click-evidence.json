@@ -1,0 +1,436 @@
+{
+  "schemaVersion": 1,
+  "verdict": "REAL_SAME_DRAFT_TARGET_BUSY_REPRODUCED",
+  "sourceScope": {
+    "analysisBaseSHA": "3bb13999b0f444c7748804eef1976e179a52a85e",
+    "runtimeSourceSHA": "7878de3138d1c140369c3cfbe69a28dd2770294c",
+    "runtimeExecutableSHA256": "6119a6fb872f7e5cd380d1d234955d2e14e6e8f48d80bbaaeda35afcd5ea91ee",
+    "productionAdmission": false,
+    "runtimeProvenance": "Coordinator supplied exact runtime source and executable hash; round5 metadata and app-start-diagnostics overlays applied",
+    "temporaryOverlays": [
+      "acceptance-synthetic-identifier-overlay.patch",
+      "app-acceptance-overlay.patch"
+    ]
+  },
+  "rawSources": [
+    {
+      "name": "riftlet-round6-valid-cold.jsonl",
+      "bytes": 879561,
+      "sha256": "d5f1eaf86a155a99d7b311095718c67f9b7d6ed98d9a7989ab76322802a2aef4"
+    },
+    {
+      "name": "riftlet-round6-perf-sequence.json",
+      "bytes": 3964,
+      "sha256": "fb1a921293e782362cf3a4c1dc15ac02d938e7de3061d80d04cbe8d7ae848ea0"
+    },
+    {
+      "name": "riftlet-round6-perf-page.json",
+      "bytes": 1346,
+      "sha256": "60798559080aeb719daa768fc7418a367352a3e8e158410da04f15ddca87f370"
+    }
+  ],
+  "privacy": "Only generated asset/operation identities and canonical target/logical-identity SHA256; no raw target, URL, chat, local path or credentials.",
+  "input": {
+    "source": "helperAX",
+    "physical": false,
+    "A": {
+      "assetID": "D1871E45-5FB8-4F8E-9BAD-920C4EE8E8A2",
+      "hostUptime": 462710.78255445836,
+      "foregroundUnchanged": true
+    },
+    "B": {
+      "assetID": "F73A7D51-A241-4657-831E-8636A2EF60F3",
+      "hostUptime": 462714.81242437504,
+      "foregroundUnchanged": true
+    },
+    "pressGapMS": 4029.8699166742153
+  },
+  "selection": [
+    {
+      "assetID": "D1871E45-5FB8-4F8E-9BAD-920C4EE8E8A2",
+      "source": "accessibility",
+      "eventUptime": 462710.7825737917,
+      "callbackUptime": 462710.7827719584,
+      "ackUptime": 462709.0696454167,
+      "freezeResult": "accepted",
+      "armInFlight": false,
+      "targetDigest": "af2075c130b1f440bbb77cf6882849607ffbe9812bbb31525f5e67385d0d4407"
+    },
+    {
+      "assetID": "F73A7D51-A241-4657-831E-8636A2EF60F3",
+      "source": "accessibility",
+      "eventUptime": 462714.81243808335,
+      "callbackUptime": 462714.81269320834,
+      "ackUptime": 462713.6830224167,
+      "freezeResult": "accepted",
+      "armInFlight": true,
+      "targetDigest": "c732586f4956b80563c710852c2b6f68134c5f6bf9b4f15ffa160994230f89ab"
+    }
+  ],
+  "identityComparison": {
+    "differentAssets": true,
+    "differentHashes": true,
+    "fullLeaseEqual": false,
+    "sameLogicalIdentity": true,
+    "logicalIdentityDigest": "c06ee1a583154f67c8d28ee47e00842f9c4206c20c3c82e9ef32e55584664bad",
+    "sameSerializationFields": true,
+    "differentLeaseFieldNames": [
+      "documentID",
+      "draftGeneration"
+    ],
+    "selectionHostEpochChanged": true
+  },
+  "beforeBStoreObservation": {
+    "hostUptime": 462714.760558916,
+    "operationID": "134D2BC3-19D5-4E87-BAFC-EE8D23195C13",
+    "phase": "inputTriggered",
+    "reason": "observer-v2:uploadStarted:integratedDevelopment",
+    "beforeBPressMS": 51.865459012333304,
+    "notAtomicWithPress": true
+  },
+  "AStartAndPresentation": {
+    "firstSwallowedSnapshot": {
+      "acceptanceOverlay": true,
+      "assetID": "D1871E45-5FB8-4F8E-9BAD-920C4EE8E8A2",
+      "commitUpperBoundUptime": 462714.20041233336,
+      "event": "committed_visibility_observed",
+      "exactCommitMeasured": false,
+      "operationID": "134D2BC3-19D5-4E87-BAFC-EE8D23195C13",
+      "status": "transferring",
+      "visibility": "swallowed",
+      "visibilityReason": "uploadStarted",
+      "visibilityRevision": 1
+    },
+    "events": [
+      {
+        "acceptanceOverlay": true,
+        "actualDuration": 0.24,
+        "assetID": "D1871E45-5FB8-4F8E-9BAD-920C4EE8E8A2",
+        "event": "presentation_boundary",
+        "generation": 0,
+        "operationID": "134D2BC3-19D5-4E87-BAFC-EE8D23195C13",
+        "phase": "swallowScheduled",
+        "pixelPresentationMeasured": false,
+        "uptime": 462714.2006445417,
+        "visibilityRevision": 1
+      },
+      {
+        "acceptanceOverlay": true,
+        "actualDuration": 0.24,
+        "assetID": "D1871E45-5FB8-4F8E-9BAD-920C4EE8E8A2",
+        "event": "presentation_boundary",
+        "generation": 0,
+        "operationID": "134D2BC3-19D5-4E87-BAFC-EE8D23195C13",
+        "phase": "swallowActualStart",
+        "pixelPresentationMeasured": false,
+        "uptime": 462714.20066412503,
+        "visibilityRevision": 1
+      },
+      {
+        "acceptanceOverlay": true,
+        "actualDuration": 0.24,
+        "assetID": "D1871E45-5FB8-4F8E-9BAD-920C4EE8E8A2",
+        "event": "presentation_boundary",
+        "generation": 0,
+        "operationID": "134D2BC3-19D5-4E87-BAFC-EE8D23195C13",
+        "phase": "swallowClose",
+        "pixelPresentationMeasured": false,
+        "uptime": 462714.45127791667,
+        "visibilityRevision": 1
+      }
+    ],
+    "clickToFirstSwallowedSnapshotMS": 3417.857874999754,
+    "clickToCloseMS": 3668.723458307795,
+    "actualStartToCloseMS": 250.61379163526,
+    "BPressAfterCloseMS": 361.1464583664201,
+    "configurationMeaning": "retained 0.24 s request, not formal 0.120 s default; code boundary, not pixel measurement"
+  },
+  "BOutcome": {
+    "firstTransferringSnapshot": {
+      "acceptanceOverlay": true,
+      "assetID": "F73A7D51-A241-4657-831E-8636A2EF60F3",
+      "commitUpperBoundUptime": 462714.814285625,
+      "event": "committed_visibility_observed",
+      "exactCommitMeasured": false,
+      "operationID": "1232C18C-91CF-4947-806C-066AE8D58FBC",
+      "status": "transferring",
+      "visibility": "visible",
+      "visibilityReason": "capture",
+      "visibilityRevision": 0
+    },
+    "firstFailedSnapshot": {
+      "acceptanceOverlay": true,
+      "assetID": "F73A7D51-A241-4657-831E-8636A2EF60F3",
+      "commitUpperBoundUptime": 462714.8780073334,
+      "event": "committed_visibility_observed",
+      "exactCommitMeasured": false,
+      "operationID": "1232C18C-91CF-4947-806C-066AE8D58FBC",
+      "status": "failed",
+      "visibility": "visible",
+      "visibilityReason": "capture",
+      "visibilityRevision": 0
+    },
+    "pressToTransferringSnapshotMS": 1.8612499698065221,
+    "pressToFailedSnapshotMS": 65.5829583411105,
+    "preparedPhaseDirectlyLogged": false,
+    "preparedInterpretation": "transferring snapshot plus exact final reason and current cancelPrepared-only path; snapshot does not itself log operation phase",
+    "reason": "Original draft has an unresolved upload; no input occurred",
+    "noAutomaticRetry": true,
+    "noPageOperationObservedForB": true
+  },
+  "nativeBridgeWindow": {
+    "queuedUptimeLowerInclusive": 462710.78255445836,
+    "queuedUptimeUpperInclusive": 462716.817119666,
+    "counts": {
+      "validate": 2,
+      "begin": 1,
+      "chunk": 13,
+      "observe": 22,
+      "captureTarget": 6,
+      "commit": 1
+    },
+    "allInputCommandsTransportSucceeded": true,
+    "inputCommands": [
+      {
+        "action": "begin",
+        "queuedUptime": 462710.8459521667,
+        "startedUptime": 462710.8459669167,
+        "endedUptime": 462710.895134875,
+        "executionMS": 49.16795832104981,
+        "transportSucceeded": true
+      },
+      {
+        "action": "chunk",
+        "queuedUptime": 462710.89671037503,
+        "startedUptime": 462710.89672612504,
+        "endedUptime": 462710.952320375,
+        "executionMS": 55.594249977730215,
+        "transportSucceeded": true
+      },
+      {
+        "action": "chunk",
+        "queuedUptime": 462710.9536375417,
+        "startedUptime": 462710.9536506667,
+        "endedUptime": 462711.01382545836,
+        "executionMS": 60.17479166621342,
+        "transportSucceeded": true
+      },
+      {
+        "action": "chunk",
+        "queuedUptime": 462711.01561991667,
+        "startedUptime": 462711.01563975005,
+        "endedUptime": 462711.0674995,
+        "executionMS": 51.85974994674325,
+        "transportSucceeded": true
+      },
+      {
+        "action": "chunk",
+        "queuedUptime": 462711.0690408334,
+        "startedUptime": 462711.0782757917,
+        "endedUptime": 462711.1333407084,
+        "executionMS": 55.064916668925434,
+        "transportSucceeded": true
+      },
+      {
+        "action": "chunk",
+        "queuedUptime": 462711.13458770834,
+        "startedUptime": 462711.14553433337,
+        "endedUptime": 462711.20093412505,
+        "executionMS": 55.39979168679565,
+        "transportSucceeded": true
+      },
+      {
+        "action": "chunk",
+        "queuedUptime": 462711.20349545835,
+        "startedUptime": 462711.2122659167,
+        "endedUptime": 462711.26564008335,
+        "executionMS": 53.37416665861383,
+        "transportSucceeded": true
+      },
+      {
+        "action": "chunk",
+        "queuedUptime": 462711.267994375,
+        "startedUptime": 462711.27176120837,
+        "endedUptime": 462711.32380658336,
+        "executionMS": 52.04537499230355,
+        "transportSucceeded": true
+      },
+      {
+        "action": "chunk",
+        "queuedUptime": 462711.32669220836,
+        "startedUptime": 462711.4112932917,
+        "endedUptime": 462711.4651681667,
+        "executionMS": 53.87487495318055,
+        "transportSucceeded": true
+      },
+      {
+        "action": "chunk",
+        "queuedUptime": 462711.46751025005,
+        "startedUptime": 462711.47281083337,
+        "endedUptime": 462711.52559175005,
+        "executionMS": 52.78091668151319,
+        "transportSucceeded": true
+      },
+      {
+        "action": "chunk",
+        "queuedUptime": 462711.5283190417,
+        "startedUptime": 462711.53335258336,
+        "endedUptime": 462711.58351562504,
+        "executionMS": 50.16304168384522,
+        "transportSucceeded": true
+      },
+      {
+        "action": "chunk",
+        "queuedUptime": 462711.5864125417,
+        "startedUptime": 462711.5992075417,
+        "endedUptime": 462711.6569713334,
+        "executionMS": 57.76379170129076,
+        "transportSucceeded": true
+      },
+      {
+        "action": "chunk",
+        "queuedUptime": 462711.6593682084,
+        "startedUptime": 462711.65938612504,
+        "endedUptime": 462711.7083925,
+        "executionMS": 49.00637496029958,
+        "transportSucceeded": true
+      },
+      {
+        "action": "chunk",
+        "queuedUptime": 462711.70937295834,
+        "startedUptime": 462711.73686995835,
+        "endedUptime": 462711.7901636667,
+        "executionMS": 53.2937083626166,
+        "transportSucceeded": true
+      },
+      {
+        "action": "commit",
+        "queuedUptime": 462711.7909703334,
+        "startedUptime": 462711.7979558334,
+        "endedUptime": 462711.884988125,
+        "executionMS": 87.03229163074866,
+        "transportSucceeded": true
+      }
+    ],
+    "operationIDInBridgeEvents": false,
+    "attribution": "Counts cover bounded batch; single page operation A and B pre-input cancellation support attribution, bridge records alone are not op-tagged.",
+    "firstChunkQueuedToLastChunkReturnedMS": 893.4532916755415,
+    "beginQueuedToCommitReturnedMS": 1039.0359582961537
+  },
+  "pageSnapshot": {
+    "nowMS": 136655.80000001192,
+    "pageFocused": true,
+    "editorFocused": true,
+    "textPreserved": true,
+    "oldCardsPreserved": true,
+    "fileEvents": [
+      {
+        "type": "change",
+        "t": 100073.69999998808,
+        "isTrusted": false,
+        "files": 1,
+        "editorFocused": true,
+        "pageFocused": true,
+        "textPreserved": true,
+        "cardsPreserved": true,
+        "selectionPreserved": true
+      }
+    ],
+    "operations": [
+      {
+        "operationID": "134D2BC3-19D5-4E87-BAFC-EE8D23195C13",
+        "assetID": "D1871E45-5FB8-4F8E-9BAD-920C4EE8E8A2",
+        "attempt": 1,
+        "hash": "494d7d015dc1a91073b356e1d6d64a546497aab37f8c47c4f82c630d7033f5bb",
+        "inputCount": 1,
+        "inputSequence": 2,
+        "inputObservedAtMS": 100073.80000001192,
+        "start": {
+          "version": 1,
+          "signal": "correlatedProgress",
+          "evidenceID": "c083a2cb-e074-46ef-92a1-d190d42e0c28",
+          "inputCount": 1,
+          "inputSequence": 2,
+          "startSequence": 19,
+          "previousProgress": 4.084106969654981,
+          "currentProgress": 4.9916862962449775,
+          "inputObservedAtMS": 100073.80000001192,
+          "startObservedAtMS": 102309.19999998808
+        },
+        "proofCompletedAtMS": 108035.80000001192,
+        "proofCompletedSequence": 53,
+        "hasProof": true,
+        "committed": true,
+        "invalid": false,
+        "error": false,
+        "uploading": false,
+        "startDisqualified": true,
+        "progressCount": 0,
+        "originalProgressNode": false,
+        "exactProgressLabel": false
+      }
+    ]
+  },
+  "pageSnapshotNativeBounds": {
+    "bridgeBeforeUptime": 462748.259900791,
+    "bridgeAfterUptime": 462748.524347041
+  },
+  "finalReadOnlyStore": {
+    "connectionMode": "ro",
+    "readSnapshotUptimeBounds": [
+      462960.739256291,
+      462960.739538666
+    ],
+    "records": [
+      {
+        "assetID": "D1871E45-5FB8-4F8E-9BAD-920C4EE8E8A2",
+        "operationID": "134D2BC3-19D5-4E87-BAFC-EE8D23195C13",
+        "assetSHA256": "494d7d015dc1a91073b356e1d6d64a546497aab37f8c47c4f82c630d7033f5bb",
+        "byteCount": 3147775,
+        "targetDigest": "af2075c130b1f440bbb77cf6882849607ffbe9812bbb31525f5e67385d0d4407",
+        "receiptOutcome": "verifiedReady",
+        "status": "used",
+        "visibility": "swallowed",
+        "visibility_revision": 1,
+        "visibility_reason": "uploadStarted",
+        "attempt": 1,
+        "phase": "succeeded",
+        "reason": "observer-v2:attached:integratedDevelopment",
+        "startAuditRowCount": 1
+      },
+      {
+        "assetID": "F73A7D51-A241-4657-831E-8636A2EF60F3",
+        "operationID": "1232C18C-91CF-4947-806C-066AE8D58FBC",
+        "assetSHA256": "21c046bd07f9ab974390869b7d43ab01d1c264aaa6b0ad160e84a9b07b235dde",
+        "byteCount": 3111,
+        "targetDigest": "c732586f4956b80563c710852c2b6f68134c5f6bf9b4f15ffa160994230f89ab",
+        "receiptOutcome": null,
+        "status": "failed",
+        "visibility": "visible",
+        "visibility_revision": 0,
+        "visibility_reason": "capture",
+        "attempt": 1,
+        "phase": "failed",
+        "reason": "Original draft has an unresolved upload; no input occurred",
+        "startAuditRowCount": 0
+      }
+    ]
+  },
+  "limits": [
+    "B failure proves the Core unresolved-draft lock, not an attachment upload failure.",
+    "A inputTriggered was sampled before B and the busy transaction establishes unresolved blocking; no claim of a phase read atomic with AXPress.",
+    "This evidence does not establish that the page had not reached READY before B; the asserted gate is persisted Core state.",
+    "Full leases differ; same logical identity and serialization context were compared privately.",
+    "Page preservation booleans do not expose or certify all rich draft contents.",
+    "Counts are for the bounded input batch, not all lifetime native calls.",
+    "No physical input, production admission, queued-click implementation, or start-stage same-draft unlock is validated."
+  ],
+  "retrospectiveProofTiming": {
+    "pageProofCompletedAtMS": 108035.80000001192,
+    "hostLowerUptime": 462719.639900791,
+    "hostUpperUptime": 462719.904347041,
+    "proofAfterBPressLowerMS": 4827.47641595779,
+    "proofAfterBPressUpperMS": 5091.922665946186,
+    "meaning": "Interval for adapter proof completion under same-page bridge clocks, not direct evidence of visual/server READY state at B press."
+  }
+}

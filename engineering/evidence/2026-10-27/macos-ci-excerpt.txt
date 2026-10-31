@@ -1,0 +1,48 @@
+Apple Swift version 5.10 (swiftlang-5.10.0.13 clang-1500.3.9.4)
+Target: arm64-apple-macosx14.0
+ProductVersion:		14.8.9
+BuildVersion:		23J631
+Build complete! (12.81s)
+[1/40] Testing RiftletCaptureTests.CaptureTests/testPrivateCopyPreservesOriginalAndRealCodecAndPermissions
+[2/40] Testing RiftletCaptureTests.CaptureTests/testOrdinaryImagesDoNotStarveLaterScreenshot
+[3/40] Testing RiftletCaptureTests.CaptureTests/testRecoveryAdoptsJournaledMediaAndDoesNotDeleteOriginal
+[4/40] Testing RiftletCaptureTests.CaptureTests/testRecoveryFinishesJournaledStagingPromotion
+[5/40] Testing RiftletCaptureTests.CaptureTests/testRecoveryPreservesAndMarksMissingCopy
+[6/40] Testing RiftletCaptureTests.CaptureTests/testMissingFalseAndNumericMetadataAreNotAccepted
+[7/40] Testing RiftletCaptureTests.CaptureTests/testRecoveryRejectsSameLengthCorruption
+[8/40] Testing RiftletCaptureTests.CaptureTests/testServiceBaselinesHistoryAndRecoversCaptureMadeWhileStopped
+[9/40] Testing RiftletCaptureTests.CaptureTests/testSymlinkSourceIsRejectedAndOriginalIsUntouched
+[10/40] Testing RiftletCaptureTests.CaptureTests/testSimulationRejectsRealOriginBeforePrivateCopy
+[11/40] Testing RiftletCaptureTests.CaptureTests/testRepeatedSourceEventDeduplicatesButIdenticalNewCaptureDoesNot
+[12/40] Testing RiftletCoreTests.QueueStoreTests/testCandidateAttachedCannotConsumeEvenAdmittedProfile
+[13/40] Testing RiftletCoreTests.QueueStoreTests/testApprovedEvidenceStillRejectsErrorAndUploading
+[14/40] Testing RiftletCoreTests.QueueStoreTests/testCaptureOrderAndSequenceTieBreakerSurviveReopen
+[15/40] Testing RiftletCoreTests.QueueStoreTests/testDuplicateClicksAllocateOnlyOneAttempt
+[16/40] Testing RiftletCoreTests.QueueStoreTests/testFileEventsDeduplicateButSamePixelsRemainTwoCaptures
+[17/40] Testing RiftletCoreTests.QueueStoreTests/testIntentCrashBecomesUnknownButPreIntentIsRetryable
+[18/40] Testing RiftletCoreTests.QueueStoreTests/testMetadataRejectsTraversalAndCheckpointPersists
+[19/40] Testing RiftletCoreTests.QueueStoreTests/testSimulationCannotOpenProductionStoreOrAcceptRealImage
+[20/40] Testing RiftletCoreTests.QueueStoreTests/testSuccessTransactionPersistsUsedAndReceiptBeforeUIDisappears
+[21/40] Testing RiftletCoreTests.QueueStoreTests/testUnadmittedReadyBecomesUnknownAndKeepsPrivateIdentity
+[22/40] Testing RiftletCaptureTests.CaptureTests/testTruncatedAndChangingFilesDoNotEnterQueue
+[23/40] Testing RiftletCoreTests.QueueStoreTests/testUnknownLocksTargetAndFailureMustBeSafeToRetry
+[24/40] Testing RiftletCoreTests.QueueStoreTests/testWrongDraftReceiptRejectedWithoutStateMutation
+[25/40] Testing RiftletUITests.RiftLayoutTests/testAspectRatioAndOcclusionDoNotStretchImage
+[26/40] Testing RiftletUITests.RiftLayoutTests/testConfiguredDimensionsRemainAdjustableAndNeverOverlapRows
+[27/40] Testing RiftletUITests.RiftLayoutTests/testDoubleClickCannotContinueOntoReplacementWindow
+[28/40] Testing RiftletUITests.RiftLayoutTests/testFailureUnknownAndTransferKeepOriginalGeometry
+[29/40] Testing RiftletUITests.RiftLayoutTests/testInvalidConfigurationRejected
+[30/40] Testing RiftletUITests.RiftLayoutTests/testMouseUpReturnsIdentityCapturedAtMouseDown
+[31/40] Testing RiftletUITests.RiftLayoutTests/testOutsideMouseUpAndUnavailableRowsDoNotSelect
+[32/40] Testing RiftletUITests.RiftLayoutTests/testSmallDisplayKeepsAllItemsReachableWithoutOffscreenWindows
+[33/40] Testing RiftletUITests.RiftLayoutTests/testTwelvePortraitsFitReferenceViewportWithWindowFreeGaps
+[34/40] Testing RiftletUITests.RiftLayoutTests/testUsedRecordsOnlyAreExcludedAndOrdinalsAreCurrentPositions
+[35/40] Testing RiftletCoreTests.TransferCoordinatorTests/testAdapterReceivesCommittedDispatchIntentAndExistingPrivateFile
+[36/40] Testing RiftletCoreTests.TransferCoordinatorTests/testAppendExceptionBecomesUnknownAndNextClickOnlyReconciles
+[37/40] Testing RiftletCoreTests.TransferCoordinatorTests/testChangedTargetBeforeDispatchNeverAppends
+[38/40] Testing RiftletCoreTests.TransferCoordinatorTests/testConcurrentSameAssetSelectionAppendsOnlyOnce
+[39/40] Testing RiftletCoreTests.TransferCoordinatorTests/testSameTargetWaitingQueueAppendsABCInClickOrder
+[40/40] Testing RiftletCoreTests.TransferCoordinatorTests/testSlowerFirstTargetResolutionCannotReorderClicks
+Build complete! (13.07s)
+Created build/Riftlet.app (development ad-hoc signature; not notarized).
+RIFTLET_SELF_CHECK_PASS: private import, durable queue, synthetic receipt, restart

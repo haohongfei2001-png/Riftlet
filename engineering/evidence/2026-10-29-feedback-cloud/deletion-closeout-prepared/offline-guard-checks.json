@@ -1,0 +1,157 @@
+{
+  "scope": "OFFLINE SQL guard validation only; not live D1 deletion or GitHub deletion evidence",
+  "schemaSHA256": "b17df2e79b2f3966af809b6045062d9dc76cd05b8a9f1d8a1c8e7e1af1454bfa",
+  "checksPassed": 30,
+  "checks": [
+    {
+      "case": "plain",
+      "check": "valid_exact_guard_updates_only_state",
+      "result": "PASS"
+    },
+    {
+      "case": "plain",
+      "check": "repeated_closeout_changes_nothing",
+      "result": "PASS"
+    },
+    {
+      "case": "plain",
+      "check": "wrong_feedback_id",
+      "result": "PASS"
+    },
+    {
+      "case": "plain",
+      "check": "wrong_issue_number",
+      "result": "PASS"
+    },
+    {
+      "case": "plain",
+      "check": "missing_issue_number",
+      "result": "PASS"
+    },
+    {
+      "case": "plain",
+      "check": "wrong_issue_node",
+      "result": "PASS"
+    },
+    {
+      "case": "plain",
+      "check": "missing_issue_node",
+      "result": "PASS"
+    },
+    {
+      "case": "plain",
+      "check": "no_delete_intent",
+      "result": "PASS"
+    },
+    {
+      "case": "plain",
+      "check": "active_payload_present",
+      "result": "PASS"
+    },
+    {
+      "case": "plain",
+      "check": "not_deletion_pending",
+      "result": "PASS"
+    },
+    {
+      "case": "diagnostic",
+      "check": "valid_exact_guard_updates_only_state",
+      "result": "PASS"
+    },
+    {
+      "case": "diagnostic",
+      "check": "repeated_closeout_changes_nothing",
+      "result": "PASS"
+    },
+    {
+      "case": "diagnostic",
+      "check": "wrong_feedback_id",
+      "result": "PASS"
+    },
+    {
+      "case": "diagnostic",
+      "check": "wrong_issue_number",
+      "result": "PASS"
+    },
+    {
+      "case": "diagnostic",
+      "check": "missing_issue_number",
+      "result": "PASS"
+    },
+    {
+      "case": "diagnostic",
+      "check": "wrong_issue_node",
+      "result": "PASS"
+    },
+    {
+      "case": "diagnostic",
+      "check": "missing_issue_node",
+      "result": "PASS"
+    },
+    {
+      "case": "diagnostic",
+      "check": "no_delete_intent",
+      "result": "PASS"
+    },
+    {
+      "case": "diagnostic",
+      "check": "active_payload_present",
+      "result": "PASS"
+    },
+    {
+      "case": "diagnostic",
+      "check": "not_deletion_pending",
+      "result": "PASS"
+    },
+    {
+      "case": "lost_receipt",
+      "check": "valid_exact_guard_updates_only_state",
+      "result": "PASS"
+    },
+    {
+      "case": "lost_receipt",
+      "check": "repeated_closeout_changes_nothing",
+      "result": "PASS"
+    },
+    {
+      "case": "lost_receipt",
+      "check": "wrong_feedback_id",
+      "result": "PASS"
+    },
+    {
+      "case": "lost_receipt",
+      "check": "wrong_issue_number",
+      "result": "PASS"
+    },
+    {
+      "case": "lost_receipt",
+      "check": "missing_issue_number",
+      "result": "PASS"
+    },
+    {
+      "case": "lost_receipt",
+      "check": "wrong_issue_node",
+      "result": "PASS"
+    },
+    {
+      "case": "lost_receipt",
+      "check": "missing_issue_node",
+      "result": "PASS"
+    },
+    {
+      "case": "lost_receipt",
+      "check": "no_delete_intent",
+      "result": "PASS"
+    },
+    {
+      "case": "lost_receipt",
+      "check": "active_payload_present",
+      "result": "PASS"
+    },
+    {
+      "case": "lost_receipt",
+      "check": "not_deletion_pending",
+      "result": "PASS"
+    }
+  ]
+}

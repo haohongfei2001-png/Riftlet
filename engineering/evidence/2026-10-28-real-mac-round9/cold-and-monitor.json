@@ -1,0 +1,211 @@
+{
+  "sourceSHA": "fcb052bfe6fad09af5de3c90d5954259e000a8ef",
+  "scope": "real retained ordinary Chrome conversation; editor unfocused; cold App startup; one exact helper AXPress",
+  "physical": "NOT_RUN",
+  "monitorCompatibility": "PASS_LIMITED_REAL",
+  "coldFirstClick": "FAIL_PRODUCT_SAFE_REFUSAL",
+  "newInputs": 0,
+  "newOperationsForSelectedAsset": 0,
+  "originalEvent": {
+    "armInFlight": true,
+    "assetID": "7786F678-F8DE-4892-A8E0-7312DB7CFC19",
+    "callbackUptime": 478922.03611345834,
+    "event": "selection_boundary",
+    "eventUptime": 478922.0360605,
+    "foregroundSessionMatches": false,
+    "freezeResult": "refused",
+    "frozen": false,
+    "hostEpoch": "EF680CAE-881D-40E1-BB70-8B9444972815",
+    "hostEpochMatches": false,
+    "inFlightArmAttemptID": "EDF81378-D35C-4D63-A0AF-D25BC67726CF",
+    "inFlightCaptureRequestID": "C4AA9BB4-C88E-40CF-9BBB-4FC4A95385EC",
+    "originalEventUptime": 478922.0360605,
+    "refusalReason": "noPublishedTarget",
+    "selectionHandlerUptime": 478922.03611345834,
+    "source": "accessibility"
+  },
+  "completeNativeACK": {
+    "accepted": true,
+    "armAttemptID": "EDF81378-D35C-4D63-A0AF-D25BC67726CF",
+    "authority": "DIAGNOSTIC_ONLY_NOT_APP_PUBLICATION",
+    "captureRequestID": "C4AA9BB4-C88E-40CF-9BBB-4FC4A95385EC",
+    "event": "capture_ack",
+    "hostEpoch": "EF680CAE-881D-40E1-BB70-8B9444972815",
+    "nativeReceivedUptime": 478922.22853070835,
+    "nativeValidatedUptime": 478922.24474725005,
+    "phase": "native_validated",
+    "receivedUptime": 478922.22853070835,
+    "recordedUptime": 478922.2447474167,
+    "requestID": "C4AA9BB4-C88E-40CF-9BBB-4FC4A95385EC",
+    "targetDigest": "e8d1af5663a16e27d6b9ef0cfae14ee42e84e64ab5376924c417475760e3050e"
+  },
+  "appPublication": {
+    "adapterValidatedUptime": 478922.2451544584,
+    "armAttemptID": "EDF81378-D35C-4D63-A0AF-D25BC67726CF",
+    "armed": true,
+    "captureRequestID": "C4AA9BB4-C88E-40CF-9BBB-4FC4A95385EC",
+    "effectiveAckUptime": 478922.24547170836,
+    "effectiveArmAttemptID": "EDF81378-D35C-4D63-A0AF-D25BC67726CF",
+    "effectiveCaptureRequestID": "C4AA9BB4-C88E-40CF-9BBB-4FC4A95385EC",
+    "endedUptime": 478922.24547283334,
+    "epochAccepted": true,
+    "error": "none",
+    "event": "arm_completion",
+    "hostEpoch": "EF680CAE-881D-40E1-BB70-8B9444972815",
+    "mainPublishedUptime": 478922.24547250004,
+    "publicationResult": "publishedNewTarget",
+    "reason": "startup",
+    "reusedExistingArmedTarget": false,
+    "startedUptime": 478921.7943385417,
+    "targetDigest": "e8d1af5663a16e27d6b9ef0cfae14ee42e84e64ab5376924c417475760e3050e",
+    "taskEnteredUptime": 478921.8017997917
+  },
+  "firstCaptureBridge": {
+    "action": "captureTarget",
+    "armAttemptID": "EDF81378-D35C-4D63-A0AF-D25BC67726CF",
+    "captureRequestID": "C4AA9BB4-C88E-40CF-9BBB-4FC4A95385EC",
+    "endedUptime": 478922.2448195834,
+    "event": "native_bridge",
+    "executionMS": 358.32654166733846,
+    "hostEpoch": "EF680CAE-881D-40E1-BB70-8B9444972815",
+    "phase": "complete",
+    "queuedUptime": 478921.870732375,
+    "queueMS": 15.760666690766811,
+    "requestID": "C4AA9BB4-C88E-40CF-9BBB-4FC4A95385EC",
+    "startedUptime": 478921.8864930417,
+    "transportSucceeded": true
+  },
+  "permissionChecks": [
+    {
+      "askedUser": false,
+      "endedUptime": 478921.79325187503,
+      "event": "permission_check",
+      "originalSessionBound": false,
+      "permissionRequestID": "AE7E1E7A-74DD-4B71-BC33-CAA73EF777E1",
+      "purpose": "startup",
+      "result": "granted",
+      "startedUptime": 478921.76207925
+    },
+    {
+      "armAttemptID": "EDF81378-D35C-4D63-A0AF-D25BC67726CF",
+      "askedUser": false,
+      "captureRequestID": "C4AA9BB4-C88E-40CF-9BBB-4FC4A95385EC",
+      "endedUptime": 478921.86904575,
+      "event": "permission_check",
+      "hostEpoch": "EF680CAE-881D-40E1-BB70-8B9444972815",
+      "originalSessionBound": true,
+      "permissionRequestID": "5C842868-C9C3-4454-A23E-7C67DBC9C462",
+      "purpose": "targetArming",
+      "result": "granted",
+      "startedUptime": 478921.80202787503
+    },
+    {
+      "askedUser": false,
+      "assetID": "7786F678-F8DE-4892-A8E0-7312DB7CFC19",
+      "endedUptime": 478922.062532,
+      "event": "permission_check",
+      "originalSessionBound": false,
+      "permissionRequestID": "44922E46-C667-4019-8035-29858D04B5CD",
+      "purpose": "selection",
+      "result": "granted",
+      "startedUptime": 478922.0367079584
+    }
+  ],
+  "nativeACKAfterEventMS": 208.68675003293902,
+  "publicationAfterEventMS": 209.41200002562255,
+  "publicationAfterNativeValidationMS": 0.7252499926835299,
+  "prepare": {
+    "prepared": true,
+    "textNonempty": false,
+    "oldCards": 0,
+    "selectionPresent": true,
+    "selectionNoncollapsed": false,
+    "editorFocused": false,
+    "pageFocused": true
+  },
+  "after": {
+    "events": [],
+    "textPreserved": true,
+    "oldCardsPreserved": true,
+    "currentCards": 0,
+    "pageFocused": true,
+    "editorFocused": false
+  },
+  "monitorBefore": {
+    "bindingProved": true,
+    "editorFocused": false,
+    "pageFocused": true,
+    "owners": [
+      {
+        "version": 10,
+        "count": 1,
+        "monitor": true,
+        "stopped": false,
+        "operations": 1,
+        "commits": 14703,
+        "checks": 3695
+      },
+      {
+        "version": 12,
+        "count": 0,
+        "monitor": false,
+        "operations": 0
+      }
+    ]
+  },
+  "monitorAfter": {
+    "descriptorSame": true,
+    "newRegistry": true,
+    "newCount": 1,
+    "newBorrower": true,
+    "borrowedFrom": 10,
+    "newGroups": 1,
+    "newChecks": 44,
+    "newStopped": false,
+    "old": [
+      {
+        "version": 10,
+        "registrySame": true,
+        "monitorSame": true,
+        "count": 1,
+        "stopped": false,
+        "checks": 3739,
+        "commits": 14786,
+        "elapsedMs": 560.0999971628189,
+        "maxElapsedMs": 4.800000011920929,
+        "operations": [
+          {
+            "originalStatePresent": true,
+            "operations": [
+              {
+                "same": true,
+                "proofSame": true,
+                "inputCountSame": true
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "version": 12,
+        "registrySame": true,
+        "monitorSame": true,
+        "count": 0,
+        "operations": []
+      }
+    ]
+  },
+  "helperForegroundPIDStable": true,
+  "limitations": [
+    "AX is not a physical mouse event.",
+    "Empty text, collapsed selection and zero current attachment cards: no nonempty draft/card retention PASS.",
+    "Old proof reference is retained even if absent; the snapshot does not establish that the old UNKNOWN had a valid final proof.",
+    "Local Swift test compilation overlapped this cold-start sample; no idle-host performance comparison.",
+    "No second press or late ACK replay."
+  ],
+  "privateLogHashes": {
+    "riftlet-round9-cold.jsonl": "4790e1284a76ee18217fce53b8875c411d54d96fd442fd6364b442d15cf6bcf4",
+    "riftlet-round9-cold-report.json": "9c507ab083ceb345760498cb1f30fd8ea1062ad05b2636f36bf5e610503578f1",
+    "riftlet-round9-monitor-before.json": "71dfa92ef48037234456e14d066277ca5325408d13d55f9cc38fffea5dd372dd"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "scope": "Actual production Cron under restored ordinary bundle; no timestamp or state reset. Original diagnostic Issue identity recovered while deletion intent and content scrubbing remain.",
+  "observation": {
+    "content": [
+      {
+        "type": "text",
+        "text": "observed_at\tid\tstate\tdelete_requested\tpayload_is_null\tchecked_at\tattempt_at\tissue_number\tissue_node_id\n2026-10-29T15:31:23.323Z\t5b11fd1c-80a9-4a41-8790-0b1296bd6401\tdeletion_pending\t1\t1\t1793287858\t1793287259\t2\tI_kwDOVaxKc88AAAABa8HZEQ"
+      }
+    ],
+    "structuredContent": null,
+    "isError": false
+  }
+}

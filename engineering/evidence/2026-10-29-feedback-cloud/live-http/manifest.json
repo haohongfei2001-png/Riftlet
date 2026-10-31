@@ -1,0 +1,9 @@
+{
+  "scope": "Final sanitized immutable snapshot only; excludes private-state.json and per-feedback secrets",
+  "files": {
+    "events.jsonl": "5168953e6196b380baed34ea0153350ff0aa318da67888086e484a11a323f628",
+    "summary.json": "859321a3f6aab5fb26d0f9cd1850cfa448ec95396ad351259b0c4f0b16866950",
+    "identities.json": "282a2fa09d09b5c9406d7b963ea5be6d75b5ebdabe7b3fbba415f0fe549e2c0c",
+    "d1-query.sql": "e6f6c56904c370fe0e60271894df65e11eacfb5a2c4718af119edb4433791cf7"
+  }
+}

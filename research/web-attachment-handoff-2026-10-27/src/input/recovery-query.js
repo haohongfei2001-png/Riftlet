@@ -1,0 +1,1 @@
+JSON.stringify({pathIsHome:location.pathname==='/',observerPresent:!!globalThis.__riftletProbe,result:'UNKNOWN',action:'QUERY_ONLY_NO_REINSTALL_OR_REPLAY',reason:globalThis.__riftletProbe?'PRIOR_OPERATION_REQUIRES_RECONCILIATION':'DOCUMENT_RECEIPT_LOST'});

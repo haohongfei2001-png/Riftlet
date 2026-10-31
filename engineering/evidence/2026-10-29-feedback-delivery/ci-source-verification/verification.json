@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "scope": "Reviewed source CI and downloaded unified package, before formal-branch documentation successor; NOT physical Mac or cloud acceptance",
+  "sourceSHA": "7ef6cd4bfd6e22605b0d97db37e249a8d94797c1",
+  "checkoutSHA": "05e5f5e538a2780d039491a53317a21bd00f4dd0",
+  "checkoutParents": [
+    "1920e0562db893a3292af89a89270a26ddb46a5f",
+    "7ef6cd4bfd6e22605b0d97db37e249a8d94797c1"
+  ],
+  "sourceAndCheckoutTree": "2d7c8de6c5e982b18586b68429ae80d890e5edf4",
+  "platform": {
+    "macOS": "15.7.9",
+    "build": "24G830",
+    "swift": "6.1.2",
+    "architecture": "arm64"
+  },
+  "native": {
+    "runID": 40733901373,
+    "jobID": 122977187715,
+    "conclusion": "success",
+    "stepsPassed": 19,
+    "uniqueTests": 501,
+    "suites": {
+      "Core": 138,
+      "Adapters": 150,
+      "Capture": 65,
+      "UI": 57,
+      "App": 53,
+      "Feedback": 30,
+      "FeedbackUI": 8
+    },
+    "detailedTestsAreSubset": true,
+    "pageProgram": 86,
+    "legacyWeb": 61,
+    "tapTotal": 193,
+    "packagingTests": [
+      12,
+      7
+    ],
+    "releaseBuild": "PASS",
+    "strictAdHocSignature": "PASS",
+    "executableSelfChecks": 5
+  },
+  "feedback": {
+    "runID": 40733901402,
+    "jobID": 122977186887,
+    "conclusion": "success",
+    "uniqueNativeAndSoftwareAppKitTests": 38,
+    "includedInNative501": true,
+    "serviceRealSQLiteMockHTTPTests": 20,
+    "originalIsolationTests": 4,
+    "newIntegrationIsolationTests": 14,
+    "fixedSourceAuditChecks": 42,
+    "repeatedCloseSuiteRuns": 3,
+    "repetitionsNotAddedToUniqueCount": true,
+    "onlySkippedStep": "Original PR7-only composition step; current fixed composition audit executed"
+  },
+  "downloadedNativeArtifact": {
+    "id": 12837440740,
+    "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/40733901373/artifacts/12837440740",
+    "bytes": 3564248,
+    "sha256": "4da84e09bd79cced5ee9734440132a29122c30db05b7bad3fafdce2aab90643e",
+    "expiresUTC": "2026-11-11T17:23:11Z"
+  },
+  "downloadedInternalBeta": {
+    "innerPath": "build/Riftlet-Internal-Beta.zip",
+    "bytes": 1475586,
+    "sha256": "eee6b1bd04ce7f7dead12ad45ef745f6dc9e07d14c609c3d192c24b5042c87d4",
+    "actualBundleInspected": true,
+    "manifestInputGroupsVerified": 14,
+    "endpointConfigured": false,
+    "codeSigning": "ad-hoc; not Developer ID; not notarized"
+  },
+  "privateDestination": {
+    "repository": "haohongfei2001-png/Riftlet-Feedback",
+    "id": 1437354611,
+    "visibility": "private",
+    "actionsEnabled": false,
+    "testIssuesCreated": 0
+  },
+  "cloud": {
+    "receiver": "BLOCKED: Cloudflare sign-in/account access",
+    "d1Persistence": "NOT_RUN",
+    "uniquePrivateIssueDelivery": "NOT_RUN",
+    "liveResponseLossAndDeletion": "NOT_RUN"
+  },
+  "physicalMac": {
+    "device": "registered Mac executor",
+    "status": "Offline when checked",
+    "nativeWindowToCloud": "NOT_RUN",
+    "IMEVoiceOverKeychainIsolationLatency": "NOT_RUN"
+  },
+  "logs": {
+    "native-job.log": {
+      "bytes": 306028,
+      "sha256": "71dbb423a9eb117e24bb65204b559a8dbd3edd0d05d432f68bfa241760ffdb37",
+      "source": "Complete decoded GitHub job-log API response"
+    },
+    "feedback-job.log": {
+      "bytes": 113284,
+      "sha256": "c676667d36b7fe37ca10cd4f540bb6c0891a784cd220832499e3cd36288fddb5",
+      "source": "Complete decoded GitHub job-log API response"
+    }
+  },
+  "mainPreservedSHA": "eba1a4fc77648a665e1d5c1f2609df1314c3b079"
+}

@@ -1,0 +1,18 @@
+{
+  "title": "Riftlet · 薄界 · 完整产品设计原型",
+  "status": "recommended-design-not-native-implementation",
+  "base": "1920e0562db893a3292af89a89270a26ddb46a5f",
+  "network": "none",
+  "data": "synthetic-in-memory-only",
+  "file": "Riftlet-Product-Prototype.html",
+  "bytes": 123807,
+  "sha256": "6cb673a3108a11d2d67a6132b320544705bd16bec7506ac66f06ec65317c54ac",
+  "sourceFiles": {
+    "index.html": "70c8b4e720366aaf973c41ca20e729a1ea3d13c3818d6b0395ae056ca2764773",
+    "app.css": "a405aa7e0c5686c8bd9a33e4f8854b92ae10a3fe01b039ce1516a9a6348346f4",
+    "windows.css": "08f21a857f52b484e1ae7e7b9ace70a383b1051f2823c08d60c76118e8f98348",
+    "model.js": "04f8d69fd775d5e75dbf090bd7473f4b42d7d803e3d1dac75f5526044039cc01",
+    "windows.js": "b39fb1f9b2339953a3afdf6704c59a35eda106cc015ff14bee7956695187734b",
+    "app.js": "43d4bd6d9a1fc76366b423bf13055191dc7dc308a5b632d8b7d63b605b55078f"
+  }
+}

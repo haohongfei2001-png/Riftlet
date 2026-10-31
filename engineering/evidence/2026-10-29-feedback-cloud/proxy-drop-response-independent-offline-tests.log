@@ -1,0 +1,9 @@
+test_environment_https_proxy_uses_connect_and_origin_tls (__main__.DropResponsePolicyTests.test_environment_https_proxy_uses_connect_and_origin_tls) ... ok
+test_failed_write_never_claims_request_written (__main__.DropResponsePolicyTests.test_failed_write_never_claims_request_written) ... ok
+test_no_proxy_preserves_direct_policy (__main__.DropResponsePolicyTests.test_no_proxy_preserves_direct_policy) ... ok
+test_proxy_credentials_remain_only_in_connect_headers (__main__.DropResponsePolicyTests.test_proxy_credentials_remain_only_in_connect_headers) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.017s
+
+OK

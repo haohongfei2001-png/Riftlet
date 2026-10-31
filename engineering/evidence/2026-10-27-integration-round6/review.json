@@ -1,0 +1,101 @@
+{
+  "source": "81b6a61b4e648a1b8d6ccf4b569fd6d727a0cc76",
+  "parents": [
+    "1246c4a58119667ea48d1711f614c23717de58ad",
+    "65f7d54121a637e8a97d2f25f8bcd8069393eb4d"
+  ],
+  "status": "PASS",
+  "actual_concurrency": "root plus three independent review agents; no shared source writers and no user Mac accessed",
+  "authorship": [
+    {
+      "author": "local Codex round6",
+      "paths": [
+        "Sources/RiftletAdapters/** incremental Web/Chrome files",
+        "Tests/RiftletAdaptersTests/** incremental tests/fixtures",
+        "Tests/WebPageProgram/**",
+        "engineering/evidence/2026-10-27-real-mac-round6/**"
+      ],
+      "reviewers": [
+        "root",
+        "round6_web_review",
+        "round6_identity_review",
+        "round6_evidence_review"
+      ]
+    },
+    {
+      "author": "root",
+      "paths": [
+        ".github/workflows/native-foundation.yml detailed descriptor report",
+        "formal integration and shared contract/documents"
+      ],
+      "reviewers": [
+        "round6_identity_review",
+        "round6_evidence_review"
+      ]
+    }
+  ],
+  "source_reviews": {
+    "bounded_v12_transfer_and_v6_v11_readonly": "PASS; 72+54 Node cases actually run independently",
+    "strict_descriptor_and_permission_composition": "PASS_STATIC; no required source repair",
+    "source_ci_40513086114": "PASS_INDEPENDENT_FULL_LOG;325native/72page/54legacy",
+    "shared_sequential_selection_boundary": "PASS_REVIEW; no new runtime API or Coordinator implemented"
+  },
+  "findings_resolved": [
+    "Correct current adapter documentation from v8/no-start to v12/schema2 and synthetic-only start composition; preserve original evidence",
+    "Fix future FIFO contract to allocate sequence before App permission await, never ordering by permission completion",
+    "Require fresh noncapturing passive preflight after park; process-only tokens, settle/skip, true expiry and no lost wake",
+    "Keep old lab model as proposal only; it permanently retains original asset keys and cannot implement cancellation/new-click lifecycle",
+    "Specify utxt with canonical ASCII decimal IDs, not acceptance of non-ASCII numerals",
+    "Scope zero-validate assertion to already observed invalidation before parked resumption; do not claim cancellation of an in-flight readonly call"
+  ],
+  "remaining_scope_limits": [
+    "New combined binary real Automation/TCC, permission recovery and latency",
+    "Live unsupported-descriptor fallback",
+    "Zero-ACK cold first-click product success",
+    "Safe sequential same-draft input implementation and real two-image acceptance",
+    "New business A-B-A/same-URL and complex text/attachment/selection matrix",
+    "MID real request interruption",
+    "Safe failure rebirth and Web safe retry admission",
+    "Physical mouse/transparent gap/fullscreen/multidisplay acceptance",
+    "System screenshot self-inclusion fix; earlier failure retained",
+    "Developer ID/notarization/Gatekeeper release"
+  ],
+  "not_a_human_github_approval": true,
+  "ci_review": {
+    "reviewer": "round6_evidence_review",
+    "run": 40523594732,
+    "job": 122256992376,
+    "status": "PASS",
+    "native_unique_names": 380,
+    "detailed_passed_no_skips": {
+      "lifecycle": 13,
+      "first_use": 3,
+      "capture": 15,
+      "presentation": 4,
+      "web_composition": 5,
+      "passive_permission": 8,
+      "chrome_descriptor": 5
+    },
+    "complete_log_chars": 192634,
+    "actual_source_and_artifact_metadata_independently_fetched": true,
+    "artifact_digest_source": "GitHub metadata; not a local downloaded-archive rehash",
+    "ci_checkout_scope": "Native/build/test/replay roots equal; complete merge tree differs in unrelated website content"
+  },
+  "final_document_review": {
+    "reviewer": "round6_evidence_review",
+    "status": "PASS",
+    "scope": "8 document deltas and 4 permanent evidence files; no unresolved issues",
+    "checks": [
+      "13 original evidence files match actual bytes/SHA256/Git blobs in handoff and integrated source",
+      "16 preserved baseline objects and 13 CI input objects match",
+      "380 unique names and module counts match independently fetched full CI log",
+      "53 detailed cases match original log and are already included in380",
+      "138 exact original CI lines after one explanation line",
+      "Final job completed/success,17 successful steps; stale aggregate status removed",
+      "Full CI tree differs only in unrelated website content; native inputs equal",
+      "Artifact digest is GitHub metadata, private DB/media preservation remains a declared rather than independently recomputed scope",
+      "Round7 shared interface is not runtime implementation or relaxed admission"
+    ],
+    "not_a_human_github_approval": true
+  }
+}

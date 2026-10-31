@@ -1,0 +1,46 @@
+{
+  "reviewedMainBlob": "05fe28ec734ba0d8c040810c737b26715a33d5de",
+  "feedbackObjectsVsOriginalF195": {
+    "fileCount": 29,
+    "unchanged": true,
+    "differences": []
+  },
+  "protectedScreenshotVsOfficialB4bc": {
+    "fileCount": 96,
+    "unchanged": true,
+    "differences": []
+  },
+  "feedbackMainPatchPreservedExactly": true,
+  "mainFeedbackAddedLines": 20,
+  "mainFeedbackRemovedLines": 1,
+  "uxFilesExceptMainExactFa74": [
+    {
+      "path": "Sources/RiftletApp/ProductStatus.swift",
+      "identical": true
+    },
+    {
+      "path": "Sources/RiftletApp/SelectionSubmissionQueue.swift",
+      "identical": true
+    },
+    {
+      "path": "Sources/RiftletGUIAcceptance/AcceptanceMain.swift",
+      "identical": true
+    },
+    {
+      "path": "Sources/RiftletUI/RiftPanelController.swift",
+      "identical": true
+    },
+    {
+      "path": "Tests/RiftletAppTests/ProductStatusTests.swift",
+      "identical": true
+    },
+    {
+      "path": "Tests/RiftletAppTests/SelectionSubmissionQueueTests.swift",
+      "identical": true
+    },
+    {
+      "path": "Tests/RiftletUITests/PresentationBoundaryTests.swift",
+      "identical": true
+    }
+  ]
+}

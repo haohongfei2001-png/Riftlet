@@ -1,0 +1,56 @@
+[
+  {
+    "ackUptime": 436232.9524580417,
+    "assetID": "1705B155-2078-4691-9161-C2EA5C8A0E75",
+    "callbackUptime": 436233.19154533336,
+    "event": "selection_boundary",
+    "eventUptime": 436233.19137737504,
+    "frozen": true,
+    "source": "accessibility"
+  },
+  {
+    "ackUptime": 436232.9524580417,
+    "assetID": "0B1D00F7-57C0-41DE-B7BD-BA0AEF04A691",
+    "callbackUptime": 436246.67888970836,
+    "event": "selection_boundary",
+    "eventUptime": 436246.67844883335,
+    "frozen": true,
+    "source": "accessibility"
+  },
+  {
+    "ackUptime": 436232.9524580417,
+    "assetID": "0B1D00F7-57C0-41DE-B7BD-BA0AEF04A691",
+    "callbackUptime": 436303.1390369167,
+    "event": "selection_boundary",
+    "eventUptime": 436303.138805125,
+    "frozen": true,
+    "source": "accessibility"
+  },
+  {
+    "ackUptime": 436232.9524580417,
+    "assetID": "467D5079-CE8D-4072-A18D-3647E3BD0320",
+    "callbackUptime": 436357.26560445834,
+    "event": "selection_boundary",
+    "eventUptime": 436357.2651716667,
+    "frozen": true,
+    "source": "accessibility"
+  },
+  {
+    "ackUptime": 436358.0089574167,
+    "assetID": "467D5079-CE8D-4072-A18D-3647E3BD0320",
+    "callbackUptime": 436428.50090020837,
+    "event": "selection_boundary",
+    "eventUptime": 436428.5006952917,
+    "frozen": true,
+    "source": "accessibility"
+  },
+  {
+    "ackUptime": 436615.36300875,
+    "assetID": "F75071BA-EC17-447A-913C-E5326CE040E7",
+    "callbackUptime": 436638.850442375,
+    "event": "selection_boundary",
+    "eventUptime": 436638.850030625,
+    "frozen": true,
+    "source": "accessibility"
+  }
+]

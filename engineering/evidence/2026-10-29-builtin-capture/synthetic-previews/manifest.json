@@ -1,0 +1,18 @@
+[
+  {
+    "name": "SCScreenshotManager-window-no-shadow-1-sanitized.png",
+    "sha256": "d0672b2d4837b07f3f11bdb1cba8360075f7f52aeee05fb4ddd431897a5dff1e",
+    "bytes": 3867,
+    "backend": "SCScreenshotManager",
+    "variant": "window-no-shadow",
+    "rawPNGSHA256": "7f2d8ed6db9f956ceb22dc9d0777e3b634aa311163902c68532bb493c03eb634"
+  },
+  {
+    "name": "SCScreenshotManager-region-integral-1-sanitized.png",
+    "sha256": "1866ff56e8b7a8186bda1b28d2c180c393fb327101f2b417213c209a8f9fa298",
+    "bytes": 691,
+    "backend": "SCScreenshotManager",
+    "variant": "region-integral",
+    "rawPNGSHA256": "914e606b520fa77f09952d6ca234a31cc573991f688086af93dbc3c17bdfd858"
+  }
+]

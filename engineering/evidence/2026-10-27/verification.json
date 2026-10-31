@@ -1,0 +1,60 @@
+{
+  "schema": 1,
+  "date": "2026-10-27 Asia/Shanghai",
+  "repository": "haohongfei2001-png/Riftlet",
+  "baseline": "5a3ab5d7a761d5397f8bc15b6f40d761b29e58d2",
+  "tested_source_commit": "2f60f01657cc29e7a4cabe41792c6ccd558d6974",
+  "tested_pr_merge_commit": "88119b980c8546079129626877b8057709934f3c",
+  "run_id": 40377481770,
+  "job_id": 121764396954,
+  "run_url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/40377481770",
+  "conclusion": "success",
+  "environment": {
+    "os": "macOS",
+    "version": "14.8.9",
+    "build": "23J631",
+    "architecture": "arm64",
+    "swift": "5.10 (swiftlang-5.10.0.13)"
+  },
+  "tests": {
+    "total": 40,
+    "capture": 12,
+    "queue_store": 12,
+    "transfer_coordinator": 6,
+    "layout_pointer": 10,
+    "result": "PASS"
+  },
+  "release_build": "PASS",
+  "app_bundle": "PASS; development ad-hoc signature, not notarized",
+  "packaged_self_check": "PASS; synthetic data only; no GUI or ChatGPT test",
+  "artifact": {
+    "id": 12675615934,
+    "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/40377481770/artifacts/12675615934",
+    "bytes": 359542,
+    "sha256": "b5d33fbbd2e46b67f69448a47ccceeb8899bf01a309bb916c4c6436a39e17f7d",
+    "retention_days": 14
+  },
+  "handoff": {
+    "file": "Riftlet_Technical_Decision_2026-10-26.zip",
+    "sha256": "70c30972238caac5e6d4d4f3f629af43a6748871cc4ca3d3d8c2f44b32abbe0a",
+    "package_index_files": 16,
+    "result": "all byte lengths and SHA-256 matched"
+  },
+  "oracle_offline": {
+    "runtime": "Node v24.22.1/Linux",
+    "cases": 4,
+    "result": "COUNTEREXAMPLE_REPRODUCED",
+    "scope": "OFFLINE_FIXTURE_ONLY"
+  },
+  "not_run": [
+    "interactive nonactivation/first click",
+    "actual transparent-pixel click-through",
+    "fullscreen/Spaces/Stage Manager",
+    "physical multi-monitor/hotplug/lid wake",
+    "actual system-screenshot latency",
+    "idle CPU/footprint/wakeups",
+    "real ChatGPT READY/failure/navigation/concurrency admission"
+  ],
+  "production_ready_profiles": 0,
+  "production_retry_safe_profiles": 0
+}
