@@ -1,3 +1,33 @@
+# Quiet Edge R2：最终原生取证修正与正式准入 — 2026-10-31
+
+**最终源码、同源完整 CI 和两份 App 以 [PR #1 本轮最终交付](https://github.com/haohongfei2001-png/Riftlet/pull/1) 为准。** 唯一正式工程仍在现有 Draft PR #1；PR #23 已通过原始双亲历史合入正式分支，main 未改，没有新长期候选或公开发行。
+
+## 为什么在绿色 CI 后继续修正
+
+正式 `107898ee31c8e55d9f7eda150625231adb72e261` 的 [Native 41179937595](https://github.com/haohongfei2001-png/Riftlet/actions/runs/41179937595) 和 [Feedback 41179937661](https://github.com/haohongfei2001-png/Riftlet/actions/runs/41179937661) 均成功，实际 checkout `520f32f4ea313a5e500263aef91d6c0e9391fde6`。完整执行结果保留为历史，**不据此批准最终视觉交付**。
+
+独立查看本轮 R2 原始 PNG 发现，首个左上场景的折叠相机窗处于可见状态、图标透明度为 1，却被验收 helper 的不透明背景盖住。真实原生窗口顺序是 row → backdrop → camera/input；屏幕变化后重建队列，只将背景放到首行后面，未保证它低于原相机。原 R2 `057a007` 同场景 PNG 与本轮逐字同 hash，确认不是实例可靠性合并引入的产品回归。旧图/日志及其准确验收范围均保留，没有选择性丢弃失败帧。
+
+## 最小修复及精确源码
+
+- 修复源码 S2：`1459ab26b88eec15fdc9102f05f4f540dff29f07`；tree `02d06aa465385a1580fe133b723e10f7985c6a12`；唯一父为 `107898ee…`。
+- 仅四个既有验收文件：两个 GUI helper 文件、原 capture manifest 验证器、对应 Python 回归。App/Main、所有产品 UI、实例所有权、Core/Capture/Adapters/Feedback、所有 workflow 和准入实现均与上一正式头相同。
+- helper 按本进程真实 AppKit 窗口顺序，把**背景窗本身**置于最靠后的可见产品窗之后；静态取证在既有等待前再正确排列背景。未提高产品层级、强制相机 alpha 或重排捕获数组。
+- 原生捕获前检查完整真实选窗列表，合成背景必须在最后，否则失败；随原始 frame 固定背景身份，Python 验证器同样严格拒绝缺身份或遮挡。单一产品窗口分支不变。
+- 两个针对性回归在旧验证器上产生 7 个预期反例失败，修复后 **20/20 PASS**；修正前后的完整日志 hash 及原始结果保留于 `results.json`。
+
+两位非作者独审精确 S2 后，正式 gate 仍仅更新 `REVIEWED_SOURCE` 字面 pin，不修改已有三个 metadata 例外、四历史审计、父链/对象规则或固定 main 28 个网站对象。旧 pin 对 S2 实际为 24/25 PASS，仅拒绝四个被修改对象；路径集合、历史审计全部通过。这是加强取证真实性，不是放宽检查。
+
+本检查点之后须用最终 H 的新完整 Native ARM/Intel、Feedback、来源审计、同源原生 PNG/MOV 和原始 App ZIP 完成收口；`107898ee` 的 App 不作为最新版交付。最终运行结果更新在 PR #1，不再追加没有对应 App/CI 的源码 HEAD。
+
+## 准入及真机续做
+
+**普通生产上传、内置截图上传、safe-retry、Web continuation 继续关闭。** 内部 U1 的限定成功、选区 FAIL、111 份私有原始证据未重新验证等边界不变。新 CI 图像仍是 synthetic native WindowServer 取证；真实系统截图 fixture 的 PASS/NOT_RUN 按最终日志分别记录。人工物理输入、多屏热插拔、VoiceOver 朗读、Spaces/全屏、最终默认 App 和原生 Feedback 到云端不从合成图或测试推定通过。
+
+后续 Codex 使用本轮最终 HEAD、实际 checkout 和两份 ZIP 的精确 hash，执行下方既有六项最小清单即可。无需重做 R2 或重复历史研究；新权限/物理操作仅留下对应项目，其余工作直接推进。以下全部先前检查点和原审计原样保留。
+
+---
+
 # Quiet Edge R2：正式组合源码准入检查点 — 2026-10-31
 
 **唯一正式工程继续使用 Draft PR #1；不修改 main、不公开发行。** R2 已按完整累计差异合入最新实例可靠性修复，保留两个真实父提交。没有另建候选分支，也没有重新设计 R2。
