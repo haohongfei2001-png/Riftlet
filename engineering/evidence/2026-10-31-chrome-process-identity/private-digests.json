@@ -45,6 +45,11 @@
       "label": "post-identity-preservation.json",
       "bytes": 860,
       "sha256": "c68ee5274cbac38eec97d9392c5b1dc3e36477ffe17f315f91b3358bb7e8b3d2"
+    },
+    {
+      "label": "identity-harness/permission-live.jsonl",
+      "bytes": 135,
+      "sha256": "ba4ba142ee732ca1e0371ec4edbefc4564a4422cbe2ff570b8e186aa43f0f7f5"
     }
   ]
 }

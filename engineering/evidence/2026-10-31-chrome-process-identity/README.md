@@ -61,6 +61,7 @@ The old user-provided system PNG remains available and was never uploaded.
 |---|---|
 | Live nil-launchDate Chrome and responsive AE | MAC_PASS, read-only identity/environment observation |
 | Same production identity resolver against that live process | MAC_PASS, tagged identity present and stable; legacy date not inferred; zero UI/input actions |
+| Corrected passive permission checker against the same live process | MAC_PASS, granted, same lifetime after return; no prompt/page/input |
 | `swift build --target RiftletApp` for corrected source | MAC_PASS, ARM64 compile/link; not packaged or launched |
 | Standalone native execution of the two committed targeted test bodies | MAC_PASS, 15 cases / 83 assertions; lightweight assertion harness, **not XCTest** |
 | `swift test --filter 'ChromeProcessIdentityTests\|AutomationPermissionTests'` | NOT_RUN: local Command Line Tools lack XCTest; dependency compilation failed before tests |
