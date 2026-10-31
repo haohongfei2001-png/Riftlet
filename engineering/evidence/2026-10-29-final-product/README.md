@@ -1,3 +1,57 @@
+# 最终实例可靠性补丁：正式源码准入检查点 — 2026-10-31
+
+**唯一正式工程为 Draft PR #1。** 本次完整复用 `b0cc673` 的三个已审文件与 `3cc74fc` 的四份原始脱敏验收记录，沿原提交历史快进整合。代码与证据无二次改写，没有新产品分支或研究增量。
+
+本文件是最终源码准入时的永久记录。**最终正式 HEAD、同一 HEAD 的 Native ARM/Intel、Feedback、来源审计、实际 checkout 与两份原始 App ZIP 的检查结果，统一以 [PR #1 顶部的本轮最终交付](https://github.com/haohongfei2001-png/Riftlet/pull/1) 为准。** 不为追加完成措辞制造一个没有经过相同 CI 的新源码 HEAD；下方旧 CI、旧包与历史 pending 均保留各自时间和来源。
+
+## 精确来源与独立审查
+
+| 项目 | 身份与范围 |
+|---|---|
+| 原正式 HEAD | `2bddb61a19114167b7485c392600c4b91dc62725` |
+| 原始产品修复 | `b0cc67366fa78e6fc24d8e0c5cc468fd6a13cb76`；三个文件 |
+| 原始验收交接及完整已审源码 S | `3cc74fc80750a47f437ab7361e31016a5de0b118` |
+| S tree | `74d80ff1efc034a0ed4e848ee9757d32d955d30a` |
+| 官网 main 固定来源 | `fccd809e9d55e0b221e75e6dcd7c21f6d357ee74`；28 个对象保持 |
+| 增量 | 7 个路径：2 个新实现/测试文件、1 个 Main 修改、4 份新证据；6 新增、0 删除；994 个原对象逐 mode/type/blob 不变 |
+| 审查 | ownership_review：三文件与启动/退出/Feedback 调用链 PASS；acceptance_review：公开交接和真实 CI 来源有范围 PASS；admission_review：完整 tree/历史审计/官网对象 PASS |
+
+主锁在菜单、首次使用状态、Feedback sidecar 和队列启动之前同步取得。失败实例直接退出，退出路径不会反向触发 lazy Feedback。退出已获准后主锁保留到内核进程回收，避免旧 FeedbackStore 还活着时新实例提前取得主锁。五项原始 XCTest 与既有测试完整保留；不删除锁文件、媒体、历史或旧 UNKNOWN，不改变数据库 schema。
+
+正式 gate **仅更新 REVIEWED_SOURCE 到上述 S**；既有三个 metadata 例外、四历史审计的原始 blob/祖先、28 个 main 网站对象、真实双亲与全对象比较均未放宽。两个正式 workflow 原样。原 gate 对 S 的两个精确差异拒绝已记录，不能将该旧 pin 的失败当成测试已全部通过。
+
+## 继承的真实结果与未通过范围
+
+[原始完整交接](../2026-10-31-unified-unattended/README.md)保持原文。内部普通验收构建在已有聊天中，对一张新系统快捷键 PNG 完成一次 CGEvent 点击、唯一 input、唯一正向 uploadStarted、约 **1.876638 秒开始吞噬**、约 **2.007499 秒原面板关闭回调**，并独立观察到最终 `succeeded / used / swallowed`。最终成功被观察的时间是约 25.591942 秒上界，不是 1.88 秒完成上传。
+
+该样本事先已预绑定，编辑器有焦点；它不是默认生产 App、自然冷首击或物理鼠标验收。正文与旧附件保持，但**选区保持为 FAIL**：后来发生 blur/折叠，并检测到站点提示；完整因果尚未证明。没有强制 focus、恢复陈旧 Range 或重写正文来掩盖失败。
+
+原始验收报告记录重启后原操作身份、两条旧内部 UNKNOWN、39 份旧媒体加新 U1 及 122 份既有证据保留。当前集成者读取的是公开脱敏交接与实际云端日志；111 份私人原始文件未取得，不冒称本轮重新验过原图和真实 SQLite。Feedback 仅本地 AX 草稿保存/重开/重启通过，原生窗口到云端未跑。内置截图仅入口、模式切换和取消部分通过，截取动作因外来窗口覆盖而安全拒绝。
+
+当前已登记 Mac 离线；最终包真机操作只留给具备设备能力的后续 Codex。这不阻断本轮完整正式 CI 与双架构构建。
+
+## 生产准入结论
+
+**普通生产 input/start/completion、内置截图上传、safe-retry、Web continuation 均继续关闭。** 原受限候选范围不扩大。完整 CI 与实包通过只证明最终工程组合和构建，不代替最终默认 App 的真实端到端和独立准入。PR #1 保持 Draft，不修改 main，不公开发行；两架构是开发 ad-hoc 包，Developer ID、公证及 Gatekeeper 不冒称通过。
+
+## 给 Codex 的最小最终真机清单
+
+先从 PR #1 本轮交付取得最终源码 HEAD、实际 checkout、两架构包与 SHA256，核对 `build-info.json`、二进制及 14 组构建输入。使用对应架构；保留正在工作的目录和旧数据。
+
+1. **最终包启动、所有权和恢复。** 正常启动并打开 Feedback；重复启动的失败实例不得创建 UI 或抢 Feedback 锁；正常退出和受控异常退出后重新获取所有权。检查原操作、媒体和旧 UNKNOWN 保留，不能重放旧输入、清库或删除锁文件绕过故障。
+2. **默认 App 已有完整功能。** 新系统截图收录、微图、无/磁力、历史、设置、Feedback 本地草稿关闭重开及重启；确认默认生产上传仍关闭。安全完成内置区域/窗口/全屏截取与取消；内置上传保持关闭。
+3. **内部普通配置的缺口。** 仅使用已有获准隔离编译配置及新系统截图、新 operation，补已有聊天与 Home/local、聚焦与失焦。记录唯一输入、真实 start、吞噬、独立原操作完成和重启保持；如无 ACK，准确记录是否安全拒绝，不预设成功或强制吞噬。这些结果仍标为内部配置。
+4. **选区 FAIL。** 同一最终来源、受控非空草稿和非折叠选区，记录首次 collapse/blur/对话框时序并做原生附件对照；不得强制焦点、恢复陈旧 Range 或改写草稿制造 PASS。
+5. **Feedback 原生到云端。** 先确认独立 D1/私有 Issue 验证和清理路径，再提交一次合成样本并验证真实接收/状态/删除；可自动执行的 IME/VoiceOver 等继续做。缺清理或账号能力只保留该项，不暂停其他工作。
+6. **最后统一列人工项。** 物理鼠标、即时截图后的自然点击、Spaces/全屏实际交互及确实缺少的新系统权限。A/B 重叠和安全失败仅在各自独立证据充分后单独准入，不能借普通成功顺便开放。后续默认生产包须在正式准入后再次验收，内部包结果不替代它。
+
+完成全部可独立操作后一次性交接精确结果。创始人无需提前体验 Beta；不再重做本轮修复、旧成功样本或另建正式集成分支。
+
+---
+
+<details>
+<summary>此前普通入口正式集成与全部历史记录（原文保持）</summary>
+
 # 普通入口正式集成：WAL 修正后的精确源码准入（2026-10-31，北京时间）
 
 **已审完整源码：`a271929d35cdc0ee0e49d87ae02989cfaa133d2d`；tree `b1b46bc3f3aa84bae1ee9be0c37fc14a95458b9b`；唯一父提交为首轮正式 H1 `6f290c4ccd2d7fef75dd474fc0df412838cef6de`。** 本提交只更新准确来源 pin 和两份既有证据 metadata。S2 仅改 WAL 初始化及其回归测试，其他 993 个对象逐 mode/blob 保持；scope 与 release 非作者复核通过，WAL 作者另行披露。新的正式 Native ARM/Intel、Feedback、实际合流来源及原始 App 实包验证仍待执行。
@@ -517,6 +571,8 @@ The current source `de0fbdfe8ca08c1efe30eca931c481598cc2970f` fixes two code-vis
 The failed PR Intel records-page log does show a real Feedback window; its shared missingWindow enum cannot identify the exact failed preparation guard. Controller creation does not finish asynchronous draft/record loads. The helper now waits at most two seconds for the same controller's actual fixture draft, editable editor and both exact record identities/bodies/states, then clicks the existing disclosure once. Every original visibility/body/state/scroll assertion, 700ms/350ms delay and seven-second static process bound remains. There is no product change, record action, transport call or capture retry.
 
 The original 46-case / 5-MOV driver remains byte-identical (SHA256 `f1f7ba966e1e57640490338dad4bc248c3da3de1f4ab5e56f47bd498d0664747`). Product 560ms motion, strict natural finish, 64-pixel/channel-delta-greater-than-8 comparison, original keyframes and 6.45-second recording bound remain unchanged. All three exact Git blobs received non-author review. Preparation facts do not replace new original WindowServer pixels or complete workflows. Physical Mac, real system-screenshot end-to-end, real ChatGPT and cloud Feedback remain independently NOT_RUN; the authorized Mac remains Offline.
+
+</details>
 
 </details>
 

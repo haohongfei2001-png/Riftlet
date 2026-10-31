@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "Ordinary integration repaired source S2 reviewed; new exact-pin formal CI and original App packages pending. H1 Native failure retained. Final real ordinary App acceptance NOT_RUN; production ordinary remains closed.",
+  "status": "Ownership repair and original sanitized acceptance handoff integrated on PR #1; exact source independently reviewed. This is the source-admission checkpoint; final same-head CI/artifact results resolve from PR #1. Production upload remains closed.",
   "inputs": {
     "unified": "2c8cd0371de5e07fd7794f76335381a40403030d",
     "builtin": "6b60f67f6d35272eecff901c507bd75a77874ed6",
@@ -988,8 +988,8 @@
   },
   "combinedNativeCI": "Formal PR1 Native40912645579 attempt1 complete/success; ARM123584425353 and Intel123584425407 complete original-log independent PASS; both source32-check jobs independently verified; actual checkout6537ab3 into fixed main eba.",
   "combinedFeedbackCI": "Formal PR1 Feedback40912645494 attempt1 complete/success; job123584425203;49 unique native Feedback cases and24 named service cases; exact formal checkout6537ab3. H2/PR18 history is separate.",
-  "physicalMac": "NOT_RUN_USER_DEFERRED_TO_CODEX; handoff prepared, no executor scheduled or claimed",
-  "realChatGPT": "NOT_RUN_APPLICATION_ORIGIN_ADMISSION_CLOSED",
+  "physicalMac": "CURRENT_FINAL_PACKAGE_NOT_RUN_DEVICE_OFFLINE; inherited scoped software Mac result at b0cc673 retained separately",
+  "realChatGPT": "INHERITED_INTERNAL_ORDINARY_U1_LIMITED_PASS; final default production App NOT_RUN and admission CLOSED; selection FAIL preserved",
   "cloudFeedback": "CLOUD_SERVICE_PASS_WITH_RECORDED_LIMITS; real HTTPS/D1/private-Issue/deletion evidence complete, native-window E2E NOT_RUN",
   "diagnostics": {
     "originalFailedRun": 40770139026,
@@ -1008,8 +1008,8 @@
     "uploadAdmissionExpanded": false,
     "userDataChanged": false
   },
-  "reviewedSource": "b714dc44b27cccb76356fe15fb4854dba599a689",
-  "reviewedTree": "f043c283eeb49e1f3f8b3c2640ea43c7bbeeabde",
+  "reviewedSource": "3cc74fc80750a47f437ab7361e31016a5de0b118",
+  "reviewedTree": "74d80ff1efc034a0ed4e848ee9757d32d955d30a",
   "continuationFailures": [
     {
       "head": "b3cec64f0ecbf869aff3b17b88d55323d1765393",
@@ -3601,7 +3601,7 @@
     "release": "No main merge, public release or notarization claim",
     "historicalScope": "C1/H receiver-only checkpoint before reconnection and later real delivery/deletion. Original pending/blocking and nil-endpoint statements are preserved as historical facts, superseded by feedbackCloudCloseoutContinuation."
   },
-  "reviewedSourceFieldStatus": "Exact b714 source checkpoint reviewed by three independent non-authors before updating only REVIEWED_SOURCE. Formal combined runtime and real environment acceptance remain separate.",
+  "reviewedSourceFieldStatus": "Exact committed source including original patch and sanitized evidence independently reviewed before changing only the fixed pin. Runtime and production admission are separate.",
   "sourceEndpointConfigured": true,
   "sourceEndpoint": "https://riftlet-feedback-receiver.haohongfei2001.workers.dev/v1/feedback",
   "sourceEndpointScope": "Exact committed source and both independently checked ARM/Intel unified Beta packages contain the configured HTTPS endpoint. This is source/compiled-byte/package proof, not an actual native-window send or a per-feedback receipt.",
@@ -5584,7 +5584,7 @@
           {
             "kind": "original_bundle_repository_aware",
             "chunk_id": "5f6440",
-            "wall_time_seconds": 0.000043061,
+            "wall_time_seconds": 4.3061e-05,
             "exit_code": 0,
             "original_token_count": 32,
             "output": "RIFTLET_BUNDLE_CHECK_PASS: layout, permissions text, resources, notices; development 0.1.0; NOT_NOTARIZED; GATEKEEPER_NOT_RUN\n"
@@ -10931,8 +10931,8 @@
       "scope": "Four actual completed-success E workflow statuses only, separate from complete formal PR1 log review. No additional reviewed test counts, new package byte review or future workflow claim."
     }
   },
-  "currentRuntimeEvidenceField": "ordinaryEntryIntegration",
-  "latestCompletedRuntimeRole": "Legacy named fields retain their original exact runtime identities. Current ordinary integration authority is ordinaryEntryIntegration, including H1 failed Native attempt and new S2 source-only review; no H2 runtime PASS is claimed in this admission commit.",
+  "currentRuntimeEvidenceField": "ownershipReliabilityIntegration",
+  "latestCompletedRuntimeRole": "All earlier run/package fields retain historical identity. Final current-head run/job/artifact evidence is in the formal PR #1 delivery; inherited U1 is internal acceptance only.",
   "precedingLifecycleAdmissionCheckpoint": {
     "status": "FORMAL_PR1_COMPLETE_NATIVE_AND_FEEDBACK_CI_PASS_H2_DELIVERY_PACKAGES_PRESERVED_REAL_MAC_NOT_RUN",
     "reviewedSource": "4223a9dc80bd982e4b95305a1bd1e8f15ce7393c",
@@ -12721,7 +12721,7 @@
       ]
     }
   },
-  "handoffBranchRole": "Formal PR #1 exact-source admission metadata for the successor of S2. Prior PR #15 evidence-only roles remain historical. The eventual evidence handoff must not be used as App build source.",
+  "handoffBranchRole": "This metadata is on the sole formal PR #1 branch, following the original product and evidence commits; no new integration branch.",
   "precedingOrdinaryIntegrationCheckpoint": {
     "previousFormalHead": "edbdc7aae45c35878694e9fa376757dac7b630a8",
     "completeHandoff": "bf3b97a432f65451c1b4232035e25c9d42b21523",
@@ -15518,7 +15518,7 @@
               "before": {
                 "algorithm": "original-once-per-attempt",
                 "elapsedSeconds": 4.53788493200409,
-                "foreignKeysSeconds": 0.000050747003115247935,
+                "foreignKeysSeconds": 5.0747003115247935e-05,
                 "attempts": [
                   {
                     "prepareStatus": 0,
@@ -15538,7 +15538,7 @@
               "after": {
                 "algorithm": "refresh-before-prepare-and-each-step",
                 "elapsedSeconds": 3.0030373740009964,
-                "foreignKeysSeconds": 0.000020640996808651835,
+                "foreignKeysSeconds": 2.0640996808651835e-05,
                 "attempts": [
                   {
                     "prepareStatus": 0,
@@ -15614,5 +15614,379 @@
         }
       }
     }
-  ]
+  ],
+  "precedingOwnershipIntegrationCheckpoint": {
+    "status": "Ordinary integration repaired source S2 reviewed; new exact-pin formal CI and original App packages pending. H1 Native failure retained. Final real ordinary App acceptance NOT_RUN; production ordinary remains closed.",
+    "currentRuntimeEvidenceField": "ordinaryEntryIntegration",
+    "latestCompletedRuntimeRole": "Legacy named fields retain their original exact runtime identities. Current ordinary integration authority is ordinaryEntryIntegration, including H1 failed Native attempt and new S2 source-only review; no H2 runtime PASS is claimed in this admission commit.",
+    "handoffBranchRole": "Formal PR #1 exact-source admission metadata for the successor of S2. Prior PR #15 evidence-only roles remain historical. The eventual evidence handoff must not be used as App build source.",
+    "reviewedSource": "b714dc44b27cccb76356fe15fb4854dba599a689",
+    "reviewedTree": "f043c283eeb49e1f3f8b3c2640ea43c7bbeeabde",
+    "reviewedSourceFieldStatus": "Exact b714 source checkpoint reviewed by three independent non-authors before updating only REVIEWED_SOURCE. Formal combined runtime and real environment acceptance remain separate.",
+    "physicalMac": "NOT_RUN_USER_DEFERRED_TO_CODEX; handoff prepared, no executor scheduled or claimed",
+    "realChatGPT": "NOT_RUN_APPLICATION_ORIGIN_ADMISSION_CLOSED"
+  },
+  "ownershipReliabilityIntegration": {
+    "scope": "Formal PR #1 only; exact original product patch plus immutable sanitized acceptance handoff, followed by three pre-existing metadata exceptions.",
+    "dateBeijing": "2026-10-31",
+    "formalBranch": "codex/engineering-foundation-20261027",
+    "formalPR": "https://github.com/haohongfei2001-png/Riftlet/pull/1",
+    "previousFormalHead": "2bddb61a19114167b7485c392600c4b91dc62725",
+    "productPatch": "b0cc67366fa78e6fc24d8e0c5cc468fd6a13cb76",
+    "reviewedSource": "3cc74fc80750a47f437ab7361e31016a5de0b118",
+    "reviewedTree": "74d80ff1efc034a0ed4e848ee9757d32d955d30a",
+    "mainPreserved": "fccd809e9d55e0b221e75e6dcd7c21f6d357ee74",
+    "integration": "Fast-forward through original b0cc673 and 3cc74fc ancestry on the existing formal branch; no duplicate cherry-pick, competing branch, main change or release.",
+    "sourceDelta": {
+      "paths": 7,
+      "added": 6,
+      "modified": 1,
+      "deleted": 0,
+      "unchangedOriginalObjects": 994,
+      "productPaths": [
+        "Sources/RiftletApp/ApplicationInstanceOwnership.swift",
+        "Sources/RiftletApp/RiftletMain.swift",
+        "Tests/RiftletAppTests/ApplicationInstanceOwnershipTests.swift"
+      ],
+      "evidencePaths": [
+        "engineering/evidence/2026-10-31-unified-unattended/README.md",
+        "engineering/evidence/2026-10-31-unified-unattended/artifact-audit.json",
+        "engineering/evidence/2026-10-31-unified-unattended/artifact-audit.md",
+        "engineering/evidence/2026-10-31-unified-unattended/results.json"
+      ]
+    },
+    "productFileSHA256": {
+      "Sources/RiftletApp/ApplicationInstanceOwnership.swift": "e06828d8e3646b6e00c13e55544d529fcabaf921e30bf0c45d1b0e97688b2f9c",
+      "Sources/RiftletApp/RiftletMain.swift": "2d34e202a3ffc6995fdc7bd1251799350d1e1decaed189be53f61bbe079142db",
+      "Tests/RiftletAppTests/ApplicationInstanceOwnershipTests.swift": "58d693a68ba5d5d080bfce8f43f21532d107cdd1c6e563e7f8fbfa85577ca107"
+    },
+    "productFileGitBlobs": {
+      "Sources/RiftletApp/ApplicationInstanceOwnership.swift": "980e7e75d33145aa5462613eef9bd3a07bacdc05",
+      "Sources/RiftletApp/RiftletMain.swift": "47f1f0f01b355252fe77b2a2e3f0832fdf4f5bcf",
+      "Tests/RiftletAppTests/ApplicationInstanceOwnershipTests.swift": "6c41bd916de3a7e75f4146a19ae33dbfd5e30797"
+    },
+    "nonAuthorReviews": {
+      "ownership_review": {
+        "result": "PASS_SOURCE_REVIEW",
+        "scope": "Exact three patch files plus full Main, FeedbackHost, FeedbackStore, ApplicationMode and Package composition; no blocking defect. Lock precedes all UI/sidecars; losing instance does not initialize lazy services; irreversible termination retains ownership to process exit. No code authored by this reviewer."
+      },
+      "acceptance_review": {
+        "result": "PASS_QUALIFIED_HANDOFF_AND_CI_AUDIT",
+        "scope": "Four complete sanitized handoff files, GitHub compare and original job checkout/source logs; old formal CI success and successor source-gate failures retained. Private 111-file evidence is not available here and was not independently re-read by this integration session."
+      },
+      "admission_review": {
+        "result": "PASS_SOURCE_SCOPE",
+        "record": {
+          "source": "3cc74fc80750a47f437ab7361e31016a5de0b118",
+          "sourceTree": "74d80ff1efc034a0ed4e848ee9757d32d955d30a",
+          "base": "2bddb61a19114167b7485c392600c4b91dc62725",
+          "fileCounts": [
+            995,
+            1001
+          ],
+          "changes": [
+            {
+              "path": "Sources/RiftletApp/ApplicationInstanceOwnership.swift",
+              "before": null,
+              "after": {
+                "mode": "100644",
+                "type": "blob",
+                "sha": "980e7e75d33145aa5462613eef9bd3a07bacdc05"
+              }
+            },
+            {
+              "path": "Sources/RiftletApp/RiftletMain.swift",
+              "before": {
+                "mode": "100644",
+                "type": "blob",
+                "sha": "59438e03c5056a7cb451a1bdf0df1b2100feda94"
+              },
+              "after": {
+                "mode": "100644",
+                "type": "blob",
+                "sha": "47f1f0f01b355252fe77b2a2e3f0832fdf4f5bcf"
+              }
+            },
+            {
+              "path": "Tests/RiftletAppTests/ApplicationInstanceOwnershipTests.swift",
+              "before": null,
+              "after": {
+                "mode": "100644",
+                "type": "blob",
+                "sha": "6c41bd916de3a7e75f4146a19ae33dbfd5e30797"
+              }
+            },
+            {
+              "path": "engineering/evidence/2026-10-31-unified-unattended/README.md",
+              "before": null,
+              "after": {
+                "mode": "100644",
+                "type": "blob",
+                "sha": "40682234b38a5a348b31887e1c4c28bbbce830ab"
+              }
+            },
+            {
+              "path": "engineering/evidence/2026-10-31-unified-unattended/artifact-audit.json",
+              "before": null,
+              "after": {
+                "mode": "100644",
+                "type": "blob",
+                "sha": "e4e0dd6ea8104d80a2f792ccd426e5cba62e2384"
+              }
+            },
+            {
+              "path": "engineering/evidence/2026-10-31-unified-unattended/artifact-audit.md",
+              "before": null,
+              "after": {
+                "mode": "100644",
+                "type": "blob",
+                "sha": "a8cef70d936047bde99e6060dfd3766015384224"
+              }
+            },
+            {
+              "path": "engineering/evidence/2026-10-31-unified-unattended/results.json",
+              "before": null,
+              "after": {
+                "mode": "100644",
+                "type": "blob",
+                "sha": "c73db2a210e4300eac58f1fd858fd5a407c3eec9"
+              }
+            }
+          ],
+          "unchangedOriginalObjects": 994,
+          "policyBytesEqual": true,
+          "policySHA256": "0c69c03b325d7b8e24537044c5a82ac6f56f1132911062375b9c56857b9eff9c",
+          "mainOverlayChecks": [
+            {
+              "path": "favicon.svg",
+              "pass": true
+            },
+            {
+              "path": "index.html",
+              "pass": true
+            },
+            {
+              "path": "site.webmanifest",
+              "pass": true
+            },
+            {
+              "path": "website-assets/error.svg",
+              "pass": true
+            },
+            {
+              "path": "website-assets/fonts/FONT-SOURCES.json",
+              "pass": true
+            },
+            {
+              "path": "website-assets/fonts/Instrument-Serif-OFL.txt",
+              "pass": true
+            },
+            {
+              "path": "website-assets/fonts/Noto-Serif-SC-OFL.txt",
+              "pass": true
+            },
+            {
+              "path": "website-assets/fonts/instrument-serif-italic.woff2",
+              "pass": true
+            },
+            {
+              "path": "website-assets/fonts/instrument-serif.woff2",
+              "pass": true
+            },
+            {
+              "path": "website-assets/fonts/noto-serif-sc.woff2",
+              "pass": true
+            },
+            {
+              "path": "website-assets/glass-study.png",
+              "pass": true
+            },
+            {
+              "path": "website-assets/reading.svg",
+              "pass": true
+            },
+            {
+              "path": "website-assets/riftlet.svg",
+              "pass": true
+            },
+            {
+              "path": "website-hero.css",
+              "pass": true
+            },
+            {
+              "path": "website-hero.js",
+              "pass": true
+            },
+            {
+              "path": "website-locale.js",
+              "pass": true
+            },
+            {
+              "path": "website-product.css",
+              "pass": true
+            },
+            {
+              "path": "website-product.js",
+              "pass": true
+            },
+            {
+              "path": "website-v2.css",
+              "pass": true
+            },
+            {
+              "path": "website-v2.js",
+              "pass": true
+            },
+            {
+              "path": "website/HERO_REVISION_2026-10-27.md",
+              "pass": true
+            },
+            {
+              "path": "website/README.md",
+              "pass": true
+            },
+            {
+              "path": "website/RELEASE_2026-10-30.md",
+              "pass": true
+            },
+            {
+              "path": "website/RESTORE_ART_DIRECTION_2026-10-27.md",
+              "pass": true
+            },
+            {
+              "path": "website/test-hero-layout.py",
+              "pass": true
+            },
+            {
+              "path": "website/test-hero-motion.py",
+              "pass": true
+            },
+            {
+              "path": "website/test-hero.py",
+              "pass": true
+            },
+            {
+              "path": "website/test-product.cjs",
+              "pass": true
+            }
+          ],
+          "histories": [
+            {
+              "name": "feedback-reliability",
+              "ancestor": true,
+              "originalAndCurrentBlobMatch": true
+            },
+            {
+              "name": "thin-edge",
+              "ancestor": true,
+              "originalAndCurrentBlobMatch": true
+            },
+            {
+              "name": "unified-thin-edge",
+              "ancestor": true,
+              "originalAndCurrentBlobMatch": true
+            },
+            {
+              "name": "builtin-capture",
+              "ancestor": true,
+              "originalAndCurrentBlobMatch": true
+            }
+          ],
+          "workflowBytesEqual": true
+        },
+        "recordSHA256": "5a4117c91e6808885b4249b95da9d123154cba61f71b05cfb3487e57f02b2bc3",
+        "scope": "Exact full trees, unchanged modes/blobs and workflows, four historical audits/ancestors, 28 fixed website objects. Original gate actually rejects unreviewed successor; no custom policy or exception used."
+      }
+    },
+    "sourceAdmissionChange": {
+      "reviewPinOnly": "3cc74fc80750a47f437ab7361e31016a5de0b118",
+      "metadataExceptionsUnchanged": true,
+      "historicalAuditBlobsUnchanged": true,
+      "fixedMain28ObjectsUnchanged": true,
+      "mergeParentsAndAncestryRulesUnchanged": true,
+      "workflowsUnchanged": true,
+      "expectedProtectedSourceObjects": 998,
+      "expectedProtectedMergeObjects": 1022,
+      "fixedMainOverlayCounts": {
+        "new": 24,
+        "replaced": 4,
+        "total": 28
+      }
+    },
+    "historicalRuns": {
+      "formalNative41126228170": "SUCCESS at checkout f2610e795c2eb41242289a32d0517edde094b587, source head 2bddb61; package predates patch",
+      "formalFeedback41126227847": "SUCCESS at same f2610e7 checkout; not current final-head CI",
+      "patchNative41138988332": "FAIL overall: ARM/Intel passed, source admission rejected old pin",
+      "patchFeedback41138988306": "FAIL overall: Feedback passed, source admission rejected old pin"
+    },
+    "currentFormalVerification": {
+      "stage": "SOURCE_REVIEW_CHECKPOINT",
+      "resolution": "The exact final PR #1 head and its actual PR merge must complete both existing workflows and independent original-ZIP inspection. Final run/job/artifact identities are recorded in the current PR #1 delivery, avoiding a later untested metadata HEAD. No historical run is relabeled as this final run.",
+      "required": [
+        "Native source admission",
+        "Native ARM full tests/build/package",
+        "Native Intel full tests/build/package",
+        "Feedback source admission",
+        "Feedback service/native/UI/isolation tests",
+        "Original ARM and Intel ZIP provenance and package verification"
+      ]
+    },
+    "inheritedRealAcceptance": {
+      "source": "b0cc67366fa78e6fc24d8e0c5cc468fd6a13cb76",
+      "evidence": "3cc74fc80750a47f437ab7361e31016a5de0b118",
+      "result": "PASS_LIMITED_INTERNAL_ORDINARY_SOFTWARE_SAMPLE",
+      "configuration": "Existing fixed internal ordinary acceptance compile configuration; not default App; prebound CGEvent; focused editor; persisted chat; one new system-shortcut PNG.",
+      "inputCount": 1,
+      "uploadStartRows": 1,
+      "clickToAppKitSwallowStartSeconds": 1.876638,
+      "clickToPanelCloseCallbackSeconds": 2.007499,
+      "pageInputToStartSeconds": 1.2148,
+      "persistedSuccessObservedUpperBoundSeconds": 25.591942,
+      "finalState": [
+        "succeeded",
+        "used",
+        "swallowed"
+      ],
+      "selectionPreservation": "FAIL: later collapse and site dialog temporal association; complete cause unproven",
+      "draftTextAndOldAttachment": "PASS as inherited report; not a fresh current-package run",
+      "restart": "Original operation identities and two old internal UNKNOWN preserved; no extra input, as inherited report",
+      "preservation": "39 old media plus new U1 and 122 prior evidence files preserved per original review; current session has not accessed private originals",
+      "feedback": "AX local draft save/reopen/restart PASS; no report or submission; IME/VoiceOver/native cloud E2E NOT_RUN",
+      "builtinCapture": "Entry/region-mode/cancel PARTIAL; capture gesture safely refused for foreign overlap; completed region/window/fullscreen NOT_RUN",
+      "notRun": [
+        "default production App upload",
+        "Home/local upload",
+        "unfocused upload",
+        "no-ACK cold first click",
+        "natural immediate screenshot-to-click distribution",
+        "physical mouse",
+        "pending A/B overlap",
+        "safe failure/retry",
+        "Spaces/fullscreen transitions",
+        "native Feedback to cloud"
+      ],
+      "privateManifestSHA256": "1ffd50647ab520c77e328c43617e3cedab554b91543592fd7181418500857f33"
+    },
+    "currentDeviceObservation": {
+      "device": "authorized MacBook Air",
+      "status": "OFFLINE",
+      "effect": "Only real-device validation is deferred; no App, browser, existing queue, media or permissions accessed in this integration session."
+    },
+    "admissions": {
+      "ordinaryInput": false,
+      "ordinaryStart": false,
+      "ordinaryCompletion": false,
+      "builtInUpload": false,
+      "safeRetry": false,
+      "webContinuation": false,
+      "existingRestrictedCandidate": "unchanged; no scope expansion"
+    },
+    "release": {
+      "draft": true,
+      "mergeMain": false,
+      "publicRelease": false,
+      "signing": "development ad-hoc; Developer ID/notarization/Gatekeeper not claimed"
+    },
+    "codexNext": "Use the minimum final-package checklist at the top of this README; first pin the exact final PR head and package hashes from PR #1, then execute all independently available device work. Physical mouse/new OS authorization only at the end."
+  }
 }
