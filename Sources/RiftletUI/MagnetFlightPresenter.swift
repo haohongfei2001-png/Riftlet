@@ -250,7 +250,7 @@ public final class MagnetFlightPresenter {
         func paths(inset: CGFloat) -> [CGPath] {
             sampled.map { frame in
                 let rect = frame.insetBy(dx: inset, dy: inset)
-                guard rect.width > 0, rect.height > 0 else { return CGMutablePath() }
+                guard rect.size.width > 0, rect.size.height > 0 else { return CGMutablePath() }
                 return CGPath(roundedRect: rect, cornerWidth: min(2, rect.width / 2, rect.height / 2),
                               cornerHeight: min(2, rect.width / 2, rect.height / 2), transform: nil)
             }

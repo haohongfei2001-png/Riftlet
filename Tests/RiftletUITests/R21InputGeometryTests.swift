@@ -24,10 +24,40 @@ final class R21InputGeometryTests: XCTestCase {
                 let expected = try XCTUnwrap(RiftLayout.make(records:[record],visibleFrame:screen.visibleFrame,
                     configuration:c,backingScale:screen.backingScaleFactor,
                     highContrast:NSWorkspace.shared.accessibilityDisplayShouldIncreaseContrast).rows.first)
-                for (actual, local) in [(row.imageClipFrame,expected.imageClipFrame),(row.numberFrame,expected.numberFrame)] {
-                    XCTAssertEqual(actual.minX,expected.frame.minX+local.minX,accuracy:0.001)
-                    XCTAssertEqual(actual.minY,expected.frame.minY+local.minY,accuracy:0.001)
-                    XCTAssertEqual(actual.size,local.size)
+                // Compare native-to-native. AppKit normalizes borderless window
+                // origins to its backing grid; mathematical frame addition is not
+                // the pre-R2.1 behavior at fractional row heights (e.g. 40.5 pt).
+                // This reference reproduces the unpadded R2 window/view setup and
+                // never orders a reference window onto the desktop.
+                let legacy = NSPanel(contentRect: expected.frame,
+                    styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
+                legacy.isReleasedWhenClosed = false; legacy.hasShadow = false
+                legacy.isOpaque = false; legacy.backgroundColor = .clear
+                legacy.ignoresMouseEvents = true
+                let legacyView = NSView(frame: CGRect(origin: .zero, size: expected.frame.size))
+                legacyView.wantsLayer = true; legacy.contentView = legacyView
+                legacyView.frame.size = expected.frame.size
+                legacy.setFrame(expected.frame, display: true)
+                defer { legacy.close() }
+                func assertRect(_ actual: CGRect, _ reference: CGRect,
+                                file: StaticString = #filePath, line: UInt = #line) {
+                    XCTAssertEqual(actual.minX, reference.minX, accuracy: 1e-9, file: file, line: line)
+                    XCTAssertEqual(actual.minY, reference.minY, accuracy: 1e-9, file: file, line: line)
+                    XCTAssertEqual(actual.width, reference.width, accuracy: 1e-9, file: file, line: line)
+                    XCTAssertEqual(actual.height, reference.height, accuracy: 1e-9, file: file, line: line)
+                }
+                for (actual, inputFrame, local) in [
+                    (row.imageClipFrame, row.imageInputFrame, expected.imageClipFrame),
+                    (row.numberFrame, row.numberInputFrame, expected.numberFrame)
+                ] {
+                    let reference = legacy.convertToScreen(legacyView.convert(local, to: nil))
+                    assertRect(actual, reference)
+                    let legacyInput = NSPanel(contentRect: .zero,
+                        styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
+                    legacyInput.isReleasedWhenClosed = false
+                    legacyInput.setFrame(reference, display: true)
+                    assertRect(inputFrame, legacyInput.frame)
+                    legacyInput.close()
                 }
                 let input = try XCTUnwrap(NSApp.windows.first { $0.windowNumber == row.numberInputWindowNumber })
                 let view = try XCTUnwrap(input.contentView)

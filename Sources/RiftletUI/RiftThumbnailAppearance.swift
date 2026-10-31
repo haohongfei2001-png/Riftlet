@@ -15,7 +15,7 @@ import QuartzCore
     /// Open at the seam. Full perimeter only when no pixels are occluded.
     static func contour(_ rect: CGRect, radius: CGFloat, left: Bool, hidden: Bool) -> CGPath {
         let p = CGMutablePath()
-        guard rect.width > 0, rect.height > 0 else { return p }
+        guard rect.size.width > 0, rect.size.height > 0 else { return p }
         let r = max(0, min(radius, rect.width / 2, rect.height / 2))
         if !hidden { return CGPath(roundedRect: rect, cornerWidth: r, cornerHeight: r, transform: nil) }
         // Construct in a right-side coordinate system, then mirror geometry only.

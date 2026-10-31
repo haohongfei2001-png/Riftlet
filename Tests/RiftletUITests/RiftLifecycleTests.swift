@@ -269,15 +269,17 @@ final class RiftLifecycleTests: XCTestCase {
         // OS versions. Inspect the actual named content, never its array order.
         func descendants(_ layer: CALayer) -> [CALayer] { [layer] + (layer.sublayers ?? []).flatMap(descendants) }
         let imageLayer = try XCTUnwrap(descendants(try XCTUnwrap(view.layer)).first { $0.name == "rift.image.content" })
+        let rootLayer = try XCTUnwrap(view.layer)
+        let restingX = imageLayer.convert(.zero, to: rootLayer).x
         // This invokes the actual accessibility callback in software; it is not
         // a physical N1 event or evidence about a live attachment adapter.
         XCTAssertTrue(view.accessibilityPerformPress())
         panel.render([record(image: first.image, status: .transferring,
                              visibility: .swallowed, reason: .uploadStarted)])
-        let inwardExit = imageLayer.affineTransform().tx
+        let inwardExit = imageLayer.convert(.zero, to: rootLayer).x - restingX
         XCTAssertGreaterThan(abs(inwardExit), CGFloat(configuration.inwardDistance))
         try await Task.sleep(nanoseconds: 45_000_000)
-        XCTAssertEqual(imageLayer.affineTransform().tx, inwardExit,
+        XCTAssertEqual(imageLayer.convert(.zero, to: rootLayer).x - restingX, inwardExit,
                        "The older press-release timer must not animate back out of the rift")
     }
 
