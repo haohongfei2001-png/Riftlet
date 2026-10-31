@@ -1,5 +1,8 @@
 import XCTest
+import Foundation
 import Carbon
+import Darwin
+@testable import RiftletAdapters
 @testable import RiftletApp
 
 private actor PermissionProbe: AutomationPermissionChecking {
@@ -65,14 +68,36 @@ final class AutomationPermissionTests: XCTestCase {
     }
 
     func testMultipleChromeInstancesSelectExactOriginalSessionOrForegroundNeverFirst() {
-        let first = PermissionBrowserIdentity(pid: 11, launched: Date(timeIntervalSince1970: 1))
-        let second = PermissionBrowserIdentity(pid: 22, launched: Date(timeIntervalSince1970: 2))
+        let first = permissionIdentity(pid: 11, seconds: 1)
+        let second = permissionIdentity(pid: 22, seconds: 2)
         XCTAssertEqual(PermissionBrowserIdentity.select([first, second], foregroundPID: 22, expectedSession: nil), second)
         XCTAssertEqual(PermissionBrowserIdentity.select([first, second], foregroundPID: 11, expectedSession: second.session), second)
         XCTAssertNil(PermissionBrowserIdentity.select([first, second], foregroundPID: 33, expectedSession: nil))
         XCTAssertNil(PermissionBrowserIdentity.select([first, second], foregroundPID: 22, expectedSession: "22:1.0"))
         XCTAssertNil(PermissionBrowserIdentity.select([second, second], foregroundPID: 22, expectedSession: second.session))
         XCTAssertEqual(PermissionBrowserIdentity.select([first], foregroundPID: nil, expectedSession: nil), first)
+    }
+
+    private func permissionIdentity(pid: pid_t, seconds: UInt64, date: Date? = nil) -> PermissionBrowserIdentity {
+        var record = proc_bsdinfo(); record.pbi_pid = UInt32(pid); record.pbi_start_tvsec = seconds
+        let birth = KernelProcessBirth(requestedPID: pid, record: record,
+                                     bytesRead: Int32(MemoryLayout<proc_bsdinfo>.size))!
+        return PermissionBrowserIdentity(process: ChromeProcessIdentity(birth: birth,
+            applicationID: "com.google.Chrome", terminated: false, launchDate: date)!)
+    }
+
+    func testMissingLaunchDateForegroundWinsAndOldExpectedSessionCannotSelectOtherProcess() {
+        let missingDate = permissionIdentity(pid: 11, seconds: 1)
+        let other = permissionIdentity(pid: 22, seconds: 2, date: Date(timeIntervalSince1970: 2))
+        XCTAssertEqual(PermissionBrowserIdentity.select([other, missingDate], foregroundPID: 11,
+                                                       expectedSession: nil), missingDate)
+        XCTAssertNil(PermissionBrowserIdentity.select([other, missingDate], foregroundPID: 11,
+                                                     expectedSession: "11:1.0"))
+        XCTAssertEqual(PermissionBrowserIdentity.select([other, missingDate], foregroundPID: 11,
+                                                       expectedSession: "22:2.0"), other)
+        let reusedPID = permissionIdentity(pid: 11, seconds: 3)
+        XCTAssertNil(PermissionBrowserIdentity.select([other, reusedPID], foregroundPID: 11,
+                                                     expectedSession: missingDate.session))
     }
 
     func testNativePermissionCodesNeverConflateDenialWithUnavailable() {

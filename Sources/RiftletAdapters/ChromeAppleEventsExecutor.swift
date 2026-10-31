@@ -22,14 +22,17 @@ public final class ChromeAppleEventsExecutor: WebBridgeExecutor {
         } else {
             guard let target = command.target, target.applicationID == browserID,
                   let running = NSRunningApplication.runningApplications(withBundleIdentifier: browserID).first(where: {
-                      guard let launch = $0.launchDate else { return false }
-                      return "\($0.processIdentifier):\(launch.timeIntervalSince1970)" == target.sessionID
+                      ChromeProcessIdentity.read(pid: $0.processIdentifier)?.matches(
+                          session: target.sessionID, allowLegacyObservation: command.action == .observe) == true
                   }) else { throw WebAdapterError.invalidTarget }
             application = running
         }
-        guard let launched = application.launchDate else { throw WebAdapterError.invalidTarget }
-        let pid = application.processIdentifier
-        let session = "\(pid):\(launched.timeIntervalSince1970)"
+        guard let identity = ChromeProcessIdentity.read(pid: application.processIdentifier) else {
+            throw WebAdapterError.invalidTarget
+        }
+        let pid = identity.pid
+        // Original operation identity remains unchanged for legacy read-only observation.
+        let session = command.action == .captureTarget ? identity.session : (command.target?.sessionID ?? "")
         let requiresForeground = command.action != .observe && command.action != .discard
         if requiresForeground {
             guard NSWorkspace.shared.frontmostApplication?.processIdentifier == pid else {
@@ -37,7 +40,8 @@ public final class ChromeAppleEventsExecutor: WebBridgeExecutor {
             }
         }
         if command.action != .captureTarget {
-            guard let target = command.target, target.sessionID == session,
+            guard let target = command.target,
+                  identity.matches(session: target.sessionID, allowLegacyObservation: command.action == .observe),
                   let windowID = Int64(target.windowID), windowID > 0,
                   let tab = target.tabID, let tabID = Int64(tab), tabID > 0 else {
                 throw WebAdapterError.invalidTarget
@@ -57,8 +61,7 @@ public final class ChromeAppleEventsExecutor: WebBridgeExecutor {
                     try autoreleasepool {
                         // Recheck process lifetime after waiting for the shared serial
                         // queue. An old lease cannot target a newly reused PID.
-                        guard let running = NSRunningApplication(processIdentifier: pid),
-                              running.bundleIdentifier == browserID, running.launchDate == launched else {
+                        guard identity.isCurrent() else {
                             throw WebAdapterError.invalidTarget
                         }
                         let bridge = ChromePIDEvents(pid: pid, trace: trace, requestID: requestID)
@@ -85,12 +88,14 @@ public final class ChromeAppleEventsExecutor: WebBridgeExecutor {
                         let envelope = MainWorldCommandEnvelope(function: program.functionSource,
                             commandJSON: commandJSON, contextJSON: context)
                         phase = "submit"
+                        guard identity.isCurrent() else { throw WebAdapterError.invalidTarget }
                         try bridge.submitMainWorld(envelope.source, window: selected.window, tab: selected.tab)
                         phase = "receipt"
                         let receipt = try MainWorldReceiptReader.read(envelope) { budget in
                             try bridge.execute(envelope.reader, window: selected.window, tab: selected.tab,
                                                receiptBudget: budget)
                         }
+                        guard identity.isCurrent() else { throw WebAdapterError.invalidTarget }
                         let received = receipt.receivedUptime
                         // Missing/late reply never resubmits an input command.
                         let text = receipt.text
@@ -122,7 +127,7 @@ public final class ChromeAppleEventsExecutor: WebBridgeExecutor {
         }
         if command.action == .captureTarget {
             guard let frontmost = NSWorkspace.shared.frontmostApplication,
-                  frontmost.processIdentifier == pid, frontmost.launchDate == launched else {
+                  frontmost.processIdentifier == pid, identity.isCurrent() else {
                 if let digest = delivery.targetDigest {
                     trace.capture(requestID: requestID, phase: "main_actor_return", digest: digest, received: delivery.received,
                                   validated: delivery.validated, context: captureContext, accepted: false)
@@ -135,6 +140,7 @@ public final class ChromeAppleEventsExecutor: WebBridgeExecutor {
                               validated: delivery.validated, context: captureContext, accepted: true, mainReturned: returned)
             }
         }
+        guard identity.isCurrent() else { throw WebAdapterError.invalidTarget }
         return delivery.data
     }
 }

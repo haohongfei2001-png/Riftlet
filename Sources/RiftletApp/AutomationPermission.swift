@@ -1,5 +1,6 @@
 import AppKit
 import Carbon
+import RiftletAdapters
 
 enum AutomationPermissionState: Equatable, Sendable {
     case notNeeded, notRequested, granted, denied, browserNotRunning, browserNotInstalled, unavailable
@@ -17,13 +18,25 @@ extension AutomationPermissionChecking {
 }
 
 struct PermissionBrowserIdentity: Equatable, Sendable {
+    let process: ChromeProcessIdentity?
     let pid: pid_t
-    let launched: Date
-    var session: String { "\(pid):\(launched.timeIntervalSince1970)" }
+    let session: String
+
+    init(process: ChromeProcessIdentity) {
+        self.process = process; pid = process.pid; session = process.session
+    }
+
+    // Existing offline self-check fixture. Without a verified process it cannot
+    // pass the native checker's before/after lifetime checks or issue an AE.
+    init(pid: pid_t, launched: Date) {
+        process = nil; self.pid = pid; session = "\(pid):\(launched.timeIntervalSince1970)"
+    }
 
     static func select(_ candidates: [Self], foregroundPID: pid_t?, expectedSession: String?) -> Self? {
         if let expectedSession {
-            let matches = candidates.filter { $0.session == expectedSession }
+            let matches = candidates.filter {
+                $0.session == expectedSession || $0.process?.matches(session: expectedSession, allowLegacyObservation: true) == true
+            }
             return matches.count == 1 ? matches[0] : nil
         }
         if let foregroundPID, let foreground = candidates.first(where: { $0.pid == foregroundPID }) { return foreground }
@@ -47,8 +60,8 @@ struct NativeAutomationPermissionChecker: AutomationPermissionChecking {
             }
             let candidates = NSRunningApplication.runningApplications(withBundleIdentifier: "com.google.Chrome")
                 .compactMap { app -> PermissionBrowserIdentity? in
-                    guard !app.isTerminated, let launch = app.launchDate else { return nil }
-                    return .init(pid: app.processIdentifier, launched: launch)
+                    guard let process = ChromeProcessIdentity.read(pid: app.processIdentifier) else { return nil }
+                    return .init(process: process)
                 }
             guard !candidates.isEmpty else { return (.browserNotRunning, nil) }
             let chosen = PermissionBrowserIdentity.select(candidates,
@@ -60,9 +73,7 @@ struct NativeAutomationPermissionChecker: AutomationPermissionChecking {
         return await withCheckedContinuation { continuation in
             Self.queue.async {
                 func stillSameProcess() -> Bool {
-                    guard let running = NSRunningApplication(processIdentifier: identity.pid) else { return false }
-                    return !running.isTerminated && running.bundleIdentifier == "com.google.Chrome"
-                        && running.launchDate == identity.launched
+                    identity.process?.isCurrent() == true
                 }
                 guard stillSameProcess() else { continuation.resume(returning: .browserNotRunning); return }
                 let address = NSAppleEventDescriptor(processIdentifier: identity.pid)
