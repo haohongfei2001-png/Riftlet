@@ -497,6 +497,12 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
                     try await Task.sleep(nanoseconds: 700_000_000)
                     try await self.visualWindows?.prepareEvidencePage()
                     if CommandLine.arguments.contains("--visual-last-page") { self.rift?.showLatest() }
+                    if let i = CommandLine.arguments.firstIndex(of: "--r2-page"), i + 1 < CommandLine.arguments.count,
+                       let page = Int(CommandLine.arguments[i + 1]), page >= 0, page <= 16,
+                       let rift = self.rift {
+                        let offset = page * rift.configuration.visibleCountPreference
+                        if self.records.indices.contains(offset) { rift.showAsset(self.records[offset].id) }
+                    }
                     if let index = CommandLine.arguments.firstIndex(of: "--visual-preview-index"),
                        index + 1 < CommandLine.arguments.count,
                        let ordinal = Int(CommandLine.arguments[index + 1]),

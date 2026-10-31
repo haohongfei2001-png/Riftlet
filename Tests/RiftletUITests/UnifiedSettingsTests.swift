@@ -224,7 +224,13 @@ final class UnifiedSettingsTests: XCTestCase {
             scroll.scrollerStyle = style
             var expectedWidth: CGFloat?
             var overflow: [Bool] = []
-            for height in [CGFloat(480), CGFloat(700), CGFloat(520)] {
+            // R2 adds geometry sliders and six positions. Derive the fitting
+            // height from the actual document instead of the old 700pt form.
+            window.contentView?.layoutSubtreeIfNeeded()
+            let documentHeight = try XCTUnwrap(scroll.documentView).frame.height
+            let chromeHeight = window.frame.height - scroll.contentView.bounds.height
+            let fittingHeight = documentHeight + chromeHeight + 40
+            for height in [CGFloat(480), fittingHeight, CGFloat(520)] {
                 var frame = window.frame; frame.size.height = height
                 window.setFrame(frame, display: true)
                 window.contentView?.layoutSubtreeIfNeeded()

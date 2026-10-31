@@ -22,7 +22,8 @@ final class QuietEdgeCameraLayoutTests: XCTestCase {
         let anchor = CGPoint(x: 24, y: 770)
         let folded = try XCTUnwrap(ScreenshotEntryLayout.avoidingInputs(screenFrame: frame,
             visibleFrame: frame, anchor: anchor, inputs: [], expanded: false))
-        XCTAssertEqual(folded.anchor, anchor)
+        XCTAssertEqual(folded.anchor.y, anchor.y)
+        XCTAssertEqual(folded.entryFrame.minX, ScreenshotEntryConfiguration().screenPadding)
         XCTAssertEqual(folded.railFrame.height, 36)
         let expanded = try XCTUnwrap(ScreenshotEntryLayout.avoidingInputs(screenFrame: frame,
             visibleFrame: frame, anchor: anchor, inputs: [], expanded: true))

@@ -44,6 +44,35 @@ final class RiftLifecycleTests: XCTestCase {
         XCTAssertEqual(Set(panel.diagnosticSnapshot.rows.map(\.assetID)),Set([e.id,f.id]))
     }
 
+    @MainActor func testRefillRequiresDoubleClickDeadlineAndContinuousOutsideDwell() throws {
+        _ = NSApplication.shared
+        guard !NSScreen.screens.isEmpty else { throw XCTSkip("No AppKit display") }
+        var c=RiftConfiguration();c.swallowDuration=0;c.shiftDuration=0
+        let panel=RiftPanelController(mediaDirectory:FileManager.default.temporaryDirectory,configuration:c,onSelect:{_ in})
+        defer{panel.close()}
+        let a=record(1),b=record(2)
+        panel.render([a,b])
+        let oldFirst=try XCTUnwrap(panel.diagnosticSnapshot.rows.first).frame
+        let oldSecond=try XCTUnwrap(panel.diagnosticSnapshot.rows.last).frame
+        panel.render([record(1,image:a.image,status:.unknown,visibility:.swallowed,reason:.uploadStarted),b])
+        let d=panel.refillProtectionDeadline
+        let outside=CGPoint(x:-1_000_000,y:-1_000_000),inside=CGPoint(x:oldSecond.midX,y:oldSecond.midY)
+        panel.evaluateRefillBoundary(now:d-1,pointer:outside)
+        panel.evaluateRefillBoundary(now:d-0.01,pointer:outside)
+        XCTAssertEqual(panel.diagnosticSnapshot.rows.first?.frame,oldSecond,"Outside dwell cannot bypass the native double-click deadline")
+        panel.setDetailPresented(true)
+        panel.evaluateRefillBoundary(now:d+1,pointer:outside)
+        XCTAssertEqual(panel.diagnosticSnapshot.rows.first?.frame,oldSecond)
+        panel.setDetailPresented(false)
+        panel.evaluateRefillBoundary(now:d+2,pointer:outside)
+        panel.evaluateRefillBoundary(now:d+2.2,pointer:inside)
+        panel.evaluateRefillBoundary(now:d+2.3,pointer:outside)
+        panel.evaluateRefillBoundary(now:d+2.64,pointer:outside)
+        XCTAssertEqual(panel.diagnosticSnapshot.rows.first?.frame,oldSecond,"Re-entry resets the continuous outside dwell")
+        panel.evaluateRefillBoundary(now:d+2.66,pointer:outside)
+        XCTAssertEqual(panel.diagnosticSnapshot.rows.first?.frame.origin,oldFirst.origin)
+    }
+
     func testVisibilityIsIndependentOfBackendStatusAndOrdinalsStayContinuous() {
         let records = [record(1), record(2, status: .transferring, visibility: .swallowed),
                        record(3, status: .unknown, visibility: .swallowed),
@@ -175,6 +204,7 @@ final class RiftLifecycleTests: XCTestCase {
         XCTAssertTrue(panel.diagnosticSnapshot.rows.isEmpty)
         XCTAssertFalse(panel.diagnosticSnapshot.isTransitioning)
         panel.render([record(image: first.image, status: .failed)])
+        advanceQuietEdgeRefill(panel)
         XCTAssertEqual(panel.diagnosticSnapshot.rows.map(\.assetID), [first.id])
     }
 
@@ -245,7 +275,7 @@ final class RiftLifecycleTests: XCTestCase {
         panel.render([record(image: first.image, status: .transferring,
                              visibility: .swallowed, reason: .uploadStarted)])
         let inwardExit = imageLayer.affineTransform().tx
-        XCTAssertGreaterThan(inwardExit, CGFloat(configuration.inwardDistance))
+        XCTAssertGreaterThan(abs(inwardExit), CGFloat(configuration.inwardDistance))
         try await Task.sleep(nanoseconds: 45_000_000)
         XCTAssertEqual(imageLayer.affineTransform().tx, inwardExit,
                        "The older press-release timer must not animate back out of the rift")
@@ -263,8 +293,8 @@ final class RiftLifecycleTests: XCTestCase {
         var revived = records
         revived[0] = record(image: records[0].image, status: .failed, reason: .safeFailure)
         panel.render(revived)
-        XCTAssertEqual(panel.diagnosticSnapshot.rows.first?.assetID, records[0].id,
-                       "An old safe failure must not be mistaken for a newly captured last item")
+        XCTAssertEqual(panel.diagnosticSnapshot.rows.first?.assetID, records[1].id,
+                       "Rebirth before the visible anchor cannot silently move the user's current page")
         panel.showAsset(records[99].id)
         XCTAssertTrue(panel.diagnosticSnapshot.rows.contains { $0.assetID == records[99].id })
         panel.showAsset(records[0].id)

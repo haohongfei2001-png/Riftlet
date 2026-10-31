@@ -350,7 +350,9 @@ final class ScreenshotEntryControllerTests: XCTestCase {
         let f=screen.visibleFrame
         let a=CGPoint(x:f.midX,y:f.midY),b=CGPoint(x:f.midX-80,y:f.midY),c=CGPoint(x:f.midX+80,y:f.midY)
         controller.configure(screen:screen,anchor:a)
+        controller.setExpanded(true, animated:false) // Expanded controls are actually visible; optics hides an idle camera away from pointer.
         let input=try view(controller,slot:.anchor), panel=try XCTUnwrap(input.window)
+        XCTAssertTrue(panel.isVisible); XCTAssertFalse(panel.ignoresMouseEvents)
         input.mouseDown(with:try event(.leftMouseDown,window:panel,time:10))
         let original=controller.diagnosticSnapshot.controls.map(\.frame)
         controller.configure(screen:screen,anchor:b)

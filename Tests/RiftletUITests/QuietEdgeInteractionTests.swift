@@ -68,7 +68,7 @@ final class QuietEdgeInteractionTests: XCTestCase {
             guard window.isVisible, let button = window.contentView as? NSButton else { return false }
             return ["上一组截图", "下一组截图"].contains(button.toolTip ?? "")
         }
-        XCTAssertEqual(arrows.count, 2)
+        XCTAssertEqual(arrows.count, 1, "First R2 page has only its downward arrow")
         panel.setCaptureSessionActive(true)
         XCTAssertTrue(arrows.allSatisfy { $0.level.rawValue == NSWindow.Level.statusBar.rawValue + 1 })
         panel.setCaptureSuppressed(true)
@@ -217,15 +217,15 @@ final class QuietEdgeInteractionTests: XCTestCase {
         panel.render(input)
         let rows = panel.diagnosticSnapshot.rows
         let owner = try XCTUnwrap(rows.first { $0.assetID == input[0].id })
-        let leading = try XCTUnwrap(rows.flatMap { [$0.imageInputFrame.minX, $0.numberInputFrame.minX] }.min())
-        XCTAssertLessThan(leading, owner.frame.minX, "The wider neighbor must exercise the original overlap")
+        let leading = try XCTUnwrap(rows.flatMap { [$0.imageInputFrame.maxX, $0.numberInputFrame.maxX] }.max())
+        XCTAssertGreaterThan(leading, owner.frame.maxX, "The wider neighbor must exercise inward preview clearance on the default left edge")
         let before = Set(NSApp.windows.filter(\.isVisible).map(\.windowNumber))
         let content = try XCTUnwrap(try window(owner.windowNumber).contentView)
         let action = try XCTUnwrap(content.accessibilityCustomActions()?.first)
         XCTAssertTrue(action.handler?() == true)
         try await eventually { NSApp.windows.contains { $0.isVisible && !before.contains($0.windowNumber) } }
         let preview = try XCTUnwrap(NSApp.windows.first { $0.isVisible && !before.contains($0.windowNumber) })
-        XCTAssertLessThanOrEqual(preview.frame.maxX, leading - 12)
+        XCTAssertGreaterThanOrEqual(preview.frame.minX, leading + 12)
         XCTAssertTrue(preview.ignoresMouseEvents); XCTAssertFalse(preview.canBecomeKey)
         for row in rows {
             XCTAssertFalse(preview.frame.intersects(row.imageInputFrame))
@@ -239,7 +239,9 @@ final class QuietEdgeInteractionTests: XCTestCase {
         defer { panel.close() }
         let input = records(3); panel.render(input)
         let started = swallowed(input[0]); panel.render([started, input[1], input[2]])
-        try await eventually { panel.diagnosticSnapshot.rows.count == 2 && panel.diagnosticSnapshot.isTransitioning }
+        try await eventually { panel.diagnosticSnapshot.rows.count == 2 && !panel.diagnosticSnapshot.isTransitioning }
+        advanceQuietEdgeRefill(panel)
+        XCTAssertTrue(panel.diagnosticSnapshot.isTransitioning)
         let row = try XCTUnwrap(panel.diagnosticSnapshot.rows.first { $0.assetID == input[1].id })
         let native = try window(row.imageInputWindowNumber), view = try XCTUnwrap(native.contentView)
         let originalPoint = CGPoint(x: native.frame.midX, y: native.frame.midY)
@@ -270,11 +272,13 @@ final class QuietEdgeInteractionTests: XCTestCase {
         let changed = input.map { $0.id == removed ? swallowed($0) : $0 }
         panel.render(changed)
         try await eventually {
-            !panel.diagnosticSnapshot.rows.contains { $0.assetID == removed } && panel.diagnosticSnapshot.isTransitioning
+            !panel.diagnosticSnapshot.rows.contains { $0.assetID == removed } && !panel.diagnosticSnapshot.isTransitioning
         }
+        advanceQuietEdgeRefill(panel)
+        XCTAssertTrue(panel.diagnosticSnapshot.isTransitioning)
         for _ in 0..<3 {
             let moving = try XCTUnwrap(panel.diagnosticSnapshot.rows.first { $0.assetID == input[9].id })
-            XCTAssertEqual(moving.imageClipFrame.maxX, original.imageClipFrame.maxX, accuracy: 0.6,
+            XCTAssertEqual(moving.imageClipFrame.minX, original.imageClipFrame.minX, accuracy: 0.6,
                 "Changing 10 to 9 must not translate the image's occlusion plane horizontally")
             XCTAssertEqual(moving.ordinal, 10, "The old number is retained until the geometric handoff")
             try await Task.sleep(nanoseconds: 20_000_000)
@@ -282,6 +286,6 @@ final class QuietEdgeInteractionTests: XCTestCase {
         try await eventually { !panel.diagnosticSnapshot.isTransitioning }
         let finished = try XCTUnwrap(panel.diagnosticSnapshot.rows.first { $0.assetID == input[9].id })
         XCTAssertEqual(finished.ordinal, 9)
-        XCTAssertEqual(finished.imageClipFrame.maxX, original.imageClipFrame.maxX, accuracy: 0.6)
+        XCTAssertEqual(finished.imageClipFrame.minX, original.imageClipFrame.minX, accuracy: 0.6)
     }
 }

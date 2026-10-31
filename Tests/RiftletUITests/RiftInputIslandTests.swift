@@ -122,6 +122,9 @@ final class RiftInputIslandTests: XCTestCase {
         XCTAssertEqual(shiftedImage.frame, after.imageInputFrame)
         XCTAssertTrue(shiftedImage.frame.contains(CGPoint(x: after.imageClipFrame.midX, y: after.imageClipFrame.midY)))
         XCTAssertTrue(shiftedNumber.frame.contains(CGPoint(x: after.numberFrame.midX, y: after.numberFrame.midY)))
+        advanceQuietEdgeRefill(panel)
+        try await Task.sleep(nanoseconds: 50_000_000)
+        // The deferred configuration is applied only after the same safe boundary.
         let oldWindows = [shiftedImage, shiftedNumber, try window(after.windowNumber)]
         var config = panel.configuration; config.fitWidth += 5
         try panel.updateConfiguration(config)

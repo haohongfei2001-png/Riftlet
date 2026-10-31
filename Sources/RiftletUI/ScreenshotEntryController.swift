@@ -793,13 +793,21 @@ public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
               let text = captureStatusText, let layout, let screen = suppliedScreen else {
             captureStatusPanel.orderOut(nil); return
         }
-        // Stay to the left of every real queue/entry input island. A narrow
-        // desktop falls back to the X's AX help instead of obscuring controls.
+        // Use the inward free column on either edge. A left-side queue must
+        // not reuse the old right-only status rectangle over its controls.
         let safe = screen.visibleFrame.insetBy(dx: 12, dy: 12)
-        let leading = (queueFrames + layout.controlFrames).map(\.minX).min() ?? safe.maxX
-        let right = min(safe.maxX, leading - 12)
-        let width = min(CGFloat(240), right - safe.minX)
+        let obstacles = queueFrames + layout.controlFrames
+        let leading = obstacles.map(\.minX).min() ?? safe.maxX
+        let trailing = obstacles.map(\.maxX).max() ?? safe.minX
+        let leftEnd = min(safe.maxX, leading - 12)
+        let rightStart = max(safe.minX, trailing + 12)
+        let leftWidth = min(CGFloat(240),leftEnd - safe.minX)
+        let rightWidth = min(CGFloat(240),safe.maxX - rightStart)
+        let preferRight = layout.anchor.x < safe.midX
+        let useRight = preferRight ? rightWidth >= 144 : leftWidth < 144 && rightWidth >= 144
+        let width = useRight ? rightWidth : leftWidth
         guard width >= 144 else { captureStatusPanel.orderOut(nil); return }
+        let x = useRight ? rightStart : leftEnd - width
         let paragraph = NSMutableParagraphStyle()
         paragraph.minimumLineHeight = 18; paragraph.maximumLineHeight = 18
         paragraph.lineBreakMode = .byWordWrapping
@@ -811,7 +819,7 @@ public final class ScreenshotEntryController: NSObject, NSMenuDelegate {
         let height = ceil(max(18, measured)) + 24
         guard height <= safe.height else { captureStatusPanel.orderOut(nil); return }
         let y = max(safe.minY, min(layout.anchor.y - height / 2, safe.maxY - height))
-        captureStatusPanel.setFrame(CGRect(x: right - width, y: y, width: width, height: height), display: true)
+        captureStatusPanel.setFrame(CGRect(x: x, y: y, width: width, height: height), display: true)
         captureStatusLabel.attributedStringValue = attributed
         captureStatusLabel.frame = CGRect(x: 12, y: 12, width: width - 24, height: height - 24)
         if !captureStatusPanel.isVisible { captureStatusPanel.orderFrontRegardless() }

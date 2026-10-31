@@ -504,6 +504,7 @@ public final class RiftPanelController {
     }
     private var committingRefill = false
     private var refillNotBefore: TimeInterval = 0
+    var refillProtectionDeadline: TimeInterval { refillNotBefore }
     private func deferRefill(_ records: [AssetRecord]) {
         // Tombstones preserve slot geometry, never a decorative line to an absent image.
         let frames = rowWindows.values.map { row in
@@ -521,12 +522,17 @@ public final class RiftPanelController {
         }
     }
     private func tryRefill() {
+        evaluateRefillBoundary(now: ProcessInfo.processInfo.systemUptime, pointer: NSEvent.mouseLocation)
+    }
+
+    /// Same boundary evaluator for production timer and deterministic native tests.
+    /// It cannot authorize input, change a receipt or create a queue operation.
+    func evaluateRefillBoundary(now: TimeInterval, pointer: CGPoint) {
         guard !closed, let records = pendingRefillRecords else { refillTimer?.invalidate(); refillTimer = nil; return }
-        refreshHoverFromPointer()
+        refreshHoverFromPointer(point: pointer)
         let envelope = pagerLayout?.rows.reduce(CGRect.null) { $0.union($1.frame) } ?? .null
-        let now = ProcessInfo.processInfo.systemUptime
         guard !gate.isHolding, !transitioning, !detailPresented, !interaction.snapshot.blocksAutomaticArchive,
-              !envelope.contains(NSEvent.mouseLocation) else { refillOutsideSince = nil; return }
+              !envelope.contains(pointer) else { refillOutsideSince = nil; return }
         if refillOutsideSince == nil { refillOutsideSince = now }
         guard now >= refillNotBefore, now - (refillOutsideSince ?? now) >= 0.35 else { return }
         pendingRefillRecords = nil; refillTimer?.invalidate(); refillTimer = nil
@@ -964,12 +970,13 @@ public final class RiftPanelController {
             let visible = Set(records.filter { $0.visibility == .visible }.map(\.id))
             let removed = rowWindows.keys.filter { !visible.contains($0) }
             if !removed.isEmpty {
+                cancelDecorations(reason: .geometryChanged)
                 for id in removed { rowWindows.removeValue(forKey: id)?.close() }
                 deferRefill(records); return
             }
         }
         if swallowed.isEmpty, pendingRefillRecords != nil, !committingRefill { return }
-        guard !swallowed.isEmpty else { apply(records); return }
+        guard !swallowed.isEmpty else { apply(records, animateShift: committingRefill); return }
         cancelDecorations()
         let token = generation
         let swallowTime = duration(configuration.swallowDuration)
@@ -1258,10 +1265,9 @@ public final class RiftPanelController {
             uptime: ProcessInfo.processInfo.systemUptime, mode: effectiveArrivalMode, reason: reason))
     }
 
-    private func refreshHoverFromPointer() {
+    private func refreshHoverFromPointer(point: CGPoint = NSEvent.mouseLocation) {
         // Event/geometry driven only: also catches a newly shown row underneath a
         // stationary pointer. This is not a global mouse polling timer.
-        let point = NSEvent.mouseLocation
         hoveredIDs = userHidden ? [] : Set(rowWindows.compactMap { id, row in
             row.panel.isVisible && [row.imageInput, row.numberInput].contains(where: {
                 $0.isVisible && $0.frame.contains(point)

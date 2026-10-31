@@ -370,7 +370,9 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         zoom.selectedSegment = 0; zoom.identifier = .init("history.preview.zoom"); zoom.setAccessibilityLabel("原图缩放：适合、100% 逻辑尺寸、200%")
         let footer = NSStackView(views: [status, zoom, reveal]); footer.spacing = 12
         let scroll = NSScrollView(); scroll.hasHorizontalScroller = true; scroll.hasVerticalScroller = true
-        scroll.autohidesScrollers = true; scroll.documentView = view; scroll.drawsBackground = false
+        // Keep native gutters stable: hiding a legacy scroller after the
+        // decoded canvas fits otherwise changes the very viewport used to load it.
+        scroll.autohidesScrollers = false; scroll.documentView = view; scroll.drawsBackground = false
         previewScroll = scroll; previewZoom = nil
         footer.setContentHuggingPriority(.defaultHigh, for: .vertical)
         footer.setContentCompressionResistancePriority(.required, for: .vertical)

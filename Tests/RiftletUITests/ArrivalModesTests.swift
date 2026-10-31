@@ -172,7 +172,7 @@ final class ArrivalModesTests: XCTestCase {
         XCTAssertEqual(panel.diagnosticSnapshot.rows.map(\.assetID), [record.id], "A press alone must never swallow")
         XCTAssertEqual(try row(panel, id: record.id).0.imageInputFrame, before.imageInputFrame,
                        "The press decoration must not move the original input target")
-        XCTAssertGreaterThan(image.affineTransform().tx, 0, "None disables arrival, not normal press feedback")
+        XCTAssertGreaterThan(abs(image.affineTransform().tx), 0, "None disables arrival, not normal press feedback")
         try await eventually("The press response did not return independently of an upload result", diagnostics: {
             "modelX=\(image.affineTransform().tx), presentationX=\(String(describing: image.presentation()?.affineTransform().tx)), "
                 + "animations=\(image.animationKeys() ?? []), interaction=\(panel.interactionSnapshot)"
@@ -206,6 +206,8 @@ final class ArrivalModesTests: XCTestCase {
         try await eventually("Committed swallow and queue compaction did not settle") {
             panel.diagnosticSnapshot.rows.map(\.assetID) == [second.id] && !panel.diagnosticSnapshot.isTransitioning
         }
+        advanceQuietEdgeRefill(panel)
+        try await eventually("Safe refill did not settle") { !panel.diagnosticSnapshot.isTransitioning }
         XCTAssertEqual(try row(panel, id: second.id).0.frame.origin, firstOrigin)
         try assertStatic(panel, id: second.id)
         XCTAssertEqual(phases.map(\.phase), [.swallowScheduled, .swallowActualStart, .swallowClose])
@@ -217,6 +219,10 @@ final class ArrivalModesTests: XCTestCase {
         XCTAssertTrue(selected.isEmpty, "Rendering observations never authorizes an input")
         let failed = state(first, status: .failed, visibility: .visible, reason: .safeFailure, revision: 2)
         panel.render([failed, second])
+        advanceQuietEdgeRefill(panel)
+        try await eventually("Rebirth layout must settle before ordinary click") { !panel.diagnosticSnapshot.isTransitioning }
+        // Both items fit R2 capacity, so the complete remaining queue is visible.
+        panel.showAsset(first.id)
         try assertStatic(panel, id: first.id)
         XCTAssertEqual(panel.diagnosticSnapshot.rows.map(\.assetID), [first.id, second.id])
         let reborn = try row(panel, id: first.id)
@@ -262,6 +268,7 @@ final class ArrivalModesTests: XCTestCase {
         }
         XCTAssertEqual(phases.map(\.phase), [.swallowScheduled, .swallowActualStart, .swallowClose])
         panel.render([state(first, status: .failed, visibility: .visible, reason: .safeFailure, revision: 2)])
+        advanceQuietEdgeRefill(panel)
         try assertStatic(panel, id: first.id)
         XCTAssertEqual(panel.arrivalMode, .magnet)
     }
@@ -349,7 +356,8 @@ final class ArrivalModesTests: XCTestCase {
             if let candidate { panel.resolveArrivalSource(try source(screen), assetID: records[index].id, token: candidate) }
             panel.render(Array(records.prefix(index + 1)))
             XCTAssertLessThanOrEqual(panel.arrivalDiagnostic.overlayCount, 1)
-            XCTAssertTrue(panel.diagnosticSnapshot.rows.contains { $0.assetID == records[index].id })
+            XCTAssertEqual(panel.diagnosticSnapshot.rows.first?.assetID, records[0].id, "R2 new captures never auto-page the visible anchor")
+            XCTAssertEqual(panel.diagnosticSnapshot.rows.count,min(index+1,configuration.visibleCountPreference))
         }
         XCTAssertEqual(panel.arrivalDiagnostic.overlayCount, 0, "A rapid burst settles instead of leaving many sprites")
         for record in records {
@@ -476,8 +484,10 @@ final class ArrivalModesTests: XCTestCase {
         panel.render([started])
         XCTAssertTrue(panel.diagnosticSnapshot.isTransitioning)
         panel.render([started, second])
-        XCTAssertEqual(panel.diagnosticSnapshot.rows.map(\.assetID), [second.id])
+        XCTAssertTrue(panel.diagnosticSnapshot.rows.isEmpty, "New capture waits for safe tombstone refill")
         XCTAssertFalse(panel.diagnosticSnapshot.isTransitioning)
+        advanceQuietEdgeRefill(panel)
+        XCTAssertEqual(panel.diagnosticSnapshot.rows.map(\.assetID), [second.id])
         XCTAssertTrue(try row(panel, id: second.id).2.accessibilityPerformPress())
     }
 
@@ -625,6 +635,9 @@ final class ArrivalModesTests: XCTestCase {
         panel.render([state(first, status: .pending, visibility: .removed, reason: .userRemoved), second])
         XCTAssertEqual(panel.arrivalDiagnostic.overlayCount, 0)
         XCTAssertNil(panel.arrivalDiagnostic.activeAssetID)
+        XCTAssertEqual(try row(panel,id:second.id).0.frame,previousSecondPosition,"Retired slot is protected until the safe boundary")
+        advanceQuietEdgeRefill(panel)
+        try await eventually("Refill after cancelled decoration did not settle") { !panel.diagnosticSnapshot.isTransitioning }
         XCTAssertEqual(try row(panel, id: second.id).0.frame, firstPosition)
         try assertStatic(panel, id: second.id)
     }

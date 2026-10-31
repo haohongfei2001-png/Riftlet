@@ -1,0 +1,30 @@
+{
+  "parent": "17ea01567cae52b0ef9e04dc643e97ffd5032c5b",
+  "firstNativeRun": 41173874025,
+  "firstNativeResult": "FAIL: ARM and Intel runtime assertions; retained as actual failure",
+  "feedbackRun": 41173874267,
+  "feedbackTests": "PASS; source admission remains separately blocked",
+  "sourceReview": "non-author PASS for viewport, status placement, production refill evaluator and R2 semantic test changes",
+  "releaseBuild": "PASS",
+  "fixes": [
+    "stable preview viewport during decode",
+    "left/right status HUD avoids queue and camera input",
+    "retire obsolete decorative flight on removed-row geometry",
+    "safe refill retains normal shift animation"
+  ],
+  "testCorrections": [
+    "R2 left/right direction",
+    "first-page downward arrow only",
+    "new capture does not auto-page",
+    "safe refill dwell boundary",
+    "actually visible camera press precondition",
+    "settings actual document fitting height"
+  ],
+  "hashes": {
+    "Sources/RiftletUI/RiftHistoryController.swift": "2cb2d0977fc559e5e098e056428d6a3f8e48b6ff3bb0dca45ae778151968d8e2",
+    "Sources/RiftletUI/RiftPanelController.swift": "0ce1a44ededd7589e5e11900d5dbc5ba8193a00f698c7889c1c4e61049baec2f",
+    "Sources/RiftletUI/ScreenshotEntryController.swift": "bf09fe192be6f30df7ce57d7969c90706031cb655fa91f9bed5f7f84f844154d",
+    "scripts/capture-quiet-edge-r2-evidence.py": "2a3c29d69adb2a041f15b76cdcf4ca55423ddb68058e55b7dff5be0c021cdb04"
+  },
+  "scope": "No local GUI, Chrome or user data; no source/admission gate bypass"
+}
