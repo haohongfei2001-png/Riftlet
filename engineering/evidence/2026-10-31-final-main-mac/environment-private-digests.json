@@ -1,0 +1,38 @@
+{
+  "account-check-read.jsonl": {
+    "bytes": 341,
+    "sha256": "4a750ed8a459070988f39b980f4a25127bcba45309f4cd5a1dac110096e0126f"
+  },
+  "account-check-start.jsonl": {
+    "bytes": 315,
+    "sha256": "42f9896e75a19275f1e4c06ca7ac9228bd2c33c45d29057e72a43ce786d69b41"
+  },
+  "create-new-window.jsonl": {
+    "bytes": 551,
+    "sha256": "6db91fea1c2c2cbd36270d4bb2f6cfdefaadfa72ddbfec951a9dcc86633c0590"
+  },
+  "front-observe.jsonl": {
+    "bytes": 207,
+    "sha256": "7b77cd829ab4d93001f6864ed1aace5c8604adfb91d6713b1c6770e15028bd8a"
+  },
+  "label-owned-page.jsonl": {
+    "bytes": 255,
+    "sha256": "7d3235d8e4d8aad301fd5df79a51d1bd017283c7b9946ac9e87ce0cdaed7383c"
+  },
+  "protected-state-readback.json": {
+    "bytes": 645,
+    "sha256": "671706e965219153e344ddb5fe7014a5eeac59fa43a1a4355354288a9a5958d6"
+  },
+  "qualify-account-readonly.jsonl": {
+    "bytes": 345,
+    "sha256": "d46ba2369b9428c47b74a373ace56c886a0e51356882cc2faf518c1270b1ee37"
+  },
+  "qualify-new-page.jsonl": {
+    "bytes": 524,
+    "sha256": "a23699adabecd35aebd117ac74e22386235d0d41c91eb8526ecde0f9d9f4b0ec"
+  },
+  "remove-owned-account-diagnostic.jsonl": {
+    "bytes": 281,
+    "sha256": "eaca3c76d09ad5a78deba8546b9ac77b8ec806468561d7030f7d26adce640e5d"
+  }
+}
