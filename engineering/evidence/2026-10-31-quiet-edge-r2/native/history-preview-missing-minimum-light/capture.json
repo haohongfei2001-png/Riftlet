@@ -1,0 +1,127 @@
+{
+  "appearance" : "NSAppearanceNameAqua",
+  "captureKind" : "single-product-window",
+  "checkout" : "50a362a995381f5f50d26d13068b5f87716dd4e5",
+  "crossApplicationFocus" : "NOT_RUN",
+  "events" : [
+    {
+      "boundaryUptime" : 568.79884937500003,
+      "event" : "native_arrival_boundary",
+      "mode" : "none",
+      "phase" : "imageDecoded",
+      "reason" : "none",
+      "receiptEvidence" : false,
+      "uptime" : 568.79888791666667
+    },
+    {
+      "boundaryUptime" : 568.79948095833333,
+      "event" : "native_arrival_boundary",
+      "mode" : "none",
+      "phase" : "imageDecoded",
+      "reason" : "none",
+      "receiptEvidence" : false,
+      "uptime" : 568.79948975000002
+    },
+    {
+      "boundaryUptime" : 568.79969258333335,
+      "event" : "native_arrival_boundary",
+      "mode" : "none",
+      "phase" : "imageDecoded",
+      "reason" : "none",
+      "receiptEvidence" : false,
+      "uptime" : 568.79969954166666
+    },
+    {
+      "displayCommitWaitSeconds" : 0.055511041666704841,
+      "event" : "native_evidence_supplemental",
+      "failureVisible" : true,
+      "fixturePixelHeight" : 768,
+      "fixturePixelWidth" : 96,
+      "fixtureSequence" : 4,
+      "imageAbsent" : true,
+      "imageLoaded" : false,
+      "networkEnabled" : false,
+      "parentOrderedOut" : true,
+      "physical" : false,
+      "previewDisplayComplete" : true,
+      "previewViewportPoints" : [
+        328,
+        164
+      ],
+      "previewWindowNumber" : 2635,
+      "receiptEvidence" : false,
+      "softwareSelection" : true,
+      "supplementalCase" : "history-preview-missing",
+      "titleMatches" : true,
+      "uptime" : 570.18799437500002,
+      "windowHeight" : 280,
+      "windowWidth" : 360
+    }
+  ],
+  "fixtureLayerIsolation" : true,
+  "frames" : [
+    {
+      "backingScaleFactor" : 1,
+      "bytes" : 19111,
+      "captureEndedUptime" : 570.19190658333332,
+      "captureStartedUptime" : 570.18822675000001,
+      "checkout" : "50a362a995381f5f50d26d13068b5f87716dd4e5",
+      "elapsedSeconds" : 1.5956668333333255,
+      "file" : "native.png",
+      "method" : "CGImage(windowListFromArrayScreenBounds:windowArray:imageOption:); only NSApp-owned windows",
+      "name" : "native",
+      "ownWindowNumbersFrontToBack" : [
+        2635
+      ],
+      "physicalInput" : "NOT_RUN",
+      "pixels" : [
+        360,
+        280
+      ],
+      "pixelScaleX" : 1,
+      "pixelScaleY" : 1,
+      "pngProcessing" : "One awaited background task; immutable original self-window image pair",
+      "pngProcessingOnMainThread" : false,
+      "points" : [
+        360,
+        280
+      ],
+      "productWindowCount" : 1,
+      "receiptEvidence" : false,
+      "resized" : false,
+      "selectedOwnWindowCount" : 1,
+      "sha256" : "93cb644758011c6aa918fc8d01ed6808872c9321c372c90a66c3bc851f013b57",
+      "source" : "057a0071791d654ecfe2b7840cf86904dd600df8",
+      "status" : "CAPTURED_NATIVE_WINDOWSERVER",
+      "syntheticOnly" : true,
+      "windowOrdering" : "NSApplication.enumerateWindows(orderedFrontToBack)"
+    }
+  ],
+  "frameTiming" : "Measured capture timestamps; variable cadence; capture overhead included",
+  "helperReducedMotionOverride" : false,
+  "os" : "Version 15.8.2 (Build 24H232)",
+  "otherApplicationPixelsCaptured" : false,
+  "performanceBenchmark" : false,
+  "physicalInput" : "NOT_RUN",
+  "productionWindowOrder" : "NOT_RUN",
+  "realScreenshot" : "NOT_RUN",
+  "realUpload" : "NOT_RUN",
+  "schemaVersion" : 1,
+  "screenCapturePermissionRequested" : false,
+  "source" : "057a0071791d654ecfe2b7840cf86904dd600df8",
+  "status" : "CAPTURED_NATIVE_WINDOWSERVER",
+  "supplementalCase" : "history-preview-missing",
+  "supplementalStage" : "ready",
+  "syntheticOnly" : true,
+  "systemAccessibilityAtEnd" : {
+    "increaseContrast" : false,
+    "reduceMotion" : false,
+    "reduceTransparency" : false
+  },
+  "systemAccessibilityAtStart" : {
+    "increaseContrast" : false,
+    "reduceMotion" : false,
+    "reduceTransparency" : false
+  },
+  "visualVerdict" : "REQUIRES_INDEPENDENT_REVIEW"
+}

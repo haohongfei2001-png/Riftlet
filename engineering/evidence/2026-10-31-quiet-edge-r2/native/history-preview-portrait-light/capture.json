@@ -1,0 +1,181 @@
+{
+  "appearance" : "NSAppearanceNameAqua",
+  "captureKind" : "single-product-window",
+  "checkout" : "50a362a995381f5f50d26d13068b5f87716dd4e5",
+  "crossApplicationFocus" : "NOT_RUN",
+  "events" : [
+    {
+      "boundaryUptime" : 565.26853858333334,
+      "event" : "native_arrival_boundary",
+      "mode" : "none",
+      "phase" : "imageDecoded",
+      "reason" : "none",
+      "receiptEvidence" : false,
+      "uptime" : 565.26860145833336
+    },
+    {
+      "boundaryUptime" : 565.269768,
+      "event" : "native_arrival_boundary",
+      "mode" : "none",
+      "phase" : "imageDecoded",
+      "reason" : "none",
+      "receiptEvidence" : false,
+      "uptime" : 565.26978841666676
+    },
+    {
+      "boundaryUptime" : 565.2713487916667,
+      "event" : "native_arrival_boundary",
+      "mode" : "none",
+      "phase" : "imageDecoded",
+      "reason" : "none",
+      "receiptEvidence" : false,
+      "uptime" : 565.27137379166675
+    },
+    {
+      "boundaryUptime" : 565.33108554166665,
+      "event" : "native_arrival_boundary",
+      "mode" : "none",
+      "phase" : "rowAvailable",
+      "reason" : "none",
+      "receiptEvidence" : false,
+      "uptime" : 565.33110291666674
+    },
+    {
+      "boundaryUptime" : 565.33152433333339,
+      "event" : "native_arrival_boundary",
+      "mode" : "none",
+      "phase" : "imageDecoded",
+      "reason" : "none",
+      "receiptEvidence" : false,
+      "uptime" : 565.33153225000001
+    },
+    {
+      "boundaryUptime" : 565.33422083333335,
+      "event" : "native_arrival_boundary",
+      "mode" : "none",
+      "phase" : "rowAvailable",
+      "reason" : "none",
+      "receiptEvidence" : false,
+      "uptime" : 565.33424158333332
+    },
+    {
+      "boundaryUptime" : 565.33461325000007,
+      "event" : "native_arrival_boundary",
+      "mode" : "none",
+      "phase" : "imageDecoded",
+      "reason" : "none",
+      "receiptEvidence" : false,
+      "uptime" : 565.33462058333339
+    },
+    {
+      "boundaryUptime" : 565.33806950000007,
+      "event" : "native_arrival_boundary",
+      "mode" : "none",
+      "phase" : "rowAvailable",
+      "reason" : "none",
+      "receiptEvidence" : false,
+      "uptime" : 565.33808554166671
+    },
+    {
+      "boundaryUptime" : 565.33848295833332,
+      "event" : "native_arrival_boundary",
+      "mode" : "none",
+      "phase" : "imageDecoded",
+      "reason" : "none",
+      "receiptEvidence" : false,
+      "uptime" : 565.33849179166668
+    },
+    {
+      "displayCommitWaitSeconds" : 0.061524374999976317,
+      "event" : "native_evidence_supplemental",
+      "failureVisible" : false,
+      "fixturePixelHeight" : 768,
+      "fixturePixelWidth" : 96,
+      "fixtureSequence" : 4,
+      "imageAbsent" : false,
+      "imageLoaded" : true,
+      "networkEnabled" : false,
+      "parentOrderedOut" : true,
+      "physical" : false,
+      "previewDisplayComplete" : true,
+      "previewViewportPoints" : [
+        608,
+        392
+      ],
+      "previewWindowNumber" : 2583,
+      "receiptEvidence" : false,
+      "softwareSelection" : true,
+      "supplementalCase" : "history-preview-portrait",
+      "titleMatches" : true,
+      "uptime" : 566.56849045833337,
+      "windowHeight" : 508,
+      "windowWidth" : 640
+    }
+  ],
+  "fixtureLayerIsolation" : true,
+  "frames" : [
+    {
+      "backingScaleFactor" : 1,
+      "bytes" : 25042,
+      "captureEndedUptime" : 566.57438008333338,
+      "captureStartedUptime" : 566.56888824999999,
+      "checkout" : "50a362a995381f5f50d26d13068b5f87716dd4e5",
+      "elapsedSeconds" : 1.4859029583333268,
+      "file" : "native.png",
+      "method" : "CGImage(windowListFromArrayScreenBounds:windowArray:imageOption:); only NSApp-owned windows",
+      "name" : "native",
+      "ownWindowNumbersFrontToBack" : [
+        2583
+      ],
+      "physicalInput" : "NOT_RUN",
+      "pixels" : [
+        640,
+        508
+      ],
+      "pixelScaleX" : 1,
+      "pixelScaleY" : 1,
+      "pngProcessing" : "One awaited background task; immutable original self-window image pair",
+      "pngProcessingOnMainThread" : false,
+      "points" : [
+        640,
+        508
+      ],
+      "productWindowCount" : 1,
+      "receiptEvidence" : false,
+      "resized" : false,
+      "selectedOwnWindowCount" : 1,
+      "sha256" : "b400f21c190b8524dd5f9f63211ee84d0cb21d095ce4bf7774d59959c739363b",
+      "source" : "057a0071791d654ecfe2b7840cf86904dd600df8",
+      "status" : "CAPTURED_NATIVE_WINDOWSERVER",
+      "syntheticOnly" : true,
+      "windowOrdering" : "NSApplication.enumerateWindows(orderedFrontToBack)"
+    }
+  ],
+  "frameTiming" : "Measured capture timestamps; variable cadence; capture overhead included",
+  "helperReducedMotionOverride" : false,
+  "os" : "Version 15.8.2 (Build 24H232)",
+  "otherApplicationPixelsCaptured" : false,
+  "performanceBenchmark" : false,
+  "physicalInput" : "NOT_RUN",
+  "productionWindowOrder" : "NOT_RUN",
+  "realScreenshot" : "NOT_RUN",
+  "realUpload" : "NOT_RUN",
+  "schemaVersion" : 1,
+  "screenCapturePermissionRequested" : false,
+  "source" : "057a0071791d654ecfe2b7840cf86904dd600df8",
+  "status" : "CAPTURED_NATIVE_WINDOWSERVER",
+  "supplementalCase" : "history-preview-portrait",
+  "supplementalStage" : "ready",
+  "syntheticOnly" : true,
+  "systemAccessibilityAtEnd" : {
+    "increaseContrast" : false,
+    "reduceMotion" : false,
+    "reduceTransparency" : false
+  },
+  "systemAccessibilityAtStart" : {
+    "increaseContrast" : false,
+    "reduceMotion" : false,
+    "reduceTransparency" : false
+  },
+  "visualVerdict" : "REQUIRES_INDEPENDENT_REVIEW"
+}

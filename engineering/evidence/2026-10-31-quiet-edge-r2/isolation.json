@@ -1,0 +1,28 @@
+{
+  "base": "2bddb61a19114167b7485c392600c4b91dc62725",
+  "source": "057a0071791d654ecfe2b7840cf86904dd600df8",
+  "trees": {
+    "Sources/RiftletCore": {
+      "base": "57fb7ff08848a895cea801470ff6046363a0154b",
+      "source": "57fb7ff08848a895cea801470ff6046363a0154b"
+    },
+    "Sources/RiftletCapture": {
+      "base": "fc30cf326c54fe63da7a333fa2844468e18552d4",
+      "source": "fc30cf326c54fe63da7a333fa2844468e18552d4"
+    },
+    "Sources/RiftletAdapters": {
+      "base": "0cf92fcfed82927e4bece3ba2f21401567967674",
+      "source": "0cf92fcfed82927e4bece3ba2f21401567967674"
+    },
+    "Sources/RiftletFeedback": {
+      "base": "72eef5a0428eb58ebb7eb7dbfceb870183472ce4",
+      "source": "72eef5a0428eb58ebb7eb7dbfceb870183472ce4"
+    },
+    "Sources/RiftletFeedbackUI": {
+      "base": "e58f328a84d75db53e3d489097e208d659e0ec4a",
+      "source": "e58f328a84d75db53e3d489097e208d659e0ec4a"
+    }
+  },
+  "userData": "NOT_OPENED; no database, original media, UNKNOWN or browser session access",
+  "formalRefs": "PR1/PR15/main not mutated; independent PR23 only"
+}

@@ -2,6 +2,17 @@
 
 Baseline: formal Draft PR #1 `2bddb61a19114167b7485c392600c4b91dc62725`, read from GitHub. The design package's older edbdc7aa pin is historical. Independent branch codex/riftlet-quiet-edge-r2-20261031. No formal ref, main, website, admission or user data changed.
 
+
+## Final handoff
+
+Independent Draft PR [#23](https://github.com/haohongfei2001-png/Riftlet/pull/23). Tested source **057a0071791d654ecfe2b7840cf86904dd600df8**; CI test merge50a362a995381f5f50d26d13068b5f87716dd4e5 has the same product tree. [Native run41175885963](https://github.com/haohongfei2001-png/Riftlet/actions/runs/41175885963): ARM and Intel execution jobs **PASS**, including native regression, packaging, PNG/movie capture and accessibility variants. [Feedback run41175885993](https://github.com/haohongfei2001-png/Riftlet/actions/runs/41175885993): execution job **PASS**. Both workflows remain overall **FAIL** because the fixed formal source_admission job rejects the new R2 composition. No source gate was disabled or repinned.
+
+Independent cumulative source review and native visual/privacy review **PASS**. Actual final-source own-window captures and two motion recordings are archived under [native/manifest.json](native/manifest.json); all files retain original hashes/pixels. See [VISUAL-REVIEW.md](VISUAL-REVIEW.md) for native adaptation differences and scope, [final-verification.json](final-verification.json) for exact jobs/artifacts, and [INTEGRATION.md](INTEGRATION.md) for minimal integration boundaries.
+
+The final development package is Riftlet-Quiet-Edge-R2-057a007-development.zip, SHA256640b04b774bfe0df1f275080647e148adafbc798dea6c8e26347eee9eead709c. It is ad-hoc signed, not notarized, and does not enable new upload capability. Both architecture packages are also retained in their CI artifacts. A later documentation/evidence-only handoff does not represent a new native build; it cites this exact unchanged source and does not rerun redundant CI.
+
+R2 implementation is ready for formal integration review, **not a claim of full production or physical acceptance**. Human input, spoken VoiceOver, actual monitor topology/Spaces/fullscreen and final combined-App P0 remain NOT_RUN. The ARM capture-engine owned-fixture probe explicitly skipped window/region/fullscreen due foreign-overlap veto; successful CI does not turn those into passes. Shared local Mac/Chrome and all user data remained untouched.
+
 ## Design and scope
 
 The R2 JSON, 24-page PDF, prototype source and current boards were reviewed. DESIGN-SPEC.json is retained verbatim with hashes in design-provenance.json. Historical design-only scope is superseded by current implementation authorization. R1 is not implemented. HTML 46/33 results are not native tests.

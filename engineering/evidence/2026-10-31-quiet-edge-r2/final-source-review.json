@@ -1,0 +1,24 @@
+{
+  "source": "057a0071791d654ecfe2b7840cf86904dd600df8",
+  "review": "PASS: cumulative independent non-author source review; final Fit/zoom scroller fix reviewed by exact source/test hash",
+  "base": "2bddb61a19114167b7485c392600c4b91dc62725",
+  "scope": "Source correctness and regression design only; no production admission or physical/Chrome approval",
+  "files": {
+    "Sources/RiftletApp/RiftletMain.swift": "d61d4c7cfc61e041a8ddd8984f6ccd7bb3ab9df8f838cf94d932dcf61d098ce5",
+    "Sources/RiftletApp/ScreenshotEntryHost.swift": "1258e74e5725bc72ffc00eabee9b0f2a3fc381f97b249d5f36ea7ad9e7361011",
+    "Sources/RiftletApp/ScreenshotEntryPreferences.swift": "0a638ff874e34d4c20938b38a4c2b289b95b880f535591b229fd5571f86c5b8a",
+    "Sources/RiftletGUIAcceptance/AcceptanceMain.swift": "b7ff79da730907aac3f4178cc1172056b6ad434b38481e31607fc6334adec750",
+    "Sources/RiftletGUIAcceptance/AcceptanceWindowScenes.swift": "08426042a0aa6e741fe2520ceab37f1e1bf3cab8e4f7c287ecbf09e8e2fefd88",
+    "Sources/RiftletUI/MagnetFlightPresenter.swift": "8ec84562ff6a3c6e8808d8545806b7ab51196b5036ddb3c72d012337aed4c226",
+    "Sources/RiftletUI/MagnetMotionPlan.swift": "11f5a4967b8d4bb091a5bb385c410ff4ce773b32d0a7abbedbd2d5fc0c2ca1e9",
+    "Sources/RiftletUI/RiftConfiguration.swift": "1e215dd669ab9b932b98d1c2f01605b71cce24abd5463ba84e9333ce18b6330a",
+    "Sources/RiftletUI/RiftDisplaySelection.swift": "cf8f46e250eac0e46d106cadc0c6f9f6dddfc3ac14c85798200961da908c35fa",
+    "Sources/RiftletUI/RiftEdgeAccessories.swift": "df5819aab62485b19c484ccd14db10aa7cb903d057feea07903b1b2ba83453cd",
+    "Sources/RiftletUI/RiftHistoryController.swift": "7b3c624e6e8c90c32204ef10e40ebaa2e814b1dc16b846356c2e0bf69d30e752",
+    "Sources/RiftletUI/RiftLayout.swift": "a457a45e94ba648720691284b50a691803d04fab43cd5d06943ed4f171c13cc7",
+    "Sources/RiftletUI/RiftPanelController.swift": "b51a47a8a8c2df06249cce448efb3a942f9b8c78576919ee8da311e23a411b49",
+    "Sources/RiftletUI/RiftSettingsForm.swift": "6f3d2124a0d7b7ed9accc023c1a6015c5b5e2b477385b6ff92bfc14af5063e9d",
+    "Sources/RiftletUI/ScreenshotEntryController.swift": "bf09fe192be6f30df7ce57d7969c90706031cb655fa91f9bed5f7f84f844154d",
+    "Sources/RiftletUI/ScreenshotEntryModel.swift": "3fd0b124ae9905fcba69d7823a0605b23fe53648bfaa47de416a1608721e78c6"
+  }
+}

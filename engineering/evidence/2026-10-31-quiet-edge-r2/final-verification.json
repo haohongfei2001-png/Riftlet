@@ -1,0 +1,397 @@
+{
+  "source": "057a0071791d654ecfe2b7840cf86904dd600df8",
+  "base": "2bddb61a19114167b7485c392600c4b91dc62725",
+  "native": {
+    "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/41175885963",
+    "checkout": "057a0071791d654ecfe2b7840cf86904dd600df8",
+    "overall": "failure",
+    "jobs": [
+      {
+        "name": "macos (macos-15-intel)",
+        "result": "success",
+        "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/41175885963/job/124463232398",
+        "steps": [
+          {
+            "name": "Set up job",
+            "result": "success"
+          },
+          {
+            "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+            "result": "success"
+          },
+          {
+            "name": "Record compiler and OS",
+            "result": "success"
+          },
+          {
+            "name": "Replay archived Web evidence offline",
+            "result": "success"
+          },
+          {
+            "name": "Exercise integrated page program with synthetic DOM",
+            "result": "success"
+          },
+          {
+            "name": "Exercise round-two fault harness offline",
+            "result": "success"
+          },
+          {
+            "name": "Exercise round-three diagnostic probe offline",
+            "result": "success"
+          },
+          {
+            "name": "Verify round-five diagnostic evidence helpers offline",
+            "result": "success"
+          },
+          {
+            "name": "Verify system-screenshot stage-two diagnostic fixtures",
+            "result": "success"
+          },
+          {
+            "name": "Establish and verify actual CI accessibility baseline",
+            "result": "success"
+          },
+          {
+            "name": "Compile screenshot comparison probe and report environment capabilities",
+            "result": "success"
+          },
+          {
+            "name": "Execute native unit and integration tests",
+            "result": "success"
+          },
+          {
+            "name": "Verify isolated arrival delta and report native motion outcomes",
+            "result": "skipped"
+          },
+          {
+            "name": "Verify packaging rejection paths offline",
+            "result": "success"
+          },
+          {
+            "name": "Report software panel lifecycle outcomes",
+            "result": "success"
+          },
+          {
+            "name": "Exercise the production screenshot engine and private import with an owned fixture",
+            "result": "success"
+          },
+          {
+            "name": "Verify strict magnet completion and resource cleanup separately",
+            "result": "success"
+          },
+          {
+            "name": "Package native application",
+            "result": "success"
+          },
+          {
+            "name": "Run packaged executable with synthetic data",
+            "result": "success"
+          },
+          {
+            "name": "Package unified internal Beta with explicit candidate entry",
+            "result": "success"
+          },
+          {
+            "name": "Validate and archive synthetic GUI acceptance helper",
+            "result": "success"
+          },
+          {
+            "name": "Capture isolated native visual evidence at original pixels",
+            "result": "success"
+          },
+          {
+            "name": "Capture additional integrated experience windows at original pixels",
+            "result": "success"
+          },
+          {
+            "name": "Capture Quiet Edge R2 native geometry",
+            "result": "success"
+          },
+          {
+            "name": "Capture bounded actual system accessibility variants",
+            "result": "success"
+          },
+          {
+            "name": "Reject actual screenshot output failures independently of software tests",
+            "result": "success"
+          },
+          {
+            "name": "Archive evidence",
+            "result": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+            "result": "success"
+          },
+          {
+            "name": "Complete job",
+            "result": "success"
+          }
+        ]
+      },
+      {
+        "name": "source_admission",
+        "result": "failure",
+        "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/41175885963/job/124463232562",
+        "steps": [
+          {
+            "name": "Set up job",
+            "result": "success"
+          },
+          {
+            "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+            "result": "success"
+          },
+          {
+            "name": "Verify exact final source admission and immutable inherited audits",
+            "result": "failure"
+          },
+          {
+            "name": "Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+            "result": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+            "result": "success"
+          },
+          {
+            "name": "Complete job",
+            "result": "success"
+          }
+        ]
+      },
+      {
+        "name": "macos (macos-15)",
+        "result": "success",
+        "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/41175885963/job/124463232671",
+        "steps": [
+          {
+            "name": "Set up job",
+            "result": "success"
+          },
+          {
+            "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+            "result": "success"
+          },
+          {
+            "name": "Record compiler and OS",
+            "result": "success"
+          },
+          {
+            "name": "Replay archived Web evidence offline",
+            "result": "success"
+          },
+          {
+            "name": "Exercise integrated page program with synthetic DOM",
+            "result": "success"
+          },
+          {
+            "name": "Exercise round-two fault harness offline",
+            "result": "success"
+          },
+          {
+            "name": "Exercise round-three diagnostic probe offline",
+            "result": "success"
+          },
+          {
+            "name": "Verify round-five diagnostic evidence helpers offline",
+            "result": "success"
+          },
+          {
+            "name": "Verify system-screenshot stage-two diagnostic fixtures",
+            "result": "success"
+          },
+          {
+            "name": "Establish and verify actual CI accessibility baseline",
+            "result": "success"
+          },
+          {
+            "name": "Compile screenshot comparison probe and report environment capabilities",
+            "result": "success"
+          },
+          {
+            "name": "Execute native unit and integration tests",
+            "result": "success"
+          },
+          {
+            "name": "Verify isolated arrival delta and report native motion outcomes",
+            "result": "skipped"
+          },
+          {
+            "name": "Verify packaging rejection paths offline",
+            "result": "success"
+          },
+          {
+            "name": "Report software panel lifecycle outcomes",
+            "result": "success"
+          },
+          {
+            "name": "Exercise the production screenshot engine and private import with an owned fixture",
+            "result": "success"
+          },
+          {
+            "name": "Verify strict magnet completion and resource cleanup separately",
+            "result": "success"
+          },
+          {
+            "name": "Package native application",
+            "result": "success"
+          },
+          {
+            "name": "Run packaged executable with synthetic data",
+            "result": "success"
+          },
+          {
+            "name": "Package unified internal Beta with explicit candidate entry",
+            "result": "success"
+          },
+          {
+            "name": "Validate and archive synthetic GUI acceptance helper",
+            "result": "success"
+          },
+          {
+            "name": "Capture isolated native visual evidence at original pixels",
+            "result": "success"
+          },
+          {
+            "name": "Capture additional integrated experience windows at original pixels",
+            "result": "success"
+          },
+          {
+            "name": "Capture Quiet Edge R2 native geometry",
+            "result": "success"
+          },
+          {
+            "name": "Capture bounded actual system accessibility variants",
+            "result": "success"
+          },
+          {
+            "name": "Reject actual screenshot output failures independently of software tests",
+            "result": "success"
+          },
+          {
+            "name": "Archive evidence",
+            "result": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+            "result": "success"
+          },
+          {
+            "name": "Complete job",
+            "result": "success"
+          }
+        ]
+      }
+    ]
+  },
+  "feedback": {
+    "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/41175885993",
+    "checkout": "057a0071791d654ecfe2b7840cf86904dd600df8",
+    "overall": "failure",
+    "jobs": [
+      {
+        "name": "source_admission",
+        "result": "failure",
+        "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/41175885993/job/124463232482",
+        "steps": [
+          {
+            "name": "Set up job",
+            "result": "success"
+          },
+          {
+            "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+            "result": "success"
+          },
+          {
+            "name": "Verify reviewed unified candidate composition",
+            "result": "failure"
+          },
+          {
+            "name": "Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+            "result": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+            "result": "success"
+          },
+          {
+            "name": "Complete job",
+            "result": "success"
+          }
+        ]
+      },
+      {
+        "name": "feedback",
+        "result": "success",
+        "url": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/41175885993/job/124463232710",
+        "steps": [
+          {
+            "name": "Set up job",
+            "result": "success"
+          },
+          {
+            "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+            "result": "success"
+          },
+          {
+            "name": "Verify isolation audit regressions",
+            "result": "success"
+          },
+          {
+            "name": "Verify actual Feedback and current screenshot composition",
+            "result": "skipped"
+          },
+          {
+            "name": "Environment and service fault tests",
+            "result": "success"
+          },
+          {
+            "name": "Native feedback and software AppKit tests",
+            "result": "success"
+          },
+          {
+            "name": "Package isolated offline feedback demo",
+            "result": "success"
+          },
+          {
+            "name": "Archive exact feedback source for reproducibility",
+            "result": "success"
+          },
+          {
+            "name": "Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+            "result": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+            "result": "success"
+          },
+          {
+            "name": "Complete job",
+            "result": "success"
+          }
+        ]
+      }
+    ]
+  },
+  "sourceAdmission": "FAIL: existing exact composition manifest does not admit R2 paths/objects; no bypass or repin performed",
+  "artifactIDs": {
+    "arm": 13033390985,
+    "intel": 13033296574
+  },
+  "publicNativeSelection": "native/manifest.json",
+  "localDevelopmentPackage": {
+    "file": "Riftlet-Quiet-Edge-R2-057a007-development.zip",
+    "sha256": "640b04b774bfe0df1f275080647e148adafbc798dea6c8e26347eee9eead709c",
+    "signing": "ad-hoc development; NOT_NOTARIZED; not publicly released"
+  },
+  "nativeProbeLimit": "ARM actual built-in capture/import owned-fixture probe NOT_RUN: FOREIGN_OVERLAP_VETO in window/region/fullScreen; CI job success does not convert skips to acceptance",
+  "notRun": [
+    "human physical mouse",
+    "spoken VoiceOver",
+    "actual multi-display/Retina hotplug",
+    "actual Spaces/fullscreen transitions",
+    "real system screenshot-to-ChatGPT on final combined App"
+  ],
+  "data": "No user database, media, UNKNOWN, browser, permission or shared desktop mutation"
+}
