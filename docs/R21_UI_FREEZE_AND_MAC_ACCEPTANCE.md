@@ -23,7 +23,7 @@ native-helper files, six UI test files, six fixed synthetic PNGs with their
 manifest/README, and the R2.1 capture script. The existing Native workflow gains
 the same seven-line capture step; the mainline triggers, five check identities,
 source gate and all existing execution steps remain intact. The R2.1 source and
-handoff history are preserved as the source checkpoint's second parent, while
+handoff history are preserved as the initial integration commit's second parent, while
 their archived PNG/MOV evidence is not duplicated into the current main tree.
 
 No old R2 baseline replaces main. App composition and instance ownership, Core,
@@ -74,6 +74,18 @@ variable-cadence motion does not prove every frame or a latency benchmark.
 Final combined CI, native image review and package checks are recorded against
 their actual new source/checkout. Physical input, actual 2x/mixed monitors and
 real ordinary-App upload require their own evidence.
+
+Formal integration added a native CALayer regression for visual refresh during
+an already committed composite exit. Provisional source `0134dddb...` reproduced
+the defect on ARM: assigning the moving layer's frame restored its effective
+position and exposed content again, even though the transform and named
+animation remained. The minimal repair assigns untransformed bounds/base position
+instead, preserving the existing exit transform and animation. The regression
+checks both sides, narrow/wide slices, every moving surface, the fixed mask and
+contact plane, source dimensions and animation values/duration. Its initial
+test-only overload compilation error at `fd2a0046...` and the subsequent actual
+native failure remain separately recorded in the integration provenance. Final
+corrected-source CI must pass; these earlier failures are not admission results.
 
 The old U1 approximately 1.876638-second observation is internal-configuration
 swallow start followed by later independent background success. It retains its

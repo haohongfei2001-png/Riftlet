@@ -66,7 +66,11 @@ import QuartzCore
             else { visible.size.width = rect.maxX - view.bounds.minX }
         }
         mask.path = CGPath(rect: visible, transform: nil); plane.mask = mask
-        moving.frame = view.bounds; moving.bounds = view.bounds
+        // Setting frame would compensate for an already committed exit transform.
+        // Lay out the untransformed base without changing its translation/animation.
+        moving.bounds = view.bounds
+        moving.position = CGPoint(x: view.bounds.minX + view.bounds.width * moving.anchorPoint.x,
+                                  y: view.bounds.minY + view.bounds.height * moving.anchorPoint.y)
         imageClip.frame = rect; imageClip.cornerRadius = radius; imageClip.maskedCorners = corners
         let shape = CAShapeLayer(); shape.path = RiftThumbnailAppearance.contour(expanded, radius: radius, left: left, hidden: hidden)
         let closed = CGMutablePath(); closed.addPath(shape.path!); closed.closeSubpath()
