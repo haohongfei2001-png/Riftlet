@@ -1,3 +1,32 @@
+# Quiet Edge R2：原生回归观察顺序修正与最终准入 — 2026-10-31
+
+**唯一正式源码、完整同源 CI、独立视觉与两份最新 App，以 [PR #1 本轮最终交付](https://github.com/haohongfei2001-png/Riftlet/pull/1) 为准。** PR #1 保持 Draft，main 不变；所有此前来源、失败、原图和成功范围保留。
+
+## 新发现与最小修正
+
+`e1c46ed0f8176bec08a9b91914e513e7bf861240` 的实际 checkout 为 `c792f562792610fbbc7435687563db146876693b`。两个来源 job 均 32/32 PASS；[Native 41181427673](https://github.com/haohongfei2001-png/Riftlet/actions/runs/41181427673) 的 ARM 编译成功、完整套件枚举 824 方法，但 `QuietEdgeInteractionTests.testFeedbackReusesPointerFreePeekAndInvalidatesOldDecodeAndWaitingDeadline` 在原第 179 行失败。ARM 后续包装、20 项 manifest 与视觉取证均未执行，不能用此轮 ARM 交付。[Feedback 41181427670](https://github.com/haohongfei2001-png/Riftlet/actions/runs/41181427670) 成功；完整原始失败日志 hash、来源审查和各执行结果保留于 `results.json`。
+
+源码独立复核确认原测试存在不成立的时间上界假设：在同步旧图片 delivery 后 sleep 100ms，再断言 panel 隐藏；但合法 note 会在 250ms 后显示，睡眠只保证下界。日志仅记录测试总耗时 4.007s，没有记录失败时 panel 内容，因此**不能断言该次失败的精确调度顺序**。产品 `scheduleNote` 同步递增 epoch，旧 delivery 同步先检查 epoch，真实缓存回调也在 MainActor；未发现旧解码绕过此 guard 的证据。
+
+修正源码 S3 为 **`1c1ed6051d6fbc984d3e9e2071b741f1f1805f32`**，tree **`5f07fe7cedfbfa08cca21740c97fd5bcaf18535f`**，唯一父为上述 e1c46ed0。仅一个既有原生测试文件变化：
+
+- 旧 delivery 后在同一 MainActor 连续片段立即执行原“不能提前显示”断言，中间不 yield。
+- 随即同步 leave/cancel；等待 300ms 越过原 250ms 截止点，仅依赖等待下界，再检查未显示且原 asset 已清除。
+- 记录真实 note 可见事件：取消前后累计必须为零，有效 delay0 note 的正向控制必须精确为原 ID 一次，避免错误 note 曾显示后消失而逃过最终状态检查。
+- 原 native panel、pointer-free/不可 key/main、几何和 2.6s 有界寿命断言全部保留。没有增大产品提示时间、改 scheduler、移除失败断言、跳过测试或盲重跑。
+
+其余 1005 个对象与模式不变：完整产品、实例所有权、R2、前次四文件背景修复及其 20 项严格检查、workflow、包装、服务和旧证据均保持。精确 S3 独审后仍只更新正式门禁的 `REVIEWED_SOURCE`，三个既有 metadata 例外、四历史审计、28 个固定 main 网站对象及真实父链/全对象规则不变。
+
+本地没有 macOS，未将源码复核称为原生测试通过；最终须由新正式 HEAD 的完整双架构 Native、Feedback、原图和原始包共同证明。上述失败运行及更早 107898ee 的视觉拒绝均为历史，不替代最新交付。
+
+## 准入边界与后续真机
+
+普通生产 input/start/completion、内置截图上传、safe-retry 和 Web continuation **继续关闭**。原内部 U1 的限定成功、选区 FAIL、私有原件未重读，以及最终默认 App/物理鼠标/新权限/原生 Feedback 云端的未验证范围不变。Codex 使用下方六项清单及 PR #1 最终 HEAD、实际 checkout、包 hash 继续；无需重做 R2、重建候选或要求创始人提前体验。
+
+以下原始记录全文保留。
+
+---
+
 # Quiet Edge R2：最终原生取证修正与正式准入 — 2026-10-31
 
 **最终源码、同源完整 CI 和两份 App 以 [PR #1 本轮最终交付](https://github.com/haohongfei2001-png/Riftlet/pull/1) 为准。** 唯一正式工程仍在现有 Draft PR #1；PR #23 已通过原始双亲历史合入正式分支，main 未改，没有新长期候选或公开发行。
