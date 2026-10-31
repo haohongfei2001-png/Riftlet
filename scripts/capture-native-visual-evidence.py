@@ -119,6 +119,11 @@ def verify_capture(directory: Path, report: dict, source: str, checkout: str) ->
             if (type(difference) is not int or frame.get("minimumProductDifferencePixels") != 64
                     or not 64 <= difference <= pixels[0] * pixels[1]):
                 raise ValueError("missingProductPixels")
+            backdrop = frame.get("backdropWindowNumber")
+            if type(backdrop) is not int or backdrop not in numbers:
+                raise ValueError("invalidFixtureBackdrop")
+            if numbers[-1] != backdrop:
+                raise ValueError("fixtureBackdropOccludesProduct")
         captured += 1
     if report.get("status") == "CAPTURED_NATIVE_WINDOWSERVER" and captured != len(frames):
         raise ValueError("partialCaptureClaimedComplete")

@@ -30,7 +30,7 @@ private struct NativePNGResult: Sendable {
 /// Capturing a synthetic native projection is not real input/upload acceptance.
 @MainActor
 final class NativeVisualEvidence {
-    enum Failure: String, Error, Sendable { case unsafeRequest, existingOutput, missingWindow, missingProductPixels, encoding }
+    enum Failure: String, Error, Sendable { case unsafeRequest, existingOutput, missingWindow, missingProductPixels, backdropOccludesProduct, encoding }
 
     // Only these fixed values may leave the export catch. Underlying framework
     // errors can contain paths or other process details and are never printed.
@@ -90,6 +90,7 @@ final class NativeVisualEvidence {
         let backingScale: CGFloat
         let windowCount: Int
         let windowNumbers: [Int]
+        let backdropWindowNumber: Int?
         let started: TimeInterval
         let ended: TimeInterval
     }
@@ -536,6 +537,9 @@ final class NativeVisualEvidence {
         let selected = singleWindow ? owned.filter { $0 !== backdrop && $0.styleMask.contains(.titled) } : owned
         guard !selected.isEmpty, !singleWindow || selected.count == 1,
               singleWindow || (selected.contains(where: { $0 === backdrop }) && selected.count > 1) else { throw Failure.missingWindow }
+        // A visible row alone cannot prove that the independent camera (or any
+        // other selected product window) was not covered by our opaque fixture.
+        guard singleWindow || selected.last === backdrop else { throw Failure.backdropOccludesProduct }
         let appKitRect = singleWindow ? selected[0].frame : backdrop.frame
         guard appKitRect.width > 0, appKitRect.height > 0,
               let firstScreen = NSScreen.screens.first else { throw Failure.missingWindow }
@@ -552,6 +556,7 @@ final class NativeVisualEvidence {
         return NativeFrame(image: image, rect: appKitRect, quartzRect: quartzRect,
             backingScale: (singleWindow ? selected[0] : backdrop).backingScaleFactor,
             windowCount: selected.count, windowNumbers: selected.map(\.windowNumber),
+            backdropWindowNumber: singleWindow ? nil : backdrop.windowNumber,
             started: before, ended: ProcessInfo.processInfo.systemUptime)
     }
 
@@ -683,6 +688,7 @@ final class NativeVisualEvidence {
             result["minimumProductDifferencePixels"] = 64
             result["productPixelComparison"] = "original own-window composite versus original opaque own backdrop; channel delta > 8"
         }
+        if let backdropNumber = frame.backdropWindowNumber { result["backdropWindowNumber"] = backdropNumber }
         frames.append(result)
     }
 

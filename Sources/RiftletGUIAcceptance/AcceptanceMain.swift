@@ -515,6 +515,7 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
                               action.handler?() == true else { throw NativeVisualEvidence.Failure.missingWindow }
                         self.record("native_evidence_preview_action", ["physical": false, "accepted": true])
                     }
+                    self.orderVisualBackdropBelowProduct()
                     try await Task.sleep(nanoseconds: 350_000_000)
                     try await evidence.capture("native")
                     try evidence.finish()
@@ -637,10 +638,17 @@ private final class AcceptanceController: NSObject, NSApplicationDelegate, NSWin
     private func orderVisualBackdropBelowProduct() {
         guard visualClean, let window, window.isVisible else { return }
         window.level = .floating
-        if let first = rift?.diagnosticSnapshot.rows.first {
-            // Existing Rift windows keep their production levels. Only this
-            // synthetic background is placed below the first visual owner.
-            window.order(.below, relativeTo: first.windowNumber)
+        var backmostProduct: NSWindow?
+        NSApp.enumerateWindows(options: .orderedFrontToBack) { candidate, _ in
+            if candidate !== window, candidate.isVisible, candidate.windowNumber > 0 {
+                backmostProduct = candidate
+            }
+        }
+        if let backmostProduct {
+            // Rebuilt rows can be above an already visible independent camera.
+            // Move only the synthetic background behind every owned product
+            // window; never raise product levels or reorder captured pixels.
+            window.order(.below, relativeTo: backmostProduct.windowNumber)
         }
     }
 

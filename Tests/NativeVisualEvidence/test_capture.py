@@ -7,6 +7,7 @@ from pathlib import Path
 import tempfile
 import struct
 import unittest
+import zlib
 
 SCRIPT = Path(__file__).resolve().parents[2] / "scripts/capture-native-visual-evidence.py"
 SPEC = importlib.util.spec_from_file_location("native_visual_evidence", SCRIPT)
@@ -115,6 +116,40 @@ class NativeVisualManifestTests(unittest.TestCase):
                                        ownWindowNumbersFrontToBack=[123, 123])
         with self.assertRaisesRegex(ValueError, "invalidOwnWindowSet"):
             self.verify()
+
+    def composite_fixture(self):
+        # Valid owned synthetic PNG bytes for an order-rejection fixture, not
+        # WindowServer evidence. Include a row, independent camera and input.
+        def chunk(kind, body):
+            return (struct.pack(">I", len(body)) + kind + body
+                    + struct.pack(">I", zlib.crc32(kind + body) & 0xffffffff))
+        png = (b"\x89PNG\r\n\x1a\n"
+               + chunk(b"IHDR", struct.pack(">IIBBBBB", 8, 8, 8, 6, 0, 0, 0))
+               + chunk(b"IDAT", zlib.compress((b"\0" + b"\x90\x90\x90\xff" * 8) * 8))
+               + chunk(b"IEND", b""))
+        (self.root / "native.png").write_bytes(png)
+        self.report["captureKind"] = "owned-product-composite"
+        self.report["frames"][0].update(pixels=[8, 8], bytes=len(png),
+            sha256=hashlib.sha256(png).hexdigest(), selectedOwnWindowCount=4, productWindowCount=3,
+            ownWindowNumbersFrontToBack=[456, 789, 790, 123], backdropWindowNumber=123,
+            minimumProductDifferencePixels=64, productDifferencePixelCount=64)
+
+    def test_composite_rejects_backdrop_covering_independent_camera(self):
+        self.composite_fixture()
+        self.verify()
+        for order in ([456, 123, 789, 790], [123, 456, 789, 790]):
+            with self.subTest(order=order):
+                self.report["frames"][0]["ownWindowNumbersFrontToBack"] = order
+                with self.assertRaisesRegex(ValueError, "fixtureBackdropOccludesProduct"):
+                    self.verify()
+
+    def test_composite_requires_exact_backdrop_identity(self):
+        self.composite_fixture()
+        for identity in (None, True, "123", 0, 999):
+            with self.subTest(identity=identity):
+                self.report["frames"][0]["backdropWindowNumber"] = identity
+                with self.assertRaisesRegex(ValueError, "invalidFixtureBackdrop"):
+                    self.verify()
 
     def test_actual_accessibility_snapshot_cannot_be_omitted_or_loosely_coerced(self):
         for value in (None, {}, {"reduceMotion": "false", "increaseContrast": False, "reduceTransparency": False}):
