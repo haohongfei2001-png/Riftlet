@@ -148,13 +148,43 @@ public struct TargetLease: Codable, Equatable, Hashable, Sendable {
     /// Only two recognized, distinct business drafts can narrow that conflict.
     /// Full receipt equality remains unchanged, including the input focus epoch.
     public func conflictsForDispatch(with other: TargetLease) -> Bool {
-        guard serializationKey == other.serializationKey else { return false }
+        guard serializationKey == other.serializationKey || mixedChromeSessionMayConflict(with: other) else { return false }
         guard surface == .webChat, other.surface == .webChat,
               applicationID == "com.google.Chrome", other.applicationID == applicationID,
               let tabID, !tabID.isEmpty, other.tabID == tabID,
               let a = logicalDraftIdentity, let b = other.logicalDraftIdentity,
               a.isRecognized, b.isRecognized, a.profileID == b.profileID else { return true }
         return a.id.lowercased() == b.id.lowercased()
+    }
+
+    /// A session spelling upgrade must not unlock an unresolved old operation.
+    /// Same PID in mixed formats is only a conservative possible match: kernel
+    /// birth never supplies or replaces the old LaunchServices date. Receipt and
+    /// serialized identity equality deliberately remain exact and unchanged.
+    private func mixedChromeSessionMayConflict(with other: TargetLease) -> Bool {
+        guard surface == .webChat, other.surface == .webChat,
+              applicationID == "com.google.Chrome", other.applicationID == applicationID,
+              adapterID == other.adapterID, let tabID, !tabID.isEmpty, other.tabID == tabID,
+              let a = Self.chromeSessionSpelling(sessionID),
+              let b = Self.chromeSessionSpelling(other.sessionID) else { return false }
+        return a.pid == b.pid && a.kernel != b.kernel
+    }
+
+    private static func chromeSessionSpelling(_ session: String) -> (pid: Int32, kernel: Bool)? {
+        let fields = session.split(separator: ":", omittingEmptySubsequences: false).map(String.init)
+        func pid(_ text: String) -> Int32? {
+            guard let n = Int32(text), n > 0, String(n) == text else { return nil }; return n
+        }
+        if fields.count == 2, let process = pid(fields[0]), let date = Double(fields[1]),
+           date.isFinite, date > 0, String(date) == fields[1] {
+            return (process, false)
+        }
+        if fields.count == 4, fields[0] == "chrome-kernel-v1", let process = pid(fields[1]),
+           let seconds = UInt64(fields[2]), seconds > 0, String(seconds) == fields[2],
+           let micros = UInt64(fields[3]), micros < 1_000_000, String(micros) == fields[3] {
+            return (process, true)
+        }
+        return nil
     }
 }
 
