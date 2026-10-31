@@ -62,30 +62,32 @@ final class RiftThumbnailAppearanceTests: XCTestCase {
                 CATransaction.begin(); CATransaction.setDisableActions(true)
                 decoration.update(view: view, imageClip: clip, rect: rect, left: left,
                                   hidden: true, hovered: false, pressed: false)
-                let original = clip.convert(.zero, to: root)
+                let original = clip.convert(CGPoint.zero, to: root)
                 let offset = (left ? -1.0 : 1.0) * (width + 4)
                 decoration.moving.setAffineTransform(CGAffineTransform(translationX: offset, y: 0))
                 let animation = CAKeyframeAnimation(keyPath: "transform.translation.x")
                 animation.values = [0, offset]; animation.duration = 0.12
                 decoration.moving.add(animation, forKey: "rift.translation")
-                let exited = clip.convert(.zero, to: root)
+                let exited = clip.convert(CGPoint.zero, to: root)
                 XCTAssertEqual(exited.x, original.x + offset, accuracy: 1e-9)
                 XCTAssertEqual(exited.y, original.y, accuracy: 1e-9)
                 let contact = decoration.contact.frame, lip = decoration.lip.frame
+                let originalMask = (decoration.plane.mask as! CAShapeLayer).path!.boundingBoxOfPath
                 let surfaces: [CALayer] = [clip, decoration.matte, decoration.checker,
                                           decoration.outer, decoration.inner,
                                           decoration.primary, decoration.tight]
-                let expected = surfaces.map { $0.convert(.zero, to: root) }
+                let expected = surfaces.map { $0.convert(CGPoint.zero, to: root) }
                 for state in [(true, false), (false, false), (false, true), (false, false)] {
                     decoration.update(view: view, imageClip: clip, rect: rect, left: left,
                                       hidden: true, hovered: state.0, pressed: state.1)
                     for (surface, point) in zip(surfaces, expected) {
-                        let actual = surface.convert(.zero, to: root)
+                        let actual = surface.convert(CGPoint.zero, to: root)
                         XCTAssertEqual(actual.x, point.x, accuracy: 1e-9,
                                        "A visual refresh must preserve the complete committed exit; left=\(left), width=\(width)")
                         XCTAssertEqual(actual.y, point.y, accuracy: 1e-9)
                     }
                     let visible = (decoration.plane.mask as! CAShapeLayer).path!.boundingBoxOfPath
+                    XCTAssertEqual(visible, originalMask)
                     let content = clip.convert(clip.bounds, to: decoration.plane)
                     XCTAssertTrue(content.intersection(visible).isEmpty,
                                   "A refresh must not reveal content already behind the fixed seam")
@@ -93,6 +95,13 @@ final class RiftThumbnailAppearanceTests: XCTestCase {
                     XCTAssertEqual(decoration.lip.frame, lip)
                     XCTAssertEqual(image.frame.size, CGSize(width: 72, height: 40.5))
                     XCTAssertNotNil(decoration.moving.animation(forKey: "rift.translation"))
+                    if let preserved = decoration.moving.animation(forKey: "rift.translation") as? CAKeyframeAnimation {
+                        XCTAssertEqual(preserved.values as? [NSNumber],
+                                       [NSNumber(value: 0), NSNumber(value: Double(offset))])
+                        XCTAssertEqual(preserved.duration, 0.12, accuracy: 1e-9)
+                    } else {
+                        XCTFail("A style refresh must retain the original keyframe animation")
+                    }
                 }
                 CATransaction.commit()
             }
