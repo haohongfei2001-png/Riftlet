@@ -1,3 +1,64 @@
+# Quiet Edge R2：正式组合源码准入检查点 — 2026-10-31
+
+**唯一正式工程继续使用 Draft PR #1；不修改 main、不公开发行。** R2 已按完整累计差异合入最新实例可靠性修复，保留两个真实父提交。没有另建候选分支，也没有重新设计 R2。
+
+本文件记录源码准入时的事实。**最终正式 HEAD、同一 HEAD 的完整 Native ARM/Intel、Feedback、实际 PR checkout、独立视觉/实包结果及两份 ZIP，统一见 [PR #1 本轮最终交付](https://github.com/haohongfei2001-png/Riftlet/pull/1)。** 后续完成的 CI 不通过追加未测试源码提交记录；下面历史检查点各自保留原来源和范围。前一轮完整 PR 正文原样归档于本目录 `results.json` 的 `quietEdgeR2Integration.precedingFormalPRDelivery`，不因更新顶部而丢失审计。
+
+## 来源、选择与独立审查
+
+| 项目 | 精确身份与范围 |
+|---|---|
+| 前一正式 HEAD | `8b70cb0d63da1e3768ed9dfc3facdcca6efdab21` |
+| R2 已审实现 | `057a0071791d654ecfe2b7840cf86904dd600df8`；累计包含四次实现与必要修复 |
+| R2 原始交接 / 第二父 | `4c92f6e639538bc7f3b1e06cf71fb07086add278`，原 PR #23 |
+| 独立批准的组合源码 S | `86a6646abbe05c4dbe186f022b08d779950de5ae` |
+| S tree | `02b7b82ed8ceddbd14cd9d31159ad794c19c003c` |
+| S 真实双亲 | 按顺序 `[8b70cb0d…, 4c92f6e…]` |
+| 继续固定的 main | `fccd809e9d55e0b221e75e6dcd7c21f6d357ee74`；28 个已批准网站对象 |
+
+相对前一正式树仅 **35 路径**：14 个 App/UI 产品文件、17 个必要测试/支持文件、两个既有 GUI helper、一个 35 行 R2 原生 capture 脚本、一个既有 Native workflow。33 个路径原样取 R2 blob；Main 是以 `2bddb61` 为公共基线的确定性三方合成；workflow 仅将原 R2 capture 步骤取消 PR23 分支限定，使两架构正式执行。原有完整 CI 测试步骤和失败退出语义保留，Feedback workflow 不变；旧几何耦合测试随 R2 累计实现替换为对应配置/相机回归。
+
+R2 的 78 个设计/旧验收归档对象不复制进当前树；它们完整保留于第二父提交。原 [INTEGRATION.md](https://github.com/haohongfei2001-png/Riftlet/blob/4c92f6e639538bc7f3b1e06cf71fb07086add278/engineering/evidence/2026-10-31-quiet-edge-r2/INTEGRATION.md)、[VISUAL-REVIEW.md](https://github.com/haohongfei2001-png/Riftlet/blob/4c92f6e639538bc7f3b1e06cf71fb07086add278/engineering/evidence/2026-10-31-quiet-edge-r2/VISUAL-REVIEW.md) 和 18 场景原像素证据均可按原 SHA 追溯。新正式树新增 5 文件、无删除，971 个原正式对象不变；总文件 1006，门禁保护对象 1003。
+
+`ownership_review` 独立审查所有产品/回归、组合 Main 和新调用链；`admission_review` 独立核对全部 tree、父链、35 路径映射、原历史门禁及网站对象；两者均批准精确 S。`acceptance_review` 复核原交接、原始日志、18 场景 67 文件 hash 及关键原图，给出限定范围 PASS。完整结构化报告及 hash 见 `results.json` 的本轮字段。这是实际非作者工程审查，不冒称 GitHub 人工 APPROVED review。
+
+## 实例所有权与 R2 正确共存
+
+Main 的组合 blob 为 `1be863f64a3d907dee84074f296b0125ecc6c950`。App 仍在菜单、首次使用状态、Feedback 和异步队列前取得主锁；失败实例不启动 sidecar；获准退出后锁保留至进程退出。ownership 源文件、五项锁回归和四份 U1 原始交接原样保留。
+
+R2 接入持久配置、六位置/显示器 UUID、独立相机、分页/受保护补位、完整 hover 和校验原图 Fit/100%/200%。旧绝对布局保持到明确选择；显示容量不限制收录数量；新截图不强制翻页；点击 UUID/revision、唯一输入、uploadStarted 与最终完成仍独立。左侧只反射几何，不镜像原图。原图详情保护归档/补位，关闭时释放保护。
+
+Core、Capture、Adapters、Feedback、服务、SQLite、Resources、Package.swift 和包装脚本均与原正式树一致。没有重放 UNKNOWN、清库、删锁或删除原图/媒体；没有新增生产准入。
+
+## 准入门禁与正式验证
+
+原 pin `3cc74fc` 实际检查 S 时，25 项中 23 项 PASS，仅精确路径/对象两项拒绝：5 新增、30 修改，缺失对象为空。四历史审计分别 42/17/17/13 项 PASS。独立审查后，gate **只将 REVIEWED_SOURCE 精确改为 S**；既有三个 metadata 例外、全树比较、四历史 blob/祖先、实际双亲和固定 main 28 对象均不变。
+
+正式运行必须以最终 H 的真实 PR merge checkout 完成两个来源 job、Native ARM/Intel、Feedback、原有完整视觉/辅助功能与新增 R2 12 场景、两份原始 App ZIP 审查。旧 R2 workflow 的整体 FAIL 不改写为成功；旧执行 job 成功不代替新正式运行。
+
+**原交接纠错：** R2 `final-verification.json` 的 `native.checkout` 和 `feedback.checkout` 把 API source HEAD `057a007` 写作 checkout。独立读取 ARM、Intel、Feedback 原日志后，实际 checkout 均为 **`50a362a995381f5f50d26d13068b5f87716dd4e5`**，与原 README/native manifest 一致。保留原文件，本轮准确区分来源 HEAD 和实际 checkout。
+
+## 保留的真实验收与生产边界
+
+此前 U1 是 `b0cc673` 的内部普通配置、已有预绑定、聚焦编辑器和已保存聊天：一张新系统 PNG、input=1、start=1，约 1.876638 秒开始吞噬，后来独立证实最终成功。不是最终默认生产包，不是 1.88 秒上传完成；**选区保持 FAIL** 保留。111 份私有原始证据未重新取得，不冒称再次验证。
+
+R2 原 18 场景和本轮 CI 视觉均为隔离合成原生 WindowServer 证据，不是物理输入或真实上传。当前登记 Mac 离线，本轮真机普通启动、实际显示器/Spaces、真实默认 App 上传、原生 Feedback 到云端尚未执行。普通生产 input/start/completion、内置截图上传、safe-retry、Web continuation **继续关闭**，原受限候选范围不扩大。开发 App 为 ad-hoc，未 Developer ID 签名/公证，不冒称 Gatekeeper 通过。
+
+## Codex 最小最终真机清单
+
+以 PR #1 本轮精确 HEAD、相应架构原始 ZIP、manifest/checkout/二进制 hash 为起点，保留所有旧数据与原 operation。能够独立执行即直接完成；人工物理操作或新的系统权限仅留对应项目。
+
+1. 最终普通 App 启动、Feedback 可用、第二实例拒绝、正常退出及隔离受控异常恢复；不删锁、不清库、不重放旧 UNKNOWN。
+2. 用现有数据验证旧绝对布局不被自动迁移；另用隔离新配置检查默认左中、六位置、0/90% 遮挡、0/256pt 边距、1/10 显示容量、设置重启持久化和独立相机。收录超过显示容量后翻页，新图不得强制跳页。
+3. 单击、双击、按住期间配置/入队、正向开始后吞噬与受保护补位；hover 完整预览与查看原图区分，Fit/100%/200%、缺失/更换原件保持真实失败且不替代上传。历史、设置、Feedback 草稿重开/重启及截图模式/取消不回归。
+4. 在已有获准隔离内部普通配置中，用新截图/新操作补已有聊天与 Home/local、聚焦/失焦；记录唯一 input、真实 start、开始吞噬、后台独立完成和重启。无 ACK 的安全拒绝仅算安全通过，不算一次点击可用性通过；不开放默认生产入口。
+5. 同一最终来源定位原选区 FAIL，保留真实草稿/非折叠选区，追踪首次 blur/collapse 并做原生附件对照；不得强制 focus、恢复陈旧 Range 或改正文制造 PASS。原生 Feedback→云端须先具备独立 D1/私有 Issue 验证与清理能力，再发一次合成样本并完成清理；缺访问仅暂停该项。
+6. 真实多屏断连/重连与明确恢复、负坐标/混合 Retina、Spaces/全屏、VoiceOver 朗读、人工物理鼠标与新增系统权限集中最后执行。准确记录 NOT_RUN，不把模型几何或 CI PNG 改称真机 PASS。
+
+无需重做 R2、历史研究或另建长期分支，不要求创始人提前体验 Beta。以下为此前完整历史记录。
+
+---
+
 # 最终实例可靠性补丁：正式源码准入检查点 — 2026-10-31
 
 **唯一正式工程为 Draft PR #1。** 本次完整复用 `b0cc673` 的三个已审文件与 `3cc74fc` 的四份原始脱敏验收记录，沿原提交历史快进整合。代码与证据无二次改写，没有新产品分支或研究增量。
