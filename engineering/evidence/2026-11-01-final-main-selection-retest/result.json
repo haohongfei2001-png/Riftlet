@@ -1,0 +1,130 @@
+{
+  "schemaVersion": 1,
+  "testedSource": "307335f6f1511fc49d57275ab19cf9c55496ba5a",
+  "originalExecutableSHA256": "804302e5e07ff8bb295672530a6cc53a37fe744f15e1d8bd0cb9184b79aeb24a",
+  "mode": "systemScreenshotCandidate",
+  "eventSource": "CGEvent",
+  "physical": false,
+  "userClarification": "User confirmed typing in previous trial; historical files are not rewritten",
+  "sample": {
+    "newOperation": true,
+    "retainedSystemPNG": true,
+    "recaptured": false,
+    "bytes": 3055549,
+    "width": 1138,
+    "height": 780,
+    "bitDepth": 8,
+    "colorType": 6,
+    "noninterlaced": true,
+    "trueSystemScreenshotMetadata": true,
+    "originalPrivateHashEqual": true,
+    "previouslyInput": false
+  },
+  "input": {
+    "status": "MAC_PASS",
+    "begin": 1,
+    "chunk": 12,
+    "commit": 1,
+    "fileChangeCaptureCount": 1,
+    "attempt": 1,
+    "sameOriginalTarget": true,
+    "freezeAccepted": true,
+    "preEventACKAgeMS": 22365.77287502587
+  },
+  "uploadStart": {
+    "status": "MAC_PASS",
+    "durableCount": 1,
+    "signal": "correlatedProgress",
+    "inputCount": 1,
+    "previousProgress": 2.7244152864071722,
+    "currentProgress": 5.4488305728143445,
+    "inputToStartPageMS": 1384.3999999761581
+  },
+  "completion": {
+    "status": "MAC_PASS",
+    "candidateJournal": "attached",
+    "receipt": "verifiedReady",
+    "phase": "succeeded",
+    "assetStatus": "used",
+    "visibility": "swallowed"
+  },
+  "draft": {
+    "status": "MAC_PASS",
+    "scope": "This single nonempty text and real keyboard noncollapsed range, through a fresh sample after durable success",
+    "completedSampleNativeUptime": 827570.9263015834,
+    "successObservedNativeUptime": 827570.6035755834,
+    "freshCompletedSample": true,
+    "editorConnected": true,
+    "focused": true,
+    "images": [
+      {
+        "complete": true,
+        "height": 780,
+        "width": 1138
+      }
+    ],
+    "oldImages": 0,
+    "oldImagesPreserved": true,
+    "pageNowMS": 2123978.100000024,
+    "pending": false,
+    "sameEditor": true,
+    "sameForm": true,
+    "selection": {
+      "anchor": 60,
+      "anchorInEditor": true,
+      "collapsed": false,
+      "focus": 53,
+      "focusInEditor": true
+    },
+    "textHashMatches": true,
+    "visible": "visible"
+  },
+  "oldAttachments": {
+    "status": "NOT_RUN",
+    "baselineCount": 0,
+    "reason": "Previous attachment had left the editor before this successful preparation; no replay to restore it"
+  },
+  "timingMSFromMouseDown": {
+    "swallowStart": 2070.3716666903347,
+    "appKitClose": 2195.2252082992345,
+    "durableSuccessObservedUpperBound": 8372.134458390065
+  },
+  "limits": {
+    "naturalColdFirstClick": "NOT_RUN",
+    "physicalMouse": "NOT_RUN",
+    "unfocusedEditor": "NOT_RUN",
+    "nativePickerComparison": "NOT_RUN",
+    "independentPixelDisappearance": "NOT_RUN",
+    "historicalSelectionCasesUniversallyResolved": false
+  },
+  "attemptAccounting": [
+    "One earlier keyboard setup refused before App launch after additional page edit; no image click",
+    "Startup UI readiness predicate wrongly expected appendable row on initial UNKNOWN page; private locator stopped before click",
+    "First page-navigation attempt refused because exact authorized window was not foreground, selection still noncollapsed",
+    "Exact authorized window returned without editor focus or Range mutation, then one click; no armed flag waiting"
+  ],
+  "preservation": {
+    "oldAssetsRetained": 29,
+    "oldOperationsRetained": 8,
+    "newOperations": 1,
+    "protectedFilesUnchanged": 58,
+    "oldStartsUnchanged": 4,
+    "oldCheckpointsUnchanged": 39,
+    "newCheckpoints": 7,
+    "newOperationCheckpoints": 6,
+    "additionalPriorSuccessfulOperationReadOnlyInvalidatedJournal": 1,
+    "priorSuccessfulOperationStillSucceeded": true,
+    "unknownsNotReplayed": true,
+    "oldOperationMutations": "updated_at only on three original recovery observations",
+    "candidateGracefullyExited": true
+  },
+  "boundary": {
+    "runtimeChanged": false,
+    "ciRepeated": false,
+    "messagesSentByExecutor": 0,
+    "ordinaryProductionOpened": false,
+    "webContinuationOpened": false,
+    "safeRetryOpened": false,
+    "builtInUploadOpened": false
+  }
+}

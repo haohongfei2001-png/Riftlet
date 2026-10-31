@@ -1,0 +1,92 @@
+[
+  {
+    "privateEvidenceAlias": "sample.json",
+    "sha256": "9b6e8758def89a6a943e9c8064ae7ecb81df3422d6ecc9b26a5d825c4b4174ae",
+    "bytes": 519
+  },
+  {
+    "privateEvidenceAlias": "source-xattr.hex.txt",
+    "sha256": "17642cb6e61052af768ac6c77a6161bffab981840c709a03cfcfb726540e94fd",
+    "bytes": 1452
+  },
+  {
+    "privateEvidenceAlias": "user-clarification.json",
+    "sha256": "08835d189b21c59517a1c49119094aa2e8c9e8ec5c8154c158da3ef6ff58985b",
+    "bytes": 379
+  },
+  {
+    "privateEvidenceAlias": "prepared-selection-refused-external-edit.jsonl",
+    "sha256": "ead9364846a84719aec4ccb50b5474b304ebb5bc0c0673ab254e3157a69aa6df",
+    "bytes": 3518
+  },
+  {
+    "privateEvidenceAlias": "observer-preparation-refused.jsonl",
+    "sha256": "fcdc3c5ed643c76412a26943979d65e3688a4198d356bcd96179e99433482212",
+    "bytes": 17329
+  },
+  {
+    "privateEvidenceAlias": "prepared-selection.jsonl",
+    "sha256": "81dfa4f489c0d332f8fa1473ef7ab38523fdee283e53eb7cc3421cb479b3def8",
+    "bytes": 4109
+  },
+  {
+    "privateEvidenceAlias": "baseline-confirmed.jsonl",
+    "sha256": "e20bfcd71b9216ecf611e6aafa7eba0b5fe6ce718f7821132ef22944886deeb7",
+    "bytes": 505
+  },
+  {
+    "privateEvidenceAlias": "before-click.jsonl",
+    "sha256": "6f9cb1d345688604449f2fbda3e31b39958d1777213c785007c27ab3541baf70",
+    "bytes": 526
+  },
+  {
+    "privateEvidenceAlias": "click.jsonl",
+    "sha256": "a09a6e4b63abf48687fb7d8f5f6b03fedc981944207dd9c8b694f98385bbeb7e",
+    "bytes": 563
+  },
+  {
+    "privateEvidenceAlias": "native-events.jsonl",
+    "sha256": "d7d6c0abda7e04eba5cdb6c9532f484add5c3f50d7aad982f3a557d72438d5af",
+    "bytes": 3808
+  },
+  {
+    "privateEvidenceAlias": "app.log",
+    "sha256": "91f53dbb8433fbfd32c7f52b3713ddcd8108ab2c7af5b18b0d76d4553c649941",
+    "bytes": 301381
+  },
+  {
+    "privateEvidenceAlias": "durable.json",
+    "sha256": "9d7c6e980131a980e724cfb041103feb61a56457cab7c2419794b04557e22e54",
+    "bytes": 4914
+  },
+  {
+    "privateEvidenceAlias": "original-operation-checkpoints.json",
+    "sha256": "4f692188146b00db4752bbec530bae7d3c0ed7c7907ebbacc2adb164b6980f14",
+    "bytes": 11212
+  },
+  {
+    "privateEvidenceAlias": "completed-draft.jsonl",
+    "sha256": "68124a50e39fde9f49d86bb7183ffb7c085fdb3f950038563846ba1a361c337f",
+    "bytes": 548
+  },
+  {
+    "privateEvidenceAlias": "observer-final.jsonl",
+    "sha256": "034587acd39186577bbadcdb13faa91b6c07c6450a66456dcf9808e031a8c549",
+    "bytes": 43317
+  },
+  {
+    "privateEvidenceAlias": "preservation.json",
+    "sha256": "ad969d41223c74adb79deda671e1bdb22bfb899105036d0ba50775e97790ed9c",
+    "bytes": 1468
+  },
+  {
+    "privateEvidenceAlias": "additional-original-observations.json",
+    "sha256": "2805374dfa04590203d3586045a3faa4a3a8891373b12d133e1e85c4213de4a2",
+    "bytes": 1634
+  },
+  {
+    "privateEvidenceAlias": "after-graceful-quit.sqlite",
+    "sha256": "b5a1ee12eaa6fe118c4963deb01abf89e787210dd2a507534ed23346dd451043",
+    "bytes": 262144
+  }
+]
