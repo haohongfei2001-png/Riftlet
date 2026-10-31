@@ -9,7 +9,7 @@ public final class ChromeActivityObserver {
     private var application: AXUIElement?
     private var focusedWindow: AXUIElement?
     private var pid: pid_t?
-    private var launchDate: Date?
+    private var processIdentity: ChromeProcessIdentity?
     private var generation = UUID()
     private var scheduledRefresh: Task<Void, Never>?
     private var needsWindowRefresh = false
@@ -25,12 +25,12 @@ public final class ChromeActivityObserver {
     @discardableResult
     public func bind(to app: NSRunningApplication?) -> Bool {
         guard let app, app.bundleIdentifier == "com.google.Chrome",
-              let launched = app.launchDate, AXIsProcessTrusted() else {
+              let identity = ChromeProcessIdentity.read(pid: app.processIdentifier), AXIsProcessTrusted() else {
             stop(); return false
         }
         // A new Chrome process can reuse a PID; its predecessor's observer is
         // not an event source for the new launch session.
-        if pid == app.processIdentifier, launchDate == launched, observer != nil { return true }
+        if pid == app.processIdentifier, processIdentity == identity, observer != nil { return true }
         stop()
         var next: AXObserver?
         let result = AXObserverCreate(app.processIdentifier, { source, _, name, context in
@@ -43,13 +43,13 @@ public final class ChromeActivityObserver {
         guard result == .success, let next else { return false }
         let element = AXUIElementCreateApplication(app.processIdentifier)
         guard AXUIElementSetMessagingTimeout(element, 0.05) == .success else { return false }
-        observer = next; application = element; pid = app.processIdentifier; launchDate = launched
+        observer = next; application = element; pid = app.processIdentifier; processIdentity = identity
         let pointer = Unmanaged.passUnretained(self).toOpaque()
         var registrations = 0
         for name in [kAXFocusedWindowChangedNotification, kAXFocusedUIElementChangedNotification, kAXWindowCreatedNotification] {
             if AXObserverAddNotification(next, element, name as CFString, pointer) == .success { registrations += 1 }
         }
-        guard registrations > 0 else { stop(); return false }
+        guard registrations > 0, identity.isCurrent() else { stop(); return false }
         CFRunLoopAddSource(CFRunLoopGetMain(), AXObserverGetRunLoopSource(next), .commonModes)
         observeFocusedWindow()
         return true
@@ -67,7 +67,7 @@ public final class ChromeActivityObserver {
             }
             if let focusedWindow { AXObserverRemoveNotification(observer, focusedWindow, kAXTitleChangedNotification as CFString) }
         }
-        observer = nil; application = nil; focusedWindow = nil; pid = nil; launchDate = nil
+        observer = nil; application = nil; focusedWindow = nil; pid = nil; processIdentity = nil
     }
 
     private func observeFocusedWindow() {
@@ -86,6 +86,7 @@ public final class ChromeActivityObserver {
 
     private func received(_ source: AXObserver, name: String) {
         guard let observer, CFEqual(observer, source) else { return }
+        guard processIdentity?.isCurrent() == true else { stop(); return }
         let reason: String
         switch name {
         case kAXFocusedWindowChangedNotification: reason = "chromeWindow"
@@ -103,6 +104,7 @@ public final class ChromeActivityObserver {
             await Task.yield()
             guard let self, !Task.isCancelled, self.generation == token, self.observer != nil else { return }
             self.scheduledRefresh = nil
+            guard self.processIdentity?.isCurrent() == true else { self.stop(); return }
             if self.needsWindowRefresh { self.needsWindowRefresh = false; self.observeFocusedWindow() }
             self.onChange(self.pendingReason)
         }

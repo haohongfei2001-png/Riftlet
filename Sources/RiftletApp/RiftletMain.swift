@@ -922,8 +922,8 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
 
     private var foregroundChromeSession: String? {
         guard let app = NSWorkspace.shared.frontmostApplication,
-              app.bundleIdentifier == "com.google.Chrome", let launch = app.launchDate else { return nil }
-        return "\(app.processIdentifier):\(launch.timeIntervalSince1970)"
+              app.bundleIdentifier == "com.google.Chrome" else { return nil }
+        return ChromeProcessIdentity.read(pid: app.processIdentifier)?.session
     }
 
     private func freezePress(_ id: UUID, timestamp: TimeInterval) {
