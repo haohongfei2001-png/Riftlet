@@ -4,6 +4,8 @@ import Foundation
 /// authority. The App creates this at its synchronous frozen-target boundary and
 /// revokes it synchronously before posting asynchronous coordinator cancellation.
 public final class AcceptedSelection: @unchecked Sendable {
+    public enum Authorization: Sendable { case preEventAcknowledgement, nativeClickPin }
+    public let authorization: Authorization
     public let id: UUID
     public let assetID: UUID
     public let target: TargetLease
@@ -21,7 +23,9 @@ public final class AcceptedSelection: @unchecked Sendable {
 
     public init(id: UUID = UUID(), assetID: UUID, target: TargetLease, hostEpoch: UUID,
                 acknowledgedUptime: TimeInterval, eventUptime: TimeInterval, acceptedUptime: TimeInterval, visibilityRevision: Int64,
-                deadlineUptime: TimeInterval, captureRequestID: UUID? = nil, armAttemptID: UUID? = nil) {
+                deadlineUptime: TimeInterval, captureRequestID: UUID? = nil, armAttemptID: UUID? = nil,
+                authorization: Authorization = .preEventAcknowledgement) {
+        self.authorization = authorization
         self.id = id; self.assetID = assetID; self.target = target; self.hostEpoch = hostEpoch
         self.acknowledgedUptime = acknowledgedUptime
         self.eventUptime = eventUptime; self.acceptedUptime = acceptedUptime
@@ -38,8 +42,10 @@ public final class AcceptedSelection: @unchecked Sendable {
 
     private func valid(at uptime: TimeInterval) -> Bool {
         !cancelled && !dispatched && acknowledgedUptime.isFinite && eventUptime.isFinite && acceptedUptime.isFinite
-            && deadlineUptime.isFinite && uptime.isFinite && acknowledgedUptime >= 0
-            && acknowledgedUptime < eventUptime
+            && deadlineUptime.isFinite && uptime.isFinite && acknowledgedUptime >= 0 && eventUptime >= 0
+            && (authorization == .preEventAcknowledgement
+                ? target.clickBindingID == nil && acknowledgedUptime < eventUptime
+                : target.clickBindingID != nil && eventUptime <= acknowledgedUptime && acknowledgedUptime <= acceptedUptime)
             && eventUptime <= acceptedUptime && acceptedUptime <= uptime
             // Match the App's acceptedUptime + 30 construction. Subtraction
             // can round a valid boundary to 30.000000000000007 and refuse it.

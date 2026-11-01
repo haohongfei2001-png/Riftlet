@@ -18,7 +18,8 @@ final class SelectionAuthority {
     func permits(_ selection: AcceptedSelection, epoch: UUID, foregroundSession: String?,
                  hidden: Bool, terminating: Bool, now: TimeInterval) -> Bool {
         selections[selection.id] === selection && selection.isValid(at: now)
-            && selection.hostEpoch == epoch && selection.target.sessionID == foregroundSession
+            && (selection.authorization == .nativeClickPin
+                || (selection.hostEpoch == epoch && selection.target.sessionID == foregroundSession))
             && !hidden && !terminating
     }
 
@@ -26,6 +27,20 @@ final class SelectionAuthority {
 
     func cancel(id: UUID) {
         selections.removeValue(forKey: id)?.cancel()
+    }
+
+    @discardableResult
+    func cancelPinned(session: String) -> [UUID] {
+        let ids = selections.values.filter { $0.authorization == .nativeClickPin && $0.target.sessionID == session }.map(\.id)
+        ids.forEach { cancel(id: $0) }
+        return ids
+    }
+
+    @discardableResult
+    func cancelUnpinned() -> [UUID] {
+        let ids = selections.values.filter { $0.authorization != .nativeClickPin }.map(\.id)
+        ids.forEach { cancel(id: $0) }
+        return ids
     }
 
     @discardableResult

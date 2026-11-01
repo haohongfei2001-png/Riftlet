@@ -149,6 +149,7 @@ private actor CandidateCheckBridge: WebBridgeExecutor {
     func execute(_ command: WebBridgeCommand, program: WebPageProgram) async throws -> Data {
         actions.append(command.action)
         switch command.action {
+        case .pinTarget: throw WebAdapterError.invalidRequest
         case .captureTarget: throw WebAdapterError.invalidRequest
         case .validate:
             let target = try JSONSerialization.jsonObject(with: JSONEncoder().encode(Self.target))

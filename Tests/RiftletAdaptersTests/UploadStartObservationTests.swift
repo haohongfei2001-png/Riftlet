@@ -11,7 +11,7 @@ final class UploadStartObservationTests: XCTestCase {
     }
     override func tearDownWithError() throws { try FileManager.default.removeItem(at: root) }
 
-    private func fixture(origin: AssetOrigin = .synthetic) async throws -> (QueueStore, TransferRequest) {
+    private func fixture(origin: AssetOrigin = .synthetic, pin: UUID? = nil) async throws -> (QueueStore, TransferRequest) {
         let store = try QueueStore(databaseURL: root.appendingPathComponent("\(UUID()).sqlite"))
         let asset = ImportedAsset(sourceKey: UUID().uuidString, fileName: "fixture.png",
             sha256: String(repeating: "a", count: 64), byteCount: 100,
@@ -19,7 +19,7 @@ final class UploadStartObservationTests: XCTestCase {
         _ = try await store.importAsset(asset)
         let target = TargetLease(adapterID: "chatgpt-web", surface: .webChat,
             applicationID: "com.google.Chrome", sessionID: "session", windowID: "window", tabID: "tab",
-            documentID: "document", composerID: "composer", draftGeneration: "generation")
+            documentID: "document", composerID: "composer", draftGeneration: "generation", clickBindingID: pin)
         let op = try await store.prepare(assetID: asset.id, target: target)
         try await store.markDispatchIntent(op.id)
         let saved = try await store.operation(id: op.id)
@@ -44,6 +44,32 @@ final class UploadStartObservationTests: XCTestCase {
     }
     private func decode(_ value: [String: Any]) throws -> AttachmentObservationEnvelope {
         try ObservationDecoder.decode(JSONSerialization.data(withJSONObject: value))
+    }
+
+    func testPinnedInputStartAndCompletionRoundTripWithoutLosingCapabilityIdentity() async throws {
+        let (store, request) = try await fixture(pin: UUID())
+        for state in [AttachmentObservedState.inputTriggered, .uploadStarted, .attached] {
+            var raw = try object(request)
+            var item = raw["observation"] as! [String: Any]
+            item["state"] = state.rawValue
+            item["isUploading"] = state == .uploadStarted
+            if state != .uploadStarted { item.removeValue(forKey: "uploadStart") }
+            raw["observation"] = item
+            let packet = try decode(raw), receipt = try normalizer().receipt(from: packet, for: request)
+            XCTAssertEqual(packet.observation.identity.target, request.operation.target)
+            XCTAssertEqual(receipt.target, request.operation.target)
+            XCTAssertEqual(receipt.outcome, state == .inputTriggered ? .inputTriggered : state == .uploadStarted ? .uploadStarted : .verifiedReady)
+            var identity = item["identity"] as! [String: Any]
+            var target = identity["target"] as! [String: Any]
+            target["clickBindingID"] = UUID().uuidString
+            identity["target"] = target; item["identity"] = identity; raw["observation"] = item
+            XCTAssertThrowsError(try normalizer().receipt(from: decode(raw), for: request))
+            target["clickBindingID"] = "malformed"
+            identity["target"] = target; item["identity"] = identity; raw["observation"] = item
+            XCTAssertThrowsError(try decode(raw))
+        }
+        let saved = try await store.operation(id: request.operation.id)
+        XCTAssertEqual(saved?.target, request.operation.target)
     }
 
     func testStartMappingAndAdmissionAreIndependentAndPreserveFirstAudit() async throws {

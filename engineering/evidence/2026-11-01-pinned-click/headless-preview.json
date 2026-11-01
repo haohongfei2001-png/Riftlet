@@ -1,0 +1,86 @@
+{
+  "sourceSHA256": "3b4e8d3f4aca32bc7f08c17c0ba242f15d3e8a0e5d73f9c734141c4606bccdc9",
+  "browser": "151.0.7922.34",
+  "driver": "1.62.1",
+  "scope": "headless synthetic DOM with real PNG decoder and sRGB canvas; not live ChatGPT, transport or original server bytes",
+  "cases": [
+    {
+      "switchedState": null,
+      "backgroundExercised": null,
+      "name": "old encoding gate reproduces missing proof",
+      "result": "PASS",
+      "observation": "inputTriggered",
+      "originalBytes": 1152567,
+      "previewBytes": 10082998,
+      "counts": {
+        "change": 1,
+        "send": 0,
+        "oversizedDecode": 0
+      },
+      "network": "intercepted synthetic document only"
+    },
+    {
+      "switchedState": null,
+      "backgroundExercised": null,
+      "name": "expanded PNG exact same dimensions and pixels",
+      "result": "PASS",
+      "observation": "attached",
+      "originalBytes": 1152567,
+      "previewBytes": 10082998,
+      "counts": {
+        "change": 1,
+        "send": 0,
+        "oversizedDecode": 0
+      },
+      "network": "intercepted synthetic document only"
+    },
+    {
+      "switchedState": {
+        "visibility": "visible",
+        "focus": true
+      },
+      "backgroundExercised": false,
+      "name": "pinned A after bringToFront B (inspect actual focus)",
+      "result": "PASS",
+      "observation": "attached",
+      "originalBytes": 1152567,
+      "previewBytes": 10082998,
+      "counts": {
+        "change": 1,
+        "send": 0,
+        "oversizedDecode": 0
+      },
+      "network": "intercepted synthetic document only"
+    },
+    {
+      "switchedState": null,
+      "backgroundExercised": null,
+      "name": "one visible channel changed",
+      "result": "PASS",
+      "observation": "invalidated",
+      "originalBytes": 1152567,
+      "previewBytes": 10082998,
+      "counts": {
+        "change": 1,
+        "send": 0,
+        "oversizedDecode": 0
+      },
+      "network": "intercepted synthetic document only"
+    },
+    {
+      "switchedState": null,
+      "backgroundExercised": null,
+      "name": "smaller preview cannot prove original",
+      "result": "PASS",
+      "observation": "invalidated",
+      "originalBytes": 1152567,
+      "previewBytes": 2521143,
+      "counts": {
+        "change": 1,
+        "send": 0,
+        "oversizedDecode": 0
+      },
+      "network": "intercepted synthetic document only"
+    }
+  ]
+}
