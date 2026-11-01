@@ -96,6 +96,7 @@ enum MainWorldReceiptReader {
     static func read(_ envelope: MainWorldCommandEnvelope,
                      clock: () -> TimeInterval = { ProcessInfo.processInfo.systemUptime },
                      sleep: (TimeInterval) -> Void = { Thread.sleep(forTimeInterval: $0) },
+                     checkContinuation: () throws -> Void = {},
                      fetch: (MainWorldReceiptReadBudget) throws -> String)
         throws -> (text: String, receivedUptime: TimeInterval) {
         let started = clock(), deadline = started + 1
@@ -113,6 +114,7 @@ enum MainWorldReceiptReader {
         // The original 20 ms polling interval permits at most 50 ordinary reads
         // per second. This separate cap also bounds a stalled/injected clock.
         for attempt in 0..<50 {
+            try checkContinuation()
             _ = try budget.timeout(at: checkedUptime())
             let raw: String
             do { raw = try fetch(budget) }
@@ -120,10 +122,12 @@ enum MainWorldReceiptReader {
                 guard (error as? WebAdapterError) == .nativeEventFailed(-1712) else { throw error }
                 raw = ""
             }
+            try checkContinuation()
             let received = try checkedUptime()
             if !raw.isEmpty {
                 let text = try envelope.decode(raw)
                 _ = try checkedUptime() // Even a valid reply arriving/decoding too late is refused.
+                try checkContinuation()
                 return (text, received)
             }
             guard attempt < 49 else { break }

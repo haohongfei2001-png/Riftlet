@@ -8,6 +8,7 @@ import RiftletCore
 @MainActor
 public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
     private static let scriptQueue = DispatchQueue(label: "com.riftlet.apple-events", qos: .utility)
+    private static let capturePriority = CaptureReadPriority()
     private let observedRoutes = ObservedClickRoutes()
     private let relays = MainWorldRelayStore()
     private let trace: ChromeBridgeTrace
@@ -20,6 +21,7 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
     /// The page must already have a continuous identity observer, but its full
     /// target ACK need not have returned to the App.
     public func pinTargetAtPress(program: WebPageProgram, eventUptime: TimeInterval) throws -> TargetLease {
+        Self.capturePriority.supersede()
         let started = ProcessInfo.processInfo.systemUptime
         let routeSnapshot = observedRoutes.snapshot()
         let deadline = started + 0.75
@@ -103,6 +105,13 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
         let captureContext = command.action == .captureTarget ? command.captureInvocation : nil
         let requestID = captureContext?.requestID.uuidString ?? UUID().uuidString
         let enqueued = ProcessInfo.processInfo.systemUptime
+        // Mark queued discoveries obsolete before waiting behind them. No input,
+        // discard or UNKNOWN observation receives a cancellation ticket.
+        if command.target?.clickBindingID != nil,
+           [.validate, .begin, .chunk, .commit].contains(command.action) {
+            Self.capturePriority.supersede()
+        }
+        let captureTicket = command.action == .captureTarget ? Self.capturePriority.ticket() : nil
         let trace = self.trace
         let observedRoutes = self.observedRoutes
         let relays = self.relays
@@ -112,20 +121,24 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
                 var phase = "process"
                 let result: Result<ChromeDelivery, Error> = Result {
                     try autoreleasepool {
+                        try captureTicket?.check()
                         // Recheck process lifetime after waiting for the shared serial
                         // queue. An old lease cannot target a newly reused PID.
                         guard identity.isCurrent() else {
                             throw WebAdapterError.invalidTarget
                         }
-                        let bridge = ChromePIDEvents(pid: pid, trace: trace, requestID: requestID)
+                        let bridge = ChromePIDEvents(pid: pid, trace: trace, requestID: requestID,
+                            captureTicket: captureTicket)
                         phase = "foreground"
                         if requiresForeground, try !bridge.frontmost() { throw WebAdapterError.browserNotFrontmost }
                         phase = "selection"
                         let selected: (window: String, tab: String)
                         if command.action == .captureTarget {
                             selected = try bridge.activeIdentity(check: "capture_selection")
-                            observedRoutes.recordRoute(session: session, window: selected.window, tab: selected.tab,
-                                uptime: ProcessInfo.processInfo.systemUptime)
+                            try captureTicket?.whileCurrent {
+                                observedRoutes.recordRoute(session: session, window: selected.window, tab: selected.tab,
+                                    uptime: ProcessInfo.processInfo.systemUptime)
+                            }
                         } else {
                             guard let target = command.target, let tab = target.tabID else { throw WebAdapterError.invalidTarget }
                             selected = (target.windowID, tab)
@@ -177,7 +190,8 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
                             try bridge.dispatchMainWorld(relay.dispatch(envelope), window: selected.window, tab: selected.tab)
                         }
                         phase = "receipt"
-                        let receipt = try MainWorldReceiptReader.read(envelope) { budget in
+                        let receipt = try MainWorldReceiptReader.read(envelope,
+                            checkContinuation: { try captureTicket?.check() }) { budget in
                             try bridge.execute(envelope.reader, window: selected.window, tab: selected.tab,
                                                receiptBudget: budget)
                         }
@@ -193,7 +207,8 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
                             // Publish only decoded, native-context-matched identity,
                             // independently of the later active-tab check/App ACK.
                             // It grants nothing until a press pins this exact page.
-                            observedRoutes.record(try JSONDecoder().decode(TargetLease.self, from: bytes), uptime: received)
+                            let capturedTarget = try JSONDecoder().decode(TargetLease.self, from: bytes)
+                            try captureTicket?.whileCurrent { observedRoutes.record(capturedTarget, uptime: received) }
                             // Do not publish an ACK already known to be stale:
                             // selecting another tab while the receipt was pending
                             // is a different target even in the same Chrome PID.
@@ -203,6 +218,7 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
                         }
                         phase = "complete"
                         let validated = ProcessInfo.processInfo.systemUptime
+                        try captureTicket?.check()
                         if let targetDigest {
                             trace.capture(requestID: requestID, phase: "native_validated", digest: targetDigest,
                                           received: received, validated: validated, context: captureContext, accepted: true)
@@ -215,6 +231,7 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
                 continuation.resume(with: result)
             }
         }
+        try captureTicket?.check()
         if command.action == .captureTarget {
             guard let frontmost = NSWorkspace.shared.frontmostApplication,
                   frontmost.processIdentifier == pid, identity.isCurrent() else {
@@ -341,6 +358,7 @@ private struct ChromePIDEvents {
     let trace: ChromeBridgeTrace
     let requestID: String
     var deadline: TimeInterval? = nil
+    var captureTicket: CaptureReadPriority.Ticket? = nil
     private func code(_ text: String) -> UInt32 { text.utf8.reduce(0) { ($0 << 8) | UInt32($1) } }
 
     private func object(_ kind: String, form: String, key: NSAppleEventDescriptor,
@@ -375,6 +393,7 @@ private struct ChromePIDEvents {
             guard remaining >= 0.05 else { throw WebAdapterError.nativeExecutionFailed }
             timeout = min(timeout, remaining)
         }
+        try captureTicket?.check()
         let reply: NSAppleEventDescriptor
         do { reply = try request.sendEvent(options: [.waitForReply], timeout: timeout) }
         catch {
@@ -386,6 +405,7 @@ private struct ChromePIDEvents {
                   let status = Int32(exactly: native.code) else { throw WebAdapterError.nativeExecutionFailed }
             throw WebAdapterError.nativeEventFailed(status)
         }
+        try captureTicket?.check()
         if let error = reply.paramDescriptor(forKeyword: code("errn")), error.int32Value != 0 {
             throw WebAdapterError.nativeEventFailed(error.int32Value)
         }
