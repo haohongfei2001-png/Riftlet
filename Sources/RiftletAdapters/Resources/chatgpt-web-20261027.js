@@ -874,12 +874,10 @@ function riftletWebAcceptance(command, native) {
     const editors = nodes.filter(n => n.getAttribute('role') === 'textbox' && n.getAttribute('contenteditable') === 'true');
     const forms = nodes.filter(n => n.tagName === 'FORM');
     const inputs = nodes.filter(n => n.tagName === 'INPUT' && n.getAttribute('type') === 'file');
-    root.dispatchEvent(new Event('riftlet-validate-' + id));
-    if (root.getAttribute(key) !== 'validated' || editors.length !== 1 || forms.length !== 1 || inputs.length !== 1
-        || editors[0].closest('form') !== forms[0] || inputs[0].form !== forms[0]
-        || !nodes.every(n => n.isConnected && n.getAttribute(key) === (n === root ? 'validated' : 'ready'))) fail('CLICK_ROUTE_UNOBSERVED');
-    // Burn the one-use document capability before installation/reentrancy.
-    root.dispatchEvent(new Event('riftlet-release-' + id));
+    // Establish the original MAIN business monitor before public validation or
+    // release callbacks can synchronously commit a replacement on reused nodes.
+    if (editors.length !== 1 || forms.length !== 1 || inputs.length !== 1
+        || !nodes.every(n => n.isConnected && n.getAttribute(key) === 'ready')) fail('CLICK_ROUTE_UNOBSERVED');
     if (!registry) {
       // A truly first MAIN installation must still be foreground. An already
       // observed original state may be pinned after switching to B below.
@@ -889,6 +887,12 @@ function riftletWebAcceptance(command, native) {
       install(registry);
     }
     const current = registry.tail;
+    root.dispatchEvent(new Event('riftlet-validate-' + id));
+    if (root.getAttribute(key) !== 'validated' || editors.length !== 1 || forms.length !== 1 || inputs.length !== 1
+        || editors[0].closest('form') !== forms[0] || inputs[0].form !== forms[0]
+        || !nodes.every(n => n.isConnected && n.getAttribute(key) === (n === root ? 'validated' : 'ready'))) fail('CLICK_ROUTE_UNOBSERVED');
+    // Consume the one-use witness before final pin and reentrant follow-up.
+    root.dispatchEvent(new Event('riftlet-release-' + id));
     current?.drain();
     if (!current?.pinTarget || !current.matchesClickNodes?.(editors[0],forms[0],inputs[0]) || !contextMatches(current.target) || !current.observationIdentityValid()) fail('CLICK_ROUTE_UNOBSERVED');
     registry.pendingClicks ||= new Map();

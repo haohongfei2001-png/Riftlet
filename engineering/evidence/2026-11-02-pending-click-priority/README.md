@@ -55,3 +55,40 @@ Default upload/start/completion, safe-retry, Web continuation, legacy UNKNOWN,
 media/history, Feedback and first-MAIN identity requirements are unchanged.
 Production remains NO-GO. Real ChatGPT remains blocked by host restrictions and
 was not accessed. No physical-input or complete consumer cold-first-click pass.
+
+## First MAIN follow-up on this same branch
+
+The old async URL setter path is removed ONLY from the compiler-gated local
+candidate. A single absolute A execute-JavaScript call now installs the isolated
+witness, inserts a classic inline MAIN script if needed, and requires an immediate
+matching nonce receipt before it returns. It never adopts a later asynchronous
+result as preparation. Ordinary builds retain their existing MAIN installer.
+CSP or Trusted Types denial returns unavailable with no fallback, no borrowed
+nonce, policy change, extension or background URL setter.
+
+A concrete reentrancy defect was reproduced: a public validate/release listener
+could commit business B (or B then A) before the first monitor existed. The new
+order establishes MAIN business identity/monitor before those callbacks and
+rechecks the exact saved state afterwards. All four callback/restore variants
+now reject without input; the pre-fix test failed with a missing exception.
+
+202 deterministic page/legacy cases pass. Actual Chromium isolated-world→MAIN
+headless cases use the exact emitted relay and witness, with fresh registry,
+one change on A, zero on B and synthetic final completion. Separate CSP-none
+calibration refuses immediate MAIN execution. These are realm/channel tests,
+not WindowServer/Apple Events foreground tests. Native XCTest covers immediate
+nonce result, denied/deferred insertion, repeat nonce, foreign host and invalid
+witness. Official Native/Feedback CI is reported on the exact new G/H separately.
+
+The supported atomic claim starts at this one renderer task, NOT at the original
+macOS mouseDown. A silent same-node business replacement before first observation
+or one bypassing all observed root writes remains undecidable. The pre-MAIN
+counterexample stays in the suite, with zero file input, and real-source gates
+stay closed. This candidate is not eligible for consumer/production integration
+on the strength of its local tests. Stop that enablement route rather than infer
+continuity from a TTL or the usual order of notifications.
+
+Standards context: classic inline script insertion is governed by the HTML script
+execution model (https://html.spec.whatwg.org/multipage/scripting.html). MAIN code
+is subject to page CSP (https://developer.chrome.com/docs/extensions/develop/concepts/content-scripts).
+The actual local tests, not those general documents, establish this limited result.

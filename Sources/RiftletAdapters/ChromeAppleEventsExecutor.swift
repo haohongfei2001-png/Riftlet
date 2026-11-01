@@ -74,10 +74,7 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
         let bridge = ChromePIDEvents(pid: identity.pid, trace: trace, requestID: id.uuidString, deadline: started + 0.15)
         guard identity.isCurrent(), try bridge.frontmost() else { throw WebAdapterError.browserNotFrontmost }
         let selected = try bridge.activeIdentity(check: "press_route")
-        guard try bridge.execute(ClickDocumentWitness.install(witness), window: selected.window, tab: selected.tab,
-            receiptBudget: .init(deadlineUptime: started + 0.15)) == "ready" else { throw WebAdapterError.pageRejected(.clickRouteUnobserved) }
-        guard identity.isCurrent(), try bridge.frontmost(),
-              try bridge.activeIdentity(check: "press_route_frozen") == selected else { throw WebAdapterError.nativeSelectionChanged }
+        guard identity.isCurrent() else { throw WebAdapterError.invalidTarget }
         let routeFrozen = ProcessInfo.processInfo.systemUptime
         trace.record(requestID: id.uuidString, action: "pendingClick", phase: "routeFrozen",
             enqueued: eventUptime, started: started, context: nil, succeeded: true)
@@ -88,19 +85,15 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
         let prepare = WebBridgeCommand(action: .prepareClick, clickBindingID: id, documentWitnessID: witness)
         let envelope = MainWorldCommandEnvelope(function: program.functionSource,
             commandJSON: String(decoding: try JSONEncoder().encode(prepare), as: UTF8.self), contextJSON: context)
-        if try bridge.execute(relay.probe, window: selected.window, tab: selected.tab,
-            receiptBudget: .init(deadlineUptime: started + 0.15)) != "ready" {
-            guard try bridge.frontmost(), try bridge.activeIdentity(check: "press_first_install") == selected else {
-                throw WebAdapterError.nativeSelectionChanged
-            }
-            try bridge.submitMainWorld("(()=>{\(relay.installer);return \(relay.dispatch(envelope));})()",
-                window: selected.window, tab: selected.tab)
-        } else {
-            try bridge.dispatchMainWorld(relay.dispatch(envelope), window: selected.window, tab: selected.tab)
+        // Witness and MAIN snapshot share one renderer task. Neither later
+        // microtasks/timers nor an asynchronous URL setter sit between them.
+        // This does NOT prove business continuity before this first JS task.
+        guard try bridge.execute(relay.inlineBootstrap(envelope, witness: ClickDocumentWitness.install(witness)),
+            window: selected.window, tab: selected.tab,
+            receiptBudget: .init(deadlineUptime: started + 0.15)) == "submitted" else {
+            throw WebAdapterError.pageRejected(.bridgeUnavailable)
         }
-        // The preparation command is addressed to original A. Receipt waiting
-        // and full target decoding happen asynchronously. A first-install script
-        // that loses foreground before snapshot must refuse, never bind B.
+        // MAIN's nonce receipt already exists; full decoding remains off-main.
         trace.record(requestID: id.uuidString, action: "pendingClick", phase: "mainSubmitted",
             enqueued: eventUptime, started: started, context: nil, succeeded: true)
         return PendingWebClick(id: id, assetID: assetID, session: identity.session,
@@ -298,7 +291,14 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
                                 throw WebAdapterError.nativeSelectionChanged
                             }
                             let installAndCapture = "(()=>{\(relay.installer);return \(relay.dispatch(envelope));})()"
-                            try bridge.submitMainWorld(installAndCapture, window: selected.window, tab: selected.tab)
+                            if PendingClickConfiguration.enabled {
+                                guard try bridge.execute(relay.inlineBootstrap(envelope), window: selected.window, tab: selected.tab,
+                                    receiptBudget: .init(deadlineUptime: ProcessInfo.processInfo.systemUptime + 1)) == "submitted" else {
+                                    throw WebAdapterError.pageRejected(.bridgeUnavailable)
+                                }
+                            } else {
+                                try bridge.submitMainWorld(installAndCapture, window: selected.window, tab: selected.tab)
+                            }
                         } else {
                             try bridge.dispatchMainWorld(relay.dispatch(envelope), window: selected.window, tab: selected.tab)
                         }

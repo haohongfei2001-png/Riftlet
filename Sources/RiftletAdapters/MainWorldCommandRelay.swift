@@ -68,6 +68,30 @@ struct MainWorldCommandRelay: Sendable {
         root.removeAttribute('data-riftlet-command');return 'submitted';})()
         """
     }
+
+    /// Local-only candidate: classic inline insertion must execute MAIN and
+    /// produce this nonce's receipt synchronously. CSP/Trusted Types refusal is
+    /// terminal. Never borrow a page nonce, change policy, or use a URL setter.
+    func inlineBootstrap(_ envelope: MainWorldCommandEnvelope, witness: String? = nil) -> String {
+        let script = "(()=>{\(installer);\(dispatch(envelope));})()"
+        let literal = String(decoding: try! JSONEncoder().encode(script), as: UTF8.self)
+        let witnessCheck = witness.map { "if((\($0))!=='ready')return 'unavailable';" } ?? ""
+        return """
+        (()=>{
+          if(location.origin!=='http://127.0.0.1:18766'||!/^\\/c\\/[a-f0-9-]{36}$/.test(location.pathname))return 'unavailable';
+          const root=document.documentElement;
+          \(witnessCheck)
+          try {
+            if((\(probe))==='ready'){\(dispatch(envelope));}
+            else {const script=document.createElement('script');
+              try {script.textContent=\(literal);root.appendChild(script);} finally {script.remove();}}
+            if(document.documentElement!==root)return 'unavailable';
+            const reply=JSON.parse(root.getAttribute('data-riftlet-reply-\(envelope.nonce)')||'null');
+            return reply?.nonce==='\(envelope.nonce)'&&typeof reply.ok==='boolean'?'submitted':'unavailable';
+          } catch {return 'unavailable';}
+        })()
+        """
+    }
 }
 
 /// Native ownership only. A missing relay on a background route never causes a

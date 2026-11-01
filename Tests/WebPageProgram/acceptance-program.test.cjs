@@ -1972,3 +1972,17 @@ test('pending witness refuses the actual ChatGPT origin even in a synthetic imag
  const js=witnessSwift.split('return """')[1].split('"""')[0].replaceAll('\\(key)',id).replaceAll('\\\\','\\');
  assert.equal(vm.runInContext(js,f.context),'unavailable');assert.equal(f.input.inputCount,0);
 });
+
+test('first MAIN rejects synchronous business root commit during witness validate or release',()=>{
+  for(const event of ['validate','release'])for(const restore of [false,true]){
+    const f=pendingFixture(),cmd=preparePending(f),original=f.fibers.root;
+    const replacement=f.makeFibers('local-chatgpt:AAAAAAAA-1234-1234-1234-123456789ABC');
+    const owner=original.stateNode;replacement.root.stateNode=owner;
+    f.document.documentElement.addEventListener('riftlet-'+event+'-'+cmd.documentWitnessID,()=>{
+      owner.current=replacement.root;f.form.__reactFiber$fixture=replacement.leaf;
+      if(restore){owner.current=original;f.form.__reactFiber$fixture=f.fibers.leaf;}
+    });
+    assert.throws(()=>f.call(cmd),/CLICK_ROUTE_UNOBSERVED|CLICK_PIN_REFUSED/);
+    assert.equal(f.input.inputCount,0);
+  }
+});
