@@ -1,0 +1,29 @@
+name: Click boundary regression
+on:
+  push:
+    branches: ['codex/riftlet-d242-daily-acceptance-20261101']
+    paths:
+      - 'Tests/RiftletCoreTests/ArmedTargetTests.swift'
+      - 'Tests/RiftletAdaptersTests/WebAttachmentAdapterTests.swift'
+      - '.github/workflows/click-boundary-regression.yml'
+permissions:
+  contents: read
+jobs:
+  counterexamples:
+    runs-on: macos-15
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Deterministic target and dispatch boundaries only
+        run: |
+          set -o pipefail
+          swift --version
+          swift test -j 3 --filter 'ArmedTargetTests|TargetArmSchedulerTests|SelectionAuthorityTests|AcceptedSelectionQueueTests|WebAttachmentAdapterTests.testChangedClickTimeIdentityIsRejectedEvenWhenPageReturnsValidTrue' 2>&1 | tee counterexamples.log
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: click-boundary-counterexamples
+          path: counterexamples.log
+          retention-days: 7

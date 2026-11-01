@@ -282,6 +282,20 @@ final class WebAttachmentAdapterTests: XCTestCase {
         XCTAssertEqual(actions, [.validate])
     }
 
+    func testChangedClickTimeIdentityIsRejectedEvenWhenPageReturnsValidTrue() async throws {
+        // A process/window/tab switch or React editor replacement can occur
+        // between native press and the asynchronous validation reply. The
+        // reply's Boolean must never replace the complete frozen identity.
+        for field in ["sessionID", "windowID", "tabID", "documentID", "composerID", "draftGeneration"] {
+            let executor = FakeWebBridge(behavior: .changedValidationField(field))
+            let original = FakeWebBridge.target
+            let valid = try await adapter(executor).validate(original)
+            XCTAssertFalse(valid, field)
+            let actions = await executor.recordedActions()
+            XCTAssertEqual(actions, [.validate], "No recapture/input on mismatch: \(field)")
+        }
+    }
+
     func testBundledProgramAndBoundedObservationReachCompletionWithoutAnotherInput() async throws {
         let bundled = try ChatGPTWebPageProgram.load()
         XCTAssertEqual(bundled.sourceID, ChatGPTWebPageProgram.sourceID)
@@ -384,6 +398,7 @@ private actor FakeWebBridge: WebBridgeExecutor {
     enum Behavior: Sendable {
         case startedThenAttached, normal, wrongChunkIdentity, throwOnChunk, throwOnCommit, changedValidationTarget, pendingThenAttached, alwaysPending, lateError
         case replaceBytesAfterBegin(URL, Int)
+        case changedValidationField(String)
     }
     static let target = TargetLease(adapterID: "chatgpt-web", surface: .webChat,
         applicationID: "com.google.Chrome", sessionID: "synthetic-session",
@@ -413,6 +428,7 @@ private actor FakeWebBridge: WebBridgeExecutor {
         case .validate:
             var target = try JSONSerialization.jsonObject(with: JSONEncoder().encode(Self.target)) as! [String: Any]
             if case .changedValidationTarget = behavior { target["draftGeneration"] = "changed" }
+            if case let .changedValidationField(field) = behavior { target[field] = "changed" }
             return try JSONSerialization.data(withJSONObject: ["valid": true, "target": target])
         case .begin:
             name = command.uploadName
