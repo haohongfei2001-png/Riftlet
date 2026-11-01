@@ -33,7 +33,7 @@ function png(width,height,level,changed=false) {
 }
 const original=png(1800,1400,9);
 assert.ok(original.length<=8*1024*1024);
-async function run(browser, name, preview, expected, program=source) {
+async function run(browser, name, preview, expected, program=source, pinnedSwitch=false) {
   const context=await browser.newContext({serviceWorkers:'block'});
   const requests=[];
   await context.route('**/*',route=>{
@@ -58,11 +58,17 @@ async function run(browser, name, preview, expected, program=source) {
       const decode=window.atob;window.atob=s=>{if(s.length>Math.floor(8*1024*1024/3)*4){counts.oversizedDecode++;throw Error('oversized atob');}return decode(s);};
     });
     await page.evaluate(program);
-    const identity=await page.evaluate(({native,op,asset,hash})=>{
-      const target=riftletWebAcceptance({action:'captureTarget'},native);
+    const identity=await page.evaluate(({native,op,asset,hash,pin})=>{
+      let target=riftletWebAcceptance({action:'captureTarget'},native);
+      if(pin)target=riftletWebAcceptance({action:'pinTarget',target,clickBindingID:pin},native);
       return {operationID:op,assetID:asset,attempt:1,assetSHA256:hash,target};
-    },{native,op:randomUUID(),asset:randomUUID(),hash:sha(original)});
+    },{native,op:randomUUID(),asset:randomUUID(),hash:sha(original),pin:pinnedSwitch?randomUUID():null});
     const call=command=>page.evaluate(({command,native})=>riftletWebAcceptance(command,native),{command,native});
+    let switchedState=null, other=null;
+    if(pinnedSwitch){
+      other=await context.newPage();await other.goto(url);await other.bringToFront();
+      switchedState=await page.evaluate(()=>({visibility:document.visibilityState,focus:document.hasFocus()}));
+    }
     const base={identity,target:identity.target},filename='riftlet-'+identity.operationID+'.png';
     await call({...base,action:'begin',uploadName:filename,byteCount:original.length,mediaType:'image/png'});
     let index=0;for(let offset=0;offset<original.length;offset+=65536)
@@ -86,7 +92,8 @@ async function run(browser, name, preview, expected, program=source) {
     const response=await call({...base,action:'observe'}),counts=await page.evaluate(()=>window.counts);
     assert.equal(response.observation.state,expected);assert.equal(counts.change,1);assert.equal(counts.send,0);assert.equal(counts.oversizedDecode,0);
     assert.ok(requests.every(request=>request===url));
-    return {name,result:'PASS',observation:expected,originalBytes:original.length,previewBytes:preview.length,counts,network:'intercepted synthetic document only'};
+    if(other)assert.equal(await other.locator('input[type=file]').evaluate(e=>e.files.length),0);
+    return {switchedState,backgroundExercised:pinnedSwitch?(switchedState.visibility==='hidden'||!switchedState.focus):null,name,result:'PASS',observation:expected,originalBytes:original.length,previewBytes:preview.length,counts,network:'intercepted synthetic document only'};
   }finally{await context.close();}
 }
 (async()=>{
@@ -99,6 +106,7 @@ async function run(browser, name, preview, expected, program=source) {
     const cases=[];
     cases.push(await run(browser,'old encoding gate reproduces missing proof',expanded,'inputTriggered',oldGuard));
     cases.push(await run(browser,'expanded PNG exact same dimensions and pixels',expanded,'attached'));
+    cases.push(await run(browser,'pinned A after bringToFront B (inspect actual focus)',expanded,'attached',source,true));
     cases.push(await run(browser,'one visible channel changed',png(1800,1400,0,true),'invalidated'));
     cases.push(await run(browser,'smaller preview cannot prove original',png(900,700,0),'invalidated'));
     console.log(JSON.stringify({sourceSHA256:sha(source),browser:browser.version(),driver:require('playwright/package.json').version,

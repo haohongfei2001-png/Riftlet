@@ -18,6 +18,18 @@ enum NativeCaptureProof {
         return try digest(target)
     }
 
+    static func pinnedTarget(_ data: Data, expected: TargetLease, pinID: UUID) throws -> TargetLease {
+        guard data.count <= ObservationDecoder.maximumPayloadBytes, expected.clickBindingID == nil,
+              let returned = try? JSONDecoder().decode(TargetLease.self, from: data) else { throw WebAdapterError.invalidReply }
+        let pinned = TargetLease(adapterID: expected.adapterID, surface: expected.surface,
+            applicationID: expected.applicationID, sessionID: expected.sessionID, windowID: expected.windowID,
+            tabID: expected.tabID, documentID: expected.documentID, composerID: expected.composerID,
+            draftGeneration: expected.draftGeneration, logicalDraftIdentity: expected.logicalDraftIdentity,
+            clickBindingID: pinID)
+        guard returned == pinned else { throw WebAdapterError.invalidTarget }
+        return returned
+    }
+
     static func digest(_ target: TargetLease) throws -> String {
         let encoder = JSONEncoder(); encoder.outputFormatting = [.sortedKeys]
         return SHA256.hash(data: try encoder.encode(target)).map { String(format: "%02x", $0) }.joined()

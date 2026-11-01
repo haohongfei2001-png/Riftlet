@@ -159,6 +159,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         eventUptime: TimeInterval, acceptedUptime: TimeInterval, acknowledgedUptime: TimeInterval?, epoch: UUID,
         captureRequestID: UUID?, armAttemptID: UUID?)?
     private let selectionAuthority = SelectionAuthority()
+    private let originalReceiverPermission = OriginalReceiverPermission()
     private let selectionSubmissions = SelectionSubmissionQueue()
     private var selectionUIOwners: [UUID: UUID] = [:]
     private var preparedFeedbackOperations: [UUID: UUID] = [:]
@@ -320,7 +321,8 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 let token = AcceptedSelection(assetID: id, target: target, hostEpoch: press.epoch,
                     acknowledgedUptime: ack, eventUptime: press.eventUptime, acceptedUptime: press.acceptedUptime,
                     visibilityRevision: revision, deadlineUptime: press.acceptedUptime + 30,
-                    captureRequestID: press.captureRequestID, armAttemptID: press.armAttemptID)
+                    captureRequestID: press.captureRequestID, armAttemptID: press.armAttemptID,
+                    authorization: target.clickBindingID == nil ? .preEventAcknowledgement : .nativeClickPin)
                 if self.selectionAuthority.insert(token, now: ProcessInfo.processInfo.systemUptime) { accepted = token }
             }
             if accepted != nil { self.feedback.diagnostics.record(.selectionAccepted) }
@@ -557,18 +559,24 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         let started = ProcessInfo.processInfo.systemUptime
         let foreground = foregroundChromeSession
         let receiver = expectedSession ?? foreground
+        let receiverRequest = receiver.map { originalReceiverPermission.begin(session: $0) }
         let request = permissionPublication.begin(hostEpoch: armSession, foregroundSession: foreground,
                                                   receiverSession: receiver)
         let result: AutomationPermissionState
         if requestFromUserAction { result = await permissionGate.requestFromUserAction(expectedSession: receiver) }
         else { result = await permissionGate.inspect(expectedSession: receiver) }
+        let receiverResolution = receiverRequest.map { originalReceiverPermission.resolve($0, result: result) }
+        if let receiver, receiverResolution?.published == true, result != .granted {
+            cancelPinnedSelections(session: receiver, reason: "originalReceiverPermissionUnavailable")
+        }
         let resolution = permissionPublication.resolve(request, state: result, hostEpoch: armSession,
             foregroundSession: foregroundChromeSession, terminating: terminating)
         if resolution == .publish { applyAutomationPermission(result) }
         // A stale grant cannot authorize this caller even when another fresh
         // check has since set the shared status to granted. A stale failure is
         // diagnostic only and cannot clear that newer ACK/selection authority.
-        let usableResult: AutomationPermissionState = resolution.mayUseResult ? result : .unavailable
+        let usableResult: AutomationPermissionState = resolution.mayUseResult
+            && (receiverResolution == nil || receiverResolution?.usable == result) ? result : .unavailable
         guard mode.usesWebAdapter, CommandLine.arguments.contains("--acceptance-trace") else { return usableResult }
         var fields: [String: Any] = ["event": "permission_check", "purpose": reason,
             "permissionRequestID": UUID().uuidString, "startedUptime": started,
@@ -871,13 +879,31 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         Task { try? await transfer.cancelAcceptedSelections(ids: ids, reason: reason) }
     }
 
+    private func cancelPinnedSelections(session: String, reason: String) {
+        let ids = selectionAuthority.cancelPinned(session: session)
+        selectionSubmissions.cancel(selectionIDs: Set(ids))
+        if frozenPress?.target?.clickBindingID != nil, frozenPress?.target?.sessionID == session { frozenPress = nil }
+        guard !ids.isEmpty, let transfer else { return }
+        Task { try? await transfer.cancelAcceptedSelections(ids: ids, reason: reason) }
+    }
+
+    private func cancelUnpinnedSelections(reason: String) {
+        let ids = selectionAuthority.cancelUnpinned()
+        selectionSubmissions.cancel(selectionIDs: Set(ids))
+        guard !ids.isEmpty, let transfer else { return }
+        Task { try? await transfer.cancelAcceptedSelections(ids: ids, reason: reason) }
+    }
+
     private func applyAutomationPermission(_ state: AutomationPermissionState) {
         let lostPermission = automationPermission == .granted && state != .granted
         automationPermission = state
         if mode.usesWebAdapter, state != .granted { feedback.diagnostics.record(.permissionUnavailable) }
         guard mode.usesWebAdapter, state != .granted else { return }
-        cancelSelections(reason: "permissionUnavailable")
-        armedTarget = nil; armedCaptureDiagnostics = nil; frozenPress = nil
+        // This is status for future foreground capture, not a result for a
+        // previously pinned receiver. Its own checks govern that transaction.
+        cancelUnpinnedSelections(reason: "permissionUnavailable")
+        armedTarget = nil; armedCaptureDiagnostics = nil
+        if frozenPress?.target?.clickBindingID == nil { frozenPress = nil }
         if lostPermission {
             let wake = armScheduler.request(invalidateEpoch: true)
             armSession = armScheduler.epoch
@@ -895,13 +921,23 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 hidden: userHidden, terminating: terminating, now: ProcessInfo.processInfo.systemUptime)
         }
         guard permits() else { return false }
-        let permission = await inspectAutomationPermission(reason: "acceptedSelectionValidation", assetID: selection.assetID,
-            expectedSession: selection.target.sessionID)
+        let permission: AutomationPermissionState
+        if selection.authorization == .nativeClickPin {
+            let result = await originalReceiverPermission.inspectResolution(session: selection.target.sessionID, gate: permissionGate)
+            permission = result.usable
+            if result.published && permission != .granted {
+                cancelPinnedSelections(session: selection.target.sessionID, reason: "originalReceiverPermissionUnavailable")
+            }
+        } else {
+            permission = await inspectAutomationPermission(reason: "acceptedSelectionValidation", assetID: selection.assetID,
+                expectedSession: selection.target.sessionID)
+        }
         let accepted = permission == .granted && permits()
         var fields: [String: Any] = ["event": "accepted_selection_validation", "selectionID": selection.id.uuidString,
             "assetID": selection.assetID.uuidString, "hostEpoch": selection.hostEpoch.uuidString,
             "originalEventUptime": selection.eventUptime, "acceptedUptime": selection.acceptedUptime,
-            "effectiveAckUptime": selection.acknowledgedUptime, "visibilityRevision": selection.visibilityRevision,
+            "authorization": selection.authorization == .nativeClickPin ? "nativeClickPin" : "preEventACK",
+            "bindingUptime": selection.acknowledgedUptime, "visibilityRevision": selection.visibilityRevision,
             "deadlineUptime": selection.deadlineUptime, "uptime": ProcessInfo.processInfo.systemUptime,
             "accepted": accepted]
         let encoder = JSONEncoder(); encoder.outputFormatting = [.sortedKeys]
@@ -932,6 +968,24 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
 
     private func freezePress(_ id: UUID, timestamp: TimeInterval) {
         let now = ProcessInfo.processInfo.systemUptime
+        if mode.usesWebAdapter, let web = armingAdapter as? WebAttachmentAdapter {
+            // Resolve only the route observed synchronously at mouseDown. Full
+            // prebinding ACK delivery is no longer the sole authorization path.
+            // No press is retained for asynchronous recapture or a future page.
+            do {
+                guard automationPermission == .granted else { throw WebAdapterError.disabled }
+                let target = try web.pinTargetAtPress(eventUptime: timestamp)
+                let bound = ProcessInfo.processInfo.systemUptime
+                frozenPress = (id, target, "none", timestamp, bound, bound, armSession, nil, nil)
+                recordAcceptance(["event":"click_target_pinned", "assetID":id.uuidString,
+                    "originalEventUptime":timestamp, "handlerUptime":now, "boundUptime":bound,
+                    "targetDigest":SHA256.hash(data: try JSONEncoder().encode(target)).map { String(format: "%02x", $0) }.joined(), "authorization":"nativeClickPin"])
+            } catch {
+                frozenPress = (id, nil, "nativeClickPinRefused", timestamp,
+                    ProcessInfo.processInfo.systemUptime, nil, armSession, nil, nil)
+            }
+            return
+        }
         let target = armedTarget?.freeze(eventUptime: timestamp, nowUptime: now,
             hostSession: armSession, foregroundSession: foregroundChromeSession)
         // Classification is diagnostic only. ArmedTarget.freeze remains the sole
@@ -982,8 +1036,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private func requestArm(reason: String = "fallback", invalidate: Bool = false) {
         pendingArmReason = reason
         if invalidate {
-            cancelSelections(reason: reason)
-            armedTarget = nil; armedCaptureDiagnostics = nil; frozenPress = nil
+            cancelUnpinnedSelections(reason: reason)
+            armedTarget = nil; armedCaptureDiagnostics = nil
+            if frozenPress?.target?.clickBindingID == nil { frozenPress = nil }
         }
         let wake = armScheduler.request(invalidateEpoch: invalidate)
         armSession = armScheduler.epoch

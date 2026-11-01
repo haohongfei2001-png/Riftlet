@@ -1794,3 +1794,80 @@ test('capacity proof never blesses malformed, legacy-capability or duplicate req
   const state=f.context.__riftletWebAcceptance20261027v13.tail;delete state.lifecycleVersion;
   assert.throws(()=>f.call(command),/BEGIN_REFUSED/);assert.equal(state.operations.has(op.identity.operationID),false);assert.equal(f.input.inputCount,0);
 });
+
+// Click capabilities belong to one already observed document, not a foreground
+// cache or a new input permit inferred from a later active tab.
+function pinnedOperation(f, id='11111111-1111-4111-8111-111111111111') {
+  const op=f.bind(id);
+  const target=f.call({action:'pinTarget',target:op.target,clickBindingID:webcrypto.randomUUID()});
+  op.target=target;op.identity={...op.identity,target};
+  op.command=action=>({action,target,identity:op.identity});
+  return op;
+}
+test('pinned A continues after blur or hidden; unaddressed B and original text stay untouched', async()=>{
+  for(const change of [f=>{f.focus(false);f.windowEvent('blur');},f=>{f.document.visibilityState='hidden';f.documentEvent('visibilitychange',f.document);}]){
+    const a=fixture({thread:true}),b=fixture({thread:true});
+    const original=a.editor.textContent,old=a.form.append(new a.Node('div',{role:'button','aria-label':'old.png'}));old.append(new a.Node('img'));
+    const op=pinnedOperation(a);change(a);
+    assert.equal(a.call({action:'validate',target:op.target}).valid,true);
+    a.stage(op);a.commit(op);await a.settle();assert.equal(a.input.inputCount,1);assert.equal(b.input.inputCount,0);
+    const view=a.makeCard(op,20);view.progress.attrs['aria-valuenow']='45';a.mutate([]);
+    assert.equal(a.observe(op).state,'uploadStarted');
+    a.finish(view);await a.settle();assert.equal(a.observe(op).state,'attached');
+    assert.equal(a.editor.textContent,original);assert.ok(a.form.contains(old));
+  }
+});
+test('pinned hash continuation survives switch but document destruction still refuses',async()=>{
+  for(const destroy of [false,true]){
+    const f=fixture({blockedDigest:true}),op=pinnedOperation(f);f.stage(op);f.commit(op);
+    f.focus(false);f.windowEvent('blur');f.document.visibilityState='hidden';f.documentEvent('visibilitychange',f.document);
+    if(destroy)f.windowEvent('pagehide');f.release();await f.settle();
+    assert.equal(f.input.inputCount,destroy?0:1);
+  }
+});
+test('pin cannot install missing observation, bind unfocused page or forge another capability',()=>{
+  const f=fixture();assert.throws(()=>f.call({action:'pinTarget',clickBindingID:webcrypto.randomUUID()}),/CLICK_ROUTE_UNOBSERVED/);
+  const base=f.target();f.focus(false);assert.throws(()=>f.call({action:'pinTarget',target:base,clickBindingID:webcrypto.randomUUID()}),/CLICK_PIN_REFUSED/);
+  f.focus(true);const pin=f.call({action:'pinTarget',target:base,clickBindingID:webcrypto.randomUUID()});
+  assert.equal(f.call({action:'validate',target:{...pin,clickBindingID:webcrypto.randomUUID()}}).valid,false);
+  assert.throws(()=>f.call({action:'pinTarget',target:base,clickBindingID:pin.clickBindingID}),/CLICK_PIN_REFUSED/);
+  assert.throws(()=>f.call({action:'pinTarget',target:{...base,documentID:'later-document'},clickBindingID:webcrypto.randomUUID()}),/CLICK_ROUTE_UNOBSERVED/);
+});
+test('a pin is consumed by one operation and never reused for another image',async()=>{
+  const f=fixture(),op=pinnedOperation(f);f.stage(op);f.commit(op);await f.settle();
+  const another={...op.identity,operationID:'33333333-3333-4333-8333-333333333333'};
+  assert.throws(()=>f.call({action:'begin',target:op.target,identity:another,uploadName:'riftlet-'+another.operationID+'.png',mediaType:'image/png',byteCount:op.bytes.length}),/CLICK_PIN_SPENT/);
+  assert.throws(()=>f.commit(op),/COMMIT_REFUSED/);assert.equal(f.input.inputCount,1);
+});
+test('two distinct clicks retain their own original pin through focus lease renewal',async()=>{
+  const f=fixture(),a=pinnedOperation(f);
+  f.focus(false);f.windowEvent('blur');f.focus(true);f.windowEvent('focus');
+  const b=pinnedOperation(f,'33333333-3333-4333-8333-333333333333');
+  assert.notEqual(a.target.clickBindingID,b.target.clickBindingID);
+  assert.equal(f.call({action:'validate',target:a.target}).valid,true);
+  f.stage(a);f.commit(a);await f.settle();const av=f.makeCard(a);f.finish(av);await f.settle();
+  f.stage(b);f.commit(b);await f.settle();const bv=f.makeCard(b);f.finish(bv);await f.settle();
+  assert.equal(f.input.inputCount,2);assert.equal(f.observe(a).state,'attached');assert.equal(f.observe(b).state,'attached');
+});
+test('pin does not survive original editor loss, navigation or business A-B-A',()=>{
+  for(const destroy of [f=>{f.editor.isConnected=false;},f=>f.navigationEvent('navigate'),f=>{
+    const root=f.fibers.root.stateNode;const b=f.makeFibers('99999999-9999-4999-8999-999999999999');
+    b.root.stateNode=root;root.current=b.root;root.current=f.fibers.root;
+  }]){
+    const f=fixture({thread:true}),op=pinnedOperation(f);destroy(f);
+    assert.equal(f.call({action:'validate',target:op.target}).valid,false);
+    assert.throws(()=>f.stage(op),/TARGET_INVALID/);assert.equal(f.input.inputCount,0);
+  }
+});
+
+test('before pin, focus or visibility A-B-A cannot revive the original click route',()=>{
+  for(const transition of [f=>{f.focus(false);f.windowEvent('blur');f.focus(true);f.windowEvent('focus');},
+      f=>{f.document.visibilityState='hidden';f.documentEvent('visibilitychange',f.document);f.document.visibilityState='visible';f.documentEvent('visibilitychange',f.document);}]){
+    const f=fixture({thread:true}),original=f.target();transition(f);
+    assert.throws(()=>f.call({action:'pinTarget',target:original,clickBindingID:webcrypto.randomUUID()}),/CLICK_PIN_REFUSED/);
+    const fresh=f.target();assert.notEqual(fresh.draftGeneration,original.draftGeneration);
+    assert.throws(()=>f.call({action:'pinTarget',target:original,clickBindingID:webcrypto.randomUUID()}),/CLICK_ROUTE_UNOBSERVED/);
+    const pin=f.call({action:'pinTarget',target:fresh,clickBindingID:webcrypto.randomUUID()});
+    assert.equal(f.call({action:'validate',target:pin}).valid,true);assert.equal(f.input.inputCount,0);
+  }
+});

@@ -681,6 +681,7 @@ private actor AdmissionTestBridge: WebBridgeExecutor {
         actions.append(command.action)
         if let identity = command.identity { identities.append(identity) }
         switch command.action {
+        case .pinTarget: throw WebAdapterError.invalidRequest
         case .begin: return try acknowledgement(command, next: 0)
         case .chunk:
             let chunk = try XCTUnwrap(Data(base64Encoded: try XCTUnwrap(command.chunkBase64)))

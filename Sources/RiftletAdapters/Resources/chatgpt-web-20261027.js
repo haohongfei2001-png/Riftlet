@@ -19,7 +19,8 @@ function riftletWebAcceptance(command, native) {
   const TARGET_KEYS = ['adapterID', 'surface', 'applicationID', 'sessionID', 'windowID', 'tabID', 'documentID', 'composerID', 'draftGeneration'];
   const sameLogical = (a, b) => (!a && !b) || (!!a && !!b && a.profileID === b.profileID && a.id === b.id);
   const sameTarget = (a, b) => !!a && !!b && TARGET_KEYS.every(k => a[k] === b[k])
-    && sameLogical(a.logicalDraftIdentity, b.logicalDraftIdentity);
+    && sameLogical(a.logicalDraftIdentity, b.logicalDraftIdentity)
+    && (a.clickBindingID || null) === (b.clickBindingID || null);
   const sameIdentity = (a, b) => !!a && !!b && a.operationID === b.operationID && a.assetID === b.assetID
     && a.attempt === b.attempt && a.assetSHA256 === b.assetSHA256 && sameTarget(a.target, b.target);
   const contextMatches = t => t && ['applicationID', 'sessionID', 'windowID', 'tabID'].every(k => t[k] === native[k]);
@@ -416,7 +417,7 @@ function riftletWebAcceptance(command, native) {
     if (!composerAvailable()) fail('COMPOSER_UNAVAILABLE');
     // Reject a missing/lost monitor before registering any generation listeners.
     const monitor = boundRoot ? rootMonitor(registry, boundRoot) : null;
-    const ids = new WeakMap(), operations = new Map();
+    const ids = new WeakMap(), operations = new Map(), clickPins = new Map(), issuedPinIDs = new Set();
     let nextNode = 0, invalid = false, inputRevoked = false, sequence = 0;
     const retiredTargets = [];
     const listeners = [];
@@ -442,7 +443,7 @@ function riftletWebAcceptance(command, native) {
     const tick = () => { if (++sequence > Number.MAX_SAFE_INTEGER - 1) invalid = true; return sequence; };
     const revokeInput = () => {
       inputRevoked = true;
-      for (const op of operations.values()) if (!op.committed) { op.file = null; op.chunks = []; op.invalid = true; }
+      for (const op of operations.values()) if (!op.committed && !op.identity.target.clickBindingID) { op.file = null; op.chunks = []; op.invalid = true; }
     };
     const invalidate = () => {
       if (invalid) return;
@@ -465,7 +466,7 @@ function riftletWebAcceptance(command, native) {
       }
       monitor?.release?.(form, invalidate);
       if (state) {
-        const retired = retiredBinding([...retiredTargets,target], audit, state.next, continuityEvents);
+        const retired = retiredBinding([...retiredTargets,target,...[...clickPins.values()].map(p=>p.target)], audit, state.next, continuityEvents);
         for (const key of Object.keys(state)) delete state[key];
         Object.assign(state, retired);
       }
@@ -478,6 +479,30 @@ function riftletWebAcceptance(command, native) {
       if (!observationIdentityValid() || inputRevoked) return false;
       if (!composerAvailable()) { revokeInput(); return false; }
       return document.visibilityState === 'visible' && document.hasFocus();
+    };
+    // Only a foreground native press can issue a capability. Later commands
+    // must present this exact target; hidden state is not a change of draft.
+    const pinTarget = id => {
+      if (!/^[a-fA-F0-9]{8}-(?:[a-fA-F0-9]{4}-){3}[a-fA-F0-9]{12}$/.test(id || '')
+          || issuedPinIDs.has(id) || !valid()) fail('CLICK_PIN_REFUSED');
+      const now = performance.now();
+      for (const [key,pin] of clickPins) if (!pin.operationID && pin.deadline <= now) clickPins.delete(key);
+      if ([...clickPins.values()].filter(p => !p.operationID && p.deadline > now).length >= 16) fail('CLICK_PIN_LIMIT');
+      const pinned = {...target, clickBindingID:id};
+      issuedPinIDs.add(id);
+      clickPins.set(id, {target:pinned, deadline:now+30000, operationID:null});
+      return pinned;
+    };
+    const ownsPin = candidate => !!candidate?.clickBindingID && sameTarget(clickPins.get(candidate.clickBindingID)?.target, candidate);
+    const validFor = candidate => candidate?.clickBindingID
+      ? ownsPin(candidate) && (clickPins.get(candidate.clickBindingID).operationID || performance.now() < clickPins.get(candidate.clickBindingID).deadline)
+        && observationIdentityValid() && composerAvailable()
+      : sameTarget(candidate, target) && valid();
+    const claimPin = identity => {
+      if (!identity.target.clickBindingID) return;
+      const pin = clickPins.get(identity.target.clickBindingID);
+      if (!pin || !sameTarget(pin.target, identity.target) || pin.operationID || performance.now() >= pin.deadline) fail('CLICK_PIN_SPENT');
+      pin.operationID = identity.operationID;
     };
     // A focus-only revocation need not consume another retained operation slot.
     // Renew only a continuously observed binding; original operation leases stay read-only. The old target object
@@ -801,7 +826,7 @@ function riftletWebAcceptance(command, native) {
       monitorAlive = monitor.bind(form, editor, input, logicalDraftIdentity, route, checkBinding, invalidate);
       if (!checkBinding() || !monitorAlive()) { invalidate(); fail('UNPROVEN_MONITORED_BINDING'); }
     }
-    state = {lifecycleVersion: 1, ownsTarget: candidate => sameTarget(candidate,target) || retiredTargets.some(t => sameTarget(t,candidate)), get target() { return target; }, valid, observationIdentityValid, invalidate, revokeInput, drain, continuityEvents, operations, sample, tick, ownCards, markBad, currentMember,
+    state = {lifecycleVersion: 1, pinTarget, validFor, claimPin, ownsTarget: candidate => ownsPin(candidate) || sameTarget(candidate,target) || retiredTargets.some(t => sameTarget(t,candidate)), get target() { return target; }, valid, observationIdentityValid, invalidate, revokeInput, drain, continuityEvents, operations, sample, tick, ownCards, markBad, currentMember,
       currentSource, input, form, nodeID, renewEmptyInputLease, next: null};
     if (registry.tail) registry.tail.next = state;
     else registry.head = state;
@@ -826,26 +851,36 @@ function riftletWebAcceptance(command, native) {
     }
     let current = registry.tail;
     current?.drain();
-    if (!current || !current.valid() || !contextMatches(current.target)) {
+    if (!current || !current.pinTarget || !current.valid() || !contextMatches(current.target)) {
       // Historical v13 closures have no renewal capability. Leave those states
       // and all their operations untouched and use their original bounded path.
-      if (current && contextMatches(current.target) && current.renewEmptyInputLease?.()) return current.target;
+      if (current?.pinTarget && contextMatches(current.target) && current.renewEmptyInputLease?.()) return current.target;
       if (current) current.revokeInput();
       // Identity tombstones are retained; lifetime count is not a resource quota.
       current = install(registry);
     }
     return current.target;
   }
+  if (command.action === 'pinTarget') {
+    // No installation on a late page. A missing/legacy continuity observer is
+    // a refusal, never permission to bind whatever document appears later.
+    const current = registry?.tail;
+    current?.drain();
+    if (!current?.pinTarget || !contextMatches(current.target)
+        || !sameTarget(command.target,current.target)) fail('CLICK_ROUTE_UNOBSERVED');
+    return current.pinTarget(command.clickBindingID);
+  }
   const state = [...generations()].find(generation => (generation.ownsTarget?.(command.target) ?? sameTarget(command.target, generation.target)));
   state?.drain();
   if (command.action === 'validate') {
-    return {target: command.target, valid: !!state && state === registry.tail && sameTarget(command.target,state.target) && state.valid()
-      && contextMatches(state.target)};
+    return {target: command.target, valid: !!state && (command.target?.clickBindingID
+      ? state.validFor?.(command.target) === true : state === registry.tail && sameTarget(command.target,state.target) && state.valid())
+      && contextMatches(command.target)};
   }
   const identity = command.identity;
   if (!identity || !sameTarget(identity.target, command.target)) fail('IDENTITY_REQUIRED');
-  if (!state || !(command.action === 'observe' ? state.observationIdentityValid() : state.valid()) || !contextMatches(state.target) || !(command.action === 'observe' ? (state.ownsTarget?.(identity.target) ?? sameTarget(identity.target,state.target)) : sameTarget(identity.target,state.target))
-      || (command.action !== 'observe' && state !== registry.tail)) {
+  if (!state || !(command.action === 'observe' ? state.observationIdentityValid() : (identity.target.clickBindingID ? state.validFor?.(identity.target) : state.valid())) || !contextMatches(identity.target) || !(command.action === 'observe' ? (state.ownsTarget?.(identity.target) ?? sameTarget(identity.target,state.target)) : (identity.target.clickBindingID ? state.validFor?.(identity.target) : sameTarget(identity.target,state.target)))
+      || (command.action !== 'observe' && !identity.target.clickBindingID && state !== registry.tail)) {
     if (command.action === 'observe') return blankObservation(identity);
     fail('TARGET_INVALID');
   }
@@ -859,6 +894,7 @@ function riftletWebAcceptance(command, native) {
         || command.uploadName !== 'riftlet-' + identity.operationID + '.png'
         || command.mediaType !== 'image/png' || !Number.isSafeInteger(command.byteCount)
         || command.byteCount < 8 || command.byteCount > MAX_BYTES || state.ownCards(command.uploadName).length) fail('BEGIN_REFUSED');
+    state.claimPin?.(identity);
     if ([...generations()].flatMap(g => [...g.operations.values()]).filter(o => !o.invalid && (!o.committed || o.file || (o.committed && !o.fileHashVerified))).length >= MAX_ACTIVE_PAYLOADS) {
       if (state.lifecycleVersion !== 1 || typeof command.invocationID !== 'string' || !/^[a-fA-F0-9]{8}-(?:[a-fA-F0-9]{4}-){3}[a-fA-F0-9]{12}$/.test(command.invocationID)) fail('BEGIN_REFUSED');
       state.operations.set(identity.operationID, {identity, invocationID:command.invocationID,
@@ -903,9 +939,10 @@ function riftletWebAcceptance(command, native) {
     if (!signature.every((n, i) => bytes[i] === n)) { state.markBad(op); }
     else hash(bytes).then(digest => {
       state.drain();
-      if (digest !== op.identity.assetSHA256 || state !== registry.tail || !state.valid() || op.invalid
-          || document.visibilityState !== 'visible' || !document.hasFocus()
-          || !sameTarget(op.identity.target, state.target) || state.ownCards(op.name).length) {
+      if (digest !== op.identity.assetSHA256 || op.invalid
+          || (op.identity.target.clickBindingID ? !state.validFor?.(op.identity.target)
+            : state !== registry.tail || !state.valid() || document.visibilityState !== 'visible' || !document.hasFocus()
+              || !sameTarget(op.identity.target, state.target)) || state.ownCards(op.name).length) {
         state.markBad(op); return;
       }
       // From this final lease/identity check through native setter+change there is

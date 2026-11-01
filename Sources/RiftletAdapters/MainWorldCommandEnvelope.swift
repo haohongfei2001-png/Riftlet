@@ -13,6 +13,11 @@ public enum WebPageRejection: String, CaseIterable, Sendable {
     case nativeContext = "NATIVE_CONTEXT_REQUIRED"
     case generationLimit = "LEASE_GENERATION_LIMIT"
     case invalidTarget = "TARGET_INVALID"
+    case clickRouteUnobserved = "CLICK_ROUTE_UNOBSERVED"
+    case clickPinRefused = "CLICK_PIN_REFUSED"
+    case clickPinLimit = "CLICK_PIN_LIMIT"
+    case clickPinSpent = "CLICK_PIN_SPENT"
+    case bridgeUnavailable = "BRIDGE_UNAVAILABLE"
     case rootMonitorLost = "ROOT_MONITOR_LOST"
     case rootMonitorLimit = "ROOT_MONITOR_LIMIT"
     case rootMonitorUnavailable = "ROOT_MONITOR_UNAVAILABLE"
@@ -24,10 +29,12 @@ public enum WebPageRejection: String, CaseIterable, Sendable {
 /// command again. Only code-owned errors cross the bridge; no page exception text.
 struct MainWorldCommandEnvelope {
     let nonce: String
+    let commandJSON: String
     let source: String
     let reader: String
 
     init(function: String, commandJSON: String, contextJSON: String) {
+        self.commandJSON = commandJSON
         nonce = UUID().uuidString.lowercased()
         let attribute = "data-riftlet-reply-" + nonce
         let codes = String(decoding: try! JSONEncoder().encode(WebPageRejection.allCases.map(\.rawValue)), as: UTF8.self)

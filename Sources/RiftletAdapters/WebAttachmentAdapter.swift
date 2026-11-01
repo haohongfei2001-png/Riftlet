@@ -3,9 +3,9 @@ import CryptoKit
 import Darwin
 import RiftletCore
 
-public enum WebAdapterMode: Sendable { case disabled, syntheticDevelopment, systemScreenshotCandidate, ordinarySystemScreenshot }
+public enum WebAdapterMode: Sendable, Equatable { case disabled, syntheticDevelopment, systemScreenshotCandidate, ordinarySystemScreenshot }
 public enum WebBridgeAction: String, Codable, Sendable {
-    case captureTarget, validate, begin, chunk, commit, observe, discard
+    case captureTarget, pinTarget, validate, begin, chunk, commit, observe, discard
 }
 
 /// The sole page function is supplied from reviewed source. It must synchronously
@@ -34,26 +34,32 @@ public struct WebBridgeCommand: Encodable, Sendable {
     public let chunkIndex: Int?
     public let chunkBase64: String?
     public let invocationID: UUID?
+    public let clickBindingID: UUID?
     /// Host diagnostics only, deliberately excluded from the page payload.
     public let captureInvocation: CaptureInvocationContext?
 
     private enum CodingKeys: String, CodingKey {
-        case action, target, identity, uploadName, mediaType, byteCount, chunkIndex, chunkBase64, invocationID
+        case action, target, identity, uploadName, mediaType, byteCount, chunkIndex, chunkBase64, invocationID, clickBindingID
     }
 
     init(action: WebBridgeAction, target: TargetLease? = nil, identity: ObservationIdentity? = nil,
          uploadName: String? = nil, mediaType: String? = nil, byteCount: Int64? = nil,
          chunkIndex: Int? = nil, chunkBase64: String? = nil, invocationID: UUID? = nil,
-         captureInvocation: CaptureInvocationContext? = nil) {
+         captureInvocation: CaptureInvocationContext? = nil, clickBindingID: UUID? = nil) {
         self.action = action; self.target = target; self.identity = identity
         self.uploadName = uploadName; self.mediaType = mediaType; self.byteCount = byteCount
         self.chunkIndex = chunkIndex; self.chunkBase64 = chunkBase64; self.invocationID = invocationID
         self.captureInvocation = captureInvocation
+        self.clickBindingID = clickBindingID
     }
 }
 
 public protocol WebBridgeExecutor: Sendable {
     func execute(_ command: WebBridgeCommand, program: WebPageProgram) async throws -> Data
+}
+
+@MainActor public protocol WebClickTargetPinning: WebBridgeExecutor {
+    func pinTargetAtPress(program: WebPageProgram, eventUptime: TimeInterval) throws -> TargetLease
 }
 
 public enum WebAdapterError: Error, Equatable, Sendable {
@@ -69,9 +75,9 @@ public enum WebAdapterError: Error, Equatable, Sendable {
 public actor WebAttachmentAdapter: AttachmentAdapter {
     public nonisolated let id: String
     private let mediaDirectory: URL
-    private let executor: any WebBridgeExecutor
-    private let program: WebPageProgram?
-    private let mode: WebAdapterMode
+    private nonisolated let executor: any WebBridgeExecutor
+    private nonisolated let program: WebPageProgram?
+    private nonisolated let mode: WebAdapterMode
     private let normalizer: ObservationNormalizer
     private let polling: WebObservationPolling
     private let candidateJournal: SystemScreenshotObservationJournal?
@@ -115,6 +121,14 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
             try SystemScreenshotWebCandidate.preflight(asset, fileURL: fileURL, mediaDirectory: mediaDirectory,
                 restrictedAdmission: candidateAdmission != nil)
         }
+    }
+
+    /// Synchronous native press boundary. No input is sent here; the returned
+    /// capability is independently checked by normal validate/begin/commit.
+    @MainActor public func pinTargetAtPress(eventUptime: TimeInterval) throws -> TargetLease {
+        guard mode != .disabled, let program,
+              let pinner = executor as? any WebClickTargetPinning else { throw WebAdapterError.disabled }
+        return try pinner.pinTargetAtPress(program: program, eventUptime: eventUptime)
     }
 
     public func captureTarget() async throws -> TargetLease {

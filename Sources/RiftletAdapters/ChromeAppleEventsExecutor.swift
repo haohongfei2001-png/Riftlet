@@ -6,13 +6,65 @@ import RiftletCore
 /// reviewed page program. Events address the exact PID, never an ambiguous
 /// bundle-ID lookup when several Chrome profile processes are running.
 @MainActor
-public final class ChromeAppleEventsExecutor: WebBridgeExecutor {
+public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
     private static let scriptQueue = DispatchQueue(label: "com.riftlet.apple-events", qos: .utility)
+    private let observedRoutes = ObservedClickRoutes()
+    private let relays = MainWorldRelayStore()
     private let trace: ChromeBridgeTrace
 
     public init(traceEnabled: Bool = false) { trace = ChromeBridgeTrace(enabled: traceEnabled) }
 
+    /// Runs directly at the native press callback, before an asynchronous queue
+    /// can substitute a newly frontmost tab. Reads Chrome's absolute object
+    /// specifier, then submits only to that object. No activation or tab setter.
+    /// The page must already have a continuous identity observer, but its full
+    /// target ACK need not have returned to the App.
+    public func pinTargetAtPress(program: WebPageProgram, eventUptime: TimeInterval) throws -> TargetLease {
+        let started = ProcessInfo.processInfo.systemUptime
+        let routeSnapshot = observedRoutes.snapshot()
+        let deadline = started + 0.75
+        guard eventUptime.isFinite, eventUptime >= 0, eventUptime <= started,
+              let app = NSWorkspace.shared.frontmostApplication, app.bundleIdentifier == "com.google.Chrome",
+              let identity = ChromeProcessIdentity.read(pid: app.processIdentifier) else { throw WebAdapterError.invalidTarget }
+        let requestID = UUID(), pinID = UUID()
+        let bridge = ChromePIDEvents(pid: identity.pid, trace: trace, requestID: requestID.uuidString, deadline: deadline)
+        guard identity.isCurrent(), try bridge.frontmost() else { throw WebAdapterError.browserNotFrontmost }
+        let selected = try bridge.activeIdentity(check: "press_route")
+        guard let expected = routeSnapshot.target(session: identity.session, window: selected.window, tab: selected.tab, eventUptime: eventUptime) else {
+            throw WebAdapterError.pageRejected(.clickRouteUnobserved)
+        }
+        let command = WebBridgeCommand(action: .pinTarget, target: expected, clickBindingID: pinID)
+        let envelope = MainWorldCommandEnvelope(function: program.functionSource,
+            commandJSON: String(decoding: try JSONEncoder().encode(command), as: UTF8.self),
+            contextJSON: Self.contextJSON(session: identity.session, window: selected.window, tab: selected.tab))
+        guard identity.isCurrent() else { throw WebAdapterError.invalidTarget }
+        guard let relay = relays.relay(function: program.functionSource,
+            contextJSON: Self.contextJSON(session: identity.session, window: selected.window, tab: selected.tab), allowCreate: false) else {
+            throw WebAdapterError.pageRejected(.bridgeUnavailable)
+        }
+        try bridge.dispatchMainWorld(relay.dispatch(envelope), window: selected.window, tab: selected.tab)
+        let receipt = try MainWorldReceiptReader.read(envelope) { budget in
+            try bridge.execute(envelope.reader, window: selected.window, tab: selected.tab, receiptBudget: budget)
+        }
+        let data = Data(receipt.text.utf8)
+        _ = try NativeCaptureProof.digest(data, session: identity.session, window: selected.window, tab: selected.tab)
+        let target = try NativeCaptureProof.pinnedTarget(data, expected: expected, pinID: pinID)
+        guard identity.isCurrent() else { throw WebAdapterError.invalidTarget }
+        // Page pin creation required A to be focused; once created, switching to
+        // B is allowed. Do not reread activeIdentity here and replace/cancel A.
+        trace.record(requestID: requestID.uuidString, action: "pinTarget", phase: "pinned",
+            enqueued: eventUptime, started: started, context: nil, succeeded: true)
+        return target
+    }
+
+    private nonisolated static func contextJSON(session: String, window: String, tab: String) -> String {
+        let encoder = JSONEncoder(); encoder.outputFormatting = [.sortedKeys]
+        return String(decoding: try! encoder.encode(["applicationID":"com.google.Chrome", "sessionID":session,
+            "windowID":window, "tabID":tab]), as: UTF8.self)
+    }
+
     public func execute(_ command: WebBridgeCommand, program: WebPageProgram) async throws -> Data {
+        guard command.action != .pinTarget else { throw WebAdapterError.invalidRequest }
         let browserID = "com.google.Chrome"
         let application: NSRunningApplication
         if command.action == .captureTarget {
@@ -33,7 +85,7 @@ public final class ChromeAppleEventsExecutor: WebBridgeExecutor {
         let pid = identity.pid
         // Original operation identity remains unchanged for legacy read-only observation.
         let session = command.action == .captureTarget ? identity.session : (command.target?.sessionID ?? "")
-        let requiresForeground = command.action != .observe && command.action != .discard
+        let requiresForeground = ChromeCommandRouting.requiresForeground(command.action, target: command.target)
         if requiresForeground {
             guard NSWorkspace.shared.frontmostApplication?.processIdentifier == pid else {
                 throw WebAdapterError.browserNotFrontmost
@@ -48,11 +100,12 @@ public final class ChromeAppleEventsExecutor: WebBridgeExecutor {
             }
         }
         let commandJSON = String(decoding: try JSONEncoder().encode(command), as: UTF8.self)
-        let sessionJSON = String(decoding: try JSONEncoder().encode(session), as: UTF8.self)
         let captureContext = command.action == .captureTarget ? command.captureInvocation : nil
         let requestID = captureContext?.requestID.uuidString ?? UUID().uuidString
         let enqueued = ProcessInfo.processInfo.systemUptime
         let trace = self.trace
+        let observedRoutes = self.observedRoutes
+        let relays = self.relays
         let delivery: ChromeDelivery = try await withCheckedThrowingContinuation { continuation in
             Self.scriptQueue.async {
                 let started = ProcessInfo.processInfo.systemUptime
@@ -71,6 +124,8 @@ public final class ChromeAppleEventsExecutor: WebBridgeExecutor {
                         let selected: (window: String, tab: String)
                         if command.action == .captureTarget {
                             selected = try bridge.activeIdentity(check: "capture_selection")
+                            observedRoutes.recordRoute(session: session, window: selected.window, tab: selected.tab,
+                                uptime: ProcessInfo.processInfo.systemUptime)
                         } else {
                             guard let target = command.target, let tab = target.tabID else { throw WebAdapterError.invalidTarget }
                             selected = (target.windowID, tab)
@@ -81,7 +136,7 @@ public final class ChromeAppleEventsExecutor: WebBridgeExecutor {
                                 }
                             }
                         }
-                        let context = "{applicationID:\"\(browserID)\",sessionID:\(sessionJSON),windowID:\"\(selected.window)\",tabID:\"\(selected.tab)\"}"
+                        let context = Self.contextJSON(session: identity.session, window: selected.window, tab: selected.tab)
                         // Chrome's execute-JavaScript event is isolated-world. The
                         // observed composer business identity lives in MAIN. Submit
                         // exactly once, then only read its nonce-bound DOM receipt.
@@ -89,7 +144,38 @@ public final class ChromeAppleEventsExecutor: WebBridgeExecutor {
                             commandJSON: commandJSON, contextJSON: context)
                         phase = "submit"
                         guard identity.isCurrent() else { throw WebAdapterError.invalidTarget }
-                        try bridge.submitMainWorld(envelope.source, window: selected.window, tab: selected.tab)
+                        let legacySession = identity.legacyLaunchDate.flatMap { date in
+                            date.timeIntervalSince1970.isFinite ? "\(pid):\(date.timeIntervalSince1970)" : nil
+                        }
+                        var foundRelay = relays.relay(function: program.functionSource, contextJSON: context,
+                            allowCreate: false, legacyObservationSession: legacySession)
+                        if foundRelay == nil, command.action == .observe || command.action == .captureTarget {
+                            let expectedRelay = MainWorldCommandRelay(function: program.functionSource,
+                                contextJSON: context, legacyObservationSession: legacySession)
+                            let channel = try bridge.execute(expectedRelay.discovery, window: selected.window, tab: selected.tab,
+                                receiptBudget: .init(deadlineUptime: ProcessInfo.processInfo.systemUptime + 1))
+                            guard channel != "ambiguous" else { throw WebAdapterError.pageRejected(.bridgeUnavailable) }
+                            foundRelay = relays.adopt(function: program.functionSource, contextJSON: context,
+                                channel: channel, legacyObservationSession: legacySession)
+                        }
+                        if command.action == .captureTarget, foundRelay == nil || (legacySession != nil && foundRelay?.legacyObservationSession != legacySession) {
+                            foundRelay = relays.relay(function: program.functionSource, contextJSON: context,
+                                allowCreate: true, legacyObservationSession: legacySession)
+                        }
+                        guard let relay = foundRelay else { throw WebAdapterError.pageRejected(.bridgeUnavailable) }
+                        if command.action == .captureTarget,
+                           try bridge.execute(relay.probe, window: selected.window, tab: selected.tab,
+                               receiptBudget: .init(deadlineUptime: ProcessInfo.processInfo.systemUptime + 1)) != "ready" {
+                            // Installation is foreground-only. Never repair a missing
+                            // background endpoint by a URL setter that raises Chrome.
+                            guard try bridge.frontmost(), try bridge.activeIdentity(check: "relay_install") == selected else {
+                                throw WebAdapterError.nativeSelectionChanged
+                            }
+                            let installAndCapture = "(()=>{\(relay.installer);return \(relay.dispatch(envelope));})()"
+                            try bridge.submitMainWorld(installAndCapture, window: selected.window, tab: selected.tab)
+                        } else {
+                            try bridge.dispatchMainWorld(relay.dispatch(envelope), window: selected.window, tab: selected.tab)
+                        }
                         phase = "receipt"
                         let receipt = try MainWorldReceiptReader.read(envelope) { budget in
                             try bridge.execute(envelope.reader, window: selected.window, tab: selected.tab,
@@ -104,6 +190,10 @@ public final class ChromeAppleEventsExecutor: WebBridgeExecutor {
                         var targetDigest: String?
                         if command.action == .captureTarget {
                             targetDigest = try NativeCaptureProof.digest(bytes, session: session, window: selected.window, tab: selected.tab)
+                            // Publish only decoded, native-context-matched identity,
+                            // independently of the later active-tab check/App ACK.
+                            // It grants nothing until a press pins this exact page.
+                            observedRoutes.record(try JSONDecoder().decode(TargetLease.self, from: bytes), uptime: received)
                             // Do not publish an ACK already known to be stale:
                             // selecting another tab while the receipt was pending
                             // is a different target even in the same Chrome PID.
@@ -250,6 +340,7 @@ private struct ChromePIDEvents {
     let pid: pid_t
     let trace: ChromeBridgeTrace
     let requestID: String
+    var deadline: TimeInterval? = nil
     private func code(_ text: String) -> UInt32 { text.utf8.reduce(0) { ($0 << 8) | UInt32($1) } }
 
     private func object(_ kind: String, form: String, key: NSAppleEventDescriptor,
@@ -275,10 +366,15 @@ private struct ChromePIDEvents {
         request.setParam(direct, forKeyword: code("----"))
         if let javascript { request.setParam(.init(string: javascript), forKeyword: code("JvSc")) }
         if let value { request.setParam(.init(string: value), forKeyword: code("data")) }
-        let timeout: TimeInterval
+        var timeout: TimeInterval
         if let receiptBudget {
             timeout = try receiptBudget.timeout(at: ProcessInfo.processInfo.systemUptime)
         } else { timeout = 5 }
+        if let deadline {
+            let remaining = deadline - ProcessInfo.processInfo.systemUptime
+            guard remaining >= 0.05 else { throw WebAdapterError.nativeExecutionFailed }
+            timeout = min(timeout, remaining)
+        }
         let reply: NSAppleEventDescriptor
         do { reply = try request.sendEvent(options: [.waitForReply], timeout: timeout) }
         catch {
@@ -344,6 +440,14 @@ private struct ChromePIDEvents {
             throw WebAdapterError.nativeExecutionFailed
         }
         return result
+    }
+
+    func dispatchMainWorld(_ source: String, window: String, tab: String) throws {
+        let windowObject = try object("cwin", form: "ID  ", key: .init(string: window))
+        let tabObject = try object("CrTb", form: "ID  ", key: .init(string: tab), container: windowObject)
+        guard try send("CrSu", "ExJa", direct: tabObject, javascript: source).stringValue == "submitted" else {
+            throw WebAdapterError.nativeExecutionFailed
+        }
     }
 
     func submitMainWorld(_ source: String, window: String, tab: String) throws {
