@@ -157,12 +157,15 @@ final class TargetArmDeliveryTests: XCTestCase {
         let consumed = try XCTUnwrap(body.range(of: "originalRecoveryIDs = nil"))
         let emptyGuard = try XCTUnwrap(body.range(of: "guard !ids.isEmpty else { return }"))
         let task = try XCTUnwrap(body.range(of: "originalRecoveryTask = Task"))
-        let permission = try XCTUnwrap(body.range(of: "inspectAutomationPermission(reason: \"originalRecovery\")"))
+        let permission = try XCTUnwrap(body.range(of: "await self?.mayObserveOriginal(target) ?? false"))
         let observe = try XCTUnwrap(body.range(of: "transfer.recoverOriginalObservations(operationIDs: ids)"))
         XCTAssertLessThan(consumed.lowerBound, emptyGuard.lowerBound)
         XCTAssertLessThan(emptyGuard.lowerBound, task.lowerBound)
         XCTAssertLessThan(task.lowerBound, permission.lowerBound)
-        XCTAssertLessThan(permission.lowerBound, observe.lowerBound)
+        // The closure is evaluated for each original operation before transport;
+        // executable Coordinator tests verify denial and post-await revalidation.
+        XCTAssertLessThan(observe.lowerBound, permission.lowerBound)
+        XCTAssertFalse(body.contains("inspectAutomationPermission"))
     }
 
     private func mainSource() throws -> String {

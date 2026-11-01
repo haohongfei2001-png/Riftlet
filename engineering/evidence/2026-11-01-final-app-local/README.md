@@ -83,3 +83,12 @@ benchmark or claim of imperceptible latency is made. Synthetic progress timing
 and tiny generated images cannot predict real upload speed. Production remains
 NO-GO; ordinary upload, safe-retry and continuation are unchanged. Original user
 media, historical databases/UNKNOWN and all prior evidence remain untouched.
+
+First exact PR Native run `41314149422` failed on both architectures because
+`testProductionEmptyRecoveryExitsBeforePermissionOrTransportTask` still required
+the removed foreground permission call by literal source search. The runtime
+fix and new Core regressions compiled; Feedback `41314149474` passed. The source
+guard is updated to retain empty-before-task ordering and require the new original
+target authorization closure, rejecting the old foreground call. This is a test
+contract correction, not deletion/skip or a weaker production permission check.
+The successor requires its own full formal runs.
