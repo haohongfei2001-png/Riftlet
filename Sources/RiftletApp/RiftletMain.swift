@@ -952,7 +952,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         armingAdapter = adapter
         armScheduler.start(); armSession = armScheduler.epoch
         lastForegroundSession = foregroundChromeSession
-        chromeActivity = ChromeActivityObserver { [weak self] reason in self?.requestArm(reason: reason) }
+        chromeActivity = ChromeActivityObserver { [weak self] reason in
+            self?.requestArm(reason: reason, invalidate: ChromeActivityHintPolicy.invalidatesTarget(reason))
+        }
         // AX notifications are hints. Their synchronous remote registration must
         // not precede the first authoritative capture/ACK or epoch revocation.
         deferredChromeActivityBinding.request(afterCaptureIn: armSession)

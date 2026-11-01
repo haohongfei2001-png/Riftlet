@@ -1,6 +1,23 @@
 import AppKit
 import ApplicationServices
 
+/// AX messages are scheduling hints, not attachment authority. A window
+/// selection change invalidates the old window ACK. Title/focus changes are
+/// ambiguous (a chat can rename itself without changing tabs), so they trigger
+/// a fresh observation without granting or revoking attachment authority.
+public enum ChromeActivityHintPolicy {
+    public static func invalidatesTarget(_ reason: String) -> Bool {
+        reason == "chromeWindow"
+    }
+
+    public static func coalesce(previous: String?, incoming: String) -> String {
+        guard let previous else { return incoming }
+        // A subsequent editor focus notification must not erase an earlier
+        // target-change hint before the actor can revoke stale authority.
+        return invalidatesTarget(previous) && !invalidatesTarget(incoming) ? previous : incoming
+    }
+}
+
 /// Scheduling hints only. AX events never supply target identity or authorize
 /// input. No title, textbox value, chat content or accessibility tree is read.
 @MainActor
@@ -13,7 +30,7 @@ public final class ChromeActivityObserver {
     private var generation = UUID()
     private var scheduledRefresh: Task<Void, Never>?
     private var needsWindowRefresh = false
-    private var pendingReason = "chromeFocus"
+    private var pendingReason: String?
     private let onChange: (String) -> Void
 
     public init(onChange: @escaping (String) -> Void) { self.onChange = onChange }
@@ -58,6 +75,7 @@ public final class ChromeActivityObserver {
     public func stop() {
         generation = UUID(); scheduledRefresh?.cancel(); scheduledRefresh = nil
         needsWindowRefresh = false
+        pendingReason = nil
         if let observer {
             CFRunLoopRemoveSource(CFRunLoopGetMain(), AXObserverGetRunLoopSource(observer), .commonModes)
             if let application {
@@ -95,7 +113,9 @@ public final class ChromeActivityObserver {
         case kAXTitleChangedNotification: reason = "chromeTitle"
         default: return
         }
-        pendingReason = reason
+        // Preserve target-changing notifications even when a later ordinary
+        // focus event arrives in the same coalesced AX burst.
+        pendingReason = ChromeActivityHintPolicy.coalesce(previous: pendingReason, incoming: reason)
         needsWindowRefresh = needsWindowRefresh || name == kAXFocusedWindowChangedNotification || name == kAXWindowCreatedNotification
         guard scheduledRefresh == nil else { return }
         let token = generation
@@ -106,7 +126,9 @@ public final class ChromeActivityObserver {
             self.scheduledRefresh = nil
             guard self.processIdentity?.isCurrent() == true else { self.stop(); return }
             if self.needsWindowRefresh { self.needsWindowRefresh = false; self.observeFocusedWindow() }
-            self.onChange(self.pendingReason)
+            guard let reason = self.pendingReason else { return }
+            self.pendingReason = nil
+            self.onChange(reason)
         }
     }
 }
