@@ -138,6 +138,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private var archiveClock: (wall: Date, uptime: TimeInterval)?
     private var completionWatch: Task<Void, Never>?
     private var originalRecoveryIDs: [UUID]?
+    private var originalRecoveryDeferral = OriginalRecoveryDeferral()
     private var originalRecoveryTask: Task<Void, Never>?
     private var startupCompletedIDs = Set<UUID>()
     private var targetArmer: Task<Void, Never>?
@@ -588,6 +589,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private func startOriginalRecovery() {
         guard mode.observesAttachments, !terminating, let ids = originalRecoveryIDs, let transfer else { return }
         originalRecoveryIDs = nil
+        // Nothing to observe: do not queue a permission inspection ahead of
+        // the first useful capture on a fresh installation.
+        guard !ids.isEmpty else { return }
         originalRecoveryTask = Task { [weak self] in
             guard let self else { return }
             defer { self.originalRecoveryTask = nil }
@@ -1029,7 +1033,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 }
                 catch { errorCode = (error as? WebAdapterError).map { String(describing: $0) } ?? "unclassified" }
             }
-            self.updateSetup()
+            // Publish the fully verified ACK before settings/screen enumeration
+            // or other presentation work. The timestamp remains the actual
+            // MainActor publication time, never native receipt or event time.
             if self.activeCaptureInvocation == invocation { self.activeCaptureInvocation = nil }
             guard let completion = self.armScheduler.complete(attempt) else {
                 self.recordAcceptance(["event": "arm_completion", "captureRequestID": invocation.requestID.uuidString,
@@ -1085,12 +1091,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 fields["effectiveArmAttemptID"] = effective.context.armAttemptID.uuidString
             }
             self.recordAcceptance(fields)
-            // Failed current-epoch captures also install the hint observer so
-            // later focus/window activity can recover. Stale completions cannot.
-            self.bindDeferredChromeActivity(afterCaptureIn: attempt.epoch)
-            // The first prebind finishes before remote recovery enters the shared
-            // adapter/transport, avoiding a startup queue behind old observations.
-            self.startOriginalRecovery()
+            // Schedule current demand before ancillary work. In particular a
+            // stale first capture must not start the recovery queue ahead of
+            // its already-requested replacement. This never replays a click.
             if completion.shouldWake { self.performPendingArm() }
             else if self.armScheduler.isRunning {
                 self.targetArmer = Task { [weak self] in
@@ -1100,6 +1103,13 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                     self.requestArm()
                 }
             }
+            // Failed current-epoch captures also install the hint observer so
+            // later focus/window activity can recover. Stale completions cannot.
+            self.bindDeferredChromeActivity(afterCaptureIn: attempt.epoch)
+            if self.originalRecoveryDeferral.shouldStart(after: completion, isRunning: self.armScheduler.isRunning) {
+                self.startOriginalRecovery()
+            }
+            self.updateSetup()
         }
     }
 
