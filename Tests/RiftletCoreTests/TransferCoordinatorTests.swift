@@ -82,6 +82,78 @@ final class TransferCoordinatorTests: XCTestCase {
         XCTAssertEqual(after.appendedAssets, [asset.id]); XCTAssertEqual(after.captureCount, 0)
     }
 
+    func testOriginalObservationPermissionDenialDoesNotMutateOrBlockAnotherTarget() async throws {
+        let store = try makeStore(), a = try await makeAsset(in: store), b = try await makeAsset(in: store)
+        let adapter = CoordinatorFixtureAdapter(appendThrows: true)
+        let coordinator = makeCoordinator(store: store, adapter: adapter)
+        let targetA = frozenTarget("A")
+        let targetB = TargetLease(adapterID: "coordinator-fixture", surface: .webChat,
+            applicationID: "synthetic.fixture.browser", sessionID: "other-original-receiver",
+            windowID: "other-window", tabID: "other-tab", documentID: "other-document",
+            composerID: "other-composer", draftGeneration: "B")
+        try await coordinator.select(a.id, frozenTarget: targetA)
+        try await coordinator.select(b.id, frozenTarget: targetB)
+        let before = try await store.unresolvedOperations()
+        try await coordinator.observePending { $0 == targetB }
+        let calls = await adapter.snapshot()
+        XCTAssertEqual(calls.reconciledAssets, [b.id])
+        XCTAssertEqual(calls.appendedAssets, [a.id, b.id]); XCTAssertEqual(calls.captureCount, 0)
+        let after = try await store.unresolvedOperations()
+        XCTAssertEqual(after.first { $0.assetID == a.id }, before.first { $0.assetID == a.id })
+        try await coordinator.observePending { $0 == targetA }
+        let resumed = await adapter.snapshot()
+        XCTAssertEqual(resumed.reconciledAssets, [b.id, a.id])
+        XCTAssertEqual(resumed.appendedAssets, [a.id, b.id])
+    }
+
+    func testObservationRechecksOperationAfterPermissionAwait() async throws {
+        let store = try makeStore(), asset = try await makeAsset(in: store)
+        let adapter = CoordinatorFixtureAdapter(appendThrows: true)
+        let coordinator = makeCoordinator(store: store, adapter: adapter)
+        try await coordinator.select(asset.id, frozenTarget: frozenTarget())
+        let originals = try await store.unresolvedOperations(), op = try XCTUnwrap(originals.first)
+        try await coordinator.observePending { target in
+            guard target == op.target else { return false }
+            try? await store.markUnknown(op.id, reason: "Concurrent original-state update")
+            return true
+        }
+        let calls = await adapter.snapshot()
+        XCTAssertTrue(calls.reconciledAssets.isEmpty); XCTAssertEqual(calls.appendedAssets, [asset.id])
+        let after = try await store.operation(id: op.id)
+        XCTAssertEqual(after?.phase, .unknown); XCTAssertEqual(after?.target, op.target)
+    }
+
+    func testDeniedOriginalRecoveryIsReadOnlyAndResumesWithoutInput() async throws {
+        let store = try makeStore(), asset = try await makeAsset(in: store)
+        let adapter = CoordinatorFixtureAdapter(appendThrows: true)
+        let coordinator = makeCoordinator(store: store, adapter: adapter)
+        let target = frozenTarget()
+        try await coordinator.select(asset.id, frozenTarget: target)
+        let before = try await store.unresolvedOperations(), op = try XCTUnwrap(before.first)
+        try await coordinator.recoverOriginalObservations(operationIDs: [op.id]) { _ in false }
+        let denied = await adapter.snapshot(), unchanged = try await store.operation(id: op.id)
+        XCTAssertTrue(denied.reconciledAssets.isEmpty); XCTAssertEqual(unchanged, op)
+        try await coordinator.recoverOriginalObservations(operationIDs: [op.id]) { $0 == target }
+        let resumed = await adapter.snapshot()
+        XCTAssertEqual(resumed.reconciledAssets, [asset.id]); XCTAssertEqual(resumed.appendedAssets, [asset.id])
+        XCTAssertEqual(resumed.captureCount, 0)
+    }
+
+    func testDeniedCompletedObservationRetainsWatchAndOriginalSuccess() async throws {
+        let store = try makeStore(), asset = try await makeAsset(in: store)
+        let adapter = CoordinatorFixtureAdapter(), coordinator = makeCoordinator(store: store, adapter: adapter)
+        let target = frozenTarget()
+        try await coordinator.select(asset.id, frozenTarget: target)
+        let record = try await store.asset(id: asset.id), id = try XCTUnwrap(record?.activeOperationID)
+        let before = try await store.operation(id: id)
+        let keepWatching = try await coordinator.observeCompleted(operationID: id) { _ in false }
+        let denied = await adapter.snapshot(), unchanged = try await store.operation(id: id)
+        XCTAssertTrue(keepWatching); XCTAssertTrue(denied.reconciledAssets.isEmpty); XCTAssertEqual(unchanged, before)
+        _ = try await coordinator.observeCompleted(operationID: id) { $0 == target }
+        let resumed = await adapter.snapshot()
+        XCTAssertEqual(resumed.reconciledAssets, [asset.id]); XCTAssertEqual(resumed.appendedAssets, [asset.id])
+    }
+
     func testUnknownFrozenSelectionWithNilOrNewLeaseOnlyObservesOriginal() async throws {
         let store = try makeStore(); let asset = try await makeAsset(in: store)
         let adapter = CoordinatorFixtureAdapter(appendThrows: true)

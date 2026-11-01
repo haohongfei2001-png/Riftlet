@@ -1,0 +1,33 @@
+{
+  "base": "c861440bfd6ca12c75474d8b16e661f321776c22",
+  "environment": "27.0",
+  "architecture": "arm64",
+  "browser": "Chrome 16198 (original kernel lifetime checked; exact owned loopback routes only)",
+  "artifact": {
+    "run": 41308073449,
+    "id": 13083734499,
+    "zipSHA256": "868942d1988c48e1ec020e8b20daa5755f17b8609ad00a8327b8570c0c3ec182",
+    "verified": "original bundle resources and signature PASS; not launched for loopback upload"
+  },
+  "fixture": {
+    "scope": "derived full App synthetic integration; not unmodified final package or live ChatGPT",
+    "overlayFiles": [
+      "Sources/RiftletApp/ApplicationMode.swift",
+      "Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js"
+    ],
+    "sourceDifference": "webAcceptance data namespace; exact http://127.0.0.1:18766/c/<uuid> predicate with Home disabled",
+    "root": "unique per-run isolated home and mode namespace; never original user roots",
+    "inputSource": "CGEvent through actual AppKit mouseDown/mouseUp; physical NOT_RUN",
+    "server": "owned loopback only, no outbound network upload",
+    "startAndCompletion": "fixture progress and original FileReader preview; synthetic only",
+    "baselineAppSHA256": "ae72c57425b09adcaca6f4a4d4ca86a289ceb68d6b8b363df7e12f67843fded1",
+    "fixedExecutableSHA256": "841aee33291079ee869c46da52cdc6cb743f48b1a7cf81a59f7ea284fe249431"
+  },
+  "preservation": {
+    "oldUserDataTouched": false,
+    "oldUnknownReplayed": false,
+    "chatgptAccessAttempted": false,
+    "productionAdmission": "NO-GO unchanged",
+    "mainModified": false
+  }
+}

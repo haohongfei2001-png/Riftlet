@@ -1,0 +1,523 @@
+{
+  "scope": "derived full-App local synthetic integration; no ChatGPT, no real upload progress, no physical mouse",
+  "attempts": [
+    {
+      "case": "run-different-window",
+      "rawSHA256": "f053e8ce3cefea8fda0ee83bb05f1b82b7d24bcb00229c67e411baff0394faf7",
+      "runtimeSource": "c861440 plus local fixture overlay",
+      "clickSource": "CGEvent",
+      "nativeBoundary": true,
+      "freeze": "accepted",
+      "refusalReason": "none",
+      "counts": {
+        "A": {
+          "input": 0,
+          "change": 1,
+          "send": 0
+        },
+        "B": {
+          "input": 0,
+          "change": 0,
+          "send": 0
+        },
+        "C": {
+          "input": 0,
+          "change": 0,
+          "send": 0
+        }
+      },
+      "textIntact": true,
+      "AUnfocusedAtEnd": true,
+      "frontTransitions": [
+        {
+          "offsetMS": 99.652,
+          "application": "com.google.Chrome"
+        }
+      ],
+      "mainThreadPinMS": 29.808,
+      "eventToPinMS": 37.261,
+      "eventToFileChangeMSBounds": [
+        268.864,
+        280.035
+      ],
+      "bridgeCounts": {
+        "begin": 1,
+        "chunk": 1,
+        "commit": 1
+      },
+      "syntheticPresentationMS": {
+        "swallowScheduled": 558.048,
+        "swallowActualStart": 558.119,
+        "swallowClose": 682.784
+      },
+      "sqliteOperations": [
+        [
+          "succeeded",
+          1
+        ]
+      ],
+      "syntheticUploadStarts": 1
+    },
+    {
+      "case": "run-install-race",
+      "rawSHA256": "4ab915283cacc676eae355845198e2c5c86b59a01a9bd02f91ef9fe3f031d985",
+      "result": "INSTALL_ONLY",
+      "expectedWindowRemainedFirst": true,
+      "AUnfocused": true,
+      "CFocused": true,
+      "allInputCountsZero": true,
+      "checkTraceToSwitchReturnMS": 21.087875007651746,
+      "narrowSetterRace": "NOT_EXERCISED",
+      "clicks": 0
+    },
+    {
+      "case": "run-new-page-2",
+      "rawSHA256": "3a01f8818ca4c0e60c5689a7ee7f2f4eff1d58675d45ee5fc04b782adc4654d2",
+      "result": "NOT_RUN_IDLE_GUARD"
+    },
+    {
+      "case": "run-new-page-3",
+      "rawSHA256": "e3c2255505892393e8ab8de7f0ea503de2610d6f4622d88a7763393a08aaa468",
+      "runtimeSource": "c861440 plus local fixture overlay",
+      "clickSource": "CGEvent",
+      "nativeBoundary": true,
+      "freeze": "accepted",
+      "refusalReason": "none",
+      "counts": {
+        "A": {
+          "input": 0,
+          "change": 1,
+          "send": 0
+        },
+        "B": {
+          "input": 0,
+          "change": 0,
+          "send": 0
+        },
+        "C": {
+          "input": 0,
+          "change": 0,
+          "send": 0
+        }
+      },
+      "textIntact": true,
+      "AUnfocusedAtEnd": false,
+      "frontTransitions": [
+        {
+          "offsetMS": 75.937,
+          "application": "com.google.Chrome"
+        }
+      ],
+      "mainThreadPinMS": 23.995,
+      "eventToPinMS": 32.587,
+      "eventToFileChangeMSBounds": [
+        147.301,
+        175.15
+      ],
+      "bridgeCounts": {
+        "begin": 1,
+        "chunk": 1,
+        "commit": 1
+      },
+      "syntheticPresentationMS": {
+        "swallowScheduled": 441.959,
+        "swallowActualStart": 441.981,
+        "swallowClose": 570.472
+      },
+      "sqliteOperations": [
+        [
+          "succeeded",
+          1
+        ]
+      ],
+      "syntheticUploadStarts": 1
+    },
+    {
+      "case": "run-new-page-fast-2",
+      "rawSHA256": "72b0019a128dbe1339ee9f47cfaffdcbe036bc4e53dea7b59c7f83c2af001c18",
+      "runtimeSource": "c861440 plus local fixture overlay",
+      "clickSource": "CGEvent",
+      "nativeBoundary": true,
+      "freeze": "refused",
+      "refusalReason": "nativeClickPinRefused",
+      "counts": {
+        "A": {
+          "input": 0,
+          "change": 0,
+          "send": 0
+        },
+        "B": {
+          "input": 0,
+          "change": 0,
+          "send": 0
+        },
+        "C": {
+          "input": 0,
+          "change": 0,
+          "send": 0
+        }
+      },
+      "textIntact": true,
+      "AUnfocusedAtEnd": false,
+      "frontTransitions": [
+        {
+          "offsetMS": 74.049,
+          "application": "com.google.Chrome"
+        }
+      ],
+      "mainThreadPinMS": null,
+      "eventToPinMS": null,
+      "bridgeCounts": {
+        "begin": 0,
+        "chunk": 0,
+        "commit": 0
+      },
+      "syntheticPresentationMS": {},
+      "sqliteOperations": [],
+      "syntheticUploadStarts": 0
+    },
+    {
+      "case": "run-new-page-fast",
+      "rawSHA256": "b45128a671e29655aed88bc461bff6720565ea48605e85dd2bb01bb1a61db169",
+      "runtimeSource": "c861440 plus local fixture overlay",
+      "clickSource": "CGEvent",
+      "nativeBoundary": true,
+      "freeze": "accepted",
+      "refusalReason": "none",
+      "counts": {
+        "A": {
+          "input": 0,
+          "change": 1,
+          "send": 0
+        },
+        "B": {
+          "input": 0,
+          "change": 0,
+          "send": 0
+        },
+        "C": {
+          "input": 0,
+          "change": 0,
+          "send": 0
+        }
+      },
+      "textIntact": true,
+      "AUnfocusedAtEnd": false,
+      "frontTransitions": [
+        {
+          "offsetMS": 78.404,
+          "application": "com.google.Chrome"
+        },
+        {
+          "offsetMS": 8804.21,
+          "application": "io.github.clash-verge-rev.clash-verge-rev"
+        },
+        {
+          "offsetMS": 10434.998,
+          "application": "com.google.Chrome"
+        }
+      ],
+      "mainThreadPinMS": 30.695,
+      "eventToPinMS": 36.463,
+      "eventToFileChangeMSBounds": [
+        141.71,
+        162.861
+      ],
+      "bridgeCounts": {
+        "begin": 1,
+        "chunk": 1,
+        "commit": 1
+      },
+      "syntheticPresentationMS": {
+        "swallowScheduled": 447.065,
+        "swallowActualStart": 447.087,
+        "swallowClose": 573.707
+      },
+      "sqliteOperations": [
+        [
+          "succeeded",
+          1
+        ]
+      ],
+      "syntheticUploadStarts": 1,
+      "excludedReason": "Compile failed and prior driver ran; not a fresh-page result. New unique asset operation retained."
+    },
+    {
+      "case": "run-new-page",
+      "rawSHA256": "575e1d72e26265d20c4ecc00a39a897554b53b861e9913f78b5dbb8d4261cc0d",
+      "result": "NOT_RUN_IDLE_GUARD"
+    },
+    {
+      "case": "run-other-app-fixed",
+      "rawSHA256": "5f0b3c9b5c1cc26ef88e389b162930176b23ec311ffb83a3ae6ffdd821010dee",
+      "runtimeSource": "proposed observation-permission fix",
+      "clickSource": "CGEvent",
+      "nativeBoundary": true,
+      "freeze": "accepted",
+      "refusalReason": "none",
+      "counts": {
+        "A": {
+          "input": 0,
+          "change": 1,
+          "send": 0
+        },
+        "B": {
+          "input": 0,
+          "change": 0,
+          "send": 0
+        },
+        "C": {
+          "input": 0,
+          "change": 0,
+          "send": 0
+        }
+      },
+      "textIntact": true,
+      "AUnfocusedAtEnd": true,
+      "frontTransitions": [
+        {
+          "offsetMS": 77.663,
+          "application": "com.google.Chrome"
+        },
+        {
+          "offsetMS": 102.641,
+          "application": "com.openai.codex"
+        }
+      ],
+      "mainThreadPinMS": 30.007,
+      "eventToPinMS": 32.86,
+      "eventToFileChangeMSBounds": [
+        288.529,
+        299.071
+      ],
+      "bridgeCounts": {
+        "begin": 1,
+        "chunk": 1,
+        "commit": 1
+      },
+      "syntheticPresentationMS": {
+        "swallowScheduled": 575.021,
+        "swallowActualStart": 575.047,
+        "swallowClose": 702.126
+      },
+      "sqliteOperations": [
+        [
+          "succeeded",
+          1
+        ]
+      ],
+      "syntheticUploadStarts": 1
+    },
+    {
+      "case": "run-other-app-restart-fixed",
+      "rawSHA256": "abb0582fc34e856d4bec2b24c9cb7bd49c9212d5759bb3816fbbf56e2b1863f0",
+      "runtimeSource": "proposed observation-permission fix",
+      "clickSource": "CGEvent",
+      "nativeBoundary": true,
+      "freeze": "accepted",
+      "refusalReason": "none",
+      "counts": {
+        "A": {
+          "input": 0,
+          "change": 1,
+          "send": 0
+        },
+        "B": {
+          "input": 0,
+          "change": 0,
+          "send": 0
+        },
+        "C": {
+          "input": 0,
+          "change": 0,
+          "send": 0
+        }
+      },
+      "textIntact": true,
+      "AUnfocusedAtEnd": true,
+      "frontTransitions": [
+        {
+          "offsetMS": 657.498,
+          "application": "com.openai.codex"
+        }
+      ],
+      "mainThreadPinMS": 27.684,
+      "eventToPinMS": 34.634,
+      "eventToFileChangeMSBounds": [
+        257.631,
+        267.352
+      ],
+      "bridgeCounts": {
+        "begin": 1,
+        "chunk": 1,
+        "commit": 1
+      },
+      "syntheticPresentationMS": {
+        "swallowScheduled": 559.052,
+        "swallowActualStart": 559.078
+      },
+      "sqliteOperations": [
+        [
+          "succeeded",
+          1
+        ]
+      ],
+      "syntheticUploadStarts": 1
+    },
+    {
+      "case": "run-other-app",
+      "rawSHA256": "09c19ec392d536ac98666b893eb8d59b6b3b259043256308eae23985a0512bfe",
+      "runtimeSource": "c861440 plus local fixture overlay",
+      "clickSource": "CGEvent",
+      "nativeBoundary": true,
+      "freeze": "accepted",
+      "refusalReason": "none",
+      "counts": {
+        "A": {
+          "input": 0,
+          "change": 1,
+          "send": 0
+        },
+        "B": {
+          "input": 0,
+          "change": 0,
+          "send": 0
+        },
+        "C": {
+          "input": 0,
+          "change": 0,
+          "send": 0
+        }
+      },
+      "textIntact": true,
+      "AUnfocusedAtEnd": true,
+      "frontTransitions": [
+        {
+          "offsetMS": 76.727,
+          "application": "com.google.Chrome"
+        },
+        {
+          "offsetMS": 106.473,
+          "application": "com.openai.codex"
+        }
+      ],
+      "mainThreadPinMS": 22.731,
+      "eventToPinMS": 23.892,
+      "eventToFileChangeMSBounds": [
+        386.081,
+        400.87
+      ],
+      "bridgeCounts": {
+        "begin": 1,
+        "chunk": 1,
+        "commit": 1
+      },
+      "syntheticPresentationMS": {
+        "swallowScheduled": 694.571,
+        "swallowActualStart": 694.656,
+        "swallowClose": 821.696
+      },
+      "sqliteOperations": [
+        [
+          "inputTriggered",
+          1
+        ]
+      ],
+      "syntheticUploadStarts": 1
+    },
+    {
+      "case": "run-same-window-fixed",
+      "rawSHA256": "cddbbf256f89b90dccd1889105d22c082e3dbdcde0c17bac8076b79e1da959ae",
+      "runtimeSource": "proposed observation-permission fix",
+      "clickSource": "CGEvent",
+      "nativeBoundary": true,
+      "freeze": "accepted",
+      "refusalReason": "none",
+      "counts": {
+        "A": {
+          "input": 0,
+          "change": 1,
+          "send": 0
+        },
+        "B": {
+          "input": 0,
+          "change": 0,
+          "send": 0
+        },
+        "C": {
+          "input": 0,
+          "change": 0,
+          "send": 0
+        }
+      },
+      "textIntact": true,
+      "AUnfocusedAtEnd": true,
+      "frontTransitions": [
+        {
+          "offsetMS": 108.478,
+          "application": "com.google.Chrome"
+        }
+      ],
+      "mainThreadPinMS": 32.885,
+      "eventToPinMS": 38.468,
+      "eventToFileChangeMSBounds": [
+        285.004,
+        296.664
+      ],
+      "bridgeCounts": {
+        "begin": 1,
+        "chunk": 1,
+        "commit": 1
+      },
+      "syntheticPresentationMS": {},
+      "sqliteOperations": [
+        [
+          "succeeded",
+          1
+        ]
+      ],
+      "syntheticUploadStarts": 0
+    },
+    {
+      "case": "run-same-window",
+      "rawSHA256": "365f67133243c09875e60a5ef083122200c5a5bb9cec07f25539838120de73f6",
+      "runtimeSource": "c861440 plus local fixture overlay",
+      "clickSource": "CGEvent",
+      "nativeBoundary": true,
+      "freeze": "accepted",
+      "refusalReason": "none",
+      "counts": {
+        "A": null,
+        "B": null,
+        "C": null
+      },
+      "textIntact": null,
+      "AUnfocusedAtEnd": null,
+      "frontTransitions": [
+        {
+          "offsetMS": 105.937,
+          "application": "com.google.Chrome"
+        }
+      ],
+      "mainThreadPinMS": 25.907,
+      "eventToPinMS": 31.89,
+      "bridgeCounts": {
+        "begin": 1,
+        "chunk": 1,
+        "commit": 1
+      },
+      "syntheticPresentationMS": {
+        "swallowScheduled": 1111.588,
+        "swallowActualStart": 1111.612,
+        "swallowClose": 1235.408
+      },
+      "sqliteOperations": [
+        [
+          "succeeded",
+          1
+        ]
+      ],
+      "syntheticUploadStarts": 1
+    }
+  ]
+}

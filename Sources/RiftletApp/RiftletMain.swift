@@ -451,16 +451,15 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         originalRecoveryIDs = mode.observesAttachments ? try await store.unresolvedOperations().map(\.id) : nil
         startupCompletedIDs = mode.observesAttachments ? Set(try await store.successfulOperations().map(\.id)) : []
         recordAcceptance(["event": "local_recovery_complete", "uptime": ProcessInfo.processInfo.systemUptime])
-        var attachmentPermission: AutomationPermissionState = .notNeeded
         if mode.usesWebAdapter {
             // Process identity only, not permission or a page/attachment lease.
             lastForegroundSession = foregroundChromeSession
             installPassivePermissionRecovery()
-            attachmentPermission = await inspectAutomationPermission(reason: "startup")
+            _ = await inspectAutomationPermission(reason: "startup")
         }
-        if !mode.usesWebAdapter || attachmentPermission == .granted {
-            try await startAttachmentObservationIfPermitted()
-        }
+        // Original read-only observers perform their own receiver-bound checks;
+        // an ambiguous foreground must not suppress recovery after restart.
+        try await startAttachmentObservationIfPermitted()
         if !mode.collectsSystemScreenshots {
             statusLine?.title = simulation ? "SIMULATION · synthetic images only · no ChatGPT input"
                 : "WEB ACCEPTANCE · generated images · real Chrome input"
@@ -533,7 +532,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         permissionActivationObserver = NSWorkspace.shared.notificationCenter.addObserver(
             forName: NSWorkspace.didActivateApplicationNotification, object: nil, queue: .main) { [weak self] note in
                 MainActor.assumeIsolated {
-                    guard let self, !self.attachmentObservationStarted,
+                    guard let self, !self.armScheduler.isRunning,
                           let app = note.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication,
                           app.bundleIdentifier == "com.google.Chrome" else { return }
                     self.lastForegroundSession = self.foregroundChromeSession
@@ -543,7 +542,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         permissionWakeObserver = NSWorkspace.shared.notificationCenter.addObserver(
             forName: NSWorkspace.didWakeNotification, object: nil, queue: .main) { [weak self] _ in
                 MainActor.assumeIsolated {
-                    guard let self, !self.attachmentObservationStarted else { return }
+                    guard let self, !self.armScheduler.isRunning else { return }
                     self.permissionResumer?.request()
                 }
             }
@@ -594,6 +593,25 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         return usableResult
     }
 
+    /// Read-only observation follows the original receiver after a user leaves
+    /// Chrome. Its permission must neither borrow B's grant nor publish A as
+    /// the foreground target. Denial is retained for a later passive check.
+    private func mayObserveOriginal(_ target: TargetLease) async -> Bool {
+        guard !terminating else { return false }
+        guard mode.usesWebAdapter else { return true }
+        guard target.applicationID == "com.google.Chrome" else { return false }
+        let started = ProcessInfo.processInfo.systemUptime
+        let result = await originalReceiverPermission.inspectResolution(session: target.sessionID, gate: permissionGate)
+        if result.published && result.usable != .granted {
+            cancelPinnedSelections(session: target.sessionID, reason: "originalReceiverPermissionUnavailable")
+        }
+        recordAcceptance(["event": "original_observation_permission", "startedUptime": started,
+            "endedUptime": ProcessInfo.processInfo.systemUptime,
+            "usableResult": String(describing: result.usable), "published": result.published,
+            "askedUser": false, "foregroundRequired": false])
+        return !terminating && result.usable == .granted
+    }
+
     private func startOriginalRecovery() {
         guard mode.observesAttachments, !terminating, let ids = originalRecoveryIDs, let transfer else { return }
         originalRecoveryIDs = nil
@@ -606,50 +624,52 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             self.recordAcceptance(["event": "original_recovery_started", "uptime": ProcessInfo.processInfo.systemUptime,
                 "operationCount": ids.count])
             do {
-                // Recheck permission independently after prebinding. This never
-                // captures a target or replays a previously refused selection.
-                if self.mode.usesWebAdapter {
-                    let permission = await self.inspectAutomationPermission(reason: "originalRecovery")
-                    guard permission == .granted else { return }
-                }
                 try Task.checkCancellation()
-                try await transfer.recoverOriginalObservations(operationIDs: ids)
+                try await transfer.recoverOriginalObservations(operationIDs: ids) { [weak self] target in
+                    await self?.mayObserveOriginal(target) ?? false
+                }
             } catch { self.setupIssue = .targetUnavailable; self.updateSetup() }
             self.recordAcceptance(["event": "original_recovery_finished", "uptime": ProcessInfo.processInfo.systemUptime])
         }
     }
 
     private func startAttachmentObservationIfPermitted() async throws {
-        guard !terminating, !attachmentObservationStarted, !attachmentObservationStarting, let transfer,
-              !mode.usesWebAdapter || automationPermission == .granted else { return }
+        guard !terminating, !attachmentObservationStarting, let transfer else { return }
         attachmentObservationStarting = true
         defer { attachmentObservationStarting = false }
+        // Foreground arming and original read-only observation have independent
+        // permission lifecycles. Passive activation may start the armer later.
+        if mode.usesWebAdapter, automationPermission == .granted, let armingAdapter {
+            startArming(adapter: armingAdapter)
+        }
+        guard !attachmentObservationStarted else { return }
         // All local recovery/snapshots completed before any arming or selection.
         // Remote observation is original-ID-only and cannot reset newer operations.
         try Task.checkCancellation()
         guard !terminating else { return }
         watchedCompletions = startupCompletedIDs
         attachmentObservationStarted = true
-        if mode.usesWebAdapter, let armingAdapter { startArming(adapter: armingAdapter) }
-        else { startOriginalRecovery() }
+        if !armScheduler.isRunning { startOriginalRecovery() }
         guard mode.observesAttachments else { return }
         completionWatch = Task { [weak self] in
             while !Task.isCancelled {
                 do { try await Task.sleep(nanoseconds: self?.simulation == true ? 400_000_000 : 5_000_000_000) } catch { return }
                 guard let self else { return }
                 guard self.originalRecoveryTask == nil, self.originalRecoveryIDs == nil else { continue }
-                if self.mode.usesWebAdapter {
-                    let permission = await self.inspectAutomationPermission(reason: "backgroundObservation")
-                    self.updateSetup()
-                    guard permission == .granted else { continue }
+                do {
+                    try await transfer.observePending(limit: self.simulation ? 8 : 4) { [weak self] target in
+                        await self?.mayObserveOriginal(target) ?? false
+                    }
                 }
-                do { try await transfer.observePending(limit: self.simulation ? 8 : 4) }
                 catch { self.showIssue("附件结果暂时无法核实；本机图片与原操作仍保留，不会自动重新附加。") }
                 for id in self.watchedCompletions {
                     if Task.isCancelled { return }
                     if let backoff = self.observationBackoff[id], backoff.next > Date() { continue }
                     do {
-                        if try await !transfer.observeCompleted(operationID: id) { self.watchedCompletions.remove(id) }
+                        let keepWatching = try await transfer.observeCompleted(operationID: id) { [weak self] target in
+                            await self?.mayObserveOriginal(target) ?? false
+                        }
+                        if !keepWatching { self.watchedCompletions.remove(id) }
                         self.observationBackoff.removeValue(forKey: id)
                     } catch WebAdapterError.invalidTarget {
                         self.watchedCompletions.remove(id); self.observationBackoff.removeValue(forKey: id)
