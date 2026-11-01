@@ -98,3 +98,36 @@ is not established as its cause. No system preferences or product code changed.
 The retained sample/resumption guard is saved privately; no further capture or
 manual-setup request is planned. Attachment tests stay BLOCKED without an
 authorized independent target. No new first-click stability claim is made.
+
+### Floating-thumbnail follow-up and deterministic boundaries
+
+Read-only evidence now shows `com.apple.screencaptureui.thumbnailExpiration = 60`;
+its plist mtime is 2026-10-28, before this trial. This is a strong explanation
+for the ~61-second system save interval, not an intervention-proven causal test.
+The separate `show-thumbnail` override is absent; absence does not prove the
+actual checkbox state. Apple documents that the floating thumbnail precedes
+saving and swiping it right saves immediately:
+https://support.apple.com/guide/mac-help/take-a-screenshot-mh26782/mac
+MouseUp and the +15-second sample both show (1063,629) on the 1920×1080 screen,
+away from its bottom-right corner. Thumbnail bounds and intervening/remaining
+mouse motion were not recorded. Hover prolongation is therefore unproved here;
+it must not be substituted for the concrete 60-second preference finding.
+No preference, permission, screenshot, browser, original operation or input changed.
+
+The existing image record's firstSeenAt→importedAt is 224.409 ms, during startup
+backlog ingestion. Code sets importedAt before manifest promotion and SQLite
+commit, so this is not commit latency or first-clickable latency. Riftlet's
+startup occurs after system save; that gap is not collector latency. T2 remains
+unmeasured. The new tests reject changed session/window/tab/document/composer/
+draft despite `valid=true`, and reject late ACK across two revoked epochs and
+an old click after return to A. Existing cancellation-during-validation tests
+are included in the single targeted CI job. Local CLT compilation cannot run
+XCTest (module unavailable), not a product assertion failure. The scoped CI
+workflow is test infrastructure only, not a production admission change.
+
+Targeted CLOUD_PASS: run 41285862009 on test source
+`205fce1844076ef830d3136b9f357289d5f749f9`, macos-15 ARM64, 33 selected tests,
+zero failures. Non-author static review passed. Production Sources/Resources/
+Package.swift are unchanged from d24241c. No new physical, browser-upload or
+first-click MAC_PASS is claimed. The local XCTest module failure remains
+separate from the successful cloud execution; no full CI was repeated.

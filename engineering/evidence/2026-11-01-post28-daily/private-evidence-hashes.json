@@ -13,6 +13,10 @@
     "system-capture-log.json": "c89fcd96430fdf2bf5a0a650bd1f2389d54e502fd3433110c4213b5fef4c9c2b",
     "capture-metadata.json": "8364b14f72d425fcb0066e3a9662ab7362359f68497f12df8cb5e5e9c70687ea",
     "review.json": "31227e6da5724ed652c19ba8f124314c5f6514ce2739ddc076a86b0be86b1019",
-    "capture-ui-delay-log.json": "46b3b1f7db278eec3001632e71ade52982588e8e6f997641f2aaa80f68cf55c8"
+    "capture-ui-delay-log.json": "46b3b1f7db278eec3001632e71ade52982588e8e6f997641f2aaa80f68cf55c8",
+    "thumbnail-pref-evidence.json": "ff3627291af21643cab00498d78fe7d5c3c684d6b9d80c83fcc2a9c1d94b6dfe",
+    "import-timing.json": "ad4eeaab089d3ddb21fdfba86dc6eabdaac28830135043415b970b3ea3ef1adb",
+    "thumbnail-counterexample-review.json": "d0f2ec278b51a6adb483f00f01f80da9ffd3c9f3fc6b3fef064afb2028acac30",
+    "target-counterexamples-ci.log": "0ccaaa93eec9bfe5ac467d203189505b941f202ec0032328f398c8cc18e831a8"
   }
 }
