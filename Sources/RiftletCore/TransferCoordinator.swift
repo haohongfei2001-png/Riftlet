@@ -271,10 +271,13 @@ public actor TransferCoordinator {
     /// App snapshots these original IDs immediately after its one local recovery,
     /// before publishing the UI/armer. Never resets newer operations or captures a
     /// target. Any queued selection awakened by a terminal receipt keeps its own token.
-    public func recoverOriginalObservations(operationIDs: [UUID]) async throws {
+    public func recoverOriginalObservations(operationIDs: [UUID],
+        authorize: @Sendable (TargetLease) async -> Bool = { _ in true }) async throws {
         for id in Set(operationIDs) {
             guard let op = try await store.operation(id: id), op.target.adapterID == adapter.id,
                   op.phase == .unknown || op.phase == .compensated else { continue }
+            guard !Task.isCancelled, await authorize(op.target), !Task.isCancelled,
+                  try await store.operation(id: op.id) == op else { continue }
             do { try await reconcile(op) }
             catch {
                 if let current = try await store.operation(id: id),
@@ -400,7 +403,8 @@ public actor TransferCoordinator {
     /// early start receipt frees the input drain. Original operations are only
     /// observed; a terminal receipt may wake a different accepted, not-yet-input
     /// selection through its unchanged authorization and dispatch-intent gates.
-    public func observePending(limit: Int = 8) async throws {
+    public func observePending(limit: Int = 8,
+        authorize: @Sendable (TargetLease) async -> Bool = { _ in true }) async throws {
         let candidates = try await store.unresolvedOperations().filter {
             $0.target.adapterID == adapter.id && [.inputTriggered, .attachmentPresent, .unknown, .compensated].contains($0.phase)
         }
@@ -410,6 +414,10 @@ public actor TransferCoordinator {
         observationCursor = (start + count) % candidates.count
         for offset in 0..<count {
             let op = candidates[(start + offset) % candidates.count]
+            // Permission belongs to the immutable receiver, not the current foreground.
+            // A denied check changes neither its phase nor its input/UNKNOWN history.
+            guard !Task.isCancelled, await authorize(op.target), !Task.isCancelled,
+                  try await store.operation(id: op.id) == op else { continue }
             do { try await reconcile(op) }
             catch {
                 if let current = try await store.operation(id: op.id), current.phase.isUnresolved, current.phase != .prepared {
@@ -423,9 +431,13 @@ public actor TransferCoordinator {
     /// Successful uploads remain observable for a correlated late failure.
     /// Transport errors or navigation are not failures and cannot reverse success.
     /// The return value controls only an in-memory observation watch.
-    public func observeCompleted(operationID: UUID) async throws -> Bool {
+    public func observeCompleted(operationID: UUID,
+        authorize: @Sendable (TargetLease) async -> Bool = { _ in true }) async throws -> Bool {
         guard let op = try await store.operation(id: operationID), op.phase == .succeeded,
               op.target.adapterID == adapter.id else { return false }
+        // Temporary permission loss must retain the late-result watch.
+        guard !Task.isCancelled, await authorize(op.target), !Task.isCancelled,
+              try await store.operation(id: op.id) == op else { return true }
         guard observing.insert(op.id).inserted else { return true }
         defer { observing.remove(op.id) }
         let receipt = try await adapter.reconcile(try await request(for: op))
