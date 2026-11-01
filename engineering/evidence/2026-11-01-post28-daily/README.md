@@ -84,3 +84,17 @@ risk; its later same-source passing run is not a diagnosed fix.
 Independent non-author evidence review: PASS within the scope above. Private
 review hash is recorded in private-evidence-hashes.json; this is not new
 production admission or a substitute for the blocked attachment test.
+
+### Bounded follow-up: system-side save delay
+
+A read-only query of the existing screenshot UI log adds a direct system event:
+`keyboard.selection` launch at 14:33:52.604, `Capturing image` at
+14:33:53.620, capture-client exit at 14:33:53.695, then screencaptureui reports
+saved `ExternalDisplay / SelectedPortion` at 14:34:54.954 (local +08:00).
+Riftlet was absent throughout this interval. The delay therefore precedes its
+importer; the internal reason for the system UI deferring save is unproved.
+`MDItemSetAttributes failed` appears at save time, not before the long gap, and
+is not established as its cause. No system preferences or product code changed.
+The retained sample/resumption guard is saved privately; no further capture or
+manual-setup request is planned. Attachment tests stay BLOCKED without an
+authorized independent target. No new first-click stability claim is made.

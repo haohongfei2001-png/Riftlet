@@ -12,6 +12,7 @@
     "system-shortcut-contained.swift": "ef228d9c7312a253c77144c986c5d09d1f962b59a38a144c759262dd0afb7a4e",
     "system-capture-log.json": "c89fcd96430fdf2bf5a0a650bd1f2389d54e502fd3433110c4213b5fef4c9c2b",
     "capture-metadata.json": "8364b14f72d425fcb0066e3a9662ab7362359f68497f12df8cb5e5e9c70687ea",
-    "review.json": "31227e6da5724ed652c19ba8f124314c5f6514ce2739ddc076a86b0be86b1019"
+    "review.json": "31227e6da5724ed652c19ba8f124314c5f6514ce2739ddc076a86b0be86b1019",
+    "capture-ui-delay-log.json": "46b3b1f7db278eec3001632e71ade52982588e8e6f997641f2aaa80f68cf55c8"
   }
 }
