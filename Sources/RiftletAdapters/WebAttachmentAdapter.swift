@@ -66,7 +66,7 @@ public enum WebAdapterError: Error, Equatable, Sendable {
     case disabled, programUnavailable, syntheticAssetsOnly, invalidTarget, invalidRequest
     case invalidPrivateFile, inputInFlight, invalidReply, browserNotFrontmost, nativeExecutionFailed
     case nativeEventFailed(Int32)
-    case nativeSelectionChanged, pageRejected(WebPageRejection)
+    case nativeSelectionChanged, captureSuperseded, pageRejected(WebPageRejection)
 }
 
 /// The explicit screenshot candidate is isolated from ordinary production.
@@ -394,6 +394,7 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
                 case .invalidPrivateFile?: label = "invalidPrivateFile"
                 case .inputInFlight?: label = "inputInFlight"
                 case .invalidReply?: label = "invalidReply"
+                case .captureSuperseded?: label = "captureSuperseded"
                 case .browserNotFrontmost?: label = "browserNotFrontmost"
                 case .nativeExecutionFailed?: label = "nativeExecutionFailed"
                 case .nativeEventFailed(let code)?: label = "nativeEventFailed(\(code))"
