@@ -22,17 +22,18 @@ struct AutomationPermissionPublication {
         case publish, retainExisting, clear, staleEpoch
     }
 
-    /// A permission check that was superseded before any page capture cannot
-    /// prove that the previously acknowledged page became invalid. In contrast,
+    /// A superseded permission check or cooperatively interrupted read-only
+    /// capture cannot prove that the previously acknowledged page became invalid. In contrast,
     /// an actual failed capture or a changed foreground must still revoke it.
     /// The caller supplies only the original scheduler completion and sessions;
     /// this function never creates an ACK or changes its event timestamp.
     static func targetDisposition(epochAccepted: Bool, captureAttempted: Bool,
                                   returnedSession: String?, existingSession: String?,
-                                  existingEpochMatches: Bool, foregroundSession: String?) -> TargetDisposition {
+                                  existingEpochMatches: Bool, foregroundSession: String?,
+                                  captureSuperseded: Bool = false) -> TargetDisposition {
         guard epochAccepted else { return .staleEpoch }
-        if captureAttempted, let returnedSession, returnedSession == foregroundSession { return .publish }
-        guard !captureAttempted, returnedSession == nil, existingEpochMatches,
+        if !captureSuperseded, captureAttempted, let returnedSession, returnedSession == foregroundSession { return .publish }
+        guard (!captureAttempted || captureSuperseded), returnedSession == nil, existingEpochMatches,
               let foregroundSession, existingSession == foregroundSession else { return .clear }
         return .retainExisting
     }

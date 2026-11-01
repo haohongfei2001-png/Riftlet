@@ -32,7 +32,7 @@ struct MainWorldCommandRelay: Sendable {
           let q;try{q=JSON.parse(raw);}catch{return;}
           if(!q||Object.keys(q).sort().join(',')!=='command,nonce'
             ||typeof q.nonce!=='string'||!/^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/.test(q.nonce)
-            ||!q.command||!['captureTarget','pinTarget','validate','begin','chunk','commit','observe','discard'].includes(q.command.action)
+            ||!q.command||!['captureTarget','pinTarget','prepareClick','resolveClick','validate','begin','chunk','commit','observe','discard'].includes(q.command.action)
             ||seen.has(q.nonce))return;
           seen.add(q.nonce); // Lifetime nonce tombstone, before executing/reentrancy.
           const receiver=q.command.action==='observe'&&legacySession&&q.command.target?.sessionID===legacySession
@@ -66,6 +66,30 @@ struct MainWorldCommandRelay: Sendable {
         root.setAttribute('data-riftlet-command',JSON.stringify(\(request)));
         root.dispatchEvent(new Event('riftlet-command-\(channel)'));
         root.removeAttribute('data-riftlet-command');return 'submitted';})()
+        """
+    }
+
+    /// Local-only candidate: classic inline insertion must execute MAIN and
+    /// produce this nonce's receipt synchronously. CSP/Trusted Types refusal is
+    /// terminal. Never borrow a page nonce, change policy, or use a URL setter.
+    func inlineBootstrap(_ envelope: MainWorldCommandEnvelope, witness: String? = nil) -> String {
+        let script = "(()=>{\(installer);\(dispatch(envelope));})()"
+        let literal = String(decoding: try! JSONEncoder().encode(script), as: UTF8.self)
+        let witnessCheck = witness.map { "if((\($0))!=='ready')return 'unavailable';" } ?? ""
+        return """
+        (()=>{
+          if(location.origin!=='http://127.0.0.1:18766'||!/^\\/c\\/[a-f0-9-]{36}$/.test(location.pathname))return 'unavailable';
+          const root=document.documentElement;
+          \(witnessCheck)
+          try {
+            if((\(probe))==='ready'){\(dispatch(envelope));}
+            else {const script=document.createElement('script');
+              try {script.textContent=\(literal);root.appendChild(script);} finally {script.remove();}}
+            if(document.documentElement!==root)return 'unavailable';
+            const reply=JSON.parse(root.getAttribute('data-riftlet-reply-\(envelope.nonce)')||'null');
+            return reply?.nonce==='\(envelope.nonce)'&&typeof reply.ok==='boolean'?'submitted':'unavailable';
+          } catch {return 'unavailable';}
+        })()
         """
     }
 }

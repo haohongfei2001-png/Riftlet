@@ -1,0 +1,73 @@
+{
+  "browser": "151.0.7922.34",
+  "results": [
+    {
+      "delayMS": 50,
+      "kind": "HEADLESS_COMPONENT_NOT_APPKIT",
+      "A": {
+        "counts": {
+          "input": 0,
+          "change": 1,
+          "send": 0
+        },
+        "textIntact": true
+      },
+      "B": {
+        "input": 0,
+        "change": 0,
+        "send": 0
+      },
+      "final": "attached",
+      "times": {
+        "prepareBefore": 65.39999997615814,
+        "prepareAfter": 76.5,
+        "resolved": 134.5,
+        "input": 157.5
+      }
+    },
+    {
+      "delayMS": 200,
+      "kind": "HEADLESS_COMPONENT_NOT_APPKIT",
+      "A": {
+        "counts": {
+          "input": 0,
+          "change": 1,
+          "send": 0
+        },
+        "textIntact": true
+      },
+      "B": {
+        "input": 0,
+        "change": 0,
+        "send": 0
+      },
+      "final": "attached",
+      "times": {
+        "prepareBefore": 32.89999997615814,
+        "prepareAfter": 40.09999990463257,
+        "resolved": 248.5,
+        "input": 265.1999999284744
+      }
+    }
+  ],
+  "scope": "HEADLESS_COMPONENT_NOT_APPKIT_NOT_CHATGPT_NOT_REAL_BACKGROUND",
+  "production": "NO-GO",
+  "overlay": "Owned loopback origin predicate in disposable program only",
+  "headlessFocusCalibration": {
+    "before": {
+      "visible": "visible",
+      "focus": true
+    },
+    "Aafter": {
+      "visible": "visible",
+      "focus": true
+    },
+    "Bafter": {
+      "visible": "visible",
+      "focus": true
+    }
+  },
+  "testedOverlayPageSHA256": "60cdf29bab2913ab0c22e499b73f9b26055d4d5f17509f8d2f5a6a4a69a12ebb",
+  "sourcePageSHA256": "e33d7562c92d413db5df42d5c9a96f8198267427b20c343bf4b46c707e2a24df",
+  "witnessSourceSHA256": "4f913b0ffb0ac3ffe96752d57ec6a2899dcc6850d525051b83eb984ff5d6807b"
+}

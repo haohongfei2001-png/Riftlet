@@ -116,4 +116,42 @@ final class MainWorldCommandRelayTests: XCTestCase {
         XCTAssertEqual(js.evaluateScript("executions")?.toInt32(), 1)
     }
 
+    func testInlineBootstrapRequiresImmediateNonceReplyAndDoesNotResubmit() throws {
+        let js = try context(), relay = MainWorldCommandRelay(function: function, contextJSON: native), e = envelope()
+        js.evaluateScript("""
+        var location={origin:'http://127.0.0.1:18766',pathname:'/c/11111111-1111-4111-8111-111111111111'},removed=0;
+        document.createElement=()=>({remove(){removed++}});
+        document.documentElement.appendChild=script=>(0,eval)(script.textContent);
+        """)
+        XCTAssertEqual(js.evaluateScript(relay.inlineBootstrap(e, witness: "'ready'"))?.toString(), "submitted")
+        XCTAssertNil(js.exception)
+        XCTAssertEqual(js.evaluateScript("executions")?.toInt32(), 1)
+        _ = try e.decode(try XCTUnwrap(js.evaluateScript(e.reader)?.toString()))
+        js.evaluateScript(relay.inlineBootstrap(e))
+        XCTAssertEqual(js.evaluateScript("executions")?.toInt32(), 1)
+        XCTAssertEqual(js.evaluateScript("removed")?.toInt32(), 1)
+    }
+
+    func testInlineBootstrapPolicyFailureOrDelayedExecutionDoesNotAuthorizePendingClick() throws {
+        for append in ["script=>{}", "script=>{throw Error('CSP')}", "script=>timers.push(()=>(0,eval)(script.textContent))"] {
+            let js = try context(), relay = MainWorldCommandRelay(function: function, contextJSON: native), e = envelope()
+            js.evaluateScript("""
+            var location={origin:'http://127.0.0.1:18766',pathname:'/c/11111111-1111-4111-8111-111111111111'};
+            document.createElement=()=>({remove(){}});document.documentElement.appendChild=\(append);
+            """)
+            XCTAssertEqual(js.evaluateScript(relay.inlineBootstrap(e))?.toString(), "unavailable")
+            XCTAssertNil(js.exception); XCTAssertEqual(js.evaluateScript("executions")?.toInt32(), 0)
+        }
+    }
+
+    func testInlineBootstrapRejectsForeignHostAndUnavailableWitnessBeforeInstallation() throws {
+        let js = try context(), relay = MainWorldCommandRelay(function: function, contextJSON: native), e = envelope()
+        js.evaluateScript("var location={origin:'https://example.invalid',pathname:'/c/11111111-1111-4111-8111-111111111111'}")
+        XCTAssertEqual(js.evaluateScript(relay.inlineBootstrap(e))?.toString(), "unavailable")
+        js.evaluateScript("location.origin='http://127.0.0.1:18766'")
+        XCTAssertEqual(js.evaluateScript(relay.inlineBootstrap(e, witness: "'unavailable'"))?.toString(), "unavailable")
+        XCTAssertEqual(js.evaluateScript("executions")?.toInt32(), 0)
+        XCTAssertEqual(js.evaluateScript(relay.probe)?.toString(), "missing")
+    }
+
 }
