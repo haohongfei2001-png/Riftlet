@@ -482,9 +482,9 @@ function riftletWebAcceptance(command, native) {
     };
     // Only a foreground native press can issue a capability. Later commands
     // must present this exact target; hidden state is not a change of draft.
-    const pinTarget = id => {
+    const pinTarget = (id, pending = false) => {
       if (!/^[a-fA-F0-9]{8}-(?:[a-fA-F0-9]{4}-){3}[a-fA-F0-9]{12}$/.test(id || '')
-          || issuedPinIDs.has(id) || !valid()) fail('CLICK_PIN_REFUSED');
+          || issuedPinIDs.has(id) || !(pending ? observationIdentityValid() && composerAvailable() : valid())) fail('CLICK_PIN_REFUSED');
       const now = performance.now();
       for (const [key,pin] of clickPins) if (!pin.operationID && pin.deadline <= now) clickPins.delete(key);
       if ([...clickPins.values()].filter(p => !p.operationID && p.deadline > now).length >= 16) fail('CLICK_PIN_LIMIT');
@@ -826,7 +826,7 @@ function riftletWebAcceptance(command, native) {
       monitorAlive = monitor.bind(form, editor, input, logicalDraftIdentity, route, checkBinding, invalidate);
       if (!checkBinding() || !monitorAlive()) { invalidate(); fail('UNPROVEN_MONITORED_BINDING'); }
     }
-    state = {lifecycleVersion: 1, pinTarget, validFor, claimPin, ownsTarget: candidate => ownsPin(candidate) || sameTarget(candidate,target) || retiredTargets.some(t => sameTarget(t,candidate)), get target() { return target; }, valid, observationIdentityValid, invalidate, revokeInput, drain, continuityEvents, operations, sample, tick, ownCards, markBad, currentMember,
+    state = {lifecycleVersion: 1, matchesClickNodes: (e,f,i) => e === editor && f === form && i === input, pinTarget, validFor, claimPin, ownsTarget: candidate => ownsPin(candidate) || sameTarget(candidate,target) || retiredTargets.some(t => sameTarget(t,candidate)), get target() { return target; }, valid, observationIdentityValid, invalidate, revokeInput, drain, continuityEvents, operations, sample, tick, ownCards, markBad, currentMember,
       currentSource, input, form, nodeID, renewEmptyInputLease, next: null};
     if (registry.tail) registry.tail.next = state;
     else registry.head = state;
@@ -860,6 +860,50 @@ function riftletWebAcceptance(command, native) {
       current = install(registry);
     }
     return current.target;
+  }
+  if (command.action === 'prepareClick') {
+    // The native press freezes this exact document and editor/input nodes before
+    // awaiting MAIN. Never install a successor state for an invalid old state.
+    const id = command.documentWitnessID?.toLowerCase();
+    if (!/^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/.test(id || '')) fail('CLICK_ROUTE_UNOBSERVED');
+    const key = 'data-riftlet-pending-' + id;
+    const nodes = [...document.querySelectorAll('[' + key + ']')];
+    const root = document.documentElement;
+    const editors = nodes.filter(n => n.getAttribute('role') === 'textbox' && n.getAttribute('contenteditable') === 'true');
+    const forms = nodes.filter(n => n.tagName === 'FORM');
+    const inputs = nodes.filter(n => n.tagName === 'INPUT' && n.getAttribute('type') === 'file');
+    root.dispatchEvent(new Event('riftlet-validate-' + id));
+    if (root.getAttribute(key) !== 'validated' || editors.length !== 1 || forms.length !== 1 || inputs.length !== 1
+        || editors[0].closest('form') !== forms[0] || inputs[0].form !== forms[0]
+        || !nodes.every(n => n.isConnected && n.getAttribute(key) === (n === root ? 'validated' : 'ready'))) fail('CLICK_ROUTE_UNOBSERVED');
+    // Burn the one-use document capability before installation/reentrancy.
+    root.dispatchEvent(new Event('riftlet-release-' + id));
+    if (!registry) {
+      // A truly first MAIN installation must still be foreground. An already
+      // observed original state may be pinned after switching to B below.
+      registry = {head:null,tail:null,count:0,rootMonitors:new Map()};
+      registry.stopRootMonitors = () => [...registry.rootMonitors.values()].map(monitor => monitor.stop());
+      Object.defineProperty(globalThis,KEY,{value:registry,configurable:false,writable:false});
+      install(registry);
+    }
+    const current = registry.tail;
+    current?.drain();
+    if (!current?.pinTarget || !current.matchesClickNodes?.(editors[0],forms[0],inputs[0]) || !contextMatches(current.target) || !current.observationIdentityValid()) fail('CLICK_ROUTE_UNOBSERVED');
+    registry.pendingClicks ||= new Map();
+    for (const [key,value] of registry.pendingClicks) if (performance.now() >= value.deadline) registry.pendingClicks.delete(key);
+    if (registry.pendingClicks.size >= 16) fail('CLICK_PIN_LIMIT');
+    if (!current.valid() && !current.renewEmptyInputLease?.()) fail('CLICK_PIN_REFUSED');
+    const pinned = current.pinTarget(command.clickBindingID);
+    registry.pendingClicks.set(id,{state:current,target:pinned,deadline:performance.now()+5000});
+    return {prepared:command.clickBindingID,pagePreparedAtMS:performance.now()};
+  }
+  if (command.action === 'resolveClick') {
+    const id = command.documentWitnessID?.toLowerCase(), original = registry?.pendingClicks?.get(id);
+    if (!original || original.target.clickBindingID !== command.clickBindingID || !contextMatches(original.target)) fail('CLICK_ROUTE_UNOBSERVED');
+    registry.pendingClicks.delete(id);
+    original.state.drain();
+    if (performance.now() >= original.deadline || !original.state.validFor?.(original.target)) fail('CLICK_PIN_REFUSED');
+    return original.target;
   }
   if (command.action === 'pinTarget') {
     // No installation on a late page. A missing/legacy continuity observer is

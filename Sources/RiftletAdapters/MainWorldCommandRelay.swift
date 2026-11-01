@@ -32,7 +32,7 @@ struct MainWorldCommandRelay: Sendable {
           let q;try{q=JSON.parse(raw);}catch{return;}
           if(!q||Object.keys(q).sort().join(',')!=='command,nonce'
             ||typeof q.nonce!=='string'||!/^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/.test(q.nonce)
-            ||!q.command||!['captureTarget','pinTarget','validate','begin','chunk','commit','observe','discard'].includes(q.command.action)
+            ||!q.command||!['captureTarget','pinTarget','prepareClick','resolveClick','validate','begin','chunk','commit','observe','discard'].includes(q.command.action)
             ||seen.has(q.nonce))return;
           seen.add(q.nonce); // Lifetime nonce tombstone, before executing/reentrancy.
           const receiver=q.command.action==='observe'&&legacySession&&q.command.target?.sessionID===legacySession

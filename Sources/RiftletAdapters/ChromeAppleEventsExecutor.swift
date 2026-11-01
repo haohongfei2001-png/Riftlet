@@ -8,6 +8,7 @@ import RiftletCore
 @MainActor
 public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
     private static let scriptQueue = DispatchQueue(label: "com.riftlet.apple-events", qos: .utility)
+    private static let clickResolutionQueue = DispatchQueue(label: "com.riftlet.pending-click", qos: .userInitiated)
     private let observedRoutes = ObservedClickRoutes()
     private let relays = MainWorldRelayStore()
     private let trace: ChromeBridgeTrace
@@ -57,6 +58,117 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
         return target
     }
 
+    /// Synthetic-only pending candidate. Routing, the small document witness and
+    /// MAIN preparation submission run at press with a short deadline. This is
+    /// NOT zero main-thread work. All receipt waits/target decoding run off-main.
+    /// Real/admitted sources retain the original pinTargetAtPress path above.
+    public func prepareClickAtPress(assetID: UUID, program: WebPageProgram, eventUptime: TimeInterval) throws -> PendingWebClick {
+        let started = ProcessInfo.processInfo.systemUptime
+        guard eventUptime.isFinite, eventUptime >= 0, eventUptime <= started,
+              let app = NSWorkspace.shared.frontmostApplication, app.bundleIdentifier == "com.google.Chrome",
+              let identity = ChromeProcessIdentity.read(pid: app.processIdentifier) else { throw WebAdapterError.invalidTarget }
+        let id = UUID(), witness = UUID()
+        let bridge = ChromePIDEvents(pid: identity.pid, trace: trace, requestID: id.uuidString, deadline: started + 0.15)
+        guard identity.isCurrent(), try bridge.frontmost() else { throw WebAdapterError.browserNotFrontmost }
+        let selected = try bridge.activeIdentity(check: "press_route")
+        guard try bridge.execute(ClickDocumentWitness.install(witness), window: selected.window, tab: selected.tab,
+            receiptBudget: .init(deadlineUptime: started + 0.15)) == "ready" else { throw WebAdapterError.pageRejected(.clickRouteUnobserved) }
+        guard identity.isCurrent(), try bridge.frontmost(),
+              try bridge.activeIdentity(check: "press_route_frozen") == selected else { throw WebAdapterError.nativeSelectionChanged }
+        let routeFrozen = ProcessInfo.processInfo.systemUptime
+        trace.record(requestID: id.uuidString, action: "pendingClick", phase: "routeFrozen",
+            enqueued: eventUptime, started: started, context: nil, succeeded: true)
+        let context = Self.contextJSON(session: identity.session, window: selected.window, tab: selected.tab)
+        let legacy = identity.legacyLaunchDate.map { "\(identity.pid):\($0.timeIntervalSince1970)" }
+        let relay = relays.relay(function: program.functionSource, contextJSON: context, allowCreate: true,
+            legacyObservationSession: legacy)!
+        let prepare = WebBridgeCommand(action: .prepareClick, clickBindingID: id, documentWitnessID: witness)
+        let envelope = MainWorldCommandEnvelope(function: program.functionSource,
+            commandJSON: String(decoding: try JSONEncoder().encode(prepare), as: UTF8.self), contextJSON: context)
+        if try bridge.execute(relay.probe, window: selected.window, tab: selected.tab,
+            receiptBudget: .init(deadlineUptime: started + 0.15)) != "ready" {
+            guard try bridge.frontmost(), try bridge.activeIdentity(check: "press_first_install") == selected else {
+                throw WebAdapterError.nativeSelectionChanged
+            }
+            try bridge.submitMainWorld("(()=>{\(relay.installer);return \(relay.dispatch(envelope));})()",
+                window: selected.window, tab: selected.tab)
+        } else {
+            try bridge.dispatchMainWorld(relay.dispatch(envelope), window: selected.window, tab: selected.tab)
+        }
+        // The preparation command is addressed to original A. Receipt waiting
+        // and full target decoding happen asynchronously. A first-install script
+        // that loses foreground before snapshot must refuse, never bind B.
+        trace.record(requestID: id.uuidString, action: "pendingClick", phase: "mainSubmitted",
+            enqueued: eventUptime, started: started, context: nil, succeeded: true)
+        return PendingWebClick(id: id, assetID: assetID, session: identity.session,
+            window: selected.window, tab: selected.tab, documentWitness: witness, preparation: envelope,
+            eventUptime: eventUptime, routeFrozenUptime: routeFrozen)
+    }
+
+    public func resolveClick(_ click: PendingWebClick, program: WebPageProgram) async throws -> TargetLease {
+        guard click.beginResolution(at: ProcessInfo.processInfo.systemUptime),
+              let identity = NSRunningApplication.runningApplications(withBundleIdentifier: "com.google.Chrome")
+                .compactMap({ ChromeProcessIdentity.read(pid: $0.processIdentifier) })
+                .first(where: { $0.session == click.session }) else { throw WebAdapterError.invalidTarget }
+        let trace = self.trace, relays = self.relays
+        return try await withCheckedThrowingContinuation { continuation in
+            Self.clickResolutionQueue.async {
+                let started = ProcessInfo.processInfo.systemUptime
+                var phase = "originalProcess"
+                let result: Result<TargetLease, Error> = Result {
+                    try autoreleasepool {
+                        guard identity.isCurrent(), click.isValid(at: started) else { throw WebAdapterError.invalidTarget }
+                        let bridge = ChromePIDEvents(pid: identity.pid, trace: trace, requestID: click.id.uuidString,
+                            deadline: click.deadlineUptime)
+                        guard let preparation = click.preparation else { throw WebAdapterError.invalidRequest }
+                        phase = "mainPrepared"
+                        let prepared = try MainWorldReceiptReader.read(preparation) { budget in
+                            try bridge.execute(preparation.reader, window: click.window, tab: click.tab, receiptBudget: budget)
+                        }
+                        guard let value = try? JSONDecoder().decode(PendingPreparationReceipt.self, from: Data(prepared.text.utf8)),
+                              value.prepared == click.id, value.pagePreparedAtMS.isFinite, value.pagePreparedAtMS >= 0,
+                              click.isValid(at: ProcessInfo.processInfo.systemUptime) else {
+                            throw WebAdapterError.invalidTarget
+                        }
+                        trace.record(requestID: click.id.uuidString, action: "pendingClick", phase: "mainPrepared",
+                            enqueued: click.eventUptime, started: started, context: nil, succeeded: true,
+                            pagePreparedAtMS: value.pagePreparedAtMS)
+                        let context = Self.contextJSON(session: click.session, window: click.window, tab: click.tab)
+                        let legacy = identity.legacyLaunchDate.map { "\(identity.pid):\($0.timeIntervalSince1970)" }
+                        let relay = relays.relay(function: program.functionSource, contextJSON: context,
+                            allowCreate: true, legacyObservationSession: legacy)!
+                        let command = WebBridgeCommand(action: .resolveClick, clickBindingID: click.id,
+                            documentWitnessID: click.documentWitness)
+                        let envelope = MainWorldCommandEnvelope(function: program.functionSource,
+                            commandJSON: String(decoding: try JSONEncoder().encode(command), as: UTF8.self), contextJSON: context)
+                        let budget = MainWorldReceiptReadBudget(deadlineUptime: min(click.deadlineUptime, ProcessInfo.processInfo.systemUptime + 1))
+                        phase = "mainChannel"
+                        guard try bridge.execute(relay.probe, window: click.window, tab: click.tab, receiptBudget: budget) == "ready",
+                              click.isValid(at: ProcessInfo.processInfo.systemUptime) else { throw WebAdapterError.pageRejected(.bridgeUnavailable) }
+                        // Resolution is observation of this already prepared click,
+                        // never an installer, active-tab lookup, or registry recapture.
+                        try bridge.dispatchMainWorld(relay.dispatch(envelope), window: click.window, tab: click.tab)
+                        phase = "pageReceipt"
+                        let receipt = try MainWorldReceiptReader.read(envelope) { budget in
+                            try bridge.execute(envelope.reader, window: click.window, tab: click.tab, receiptBudget: budget)
+                        }
+                        let data = Data(receipt.text.utf8)
+                        _ = try NativeCaptureProof.digest(data, session: click.session, window: click.window, tab: click.tab)
+                        let target = try JSONDecoder().decode(TargetLease.self, from: data)
+                        guard target.clickBindingID == click.id, identity.isCurrent(),
+                              click.isValid(at: ProcessInfo.processInfo.systemUptime) else { throw WebAdapterError.invalidTarget }
+                        phase = "resolved"
+                        return target
+                    }
+                }
+                if (try? result.get()) == nil { click.cancel() }
+                trace.record(requestID: click.id.uuidString, action: "pendingClick", phase: phase,
+                    enqueued: click.eventUptime, started: started, context: nil, succeeded: (try? result.get()) != nil)
+                continuation.resume(with: result)
+            }
+        }
+    }
+
     private nonisolated static func contextJSON(session: String, window: String, tab: String) -> String {
         let encoder = JSONEncoder(); encoder.outputFormatting = [.sortedKeys]
         return String(decoding: try! encoder.encode(["applicationID":"com.google.Chrome", "sessionID":session,
@@ -64,7 +176,7 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
     }
 
     public func execute(_ command: WebBridgeCommand, program: WebPageProgram) async throws -> Data {
-        guard command.action != .pinTarget else { throw WebAdapterError.invalidRequest }
+        guard command.action != .pinTarget, command.action != .prepareClick, command.action != .resolveClick else { throw WebAdapterError.invalidRequest }
         let browserID = "com.google.Chrome"
         let application: NSRunningApplication
         if command.action == .captureTarget {
@@ -235,6 +347,11 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
     }
 }
 
+private struct PendingPreparationReceipt: Decodable {
+    let prepared: UUID
+    let pagePreparedAtMS: Double
+}
+
 private struct ChromeDelivery: Sendable {
     let data: Data
     let targetDigest: String?
@@ -266,7 +383,7 @@ private final class ChromeBridgeTrace: @unchecked Sendable {
         }
     }
     func record(requestID: String, action: String, phase: String, enqueued: TimeInterval, started: TimeInterval,
-                context: CaptureInvocationContext?, succeeded: Bool) {
+                context: CaptureInvocationContext?, succeeded: Bool, pagePreparedAtMS: Double? = nil) {
         guard enabled else { return }
         lock.lock(); defer { lock.unlock() }
         guard count < 2048 else { return }; count += 1
@@ -274,6 +391,7 @@ private final class ChromeBridgeTrace: @unchecked Sendable {
         var fields: [String: Any] = ["event": "native_bridge", "requestID": requestID, "action": action, "phase": phase,
             "queuedUptime": enqueued, "startedUptime": started, "endedUptime": end,
             "queueMS": (started - enqueued) * 1000, "executionMS": (end - started) * 1000, "transportSucceeded": succeeded]
+        if let pagePreparedAtMS { fields["pagePreparedAtMS"] = pagePreparedAtMS; fields["pageClockDomain"] = "document-performance-now" }
         addContext(context, to: &fields)
         if let data = try? JSONSerialization.data(withJSONObject: fields, options: [.sortedKeys]) {
             try? FileHandle.standardError.write(contentsOf: data + Data([10]))

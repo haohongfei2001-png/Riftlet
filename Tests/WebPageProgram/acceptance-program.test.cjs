@@ -20,7 +20,13 @@ function fixture({blockedDigest = false, blockedInputDigest = false, route = 'ht
   const digestGate = blockedDigest || blockedInputDigest ? new Promise(resolve => { releaseDigest = resolve; }) : Promise.resolve();
   class Node {
     constructor(tag, attrs = {}) { this.nodeType=1;this.tagName = tag.toUpperCase(); this.attrs = {...attrs}; this.isConnected = true; this.children = []; this.parent = null; this.textContent = ''; }
+    addEventListener(type,fn) { this.listeners ||= new Map(); if(!this.listeners.has(type))this.listeners.set(type,[]);this.listeners.get(type).push(fn); }
+    removeEventListener(type,fn) { const a=this.listeners?.get(type)||[],i=a.indexOf(fn);if(i>=0)a.splice(i,1); }
+    dispatchEvent(e) { for(const fn of [...(this.listeners?.get(e.type)||[])])fn(e); return true; }
     getAttribute(k) { return this.attrs[k] ?? null; }
+    setAttribute(k,v) { this.attrs[k]=String(v); }
+    removeAttribute(k) { delete this.attrs[k]; }
+    get attributes() { return Object.entries(this.attrs).map(([name,value])=>({name,value})); }
     hasAttribute(k) { return Object.prototype.hasOwnProperty.call(this.attrs,k); }
     get parentElement() { return this.parent?.nodeType===1 ? this.parent : null; }
     get isContentEditable() { return this.attrs.contenteditable==='true'; }
@@ -34,6 +40,7 @@ function fixture({blockedDigest = false, blockedInputDigest = false, route = 'ht
     querySelectorAll(selector) {
       const all = this.children.flatMap(c => [c, ...c.querySelectorAll('*')]);
       if (selector === '*') return all;
+      if (/^\[data-riftlet-pending-[a-f0-9-]+\]$/.test(selector)) return all.filter(n=>n.hasAttribute(selector.slice(1,-1)));
       if (selector === ':modal') return all.filter(n=>n.nativeModal===true);
       if (selector === '[role=dialog][aria-modal=true],[role=alertdialog][aria-modal=true]') return all.filter(n=>['dialog','alertdialog'].includes(n.attrs.role)&&n.attrs['aria-modal']==='true');
       if (selector === 'form[data-chatgpt-composer][data-composer-placement=home][data-thread-find-composer=true]') return all.filter(n=>n.tagName==='FORM' && n.attrs['data-chatgpt-composer']!==undefined && n.attrs['data-composer-placement']==='home' && n.attrs['data-thread-find-composer']==='true');
@@ -90,6 +97,7 @@ function fixture({blockedDigest = false, blockedInputDigest = false, route = 'ht
     addEventListener:(type,fn) => { if (!events.has(type)) events.set(type, []); events.get(type).push(fn); },
     getElementById:() => null
   };
+  document.documentElement = body;
   document.contains = node => node === document || body.contains(node);
   body.parent = document;
   // Native MutationRecord node collections are NodeLists, including empty
@@ -118,7 +126,8 @@ function fixture({blockedDigest = false, blockedInputDigest = false, route = 'ht
     get currentSrc() { return this.src; }
     get alt() { return this.attrs.alt || ''; }
   }
-  const context = vm.createContext({console, Uint8Array, Map, Set, WeakMap, Promise, File, atob, queueMicrotask,
+  const timers = [];
+  const context = vm.createContext({setTimeout:fn=>{timers.push(fn);},console, Uint8Array, Map, Set, WeakMap, Promise, File, atob, queueMicrotask,
     getComputedStyle:node=>({display:node.display||'block',visibility:node.visibility||'visible'}),
     performance:{now:()=>performance.now()},
     crypto:{randomUUID:() => webcrypto.randomUUID(),subtle:{digest:async(...args) => { digestCalls++; if(blockedDigest || (blockedInputDigest && digestCalls===2)) await digestGate; return webcrypto.subtle.digest(...args); }}},
@@ -181,7 +190,7 @@ function fixture({blockedDigest = false, blockedInputDigest = false, route = 'ht
     mutation([{type:'attributes',target:view.image,attributeName:'src'}]);
     for (const fn of events.get('load')||[]) fn({target:view.image,type:'load'});
   };
-  return {Node,Input,document,body,form,editor,input,businessID,makeFibers,fibers,modeHeader,modeGroup,chatMode,workMode,call,target,bind,stage,commit,observe,settle,makeCard,finish,
+  return {timers,Node,Input,document,body,form,editor,input,businessID,makeFibers,fibers,modeHeader,modeGroup,chatMode,workMode,call,target,bind,stage,commit,observe,settle,makeCard,finish,
     mutate:records=>mutation(records),queueMutation:records=>mutation(records,true),
     navigationEvent:type=>{for(const fn of navigationEvents.get(type)||[])fn();},
     documentEvent:(type,target,isTrusted=true)=>{for(const fn of events.get(type)||[])fn({type,target,isTrusted});},
@@ -1870,4 +1879,87 @@ test('before pin, focus or visibility A-B-A cannot revive the original click rou
     const pin=f.call({action:'pinTarget',target:fresh,clickBindingID:webcrypto.randomUUID()});
     assert.equal(f.call({action:'validate',target:pin}).valid,true);assert.equal(f.input.inputCount,0);
   }
+});
+
+
+// Execute the exact isolated-world witness source used by the native press.
+const witnessSwift = fs.readFileSync(path.join(__dirname,'../../Sources/RiftletAdapters/ClickDocumentWitness.swift'),'utf8');
+function preparePending(f) {
+  const id=webcrypto.randomUUID();
+  const js=witnessSwift.split('return """')[1].split('"""')[0].replaceAll('\\(key)',id);
+  assert.equal(vm.runInContext(js,f.context),'ready');
+  return {action:'prepareClick',documentWitnessID:id,clickBindingID:webcrypto.randomUUID()};
+}
+test('cold first MAIN can resolve original document without any full pre-click receipt',()=>{
+  const f=fixture({thread:true}),command=preparePending(f);
+  assert.equal(f.context.__riftletWebAcceptance20261027v13,undefined);
+  assert.equal(f.call(command).prepared,command.clickBindingID);
+  const t=f.call({...command,action:'resolveClick'});assert.equal(t.clickBindingID,command.clickBindingID);
+  assert.equal(f.call({action:'validate',target:t}).valid,true);
+  assert.throws(()=>f.call(command),/CLICK_ROUTE_UNOBSERVED/);
+  assert.equal(f.input.inputCount,0);
+});
+test('pending original A resolves after blur; B/native context cannot borrow its witness',()=>{
+  const f=fixture({thread:true});f.target();const command=preparePending(f);f.call(command);
+  f.focus(false);f.document.visibilityState='hidden';f.windowEvent('blur');
+  const t=f.call({...command,action:'resolveClick'});assert.equal(f.call({action:'validate',target:t}).valid,true);
+  const b=fixture({thread:true});b.target();assert.throws(()=>b.call(command),/CLICK_ROUTE_UNOBSERVED/);
+});
+test('pending close navigation ABA replacement expiry and real editor change burn original witness',()=>{
+  const changes=[
+    f=>f.windowEvent('pagehide'),
+    f=>f.navigationEvent('navigate'),
+    f=>f.windowEvent('popstate'),
+    f=>{f.editor.isConnected=false;f.mutate([{type:'childList',target:f.form,removedNodes:[f.editor]}]);f.editor.isConnected=true;},
+    f=>f.mutate([{type:'characterData',target:f.editor}]),
+    f=>f.timers.forEach(fn=>fn())
+  ];
+  for(const change of changes){const f=fixture({thread:true});f.target();const cmd=preparePending(f);change(f);
+    assert.throws(()=>f.call(cmd),/CLICK_ROUTE_UNOBSERVED/);assert.equal(f.input.inputCount,0);}
+});
+test('pending original logical A to B to A root commits cannot mint a fresh replacement pin',()=>{
+  const f=fixture({thread:true});f.target();const cmd=preparePending(f);f.call(cmd);
+  const original=f.fibers.root;const changed=f.makeFibers('local-chatgpt:AAAAAAAA-1234-1234-1234-123456789ABC');
+  original.stateNode.current=changed.root;original.stateNode.current=original;
+  assert.throws(()=>f.call({...cmd,action:'resolveClick'}),/CLICK_PIN_REFUSED/);assert.equal(f.input.inputCount,0);
+});
+test('first MAIN missing after switch is a no-input refusal, never background rearm',()=>{
+  const f=fixture({thread:true}),cmd=preparePending(f);f.focus(false);f.document.visibilityState='hidden';
+  assert.throws(()=>f.call(cmd),/UNSUPPORTED_TEST_SURFACE/);assert.equal(f.input.inputCount,0);
+});
+
+test('deferred pin remains original even when a later capture replaces registry tail',()=>{
+  const f=fixture({thread:true});f.target();const cmd=preparePending(f);f.call(cmd);
+  const original=f.fibers.root,changed=f.makeFibers('local-chatgpt:AAAAAAAA-1234-1234-1234-123456789ABC');
+  original.stateNode.current=changed.root;
+  f.form.__reactFiber$fixture=changed.leaf;
+  f.target();
+  assert.throws(()=>f.call({...cmd,action:'resolveClick'}),/CLICK_PIN_REFUSED/);
+  assert.equal(f.input.inputCount,0);
+});
+test('isolated witness drains pending records and rejects ancestor removal ABA before MAIN snapshot',()=>{
+  for(const queued of [false,true]){
+    const f=fixture({thread:true});f.target();const cmd=preparePending(f);
+    const change=[{type:'childList',target:f.body,removedNodes:[f.form],addedNodes:[f.form]}];
+    (queued?f.queueMutation:f.mutate)(change);
+    assert.throws(()=>f.call(cmd),/CLICK_ROUTE_UNOBSERVED/);assert.equal(f.input.inputCount,0);
+  }
+});
+
+test('blur return before another capture renews only the continuously valid same-state input lease',()=>{
+  const f=fixture({thread:true}),old=f.target();f.focus(false);f.windowEvent('blur');f.focus(true);
+  const cmd=preparePending(f);f.call(cmd);f.focus(false);f.windowEvent('blur');
+  const t=f.call({...cmd,action:'resolveClick'});
+  assert.notEqual(t.documentID,old.documentID);assert.equal(t.logicalDraftIdentity.id,old.logicalDraftIdentity.id);
+  assert.equal(f.call({action:'validate',target:t}).valid,true);
+});
+// This counterexample is WHY native preparation is synthetic-only. No existing
+// MAIN monitor can witness an opaque commit that predates its first install.
+test('document-only first-install witness cannot establish pre-MAIN opaque business continuity (unsupported)',()=>{
+  const f=fixture({thread:true}),cmd=preparePending(f);
+  const next=f.makeFibers('local-chatgpt:AAAAAAAA-1234-1234-1234-123456789ABC');
+  f.form.__reactFiber$fixture=next.leaf;
+  f.call(cmd);const t=f.call({...cmd,action:'resolveClick'});
+  assert.equal(t.logicalDraftIdentity.id,'local-chatgpt:AAAAAAAA-1234-1234-1234-123456789ABC');
+  assert.equal(f.input.inputCount,0);
 });

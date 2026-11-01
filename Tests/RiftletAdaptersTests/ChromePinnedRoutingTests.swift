@@ -59,7 +59,7 @@ final class ChromePinnedRoutingTests: XCTestCase {
             XCTAssertTrue(ChromeCommandRouting.requiresForeground(action, target: target(nil)))
             XCTAssertFalse(ChromeCommandRouting.requiresForeground(action, target: target(UUID())))
         }
-        for action in [WebBridgeAction.captureTarget, .pinTarget] {
+        for action in [WebBridgeAction.captureTarget, .pinTarget, .prepareClick, .resolveClick] {
             XCTAssertTrue(ChromeCommandRouting.requiresForeground(action, target: target(UUID())))
         }
         for action in [WebBridgeAction.observe, .discard] {

@@ -6,7 +6,7 @@ import RiftletCore
 /// their previous foreground requirements. The page still validates every pin.
 enum ChromeCommandRouting {
     static func requiresForeground(_ action: WebBridgeAction, target: TargetLease?) -> Bool {
-        action == .captureTarget || action == .pinTarget
+        action == .captureTarget || action == .pinTarget || action == .prepareClick || action == .resolveClick
             || (action != .observe && action != .discard && target?.clickBindingID == nil)
     }
 }
