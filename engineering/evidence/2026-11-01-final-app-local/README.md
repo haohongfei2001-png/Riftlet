@@ -67,7 +67,9 @@ rewrite or weaker page identity check is included.
 `results.json` records every attempt, including idle-resource preflight refusals,
 one stale-driver run after a compile failure (excluded from cold-click results),
 and the first same-tab run with unavailable page counters. Later scoped same-tab
-regression fills that counter gap without replaying any old operation.
+regression fills that counter gap without replaying any old operation. Its
+background fixture produced final success but no independently sampled start;
+that row has zero upload_starts and is not a fast-swallow PASS.
 
 Local production build PASS. Local XCTest execution is unavailable because this
 Mac has Command Line Tools without XCTest; parsing is not a test pass. The new
@@ -75,7 +77,7 @@ Core tests cover denied/granted different originals, recovery, late watches and
 state changes during permission awaits. Exact formal CI/review follows the G/H
 protocol; no existing CI is relabelled as testing this fix.
 
-Physical mouse and live ChatGPT remain NOT_RUN/BLOCKED respectively. The 23–30 ms
+Physical mouse and live ChatGPT remain NOT_RUN/BLOCKED respectively. The 23–33 ms
 measured synchronous pin work is about one to two 60 Hz frames; no frame-drop
 benchmark or claim of imperceptible latency is made. Synthetic progress timing
 and tiny generated images cannot predict real upload speed. Production remains
