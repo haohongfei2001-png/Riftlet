@@ -1,0 +1,17 @@
+{
+  "scope": "Private originals retained locally; no private content published. Names are evidence labels, not paths.",
+  "sha256": {
+    "shortcut-contained.jsonl": "fdab6b1ecb06295a774afd66362dd114231d9ab7efcee32439db07ac2c4096a0",
+    "shortcut-window.jsonl": "af8f4df1fbd7dcbb3baf66a1fb142060c64cff939ab166e9eff9bac17a1c236c",
+    "package-identity.json": "b4d89b0a69b074399bb91376b584d555578c5202b1e9108b574513f59255d9aa",
+    "preservation-before.json": "0f46a35f89f465b713e1a5ae5d907731b0828b8a2b4ee80a9abe339629efcdb1",
+    "preservation-after.json": "bc2e57d1ecdcf9849c440c059dfdbfdc7636bf3ecf0cc663be8d6ff0e13f8c4e",
+    "new-capture-identity.json": "558f11189ce621aadec7b820c4c20474ef0e7f97406ccf428ab895bd03a05286",
+    "own-ui.json": "1648cc0b8029b6bfd30d27d7d3743364348df5427d2c3bc69d2427be24800447",
+    "own-ui-latest.json": "ab494d6181bab56143cecbf9c3dd19bbf88dbcd6068de0ef5b4ce54653d5abbf",
+    "system-shortcut-contained.swift": "ef228d9c7312a253c77144c986c5d09d1f962b59a38a144c759262dd0afb7a4e",
+    "system-capture-log.json": "c89fcd96430fdf2bf5a0a650bd1f2389d54e502fd3433110c4213b5fef4c9c2b",
+    "capture-metadata.json": "8364b14f72d425fcb0066e3a9662ab7362359f68497f12df8cb5e5e9c70687ea",
+    "review.json": "31227e6da5724ed652c19ba8f124314c5f6514ce2739ddc076a86b0be86b1019"
+  }
+}
