@@ -1172,6 +1172,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             var result: TargetLease?
             var diagnostics: CapturedTargetDiagnostics?
             var captureAttempted = false
+            var captureSuperseded = false
             var errorCode = "browserNotFrontmost"
             if let originalSession = self.foregroundChromeSession {
                 do {
@@ -1186,7 +1187,13 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                     } else { result = try await adapter.captureTarget() }
                     errorCode = "none"
                 }
-                catch { errorCode = (error as? WebAdapterError).map { String(describing: $0) } ?? "unclassified" }
+                catch {
+                    errorCode = (error as? WebAdapterError).map { String(describing: $0) } ?? "unclassified"
+                    // Superseded discovery says nothing about the validity of a
+                    // previously accepted target. Preserve it under the existing
+                    // epoch/session rules; never cancel the clicked transaction.
+                    captureSuperseded = (error as? WebAdapterError) == .captureSuperseded
+                }
             }
             // Publish the fully verified ACK before settings/screen enumeration
             // or other presentation work. The timestamp remains the actual
@@ -1205,7 +1212,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 epochAccepted: completion.acceptsAcknowledgement, captureAttempted: captureAttempted,
                 returnedSession: result?.sessionID, existingSession: self.armedTarget?.target.sessionID,
                 existingEpochMatches: self.armedTarget?.hostSession == attempt.epoch,
-                foregroundSession: self.foregroundChromeSession)
+                foregroundSession: self.foregroundChromeSession, captureSuperseded: captureSuperseded)
             switch disposition {
             case .publish:
                 guard let target = result else { preconditionFailure("A published capture requires a returned target") }
@@ -1224,7 +1231,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 publicationResult = result != nil ? "foregroundSessionChanged"
                     : (captureAttempted ? "captureFailed" : "captureNotAttempted")
             case .retainExisting:
-                publicationResult = "captureNotAttemptedRetainedExisting"
+                publicationResult = captureSuperseded ? "captureSupersededRetainedExisting" : "captureNotAttemptedRetainedExisting"
             case .staleEpoch:
                 break
             }
@@ -1233,6 +1240,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 "captureRequestID": invocation.requestID.uuidString, "armAttemptID": attempt.id.uuidString,
                 "hostEpoch": attempt.epoch.uuidString, "publicationResult": publicationResult,
                 "captureAttempted": captureAttempted,
+                "captureSuperseded": captureSuperseded,
                 "reusedExistingArmedTarget": reused,
                 "epochAccepted": completion.acceptsAcknowledgement, "armed": self.armedTarget != nil]
             if let diagnostics {

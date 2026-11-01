@@ -240,4 +240,36 @@ final class AutomationPermissionPublicationTests: XCTestCase {
         XCTAssertEqual(disposition(returned: "chrome-B"), .clear)
         XCTAssertEqual(disposition(attempted: false), .clear, "A fabricated result without an executed capture never publishes")
     }
+
+    func testSupersededCaptureNeverPublishesAndOnlyRetainsOriginalEpochSession() {
+        func result(epoch: Bool = true, matches: Bool = true, foreground: String? = "A",
+                    returned: String? = nil) -> AutomationPermissionPublication.TargetDisposition {
+            AutomationPermissionPublication.targetDisposition(epochAccepted: epoch, captureAttempted: true,
+                returnedSession: returned, existingSession: "A", existingEpochMatches: matches,
+                foregroundSession: foreground, captureSuperseded: true)
+        }
+        XCTAssertEqual(result(), .retainExisting)
+        XCTAssertEqual(result(epoch: false), .staleEpoch)
+        XCTAssertEqual(result(matches: false), .clear)
+        XCTAssertEqual(result(foreground: "B"), .clear)
+        XCTAssertEqual(result(foreground: nil), .clear)
+        XCTAssertEqual(result(returned: "A"), .clear, "Even a valid late capture cannot become a new ACK")
+    }
+
+    func testSupersededCaptureDrainsSchedulerOnceAndDoesNotAuthorizeItsSuccessor() throws {
+        var scheduler = TargetArmScheduler()
+        XCTAssertTrue(scheduler.start())
+        let old = try XCTUnwrap(scheduler.begin())
+        XCTAssertFalse(scheduler.request(invalidateEpoch: true))
+        let completion = try XCTUnwrap(scheduler.complete(old))
+        XCTAssertFalse(completion.acceptsAcknowledgement); XCTAssertTrue(completion.shouldWake)
+        XCTAssertEqual(AutomationPermissionPublication.targetDisposition(
+            epochAccepted: completion.acceptsAcknowledgement, captureAttempted: true,
+            returnedSession: nil, existingSession: "A", existingEpochMatches: true,
+            foregroundSession: "A", captureSuperseded: true), .staleEpoch)
+        XCTAssertNil(scheduler.complete(old))
+        let fresh = try XCTUnwrap(scheduler.begin())
+        XCTAssertNotEqual(fresh.id, old.id); XCTAssertNil(scheduler.begin())
+        XCTAssertNil(scheduler.complete(old)); XCTAssertEqual(scheduler.inFlight, fresh)
+    }
 }
