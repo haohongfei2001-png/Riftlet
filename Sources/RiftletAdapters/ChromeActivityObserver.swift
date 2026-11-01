@@ -125,10 +125,16 @@ public final class ChromeActivityObserver {
             guard let self, !Task.isCancelled, self.generation == token, self.observer != nil else { return }
             self.scheduledRefresh = nil
             guard self.processIdentity?.isCurrent() == true else { self.stop(); return }
-            if self.needsWindowRefresh { self.needsWindowRefresh = false; self.observeFocusedWindow() }
             guard let reason = self.pendingReason else { return }
+            let refreshWindow = self.needsWindowRefresh
             self.pendingReason = nil
+            self.needsWindowRefresh = false
+            // The target-change hint must revoke the old ACK before an AX
+            // focused-window read, which may block for its full timeout.
             self.onChange(reason)
+            // Invalidation/cancellation may have replaced this observer.
+            guard self.generation == token, self.observer != nil else { return }
+            if refreshWindow { self.observeFocusedWindow() }
         }
     }
 }
