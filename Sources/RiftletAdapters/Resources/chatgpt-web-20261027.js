@@ -482,9 +482,9 @@ function riftletWebAcceptance(command, native) {
     };
     // Only a foreground native press can issue a capability. Later commands
     // must present this exact target; hidden state is not a change of draft.
-    const pinTarget = (id, pending = false) => {
+    const pinTarget = id => {
       if (!/^[a-fA-F0-9]{8}-(?:[a-fA-F0-9]{4}-){3}[a-fA-F0-9]{12}$/.test(id || '')
-          || issuedPinIDs.has(id) || !(pending ? observationIdentityValid() && composerAvailable() : valid())) fail('CLICK_PIN_REFUSED');
+          || issuedPinIDs.has(id) || !valid()) fail('CLICK_PIN_REFUSED');
       const now = performance.now();
       for (const [key,pin] of clickPins) if (!pin.operationID && pin.deadline <= now) clickPins.delete(key);
       if ([...clickPins.values()].filter(p => !p.operationID && p.deadline > now).length >= 16) fail('CLICK_PIN_LIMIT');
@@ -861,6 +861,8 @@ function riftletWebAcceptance(command, native) {
     }
     return current.target;
   }
+  if (['prepareClick','resolveClick'].includes(command.action)
+      && (location.origin !== 'http://127.0.0.1:18766' || !/^\/c\/[a-f0-9-]{36}$/.test(location.pathname))) fail('UNSUPPORTED_TEST_SURFACE');
   if (command.action === 'prepareClick') {
     // The native press freezes this exact document and editor/input nodes before
     // awaiting MAIN. Never install a successor state for an invalid old state.

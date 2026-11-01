@@ -12,7 +12,11 @@ import RiftletCore
 final class PendingClickAdmissionTests: XCTestCase {
     @MainActor func testNewMechanismCannotRunOnOrdinaryCandidateOrDisabledSources() async {
         let executor = PendingProbe()
-        for mode in [WebAdapterMode.disabled, .ordinarySystemScreenshot, .systemScreenshotCandidate] {
+        var modes = [WebAdapterMode.disabled, .ordinarySystemScreenshot, .systemScreenshotCandidate]
+        #if !RIFTLET_PENDING_CLICK_LOCAL
+        modes.append(.syntheticDevelopment)
+        #endif
+        for mode in modes {
             let adapter = WebAttachmentAdapter(mediaDirectory: URL(fileURLWithPath:"/unused"), executor: executor,
                 program: WebPageProgram(sourceID:"test",functionSource:"function(){}"),mode:mode)
             XCTAssertThrowsError(try adapter.prepareClickAtPress(assetID:UUID(),eventUptime:1)) { XCTAssertEqual($0 as? WebAdapterError,.disabled) }

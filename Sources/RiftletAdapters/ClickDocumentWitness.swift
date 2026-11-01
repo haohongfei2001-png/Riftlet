@@ -9,6 +9,7 @@ enum ClickDocumentWitness {
         let key = id.uuidString.lowercased()
         return """
         (()=>{
+          if(location.origin!=='http://127.0.0.1:18766'||!/^\\/c\\/[a-f0-9-]{36}$/.test(location.pathname))return 'unavailable';
           const root=document.documentElement,key='data-riftlet-pending-\(key)';
           if(document.visibilityState!=='visible'||!document.hasFocus()||globalThis.top!==globalThis)return 'unavailable';
           const editors=[...document.querySelectorAll('[contenteditable=true][role=textbox][aria-label="询问 ChatGPT"]')];

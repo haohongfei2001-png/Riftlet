@@ -7,8 +7,13 @@ retain PR31's exact native pinner and PR32's original receiver observations.
 
 ## Implemented and bounded
 
-Only `webAcceptance` / adapter `syntheticDevelopment` uses the new pending path.
-Both App wiring and adapter methods enforce that restriction. The native press
+The pending path requires a disposable build with the explicit compiler flag
+`RIFTLET_PENDING_CLICK_LOCAL`, `webAcceptance` / adapter `syntheticDevelopment`,
+and the exact owned loopback origin `http://127.0.0.1:18766/c/<uuid>`.
+App wiring, adapter methods, isolated witness and MAIN actions enforce these
+boundaries. Official builds (including ordinary `--web-acceptance`) retain the
+old pinner. The production page program's capture origin is unchanged; local
+execution additionally requires the documented disposable fixture overlay. The native press
 captures asset, process incarnation, absolute window/tab and a one-use document/
 form/editor/file-input witness. It submits MAIN preparation to original A.
 MAIN records a specific state and pin; it does not export the full TargetLease
@@ -35,7 +40,7 @@ listener which drains MutationObserver records in the MAIN preparation event.
 - Local macOS `swift build --product Riftlet`: PASS.
 - Local complete release App packaging, resource checks, ad-hoc signature and
   ordinary binary policy identity: PASS (not launched into the shared desktop).
-- Production page-program deterministic suite: 139 cases PASS; retained legacy
+- Production page-program deterministic suite: 140 cases PASS; retained legacy
   read-only suite: 61 cases PASS. These are component tests, not MAC_PASS.
 - Two real headless Chromium 151.0.7922.34 isolated-world/MAIN channel cases:
   fresh fixture without registry, prepare original click, request B bringToFront
@@ -65,7 +70,7 @@ listener which drains MutationObserver records in the MAIN preparation event.
 2. **Before first MAIN monitoring**, an opaque business replacement on identical
    DOM nodes cannot be proved absent by a document/node witness. A deterministic
    counterexample deliberately demonstrates that limitation (zero file input).
-   Hence the new mechanism stays synthetic-only; it is not enabled for real
+   Hence the new mechanism stays compiler-gated and loopback-only; it is not enabled for real
    screenshots or admitted as a general cold-first-click solution.
 3. The narrow foreground-check → javascript URL setter interval can still race
    a switch during first channel installation. This increment does not claim

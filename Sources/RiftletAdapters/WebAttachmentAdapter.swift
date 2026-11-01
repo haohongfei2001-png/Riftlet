@@ -137,13 +137,13 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
 
     /// Freeze routing/document witness without waiting for a full page receipt.
     @MainActor public func prepareClickAtPress(assetID: UUID, eventUptime: TimeInterval) throws -> PendingWebClick {
-        guard mode == .syntheticDevelopment, let program,
+        guard PendingClickConfiguration.enabled, mode == .syntheticDevelopment, let program,
               let pinner = executor as? any WebClickTargetPinning else { throw WebAdapterError.disabled }
         return try pinner.prepareClickAtPress(assetID: assetID, program: program, eventUptime: eventUptime)
     }
 
     @MainActor public func resolveClick(_ click: PendingWebClick) async throws -> TargetLease {
-        guard mode == .syntheticDevelopment, let program,
+        guard PendingClickConfiguration.enabled, mode == .syntheticDevelopment, let program,
               let pinner = executor as? any WebClickTargetPinning else { throw WebAdapterError.disabled }
         return try await pinner.resolveClick(click, program: program)
     }

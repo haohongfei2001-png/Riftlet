@@ -1034,7 +1034,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             // A new accepted press cannot reuse a prior down/up-outside intent.
             pendingClicks.removeValue(forKey: id)?.cancel()
             pendingClickResolutions.removeValue(forKey: id)?.cancel()
-            guard mode == .webAcceptance else {
+            guard mode == .webAcceptance, PendingClickConfiguration.enabled else {
                 do {
                     guard automationPermission == .granted else { throw WebAdapterError.disabled }
                     let target = try web.pinTargetAtPress(eventUptime: timestamp)
