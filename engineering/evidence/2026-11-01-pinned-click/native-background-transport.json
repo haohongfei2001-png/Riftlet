@@ -1,0 +1,301 @@
+{
+  "schemaVersion": 1,
+  "scope": "Real macOS Chrome Apple Events; owned localhost HTML and synthetic 3-byte File only. Not ChatGPT, PNG upload, native thumbnail, uploadStarted or final attachment acceptance.",
+  "oldURLSetter": [
+    {
+      "mode": "same-window-tab",
+      "phase": "A-before-switch",
+      "snapshot": {
+        "title": "Riftlet owned route A",
+        "visibility": "visible",
+        "focus": true,
+        "count": "0",
+        "body": true
+      }
+    },
+    {
+      "after": {
+        "title": "Riftlet owned route A",
+        "visibility": "hidden",
+        "focus": false,
+        "count": "1",
+        "body": true
+      },
+      "AWindowFirst": true,
+      "B": {
+        "title": "Riftlet owned route B",
+        "visibility": "visible",
+        "focus": true,
+        "count": "0",
+        "body": true
+      },
+      "before": {
+        "title": "Riftlet owned route A",
+        "visibility": "hidden",
+        "focus": false,
+        "count": "0",
+        "body": true
+      },
+      "elapsedMS": 172.2548749530688,
+      "foregroundUnchanged": true,
+      "frontAfter": "com.google.Chrome",
+      "frontBefore": "com.google.Chrome",
+      "mode": "same-window-tab",
+      "phase": "background-directed-input",
+      "scope": "owned localhost fixture only; no ChatGPT or network upload"
+    },
+    {
+      "mode": "different-window",
+      "phase": "A-before-switch",
+      "snapshot": {
+        "title": "Riftlet owned route A",
+        "visibility": "visible",
+        "focus": true,
+        "count": "1",
+        "body": true
+      }
+    },
+    {
+      "after": {
+        "title": "Riftlet owned route A",
+        "visibility": "visible",
+        "focus": true,
+        "count": "2",
+        "body": true
+      },
+      "AWindowFirst": true,
+      "B": {
+        "title": "Riftlet owned route B",
+        "visibility": "hidden",
+        "focus": false,
+        "count": "0",
+        "body": true
+      },
+      "before": {
+        "title": "Riftlet owned route A",
+        "visibility": "visible",
+        "focus": false,
+        "count": "1",
+        "body": true
+      },
+      "elapsedMS": 226.01216670591384,
+      "foregroundUnchanged": true,
+      "frontAfter": "com.google.Chrome",
+      "frontBefore": "com.google.Chrome",
+      "mode": "different-window",
+      "phase": "background-directed-input",
+      "scope": "owned localhost fixture only; no ChatGPT or network upload"
+    },
+    {
+      "mode": "other-app",
+      "phase": "A-before-switch",
+      "snapshot": {
+        "title": "Riftlet owned route A",
+        "visibility": "visible",
+        "focus": true,
+        "count": "2",
+        "body": true
+      }
+    },
+    {
+      "after": {
+        "title": "Riftlet owned route A",
+        "visibility": "visible",
+        "focus": false,
+        "count": "3",
+        "body": true
+      },
+      "AWindowFirst": false,
+      "B": {
+        "title": "Riftlet owned route B",
+        "visibility": "hidden",
+        "focus": false,
+        "count": "0",
+        "body": true
+      },
+      "before": {
+        "title": "Riftlet owned route A",
+        "visibility": "visible",
+        "focus": false,
+        "count": "2",
+        "body": true
+      },
+      "elapsedMS": 178.2468332676217,
+      "foregroundUnchanged": false,
+      "frontAfter": "com.google.Chrome",
+      "frontBefore": "com.openai.codex",
+      "mode": "other-app",
+      "phase": "background-directed-input",
+      "scope": "owned localhost fixture only; no ChatGPT or network upload"
+    }
+  ],
+  "productionRelay": [
+    {
+      "mode": "same-window-tab",
+      "phase": "A-before-switch",
+      "snapshot": {
+        "title": "Riftlet owned route A",
+        "visibility": "visible",
+        "focus": true,
+        "count": "0",
+        "body": true
+      }
+    },
+    {
+      "after": {
+        "title": "Riftlet owned route A",
+        "visibility": "hidden",
+        "focus": false,
+        "count": "1",
+        "body": true
+      },
+      "AWindowFirst": true,
+      "B": {
+        "title": "Riftlet owned route B",
+        "visibility": "visible",
+        "focus": true,
+        "count": "0",
+        "body": true
+      },
+      "before": {
+        "title": "Riftlet owned route A",
+        "visibility": "hidden",
+        "focus": false,
+        "count": "0",
+        "body": true
+      },
+      "elapsedMS": 174.0329166641459,
+      "foregroundUnchanged": true,
+      "frontAfter": "com.google.Chrome",
+      "frontBefore": "com.google.Chrome",
+      "mode": "same-window-tab",
+      "phase": "background-directed-input",
+      "scope": "owned localhost fixture only; no ChatGPT or network upload"
+    },
+    {
+      "mode": "different-window",
+      "phase": "A-before-switch",
+      "snapshot": {
+        "title": "Riftlet owned route A",
+        "visibility": "visible",
+        "focus": true,
+        "count": "1",
+        "body": true
+      }
+    },
+    {
+      "after": {
+        "title": "Riftlet owned route A",
+        "visibility": "visible",
+        "focus": false,
+        "count": "2",
+        "body": true
+      },
+      "AWindowFirst": false,
+      "B": {
+        "title": "Riftlet owned route B",
+        "visibility": "hidden",
+        "focus": false,
+        "count": "0",
+        "body": true
+      },
+      "before": {
+        "title": "Riftlet owned route A",
+        "visibility": "visible",
+        "focus": false,
+        "count": "1",
+        "body": true
+      },
+      "elapsedMS": 171.61837499588728,
+      "foregroundUnchanged": true,
+      "frontAfter": "com.google.Chrome",
+      "frontBefore": "com.google.Chrome",
+      "mode": "different-window",
+      "phase": "background-directed-input",
+      "scope": "owned localhost fixture only; no ChatGPT or network upload"
+    },
+    {
+      "mode": "other-app",
+      "phase": "A-before-switch",
+      "snapshot": {
+        "title": "Riftlet owned route A",
+        "visibility": "visible",
+        "focus": true,
+        "count": "2",
+        "body": true
+      }
+    },
+    {
+      "after": {
+        "title": "Riftlet owned route A",
+        "visibility": "visible",
+        "focus": false,
+        "count": "3",
+        "body": true
+      },
+      "AWindowFirst": true,
+      "B": {
+        "title": "Riftlet owned route B",
+        "visibility": "hidden",
+        "focus": false,
+        "count": "0",
+        "body": true
+      },
+      "before": {
+        "title": "Riftlet owned route A",
+        "visibility": "visible",
+        "focus": false,
+        "count": "2",
+        "body": true
+      },
+      "elapsedMS": 170.40429171174765,
+      "foregroundUnchanged": true,
+      "frontAfter": "com.openai.codex",
+      "frontBefore": "com.openai.codex",
+      "mode": "other-app",
+      "phase": "background-directed-input",
+      "scope": "owned localhost fixture only; no ChatGPT or network upload"
+    }
+  ],
+  "timingNote": "elapsedMS includes 100ms deliberate post-command wait and observation. It is not mouseDown-to-file-input latency.",
+  "routingConclusion": {
+    "sameWindowTab": "PASS_COMPONENT",
+    "differentChromeWindow": "PASS_COMPONENT",
+    "otherApplication": "PASS_COMPONENT"
+  },
+  "contentsNote": "The unaddressed B tab counter remained zero. The separate C window counter was not collected. Original controlled textarea equality remained true.",
+  "source": {
+    "relayDispatchAndInstaller": "Sources/RiftletAdapters/MainWorldCommandRelay.swift",
+    "fullAppE2E": "NOT_RUN"
+  },
+  "attempts": [
+    {
+      "test": "old setter initial",
+      "result": "incomplete counter instrumentation; retained privately"
+    },
+    {
+      "test": "old setter preflight",
+      "result": "NOT_RUN foreground guard"
+    },
+    {
+      "test": "old setter corrected",
+      "result": "FAIL different window and other app focus preservation"
+    },
+    {
+      "test": "relay prototype preflight",
+      "result": "NOT_RUN foreground guard"
+    },
+    {
+      "test": "relay prototype",
+      "result": "PASS_COMPONENT three switches"
+    },
+    {
+      "test": "production relay preflight",
+      "result": "NOT_RUN foreground guard"
+    },
+    {
+      "test": "production relay",
+      "result": "PASS_COMPONENT three switches"
+    }
+  ]
+}

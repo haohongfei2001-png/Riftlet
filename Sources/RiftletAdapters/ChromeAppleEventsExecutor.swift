@@ -9,6 +9,7 @@ import RiftletCore
 public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
     private static let scriptQueue = DispatchQueue(label: "com.riftlet.apple-events", qos: .utility)
     private let observedRoutes = ObservedClickRoutes()
+    private let relays = MainWorldRelayStore()
     private let trace: ChromeBridgeTrace
 
     public init(traceEnabled: Bool = false) { trace = ChromeBridgeTrace(enabled: traceEnabled) }
@@ -33,13 +34,15 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
             throw WebAdapterError.pageRejected(.clickRouteUnobserved)
         }
         let command = WebBridgeCommand(action: .pinTarget, target: expected, clickBindingID: pinID)
-        let context = ["applicationID":"com.google.Chrome", "sessionID":identity.session,
-                       "windowID":selected.window, "tabID":selected.tab]
         let envelope = MainWorldCommandEnvelope(function: program.functionSource,
             commandJSON: String(decoding: try JSONEncoder().encode(command), as: UTF8.self),
-            contextJSON: String(decoding: try JSONEncoder().encode(context), as: UTF8.self))
+            contextJSON: Self.contextJSON(session: identity.session, window: selected.window, tab: selected.tab))
         guard identity.isCurrent() else { throw WebAdapterError.invalidTarget }
-        try bridge.submitMainWorld(envelope.source, window: selected.window, tab: selected.tab)
+        guard let relay = relays.relay(function: program.functionSource,
+            contextJSON: Self.contextJSON(session: identity.session, window: selected.window, tab: selected.tab), allowCreate: false) else {
+            throw WebAdapterError.pageRejected(.bridgeUnavailable)
+        }
+        try bridge.dispatchMainWorld(relay.dispatch(envelope), window: selected.window, tab: selected.tab)
         let receipt = try MainWorldReceiptReader.read(envelope) { budget in
             try bridge.execute(envelope.reader, window: selected.window, tab: selected.tab, receiptBudget: budget)
         }
@@ -52,6 +55,12 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
         trace.record(requestID: requestID.uuidString, action: "pinTarget", phase: "pinned",
             enqueued: eventUptime, started: started, context: nil, succeeded: true)
         return target
+    }
+
+    private nonisolated static func contextJSON(session: String, window: String, tab: String) -> String {
+        let encoder = JSONEncoder(); encoder.outputFormatting = [.sortedKeys]
+        return String(decoding: try! encoder.encode(["applicationID":"com.google.Chrome", "sessionID":session,
+            "windowID":window, "tabID":tab]), as: UTF8.self)
     }
 
     public func execute(_ command: WebBridgeCommand, program: WebPageProgram) async throws -> Data {
@@ -91,12 +100,12 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
             }
         }
         let commandJSON = String(decoding: try JSONEncoder().encode(command), as: UTF8.self)
-        let sessionJSON = String(decoding: try JSONEncoder().encode(session), as: UTF8.self)
         let captureContext = command.action == .captureTarget ? command.captureInvocation : nil
         let requestID = captureContext?.requestID.uuidString ?? UUID().uuidString
         let enqueued = ProcessInfo.processInfo.systemUptime
         let trace = self.trace
         let observedRoutes = self.observedRoutes
+        let relays = self.relays
         let delivery: ChromeDelivery = try await withCheckedThrowingContinuation { continuation in
             Self.scriptQueue.async {
                 let started = ProcessInfo.processInfo.systemUptime
@@ -127,7 +136,7 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
                                 }
                             }
                         }
-                        let context = "{applicationID:\"\(browserID)\",sessionID:\(sessionJSON),windowID:\"\(selected.window)\",tabID:\"\(selected.tab)\"}"
+                        let context = Self.contextJSON(session: identity.session, window: selected.window, tab: selected.tab)
                         // Chrome's execute-JavaScript event is isolated-world. The
                         // observed composer business identity lives in MAIN. Submit
                         // exactly once, then only read its nonce-bound DOM receipt.
@@ -135,7 +144,38 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
                             commandJSON: commandJSON, contextJSON: context)
                         phase = "submit"
                         guard identity.isCurrent() else { throw WebAdapterError.invalidTarget }
-                        try bridge.submitMainWorld(envelope.source, window: selected.window, tab: selected.tab)
+                        let legacySession = identity.legacyLaunchDate.flatMap { date in
+                            date.timeIntervalSince1970.isFinite ? "\(pid):\(date.timeIntervalSince1970)" : nil
+                        }
+                        var foundRelay = relays.relay(function: program.functionSource, contextJSON: context,
+                            allowCreate: false, legacyObservationSession: legacySession)
+                        if foundRelay == nil, command.action == .observe || command.action == .captureTarget {
+                            let expectedRelay = MainWorldCommandRelay(function: program.functionSource,
+                                contextJSON: context, legacyObservationSession: legacySession)
+                            let channel = try bridge.execute(expectedRelay.discovery, window: selected.window, tab: selected.tab,
+                                receiptBudget: .init(deadlineUptime: ProcessInfo.processInfo.systemUptime + 1))
+                            guard channel != "ambiguous" else { throw WebAdapterError.pageRejected(.bridgeUnavailable) }
+                            foundRelay = relays.adopt(function: program.functionSource, contextJSON: context,
+                                channel: channel, legacyObservationSession: legacySession)
+                        }
+                        if command.action == .captureTarget, foundRelay == nil || (legacySession != nil && foundRelay?.legacyObservationSession != legacySession) {
+                            foundRelay = relays.relay(function: program.functionSource, contextJSON: context,
+                                allowCreate: true, legacyObservationSession: legacySession)
+                        }
+                        guard let relay = foundRelay else { throw WebAdapterError.pageRejected(.bridgeUnavailable) }
+                        if command.action == .captureTarget,
+                           try bridge.execute(relay.probe, window: selected.window, tab: selected.tab,
+                               receiptBudget: .init(deadlineUptime: ProcessInfo.processInfo.systemUptime + 1)) != "ready" {
+                            // Installation is foreground-only. Never repair a missing
+                            // background endpoint by a URL setter that raises Chrome.
+                            guard try bridge.frontmost(), try bridge.activeIdentity(check: "relay_install") == selected else {
+                                throw WebAdapterError.nativeSelectionChanged
+                            }
+                            let installAndCapture = "(()=>{\(relay.installer);return \(relay.dispatch(envelope));})()"
+                            try bridge.submitMainWorld(installAndCapture, window: selected.window, tab: selected.tab)
+                        } else {
+                            try bridge.dispatchMainWorld(relay.dispatch(envelope), window: selected.window, tab: selected.tab)
+                        }
                         phase = "receipt"
                         let receipt = try MainWorldReceiptReader.read(envelope) { budget in
                             try bridge.execute(envelope.reader, window: selected.window, tab: selected.tab,
@@ -400,6 +440,14 @@ private struct ChromePIDEvents {
             throw WebAdapterError.nativeExecutionFailed
         }
         return result
+    }
+
+    func dispatchMainWorld(_ source: String, window: String, tab: String) throws {
+        let windowObject = try object("cwin", form: "ID  ", key: .init(string: window))
+        let tabObject = try object("CrTb", form: "ID  ", key: .init(string: tab), container: windowObject)
+        guard try send("CrSu", "ExJa", direct: tabObject, javascript: source).stringValue == "submitted" else {
+            throw WebAdapterError.nativeExecutionFailed
+        }
     }
 
     func submitMainWorld(_ source: String, window: String, tab: String) throws {

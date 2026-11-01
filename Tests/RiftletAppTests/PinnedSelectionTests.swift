@@ -65,17 +65,17 @@ final class PinnedSelectionTests: XCTestCase {
         XCTAssertTrue(a.conflictsForDispatch(with: original))
         XCTAssertEqual(try JSONDecoder().decode(TargetLease.self, from: JSONEncoder().encode(a)), a)
     }
-    @MainActor private func wait(_ n: Int, _ probe: ReceiverProbe) async {
-        for _ in 0..<2000 { if await probe.count() == n { return }; await Task.yield() }
-        XCTFail("permission probe did not start")
+    @MainActor private func wait(_ n: Int, _ probe: ReceiverProbe) async -> Bool {
+        for _ in 0..<2000 { if await probe.count() == n { return true }; await Task.yield() }
+        XCTFail("permission probe did not start"); return false
     }
     @MainActor func testBPermissionCannotCancelIndependentOriginalAInspection() async {
         let probe = ReceiverProbe(), policy = OriginalReceiverPermission()
         let gate = AutomationPermissionGate(requiresChrome: true, checker: probe)
         let a = Task { await policy.inspect(session: "A", gate: gate) }
-        await wait(1, probe)
+        guard await wait(1, probe) else { return }
         let b = Task { await policy.inspect(session: "B", gate: gate) }
-        await wait(2, probe)
+        guard await wait(2, probe) else { return }
         await probe.finish(1, .denied); let br = await b.value
         XCTAssertEqual(br, .denied)
         await probe.finish(0, .granted); let ar = await a.value
@@ -86,7 +86,7 @@ final class PinnedSelectionTests: XCTestCase {
         let probe = ReceiverProbe(), policy = OriginalReceiverPermission()
         let gate = AutomationPermissionGate(requiresChrome: true, checker: probe)
         let original = Task { await policy.inspect(session: "A", gate: gate) }
-        await wait(1, probe)
+        guard await wait(1, probe) else { return }
         let foregroundRequest = policy.begin(session: "A")
         XCTAssertTrue(policy.resolve(foregroundRequest, result: .denied).published)
         await probe.finish(0, .granted)
@@ -104,9 +104,9 @@ final class PinnedSelectionTests: XCTestCase {
         let probe = ReceiverProbe(), policy = OriginalReceiverPermission()
         let gate = AutomationPermissionGate(requiresChrome: true, checker: probe)
         let old = Task { await policy.inspect(session: "A", gate: gate) }
-        await wait(1, probe)
+        guard await wait(1, probe) else { return }
         let fresh = Task { await policy.inspect(session: "A", gate: gate) }
-        await wait(2, probe)
+        guard await wait(2, probe) else { return }
         await probe.finish(1, .denied); _ = await fresh.value
         await probe.finish(0, .granted); let result = await old.value
         XCTAssertEqual(result, .unavailable)
