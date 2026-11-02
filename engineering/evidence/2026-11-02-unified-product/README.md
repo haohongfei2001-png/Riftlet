@@ -64,9 +64,11 @@ their App artifacts. Earlier passes do not certify this new source.
 
 This does **not** complete all requested product capabilities. The page currently
 does not expose a verified platform attachment identifier plus authenticated
-original-file/finalized-result response to this implementation. A downsized or
-re-encoded preview cannot establish original byte/pixel identity. Existing exact
-sRGB/dimension checks stay unchanged; a failing proof remains UNKNOWN. No pixel
+original-file/finalized-result response to this implementation. A downsized
+preview cannot establish full original pixel identity. A re-encoded preview can
+qualify only through the unchanged equal-dimension, exact sRGB RGBA comparison;
+this does not claim server-side original-byte preservation. A failing proof
+remains UNKNOWN. No pixel
 tolerance, larger data limit or progress-100 shortcut was added.
 
 Likewise, the current DOM facts do not prove terminal request retirement with no
