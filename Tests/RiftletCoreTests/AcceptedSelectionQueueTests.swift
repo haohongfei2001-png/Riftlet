@@ -32,11 +32,13 @@ final class AcceptedSelectionQueueTests: XCTestCase {
     }
     private func coordinator(_ store: QueueStore, _ adapter: ParkAdapter, capacity: Int = 12,
                              change: @escaping @Sendable () async -> Void = {},
+                             finished: @escaping @Sendable (UUID) async -> Void = { _ in },
                              validator: @escaping @Sendable (AcceptedSelection) async -> Bool = { $0.isValid() }) -> TransferCoordinator {
         TransferCoordinator(store: store, adapter: adapter, mediaDirectory: directory,
             policy: ReceiptPolicy(admittedProfiles: ["ready": .webChat],
                                   syntheticUploadStartProfiles: ["start": .webChat]), onChange: change,
-            maximumPendingSelections: capacity, validateAcceptedSelection: validator)
+            maximumPendingSelections: capacity, onAcceptedSelectionFinished: finished,
+            validateAcceptedSelection: validator)
     }
     private func operation(_ image: ImportedAsset, _ store: QueueStore) async throws -> TransferOperation {
         let record = try await store.asset(id: image.id)
@@ -203,11 +205,50 @@ final class AcceptedSelectionQueueTests: XCTestCase {
 
     func testDeadlineCancelsPreparedWhileOriginalUnknownRemainsLocked() async throws {
         let s = try store(), a = try await asset(s), b = try await asset(s), adapter = ParkAdapter()
-        let coordinator = coordinator(s, adapter)
-        try await coordinator.select(token(a)); try await coordinator.select(token(b, duration: 0.05))
-        try await Task.sleep(nanoseconds: 150_000_000)
+        // This tests expiry of already prepared work, not a requirement that
+        // SQLite + validation complete within 50ms on a parallel CI runner.
+        let second = token(b), expired = expectation(description: "Original B deadline cleanup finished")
+        let coordinator = coordinator(s, adapter, finished: { id in
+            if id == second.id { expired.fulfill() }
+        })
+        try await coordinator.select(token(a)); try await coordinator.select(second)
+        let prepared = try await operation(b, s)
+        XCTAssertEqual(prepared.phase, .prepared); XCTAssertTrue(second.isValid())
+        await fulfillment(of: [expired], timeout: 12)
+        XCTAssertGreaterThanOrEqual(ProcessInfo.processInfo.systemUptime, second.deadlineUptime)
+        XCTAssertFalse(Task.isCancelled)
         let bOp = try await operation(b, s), aOp = try await operation(a, s), inputs = await adapter.inputs()
-        XCTAssertEqual(bOp.phase, .failed); XCTAssertTrue(aOp.phase.isUnresolved); XCTAssertEqual(inputs, [a.id])
+        XCTAssertEqual(bOp.id, prepared.id); XCTAssertEqual(bOp.phase, .failed)
+        XCTAssertTrue(aOp.phase.isUnresolved); XCTAssertEqual(inputs, [a.id])
+        await adapter.complete(a.id); try await coordinator.observePending()
+        let after = await adapter.inputs(); XCTAssertEqual(after, [a.id])
+    }
+
+    func testDeadlineDuringPreparationRejectsBeforeOperationOrInput() async throws {
+        let s = try store(), a = try await asset(s), b = try await asset(s), adapter = ParkAdapter()
+        let second = token(b), gate = ParkGate()
+        let entered = expectation(description: "B validation entered before preparation")
+        let expired = expectation(description: "B expired while validation was suspended")
+        let coordinator = coordinator(s, adapter, finished: { id in
+            if id == second.id { expired.fulfill() }
+        }, validator: { selection in
+            if selection.id == second.id {
+                await gate.pause(onEntered: { entered.fulfill() })
+            }
+            return selection.isValid()
+        })
+        try await coordinator.select(token(a))
+        let selection = Task { try await coordinator.select(second) }
+        await fulfillment(of: [entered], timeout: 5)
+        XCTAssertTrue(second.isValid())
+        await fulfillment(of: [expired], timeout: 12)
+        XCTAssertGreaterThanOrEqual(ProcessInfo.processInfo.systemUptime, second.deadlineUptime)
+        await gate.release()
+        do { try await selection.value; XCTFail("Expired preparation was admitted") }
+        catch RiftletError.invalidTransition { }
+        XCTAssertFalse(Task.isCancelled)
+        let record = try await s.asset(id: b.id), aOp = try await operation(a, s), inputs = await adapter.inputs()
+        XCTAssertNil(record?.activeOperationID); XCTAssertTrue(aOp.phase.isUnresolved); XCTAssertEqual(inputs, [a.id])
         await adapter.complete(a.id); try await coordinator.observePending()
         let after = await adapter.inputs(); XCTAssertEqual(after, [a.id])
     }
@@ -336,7 +377,10 @@ private actor ParkAuthority {
 private actor ParkGate {
     private var entered = false
     private var continuation: CheckedContinuation<Void, Never>?
-    func pause() async { entered = true; await withCheckedContinuation { continuation = $0 } }
+    func pause(onEntered: @Sendable () -> Void = {}) async {
+        entered = true
+        await withCheckedContinuation { continuation = $0; onEntered() }
+    }
     func waitForEntry() async { while !entered { await Task.yield() } }
     func release() { continuation?.resume(); continuation = nil }
 }

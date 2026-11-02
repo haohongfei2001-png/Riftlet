@@ -81,3 +81,21 @@ The next required fact is a permitted, exact original-file→platform-attachment
 final-processing association; terminal retirement and independent-task semantics
 need their own evidence. CI success cannot supply it. Do not merge or release this
 as the completed product.
+
+## Deadline fixture successor
+
+At H `222d833`, Intel run `41480238667` passed the changed completion fixtures and
+the prior animation case, but one unchanged50ms accepted-selection deadline test
+reported `CancellationError` at Coordinator sleep. Its exact escape path remains
+unproven. A bounded local actual-Core probe confirmed ordinary expiry keeps A's
+lock and does not cancel its caller; holding B validation beyond its deadline
+correctly rejects before preparation. The old test assumed preparation under50ms
+and settlement after a150ms sleep, neither an event fence.
+
+The successor changes only that fixture: use the existing normal bounded token,
+assert B was actually prepared, await its exact finished event and verify the
+absolute deadline; separately hold original validation through expiry and require
+no B operation or input. No cancellation error is swallowed, production timer or
+expiry rule changed, test skipped, or success assertion weakened. This is not a
+claim that the CI runtime cancellation cause was repaired. All prior CI failures
+remain recorded; the final exact G/H requires its own full formal CI.
