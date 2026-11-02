@@ -18,6 +18,7 @@ enum RiftletMain {
                 "input": OrdinaryCaptureConfiguration.admission.allowsInput,
                 "start": OrdinaryCaptureConfiguration.admission.allowsStart,
                 "completion": OrdinaryCaptureConfiguration.admission.allowsCompletion,
+                "builtInUpload": OrdinaryCaptureConfiguration.admission.productOrigins.contains(.applicationScreenshot),
                 "safeRetry": false, "continuation": false]
             if let data = try? JSONSerialization.data(withJSONObject: value, options: [.sortedKeys]),
                let text = String(data: data, encoding: .utf8) { print(text) }

@@ -54,6 +54,32 @@ public struct ObservedUploadStart: Codable, Equatable, Sendable {
     public let startObservedAtMS: Double
 }
 
+/// Page-owned pre-input facts, not an upload failure or retry permission. This
+/// proof can only retire the currently executing append invocation. A missing
+/// change event does not prove that the file setter had no side effects.
+public struct ObservedPreInputRetirement: Codable, Equatable, Sendable {
+    public enum Reason: String, Codable, Sendable {
+        case invalidPNGSignature, inputHashMismatch, targetInvalidBeforeInput, inputPreparationFailed
+    }
+    public let version: Int
+    public let invocationID: UUID
+    public let commitInvoked: Bool
+    public let commitWorkSettled: Bool
+    public let irreversiblyRetired: Bool
+    public let inputSideEffectEntered: Bool
+    public let inputCount: Int
+    public let reason: Reason
+
+    public init(version: Int = 1, invocationID: UUID, commitInvoked: Bool,
+                commitWorkSettled: Bool, irreversiblyRetired: Bool,
+                inputSideEffectEntered: Bool, inputCount: Int, reason: Reason) {
+        self.version = version; self.invocationID = invocationID
+        self.commitInvoked = commitInvoked; self.commitWorkSettled = commitWorkSettled
+        self.irreversiblyRetired = irreversiblyRetired; self.inputSideEffectEntered = inputSideEffectEntered
+        self.inputCount = inputCount; self.reason = reason
+    }
+}
+
 public struct AttachmentObservation: Codable, Equatable, Sendable {
     public let identity: ObservationIdentity
     public let state: AttachmentObservedState
@@ -66,12 +92,14 @@ public struct AttachmentObservation: Codable, Equatable, Sendable {
     public let attachmentAbsent: Bool
     public let automaticRetryExcluded: Bool
     public let uploadStart: ObservedUploadStart?
+    public let preInputRetirement: ObservedPreInputRetirement?
 
     public init(identity: ObservationIdentity, state: AttachmentObservedState,
                 attachmentID: String? = nil, exactImageIdentity: Bool = false,
                 belongsToOriginalDraft: Bool = false, hasError: Bool = false,
                 isUploading: Bool = false, attachmentAbsent: Bool = false,
-                automaticRetryExcluded: Bool = false, uploadStart: ObservedUploadStart? = nil) {
+                automaticRetryExcluded: Bool = false, uploadStart: ObservedUploadStart? = nil,
+                preInputRetirement: ObservedPreInputRetirement? = nil) {
         self.identity = identity; self.state = state; self.attachmentID = attachmentID
         self.exactImageIdentity = exactImageIdentity
         self.belongsToOriginalDraft = belongsToOriginalDraft
@@ -79,6 +107,7 @@ public struct AttachmentObservation: Codable, Equatable, Sendable {
         self.attachmentAbsent = attachmentAbsent
         self.automaticRetryExcluded = automaticRetryExcluded
         self.uploadStart = uploadStart
+        self.preInputRetirement = preInputRetirement
     }
 }
 
@@ -114,7 +143,7 @@ public enum ObservationDecoder {
                   Set(observation.keys).isSubset(of: Set([
                     "identity", "state", "attachmentID", "exactImageIdentity",
                     "belongsToOriginalDraft", "hasError", "isUploading",
-                    "attachmentAbsent", "automaticRetryExcluded", "uploadStart"
+                    "attachmentAbsent", "automaticRetryExcluded", "uploadStart", "preInputRetirement"
                   ])),
                   let identity = observation["identity"] as? [String: Any],
                   Set(identity.keys) == Set(["operationID", "assetID", "attempt", "assetSHA256", "target"]),
@@ -136,6 +165,12 @@ public enum ObservationDecoder {
                     "previousProgress", "currentProgress", "inputObservedAtMS", "startObservedAtMS"
                 ]) else { throw ObservationError.invalidPayload }
             }
+            if let rawRetirement = observation["preInputRetirement"] {
+                guard let fields = rawRetirement as? [String: Any], Set(fields.keys) == Set([
+                    "version", "invocationID", "commitInvoked", "commitWorkSettled",
+                    "irreversiblyRetired", "inputSideEffectEntered", "inputCount", "reason"
+                ]) else { throw ObservationError.invalidPayload }
+            }
             let envelope = try JSONDecoder().decode(AttachmentObservationEnvelope.self, from: data)
             try validate(envelope)
             return envelope
@@ -144,8 +179,21 @@ public enum ObservationDecoder {
     }
 
     static func validate(_ envelope: AttachmentObservationEnvelope) throws {
-        guard [1, 2].contains(envelope.schemaVersion) else { throw ObservationError.unsupportedSchema(envelope.schemaVersion) }
+        guard [1, 2, 3].contains(envelope.schemaVersion) else { throw ObservationError.unsupportedSchema(envelope.schemaVersion) }
         let item = envelope.observation
+        if let retirement = item.preInputRetirement {
+            guard envelope.schemaVersion == 3, retirement.version == 1,
+                  retirement.commitInvoked, retirement.commitWorkSettled, retirement.irreversiblyRetired,
+                  !retirement.inputSideEffectEntered, retirement.inputCount == 0,
+                  item.state == .invalidated, item.belongsToOriginalDraft,
+                  item.attachmentID == nil, !item.exactImageIdentity, !item.hasError,
+                  !item.isUploading, !item.attachmentAbsent, !item.automaticRetryExcluded,
+                  item.uploadStart == nil else { throw ObservationError.invalidField("pre-input retirement") }
+        } else if envelope.schemaVersion == 3 {
+            // Version 3 is narrowly reserved for an explicit retirement. Normal
+            // START/COMPLETE observations continue to use their original schema.
+            throw ObservationError.invalidField("missing pre-input retirement")
+        }
         if envelope.schemaVersion == 1, item.uploadStart != nil || item.state == .uploadStarted {
             throw ObservationError.invalidField("legacy upload start")
         }

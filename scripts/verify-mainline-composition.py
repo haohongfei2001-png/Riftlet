@@ -47,8 +47,11 @@ WEBSITE_PATHS = (
     "website/test-hero-layout.py", "website/test-hero-motion.py", "website/test-hero.py", "website/test-product.cjs",
 )
 PRODUCTION_BOUNDARY = {
-    "ordinaryInput": False, "ordinaryStart": False, "ordinaryCompletion": False,
-    "builtInUpload": False, "safeRetry": False, "webContinuation": False,
+    # Exact configured capabilities of the unified source. Source admission is
+    # not real-platform validation or a release decision; no profile grants
+    # upload retry/continuation without independent termination/isolation proof.
+    "ordinaryInput": True, "ordinaryStart": True, "ordinaryCompletion": True,
+    "builtInUpload": True, "safeRetry": False, "webContinuation": False,
     "existingRestrictedCandidate": "UNCHANGED_NO_EXPANSION",
 }
 

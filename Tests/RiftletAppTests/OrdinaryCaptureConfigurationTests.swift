@@ -20,7 +20,7 @@ final class OrdinaryCaptureConfigurationTests: XCTestCase {
               evidenceSHA256: String(repeating: "c", count: 64), reviewSHA256: String(repeating: "d", count: 64))
     }
 
-    func testDefaultOrdinaryEntryCannotBeEnabledByRuntimeArgumentsOrCandidatePolicy() throws {
+    func testOrdinaryProductSourcesCannotBeExpandedByRuntimeArgumentsOrCandidatePolicy() throws {
         #if RIFTLET_ORDINARY_ACCEPTANCE
         XCTAssertEqual(try ApplicationMode.resolve([]), .capture)
         XCTAssertEqual(ApplicationMode.capture.directoryName, "Riftlet-Ordinary-Acceptance")
@@ -36,17 +36,20 @@ final class OrdinaryCaptureConfigurationTests: XCTestCase {
         for arguments in [[], ["--acceptance-trace"], ["--enable-production-upload"], ["--ordinary-upload"]] {
             let mode = try ApplicationMode.resolve(arguments)
             XCTAssertEqual(mode, .capture)
-            XCTAssertFalse(mode.usesWebAdapter)
-            XCTAssertFalse(mode.observesAttachments)
-            XCTAssertEqual(mode.attachmentState, .productionDisabled)
+            XCTAssertTrue(mode.usesWebAdapter)
+            XCTAssertTrue(mode.observesAttachments)
+            XCTAssertEqual(mode.attachmentState, .available)
         }
         let ordinary = OrdinaryCaptureConfiguration.admission
-        XCTAssertFalse(ordinary.allowsInput)
-        XCTAssertTrue(ordinary.receiptPolicy.admittedProfiles.isEmpty)
-        XCTAssertTrue(ordinary.receiptPolicy.uploadStartProfiles.isEmpty)
+        XCTAssertTrue(ordinary.usesUnifiedProduct)
+        XCTAssertEqual(ordinary.productOrigins, [.systemScreenshot, .applicationScreenshot])
+        XCTAssertTrue(ordinary.allowsInput)
+        XCTAssertTrue(ordinary.receiptPolicy.admittedProfiles.keys.contains(OrdinaryProductScreenshotScope.applicationCompletionProfileID))
+        XCTAssertTrue(ordinary.receiptPolicy.uploadStartProfiles.keys.contains(OrdinaryProductScreenshotScope.systemUploadStartProfileID))
         XCTAssertTrue(ordinary.receiptPolicy.retrySafeProfiles.isEmpty)
+        XCTAssertTrue(ordinary.receiptPolicy.continuationProfiles.isEmpty)
         XCTAssertFalse(SystemScreenshotCandidateConfiguration.completedAttachmentProfiles.isEmpty)
-        XCTAssertTrue(ProductStatus.supportDescription.contains("尚待最终 App"))
+        XCTAssertTrue(ProductStatus.supportDescription.contains("新聊天及已有聊天"))
         XCTAssertEqual(ApplicationMode.capture.directoryName, "Riftlet")
         XCTAssertEqual(ApplicationMode.systemScreenshotCandidate.directoryName, "Riftlet-System-Screenshot-Candidate")
         #endif
@@ -141,10 +144,14 @@ final class OrdinaryCaptureConfigurationTests: XCTestCase {
         let before = try await first.operation(id: operation.id)
         let assetBefore = try await first.asset(id: image.id)
         let second = try QueueStore(databaseURL: database)
-        let composition = try ApplicationAttachmentComposition.make(mode: .capture, root: root, store: second)
-        XCTAssertTrue(composition.policy.admittedProfiles.isEmpty)
-        // Actual closed host performs local crash recovery; page recovery is not scheduled.
-        XCTAssertFalse(ApplicationMode.capture.observesAttachments)
+        let probe = OrdinaryBridgeSpy()
+        let composition = try ApplicationAttachmentComposition.make(mode: .capture, root: root, store: second, executor: probe)
+        XCTAssertFalse(composition.policy.admittedProfiles.isEmpty)
+        XCTAssertTrue(ApplicationMode.capture.observesAttachments)
+        // Enabling new source-qualified operations must not enroll, replay or
+        // rewrite the historical UNKNOWN during composition/local recovery.
+        let calls = await probe.calls
+        XCTAssertEqual(calls, 0)
         try await second.recoverInterruptedOperations()
         let after = try await second.operation(id: operation.id)
         let assetAfter = try await second.asset(id: image.id)

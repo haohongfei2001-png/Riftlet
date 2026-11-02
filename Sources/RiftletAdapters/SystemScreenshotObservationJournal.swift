@@ -19,7 +19,7 @@ public actor SystemScreenshotObservationJournal {
 
     public func record(_ envelope: AttachmentObservationEnvelope, for request: TransferRequest) async throws {
         guard await store.mode == .production else { throw SystemScreenshotObservationJournalError.wrongStoreMode }
-        try Self.validate(envelope, for: request)
+        try Self.validate(envelope, for: request, scope: scope)
         // A self-consistent request is not proof that this journal belongs to
         // its durable queue. Verify the stored immutable identity as well. The
         // phase may advance while a read-only observation is in flight; it need
@@ -45,7 +45,7 @@ public actor SystemScreenshotObservationJournal {
         // second observer. A corrupt or different-target first record is never
         // replaced to make a newer observation appear acceptable.
         let original = try Self.decode(retained)
-        try Self.validate(original.envelope, for: request)
+        try Self.validate(original.envelope, for: request, scope: scope)
         guard Slot.classify(original.envelope.observation) == slot,
               original.envelope.provenance == envelope.provenance else {
             throw SystemScreenshotObservationJournalError.conflictingCheckpoint
@@ -56,11 +56,18 @@ public actor SystemScreenshotObservationJournal {
     /// journal while observed by the successor internal scope. This cannot create
     /// registration or authorize input, and validates against this journal's store.
     func recordForOriginalOrdinary(_ envelope: AttachmentObservationEnvelope, for request: TransferRequest) async throws {
-        guard scope == .ordinaryCurrentDraftInternal,
-              try await SystemScreenshotCandidateAdmission(store: store, scope: .ordinary).admits(request) else {
+        try await recordForOriginalScope(envelope, for: request, originalScope: .ordinary)
+    }
+
+    /// A new scope can preserve only an explicitly compatible original journal,
+    /// using that exact registration. It never copies or upgrades an operation.
+    func recordForOriginalScope(_ envelope: AttachmentObservationEnvelope, for request: TransferRequest,
+                                originalScope: SystemScreenshotAdmissionScope) async throws {
+        guard scope.originalObservationScopes.contains(originalScope),
+              try await SystemScreenshotCandidateAdmission(store: store, scope: originalScope).admits(request) else {
             throw SystemScreenshotObservationJournalError.invalidOperation
         }
-        try await SystemScreenshotObservationJournal(store: store, scope: .ordinary).record(envelope, for: request)
+        try await SystemScreenshotObservationJournal(store: store, scope: originalScope).record(envelope, for: request)
     }
 
     /// These are code-owned audit categories, never values selected by page JSON.
@@ -91,9 +98,10 @@ public actor SystemScreenshotObservationJournal {
         "\(scope.journalPrefix):\(request.operation.id.uuidString.lowercased()):\(request.operation.attempt):\(slot.rawValue)"
     }
 
-    private static func validate(_ envelope: AttachmentObservationEnvelope, for request: TransferRequest) throws {
+    private static func validate(_ envelope: AttachmentObservationEnvelope, for request: TransferRequest,
+                                 scope: SystemScreenshotAdmissionScope) throws {
         try ObservationDecoder.validate(envelope)
-        guard request.asset.origin == .systemScreenshot else { throw SystemScreenshotObservationJournalError.invalidOrigin }
+        guard request.asset.origin == scope.origin else { throw SystemScreenshotObservationJournalError.invalidOrigin }
         guard envelope.provenance.source == .integratedDevelopment else {
             throw SystemScreenshotObservationJournalError.invalidProvenance
         }

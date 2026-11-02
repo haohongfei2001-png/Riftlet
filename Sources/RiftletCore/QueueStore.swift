@@ -353,8 +353,7 @@ public actor QueueStore {
     private func allowsFollowing(_ prior: TransferOperation, next: TransferOperation,
                                  ownerID: UUID?, policy: ReceiptPolicy) throws -> Bool {
         guard prior.id != next.id, prior.assetID != next.assetID,
-              prior.phase != .compensated, prior.target == next.target,
-              prior.target.logicalDraftIdentity?.isRecognized == true,
+              prior.phase != .compensated, prior.target.sharesContinuationDraft(with: next.target),
               let ownerID, let call = try dispatchCall(prior.id), call.version == 1,
               call.ownerID == ownerID, call.operationID == prior.id,
               call.assetID == prior.assetID, call.attempt == prior.attempt, call.target == prior.target,
@@ -424,13 +423,7 @@ public actor QueueStore {
                try uploadStartReceipt(for: op.id) == nil, op.phase != .succeeded,
                policy.allowsUploadStart(receipt: receipt, asset: record.image, mode: mode)
                 || policy.allowsConsumption(receipt: receipt, asset: record.image, mode: mode) {
-                let starts = try database.rows("SELECT s.receipt_json FROM upload_starts s JOIN operations o ON o.id=s.operation_id WHERE o.target_key=? AND o.id<>? AND o.phase NOT IN ('failed','succeeded')", [op.target.stableKey, op.id.uuidString])
-                for row in starts {
-                    if let raw = row.first ?? nil,
-                       try JSONDecoder().decode(TransferReceipt.self, from: Data(raw.utf8)).attachmentID == attachmentID {
-                        throw RiftletError.mismatchedReceipt
-                    }
-                }
+                try rejectAttachmentAlias(attachmentID, for: op)
             }
             // A positive terminal receipt is not immune to a later, independently
             // identified error. Preserve both facts atomically; never re-upload.
@@ -498,6 +491,68 @@ public actor QueueStore {
             try database.execute("UPDATE operations SET receipt_json=? WHERE id=?", [try json(receipt), op.id.uuidString])
             guard let updated = try asset(id: op.assetID) else { throw RiftletError.assetNotFound }
             return updated
+        }
+    }
+
+    /// An admitted start or terminal success owns the original attachment until
+    /// safe retirement. Completion-only uploads (no observed intermediate START)
+    /// and compensated successes must retain the same protection. Unknown or
+    /// unadmitted observations, however, cannot mint attachment ownership.
+    private func rejectAttachmentAlias(_ attachmentID: String, for op: TransferOperation) throws {
+        let target = op.target
+        var afterSequence: Int64 = 0
+        while true {
+            // v3 has no indexed continuation scope. Read only identity metadata
+            // in bounded batches; decode proof payloads only for matching scopes.
+            // This neither depends on SQLite JSON extensions nor rewrites
+            // historical target_key/receipts or assumes their JSON encoding.
+            // Keyset paging bounds memory, not the safety horizon: no history is
+            // discarded after a fixed count. A future scope index can optimize
+            // the metadata scan without changing this ownership rule.
+            let rows = try database.rows("""
+                SELECT o.sequence,o.id,o.target_json,o.phase
+                FROM operations o
+                WHERE o.sequence>? AND o.id<>? AND o.phase<>'failed'
+                  AND (o.phase IN ('succeeded','compensated')
+                       OR EXISTS (SELECT 1 FROM upload_starts s WHERE s.operation_id=o.id))
+                ORDER BY o.sequence LIMIT 64
+                """, [String(afterSequence), op.id.uuidString])
+            guard !rows.isEmpty else { return }
+            for row in rows {
+                guard let sequence = row[0].flatMap(Int64.init), sequence > afterSequence,
+                      let originalID = row[1].flatMap(UUID.init(uuidString:)),
+                      let targetJSON = row[2], let phase = row[3] else {
+                    throw RiftletError.mismatchedReceipt
+                }
+                afterSequence = sequence
+                let originalTarget = try JSONDecoder().decode(TargetLease.self, from: Data(targetJSON.utf8))
+                guard originalTarget == target || originalTarget.sharesContinuationDraft(with: target) else { continue }
+                var owned: [TransferReceipt] = []
+                if let start = try uploadStartReceipt(for: originalID) {
+                    guard start.outcome == .uploadStarted else { throw RiftletError.mismatchedReceipt }
+                    owned.append(start)
+                }
+                if phase == OperationPhase.succeeded.rawValue {
+                    guard let success = try receipt(for: originalID),
+                          success.outcome == .verifiedReady, success.positiveReady,
+                          success.belongsToOriginalDraft, !success.hasError, !success.isUploading else {
+                        throw RiftletError.mismatchedReceipt
+                    }
+                    owned.append(success)
+                } else if phase == OperationPhase.compensated.rawValue {
+                    guard let compensation = try compensation(for: originalID),
+                          correlatedFailure(compensation.failure, success: compensation.originalSuccess) else {
+                        throw RiftletError.mismatchedReceipt
+                    }
+                    owned.append(compensation.originalSuccess)
+                }
+                for original in owned {
+                    guard original.operationID == originalID, original.target == originalTarget else {
+                        throw RiftletError.mismatchedReceipt
+                    }
+                    if original.attachmentID == attachmentID { throw RiftletError.mismatchedReceipt }
+                }
+            }
         }
     }
 

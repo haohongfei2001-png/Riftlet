@@ -1,9 +1,9 @@
 import Foundation
 
-/// Only the adapter's bounded pre-commit paths may issue this error. It is not
-/// an upload-failure receipt and never grants retry of an externally input item.
+/// Only the adapter's bounded paths before the file-input side effect may issue
+/// this error. It is not an upload-failure receipt and never grants retry of an externally input item.
 public enum PreInputRejectionStage: String, Codable, Sendable {
-    case localBeforeBegin, pageRetiredBeforeCommit, pageRejectedBeforeBegin
+    case localBeforeBegin, pageRetiredBeforeCommit, pageRejectedBeforeBegin, pageRetiredBeforeFileInput
 }
 
 public struct PreInputRejection: Error, Codable, Equatable, Sendable {

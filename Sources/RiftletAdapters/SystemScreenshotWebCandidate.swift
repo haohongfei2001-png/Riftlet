@@ -34,8 +34,10 @@ public enum SystemScreenshotWebCandidate {
     public static let maximumBytes: Int64 = 8 * 1024 * 1024
     public static let maximumPixels: Int64 = 16 * 1024 * 1024
 
-    public static func validateMetadata(_ asset: ImportedAsset) throws {
-        guard asset.origin == .systemScreenshot else { throw SystemScreenshotInputError.systemScreenshotsOnly }
+    public static func validateMetadata(_ asset: ImportedAsset, expectedOrigin: AssetOrigin = .systemScreenshot) throws {
+        guard expectedOrigin != .synthetic, asset.origin == expectedOrigin else {
+            throw expectedOrigin == .systemScreenshot ? SystemScreenshotInputError.systemScreenshotsOnly : .sourceNotAdmitted
+        }
         guard asset.mediaType == "image/png", URL(fileURLWithPath: asset.fileName).pathExtension == "png" else {
             throw SystemScreenshotInputError.unsupportedFormat
         }
@@ -51,8 +53,8 @@ public enum SystemScreenshotWebCandidate {
     /// complete single-frame ImageIO validation. Append still performs BOTH
     /// full SHA256 passes on one no-follow descriptor before its sole commit.
     static func preflight(_ asset: ImportedAsset, fileURL: URL, mediaDirectory: URL,
-                          restrictedAdmission: Bool = false) throws {
-        try validateMetadata(asset)
+                          restrictedAdmission: Bool = false, expectedOrigin: AssetOrigin = .systemScreenshot) throws {
+        try validateMetadata(asset, expectedOrigin: expectedOrigin)
         let url = fileURL.standardizedFileURL
         guard url.isFileURL, url.lastPathComponent == asset.fileName,
               url.deletingLastPathComponent().resolvingSymlinksInPath() == mediaDirectory.resolvingSymlinksInPath() else {
@@ -103,5 +105,5 @@ public enum SystemScreenshotWebCandidate {
 }
 
 public enum SystemScreenshotInputError: Error, Equatable, Sendable {
-    case systemScreenshotsOnly, unsupportedFormat, byteLimit, pixelLimit
+    case systemScreenshotsOnly, sourceNotAdmitted, unsupportedFormat, byteLimit, pixelLimit
 }

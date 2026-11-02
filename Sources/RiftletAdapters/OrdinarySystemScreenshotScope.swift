@@ -4,19 +4,26 @@ import RiftletCore
 /// Interpretation scope only. This defines no ReceiptPolicy and cannot enable ordinary uploads.
 public enum SystemScreenshotAdmissionScope: Sendable, Equatable {
     case candidate, ordinary, ordinaryCurrentDraftInternal
+    /// One ordinary product, with separate immutable source qualifications.
+    /// Neither case is a production approval or a second transport.
+    case productSystem, productApplication
 
-    var legacyProfile: ObservationProfile {
+    public var legacyProfile: ObservationProfile {
         switch self {
         case .candidate: return SystemScreenshotWebCandidate.profile
         case .ordinary: return OrdinarySystemScreenshotScope.profile
         case .ordinaryCurrentDraftInternal: return OrdinaryCurrentDraftInternalScope.profile
+        case .productSystem: return OrdinaryProductScreenshotScope.systemProfile
+        case .productApplication: return OrdinaryProductScreenshotScope.applicationProfile
         }
     }
-    var admittedProfile: ObservationProfile {
+    public var admittedProfile: ObservationProfile {
         switch self {
         case .candidate: return SystemScreenshotWebCandidate.admittedProfile
         case .ordinary: return OrdinarySystemScreenshotScope.admittedProfile
         case .ordinaryCurrentDraftInternal: return OrdinaryCurrentDraftInternalScope.admittedProfile
+        case .productSystem: return OrdinaryProductScreenshotScope.admittedSystemProfile
+        case .productApplication: return OrdinaryProductScreenshotScope.admittedApplicationProfile
         }
     }
     var observationScope: DevelopmentObservationScope { self == .candidate ? .systemScreenshotCandidate : .ordinarySystemScreenshot }
@@ -25,6 +32,8 @@ public enum SystemScreenshotAdmissionScope: Sendable, Equatable {
         case .candidate: return "system-screenshot-admission-v2"
         case .ordinary: return "ordinary-system-screenshot-admission-v1"
         case .ordinaryCurrentDraftInternal: return "ordinary-current-draft-internal-admission-v1"
+        case .productSystem: return "ordinary-product-system-admission-v1"
+        case .productApplication: return "ordinary-product-application-admission-v1"
         }
     }
     var journalPrefix: String {
@@ -32,10 +41,24 @@ public enum SystemScreenshotAdmissionScope: Sendable, Equatable {
         case .candidate: return "system-screenshot-candidate-observation-v1"
         case .ordinary: return "ordinary-system-screenshot-observation-v1"
         case .ordinaryCurrentDraftInternal: return "ordinary-current-draft-internal-observation-v1"
+        case .productSystem: return "ordinary-product-system-observation-v1"
+        case .productApplication: return "ordinary-product-application-observation-v1"
         }
     }
+    public var origin: AssetOrigin { self == .productApplication ? .applicationScreenshot : .systemScreenshot }
+    var isProduct: Bool { self == .productSystem || self == .productApplication }
+    var originalObservationScopes: [Self] {
+        switch self {
+        case .ordinaryCurrentDraftInternal: return [.ordinary]
+        case .productSystem: return [.ordinaryCurrentDraftInternal, .ordinary]
+        default: return []
+        }
+    }
+    func validateMetadata(_ asset: ImportedAsset) throws {
+        try SystemScreenshotWebCandidate.validateMetadata(asset, expectedOrigin: origin)
+    }
     func validateTarget(_ target: TargetLease) throws {
-        guard self == .ordinaryCurrentDraftInternal else {
+        guard self == .ordinaryCurrentDraftInternal || isProduct else {
             return try SystemScreenshotWebCandidate.validateAdmittedTarget(target)
         }
         // Recognition preserves the exact business identity. It never aliases a
@@ -61,9 +84,38 @@ public enum OrdinarySystemScreenshotScope {
         profileID: admittedCompletionProfileID, completionSignal: .attached, uploadStartProfileID: admittedUploadStartProfileID)
     static func matches(_ profile: ObservationProfile) -> Bool {
         if OrdinaryCurrentDraftInternalScope.matches(profile) { return true }
+        if OrdinaryProductScreenshotScope.matches(profile) { return true }
         return profile.adapterID == "chatgpt-web" && profile.surface == .webChat && profile.completionSignal == .attached
             && profile.failureSignal == nil && ((profile.profileID == completionProfileID && profile.uploadStartProfileID == uploadStartProfileID)
                 || (profile.profileID == admittedCompletionProfileID && profile.uploadStartProfileID == admittedUploadStartProfileID))
+    }
+}
+
+/// Source-qualified profiles for the single ordinary product. Runtime receipt
+/// policy must independently admit each profile for its exact asset origin;
+/// merely constructing these values grants no input, start, completion or retry.
+public enum OrdinaryProductScreenshotScope {
+    public static let systemUploadStartProfileID = "chatgpt-web-product-system-start-20261102-v1"
+    public static let systemCompletionProfileID = "chatgpt-web-product-system-attached-20261102-v1"
+    public static let applicationUploadStartProfileID = "chatgpt-web-product-application-start-20261102-v1"
+    public static let applicationCompletionProfileID = "chatgpt-web-product-application-attached-20261102-v1"
+    public static let systemProfile = profile(origin: "system", admitted: false)
+    public static let applicationProfile = profile(origin: "application", admitted: false)
+    public static let admittedSystemProfile = profile(origin: "system", admitted: true)
+    public static let admittedApplicationProfile = profile(origin: "application", admitted: true)
+
+    private static func profile(origin: String, admitted: Bool) -> ObservationProfile {
+        let suffix = admitted ? "20261102-v1" : "unadmitted-20261102-v1"
+        return ObservationProfile(adapterID: "chatgpt-web", surface: .webChat,
+            profileID: "chatgpt-web-product-\(origin)-attached-\(suffix)", completionSignal: .attached,
+            uploadStartProfileID: "chatgpt-web-product-\(origin)-start-\(suffix)")
+    }
+    static func matches(_ candidate: ObservationProfile) -> Bool {
+        [systemProfile, applicationProfile, admittedSystemProfile, admittedApplicationProfile].contains { profile in
+            candidate.adapterID == profile.adapterID && candidate.surface == profile.surface
+                && candidate.completionSignal == profile.completionSignal && candidate.failureSignal == nil
+                && candidate.profileID == profile.profileID && candidate.uploadStartProfileID == profile.uploadStartProfileID
+        }
     }
 }
 

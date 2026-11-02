@@ -137,6 +137,29 @@ public struct TargetLease: Codable, Equatable, Hashable, Sendable {
         return String(data: try! encoder.encode(self), encoding: .utf8)!
     }
 
+    /// Scope comparison only, never an input or receipt capability. Two native
+    /// clicks have different pins but may still belong to the same continuously
+    /// observed draft. Every identity field other than the click pin must match;
+    /// neither a logical ID alone nor a renewed document/input epoch qualifies.
+    /// Full Equatable/stableKey identity intentionally remains unchanged.
+    public func sharesContinuationDraft(with other: TargetLease) -> Bool {
+        guard surface == .webChat, other.surface == surface,
+              applicationID == "com.google.Chrome", other.applicationID == applicationID,
+              !adapterID.isEmpty, adapterID == other.adapterID,
+              !sessionID.isEmpty, sessionID == other.sessionID,
+              !windowID.isEmpty, windowID == other.windowID,
+              let tabID, !tabID.isEmpty, tabID == other.tabID,
+              !documentID.isEmpty, documentID == other.documentID,
+              !composerID.isEmpty, composerID == other.composerID,
+              !draftGeneration.isEmpty, draftGeneration == other.draftGeneration,
+              let draft = logicalDraftIdentity, draft.isRecognized,
+              draft == other.logicalDraftIdentity else { return false }
+        // Legacy pre-event capabilities may only keep their exact identity.
+        // They cannot be promoted into a different, native-click capability.
+        if clickBindingID == nil || other.clickBindingID == nil { return self == other }
+        return true
+    }
+
     /// A focus lease is not a business draft identity. Until the Web adapter has
     /// independently proved that identity, an unresolved upload locks its whole
     /// Chrome tab, including rearming, navigation and moving between windows.

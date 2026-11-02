@@ -904,6 +904,7 @@ function riftletWebAcceptance(command, native) {
     }
     op = {identity, invocationID: command.invocationID, name: command.uploadName, bytes: command.byteCount, chunks: [], nextChunk: 0, received: 0,
       committed: false, invalid: false, error: false, inputCount: 0, fileHashVerified: false,
+      inputSideEffectEntered: false, commitWorkSettled: false, preInputRetirementReason: null,
       inputSequence: 0, inputObservedAtMS: null, progressNode: null, progressValue: null,
       startDisqualified: false, uploadStart: null,
       started: 0, hundred: 0, ended: 0, loaded: 0, uploading: false, proof: null};
@@ -936,26 +937,42 @@ function riftletWebAcceptance(command, native) {
     for (const chunk of op.chunks) { bytes.set(chunk, offset); offset += chunk.length; }
     op.chunks = [];
     const signature = [137, 80, 78, 71, 13, 10, 26, 10];
-    if (!signature.every((n, i) => bytes[i] === n)) { state.markBad(op); }
+    const retireBeforeInput = reason => {
+      // Missing change is insufficient: a throwing setter may already have
+      // changed files. The flag is written before entering that side effect.
+      if (op.inputSideEffectEntered === false && op.inputCount === 0 && !op.preInputRetirementReason) {
+        op.preInputRetirementReason = reason;
+      }
+      state.markBad(op);
+    };
+    if (!signature.every((n, i) => bytes[i] === n)) {
+      retireBeforeInput('invalidPNGSignature'); op.commitWorkSettled = true;
+    }
     else hash(bytes).then(digest => {
       state.drain();
-      if (digest !== op.identity.assetSHA256 || op.invalid
+      if (digest !== op.identity.assetSHA256) { retireBeforeInput('inputHashMismatch'); return; }
+      if (op.invalid
           || (op.identity.target.clickBindingID ? !state.validFor?.(op.identity.target)
             : state !== registry.tail || !state.valid() || document.visibilityState !== 'visible' || !document.hasFocus()
               || !sameTarget(op.identity.target, state.target)) || state.ownCards(op.name).length) {
-        state.markBad(op); return;
+        retireBeforeInput('targetInvalidBeforeInput'); return;
       }
       // From this final lease/identity check through native setter+change there is
       // no await, focus, route change, selector fallback, send or composer edit.
       const file = new File([bytes], op.name, {type: 'image/png'}), transfer = new DataTransfer();
       transfer.items.add(file);
       op.expectingInput = true;
+      op.inputSideEffectEntered = true;
       Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'files').set.call(state.input, transfer.files);
       state.input.dispatchEvent(new Event('change', {bubbles: true}));
       op.expectingInput = false;
       if (op.inputCount !== 1) state.markBad(op);
       state.sample(op, 'dispatch');
-    }).catch(() => state.markBad(op));
+    }).catch(() => retireBeforeInput('inputPreparationFailed')).finally(() => {
+      // No retirement proof while the original async chain could still input.
+      // A destroyed binding retains its old conservative audit; it is not healed.
+      op.commitWorkSettled = true;
+    });
   } else if (command.action !== 'observe') fail('UNKNOWN_ACTION');
 
   state.sample(op);
@@ -964,6 +981,16 @@ function riftletWebAcceptance(command, native) {
   observation.hasError = op.error;
   observation.isUploading = op.uploading;
   if (!observation.belongsToOriginalDraft || op.invalid) {
+    if (observation.belongsToOriginalDraft && op.invalid && op.committed
+        && op.commitWorkSettled === true && op.inputSideEffectEntered === false && op.inputCount === 0
+        && !op.fileHashVerified && !op.uploadStart && !op.error && !op.card && !op.image
+        && ['invalidPNGSignature','inputHashMismatch','targetInvalidBeforeInput','inputPreparationFailed'].includes(op.preInputRetirementReason)
+        && typeof op.invocationID === 'string' && /^[a-fA-F0-9]{8}-(?:[a-fA-F0-9]{4}-){3}[a-fA-F0-9]{12}$/.test(op.invocationID)) {
+      envelope.schemaVersion = 3;
+      observation.preInputRetirement = {version: 1, invocationID: op.invocationID,
+        commitInvoked: true, commitWorkSettled: true, irreversiblyRetired: true,
+        inputSideEffectEntered: false, inputCount: 0, reason: op.preInputRetirementReason};
+    }
     if (observation.belongsToOriginalDraft && op.error && op.errorAttachmentID
         && op.card?.isConnected && state.form.contains(op.card)
         && op.image?.isConnected && op.image.closest('[role=button]') === op.card

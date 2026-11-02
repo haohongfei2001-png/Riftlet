@@ -70,6 +70,15 @@ public struct ObservationNormalizer: Sendable {
             // Candidate interpretation only. It keeps the original provenance;
             // ReceiptPolicy separately refuses unadmitted start/success/retry.
         }
+        if OrdinaryProductScreenshotScope.matches(profile) {
+            let allowed = request.asset.origin == .systemScreenshot
+                ? [OrdinaryProductScreenshotScope.systemProfile, OrdinaryProductScreenshotScope.admittedSystemProfile]
+                : request.asset.origin == .applicationScreenshot
+                    ? [OrdinaryProductScreenshotScope.applicationProfile, OrdinaryProductScreenshotScope.admittedApplicationProfile] : []
+            guard allowed.contains(where: { $0.profileID == profile.profileID && $0.uploadStartProfileID == profile.uploadStartProfileID }) else {
+                throw ObservationError.syntheticEvidenceForRealAsset
+            }
+        }
 
         var outcome: ReceiptOutcome = .unknown
         var positiveReady = false

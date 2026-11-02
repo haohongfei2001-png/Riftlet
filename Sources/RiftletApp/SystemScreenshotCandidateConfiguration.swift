@@ -41,6 +41,13 @@ struct ApplicationAttachmentComposition {
             // Closed means no Chrome executor, page load, permission probe or
             // registration. Test injection here is not a runtime switch.
             guard ordinary.allowsInput else { return Self(adapter: UnavailableAdapter(), policy: .init()) }
+            if ordinary.usesUnifiedProduct {
+                return Self(adapter: WebAttachmentAdapter(mediaDirectory: media,
+                    executor: executor ?? ChromeAppleEventsExecutor(traceEnabled: traceEnabled),
+                    program: try ChatGPTWebPageProgram.load(), mode: .ordinaryProduct,
+                    profile: ordinary.observationProfile, polling: polling,
+                    productStore: store, productOrigins: ordinary.productOrigins), policy: ordinary.receiptPolicy)
+            }
             return Self(adapter: WebAttachmentAdapter(mediaDirectory: media,
                 executor: executor ?? ChromeAppleEventsExecutor(traceEnabled: traceEnabled),
                 program: try ChatGPTWebPageProgram.load(), mode: .ordinarySystemScreenshot,

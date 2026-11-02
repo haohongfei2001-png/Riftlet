@@ -161,7 +161,7 @@ function fixture({blockedDigest = false, blockedInputDigest = false, route = 'ht
     do {
       await new Promise(resolve=>setTimeout(resolve,1));
       const ops=[];for(let g=context.__riftletWebAcceptance20261027v13?.head;g;g=g.next) ops.push(...g.operations.values());
-      if (ops.every(op=>!op.committed || op.invalid || (op.fileHashVerified && !op.proofPending))) return;
+      if (ops.every(op=>!op.committed || (op.commitWorkSettled !== false && (op.invalid || (op.fileHashVerified && !op.proofPending))))) return;
     } while(Date.now()<deadline);
     assert.fail('bounded synthetic async work did not settle');
   };
@@ -196,6 +196,105 @@ test('bundled program executes one exact-byte attachment and leaves draft/old at
   assert.equal(f.observe(op).state,'attached');assert.equal(f.observe(op).exactImageIdentity,true);
   assert.equal(f.editor.textContent,'Existing 中文 draft 👋');assert.ok(f.form.contains(prior));
   assert.throws(()=>f.commit(op),/COMMIT_REFUSED/);assert.equal(f.input.inputCount,1);
+});
+
+function withInvocation(op, invocationID = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa') {
+  const original = op.command;
+  op.command = action => ({...original(action), invocationID});
+  return op;
+}
+
+test('settled hash rejection proves no file side effect for only its original invocation', async () => {
+  const f=fixture({blockedDigest:true}),op=withInvocation(f.bind());
+  op.identity.assetSHA256='0'.repeat(64);f.stage(op);
+  const immediate=f.commit(op);
+  assert.equal(immediate.schemaVersion,2);assert.equal(immediate.observation.preInputRetirement,undefined);
+  assert.equal(f.observe(op).preInputRetirement,undefined);assert.equal(f.input.inputCount,0);
+  f.release();await f.settle();
+  const result=f.call(op.command('observe'));
+  assert.equal(result.schemaVersion,3);assert.equal(result.observation.state,'invalidated');
+  assert.equal(result.observation.belongsToOriginalDraft,true);
+  assert.deepEqual(JSON.parse(JSON.stringify(result.observation.preInputRetirement)),{
+    version:1,invocationID:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',commitInvoked:true,
+    commitWorkSettled:true,irreversiblyRetired:true,inputSideEffectEntered:false,inputCount:0,reason:'inputHashMismatch'});
+  assert.equal(f.input.inputCount,0);assert.throws(()=>f.commit(op),/COMMIT_REFUSED/);
+  // Querying cannot promote another identity or manufacture a second input.
+  const wrong=f.call({...op.command('observe'),identity:{...op.identity,attempt:2}});
+  assert.equal(wrong.observation.preInputRetirement,undefined);assert.equal(f.input.inputCount,0);
+});
+
+test('known invalid PNG and preparation failure retire before setter without granting upload retry', async () => {
+  for (const kind of ['signature','preparation']) {
+    const f=fixture(),bytes=kind==='signature'?Buffer.from([...png].map((v,i)=>i? v:0)):png;
+    const op=withInvocation(f.bind(undefined,bytes));f.stage(op);
+    if(kind==='preparation')f.context.DataTransfer=class {constructor(){throw Error('controlled preparation fault');}};
+    f.commit(op);await f.settle();const result=f.call(op.command('observe'));
+    assert.equal(result.schemaVersion,3);assert.equal(result.observation.preInputRetirement.reason,
+      kind==='signature'?'invalidPNGSignature':'inputPreparationFailed');
+    assert.equal(result.observation.automaticRetryExcluded,false);
+    assert.equal(result.observation.exactImageIdentity,false);assert.equal(result.observation.uploadStart,undefined);
+    assert.equal(f.input.inputCount,0);assert.throws(()=>f.commit(op),/COMMIT_REFUSED/);
+  }
+});
+
+test('final unavailable input without a changed document proves no input only after commit work settles', async () => {
+  const f=fixture({blockedDigest:true}),op=withInvocation(f.bind());f.stage(op);f.commit(op);
+  f.input.disabled=true;assert.equal(f.observe(op).preInputRetirement,undefined);
+  f.release();await f.settle();
+  const result=f.call(op.command('observe'));
+  assert.equal(result.schemaVersion,3);assert.equal(result.observation.preInputRetirement.reason,'targetInvalidBeforeInput');
+  assert.equal(f.input.inputCount,0);assert.throws(()=>f.commit(op),/TARGET_INVALID|COMMIT_REFUSED/);
+});
+
+test('same-draft invalidation while digest is pending never reaches setter after settling', async () => {
+  const f=fixture({blockedDigest:true}),op=withInvocation(f.bind());
+  let setterCount=0;
+  const descriptor=Object.getOwnPropertyDescriptor(f.Input.prototype,'files');
+  Object.defineProperty(f.Input.prototype,'files',{...descriptor,set(value){
+    setterCount++;descriptor.set.call(this,value);}});
+  f.stage(op);f.commit(op);
+  // A same-name card before this operation's input invalidates the operation,
+  // while its document, draft and native route remain unchanged.
+  f.makeCard(op);
+  const pending=f.call(op.command('observe'));
+  assert.equal(pending.observation.state,'invalidated');
+  assert.equal(pending.observation.belongsToOriginalDraft,true);
+  assert.equal(pending.schemaVersion,2);assert.equal(pending.observation.preInputRetirement,undefined);
+  assert.equal(setterCount,0);assert.equal(f.input.inputCount,0);
+  f.release();await f.settle();
+  const settled=f.call(op.command('observe'));
+  assert.equal(settled.observation.state,'invalidated');
+  assert.equal(settled.observation.belongsToOriginalDraft,true);
+  assert.equal(settled.schemaVersion,3);assert.equal(settled.observation.preInputRetirement.reason,'targetInvalidBeforeInput');
+  assert.equal(setterCount,0);assert.equal(f.input.inputCount,0);assert.equal(f.input.files.length,0);
+  assert.throws(()=>f.commit(op),/COMMIT_REFUSED/);
+  // A native caller that already received pending invalidation keeps UNKNOWN;
+  // the companion adapter test proves reconcile cannot consume this late proof.
+});
+
+test('entered throwing setter and missing change never claim no input', async () => {
+  for (const kind of ['setterThrows','changeThrows','changeMissing']) {
+    const f=fixture(),op=withInvocation(f.bind());f.stage(op);
+    const descriptor=Object.getOwnPropertyDescriptor(f.Input.prototype,'files');
+    if(kind==='setterThrows')Object.defineProperty(f.Input.prototype,'files',{...descriptor,set(value){
+      descriptor.set.call(this,value);throw Error('side effect then throw');}});
+    else f.input.dispatchEvent=kind==='changeThrows'?()=>{throw Error('dispatch fault');}:()=>true;
+    f.commit(op);await f.settle();const result=f.call(op.command('observe'));
+    assert.equal(f.input.files.length,1);assert.equal(f.input.inputCount,0);
+    assert.equal(result.schemaVersion,2);assert.equal(result.observation.preInputRetirement,undefined);
+    assert.equal(result.observation.state,'invalidated');assert.throws(()=>f.commit(op),/COMMIT_REFUSED/);
+  }
+});
+
+test('navigation, legacy allocation and successful input cannot be reinterpreted as pre-input retirement', async () => {
+  const navigated=fixture({blockedDigest:true}),n=withInvocation(navigated.bind());navigated.stage(n);navigated.commit(n);
+  navigated.context.location.href='https://chatgpt.com/?changed';navigated.release();await navigated.settle();
+  assert.equal(navigated.input.inputCount,0);assert.equal(navigated.observe(n).preInputRetirement,undefined);
+  const legacy=fixture(),old=legacy.bind();old.identity.assetSHA256='0'.repeat(64);
+  legacy.stage(old);legacy.commit(old);await legacy.settle();
+  assert.equal(legacy.observe(old).preInputRetirement,undefined);
+  const successful=fixture(),ok=withInvocation(successful.bind());successful.stage(ok);successful.commit(ok);await successful.settle();
+  assert.equal(successful.input.inputCount,1);assert.equal(successful.observe(ok).preInputRetirement,undefined);
 });
 
 test('observed PNG re-encoding can match exact sRGB RGBA; a mismatched preview cannot', async () => {

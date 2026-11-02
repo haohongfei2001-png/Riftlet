@@ -195,7 +195,8 @@ class MainlineCompositionTests(unittest.TestCase):
         for key in AUDIT.PRODUCTION_BOUNDARY:
             with self.subTest(key=key):
                 changed = json.loads(json.dumps(self.record))
-                changed["productionAdmission"][key] = True
+                changed["productionAdmission"][key] = (not AUDIT.PRODUCTION_BOUNDARY[key]
+                    if type(AUDIT.PRODUCTION_BOUNDARY[key]) is bool else "UNREVIEWED_EXPANSION")
                 self.admit(self.source, changed)
                 self.check()
 
