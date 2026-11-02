@@ -354,6 +354,56 @@ final class AcceptedSelectionQueueTests: XCTestCase {
         try await coordinator.cancelPendingSelections(reason: "cleanup")
     }
 
+    func testFIFOFinishedRearmsAfterValidationSupersedesDiscoveryWithoutDispatchOrClickReplay() async throws {
+        for validationThrows in [false, true] {
+            for captureDrainsLate in [false, true] {
+                let s = try QueueStore(databaseURL: directory.appendingPathComponent("\(UUID()).sqlite"))
+                let image = try await asset(s), selection = token(image)
+                let calls = ValidationRearmCalls(captureDrainsLate: captureDrainsLate)
+                let adapter = ValidationRearmAdapter(calls: calls, validationThrows: validationThrows)
+                let finished = expectation(description: "original FIFO selection retired")
+                let coordinator = TransferCoordinator(store: s, adapter: adapter, mediaDirectory: directory,
+                    onAcceptedSelectionSettled: { original in
+                        XCTAssertEqual(original.id, selection.id)
+                        // An approach/AX observation can already be running at
+                        // UI settlement. Settlement is not the input FIFO exit.
+                        await calls.uiSettledWithCaptureInFlight()
+                    }, onAcceptedSelectionFinished: { id in
+                        XCTAssertEqual(id, selection.id)
+                        XCTAssertFalse(selection.isValid(), "Rearm must not retain the rejected click")
+                        await calls.fifoFinished()
+                        finished.fulfill()
+                    }, validateAcceptedSelection: { $0.isValid() })
+                try await coordinator.select(selection)
+                await fulfillment(of: [finished], timeout: 2)
+                let state = await calls.snapshot()
+                var expected = ["uiSettled", "captureStarted", "validate", "captureSuperseded"]
+                if !captureDrainsLate { expected.append("captureDrained") }
+                expected += ["fifoFinished", "rearmRequested"]
+                if captureDrainsLate { expected.append("captureDrained") }
+                expected.append("freshCaptureStarted")
+                XCTAssertEqual(state.events, expected)
+                XCTAssertEqual(state.attempts.count, 2)
+                XCTAssertNotEqual(state.attempts.first, state.attempts.last)
+                XCTAssertTrue(state.singleFlight)
+                let retired = try await operation(image, s)
+                let invocation = try await s.dispatchInvocationID(for: retired.id)
+                XCTAssertEqual(retired.phase, .failed)
+                XCTAssertEqual(retired.attempt, 1)
+                XCTAssertNil(invocation, "Failed validation must never commit dispatch intent")
+                do { try await coordinator.select(selection); XCTFail("Original rejected click replayed") }
+                catch RiftletError.invalidTransition {}
+                try await coordinator.observePending()
+                let after = await calls.snapshot(), unchanged = try await operation(image, s)
+                XCTAssertEqual(after.events, state.events)
+                XCTAssertEqual(after.appendCount, 0)
+                XCTAssertEqual(after.reconcileCount, 0)
+                XCTAssertEqual(after.captureCount, 0, "Fresh observation demand must not recapture a click target")
+                XCTAssertEqual(unchanged, retired)
+            }
+        }
+    }
+
     func testStoreChecksRevisionAndExactTargetInsideIntentAndRevokedTokenStaysUnusable() async throws {
         let s = try store(), b = try await asset(s)
         let op = try await s.prepare(assetID: b.id, target: target())
@@ -365,6 +415,104 @@ final class AcceptedSelectionQueueTests: XCTestCase {
         let current = try await s.operation(id: op.id); XCTAssertEqual(current?.phase, .prepared)
         let original = token(b); try await s.markDispatchIntent(op.id, selection: original)
         XCTAssertFalse(original.isValid())
+    }
+}
+
+/// Controls only the existing read-only arm scheduler. The adapter simulates
+/// the observed validation cancellation; real coordinator callbacks, FIFO
+/// retirement and SQLite state are exercised by the test above.
+private actor ValidationRearmCalls {
+    struct Snapshot: Sendable {
+        let events: [String]
+        let attempts: [UUID]
+        let singleFlight: Bool
+        let appendCount: Int
+        let reconcileCount: Int
+        let captureCount: Int
+    }
+    private var scheduler = TargetArmScheduler()
+    private let captureDrainsLate: Bool
+    private var oldCapture: TargetArmScheduler.Attempt?
+    private var events: [String] = []
+    private var attempts: [UUID] = []
+    private var singleFlight = true
+    private var appendCount = 0
+    private var reconcileCount = 0
+    private var captureCount = 0
+
+    init(captureDrainsLate: Bool) {
+        self.captureDrainsLate = captureDrainsLate
+        scheduler.start()
+        if let initial = scheduler.begin() { _ = scheduler.complete(initial) }
+    }
+    func uiSettledWithCaptureInFlight() {
+        events.append("uiSettled")
+        XCTAssertTrue(scheduler.request())
+        oldCapture = scheduler.begin()
+        if let oldCapture { attempts.append(oldCapture.id) }
+        singleFlight = singleFlight && scheduler.begin() == nil
+        events.append("captureStarted")
+    }
+    func validationSupersedesCapture() {
+        events += ["validate", "captureSuperseded"]
+        XCTAssertNotNil(oldCapture)
+        if !captureDrainsLate { drainOldCapture() }
+    }
+    private func drainOldCapture() {
+        guard let oldCapture else { XCTFail("Missing cancelled capture"); return }
+        events.append("captureDrained")
+        let completion = scheduler.complete(oldCapture)
+        self.oldCapture = nil
+        XCTAssertNotNil(completion)
+        if completion?.shouldWake == true { startFreshCapture() }
+    }
+    func fifoFinished() {
+        events += ["fifoFinished", "rearmRequested"]
+        let wake = scheduler.request()
+        if captureDrainsLate {
+            XCTAssertFalse(wake, "In-flight cancellation must drain before replacement")
+            singleFlight = singleFlight && scheduler.begin() == nil
+            drainOldCapture()
+        } else {
+            XCTAssertTrue(wake, "Finished FIFO must restore the lost observation demand")
+            if wake { startFreshCapture() }
+        }
+    }
+    private func startFreshCapture() {
+        guard let fresh = scheduler.begin() else { XCTFail("No replacement observation"); return }
+        attempts.append(fresh.id)
+        events.append("freshCaptureStarted")
+        singleFlight = singleFlight && scheduler.begin() == nil
+    }
+    func unexpectedAppend() { appendCount += 1 }
+    func unexpectedReconcile() { reconcileCount += 1 }
+    func unexpectedCapture() { captureCount += 1 }
+    func snapshot() -> Snapshot {
+        Snapshot(events: events, attempts: attempts, singleFlight: singleFlight,
+            appendCount: appendCount, reconcileCount: reconcileCount, captureCount: captureCount)
+    }
+}
+
+private actor ValidationRearmAdapter: AttachmentAdapter {
+    nonisolated let id = "accepted-fixture"
+    private let calls: ValidationRearmCalls
+    private let validationThrows: Bool
+    init(calls: ValidationRearmCalls, validationThrows: Bool) {
+        self.calls = calls; self.validationThrows = validationThrows
+    }
+    func captureTarget() async throws -> TargetLease {
+        await calls.unexpectedCapture(); throw RiftletError.invalidTransition
+    }
+    func validate(_ target: TargetLease) async throws -> Bool {
+        await calls.validationSupersedesCapture()
+        if validationThrows { throw RiftletError.invalidTransition }
+        return false
+    }
+    func append(_ request: TransferRequest) async throws -> TransferReceipt {
+        await calls.unexpectedAppend(); throw RiftletError.invalidTransition
+    }
+    func reconcile(_ request: TransferRequest) async throws -> TransferReceipt {
+        await calls.unexpectedReconcile(); throw RiftletError.invalidTransition
     }
 }
 

@@ -38,6 +38,100 @@ final class WebAttachmentAdapterTests: XCTestCase {
             program: withProgram ? program : nil, mode: mode, polling: .disabled)
     }
 
+    func testInputTransportNotificationPrecedesObservationWithoutReleasingInputExclusion() async throws {
+        let (_, first, _) = try await fixture(), (_, second, _) = try await fixture()
+        let executor = FakeWebBridge(behavior: .pendingThenAttached)
+        let probe = InputTransportFinishProbe()
+        let notified = expectation(description: "input transport finished before observation")
+        let client = WebAttachmentAdapter(mediaDirectory: directory, executor: executor,
+            program: program, mode: .syntheticDevelopment, polling: .init(timeout: 1, interval: 0.01),
+            onInputTransportFinished: {
+                await probe.record(await executor.recordedActions())
+                notified.fulfill()
+                await probe.hold()
+            })
+        let append = Task { try await client.append(first) }
+        await fulfillment(of: [notified], timeout: 2)
+        let before = await executor.recordedActions()
+        XCTAssertEqual(before, [.begin, .chunk, .chunk, .commit])
+        do { _ = try await client.append(second); XCTFail("Notification released input exclusion") }
+        catch WebAdapterError.inputInFlight {}
+        // A scheduling callback may resume read-only discovery while the old
+        // append still owns its input exclusion; it cannot admit another input.
+        let target = try await client.captureTarget()
+        XCTAssertEqual(target, FakeWebBridge.target)
+        await probe.release()
+        let receipt = try await append.value
+        XCTAssertEqual(receipt.outcome, .attachedCandidate)
+        do { _ = try await client.append(first); XCTFail("Original input replayed") }
+        catch WebAdapterError.invalidRequest {}
+        let after = await executor.recordedActions(), notifications = await probe.records()
+        XCTAssertEqual(after, before + [.captureTarget, .observe])
+        XCTAssertEqual(notifications, [before])
+    }
+
+    func testInputTransportNotificationIsOnceForPreflightFailureButNotRejectedDuplicateOrInvalidRequest() async throws {
+        let (_, request, bytes) = try await fixture()
+        try Data(repeating: 19, count: bytes.count).write(to: request.fileURL)
+        let executor = FakeWebBridge(), probe = InputTransportFinishProbe()
+        let client = WebAttachmentAdapter(mediaDirectory: directory, executor: executor,
+            program: program, mode: .syntheticDevelopment, polling: .disabled,
+            onInputTransportFinished: { await probe.record(await executor.recordedActions()) })
+        do { _ = try await client.append(request); XCTFail("Corrupt private file accepted") }
+        catch WebAdapterError.invalidPrivateFile {}
+        do { _ = try await client.append(request); XCTFail("Duplicate invocation reentered") }
+        catch WebAdapterError.invalidRequest {}
+        let (_, prepared, _) = try await fixture(dispatch: false)
+        do { _ = try await client.append(prepared); XCTFail("Input before dispatch intent") }
+        catch WebAdapterError.invalidRequest {}
+        let (_, wrongOrigin, _) = try await fixture(origin: .systemScreenshot)
+        do { _ = try await client.append(wrongOrigin); XCTFail("Unapproved origin entered") }
+        catch WebAdapterError.syntheticAssetsOnly {}
+        let actions = await executor.recordedActions(), notifications = await probe.records()
+        XCTAssertTrue(actions.isEmpty)
+        XCTAssertEqual(notifications, [[]])
+    }
+
+    func testLostInputRepliesNotifyOnceWithoutGrantingUnknownReplayOrReconcileNotification() async throws {
+        for behavior in [FakeWebBridge.Behavior.throwOnBegin, .throwOnChunk, .throwOnCommit] {
+            let (store, request, _) = try await fixture()
+            let executor = FakeWebBridge(behavior: behavior), probe = InputTransportFinishProbe()
+            let client = WebAttachmentAdapter(mediaDirectory: directory, executor: executor,
+                program: program, mode: .syntheticDevelopment, polling: .disabled,
+                onInputTransportFinished: { await probe.record(await executor.recordedActions()) })
+            do { _ = try await client.append(request); XCTFail("Lost response accepted") }
+            catch WebAdapterError.nativeExecutionFailed {}
+            let before = await executor.recordedActions()
+            let notifications = await probe.records()
+            XCTAssertEqual(notifications, [before], "Notification must follow all attempted input/retirement commands")
+            do { _ = try await client.append(request); XCTFail("Uncertain input replayed") }
+            catch WebAdapterError.invalidRequest {}
+            try await store.markUnknown(request.operation.id, reason: "Synthetic lost original input response")
+            let saved = try await store.operation(id: request.operation.id)
+            let original = TransferRequest(operation: try XCTUnwrap(saved), asset: request.asset, fileURL: request.fileURL)
+            let receipt = try await client.reconcile(original)
+            XCTAssertEqual(receipt.outcome, .unknown)
+            let after = await executor.recordedActions(), afterNotifications = await probe.records()
+            XCTAssertEqual(after, before + [.observe])
+            XCTAssertEqual(afterNotifications, notifications)
+            XCTAssertEqual(after.filter { $0 == .begin }.count, 1)
+            XCTAssertEqual(after.filter { $0 == .commit }.count, behavior == .throwOnCommit ? 1 : 0)
+        }
+    }
+
+    func testObservationFailureDoesNotRepeatInputTransportNotification() async throws {
+        let (_, request, _) = try await fixture()
+        let executor = FakeWebBridge(behavior: .throwOnObserve), probe = InputTransportFinishProbe()
+        let client = WebAttachmentAdapter(mediaDirectory: directory, executor: executor,
+            program: program, mode: .syntheticDevelopment, polling: .init(timeout: 1, interval: 0.01),
+            onInputTransportFinished: { await probe.record(await executor.recordedActions()) })
+        do { _ = try await client.append(request); XCTFail("Observation error hidden") }
+        catch WebAdapterError.nativeExecutionFailed {}
+        let actions = await executor.recordedActions(), notifications = await probe.records()
+        XCTAssertEqual(actions, [.begin, .chunk, .chunk, .commit, .observe])
+        XCTAssertEqual(notifications, [[.begin, .chunk, .chunk, .commit]])
+    }
+
     func testRepeatedOriginalRequestCannotProduceLocalRejectionAfterInput() async throws {
         let (_, original, bytes) = try await fixture()
         let request = TransferRequest(operation: original.operation, asset: original.asset,
@@ -381,8 +475,8 @@ final class WebAttachmentAdapterTests: XCTestCase {
 }
 
 private actor FakeWebBridge: WebBridgeExecutor {
-    enum Behavior: Sendable {
-        case startedThenAttached, normal, wrongChunkIdentity, throwOnChunk, throwOnCommit, changedValidationTarget, pendingThenAttached, alwaysPending, lateError
+    enum Behavior: Sendable, Equatable {
+        case startedThenAttached, normal, wrongChunkIdentity, throwOnBegin, throwOnChunk, throwOnCommit, throwOnObserve, changedValidationTarget, pendingThenAttached, alwaysPending, lateError
         case replaceBytesAfterBegin(URL, Int)
     }
     static let target = TargetLease(adapterID: "chatgpt-web", surface: .webChat,
@@ -417,6 +511,7 @@ private actor FakeWebBridge: WebBridgeExecutor {
             return try JSONSerialization.data(withJSONObject: ["valid": true, "target": target])
         case .begin:
             name = command.uploadName
+            if case .throwOnBegin = behavior { throw WebAdapterError.nativeExecutionFailed }
             if case let .replaceBytesAfterBegin(url, count) = behavior {
                 let handle = try FileHandle(forWritingTo: url)
                 try handle.write(contentsOf: Data(repeating: 33, count: count))
@@ -433,9 +528,11 @@ private actor FakeWebBridge: WebBridgeExecutor {
             if case .startedThenAttached = behavior { return try observation(command, state: .uploadStarted) }
             if case .throwOnCommit = behavior { throw WebAdapterError.nativeExecutionFailed }
             if case .pendingThenAttached = behavior { return try observation(command, state: .inputTriggered) }
+            if case .throwOnObserve = behavior { return try observation(command, state: .inputTriggered) }
             if case .alwaysPending = behavior { return try observation(command, state: .unknown) }
             return try observation(command, state: .attached)
         case .observe:
+            if case .throwOnObserve = behavior { throw WebAdapterError.nativeExecutionFailed }
             if case .startedThenAttached = behavior { return try observation(command, state: .attached) }
             if case .lateError = behavior { return try observation(command, state: .invalidated) }
             if case .pendingThenAttached = behavior { return try observation(command, state: .attached) }
@@ -465,6 +562,22 @@ private actor FakeWebBridge: WebBridgeExecutor {
             hasError: state == .invalidated, isUploading: start != nil, uploadStart: start)
         return try JSONEncoder().encode(AttachmentObservationEnvelope(schemaVersion: start == nil ? 1 : 2,
             provenance: .init(source: .syntheticFixture, evidenceID: "W1-fake-bridge"), observation: item))
+    }
+}
+
+private actor InputTransportFinishProbe {
+    private var snapshots: [[WebBridgeAction]] = []
+    private var held: CheckedContinuation<Void, Never>?
+    private var released = false
+    func record(_ actions: [WebBridgeAction]) { snapshots.append(actions) }
+    func records() -> [[WebBridgeAction]] { snapshots }
+    func hold() async {
+        guard !released else { return }
+        await withCheckedContinuation { held = $0 }
+    }
+    func release() {
+        released = true
+        held?.resume(); held = nil
     }
 }
 

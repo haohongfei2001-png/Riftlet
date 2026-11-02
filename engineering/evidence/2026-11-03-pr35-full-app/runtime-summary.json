@@ -1,0 +1,701 @@
+{
+  "schemaVersion": 1,
+  "scope": "Real ARM64 AppKit + ordinary capture mode + system/builtin native screenshot capture + product Chrome adapter/Core/SQLite on a private loopback synthetic page. NOT real ChatGPT or real network START/COMPLETE.",
+  "sourceBase": "31a2e66071e94536a47797a69132a7c1a6e62dcf",
+  "testedPatchSHA256": "528003e2aa2e23e0bde80d8df2f979467557ab7eb950791b17c1ed138d30ad6d",
+  "runtimeIdentity": {
+    "executableSHA256": "8ab889aca5a50388716ab37d77e74a85b3c381ce1e3d260b7909e7ba992afbe6",
+    "executableMatchesDeclared": true,
+    "productionSourceFilesCompared": 122,
+    "exactSourceDeltaFiles": [
+      "Sources/RiftletApp/ApplicationMode.swift",
+      "Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js"
+    ],
+    "runtimeFileHashes": {
+      "Sources/RiftletAdapters/WebAttachmentAdapter.swift": "52fb9587cb57ef0867490926ed529b0864828d60d3f3d108d03d2f8bf497107f",
+      "Sources/RiftletApp/RiftletMain.swift": "db56194656f66946a575840fee5b7bef4ce101418accfd0480348b4a3a4a55ec",
+      "Sources/RiftletApp/SystemScreenshotCandidateConfiguration.swift": "30c7c0d7c4da2330066ce21fb1eb3d3687ac6a5aad759f1b5aaf867189f49d41"
+    },
+    "currentWorktreeMatchesRuntimeProductionFiles": true
+  },
+  "startupMode": "capture; --acceptance-trace only; no internal-acceptance compiler define",
+  "sampleAccounting": {
+    "allNativeClicks": 6,
+    "visibleSupportedClicks": 4,
+    "visibleSupportedCompleted": 4,
+    "hiddenPageSafeRefusals": 2,
+    "inputOperations": 4,
+    "syntheticStarts": 4,
+    "syntheticCompletes": 4,
+    "preInputHarnessFailureKinds": {
+      "ownedWindowDiscovery": 1,
+      "dependentAppIdentityGuard": 3,
+      "documentFocusGuard": 1
+    },
+    "postClickWindowSwitchFailure": 1,
+    "failureRecords": [
+      {
+        "file": "final-two-clicks.jsonl",
+        "action": "two-clicks",
+        "errorCode": -904,
+        "uptime": 1003329.6061192084,
+        "utc": "2026-11-02T19:30:53Z"
+      },
+      {
+        "file": "final-system-unfocused.jsonl",
+        "action": "system",
+        "errorCode": -905,
+        "uptime": 1003794.1285813334,
+        "utc": "2026-11-02T19:38:38Z"
+      },
+      {
+        "file": "final-launch.jsonl",
+        "action": "launch",
+        "errorCode": -941,
+        "uptime": 1003329.5835709167,
+        "utc": "2026-11-02T19:30:53Z"
+      },
+      {
+        "file": "final-queue-image2.jsonl",
+        "action": "builtin",
+        "errorCode": -904,
+        "uptime": 1003329.5983068751,
+        "utc": "2026-11-02T19:30:53Z"
+      },
+      {
+        "file": "final-two-clicks2.jsonl",
+        "action": "two-clicks",
+        "errorCode": -943,
+        "uptime": 1003411.3890338334,
+        "utc": "2026-11-02T19:32:15Z"
+      },
+      {
+        "file": "final-queue-image1.jsonl",
+        "action": "builtin",
+        "errorCode": -904,
+        "uptime": 1003329.5900310418,
+        "utc": "2026-11-02T19:30:53Z"
+      }
+    ],
+    "originalUnfixedAndIntermediateEvidenceKeptSeparate": [
+      "actual-runtime-review-v1.json",
+      "actual-runtime-review-fix1.json"
+    ]
+  },
+  "cases": [
+    {
+      "case": "F1",
+      "scenario": "hidden-page safety refusal",
+      "result": "SAFE_REFUSAL",
+      "captureSource": "applicationScreenshot",
+      "captureInput": "AXPress capture/mode controls + CGEvent region gesture",
+      "thumbnailInput": "CGEvent through AppKit, not physical",
+      "originalAndPrivateSHA256": "e75337bdaa4e08246415c29f0ce918cec3d056a3ca0c37c88448ece83c08a8be",
+      "byteCount": 338344,
+      "encodedSize": [
+        640,
+        362
+      ],
+      "originalPrivateExact": true,
+      "operationCreated": false,
+      "pageChangeCount": 0,
+      "domInputEventCount": null,
+      "startInputCount": null,
+      "originalInvocationAssetTargetAttachmentCompleteChain": null,
+      "pageLogicalDraftAndInputByteCountMatches": null,
+      "nativeCounts": {
+        "begin": 0,
+        "chunk": 0,
+        "commit": 0
+      },
+      "nativeTraceCoverage": "recorded",
+      "syntheticSTART": false,
+      "syntheticCOMPLETE": false,
+      "durablePhase": null,
+      "visibilityAtReview": "removed",
+      "textIntact": true,
+      "noncollapsedSelection": "NOT_EXERCISED",
+      "oldAttachmentPreserved": true,
+      "editorFocusedBefore": null,
+      "targetVisibilityBefore": "hidden",
+      "switchObservation": "OBSERVED",
+      "inputAfterConfirmedSwitch": null,
+      "monotonicTiming": {
+        "mouseDownUptime": 1003410.217438791,
+        "handlerUptime": 1003410.248010625,
+        "mainBoundUptime": null,
+        "selectionEnqueuedUptime": 1003410.2815336668,
+        "selectionSubmissionStartedUptime": 1003410.2818944168,
+        "nativeCommitStart": null,
+        "nativeCommitEnd": null,
+        "pageChangeReceivedNativeUptime": null,
+        "startPersistenceObservedUptime": null,
+        "swallowUptime": null,
+        "closeUptime": null,
+        "successPersistenceObservedUptime": null,
+        "switchProofUptime": 1003410.3030974168
+      },
+      "elapsedMS": {
+        "clickToMainBindingMS": null,
+        "mainSynchronousBindMS": null,
+        "mainEventToHandlerMS": 30.571834067814052,
+        "fileInputNativeBoundMS": null,
+        "fileInputCalibratedPageBoundMS": null,
+        "clickToPageChangeReceivedUpperBoundMS": null,
+        "selectionFIFOWaitMS": 0.3607500111684203,
+        "inputToStartPageMS": null,
+        "clickToSwallowMS": null,
+        "clickToCloseMS": null,
+        "clickToSuccessObservedMS": null,
+        "maxAppendQueueMS": null,
+        "switchToCommitBoundMS": null
+      }
+    },
+    {
+      "case": "F2",
+      "scenario": "hidden-page safety refusal",
+      "result": "SAFE_REFUSAL",
+      "captureSource": "applicationScreenshot",
+      "captureInput": "AXPress capture/mode controls + CGEvent region gesture",
+      "thumbnailInput": "CGEvent through AppKit, not physical",
+      "originalAndPrivateSHA256": "e75337bdaa4e08246415c29f0ce918cec3d056a3ca0c37c88448ece83c08a8be",
+      "byteCount": 338344,
+      "encodedSize": [
+        640,
+        362
+      ],
+      "originalPrivateExact": true,
+      "operationCreated": false,
+      "pageChangeCount": 0,
+      "domInputEventCount": null,
+      "startInputCount": null,
+      "originalInvocationAssetTargetAttachmentCompleteChain": null,
+      "pageLogicalDraftAndInputByteCountMatches": null,
+      "nativeCounts": {
+        "begin": 0,
+        "chunk": 0,
+        "commit": 0
+      },
+      "nativeTraceCoverage": "recorded",
+      "syntheticSTART": false,
+      "syntheticCOMPLETE": false,
+      "durablePhase": null,
+      "visibilityAtReview": "removed",
+      "textIntact": true,
+      "noncollapsedSelection": "NOT_EXERCISED",
+      "oldAttachmentPreserved": true,
+      "editorFocusedBefore": null,
+      "targetVisibilityBefore": "hidden",
+      "switchObservation": "NOT_EXERCISED",
+      "inputAfterConfirmedSwitch": null,
+      "monotonicTiming": {
+        "mouseDownUptime": 1003410.720653833,
+        "handlerUptime": 1003410.7413836668,
+        "mainBoundUptime": null,
+        "selectionEnqueuedUptime": 1003410.7907951251,
+        "selectionSubmissionStartedUptime": 1003410.791426875,
+        "nativeCommitStart": null,
+        "nativeCommitEnd": null,
+        "pageChangeReceivedNativeUptime": null,
+        "startPersistenceObservedUptime": null,
+        "swallowUptime": null,
+        "closeUptime": null,
+        "successPersistenceObservedUptime": null,
+        "switchProofUptime": null
+      },
+      "elapsedMS": {
+        "clickToMainBindingMS": null,
+        "mainSynchronousBindMS": null,
+        "mainEventToHandlerMS": 20.729833748191595,
+        "fileInputNativeBoundMS": null,
+        "fileInputCalibratedPageBoundMS": null,
+        "clickToPageChangeReceivedUpperBoundMS": null,
+        "selectionFIFOWaitMS": 0.6317499792203307,
+        "inputToStartPageMS": null,
+        "clickToSwallowMS": null,
+        "clickToCloseMS": null,
+        "clickToSuccessObservedMS": null,
+        "maxAppendQueueMS": null,
+        "switchToCommitBoundMS": null
+      }
+    },
+    {
+      "case": "F3",
+      "scenario": "consecutive first image; same-window next tab",
+      "result": "SYNTHETIC_COMPLETE",
+      "captureSource": "applicationScreenshot",
+      "captureInput": "AXPress capture/mode controls + CGEvent region gesture",
+      "thumbnailInput": "CGEvent through AppKit, not physical",
+      "originalAndPrivateSHA256": "8574f93f63855a8f07a8a07c889a724397f4302d26b45e51ba1a962d72237bd0",
+      "byteCount": 722791,
+      "encodedSize": [
+        640,
+        362
+      ],
+      "originalPrivateExact": true,
+      "operationCreated": true,
+      "pageChangeCount": 1,
+      "domInputEventCount": 0,
+      "startInputCount": 1,
+      "originalInvocationAssetTargetAttachmentCompleteChain": true,
+      "pageLogicalDraftAndInputByteCountMatches": true,
+      "nativeCounts": {
+        "begin": 1,
+        "chunk": 3,
+        "commit": 1
+      },
+      "nativeTraceCoverage": "recorded",
+      "syntheticSTART": true,
+      "syntheticCOMPLETE": true,
+      "durablePhase": "succeeded",
+      "visibilityAtReview": "swallowed",
+      "textIntact": true,
+      "noncollapsedSelection": "PASS",
+      "oldAttachmentPreserved": true,
+      "editorFocusedBefore": null,
+      "targetVisibilityBefore": "visible",
+      "switchObservation": "OBSERVED",
+      "inputAfterConfirmedSwitch": true,
+      "monotonicTiming": {
+        "mouseDownUptime": 1003672.876685125,
+        "handlerUptime": 1003672.90895325,
+        "mainBoundUptime": 1003672.9088765834,
+        "selectionEnqueuedUptime": 1003672.93555775,
+        "selectionSubmissionStartedUptime": 1003672.9359472084,
+        "nativeCommitStart": 1003673.1443632084,
+        "nativeCommitEnd": 1003673.1590344168,
+        "pageChangeReceivedNativeUptime": 1003673.151726583,
+        "startPersistenceObservedUptime": 1003674.082372625,
+        "swallowUptime": 1003674.1291792918,
+        "closeUptime": 1003674.2549094168,
+        "successPersistenceObservedUptime": 1003676.2068536667,
+        "switchProofUptime": 1003672.9546920834
+      },
+      "elapsedMS": {
+        "clickToMainBindingMS": 32.19145839102566,
+        "mainSynchronousBindMS": 28.125750017352402,
+        "mainEventToHandlerMS": 32.26812498178333,
+        "fileInputNativeBoundMS": [
+          267.6780833862722,
+          282.34929172322154
+        ],
+        "fileInputCalibratedPageBoundMS": null,
+        "clickToPageChangeReceivedUpperBoundMS": 275.0414579641074,
+        "selectionFIFOWaitMS": 0.3894583787769079,
+        "inputToStartPageMS": 867.7000000476837,
+        "clickToSwallowMS": 1252.4941667215899,
+        "clickToCloseMS": 1378.2242917222902,
+        "clickToSuccessObservedMS": 3330.1685416372493,
+        "maxAppendQueueMS": 9.270208305679262,
+        "switchToCommitBoundMS": [
+          189.67112503014505,
+          204.3423333670944
+        ]
+      }
+    },
+    {
+      "case": "F4",
+      "scenario": "consecutive second image; another Chrome window",
+      "result": "SYNTHETIC_COMPLETE",
+      "captureSource": "applicationScreenshot",
+      "captureInput": "AXPress capture/mode controls + CGEvent region gesture",
+      "thumbnailInput": "CGEvent through AppKit, not physical",
+      "originalAndPrivateSHA256": "721e1da6ed66baa1bc987ea2097224943528e945bb4039563a1ae36d2aca63d0",
+      "byteCount": 722740,
+      "encodedSize": [
+        640,
+        362
+      ],
+      "originalPrivateExact": true,
+      "operationCreated": true,
+      "pageChangeCount": 1,
+      "domInputEventCount": 0,
+      "startInputCount": 1,
+      "originalInvocationAssetTargetAttachmentCompleteChain": true,
+      "pageLogicalDraftAndInputByteCountMatches": true,
+      "nativeCounts": {
+        "begin": 1,
+        "chunk": 3,
+        "commit": 1
+      },
+      "nativeTraceCoverage": "recorded",
+      "syntheticSTART": true,
+      "syntheticCOMPLETE": true,
+      "durablePhase": "succeeded",
+      "visibilityAtReview": "swallowed",
+      "textIntact": true,
+      "noncollapsedSelection": "NOT_EXERCISED",
+      "oldAttachmentPreserved": true,
+      "editorFocusedBefore": null,
+      "targetVisibilityBefore": "visible",
+      "switchObservation": "OBSERVED_NATIVE_ROUTE",
+      "inputAfterConfirmedSwitch": true,
+      "monotonicTiming": {
+        "mouseDownUptime": 1003673.395201,
+        "handlerUptime": 1003673.4356027917,
+        "mainBoundUptime": 1003673.4354725,
+        "selectionEnqueuedUptime": 1003673.4649127917,
+        "selectionSubmissionStartedUptime": 1003674.0933817917,
+        "nativeCommitStart": 1003674.2897083751,
+        "nativeCommitEnd": 1003674.3017460834,
+        "pageChangeReceivedNativeUptime": 1003674.295398375,
+        "startPersistenceObservedUptime": 1003674.5817212501,
+        "swallowUptime": 1003674.5825739584,
+        "closeUptime": 1003674.7101858334,
+        "successPersistenceObservedUptime": 1003676.2388915417,
+        "switchProofUptime": 1003673.7850361251
+      },
+      "elapsedMS": {
+        "clickToMainBindingMS": 40.27150000911206,
+        "mainSynchronousBindMS": 35.58979160152376,
+        "mainEventToHandlerMS": 40.4017916880548,
+        "fileInputNativeBoundMS": [
+          894.5073750801384,
+          906.5450833877549
+        ],
+        "fileInputCalibratedPageBoundMS": null,
+        "clickToPageChangeReceivedUpperBoundMS": 900.1973749836907,
+        "selectionFIFOWaitMS": 628.4689999883994,
+        "inputToStartPageMS": 154.39999997615814,
+        "clickToSwallowMS": 1187.372958404012,
+        "clickToCloseMS": 1314.984833355993,
+        "clickToSuccessObservedMS": 2843.690541689284,
+        "maxAppendQueueMS": 4.209541715681553,
+        "switchToCommitBoundMS": [
+          504.67225001193583,
+          516.7099583195522
+        ]
+      }
+    },
+    {
+      "case": "F5",
+      "scenario": "system screenshot; editor unfocused; other app",
+      "result": "SYNTHETIC_COMPLETE",
+      "captureSource": "systemScreenshot",
+      "captureInput": "CGEvent system keyboard+region",
+      "thumbnailInput": "CGEvent through AppKit, not physical",
+      "originalAndPrivateSHA256": "e8eb6886acb91f154bc7a7f44d2059d5c78a64766967e333693f99cfefcdb43e",
+      "byteCount": 725312,
+      "encodedSize": [
+        642,
+        362
+      ],
+      "originalPrivateExact": true,
+      "operationCreated": true,
+      "pageChangeCount": 1,
+      "domInputEventCount": 0,
+      "startInputCount": 1,
+      "originalInvocationAssetTargetAttachmentCompleteChain": true,
+      "pageLogicalDraftAndInputByteCountMatches": true,
+      "nativeCounts": null,
+      "nativeTraceCoverage": "not recorded: native trace budget exhausted; persisted invocation and page evidence separate",
+      "syntheticSTART": true,
+      "syntheticCOMPLETE": true,
+      "durablePhase": "succeeded",
+      "visibilityAtReview": "swallowed",
+      "textIntact": true,
+      "noncollapsedSelection": "NOT_EXERCISED",
+      "oldAttachmentPreserved": true,
+      "editorFocusedBefore": false,
+      "targetVisibilityBefore": "visible",
+      "switchObservation": "OBSERVED",
+      "inputAfterConfirmedSwitch": null,
+      "monotonicTiming": {
+        "mouseDownUptime": 1003963.374842708,
+        "handlerUptime": 1003963.4104916251,
+        "mainBoundUptime": 1003963.4104035001,
+        "selectionEnqueuedUptime": 1003963.4450245417,
+        "selectionSubmissionStartedUptime": 1003963.4451125418,
+        "nativeCommitStart": null,
+        "nativeCommitEnd": null,
+        "pageChangeReceivedNativeUptime": 1003963.609821583,
+        "startPersistenceObservedUptime": 1003963.8914004167,
+        "swallowUptime": 1003963.89264025,
+        "closeUptime": 1003964.0147109583,
+        "successPersistenceObservedUptime": 1003965.631039125,
+        "switchProofUptime": 1003963.4446438751
+      },
+      "elapsedMS": {
+        "clickToMainBindingMS": 35.56079207919538,
+        "mainSynchronousBindMS": 30.568333342671394,
+        "mainEventToHandlerMS": 35.64891708083451,
+        "fileInputNativeBoundMS": null,
+        "fileInputCalibratedPageBoundMS": [
+          200.36891708150506,
+          234.017375507392
+        ],
+        "clickToPageChangeReceivedUpperBoundMS": 234.9788750289008,
+        "selectionFIFOWaitMS": 0.08800008799880743,
+        "inputToStartPageMS": 154.0,
+        "clickToSwallowMS": 517.7975420374423,
+        "clickToCloseMS": 639.8682503495365,
+        "clickToSuccessObservedMS": 2256.1964170308784,
+        "maxAppendQueueMS": null,
+        "switchToCommitBoundMS": null
+      }
+    },
+    {
+      "case": "F6",
+      "scenario": "home/local draft; other app",
+      "result": "SYNTHETIC_COMPLETE",
+      "captureSource": "applicationScreenshot",
+      "captureInput": "AXPress capture/mode controls + CGEvent region gesture",
+      "thumbnailInput": "CGEvent through AppKit, not physical",
+      "originalAndPrivateSHA256": "e1729f8b1a0e28fa47e90e801839ecd443f5ac449c6dc0eddc229d58b578a436",
+      "byteCount": 723017,
+      "encodedSize": [
+        640,
+        362
+      ],
+      "originalPrivateExact": true,
+      "operationCreated": true,
+      "pageChangeCount": 1,
+      "domInputEventCount": 0,
+      "startInputCount": 1,
+      "originalInvocationAssetTargetAttachmentCompleteChain": true,
+      "pageLogicalDraftAndInputByteCountMatches": true,
+      "nativeCounts": null,
+      "nativeTraceCoverage": "not recorded: native trace budget exhausted; persisted invocation and page evidence separate",
+      "syntheticSTART": true,
+      "syntheticCOMPLETE": true,
+      "durablePhase": "succeeded",
+      "visibilityAtReview": "swallowed",
+      "textIntact": true,
+      "noncollapsedSelection": "PASS",
+      "oldAttachmentPreserved": true,
+      "editorFocusedBefore": true,
+      "targetVisibilityBefore": "visible",
+      "switchObservation": "OBSERVED",
+      "inputAfterConfirmedSwitch": null,
+      "monotonicTiming": {
+        "mouseDownUptime": 1004014.159371375,
+        "handlerUptime": 1004014.19147175,
+        "mainBoundUptime": 1004014.1913659584,
+        "selectionEnqueuedUptime": 1004014.2353841667,
+        "selectionSubmissionStartedUptime": 1004014.2358041668,
+        "nativeCommitStart": null,
+        "nativeCommitEnd": null,
+        "pageChangeReceivedNativeUptime": 1004014.411277708,
+        "startPersistenceObservedUptime": 1004014.6983864584,
+        "swallowUptime": 1004014.7017394584,
+        "closeUptime": 1004014.8247105418,
+        "successPersistenceObservedUptime": 1004020.0915488334,
+        "switchProofUptime": 1004014.2274747917
+      },
+      "elapsedMS": {
+        "clickToMainBindingMS": 31.994583434425294,
+        "mainSynchronousBindMS": 28.0404583318159,
+        "mainEventToHandlerMS": 32.10037504322827,
+        "fileInputNativeBoundMS": null,
+        "fileInputCalibratedPageBoundMS": [
+          199.14308341685683,
+          250.89216674678028
+        ],
+        "clickToPageChangeReceivedUpperBoundMS": 251.90633302554488,
+        "selectionFIFOWaitMS": 0.4200000548735261,
+        "inputToStartPageMS": 153.89999997615814,
+        "clickToSwallowMS": 542.3680833773687,
+        "clickToCloseMS": 665.3391667641699,
+        "clickToSuccessObservedMS": 5932.177458424121,
+        "maxAppendQueueMS": null,
+        "switchToCommitBoundMS": null
+      }
+    }
+  ],
+  "timingStats": {
+    "mainEventToHandlerMS": {
+      "n": 6,
+      "p50": 32.1842500125058,
+      "p95NearestRank": 40.4017916880548,
+      "max": 40.4017916880548
+    },
+    "clickToPinMS": {
+      "n": 2,
+      "p50": 36.10991669120267,
+      "p95NearestRank": 40.088916663080454,
+      "max": 40.088916663080454
+    },
+    "clickToMainBindingMS": {
+      "n": 4,
+      "p50": 33.87612523511052,
+      "p95NearestRank": 40.27150000911206,
+      "max": 40.27150000911206
+    },
+    "mainSynchronousBindMS": {
+      "n": 4,
+      "p50": 29.3470416800119,
+      "p95NearestRank": 35.58979160152376,
+      "max": 35.58979160152376
+    },
+    "clickToPageChangeReceivedUpperBoundMS": {
+      "n": 4,
+      "p50": 263.47389549482614,
+      "p95NearestRank": 900.1973749836907,
+      "max": 900.1973749836907
+    },
+    "selectionFIFOWaitMS": {
+      "n": 6,
+      "p50": 0.404729216825217,
+      "p95NearestRank": 628.4689999883994,
+      "max": 628.4689999883994
+    },
+    "clickToSwallowMS": {
+      "n": 4,
+      "p50": 864.8705208906904,
+      "p95NearestRank": 1252.4941667215899,
+      "max": 1252.4941667215899
+    },
+    "clickToCloseMS": {
+      "n": 4,
+      "p50": 990.1620000600815,
+      "p95NearestRank": 1378.2242917222902,
+      "max": 1378.2242917222902
+    },
+    "clickToSuccessObservedMS": {
+      "n": 4,
+      "p50": 3086.9295416632667,
+      "p95NearestRank": 5932.177458424121,
+      "max": 5932.177458424121
+    },
+    "maxAppendQueueMS": {
+      "n": 2,
+      "p50": 6.739875010680407,
+      "p95NearestRank": 9.270208305679262,
+      "max": 9.270208305679262
+    },
+    "clickToInputLowerBoundMS": {
+      "n": 2,
+      "p50": 581.0927292332053,
+      "p95NearestRank": 894.5073750801384,
+      "max": 894.5073750801384
+    },
+    "clickToInputUpperBoundMS": {
+      "n": 2,
+      "p50": 594.4471875554882,
+      "p95NearestRank": 906.5450833877549,
+      "max": 906.5450833877549
+    }
+  },
+  "timingCaveats": [
+    "p95 is nearest rank on small n; not population reliability.",
+    "Main synchronous bind is the recorded handler-to-bound section, not total process CPU or all event processing.",
+    "Native commit bounds n=2; do not present as all four successes.",
+    "Two final missing native boundaries use same-document sampleMS within native clockStart/clockEnd for calibrated ranges; local change receipt is a separate conservative upper bound.",
+    "Synthetic hidden-page timer scheduling affects START/COMPLETE timing; not real network latency.",
+    "Swallow/close are AppKit presentation callbacks, not frame-by-frame pixel measurement."
+  ],
+  "traceBudget": {
+    "budget": 2048,
+    "totalRecordedByFinalPreRestartExecutor": 2048,
+    "events": {
+      "native_bridge": 1199,
+      "active_identity": 526,
+      "capture_ack": 323
+    },
+    "lastNativeBridgeUptime": 1003963.3085879168,
+    "missingNativeCommandBreakdownFor": [
+      "F5",
+      "F6"
+    ],
+    "consequence": "Missing native commands are NOT zero commands. Original dispatch receipt, one correlated change and START inputCount=1 plus exact completion remain. Native commit statistics use n=2 only; page-calibrated brackets and local receiver upper bounds remain separately labeled."
+  },
+  "systemCapture": [
+    {
+      "source": "macOS Command-Shift-4 via CGEvent keyboard and region drag",
+      "systemMetadataIsScreenCapture": true,
+      "sha256": "e8eb6886acb91f154bc7a7f44d2059d5c78a64766967e333693f99cfefcdb43e",
+      "originalPrivateExact": true,
+      "originalBirthUnix": 1793648486.9940915,
+      "firstSeenUnix": 1793648487.0643392,
+      "importedUnix": 1793648487.227397,
+      "originalBirthToFirstSeenMS": 70.24765014648438,
+      "firstSeenToImportMS": 163.05792331695557,
+      "gestureUpToFileObservedSeconds": 60.59516487503424,
+      "microimageObservedToClickMS": 91.59174957312644,
+      "note": "No wait on armed. System save wait is separate from discovery/import; exact screenshot-completed T0 and first-interactive T2 not inferred."
+    }
+  ],
+  "restart": {
+    "sameDataRoot": true,
+    "beginChunkCommitReplays": 0,
+    "launchUptime": 1004026.5790185417,
+    "pageSampleUptime": 1004029.7008042084,
+    "nativeObservationThroughStopUptime": 1004082.5001209168,
+    "textSelectionOldAttachmentsPreserved": true
+  },
+  "isolatedDataRetention": {
+    "assetCount": 14,
+    "operationsByPhase": {
+      "succeeded": 10,
+      "unknown": 1
+    },
+    "uploadStarts": 11,
+    "zeroInputRemovedAssets": 3,
+    "removedMeans": "pending assets removed from visible queue through App, original/private media and history retained; not deletion or SQL archived status",
+    "allOriginalPrivateBytesMatch": true,
+    "scaledUnknownStillAttemptOne": true,
+    "oldUserRootsTouchedByReview": false
+  },
+  "evidenceDigests": [
+    {
+      "file": "final-two-clicks2.jsonl",
+      "bytes": 41510,
+      "sha256": "43ac218af1e36976211d398fe747808a37d95546caaba9f80d1aa22787a2109b"
+    },
+    {
+      "file": "final-two-clicks3.jsonl",
+      "bytes": 110818,
+      "sha256": "c67674646d2aac712db38c0e2ca969eac99b2099713c1b37b045b0e11d9a2df0"
+    },
+    {
+      "file": "final-after-driver-switch-error.jsonl",
+      "bytes": 43817,
+      "sha256": "80b2758c6e44f238a88e99ebb2f6f7b68cf04045e31e3025cc31d55f46c30a83"
+    },
+    {
+      "file": "final-system-unfocused2.jsonl",
+      "bytes": 114303,
+      "sha256": "313ad0151ffeb2113cb9b74c0c038efe71008f2002b31bc6ccab4dc34c8c3572"
+    },
+    {
+      "file": "final-system-after.jsonl",
+      "bytes": 60531,
+      "sha256": "6e8779b324cf3bc80c8a5f740a0007e034d01e3101bfb7022bdb5c654dd23566"
+    },
+    {
+      "file": "final-home-other-app.jsonl",
+      "bytes": 80644,
+      "sha256": "17b34a4c0b20345aa661e6a596e9a4b0974740d60006f08bacbd531500f210c1"
+    },
+    {
+      "file": "final-restart.jsonl",
+      "bytes": 37850,
+      "sha256": "62c809b7bf7c27fc77e257161777089525a2f45a8f6b752ec74e01978582c566"
+    },
+    {
+      "file": "final-runtime-pages.jsonl",
+      "bytes": 37707,
+      "sha256": "4f9993fd64e97fd174375e1b8a25e8479f7c126c799d71e97530b340dc8b0395"
+    },
+    {
+      "file": "final-tested-runtime-identity.json",
+      "bytes": 987,
+      "sha256": "7e97dfc6738be5cad9f15166a1c57b92c5edce519723fca28c4963ff6feda45c"
+    },
+    {
+      "file": "preserved-uninput-assets-archived.jsonl",
+      "bytes": 130,
+      "sha256": "d9d1a4ad5fdda58fae9334ced99504706349b444f8687bdb59d14030f40052c5"
+    }
+  ],
+  "limits": [
+    "All thumbnail mouse clicks were CGEvent; physical mouse NOT_RUN.",
+    "Built-in entry/mode activation used AXPress, region selection used CGEvent.",
+    "No zero-old-ACK extreme cold claim; naturally obtained pre-click identity was present for successful clicks.",
+    "S2 older pidx-only different-window claim was withdrawn; final native-route-confirmed C switch is the valid replacement.",
+    "Final B and unfocused system sample had collapsed baseline selection; noncollapsed protection is demonstrated by final A and Home samples only.",
+    "Trace prefix/state observations cannot rule out every unobserved transient focus.",
+    "Actual ChatGPT, scaled-preview COMPLETE, post-input safe retry and Web continuation producers remain outside this synthetic pass.",
+    "No test modifies or authorizes production main/merge/release."
+  ]
+}

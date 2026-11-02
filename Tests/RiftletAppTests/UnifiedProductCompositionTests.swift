@@ -89,6 +89,10 @@ private actor ProductPageFixture: WebBridgeExecutor {
 }
 
 final class UnifiedProductCompositionTests: XCTestCase {
+    private actor InputExitCounter {
+        var count = 0
+        func record() { count += 1 }
+    }
     @MainActor func testBothSourcesNewAndPersistedDraftsUseOneTransportAndIndependentProfiles() async throws {
         for origin in [AssetOrigin.systemScreenshot, .applicationScreenshot] {
             for local in [false, true] {
@@ -106,8 +110,9 @@ final class UnifiedProductCompositionTests: XCTestCase {
                 let store = try QueueStore(databaseURL: root.appendingPathComponent("queue.sqlite"))
                 _ = try await store.importAsset(asset)
                 let page = ProductPageFixture(local: local)
+                let inputExit = InputExitCounter()
                 let composition = try ApplicationAttachmentComposition.make(mode: .capture, root: root, store: store,
-                    executor: page, ordinary: .unifiedProduct)
+                    executor: page, onInputTransportFinished: { await inputExit.record() }, ordinary: .unifiedProduct)
                 let target = try await composition.adapter.captureTarget()
                 let valid = try await composition.adapter.validate(target)
                 XCTAssertTrue(valid)
@@ -133,6 +138,8 @@ final class UnifiedProductCompositionTests: XCTestCase {
                 XCTAssertEqual(actions.filter { $0 == .commit }.count, 1)
                 XCTAssertEqual(actions.filter { $0 == .begin }.count, 1)
                 XCTAssertEqual(actions.filter { $0 == .observe }.count, 1)
+                let exits = await inputExit.count
+                XCTAssertEqual(exits, 1, "Original append drains once; reconciliation/rejected re-entry cannot create another input wake")
                 let reopened = try QueueStore(databaseURL: root.appendingPathComponent("queue.sqlite"))
                 let persisted = try await reopened.asset(id: asset.id)
                 XCTAssertEqual(persisted?.status, .used)

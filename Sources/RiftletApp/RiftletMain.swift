@@ -431,7 +431,8 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             onPreviousPage: { [weak self] in self?.changeHistoryPage(-1) })
         history?.onPreviewVisibilityChanged = { [weak self] visible in self?.rift?.setDetailPresented(visible) }
         let composition = try ApplicationAttachmentComposition.make(mode: mode, root: root, store: store,
-            traceEnabled: CommandLine.arguments.contains("--acceptance-trace"))
+            traceEnabled: CommandLine.arguments.contains("--acceptance-trace"),
+            onInputTransportFinished: { [weak self] in await self?.inputTransportFinished() })
         let adapter = composition.adapter
         let policy = composition.policy
         let transfer = TransferCoordinator(store: store, adapter: adapter, mediaDirectory: root.appendingPathComponent("media"),
@@ -440,7 +441,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             onAcceptedSelectionSettled: { [weak self] selection in
                 await self?.finishOriginalSelection(selection.assetID, token: selection, revision: selection.visibilityRevision)
             }, onAcceptedSelectionFinished: { [weak self] id in
-                await self?.selectionAuthority.finish(id)
+                await self?.acceptedSelectionFinished(id)
             }, validateAcceptedSelection: { [weak self] selection in
                 await self?.validateAcceptedSelection(selection) ?? false
             })
@@ -1065,6 +1066,26 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         armSession = armScheduler.epoch
         if invalidate { deferredChromeActivityBinding.request(afterCaptureIn: armSession) }
         if wake { performPendingArm() }
+    }
+
+    private func inputTransportFinished() {
+        // A pinned input supersedes replaceable capture work. Restore the
+        // observation demand when its transport drains, before START/COMPLETE.
+        // request() coalesces both orders: capture completion before this signal
+        // and this signal before completion. It cannot authorize/replay a click
+        // or change the original operation's target/result.
+        guard mode.usesWebAdapter, !terminating else { return }
+        recordAcceptance(["event": "input_transport_finished", "observationOnly": true,
+            "uptime": ProcessInfo.processInfo.systemUptime])
+        requestArm(reason: "inputTransportFinished")
+    }
+
+    private func acceptedSelectionFinished(_ id: UUID) {
+        selectionAuthority.finish(id)
+        // Unlike UI settlement (which can precede validation), this is the
+        // actual FIFO exit. It also covers validation refusals before append,
+        // when there can be no adapter transport-exit callback.
+        if mode.usesWebAdapter, !terminating { requestArm(reason: "acceptedSelectionFinished") }
     }
 
     private func bindDeferredChromeActivity(afterCaptureIn epoch: UUID) {

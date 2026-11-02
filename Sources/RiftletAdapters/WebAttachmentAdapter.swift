@@ -84,6 +84,7 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
     private let candidateAdmission: SystemScreenshotCandidateAdmission?
     private let productOrigins: Set<AssetOrigin>
     private let productBindings: [AssetOrigin: (admission: SystemScreenshotCandidateAdmission, journal: SystemScreenshotObservationJournal)]
+    private let onInputTransportFinished: (@Sendable () async -> Void)?
     private var inputInFlight = false
     // Lightweight identity tombstones, never file buffers. A repeated request
     // must not turn an earlier external input into local-before-begin proof.
@@ -96,7 +97,8 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
                 polling: WebObservationPolling = .acceptance,
                 candidateJournal: SystemScreenshotObservationJournal? = nil,
                 candidateAdmission: SystemScreenshotCandidateAdmission? = nil,
-                productStore: QueueStore? = nil, productOrigins: Set<AssetOrigin> = []) {
+                productStore: QueueStore? = nil, productOrigins: Set<AssetOrigin> = [],
+                onInputTransportFinished: (@Sendable () async -> Void)? = nil) {
         id = profile.adapterID; self.mediaDirectory = mediaDirectory.standardizedFileURL
         self.executor = executor; self.program = program; self.mode = mode
         if mode == .ordinarySystemScreenshot || mode == .ordinaryProduct {
@@ -108,6 +110,7 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
         self.candidateJournal = candidateJournal
         self.candidateAdmission = candidateAdmission
         self.productOrigins = productOrigins
+        self.onInputTransportFinished = onInputTransportFinished
         if mode == .ordinaryProduct, let productStore {
             productBindings = Dictionary(uniqueKeysWithValues: [SystemScreenshotAdmissionScope.productSystem, .productApplication].map {
                 ($0.origin, (SystemScreenshotCandidateAdmission(store: productStore, scope: $0),
@@ -183,6 +186,22 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
         inputInFlight = true
         defer { inputInFlight = false }
 
+        let input: (response: Data, identity: ObservationIdentity)
+        do { input = try await performFileInput(request) }
+        catch {
+            await onInputTransportFinished?()
+            throw error
+        }
+        // Scheduling notification only: commit may still be UNKNOWN. Resume
+        // displaced target discovery before waiting for START or completion;
+        // the original input exclusion and operation tombstone remain held.
+        await onInputTransportFinished?()
+        return try await observeCompletion(initial: input.response, identity: input.identity,
+            request: request, liveAppend: true)
+    }
+
+    private func performFileInput(_ request: TransferRequest) async throws
+        -> (response: Data, identity: ObservationIdentity) {
         guard let maximumChunkBytes = program?.maximumChunkBytes else { throw WebAdapterError.programUnavailable }
         let file: PrivateUploadFile
         do {
@@ -251,7 +270,7 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
             committing = true
             let response = try await perform(.init(action: .commit, target: identity.target,
                                                    identity: identity, chunkIndex: index, invocationID: request.invocationID))
-            return try await observeCompletion(initial: response, identity: identity, request: request, liveAppend: true)
+            return (response, identity)
         } catch {
             if began && !committing {
                 let retired = try? await perform(.init(action: .discard, target: identity.target,
