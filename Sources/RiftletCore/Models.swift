@@ -160,6 +160,25 @@ public struct TargetLease: Codable, Equatable, Hashable, Sendable {
         return true
     }
 
+    /// Scheduling scope only, never input authority or Web continuation. An
+    /// original append may keep observing START while a different, recognized
+    /// business draft in a different document takes the input lane. A new pin,
+    /// window move, local/persisted transition or reused document is insufficient.
+    public func hasIndependentInputDocument(from other: TargetLease) -> Bool {
+        guard surface == .webChat, other.surface == surface,
+              applicationID == "com.google.Chrome", other.applicationID == applicationID,
+              !adapterID.isEmpty, adapterID == other.adapterID,
+              !sessionID.isEmpty, sessionID == other.sessionID,
+              !windowID.isEmpty, !other.windowID.isEmpty,
+              let tabID, !tabID.isEmpty, let otherTab = other.tabID, !otherTab.isEmpty, tabID != otherTab,
+              !documentID.isEmpty, !other.documentID.isEmpty, documentID != other.documentID,
+              !composerID.isEmpty, !other.composerID.isEmpty,
+              !draftGeneration.isEmpty, !other.draftGeneration.isEmpty,
+              let a = logicalDraftIdentity, let b = other.logicalDraftIdentity,
+              a.isRecognized, b.isRecognized, a.profileID == b.profileID else { return false }
+        return a.id.lowercased() != b.id.lowercased()
+    }
+
     /// A focus lease is not a business draft identity. Until the Web adapter has
     /// independently proved that identity, an unresolved upload locks its whole
     /// Chrome tab, including rearming, navigation and moving between windows.
