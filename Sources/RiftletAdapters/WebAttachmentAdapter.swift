@@ -3,7 +3,7 @@ import CryptoKit
 import Darwin
 import RiftletCore
 
-public enum WebAdapterMode: Sendable, Equatable { case disabled, syntheticDevelopment, systemScreenshotCandidate, ordinarySystemScreenshot }
+public enum WebAdapterMode: Sendable, Equatable { case disabled, syntheticDevelopment, systemScreenshotCandidate, ordinarySystemScreenshot, ordinaryProduct }
 public enum WebBridgeAction: String, Codable, Sendable {
     case captureTarget, pinTarget, validate, begin, chunk, commit, observe, discard
 }
@@ -69,8 +69,8 @@ public enum WebAdapterError: Error, Equatable, Sendable {
     case nativeSelectionChanged, captureSuperseded, pageRejected(WebPageRejection)
 }
 
-/// The explicit screenshot candidate is isolated from ordinary production.
-/// Its reviewed start/completion scope is assigned only to registered new
+/// One transport shared by source-scoped ordinary and isolated test compositions.
+/// Each start/completion scope is assigned only to registered new
 /// operations; historical operations retain their observation-only profiles.
 public actor WebAttachmentAdapter: AttachmentAdapter {
     public nonisolated let id: String
@@ -82,6 +82,9 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
     private let polling: WebObservationPolling
     private let candidateJournal: SystemScreenshotObservationJournal?
     private let candidateAdmission: SystemScreenshotCandidateAdmission?
+    private let productOrigins: Set<AssetOrigin>
+    private let productBindings: [AssetOrigin: (admission: SystemScreenshotCandidateAdmission, journal: SystemScreenshotObservationJournal)]
+    private let onInputTransportFinished: (@Sendable () async -> Void)?
     private var inputInFlight = false
     // Lightweight identity tombstones, never file buffers. A repeated request
     // must not turn an earlier external input into local-before-begin proof.
@@ -93,10 +96,12 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
                                                      profileID: "web-unadmitted-v1"),
                 polling: WebObservationPolling = .acceptance,
                 candidateJournal: SystemScreenshotObservationJournal? = nil,
-                candidateAdmission: SystemScreenshotCandidateAdmission? = nil) {
+                candidateAdmission: SystemScreenshotCandidateAdmission? = nil,
+                productStore: QueueStore? = nil, productOrigins: Set<AssetOrigin> = [],
+                onInputTransportFinished: (@Sendable () async -> Void)? = nil) {
         id = profile.adapterID; self.mediaDirectory = mediaDirectory.standardizedFileURL
         self.executor = executor; self.program = program; self.mode = mode
-        if case .ordinarySystemScreenshot = mode {
+        if mode == .ordinarySystemScreenshot || mode == .ordinaryProduct {
             normalizer = ObservationNormalizer(profile: profile, developmentScope: .ordinarySystemScreenshot)
         } else if case .systemScreenshotCandidate = mode {
             normalizer = ObservationNormalizer(profile: profile, developmentScope: .systemScreenshotCandidate)
@@ -104,6 +109,14 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
         self.polling = polling
         self.candidateJournal = candidateJournal
         self.candidateAdmission = candidateAdmission
+        self.productOrigins = productOrigins
+        self.onInputTransportFinished = onInputTransportFinished
+        if mode == .ordinaryProduct, let productStore {
+            productBindings = Dictionary(uniqueKeysWithValues: [SystemScreenshotAdmissionScope.productSystem, .productApplication].map {
+                ($0.origin, (SystemScreenshotCandidateAdmission(store: productStore, scope: $0),
+                             SystemScreenshotObservationJournal(store: productStore, scope: $0)))
+            })
+        } else { productBindings = [:] }
     }
 
     private var screenshotScope: SystemScreenshotAdmissionScope? {
@@ -111,6 +124,7 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
         case .systemScreenshotCandidate: return .candidate
         case .ordinarySystemScreenshot:
             return candidateAdmission?.scope == .ordinaryCurrentDraftInternal ? .ordinaryCurrentDraftInternal : .ordinary
+        case .ordinaryProduct: return .productSystem
         default: return nil
         }
     }
@@ -118,8 +132,10 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
     public func preflight(asset: ImportedAsset, fileURL: URL) async throws {
         if screenshotScope != nil {
             try requireEnabled()
+            try checkOrigin(asset)
             try SystemScreenshotWebCandidate.preflight(asset, fileURL: fileURL, mediaDirectory: mediaDirectory,
-                restrictedAdmission: candidateAdmission != nil)
+                restrictedAdmission: candidateAdmission != nil || mode == .ordinaryProduct,
+                expectedOrigin: mode == .ordinaryProduct ? asset.origin : .systemScreenshot)
         }
     }
 
@@ -170,6 +186,22 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
         inputInFlight = true
         defer { inputInFlight = false }
 
+        let input: (response: Data, identity: ObservationIdentity)
+        do { input = try await performFileInput(request) }
+        catch {
+            await onInputTransportFinished?()
+            throw error
+        }
+        // Scheduling notification only: commit may still be UNKNOWN. Resume
+        // displaced target discovery before waiting for START or completion;
+        // the original input exclusion and operation tombstone remain held.
+        await onInputTransportFinished?()
+        return try await observeCompletion(initial: input.response, identity: input.identity,
+            request: request, liveAppend: true)
+    }
+
+    private func performFileInput(_ request: TransferRequest) async throws
+        -> (response: Data, identity: ObservationIdentity) {
         guard let maximumChunkBytes = program?.maximumChunkBytes else { throw WebAdapterError.programUnavailable }
         let file: PrivateUploadFile
         do {
@@ -178,10 +210,10 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
             try await preflight(asset: request.asset, fileURL: request.fileURL)
             file = try PrivateUploadFile(request: request, mediaDirectory: mediaDirectory)
             let verifiedHeader = try file.verifyAndRewind()
-            if screenshotScope != nil, let candidateAdmission {
+            if screenshotScope != nil, let admission = binding(for: request.asset)?.admission {
                 try SystemScreenshotWebCandidate.validateHeader(Array(verifiedHeader), asset: request.asset,
                     restrictedAdmission: true)
-                try await candidateAdmission.enroll(request)
+                try await admission.enroll(request)
             }
         } catch {
             if let invocationID = request.invocationID {
@@ -209,7 +241,7 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
             if let invocationID = request.invocationID,
                let proof = try? decode(BeginRejectionProof.self, from: beginReply),
                proof.identity == identity, proof.invocationID == invocationID,
-               proof.rejectedBeforeBegin, proof.reason == "ACTIVE_PAYLOAD_LIMIT",
+               proof.rejectedBeforeBegin, ["ACTIVE_PAYLOAD_LIMIT", "OBSERVER_UPGRADE_REQUIRED"].contains(proof.reason),
                proof.retiredBeforeInput, !proof.commitInvoked, proof.inputCount == 0 {
                 throw PreInputRejection(operationID: identity.operationID, assetID: identity.assetID,
                     attempt: identity.attempt, assetSHA256: identity.assetSHA256, target: identity.target,
@@ -238,7 +270,7 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
             committing = true
             let response = try await perform(.init(action: .commit, target: identity.target,
                                                    identity: identity, chunkIndex: index, invocationID: request.invocationID))
-            return try await observeCompletion(initial: response, identity: identity, request: request)
+            return (response, identity)
         } catch {
             if began && !committing {
                 let retired = try? await perform(.init(action: .discard, target: identity.target,
@@ -281,12 +313,17 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
     }
 
     private func observeCompletion(initial: Data, identity: ObservationIdentity,
-                                   request: TransferRequest) async throws -> TransferReceipt {
+                                   request: TransferRequest, liveAppend: Bool = false) async throws -> TransferReceipt {
         let deadline = ProcessInfo.processInfo.systemUptime + polling.timeout
         var response = initial
         while true {
             let envelope = try ObservationDecoder.decode(response)
-            let receipt = try await normalize(envelope, for: request)
+            // Only the still-running original append may consume a positive
+            // no-input retirement. Reconcile/restart never revives UNKNOWN.
+            if liveAppend, let rejection = try WebPreInputRetirement.rejection(from: envelope, for: request) {
+                throw rejection
+            }
+            let receipt = try await normalize(envelope, for: request, liveAppend: liveAppend)
             // Positive start returns without waiting for completion. Core policy
             // independently admits visual exit; subsequent calls only observe.
             if receipt.outcome == .uploadStarted { return receipt }
@@ -309,7 +346,17 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
         guard let program, !program.sourceID.isEmpty, !program.functionSource.isEmpty,
               program.functionSource.utf8.count <= 128 * 1024,
               (64 * 1024...256 * 1024).contains(program.maximumChunkBytes) else { throw WebAdapterError.programUnavailable }
-        if let scope = screenshotScope {
+        if mode == .ordinaryProduct {
+            guard candidateJournal == nil, candidateAdmission == nil,
+                  !productBindings.isEmpty, productOrigins.isSubset(of: [.systemScreenshot, .applicationScreenshot]),
+                  program.sourceID == SystemScreenshotWebCandidate.sourceID,
+                  normalizer.profile.profileID == OrdinaryProductScreenshotScope.systemProfile.profileID,
+                  normalizer.profile.uploadStartProfileID == OrdinaryProductScreenshotScope.systemProfile.uploadStartProfileID,
+                  normalizer.profile.adapterID == "chatgpt-web", normalizer.profile.surface == .webChat,
+                  normalizer.profile.completionSignal == .attached, normalizer.profile.failureSignal == nil else {
+                throw WebAdapterError.programUnavailable
+            }
+        } else if let scope = screenshotScope {
             guard candidateJournal?.scope == scope,
                   candidateAdmission == nil || candidateAdmission?.scope == scope,
                   (scope == .candidate || candidateAdmission != nil),
@@ -332,41 +379,58 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
             guard asset.origin == .synthetic else { throw WebAdapterError.syntheticAssetsOnly }
         case .systemScreenshotCandidate, .ordinarySystemScreenshot:
             guard asset.origin == .systemScreenshot else { throw SystemScreenshotInputError.systemScreenshotsOnly }
+        case .ordinaryProduct:
+            guard productOrigins.contains(asset.origin), productBindings[asset.origin] != nil else {
+                throw SystemScreenshotInputError.sourceNotAdmitted
+            }
         }
     }
 
     private func checkNewInputScope(_ target: TargetLease) throws {
-        if let scope = screenshotScope, candidateAdmission != nil {
+        if let scope = screenshotScope, candidateAdmission != nil || mode == .ordinaryProduct {
             try scope.validateTarget(target)
         }
+    }
+
+    private func binding(for asset: ImportedAsset) -> (admission: SystemScreenshotCandidateAdmission, journal: SystemScreenshotObservationJournal)? {
+        if mode == .ordinaryProduct { return productBindings[asset.origin] }
+        guard let candidateAdmission, let candidateJournal else { return nil }
+        return (candidateAdmission, candidateJournal)
     }
 
     private func normalize(_ data: Data, for request: TransferRequest) async throws -> TransferReceipt {
         try await normalize(ObservationDecoder.decode(data), for: request)
     }
 
-    private func normalize(_ envelope: AttachmentObservationEnvelope, for request: TransferRequest) async throws -> TransferReceipt {
+    private func normalize(_ envelope: AttachmentObservationEnvelope, for request: TransferRequest,
+                           liveAppend: Bool = false) async throws -> TransferReceipt {
         var scopedNormalizer = normalizer
         var originalScope: SystemScreenshotAdmissionScope?
-        if screenshotScope != nil, let candidateAdmission {
-            originalScope = try await candidateAdmission.admittedObservationScope(for: request)
+        let binding = binding(for: request.asset)
+        if mode == .ordinaryProduct, let binding {
+            scopedNormalizer = ObservationNormalizer(profile: binding.admission.scope.legacyProfile,
+                developmentScope: .ordinarySystemScreenshot)
+        }
+        if screenshotScope != nil, let binding {
+            originalScope = try await binding.admission.admittedObservationScope(for: request)
         }
         if let scope = originalScope {
             scopedNormalizer = ObservationNormalizer(profile: scope.admittedProfile,
                 developmentScope: scope.observationScope)
         }
-        let receipt = try scopedNormalizer.receipt(from: envelope, for: request)
+        let receipt = try scopedNormalizer.receipt(from: envelope, for: request, liveAppend: liveAppend)
         if screenshotScope != nil {
-            guard envelope.provenance.source == .integratedDevelopment, let candidateJournal else {
+            guard envelope.provenance.source == .integratedDevelopment,
+                  let journal = binding?.journal ?? candidateJournal else {
                 throw ObservationError.syntheticEvidenceForRealAsset
             }
             // Preserve the first original positive/negative observations in
             // SQLite, independently of the latest receipt and admitted starts.
             // Failure after commit remains UNKNOWN; this never retries input.
-            if screenshotScope == .ordinaryCurrentDraftInternal, originalScope == .ordinary {
-                try await candidateJournal.recordForOriginalOrdinary(envelope, for: request)
+            if let originalScope, originalScope != journal.scope {
+                try await journal.recordForOriginalScope(envelope, for: request, originalScope: originalScope)
             } else {
-                try await candidateJournal.record(envelope, for: request)
+                try await journal.record(envelope, for: request)
             }
         }
         return receipt

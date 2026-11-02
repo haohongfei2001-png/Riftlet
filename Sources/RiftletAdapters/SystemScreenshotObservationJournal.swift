@@ -8,7 +8,7 @@ public enum SystemScreenshotObservationJournalError: Error, Equatable, Sendable 
 
 /// Private candidate evidence, not a receipt policy or an upload-start fact.
 /// The existing SQLite checkpoint transaction preserves the first observation in
-/// each of six bounded categories. Nothing here changes queue visibility, marks
+/// each bounded category, including original byte-request observations. Nothing here changes queue visibility, marks
 /// success, grants retry, reconstructs a selection, or reads image bytes.
 public actor SystemScreenshotObservationJournal {
     private let store: QueueStore
@@ -19,7 +19,7 @@ public actor SystemScreenshotObservationJournal {
 
     public func record(_ envelope: AttachmentObservationEnvelope, for request: TransferRequest) async throws {
         guard await store.mode == .production else { throw SystemScreenshotObservationJournalError.wrongStoreMode }
-        try Self.validate(envelope, for: request)
+        try Self.validate(envelope, for: request, scope: scope)
         // A self-consistent request is not proof that this journal belongs to
         // its durable queue. Verify the stored immutable identity as well. The
         // phase may advance while a read-only observation is in flight; it need
@@ -33,22 +33,34 @@ public actor SystemScreenshotObservationJournal {
               operation.phase.isUnresolved || operation.phase == .succeeded else {
             throw SystemScreenshotObservationJournalError.persistentIdentityMismatch
         }
-        guard let slot = Slot.classify(envelope.observation) else { return }
+        let invocations = [envelope.observation.requestEvidence?.invocationID,
+            envelope.observation.completionEvidence?.binding.invocationID,
+            envelope.observation.terminationEvidence?.binding.invocationID,
+            envelope.observation.continuationEvidence?.binding.invocationID].compactMap { $0 }
+        if !invocations.isEmpty {
+            guard let original = try await store.dispatchInvocationID(for: operation.id),
+                  invocations.allSatisfy({ $0 == original }) else {
+                throw SystemScreenshotObservationJournalError.persistentIdentityMismatch
+            }
+        }
+        let slots = Slot.classifyAll(envelope.observation)
+        guard !slots.isEmpty else { return }
         let wrapper = Entry(schemaVersion: 1, envelope: envelope)
         let encoder = JSONEncoder(); encoder.outputFormatting = [.sortedKeys]
         let data = try encoder.encode(wrapper)
         guard data.count <= ObservationDecoder.maximumPayloadBytes else {
             throw SystemScreenshotObservationJournalError.invalidCheckpoint
         }
-        let retained = try await store.saveCheckpointIfAbsent(data, for: Self.checkpointKey(request, slot: slot, scope: scope))
-        // This also checks a first record loaded after restart or written by a
-        // second observer. A corrupt or different-target first record is never
-        // replaced to make a newer observation appear acceptable.
-        let original = try Self.decode(retained)
-        try Self.validate(original.envelope, for: request)
-        guard Slot.classify(original.envelope.observation) == slot,
-              original.envelope.provenance == envelope.provenance else {
-            throw SystemScreenshotObservationJournalError.conflictingCheckpoint
+        for slot in slots {
+            let retained = try await store.saveCheckpointIfAbsent(data, for: Self.checkpointKey(request, slot: slot, scope: scope))
+            // A corrupt or different-target first record is never replaced to
+            // make a newer observation appear acceptable, even after restart.
+            let original = try Self.decode(retained)
+            try Self.validate(original.envelope, for: request, scope: scope)
+            guard Slot.classifyAll(original.envelope.observation).contains(slot),
+                  original.envelope.provenance == envelope.provenance else {
+                throw SystemScreenshotObservationJournalError.conflictingCheckpoint
+            }
         }
     }
 
@@ -56,16 +68,37 @@ public actor SystemScreenshotObservationJournal {
     /// journal while observed by the successor internal scope. This cannot create
     /// registration or authorize input, and validates against this journal's store.
     func recordForOriginalOrdinary(_ envelope: AttachmentObservationEnvelope, for request: TransferRequest) async throws {
-        guard scope == .ordinaryCurrentDraftInternal,
-              try await SystemScreenshotCandidateAdmission(store: store, scope: .ordinary).admits(request) else {
+        try await recordForOriginalScope(envelope, for: request, originalScope: .ordinary)
+    }
+
+    /// A new scope can preserve only an explicitly compatible original journal,
+    /// using that exact registration. It never copies or upgrades an operation.
+    func recordForOriginalScope(_ envelope: AttachmentObservationEnvelope, for request: TransferRequest,
+                                originalScope: SystemScreenshotAdmissionScope) async throws {
+        guard scope.originalObservationScopes.contains(originalScope),
+              try await SystemScreenshotCandidateAdmission(store: store, scope: originalScope).admits(request) else {
             throw SystemScreenshotObservationJournalError.invalidOperation
         }
-        try await SystemScreenshotObservationJournal(store: store, scope: .ordinary).record(envelope, for: request)
+        try await SystemScreenshotObservationJournal(store: store, scope: originalScope).record(envelope, for: request)
     }
 
     /// These are code-owned audit categories, never values selected by page JSON.
     enum Slot: String, CaseIterable {
         case input, start, attached, ready, errorOrInvalidated, unknown
+        case originalRequest, originalRequestTerminal, requestObservationClosed
+        case terminationProof, independentTaskProof
+
+        static func classifyAll(_ item: AttachmentObservation) -> [Slot] {
+            var result = classify(item).map { [$0] } ?? []
+            if let facts = item.requestEvidence {
+                if !facts.requests.isEmpty { result.append(.originalRequest) }
+                if facts.requests.contains(where: { $0.terminal != nil }) { result.append(.originalRequestTerminal) }
+                if facts.observationClosed { result.append(.requestObservationClosed) }
+            }
+            if item.terminationEvidence != nil { result.append(.terminationProof) }
+            if item.continuationEvidence != nil { result.append(.independentTaskProof) }
+            return result
+        }
 
         static func classify(_ item: AttachmentObservation) -> Slot? {
             if item.hasError || item.state == .invalidated { return .errorOrInvalidated }
@@ -91,9 +124,10 @@ public actor SystemScreenshotObservationJournal {
         "\(scope.journalPrefix):\(request.operation.id.uuidString.lowercased()):\(request.operation.attempt):\(slot.rawValue)"
     }
 
-    private static func validate(_ envelope: AttachmentObservationEnvelope, for request: TransferRequest) throws {
+    private static func validate(_ envelope: AttachmentObservationEnvelope, for request: TransferRequest,
+                                 scope: SystemScreenshotAdmissionScope) throws {
         try ObservationDecoder.validate(envelope)
-        guard request.asset.origin == .systemScreenshot else { throw SystemScreenshotObservationJournalError.invalidOrigin }
+        guard request.asset.origin == scope.origin else { throw SystemScreenshotObservationJournalError.invalidOrigin }
         guard envelope.provenance.source == .integratedDevelopment else {
             throw SystemScreenshotObservationJournalError.invalidProvenance
         }

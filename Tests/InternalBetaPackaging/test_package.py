@@ -35,11 +35,15 @@ class InternalBetaPackagingTests(unittest.TestCase):
         for name in (VERIFY.ENTRY, VERIFY.README):
             shutil.copy2(REPOSITORY / "packaging/internal-beta" / name, self.package / name)
         (self.package / VERIFY.ENTRY).chmod(0o755)
+        self.ordinary = {"internalAcceptance": False, "mode": "capture", "dataDirectory": "Riftlet",
+                         "input": True, "start": True, "completion": True, "builtInUpload": True,
+                         "safeRetry": False, "continuation": False}
         self.manifest = {"schemaVersion": 1, "kind": "internal-beta-development",
                          "sourceHeadSHA": "a" * 40, "checkoutSHA": "b" * 40,
                          "realAcceptanceSourceSHA": "c" * 40, "realAcceptanceEvidenceSHA": "d" * 40,
                          "launchArgument": "--system-screenshot-candidate",
-                         "ordinaryAppDefault": "capture-upload-disabled",
+                         "ordinaryAppDefault": "capture-source-qualified",
+                         "ordinaryBuildInfo": dict(self.ordinary),
                          "dataDirectory": "Riftlet-System-Screenshot-Candidate",
                          "feedbackEndpointConfigured": False, "feedbackEndpoint": None,
                          "feedbackDelivery": "local-outbox-only",
@@ -65,7 +69,52 @@ class InternalBetaPackagingTests(unittest.TestCase):
     def test_complete_package_is_verified_without_launch(self):
         result = VERIFY.verify_package(self.package)
         self.assertEqual(result["launchArgument"], "--system-screenshot-candidate")
+        self.assertEqual(result["ordinaryBuildInfo"], self.ordinary)
         self.assertFalse(self.calls.exists())
+
+    def test_missing_or_wrong_ordinary_capability_is_rejected_offline(self):
+        wrong = [None, {}, {**self.ordinary, "releaseApproval": "PASS"},
+                 {**self.ordinary, "input": 1},
+                 {**self.ordinary, "dataDirectory": "Riftlet-System-Screenshot-Candidate"},
+                 {**self.ordinary, "mode": "simulate"}]
+        for key in ("input", "start", "completion", "builtInUpload", "safeRetry", "continuation", "internalAcceptance"):
+            wrong.append({**self.ordinary, key: not self.ordinary[key]})
+            wrong.append({name: value for name, value in self.ordinary.items() if name != key})
+        for capability in wrong:
+            with self.subTest(capability=capability):
+                if capability is None:
+                    self.manifest.pop("ordinaryBuildInfo", None)
+                else:
+                    self.manifest["ordinaryBuildInfo"] = capability
+                self.save_manifest()
+                with self.assertRaisesRegex(VERIFY.BUNDLE.VerificationError, "invalid_ordinary_build_info"):
+                    VERIFY.verify_package(self.package)
+        self.assertFalse(self.calls.exists())
+
+    def test_ordinary_probe_uses_only_packaged_build_info_early_exit(self):
+        result = subprocess.CompletedProcess([], 0, json.dumps(self.ordinary), "")
+        with patch.object(VERIFY.subprocess, "run", return_value=result) as run:
+            self.assertEqual(VERIFY.read_ordinary_configuration(self.package), self.ordinary)
+        run.assert_called_once_with([str(self.binary.resolve()), "--ordinary-build-info"],
+                                    capture_output=True, text=True, timeout=10, check=True)
+        self.assertFalse(self.calls.exists())
+
+    def test_ordinary_probe_fails_on_invalid_output_without_fallback(self):
+        for output in ("", "not JSON", "[]", "{}", json.dumps({**self.ordinary, "input": False})):
+            with self.subTest(output=output), patch.object(VERIFY.subprocess, "run",
+                    return_value=subprocess.CompletedProcess([], 0, output, "")) as run:
+                with self.assertRaises((ValueError, VERIFY.BUNDLE.VerificationError)):
+                    VERIFY.read_ordinary_configuration(self.package)
+                self.assertEqual(run.call_count, 1)
+
+    def test_ordinary_probe_failure_is_not_retried_or_hidden(self):
+        command = [str(self.binary.resolve()), "--ordinary-build-info"]
+        for error in (subprocess.CalledProcessError(3, command),
+                      subprocess.TimeoutExpired(command, 10), OSError("probe unavailable")):
+            with self.subTest(error=type(error).__name__), patch.object(VERIFY.subprocess, "run", side_effect=error) as run:
+                with self.assertRaises(type(error)):
+                    VERIFY.read_ordinary_configuration(self.package)
+                self.assertEqual(run.call_count, 1)
 
     def test_launcher_uses_adjacent_app_and_one_explicit_mode_with_spaces(self):
         result = self.launch()
@@ -107,7 +156,7 @@ class InternalBetaPackagingTests(unittest.TestCase):
         self.save_manifest()
         with self.assertRaisesRegex(ValueError, "invalid_launch_profile"):
             VERIFY.verify_package(self.package)
-        self.manifest["ordinaryAppDefault"] = "capture-upload-disabled"
+        self.manifest["ordinaryAppDefault"] = "capture-source-qualified"
         self.manifest["feedbackEndpointConfigured"] = True
         self.save_manifest()
         with self.assertRaisesRegex(ValueError, "invalid_feedback_boundary"):
@@ -222,17 +271,27 @@ class InternalBetaPackagingTests(unittest.TestCase):
                             "-c", "user.email=package-test@example.invalid", "commit", "-qm", "Synthetic identity"], check=True)
 
         commit()
-        local = VERIFY.create_manifest(self.package, repository, "HEAD")
+        with patch.object(VERIFY, "read_ordinary_configuration", return_value=dict(self.ordinary)) as probe:
+            local = VERIFY.create_manifest(self.package, repository, "HEAD")
+        probe.assert_called_once_with(self.package)
+        self.assertEqual(local["ordinaryBuildInfo"], self.ordinary)
+        self.assertEqual(local["ordinaryAppDefault"], "capture-source-qualified")
         self.assertIs(local["feedbackEndpointConfigured"], False)
         self.assertIsNone(local["feedbackEndpoint"])
         endpoint = "https://feedback-test.example.invalid/v1/feedback"
         host.write_text('    static let endpoint: URL? = URL(string: "' + endpoint + '")\n')
         commit()
-        configured = VERIFY.create_manifest(self.package, repository, "HEAD")
+        with patch.object(VERIFY, "read_ordinary_configuration", return_value=dict(self.ordinary)) as probe:
+            configured = VERIFY.create_manifest(self.package, repository, "HEAD")
+        probe.assert_called_once_with(self.package)
         self.assertIs(configured["feedbackEndpointConfigured"], True)
         self.assertEqual(configured["feedbackEndpoint"], endpoint)
         self.assertEqual(configured["feedbackDelivery"], "https-receiver-configured")
         self.assertNotEqual(local["sourceHeadSHA"], configured["sourceHeadSHA"])
+        with patch.object(VERIFY, "read_ordinary_configuration", side_effect=OSError("probe unavailable")) as probe:
+            with self.assertRaisesRegex(OSError, "probe unavailable"):
+                VERIFY.create_manifest(self.package, repository, "HEAD")
+        probe.assert_called_once_with(self.package)
 
 
 if __name__ == "__main__":

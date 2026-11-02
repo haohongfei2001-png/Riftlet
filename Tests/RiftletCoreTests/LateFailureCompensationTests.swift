@@ -25,9 +25,12 @@ final class LateFailureCompensationTests: XCTestCase {
     private func receipt(_ op: TransferOperation, _ asset: ImportedAsset, success: Bool = false,
                          attachment: String? = "attachment", profile: String = "late-fixture",
                          error: Bool = true, belongs: Bool = true, target: TargetLease? = nil) -> TransferReceipt {
-        TransferReceipt(operationID: op.id, assetID: asset.id, attempt: op.attempt, assetSHA256: asset.sha256,
+        // Distinct synthetic operations model distinct actual attachments. The
+        // former constant ID aliased every successful image in the same draft.
+        let attachmentID = attachment == "attachment" ? "attachment-\(op.id.uuidString)" : attachment
+        return TransferReceipt(operationID: op.id, assetID: asset.id, attempt: op.attempt, assetSHA256: asset.sha256,
             target: target ?? op.target, outcome: success ? .verifiedReady : .unknown,
-            profileID: profile, attachmentID: attachment, positiveReady: success,
+            profileID: profile, attachmentID: attachmentID, positiveReady: success,
             belongsToOriginalDraft: belongs, hasError: success ? false : error,
             reason: "Synthetic late-failure fixture")
     }
@@ -109,6 +112,28 @@ final class LateFailureCompensationTests: XCTestCase {
         let aRecord = try await reopened.asset(id: a.id)
         let bRecord = try await reopened.asset(id: b.id)
         XCTAssertEqual(aRecord?.status, .unknown); XCTAssertEqual(bRecord?.status, .used)
+    }
+
+    func testReusedCompletedAttachmentIsRejectedWhileIndependentCompensationStillWorks() async throws {
+        let db = try store(), a = asset(1), b = asset(2)
+        let first = try await consume(db, a)
+        _ = try await db.importAsset(b)
+        let second = try await db.prepare(assetID: b.id, target: target())
+        try await db.markDispatchIntent(second.id)
+        let original = receipt(first, a, success: true)
+        do {
+            _ = try await db.apply(receipt(second, b, success: true, attachment: original.attachmentID), policy: policy)
+            XCTFail("A different image reused the original completed attachment")
+        } catch RiftletError.mismatchedReceipt {}
+        let retainedA = try await db.receipt(for: first.id)
+        let pendingB = try await db.operation(id: second.id)
+        XCTAssertEqual(retainedA, original)
+        XCTAssertEqual(pendingB?.phase, .dispatchIntent)
+        _ = try await db.apply(receipt(second, b, success: true), policy: policy)
+        _ = try await db.apply(receipt(first, a), policy: policy)
+        let aRecord = try await db.asset(id: a.id), bRecord = try await db.asset(id: b.id)
+        XCTAssertEqual(aRecord?.status, .unknown)
+        XCTAssertEqual(bRecord?.status, .used)
     }
 
     func testCompensationTransactionFailurePreservesSuccessAndCanBeRetriedOnce() async throws {

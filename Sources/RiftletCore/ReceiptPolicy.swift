@@ -1,6 +1,7 @@
 import Foundation
 
-/// Reviewed, versioned profiles only. Shipping production registry is deliberately empty.
+/// Source-owned, versioned profiles only. The default policy is empty; App
+/// composition explicitly supplies independent, origin-scoped capabilities.
 /// A label (INPUT/ATTACHED), timeout or send-button state alone is insufficient.
 /// Product ATTACHED may qualify only with independently reviewed, scoped evidence.
 public struct ReceiptPolicy: Sendable {
@@ -14,6 +15,18 @@ public struct ReceiptPolicy: Sendable {
     public let syntheticRetrySafeProfiles: [String: TargetSurface]
     public let continuationProfiles: [String: TargetSurface]
     public let syntheticContinuationProfiles: [String: TargetSurface]
+    /// Source-owned scope for newly admitted profiles. A profile may not borrow
+    /// another capture source's approval. Absent entries preserve the historical
+    /// policy (application captures are denied); no old receipt is promoted.
+    public let profileOrigins: [String: Set<AssetOrigin>]
+    /// New source-owned profiles can require bound proof without promoting
+    /// legacy stored observations that lack it. These sets grant no capability.
+    public let requiredCompletionEvidenceProfiles: Set<String>
+    public let requiredTerminationEvidenceProfiles: Set<String>
+    /// Platform finalization and irreversible retirement are independently
+    /// reviewed semantics, not implied by ordinary completion/start admission.
+    public let platformCompletionProfiles: [String: TargetSurface]
+    public let terminationProfiles: [String: TargetSurface]
 
     public init(admittedProfiles: [String: TargetSurface] = [:], retrySafeProfiles: [String: TargetSurface] = [:],
                 syntheticAcceptanceProfiles: [String: TargetSurface] = [:],
@@ -21,7 +34,12 @@ public struct ReceiptPolicy: Sendable {
                 syntheticUploadStartProfiles: [String: TargetSurface] = [:],
                 syntheticRetrySafeProfiles: [String: TargetSurface] = [:],
                 continuationProfiles: [String: TargetSurface] = [:],
-                syntheticContinuationProfiles: [String: TargetSurface] = [:]) {
+                syntheticContinuationProfiles: [String: TargetSurface] = [:],
+                profileOrigins: [String: Set<AssetOrigin>] = [:],
+                requiredCompletionEvidenceProfiles: Set<String> = [],
+                requiredTerminationEvidenceProfiles: Set<String> = [],
+                platformCompletionProfiles: [String: TargetSurface] = [:],
+                terminationProfiles: [String: TargetSurface] = [:]) {
         self.admittedProfiles = admittedProfiles
         self.retrySafeProfiles = retrySafeProfiles
         self.syntheticAcceptanceProfiles = syntheticAcceptanceProfiles
@@ -30,10 +48,19 @@ public struct ReceiptPolicy: Sendable {
         self.syntheticRetrySafeProfiles = syntheticRetrySafeProfiles
         self.continuationProfiles = continuationProfiles
         self.syntheticContinuationProfiles = syntheticContinuationProfiles
+        self.profileOrigins = profileOrigins
+        self.requiredCompletionEvidenceProfiles = requiredCompletionEvidenceProfiles
+        self.requiredTerminationEvidenceProfiles = requiredTerminationEvidenceProfiles
+        self.platformCompletionProfiles = platformCompletionProfiles
+        self.terminationProfiles = terminationProfiles
+    }
+
+    private func admitsOrigin(_ origin: AssetOrigin, profile: String) -> Bool {
+        if let origins = profileOrigins[profile] { return origins.contains(origin) }
+        return origin != .applicationScreenshot
     }
 
     public func allowsUploadStart(receipt: TransferReceipt, asset: ImportedAsset, mode: StoreMode) -> Bool {
-        guard asset.origin != .applicationScreenshot else { return false }
         guard receipt.outcome == .uploadStarted, let evidence = receipt.uploadStartEvidence,
               evidence.version == 1, evidence.inputCount == 1,
               !evidence.evidenceID.isEmpty, evidence.evidenceID.utf8.count <= 256,
@@ -51,27 +78,44 @@ public struct ReceiptPolicy: Sendable {
         if let surface = syntheticUploadStartProfiles[evidence.profileID] {
             return asset.origin == .synthetic && surface == receipt.target.surface
         }
-        return uploadStartProfiles[evidence.profileID] == receipt.target.surface
+        return admitsOrigin(asset.origin, profile: evidence.profileID)
+            && uploadStartProfiles[evidence.profileID] == receipt.target.surface
     }
 
     public func allowsContinuation(receipt: TransferReceipt, asset: ImportedAsset, mode: StoreMode) -> Bool {
         guard allowsUploadStart(receipt: receipt, asset: asset, mode: mode),
-              let evidence = receipt.continuationEvidence, evidence.version == 1,
+              let evidence = receipt.continuationEvidence,
               !evidence.evidenceID.isEmpty, evidence.evidenceID.utf8.count <= 256,
               !evidence.profileID.isEmpty, evidence.profileID.utf8.count <= 128 else { return false }
+        switch evidence.version {
+        case 1:
+            // Retain old synthetic fixtures; a stored v1 token is not a new
+            // real-platform isolation proof and can never be upgraded in place.
+            guard asset.origin == .synthetic, evidence.binding == nil, evidence.taskIsolation == nil else { return false }
+        case 2:
+            guard evidence.validates(receipt: receipt, asset: asset) else { return false }
+        default: return false
+        }
         if mode == .simulation { return evidence.profileID == "simulation-independent-attachment-v1" }
         if let surface = syntheticContinuationProfiles[evidence.profileID] {
             return asset.origin == .synthetic && surface == receipt.target.surface
         }
-        return continuationProfiles[evidence.profileID] == receipt.target.surface
+        return admitsOrigin(asset.origin, profile: evidence.profileID)
+            && continuationProfiles[evidence.profileID] == receipt.target.surface
     }
 
     public func allowsConsumption(receipt: TransferReceipt, asset: ImportedAsset, mode: StoreMode) -> Bool {
-        guard asset.origin != .applicationScreenshot else { return false }
         guard receipt.outcome == .verifiedReady,
               receipt.positiveReady, receipt.belongsToOriginalDraft,
               !receipt.hasError, !receipt.isUploading,
               let attachmentID = receipt.attachmentID, !attachmentID.isEmpty else { return false }
+        if let proof = receipt.completionEvidence {
+            guard proof.validates(receipt: receipt, asset: asset) else { return false }
+            if proof.kind == .platformFinalizedOriginal {
+                guard platformCompletionProfiles[receipt.profileID] == receipt.target.surface,
+                      admitsOrigin(asset.origin, profile: receipt.profileID) else { return false }
+            }
+        } else if requiredCompletionEvidenceProfiles.contains(receipt.profileID) { return false }
         if mode == .simulation {
             return asset.origin == .synthetic && receipt.profileID == "simulation-v1"
                 && receipt.target.surface == .simulation && receipt.target.adapterID == "simulation"
@@ -80,15 +124,20 @@ public struct ReceiptPolicy: Sendable {
         if let surface = syntheticAcceptanceProfiles[receipt.profileID] {
             return asset.origin == .synthetic && surface == receipt.target.surface
         }
-        return admittedProfiles[receipt.profileID] == receipt.target.surface
+        return admitsOrigin(asset.origin, profile: receipt.profileID)
+            && admittedProfiles[receipt.profileID] == receipt.target.surface
     }
 
     /// A false failure can duplicate an upload, so failure admission is separate from READY.
     public func allowsRetry(receipt: TransferReceipt, asset: ImportedAsset, mode: StoreMode) -> Bool {
-        guard asset.origin != .applicationScreenshot else { return false }
         guard receipt.outcome == .definitiveFailure, receipt.safeToRetry, receipt.hasError,
               let attachmentID = receipt.attachmentID, !attachmentID.isEmpty,
               receipt.belongsToOriginalDraft, !receipt.isUploading, !receipt.positiveReady else { return false }
+        if let proof = receipt.terminationEvidence {
+            guard proof.validates(receipt: receipt, asset: asset),
+                  terminationProfiles[proof.profileID] == receipt.target.surface,
+                  admitsOrigin(asset.origin, profile: proof.profileID) else { return false }
+        } else if requiredTerminationEvidenceProfiles.contains(receipt.profileID) { return false }
         if mode == .simulation {
             return asset.origin == .synthetic && receipt.profileID == "simulation-v1"
                 && receipt.target.surface == .simulation && receipt.target.adapterID == "simulation"
@@ -98,6 +147,7 @@ public struct ReceiptPolicy: Sendable {
             return asset.origin == .synthetic && surface == receipt.target.surface
         }
         guard syntheticAcceptanceProfiles[receipt.profileID] == nil else { return false }
-        return retrySafeProfiles[receipt.profileID] == receipt.target.surface
+        return admitsOrigin(asset.origin, profile: receipt.profileID)
+            && retrySafeProfiles[receipt.profileID] == receipt.target.surface
     }
 }

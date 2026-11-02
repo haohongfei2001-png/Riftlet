@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify the unified internal package without launching it or requesting permissions."""
+"""Verify the package offline; manifest creation probes only the executable's build-info early exit."""
 import argparse
 import hashlib
 import importlib.util
@@ -83,6 +83,17 @@ def package_hashes(package):
     return result
 
 
+def read_ordinary_configuration(package):
+    # This command exits before App/UI, data stores and browser adapters are
+    # initialized. Do not infer executable capabilities from historical labels.
+    binary = (Path(package) / "Riftlet.app/Contents/MacOS/Riftlet").resolve()
+    result = subprocess.run([str(binary), "--ordinary-build-info"],
+                            capture_output=True, text=True, timeout=10, check=True)
+    info = json.loads(result.stdout)
+    BUNDLE.verify_ordinary_build_info(info, "development")
+    return info
+
+
 def create_manifest(package, repository, source_head):
     require(source_head == "HEAD" or re.fullmatch(r"[0-9a-f]{40}", source_head), "invalid_source_head")
     checkout = git(repository, "rev-parse", "HEAD")
@@ -98,10 +109,12 @@ def create_manifest(package, repository, source_head):
     subprocess.run(["git", "-C", str(repository), "diff", "--exit-code", "HEAD", "--", *INPUTS], check=True)
     run = os.environ.get("GITHUB_RUN_ID")
     require(run is None or run.isdigit(), "invalid_ci_run")
+    ordinary = read_ordinary_configuration(package)
     return {"schemaVersion": 1, "kind": "internal-beta-development", "sourceHeadSHA": head,
             "checkoutSHA": checkout, "ciRunID": run, "architecture": platform.machine(),
             "launchArgument": "--system-screenshot-candidate",
-            "ordinaryAppDefault": "capture-upload-disabled",
+            "ordinaryAppDefault": "capture-source-qualified",
+            "ordinaryBuildInfo": ordinary,
             "dataDirectory": "Riftlet-System-Screenshot-Candidate",
             **feedback_source_configuration(git(repository, "show", head + ":" + FEEDBACK_HOST)),
             "realAcceptanceSourceSHA": "e421e6687651c2fac1441410c1af2bd5b8151e55",
@@ -129,8 +142,11 @@ def verify_package(package, repository=None):
     for key in ("sourceHeadSHA", "checkoutSHA", "realAcceptanceSourceSHA", "realAcceptanceEvidenceSHA"):
         require(isinstance(manifest.get(key), str) and re.fullmatch(r"[0-9a-f]{40}", manifest[key]), "invalid_manifest_commit")
     require(manifest.get("launchArgument") == "--system-screenshot-candidate"
-            and manifest.get("ordinaryAppDefault") == "capture-upload-disabled"
+            and manifest.get("ordinaryAppDefault") == "capture-source-qualified"
             and manifest.get("dataDirectory") == "Riftlet-System-Screenshot-Candidate", "invalid_launch_profile")
+    # Verification stays offline; hashes bind this recorded capability to the
+    # delivered executable. A valid capability is not real-page/release approval.
+    BUNDLE.verify_ordinary_build_info(manifest.get("ordinaryBuildInfo"), "development")
     feedback = feedback_configuration(manifest.get("feedbackEndpoint"))
     require(manifest.get("feedbackEndpointConfigured") is feedback["feedbackEndpointConfigured"]
             and manifest.get("feedbackDelivery") == feedback["feedbackDelivery"], "invalid_feedback_boundary")
@@ -159,7 +175,7 @@ def main():
             BUNDLE.verify_bundle(args.package / "Riftlet.app", args.repository)
             (args.package / "build-info.json").write_text(json.dumps(create_manifest(args.package, args.repository, args.source_head), ensure_ascii=False, indent=2) + "\n")
         manifest = verify_package(args.package, args.repository)
-    except (ValueError, OSError, TypeError, subprocess.CalledProcessError, BUNDLE.VerificationError) as error:
+    except (ValueError, OSError, TypeError, subprocess.SubprocessError, BUNDLE.VerificationError) as error:
         print("RIFTLET_INTERNAL_BETA_CHECK_FAIL: " + type(error).__name__, file=sys.stderr)
         return 1
     print("RIFTLET_INTERNAL_BETA_CHECK_PASS: source=" + manifest["sourceHeadSHA"] + "; checkout=" + manifest["checkoutSHA"] + "; explicit candidate; Feedback=" + manifest["feedbackDelivery"] + "; GUI_NOT_RUN; GATEKEEPER_NOT_RUN")

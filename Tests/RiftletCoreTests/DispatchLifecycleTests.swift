@@ -10,10 +10,17 @@ final class DispatchLifecycleTests: XCTestCase {
     }
     override func tearDownWithError() throws { try FileManager.default.removeItem(at: directory) }
     private func store() throws -> QueueStore { try QueueStore(databaseURL: directory.appendingPathComponent("queue.sqlite")) }
-    private func target(_ draft: String = "00000000-0000-0000-0000-000000000001", epoch: String = "1") -> TargetLease {
+    private func target(_ draft: String = "00000000-0000-0000-0000-000000000001", epoch: String = "1",
+                        pin: UUID? = nil) -> TargetLease {
         TargetLease(adapterID: "lifecycle-fixture", surface: .webChat, applicationID: "com.google.Chrome",
             sessionID: "fixture-process", windowID: "1", tabID: "1", documentID: "doc", composerID: "composer",
-            draftGeneration: epoch, logicalDraftIdentity: .init(profileID: "chatgpt-composer-react-persisted-20261027-v1", id: draft))
+            draftGeneration: epoch, logicalDraftIdentity: .init(profileID: "chatgpt-composer-react-persisted-20261027-v1", id: draft),
+            clickBindingID: pin)
+    }
+    private func changed(_ target: TargetLease, _ field: String, _ value: Any) throws -> TargetLease {
+        var fields = try XCTUnwrap(JSONSerialization.jsonObject(with: JSONEncoder().encode(target)) as? [String: Any])
+        fields[field] = value
+        return try JSONDecoder().decode(TargetLease.self, from: JSONSerialization.data(withJSONObject: fields))
     }
     private var policy: ReceiptPolicy {
         .init(syntheticAcceptanceProfiles: ["fixture-ready": .webChat],
@@ -29,21 +36,24 @@ final class DispatchLifecycleTests: XCTestCase {
     }
     private func selection(_ a: ImportedAsset, target: TargetLease) -> AcceptedSelection {
         let now = ProcessInfo.processInfo.systemUptime
-        return .init(assetID: a.id, target: target, hostEpoch: UUID(), acknowledgedUptime: now - 0.02,
-            eventUptime: now - 0.01, acceptedUptime: now, visibilityRevision: 0, deadlineUptime: now + 30)
+        let pinned = target.clickBindingID != nil
+        return .init(assetID: a.id, target: target, hostEpoch: UUID(), acknowledgedUptime: now - (pinned ? 0.005 : 0.02),
+            eventUptime: now - 0.01, acceptedUptime: now, visibilityRevision: 0, deadlineUptime: now + 30,
+            authorization: pinned ? .nativeClickPin : .preEventAcknowledgement)
     }
     private func receipt(_ op: TransferOperation, _ a: ImportedAsset, _ nonce: UUID,
                          outcome: ReceiptOutcome = .uploadStarted, continuation: Bool = true,
-                         attachment: String? = nil) -> TransferReceipt {
-        .init(operationID: op.id, assetID: a.id, attempt: op.attempt, assetSHA256: a.sha256, target: op.target,
+                         attachment: String? = nil, target: TargetLease? = nil) -> TransferReceipt {
+        .init(operationID: op.id, assetID: a.id, attempt: op.attempt, assetSHA256: a.sha256, target: target ?? op.target,
             outcome: outcome, profileID: "fixture-ready", attachmentID: attachment ?? "attachment-\(op.id)",
             positiveReady: outcome == .verifiedReady, belongsToOriginalDraft: true,
             hasError: outcome == .definitiveFailure, isUploading: outcome == .uploadStarted,
             uploadStartEvidence: outcome == .uploadStarted ? .init(profileID: "fixture-start", signal: .correlatedProgress, evidenceID: "start-\(op.id)") : nil,
             continuationEvidence: continuation && outcome == .uploadStarted ? .init(profileID: "fixture-independent", evidenceID: "isolation-\(op.id)", invocationID: nonce) : nil)
     }
-    private func started(_ db: QueueStore, owner: UUID, continuation: Bool = true, returned: Bool = true) async throws -> (ImportedAsset, TransferOperation, UUID) {
-        let a = try await asset(db), t = target()
+    private func started(_ db: QueueStore, owner: UUID, continuation: Bool = true, returned: Bool = true,
+                         target selected: TargetLease? = nil) async throws -> (ImportedAsset, TransferOperation, UUID) {
+        let a = try await asset(db), t = selected ?? target()
         let op = try await db.prepare(assetID: a.id, target: t)
         let nonce = try await db.markDispatchIntent(op.id, ownerID: owner)
         let r = receipt(op, a, nonce, continuation: continuation)
@@ -73,6 +83,221 @@ final class DispatchLifecycleTests: XCTestCase {
         let unresolved = try await db.unresolvedOperations()
         XCTAssertEqual(ids.count, 48); XCTAssertEqual(attachments.count, 48); XCTAssertEqual(unresolved.count, 48)
         for op in unresolved { let start = try await db.uploadStartReceipt(for: op.id); XCTAssertNotNil(start); XCTAssertEqual(op.phase, .unknown) }
+    }
+
+    func testDistinctNativePinsContinueWithoutChangingOriginalReceiptIdentity() async throws {
+        let db = try store(), owner = UUID(), at = target(pin: UUID()), bt = target(pin: UUID())
+        let (a, ao, an) = try await started(db, owner: owner, target: at)
+        let b = try await asset(db), bo = try await db.prepare(assetID: b.id, target: bt)
+        let click = selection(b, target: bt)
+        let bn = try await db.markDispatchIntent(bo.id, selection: click, ownerID: owner, policy: policy)
+        let br = receipt(bo, b, bn)
+        _ = try await db.apply(br, policy: policy)
+        try await db.recordAppendReturned(br, invocationID: bn, ownerID: owner)
+        XCTAssertNotEqual(at, bt); XCTAssertNotEqual(at.stableKey, bt.stableKey)
+        let originalA = try await db.uploadStartReceipt(for: ao.id), originalB = try await db.uploadStartReceipt(for: bo.id)
+        XCTAssertEqual(originalA?.target, at); XCTAssertEqual(originalB?.target, bt)
+        XCTAssertNotEqual(originalA?.attachmentID, originalB?.attachmentID)
+
+        // A sibling pin is a different capability even inside the same scope.
+        do {
+            _ = try await db.apply(receipt(ao, a, an, outcome: .verifiedReady, target: bt), policy: policy)
+            XCTFail("Sibling pin admitted for the original operation")
+        } catch RiftletError.mismatchedReceipt {}
+        do {
+            _ = try await db.markDispatchIntent(bo.id, selection: click, ownerID: owner, policy: policy)
+            XCTFail("Dispatched click replayed")
+        } catch RiftletError.invalidTransition {}
+        let retainedA = try await db.prepare(assetID: a.id, target: target(pin: UUID()))
+        XCTAssertEqual(retainedA.id, ao.id); XCTAssertEqual(retainedA.target, at)
+
+        _ = try await db.apply(receipt(bo, b, bn, outcome: .verifiedReady), policy: policy)
+        _ = try await db.apply(receipt(ao, a, an, outcome: .verifiedReady), policy: policy)
+        _ = try await db.apply(receipt(ao, a, an, outcome: .definitiveFailure), policy: policy)
+        let finalA = try await db.operation(id: ao.id), finalB = try await db.operation(id: bo.id)
+        XCTAssertEqual(finalA?.phase, .compensated); XCTAssertEqual(finalB?.phase, .succeeded)
+        XCTAssertEqual(finalB?.target, bt)
+        try await expectBusy(db, owner: owner, t: target(pin: UUID()))
+    }
+
+    func testContinuationScopeRequiresExactObservedDraftAndDoesNotPromoteLegacyPins() throws {
+        let a = target(pin: UUID()), b = target(pin: UUID())
+        XCTAssertTrue(a.sharesContinuationDraft(with: b))
+        XCTAssertFalse(a.sharesContinuationDraft(with: target()))
+        XCTAssertFalse(target().sharesContinuationDraft(with: a))
+        XCTAssertTrue(target().sharesContinuationDraft(with: target()))
+        let mutations: [(String, Any)] = [
+            ("adapterID", "other"), ("adapterID", ""), ("surface", "webWork"),
+            ("applicationID", "other.browser"), ("sessionID", "other-process"), ("sessionID", ""),
+            ("windowID", "2"), ("windowID", ""), ("tabID", "2"), ("tabID", ""), ("tabID", NSNull()),
+            ("documentID", "new-document"), ("documentID", ""), ("composerID", "new-composer"), ("composerID", ""),
+            ("draftGeneration", "2"), ("draftGeneration", ""), ("logicalDraftIdentity", NSNull()),
+            ("logicalDraftIdentity", ["profileID": "unknown-profile", "id": "00000000-0000-0000-0000-000000000001"]),
+            ("logicalDraftIdentity", ["profileID": "chatgpt-composer-react-persisted-20261027-v1", "id": "invalid"]),
+            ("logicalDraftIdentity", ["profileID": "chatgpt-composer-react-persisted-20261027-v1", "id": "00000000-0000-0000-0000-000000000002"]),
+            ("logicalDraftIdentity", ["profileID": "chatgpt-composer-react-20261027-v1", "id": "local-chatgpt:00000000-0000-0000-0000-000000000001"])
+        ]
+        for (field, value) in mutations {
+            let changedTarget = try changed(b, field, value)
+            XCTAssertFalse(a.sharesContinuationDraft(with: changedTarget), field)
+            XCTAssertFalse(changedTarget.sharesContinuationDraft(with: a), field)
+        }
+        // Equality alone must never authorize a malformed/unrecognized scope.
+        for field in ["sessionID", "windowID", "tabID", "documentID", "composerID", "draftGeneration"] {
+            let empty = try changed(a, field, "")
+            XCTAssertFalse(empty.sharesContinuationDraft(with: empty), field)
+        }
+        let local = try changed(a, "logicalDraftIdentity", ["profileID": "chatgpt-composer-react-20261027-v1", "id": "local-chatgpt:00000000-0000-0000-0000-000000000001"])
+        XCTAssertTrue(local.sharesContinuationDraft(with: try changed(local, "clickBindingID", UUID().uuidString)))
+    }
+
+    func testNativePinCannotCrossNavigationComposerEpochOrMissingBusinessIdentity() async throws {
+        let db = try store(), owner = UUID(), a = target(pin: UUID())
+        _ = try await started(db, owner: owner, target: a)
+        for (field, value) in [("documentID", "navigated"), ("composerID", "replaced"), ("draftGeneration", "2"), ("windowID", "moved")] {
+            let next = try changed(target(pin: UUID()), field, value)
+            try await expectBusy(db, owner: owner, t: next)
+        }
+        try await expectBusy(db, owner: owner, t: try changed(target(pin: UUID()), "logicalDraftIdentity", NSNull()))
+        try await expectBusy(db, owner: owner, t: target())
+        // Returning to the old business ID with a later epoch is not continuity.
+        try await expectBusy(db, owner: owner, t: target(epoch: "after-A-B-A", pin: UUID()))
+    }
+
+    func testNativePinFollowingStillRequiresAppendReturnProofAndLiveOwner() async throws {
+        for failure in ["unreturned", "no-continuation", "owner", "restarted", "profile"] {
+            let db = try QueueStore(databaseURL: directory.appendingPathComponent(failure + ".sqlite"))
+            let owner = UUID()
+            _ = try await started(db, owner: owner, continuation: failure != "no-continuation",
+                                  returned: failure != "unreturned", target: target(pin: UUID()))
+            if failure == "restarted" { try await db.recoverInterruptedOperations() }
+            try await expectBusy(db, owner: failure == "owner" || failure == "restarted" ? UUID() : owner,
+                                 t: target(pin: UUID()),
+                                 p: failure == "profile" ? .init(syntheticUploadStartProfiles: ["fixture-start": .webChat]) : policy)
+        }
+        let db = try store(), owner = UUID(), a = try await asset(db), at = target(pin: UUID())
+        let ao = try await db.prepare(assetID: a.id, target: at)
+        _ = try await db.markDispatchIntent(ao.id, selection: selection(a, target: at), ownerID: owner, policy: policy)
+        try await db.markUnknown(ao.id, reason: "Commit reply lost; no proven start")
+        try await expectBusy(db, owner: owner, t: target(pin: UUID()))
+    }
+
+    func testCrossPinAttachmentAliasIsRejectedBeforeAndAfterOriginalCompletion() async throws {
+        for completed in [false, true] {
+            let db = try QueueStore(databaseURL: directory.appendingPathComponent("alias-\(completed).sqlite")), owner = UUID()
+            let (a, ao, an) = try await started(db, owner: owner, target: target(pin: UUID()))
+            if completed { _ = try await db.apply(receipt(ao, a, an, outcome: .verifiedReady), policy: policy) }
+            let bt = target(pin: UUID()), b = try await asset(db), bo = try await db.prepare(assetID: b.id, target: bt)
+            let bn = try await db.markDispatchIntent(bo.id, selection: selection(b, target: bt), ownerID: owner, policy: policy)
+            for outcome in [ReceiptOutcome.uploadStarted, .verifiedReady] {
+                do {
+                    _ = try await db.apply(receipt(bo, b, bn, outcome: outcome, attachment: "attachment-\(ao.id)"), policy: policy)
+                    XCTFail("Original A attachment reused by another native pin")
+                } catch RiftletError.mismatchedReceipt {}
+            }
+            let rejected = try await db.uploadStartReceipt(for: bo.id), bBefore = try await db.operation(id: bo.id)
+            XCTAssertNil(rejected); XCTAssertEqual(bBefore?.phase, .dispatchIntent)
+            _ = try await db.apply(receipt(bo, b, bn), policy: policy)
+            _ = try await db.apply(receipt(bo, b, bn, outcome: .verifiedReady), policy: policy)
+            let bAfter = try await db.operation(id: bo.id); XCTAssertEqual(bAfter?.phase, .succeeded)
+            let aAfter = try await db.operation(id: ao.id)
+            XCTAssertEqual(aAfter?.phase, completed ? .succeeded : .unknown)
+        }
+    }
+
+    func testCompletedAttachmentIdentityDoesNotAliasAnUnrelatedDocument() async throws {
+        let db = try store(), owner = UUID()
+        let (a, ao, an) = try await started(db, owner: owner, target: target(pin: UUID()))
+        _ = try await db.apply(receipt(ao, a, an, outcome: .verifiedReady), policy: policy)
+        let bt = try changed(target(pin: UUID()), "documentID", "independent-document")
+        let b = try await asset(db), bo = try await db.prepare(assetID: b.id, target: bt)
+        let bn = try await db.markDispatchIntent(bo.id, selection: selection(b, target: bt), ownerID: owner, policy: policy)
+        _ = try await db.apply(receipt(bo, b, bn, outcome: .verifiedReady, attachment: "attachment-\(ao.id)"), policy: policy)
+        let result = try await db.operation(id: bo.id)
+        XCTAssertEqual(result?.phase, .succeeded); XCTAssertEqual(result?.target, bt)
+    }
+
+    func testCompletionOnlyAttachmentOwnershipSurvivesCompensationWithoutInventingStart() async throws {
+        for compensated in [false, true] {
+            let db = try QueueStore(databaseURL: directory.appendingPathComponent("completion-only-\(compensated).sqlite")), owner = UUID()
+            let a = try await asset(db), at = target(pin: UUID()), ao = try await db.prepare(assetID: a.id, target: at)
+            let an = try await db.markDispatchIntent(ao.id, selection: selection(a, target: at), ownerID: owner, policy: policy)
+            _ = try await db.apply(receipt(ao, a, an, outcome: .verifiedReady), policy: policy)
+            let noStart = try await db.uploadStartReceipt(for: ao.id); XCTAssertNil(noStart)
+
+            let b = try await asset(db), bt = target(pin: UUID()), bo = try await db.prepare(assetID: b.id, target: bt)
+            let bn = try await db.markDispatchIntent(bo.id, selection: selection(b, target: bt), ownerID: owner, policy: policy)
+            // A late failure may arrive after B's already-authorized dispatch.
+            if compensated { _ = try await db.apply(receipt(ao, a, an, outcome: .definitiveFailure), policy: policy) }
+            for outcome in [ReceiptOutcome.uploadStarted, .verifiedReady] {
+                do {
+                    _ = try await db.apply(receipt(bo, b, bn, outcome: outcome, attachment: "attachment-\(ao.id)"), policy: policy)
+                    XCTFail("Completion-only A's original attachment reused")
+                } catch RiftletError.mismatchedReceipt {}
+            }
+            let beforeB = try await db.operation(id: bo.id); XCTAssertEqual(beforeB?.phase, .dispatchIntent)
+            _ = try await db.apply(receipt(bo, b, bn, outcome: .verifiedReady), policy: policy)
+            let finalA = try await db.operation(id: ao.id), finalB = try await db.operation(id: bo.id)
+            XCTAssertEqual(finalA?.phase, compensated ? .compensated : .succeeded)
+            XCTAssertEqual(finalB?.phase, .succeeded)
+            let stillNoStart = try await db.uploadStartReceipt(for: ao.id); XCTAssertNil(stillNoStart)
+            if compensated {
+                let audit = try await db.compensation(for: ao.id)
+                XCTAssertEqual(audit?.originalSuccess, receipt(ao, a, an, outcome: .verifiedReady))
+            }
+        }
+    }
+
+    func testLegacyUnadmittedObservationCannotMintAttachmentOwnership() async throws {
+        let db = try store(), owner = UUID(), b = try await asset(db), bt = target(pin: UUID())
+        let bo = try await db.prepare(assetID: b.id, target: bt)
+        let bn = try await db.markDispatchIntent(bo.id, selection: selection(b, target: bt), ownerID: owner, policy: policy)
+
+        let a = try await asset(db), at = target(pin: UUID()), ao = try await db.prepare(assetID: a.id, target: at)
+        // Isolated legacy overlapping operation fixture, never a current user
+        // row. B already owns its dispatch; no new input is granted over UNKNOWN.
+        let legacy = try SQLiteDatabase(url: directory.appendingPathComponent("queue.sqlite"))
+        try legacy.execute("UPDATE operations SET phase='unknown' WHERE id=?", [ao.id.uuidString])
+        let allegedAttachment = "unadmitted-attachment"
+        _ = try await db.apply(receipt(ao, a, UUID(), outcome: .verifiedReady, attachment: allegedAttachment), policy: .init())
+        let oldState = try await db.operation(id: ao.id); XCTAssertEqual(oldState?.phase, .unknown)
+        _ = try await db.apply(receipt(bo, b, bn, outcome: .verifiedReady, attachment: allegedAttachment), policy: policy)
+        let finalB = try await db.operation(id: bo.id); XCTAssertEqual(finalB?.phase, .succeeded)
+        let noStart = try await db.uploadStartReceipt(for: ao.id); XCTAssertNil(noStart)
+        try await expectBusy(db, owner: owner, t: target(pin: UUID()))
+    }
+
+    func testAttachmentOwnershipSearchDoesNotTruncateAtMetadataBatchBoundary() async throws {
+        let db = try store(), owner = UUID()
+        // Terminal records outside this draft fill one metadata batch. Their
+        // payloads need not be decoded, but a later matching owner is not lost.
+        for index in 0..<64 {
+            let t = try changed(target(pin: UUID()), "documentID", "unrelated-\(index)")
+            let a = try await asset(db), op = try await db.prepare(assetID: a.id, target: t)
+            let nonce = try await db.markDispatchIntent(op.id, selection: selection(a, target: t), ownerID: owner, policy: policy)
+            _ = try await db.apply(receipt(op, a, nonce, outcome: .verifiedReady), policy: policy)
+        }
+        let a = try await asset(db), at = target(pin: UUID()), ao = try await db.prepare(assetID: a.id, target: at)
+        let an = try await db.markDispatchIntent(ao.id, selection: selection(a, target: at), ownerID: owner, policy: policy)
+        _ = try await db.apply(receipt(ao, a, an, outcome: .verifiedReady), policy: policy)
+        let b = try await asset(db), bt = target(pin: UUID()), bo = try await db.prepare(assetID: b.id, target: bt)
+        let bn = try await db.markDispatchIntent(bo.id, selection: selection(b, target: bt), ownerID: owner, policy: policy)
+        do {
+            _ = try await db.apply(receipt(bo, b, bn, outcome: .verifiedReady, attachment: "attachment-\(ao.id)"), policy: policy)
+            XCTFail("Alias beyond first metadata batch admitted")
+        } catch RiftletError.mismatchedReceipt {}
+        _ = try await db.apply(receipt(bo, b, bn, outcome: .verifiedReady), policy: policy)
+        let finalB = try await db.operation(id: bo.id); XCTAssertEqual(finalB?.phase, .succeeded)
+    }
+
+    func testContinuationCannotBorrowAnotherInvocationWithDistinctPins() async throws {
+        let db = try store(), owner = UUID(), at = target(pin: UUID()), a = try await asset(db)
+        let ao = try await db.prepare(assetID: a.id, target: at)
+        let actual = try await db.markDispatchIntent(ao.id, selection: selection(a, target: at), ownerID: owner, policy: policy)
+        let wrongInvocation = receipt(ao, a, UUID())
+        _ = try await db.apply(wrongInvocation, policy: policy)
+        try await db.recordAppendReturned(wrongInvocation, invocationID: actual, ownerID: owner)
+        try await expectBusy(db, owner: owner, t: target(pin: UUID()))
     }
 
     func testStartAloneAndAppendStillRunningCannotReleaseConflict() async throws {
@@ -113,10 +338,11 @@ final class DispatchLifecycleTests: XCTestCase {
     }
 
     func testTwoConnectionsSerializeFollowingIntentAndRejectAttachmentAlias() async throws {
-        let db = try store(), second = try store(), owner = UUID(); let (a, _, _) = try await started(db, owner: owner)
-        let b = try await asset(db), c = try await asset(db), t = target()
-        let bo = try await db.prepare(assetID: b.id, target: t), co = try await second.prepare(assetID: c.id, target: t)
-        let bs = selection(b, target: t), cs = selection(c, target: t)
+        let db = try store(), second = try store(), owner = UUID()
+        let (a, _, _) = try await started(db, owner: owner, target: target(pin: UUID()))
+        let b = try await asset(db), c = try await asset(db), bt = target(pin: UUID()), ct = target(pin: UUID())
+        let bo = try await db.prepare(assetID: b.id, target: bt), co = try await second.prepare(assetID: c.id, target: ct)
+        let bs = selection(b, target: bt), cs = selection(c, target: ct)
         let results = await withTaskGroup(of: Bool.self, returning: [Bool].self) { group in
             group.addTask { do { try await db.markDispatchIntent(bo.id, selection: bs, ownerID: owner, policy: self.policy); return true } catch { return false } }
             group.addTask { do { try await second.markDispatchIntent(co.id, selection: cs, ownerID: owner, policy: self.policy); return true } catch { return false } }

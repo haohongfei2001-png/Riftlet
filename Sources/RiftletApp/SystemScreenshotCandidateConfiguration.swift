@@ -4,7 +4,8 @@ import RiftletAdapters
 
 /// Separate evidence decisions from 493d1d8: SC-START and SC-COMPLETE are admitted
 /// only for registered new operations in the restricted internal candidate.
-/// Historical v1, safe failure/retry and ordinary production remain unadmitted.
+/// Historical v1 and safe failure/retry remain unadmitted. These candidate maps
+/// do not grant any ordinary product capability; its composition is separate.
 /// These maps are code-owned, never read from arguments, defaults or page JSON.
 enum SystemScreenshotCandidateConfiguration {
     static let uploadStartProfiles: [String: TargetSurface] = [SystemScreenshotWebCandidate.admittedUploadStartProfileID: .webChat]
@@ -34,6 +35,7 @@ struct ApplicationAttachmentComposition {
                                 executor: (any WebBridgeExecutor)? = nil,
                                 traceEnabled: Bool = false,
                                 polling: WebObservationPolling = .acceptance,
+                                onInputTransportFinished: (@Sendable () async -> Void)? = nil,
                                 ordinary: OrdinaryAttachmentAdmission = OrdinaryCaptureConfiguration.admission) throws -> Self {
         let media = root.appendingPathComponent("media")
         switch mode {
@@ -41,19 +43,29 @@ struct ApplicationAttachmentComposition {
             // Closed means no Chrome executor, page load, permission probe or
             // registration. Test injection here is not a runtime switch.
             guard ordinary.allowsInput else { return Self(adapter: UnavailableAdapter(), policy: .init()) }
+            if ordinary.usesUnifiedProduct {
+                return Self(adapter: WebAttachmentAdapter(mediaDirectory: media,
+                    executor: executor ?? ChromeAppleEventsExecutor(traceEnabled: traceEnabled),
+                    program: try ChatGPTWebPageProgram.load(), mode: .ordinaryProduct,
+                    profile: ordinary.observationProfile, polling: polling,
+                    productStore: store, productOrigins: ordinary.productOrigins,
+                    onInputTransportFinished: onInputTransportFinished), policy: ordinary.receiptPolicy)
+            }
             return Self(adapter: WebAttachmentAdapter(mediaDirectory: media,
                 executor: executor ?? ChromeAppleEventsExecutor(traceEnabled: traceEnabled),
                 program: try ChatGPTWebPageProgram.load(), mode: .ordinarySystemScreenshot,
                 profile: ordinary.observationProfile, polling: polling,
                 candidateJournal: SystemScreenshotObservationJournal(store: store, scope: ordinary.targetScope),
-                candidateAdmission: SystemScreenshotCandidateAdmission(store: store, scope: ordinary.targetScope)),
+                candidateAdmission: SystemScreenshotCandidateAdmission(store: store, scope: ordinary.targetScope),
+                onInputTransportFinished: onInputTransportFinished),
                 policy: ordinary.receiptPolicy)
         case .simulation: return Self(adapter: SimulationAdapter(), policy: .init())
         case .webAcceptance:
             return Self(adapter: WebAttachmentAdapter(mediaDirectory: media,
                 executor: executor ?? ChromeAppleEventsExecutor(traceEnabled: traceEnabled),
                 program: try ChatGPTWebPageProgram.load(), mode: .syntheticDevelopment,
-                profile: ChatGPTWebPageProgram.acceptanceProfile, polling: polling),
+                profile: ChatGPTWebPageProgram.acceptanceProfile, polling: polling,
+                onInputTransportFinished: onInputTransportFinished),
                 policy: WebAcceptanceConfiguration.receiptPolicy)
         case .systemScreenshotCandidate:
             return Self(adapter: WebAttachmentAdapter(mediaDirectory: media,
@@ -61,7 +73,8 @@ struct ApplicationAttachmentComposition {
                 program: try ChatGPTWebPageProgram.load(), mode: .systemScreenshotCandidate,
                 profile: SystemScreenshotWebCandidate.profile, polling: polling,
                 candidateJournal: SystemScreenshotObservationJournal(store: store),
-                candidateAdmission: SystemScreenshotCandidateAdmission(store: store)),
+                candidateAdmission: SystemScreenshotCandidateAdmission(store: store),
+                onInputTransportFinished: onInputTransportFinished),
                 policy: SystemScreenshotCandidateConfiguration.receiptPolicy)
         }
     }

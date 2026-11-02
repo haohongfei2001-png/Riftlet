@@ -1,4 +1,26 @@
-# Current application of this protocol — R2.1 and UI freeze
+# Current application — unified product implementation, 2026-11-02
+
+The user's unified-product development instruction authorizes implementation of
+the ordinary entry point from main `a4463cddd3bce637dbe0a33c90713bc42370ed8f`.
+The current source policy therefore records actual compiled capabilities:
+ordinary input/start/completion and the explicitly typed built-in PNG source are
+enabled in this development source. This is not a release decision or proof that
+an inaccessible real ChatGPT page has passed acceptance. Input still requires
+original dispatch registration, source/file checks and the original pinned
+target; start and completion still require their separate exact observations.
+Legacy input-only registrations are not promoted. Safe retry after external
+input and Web continuation remain disabled until their missing platform facts
+can be produced and independently verified.
+
+The six `productionAdmission` fields in the source record must match the actual
+compiled implementation; they are not substitutes for a real-platform release
+review. The new G, its full source/policy delta, and H require the same non-author
+review and actual-merge CI below. Historical reports and admission records remain
+attached to their old source. No main merge or public release is authorized by
+this implementation work. See the exact implementation/evidence boundaries in
+`engineering/evidence/2026-11-02-unified-product/README.md`.
+
+# Previous application of this protocol — R2.1 and UI freeze
 
 On 2026-10-31 the user authorized final R2.1 integration from actual main
 `749f3ae81b8a75a9462506bfeb3d3cf2796ed154`, using the unchanged protocol below.
@@ -30,10 +52,10 @@ rebase, force push, direct source push to main, or review bypass is authorized b
 this governance work. Independent engineering review is not a GitHub human
 APPROVED review; identify which evidence actually exists.
 
-This change only governs Git and CI. It does not change any runtime product file,
+The original governance change only governed Git and CI. It did not change any runtime product file,
 upload profile, user data, screenshot, UNKNOWN record, or Feedback service.
-Ordinary production input/start/completion, built-in screenshot upload, safe-retry
-and Web continuation remain closed. Existing restricted candidate scope stays
+At that checkpoint, ordinary production input/start/completion, built-in screenshot upload, safe-retry
+and Web continuation remained closed. Existing restricted candidate scope stays
 unchanged. Native builds remain development/ad-hoc CI artifacts, not a public
 release, notarized installer or real-device acceptance.
 

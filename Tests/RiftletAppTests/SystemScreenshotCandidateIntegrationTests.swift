@@ -7,9 +7,9 @@ import RiftletUI
 
 /// Software only: no real capture, Chrome, TCC, network or physical click.
 final class SystemScreenshotCandidateIntegrationTests: XCTestCase {
-    func testExplicitModesRemainIsolatedAndOrdinaryLaunchDoesNotEnableWeb() throws {
+    func testExplicitTestModesRemainIsolatedFromOrdinaryProduct() throws {
         XCTAssertEqual(try ApplicationMode.resolve([]), .capture)
-        XCTAssertFalse(ApplicationMode.capture.usesWebAdapter)
+        XCTAssertTrue(ApplicationMode.capture.usesWebAdapter)
         XCTAssertTrue(ApplicationMode.capture.collectsSystemScreenshots)
         XCTAssertEqual(Set(ApplicationMode.allCases.map(\.directoryName)).count, 4)
         let flags = ["--simulate", "--web-acceptance", "--system-screenshot-candidate"]
@@ -34,7 +34,7 @@ final class SystemScreenshotCandidateIntegrationTests: XCTestCase {
         let root = FileManager.default.temporaryDirectory.appendingPathComponent("candidate-composition-\(UUID())")
         defer { try? FileManager.default.removeItem(at: root) }
         let store = try QueueStore(databaseURL: root.appendingPathComponent("queue.sqlite"))
-        let composition = try ApplicationAttachmentComposition.make(mode: .capture, root: root, store: store)
+        let composition = try ApplicationAttachmentComposition.make(mode: .capture, root: root, store: store, ordinary: .closed)
         do { _ = try await composition.adapter.captureTarget(); XCTFail("Ordinary mode enabled Web") }
         catch RiftletError.adapterUnavailable {}
         XCTAssertTrue(composition.policy.uploadStartProfiles.isEmpty)

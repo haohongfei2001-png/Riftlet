@@ -102,4 +102,43 @@ final class TargetArmSchedulerTests: XCTestCase {
         XCTAssertFalse(scheduler.request())
         XCTAssertNotNil(scheduler.begin())
     }
+
+    func testInputExitRestoresSupersededObservationInEitherCompletionOrder() throws {
+        for inputExitFirst in [false, true] {
+            var scheduler = TargetArmScheduler(); scheduler.start()
+            let interrupted = try XCTUnwrap(scheduler.begin())
+            if inputExitFirst {
+                // The pinned input has drained, but its cancelled read has not
+                // delivered completion yet. Its slot must remain single-flight.
+                XCTAssertFalse(scheduler.request())
+                XCTAssertNil(scheduler.begin())
+                XCTAssertTrue(try XCTUnwrap(scheduler.complete(interrupted)).shouldWake)
+            } else {
+                XCTAssertFalse(try XCTUnwrap(scheduler.complete(interrupted)).shouldWake)
+                // No additional pointer, AX notification, or timer is needed.
+                XCTAssertTrue(scheduler.request())
+            }
+            let fresh = try XCTUnwrap(scheduler.begin())
+            XCTAssertNotEqual(fresh.id, interrupted.id)
+            XCTAssertEqual(fresh.epoch, scheduler.epoch)
+            XCTAssertNil(scheduler.begin())
+            XCTAssertFalse(try XCTUnwrap(scheduler.complete(fresh)).shouldWake)
+        }
+    }
+
+    func testInputExitObservesNewestEpochAndCannotReviveStoppedScheduler() throws {
+        var scheduler = TargetArmScheduler(); scheduler.start()
+        let old = try XCTUnwrap(scheduler.begin())
+        XCTAssertFalse(scheduler.request(invalidateEpoch: true))
+        for _ in 0..<20 { XCTAssertFalse(scheduler.request()) }
+        let completion = try XCTUnwrap(scheduler.complete(old))
+        XCTAssertFalse(completion.acceptsAcknowledgement)
+        XCTAssertTrue(completion.shouldWake)
+        let current = try XCTUnwrap(scheduler.begin())
+        XCTAssertNotEqual(current.epoch, old.epoch)
+        scheduler.stop()
+        XCTAssertFalse(scheduler.request(), "Late transport exit cannot start arming after stop")
+        XCTAssertFalse(try XCTUnwrap(scheduler.complete(current)).acceptsAcknowledgement)
+        XCTAssertNil(scheduler.begin())
+    }
 }

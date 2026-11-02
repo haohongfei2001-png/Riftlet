@@ -75,7 +75,7 @@ final class ProductStatusTests: XCTestCase {
     }
 
     func testSupportDescriptionKeepsRestrictedAdmissionAndUnverifiedScopesSeparate() {
-        let text = ProductStatus.supportDescription
+        let text = ProductStatus.supportDescription(for: .closed)
         for scope in ["普通启动仅本地收录", "v2", "仅适用于新登记操作", "不补资格、不重传",
                       "安全失败与重试仍未开放", "Chrome 156.0.8078.73", "普通已有聊天",
                       "点击前已验证", "不是物理鼠标、冷首击或全场景支持", "非交错 8-bit RGBA PNG",
@@ -83,5 +83,15 @@ final class ProductStatusTests: XCTestCase {
             XCTAssertTrue(text.contains(scope), scope)
         }
         XCTAssertFalse(text.contains("开始、成功与重试均待"))
+    }
+
+    func testUnifiedProductDoesNotDirectUserToAnotherProductOrClaimRealPageCertification() {
+        let text = ProductStatus.supportDescription(for: .unifiedProduct)
+        for scope in ["新聊天及已有聊天", "系统截图和内置截图", "不补资格、不重传",
+                      "尚未完成最终真实页面验收", "非交错 8-bit RGBA PNG", "不自动转换"] {
+            XCTAssertTrue(text.contains(scope), scope)
+        }
+        XCTAssertFalse(text.contains("内部候选需另行启动"))
+        XCTAssertFalse(text.contains("普通启动仅本地收录"))
     }
 }

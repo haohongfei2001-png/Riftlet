@@ -33,11 +33,17 @@ function png(width,height,level,changed=false) {
 }
 const original=png(1800,1400,9);
 assert.ok(original.length<=8*1024*1024);
-async function run(browser, name, preview, expected, program=source, pinnedSwitch=false) {
+async function run(browser, name, preview, expected, program=source, pinnedSwitch=false, requestMode=null) {
   const context=await browser.newContext({serviceWorkers:'block'});
-  const requests=[];
+  const requests=[], bodies=[];
+  const uploadURL='https://chatgpt.com/__riftlet_intercepted_fixture_upload';
   await context.route('**/*',route=>{
     requests.push(route.request().url());
+    if(requestMode && route.request().url()===uploadURL){
+      const body=route.request().postDataBuffer();
+      assert.ok(body);assert.equal(sha(body),sha(original));bodies.push(sha(body));
+      return route.fulfill({status:204,body:''});
+    }
     return route.request().url()===url ? route.fulfill({contentType:'text/html',body:`<!doctype html><html lang="zh"><meta charset="utf-8"><body>
       <form data-chatgpt-composer data-composer-placement="thread" data-thread-find-composer="true">
       <div contenteditable="true" role="textbox" aria-label="询问 ChatGPT">Synthetic draft only</div>
@@ -58,6 +64,20 @@ async function run(browser, name, preview, expected, program=source, pinnedSwitc
       const decode=window.atob;window.atob=s=>{if(s.length>Math.floor(8*1024*1024/3)*4){counts.oversizedDecode++;throw Error('oversized atob');}return decode(s);};
     });
     await page.evaluate(program);
+    if(requestMode)await page.evaluate(({mode,url})=>{
+      window.requestFinished=false;
+      document.querySelector('input').addEventListener('change',event=>{
+        const file=event.target.files[0];
+        if(mode==='xhr'){
+          const request=new XMLHttpRequest();request.open('POST',url);
+          request.addEventListener('load',()=>{window.requestFinished=true;});
+          request.send(file);
+        }else{
+          // This is the fixture application's handler, not the observer.
+          fetch(url,{method:'POST',body:file}).then(()=>{window.requestFinished=true;});
+        }
+      });
+    },{mode:requestMode,url:uploadURL});
     const identity=await page.evaluate(({native,op,asset,hash,pin})=>{
       let target=riftletWebAcceptance({action:'captureTarget'},native);
       if(pin)target=riftletWebAcceptance({action:'pinTarget',target,clickBindingID:pin},native);
@@ -69,12 +89,20 @@ async function run(browser, name, preview, expected, program=source, pinnedSwitc
       other=await context.newPage();await other.goto(url);await other.bringToFront();
       switchedState=await page.evaluate(()=>({visibility:document.visibilityState,focus:document.hasFocus()}));
     }
-    const base={identity,target:identity.target},filename='riftlet-'+identity.operationID+'.png';
+    const base={identity,target:identity.target,...(requestMode?{invocationID:randomUUID()}:{})},filename='riftlet-'+identity.operationID+'.png';
     await call({...base,action:'begin',uploadName:filename,byteCount:original.length,mediaType:'image/png'});
     let index=0;for(let offset=0;offset<original.length;offset+=65536)
       await call({...base,action:'chunk',chunkIndex:index++,chunkBase64:original.subarray(offset,offset+65536).toString('base64')});
     await call({...base,action:'commit',chunkIndex:index});
     await page.waitForFunction(()=>counts.change===1&&[...__riftletWebAcceptance20261027v13.head.operations.values()][0].fileHashVerified);
+    if(requestMode){
+      await page.waitForFunction(()=>window.requestFinished);
+      const before=await call({...base,action:'observe'});
+      assert.equal(before.observation.state,'inputTriggered');
+      assert.equal(before.observation.completionEvidence,undefined);
+      assert.equal(before.observation.continuationEvidence,undefined);
+      assert.equal(before.observation.terminationEvidence,undefined);
+    }
     await page.evaluate(filename=>{
       const card=document.createElement('div');card.setAttribute('role','button');card.setAttribute('aria-label',filename);
       const image=document.createElement('img');image.alt=filename;card.append(image);
@@ -91,9 +119,21 @@ async function run(browser, name, preview, expected, program=source, pinnedSwitc
     });
     const response=await call({...base,action:'observe'}),counts=await page.evaluate(()=>window.counts);
     assert.equal(response.observation.state,expected);assert.equal(counts.change,1);assert.equal(counts.send,0);assert.equal(counts.oversizedDecode,0);
-    assert.ok(requests.every(request=>request===url));
+    assert.ok(requests.every(request=>request===url || (requestMode && request===uploadURL)));
+    if(requestMode){
+      assert.equal(bodies.length,1);assert.equal(response.schemaVersion,4);
+      const facts=response.observation.requestEvidence;
+      assert.equal(facts.invocationID,base.invocationID);assert.equal(facts.fileSHA256,sha(original));
+      assert.equal(facts.requests.length,1);assert.equal(facts.requests[0].transport,requestMode);
+      assert.equal(facts.requests[0].terminal,requestMode==='xhr'?'response':null);
+      assert.equal(facts.requests[0].progress,undefined);
+      if(requestMode==='xhr')assert.equal(facts.requests[0].status,204);
+      assert.equal(response.observation.completionEvidence.kind,'exactSRGBPixels');
+      assert.equal(response.observation.completionEvidence.binding.invocationID,base.invocationID);
+    }
     if(other)assert.equal(await other.locator('input[type=file]').evaluate(e=>e.files.length),0);
-    return {switchedState,backgroundExercised:pinnedSwitch?(switchedState.visibility==='hidden'||!switchedState.focus):null,name,result:'PASS',observation:expected,originalBytes:original.length,previewBytes:preview.length,counts,network:'intercepted synthetic document only'};
+    return {switchedState,backgroundExercised:pinnedSwitch?(switchedState.visibility==='hidden'||!switchedState.focus):null,name,result:'PASS',observation:expected,originalBytes:original.length,previewBytes:preview.length,counts,
+      requestMode,uniqueExactBodyRequests:bodies.length,network:'all document/request URLs intercepted; no external network'};
   }finally{await context.close();}
 }
 (async()=>{
@@ -109,6 +149,8 @@ async function run(browser, name, preview, expected, program=source, pinnedSwitc
     cases.push(await run(browser,'pinned A after bringToFront B (inspect actual focus)',expanded,'attached',source,true));
     cases.push(await run(browser,'one visible channel changed',png(1800,1400,0,true),'invalidated'));
     cases.push(await run(browser,'smaller preview cannot prove original',png(900,700,0),'invalidated'));
+    cases.push(await run(browser,'native XHR exact File body and separate full-pixel completion',expanded,'attached',source,false,'xhr'));
+    cases.push(await run(browser,'fetch exact File body with response intentionally unobserved',expanded,'attached',source,false,'fetch'));
     console.log(JSON.stringify({sourceSHA256:sha(source),browser:browser.version(),driver:require('playwright/package.json').version,
       scope:'headless synthetic DOM with real PNG decoder and sRGB canvas; not live ChatGPT, transport or original server bytes',cases},null,2));
   }finally{await browser.close();}

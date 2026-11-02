@@ -32,11 +32,13 @@ final class AcceptedSelectionQueueTests: XCTestCase {
     }
     private func coordinator(_ store: QueueStore, _ adapter: ParkAdapter, capacity: Int = 12,
                              change: @escaping @Sendable () async -> Void = {},
+                             finished: @escaping @Sendable (UUID) async -> Void = { _ in },
                              validator: @escaping @Sendable (AcceptedSelection) async -> Bool = { $0.isValid() }) -> TransferCoordinator {
         TransferCoordinator(store: store, adapter: adapter, mediaDirectory: directory,
             policy: ReceiptPolicy(admittedProfiles: ["ready": .webChat],
                                   syntheticUploadStartProfiles: ["start": .webChat]), onChange: change,
-            maximumPendingSelections: capacity, validateAcceptedSelection: validator)
+            maximumPendingSelections: capacity, onAcceptedSelectionFinished: finished,
+            validateAcceptedSelection: validator)
     }
     private func operation(_ image: ImportedAsset, _ store: QueueStore) async throws -> TransferOperation {
         let record = try await store.asset(id: image.id)
@@ -203,11 +205,50 @@ final class AcceptedSelectionQueueTests: XCTestCase {
 
     func testDeadlineCancelsPreparedWhileOriginalUnknownRemainsLocked() async throws {
         let s = try store(), a = try await asset(s), b = try await asset(s), adapter = ParkAdapter()
-        let coordinator = coordinator(s, adapter)
-        try await coordinator.select(token(a)); try await coordinator.select(token(b, duration: 0.05))
-        try await Task.sleep(nanoseconds: 150_000_000)
+        // This tests expiry of already prepared work, not a requirement that
+        // SQLite + validation complete within 50ms on a parallel CI runner.
+        let second = token(b), expired = expectation(description: "Original B deadline cleanup finished")
+        let coordinator = coordinator(s, adapter, finished: { id in
+            if id == second.id { expired.fulfill() }
+        })
+        try await coordinator.select(token(a)); try await coordinator.select(second)
+        let prepared = try await operation(b, s)
+        XCTAssertEqual(prepared.phase, .prepared); XCTAssertTrue(second.isValid())
+        await fulfillment(of: [expired], timeout: 12)
+        XCTAssertGreaterThanOrEqual(ProcessInfo.processInfo.systemUptime, second.deadlineUptime)
+        XCTAssertFalse(Task.isCancelled)
         let bOp = try await operation(b, s), aOp = try await operation(a, s), inputs = await adapter.inputs()
-        XCTAssertEqual(bOp.phase, .failed); XCTAssertTrue(aOp.phase.isUnresolved); XCTAssertEqual(inputs, [a.id])
+        XCTAssertEqual(bOp.id, prepared.id); XCTAssertEqual(bOp.phase, .failed)
+        XCTAssertTrue(aOp.phase.isUnresolved); XCTAssertEqual(inputs, [a.id])
+        await adapter.complete(a.id); try await coordinator.observePending()
+        let after = await adapter.inputs(); XCTAssertEqual(after, [a.id])
+    }
+
+    func testDeadlineDuringPreparationRejectsBeforeOperationOrInput() async throws {
+        let s = try store(), a = try await asset(s), b = try await asset(s), adapter = ParkAdapter()
+        let second = token(b), gate = ParkGate()
+        let entered = expectation(description: "B validation entered before preparation")
+        let expired = expectation(description: "B expired while validation was suspended")
+        let coordinator = coordinator(s, adapter, finished: { id in
+            if id == second.id { expired.fulfill() }
+        }, validator: { selection in
+            if selection.id == second.id {
+                await gate.pause(onEntered: { entered.fulfill() })
+            }
+            return selection.isValid()
+        })
+        try await coordinator.select(token(a))
+        let selection = Task { try await coordinator.select(second) }
+        await fulfillment(of: [entered], timeout: 5)
+        XCTAssertTrue(second.isValid())
+        await fulfillment(of: [expired], timeout: 12)
+        XCTAssertGreaterThanOrEqual(ProcessInfo.processInfo.systemUptime, second.deadlineUptime)
+        await gate.release()
+        do { try await selection.value; XCTFail("Expired preparation was admitted") }
+        catch RiftletError.invalidTransition { }
+        XCTAssertFalse(Task.isCancelled)
+        let record = try await s.asset(id: b.id), aOp = try await operation(a, s), inputs = await adapter.inputs()
+        XCTAssertNil(record?.activeOperationID); XCTAssertTrue(aOp.phase.isUnresolved); XCTAssertEqual(inputs, [a.id])
         await adapter.complete(a.id); try await coordinator.observePending()
         let after = await adapter.inputs(); XCTAssertEqual(after, [a.id])
     }
@@ -313,6 +354,56 @@ final class AcceptedSelectionQueueTests: XCTestCase {
         try await coordinator.cancelPendingSelections(reason: "cleanup")
     }
 
+    func testFIFOFinishedRearmsAfterValidationSupersedesDiscoveryWithoutDispatchOrClickReplay() async throws {
+        for validationThrows in [false, true] {
+            for captureDrainsLate in [false, true] {
+                let s = try QueueStore(databaseURL: directory.appendingPathComponent("\(UUID()).sqlite"))
+                let image = try await asset(s), selection = token(image)
+                let calls = ValidationRearmCalls(captureDrainsLate: captureDrainsLate)
+                let adapter = ValidationRearmAdapter(calls: calls, validationThrows: validationThrows)
+                let finished = expectation(description: "original FIFO selection retired")
+                let coordinator = TransferCoordinator(store: s, adapter: adapter, mediaDirectory: directory,
+                    onAcceptedSelectionSettled: { original in
+                        XCTAssertEqual(original.id, selection.id)
+                        // An approach/AX observation can already be running at
+                        // UI settlement. Settlement is not the input FIFO exit.
+                        await calls.uiSettledWithCaptureInFlight()
+                    }, onAcceptedSelectionFinished: { id in
+                        XCTAssertEqual(id, selection.id)
+                        XCTAssertFalse(selection.isValid(), "Rearm must not retain the rejected click")
+                        await calls.fifoFinished()
+                        finished.fulfill()
+                    }, validateAcceptedSelection: { $0.isValid() })
+                try await coordinator.select(selection)
+                await fulfillment(of: [finished], timeout: 2)
+                let state = await calls.snapshot()
+                var expected = ["uiSettled", "captureStarted", "validate", "captureSuperseded"]
+                if !captureDrainsLate { expected.append("captureDrained") }
+                expected += ["fifoFinished", "rearmRequested"]
+                if captureDrainsLate { expected.append("captureDrained") }
+                expected.append("freshCaptureStarted")
+                XCTAssertEqual(state.events, expected)
+                XCTAssertEqual(state.attempts.count, 2)
+                XCTAssertNotEqual(state.attempts.first, state.attempts.last)
+                XCTAssertTrue(state.singleFlight)
+                let retired = try await operation(image, s)
+                let invocation = try await s.dispatchInvocationID(for: retired.id)
+                XCTAssertEqual(retired.phase, .failed)
+                XCTAssertEqual(retired.attempt, 1)
+                XCTAssertNil(invocation, "Failed validation must never commit dispatch intent")
+                do { try await coordinator.select(selection); XCTFail("Original rejected click replayed") }
+                catch RiftletError.invalidTransition {}
+                try await coordinator.observePending()
+                let after = await calls.snapshot(), unchanged = try await operation(image, s)
+                XCTAssertEqual(after.events, state.events)
+                XCTAssertEqual(after.appendCount, 0)
+                XCTAssertEqual(after.reconcileCount, 0)
+                XCTAssertEqual(after.captureCount, 0, "Fresh observation demand must not recapture a click target")
+                XCTAssertEqual(unchanged, retired)
+            }
+        }
+    }
+
     func testStoreChecksRevisionAndExactTargetInsideIntentAndRevokedTokenStaysUnusable() async throws {
         let s = try store(), b = try await asset(s)
         let op = try await s.prepare(assetID: b.id, target: target())
@@ -327,6 +418,104 @@ final class AcceptedSelectionQueueTests: XCTestCase {
     }
 }
 
+/// Controls only the existing read-only arm scheduler. The adapter simulates
+/// the observed validation cancellation; real coordinator callbacks, FIFO
+/// retirement and SQLite state are exercised by the test above.
+private actor ValidationRearmCalls {
+    struct Snapshot: Sendable {
+        let events: [String]
+        let attempts: [UUID]
+        let singleFlight: Bool
+        let appendCount: Int
+        let reconcileCount: Int
+        let captureCount: Int
+    }
+    private var scheduler = TargetArmScheduler()
+    private let captureDrainsLate: Bool
+    private var oldCapture: TargetArmScheduler.Attempt?
+    private var events: [String] = []
+    private var attempts: [UUID] = []
+    private var singleFlight = true
+    private var appendCount = 0
+    private var reconcileCount = 0
+    private var captureCount = 0
+
+    init(captureDrainsLate: Bool) {
+        self.captureDrainsLate = captureDrainsLate
+        scheduler.start()
+        if let initial = scheduler.begin() { _ = scheduler.complete(initial) }
+    }
+    func uiSettledWithCaptureInFlight() {
+        events.append("uiSettled")
+        XCTAssertTrue(scheduler.request())
+        oldCapture = scheduler.begin()
+        if let oldCapture { attempts.append(oldCapture.id) }
+        singleFlight = singleFlight && scheduler.begin() == nil
+        events.append("captureStarted")
+    }
+    func validationSupersedesCapture() {
+        events += ["validate", "captureSuperseded"]
+        XCTAssertNotNil(oldCapture)
+        if !captureDrainsLate { drainOldCapture() }
+    }
+    private func drainOldCapture() {
+        guard let oldCapture else { XCTFail("Missing cancelled capture"); return }
+        events.append("captureDrained")
+        let completion = scheduler.complete(oldCapture)
+        self.oldCapture = nil
+        XCTAssertNotNil(completion)
+        if completion?.shouldWake == true { startFreshCapture() }
+    }
+    func fifoFinished() {
+        events += ["fifoFinished", "rearmRequested"]
+        let wake = scheduler.request()
+        if captureDrainsLate {
+            XCTAssertFalse(wake, "In-flight cancellation must drain before replacement")
+            singleFlight = singleFlight && scheduler.begin() == nil
+            drainOldCapture()
+        } else {
+            XCTAssertTrue(wake, "Finished FIFO must restore the lost observation demand")
+            if wake { startFreshCapture() }
+        }
+    }
+    private func startFreshCapture() {
+        guard let fresh = scheduler.begin() else { XCTFail("No replacement observation"); return }
+        attempts.append(fresh.id)
+        events.append("freshCaptureStarted")
+        singleFlight = singleFlight && scheduler.begin() == nil
+    }
+    func unexpectedAppend() { appendCount += 1 }
+    func unexpectedReconcile() { reconcileCount += 1 }
+    func unexpectedCapture() { captureCount += 1 }
+    func snapshot() -> Snapshot {
+        Snapshot(events: events, attempts: attempts, singleFlight: singleFlight,
+            appendCount: appendCount, reconcileCount: reconcileCount, captureCount: captureCount)
+    }
+}
+
+private actor ValidationRearmAdapter: AttachmentAdapter {
+    nonisolated let id = "accepted-fixture"
+    private let calls: ValidationRearmCalls
+    private let validationThrows: Bool
+    init(calls: ValidationRearmCalls, validationThrows: Bool) {
+        self.calls = calls; self.validationThrows = validationThrows
+    }
+    func captureTarget() async throws -> TargetLease {
+        await calls.unexpectedCapture(); throw RiftletError.invalidTransition
+    }
+    func validate(_ target: TargetLease) async throws -> Bool {
+        await calls.validationSupersedesCapture()
+        if validationThrows { throw RiftletError.invalidTransition }
+        return false
+    }
+    func append(_ request: TransferRequest) async throws -> TransferReceipt {
+        await calls.unexpectedAppend(); throw RiftletError.invalidTransition
+    }
+    func reconcile(_ request: TransferRequest) async throws -> TransferReceipt {
+        await calls.unexpectedReconcile(); throw RiftletError.invalidTransition
+    }
+}
+
 private actor ParkAuthority {
     private var valid = true
     func revoke() { valid = false }
@@ -336,7 +525,10 @@ private actor ParkAuthority {
 private actor ParkGate {
     private var entered = false
     private var continuation: CheckedContinuation<Void, Never>?
-    func pause() async { entered = true; await withCheckedContinuation { continuation = $0 } }
+    func pause(onEntered: @Sendable () -> Void = {}) async {
+        entered = true
+        await withCheckedContinuation { continuation = $0; onEntered() }
+    }
     func waitForEntry() async { while !entered { await Task.yield() } }
     func release() { continuation?.resume(); continuation = nil }
 }

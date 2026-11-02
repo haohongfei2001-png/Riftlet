@@ -1,7 +1,7 @@
 import Foundation
 import RiftletCore
 
-/// A native, durable scope registration for a newly dispatched internal test.
+/// A native, durable source/scope registration for a newly dispatched operation.
 /// It is neither upload-start evidence nor completion proof. No observation,
 /// recovery, old journal, argument or page JSON can create this registration.
 public actor SystemScreenshotCandidateAdmission {
@@ -18,21 +18,24 @@ public actor SystemScreenshotCandidateAdmission {
         let completionProfileID: String
         let identity: ObservationIdentity
         let enrollmentID: UUID
+        /// Absent only in the historical v1 registrations. New product records
+        /// bind source explicitly; original system records are never rewritten.
+        let assetOrigin: AssetOrigin?
     }
 
     /// Called only by append after local format and full-file SHA verification,
     /// before its first begin. Existing registrations authorize observation
     /// only; they can never authorize another append, even for the same request.
     func enroll(_ request: TransferRequest) async throws {
-        try SystemScreenshotWebCandidate.validateMetadata(request.asset)
+        try scope.validateMetadata(request.asset)
         try scope.validateTarget(request.operation.target)
         guard request.operation.phase == .dispatchIntent else { throw WebAdapterError.invalidRequest }
         let key = Self.checkpointKey(for: request, scope: scope)
         guard try await store.checkpoint(for: key) == nil else { throw WebAdapterError.invalidRequest }
-        let registration = Registration(version: 1, sourceID: SystemScreenshotWebCandidate.sourceID,
+        let registration = Registration(version: scope.isProduct ? 2 : 1, sourceID: SystemScreenshotWebCandidate.sourceID,
             startProfileID: scope.admittedProfile.uploadStartProfileID!,
             completionProfileID: scope.admittedProfile.profileID,
-            identity: Self.identity(for: request), enrollmentID: UUID())
+            identity: Self.identity(for: request), enrollmentID: UUID(), assetOrigin: scope.isProduct ? request.asset.origin : nil)
         let encoder = JSONEncoder(); encoder.outputFormatting = [.sortedKeys]
         let proposed = try encoder.encode(registration)
         // The store validates the actual persisted dispatch intent and full
@@ -64,7 +67,8 @@ public actor SystemScreenshotCandidateAdmission {
         }
         guard data.count <= 64 * 1024,
               let registration = try? JSONDecoder().decode(Registration.self, from: data),
-              registration.version == 1,
+              registration.version == (scope.isProduct ? 2 : 1),
+              registration.assetOrigin == (scope.isProduct ? scope.origin : nil),
               registration.sourceID == SystemScreenshotWebCandidate.sourceID,
               registration.startProfileID == scope.admittedProfile.uploadStartProfileID!,
               registration.completionProfileID == scope.admittedProfile.profileID,
@@ -82,19 +86,22 @@ public actor SystemScreenshotCandidateAdmission {
         }
         let encoder = JSONEncoder(); encoder.outputFormatting = [.sortedKeys]
         guard (try? encoder.encode(registration)) == data else { throw WebAdapterError.invalidRequest }
-        try SystemScreenshotWebCandidate.validateMetadata(request.asset)
+        try scope.validateMetadata(request.asset)
         try scope.validateTarget(request.operation.target)
         return true
     }
 
     /// Read-only compatibility for operations enrolled by the preceding ordinary
-    /// internal App in this same store. Never enrolls, repairs partial fences or
-    /// borrows candidate registrations. Malformed current registrations throw.
+    /// App in this same store. Never enrolls, repairs partial fences or borrows
+    /// candidate registrations. Malformed current registrations throw. Built-in
+    /// product images cannot borrow any system-only historical scope.
     func admittedObservationScope(for request: TransferRequest) async throws -> SystemScreenshotAdmissionScope? {
         if try await admits(request) { return scope }
-        guard scope == .ordinaryCurrentDraftInternal else { return nil }
-        let prior = SystemScreenshotCandidateAdmission(store: store, scope: .ordinary)
-        return try await prior.admits(request) ? .ordinary : nil
+        for original in scope.originalObservationScopes {
+            let prior = SystemScreenshotCandidateAdmission(store: store, scope: original)
+            if try await prior.admits(request) { return original }
+        }
+        return nil
     }
 
     static func checkpointKey(for request: TransferRequest, scope: SystemScreenshotAdmissionScope = .candidate) -> String {
