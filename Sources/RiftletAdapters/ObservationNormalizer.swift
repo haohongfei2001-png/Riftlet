@@ -101,6 +101,13 @@ public struct ObservationNormalizer: Sendable {
             || (item.requestEvidence.map { $0.invocationID != invocation } ?? false) {
             throw ObservationError.identityMismatch
         }
+        // Even unadmitted candidates must describe this original asset before
+        // they enter its private journal. Capability absence does not excuse a
+        // different byte-count claim carrying the same echoed SHA string.
+        let candidateTasks = [item.terminationEvidence?.task, item.continuationEvidence?.taskIsolation.task].compactMap { $0 }
+        guard candidateTasks.allSatisfy({ $0.matches(asset: request.asset) }) else {
+            throw ObservationError.identityMismatch
+        }
         let exactMember = item.exactImageIdentity && item.belongsToOriginalDraft
         let identifiedAttachment = item.attachmentID != nil && !item.attachmentAbsent
         let cleanAttachment = exactMember && identifiedAttachment && !item.hasError && !item.isUploading

@@ -170,6 +170,12 @@ final class AttachmentEvidenceV4Tests: XCTestCase {
             task["version"] = 2; proof["task"] = task; item["terminationEvidence"] = proof
         }
         XCTAssertThrowsError(try ObservationDecoder.decode(malformed))
+        let wrongBytes = try mutate(envelope) { item in
+            var proof = item["terminationEvidence"] as! [String: Any]
+            var task = proof["task"] as! [String: Any]
+            task["originalByteCount"] = 129; proof["task"] = task; item["terminationEvidence"] = proof
+        }
+        XCTAssertThrowsError(try normalize(ObservationDecoder.decode(wrongBytes), request))
         let scoped = try normalize(envelope, request, profile: .init(adapterID: "chatgpt-web", surface: .webChat,
             profileID: "fixture-v4", failureSignal: .terminalErrorAndNoResidual,
             terminationProfileID: "synthetic-retirement"))
