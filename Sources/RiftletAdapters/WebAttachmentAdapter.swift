@@ -72,7 +72,7 @@ public enum WebAdapterError: Error, Equatable, Sendable {
 /// One transport shared by source-scoped ordinary and isolated test compositions.
 /// Each start/completion scope is assigned only to registered new
 /// operations; historical operations retain their observation-only profiles.
-public actor WebAttachmentAdapter: AttachmentAdapter {
+public actor WebAttachmentAdapter: InputPhasedAttachmentAdapter {
     public nonisolated let id: String
     private let mediaDirectory: URL
     private nonisolated let executor: any WebBridgeExecutor
@@ -85,7 +85,10 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
     private let productOrigins: Set<AssetOrigin>
     private let productBindings: [AssetOrigin: (admission: SystemScreenshotCandidateAdmission, journal: SystemScreenshotObservationJournal)]
     private let onInputTransportFinished: (@Sendable () async -> Void)?
-    private var inputInFlight = false
+    // The transport lease is released only by its own original append. A prior
+    // observer finishing must never unlock a later operation's begin/commit.
+    private var inputOwner: UUID?
+    private var activeAppendTargets: [UUID: TargetLease] = [:]
     // Lightweight identity tombstones, never file buffers. A repeated request
     // must not turn an earlier external input into local-before-begin proof.
     private var enteredOperations = Set<UUID>()
@@ -175,16 +178,34 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
     }
 
     public func append(_ request: TransferRequest) async throws -> TransferReceipt {
+        try await append(request, inputConfirmed: nil)
+    }
+
+    public func append(_ request: TransferRequest,
+                       onInputConfirmed: @escaping @Sendable (TransferReceipt) async -> Void) async throws -> TransferReceipt {
+        try await append(request, inputConfirmed: onInputConfirmed)
+    }
+
+    private func append(_ request: TransferRequest,
+                        inputConfirmed: (@Sendable (TransferReceipt) async -> Void)?) async throws -> TransferReceipt {
         try requireEnabled()
         try check(request.operation.target)
         try checkNewInputScope(request.operation.target)
         try checkOrigin(request.asset)
         guard request.operation.assetID == request.asset.id,
               request.operation.phase == .dispatchIntent else { throw WebAdapterError.invalidRequest }
-        guard !inputInFlight else { throw WebAdapterError.inputInFlight }
+        guard inputOwner == nil,
+              activeAppendTargets.values.allSatisfy({ request.operation.target.hasIndependentInputDocument(from: $0) }) else {
+            throw WebAdapterError.inputInFlight
+        }
         guard enteredOperations.insert(request.operation.id).inserted else { throw WebAdapterError.invalidRequest }
-        inputInFlight = true
-        defer { inputInFlight = false }
+        let operationID = request.operation.id
+        inputOwner = operationID
+        activeAppendTargets[operationID] = request.operation.target
+        defer {
+            releaseInput(ownedBy: operationID)
+            activeAppendTargets.removeValue(forKey: operationID)
+        }
 
         let input: (response: Data, identity: ObservationIdentity)
         do { input = try await performFileInput(request) }
@@ -192,12 +213,15 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
             await onInputTransportFinished?()
             throw error
         }
-        // Scheduling notification only: commit may still be UNKNOWN. Resume
-        // displaced target discovery before waiting for START or completion;
-        // the original input exclusion and operation tombstone remain held.
+        // Scheduling notification only: commit may still be UNKNOWN. Neither
+        // this notification nor a bare commit reply releases the input lease.
         await onInputTransportFinished?()
         return try await observeCompletion(initial: input.response, identity: input.identity,
-            request: request, liveAppend: true)
+            request: request, liveAppend: true, inputConfirmed: inputConfirmed)
+    }
+
+    private func releaseInput(ownedBy operationID: UUID) {
+        if inputOwner == operationID { inputOwner = nil }
     }
 
     private func performFileInput(_ request: TransferRequest) async throws
@@ -313,9 +337,11 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
     }
 
     private func observeCompletion(initial: Data, identity: ObservationIdentity,
-                                   request: TransferRequest, liveAppend: Bool = false) async throws -> TransferReceipt {
+                                   request: TransferRequest, liveAppend: Bool = false,
+                                   inputConfirmed: (@Sendable (TransferReceipt) async -> Void)? = nil) async throws -> TransferReceipt {
         let deadline = ProcessInfo.processInfo.systemUptime + polling.timeout
         var response = initial
+        var didConfirmInput = false
         while true {
             let envelope = try ObservationDecoder.decode(response)
             // Only the still-running original append may consume a positive
@@ -324,6 +350,19 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
                 throw rejection
             }
             let receipt = try await normalize(envelope, for: request, liveAppend: liveAppend)
+            if liveAppend, !didConfirmInput, let inputConfirmed,
+               receipt.outcome == .inputTriggered || receipt.outcome == .uploadStarted,
+               receipt.operationID == request.operation.id, receipt.assetID == request.asset.id,
+               receipt.attempt == request.operation.attempt, receipt.assetSHA256 == request.asset.sha256,
+               receipt.target == request.operation.target, receipt.belongsToOriginalDraft, !receipt.hasError {
+                // This is a normalized positive fact from the original page
+                // operation, including delayed input after asynchronous hashing.
+                // It releases only this transport lease; the original observer,
+                // its replay tombstone and same-draft exclusion remain alive.
+                didConfirmInput = true
+                releaseInput(ownedBy: request.operation.id)
+                await inputConfirmed(receipt)
+            }
             // Positive start returns without waiting for completion. Core policy
             // independently admits visual exit; subsequent calls only observe.
             if receipt.outcome == .uploadStarted { return receipt }

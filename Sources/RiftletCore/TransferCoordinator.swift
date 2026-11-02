@@ -30,6 +30,34 @@ public extension AttachmentAdapter {
     func preflight(asset: ImportedAsset, fileURL: URL) async throws {}
 }
 
+/// The original append remains the sole owner of input and its live observation.
+/// This optional boundary reports positively observed file input, NOT a raw
+/// commit return, upload start, retry permission or completion. The callback
+/// never replaces the eventual append receipt or its invocation checkpoint.
+public protocol InputPhasedAttachmentAdapter: AttachmentAdapter {
+    func append(_ request: TransferRequest,
+                onInputConfirmed: @escaping @Sendable (TransferReceipt) async -> Void) async throws -> TransferReceipt
+}
+
+private actor InputPhaseBoundary {
+    private var result: Result<Void, Error>?
+    private var waiter: CheckedContinuation<Result<Void, Error>, Never>?
+
+    func finish(_ value: Result<Void, Error> = .success(())) {
+        guard result == nil else { return }
+        result = value
+        waiter?.resume(returning: value); waiter = nil
+    }
+
+    func wait() async throws {
+        let value = await withCheckedContinuation { continuation in
+            if let result { continuation.resume(returning: result) }
+            else { waiter = continuation }
+        }
+        try value.get()
+    }
+}
+
 public actor TransferCoordinator {
     private let store: QueueStore
     private let dispatchOwnerID = UUID()
@@ -54,6 +82,9 @@ public actor TransferCoordinator {
     private var operationSelections: [UUID: AcceptedSelection] = [:]
     private var expiryTasks: [UUID: Task<Void, Never>] = [:]
     private var drainRequested = false
+    // Bounded original calls, never detached retry jobs. Entries survive the
+    // input boundary until the SAME append returns START/terminal/unknown.
+    private var activeAppends: [UUID: TransferRequest] = [:]
 
     public init(store: QueueStore, adapter: any AttachmentAdapter, mediaDirectory: URL,
                 policy: ReceiptPolicy = .init(), onChange: @escaping @Sendable () async -> Void = {},
@@ -70,7 +101,8 @@ public actor TransferCoordinator {
         self.onAcceptedSelectionFinished = onAcceptedSelectionFinished
     }
 
-    /// Starts immediately; callers may await completion without blocking the main run loop.
+    /// Starts immediately. A phased Web adapter may return control after exact
+    /// input confirmation; its original bounded START observation stays owned here.
     public func select(_ assetID: UUID, visibilityRevision: Int64? = nil) async throws {
         try await select(assetID, target: nil, allowCapture: true, visibilityRevision: visibilityRevision)
     }
@@ -306,6 +338,13 @@ public actor TransferCoordinator {
             guard let op = try await store.operation(id: id), op.phase == .prepared else {
                 advanceWaiting(id, selection: accepted); continue
             }
+            // Preserve input FIFO and the old conservative behavior outside the
+            // proven distinct-document scope. Do this BEFORE dispatchIntent so
+            // an occupied lane cannot manufacture an unsubmitted UNKNOWN.
+            guard activeAppends.count < maximumPendingSelections,
+                  activeAppends.values.allSatisfy({ op.target.hasIndependentInputDocument(from: $0.operation.target) }) else {
+                return
+            }
             if let accepted {
                 guard accepted.isValid(), await validateAcceptedSelection(accepted), accepted.isValid() else {
                     try await cancelIfPrepared(id, reason: "Original selection no longer authorized; no input occurred")
@@ -355,29 +394,84 @@ public actor TransferCoordinator {
                 advanceWaiting(id, selection: accepted); await onChange(); continue
             }
             advanceWaiting(id, selection: accepted)
+            let committedRequest: TransferRequest
             do {
                 guard let committed = try await store.operation(id: id) else { throw RiftletError.operationNotFound }
-                let committedRequest = try await self.request(for: committed)
-                let receipt = try await adapter.append(committedRequest)
-                _ = try await store.apply(receipt, policy: policy)
-                if let invocationID = committedRequest.invocationID {
-                    try await store.recordAppendReturned(receipt, invocationID: invocationID, ownerID: dispatchOwnerID)
-                }
-                if receipt.outcome == .inputTriggered || receipt.outcome == .attachedCandidate {
-                    // Observation may return a candidate, never a synthetic success timeout.
-                    try await store.markUnknown(id, reason: "Input observed; conclusive completion is unavailable")
-                }
-            } catch let rejection as PreInputRejection {
-                do {
-                    guard rejection.operationID == id else { throw RiftletError.mismatchedReceipt }
-                    try await store.recordPreInputRejection(rejection)
-                }
-                catch { try await store.markUnknown(id, reason: "Invalid pre-input proof; original operation retained") }
+                committedRequest = try await self.request(for: committed)
             } catch {
-                // Includes a transport crash or a malformed/mismatched reply after intent.
-                try await store.markUnknown(id, reason: "No trustworthy completion after input intent")
+                // Intent is already durable and its FIFO slot is retired. A
+                // failed local reread must retain UNKNOWN, never strand an
+                // invisible dispatchIntent or attempt the input a second time.
+                try await store.markUnknown(id, reason: "Original request unavailable after input intent")
+                await onChange(); continue
             }
-            await onChange()
+            if let phased = adapter as? any InputPhasedAttachmentAdapter {
+                let boundary = InputPhaseBoundary()
+                activeAppends[id] = committedRequest
+                Task { await self.runPhasedAppend(committedRequest, adapter: phased, boundary: boundary) }
+                try await boundary.wait()
+            } else {
+                try await finishOriginalAppend(committedRequest) { try await self.adapter.append(committedRequest) }
+                await onChange()
+            }
+        }
+    }
+
+    private func inputConfirmed(_ receipt: TransferReceipt, request: TransferRequest,
+                                boundary: InputPhaseBoundary) async {
+        let original = request.operation
+        guard let owner = activeAppends[original.id], owner.invocationID == request.invocationID,
+              request.invocationID != nil, receipt.operationID == original.id,
+              receipt.assetID == original.assetID, receipt.attempt == original.attempt,
+              receipt.assetSHA256 == request.asset.sha256, receipt.target == original.target,
+              receipt.belongsToOriginalDraft, !receipt.hasError,
+              receipt.outcome == .inputTriggered || receipt.outcome == .uploadStarted else { return }
+        // No receipt persistence or visibility change here. In particular, this
+        // cannot grant START admission, swallow, retry or same-draft continuation.
+        await boundary.finish()
+    }
+
+    private func runPhasedAppend(_ request: TransferRequest, adapter: any InputPhasedAttachmentAdapter,
+                                 boundary: InputPhaseBoundary) async {
+        let result: Result<Void, Error>
+        do {
+            try await finishOriginalAppend(request) {
+                try await adapter.append(request) { receipt in
+                    await self.inputConfirmed(receipt, request: request, boundary: boundary)
+                }
+            }
+            result = .success(())
+        } catch { result = .failure(error) }
+        activeAppends.removeValue(forKey: request.operation.id)
+        await boundary.finish(result)
+        await onChange()
+        // A held same-draft/legacy/capacity head only wakes after the original
+        // call ends, and still passes the unchanged atomic QueueStore lock.
+        try? await drain()
+    }
+
+    private func finishOriginalAppend(_ committedRequest: TransferRequest,
+                                     append: () async throws -> TransferReceipt) async throws {
+        let id = committedRequest.operation.id
+        do {
+            let receipt = try await append()
+            _ = try await store.apply(receipt, policy: policy)
+            if let invocationID = committedRequest.invocationID {
+                try await store.recordAppendReturned(receipt, invocationID: invocationID, ownerID: dispatchOwnerID)
+            }
+            if receipt.outcome == .inputTriggered || receipt.outcome == .attachedCandidate {
+                // Observation may return a candidate, never a synthetic success timeout.
+                try await store.markUnknown(id, reason: "Input observed; conclusive completion is unavailable")
+            }
+        } catch let rejection as PreInputRejection {
+            do {
+                guard rejection.operationID == id else { throw RiftletError.mismatchedReceipt }
+                try await store.recordPreInputRejection(rejection)
+            }
+            catch { try await store.markUnknown(id, reason: "Invalid pre-input proof; original operation retained") }
+        } catch {
+            // Includes a transport crash or a malformed/mismatched reply after intent.
+            try await store.markUnknown(id, reason: "No trustworthy completion after input intent")
         }
     }
 
@@ -390,7 +484,7 @@ public actor TransferCoordinator {
 
     private func reconcile(_ op: TransferOperation) async throws {
         guard op.target.adapterID == adapter.id else { throw RiftletError.adapterUnavailable("Original adapter is unavailable") }
-        guard observing.insert(op.id).inserted else { return }
+        guard activeAppends[op.id] == nil, observing.insert(op.id).inserted else { return }
         defer { observing.remove(op.id) }
         let original = try await request(for: op)
         let receipt = try await adapter.reconcile(original)
