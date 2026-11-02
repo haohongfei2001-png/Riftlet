@@ -1,0 +1,130 @@
+{
+  "sourceSHA256": "af11f4ce288ca0f5960ee8f6c3baa2e5f90532bf5eb7d160efe4fd974b90d051",
+  "browser": "151.0.7922.34",
+  "driver": "1.62.1",
+  "scope": "headless synthetic DOM with real PNG decoder and sRGB canvas; not live ChatGPT, transport or original server bytes",
+  "cases": [
+    {
+      "switchedState": null,
+      "backgroundExercised": null,
+      "name": "old encoding gate reproduces missing proof",
+      "result": "PASS",
+      "observation": "inputTriggered",
+      "originalBytes": 1152567,
+      "previewBytes": 10082998,
+      "counts": {
+        "change": 1,
+        "send": 0,
+        "oversizedDecode": 0
+      },
+      "requestMode": null,
+      "uniqueExactBodyRequests": 0,
+      "network": "all document/request URLs intercepted; no external network"
+    },
+    {
+      "switchedState": null,
+      "backgroundExercised": null,
+      "name": "expanded PNG exact same dimensions and pixels",
+      "result": "PASS",
+      "observation": "attached",
+      "originalBytes": 1152567,
+      "previewBytes": 10082998,
+      "counts": {
+        "change": 1,
+        "send": 0,
+        "oversizedDecode": 0
+      },
+      "requestMode": null,
+      "uniqueExactBodyRequests": 0,
+      "network": "all document/request URLs intercepted; no external network"
+    },
+    {
+      "switchedState": {
+        "visibility": "visible",
+        "focus": true
+      },
+      "backgroundExercised": false,
+      "name": "pinned A after bringToFront B (inspect actual focus)",
+      "result": "PASS",
+      "observation": "attached",
+      "originalBytes": 1152567,
+      "previewBytes": 10082998,
+      "counts": {
+        "change": 1,
+        "send": 0,
+        "oversizedDecode": 0
+      },
+      "requestMode": null,
+      "uniqueExactBodyRequests": 0,
+      "network": "all document/request URLs intercepted; no external network"
+    },
+    {
+      "switchedState": null,
+      "backgroundExercised": null,
+      "name": "one visible channel changed",
+      "result": "PASS",
+      "observation": "invalidated",
+      "originalBytes": 1152567,
+      "previewBytes": 10082998,
+      "counts": {
+        "change": 1,
+        "send": 0,
+        "oversizedDecode": 0
+      },
+      "requestMode": null,
+      "uniqueExactBodyRequests": 0,
+      "network": "all document/request URLs intercepted; no external network"
+    },
+    {
+      "switchedState": null,
+      "backgroundExercised": null,
+      "name": "smaller preview cannot prove original",
+      "result": "PASS",
+      "observation": "invalidated",
+      "originalBytes": 1152567,
+      "previewBytes": 2521143,
+      "counts": {
+        "change": 1,
+        "send": 0,
+        "oversizedDecode": 0
+      },
+      "requestMode": null,
+      "uniqueExactBodyRequests": 0,
+      "network": "all document/request URLs intercepted; no external network"
+    },
+    {
+      "switchedState": null,
+      "backgroundExercised": null,
+      "name": "native XHR exact File body and separate full-pixel completion",
+      "result": "PASS",
+      "observation": "attached",
+      "originalBytes": 1152567,
+      "previewBytes": 10082998,
+      "counts": {
+        "change": 1,
+        "send": 0,
+        "oversizedDecode": 0
+      },
+      "requestMode": "xhr",
+      "uniqueExactBodyRequests": 1,
+      "network": "all document/request URLs intercepted; no external network"
+    },
+    {
+      "switchedState": null,
+      "backgroundExercised": null,
+      "name": "fetch exact File body with response intentionally unobserved",
+      "result": "PASS",
+      "observation": "attached",
+      "originalBytes": 1152567,
+      "previewBytes": 10082998,
+      "counts": {
+        "change": 1,
+        "send": 0,
+        "oversizedDecode": 0
+      },
+      "requestMode": "fetch",
+      "uniqueExactBodyRequests": 1,
+      "network": "all document/request URLs intercepted; no external network"
+    }
+  ]
+}

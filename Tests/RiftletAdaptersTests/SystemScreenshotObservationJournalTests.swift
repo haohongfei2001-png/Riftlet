@@ -61,6 +61,46 @@ final class SystemScreenshotObservationJournalTests: XCTestCase {
                                         from: XCTUnwrap(data)).envelope
     }
 
+    func testOriginalRequestFactsRetainFirstTerminalAcrossRestartWithoutChangingOperation() async throws {
+        let (store, request, database) = try await fixture()
+        let originalInvocation = try await store.dispatchInvocationID(for: request.operation.id)
+        let invocation = try XCTUnwrap(originalInvocation)
+        func observation(terminal: Bool, invocationID: UUID) throws -> AttachmentObservationEnvelope {
+            var record: [String: Any] = ["requestID": 1, "transport": "xhr", "requestSequence": 2, "requestedAtMS": 2]
+            if terminal {
+                record.merge(["terminal": "aborted", "terminalSequence": 3, "terminalAtMS": 3, "status": 0]) { _, new in new }
+            }
+            let facts: [String: Any] = ["version": 1, "invocationID": invocationID.uuidString,
+                "inputCount": 1, "inputSequence": 1, "inputObservedAtMS": 1, "fileSHA256": request.asset.sha256,
+                "coverage": "exactOriginalFileOnly", "observationClosed": false, "requests": [record]]
+            let decoded = try JSONDecoder().decode(ObservedRequestEvidence.self, from: JSONSerialization.data(withJSONObject: facts))
+            return .init(schemaVersion: 4, provenance: .init(source: .integratedDevelopment, evidenceID: "request-fact-fixture"),
+                observation: .init(identity: envelope(request, state: .inputTriggered).observation.identity,
+                    state: .inputTriggered, belongsToOriginalDraft: true, requestEvidence: decoded))
+        }
+        let journal = SystemScreenshotObservationJournal(store: store)
+        let first = try observation(terminal: false, invocationID: invocation)
+        try await journal.record(first, for: request)
+        let terminal = try observation(terminal: true, invocationID: invocation)
+        try await journal.record(terminal, for: request)
+        let retainedInput = try await saved(store, request, .input)
+        let retainedRequest = try await saved(store, request, .originalRequest)
+        let retainedTerminal = try await saved(store, request, .originalRequestTerminal)
+        XCTAssertEqual(retainedInput, first); XCTAssertEqual(retainedRequest, first)
+        XCTAssertEqual(retainedTerminal, terminal)
+        let restarted = try QueueStore(databaseURL: database)
+        let restored = try await saved(restarted, request, .originalRequestTerminal)
+        XCTAssertEqual(restored, terminal)
+        let operation = try await restarted.operation(id: request.operation.id)
+        XCTAssertEqual(operation, request.operation)
+        do {
+            try await journal.record(observation(terminal: true, invocationID: UUID()), for: request)
+            XCTFail("Wrong invocation cannot write original request facts")
+        } catch {
+            XCTAssertEqual(error as? SystemScreenshotObservationJournalError, .persistentIdentityMismatch)
+        }
+    }
+
     func testPreservesFirstSixCategoriesAcrossRestartWithoutChangingQueue() async throws {
         let (store, request, database) = try await fixture()
         let journal = SystemScreenshotObservationJournal(store: store)

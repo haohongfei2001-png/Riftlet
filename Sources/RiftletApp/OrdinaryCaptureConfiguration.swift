@@ -108,7 +108,8 @@ struct OrdinaryAttachmentAdmission {
             // Old scopes may have registered input-only operations without
             // start/completion approval. Observe their original journal, but do
             // not promote them merely because a new product is now enabled.
-            return ReceiptPolicy(admittedProfiles: completions, uploadStartProfiles: starts, profileOrigins: origins)
+            return ReceiptPolicy(admittedProfiles: completions, uploadStartProfiles: starts, profileOrigins: origins,
+                requiredCompletionEvidenceProfiles: Set(completions.keys))
         }
         if allowsStart { starts[OrdinarySystemScreenshotScope.admittedUploadStartProfileID] = .webChat }
         if allowsCompletion { completions[OrdinarySystemScreenshotScope.admittedCompletionProfileID] = .webChat }

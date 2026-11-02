@@ -17,13 +17,21 @@ public struct ObservationProfile: Sendable {
     public let completionSignal: ObservationCompletionSignal?
     public let failureSignal: ObservationFailureSignal?
     public let uploadStartProfileID: String?
+    public let platformCompletionProfileID: String?
+    public let terminationProfileID: String?
+    public let continuationProfileID: String?
 
     public init(adapterID: String, surface: TargetSurface, profileID: String,
                 completionSignal: ObservationCompletionSignal? = nil,
-                failureSignal: ObservationFailureSignal? = nil, uploadStartProfileID: String? = nil) {
+                failureSignal: ObservationFailureSignal? = nil, uploadStartProfileID: String? = nil,
+                platformCompletionProfileID: String? = nil, terminationProfileID: String? = nil,
+                continuationProfileID: String? = nil) {
         self.adapterID = adapterID; self.surface = surface; self.profileID = profileID
         self.completionSignal = completionSignal; self.failureSignal = failureSignal
         self.uploadStartProfileID = uploadStartProfileID
+        self.platformCompletionProfileID = platformCompletionProfileID
+        self.terminationProfileID = terminationProfileID
+        self.continuationProfileID = continuationProfileID
     }
 }
 
@@ -37,7 +45,7 @@ public struct ObservationNormalizer: Sendable {
     }
 
     public func receipt(from envelope: AttachmentObservationEnvelope,
-                        for request: TransferRequest) throws -> TransferReceipt {
+                        for request: TransferRequest, liveAppend: Bool = false) throws -> TransferReceipt {
         try ObservationDecoder.validate(envelope)
         let item = envelope.observation
         let identity = item.identity
@@ -84,6 +92,15 @@ public struct ObservationNormalizer: Sendable {
         var positiveReady = false
         var safeToRetry = false
         var uploadStartEvidence: UploadStartEvidence?
+        var terminationEvidence: AttachmentTerminationEvidence?
+        var continuationEvidence: AttachmentContinuationEvidence?
+        let proofBindings = [item.completionEvidence?.binding, item.terminationEvidence?.binding,
+            item.continuationEvidence?.binding].compactMap { $0 }
+        if let invocation = request.invocationID,
+           proofBindings.contains(where: { $0.invocationID != invocation })
+            || (item.requestEvidence.map { $0.invocationID != invocation } ?? false) {
+            throw ObservationError.identityMismatch
+        }
         let exactMember = item.exactImageIdentity && item.belongsToOriginalDraft
         let identifiedAttachment = item.attachmentID != nil && !item.attachmentAbsent
         let cleanAttachment = exactMember && identifiedAttachment && !item.hasError && !item.isUploading
@@ -96,6 +113,13 @@ public struct ObservationNormalizer: Sendable {
                 outcome = .uploadStarted
                 uploadStartEvidence = UploadStartEvidence(profileID: startProfile,
                     signal: start.signal, evidenceID: start.evidenceID, inputCount: start.inputCount)
+                if liveAppend, let observed = item.continuationEvidence,
+                   let invocation = request.invocationID, observed.binding.invocationID == invocation,
+                   let continuationProfile = profile.continuationProfileID {
+                    continuationEvidence = AttachmentContinuationEvidence(version: 2,
+                        profileID: continuationProfile, evidenceID: observed.evidenceID, invocationID: invocation,
+                        binding: observed.binding, taskIsolation: observed.taskIsolation)
+                }
             } else if operation.phase != .succeeded && operation.phase != .compensated {
                 outcome = .inputTriggered
             }
@@ -110,9 +134,26 @@ public struct ObservationNormalizer: Sendable {
                 }
                 positiveReady = matches
                 outcome = matches ? .verifiedReady : .attachedCandidate
+                if item.completionEvidence?.kind == .platformFinalizedOriginal {
+                    // A generic HTTP response cannot acquire this profile. No
+                    // shipping platform decoder currently supplies this path.
+                    // Keep the original receipt profile across START, COMPLETE
+                    // and late failure. A separate capability may admit platform
+                    // semantics for that profile; it must not rename the operation.
+                    if profile.platformCompletionProfileID != profile.profileID {
+                        positiveReady = false; outcome = .attachedCandidate
+                    }
+                }
             }
         case .failed:
-            if profile.failureSignal != nil, exactMember, item.hasError,
+            if let observed = item.terminationEvidence, let terminationProfile = profile.terminationProfileID,
+               profile.failureSignal != nil, exactMember, item.hasError,
+               item.attachmentAbsent, item.attachmentID != nil, item.automaticRetryExcluded, !item.isUploading {
+                terminationEvidence = AttachmentTerminationEvidence(profileID: terminationProfile,
+                    evidenceID: observed.evidenceID, binding: observed.binding, task: observed.task,
+                    retirementID: observed.retirementID, kind: observed.kind)
+                outcome = .definitiveFailure; safeToRetry = true
+            } else if envelope.schemaVersion < 4, profile.failureSignal != nil, exactMember, item.hasError,
                item.attachmentAbsent, item.attachmentID == nil,
                item.automaticRetryExcluded, !item.isUploading {
                 outcome = .definitiveFailure; safeToRetry = true
@@ -122,13 +163,23 @@ public struct ObservationNormalizer: Sendable {
         }
 
         // Reasons are bounded code-owned labels. Do not persist arbitrary page/error text.
-        return TransferReceipt(operationID: operation.id, assetID: request.asset.id,
+        let receipt = TransferReceipt(operationID: operation.id, assetID: request.asset.id,
             attempt: operation.attempt, assetSHA256: request.asset.sha256,
             target: operation.target, outcome: outcome, profileID: profile.profileID,
             attachmentID: item.attachmentID, positiveReady: positiveReady,
             belongsToOriginalDraft: item.belongsToOriginalDraft,
             hasError: item.hasError, isUploading: item.isUploading, safeToRetry: safeToRetry,
             reason: "observer-v\(envelope.schemaVersion):\(item.state.rawValue):\(envelope.provenance.source.rawValue)",
-            uploadStartEvidence: uploadStartEvidence)
+            uploadStartEvidence: uploadStartEvidence, continuationEvidence: continuationEvidence,
+            completionEvidence: item.completionEvidence, terminationEvidence: terminationEvidence)
+        if let proof = item.completionEvidence, !proof.validates(receipt: receipt, asset: request.asset) {
+            throw ObservationError.invalidField("completion identity chain")
+        }
+        if let proof = terminationEvidence, !proof.validates(receipt: receipt, asset: request.asset) {
+            throw ObservationError.invalidField("termination identity chain")
+        }
+        // Core additionally checks the durable original invocation and independent
+        // admission; restart/reconcile never manufacture continuation eligibility.
+        return receipt
     }
 }

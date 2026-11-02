@@ -8,7 +8,7 @@ public enum SystemScreenshotObservationJournalError: Error, Equatable, Sendable 
 
 /// Private candidate evidence, not a receipt policy or an upload-start fact.
 /// The existing SQLite checkpoint transaction preserves the first observation in
-/// each of six bounded categories. Nothing here changes queue visibility, marks
+/// each bounded category, including original byte-request observations. Nothing here changes queue visibility, marks
 /// success, grants retry, reconstructs a selection, or reads image bytes.
 public actor SystemScreenshotObservationJournal {
     private let store: QueueStore
@@ -33,22 +33,34 @@ public actor SystemScreenshotObservationJournal {
               operation.phase.isUnresolved || operation.phase == .succeeded else {
             throw SystemScreenshotObservationJournalError.persistentIdentityMismatch
         }
-        guard let slot = Slot.classify(envelope.observation) else { return }
+        let invocations = [envelope.observation.requestEvidence?.invocationID,
+            envelope.observation.completionEvidence?.binding.invocationID,
+            envelope.observation.terminationEvidence?.binding.invocationID,
+            envelope.observation.continuationEvidence?.binding.invocationID].compactMap { $0 }
+        if !invocations.isEmpty {
+            guard let original = try await store.dispatchInvocationID(for: operation.id),
+                  invocations.allSatisfy({ $0 == original }) else {
+                throw SystemScreenshotObservationJournalError.persistentIdentityMismatch
+            }
+        }
+        let slots = Slot.classifyAll(envelope.observation)
+        guard !slots.isEmpty else { return }
         let wrapper = Entry(schemaVersion: 1, envelope: envelope)
         let encoder = JSONEncoder(); encoder.outputFormatting = [.sortedKeys]
         let data = try encoder.encode(wrapper)
         guard data.count <= ObservationDecoder.maximumPayloadBytes else {
             throw SystemScreenshotObservationJournalError.invalidCheckpoint
         }
-        let retained = try await store.saveCheckpointIfAbsent(data, for: Self.checkpointKey(request, slot: slot, scope: scope))
-        // This also checks a first record loaded after restart or written by a
-        // second observer. A corrupt or different-target first record is never
-        // replaced to make a newer observation appear acceptable.
-        let original = try Self.decode(retained)
-        try Self.validate(original.envelope, for: request, scope: scope)
-        guard Slot.classify(original.envelope.observation) == slot,
-              original.envelope.provenance == envelope.provenance else {
-            throw SystemScreenshotObservationJournalError.conflictingCheckpoint
+        for slot in slots {
+            let retained = try await store.saveCheckpointIfAbsent(data, for: Self.checkpointKey(request, slot: slot, scope: scope))
+            // A corrupt or different-target first record is never replaced to
+            // make a newer observation appear acceptable, even after restart.
+            let original = try Self.decode(retained)
+            try Self.validate(original.envelope, for: request, scope: scope)
+            guard Slot.classifyAll(original.envelope.observation).contains(slot),
+                  original.envelope.provenance == envelope.provenance else {
+                throw SystemScreenshotObservationJournalError.conflictingCheckpoint
+            }
         }
     }
 
@@ -73,6 +85,20 @@ public actor SystemScreenshotObservationJournal {
     /// These are code-owned audit categories, never values selected by page JSON.
     enum Slot: String, CaseIterable {
         case input, start, attached, ready, errorOrInvalidated, unknown
+        case originalRequest, originalRequestTerminal, requestObservationClosed
+        case terminationProof, independentTaskProof
+
+        static func classifyAll(_ item: AttachmentObservation) -> [Slot] {
+            var result = classify(item).map { [$0] } ?? []
+            if let facts = item.requestEvidence {
+                if !facts.requests.isEmpty { result.append(.originalRequest) }
+                if facts.requests.contains(where: { $0.terminal != nil }) { result.append(.originalRequestTerminal) }
+                if facts.observationClosed { result.append(.requestObservationClosed) }
+            }
+            if item.terminationEvidence != nil { result.append(.terminationProof) }
+            if item.continuationEvidence != nil { result.append(.independentTaskProof) }
+            return result
+        }
 
         static func classify(_ item: AttachmentObservation) -> Slot? {
             if item.hasError || item.state == .invalidated { return .errorOrInvalidated }

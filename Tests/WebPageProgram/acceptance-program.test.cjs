@@ -204,6 +204,327 @@ function withInvocation(op, invocationID = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa
   return op;
 }
 
+function requestFixture(options = {}) {
+  const f=fixture(options), fetchCalls=[], xhrCalls=[];
+  let fetchBehavior=()=>Promise.resolve({status:201}), sendBehavior=()=>{};
+  class Events {
+    constructor(){this.listeners=new Map();}
+    addEventListener(type,fn,options={}){const list=this.listeners.get(type)||[];list.push({fn,once:options.once});this.listeners.set(type,list);}
+    removeEventListener(type,fn){this.listeners.set(type,(this.listeners.get(type)||[]).filter(entry=>entry.fn!==fn));}
+    emit(type,values={}){for(const entry of [...(this.listeners.get(type)||[])]){
+      entry.fn({type,...values});if(entry.once)this.listeners.set(type,(this.listeners.get(type)||[]).filter(item=>item!==entry));}}
+  }
+  class XHR extends Events {
+    constructor(){super();this.upload=new Events();this.status=0;}
+    open(...args){this.openArgs=args;}
+    send(...args){xhrCalls.push({xhr:this,args});return sendBehavior(this,...args);}
+  }
+  const nativeFetch=function(...args){const result=fetchBehavior(...args);fetchCalls.push({receiver:this,args,result});return result;};
+  f.context.fetch=nativeFetch;f.context.XMLHttpRequest=XHR;
+  return {...f,fetchCalls,xhrCalls,XHR,nativeFetch,
+    setFetch:fn=>{fetchBehavior=fn;},setSend:fn=>{sendBehavior=fn;},
+    changed:fn=>{const list=f.events.get('change')||[];list.push(event=>fn(event.target.files[0]));f.events.set('change',list);}};
+}
+
+test('exact original File request facts wait for positive input hash and preserve fetch Promise/arguments', async () => {
+  const f=requestFixture({blockedInputDigest:true}),op=withInvocation(f.bind());let originalPromise,returned,privateReads=0;
+  const response={status:201,get body(){privateReads++;throw Error('must not read');},get headers(){privateReads++;throw Error('must not read');}};
+  f.setFetch(()=>{originalPromise=Promise.resolve(response);return originalPromise;});
+  let init;
+  f.changed(file=>{init={method:'POST',body:file};returned=f.context.fetch('https://private.invalid/do-not-record',init);});
+  f.stage(op);f.commit(op);
+  for(let i=0;i<50 && !f.fetchCalls.length;i++)await new Promise(resolve=>setTimeout(resolve,1));
+  assert.equal(f.fetchCalls.length,1);assert.equal(returned,originalPromise);assert.equal(f.fetchCalls[0].args[1],init);
+  assert.equal(f.observe(op).requestEvidence,undefined);assert.equal(f.input.inputCount,1);
+  f.release();await f.settle();
+  const packet=f.call(op.command('observe')),facts=packet.observation.requestEvidence,request=facts.requests[0];
+  assert.equal(packet.schemaVersion,4);assert.equal(facts.invocationID,op.command('observe').invocationID);
+  assert.equal(facts.fileSHA256,op.identity.assetSHA256);assert.equal(facts.inputCount,1);
+  assert.equal(facts.coverage,'exactOriginalFileOnly');assert.equal(facts.observationClosed,false);
+  assert.equal(request.transport,'fetch');assert.equal(request.terminal,null);assert.equal(request.status,undefined);
+  assert.ok(request.requestSequence>0);assert.equal(request.terminalSequence,undefined);
+  assert.equal(request.terminalAtMS,undefined);assert.equal(privateReads,0);
+  assert.ok(!JSON.stringify(facts).includes('private.invalid'));assert.ok(!JSON.stringify(facts).includes('body'));
+  assert.equal(packet.observation.state,'inputTriggered');assert.equal(packet.observation.completionEvidence,undefined);
+  assert.equal(packet.observation.continuationEvidence,undefined);assert.equal(packet.observation.terminationEvidence,undefined);
+});
+
+test('XHR terminal is a request fact, never upload progress, completion or safe retirement', async () => {
+  for(const terminal of ['load','abort','error','timeout']){
+    const f=requestFixture(),op=withInvocation(f.bind());let xhr;
+    f.changed(file=>{xhr=new f.context.XMLHttpRequest();xhr.open('PUT','https://private.invalid/unlogged');xhr.send(file);});
+    f.stage(op);f.commit(op);await f.settle();
+    xhr.upload.emit('progress',{loaded:4,total:png.length,lengthComputable:true});
+    xhr.upload.emit('progress',{loaded:png.length,total:png.length,lengthComputable:true});
+    xhr.status=terminal==='load'?200:0;xhr.emit(terminal);
+    const packet=f.call(op.command('observe')),before=packet.observation.requestEvidence.requests[0];
+    assert.equal(before.terminal,{load:'response',abort:'aborted',error:'error',timeout:'timeout'}[terminal]);
+    assert.equal(before.status,xhr.status);assert.equal(before.progress,undefined);
+    assert.ok(before.requestSequence<before.terminalSequence);
+    // Real POST100 had a queued progress after abort. It cannot revive facts.
+    xhr.upload.emit('progress',{loaded:png.length,total:png.length,lengthComputable:true});xhr.emit('load');
+    assert.deepEqual(f.observe(op).requestEvidence.requests[0],before);
+    assert.equal(packet.observation.state,'inputTriggered');assert.equal(packet.observation.uploadStart,undefined);
+    assert.equal(packet.observation.completionEvidence,undefined);assert.equal(packet.observation.automaticRetryExcluded,false);
+    assert.equal(packet.observation.terminationEvidence,undefined);assert.equal(packet.observation.continuationEvidence,undefined);
+    assert.equal(f.input.inputCount,1);assert.equal(f.xhrCalls.length,1);
+  }
+});
+
+test('XHR facts never access upload or register upload listeners that could change CORS', async () => {
+  const f=requestFixture(),op=withInvocation(f.bind());let xhr,uploadReads=0;
+  f.changed(file=>{
+    xhr=new f.context.XMLHttpRequest();
+    Object.defineProperty(xhr,'upload',{get(){uploadReads++;throw Error('upload access would affect request semantics');}});
+    xhr.open('POST','ignored');xhr.send(file);
+  });
+  f.stage(op);f.commit(op);await f.settle();xhr.status=200;xhr.emit('load');
+  const facts=f.observe(op).requestEvidence;
+  assert.equal(uploadReads,0);assert.equal(f.xhrCalls.length,1);assert.equal(f.input.inputCount,1);
+  assert.equal(facts.observationClosed,false);assert.equal(facts.requests[0].terminal,'response');
+  assert.equal(facts.requests[0].progress,undefined);assert.equal(f.observe(op).uploadStart,undefined);
+});
+
+test('native fetch rejection, synchronous throw and XHR send exception preserve original outcomes', async () => {
+  for(const mode of ['reject','fetchThrow','xhrThrow']){
+    const f=requestFixture(),op=withInvocation(f.bind()),failure=Error('native failure');let returned,observed;
+    if(mode==='reject')f.setFetch(()=>Promise.reject(failure));
+    if(mode==='fetchThrow')f.setFetch(()=>{throw failure;});
+    if(mode==='xhrThrow')f.setSend(()=>{throw failure;});
+    f.changed(file=>{
+      try{
+        if(mode==='xhrThrow'){const xhr=new f.context.XMLHttpRequest();xhr.open('PUT','ignored');xhr.send(file);}
+        else{returned=f.context.fetch('ignored',{body:file});if(mode==='reject')returned.catch(error=>{observed=error;});}
+      }catch(error){observed=error;}
+    });
+    f.stage(op);f.commit(op);await f.settle();
+    assert.equal(observed,failure);if(mode==='reject')assert.equal(returned,f.fetchCalls[0].result);
+    const facts=f.observe(op).requestEvidence;assert.equal(facts.requests.length,1);
+    assert.equal(facts.requests[0].terminal,mode==='reject'?null:'threw');
+    assert.equal(facts.requests[0].status,undefined);assert.equal(f.input.inputCount,1);
+  }
+});
+
+test('fetch observation never touches Promise.then and preserves native unhandled rejection behavior', () => {
+  // Isolate process events from node:test's own rejection policy. Both cases
+  // execute the same page input: legacy untracked and exact-File tracked.
+  const {spawnSync}=require('node:child_process');
+  const header=fs.readFileSync(__filename,'utf8').split("test('bundled program executes")[0];
+  const script=header+'\n'+withInvocation.toString()+'\n'+requestFixture.toString()+`
+  (async()=>{
+    const errors=[];process.on('unhandledRejection',error=>errors.push(error.message));
+    for(const tracked of [false,true]){
+      const f=requestFixture(),op=tracked?withInvocation(f.bind()):f.bind();let thenReads=0,promise;
+      f.setFetch(()=>{promise=Promise.reject(Error(tracked?'tracked':'baseline'));
+        Object.defineProperty(promise,'then',{get(){thenReads++;throw Error('observer touched then');}});return promise;});
+      f.changed(file=>{const returned=f.context.fetch('ignored',{body:file});assert.equal(returned,promise);});
+      f.stage(op);f.commit(op);await f.settle();await new Promise(resolve=>setTimeout(resolve,10));
+      assert.equal(thenReads,0);assert.equal(f.input.inputCount,1);
+      if(tracked)assert.equal(f.observe(op).requestEvidence.requests[0].terminal,null);
+    }
+    assert.deepEqual(errors,['baseline','tracked']);process.stdout.write('PASS unhandled unchanged');
+  })().catch(error=>{process.stderr.write(String(error.stack));process.exitCode=1;});`;
+  const result=spawnSync(process.execPath,['-e',script],{cwd:__dirname,encoding:'utf8',timeout:5000});
+  assert.equal(result.status,0,result.stderr);assert.match(result.stdout,/PASS unhandled unchanged/);
+});
+
+test('clones, FormData, Request bodies and body accessors cannot borrow original File identity', async () => {
+  const f=requestFixture(),op=withInvocation(f.bind());f.stage(op);f.commit(op);await f.settle();
+  const file=f.input.files[0],clone=new File([await file.arrayBuffer()],file.name,{type:file.type});
+  await f.context.fetch('ignored',{body:clone});
+  const form=new FormData();form.append('file',file);await f.context.fetch('ignored',{body:form});
+  await f.context.fetch({body:file});
+  let reads=0;const accessor={get body(){reads++;return file;}};await f.context.fetch('ignored',accessor);
+  assert.equal(reads,0,'observer must not invoke an init body getter');
+  assert.equal(f.observe(op).requestEvidence,undefined);assert.equal(f.input.inputCount,1);
+});
+
+test('duplicate send, replaced hook and reentry close facts without changing requests or replaying input', async () => {
+  for(const mode of ['duplicateFetch','duplicateXHR','hook','reentry']){
+    const f=requestFixture(),op=withInvocation(f.bind());let xhr;
+    f.changed(file=>{
+      if(mode==='duplicateXHR'){xhr=new f.context.XMLHttpRequest();xhr.open('PUT','ignored');xhr.send(file);}
+      else f.context.fetch('ignored',{body:file});
+    });
+    f.stage(op);f.commit(op);await f.settle();const first=f.observe(op).requestEvidence;
+    const registry=f.context.__riftletWebAcceptance20261027v13,state=registry.tail,stored=state.operations.get(op.identity.operationID);
+    if(mode==='duplicateFetch')await f.context.fetch('ignored',{body:f.input.files[0]});
+    if(mode==='duplicateXHR')xhr.send(f.input.files[0]);
+    if(mode==='hook')f.context.fetch=function replacement(){return Promise.resolve({status:200});};
+    if(mode==='reentry')registry.originalFileRequests.bind(f.input.files[0],state,stored);
+    const facts=f.observe(op).requestEvidence;
+    assert.equal(facts.observationClosed,true);
+    assert.equal(facts.closeReason,mode==='hook'?'hookReplaced':mode==='reentry'?'reentry':'duplicateSend');
+    assert.equal(facts.requests[0].requestID,first.requests[0].requestID);
+    assert.equal(f.input.inputCount,1);assert.throws(()=>f.commit(op),/COMMIT_REFUSED/);
+    assert.equal(mode==='duplicateXHR'?f.xhrCalls.length:f.fetchCalls.length,mode.startsWith('duplicate')?2:1);
+  }
+});
+
+test('different original A/B File objects retain independent requests and old operations cannot mint facts', async () => {
+  const f=requestFixture(),a=withInvocation(f.bind()),b=withInvocation(f.bind('33333333-3333-4333-8333-333333333333'),'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb');
+  f.changed(file=>f.context.fetch('ignored',{body:file}));
+  f.stage(a);f.commit(a);await f.settle();const aFile=f.input.files[0],aBefore=f.observe(a).requestEvidence;
+  f.stage(b);f.commit(b);await f.settle();const aAfter=f.observe(a).requestEvidence,bFacts=f.observe(b).requestEvidence;
+  assert.deepEqual(aAfter,aBefore);assert.notEqual(aAfter.requests[0].requestID,bFacts.requests[0].requestID);
+  assert.notEqual(aAfter.invocationID,bFacts.invocationID);assert.notEqual(aFile,f.input.files[0]);
+  assert.equal(f.input.inputCount,2);assert.equal(f.fetchCalls.length,2);
+  // Identical bytes do not merge operation ownership. No continuation proof is minted.
+  assert.equal(f.observe(a).continuationEvidence,undefined);assert.equal(f.observe(b).continuationEvidence,undefined);
+  const fresh=requestFixture(),legacy=fresh.bind();fresh.stage(legacy);fresh.commit(legacy);await fresh.settle();
+  await fresh.context.fetch('ignored',{body:fresh.input.files[0]});assert.equal(fresh.observe(legacy).requestEvidence,undefined);
+  const restarted=requestFixture(),next=withInvocation(restarted.bind());restarted.stage(next);restarted.commit(next);await restarted.settle();
+  await restarted.context.fetch('ignored',{body:aFile});assert.equal(restarted.observe(next).requestEvidence,undefined);
+});
+
+test('hash failure and non-writable request hooks do not manufacture facts or break ordinary input', async () => {
+  const wrong=requestFixture({blockedInputDigest:true}),a=withInvocation(wrong.bind());
+  wrong.changed(file=>wrong.context.fetch('ignored',{body:file}));wrong.stage(a);wrong.commit(a);
+  for(let i=0;i<50 && !wrong.fetchCalls.length;i++)await new Promise(resolve=>setTimeout(resolve,1));
+  wrong.context.__riftletWebAcceptance20261027v13.tail.operations.get(a.identity.operationID).identity.assetSHA256='0'.repeat(64);
+  wrong.release();await wrong.settle();assert.equal(wrong.observe(a).requestEvidence,undefined);
+  const f=requestFixture(),op=withInvocation(f.bind());
+  Object.defineProperty(f.context,'fetch',{value:f.nativeFetch,writable:false});
+  Object.defineProperty(f.XHR.prototype,'send',{value:f.XHR.prototype.send,writable:false});
+  f.changed(file=>f.context.fetch('ignored',{body:file}));f.stage(op);f.commit(op);await f.settle();
+  assert.equal(f.input.inputCount,1);assert.equal(f.fetchCalls.length,1);assert.equal(f.observe(op).requestEvidence,undefined);
+});
+
+test('versioned completion emits exact bytes or exact original-size pixels only, legacy remains schema2', async () => {
+  for(const kind of ['bytes','pixels','legacy','scaled']){
+    const f=fixture(),op=kind==='legacy'?f.bind():withInvocation(f.bind());f.stage(op);f.commit(op);await f.settle();
+    const view=f.makeCard(op);if(kind==='scaled')view.image.naturalWidth=1;
+    f.finish(view,kind==='bytes'||kind==='legacy'?png:Buffer.from([...png,99]));await f.settle();
+    const packet=f.call(op.command('observe')),proof=packet.observation.completionEvidence;
+    if(kind==='legacy'){assert.equal(packet.schemaVersion,2);assert.equal(packet.observation.state,'attached');assert.equal(proof,undefined);continue;}
+    if(kind==='scaled'){assert.equal(packet.observation.state,'invalidated');assert.equal(proof,undefined);continue;}
+    assert.equal(packet.schemaVersion,4);assert.equal(packet.observation.state,'attached');
+    assert.equal(proof.version,1);assert.equal(proof.kind,kind==='bytes'?'exactOriginalBytes':'exactSRGBPixels');
+    assert.equal(proof.originalByteCount,png.length);assert.equal(proof.originalSHA256,op.identity.assetSHA256);
+    assert.equal(proof.binding.operationID,op.identity.operationID);assert.equal(proof.binding.assetID,op.identity.assetID);
+    assert.equal(proof.binding.attempt,op.identity.attempt);assert.equal(proof.binding.assetSHA256,op.identity.assetSHA256);
+    assert.equal(proof.binding.invocationID,op.command('observe').invocationID);
+    assert.equal(proof.binding.attachmentID,packet.observation.attachmentID);assert.deepEqual(proof.binding.target,op.identity.target);
+    if(kind==='bytes'){assert.equal(proof.observedSHA256,op.identity.assetSHA256);assert.equal(proof.observedByteCount,png.length);assert.equal(proof.originalWidth,undefined);}
+    else{assert.equal(proof.originalWidth,2);assert.equal(proof.originalHeight,1);assert.equal(proof.previewWidth,2);assert.equal(proof.previewHeight,1);
+      assert.equal(proof.originalPixelSHA256,proof.previewPixelSHA256);assert.equal(proof.observedSHA256,undefined);}
+  }
+});
+
+test('versioned completion cannot survive reload, late error, replaced card or wrong original invocation', async () => {
+  for(const mode of ['reload','error','card','invocation']){
+    const f=fixture(),op=withInvocation(f.bind());f.stage(op);f.commit(op);await f.settle();const view=f.makeCard(op);f.finish(view);await f.settle();
+    assert.equal(f.observe(op).completionEvidence.kind,'exactOriginalBytes');
+    if(mode==='reload')for(const fn of f.events.get('load')||[])fn({target:view.image,type:'load'});
+    if(mode==='error')for(const fn of f.events.get('error')||[])fn({target:view.image,type:'error'});
+    if(mode==='card'){view.card.isConnected=false;f.mutate([{type:'childList',target:f.form,removedNodes:[view.card],addedNodes:[]}]);}
+    if(mode==='invocation')f.context.__riftletWebAcceptance20261027v13.tail.operations.get(op.identity.operationID).invocationID='bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
+    const result=f.observe(op);assert.equal(result.completionEvidence,undefined);
+    assert.equal(result.state,'invalidated');
+    assert.equal(f.input.inputCount,1);assert.throws(()=>f.commit(op),/COMMIT_REFUSED|INVOCATION_MISMATCH/);
+  }
+});
+
+test('exact prior G3 observer upgrades only fresh captures and never retrofits old operations', async () => {
+  const prior=fs.readFileSync(path.join(__dirname,'fixtures/chatgpt-web-g3-461e645.js'),'utf8');
+  assert.equal(digest(prior),'c6fe1036ba3cdc5363d9154b0a83e7807a5c19a522af47f29eb9fe165540b7e2');
+  const f=fixture({programSource:prior}),old=withInvocation(f.bind());f.stage(old);f.commit(old);await f.settle();
+  const oldCard=f.makeCard(old);f.finish(oldCard);await f.settle();
+  const registry=f.context.__riftletWebAcceptance20261027v13,oldState=registry.tail;
+  const oldRecord=oldState.operations.get(old.identity.operationID),oldProof=oldRecord.proof;
+  const current=vm.runInContext('('+source+')',f.context),call=command=>current(command,native);
+  const original=call(old.command('observe'));assert.equal(original.schemaVersion,2);
+  assert.equal(original.observation.state,'attached');assert.equal(original.observation.completionEvidence,undefined);
+  const target=call({action:'captureTarget'}),newState=registry.tail;
+  assert.notEqual(newState,oldState);assert.equal(newState.proofProtocolVersion,1);
+  assert.notEqual(target.documentID,old.target.documentID);assert.notEqual(target.draftGeneration,old.target.draftGeneration);
+  assert.equal(oldState.operations.get(old.identity.operationID),oldRecord);assert.equal(oldRecord.proof,oldProof);
+  assert.equal(call(old.command('observe')).schemaVersion,2);assert.equal(f.input.inputCount,1);
+  assert.equal(call({action:'captureTarget'}),target,'new protocol must not reinstall on repeated capture');
+  const identity={...old.identity,operationID:'33333333-3333-4333-8333-333333333333',assetID:'44444444-4444-4444-8444-444444444444',target};
+  const next={identity,target,name:'riftlet-'+identity.operationID+'.png',bytes:png,
+    command:action=>({action,identity,target,invocationID:'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb'})};
+  call({...next.command('begin'),uploadName:next.name,mediaType:'image/png',byteCount:png.length});
+  call({...next.command('chunk'),chunkIndex:0,chunkBase64:png.toString('base64')});call({...next.command('commit'),chunkIndex:1});
+  await f.settle();const card=f.makeCard(next);f.finish(card);await f.settle();
+  const completed=call(next.command('observe'));assert.equal(completed.schemaVersion,4);
+  assert.equal(completed.observation.completionEvidence.binding.operationID,identity.operationID);
+  assert.equal(f.input.inputCount,2);assert.equal(oldRecord.proof,oldProof);
+});
+
+test('new begin through old G3 pin retires before input instead of using an obsolete proof closure', () => {
+  const prior=fs.readFileSync(path.join(__dirname,'fixtures/chatgpt-web-g3-461e645.js'),'utf8');
+  const f=fixture({programSource:prior}),observed=f.target();
+  const target=f.call({action:'pinTarget',target:observed,clickBindingID:'cccccccc-cccc-4ccc-8ccc-cccccccccccc'});
+  const current=vm.runInContext('('+source+')',f.context),call=command=>current(command,native);
+  const identity={operationID:'11111111-1111-4111-8111-111111111111',assetID:'22222222-2222-4222-8222-222222222222',
+    attempt:1,assetSHA256:digest(png),target},invocationID='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+  const command={action:'begin',identity,target,invocationID,uploadName:'riftlet-'+identity.operationID+'.png',mediaType:'image/png',byteCount:png.length};
+  const result=call(command);assert.equal(result.reason,'OBSERVER_UPGRADE_REQUIRED');
+  assert.equal(result.identity,identity);assert.equal(result.invocationID,invocationID);
+  assert.equal(result.rejectedBeforeBegin,true);assert.equal(result.retiredBeforeInput,true);
+  assert.equal(result.commitInvoked,false);assert.equal(result.inputCount,0);
+  assert.equal(f.input.inputCount,0);assert.throws(()=>call(command),/BEGIN_REFUSED/);
+  assert.throws(()=>call({...command,action:'commit',chunkIndex:0}),/COMMIT_REFUSED/);
+  const fresh=call({action:'captureTarget'});assert.notEqual(fresh.documentID,target.documentID);
+  assert.equal(f.input.inputCount,0,'pre-input refusal never replays the old click');
+});
+
+test('upgraded caller cannot finish staged G3 input or replay its committed UNKNOWN', async () => {
+  const prior=fs.readFileSync(path.join(__dirname,'fixtures/chatgpt-web-g3-461e645.js'),'utf8');
+  for(const phase of ['staged','inflight']){
+    const f=fixture({programSource:prior,blockedDigest:phase==='inflight'}),observed=f.target();
+    const target=f.call({action:'pinTarget',target:observed,clickBindingID:'cccccccc-cccc-4ccc-8ccc-cccccccccccc'});
+    const identity={operationID:'11111111-1111-4111-8111-111111111111',assetID:'22222222-2222-4222-8222-222222222222',
+      attempt:1,assetSHA256:digest(png),target};
+    const invocationID='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+    const op={identity,target,name:'riftlet-'+identity.operationID+'.png',bytes:png,
+      command:action=>({action,identity,target,invocationID})};
+    f.stage(op);if(phase==='inflight')f.commit(op);
+    const registry=f.context.__riftletWebAcceptance20261027v13,oldState=registry.tail;
+    const original=oldState.operations.get(identity.operationID),chunks=original.chunks,received=original.received;
+    const current=vm.runInContext('('+source+')',f.context),call=command=>current(command,native);
+    const fresh=call({action:'captureTarget'});
+    assert.notEqual(fresh.documentID,target.documentID);assert.notEqual(registry.tail,oldState);
+    assert.throws(()=>call({...op.command('chunk'),chunkIndex:1,chunkBase64:png.toString('base64')}),/CHUNK_REFUSED/);
+    assert.throws(()=>call({...op.command('commit'),chunkIndex:1}),/COMMIT_REFUSED/);
+    assert.equal(f.input.inputCount,0);assert.equal(oldState.operations.get(identity.operationID),original);
+    assert.equal(original.chunks,chunks);assert.equal(original.received,received);
+    if(phase==='staged'){
+      assert.equal(original.committed,false);
+      const before=call(op.command('observe'));assert.equal(before.schemaVersion,2);assert.equal(before.observation.state,'unknown');
+      assert.throws(()=>call({...op.command('discard'),invocationID:'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb'}),/INVOCATION_MISMATCH/);
+      const discarded=call(op.command('discard'));assert.equal(discarded.discarded,true);
+      assert.equal(discarded.retiredBeforeInput,true);assert.equal(discarded.invocationID,invocationID);
+      assert.equal(original.invalid,true);assert.equal(f.input.inputCount,0);
+    }else{
+      assert.equal(original.committed,true);f.release();await f.settle();
+      assert.equal(f.input.inputCount,1,'only the previously executing old closure may finish its original call');
+      const pending=call(op.command('observe'));assert.equal(pending.schemaVersion,2);
+      assert.equal(pending.observation.state,'inputTriggered');assert.equal(pending.observation.completionEvidence,undefined);
+      assert.throws(()=>call({...op.command('commit'),chunkIndex:1}),/COMMIT_REFUSED/);
+      assert.equal(call(op.command('discard')).discarded,false);assert.equal(original.committed,true);
+      assert.equal(f.input.inputCount,1,'observing or discarding historical UNKNOWN never repeats its input');
+    }
+  }
+});
+
+test('request callbacks detach on terminal or original document retirement and do not survive restart', async () => {
+  for(const close of ['terminal','navigation']){
+    const f=requestFixture(),op=withInvocation(f.bind());let xhr;
+    f.changed(file=>{xhr=new f.context.XMLHttpRequest();xhr.open('PUT','ignored');xhr.send(file);});
+    f.stage(op);f.commit(op);await f.settle();const stored=f.context.__riftletWebAcceptance20261027v13.tail.operations.get(op.identity.operationID);
+    assert.ok([...xhr.listeners.values()].some(list=>list.length));
+    if(close==='terminal'){xhr.status=204;xhr.emit('load');}
+    else f.navigationEvent('navigate');
+    assert.equal([...xhr.listeners.values(),...xhr.upload.listeners.values()].reduce((total,list)=>total+list.length,0),0);
+    const facts=stored.requestFactSnapshot();
+    assert.equal(close==='terminal'?facts.requests[0].terminal:facts.closeReason,close==='terminal'?'response':'identityInvalid');
+    xhr.upload.emit('progress',{loaded:png.length,total:png.length,lengthComputable:true});
+    assert.deepEqual(stored.requestFactSnapshot(),facts);assert.equal(f.input.inputCount,1);
+  }
+});
+
 test('settled hash rejection proves no file side effect for only its original invocation', async () => {
   const f=fixture({blockedDigest:true}),op=withInvocation(f.bind());
   op.identity.assetSHA256='0'.repeat(64);f.stage(op);

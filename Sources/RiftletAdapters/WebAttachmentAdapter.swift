@@ -222,7 +222,7 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
             if let invocationID = request.invocationID,
                let proof = try? decode(BeginRejectionProof.self, from: beginReply),
                proof.identity == identity, proof.invocationID == invocationID,
-               proof.rejectedBeforeBegin, proof.reason == "ACTIVE_PAYLOAD_LIMIT",
+               proof.rejectedBeforeBegin, ["ACTIVE_PAYLOAD_LIMIT", "OBSERVER_UPGRADE_REQUIRED"].contains(proof.reason),
                proof.retiredBeforeInput, !proof.commitInvoked, proof.inputCount == 0 {
                 throw PreInputRejection(operationID: identity.operationID, assetID: identity.assetID,
                     attempt: identity.attempt, assetSHA256: identity.assetSHA256, target: identity.target,
@@ -304,7 +304,7 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
             if liveAppend, let rejection = try WebPreInputRetirement.rejection(from: envelope, for: request) {
                 throw rejection
             }
-            let receipt = try await normalize(envelope, for: request)
+            let receipt = try await normalize(envelope, for: request, liveAppend: liveAppend)
             // Positive start returns without waiting for completion. Core policy
             // independently admits visual exit; subsequent calls only observe.
             if receipt.outcome == .uploadStarted { return receipt }
@@ -383,7 +383,8 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
         try await normalize(ObservationDecoder.decode(data), for: request)
     }
 
-    private func normalize(_ envelope: AttachmentObservationEnvelope, for request: TransferRequest) async throws -> TransferReceipt {
+    private func normalize(_ envelope: AttachmentObservationEnvelope, for request: TransferRequest,
+                           liveAppend: Bool = false) async throws -> TransferReceipt {
         var scopedNormalizer = normalizer
         var originalScope: SystemScreenshotAdmissionScope?
         let binding = binding(for: request.asset)
@@ -398,7 +399,7 @@ public actor WebAttachmentAdapter: AttachmentAdapter {
             scopedNormalizer = ObservationNormalizer(profile: scope.admittedProfile,
                 developmentScope: scope.observationScope)
         }
-        let receipt = try scopedNormalizer.receipt(from: envelope, for: request)
+        let receipt = try scopedNormalizer.receipt(from: envelope, for: request, liveAppend: liveAppend)
         if screenshotScope != nil {
             guard envelope.provenance.source == .integratedDevelopment,
                   let journal = binding?.journal ?? candidateJournal else {

@@ -31,9 +31,26 @@ public struct AttachmentContinuationEvidence: Codable, Equatable, Sendable {
     public let profileID: String
     public let evidenceID: String
     public let invocationID: UUID
-    public init(version: Int = 1, profileID: String, evidenceID: String, invocationID: UUID) {
+    /// Version 1 is historical/synthetic only. Version 2 requires both the full
+    /// original binding and independently established platform-task isolation.
+    public let binding: AttachmentOperationBinding?
+    public let taskIsolation: AttachmentTaskIsolationEvidence?
+    public init(version: Int = 1, profileID: String, evidenceID: String, invocationID: UUID,
+                binding: AttachmentOperationBinding? = nil, taskIsolation: AttachmentTaskIsolationEvidence? = nil) {
         self.version = version; self.profileID = profileID
         self.evidenceID = evidenceID; self.invocationID = invocationID
+        self.binding = binding; self.taskIsolation = taskIsolation
+    }
+
+    public func validates(receipt: TransferReceipt, asset: ImportedAsset) -> Bool {
+        guard version == 2, AttachmentEvidenceValidation.token(profileID, maximum: 128),
+              AttachmentEvidenceValidation.token(evidenceID),
+              let binding, binding.invocationID == invocationID,
+              binding.matches(receipt: receipt, asset: asset),
+              let taskIsolation, taskIsolation.validates(receipt: receipt, asset: asset),
+              receipt.belongsToOriginalDraft, receipt.isUploading,
+              !receipt.hasError, !receipt.positiveReady, !receipt.safeToRetry else { return false }
+        return true
     }
 }
 

@@ -5,7 +5,7 @@
  * src/observers/compare-source-preview-pixels.template.js and the attached classifiers.
  * Narrow development candidates: observed Chinese Home/thread Chat, PNG.
  * This integrated program is NOT the archived program or a new live PASS.
- * No send, composer edits, attachment deletion, network hooks or retry command.
+ * No send, composer edits, attachment deletion, initiated request or retry command.
  */
 function riftletWebAcceptance(command, native) {
   'use strict';
@@ -33,6 +33,185 @@ function riftletWebAcceptance(command, native) {
     observation: {identity, state, exactImageIdentity: false, belongsToOriginalDraft: false,
       hasError: false, isUploading: false, attachmentAbsent: false, automaticRetryExcluded: false}
   });
+
+  // Exact original-File request facts only. No URL, headers, body reads, response
+  // text, Request streams, API schema or platform completion semantics. Missing
+  // hooks/identity are missing evidence, never a reason to change the input path.
+  function originalFileRequests(registry) {
+    if (registry.originalFileRequests) return registry.originalFileRequests;
+    const files = new WeakMap(), operations = new WeakMap(), xhrs = new WeakMap(), cleaners = new WeakMap(), live = new Set();
+    let nextRequest = 0, ended = false, fetchInstalled = false, xhrInstalled = false;
+    const fetchDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'fetch');
+    const xhrPrototype = typeof XMLHttpRequest === 'function' ? XMLHttpRequest.prototype : null;
+    const sendDescriptor = xhrPrototype && Object.getOwnPropertyDescriptor(xhrPrototype, 'send');
+    const openDescriptor = xhrPrototype && Object.getOwnPropertyDescriptor(xhrPrototype, 'open');
+    const nativeFetch = fetchDescriptor?.value, nativeSend = sendDescriptor?.value, nativeOpen = openDescriptor?.value;
+    const uuid = value => typeof value === 'string' && /^[a-fA-F0-9]{8}-(?:[a-fA-F0-9]{4}-){3}[a-fA-F0-9]{12}$/.test(value);
+    const close = (binding, reason) => {
+      if (!binding.closed) { binding.closed = true; binding.reason = reason; }
+      live.delete(binding);
+      for (const cleanup of [...binding.cleanups]) { try { cleanup(); } catch {} }
+      // A retired facts record must not keep a former document/form environment.
+      binding.state = null; binding.tick = null;
+    };
+    const closeAll = reason => { for (const binding of [...live]) close(binding, reason); };
+    const intact = () => !ended && (!fetchInstalled || globalThis.fetch === wrappedFetch)
+      && (!xhrInstalled || (xhrPrototype.send === wrappedSend && xhrPrototype.open === wrappedOpen));
+    const owner = binding => {
+      if (binding.closed) return false;
+      if (!intact()) { const reason = ended ? 'documentEnded' : 'hookReplaced'; closeAll(reason); close(binding, reason); return false; }
+      if (!sameIdentity(binding.identity, binding.op.identity) || binding.invocationID !== binding.op.invocationID
+          || binding.state.operations.get(binding.identity.operationID) !== binding.op
+          || !binding.state.observationIdentityValid()) { close(binding, 'identityInvalid'); return false; }
+      return true;
+    };
+    const stamp = binding => {
+      const sequence = binding.tick(), time = performance.now();
+      if (!Number.isSafeInteger(sequence) || sequence < 1 || !Number.isFinite(time) || time < 0
+          || sequence <= binding.lastSequence || time < binding.lastTime) { close(binding, 'invalidEvent'); return null; }
+      binding.lastSequence = sequence; binding.lastTime = time;
+      return {sequence, time};
+    };
+    const begin = (binding, transport) => {
+      if (!binding || !owner(binding)) return null;
+      if (binding.requests.length >= 8 || nextRequest >= Number.MAX_SAFE_INTEGER - 1) {
+        close(binding, 'requestBound'); return null;
+      }
+      const event = stamp(binding); if (!event) return null;
+      const record = {requestID: ++nextRequest, transport, requestSequence: event.sequence,
+        requestedAtMS: event.time, terminal: null};
+      binding.requests.push(record); live.add(binding);
+      // A second call is recorded, not interpreted as safe retry or a new input.
+      // Keep earlier facts, but stop claiming a continuous one-request observer.
+      if (binding.requests.length > 1) close(binding, 'duplicateSend');
+      return record;
+    };
+    const terminal = (binding, record, kind, status) => {
+      if (!record || record.terminal !== null || !owner(binding)) return;
+      if (status !== undefined && (!Number.isSafeInteger(status) || status < 0 || status > 599)) {
+        close(binding, 'invalidEvent'); return;
+      }
+      const event = stamp(binding); if (!event) return;
+      record.terminal = kind; record.terminalSequence = event.sequence; record.terminalAtMS = event.time;
+      if (status !== undefined) record.status = status;
+      try { cleaners.get(record)?.(); } catch {}
+      if (binding.requests.every(item => item.terminal !== null)) live.delete(binding);
+    };
+    function wrappedFetch(input, init) {
+      let binding, record;
+      try {
+        // Do not invoke a body getter twice or consume a Request/stream.
+        const descriptor = init && Object.getOwnPropertyDescriptor(init, 'body');
+        binding = descriptor && Object.prototype.hasOwnProperty.call(descriptor, 'value') ? files.get(descriptor.value) : null;
+        record = begin(binding, 'fetch');
+      } catch { /* Unsupported arguments preserve the original request. */ }
+      let result;
+      try { result = Reflect.apply(nativeFetch, this, arguments); }
+      catch (error) { try { terminal(binding, record, 'threw'); } catch {} throw error; }
+      // Do not attach then/catch: even a passive rejection handler changes the
+      // application's unhandledrejection behavior. Fetch response/terminal stays
+      // intentionally unobserved; only native call entry or synchronous throw is known.
+      return result;
+    }
+    function wrappedOpen() {
+      try { const prior = xhrs.get(this); if (prior) close(prior.binding, 'duplicateSend'); } catch {}
+      return Reflect.apply(nativeOpen, this, arguments);
+    }
+    function wrappedSend(body) {
+      let binding, record;
+      try {
+        binding = files.get(body); const prior = xhrs.get(this);
+        if (prior) { close(prior.binding, 'duplicateSend'); if (binding) close(binding, 'duplicateSend'); }
+        else if (binding) {
+          record = begin(binding, 'xhr');
+          if (record && !binding.closed) {
+            xhrs.set(this, {binding, record});
+            const listeners = [];
+            const cleanup = () => {
+              for (const [target, type, handler] of listeners.splice(0)) {
+                try { target.removeEventListener(type, handler); } catch {}
+              }
+              binding.cleanups.delete(cleanup); cleaners.delete(record);
+            };
+            binding.cleanups.add(cleanup); cleaners.set(record, cleanup);
+            const listen = (target, type, handler, once = false) => {
+              if (typeof target?.addEventListener !== 'function' || typeof target?.removeEventListener !== 'function') throw Error('REQUEST_EVENTS_UNAVAILABLE');
+              target.addEventListener(type, handler, {once}); listeners.push([target, type, handler]);
+            };
+            const finish = kind => () => {
+              try { terminal(binding, record, kind, this.status); } catch { close(binding, 'invalidEvent'); }
+            };
+            listen(this, 'load', finish('response'), true);
+            listen(this, 'error', finish('error'), true);
+            listen(this, 'abort', finish('aborted'), true);
+            listen(this, 'timeout', finish('timeout'), true);
+            // Do not even access xhr.upload: adding an upload listener can
+            // change CORS preflight behavior. No progress or START is inferred.
+          }
+        }
+      } catch { if (binding) close(binding, 'invalidEvent'); }
+      try { return Reflect.apply(nativeSend, this, arguments); }
+      catch (error) { try { terminal(binding, record, 'threw'); } catch {} throw error; }
+    }
+    try {
+      if (typeof nativeFetch === 'function' && fetchDescriptor.writable === true) {
+        Object.defineProperty(globalThis, 'fetch', {...fetchDescriptor, value: wrappedFetch});
+        fetchInstalled = globalThis.fetch === wrappedFetch;
+      }
+    } catch { /* Ordinary input does not depend on optional request facts. */ }
+    try {
+      if (typeof nativeSend === 'function' && typeof nativeOpen === 'function'
+          && sendDescriptor.writable === true && openDescriptor.writable === true) {
+        Object.defineProperty(xhrPrototype, 'send', {...sendDescriptor, value: wrappedSend});
+        Object.defineProperty(xhrPrototype, 'open', {...openDescriptor, value: wrappedOpen});
+        xhrInstalled = xhrPrototype.send === wrappedSend && xhrPrototype.open === wrappedOpen;
+      }
+    } catch {
+      try { if (xhrPrototype.send === wrappedSend) Object.defineProperty(xhrPrototype, 'send', sendDescriptor); } catch {}
+      try { if (xhrPrototype.open === wrappedOpen) Object.defineProperty(xhrPrototype, 'open', openDescriptor); } catch {}
+    }
+    const snapshot = binding => {
+      if (!binding.closed) owner(binding);
+      if (!binding.verified || !binding.requests.length || binding.op.inputCount !== 1
+          || !sameIdentity(binding.identity, binding.op.identity) || binding.invocationID !== binding.op.invocationID) return null;
+      return {version: 1, invocationID: binding.invocationID, inputCount: 1,
+        inputSequence: binding.inputSequence, inputObservedAtMS: binding.inputObservedAtMS,
+        fileSHA256: binding.identity.assetSHA256, coverage: 'exactOriginalFileOnly',
+        observationClosed: binding.closed, closeReason: binding.reason,
+        requests: binding.requests.map(record => ({...record}))};
+    };
+    const monitor = Object.freeze({
+      bind(file, state, op) {
+        const prior = operations.get(op);
+        if (prior) { close(prior, 'reentry'); return; }
+        if ((!fetchInstalled && !xhrInstalled) || !intact() || !uuid(op.invocationID)
+            || !op.committed || op.inputSideEffectEntered !== false || op.inputCount !== 0) return;
+        const binding = {op, state, tick: state.tick, identity: {...op.identity, target: {...op.identity.target}},
+          invocationID: op.invocationID, byteCount: op.bytes, requests: [], verified: false,
+          closed: false, reason: null, lastSequence: 0, lastTime: 0, cleanups: new Set()};
+        operations.set(op, binding); files.set(file, binding);
+        op.requestFactSnapshot = () => snapshot(binding);
+        if (live.size >= MAX_ACTIVE_PAYLOADS) close(binding, 'requestBound'); else live.add(binding);
+      },
+      verified(file, op) {
+        const binding = files.get(file);
+        if (!binding || binding.op !== op || binding.verified || !op.fileHashVerified
+            || op.inputCount !== 1 || op.file !== file || !sameIdentity(binding.identity, op.identity)
+            || binding.invocationID !== op.invocationID || !Number.isSafeInteger(op.inputSequence)
+            || op.inputSequence < 1 || !Number.isFinite(op.inputObservedAtMS) || op.inputObservedAtMS < 0) return;
+        binding.verified = true; binding.inputSequence = op.inputSequence; binding.inputObservedAtMS = op.inputObservedAtMS;
+      },
+      retire(op) { const binding = operations.get(op); if (binding) close(binding, 'identityInvalid'); }
+    });
+    registry.originalFileRequests = monitor;
+    try { if (fetchInstalled || xhrInstalled) globalThis.addEventListener('pagehide', () => {
+      ended = true; closeAll('documentEnded');
+      try { if (fetchInstalled && globalThis.fetch === wrappedFetch) Object.defineProperty(globalThis, 'fetch', fetchDescriptor); } catch {}
+      try { if (xhrInstalled && xhrPrototype.send === wrappedSend) Object.defineProperty(xhrPrototype, 'send', sendDescriptor); } catch {}
+      try { if (xhrInstalled && xhrPrototype.open === wrappedOpen) Object.defineProperty(xhrPrototype, 'open', openDescriptor); } catch {}
+    }, {once: true}); } catch { ended = true; closeAll('documentEnded'); }
+    return monitor;
+  }
 
   // Pure bounded reader of the observed current committed React ancestry.
   // No pendingProps, endpoint calls, DOM text extraction or alternate guessing.
@@ -450,6 +629,7 @@ function riftletWebAcceptance(command, native) {
       invalid = true; invalidate.retired = true; revokeInput(); tick(); stopObservation();
       const audit = new Map();
       for (const [id, op] of operations) {
+        try { registry.originalFileRequests?.retire(op); } catch {}
         const record = {};
         for (const key of ['identity','invocationID','name','bytes','nextChunk','received','committed',
           'error','inputCount','fileHashVerified','inputSequence','inputObservedAtMS','progressValue',
@@ -578,7 +758,7 @@ function riftletWebAcceptance(command, native) {
       op.proofPending = true;
       const loadSequence = op.loaded, sourceFile = op.file;
       (async () => {
-        let matched = false;
+        let matched = false, completionDetails = null;
         // MAX_BYTES bounds the original input AND any additional base64 decode.
         // Re-encoding can enlarge a preview without changing one pixel. In that
         // case inspect the already loaded image under the existing pixel bound,
@@ -588,11 +768,16 @@ function riftletWebAcceptance(command, native) {
           if (previewBytes.byteLength <= MAX_BYTES) {
             const previewHash = await hash(previewBytes);
             matched = previewBytes.byteLength === op.bytes && previewHash === op.identity.assetSHA256;
+            if (matched) completionDetails = {kind: 'exactOriginalBytes', observedByteCount: previewBytes.byteLength,
+              observedSHA256: previewHash};
           }
         }
         if (!matched) {
           const original = await decodeOriginal(sourceFile), preview = await pixels(image, original);
           matched = original.width === preview.width && original.height === preview.height && original.sha256 === preview.sha256;
+          if (matched) completionDetails = {kind: 'exactSRGBPixels', originalWidth: original.width,
+            originalHeight: original.height, originalPixelSHA256: original.sha256,
+            previewWidth: preview.width, previewHeight: preview.height, previewPixelSHA256: preview.sha256};
         }
         // Async proof is bound to the full operation, original nodes/source and
         // final-load sequence. It cannot bless another card or a newer preview.
@@ -602,7 +787,13 @@ function riftletWebAcceptance(command, native) {
         }
         if (!matched) { markBad(op); return; }
         // Diagnostic clock only: not exported and never used to admit completion.
-        op.proof = {identity: op.identity, card, image, source, loadSequence, completed: tick(), completedAtMS: performance.now()};
+        const completionEvidence = typeof op.invocationID === 'string'
+          && /^[a-fA-F0-9]{8}-(?:[a-fA-F0-9]{4}-){3}[a-fA-F0-9]{12}$/.test(op.invocationID)
+          ? {version: 1, evidenceID: crypto.randomUUID(), binding: {version: 1, ...op.identity,
+              target: {...op.identity.target}, invocationID: op.invocationID,
+              attachmentID: op.identity.target.documentID + ':' + nodeID(card) + ':' + nodeID(image)},
+            originalByteCount: op.bytes, originalSHA256: op.identity.assetSHA256, ...completionDetails} : null;
+        op.proof = {identity: op.identity, card, image, source, loadSequence, completed: tick(), completedAtMS: performance.now(), completionEvidence};
         op.file = null;
       })().catch(() => markBad(op)).finally(() => { op.proofPending = false; });
     }
@@ -779,7 +970,9 @@ function riftletWebAcceptance(command, native) {
         op.inputSequence = tick(); op.inputObservedAtMS = performance.now(); op.file = file;
         file.arrayBuffer().then(hash).then(digest => {
           if (!observationIdentityValid() || op.invalid || digest !== op.identity.assetSHA256 || op.inputCount !== 1) { markBad(op); return; }
-          op.fileHashVerified = true; op.hashSequence = tick(); sample(op, 'inputHash');
+          op.fileHashVerified = true; op.hashSequence = tick();
+          try { registry.originalFileRequests?.verified(file, op); } catch { /* Optional facts cannot alter input. */ }
+          sample(op, 'inputHash');
         }).catch(() => markBad(op));
       }
     }, true);
@@ -826,7 +1019,7 @@ function riftletWebAcceptance(command, native) {
       monitorAlive = monitor.bind(form, editor, input, logicalDraftIdentity, route, checkBinding, invalidate);
       if (!checkBinding() || !monitorAlive()) { invalidate(); fail('UNPROVEN_MONITORED_BINDING'); }
     }
-    state = {lifecycleVersion: 1, pinTarget, validFor, claimPin, ownsTarget: candidate => ownsPin(candidate) || sameTarget(candidate,target) || retiredTargets.some(t => sameTarget(t,candidate)), get target() { return target; }, valid, observationIdentityValid, invalidate, revokeInput, drain, continuityEvents, operations, sample, tick, ownCards, markBad, currentMember,
+    state = {lifecycleVersion: 1, proofProtocolVersion: 1, pinTarget, validFor, claimPin, ownsTarget: candidate => ownsPin(candidate) || sameTarget(candidate,target) || retiredTargets.some(t => sameTarget(t,candidate)), get target() { return target; }, valid, observationIdentityValid, invalidate, revokeInput, drain, continuityEvents, operations, sample, tick, ownCards, markBad, currentMember,
       currentSource, input, form, nodeID, renewEmptyInputLease, next: null};
     if (registry.tail) registry.tail.next = state;
     else registry.head = state;
@@ -851,10 +1044,10 @@ function riftletWebAcceptance(command, native) {
     }
     let current = registry.tail;
     current?.drain();
-    if (!current || !current.pinTarget || !current.valid() || !contextMatches(current.target)) {
+    if (!current || current.proofProtocolVersion !== 1 || !current.pinTarget || !current.valid() || !contextMatches(current.target)) {
       // Historical v13 closures have no renewal capability. Leave those states
       // and all their operations untouched and use their original bounded path.
-      if (current?.pinTarget && contextMatches(current.target) && current.renewEmptyInputLease?.()) return current.target;
+      if (current?.proofProtocolVersion === 1 && current.pinTarget && contextMatches(current.target) && current.renewEmptyInputLease?.()) return current.target;
       if (current) current.revokeInput();
       // Identity tombstones are retained; lifetime count is not a resource quota.
       current = install(registry);
@@ -895,6 +1088,17 @@ function riftletWebAcceptance(command, native) {
         || command.mediaType !== 'image/png' || !Number.isSafeInteger(command.byteCount)
         || command.byteCount < 8 || command.byteCount > MAX_BYTES || state.ownCards(command.uploadName).length) fail('BEGIN_REFUSED');
     state.claimPin?.(identity);
+    // Existing v13 observers keep their old operations and old proof protocol.
+    // A stale pin must not dispatch a new upload through that old closure and
+    // later fabricate v4 evidence. Retire only this fresh no-input invocation.
+    if (state.proofProtocolVersion !== 1) {
+      if (state.lifecycleVersion !== 1 || typeof command.invocationID !== 'string'
+          || !/^[a-fA-F0-9]{8}-(?:[a-fA-F0-9]{4}-){3}[a-fA-F0-9]{12}$/.test(command.invocationID)) fail('BEGIN_REFUSED');
+      state.operations.set(identity.operationID, {identity, invocationID: command.invocationID,
+        name: command.uploadName, committed: false, invalid: true, inputCount: 0});
+      return {identity, invocationID: command.invocationID, retiredBeforeInput: true, inputCount: 0,
+        commitInvoked: false, rejectedBeforeBegin: true, reason: 'OBSERVER_UPGRADE_REQUIRED'};
+    }
     if ([...generations()].flatMap(g => [...g.operations.values()]).filter(o => !o.invalid && (!o.committed || o.file || (o.committed && !o.fileHashVerified))).length >= MAX_ACTIVE_PAYLOADS) {
       if (state.lifecycleVersion !== 1 || typeof command.invocationID !== 'string' || !/^[a-fA-F0-9]{8}-(?:[a-fA-F0-9]{4}-){3}[a-fA-F0-9]{12}$/.test(command.invocationID)) fail('BEGIN_REFUSED');
       state.operations.set(identity.operationID, {identity, invocationID:command.invocationID,
@@ -916,6 +1120,13 @@ function riftletWebAcceptance(command, native) {
     fail('ORIGINAL_OPERATION_REQUIRED');
   }
   if (command.action !== 'observe' && op.invocationID && command.invocationID !== op.invocationID) fail('INVOCATION_MISMATCH');
+  // Upgrading the caller does not upgrade an old state's captured observers.
+  // A staged historical operation must not acquire a new input through this
+  // program. Keep observation and original-invocation discard available; an
+  // already executing old commit retains its own one-shot closure and audit.
+  if (state.proofProtocolVersion !== 1 && (command.action === 'chunk' || command.action === 'commit')) {
+    fail(command.action === 'chunk' ? 'CHUNK_REFUSED' : 'COMMIT_REFUSED');
+  }
   if (command.action === 'chunk') {
     if (op.committed || op.invalid || command.chunkIndex !== op.nextChunk
         || typeof command.chunkBase64 !== 'string' || command.chunkBase64.length > 4 * Math.ceil(MAX_CHUNK_BYTES / 3)
@@ -961,6 +1172,7 @@ function riftletWebAcceptance(command, native) {
       // no await, focus, route change, selector fallback, send or composer edit.
       const file = new File([bytes], op.name, {type: 'image/png'}), transfer = new DataTransfer();
       transfer.items.add(file);
+      try { originalFileRequests(registry).bind(file, state, op); } catch { /* No request evidence, ordinary input unchanged. */ }
       op.expectingInput = true;
       op.inputSideEffectEntered = true;
       Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'files').set.call(state.input, transfer.files);
@@ -980,6 +1192,10 @@ function riftletWebAcceptance(command, native) {
   observation.belongsToOriginalDraft = state.observationIdentityValid() && (state.ownsTarget?.(identity.target) ?? sameTarget(identity.target,state.target));
   observation.hasError = op.error;
   observation.isUploading = op.uploading;
+  try {
+    const facts = op.requestFactSnapshot?.();
+    if (facts) { envelope.schemaVersion = 4; observation.requestEvidence = facts; }
+  } catch { /* No request facts may be inferred from an observation failure. */ }
   if (!observation.belongsToOriginalDraft || op.invalid) {
     if (observation.belongsToOriginalDraft && op.invalid && op.committed
         && op.commitWorkSettled === true && op.inputSideEffectEntered === false && op.inputCount === 0
@@ -1016,7 +1232,18 @@ function riftletWebAcceptance(command, native) {
       && op.started && op.ended && op.fileHashVerified && op.inputCount === 1 && state.currentMember(op)
       && proof.card === op.card && proof.image === op.image && proof.source === state.currentSource(op.image)
       && proof.loadSequence === op.loaded && !op.uploading && op.image.complete) {
+    const completion = proof.completionEvidence;
+    const exactBinding = completion && completion.version === 1 && completion.binding?.version === 1
+        && sameIdentity(completion.binding, identity) && completion.binding.invocationID === op.invocationID
+        && completion.binding.attachmentID === observation.attachmentID
+        && completion.originalSHA256 === identity.assetSHA256 && completion.originalByteCount === op.bytes;
+    if (completion && !exactBinding) {
+      state.markBad(op); observation.state = 'invalidated'; return envelope;
+    }
     observation.state = 'attached'; observation.exactImageIdentity = true;
+    if (exactBinding) {
+      envelope.schemaVersion = 4; observation.completionEvidence = completion;
+    }
   }
   return envelope;
 }

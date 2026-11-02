@@ -93,13 +93,21 @@ public struct AttachmentObservation: Codable, Equatable, Sendable {
     public let automaticRetryExcluded: Bool
     public let uploadStart: ObservedUploadStart?
     public let preInputRetirement: ObservedPreInputRetirement?
+    public let requestEvidence: ObservedRequestEvidence?
+    public let completionEvidence: AttachmentCompletionEvidence?
+    public let terminationEvidence: ObservedAttachmentTermination?
+    public let continuationEvidence: ObservedAttachmentContinuation?
 
     public init(identity: ObservationIdentity, state: AttachmentObservedState,
                 attachmentID: String? = nil, exactImageIdentity: Bool = false,
                 belongsToOriginalDraft: Bool = false, hasError: Bool = false,
                 isUploading: Bool = false, attachmentAbsent: Bool = false,
                 automaticRetryExcluded: Bool = false, uploadStart: ObservedUploadStart? = nil,
-                preInputRetirement: ObservedPreInputRetirement? = nil) {
+                preInputRetirement: ObservedPreInputRetirement? = nil,
+                requestEvidence: ObservedRequestEvidence? = nil,
+                completionEvidence: AttachmentCompletionEvidence? = nil,
+                terminationEvidence: ObservedAttachmentTermination? = nil,
+                continuationEvidence: ObservedAttachmentContinuation? = nil) {
         self.identity = identity; self.state = state; self.attachmentID = attachmentID
         self.exactImageIdentity = exactImageIdentity
         self.belongsToOriginalDraft = belongsToOriginalDraft
@@ -108,6 +116,10 @@ public struct AttachmentObservation: Codable, Equatable, Sendable {
         self.automaticRetryExcluded = automaticRetryExcluded
         self.uploadStart = uploadStart
         self.preInputRetirement = preInputRetirement
+        self.requestEvidence = requestEvidence
+        self.completionEvidence = completionEvidence
+        self.terminationEvidence = terminationEvidence
+        self.continuationEvidence = continuationEvidence
     }
 }
 
@@ -143,7 +155,8 @@ public enum ObservationDecoder {
                   Set(observation.keys).isSubset(of: Set([
                     "identity", "state", "attachmentID", "exactImageIdentity",
                     "belongsToOriginalDraft", "hasError", "isUploading",
-                    "attachmentAbsent", "automaticRetryExcluded", "uploadStart", "preInputRetirement"
+                    "attachmentAbsent", "automaticRetryExcluded", "uploadStart", "preInputRetirement",
+                    "requestEvidence", "completionEvidence", "terminationEvidence", "continuationEvidence"
                   ])),
                   let identity = observation["identity"] as? [String: Any],
                   Set(identity.keys) == Set(["operationID", "assetID", "attempt", "assetSHA256", "target"]),
@@ -171,6 +184,8 @@ public enum ObservationDecoder {
                     "irreversiblyRetired", "inputSideEffectEntered", "inputCount", "reason"
                 ]) else { throw ObservationError.invalidPayload }
             }
+            if let value = observation["requestEvidence"] { try ObservedRequestEvidence.validateShape(value) }
+            try ObservedAttachmentProofs.validateShape(observation)
             let envelope = try JSONDecoder().decode(AttachmentObservationEnvelope.self, from: data)
             try validate(envelope)
             return envelope
@@ -179,8 +194,9 @@ public enum ObservationDecoder {
     }
 
     static func validate(_ envelope: AttachmentObservationEnvelope) throws {
-        guard [1, 2, 3].contains(envelope.schemaVersion) else { throw ObservationError.unsupportedSchema(envelope.schemaVersion) }
+        guard [1, 2, 3, 4].contains(envelope.schemaVersion) else { throw ObservationError.unsupportedSchema(envelope.schemaVersion) }
         let item = envelope.observation
+        try ObservedAttachmentProofs.validate(envelope)
         if let retirement = item.preInputRetirement {
             guard envelope.schemaVersion == 3, retirement.version == 1,
                   retirement.commitInvoked, retirement.commitWorkSettled, retirement.irreversiblyRetired,
@@ -198,7 +214,7 @@ public enum ObservationDecoder {
             throw ObservationError.invalidField("legacy upload start")
         }
         if item.state == .uploadStarted {
-            guard envelope.schemaVersion == 2, let start = item.uploadStart,
+            guard [2, 4].contains(envelope.schemaVersion), let start = item.uploadStart,
                   start.version == 1, start.signal == .correlatedProgress,
                   start.evidenceID.utf8.count == 36, UUID(uuidString: start.evidenceID) != nil,
                   start.inputCount == 1, start.inputSequence > 0, start.startSequence > start.inputSequence,

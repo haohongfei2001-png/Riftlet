@@ -362,6 +362,13 @@ public actor QueueStore {
               let evidence = returned.continuationEvidence, evidence.invocationID == call.invocationID,
               let asset = try asset(id: prior.assetID), call.assetSHA256 == asset.image.sha256,
               policy.allowsContinuation(receipt: returned, asset: asset.image, mode: mode) else { return false }
+        if evidence.version == 2 {
+            // A later policy object must not retroactively promote a START that
+            // was retained only as an unadmitted candidate in this live owner.
+            guard let binding = evidence.binding, let task = evidence.taskIsolation?.task,
+                  let admitted = try platformTaskCheckpoint(for: prior.id),
+                  admitted == PlatformTaskCheckpoint(version: 1, binding: binding, task: task) else { return false }
+        }
         return true
     }
 
@@ -409,6 +416,92 @@ public actor QueueStore {
         }
     }
 
+    /// Optional new proofs are never accepted solely because their JSON shape
+    /// is valid. Bind each to the durable original invocation before changing
+    /// any state. Legacy records without dispatch calls cannot acquire a proof.
+    private func validateBoundPostInputEvidence(_ receipt: TransferReceipt, operation: TransferOperation,
+                                               asset: ImportedAsset, policy: ReceiptPolicy) throws {
+        var bindings: [AttachmentOperationBinding] = []
+        if let proof = receipt.completionEvidence {
+            guard proof.validates(receipt: receipt, asset: asset) else { throw RiftletError.mismatchedReceipt }
+            bindings.append(proof.binding)
+        }
+        if let proof = receipt.terminationEvidence {
+            guard proof.validates(receipt: receipt, asset: asset) else { throw RiftletError.mismatchedReceipt }
+            bindings.append(proof.binding)
+        }
+        if let proof = receipt.continuationEvidence {
+            switch proof.version {
+            case 1:
+                guard proof.binding == nil, proof.taskIsolation == nil else { throw RiftletError.mismatchedReceipt }
+            case 2:
+                guard proof.validates(receipt: receipt, asset: asset), let binding = proof.binding else {
+                    throw RiftletError.mismatchedReceipt
+                }
+                bindings.append(binding)
+            default: throw RiftletError.mismatchedReceipt
+            }
+        }
+        guard !bindings.isEmpty else { return }
+        guard let call = try dispatchCall(operation.id), call.version == 1,
+              call.operationID == operation.id, call.assetID == operation.assetID,
+              call.attempt == operation.attempt, call.assetSHA256 == asset.sha256,
+              call.target == operation.target,
+              bindings.allSatisfy({ $0.invocationID == call.invocationID }) else {
+            throw RiftletError.mismatchedReceipt
+        }
+        let tasks = platformTasks(in: receipt)
+        if let task = tasks.first {
+            guard tasks.allSatisfy({ $0 == task }) else { throw RiftletError.mismatchedReceipt }
+            guard let binding = bindings.first else { throw RiftletError.mismatchedReceipt }
+            let record = PlatformTaskCheckpoint(version: 1, binding: binding, task: task)
+            // Only an independently admitted semantic may establish ownership.
+            // A candidate remains journal evidence; it cannot poison A or reserve
+            // B's task. Existing admitted ownership is immutable even if this
+            // particular later observation is unadmitted.
+            if let original = try platformTaskCheckpoint(for: operation.id), original != record {
+                throw RiftletError.mismatchedReceipt
+            }
+            guard try admitsPlatformTaskOwnership(receipt, asset: asset, policy: policy) else { return }
+            let key = platformTaskKey(operation.id)
+            // Already inside apply's write transaction; do not open a nested
+            // transaction. First write survives later proof-less UNKNOWNs.
+            try database.execute("INSERT OR IGNORE INTO checkpoints(key,value) VALUES(?,?)",
+                                 [key, try JSONEncoder().encode(record).base64EncodedString()])
+            guard try platformTaskCheckpoint(for: operation.id) == record else { throw RiftletError.mismatchedReceipt }
+        }
+    }
+
+    private struct PlatformTaskCheckpoint: Codable, Equatable {
+        let version: Int
+        let binding: AttachmentOperationBinding
+        let task: PlatformAttachmentTaskIdentity
+    }
+    private func platformTaskKey(_ operationID: UUID) -> String { "transfer-platform-task-v1:" + operationID.uuidString }
+    private func platformTaskCheckpoint(for operationID: UUID) throws -> PlatformTaskCheckpoint? {
+        guard let data = try checkpoint(for: platformTaskKey(operationID)) else { return nil }
+        let record = try JSONDecoder().decode(PlatformTaskCheckpoint.self, from: data)
+        guard record.version == 1, record.binding.version == 1, record.binding.operationID == operationID,
+              record.task.version == 1 else { throw RiftletError.mismatchedReceipt }
+        return record
+    }
+
+    private func platformTasks(in receipt: TransferReceipt) -> [PlatformAttachmentTaskIdentity] {
+        [receipt.completionEvidence?.platform?.task, receipt.terminationEvidence?.task,
+         receipt.continuationEvidence?.taskIsolation?.task].compactMap { $0 }
+    }
+    private func admitsPlatformTaskOwnership(_ receipt: TransferReceipt, asset: ImportedAsset,
+                                            policy: ReceiptPolicy) throws -> Bool {
+        if policy.allowsConsumption(receipt: receipt, asset: asset, mode: mode)
+            || policy.allowsRetry(receipt: receipt, asset: asset, mode: mode) { return true }
+        guard policy.allowsContinuation(receipt: receipt, asset: asset, mode: mode) else { return false }
+        // Continuation qualification belongs to the original first START. A
+        // later observation/policy can retain an existing admitted task, but
+        // cannot fill missing ownership behind an immutable old START.
+        return try uploadStartReceipt(for: receipt.operationID) == nil
+            || platformTaskCheckpoint(for: receipt.operationID) != nil
+    }
+
     @discardableResult
     public func apply(_ receipt: TransferReceipt, policy: ReceiptPolicy = .init()) throws -> AssetRecord {
         try database.transaction {
@@ -417,6 +510,7 @@ public actor QueueStore {
             guard op.assetID == receipt.assetID, op.attempt == receipt.attempt,
                   record.image.sha256 == receipt.assetSHA256, op.target == receipt.target,
                   record.activeOperationID == op.id else { throw RiftletError.mismatchedReceipt }
+            try validateBoundPostInputEvidence(receipt, operation: op, asset: record.image, policy: policy)
             if let started = try uploadStartReceipt(for: op.id), let attachmentID = receipt.attachmentID,
                attachmentID != started.attachmentID { throw RiftletError.mismatchedReceipt }
             if let attachmentID = receipt.attachmentID,
@@ -424,6 +518,10 @@ public actor QueueStore {
                policy.allowsUploadStart(receipt: receipt, asset: record.image, mode: mode)
                 || policy.allowsConsumption(receipt: receipt, asset: record.image, mode: mode) {
                 try rejectAttachmentAlias(attachmentID, for: op)
+            }
+            if let task = platformTasks(in: receipt).first, let attachmentID = receipt.attachmentID,
+               try admitsPlatformTaskOwnership(receipt, asset: record.image, policy: policy) {
+                try rejectAttachmentAlias(attachmentID, for: op, platformTask: task)
             }
             // A positive terminal receipt is not immune to a later, independently
             // identified error. Preserve both facts atomically; never re-upload.
@@ -498,7 +596,8 @@ public actor QueueStore {
     /// safe retirement. Completion-only uploads (no observed intermediate START)
     /// and compensated successes must retain the same protection. Unknown or
     /// unadmitted observations, however, cannot mint attachment ownership.
-    private func rejectAttachmentAlias(_ attachmentID: String, for op: TransferOperation) throws {
+    private func rejectAttachmentAlias(_ attachmentID: String, for op: TransferOperation,
+                                       platformTask: PlatformAttachmentTaskIdentity? = nil) throws {
         let target = op.target
         var afterSequence: Int64 = 0
         while true {
@@ -512,9 +611,10 @@ public actor QueueStore {
             let rows = try database.rows("""
                 SELECT o.sequence,o.id,o.target_json,o.phase
                 FROM operations o
-                WHERE o.sequence>? AND o.id<>? AND o.phase<>'failed'
-                  AND (o.phase IN ('succeeded','compensated')
-                       OR EXISTS (SELECT 1 FROM upload_starts s WHERE s.operation_id=o.id))
+                WHERE o.sequence>? AND o.id<>?
+                  AND ((o.phase<>'failed' AND (o.phase IN ('succeeded','compensated')
+                       OR EXISTS (SELECT 1 FROM upload_starts s WHERE s.operation_id=o.id)))
+                       OR EXISTS (SELECT 1 FROM checkpoints c WHERE c.key='transfer-platform-task-v1:'||o.id))
                 ORDER BY o.sequence LIMIT 64
                 """, [String(afterSequence), op.id.uuidString])
             guard !rows.isEmpty else { return }
@@ -527,6 +627,11 @@ public actor QueueStore {
                 afterSequence = sequence
                 let originalTarget = try JSONDecoder().decode(TargetLease.self, from: Data(targetJSON.utf8))
                 guard originalTarget == target || originalTarget.sharesContinuationDraft(with: target) else { continue }
+                if let originalTask = try platformTaskCheckpoint(for: originalID) {
+                    guard originalTask.binding.target == originalTarget else { throw RiftletError.mismatchedReceipt }
+                    if originalTask.binding.attachmentID == attachmentID { throw RiftletError.mismatchedReceipt }
+                    if let platformTask, platformTask.conflicts(with: originalTask.task) { throw RiftletError.mismatchedReceipt }
+                }
                 var owned: [TransferReceipt] = []
                 if let start = try uploadStartReceipt(for: originalID) {
                     guard start.outcome == .uploadStarted else { throw RiftletError.mismatchedReceipt }
@@ -551,6 +656,10 @@ public actor QueueStore {
                         throw RiftletError.mismatchedReceipt
                     }
                     if original.attachmentID == attachmentID { throw RiftletError.mismatchedReceipt }
+                    // START admission owns its observed attachment, not every
+                    // optional platform claim carried beside it. Platform task
+                    // ownership comes only from the separately admitted immutable
+                    // checkpoint above, never an unadmitted continuation payload.
                 }
             }
         }
