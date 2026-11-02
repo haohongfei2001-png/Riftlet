@@ -4,7 +4,8 @@ import RiftletAdapters
 
 /// Separate evidence decisions from 493d1d8: SC-START and SC-COMPLETE are admitted
 /// only for registered new operations in the restricted internal candidate.
-/// Historical v1, safe failure/retry and ordinary production remain unadmitted.
+/// Historical v1 and safe failure/retry remain unadmitted. These candidate maps
+/// do not grant any ordinary product capability; its composition is separate.
 /// These maps are code-owned, never read from arguments, defaults or page JSON.
 enum SystemScreenshotCandidateConfiguration {
     static let uploadStartProfiles: [String: TargetSurface] = [SystemScreenshotWebCandidate.admittedUploadStartProfileID: .webChat]

@@ -54,7 +54,7 @@ ORDINARY_ACCEPTANCE_OVERRIDES = {
     "CFBundleName": "Riftlet Ordinary Test",
     "CFBundleDisplayName": "Riftlet Ordinary Test",
     "RiftletBuildChannel": "ordinary-acceptance",
-    "NSAppleEventsUsageDescription": "Riftlet Ordinary Test 是隔离的内部普通入口验收构建，仅在你点击后向已授权 Chrome 的当前受支持 ChatGPT 草稿附加系统截图，绝不自动发送消息。普通产品上传、安全重试与未决多附件并行仍未开放。",
+    "NSAppleEventsUsageDescription": "Riftlet Ordinary Test 是隔离的内部普通入口验收构建，仅在你点击后向已授权 Chrome 的当前受支持 ChatGPT 草稿附加系统截图，绝不自动发送消息。此构建不代表正式发行准入；安全重试与未决多附件并行仍未开放。",
 }
 
 
