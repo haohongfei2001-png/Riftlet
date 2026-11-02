@@ -201,6 +201,15 @@ function riftletWebAcceptance(command, native) {
             || op.inputSequence < 1 || !Number.isFinite(op.inputObservedAtMS) || op.inputObservedAtMS < 0) return;
         binding.verified = true; binding.inputSequence = op.inputSequence; binding.inputObservedAtMS = op.inputObservedAtMS;
       },
+      completed(op) {
+        const binding = operations.get(op);
+        if (binding && owner(binding) && binding.verified && op.proof
+            && sameIdentity(binding.identity, op.proof.identity) && binding.invocationID === op.invocationID) {
+          // Exact completion has its own proof. Release request observation only:
+          // neither a fetch terminal nor irreversible server retirement is known.
+          close(binding, 'completionObserved');
+        }
+      },
       retire(op) { const binding = operations.get(op); if (binding) close(binding, 'identityInvalid'); }
     });
     registry.originalFileRequests = monitor;
@@ -794,6 +803,9 @@ function riftletWebAcceptance(command, native) {
               attachmentID: op.identity.target.documentID + ':' + nodeID(card) + ':' + nodeID(image)},
             originalByteCount: op.bytes, originalSHA256: op.identity.assetSHA256, ...completionDetails} : null;
         op.proof = {identity: op.identity, card, image, source, loadSequence, completed: tick(), completedAtMS: performance.now(), completionEvidence};
+        // Earlier installed monitors have no completion-close capability. Keep
+        // their original facts/closures rather than replacing a live singleton.
+        try { registry.originalFileRequests?.completed?.(op); } catch { /* Optional observation never changes completion. */ }
         op.file = null;
       })().catch(() => markBad(op)).finally(() => { op.proofPending = false; });
     }

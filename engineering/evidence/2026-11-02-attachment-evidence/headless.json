@@ -1,5 +1,5 @@
 {
-  "sourceSHA256": "af11f4ce288ca0f5960ee8f6c3baa2e5f90532bf5eb7d160efe4fd974b90d051",
+  "sourceSHA256": "64e7af05a98cd6b4e43861f50d1f53d26a292ab39220f451937bb3b98921ce66",
   "browser": "151.0.7922.34",
   "driver": "1.62.1",
   "scope": "headless synthetic DOM with real PNG decoder and sRGB canvas; not live ChatGPT, transport or original server bytes",

@@ -118,6 +118,24 @@ final class AttachmentEvidenceV4Tests: XCTestCase {
             XCTAssertThrowsError(try ObservationDecoder.decode(bad))
         }
     }
+    func testCompletionObservationCloseIsNotTransportTerminationOrCompletionAdmission() async throws {
+        let (_, request) = try await fixture()
+        let raw: [String: Any] = ["version": 1, "invocationID": request.invocationID!.uuidString,
+            "inputCount": 1, "inputSequence": 1, "inputObservedAtMS": 1,
+            "fileSHA256": request.asset.sha256, "coverage": "exactOriginalFileOnly",
+            "observationClosed": true, "closeReason": "completionObserved", "requests": [
+                ["requestID": 1, "transport": "fetch", "requestSequence": 2, "requestedAtMS": 2]
+            ]]
+        let facts = try JSONDecoder().decode(ObservedRequestEvidence.self, from: JSONSerialization.data(withJSONObject: raw))
+        let receipt = try normalize(packet(.init(identity: identity(request), state: .inputTriggered,
+            belongsToOriginalDraft: true, requestEvidence: facts)), request)
+        XCTAssertEqual(facts.closeReason, .completionObserved)
+        XCTAssertNil(facts.requests[0].terminal)
+        XCTAssertEqual(receipt.outcome, .inputTriggered)
+        XCTAssertNil(receipt.completionEvidence); XCTAssertNil(receipt.terminationEvidence)
+        XCTAssertNil(receipt.continuationEvidence); XCTAssertFalse(receipt.safeToRetry)
+    }
+
     func testNewSchemaWithoutEvidenceAndUnknownVersionRemainRejected() async throws {
         let (_, request) = try await fixture()
         XCTAssertThrowsError(try ObservationDecoder.decode(JSONEncoder().encode(packet(

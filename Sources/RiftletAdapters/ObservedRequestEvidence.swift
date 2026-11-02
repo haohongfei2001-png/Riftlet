@@ -6,7 +6,7 @@ import Foundation
 public struct ObservedRequestEvidence: Codable, Equatable, Sendable {
     public enum CloseReason: String, Codable, Sendable {
         case hookReplaced, identityInvalid, requestBound, documentEnded
-        case duplicateSend, reentry, invalidEvent
+        case duplicateSend, reentry, invalidEvent, completionObserved
     }
     public struct Request: Codable, Equatable, Sendable {
         public enum Transport: String, Codable, Sendable { case fetch, xhr }

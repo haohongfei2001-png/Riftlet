@@ -30,16 +30,36 @@ ChatGPT acceptance. No user database, media, UNKNOWN, main ref or release change
 
 | Check | Result | Scope |
 | --- | --- | --- |
-| Current page VM | PASS, 151 cases | Deterministic source execution, no live site |
+| Current page VM | PASS, 154 cases | Deterministic source execution, no live site |
 | Legacy page VM | PASS, 61 cases | Archived observe-only compatibility |
 | Headless Chromium | PASS, 7 cases | Real File/XHR/fetch/PNG/canvas APIs, all URLs intercepted; [exact results](headless.json) |
 | Local full Swift build | PASS | ARM64 CLT build; no App/UI/Chrome launch |
-| Added Core + adapter contract tests | Await formal macOS CI | 18 Core + 7 adapter cases, plus journal and App policy regression; parsed locally |
+| Added Core + adapter contract tests | Await formal macOS CI | 18 Core + 8 adapter cases, plus journal and App policy regression; parsed locally |
 
 Review findings were fixed before freeze: Promise rejection-observation side
 effects, XHR upload-listener preflight side effects, old-observer upgrade, staged
 old-protocol input, unadmitted task ownership and later START promotion. No old
 assertion was weakened, no test was skipped and no source admission was bypassed.
+
+## Successor correction after initial CI
+
+Native run `41476939183` failed the two old ordinary composition fixture tests
+because their synthetic completion lacked the newly required bound proof. The
+success expectations remain unchanged: the fixture now measures its received
+chunks, retains the original invocation and emits schema-4 exact proof; missing
+proof is explicitly rejected. Intel also timed out once in unchanged native
+arrival animation; its cause is unproven and no timeout/skip was changed.
+Feedback run `41476939238` and both source jobs passed for that prior head, not
+for this successor. The updated exact-source full CI must be checked separately.
+
+Independent review also reproduced loss of request facts after 32 completed
+fetch operations. Exact completion now releases only the bounded observation
+slot, retaining immutable facts and late error audit. The new 41-operation case
+failed before the fix and passes after it; 32 unresolved inputs remain bounded.
+An already-installed earlier PR #35 request singleton is retained, not forcibly
+upgraded; the new close behavior applies when a new document installs this source.
+Local page/legacy suites pass 154/61 cases, headless passes 7 cases at the exact
+recorded source hash. No real ChatGPT upload or user data operation was performed.
 
 ## Exact remaining gaps
 

@@ -10,6 +10,13 @@ import RiftletAdapters
 private actor ProductPageFixture: WebBridgeExecutor {
     let target: TargetLease
     private(set) var actions: [WebBridgeAction] = []
+    private struct Input {
+        let invocation: UUID
+        let expectedCount: Int64
+        var bytes = Data()
+        var committed = false
+    }
+    private var inputs: [UUID: Input] = [:]
     init(local: Bool) {
         target = TargetLease(adapterID: "chatgpt-web", surface: .webChat, applicationID: "com.google.Chrome",
             sessionID: "test-process", windowID: "1", tabID: "2", documentID: "doc", composerID: "composer",
@@ -27,10 +34,30 @@ private actor ProductPageFixture: WebBridgeExecutor {
                 "target": JSONSerialization.jsonObject(with: JSONEncoder().encode(target))])
         case .begin, .chunk:
             let i = command.identity!
+            if command.action == .begin {
+                guard inputs[i.operationID] == nil, let invocation = command.invocationID,
+                      let count = command.byteCount else { throw WebAdapterError.invalidRequest }
+                inputs[i.operationID] = Input(invocation: invocation, expectedCount: count)
+            } else {
+                guard var input = inputs[i.operationID], !input.committed,
+                      let chunk = command.chunkBase64, let bytes = Data(base64Encoded: chunk) else {
+                    throw WebAdapterError.invalidRequest
+                }
+                input.bytes.append(bytes); inputs[i.operationID] = input
+            }
             return try JSONSerialization.data(withJSONObject: ["operationID": i.operationID.uuidString, "attempt": i.attempt,
                 "nextChunk": command.action == .begin ? 0 : command.chunkIndex! + 1])
         case .commit, .observe:
             let i = command.identity!, start = command.action == .commit
+            guard var input = inputs[i.operationID], Int64(input.bytes.count) == input.expectedCount else {
+                throw WebAdapterError.invalidRequest
+            }
+            let observedHash = SHA256.hash(data: input.bytes).map { String(format: "%02x", $0) }.joined()
+            guard observedHash == i.assetSHA256 else { throw WebAdapterError.invalidRequest }
+            if start {
+                guard !input.committed else { throw WebAdapterError.invalidRequest }
+                input.committed = true; inputs[i.operationID] = input
+            } else if !input.committed { throw WebAdapterError.invalidRequest }
             var observation: [String: Any] = [
                 "identity": try JSONSerialization.jsonObject(with: JSONEncoder().encode(i)),
                 "state": start ? "uploadStarted" : "attached", "attachmentID": "card-" + i.operationID.uuidString,
@@ -42,7 +69,18 @@ private actor ProductPageFixture: WebBridgeExecutor {
                     "inputCount": 1, "inputSequence": 1, "startSequence": 3, "previousProgress": 10,
                     "currentProgress": 30, "inputObservedAtMS": 10, "startObservedAtMS": 20]
             }
-            return try JSONSerialization.data(withJSONObject: ["schemaVersion": 2,
+            if !start {
+                // This fixture measures the bytes received across begin/chunk/commit.
+                // It is a synthetic exact-proof producer, not a platform response.
+                let proof = AttachmentCompletionEvidence(evidenceID: "fixture-exact-" + i.operationID.uuidString,
+                    binding: .init(operationID: i.operationID, assetID: i.assetID, attempt: i.attempt,
+                        assetSHA256: i.assetSHA256, target: i.target, invocationID: input.invocation,
+                        attachmentID: "card-" + i.operationID.uuidString), kind: .exactOriginalBytes,
+                    originalByteCount: input.expectedCount, originalSHA256: i.assetSHA256,
+                    observedByteCount: Int64(input.bytes.count), observedSHA256: observedHash)
+                observation["completionEvidence"] = try JSONSerialization.jsonObject(with: JSONEncoder().encode(proof))
+            }
+            return try JSONSerialization.data(withJSONObject: ["schemaVersion": start ? 2 : 4,
                 "provenance": ["source": "integratedDevelopment", "evidenceID": "isolated-product-fixture"],
                 "observation": observation])
         default: throw WebAdapterError.invalidRequest
@@ -159,9 +197,19 @@ final class UnifiedProductCompositionTests: XCTestCase {
                     uploadStartEvidence: .init(profileID: profile.uploadStartProfileID!, signal: .correlatedProgress, evidenceID: UUID().uuidString))
                 XCTAssertEqual(policy.allowsUploadStart(receipt: start, asset: asset, mode: .production), origin == expected)
                 XCTAssertFalse(policy.allowsContinuation(receipt: start, asset: asset, mode: .production))
+                let missingProof = TransferReceipt(operationID: start.operationID, assetID: asset.id, attempt: 1,
+                    assetSHA256: asset.sha256, target: target, outcome: .verifiedReady, profileID: profile.profileID,
+                    attachmentID: "card", positiveReady: true, belongsToOriginalDraft: true)
+                XCTAssertFalse(policy.allowsConsumption(receipt: missingProof, asset: asset, mode: .production),
+                    "An admitted source and attached boolean cannot replace the bound exact proof")
+                let proof = AttachmentCompletionEvidence(evidenceID: "exact-source-fixture",
+                    binding: .init(operationID: start.operationID, assetID: asset.id, attempt: 1,
+                        assetSHA256: asset.sha256, target: target, invocationID: UUID(), attachmentID: "card"),
+                    kind: .exactOriginalBytes, originalByteCount: asset.byteCount, originalSHA256: asset.sha256,
+                    observedByteCount: asset.byteCount, observedSHA256: asset.sha256)
                 let ready = TransferReceipt(operationID: start.operationID, assetID: asset.id, attempt: 1, assetSHA256: asset.sha256,
                     target: target, outcome: .verifiedReady, profileID: profile.profileID, attachmentID: "card",
-                    positiveReady: true, belongsToOriginalDraft: true)
+                    positiveReady: true, belongsToOriginalDraft: true, completionEvidence: proof)
                 XCTAssertEqual(policy.allowsConsumption(receipt: ready, asset: asset, mode: .production), origin == expected)
                 XCTAssertFalse(policy.allowsRetry(receipt: ready, asset: asset, mode: .production))
             }

@@ -17,7 +17,13 @@ Fetch preserves the original return value without attaching Promise handlers:
 only call entry and synchronous throw are known. XHR observes its own terminal
 events; it does not attach upload listeners that could change CORS preflight.
 Loss of hooks, duplicate send, invalid events and document retirement close the
-observer. Closed observation is **not** network cancellation. A request error or
+observer. Strict exact completion also closes its observation with
+`completionObserved`, releasing live observer capacity while retaining the immutable
+request facts and original operation. This does not fabricate a fetch terminal result
+or remove later DOM error observation. A previously installed PR #35 observer
+without this method remains untouched: it retains its old bounded behavior until
+a natural new document installs the updated observer. No old operation is
+replayed or forcibly invalidated to upgrade observation. Closed observation is **not** network cancellation. A request error or
 HTTP 2xx is **not** platform finalization, irreversible retirement or task isolation.
 
 Existing exact completion now emits `AttachmentCompletionEvidence`: the original

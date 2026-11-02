@@ -377,6 +377,71 @@ test('different original A/B File objects retain independent requests and old op
   await restarted.context.fetch('ignored',{body:aFile});assert.equal(restarted.observe(next).requestEvidence,undefined);
 });
 
+test('41 exact completed fetch operations release observation slots without losing facts or late errors', async () => {
+  const f=requestFixture({thread:true}),all=[];
+  f.changed(file=>f.context.fetch('ignored',{body:file}));
+  for(let i=0;i<41;i++){
+    const op=withInvocation(f.bind('acbd1234-1111-4111-8111-'+String(i).padStart(12,'0'),Buffer.concat([png,Buffer.from([i])])),webcrypto.randomUUID());
+    op.identity.assetID=webcrypto.randomUUID();
+    f.stage(op);f.commit(op);await f.settle();
+    const view=f.makeCard(op);f.finish(view,op.bytes);await f.settle();
+    const observation=f.observe(op),facts=observation.requestEvidence;
+    assert.equal(observation.state,'attached');assert.equal(observation.completionEvidence.kind,'exactOriginalBytes');
+    assert.ok(facts,'every new original request has its own evidence beyond the old 32-operation boundary');
+    assert.equal(facts.observationClosed,true);assert.equal(facts.closeReason,'completionObserved');
+    assert.equal(facts.requests.length,1);assert.equal(facts.requests[0].terminal,null,'closing observation is not a request terminal claim');
+    assert.equal(facts.requests[0].status,undefined);assert.equal(facts.invocationID,op.command('observe').invocationID);
+    all.push({op,view,facts,attachmentID:observation.attachmentID});
+  }
+  assert.equal(f.input.inputCount,41);assert.equal(f.fetchCalls.length,41);
+  assert.equal(new Set(all.map(item=>item.facts.requests[0].requestID)).size,41);
+  assert.equal(f.context.__riftletWebAcceptance20261027v13.tail.operations.size,41);
+  for(const {op,facts} of all){assert.deepEqual(f.observe(op).requestEvidence,facts);assert.throws(()=>f.commit(op),/COMMIT_REFUSED/);}
+  const first=all[0];first.view.card.attrs['data-state']='error';f.mutate([]);
+  const late=f.observe(first.op);
+  assert.equal(late.state,'invalidated');assert.equal(late.hasError,true);assert.equal(late.attachmentID,first.attachmentID);
+  assert.deepEqual(late.requestEvidence,first.facts);assert.equal(late.completionEvidence,undefined);
+  assert.equal(f.observe(all[40].op).state,'attached');assert.equal(f.input.inputCount,41);
+});
+
+test('an existing request singleton without completion-close is retained without invalidating exact proof', async () => {
+  const f=requestFixture(),a=withInvocation(f.bind());f.changed(file=>f.context.fetch('ignored',{body:file}));
+  f.stage(a);f.commit(a);await f.settle();
+  const registry=f.context.__riftletWebAcceptance20261027v13,monitor=registry.originalFileRequests;
+  // The preceding version has exactly these methods, and its closed-over maps
+  // cannot be replaced or upgraded by a later page command.
+  const preceding=Object.freeze({bind:monitor.bind,verified:monitor.verified,retire:monitor.retire});
+  registry.originalFileRequests=preceding;
+  const view=f.makeCard(a);f.finish(view);await f.settle();
+  const result=f.observe(a);
+  assert.equal(result.state,'attached');assert.equal(result.completionEvidence.kind,'exactOriginalBytes');
+  assert.equal(registry.originalFileRequests,preceding);
+  assert.equal(result.requestEvidence.observationClosed,false,'do not claim older monitor gained the new capability');
+  assert.equal(result.requestEvidence.requests.length,1);assert.equal(f.input.inputCount,1);
+});
+
+test('32 unresolved original fetch inputs remain bounded and cannot acquire completion retirement', async () => {
+  const f=requestFixture({thread:true}),all=[];
+  f.changed(file=>f.context.fetch('ignored',{body:file}));
+  for(let i=0;i<32;i++){
+    const op=withInvocation(f.bind('acbd1234-2222-4222-8222-'+String(i).padStart(12,'0')),webcrypto.randomUUID());
+    f.stage(op);f.commit(op);await f.settle();
+    const observation=f.observe(op);
+    assert.equal(observation.state,'inputTriggered');assert.equal(observation.completionEvidence,undefined);
+    assert.equal(observation.requestEvidence.observationClosed,false);all.push(op);
+  }
+  const extra=withInvocation(f.bind('acbd1234-2222-4222-8222-999999999999'));
+  const rejection=f.call({...extra.command('begin'),uploadName:extra.name,mediaType:'image/png',byteCount:png.length});
+  assert.equal(rejection.reason,'ACTIVE_PAYLOAD_LIMIT');assert.equal(rejection.retiredBeforeInput,true);
+  assert.throws(()=>f.commit(extra),/COMMIT_REFUSED/);
+  for(const op of all){
+    const facts=f.observe(op).requestEvidence;
+    assert.equal(facts.observationClosed,false);assert.equal(facts.requests[0].terminal,null);
+    assert.throws(()=>f.commit(op),/COMMIT_REFUSED/);
+  }
+  assert.equal(f.input.inputCount,32);assert.equal(f.fetchCalls.length,32);
+});
+
 test('hash failure and non-writable request hooks do not manufacture facts or break ordinary input', async () => {
   const wrong=requestFixture({blockedInputDigest:true}),a=withInvocation(wrong.bind());
   wrong.changed(file=>wrong.context.fetch('ignored',{body:file}));wrong.stage(a);wrong.commit(a);
