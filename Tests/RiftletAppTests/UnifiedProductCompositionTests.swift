@@ -168,4 +168,3 @@ final class UnifiedProductCompositionTests: XCTestCase {
         }
     }
 }
-

@@ -240,4 +240,3 @@ final class ProductScreenshotScopeTests: XCTestCase {
         for admission in admissions { await reject { try await admission.enroll(request) } }
     }
 }
-
