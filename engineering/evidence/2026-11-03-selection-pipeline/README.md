@@ -10,8 +10,8 @@ and subsequent review/admission identity are in the short PR's G/H record.
 ## Result
 
 **MAC_PASS, bounded localhost complete-App scheduling scope.** Independent B's
-selection FIFO wait fell from the prior 628.47 ms to 0.331–0.611 ms across the
-independent cases (B-only range 0.425–0.611 ms). B's actual page `change` occurred
+selection FIFO wait fell from the prior 628.47 ms to 0.425–0.611 ms across the
+five independent B samples. B's actual page `change` occurred
 about 212–254 ms after the original AppKit mouseDown. This uses page/native clock
 calibration intervals, not the assumption that a commit return means input.
 Five independent B samples: midpoint p50 227.887 ms, empirical nearest-rank p95
