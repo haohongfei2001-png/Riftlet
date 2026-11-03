@@ -10,7 +10,10 @@ const fs=require('node:fs');
 const os=require('node:os');
 const path=require('node:path');
 const http=require('node:http');
-const {spawn,execFile}=require('node:child_process');
+const {spawn}=require('node:child_process');
+const {bounded,cleanupOwnedChrome,closeLoopbackServer}=require('./native-chrome-cleanup.cjs');
+// Keep cleanup fault regressions in the existing required CI entry point.
+require('./native-chrome-cleanup.test.cjs');
 const binary=[process.env.RIFTLET_CHROME_BIN,
   '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
   '/usr/bin/google-chrome','/usr/bin/chromium','/usr/bin/chromium-browser'].find(p=>p&&fs.existsSync(p));
@@ -133,17 +136,16 @@ function browserFixture() {
 }
 
 test('native Chrome preserves independent File/request bodies across five synthetic legacy-UNKNOWN appends',{
-  skip:!binary&&!required?'CHROME_NOT_RUN: no native Chrome binary in this executor':false,timeout:45000
-},async()=>{
+  // The 30-second report limit is unchanged. Allow the separately bounded
+  // listen, group/root cleanup, server close and profile-removal retries to
+  // finish (about 50 seconds combined) before the outer test aborts them.
+  skip:!binary&&!required?'CHROME_NOT_RUN: no native Chrome binary in this executor':false,timeout:60000
+},async t=>{
   assert.ok(binary,'CHROME_REQUIRED_BUT_UNAVAILABLE: native Chrome must run in this CI job');
   assert.ok(['darwin','linux'].includes(process.platform),'isolated Chrome process-group cleanup requires POSIX');
   const temp=fs.mkdtempSync(path.join(os.tmpdir(),'riftlet-native-input-'));
   let child,exit,stderr='',lastPhase='browser-not-started',completed=false,resolveReport,rejectReport;
-  const bounded=async(promise,ms,label)=>{
-    let timer;
-    try{return await Promise.race([promise,new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error(label())),ms);})]);}
-    finally{clearTimeout(timer);}
-  };
+  const failures=[],connections=new Set();
   const html=browserFixture(),finished=new Promise((resolve,reject)=>{resolveReport=resolve;rejectReport=reject;});
   const server=http.createServer((request,response)=>{
     if(request.method==='GET'&&request.url==='/'){
@@ -162,8 +164,10 @@ test('native Chrome preserves independent File/request bodies across five synthe
     });
     request.on('error',error=>rejectReport(error));
   });
+  server.on('connection',socket=>{connections.add(socket);socket.once('close',()=>connections.delete(socket));});
   try{
-    await new Promise((resolve,reject)=>{server.once('error',reject);server.listen(0,'127.0.0.1',resolve);});
+    await bounded(new Promise((resolve,reject)=>{server.once('error',reject);server.listen(0,'127.0.0.1',resolve);}),
+      2000,'loopback server listen deadline',t.signal);
     const address=server.address();assert.equal(address.address,'127.0.0.1');
     child=spawn(binary,['--headless=new','--no-sandbox','--disable-gpu','--disable-background-networking',
       '--disable-component-update','--disable-sync','--no-first-run','--no-default-browser-check',
@@ -174,71 +178,25 @@ test('native Chrome preserves independent File/request bodies across five synthe
     exit=new Promise(resolve=>child.once('exit',(code,signal)=>{
       resolve();if(!completed)rejectReport(Error('Chrome exited before result; code='+code+' signal='+signal+' phase='+lastPhase+' stderr='+stderr));
     }));
-    const report=await bounded(finished,30000,()=> 'CHROME_FIXTURE_TIMEOUT phase='+lastPhase+' stderr='+stderr);
+    const report=await bounded(finished,30000,()=> 'CHROME_FIXTURE_TIMEOUT phase='+lastPhase+' stderr='+stderr,t.signal);
     assert.equal(report.passed,true,JSON.stringify(report));assert.equal(report.nativeChanges,5);assert.equal(report.networkRequests,0);
     assert.equal(report.harnessTransport,'loopback-only');
     console.log(JSON.stringify(report));
-  }finally{
+  }catch(error){failures.push(error);}
+  finally{
     // detached:true creates a new session/process group owned solely by this
     // fixture. Chrome helpers can outlive the main process and still write the
     // profile, so wait for that exact group even after the main exit event.
     // Never enumerate, match names, or signal any other Chrome process/group.
-    try{
-      if(child?.pid){
-        const group=-child.pid;
-        const readPS=args=>new Promise((resolve,reject)=>{
-          execFile('/bin/ps',args,{encoding:'utf8',timeout:1000,maxBuffer:2*1024*1024},(error,stdout,stderr)=>{
-            if(error){reject(error);return;}
-            if(stderr.trim()){reject(Error('owned Chrome state query produced an error: '+stderr.trim()));return;}
-            resolve(stdout);
-          });
-        });
-        const ownedLiveMembers=async()=>{
-          // -A includes detached/no-TTY processes on Darwin and Linux; their
-          // group-selection flags differ. Read only numeric IDs and state,
-          // validate the complete snapshot, and retain only our exact PGID.
-          // No args, environment, usernames or browser content are requested.
-          const output=await readPS(['-A','-o','pid=,pgid=,stat=']);
-          assert.ok(output.trim(),'empty process-state snapshot cannot prove cleanup');
-          const members=[];
-          for(const line of output.split(/\r?\n/).filter(line=>line.trim())){
-            const match=/^\s*(\d+)\s+(\d+)\s+([A-Za-z][A-Za-z0-9+<>=-]*)\s*$/.exec(line);
-            assert.ok(match,'cannot parse owned Chrome process-state query');
-            const pid=Number(match[1]),pgid=Number(match[2]),state=match[3];
-            assert.ok(Number.isSafeInteger(pid)&&Number.isSafeInteger(pgid),'invalid process metadata');
-            if(pgid===child.pid&&state[0]!=='Z')members.push({pid,pgid,state});
-          }
-          return members;
-        };
-        const signal=async kind=>{
-          if(!(await ownedLiveMembers()).length)return false;
-          try{process.kill(group,kind);return true;}
-          catch(error){
-            // Darwin killpg excludes zombies and can return EPERM for a
-            // zombie-only group. EPERM/ESRCH alone never establish termination.
-            if(!['EPERM','ESRCH'].includes(error.code)||(await ownedLiveMembers()).length)throw error;
-            return false;
-          }
-        };
-        const groupExitedWithin=async milliseconds=>{
-          const deadline=Date.now()+milliseconds;
-          while((await ownedLiveMembers()).length){
-            if(Date.now()>=deadline)return false;
-            await new Promise(resolve=>setTimeout(resolve,50));
-          }
-          return true;
-        };
-        if(await signal('SIGTERM')&&!(await groupExitedWithin(3000))){
-          await signal('SIGKILL');
-          assert.ok(await groupExitedWithin(2000),'owned Chrome process group remained after SIGKILL');
-        }
-        await bounded(exit,1000,()=> 'Chrome main exit event was not received');
-      }
-    }finally{
-      server.closeAllConnections();await new Promise(resolve=>server.close(resolve));
-    }
+    let groupClean=false;
+    try{await cleanupOwnedChrome(child,exit);groupClean=true;}catch(error){failures.push(error);}
+    try{await closeLoopbackServer(server,connections);}catch(error){failures.push(error);}
     // OS/helper final file writes may settle just after group exit. Retry only
     // this newly created profile root; exhausting the bounded retries fails.
-    await fs.promises.rm(temp,{recursive:true,force:true,maxRetries:8,retryDelay:150});
+    if(groupClean){
+      try{await fs.promises.rm(temp,{recursive:true,force:true,maxRetries:8,retryDelay:150});}
+      catch(error){failures.push(error);}
+    }
   }
+  if(failures.length)throw new AggregateError(failures,'native Chrome fixture or cleanup failed: '+failures.map(error=>error.message).join('; '));
 });
