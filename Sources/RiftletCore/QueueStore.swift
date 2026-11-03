@@ -290,14 +290,17 @@ public actor QueueStore {
     /// Commit intent BEFORE the caller performs any external input.
     @discardableResult
     public func markDispatchIntent(_ id: UUID, selection: AcceptedSelection? = nil,
-                                   ownerID: UUID? = nil, policy: ReceiptPolicy = .init()) throws -> UUID {
+                                   ownerID: UUID? = nil, policy: ReceiptPolicy = .init(),
+                                   inputResource: PreparedInputResource? = nil) throws -> UUID {
         try database.transaction {
-            let (op, follows) = try validatedDispatchOperation(id, selection: selection, ownerID: ownerID, policy: policy)
+            let (op, follows) = try validatedDispatchOperation(id, selection: selection, ownerID: ownerID,
+                                                             policy: policy, inputResource: inputResource)
             guard let asset = try asset(id: op.assetID) else { throw RiftletError.assetNotFound }
-            let invocationID = UUID()
+            let invocationID = inputResource?.invocationID ?? UUID()
             let call = DispatchCallRecord(version: 1, operationID: op.id, assetID: op.assetID,
                 attempt: op.attempt, assetSHA256: asset.image.sha256, target: op.target,
-                invocationID: invocationID, ownerID: ownerID, returnedReceipt: nil)
+                invocationID: invocationID, ownerID: ownerID, returnedReceipt: nil,
+                inputExecutionReturned: false, inputResource: inputResource)
             let write = {
                 try self.database.execute("UPDATE operations SET dispatch_exclusive=? WHERE id=?", [follows ? "0" : "1", op.id.uuidString])
                 try self.update(op, phase: .dispatchIntent, status: .transferring, reason: "dispatch-intent committed")
@@ -309,7 +312,8 @@ public actor QueueStore {
     }
 
     private func validatedDispatchOperation(_ id: UUID, selection: AcceptedSelection?,
-                                            ownerID: UUID?, policy: ReceiptPolicy) throws -> (TransferOperation, Bool) {
+                                            ownerID: UUID?, policy: ReceiptPolicy,
+                                            inputResource: PreparedInputResource?) throws -> (TransferOperation, Bool) {
         let op = try requiredOperation(id)
         guard op.phase == .prepared, let record = try asset(id: op.assetID),
               record.visibility == .visible else { throw RiftletError.invalidTransition }
@@ -318,10 +322,16 @@ public actor QueueStore {
                   selection.visibilityRevision == record.visibilityRevision,
                   record.activeOperationID == op.id, try !userHidden() else { throw RiftletError.invalidTransition }
         }
+        if let inputResource {
+            guard selection != nil, ownerID != nil, inputResource.matches(op, asset: record.image) else {
+                throw RiftletError.mismatchedReceipt
+            }
+        }
         var follows = false
         for active in try unresolvedOperations() where active.phase != .prepared && active.target.conflictsForDispatch(with: op.target) {
             follows = true
-            guard selection != nil, try allowsFollowing(active, next: op, ownerID: ownerID, policy: policy) else {
+            guard selection != nil, try allowsFollowing(active, next: op, ownerID: ownerID,
+                                                        policy: policy, inputResource: inputResource) else {
                 throw RiftletError.targetBusy
             }
         }
@@ -334,6 +344,23 @@ public actor QueueStore {
         return try JSONDecoder().decode(DispatchCallRecord.self, from: data)
     }
     public func dispatchInvocationID(for id: UUID) throws -> UUID? { try dispatchCall(id)?.invocationID }
+    public func inputResource(for id: UUID) throws -> PreparedInputResource? { try dispatchCall(id)?.inputResource }
+    public func inputExecutionIsActive(for id: UUID) throws -> Bool {
+        try dispatchCall(id)?.inputExecutionReturned == false
+    }
+
+    /// Executed by the original native call, even when its receipt is UNKNOWN
+    /// or invalid. This releases no attachment identity or retry permission.
+    public func recordInputExecutionReturned(operationID: UUID, invocationID: UUID, ownerID: UUID) throws {
+        try database.transaction {
+            guard var call = try dispatchCall(operationID), call.version == 1,
+                  call.operationID == operationID, call.invocationID == invocationID,
+                  call.ownerID == ownerID else { throw RiftletError.mismatchedReceipt }
+            guard call.inputExecutionReturned != true else { return }
+            call.inputExecutionReturned = true
+            try saveCheckpoint(JSONEncoder().encode(call), for: callKey(operationID))
+        }
+    }
 
     /// Only the original append return path writes this, never reconcile/recovery.
     public func recordAppendReturned(_ receipt: TransferReceipt, invocationID: UUID, ownerID: UUID) throws {
@@ -346,12 +373,23 @@ public actor QueueStore {
                   call.target == receipt.target, op.phase != .prepared else { throw RiftletError.mismatchedReceipt }
             guard call.returnedReceipt == nil || call.returnedReceipt == receipt else { throw RiftletError.invalidTransition }
             call.returnedReceipt = receipt
+            call.inputExecutionReturned = true
             try saveCheckpoint(JSONEncoder().encode(call), for: callKey(op.id))
         }
     }
 
     private func allowsFollowing(_ prior: TransferOperation, next: TransferOperation,
-                                 ownerID: UUID?, policy: ReceiptPolicy) throws -> Bool {
+                                 ownerID: UUID?, policy: ReceiptPolicy,
+                                 inputResource: PreparedInputResource? = nil) throws -> Bool {
+        if inputResource != nil {
+            guard prior.id != next.id, prior.assetID != next.assetID, let ownerID else { return false }
+            // A still executing call in THIS owner remains serialized. Across a
+            // restart the page reservation checks the actual old pending commit;
+            // persisted UNKNOWN is not evidence of an occupied HTML input.
+            if let call = try dispatchCall(prior.id), call.ownerID == ownerID,
+               call.inputExecutionReturned == false { return false }
+            return true
+        }
         guard prior.id != next.id, prior.assetID != next.assetID,
               prior.target.sharesContinuationDraft(with: next.target),
               let ownerID, let call = try dispatchCall(prior.id), call.version == 1,
@@ -660,11 +698,19 @@ public actor QueueStore {
                 }
                 afterSequence = sequence
                 let originalTarget = try JSONDecoder().decode(TargetLease.self, from: Data(targetJSON.utf8))
-                guard originalTarget == target || originalTarget.sharesContinuationDraft(with: target) else { continue }
+                // Ownership conflicts are broader than click authority. An old
+                // schema2 target has no current pin and must still retain its ID.
+                guard originalTarget == target || originalTarget.conflictsForDispatch(with: target) else { continue }
                 if let originalInput = try inputIsolationCheckpoint(for: originalID) {
                     guard originalInput.binding.target == originalTarget else { throw RiftletError.mismatchedReceipt }
                     if originalInput.binding.attachmentID == attachmentID { throw RiftletError.mismatchedReceipt }
-                    if let inputIsolation, inputIsolation.conflicts(with: originalInput.isolation) {
+                    // The ownership UUID remains exclusive across rearming and
+                    // restart. Numeric request counters can restart in a new
+                    // document and are comparable only in the original scope.
+                    if let inputIsolation,
+                       inputIsolation.ownershipID == originalInput.isolation.ownershipID
+                        || ((originalTarget == target || originalTarget.sharesContinuationDraft(with: target))
+                            && inputIsolation.conflicts(with: originalInput.isolation)) {
                         throw RiftletError.mismatchedReceipt
                     }
                 }

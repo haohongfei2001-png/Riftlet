@@ -630,6 +630,141 @@ function riftletWebAcceptance(command, native) {
         && baseline.every(c => c.isConnected && form.contains(c));
     };
     const tick = () => { if (++sequence > Number.MAX_SAFE_INTEGER - 1) invalid = true; return sequence; };
+    // A fresh operation can reserve a CURRENT empty native picker without
+    // rewriting any historical operation or borrowing its request proof. The
+    // browser/app, never Riftlet, must have emptied that picker. This establishes
+    // resource availability, not upload completion or an application's append
+    // semantics. The original guarded change path is still used exactly once.
+    const preparedResources = new Map();
+    const preparedResourceOperations = new Set();
+    const filesDescriptor = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'files');
+    const valueDescriptor = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value');
+    const uuid = value => typeof value === 'string' && /^[a-fA-F0-9]{8}-(?:[a-fA-F0-9]{4}-){3}[a-fA-F0-9]{12}$/.test(value);
+    const data = (object, key) => {
+      const descriptor = object && Object.getOwnPropertyDescriptor(object, key);
+      return descriptor && Object.prototype.hasOwnProperty.call(descriptor, 'value') ? descriptor.value : undefined;
+    };
+    const nativeInputEmpty = () => {
+      try {
+        const filesNow = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'files');
+        const valueNow = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value');
+        // React may track value with an own accessor. It is never consulted or
+        // written here: the original native getter establishes emptiness. An
+        // own files property is different because application change listeners
+        // would read that shadow instead of the native FileList we submit.
+        if (Object.getOwnPropertyDescriptor(input, 'files')
+            || typeof filesDescriptor?.get !== 'function' || typeof filesDescriptor?.set !== 'function'
+            || typeof valueDescriptor?.get !== 'function' || filesNow?.get !== filesDescriptor.get
+            || filesNow?.set !== filesDescriptor.set || valueNow?.get !== valueDescriptor.get) return false;
+        const files = Reflect.apply(filesDescriptor.get, input, []);
+        return files !== null && files.length === 0 && Reflect.apply(valueDescriptor.get, input, []) === '';
+      } catch { return false; }
+    };
+    const inputExecutionFree = currentOperation => {
+      try {
+        // Old native calls can outlive the App. Inspect the source-owned page
+        // executions by actual input-node identity, not a renewed target UUID.
+        // A settled old one-shot execution needs no newer request fields.
+        for (const version of [7, 8, 9, 10, 11, 12, 13]) {
+          const descriptor = Object.getOwnPropertyDescriptor(globalThis, '__riftletWebAcceptance20261027v' + version);
+          if (!descriptor) continue;
+          if (!Object.prototype.hasOwnProperty.call(descriptor, 'value') || descriptor.configurable || descriptor.writable) return false;
+          const ownerRegistry = descriptor.value, inputOwners = data(ownerRegistry, 'inputOwners');
+          if (inputOwners !== undefined) {
+            if (!(inputOwners instanceof WeakMap)) return false;
+            const owner = WeakMap.prototype.get.call(inputOwners, input);
+            if (owner && owner !== currentOperation) return false;
+          }
+          const seen = new Set(); let generation = data(ownerRegistry, 'head');
+          if (!generation && data(ownerRegistry, 'count') !== 0) return false;
+          while (generation) {
+            if (seen.size >= 512 || seen.has(generation)) return false;
+            seen.add(generation);
+            const operations = data(generation, 'operations');
+            if (!(operations instanceof Map)) return false;
+            const retired = data(generation, 'retired') === true, originalInput = data(generation, 'input');
+            if (!retired && !originalInput) return false;
+            if (originalInput === input) for (const operation of Map.prototype.values.call(operations)) {
+              if (operation === currentOperation) continue;
+              if (data(operation, 'commitWorkSettled') === true) continue;
+              if (data(operation, 'committed') !== true) {
+                if (data(operation, 'invalid') !== true) return false;
+              } else if (!(data(operation, 'inputCount') === 1 && data(operation, 'expectingInput') === false)) return false;
+            }
+            generation = data(generation, 'next');
+          }
+        }
+        return true;
+      } catch { return false; }
+    };
+    const attachmentSnapshot = () => [...form.querySelectorAll('[role=button][aria-label]')].map(card => ({
+      card, label: card.getAttribute('aria-label'), images: [...card.querySelectorAll('img')].map(image => ({image, alt: image.alt}))
+    }));
+    const attachmentsIntact = attachments => attachments.every(({card, label, images}) => card.isConnected
+      && form.contains(card) && card.getAttribute('aria-label') === label
+      && images.every(({image, alt}) => image.isConnected && card.contains(image) && image.alt === alt));
+    const editorSnapshot = () => {
+      const selection = document.getSelection();
+      return {text: editor.textContent, selection: selection ? {anchorNode:selection.anchorNode, anchorOffset:selection.anchorOffset,
+        focusNode:selection.focusNode, focusOffset:selection.focusOffset, rangeCount:selection.rangeCount, isCollapsed:selection.isCollapsed} : null,
+        activeElement:document.activeElement};
+    };
+    const editorIntact = before => {
+      const now = editorSnapshot();
+      return now.text === before.text && now.activeElement === before.activeElement && (before.selection === null ? now.selection === null
+        : now.selection !== null && Object.keys(before.selection).every(key => now.selection[key] === before.selection[key]));
+    };
+    const resourceAvailable = (resource, operation = null) => resource && !resource.invalid
+      && sameTarget(resource.identity.target, operation?.identity.target || resource.identity.target)
+      && observationIdentityValid() && composerAvailable() && nativeInputEmpty() && inputExecutionFree(operation)
+      && attachmentsIntact(resource.attachments);
+    const prepareInputResource = (identity, invocationID) => {
+      if (!uuid(identity?.operationID) || !uuid(identity.assetID) || !uuid(invocationID)
+          || !Number.isSafeInteger(identity.attempt) || identity.attempt < 1 || !/^[a-f0-9]{64}$/.test(identity.assetSHA256)
+          || preparedResourceOperations.has(identity.operationID)
+          || !nativeInputEmpty() || !inputExecutionFree(null)) fail('INPUT_RESOURCE_UNAVAILABLE');
+      const resource = {identity:{...identity,target:{...identity.target}}, invocationID, resourceID:crypto.randomUUID(),
+        attachments:attachmentSnapshot(), claimed:false, invalid:false};
+      if (!resourceAvailable(resource)) fail('INPUT_RESOURCE_UNAVAILABLE');
+      // A lost preparation reply is not an input. A new explicit operation may
+      // supersede those unused tokens; their later BEGIN can no longer claim
+      // them. This never retires staged/committed input, and no clock is used.
+      for (const [id, prior] of preparedResources) if (!prior.claimed) preparedResources.delete(id);
+      preparedResourceOperations.add(identity.operationID);
+      preparedResources.set(resource.resourceID, resource);
+      return {version:1, identity:resource.identity, invocationID, resourceID:resource.resourceID,
+        inputElementID:documentID + ':' + nodeID(input), kind:'emptyNativeFileInput',
+        observedSequence:tick(), baselineAttachmentCount:resource.attachments.length};
+    };
+    const claimInputResource = (identity, invocationID, resourceID) => {
+      const resource = preparedResources.get(resourceID);
+      if (!resource || resource.claimed || !sameIdentity(resource.identity,identity)
+          || resource.invocationID !== invocationID || !resourceAvailable(resource)) return null;
+      resource.claimed = true; return resource;
+    };
+    const releaseInputResource = (identity, invocationID, resourceID) => {
+      const resource = preparedResources.get(resourceID);
+      if (!resource || resource.claimed || !sameIdentity(resource.identity,identity) || resource.invocationID !== invocationID) return false;
+      preparedResources.delete(resourceID); return true;
+    };
+    const enterInputResource = op => {
+      const resource = op.inputResource;
+      if (!resource || !resource.claimed || !sameIdentity(resource.identity,op.identity)
+          || resource.invocationID !== op.invocationID || !resourceAvailable(resource,op)) return false;
+      // Include attachments added after reservation; copy only local node
+      // identities. Text/selection are compared within this synchronous input,
+      // so typing normally between preparation and commit is not rejected.
+      resource.attachments = attachmentSnapshot();
+      resource.editor = editorSnapshot();
+      op.preservedAttachments = resource.attachments;
+      preparedResources.delete(resource.resourceID);
+      return true;
+    };
+    const forgetInputResource = op => {
+      if (!op.inputResource) return;
+      preparedResources.delete(op.inputResource.resourceID);
+      op.inputResource.editor = null; op.inputResource = null;
+    };
     const revokeInput = () => {
       inputRevoked = true;
       for (const op of operations.values()) if (!op.committed && !op.identity.target.clickBindingID) { op.file = null; op.chunks = []; op.invalid = true; }
@@ -637,6 +772,7 @@ function riftletWebAcceptance(command, native) {
     const invalidate = () => {
       if (invalid) return;
       invalid = true; invalidate.retired = true; revokeInput(); tick(); stopObservation();
+      preparedResources.clear();
       const audit = new Map();
       for (const [id, op] of operations) {
         try { registry.originalFileRequests?.retire(op); } catch {}
@@ -717,6 +853,7 @@ function riftletWebAcceptance(command, native) {
       }
       op.invalid = true; op.error ||= error; op.reason ||= error ? 'attachmentError' : reason;
       op.proof = null; op.file = null; op.chunks = [];
+      op.preservedAttachments = null;
       // Detached attachment nodes cannot later prove this operation. Keep the
       // immutable identity/start/error audit, release detached preview payloads.
       if (!op.card?.isConnected || !form.contains(op.card)) { op.card = null; op.image = null; op.progressNode = null; }
@@ -841,6 +978,7 @@ function riftletWebAcceptance(command, native) {
               attachmentID: op.identity.target.documentID + ':' + nodeID(card) + ':' + nodeID(image)},
             originalByteCount: op.bytes, originalSHA256: op.identity.assetSHA256, ...completionDetails} : null;
         op.proof = {identity: op.identity, card, image, source, loadSequence, completed: tick(), completedAtMS: performance.now(), completionEvidence};
+        op.preservedAttachments = null;
         // Earlier installed monitors have no completion-close capability. Keep
         // their original facts/closures rather than replacing a live singleton.
         try { registry.originalFileRequests?.completed?.(op); } catch { /* Optional observation never changes completion. */ }
@@ -900,12 +1038,16 @@ function riftletWebAcceptance(command, native) {
           inputCount: 1, inputSequence: op.inputSequence, startSequence: now,
           previousProgress: previous, currentProgress: value,
           inputObservedAtMS: op.inputObservedAtMS, startObservedAtMS: observedAt};
+        // The submission's preservation check ends at its own first START.
+        // A later independent error/removal/completion of A is not B's fate.
+        op.preservedAttachments = null;
       }
     }
 
     function sample(op, eventType = 'query', eventImage = null) {
       if (!observationIdentityValid()) return;
       if (op.invalid || !op.committed) return;
+      if (op.preservedAttachments && !attachmentsIntact(op.preservedAttachments)) { markBad(op, false, 'attachmentRemoved'); return; }
       const now = tick(), cards = ownCards(op.name);
       if (cards.length === 0) { if (op.card) markBad(op, false, 'attachmentRemoved'); return; }
       if (cards.length !== 1 || op.inputCount !== 1) { markBad(op); return; }
@@ -947,6 +1089,10 @@ function riftletWebAcceptance(command, native) {
       const progressOldValues = new Map(); // At most one entry per bounded operation.
       for (const record of records) {
         if (containsNode(form, record.target)) relevant = true;
+        if (record.type === 'attributes' && ['aria-label','alt'].includes(record.attributeName)) {
+          for (const resource of preparedResources.values()) if (resource.attachments.some(({card,images}) =>
+              record.target === card || images.some(({image}) => record.target === image))) resource.invalid = true;
+        }
         if (modeGroup && containsNode(modeGroup, record.target)) {
           relevant = true;
           // Observe the changes, not only their final value: Chat -> Work ->
@@ -956,10 +1102,14 @@ function riftletWebAcceptance(command, native) {
                 && record.oldValue !== record.target.getAttribute(record.attributeName))) invalidate();
         }
         for (const removed of record.removedNodes || []) {
+          for (const resource of preparedResources.values()) if (resource.attachments.some(({card, images}) =>
+              containsNode(removed, card) || images.some(({image}) => containsNode(removed,image)))) resource.invalid = true;
           if ([editor, input, form, modeGroup, modeHeader, chatMode, workMode, ...baseline].some(node => containsNode(removed, node))) {
             invalidate(); relevant = true;
           }
           for (const op of operations.values()) {
+            if (op.preservedAttachments?.some(({card,images}) => containsNode(removed,card)
+                || images.some(({image}) => containsNode(removed,image)))) { markBad(op, false, 'attachmentRemoved'); relevant = true; }
             if (containsNode(removed, op.card) || containsNode(removed, op.image)) { markBad(op, false, 'attachmentRemoved'); relevant = true; }
           }
         }
@@ -1083,7 +1233,10 @@ function riftletWebAcceptance(command, native) {
       monitorAlive = monitor.bind(form, editor, input, logicalDraftIdentity, route, checkBinding, invalidate);
       if (!checkBinding() || !monitorAlive()) { invalidate(); fail('UNPROVEN_MONITORED_BINDING'); }
     }
-    state = {lifecycleVersion: 1, proofProtocolVersion: 1, inputIsolationVersion: 1, continuationFor, pinTarget, validFor, claimPin, ownsTarget: candidate => ownsPin(candidate) || sameTarget(candidate,target) || retiredTargets.some(t => sameTarget(t,candidate)), get target() { return target; }, valid, observationIdentityValid, invalidate, revokeInput, drain, continuityEvents, operations, sample, tick, ownCards, markBad, currentMember,
+    state = {lifecycleVersion: 1, proofProtocolVersion: 1, inputIsolationVersion: 1, inputResourceVersion:1,
+      prepareInputResource, claimInputResource, releaseInputResource, enterInputResource, forgetInputResource,
+      inputResourcePreserved:op => attachmentsIntact(op.inputResource.attachments) && editorIntact(op.inputResource.editor),
+      continuationFor, pinTarget, validFor, claimPin, ownsTarget: candidate => ownsPin(candidate) || sameTarget(candidate,target) || retiredTargets.some(t => sameTarget(t,candidate)), get target() { return target; }, valid, observationIdentityValid, invalidate, revokeInput, drain, continuityEvents, operations, sample, tick, ownCards, markBad, currentMember,
       currentSource, input, form, nodeID, renewEmptyInputLease, next: null};
     if (registry.tail) registry.tail.next = state;
     else registry.head = state;
@@ -1108,11 +1261,11 @@ function riftletWebAcceptance(command, native) {
     }
     let current = registry.tail;
     current?.drain();
-    if (!current || current.proofProtocolVersion !== 1 || current.inputIsolationVersion !== 1
+    if (!current || current.proofProtocolVersion !== 1 || current.inputIsolationVersion !== 1 || current.inputResourceVersion !== 1
         || !current.pinTarget || !current.valid() || !contextMatches(current.target)) {
       // Historical v13 closures have no renewal capability. Leave those states
       // and all their operations untouched and use their original bounded path.
-      if (current?.proofProtocolVersion === 1 && current.inputIsolationVersion === 1
+      if (current?.proofProtocolVersion === 1 && current.inputIsolationVersion === 1 && current.inputResourceVersion === 1
           && current.pinTarget && contextMatches(current.target) && current.renewEmptyInputLease?.()) return current.target;
       if (current) current.revokeInput();
       // Identity tombstones are retained; lifetime count is not a resource quota.
@@ -1138,6 +1291,9 @@ function riftletWebAcceptance(command, native) {
   }
   const identity = command.identity;
   if (!identity || !sameTarget(identity.target, command.target)) fail('IDENTITY_REQUIRED');
+  if (command.action === 'releaseInputResource') {
+    return {released: state?.releaseInputResource?.(identity,command.invocationID,command.inputResourceID) === true};
+  }
   if (!state || !(command.action === 'observe' ? state.observationIdentityValid() : (identity.target.clickBindingID ? state.validFor?.(identity.target) : state.valid())) || !contextMatches(identity.target) || !(command.action === 'observe' ? (state.ownsTarget?.(identity.target) ?? sameTarget(identity.target,state.target)) : (identity.target.clickBindingID ? state.validFor?.(identity.target) : sameTarget(identity.target,state.target)))
       || (command.action !== 'observe' && !identity.target.clickBindingID && state !== registry.tail)) {
     if (command.action === 'observe') return blankObservation(identity);
@@ -1145,6 +1301,10 @@ function riftletWebAcceptance(command, native) {
   }
   const acknowledge = (op, nextChunk) => ({operationID: op.identity.operationID, attempt: op.identity.attempt, nextChunk});
   let op = state.operations.get(identity.operationID);
+  if (command.action === 'prepareInputResource') {
+    if (op || state.inputResourceVersion !== 1 || typeof state.prepareInputResource !== 'function') fail('INPUT_RESOURCE_UNAVAILABLE');
+    return state.prepareInputResource(identity,command.invocationID);
+  }
   if (command.action === 'begin') {
     if ([...generations()].some(generation => generation.operations.has(identity.operationID)) || !Number.isSafeInteger(identity.attempt) || identity.attempt < 1
         || !/^[a-f0-9]{64}$/.test(identity.assetSHA256)
@@ -1172,7 +1332,18 @@ function riftletWebAcceptance(command, native) {
       return {identity, invocationID:command.invocationID, retiredBeforeInput:true,
         inputCount:0, commitInvoked:false, rejectedBeforeBegin:true, reason:'ACTIVE_PAYLOAD_LIMIT'};
     }
+    let inputResource = null;
+    if (command.inputResourceID !== undefined) {
+      inputResource = state.claimInputResource?.(identity,command.invocationID,command.inputResourceID);
+      if (!inputResource) {
+        if (!state.lifecycleVersion || typeof command.invocationID !== 'string') fail('BEGIN_REFUSED');
+        state.operations.set(identity.operationID,{identity,invocationID:command.invocationID,name:command.uploadName,committed:false,invalid:true,inputCount:0});
+        return {identity,invocationID:command.invocationID,retiredBeforeInput:true,inputCount:0,commitInvoked:false,
+          rejectedBeforeBegin:true,reason:'INPUT_RESOURCE_UNAVAILABLE'};
+      }
+    }
     op = {identity, invocationID: command.invocationID, name: command.uploadName, bytes: command.byteCount, chunks: [], nextChunk: 0, received: 0,
+      inputResource,
       committed: false, invalid: false, error: false, inputCount: 0, fileHashVerified: false,
       inputSideEffectEntered: false, commitWorkSettled: false, preInputRetirementReason: null,
       callSettledSequence: null, inputOwnershipID: null, inputIsolationProof: null,
@@ -1204,7 +1375,7 @@ function riftletWebAcceptance(command, native) {
     return acknowledge(op, op.nextChunk);
   }
   if (command.action === 'discard') {
-    if (!op.committed) { op.chunks = []; op.invalid = true; }
+    if (!op.committed) { op.chunks = []; op.invalid = true; state.forgetInputResource?.(op); }
     return {discarded: !op.committed, ...(state.lifecycleVersion === 1 && !op.committed && op.inputCount === 0 && typeof op.invocationID === 'string' && command.invocationID === op.invocationID ? {identity:op.identity,invocationID:op.invocationID,retiredBeforeInput:true,inputCount:0,commitInvoked:false} : {})}; // Never remove an attachment or reset a dispatch tombstone.
   }
   if (command.action === 'commit') {
@@ -1222,6 +1393,7 @@ function riftletWebAcceptance(command, native) {
         op.preInputRetirementReason = reason;
       }
       state.markBad(op);
+      state.forgetInputResource?.(op);
     };
     if (!signature.every((n, i) => bytes[i] === n)) {
       retireBeforeInput('invalidPNGSignature'); op.commitWorkSettled = true;
@@ -1239,6 +1411,7 @@ function riftletWebAcceptance(command, native) {
       // no await, focus, route change, selector fallback, send or composer edit.
       const file = new File([bytes], op.name, {type: 'image/png'}), transfer = new DataTransfer();
       transfer.items.add(file);
+      if (op.inputResource && !state.enterInputResource?.(op)) { retireBeforeInput('inputPreparationFailed'); return; }
       try { originalFileRequests(registry).bind(file, state, op); } catch { /* No request evidence, ordinary input unchanged. */ }
       // Shared input access lasts only through the one native setter and its
       // synchronous change dispatch. Background observations never own it.
@@ -1253,8 +1426,10 @@ function riftletWebAcceptance(command, native) {
         Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'files').set.call(state.input, transfer.files);
         state.input.dispatchEvent(new Event('change', {bubbles: true}));
         op.callSettledSequence = state.tick();
+        if (op.inputResource && !state.inputResourcePreserved(op)) state.markBad(op, false, 'attachmentIdentityChanged');
       } finally {
         op.expectingInput = false;
+        state.forgetInputResource?.(op);
         if (registry.inputOwners.get(state.input) === op) registry.inputOwners.delete(state.input);
       }
       if (op.inputCount !== 1) state.markBad(op);

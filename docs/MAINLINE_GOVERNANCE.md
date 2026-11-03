@@ -1,3 +1,16 @@
+# Current application — legacy UNKNOWN input resource, 2026-11-03
+
+The current user authorizes the current-resource path for the next explicit
+click, independently of the older attachment journal. A one-use B-bound native
+empty-picker reservation and atomic final recheck may grant input without
+rewriting A's START/UNKNOWN or requiring A's later-version request fields.
+Current pending page commits remain exclusive; native call execution and final
+attachment state are stored separately. Existing request-owned continuation
+remains available. This is implementation authorization, not current ChatGPT
+acceptance: archived append evidence, controlled tests and unavailable real
+page acceptance retain their separate scopes. The unchanged G/H protocol below
+still governs this same Draft PR; no main merge or public release is requested.
+
 # Current application — independent attachment lifecycle, 2026-11-03
 
 The current user authorizes a short development PR fixing independent screenshot

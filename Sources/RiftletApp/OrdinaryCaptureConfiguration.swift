@@ -130,7 +130,7 @@ struct OrdinaryAttachmentAdmission {
             return "普通启动仅本地收录；真实附加尚待最终 App 端到端验收及独立审查。授权浏览器不会开启上传。"
         }
         if usesUnifiedProduct {
-            return "Chrome 中文 ChatGPT 普通新聊天及已有聊天；支持原样系统截图和内置截图。PNG 须为单帧非交错 RGBA8，≤8 MiB、≤16,777,216 像素。真实开始后收起，独立核对最终完成；确认原文件已被独立请求接收时可继续追加。无法确认时保留记录并说明原因，不重复输入、不自动发送。上传后安全重试仍需独立失败证明。"
+            return "Chrome 中文 ChatGPT 普通新聊天及已有聊天；支持原样系统截图和内置截图。PNG 须为单帧非交错 RGBA8，≤8 MiB、≤16,777,216 像素。真实开始后收起，逐张核对最终完成；旧图待核实不自动阻止后续截图，继续追加前单独检查当前附件入口。入口暂不能安全接收时立即说明并保留本张图片，不重复输入、不自动发送。上传后安全重试仍需独立失败证明。"
         }
         let scope = purpose == .internalAcceptance ? "内部普通入口验收（非生产准入）" : "普通附加范围"
         let chats = internalCurrentDrafts ? "已识别业务身份的普通新聊天及已有聊天（含本地身份）" : "普通已有聊天"
