@@ -44,8 +44,10 @@ request ownership evidence; the new path does not infer their requests absent.
 Direct original File request observation remains the separately typed old path.
 The hermetic Chrome fixture executes actual native FileList, File, Blob,
 FormData, Request, Selection and WebCrypto with a synthetic local application.
-It uses a new temporary profile and local file only, with no network upload or
-real ChatGPT session. macOS CI requires Chrome; this Linux executor reports
+It uses a new temporary profile and a dedicated loopback fixture only, with no
+attachment network upload or real ChatGPT session. The parent process waits for
+the actual final assertion report in bounded wall time; a DOM snapshot with
+unfinished asynchronous work cannot pass. macOS CI requires Chrome; this Linux executor reports
 CHROME_NOT_RUN because no native Chrome binary is installed.
 Exact completed CI, native tests and package identities are recorded in PR #37.
 

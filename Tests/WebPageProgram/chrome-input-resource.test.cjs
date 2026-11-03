@@ -1,14 +1,16 @@
 'use strict';
 // Hermetic native-Chrome/FileList/Blob/Request regression with a SYNTHETIC app.
-// No ChatGPT page, signed-in profile, network request, CDP, Apple Events or real
-// user screenshot is opened. This is not current-platform append acceptance.
+// No ChatGPT page, signed-in profile, external request, CDP, Apple Events or real
+// user screenshot is opened. Test status goes only to the temporary loopback
+// harness, separately from the synthetic application's zero network uploads.
+// This is not current-platform append acceptance.
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const os=require('node:os');
 const path=require('node:path');
-const {pathToFileURL}=require('node:url');
-const {spawnSync}=require('node:child_process');
+const http=require('node:http');
+const {spawn}=require('node:child_process');
 const binary=[process.env.RIFTLET_CHROME_BIN,
   '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
   '/usr/bin/google-chrome','/usr/bin/chromium','/usr/bin/chromium-browser'].find(p=>p&&fs.existsSync(p));
@@ -21,11 +23,14 @@ function browserFixture() {
 <script>
 (async()=>{
  const result=document.getElementById('result'),report={scope:'real Chrome primitives; synthetic local application; NOT live ChatGPT',passed:false};
+ const harnessFetch=globalThis.fetch.bind(globalThis);
+ const stage=async phase=>{report.phase=phase;await harnessFetch('/progress',{method:'POST',body:JSON.stringify({phase})});};
  const check=(ok,label)=>{if(!ok)throw Error(label);};
  const wait=async fn=>{for(let i=0;i<300;i++){if(fn())return;await new Promise(r=>setTimeout(r,10));}throw Error('bounded fixture wait expired');};
  const hash=async bytes=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),n=>n.toString(16).padStart(2,'0')).join('');
  try {
-  check(location.protocol==='file:','fixture must stay local');
+  check(location.protocol==='http:'&&location.hostname==='127.0.0.1','fixture must stay on loopback');
+  await stage('initializing');
   const form=document.querySelector('form'),editor=form.querySelector('[contenteditable]'),input=form.querySelector('input');
   // Only the route is injected. File, FileList, DataTransfer, Event, native
   // input descriptors, Selection, DOM, Blob, FormData, Request and WebCrypto
@@ -39,8 +44,9 @@ function browserFixture() {
   for(let index=0;index<5;index++){
     const canvas=document.createElement('canvas');canvas.width=2;canvas.height=1;
     const ctx=canvas.getContext('2d');ctx.fillStyle='rgb('+(12+index*40)+','+(25+index*15)+','+(35+index*10)+')';ctx.fillRect(0,0,2,1);
-    const png=await new Promise(r=>canvas.toBlob(r,'image/png')),bytes=new Uint8Array(await png.arrayBuffer());
-    sources.push({png,bytes,sha:await hash(bytes),base64:btoa(String.fromCharCode(...bytes)),pixelURL:canvas.toDataURL('image/png')});
+    const pixelURL=canvas.toDataURL('image/png'),base64=pixelURL.split(',')[1],bytes=Uint8Array.from(atob(base64),c=>c.charCodeAt(0));
+    const png=new Blob([bytes],{type:'image/png'});
+    sources.push({png,bytes,sha:await hash(bytes),base64,pixelURL});
   }
   check(new Set(sources.map(value=>value.sha)).size===5,'each operation has distinct image bytes');
   const tasks=[];let changes=0;
@@ -62,6 +68,7 @@ function browserFixture() {
   });
   const operations=[];
   for(let index=0;index<5;index++){
+    await stage('input-'+index);
     const {bytes,sha,base64}=sources[index];
     const target=call({action:'captureTarget'}),pin=call({action:'pinTarget',target,clickBindingID:crypto.randomUUID()});
     const identity={operationID:crypto.randomUUID(),assetID:crypto.randomUUID(),attempt:1,assetSHA256:sha,target:pin};
@@ -77,6 +84,7 @@ function browserFixture() {
     const task=tasks[index];await task.image.decode();call(command('observe'));task.progress.setAttribute('aria-valuenow','40');
     await new Promise(r=>setTimeout(r,0));let observation=call(command('observe')).observation;
     check(observation.state==='uploadStarted','own START '+index);check(!observation.requestEvidence,'no invented request observation');
+    await stage('started-'+index);
     operations.push({identity,command,record:record(),start:record().uploadStart});
     if(index===0){
       // A real scaled preview in this synthetic app cannot prove the original
@@ -86,12 +94,14 @@ function browserFixture() {
       const small=document.createElement('canvas');small.width=1;small.height=1;small.getContext('2d').fillRect(0,0,1,1);
       task.image.src=small.toDataURL('image/png');await task.image.decode();
       await wait(()=>record().completionUnavailable);check(call(command('observe')).observation.state==='unknown','scaled original stays UNKNOWN');
+      await stage('legacy-unknown');
     }
     for(const prior of tasks)check(form.contains(prior.card),'prior card retained');
     check(editor.textContent===text&&selection.anchorNode===anchor&&selection.anchorOffset===anchorOffset&&selection.focusNode===focus&&selection.focusOffset===focusOffset,'text/selection retained');
   }
   // The native body extractions and original immutable Files remain independent
   // after four later native FileList submissions and application-owned resets.
+  await stage('verifying-independent-bodies');
   for(const task of tasks){
     check(await hash(await task.file.arrayBuffer())===task.sha,'original File keeps its own distinct bytes');
     const extracted=task.kind==='FormData'?(await task.request.formData()).get('file'):await task.request.blob();
@@ -99,6 +109,7 @@ function browserFixture() {
   }
   let independentCompletions=0;
   for(let index=1;index<tasks.length;index++){
+    await stage('completing-'+index);
     const task=tasks[index],op=operations[index];
     task.progress.setAttribute('aria-valuenow','100');call(op.command('observe'));task.progress.remove();
     await new Promise(r=>setTimeout(r,0));task.image.src=task.pixelURL;await task.image.decode();
@@ -113,30 +124,67 @@ function browserFixture() {
   const occupied=new DataTransfer();occupied.items.add(new File([sources[0].png],'user-selected.png',{type:'image/png'}));input.files=occupied.files;
   let refused=false;try{call({action:'prepareInputResource',identity:next,target:nextPin,invocationID:crypto.randomUUID()});}catch(e){refused=/INPUT_RESOURCE_UNAVAILABLE/.test(e.message);}
   check(refused&&changes===5&&input.files[0].name==='user-selected.png','nonempty input refusal preserves selected file');
-  Object.assign(report,{passed:true,nativeChanges:changes,originalFileBodiesVerified:tasks.length,nativeRequestBodiesVerified:tasks.length,independentCompletions,legacyUnknownUnchanged:true,textSelectionCardsPreserved:true,occupiedPickerRefused:true,networkRequests:0});
+  Object.assign(report,{passed:true,phase:'complete',nativeChanges:changes,originalFileBodiesVerified:tasks.length,nativeRequestBodiesVerified:tasks.length,independentCompletions,legacyUnknownUnchanged:true,textSelectionCardsPreserved:true,occupiedPickerRefused:true,networkRequests:0,harnessTransport:'loopback-only'});
  } catch(error){report.error=String(error?.stack||error);}
  result.textContent=JSON.stringify(report);
+ await harnessFetch('/result',{method:'POST',body:JSON.stringify(report)});
 })();
 </script>`.replace('SOURCE',()=>JSON.stringify(source).replace(/<\/script/gi,'<\\/script'));
 }
 
 test('native Chrome preserves independent File/request bodies across five synthetic legacy-UNKNOWN appends',{
   skip:!binary&&!required?'CHROME_NOT_RUN: no native Chrome binary in this executor':false,timeout:45000
-},()=>{
+},async()=>{
   assert.ok(binary,'CHROME_REQUIRED_BUT_UNAVAILABLE: native Chrome must run in this CI job');
   const temp=fs.mkdtempSync(path.join(os.tmpdir(),'riftlet-native-input-'));
+  let child,exit,stderr='',lastPhase='browser-not-started',completed=false,resolveReport,rejectReport;
+  const bounded=async(promise,ms,label)=>{
+    let timer;
+    try{return await Promise.race([promise,new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error(label())),ms);})]);}
+    finally{clearTimeout(timer);}
+  };
+  const html=browserFixture(),finished=new Promise((resolve,reject)=>{resolveReport=resolve;rejectReport=reject;});
+  const server=http.createServer((request,response)=>{
+    if(request.method==='GET'&&request.url==='/'){
+      response.writeHead(200,{'content-type':'text/html; charset=utf-8','cache-control':'no-store'});response.end(html);return;
+    }
+    if(request.method!=='POST'||!['/progress','/result'].includes(request.url)){response.writeHead(404);response.end();return;}
+    let body='',oversize=false;
+    request.setEncoding('utf8');request.on('data',part=>{body+=part;if(body.length>65536){oversize=true;request.destroy();rejectReport(Error('oversized local fixture report'));}});
+    request.on('end',()=>{
+      if(oversize)return;
+      try{
+        const value=JSON.parse(body);response.writeHead(200,{'content-type':'text/plain'});response.end('ok');
+        if(request.url==='/progress'){lastPhase=String(value.phase);return;}
+        completed=true;resolveReport(value);
+      }catch(error){response.writeHead(400);response.end();rejectReport(error);}
+    });
+    request.on('error',error=>rejectReport(error));
+  });
   try{
-    const html=path.join(temp,'fixture.html');fs.writeFileSync(html,browserFixture());
-    const run=spawnSync(binary,['--headless=new','--no-sandbox','--disable-gpu','--disable-background-networking',
+    await new Promise((resolve,reject)=>{server.once('error',reject);server.listen(0,'127.0.0.1',resolve);});
+    const address=server.address();assert.equal(address.address,'127.0.0.1');
+    child=spawn(binary,['--headless=new','--no-sandbox','--disable-gpu','--disable-background-networking',
       '--disable-component-update','--disable-sync','--no-first-run','--no-default-browser-check',
-      '--user-data-dir='+path.join(temp,'isolated-profile'),'--virtual-time-budget=15000','--dump-dom',pathToFileURL(html).href],
-      {encoding:'utf8',timeout:35000,maxBuffer:8*1024*1024});
-    assert.equal(run.error,undefined,run.error?.message);
-    assert.equal(run.status,0,run.stderr.slice(-2000));
-    const match=run.stdout.match(/<pre id="result">([\s\S]*?)<\/pre>/);
-    assert.ok(match,'Chrome did not render the fixture report');
-    const report=JSON.parse(match[1].replace(/&quot;/g,'"').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>'));
+      '--user-data-dir='+path.join(temp,'isolated-profile'),'http://127.0.0.1:'+address.port+'/'],{stdio:['ignore','ignore','pipe']});
+    child.stderr.setEncoding('utf8');child.stderr.on('data',part=>{stderr=(stderr+part).slice(-8000);});
+    child.once('error',rejectReport);
+    exit=new Promise(resolve=>child.once('exit',(code,signal)=>{
+      resolve();if(!completed)rejectReport(Error('Chrome exited before result; code='+code+' signal='+signal+' phase='+lastPhase+' stderr='+stderr));
+    }));
+    const report=await bounded(finished,30000,()=> 'CHROME_FIXTURE_TIMEOUT phase='+lastPhase+' stderr='+stderr);
     assert.equal(report.passed,true,JSON.stringify(report));assert.equal(report.nativeChanges,5);assert.equal(report.networkRequests,0);
+    assert.equal(report.harnessTransport,'loopback-only');
     console.log(JSON.stringify(report));
-  }finally{fs.rmSync(temp,{recursive:true,force:true});}
+  }finally{
+    // Wait for the dedicated Chrome process before removing its isolated
+    // profile. Unexpected exits/timeouts remain test failures, never PASS.
+    if(child?.pid&&child.exitCode===null&&child.signalCode===null){
+      child.kill('SIGTERM');
+      try{await bounded(exit,2000,()=> 'Chrome did not terminate');}
+      catch{child.kill('SIGKILL');await bounded(exit,2000,()=> 'Chrome did not exit after SIGKILL');}
+    }
+    server.closeAllConnections();await new Promise(resolve=>server.close(resolve));
+    fs.rmSync(temp,{recursive:true,force:true,maxRetries:3,retryDelay:100});
+  }
 });
