@@ -96,6 +96,7 @@ enum ProductStatus {
         case waiting, preparing, cancelledBeforeInput, expiredBeforeInput, targetChangedBeforeInput
         case targetValidationUnavailableBeforeInput, noClickTimeTarget, targetUnavailable
         case unresolvedDraftBeforeInput, imageMissingBeforeInput, resultUnconfirmed
+        case independentAttachmentUnavailableBeforeInput
 
         var text: String {
             switch self {
@@ -108,6 +109,8 @@ enum ProductStatus {
             case .noClickTimeTarget: return "点击时页面尚未完成验证；图片保留，本次未上传。"
             case .targetUnavailable: return "当前没有可验证的附件目标；图片记录保留，请在运行状态中查看原因。"
             case .unresolvedDraftBeforeInput: return "原草稿中还有一张图片的附加结果待核实；本次未上传，图片保留。"
+            case .independentAttachmentUnavailableBeforeInput:
+                return "暂不能确认当前页面能保留原附件并继续追加；本次未上传，图片保留。"
             case .imageMissingBeforeInput: return "找不到这张图片的本地副本；本次未上传。"
             case .resultUnconfirmed: return "附加结果暂不能确认，图片记录已保留；不会自动再次附加。"
             }
@@ -123,6 +126,7 @@ enum ProductStatus {
         case "Original target changed before input": return .targetChangedBeforeInput
         case "Target validation unavailable before input": return .targetValidationUnavailableBeforeInput
         case "Original draft has an unresolved upload; no input occurred": return .unresolvedDraftBeforeInput
+        case "Independent attachment input is unproven for this draft; no input occurred": return .independentAttachmentUnavailableBeforeInput
         case "Private image is missing; no input occurred": return .imageMissingBeforeInput
         case "Selection revoked during preparation; no input occurred",
              "Original selection no longer authorized; no input occurred",

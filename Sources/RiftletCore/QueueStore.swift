@@ -353,7 +353,7 @@ public actor QueueStore {
     private func allowsFollowing(_ prior: TransferOperation, next: TransferOperation,
                                  ownerID: UUID?, policy: ReceiptPolicy) throws -> Bool {
         guard prior.id != next.id, prior.assetID != next.assetID,
-              prior.phase != .compensated, prior.target.sharesContinuationDraft(with: next.target),
+              prior.target.sharesContinuationDraft(with: next.target),
               let ownerID, let call = try dispatchCall(prior.id), call.version == 1,
               call.ownerID == ownerID, call.operationID == prior.id,
               call.assetID == prior.assetID, call.attempt == prior.attempt, call.target == prior.target,
@@ -368,6 +368,10 @@ public actor QueueStore {
             guard let binding = evidence.binding, let task = evidence.taskIsolation?.task,
                   let admitted = try platformTaskCheckpoint(for: prior.id),
                   admitted == PlatformTaskCheckpoint(version: 1, binding: binding, task: task) else { return false }
+        } else if evidence.version == 3 {
+            guard let binding = evidence.binding, let isolation = evidence.inputIsolation,
+                  let admitted = try inputIsolationCheckpoint(for: prior.id),
+                  admitted == InputIsolationCheckpoint(version: 1, binding: binding, isolation: isolation) else { return false }
         }
         return true
     }
@@ -433,8 +437,8 @@ public actor QueueStore {
         if let proof = receipt.continuationEvidence {
             switch proof.version {
             case 1:
-                guard proof.binding == nil, proof.taskIsolation == nil else { throw RiftletError.mismatchedReceipt }
-            case 2:
+                guard proof.binding == nil, proof.taskIsolation == nil, proof.inputIsolation == nil else { throw RiftletError.mismatchedReceipt }
+            case 2, 3:
                 guard proof.validates(receipt: receipt, asset: asset), let binding = proof.binding else {
                     throw RiftletError.mismatchedReceipt
                 }
@@ -449,6 +453,21 @@ public actor QueueStore {
               call.target == operation.target,
               bindings.allSatisfy({ $0.invocationID == call.invocationID }) else {
             throw RiftletError.mismatchedReceipt
+        }
+        if let proof = receipt.continuationEvidence, let binding = proof.binding,
+           let isolation = proof.inputIsolation {
+            let record = InputIsolationCheckpoint(version: 1, binding: binding, isolation: isolation)
+            let existing = try inputIsolationCheckpoint(for: operation.id)
+            if let existing, existing != record { throw RiftletError.mismatchedReceipt }
+            // Only the first admitted START can establish this capability.
+            // Reconcile/new policy/restart cannot upgrade an old UNKNOWN.
+            if policy.allowsContinuation(receipt: receipt, asset: asset, mode: mode),
+               try uploadStartReceipt(for: operation.id) == nil || existing != nil {
+                try rejectAttachmentAlias(binding.attachmentID, for: operation, inputIsolation: isolation)
+                try database.execute("INSERT OR IGNORE INTO checkpoints(key,value) VALUES(?,?)",
+                    [inputIsolationKey(operation.id), try JSONEncoder().encode(record).base64EncodedString()])
+                guard try inputIsolationCheckpoint(for: operation.id) == record else { throw RiftletError.mismatchedReceipt }
+            }
         }
         let tasks = platformTasks(in: receipt)
         if let task = tasks.first {
@@ -476,6 +495,19 @@ public actor QueueStore {
         let version: Int
         let binding: AttachmentOperationBinding
         let task: PlatformAttachmentTaskIdentity
+    }
+    private struct InputIsolationCheckpoint: Codable, Equatable {
+        let version: Int
+        let binding: AttachmentOperationBinding
+        let isolation: AttachmentInputIsolationEvidence
+    }
+    private func inputIsolationKey(_ operationID: UUID) -> String { "transfer-input-isolation-v1:" + operationID.uuidString }
+    private func inputIsolationCheckpoint(for operationID: UUID) throws -> InputIsolationCheckpoint? {
+        guard let data = try checkpoint(for: inputIsolationKey(operationID)) else { return nil }
+        let record = try JSONDecoder().decode(InputIsolationCheckpoint.self, from: data)
+        guard record.version == 1, record.binding.version == 1, record.binding.operationID == operationID,
+              record.isolation.version == 1 else { throw RiftletError.mismatchedReceipt }
+        return record
     }
     private func platformTaskKey(_ operationID: UUID) -> String { "transfer-platform-task-v1:" + operationID.uuidString }
     private func platformTaskCheckpoint(for operationID: UUID) throws -> PlatformTaskCheckpoint? {
@@ -597,7 +629,8 @@ public actor QueueStore {
     /// and compensated successes must retain the same protection. Unknown or
     /// unadmitted observations, however, cannot mint attachment ownership.
     private func rejectAttachmentAlias(_ attachmentID: String, for op: TransferOperation,
-                                       platformTask: PlatformAttachmentTaskIdentity? = nil) throws {
+                                       platformTask: PlatformAttachmentTaskIdentity? = nil,
+                                       inputIsolation: AttachmentInputIsolationEvidence? = nil) throws {
         let target = op.target
         var afterSequence: Int64 = 0
         while true {
@@ -614,7 +647,8 @@ public actor QueueStore {
                 WHERE o.sequence>? AND o.id<>?
                   AND ((o.phase<>'failed' AND (o.phase IN ('succeeded','compensated')
                        OR EXISTS (SELECT 1 FROM upload_starts s WHERE s.operation_id=o.id)))
-                       OR EXISTS (SELECT 1 FROM checkpoints c WHERE c.key='transfer-platform-task-v1:'||o.id))
+                       OR EXISTS (SELECT 1 FROM checkpoints c WHERE c.key='transfer-platform-task-v1:'||o.id)
+                       OR EXISTS (SELECT 1 FROM checkpoints c WHERE c.key='transfer-input-isolation-v1:'||o.id))
                 ORDER BY o.sequence LIMIT 64
                 """, [String(afterSequence), op.id.uuidString])
             guard !rows.isEmpty else { return }
@@ -627,6 +661,13 @@ public actor QueueStore {
                 afterSequence = sequence
                 let originalTarget = try JSONDecoder().decode(TargetLease.self, from: Data(targetJSON.utf8))
                 guard originalTarget == target || originalTarget.sharesContinuationDraft(with: target) else { continue }
+                if let originalInput = try inputIsolationCheckpoint(for: originalID) {
+                    guard originalInput.binding.target == originalTarget else { throw RiftletError.mismatchedReceipt }
+                    if originalInput.binding.attachmentID == attachmentID { throw RiftletError.mismatchedReceipt }
+                    if let inputIsolation, inputIsolation.conflicts(with: originalInput.isolation) {
+                        throw RiftletError.mismatchedReceipt
+                    }
+                }
                 if let originalTask = try platformTaskCheckpoint(for: originalID) {
                     guard originalTask.binding.target == originalTarget else { throw RiftletError.mismatchedReceipt }
                     if originalTask.binding.attachmentID == attachmentID { throw RiftletError.mismatchedReceipt }

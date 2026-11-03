@@ -25,7 +25,7 @@ public struct PreInputRejection: Error, Codable, Equatable, Sendable {
 
 /// Separate from upload-start admission: the adapter must have independently
 /// proved that a subsequent input cannot replace/cancel the original attachment.
-/// No shipping Web adapter or App profile grants this capability.
+/// Browser input ownership and platform task finalization are separate facts.
 public struct AttachmentContinuationEvidence: Codable, Equatable, Sendable {
     public let version: Int
     public let profileID: String
@@ -35,22 +35,30 @@ public struct AttachmentContinuationEvidence: Codable, Equatable, Sendable {
     /// original binding and independently established platform-task isolation.
     public let binding: AttachmentOperationBinding?
     public let taskIsolation: AttachmentTaskIsolationEvidence?
+    /// Version 3 uses measured browser request ownership, without pretending
+    /// that document-local request IDs are platform/server task identities.
+    public let inputIsolation: AttachmentInputIsolationEvidence?
     public init(version: Int = 1, profileID: String, evidenceID: String, invocationID: UUID,
-                binding: AttachmentOperationBinding? = nil, taskIsolation: AttachmentTaskIsolationEvidence? = nil) {
+                binding: AttachmentOperationBinding? = nil, taskIsolation: AttachmentTaskIsolationEvidence? = nil,
+                inputIsolation: AttachmentInputIsolationEvidence? = nil) {
         self.version = version; self.profileID = profileID
         self.evidenceID = evidenceID; self.invocationID = invocationID
         self.binding = binding; self.taskIsolation = taskIsolation
+        self.inputIsolation = inputIsolation
     }
 
     public func validates(receipt: TransferReceipt, asset: ImportedAsset) -> Bool {
-        guard version == 2, AttachmentEvidenceValidation.token(profileID, maximum: 128),
+        guard AttachmentEvidenceValidation.token(profileID, maximum: 128),
               AttachmentEvidenceValidation.token(evidenceID),
               let binding, binding.invocationID == invocationID,
               binding.matches(receipt: receipt, asset: asset),
-              let taskIsolation, taskIsolation.validates(receipt: receipt, asset: asset),
               receipt.belongsToOriginalDraft, receipt.isUploading,
               !receipt.hasError, !receipt.positiveReady, !receipt.safeToRetry else { return false }
-        return true
+        switch version {
+        case 2: return inputIsolation == nil && taskIsolation?.validates(receipt: receipt, asset: asset) == true
+        case 3: return taskIsolation == nil && inputIsolation?.validates(receipt: receipt, asset: asset) == true
+        default: return false
+        }
     }
 }
 

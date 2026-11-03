@@ -117,7 +117,11 @@ final class DispatchLifecycleTests: XCTestCase {
         let finalA = try await db.operation(id: ao.id), finalB = try await db.operation(id: bo.id)
         XCTAssertEqual(finalA?.phase, .compensated); XCTAssertEqual(finalB?.phase, .succeeded)
         XCTAssertEqual(finalB?.target, bt)
-        try await expectBusy(db, owner: owner, t: target(pin: UUID()))
+        // A's later compensated result cannot revoke its already-established
+        // independent input ownership or block a different screenshot C.
+        let c = try await asset(db), ct = target(pin: UUID())
+        let co = try await db.prepare(assetID: c.id, target: ct)
+        _ = try await db.markDispatchIntent(co.id, selection: selection(c, target: ct), ownerID: owner, policy: policy)
     }
 
     func testContinuationScopeRequiresExactObservedDraftAndDoesNotPromoteLegacyPins() throws {

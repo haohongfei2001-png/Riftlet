@@ -98,18 +98,24 @@ struct OrdinaryAttachmentAdmission {
         var completions: [String: TargetSurface] = [:]
         if usesUnifiedProduct {
             var origins: [String: Set<AssetOrigin>] = [:]
+            var continuations: [String: TargetSurface] = [:]
             for scope in [SystemScreenshotAdmissionScope.productSystem, .productApplication] where productOrigins.contains(scope.origin) {
                 let profile = scope.admittedProfile
                 if let start = profile.uploadStartProfileID {
                     starts[start] = .webChat; origins[start] = [scope.origin]
                 }
                 completions[profile.profileID] = .webChat; origins[profile.profileID] = [scope.origin]
+                if let continuation = profile.continuationProfileID {
+                    continuations[continuation] = .webChat; origins[continuation] = [scope.origin]
+                }
             }
             // Old scopes may have registered input-only operations without
             // start/completion approval. Observe their original journal, but do
             // not promote them merely because a new product is now enabled.
-            return ReceiptPolicy(admittedProfiles: completions, uploadStartProfiles: starts, profileOrigins: origins,
-                requiredCompletionEvidenceProfiles: Set(completions.keys))
+            return ReceiptPolicy(admittedProfiles: completions, uploadStartProfiles: starts,
+                continuationProfiles: continuations, profileOrigins: origins,
+                requiredCompletionEvidenceProfiles: Set(completions.keys),
+                requiredInputIsolationProfiles: Set(continuations.keys))
         }
         if allowsStart { starts[OrdinarySystemScreenshotScope.admittedUploadStartProfileID] = .webChat }
         if allowsCompletion { completions[OrdinarySystemScreenshotScope.admittedCompletionProfileID] = .webChat }
@@ -124,7 +130,7 @@ struct OrdinaryAttachmentAdmission {
             return "普通启动仅本地收录；真实附加尚待最终 App 端到端验收及独立审查。授权浏览器不会开启上传。"
         }
         if usesUnifiedProduct {
-            return "Chrome 中文 ChatGPT 普通新聊天及已有聊天；支持原样系统截图和内置截图。PNG 须为单帧非交错 RGBA8，≤8 MiB、≤16,777,216 像素。真实开始后收起，独立核对最终完成；无法确认时保留记录，不重复输入。不自动发送消息。上传后安全重试及未决多附件继续尚未准入。"
+            return "Chrome 中文 ChatGPT 普通新聊天及已有聊天；支持原样系统截图和内置截图。PNG 须为单帧非交错 RGBA8，≤8 MiB、≤16,777,216 像素。真实开始后收起，独立核对最终完成；确认原文件已被独立请求接收时可继续追加。无法确认时保留记录并说明原因，不重复输入、不自动发送。上传后安全重试仍需独立失败证明。"
         }
         let scope = purpose == .internalAcceptance ? "内部普通入口验收（非生产准入）" : "普通附加范围"
         let chats = internalCurrentDrafts ? "已识别业务身份的普通新聊天及已有聊天（含本地身份）" : "普通已有聊天"

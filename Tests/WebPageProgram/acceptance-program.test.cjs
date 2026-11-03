@@ -462,7 +462,7 @@ test('versioned completion emits exact bytes or exact original-size pixels only,
     f.finish(view,kind==='bytes'||kind==='legacy'?png:Buffer.from([...png,99]));await f.settle();
     const packet=f.call(op.command('observe')),proof=packet.observation.completionEvidence;
     if(kind==='legacy'){assert.equal(packet.schemaVersion,2);assert.equal(packet.observation.state,'attached');assert.equal(proof,undefined);continue;}
-    if(kind==='scaled'){assert.equal(packet.observation.state,'invalidated');assert.equal(proof,undefined);continue;}
+    if(kind==='scaled'){assert.equal(packet.observation.state,'unknown');assert.equal(proof,undefined);assert.equal(packet.observation.hasError,false);continue;}
     assert.equal(packet.schemaVersion,4);assert.equal(packet.observation.state,'attached');
     assert.equal(proof.version,1);assert.equal(proof.kind,kind==='bytes'?'exactOriginalBytes':'exactSRGBPixels');
     assert.equal(proof.originalByteCount,png.length);assert.equal(proof.originalSHA256,op.identity.assetSHA256);
@@ -688,7 +688,8 @@ test('observed PNG re-encoding can match exact sRGB RGBA; a mismatched preview c
   f.finish(v,Buffer.from([...png,99]));await f.settle();assert.equal(f.observe(op).state,'attached');
   const g=fixture(),bad=g.bind();g.stage(bad);g.commit(bad);await g.settle();const wrong=g.makeCard(bad);
   wrong.image.rgba=new Uint8Array([0,0,0,255,0,0,0,255]);g.finish(wrong,Buffer.from([...png,99]));await g.settle();
-  assert.equal(g.observe(bad).state,'invalidated');
+  assert.equal(g.observe(bad).state,'unknown');
+  assert.equal(g.observe(bad).hasError,false);assert.equal(g.observe(bad).completionEvidence,undefined);
 });
 
 // The DOM fixture models pixels, not a real PNG decoder or a ChatGPT server.
@@ -2355,4 +2356,153 @@ test('before pin, focus or visibility A-B-A cannot revive the original click rou
     const pin=f.call({action:'pinTarget',target:fresh,clickBindingID:webcrypto.randomUUID()});
     assert.equal(f.call({action:'validate',target:pin}).valid,true);assert.equal(f.input.inputCount,0);
   }
+});
+
+// These are controlled original-File/request regressions. The platform append
+// behavior itself is supported separately by the archived real two/three-input
+// ChatGPT samples; this fixture does not stand in for that platform evidence.
+for (const count of [2,3,5]) test(`${count} same-draft click pins own distinct requests while prior uploads remain unfinished`, async () => {
+  const f=requestFixture({thread:true}), prior=f.form.append(new f.Node('div',{role:'button','aria-label':'user-old.png'}));
+  prior.append(new f.Node('img'));
+  const text=f.editor.textContent, all=[];
+  f.target();f.changed(file=>f.context.fetch('ignored',{body:file}));
+  for(let index=0;index<count;index++) {
+    const op=withInvocation(pinnedOperation(f,webcrypto.randomUUID()),webcrypto.randomUUID());
+    op.identity.assetID=webcrypto.randomUUID();
+    f.stage(op);f.commit(op);await f.settle();
+    const view=f.makeCard(op,10);setProgress(f,view,25);
+    const observed=f.observe(op), proof=observed.continuationEvidence;
+    assert.equal(observed.state,'uploadStarted');assert.ok(proof);
+    assert.equal(proof.taskIsolation,undefined,'no invented platform/server task identity');
+    assert.equal(proof.binding.operationID,op.identity.operationID);
+    assert.equal(proof.binding.invocationID,op.command('observe').invocationID);
+    assert.equal(proof.binding.target.clickBindingID,op.target.clickBindingID);
+    assert.equal(proof.binding.attachmentID,observed.attachmentID);
+    assert.equal(proof.inputIsolation.kind,'originalRequestBodyOwned');
+    assert.equal(proof.inputIsolation.originalSHA256,op.identity.assetSHA256);
+    assert.equal(proof.inputIsolation.originalByteCount,png.length);
+    assert.equal(proof.inputIsolation.requestID,observed.requestEvidence.requests[0].requestID);
+    assert.equal(proof.inputIsolation.requestSequence,observed.requestEvidence.requests[0].requestSequence);
+    assert.equal(proof.inputIsolation.inputSequence,observed.uploadStart.inputSequence);
+    assert.ok(proof.inputIsolation.callSettledSequence>proof.inputIsolation.inputSequence);
+    assert.ok(proof.inputIsolation.observedSequence>=proof.inputIsolation.startSequence);
+    assert.equal(f.input.files.length,1,'only the new File is set; older files are not replayed');
+    assert.equal(f.input.files[0].name,op.name);
+    all.push({op,view,proof,originalFile:f.input.files[0]});
+    for(const earlier of all) assert.equal(f.observe(earlier.op).state,'uploadStarted');
+  }
+  assert.equal(f.input.inputCount,count);assert.equal(f.fetchCalls.length,count);
+  assert.equal(new Set(all.map(a=>a.proof.inputIsolation.ownershipID)).size,count);
+  assert.equal(new Set(all.map(a=>a.proof.inputIsolation.requestID)).size,count);
+  assert.equal(new Set(all.map(a=>a.proof.binding.attachmentID)).size,count);
+  assert.equal(new Set(all.map(a=>a.proof.inputIsolation.inputElementID)).size,1);
+  for(let index=0;index<count;index++) assert.equal(f.fetchCalls[index].args[1].body,all[index].originalFile);
+  assert.equal(f.editor.textContent,text);assert.ok(f.form.contains(prior));
+  // B/C/D may complete first. A's delayed result only changes A's observation.
+  const last=all.at(-1);f.finish(last.view);await f.settle();
+  assert.equal(f.observe(last.op).state,'attached');assert.equal(f.observe(all[0].op).state,'uploadStarted');
+  f.finish(all[0].view);await f.settle();assert.equal(f.observe(all[0].op).state,'attached');
+  assert.equal(f.observe(last.op).state,'attached');assert.equal(f.input.inputCount,count);
+});
+
+test('scaled preview is UNKNOWN with an exact reason, retains START and does not invalidate B',async()=>{
+  const f=requestFixture({thread:true});f.target();f.changed(file=>f.context.fetch('ignored',{body:file}));
+  const a=withInvocation(pinnedOperation(f),webcrypto.randomUUID());f.stage(a);f.commit(a);await f.settle();
+  const av=f.makeCard(a,10);setProgress(f,av,40);const start=f.observe(a);
+  assert.ok(start.continuationEvidence);
+  const record=f.context.__riftletWebAcceptance20261027v13.tail.operations.get(a.identity.operationID);
+  const originalStart=record.uploadStart;av.image.naturalWidth=1;f.finish(av,Buffer.from([...png,99]));await f.settle();
+  const unknown=f.observe(a);
+  assert.equal(unknown.state,'unknown');assert.equal(unknown.reason,'previewDimensionsUnproven');
+  assert.equal(unknown.hasError,false);assert.equal(unknown.completionEvidence,undefined);
+  assert.equal(unknown.automaticRetryExcluded,false);assert.equal(record.invalid,false);
+  assert.equal(record.uploadStart,originalStart);assert.equal(record.file,null,'no retained preview payload after unprovable completion');
+  const b=withInvocation(pinnedOperation(f,webcrypto.randomUUID()),webcrypto.randomUUID());b.identity.assetID=webcrypto.randomUUID();
+  f.stage(b);f.commit(b);await f.settle();const bv=f.makeCard(b,10);setProgress(f,bv,40);
+  assert.ok(f.observe(b).continuationEvidence);f.finish(bv);await f.settle();assert.equal(f.observe(b).state,'attached');
+  const before=f.input.inputCount;for(let i=0;i<4;i++)assert.equal(f.observe(a).reason,'previewDimensionsUnproven');
+  assert.equal(f.input.inputCount,before);assert.equal(before,2);assert.equal(f.observe(b).state,'attached');
+});
+
+test('request ownership continuation cannot come from progress alone, cloned File, thrown request or replaced hook',async()=>{
+  for(const mode of ['noRequest','clone','throw','hook']){
+    const f=requestFixture(),op=withInvocation(pinnedOperation(f),webcrypto.randomUUID());
+    if(mode==='throw')f.setFetch(()=>{throw Error('synthetic throw');});
+    f.target();f.changed(file=>{
+      if(mode==='noRequest')return;
+      const body=mode==='clone'?new File([file],file.name,{type:file.type}):file;
+      try{f.context.fetch('ignored',{body});}catch{}
+    });
+    f.stage(op);f.commit(op);await f.settle();
+    if(mode==='hook')f.context.fetch=()=>Promise.resolve({status:200});
+    const view=f.makeCard(op,10);setProgress(f,view,40);const observation=f.observe(op);
+    assert.equal(observation.state,'uploadStarted');assert.equal(observation.continuationEvidence,undefined,mode);
+    assert.equal(f.input.inputCount,1);
+  }
+});
+
+test('continuation observes a current XHR response without confusing it with final completion or safe retry',async()=>{
+  const f=requestFixture(),op=withInvocation(pinnedOperation(f),webcrypto.randomUUID());let xhr;
+  f.target();f.changed(file=>{xhr=new f.context.XMLHttpRequest();xhr.open('PUT','ignored');xhr.send(file);});
+  f.stage(op);f.commit(op);await f.settle();const view=f.makeCard(op,10);setProgress(f,view,40);
+  const before=f.observe(op);assert.ok(before.continuationEvidence);
+  xhr.status=200;xhr.emit('load');const after=f.observe(op),proof=after.continuationEvidence;
+  assert.ok(proof);assert.equal(proof.evidenceID,before.continuationEvidence.evidenceID);
+  assert.ok(proof.inputIsolation.observedSequence>=after.requestEvidence.requests[0].terminalSequence);
+  assert.equal(after.state,'uploadStarted');assert.equal(after.completionEvidence,undefined);
+  assert.equal(after.terminationEvidence,undefined);assert.equal(after.automaticRetryExcluded,false);
+});
+
+test('A late attachment error and repeated input only invalidate A; B keeps its own original request',async()=>{
+  for(const mode of ['lateError','repeatInput']){
+    const f=requestFixture({thread:true});f.target();f.changed(file=>f.context.fetch('ignored',{body:file}));
+    const a=withInvocation(pinnedOperation(f),webcrypto.randomUUID());f.stage(a);f.commit(a);await f.settle();
+    const av=f.makeCard(a,10);setProgress(f,av,40);const aFile=f.input.files[0];assert.ok(f.observe(a).continuationEvidence);
+    const b=withInvocation(pinnedOperation(f,webcrypto.randomUUID()),webcrypto.randomUUID());b.identity.assetID=webcrypto.randomUUID();
+    f.stage(b);f.commit(b);await f.settle();const bv=f.makeCard(b,10);setProgress(f,bv,40);const bp=f.observe(b).continuationEvidence;
+    if(mode==='lateError'){av.card.attrs['data-state']='error';f.mutate([]);}
+    else {f.input.files=[aFile];f.input.dispatchEvent({type:'change'});}
+    const ar=f.observe(a),br=f.observe(b);
+    assert.equal(ar.state,'invalidated');assert.equal(ar.reason,mode==='lateError'?'attachmentError':'repeatedInput');
+    assert.equal(ar.continuationEvidence,undefined);assert.equal(br.state,'uploadStarted');
+    assert.equal(br.continuationEvidence.inputIsolation.ownershipID,bp.inputIsolation.ownershipID);
+    assert.equal(br.continuationEvidence.binding.operationID,b.identity.operationID);
+    assert.equal(br.terminationEvidence,undefined);
+  }
+});
+
+test('page refresh revokes each original operation without redirecting a late receipt into a fresh B',async()=>{
+  const old=requestFixture({thread:true});old.target();old.changed(file=>old.context.fetch('ignored',{body:file}));
+  const a=withInvocation(pinnedOperation(old),webcrypto.randomUUID());old.stage(a);old.commit(a);await old.settle();
+  const av=old.makeCard(a,10);setProgress(old,av,40);assert.ok(old.observe(a).continuationEvidence);old.windowEvent('pagehide');
+  assert.equal(old.observe(a).reason,'originalTargetInvalidated');assert.equal(old.observe(a).continuationEvidence,undefined);
+  const fresh=requestFixture({thread:true});fresh.target();fresh.changed(file=>fresh.context.fetch('ignored',{body:file}));
+  const b=withInvocation(pinnedOperation(fresh,webcrypto.randomUUID()),webcrypto.randomUUID());fresh.stage(b);fresh.commit(b);await fresh.settle();
+  const bv=fresh.makeCard(b,10);setProgress(fresh,bv,40);assert.ok(fresh.observe(b).continuationEvidence);
+  assert.equal(fresh.call(a.command('observe')).observation.state,'invalidated');assert.equal(fresh.input.inputCount,1);
+  assert.equal(fresh.observe(b).state,'uploadStarted');
+});
+
+test('an original-File request first observed after START cannot adopt an earlier upload',async()=>{
+  const f=requestFixture(),op=withInvocation(pinnedOperation(f),webcrypto.randomUUID());
+  f.stage(op);f.commit(op);await f.settle();const view=f.makeCard(op,10);setProgress(f,view,40);
+  assert.equal(f.observe(op).state,'uploadStarted');assert.equal(f.observe(op).continuationEvidence,undefined);
+  f.context.fetch('ignored',{body:f.input.files[0]});
+  assert.ok(f.observe(op).requestEvidence);assert.equal(f.observe(op).continuationEvidence,undefined);
+  assert.equal(f.input.inputCount,1);
+});
+
+test('upgrade captures a new observation capability without retrofitting original operation ownership',async()=>{
+  const f=requestFixture({thread:true}),a=withInvocation(pinnedOperation(f),webcrypto.randomUUID());
+  f.changed(file=>f.context.fetch('ignored',{body:file}));f.stage(a);f.commit(a);await f.settle();
+  const av=f.makeCard(a,10);setProgress(f,av,40);assert.ok(f.observe(a).continuationEvidence);
+  const oldState=f.context.__riftletWebAcceptance20261027v13.tail, original=oldState.operations.get(a.identity.operationID);
+  // Capability absence models a retained pre-increment observer; only new
+  // capture upgrades. Neither its original operation nor pin is rewritten.
+  delete oldState.inputIsolationVersion;delete oldState.continuationFor;
+  const fresh=f.target(),newState=f.context.__riftletWebAcceptance20261027v13.tail;
+  assert.notEqual(newState,oldState);assert.notEqual(fresh.documentID,a.target.documentID);
+  assert.equal(oldState.operations.get(a.identity.operationID),original);
+  assert.equal(f.observe(a).continuationEvidence,undefined);assert.equal(f.input.inputCount,1);
+  assert.throws(()=>f.commit(a),/COMMIT_REFUSED/);
 });

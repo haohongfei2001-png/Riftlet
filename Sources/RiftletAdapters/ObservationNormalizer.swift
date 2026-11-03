@@ -104,8 +104,12 @@ public struct ObservationNormalizer: Sendable {
         // Even unadmitted candidates must describe this original asset before
         // they enter its private journal. Capability absence does not excuse a
         // different byte-count claim carrying the same echoed SHA string.
-        let candidateTasks = [item.terminationEvidence?.task, item.continuationEvidence?.taskIsolation.task].compactMap { $0 }
+        let candidateTasks = [item.terminationEvidence?.task, item.continuationEvidence?.taskIsolation?.task].compactMap { $0 }
         guard candidateTasks.allSatisfy({ $0.matches(asset: request.asset) }) else {
+            throw ObservationError.identityMismatch
+        }
+        if let isolation = item.continuationEvidence?.inputIsolation,
+           isolation.originalByteCount != request.asset.byteCount || isolation.originalSHA256 != request.asset.sha256 {
             throw ObservationError.identityMismatch
         }
         let exactMember = item.exactImageIdentity && item.belongsToOriginalDraft
@@ -122,10 +126,11 @@ public struct ObservationNormalizer: Sendable {
                     signal: start.signal, evidenceID: start.evidenceID, inputCount: start.inputCount)
                 if liveAppend, let observed = item.continuationEvidence,
                    let invocation = request.invocationID, observed.binding.invocationID == invocation,
-                   let continuationProfile = profile.continuationProfileID {
-                    continuationEvidence = AttachmentContinuationEvidence(version: 2,
+                   let continuationProfile = profile.continuationProfileID,
+                   !continuationProfile.isEmpty, continuationProfile.utf8.count <= 128 {
+                    continuationEvidence = AttachmentContinuationEvidence(version: observed.inputIsolation == nil ? 2 : 3,
                         profileID: continuationProfile, evidenceID: observed.evidenceID, invocationID: invocation,
-                        binding: observed.binding, taskIsolation: observed.taskIsolation)
+                        binding: observed.binding, taskIsolation: observed.taskIsolation, inputIsolation: observed.inputIsolation)
                 }
             } else if operation.phase != .succeeded && operation.phase != .compensated {
                 outcome = .inputTriggered
@@ -176,7 +181,8 @@ public struct ObservationNormalizer: Sendable {
             attachmentID: item.attachmentID, positiveReady: positiveReady,
             belongsToOriginalDraft: item.belongsToOriginalDraft,
             hasError: item.hasError, isUploading: item.isUploading, safeToRetry: safeToRetry,
-            reason: "observer-v\(envelope.schemaVersion):\(item.state.rawValue):\(envelope.provenance.source.rawValue)",
+            reason: "observer-v\(envelope.schemaVersion):\(item.state.rawValue):\(envelope.provenance.source.rawValue)"
+                + (item.reason.map { ":" + $0.rawValue } ?? ""),
             uploadStartEvidence: uploadStartEvidence, continuationEvidence: continuationEvidence,
             completionEvidence: item.completionEvidence, terminationEvidence: terminationEvidence)
         if let proof = item.completionEvidence, !proof.validates(receipt: receipt, asset: request.asset) {
@@ -184,6 +190,9 @@ public struct ObservationNormalizer: Sendable {
         }
         if let proof = terminationEvidence, !proof.validates(receipt: receipt, asset: request.asset) {
             throw ObservationError.invalidField("termination identity chain")
+        }
+        if let proof = continuationEvidence, !proof.validates(receipt: receipt, asset: request.asset) {
+            throw ObservationError.invalidField("continuation identity chain")
         }
         // Core additionally checks the durable original invocation and independent
         // admission; restart/reconcile never manufacture continuation eligibility.

@@ -10,6 +10,7 @@ final class ProductStatusTests: XCTestCase {
             ("Original target changed before input", .targetChangedBeforeInput),
             ("Target validation unavailable before input", .targetValidationUnavailableBeforeInput),
             ("Original draft has an unresolved upload; no input occurred", .unresolvedDraftBeforeInput),
+            ("Independent attachment input is unproven for this draft; no input occurred", .independentAttachmentUnavailableBeforeInput),
             ("Private image is missing; no input occurred", .imageMissingBeforeInput),
             ("Selection revoked during preparation; no input occurred", .cancelledBeforeInput),
             ("Original selection no longer authorized; no input occurred", .cancelledBeforeInput),

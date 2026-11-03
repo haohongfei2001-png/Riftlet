@@ -95,6 +95,8 @@ public enum OrdinarySystemScreenshotScope {
 /// policy must independently admit each profile for its exact asset origin;
 /// merely constructing these values grants no input, start, completion or retry.
 public enum OrdinaryProductScreenshotScope {
+    public static let systemContinuationProfileID = "chatgpt-web-product-system-request-owned-20261103-v1"
+    public static let applicationContinuationProfileID = "chatgpt-web-product-application-request-owned-20261103-v1"
     public static let systemUploadStartProfileID = "chatgpt-web-product-system-start-20261102-v1"
     public static let systemCompletionProfileID = "chatgpt-web-product-system-attached-20261102-v1"
     public static let applicationUploadStartProfileID = "chatgpt-web-product-application-start-20261102-v1"
@@ -108,13 +110,16 @@ public enum OrdinaryProductScreenshotScope {
         let suffix = admitted ? "20261102-v1" : "unadmitted-20261102-v1"
         return ObservationProfile(adapterID: "chatgpt-web", surface: .webChat,
             profileID: "chatgpt-web-product-\(origin)-attached-\(suffix)", completionSignal: .attached,
-            uploadStartProfileID: "chatgpt-web-product-\(origin)-start-\(suffix)")
+            uploadStartProfileID: "chatgpt-web-product-\(origin)-start-\(suffix)",
+            continuationProfileID: admitted
+                ? (origin == "system" ? systemContinuationProfileID : applicationContinuationProfileID) : nil)
     }
     static func matches(_ candidate: ObservationProfile) -> Bool {
         [systemProfile, applicationProfile, admittedSystemProfile, admittedApplicationProfile].contains { profile in
             candidate.adapterID == profile.adapterID && candidate.surface == profile.surface
                 && candidate.completionSignal == profile.completionSignal && candidate.failureSignal == nil
                 && candidate.profileID == profile.profileID && candidate.uploadStartProfileID == profile.uploadStartProfileID
+                && candidate.continuationProfileID == profile.continuationProfileID
         }
     }
 }

@@ -39,6 +39,14 @@ public enum AttachmentObservedState: String, Codable, Sendable {
     case inputTriggered, uploadStarted, attached, ready, failed, unknown, invalidated
 }
 
+/// Bounded diagnostic facts, never page text or permission to complete/retry.
+/// Completion-proof absence stays separate from loss of the original identity.
+public enum AttachmentObservationReason: String, Codable, Sendable {
+    case previewDimensionsUnproven, previewPixelsUnproven, previewProofUnavailable, previewChanged
+    case attachmentRemoved, attachmentReplaced, attachmentIdentityChanged, repeatedInput
+    case originalTargetInvalidated, attachmentError
+}
+
 /// Page facts only. Identity and attachment are supplied by the enclosing
 /// observation; a trusted start profile is chosen by native code, never JSON.
 public struct ObservedUploadStart: Codable, Equatable, Sendable {
@@ -97,6 +105,7 @@ public struct AttachmentObservation: Codable, Equatable, Sendable {
     public let completionEvidence: AttachmentCompletionEvidence?
     public let terminationEvidence: ObservedAttachmentTermination?
     public let continuationEvidence: ObservedAttachmentContinuation?
+    public let reason: AttachmentObservationReason?
 
     public init(identity: ObservationIdentity, state: AttachmentObservedState,
                 attachmentID: String? = nil, exactImageIdentity: Bool = false,
@@ -107,7 +116,8 @@ public struct AttachmentObservation: Codable, Equatable, Sendable {
                 requestEvidence: ObservedRequestEvidence? = nil,
                 completionEvidence: AttachmentCompletionEvidence? = nil,
                 terminationEvidence: ObservedAttachmentTermination? = nil,
-                continuationEvidence: ObservedAttachmentContinuation? = nil) {
+                continuationEvidence: ObservedAttachmentContinuation? = nil,
+                reason: AttachmentObservationReason? = nil) {
         self.identity = identity; self.state = state; self.attachmentID = attachmentID
         self.exactImageIdentity = exactImageIdentity
         self.belongsToOriginalDraft = belongsToOriginalDraft
@@ -120,6 +130,7 @@ public struct AttachmentObservation: Codable, Equatable, Sendable {
         self.completionEvidence = completionEvidence
         self.terminationEvidence = terminationEvidence
         self.continuationEvidence = continuationEvidence
+        self.reason = reason
     }
 }
 
@@ -156,7 +167,7 @@ public enum ObservationDecoder {
                     "identity", "state", "attachmentID", "exactImageIdentity",
                     "belongsToOriginalDraft", "hasError", "isUploading",
                     "attachmentAbsent", "automaticRetryExcluded", "uploadStart", "preInputRetirement",
-                    "requestEvidence", "completionEvidence", "terminationEvidence", "continuationEvidence"
+                    "requestEvidence", "completionEvidence", "terminationEvidence", "continuationEvidence", "reason"
                   ])),
                   let identity = observation["identity"] as? [String: Any],
                   Set(identity.keys) == Set(["operationID", "assetID", "attempt", "assetSHA256", "target"]),

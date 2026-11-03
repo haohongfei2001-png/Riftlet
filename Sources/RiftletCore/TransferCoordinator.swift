@@ -379,12 +379,11 @@ public actor TransferCoordinator {
             }
             do { try await store.markDispatchIntent(id, selection: accepted, ownerID: dispatchOwnerID, policy: policy) }
             catch RiftletError.targetBusy {
-                if accepted != nil {
-                    // Keep the original prepared operation at the FIFO head. Only
-                    // actual lock release, cancellation or deadline can advance it.
-                    await onChange(); return
-                }
-                try await cancelIfPrepared(id, reason: "Original draft has an unresolved upload; no input occurred")
+                // Active original calls are already handled by the short input
+                // lane above. Once that call has returned, waiting for COMPLETE
+                // cannot manufacture missing input-isolation evidence. Retire
+                // only this unsubmitted selection and let the FIFO advance.
+                try await cancelIfPrepared(id, reason: "Independent attachment input is unproven for this draft; no input occurred")
                 advanceWaiting(id, selection: accepted); await onChange(); continue
             }
             catch RiftletError.invalidTransition {
