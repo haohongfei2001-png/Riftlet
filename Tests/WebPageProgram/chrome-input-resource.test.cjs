@@ -10,7 +10,7 @@ const fs=require('node:fs');
 const os=require('node:os');
 const path=require('node:path');
 const http=require('node:http');
-const {spawn}=require('node:child_process');
+const {spawn,execFile}=require('node:child_process');
 const binary=[process.env.RIFTLET_CHROME_BIN,
   '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
   '/usr/bin/google-chrome','/usr/bin/chromium','/usr/bin/chromium-browser'].find(p=>p&&fs.existsSync(p));
@@ -186,17 +186,50 @@ test('native Chrome preserves independent File/request bodies across five synthe
     try{
       if(child?.pid){
         const group=-child.pid;
-        const signal=kind=>{try{process.kill(group,kind);return true;}catch(error){if(error.code==='ESRCH')return false;throw error;}};
+        const readPS=args=>new Promise((resolve,reject)=>{
+          execFile('/bin/ps',args,{encoding:'utf8',timeout:1000,maxBuffer:2*1024*1024},(error,stdout,stderr)=>{
+            if(error){reject(error);return;}
+            if(stderr.trim()){reject(Error('owned Chrome state query produced an error: '+stderr.trim()));return;}
+            resolve(stdout);
+          });
+        });
+        const ownedLiveMembers=async()=>{
+          // -A includes detached/no-TTY processes on Darwin and Linux; their
+          // group-selection flags differ. Read only numeric IDs and state,
+          // validate the complete snapshot, and retain only our exact PGID.
+          // No args, environment, usernames or browser content are requested.
+          const output=await readPS(['-A','-o','pid=,pgid=,stat=']);
+          assert.ok(output.trim(),'empty process-state snapshot cannot prove cleanup');
+          const members=[];
+          for(const line of output.split(/\r?\n/).filter(line=>line.trim())){
+            const match=/^\s*(\d+)\s+(\d+)\s+([A-Za-z][A-Za-z0-9+<>=-]*)\s*$/.exec(line);
+            assert.ok(match,'cannot parse owned Chrome process-state query');
+            const pid=Number(match[1]),pgid=Number(match[2]),state=match[3];
+            assert.ok(Number.isSafeInteger(pid)&&Number.isSafeInteger(pgid),'invalid process metadata');
+            if(pgid===child.pid&&state[0]!=='Z')members.push({pid,pgid,state});
+          }
+          return members;
+        };
+        const signal=async kind=>{
+          if(!(await ownedLiveMembers()).length)return false;
+          try{process.kill(group,kind);return true;}
+          catch(error){
+            // Darwin killpg excludes zombies and can return EPERM for a
+            // zombie-only group. EPERM/ESRCH alone never establish termination.
+            if(!['EPERM','ESRCH'].includes(error.code)||(await ownedLiveMembers()).length)throw error;
+            return false;
+          }
+        };
         const groupExitedWithin=async milliseconds=>{
           const deadline=Date.now()+milliseconds;
-          while(signal(0)){
+          while((await ownedLiveMembers()).length){
             if(Date.now()>=deadline)return false;
             await new Promise(resolve=>setTimeout(resolve,50));
           }
           return true;
         };
-        if(signal('SIGTERM')&&!(await groupExitedWithin(3000))){
-          signal('SIGKILL');
+        if(await signal('SIGTERM')&&!(await groupExitedWithin(3000))){
+          await signal('SIGKILL');
           assert.ok(await groupExitedWithin(2000),'owned Chrome process group remained after SIGKILL');
         }
         await bounded(exit,1000,()=> 'Chrome main exit event was not received');
