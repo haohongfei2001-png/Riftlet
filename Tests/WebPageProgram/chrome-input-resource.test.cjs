@@ -136,7 +136,10 @@ function browserFixture() {
 }
 
 test('native Chrome preserves independent File/request bodies across five synthetic legacy-UNKNOWN appends',{
-  skip:!binary&&!required?'CHROME_NOT_RUN: no native Chrome binary in this executor':false,timeout:45000
+  // The 30-second report limit is unchanged. Allow the separately bounded
+  // listen, group/root cleanup, server close and profile-removal retries to
+  // finish (about 50 seconds combined) before the outer test aborts them.
+  skip:!binary&&!required?'CHROME_NOT_RUN: no native Chrome binary in this executor':false,timeout:60000
 },async t=>{
   assert.ok(binary,'CHROME_REQUIRED_BUT_UNAVAILABLE: native Chrome must run in this CI job');
   assert.ok(['darwin','linux'].includes(process.platform),'isolated Chrome process-group cleanup requires POSIX');
