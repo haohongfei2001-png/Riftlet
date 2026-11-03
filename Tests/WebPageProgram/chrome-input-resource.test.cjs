@@ -136,6 +136,7 @@ test('native Chrome preserves independent File/request bodies across five synthe
   skip:!binary&&!required?'CHROME_NOT_RUN: no native Chrome binary in this executor':false,timeout:45000
 },async()=>{
   assert.ok(binary,'CHROME_REQUIRED_BUT_UNAVAILABLE: native Chrome must run in this CI job');
+  assert.ok(['darwin','linux'].includes(process.platform),'isolated Chrome process-group cleanup requires POSIX');
   const temp=fs.mkdtempSync(path.join(os.tmpdir(),'riftlet-native-input-'));
   let child,exit,stderr='',lastPhase='browser-not-started',completed=false,resolveReport,rejectReport;
   const bounded=async(promise,ms,label)=>{
@@ -166,7 +167,8 @@ test('native Chrome preserves independent File/request bodies across five synthe
     const address=server.address();assert.equal(address.address,'127.0.0.1');
     child=spawn(binary,['--headless=new','--no-sandbox','--disable-gpu','--disable-background-networking',
       '--disable-component-update','--disable-sync','--no-first-run','--no-default-browser-check',
-      '--user-data-dir='+path.join(temp,'isolated-profile'),'http://127.0.0.1:'+address.port+'/'],{stdio:['ignore','ignore','pipe']});
+      '--user-data-dir='+path.join(temp,'isolated-profile'),'http://127.0.0.1:'+address.port+'/'],
+      {detached:true,stdio:['ignore','ignore','pipe']});
     child.stderr.setEncoding('utf8');child.stderr.on('data',part=>{stderr=(stderr+part).slice(-8000);});
     child.once('error',rejectReport);
     exit=new Promise(resolve=>child.once('exit',(code,signal)=>{
@@ -177,14 +179,33 @@ test('native Chrome preserves independent File/request bodies across five synthe
     assert.equal(report.harnessTransport,'loopback-only');
     console.log(JSON.stringify(report));
   }finally{
-    // Wait for the dedicated Chrome process before removing its isolated
-    // profile. Unexpected exits/timeouts remain test failures, never PASS.
-    if(child?.pid&&child.exitCode===null&&child.signalCode===null){
-      child.kill('SIGTERM');
-      try{await bounded(exit,2000,()=> 'Chrome did not terminate');}
-      catch{child.kill('SIGKILL');await bounded(exit,2000,()=> 'Chrome did not exit after SIGKILL');}
+    // detached:true creates a new session/process group owned solely by this
+    // fixture. Chrome helpers can outlive the main process and still write the
+    // profile, so wait for that exact group even after the main exit event.
+    // Never enumerate, match names, or signal any other Chrome process/group.
+    try{
+      if(child?.pid){
+        const group=-child.pid;
+        const signal=kind=>{try{process.kill(group,kind);return true;}catch(error){if(error.code==='ESRCH')return false;throw error;}};
+        const groupExitedWithin=async milliseconds=>{
+          const deadline=Date.now()+milliseconds;
+          while(signal(0)){
+            if(Date.now()>=deadline)return false;
+            await new Promise(resolve=>setTimeout(resolve,50));
+          }
+          return true;
+        };
+        if(signal('SIGTERM')&&!(await groupExitedWithin(3000))){
+          signal('SIGKILL');
+          assert.ok(await groupExitedWithin(2000),'owned Chrome process group remained after SIGKILL');
+        }
+        await bounded(exit,1000,()=> 'Chrome main exit event was not received');
+      }
+    }finally{
+      server.closeAllConnections();await new Promise(resolve=>server.close(resolve));
     }
-    server.closeAllConnections();await new Promise(resolve=>server.close(resolve));
-    fs.rmSync(temp,{recursive:true,force:true,maxRetries:3,retryDelay:100});
+    // OS/helper final file writes may settle just after group exit. Retry only
+    // this newly created profile root; exhausting the bounded retries fails.
+    await fs.promises.rm(temp,{recursive:true,force:true,maxRetries:8,retryDelay:150});
   }
 });
