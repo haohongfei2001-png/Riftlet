@@ -132,7 +132,11 @@ final class UnifiedProductCompositionTests: XCTestCase {
                 let used = try await store.apply(final, policy: composition.policy)
                 XCTAssertEqual(used.status, .used)
                 XCTAssertTrue(composition.policy.retrySafeProfiles.isEmpty)
-                XCTAssertTrue(composition.policy.continuationProfiles.isEmpty)
+                XCTAssertEqual(composition.policy.continuationProfiles[try XCTUnwrap(expected.continuationProfileID)], .webChat)
+                XCTAssertTrue(composition.policy.requiredInputIsolationProfiles.contains(try XCTUnwrap(expected.continuationProfileID)))
+                // The fixture supplies START/COMPLETE but no request ownership;
+                // the configured capability cannot grant it by itself.
+                XCTAssertFalse(composition.policy.allowsContinuation(receipt: start, asset: asset, mode: .production))
                 do { _ = try await composition.adapter.append(request); XCTFail("original input reused") } catch {}
                 let actions = await page.actions
                 XCTAssertEqual(actions.filter { $0 == .commit }.count, 1)

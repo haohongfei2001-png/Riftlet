@@ -61,7 +61,7 @@ module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(module)
 result = subprocess.run([sys.argv[1], "--ordinary-build-info"], capture_output=True, text=True, timeout=10, check=True)
 module.verify_ordinary_build_info(json.loads(result.stdout), sys.argv[2])
-print("RIFTLET_ORDINARY_BINARY_IDENTITY_PASS: " + sys.argv[2] + "; fixed capture policy/root; no retry or continuation")
+print("RIFTLET_ORDINARY_BINARY_IDENTITY_PASS: " + sys.argv[2] + "; fixed capture policy/root; no automatic retry; continuation=" + str(json.loads(result.stdout)["continuation"]))
 PYIDENTITY
 if [[ "$riftlet_channel" == ordinary-acceptance ]]; then
   # Preserve a unique verified output. Never replace the ordinary product or

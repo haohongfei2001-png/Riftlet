@@ -91,13 +91,13 @@ class BundleVerificationTests(unittest.TestCase):
 
     def test_product_binary_identity_matches_sources_and_cannot_be_mislabeled(self):
         valid = {"internalAcceptance": False, "mode": "capture", "dataDirectory": "Riftlet",
-                 "input": True, "start": True, "completion": True, "builtInUpload": True, "safeRetry": False, "continuation": False}
+                 "input": True, "start": True, "completion": True, "builtInUpload": True, "safeRetry": False, "continuation": True}
         VERIFY.verify_ordinary_build_info(valid, "development")
         with self.assertRaises(VERIFY.VerificationError):
             VERIFY.verify_ordinary_build_info(valid, "ordinary-acceptance")
         for key, value in (("internalAcceptance", True), ("dataDirectory", "Riftlet-Ordinary-Acceptance"),
                            ("input", False), ("start", False), ("completion", False), ("builtInUpload", False), ("safeRetry", True),
-                           ("continuation", True), ("input", 0)):
+                           ("continuation", False), ("input", 0)):
             with self.subTest(key=key):
                 with self.assertRaises(VERIFY.VerificationError):
                     VERIFY.verify_ordinary_build_info({**valid, key: value}, "development")
@@ -134,7 +134,7 @@ class BundleVerificationTests(unittest.TestCase):
             "pathlib.Path(__file__).write_bytes((pathlib.Path(os.environ['RIFTLET_TEST_PRODUCTS']) / 'Riftlet').read_bytes())\n"
             "internal = os.environ.get('RIFTLET_TEST_INTERNAL', '1') == '1'\n"
             "print(json.dumps({'internalAcceptance': internal, 'mode': 'capture', 'dataDirectory': 'Riftlet-Ordinary-Acceptance' if internal else 'Riftlet', "
-            "'input': True, 'start': True, 'completion': True, 'builtInUpload': not internal, 'safeRetry': False, 'continuation': False}))\n")
+            "'input': True, 'start': True, 'completion': True, 'builtInUpload': not internal, 'safeRetry': False, 'continuation': not internal}))\n")
         signer = commands / "codesign"
         with signer.open("a") as output:
             output.write("if '--verify' in sys.argv: (pathlib.Path(sys.argv[-1]) / 'Contents/MacOS/Riftlet').write_text(" + repr(responder) + ")\n")

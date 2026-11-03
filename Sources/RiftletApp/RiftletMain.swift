@@ -19,7 +19,8 @@ enum RiftletMain {
                 "start": OrdinaryCaptureConfiguration.admission.allowsStart,
                 "completion": OrdinaryCaptureConfiguration.admission.allowsCompletion,
                 "builtInUpload": OrdinaryCaptureConfiguration.admission.productOrigins.contains(.applicationScreenshot),
-                "safeRetry": false, "continuation": false]
+                "safeRetry": false,
+                "continuation": !OrdinaryCaptureConfiguration.admission.receiptPolicy.continuationProfiles.isEmpty]
             if let data = try? JSONSerialization.data(withJSONObject: value, options: [.sortedKeys]),
                let text = String(data: data, encoding: .utf8) { print(text) }
             return

@@ -374,7 +374,7 @@ final class DispatchLifecycleTests: XCTestCase {
         try await expectBusy(reopened, owner: UUID())
     }
 
-    func testLateACompensationDoesNotReassignBAndBlocksNextInput() async throws {
+    func testLateACompensationDoesNotReassignBOrBlockIndependentNextInput() async throws {
         let db = try store(), owner = UUID(); let (a, ao, an) = try await started(db, owner: owner)
         let b = try await asset(db), bo = try await db.prepare(assetID: b.id, target: target())
         let bn = try await db.markDispatchIntent(bo.id, selection: selection(b, target: target()), ownerID: owner, policy: policy)
@@ -383,7 +383,11 @@ final class DispatchLifecycleTests: XCTestCase {
         _ = try await db.apply(receipt(ao, a, an, outcome: .definitiveFailure), policy: policy)
         let aa = try await db.operation(id: ao.id), bb = try await db.operation(id: bo.id)
         XCTAssertEqual(aa?.phase, .compensated); XCTAssertEqual(bb?.phase, .succeeded)
-        try await expectBusy(db, owner: owner)
+        let c = try await asset(db), co = try await db.prepare(assetID: c.id, target: target())
+        _ = try await db.markDispatchIntent(co.id, selection: selection(c, target: target()), ownerID: owner, policy: policy)
+        let startedA = try await db.uploadStartReceipt(for: ao.id)
+        XCTAssertEqual(startedA?.assetID, a.id)
+        XCTAssertEqual(startedA?.operationID, ao.id)
     }
     func testRejectionNeedsOriginalNonceAndCannotClearUnknown() async throws {
         let db = try store(), a = try await asset(db), op = try await db.prepare(assetID: a.id, target: target())
