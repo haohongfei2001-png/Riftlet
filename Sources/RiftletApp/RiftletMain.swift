@@ -31,7 +31,12 @@ enum RiftletMain {
                     try await SystemScreenshotCandidateSelfCheck.run()
                     print("RIFTLET_SYSTEM_SCREENSHOT_CANDIDATE_SELF_CHECK_PASS: original-byte import, one software input, restricted start then independent completion, durable new-operation registration, legacy UNKNOWN unchanged, read-only restart; GENERATED_FIXTURE; CHROME_NOT_RUN; SYSTEM_SCREENSHOT_NOT_RUN; GUI_NOT_RUN")
                     exit(0)
-                } catch { fputs("RIFTLET_SYSTEM_SCREENSHOT_CANDIDATE_SELF_CHECK_FAIL\n", stderr); exit(1) }
+                } catch {
+                    let detail = (error as? SystemScreenshotCandidateSelfCheck.Failure)?.rawValue
+                        ?? "\(String(reflecting: type(of: error))) code=\((error as NSError).code)"
+                    fputs("RIFTLET_SYSTEM_SCREENSHOT_CANDIDATE_SELF_CHECK_FAIL: \(detail)\n", stderr)
+                    exit(1)
+                }
             }
             dispatchMain()
         }

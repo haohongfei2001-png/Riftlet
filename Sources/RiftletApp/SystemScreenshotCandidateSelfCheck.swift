@@ -12,6 +12,11 @@ import RiftletAdapters
 /// to exercise the real importer. The executor below is fake; no browser, TCC,
 /// real system screenshot folder, user image or production profile is used.
 enum SystemScreenshotCandidateSelfCheck {
+    enum Failure: String, Error {
+        case configuration, startSettlementDeadline, persistedStart, startRegistration
+        case restartVisibility, independentCompletion, legacyUnknownProtection, finalIdentityAndBytes
+    }
+
     @MainActor static func run() async throws {
         let mode = try ApplicationMode.resolve(["--system-screenshot-candidate"])
         guard mode == .systemScreenshotCandidate, mode.collectsSystemScreenshots,
@@ -19,7 +24,7 @@ enum SystemScreenshotCandidateSelfCheck {
               Set(ApplicationMode.allCases.map(\.directoryName)).count == 4,
               SystemScreenshotCandidateConfiguration.uploadStartProfiles == [SystemScreenshotWebCandidate.admittedUploadStartProfileID: .webChat],
               SystemScreenshotCandidateConfiguration.completedAttachmentProfiles == [SystemScreenshotWebCandidate.admittedCompletionProfileID: .webChat],
-              SystemScreenshotCandidateConfiguration.safeFailureProfiles.isEmpty else { throw RiftletError.modeMismatch }
+              SystemScreenshotCandidateConfiguration.safeFailureProfiles.isEmpty else { throw Failure.configuration }
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent("riftlet-system-candidate-check-\(UUID())")
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: directory) }
@@ -38,24 +43,40 @@ enum SystemScreenshotCandidateSelfCheck {
         let bridge = CandidateCheckBridge()
         let composition = try ApplicationAttachmentComposition.make(mode: mode, root: root, store: store,
             executor: bridge, polling: .disabled)
+        let settlement = CandidateCheckSettlement()
         let coordinator = TransferCoordinator(store: store, adapter: composition.adapter,
             mediaDirectory: root.appendingPathComponent("media"), policy: composition.policy,
+            onChange: {
+                // The preparation callback cannot satisfy this. The original
+                // append's final callback follows receipt/call persistence,
+                // execution release and removal from activeAppends.
+                guard let current = try? await store.asset(id: record.id),
+                      current.visibility == .swallowed, current.visibilityReason == .uploadStarted,
+                      let operationID = current.activeOperationID,
+                      let start = try? await store.uploadStartReceipt(for: operationID),
+                      start.assetID == record.id, start.outcome == .uploadStarted else { return }
+                await settlement.recordPersistedStart()
+            },
             validateAcceptedSelection: { _ in true }) // Software authority fixture, not TCC evidence.
         let now = ProcessInfo.processInfo.systemUptime
         let selection = AcceptedSelection(assetID: record.id, target: CandidateCheckBridge.target,
             hostEpoch: UUID(), acknowledgedUptime: now - 0.2, eventUptime: now - 0.1,
             acceptedUptime: now, visibilityRevision: record.visibilityRevision, deadlineUptime: now + 30)
         try await coordinator.select(selection)
+        // select returns at the input boundary, before the independent START
+        // write may finish. Wait for the fixture's actual settlement event;
+        // never change product select semantics or wait for COMPLETE.
+        try await settlement.waitForPersistedStart()
         guard let started = try await store.asset(id: record.id), let id = started.activeOperationID,
               started.visibility == .swallowed, started.visibilityReason == .uploadStarted,
               started.status != .used, try await store.operation(id: id)?.phase != .succeeded,
               try await store.uploadStartReceipt(for: id)?.uploadStartEvidence?.profileID == SystemScreenshotWebCandidate.admittedUploadStartProfileID,
-              try await store.receipt(for: id)?.outcome == .uploadStarted else { throw RiftletError.invalidTransition }
+              try await store.receipt(for: id)?.outcome == .uploadStarted else { throw Failure.persistedStart }
         let startKey = "system-screenshot-candidate-observation-v1:\(id.uuidString.lowercased()):1:start"
         let admissionKey = "system-screenshot-admission-v2:\(id.uuidString.lowercased()):1"
         guard let firstStart = try await store.checkpoint(for: startKey),
               let registration = try await store.checkpoint(for: admissionKey),
-              await bridge.actions.filter({ $0 == .observe }).isEmpty else { throw RiftletError.invalidTransition }
+              await bridge.actions.filter({ $0 == .observe }).isEmpty else { throw Failure.startRegistration }
         // Start returns immediately through the existing Core/UI lifecycle.
         // Recovery preserves that exit and only observes the original operation.
         await bridge.setState(.unknown)
@@ -68,7 +89,7 @@ enum SystemScreenshotCandidateSelfCheck {
         guard try await reopened.operation(id: id)?.phase == .unknown,
               try await reopened.asset(id: record.id)?.visibility == .swallowed,
               try await reopened.asset(id: record.id)?.visibilityRevision == started.visibilityRevision else {
-            throw RiftletError.invalidTransition
+            throw Failure.restartVisibility
         }
         await bridge.setState(.attached)
         try await recovered.observePending()
@@ -76,7 +97,7 @@ enum SystemScreenshotCandidateSelfCheck {
               try await reopened.operation(id: id)?.phase == .succeeded,
               try await reopened.asset(id: record.id)?.status == .used,
               try await reopened.asset(id: record.id)?.visibilityRevision == started.visibilityRevision else {
-            throw RiftletError.invalidTransition
+            throw Failure.independentCompletion
         }
 
         // A historical F-like UNKNOWN has no registration. Even a fully valid
@@ -98,7 +119,7 @@ enum SystemScreenshotCandidateSelfCheck {
               try await reopened.asset(id: oldImage.id)?.activeOperationID == old.id,
               try await reopened.receipt(for: old.id)?.profileID == SystemScreenshotWebCandidate.completionProfileID,
               try await reopened.checkpoint(for: oldKey) == nil,
-              try await reopened.uploadStartReceipt(for: old.id) == nil else { throw RiftletError.invalidTransition }
+              try await reopened.uploadStartReceipt(for: old.id) == nil else { throw Failure.legacyUnknownProtection }
         let actions = await bridge.actions
         let transferred = await bridge.bytes
         guard actions.filter({ $0 == .begin }).count == 1, actions.filter({ $0 == .commit }).count == 1,
@@ -109,7 +130,7 @@ enum SystemScreenshotCandidateSelfCheck {
               try await reopened.uploadStartReceipt(for: id) != nil,
               try Data(contentsOf: source) == bytes,
               try Data(contentsOf: root.appendingPathComponent("media").appendingPathComponent(record.image.fileName)) == bytes else {
-            throw RiftletError.invalidTransition
+            throw Failure.finalIdentityAndBytes
         }
     }
 
@@ -130,6 +151,20 @@ enum SystemScreenshotCandidateSelfCheck {
         let flag = try PropertyListSerialization.data(fromPropertyList: true, format: .binary, options: 0)
         guard flag.withUnsafeBytes({ setxattr(url.path, "com.apple.metadata:kMDItemIsScreenCapture", $0.baseAddress, $0.count, 0, 0) }) == 0 else {
             throw RiftletError.invalidAsset("Software screenshot metadata unavailable")
+        }
+    }
+}
+
+/// Software-check synchronization only, independent of production input timing.
+private actor CandidateCheckSettlement {
+    private var persistedStart = false
+    func recordPersistedStart() { persistedStart = true }
+    func waitForPersistedStart() async throws {
+        let deadline = ProcessInfo.processInfo.systemUptime + 5
+        while !persistedStart {
+            let remaining = deadline - ProcessInfo.processInfo.systemUptime
+            guard remaining > 0 else { throw SystemScreenshotCandidateSelfCheck.Failure.startSettlementDeadline }
+            try await Task.sleep(nanoseconds: UInt64(min(0.005, remaining) * 1_000_000_000))
         }
     }
 }
