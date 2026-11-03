@@ -18,7 +18,15 @@ public struct ObservedAttachmentContinuation: Codable, Equatable, Sendable {
     public let version: Int
     public let evidenceID: String
     public let binding: AttachmentOperationBinding
-    public let taskIsolation: AttachmentTaskIsolationEvidence
+    public let taskIsolation: AttachmentTaskIsolationEvidence?
+    public let inputIsolation: AttachmentInputIsolationEvidence?
+
+    public init(version: Int = 1, evidenceID: String, binding: AttachmentOperationBinding,
+                taskIsolation: AttachmentTaskIsolationEvidence? = nil,
+                inputIsolation: AttachmentInputIsolationEvidence? = nil) {
+        self.version = version; self.evidenceID = evidenceID; self.binding = binding
+        self.taskIsolation = taskIsolation; self.inputIsolation = inputIsolation
+    }
 }
 
 enum ObservedAttachmentProofs {
@@ -70,19 +78,55 @@ enum ObservedAttachmentProofs {
             throw ObservationError.invalidField("missing termination proof")
         }
         if let proof = item.continuationEvidence {
-            let isolation = proof.taskIsolation
             guard proof.version == 1, token(proof.evidenceID), bindingMatches(proof.binding), item.state == .uploadStarted,
-                  isolation.version == 1, taskMatches(isolation.task), token(isolation.ownershipID),
-                  isolation.kind == .independentTaskSurvivesSubsequentInput,
-                  isolation.inputSequence > 0, isolation.callSettledSequence > isolation.inputSequence,
-                  isolation.startSequence > isolation.inputSequence,
-                  isolation.observedSequence >= max(isolation.callSettledSequence, isolation.startSequence),
                   let start = item.uploadStart,
-                  proof.taskIsolation.startEvidenceID == start.evidenceID,
-                  proof.taskIsolation.inputSequence == start.inputSequence,
-                  proof.taskIsolation.startSequence == start.startSequence,
+                  (proof.taskIsolation == nil) != (proof.inputIsolation == nil),
                   item.completionEvidence == nil, item.terminationEvidence == nil else {
                 throw ObservationError.invalidField("continuation proof")
+            }
+            if let isolation = proof.taskIsolation {
+                guard isolation.version == 1, taskMatches(isolation.task), token(isolation.ownershipID),
+                      isolation.kind == .independentTaskSurvivesSubsequentInput,
+                      isolation.inputSequence > 0, isolation.callSettledSequence > isolation.inputSequence,
+                      isolation.startSequence > isolation.inputSequence,
+                      isolation.observedSequence >= max(isolation.callSettledSequence, isolation.startSequence),
+                      isolation.startEvidenceID == start.evidenceID,
+                      isolation.inputSequence == start.inputSequence,
+                      isolation.startSequence == start.startSequence else {
+                    throw ObservationError.invalidField("continuation task proof")
+                }
+            }
+            if let isolation = proof.inputIsolation {
+                // These are local browser request facts, not invented server task
+                // IDs. Every field must describe the sole original-file request.
+                guard isolation.version == 1, isolation.kind == .originalRequestBodyOwned,
+                      token(isolation.ownershipID), token(isolation.inputElementID),
+                      isolation.originalSHA256 == item.identity.assetSHA256,
+                      isolation.originalByteCount > 0, isolation.originalByteCount <= 8 * 1024 * 1024,
+                      isolation.startEvidenceID == start.evidenceID,
+                      isolation.inputSequence == start.inputSequence,
+                      isolation.startSequence == start.startSequence,
+                      isolation.inputSequence > 0, isolation.callSettledSequence > isolation.inputSequence,
+                      isolation.startSequence > isolation.inputSequence,
+                      isolation.requestSequence > isolation.inputSequence,
+                      isolation.requestSequence < isolation.startSequence,
+                      isolation.observedSequence >= max(isolation.callSettledSequence, isolation.startSequence),
+                      isolation.observedSequence >= isolation.requestSequence,
+                      let facts = item.requestEvidence, !facts.observationClosed, facts.closeReason == nil,
+                      facts.invocationID == proof.binding.invocationID, facts.inputCount == 1,
+                      facts.inputSequence == isolation.inputSequence,
+                      facts.inputObservedAtMS == start.inputObservedAtMS,
+                      facts.fileSHA256 == isolation.originalSHA256,
+                      facts.requests.count == 1, let request = facts.requests.first,
+                      request.requestID == isolation.requestID,
+                      request.requestSequence == isolation.requestSequence,
+                      request.transport.rawValue == isolation.requestTransport.rawValue,
+                      request.requestedAtMS >= facts.inputObservedAtMS,
+                      request.terminal == nil || request.terminal == .response,
+                      request.terminalSequence.map({ $0 <= isolation.observedSequence }) ?? true,
+                      request.progress.map({ $0.sequence <= isolation.observedSequence }) ?? true else {
+                    throw ObservationError.invalidField("continuation input proof")
+                }
             }
         }
     }
@@ -123,11 +167,21 @@ enum ObservedAttachmentProofs {
             try binding(proof["binding"]); try task(proof["task"])
         }
         if let value = observation["continuationEvidence"] {
-            let proof = try fields(value, allowed: ["version", "evidenceID", "binding", "taskIsolation"])
+            let proof = try fields(value, allowed: ["version", "evidenceID", "binding", "taskIsolation", "inputIsolation"])
             try binding(proof["binding"])
-            let isolation = try fields(proof["taskIsolation"], allowed: ["version", "task", "ownershipID", "kind",
-                "startEvidenceID", "inputSequence", "callSettledSequence", "startSequence", "observedSequence"])
-            try task(isolation["task"])
+            guard (proof["taskIsolation"] == nil) != (proof["inputIsolation"] == nil) else {
+                throw ObservationError.invalidPayload
+            }
+            if let value = proof["taskIsolation"] {
+                let isolation = try fields(value, allowed: ["version", "task", "ownershipID", "kind",
+                    "startEvidenceID", "inputSequence", "callSettledSequence", "startSequence", "observedSequence"])
+                try task(isolation["task"])
+            }
+            if let value = proof["inputIsolation"] {
+                _ = try fields(value, allowed: ["version", "ownershipID", "inputElementID", "kind", "requestID",
+                    "requestSequence", "requestTransport", "originalSHA256", "originalByteCount", "startEvidenceID",
+                    "inputSequence", "callSettledSequence", "startSequence", "observedSequence"])
+            }
         }
     }
 }

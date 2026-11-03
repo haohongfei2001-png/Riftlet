@@ -25,7 +25,7 @@ public struct PreInputRejection: Error, Codable, Equatable, Sendable {
 
 /// Separate from upload-start admission: the adapter must have independently
 /// proved that a subsequent input cannot replace/cancel the original attachment.
-/// No shipping Web adapter or App profile grants this capability.
+/// Browser input ownership and platform task finalization are separate facts.
 public struct AttachmentContinuationEvidence: Codable, Equatable, Sendable {
     public let version: Int
     public let profileID: String
@@ -35,22 +35,30 @@ public struct AttachmentContinuationEvidence: Codable, Equatable, Sendable {
     /// original binding and independently established platform-task isolation.
     public let binding: AttachmentOperationBinding?
     public let taskIsolation: AttachmentTaskIsolationEvidence?
+    /// Version 3 uses measured browser request ownership, without pretending
+    /// that document-local request IDs are platform/server task identities.
+    public let inputIsolation: AttachmentInputIsolationEvidence?
     public init(version: Int = 1, profileID: String, evidenceID: String, invocationID: UUID,
-                binding: AttachmentOperationBinding? = nil, taskIsolation: AttachmentTaskIsolationEvidence? = nil) {
+                binding: AttachmentOperationBinding? = nil, taskIsolation: AttachmentTaskIsolationEvidence? = nil,
+                inputIsolation: AttachmentInputIsolationEvidence? = nil) {
         self.version = version; self.profileID = profileID
         self.evidenceID = evidenceID; self.invocationID = invocationID
         self.binding = binding; self.taskIsolation = taskIsolation
+        self.inputIsolation = inputIsolation
     }
 
     public func validates(receipt: TransferReceipt, asset: ImportedAsset) -> Bool {
-        guard version == 2, AttachmentEvidenceValidation.token(profileID, maximum: 128),
+        guard AttachmentEvidenceValidation.token(profileID, maximum: 128),
               AttachmentEvidenceValidation.token(evidenceID),
               let binding, binding.invocationID == invocationID,
               binding.matches(receipt: receipt, asset: asset),
-              let taskIsolation, taskIsolation.validates(receipt: receipt, asset: asset),
               receipt.belongsToOriginalDraft, receipt.isUploading,
               !receipt.hasError, !receipt.positiveReady, !receipt.safeToRetry else { return false }
-        return true
+        switch version {
+        case 2: return inputIsolation == nil && taskIsolation?.validates(receipt: receipt, asset: asset) == true
+        case 3: return taskIsolation == nil && inputIsolation?.validates(receipt: receipt, asset: asset) == true
+        default: return false
+        }
     }
 }
 
@@ -67,4 +75,36 @@ struct DispatchCallRecord: Codable, Equatable, Sendable {
     let invocationID: UUID
     let ownerID: UUID?
     var returnedReceipt: TransferReceipt?
+    // Local execution and the attachment outcome are independent. Optional for
+    // old journals; never backfill a historical call to manufacture ownership.
+    var inputExecutionReturned: Bool? = nil
+    var inputResource: PreparedInputResource? = nil
+}
+
+/// A one-use reservation of the CURRENT input for the NEXT user click. It says
+/// nothing about an older attachment's success, failure, or request ownership.
+/// The adapter must recheck the reserved native resource atomically at input.
+public struct PreparedInputResource: Codable, Equatable, Sendable {
+    public let operationID: UUID
+    public let assetID: UUID
+    public let attempt: Int
+    public let assetSHA256: String
+    public let target: TargetLease
+    public let invocationID: UUID
+    public let resourceID: UUID
+    public let inputElementID: String
+
+    public init(operationID: UUID, assetID: UUID, attempt: Int, assetSHA256: String,
+                target: TargetLease, invocationID: UUID, resourceID: UUID, inputElementID: String) {
+        self.operationID = operationID; self.assetID = assetID; self.attempt = attempt
+        self.assetSHA256 = assetSHA256; self.target = target; self.invocationID = invocationID
+        self.resourceID = resourceID; self.inputElementID = inputElementID
+    }
+
+    func matches(_ op: TransferOperation, asset: ImportedAsset) -> Bool {
+        operationID == op.id && assetID == op.assetID && assetID == asset.id
+            && attempt == op.attempt && assetSHA256 == asset.sha256 && target == op.target
+            && target.surface == .webChat && target.applicationID == "com.google.Chrome"
+            && target.clickBindingID != nil && !inputElementID.isEmpty && inputElementID.utf8.count <= 256
+    }
 }

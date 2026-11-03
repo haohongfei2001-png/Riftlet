@@ -117,7 +117,11 @@ final class DispatchLifecycleTests: XCTestCase {
         let finalA = try await db.operation(id: ao.id), finalB = try await db.operation(id: bo.id)
         XCTAssertEqual(finalA?.phase, .compensated); XCTAssertEqual(finalB?.phase, .succeeded)
         XCTAssertEqual(finalB?.target, bt)
-        try await expectBusy(db, owner: owner, t: target(pin: UUID()))
+        // A's later compensated result cannot revoke its already-established
+        // independent input ownership or block a different screenshot C.
+        let c = try await asset(db), ct = target(pin: UUID())
+        let co = try await db.prepare(assetID: c.id, target: ct)
+        _ = try await db.markDispatchIntent(co.id, selection: selection(c, target: ct), ownerID: owner, policy: policy)
     }
 
     func testContinuationScopeRequiresExactObservedDraftAndDoesNotPromoteLegacyPins() throws {
@@ -205,16 +209,34 @@ final class DispatchLifecycleTests: XCTestCase {
         }
     }
 
-    func testCompletedAttachmentIdentityDoesNotAliasAnUnrelatedDocument() async throws {
+    func testCompletedAttachmentIdentityDoesNotAliasAnUnrelatedBusinessDraft() async throws {
         let db = try store(), owner = UUID()
         let (a, ao, an) = try await started(db, owner: owner, target: target(pin: UUID()))
         _ = try await db.apply(receipt(ao, a, an, outcome: .verifiedReady), policy: policy)
-        let bt = try changed(target(pin: UUID()), "documentID", "independent-document")
+        let bt = try changed(target("00000000-0000-0000-0000-000000000002", pin: UUID()),
+                             "documentID", "independent-document")
         let b = try await asset(db), bo = try await db.prepare(assetID: b.id, target: bt)
         let bn = try await db.markDispatchIntent(bo.id, selection: selection(b, target: bt), ownerID: owner, policy: policy)
         _ = try await db.apply(receipt(bo, b, bn, outcome: .verifiedReady, attachment: "attachment-\(ao.id)"), policy: policy)
         let result = try await db.operation(id: bo.id)
         XCTAssertEqual(result?.phase, .succeeded); XCTAssertEqual(result?.target, bt)
+    }
+
+    func testRenewedDocumentInSameBusinessDraftCannotBorrowACompletedAttachment() async throws {
+        let db = try store(), owner = UUID()
+        let (a, ao, an) = try await started(db, owner: owner, target: target(pin: UUID()))
+        _ = try await db.apply(receipt(ao, a, an, outcome: .verifiedReady), policy: policy)
+        let bt = try changed(target(pin: UUID()), "documentID", "renewed-same-chat-document")
+        let b = try await asset(db), bo = try await db.prepare(assetID: b.id, target: bt)
+        let bn = try await db.markDispatchIntent(bo.id, selection: selection(b, target: bt), ownerID: owner, policy: policy)
+        do {
+            _ = try await db.apply(receipt(bo, b, bn, outcome: .verifiedReady,
+                attachment: "attachment-\(ao.id)"), policy: policy)
+            XCTFail("A new document identifier is not permission to borrow A's attachment")
+        } catch RiftletError.mismatchedReceipt {}
+        let bReceipt = try await db.receipt(for: bo.id)
+        let original = try await db.operation(id: ao.id)
+        XCTAssertNil(bReceipt); XCTAssertEqual(original?.phase, .succeeded)
     }
 
     func testCompletionOnlyAttachmentOwnershipSurvivesCompensationWithoutInventingStart() async throws {
@@ -370,7 +392,7 @@ final class DispatchLifecycleTests: XCTestCase {
         try await expectBusy(reopened, owner: UUID())
     }
 
-    func testLateACompensationDoesNotReassignBAndBlocksNextInput() async throws {
+    func testLateACompensationDoesNotReassignBOrBlockIndependentNextInput() async throws {
         let db = try store(), owner = UUID(); let (a, ao, an) = try await started(db, owner: owner)
         let b = try await asset(db), bo = try await db.prepare(assetID: b.id, target: target())
         let bn = try await db.markDispatchIntent(bo.id, selection: selection(b, target: target()), ownerID: owner, policy: policy)
@@ -379,7 +401,11 @@ final class DispatchLifecycleTests: XCTestCase {
         _ = try await db.apply(receipt(ao, a, an, outcome: .definitiveFailure), policy: policy)
         let aa = try await db.operation(id: ao.id), bb = try await db.operation(id: bo.id)
         XCTAssertEqual(aa?.phase, .compensated); XCTAssertEqual(bb?.phase, .succeeded)
-        try await expectBusy(db, owner: owner)
+        let c = try await asset(db), co = try await db.prepare(assetID: c.id, target: target())
+        _ = try await db.markDispatchIntent(co.id, selection: selection(c, target: target()), ownerID: owner, policy: policy)
+        let startedA = try await db.uploadStartReceipt(for: ao.id)
+        XCTAssertEqual(startedA?.assetID, a.id)
+        XCTAssertEqual(startedA?.operationID, ao.id)
     }
     func testRejectionNeedsOriginalNonceAndCannotClearUnknown() async throws {
         let db = try store(), a = try await asset(db), op = try await db.prepare(assetID: a.id, target: target())

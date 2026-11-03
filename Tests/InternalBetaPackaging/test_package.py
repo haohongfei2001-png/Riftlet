@@ -37,7 +37,7 @@ class InternalBetaPackagingTests(unittest.TestCase):
         (self.package / VERIFY.ENTRY).chmod(0o755)
         self.ordinary = {"internalAcceptance": False, "mode": "capture", "dataDirectory": "Riftlet",
                          "input": True, "start": True, "completion": True, "builtInUpload": True,
-                         "safeRetry": False, "continuation": False}
+                         "safeRetry": False, "continuation": True}
         self.manifest = {"schemaVersion": 1, "kind": "internal-beta-development",
                          "sourceHeadSHA": "a" * 40, "checkoutSHA": "b" * 40,
                          "realAcceptanceSourceSHA": "c" * 40, "realAcceptanceEvidenceSHA": "d" * 40,

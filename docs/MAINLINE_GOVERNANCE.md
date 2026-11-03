@@ -1,4 +1,32 @@
-# Current application — unified product implementation, 2026-11-02
+# Current application — legacy UNKNOWN input resource, 2026-11-03
+
+The current user authorizes the current-resource path for the next explicit
+click, independently of the older attachment journal. A one-use B-bound native
+empty-picker reservation and atomic final recheck may grant input without
+rewriting A's START/UNKNOWN or requiring A's later-version request fields.
+Current pending page commits remain exclusive; native call execution and final
+attachment state are stored separately. Existing request-owned continuation
+remains available. This is implementation authorization, not current ChatGPT
+acceptance: archived append evidence, controlled tests and unavailable real
+page acceptance retain their separate scopes. The unchanged G/H protocol below
+still governs this same Draft PR; no main merge or public release is requested.
+
+# Current application — independent attachment lifecycle, 2026-11-03
+
+The current user authorizes a short development PR fixing independent screenshot
+lifecycles and same-draft continuation. The source now enables narrowly typed
+browser input continuation for new ordinary product operations: the original
+File must have been consumed by its sole observed request before START, change
+must have returned, and the operation must own its attachment. These are local
+browser identities, not invented platform/server task IDs. The source policy's
+`webContinuation` is therefore true; safe retry remains false. Existing unknown
+operations are not promoted or replayed. Missing input isolation produces an
+immediate pre-input refusal instead of parking the queue until selection expiry.
+Source review/CI does not establish current ChatGPT persisted-thread acceptance.
+The user requests a reviewed merge candidate; this does not authorize a public
+release or direct main push. The unchanged G/H and actual-merge checks below apply.
+
+# Previous application — unified product implementation, 2026-11-02
 
 The user's unified-product development instruction authorizes implementation of
 the ordinary entry point from main `a4463cddd3bce637dbe0a33c90713bc42370ed8f`.

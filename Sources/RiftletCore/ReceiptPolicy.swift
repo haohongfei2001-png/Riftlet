@@ -14,6 +14,7 @@ public struct ReceiptPolicy: Sendable {
     public let syntheticUploadStartProfiles: [String: TargetSurface]
     public let syntheticRetrySafeProfiles: [String: TargetSurface]
     public let continuationProfiles: [String: TargetSurface]
+    public let requiredInputIsolationProfiles: Set<String>
     public let syntheticContinuationProfiles: [String: TargetSurface]
     /// Source-owned scope for newly admitted profiles. A profile may not borrow
     /// another capture source's approval. Absent entries preserve the historical
@@ -39,7 +40,8 @@ public struct ReceiptPolicy: Sendable {
                 requiredCompletionEvidenceProfiles: Set<String> = [],
                 requiredTerminationEvidenceProfiles: Set<String> = [],
                 platformCompletionProfiles: [String: TargetSurface] = [:],
-                terminationProfiles: [String: TargetSurface] = [:]) {
+                terminationProfiles: [String: TargetSurface] = [:],
+                requiredInputIsolationProfiles: Set<String> = []) {
         self.admittedProfiles = admittedProfiles
         self.retrySafeProfiles = retrySafeProfiles
         self.syntheticAcceptanceProfiles = syntheticAcceptanceProfiles
@@ -47,6 +49,7 @@ public struct ReceiptPolicy: Sendable {
         self.syntheticUploadStartProfiles = syntheticUploadStartProfiles
         self.syntheticRetrySafeProfiles = syntheticRetrySafeProfiles
         self.continuationProfiles = continuationProfiles
+        self.requiredInputIsolationProfiles = requiredInputIsolationProfiles
         self.syntheticContinuationProfiles = syntheticContinuationProfiles
         self.profileOrigins = profileOrigins
         self.requiredCompletionEvidenceProfiles = requiredCompletionEvidenceProfiles
@@ -87,12 +90,14 @@ public struct ReceiptPolicy: Sendable {
               let evidence = receipt.continuationEvidence,
               !evidence.evidenceID.isEmpty, evidence.evidenceID.utf8.count <= 256,
               !evidence.profileID.isEmpty, evidence.profileID.utf8.count <= 128 else { return false }
+        if requiredInputIsolationProfiles.contains(evidence.profileID), evidence.version != 3 { return false }
         switch evidence.version {
         case 1:
             // Retain old synthetic fixtures; a stored v1 token is not a new
             // real-platform isolation proof and can never be upgraded in place.
-            guard asset.origin == .synthetic, evidence.binding == nil, evidence.taskIsolation == nil else { return false }
-        case 2:
+            guard asset.origin == .synthetic, evidence.binding == nil, evidence.taskIsolation == nil,
+                  evidence.inputIsolation == nil else { return false }
+        case 2, 3:
             guard evidence.validates(receipt: receipt, asset: asset) else { return false }
         default: return false
         }

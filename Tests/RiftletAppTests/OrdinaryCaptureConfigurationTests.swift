@@ -47,7 +47,13 @@ final class OrdinaryCaptureConfigurationTests: XCTestCase {
         XCTAssertTrue(ordinary.receiptPolicy.admittedProfiles.keys.contains(OrdinaryProductScreenshotScope.applicationCompletionProfileID))
         XCTAssertTrue(ordinary.receiptPolicy.uploadStartProfiles.keys.contains(OrdinaryProductScreenshotScope.systemUploadStartProfileID))
         XCTAssertTrue(ordinary.receiptPolicy.retrySafeProfiles.isEmpty)
-        XCTAssertTrue(ordinary.receiptPolicy.continuationProfiles.isEmpty)
+        XCTAssertEqual(ordinary.receiptPolicy.continuationProfiles, [
+            OrdinaryProductScreenshotScope.systemContinuationProfileID: .webChat,
+            OrdinaryProductScreenshotScope.applicationContinuationProfileID: .webChat])
+        XCTAssertEqual(ordinary.receiptPolicy.requiredInputIsolationProfiles,
+            Set(ordinary.receiptPolicy.continuationProfiles.keys))
+        XCTAssertEqual(ordinary.receiptPolicy.profileOrigins[OrdinaryProductScreenshotScope.systemContinuationProfileID], [.systemScreenshot])
+        XCTAssertEqual(ordinary.receiptPolicy.profileOrigins[OrdinaryProductScreenshotScope.applicationContinuationProfileID], [.applicationScreenshot])
         XCTAssertEqual(ordinary.receiptPolicy.requiredCompletionEvidenceProfiles,
             Set(ordinary.receiptPolicy.admittedProfiles.keys))
         XCTAssertTrue(ordinary.receiptPolicy.platformCompletionProfiles.isEmpty)

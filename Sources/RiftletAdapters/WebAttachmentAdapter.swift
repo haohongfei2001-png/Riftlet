@@ -6,6 +6,7 @@ import RiftletCore
 public enum WebAdapterMode: Sendable, Equatable { case disabled, syntheticDevelopment, systemScreenshotCandidate, ordinarySystemScreenshot, ordinaryProduct }
 public enum WebBridgeAction: String, Codable, Sendable {
     case captureTarget, pinTarget, validate, begin, chunk, commit, observe, discard
+    case prepareInputResource, releaseInputResource
 }
 
 /// The sole page function is supplied from reviewed source. It must synchronously
@@ -35,22 +36,25 @@ public struct WebBridgeCommand: Encodable, Sendable {
     public let chunkBase64: String?
     public let invocationID: UUID?
     public let clickBindingID: UUID?
+    public let inputResourceID: UUID?
     /// Host diagnostics only, deliberately excluded from the page payload.
     public let captureInvocation: CaptureInvocationContext?
 
     private enum CodingKeys: String, CodingKey {
-        case action, target, identity, uploadName, mediaType, byteCount, chunkIndex, chunkBase64, invocationID, clickBindingID
+        case action, target, identity, uploadName, mediaType, byteCount, chunkIndex, chunkBase64, invocationID, clickBindingID, inputResourceID
     }
 
     init(action: WebBridgeAction, target: TargetLease? = nil, identity: ObservationIdentity? = nil,
          uploadName: String? = nil, mediaType: String? = nil, byteCount: Int64? = nil,
          chunkIndex: Int? = nil, chunkBase64: String? = nil, invocationID: UUID? = nil,
-         captureInvocation: CaptureInvocationContext? = nil, clickBindingID: UUID? = nil) {
+         captureInvocation: CaptureInvocationContext? = nil, clickBindingID: UUID? = nil,
+         inputResourceID: UUID? = nil) {
         self.action = action; self.target = target; self.identity = identity
         self.uploadName = uploadName; self.mediaType = mediaType; self.byteCount = byteCount
         self.chunkIndex = chunkIndex; self.chunkBase64 = chunkBase64; self.invocationID = invocationID
         self.captureInvocation = captureInvocation
         self.clickBindingID = clickBindingID
+        self.inputResourceID = inputResourceID
     }
 }
 
@@ -72,7 +76,7 @@ public enum WebAdapterError: Error, Equatable, Sendable {
 /// One transport shared by source-scoped ordinary and isolated test compositions.
 /// Each start/completion scope is assigned only to registered new
 /// operations; historical operations retain their observation-only profiles.
-public actor WebAttachmentAdapter: InputPhasedAttachmentAdapter {
+public actor WebAttachmentAdapter: IndependentInputResourceAdapter {
     public nonisolated let id: String
     private let mediaDirectory: URL
     private nonisolated let executor: any WebBridgeExecutor
@@ -177,6 +181,50 @@ public actor WebAttachmentAdapter: InputPhasedAttachmentAdapter {
         return response.valid && response.target == target
     }
 
+    /// Reserve the empty current native picker for B. This never observes or
+    /// changes A's historical receipt, nor requires hooks on A's transport.
+    public func prepareInputResource(_ request: TransferRequest) async throws -> PreparedInputResource {
+        try requireEnabled()
+        guard mode == .ordinaryProduct || mode == .syntheticDevelopment,
+              request.operation.phase == .prepared, inputOwner == nil,
+              let invocationID = request.invocationID,
+              request.operation.target.clickBindingID != nil else { throw WebAdapterError.inputInFlight }
+        try check(request.operation.target)
+        try checkNewInputScope(request.operation.target)
+        try await preflight(asset: request.asset, fileURL: request.fileURL)
+        let identity = ObservationIdentity(operationID: request.operation.id, assetID: request.asset.id,
+            attempt: request.operation.attempt, assetSHA256: request.asset.sha256, target: request.operation.target)
+        let data = try await perform(.init(action: .prepareInputResource, target: identity.target,
+            identity: identity, invocationID: invocationID))
+        struct Reply: Decodable {
+            let version: Int
+            let identity: ObservationIdentity
+            let invocationID: UUID
+            let resourceID: UUID
+            let inputElementID: String
+            let kind: String
+            let observedSequence: Int
+            let baselineAttachmentCount: Int
+        }
+        let reply = try decode(Reply.self, from: data)
+        guard reply.version == 1, reply.identity == identity, reply.invocationID == invocationID,
+              reply.kind == "emptyNativeFileInput", reply.observedSequence > 0,
+              reply.baselineAttachmentCount >= 0, reply.baselineAttachmentCount <= 4096,
+              !reply.inputElementID.isEmpty, reply.inputElementID.utf8.count <= 256 else { throw WebAdapterError.invalidReply }
+        return PreparedInputResource(operationID: identity.operationID, assetID: identity.assetID,
+            attempt: identity.attempt, assetSHA256: identity.assetSHA256, target: identity.target,
+            invocationID: invocationID, resourceID: reply.resourceID, inputElementID: reply.inputElementID)
+    }
+
+    public func releaseInputResource(_ resource: PreparedInputResource) async {
+        let identity = ObservationIdentity(operationID: resource.operationID, assetID: resource.assetID,
+            attempt: resource.attempt, assetSHA256: resource.assetSHA256, target: resource.target)
+        // Only a one-use reservation is released. The page cannot delete a card,
+        // clear a FileList, retire UNKNOWN or input bytes through this action.
+        _ = try? await perform(.init(action: .releaseInputResource, target: resource.target,
+            identity: identity, invocationID: resource.invocationID, inputResourceID: resource.resourceID))
+    }
+
     public func append(_ request: TransferRequest) async throws -> TransferReceipt {
         try await append(request, inputConfirmed: nil)
     }
@@ -194,8 +242,15 @@ public actor WebAttachmentAdapter: InputPhasedAttachmentAdapter {
         try checkOrigin(request.asset)
         guard request.operation.assetID == request.asset.id,
               request.operation.phase == .dispatchIntent else { throw WebAdapterError.invalidRequest }
+        if let resource = request.inputResource {
+            guard resource.operationID == request.operation.id, resource.assetID == request.asset.id,
+                  resource.attempt == request.operation.attempt, resource.assetSHA256 == request.asset.sha256,
+                  resource.target == request.operation.target, resource.invocationID == request.invocationID else {
+                throw WebAdapterError.invalidRequest
+            }
+        }
         guard inputOwner == nil,
-              activeAppendTargets.values.allSatisfy({ request.operation.target.hasIndependentInputDocument(from: $0) }) else {
+              request.inputResource != nil || activeAppendTargets.values.allSatisfy({ request.operation.target.hasIndependentInputDocument(from: $0) }) else {
             throw WebAdapterError.inputInFlight
         }
         guard enteredOperations.insert(request.operation.id).inserted else { throw WebAdapterError.invalidRequest }
@@ -257,7 +312,7 @@ public actor WebAttachmentAdapter: InputPhasedAttachmentAdapter {
         do {
             let begin = WebBridgeCommand(action: .begin, target: identity.target, identity: identity,
                 uploadName: uploadName, mediaType: request.asset.mediaType, byteCount: request.asset.byteCount,
-                invocationID: request.invocationID)
+                invocationID: request.invocationID, inputResourceID: request.inputResource?.resourceID)
             let beginReply = try await perform(begin)
             // The page may reserve and permanently retire a brand-new identity
             // when its live byte budget is full. This is an explicit response,
@@ -265,7 +320,7 @@ public actor WebAttachmentAdapter: InputPhasedAttachmentAdapter {
             if let invocationID = request.invocationID,
                let proof = try? decode(BeginRejectionProof.self, from: beginReply),
                proof.identity == identity, proof.invocationID == invocationID,
-               proof.rejectedBeforeBegin, ["ACTIVE_PAYLOAD_LIMIT", "OBSERVER_UPGRADE_REQUIRED"].contains(proof.reason),
+               proof.rejectedBeforeBegin, ["ACTIVE_PAYLOAD_LIMIT", "OBSERVER_UPGRADE_REQUIRED", "INPUT_RESOURCE_UNAVAILABLE"].contains(proof.reason),
                proof.retiredBeforeInput, !proof.commitInvoked, proof.inputCount == 0 {
                 throw PreInputRejection(operationID: identity.operationID, assetID: identity.assetID,
                     attempt: identity.attempt, assetSHA256: identity.assetSHA256, target: identity.target,

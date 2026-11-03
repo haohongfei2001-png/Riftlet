@@ -68,7 +68,7 @@ def verify_ordinary_build_info(info, channel="ordinary-acceptance"):
     expected = {"internalAcceptance": internal, "mode": "capture",
                 "dataDirectory": "Riftlet-Ordinary-Acceptance" if internal else "Riftlet", "input": True,
                 "start": True, "completion": True, "builtInUpload": not internal,
-                "safeRetry": False, "continuation": False}
+                "safeRetry": False, "continuation": not internal}
     require(isinstance(info, dict) and set(info) == set(expected), "invalid_ordinary_build_info")
     require(all(type(info[key]) is type(value) and info[key] == value for key, value in expected.items()),
             "invalid_ordinary_build_info")

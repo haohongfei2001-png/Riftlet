@@ -51,7 +51,7 @@ PRODUCTION_BOUNDARY = {
     # not real-platform validation or a release decision; no profile grants
     # upload retry/continuation without independent termination/isolation proof.
     "ordinaryInput": True, "ordinaryStart": True, "ordinaryCompletion": True,
-    "builtInUpload": True, "safeRetry": False, "webContinuation": False,
+    "builtInUpload": True, "safeRetry": False, "webContinuation": True,
     "existingRestrictedCandidate": "UNCHANGED_NO_EXPANSION",
 }
 

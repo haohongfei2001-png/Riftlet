@@ -5,10 +5,13 @@ public struct TransferRequest: Sendable {
     public let asset: ImportedAsset
     public let fileURL: URL
     public let invocationID: UUID?
+    public let inputResource: PreparedInputResource?
 
-    public init(operation: TransferOperation, asset: ImportedAsset, fileURL: URL, invocationID: UUID? = nil) {
+    public init(operation: TransferOperation, asset: ImportedAsset, fileURL: URL, invocationID: UUID? = nil,
+                inputResource: PreparedInputResource? = nil) {
         self.operation = operation; self.asset = asset; self.fileURL = fileURL
         self.invocationID = invocationID
+        self.inputResource = inputResource
     }
 }
 
@@ -37,6 +40,18 @@ public extension AttachmentAdapter {
 public protocol InputPhasedAttachmentAdapter: AttachmentAdapter {
     func append(_ request: TransferRequest,
                 onInputConfirmed: @escaping @Sendable (TransferReceipt) async -> Void) async throws -> TransferReceipt
+}
+
+/// The adapter can reserve a CURRENT native input, independently of an old
+/// attachment's journal format. Preparation performs no file input. The same
+/// one-use reservation must be checked again in the atomic submission path.
+public protocol IndependentInputResourceAdapter: InputPhasedAttachmentAdapter {
+    func prepareInputResource(_ request: TransferRequest) async throws -> PreparedInputResource
+    func releaseInputResource(_ resource: PreparedInputResource) async
+}
+
+public extension IndependentInputResourceAdapter {
+    func releaseInputResource(_ resource: PreparedInputResource) async {}
 }
 
 private actor InputPhaseBoundary {
@@ -85,6 +100,7 @@ public actor TransferCoordinator {
     // Bounded original calls, never detached retry jobs. Entries survive the
     // input boundary until the SAME append returns START/terminal/unknown.
     private var activeAppends: [UUID: TransferRequest] = [:]
+    private var inputExecutions = Set<UUID>()
 
     public init(store: QueueStore, adapter: any AttachmentAdapter, mediaDirectory: URL,
                 policy: ReceiptPolicy = .init(), onChange: @escaping @Sendable () async -> Void = {},
@@ -342,7 +358,8 @@ public actor TransferCoordinator {
             // proven distinct-document scope. Do this BEFORE dispatchIntent so
             // an occupied lane cannot manufacture an unsubmitted UNKNOWN.
             guard activeAppends.count < maximumPendingSelections,
-                  activeAppends.values.allSatisfy({ op.target.hasIndependentInputDocument(from: $0.operation.target) }) else {
+                  activeAppends.values.filter({ inputExecutions.contains($0.operation.id) })
+                    .allSatisfy({ op.target.hasIndependentInputDocument(from: $0.operation.target) }) else {
                 return
             }
             if let accepted {
@@ -377,15 +394,29 @@ public actor TransferCoordinator {
                     advanceWaiting(id, selection: accepted); await onChange(); continue
                 }
             }
+            var preparedResource: PreparedInputResource?
             do { try await store.markDispatchIntent(id, selection: accepted, ownerID: dispatchOwnerID, policy: policy) }
             catch RiftletError.targetBusy {
-                if accepted != nil {
-                    // Keep the original prepared operation at the FIFO head. Only
-                    // actual lock release, cancellation or deadline can advance it.
-                    await onChange(); return
+                guard let accepted, let independent = adapter as? any IndependentInputResourceAdapter else {
+                    try await cancelIfPrepared(id, reason: "Independent attachment input is unproven for this draft; no input occurred")
+                    advanceWaiting(id, selection: accepted); await onChange(); continue
                 }
-                try await cancelIfPrepared(id, reason: "Original draft has an unresolved upload; no input occurred")
-                advanceWaiting(id, selection: accepted); await onChange(); continue
+                do {
+                    let preparationRequest = TransferRequest(operation: op, asset: request.asset,
+                        fileURL: request.fileURL, invocationID: UUID())
+                    let resource = try await independent.prepareInputResource(preparationRequest)
+                    preparedResource = resource
+                    guard resource.invocationID == preparationRequest.invocationID,
+                          accepted.isValid(), await validateAcceptedSelection(accepted), accepted.isValid() else {
+                        throw RiftletError.invalidTransition
+                    }
+                    try await store.markDispatchIntent(id, selection: accepted, ownerID: dispatchOwnerID,
+                                                       policy: policy, inputResource: resource)
+                } catch {
+                    if let preparedResource { await independent.releaseInputResource(preparedResource) }
+                    try await cancelIfPrepared(id, reason: "Current attachment input cannot be reserved safely; no input occurred")
+                    advanceWaiting(id, selection: accepted); await onChange(); continue
+                }
             }
             catch RiftletError.invalidTransition {
                 // A user removal may retire prepared work during preflight.
@@ -403,11 +434,19 @@ public actor TransferCoordinator {
                 // failed local reread must retain UNKNOWN, never strand an
                 // invisible dispatchIntent or attempt the input a second time.
                 try await store.markUnknown(id, reason: "Original request unavailable after input intent")
+                if let preparedResource, let independent = adapter as? any IndependentInputResourceAdapter {
+                    await independent.releaseInputResource(preparedResource)
+                }
+                if let invocationID = try await store.dispatchInvocationID(for: id) {
+                    try await store.recordInputExecutionReturned(operationID: id,
+                        invocationID: invocationID, ownerID: dispatchOwnerID)
+                }
                 await onChange(); continue
             }
             if let phased = adapter as? any InputPhasedAttachmentAdapter {
                 let boundary = InputPhaseBoundary()
                 activeAppends[id] = committedRequest
+                inputExecutions.insert(id)
                 Task { await self.runPhasedAppend(committedRequest, adapter: phased, boundary: boundary) }
                 try await boundary.wait()
             } else {
@@ -426,8 +465,15 @@ public actor TransferCoordinator {
               receipt.assetSHA256 == request.asset.sha256, receipt.target == original.target,
               receipt.belongsToOriginalDraft, !receipt.hasError,
               receipt.outcome == .inputTriggered || receipt.outcome == .uploadStarted else { return }
-        // No receipt persistence or visibility change here. In particular, this
-        // cannot grant START admission, swallow, retry or same-draft continuation.
+        // No attachment receipt/visibility change. Only an adapter with atomic
+        // current-resource preparation may let another same-draft click prepare
+        // while this original call continues its independent START observation.
+        if adapter is any IndependentInputResourceAdapter, let invocationID = request.invocationID {
+            do { try await store.recordInputExecutionReturned(operationID: original.id,
+                invocationID: invocationID, ownerID: dispatchOwnerID) }
+            catch { return }
+            inputExecutions.remove(original.id)
+        }
         await boundary.finish()
     }
 
@@ -443,6 +489,7 @@ public actor TransferCoordinator {
             result = .success(())
         } catch { result = .failure(error) }
         activeAppends.removeValue(forKey: request.operation.id)
+        inputExecutions.remove(request.operation.id)
         await boundary.finish(result)
         await onChange()
         // A held same-draft/legacy/capacity head only wakes after the original
@@ -472,6 +519,17 @@ public actor TransferCoordinator {
         } catch {
             // Includes a transport crash or a malformed/mismatched reply after intent.
             try await store.markUnknown(id, reason: "No trustworthy completion after input intent")
+        }
+        // A bad receipt or thrown transport does not make the completed native
+        // call an eternal input lock. The next reservation still checks whether
+        // the page has a pending hash/commit before it can perform any input.
+        if let invocationID = committedRequest.invocationID {
+            try await store.recordInputExecutionReturned(operationID: id,
+                invocationID: invocationID, ownerID: dispatchOwnerID)
+        }
+        if let resource = committedRequest.inputResource,
+           let independent = adapter as? any IndependentInputResourceAdapter {
+            await independent.releaseInputResource(resource)
         }
     }
 
@@ -548,7 +606,8 @@ public actor TransferCoordinator {
     private func request(for op: TransferOperation) async throws -> TransferRequest {
         guard let asset = try await store.asset(id: op.assetID) else { throw RiftletError.assetNotFound }
         return TransferRequest(operation: op, asset: asset.image, fileURL: mediaDirectory.appendingPathComponent(asset.image.fileName),
-                               invocationID: try await store.dispatchInvocationID(for: op.id))
+                               invocationID: try await store.dispatchInvocationID(for: op.id),
+                               inputResource: try await store.inputResource(for: op.id))
     }
 }
 

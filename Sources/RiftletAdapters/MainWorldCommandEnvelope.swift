@@ -23,6 +23,7 @@ public enum WebPageRejection: String, CaseIterable, Sendable {
     case rootMonitorUnavailable = "ROOT_MONITOR_UNAVAILABLE"
     case unobservedRootDescriptor = "UNOBSERVED_ROOT_DESCRIPTOR"
     case unprovenMonitoredBinding = "UNPROVEN_MONITORED_BINDING"
+    case inputResourceUnavailable = "INPUT_RESOURCE_UNAVAILABLE"
 }
 
 /// One command, one random receipt. Reading a lost receipt must never execute the

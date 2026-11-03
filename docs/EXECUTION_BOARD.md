@@ -1,3 +1,13 @@
+# Current input-resource correction — 2026-11-03
+
+PR #37 continues the same branch. The current user authorizes separating native
+input execution from attachment outcome and implementing a current-resource
+path for legacy START/UNKNOWN without backfilling its request proof. Core/App
+are owned by the integration lead, Web by `web_input`, regression fixtures by
+`lifecycle_tests`, and non-author review by `independent_review`. Actual source,
+checks and package identities are recorded in PR #37. See
+`engineering/evidence/2026-11-03-input-resource/README.md` for exact scope.
+
 # R2.1 final UI integration and device-acceptance phase — 2026-10-31
 
 The current authorized packet integrates reviewed R2.1 PR #24 into actual main
