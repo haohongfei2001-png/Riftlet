@@ -2700,3 +2700,17 @@ test('reentrant callback cannot reserve the same native input even if applicatio
   f.changed(()=>{assert.throws(()=>prepareResource(f,b),/INPUT_RESOURCE_UNAVAILABLE/);refused=true;});
   f.commit(a);await f.settle();assert.equal(refused,true);assert.equal(f.input.inputCount,1);assert.equal(tasks.length,1);
 });
+
+test('legacy A late error/removal cannot revoke B after B owns its own START on the empty-resource path',async()=>{
+  const f=requestFixture({thread:true});appResetsNativeInput(f);
+  const a=pinnedOperation(f);f.stage(a);f.commit(a);await f.settle();const av=f.makeCard(a,10);setProgress(f,av,40);
+  const b=withInvocation(pinnedOperation(f,webcrypto.randomUUID()),webcrypto.randomUUID());prepareResource(f,b);
+  f.stage(b);f.commit(b);await f.settle();const bv=f.makeCard(b,10);setProgress(f,bv,40);
+  const before=f.observe(b);assert.equal(before.state,'uploadStarted');
+  av.card.attrs['data-state']='error';f.mutate([{type:'attributes',target:av.card,attributeName:'data-state',oldValue:'closed'}]);
+  assert.equal(f.observe(a).hasError,true);assert.equal(f.observe(b).state,'uploadStarted');
+  f.form.children=f.form.children.filter(node=>node!==av.card);av.card.isConnected=false;
+  f.mutate([{type:'childList',target:f.form,removedNodes:[av.card],addedNodes:[]}]);
+  assert.equal(f.observe(b).state,'uploadStarted');assert.equal(f.observe(b).attachmentID,before.attachmentID);
+  f.finish(bv);await f.settle();assert.equal(f.observe(b).state,'attached');assert.equal(f.input.inputCount,2);
+});
