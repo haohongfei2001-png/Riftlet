@@ -209,16 +209,34 @@ final class DispatchLifecycleTests: XCTestCase {
         }
     }
 
-    func testCompletedAttachmentIdentityDoesNotAliasAnUnrelatedDocument() async throws {
+    func testCompletedAttachmentIdentityDoesNotAliasAnUnrelatedBusinessDraft() async throws {
         let db = try store(), owner = UUID()
         let (a, ao, an) = try await started(db, owner: owner, target: target(pin: UUID()))
         _ = try await db.apply(receipt(ao, a, an, outcome: .verifiedReady), policy: policy)
-        let bt = try changed(target(pin: UUID()), "documentID", "independent-document")
+        let bt = try changed(target("00000000-0000-0000-0000-000000000002", pin: UUID()),
+                             "documentID", "independent-document")
         let b = try await asset(db), bo = try await db.prepare(assetID: b.id, target: bt)
         let bn = try await db.markDispatchIntent(bo.id, selection: selection(b, target: bt), ownerID: owner, policy: policy)
         _ = try await db.apply(receipt(bo, b, bn, outcome: .verifiedReady, attachment: "attachment-\(ao.id)"), policy: policy)
         let result = try await db.operation(id: bo.id)
         XCTAssertEqual(result?.phase, .succeeded); XCTAssertEqual(result?.target, bt)
+    }
+
+    func testRenewedDocumentInSameBusinessDraftCannotBorrowACompletedAttachment() async throws {
+        let db = try store(), owner = UUID()
+        let (a, ao, an) = try await started(db, owner: owner, target: target(pin: UUID()))
+        _ = try await db.apply(receipt(ao, a, an, outcome: .verifiedReady), policy: policy)
+        let bt = try changed(target(pin: UUID()), "documentID", "renewed-same-chat-document")
+        let b = try await asset(db), bo = try await db.prepare(assetID: b.id, target: bt)
+        let bn = try await db.markDispatchIntent(bo.id, selection: selection(b, target: bt), ownerID: owner, policy: policy)
+        do {
+            _ = try await db.apply(receipt(bo, b, bn, outcome: .verifiedReady,
+                attachment: "attachment-\(ao.id)"), policy: policy)
+            XCTFail("A new document identifier is not permission to borrow A's attachment")
+        } catch RiftletError.mismatchedReceipt {}
+        let bReceipt = try await db.receipt(for: bo.id)
+        let original = try await db.operation(id: ao.id)
+        XCTAssertNil(bReceipt); XCTAssertEqual(original?.phase, .succeeded)
     }
 
     func testCompletionOnlyAttachmentOwnershipSurvivesCompensationWithoutInventingStart() async throws {

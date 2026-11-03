@@ -35,9 +35,14 @@ function browserFixture() {
   const call=command=>program(command,native);
   editor.focus();const selection=getSelection(),range=document.createRange();range.setStart(editor.firstChild,2);range.setEnd(editor.firstChild,7);selection.removeAllRanges();selection.addRange(range);
   const text=editor.textContent,anchor=selection.anchorNode,anchorOffset=selection.anchorOffset,focus=selection.focusNode,focusOffset=selection.focusOffset;
-  const canvas=document.createElement('canvas');canvas.width=2;canvas.height=1;canvas.getContext('2d').fillRect(0,0,2,1);
-  const png=await new Promise(r=>canvas.toBlob(r,'image/png')),bytes=new Uint8Array(await png.arrayBuffer()),sha=await hash(bytes),base64=btoa(String.fromCharCode(...bytes));
-  const pixelURL=canvas.toDataURL('image/png');
+  const sources=[];
+  for(let index=0;index<5;index++){
+    const canvas=document.createElement('canvas');canvas.width=2;canvas.height=1;
+    const ctx=canvas.getContext('2d');ctx.fillStyle='rgb('+(12+index*40)+','+(25+index*15)+','+(35+index*10)+')';ctx.fillRect(0,0,2,1);
+    const png=await new Promise(r=>canvas.toBlob(r,'image/png')),bytes=new Uint8Array(await png.arrayBuffer());
+    sources.push({png,bytes,sha:await hash(bytes),base64:btoa(String.fromCharCode(...bytes)),pixelURL:canvas.toDataURL('image/png')});
+  }
+  check(new Set(sources.map(value=>value.sha)).size===5,'each operation has distinct image bytes');
   const tasks=[];let changes=0;
   const cachedTransport=body=>new Request('https://fixture.invalid/never-requested',{method:'POST',body});
   call({action:'captureTarget'});
@@ -52,11 +57,12 @@ function browserFixture() {
     const card=document.createElement('div');card.setAttribute('role','button');card.setAttribute('aria-label',file.name);
     const image=new Image();image.alt=file.name;image.src=URL.createObjectURL(file);card.append(image);
     const progress=document.createElement('span');progress.setAttribute('role','progressbar');progress.setAttribute('aria-label','正在上传 '+file.name);progress.setAttribute('aria-valuenow','10');card.append(progress);form.append(card);
-    tasks.push({file,body,request,kind,card,image,progress});
+    tasks.push({file,body,request,kind,card,image,progress,sha:sources[index].sha,pixelURL:sources[index].pixelURL});
     input.value=''; // Application-owned reset; Riftlet never clears this picker.
   });
   const operations=[];
   for(let index=0;index<5;index++){
+    const {bytes,sha,base64}=sources[index];
     const target=call({action:'captureTarget'}),pin=call({action:'pinTarget',target,clickBindingID:crypto.randomUUID()});
     const identity={operationID:crypto.randomUUID(),assetID:crypto.randomUUID(),attempt:1,assetSHA256:sha,target:pin};
     const invocationID=index===0?undefined:crypto.randomUUID(),name='riftlet-'+identity.operationID+'.png';
@@ -87,15 +93,15 @@ function browserFixture() {
   // The native body extractions and original immutable Files remain independent
   // after four later native FileList submissions and application-owned resets.
   for(const task of tasks){
-    check(await hash(await task.file.arrayBuffer())===sha,'original File bytes retained');
+    check(await hash(await task.file.arrayBuffer())===task.sha,'original File keeps its own distinct bytes');
     const extracted=task.kind==='FormData'?(await task.request.formData()).get('file'):await task.request.blob();
-    check(await hash(await extracted.arrayBuffer())===sha,'native Request body retained '+task.kind);
+    check(await hash(await extracted.arrayBuffer())===task.sha,'native Request body keeps its own distinct bytes '+task.kind);
   }
   let independentCompletions=0;
   for(let index=1;index<tasks.length;index++){
     const task=tasks[index],op=operations[index];
     task.progress.setAttribute('aria-valuenow','100');call(op.command('observe'));task.progress.remove();
-    await new Promise(r=>setTimeout(r,0));task.image.src=pixelURL;await task.image.decode();
+    await new Promise(r=>setTimeout(r,0));task.image.src=task.pixelURL;await task.image.decode();
     await wait(()=>op.record.proof&&!op.record.proofPending);
     check(call(op.command('observe')).observation.state==='attached','independent exact completion '+index);independentCompletions++;
   }
@@ -103,8 +109,8 @@ function browserFixture() {
   check(call(a.command('observe')).observation.state==='unknown','legacy final remains UNKNOWN');
   check(changes===5,'five inputs exactly; A never replayed');
   const nextTarget=call({action:'captureTarget'}),nextPin=call({action:'pinTarget',target:nextTarget,clickBindingID:crypto.randomUUID()});
-  const next={operationID:crypto.randomUUID(),assetID:crypto.randomUUID(),attempt:1,assetSHA256:sha,target:nextPin};
-  const occupied=new DataTransfer();occupied.items.add(new File([png],'user-selected.png',{type:'image/png'}));input.files=occupied.files;
+  const next={operationID:crypto.randomUUID(),assetID:crypto.randomUUID(),attempt:1,assetSHA256:sources[0].sha,target:nextPin};
+  const occupied=new DataTransfer();occupied.items.add(new File([sources[0].png],'user-selected.png',{type:'image/png'}));input.files=occupied.files;
   let refused=false;try{call({action:'prepareInputResource',identity:next,target:nextPin,invocationID:crypto.randomUUID()});}catch(e){refused=/INPUT_RESOURCE_UNAVAILABLE/.test(e.message);}
   check(refused&&changes===5&&input.files[0].name==='user-selected.png','nonempty input refusal preserves selected file');
   Object.assign(report,{passed:true,nativeChanges:changes,originalFileBodiesVerified:tasks.length,nativeRequestBodiesVerified:tasks.length,independentCompletions,legacyUnknownUnchanged:true,textSelectionCardsPreserved:true,occupiedPickerRefused:true,networkRequests:0});

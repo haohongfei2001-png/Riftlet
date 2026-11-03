@@ -283,7 +283,7 @@ private actor InputResourceBridge: WebBridgeExecutor {
     private func observation(_ identity: ObservationIdentity) throws -> Data {
         let started = !heldStarts.contains(identity.operationID)
         let start: ObservedUploadStart? = started ? .init(version: 1, signal: .correlatedProgress,
-            evidenceID: "fixture-start-\(identity.operationID)", inputCount: 1,
+            evidenceID: identity.operationID.uuidString, inputCount: 1,
             inputSequence: 1, startSequence: 4, previousProgress: 20, currentProgress: 40,
             inputObservedAtMS: 10, startObservedAtMS: 25) : nil
         return try JSONEncoder().encode(AttachmentObservationEnvelope(schemaVersion: started ? 2 : 1,
