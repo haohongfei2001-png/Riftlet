@@ -42,6 +42,11 @@ refresh/restart, late receipts, ownership collisions and current text/selection.
 FormData, copied Blob and pre-cached transport fixtures deliberately have no
 request ownership evidence; the new path does not infer their requests absent.
 Direct original File request observation remains the separately typed old path.
+The hermetic Chrome fixture executes actual native FileList, File, Blob,
+FormData, Request, Selection and WebCrypto with a synthetic local application.
+It uses a new temporary profile and local file only, with no network upload or
+real ChatGPT session. macOS CI requires Chrome; this Linux executor reports
+CHROME_NOT_RUN because no native Chrome binary is installed.
 Exact completed CI, native tests and package identities are recorded in PR #37.
 
 ## Real-platform boundary

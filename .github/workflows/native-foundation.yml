@@ -115,6 +115,14 @@ jobs:
           set -o pipefail
           mkdir -p test-results
           swift test --parallel 2>&1 | tee test-results/swift-test.log
+      - name: Verify native Chrome input resources with an isolated synthetic application
+        env:
+          RIFTLET_REQUIRE_CHROME: '1'
+        run: |
+          set -o pipefail
+          # Fresh temporary profile + local fixture only. No user browser,
+          # ChatGPT page, network upload, CDP or Apple Events is used.
+          node --test Tests/WebPageProgram/chrome-input-resource.test.cjs 2>&1 | tee test-results/chrome-input-resource.log
       - name: Verify isolated arrival delta and report native motion outcomes
         if: github.head_ref == 'codex/arrival-none-magnet-native-20261028' || github.ref == 'refs/heads/codex/arrival-none-magnet-native-20261028'
         run: |
