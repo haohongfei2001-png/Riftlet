@@ -82,10 +82,10 @@ final class WebPreInputRetirementTests: XCTestCase {
             fileURL: file, invocationID: invocationID))
     }
 
-    private func adapter(_ bridge: PreInputRetirementBridge) -> WebAttachmentAdapter {
+    private func adapter(_ bridge: PreInputRetirementBridge, diagnosticTrace: BoundedDiagnosticTrace? = nil) -> WebAttachmentAdapter {
         WebAttachmentAdapter(mediaDirectory: directory, executor: bridge,
             program: WebPageProgram(sourceID: "constructed-pre-input-retirement", functionSource: "function () { return null; }"),
-            mode: .syntheticDevelopment, polling: .disabled)
+            mode: .syntheticDevelopment, polling: .disabled, diagnosticTrace: diagnosticTrace)
     }
 
     private func freshTarget(_ old: TargetLease) -> TargetLease {
@@ -125,6 +125,60 @@ final class WebPreInputRetirementTests: XCTestCase {
         XCTAssertEqual(proof.assetSHA256, request.asset.sha256)
         XCTAssertEqual(proof.target, request.operation.target)
         XCTAssertEqual(proof.invocationID, request.invocationID)
+    }
+
+    func testResourceRefusalDiagnosticRemainsClosedAndRequiresActualRetirement() async throws {
+        let (_, request) = try await fixture(), original = try envelope(request)
+        let valid = try mutate(original) { root in
+            var observation = root["observation"] as! [String: Any]
+            var retirement = observation["preInputRetirement"] as! [String: Any]
+            retirement["reason"] = "inputPreparationFailed"
+            observation["preInputRetirement"] = retirement
+            observation["resourceRefusalReason"] = "INPUT_RESOURCE_TARGET_CHANGED"
+            root["observation"] = observation
+        }
+        XCTAssertEqual(valid.observation.resourceRefusalReason, .inputResourceTargetChanged)
+        XCTAssertNotNil(try WebPreInputRetirement.rejection(from: valid, for: request))
+        for detail in ["private page error", "INPUT_RESOURCE_TARGET_CHANGED\n", "TARGET_INVALID"] {
+            XCTAssertThrowsError(try mutate(valid) { root in
+                var observation = root["observation"] as! [String: Any]
+                observation["resourceRefusalReason"] = detail; root["observation"] = observation
+            })
+        }
+        XCTAssertThrowsError(try mutate(valid) { root in
+            var observation = root["observation"] as! [String: Any]
+            observation.removeValue(forKey: "preInputRetirement"); root["observation"] = observation
+        })
+        XCTAssertThrowsError(try mutate(original) { root in
+            var observation = root["observation"] as! [String: Any]
+            observation["resourceRefusalReason"] = "INPUT_RESOURCE_EXECUTION_BUSY"; root["observation"] = observation
+        })
+    }
+
+    func testCommitResourceRefusalPersistsItsSpecificCodeWithoutGrantingReplay() async throws {
+        let (_, request) = try await fixture(), original = try envelope(request)
+        let packet = try mutate(original) { root in
+            var observation = root["observation"] as! [String: Any]
+            var retirement = observation["preInputRetirement"] as! [String: Any]
+            retirement["reason"] = "inputPreparationFailed"
+            observation["preInputRetirement"] = retirement
+            observation["resourceRefusalReason"] = "INPUT_RESOURCE_BASELINE_CHANGED"
+            root["observation"] = observation
+        }
+        let log = directory.appendingPathComponent("diagnostics")
+        let trace = BoundedDiagnosticTrace(enabled: true, directory: log, emitStandardError: false)
+        let bridge = PreInputRetirementBridge(request: request, packet: try JSONEncoder().encode(packet), expectedBytes: png)
+        let client = adapter(bridge, diagnosticTrace: trace)
+        do { _ = try await client.append(request); XCTFail("Retired resource input succeeded") }
+        catch let proof as PreInputRejection { XCTAssertEqual(proof.stage, .pageRetiredBeforeFileInput) }
+        trace.flushForTesting()
+        let text = String(decoding: try Data(contentsOf: log.appendingPathComponent("acceptance-failures.jsonl")), as: UTF8.self)
+        XCTAssertTrue(text.contains("INPUT_RESOURCE_BASELINE_CHANGED"))
+        let before = await bridge.actions()
+        do { _ = try await client.append(request); XCTFail("Retired invocation replayed") }
+        catch WebAdapterError.invalidRequest {}
+        let after = await bridge.actions()
+        XCTAssertEqual(before, after)
     }
 
     func testIncompleteOrSideEffectEnteredRetirementCannotBeDecoded() async throws {

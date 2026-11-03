@@ -55,14 +55,86 @@ final class WebInputResourceTests: XCTestCase {
                      invocationID: invocation, inputResource: resource)
     }
 
-    private func adapter(_ bridge: InputResourceBridge) -> WebAttachmentAdapter {
+    private func adapter(_ bridge: InputResourceBridge, diagnosticTrace: BoundedDiagnosticTrace? = nil) -> WebAttachmentAdapter {
         .init(mediaDirectory: directory, executor: bridge,
               program: .init(sourceID: "synthetic-input-resource-bridge", functionSource: "function () { return null; }"),
               mode: .syntheticDevelopment,
               profile: .init(adapterID: "chatgpt-web", surface: .webChat,
                              profileID: "resource-ready", completionSignal: .attached,
                              uploadStartProfileID: "resource-start"),
-              polling: .init(timeout: 3, interval: 0.005))
+              polling: .init(timeout: 3, interval: 0.005), diagnosticTrace: diagnosticTrace)
+    }
+
+    func testSettledOwnedNativeSelectionReservesOneIndependentInvocation() async throws {
+        let value = try await fixture(), bridge = InputResourceBridge(resourceKind: "settledOwnedNativeFileInput")
+        let client = adapter(bridge), resource = try await client.prepareInputResource(value.request)
+        let request = try await commit(value, resource: resource)
+        let result = try await client.append(request)
+        XCTAssertEqual(result.outcome, .uploadStarted)
+        let bytes = await bridge.bytes(request.operation.id), commands = await bridge.commands()
+        XCTAssertEqual(bytes, value.bytes)
+        XCTAssertEqual(commands.filter { $0.action == .begin }.count, 1)
+        XCTAssertEqual(commands.filter { $0.action == .commit }.count, 1)
+        XCTAssertEqual(commands.first { $0.action == .begin }?.inputResourceID, resource.resourceID)
+        do { _ = try await client.append(request); XCTFail("Retained-picker invocation replayed") }
+        catch WebAdapterError.invalidRequest {}
+        let finalCommands = await bridge.commands()
+        XCTAssertEqual(finalCommands.count, commands.count)
+    }
+
+    func testPrecisePrepareRefusalPersistsAfterRoutineTraceBudgetWithoutInput() async throws {
+        let log = directory.appendingPathComponent("diagnostics")
+        let trace = BoundedDiagnosticTrace(enabled: true, directory: log, emitStandardError: false)
+        for index in 0..<6_000 { trace.record(["event": "capture_ack", "observedSequence": index]) }
+        let value = try await fixture(), bridge = InputResourceBridge(prepareRejection: .inputResourceExecutionUncertain)
+        let client = adapter(bridge, diagnosticTrace: trace)
+        do { _ = try await client.prepareInputResource(value.request); XCTFail("Ambiguous execution reserved") }
+        catch WebAdapterError.pageRejected(.inputResourceExecutionUncertain) {}
+        trace.flushForTesting()
+        let recorded = await bridge.commands()
+        XCTAssertEqual(recorded.map(\.action), [.prepareInputResource])
+        let saved = try await value.store.operation(id: value.request.operation.id)
+        XCTAssertEqual(saved?.phase, .prepared)
+        let text = String(decoding: try Data(contentsOf: log.appendingPathComponent("acceptance-failures.jsonl")), as: UTF8.self)
+        XCTAssertTrue(text.contains("INPUT_RESOURCE_EXECUTION_UNCERTAIN"))
+        XCTAssertFalse(text.contains(value.request.operation.id.uuidString))
+    }
+
+    func testPendingLegacyFileQualificationRereadsSameInvocationBeforeOneInput() async throws {
+        let value = try await fixture(), bridge = InputResourceBridge(resourceKind: "settledOwnedNativeFileInput", pendingPreparations: 1)
+        let client = adapter(bridge), resource = try await client.prepareInputResource(value.request)
+        let preparations = await bridge.commands()
+        XCTAssertEqual(preparations.map(\.action), [.prepareInputResource, .prepareInputResource])
+        XCTAssertEqual(Set(preparations.compactMap(\.invocationID)), Set([try XCTUnwrap(value.request.invocationID)]))
+        XCTAssertTrue(preparations.allSatisfy { $0.identity?.operationID == value.request.operation.id && $0.inputResourceID == nil })
+        let request = try await commit(value, resource: resource)
+        _ = try await client.append(request)
+        let commands = await bridge.commands()
+        XCTAssertEqual(commands.filter { $0.action == .begin }.count, 1)
+        XCTAssertEqual(commands.filter { $0.action == .commit }.count, 1)
+    }
+
+    func testMalformedPendingQualificationNeverPollsOrAuthorizesInput() async throws {
+        for field in ["version", "identity", "invocation", "false", "numeric", "resource", "extra"] {
+            let value = try await fixture(), bridge = InputResourceBridge(pendingPreparations: 1, badPendingField: field)
+            let client = adapter(bridge)
+            do { _ = try await client.prepareInputResource(value.request); XCTFail("Malformed pending \(field) accepted") }
+            catch WebAdapterError.invalidReply {}
+            let commands = await bridge.commands()
+            XCTAssertEqual(commands.map(\.action), [.prepareInputResource])
+        }
+    }
+
+    func testUnsettledLegacyQualificationEndsBoundedlyWithoutBeginOrInput() async throws {
+        let value = try await fixture(), bridge = InputResourceBridge(pendingPreparations: 100)
+        let client = adapter(bridge)
+        do { _ = try await client.prepareInputResource(value.request); XCTFail("Pending qualification reserved input") }
+        catch WebAdapterError.pageRejected(.inputResourceQualificationPending) {}
+        let commands = await bridge.commands()
+        XCTAssertFalse(commands.isEmpty); XCTAssertLessThanOrEqual(commands.count, 16)
+        XCTAssertTrue(commands.allSatisfy { $0.action == .prepareInputResource })
+        let saved = try await value.store.operation(id: value.request.operation.id)
+        XCTAssertEqual(saved?.phase, .prepared)
     }
 
     func testPrepareBindsNextInvocationAndForwardsOneUseTokenToBegin() async throws {
@@ -201,6 +273,10 @@ final class WebInputResourceTests: XCTestCase {
 }
 
 private actor InputResourceBridge: WebBridgeExecutor {
+    private let resourceKind: String
+    private let prepareRejection: WebPageRejection?
+    private var pendingPreparations: Int
+    private let badPendingField: String?
     private let badReplyField: String?
     private let refuseBegin: Bool
     private let badRefusalField: String?
@@ -212,9 +288,13 @@ private actor InputResourceBridge: WebBridgeExecutor {
     private var waiters: [UUID: CheckedContinuation<Void, Never>] = [:]
 
     init(badReplyField: String? = nil, refuseBegin: Bool = false, badRefusalField: String? = nil,
+         resourceKind: String = "emptyNativeFileInput", prepareRejection: WebPageRejection? = nil,
+         pendingPreparations: Int = 0, badPendingField: String? = nil,
          onCommit: @escaping @Sendable (UUID) -> Void = { _ in }) {
         self.badReplyField = badReplyField; self.refuseBegin = refuseBegin
         self.badRefusalField = badRefusalField; self.onCommit = onCommit
+        self.resourceKind = resourceKind; self.prepareRejection = prepareRejection
+        self.pendingPreparations = pendingPreparations; self.badPendingField = badPendingField
     }
     func commands() -> [WebBridgeCommand] { recorded }
     func bytes(_ id: UUID) -> Data { received[id] ?? Data() }
@@ -229,9 +309,26 @@ private actor InputResourceBridge: WebBridgeExecutor {
         let identityJSON = try JSONSerialization.jsonObject(with: JSONEncoder().encode(identity))
         switch command.action {
         case .prepareInputResource:
+            if let prepareRejection { throw WebAdapterError.pageRejected(prepareRejection) }
             let invocation = try XCTUnwrap(command.invocationID)
+            if pendingPreparations > 0 {
+                pendingPreparations -= 1
+                var body: [String: Any] = ["version": 1, "identity": identityJSON,
+                    "invocationID": invocation.uuidString, "pending": true]
+                switch badPendingField {
+                case "version": body["version"] = 2
+                case "identity": var wrong = identityJSON as! [String: Any]; wrong["operationID"] = UUID().uuidString; body["identity"] = wrong
+                case "invocation": body["invocationID"] = UUID().uuidString
+                case "false": body["pending"] = false
+                case "numeric": body["pending"] = 1
+                case "resource": body["resourceID"] = UUID().uuidString
+                case "extra": body["untrusted"] = "private page text"
+                default: break
+                }
+                return try JSONSerialization.data(withJSONObject: body)
+            }
             var body: [String: Any] = ["version": 1, "identity": identityJSON, "invocationID": invocation.uuidString,
-                "resourceID": UUID().uuidString, "inputElementID": "synthetic-empty-input", "kind": "emptyNativeFileInput",
+                "resourceID": UUID().uuidString, "inputElementID": "synthetic-empty-input", "kind": resourceKind,
                 "observedSequence": 7, "baselineAttachmentCount": 1]
             switch badReplyField {
             case "version": body["version"] = 2

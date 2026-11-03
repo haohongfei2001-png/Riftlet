@@ -1,4 +1,18 @@
-# Current application — legacy UNKNOWN input resource, 2026-11-03
+# Current application — retained native selection repair, 2026-11-03
+
+The user's new P1 repair explicitly separates an idle picker retaining its
+previous File from an executing input. A one-use reservation may qualify a
+settled original selection only with original normal call return, one input,
+verified original bytes, correlated START and intact original attachment/draft.
+Hot update may re-verify the current immutable File's bytes read-only when the
+old observer released its payload; pending qualification grants no input token.
+All facts and the exact current native selection are rechecked before input.
+No prior File is replayed or cleared, no old UNKNOWN is rewritten, no timeout
+releases uncertain execution, and no START/completion/retry profile changes.
+The existing G/H protocol and five formal checks remain unchanged. Source and
+controlled application results do not claim current-user ChatGPT acceptance.
+
+# Previous application — legacy UNKNOWN input resource, 2026-11-03
 
 The current user authorizes the current-resource path for the next explicit
 click, independently of the older attachment journal. A one-use B-bound native

@@ -630,11 +630,12 @@ function riftletWebAcceptance(command, native) {
         && baseline.every(c => c.isConnected && form.contains(c));
     };
     const tick = () => { if (++sequence > Number.MAX_SAFE_INTEGER - 1) invalid = true; return sequence; };
-    // A fresh operation can reserve a CURRENT empty native picker without
-    // rewriting any historical operation or borrowing its request proof. The
-    // browser/app, never Riftlet, must have emptied that picker. This establishes
-    // resource availability, not upload completion or an application's append
-    // semantics. The original guarded change path is still used exactly once.
+    // Native selection and executing input are different resources. A retained
+    // selection may be reused only when its exact File belongs to a normally
+    // returned one-shot input and an independently observed original attachment
+    // START. No filename-only match, clock, clear, prior-file replay or completion is
+    // used to grant this capability. Application append semantics remain a
+    // separately verified platform contract, not a claim about arbitrary apps.
     const preparedResources = new Map();
     const preparedResourceOperations = new Set();
     const filesDescriptor = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'files');
@@ -644,7 +645,17 @@ function riftletWebAcceptance(command, native) {
       const descriptor = object && Object.getOwnPropertyDescriptor(object, key);
       return descriptor && Object.prototype.hasOwnProperty.call(descriptor, 'value') ? descriptor.value : undefined;
     };
-    const nativeInputEmpty = () => {
+    let lastResourceRefusal = null;
+    let pendingSelectionQualification = null;
+    for (const key of ['settledNativeSelections','nativeSelectionDigests']) {
+      if (!Object.getOwnPropertyDescriptor(registry,key)) {
+        Object.defineProperty(registry,key,{value:new WeakMap(),writable:false,configurable:false});
+      }
+    }
+    if (!Object.getOwnPropertyDescriptor(registry,'nativeSelectionReads')) {
+      Object.defineProperty(registry,'nativeSelectionReads',{value:new Set(),writable:false,configurable:false});
+    }
+    const nativeInputSelection = () => {
       try {
         const filesNow = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'files');
         const valueNow = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value');
@@ -655,47 +666,106 @@ function riftletWebAcceptance(command, native) {
         if (Object.getOwnPropertyDescriptor(input, 'files')
             || typeof filesDescriptor?.get !== 'function' || typeof filesDescriptor?.set !== 'function'
             || typeof valueDescriptor?.get !== 'function' || filesNow?.get !== filesDescriptor.get
-            || filesNow?.set !== filesDescriptor.set || valueNow?.get !== valueDescriptor.get) return false;
+            || filesNow?.set !== filesDescriptor.set || valueNow?.get !== valueDescriptor.get) {
+          return {reason:'INPUT_RESOURCE_NATIVE_ACCESS_UNVERIFIED'};
+        }
         const files = Reflect.apply(filesDescriptor.get, input, []);
-        return files !== null && files.length === 0 && Reflect.apply(valueDescriptor.get, input, []) === '';
-      } catch { return false; }
+        const value = Reflect.apply(valueDescriptor.get, input, []);
+        if (!files || !Number.isSafeInteger(files.length) || files.length < 0 || typeof value !== 'string') {
+          return {reason:'INPUT_RESOURCE_NATIVE_ACCESS_UNVERIFIED'};
+        }
+        if (files.length === 0) return value === '' ? {kind:'emptyNativeFileInput',file:null}
+          : {reason:'INPUT_RESOURCE_NATIVE_VALUE_NONEMPTY'};
+        if (files.length !== 1 || !files[0] || value === '') return {reason:'INPUT_RESOURCE_NATIVE_FILES_RETAINED'};
+        return {kind:'settledOwnedNativeFileInput',file:files[0]};
+      } catch { return {reason:'INPUT_RESOURCE_NATIVE_ACCESS_UNVERIFIED'}; }
     };
-    const inputExecutionFree = currentOperation => {
+    const inputExecutionStatus = (currentOperation, selectedFile) => {
       try {
         // Old native calls can outlive the App. Inspect the source-owned page
         // executions by actual input-node identity, not a renewed target UUID.
         // A settled old one-shot execution needs no newer request fields.
+        const selectedOwners = [], contentCandidates = [];
+        const selections = data(registry,'settledNativeSelections');
+        if (!(selections instanceof WeakMap)) return {reason:'INPUT_RESOURCE_REGISTRY_UNVERIFIED'};
+        const settledSelection = selectedFile && WeakMap.prototype.get.call(selections,selectedFile);
         for (const version of [7, 8, 9, 10, 11, 12, 13]) {
           const descriptor = Object.getOwnPropertyDescriptor(globalThis, '__riftletWebAcceptance20261027v' + version);
           if (!descriptor) continue;
-          if (!Object.prototype.hasOwnProperty.call(descriptor, 'value') || descriptor.configurable || descriptor.writable) return false;
+          if (!Object.prototype.hasOwnProperty.call(descriptor, 'value') || descriptor.configurable || descriptor.writable) return {reason:'INPUT_RESOURCE_REGISTRY_UNVERIFIED'};
           const ownerRegistry = descriptor.value, inputOwners = data(ownerRegistry, 'inputOwners');
           if (inputOwners !== undefined) {
-            if (!(inputOwners instanceof WeakMap)) return false;
+            if (!(inputOwners instanceof WeakMap)) return {reason:'INPUT_RESOURCE_REGISTRY_UNVERIFIED'};
             const owner = WeakMap.prototype.get.call(inputOwners, input);
-            if (owner && owner !== currentOperation) return false;
+            if (owner && owner !== currentOperation) return {reason:'INPUT_RESOURCE_EXECUTION_BUSY'};
           }
           const seen = new Set(); let generation = data(ownerRegistry, 'head');
-          if (!generation && data(ownerRegistry, 'count') !== 0) return false;
+          if (!generation && data(ownerRegistry, 'count') !== 0) return {reason:'INPUT_RESOURCE_REGISTRY_UNVERIFIED'};
           while (generation) {
-            if (seen.size >= 512 || seen.has(generation)) return false;
+            if (seen.size >= 512 || seen.has(generation)) return {reason:'INPUT_RESOURCE_REGISTRY_UNVERIFIED'};
             seen.add(generation);
             const operations = data(generation, 'operations');
-            if (!(operations instanceof Map)) return false;
+            if (!(operations instanceof Map)) return {reason:'INPUT_RESOURCE_REGISTRY_UNVERIFIED'};
             const retired = data(generation, 'retired') === true, originalInput = data(generation, 'input');
-            if (!retired && !originalInput) return false;
+            if (!retired && !originalInput) return {reason:'INPUT_RESOURCE_REGISTRY_UNVERIFIED'};
             if (originalInput === input) for (const operation of Map.prototype.values.call(operations)) {
               if (operation === currentOperation) continue;
+              if (selectedFile && (data(operation,'file') === selectedFile
+                  || (settledSelection?.operation === operation && settledSelection.state === generation
+                    && settledSelection.input === input && sameIdentity(settledSelection.identity,operation.identity)))) {
+                selectedOwners.push({state:generation,operation});
+              } else if (selectedFile && data(operation,'file') === null
+                  && selectedFile.type === 'image/png' && selectedFile.size === data(operation,'bytes')
+                  && selectedFile.size >= 8 && selectedFile.size <= MAX_BYTES
+                  && uuid(data(operation,'identity')?.operationID)
+                  && data(operation,'name') === 'riftlet-' + operation.identity.operationID + '.png'
+                  && selectedFile.name === data(operation,'name')) {
+                // Historical observers released their original File after a
+                // completion attempt. Name/size only locate a candidate; they
+                // never grant input without the separate immutable-byte digest.
+                contentCandidates.push({state:generation,operation});
+              }
+              // finally settling is not evidence that a throwing setter/change
+              // returned normally. Keep that ambiguity exclusive even if a
+              // handler happened to reset the picker before it threw.
+              if (data(operation,'inputSideEffectEntered') === true
+                  && (!Number.isSafeInteger(data(operation,'callSettledSequence'))
+                    || data(operation,'callSettledSequence') <= data(operation,'inputSequence'))) {
+                return {reason:data(operation,'expectingInput') === true
+                  ? 'INPUT_RESOURCE_EXECUTION_BUSY' : 'INPUT_RESOURCE_EXECUTION_UNCERTAIN'};
+              }
               if (data(operation, 'commitWorkSettled') === true) continue;
               if (data(operation, 'committed') !== true) {
-                if (data(operation, 'invalid') !== true) return false;
-              } else if (!(data(operation, 'inputCount') === 1 && data(operation, 'expectingInput') === false)) return false;
+                if (data(operation, 'invalid') !== true) return {reason:'INPUT_RESOURCE_GENERATION_BUSY'};
+              } else if (!(data(operation, 'inputCount') === 1 && data(operation, 'expectingInput') === false)) return {reason:'INPUT_RESOURCE_GENERATION_BUSY'};
             }
             generation = data(generation, 'next');
           }
         }
-        return true;
-      } catch { return false; }
+        if (selectedFile) {
+          const candidates = selectedOwners.length ? selectedOwners : contentCandidates;
+          if (candidates.length === 0) return {reason:'INPUT_RESOURCE_NATIVE_FILES_RETAINED'};
+          if (candidates.length !== 1) return {reason:'INPUT_RESOURCE_PRIOR_ATTACHMENT_UNPROVEN'};
+          const {state:ownerState,operation:op} = candidates[0];
+          // The old input lease may have been focus-revoked or renewed. Its
+          // original observation/card membership, not its old input authority,
+          // proves the attachment still belongs to this same composer.
+          ownerState.drain?.();
+          if (ownerState.input !== input || ownerState.form !== form
+              || !sameLogical(op.identity.target.logicalDraftIdentity,logicalDraftIdentity)
+              || typeof ownerState.currentMember !== 'function' || !ownerState.currentMember(op)
+              || op.commitWorkSettled !== true || op.inputSideEffectEntered !== true || op.expectingInput !== false
+              || op.inputCount !== 1 || !op.fileHashVerified || !uuid(op.inputOwnershipID)
+              || !Number.isSafeInteger(op.callSettledSequence) || op.callSettledSequence <= op.inputSequence
+              || !op.uploadStart || op.uploadStart.inputCount !== 1
+              || op.uploadStart.inputSequence !== op.inputSequence || op.uploadStart.startSequence <= op.inputSequence) {
+            return {reason:'INPUT_RESOURCE_PRIOR_ATTACHMENT_UNPROVEN'};
+          }
+          if (!selectedOwners.length) return {reason:'INPUT_RESOURCE_QUALIFICATION_PENDING',
+            qualification:{state:ownerState,operation:op,file:selectedFile}};
+        }
+        return {reason:null};
+      } catch { return {reason:'INPUT_RESOURCE_REGISTRY_UNVERIFIED'}; }
     };
     const attachmentSnapshot = () => [...form.querySelectorAll('[role=button][aria-label]')].map(card => ({
       card, label: card.getAttribute('aria-label'), images: [...card.querySelectorAll('img')].map(image => ({image, alt: image.alt}))
@@ -714,18 +784,108 @@ function riftletWebAcceptance(command, native) {
       return now.text === before.text && now.activeElement === before.activeElement && (before.selection === null ? now.selection === null
         : now.selection !== null && Object.keys(before.selection).every(key => now.selection[key] === before.selection[key]));
     };
-    const resourceAvailable = (resource, operation = null) => resource && !resource.invalid
-      && sameTarget(resource.identity.target, operation?.identity.target || resource.identity.target)
-      && observationIdentityValid() && composerAvailable() && nativeInputEmpty() && inputExecutionFree(operation)
-      && attachmentsIntact(resource.attachments);
+    const currentResourceStatus = (operation = null) => {
+      const selection = nativeInputSelection();
+      if (selection.reason) return selection;
+      const execution = inputExecutionStatus(operation,selection.file);
+      return execution.reason ? execution : selection;
+    };
+    const qualifyRetainedSelection = (identity,invocationID,candidate) => {
+      const {state:ownerState,operation:op,file} = candidate;
+      let pending = pendingSelectionQualification;
+      if (pending?.status === 'failed' && sameIdentity(pending.identity,identity) && pending.invocationID === invocationID) {
+        lastResourceRefusal=pending.reason;fail(pending.reason);
+      }
+      if (pending && (!sameIdentity(pending.identity,identity) || pending.invocationID !== invocationID
+          || pending.file !== file || pending.ownerState !== ownerState || pending.operation !== op)) {
+        // Only unused read-only work can be superseded. Its completion cannot
+        // create a reservation, schedule input or publish an old qualification.
+        pending.cancelled = true; preparedResourceOperations.add(pending.identity.operationID);
+        pendingSelectionQualification = null; pending = null;
+      }
+      if (!pending) {
+        const jobs=data(registry,'nativeSelectionDigests'),reads=data(registry,'nativeSelectionReads');
+        if (!(jobs instanceof WeakMap) || !(reads instanceof Set)) fail('INPUT_RESOURCE_REGISTRY_UNVERIFIED');
+        let job=jobs.get(file);
+        if (!job) {
+          if (reads.size >= MAX_ACTIVE_PAYLOADS) fail('INPUT_RESOURCE_QUALIFICATION_PENDING');
+          job={status:'pending',digest:null};jobs.set(file,job);reads.add(job);
+          // One bounded read per immutable native File, shared by superseding
+          // read-only qualifications. Never read request bodies or chat content.
+          job.promise=Promise.resolve().then(()=>file.arrayBuffer()).then(bytes=>{
+            if (bytes.byteLength !== file.size || bytes.byteLength > MAX_BYTES) fail('INPUT_RESOURCE_QUALIFICATION_FAILED');
+            return hash(bytes);
+          }).then(digest=>{job.digest=digest;job.status='ready';})
+            .catch(()=>{job.status='failed';}).finally(()=>{reads.delete(job);});
+        }
+        pending={identity:{...identity,target:{...identity.target}},invocationID,file,ownerState,operation:op,
+          originalIdentity:{...op.identity,target:{...op.identity.target}},cancelled:false,status:'pending',reason:null};
+        pendingSelectionQualification=pending;
+        // A previous unused reservation must not survive a newer explicit click
+        // while its selection is being checked. Already claimed tokens stay.
+        for (const [id,prior] of preparedResources) if (!prior.claimed) preparedResources.delete(id);
+        job.promise.then(()=>{
+          if (pending.cancelled || pendingSelectionQualification !== pending) return;
+          const refuse=reason=>{pending.status='failed';pending.reason=reason;
+            pending.file=null;pending.ownerState=null;pending.operation=null;};
+          if (job.status !== 'ready' || job.digest !== pending.originalIdentity.assetSHA256) {
+            refuse('INPUT_RESOURCE_QUALIFICATION_FAILED');return;
+          }
+          drain();ownerState.drain?.();
+          if (!validFor(pending.identity.target) || !contextMatches(pending.identity.target)
+              || !sameIdentity(pending.originalIdentity,op.identity)) {refuse('INPUT_RESOURCE_TARGET_CHANGED');return;}
+          const current=nativeInputSelection();
+          if (current.reason) {refuse(current.reason);return;}
+          if (current.file !== file) {refuse('INPUT_RESOURCE_NATIVE_FILES_RETAINED');return;}
+          const execution=inputExecutionStatus(null,file);
+          if (execution.reason !== 'INPUT_RESOURCE_QUALIFICATION_PENDING'
+              || execution.qualification?.state !== ownerState || execution.qualification?.operation !== op) {
+            refuse(execution.reason || 'INPUT_RESOURCE_PRIOR_ATTACHMENT_UNPROVEN');return;
+          }
+          const selections=data(registry,'settledNativeSelections');
+          if (!(selections instanceof WeakMap)) {refuse('INPUT_RESOURCE_REGISTRY_UNVERIFIED');return;}
+          // This is content re-identification of the CURRENT immutable native
+          // File, not a claim to have recovered a lost original object identity.
+          selections.set(file,{state:ownerState,operation:op,input,identity:pending.originalIdentity,
+            qualification:'currentSelectionHashMatchesOriginalOperation'});
+          pending.status='ready';
+        }).catch(()=>{if(!pending.cancelled){pending.status='failed';pending.reason='INPUT_RESOURCE_QUALIFICATION_FAILED';
+          pending.file=null;pending.ownerState=null;pending.operation=null;}});
+      }
+      if (pending.status === 'failed') {lastResourceRefusal=pending.reason;fail(pending.reason);}
+      return {version:1,identity:{...identity,target:{...identity.target}},invocationID,pending:true};
+    };
+    const resourceAvailable = (resource, operation = null) => {
+      let reason = !resource || resource.invalid ? 'INPUT_RESOURCE_RESERVATION_BUSY'
+        : !sameTarget(resource.identity.target, operation?.identity.target || resource.identity.target)
+          || !observationIdentityValid() || !composerAvailable() ? 'INPUT_RESOURCE_TARGET_CHANGED' : null;
+      if (!reason) {
+        const status = currentResourceStatus(operation);
+        reason = status.reason || (status.file && status.file !== resource.selectedFile ? 'INPUT_RESOURCE_NATIVE_FILES_RETAINED' : null);
+      }
+      if (!reason && !attachmentsIntact(resource.attachments)) reason = 'INPUT_RESOURCE_BASELINE_CHANGED';
+      lastResourceRefusal = reason;
+      if (operation && reason) operation.resourceRefusalReason = reason;
+      return !reason;
+    };
     const prepareInputResource = (identity, invocationID) => {
       if (!uuid(identity?.operationID) || !uuid(identity.assetID) || !uuid(invocationID)
-          || !Number.isSafeInteger(identity.attempt) || identity.attempt < 1 || !/^[a-f0-9]{64}$/.test(identity.assetSHA256)
-          || preparedResourceOperations.has(identity.operationID)
-          || !nativeInputEmpty() || !inputExecutionFree(null)) fail('INPUT_RESOURCE_UNAVAILABLE');
+          || !Number.isSafeInteger(identity.attempt) || identity.attempt < 1
+          || !/^[a-f0-9]{64}$/.test(identity.assetSHA256)) fail('INPUT_RESOURCE_UNAVAILABLE');
+      if (preparedResourceOperations.has(identity.operationID)) fail('INPUT_RESOURCE_RESERVATION_BUSY');
+      const selection = currentResourceStatus();
+      if (selection.qualification) return qualifyRetainedSelection(identity,invocationID,selection.qualification);
+      if (selection.reason) { lastResourceRefusal = selection.reason; fail(selection.reason); }
+      if (pendingSelectionQualification) {
+        if (!sameIdentity(pendingSelectionQualification.identity,identity)
+            || pendingSelectionQualification.invocationID !== invocationID) {
+          preparedResourceOperations.add(pendingSelectionQualification.identity.operationID);
+        }
+        pendingSelectionQualification.cancelled=true;pendingSelectionQualification=null;
+      }
       const resource = {identity:{...identity,target:{...identity.target}}, invocationID, resourceID:crypto.randomUUID(),
-        attachments:attachmentSnapshot(), claimed:false, invalid:false};
-      if (!resourceAvailable(resource)) fail('INPUT_RESOURCE_UNAVAILABLE');
+        selectedFile:selection.file, attachments:attachmentSnapshot(), claimed:false, invalid:false};
+      if (!resourceAvailable(resource)) fail(lastResourceRefusal);
       // A lost preparation reply is not an input. A new explicit operation may
       // supersede those unused tokens; their later BEGIN can no longer claim
       // them. This never retires staged/committed input, and no clock is used.
@@ -733,13 +893,14 @@ function riftletWebAcceptance(command, native) {
       preparedResourceOperations.add(identity.operationID);
       preparedResources.set(resource.resourceID, resource);
       return {version:1, identity:resource.identity, invocationID, resourceID:resource.resourceID,
-        inputElementID:documentID + ':' + nodeID(input), kind:'emptyNativeFileInput',
+        inputElementID:documentID + ':' + nodeID(input), kind:selection.kind,
         observedSequence:tick(), baselineAttachmentCount:resource.attachments.length};
     };
     const claimInputResource = (identity, invocationID, resourceID) => {
       const resource = preparedResources.get(resourceID);
       if (!resource || resource.claimed || !sameIdentity(resource.identity,identity)
-          || resource.invocationID !== invocationID || !resourceAvailable(resource)) return null;
+          || resource.invocationID !== invocationID) { lastResourceRefusal='INPUT_RESOURCE_RESERVATION_BUSY'; return null; }
+      if (!resourceAvailable(resource)) return null;
       resource.claimed = true; return resource;
     };
     const releaseInputResource = (identity, invocationID, resourceID) => {
@@ -750,7 +911,10 @@ function riftletWebAcceptance(command, native) {
     const enterInputResource = op => {
       const resource = op.inputResource;
       if (!resource || !resource.claimed || !sameIdentity(resource.identity,op.identity)
-          || resource.invocationID !== op.invocationID || !resourceAvailable(resource,op)) return false;
+          || resource.invocationID !== op.invocationID) {
+        op.resourceRefusalReason='INPUT_RESOURCE_RESERVATION_BUSY'; return false;
+      }
+      if (!resourceAvailable(resource,op)) return false;
       // Include attachments added after reservation; copy only local node
       // identities. Text/selection are compared within this synchronous input,
       // so typing normally between preparation and commit is not rejected.
@@ -773,6 +937,7 @@ function riftletWebAcceptance(command, native) {
       if (invalid) return;
       invalid = true; invalidate.retired = true; revokeInput(); tick(); stopObservation();
       preparedResources.clear();
+      if (pendingSelectionQualification) {pendingSelectionQualification.cancelled=true;pendingSelectionQualification=null;}
       const audit = new Map();
       for (const [id, op] of operations) {
         try { registry.originalFileRequests?.retire(op); } catch {}
@@ -1233,8 +1398,16 @@ function riftletWebAcceptance(command, native) {
       monitorAlive = monitor.bind(form, editor, input, logicalDraftIdentity, route, checkBinding, invalidate);
       if (!checkBinding() || !monitorAlive()) { invalidate(); fail('UNPROVEN_MONITORED_BINDING'); }
     }
-    state = {lifecycleVersion: 1, proofProtocolVersion: 1, inputIsolationVersion: 1, inputResourceVersion:1,
+    state = {lifecycleVersion: 1, proofProtocolVersion: 1, inputIsolationVersion: 1, inputResourceVersion:1, retainedInputVersion:1,
       prepareInputResource, claimInputResource, releaseInputResource, enterInputResource, forgetInputResource,
+      resourceRefusalReason:() => lastResourceRefusal,
+      settleNativeSelection:(file,op) => {
+        // Weak keys do not retain screenshot bytes after the input/application
+        // releases the File. Exact old operation fields remain unchanged.
+        const selections = data(registry,'settledNativeSelections');
+        if (selections instanceof WeakMap) selections.set(file,
+          {state,operation:op,input,identity:{...op.identity,target:{...op.identity.target}}});
+      },
       inputResourcePreserved:op => attachmentsIntact(op.inputResource.attachments) && editorIntact(op.inputResource.editor),
       continuationFor, pinTarget, validFor, claimPin, ownsTarget: candidate => ownsPin(candidate) || sameTarget(candidate,target) || retiredTargets.some(t => sameTarget(t,candidate)), get target() { return target; }, valid, observationIdentityValid, invalidate, revokeInput, drain, continuityEvents, operations, sample, tick, ownCards, markBad, currentMember,
       currentSource, input, form, nodeID, renewEmptyInputLease, next: null};
@@ -1261,11 +1434,11 @@ function riftletWebAcceptance(command, native) {
     }
     let current = registry.tail;
     current?.drain();
-    if (!current || current.proofProtocolVersion !== 1 || current.inputIsolationVersion !== 1 || current.inputResourceVersion !== 1
+    if (!current || current.proofProtocolVersion !== 1 || current.inputIsolationVersion !== 1 || current.inputResourceVersion !== 1 || current.retainedInputVersion !== 1
         || !current.pinTarget || !current.valid() || !contextMatches(current.target)) {
       // Historical v13 closures have no renewal capability. Leave those states
       // and all their operations untouched and use their original bounded path.
-      if (current?.proofProtocolVersion === 1 && current.inputIsolationVersion === 1 && current.inputResourceVersion === 1
+      if (current?.proofProtocolVersion === 1 && current.inputIsolationVersion === 1 && current.inputResourceVersion === 1 && current.retainedInputVersion === 1
           && current.pinTarget && contextMatches(current.target) && current.renewEmptyInputLease?.()) return current.target;
       if (current) current.revokeInput();
       // Identity tombstones are retained; lifetime count is not a resource quota.
@@ -1297,12 +1470,12 @@ function riftletWebAcceptance(command, native) {
   if (!state || !(command.action === 'observe' ? state.observationIdentityValid() : (identity.target.clickBindingID ? state.validFor?.(identity.target) : state.valid())) || !contextMatches(identity.target) || !(command.action === 'observe' ? (state.ownsTarget?.(identity.target) ?? sameTarget(identity.target,state.target)) : (identity.target.clickBindingID ? state.validFor?.(identity.target) : sameTarget(identity.target,state.target)))
       || (command.action !== 'observe' && !identity.target.clickBindingID && state !== registry.tail)) {
     if (command.action === 'observe') return blankObservation(identity);
-    fail('TARGET_INVALID');
+    fail(command.action === 'prepareInputResource' ? 'INPUT_RESOURCE_TARGET_CHANGED' : 'TARGET_INVALID');
   }
   const acknowledge = (op, nextChunk) => ({operationID: op.identity.operationID, attempt: op.identity.attempt, nextChunk});
   let op = state.operations.get(identity.operationID);
   if (command.action === 'prepareInputResource') {
-    if (op || state.inputResourceVersion !== 1 || typeof state.prepareInputResource !== 'function') fail('INPUT_RESOURCE_UNAVAILABLE');
+    if (op || state.inputResourceVersion !== 1 || state.retainedInputVersion !== 1 || typeof state.prepareInputResource !== 'function') fail('INPUT_RESOURCE_RESERVATION_BUSY');
     return state.prepareInputResource(identity,command.invocationID);
   }
   if (command.action === 'begin') {
@@ -1339,7 +1512,7 @@ function riftletWebAcceptance(command, native) {
         if (!state.lifecycleVersion || typeof command.invocationID !== 'string') fail('BEGIN_REFUSED');
         state.operations.set(identity.operationID,{identity,invocationID:command.invocationID,name:command.uploadName,committed:false,invalid:true,inputCount:0});
         return {identity,invocationID:command.invocationID,retiredBeforeInput:true,inputCount:0,commitInvoked:false,
-          rejectedBeforeBegin:true,reason:'INPUT_RESOURCE_UNAVAILABLE'};
+          rejectedBeforeBegin:true,reason:'INPUT_RESOURCE_UNAVAILABLE',resourceRefusalReason:state.resourceRefusalReason?.()};
       }
     }
     op = {identity, invocationID: command.invocationID, name: command.uploadName, bytes: command.byteCount, chunks: [], nextChunk: 0, received: 0,
@@ -1417,20 +1590,27 @@ function riftletWebAcceptance(command, native) {
       // synchronous change dispatch. Background observations never own it.
       // A reentrant handler cannot enter a second FileList assignment here.
       registry.inputOwners ||= new WeakMap();
-      if (registry.inputOwners.has(state.input)) { retireBeforeInput('inputPreparationFailed'); return; }
-      registry.inputOwners.set(state.input, op);
+      // Invalidation can retire the state's public fields inside a synchronous
+      // change handler. Release the exact originally acquired node, never a
+      // later state.input lookup that may now be undefined or replaced.
+      const inputNode = state.input, inputTick = state.tick, forgetResource = state.forgetInputResource;
+      const preserveResource = state.inputResourcePreserved, settleSelection = state.settleNativeSelection;
+      const markInputBad = state.markBad;
+      if (registry.inputOwners.has(inputNode)) { op.resourceRefusalReason='INPUT_RESOURCE_EXECUTION_BUSY'; retireBeforeInput('inputPreparationFailed'); return; }
+      registry.inputOwners.set(inputNode, op);
       try {
         op.inputOwnershipID = crypto.randomUUID();
         op.expectingInput = true;
         op.inputSideEffectEntered = true;
-        Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'files').set.call(state.input, transfer.files);
-        state.input.dispatchEvent(new Event('change', {bubbles: true}));
-        op.callSettledSequence = state.tick();
-        if (op.inputResource && !state.inputResourcePreserved(op)) state.markBad(op, false, 'attachmentIdentityChanged');
+        Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'files').set.call(inputNode, transfer.files);
+        inputNode.dispatchEvent(new Event('change', {bubbles: true}));
+        op.callSettledSequence = inputTick();
+        settleSelection?.(file,op);
+        if (op.inputResource && !preserveResource(op)) markInputBad(op, false, 'attachmentIdentityChanged');
       } finally {
         op.expectingInput = false;
-        state.forgetInputResource?.(op);
-        if (registry.inputOwners.get(state.input) === op) registry.inputOwners.delete(state.input);
+        forgetResource?.(op);
+        if (registry.inputOwners.get(inputNode) === op) registry.inputOwners.delete(inputNode);
       }
       if (op.inputCount !== 1) state.markBad(op);
       state.sample(op, 'dispatch');
@@ -1446,6 +1626,7 @@ function riftletWebAcceptance(command, native) {
   observation.belongsToOriginalDraft = state.observationIdentityValid() && (state.ownsTarget?.(identity.target) ?? sameTarget(identity.target,state.target));
   observation.hasError = op.error;
   observation.isUploading = op.uploading;
+  if (op.resourceRefusalReason) observation.resourceRefusalReason = op.resourceRefusalReason;
   if (op.reason || op.completionUnavailable) observation.reason = op.reason || op.completionUnavailable;
   try {
     const facts = op.requestFactSnapshot?.();

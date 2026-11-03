@@ -146,7 +146,7 @@ function fixture({blockedDigest = false, blockedInputDigest = false, route = 'ht
   });
   vm.runInContext('globalThis.top=globalThis', context);
   const pageWindow = vm.runInContext('globalThis', context);
-  const program = vm.runInContext('(' + programSource + ')', context);
+  let program = vm.runInContext('(' + programSource + ')', context);
   const call = command => program(command, native);
   const target = () => call({action:'captureTarget'});
   const bind = (id = '11111111-1111-4111-8111-111111111111', bytes = png) => {
@@ -190,7 +190,7 @@ function fixture({blockedDigest = false, blockedInputDigest = false, route = 'ht
     navigationEvent:type=>{for(const fn of navigationEvents.get(type)||[])fn();},
     documentEvent:(type,target,isTrusted=true)=>{for(const fn of events.get(type)||[])fn({type,target,isTrusted});},
     windowEvent:(type,target=pageWindow)=>{for(const fn of globalEvents.get(type)||[]) fn({type,target});},release:()=>releaseDigest?.(),focus:v=>{focused=v;},
-    replaceEditor:n=>{currentEditor=n;},events,globalEvents,mutationObservers,context};
+    replaceEditor:n=>{currentEditor=n;},upgradeProgram:text=>{program=vm.runInContext('('+text+')',context);},events,globalEvents,mutationObservers,context};
 }
 
 test('bundled program executes one exact-byte attachment and leaves draft/old attachment intact', async () => {
@@ -2592,7 +2592,9 @@ test('empty-resource witness refuses occupied picker, fake own getters and origi
       const a=withInvocation(pinnedOperation(f,webcrypto.randomUUID()),webcrypto.randomUUID());f.stage(a);
     }
     const before=f.input.inputCount;
-    assert.throws(()=>prepareResource(f,op),/INPUT_RESOURCE_UNAVAILABLE/,fault);
+    const expected={occupied:'INPUT_RESOURCE_NATIVE_FILES_RETAINED',ownFiles:'INPUT_RESOURCE_NATIVE_ACCESS_UNVERIFIED',
+      ownValue:'INPUT_RESOURCE_NATIVE_FILES_RETAINED',pending:'INPUT_RESOURCE_GENERATION_BUSY'};
+    assert.throws(()=>prepareResource(f,op),{message:expected[fault]},fault);
     assert.equal(f.input.inputCount,before);
   }
 });
@@ -2644,7 +2646,7 @@ test('another source-owned legacy registry with a pending native input cannot be
   const operation={committed:true,inputCount:0,commitWorkSettled:false,inputSideEffectEntered:false};
   const generation={input:f.input,operations:new Map([['legacy',operation]]),next:null};
   Object.defineProperty(f.context,'__riftletWebAcceptance20261027v12',{value:{head:generation,tail:generation,count:1},writable:false,configurable:false});
-  assert.throws(()=>prepareResource(f,op),/INPUT_RESOURCE_UNAVAILABLE/);assert.equal(f.input.inputCount,0);
+  assert.throws(()=>prepareResource(f,op),/INPUT_RESOURCE_GENERATION_BUSY/);assert.equal(f.input.inputCount,0);
   operation.commitWorkSettled=true;
   assert.equal(prepareResource(f,op).kind,'emptyNativeFileInput');
 });
@@ -2686,7 +2688,7 @@ test('lost prepare response can be superseded only before BEGIN and never releas
   assert.equal(rejection.rejectedBeforeBegin,true);assert.equal(f.input.inputCount,0);
   f.stage(b);
   const c=withInvocation(pinnedOperation(f,webcrypto.randomUUID()),webcrypto.randomUUID());
-  assert.throws(()=>prepareResource(f,c),/INPUT_RESOURCE_UNAVAILABLE/);
+  assert.throws(()=>prepareResource(f,c),/INPUT_RESOURCE_GENERATION_BUSY/);
   assert.equal(f.call(a.command('releaseInputResource')).released,false);
   assert.equal(f.call(b.command('discard')).discarded,true);
   assert.equal(prepareResource(f,c).kind,'emptyNativeFileInput');
@@ -2697,7 +2699,7 @@ test('reentrant callback cannot reserve the same native input even if applicatio
   prepareResource(f,a);f.stage(a);
   const b=withInvocation(pinnedOperation(f,webcrypto.randomUUID()),webcrypto.randomUUID());
   let refused=false;
-  f.changed(()=>{assert.throws(()=>prepareResource(f,b),/INPUT_RESOURCE_UNAVAILABLE/);refused=true;});
+  f.changed(()=>{assert.throws(()=>prepareResource(f,b),/INPUT_RESOURCE_EXECUTION_BUSY/);refused=true;});
   f.commit(a);await f.settle();assert.equal(refused,true);assert.equal(f.input.inputCount,1);assert.equal(tasks.length,1);
 });
 
@@ -2713,4 +2715,250 @@ test('legacy A late error/removal cannot revoke B after B owns its own START on 
   f.mutate([{type:'childList',target:f.form,removedNodes:[av.card],addedNodes:[]}]);
   assert.equal(f.observe(b).state,'uploadStarted');assert.equal(f.observe(b).attachmentID,before.attachmentID);
   f.finish(bv);await f.settle();assert.equal(f.observe(b).state,'attached');assert.equal(f.input.inputCount,2);
+});
+
+// Retained-picker regressions deliberately do not reset the selected files.
+// Native FileList behavior is separately checked by chrome-input-resource.test.cjs.
+for (const count of [2,3,5]) test(`settled retained picker appends ${count} independent files before prior COMPLETE`, async()=>{
+  const f=requestFixture({thread:true}),tasks=[];
+  f.target();f.changed(file=>tasks.push({file,files:f.input.files}));
+  const selection={anchorNode:f.editor,anchorOffset:2,focusNode:f.editor,focusOffset:6,rangeCount:1,isCollapsed:false};
+  f.document.getSelection=()=>selection;
+  const text=f.editor.textContent,prior=f.form.append(new f.Node('div',{role:'button','aria-label':'existing-user-attachment'}));
+  prior.append(new f.Node('img'));
+  const all=[];
+  for(let index=0;index<count;index++){
+    if(index)f.windowEvent('blur'); // Native click rebinds the same logical draft.
+    const op=withInvocation(pinnedOperation(f,webcrypto.randomUUID()),webcrypto.randomUUID());
+    op.identity.assetID=webcrypto.randomUUID();op.bytes=Buffer.from([...png,index]);op.identity.assetSHA256=digest(op.bytes);
+    if(index){
+      assert.notEqual(op.target.documentID,all[index-1].op.target.documentID);
+      const oldList=f.input.files,oldFile=oldList[0],resource=prepareResource(f,op);
+      assert.equal(resource.kind,'settledOwnedNativeFileInput');
+      assert.equal(f.input.files,oldList);assert.equal(f.input.files[0],oldFile,'reservation never clears or overwrites selected files');
+      assert.equal(f.observe(all[index-1].op).state,'uploadStarted');
+    }
+    f.stage(op);f.commit(op);await f.settle();
+    const view=f.makeCard(op,10);setProgress(f,view,40);
+    assert.equal(f.observe(op).state,'uploadStarted');
+    assert.equal(f.observe(op).requestEvidence,undefined,'no transport evidence is fabricated');
+    all.push({op,view});
+  }
+  assert.equal(tasks.length,count);assert.equal(f.input.inputCount,count);
+  for(let index=0;index<count;index++){
+    assert.equal(tasks[index].files.length,1);assert.equal(tasks[index].files[0],tasks[index].file);
+    assert.equal(tasks[index].file.name,all[index].op.name);
+    assert.deepEqual(Buffer.from(await tasks[index].file.arrayBuffer()),all[index].op.bytes,'late application consumption sees original independent bytes');
+    assert.ok(f.form.contains(all[index].view.card));
+    assert.equal(f.observe(all[index].op).state,'uploadStarted');
+  }
+  assert.equal(f.editor.textContent,text);assert.equal(selection.anchorOffset,2);assert.equal(selection.focusOffset,6);
+  assert.ok(f.form.contains(prior));
+  for(const {op,view} of all){f.finish(view,op.bytes);await f.settle();assert.equal(f.observe(op).state,'attached');}
+  assert.equal(f.input.inputCount,count);
+});
+
+test('main retained START upgrades in the same live document without replaying or rewriting its original operation',async()=>{
+  const priorSource=fs.readFileSync(path.join(__dirname,'fixtures/chatgpt-web-main-6c677f55.js'),'utf8');
+  assert.equal(digest(Buffer.from(priorSource)),'3f28f31208ff3c2786d5628c03ab6467a4ba3c26dfbf3432be724dac1649c457');
+  const f=requestFixture({thread:true,programSource:priorSource}),tasks=[];
+  f.target();f.changed(file=>tasks.push(file));
+  const a=withInvocation(pinnedOperation(f),webcrypto.randomUUID());f.stage(a);f.commit(a);await f.settle();
+  const av=f.makeCard(a,10);setProgress(f,av,40);
+  const registry=f.context.__riftletWebAcceptance20261027v13,oldState=registry.tail,old=oldState.operations.get(a.identity.operationID);
+  const start=old.uploadStart,identity=old.identity,file=f.input.files[0];
+  assert.equal(f.observe(a).state,'uploadStarted');assert.equal(oldState.retainedInputVersion,undefined);
+  const rejected=withInvocation(pinnedOperation(f,webcrypto.randomUUID()),webcrypto.randomUUID());
+  assert.throws(()=>prepareResource(f,rejected),/INPUT_RESOURCE_UNAVAILABLE/,'exact baseline is red with original FileList');
+  f.upgradeProgram(source);
+  const b=withInvocation(pinnedOperation(f,webcrypto.randomUUID()),webcrypto.randomUUID());
+  assert.notEqual(registry.tail,oldState);assert.notEqual(b.target.documentID,a.target.documentID);
+  assert.equal(prepareResource(f,b).kind,'settledOwnedNativeFileInput');
+  assert.equal(f.input.files[0],file);assert.equal(oldState.operations.get(a.identity.operationID),old);
+  assert.equal(old.identity,identity);assert.equal(old.uploadStart,start);
+  f.stage(b);f.commit(b);await f.settle();const bv=f.makeCard(b,10);setProgress(f,bv,40);
+  assert.equal(f.observe(b).state,'uploadStarted');assert.equal(f.observe(a).state,'uploadStarted');
+  assert.equal(tasks.length,2);assert.equal(tasks[0],file);assert.equal(f.input.inputCount,2);
+  assert.throws(()=>f.commit(a),/COMMIT_REFUSED/);
+});
+
+test('synchronous state retirement releases its exact native input owner and permits a fresh empty-resource input',async()=>{
+  const f=requestFixture({thread:true}),a=withInvocation(pinnedOperation(f),webcrypto.randomUUID());
+  const originalState=f.context.__riftletWebAcceptance20261027v13.tail;
+  f.changed(()=>{f.input.value='';originalState.invalidate();});
+  f.stage(a);f.commit(a);await f.settle();
+  const registry=f.context.__riftletWebAcceptance20261027v13;
+  assert.equal(originalState.retired,true);assert.equal(originalState.input,undefined);
+  assert.equal(registry.inputOwners.get(f.input),undefined,'finally releases the acquired node after state fields retire');
+  assert.equal(f.input.files.length,0);assert.equal(f.observe(a).state,'invalidated');
+  const oldAudit=JSON.stringify([...originalState.operations.values()]);
+  const b=withInvocation(pinnedOperation(f,webcrypto.randomUUID()),webcrypto.randomUUID());
+  assert.equal(prepareResource(f,b).kind,'emptyNativeFileInput');f.stage(b);f.commit(b);await f.settle();
+  const bv=f.makeCard(b,10);setProgress(f,bv,40);
+  assert.equal(f.observe(b).state,'uploadStarted');assert.equal(f.input.inputCount,2);
+  assert.equal(JSON.stringify([...originalState.operations.values()]),oldAudit);
+});
+
+test('retained resource refuses uncertain setter/change outcomes and does not release them by elapsed time',async()=>{
+  for(const fault of ['setter','change']){
+    const f=requestFixture({thread:true});
+    if(fault==='setter'){
+      const descriptor=Object.getOwnPropertyDescriptor(f.Input.prototype,'files');
+      Object.defineProperty(f.Input.prototype,'files',{...descriptor,set(value){descriptor.set.call(this,value);throw Error('synthetic setter throw after side effect');}});
+    }
+    const a=withInvocation(pinnedOperation(f),webcrypto.randomUUID());
+    if(fault==='change')f.changed(()=>{throw Error('synthetic synchronous change dispatch throw');});
+    f.stage(a);f.commit(a);await f.settle();
+    const state=f.context.__riftletWebAcceptance20261027v13.tail,old=state.operations.get(a.identity.operationID);
+    assert.equal(old.commitWorkSettled,true);assert.equal(old.inputSideEffectEntered,true);
+    assert.equal(old.callSettledSequence,null);assert.equal(f.context.__riftletWebAcceptance20261027v13.inputOwners.has(f.input),false);
+    const b=withInvocation(pinnedOperation(f,webcrypto.randomUUID()),webcrypto.randomUUID()),count=f.input.inputCount;
+    assert.throws(()=>prepareResource(f,b),/INPUT_RESOURCE_EXECUTION_UNCERTAIN/);
+    f.context.performance.now=()=>Number.MAX_SAFE_INTEGER/4;
+    const c=withInvocation(pinnedOperation(f,webcrypto.randomUUID()),webcrypto.randomUUID());
+    assert.throws(()=>prepareResource(f,c),/INPUT_RESOURCE_EXECUTION_UNCERTAIN/);
+    assert.equal(f.input.inputCount,count);
+  }
+});
+
+test('retained selection must be exact, START-owned and independently settled at prepare and final commit',async()=>{
+  for(const fault of ['noStart','sameBytesDifferentFile','multipleFiles','removedCard','missingReturn','pendingExecution','changedAfterPrepare']){
+    const f=requestFixture({thread:true}),a=withInvocation(pinnedOperation(f),webcrypto.randomUUID());
+    f.stage(a);f.commit(a);await f.settle();const av=f.makeCard(a,10);
+    if(fault!=='noStart')setProgress(f,av,40);
+    const registry=f.context.__riftletWebAcceptance20261027v13,state=registry.tail,old=state.operations.get(a.identity.operationID);
+    const b=withInvocation(pinnedOperation(f,webcrypto.randomUUID()),webcrypto.randomUUID());
+    if(fault==='sameBytesDifferentFile')f.input.files=[new File([png],a.name,{type:'image/png'})];
+    if(fault==='multipleFiles')f.input.files=[f.input.files[0],new File([png],'user-file',{type:'image/png'})];
+    if(fault==='removedCard'){f.form.children=f.form.children.filter(n=>n!==av.card);av.card.isConnected=false;}
+    if(fault==='missingReturn')old.callSettledSequence=null;
+    if(fault==='pendingExecution')registry.inputOwners.set(f.input,old);
+    if(fault==='changedAfterPrepare'){
+      prepareResource(f,b);f.stage(b);f.input.files=[new File([png],'user-file',{type:'image/png'})];
+      f.commit(b);await f.settle();const report=f.observe(b);
+      assert.equal(report.preInputRetirement?.inputSideEffectEntered,false);
+      assert.equal(report.resourceRefusalReason,'INPUT_RESOURCE_NATIVE_FILES_RETAINED');
+    } else {
+      const expected={noStart:'INPUT_RESOURCE_PRIOR_ATTACHMENT_UNPROVEN',sameBytesDifferentFile:'INPUT_RESOURCE_NATIVE_FILES_RETAINED',
+        multipleFiles:'INPUT_RESOURCE_NATIVE_FILES_RETAINED',removedCard:'INPUT_RESOURCE_PRIOR_ATTACHMENT_UNPROVEN',
+        missingReturn:'INPUT_RESOURCE_EXECUTION_UNCERTAIN',pendingExecution:'INPUT_RESOURCE_EXECUTION_BUSY'};
+      assert.throws(()=>prepareResource(f,b),{message:expected[fault]},fault);
+    }
+    assert.equal(f.input.inputCount,1,fault);
+  }
+});
+
+test('retained resource preserves an existing UNKNOWN and remains available after late completion drops the File payload',async()=>{
+  for(const result of ['unknown','complete']){
+    const f=requestFixture({thread:true}),a=withInvocation(pinnedOperation(f),webcrypto.randomUUID());
+    f.stage(a);f.commit(a);await f.settle();const av=f.makeCard(a,10);setProgress(f,av,40);
+    if(result==='unknown'){av.image.naturalWidth=1;f.finish(av,Buffer.from([...png,99]));}
+    else f.finish(av);
+    await f.settle();const old=f.context.__riftletWebAcceptance20261027v13.tail.operations.get(a.identity.operationID);
+    const before=f.observe(a),start=old.uploadStart;
+    assert.equal(before.state,result==='unknown'?'unknown':'attached');assert.equal(old.file,null);
+    const b=withInvocation(pinnedOperation(f,webcrypto.randomUUID()),webcrypto.randomUUID());
+    assert.equal(prepareResource(f,b).kind,'settledOwnedNativeFileInput');f.stage(b);f.commit(b);await f.settle();
+    const bv=f.makeCard(b,10);setProgress(f,bv,40);assert.equal(f.observe(b).state,'uploadStarted');
+    assert.equal(old.uploadStart,start);assert.deepEqual(f.observe(a),before);assert.equal(f.input.inputCount,2);
+    av.card.attrs['data-state']='error';f.mutate([]);assert.equal(f.observe(a).hasError,true);
+    assert.equal(f.observe(b).state,'uploadStarted');assert.equal(f.input.inputCount,2);
+  }
+});
+
+test('resource diagnostics distinguish native value, descriptor, registry and reservation failures without private identifiers',()=>{
+  for(const fault of ['value','descriptor','registry','reservation']){
+    const f=requestFixture();
+    if(fault==='value'){
+      const descriptor=Object.getOwnPropertyDescriptor(f.Input.prototype,'value');
+      Object.defineProperty(f.Input.prototype,'value',{...descriptor,get(){return 'synthetic-private-path';}});
+    }
+    const op=withInvocation(pinnedOperation(f),webcrypto.randomUUID());
+    if(fault==='descriptor')Object.defineProperty(f.input,'files',{get:()=>[],configurable:true});
+    if(fault==='registry')f.context.__riftletWebAcceptance20261027v13.inputOwners={};
+    if(fault==='reservation')prepareResource(f,op);
+    const expected={value:'INPUT_RESOURCE_NATIVE_VALUE_NONEMPTY',descriptor:'INPUT_RESOURCE_NATIVE_ACCESS_UNVERIFIED',
+      registry:'INPUT_RESOURCE_REGISTRY_UNVERIFIED',reservation:'INPUT_RESOURCE_RESERVATION_BUSY'};
+    assert.throws(()=>prepareResource(f,op),{message:expected[fault]});assert.equal(f.input.inputCount,0);
+  }
+});
+
+async function mainUnknownUpgrade(result='unknown') {
+  const priorSource=fs.readFileSync(path.join(__dirname,'fixtures/chatgpt-web-main-6c677f55.js'),'utf8');
+  const f=requestFixture({thread:true,programSource:priorSource});
+  const a=withInvocation(pinnedOperation(f),webcrypto.randomUUID());f.stage(a);f.commit(a);await f.settle();
+  const av=f.makeCard(a,10);setProgress(f,av,40);
+  if(result==='unknown'){av.image.naturalWidth=1;f.finish(av,Buffer.from([...png,99]));}else f.finish(av);
+  await f.settle();const oldState=f.context.__riftletWebAcceptance20261027v13.tail,old=oldState.operations.get(a.identity.operationID);
+  assert.equal(old.file,null);assert.ok(old.uploadStart);
+  f.upgradeProgram(source);const b=withInvocation(pinnedOperation(f,webcrypto.randomUUID()),webcrypto.randomUUID());
+  return {f,a,av,b,oldState,old};
+}
+async function prepareResourceEventually(f,op){
+  let result;
+  for(let attempt=0;attempt<50;attempt++){
+    result=f.call(op.command('prepareInputResource'));
+    if(result.pending!==true){const command=op.command;op.command=action=>({...command(action),inputResourceID:result.resourceID});return result;}
+    assert.deepEqual(Object.keys(result).sort(),['identity','invocationID','pending','version']);
+    assert.equal(result.identity.operationID,op.identity.operationID);assert.equal(result.invocationID,op.command('begin').invocationID);
+    await new Promise(resolve=>setTimeout(resolve,1));
+  }
+  assert.fail('bounded read-only retained selection qualification did not settle');
+}
+
+test('main UNKNOWN and COMPLETE with released original File upgrade through a bounded exact content check',async()=>{
+  for(const result of ['unknown','complete']){
+    const {f,a,av,b,old}=await mainUnknownUpgrade(result),before=f.observe(a);
+    const originalIdentity=old.identity,start=old.uploadStart,keys=Object.keys(old),file=f.input.files[0];
+    let reads=0;const read=file.arrayBuffer;file.arrayBuffer=async function(){reads++;return read.call(this);};
+    const pending=f.call(b.command('prepareInputResource'));
+    assert.equal(pending.pending,true);assert.equal(f.input.inputCount,1);assert.equal(f.input.files[0],file);
+    assert.equal((await prepareResourceEventually(f,b)).kind,'settledOwnedNativeFileInput');
+    assert.equal(reads,1);assert.equal(old.file,null);assert.equal(old.identity,originalIdentity);assert.equal(old.uploadStart,start);
+    assert.deepEqual(Object.keys(old),keys);assert.deepEqual(f.observe(a),before);
+    f.stage(b);f.commit(b);await f.settle();const bv=f.makeCard(b,10);setProgress(f,bv,40);
+    assert.equal(f.observe(b).state,'uploadStarted');assert.deepEqual(f.observe(a),before);assert.ok(f.form.contains(av.card));
+    assert.equal(f.input.inputCount,2);assert.throws(()=>f.commit(a),/COMMIT_REFUSED/);
+  }
+});
+
+test('legacy content qualification refuses mismatch, changed File, old attachment failure, reselection and live executors',async()=>{
+  for(const fault of ['mismatch','readError','changedFile','attachmentError','reselection','liveOwner','targetChange']){
+    const {f,a,av,b,old}=await mainUnknownUpgrade();
+    if(fault==='mismatch')f.input.files=[new File([Buffer.from([...png.slice(0,-1),99])],a.name,{type:'image/png'})];
+    if(fault==='readError')f.input.files[0].arrayBuffer=()=>Promise.reject(Error('synthetic private error must not escape'));
+    let release;const gate=new Promise(resolve=>{release=resolve;}),digestNow=f.context.crypto.subtle.digest;
+    f.context.crypto.subtle.digest=async(...args)=>{await gate;return digestNow(...args);};
+    assert.equal(f.call(b.command('prepareInputResource')).pending,true);
+    const count=f.input.inputCount;
+    if(fault==='changedFile')f.input.files=[new File([png],a.name,{type:'image/png'})];
+    if(fault==='attachmentError'){av.card.attrs['data-state']='error';f.mutate([]);}
+    if(fault==='reselection')f.input.dispatchEvent({type:'change'});
+    if(fault==='liveOwner')f.context.__riftletWebAcceptance20261027v13.inputOwners.set(f.input,{committed:true});
+    if(fault==='targetChange')f.windowEvent('pagehide');
+    release();await new Promise(resolve=>setTimeout(resolve,10));
+    const expected={mismatch:'INPUT_RESOURCE_QUALIFICATION_FAILED',readError:'INPUT_RESOURCE_QUALIFICATION_FAILED',changedFile:'INPUT_RESOURCE_NATIVE_FILES_RETAINED',
+      attachmentError:'INPUT_RESOURCE_PRIOR_ATTACHMENT_UNPROVEN',reselection:'INPUT_RESOURCE_PRIOR_ATTACHMENT_UNPROVEN',
+      liveOwner:'INPUT_RESOURCE_EXECUTION_BUSY',targetChange:'INPUT_RESOURCE_TARGET_CHANGED'};
+    assert.throws(()=>f.call(b.command('prepareInputResource')),{message:expected[fault]},fault);
+    assert.equal(f.input.inputCount,count+(fault==='reselection'?1:0));
+    if(fault!=='reselection')assert.equal(old.inputCount,1);
+    assert.equal(f.context.__riftletWebAcceptance20261027v13.tail.operations.has(b.identity.operationID),false,'qualification never stages or inputs');
+  }
+});
+
+test('superseding a read-only qualification spends only its unused attempt and shares one bounded File read',async()=>{
+  const {f,b}=await mainUnknownUpgrade();let release,reads=0;
+  const gate=new Promise(resolve=>{release=resolve;}),file=f.input.files[0],read=file.arrayBuffer;
+  file.arrayBuffer=async function(){reads++;await gate;return read.call(this);};
+  assert.equal(f.call(b.command('prepareInputResource')).pending,true);
+  const c=withInvocation(pinnedOperation(f,webcrypto.randomUUID()),webcrypto.randomUUID());
+  assert.equal(f.call(c.command('prepareInputResource')).pending,true);
+  assert.throws(()=>f.call(b.command('prepareInputResource')),/INPUT_RESOURCE_RESERVATION_BUSY/);
+  assert.equal(f.input.inputCount,1);release();
+  const resource=await prepareResourceEventually(f,c);
+  assert.equal(resource.kind,'settledOwnedNativeFileInput');assert.equal(reads,1);assert.equal(f.input.inputCount,1);
+  assert.throws(()=>f.call(b.command('prepareInputResource')),/INPUT_RESOURCE_RESERVATION_BUSY/);
+  f.stage(c);f.commit(c);await f.settle();const view=f.makeCard(c,10);setProgress(f,view,40);
+  assert.equal(f.observe(c).state,'uploadStarted');assert.equal(f.input.inputCount,2);
 });

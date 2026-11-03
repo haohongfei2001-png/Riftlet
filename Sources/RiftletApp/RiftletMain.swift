@@ -153,7 +153,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private var armingAdapter: (any AttachmentAdapter)?
     private var activationObserver: NSObjectProtocol?
     private var lastForegroundSession: String?
-    private var diagnosticEvents = 0
+    private var diagnosticTrace: BoundedDiagnosticTrace?
     private var visibilityTrace = AcceptanceTraceDeduplicator<UUID, [String]>()
     private var readyTrace = AcceptanceTraceDeduplicator<UUID, [String]>()
     private var pendingArmReason = "startup"
@@ -188,6 +188,10 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
             let owner = try ApplicationInstanceOwnership(root: base.appendingPathComponent(mode.directoryName, isDirectory: true))
             instanceOwnership = owner; root = owner.root
+            if mode.usesWebAdapter, CommandLine.arguments.contains("--acceptance-trace") {
+                diagnosticTrace = BoundedDiagnosticTrace(enabled: true,
+                    directory: owner.root.appendingPathComponent("diagnostics", isDirectory: true))
+            }
         } catch {
             fputs("Riftlet could not acquire its data-directory ownership; no services were started.\n", stderr)
             NSApp.terminate(nil)
@@ -438,6 +442,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         history?.onPreviewVisibilityChanged = { [weak self] visible in self?.rift?.setDetailPresented(visible) }
         let composition = try ApplicationAttachmentComposition.make(mode: mode, root: root, store: store,
             traceEnabled: CommandLine.arguments.contains("--acceptance-trace"),
+            diagnosticTrace: diagnosticTrace,
             onInputTransportFinished: { [weak self] in await self?.inputTransportFinished() })
         let adapter = composition.adapter
         let policy = composition.policy
@@ -1136,7 +1141,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                     errorCode = "none"
                 }
                 catch {
-                    errorCode = (error as? WebAdapterError).map { String(describing: $0) } ?? "unclassified"
+                    errorCode = (error as? WebAdapterError)?.diagnosticLabel ?? "unclassified"
                     // Superseded discovery says nothing about the validity of a
                     // previously accepted target. Preserve it under the existing
                     // epoch/session rules; never cancel the clicked transaction.
@@ -1263,11 +1268,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     }
 
     private func recordAcceptance(_ fields: [String: Any]) {
-        guard mode.usesWebAdapter, CommandLine.arguments.contains("--acceptance-trace"), diagnosticEvents < 2048 else { return }
-        diagnosticEvents += 1
-        if let data = try? JSONSerialization.data(withJSONObject: fields, options: [.sortedKeys]) {
-            try? FileHandle.standardError.write(contentsOf: data + Data([10]))
-        }
+        diagnosticTrace?.record(fields)
     }
 
     private func seedSyntheticImages(store: QueueStore, addNewBatch: Bool = false) async throws {
