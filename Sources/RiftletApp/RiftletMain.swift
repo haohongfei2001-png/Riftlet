@@ -29,7 +29,7 @@ enum RiftletMain {
             Task {
                 do {
                     try await SystemScreenshotCandidateSelfCheck.run()
-                    print("RIFTLET_SYSTEM_SCREENSHOT_CANDIDATE_SELF_CHECK_PASS: original-byte import, one software input, restricted start then independent completion, durable new-operation registration, legacy UNKNOWN unchanged, read-only restart; GENERATED_FIXTURE; CHROME_NOT_RUN; SYSTEM_SCREENSHOT_NOT_RUN; GUI_NOT_RUN")
+                    print("RIFTLET_SYSTEM_SCREENSHOT_CANDIDATE_SELF_CHECK_PASS: original-byte import, two independent software inputs and STARTs, stop after START, durable new-operation registration, legacy UNKNOWN unchanged, read-only restart; GENERATED_FIXTURE; CHROME_NOT_RUN; SYSTEM_SCREENSHOT_NOT_RUN; GUI_NOT_RUN")
                     exit(0)
                 } catch {
                     let detail = (error as? SystemScreenshotCandidateSelfCheck.Failure)?.rawValue

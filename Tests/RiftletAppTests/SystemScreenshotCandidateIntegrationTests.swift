@@ -26,7 +26,7 @@ final class SystemScreenshotCandidateIntegrationTests: XCTestCase {
         XCTAssertFalse(ApplicationMode.webAcceptance.collectsSystemScreenshots)
     }
 
-    @MainActor func testPackagedCandidateCheckStartsThenCompletesAndPreservesLegacyUnknown() async throws {
+    @MainActor func testPackagedCandidateCheckInputsIndependentlyAndPreservesStartAndLegacyUnknown() async throws {
         try await SystemScreenshotCandidateSelfCheck.run()
     }
 
