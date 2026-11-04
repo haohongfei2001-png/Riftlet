@@ -120,10 +120,16 @@ function riftletWebAcceptance(command, native) {
     return registry.nodeIDs.get(node);
   };
   const tick = () => ++registry.sequence;
-  function valid(binding) {
+  function sameDraft(binding) {
     try {
       if (!binding || registry.root !== document.documentElement || binding.navigation !== registry.navigation
           || binding.route !== route() || !contextMatches(binding.target)) return false;
+      return binding.form.isConnected && binding.editor.isConnected && binding.form.contains(binding.editor);
+    } catch { return false; }
+  }
+  function validInput(binding) {
+    try {
+      if (!sameDraft(binding)) return false;
       const current = composer();
       if (current.form !== binding.form || current.editor !== binding.editor) return false;
       // A normal change handler can rebuild the hidden picker without changing
@@ -141,7 +147,9 @@ function riftletWebAcceptance(command, native) {
       .filter(node => node !== binding.editor && !binding.editor.contains(node) && node !== binding.input);
   }
   function sample(op) {
-    if (op.start || !op.changeReturned || !valid(op.binding)) return;
+    // The app may disable or remove its picker after accepting this file.
+    // Observing that handoff needs the original draft, not another input slot.
+    if (op.start || !op.changeReturned || !sameDraft(op.binding)) return;
     const hasPreview = node => (node.tagName === 'IMG' && !!node.getAttribute('src')?.trim())
       || [...node.querySelectorAll('img[src]')].some(image => !!image.getAttribute('src')?.trim())
       || !!node.querySelector('progress,[role="progressbar"]');
@@ -173,7 +181,7 @@ function riftletWebAcceptance(command, native) {
   function observe(op) {
     sample(op);
     const result = blank(op.identity), item = result.observation;
-    item.belongsToOriginalDraft = valid(op.binding);
+    item.belongsToOriginalDraft = sameDraft(op.binding);
     if (op.retirement) {
       result.schemaVersion = 3;
       item.state = 'invalidated';
@@ -196,7 +204,7 @@ function riftletWebAcceptance(command, native) {
     if (native.applicationID !== 'com.google.Chrome' || !native.sessionID
         || !native.windowID || !native.tabID) fail('NATIVE_CONTEXT_REQUIRED');
     const parts = composer();
-    if (!valid(registry.current)) {
+    if (!validInput(registry.current)) {
       registry.current = {...parts, route: route(), navigation: registry.navigation,
         target: {adapterID: 'chatgpt-web', surface: 'webChat', ...native,
           documentID: registry.documentID, composerID: nodeID(parts.editor) + ':' + nodeID(parts.form),
@@ -205,13 +213,13 @@ function riftletWebAcceptance(command, native) {
     return registry.current.target;
   }
   const binding = bindingFor(command.target);
-  if (command.action === 'validate') return {target: command.target, valid: valid(binding)};
+  if (command.action === 'validate') return {target: command.target, valid: validInput(binding)};
   const identity = command.identity;
   if (!identity || !sameTarget(identity.target, command.target)) fail('TARGET_INVALID');
   const acknowledgement = (op, nextChunk) => ({operationID: op.identity.operationID, attempt: op.identity.attempt, nextChunk});
   let op = registry?.operations.get(identity.operationID);
   if (command.action === 'begin') {
-    if (!valid(binding)) fail('TARGET_INVALID');
+    if (!validInput(binding)) fail('TARGET_INVALID');
     if (op || !uuid(identity.operationID) || !uuid(identity.assetID) || !uuid(command.invocationID)
         || !Number.isSafeInteger(identity.attempt) || identity.attempt < 1 || !/^[a-f0-9]{64}$/.test(identity.assetSHA256)
         || command.uploadName !== 'riftlet-' + identity.operationID + '.png' || command.mediaType !== 'image/png'
@@ -246,7 +254,7 @@ function riftletWebAcceptance(command, native) {
   if (op.committed || op.discarded || op.received !== op.size || command.chunkIndex !== op.nextChunk) fail('COMMIT_REFUSED');
   op.committed = true; // Once-only before every possible file-input side effect.
   const retire = reason => { op.chunks = []; op.retirement = reason; return observe(op); };
-  if (!valid(op.binding)) return retire('targetInvalidBeforeInput');
+  if (!validInput(op.binding)) return retire('targetInvalidBeforeInput');
   if (registry.busy.has(op.binding.form)) return retire('inputExecutionBusy');
   const bytes = new Uint8Array(op.size); let offset = 0;
   for (const chunk of op.chunks) { bytes.set(chunk, offset); offset += chunk.length; }

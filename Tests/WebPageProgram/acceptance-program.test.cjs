@@ -143,6 +143,34 @@ test('a portal picker in another form or ambiguous global pickers cannot receive
  assert.throws(()=>g.bind(),/ATTACHMENT_INPUT_UNAVAILABLE/);assert.equal(g.changes,0);
 });
 
+for(const state of ['disabled','removed'])test('accepted attachment starts immediately while change leaves its picker '+state,()=>{
+ const f=fixture(),op=f.bind();f.stage(op);
+ f.setChange(()=>{if(state==='disabled')f.input.disabled=true;else f.input.remove();});
+ const receipt=f.commit(op).observation;
+ assert.equal(receipt.state,'uploadStarted','START must not wait for the next input slot or upload completion');
+ accepted(f,op);assert.equal(f.setters,1);assert.equal(f.changes,1);
+ assert.equal(f.call({action:'validate',target:op.target}).valid,false,'a new input still requires a usable picker');
+ assert.ok(f.form.contains(f.oldCard));assert.equal(f.sends,0);
+});
+
+for(const state of ['disabled','removed'])test('an unsubmitted operation never starts from a matching card with its picker '+state,()=>{
+ const f=fixture(),op=f.bind();f.stage(op);f.addCard(op.name);
+ if(state==='disabled')f.input.disabled=true;else f.input.remove();
+ const observed=f.observe(op);assert.equal(observed.state,'unknown');assert.equal(observed.uploadStart,undefined);
+ const refused=f.commit(op).observation;
+ assert.equal(refused.preInputRetirement.reason,'targetInvalidBeforeInput');
+ assert.equal(refused.uploadStart,undefined);assert.equal(f.setters,0);assert.equal(f.changes,0);
+});
+
+test('a new attachment in a replaced editor cannot start the original unconfirmed operation',()=>{
+ const f=fixture({accept:false}),op=f.bind();f.stage(op);f.commit(op);
+ f.editor.remove();f.form.append(new f.Node('div',{id:'prompt-textarea',contenteditable:'true',role:'textbox'}));
+ f.addCard(op.name);
+ const observed=f.observe(op);assert.equal(observed.state,'inputTriggered');
+ assert.equal(observed.belongsToOriginalDraft,false);assert.equal(observed.uploadStart,undefined);
+ assert.equal(f.changes,1);
+});
+
 for(const route of [
  'https://chatgpt.com/',
  'https://chatgpt.com/c/ordinary-thread',

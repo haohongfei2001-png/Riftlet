@@ -32,6 +32,8 @@ function browserFixture(options){
   const form=document.querySelector('form'),editor=document.querySelector('#prompt-textarea');
   let input=form.querySelector('input');
   if(options.portalPicker)document.body.append(input);
+  const makePickerUnavailable=()=>{if(options.unavailablePicker==='disabled')input.disabled=true;else input.remove();};
+  const restorePicker=()=>{input.disabled=false;if(!input.isConnected)(options.portalPicker?document.body:form).append(input);};
   const priorCard=form.querySelector('[data-file-name]'),priorImage=priorCard.querySelector('img');
   const canvas=document.createElement('canvas');canvas.width=canvas.height=2;
   canvas.getContext('2d').fillRect(0,0,2,2);priorImage.src=canvas.toDataURL('image/png');
@@ -45,6 +47,7 @@ function browserFixture(options){
   editor.focus();const selection=getSelection(),range=document.createRange();range.setStart(editor.firstChild,2);range.setEnd(editor.firstChild,7);selection.removeAllRanges();selection.addRange(range);
   const text=editor.textContent,anchor=selection.anchorNode,focus=selection.focusNode,anchorOffset=selection.anchorOffset,focusOffset=selection.focusOffset;
   let changes=0,setters=0,sends=0,reentrant=null,reentrantRefused=false,firstPendingCard=null;
+  let startBeforePickerRestored=false,noInputStartRejected=false;
   const nativeFiles=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'files');
   Object.defineProperty(HTMLInputElement.prototype,'files',{...nativeFiles,set(value){
    setters++;return Reflect.apply(nativeFiles.set,this,[value]);
@@ -75,7 +78,8 @@ function browserFixture(options){
    const task={file,list,card,image,progress,state:'uploading'};tasks.push(task);
    // The first acceptance is deliberately delayed; its input return is dropped.
    // A second input is allowed while A has no observed START yet.
-   if(changes===1)firstPendingCard=card;else{form.append(card);if(changes===2)setTimeout(()=>form.append(firstPendingCard),0);}
+   if(options.unavailablePicker){form.append(card);makePickerUnavailable();}
+   else if(changes===1)firstPendingCard=card;else{form.append(card);if(changes===2)setTimeout(()=>form.append(firstPendingCard),0);}
    if(!options.retained)submittedInput.value='';
   };
   input.addEventListener('change',changed);
@@ -91,6 +95,15 @@ function browserFixture(options){
   }
   for(let index=0;index<options.count;index++)ops.push(await operation(index));
   const busyProbe=await operation(50);
+  if(options.unavailablePicker){
+   const unsubmitted=await operation(51),card=document.createElement('div');card.setAttribute('role','button');card.title=unsubmitted.name;
+   const image=document.createElement('img');image.alt=unsubmitted.name;image.src=priorImage.src;card.append(image);form.append(card);
+   makePickerUnavailable();
+   const observed=call(unsubmitted.command('observe')).observation;
+   noInputStartRejected=observed.state==='unknown'&&!observed.uploadStart&&setters===0&&changes===0;
+   check(noInputStartRejected,'matching attachment without actual input never starts');
+   restorePicker();card.remove();call(unsubmitted.command('discard'));
+  }
   for(let index=0;index<ops.length;index++){
    await stage('input-'+(index+1));const op=ops[index];
    if(index===0)reentrant=busyProbe;
@@ -98,7 +111,13 @@ function browserFixture(options){
    call({...op.command('commit'),chunkIndex:1}); // Simulate a lost transport receipt by ignoring every reply.
    check(changes===index+1,'one change per screenshot');
    check(setters===index+1,'one native files setter per screenshot');
-   if(index===0)check(call(op.command('observe')).observation.state==='inputTriggered','first input completed before START');
+   if(options.unavailablePicker){
+    const observed=call(op.command('observe')).observation;
+    check(input.disabled||!input.isConnected,'picker remains unavailable while START is observed');
+    check(observed.state==='uploadStarted'&&observed.belongsToOriginalDraft,'accepted START does not wait for picker restoration or COMPLETE');
+    check(call({action:'validate',target:op.target}).valid===false,'another input still needs a usable picker');
+    startBeforePickerRestored=true;restorePicker();
+   }else if(index===0)check(call(op.command('observe')).observation.state==='inputTriggered','first input completed before START');
    if(index>0)await wait(()=>call(op.command('observe')).observation.state==='uploadStarted');
    check(editor.textContent===text&&selection.anchorNode===anchor&&selection.focusNode===focus&&selection.anchorOffset===anchorOffset&&selection.focusOffset===focusOffset,'draft text and selection preserved');
    check(form.contains(priorCard),'existing attachment preserved');
@@ -130,6 +149,7 @@ function browserFixture(options){
    lostReplyRecoveredWithoutReplay:true,textSelectionCardsPreserved:true,
    pickerReplacedEachChange:!!options.replacePicker,hiddenPortalPicker:!!options.portalPicker,
    decoratedFilenameAccepted:!!options.decoratedFilename,
+   startBeforePickerRestored,noInputStartRejected,
    firstSyntheticUploadState:tasks[0].state,harnessTransport:'loopback-only'});
  }catch(error){report.error=String(error?.stack||error);}
  document.querySelector('#result').textContent=JSON.stringify(report);
@@ -142,7 +162,8 @@ for(const options of [
  {count:3,retained:false,route:'https://chatgpt.com/'},
  {count:3,retained:true,route:'https://chatgpt.com/g/g-p-project/c/project-thread'},
  {count:2,retained:true,route:'https://chatgpt.com/g/g-p-project/project'},
- {count:5,retained:true,replacePicker:true,portalPicker:true,decoratedFilename:true,route:'https://chatgpt.com/c/ordinary-thread'}
+ {count:5,retained:true,replacePicker:true,portalPicker:true,decoratedFilename:true,route:'https://chatgpt.com/c/ordinary-thread'},
+ ...['disabled','removed'].map(unavailablePicker=>({count:2,retained:true,unavailablePicker,route:'https://chatgpt.com/c/ordinary-thread'}))
 ])test('native Chrome independent append '+JSON.stringify(options),{
  skip:!binary&&!required?'CHROME_NOT_RUN: no native Chrome binary in this executor':false,timeout:60000
 },async t=>{
@@ -190,6 +211,7 @@ for(const options of [
     assert.equal(report.originalFileListsVerified,options.count);assert.equal(report.observedStarts,options.count);
     assert.equal(report.reentrantInputRefused,true);assert.equal(report.wrongTargetRefused,true);
     assert.equal(report.lostReplyRecoveredWithoutReplay,true);
+    if(options.unavailablePicker){assert.equal(report.startBeforePickerRestored,true);assert.equal(report.noInputStartRejected,true);}
     assert.equal(report.harnessTransport,'loopback-only');
     console.log(JSON.stringify(report));
   }catch(error){failures.push(error);}
