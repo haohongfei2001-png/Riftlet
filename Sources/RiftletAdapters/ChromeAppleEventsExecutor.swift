@@ -67,10 +67,17 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
         let running = Set(applications.filter { !$0.isTerminated }.map(\.processIdentifier))
         let frontmost = NSWorkspace.shared.frontmostApplication
         let frontmostPID = frontmost?.bundleIdentifier == "com.google.Chrome" ? frontmost?.processIdentifier : nil
-        let previousPID = lastForegroundChrome.flatMap { $0.isCurrent() ? $0.pid : nil }
-        guard let pid = ChromeReceiverSelection.choose(frontmost: frontmostPID, lastForeground: previousPID,
+        if let frontmostPID {
+            guard let identity = ChromeProcessIdentity.read(pid: frontmostPID) else { throw WebAdapterError.invalidTarget }
+            return identity
+        }
+        let previous = lastForegroundChrome
+        guard let pid = ChromeReceiverSelection.choose(frontmost: nil, lastForeground: previous?.pid,
                 running: running),
               let identity = ChromeProcessIdentity.read(pid: pid) else { throw WebAdapterError.invalidTarget }
+        // Retain the observed process lifetime. An exited Chrome or reused PID
+        // is different from never having observed a Chrome activation.
+        if let previous, identity != previous { throw WebAdapterError.invalidTarget }
         return identity
     }
 

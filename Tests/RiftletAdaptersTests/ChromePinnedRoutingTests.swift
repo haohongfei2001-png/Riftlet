@@ -30,6 +30,19 @@ final class ChromePinnedRoutingTests: XCTestCase {
             running: [10, 20]))
     }
 
+    func testExitedLastChromeDoesNotFallBackToTheOnlyRemainingProfile() {
+        XCTAssertNil(ChromeReceiverSelection.choose(frontmost: nil, lastForeground: 30,
+            running: [20]))
+        XCTAssertNil(ChromeReceiverSelection.choose(frontmost: 900, lastForeground: 30,
+            running: [20]))
+        // A currently foreground Chrome is a new explicit user destination.
+        XCTAssertEqual(ChromeReceiverSelection.choose(frontmost: 20, lastForeground: 30,
+            running: [20]), 20)
+        // Sole-process fallback remains available only without any history.
+        XCTAssertEqual(ChromeReceiverSelection.choose(frontmost: nil, lastForeground: nil,
+            running: [20]), 20)
+    }
+
     func testNativeSnapshotDetectsTabWindowAndSameTabConversationChanges() throws {
         let original = try ChromeClickRoute(window: "11", tab: "12", url: "https://chatgpt.com/c/original")
         XCTAssertNotEqual(original, try ChromeClickRoute(window: "13", tab: "12", url: original.address))

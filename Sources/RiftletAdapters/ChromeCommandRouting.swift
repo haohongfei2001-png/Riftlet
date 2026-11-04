@@ -41,7 +41,7 @@ struct ChromeClickRoute: Equatable, Sendable {
 enum ChromeReceiverSelection {
     static func choose(frontmost: Int32?, lastForeground: Int32?, running: Set<Int32>) -> Int32? {
         if let frontmost, running.contains(frontmost) { return frontmost }
-        if let lastForeground, running.contains(lastForeground) { return lastForeground }
+        if let lastForeground { return running.contains(lastForeground) ? lastForeground : nil }
         return running.count == 1 ? running.first : nil
     }
 }
