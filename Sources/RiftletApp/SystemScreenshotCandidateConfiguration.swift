@@ -34,6 +34,7 @@ struct ApplicationAttachmentComposition {
     @MainActor static func make(mode: ApplicationMode, root: URL, store: QueueStore,
                                 executor: (any WebBridgeExecutor)? = nil,
                                 traceEnabled: Bool = false,
+                                diagnosticTrace: BoundedDiagnosticTrace? = nil,
                                 polling: WebObservationPolling = .acceptance,
                                 onInputTransportFinished: (@Sendable () async -> Void)? = nil,
                                 ordinary: OrdinaryAttachmentAdmission = OrdinaryCaptureConfiguration.admission) throws -> Self {
@@ -45,36 +46,36 @@ struct ApplicationAttachmentComposition {
             guard ordinary.allowsInput else { return Self(adapter: UnavailableAdapter(), policy: .init()) }
             if ordinary.usesUnifiedProduct {
                 return Self(adapter: WebAttachmentAdapter(mediaDirectory: media,
-                    executor: executor ?? ChromeAppleEventsExecutor(traceEnabled: traceEnabled),
+                    executor: executor ?? ChromeAppleEventsExecutor(traceEnabled: traceEnabled, diagnosticTrace: diagnosticTrace),
                     program: try ChatGPTWebPageProgram.load(), mode: .ordinaryProduct,
                     profile: ordinary.observationProfile, polling: polling,
                     productStore: store, productOrigins: ordinary.productOrigins,
-                    onInputTransportFinished: onInputTransportFinished), policy: ordinary.receiptPolicy)
+                    onInputTransportFinished: onInputTransportFinished, diagnosticTrace: diagnosticTrace), policy: ordinary.receiptPolicy)
             }
             return Self(adapter: WebAttachmentAdapter(mediaDirectory: media,
-                executor: executor ?? ChromeAppleEventsExecutor(traceEnabled: traceEnabled),
+                executor: executor ?? ChromeAppleEventsExecutor(traceEnabled: traceEnabled, diagnosticTrace: diagnosticTrace),
                 program: try ChatGPTWebPageProgram.load(), mode: .ordinarySystemScreenshot,
                 profile: ordinary.observationProfile, polling: polling,
                 candidateJournal: SystemScreenshotObservationJournal(store: store, scope: ordinary.targetScope),
                 candidateAdmission: SystemScreenshotCandidateAdmission(store: store, scope: ordinary.targetScope),
-                onInputTransportFinished: onInputTransportFinished),
+                onInputTransportFinished: onInputTransportFinished, diagnosticTrace: diagnosticTrace),
                 policy: ordinary.receiptPolicy)
         case .simulation: return Self(adapter: SimulationAdapter(), policy: .init())
         case .webAcceptance:
             return Self(adapter: WebAttachmentAdapter(mediaDirectory: media,
-                executor: executor ?? ChromeAppleEventsExecutor(traceEnabled: traceEnabled),
+                executor: executor ?? ChromeAppleEventsExecutor(traceEnabled: traceEnabled, diagnosticTrace: diagnosticTrace),
                 program: try ChatGPTWebPageProgram.load(), mode: .syntheticDevelopment,
                 profile: ChatGPTWebPageProgram.acceptanceProfile, polling: polling,
-                onInputTransportFinished: onInputTransportFinished),
+                onInputTransportFinished: onInputTransportFinished, diagnosticTrace: diagnosticTrace),
                 policy: WebAcceptanceConfiguration.receiptPolicy)
         case .systemScreenshotCandidate:
             return Self(adapter: WebAttachmentAdapter(mediaDirectory: media,
-                executor: executor ?? ChromeAppleEventsExecutor(traceEnabled: traceEnabled),
+                executor: executor ?? ChromeAppleEventsExecutor(traceEnabled: traceEnabled, diagnosticTrace: diagnosticTrace),
                 program: try ChatGPTWebPageProgram.load(), mode: .systemScreenshotCandidate,
                 profile: SystemScreenshotWebCandidate.profile, polling: polling,
                 candidateJournal: SystemScreenshotObservationJournal(store: store),
                 candidateAdmission: SystemScreenshotCandidateAdmission(store: store),
-                onInputTransportFinished: onInputTransportFinished),
+                onInputTransportFinished: onInputTransportFinished, diagnosticTrace: diagnosticTrace),
                 policy: SystemScreenshotCandidateConfiguration.receiptPolicy)
         }
     }

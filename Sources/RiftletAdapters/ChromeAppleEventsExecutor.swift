@@ -13,7 +13,9 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
     private let relays = MainWorldRelayStore()
     private let trace: ChromeBridgeTrace
 
-    public init(traceEnabled: Bool = false) { trace = ChromeBridgeTrace(enabled: traceEnabled) }
+    public init(traceEnabled: Bool = false, diagnosticTrace: BoundedDiagnosticTrace? = nil) {
+        trace = ChromeBridgeTrace(sink: diagnosticTrace ?? BoundedDiagnosticTrace(enabled: traceEnabled))
+    }
 
     /// Runs directly at the native press callback, before an asynchronous queue
     /// can substitute a newly frontmost tab. Reads Chrome's absolute object
@@ -226,8 +228,10 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
                         return ChromeDelivery(data: bytes, targetDigest: targetDigest, received: received, validated: validated)
                     }
                 }
+                let traceError: WebAdapterError?
+                if case .failure(let error) = result { traceError = error as? WebAdapterError } else { traceError = nil }
                 trace.record(requestID: requestID, action: command.action.rawValue, phase: phase, enqueued: enqueued, started: started,
-                             context: captureContext, succeeded: (try? result.get()) != nil)
+                             context: captureContext, succeeded: (try? result.get()) != nil, error: traceError)
                 continuation.resume(with: result)
             }
         }
@@ -261,16 +265,11 @@ private struct ChromeDelivery: Sendable {
 
 /// Local opt-in timing only; opaque digest, never raw source/URL/identity/payload.
 private final class ChromeBridgeTrace: @unchecked Sendable {
-    private let enabled: Bool
-    private let lock = NSLock()
-    private var count = 0
-    init(enabled: Bool) { self.enabled = enabled }
+    private let sink: BoundedDiagnosticTrace
+    init(sink: BoundedDiagnosticTrace) { self.sink = sink }
     func capture(requestID: String, phase: String, digest: String, received: TimeInterval,
                  validated: TimeInterval, context: CaptureInvocationContext?, accepted: Bool,
                  mainReturned: TimeInterval? = nil) {
-        guard enabled else { return }
-        lock.lock(); defer { lock.unlock() }
-        guard count < 2048 else { return }; count += 1
         let now = ProcessInfo.processInfo.systemUptime
         var fields: [String: Any] = ["event": "capture_ack", "requestID": requestID, "phase": phase,
             "targetDigest": digest, "receivedUptime": received, "nativeReceivedUptime": received,
@@ -278,35 +277,29 @@ private final class ChromeBridgeTrace: @unchecked Sendable {
             "authority": "DIAGNOSTIC_ONLY_NOT_APP_PUBLICATION"]
         if let mainReturned, accepted { fields["executorMainReturnedUptime"] = mainReturned }
         addContext(context, to: &fields)
-        if let data = try? JSONSerialization.data(withJSONObject: fields, options: [.sortedKeys]) {
-            try? FileHandle.standardError.write(contentsOf: data + Data([10]))
-        }
+        sink.record(fields)
     }
     func record(requestID: String, action: String, phase: String, enqueued: TimeInterval, started: TimeInterval,
-                context: CaptureInvocationContext?, succeeded: Bool) {
-        guard enabled else { return }
-        lock.lock(); defer { lock.unlock() }
-        guard count < 2048 else { return }; count += 1
+                context: CaptureInvocationContext?, succeeded: Bool, error: WebAdapterError? = nil) {
         let end = ProcessInfo.processInfo.systemUptime
         var fields: [String: Any] = ["event": "native_bridge", "requestID": requestID, "action": action, "phase": phase,
             "queuedUptime": enqueued, "startedUptime": started, "endedUptime": end,
             "queueMS": (started - enqueued) * 1000, "executionMS": (end - started) * 1000, "transportSucceeded": succeeded]
         addContext(context, to: &fields)
-        if let data = try? JSONSerialization.data(withJSONObject: fields, options: [.sortedKeys]) {
-            try? FileHandle.standardError.write(contentsOf: data + Data([10]))
+        if let error {
+            fields["error"] = error.diagnosticLabel
+            if case .pageRejected(let code) = error, code.isInputResourceRefusal {
+                fields["resourceRefusalReason"] = code.rawValue
+            }
         }
+        sink.record(fields, critical: !succeeded && action != "captureTarget" && action != "observe")
     }
 
     func activeIdentity(requestID: String, check: String, route: String, started: TimeInterval, succeeded: Bool) {
-        guard enabled else { return }
-        lock.lock(); defer { lock.unlock() }
-        guard count < 2048 else { return }; count += 1
         let fields: [String: Any] = ["event": "active_identity", "requestID": requestID,
             "check": check, "route": route, "elapsedMS": (ProcessInfo.processInfo.systemUptime - started) * 1000,
             "succeeded": succeeded, "authority": "DIAGNOSTIC_ONLY"]
-        if let data = try? JSONSerialization.data(withJSONObject: fields, options: [.sortedKeys]) {
-            try? FileHandle.standardError.write(contentsOf: data + Data([10]))
-        }
+        sink.record(fields)
     }
 
     private func addContext(_ context: CaptureInvocationContext?, to fields: inout [String: Any]) {

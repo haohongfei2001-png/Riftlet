@@ -71,6 +71,38 @@ public enum WebAdapterError: Error, Equatable, Sendable {
     case invalidPrivateFile, inputInFlight, invalidReply, browserNotFrontmost, nativeExecutionFailed
     case nativeEventFailed(Int32)
     case nativeSelectionChanged, captureSuperseded, pageRejected(WebPageRejection)
+
+    /// Closed, content-free labels. Never interpolate a generic Error/NSError.
+    public var diagnosticLabel: String {
+        switch self {
+        case .disabled: return "disabled"
+        case .programUnavailable: return "programUnavailable"
+        case .syntheticAssetsOnly: return "syntheticAssetsOnly"
+        case .invalidTarget: return "invalidTarget"
+        case .invalidRequest: return "invalidRequest"
+        case .invalidPrivateFile: return "invalidPrivateFile"
+        case .inputInFlight: return "inputInFlight"
+        case .invalidReply: return "invalidReply"
+        case .captureSuperseded: return "captureSuperseded"
+        case .browserNotFrontmost: return "browserNotFrontmost"
+        case .nativeExecutionFailed: return "nativeExecutionFailed"
+        case .nativeEventFailed(let code): return "nativeEventFailed(\(code))"
+        case .nativeSelectionChanged: return "nativeSelectionChanged"
+        case .pageRejected(let code): return "pageRejected(\(code.rawValue))"
+        }
+    }
+
+    static func isDiagnosticLabel(_ value: String) -> Bool {
+        let labels = ["none", "unclassified", "unclassifiedTransportError", "disabled", "programUnavailable",
+            "syntheticAssetsOnly", "invalidTarget", "invalidRequest", "invalidPrivateFile", "inputInFlight",
+            "invalidReply", "captureSuperseded", "browserNotFrontmost", "nativeExecutionFailed", "nativeSelectionChanged"]
+        if labels.contains(value) { return true }
+        if WebPageRejection.allCases.contains(where: { "pageRejected(\($0.rawValue))" == value }) { return true }
+        let prefix = "nativeEventFailed("
+        if value.hasPrefix(prefix), value.hasSuffix(")"),
+           let code = Int32(value.dropFirst(prefix.count).dropLast()), value == "\(prefix)\(code))" { return true }
+        return false
+    }
 }
 
 /// One transport shared by source-scoped ordinary and isolated test compositions.
@@ -89,6 +121,7 @@ public actor WebAttachmentAdapter: IndependentInputResourceAdapter {
     private let productOrigins: Set<AssetOrigin>
     private let productBindings: [AssetOrigin: (admission: SystemScreenshotCandidateAdmission, journal: SystemScreenshotObservationJournal)]
     private let onInputTransportFinished: (@Sendable () async -> Void)?
+    private let diagnosticTrace: BoundedDiagnosticTrace?
     // The transport lease is released only by its own original append. A prior
     // observer finishing must never unlock a later operation's begin/commit.
     private var inputOwner: UUID?
@@ -105,7 +138,8 @@ public actor WebAttachmentAdapter: IndependentInputResourceAdapter {
                 candidateJournal: SystemScreenshotObservationJournal? = nil,
                 candidateAdmission: SystemScreenshotCandidateAdmission? = nil,
                 productStore: QueueStore? = nil, productOrigins: Set<AssetOrigin> = [],
-                onInputTransportFinished: (@Sendable () async -> Void)? = nil) {
+                onInputTransportFinished: (@Sendable () async -> Void)? = nil,
+                diagnosticTrace: BoundedDiagnosticTrace? = nil) {
         id = profile.adapterID; self.mediaDirectory = mediaDirectory.standardizedFileURL
         self.executor = executor; self.program = program; self.mode = mode
         if mode == .ordinarySystemScreenshot || mode == .ordinaryProduct {
@@ -118,6 +152,7 @@ public actor WebAttachmentAdapter: IndependentInputResourceAdapter {
         self.candidateAdmission = candidateAdmission
         self.productOrigins = productOrigins
         self.onInputTransportFinished = onInputTransportFinished
+        self.diagnosticTrace = diagnosticTrace
         if mode == .ordinaryProduct, let productStore {
             productBindings = Dictionary(uniqueKeysWithValues: [SystemScreenshotAdmissionScope.productSystem, .productApplication].map {
                 ($0.origin, (SystemScreenshotCandidateAdmission(store: productStore, scope: $0),
@@ -181,21 +216,68 @@ public actor WebAttachmentAdapter: IndependentInputResourceAdapter {
         return response.valid && response.target == target
     }
 
-    /// Reserve the empty current native picker for B. This never observes or
-    /// changes A's historical receipt, nor requires hooks on A's transport.
+    /// Reserve the current picker for B. A retained native selection requires
+    /// an exact settled, START-owned page witness; an empty picker retains the
+    /// existing legacy recovery path. Neither path rewrites A's journal.
     public func prepareInputResource(_ request: TransferRequest) async throws -> PreparedInputResource {
+        do { return try await prepareCurrentInputResource(request) }
+        catch {
+            var facts: [String: Any] = ["event": "input_resource_preparation_refused", "action": "prepareInputResource",
+                "operationID": request.operation.id.uuidString,
+                "error": (error as? WebAdapterError)?.diagnosticLabel ?? "unclassifiedTransportError"]
+            if case .pageRejected(let code)? = error as? WebAdapterError, code.isInputResourceRefusal {
+                facts["resourceRefusalReason"] = code.rawValue
+            } else if error as? WebAdapterError == .inputInFlight {
+                facts["resourceRefusalReason"] = WebPageRejection.inputResourceExecutionBusy.rawValue
+            }
+            diagnosticTrace?.record(facts, critical: true)
+            throw error
+        }
+    }
+
+    private func prepareCurrentInputResource(_ request: TransferRequest) async throws -> PreparedInputResource {
         try requireEnabled()
         guard mode == .ordinaryProduct || mode == .syntheticDevelopment,
-              request.operation.phase == .prepared, inputOwner == nil,
+              request.operation.phase == .prepared,
               let invocationID = request.invocationID,
-              request.operation.target.clickBindingID != nil else { throw WebAdapterError.inputInFlight }
+              request.operation.target.clickBindingID != nil else { throw WebAdapterError.invalidRequest }
+        guard inputOwner == nil else { throw WebAdapterError.inputInFlight }
         try check(request.operation.target)
         try checkNewInputScope(request.operation.target)
         try await preflight(asset: request.asset, fileURL: request.fileURL)
         let identity = ObservationIdentity(operationID: request.operation.id, assetID: request.asset.id,
             attempt: request.operation.attempt, assetSHA256: request.asset.sha256, target: request.operation.target)
-        let data = try await perform(.init(action: .prepareInputResource, target: identity.target,
-            identity: identity, invocationID: invocationID))
+        let command = WebBridgeCommand(action: .prepareInputResource, target: identity.target,
+            identity: identity, invocationID: invocationID)
+        let deadline = ProcessInfo.processInfo.systemUptime + 1
+        var data = try await perform(command)
+        for attempt in 0..<16 {
+            guard let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+                throw WebAdapterError.invalidReply
+            }
+            guard object["pending"] != nil else { break }
+            struct Pending: Decodable {
+                let version: Int
+                let identity: ObservationIdentity
+                let invocationID: UUID
+                let pending: Bool
+            }
+            let pending = try decode(Pending.self, from: data)
+            guard Set(object.keys) == Set(["version", "identity", "invocationID", "pending"]),
+                  pending.version == 1, pending.identity == identity,
+                  pending.invocationID == invocationID, pending.pending else { throw WebAdapterError.invalidReply }
+            // This rereads only one explicit preparation's bounded old-File
+            // qualification. It cannot repeat BEGIN/chunks/commit, and neither
+            // timeout nor a late digest grants input or releases an old owner.
+            guard attempt < 15, ProcessInfo.processInfo.systemUptime + 0.02 < deadline else {
+                throw WebAdapterError.pageRejected(.inputResourceQualificationPending)
+            }
+            try await Task.sleep(nanoseconds: 20_000_000)
+            guard ProcessInfo.processInfo.systemUptime < deadline else {
+                throw WebAdapterError.pageRejected(.inputResourceQualificationPending)
+            }
+            data = try await perform(command)
+        }
         struct Reply: Decodable {
             let version: Int
             let identity: ObservationIdentity
@@ -208,9 +290,12 @@ public actor WebAttachmentAdapter: IndependentInputResourceAdapter {
         }
         let reply = try decode(Reply.self, from: data)
         guard reply.version == 1, reply.identity == identity, reply.invocationID == invocationID,
-              reply.kind == "emptyNativeFileInput", reply.observedSequence > 0,
+              ["emptyNativeFileInput", "settledOwnedNativeFileInput"].contains(reply.kind), reply.observedSequence > 0,
               reply.baselineAttachmentCount >= 0, reply.baselineAttachmentCount <= 4096,
               !reply.inputElementID.isEmpty, reply.inputElementID.utf8.count <= 256 else { throw WebAdapterError.invalidReply }
+        diagnosticTrace?.record(["event": "input_resource_prepared", "action": "prepareInputResource",
+            "operationID": identity.operationID.uuidString, "resourceKind": reply.kind,
+            "baselineAttachmentCount": reply.baselineAttachmentCount, "observedSequence": reply.observedSequence])
         return PreparedInputResource(operationID: identity.operationID, assetID: identity.assetID,
             attempt: identity.attempt, assetSHA256: identity.assetSHA256, target: identity.target,
             invocationID: invocationID, resourceID: reply.resourceID, inputElementID: reply.inputElementID)
@@ -322,6 +407,7 @@ public actor WebAttachmentAdapter: IndependentInputResourceAdapter {
                proof.identity == identity, proof.invocationID == invocationID,
                proof.rejectedBeforeBegin, ["ACTIVE_PAYLOAD_LIMIT", "OBSERVER_UPGRADE_REQUIRED", "INPUT_RESOURCE_UNAVAILABLE"].contains(proof.reason),
                proof.retiredBeforeInput, !proof.commitInvoked, proof.inputCount == 0 {
+                recordResourceRefusal(proof.resourceRefusalReason, action: .begin, operationID: identity.operationID)
                 throw PreInputRejection(operationID: identity.operationID, assetID: identity.assetID,
                     attempt: identity.attempt, assetSHA256: identity.assetSHA256, target: identity.target,
                     invocationID: invocationID, stage: .pageRejectedBeforeBegin)
@@ -402,6 +488,8 @@ public actor WebAttachmentAdapter: IndependentInputResourceAdapter {
             // Only the still-running original append may consume a positive
             // no-input retirement. Reconcile/restart never revives UNKNOWN.
             if liveAppend, let rejection = try WebPreInputRetirement.rejection(from: envelope, for: request) {
+                recordResourceRefusal(envelope.observation.resourceRefusalReason,
+                    action: .commit, operationID: request.operation.id)
                 throw rejection
             }
             let receipt = try await normalize(envelope, for: request, liveAppend: liveAppend)
@@ -538,6 +626,13 @@ public actor WebAttachmentAdapter: IndependentInputResourceAdapter {
             guard reply.count <= ObservationDecoder.maximumPayloadBytes else { throw WebAdapterError.invalidReply }
             return reply
         } catch {
+            var facts: [String: Any] = ["event": "web_command_refused", "action": command.action.rawValue,
+                "error": (error as? WebAdapterError)?.diagnosticLabel ?? "unclassifiedTransportError"]
+            if let id = command.identity?.operationID { facts["operationID"] = id.uuidString }
+            if case .pageRejected(let code)? = error as? WebAdapterError, code.isInputResourceRefusal {
+                facts["resourceRefusalReason"] = code.rawValue
+            }
+            diagnosticTrace?.record(facts, critical: command.action != .captureTarget && command.action != .observe)
             // This bridge is synthetic-development-only. Log only a closed set
             // of code-owned labels/numeric OSStatus, never NSError descriptions,
             // page text, target identities, JavaScript or user paths.
@@ -577,6 +672,12 @@ public actor WebAttachmentAdapter: IndependentInputResourceAdapter {
         }
     }
 
+    private func recordResourceRefusal(_ reason: WebPageRejection?, action: WebBridgeAction, operationID: UUID) {
+        guard let reason, reason.isInputResourceRefusal else { return }
+        diagnosticTrace?.record(["event": "input_resource_refused", "action": action.rawValue,
+            "operationID": operationID.uuidString, "resourceRefusalReason": reason.rawValue], critical: true)
+    }
+
     private struct ValidationReply: Decodable { let target: TargetLease; let valid: Bool }
     private struct BeginRejectionProof: Decodable {
         let identity: ObservationIdentity
@@ -586,6 +687,7 @@ public actor WebAttachmentAdapter: IndependentInputResourceAdapter {
         let commitInvoked: Bool
         let rejectedBeforeBegin: Bool
         let reason: String
+        let resourceRefusalReason: WebPageRejection?
     }
     private struct AllocationAcknowledgement: Decodable {
         let allocated: Bool

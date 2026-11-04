@@ -1,4 +1,16 @@
-# Current input-resource correction — 2026-11-03
+# Current retained-input P1 repair — 2026-11-03
+
+The new user-reported incident is B START followed by five immediate resource
+refusals, before B later became UNKNOWN. Base is actual main `6c677f55`; PR #37
+and #38 are already merged. This short-lived repair is `fix/retained-file-input`.
+`web_fix` owns page qualification and regressions, `swift_diagnostics` owns typed
+diagnostics and native adapter tests, root owns native Chrome application tests
+and integration, and `independent_review` performs non-author source/package
+review. No production database, media or old operation is edited or replayed.
+The exact G/H, full CI and two Apps are recorded in this repair's single PR.
+See [implementation and evidence scope](../engineering/evidence/2026-11-03-retained-input/README.md).
+
+# Previous input-resource correction — 2026-11-03
 
 PR #37 continues the same branch. The current user authorizes separating native
 input execution from attachment outcome and implementing a current-resource

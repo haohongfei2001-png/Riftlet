@@ -19,12 +19,14 @@ const binary=[process.env.RIFTLET_CHROME_BIN,
   '/usr/bin/google-chrome','/usr/bin/chromium','/usr/bin/chromium-browser'].find(p=>p&&fs.existsSync(p));
 const required=process.env.RIFTLET_REQUIRE_CHROME==='1';
 const source=fs.readFileSync(path.join(__dirname,'../../Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js'),'utf8');
-function browserFixture() {
+const baselineSource=fs.readFileSync(path.join(__dirname,'fixtures/chatgpt-web-main-6c677f55.js'),'utf8');
+function browserFixture(options) {
   return String.raw`<!doctype html><meta charset="utf-8"><title>Riftlet local synthetic input-resource fixture</title>
 <header><div role="group" aria-label="撰写器模式"><button type="button" aria-pressed="true">聊天</button><button type="button" aria-pressed="false">工作</button></div></header>
 <form><div contenteditable="true" role="textbox" style="width:500px;height:80px">Existing 中文 draft 👋 and selection</div><input type="file" aria-label="附加文件"></form><pre id="result">RUNNING</pre>
 <script>
 (async()=>{
+ const options=__FIXTURE_OPTIONS__;
  const result=document.getElementById('result'),report={scope:'real Chrome primitives; synthetic local application; NOT live ChatGPT',passed:false};
  const harnessFetch=globalThis.fetch.bind(globalThis);
  const stage=async phase=>{report.phase=phase;await harnessFetch('/progress',{method:'POST',body:JSON.stringify({phase})});};
@@ -35,28 +37,56 @@ function browserFixture() {
   check(location.protocol==='http:'&&location.hostname==='127.0.0.1','fixture must stay on loopback');
   await stage('initializing');
   const form=document.querySelector('form'),editor=form.querySelector('[contenteditable]'),input=form.querySelector('input');
+  // A controlled application model owns immutable per-attachment Files and
+  // request bodies. Retained mode models a persisted thread, without opening
+  // ChatGPT or claiming that this model is its current application handler.
+  let route='https://chatgpt.com/';
+  if(options.retained){
+    const id='12345678-1234-4234-8234-123456789abc';
+    route='https://chatgpt.com/c/'+id;
+    form.setAttribute('data-chatgpt-composer','');form.setAttribute('data-composer-placement','thread');form.setAttribute('data-thread-find-composer','true');
+    editor.setAttribute('aria-label','询问 ChatGPT');
+    const leaf={stateNode:form,memoizedProps:{},return:null};
+    const mode={memoizedProps:{conversationId:id,isHome:false,isWork:false,readOnly:false},child:leaf};leaf.return=mode;
+    const draft={memoizedProps:{conversationId:id,draftKey:id,isWorkConversation:false,isTemporaryChat:false,readOnly:false,surfacePlacement:{kind:'thread'}},child:mode};mode.return=draft;
+    const root={tag:3,child:draft,return:null,stateNode:{}};draft.return=root;root.stateNode.current=root;
+    form.__reactFiber$fixture=leaf;
+  }
   // Only the route is injected. File, FileList, DataTransfer, Event, native
   // input descriptors, Selection, DOM, Blob, FormData, Request and WebCrypto
   // are the actual Chrome implementations. No app source is modified.
-  const program=new Function('location','return ('+SOURCE+')')({href:'https://chatgpt.com/'});
+  const installProgram=source=>new Function('location','return ('+source+')')({href:route});
+  let program=installProgram(options.hotUpgrade?__BASELINE_SOURCE__:__CURRENT_SOURCE__);
   const native={applicationID:'com.google.Chrome',sessionID:'synthetic-local-profile',windowID:'1',tabID:'1'};
   const call=command=>program(command,native);
+  const prepare=async command=>{
+    for(let poll=0;poll<16;poll++){
+      const reply=call(command);
+      if(reply.pending!==true)return reply;
+      check(reply.version===1&&reply.invocationID===command.invocationID
+        &&JSON.stringify(reply.identity)===JSON.stringify(command.identity)
+        &&reply.resourceID===undefined,'read-only pending qualification is bound and grants no token');
+      await new Promise(resolve=>setTimeout(resolve,20));
+    }
+    throw Error('bounded native selection qualification expired');
+  };
   editor.focus();const selection=getSelection(),range=document.createRange();range.setStart(editor.firstChild,2);range.setEnd(editor.firstChild,7);selection.removeAllRanges();selection.addRange(range);
   const text=editor.textContent,anchor=selection.anchorNode,anchorOffset=selection.anchorOffset,focus=selection.focusNode,focusOffset=selection.focusOffset;
   const sources=[];
-  for(let index=0;index<5;index++){
+  for(let index=0;index<options.count;index++){
     const canvas=document.createElement('canvas');canvas.width=2;canvas.height=1;
     const ctx=canvas.getContext('2d');ctx.fillStyle='rgb('+(12+index*40)+','+(25+index*15)+','+(35+index*10)+')';ctx.fillRect(0,0,2,1);
     const pixelURL=canvas.toDataURL('image/png'),base64=pixelURL.split(',')[1],bytes=Uint8Array.from(atob(base64),c=>c.charCodeAt(0));
     const png=new Blob([bytes],{type:'image/png'});
     sources.push({png,bytes,sha:await hash(bytes),base64,pixelURL});
   }
-  check(new Set(sources.map(value=>value.sha)).size===5,'each operation has distinct image bytes');
-  const tasks=[];let changes=0;
+  check(new Set(sources.map(value=>value.sha)).size===options.count,'each operation has distinct image bytes');
+  const tasks=[],applicationAttachments=new Map();let changes=0,sends=0;
+  form.addEventListener('submit',event=>{sends++;event.preventDefault();});
   const cachedTransport=body=>new Request('https://fixture.invalid/never-requested',{method:'POST',body});
   call({action:'captureTarget'});
   input.addEventListener('change',event=>{
-    changes++;const file=event.target.files[0],index=tasks.length;check(file instanceof File,'native File required');
+    changes++;const files=event.target.files,file=files[0],index=tasks.length;check(file instanceof File,'native File required');
     let body=file,kind='File';
     if(index===1){kind='FormData';body=new FormData();body.append('file',file);}
     if(index===2){kind='Blob';body=new Blob([file],{type:file.type});}
@@ -66,30 +96,41 @@ function browserFixture() {
     const card=document.createElement('div');card.setAttribute('role','button');card.setAttribute('aria-label',file.name);
     const image=new Image();image.alt=file.name;image.src=URL.createObjectURL(file);card.append(image);
     const progress=document.createElement('span');progress.setAttribute('role','progressbar');progress.setAttribute('aria-label','正在上传 '+file.name);progress.setAttribute('aria-valuenow','10');card.append(progress);form.append(card);
-    tasks.push({file,body,request,kind,card,image,progress,sha:sources[index].sha,pixelURL:sources[index].pixelURL});
-    input.value=''; // Application-owned reset; Riftlet never clears this picker.
+    const task={files,file,body,request,kind,card,image,progress,sha:sources[index].sha,pixelURL:sources[index].pixelURL};
+    check(!applicationAttachments.has(file.name),'one application task per file');
+    applicationAttachments.set(file.name,task);tasks.push(task);
+    if(!options.retained)input.value=''; // Application-owned reset only in the empty-picker case.
   });
   const operations=[];
-  for(let index=0;index<5;index++){
+  for(let index=0;index<options.count;index++){
     await stage('input-'+index);
     const {bytes,sha,base64}=sources[index];
+    if(options.hotUpgrade&&index===1)program=installProgram(__CURRENT_SOURCE__);
+    if(options.renewDocument&&index)globalThis.dispatchEvent(new Event('blur'));
     const target=call({action:'captureTarget'}),pin=call({action:'pinTarget',target,clickBindingID:crypto.randomUUID()});
+    if(options.retained){
+      check(!!target.logicalDraftIdentity,'persisted logical draft required');
+      if(index)check(JSON.stringify(target.logicalDraftIdentity)===JSON.stringify(operations[0].identity.target.logicalDraftIdentity),'same logical draft');
+      if(options.renewDocument&&index)check(target.documentID!==operations[index-1].identity.target.documentID,'document identity actually renewed');
+    }
     const identity={operationID:crypto.randomUUID(),assetID:crypto.randomUUID(),attempt:1,assetSHA256:sha,target:pin};
     const invocationID=index===0?undefined:crypto.randomUUID(),name='riftlet-'+identity.operationID+'.png';
     const command=action=>({action,identity,target:pin,...(invocationID?{invocationID}:{})});
     let resource;
-    if(index){resource=call(command('prepareInputResource'));check(resource.kind==='emptyNativeFileInput','fresh native resource');}
+    if(index){resource=await prepare(command('prepareInputResource'));check(resource.kind===(options.retained?'settledOwnedNativeFileInput':'emptyNativeFileInput'),'fresh native resource kind');}
     const begin=call({...command('begin'),uploadName:name,mediaType:'image/png',byteCount:bytes.length,...(resource?{inputResourceID:resource.resourceID}:{})});
     check(begin.rejectedBeforeBegin!==true,'begin accepted');
     call({...command('chunk'),chunkIndex:0,chunkBase64:base64});call({...command('commit'),chunkIndex:1});
     const record=()=>globalThis.__riftletWebAcceptance20261027v13.tail.operations.get(identity.operationID);
-    await wait(()=>record().commitWorkSettled&&record().fileHashVerified);check(changes===index+1,'one change per operation');check(input.files.length===0&&input.value==='','actual app emptied native picker');
+    await wait(()=>record().commitWorkSettled&&record().fileHashVerified);check(changes===index+1,'one change per operation');
     const task=tasks[index];await task.image.decode();call(command('observe'));task.progress.setAttribute('aria-valuenow','40');
-    await new Promise(r=>setTimeout(r,0));let observation=call(command('observe')).observation;
+    if(options.retained)check(input.files.length===1&&input.files[0]===task.file&&input.value!=='','native picker retains the exact most recent File');
+    else check(input.files.length===0&&input.value==='','actual app emptied native picker');
+    await wait(()=>call(command('observe')).observation.state==='uploadStarted');let observation=call(command('observe')).observation;
     check(observation.state==='uploadStarted','own START '+index);check(!observation.requestEvidence,'no invented request observation');
     await stage('started-'+index);
     operations.push({identity,command,record:record(),start:record().uploadStart});
-    if(index===0){
+    if(index===0&&(!options.retained||options.hotUpgradeAfterUnknown)){
       // A real scaled preview in this synthetic app cannot prove the original
       // pixels. Exercise the normal observer, without changing its records.
       task.progress.setAttribute('aria-valuenow','100');call(command('observe'));task.progress.remove();
@@ -97,18 +138,34 @@ function browserFixture() {
       const small=document.createElement('canvas');small.width=1;small.height=1;small.getContext('2d').fillRect(0,0,1,1);
       task.image.src=small.toDataURL('image/png');await task.image.decode();
       await wait(()=>record().completionUnavailable);check(call(command('observe')).observation.state==='unknown','scaled original stays UNKNOWN');
+      if(options.hotUpgradeAfterUnknown)check(record().file===null,'baseline UNKNOWN has released its original File reference');
       await stage('legacy-unknown');
     }
     for(const prior of tasks)check(form.contains(prior.card),'prior card retained');
+    for(const prior of tasks)check(applicationAttachments.get(prior.file.name)===prior,'application independently retains every accepted task');
+    if(options.retained)for(const op of operations)check(!op.record.proof&&!!op.record.uploadStart,'later input occurs after START before COMPLETE');
     check(editor.textContent===text&&selection.anchorNode===anchor&&selection.anchorOffset===anchorOffset&&selection.focusNode===focus&&selection.focusOffset===focusOffset,'text/selection retained');
   }
   // The native body extractions and original immutable Files remain independent
   // after four later native FileList submissions and application-owned resets.
   await stage('verifying-independent-bodies');
   for(const task of tasks){
+    check(task.files instanceof FileList,'native FileList object retained by application');
+    if(options.retained)check(task.files.length===1&&task.files[0]===task.file,'subsequent native setter does not mutate prior FileList');
+    else check(task.files.length===0,'application value reset clears its prior native FileList');
     check(await hash(await task.file.arrayBuffer())===task.sha,'original File keeps its own distinct bytes');
     const extracted=task.kind==='FormData'?(await task.request.formData()).get('file'):await task.request.blob();
     check(await hash(await extracted.arrayBuffer())===task.sha,'native Request body keeps its own distinct bytes '+task.kind);
+  }
+  // Only after every retained-picker append do we move A to UNKNOWN. This
+  // specifically proves that the next input never needed A's COMPLETE/UNKNOWN.
+  if(options.retained&&!options.hotUpgradeAfterUnknown){
+    const task=tasks[0],op=operations[0];
+    task.progress.setAttribute('aria-valuenow','100');call(op.command('observe'));task.progress.remove();
+    await new Promise(r=>setTimeout(r,0));
+    const small=document.createElement('canvas');small.width=1;small.height=1;small.getContext('2d').fillRect(0,0,1,1);
+    task.image.src=small.toDataURL('image/png');await task.image.decode();
+    await wait(()=>op.record.completionUnavailable);check(call(op.command('observe')).observation.state==='unknown','A becomes UNKNOWN only after later submissions');
   }
   let independentCompletions=0;
   for(let index=1;index<tasks.length;index++){
@@ -121,21 +178,28 @@ function browserFixture() {
   }
   const a=operations[0];check(a.record.inputCount===1&&a.record.uploadStart===a.start&&a.record.invocationID===undefined,'legacy operation untouched');
   check(call(a.command('observe')).observation.state==='unknown','legacy final remains UNKNOWN');
-  check(changes===5,'five inputs exactly; A never replayed');
+  check(changes===options.count,'one input per click; A never replayed');
   const nextTarget=call({action:'captureTarget'}),nextPin=call({action:'pinTarget',target:nextTarget,clickBindingID:crypto.randomUUID()});
   const next={operationID:crypto.randomUUID(),assetID:crypto.randomUUID(),attempt:1,assetSHA256:sources[0].sha,target:nextPin};
   const occupied=new DataTransfer();occupied.items.add(new File([sources[0].png],'user-selected.png',{type:'image/png'}));input.files=occupied.files;
-  let refused=false;try{call({action:'prepareInputResource',identity:next,target:nextPin,invocationID:crypto.randomUUID()});}catch(e){refused=/INPUT_RESOURCE_UNAVAILABLE/.test(e.message);}
-  check(refused&&changes===5&&input.files[0].name==='user-selected.png','nonempty input refusal preserves selected file');
-  Object.assign(report,{passed:true,phase:'complete',nativeChanges:changes,originalFileBodiesVerified:tasks.length,nativeRequestBodiesVerified:tasks.length,independentCompletions,legacyUnknownUnchanged:true,textSelectionCardsPreserved:true,occupiedPickerRefused:true,networkRequests:0,harnessTransport:'loopback-only'});
+  let refused=false;try{call({action:'prepareInputResource',identity:next,target:nextPin,invocationID:crypto.randomUUID()});}catch(e){refused=/^INPUT_RESOURCE_(UNAVAILABLE|NATIVE_FILES_RETAINED)$/.test(e.message);}
+  check(refused&&changes===options.count&&input.files[0].name==='user-selected.png','unowned nonempty input refusal preserves selected file');
+  check(sends===0,'no automatic send');
+  Object.assign(report,{passed:true,phase:'complete',retainedNativeSelection:options.retained,nativeFileListBehavior:options.retained?'prior-list-unchanged':'app-reset-cleared-prior-list',renewedDocumentIdentity:options.renewDocument,hotUpgradedFromMain:!!options.hotUpgrade,baselineUnknownRecovered:!!options.hotUpgradeAfterUnknown,nativeChanges:changes,originalFileListsVerified:tasks.length,originalFileBodiesVerified:tasks.length,nativeRequestBodiesVerified:tasks.length,applicationIndependentTasksVerified:applicationAttachments.size,independentCompletions,legacyUnknownUnchanged:true,textSelectionCardsPreserved:true,occupiedPickerRefused:true,automaticSends:sends,networkRequests:0,harnessTransport:'loopback-only'});
  } catch(error){report.error=String(error?.stack||error);}
  result.textContent=JSON.stringify(report);
  await harnessFetch('/result',{method:'POST',body:JSON.stringify(report)});
 })();
-</script>`.replace('SOURCE',()=>JSON.stringify(source).replace(/<\/script/gi,'<\\/script'));
+</script>`.replace('__FIXTURE_OPTIONS__',()=>JSON.stringify(options))
+    .replaceAll('__CURRENT_SOURCE__',()=>JSON.stringify(source).replace(/<\/script/gi,'<\\/script'))
+    .replace('__BASELINE_SOURCE__',()=>JSON.stringify(baselineSource).replace(/<\/script/gi,'<\\/script'));
 }
 
-test('native Chrome preserves independent File/request bodies across five synthetic legacy-UNKNOWN appends',{
+for(const options of [{retained:false,count:5,renewDocument:false},
+  ...[2,3,5].map(count=>({retained:true,count,renewDocument:false})),
+  {retained:true,count:5,renewDocument:true},
+  {retained:true,count:3,renewDocument:true,hotUpgrade:true},
+  {retained:true,count:3,renewDocument:true,hotUpgrade:true,hotUpgradeAfterUnknown:true}])test('native Chrome '+JSON.stringify(options)+' preserves independent application File/request bodies',{
   // The 30-second report limit is unchanged. Allow the separately bounded
   // listen, group/root cleanup, server close and profile-removal retries to
   // finish (about 50 seconds combined) before the outer test aborts them.
@@ -146,7 +210,7 @@ test('native Chrome preserves independent File/request bodies across five synthe
   const temp=fs.mkdtempSync(path.join(os.tmpdir(),'riftlet-native-input-'));
   let child,exit,stderr='',lastPhase='browser-not-started',completed=false,resolveReport,rejectReport;
   const failures=[],connections=new Set();
-  const html=browserFixture(),finished=new Promise((resolve,reject)=>{resolveReport=resolve;rejectReport=reject;});
+  const html=browserFixture(options),finished=new Promise((resolve,reject)=>{resolveReport=resolve;rejectReport=reject;});
   const server=http.createServer((request,response)=>{
     if(request.method==='GET'&&request.url==='/'){
       response.writeHead(200,{'content-type':'text/html; charset=utf-8','cache-control':'no-store'});response.end(html);return;
@@ -179,7 +243,10 @@ test('native Chrome preserves independent File/request bodies across five synthe
       resolve();if(!completed)rejectReport(Error('Chrome exited before result; code='+code+' signal='+signal+' phase='+lastPhase+' stderr='+stderr));
     }));
     const report=await bounded(finished,30000,()=> 'CHROME_FIXTURE_TIMEOUT phase='+lastPhase+' stderr='+stderr,t.signal);
-    assert.equal(report.passed,true,JSON.stringify(report));assert.equal(report.nativeChanges,5);assert.equal(report.networkRequests,0);
+    assert.equal(report.passed,true,JSON.stringify(report));assert.equal(report.nativeChanges,options.count);assert.equal(report.networkRequests,0);
+    assert.equal(report.applicationIndependentTasksVerified,options.count);assert.equal(report.automaticSends,0);
+    assert.equal(report.originalFileListsVerified,options.count);assert.equal(report.hotUpgradedFromMain,!!options.hotUpgrade);
+    assert.equal(report.baselineUnknownRecovered,!!options.hotUpgradeAfterUnknown);
     assert.equal(report.harnessTransport,'loopback-only');
     console.log(JSON.stringify(report));
   }catch(error){failures.push(error);}

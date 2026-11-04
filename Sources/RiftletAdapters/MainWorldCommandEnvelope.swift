@@ -2,7 +2,7 @@ import Foundation
 import CoreFoundation
 
 /// Closed code-owned labels only; arbitrary page exception messages stay local.
-public enum WebPageRejection: String, CaseIterable, Sendable {
+public enum WebPageRejection: String, Codable, CaseIterable, Sendable {
     case unsupportedSurface = "UNSUPPORTED_TEST_SURFACE"
     case ambiguousComposer = "AMBIGUOUS_COMPOSER"
     case composerUnavailable = "COMPOSER_UNAVAILABLE"
@@ -24,6 +24,30 @@ public enum WebPageRejection: String, CaseIterable, Sendable {
     case unobservedRootDescriptor = "UNOBSERVED_ROOT_DESCRIPTOR"
     case unprovenMonitoredBinding = "UNPROVEN_MONITORED_BINDING"
     case inputResourceUnavailable = "INPUT_RESOURCE_UNAVAILABLE"
+    case inputResourceNativeFilesRetained = "INPUT_RESOURCE_NATIVE_FILES_RETAINED"
+    case inputResourceNativeValueNonempty = "INPUT_RESOURCE_NATIVE_VALUE_NONEMPTY"
+    case inputResourceNativeAccessUnverified = "INPUT_RESOURCE_NATIVE_ACCESS_UNVERIFIED"
+    case inputResourceExecutionBusy = "INPUT_RESOURCE_EXECUTION_BUSY"
+    case inputResourceExecutionUncertain = "INPUT_RESOURCE_EXECUTION_UNCERTAIN"
+    case inputResourceGenerationBusy = "INPUT_RESOURCE_GENERATION_BUSY"
+    case inputResourceRegistryUnverified = "INPUT_RESOURCE_REGISTRY_UNVERIFIED"
+    case inputResourceTargetChanged = "INPUT_RESOURCE_TARGET_CHANGED"
+    case inputResourceBaselineChanged = "INPUT_RESOURCE_BASELINE_CHANGED"
+    case inputResourceReservationBusy = "INPUT_RESOURCE_RESERVATION_BUSY"
+    case inputResourcePriorAttachmentUnproven = "INPUT_RESOURCE_PRIOR_ATTACHMENT_UNPROVEN"
+    case inputResourceQualificationPending = "INPUT_RESOURCE_QUALIFICATION_PENDING"
+    case inputResourceQualificationFailed = "INPUT_RESOURCE_QUALIFICATION_FAILED"
+
+    var isInputResourceRefusal: Bool {
+        switch self {
+        case .inputResourceUnavailable, .inputResourceNativeFilesRetained, .inputResourceNativeValueNonempty,
+             .inputResourceNativeAccessUnverified, .inputResourceExecutionBusy, .inputResourceExecutionUncertain,
+             .inputResourceGenerationBusy, .inputResourceRegistryUnverified, .inputResourceTargetChanged,
+             .inputResourceBaselineChanged, .inputResourceReservationBusy, .inputResourcePriorAttachmentUnproven,
+             .inputResourceQualificationPending, .inputResourceQualificationFailed: return true
+        default: return false
+        }
+    }
 }
 
 /// One command, one random receipt. Reading a lost receipt must never execute the

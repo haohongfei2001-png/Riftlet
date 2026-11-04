@@ -106,6 +106,8 @@ public struct AttachmentObservation: Codable, Equatable, Sendable {
     public let terminationEvidence: ObservedAttachmentTermination?
     public let continuationEvidence: ObservedAttachmentContinuation?
     public let reason: AttachmentObservationReason?
+    /// Closed local refusal label only; never eligibility or retry evidence.
+    public let resourceRefusalReason: WebPageRejection?
 
     public init(identity: ObservationIdentity, state: AttachmentObservedState,
                 attachmentID: String? = nil, exactImageIdentity: Bool = false,
@@ -117,7 +119,8 @@ public struct AttachmentObservation: Codable, Equatable, Sendable {
                 completionEvidence: AttachmentCompletionEvidence? = nil,
                 terminationEvidence: ObservedAttachmentTermination? = nil,
                 continuationEvidence: ObservedAttachmentContinuation? = nil,
-                reason: AttachmentObservationReason? = nil) {
+                reason: AttachmentObservationReason? = nil,
+                resourceRefusalReason: WebPageRejection? = nil) {
         self.identity = identity; self.state = state; self.attachmentID = attachmentID
         self.exactImageIdentity = exactImageIdentity
         self.belongsToOriginalDraft = belongsToOriginalDraft
@@ -131,6 +134,7 @@ public struct AttachmentObservation: Codable, Equatable, Sendable {
         self.terminationEvidence = terminationEvidence
         self.continuationEvidence = continuationEvidence
         self.reason = reason
+        self.resourceRefusalReason = resourceRefusalReason
     }
 }
 
@@ -167,7 +171,8 @@ public enum ObservationDecoder {
                     "identity", "state", "attachmentID", "exactImageIdentity",
                     "belongsToOriginalDraft", "hasError", "isUploading",
                     "attachmentAbsent", "automaticRetryExcluded", "uploadStart", "preInputRetirement",
-                    "requestEvidence", "completionEvidence", "terminationEvidence", "continuationEvidence", "reason"
+                    "requestEvidence", "completionEvidence", "terminationEvidence", "continuationEvidence", "reason",
+                    "resourceRefusalReason"
                   ])),
                   let identity = observation["identity"] as? [String: Any],
                   Set(identity.keys) == Set(["operationID", "assetID", "attempt", "assetSHA256", "target"]),
@@ -208,6 +213,12 @@ public enum ObservationDecoder {
         guard [1, 2, 3, 4].contains(envelope.schemaVersion) else { throw ObservationError.unsupportedSchema(envelope.schemaVersion) }
         let item = envelope.observation
         try ObservedAttachmentProofs.validate(envelope)
+        if let reason = item.resourceRefusalReason {
+            guard reason.isInputResourceRefusal,
+                  item.preInputRetirement?.reason == .inputPreparationFailed else {
+                throw ObservationError.invalidField("resource refusal diagnostic")
+            }
+        }
         if let retirement = item.preInputRetirement {
             guard envelope.schemaVersion == 3, retirement.version == 1,
                   retirement.commitInvoked, retirement.commitWorkSettled, retirement.irreversiblyRetired,
