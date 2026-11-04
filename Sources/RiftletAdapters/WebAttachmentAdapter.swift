@@ -256,7 +256,7 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
             releaseInput(ownedBy: operationID)
         }
 
-        let input: (response: Data, identity: ObservationIdentity)
+        let input: (response: Data?, identity: ObservationIdentity)
         do { input = try await performFileInput(request) }
         catch {
             releaseInput(ownedBy: operationID)
@@ -271,7 +271,16 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
         releaseInput(ownedBy: operationID)
         await inputExecutionReturned?()
         await onInputTransportFinished?()
-        return try await observeCompletion(initial: input.response, identity: input.identity,
+        let response: Data
+        if let returned = input.response {
+            response = returned
+        } else {
+            // Even the first recovery read is observation, not file execution.
+            // A delayed/lost reply here must not hold the next screenshot.
+            response = try await perform(.init(action: .observe, target: input.identity.target,
+                identity: input.identity))
+        }
+        return try await observeCompletion(initial: response, identity: input.identity,
             request: request, liveAppend: true, inputConfirmed: inputConfirmed)
     }
 
@@ -280,7 +289,7 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
     }
 
     private func performFileInput(_ request: TransferRequest) async throws
-        -> (response: Data, identity: ObservationIdentity) {
+        -> (response: Data?, identity: ObservationIdentity) {
         guard let maximumChunkBytes = program?.maximumChunkBytes else { throw WebAdapterError.programUnavailable }
         let file: PrivateUploadFile
         do {
@@ -335,8 +344,9 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
                 // Recover only by observing this operation, never another commit.
                 _ = try ObservationDecoder.decode(response)
             } catch {
-                let observed = try await perform(.init(action: .observe, target: identity.target, identity: identity))
-                return (observed, identity)
+                // Release execution ownership before reading the original
+                // operation. Receipt recovery cannot license the next input.
+                return (nil, identity)
             }
             return (response, identity)
         } catch {

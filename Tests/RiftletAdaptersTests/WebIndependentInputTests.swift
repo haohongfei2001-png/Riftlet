@@ -14,8 +14,8 @@ final class WebIndependentInputTests: XCTestCase {
     }
     override func tearDownWithError() throws { try FileManager.default.removeItem(at: directory) }
 
-    private func request() async throws -> TransferRequest {
-        let bytes = Data((0..<200).map { UInt8($0 % 251) })
+    private func request(byteSeed: Int = 0) async throws -> TransferRequest {
+        let bytes = Data((0..<200).map { UInt8(($0 + byteSeed) % 251) })
         let file = directory.appendingPathComponent("\(UUID()).png")
         try bytes.write(to: file)
         let asset = ImportedAsset(sourceKey: UUID().uuidString, fileName: file.lastPathComponent,
@@ -121,6 +121,50 @@ final class WebIndependentInputTests: XCTestCase {
         }
     }
 
+    func testLostCommitReplyReleasesInputBeforeTheFirstRecoveryObservationReturns() async throws {
+        let a = try await request(), b = try await request(byteSeed: 1)
+        let returned = expectation(description: "A commit execution returned despite its lost reply")
+        let observing = expectation(description: "A first recovery observation is suspended")
+        let bridge = IndependentInputBridge(onObserve: { if $0 == a.operation.id { observing.fulfill() } })
+        let client = adapter(bridge)
+        await bridge.loseCommitReply(a.operation.id, malformed: false)
+        await bridge.holdObservation(a.operation.id)
+        let first = Task { try await client.append(a, onInputExecutionReturned: { returned.fulfill() }) }
+        do {
+            await fulfillment(of: [returned, observing], timeout: 2, enforceOrder: true)
+            // The first recovery observe has not returned. B must still perform
+            // its own file handoff and START through the same adapter instance.
+            let second = try await client.append(b)
+            XCTAssertEqual(second.outcome, .uploadStarted)
+            XCTAssertEqual(second.assetID, b.asset.id)
+            let commands = await bridge.commands(), inputs = await bridge.inputOperations()
+            XCTAssertEqual(commands.filter { $0.identity?.operationID == a.operation.id }.map(\.action),
+                           [.begin, .chunk, .commit, .observe])
+            XCTAssertEqual(commands.filter { $0.identity?.operationID == b.operation.id }.map(\.action),
+                           [.begin, .chunk, .commit])
+            XCTAssertEqual(inputs, [a.operation.id, b.operation.id], "Each controlled setter runs once")
+            let aBytes = await bridge.bytes(a.operation.id), bBytes = await bridge.bytes(b.operation.id)
+            XCTAssertNotEqual(aBytes, bBytes)
+            XCTAssertEqual(aBytes, try Data(contentsOf: a.fileURL))
+            XCTAssertEqual(bBytes, try Data(contentsOf: b.fileURL))
+
+            await bridge.releaseObservation(a.operation.id)
+            let recovered = try await first.value
+            XCTAssertEqual(recovered.outcome, .uploadStarted)
+            do { _ = try await client.append(a); XCTFail("Lost-reply invocation was submitted again") }
+            catch WebAdapterError.invalidRequest {}
+            let finalCommands = await bridge.commands(), finalInputs = await bridge.inputOperations()
+            XCTAssertEqual(finalCommands.map(\.action), commands.map(\.action))
+            XCTAssertEqual(finalInputs, inputs)
+        } catch {
+            // A regressed inputInFlight result must fail cleanly, without
+            // leaving the held fixture or its append task behind.
+            await bridge.releaseObservation(a.operation.id)
+            _ = try? await first.value
+            throw error
+        }
+    }
+
     func testLostReplyAndUnavailableObservationDoNotLockFutureInput() async throws {
         let a = try await request(), b = try await request(), bridge = IndependentInputBridge()
         let client = adapter(bridge)
@@ -163,16 +207,26 @@ private actor IndependentInputBridge: WebBridgeExecutor {
     private var lostReplies: [UUID: Bool] = [:]
     private var lostObservations = Set<UUID>()
     private var waiters: [UUID: CheckedContinuation<Void, Never>] = [:]
+    private var heldObservations = Set<UUID>()
+    private var observationWaiters: [UUID: CheckedContinuation<Void, Never>] = [:]
+    private var inputOrder: [UUID] = []
     private let onCommit: @Sendable (UUID) -> Void
-    init(onCommit: @escaping @Sendable (UUID) -> Void = { _ in }) { self.onCommit = onCommit }
+    private let onObserve: @Sendable (UUID) -> Void
+    init(onCommit: @escaping @Sendable (UUID) -> Void = { _ in },
+         onObserve: @escaping @Sendable (UUID) -> Void = { _ in }) {
+        self.onCommit = onCommit; self.onObserve = onObserve
+    }
     func commands() -> [WebBridgeCommand] { recorded }
     func bytes(_ id: UUID) -> Data { received[id] ?? Data() }
+    func inputOperations() -> [UUID] { inputOrder }
     func holdCommit(_ id: UUID) { held.insert(id) }
     func releaseCommit(_ id: UUID) { held.remove(id); waiters.removeValue(forKey: id)?.resume() }
     func holdStart(_ id: UUID) { heldStarts.insert(id) }
     func releaseStart(_ id: UUID) { heldStarts.remove(id) }
     func makeUnknown(_ id: UUID) { unknown.insert(id) }
     func releaseUnknown(_ id: UUID) { unknown.remove(id) }
+    func holdObservation(_ id: UUID) { heldObservations.insert(id) }
+    func releaseObservation(_ id: UUID) { heldObservations.remove(id); observationWaiters.removeValue(forKey: id)?.resume() }
     func loseCommitReply(_ id: UUID, malformed: Bool, loseObservation: Bool = false) {
         lostReplies[id] = malformed
         if loseObservation { lostObservations.insert(id) }
@@ -190,12 +244,18 @@ private actor IndependentInputBridge: WebBridgeExecutor {
         case .commit:
             onCommit(identity.operationID)
             if held.contains(identity.operationID) { await withCheckedContinuation { waiters[identity.operationID] = $0 } }
+            // Controlled fixture side effect, independent of reply delivery.
+            inputOrder.append(identity.operationID)
             if let malformed = lostReplies[identity.operationID] {
                 if malformed { return Data("{}".utf8) }
                 throw WebAdapterError.invalidReply
             }
             return try observation(identity)
         case .observe:
+            onObserve(identity.operationID)
+            if heldObservations.contains(identity.operationID) {
+                await withCheckedContinuation { observationWaiters[identity.operationID] = $0 }
+            }
             if lostObservations.contains(identity.operationID) { throw WebAdapterError.invalidReply }
             return try observation(identity)
         default: throw WebAdapterError.invalidRequest
