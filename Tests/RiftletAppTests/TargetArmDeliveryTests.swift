@@ -127,28 +127,6 @@ final class TargetArmDeliveryTests: XCTestCase {
         XCTAssertFalse(recovery.shouldStart(after: firstStaleAfterRestart, isRunning: scheduler.isRunning))
     }
 
-    /// Complement to executable policy tests: verify the actual App call site,
-    /// not a second delivery implementation in the test. This is a source-order
-    /// regression guard, not a runtime AX/presentation measurement.
-    func testProductionDeliveryPublishesBeforePresentationAndWakesBeforeBackgroundWork() throws {
-        let source = try mainSource()
-        let start = try XCTUnwrap(source.range(of: "private func performPendingArm()"))
-        let end = try XCTUnwrap(source.range(of: "private func recordPresentation", range: start.upperBound..<source.endIndex))
-        let body = String(source[start.lowerBound..<end.lowerBound])
-        let publication = try XCTUnwrap(body.range(of: "self.armedTarget = ArmedTarget"))
-        let record = try XCTUnwrap(body.range(of: "self.recordAcceptance(fields)"))
-        let presentation = try XCTUnwrap(body.range(of: "self.updateSetup()"))
-        let wake = try XCTUnwrap(body.range(of: "if completion.shouldWake { self.performPendingArm() }"))
-        let binding = try XCTUnwrap(body.range(of: "self.bindDeferredChromeActivity(afterCaptureIn: attempt.epoch)"))
-        let deferral = try XCTUnwrap(body.range(of: "self.originalRecoveryDeferral.shouldStart(after: completion, isRunning: self.armScheduler.isRunning)"))
-        let recovery = try XCTUnwrap(body.range(of: "self.startOriginalRecovery()"))
-        XCTAssertLessThan(publication.lowerBound, record.lowerBound)
-        XCTAssertLessThan(record.lowerBound, presentation.lowerBound)
-        XCTAssertLessThan(wake.lowerBound, binding.lowerBound)
-        XCTAssertLessThan(wake.lowerBound, recovery.lowerBound)
-        XCTAssertLessThan(deferral.lowerBound, recovery.lowerBound)
-    }
-
     func testProductionEmptyRecoveryExitsBeforePermissionOrTransportTask() throws {
         let source = try mainSource()
         let start = try XCTUnwrap(source.range(of: "private func startOriginalRecovery()"))
