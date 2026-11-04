@@ -7,13 +7,14 @@ import RiftletCore
 /// Exercises the real adapter file/commit/observation boundary with deterministic
 /// page replies. It neither executes JavaScript nor claims platform evidence.
 private actor PreInputRetirementBridge: WebBridgeExecutor {
-    enum CommitReply: Sendable { case packet, lost }
+    enum CommitReply: Sendable { case packet, lostBeforeInput, lostAfterInput }
     private let request: TransferRequest
     private let packet: Data
     private let expectedBytes: Data
     private let commitReply: CommitReply
     private var recorded: [WebBridgeAction] = []
     private var bytes = Data()
+    private var inputCount = 0
 
     init(request: TransferRequest, packet: Data, expectedBytes: Data, commitReply: CommitReply = .packet) {
         self.request = request; self.packet = packet; self.expectedBytes = expectedBytes; self.commitReply = commitReply
@@ -43,7 +44,13 @@ private actor PreInputRetirementBridge: WebBridgeExecutor {
             ])
         case .commit:
             guard bytes == expectedBytes else { throw WebAdapterError.invalidPrivateFile }
-            if case .lost = commitReply { throw WebAdapterError.nativeExecutionFailed }
+            if case .lostAfterInput = commitReply {
+                // This fixture models the setter side effect before transport
+                // loses its reply; subsequent observe calls never execute it.
+                inputCount += 1
+                throw WebAdapterError.nativeExecutionFailed
+            }
+            if case .lostBeforeInput = commitReply { throw WebAdapterError.nativeExecutionFailed }
             return packet
         case .observe: return packet
         default: throw WebAdapterError.invalidRequest
@@ -52,6 +59,7 @@ private actor PreInputRetirementBridge: WebBridgeExecutor {
 
     func actions() -> [WebBridgeAction] { recorded }
     func receivedBytes() -> Data { bytes }
+    func actualInputs() -> Int { inputCount }
 }
 
 final class WebPreInputRetirementTests: XCTestCase {
@@ -367,45 +375,97 @@ final class WebPreInputRetirementTests: XCTestCase {
         let bytes = await bridge.receivedBytes(); XCTAssertTrue(bytes.isEmpty)
     }
 
-    func testActualLostCommitOrWrongInvocationStaysUnknownDespiteLateRetirement() async throws {
-        for lostReply in [false, true] {
-            let (store, request) = try await fixture(), correct = try envelope(request)
-            var packet = correct
-            if !lostReply {
-                packet = try mutate(correct) { root in
-                    var item = root["observation"] as! [String: Any], proof = item["preInputRetirement"] as! [String: Any]
-                    proof["invocationID"] = UUID().uuidString; item["preInputRetirement"] = proof; root["observation"] = item
-                }
-            }
-            let bridge = PreInputRetirementBridge(request: request, packet: try JSONEncoder().encode(packet),
-                expectedBytes: png, commitReply: lostReply ? .lost : .packet)
-            let client = adapter(bridge)
-            do { _ = try await client.append(request); XCTFail("Uncertain or wrong-invocation commit accepted") }
-            catch is PreInputRejection { XCTFail("No valid original proof reached live append") }
-            catch {
-                if lostReply { XCTAssertEqual(error as? WebAdapterError, .nativeExecutionFailed) }
-                else { XCTAssertEqual(error as? ObservationError, .identityMismatch) }
-            }
-            // This is the same conservative catch action used by Coordinator.
-            try await store.markUnknown(request.operation.id, reason: "Constructed uncertain commit result")
-            let saved = try await store.operation(id: request.operation.id)
-            let unknown = TransferRequest(operation: try XCTUnwrap(saved), asset: request.asset,
-                fileURL: request.fileURL, invocationID: request.invocationID)
-            let late = try await client.reconcile(unknown)
-            XCTAssertEqual(late.outcome, .unknown); XCTAssertFalse(late.safeToRetry)
-            _ = try await store.apply(late)
-            let proof = try XCTUnwrap(WebPreInputRetirement.rejection(from: correct, for: request))
-            do { try await store.recordPreInputRejection(proof); XCTFail("Late proof healed uncertain commit") }
-            catch RiftletError.mismatchedReceipt {}
-            let selected = try await store.prepare(assetID: request.asset.id, target: freshTarget(request.operation.target))
-            XCTAssertEqual(selected.id, request.operation.id); XCTAssertEqual(selected.phase, .unknown)
-            do { _ = try await client.append(request); XCTFail("Uncertain commit replayed") }
-            catch WebAdapterError.invalidRequest {}
-            let actions = await bridge.actions(); XCTAssertEqual(actions, [.begin, .chunk, .commit, .observe])
-            let bytes = await bridge.receivedBytes(); XCTAssertEqual(bytes, png)
-            let audit = try await store.checkpoint(for: "transfer-no-input-v1:" + request.operation.id.uuidString)
-            let start = try await store.uploadStartReceipt(for: request.operation.id)
-            XCTAssertNil(audit); XCTAssertNil(start)
+    func testLostCommitReplyCanConfirmZeroInputDuringTheOriginalAppend() async throws {
+        let (store, request) = try await fixture(), packet = try envelope(request)
+        let bridge = PreInputRetirementBridge(request: request, packet: try JSONEncoder().encode(packet),
+            expectedBytes: png, commitReply: .lostBeforeInput)
+        let client = adapter(bridge)
+        var rejection: PreInputRejection?
+        do { _ = try await client.append(request); XCTFail("Current zero-input result was not reported") }
+        catch let proof as PreInputRejection { rejection = proof }
+        let proof = try XCTUnwrap(rejection)
+        XCTAssertEqual(proof.invocationID, request.invocationID)
+        XCTAssertEqual(proof.stage, .pageRetiredBeforeFileInput)
+        try await store.recordPreInputRejection(proof)
+        let operation = try await store.operation(id: request.operation.id)
+        let asset = try await store.asset(id: request.asset.id)
+        let actions = await bridge.actions(), inputs = await bridge.actualInputs()
+        XCTAssertEqual(operation?.phase, .failed); XCTAssertEqual(asset?.visibility, .visible)
+        XCTAssertEqual(actions, [.begin, .chunk, .commit, .observe])
+        XCTAssertEqual(inputs, 0, "The commit command retired before entering the setter")
+        do { _ = try await client.append(request); XCTFail("The original invocation was automatically replayed") }
+        catch WebAdapterError.invalidRequest {}
+        let afterReplay = await bridge.actions(), bytes = await bridge.receivedBytes()
+        let start = try await store.uploadStartReceipt(for: request.operation.id)
+        XCTAssertEqual(afterReplay, actions); XCTAssertEqual(bytes, png); XCTAssertNil(start)
+    }
+
+    func testLostReplyAfterActualInputKeepsUnknownAndOnlyObserves() async throws {
+        let (store, request) = try await fixture()
+        let identity = ObservationIdentity(operationID: request.operation.id, assetID: request.asset.id,
+            attempt: request.operation.attempt, assetSHA256: request.asset.sha256, target: request.operation.target)
+        // The setter ran, but no current attachment START can yet be identified.
+        // Such an operation never carries a zero-input retirement.
+        let packet = AttachmentObservationEnvelope(schemaVersion: 1,
+            provenance: .init(source: .syntheticFixture, evidenceID: "input-occurred-start-unknown"),
+            observation: .init(identity: identity, state: .unknown, belongsToOriginalDraft: true))
+        let bridge = PreInputRetirementBridge(request: request, packet: try JSONEncoder().encode(packet),
+            expectedBytes: png, commitReply: .lostAfterInput)
+        let client = adapter(bridge)
+        let receipt = try await client.append(request)
+        XCTAssertEqual(receipt.outcome, .unknown); XCTAssertFalse(receipt.safeToRetry)
+        XCTAssertEqual(receipt.operationID, request.operation.id); XCTAssertEqual(receipt.target, request.operation.target)
+        _ = try await store.apply(receipt)
+        let saved = try await store.operation(id: request.operation.id)
+        let unknown = TransferRequest(operation: try XCTUnwrap(saved), asset: request.asset,
+            fileURL: request.fileURL, invocationID: request.invocationID)
+        XCTAssertEqual(unknown.operation.phase, .unknown)
+        let initialActions = await bridge.actions(), initialInputs = await bridge.actualInputs()
+        XCTAssertEqual(initialActions, [.begin, .chunk, .commit, .observe]); XCTAssertEqual(initialInputs, 1)
+        let observed = try await client.reconcile(unknown)
+        XCTAssertEqual(observed.outcome, .unknown); XCTAssertFalse(observed.safeToRetry)
+        _ = try await store.apply(observed)
+        let selected = try await store.prepare(assetID: request.asset.id, target: freshTarget(request.operation.target))
+        XCTAssertEqual(selected.id, request.operation.id); XCTAssertEqual(selected.phase, .unknown)
+        do { _ = try await client.append(request); XCTFail("Already-entered input replayed") }
+        catch WebAdapterError.invalidRequest {}
+        let actions = await bridge.actions(), inputs = await bridge.actualInputs(), bytes = await bridge.receivedBytes()
+        XCTAssertEqual(actions, initialActions + [.observe]); XCTAssertEqual(inputs, 1); XCTAssertEqual(bytes, png)
+        let audit = try await store.checkpoint(for: "transfer-no-input-v1:" + request.operation.id.uuidString)
+        let start = try await store.uploadStartReceipt(for: request.operation.id)
+        let asset = try await store.asset(id: request.asset.id)
+        XCTAssertNil(audit); XCTAssertNil(start); XCTAssertEqual(asset?.visibility, .visible)
+    }
+
+    func testWrongInvocationStaysUnknownDespiteLateRetirement() async throws {
+        let (store, request) = try await fixture(), correct = try envelope(request)
+        let packet = try mutate(correct) { root in
+            var item = root["observation"] as! [String: Any], proof = item["preInputRetirement"] as! [String: Any]
+            proof["invocationID"] = UUID().uuidString; item["preInputRetirement"] = proof; root["observation"] = item
         }
+        let bridge = PreInputRetirementBridge(request: request, packet: try JSONEncoder().encode(packet), expectedBytes: png)
+        let client = adapter(bridge)
+        do { _ = try await client.append(request); XCTFail("Wrong-invocation commit response accepted") }
+        catch ObservationError.identityMismatch {}
+        try await store.markUnknown(request.operation.id, reason: "Constructed wrong-invocation commit result")
+        let saved = try await store.operation(id: request.operation.id)
+        let unknown = TransferRequest(operation: try XCTUnwrap(saved), asset: request.asset,
+            fileURL: request.fileURL, invocationID: request.invocationID)
+        let late = try await client.reconcile(unknown)
+        XCTAssertEqual(late.outcome, .unknown); XCTAssertFalse(late.safeToRetry)
+        _ = try await store.apply(late)
+        let proof = try XCTUnwrap(WebPreInputRetirement.rejection(from: correct, for: request))
+        do { try await store.recordPreInputRejection(proof); XCTFail("Late proof healed persisted UNKNOWN") }
+        catch RiftletError.mismatchedReceipt {}
+        let selected = try await store.prepare(assetID: request.asset.id, target: freshTarget(request.operation.target))
+        XCTAssertEqual(selected.id, request.operation.id); XCTAssertEqual(selected.phase, .unknown)
+        do { _ = try await client.append(request); XCTFail("Uncertain invocation replayed") }
+        catch WebAdapterError.invalidRequest {}
+        let actions = await bridge.actions(), bytes = await bridge.receivedBytes(), inputs = await bridge.actualInputs()
+        XCTAssertEqual(actions, [.begin, .chunk, .commit, .observe]); XCTAssertEqual(bytes, png); XCTAssertEqual(inputs, 0)
+        let audit = try await store.checkpoint(for: "transfer-no-input-v1:" + request.operation.id.uuidString)
+        let start = try await store.uploadStartReceipt(for: request.operation.id)
+        let asset = try await store.asset(id: request.asset.id)
+        XCTAssertNil(audit); XCTAssertNil(start); XCTAssertEqual(asset?.visibility, .visible)
     }
 }

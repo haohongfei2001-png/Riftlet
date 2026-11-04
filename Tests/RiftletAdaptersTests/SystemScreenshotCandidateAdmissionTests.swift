@@ -170,21 +170,46 @@ final class SystemScreenshotCandidateAdmissionTests: XCTestCase {
         let actions = await bridge.actions; XCTAssertTrue(actions.isEmpty)
     }
 
-    func testCurrentDraftInternalCannotBorrowPersistedRegistrationOrUseUnboundHome() async throws {
+    func testCurrentDraftInternalCannotBorrowOrRewritePersistedRegistration() async throws {
         let (store, request, _) = try await fixture()
         try await SystemScreenshotCandidateAdmission(store: store, scope: .ordinary).enroll(request)
+        let originalRegistration = try await checkpoint(store, request)
+        let originalOperation = try await store.operation(id: request.operation.id)
+        XCTAssertNotNil(originalRegistration)
         let internalAdmission = SystemScreenshotCandidateAdmission(store: store, scope: .ordinaryCurrentDraftInternal)
         await assertRejected { try await internalAdmission.enroll(request) }
         let admitted = try await internalAdmission.admits(request)
         XCTAssertFalse(admitted)
+        let afterRegistration = try await checkpoint(store, request)
+        let afterOperation = try await store.operation(id: request.operation.id)
+        XCTAssertEqual(afterRegistration, originalRegistration)
+        XCTAssertEqual(afterOperation, originalOperation)
+    }
+
+    func testCurrentDraftInternalInputsWithoutReactProofButRejectsForeignNativeTarget() async throws {
+        // The page establishes the usable composer/input. Native target identity
+        // is sufficient here; absent or obsolete React metadata is not a veto.
         for target in [AdmissionTestBridge.target(logical: nil),
-                       AdmissionTestBridge.target(logical: .init(profileID: "chatgpt-composer-react-20261027-v1", id: "not-a-local-id")),
-                       AdmissionTestBridge.target(application: "com.other.browser")] {
-            let (other, invalid, _) = try await fixture(target: target)
-            let bridge = AdmissionTestBridge(states: [.attached])
-            await assertRejected { try await self.currentDraftAdapter(other, bridge).append(invalid) }
-            let actions = await bridge.actions; XCTAssertTrue(actions.isEmpty)
+                       AdmissionTestBridge.target(logical: .init(profileID: "chatgpt-composer-react-20261027-v1", id: "not-a-local-id"))] {
+            let (store, request, _) = try await fixture(target: target)
+            let originalBytes = try Data(contentsOf: request.fileURL)
+            let bridge = AdmissionTestBridge(states: [.uploadStarted])
+            let receipt = try await currentDraftAdapter(store, bridge).append(request)
+            XCTAssertEqual(receipt.outcome, .uploadStarted)
+            XCTAssertEqual(receipt.target, target)
+            XCTAssertEqual(receipt.uploadStartEvidence?.profileID, OrdinaryCurrentDraftInternalScope.admittedUploadStartProfileID)
+            let actions = await bridge.actions
+            XCTAssertEqual(actions, [.begin, .chunk, .commit])
+            let received = await bridge.received
+            XCTAssertEqual(received, originalBytes)
+            let identities = await bridge.identities
+            XCTAssertTrue(identities.allSatisfy { $0.operationID == request.operation.id && $0.target == target })
+            XCTAssertEqual(try Data(contentsOf: request.fileURL), originalBytes)
         }
+        let (store, invalid, _) = try await fixture(target: AdmissionTestBridge.target(application: "com.other.browser"))
+        let bridge = AdmissionTestBridge(states: [.uploadStarted])
+        await assertRejected { try await self.currentDraftAdapter(store, bridge).append(invalid) }
+        let actions = await bridge.actions; XCTAssertTrue(actions.isEmpty)
     }
 
     func testSuccessorObservesOriginalOrdinaryUnknownWithoutEnrollmentOrInput() async throws {
