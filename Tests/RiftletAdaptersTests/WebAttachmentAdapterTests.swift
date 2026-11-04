@@ -111,7 +111,15 @@ final class WebAttachmentAdapterTests: XCTestCase {
             }
             let before = await executor.recordedActions()
             let notifications = await probe.records()
-            XCTAssertEqual(notifications, [before], "Notification must follow all attempted input/cleanup commands")
+            if case .throwOnCommit = behavior {
+                let inputCommands: [WebBridgeAction] = [.begin, .chunk, .chunk, .commit]
+                XCTAssertEqual(before, inputCommands + [.observe])
+                XCTAssertEqual(notifications, [inputCommands],
+                    "Input execution must notify once before read-only recovery observation")
+            } else {
+                XCTAssertEqual(notifications, [before],
+                    "Pre-input failure notifies once after its staging and cleanup commands return")
+            }
             do { _ = try await client.append(request); XCTFail("Uncertain input replayed") }
             catch WebAdapterError.invalidRequest {}
             try await store.markUnknown(request.operation.id, reason: "Synthetic lost original input response")
