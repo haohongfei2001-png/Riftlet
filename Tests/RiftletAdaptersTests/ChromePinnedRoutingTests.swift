@@ -3,25 +3,31 @@ import RiftletCore
 @testable import RiftletAdapters
 
 final class ChromePinnedRoutingTests: XCTestCase {
-    func testColdClickSelectsVisibleChromeWindowWithoutAnyEarlierCapture() {
-        // Two Chrome processes can coexist. Desktop z-order, not process-list
-        // order or a prior page ACK, identifies the user's visible browser.
+    func testColdClickUsesForegroundOrUniqueChromeWithoutEarlierCapture() {
+        XCTAssertEqual(ChromeReceiverSelection.choose(frontmost: 20, lastForeground: nil,
+            running: [10, 20]), 20)
         XCTAssertEqual(ChromeReceiverSelection.choose(frontmost: nil, lastForeground: nil,
-            visibleWindowOwners: [900, 20, 10], running: [10, 20]), 20)
-        XCTAssertEqual(ChromeReceiverSelection.choose(frontmost: nil, lastForeground: nil,
-            visibleWindowOwners: [], running: [10]), 10)
+            running: [10]), 10)
+    }
+
+    func testColdClickRejectsUnknownProcessEvenWhenAnotherChromeWindowIsVisible() {
+        // Process 10 was last used but is minimized/on another Space. Process
+        // 20 remains visible. Neither z-order nor visibility establishes which
+        // chat the user meant, so the receiver never accepts window metadata.
+        XCTAssertNil(ChromeReceiverSelection.choose(frontmost: 900, lastForeground: nil,
+            running: [10, 20]))
         XCTAssertNil(ChromeReceiverSelection.choose(frontmost: nil, lastForeground: nil,
-            visibleWindowOwners: [], running: [10, 20]))
+            running: [20, 10]))
     }
 
     func testClickUsesLastActualChromeAfterThumbnailChangesApplicationFocus() {
         XCTAssertEqual(ChromeReceiverSelection.choose(frontmost: 900, lastForeground: 20,
-            visibleWindowOwners: [10, 20], running: [10, 20]), 20)
+            running: [10, 20]), 20)
         XCTAssertEqual(ChromeReceiverSelection.choose(frontmost: 10, lastForeground: 20,
-            visibleWindowOwners: [20, 10], running: [10, 20]), 10)
-        // A dead remembered process cannot displace a current visible window.
-        XCTAssertEqual(ChromeReceiverSelection.choose(frontmost: nil, lastForeground: 30,
-            visibleWindowOwners: [20, 10], running: [10, 20]), 20)
+            running: [10, 20]), 10)
+        // A dead remembered process cannot select either remaining profile.
+        XCTAssertNil(ChromeReceiverSelection.choose(frontmost: nil, lastForeground: 30,
+            running: [10, 20]))
     }
 
     func testNativeSnapshotDetectsTabWindowAndSameTabConversationChanges() throws {

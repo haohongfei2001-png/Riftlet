@@ -68,21 +68,8 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
         let frontmost = NSWorkspace.shared.frontmostApplication
         let frontmostPID = frontmost?.bundleIdentifier == "com.google.Chrome" ? frontmost?.processIdentifier : nil
         let previousPID = lastForegroundChrome.flatMap { $0.isCurrent() ? $0.pid : nil }
-        // Window metadata only: no title, page content, tab enumeration or
-        // arbitrary Chrome process selection. CGWindowList is desktop z-order.
-        let windows = CGWindowListCopyWindowInfo([.optionOnScreenOnly, .excludeDesktopElements], kCGNullWindowID)
-            as? [[String: Any]] ?? []
-        let visibleOwners: [Int32] = windows.compactMap { info in
-            guard (info[kCGWindowLayer as String] as? NSNumber)?.intValue == 0,
-                  ((info[kCGWindowAlpha as String] as? NSNumber)?.doubleValue ?? 1) > 0,
-                  let bounds = info[kCGWindowBounds as String] as? [String: Any],
-                  ((bounds["Width"] as? NSNumber)?.doubleValue ?? 0) >= 320,
-                  ((bounds["Height"] as? NSNumber)?.doubleValue ?? 0) >= 200,
-                  let owner = (info[kCGWindowOwnerPID as String] as? NSNumber)?.int32Value else { return nil }
-            return owner
-        }
         guard let pid = ChromeReceiverSelection.choose(frontmost: frontmostPID, lastForeground: previousPID,
-                visibleWindowOwners: visibleOwners, running: running),
+                running: running),
               let identity = ChromeProcessIdentity.read(pid: pid) else { throw WebAdapterError.invalidTarget }
         return identity
     }

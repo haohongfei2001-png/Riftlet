@@ -36,14 +36,12 @@ struct ChromeClickRoute: Equatable, Sendable {
     }
 }
 
-/// Uses actual desktop activity, never a scan for a matching chat in arbitrary
-/// tabs. Window owners are in native front-to-back order.
+/// Uses actual application activity. A visible Chrome window does not identify
+/// the last used process: the user's chat may be minimized or on another Space.
 enum ChromeReceiverSelection {
-    static func choose(frontmost: Int32?, lastForeground: Int32?,
-                       visibleWindowOwners: [Int32], running: Set<Int32>) -> Int32? {
+    static func choose(frontmost: Int32?, lastForeground: Int32?, running: Set<Int32>) -> Int32? {
         if let frontmost, running.contains(frontmost) { return frontmost }
         if let lastForeground, running.contains(lastForeground) { return lastForeground }
-        if let visible = visibleWindowOwners.first(where: { running.contains($0) }) { return visible }
         return running.count == 1 ? running.first : nil
     }
 }
