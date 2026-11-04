@@ -1,3 +1,18 @@
+# Current first-click repair — 2026-11-05
+
+Continue PR #41. An explicit screenshot click resolves its own Chrome target;
+it must not depend on a background capture ACK, an already-created relay, a
+mouse-event-age proof, foreground-editor focus, or previous upload state.
+Freeze the native destination at the click boundary, initialize the page when
+needed, then recheck that exact window/tab/page/editor/input before submission.
+Do not select a later active conversation or search arbitrary tabs for a target.
+Selection objects retain only cancellation, duplicate and stale-queue handling.
+Preserve once-only setter/change, independent later clicks and actual-attachment
+START before swallow. Keep all production data and old UNKNOWN records intact.
+The regression must exercise click callbacks through durable operation creation.
+Source/CI/controlled application success is not real ChatGPT acceptance. Respect
+Browser access restrictions and use one normal-user acceptance when required.
+
 # Current independent file input — 2026-11-04
 
 The latest user explicitly replaces the former upload-transaction eligibility

@@ -68,22 +68,19 @@ final class AcceptedSelectionQueueTests: XCTestCase {
         }
     }
 
-    func testACKMustStrictlyPrecedeOriginalEventAndCannotBeFilledAfterward() async throws {
-        let s = try store(), image = try await asset(s), now = ProcessInfo.processInfo.systemUptime
-        for ack in [now, now + 0.001, Double.nan, -1] {
-            let invalid = AcceptedSelection(assetID: image.id, target: target(), hostEpoch: UUID(),
+    func testFirstClickCreatesOperationWithoutHistoricalAcknowledgement() async throws {
+        for ack in [0, ProcessInfo.processInfo.systemUptime + 10, Double.nan, -1] {
+            let s = try QueueStore(databaseURL: directory.appendingPathComponent("cold-\(UUID()).sqlite"))
+            let image = try await asset(s), now = ProcessInfo.processInfo.systemUptime
+            let click = AcceptedSelection(assetID: image.id, target: target(), hostEpoch: UUID(),
                 acknowledgedUptime: ack, eventUptime: now, acceptedUptime: now,
                 visibilityRevision: 0, deadlineUptime: now + 10)
-            XCTAssertFalse(invalid.isValid(at: now))
             let adapter = ParkAdapter(), coordinator = coordinator(s, adapter)
-            do { try await coordinator.select(invalid); XCTFail("Late/missing ACK accepted") } catch {}
+            try await coordinator.select(click)
             let record = try await s.asset(id: image.id), inputs = await adapter.inputs()
-            XCTAssertNil(record?.activeOperationID); XCTAssertEqual(inputs, [])
+            XCTAssertNotNil(record?.activeOperationID, "A cold click must reach QueueStore.prepare")
+            XCTAssertEqual(inputs, [image.id], "Missing historical ACK must not suppress actual input")
         }
-        let prior = AcceptedSelection(assetID: image.id, target: target(), hostEpoch: UUID(),
-            acknowledgedUptime: now - 0.000001, eventUptime: now, acceptedUptime: now,
-            visibilityRevision: 0, deadlineUptime: now + 10)
-        XCTAssertTrue(prior.isValid(at: now))
     }
 
     func testThirtySecondDeadlineUsesAppConstructionWithoutSubtractiveRoundingRefusal() {

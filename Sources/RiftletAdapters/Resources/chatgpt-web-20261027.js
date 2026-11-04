@@ -20,6 +20,8 @@ function riftletWebAcceptance(command, native) {
     .every(key => target[key] === native[key]);
   const route = () => {
     const url = new URL(location.href);
+    // Restrict the product to ChatGPT, without a whitelist of conversation or
+    // Project paths. A different service's editor is not an attachment target.
     if (url.protocol !== 'https:' || !['chatgpt.com', 'chat.openai.com'].includes(url.hostname)) fail('PAGE_ROUTE_UNSUPPORTED');
     return url.origin + url.pathname;
   };
@@ -46,6 +48,7 @@ function riftletWebAcceptance(command, native) {
       .filter(node => visible(node) && !blocked(node) && !node.disabled && !node.readOnly
         && (node.isContentEditable || node.tagName === 'TEXTAREA'));
     const candidates = [];
+    const availableInputs = [...document.querySelectorAll('input[type="file"]')].filter(usableInput);
     for (const editor of editors) {
       let form = editor.closest('form') || editor.closest('[data-chatgpt-composer]');
       if (!form) {
@@ -56,8 +59,12 @@ function riftletWebAcceptance(command, native) {
         }
       }
       if (!form || blocked(form)) continue;
-      const inputs = [...document.querySelectorAll('input[type="file"]')]
-        .filter(input => (input.form === form || form.contains(input)) && usableInput(input));
+      let inputs = availableInputs.filter(input => input.form === form || form.contains(input));
+      // ChatGPT may portal its hidden picker outside the form. A sole unowned
+      // picker and sole editor are unambiguous; never borrow another form's
+      // picker or choose among multiple global controls.
+      if (!inputs.length && editors.length === 1 && availableInputs.length === 1
+          && !availableInputs[0].form) inputs = availableInputs;
       if (inputs.length > 1) fail('ATTACHMENT_INPUT_UNAVAILABLE');
       if (inputs.length === 1) candidates.push({form, editor, input: inputs[0]});
     }
@@ -74,7 +81,7 @@ function riftletWebAcceptance(command, native) {
   if (!registry && command.action === 'captureTarget') {
     // Old upload observers remain untouched. None of their state is consulted.
     registry = {documentID: crypto.randomUUID(), root: document.documentElement, current: null,
-      operations: new Map(), pins: new Map(), nodeIDs: new WeakMap(), nextNode: 0,
+      operations: new Map(), nodeIDs: new WeakMap(), nextNode: 0,
       sequence: 0, navigation: 0, path: route(), busy: new WeakSet(), files: new WeakMap()};
     Object.defineProperty(globalThis, KEY, {value: registry});
     const state = registry;
@@ -118,19 +125,19 @@ function riftletWebAcceptance(command, native) {
       if (!binding || registry.root !== document.documentElement || binding.navigation !== registry.navigation
           || binding.route !== route() || !contextMatches(binding.target)) return false;
       const current = composer();
-      return current.form === binding.form && current.editor === binding.editor && current.input === binding.input;
+      if (current.form !== binding.form || current.editor !== binding.editor) return false;
+      // A normal change handler can rebuild the hidden picker without changing
+      // the conversation. Resolve its unique replacement within the same draft.
+      binding.input = current.input;
+      return true;
     } catch { return false; }
   }
   function bindingFor(target) {
     if (!registry || !contextMatches(target)) return null;
-    if (target?.clickBindingID) {
-      const pin = registry.pins.get(target.clickBindingID);
-      return pin && sameTarget(pin.target, target) ? pin.binding : null;
-    }
     return sameTarget(registry.current?.target, target) ? registry.current : null;
   }
   function attachmentNodes(binding) {
-    return [...binding.form.querySelectorAll('[data-file-name],[role="button"][aria-label],img[alt],img[src],[title]')]
+    return [...binding.form.querySelectorAll('[data-file-name],[role="button"],button,img[alt],img[src],[title]')]
       .filter(node => node !== binding.editor && !binding.editor.contains(node) && node !== binding.input);
   }
   function sample(op) {
@@ -139,13 +146,17 @@ function riftletWebAcceptance(command, native) {
       || [...node.querySelectorAll('img[src]')].some(image => !!image.getAttribute('src')?.trim())
       || !!node.querySelector('progress,[role="progressbar"]');
     const hasError = node => {
-      const card = node.closest('[data-file-name],[role="button"]') || node;
+      const card = node.closest('[data-file-name],[role="button"],button') || node;
       const errors = '[role="alert"],[data-state="error"],[data-state="failed"]';
       return !!node.closest(errors) || !!card.querySelector(errors);
     };
+    const filename = new RegExp('(^|[^a-zA-Z0-9_.-])' + op.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '($|[^a-zA-Z0-9_.-])');
+    const named = node => ['data-file-name', 'aria-label', 'title', 'alt'].some(key => filename.test(node.getAttribute(key) || ''))
+      || ((node.hasAttribute('data-file-name') || node.getAttribute('role') === 'button' || node.tagName === 'BUTTON')
+        && filename.test(node.textContent || ''));
     const matches = attachmentNodes(op.binding).filter(node => !op.baseline.has(node) && node.isConnected
       && hasPreview(node) && !hasError(node)
-      && (['data-file-name', 'aria-label', 'title', 'alt'].some(key => node.getAttribute(key) === op.name)
+      && (named(node)
         || (node.tagName === 'IMG' && op.urls.has(node.getAttribute('src')))));
     if (!matches.length) return;
     // A named card and its own img are one accepted attachment, not ambiguity.
@@ -193,13 +204,6 @@ function riftletWebAcceptance(command, native) {
     }
     return registry.current.target;
   }
-  if (command.action === 'pinTarget') {
-    const binding = bindingFor(command.target);
-    if (!valid(binding) || !uuid(command.clickBindingID) || registry.pins.has(command.clickBindingID)) fail('TARGET_INVALID');
-    const target = {...binding.target, clickBindingID: command.clickBindingID};
-    registry.pins.set(command.clickBindingID, {binding, target, operationID: null});
-    return target;
-  }
   const binding = bindingFor(command.target);
   if (command.action === 'validate') return {target: command.target, valid: valid(binding)};
   const identity = command.identity;
@@ -212,9 +216,6 @@ function riftletWebAcceptance(command, native) {
         || !Number.isSafeInteger(identity.attempt) || identity.attempt < 1 || !/^[a-f0-9]{64}$/.test(identity.assetSHA256)
         || command.uploadName !== 'riftlet-' + identity.operationID + '.png' || command.mediaType !== 'image/png'
         || !Number.isSafeInteger(command.byteCount) || command.byteCount < 8 || command.byteCount > MAX_BYTES) fail('BEGIN_REFUSED');
-    const pin = identity.target.clickBindingID && registry.pins.get(identity.target.clickBindingID);
-    if (pin && pin.operationID) fail('CLICK_PIN_SPENT');
-    if (pin) pin.operationID = identity.operationID;
     op = {identity: JSON.parse(JSON.stringify(identity)), invocationID: command.invocationID, binding,
       name: command.uploadName, size: command.byteCount, chunks: [], received: 0, nextChunk: 0,
       committed: false, discarded: false, inputCount: 0, changeReturned: false, retirement: null,
@@ -245,8 +246,8 @@ function riftletWebAcceptance(command, native) {
   if (op.committed || op.discarded || op.received !== op.size || command.chunkIndex !== op.nextChunk) fail('COMMIT_REFUSED');
   op.committed = true; // Once-only before every possible file-input side effect.
   const retire = reason => { op.chunks = []; op.retirement = reason; return observe(op); };
-  if (registry.busy.has(op.binding.input)) return retire('inputExecutionBusy');
   if (!valid(op.binding)) return retire('targetInvalidBeforeInput');
+  if (registry.busy.has(op.binding.form)) return retire('inputExecutionBusy');
   const bytes = new Uint8Array(op.size); let offset = 0;
   for (const chunk of op.chunks) { bytes.set(chunk, offset); offset += chunk.length; }
   op.chunks = [];
@@ -261,7 +262,7 @@ function riftletWebAcceptance(command, native) {
   op.baseline = new Set(attachmentNodes(op.binding));
   registry.files.set(file, op);
   const input = op.binding.input;
-  registry.busy.add(input);
+  registry.busy.add(op.binding.form);
   try {
     op.inputCount = 1; op.inputSequence = tick(); op.inputTime = performance.now();
     Reflect.apply(setter, input, [transfer.files]);
@@ -271,7 +272,7 @@ function riftletWebAcceptance(command, native) {
     // A throwing setter/event can already have changed the control. Preserve
     // this operation as uncertain; never retry, clear, or restore its FileList.
   } finally {
-    registry.busy.delete(input);
+    registry.busy.delete(op.binding.form);
   }
   return observe(op);
 }

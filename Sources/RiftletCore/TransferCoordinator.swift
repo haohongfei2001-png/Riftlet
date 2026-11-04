@@ -133,8 +133,8 @@ public actor TransferCoordinator {
         try await select(assetID, target: nil, allowCapture: true, visibilityRevision: visibilityRevision)
     }
 
-    /// Web selections freeze a pre-acknowledged target at mouse-down. A missing
-    /// target must never be replaced by whatever tab is active after this await.
+    /// A caller that has already resolved a destination uses that exact target.
+    /// Missing targets here never cause a later unrelated tab to be selected.
     public func select(_ assetID: UUID, frozenTarget: TargetLease?, visibilityRevision: Int64? = nil) async throws {
         try await select(assetID, target: frozenTarget, allowCapture: false, visibilityRevision: visibilityRevision)
     }

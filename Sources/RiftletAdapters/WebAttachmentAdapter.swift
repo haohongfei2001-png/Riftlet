@@ -24,17 +24,6 @@ public struct WebPageProgram: Sendable {
     }
 }
 
-/// Created only by the synchronous native press path after it has matched a
-/// pre-event observation to Chrome's current process, window and selected tab.
-/// It is not a page focus assertion: the page must still prove continuous
-/// ownership of the original draft, composer and input before accepting it.
-public struct NativePressProof: Encodable, Sendable {
-    public let kind = "observed-target-before-press"
-    public let clickBindingID: UUID
-
-    init(clickBindingID: UUID) { self.clickBindingID = clickBindingID }
-}
-
 public struct WebBridgeCommand: Encodable, Sendable {
     public let action: WebBridgeAction
     public let target: TargetLease?
@@ -45,26 +34,21 @@ public struct WebBridgeCommand: Encodable, Sendable {
     public let chunkIndex: Int?
     public let chunkBase64: String?
     public let invocationID: UUID?
-    public let clickBindingID: UUID?
-    public let nativePressProof: NativePressProof?
     /// Host diagnostics only, deliberately excluded from the page payload.
     public let captureInvocation: CaptureInvocationContext?
 
     private enum CodingKeys: String, CodingKey {
-        case action, target, identity, uploadName, mediaType, byteCount, chunkIndex, chunkBase64, invocationID, clickBindingID, nativePressProof
+        case action, target, identity, uploadName, mediaType, byteCount, chunkIndex, chunkBase64, invocationID
     }
 
     init(action: WebBridgeAction, target: TargetLease? = nil, identity: ObservationIdentity? = nil,
          uploadName: String? = nil, mediaType: String? = nil, byteCount: Int64? = nil,
          chunkIndex: Int? = nil, chunkBase64: String? = nil, invocationID: UUID? = nil,
-         captureInvocation: CaptureInvocationContext? = nil, clickBindingID: UUID? = nil,
-         nativePressProof: NativePressProof? = nil) {
+         captureInvocation: CaptureInvocationContext? = nil) {
         self.action = action; self.target = target; self.identity = identity
         self.uploadName = uploadName; self.mediaType = mediaType; self.byteCount = byteCount
         self.chunkIndex = chunkIndex; self.chunkBase64 = chunkBase64; self.invocationID = invocationID
         self.captureInvocation = captureInvocation
-        self.clickBindingID = clickBindingID
-        self.nativePressProof = nativePressProof
     }
 }
 
@@ -73,7 +57,7 @@ public protocol WebBridgeExecutor: Sendable {
 }
 
 @MainActor public protocol WebClickTargetPinning: WebBridgeExecutor {
-    func pinTargetAtPress(program: WebPageProgram, eventUptime: TimeInterval) throws -> TargetLease
+    func targetForClick(program: WebPageProgram) throws -> Task<TargetLease, Error>
 }
 
 public enum WebAdapterError: Error, Equatable, Sendable {
@@ -190,12 +174,13 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
         }
     }
 
-    /// Synchronous native press boundary. No input is sent here; the returned
-    /// capability is independently checked by normal validate/begin/commit.
-    @MainActor public func pinTargetAtPress(eventUptime: TimeInterval) throws -> TargetLease {
+    /// Freeze the native destination at the click boundary, then initialize and
+    /// resolve that exact page asynchronously. A first click needs no earlier
+    /// capture, relay or page acknowledgement.
+    @MainActor public func targetForClick() throws -> Task<TargetLease, Error> {
         guard mode != .disabled, let program,
               let pinner = executor as? any WebClickTargetPinning else { throw WebAdapterError.disabled }
-        return try pinner.pinTargetAtPress(program: program, eventUptime: eventUptime)
+        return try pinner.targetForClick(program: program)
     }
 
     public func captureTarget() async throws -> TargetLease {

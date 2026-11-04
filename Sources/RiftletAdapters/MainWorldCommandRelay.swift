@@ -1,8 +1,8 @@
 import Foundation
 import CryptoKit
 
-/// A document-local MAIN closure, installed only while capturing a foreground
-/// target. Later commands cross the shared DOM through execute-JavaScript; unlike
+/// A document-local MAIN closure, installed when an explicit click first resolves
+/// its fixed target. Later commands cross the shared DOM through execute-JavaScript; unlike
 /// Chrome's javascript: URL setter this does not raise the addressed window.
 /// The DOM channel is correlation, not protection against same-page malicious JS.
 struct MainWorldCommandRelay: Sendable {
@@ -71,8 +71,8 @@ struct MainWorldCommandRelay: Sendable {
     }
 }
 
-/// Native ownership only. A missing relay on a background route never causes a
-/// URL-setter fallback or new capture. A new document must be captured foreground.
+/// Native ownership only. A click may initialize its exact saved tab without a
+/// historical relay. Observation never creates a relay or captures a new target.
 final class MainWorldRelayStore: @unchecked Sendable {
     private let lock = NSLock()
     private var values: [String: MainWorldCommandRelay] = [:]

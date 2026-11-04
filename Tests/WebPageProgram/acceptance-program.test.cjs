@@ -102,6 +102,47 @@ test('change-handler reentry cannot overwrite the executing FileList',()=>{
  assert.equal(f.changes,2);accepted(f,first);accepted(f,next);
 });
 
+test('rebuilding a hidden picker keeps both pre-captured clicks and delayed START on the same composer',()=>{
+ const f=fixture({accept:false}),first=f.bind(),second=f.bind();f.stage(first);f.stage(second);
+ const replacement=new f.context.HTMLInputElement();replacement.rendered=false;
+ f.setChange(()=>{f.input.remove();f.form.append(replacement);f.setChange(null);});
+ f.commit(first);assert.equal(f.observe(first).state,'inputTriggered');
+ f.setAccept(true);f.commit(second);accepted(f,second);
+ f.addCard(first.name);accepted(f,first);
+ assert.equal(f.setters,2);assert.equal(f.changes,2);
+ assert.equal(replacement.files[0].name,second.name);
+ assert.ok(f.form.contains(f.oldCard));assert.equal(f.sends,0);
+});
+
+test('rebuilding the picker inside change cannot evade the same-composer synchronous input mutex',()=>{
+ const f=fixture(),first=f.bind(),nested=f.bind();f.stage(first);f.stage(nested);
+ const replacement=new f.context.HTMLInputElement();
+ f.setChange(()=>{
+  f.input.remove();f.form.append(replacement);f.setChange(null);
+  const refusal=f.commit(nested).observation;
+  assert.equal(refusal.preInputRetirement.reason,'inputExecutionBusy');
+  assert.equal(refusal.preInputRetirement.inputCount,0);
+ });
+ f.commit(first);accepted(f,first);
+ const second=f.bind();f.stage(second);f.commit(second);accepted(f,second);
+ assert.equal(f.setters,2);assert.equal(f.changes,2);
+ assert.equal(replacement.files[0].name,second.name);
+});
+
+test('a sole hidden portal picker belongs to the sole composer without requiring editor focus',()=>{
+ const f=fixture({focused:false});f.input.remove();f.body.append(f.input);f.input.rendered=false;
+ const first=f.bind();f.stage(first);f.commit(first);accepted(f,first);
+ const second=f.bind();f.stage(second);f.commit(second);accepted(f,second);
+ assert.equal(f.changes,2);assert.equal(f.setters,2);
+});
+
+test('a portal picker in another form or ambiguous global pickers cannot receive the screenshot',()=>{
+ const f=fixture();f.input.remove();f.body.append(new f.Node('form')).append(f.input);
+ assert.throws(()=>f.bind(),/ATTACHMENT_INPUT_UNAVAILABLE/);assert.equal(f.changes,0);
+ const g=fixture();g.input.remove();g.body.append(g.input,new g.context.HTMLInputElement());
+ assert.throws(()=>g.bind(),/ATTACHMENT_INPUT_UNAVAILABLE/);assert.equal(g.changes,0);
+});
+
 for(const route of [
  'https://chatgpt.com/',
  'https://chatgpt.com/c/ordinary-thread',
@@ -114,12 +155,10 @@ for(const route of [
  f.stage(op);f.commit(op);accepted(f,op);assert.equal(f.changes,1);
 });
 
-test('the saved original target remains usable after the user focuses another app',()=>{
- const f=fixture(),target=f.call({action:'captureTarget'});
- f.setFocused(false);f.document.visibilityState='hidden';
- const pinned=f.call({action:'pinTarget',target,clickBindingID:'11111111-1111-4111-8111-111111111111',
-  nativePressProof:{kind:'observed-target-before-press',clickBindingID:'11111111-1111-4111-8111-111111111111'}});
- const op=f.bind({target:pinned});f.stage(op);f.commit(op);accepted(f,op);
+test('a first click initializes its fixed target after Chrome loses focus without any prior page capture',()=>{
+ const f=fixture({focused:false,visible:false});
+ const op=f.bind();f.stage(op);f.commit(op);accepted(f,op);
+ assert.equal(op.target.clickBindingID,undefined,'no earlier click proof or pin is required');
  assert.equal(f.changes,1);
 });
 
@@ -174,6 +213,26 @@ test('current File-derived preview starts even when the application omits visibl
  const card=f.addCard('application-preview-without-a-filename',{progress:false}),image=card.querySelector('img');
  image.setAttribute('src',url);image.src=image.currentSrc=url;
  accepted(f,op);assert.equal(f.changes,1);
+});
+
+for(const field of ['aria-label','title','alt','text'])test('new attachment can label the complete unique filename with surrounding text: '+field,()=>{
+ const f=fixture({accept:false}),op=f.bind();f.stage(op);f.commit(op);
+ const card=f.addCard('unrelated-placeholder',{progress:false}),image=card.querySelector('img');
+ for(const name of ['data-file-name','title','aria-label'])card.removeAttribute(name);
+ image.removeAttribute('alt');
+ const label='正在上传 '+op.name+' (PNG image)';
+ if(field==='alt')image.setAttribute('alt',label);
+ else if(field==='text')card.textContent=label;
+ else card.setAttribute(field,label);
+ accepted(f,op);assert.equal(f.changes,1);
+});
+
+test('filename substrings and unrelated previews cannot falsely consume a screenshot',()=>{
+ const f=fixture({accept:false}),op=f.bind();f.stage(op);f.commit(op);
+ f.addCard('other-'+op.name);f.addCard(op.name+'.other');
+ const unrelated=f.addCard('another-file.png');unrelated.textContent='Attachment preview';
+ assert.equal(f.observe(op).state,'inputTriggered');assert.equal(f.observe(op).uploadStart,undefined);
+ assert.equal(f.changes,1);
 });
 
 test('staging and discarding an unsubmitted click never dispatch an input',()=>{

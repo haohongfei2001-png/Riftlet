@@ -29,7 +29,9 @@ function browserFixture(options){
  try{
   check(location.protocol==='http:'&&location.hostname==='127.0.0.1','fixture must stay on loopback');
   await stage('initializing');
-  const form=document.querySelector('form'),editor=document.querySelector('#prompt-textarea'),input=form.querySelector('input');
+  const form=document.querySelector('form'),editor=document.querySelector('#prompt-textarea');
+  let input=form.querySelector('input');
+  if(options.portalPicker)document.body.append(input);
   const priorCard=form.querySelector('[data-file-name]'),priorImage=priorCard.querySelector('img');
   const canvas=document.createElement('canvas');canvas.width=canvas.height=2;
   canvas.getContext('2d').fillRect(0,0,2,2);priorImage.src=canvas.toDataURL('image/png');
@@ -42,28 +44,41 @@ function browserFixture(options){
   const call=command=>program(command,native);
   editor.focus();const selection=getSelection(),range=document.createRange();range.setStart(editor.firstChild,2);range.setEnd(editor.firstChild,7);selection.removeAllRanges();selection.addRange(range);
   const text=editor.textContent,anchor=selection.anchorNode,focus=selection.focusNode,anchorOffset=selection.anchorOffset,focusOffset=selection.focusOffset;
-  let changes=0,sends=0,reentrant=null,reentrantRefused=false,firstPendingCard=null;
+  let changes=0,setters=0,sends=0,reentrant=null,reentrantRefused=false,firstPendingCard=null;
+  const nativeFiles=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'files');
+  Object.defineProperty(HTMLInputElement.prototype,'files',{...nativeFiles,set(value){
+   setters++;return Reflect.apply(nativeFiles.set,this,[value]);
+  }});
   const tasks=[],ops=[];
   form.addEventListener('submit',event=>{event.preventDefault();sends++;});
-  input.addEventListener('change',()=>{
+  const changed=event=>{
    changes++;
-   const list=input.files,file=list[0];
+   const submittedInput=event.currentTarget,list=submittedInput.files,file=list[0];
    check(list instanceof FileList&&list.length===1&&file instanceof File,'one actual native FileList item');
+   if(options.replacePicker){
+    const replacement=submittedInput.cloneNode();submittedInput.replaceWith(replacement);input=replacement;
+    input.addEventListener('change',changed);
+   }
    if(reentrant){
     const next=reentrant;reentrant=null;
     const refusal=call({...next.command('commit'),chunkIndex:1}).observation;
     reentrantRefused=refusal.preInputRetirement?.reason==='inputExecutionBusy'&&refusal.preInputRetirement.inputCount===0;
-    check(reentrantRefused&&input.files[0]===file,'reentrant input cannot overwrite current native control');
+    check(reentrantRefused&&submittedInput.files[0]===file,'reentrant input cannot overwrite current native control');
    }
    const card=document.createElement('div');card.setAttribute('role','button');card.setAttribute('data-file-name',file.name);card.title=file.name;
    const image=document.createElement('img');image.alt=file.name;image.src=URL.createObjectURL(file);card.append(image);
+   if(options.decoratedFilename){
+    card.removeAttribute('data-file-name');card.title='正在上传 '+file.name+' (PNG image)';
+    image.alt='Preview '+file.name+' (uploading)';image.src=canvas.toDataURL('image/png');
+   }
    const progress=document.createElement('div');progress.setAttribute('role','progressbar');progress.setAttribute('aria-valuenow','10');card.append(progress);
    const task={file,list,card,image,progress,state:'uploading'};tasks.push(task);
    // The first acceptance is deliberately delayed; its input return is dropped.
    // A second input is allowed while A has no observed START yet.
    if(changes===1)firstPendingCard=card;else{form.append(card);if(changes===2)setTimeout(()=>form.append(firstPendingCard),0);}
-   if(!options.retained)input.value='';
-  });
+   if(!options.retained)submittedInput.value='';
+  };
+  input.addEventListener('change',changed);
   async function operation(index){
    const color='rgb('+(20+index*30)+',40,70)';canvas.getContext('2d').fillStyle=color;canvas.getContext('2d').fillRect(0,0,2,2);
    const png=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));
@@ -82,6 +97,7 @@ function browserFixture(options){
    if(index===2)tasks[0].state='unknown'; // Synthetic app lifecycle; deliberately irrelevant to native permission.
    call({...op.command('commit'),chunkIndex:1}); // Simulate a lost transport receipt by ignoring every reply.
    check(changes===index+1,'one change per screenshot');
+   check(setters===index+1,'one native files setter per screenshot');
    if(index===0)check(call(op.command('observe')).observation.state==='inputTriggered','first input completed before START');
    if(index>0)await wait(()=>call(op.command('observe')).observation.state==='uploadStarted');
    check(editor.textContent===text&&selection.anchorNode===anchor&&selection.focusNode===focus&&selection.anchorOffset===anchorOffset&&selection.focusOffset===focusOffset,'draft text and selection preserved');
@@ -108,10 +124,12 @@ function browserFixture(options){
   const wrongTargetRefused=refused.state==='invalidated'&&refused.preInputRetirement?.reason==='targetInvalidBeforeInput'&&refused.preInputRetirement.inputCount===0;
   check(wrongTargetRefused&&changes===options.count,'changed target refuses before native input');
   check(sends===0,'no automatic message send');
-  Object.assign(report,{passed:true,phase:'complete',nativeChanges:changes,networkRequests:applicationNetworkRequests,automaticSends:sends,
+  Object.assign(report,{passed:true,phase:'complete',nativeChanges:changes,nativeSetters:setters,networkRequests:applicationNetworkRequests,automaticSends:sends,
    observedStarts:ops.length,originalFileListsVerified:tasks.length,applicationIndependentTasksVerified:tasks.length,
    retainedNativeSelection:options.retained,reentrantInputRefused:reentrantRefused,wrongTargetRefused,
    lostReplyRecoveredWithoutReplay:true,textSelectionCardsPreserved:true,
+   pickerReplacedEachChange:!!options.replacePicker,hiddenPortalPicker:!!options.portalPicker,
+   decoratedFilenameAccepted:!!options.decoratedFilename,
    firstSyntheticUploadState:tasks[0].state,harnessTransport:'loopback-only'});
  }catch(error){report.error=String(error?.stack||error);}
  document.querySelector('#result').textContent=JSON.stringify(report);
@@ -123,7 +141,8 @@ for(const options of [
  ...[2,3,5].map(count=>({count,retained:true,route:'https://chatgpt.com/c/ordinary-thread'})),
  {count:3,retained:false,route:'https://chatgpt.com/'},
  {count:3,retained:true,route:'https://chatgpt.com/g/g-p-project/c/project-thread'},
- {count:2,retained:true,route:'https://chatgpt.com/g/g-p-project/project'}
+ {count:2,retained:true,route:'https://chatgpt.com/g/g-p-project/project'},
+ {count:5,retained:true,replacePicker:true,portalPicker:true,decoratedFilename:true,route:'https://chatgpt.com/c/ordinary-thread'}
 ])test('native Chrome independent append '+JSON.stringify(options),{
  skip:!binary&&!required?'CHROME_NOT_RUN: no native Chrome binary in this executor':false,timeout:60000
 },async t=>{
@@ -166,7 +185,7 @@ for(const options of [
       resolve();if(!completed)rejectReport(Error('Chrome exited before result; code='+code+' signal='+signal+' phase='+lastPhase+' stderr='+stderr));
     }));
     const report=await bounded(finished,30000,()=> 'CHROME_FIXTURE_TIMEOUT phase='+lastPhase+' stderr='+stderr,t.signal);
-    assert.equal(report.passed,true,JSON.stringify(report));assert.equal(report.nativeChanges,options.count);assert.equal(report.networkRequests,0);
+    assert.equal(report.passed,true,JSON.stringify(report));assert.equal(report.nativeChanges,options.count);assert.equal(report.nativeSetters,options.count);assert.equal(report.networkRequests,0);
     assert.equal(report.applicationIndependentTasksVerified,options.count);assert.equal(report.automaticSends,0);
     assert.equal(report.originalFileListsVerified,options.count);assert.equal(report.observedStarts,options.count);
     assert.equal(report.reentrantInputRefused,true);assert.equal(report.wrongTargetRefused,true);

@@ -94,8 +94,7 @@ function fixture({route='https://chatgpt.com/c/ordinary-thread',accept=true,focu
   if(progress)card.append(new Node('div',{role:'progressbar','aria-valuenow':'10'}));
   notify();return card;
  }
- function bind({bytes=png,target=call({action:'captureTarget'}),id=webcrypto.randomUUID(),pin=false}={}) {
-  if(pin)target=call({action:'pinTarget',target,clickBindingID:webcrypto.randomUUID()});
+ function bind({bytes=png,target=call({action:'captureTarget'}),id=webcrypto.randomUUID()}={}) {
   const identity={operationID:id,assetID:webcrypto.randomUUID(),attempt:1,assetSHA256:sha(bytes),target},invocationID=webcrypto.randomUUID();
   return {identity,target,bytes,name:'riftlet-'+id+'.png',invocationID,command:action=>({action,target,identity,invocationID})};
  }
