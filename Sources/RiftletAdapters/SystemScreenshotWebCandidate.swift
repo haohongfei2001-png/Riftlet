@@ -6,7 +6,7 @@ import RiftletCore
 /// remain observation-only forever; reviewed v2 profiles require a durable
 /// new-operation registration, not merely a current page observation.
 public enum SystemScreenshotWebCandidate {
-    public static let sourceID = "chatgpt-web-zh-20261027-integrated-v13"
+    public static let sourceID = "chatgpt-web-independent-input-20261104-v14"
     public static let uploadStartProfileID = "chatgpt-web-system-screenshot-start-candidate-20261028-v1"
     public static let completionProfileID = "chatgpt-web-system-screenshot-attached-candidate-20261028-v1"
     public static let profile = ObservationProfile(adapterID: "chatgpt-web", surface: .webChat,

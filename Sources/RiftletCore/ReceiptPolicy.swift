@@ -68,7 +68,7 @@ public struct ReceiptPolicy: Sendable {
               evidence.version == 1, evidence.inputCount == 1,
               !evidence.evidenceID.isEmpty, evidence.evidenceID.utf8.count <= 256,
               !evidence.profileID.isEmpty, evidence.profileID.utf8.count <= 128,
-              receipt.belongsToOriginalDraft, receipt.isUploading,
+              receipt.belongsToOriginalDraft, receipt.isUploading || evidence.signal == .attachmentAccepted,
               !receipt.hasError, !receipt.positiveReady, !receipt.safeToRetry,
               let attachmentID = receipt.attachmentID, !attachmentID.isEmpty,
               attachmentID.utf8.count <= 1024 else { return false }

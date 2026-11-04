@@ -353,12 +353,6 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 }
                 self.recordAcceptance(["event": "selection_submission_started", "selectionOrdinal": ordinal,
                     "assetID": id.uuidString, "uptime": ProcessInfo.processInfo.systemUptime])
-                guard !self.mode.usesWebAdapter || self.watchedCompletions.count < 64 else {
-                    self.showIssue("Acceptance observation limit reached; images retained.")
-                    self.cancelOriginalSelection(originalSelection, reason: "observationLimit")
-                    self.finishOriginalSelection(id, token: originalSelection, revision: revision, ownerID: selectionOwner)
-                    return
-                }
                 do {
                     if self.mode.usesWebAdapter, originalSelection == nil {
                         let permission = await self.inspectAutomationPermission(reason: "selection", assetID: id, expectedSession: frozen?.sessionID)
@@ -460,9 +454,16 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         armingAdapter = mode.usesWebAdapter ? adapter : nil
         // Durable crash recovery remains local even when Automation is denied.
         // No page observation is attempted until a passive check says allowed.
-        try await store.recoverInterruptedOperations()
-        originalRecoveryIDs = mode.observesAttachments ? try await store.unresolvedOperations().map(\.id) : nil
-        startupCompletedIDs = mode.observesAttachments ? Set(try await store.successfulOperations().map(\.id)) : []
+        if adapter is any IndependentFileInputAdapter {
+            // Earlier operations are history, never a new input permission or
+            // restart upload job. Preserve their SQLite rows and media exactly.
+            originalRecoveryIDs = nil
+            startupCompletedIDs = []
+        } else {
+            try await store.recoverInterruptedOperations()
+            originalRecoveryIDs = mode.observesAttachments ? try await store.unresolvedOperations().map(\.id) : nil
+            startupCompletedIDs = mode.observesAttachments ? Set(try await store.successfulOperations().map(\.id)) : []
+        }
         recordAcceptance(["event": "local_recovery_complete", "uptime": ProcessInfo.processInfo.systemUptime])
         if mode.usesWebAdapter {
             // Process identity only, not permission or a page/attachment lease.
@@ -1363,7 +1364,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 visibleIDs = activeIDs
                 pendingResultCount = Set(unresolved.filter { $0.phase != .prepared }.map(\.assetID)).count
                 acceptCaptureStatus(preferenceIssue: preferenceIssue)
-                watchedCompletions.formUnion(successful.map(\.id))
+                if !(armingAdapter is any IndependentFileInputAdapter) {
+                    watchedCompletions.formUnion(successful.map(\.id))
+                }
                 if hasNewImages && mode.usesWebAdapter { requestArm(reason: "newImages") }
                 rift?.render(snapshot)
                 screenshotEntry?.configure()

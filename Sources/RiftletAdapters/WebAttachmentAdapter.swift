@@ -4,9 +4,8 @@ import Darwin
 import RiftletCore
 
 public enum WebAdapterMode: Sendable, Equatable { case disabled, syntheticDevelopment, systemScreenshotCandidate, ordinarySystemScreenshot, ordinaryProduct }
-public enum WebBridgeAction: String, Codable, Sendable {
+public enum WebBridgeAction: String, Codable, CaseIterable, Sendable {
     case captureTarget, pinTarget, validate, begin, chunk, commit, observe, discard
-    case prepareInputResource, releaseInputResource
 }
 
 /// The sole page function is supplied from reviewed source. It must synchronously
@@ -47,26 +46,24 @@ public struct WebBridgeCommand: Encodable, Sendable {
     public let chunkBase64: String?
     public let invocationID: UUID?
     public let clickBindingID: UUID?
-    public let inputResourceID: UUID?
     public let nativePressProof: NativePressProof?
     /// Host diagnostics only, deliberately excluded from the page payload.
     public let captureInvocation: CaptureInvocationContext?
 
     private enum CodingKeys: String, CodingKey {
-        case action, target, identity, uploadName, mediaType, byteCount, chunkIndex, chunkBase64, invocationID, clickBindingID, inputResourceID, nativePressProof
+        case action, target, identity, uploadName, mediaType, byteCount, chunkIndex, chunkBase64, invocationID, clickBindingID, nativePressProof
     }
 
     init(action: WebBridgeAction, target: TargetLease? = nil, identity: ObservationIdentity? = nil,
          uploadName: String? = nil, mediaType: String? = nil, byteCount: Int64? = nil,
          chunkIndex: Int? = nil, chunkBase64: String? = nil, invocationID: UUID? = nil,
          captureInvocation: CaptureInvocationContext? = nil, clickBindingID: UUID? = nil,
-         inputResourceID: UUID? = nil, nativePressProof: NativePressProof? = nil) {
+         nativePressProof: NativePressProof? = nil) {
         self.action = action; self.target = target; self.identity = identity
         self.uploadName = uploadName; self.mediaType = mediaType; self.byteCount = byteCount
         self.chunkIndex = chunkIndex; self.chunkBase64 = chunkBase64; self.invocationID = invocationID
         self.captureInvocation = captureInvocation
         self.clickBindingID = clickBindingID
-        self.inputResourceID = inputResourceID
         self.nativePressProof = nativePressProof
     }
 }
@@ -121,7 +118,7 @@ public enum WebAdapterError: Error, Equatable, Sendable {
 /// One transport shared by source-scoped ordinary and isolated test compositions.
 /// Each start/completion scope is assigned only to registered new
 /// operations; historical operations retain their observation-only profiles.
-public actor WebAttachmentAdapter: IndependentInputResourceAdapter {
+public actor WebAttachmentAdapter: IndependentFileInputAdapter {
     public nonisolated let id: String
     private let mediaDirectory: URL
     private nonisolated let executor: any WebBridgeExecutor
@@ -138,7 +135,6 @@ public actor WebAttachmentAdapter: IndependentInputResourceAdapter {
     // The transport lease is released only by its own original append. A prior
     // observer finishing must never unlock a later operation's begin/commit.
     private var inputOwner: UUID?
-    private var activeAppendTargets: [UUID: TargetLease] = [:]
     // Lightweight identity tombstones, never file buffers. A repeated request
     // must not turn an earlier external input into local-before-begin proof.
     private var enteredOperations = Set<UUID>()
@@ -229,100 +225,6 @@ public actor WebAttachmentAdapter: IndependentInputResourceAdapter {
         return response.valid && response.target == target
     }
 
-    /// Reserve the current picker for B. A retained native selection requires
-    /// an exact settled, START-owned page witness; an empty picker retains the
-    /// existing legacy recovery path. Neither path rewrites A's journal.
-    public func prepareInputResource(_ request: TransferRequest) async throws -> PreparedInputResource {
-        do { return try await prepareCurrentInputResource(request) }
-        catch {
-            var facts: [String: Any] = ["event": "input_resource_preparation_refused", "action": "prepareInputResource",
-                "operationID": request.operation.id.uuidString,
-                "error": (error as? WebAdapterError)?.diagnosticLabel ?? "unclassifiedTransportError"]
-            if case .pageRejected(let code)? = error as? WebAdapterError, code.isInputResourceRefusal {
-                facts["resourceRefusalReason"] = code.rawValue
-            } else if error as? WebAdapterError == .inputInFlight {
-                facts["resourceRefusalReason"] = WebPageRejection.inputResourceExecutionBusy.rawValue
-            }
-            diagnosticTrace?.record(facts, critical: true)
-            throw error
-        }
-    }
-
-    private func prepareCurrentInputResource(_ request: TransferRequest) async throws -> PreparedInputResource {
-        try requireEnabled()
-        guard mode == .ordinaryProduct || mode == .syntheticDevelopment,
-              request.operation.phase == .prepared,
-              let invocationID = request.invocationID,
-              request.operation.target.clickBindingID != nil else { throw WebAdapterError.invalidRequest }
-        guard inputOwner == nil else { throw WebAdapterError.inputInFlight }
-        try check(request.operation.target)
-        try checkNewInputScope(request.operation.target)
-        try await preflight(asset: request.asset, fileURL: request.fileURL)
-        let identity = ObservationIdentity(operationID: request.operation.id, assetID: request.asset.id,
-            attempt: request.operation.attempt, assetSHA256: request.asset.sha256, target: request.operation.target)
-        let command = WebBridgeCommand(action: .prepareInputResource, target: identity.target,
-            identity: identity, invocationID: invocationID)
-        let deadline = ProcessInfo.processInfo.systemUptime + 1
-        var data = try await perform(command)
-        for attempt in 0..<16 {
-            guard let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
-                throw WebAdapterError.invalidReply
-            }
-            guard object["pending"] != nil else { break }
-            struct Pending: Decodable {
-                let version: Int
-                let identity: ObservationIdentity
-                let invocationID: UUID
-                let pending: Bool
-            }
-            let pending = try decode(Pending.self, from: data)
-            guard Set(object.keys) == Set(["version", "identity", "invocationID", "pending"]),
-                  pending.version == 1, pending.identity == identity,
-                  pending.invocationID == invocationID, pending.pending else { throw WebAdapterError.invalidReply }
-            // This rereads only one explicit preparation's bounded old-File
-            // qualification. It cannot repeat BEGIN/chunks/commit, and neither
-            // timeout nor a late digest grants input or releases an old owner.
-            guard attempt < 15, ProcessInfo.processInfo.systemUptime + 0.02 < deadline else {
-                throw WebAdapterError.pageRejected(.inputResourceQualificationPending)
-            }
-            try await Task.sleep(nanoseconds: 20_000_000)
-            guard ProcessInfo.processInfo.systemUptime < deadline else {
-                throw WebAdapterError.pageRejected(.inputResourceQualificationPending)
-            }
-            data = try await perform(command)
-        }
-        struct Reply: Decodable {
-            let version: Int
-            let identity: ObservationIdentity
-            let invocationID: UUID
-            let resourceID: UUID
-            let inputElementID: String
-            let kind: String
-            let observedSequence: Int
-            let baselineAttachmentCount: Int
-        }
-        let reply = try decode(Reply.self, from: data)
-        guard reply.version == 1, reply.identity == identity, reply.invocationID == invocationID,
-              ["emptyNativeFileInput", "settledOwnedNativeFileInput"].contains(reply.kind), reply.observedSequence > 0,
-              reply.baselineAttachmentCount >= 0, reply.baselineAttachmentCount <= 4096,
-              !reply.inputElementID.isEmpty, reply.inputElementID.utf8.count <= 256 else { throw WebAdapterError.invalidReply }
-        diagnosticTrace?.record(["event": "input_resource_prepared", "action": "prepareInputResource",
-            "operationID": identity.operationID.uuidString, "resourceKind": reply.kind,
-            "baselineAttachmentCount": reply.baselineAttachmentCount, "observedSequence": reply.observedSequence])
-        return PreparedInputResource(operationID: identity.operationID, assetID: identity.assetID,
-            attempt: identity.attempt, assetSHA256: identity.assetSHA256, target: identity.target,
-            invocationID: invocationID, resourceID: reply.resourceID, inputElementID: reply.inputElementID)
-    }
-
-    public func releaseInputResource(_ resource: PreparedInputResource) async {
-        let identity = ObservationIdentity(operationID: resource.operationID, assetID: resource.assetID,
-            attempt: resource.attempt, assetSHA256: resource.assetSHA256, target: resource.target)
-        // Only a one-use reservation is released. The page cannot delete a card,
-        // clear a FileList, retire UNKNOWN or input bytes through this action.
-        _ = try? await perform(.init(action: .releaseInputResource, target: resource.target,
-            identity: identity, invocationID: resource.invocationID, inputResourceID: resource.resourceID))
-    }
-
     public func append(_ request: TransferRequest) async throws -> TransferReceipt {
         try await append(request, inputConfirmed: nil)
     }
@@ -332,42 +234,42 @@ public actor WebAttachmentAdapter: IndependentInputResourceAdapter {
         try await append(request, inputConfirmed: onInputConfirmed)
     }
 
+    public func append(_ request: TransferRequest,
+                       onInputExecutionReturned: @escaping @Sendable () async -> Void) async throws -> TransferReceipt {
+        try await append(request, inputConfirmed: nil, inputExecutionReturned: onInputExecutionReturned)
+    }
+
     private func append(_ request: TransferRequest,
-                        inputConfirmed: (@Sendable (TransferReceipt) async -> Void)?) async throws -> TransferReceipt {
+                        inputConfirmed: (@Sendable (TransferReceipt) async -> Void)?,
+                        inputExecutionReturned: (@Sendable () async -> Void)? = nil) async throws -> TransferReceipt {
         try requireEnabled()
         try check(request.operation.target)
         try checkNewInputScope(request.operation.target)
         try checkOrigin(request.asset)
         guard request.operation.assetID == request.asset.id,
               request.operation.phase == .dispatchIntent else { throw WebAdapterError.invalidRequest }
-        if let resource = request.inputResource {
-            guard resource.operationID == request.operation.id, resource.assetID == request.asset.id,
-                  resource.attempt == request.operation.attempt, resource.assetSHA256 == request.asset.sha256,
-                  resource.target == request.operation.target, resource.invocationID == request.invocationID else {
-                throw WebAdapterError.invalidRequest
-            }
-        }
-        guard inputOwner == nil,
-              request.inputResource != nil || activeAppendTargets.values.allSatisfy({ request.operation.target.hasIndependentInputDocument(from: $0) }) else {
-            throw WebAdapterError.inputInFlight
-        }
+        guard inputOwner == nil else { throw WebAdapterError.inputInFlight }
         guard enteredOperations.insert(request.operation.id).inserted else { throw WebAdapterError.invalidRequest }
         let operationID = request.operation.id
         inputOwner = operationID
-        activeAppendTargets[operationID] = request.operation.target
         defer {
             releaseInput(ownedBy: operationID)
-            activeAppendTargets.removeValue(forKey: operationID)
         }
 
         let input: (response: Data, identity: ObservationIdentity)
         do { input = try await performFileInput(request) }
         catch {
+            releaseInput(ownedBy: operationID)
+            await inputExecutionReturned?()
             await onInputTransportFinished?()
             throw error
         }
-        // Scheduling notification only: commit may still be UNKNOWN. Neither
-        // this notification nor a bare commit reply releases the input lease.
+        // The input command has returned even when its receipt is UNKNOWN.
+        // Never keep the host lane while observing START. If a native reply was
+        // lost, Chrome's synchronous event loop and the page's short busy guard
+        // still prevent overlapping setters; this does not assert input/START.
+        releaseInput(ownedBy: operationID)
+        await inputExecutionReturned?()
         await onInputTransportFinished?()
         return try await observeCompletion(initial: input.response, identity: input.identity,
             request: request, liveAppend: true, inputConfirmed: inputConfirmed)
@@ -410,7 +312,7 @@ public actor WebAttachmentAdapter: IndependentInputResourceAdapter {
         do {
             let begin = WebBridgeCommand(action: .begin, target: identity.target, identity: identity,
                 uploadName: uploadName, mediaType: request.asset.mediaType, byteCount: request.asset.byteCount,
-                invocationID: request.invocationID, inputResourceID: request.inputResource?.resourceID)
+                invocationID: request.invocationID)
             let beginReply = try await perform(begin)
             // The page may reserve and permanently retire a brand-new identity
             // when its live byte budget is full. This is an explicit response,
@@ -418,7 +320,7 @@ public actor WebAttachmentAdapter: IndependentInputResourceAdapter {
             if let invocationID = request.invocationID,
                let proof = try? decode(BeginRejectionProof.self, from: beginReply),
                proof.identity == identity, proof.invocationID == invocationID,
-               proof.rejectedBeforeBegin, ["ACTIVE_PAYLOAD_LIMIT", "OBSERVER_UPGRADE_REQUIRED", "INPUT_RESOURCE_UNAVAILABLE"].contains(proof.reason),
+               proof.rejectedBeforeBegin, ["ACTIVE_PAYLOAD_LIMIT", "INPUT_EXECUTION_BUSY"].contains(proof.reason),
                proof.retiredBeforeInput, !proof.commitInvoked, proof.inputCount == 0 {
                 recordResourceRefusal(proof.resourceRefusalReason, action: .begin, operationID: identity.operationID)
                 throw PreInputRejection(operationID: identity.operationID, assetID: identity.assetID,
@@ -444,10 +346,19 @@ public actor WebAttachmentAdapter: IndependentInputResourceAdapter {
             }
             try file.verifyAfterRead(hash: hash.finalize().map { String(format: "%02x", $0) }.joined())
             // This is the only command permitted to trigger attachment input. The
-            // page function must validate target + all chunks/hash atomically here.
+            // page function rechecks the target and the complete current payload.
             committing = true
-            let response = try await perform(.init(action: .commit, target: identity.target,
-                                                   identity: identity, chunkIndex: index, invocationID: request.invocationID))
+            let response: Data
+            do {
+                response = try await perform(.init(action: .commit, target: identity.target,
+                    identity: identity, chunkIndex: index, invocationID: request.invocationID))
+                // A malformed/lost transport receipt does not undo a file input.
+                // Recover only by observing this operation, never another commit.
+                _ = try ObservationDecoder.decode(response)
+            } catch {
+                let observed = try await perform(.init(action: .observe, target: identity.target, identity: identity))
+                return (observed, identity)
+            }
             return (response, identity)
         } catch {
             if began && !committing {
@@ -506,18 +417,17 @@ public actor WebAttachmentAdapter: IndependentInputResourceAdapter {
                 throw rejection
             }
             let receipt = try await normalize(envelope, for: request, liveAppend: liveAppend)
-            if liveAppend, !didConfirmInput, let inputConfirmed,
+            if liveAppend, !didConfirmInput,
                receipt.outcome == .inputTriggered || receipt.outcome == .uploadStarted,
                receipt.operationID == request.operation.id, receipt.assetID == request.asset.id,
                receipt.attempt == request.operation.attempt, receipt.assetSHA256 == request.asset.sha256,
                receipt.target == request.operation.target, receipt.belongsToOriginalDraft, !receipt.hasError {
-                // This is a normalized positive fact from the original page
-                // operation, including delayed input after asynchronous hashing.
-                // It releases only this transport lease; the original observer,
-                // its replay tombstone and same-draft exclusion remain alive.
+                // The page reports input only after setter/change has returned.
+                // Release this short execution lane before any START observation.
+                // Upload state and old FileLists never own the next input.
                 didConfirmInput = true
                 releaseInput(ownedBy: request.operation.id)
-                await inputConfirmed(receipt)
+                await inputConfirmed?(receipt)
             }
             // Positive start returns without waiting for completion. Core policy
             // independently admits visual exit; subsequent calls only observe.

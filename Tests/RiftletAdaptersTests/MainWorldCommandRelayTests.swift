@@ -26,6 +26,19 @@ final class MainWorldCommandRelayTests: XCTestCase {
     private func envelope(_ command: String = "{\"action\":\"observe\"}") -> MainWorldCommandEnvelope {
         MainWorldCommandEnvelope(function: function, commandJSON: command, contextJSON: native)
     }
+    func testEveryNativeCommandReachesInstalledRelayAndReturnsItsReceiptExactlyOnce() throws {
+        let js = try context(), relay = MainWorldCommandRelay(function: function, contextJSON: native)
+        js.evaluateScript(relay.installer)
+        for (index, action) in WebBridgeAction.allCases.enumerated() {
+            let e = envelope("{\"action\":\"\(action.rawValue)\"}")
+            js.evaluateScript(relay.dispatch(e))
+            XCTAssertNil(js.exception, action.rawValue)
+            let raw = try XCTUnwrap(js.evaluateScript(e.reader)?.toString())
+            _ = try e.decode(raw)
+            js.evaluateScript(relay.dispatch(e))
+            XCTAssertEqual(js.evaluateScript("executions")?.toInt32(), Int32(index + 1), action.rawValue)
+        }
+    }
     func testOnlyInstalledClosureRunsAndLifetimeNonceCannotReplayAfterReceiptExpiry() throws {
         let js = try context(), relay = MainWorldCommandRelay(function: function, contextJSON: native), e = envelope()
         js.evaluateScript(relay.dispatch(e)); XCTAssertNotNil(js.exception); js.exception = nil

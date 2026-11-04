@@ -67,7 +67,7 @@ public struct ObservedUploadStart: Codable, Equatable, Sendable {
 /// change event does not prove that the file setter had no side effects.
 public struct ObservedPreInputRetirement: Codable, Equatable, Sendable {
     public enum Reason: String, Codable, Sendable {
-        case invalidPNGSignature, inputHashMismatch, targetInvalidBeforeInput, inputPreparationFailed
+        case invalidPNGSignature, inputHashMismatch, targetInvalidBeforeInput, inputPreparationFailed, inputExecutionBusy
     }
     public let version: Int
     public let invocationID: UUID
@@ -223,7 +223,7 @@ public enum ObservationDecoder {
             guard envelope.schemaVersion == 3, retirement.version == 1,
                   retirement.commitInvoked, retirement.commitWorkSettled, retirement.irreversiblyRetired,
                   !retirement.inputSideEffectEntered, retirement.inputCount == 0,
-                  item.state == .invalidated, item.belongsToOriginalDraft,
+                  item.state == .invalidated,
                   item.attachmentID == nil, !item.exactImageIdentity, !item.hasError,
                   !item.isUploading, !item.attachmentAbsent, !item.automaticRetryExcluded,
                   item.uploadStart == nil else { throw ObservationError.invalidField("pre-input retirement") }
@@ -237,17 +237,30 @@ public enum ObservationDecoder {
         }
         if item.state == .uploadStarted {
             guard [2, 4].contains(envelope.schemaVersion), let start = item.uploadStart,
-                  start.version == 1, start.signal == .correlatedProgress,
+                  start.version == 1,
                   start.evidenceID.utf8.count == 36, UUID(uuidString: start.evidenceID) != nil,
                   start.inputCount == 1, start.inputSequence > 0, start.startSequence > start.inputSequence,
-                  start.previousProgress.isFinite, start.currentProgress.isFinite,
-                  start.previousProgress >= 0, start.currentProgress > start.previousProgress,
-                  start.currentProgress < 100,
                   start.inputObservedAtMS.isFinite, start.startObservedAtMS.isFinite,
-                  start.inputObservedAtMS >= 0, start.startObservedAtMS > start.inputObservedAtMS,
+                  start.inputObservedAtMS >= 0, start.startObservedAtMS >= start.inputObservedAtMS,
                   item.attachmentID != nil, item.exactImageIdentity, item.belongsToOriginalDraft,
-                  item.isUploading, !item.hasError, !item.attachmentAbsent, !item.automaticRetryExcluded else {
+                  !item.hasError, !item.attachmentAbsent, !item.automaticRetryExcluded else {
                 throw ObservationError.invalidField("upload start")
+            }
+            switch start.signal {
+            case .attachmentAccepted:
+                // A newly added, current-file attachment in the original composer
+                // is the application's receipt. No progress, preview or server
+                // completion measurement is required for this handoff.
+                guard start.previousProgress == 0, start.currentProgress == 0 else {
+                    throw ObservationError.invalidField("attachment acceptance")
+                }
+            case .correlatedProgress:
+                guard start.previousProgress.isFinite, start.currentProgress.isFinite,
+                      start.previousProgress >= 0, start.currentProgress > start.previousProgress,
+                      start.currentProgress < 100, start.startObservedAtMS > start.inputObservedAtMS,
+                      item.isUploading else { throw ObservationError.invalidField("upload progress") }
+            case .correlatedByteRequest:
+                throw ObservationError.invalidField("unsupported upload signal")
             }
         } else if item.uploadStart != nil {
             throw ObservationError.invalidField("unexpected upload start")

@@ -3,6 +3,22 @@ import RiftletCore
 @testable import RiftletAdapters
 
 final class ChromePinnedRoutingTests: XCTestCase {
+    func testLastTargetSurvivesFocusLeavingChromeButNeverAnObservedTabChange() {
+        let cache = ObservedClickRoutes()
+        let target = TargetLease(adapterID: "chatgpt-web", surface: .webChat, applicationID: "com.google.Chrome",
+            sessionID: "original-process", windowID: "11", tabID: "12", documentID: "doc",
+            composerID: "editor", draftGeneration: "draft")
+        cache.recordRoute(session: target.sessionID, window: target.windowID, tab: "12", uptime: 1)
+        cache.record(target, uptime: 2)
+        // Foreground app changes do not choose another process/tab or erase the
+        // saved native route. Pinning still rechecks these exact native IDs.
+        XCTAssertEqual(cache.snapshot().lastTarget(eventUptime: 300), target)
+        XCTAssertNil(cache.snapshot().lastTarget(eventUptime: 2))
+        cache.recordRoute(session: target.sessionID, window: "11", tab: "13", uptime: 301)
+        XCTAssertNil(cache.snapshot().lastTarget(eventUptime: 302))
+        cache.recordRoute(session: target.sessionID, window: "11", tab: "12", uptime: 303)
+        XCTAssertNil(cache.snapshot().lastTarget(eventUptime: 304))
+    }
     func testPressSnapshotCannotBorrowANewDocumentPublishedDuringNativeRead() {
         func lease(_ document: String, session: String = "A") -> TargetLease {
             .init(adapterID: "chatgpt-web", surface: .webChat, applicationID: "com.google.Chrome",

@@ -1,0 +1,21 @@
+{
+  "scope": "Actual native Chrome primitives and controlled loopback application; not live ChatGPT",
+  "result": "PASS",
+  "testedSourceSHA256": "0084b6285666f46c52fb945187c94a34245782781e5eeb7d7fc2fe175b9acc25",
+  "sourceNote": "Precommit source before nested-error and empty-image-source START fixes; exact final source is rerun by mandatory CI",
+  "environment": {
+    "os": "macOS 27.0",
+    "architecture": "arm64",
+    "chrome": "156.0.8078.80",
+    "node": "26.8.2"
+  },
+  "nativeCases": 6,
+  "cleanupCases": 13,
+  "skipped": 0,
+  "fileInputEvents": 18,
+  "currentOperationSTART": 18,
+  "automaticSends": 0,
+  "applicationNetworkRequests": 0,
+  "logSHA256": "76a31f7cf7f1f1a5cdbfa2317f0870a9c6ede9bd4c8989da78dbea8def32619b",
+  "realChatGPTAcceptance": "NOT_RUN"
+}

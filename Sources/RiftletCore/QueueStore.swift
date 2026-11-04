@@ -287,33 +287,33 @@ public actor QueueStore {
             """, [String(max(0, min(limit, 64)))]).map(decodeOperation)
     }
 
-    /// Commit intent BEFORE the caller performs any external input.
+    /// Legacy/non-file adapters keep their exclusive target semantics. Normal
+    /// browser file inputs use markIndependentFileInputIntent instead.
     @discardableResult
     public func markDispatchIntent(_ id: UUID, selection: AcceptedSelection? = nil,
-                                   ownerID: UUID? = nil, policy: ReceiptPolicy = .init(),
-                                   inputResource: PreparedInputResource? = nil) throws -> UUID {
+                                   ownerID: UUID? = nil, policy: ReceiptPolicy = .init()) throws -> UUID {
         try database.transaction {
-            let (op, follows) = try validatedDispatchOperation(id, selection: selection, ownerID: ownerID,
-                                                             policy: policy, inputResource: inputResource)
-            guard let asset = try asset(id: op.assetID) else { throw RiftletError.assetNotFound }
-            let invocationID = inputResource?.invocationID ?? UUID()
-            let call = DispatchCallRecord(version: 1, operationID: op.id, assetID: op.assetID,
-                attempt: op.attempt, assetSHA256: asset.image.sha256, target: op.target,
-                invocationID: invocationID, ownerID: ownerID, returnedReceipt: nil,
-                inputExecutionReturned: false, inputResource: inputResource)
-            let write = {
-                try self.database.execute("UPDATE operations SET dispatch_exclusive=? WHERE id=?", [follows ? "0" : "1", op.id.uuidString])
-                try self.update(op, phase: .dispatchIntent, status: .transferring, reason: "dispatch-intent committed")
-                try self.saveCheckpoint(JSONEncoder().encode(call), for: self.callKey(op.id))
-            }
-            if let selection { try selection.authorizeDispatch(write) } else { try write() }
-            return invocationID
+            let op = try validatedDispatchOperation(id, selection: selection)
+            guard try !unresolvedOperations().contains(where: {
+                $0.id != op.id && $0.phase != .prepared && $0.target.conflictsForDispatch(with: op.target)
+            }) else { throw RiftletError.targetBusy }
+            return try commitDispatchIntent(op, selection: selection, ownerID: ownerID, exclusive: true)
         }
     }
 
-    private func validatedDispatchOperation(_ id: UUID, selection: AcceptedSelection?,
-                                            ownerID: UUID?, policy: ReceiptPolicy,
-                                            inputResource: PreparedInputResource?) throws -> (TransferOperation, Bool) {
+    /// Durable once-only intent for the current screenshot. No previous
+    /// operation, upload receipt, File hash, request ownership or UNKNOWN is
+    /// consulted. The coordinator and browser own only transient input execution.
+    @discardableResult
+    public func markIndependentFileInputIntent(_ id: UUID, selection: AcceptedSelection? = nil,
+                                               ownerID: UUID) throws -> UUID {
+        try database.transaction {
+            let op = try validatedDispatchOperation(id, selection: selection)
+            return try commitDispatchIntent(op, selection: selection, ownerID: ownerID, exclusive: false)
+        }
+    }
+
+    private func validatedDispatchOperation(_ id: UUID, selection: AcceptedSelection?) throws -> TransferOperation {
         let op = try requiredOperation(id)
         guard op.phase == .prepared, let record = try asset(id: op.assetID),
               record.visibility == .visible else { throw RiftletError.invalidTransition }
@@ -322,20 +322,26 @@ public actor QueueStore {
                   selection.visibilityRevision == record.visibilityRevision,
                   record.activeOperationID == op.id, try !userHidden() else { throw RiftletError.invalidTransition }
         }
-        if let inputResource {
-            guard selection != nil, ownerID != nil, inputResource.matches(op, asset: record.image) else {
-                throw RiftletError.mismatchedReceipt
-            }
+        return op
+    }
+
+    private func commitDispatchIntent(_ op: TransferOperation, selection: AcceptedSelection?,
+                                      ownerID: UUID?, exclusive: Bool) throws -> UUID {
+        guard let asset = try asset(id: op.assetID) else { throw RiftletError.assetNotFound }
+        let invocationID = UUID()
+        let call = DispatchCallRecord(version: 1, operationID: op.id, assetID: op.assetID,
+            attempt: op.attempt, assetSHA256: asset.image.sha256, target: op.target,
+            invocationID: invocationID, ownerID: ownerID, returnedReceipt: nil,
+            inputExecutionReturned: false)
+        let write = {
+            // Reuse the additive v3 column. Old rows and indexes stay intact;
+            // only this new operation uses the independent slot.
+            try self.database.execute("UPDATE operations SET dispatch_exclusive=? WHERE id=?", [exclusive ? "1" : "0", op.id.uuidString])
+            try self.update(op, phase: .dispatchIntent, status: .transferring, reason: "dispatch-intent committed")
+            try self.saveCheckpoint(JSONEncoder().encode(call), for: self.callKey(op.id))
         }
-        var follows = false
-        for active in try unresolvedOperations() where active.phase != .prepared && active.target.conflictsForDispatch(with: op.target) {
-            follows = true
-            guard selection != nil, try allowsFollowing(active, next: op, ownerID: ownerID,
-                                                        policy: policy, inputResource: inputResource) else {
-                throw RiftletError.targetBusy
-            }
-        }
-        return (op, follows)
+        if let selection { try selection.authorizeDispatch(write) } else { try write() }
+        return invocationID
     }
 
     private func callKey(_ id: UUID) -> String { "transfer-dispatch-call-v1:" + id.uuidString }
@@ -344,7 +350,6 @@ public actor QueueStore {
         return try JSONDecoder().decode(DispatchCallRecord.self, from: data)
     }
     public func dispatchInvocationID(for id: UUID) throws -> UUID? { try dispatchCall(id)?.invocationID }
-    public func inputResource(for id: UUID) throws -> PreparedInputResource? { try dispatchCall(id)?.inputResource }
     public func inputExecutionIsActive(for id: UUID) throws -> Bool {
         try dispatchCall(id)?.inputExecutionReturned == false
     }
@@ -378,42 +383,6 @@ public actor QueueStore {
         }
     }
 
-    private func allowsFollowing(_ prior: TransferOperation, next: TransferOperation,
-                                 ownerID: UUID?, policy: ReceiptPolicy,
-                                 inputResource: PreparedInputResource? = nil) throws -> Bool {
-        if inputResource != nil {
-            guard prior.id != next.id, prior.assetID != next.assetID, let ownerID else { return false }
-            // A still executing call in THIS owner remains serialized. Across a
-            // restart the page reservation checks the actual old pending commit;
-            // persisted UNKNOWN is not evidence of an occupied HTML input.
-            if let call = try dispatchCall(prior.id), call.ownerID == ownerID,
-               call.inputExecutionReturned == false { return false }
-            return true
-        }
-        guard prior.id != next.id, prior.assetID != next.assetID,
-              prior.target.sharesContinuationDraft(with: next.target),
-              let ownerID, let call = try dispatchCall(prior.id), call.version == 1,
-              call.ownerID == ownerID, call.operationID == prior.id,
-              call.assetID == prior.assetID, call.attempt == prior.attempt, call.target == prior.target,
-              let returned = call.returnedReceipt,
-              let start = try uploadStartReceipt(for: prior.id), returned == start,
-              let evidence = returned.continuationEvidence, evidence.invocationID == call.invocationID,
-              let asset = try asset(id: prior.assetID), call.assetSHA256 == asset.image.sha256,
-              policy.allowsContinuation(receipt: returned, asset: asset.image, mode: mode) else { return false }
-        if evidence.version == 2 {
-            // A later policy object must not retroactively promote a START that
-            // was retained only as an unadmitted candidate in this live owner.
-            guard let binding = evidence.binding, let task = evidence.taskIsolation?.task,
-                  let admitted = try platformTaskCheckpoint(for: prior.id),
-                  admitted == PlatformTaskCheckpoint(version: 1, binding: binding, task: task) else { return false }
-        } else if evidence.version == 3 {
-            guard let binding = evidence.binding, let isolation = evidence.inputIsolation,
-                  let admitted = try inputIsolationCheckpoint(for: prior.id),
-                  admitted == InputIsolationCheckpoint(version: 1, binding: binding, isolation: isolation) else { return false }
-        }
-        return true
-    }
-
     /// A no-input proof retires only this original invocation. It neither clears
     /// UNKNOWN nor replays a click. A subsequent attempt needs a new selection.
     public func recordPreInputRejection(_ proof: PreInputRejection) throws {
@@ -430,7 +399,9 @@ public actor QueueStore {
                   call.returnedReceipt == nil, try receipt(for: op.id) == nil,
                   try uploadStartReceipt(for: op.id) == nil else { throw RiftletError.mismatchedReceipt }
             try saveCheckpoint(JSONEncoder().encode(proof), for: "transfer-no-input-v1:" + op.id.uuidString)
-            try update(op, phase: .failed, status: .failed, reason: "Verified pre-input rejection: " + proof.stage.rawValue)
+            let detail = proof.reason.map { ": " + String($0.prefix(128)) } ?? ""
+            try update(op, phase: .failed, status: .failed,
+                reason: "Verified pre-input rejection: " + proof.stage.rawValue + detail)
         }
     }
 

@@ -1,3 +1,22 @@
+# Current independent file input — 2026-11-04
+
+The latest user explicitly replaces the former upload-transaction eligibility
+model. New ordinary screenshot clicks use the saved Chrome target and a unique
+usable file input, submit one current PNG, and swallow when that current file
+is accepted as a new attachment. Previous UNKNOWN/START/COMPLETE, retained old
+File bytes, request ownership and old observer generations are not prerequisites.
+Only active file-input execution is exclusive; upload observation never holds
+the next input. An uncertain submission is observed by its original identity,
+never automatically submitted again. After START, the ordinary tool stops
+managing that upload. Existing SQLite/media/history must be preserved.
+
+This instruction supersedes historical runtime permission/proof requirements
+below, including retained-input reservations and continuation eligibility.
+Historical decoding remains compatible and cannot become a hidden new-input
+veto. UI, capture and animation are unchanged. Keep independent source review,
+ARM64/Intel/Feedback CI and exact package identity. Actual ChatGPT page acceptance
+is user-operated only; do not bypass Browser access restrictions with other tools.
+
 # Current R2.1 final UI integration and freeze — 2026-10-31
 
 The latest user explicitly authorizes the reviewed PR #24 R2.1 increment to be

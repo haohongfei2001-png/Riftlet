@@ -15,6 +15,12 @@ final class ObservedClickRoutes: @unchecked Sendable {
     struct Snapshot: Sendable {
         fileprivate let route: Route?
         fileprivate let targets: [(TargetLease, TimeInterval)]
+        /// Last usable ChatGPT target before this press, even if another app
+        /// now owns focus. The caller still checks Chrome's exact native route.
+        func lastTarget(eventUptime: TimeInterval) -> TargetLease? {
+            guard let route else { return nil }
+            return target(session: route.session, window: route.window, tab: route.tab, eventUptime: eventUptime)
+        }
         func target(session: String, window: String, tab: String, eventUptime: TimeInterval) -> TargetLease? {
             guard eventUptime.isFinite, eventUptime >= 0, let route, route.observedUptime < eventUptime,
                   route.session == session, route.window == window, route.tab == tab else { return nil }

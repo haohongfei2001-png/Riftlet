@@ -28,14 +28,20 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
         let routeSnapshot = observedRoutes.snapshot()
         let deadline = started + 0.75
         guard NativePressTiming.accepts(eventUptime: eventUptime, startedUptime: started),
-              let app = NSWorkspace.shared.frontmostApplication, app.bundleIdentifier == "com.google.Chrome",
-              let identity = ChromeProcessIdentity.read(pid: app.processIdentifier) else { throw WebAdapterError.invalidTarget }
+              let expected = routeSnapshot.lastTarget(eventUptime: eventUptime),
+              let app = NSRunningApplication.runningApplications(withBundleIdentifier: "com.google.Chrome").first(where: {
+                  ChromeProcessIdentity.read(pid: $0.processIdentifier)?.session == expected.sessionID
+              }), let identity = ChromeProcessIdentity.read(pid: app.processIdentifier) else {
+            throw WebAdapterError.invalidTarget
+        }
+        if let frontmost = NSWorkspace.shared.frontmostApplication, frontmost.bundleIdentifier == "com.google.Chrome",
+           frontmost.processIdentifier != identity.pid { throw WebAdapterError.nativeSelectionChanged }
         let requestID = UUID(), pinID = UUID()
         let bridge = ChromePIDEvents(pid: identity.pid, trace: trace, requestID: requestID.uuidString, deadline: deadline)
-        guard identity.isCurrent(), try bridge.frontmost() else { throw WebAdapterError.browserNotFrontmost }
+        guard identity.isCurrent() else { throw WebAdapterError.invalidTarget }
         let selected = try bridge.activeIdentity(check: "press_route")
-        guard let expected = routeSnapshot.target(session: identity.session, window: selected.window, tab: selected.tab, eventUptime: eventUptime) else {
-            throw WebAdapterError.pageRejected(.clickRouteUnobserved)
+        guard selected.window == expected.windowID, selected.tab == expected.tabID else {
+            throw WebAdapterError.nativeSelectionChanged
         }
         let command = WebBridgeCommand(action: .pinTarget, target: expected, clickBindingID: pinID,
             nativePressProof: NativePressProof(clickBindingID: pinID))
@@ -47,8 +53,7 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
             contextJSON: Self.contextJSON(session: identity.session, window: selected.window, tab: selected.tab), allowCreate: false) else {
             throw WebAdapterError.pageRejected(.bridgeUnavailable)
         }
-        guard identity.isCurrent(), try bridge.frontmost(),
-              try bridge.activeIdentity(check: "press_dispatch") == selected else {
+        guard identity.isCurrent(), try bridge.activeIdentity(check: "press_dispatch") == selected else {
             throw WebAdapterError.nativeSelectionChanged
         }
         try bridge.dispatchMainWorld(relay.dispatch(envelope), window: selected.window, tab: selected.tab)

@@ -74,7 +74,7 @@ final class DispatchLifecycleTests: XCTestCase {
         var ids = Set<UUID>(), attachments = Set<String>()
         for _ in 0..<48 {
             let a = try await asset(db), op = try await db.prepare(assetID: a.id, target: t)
-            let nonce = try await db.markDispatchIntent(op.id, selection: selection(a, target: t), ownerID: owner, policy: policy)
+            let nonce = try await db.markIndependentFileInputIntent(op.id, selection: selection(a, target: t), ownerID: owner)
             let r = receipt(op, a, nonce); _ = try await db.apply(r, policy: policy)
             try await db.recordAppendReturned(r, invocationID: nonce, ownerID: owner)
             try await db.markUnknown(op.id, reason: "independently observed fixture remains pending")
@@ -90,7 +90,7 @@ final class DispatchLifecycleTests: XCTestCase {
         let (a, ao, an) = try await started(db, owner: owner, target: at)
         let b = try await asset(db), bo = try await db.prepare(assetID: b.id, target: bt)
         let click = selection(b, target: bt)
-        let bn = try await db.markDispatchIntent(bo.id, selection: click, ownerID: owner, policy: policy)
+        let bn = try await db.markIndependentFileInputIntent(bo.id, selection: click, ownerID: owner)
         let br = receipt(bo, b, bn)
         _ = try await db.apply(br, policy: policy)
         try await db.recordAppendReturned(br, invocationID: bn, ownerID: owner)
@@ -105,7 +105,7 @@ final class DispatchLifecycleTests: XCTestCase {
             XCTFail("Sibling pin admitted for the original operation")
         } catch RiftletError.mismatchedReceipt {}
         do {
-            _ = try await db.markDispatchIntent(bo.id, selection: click, ownerID: owner, policy: policy)
+            _ = try await db.markIndependentFileInputIntent(bo.id, selection: click, ownerID: owner)
             XCTFail("Dispatched click replayed")
         } catch RiftletError.invalidTransition {}
         let retainedA = try await db.prepare(assetID: a.id, target: target(pin: UUID()))
@@ -121,7 +121,7 @@ final class DispatchLifecycleTests: XCTestCase {
         // independent input ownership or block a different screenshot C.
         let c = try await asset(db), ct = target(pin: UUID())
         let co = try await db.prepare(assetID: c.id, target: ct)
-        _ = try await db.markDispatchIntent(co.id, selection: selection(c, target: ct), ownerID: owner, policy: policy)
+        _ = try await db.markIndependentFileInputIntent(co.id, selection: selection(c, target: ct), ownerID: owner)
     }
 
     func testContinuationScopeRequiresExactObservedDraftAndDoesNotPromoteLegacyPins() throws {
@@ -192,7 +192,7 @@ final class DispatchLifecycleTests: XCTestCase {
             let (a, ao, an) = try await started(db, owner: owner, target: target(pin: UUID()))
             if completed { _ = try await db.apply(receipt(ao, a, an, outcome: .verifiedReady), policy: policy) }
             let bt = target(pin: UUID()), b = try await asset(db), bo = try await db.prepare(assetID: b.id, target: bt)
-            let bn = try await db.markDispatchIntent(bo.id, selection: selection(b, target: bt), ownerID: owner, policy: policy)
+            let bn = try await db.markIndependentFileInputIntent(bo.id, selection: selection(b, target: bt), ownerID: owner)
             for outcome in [ReceiptOutcome.uploadStarted, .verifiedReady] {
                 do {
                     _ = try await db.apply(receipt(bo, b, bn, outcome: outcome, attachment: "attachment-\(ao.id)"), policy: policy)
@@ -359,54 +359,35 @@ final class DispatchLifecycleTests: XCTestCase {
         let after = try await db.dispatchInvocationID(for: op.id); XCTAssertNil(after)
     }
 
-    func testTwoConnectionsSerializeFollowingIntentAndRejectAttachmentAlias() async throws {
+    func testTwoConnectionsCannotDispatchTheSameOperationTwice() async throws {
         let db = try store(), second = try store(), owner = UUID()
-        let (a, _, _) = try await started(db, owner: owner, target: target(pin: UUID()))
-        let b = try await asset(db), c = try await asset(db), bt = target(pin: UUID()), ct = target(pin: UUID())
-        let bo = try await db.prepare(assetID: b.id, target: bt), co = try await second.prepare(assetID: c.id, target: ct)
-        let bs = selection(b, target: bt), cs = selection(c, target: ct)
+        let image = try await asset(db), t = target(pin: UUID())
+        let op = try await db.prepare(assetID: image.id, target: t)
         let results = await withTaskGroup(of: Bool.self, returning: [Bool].self) { group in
-            group.addTask { do { try await db.markDispatchIntent(bo.id, selection: bs, ownerID: owner, policy: self.policy); return true } catch { return false } }
-            group.addTask { do { try await second.markDispatchIntent(co.id, selection: cs, ownerID: owner, policy: self.policy); return true } catch { return false } }
-            var all: [Bool] = []; for await r in group { all.append(r) }; return all
+            group.addTask { do { try await db.markIndependentFileInputIntent(op.id, ownerID: owner); return true } catch { return false } }
+            group.addTask { do { try await second.markIndependentFileInputIntent(op.id, ownerID: owner); return true } catch { return false } }
+            var all: [Bool] = []; for await result in group { all.append(result) }; return all
         }
         XCTAssertEqual(results.filter { $0 }.count, 1)
-        let bop = try await db.operation(id: bo.id)!, cop = try await db.operation(id: co.id)!
-        let winner = bop.phase == .dispatchIntent ? bop : cop, image = bop.phase == .dispatchIntent ? b : c
-        let original = try await db.asset(id: a.id)!, start = try await db.uploadStartReceipt(for: original.activeOperationID!)!
-        do { _ = try await db.apply(receipt(winner, image, UUID(), outcome: .verifiedReady, attachment: start.attachmentID), policy: policy); XCTFail("alias") }
-        catch RiftletError.mismatchedReceipt {}
-    }
-    func testIndependentBWithoutStartStillBlocksCWhenOriginalAFinishes() async throws {
-        let db = try store(), owner = UUID(); let (a, ao, an) = try await started(db, owner: owner)
-        let b = try await asset(db), bo = try await db.prepare(assetID: b.id, target: target())
-        _ = try await db.markDispatchIntent(bo.id, selection: selection(b, target: target()), ownerID: owner, policy: policy)
-        let sql = try SQLiteDatabase(url: directory.appendingPathComponent("queue.sqlite"))
-        XCTAssertEqual(try sql.rows("SELECT dispatch_exclusive FROM operations WHERE id=?", [ao.id.uuidString]), [["1"]])
-        XCTAssertEqual(try sql.rows("SELECT dispatch_exclusive FROM operations WHERE id=?", [bo.id.uuidString]), [["0"]])
-        try await expectBusy(db, owner: owner)
-        _ = try await db.apply(receipt(ao, a, an, outcome: .verifiedReady), policy: policy)
-        try await db.markUnknown(bo.id, reason: "B commit reply lost")
-        try await expectBusy(db, owner: owner)
-        let reopened = try store()
-        try await expectBusy(reopened, owner: UUID())
+        let recorded = try await db.dispatchInvocationID(for: op.id); XCTAssertNotNil(recorded)
     }
 
     func testLateACompensationDoesNotReassignBOrBlockIndependentNextInput() async throws {
         let db = try store(), owner = UUID(); let (a, ao, an) = try await started(db, owner: owner)
         let b = try await asset(db), bo = try await db.prepare(assetID: b.id, target: target())
-        let bn = try await db.markDispatchIntent(bo.id, selection: selection(b, target: target()), ownerID: owner, policy: policy)
+        let bn = try await db.markIndependentFileInputIntent(bo.id, selection: selection(b, target: target()), ownerID: owner)
         _ = try await db.apply(receipt(bo, b, bn, outcome: .verifiedReady), policy: policy)
         _ = try await db.apply(receipt(ao, a, an, outcome: .verifiedReady), policy: policy)
         _ = try await db.apply(receipt(ao, a, an, outcome: .definitiveFailure), policy: policy)
         let aa = try await db.operation(id: ao.id), bb = try await db.operation(id: bo.id)
         XCTAssertEqual(aa?.phase, .compensated); XCTAssertEqual(bb?.phase, .succeeded)
         let c = try await asset(db), co = try await db.prepare(assetID: c.id, target: target())
-        _ = try await db.markDispatchIntent(co.id, selection: selection(c, target: target()), ownerID: owner, policy: policy)
+        _ = try await db.markIndependentFileInputIntent(co.id, selection: selection(c, target: target()), ownerID: owner)
         let startedA = try await db.uploadStartReceipt(for: ao.id)
         XCTAssertEqual(startedA?.assetID, a.id)
         XCTAssertEqual(startedA?.operationID, ao.id)
     }
+
     func testRejectionNeedsOriginalNonceAndCannotClearUnknown() async throws {
         let db = try store(), a = try await asset(db), op = try await db.prepare(assetID: a.id, target: target())
         let nonce = try await db.markDispatchIntent(op.id)
@@ -483,7 +464,7 @@ private actor LifecycleRejectAdapter: AttachmentAdapter {
     func reconcile(_ request: TransferRequest) async throws -> TransferReceipt { throw RiftletError.invalidTransition }
 }
 
-private actor LifecycleContinuingAdapter: AttachmentAdapter {
+private actor LifecycleContinuingAdapter: IndependentFileInputAdapter {
     nonisolated let id = "lifecycle-fixture"
     let bFails: Bool
     var calls: [UUID] = []
@@ -501,6 +482,10 @@ private actor LifecycleContinuingAdapter: AttachmentAdapter {
             hasError: !first && bFails, isUploading: first,
             uploadStartEvidence: first ? .init(profileID: "fixture-start", signal: .correlatedProgress, evidenceID: "start-\(r.operation.id)") : nil,
             continuationEvidence: first ? .init(profileID: "fixture-independent", evidenceID: "independent-\(r.operation.id)", invocationID: r.invocationID!) : nil)
+    }
+    func append(_ request: TransferRequest,
+                onInputConfirmed: @escaping @Sendable (TransferReceipt) async -> Void) async throws -> TransferReceipt {
+        try await append(request)
     }
     func reconcile(_ r: TransferRequest) async throws -> TransferReceipt {
         .init(operationID: r.operation.id, assetID: r.asset.id, attempt: r.operation.attempt,

@@ -20,6 +20,7 @@ struct MainWorldCommandRelay: Sendable {
         let attribute = "data-riftlet-channel-" + channel
         let event = "riftlet-command-" + channel
         let codes = String(decoding: try! JSONEncoder().encode(WebPageRejection.allCases.map(\.rawValue)), as: UTF8.self)
+        let actions = String(decoding: try! JSONEncoder().encode(WebBridgeAction.allCases.map(\.rawValue)), as: UTF8.self)
         probe = "(()=>document.documentElement.getAttribute('\(attribute)')==='\(marker)'?'ready':'missing')()"
         installer = """
         (()=>{const root=document.documentElement,attribute='\(attribute)',marker='\(marker)';
@@ -32,7 +33,7 @@ struct MainWorldCommandRelay: Sendable {
           let q;try{q=JSON.parse(raw);}catch{return;}
           if(!q||Object.keys(q).sort().join(',')!=='command,nonce'
             ||typeof q.nonce!=='string'||!/^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/.test(q.nonce)
-            ||!q.command||!['captureTarget','pinTarget','validate','begin','chunk','commit','observe','discard'].includes(q.command.action)
+            ||!q.command||!\(actions).includes(q.command.action)
             ||seen.has(q.nonce))return;
           seen.add(q.nonce); // Lifetime nonce tombstone, before executing/reentrancy.
           const receiver=q.command.action==='observe'&&legacySession&&q.command.target?.sessionID===legacySession

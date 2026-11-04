@@ -99,8 +99,13 @@ final class WebAttachmentAdapterTests: XCTestCase {
             let client = WebAttachmentAdapter(mediaDirectory: directory, executor: executor,
                 program: program, mode: .syntheticDevelopment, polling: .disabled,
                 onInputTransportFinished: { await probe.record(await executor.recordedActions()) })
-            do { _ = try await client.append(request); XCTFail("Lost response accepted") }
-            catch WebAdapterError.nativeExecutionFailed {}
+            if case .throwOnCommit = behavior {
+                let result = try await client.append(request)
+                XCTAssertEqual(result.outcome, .unknown)
+            } else {
+                do { _ = try await client.append(request); XCTFail("Lost pre-input response accepted") }
+                catch WebAdapterError.nativeExecutionFailed {}
+            }
             let before = await executor.recordedActions()
             let notifications = await probe.records()
             XCTAssertEqual(notifications, [before], "Notification must follow all attempted input/retirement commands")
@@ -317,8 +322,8 @@ final class WebAttachmentAdapterTests: XCTestCase {
         let (store, request, _) = try await fixture()
         let executor = FakeWebBridge(behavior: .throwOnCommit)
         let client = adapter(executor)
-        do { _ = try await client.append(request); XCTFail("Commit exception hidden") }
-        catch WebAdapterError.nativeExecutionFailed {}
+        let recovered = try await client.append(request)
+        XCTAssertEqual(recovered.outcome, .unknown)
         // Mirrors coordinator's existing durable error boundary, then uses original identity.
         try await store.markUnknown(request.operation.id, reason: "Synthetic uncertain commit")
         let operation = try await store.operation(id: request.operation.id)
@@ -430,11 +435,16 @@ final class WebAttachmentAdapterTests: XCTestCase {
             let client = WebAttachmentAdapter(mediaDirectory: directory, executor: executor,
                 program: WebPageProgram(sourceID: "large-chunk-uncertain", functionSource: program.functionSource,
                                         maximumChunkBytes: 256 * 1024), mode: .syntheticDevelopment, polling: .disabled)
-            do { _ = try await client.append(request); XCTFail("Lost response treated as success") }
-            catch WebAdapterError.nativeExecutionFailed {}
+            if case .throwOnCommit = behavior {
+                let result = try await client.append(request)
+                XCTAssertEqual(result.outcome, .unknown)
+            } else {
+                do { _ = try await client.append(request); XCTFail("Lost chunk response treated as success") }
+                catch WebAdapterError.nativeExecutionFailed {}
+            }
             let before = await executor.recordedActions()
             if case .throwOnChunk = behavior { XCTAssertEqual(before, [.begin, .chunk, .discard]) }
-            else { XCTAssertEqual(before, [.begin, .chunk, .chunk, .commit]) }
+            else { XCTAssertEqual(before, [.begin, .chunk, .chunk, .commit, .observe]) }
             try await store.markUnknown(request.operation.id, reason: "Bounded test lost original bridge response")
             let persisted = try await store.operation(id: request.operation.id)
             let original = TransferRequest(operation: try XCTUnwrap(persisted), asset: request.asset, fileURL: request.fileURL)
@@ -502,7 +512,7 @@ private actor FakeWebBridge: WebBridgeExecutor {
         actions.append(command.action)
         if let identity = command.identity { identities.append(identity) }
         switch command.action {
-        case .pinTarget, .prepareInputResource, .releaseInputResource: throw WebAdapterError.invalidRequest
+        case .pinTarget: throw WebAdapterError.invalidRequest
         case .captureTarget:
             return try JSONEncoder().encode(Self.target)
         case .validate:
@@ -599,7 +609,7 @@ private actor RetirementBridge: WebBridgeExecutor {
         let json = try JSONSerialization.jsonObject(with: JSONEncoder().encode(identity))
         let nonce = command.invocationID ?? UUID()
         switch command.action {
-        case .pinTarget, .prepareInputResource, .releaseInputResource: throw WebAdapterError.invalidRequest
+        case .pinTarget: throw WebAdapterError.invalidRequest
         case .begin:
             if fault == .beginReplyLost { throw WebAdapterError.nativeExecutionFailed }
             if [.beginCapacity, .beginCapacityWrongIdentity, .beginCapacityWrongNonce, .beginCapacityWrongReason].contains(fault) {

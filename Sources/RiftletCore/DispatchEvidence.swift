@@ -14,12 +14,15 @@ public struct PreInputRejection: Error, Codable, Equatable, Sendable {
     public let target: TargetLease
     public let invocationID: UUID
     public let stage: PreInputRejectionStage
+    /// Optional current-operation diagnostic. Historical checkpoints omit it;
+    /// this text never participates in permission for another input.
+    public let reason: String?
 
     public init(operationID: UUID, assetID: UUID, attempt: Int, assetSHA256: String,
-                target: TargetLease, invocationID: UUID, stage: PreInputRejectionStage) {
+                target: TargetLease, invocationID: UUID, stage: PreInputRejectionStage, reason: String? = nil) {
         self.operationID = operationID; self.assetID = assetID; self.attempt = attempt
         self.assetSHA256 = assetSHA256; self.target = target
-        self.invocationID = invocationID; self.stage = stage
+        self.invocationID = invocationID; self.stage = stage; self.reason = reason
     }
 }
 
@@ -62,9 +65,8 @@ public struct AttachmentContinuationEvidence: Codable, Equatable, Sendable {
     }
 }
 
-/// A versioned additive checkpoint keeps schema-v3 readers conservative. Missing
-/// records are legacy, never backfilled. A new coordinator owner cannot inherit
-/// dispatch eligibility after restart just because the record exists.
+/// Backward-compatible operation journal. It records this operation's once-only
+/// invocation and return; older rows are never consulted to permit a new file.
 struct DispatchCallRecord: Codable, Equatable, Sendable {
     let version: Int
     let operationID: UUID
@@ -81,9 +83,8 @@ struct DispatchCallRecord: Codable, Equatable, Sendable {
     var inputResource: PreparedInputResource? = nil
 }
 
-/// A one-use reservation of the CURRENT input for the NEXT user click. It says
-/// nothing about an older attachment's success, failure, or request ownership.
-/// The adapter must recheck the reserved native resource atomically at input.
+/// Historical checkpoint payload, retained only so existing databases decode.
+/// New input never constructs, validates or consumes this old reservation.
 public struct PreparedInputResource: Codable, Equatable, Sendable {
     public let operationID: UUID
     public let assetID: UUID
@@ -99,12 +100,5 @@ public struct PreparedInputResource: Codable, Equatable, Sendable {
         self.operationID = operationID; self.assetID = assetID; self.attempt = attempt
         self.assetSHA256 = assetSHA256; self.target = target; self.invocationID = invocationID
         self.resourceID = resourceID; self.inputElementID = inputElementID
-    }
-
-    func matches(_ op: TransferOperation, asset: ImportedAsset) -> Bool {
-        operationID == op.id && assetID == op.assetID && assetID == asset.id
-            && attempt == op.attempt && assetSHA256 == asset.sha256 && target == op.target
-            && target.surface == .webChat && target.applicationID == "com.google.Chrome"
-            && target.clickBindingID != nil && !inputElementID.isEmpty && inputElementID.utf8.count <= 256
     }
 }

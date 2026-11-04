@@ -19,6 +19,6 @@ enum WebPreInputRetirement {
               proof.invocationID == invocationID else { throw ObservationError.identityMismatch }
         return PreInputRejection(operationID: identity.operationID, assetID: identity.assetID,
             attempt: identity.attempt, assetSHA256: identity.assetSHA256, target: identity.target,
-            invocationID: invocationID, stage: .pageRetiredBeforeFileInput)
+            invocationID: invocationID, stage: .pageRetiredBeforeFileInput, reason: proof.reason.rawValue)
     }
 }

@@ -57,8 +57,8 @@ final class AttachmentTerminalEvidenceTests: XCTestCase {
         let store = try store ?? QueueStore(databaseURL: directory.appendingPathComponent("\(UUID()).sqlite"))
         let asset = try await newAsset(store), target = target()
         let op = try await store.prepare(assetID: asset.id, target: target)
-        let invocation = try await store.markDispatchIntent(op.id, selection: selection(asset, target: target),
-                                                           ownerID: owner, policy: policy())
+        let invocation = try await store.markIndependentFileInputIntent(op.id, selection: selection(asset, target: target),
+                                                                         ownerID: owner)
         return Fixture(store: store, asset: asset, operation: op, invocation: invocation, owner: owner)
     }
     private func binding(_ f: Fixture) -> AttachmentOperationBinding {
@@ -259,7 +259,7 @@ final class AttachmentTerminalEvidenceTests: XCTestCase {
         XCTAssertEqual(retained?.originalSuccess, compensation?.originalSuccess)
     }
 
-    func testContinuationV2RequiresSettledOriginalCallBeforeNewPinDispatch() async throws {
+    func testHistoricalContinuationDoesNotAuthorizeLegacyDispatchButNewFileIsIndependent() async throws {
         let f = try await fixture(), start = receipt(f, outcome: .uploadStarted, continuation: continuation(f))
         _ = try await f.store.apply(start, policy: policy())
         let b = try await newAsset(f.store), targetB = target()
@@ -269,7 +269,11 @@ final class AttachmentTerminalEvidenceTests: XCTestCase {
             XCTFail("append has not returned")
         } catch RiftletError.targetBusy {}
         try await f.store.recordAppendReturned(start, invocationID: f.invocation, ownerID: f.owner)
-        let nonceB = try await f.store.markDispatchIntent(opB.id, selection: selection(b, target: targetB), ownerID: f.owner, policy: policy())
+        do {
+            _ = try await f.store.markDispatchIntent(opB.id, selection: selection(b, target: targetB), ownerID: f.owner, policy: policy())
+            XCTFail("Historical proof must not grant an exclusive legacy dispatch")
+        } catch RiftletError.targetBusy {}
+        let nonceB = try await f.store.markIndependentFileInputIntent(opB.id, selection: selection(b, target: targetB), ownerID: f.owner)
         let following = Fixture(store: f.store, asset: b, operation: opB, invocation: nonceB, owner: f.owner)
         let result = try await f.store.apply(receipt(following, outcome: .uploadStarted, continuation: continuation(following)), policy: policy())
         XCTAssertEqual(result.visibility, .swallowed)
@@ -363,7 +367,7 @@ final class AttachmentTerminalEvidenceTests: XCTestCase {
         let originalStart = receipt(f, outcome: .uploadStarted, continuation: continuation(f))
         _ = try await f.store.apply(originalStart, policy: policy())
         try await f.store.recordAppendReturned(originalStart, invocationID: f.invocation, ownerID: f.owner)
-        let bn = try await f.store.markDispatchIntent(bo.id, selection: selection(b, target: tb), ownerID: f.owner, policy: policy())
+        let bn = try await f.store.markIndependentFileInputIntent(bo.id, selection: selection(b, target: tb), ownerID: f.owner)
         let following = Fixture(store: f.store, asset: b, operation: bo, invocation: bn, owner: f.owner)
         let accepted = try await f.store.apply(receipt(following, outcome: .uploadStarted, continuation: continuation(following)), policy: policy())
         XCTAssertEqual(accepted.visibility, .swallowed)
@@ -405,7 +409,7 @@ final class AttachmentTerminalEvidenceTests: XCTestCase {
         let noPlatformOwnership = try await f.store.checkpoint(for: "transfer-platform-task-v1:" + f.operation.id.uuidString)
         XCTAssertNil(noPlatformOwnership)
         _ = try await f.store.apply(receipt(f, completion: completion(f)), policy: startOnly)
-        let bn = try await f.store.markDispatchIntent(bo.id, selection: selection(b, target: tb), ownerID: f.owner, policy: policy())
+        let bn = try await f.store.markIndependentFileInputIntent(bo.id, selection: selection(b, target: tb), ownerID: f.owner)
         let following = Fixture(store: f.store, asset: b, operation: bo, invocation: bn, owner: f.owner)
         let accepted = try await f.store.apply(receipt(following, outcome: .uploadStarted, continuation: continuation(following)), policy: policy())
         XCTAssertEqual(accepted.visibility, .swallowed)

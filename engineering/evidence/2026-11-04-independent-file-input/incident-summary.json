@@ -1,0 +1,43 @@
+{
+  "reviewer": "independent_review",
+  "baseMain": "cd9b69537fa9d0e405824fd55d98f6d15a87df3d",
+  "incidentScope": "Read-only local diagnostics and production source inspection; no ChatGPT page access, file submission or production data mutation",
+  "installedIdentity": {
+    "evidence": "main-cd9b6953-install-20261104/installation.json",
+    "status": "INSTALLED",
+    "mainSHA": "cd9b69537fa9d0e405824fd55d98f6d15a87df3d",
+    "reviewedPRHead": "77e25bba882230711f834cdd3c81423f32afadb7",
+    "sourceArtifact": "PR40 reviewed ARM64 CI 41835792555",
+    "sourceTreeMatchesMergedMain": true
+  },
+  "diagnostics": {
+    "criticalFile": "acceptance-failures.jsonl",
+    "failedPrepareOperations": 7,
+    "nativeBridgePhase": "receipt",
+    "error": "invalidReply",
+    "executionMilliseconds": [1010.596875, 964.131291, 978.782958, 988.898125, 979.653292, 1031.620792, 988.057458],
+    "queueMilliseconds": [0.016625, 0.026000, 0.037000, 0.028542, 0.016417, 0.037292, 40.403167],
+    "nativeBridgeSequences": [3589, 3634, 3683, 3742, 3815, 3865, 3899],
+    "recentRouteFailures": 16,
+    "firstStartTime": {"value": "22:16:38", "source": "user-provided incident statement, not present in currently bounded read log"}
+  },
+  "rootCause": {
+    "file": "Sources/RiftletAdapters/MainWorldCommandRelay.swift",
+    "finding": "Relay action allowlist omits prepareInputResource and releaseInputResource. Handler returns before invoking the page function or writing the nonce reply. Core waits for preparation before append; these failed attempts never reach begin/commit/setter/change.",
+    "errorPath": "prepareInputResource -> relay silent rejection -> no nonce receipt -> one-second MainWorldReceiptReader budget -> invalidReply",
+    "unknownIsNotCause": true,
+    "queueBacklogIsNotCause": true
+  },
+  "independentReproduction": {
+    "surface": "Node VM executing actual Swift relay installer template extracted from source, controlled DOM fixture",
+    "beginReceiptPresent": true,
+    "prepareAttempts": 7,
+    "preparePageExecutions": 0,
+    "prepareNonceReplies": 0,
+    "fileInputBeforeControl": 0,
+    "controlCommitPageExecutions": 1,
+    "result": "PASS: deterministic reproduction of old defect"
+  },
+  "recommendedFix": "Delete obsolete prepare resource action and Core fallback, derive relay action routing from actual enum, test complete production transport routing, and observe the original operation after uncertain commit without resubmitting.",
+  "realChatGPTAcceptance": "NOT_RUN"
+}

@@ -46,6 +46,32 @@ final class UploadStartObservationTests: XCTestCase {
         try ObservationDecoder.decode(JSONSerialization.data(withJSONObject: value))
     }
 
+    func testCurrentAttachmentAcceptanceSwallowsWithoutProgressOrCompletionAndBareInputDoesNot() async throws {
+        let (store, request) = try await fixture()
+        var raw = try object(request), item = try object(request)["observation"] as! [String: Any]
+        var start = item["uploadStart"] as! [String: Any]
+        start["signal"] = "attachmentAccepted"
+        start["previousProgress"] = 0; start["currentProgress"] = 0
+        start["startObservedAtMS"] = start["inputObservedAtMS"]
+        item["uploadStart"] = start; item["isUploading"] = false; raw["observation"] = item
+        let accepted = try normalizer().receipt(from: decode(raw), for: request)
+        XCTAssertEqual(accepted.outcome, .uploadStarted)
+        XCTAssertEqual(accepted.uploadStartEvidence?.signal, .attachmentAccepted)
+        XCTAssertFalse(accepted.positiveReady)
+        let policy = ReceiptPolicy(syntheticUploadStartProfiles: ["code-owned-start": .webChat])
+        let result = try await store.apply(accepted, policy: policy)
+        XCTAssertEqual(result.visibility, .swallowed)
+        XCTAssertNotEqual(result.status, .used)
+
+        let (_, other) = try await fixture()
+        var pending = try object(other), input = try object(other)["observation"] as! [String: Any]
+        input["state"] = "inputTriggered"; input.removeValue(forKey: "uploadStart")
+        pending["observation"] = input
+        let inputOnly = try normalizer().receipt(from: decode(pending), for: other)
+        XCTAssertEqual(inputOnly.outcome, .inputTriggered)
+        XCTAssertFalse(policy.allowsUploadStart(receipt: inputOnly, asset: other.asset, mode: .production))
+    }
+
     func testPinnedInputStartAndCompletionRoundTripWithoutLosingCapabilityIdentity() async throws {
         let (store, request) = try await fixture(pin: UUID())
         for state in [AttachmentObservedState.inputTriggered, .uploadStarted, .attached] {

@@ -131,7 +131,7 @@ final class AcceptedSelectionQueueTests: XCTestCase {
         let aOp = try await operation(a, s), bOp = try await operation(b, s)
         XCTAssertEqual(aOp.phase, .unknown); XCTAssertEqual(bOp.phase, .failed)
         let reason = try await s.operationReason(for: bOp.id)
-        XCTAssertEqual(reason, "Independent attachment input is unproven for this draft; no input occurred")
+        XCTAssertEqual(reason, "This adapter still owns the target; no input occurred")
         let invocation = try await s.dispatchInvocationID(for: bOp.id)
         XCTAssertNil(invocation)
         let bRecord = try await s.asset(id: b.id)

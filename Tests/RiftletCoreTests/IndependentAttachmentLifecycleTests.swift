@@ -2,8 +2,8 @@ import Foundation
 import XCTest
 @testable import RiftletCore
 
-/// SQLite/coordinator regressions with explicitly synthetic browser ownership evidence.
-/// These tests never establish or enable a ChatGPT platform capability.
+/// Backward-compatible receipt/history tests. The synthetic historical proof
+/// payloads do not authorize or veto the new independent file-input path.
 final class IndependentAttachmentLifecycleTests: XCTestCase {
     private var directory: URL!
 
@@ -57,88 +57,6 @@ final class IndependentAttachmentLifecycleTests: XCTestCase {
         let record = try await store.asset(id: asset.id)
         let id = try XCTUnwrap(record?.activeOperationID)
         let op = try await store.operation(id: id); return try XCTUnwrap(op)
-    }
-
-    func testTwoThreeAndFiveScreenshotsContinueAcrossEveryIndependentPriorState() async throws {
-        for count in [2, 3, 5] {
-            for state in IndependentLifecycleAdapter.State.allCases {
-                let store = try store(), adapter = IndependentLifecycleAdapter(), coordinator = coordinator(store, adapter)
-                let first = try await asset(store)
-                try await coordinator.select(try await selection(first, store))
-                let original = try await operation(first, store)
-                let originalStart = try await store.uploadStartReceipt(for: original.id)
-                let swallowed = try await store.asset(id: first.id)
-                XCTAssertEqual(swallowed?.visibility, .swallowed, "START must swallow before any completion")
-                XCTAssertNotNil(originalStart?.continuationEvidence)
-                if state == .compensated {
-                    await adapter.set(.complete, for: first.id)
-                    try await coordinator.observePending()
-                    await adapter.set(.compensated, for: first.id)
-                    _ = try await coordinator.observeCompleted(operationID: original.id)
-                } else if state != .started {
-                    await adapter.set(state, for: first.id)
-                    try await coordinator.observePending()
-                }
-                let priorState = try await operation(first, store)
-                let expected: OperationPhase = state == .complete ? .succeeded
-                    : state == .failed ? .failed : state == .compensated ? .compensated
-                    : state == .unknown ? .unknown : .inputTriggered
-                XCTAssertEqual(priorState.phase, expected, "\(count)/\(state)")
-                let beforeNext = try await store.asset(id: first.id)
-                XCTAssertEqual(beforeNext?.visibility, state == .failed ? .visible : .swallowed)
-
-                var images = [first]
-                for _ in 1..<count {
-                    let next = try await asset(store); images.append(next)
-                    try await coordinator.select(try await selection(next, store))
-                    let op = try await operation(next, store), record = try await store.asset(id: next.id)
-                    XCTAssertEqual(op.phase, .inputTriggered, "\(count)/\(state)")
-                    XCTAssertEqual(record?.visibility, .swallowed)
-                }
-                let inputs = await adapter.inputs(), afterFirst = try await operation(first, store)
-                XCTAssertEqual(inputs, images.map(\.id)); XCTAssertEqual(afterFirst, priorState)
-                let preservedStart = try await store.uploadStartReceipt(for: original.id)
-                XCTAssertEqual(preservedStart, originalStart)
-                if state == .failed {
-                    // Rebirth does not input anything until another explicit user click.
-                    let beforeReclick = await adapter.inputs(); XCTAssertEqual(beforeReclick.count, count)
-                    try await coordinator.select(try await selection(first, store))
-                    let retry = try await operation(first, store), afterReclick = await adapter.inputs()
-                    XCTAssertEqual(retry.attempt, 2); XCTAssertNotEqual(retry.id, original.id)
-                    XCTAssertEqual(afterReclick, images.map(\.id) + [first.id])
-                }
-            }
-        }
-    }
-
-    func testFourClicksAfterUnprovenStartFailBeforeIntentWithoutDeadlineOrCrossChatStarvation() async throws {
-        let store = try store(), adapter = IndependentLifecycleAdapter(continuation: false)
-        let coordinator = coordinator(store, adapter), first = try await asset(store)
-        try await coordinator.select(try await selection(first, store))
-        await adapter.set(.unknown, for: first.id); try await coordinator.observePending()
-        let original = try await operation(first, store), originalRecord = try await store.asset(id: first.id)
-        var rejected: [UUID] = []
-        for _ in 0..<4 {
-            let image = try await asset(store), click = try await selection(image, store)
-            try await coordinator.select(click)
-            let op = try await operation(image, store), record = try await store.asset(id: image.id)
-            let invocation = try await store.dispatchInvocationID(for: op.id)
-            let reason = try await store.operationReason(for: op.id)
-            XCTAssertEqual(op.phase, .failed); XCTAssertEqual(record?.visibility, .visible); XCTAssertNil(invocation)
-            XCTAssertEqual(reason, "Independent attachment input is unproven for this draft; no input occurred")
-            XCTAssertLessThan(ProcessInfo.processInfo.systemUptime, click.deadlineUptime,
-                              "Refusal must not depend on original 30-second selection expiry")
-            XCTAssertFalse(click.isValid()); rejected.append(image.id)
-        }
-        let nextChat = try await asset(store)
-        try await coordinator.select(try await selection(nextChat, store,
-            target: target(draft: 2, document: "other-document", tab: "2")))
-        let inputs = await adapter.inputs(), unchanged = try await operation(first, store)
-        let retained = try await store.asset(id: first.id)
-        XCTAssertEqual(inputs, [first.id, nextChat.id]); XCTAssertEqual(unchanged, original)
-        XCTAssertEqual(retained, originalRecord); XCTAssertEqual(original.phase, .unknown)
-        XCTAssertEqual(retained?.visibility, .swallowed)
-        for id in rejected { XCTAssertFalse(inputs.contains(id)) }
     }
 
     func testLateReceiptsCannotBorrowSiblingPinAttachmentOrInvocation() async throws {
@@ -203,8 +121,8 @@ final class IndependentAttachmentLifecycleTests: XCTestCase {
             XCTAssertEqual(persistedOwnership, savedOwnership)
 
             let bt = target(), bo = try await store.prepare(assetID: b.id, target: bt)
-            let invocation = try await store.markDispatchIntent(bo.id,
-                selection: try await selection(b, store, target: bt), ownerID: owner, policy: policy)
+            let invocation = try await store.markIndependentFileInputIntent(bo.id,
+                selection: try await selection(b, store, target: bt), ownerID: owner)
             let request = TransferRequest(operation: bo, asset: b,
                 fileURL: directory.appendingPathComponent(b.fileName), invocationID: invocation)
             let good = IndependentLifecycleAdapter.receipt(request, state: .started, requestID: 2)
@@ -259,12 +177,13 @@ final class IndependentAttachmentLifecycleTests: XCTestCase {
         }
     }
 
-    func testNewDocumentOrOwnerCannotReuseOldContinuationAndNeverReinputsOldUnknown() async throws {
+    func testNewDocumentAndOwnerIgnoreOldContinuationWithoutReinputtingOldUnknown() async throws {
         for restart in [false, true] {
             let store = try store(), adapter = IndependentLifecycleAdapter(), firstOwner = coordinator(store, adapter)
             let a = try await asset(store), b = try await asset(store)
             try await firstOwner.select(try await selection(a, store))
-            await adapter.set(.unknown, for: a.id); try await firstOwner.observePending()
+            let ao = try await operation(a, store)
+            try await store.markUnknown(ao.id, reason: "Controlled historical UNKNOWN")
             let before = try await operation(a, store), beforeRecord = try await store.asset(id: a.id)
             let next = restart ? coordinator(store, adapter) : firstOwner
             let nextTarget = restart ? target() : target(document: "refreshed-document")
@@ -272,13 +191,13 @@ final class IndependentAttachmentLifecycleTests: XCTestCase {
             let bOp = try await operation(b, store), invocation = try await store.dispatchInvocationID(for: bOp.id)
             let after = try await operation(a, store), afterRecord = try await store.asset(id: a.id)
             let inputs = await adapter.inputs()
-            XCTAssertEqual(bOp.phase, .failed); XCTAssertNil(invocation); XCTAssertEqual(inputs, [a.id])
+            XCTAssertEqual(bOp.phase, .inputTriggered); XCTAssertNotNil(invocation); XCTAssertEqual(inputs, [a.id, b.id])
             XCTAssertEqual(after, before); XCTAssertEqual(afterRecord, beforeRecord)
         }
     }
 }
 
-private actor IndependentLifecycleAdapter: AttachmentAdapter {
+private actor IndependentLifecycleAdapter: IndependentFileInputAdapter {
     enum State: CaseIterable { case started, unknown, complete, failed, compensated }
     nonisolated let id = "independent-lifecycle-fixture"
     static let readyProfile = "independent-fixture-ready"
@@ -299,6 +218,10 @@ private actor IndependentLifecycleAdapter: AttachmentAdapter {
         // A user-initiated retry creates its own new operation and task.
         states[request.asset.id] = .started
         return Self.receipt(request, state: .started, continuation: continuation, requestID: calls.count)
+    }
+    func append(_ request: TransferRequest,
+                onInputConfirmed: @escaping @Sendable (TransferReceipt) async -> Void) -> TransferReceipt {
+        append(request)
     }
     func reconcile(_ request: TransferRequest) -> TransferReceipt {
         Self.receipt(request, state: states[request.asset.id] ?? .unknown, continuation: continuation,

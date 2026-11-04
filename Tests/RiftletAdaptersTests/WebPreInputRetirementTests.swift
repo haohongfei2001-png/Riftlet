@@ -207,13 +207,37 @@ final class WebPreInputRetirementTests: XCTestCase {
         let (_, request) = try await fixture(), packet = try envelope(request)
         let changes: [(String, Any)] = [("state", "attached"), ("state", "inputTriggered"),
             ("attachmentID", "another-card"), ("exactImageIdentity", true),
-            ("belongsToOriginalDraft", false), ("hasError", true), ("isUploading", true),
+            ("hasError", true), ("isUploading", true),
             ("attachmentAbsent", true), ("automaticRetryExcluded", true)]
         for (key, value) in changes {
             XCTAssertThrowsError(try mutate(packet) { root in
                 var item = root["observation"] as! [String: Any]
                 item[key] = value; root["observation"] = item
             }, key)
+        }
+    }
+
+    func testChangedTargetAndSynchronousBusyRetireOnlyThisUnsubmittedInvocation() async throws {
+        for reason in ["targetInvalidBeforeInput", "inputExecutionBusy"] {
+            let (_, request) = try await fixture(), original = try envelope(request)
+            let packet = try mutate(original) { root in
+                var item = root["observation"] as! [String: Any]
+                var proof = item["preInputRetirement"] as! [String: Any]
+                item["belongsToOriginalDraft"] = false
+                proof["reason"] = reason
+                item["preInputRetirement"] = proof; root["observation"] = item
+            }
+            let bridge = PreInputRetirementBridge(request: request,
+                packet: try JSONEncoder().encode(packet), expectedBytes: png)
+            do { _ = try await adapter(bridge).append(request); XCTFail("No-input retirement was lost") }
+            catch let rejection as PreInputRejection {
+                XCTAssertEqual(rejection.operationID, request.operation.id)
+                XCTAssertEqual(rejection.invocationID, request.invocationID)
+                XCTAssertEqual(rejection.stage, .pageRetiredBeforeFileInput)
+                XCTAssertEqual(rejection.reason, reason)
+            }
+            let actions = await bridge.actions()
+            XCTAssertEqual(actions.filter { $0 == .commit }.count, 1)
         }
     }
 

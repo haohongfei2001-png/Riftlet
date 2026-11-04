@@ -61,11 +61,14 @@ public enum SystemScreenshotAdmissionScope: Sendable, Equatable {
         guard self == .ordinaryCurrentDraftInternal || isProduct else {
             return try SystemScreenshotWebCandidate.validateAdmittedTarget(target)
         }
-        // Recognition preserves the exact business identity. It never aliases a
-        // local draft to a UUID, nor authorizes an unbound Home composer.
+        // The ordinary tool binds the actual native tab, document and composer.
+        // Its usable file input is established by the page, without React internals.
         guard target.adapterID == "chatgpt-web", target.surface == .webChat,
               target.applicationID == "com.google.Chrome",
-              target.logicalDraftIdentity?.isRecognized == true else { throw WebAdapterError.invalidTarget }
+              !target.sessionID.isEmpty, !target.windowID.isEmpty, target.tabID?.isEmpty == false,
+              !target.documentID.isEmpty, !target.composerID.isEmpty, !target.draftGeneration.isEmpty else {
+            throw WebAdapterError.invalidTarget
+        }
     }
 
 }
