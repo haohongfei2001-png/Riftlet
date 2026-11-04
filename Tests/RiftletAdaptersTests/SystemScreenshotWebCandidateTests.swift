@@ -75,8 +75,15 @@ final class SystemScreenshotWebCandidateTests: XCTestCase {
         let store = try QueueStore(databaseURL: directory.appendingPathComponent("queue.sqlite"))
         _ = try await store.importAsset(image)
         let bridge = CandidateGateBridge()
-        let coordinator = TransferCoordinator(store: store, adapter: try adapter(store, bridge), mediaDirectory: directory)
+        let failed = expectation(description: "Current no-input failure persisted")
+        failed.assertForOverFulfill = false
+        let coordinator = TransferCoordinator(store: store, adapter: try adapter(store, bridge), mediaDirectory: directory,
+            onChange: {
+                if let record = try? await store.asset(id: image.id), record.status == .failed { failed.fulfill() }
+            })
         try await coordinator.select(image.id, frozenTarget: CandidateGateBridge.target)
+        // select returns at the input execution boundary; persistence finishes independently.
+        await fulfillment(of: [failed], timeout: 2)
         let record = try await store.asset(id: image.id)
         XCTAssertEqual(record?.status, .failed); XCTAssertEqual(record?.visibility, .visible)
         let proof = try await store.checkpoint(for: "transfer-no-input-v1:" + record!.activeOperationID!.uuidString)
