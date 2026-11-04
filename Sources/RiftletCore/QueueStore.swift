@@ -554,7 +554,12 @@ public actor QueueStore {
             try validateBoundPostInputEvidence(receipt, operation: op, asset: record.image, policy: policy)
             if let started = try uploadStartReceipt(for: op.id), let attachmentID = receipt.attachmentID,
                attachmentID != started.attachmentID { throw RiftletError.mismatchedReceipt }
-            if let attachmentID = receipt.attachmentID,
+            // Current composer acceptance identifies the new attachment itself.
+            // Historical upload ownership is not a condition for this START;
+            // legacy receipts and their optional ownership proofs retain their
+            // existing alias checks below and in validateBoundPostInputEvidence.
+            if !(receipt.outcome == .uploadStarted && receipt.uploadStartEvidence?.signal == .attachmentAccepted),
+               let attachmentID = receipt.attachmentID,
                try uploadStartReceipt(for: op.id) == nil, op.phase != .succeeded,
                policy.allowsUploadStart(receipt: receipt, asset: record.image, mode: mode)
                 || policy.allowsConsumption(receipt: receipt, asset: record.image, mode: mode) {

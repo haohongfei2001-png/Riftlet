@@ -8,6 +8,10 @@ final class ProductStatusTests: XCTestCase {
         let cases: [(String, ProductStatus.AttachmentFeedback)] = [
             ("Accepted selection expired before input", .expiredBeforeInput),
             ("Original target changed before input", .targetChangedBeforeInput),
+            ("Verified pre-input rejection: pageRetiredBeforeFileInput: targetInvalidBeforeInput", .targetChangedBeforeInput),
+            ("Verified pre-input rejection: pageRetiredBeforeFileInput: inputExecutionBusy", .inputExecutingBeforeInput),
+            ("Verified pre-input rejection: pageRetiredBeforeFileInput: invalidPNGSignature", .filePreparationFailedBeforeInput),
+            ("Verified pre-input rejection: pageRetiredBeforeFileInput: inputPreparationFailed", .filePreparationFailedBeforeInput),
             ("Target validation unavailable before input", .targetValidationUnavailableBeforeInput),
             ("Original draft has an unresolved upload; no input occurred", .unresolvedDraftBeforeInput),
             ("Independent attachment input is unproven for this draft; no input occurred", .independentAttachmentUnavailableBeforeInput),

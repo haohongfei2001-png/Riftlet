@@ -98,6 +98,7 @@ enum ProductStatus {
         case unresolvedDraftBeforeInput, imageMissingBeforeInput, resultUnconfirmed
         case independentAttachmentUnavailableBeforeInput
         case inputResourceUnavailableBeforeInput
+        case inputExecutingBeforeInput, filePreparationFailedBeforeInput
 
         var text: String {
             switch self {
@@ -114,6 +115,10 @@ enum ProductStatus {
                 return "暂不能确认当前页面能保留原附件并继续追加；本次未上传，图片保留。"
             case .inputResourceUnavailableBeforeInput:
                 return "当前页面的附件入口尚不能安全接收下一张图片；本次未上传，图片保留。"
+            case .inputExecutingBeforeInput:
+                return "上一张的文件输入仍在执行；本次尚未附加，图片保留。"
+            case .filePreparationFailedBeforeInput:
+                return "当前图片未能交给浏览器；本次尚未附加，图片保留。"
             case .imageMissingBeforeInput: return "找不到这张图片的本地副本；本次未上传。"
             case .resultUnconfirmed: return "附加结果暂不能确认，图片记录已保留；不会自动再次附加。"
             }
@@ -127,6 +132,16 @@ enum ProductStatus {
         switch reason {
         case "Accepted selection expired before input": return .expiredBeforeInput
         case "Original target changed before input": return .targetChangedBeforeInput
+        case "Verified pre-input rejection: pageRetiredBeforeFileInput: targetInvalidBeforeInput":
+            return .targetChangedBeforeInput
+        case "Verified pre-input rejection: pageRetiredBeforeFileInput: inputExecutionBusy":
+            return .inputExecutingBeforeInput
+        case "Verified pre-input rejection: localBeforeBegin",
+             "Verified pre-input rejection: pageRetiredBeforeCommit",
+             "Verified pre-input rejection: pageRetiredBeforeFileInput: invalidPNGSignature",
+             "Verified pre-input rejection: pageRetiredBeforeFileInput: inputHashMismatch",
+             "Verified pre-input rejection: pageRetiredBeforeFileInput: inputPreparationFailed":
+            return .filePreparationFailedBeforeInput
         case "Target validation unavailable before input": return .targetValidationUnavailableBeforeInput
         case "Original draft has an unresolved upload; no input occurred": return .unresolvedDraftBeforeInput
         case "Independent attachment input is unproven for this draft; no input occurred": return .independentAttachmentUnavailableBeforeInput

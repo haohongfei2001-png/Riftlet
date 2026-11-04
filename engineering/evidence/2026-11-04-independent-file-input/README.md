@@ -57,8 +57,9 @@ PR #40 App can still decode the database after rollback.
   once-only adapter dispatch, receipt recovery, all enum actions through the
   installed relay, and old-App receipt decoding. Full execution is recorded
   by the required ARM64, Intel and Feedback CI jobs.
-- The original Mac has CommandLineTools without XCTest. Its product build
-  succeeded; its full Swift test run was unavailable for that environment.
+- The original Mac has CommandLineTools without XCTest. Its precommit product
+  build succeeded; its full Swift test run was unavailable in that environment.
+  Final Swift source and the later edge-case fixes require the exact-source CI run.
 - Real ChatGPT and Project application semantics: **NOT_RUN**. User-operated
   normal use is the final acceptance; controlled application fixtures do not
   establish the inaccessible real application's current behavior.

@@ -152,7 +152,8 @@ final class ProductScreenshotScopeTests: XCTestCase {
             sessionID: old.sessionID, windowID: old.windowID, tabID: old.tabID, documentID: old.documentID,
             composerID: old.composerID, draftGeneration: old.draftGeneration)
         for scope in [SystemScreenshotAdmissionScope.productSystem, .productApplication] {
-            XCTAssertThrowsError(try scope.validateTarget(unbound))
+            XCTAssertNoThrow(try scope.validateTarget(unbound),
+                "Current native document/composer binding needs no historical React identity")
         }
         XCTAssertThrowsError(try SystemScreenshotAdmissionScope.ordinary.validateTarget(old),
             "New current-draft support must not expand historical persisted-only scope")
