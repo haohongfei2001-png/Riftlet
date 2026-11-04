@@ -85,29 +85,50 @@ final class WebInputPhasingTests: XCTestCase {
         XCTAssertEqual(receivedB, try Data(contentsOf: b.fileURL))
     }
 
-    func testUncertainCommitOrAsynchronousHashDoesNotReleaseUntilPositiveOriginalInput() async throws {
-        let a = try await request(target(tab: "A")), b = try await request(target(tab: "B"))
-        let commit = expectation(description: "A uncertain commit reply")
+    func testHeldCommitExcludesConcurrentInputButReturnedUnknownDoesNotWaitForOriginalStart() async throws {
+        let sameTarget = target(tab: "A")
+        let a = try await request(sameTarget), b = try await request(sameTarget)
+        let commit = expectation(description: "A entered held commit")
+        let returned = expectation(description: "A input execution returned")
         let bridge = PhasedInputBridge(onCommit: { if $0 == a.operation.id { commit.fulfill() } })
         let client = adapter(bridge), confirmations = InputConfirmationLog()
-        await bridge.configure(a, initial: .hashing)
+        await bridge.configure(a, initial: .hashing, holdCommit: true)
         await bridge.configure(b, initial: .started)
-        let confirmed = expectation(description: "A delayed input confirmed")
-        let first = Task { try await client.append(a, onInputConfirmed: {
-            await confirmations.append($0); confirmed.fulfill()
+        let first = Task { try await client.append(a, onInputExecutionReturned: {
+            returned.fulfill()
         }) }
-        await fulfillment(of: [commit], timeout: 2)
-        do { _ = try await client.append(b, onInputConfirmed: { _ in }); XCTFail("Bare commit released input") }
-        catch WebAdapterError.inputInFlight {}
-        let confirmedBeforeHash = await confirmations.receipts().isEmpty
-        XCTAssertTrue(confirmedBeforeHash)
-        let bCommandsBeforeHash = await bridge.inputCommands(b.operation.id)
-        XCTAssertEqual(bCommandsBeforeHash, 0)
-        await bridge.allowInput(a.operation.id)
-        await fulfillment(of: [confirmed], timeout: 2)
-        _ = try await client.append(b, onInputConfirmed: { _ in })
-        await bridge.allowStart(a.operation.id)
-        _ = try await first.value
+        do {
+            await fulfillment(of: [commit], timeout: 2)
+            do { _ = try await client.append(b, onInputConfirmed: { _ in }); XCTFail("Held commit released input") }
+            catch WebAdapterError.inputInFlight {}
+            let bCommandsBeforeReturn = await bridge.inputCommands(b.operation.id)
+            XCTAssertEqual(bCommandsBeforeReturn, 0)
+
+            await bridge.releaseCommit(a.operation.id)
+            await fulfillment(of: [returned], timeout: 2)
+            // A still returns UNKNOWN: neither its input nor START has been allowed.
+            let second = try await client.append(b, onInputConfirmed: { await confirmations.append($0) })
+            XCTAssertEqual(second.outcome, .uploadStarted)
+            XCTAssertEqual(second.operationID, b.operation.id)
+            XCTAssertEqual(second.target, a.operation.target)
+            let aStartedBeforeB = await bridge.didProduceStart(a.operation.id)
+            XCTAssertFalse(aStartedBeforeB)
+            let receipts = await confirmations.receipts()
+            XCTAssertEqual(receipts.map(\.operationID), [b.operation.id])
+            XCTAssertEqual(receipts.map(\.outcome), [.uploadStarted])
+
+            await bridge.allowInput(a.operation.id)
+            await bridge.allowStart(a.operation.id)
+            let firstReceipt = try await first.value
+            XCTAssertEqual(firstReceipt.outcome, .uploadStarted)
+            XCTAssertEqual(firstReceipt.operationID, a.operation.id)
+        } catch {
+            await bridge.releaseCommit(a.operation.id)
+            await bridge.allowInput(a.operation.id)
+            await bridge.allowStart(a.operation.id)
+            _ = try? await first.value
+            throw error
+        }
         let aCommits = await bridge.commitCount(a.operation.id)
         XCTAssertEqual(aCommits, 1)
         let bCommits = await bridge.commitCount(b.operation.id)
