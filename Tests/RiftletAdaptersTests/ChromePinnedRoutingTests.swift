@@ -27,12 +27,93 @@ final class ChromePinnedRoutingTests: XCTestCase {
         let cache = ObservedClickRoutes()
         let a = TargetLease(adapterID: "chatgpt-web", surface: .webChat, applicationID: "com.google.Chrome",
             sessionID: "A", windowID: "1", tabID: "2", documentID: "doc", composerID: "c", draftGeneration: "g")
-        cache.record(a, uptime: 1)
-        cache.recordRoute(session: "A", window: "1", tab: "2", uptime: 2)
+        cache.recordRoute(session: "A", window: "1", tab: "2", uptime: 1)
+        cache.record(a, uptime: 2)
         let press = cache.snapshot()
         XCTAssertNil(press.target(session: "A", window: "1", tab: "3", eventUptime: 3))
-        cache.recordRoute(session: "A", window: "1", tab: "2", uptime: 4)
+        cache.recordRoute(session: "A", window: "1", tab: "3", uptime: 4)
+        cache.recordRoute(session: "A", window: "1", tab: "2", uptime: 5)
         XCTAssertNil(cache.snapshot().target(session: "A", window: "1", tab: "2", eventUptime: 3))
+    }
+
+    func testReturningToARequiresANewCaptureAfterObservedB() {
+        let cache = ObservedClickRoutes()
+        let a = TargetLease(adapterID: "chatgpt-web", surface: .webChat, applicationID: "com.google.Chrome",
+            sessionID: "A", windowID: "1", tabID: "2", documentID: "doc", composerID: "c", draftGeneration: "g")
+        cache.recordRoute(session: "A", window: "1", tab: "2", uptime: 1)
+        cache.record(a, uptime: 2)
+        let originalPress = cache.snapshot()
+        cache.recordRoute(session: "A", window: "1", tab: "3", uptime: 4)
+        // A late receipt from A cannot seed B's epoch.
+        cache.record(a, uptime: 5)
+        cache.recordRoute(session: "A", window: "1", tab: "2", uptime: 6)
+        XCTAssertNil(cache.snapshot().target(session: "A", window: "1", tab: "2", eventUptime: 7))
+        // A press frozen before the switch still means that original A.
+        XCTAssertEqual(originalPress.target(session: "A", window: "1", tab: "2", eventUptime: 3), a)
+        cache.record(a, uptime: 8)
+        XCTAssertEqual(cache.snapshot().target(session: "A", window: "1", tab: "2", eventUptime: 9), a)
+    }
+
+    func testPressEvidenceMustStrictlyPredateTheEventWithoutExpiringAContinuousTarget() {
+        let cache = ObservedClickRoutes()
+        let a = TargetLease(adapterID: "chatgpt-web", surface: .webChat, applicationID: "com.google.Chrome",
+            sessionID: "A", windowID: "1", tabID: "2", documentID: "doc", composerID: "c", draftGeneration: "g")
+        cache.recordRoute(session: "A", window: "1", tab: "2", uptime: 1)
+        cache.record(a, uptime: 2)
+        let press = cache.snapshot()
+        XCTAssertNil(press.target(session: "A", window: "1", tab: "2", eventUptime: 2))
+        XCTAssertNil(press.target(session: "A", window: "1", tab: "2", eventUptime: .nan))
+        XCTAssertNil(press.target(session: "A", window: "1", tab: "2", eventUptime: .infinity))
+        XCTAssertEqual(press.target(session: "A", window: "1", tab: "2", eventUptime: 300), a)
+        cache.recordRoute(session: "A", window: "1", tab: "2", uptime: 301)
+        // The physical down was at 300; a same-route poll completing before its
+        // callback must not discard the valid earlier target and route proof.
+        XCTAssertEqual(cache.snapshot().target(session: "A", window: "1", tab: "2", eventUptime: 300), a)
+        XCTAssertEqual(cache.snapshot().target(session: "A", window: "1", tab: "2", eventUptime: 302), a)
+    }
+
+    func testNativePressAgeUsesOnlyTheNativeClockAndRejectsDelayedOrReplayedEvents() {
+        XCTAssertTrue(NativePressTiming.accepts(eventUptime: 100, startedUptime: 100))
+        XCTAssertTrue(NativePressTiming.accepts(eventUptime: 100, startedUptime: 100.75))
+        XCTAssertFalse(NativePressTiming.accepts(eventUptime: 100, startedUptime: 100.751))
+        XCTAssertFalse(NativePressTiming.accepts(eventUptime: 100.01, startedUptime: 100))
+        for invalid in [-1.0, Double.nan, Double.infinity, -Double.infinity] {
+            XCTAssertFalse(NativePressTiming.accepts(eventUptime: invalid, startedUptime: 100))
+            XCTAssertFalse(NativePressTiming.accepts(eventUptime: 100, startedUptime: invalid))
+        }
+    }
+
+    func testNativePressProofIsExplicitAndBoundToOnePinWithoutPrivateContent() throws {
+        let pinID = UUID()
+        let command = WebBridgeCommand(action: .pinTarget, clickBindingID: pinID,
+            nativePressProof: NativePressProof(clickBindingID: pinID))
+        let encoded = try JSONSerialization.jsonObject(with: JSONEncoder().encode(command)) as! [String: Any]
+        let proof = try XCTUnwrap(encoded["nativePressProof"] as? [String: Any])
+        XCTAssertEqual(Set(proof.keys), Set(["kind", "clickBindingID"]))
+        XCTAssertEqual(proof["kind"] as? String, "observed-target-before-press")
+        XCTAssertEqual(proof["clickBindingID"] as? String, pinID.uuidString)
+        XCTAssertEqual(encoded["clickBindingID"] as? String, proof["clickBindingID"] as? String)
+        for action in [WebBridgeAction.captureTarget, .pinTarget, .validate, .begin, .commit] {
+            let ordinary = WebBridgeCommand(action: action)
+            let fields = try JSONSerialization.jsonObject(with: JSONEncoder().encode(ordinary)) as! [String: Any]
+            XCTAssertNil(fields["nativePressProof"])
+        }
+    }
+
+    @MainActor func testAsyncExecutorCannotManufactureNativePressAuthority() async throws {
+        let executor = ChromeAppleEventsExecutor()
+        let program = WebPageProgram(sourceID: "proof-denial-test", functionSource: "function(){return null}")
+        for action in [WebBridgeAction.captureTarget, .validate, .pinTarget] {
+            let id = UUID()
+            let command = WebBridgeCommand(action: action, clickBindingID: id,
+                nativePressProof: NativePressProof(clickBindingID: id))
+            do {
+                _ = try await executor.execute(command, program: program)
+                XCTFail("An asynchronous path accepted native press authority")
+            } catch {
+                XCTAssertEqual(error as? WebAdapterError, .invalidRequest)
+            }
+        }
     }
 
     func testPinnedReplyMustPreserveEveryExpectedIdentityField() throws {

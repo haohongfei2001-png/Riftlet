@@ -12,7 +12,8 @@ final class RiftInputIslandTests: XCTestCase {
             pixelWidth: 360, pixelHeight: 220, mediaType: "image/png", origin: .synthetic), sequence: sequence)
     }
 
-    @MainActor private func controller(onBoundary: @escaping (RiftSelectionBoundary) -> Void = { _ in },
+    @MainActor private func controller(onPress: @escaping (UUID, TimeInterval) -> Void = { _, _ in },
+                                      onBoundary: @escaping (RiftSelectionBoundary) -> Void = { _ in },
                                       onSelect: @escaping (UUID) -> Void = { _ in }) throws -> RiftPanelController {
         _ = NSApplication.shared
         guard !NSScreen.screens.isEmpty else { throw XCTSkip("No AppKit screen; native routing remains separately unverified") }
@@ -21,7 +22,8 @@ final class RiftInputIslandTests: XCTestCase {
         configuration.swallowDuration = 0.02; configuration.shiftDuration = 0.01
         configuration.returnDuration = 0.01
         return RiftPanelController(mediaDirectory: FileManager.default.temporaryDirectory,
-            configuration: configuration, arrivalMode: .magnet, onSelectionBoundary: onBoundary, onSelect: onSelect)
+            configuration: configuration, arrivalMode: .magnet, onPress: onPress,
+            onSelectionBoundary: onBoundary, onSelect: onSelect)
     }
 
     @MainActor private func window(_ number: Int) throws -> NSWindow {
@@ -97,6 +99,40 @@ final class RiftInputIslandTests: XCTestCase {
         imageView.mouseDown(with: try event(.leftMouseDown, window: image, screen: imagePoint, time: 20))
         imageView.mouseUp(with: try event(.leftMouseUp, window: image, screen: imagePoint, time: 20.1))
         XCTAssertEqual(selected.count, 2, "Retained closed input references cannot select")
+    }
+
+    @MainActor func testFirstMousePressFreezesBeforeReleaseWithoutRequiringKeyboardFocus() throws {
+        var events: [String] = [], observedTimes: [TimeInterval] = []
+        var currentDraft = "A", frozenDraft: String?, submittedDrafts: [String] = []
+        let panel = try controller(onPress: { _, time in
+            events.append("press"); observedTimes.append(time); frozenDraft = currentDraft
+        }, onBoundary: { _ in events.append("boundary") }, onSelect: { _ in
+            events.append("select")
+            if let frozenDraft { submittedDrafts.append(frozenDraft) }
+        })
+        defer { panel.close() }
+        let asset = record(); panel.render([asset])
+        let row = try XCTUnwrap(panel.diagnosticSnapshot.rows.first)
+        let inputWindow = try window(row.imageInputWindowNumber)
+        let input = try XCTUnwrap(inputWindow.contentView)
+        let point = CGPoint(x: row.imageClipFrame.midX, y: row.imageClipFrame.midY)
+        let down = try event(.leftMouseDown, window: inputWindow, screen: point, time: 21)
+        XCTAssertTrue(input.acceptsFirstMouse(for: down))
+        XCTAssertFalse(input.acceptsFirstResponder)
+        XCTAssertFalse(inputWindow.canBecomeKey)
+        XCTAssertFalse(inputWindow.canBecomeMain)
+        XCTAssertTrue(inputWindow.styleMask.contains(.nonactivatingPanel))
+        // Direct AppKit callbacks deliberately model a page losing focus after
+        // down. This is event-order coverage, not a WindowServer/live Chrome claim.
+        input.mouseDown(with: down)
+        XCTAssertEqual(events, ["press", "boundary"])
+        XCTAssertEqual(observedTimes, [21])
+        XCTAssertEqual(frozenDraft, "A")
+        currentDraft = "B"
+        input.mouseUp(with: try event(.leftMouseUp, window: inputWindow, screen: point, time: 21.1))
+        XCTAssertEqual(events, ["press", "boundary", "select"])
+        XCTAssertEqual(submittedDrafts, ["A"], "Release cannot recapture B or request a second click")
+        XCTAssertEqual(observedTimes, [21], "The original mouse-down timestamp is delivered exactly once")
     }
 
     @MainActor func testHeldAssetDefersSwallowAndAllThreeWindowsCloseBeforeCompaction() async throws {

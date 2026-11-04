@@ -85,4 +85,30 @@ final class BoundedDiagnosticTraceTests: XCTestCase {
         unwritable.record(["event": "input_resource_refused"], critical: true); unwritable.flushForTesting()
         XCTAssertEqual(try Data(contentsOf: directory), Data("not a directory".utf8))
     }
+
+    func testEachPageGateSurvivesAsAClosedPressFailureWithoutRouteOrConversationContent() throws {
+        let trace = BoundedDiagnosticTrace(enabled: true, directory: directory, emitStandardError: false)
+        let codes: [WebPageRejection] = [.pageRouteUnsupported, .pageNotTopLevel, .pageNotVisible,
+            .pageUnfocused, .editorUnavailable, .attachmentInputUnavailable]
+        for code in codes {
+            trace.record(["event": "click_target_pin_refused", "action": "pinTarget",
+                "error": WebAdapterError.pageRejected(code).diagnosticLabel,
+                "url": "https://chatgpt.com/c/private-conversation",
+                "conversationID": "private-conversation", "chatText": "private-body",
+                "payload": "private-attachment"], critical: true)
+        }
+        // Polling must not overwrite the first real press refusal.
+        for _ in 0..<300 { trace.record(["event": "capture_ack"]) }
+        trace.flushForTesting()
+        let failures = try rows("acceptance-failures.jsonl")
+        XCTAssertEqual(failures.compactMap { $0["error"] as? String },
+            codes.map { WebAdapterError.pageRejected($0).diagnosticLabel })
+        XCTAssertTrue(failures.allSatisfy { $0["event"] as? String == "click_target_pin_refused" })
+        let bytes = try Data(contentsOf: directory.appendingPathComponent("acceptance-failures.jsonl"))
+        XCTAssertFalse(String(decoding: bytes, as: UTF8.self).contains("private"))
+        for row in failures {
+            XCTAssertNil(row["url"]); XCTAssertNil(row["conversationID"])
+            XCTAssertNil(row["chatText"]); XCTAssertNil(row["payload"])
+        }
+    }
 }

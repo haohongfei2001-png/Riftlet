@@ -41,18 +41,25 @@ function browserFixture(options) {
   // request bodies. Retained mode models a persisted thread, without opening
   // ChatGPT or claiming that this model is its current application handler.
   let route='https://chatgpt.com/';
-  if(options.retained){
-    const id='12345678-1234-4234-8234-123456789abc';
-    route='https://chatgpt.com/c/'+id;
-    form.setAttribute('data-chatgpt-composer','');form.setAttribute('data-composer-placement','thread');form.setAttribute('data-thread-find-composer','true');
+  if(options.retained||options.businessHome){
+    const home=!!options.businessHome,placement=home?'home':'thread';
+    const id=(home?'local-chatgpt:':'')+'12345678-1234-4234-8234-123456789abc';
+    if(!home)route='https://chatgpt.com/c/'+id;
+    form.setAttribute('data-chatgpt-composer','');form.setAttribute('data-composer-placement',placement);form.setAttribute('data-thread-find-composer','true');
     editor.setAttribute('aria-label','询问 ChatGPT');
     const leaf={stateNode:form,memoizedProps:{},return:null};
-    const mode={memoizedProps:{conversationId:id,isHome:false,isWork:false,readOnly:false},child:leaf};leaf.return=mode;
-    const draft={memoizedProps:{conversationId:id,draftKey:id,isWorkConversation:false,isTemporaryChat:false,readOnly:false,surfacePlacement:{kind:'thread'}},child:mode};mode.return=draft;
+    const mode={memoizedProps:{conversationId:id,isHome:home,isWork:false,readOnly:false},child:leaf};leaf.return=mode;
+    const draft={memoizedProps:{conversationId:id,draftKey:id,isWorkConversation:false,isTemporaryChat:false,readOnly:false,surfacePlacement:{kind:placement}},child:mode};mode.return=draft;
     const root={tag:3,child:draft,return:null,stateNode:{}};draft.return=root;root.stateNode.current=root;
     form.__reactFiber$fixture=leaf;
   }
-  // Only the route is injected. File, FileList, DataTransfer, Event, native
+  // Candidate route forms are injected into a controlled, identity-proven
+  // composer. They do not assert that today's live Project DOM was inspected.
+  if(options.routeFlavor==='home-query')route='https://chatgpt.com/?model=synthetic-model';
+  if(options.routeFlavor==='project-thread')route='https://chatgpt.com/g/g-p-1234567890abcdef-fixture/c/12345678-1234-4234-8234-123456789abc';
+  if(options.routeFlavor==='project-home')route='https://chatgpt.com/g/g-p-1234567890abcdef-fixture/project';
+  // The route and optional explicitly modeled focus read are injected.
+  // File, FileList, DataTransfer, Event, native
   // input descriptors, Selection, DOM, Blob, FormData, Request and WebCrypto
   // are the actual Chrome implementations. No app source is modified.
   const installProgram=source=>new Function('location','return ('+source+')')({href:route});
@@ -84,7 +91,21 @@ function browserFixture(options) {
   const tasks=[],applicationAttachments=new Map();let changes=0,sends=0;
   form.addEventListener('submit',event=>{sends++;event.preventDefault();});
   const cachedTransport=body=>new Request('https://fixture.invalid/never-requested',{method:'POST',body});
-  call({action:'captureTarget'});
+  const prePressTarget=call({action:'captureTarget'});
+  if(options.modeledFocusLoss){
+    // Model the native nonactivating click's focus ordering without pretending
+    // a loopback headless fixture is a physical macOS/Chrome focus experiment.
+    Object.defineProperty(document,'hasFocus',{value:()=>false,configurable:true});
+    globalThis.dispatchEvent(new Event('blur'));
+    let rejected=false;try{call({action:'captureTarget'});}catch(error){rejected=error.message==='PAGE_UNFOCUSED';}
+    check(rejected,'unfocused discovery still refuses and must not poison the prior capture');
+  }
+  const captureForClick=()=>options.modeledFocusLoss?prePressTarget:call({action:'captureTarget'});
+  const pinForClick=target=>{
+    const clickBindingID=crypto.randomUUID();
+    return call({action:'pinTarget',target,clickBindingID,...(options.modeledFocusLoss?
+      {nativePressProof:{kind:'observed-target-before-press',clickBindingID}}:{})});
+  };
   input.addEventListener('change',event=>{
     changes++;const files=event.target.files,file=files[0],index=tasks.length;check(file instanceof File,'native File required');
     let body=file,kind='File';
@@ -107,7 +128,7 @@ function browserFixture(options) {
     const {bytes,sha,base64}=sources[index];
     if(options.hotUpgrade&&index===1)program=installProgram(__CURRENT_SOURCE__);
     if(options.renewDocument&&index)globalThis.dispatchEvent(new Event('blur'));
-    const target=call({action:'captureTarget'}),pin=call({action:'pinTarget',target,clickBindingID:crypto.randomUUID()});
+    const target=captureForClick(),pin=pinForClick(target);
     if(options.retained){
       check(!!target.logicalDraftIdentity,'persisted logical draft required');
       if(index)check(JSON.stringify(target.logicalDraftIdentity)===JSON.stringify(operations[0].identity.target.logicalDraftIdentity),'same logical draft');
@@ -179,13 +200,13 @@ function browserFixture(options) {
   const a=operations[0];check(a.record.inputCount===1&&a.record.uploadStart===a.start&&a.record.invocationID===undefined,'legacy operation untouched');
   check(call(a.command('observe')).observation.state==='unknown','legacy final remains UNKNOWN');
   check(changes===options.count,'one input per click; A never replayed');
-  const nextTarget=call({action:'captureTarget'}),nextPin=call({action:'pinTarget',target:nextTarget,clickBindingID:crypto.randomUUID()});
+  const nextTarget=captureForClick(),nextPin=pinForClick(nextTarget);
   const next={operationID:crypto.randomUUID(),assetID:crypto.randomUUID(),attempt:1,assetSHA256:sources[0].sha,target:nextPin};
   const occupied=new DataTransfer();occupied.items.add(new File([sources[0].png],'user-selected.png',{type:'image/png'}));input.files=occupied.files;
   let refused=false;try{call({action:'prepareInputResource',identity:next,target:nextPin,invocationID:crypto.randomUUID()});}catch(e){refused=/^INPUT_RESOURCE_(UNAVAILABLE|NATIVE_FILES_RETAINED)$/.test(e.message);}
   check(refused&&changes===options.count&&input.files[0].name==='user-selected.png','unowned nonempty input refusal preserves selected file');
   check(sends===0,'no automatic send');
-  Object.assign(report,{passed:true,phase:'complete',retainedNativeSelection:options.retained,nativeFileListBehavior:options.retained?'prior-list-unchanged':'app-reset-cleared-prior-list',renewedDocumentIdentity:options.renewDocument,hotUpgradedFromMain:!!options.hotUpgrade,baselineUnknownRecovered:!!options.hotUpgradeAfterUnknown,nativeChanges:changes,originalFileListsVerified:tasks.length,originalFileBodiesVerified:tasks.length,nativeRequestBodiesVerified:tasks.length,applicationIndependentTasksVerified:applicationAttachments.size,independentCompletions,legacyUnknownUnchanged:true,textSelectionCardsPreserved:true,occupiedPickerRefused:true,automaticSends:sends,networkRequests:0,harnessTransport:'loopback-only'});
+  Object.assign(report,{passed:true,phase:'complete',routeFlavor:options.routeFlavor||'ordinary',modeledFocusLoss:!!options.modeledFocusLoss,physicalFocusAcceptance:false,retainedNativeSelection:options.retained,nativeFileListBehavior:options.retained?'prior-list-unchanged':'app-reset-cleared-prior-list',renewedDocumentIdentity:options.renewDocument,hotUpgradedFromMain:!!options.hotUpgrade,baselineUnknownRecovered:!!options.hotUpgradeAfterUnknown,nativeChanges:changes,originalFileListsVerified:tasks.length,originalFileBodiesVerified:tasks.length,nativeRequestBodiesVerified:tasks.length,applicationIndependentTasksVerified:applicationAttachments.size,independentCompletions,legacyUnknownUnchanged:true,textSelectionCardsPreserved:true,occupiedPickerRefused:true,automaticSends:sends,networkRequests:0,harnessTransport:'loopback-only'});
  } catch(error){report.error=String(error?.stack||error);}
  result.textContent=JSON.stringify(report);
  await harnessFetch('/result',{method:'POST',body:JSON.stringify(report)});
@@ -199,7 +220,12 @@ for(const options of [{retained:false,count:5,renewDocument:false},
   ...[2,3,5].map(count=>({retained:true,count,renewDocument:false})),
   {retained:true,count:5,renewDocument:true},
   {retained:true,count:3,renewDocument:true,hotUpgrade:true},
-  {retained:true,count:3,renewDocument:true,hotUpgrade:true,hotUpgradeAfterUnknown:true}])test('native Chrome '+JSON.stringify(options)+' preserves independent application File/request bodies',{
+  {retained:true,count:3,renewDocument:true,hotUpgrade:true,hotUpgradeAfterUnknown:true},
+  {retained:false,count:2,renewDocument:false,routeFlavor:'home-query'},
+  {retained:true,count:2,renewDocument:false,routeFlavor:'project-thread'},
+  {retained:false,count:2,renewDocument:false,routeFlavor:'project-home',businessHome:true},
+  {retained:true,count:2,renewDocument:false,modeledFocusLoss:true},
+  {retained:true,count:2,renewDocument:false,routeFlavor:'project-thread',modeledFocusLoss:true}])test('native Chrome '+JSON.stringify(options)+' preserves independent application File/request bodies',{
   // The 30-second report limit is unchanged. Allow the separately bounded
   // listen, group/root cleanup, server close and profile-removal retries to
   // finish (about 50 seconds combined) before the outer test aborts them.

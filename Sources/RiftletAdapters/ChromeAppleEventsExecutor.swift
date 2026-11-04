@@ -27,7 +27,7 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
         let started = ProcessInfo.processInfo.systemUptime
         let routeSnapshot = observedRoutes.snapshot()
         let deadline = started + 0.75
-        guard eventUptime.isFinite, eventUptime >= 0, eventUptime <= started,
+        guard NativePressTiming.accepts(eventUptime: eventUptime, startedUptime: started),
               let app = NSWorkspace.shared.frontmostApplication, app.bundleIdentifier == "com.google.Chrome",
               let identity = ChromeProcessIdentity.read(pid: app.processIdentifier) else { throw WebAdapterError.invalidTarget }
         let requestID = UUID(), pinID = UUID()
@@ -37,7 +37,8 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
         guard let expected = routeSnapshot.target(session: identity.session, window: selected.window, tab: selected.tab, eventUptime: eventUptime) else {
             throw WebAdapterError.pageRejected(.clickRouteUnobserved)
         }
-        let command = WebBridgeCommand(action: .pinTarget, target: expected, clickBindingID: pinID)
+        let command = WebBridgeCommand(action: .pinTarget, target: expected, clickBindingID: pinID,
+            nativePressProof: NativePressProof(clickBindingID: pinID))
         let envelope = MainWorldCommandEnvelope(function: program.functionSource,
             commandJSON: String(decoding: try JSONEncoder().encode(command), as: UTF8.self),
             contextJSON: Self.contextJSON(session: identity.session, window: selected.window, tab: selected.tab))
@@ -45,6 +46,10 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
         guard let relay = relays.relay(function: program.functionSource,
             contextJSON: Self.contextJSON(session: identity.session, window: selected.window, tab: selected.tab), allowCreate: false) else {
             throw WebAdapterError.pageRejected(.bridgeUnavailable)
+        }
+        guard identity.isCurrent(), try bridge.frontmost(),
+              try bridge.activeIdentity(check: "press_dispatch") == selected else {
+            throw WebAdapterError.nativeSelectionChanged
         }
         try bridge.dispatchMainWorld(relay.dispatch(envelope), window: selected.window, tab: selected.tab)
         let receipt = try MainWorldReceiptReader.read(envelope) { budget in
@@ -54,8 +59,10 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
         _ = try NativeCaptureProof.digest(data, session: identity.session, window: selected.window, tab: selected.tab)
         let target = try NativeCaptureProof.pinnedTarget(data, expected: expected, pinID: pinID)
         guard identity.isCurrent() else { throw WebAdapterError.invalidTarget }
-        // Page pin creation required A to be focused; once created, switching to
-        // B is allowed. Do not reread activeIdentity here and replace/cancel A.
+        // The press freezes the previously observed A. A bounded native proof
+        // may cover the nonactivating click's page blur only while A's live
+        // page identities remain continuous. Once pinned, switching to B is
+        // allowed; never reread selection here and substitute or cancel A.
         trace.record(requestID: requestID.uuidString, action: "pinTarget", phase: "pinned",
             enqueued: eventUptime, started: started, context: nil, succeeded: true)
         return target
@@ -68,7 +75,9 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
     }
 
     public func execute(_ command: WebBridgeCommand, program: WebPageProgram) async throws -> Data {
-        guard command.action != .pinTarget else { throw WebAdapterError.invalidRequest }
+        guard command.action != .pinTarget, command.nativePressProof == nil else {
+            throw WebAdapterError.invalidRequest
+        }
         let browserID = "com.google.Chrome"
         let application: NSRunningApplication
         if command.action == .captureTarget {
@@ -206,17 +215,22 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
                         var targetDigest: String?
                         if command.action == .captureTarget {
                             targetDigest = try NativeCaptureProof.digest(bytes, session: session, window: selected.window, tab: selected.tab)
-                            // Publish only decoded, native-context-matched identity,
-                            // independently of the later active-tab check/App ACK.
-                            // It grants nothing until a press pins this exact page.
                             let capturedTarget = try JSONDecoder().decode(TargetLease.self, from: bytes)
-                            try captureTicket?.whileCurrent { observedRoutes.record(capturedTarget, uptime: received) }
                             // Do not publish an ACK already known to be stale:
                             // selecting another tab while the receipt was pending
                             // is a different target even in the same Chrome PID.
                             phase = "capture_return_selection"
                             let active = try bridge.activeIdentity(check: "capture_return_selection")
                             guard active == selected else { throw WebAdapterError.nativeSelectionChanged }
+                            guard try bridge.frontmost(), identity.isCurrent() else {
+                                throw WebAdapterError.browserNotFrontmost
+                            }
+                            // Only a fully validated foreground capture becomes
+                            // pre-press evidence. A stale/failed receipt must not
+                            // create or refresh authority for a later focus gap.
+                            try captureTicket?.whileCurrent {
+                                observedRoutes.record(capturedTarget, uptime: ProcessInfo.processInfo.systemUptime)
+                            }
                         }
                         phase = "complete"
                         let validated = ProcessInfo.processInfo.systemUptime
