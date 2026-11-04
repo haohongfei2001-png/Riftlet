@@ -1016,6 +1016,13 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             } catch {
                 frozenPress = (id, nil, "nativeClickPinRefused", timestamp,
                     ProcessInfo.processInfo.systemUptime, nil, armSession, nil, nil)
+                // Keep the closed page/native rejection beside the actual press.
+                // A generic UI refusal must not hide which pre-input gate failed.
+                // Never persist error descriptions, page URLs or draft contents.
+                diagnosticTrace?.record(["event": "click_target_pin_refused", "assetID": id.uuidString,
+                    "originalEventUptime": timestamp, "handlerUptime": now,
+                    "error": (error as? WebAdapterError)?.diagnosticLabel ?? "unclassified",
+                    "inputAttempted": false], critical: true)
             }
             return
         }

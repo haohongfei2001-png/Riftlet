@@ -3,7 +3,15 @@ import CoreFoundation
 
 /// Closed code-owned labels only; arbitrary page exception messages stay local.
 public enum WebPageRejection: String, Codable, CaseIterable, Sendable {
+    // Legacy receipt decoding only; the current program reports the individual
+    // gate below so route, visibility and focus are never conflated again.
     case unsupportedSurface = "UNSUPPORTED_TEST_SURFACE"
+    case pageRouteUnsupported = "PAGE_ROUTE_UNSUPPORTED"
+    case pageNotTopLevel = "PAGE_NOT_TOP_LEVEL"
+    case pageNotVisible = "PAGE_NOT_VISIBLE"
+    case pageUnfocused = "PAGE_UNFOCUSED"
+    case editorUnavailable = "EDITOR_UNAVAILABLE"
+    case attachmentInputUnavailable = "ATTACHMENT_INPUT_UNAVAILABLE"
     case ambiguousComposer = "AMBIGUOUS_COMPOSER"
     case composerUnavailable = "COMPOSER_UNAVAILABLE"
     case unprovenMode = "UNPROVEN_CHAT_MODE"

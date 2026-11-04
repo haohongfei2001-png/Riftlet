@@ -39,6 +39,7 @@ function fixture({blockedDigest = false, blockedInputDigest = false, route = 'ht
       if (selector === '[role=dialog][aria-modal=true],[role=alertdialog][aria-modal=true]') return all.filter(n=>['dialog','alertdialog'].includes(n.attrs.role)&&n.attrs['aria-modal']==='true');
       if (selector === 'form[data-chatgpt-composer][data-composer-placement=home][data-thread-find-composer=true]') return all.filter(n=>n.tagName==='FORM' && n.attrs['data-chatgpt-composer']!==undefined && n.attrs['data-composer-placement']==='home' && n.attrs['data-thread-find-composer']==='true');
       if (selector === 'form[data-chatgpt-composer][data-composer-placement=thread][data-thread-find-composer=true]') return all.filter(n=>n.tagName==='FORM' && n.attrs['data-chatgpt-composer']!==undefined && n.attrs['data-composer-placement']==='thread' && n.attrs['data-thread-find-composer']==='true');
+      if (selector === '[contenteditable=true][role=textbox]') return all.filter(n=>n.attrs.contenteditable==='true' && n.attrs.role==='textbox');
       if (selector === '[contenteditable=true][role=textbox][aria-label="询问 ChatGPT"]') return all.filter(n=>n.attrs.contenteditable==='true' && n.attrs.role==='textbox' && n.attrs['aria-label']==='询问 ChatGPT');
       if (selector === '[role=group][aria-label="撰写器模式"]') return all.filter(n => n.attrs.role === 'group' && n.attrs['aria-label'] === '撰写器模式');
       if (selector === 'button[type=button]') return all.filter(n => n.tagName === 'BUTTON' && n.attrs.type === 'button');
@@ -89,7 +90,7 @@ function fixture({blockedDigest = false, blockedInputDigest = false, route = 'ht
   const document = {
     visibilityState:'visible', hasFocus:() => focused, activeElement:body,
     getSelection:() => null,
-    querySelectorAll: selector => selector === '[contenteditable=true][role=textbox]' ? [currentEditor] : body.querySelectorAll(selector),
+    querySelectorAll: selector => selector === '[contenteditable=true][role=textbox]' && currentEditor !== editor ? [currentEditor] : body.querySelectorAll(selector),
     removeEventListener:(type,fn)=>remove(events,type,fn),
     addEventListener:(type,fn,options) => { if (!events.has(type)) events.set(type, []); eventCapture.set(fn,options===true||options?.capture===true);events.get(type).push(fn); },
     getElementById:() => null
@@ -811,7 +812,7 @@ test('wrong operation identity, file bytes, route or an absent original observer
   assert.throws(()=>f.call({...op.command('commit'),identity:{...op.identity,attempt:2},chunkIndex:1}),/ORIGINAL_OPERATION_REQUIRED/);
   assert.equal(f.input.inputCount,0);
   const other=fixture();const missing=other.call(op.command('observe'));assert.equal(missing.observation.state,'invalidated');assert.equal(other.input.inputCount,0);
-  assert.throws(()=>fixture({route:'https://chatgpt.com/c/example'}).target(),/UNOBSERVED_THREAD_COMPOSER/);
+  assert.throws(()=>fixture({route:'https://chatgpt.com/c/example'}).target(),/EDITOR_UNAVAILABLE|AMBIGUOUS_COMPOSER/);
   const corrupt=fixture(),bad=corrupt.bind();bad.identity.assetSHA256='0'.repeat(64);corrupt.stage(bad);corrupt.commit(bad);await corrupt.settle();
   assert.equal(corrupt.input.inputCount,0);assert.equal(corrupt.observe(bad).state,'invalidated');
 });
@@ -1008,7 +1009,7 @@ test('empty renewal refuses unavailable focus, composer and modal without changi
   for(const change of changes) {
     const f=fixture({thread:true}),old=f.target(),registry=f.context.__riftletWebAcceptance20261027v13,state=registry.tail;
     f.windowEvent('blur');const restore=change(f);
-    assert.throws(()=>f.target(),/UNSUPPORTED_TEST_SURFACE|COMPOSER_UNAVAILABLE/);
+    assert.throws(()=>f.target(),/PAGE_UNFOCUSED|PAGE_NOT_VISIBLE|EDITOR_UNAVAILABLE|ATTACHMENT_INPUT_UNAVAILABLE/);
     assert.equal(state.target,old);assert.equal(registry.count,1);assert.equal(state.operations.size,0);
     assert.equal(f.call({action:'validate',target:old}).valid,false);assert.equal(f.input.inputCount,0);
     restore();f.windowEvent('focus');const fresh=f.target();
@@ -1037,7 +1038,7 @@ test('empty renewal does not recover a lost monitor or choose among ambiguous bu
     if(lostMonitor)Object.defineProperty(root,'current',{value:root.current,writable:true,configurable:true,enumerable:true});
     else f.body.append(new f.Node('form',{'data-chatgpt-composer':'','data-composer-placement':'thread','data-thread-find-composer':'true'}));
     f.windowEvent('focus');
-    assert.throws(()=>f.target(),lostMonitor?/ROOT_MONITOR_LOST/:/UNOBSERVED_THREAD_COMPOSER/);
+    assert.throws(()=>f.target(),lostMonitor?/ROOT_MONITOR_LOST/:/EDITOR_UNAVAILABLE|AMBIGUOUS_COMPOSER/);
     assert.equal(registry.tail,state);assert.equal(state.target,old);assert.deepEqual([...state.operations],[...operations]);
     assert.equal(operations.size,0);assert.equal(registry.count,1);
     assert.equal(f.mutationObservers.length,observerCount);assert.equal(f.input.inputCount,0);
@@ -1164,7 +1165,7 @@ test('modern Home conflicts never borrow legacy header proof', () => {
     f=>f.body.append(new f.Node('form',{'data-chatgpt-composer':'','data-composer-placement':'home','data-thread-find-composer':'true'}))
   ]) {
     const f=fixture({businessHome:true});change(f);
-    assert.throws(()=>f.target(),/UNPROVEN_THREAD_IDENTITY|UNOBSERVED_THREAD_COMPOSER/);
+    assert.throws(()=>f.target(),/UNPROVEN_THREAD_IDENTITY|AMBIGUOUS_COMPOSER/);
     assert.equal(f.input.inputCount,0);
   }
 });
@@ -1296,7 +1297,7 @@ test('original upload can finish in background but new input cannot start there'
   const f=fixture({thread:true}),op=f.bind();f.stage(op);f.commit(op);await f.settle();const view=f.makeCard(op);
   f.focus(false);f.windowEvent('blur');f.document.visibilityState='hidden';for(const fn of f.events.get('visibilitychange')||[])fn();
   f.finish(view);await f.settle();assert.equal(f.observe(op).state,'attached');
-  assert.throws(()=>f.target(),/UNSUPPORTED_TEST_SURFACE/);assert.equal(f.input.inputCount,1);
+  assert.throws(()=>f.target(),/PAGE_NOT_VISIBLE/);assert.equal(f.input.inputCount,1);
   view.card.attrs['data-state']='error';f.mutate([{type:'attributes',target:view.card,attributeName:'data-state'}]);
   assert.equal(f.observe(op).hasError,true);assert.equal(f.observe(op).exactImageIdentity,true);
 });
@@ -1555,7 +1556,7 @@ test('R01 unavailable composer or attachment capability refuses capture without 
     f=>{f.input.inert=true;},f=>{f.input.attrs['aria-disabled']='true';}
   ];
   for(const thread of [false,true])for(const change of changes){
-    const f=fixture({thread});change(f);assert.throws(()=>f.target(),/COMPOSER_UNAVAILABLE|AMBIGUOUS_COMPOSER/);assert.equal(f.input.inputCount,0);
+    const f=fixture({thread});change(f);assert.throws(()=>f.target(),/EDITOR_UNAVAILABLE|ATTACHMENT_INPUT_UNAVAILABLE|AMBIGUOUS_COMPOSER/);assert.equal(f.input.inputCount,0);
   }
 });
 
@@ -1563,9 +1564,9 @@ test('R01 native modal and visible semantic blocking dialog refuse while hidden 
   for(const nativeModal of [false,true]){
     const f=fixture(),dialog=f.body.append(new f.Node('dialog',{role:'dialog','aria-modal':'true'}));
     dialog.nativeModal=nativeModal;
-    assert.throws(()=>f.target(),/COMPOSER_UNAVAILABLE/);
+    assert.throws(()=>f.target(),/EDITOR_UNAVAILABLE/);
     dialog.attrs.hidden='';dialog.rendered=false;
-    if(nativeModal)assert.throws(()=>f.target(),/COMPOSER_UNAVAILABLE/);
+    if(nativeModal)assert.throws(()=>f.target(),/EDITOR_UNAVAILABLE/);
     else assert.equal(f.target().surface,'webChat');
   }
   const f=fixture();f.body.append(new f.Node('dialog',{open:'',role:'dialog'}));
@@ -1578,7 +1579,7 @@ test('R01 intentionally hidden unique file input stays usable but duplicate atta
   const f=fixture();f.input.attrs.hidden='';f.input.attrs['aria-hidden']='true';f.input.rendered=false;f.input.display='none';
   const op=f.bind();f.stage(op);f.commit(op);await f.settle();assert.equal(f.input.inputCount,1);
   const other=fixture();other.form.append(new other.Input());
-  assert.throws(()=>other.target(),/UNOBSERVED_INPUT_STRUCTURE/);assert.equal(other.input.inputCount,0);
+  assert.throws(()=>other.target(),/ATTACHMENT_INPUT_UNAVAILABLE/);assert.equal(other.input.inputCount,0);
 });
 
 test('R01 final asynchronous commit rechecks blockers and focus without redirecting the frozen target', async () => {
@@ -2317,7 +2318,7 @@ test('pinned hash continuation survives switch but document destruction still re
 });
 test('pin cannot install missing observation, bind unfocused page or forge another capability',()=>{
   const f=fixture();assert.throws(()=>f.call({action:'pinTarget',clickBindingID:webcrypto.randomUUID()}),/CLICK_ROUTE_UNOBSERVED/);
-  const base=f.target();f.focus(false);assert.throws(()=>f.call({action:'pinTarget',target:base,clickBindingID:webcrypto.randomUUID()}),/CLICK_PIN_REFUSED/);
+  const base=f.target();f.focus(false);assert.throws(()=>f.call({action:'pinTarget',target:base,clickBindingID:webcrypto.randomUUID()}),/PAGE_UNFOCUSED/);
   f.focus(true);const pin=f.call({action:'pinTarget',target:base,clickBindingID:webcrypto.randomUUID()});
   assert.equal(f.call({action:'validate',target:{...pin,clickBindingID:webcrypto.randomUUID()}}).valid,false);
   assert.throws(()=>f.call({action:'pinTarget',target:base,clickBindingID:pin.clickBindingID}),/CLICK_PIN_REFUSED/);
@@ -2961,4 +2962,184 @@ test('superseding a read-only qualification spends only its unused attempt and s
   assert.throws(()=>f.call(b.command('prepareInputResource')),/INPUT_RESOURCE_RESERVATION_BUSY/);
   f.stage(c);f.commit(c);await f.settle();const view=f.makeCard(c,10);setProgress(f,view,40);
   assert.equal(f.observe(c).state,'uploadStarted');assert.equal(f.input.inputCount,2);
+});
+
+// Exact last-main source provides executable failure counterexamples. This is
+// controlled DOM evidence, not a claim about a live Project page or the private
+// failure's formerly collapsed predicate.
+const preTargetFixSource=fs.readFileSync(path.join(__dirname,'fixtures/chatgpt-web-main-1cd7bc90.js'),'utf8');
+const projectFixturePath='https://chatgpt.com/g/g-p-1234567890abcdef-fixture';
+const nativePressCommand=(target, clickBindingID=webcrypto.randomUUID())=>({
+  action:'pinTarget',target,clickBindingID,
+  nativePressProof:{kind:'observed-target-before-press',clickBindingID}
+});
+function operationForPin(target, bytes=png) {
+  const id=webcrypto.randomUUID(),identity={operationID:id,assetID:webcrypto.randomUUID(),attempt:1,assetSHA256:digest(bytes),target};
+  return {target,identity,name:'riftlet-'+id+'.png',bytes,command:action=>({action,target,identity})};
+}
+
+test('P1 precise surface refusals reproduce the exact collapsed main guard without private data',()=>{
+  assert.equal(digest(Buffer.from(preTargetFixSource)),'88bd99b9415c7c668fa7023874507e6e7abf9768186a11b5ca710d5e1fd59d32');
+  for(const [expected,change] of [
+    ['PAGE_ROUTE_UNSUPPORTED',f=>{f.context.location.href='https://chatgpt.com/share/private-session-id?private-query';}],
+    ['PAGE_NOT_TOP_LEVEL',f=>{f.context.top={};}],
+    ['PAGE_NOT_VISIBLE',f=>{f.document.visibilityState='hidden';}],
+    ['PAGE_UNFOCUSED',f=>f.focus(false)]
+  ]){
+    for(const [programSource,label] of [[preTargetFixSource,'UNSUPPORTED_TEST_SURFACE'],[source,expected]]){
+      const f=fixture({programSource});change(f);
+      assert.throws(()=>f.target(),error=>error.message===label);
+      assert.equal(f.input.inputCount,0);
+    }
+  }
+  for(const [expected,change] of [
+    ['EDITOR_UNAVAILABLE',f=>{f.editor.rendered=false;}],
+    ['ATTACHMENT_INPUT_UNAVAILABLE',f=>{f.input.disabled=true;}],
+    ['ATTACHMENT_INPUT_UNAVAILABLE',f=>{f.form.children=f.form.children.filter(n=>n!==f.input);f.input.isConnected=false;}]
+  ]){
+    const f=fixture();change(f);assert.throws(()=>f.target(),{message:expected});assert.equal(f.input.inputCount,0);
+  }
+});
+
+for(const [name,options] of [
+  ['Home with query', {route:'https://chatgpt.com/?model=fixture#composer'}],
+  ['Project candidate persisted thread',{route:projectFixturePath+'/c/12345678-1234-1234-1234-123456789abc',thread:true}],
+  ['Project candidate new chat',{route:projectFixturePath+'/project',businessHome:true}]
+]) test('P1 '+name+' requires the same exact composer identity and fixes the prior route counterexample',async()=>{
+  const old=fixture({...options,programSource:preTargetFixSource});
+  assert.throws(()=>old.target(),{message:'UNSUPPORTED_TEST_SURFACE'});assert.equal(old.input.inputCount,0);
+  const f=fixture(options);
+  if(options.thread)threadCommit(f,f.businessID.slice('local-chatgpt:'.length));
+  const base=f.target(),target=f.call(nativePressCommand(base));
+  if(options.thread)assert.equal(target.logicalDraftIdentity.profileID,'chatgpt-composer-react-persisted-20261027-v1');
+  if(options.businessHome)assert.equal(target.logicalDraftIdentity.profileID,'chatgpt-composer-react-20261027-v1');
+  const op=operationForPin(target),original=f.editor.textContent;f.stage(op);f.commit(op);await f.settle();
+  assert.equal(f.input.inputCount,1);assert.equal(f.editor.textContent,original);
+  assert.deepEqual(Buffer.from(await f.input.files[0].arrayBuffer()),png);
+});
+
+test('P1 ordinary /c is the same proved conversation contract for a Project-owned chat',()=>{
+  const f=fixture({thread:true});threadCommit(f,f.businessID.slice('local-chatgpt:'.length));
+  const base=f.target();assert.equal(base.logicalDraftIdentity.id,f.businessID.slice('local-chatgpt:'.length));
+  assert.equal(f.call({action:'validate',target:f.call(nativePressCommand(base))}).valid,true);
+});
+
+test('P1 candidate Project URLs cannot borrow legacy Home mode proof or ambiguous/non-Chat composers',()=>{
+  for(const route of [projectFixturePath+'/project',projectFixturePath+'/c/fixture']){
+    const legacy=fixture({route});assert.throws(()=>legacy.target(),{message:'EDITOR_UNAVAILABLE'});
+    for(const change of [
+      f=>{f.fibers.modeFiber.memoizedProps.isWork=true;},
+      f=>{f.fibers.draftFiber.memoizedProps.readOnly=true;},
+      f=>{f.form.append(new f.Input());},
+      f=>{f.form.append(new f.Node('div',{contenteditable:'true',role:'textbox','aria-label':'询问 ChatGPT'}));},
+      f=>{f.body.append(new f.Node('div',{contenteditable:'true',role:'textbox','aria-label':'询问 ChatGPT'}));}
+    ]){
+      const f=fixture({route,thread:true});change(f);
+      assert.throws(()=>f.target(),/UNPROVEN_THREAD_IDENTITY|AMBIGUOUS_COMPOSER|ATTACHMENT_INPUT_UNAVAILABLE/);
+      assert.equal(f.input.inputCount,0);
+    }
+  }
+  for(const route of ['https://chatgpt.com/settings','https://chatgpt.com/share/example',
+      'https://chatgpt.com/g/g-not-a-project/c/example','https://chatgpt.com.evil.invalid/',
+      'https://evil.invalid/?next=https://chatgpt.com/','http://chatgpt.com/']){
+    const f=fixture({route,thread:true});assert.throws(()=>f.target(),{message:'PAGE_ROUTE_UNSUPPORTED'});assert.equal(f.input.inputCount,0);
+  }
+});
+
+test('P1 native pre-press proof survives the real event ordering counterexample without unfocused discovery',async()=>{
+  for(const beforeBlurDelivery of [false,true]){
+    const old=fixture({programSource:preTargetFixSource}),oldTarget=old.target();old.focus(false);
+    if(!beforeBlurDelivery)old.windowEvent('blur');
+    assert.throws(()=>old.call(nativePressCommand(oldTarget)),{message:'CLICK_PIN_REFUSED'});
+    const f=fixture({thread:true}),base=f.target();f.focus(false);
+    if(!beforeBlurDelivery)f.windowEvent('blur');
+    assert.throws(()=>f.target(),{message:'PAGE_UNFOCUSED'});
+    const pin=f.call(nativePressCommand(base));assert.equal(pin.documentID,base.documentID);
+    assert.equal(pin.logicalDraftIdentity.id,base.logicalDraftIdentity.id);
+    const op=operationForPin(pin);f.stage(op);f.commit(op);await f.settle();assert.equal(f.input.inputCount,1);
+    const discovery=fixture();discovery.focus(false);
+    assert.throws(()=>discovery.target(),{message:'PAGE_UNFOCUSED'});
+    assert.throws(()=>discovery.call(nativePressCommand(base)),{message:'CLICK_ROUTE_UNOBSERVED'});
+    assert.equal(discovery.input.inputCount,0);
+  }
+});
+
+test('P1 focusless pin requires the exact native press proof, target and unused click ID',()=>{
+  for(const corrupt of [
+    command=>delete command.nativePressProof,
+    command=>{command.nativePressProof.kind='captured-after-press';},
+    command=>{command.nativePressProof.clickBindingID=webcrypto.randomUUID();},
+    command=>{command.clickBindingID='not-a-uuid';command.nativePressProof.clickBindingID=command.clickBindingID;}
+  ]){
+    const f=fixture(),base=f.target();f.focus(false);f.windowEvent('blur');const command=nativePressCommand(base);corrupt(command);
+    assert.throws(()=>f.call(command),/PAGE_UNFOCUSED|CLICK_PIN_REFUSED/);assert.equal(f.input.inputCount,0);
+  }
+  const f=fixture(),base=f.target();f.focus(false);f.windowEvent('blur');const command=nativePressCommand(base),pin=f.call(command);
+  assert.throws(()=>f.call(command),{message:'CLICK_PIN_REFUSED'});
+  assert.throws(()=>f.call(nativePressCommand({...base,documentID:webcrypto.randomUUID()})),{message:'CLICK_ROUTE_UNOBSERVED'});
+  const clock=f.context.performance.now();f.context.performance.now=()=>clock+30001;
+  assert.equal(f.call({action:'validate',target:pin}).valid,false);
+  assert.throws(()=>f.stage(operationForPin(pin)),/TARGET_INVALID/);assert.equal(f.input.inputCount,0);
+});
+
+test('P1 focusless press cannot cross visibility, frame, restoration, navigation, node or committed draft continuity',()=>{
+  for(const change of [
+    f=>{f.document.visibilityState='hidden';},
+    f=>{f.context.top={};},
+    f=>{f.focus(true);f.windowEvent('focus');f.focus(false);f.windowEvent('blur');},
+    f=>{f.document.visibilityState='hidden';f.documentEvent('visibilitychange',f.document);f.document.visibilityState='visible';f.documentEvent('visibilitychange',f.document);},
+    f=>f.windowEvent('pagehide'),f=>f.windowEvent('pageshow'),f=>f.navigationEvent('navigate'),
+    f=>{f.context.location.href=projectFixturePath+'/c/other';},
+    f=>{f.editor.isConnected=false;},f=>{f.input.isConnected=false;},
+    f=>{f.form.append(new f.Input());},
+    f=>{f.body.append(new f.Node('div',{contenteditable:'true',role:'textbox','aria-label':'询问 ChatGPT'}));},
+    f=>{f.queueMutation([{type:'childList',target:f.body,removedNodes:[f.form],addedNodes:[f.form]}]);},
+    f=>{threadCommit(f,'local-chatgpt:99999999-9999-4999-8999-999999999999');threadCommit(f);}
+  ]){
+    const f=fixture({route:projectFixturePath+'/c/fixture',thread:true}),base=f.target();f.focus(false);f.windowEvent('blur');change(f);
+    assert.throws(()=>f.call(nativePressCommand(base)),/CLICK_PIN_REFUSED|CLICK_ROUTE_UNOBSERVED|PAGE_NOT_VISIBLE|PAGE_NOT_TOP_LEVEL|EDITOR_UNAVAILABLE|ATTACHMENT_INPUT_UNAVAILABLE/);assert.equal(f.input.inputCount,0);
+  }
+});
+
+test('P1 two fresh presses in one continuously observed focus-loss epoch preserve retained FileList and independent bytes',async()=>{
+  const f=requestFixture({route:projectFixturePath+'/c/fixture',thread:true}),tasks=[];
+  const old=f.form.append(new f.Node('div',{role:'button','aria-label':'old.png'}));old.append(new f.Node('img'));
+  const selection={anchorNode:f.editor,anchorOffset:2,focusNode:f.editor,focusOffset:6,rangeCount:1,isCollapsed:false};
+  f.document.getSelection=()=>selection;
+  const text=f.editor.textContent,base=f.target();f.changed(file=>tasks.push({file,list:f.input.files}));
+  f.focus(false);f.windowEvent('blur');
+  // A screenshot/omnibox dwell is not an identity change. Freshness is the
+  // original native press's responsibility, never guessed from polling age.
+  const clock=f.context.performance.now;f.context.performance.now=()=>clock()+120000;
+  assert.throws(()=>f.target(),{message:'PAGE_UNFOCUSED'});
+  const ops=[];
+  for(let i=0;i<2;i++){
+    const pin=f.call(nativePressCommand(base));assert.equal(pin.documentID,base.documentID);
+    const op=withInvocation(operationForPin(pin,Buffer.from([...png,i])),webcrypto.randomUUID());
+    const priorList=f.input.files,priorFile=priorList[0];const resource=prepareResource(f,op);
+    assert.equal(resource.kind,i?'settledOwnedNativeFileInput':'emptyNativeFileInput');
+    assert.equal(f.input.files,priorList);if(i)assert.equal(f.input.files[0],priorFile);
+    f.stage(op);f.commit(op);await f.settle();const view=f.makeCard(op,10);setProgress(f,view,40);
+    assert.equal(f.observe(op).state,'uploadStarted');ops.push(op);
+  }
+  assert.equal(f.input.inputCount,2);assert.equal(tasks.length,2);assert.notEqual(ops[0].target.clickBindingID,ops[1].target.clickBindingID);
+  for(let i=0;i<2;i++){
+    assert.equal(tasks[i].list.length,1);assert.equal(tasks[i].list[0],tasks[i].file);
+    assert.deepEqual(Buffer.from(await tasks[i].file.arrayBuffer()),ops[i].bytes);
+    assert.equal(f.observe(ops[i]).state,'uploadStarted');
+  }
+  assert.equal(f.editor.textContent,text);assert.equal(selection.anchorOffset,2);assert.equal(selection.focusOffset,6);assert.ok(f.form.contains(old));
+});
+
+test('P1 an observed unavailable surface or attachment closes pre-press focus continuity after restoration',()=>{
+  for(const [change,restore,label] of [
+    [f=>{f.document.visibilityState='hidden';},f=>{f.document.visibilityState='visible';},'PAGE_NOT_VISIBLE'],
+    [f=>{f.context.top={};},f=>vm.runInContext('globalThis.top=globalThis',f.context),'PAGE_NOT_TOP_LEVEL'],
+    [f=>{f.editor.rendered=false;},f=>{f.editor.rendered=true;},'EDITOR_UNAVAILABLE'],
+    [f=>{f.input.disabled=true;},f=>{f.input.disabled=false;},'ATTACHMENT_INPUT_UNAVAILABLE']
+  ]){
+    const f=fixture({thread:true}),base=f.target();f.focus(false);f.windowEvent('blur');change(f);
+    assert.throws(()=>f.call(nativePressCommand(base)),{message:label});restore(f);
+    assert.throws(()=>f.call(nativePressCommand(base)),{message:'CLICK_PIN_REFUSED'});assert.equal(f.input.inputCount,0);
+  }
 });

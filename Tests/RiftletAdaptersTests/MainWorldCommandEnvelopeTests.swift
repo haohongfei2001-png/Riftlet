@@ -166,8 +166,10 @@ final class MainWorldCommandEnvelopeTests: XCTestCase {
         reject(try json(["nonce": expected.nonce, "ok": false, "rejection": "UNPROVEN_THREAD_IDENTITY", "extra": "detail"]), using: expected)
     }
 
-    func testRootBindingRejectionsCrossEnvelopeOnlyAsExactFailureCodes() throws {
-        for code in [WebPageRejection.unobservedRootDescriptor, .unprovenMonitoredBinding] {
+    func testPageGateAndRootBindingRejectionsCrossEnvelopeOnlyAsExactFailureCodes() throws {
+        for code in [WebPageRejection.pageRouteUnsupported, .pageNotTopLevel, .pageNotVisible,
+                     .pageUnfocused, .editorUnavailable, .attachmentInputUnavailable,
+                     .unobservedRootDescriptor, .unprovenMonitoredBinding] {
             let context = try XCTUnwrap(JSContext())
             context.evaluateScript("""
                 var attributes = {}, executions = 0, document = {documentElement:{

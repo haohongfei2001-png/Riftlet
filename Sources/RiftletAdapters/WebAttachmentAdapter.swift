@@ -25,6 +25,17 @@ public struct WebPageProgram: Sendable {
     }
 }
 
+/// Created only by the synchronous native press path after it has matched a
+/// pre-event observation to Chrome's current process, window and selected tab.
+/// It is not a page focus assertion: the page must still prove continuous
+/// ownership of the original draft, composer and input before accepting it.
+public struct NativePressProof: Encodable, Sendable {
+    public let kind = "observed-target-before-press"
+    public let clickBindingID: UUID
+
+    init(clickBindingID: UUID) { self.clickBindingID = clickBindingID }
+}
+
 public struct WebBridgeCommand: Encodable, Sendable {
     public let action: WebBridgeAction
     public let target: TargetLease?
@@ -37,24 +48,26 @@ public struct WebBridgeCommand: Encodable, Sendable {
     public let invocationID: UUID?
     public let clickBindingID: UUID?
     public let inputResourceID: UUID?
+    public let nativePressProof: NativePressProof?
     /// Host diagnostics only, deliberately excluded from the page payload.
     public let captureInvocation: CaptureInvocationContext?
 
     private enum CodingKeys: String, CodingKey {
-        case action, target, identity, uploadName, mediaType, byteCount, chunkIndex, chunkBase64, invocationID, clickBindingID, inputResourceID
+        case action, target, identity, uploadName, mediaType, byteCount, chunkIndex, chunkBase64, invocationID, clickBindingID, inputResourceID, nativePressProof
     }
 
     init(action: WebBridgeAction, target: TargetLease? = nil, identity: ObservationIdentity? = nil,
          uploadName: String? = nil, mediaType: String? = nil, byteCount: Int64? = nil,
          chunkIndex: Int? = nil, chunkBase64: String? = nil, invocationID: UUID? = nil,
          captureInvocation: CaptureInvocationContext? = nil, clickBindingID: UUID? = nil,
-         inputResourceID: UUID? = nil) {
+         inputResourceID: UUID? = nil, nativePressProof: NativePressProof? = nil) {
         self.action = action; self.target = target; self.identity = identity
         self.uploadName = uploadName; self.mediaType = mediaType; self.byteCount = byteCount
         self.chunkIndex = chunkIndex; self.chunkBase64 = chunkBase64; self.invocationID = invocationID
         self.captureInvocation = captureInvocation
         self.clickBindingID = clickBindingID
         self.inputResourceID = inputResourceID
+        self.nativePressProof = nativePressProof
     }
 }
 

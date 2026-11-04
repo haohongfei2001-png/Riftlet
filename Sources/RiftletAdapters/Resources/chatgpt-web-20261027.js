@@ -514,18 +514,35 @@ function riftletWebAcceptance(command, native) {
       valid: no, observationIdentityValid: no, drain: noop, revokeInput: noop, invalidate: noop, markBad: noop, sample: noop};
   }
 
+  function pageRoute() {
+    // Route is a bounded candidate classification, never a draft identity.
+    // Project-owned conversations may also use ordinary /c/ paths. Candidate
+    // Project paths require the same committed Chat identity and exact nodes
+    // below; the pathname alone never establishes a supported composer.
+    const official = /^https:\/\/chatgpt\.com(\/[^?#]*)?(?:[?#].*)?$/.exec(location.href);
+    const pathname = official && (official[1] || '/');
+    const home = pathname === '/';
+    const thread = /^\/c\/[^/]+\/?$/.test(pathname || '');
+    const projectThread = /^\/g\/g-p-[A-Za-z0-9_-]+\/c\/[^/]+\/?$/.test(pathname || '');
+    const projectHome = /^\/g\/g-p-[A-Za-z0-9_-]+\/project\/?$/.test(pathname || '');
+    return {supported: !!official && (home || thread || projectThread || projectHome), home, projectHome};
+  }
+  function requirePageSurface() {
+    if (!pageRoute().supported) fail('PAGE_ROUTE_UNSUPPORTED');
+    if (globalThis.top !== globalThis) fail('PAGE_NOT_TOP_LEVEL');
+    if (document.visibilityState !== 'visible') fail('PAGE_NOT_VISIBLE');
+    if (!document.hasFocus()) fail('PAGE_UNFOCUSED');
+  }
   function install(registry) {
-    const home = location.href === 'https://chatgpt.com/';
-    const thread = /^https:\/\/chatgpt\.com\/c\/[^/?#]+(?:[?#].*)?$/.test(location.href);
-    if ((!home && !thread) || globalThis.top !== globalThis
-        || document.visibilityState !== 'visible' || !document.hasFocus()) fail('UNSUPPORTED_TEST_SURFACE');
+    requirePageSurface();
+    const {home, projectHome} = pageRoute();
     if (native.applicationID !== 'com.google.Chrome' || !native.sessionID
         || !/^\d+$/.test(native.windowID) || !/^\d+$/.test(native.tabID)) fail('NATIVE_CONTEXT_REQUIRED');
     const modeSelector = '[role=group][aria-label="撰写器模式"]';
     const homeFormSelector = 'form[data-chatgpt-composer][data-composer-placement=home][data-thread-find-composer=true]';
     // The modern Home surface has an independently observed committed local
     // business identity. Never fall back to legacy header proof if it conflicts.
-    const businessHome = home && document.querySelectorAll(homeFormSelector).length > 0;
+    const businessHome = (home || projectHome) && document.querySelectorAll(homeFormSelector).length > 0;
     const threadFormSelector = businessHome ? homeFormSelector
       : 'form[data-chatgpt-composer][data-composer-placement=thread][data-thread-find-composer=true]';
     const threadEditorSelector = '[contenteditable=true][role=textbox][aria-label="询问 ChatGPT"]';
@@ -550,15 +567,20 @@ function riftletWebAcceptance(command, native) {
           && chatMode.getAttribute('aria-pressed') === 'true' && workMode.getAttribute('aria-pressed') === 'false';
       };
       const editors = [...document.querySelectorAll('[contenteditable=true][role=textbox]')];
+      if (!editors.length) fail('EDITOR_UNAVAILABLE');
       if (editors.length !== 1) fail('AMBIGUOUS_COMPOSER');
       editor = editors[0]; form = editor.closest('form');
     } else {
       const forms = [...document.querySelectorAll(threadFormSelector)];
-      if (forms.length !== 1) fail('UNOBSERVED_THREAD_COMPOSER');
+      if (!forms.length) fail('EDITOR_UNAVAILABLE');
+      if (forms.length !== 1) fail('AMBIGUOUS_COMPOSER');
       form = forms[0];
       const editors = [...form.querySelectorAll(threadEditorSelector)];
+      if (!editors.length) fail('EDITOR_UNAVAILABLE');
       if (editors.length !== 1) fail('AMBIGUOUS_COMPOSER');
       editor = editors[0];
+      const allEditors = document.querySelectorAll('[contenteditable=true][role=textbox]');
+      if (allEditors.length !== 1 || allEditors[0] !== editor) fail('AMBIGUOUS_COMPOSER');
       const binding = readThreadBinding(form, businessHome);
       if (!binding) fail('UNPROVEN_THREAD_IDENTITY');
       logicalDraftIdentity = binding.logical; boundRoot = binding.root;
@@ -571,7 +593,8 @@ function riftletWebAcceptance(command, native) {
     }
     if (!modeMatches()) fail('UNPROVEN_CHAT_MODE');
     const inputs = form ? [...form.querySelectorAll('input[type=file][aria-label="附加文件"]')] : [];
-    if (!form || inputs.length !== 1) fail('UNOBSERVED_INPUT_STRUCTURE');
+    if (!form) fail('EDITOR_UNAVAILABLE');
+    if (inputs.length !== 1) fail('ATTACHMENT_INPUT_UNAVAILABLE');
     const input = inputs[0], route = location.href, documentID = crypto.randomUUID();
     // Focus belongs to the document, not necessarily its editor. The selected
     // composer must nevertheless be usable at capture and at the final input.
@@ -590,24 +613,32 @@ function riftletWebAcceptance(command, native) {
       return node.getClientRects().length > 0 && style.display !== 'none'
         && style.visibility !== 'hidden' && style.visibility !== 'collapse';
     };
-    const composerAvailable = () => {
+    const composerRefusal = () => {
       try {
-        if (!form.isConnected || !editor.isConnected || !input.isConnected
+        if (!form.isConnected || !editor.isConnected
             || !editor.isContentEditable || blockedAncestor(form) || blockedAncestor(editor)
-            || !rendered(form) || !rendered(editor) || input.disabled || input.matches(':disabled')
-            || blockedAncestor(input, false)) return false;
+            || !rendered(form) || !rendered(editor)) return 'EDITOR_UNAVAILABLE';
+        if (!input.isConnected || input.form !== form || input.disabled || input.matches(':disabled')
+            || blockedAncestor(input, false)) return 'ATTACHMENT_INPUT_UNAVAILABLE';
         // A file input is commonly visually hidden by design. Do not require
         // that node to render or focus; only its original attachment capability.
-        if ([...document.querySelectorAll(':modal')].some(node => !node.contains(form))) return false;
+        if ([...document.querySelectorAll(':modal')].some(node => !node.contains(form))) return 'EDITOR_UNAVAILABLE';
         const modals = document.querySelectorAll('[role=dialog][aria-modal=true],[role=alertdialog][aria-modal=true]');
-        return ![...modals].some(node => !node.contains(form) && !blockedAncestor(node, true, false) && rendered(node));
-      } catch { return false; }
+        return [...modals].some(node => !node.contains(form) && !blockedAncestor(node, true, false) && rendered(node))
+          ? 'EDITOR_UNAVAILABLE' : null;
+      } catch { return 'EDITOR_UNAVAILABLE'; }
     };
-    if (!composerAvailable()) fail('COMPOSER_UNAVAILABLE');
+    const composerAvailable = () => composerRefusal() === null;
+    const refusal = composerRefusal();
+    if (refusal) fail(refusal);
     // Reject a missing/lost monitor before registering any generation listeners.
     const monitor = boundRoot ? rootMonitor(registry, boundRoot) : null;
     const ids = new WeakMap(), operations = new Map(), clickPins = new Map(), issuedPinIDs = new Set();
     let nextNode = 0, invalid = false, inputRevoked = false, sequence = 0;
+    // Initial discovery is always focused. A native mouse-down may reach this
+    // page after its Window blur; that single focus-loss epoch can only bind
+    // the previously captured exact target, never discover or renew one.
+    let prePressFocusEpoch = 'focused';
     const retiredTargets = [];
     const listeners = [];
     const listen = (owner, type, handler, options) => { owner.addEventListener(type, handler, options); listeners.push([owner,type,handler,options]); };
@@ -621,7 +652,7 @@ function riftletWebAcceptance(command, native) {
     // If an original card disappears, conservatively invalidate this draft lease.
     const baseline = [...form.querySelectorAll('[role=button][aria-label]')].filter(c => c.querySelector('img'));
     const identitySnapshotValid = () => {
-      const currentEditors = home ? document.querySelectorAll('[contenteditable=true][role=textbox]') : form.querySelectorAll(threadEditorSelector);
+      const currentEditors = document.querySelectorAll('[contenteditable=true][role=textbox]');
       const currentInputs = form.querySelectorAll('input[type=file][aria-label="附加文件"]');
       return !invalid && modeMatches() && location.href === route && form.isConnected && editor.isConnected
         && input.isConnected && input.form === form && editor.closest('form') === form && form.contains(input)
@@ -929,7 +960,9 @@ function riftletWebAcceptance(command, native) {
       preparedResources.delete(op.inputResource.resourceID);
       op.inputResource.editor = null; op.inputResource = null;
     };
-    const revokeInput = () => {
+    const revokeInput = (reason = 'other') => {
+      if (reason === 'windowBlur' && prePressFocusEpoch === 'focused') prePressFocusEpoch = 'blurred';
+      else if (reason !== 'windowBlur') prePressFocusEpoch = 'closed';
       inputRevoked = true;
       for (const op of operations.values()) if (!op.committed && !op.identity.target.clickBindingID) { op.file = null; op.chunks = []; op.invalid = true; }
     };
@@ -969,13 +1002,31 @@ function riftletWebAcceptance(command, native) {
     const valid = () => {
       if (!observationIdentityValid() || inputRevoked) return false;
       if (!composerAvailable()) { revokeInput(); return false; }
-      return document.visibilityState === 'visible' && document.hasFocus();
+      return globalThis.top === globalThis && document.visibilityState === 'visible' && document.hasFocus();
     };
     // Only a foreground native press can issue a capability. Later commands
     // must present this exact target; hidden state is not a change of draft.
-    const pinTarget = id => {
+    const pinTarget = (id, nativePressProof) => {
       if (!/^[a-fA-F0-9]{8}-(?:[a-fA-F0-9]{4}-){3}[a-fA-F0-9]{12}$/.test(id || '')
-          || issuedPinIDs.has(id) || !valid()) fail('CLICK_PIN_REFUSED');
+          || issuedPinIDs.has(id)) fail('CLICK_PIN_REFUSED');
+      if (!pageRoute().supported) { invalidate(); fail('PAGE_ROUTE_UNSUPPORTED'); }
+      if (globalThis.top !== globalThis) { revokeInput('frame'); fail('PAGE_NOT_TOP_LEVEL'); }
+      if (document.visibilityState !== 'visible') { revokeInput('visibility'); fail('PAGE_NOT_VISIBLE'); }
+      const unavailable = composerRefusal();
+      if (unavailable) { revokeInput('availability'); fail(unavailable); }
+      if (!observationIdentityValid()) fail('CLICK_PIN_REFUSED');
+      // This closed proof is emitted only by the synchronous native pinner
+      // after verifying the original press timestamp, pre-press receipt, and
+      // unchanged foreground process/window/selected tab. It is not accepted
+      // by native capture or asynchronous adapter execution. No elapsed dwell
+      // time can grant it; each press still owns its own one-use bounded pin.
+      const attestedPress = nativePressProof?.kind === 'observed-target-before-press'
+        && nativePressProof.clickBindingID === id;
+      const focused = valid();
+      const focusOnlyPress = attestedPress && prePressFocusEpoch !== 'closed' && !document.hasFocus()
+        && observationIdentityValid() && composerAvailable();
+      if (!focused && !focusOnlyPress) fail(!document.hasFocus() && prePressFocusEpoch !== 'closed'
+        ? 'PAGE_UNFOCUSED' : 'CLICK_PIN_REFUSED');
       const now = performance.now();
       for (const [key,pin] of clickPins) if (!pin.operationID && pin.deadline <= now) clickPins.delete(key);
       if ([...clickPins.values()].filter(p => !p.operationID && p.deadline > now).length >= 16) fail('CLICK_PIN_LIMIT');
@@ -1005,6 +1056,7 @@ function riftletWebAcceptance(command, native) {
       if (operations.size) retiredTargets.push(target);
       target = {...target, documentID: crypto.randomUUID(), draftGeneration: crypto.randomUUID()};
       inputRevoked = false;
+      prePressFocusEpoch = 'focused';
       return true;
     };
     const markBad = (op, error = false, reason = 'attachmentIdentityChanged') => {
@@ -1363,7 +1415,7 @@ function riftletWebAcceptance(command, native) {
     // The Window epoch changes across applications/windows even while both
     // pages remain visible. Input-to-input focus inside this draft is unrelated.
     for (const type of ['blur', 'focus']) listen(globalThis, type, event => {
-      if (event.target === globalThis) revokeInput();
+      if (event.target === globalThis) revokeInput(type === 'blur' ? 'windowBlur' : 'windowFocus');
     });
     listen(document, 'visibilitychange', revokeInput);
     // A click in the body/sidebar is not a draft change. Recheck the same
@@ -1387,7 +1439,7 @@ function riftletWebAcceptance(command, native) {
     if (boundRoot) {
       const checkBinding = () => {
         const binding = readThreadBinding(form, businessHome), forms = document.querySelectorAll(threadFormSelector);
-        const editors = form.querySelectorAll(threadEditorSelector);
+        const editors = document.querySelectorAll('[contenteditable=true][role=textbox]');
         const inputs = form.querySelectorAll('input[type=file][aria-label="附加文件"]');
         return binding?.root === boundRoot && sameLogical(binding?.logical, logicalDraftIdentity)
           && forms.length === 1 && forms[0] === form && location.href === route
@@ -1398,7 +1450,7 @@ function riftletWebAcceptance(command, native) {
       monitorAlive = monitor.bind(form, editor, input, logicalDraftIdentity, route, checkBinding, invalidate);
       if (!checkBinding() || !monitorAlive()) { invalidate(); fail('UNPROVEN_MONITORED_BINDING'); }
     }
-    state = {lifecycleVersion: 1, proofProtocolVersion: 1, inputIsolationVersion: 1, inputResourceVersion:1, retainedInputVersion:1,
+    state = {lifecycleVersion: 1, proofProtocolVersion: 1, inputIsolationVersion: 1, inputResourceVersion:1, retainedInputVersion:1, prePressFocusVersion:1,
       prepareInputResource, claimInputResource, releaseInputResource, enterInputResource, forgetInputResource,
       resourceRefusalReason:() => lastResourceRefusal,
       settleNativeSelection:(file,op) => {
@@ -1427,6 +1479,12 @@ function riftletWebAcceptance(command, native) {
     while (current && !seen.has(current)) { seen.add(current); yield current; current = current.next; }
   };
   if (command.action === 'captureTarget') {
+    // A rejected background poll must not consume the last focused receipt.
+    // Its existing observer still detects every route/draft/node transition;
+    // only the native pre-press proof may use that exact focus-loss epoch.
+    if (!pageRoute().supported) registry?.tail?.invalidate?.();
+    if (globalThis.top !== globalThis || document.visibilityState !== 'visible') registry?.tail?.revokeInput?.();
+    requirePageSurface();
     if (!registry) {
       registry = {head: null, tail: null, count: 0, rootMonitors: new Map()};
       registry.stopRootMonitors = () => [...registry.rootMonitors.values()].map(monitor => monitor.stop());
@@ -1434,11 +1492,11 @@ function riftletWebAcceptance(command, native) {
     }
     let current = registry.tail;
     current?.drain();
-    if (!current || current.proofProtocolVersion !== 1 || current.inputIsolationVersion !== 1 || current.inputResourceVersion !== 1 || current.retainedInputVersion !== 1
+    if (!current || current.proofProtocolVersion !== 1 || current.inputIsolationVersion !== 1 || current.inputResourceVersion !== 1 || current.retainedInputVersion !== 1 || current.prePressFocusVersion !== 1
         || !current.pinTarget || !current.valid() || !contextMatches(current.target)) {
       // Historical v13 closures have no renewal capability. Leave those states
       // and all their operations untouched and use their original bounded path.
-      if (current?.proofProtocolVersion === 1 && current.inputIsolationVersion === 1 && current.inputResourceVersion === 1 && current.retainedInputVersion === 1
+      if (current?.proofProtocolVersion === 1 && current.inputIsolationVersion === 1 && current.inputResourceVersion === 1 && current.retainedInputVersion === 1 && current.prePressFocusVersion === 1
           && current.pinTarget && contextMatches(current.target) && current.renewEmptyInputLease?.()) return current.target;
       if (current) current.revokeInput();
       // Identity tombstones are retained; lifetime count is not a resource quota.
@@ -1453,7 +1511,7 @@ function riftletWebAcceptance(command, native) {
     current?.drain();
     if (!current?.pinTarget || !contextMatches(current.target)
         || !sameTarget(command.target,current.target)) fail('CLICK_ROUTE_UNOBSERVED');
-    return current.pinTarget(command.clickBindingID);
+    return current.pinTarget(command.clickBindingID, command.nativePressProof);
   }
   const state = [...generations()].find(generation => (generation.ownsTarget?.(command.target) ?? sameTarget(command.target, generation.target)));
   state?.drain();

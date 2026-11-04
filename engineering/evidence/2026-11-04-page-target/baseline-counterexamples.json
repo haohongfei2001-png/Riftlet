@@ -1,0 +1,52 @@
+{
+  "base": "1cd7bc9054b07ce6648a9f8bb42b2425b2c8aaad",
+  "sourceSHA256": "88bd99b9415c7c668fa7023874507e6e7abf9768186a11b5ca710d5e1fd59d32",
+  "scope": "Deterministic exact-old-source controlled DOM; not historical user-incident attribution",
+  "rows": [
+    {
+      "case": "Home with harmless model query",
+      "observedRejection": "UNSUPPORTED_TEST_SURFACE",
+      "nativeInputs": 0
+    },
+    {
+      "case": "Project candidate thread with same proven composer",
+      "observedRejection": "UNSUPPORTED_TEST_SURFACE",
+      "nativeInputs": 0
+    },
+    {
+      "case": "Project candidate new draft with committed Home composer",
+      "observedRejection": "UNSUPPORTED_TEST_SURFACE",
+      "nativeInputs": 0
+    },
+    {
+      "case": "Visible foreground document without page focus",
+      "observedRejection": "UNSUPPORTED_TEST_SURFACE",
+      "nativeInputs": 0
+    },
+    {
+      "case": "Hidden document",
+      "observedRejection": "UNSUPPORTED_TEST_SURFACE",
+      "nativeInputs": 0
+    },
+    {
+      "case": "Non-top-level document",
+      "observedRejection": "UNSUPPORTED_TEST_SURFACE",
+      "nativeInputs": 0
+    },
+    {
+      "case": "Captured A then document blur before thumbnail press",
+      "observedRejection": "CLICK_PIN_REFUSED",
+      "nativeInputs": 0
+    },
+    {
+      "case": "Editor not rendered",
+      "observedRejection": "COMPOSER_UNAVAILABLE",
+      "nativeInputs": 0
+    },
+    {
+      "case": "Native attachment input disabled",
+      "observedRejection": "COMPOSER_UNAVAILABLE",
+      "nativeInputs": 0
+    }
+  ]
+}

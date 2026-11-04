@@ -1,3 +1,19 @@
+# Current page recognition and first-click P1 repair — 2026-11-04
+
+Actual base: main `1cd7bc9054b07ce6648a9f8bb42b2425b2c8aaad`, including merged
+PR #39. One short-lived branch: `codex/chatgpt-target-first-click-20261104`.
+`web_target` owns Web page qualification and controlled regressions;
+`native_target` owns native capture/pin authority and adapter diagnostics;
+root owns App integration, AppKit/Chrome test integration, the PR and packaging;
+`independent_review` is the non-author source/CI/package reviewer.
+The reported incident is a page/press refusal before resource preparation.
+Do not reattribute it to FileList reservation or replay any old screenshot.
+Production Mac logs/data are unavailable to this execution environment and are
+untouched. The existing Browser connection has no originating context; no
+alternate automation is used to reach live ChatGPT. Continue independent source
+repair and native CI. Exact G/H, checks and App identity will be in the single
+repair PR. See [scope and evidence](../engineering/evidence/2026-11-04-page-target/README.md).
+
 # Current retained-input P1 repair — 2026-11-03
 
 The new user-reported incident is B START followed by five immediate resource
