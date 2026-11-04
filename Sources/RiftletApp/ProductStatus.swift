@@ -137,6 +137,7 @@ enum ProductStatus {
         case "Verified pre-input rejection: pageRetiredBeforeFileInput: inputExecutionBusy":
             return .inputExecutingBeforeInput
         case "Verified pre-input rejection: localBeforeBegin",
+             "Verified pre-input rejection: localBeforeBegin: fileInputCommandNotInvoked",
              "Verified pre-input rejection: pageRetiredBeforeCommit",
              "Verified pre-input rejection: pageRetiredBeforeFileInput: invalidPNGSignature",
              "Verified pre-input rejection: pageRetiredBeforeFileInput: inputHashMismatch",

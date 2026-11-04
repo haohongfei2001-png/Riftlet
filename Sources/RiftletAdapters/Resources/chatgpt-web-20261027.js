@@ -220,7 +220,7 @@ function riftletWebAcceptance(command, native) {
       committed: false, discarded: false, inputCount: 0, changeReturned: false, retirement: null,
       baseline: new Set(), urls: new Set(), start: null};
     registry.operations.set(identity.operationID, op);
-    return {...acknowledgement(op, 0), allocated: true, identity: op.identity, invocationID: op.invocationID};
+    return acknowledgement(op, 0);
   }
   if (!op || !sameIdentity(op.identity, identity)) {
     if (command.action === 'observe') return blank(identity, 'invalidated');
@@ -230,8 +230,7 @@ function riftletWebAcceptance(command, native) {
   if (command.invocationID !== op.invocationID) fail('INVOCATION_MISMATCH');
   if (command.action === 'discard') {
     if (!op.committed) { op.chunks = []; op.discarded = true; }
-    return {discarded: !op.committed, identity: op.identity, invocationID: op.invocationID,
-      retiredBeforeInput: !op.committed, inputCount: op.inputCount, commitInvoked: op.committed};
+    return {discarded: !op.committed, inputCount: op.inputCount};
   }
   if (command.action === 'chunk') {
     if (op.committed || op.discarded || command.chunkIndex !== op.nextChunk

@@ -306,34 +306,13 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
             attempt: request.operation.attempt, assetSHA256: request.asset.sha256, target: request.operation.target)
         let suffix = request.fileURL.pathExtension
         let uploadName = "riftlet-\(request.operation.id.uuidString).\(suffix)"
-        var began = false
         var committing = false
-        var freshlyAllocated = false
         do {
             let begin = WebBridgeCommand(action: .begin, target: identity.target, identity: identity,
                 uploadName: uploadName, mediaType: request.asset.mediaType, byteCount: request.asset.byteCount,
                 invocationID: request.invocationID)
             let beginReply = try await perform(begin)
-            // The page may reserve and permanently retire a brand-new identity
-            // when its live byte budget is full. This is an explicit response,
-            // never inferred from BEGIN_REFUSED or a missing native reply.
-            if let invocationID = request.invocationID,
-               let proof = try? decode(BeginRejectionProof.self, from: beginReply),
-               proof.identity == identity, proof.invocationID == invocationID,
-               proof.rejectedBeforeBegin, ["ACTIVE_PAYLOAD_LIMIT", "INPUT_EXECUTION_BUSY"].contains(proof.reason),
-               proof.retiredBeforeInput, !proof.commitInvoked, proof.inputCount == 0 {
-                recordResourceRefusal(proof.resourceRefusalReason, action: .begin, operationID: identity.operationID)
-                throw PreInputRejection(operationID: identity.operationID, assetID: identity.assetID,
-                    attempt: identity.attempt, assetSHA256: identity.assetSHA256, target: identity.target,
-                    invocationID: invocationID, stage: .pageRejectedBeforeBegin)
-            }
             try acknowledge(beginReply, identity: identity, nextChunk: 0)
-            if let invocationID = request.invocationID,
-               let allocation = try? decode(AllocationAcknowledgement.self, from: beginReply) {
-                freshlyAllocated = allocation.allocated && allocation.identity == identity
-                    && allocation.invocationID == invocationID
-            }
-            began = true
             var index = 0
             var hash = SHA256()
             while let chunk = try file.nextChunk(maximumBytes: maximumChunkBytes) {
@@ -361,20 +340,17 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
             }
             return (response, identity)
         } catch {
-            if began && !committing {
-                let retired = try? await perform(.init(action: .discard, target: identity.target,
+            if !committing {
+                _ = try? await perform(.init(action: .discard, target: identity.target,
                     identity: identity, invocationID: request.invocationID))
-                // Only a fresh, fully bound allocation followed by an exact
-                // irreversible pre-input retirement proves this call had no
-                // external input. Legacy ACKs, lost replies and commit calls do
-                // not qualify. Never infer this from an exception label.
-                if freshlyAllocated, let invocationID = request.invocationID, let retired,
-                   let proof = try? decode(RetirementProof.self, from: retired),
-                   proof.identity == identity, proof.invocationID == invocationID,
-                   proof.retiredBeforeInput, !proof.commitInvoked, proof.inputCount == 0 {
+                // Only commit can invoke setter/change. We did not call it, so
+                // no allocation, discard ACK or historical proof is needed to
+                // know this screenshot was not submitted. Cleanup is best effort.
+                if let invocationID = request.invocationID {
                     throw PreInputRejection(operationID: identity.operationID, assetID: identity.assetID,
                         attempt: identity.attempt, assetSHA256: identity.assetSHA256, target: identity.target,
-                        invocationID: invocationID, stage: .pageRetiredBeforeCommit)
+                        invocationID: invocationID, stage: .localBeforeBegin,
+                        reason: "fileInputCommandNotInvoked")
                 }
             }
             // Coordinator owns the durable UNKNOWN result; never select another
@@ -602,28 +578,6 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
     }
 
     private struct ValidationReply: Decodable { let target: TargetLease; let valid: Bool }
-    private struct BeginRejectionProof: Decodable {
-        let identity: ObservationIdentity
-        let invocationID: UUID
-        let retiredBeforeInput: Bool
-        let inputCount: Int
-        let commitInvoked: Bool
-        let rejectedBeforeBegin: Bool
-        let reason: String
-        let resourceRefusalReason: WebPageRejection?
-    }
-    private struct AllocationAcknowledgement: Decodable {
-        let allocated: Bool
-        let identity: ObservationIdentity
-        let invocationID: UUID
-    }
-    private struct RetirementProof: Decodable {
-        let identity: ObservationIdentity
-        let invocationID: UUID
-        let retiredBeforeInput: Bool
-        let commitInvoked: Bool
-        let inputCount: Int
-    }
     private struct Acknowledgement: Decodable {
         let operationID: UUID
         let attempt: Int

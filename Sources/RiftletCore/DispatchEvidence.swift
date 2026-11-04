@@ -3,6 +3,9 @@ import Foundation
 /// Only the adapter's bounded paths before the file-input side effect may issue
 /// this error. It is not an upload-failure receipt and never grants retry of an externally input item.
 public enum PreInputRejectionStage: String, Codable, Sendable {
+    // Keep the legacy raw label for old App decoding. Current native input also
+    // uses it when local control flow proves commit was never invoked; reason
+    // distinguishes that case from a local file failure before payload transfer.
     case localBeforeBegin, pageRetiredBeforeCommit, pageRejectedBeforeBegin, pageRetiredBeforeFileInput
 }
 

@@ -38,7 +38,7 @@ final class WebAttachmentAdapterTests: XCTestCase {
             program: withProgram ? program : nil, mode: mode, polling: .disabled)
     }
 
-    func testInputTransportNotificationPrecedesObservationWithoutReleasingInputExclusion() async throws {
+    func testInputTransportNotificationDoesNotHoldTheNextInputWhileObservationWaits() async throws {
         let (_, first, _) = try await fixture(), (_, second, _) = try await fixture()
         let executor = FakeWebBridge(behavior: .pendingThenAttached)
         let probe = InputTransportFinishProbe()
@@ -47,17 +47,19 @@ final class WebAttachmentAdapterTests: XCTestCase {
             program: program, mode: .syntheticDevelopment, polling: .init(timeout: 1, interval: 0.01),
             onInputTransportFinished: {
                 await probe.record(await executor.recordedActions())
-                notified.fulfill()
-                await probe.hold()
+                if await probe.records().count == 1 {
+                    notified.fulfill()
+                    await probe.hold()
+                }
             })
         let append = Task { try await client.append(first) }
         await fulfillment(of: [notified], timeout: 2)
         let before = await executor.recordedActions()
         XCTAssertEqual(before, [.begin, .chunk, .chunk, .commit])
-        do { _ = try await client.append(second); XCTFail("Notification released input exclusion") }
-        catch WebAdapterError.inputInFlight {}
-        // A scheduling callback may resume read-only discovery while the old
-        // append still owns its input exclusion; it cannot admit another input.
+        let secondReceipt = try await client.append(second)
+        XCTAssertEqual(secondReceipt.outcome, .attachedCandidate)
+        // A's synchronous input has already returned. Its scheduling callback
+        // and later observation cannot retain B's native input lane.
         let target = try await client.captureTarget()
         XCTAssertEqual(target, FakeWebBridge.target)
         await probe.release()
@@ -66,8 +68,9 @@ final class WebAttachmentAdapterTests: XCTestCase {
         do { _ = try await client.append(first); XCTFail("Original input replayed") }
         catch WebAdapterError.invalidRequest {}
         let after = await executor.recordedActions(), notifications = await probe.records()
-        XCTAssertEqual(after, before + [.captureTarget, .observe])
-        XCTAssertEqual(notifications, [before])
+        let secondInput: [WebBridgeAction] = [.begin, .chunk, .chunk, .commit]
+        XCTAssertEqual(after, before + secondInput + [.observe, .captureTarget, .observe])
+        XCTAssertEqual(notifications, [before, before + secondInput])
     }
 
     func testInputTransportNotificationIsOnceForPreflightFailureButNotRejectedDuplicateOrInvalidRequest() async throws {
@@ -108,7 +111,7 @@ final class WebAttachmentAdapterTests: XCTestCase {
             }
             let before = await executor.recordedActions()
             let notifications = await probe.records()
-            XCTAssertEqual(notifications, [before], "Notification must follow all attempted input/retirement commands")
+            XCTAssertEqual(notifications, [before], "Notification must follow all attempted input/cleanup commands")
             do { _ = try await client.append(request); XCTFail("Uncertain input replayed") }
             catch WebAdapterError.invalidRequest {}
             try await store.markUnknown(request.operation.id, reason: "Synthetic lost original input response")
@@ -169,43 +172,58 @@ final class WebAttachmentAdapterTests: XCTestCase {
         XCTAssertTrue(actions.isEmpty)
     }
 
-    func testOnlyFreshIdentityBoundRetirementCanProveNoInput() async throws {
-        for fault in RetirementFault.allCases {
+    func testNoCommitMeansNoInputRegardlessOfBeginChunkOrCleanupReplies() async throws {
+        for fault in InputBoundaryFault.allCases {
             let (_, original, _) = try await fixture()
             let nonce = UUID()
             let request = TransferRequest(operation: original.operation, asset: original.asset,
                 fileURL: original.fileURL, invocationID: nonce)
-            let bridge = RetirementBridge(fault: fault)
+            let bridge = InputBoundaryBridge(fault: fault)
             let client = WebAttachmentAdapter(mediaDirectory: directory, executor: bridge,
                 program: program, mode: .syntheticDevelopment, polling: .disabled)
-            do { _ = try await client.append(request); XCTFail("Expected rejection: \(fault)") }
-            catch let proof as PreInputRejection {
-                XCTAssertTrue(fault == .none || fault == .beginCapacity)
-                XCTAssertEqual(proof.operationID, request.operation.id)
-                XCTAssertEqual(proof.assetID, request.asset.id)
-                XCTAssertEqual(proof.attempt, request.operation.attempt)
-                XCTAssertEqual(proof.assetSHA256, request.asset.sha256)
-                XCTAssertEqual(proof.target, request.operation.target)
-                XCTAssertEqual(proof.invocationID, nonce)
-                XCTAssertEqual(proof.stage, fault == .beginCapacity ? .pageRejectedBeforeBegin : .pageRetiredBeforeCommit)
-            } catch { XCTAssertFalse(fault == .none || fault == .beginCapacity, "Exact proof should qualify") }
+            if fault == .commitReplyLost {
+                let receipt = try await client.append(request)
+                XCTAssertEqual(receipt.outcome, .unknown, "A lost commit reply must remain observation-only")
+            } else {
+                do { _ = try await client.append(request); XCTFail("Expected no-input rejection: \(fault)") }
+                catch let rejection as PreInputRejection {
+                    XCTAssertEqual(rejection.operationID, request.operation.id)
+                    XCTAssertEqual(rejection.assetID, request.asset.id)
+                    XCTAssertEqual(rejection.attempt, request.operation.attempt)
+                    XCTAssertEqual(rejection.assetSHA256, request.asset.sha256)
+                    XCTAssertEqual(rejection.target, request.operation.target)
+                    XCTAssertEqual(rejection.invocationID, nonce)
+                    XCTAssertEqual(rejection.stage, .localBeforeBegin)
+                    XCTAssertEqual(rejection.reason, "fileInputCommandNotInvoked")
+                }
+            }
             let actions = await bridge.actions()
             XCTAssertEqual(actions.filter { $0 == .begin }.count, 1)
             XCTAssertEqual(actions.filter { $0 == .commit }.count, fault == .commitReplyLost ? 1 : 0)
-            if fault == .commitReplyLost || fault == .beginReplyLost || fault == .beginCapacity {
-                XCTAssertFalse(actions.contains(.discard))
+            XCTAssertEqual(actions.filter { $0 == .discard }.count, fault == .commitReplyLost ? 0 : 1)
+            XCTAssertEqual(actions.filter { $0 == .observe }.count, fault == .commitReplyLost ? 1 : 0)
+            do { _ = try await client.append(request); XCTFail("The same invocation was submitted twice") }
+            catch WebAdapterError.invalidRequest {}
+            let unchanged = await bridge.actions()
+            XCTAssertEqual(unchanged, actions)
+            if fault == .commitReplyLost {
+                let observed = try await client.reconcile(request)
+                XCTAssertEqual(observed.outcome, .unknown)
+                let afterObservation = await bridge.actions()
+                XCTAssertEqual(afterObservation, actions + [.observe])
             }
         }
     }
 
-    func testLegacyRequestWithoutInvocationCannotRecoverFromRetirement() async throws {
+    func testLegacyRequestWithoutInvocationNeverInventsANonceOrCommitsAfterChunkFailure() async throws {
         let (_, request, _) = try await fixture()
-        let bridge = RetirementBridge(fault: .none)
+        let bridge = InputBoundaryBridge(fault: .chunkReplyLost)
         let client = WebAttachmentAdapter(mediaDirectory: directory, executor: bridge,
             program: program, mode: .syntheticDevelopment, polling: .disabled)
         do { _ = try await client.append(request); XCTFail("Expected rejection") }
-        catch is PreInputRejection { XCTFail("Legacy request was granted recovery") }
-        catch {}
+        catch WebAdapterError.nativeExecutionFailed {}
+        let actions = await bridge.actions()
+        XCTAssertEqual(actions, [.begin, .chunk, .discard])
     }
 
     func testPositiveStartReturnsBeforeFinalAndReconcileNeverReinputs() async throws {
@@ -591,56 +609,43 @@ private actor InputTransportFinishProbe {
     }
 }
 
-private enum RetirementFault: CaseIterable, Sendable {
-    case none, wrongInvocation, wrongIdentity, inputPresent, committed, missingProof
-    case wrongAllocation, legacyAllocation, beginReplyLost, discardReplyLost, commitReplyLost
-    case beginCapacity, beginCapacityWrongIdentity, beginCapacityWrongNonce, beginCapacityWrongReason
+private enum InputBoundaryFault: CaseIterable, Sendable {
+    case beginReplyLost, beginCapacity, wrongBeginAcknowledgement, chunkReplyLost, wrongChunkAcknowledgement
+    case discardReplyLost, malformedDiscardReply, commitReplyLost
 }
 
 /// Deterministic transport fixture, not evidence of actual ChatGPT behavior.
-private actor RetirementBridge: WebBridgeExecutor {
-    let fault: RetirementFault
+private actor InputBoundaryBridge: WebBridgeExecutor {
+    let fault: InputBoundaryFault
     var recorded: [WebBridgeAction] = []
-    init(fault: RetirementFault) { self.fault = fault }
+    init(fault: InputBoundaryFault) { self.fault = fault }
     func actions() -> [WebBridgeAction] { recorded }
     func execute(_ command: WebBridgeCommand, program: WebPageProgram) async throws -> Data {
         recorded.append(command.action)
         let identity = try XCTUnwrap(command.identity)
-        let json = try JSONSerialization.jsonObject(with: JSONEncoder().encode(identity))
-        let nonce = command.invocationID ?? UUID()
         switch command.action {
         case .pinTarget: throw WebAdapterError.invalidRequest
         case .begin:
             if fault == .beginReplyLost { throw WebAdapterError.nativeExecutionFailed }
-            if [.beginCapacity, .beginCapacityWrongIdentity, .beginCapacityWrongNonce, .beginCapacityWrongReason].contains(fault) {
-                var bound = json as! [String: Any]
-                if fault == .beginCapacityWrongIdentity { bound["assetID"] = UUID().uuidString }
-                return try JSONSerialization.data(withJSONObject: ["identity": bound,
-                    "invocationID": (fault == .beginCapacityWrongNonce ? UUID() : nonce).uuidString,
-                    "retiredBeforeInput": true, "inputCount": 0, "commitInvoked": false,
-                    "rejectedBeforeBegin": true,
-                    "reason": fault == .beginCapacityWrongReason ? "BEGIN_REFUSED" : "ACTIVE_PAYLOAD_LIMIT"])
+            if fault == .beginCapacity {
+                return try JSONSerialization.data(withJSONObject: ["ok": false, "reason": "ACTIVE_PAYLOAD_LIMIT"])
             }
-            var ack: [String: Any] = ["operationID": identity.operationID.uuidString,
-                "attempt": identity.attempt, "nextChunk": 0]
-            if fault != .legacyAllocation {
-                ack["allocated"] = fault != .wrongAllocation
-                ack["identity"] = json; ack["invocationID"] = nonce.uuidString
-            }
-            return try JSONSerialization.data(withJSONObject: ack)
+            return try JSONSerialization.data(withJSONObject: [
+                "operationID": (fault == .wrongBeginAcknowledgement ? UUID() : identity.operationID).uuidString,
+                "attempt": identity.attempt, "nextChunk": 0])
         case .chunk:
-            if fault != .commitReplyLost { throw WebAdapterError.nativeExecutionFailed }
-            return try JSONSerialization.data(withJSONObject: ["operationID": identity.operationID.uuidString,
+            if fault != .commitReplyLost && fault != .wrongChunkAcknowledgement { throw WebAdapterError.nativeExecutionFailed }
+            return try JSONSerialization.data(withJSONObject: [
+                "operationID": (fault == .wrongChunkAcknowledgement ? UUID() : identity.operationID).uuidString,
                 "attempt": identity.attempt, "nextChunk": (command.chunkIndex ?? 0) + 1])
         case .discard:
             if fault == .discardReplyLost { throw WebAdapterError.nativeExecutionFailed }
-            if fault == .missingProof { return Data("{}".utf8) }
-            var bound = json as! [String: Any]
-            if fault == .wrongIdentity { bound["assetID"] = UUID().uuidString }
-            return try JSONSerialization.data(withJSONObject: ["identity": bound,
-                "invocationID": (fault == .wrongInvocation ? UUID() : nonce).uuidString,
-                "retiredBeforeInput": true, "inputCount": fault == .inputPresent ? 1 : 0,
-                "commitInvoked": fault == .committed])
+            return Data((fault == .malformedDiscardReply ? "malformed cleanup reply" : "{}").utf8)
+        case .observe:
+            return try JSONEncoder().encode(AttachmentObservationEnvelope(schemaVersion: 1,
+                provenance: .init(source: .syntheticFixture, evidenceID: "lost-commit-fixture"),
+                observation: .init(identity: identity, state: .unknown, exactImageIdentity: false,
+                                   belongsToOriginalDraft: true)))
         default: throw WebAdapterError.nativeExecutionFailed
         }
     }
