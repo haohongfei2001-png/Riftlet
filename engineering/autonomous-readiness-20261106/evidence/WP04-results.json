@@ -1,0 +1,36 @@
+{
+  "scope": "offline release preparation; no credentials, upload, installation or public release",
+  "tests": {
+    "ReleaseReadiness": 41,
+    "Packaging": 17,
+    "InternalBetaPackaging": 17,
+    "failed": 0
+  },
+  "finalToolSHA256": "3e4a1d50a8fb3b14c7200c1b93f29ba9f099cede4da8d71b2f114c4d81da612a",
+  "preflight": {
+    "code": "developer_team_required",
+    "status": "BLOCKED_CREDENTIALS"
+  },
+  "preparedSmoke": {
+    "source": "b61fc46cf931bdbd14deec1b47d077e92db61e16",
+    "version": "0.1.0",
+    "build": "1",
+    "architectures": [
+      "arm64"
+    ],
+    "manifestSHA256": "0d72e42846806fdc7f47062f7e43f1bcdb0ebf1d0bffb5b61813d1444eee9e62",
+    "preparationToolSHA256": "5f2b961be05e9d84396ab5e3f473eeaefe3f22647955fa63773efefeb2248d0f",
+    "status": "PREPARED",
+    "finalToolReadOnlyVerification": {
+      "gatekeeper": "NOT_RUN",
+      "manifestPin": "MATCH",
+      "nativeSignatureCheck": "NOT_RUN",
+      "recordedStage": "PREPARED",
+      "status": "OFFLINE_CONTENTS_MATCH"
+    }
+  },
+  "nativeSigning": "NOT_RUN",
+  "notarization": "NOT_RUN",
+  "gatekeeper": "NOT_RUN",
+  "installedAppChanged": false
+}

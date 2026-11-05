@@ -37,3 +37,7 @@ All original local logs remain in ignored `test-results/readiness`; public log c
 ## WP05/WP06 and independent WP02 review
 
 `evidence/WP02-WP05-WP06-review.json` is frozen non-author review of probes, actual logs and consumer-source/documentation corrections. It found and resolved timing semantics, cumulative CPU labeling, process failure receipts/path redaction, restored feedback diagnostic preference and oversized derived-PNG fallback wording. No remaining reviewed-scope blocker. Native UI/permission execution and public-release certification are explicitly excluded. Three existing product Swift files change only presentation strings; attachment implementation unchanged.
+
+## WP04 completed
+
+`evidence/WP04-results.json` and non-author `evidence/WP04-review.json` bind the exact release tool/files and41+17+17 passing offline tests. Actual PREPARED arm64 smoke is exactb61/version0.1.0/build1, no credentials/installation, and retains its older preparation-tool receipt. Final tool independently verifies that unchanged package against its trusted manifest pin. `preflight` without supplied credentials returns BLOCKED_CREDENTIALS/exit3. Actual Developer ID, notary, staple, Gatekeeper and production updates remain NOT_RUN. No public download/feed or Sparkle framework enabled.
