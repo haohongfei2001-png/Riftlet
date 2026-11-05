@@ -176,3 +176,23 @@ Actual capture also exposed a new image being hidden behind old pages. New
 captures now reveal their page after existing pointer/selection protection;
 failure rebirth does not move the page. The production UI object-code probe
 passed both cases. No panel geometry or visual style was changed.
+
+Real updated-App evidence at source `198edb89c39687359034cbae8d0ee22cf8ae2eb6`:
+five independent OS screenshots of the owned fixture window were each clicked
+once through native software mouse events, creating operations 31–35. All five
+reached setter/change, matching real loaded ChatGPT image previews, START and
+swallow; the older positive-control attachment remained, for six total cards.
+The independent unsent draft retained its text and noncollapsed selection
+(3,14), with zero sent user messages. Old UNKNOWN remained untouched; later
+clicks proceeded while preceding operations remained inputTriggered. This
+proves frontend attachment acceptance, not server upload completion timing.
+The page had real hidden sibling file inputs; dynamic absent-input menus and
+background-target changes remain separately covered by controlled tests.
+
+The next full native run found an old burst assertion requiring captures to
+remain on the oldest page, and an actual preview-protection omission. The
+source now defers automatic reveal while an image preview is open. Burst tests
+retain bounded decoration, valid rows and every-asset reachability; dedicated
+capture/rebirth tests assert reveal versus stable failure return. Local actual
+UI object-code probes passed three/twelve captures and preview preservation.
+Private test media, full operation IDs and native/browser records remain local.
