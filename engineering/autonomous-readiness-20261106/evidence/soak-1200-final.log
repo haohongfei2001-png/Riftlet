@@ -1,0 +1,111 @@
+warning: failed to retrieve search paths with pkg-config; maybe pkg-config is not installed
+warning: couldn't find pc file for sqlite3
+warning: couldn't find pc file for sqlite3
+Building for debugging...
+[0/3] Write sources
+[2/3] Write swift-version--1AB21518FC5DEDBE.txt
+[4/15] Compiling RiftletCore TargetArmScheduler.swift
+[5/15] Compiling RiftletCore QueueInteractionFence.swift
+[6/15] Compiling RiftletCore SQLiteDatabase.swift
+[7/15] Compiling RiftletCore DispatchEvidence.swift
+[8/15] Compiling RiftletCore ReceiptPolicy.swift
+[9/15] Compiling RiftletCore QueueStore.swift
+[10/16] Compiling RiftletCore AcceptedSelection.swift
+[11/16] Compiling RiftletCore ArmedTarget.swift
+[12/16] Compiling RiftletCore Models.swift
+[13/16] Compiling RiftletCore AttachmentInputIsolationEvidence.swift
+[14/16] Compiling RiftletCore AttachmentTerminalEvidence.swift
+[15/16] Emitting module RiftletCore
+[16/16] Compiling RiftletCore TransferCoordinator.swift
+[17/30] Compiling RiftletCapture FileValidation.swift
+<USER_HOME>/.codex/worktrees/riftlet-autonomous-readiness-20261106/Riftlet/Sources/RiftletCapture/FolderWatcher.swift:43:46: warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+25 |     func start() async throws {
+26 |         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+27 |             queue.async {
+   |                         |- note: 'self' implicitly strongly captured here
+   |                         `- note: add 'self' as a capture list item to silence
+28 |                 guard !self.cancelled, self.source == nil else {
+29 |                     continuation.resume(throwing: CaptureError.io("watcher-already-started", EINVAL)); return
+   :
+41 |                 let live = DispatchSource.makeFileSystemObjectSource(fileDescriptor: fd,
+42 |                     eventMask: [.write, .rename, .delete, .revoke, .attrib], queue: self.queue)
+43 |                 live.setEventHandler { [weak self] in self?.handleEvent() }
+   |                                              |- warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+   |                                              `- note: explicitly assign the capture list item to silence
+44 |                 live.setCancelHandler { Darwin.close(fd) }
+45 |                 self.source = live
+
+[#ImplicitStrongCapture]: <https://docs.swift.org/compiler/documentation/diagnostics/implicit-strong-capture>
+[18/30] Compiling RiftletCapture FolderWatcher.swift
+<USER_HOME>/.codex/worktrees/riftlet-autonomous-readiness-20261106/Riftlet/Sources/RiftletCapture/FolderWatcher.swift:43:46: warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+25 |     func start() async throws {
+26 |         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+27 |             queue.async {
+   |                         |- note: 'self' implicitly strongly captured here
+   |                         `- note: add 'self' as a capture list item to silence
+28 |                 guard !self.cancelled, self.source == nil else {
+29 |                     continuation.resume(throwing: CaptureError.io("watcher-already-started", EINVAL)); return
+   :
+41 |                 let live = DispatchSource.makeFileSystemObjectSource(fileDescriptor: fd,
+42 |                     eventMask: [.write, .rename, .delete, .revoke, .attrib], queue: self.queue)
+43 |                 live.setEventHandler { [weak self] in self?.handleEvent() }
+   |                                              |- warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+   |                                              `- note: explicitly assign the capture list item to silence
+44 |                 live.setCancelHandler { Darwin.close(fd) }
+45 |                 self.source = live
+
+[#ImplicitStrongCapture]: <https://docs.swift.org/compiler/documentation/diagnostics/implicit-strong-capture>
+[19/30] Compiling RiftletCapture CaptureSourceBinding.swift
+[20/30] Compiling RiftletCapture CompletedScreenshotImporter.swift
+[21/30] Emitting module RiftletCapture
+[22/30] Compiling RiftletCapture InteractiveScreenshotTypes.swift
+[23/30] Compiling RiftletCapture StorageCapacity.swift
+[24/30] Compiling RiftletCapture InteractiveScreenshotController.swift
+[25/30] Compiling RiftletCapture InteractiveScreenshotOutput.swift
+[26/30] Compiling RiftletCapture CaptureDiagnostics.swift
+[27/30] Compiling RiftletCapture CaptureService.swift
+[28/30] Compiling RiftletCapture PrivateAssetImporter.swift
+[29/30] Compiling RiftletCapture InteractiveScreenshotSystemCapture.swift
+[30/30] Compiling RiftletCapture ScreenshotSourceGeometry.swift
+[31/31] Compiling RiftletCapture StorageUsage.swift
+Build of target: 'RiftletCapture' complete! (29.60s)
+warning: '--build-system native' has been deprecated and will be removed in a future release; please report an issue at https://github.com/swiftlang/swift-package-manager/issues if you are unable to adopt the default build system.
+warning: '--build-system native' has been deprecated and will be removed in a future release; please report an issue at https://github.com/swiftlang/swift-package-manager/issues if you are unable to adopt the default build system.
+READINESS_METRIC {"count":40,"max":271.71333299999998,"name":"burst_40_to_collected_batch_0","p50":271.71333299999998,"p95":271.71333299999998,"samples":1,"scope":"isolated native storage; no UI or network","total":271.71333299999998,"unit":"ms"}
+READINESS_METRIC {"count":80,"max":217.589416,"name":"burst_40_to_collected_batch_1","p50":217.589416,"p95":217.589416,"samples":1,"scope":"isolated native storage; no UI or network","total":217.589416,"unit":"ms"}
+READINESS_METRIC {"count":120,"max":251.33775,"name":"burst_40_to_collected_batch_2","p50":251.33775,"p95":251.33775,"samples":1,"scope":"isolated native storage; no UI or network","total":251.33775,"unit":"ms"}
+READINESS_METRIC {"count":160,"max":228.56370899999999,"name":"burst_40_to_collected_batch_3","p50":228.56370899999999,"p95":228.56370899999999,"samples":1,"scope":"isolated native storage; no UI or network","total":228.56370899999999,"unit":"ms"}
+READINESS_RESOURCE {"captures":40,"cpuSeconds":0.67841099999999999,"elapsedSeconds":20.061298125,"peakResidentBytes":24854528,"residentBytes":24772608,"scope":"isolated collector\/store probe; excludes UI and browser"}
+READINESS_RESOURCE {"captures":80,"cpuSeconds":0.90206799999999998,"elapsedSeconds":40.880900707999999,"peakResidentBytes":25165824,"residentBytes":25083904,"scope":"isolated collector\/store probe; excludes UI and browser"}
+READINESS_RESOURCE {"captures":120,"cpuSeconds":1.1254569999999999,"elapsedSeconds":61.854401875000001,"peakResidentBytes":25362432,"residentBytes":25182208,"scope":"isolated collector\/store probe; excludes UI and browser"}
+READINESS_RESOURCE {"captures":160,"cpuSeconds":1.420104,"elapsedSeconds":82.835535375000006,"peakResidentBytes":25559040,"residentBytes":24707072,"scope":"isolated collector\/store probe; excludes UI and browser"}
+READINESS_RESOURCE {"captures":200,"cpuSeconds":1.710995,"elapsedSeconds":103.809224083,"peakResidentBytes":25559040,"residentBytes":23429120,"scope":"isolated collector\/store probe; excludes UI and browser"}
+READINESS_RESOURCE {"captures":240,"cpuSeconds":2.0311529999999998,"elapsedSeconds":124.77885474999999,"peakResidentBytes":25559040,"residentBytes":23576576,"scope":"isolated collector\/store probe; excludes UI and browser"}
+READINESS_RESOURCE {"captures":280,"cpuSeconds":2.3705419999999999,"elapsedSeconds":145.7518705,"peakResidentBytes":25559040,"residentBytes":23953408,"scope":"isolated collector\/store probe; excludes UI and browser"}
+READINESS_RESOURCE {"captures":320,"cpuSeconds":2.703913,"elapsedSeconds":166.726283833,"peakResidentBytes":25559040,"residentBytes":23592960,"scope":"isolated collector\/store probe; excludes UI and browser"}
+READINESS_RESOURCE {"captures":360,"cpuSeconds":3.06203,"elapsedSeconds":187.69602012499999,"peakResidentBytes":25559040,"residentBytes":24444928,"scope":"isolated collector\/store probe; excludes UI and browser"}
+READINESS_RESOURCE {"captures":400,"cpuSeconds":3.4275580000000003,"elapsedSeconds":208.6684185,"peakResidentBytes":25559040,"residentBytes":23019520,"scope":"isolated collector\/store probe; excludes UI and browser"}
+READINESS_RESOURCE {"captures":440,"cpuSeconds":3.8242000000000003,"elapsedSeconds":229.630484333,"peakResidentBytes":25559040,"residentBytes":24772608,"scope":"isolated collector\/store probe; excludes UI and browser"}
+READINESS_RESOURCE {"captures":480,"cpuSeconds":4.1585840000000003,"elapsedSeconds":250.33304645800001,"peakResidentBytes":25559040,"residentBytes":24559616,"scope":"isolated collector\/store probe; excludes UI and browser"}
+READINESS_RESOURCE {"captures":520,"cpuSeconds":4.5587869999999997,"elapsedSeconds":271.14720666599999,"peakResidentBytes":25559040,"residentBytes":23674880,"scope":"isolated collector\/store probe; excludes UI and browser"}
+READINESS_RESOURCE {"captures":560,"cpuSeconds":4.9094540000000002,"elapsedSeconds":291.960963333,"peakResidentBytes":25575424,"residentBytes":23576576,"scope":"isolated collector\/store probe; excludes UI and browser"}
+READINESS_RESOURCE {"captures":600,"cpuSeconds":5.284764,"elapsedSeconds":312.95295650000003,"peakResidentBytes":25755648,"residentBytes":21282816,"scope":"isolated collector\/store probe; excludes UI and browser"}
+READINESS_RESOURCE {"captures":640,"cpuSeconds":5.7166709999999998,"elapsedSeconds":333.87059683299998,"peakResidentBytes":25755648,"residentBytes":23445504,"scope":"isolated collector\/store probe; excludes UI and browser"}
+READINESS_RESOURCE {"captures":680,"cpuSeconds":6.0869119999999999,"elapsedSeconds":354.73161954099999,"peakResidentBytes":25755648,"residentBytes":22888448,"scope":"isolated collector\/store probe; excludes UI and browser"}
+READINESS_RESOURCE {"captures":720,"cpuSeconds":6.5496319999999999,"elapsedSeconds":375.78720133299998,"peakResidentBytes":25755648,"residentBytes":24444928,"scope":"isolated collector\/store probe; excludes UI and browser"}
+READINESS_RESOURCE {"captures":760,"cpuSeconds":6.9998170000000002,"elapsedSeconds":396.63641087500002,"peakResidentBytes":25755648,"residentBytes":24510464,"scope":"isolated collector\/store probe; excludes UI and browser"}
+READINESS_RESOURCE {"captures":800,"cpuSeconds":7.438555,"elapsedSeconds":417.543380791,"peakResidentBytes":25755648,"residentBytes":22953984,"scope":"isolated collector\/store probe; excludes UI and browser"}
+READINESS_RESOURCE {"captures":840,"cpuSeconds":7.9342620000000004,"elapsedSeconds":438.57051662499998,"peakResidentBytes":25755648,"residentBytes":23986176,"scope":"isolated collector\/store probe; excludes UI and browser"}
+READINESS_RESOURCE {"captures":880,"cpuSeconds":8.3427000000000007,"elapsedSeconds":459.33483416600001,"peakResidentBytes":25755648,"residentBytes":20332544,"scope":"isolated collector\/store probe; excludes UI and browser"}
+READINESS_RESOURCE {"captures":920,"cpuSeconds":8.7769930000000009,"elapsedSeconds":480.33557370800003,"peakResidentBytes":25755648,"residentBytes":19890176,"scope":"isolated collector\/store probe; excludes UI and browser"}
+READINESS_RESOURCE {"captures":960,"cpuSeconds":9.2754580000000004,"elapsedSeconds":501.36018370800002,"peakResidentBytes":25755648,"residentBytes":24264704,"scope":"isolated collector\/store probe; excludes UI and browser"}
+READINESS_RESOURCE {"captures":1000,"cpuSeconds":9.8293909999999993,"elapsedSeconds":522.38787141600005,"peakResidentBytes":25985024,"residentBytes":25165824,"scope":"isolated collector\/store probe; excludes UI and browser"}
+READINESS_RESOURCE {"captures":1040,"cpuSeconds":10.260942,"elapsedSeconds":543.35416050000003,"peakResidentBytes":26689536,"residentBytes":20054016,"scope":"isolated collector\/store probe; excludes UI and browser"}
+READINESS_RESOURCE {"captures":1080,"cpuSeconds":10.791573,"elapsedSeconds":564.65777420799998,"peakResidentBytes":26689536,"residentBytes":25935872,"scope":"isolated collector\/store probe; excludes UI and browser"}
+READINESS_RESOURCE {"captures":1120,"cpuSeconds":11.341054,"elapsedSeconds":585.84237504099997,"peakResidentBytes":27033600,"residentBytes":25313280,"scope":"isolated collector\/store probe; excludes UI and browser"}
+READINESS_RESOURCE {"captures":1160,"cpuSeconds":11.933998000000001,"elapsedSeconds":607.12718345799999,"peakResidentBytes":27410432,"residentBytes":25968640,"scope":"isolated collector\/store probe; excludes UI and browser"}
+READINESS_RESOURCE {"captures":1200,"cpuSeconds":12.563376,"elapsedSeconds":628.62596404099997,"peakResidentBytes":27803648,"residentBytes":25444352,"scope":"isolated collector\/store probe; excludes UI and browser"}
+READINESS_METRIC {"count":1200,"max":24.91433310508728,"name":"stable_file_to_durable_asset","p50":3.6277909278869629,"p95":5.780040979385376,"samples":1200,"scope":"isolated native storage; no UI or network","total":4185.5622379779816,"unit":"ms"}
+READINESS_METRIC {"count":1200,"max":0.51974987983703613,"name":"visible_queue_after_history_growth","p50":0.080958843231201172,"p95":0.17974996566772461,"samples":1200,"scope":"isolated native storage; no UI or network","total":111.06224536895752,"unit":"ms"}
+READINESS_METRIC {"count":1200,"max":4.7353751659393311,"name":"history_page_40","p50":2.551084041595459,"p95":4.5523750782012939,"samples":30,"scope":"isolated native storage; no UI or network","total":77.207539081573486,"unit":"ms"}
+READINESS_SOAK_PASS: real temporary files/ImageIO/SQLite; no UI/browser/production mutation

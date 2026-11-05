@@ -1,0 +1,34 @@
+{
+  "source": "004741fe25cbdd59b72bf3c04ec061c7a1e2c0d5",
+  "evidenceSourceSHA256": "bd16de6cee725bca9f1a9266a41888767e8724ef3c301cc865802b5d85c53322",
+  "evidenceScope": "Previously accepted real ChatGPT final cold pair; analysis only, no new input or replay",
+  "syntheticClick": "One CGEvent mouseDown/up pair for each final-pair asset; native diagnostic source=mouse",
+  "samples": [
+    {
+      "case": 1,
+      "clickToEntryResultAndStartObservedMS": 367.468,
+      "startObservationReportToSwallowActualStartMS": 11.545,
+      "clickToSwallowActualStartMS": 379.013,
+      "swallowActualStartToCloseMS": null,
+      "setterEntered": true,
+      "changeReturned": true,
+      "startObserved": true
+    },
+    {
+      "case": 2,
+      "clickToEntryResultAndStartObservedMS": 195.423,
+      "startObservationReportToSwallowActualStartMS": 4.629,
+      "clickToSwallowActualStartMS": 200.052,
+      "swallowActualStartToCloseMS": 246.695,
+      "setterEntered": true,
+      "changeReturned": true,
+      "startObserved": true
+    }
+  ],
+  "limits": [
+    "Entry result is a report after setter/change and observed START, not an exact setter timestamp",
+    "START is application reception, not server/network upload completion",
+    "No pixel presentation timing; first case has no swallowClose trace",
+    "Two historical samples, not a distribution or a new-source acceptance benchmark"
+  ]
+}

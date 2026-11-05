@@ -1,0 +1,95 @@
+warning: failed to retrieve search paths with pkg-config; maybe pkg-config is not installed
+warning: couldn't find pc file for sqlite3
+warning: couldn't find pc file for sqlite3
+Building for debugging...
+[0/49] <USER_HOME>/.codex/worktrees/riftlet-autonomous-readiness-20261106/Riftlet/.build/arm64-apple-macosx/debug/RiftletPackageTests.derived/runner.swift
+[1/49] Write sources
+[2/49] Copying v12.js
+[2/49] Copying v7.js
+[2/49] Copying v12-dom-fixture.cjs
+[2/49] Copying v8-dom-fixture.cjs
+[2/49] Copying v11.js
+[2/49] Copying v9-dom-fixture.cjs
+[2/49] Copying v10.js
+[2/49] Copying synthetic-attached-v1.json
+[2/49] Copying v10-dom-fixture.cjs
+[11/49] Copying chatgpt-web-20261027.js
+[11/49] Copying legacy-web-observe.js
+[11/49] Write sources
+[11/49] Write RiftletGUIAcceptance-entitlement.plist
+[11/49] Write sources
+[11/49] Copying v9.js
+[11/49] Write sources
+[11/49] Copying README.md
+[11/49] Write sources
+[30/49] Write RiftletFeedbackDemo-entitlement.plist
+[30/49] Copying v11-dom-fixture.cjs
+[30/49] Write Riftlet-entitlement.plist
+[34/49] Copying v8.js
+[34/49] Copying v6.js
+[35/49] Write sources
+[37/49] Write swift-version--1AB21518FC5DEDBE.txt
+[39/68] Emitting module RiftletFeedback
+[40/68] Compiling RiftletCore TargetArmScheduler.swift
+[41/69] Compiling RiftletFeedback ReportSecrets.swift
+[42/69] Compiling RiftletCore SQLiteDatabase.swift
+[43/69] Compiling RiftletCore ReceiptPolicy.swift
+[44/69] Compiling RiftletFeedback FeedbackTransport.swift
+[45/69] Compiling RiftletFeedback FeedbackEngine.swift
+[46/69] Compiling RiftletFeedback FeedbackStore.swift
+[47/69] Compiling RiftletFeedback FeedbackDiagnostics.swift
+[48/69] Compiling RiftletFeedback FeedbackModels.swift
+[49/76] Compiling RiftletCore QueueInteractionFence.swift
+[50/76] Compiling RiftletCore QueueStore.swift
+[51/76] Compiling RiftletFeedbackTests FeedbackFlightTests.swift
+<USER_HOME>/.codex/worktrees/riftlet-autonomous-readiness-20261106/Riftlet/Tests/RiftletFeedbackTests/FeedbackAutomaticRetryTests.swift:2:8: error: no such module 'XCTest'
+ 1 | import Foundation
+ 2 | import XCTest
+   |        `- error: no such module 'XCTest'
+ 3 | @testable import RiftletFeedback
+ 4 | 
+[52/76] Compiling RiftletFeedbackTests FeedbackPrivacyCleanupTests.swift
+<USER_HOME>/.codex/worktrees/riftlet-autonomous-readiness-20261106/Riftlet/Tests/RiftletFeedbackTests/FeedbackAutomaticRetryTests.swift:2:8: error: no such module 'XCTest'
+ 1 | import Foundation
+ 2 | import XCTest
+   |        `- error: no such module 'XCTest'
+ 3 | @testable import RiftletFeedback
+ 4 | 
+[53/76] Compiling RiftletFeedbackTests FeedbackAutomaticRetryTests.swift
+<USER_HOME>/.codex/worktrees/riftlet-autonomous-readiness-20261106/Riftlet/Tests/RiftletFeedbackTests/FeedbackAutomaticRetryTests.swift:2:8: error: no such module 'XCTest'
+ 1 | import Foundation
+ 2 | import XCTest
+   |        `- error: no such module 'XCTest'
+ 3 | @testable import RiftletFeedback
+ 4 | 
+error: emit-module command failed with exit code 1 (use -v to see invocation)
+[54/76] Emitting module RiftletFeedbackTests
+<USER_HOME>/.codex/worktrees/riftlet-autonomous-readiness-20261106/Riftlet/Tests/RiftletFeedbackTests/FeedbackAutomaticRetryTests.swift:2:8: error: no such module 'XCTest'
+ 1 | import Foundation
+ 2 | import XCTest
+   |        `- error: no such module 'XCTest'
+ 3 | @testable import RiftletFeedback
+ 4 | 
+[55/76] Compiling RiftletFeedbackTests FeedbackDurabilityTests.swift
+<USER_HOME>/.codex/worktrees/riftlet-autonomous-readiness-20261106/Riftlet/Tests/RiftletFeedbackTests/FeedbackAutomaticRetryTests.swift:2:8: error: no such module 'XCTest'
+ 1 | import Foundation
+ 2 | import XCTest
+   |        `- error: no such module 'XCTest'
+ 3 | @testable import RiftletFeedback
+ 4 | 
+[56/76] Compiling RiftletFeedbackTests FeedbackCredentialIntentTests.swift
+<USER_HOME>/.codex/worktrees/riftlet-autonomous-readiness-20261106/Riftlet/Tests/RiftletFeedbackTests/FeedbackAutomaticRetryTests.swift:2:8: error: no such module 'XCTest'
+ 1 | import Foundation
+ 2 | import XCTest
+   |        `- error: no such module 'XCTest'
+ 3 | @testable import RiftletFeedback
+ 4 | 
+[57/76] Compiling RiftletFeedbackTests FeedbackTests.swift
+<USER_HOME>/.codex/worktrees/riftlet-autonomous-readiness-20261106/Riftlet/Tests/RiftletFeedbackTests/FeedbackAutomaticRetryTests.swift:2:8: error: no such module 'XCTest'
+ 1 | import Foundation
+ 2 | import XCTest
+   |        `- error: no such module 'XCTest'
+ 3 | @testable import RiftletFeedback
+ 4 | 
+warning: '--build-system native' has been deprecated and will be removed in a future release; please report an issue at https://github.com/swiftlang/swift-package-manager/issues if you are unable to adopt the default build system.
+error: fatalError

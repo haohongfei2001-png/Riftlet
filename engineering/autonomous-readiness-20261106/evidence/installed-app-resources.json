@@ -1,0 +1,86 @@
+{
+  "scope": "read-only running process observation; activity not controlled; not a leak/idle certification",
+  "startedAt": "2026-11-05T21:50:58.162097+00:00",
+  "durationSeconds": 60,
+  "status": "complete",
+  "samples": [
+    {
+      "at": "2026-11-05T21:50:58.169010+00:00",
+      "percentCPU": 0.0,
+      "rssKiB": 32976,
+      "cumulativeCPU": "1:24.55"
+    },
+    {
+      "at": "2026-11-05T21:51:03.177296+00:00",
+      "percentCPU": 0.0,
+      "rssKiB": 32976,
+      "cumulativeCPU": "1:24.55"
+    },
+    {
+      "at": "2026-11-05T21:51:08.184339+00:00",
+      "percentCPU": 0.0,
+      "rssKiB": 32912,
+      "cumulativeCPU": "1:24.56"
+    },
+    {
+      "at": "2026-11-05T21:51:13.198112+00:00",
+      "percentCPU": 0.0,
+      "rssKiB": 32864,
+      "cumulativeCPU": "1:24.56"
+    },
+    {
+      "at": "2026-11-05T21:51:18.203962+00:00",
+      "percentCPU": 0.0,
+      "rssKiB": 32864,
+      "cumulativeCPU": "1:24.56"
+    },
+    {
+      "at": "2026-11-05T21:51:23.216168+00:00",
+      "percentCPU": 0.1,
+      "rssKiB": 32992,
+      "cumulativeCPU": "1:24.56"
+    },
+    {
+      "at": "2026-11-05T21:51:28.241500+00:00",
+      "percentCPU": 0.0,
+      "rssKiB": 32992,
+      "cumulativeCPU": "1:24.56"
+    },
+    {
+      "at": "2026-11-05T21:51:33.264518+00:00",
+      "percentCPU": 0.0,
+      "rssKiB": 32864,
+      "cumulativeCPU": "1:24.56"
+    },
+    {
+      "at": "2026-11-05T21:51:38.283791+00:00",
+      "percentCPU": 0.0,
+      "rssKiB": 32864,
+      "cumulativeCPU": "1:24.56"
+    },
+    {
+      "at": "2026-11-05T21:51:43.306051+00:00",
+      "percentCPU": 0.1,
+      "rssKiB": 32864,
+      "cumulativeCPU": "1:24.56"
+    },
+    {
+      "at": "2026-11-05T21:51:48.319291+00:00",
+      "percentCPU": 0.0,
+      "rssKiB": 32864,
+      "cumulativeCPU": "1:24.56"
+    },
+    {
+      "at": "2026-11-05T21:51:53.327159+00:00",
+      "percentCPU": 0.0,
+      "rssKiB": 32880,
+      "cumulativeCPU": "1:24.56"
+    },
+    {
+      "at": "2026-11-05T21:51:58.175430+00:00",
+      "percentCPU": 0.0,
+      "rssKiB": 32880,
+      "cumulativeCPU": "1:24.56"
+    }
+  ]
+}

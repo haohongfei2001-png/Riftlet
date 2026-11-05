@@ -1,0 +1,85 @@
+warning: failed to retrieve search paths with pkg-config; maybe pkg-config is not installed
+warning: couldn't find pc file for sqlite3
+warning: couldn't find pc file for sqlite3
+Building for debugging...
+[0/3] Write sources
+[2/3] Write swift-version--1AB21518FC5DEDBE.txt
+[4/15] Compiling RiftletCore SQLiteDatabase.swift
+[5/15] Compiling RiftletCore QueueStore.swift
+[6/15] Compiling RiftletCore TargetArmScheduler.swift
+[7/15] Compiling RiftletCore ReceiptPolicy.swift
+[8/16] Compiling RiftletCore QueueInteractionFence.swift
+[9/16] Emitting module RiftletCore
+[10/16] Compiling RiftletCore AttachmentInputIsolationEvidence.swift
+[11/16] Compiling RiftletCore AttachmentTerminalEvidence.swift
+[12/16] Compiling RiftletCore AcceptedSelection.swift
+[13/16] Compiling RiftletCore ArmedTarget.swift
+[14/16] Compiling RiftletCore Models.swift
+[15/16] Compiling RiftletCore DispatchEvidence.swift
+[16/16] Compiling RiftletCore TransferCoordinator.swift
+[17/30] Compiling RiftletCapture PrivateAssetImporter.swift
+[18/30] Compiling RiftletCapture InteractiveScreenshotTypes.swift
+[19/30] Compiling RiftletCapture StorageCapacity.swift
+[20/30] Compiling RiftletCapture ScreenshotSourceGeometry.swift
+[21/31] Compiling RiftletCapture StorageUsage.swift
+[22/31] Compiling RiftletCapture InteractiveScreenshotSystemCapture.swift
+[23/31] Emitting module RiftletCapture
+[24/31] Compiling RiftletCapture CaptureSourceBinding.swift
+[25/31] Compiling RiftletCapture CompletedScreenshotImporter.swift
+[26/31] Compiling RiftletCapture FileValidation.swift
+<USER_HOME>/.codex/worktrees/riftlet-autonomous-readiness-20261106/Riftlet/Sources/RiftletCapture/FolderWatcher.swift:43:46: warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+25 |     func start() async throws {
+26 |         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+27 |             queue.async {
+   |                         |- note: 'self' implicitly strongly captured here
+   |                         `- note: add 'self' as a capture list item to silence
+28 |                 guard !self.cancelled, self.source == nil else {
+29 |                     continuation.resume(throwing: CaptureError.io("watcher-already-started", EINVAL)); return
+   :
+41 |                 let live = DispatchSource.makeFileSystemObjectSource(fileDescriptor: fd,
+42 |                     eventMask: [.write, .rename, .delete, .revoke, .attrib], queue: self.queue)
+43 |                 live.setEventHandler { [weak self] in self?.handleEvent() }
+   |                                              |- warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+   |                                              `- note: explicitly assign the capture list item to silence
+44 |                 live.setCancelHandler { Darwin.close(fd) }
+45 |                 self.source = live
+
+[#ImplicitStrongCapture]: <https://docs.swift.org/compiler/documentation/diagnostics/implicit-strong-capture>
+[27/31] Compiling RiftletCapture FolderWatcher.swift
+<USER_HOME>/.codex/worktrees/riftlet-autonomous-readiness-20261106/Riftlet/Sources/RiftletCapture/FolderWatcher.swift:43:46: warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+25 |     func start() async throws {
+26 |         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+27 |             queue.async {
+   |                         |- note: 'self' implicitly strongly captured here
+   |                         `- note: add 'self' as a capture list item to silence
+28 |                 guard !self.cancelled, self.source == nil else {
+29 |                     continuation.resume(throwing: CaptureError.io("watcher-already-started", EINVAL)); return
+   :
+41 |                 let live = DispatchSource.makeFileSystemObjectSource(fileDescriptor: fd,
+42 |                     eventMask: [.write, .rename, .delete, .revoke, .attrib], queue: self.queue)
+43 |                 live.setEventHandler { [weak self] in self?.handleEvent() }
+   |                                              |- warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+   |                                              `- note: explicitly assign the capture list item to silence
+44 |                 live.setCancelHandler { Darwin.close(fd) }
+45 |                 self.source = live
+
+[#ImplicitStrongCapture]: <https://docs.swift.org/compiler/documentation/diagnostics/implicit-strong-capture>
+[28/31] Compiling RiftletCapture CaptureDiagnostics.swift
+[29/31] Compiling RiftletCapture CaptureService.swift
+[30/31] Compiling RiftletCapture InteractiveScreenshotController.swift
+[31/31] Compiling RiftletCapture InteractiveScreenshotOutput.swift
+Build of target: 'RiftletCapture' complete! (27.30s)
+warning: '--build-system native' has been deprecated and will be removed in a future release; please report an issue at https://github.com/swiftlang/swift-package-manager/issues if you are unable to adopt the default build system.
+warning: '--build-system native' has been deprecated and will be removed in a future release; please report an issue at https://github.com/swiftlang/swift-package-manager/issues if you are unable to adopt the default build system.
+READINESS_METRIC {"count":40,"max":197.423292,"name":"batch_first_write_to_40_collected_0","p50":197.423292,"p95":197.423292,"samples":1,"scope":"isolated native storage; no UI or network","total":197.423292,"unit":"ms"}
+READINESS_METRIC {"count":80,"max":195.45454100000001,"name":"batch_first_write_to_40_collected_1","p50":195.45454100000001,"p95":195.45454100000001,"samples":1,"scope":"isolated native storage; no UI or network","total":195.45454100000001,"unit":"ms"}
+READINESS_METRIC {"count":120,"max":204.53508400000001,"name":"batch_first_write_to_40_collected_2","p50":204.53508400000001,"p95":204.53508400000001,"samples":1,"scope":"isolated native storage; no UI or network","total":204.53508400000001,"unit":"ms"}
+READINESS_METRIC {"count":160,"max":228.80841699999999,"name":"batch_first_write_to_40_collected_3","p50":228.80841699999999,"p95":228.80841699999999,"samples":1,"scope":"isolated native storage; no UI or network","total":228.80841699999999,"unit":"ms"}
+READINESS_RESOURCE {"captures":40,"elapsedSeconds":0.045059291000000001,"peakResidentBytes":25133056,"processCPUSeconds":0.44590800000000003,"residentBytes":25083904,"scope":"isolated collector\/store probe; excludes UI and browser"}
+READINESS_RESOURCE {"captures":80,"elapsedSeconds":0.103156416,"peakResidentBytes":25509888,"processCPUSeconds":0.50206700000000004,"residentBytes":25460736,"scope":"isolated collector\/store probe; excludes UI and browser"}
+READINESS_RESOURCE {"captures":120,"elapsedSeconds":0.173509625,"peakResidentBytes":26181632,"processCPUSeconds":0.570384,"residentBytes":26132480,"scope":"isolated collector\/store probe; excludes UI and browser"}
+READINESS_RESOURCE {"captures":160,"elapsedSeconds":0.26317195799999998,"peakResidentBytes":26836992,"processCPUSeconds":0.65180899999999997,"residentBytes":26787840,"scope":"isolated collector\/store probe; excludes UI and browser"}
+READINESS_METRIC {"count":160,"max":5.3111248016357422,"name":"stable_file_to_durable_asset","p50":0.86779117584228516,"p95":1.0946249961853027,"samples":160,"scope":"isolated native storage; no UI or network","total":149.34520244598389,"unit":"ms"}
+READINESS_METRIC {"count":160,"max":0.054957866668701172,"name":"visible_queue_after_history_growth","p50":0.034208059310913086,"p95":0.050709009170532227,"samples":160,"scope":"isolated native storage; no UI or network","total":5.3334605693817139,"unit":"ms"}
+READINESS_METRIC {"count":160,"max":0.77087521553039551,"name":"history_page_40","p50":0.75366711616516113,"p95":0.77087521553039551,"samples":4,"scope":"isolated native storage; no UI or network","total":2.8926265239715576,"unit":"ms"}
+READINESS_SOAK_PASS: real temporary files/ImageIO/SQLite; no UI/browser/production mutation
