@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "candidate": "settings-review-candidate-1",
   "status": "DESIGN_REVIEW_CANDIDATE_DELIVERABLE_WITH_KNOWN_PROTOTYPE_FAILURES",
-  "generatedAt": "2026-11-05T20:54:33.385748+00:00",
+  "generatedAt": "2026-11-05T20:55:26.740130+00:00",
   "repository": "haohongfei2001-png/Riftlet",
   "branch": "design/settings-control-center-20261106",
   "baseMain": "b61fc46cf931bdbd14deec1b47d077e92db61e16",
@@ -157,8 +157,8 @@
     },
     {
       "file": "DESIGN-REVIEW.md",
-      "bytes": 11446,
-      "sha256": "b922b6771a7e75042c678a0968bae93ff4df521fa598d745aae8879c69260199"
+      "bytes": 2887,
+      "sha256": "cc56015312469555d4877b9c062e3467ad0edd693294fa78b07dee8ae24d7e93"
     },
     {
       "file": "FAILURES.md",
