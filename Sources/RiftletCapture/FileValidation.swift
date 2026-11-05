@@ -8,6 +8,7 @@ import ImageIO
 import UniformTypeIdentifiers
 import Darwin
 import CoreFoundation
+import RiftletCore
 
 public enum CaptureError: Error, Equatable, Sendable {
     case io(String, Int32)
@@ -99,8 +100,8 @@ struct ValidatedImage: Sendable {
     let mimeType: String
     let fileExtension: String
 
-    static let maximumBytes: Int64 = 128 * 1024 * 1024
-    static let maximumPixels: Int64 = 160_000_000
+    static let maximumBytes = ScreenshotImportLimits.bytes
+    static let maximumPixels = ScreenshotImportLimits.pixels
 
     static func inspect(_ url: URL, byteCount: Int64) throws -> ValidatedImage {
         guard byteCount > 0, byteCount <= maximumBytes else { throw CaptureError.imageTooLarge }
@@ -127,7 +128,7 @@ struct ValidatedImage: Sendable {
               let height = (properties[kCGImagePropertyPixelHeight] as? NSNumber)?.intValue else {
             throw CaptureError.unsupportedImage
         }
-        guard width > 0, height > 0, width <= 50_000, height <= 50_000,
+        guard width > 0, height > 0, width <= ScreenshotImportLimits.dimension, height <= ScreenshotImportLimits.dimension,
               Int64(width) * Int64(height) <= maximumPixels else { throw CaptureError.imageTooLarge }
         // Force a real bounded decode, not only a file-header/status check. No full-size bitmap.
         let thumbnailOptions: [CFString: Any] = [

@@ -85,29 +85,50 @@ final class WebInputPhasingTests: XCTestCase {
         XCTAssertEqual(receivedB, try Data(contentsOf: b.fileURL))
     }
 
-    func testUncertainCommitOrAsynchronousHashDoesNotReleaseUntilPositiveOriginalInput() async throws {
-        let a = try await request(target(tab: "A")), b = try await request(target(tab: "B"))
-        let commit = expectation(description: "A uncertain commit reply")
+    func testHeldCommitExcludesConcurrentInputButReturnedUnknownDoesNotWaitForOriginalStart() async throws {
+        let sameTarget = target(tab: "A")
+        let a = try await request(sameTarget), b = try await request(sameTarget)
+        let commit = expectation(description: "A entered held commit")
+        let returned = expectation(description: "A input execution returned")
         let bridge = PhasedInputBridge(onCommit: { if $0 == a.operation.id { commit.fulfill() } })
         let client = adapter(bridge), confirmations = InputConfirmationLog()
-        await bridge.configure(a, initial: .hashing)
+        await bridge.configure(a, initial: .hashing, holdCommit: true)
         await bridge.configure(b, initial: .started)
-        let confirmed = expectation(description: "A delayed input confirmed")
-        let first = Task { try await client.append(a, onInputConfirmed: {
-            await confirmations.append($0); confirmed.fulfill()
+        let first = Task { try await client.append(a, onInputExecutionReturned: {
+            returned.fulfill()
         }) }
-        await fulfillment(of: [commit], timeout: 2)
-        do { _ = try await client.append(b, onInputConfirmed: { _ in }); XCTFail("Bare commit released input") }
-        catch WebAdapterError.inputInFlight {}
-        let confirmedBeforeHash = await confirmations.receipts().isEmpty
-        XCTAssertTrue(confirmedBeforeHash)
-        let bCommandsBeforeHash = await bridge.inputCommands(b.operation.id)
-        XCTAssertEqual(bCommandsBeforeHash, 0)
-        await bridge.allowInput(a.operation.id)
-        await fulfillment(of: [confirmed], timeout: 2)
-        _ = try await client.append(b, onInputConfirmed: { _ in })
-        await bridge.allowStart(a.operation.id)
-        _ = try await first.value
+        do {
+            await fulfillment(of: [commit], timeout: 2)
+            do { _ = try await client.append(b, onInputConfirmed: { _ in }); XCTFail("Held commit released input") }
+            catch WebAdapterError.inputInFlight {}
+            let bCommandsBeforeReturn = await bridge.inputCommands(b.operation.id)
+            XCTAssertEqual(bCommandsBeforeReturn, 0)
+
+            await bridge.releaseCommit(a.operation.id)
+            await fulfillment(of: [returned], timeout: 2)
+            // A still returns UNKNOWN: neither its input nor START has been allowed.
+            let second = try await client.append(b, onInputConfirmed: { await confirmations.append($0) })
+            XCTAssertEqual(second.outcome, .uploadStarted)
+            XCTAssertEqual(second.operationID, b.operation.id)
+            XCTAssertEqual(second.target, a.operation.target)
+            let aStartedBeforeB = await bridge.didProduceStart(a.operation.id)
+            XCTAssertFalse(aStartedBeforeB)
+            let receipts = await confirmations.receipts()
+            XCTAssertEqual(receipts.map(\.operationID), [b.operation.id])
+            XCTAssertEqual(receipts.map(\.outcome), [.uploadStarted])
+
+            await bridge.allowInput(a.operation.id)
+            await bridge.allowStart(a.operation.id)
+            let firstReceipt = try await first.value
+            XCTAssertEqual(firstReceipt.outcome, .uploadStarted)
+            XCTAssertEqual(firstReceipt.operationID, a.operation.id)
+        } catch {
+            await bridge.releaseCommit(a.operation.id)
+            await bridge.allowInput(a.operation.id)
+            await bridge.allowStart(a.operation.id)
+            _ = try? await first.value
+            throw error
+        }
         let aCommits = await bridge.commitCount(a.operation.id)
         XCTAssertEqual(aCommits, 1)
         let bCommits = await bridge.commitCount(b.operation.id)
@@ -119,9 +140,13 @@ final class WebInputPhasingTests: XCTestCase {
             let a = try await request(target(tab: "A")), bridge = PhasedInputBridge()
             let client = adapter(bridge, polling: .disabled), confirmations = InputConfirmationLog()
             await bridge.configure(a, initial: mode)
-            do { _ = try await client.append(a, onInputConfirmed: { await confirmations.append($0) }); XCTFail("Invalid reply accepted") }
-            catch WebAdapterError.nativeExecutionFailed { XCTAssertEqual(mode, .lostCommit) }
-            catch ObservationError.identityMismatch { XCTAssertEqual(mode, .wrongIdentity) }
+            if mode == .lostCommit {
+                let recovered = try await client.append(a, onInputConfirmed: { await confirmations.append($0) })
+                XCTAssertEqual(recovered.outcome, .unknown)
+            } else {
+                do { _ = try await client.append(a, onInputConfirmed: { await confirmations.append($0) }); XCTFail("Wrong identity accepted") }
+                catch ObservationError.identityMismatch { XCTAssertEqual(mode, .wrongIdentity) }
+            }
             do { _ = try await client.append(a, onInputConfirmed: { await confirmations.append($0) }); XCTFail("Original replayed") }
             catch WebAdapterError.invalidRequest {}
             let observed = try await client.reconcile(a)
@@ -154,14 +179,14 @@ final class WebInputPhasingTests: XCTestCase {
         XCTAssertEqual(counts, 1)
     }
 
-    func testActiveAppendRejectsSameDraftLegacyAndSameDocumentEvenAcrossPins() async throws {
+    func testReturnedInputDoesNotConstrainNewClicksByPriorDraftProof() async throws {
         let business = UUID(), originalTarget = target(tab: "A", businessID: business)
         let a = try await request(originalTarget), bridge = PhasedInputBridge(), client = adapter(bridge)
         await bridge.configure(a, initial: .input)
         let confirmed = expectation(description: "A input confirmed")
         let first = Task { try await client.append(a, onInputConfirmed: { _ in confirmed.fulfill() }) }
         await fulfillment(of: [confirmed], timeout: 2)
-        let rejectedTargets = [
+        let nextTargets = [
             target(tab: "A", businessID: business), // Same draft, new pin.
             target(tab: "B", businessID: business), // Same logical draft in another tab.
             target(tab: "A", document: "replacement-A"), // Same tab, ambiguous navigation.
@@ -169,13 +194,13 @@ final class WebInputPhasingTests: XCTestCase {
             target(tab: "B", profile: nil),
             target(tab: "B", profile: "chatgpt-composer-react-20261027-v1")
         ]
-        for candidate in rejectedTargets {
+        for candidate in nextTargets {
             let other = try await request(candidate)
             await bridge.configure(other, initial: .started)
-            do { _ = try await client.append(other, onInputConfirmed: { _ in }); XCTFail("Unproved independent target accepted") }
-            catch WebAdapterError.inputInFlight {}
-            let rejectedCommands = await bridge.inputCommands(other.operation.id)
-            XCTAssertEqual(rejectedCommands, 0)
+            let receipt = try await client.append(other, onInputConfirmed: { _ in })
+            XCTAssertEqual(receipt.outcome, .uploadStarted)
+            let commits = await bridge.commitCount(other.operation.id)
+            XCTAssertEqual(commits, 1)
         }
         await bridge.allowStart(a.operation.id)
         _ = try await first.value
@@ -185,7 +210,7 @@ final class WebInputPhasingTests: XCTestCase {
 
     func testOriginalObserverDeferCannotReleaseLaterInputOwner() async throws {
         let a = try await request(target(tab: "A")), b = try await request(target(tab: "B"))
-        let c = try await request(target(tab: "C"))
+        let c = try await request(target(tab: "B"))
         let bCommit = expectation(description: "B entered held commit")
         let bridge = PhasedInputBridge(onCommit: { if $0 == b.operation.id { bCommit.fulfill() } })
         let client = adapter(bridge), aInput = expectation(description: "A input confirmed")
@@ -211,7 +236,7 @@ final class WebInputPhasingTests: XCTestCase {
         }
     }
 
-    func testLegacyAppendStillHoldsExclusionUntilObservationReturns() async throws {
+    func testStandaloneAppendAlsoReleasesExecutionBeforeStartObservation() async throws {
         let a = try await request(target(tab: "A")), b = try await request(target(tab: "B"))
         let commit = expectation(description: "Legacy A input entered")
         let bridge = PhasedInputBridge(onCommit: { if $0 == a.operation.id { commit.fulfill() } })
@@ -220,11 +245,14 @@ final class WebInputPhasingTests: XCTestCase {
         await bridge.configure(b, initial: .started)
         let first = Task { try await client.append(a) }
         await fulfillment(of: [commit], timeout: 2)
-        do { _ = try await client.append(b, onInputConfirmed: { _ in }); XCTFail("Legacy append released early") }
-        catch WebAdapterError.inputInFlight {}
+        for _ in 0..<200 {
+            if await bridge.events().contains(where: { $0.action == .observe && $0.operation == a.operation.id }) { break }
+            try await Task.sleep(nanoseconds: 5_000_000)
+        }
+        let second = try await client.append(b, onInputConfirmed: { _ in })
+        XCTAssertEqual(second.outcome, .uploadStarted)
         await bridge.allowStart(a.operation.id)
         _ = try await first.value
-        _ = try await client.append(b, onInputConfirmed: { _ in })
         let aCommits = await bridge.commitCount(a.operation.id)
         XCTAssertEqual(aCommits, 1)
         let bCommits = await bridge.commitCount(b.operation.id)

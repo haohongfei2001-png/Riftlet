@@ -41,6 +41,51 @@ final class MainWorldReceiptReaderTests: XCTestCase {
         XCTAssertEqual(reads, 2); XCTAssertEqual(sleeps, [0.02])
     }
 
+    func testCommitCanAwaitDynamicAttachmentEntryBeyondOldOneSecondDeadlineWithoutResubmission() throws {
+        let command = envelope(), raw = try reply(command)
+        var now: TimeInterval = 10, reads = 0
+        let received = try MainWorldReceiptReader.read(command, timeout: 8,
+            clock: { now }, sleep: { now += $0 }) { budget in
+                reads += 1
+                XCTAssertEqual(budget.deadlineUptime, 18)
+                XCTAssertLessThanOrEqual(try budget.timeout(at: now), 0.25)
+                return now >= 12.5 ? raw : ""
+            }
+        XCTAssertEqual(received.text, try command.decode(raw))
+        XCTAssertGreaterThanOrEqual(received.receivedUptime, 12.5)
+        XCTAssertLessThan(received.receivedUptime, 12.53)
+        XCTAssertGreaterThan(reads, 50)
+    }
+
+    func testExtendedCommitReadStillHasAnAbsoluteDeadlineAndFiniteAttemptLimit() {
+        var now: TimeInterval = 10, reads = 0
+        XCTAssertThrowsError(try MainWorldReceiptReader.read(envelope(), timeout: 8,
+            clock: { now }, sleep: { now += $0 }) { budget in
+                reads += 1
+                now += try budget.timeout(at: now)
+                throw WebAdapterError.nativeEventFailed(-1712)
+            }) { XCTAssertEqual($0 as? WebAdapterError, .invalidReply) }
+        XCTAssertLessThanOrEqual(now, 18)
+        XCTAssertLessThanOrEqual(reads, 30)
+        var stoppedClockReads = 0
+        XCTAssertThrowsError(try MainWorldReceiptReader.read(envelope(), timeout: 8,
+            clock: { 10 }, sleep: { _ in }) { _ in
+                stoppedClockReads += 1; return ""
+            }) { XCTAssertEqual($0 as? WebAdapterError, .invalidReply) }
+        XCTAssertEqual(stoppedClockReads, 400)
+    }
+
+    func testInvalidReceiptWaitCannotCauseUnboundedPolling() {
+        for timeout in [TimeInterval.nan, .infinity, -.infinity, -1, 0, 10.01] {
+            var reads = 0
+            XCTAssertThrowsError(try MainWorldReceiptReader.read(envelope(), timeout: timeout,
+                clock: { 10 }, sleep: { _ in }) { _ in
+                    reads += 1; return ""
+                }) { XCTAssertEqual($0 as? WebAdapterError, .invalidReply) }
+            XCTAssertEqual(reads, 0)
+        }
+    }
+
     func testRepeatedReadTimeoutsCannotExtendOneSecondOrStartAFifthRead() throws {
         let command = envelope()
         var now: TimeInterval = 10, timeouts: [TimeInterval] = [], sleeps: [TimeInterval] = []

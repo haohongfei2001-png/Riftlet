@@ -4,14 +4,14 @@ import Darwin
 import RiftletCore
 
 public enum WebAdapterMode: Sendable, Equatable { case disabled, syntheticDevelopment, systemScreenshotCandidate, ordinarySystemScreenshot, ordinaryProduct }
-public enum WebBridgeAction: String, Codable, Sendable {
+public enum WebBridgeAction: String, Codable, CaseIterable, Sendable {
     case captureTarget, pinTarget, validate, begin, chunk, commit, observe, discard
-    case prepareInputResource, releaseInputResource
 }
 
-/// The sole page function is supplied from reviewed source. It must synchronously
-/// return a serializable observation, retain no chat text, and check the complete
-/// lease in the same execution that commits File/DataTransfer input. `discard`
+/// The sole page function is supplied from reviewed source. It returns a
+/// serializable observation, or a Promise while discovering an attachment entry,
+/// retains no chat text, and checks the original target immediately before
+/// File/DataTransfer input. `discard`
 /// clears only this operation's temporary byte buffer; it never removes attachments.
 public struct WebPageProgram: Sendable {
     public let sourceID: String
@@ -19,21 +19,16 @@ public struct WebPageProgram: Sendable {
     /// Code-owned transport capacity; never negotiated from page JSON. Older
     /// and generic programs retain their 64 KiB default.
     public let maximumChunkBytes: Int
-    public init(sourceID: String, functionSource: String, maximumChunkBytes: Int = 64 * 1024) {
+    /// The current program can await attachment-entry discovery before input.
+    /// This bounds recovery of that execution after a lost commit reply; it is
+    /// not an upload timeout or a permission to repeat an operation.
+    public let inputDiscoveryTimeout: TimeInterval
+    public init(sourceID: String, functionSource: String, maximumChunkBytes: Int = 64 * 1024,
+                inputDiscoveryTimeout: TimeInterval = 0) {
         self.sourceID = sourceID; self.functionSource = functionSource
         self.maximumChunkBytes = maximumChunkBytes
+        self.inputDiscoveryTimeout = inputDiscoveryTimeout.isFinite ? min(3, max(0, inputDiscoveryTimeout)) : 0
     }
-}
-
-/// Created only by the synchronous native press path after it has matched a
-/// pre-event observation to Chrome's current process, window and selected tab.
-/// It is not a page focus assertion: the page must still prove continuous
-/// ownership of the original draft, composer and input before accepting it.
-public struct NativePressProof: Encodable, Sendable {
-    public let kind = "observed-target-before-press"
-    public let clickBindingID: UUID
-
-    init(clickBindingID: UUID) { self.clickBindingID = clickBindingID }
 }
 
 public struct WebBridgeCommand: Encodable, Sendable {
@@ -46,28 +41,21 @@ public struct WebBridgeCommand: Encodable, Sendable {
     public let chunkIndex: Int?
     public let chunkBase64: String?
     public let invocationID: UUID?
-    public let clickBindingID: UUID?
-    public let inputResourceID: UUID?
-    public let nativePressProof: NativePressProof?
     /// Host diagnostics only, deliberately excluded from the page payload.
     public let captureInvocation: CaptureInvocationContext?
 
     private enum CodingKeys: String, CodingKey {
-        case action, target, identity, uploadName, mediaType, byteCount, chunkIndex, chunkBase64, invocationID, clickBindingID, inputResourceID, nativePressProof
+        case action, target, identity, uploadName, mediaType, byteCount, chunkIndex, chunkBase64, invocationID
     }
 
     init(action: WebBridgeAction, target: TargetLease? = nil, identity: ObservationIdentity? = nil,
          uploadName: String? = nil, mediaType: String? = nil, byteCount: Int64? = nil,
          chunkIndex: Int? = nil, chunkBase64: String? = nil, invocationID: UUID? = nil,
-         captureInvocation: CaptureInvocationContext? = nil, clickBindingID: UUID? = nil,
-         inputResourceID: UUID? = nil, nativePressProof: NativePressProof? = nil) {
+         captureInvocation: CaptureInvocationContext? = nil) {
         self.action = action; self.target = target; self.identity = identity
         self.uploadName = uploadName; self.mediaType = mediaType; self.byteCount = byteCount
         self.chunkIndex = chunkIndex; self.chunkBase64 = chunkBase64; self.invocationID = invocationID
         self.captureInvocation = captureInvocation
-        self.clickBindingID = clickBindingID
-        self.inputResourceID = inputResourceID
-        self.nativePressProof = nativePressProof
     }
 }
 
@@ -76,7 +64,7 @@ public protocol WebBridgeExecutor: Sendable {
 }
 
 @MainActor public protocol WebClickTargetPinning: WebBridgeExecutor {
-    func pinTargetAtPress(program: WebPageProgram, eventUptime: TimeInterval) throws -> TargetLease
+    func targetForClick(program: WebPageProgram) throws -> Task<TargetLease, Error>
 }
 
 public enum WebAdapterError: Error, Equatable, Sendable {
@@ -121,7 +109,7 @@ public enum WebAdapterError: Error, Equatable, Sendable {
 /// One transport shared by source-scoped ordinary and isolated test compositions.
 /// Each start/completion scope is assigned only to registered new
 /// operations; historical operations retain their observation-only profiles.
-public actor WebAttachmentAdapter: IndependentInputResourceAdapter {
+public actor WebAttachmentAdapter: IndependentFileInputAdapter {
     public nonisolated let id: String
     private let mediaDirectory: URL
     private nonisolated let executor: any WebBridgeExecutor
@@ -135,10 +123,19 @@ public actor WebAttachmentAdapter: IndependentInputResourceAdapter {
     private let productBindings: [AssetOrigin: (admission: SystemScreenshotCandidateAdmission, journal: SystemScreenshotObservationJournal)]
     private let onInputTransportFinished: (@Sendable () async -> Void)?
     private let diagnosticTrace: BoundedDiagnosticTrace?
+    // Read-only reconciliation may observe the same stopped or started input
+    // repeatedly. Keep one recent trace value per operation, outside product state.
+    private struct EntryResult: Equatable {
+        let diagnostics: AttachmentEntryDiagnostics?
+        let state: AttachmentObservedState
+        let startObserved: Bool
+        let retirement: ObservedPreInputRetirement.Reason?
+        let retirementObservationOnly: Bool
+    }
+    private var recentEntryResults: [(operation: UUID, result: EntryResult)] = []
     // The transport lease is released only by its own original append. A prior
     // observer finishing must never unlock a later operation's begin/commit.
-    private var inputOwner: UUID?
-    private var activeAppendTargets: [UUID: TargetLease] = [:]
+    private var inputOwners: [UUID: TargetLease] = [:]
     // Lightweight identity tombstones, never file buffers. A repeated request
     // must not turn an earlier external input into local-before-begin proof.
     private var enteredOperations = Set<UUID>()
@@ -188,18 +185,25 @@ public actor WebAttachmentAdapter: IndependentInputResourceAdapter {
         if screenshotScope != nil {
             try requireEnabled()
             try checkOrigin(asset)
+            if mode == .ordinaryProduct {
+                guard let scope = productBindings[asset.origin]?.admission.scope else { throw SystemScreenshotInputError.sourceNotAdmitted }
+                try scope.validateMetadata(asset)
+                _ = try PrivateUploadFile(asset: asset, url: fileURL, mediaDirectory: mediaDirectory,
+                    maximumBytes: ScreenshotImportLimits.bytes)
+                return
+            }
             try SystemScreenshotWebCandidate.preflight(asset, fileURL: fileURL, mediaDirectory: mediaDirectory,
-                restrictedAdmission: candidateAdmission != nil || mode == .ordinaryProduct,
-                expectedOrigin: mode == .ordinaryProduct ? asset.origin : .systemScreenshot)
+                restrictedAdmission: candidateAdmission != nil)
         }
     }
 
-    /// Synchronous native press boundary. No input is sent here; the returned
-    /// capability is independently checked by normal validate/begin/commit.
-    @MainActor public func pinTargetAtPress(eventUptime: TimeInterval) throws -> TargetLease {
+    /// Freeze the native destination at the click boundary, then initialize and
+    /// resolve that exact page asynchronously. A first click needs no earlier
+    /// capture, relay or page acknowledgement.
+    @MainActor public func targetForClick() throws -> Task<TargetLease, Error> {
         guard mode != .disabled, let program,
               let pinner = executor as? any WebClickTargetPinning else { throw WebAdapterError.disabled }
-        return try pinner.pinTargetAtPress(program: program, eventUptime: eventUptime)
+        return try pinner.targetForClick(program: program)
     }
 
     public func captureTarget() async throws -> TargetLease {
@@ -229,100 +233,6 @@ public actor WebAttachmentAdapter: IndependentInputResourceAdapter {
         return response.valid && response.target == target
     }
 
-    /// Reserve the current picker for B. A retained native selection requires
-    /// an exact settled, START-owned page witness; an empty picker retains the
-    /// existing legacy recovery path. Neither path rewrites A's journal.
-    public func prepareInputResource(_ request: TransferRequest) async throws -> PreparedInputResource {
-        do { return try await prepareCurrentInputResource(request) }
-        catch {
-            var facts: [String: Any] = ["event": "input_resource_preparation_refused", "action": "prepareInputResource",
-                "operationID": request.operation.id.uuidString,
-                "error": (error as? WebAdapterError)?.diagnosticLabel ?? "unclassifiedTransportError"]
-            if case .pageRejected(let code)? = error as? WebAdapterError, code.isInputResourceRefusal {
-                facts["resourceRefusalReason"] = code.rawValue
-            } else if error as? WebAdapterError == .inputInFlight {
-                facts["resourceRefusalReason"] = WebPageRejection.inputResourceExecutionBusy.rawValue
-            }
-            diagnosticTrace?.record(facts, critical: true)
-            throw error
-        }
-    }
-
-    private func prepareCurrentInputResource(_ request: TransferRequest) async throws -> PreparedInputResource {
-        try requireEnabled()
-        guard mode == .ordinaryProduct || mode == .syntheticDevelopment,
-              request.operation.phase == .prepared,
-              let invocationID = request.invocationID,
-              request.operation.target.clickBindingID != nil else { throw WebAdapterError.invalidRequest }
-        guard inputOwner == nil else { throw WebAdapterError.inputInFlight }
-        try check(request.operation.target)
-        try checkNewInputScope(request.operation.target)
-        try await preflight(asset: request.asset, fileURL: request.fileURL)
-        let identity = ObservationIdentity(operationID: request.operation.id, assetID: request.asset.id,
-            attempt: request.operation.attempt, assetSHA256: request.asset.sha256, target: request.operation.target)
-        let command = WebBridgeCommand(action: .prepareInputResource, target: identity.target,
-            identity: identity, invocationID: invocationID)
-        let deadline = ProcessInfo.processInfo.systemUptime + 1
-        var data = try await perform(command)
-        for attempt in 0..<16 {
-            guard let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
-                throw WebAdapterError.invalidReply
-            }
-            guard object["pending"] != nil else { break }
-            struct Pending: Decodable {
-                let version: Int
-                let identity: ObservationIdentity
-                let invocationID: UUID
-                let pending: Bool
-            }
-            let pending = try decode(Pending.self, from: data)
-            guard Set(object.keys) == Set(["version", "identity", "invocationID", "pending"]),
-                  pending.version == 1, pending.identity == identity,
-                  pending.invocationID == invocationID, pending.pending else { throw WebAdapterError.invalidReply }
-            // This rereads only one explicit preparation's bounded old-File
-            // qualification. It cannot repeat BEGIN/chunks/commit, and neither
-            // timeout nor a late digest grants input or releases an old owner.
-            guard attempt < 15, ProcessInfo.processInfo.systemUptime + 0.02 < deadline else {
-                throw WebAdapterError.pageRejected(.inputResourceQualificationPending)
-            }
-            try await Task.sleep(nanoseconds: 20_000_000)
-            guard ProcessInfo.processInfo.systemUptime < deadline else {
-                throw WebAdapterError.pageRejected(.inputResourceQualificationPending)
-            }
-            data = try await perform(command)
-        }
-        struct Reply: Decodable {
-            let version: Int
-            let identity: ObservationIdentity
-            let invocationID: UUID
-            let resourceID: UUID
-            let inputElementID: String
-            let kind: String
-            let observedSequence: Int
-            let baselineAttachmentCount: Int
-        }
-        let reply = try decode(Reply.self, from: data)
-        guard reply.version == 1, reply.identity == identity, reply.invocationID == invocationID,
-              ["emptyNativeFileInput", "settledOwnedNativeFileInput"].contains(reply.kind), reply.observedSequence > 0,
-              reply.baselineAttachmentCount >= 0, reply.baselineAttachmentCount <= 4096,
-              !reply.inputElementID.isEmpty, reply.inputElementID.utf8.count <= 256 else { throw WebAdapterError.invalidReply }
-        diagnosticTrace?.record(["event": "input_resource_prepared", "action": "prepareInputResource",
-            "operationID": identity.operationID.uuidString, "resourceKind": reply.kind,
-            "baselineAttachmentCount": reply.baselineAttachmentCount, "observedSequence": reply.observedSequence])
-        return PreparedInputResource(operationID: identity.operationID, assetID: identity.assetID,
-            attempt: identity.attempt, assetSHA256: identity.assetSHA256, target: identity.target,
-            invocationID: invocationID, resourceID: reply.resourceID, inputElementID: reply.inputElementID)
-    }
-
-    public func releaseInputResource(_ resource: PreparedInputResource) async {
-        let identity = ObservationIdentity(operationID: resource.operationID, assetID: resource.assetID,
-            attempt: resource.attempt, assetSHA256: resource.assetSHA256, target: resource.target)
-        // Only a one-use reservation is released. The page cannot delete a card,
-        // clear a FileList, retire UNKNOWN or input bytes through this action.
-        _ = try? await perform(.init(action: .releaseInputResource, target: resource.target,
-            identity: identity, invocationID: resource.invocationID, inputResourceID: resource.resourceID))
-    }
-
     public func append(_ request: TransferRequest) async throws -> TransferReceipt {
         try await append(request, inputConfirmed: nil)
     }
@@ -332,65 +242,75 @@ public actor WebAttachmentAdapter: IndependentInputResourceAdapter {
         try await append(request, inputConfirmed: onInputConfirmed)
     }
 
+    public func append(_ request: TransferRequest,
+                       onInputExecutionReturned: @escaping @Sendable () async -> Void) async throws -> TransferReceipt {
+        try await append(request, inputConfirmed: nil, inputExecutionReturned: onInputExecutionReturned)
+    }
+
     private func append(_ request: TransferRequest,
-                        inputConfirmed: (@Sendable (TransferReceipt) async -> Void)?) async throws -> TransferReceipt {
+                        inputConfirmed: (@Sendable (TransferReceipt) async -> Void)?,
+                        inputExecutionReturned: (@Sendable () async -> Void)? = nil) async throws -> TransferReceipt {
         try requireEnabled()
         try check(request.operation.target)
         try checkNewInputScope(request.operation.target)
         try checkOrigin(request.asset)
         guard request.operation.assetID == request.asset.id,
               request.operation.phase == .dispatchIntent else { throw WebAdapterError.invalidRequest }
-        if let resource = request.inputResource {
-            guard resource.operationID == request.operation.id, resource.assetID == request.asset.id,
-                  resource.attempt == request.operation.attempt, resource.assetSHA256 == request.asset.sha256,
-                  resource.target == request.operation.target, resource.invocationID == request.invocationID else {
-                throw WebAdapterError.invalidRequest
-            }
-        }
-        guard inputOwner == nil,
-              request.inputResource != nil || activeAppendTargets.values.allSatisfy({ request.operation.target.hasIndependentInputDocument(from: $0) }) else {
-            throw WebAdapterError.inputInFlight
-        }
+        guard !inputOwners.values.contains(where: { $0.sharesInputTab(with: request.operation.target) }) else { throw WebAdapterError.inputInFlight }
         guard enteredOperations.insert(request.operation.id).inserted else { throw WebAdapterError.invalidRequest }
         let operationID = request.operation.id
-        inputOwner = operationID
-        activeAppendTargets[operationID] = request.operation.target
+        inputOwners[operationID] = request.operation.target
         defer {
             releaseInput(ownedBy: operationID)
-            activeAppendTargets.removeValue(forKey: operationID)
         }
 
-        let input: (response: Data, identity: ObservationIdentity)
+        let input: (response: Data?, identity: ObservationIdentity)
         do { input = try await performFileInput(request) }
         catch {
+            releaseInput(ownedBy: operationID)
+            await inputExecutionReturned?()
             await onInputTransportFinished?()
             throw error
         }
-        // Scheduling notification only: commit may still be UNKNOWN. Neither
-        // this notification nor a bare commit reply releases the input lease.
+        // The command has settled even when the attachment result is UNKNOWN.
+        // A lost asynchronous commit first observes only its still-running
+        // discovery, below. Upload/START observation never holds this lane.
+        releaseInput(ownedBy: operationID)
+        await inputExecutionReturned?()
         await onInputTransportFinished?()
-        return try await observeCompletion(initial: input.response, identity: input.identity,
+        let response: Data
+        if let returned = input.response {
+            response = returned
+        } else {
+            // Even the first recovery read is observation, not file execution.
+            // A delayed/lost reply here must not hold the next screenshot.
+            response = try await perform(.init(action: .observe, target: input.identity.target,
+                identity: input.identity))
+        }
+        return try await observeCompletion(initial: response, identity: input.identity,
             request: request, liveAppend: true, inputConfirmed: inputConfirmed)
     }
 
     private func releaseInput(ownedBy operationID: UUID) {
-        if inputOwner == operationID { inputOwner = nil }
+        inputOwners.removeValue(forKey: operationID)
     }
 
     private func performFileInput(_ request: TransferRequest) async throws
-        -> (response: Data, identity: ObservationIdentity) {
+        -> (response: Data?, identity: ObservationIdentity) {
         guard let maximumChunkBytes = program?.maximumChunkBytes else { throw WebAdapterError.programUnavailable }
-        let file: PrivateUploadFile
+        var file: WebUploadFile
         do {
             // No bridge command has occurred in this invocation. The durable
             // dispatch nonce is allocated by Core's one-shot intent claim.
             try await preflight(asset: request.asset, fileURL: request.fileURL)
-            file = try PrivateUploadFile(request: request, mediaDirectory: mediaDirectory)
-            let verifiedHeader = try file.verifyAndRewind()
+            file = try WebUploadFile(request: request, mediaDirectory: mediaDirectory, ordinary: mode == .ordinaryProduct,
+                validateCandidateHeader: mode != .ordinaryProduct && screenshotScope != nil && binding(for: request.asset) != nil)
             if screenshotScope != nil, let admission = binding(for: request.asset)?.admission {
-                try SystemScreenshotWebCandidate.validateHeader(Array(verifiedHeader), asset: request.asset,
-                    restrictedAdmission: true)
                 try await admission.enroll(request)
+            }
+            if file.derivedPNG {
+                diagnosticTrace?.record(["event": "attachment_image_prepared", "operationID": request.operation.id.uuidString,
+                    "source": "compatiblePNG", "originalBytes": request.asset.byteCount, "transmittedBytes": file.byteCount])
             }
         } catch {
             if let invocationID = request.invocationID {
@@ -402,36 +322,14 @@ public actor WebAttachmentAdapter: IndependentInputResourceAdapter {
         }
         let identity = ObservationIdentity(operationID: request.operation.id, assetID: request.asset.id,
             attempt: request.operation.attempt, assetSHA256: request.asset.sha256, target: request.operation.target)
-        let suffix = request.fileURL.pathExtension
-        let uploadName = "riftlet-\(request.operation.id.uuidString).\(suffix)"
-        var began = false
+        let uploadName = "riftlet-\(request.operation.id.uuidString).\(file.fileExtension)"
         var committing = false
-        var freshlyAllocated = false
         do {
             let begin = WebBridgeCommand(action: .begin, target: identity.target, identity: identity,
-                uploadName: uploadName, mediaType: request.asset.mediaType, byteCount: request.asset.byteCount,
-                invocationID: request.invocationID, inputResourceID: request.inputResource?.resourceID)
+                uploadName: uploadName, mediaType: file.mediaType, byteCount: file.byteCount,
+                invocationID: request.invocationID)
             let beginReply = try await perform(begin)
-            // The page may reserve and permanently retire a brand-new identity
-            // when its live byte budget is full. This is an explicit response,
-            // never inferred from BEGIN_REFUSED or a missing native reply.
-            if let invocationID = request.invocationID,
-               let proof = try? decode(BeginRejectionProof.self, from: beginReply),
-               proof.identity == identity, proof.invocationID == invocationID,
-               proof.rejectedBeforeBegin, ["ACTIVE_PAYLOAD_LIMIT", "OBSERVER_UPGRADE_REQUIRED", "INPUT_RESOURCE_UNAVAILABLE"].contains(proof.reason),
-               proof.retiredBeforeInput, !proof.commitInvoked, proof.inputCount == 0 {
-                recordResourceRefusal(proof.resourceRefusalReason, action: .begin, operationID: identity.operationID)
-                throw PreInputRejection(operationID: identity.operationID, assetID: identity.assetID,
-                    attempt: identity.attempt, assetSHA256: identity.assetSHA256, target: identity.target,
-                    invocationID: invocationID, stage: .pageRejectedBeforeBegin)
-            }
             try acknowledge(beginReply, identity: identity, nextChunk: 0)
-            if let invocationID = request.invocationID,
-               let allocation = try? decode(AllocationAcknowledgement.self, from: beginReply) {
-                freshlyAllocated = allocation.allocated && allocation.identity == identity
-                    && allocation.invocationID == invocationID
-            }
-            began = true
             var index = 0
             var hash = SHA256()
             while let chunk = try file.nextChunk(maximumBytes: maximumChunkBytes) {
@@ -444,32 +342,82 @@ public actor WebAttachmentAdapter: IndependentInputResourceAdapter {
             }
             try file.verifyAfterRead(hash: hash.finalize().map { String(format: "%02x", $0) }.joined())
             // This is the only command permitted to trigger attachment input. The
-            // page function must validate target + all chunks/hash atomically here.
+            // page function rechecks the target and the complete current payload.
             committing = true
-            let response = try await perform(.init(action: .commit, target: identity.target,
-                                                   identity: identity, chunkIndex: index, invocationID: request.invocationID))
+            let response: Data
+            do {
+                response = try await perform(.init(action: .commit, target: identity.target,
+                    identity: identity, chunkIndex: index, invocationID: request.invocationID))
+                // A malformed/lost transport receipt does not undo a file input.
+                // Recover only by observing this operation, never another commit.
+                _ = try ObservationDecoder.decode(response)
+            } catch {
+                // A lost native reply can leave asynchronous menu discovery
+                // running. Keep only this current execution's lane until it
+                // settles or its code-owned discovery deadline expires. Never
+                // repeat commit, inspect old uploads, or wait for START here.
+                return (await settleInterruptedInput(identity), identity)
+            }
             return (response, identity)
         } catch {
-            if began && !committing {
-                let retired = try? await perform(.init(action: .discard, target: identity.target,
+            if !committing {
+                _ = try? await perform(.init(action: .discard, target: identity.target,
                     identity: identity, invocationID: request.invocationID))
-                // Only a fresh, fully bound allocation followed by an exact
-                // irreversible pre-input retirement proves this call had no
-                // external input. Legacy ACKs, lost replies and commit calls do
-                // not qualify. Never infer this from an exception label.
-                if freshlyAllocated, let invocationID = request.invocationID, let retired,
-                   let proof = try? decode(RetirementProof.self, from: retired),
-                   proof.identity == identity, proof.invocationID == invocationID,
-                   proof.retiredBeforeInput, !proof.commitInvoked, proof.inputCount == 0 {
+                // Only commit can invoke setter/change. We did not call it, so
+                // no allocation, discard ACK or historical proof is needed to
+                // know this screenshot was not submitted. Cleanup is best effort.
+                if let invocationID = request.invocationID {
                     throw PreInputRejection(operationID: identity.operationID, assetID: identity.assetID,
                         attempt: identity.attempt, assetSHA256: identity.assetSHA256, target: identity.target,
-                        invocationID: invocationID, stage: .pageRetiredBeforeCommit)
+                        invocationID: invocationID, stage: .localBeforeBegin,
+                        reason: "fileInputCommandNotInvoked")
                 }
             }
             // Coordinator owns the durable UNKNOWN result; never select another
             // transport or retry commit after an uncertain external side effect.
             throw error
         }
+    }
+
+    private func settleInterruptedInput(_ identity: ObservationIdentity) async -> Data? {
+        guard let timeout = program?.inputDiscoveryTimeout, timeout > 0 else { return nil }
+        let deadline = ProcessInfo.processInfo.systemUptime + timeout + 0.5
+        var latest: Data?
+        while !Task.isCancelled, ProcessInfo.processInfo.systemUptime < deadline {
+            let slot = BoundedInputObservation()
+            // A transport read can itself stall. A late read remains read-only
+            // and cannot extend the absolute execution-recovery budget.
+            let read = Task {
+                let data = try? await self.perform(.init(action: .observe, target: identity.target, identity: identity))
+                await slot.finish(data)
+            }
+            let timer = Task {
+                let remaining = max(0, deadline - ProcessInfo.processInfo.systemUptime)
+                do { try await Task.sleep(nanoseconds: UInt64(remaining * 1_000_000_000)) }
+                catch { return }
+                await slot.finish(nil)
+            }
+            let data = await withTaskCancellationHandler(operation: { await slot.wait() }, onCancel: {
+                read.cancel(); timer.cancel()
+                Task { await slot.finish(nil) }
+            })
+            read.cancel(); timer.cancel()
+            if let data, let envelope = try? ObservationDecoder.decode(data), envelope.observation.identity == identity {
+                latest = data
+                let item = envelope.observation
+                if item.inputExecutionPending == false || item.preInputRetirement != nil
+                    || [.inputTriggered, .uploadStarted, .attached, .ready, .failed, .invalidated].contains(item.state) {
+                    return data
+                }
+            }
+            let remaining = deadline - ProcessInfo.processInfo.systemUptime
+            guard remaining > 0, !Task.isCancelled else { break }
+            do { try await Task.sleep(nanoseconds: UInt64(min(0.05, remaining) * 1_000_000_000)) }
+            catch { break }
+        }
+        // The current JS program checks its discovery deadline again before
+        // the setter. Expiry releases execution, never asserting input/START.
+        return latest
     }
 
     public func reconcile(_ request: TransferRequest) async throws -> TransferReceipt {
@@ -497,27 +445,40 @@ public actor WebAttachmentAdapter: IndependentInputResourceAdapter {
         var response = initial
         var didConfirmInput = false
         while true {
-            let envelope = try ObservationDecoder.decode(response)
+            let (envelope, diagnostics) = try ObservationDecoder.decodeResponse(response, includeDiagnostics: diagnosticTrace != nil)
+            let item = envelope.observation
             // Only the still-running original append may consume a positive
             // no-input retirement. Reconcile/restart never revives UNKNOWN.
             if liveAppend, let rejection = try WebPreInputRetirement.rejection(from: envelope, for: request) {
-                recordResourceRefusal(envelope.observation.resourceRefusalReason,
-                    action: .commit, operationID: request.operation.id)
+                recordEntryResult(.init(diagnostics: diagnostics, state: item.state, startObserved: false,
+                    retirement: item.preInputRetirement?.reason, retirementObservationOnly: false),
+                    identity: identity, resource: item.resourceRefusalReason)
                 throw rejection
             }
             let receipt = try await normalize(envelope, for: request, liveAppend: liveAppend)
-            if liveAppend, !didConfirmInput, let inputConfirmed,
+            // A restarted process may see the first response to the original
+            // commit only on reconcile. Keep the page's retirement in the
+            // failure trace; the read-only receipt and its UNKNOWN stay intact.
+            let reportedRetirement = item.preInputRetirement.flatMap { page in
+                envelope.provenance.source == .integratedDevelopment &&
+                    (request.invocationID == nil || request.invocationID == page.invocationID) ? page.reason : nil
+            }
+            if liveAppend || diagnostics != nil || reportedRetirement != nil {
+                recordEntryResult(.init(diagnostics: diagnostics, state: item.state,
+                    startObserved: receipt.outcome == .uploadStarted, retirement: reportedRetirement,
+                    retirementObservationOnly: reportedRetirement != nil), identity: identity, resource: item.resourceRefusalReason)
+            }
+            if liveAppend, !didConfirmInput,
                receipt.outcome == .inputTriggered || receipt.outcome == .uploadStarted,
                receipt.operationID == request.operation.id, receipt.assetID == request.asset.id,
                receipt.attempt == request.operation.attempt, receipt.assetSHA256 == request.asset.sha256,
                receipt.target == request.operation.target, receipt.belongsToOriginalDraft, !receipt.hasError {
-                // This is a normalized positive fact from the original page
-                // operation, including delayed input after asynchronous hashing.
-                // It releases only this transport lease; the original observer,
-                // its replay tombstone and same-draft exclusion remain alive.
+                // The page reports input only after setter/change has returned.
+                // Release this short execution lane before any START observation.
+                // Upload state and old FileLists never own the next input.
                 didConfirmInput = true
                 releaseInput(ownedBy: request.operation.id)
-                await inputConfirmed(receipt)
+                await inputConfirmed?(receipt)
             }
             // Positive start returns without waiting for completion. Core policy
             // independently admits visual exit; subsequent calls only observe.
@@ -623,9 +584,9 @@ public actor WebAttachmentAdapter: IndependentInputResourceAdapter {
             // SQLite, independently of the latest receipt and admitted starts.
             // Failure after commit remains UNKNOWN; this never retries input.
             if let originalScope, originalScope != journal.scope {
-                try await journal.recordForOriginalScope(envelope, for: request, originalScope: originalScope)
+                try await journal.recordForOriginalScope(envelope, for: request, originalScope: originalScope, readOnly: !liveAppend)
             } else {
-                try await journal.record(envelope, for: request)
+                try await journal.record(envelope, for: request, readOnly: !liveAppend)
             }
         }
         return receipt
@@ -685,35 +646,35 @@ public actor WebAttachmentAdapter: IndependentInputResourceAdapter {
         }
     }
 
-    private func recordResourceRefusal(_ reason: WebPageRejection?, action: WebBridgeAction, operationID: UUID) {
-        guard let reason, reason.isInputResourceRefusal else { return }
-        diagnosticTrace?.record(["event": "input_resource_refused", "action": action.rawValue,
-            "operationID": operationID.uuidString, "resourceRefusalReason": reason.rawValue], critical: true)
+    private func recordEntryResult(_ result: EntryResult, identity: ObservationIdentity, resource: WebPageRejection? = nil) {
+        guard let diagnosticTrace else { return }
+        if let index = recentEntryResults.firstIndex(where: { $0.operation == identity.operationID }) {
+            guard recentEntryResults[index].result != result else { return }
+            recentEntryResults.remove(at: index)
+        } else if recentEntryResults.count >= BoundedDiagnosticTrace.recentCapacity {
+            recentEntryResults.removeFirst()
+        }
+        recentEntryResults.append((identity.operationID, result))
+
+        var fields = result.diagnostics?.traceFields ?? [:]
+        fields["event"] = resource == nil ? "attachment_entry_result" : "input_resource_refused"
+        fields["operationID"] = identity.operationID.uuidString
+        fields["assetID"] = identity.assetID.uuidString
+        fields["attempt"] = identity.attempt
+        fields["uptime"] = ProcessInfo.processInfo.systemUptime
+        fields["phase"] = result.state.rawValue
+        fields["entryDiagnosticsAvailable"] = result.diagnostics != nil
+        fields["startObserved"] = result.startObserved
+        if let reason = result.retirement {
+            fields["retirementReason"] = reason.rawValue
+            fields["retirementObservationOnly"] = result.retirementObservationOnly
+        }
+        if let resource { fields["resourceRefusalReason"] = resource.rawValue }
+        let deliveryUncertain = result.diagnostics.map { $0.cause == .exception || $0.cause == .deliveryUncertain } ?? false
+        diagnosticTrace.record(fields, critical: result.retirement != nil || (deliveryUncertain && !result.startObserved))
     }
 
     private struct ValidationReply: Decodable { let target: TargetLease; let valid: Bool }
-    private struct BeginRejectionProof: Decodable {
-        let identity: ObservationIdentity
-        let invocationID: UUID
-        let retiredBeforeInput: Bool
-        let inputCount: Int
-        let commitInvoked: Bool
-        let rejectedBeforeBegin: Bool
-        let reason: String
-        let resourceRefusalReason: WebPageRejection?
-    }
-    private struct AllocationAcknowledgement: Decodable {
-        let allocated: Bool
-        let identity: ObservationIdentity
-        let invocationID: UUID
-    }
-    private struct RetirementProof: Decodable {
-        let identity: ObservationIdentity
-        let invocationID: UUID
-        let retiredBeforeInput: Bool
-        let commitInvoked: Bool
-        let inputCount: Int
-    }
     private struct Acknowledgement: Decodable {
         let operationID: UUID
         let attempt: Int
@@ -732,6 +693,73 @@ public actor WebAttachmentAdapter: IndependentInputResourceAdapter {
     }
 }
 
+/// A single observation wins against its absolute deadline. Unlike a task group,
+/// this does not wait indefinitely for a transport that ignores cancellation.
+private actor BoundedInputObservation {
+    private var completed = false
+    private var value: Data?
+    private var waiter: CheckedContinuation<Data?, Never>?
+    func finish(_ value: Data?) {
+        guard !completed else { return }
+        completed = true; self.value = value
+        waiter?.resume(returning: value); waiter = nil
+    }
+    func wait() async -> Data? {
+        if completed { return value }
+        return await withCheckedContinuation { waiter = $0 }
+    }
+}
+
+private struct WebUploadFile {
+    let mediaType: String
+    let fileExtension: String
+    let byteCount: Int64
+    let derivedPNG: Bool
+    private let original: PrivateUploadFile
+    private let buffered: Data?
+    private var offset = 0
+
+    init(request: TransferRequest, mediaDirectory: URL, ordinary: Bool, validateCandidateHeader: Bool) throws {
+        let asset = request.asset, mime = asset.mediaType.lowercased()
+        let descriptor = try PrivateUploadFile(asset: asset, url: request.fileURL, mediaDirectory: mediaDirectory,
+            maximumBytes: ordinary ? ScreenshotImportLimits.bytes : SystemScreenshotWebCandidate.maximumBytes)
+        original = descriptor
+        if ordinary && mime != "image/png" && mime != "image/jpeg" {
+            let source = try descriptor.verifiedOriginal()
+            let png = try WebScreenshotPNG.encode(source, asset: asset)
+            derivedPNG = png != nil
+            let delivered = png ?? source
+            buffered = delivered
+            mediaType = derivedPNG ? "image/png" : mime
+            fileExtension = derivedPNG ? "png" : request.fileURL.pathExtension.lowercased()
+            byteCount = Int64(delivered.count)
+        } else {
+            let header = try descriptor.verifyAndRewind()
+            if validateCandidateHeader {
+                try SystemScreenshotWebCandidate.validateHeader(Array(header), asset: asset, restrictedAdmission: true)
+            }
+            derivedPNG = false; buffered = nil
+            mediaType = mime
+            fileExtension = mime == "image/png" ? "png" : mime == "image/jpeg" ? "jpg" : request.fileURL.pathExtension
+            byteCount = asset.byteCount
+        }
+    }
+
+    mutating func nextChunk(maximumBytes: Int) throws -> Data? {
+        guard let buffered else { return try original.nextChunk(maximumBytes: maximumBytes) }
+        guard offset < buffered.count else { return nil }
+        let end = min(buffered.count, offset + maximumBytes)
+        defer { offset = end }
+        return buffered.subdata(in: offset..<end)
+    }
+
+    func verifyAfterRead(hash: String) throws {
+        // The buffered rendition came from the already verified immutable
+        // original. A PNG rendering has different bytes from the source asset.
+        if buffered == nil { try original.verifyAfterRead(hash: hash) }
+    }
+}
+
 private final class PrivateUploadFile {
     private let fd: Int32
     private let expectedHash: String
@@ -739,21 +767,20 @@ private final class PrivateUploadFile {
     private let original: stat
     private var readCount: Int64 = 0
 
-    init(request: TransferRequest, mediaDirectory: URL) throws {
-        let url = request.fileURL.standardizedFileURL
-        guard url.isFileURL, url.lastPathComponent == request.asset.fileName,
+    init(asset: ImportedAsset, url originalURL: URL, mediaDirectory: URL, maximumBytes: Int64) throws {
+        let url = originalURL.standardizedFileURL
+        guard url.isFileURL, url.lastPathComponent == asset.fileName,
               url.deletingLastPathComponent().resolvingSymlinksInPath() == mediaDirectory.resolvingSymlinksInPath(),
-              !url.pathExtension.isEmpty, request.asset.byteCount > 0,
-              request.asset.byteCount <= 8 * 1024 * 1024 else { throw WebAdapterError.invalidPrivateFile }
+              asset.byteCount > 0, asset.byteCount <= maximumBytes else { throw WebAdapterError.invalidPrivateFile }
         let descriptor = open(url.path, O_RDONLY | O_NONBLOCK | O_NOFOLLOW | O_CLOEXEC)
         guard descriptor >= 0 else { throw WebAdapterError.invalidPrivateFile }
         var info = stat()
         guard fstat(descriptor, &info) == 0, (info.st_mode & mode_t(S_IFMT)) == mode_t(S_IFREG),
-              info.st_size == request.asset.byteCount else {
+              info.st_size == asset.byteCount else {
             close(descriptor); throw WebAdapterError.invalidPrivateFile
         }
-        fd = descriptor; original = info; expectedHash = request.asset.sha256
-        expectedSize = request.asset.byteCount
+        fd = descriptor; original = info; expectedHash = asset.sha256
+        expectedSize = asset.byteCount
     }
 
     deinit { close(fd) }
@@ -785,6 +812,13 @@ private final class PrivateUploadFile {
         guard lseek(fd, 0, SEEK_SET) == 0 else { throw WebAdapterError.invalidPrivateFile }
         readCount = 0
         return header
+    }
+
+    func verifiedOriginal() throws -> Data {
+        var bytes = Data(capacity: Int(expectedSize)), hash = SHA256()
+        while let chunk = try nextChunk() { bytes.append(chunk); hash.update(data: chunk) }
+        try verifyAfterRead(hash: hash.finalize().map { String(format: "%02x", $0) }.joined())
+        return bytes
     }
 
     func verifyAfterRead(hash: String) throws {

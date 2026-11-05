@@ -7,7 +7,9 @@ import RiftletCore
 /// remains separate. Generated acceptance and the explicitly isolated original-
 /// screenshot candidate use distinct native scopes; page provenance is unchanged.
 public enum ChatGPTWebPageProgram {
-    public static let sourceID = "chatgpt-web-zh-20261027-integrated-v13"
+    static let priorEntrySource = "chatgpt-web-attachment-entry-20261105-v15"
+    static let priorHandoffSource = "chatgpt-web-attachment-handoff-20261105-v16"
+    public static let sourceID = "chatgpt-web-screenshot-handoff-20261105-v17"
     /// Candidate mapping only; ReceiptPolicy start registries remain separate.
     public static let acceptanceUploadStartProfileID = "chatgpt-web-zh-progress-start-development-20261027-v1"
     public static let acceptanceProfile = ObservationProfile(
@@ -27,7 +29,11 @@ public enum ChatGPTWebPageProgram {
         guard let url = resources.url(forResource: "chatgpt-web-20261027", withExtension: "js"),
               let source = try? String(contentsOf: url, encoding: .utf8), !source.isEmpty,
               source.utf8.count <= 128 * 1024 else { throw WebAdapterError.programUnavailable }
-        return try LegacyWebObservationProgram.wrapping(WebPageProgram(sourceID: sourceID, functionSource: source, maximumChunkBytes: 256 * 1024))
+        // Ordinary input never executes historical observers. Their registries
+        // cannot veto a new handoff; the separate legacy reader remains available
+        // only to explicit historical tooling.
+        return WebPageProgram(sourceID: sourceID, functionSource: source,
+                              maximumChunkBytes: 256 * 1024, inputDiscoveryTimeout: 3)
     }
 }
 

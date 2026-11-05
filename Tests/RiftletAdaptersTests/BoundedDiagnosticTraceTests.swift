@@ -1,5 +1,6 @@
 import Foundation
 import XCTest
+import RiftletCore
 @testable import RiftletAdapters
 
 final class BoundedDiagnosticTraceTests: XCTestCase {
@@ -84,6 +85,16 @@ final class BoundedDiagnosticTraceTests: XCTestCase {
         let unwritable = BoundedDiagnosticTrace(enabled: true, directory: directory, emitStandardError: false)
         unwritable.record(["event": "input_resource_refused"], critical: true); unwritable.flushForTesting()
         XCTAssertEqual(try Data(contentsOf: directory), Data("not a directory".utf8))
+    }
+
+    func testHostClickErrorsRetainOnlyClosedReasons() {
+        let errors: [(Error, String)] = [(RiftletError.database("private SQL"), "database"),
+            (RiftletError.adapterUnavailable("private page"), "adapterUnavailable"),
+            (RiftletError.unresolvedOperation(UUID()), "unresolvedOperation"), (RiftletError.invalidTransition, "invalidTransition")]
+        for (error, reason) in errors {
+            XCTAssertEqual(BoundedDiagnosticTrace.clickFailureFields(error)["reason"] as? String, reason)
+        }
+        XCTAssertEqual(BoundedDiagnosticTrace.clickFailureFields(WebAdapterError.invalidTarget)["error"] as? String, "invalidTarget")
     }
 
     func testEachPageGateSurvivesAsAClosedPressFailureWithoutRouteOrConversationContent() throws {

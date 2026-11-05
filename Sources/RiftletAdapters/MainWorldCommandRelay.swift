@@ -1,8 +1,9 @@
 import Foundation
 import CryptoKit
+import RiftletCore
 
-/// A document-local MAIN closure, installed only while capturing a foreground
-/// target. Later commands cross the shared DOM through execute-JavaScript; unlike
+/// A document-local MAIN closure, installed when an explicit click first resolves
+/// its fixed target. Later commands cross the shared DOM through execute-JavaScript; unlike
 /// Chrome's javascript: URL setter this does not raise the addressed window.
 /// The DOM channel is correlation, not protection against same-page malicious JS.
 struct MainWorldCommandRelay: Sendable {
@@ -20,6 +21,7 @@ struct MainWorldCommandRelay: Sendable {
         let attribute = "data-riftlet-channel-" + channel
         let event = "riftlet-command-" + channel
         let codes = String(decoding: try! JSONEncoder().encode(WebPageRejection.allCases.map(\.rawValue)), as: UTF8.self)
+        let actions = String(decoding: try! JSONEncoder().encode(WebBridgeAction.allCases.map(\.rawValue)), as: UTF8.self)
         probe = "(()=>document.documentElement.getAttribute('\(attribute)')==='\(marker)'?'ready':'missing')()"
         installer = """
         (()=>{const root=document.documentElement,attribute='\(attribute)',marker='\(marker)';
@@ -32,15 +34,26 @@ struct MainWorldCommandRelay: Sendable {
           let q;try{q=JSON.parse(raw);}catch{return;}
           if(!q||Object.keys(q).sort().join(',')!=='command,nonce'
             ||typeof q.nonce!=='string'||!/^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/.test(q.nonce)
-            ||!q.command||!['captureTarget','pinTarget','validate','begin','chunk','commit','observe','discard'].includes(q.command.action)
+            ||!q.command||!\(actions).includes(q.command.action)
             ||seen.has(q.nonce))return;
           seen.add(q.nonce); // Lifetime nonce tombstone, before executing/reentrancy.
           const receiver=q.command.action==='observe'&&legacySession&&q.command.target?.sessionID===legacySession
             ?Object.freeze({...native,sessionID:legacySession}):native;
-          let r;try{r={nonce:q.nonce,ok:true,result:program(q.command,receiver)};}
-          catch(e){r={nonce:q.nonce,ok:false};const code=e?.message;if(\(codes).includes(code))r.rejection=code;}
-          const reply='data-riftlet-reply-'+q.nonce;root.setAttribute(reply,JSON.stringify(r));
-          setTimeout(()=>root.removeAttribute(reply),10000);
+          // Menu discovery can await a real application render. Invoke once,
+          // then publish only its settled result; serializing a Promise as {}
+          // would lose a successful input and release the host lane too early.
+          let replied=false;
+          const publish=r=>{if(replied)return;replied=true;
+            if(document.documentElement!==root)return;
+            const reply='data-riftlet-reply-'+q.nonce;root.setAttribute(reply,JSON.stringify(r));
+            setTimeout(()=>root.removeAttribute(reply),10000);};
+          const success=result=>publish({nonce:q.nonce,ok:true,result});
+          const failure=e=>{const r={nonce:q.nonce,ok:false},code=e?.message;
+            if(\(codes).includes(code))r.rejection=code;publish(r);};
+          try{const result=program(q.command,receiver);
+            if(result&&typeof result.then==='function')Promise.resolve(result).then(success,failure);
+            else success(result);
+          }catch(e){failure(e);}
         });
         root.setAttribute(attribute,marker);})()
         """
@@ -70,11 +83,20 @@ struct MainWorldCommandRelay: Sendable {
     }
 }
 
-/// Native ownership only. A missing relay on a background route never causes a
-/// URL-setter fallback or new capture. A new document must be captured foreground.
+/// Native ownership only. A click may initialize its exact saved tab without a
+/// historical relay. Observation never creates a relay or captures a new target.
 final class MainWorldRelayStore: @unchecked Sendable {
     private let lock = NSLock()
     private var values: [String: MainWorldCommandRelay] = [:]
+    private var targetRelays: [String: MainWorldCommandRelay] = [:]
+    func bind(_ relay: MainWorldCommandRelay, to target: TargetLease) {
+        lock.lock(); defer { lock.unlock() }
+        targetRelays[target.stableKey] = relay
+    }
+    func bound(to target: TargetLease) -> MainWorldCommandRelay? {
+        lock.lock(); defer { lock.unlock() }
+        return targetRelays[target.stableKey]
+    }
     func adopt(function: String, contextJSON: String, channel: String,
                legacyObservationSession: String?) -> MainWorldCommandRelay? {
         guard let id = UUID(uuidString: channel), id.uuidString.lowercased() == channel else { return nil }

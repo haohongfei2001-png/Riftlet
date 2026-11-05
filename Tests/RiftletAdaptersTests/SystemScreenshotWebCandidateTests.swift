@@ -75,8 +75,15 @@ final class SystemScreenshotWebCandidateTests: XCTestCase {
         let store = try QueueStore(databaseURL: directory.appendingPathComponent("queue.sqlite"))
         _ = try await store.importAsset(image)
         let bridge = CandidateGateBridge()
-        let coordinator = TransferCoordinator(store: store, adapter: try adapter(store, bridge), mediaDirectory: directory)
+        let failed = expectation(description: "Current no-input failure persisted")
+        failed.assertForOverFulfill = false
+        let coordinator = TransferCoordinator(store: store, adapter: try adapter(store, bridge), mediaDirectory: directory,
+            onChange: {
+                if let record = try? await store.asset(id: image.id), record.status == .failed { failed.fulfill() }
+            })
         try await coordinator.select(image.id, frozenTarget: CandidateGateBridge.target)
+        // select returns at the input execution boundary; persistence finishes independently.
+        await fulfillment(of: [failed], timeout: 2)
         let record = try await store.asset(id: image.id)
         XCTAssertEqual(record?.status, .failed); XCTAssertEqual(record?.visibility, .visible)
         let proof = try await store.checkpoint(for: "transfer-no-input-v1:" + record!.activeOperationID!.uuidString)
@@ -85,21 +92,40 @@ final class SystemScreenshotWebCandidateTests: XCTestCase {
         XCTAssertEqual(actions, [.validate], "The descriptor hash must refuse before begin or commit")
     }
 
-    func testOldUnknownWithNowUnsupportedFormatOnlyObservesItsOriginalIdentity() async throws {
+    func testOldUnsupportedUnknownPreservesHistoryAndMediaWithoutInputOrObservation() async throws {
         let store = try QueueStore(databaseURL: directory.appendingPathComponent("queue.sqlite"))
-        let image = asset(mime: "image/jpeg")
+        let bytes = Data(repeating: 42, count: 100)
+        let image = asset(mime: "image/jpeg", size: Int64(bytes.count), hash: hash(bytes))
+        let file = directory.appendingPathComponent(image.fileName)
+        try bytes.write(to: file)
         _ = try await store.importAsset(image)
         let operation = try await store.prepare(assetID: image.id, target: CandidateGateBridge.target)
         try await store.markDispatchIntent(operation.id)
         try await store.markUnknown(operation.id, reason: "Software historical-operation fixture")
+        let originalRecord = try await store.asset(id: image.id)
+        let originalOperation = try await store.operation(id: operation.id)
+        let originalReason = try await store.operationReason(for: operation.id)
+        let originalReceipt = try await store.receipt(for: operation.id)
+        let originalUnresolved = try await store.unresolvedOperations()
         let bridge = CandidateGateBridge()
         let coordinator = TransferCoordinator(store: store, adapter: try adapter(store, bridge), mediaDirectory: directory)
+        try await coordinator.recover()
         try await coordinator.select(image.id, frozenTarget: nil)
-        let actions = await bridge.actions; XCTAssertEqual(actions, [.observe])
+        try await coordinator.observePending()
+        let actions = await bridge.actions; XCTAssertTrue(actions.isEmpty)
         let record = try await store.asset(id: image.id)
-        XCTAssertEqual(record?.activeOperationID, operation.id); XCTAssertEqual(record?.status, .unknown)
+        let savedOperation = try await store.operation(id: operation.id)
+        let savedReason = try await store.operationReason(for: operation.id)
+        let savedReceipt = try await store.receipt(for: operation.id)
+        let savedUnresolved = try await store.unresolvedOperations()
+        XCTAssertEqual(record, originalRecord)
+        XCTAssertEqual(savedOperation, originalOperation)
+        XCTAssertEqual(savedReason, originalReason)
+        XCTAssertEqual(savedReceipt, originalReceipt)
+        XCTAssertEqual(savedUnresolved, originalUnresolved)
+        XCTAssertEqual(try Data(contentsOf: file), bytes)
         let identities = await bridge.identities
-        XCTAssertTrue(identities.allSatisfy { $0.operationID == operation.id && $0.assetID == image.id && $0.target == operation.target })
+        XCTAssertTrue(identities.isEmpty)
     }
 
     func testCandidateRequiresItsOwnProfileAndDurableJournalBeforeAnyPageAction() async throws {

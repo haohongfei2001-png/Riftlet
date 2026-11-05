@@ -1,3 +1,53 @@
+# Current attachment-entry repair — 2026-11-05
+
+Continue PR #41 on its existing branch. The observed current refusal is
+ATTACHMENT_INPUT_UNAVAILABLE before file input. Capture and validate bind the
+actual clicked Chrome tab/document/editor independently of picker availability.
+At commit, use a responsible direct input or activate the actual attachment
+entry, including dynamic/hidden/portalled/rebuilt pickers. Form containment,
+accept spelling and the number of file inputs are not upload permission gates.
+Never choose an arbitrary unrelated global input. Prevent an OS chooser that
+would require user assistance. Once a setter has been entered, never fall back
+to another input path. Promise discovery must settle through the original relay
+nonce before releasing execution; lost replies are observed, never reissued.
+Keep the editor, selection, prior attachments, original PNGs and production
+history intact. Source, controlled browser, CI, installed App, and real first/
+second ChatGPT clicks are separate results. No live-browser access workaround.
+
+# Current first-click repair — 2026-11-05
+
+Continue PR #41. An explicit screenshot click resolves its own Chrome target;
+it must not depend on a background capture ACK, an already-created relay, a
+mouse-event-age proof, foreground-editor focus, or previous upload state.
+Freeze the native destination at the click boundary, initialize the page when
+needed, then recheck that exact window/tab/page/editor/input before submission.
+Do not select a later active conversation or search arbitrary tabs for a target.
+Selection objects retain only cancellation, duplicate and stale-queue handling.
+Preserve once-only setter/change, independent later clicks and actual-attachment
+START before swallow. Keep all production data and old UNKNOWN records intact.
+The regression must exercise click callbacks through durable operation creation.
+Source/CI/controlled application success is not real ChatGPT acceptance. Respect
+Browser access restrictions and use one normal-user acceptance when required.
+
+# Current independent file input — 2026-11-04
+
+The latest user explicitly replaces the former upload-transaction eligibility
+model. New ordinary screenshot clicks use the saved Chrome target and a unique
+usable file input, submit one current PNG, and swallow when that current file
+is accepted as a new attachment. Previous UNKNOWN/START/COMPLETE, retained old
+File bytes, request ownership and old observer generations are not prerequisites.
+Only active file-input execution is exclusive; upload observation never holds
+the next input. An uncertain submission is observed by its original identity,
+never automatically submitted again. After START, the ordinary tool stops
+managing that upload. Existing SQLite/media/history must be preserved.
+
+This instruction supersedes historical runtime permission/proof requirements
+below, including retained-input reservations and continuation eligibility.
+Historical decoding remains compatible and cannot become a hidden new-input
+veto. UI, capture and animation are unchanged. Keep independent source review,
+ARM64/Intel/Feedback CI and exact package identity. Actual ChatGPT page acceptance
+is user-operated only; do not bypass Browser access restrictions with other tools.
+
 # Current R2.1 final UI integration and freeze — 2026-10-31
 
 The latest user explicitly authorizes the reviewed PR #24 R2.1 increment to be

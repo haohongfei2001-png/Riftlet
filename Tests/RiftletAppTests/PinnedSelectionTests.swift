@@ -42,16 +42,16 @@ final class PinnedSelectionTests: XCTestCase {
             XCTAssertFalse(selection.isValid(at: 11))
         }
     }
-    func testPinAuthorizationDoesNotBackdateACKOrAdmitPlainLateLease() {
+    func testHistoricalPinAndACKLabelsDoNotBlockCurrentClick() {
         XCTAssertTrue(token(target()).isValid(at: 11))
-        XCTAssertFalse(token(target(pin: nil)).isValid(at: 11))
-        XCTAssertFalse(token(target(), authorization: .preEventAcknowledgement).isValid(at: 11))
-        XCTAssertFalse(token(target(pin: nil), authorization: .preEventAcknowledgement).isValid(at: 11))
+        XCTAssertTrue(token(target(pin: nil)).isValid(at: 11))
+        XCTAssertTrue(token(target(), authorization: .preEventAcknowledgement).isValid(at: 11))
+        XCTAssertTrue(token(target(pin: nil), authorization: .preEventAcknowledgement).isValid(at: 11))
         XCTAssertFalse(token(target()).isValid(at: 40.2))
         let invalidEvent = AcceptedSelection(assetID: UUID(), target: target(), hostEpoch: UUID(),
             acknowledgedUptime: 10, eventUptime: -1, acceptedUptime: 10.2, visibilityRevision: 0,
             deadlineUptime: 40.2, authorization: .nativeClickPin)
-        XCTAssertFalse(invalidEvent.isValid(at: 11))
+        XCTAssertTrue(invalidEvent.isValid(at: 11), "Archived mouse metadata is not input permission")
     }
     func testLegacyDecodeAndUnknownConflictStillIgnoreNewClickCapabilityForLocking() throws {
         let original = target(pin: nil)

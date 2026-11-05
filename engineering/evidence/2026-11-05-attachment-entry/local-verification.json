@@ -1,0 +1,42 @@
+{
+  "scope": "Local controlled application/command verification only; real ChatGPT and Mac installation NOT_RUN",
+  "baselineCommit": "e9ecafa7f68ff213b92cf3b7ec17d45c3e6b18a8",
+  "pageSHA256": "c3780ef2de327f3c98068c5d46b4eef818462822cd1d42257c41a72d16269dca",
+  "baselineCounterexamples": {
+    "tests": 5,
+    "failed": 5,
+    "error": "ATTACHMENT_INPUT_UNAVAILABLE",
+    "source": "exact git blob of baseline commit"
+  },
+  "currentPageTests": {
+    "tests": 65,
+    "passed": 65
+  },
+  "combinedWebAndLegacyCleanup": {
+    "tests": 139,
+    "passed": 139
+  },
+  "sourceGovernanceIsolation": {
+    "tests": 34,
+    "passed": 34
+  },
+  "swiftEmbeddedRelayTemplates": {
+    "tests": 8,
+    "passed": 8,
+    "nativeSwift": false
+  },
+  "nativeChrome": {
+    "scenarios": 16,
+    "plannedInputsPerArchitecture": 62,
+    "localStatus": "NOT_RUN_NO_CHROME_BINARY",
+    "requiredCIArchitectures": [
+      "ARM64",
+      "Intel"
+    ]
+  },
+  "device": {
+    "backup": "NOT_RUN_NO_MAC_ACCESS",
+    "installation": "NOT_RUN_NO_MAC_ACCESS",
+    "realFirstSecondFiveClicks": "NOT_RUN_BROWSER_ORIGINATING_CONTEXT_UNAVAILABLE"
+  }
+}

@@ -8,6 +8,14 @@ final class ProductStatusTests: XCTestCase {
         let cases: [(String, ProductStatus.AttachmentFeedback)] = [
             ("Accepted selection expired before input", .expiredBeforeInput),
             ("Original target changed before input", .targetChangedBeforeInput),
+            ("Verified pre-input rejection: pageRetiredBeforeFileInput: targetInvalidBeforeInput", .targetChangedBeforeInput),
+            ("Verified pre-input rejection: pageRetiredBeforeFileInput: inputExecutionBusy", .inputExecutingBeforeInput),
+            ("Verified pre-input rejection: pageRetiredBeforeFileInput: invalidPNGSignature", .filePreparationFailedBeforeInput),
+            ("Verified pre-input rejection: pageRetiredBeforeFileInput: inputPreparationFailed", .filePreparationFailedBeforeInput),
+            ("Verified pre-input rejection: pageRetiredBeforeFileInput: attachmentEntryUnavailable", .attachmentEntryUnavailable),
+            ("Verified pre-input rejection: pageRetiredBeforeFileInput: attachmentInputNotCreated", .attachmentInputNotCreated),
+            ("Verified pre-input rejection: pageRetiredBeforeFileInput: attachmentInputAmbiguous", .attachmentInputAmbiguous),
+            ("Verified pre-input rejection: pageRetiredBeforeFileInput: attachmentEntryFailed", .attachmentEntryFailed),
             ("Target validation unavailable before input", .targetValidationUnavailableBeforeInput),
             ("Original draft has an unresolved upload; no input occurred", .unresolvedDraftBeforeInput),
             ("Independent attachment input is unproven for this draft; no input occurred", .independentAttachmentUnavailableBeforeInput),
@@ -89,8 +97,8 @@ final class ProductStatusTests: XCTestCase {
 
     func testUnifiedProductDoesNotDirectUserToAnotherProductOrClaimRealPageCertification() {
         let text = ProductStatus.supportDescription(for: .unifiedProduct)
-        for scope in ["新聊天及已有聊天", "系统截图和内置截图", "不补资格、不重传",
-                      "尚未完成最终真实页面验收", "非交错 8-bit RGBA PNG", "不自动转换"] {
+        for scope in ["ChatGPT 新聊天及已有聊天", "系统和内置截图", "不补资格、不重传",
+                      "PNG、JPEG 按原文件输入", "等分辨率 PNG 副本"] {
             XCTAssertTrue(text.contains(scope), scope)
         }
         XCTAssertFalse(text.contains("内部候选需另行启动"))

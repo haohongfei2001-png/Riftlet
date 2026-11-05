@@ -14,7 +14,7 @@ import RiftletAdapters
 enum SystemScreenshotCandidateSelfCheck {
     enum Failure: String, Error {
         case configuration, startSettlementDeadline, persistedStart, startRegistration
-        case restartVisibility, independentCompletion, legacyUnknownProtection, finalIdentityAndBytes
+        case restartVisibility, independentInput, legacyUnknownProtection, finalIdentityAndBytes
     }
 
     @MainActor static func run() async throws {
@@ -39,6 +39,14 @@ enum SystemScreenshotCandidateSelfCheck {
         let store = try QueueStore(databaseURL: database)
         let importer = PrivateAssetImporter(privateRoot: root, store: store)
         let record = try await importer.importFile(at: source)
+        func copyFixture(_ name: String, into store: QueueStore) async throws -> AssetRecord {
+            let fileName = "software-\(name)-\(UUID()).png"
+            try bytes.write(to: root.appendingPathComponent("media").appendingPathComponent(fileName))
+            return try await store.importAsset(ImportedAsset(sourceKey: "software-\(name)-\(UUID())", fileName: fileName,
+                sha256: record.image.sha256, byteCount: record.image.byteCount,
+                pixelWidth: record.image.pixelWidth, pixelHeight: record.image.pixelHeight,
+                mediaType: record.image.mediaType, origin: .systemScreenshot))
+        }
         try await SystemScreenshotCandidateConfiguration.validateStore(store)
         let bridge = CandidateCheckBridge()
         let composition = try ApplicationAttachmentComposition.make(mode: mode, root: root, store: store,
@@ -71,65 +79,98 @@ enum SystemScreenshotCandidateSelfCheck {
               started.visibility == .swallowed, started.visibilityReason == .uploadStarted,
               started.status != .used, try await store.operation(id: id)?.phase != .succeeded,
               try await store.uploadStartReceipt(for: id)?.uploadStartEvidence?.profileID == SystemScreenshotWebCandidate.admittedUploadStartProfileID,
+              try await store.uploadStartReceipt(for: id)?.uploadStartEvidence?.signal == .attachmentAccepted,
               try await store.receipt(for: id)?.outcome == .uploadStarted else { throw Failure.persistedStart }
         let startKey = "system-screenshot-candidate-observation-v1:\(id.uuidString.lowercased()):1:start"
         let admissionKey = "system-screenshot-admission-v2:\(id.uuidString.lowercased()):1"
         guard let firstStart = try await store.checkpoint(for: startKey),
               let registration = try await store.checkpoint(for: admissionKey),
               await bridge.actions.filter({ $0 == .observe }).isEmpty else { throw Failure.startRegistration }
-        // Start returns immediately through the existing Core/UI lifecycle.
-        // Recovery preserves that exit and only observes the original operation.
+        // START finishes this input's product lifecycle. Relaunch must preserve
+        // its exact stored state without observing or completing an old upload.
+        let firstOperation = try await store.operation(id: id)
+        let firstReceipt = try await store.receipt(for: id)
         await bridge.setState(.unknown)
         let reopened = try QueueStore(databaseURL: database)
+        let next = try await copyFixture("next", into: reopened)
         let recoveredComposition = try ApplicationAttachmentComposition.make(mode: mode, root: root, store: reopened,
             executor: bridge, polling: .disabled)
+        let nextSettlement = CandidateCheckSettlement()
         let recovered = TransferCoordinator(store: reopened, adapter: recoveredComposition.adapter,
-            mediaDirectory: root.appendingPathComponent("media"), policy: recoveredComposition.policy)
+            mediaDirectory: root.appendingPathComponent("media"), policy: recoveredComposition.policy,
+            onChange: {
+                guard let current = try? await reopened.asset(id: next.id),
+                      current.visibility == .swallowed, current.visibilityReason == .uploadStarted,
+                      let operationID = current.activeOperationID,
+                      let start = try? await reopened.uploadStartReceipt(for: operationID),
+                      start.assetID == next.id, start.outcome == .uploadStarted else { return }
+                await nextSettlement.recordPersistedStart()
+            }, validateAcceptedSelection: { _ in true })
         try await recovered.recover()
-        guard try await reopened.operation(id: id)?.phase == .unknown,
-              try await reopened.asset(id: record.id)?.visibility == .swallowed,
-              try await reopened.asset(id: record.id)?.visibilityRevision == started.visibilityRevision else {
+        try await recovered.recoverOriginalObservations(operationIDs: [id])
+        try await recovered.observePending()
+        guard try await reopened.operation(id: id) == firstOperation,
+              try await reopened.asset(id: record.id) == started,
+              try await reopened.receipt(for: id) == firstReceipt else {
             throw Failure.restartVisibility
         }
         await bridge.setState(.attached)
         try await recovered.observePending()
-        guard try await reopened.receipt(for: id)?.profileID == SystemScreenshotWebCandidate.admittedCompletionProfileID,
-              try await reopened.operation(id: id)?.phase == .succeeded,
-              try await reopened.asset(id: record.id)?.status == .used,
-              try await reopened.asset(id: record.id)?.visibilityRevision == started.visibilityRevision else {
-            throw Failure.independentCompletion
+        let observedCompletion = try await recovered.observeCompleted(operationID: id)
+        guard !observedCompletion, try await reopened.operation(id: id) == firstOperation,
+              try await reopened.receipt(for: id) == firstReceipt,
+              await bridge.actions.filter({ $0 == .observe }).isEmpty else {
+            throw Failure.restartVisibility
         }
 
-        // A historical F-like UNKNOWN has no registration. Even a fully valid
-        // attached observation must leave it visible/locked, without new input.
-        let oldFileName = "software-historical-\(UUID()).png"
-        try bytes.write(to: root.appendingPathComponent("media").appendingPathComponent(oldFileName))
-        let oldImage = ImportedAsset(sourceKey: "software-historical-\(UUID())", fileName: oldFileName,
-            sha256: record.image.sha256, byteCount: record.image.byteCount,
-            pixelWidth: record.image.pixelWidth, pixelHeight: record.image.pixelHeight,
-            mediaType: record.image.mediaType, origin: .systemScreenshot)
-        _ = try await reopened.importAsset(oldImage)
-        let old = try await reopened.prepare(assetID: oldImage.id, target: CandidateCheckBridge.target)
-        try await reopened.markDispatchIntent(old.id)
+        // Historical UNKNOWN stays read-only, even when the page could now
+        // report a completed attachment. It never licenses or blocks next input.
+        let historical = try await copyFixture("historical", into: reopened)
+        let old = try await reopened.prepare(assetID: historical.id, target: CandidateCheckBridge.target)
+        try await reopened.markIndependentFileInputIntent(old.id, ownerID: UUID())
         try await reopened.markUnknown(old.id, reason: "Software legacy F-like fixture")
-        try await recovered.select(oldImage.id, frozenTarget: nil)
+        let oldOperation = try await reopened.operation(id: old.id)
+        let oldAsset = try await reopened.asset(id: historical.id)
+        let callKey = "transfer-dispatch-call-v1:" + old.id.uuidString
+        let oldCall = try await reopened.checkpoint(for: callKey)
+        try await recovered.select(historical.id, frozenTarget: nil)
         let oldKey = "system-screenshot-admission-v2:\(old.id.uuidString.lowercased()):1"
         guard try await reopened.operation(id: old.id)?.phase == .unknown,
-              try await reopened.asset(id: oldImage.id)?.visibility == .visible,
-              try await reopened.asset(id: oldImage.id)?.activeOperationID == old.id,
-              try await reopened.receipt(for: old.id)?.profileID == SystemScreenshotWebCandidate.completionProfileID,
+              try await reopened.asset(id: historical.id) == oldAsset,
+              try await reopened.receipt(for: old.id) == nil,
               try await reopened.checkpoint(for: oldKey) == nil,
               try await reopened.uploadStartReceipt(for: old.id) == nil else { throw Failure.legacyUnknownProtection }
+
+        await bridge.setState(.uploadStarted)
+        let nextNow = ProcessInfo.processInfo.systemUptime
+        try await recovered.select(AcceptedSelection(assetID: next.id, target: CandidateCheckBridge.target,
+            hostEpoch: UUID(), acknowledgedUptime: nextNow - 0.2, eventUptime: nextNow - 0.1,
+            acceptedUptime: nextNow, visibilityRevision: next.visibilityRevision, deadlineUptime: nextNow + 30))
+        try await nextSettlement.waitForPersistedStart()
+        guard let nextStarted = try await reopened.asset(id: next.id), let nextID = nextStarted.activeOperationID,
+              nextStarted.visibility == .swallowed, nextStarted.visibilityReason == .uploadStarted,
+              nextStarted.status != .used, nextID != id,
+              try await reopened.uploadStartReceipt(for: nextID)?.assetID == next.id,
+              try await reopened.uploadStartReceipt(for: nextID)?.uploadStartEvidence?.signal == .attachmentAccepted,
+              try await reopened.receipt(for: nextID)?.outcome == .uploadStarted else { throw Failure.independentInput }
         let actions = await bridge.actions
-        let transferred = await bridge.bytes
-        guard actions.filter({ $0 == .begin }).count == 1, actions.filter({ $0 == .commit }).count == 1,
-              !actions.contains(.captureTarget), transferred == bytes,
-              try await reopened.asset(id: record.id)?.activeOperationID == id,
+        let transferred = await bridge.bytesByOperation
+        guard actions.filter({ $0 == .begin }).count == 2, actions.filter({ $0 == .commit }).count == 2,
+              !actions.contains(.captureTarget), !actions.contains(.observe),
+              transferred == [id: bytes, nextID: bytes],
+              try await reopened.asset(id: record.id) == started,
+              try await reopened.operation(id: id) == firstOperation,
+              try await reopened.receipt(for: id) == firstReceipt,
+              try await reopened.operation(id: old.id) == oldOperation,
+              try await reopened.asset(id: historical.id) == oldAsset,
+              try await reopened.checkpoint(for: callKey) == oldCall,
               try await reopened.checkpoint(for: startKey) == firstStart,
               try await reopened.checkpoint(for: admissionKey) == registration,
               try await reopened.uploadStartReceipt(for: id) != nil,
               try Data(contentsOf: source) == bytes,
-              try Data(contentsOf: root.appendingPathComponent("media").appendingPathComponent(record.image.fileName)) == bytes else {
+              try Data(contentsOf: root.appendingPathComponent("media").appendingPathComponent(record.image.fileName)) == bytes,
+              try Data(contentsOf: root.appendingPathComponent("media").appendingPathComponent(next.image.fileName)) == bytes,
+              try Data(contentsOf: root.appendingPathComponent("media").appendingPathComponent(historical.image.fileName)) == bytes else {
             throw Failure.finalIdentityAndBytes
         }
     }
@@ -176,40 +217,40 @@ private actor CandidateCheckBridge: WebBridgeExecutor {
         logicalDraftIdentity: .init(profileID: "chatgpt-composer-react-persisted-20261027-v1",
             id: "11111111-1111-4111-8111-111111111111"))
     private(set) var actions: [WebBridgeAction] = []
-    private(set) var bytes = Data()
+    private(set) var bytesByOperation: [UUID: Data] = [:]
     private var state: AttachmentObservedState = .uploadStarted
-    private let startID = UUID().uuidString
     func setState(_ value: AttachmentObservedState) { state = value }
 
     func execute(_ command: WebBridgeCommand, program: WebPageProgram) async throws -> Data {
         actions.append(command.action)
         switch command.action {
-        case .pinTarget, .prepareInputResource, .releaseInputResource: throw WebAdapterError.invalidRequest
+        case .pinTarget: throw WebAdapterError.invalidRequest
         case .captureTarget: throw WebAdapterError.invalidRequest
         case .validate:
             let target = try JSONSerialization.jsonObject(with: JSONEncoder().encode(Self.target))
             return try JSONSerialization.data(withJSONObject: ["target": target, "valid": command.target == Self.target])
         case .begin, .chunk:
             guard let identity = command.identity else { throw WebAdapterError.invalidRequest }
+            if command.action == .begin { bytesByOperation[identity.operationID] = Data() }
             if command.action == .chunk {
                 guard let encoded = command.chunkBase64, let chunk = Data(base64Encoded: encoded) else { throw WebAdapterError.invalidRequest }
-                bytes.append(chunk)
+                bytesByOperation[identity.operationID, default: Data()].append(chunk)
             }
             return try JSONSerialization.data(withJSONObject: ["operationID": identity.operationID.uuidString,
                 "attempt": identity.attempt, "nextChunk": command.action == .begin ? 0 : (command.chunkIndex ?? -1) + 1])
         case .commit, .observe:
             guard let identity = command.identity else { throw WebAdapterError.invalidRequest }
             let observation = AttachmentObservation(identity: identity, state: state,
-                attachmentID: "software-original-card", exactImageIdentity: true, belongsToOriginalDraft: true,
-                isUploading: state == .uploadStarted)
+                attachmentID: "software-card-\(identity.operationID.uuidString)", exactImageIdentity: true, belongsToOriginalDraft: true,
+                isUploading: false)
             var value = try JSONSerialization.jsonObject(with: JSONEncoder().encode(AttachmentObservationEnvelope(
                 schemaVersion: 2, provenance: .init(source: .integratedDevelopment, evidenceID: "software-candidate-no-live-evidence"),
                 observation: observation))) as! [String: Any]
             if state == .uploadStarted {
                 var item = value["observation"] as! [String: Any]
-                item["uploadStart"] = ["version": 1, "signal": "correlatedProgress", "evidenceID": startID,
-                    "inputCount": 1, "inputSequence": 1, "startSequence": 3, "previousProgress": 10,
-                    "currentProgress": 30, "inputObservedAtMS": 10, "startObservedAtMS": 20] as [String: Any]
+                item["uploadStart"] = ["version": 1, "signal": "attachmentAccepted", "evidenceID": identity.operationID.uuidString,
+                    "inputCount": 1, "inputSequence": 1, "startSequence": 2, "previousProgress": 0,
+                    "currentProgress": 0, "inputObservedAtMS": 10, "startObservedAtMS": 20] as [String: Any]
                 value["observation"] = item
             }
             return try JSONSerialization.data(withJSONObject: value)

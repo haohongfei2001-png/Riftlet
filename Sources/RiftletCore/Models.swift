@@ -1,5 +1,12 @@
 import Foundation
 
+/// Capacity of an original screenshot accepted by the local collector.
+public enum ScreenshotImportLimits {
+    public static let bytes: Int64 = 128 * 1024 * 1024
+    public static let pixels: Int64 = 160_000_000
+    public static let dimension = 50_000
+}
+
 public enum StoreMode: String, Codable, Sendable { case production, simulation }
 public enum AssetOrigin: String, Codable, Sendable {
     case systemScreenshot, synthetic
@@ -164,6 +171,13 @@ public struct TargetLease: Codable, Equatable, Hashable, Sendable {
     /// original append may keep observing START while a different, recognized
     /// business draft in a different document takes the input lane. A new pin,
     /// window move, local/persisted transition or reused document is insufficient.
+    /// Synchronous file events operate on the picker in one addressed tab.
+    /// Another tab or Chrome process cannot share that native DOM object.
+    public func sharesInputTab(with other: TargetLease) -> Bool {
+        applicationID == other.applicationID && sessionID == other.sessionID
+            && windowID == other.windowID && tabID == other.tabID
+    }
+
     public func hasIndependentInputDocument(from other: TargetLease) -> Bool {
         guard surface == .webChat, other.surface == surface,
               applicationID == "com.google.Chrome", other.applicationID == applicationID,
@@ -254,6 +268,9 @@ public enum ReceiptOutcome: String, Codable, Sendable {
 
 public enum UploadStartSignal: String, Codable, Sendable {
     case correlatedProgress, correlatedByteRequest
+    /// The current file produced a new, operation-correlated attachment in the
+    /// original composer after change. A setter return alone is not acceptance.
+    case attachmentAccepted
 }
 
 /// Identity is carried by the enclosing receipt. These fields are claims until
@@ -312,6 +329,73 @@ public struct TransferReceipt: Codable, Equatable, Sendable {
         self.continuationEvidence = continuationEvidence
         self.completionEvidence = completionEvidence
         self.terminationEvidence = terminationEvidence
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case operationID, assetID, attempt, assetSHA256, target, outcome, profileID, attachmentID
+        case positiveReady, belongsToOriginalDraft, hasError, isUploading, safeToRetry, reason
+        case uploadStartEvidence, continuationEvidence, completionEvidence, terminationEvidence
+        case attachmentAcceptanceEvidence
+    }
+
+    public init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        let legacyStart = try values.decodeIfPresent(UploadStartEvidence.self, forKey: .uploadStartEvidence)
+        let acceptance = try values.decodeIfPresent(UploadStartEvidence.self, forKey: .attachmentAcceptanceEvidence)
+        if let acceptance {
+            guard legacyStart == nil, acceptance.signal == .attachmentAccepted else {
+                throw DecodingError.dataCorruptedError(forKey: .attachmentAcceptanceEvidence, in: values,
+                    debugDescription: "Attachment acceptance must be the sole start evidence and use its own signal")
+            }
+        }
+        self.init(operationID: try values.decode(UUID.self, forKey: .operationID),
+            assetID: try values.decode(UUID.self, forKey: .assetID),
+            attempt: try values.decode(Int.self, forKey: .attempt),
+            assetSHA256: try values.decode(String.self, forKey: .assetSHA256),
+            target: try values.decode(TargetLease.self, forKey: .target),
+            outcome: try values.decode(ReceiptOutcome.self, forKey: .outcome),
+            profileID: try values.decode(String.self, forKey: .profileID),
+            attachmentID: try values.decodeIfPresent(String.self, forKey: .attachmentID),
+            positiveReady: try values.decode(Bool.self, forKey: .positiveReady),
+            belongsToOriginalDraft: try values.decode(Bool.self, forKey: .belongsToOriginalDraft),
+            hasError: try values.decode(Bool.self, forKey: .hasError),
+            isUploading: try values.decode(Bool.self, forKey: .isUploading),
+            safeToRetry: try values.decode(Bool.self, forKey: .safeToRetry),
+            reason: try values.decode(String.self, forKey: .reason),
+            uploadStartEvidence: acceptance ?? legacyStart,
+            continuationEvidence: try values.decodeIfPresent(AttachmentContinuationEvidence.self, forKey: .continuationEvidence),
+            completionEvidence: try values.decodeIfPresent(AttachmentCompletionEvidence.self, forKey: .completionEvidence),
+            terminationEvidence: try values.decodeIfPresent(AttachmentTerminationEvidence.self, forKey: .terminationEvidence))
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var values = encoder.container(keyedBy: CodingKeys.self)
+        try values.encode(operationID, forKey: .operationID)
+        try values.encode(assetID, forKey: .assetID)
+        try values.encode(attempt, forKey: .attempt)
+        try values.encode(assetSHA256, forKey: .assetSHA256)
+        try values.encode(target, forKey: .target)
+        try values.encode(outcome, forKey: .outcome)
+        try values.encode(profileID, forKey: .profileID)
+        try values.encodeIfPresent(attachmentID, forKey: .attachmentID)
+        try values.encode(positiveReady, forKey: .positiveReady)
+        try values.encode(belongsToOriginalDraft, forKey: .belongsToOriginalDraft)
+        try values.encode(hasError, forKey: .hasError)
+        try values.encode(isUploading, forKey: .isUploading)
+        try values.encode(safeToRetry, forKey: .safeToRetry)
+        try values.encode(reason, forKey: .reason)
+        // PR40's strict enum knows only progress/request START. Store the new
+        // signal in an additive key its decoder ignores, so the retained App
+        // can still read the same database after rollback. Never mislabel this
+        // receipt as a progress event or rewrite an older receipt to upgrade it.
+        if let start = uploadStartEvidence, start.signal == .attachmentAccepted {
+            try values.encode(start, forKey: .attachmentAcceptanceEvidence)
+        } else {
+            try values.encodeIfPresent(uploadStartEvidence, forKey: .uploadStartEvidence)
+        }
+        try values.encodeIfPresent(continuationEvidence, forKey: .continuationEvidence)
+        try values.encodeIfPresent(completionEvidence, forKey: .completionEvidence)
+        try values.encodeIfPresent(terminationEvidence, forKey: .terminationEvidence)
     }
 }
 

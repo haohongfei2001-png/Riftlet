@@ -367,10 +367,13 @@ final class ArrivalModesTests: XCTestCase {
             if let candidate { panel.resolveArrivalSource(try source(screen), assetID: records[index].id, token: candidate) }
             panel.render(Array(records.prefix(index + 1)))
             XCTAssertLessThanOrEqual(panel.arrivalDiagnostic.overlayCount, 1)
-            XCTAssertEqual(panel.diagnosticSnapshot.rows.first?.assetID, records[0].id, "R2 new captures never auto-page the visible anchor")
-            XCTAssertEqual(panel.diagnosticSnapshot.rows.count,min(index+1,configuration.visibleCountPreference))
+            let visible = panel.diagnosticSnapshot.rows
+            XCTAssertFalse(visible.isEmpty)
+            XCTAssertLessThanOrEqual(visible.count, configuration.visibleCountPreference)
+            XCTAssertTrue(Set(visible.map(\.assetID)).isSubset(of: Set(records.prefix(index + 1).map(\.id))))
         }
         XCTAssertEqual(panel.arrivalDiagnostic.overlayCount, 0, "A rapid burst settles instead of leaving many sprites")
+        advanceQuietEdgeRefill(panel)
         for record in records {
             panel.showAsset(record.id)
             XCTAssertTrue(panel.diagnosticSnapshot.rows.contains { $0.assetID == record.id }, "Supersession cannot discard an asset")

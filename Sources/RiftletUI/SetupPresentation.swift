@@ -31,9 +31,9 @@ public enum SetupIssue: Equatable, Sendable {
         case .attachmentFormat:
             return "截图已保存在本机。当前真实截图候选只接收原样、非交错的 8-bit RGBA PNG；本图未上传、未转换，原文件与私有副本保留。"
         case .attachmentBytes:
-            return "截图已保存在本机，但超过当前网页候选的 8 MiB 传输上限。本图未上传、未压缩，原文件与私有副本保留。"
+            return "截图已保存在本机，但超过当前附件通路可传输的大小。本图未上传，原文件与私有副本保留。"
         case .attachmentPixels:
-            return "截图已保存在本机，但超过当前网页候选的 16,777,216 像素上限。本图未上传、未缩放，原文件与私有副本保留。"
+            return "截图已保存在本机，但超过当前附件通路可处理的像素上限。本图未上传，原文件与私有副本保留。"
         case .sourceAccess:
             return "无法读取截图保存位置。请确认文件夹仍存在，在系统设置「隐私与安全性 → 文件与文件夹」中检查 Riftlet，或允许访问当前截图位置；原截图没有被删除。"
         case .unsupportedFormat:

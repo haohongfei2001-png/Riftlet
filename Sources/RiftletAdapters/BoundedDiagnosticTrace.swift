@@ -1,5 +1,6 @@
 import Foundation
 import CryptoKit
+import RiftletCore
 
 /// Opt-in local diagnostics only. Recent events and recent failures have separate
 /// bounded windows, so routine capture polling cannot erase a later refusal or
@@ -103,6 +104,30 @@ public final class BoundedDiagnosticTrace: @unchecked Sendable {
 
     func flushForTesting() { writer.sync {} }
 
+    /// A click can fail in Core after the browser has returned a valid target.
+    /// Report the code without emitting associated DB text, paths, IDs or localized errors.
+    public static func clickFailureFields(_ error: Error) -> [String: Any] {
+        if let web = error as? WebAdapterError { return ["error": web.diagnosticLabel] }
+        let reason: String
+        switch error as? RiftletError {
+        case .database?: reason = "database"
+        case .invalidAsset?: reason = "invalidAsset"
+        case .assetNotFound?: reason = "assetNotFound"
+        case .operationNotFound?: reason = "operationNotFound"
+        case .unresolvedOperation?: reason = "unresolvedOperation"
+        case .targetBusy?: reason = "targetBusy"
+        case .invalidTransition?: reason = "invalidTransition"
+        case .mismatchedReceipt?: reason = "mismatchedReceipt"
+        case .modeMismatch?: reason = "modeMismatch"
+        case .adapterUnavailable?: reason = "adapterUnavailable"
+        case nil:
+            if error is ObservationError { reason = "observationRejected" }
+            else if error is SystemScreenshotInputError { reason = "screenshotInputRejected" }
+            else { reason = "otherSelectionError" }
+        }
+        return ["reason": reason]
+    }
+
     private static func loadPriorFailures(from directory: URL) -> [Data] {
         let file = directory.appendingPathComponent("acceptance-failures.jsonl")
         guard let attributes = try? FileManager.default.attributesOfItem(atPath: file.path),
@@ -144,6 +169,14 @@ public final class BoundedDiagnosticTrace: @unchecked Sendable {
                     result[key] = text
                 } else if key == "resourceRefusalReason", let code = WebPageRejection(rawValue: text),
                           code.isInputResourceRefusal { result[key] = code.rawValue
+                } else if key == "entryStage", let stage = AttachmentEntryDiagnostics.Stage(rawValue: text) {
+                    result[key] = stage.rawValue
+                } else if key == "entryCause", let cause = AttachmentEntryDiagnostics.Cause(rawValue: text) {
+                    result[key] = cause.rawValue
+                } else if key == "exceptionType", let type = AttachmentEntryDiagnostics.ExceptionType(rawValue: text) {
+                    result[key] = type.rawValue
+                } else if key == "retirementReason", let reason = ObservedPreInputRetirement.Reason(rawValue: text) {
+                    result[key] = reason.rawValue
                 } else if key == "error", WebAdapterError.isDiagnosticLabel(text) { result[key] = text
                 } else if labels.contains(key), !text.isEmpty, text.utf8.count <= 128,
                           text.unicodeScalars.allSatisfy({ labelCharacters.contains($0) }) {

@@ -29,6 +29,7 @@ public enum LegacyWebObservationProgram {
         // Keep the current input program's public source identifier. Historical
         // observation responses carry their own explicit v6/v7/v8/v9/v10/v11/v12 evidence IDs.
         return WebPageProgram(sourceID: current.sourceID, functionSource: source,
-                              maximumChunkBytes: current.maximumChunkBytes)
+                              maximumChunkBytes: current.maximumChunkBytes,
+                              inputDiscoveryTimeout: current.inputDiscoveryTimeout)
     }
 }

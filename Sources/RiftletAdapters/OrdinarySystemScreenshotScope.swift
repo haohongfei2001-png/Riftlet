@@ -55,17 +55,28 @@ public enum SystemScreenshotAdmissionScope: Sendable, Equatable {
         }
     }
     func validateMetadata(_ asset: ImportedAsset) throws {
-        try SystemScreenshotWebCandidate.validateMetadata(asset, expectedOrigin: origin)
+        guard isProduct else { return try SystemScreenshotWebCandidate.validateMetadata(asset, expectedOrigin: origin) }
+        guard asset.origin == origin else { throw SystemScreenshotInputError.sourceNotAdmitted }
+        guard asset.mediaType.lowercased().hasPrefix("image/") else { throw SystemScreenshotInputError.unsupportedFormat }
+        guard asset.byteCount > 0, asset.byteCount <= ScreenshotImportLimits.bytes else { throw SystemScreenshotInputError.byteLimit }
+        guard asset.pixelWidth > 0, asset.pixelHeight > 0, asset.pixelWidth <= ScreenshotImportLimits.dimension,
+              asset.pixelHeight <= ScreenshotImportLimits.dimension,
+              Int64(asset.pixelWidth) * Int64(asset.pixelHeight) <= ScreenshotImportLimits.pixels else {
+            throw SystemScreenshotInputError.pixelLimit
+        }
     }
     func validateTarget(_ target: TargetLease) throws {
         guard self == .ordinaryCurrentDraftInternal || isProduct else {
             return try SystemScreenshotWebCandidate.validateAdmittedTarget(target)
         }
-        // Recognition preserves the exact business identity. It never aliases a
-        // local draft to a UUID, nor authorizes an unbound Home composer.
+        // The ordinary tool binds the actual native tab, document and composer.
+        // Its usable file input is established by the page, without React internals.
         guard target.adapterID == "chatgpt-web", target.surface == .webChat,
               target.applicationID == "com.google.Chrome",
-              target.logicalDraftIdentity?.isRecognized == true else { throw WebAdapterError.invalidTarget }
+              !target.sessionID.isEmpty, !target.windowID.isEmpty, target.tabID?.isEmpty == false,
+              !target.documentID.isEmpty, !target.composerID.isEmpty, !target.draftGeneration.isEmpty else {
+            throw WebAdapterError.invalidTarget
+        }
     }
 
 }

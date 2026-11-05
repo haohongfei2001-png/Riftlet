@@ -1,3145 +1,582 @@
 'use strict';
-// Runs the bundled production-candidate program against controlled DOM events.
-// This is deterministic integration regression, never live ChatGPT/GUI evidence.
-const test = require('node:test');
-const assert = require('node:assert/strict');
-const vm = require('node:vm');
-const fs = require('node:fs');
-const path = require('node:path');
-const {webcrypto, createHash} = require('node:crypto');
-const source = fs.readFileSync(path.join(__dirname, '../../Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js'), 'utf8');
-const png = Buffer.from([137,80,78,71,13,10,26,10,1,2,3,4,5,6,7,8]);
-const digest = b => createHash('sha256').update(b).digest('hex');
-const native = {applicationID:'com.google.Chrome', sessionID:'4242:1', windowID:'17', tabID:'19'};
+// Behavioral regression of the shipped page program in a controlled application.
+// Real native browser primitives are additionally checked by the Chrome suite.
+const test=require('node:test');
+const assert=require('node:assert/strict');
+const vm=require('node:vm');
+const {fixture,png}=require('./independent-input-fixture.cjs');
+require('./attachment-entry-handoff.test.cjs');
+require('./original-image-transport.test.cjs');
+require('./ordinary-composer.test.cjs');
 
-function fixture({blockedDigest = false, blockedInputDigest = false, route = 'https://chatgpt.com/', mode = 'chat', thread = false, businessHome = false, programSource = source} = {}) {
-  const events = new Map(), globalEvents = new Map(), navigationEvents = new Map();
-  const eventCapture = new WeakMap();
-  const remove = (map,type,fn) => { const list=map.get(type)||[], index=list.indexOf(fn); if(index>=0)list.splice(index,1); };
-  let focused = true, releaseDigest, digestCalls = 0;
-  const mutationObservers=[];
-  const digestGate = blockedDigest || blockedInputDigest ? new Promise(resolve => { releaseDigest = resolve; }) : Promise.resolve();
-  class Node {
-    constructor(tag, attrs = {}) { this.nodeType=1;this.tagName = tag.toUpperCase(); this.attrs = {...attrs}; this.isConnected = true; this.children = []; this.parent = null; this.textContent = ''; }
-    getAttribute(k) { return this.attrs[k] ?? null; }
-    hasAttribute(k) { return Object.prototype.hasOwnProperty.call(this.attrs,k); }
-    get parentElement() { return this.parent?.nodeType===1 ? this.parent : null; }
-    get isContentEditable() { return this.attrs.contenteditable==='true'; }
-    getClientRects() { return this.rendered===false ? [] : [{}]; }
-    matches(selector) { return selector===':disabled' && (this.disabled===true || this.hasAttribute('disabled') || this.disabledByFieldset===true); }
-    get parentNode() { return this.parent; }
-    contains(n) { return n === this || this.children.some(c => c.contains(n)); }
-    closest(selector) { if ((selector === 'form' && this.tagName === 'FORM') || (selector === 'header' && this.tagName === 'HEADER') || (selector === '[role=button]' && this.attrs.role === 'button')) return this; return this.parent?.closest(selector) || null; }
-    append(n) { n.parent = this; this.children.push(n); return n; }
-    querySelector(selector) { return this.querySelectorAll(selector)[0] || null; }
-    querySelectorAll(selector) {
-      const all = this.children.flatMap(c => [c, ...c.querySelectorAll('*')]);
-      if (selector === '*') return all;
-      if (selector === ':modal') return all.filter(n=>n.nativeModal===true);
-      if (selector === '[role=dialog][aria-modal=true],[role=alertdialog][aria-modal=true]') return all.filter(n=>['dialog','alertdialog'].includes(n.attrs.role)&&n.attrs['aria-modal']==='true');
-      if (selector === 'form[data-chatgpt-composer][data-composer-placement=home][data-thread-find-composer=true]') return all.filter(n=>n.tagName==='FORM' && n.attrs['data-chatgpt-composer']!==undefined && n.attrs['data-composer-placement']==='home' && n.attrs['data-thread-find-composer']==='true');
-      if (selector === 'form[data-chatgpt-composer][data-composer-placement=thread][data-thread-find-composer=true]') return all.filter(n=>n.tagName==='FORM' && n.attrs['data-chatgpt-composer']!==undefined && n.attrs['data-composer-placement']==='thread' && n.attrs['data-thread-find-composer']==='true');
-      if (selector === '[contenteditable=true][role=textbox]') return all.filter(n=>n.attrs.contenteditable==='true' && n.attrs.role==='textbox');
-      if (selector === '[contenteditable=true][role=textbox][aria-label="询问 ChatGPT"]') return all.filter(n=>n.attrs.contenteditable==='true' && n.attrs.role==='textbox' && n.attrs['aria-label']==='询问 ChatGPT');
-      if (selector === '[role=group][aria-label="撰写器模式"]') return all.filter(n => n.attrs.role === 'group' && n.attrs['aria-label'] === '撰写器模式');
-      if (selector === 'button[type=button]') return all.filter(n => n.tagName === 'BUTTON' && n.attrs.type === 'button');
-      if (selector === 'img') return all.filter(n => n.tagName === 'IMG');
-      if (selector === '[role=progressbar]') return all.filter(n => n.attrs.role === 'progressbar');
-      if (selector === '[role=button][aria-label]') return all.filter(n => n.attrs.role === 'button' && n.attrs['aria-label'] != null);
-      if (selector === 'input[type=file][aria-label="附加文件"]') return all.filter(n => n.tagName === 'INPUT' && n.attrs.type === 'file' && n.attrs['aria-label'] === '附加文件');
-      if (selector === '[aria-describedby],[aria-labelledby]') return all.filter(n => n.attrs['aria-describedby'] || n.attrs['aria-labelledby']);
-      if (selector === '[role=alert],[data-state],[aria-label]') return all.filter(n => n.attrs.role === 'alert' || n.attrs['data-state'] || n.attrs['aria-label']);
-      return [];
-    }
-  }
-  class Input extends Node {
-    constructor() { super('input', {type:'file','aria-label':'附加文件'}); this._files = []; this.inputCount = 0; }
-    get files() { return this._files; }
-    set files(value) { this._files = value; }
-    get value() { return this._files.length ? 'C:\\fakepath\\' + this._files[0].name : ''; }
-    set value(value) { if (value !== '') throw Error('InvalidStateError'); this._files = []; }
-    dispatchEvent(event) { this.inputCount++; for (const fn of [...(events.get(event.type) || [])].sort((a,b)=>Number(eventCapture.get(b)||false)-Number(eventCapture.get(a)||false))) fn({target:this,type:event.type}); return true; }
-    get form() { return this.formOverride || this.closest('form'); }
-  }
-  const body = new Node('body'), form = body.append(new Node('form')), editor = form.append(new Node('div',{contenteditable:'true',role:'textbox'}));
-  const businessID='local-chatgpt:12345678-1234-1234-1234-123456789ABC';
-  const makeFibers=(id=businessID)=>{
-    const leaf={stateNode:form,memoizedProps:{},return:null};
-    const modeFiber={memoizedProps:{conversationId:id,isHome:businessHome,isWork:false,readOnly:false},child:leaf};leaf.return=modeFiber;
-    const draftFiber={memoizedProps:{conversationId:id,draftKey:id,isWorkConversation:false,isTemporaryChat:false,readOnly:false,surfacePlacement:{kind:businessHome?'home':'thread'}},child:modeFiber};modeFiber.return=draftFiber;
-    const root={tag:3,child:draftFiber,return:null,stateNode:{}};draftFiber.return=root;root.stateNode.current=root;
-    return {leaf,modeFiber,draftFiber,root};
-  };
-  let fibers;
-  if(thread || businessHome){
-    if(thread && route==='https://chatgpt.com/')route='https://chatgpt.com/c/url-is-not-business-id';
-    Object.assign(form.attrs,{'data-chatgpt-composer':'','data-composer-placement':businessHome?'home':'thread','data-thread-find-composer':'true'});
-    Object.assign(editor.attrs,{contenteditable:'true',role:'textbox','aria-label':'询问 ChatGPT'});
-    fibers=makeFibers();form.__reactFiber$fixture=fibers.leaf;
-  }
-  const modeHeader = body.append(new Node('header'));
-  const modeGroup = modeHeader.append(new Node('div', {role:'group', 'aria-label':'撰写器模式'}));
-  const chatMode = modeGroup.append(new Node('button', {type:'button','aria-pressed':mode === 'work' ? 'false' : 'true'}));
-  const workMode = modeGroup.append(new Node('button', {type:'button','aria-pressed':mode === 'work' ? 'true' : 'false'}));
-  chatMode.textContent='聊天';workMode.textContent='工作';
-  if (mode === 'missing') modeHeader.children=[];
-  if (mode === 'ambiguous') modeHeader.append(new Node('div', {role:'group','aria-label':'撰写器模式'}));
-  editor.textContent = 'Existing 中文 draft 👋';
-  let currentEditor = editor;
-  const input = form.append(new Input());
-  const document = {
-    visibilityState:'visible', hasFocus:() => focused, activeElement:body,
-    getSelection:() => null,
-    querySelectorAll: selector => selector === '[contenteditable=true][role=textbox]' && currentEditor !== editor ? [currentEditor] : body.querySelectorAll(selector),
-    removeEventListener:(type,fn)=>remove(events,type,fn),
-    addEventListener:(type,fn,options) => { if (!events.has(type)) events.set(type, []); eventCapture.set(fn,options===true||options?.capture===true);events.get(type).push(fn); },
-    getElementById:() => null
-  };
-  document.contains = node => node === document || body.contains(node);
-  body.parent = document;
-  // Native MutationRecord node collections are NodeLists, including empty
-  // lists on attribute records. They are iterable, but have no Array.some.
-  class NodeListLike {
-    constructor(nodes) { this.nodes=Array.from(nodes);this.length=this.nodes.length;this.nodes.forEach((node,i)=>{this[i]=node;}); }
-    item(index) { return this.nodes[index] ?? null; }
-    [Symbol.iterator]() { return this.nodes[Symbol.iterator](); }
-  }
-  const mutation = (records, deferDelivery = false) => {
-    if (!records.length) records=[{type:'childList',target:form,removedNodes:[],addedNodes:[]}];
-    records=records.map(record=>({...record,removedNodes:new NodeListLike(record.removedNodes || []),addedNodes:new NodeListLike(record.addedNodes || [])}));
-    for (const observer of mutationObservers) {
-      const delivered=records.filter(record=>observer.observations.some(({target,options})=>
-        (target===record.target || (options.subtree && target.contains?.(record.target)))
-        && (record.type==='childList' ? options.childList : record.type==='characterData' ? options.characterData : options.attributes)));
-      if (deferDelivery) observer.pending.push(...delivered);
-      else if(delivered.length) observer.fn([...observer.pending.splice(0), ...delivered]);
-    }
-  };
-  const sharedPixels = new Uint8Array([12,20,30,255,40,50,60,255]);
-  class TestImage extends Node {
-    constructor() { super('img'); this.naturalWidth = 2; this.naturalHeight = 1; this.rgba = sharedPixels; this.complete = true; }
-    set src(value) { this._src = value; if (value.startsWith('blob:')) queueMicrotask(() => this.onload?.()); }
-    get src() { return this._src || ''; }
-    get currentSrc() { return this.src; }
-    get alt() { return this.attrs.alt || ''; }
-  }
-  const context = vm.createContext({console, Uint8Array, Map, Set, WeakMap, Promise, File, atob, queueMicrotask,
-    getComputedStyle:node=>({display:node.display||'block',visibility:node.visibility||'visible'}),
-    performance:{now:()=>performance.now()},
-    crypto:{randomUUID:() => webcrypto.randomUUID(),subtle:{digest:async(...args) => { digestCalls++; if(blockedDigest || (blockedInputDigest && digestCalls===2)) await digestGate; return webcrypto.subtle.digest(...args); }}},
-    navigation:{removeEventListener:(type,fn)=>remove(navigationEvents,type,fn),addEventListener:(type,fn)=>{if(!navigationEvents.has(type))navigationEvents.set(type,[]);navigationEvents.get(type).push(fn);}},
-    location:{href:route}, document, HTMLInputElement:Input, Image:TestImage,
-    URL:{createObjectURL:()=>'blob:fixture',revokeObjectURL:()=>{}},
-    OffscreenCanvas:class { constructor(w,h) { this.width=w;this.height=h; } getContext() { let selected; return {drawImage:i=>{selected=i;},getImageData:()=>({data:selected.rgba})}; } },
-    MutationObserver:class {
-      constructor(fn) { this.entry={fn,observations:[],pending:[]};mutationObservers.push(this.entry); }
-      observe(target,options) {
-        const prior=this.entry.observations.find(item=>item.target===target);
-        if(prior) prior.options=options; else this.entry.observations.push({target,options});
-      }
-      disconnect() { this.entry.observations=[]; this.entry.pending=[]; }
-      takeRecords() { return this.entry.pending.splice(0); }
-    },
-    DataTransfer:class { constructor() { this.files=[];this.items={add:f=>this.files.push(f)}; } },
-    Event:class { constructor(type) { this.type=type; } },
-    removeEventListener:(type,fn)=>remove(globalEvents,type,fn),
-    addEventListener:(type,fn) => { if (!globalEvents.has(type)) globalEvents.set(type, []);globalEvents.get(type).push(fn); }
-  });
-  vm.runInContext('globalThis.top=globalThis', context);
-  const pageWindow = vm.runInContext('globalThis', context);
-  let program = vm.runInContext('(' + programSource + ')', context);
-  const call = command => program(command, native);
-  const target = () => call({action:'captureTarget'});
-  const bind = (id = '11111111-1111-4111-8111-111111111111', bytes = png) => {
-    const t = target(), identity = {operationID:id,assetID:'22222222-2222-4222-8222-222222222222',attempt:1,assetSHA256:digest(bytes),target:t};
-    const name = 'riftlet-' + id + '.png';
-    return {identity,target:t,name,bytes,command:action=>({action,identity,target:t})};
-  };
-  const stage = op => {
-    call({...op.command('begin'),uploadName:op.name,mediaType:'image/png',byteCount:op.bytes.length});
-    call({...op.command('chunk'),chunkIndex:0,chunkBase64:op.bytes.toString('base64')});
-  };
-  const commit = op => call({...op.command('commit'),chunkIndex:1});
-  const observe = op => call(op.command('observe')).observation;
-  const settle = async () => {
-    const deadline=Date.now()+2000;
-    do {
-      await new Promise(resolve=>setTimeout(resolve,1));
-      const ops=[];for(let g=context.__riftletWebAcceptance20261027v13?.head;g;g=g.next) ops.push(...g.operations.values());
-      if (ops.every(op=>!op.committed || (op.commitWorkSettled !== false && (op.invalid || (op.fileHashVerified && !op.proofPending))))) return;
-    } while(Date.now()<deadline);
-    assert.fail('bounded synthetic async work did not settle');
-  };
-  const makeCard = (op, initialProgress = 20) => {
-    const card = form.append(new Node('div',{role:'button','aria-label':op.name}));
-    const image = card.append(new TestImage()); image.attrs.alt=op.name;image.src='blob:upload';
-    const progress = card.append(new Node('div',{role:'progressbar','aria-label':'正在上传 '+op.name,'aria-valuenow':String(initialProgress)}));
-    if(initialProgress===null)delete progress.attrs['aria-valuenow'];
-    mutation([]);
-    return {card,image,progress};
-  };
-  const finish = (view, bytes = png) => {
-    view.progress.attrs['aria-valuenow']='100'; mutation([]);
-    view.card.children=view.card.children.filter(n=>n!==view.progress);view.progress.isConnected=false;
-    mutation([{type:'childList',target:view.card,removedNodes:[view.progress],addedNodes:[]}]);
-    view.image.src='data:image/png;base64,'+bytes.toString('base64');
-    mutation([{type:'attributes',target:view.image,attributeName:'src'}]);
-    for (const fn of events.get('load')||[]) fn({target:view.image,type:'load'});
-  };
-  return {Node,Input,document,body,form,editor,input,businessID,makeFibers,fibers,modeHeader,modeGroup,chatMode,workMode,call,target,bind,stage,commit,observe,settle,makeCard,finish,
-    mutate:records=>mutation(records),queueMutation:records=>mutation(records,true),
-    navigationEvent:type=>{for(const fn of navigationEvents.get(type)||[])fn();},
-    documentEvent:(type,target,isTrusted=true)=>{for(const fn of events.get(type)||[])fn({type,target,isTrusted});},
-    windowEvent:(type,target=pageWindow)=>{for(const fn of globalEvents.get(type)||[]) fn({type,target});},release:()=>releaseDigest?.(),focus:v=>{focused=v;},
-    replaceEditor:n=>{currentEditor=n;},upgradeProgram:text=>{program=vm.runInContext('('+text+')',context);},events,globalEvents,mutationObservers,context};
+function accepted(f,op) {
+ const observation=f.observe(op);
+ assert.equal(observation.state,'uploadStarted');
+ assert.equal(observation.identity.operationID,op.identity.operationID);
+ assert.equal(observation.uploadStart.signal,'attachmentAccepted');
+ assert.equal(observation.uploadStart.inputCount,1);
+ assert.equal(observation.exactImageIdentity,true);
+ assert.equal(observation.belongsToOriginalDraft,true);
+ assert.ok(observation.attachmentID);
+ return observation;
 }
 
-test('bundled program executes one exact-byte attachment and leaves draft/old attachment intact', async () => {
-  const f=fixture(), prior=f.form.append(new f.Node('div',{role:'button','aria-label':'existing.png'})); prior.append(new f.Node('img'));
-  const op=f.bind();f.stage(op);f.commit(op);await f.settle();assert.equal(f.input.inputCount,1);
-  const view=f.makeCard(op);f.finish(view);await f.settle();
-  assert.equal(f.observe(op).state,'attached');assert.equal(f.observe(op).exactImageIdentity,true);
-  assert.equal(f.editor.textContent,'Existing 中文 draft 👋');assert.ok(f.form.contains(prior));
-  assert.throws(()=>f.commit(op),/COMMIT_REFUSED/);assert.equal(f.input.inputCount,1);
-});
-
-function withInvocation(op, invocationID = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa') {
-  const original = op.command;
-  op.command = action => ({...original(action), invocationID});
-  return op;
+// The controlled application owns this interaction. Riftlet only invokes its
+// ordinary attachment entry and supplies a real File through the picked input.
+// It does not create an input/card or announce acceptance on the application's behalf.
+function attachmentApplication(f,{dynamic=false,menu=false,pointerOnly=false,delay=0,method='click',externalForm=false,moveSelection=false,acceptAttribute='image/x-png',scheduler='timeout'}={}) {
+ f.input.remove();
+ const destination=externalForm?f.body.append(new f.Node('form',{'data-purpose':'portal-root'})):f.body;
+ let picker=dynamic?null:destination.append(f.input),entryCount=0,uploadCount=0;
+ const prepare=()=>{
+  if(!picker){picker=destination.append(new f.context.HTMLInputElement());picker.rendered=false;}
+  picker.setAttribute('accept',acceptAttribute);
+  picker.applicationAccept=true;
+  if(method!=='none')picker[method]();
+ };
+ const upload=()=>{
+  uploadCount++;
+  if(scheduler==='queueMicrotask')f.context.queueMicrotask(prepare);
+  else if(scheduler==='animationFrame')f.context.requestAnimationFrame(prepare);
+  else if(scheduler==='nested')f.context.queueMicrotask(()=>f.context.requestAnimationFrame(()=>f.context.setTimeout(prepare,delay)));
+  else if(delay)f.context.setTimeout(prepare,delay);
+  else prepare();
+ };
+ const entry=f.form.append(new f.Node('button',menu?{'aria-haspopup':'menu',type:'button'}:{'aria-label':'Attach files',type:'button'}));
+ entry.textContent=menu?'+':'Attach files';
+ entry.addEventListener(pointerOnly?'pointerdown':'click',()=>{
+  entryCount++;
+  if(!menu){upload();return;}
+  const popup=f.body.append(new f.Node('div',{role:'menu'}));
+  const choice=popup.append(new f.Node('button',{role:'menuitem',type:'button'}));choice.textContent='Upload from computer';
+  choice.addEventListener('click',upload);
+  popup.addEventListener('keydown',event=>{if(event.key==='Escape')popup.remove();});
+  if(moveSelection){choice.focus();f.selection.setBaseAndExtent(choice,0,choice,0);}
+ });
+ return {entry,get picker(){return picker;},get entryCount(){return entryCount;},get uploadCount(){return uploadCount;}};
 }
 
-function requestFixture(options = {}) {
-  const f=fixture(options), fetchCalls=[], xhrCalls=[];
-  let fetchBehavior=()=>Promise.resolve({status:201}), sendBehavior=()=>{};
-  class Events {
-    constructor(){this.listeners=new Map();}
-    addEventListener(type,fn,options={}){const list=this.listeners.get(type)||[];list.push({fn,once:options.once});this.listeners.set(type,list);}
-    removeEventListener(type,fn){this.listeners.set(type,(this.listeners.get(type)||[]).filter(entry=>entry.fn!==fn));}
-    emit(type,values={}){for(const entry of [...(this.listeners.get(type)||[])]){
-      entry.fn({type,...values});if(entry.once)this.listeners.set(type,(this.listeners.get(type)||[]).filter(item=>item!==entry));}}
+test('core regression: ordinary attachment button can upload PNG before Riftlet discovers an on-demand portalled input',async()=>{
+ const manual=fixture(),normal=attachmentApplication(manual,{dynamic:true,menu:true,externalForm:true});
+ normal.entry.click();manual.body.querySelector('[role="menuitem"]').click();
+ assert.equal(manual.chooserOpens,1,'ordinary application entry reaches its native file picker');
+ const manualFile=new File([png],'normal-attachment.png',{type:'image/png'}),transfer=new manual.context.DataTransfer();
+ transfer.items.add(manualFile);normal.picker.files=transfer.files;normal.picker.dispatchEvent(new manual.context.Event('change',{bubbles:true}));
+ assert.ok(manual.form.querySelectorAll('[data-file-name]').some(card=>card.getAttribute('data-file-name')===manualFile.name),'the same application accepts normal PNG input');
+
+ const f=fixture(),app=attachmentApplication(f,{dynamic:true,menu:true,externalForm:true,delay:35,moveSelection:true});
+ const text=f.editor.textContent,anchor=f.selection.anchorNode,focus=f.selection.focusNode;
+ for(let index=0;index<5;index++){
+  const op=f.bind();f.stage(op);const receipt=(await f.commit(op)).observation;
+  assert.equal(receipt.state,'uploadStarted');accepted(f,op);
+  assert.ok(app.picker.files[0] instanceof File);assert.equal(app.picker.files[0].name,op.name);
+  assert.deepEqual(Buffer.from(await app.picker.files[0].arrayBuffer()),png,'exact original PNG reaches the application');
+  assert.equal(f.setters,index+1);assert.equal(f.changes,index+1);
+  assert.equal(f.form.querySelectorAll('[data-file-name]').length,index+2,'all earlier active attachments are retained');
+ }
+ assert.equal(app.entryCount,5,'external portalled picker is rediscovered through the actual entry each click');
+ assert.equal(app.uploadCount,5);assert.equal(f.chooserOpens,0,'automation completes without opening an OS chooser');
+ assert.equal(f.editor.textContent,text);assert.equal(f.selection.anchorNode,anchor);assert.equal(f.selection.focusNode,focus);
+ assert.equal(f.selection.anchorOffset,2);assert.equal(f.selection.focusOffset,7);assert.equal(f.selection.isCollapsed,false);
+ assert.ok(f.form.contains(f.oldCard));assert.equal(f.sends,0);
+});
+
+for(const mode of ['hidden-external','showPicker','pointerdown-menu','unusual-accept'])test('actual attachment entry chooses its responsible input among unrelated controls: '+mode,async()=>{
+ const f=fixture(),app=attachmentApplication(f,{externalForm:true,menu:mode==='pointerdown-menu',pointerOnly:mode==='pointerdown-menu',
+  method:mode==='showPicker'?'showPicker':'click',acceptAttribute:mode==='unusual-accept'?'.PNG, application/octet-stream':'image/*'});
+ app.picker.rendered=false;
+ const unrelated=f.body.append(new f.Node('aside')).append(new f.context.HTMLInputElement());unrelated.applicationAccept=false;
+ const op=f.bind();f.stage(op);await f.commit(op);accepted(f,op);
+ assert.equal(app.picker.files[0].name,op.name);assert.equal(unrelated.files.length,0);
+ assert.equal(f.setters,1);assert.equal(f.changes,1);assert.equal(f.chooserOpens,0);assert.equal(f.sends,0);
+});
+
+test('route change during dynamic discovery retires without input into the new chat',async()=>{
+ const f=fixture();attachmentApplication(f,{dynamic:true,delay:80});
+ const op=f.bind();f.stage(op);const pending=f.commit(op);
+ f.setRoute('https://chatgpt.com/c/another-chat');
+ const result=(await pending).observation;
+ assert.equal(result.preInputRetirement.reason,'targetInvalidBeforeInput');
+ assert.equal(result.preInputRetirement.inputCount,0);assert.equal(result.uploadStart,undefined);
+ assert.equal(f.changes,0);assert.equal(f.setters,0);
+});
+
+test('a menu label activates its hidden portalled picker without opening the system chooser',async()=>{
+ const f=fixture();f.input.remove();
+ const picker=f.body.append(new f.Node('form')).append(f.input);let labelClicks=0;
+ picker.setAttribute('id','portal-picker');picker.rendered=false;
+ const entry=f.form.append(new f.Node('button',{'aria-label':'Attach files',type:'button'}));
+ entry.addEventListener('click',()=>{
+  const popup=f.body.append(new f.Node('div',{role:'menu'}));
+  const label=popup.append(new f.Node('label',{for:'portal-picker',role:'menuitem'}));label.textContent='Upload from computer';
+  label.addEventListener('click',()=>{labelClicks++;});
+ });
+ const op=f.bind();f.stage(op);await f.commit(op);accepted(f,op);
+ assert.equal(labelClicks,1);assert.equal(picker.files[0].name,op.name);assert.equal(f.changes,1);assert.equal(f.setters,1);assert.equal(f.chooserOpens,0);
+});
+
+test('several local file inputs are resolved by the actual attachment button invocation',async()=>{
+ const f=fixture(),unrelated=f.form.append(new f.context.HTMLInputElement());unrelated.applicationAccept=false;
+ let clicks=0;
+ const entry=f.form.append(new f.Node('button',{'aria-label':'Attach files',type:'button'}));
+ entry.addEventListener('click',()=>{clicks++;f.input.click();});
+ const op=f.bind();f.stage(op);await f.commit(op);accepted(f,op);
+ assert.equal(clicks,1);assert.equal(unrelated.files.length,0);assert.equal(f.input.files[0].name,op.name);
+ assert.equal(f.setters,1);assert.equal(f.changes,1);assert.equal(f.chooserOpens,0);
+});
+
+for(const decoyLocation of ['current-form','sole-global-avatar'])test('unrelated picker cannot preempt the executable chat attachment entry: '+decoyLocation,async()=>{
+ const f=fixture(),app=attachmentApplication(f,{externalForm:true,dynamic:decoyLocation==='sole-global-avatar'});
+ const decoy=(decoyLocation==='current-form'?f.form:f.body).append(new f.context.HTMLInputElement());
+ decoy.applicationAccept=false;decoy.setAttribute('aria-label','Change profile photo');
+ const op=f.bind();f.stage(op);await f.commit(op);
+ assert.equal(decoy.setterCount,0,'an unrelated picker must receive no native setter');
+ assert.equal(decoy.changeCount,0);assert.equal(decoy.files.length,0);
+ assert.equal(app.entryCount,1,'the actual chat attachment entry must execute');
+ assert.equal(app.picker.setterCount,1);assert.equal(app.picker.files[0].name,op.name);
+ accepted(f,op);assert.equal(f.setters,1);assert.equal(f.changes,1);assert.equal(f.chooserOpens,0);
+});
+
+test('an unrelated asynchronous avatar click cannot steal a delayed chat attachment invocation',async()=>{
+ const f=fixture(),app=attachmentApplication(f,{dynamic:true,externalForm:true,delay:100});
+ const external=f.body.append(new f.Node('form',{'data-purpose':'account-settings'}));
+ const avatar=external.append(new f.context.HTMLInputElement()),other=external.append(new f.context.HTMLInputElement());
+ avatar.applicationAccept=false;other.applicationAccept=false;
+ avatar.setAttribute('aria-label','Profile photo');other.setAttribute('aria-label','Import account settings');
+ // This callback belongs to the application's independent avatar action and
+ // was queued before Riftlet activated the chat attachment entry.
+ f.context.setTimeout(()=>avatar.click(),1);
+ const op=f.bind();f.stage(op);await f.commit(op);
+ assert.equal(avatar.setterCount,0,'an unrelated asynchronous click cannot take this PNG');
+ assert.equal(other.setterCount,0);assert.equal(app.entryCount,1);
+ assert.equal(app.picker.setterCount,1);assert.equal(app.picker.files[0].name,op.name);
+ assert.equal(app.picker.chooserOpens,0,'the chat entry finishes without an OS chooser');
+ assert.equal(avatar.chooserOpens,1,'the unrelated application action is neither captured nor cancelled');
+ assert.deepEqual(Buffer.from(await app.picker.files[0].arrayBuffer()),png);
+ accepted(f,op);assert.equal(f.changes,1);assert.equal(f.setters,1);
+});
+
+for(const scheduler of ['queueMicrotask','animationFrame','nested'])test('the selected entry retains its actual asynchronous picker invocation through '+scheduler,async()=>{
+ const f=fixture(),app=attachmentApplication(f,{dynamic:true,externalForm:true,scheduler,delay:30,method:'showPicker'});
+ const op=f.bind();f.stage(op);await f.commit(op);accepted(f,op);
+ assert.equal(app.entryCount,1);assert.equal(app.picker.files[0].name,op.name);
+ assert.equal(app.picker.setterCount,1);assert.equal(f.changes,1);assert.equal(app.picker.chooserOpens,0);
+});
+
+for(const mode of ['resolved-promise-click','timer-showPicker'])test('a same-realm native async attachment handler awaits then invokes its newly created picker: '+mode,async()=>{
+ const f=fixture();f.input.remove();
+ const entry=f.form.append(new f.Node('button',{'aria-label':'Attach files',type:'button'}));
+ // Native await continuations do not call a patched Promise.prototype.then.
+ // Construct the application's handler in the page realm so this is the exact
+ // async behavior the shipped script must support, not a synthetic then chain.
+ const handler=vm.runInContext(`(async function () {
+  globalThis.entryInvocationCount=(globalThis.entryInvocationCount||0)+1;
+  ${mode==='resolved-promise-click'?'await Promise.resolve();':'await new Promise(resolve=>setTimeout(resolve,35));'}
+  const picker=new HTMLInputElement();
+  picker.setAttribute('id','async-created-picker');
+  document.body.append(picker);
+  picker.${mode==='resolved-promise-click'?'click':'showPicker'}();
+ })`,f.context);
+ entry.addEventListener('click',handler);
+ const op=f.bind();f.stage(op);await f.commit(op);accepted(f,op);
+ const picker=f.document.getElementById('async-created-picker');
+ assert.equal(f.context.entryInvocationCount,1);assert.ok(picker.files[0] instanceof File);
+ assert.equal(picker.files[0].name,op.name);assert.deepEqual(Buffer.from(await picker.files[0].arrayBuffer()),png);
+ assert.equal(picker.setterCount,1);assert.equal(picker.changeCount,1);assert.equal(picker.chooserOpens,0);
+ assert.equal(f.setters,1);assert.equal(f.changes,1);assert.equal(f.sends,0);assert.ok(f.form.contains(f.oldCard));
+});
+
+test('textarea draft and backward noncollapsed selection survive automatic attachment menu input',async()=>{
+ const f=fixture({editorTag:'textarea'}),app=attachmentApplication(f,{dynamic:true,externalForm:true,menu:true,moveSelection:true});
+ const before={value:f.editor.value,start:f.editor.selectionStart,end:f.editor.selectionEnd,direction:f.editor.selectionDirection};
+ // Native textarea selection is independent of document.getSelection().
+ f.selection.setBaseAndExtent(f.body,0,f.body,0);
+ app.entry.addEventListener('click',()=>f.editor.setSelectionRange(0,0,'none'));
+ const op=f.bind();f.stage(op);await f.commit(op);accepted(f,op);
+ assert.equal(f.editor.value,before.value);
+ assert.equal(f.editor.selectionStart,before.start);assert.equal(f.editor.selectionEnd,before.end);
+ assert.equal(f.editor.selectionDirection,before.direction);assert.equal(f.document.activeElement,f.editor);
+ assert.equal(f.sends,0);assert.equal(f.chooserOpens,0);assert.ok(f.form.contains(f.oldCard));
+});
+
+test('an inert first local attachment entry falls through to a working local entry and ignores cloud providers',async()=>{
+ const f=fixture();f.input.remove();f.body.append(new f.Node('form')).append(f.input);
+ let firstClicks=0,cloudClicks=0,workingClicks=0;
+ const first=f.form.append(new f.Node('button',{'aria-label':'Attach files',type:'button'}));
+ first.addEventListener('click',()=>{firstClicks++;});
+ const cloud=f.form.append(new f.Node('button',{'aria-label':'Upload from Google Drive',type:'button'}));
+ cloud.addEventListener('click',()=>{cloudClicks++;});
+ const working=f.form.append(new f.Node('button',{'aria-label':'Upload file from computer',type:'button'}));
+ working.addEventListener('click',()=>{workingClicks++;f.input.click();});
+ const op=f.bind();f.stage(op);await f.commit(op);
+ assert.equal(firstClicks,1);assert.equal(cloudClicks,0);assert.equal(workingClicks,1);
+ accepted(f,op);assert.equal(f.input.setterCount,1);assert.equal(f.changes,1);assert.equal(f.chooserOpens,0);
+});
+
+test('an external project upload entry and its aria-controls cannot preempt the current chat input',async()=>{
+ const f=fixture(),project=f.body.append(new f.Node('section',{'aria-label':'Project files'}));
+ const projectPicker=project.append(new f.context.HTMLInputElement());projectPicker.setAttribute('id','project-upload');projectPicker.applicationAccept=false;
+ const projectEntry=project.append(new f.Node('button',{'aria-label':'Upload files to project','aria-controls':'project-upload',type:'button'}));
+ let projectClicks=0;projectEntry.addEventListener('click',()=>{projectClicks++;projectPicker.click();});
+ const op=f.bind();f.stage(op);await f.commit(op);accepted(f,op);
+ assert.equal(projectPicker.setterCount,0);assert.equal(projectPicker.changeCount,0);assert.equal(projectClicks,0);
+ assert.equal(f.input.setterCount,1);assert.equal(f.input.files[0].name,op.name);assert.equal(f.changes,1);assert.equal(f.chooserOpens,0);
+});
+
+test('the activated entry can mount its input synchronously, or later in its own controlled portal',async()=>{
+ for(const delay of [0,35]){
+  const f=fixture(),app=attachmentApplication(f,{dynamic:true,externalForm:true,method:'none',delay});
+  if(delay){
+   const portal=f.document.querySelector('[data-purpose="portal-root"]');
+   portal.setAttribute('id','attachment-portal');app.entry.setAttribute('aria-controls',portal.id);
   }
-  class XHR extends Events {
-    constructor(){super();this.upload=new Events();this.status=0;}
-    open(...args){this.openArgs=args;}
-    send(...args){xhrCalls.push({xhr:this,args});return sendBehavior(this,...args);}
-  }
-  const nativeFetch=function(...args){const result=fetchBehavior(...args);fetchCalls.push({receiver:this,args,result});return result;};
-  f.context.fetch=nativeFetch;f.context.XMLHttpRequest=XHR;
-  return {...f,fetchCalls,xhrCalls,XHR,nativeFetch,
-    setFetch:fn=>{fetchBehavior=fn;},setSend:fn=>{sendBehavior=fn;},
-    changed:fn=>{const list=f.events.get('change')||[];list.push(event=>fn(event.target.files[0]));f.events.set('change',list);}};
-}
-
-test('exact original File request facts wait for positive input hash and preserve fetch Promise/arguments', async () => {
-  const f=requestFixture({blockedInputDigest:true}),op=withInvocation(f.bind());let originalPromise,returned,privateReads=0;
-  const response={status:201,get body(){privateReads++;throw Error('must not read');},get headers(){privateReads++;throw Error('must not read');}};
-  f.setFetch(()=>{originalPromise=Promise.resolve(response);return originalPromise;});
-  let init;
-  f.changed(file=>{init={method:'POST',body:file};returned=f.context.fetch('https://private.invalid/do-not-record',init);});
-  f.stage(op);f.commit(op);
-  for(let i=0;i<50 && !f.fetchCalls.length;i++)await new Promise(resolve=>setTimeout(resolve,1));
-  assert.equal(f.fetchCalls.length,1);assert.equal(returned,originalPromise);assert.equal(f.fetchCalls[0].args[1],init);
-  assert.equal(f.observe(op).requestEvidence,undefined);assert.equal(f.input.inputCount,1);
-  f.release();await f.settle();
-  const packet=f.call(op.command('observe')),facts=packet.observation.requestEvidence,request=facts.requests[0];
-  assert.equal(packet.schemaVersion,4);assert.equal(facts.invocationID,op.command('observe').invocationID);
-  assert.equal(facts.fileSHA256,op.identity.assetSHA256);assert.equal(facts.inputCount,1);
-  assert.equal(facts.coverage,'exactOriginalFileOnly');assert.equal(facts.observationClosed,false);
-  assert.equal(request.transport,'fetch');assert.equal(request.terminal,null);assert.equal(request.status,undefined);
-  assert.ok(request.requestSequence>0);assert.equal(request.terminalSequence,undefined);
-  assert.equal(request.terminalAtMS,undefined);assert.equal(privateReads,0);
-  assert.ok(!JSON.stringify(facts).includes('private.invalid'));assert.ok(!JSON.stringify(facts).includes('body'));
-  assert.equal(packet.observation.state,'inputTriggered');assert.equal(packet.observation.completionEvidence,undefined);
-  assert.equal(packet.observation.continuationEvidence,undefined);assert.equal(packet.observation.terminationEvidence,undefined);
+  const op=f.bind();f.stage(op);await f.commit(op);accepted(f,op);
+  assert.equal(app.entryCount,1);assert.equal(app.uploadCount,1);assert.equal(app.picker.setterCount,1);
+  assert.equal(app.picker.files[0].name,op.name);assert.deepEqual(Buffer.from(await app.picker.files[0].arrayBuffer()),png);
+  assert.equal(f.changes,1);assert.equal(f.chooserOpens,0);
+ }
 });
 
-test('XHR terminal is a request fact, never upload progress, completion or safe retirement', async () => {
-  for(const terminal of ['load','abort','error','timeout']){
-    const f=requestFixture(),op=withInvocation(f.bind());let xhr;
-    f.changed(file=>{xhr=new f.context.XMLHttpRequest();xhr.open('PUT','https://private.invalid/unlogged');xhr.send(file);});
-    f.stage(op);f.commit(op);await f.settle();
-    xhr.upload.emit('progress',{loaded:4,total:png.length,lengthComputable:true});
-    xhr.upload.emit('progress',{loaded:png.length,total:png.length,lengthComputable:true});
-    xhr.status=terminal==='load'?200:0;xhr.emit(terminal);
-    const packet=f.call(op.command('observe')),before=packet.observation.requestEvidence.requests[0];
-    assert.equal(before.terminal,{load:'response',abort:'aborted',error:'error',timeout:'timeout'}[terminal]);
-    assert.equal(before.status,xhr.status);assert.equal(before.progress,undefined);
-    assert.ok(before.requestSequence<before.terminalSequence);
-    // Real POST100 had a queued progress after abort. It cannot revive facts.
-    xhr.upload.emit('progress',{loaded:png.length,total:png.length,lengthComputable:true});xhr.emit('load');
-    assert.deepEqual(f.observe(op).requestEvidence.requests[0],before);
-    assert.equal(packet.observation.state,'inputTriggered');assert.equal(packet.observation.uploadStart,undefined);
-    assert.equal(packet.observation.completionEvidence,undefined);assert.equal(packet.observation.automaticRetryExcluded,false);
-    assert.equal(packet.observation.terminationEvidence,undefined);assert.equal(packet.observation.continuationEvidence,undefined);
-    assert.equal(f.input.inputCount,1);assert.equal(f.xhrCalls.length,1);
-  }
+test('a bare asynchronous mount in an unlinked form cannot select a file recipient',async()=>{
+ const f=fixture(),app=attachmentApplication(f,{dynamic:true,externalForm:true,method:'none',delay:35});
+ const op=f.bind();f.stage(op);const result=(await f.commit(op)).observation;
+ assert.equal(app.entryCount,1);assert.equal(app.uploadCount,1);
+ assert.equal(result.state,'invalidated');assert.equal(result.preInputRetirement.inputCount,0);
+ assert.equal(result.uploadStart,undefined);assert.equal(app.picker.setterCount,0);
+ assert.equal(app.picker.changeCount,0);assert.equal(f.setters,0);assert.equal(f.changes,0);
 });
 
-test('XHR facts never access upload or register upload listeners that could change CORS', async () => {
-  const f=requestFixture(),op=withInvocation(f.bind());let xhr,uploadReads=0;
-  f.changed(file=>{
-    xhr=new f.context.XMLHttpRequest();
-    Object.defineProperty(xhr,'upload',{get(){uploadReads++;throw Error('upload access would affect request semantics');}});
-    xhr.open('POST','ignored');xhr.send(file);
-  });
-  f.stage(op);f.commit(op);await f.settle();xhr.status=200;xhr.emit('load');
-  const facts=f.observe(op).requestEvidence;
-  assert.equal(uploadReads,0);assert.equal(f.xhrCalls.length,1);assert.equal(f.input.inputCount,1);
-  assert.equal(facts.observationClosed,false);assert.equal(facts.requests[0].terminal,'response');
-  assert.equal(facts.requests[0].progress,undefined);assert.equal(f.observe(op).uploadStart,undefined);
+test('readonly or disabled text editing does not disable an available chat attachment input',async()=>{
+ for(const condition of ['readOnly','disabled']){
+  const f=fixture({editorTag:'textarea'});f.editor[condition]=true;
+  const before=f.editor.value,op=f.bind();f.stage(op);await f.commit(op);accepted(f,op);
+  assert.equal(f.input.setterCount,1);assert.equal(f.input.files[0].name,op.name);assert.equal(f.changes,1);
+  assert.equal(f.editor.value,before);assert.ok(f.form.contains(f.oldCard));assert.equal(f.sends,0);
+ }
 });
 
-test('native fetch rejection, synchronous throw and XHR send exception preserve original outcomes', async () => {
-  for(const mode of ['reject','fetchThrow','xhrThrow']){
-    const f=requestFixture(),op=withInvocation(f.bind()),failure=Error('native failure');let returned,observed;
-    if(mode==='reject')f.setFetch(()=>Promise.reject(failure));
-    if(mode==='fetchThrow')f.setFetch(()=>{throw failure;});
-    if(mode==='xhrThrow')f.setSend(()=>{throw failure;});
-    f.changed(file=>{
-      try{
-        if(mode==='xhrThrow'){const xhr=new f.context.XMLHttpRequest();xhr.open('PUT','ignored');xhr.send(file);}
-        else{returned=f.context.fetch('ignored',{body:file});if(mode==='reject')returned.catch(error=>{observed=error;});}
-      }catch(error){observed=error;}
-    });
-    f.stage(op);f.commit(op);await f.settle();
-    assert.equal(observed,failure);if(mode==='reject')assert.equal(returned,f.fetchCalls[0].result);
-    const facts=f.observe(op).requestEvidence;assert.equal(facts.requests.length,1);
-    assert.equal(facts.requests[0].terminal,mode==='reject'?null:'threw');
-    assert.equal(facts.requests[0].status,undefined);assert.equal(f.input.inputCount,1);
-  }
+test('a late timer from the cancelled chat entry cannot open an OS chooser after navigation',async()=>{
+ const f=fixture(),app=attachmentApplication(f,{dynamic:true,externalForm:true,delay:100});
+ const op=f.bind();f.stage(op);const pending=f.commit(op);
+ f.setRoute('https://chatgpt.com/c/new-destination');
+ const result=(await pending).observation;
+ assert.equal(result.preInputRetirement.reason,'targetInvalidBeforeInput');
+ await new Promise(resolve=>setTimeout(resolve,125));
+ assert.equal(f.chooserOpens,0,'the delayed callback was initiated by this cancelled attachment action');
+ assert.equal(f.changes,0);assert.equal(f.setters,0);assert.equal(result.uploadStart,undefined);
+ if(app.picker)assert.equal(app.picker.files.length,0);
 });
 
-test('fetch observation never touches Promise.then and preserves native unhandled rejection behavior', () => {
-  // Isolate process events from node:test's own rejection policy. Both cases
-  // execute the same page input: legacy untracked and exact-File tracked.
-  const {spawnSync}=require('node:child_process');
-  const header=fs.readFileSync(__filename,'utf8').split("test('bundled program executes")[0];
-  const script=header+'\n'+withInvocation.toString()+'\n'+requestFixture.toString()+`
-  (async()=>{
-    const errors=[];process.on('unhandledRejection',error=>errors.push(error.message));
-    for(const tracked of [false,true]){
-      const f=requestFixture(),op=tracked?withInvocation(f.bind()):f.bind();let thenReads=0,promise;
-      f.setFetch(()=>{promise=Promise.reject(Error(tracked?'tracked':'baseline'));
-        Object.defineProperty(promise,'then',{get(){thenReads++;throw Error('observer touched then');}});return promise;});
-      f.changed(file=>{const returned=f.context.fetch('ignored',{body:file});assert.equal(returned,promise);});
-      f.stage(op);f.commit(op);await f.settle();await new Promise(resolve=>setTimeout(resolve,10));
-      assert.equal(thenReads,0);assert.equal(f.input.inputCount,1);
-      if(tracked)assert.equal(f.observe(op).requestEvidence.requests[0].terminal,null);
-    }
-    assert.deepEqual(errors,['baseline','tracked']);process.stdout.write('PASS unhandled unchanged');
-  })().catch(error=>{process.stderr.write(String(error.stack));process.exitCode=1;});`;
-  const result=spawnSync(process.execPath,['-e',script],{cwd:__dirname,encoding:'utf8',timeout:5000});
-  assert.equal(result.status,0,result.stderr);assert.match(result.stdout,/PASS unhandled unchanged/);
+test('a setter exception is uncertain and never causes a second attachment path',async()=>{
+ const f=fixture(),app=attachmentApplication(f,{externalForm:true});
+ f.setSetter(()=>{throw Error('setter may already have side effects');});
+ const op=f.bind();f.stage(op);const result=(await f.commit(op)).observation;
+ assert.equal(result.state,'unknown');assert.equal(result.uploadStart,undefined);
+ assert.equal(result.preInputRetirement,undefined);assert.equal(f.setters,1);assert.equal(f.changes,0);
+ assert.equal(app.entryCount,1);assert.equal(app.uploadCount,1);
+ assert.throws(()=>f.commit(op),/COMMIT_REFUSED/);f.observe(op);f.observe(op);
+ assert.equal(app.entryCount,1);assert.equal(f.setters,1,'uncertain setter must never be replayed');
 });
 
-test('clones, FormData, Request bodies and body accessors cannot borrow original File identity', async () => {
-  const f=requestFixture(),op=withInvocation(f.bind());f.stage(op);f.commit(op);await f.settle();
-  const file=f.input.files[0],clone=new File([await file.arrayBuffer()],file.name,{type:file.type});
-  await f.context.fetch('ignored',{body:clone});
-  const form=new FormData();form.append('file',file);await f.context.fetch('ignored',{body:form});
-  await f.context.fetch({body:file});
-  let reads=0;const accessor={get body(){reads++;return file;}};await f.context.fetch('ignored',accessor);
-  assert.equal(reads,0,'observer must not invoke an init body getter');
-  assert.equal(f.observe(op).requestEvidence,undefined);assert.equal(f.input.inputCount,1);
+for(const count of [2,3,5])test(`clicking ${count} screenshots appends each exactly once while earlier uploads remain active`,()=>{
+ const f=fixture(),ops=[],beforeText=f.editor.textContent,beforeSelection={...f.selection};
+ for(let index=0;index<count;index++){
+  const op=f.bind();f.stage(op);f.commit(op);ops.push(op);
+  accepted(f,op);
+  assert.equal(f.changes,index+1);
+  assert.equal(f.setters,index+1);
+  assert.equal(f.input.files.length,1,'native control intentionally retains the most recent File');
+  assert.equal(f.input.files[0].name,op.name);
+  for(const prior of ops)assert.ok(f.form.querySelectorAll('[data-file-name]').some(node=>node.getAttribute('data-file-name')===prior.name));
+ }
+ assert.equal(f.form.querySelectorAll('[data-file-name]').length,count+1,'all old and new attachment cards retained');
+ assert.equal(f.editor.textContent,beforeText);
+ assert.deepEqual(f.selection,beforeSelection);
+ assert.ok(f.form.contains(f.oldCard));
+ assert.equal(f.sends,0);
 });
 
-test('duplicate send, replaced hook and reentry close facts without changing requests or replaying input', async () => {
-  for(const mode of ['duplicateFetch','duplicateXHR','hook','reentry']){
-    const f=requestFixture(),op=withInvocation(f.bind());let xhr;
-    f.changed(file=>{
-      if(mode==='duplicateXHR'){xhr=new f.context.XMLHttpRequest();xhr.open('PUT','ignored');xhr.send(file);}
-      else f.context.fetch('ignored',{body:file});
-    });
-    f.stage(op);f.commit(op);await f.settle();const first=f.observe(op).requestEvidence;
-    const registry=f.context.__riftletWebAcceptance20261027v13,state=registry.tail,stored=state.operations.get(op.identity.operationID);
-    if(mode==='duplicateFetch')await f.context.fetch('ignored',{body:f.input.files[0]});
-    if(mode==='duplicateXHR')xhr.send(f.input.files[0]);
-    if(mode==='hook')f.context.fetch=function replacement(){return Promise.resolve({status:200});};
-    if(mode==='reentry')registry.originalFileRequests.bind(f.input.files[0],state,stored);
-    const facts=f.observe(op).requestEvidence;
-    assert.equal(facts.observationClosed,true);
-    assert.equal(facts.closeReason,mode==='hook'?'hookReplaced':mode==='reentry'?'reentry':'duplicateSend');
-    assert.equal(facts.requests[0].requestID,first.requests[0].requestID);
-    assert.equal(f.input.inputCount,1);assert.throws(()=>f.commit(op),/COMMIT_REFUSED/);
-    assert.equal(mode==='duplicateXHR'?f.xhrCalls.length:f.fetchCalls.length,mode.startsWith('duplicate')?2:1);
-  }
+test('an operation without START stays observe-only and cannot block the next screenshot',()=>{
+ const f=fixture({accept:false}),first=f.bind();f.stage(first);f.commit(first);
+ assert.equal(f.observe(first).state,'inputTriggered');
+ f.setAccept(true);
+ const second=f.bind();f.stage(second);f.commit(second);accepted(f,second);
+ assert.equal(f.observe(first).state,'inputTriggered','later input cannot relabel the uncertain previous submission');
+ const third=f.bind();f.stage(third);f.commit(third);accepted(f,third);
+ assert.equal(f.changes,3);assert.equal(f.setters,3);
+ assert.throws(()=>f.commit(first),/COMMIT_REFUSED|already.*committ/i);
+ assert.equal(f.changes,3,'observing or retrying a receipt never repeats the native input');
 });
 
-test('different original A/B File objects retain independent requests and old operations cannot mint facts', async () => {
-  const f=requestFixture(),a=withInvocation(f.bind()),b=withInvocation(f.bind('33333333-3333-4333-8333-333333333333'),'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb');
-  f.changed(file=>f.context.fetch('ignored',{body:file}));
-  f.stage(a);f.commit(a);await f.settle();const aFile=f.input.files[0],aBefore=f.observe(a).requestEvidence;
-  f.stage(b);f.commit(b);await f.settle();const aAfter=f.observe(a).requestEvidence,bFacts=f.observe(b).requestEvidence;
-  assert.deepEqual(aAfter,aBefore);assert.notEqual(aAfter.requests[0].requestID,bFacts.requests[0].requestID);
-  assert.notEqual(aAfter.invocationID,bFacts.invocationID);assert.notEqual(aFile,f.input.files[0]);
-  assert.equal(f.input.inputCount,2);assert.equal(f.fetchCalls.length,2);
-  // Identical bytes do not merge operation ownership. No continuation proof is minted.
-  assert.equal(f.observe(a).continuationEvidence,undefined);assert.equal(f.observe(b).continuationEvidence,undefined);
-  const fresh=requestFixture(),legacy=fresh.bind();fresh.stage(legacy);fresh.commit(legacy);await fresh.settle();
-  await fresh.context.fetch('ignored',{body:fresh.input.files[0]});assert.equal(fresh.observe(legacy).requestEvidence,undefined);
-  const restarted=requestFixture(),next=withInvocation(restarted.bind());restarted.stage(next);restarted.commit(next);await restarted.settle();
-  await restarted.context.fetch('ignored',{body:aFile});assert.equal(restarted.observe(next).requestEvidence,undefined);
+test('a lost commit reply is recovered only by observing the original operation',()=>{
+ const f=fixture({accept:false}),op=f.bind();f.stage(op);
+ // Deliberately drop the transport result after the native input has happened.
+ f.commit(op);
+ assert.equal(f.changes,1);assert.equal(f.observe(op).state,'inputTriggered');
+ f.addCard(op.name);
+ accepted(f,op);
+ for(let index=0;index<4;index++)accepted(f,op);
+ assert.throws(()=>f.commit(op),/COMMIT_REFUSED|already.*committ/i);
+ assert.equal(f.setters,1);assert.equal(f.changes,1);
 });
 
-test('41 exact completed fetch operations release observation slots without losing facts or late errors', async () => {
-  const f=requestFixture({thread:true}),all=[];
-  f.changed(file=>f.context.fetch('ignored',{body:file}));
-  for(let i=0;i<41;i++){
-    const op=withInvocation(f.bind('acbd1234-1111-4111-8111-'+String(i).padStart(12,'0'),Buffer.concat([png,Buffer.from([i])])),webcrypto.randomUUID());
-    op.identity.assetID=webcrypto.randomUUID();
-    f.stage(op);f.commit(op);await f.settle();
-    const view=f.makeCard(op);f.finish(view,op.bytes);await f.settle();
-    const observation=f.observe(op),facts=observation.requestEvidence;
-    assert.equal(observation.state,'attached');assert.equal(observation.completionEvidence.kind,'exactOriginalBytes');
-    assert.ok(facts,'every new original request has its own evidence beyond the old 32-operation boundary');
-    assert.equal(facts.observationClosed,true);assert.equal(facts.closeReason,'completionObserved');
-    assert.equal(facts.requests.length,1);assert.equal(facts.requests[0].terminal,null,'closing observation is not a request terminal claim');
-    assert.equal(facts.requests[0].status,undefined);assert.equal(facts.invocationID,op.command('observe').invocationID);
-    all.push({op,view,facts,attachmentID:observation.attachmentID});
-  }
-  assert.equal(f.input.inputCount,41);assert.equal(f.fetchCalls.length,41);
-  assert.equal(new Set(all.map(item=>item.facts.requests[0].requestID)).size,41);
-  assert.equal(f.context.__riftletWebAcceptance20261027v13.tail.operations.size,41);
-  for(const {op,facts} of all){assert.deepEqual(f.observe(op).requestEvidence,facts);assert.throws(()=>f.commit(op),/COMMIT_REFUSED/);}
-  const first=all[0];first.view.card.attrs['data-state']='error';f.mutate([]);
-  const late=f.observe(first.op);
-  assert.equal(late.state,'invalidated');assert.equal(late.hasError,true);assert.equal(late.attachmentID,first.attachmentID);
-  assert.deepEqual(late.requestEvidence,first.facts);assert.equal(late.completionEvidence,undefined);
-  assert.equal(f.observe(all[40].op).state,'attached');assert.equal(f.input.inputCount,41);
+test('START requires a current new accepted attachment, not setter, change, old card or filename placeholder',()=>{
+ const f=fixture({accept:false}),op=f.bind();f.stage(op);f.commit(op);
+ assert.equal(f.observe(op).state,'inputTriggered');
+ f.addCard('unrelated.png');
+ assert.equal(f.observe(op).state,'inputTriggered');
+ const placeholder=f.addCard(op.name,{placeholder:true,progress:false});
+ assert.equal(f.observe(op).state,'inputTriggered');
+ placeholder.remove();f.addCard(op.name,{progress:false});
+ accepted(f,op);
 });
 
-test('an existing request singleton without completion-close is retained without invalidating exact proof', async () => {
-  const f=requestFixture(),a=withInvocation(f.bind());f.changed(file=>f.context.fetch('ignored',{body:file}));
-  f.stage(a);f.commit(a);await f.settle();
-  const registry=f.context.__riftletWebAcceptance20261027v13,monitor=registry.originalFileRequests;
-  // The preceding version has exactly these methods, and its closed-over maps
-  // cannot be replaced or upgraded by a later page command.
-  const preceding=Object.freeze({bind:monitor.bind,verified:monitor.verified,retire:monitor.retire});
-  registry.originalFileRequests=preceding;
-  const view=f.makeCard(a);f.finish(view);await f.settle();
-  const result=f.observe(a);
-  assert.equal(result.state,'attached');assert.equal(result.completionEvidence.kind,'exactOriginalBytes');
-  assert.equal(registry.originalFileRequests,preceding);
-  assert.equal(result.requestEvidence.observationClosed,false,'do not claim older monitor gained the new capability');
-  assert.equal(result.requestEvidence.requests.length,1);assert.equal(f.input.inputCount,1);
+test('one synchronous input execution excludes reentrant setter/change without holding an upload lock',()=>{
+ const f=fixture(),first=f.bind(),second=f.bind();f.stage(first);f.stage(second);
+ let busyCount=0;
+ f.setSetter(()=>{
+  if(busyCount)return;
+  const refusal=f.commit(second).observation;
+  assert.equal(refusal.preInputRetirement.reason,'inputExecutionBusy');
+  assert.equal(refusal.preInputRetirement.inputCount,0);
+  busyCount++;
+ });
+ f.commit(first);assert.equal(busyCount,1);assert.equal(f.changes,1);
+ f.setSetter(null);assert.throws(()=>f.commit(second),/COMMIT_REFUSED/);
+ const next=f.bind();f.stage(next);f.commit(next);accepted(f,first);accepted(f,next);
+ assert.equal(f.changes,2);assert.equal(f.setters,2);
 });
 
-test('32 unresolved original fetch inputs remain bounded and cannot acquire completion retirement', async () => {
-  const f=requestFixture({thread:true}),all=[];
-  f.changed(file=>f.context.fetch('ignored',{body:file}));
-  for(let i=0;i<32;i++){
-    const op=withInvocation(f.bind('acbd1234-2222-4222-8222-'+String(i).padStart(12,'0')),webcrypto.randomUUID());
-    f.stage(op);f.commit(op);await f.settle();
-    const observation=f.observe(op);
-    assert.equal(observation.state,'inputTriggered');assert.equal(observation.completionEvidence,undefined);
-    assert.equal(observation.requestEvidence.observationClosed,false);all.push(op);
-  }
-  const extra=withInvocation(f.bind('acbd1234-2222-4222-8222-999999999999'));
-  const rejection=f.call({...extra.command('begin'),uploadName:extra.name,mediaType:'image/png',byteCount:png.length});
-  assert.equal(rejection.reason,'ACTIVE_PAYLOAD_LIMIT');assert.equal(rejection.retiredBeforeInput,true);
-  assert.throws(()=>f.commit(extra),/COMMIT_REFUSED/);
-  for(const op of all){
-    const facts=f.observe(op).requestEvidence;
-    assert.equal(facts.observationClosed,false);assert.equal(facts.requests[0].terminal,null);
-    assert.throws(()=>f.commit(op),/COMMIT_REFUSED/);
-  }
-  assert.equal(f.input.inputCount,32);assert.equal(f.fetchCalls.length,32);
+test('change-handler reentry cannot overwrite the executing FileList',()=>{
+ const f=fixture(),first=f.bind(),second=f.bind();f.stage(first);f.stage(second);
+ let checked=false;
+ f.setChange(file=>{
+  if(checked)return;checked=true;
+  assert.equal(file.name,first.name);
+  const refusal=f.commit(second).observation;
+  assert.equal(refusal.preInputRetirement.reason,'inputExecutionBusy');
+  assert.equal(refusal.preInputRetirement.inputCount,0);
+  assert.equal(f.input.files[0].name,first.name);
+ });
+ f.commit(first);f.setChange(null);assert.throws(()=>f.commit(second),/COMMIT_REFUSED/);
+ const next=f.bind();f.stage(next);f.commit(next);
+ assert.equal(f.changes,2);accepted(f,first);accepted(f,next);
 });
 
-test('hash failure and non-writable request hooks do not manufacture facts or break ordinary input', async () => {
-  const wrong=requestFixture({blockedInputDigest:true}),a=withInvocation(wrong.bind());
-  wrong.changed(file=>wrong.context.fetch('ignored',{body:file}));wrong.stage(a);wrong.commit(a);
-  for(let i=0;i<50 && !wrong.fetchCalls.length;i++)await new Promise(resolve=>setTimeout(resolve,1));
-  wrong.context.__riftletWebAcceptance20261027v13.tail.operations.get(a.identity.operationID).identity.assetSHA256='0'.repeat(64);
-  wrong.release();await wrong.settle();assert.equal(wrong.observe(a).requestEvidence,undefined);
-  const f=requestFixture(),op=withInvocation(f.bind());
-  Object.defineProperty(f.context,'fetch',{value:f.nativeFetch,writable:false});
-  Object.defineProperty(f.XHR.prototype,'send',{value:f.XHR.prototype.send,writable:false});
-  f.changed(file=>f.context.fetch('ignored',{body:file}));f.stage(op);f.commit(op);await f.settle();
-  assert.equal(f.input.inputCount,1);assert.equal(f.fetchCalls.length,1);assert.equal(f.observe(op).requestEvidence,undefined);
+test('rebuilding a hidden picker keeps both pre-captured clicks and delayed START on the same composer',()=>{
+ const f=fixture({accept:false}),first=f.bind(),second=f.bind();f.stage(first);f.stage(second);
+ const replacement=new f.context.HTMLInputElement();replacement.rendered=false;
+ f.setChange(()=>{f.input.remove();f.form.append(replacement);f.setChange(null);});
+ f.commit(first);assert.equal(f.observe(first).state,'inputTriggered');
+ f.setAccept(true);f.commit(second);accepted(f,second);
+ f.addCard(first.name);accepted(f,first);
+ assert.equal(f.setters,2);assert.equal(f.changes,2);
+ assert.equal(replacement.files[0].name,second.name);
+ assert.ok(f.form.contains(f.oldCard));assert.equal(f.sends,0);
 });
 
-test('versioned completion emits exact bytes or exact original-size pixels only, legacy remains schema2', async () => {
-  for(const kind of ['bytes','pixels','legacy','scaled']){
-    const f=fixture(),op=kind==='legacy'?f.bind():withInvocation(f.bind());f.stage(op);f.commit(op);await f.settle();
-    const view=f.makeCard(op);if(kind==='scaled')view.image.naturalWidth=1;
-    f.finish(view,kind==='bytes'||kind==='legacy'?png:Buffer.from([...png,99]));await f.settle();
-    const packet=f.call(op.command('observe')),proof=packet.observation.completionEvidence;
-    if(kind==='legacy'){assert.equal(packet.schemaVersion,2);assert.equal(packet.observation.state,'attached');assert.equal(proof,undefined);continue;}
-    if(kind==='scaled'){assert.equal(packet.observation.state,'unknown');assert.equal(proof,undefined);assert.equal(packet.observation.hasError,false);continue;}
-    assert.equal(packet.schemaVersion,4);assert.equal(packet.observation.state,'attached');
-    assert.equal(proof.version,1);assert.equal(proof.kind,kind==='bytes'?'exactOriginalBytes':'exactSRGBPixels');
-    assert.equal(proof.originalByteCount,png.length);assert.equal(proof.originalSHA256,op.identity.assetSHA256);
-    assert.equal(proof.binding.operationID,op.identity.operationID);assert.equal(proof.binding.assetID,op.identity.assetID);
-    assert.equal(proof.binding.attempt,op.identity.attempt);assert.equal(proof.binding.assetSHA256,op.identity.assetSHA256);
-    assert.equal(proof.binding.invocationID,op.command('observe').invocationID);
-    assert.equal(proof.binding.attachmentID,packet.observation.attachmentID);assert.deepEqual(proof.binding.target,op.identity.target);
-    if(kind==='bytes'){assert.equal(proof.observedSHA256,op.identity.assetSHA256);assert.equal(proof.observedByteCount,png.length);assert.equal(proof.originalWidth,undefined);}
-    else{assert.equal(proof.originalWidth,2);assert.equal(proof.originalHeight,1);assert.equal(proof.previewWidth,2);assert.equal(proof.previewHeight,1);
-      assert.equal(proof.originalPixelSHA256,proof.previewPixelSHA256);assert.equal(proof.observedSHA256,undefined);}
-  }
+test('rebuilding the picker inside change cannot evade the same-composer synchronous input mutex',()=>{
+ const f=fixture(),first=f.bind(),nested=f.bind();f.stage(first);f.stage(nested);
+ const replacement=new f.context.HTMLInputElement();
+ f.setChange(()=>{
+  f.input.remove();f.form.append(replacement);f.setChange(null);
+  const refusal=f.commit(nested).observation;
+  assert.equal(refusal.preInputRetirement.reason,'inputExecutionBusy');
+  assert.equal(refusal.preInputRetirement.inputCount,0);
+ });
+ f.commit(first);accepted(f,first);
+ const second=f.bind();f.stage(second);f.commit(second);accepted(f,second);
+ assert.equal(f.setters,2);assert.equal(f.changes,2);
+ assert.equal(replacement.files[0].name,second.name);
 });
 
-test('versioned completion cannot survive reload, late error, replaced card or wrong original invocation', async () => {
-  for(const mode of ['reload','error','card','invocation']){
-    const f=fixture(),op=withInvocation(f.bind());f.stage(op);f.commit(op);await f.settle();const view=f.makeCard(op);f.finish(view);await f.settle();
-    assert.equal(f.observe(op).completionEvidence.kind,'exactOriginalBytes');
-    if(mode==='reload')for(const fn of f.events.get('load')||[])fn({target:view.image,type:'load'});
-    if(mode==='error')for(const fn of f.events.get('error')||[])fn({target:view.image,type:'error'});
-    if(mode==='card'){view.card.isConnected=false;f.mutate([{type:'childList',target:f.form,removedNodes:[view.card],addedNodes:[]}]);}
-    if(mode==='invocation')f.context.__riftletWebAcceptance20261027v13.tail.operations.get(op.identity.operationID).invocationID='bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
-    const result=f.observe(op);assert.equal(result.completionEvidence,undefined);
-    assert.equal(result.state,'invalidated');
-    assert.equal(f.input.inputCount,1);assert.throws(()=>f.commit(op),/COMMIT_REFUSED|INVOCATION_MISMATCH/);
-  }
+test('a hidden portal picker linked by the chat attachment entry works without requiring editor focus',()=>{
+ const f=fixture({focused:false});f.input.remove();f.body.append(f.input);f.input.rendered=false;
+ f.input.setAttribute('id','chat-upload');
+ const entry=f.form.append(new f.Node('button',{'aria-label':'Attach files','aria-controls':'chat-upload',type:'button'}));
+ entry.addEventListener('click',()=>f.input.click());
+ const first=f.bind();f.stage(first);f.commit(first);accepted(f,first);
+ const second=f.bind();f.stage(second);f.commit(second);accepted(f,second);
+ assert.equal(f.changes,2);assert.equal(f.setters,2);
 });
 
-test('exact prior G3 observer upgrades only fresh captures and never retrofits old operations', async () => {
-  const prior=fs.readFileSync(path.join(__dirname,'fixtures/chatgpt-web-g3-461e645.js'),'utf8');
-  assert.equal(digest(prior),'c6fe1036ba3cdc5363d9154b0a83e7807a5c19a522af47f29eb9fe165540b7e2');
-  const f=fixture({programSource:prior}),old=withInvocation(f.bind());f.stage(old);f.commit(old);await f.settle();
-  const oldCard=f.makeCard(old);f.finish(oldCard);await f.settle();
-  const registry=f.context.__riftletWebAcceptance20261027v13,oldState=registry.tail;
-  const oldRecord=oldState.operations.get(old.identity.operationID),oldProof=oldRecord.proof;
-  const current=vm.runInContext('('+source+')',f.context),call=command=>current(command,native);
-  const original=call(old.command('observe'));assert.equal(original.schemaVersion,2);
-  assert.equal(original.observation.state,'attached');assert.equal(original.observation.completionEvidence,undefined);
-  const target=call({action:'captureTarget'}),newState=registry.tail;
-  assert.notEqual(newState,oldState);assert.equal(newState.proofProtocolVersion,1);
-  assert.notEqual(target.documentID,old.target.documentID);assert.notEqual(target.draftGeneration,old.target.draftGeneration);
-  assert.equal(oldState.operations.get(old.identity.operationID),oldRecord);assert.equal(oldRecord.proof,oldProof);
-  assert.equal(call(old.command('observe')).schemaVersion,2);assert.equal(f.input.inputCount,1);
-  assert.equal(call({action:'captureTarget'}),target,'new protocol must not reinstall on repeated capture');
-  const identity={...old.identity,operationID:'33333333-3333-4333-8333-333333333333',assetID:'44444444-4444-4444-8444-444444444444',target};
-  const next={identity,target,name:'riftlet-'+identity.operationID+'.png',bytes:png,
-    command:action=>({action,identity,target,invocationID:'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb'})};
-  call({...next.command('begin'),uploadName:next.name,mediaType:'image/png',byteCount:png.length});
-  call({...next.command('chunk'),chunkIndex:0,chunkBase64:png.toString('base64')});call({...next.command('commit'),chunkIndex:1});
-  await f.settle();const card=f.makeCard(next);f.finish(card);await f.settle();
-  const completed=call(next.command('observe'));assert.equal(completed.schemaVersion,4);
-  assert.equal(completed.observation.completionEvidence.binding.operationID,identity.operationID);
-  assert.equal(f.input.inputCount,2);assert.equal(oldRecord.proof,oldProof);
-});
-
-test('new begin through old G3 pin retires before input instead of using an obsolete proof closure', () => {
-  const prior=fs.readFileSync(path.join(__dirname,'fixtures/chatgpt-web-g3-461e645.js'),'utf8');
-  const f=fixture({programSource:prior}),observed=f.target();
-  const target=f.call({action:'pinTarget',target:observed,clickBindingID:'cccccccc-cccc-4ccc-8ccc-cccccccccccc'});
-  const current=vm.runInContext('('+source+')',f.context),call=command=>current(command,native);
-  const identity={operationID:'11111111-1111-4111-8111-111111111111',assetID:'22222222-2222-4222-8222-222222222222',
-    attempt:1,assetSHA256:digest(png),target},invocationID='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
-  const command={action:'begin',identity,target,invocationID,uploadName:'riftlet-'+identity.operationID+'.png',mediaType:'image/png',byteCount:png.length};
-  const result=call(command);assert.equal(result.reason,'OBSERVER_UPGRADE_REQUIRED');
-  assert.equal(result.identity,identity);assert.equal(result.invocationID,invocationID);
-  assert.equal(result.rejectedBeforeBegin,true);assert.equal(result.retiredBeforeInput,true);
-  assert.equal(result.commitInvoked,false);assert.equal(result.inputCount,0);
-  assert.equal(f.input.inputCount,0);assert.throws(()=>call(command),/BEGIN_REFUSED/);
-  assert.throws(()=>call({...command,action:'commit',chunkIndex:0}),/COMMIT_REFUSED/);
-  const fresh=call({action:'captureTarget'});assert.notEqual(fresh.documentID,target.documentID);
-  assert.equal(f.input.inputCount,0,'pre-input refusal never replays the old click');
-});
-
-test('upgraded caller cannot finish staged G3 input or replay its committed UNKNOWN', async () => {
-  const prior=fs.readFileSync(path.join(__dirname,'fixtures/chatgpt-web-g3-461e645.js'),'utf8');
-  for(const phase of ['staged','inflight']){
-    const f=fixture({programSource:prior,blockedDigest:phase==='inflight'}),observed=f.target();
-    const target=f.call({action:'pinTarget',target:observed,clickBindingID:'cccccccc-cccc-4ccc-8ccc-cccccccccccc'});
-    const identity={operationID:'11111111-1111-4111-8111-111111111111',assetID:'22222222-2222-4222-8222-222222222222',
-      attempt:1,assetSHA256:digest(png),target};
-    const invocationID='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
-    const op={identity,target,name:'riftlet-'+identity.operationID+'.png',bytes:png,
-      command:action=>({action,identity,target,invocationID})};
-    f.stage(op);if(phase==='inflight')f.commit(op);
-    const registry=f.context.__riftletWebAcceptance20261027v13,oldState=registry.tail;
-    const original=oldState.operations.get(identity.operationID),chunks=original.chunks,received=original.received;
-    const current=vm.runInContext('('+source+')',f.context),call=command=>current(command,native);
-    const fresh=call({action:'captureTarget'});
-    assert.notEqual(fresh.documentID,target.documentID);assert.notEqual(registry.tail,oldState);
-    assert.throws(()=>call({...op.command('chunk'),chunkIndex:1,chunkBase64:png.toString('base64')}),/CHUNK_REFUSED/);
-    assert.throws(()=>call({...op.command('commit'),chunkIndex:1}),/COMMIT_REFUSED/);
-    assert.equal(f.input.inputCount,0);assert.equal(oldState.operations.get(identity.operationID),original);
-    assert.equal(original.chunks,chunks);assert.equal(original.received,received);
-    if(phase==='staged'){
-      assert.equal(original.committed,false);
-      const before=call(op.command('observe'));assert.equal(before.schemaVersion,2);assert.equal(before.observation.state,'unknown');
-      assert.throws(()=>call({...op.command('discard'),invocationID:'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb'}),/INVOCATION_MISMATCH/);
-      const discarded=call(op.command('discard'));assert.equal(discarded.discarded,true);
-      assert.equal(discarded.retiredBeforeInput,true);assert.equal(discarded.invocationID,invocationID);
-      assert.equal(original.invalid,true);assert.equal(f.input.inputCount,0);
-    }else{
-      assert.equal(original.committed,true);f.release();await f.settle();
-      assert.equal(f.input.inputCount,1,'only the previously executing old closure may finish its original call');
-      const pending=call(op.command('observe'));assert.equal(pending.schemaVersion,2);
-      assert.equal(pending.observation.state,'inputTriggered');assert.equal(pending.observation.completionEvidence,undefined);
-      assert.throws(()=>call({...op.command('commit'),chunkIndex:1}),/COMMIT_REFUSED/);
-      assert.equal(call(op.command('discard')).discarded,false);assert.equal(original.committed,true);
-      assert.equal(f.input.inputCount,1,'observing or discarding historical UNKNOWN never repeats its input');
-    }
-  }
-});
-
-test('request callbacks detach on terminal or original document retirement and do not survive restart', async () => {
-  for(const close of ['terminal','navigation']){
-    const f=requestFixture(),op=withInvocation(f.bind());let xhr;
-    f.changed(file=>{xhr=new f.context.XMLHttpRequest();xhr.open('PUT','ignored');xhr.send(file);});
-    f.stage(op);f.commit(op);await f.settle();const stored=f.context.__riftletWebAcceptance20261027v13.tail.operations.get(op.identity.operationID);
-    assert.ok([...xhr.listeners.values()].some(list=>list.length));
-    if(close==='terminal'){xhr.status=204;xhr.emit('load');}
-    else f.navigationEvent('navigate');
-    assert.equal([...xhr.listeners.values(),...xhr.upload.listeners.values()].reduce((total,list)=>total+list.length,0),0);
-    const facts=stored.requestFactSnapshot();
-    assert.equal(close==='terminal'?facts.requests[0].terminal:facts.closeReason,close==='terminal'?'response':'identityInvalid');
-    xhr.upload.emit('progress',{loaded:png.length,total:png.length,lengthComputable:true});
-    assert.deepEqual(stored.requestFactSnapshot(),facts);assert.equal(f.input.inputCount,1);
-  }
-});
-
-test('settled hash rejection proves no file side effect for only its original invocation', async () => {
-  const f=fixture({blockedDigest:true}),op=withInvocation(f.bind());
-  op.identity.assetSHA256='0'.repeat(64);f.stage(op);
-  const immediate=f.commit(op);
-  assert.equal(immediate.schemaVersion,2);assert.equal(immediate.observation.preInputRetirement,undefined);
-  assert.equal(f.observe(op).preInputRetirement,undefined);assert.equal(f.input.inputCount,0);
-  f.release();await f.settle();
-  const result=f.call(op.command('observe'));
-  assert.equal(result.schemaVersion,3);assert.equal(result.observation.state,'invalidated');
-  assert.equal(result.observation.belongsToOriginalDraft,true);
-  assert.deepEqual(JSON.parse(JSON.stringify(result.observation.preInputRetirement)),{
-    version:1,invocationID:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',commitInvoked:true,
-    commitWorkSettled:true,irreversiblyRetired:true,inputSideEffectEntered:false,inputCount:0,reason:'inputHashMismatch'});
-  assert.equal(f.input.inputCount,0);assert.throws(()=>f.commit(op),/COMMIT_REFUSED/);
-  // Querying cannot promote another identity or manufacture a second input.
-  const wrong=f.call({...op.command('observe'),identity:{...op.identity,attempt:2}});
-  assert.equal(wrong.observation.preInputRetirement,undefined);assert.equal(f.input.inputCount,0);
-});
-
-test('known invalid PNG and preparation failure retire before setter without granting upload retry', async () => {
-  for (const kind of ['signature','preparation']) {
-    const f=fixture(),bytes=kind==='signature'?Buffer.from([...png].map((v,i)=>i? v:0)):png;
-    const op=withInvocation(f.bind(undefined,bytes));f.stage(op);
-    if(kind==='preparation')f.context.DataTransfer=class {constructor(){throw Error('controlled preparation fault');}};
-    f.commit(op);await f.settle();const result=f.call(op.command('observe'));
-    assert.equal(result.schemaVersion,3);assert.equal(result.observation.preInputRetirement.reason,
-      kind==='signature'?'invalidPNGSignature':'inputPreparationFailed');
-    assert.equal(result.observation.automaticRetryExcluded,false);
-    assert.equal(result.observation.exactImageIdentity,false);assert.equal(result.observation.uploadStart,undefined);
-    assert.equal(f.input.inputCount,0);assert.throws(()=>f.commit(op),/COMMIT_REFUSED/);
-  }
-});
-
-test('final unavailable input without a changed document proves no input only after commit work settles', async () => {
-  const f=fixture({blockedDigest:true}),op=withInvocation(f.bind());f.stage(op);f.commit(op);
-  f.input.disabled=true;assert.equal(f.observe(op).preInputRetirement,undefined);
-  f.release();await f.settle();
-  const result=f.call(op.command('observe'));
-  assert.equal(result.schemaVersion,3);assert.equal(result.observation.preInputRetirement.reason,'targetInvalidBeforeInput');
-  assert.equal(f.input.inputCount,0);assert.throws(()=>f.commit(op),/TARGET_INVALID|COMMIT_REFUSED/);
-});
-
-test('same-draft invalidation while digest is pending never reaches setter after settling', async () => {
-  const f=fixture({blockedDigest:true}),op=withInvocation(f.bind());
-  let setterCount=0;
-  const descriptor=Object.getOwnPropertyDescriptor(f.Input.prototype,'files');
-  Object.defineProperty(f.Input.prototype,'files',{...descriptor,set(value){
-    setterCount++;descriptor.set.call(this,value);}});
-  f.stage(op);f.commit(op);
-  // A same-name card before this operation's input invalidates the operation,
-  // while its document, draft and native route remain unchanged.
-  f.makeCard(op);
-  const pending=f.call(op.command('observe'));
-  assert.equal(pending.observation.state,'invalidated');
-  assert.equal(pending.observation.belongsToOriginalDraft,true);
-  assert.equal(pending.schemaVersion,2);assert.equal(pending.observation.preInputRetirement,undefined);
-  assert.equal(setterCount,0);assert.equal(f.input.inputCount,0);
-  f.release();await f.settle();
-  const settled=f.call(op.command('observe'));
-  assert.equal(settled.observation.state,'invalidated');
-  assert.equal(settled.observation.belongsToOriginalDraft,true);
-  assert.equal(settled.schemaVersion,3);assert.equal(settled.observation.preInputRetirement.reason,'targetInvalidBeforeInput');
-  assert.equal(setterCount,0);assert.equal(f.input.inputCount,0);assert.equal(f.input.files.length,0);
-  assert.throws(()=>f.commit(op),/COMMIT_REFUSED/);
-  // A native caller that already received pending invalidation keeps UNKNOWN;
-  // the companion adapter test proves reconcile cannot consume this late proof.
-});
-
-test('entered throwing setter and missing change never claim no input', async () => {
-  for (const kind of ['setterThrows','changeThrows','changeMissing']) {
-    const f=fixture(),op=withInvocation(f.bind());f.stage(op);
-    const descriptor=Object.getOwnPropertyDescriptor(f.Input.prototype,'files');
-    if(kind==='setterThrows')Object.defineProperty(f.Input.prototype,'files',{...descriptor,set(value){
-      descriptor.set.call(this,value);throw Error('side effect then throw');}});
-    else f.input.dispatchEvent=kind==='changeThrows'?()=>{throw Error('dispatch fault');}:()=>true;
-    f.commit(op);await f.settle();const result=f.call(op.command('observe'));
-    assert.equal(f.input.files.length,1);assert.equal(f.input.inputCount,0);
-    assert.equal(result.schemaVersion,2);assert.equal(result.observation.preInputRetirement,undefined);
-    assert.equal(result.observation.state,'invalidated');assert.throws(()=>f.commit(op),/COMMIT_REFUSED/);
-  }
-});
-
-test('navigation, legacy allocation and successful input cannot be reinterpreted as pre-input retirement', async () => {
-  const navigated=fixture({blockedDigest:true}),n=withInvocation(navigated.bind());navigated.stage(n);navigated.commit(n);
-  navigated.context.location.href='https://chatgpt.com/?changed';navigated.release();await navigated.settle();
-  assert.equal(navigated.input.inputCount,0);assert.equal(navigated.observe(n).preInputRetirement,undefined);
-  const legacy=fixture(),old=legacy.bind();old.identity.assetSHA256='0'.repeat(64);
-  legacy.stage(old);legacy.commit(old);await legacy.settle();
-  assert.equal(legacy.observe(old).preInputRetirement,undefined);
-  const successful=fixture(),ok=withInvocation(successful.bind());successful.stage(ok);successful.commit(ok);await successful.settle();
-  assert.equal(successful.input.inputCount,1);assert.equal(successful.observe(ok).preInputRetirement,undefined);
-});
-
-test('observed PNG re-encoding can match exact sRGB RGBA; a mismatched preview cannot', async () => {
-  const f=fixture(),op=f.bind();f.stage(op);f.commit(op);await f.settle();const v=f.makeCard(op);
-  f.finish(v,Buffer.from([...png,99]));await f.settle();assert.equal(f.observe(op).state,'attached');
-  const g=fixture(),bad=g.bind();g.stage(bad);g.commit(bad);await g.settle();const wrong=g.makeCard(bad);
-  wrong.image.rgba=new Uint8Array([0,0,0,255,0,0,0,255]);g.finish(wrong,Buffer.from([...png,99]));await g.settle();
-  assert.equal(g.observe(bad).state,'unknown');
-  assert.equal(g.observe(bad).hasError,false);assert.equal(g.observe(bad).completionEvidence,undefined);
-});
-
-// The DOM fixture models pixels, not a real PNG decoder or a ChatGPT server.
-// Oversized encoded previews must not allocate another base64 byte copy.
-const expandedPreview = () => Buffer.alloc(8 * 1024 * 1024 + 128, 19);
-test('same-size re-encoded preview above byte-copy cap uses exact bounded pixels, never oversized atob', async () => {
-  const f=fixture(),op=f.bind();f.stage(op);f.commit(op);await f.settle();
-  f.context.atob=()=>assert.fail('oversized preview must not be decoded as bytes');
-  const v=f.makeCard(op);f.finish(v,expandedPreview());await f.settle();
-  assert.equal(f.observe(op).state,'attached');assert.equal(f.input.inputCount,1);
-  assert.throws(()=>f.commit(op),/COMMIT_REFUSED/);
-});
-
-for (const defect of ['one-channel','scaled','too-many-pixels','bad-dimensions','decode-error']) {
-  test('expanded preview cannot complete with '+defect, async () => {
-    const f=fixture(),op=f.bind();f.stage(op);f.commit(op);await f.settle();const v=f.makeCard(op);
-    f.context.atob=()=>assert.fail('oversized preview byte decode');
-    if(defect==='one-channel')v.image.rgba=new Uint8Array([13,20,30,255,40,50,60,255]);
-    if(defect==='scaled')v.image.naturalWidth=1;
-    if(defect==='too-many-pixels'){v.image.naturalWidth=4097;v.image.naturalHeight=4096;}
-    if(defect==='bad-dimensions')v.image.naturalWidth=NaN;
-    if(defect==='decode-error')f.context.Image=class { set src(value){queueMicrotask(()=>this.onerror());} };
-    f.finish(v,expandedPreview());await f.settle();
-    assert.notEqual(f.observe(op).state,'attached');assert.equal(f.observe(op).exactImageIdentity,false);
-    assert.equal(f.observe(op).automaticRetryExcluded,false);assert.equal(f.input.inputCount,1);
-  });
-}
-
-for(const change of ['same-name','source','repeat-load','late-error','draft','process','attempt']) {
-  test('expanded pixel proof cannot outlive original '+change, async () => {
-    const f=fixture(),op=f.bind();f.stage(op);f.commit(op);await f.settle();const v=f.makeCard(op);
-    const digest=f.context.crypto.subtle.digest;let release;
-    const gate=new Promise(resolve=>{release=resolve;});
-    f.context.crypto.subtle.digest=async(...args)=>{await gate;return digest(...args);};
-    f.finish(v,expandedPreview());
-    if(change==='same-name')f.makeCard(op);
-    if(change==='source'){v.image.src='data:image/png;base64,AAAA';f.mutate([{type:'attributes',target:v.image,attributeName:'src'}]);}
-    if(change==='repeat-load')f.documentEvent('load',v.image);
-    if(change==='late-error'){v.card.attrs['data-state']='error';f.mutate([]);}
-    if(change==='draft')f.context.location.href='https://chatgpt.com/c/another-draft';
-    release();await f.settle();
-    if(change==='process'){
-      const call=vm.runInContext('('+source+')',f.context);
-      assert.equal(call(op.command('observe'),{...native,sessionID:'other-process'}).observation.state,'invalidated');
-    }else if(change==='attempt'){
-      assert.equal(f.call({...op.command('observe'),identity:{...op.identity,attempt:2}}).observation.state,'invalidated');
-    }else assert.notEqual(f.observe(op).state,'attached');
-    assert.equal(f.input.inputCount,1);
-  });
-}
-
-test('installing updated caller never upgrades a retained old observer or reinputs its UNKNOWN', async () => {
-  const guard="if (!/^data:image\\/png;base64,/.test(source)) return;";
-  assert.equal(source.split(guard).length,2);
-  const oldGuard=source.replace(guard,"if (!/^data:image\\/png;base64,/.test(source) || source.length > Math.ceil(MAX_BYTES * 4 / 3) + 64) return;");
-  const f=fixture({programSource:oldGuard}),op=f.bind();f.stage(op);f.commit(op);await f.settle();
-  const v=f.makeCard(op);f.finish(v,expandedPreview());await f.settle();
-  const registry=f.context.__riftletWebAcceptance20261027v13,state=registry.head,sample=state.sample;
-  const record=state.operations.get(op.identity.operationID);
-  assert.equal(record.proof,null);
-  const updated=vm.runInContext('('+source+')',f.context);
-  assert.notEqual(updated(op.command('observe'),native).observation.state,'attached');
-  assert.equal(state.sample,sample);assert.equal(record.proof,null);assert.equal(f.input.inputCount,1);
-  assert.throws(()=>updated({...op.command('commit'),chunkIndex:1},native),/COMMIT_REFUSED/);
-});
-
-test('missing progress, hundred-percent only and another card completion cannot prove ATTACHED', async () => {
-  const f=fixture(),a=f.bind();f.stage(a);f.commit(a);await f.settle();const av=f.makeCard(a);
-  av.progress.attrs['aria-valuenow']='100';f.mutate([]);assert.notEqual(f.observe(a).state,'attached');
-  const b=f.bind('33333333-3333-4333-8333-333333333333');f.stage(b);f.commit(b);await f.settle();const bv=f.makeCard(b);
-  f.finish(bv);await f.settle();assert.equal(f.observe(b).state,'attached');assert.notEqual(f.observe(a).state,'attached');
-  assert.equal(f.input.inputCount,2);
-});
-
-test('changed draft before asynchronous byte verification prevents any input and observe never retries', async () => {
-  const f=fixture({blockedDigest:true}),op=f.bind();f.stage(op);f.commit(op);
-  f.context.location.href='https://chatgpt.com/?temporary-chat=true';f.release();await f.settle();
-  assert.equal(f.input.inputCount,0);assert.equal(f.observe(op).state,'invalidated');
-  f.observe(op);assert.equal(f.input.inputCount,0);
-});
-
-test('hidden tab before hash completion and lost foreground focus cannot receive input', async () => {
-  for (const change of [f=>{f.document.visibilityState='hidden';},f=>f.focus(false)]) {
-    const f=fixture({blockedDigest:true}),op=f.bind();f.stage(op);f.commit(op);change(f);f.release();await f.settle();
-    assert.equal(f.input.inputCount,0);assert.equal(f.observe(op).state,'invalidated');
-  }
-});
-
-test('sole matching replacement editor/input and changed native form association are rejected', async () => {
-  for (const change of [f=>f.replaceEditor(f.form.append(new f.Node('div'))),f=>{f.input.attrs['aria-label']='old';f.form.append(new f.Input());},f=>{f.input.formOverride=new f.Node('form');}]) {
-    const f=fixture({blockedDigest:true}),op=f.bind();f.stage(op);f.commit(op);change(f);f.release();await f.settle();
-    assert.equal(f.input.inputCount,0);assert.equal(f.observe(op).state,'invalidated');
-  }
-});
-
-test('transient card/form detach and final src restore cannot reuse an earlier proof', async () => {
-  for (const mutate of [(f,v)=>f.mutate([{type:'childList',target:f.form,removedNodes:[v.card],addedNodes:[v.card]}]),
-    f=>f.mutate([{type:'childList',target:f.body,removedNodes:[f.form],addedNodes:[f.form]}]),
-    f=>f.mutate([{type:'childList',target:f.document,removedNodes:[f.body],addedNodes:[f.body]}]),
-    (f,v)=>f.mutate([{type:'attributes',target:v.image,attributeName:'src',oldValue:v.image.src}])]) {
-    const f=fixture(),op=f.bind();f.stage(op);f.commit(op);await f.settle();const view=f.makeCard(op);f.finish(view);await f.settle();
-    assert.equal(f.observe(op).state,'attached');mutate(f,view);assert.equal(f.observe(op).state,'invalidated');
-  }
-});
-
-test('own error and repeated file input veto completion without safe-retry admission', async () => {
-  for (const mutate of [(f,v)=>{v.card.attrs['data-state']='error';f.mutate([]);},(f)=>f.input.dispatchEvent({type:'change'})]) {
-    const f=fixture(),op=f.bind();f.stage(op);f.commit(op);await f.settle();const view=f.makeCard(op);f.finish(view);await f.settle();
-    mutate(f,view);const result=f.observe(op);assert.equal(result.state,'invalidated');assert.equal(result.automaticRetryExcluded,false);
-  }
-});
-
-test('wrong operation identity, file bytes, route or an absent original observer never inputs', async () => {
-  const f=fixture(),op=f.bind();f.stage(op);
-  assert.throws(()=>f.call({...op.command('commit'),identity:{...op.identity,attempt:2},chunkIndex:1}),/ORIGINAL_OPERATION_REQUIRED/);
-  assert.equal(f.input.inputCount,0);
-  const other=fixture();const missing=other.call(op.command('observe'));assert.equal(missing.observation.state,'invalidated');assert.equal(other.input.inputCount,0);
-  assert.throws(()=>fixture({route:'https://chatgpt.com/c/example'}).target(),/EDITOR_UNAVAILABLE|AMBIGUOUS_COMPOSER/);
-  const corrupt=fixture(),bad=corrupt.bind();bad.identity.assetSHA256='0'.repeat(64);corrupt.stage(bad);corrupt.commit(bad);await corrupt.settle();
-  assert.equal(corrupt.input.inputCount,0);assert.equal(corrupt.observe(bad).state,'invalidated');
-});
-
-test('proved attachment keeps its independent identity on a correlated late error, without retry', async () => {
-  const f=fixture(),op=f.bind();f.stage(op);f.commit(op);await f.settle();
-  const view=f.makeCard(op);f.finish(view);await f.settle();
-  const success=f.observe(op);assert.equal(success.state,'attached');assert.ok(success.attachmentID);
-  view.card.attrs['data-state']='error';
-  f.mutate([{type:'attributes',target:view.card,attributeName:'data-state'}]);
-  const failed=f.observe(op);
-  assert.equal(failed.state,'invalidated');assert.equal(failed.hasError,true);
-  assert.equal(failed.belongsToOriginalDraft,true);assert.equal(failed.exactImageIdentity,true);
-  assert.equal(failed.attachmentID,success.attachmentID);assert.equal(failed.automaticRetryExcluded,false);
-  assert.equal(f.observe(op).attachmentID,success.attachmentID);assert.equal(f.input.inputCount,1);
-});
-
-test('navigation, unproved errors and unrelated cards cannot create late-failure identity', async () => {
-  const f=fixture(),op=f.bind();f.stage(op);f.commit(op);await f.settle();const view=f.makeCard(op);
-  view.card.attrs['data-state']='error';f.mutate([{type:'attributes',target:view.card,attributeName:'data-state'}]);
-  assert.equal(f.observe(op).attachmentID,undefined);
-  const g=fixture(),good=g.bind();g.stage(good);g.commit(good);await g.settle();const ready=g.makeCard(good);
-  g.finish(ready);await g.settle();assert.equal(g.observe(good).state,'attached');
-  const other=g.form.append(new g.Node('div',{role:'button','aria-label':'other.png','data-state':'error'}));
-  other.append(new g.Node('img'));g.mutate([]);assert.equal(g.observe(good).state,'attached');
-  g.context.location.href='https://chatgpt.com/c/different';
-  const lost=g.observe(good);assert.equal(lost.state,'invalidated');assert.equal(lost.attachmentID,undefined);
-  assert.equal(lost.hasError,false);assert.equal(g.input.inputCount,1);
-});
-
-test('only the observed unambiguous Chinese Home Chat mode is admitted', () => {
-  assert.equal(fixture().target().surface,'webChat');
-  for(const mode of ['work','missing','ambiguous']) {
-    const f=fixture({mode});assert.throws(()=>f.target(),/UNPROVEN_CHAT_MODE/);assert.equal(f.input.inputCount,0);
-  }
-  const f=fixture();f.workMode.attrs['aria-pressed']='true';assert.throws(()=>f.target(),/UNPROVEN_CHAT_MODE/);
-});
-
-test('mode switching and replacement permanently revoke the original draft lease', async () => {
-  const mutations = [
-    f=>{ f.chatMode.attrs['aria-pressed']='false';f.workMode.attrs['aria-pressed']='true';
-      f.mutate([{type:'attributes',target:f.chatMode,attributeName:'aria-pressed',oldValue:'true'}]); },
-    f=>{ // Final snapshot says Chat again, but the recorded intermediate state says Work.
-      f.mutate([{type:'attributes',target:f.chatMode,attributeName:'aria-pressed',oldValue:'true'},
-        {type:'attributes',target:f.chatMode,attributeName:'aria-pressed',oldValue:'false'}]); },
-    f=>f.mutate([{type:'childList',target:f.modeHeader,removedNodes:[f.modeGroup],addedNodes:[f.modeGroup]}]),
-    f=>f.mutate([{type:'childList',target:f.body,removedNodes:[f.modeHeader],addedNodes:[f.modeHeader]}]),
-    f=>f.mutate([{type:'childList',target:f.modeGroup,removedNodes:[f.chatMode],addedNodes:[f.chatMode]}])
-  ];
-  for(const change of mutations) {
-    const f=fixture({blockedDigest:true}),op=f.bind();f.stage(op);f.commit(op);change(f);
-    f.chatMode.attrs['aria-pressed']='true';f.workMode.attrs['aria-pressed']='false';
-    f.release();await f.settle();assert.equal(f.input.inputCount,0);
-    assert.equal(f.observe(op).state,'invalidated');
-    const fresh=f.target();assert.notEqual(fresh.documentID,op.target.documentID);
-    assert.equal(f.call({action:'validate',target:op.target}).valid,false);
-  }
-});
-
-test('returning to a tab can bind a fresh lease while original UNKNOWN stays observation-only', async () => {
-  const f=fixture(),old=f.bind();f.stage(old);f.commit(old);await f.settle();
-  assert.equal(f.input.inputCount,1);
-  f.document.visibilityState='hidden';
-  for(const fn of f.events.get('visibilitychange')||[]) fn();
-  f.document.visibilityState='visible';
-  for(const fn of f.events.get('visibilitychange')||[]) fn();
-  const registry=f.context.__riftletWebAcceptance20261027v13;
-  assert.equal(registry.count,1);
-  assert.equal(f.observe(old).state,'inputTriggered');assert.equal(registry.count,1);
-  const fresh=f.bind('33333333-3333-4333-8333-333333333333');
-  assert.notEqual(fresh.target.documentID,old.target.documentID);
-  assert.notEqual(fresh.target.draftGeneration,old.target.draftGeneration);
-  assert.equal(registry.count,1);assert.equal(registry.head,registry.tail);
-  assert.equal(registry.head.operations.size,1);
-  assert.equal(f.call({action:'validate',target:old.target}).valid,false);
-  assert.throws(()=>f.stage(old),/TARGET_INVALID/);assert.throws(()=>f.commit(old),/TARGET_INVALID/);
-  // Even a caller attempting to transplant the old operation ID into a fresh
-  // lease cannot evade the original page input tombstone.
-  const transplanted=f.bind(old.identity.operationID);
-  assert.throws(()=>f.stage(transplanted),/BEGIN_REFUSED/);
-  f.stage(fresh);f.commit(fresh);await f.settle();assert.equal(f.input.inputCount,2);
-  const view=f.makeCard(fresh);f.finish(view);await f.settle();assert.equal(f.observe(fresh).state,'attached');
-  assert.equal(f.observe(old).state,'inputTriggered');assert.equal(f.input.inputCount,2);
-  assert.equal(registry.count,1);
-});
-
-test('48 operation-bearing focus leases share observers while older leases cannot regain input', () => {
-  for(const key of ['__riftletWebAcceptance20261027v1','__riftletWebAcceptance20261027v2','__riftletWebAcceptance20261027v3','__riftletWebAcceptance20261027v4','__riftletWebAcceptance20261027v5','__riftletWebAcceptance20261027v6','__riftletWebAcceptance20261027v7']) {
-    const legacy=fixture({mode:'missing'});
-    legacy.context[key]={valid:()=>true,target:{...native,surface:'webChat'}};
-    assert.throws(()=>legacy.target(),/UNPROVEN_CHAT_MODE/);
-    assert.equal(legacy.context.__riftletWebAcceptance20261027v13.count,0);
-  }
-  const f=fixture();let first;
-  for(let i=0;i<48;i++) {
-    const op=f.bind('11111111-1111-4111-8111-'+String(i).padStart(12,'0'));first ||= op.target;
-    // Focus revokes uncommitted bytes, never the original identity record.
-    // The next lease cannot authorize any retained old operation.
-    f.stage(op);
-    f.document.visibilityState='hidden';for(const fn of f.events.get('visibilitychange')||[]) fn();
-    f.document.visibilityState='visible';
-  }
-  f.target();
-  const registry=f.context.__riftletWebAcceptance20261027v13;
-  assert.equal(registry.count,1);assert.equal(registry.head.operations.size,48);
-  assert.equal(f.call({action:'validate',target:first}).valid,false);assert.equal(f.input.inputCount,0);
-});
-
-test('empty focus-only leases renew without accumulating monitors, listeners or retained generations', async () => {
-  for(const thread of [false,true]) {
-    const f=fixture({thread}),original=f.target(),registry=f.context.__riftletWebAcceptance20261027v13;
-    const state=registry.tail,oldTargets=[original],originalJSON=JSON.stringify(original);
-    const eventCounts=()=>JSON.stringify([...f.events,...f.globalEvents].map(([type,list])=>[type,list.length]));
-    const listeners=eventCounts(),observers=f.mutationObservers.length;
-    for(let i=0;i<96;i++) {
-      const previous=state.target,previousJSON=JSON.stringify(previous);
-      f.focus(false);f.windowEvent('blur');
-      f.document.visibilityState='hidden';for(const fn of f.events.get('visibilitychange')||[])fn();
-      assert.equal(f.call({action:'validate',target:previous}).valid,false);
-      f.focus(true);f.windowEvent('focus');
-      f.document.visibilityState='visible';for(const fn of f.events.get('visibilitychange')||[])fn();
-      const fresh=f.target();oldTargets.push(fresh);
-      assert.notEqual(fresh,previous);assert.notEqual(fresh.documentID,previous.documentID);
-      assert.notEqual(fresh.draftGeneration,previous.draftGeneration);
-      assert.equal(JSON.stringify(previous),previousJSON);
-      assert.equal(f.call({action:'validate',target:previous}).valid,false);
-      assert.equal(f.call({action:'validate',target:fresh}).valid,true);
-      assert.equal(registry.tail,state);assert.equal(registry.head,state);assert.equal(registry.count,1);
-      assert.equal(state.operations.size,0);assert.equal(f.input.inputCount,0);
-    }
-    assert.equal(JSON.stringify(original),originalJSON);assert.equal(eventCounts(),listeners);
-    assert.equal(f.mutationObservers.length,observers);
-    if(thread) {
-      const monitor=registry.rootMonitors.get(f.fibers.root.stateNode),before=monitor.diagnostics.checks;
-      threadCommit(f);assert.equal(monitor.diagnostics.checks-before,1);
-    }
-    for(const target of oldTargets.slice(0,-1)) {
-      const identity={operationID:'33333333-3333-4333-8333-333333333333',assetID:'44444444-4444-4444-8444-444444444444',attempt:1,assetSHA256:digest(png),target};
-      assert.equal(f.call({action:'validate',target}).valid,false);
-      assert.throws(()=>f.call({action:'begin',target,identity}),/TARGET_INVALID/);
-      assert.equal(f.call({action:'observe',target,identity}).observation.state,'invalidated');
-    }
-    // A fresh independently captured lease can perform its own one input. No
-    // preceding rejected target was retried or assigned this new identity.
-    const op=f.bind();f.stage(op);f.commit(op);await f.settle();assert.equal(f.input.inputCount,1);
-  }
-});
-
-test('continuous focus renewal preserves UNKNOWN identity and retires staged old inputs', async () => {
-  for(const committed of [false,true]) {
-    const f=fixture({thread:true}),old=f.bind();f.stage(old);
-    if(committed){f.commit(old);await f.settle();}
-    const registry=f.context.__riftletWebAcceptance20261027v13,originalState=registry.tail;
-    const originalOperation=originalState.operations.get(old.identity.operationID);
-    const originalTarget=originalState.target,originalTargetJSON=JSON.stringify(originalTarget);
-    f.windowEvent('blur');f.windowEvent('focus');f.target();const emptyState=registry.tail;
-    assert.equal(emptyState,originalState);assert.equal(registry.count,1);
-    for(let i=0;i<96;i++){f.windowEvent('blur');f.windowEvent('focus');f.target();}
-    assert.equal(registry.count,1);assert.equal(registry.tail,emptyState);
-    assert.equal(registry.head,originalState);assert.equal(JSON.stringify(originalTarget),originalTargetJSON);
-    assert.notEqual(originalState.target,originalTarget);
-    assert.equal(originalState.operations.get(old.identity.operationID),originalOperation);
-    assert.equal(originalOperation.committed,committed);
-    assert.equal(f.observe(old).state,committed?'inputTriggered':'invalidated');
-    assert.equal(f.input.inputCount,committed?1:0);
-    assert.throws(()=>f.stage(old),/TARGET_INVALID/);assert.throws(()=>f.commit(old),/TARGET_INVALID/);
-    const transplant=f.bind(old.identity.operationID);assert.throws(()=>f.stage(transplant),/BEGIN_REFUSED/);
-    assert.equal(f.input.inputCount,committed?1:0);
-  }
-});
-
-test('empty renewal cannot cross an observed business ABA, DOM detach or navigation boundary', () => {
-  const changes=[
-    f=>{threadCommit(f,'local-chatgpt:00000000-0000-0000-0000-000000000000');threadCommit(f);},
-    f=>f.queueMutation([{type:'childList',target:f.body,removedNodes:[f.form],addedNodes:[f.form]}]),
-    f=>f.navigationEvent('navigate')
-  ];
-  for(const change of changes) {
-    const f=fixture({thread:true}),old=f.target(),registry=f.context.__riftletWebAcceptance20261027v13,state=registry.tail;
-    f.windowEvent('blur');change(f);f.windowEvent('focus');const fresh=f.target();
-    assert.notEqual(registry.tail,state);assert.equal(registry.count,2);
-    assert.equal(state.target,old);assert.notEqual(fresh.draftGeneration,old.draftGeneration);
-    assert.equal(f.call({action:'validate',target:old}).valid,false);assert.equal(f.input.inputCount,0);
-  }
-});
-
-test('empty renewal refuses unavailable focus, composer and modal without changing the old target', () => {
-  const changes=[
-    f=>{f.focus(false);return()=>f.focus(true);},
-    f=>{f.document.visibilityState='hidden';return()=>{f.document.visibilityState='visible';};},
-    f=>{f.input.disabled=true;return()=>{f.input.disabled=false;};},
-    f=>{const modal=f.body.append(new f.Node('div',{role:'dialog','aria-modal':'true'}));return()=>{modal.attrs.hidden='';modal.rendered=false;};}
-  ];
-  for(const change of changes) {
-    const f=fixture({thread:true}),old=f.target(),registry=f.context.__riftletWebAcceptance20261027v13,state=registry.tail;
-    f.windowEvent('blur');const restore=change(f);
-    assert.throws(()=>f.target(),/PAGE_UNFOCUSED|PAGE_NOT_VISIBLE|EDITOR_UNAVAILABLE|ATTACHMENT_INPUT_UNAVAILABLE/);
-    assert.equal(state.target,old);assert.equal(registry.count,1);assert.equal(state.operations.size,0);
-    assert.equal(f.call({action:'validate',target:old}).valid,false);assert.equal(f.input.inputCount,0);
-    restore();f.windowEvent('focus');const fresh=f.target();
-    assert.notEqual(fresh,old);assert.equal(registry.tail,state);assert.equal(registry.count,1);
-    assert.equal(f.call({action:'validate',target:old}).valid,false);
-  }
-});
-
-test('empty renewal cannot transfer a state to another native session, window or tab', () => {
-  for(const key of ['sessionID','windowID','tabID']) {
-    const f=fixture({thread:true}),old=f.target(),registry=f.context.__riftletWebAcceptance20261027v13,state=registry.tail;
-    const program=vm.runInContext('('+source+')',f.context),different={...native,[key]:key==='sessionID'?'4242:2':'23'};
-    f.windowEvent('blur');f.windowEvent('focus');const fresh=program({action:'captureTarget'},different);
-    assert.notEqual(registry.tail,state);assert.equal(state.target,old);assert.equal(registry.count,2);
-    assert.equal(fresh[key],different[key]);assert.equal(f.call({action:'validate',target:old}).valid,false);
-    assert.equal(program({action:'validate',target:fresh},different).valid,true);assert.equal(f.input.inputCount,0);
-  }
-});
-
-test('empty renewal does not recover a lost monitor or choose among ambiguous business composers', () => {
-  for(const lostMonitor of [false,true]) {
-    const f=fixture({thread:true}),old=f.target(),registry=f.context.__riftletWebAcceptance20261027v13,state=registry.tail;
-    const root=f.fibers.root.stateNode,monitor=registry.rootMonitors.get(root),operations=state.operations;
-    const observerCount=f.mutationObservers.length;
-    f.windowEvent('blur');
-    if(lostMonitor)Object.defineProperty(root,'current',{value:root.current,writable:true,configurable:true,enumerable:true});
-    else f.body.append(new f.Node('form',{'data-chatgpt-composer':'','data-composer-placement':'thread','data-thread-find-composer':'true'}));
-    f.windowEvent('focus');
-    assert.throws(()=>f.target(),lostMonitor?/ROOT_MONITOR_LOST/:/EDITOR_UNAVAILABLE|AMBIGUOUS_COMPOSER/);
-    assert.equal(registry.tail,state);assert.equal(state.target,old);assert.deepEqual([...state.operations],[...operations]);
-    assert.equal(operations.size,0);assert.equal(registry.count,1);
-    assert.equal(f.mutationObservers.length,observerCount);assert.equal(f.input.inputCount,0);
-    assert.equal(f.call({action:'validate',target:old}).valid,false);
-    if(lostMonitor){assert.equal(monitor.diagnostics.stopped,true);assert.equal(monitor.diagnostics.reason,'DESCRIPTOR_LOST');}
-  }
-});
-
-test('already loaded v13 state without renewal capability uses the original bounded install path', () => {
-  // Capability absence models an already-loaded closure. It is intentionally
-  // not claimed to be execution of another frozen historical source file.
-  const prior=source.replace('currentSource, input, form, nodeID, renewEmptyInputLease, next: null',
-    'currentSource, input, form, nodeID, next: null');assert.notEqual(prior,source);
-  for(const count of [1,32]) {
-    const f=fixture({programSource:prior,thread:true}),old=[];
-    for(let i=0;i<count;i++){old.push(f.target());f.windowEvent('blur');f.windowEvent('focus');}
-    const registry=f.context.__riftletWebAcceptance20261027v13,state=registry.tail;
-    const root=f.fibers.root.stateNode,descriptor=Object.getOwnPropertyDescriptor(root,'current');
-    const monitor=registry.rootMonitors.get(root),operations=state.operations,validate=state.valid,drain=state.drain;
-    const current=vm.runInContext('('+source+')',f.context);
-    assert.equal(state.renewEmptyInputLease,undefined);
-    {
-      current({action:'captureTarget'},native);assert.notEqual(registry.tail,state);
-      for(let i=0;i<64;i++){f.windowEvent('blur');f.windowEvent('focus');current({action:'captureTarget'},native);}
-    }
-    assert.equal(registry.count,count+1);assert.equal(state.target,old.at(-1));
-    assert.equal(state.operations,operations);assert.equal(state.valid,validate);assert.equal(state.drain,drain);
-    assert.deepEqual(Object.getOwnPropertyDescriptor(root,'current'),descriptor);
-    assert.equal(registry.rootMonitors.get(root),monitor);assert.equal(monitor.diagnostics.stopped,false);
-    assert.equal(monitor.diagnostics.restored,false);
-    for(const target of old)assert.equal(current({action:'validate',target},native).valid,false);
-    assert.equal(f.input.inputCount,0);
-  }
-});
-
-test('Window focus/blur, pageshow and every visibility transition revoke the epoch', async () => {
-  const triggers=[f=>f.windowEvent('blur'),f=>f.windowEvent('focus'),f=>f.windowEvent('pageshow'),
-    f=>{for(const fn of f.events.get('visibilitychange')||[]) fn();}];
-  for(const trigger of triggers) {
-    const f=fixture({blockedDigest:true}),op=f.bind();f.stage(op);f.commit(op);
-    trigger(f);f.release();await f.settle();
-    assert.equal(f.input.inputCount,0);assert.equal(f.observe(op).state,'invalidated');
-    assert.equal(f.call({action:'validate',target:op.target}).valid,false);
-    assert.notEqual(f.target().draftGeneration,op.target.draftGeneration);
-  }
-});
-
-test('ordinary draft typing and descendant focus events do not revoke the Window epoch', async () => {
-  const f=fixture(),op=f.bind();
-  f.editor.textContent+=' continued typing';
-  f.queueMutation([{type:'characterData',target:f.editor,oldValue:'Existing 中文 draft 👋'}]);
-  f.windowEvent('blur',f.editor);f.windowEvent('focus',f.input);
+test('ambiguous or externally owned pickers bind the chat and retire only after actual discovery fails',async()=>{
+ for(const layout of ['other-form','multiple-global']){
+  const f=fixture();f.input.remove();
+  if(layout==='other-form')f.body.append(new f.Node('form')).append(f.input);
+  else f.body.append(f.input,new f.context.HTMLInputElement());
+  const op=f.bind();f.stage(op);
   assert.equal(f.call({action:'validate',target:op.target}).valid,true);
-  assert.equal(f.target().draftGeneration,op.target.draftGeneration);
-  f.stage(op);f.commit(op);await f.settle();assert.equal(f.input.inputCount,1);
-  assert.ok(f.editor.textContent.endsWith(' continued typing'));
-});
-
-test('queued transient mutation records are drained before validation and capture reuse', () => {
-  for(const method of ['validate','captureTarget']) {
-    const f=fixture(),old=f.target();
-    f.queueMutation([{type:'attributes',target:f.chatMode,attributeName:'aria-pressed',oldValue:'true'},
-      {type:'attributes',target:f.chatMode,attributeName:'aria-pressed',oldValue:'false'}]);
-    if(method==='validate') assert.equal(f.call({action:method,target:old}).valid,false);
-    else assert.notEqual(f.target().draftGeneration,old.draftGeneration);
-    assert.equal(f.input.inputCount,0);
-  }
-});
-
-test('final input drains pending mode or node round-trips after asynchronous hashing', async () => {
-  const changes=[f=>[{type:'attributes',target:f.chatMode,attributeName:'aria-pressed',oldValue:'true'},
-      {type:'attributes',target:f.chatMode,attributeName:'aria-pressed',oldValue:'false'}],
-    f=>[{type:'childList',target:f.body,removedNodes:[f.form],addedNodes:[f.form]}]];
-  for(const records of changes) {
-    const f=fixture({blockedDigest:true}),op=f.bind();f.stage(op);f.commit(op);
-    // Deliberately withhold the observer callback until the program itself
-    // drains takeRecords. The final DOM snapshot looks completely unchanged.
-    f.queueMutation(records(f));f.release();await f.settle();
-    assert.equal(f.input.inputCount,0);assert.equal(f.observe(op).state,'invalidated');
-  }
-});
-
-
-test('current document focus is required even before blur notification is delivered', async () => {
-  const f=fixture(),op=f.bind();f.stage(op);
-  f.focus(false); // Do not deliver Window blur or visibilitychange.
-  assert.equal(f.call({action:'validate',target:op.target}).valid,false);
-  assert.throws(()=>f.commit(op),/TARGET_INVALID/);
-  assert.equal(f.input.inputCount,0);
-  const pending=fixture({blockedDigest:true}),later=pending.bind();pending.stage(later);pending.commit(later);
-  pending.focus(false);pending.release();await pending.settle();
-  assert.equal(pending.input.inputCount,0);assert.equal(pending.observe(later).state,'invalidated');
-});
-
-test('observed current thread fiber exposes logical identity independently from URL and other file inputs', async () => {
-  const f=fixture({thread:true});
-  for(let i=0;i<3;i++){const input=new f.Input();input.attrs['aria-label']='other '+i;f.form.append(input);}
-  const t=f.target();assert.equal(t.logicalDraftIdentity.profileID,'chatgpt-composer-react-20261027-v1');
-  assert.equal(t.logicalDraftIdentity.id,f.businessID);assert.ok(!f.context.location.href.includes(f.businessID));
-  const op=f.bind();f.stage(op);f.commit(op);await f.settle();const view=f.makeCard(op);f.finish(view);await f.settle();
-  assert.equal(f.observe(op).state,'attached');assert.equal(f.input.inputCount,1);
-  assert.equal(fixture().target().logicalDraftIdentity,undefined);
-});
-
-test('modern Home has exact local business identity and unique input without legacy header proof', async () => {
-  const f=fixture({businessHome:true});
-  f.modeGroup.attrs['aria-label']='unrelated';
-  const op=f.bind();assert.equal(op.target.logicalDraftIdentity.id,f.businessID);
-  assert.equal(op.target.logicalDraftIdentity.profileID,'chatgpt-composer-react-20261027-v1');
-  f.stage(op);f.commit(op);await f.settle();const view=f.makeCard(op);f.finish(view);await f.settle();
-  assert.equal(f.observe(op).state,'attached');assert.equal(f.input.inputCount,1);
-});
-
-test('modern Home conflicts never borrow legacy header proof', () => {
-  for(const change of [
-    f=>f.fibers.modeFiber.memoizedProps.isHome=false,
-    f=>f.fibers.modeFiber.memoizedProps.isWork=true,
-    f=>f.fibers.modeFiber.memoizedProps.readOnly=true,
-    f=>f.fibers.draftFiber.memoizedProps.isTemporaryChat=true,
-    f=>f.fibers.draftFiber.memoizedProps.readOnly=true,
-    f=>f.fibers.draftFiber.memoizedProps.surfacePlacement.kind='thread',
-    f=>f.fibers.draftFiber.memoizedProps.draftKey='different',
-    f=>threadCommit(f,f.businessID.slice('local-chatgpt:'.length)),
-    f=>f.body.append(new f.Node('form',{'data-chatgpt-composer':'','data-composer-placement':'home','data-thread-find-composer':'true'}))
-  ]) {
-    const f=fixture({businessHome:true});change(f);
-    assert.throws(()=>f.target(),/UNPROVEN_THREAD_IDENTITY|AMBIGUOUS_COMPOSER/);
-    assert.equal(f.input.inputCount,0);
-  }
-});
-
-test('modern Home local promotion and ABA cannot authorize original click', async () => {
-  for(const restore of [false,true]) {
-    const f=fixture({businessHome:true}),op=f.bind();f.stage(op);
-    threadCommit(f,f.businessID.slice('local-chatgpt:'.length));
-    if(restore)threadCommit(f);
-    assert.equal(f.call({action:'validate',target:op.target}).valid,false);
-    assert.throws(()=>f.commit(op),/TARGET_INVALID/);assert.equal(f.input.inputCount,0);
-  }
-});
-
-test('observed persisted thread preserves its exact bare UUID under a separate profile', async () => {
-  const f=fixture({thread:true}),id=f.businessID.slice('local-chatgpt:'.length);
-  threadCommit(f,id);
-  const op=f.bind();
-  assert.equal(op.target.logicalDraftIdentity.profileID,'chatgpt-composer-react-persisted-20261027-v1');
-  assert.equal(op.target.logicalDraftIdentity.id,id);assert.ok(!f.context.location.href.includes(id));
-  threadCommit(f,id);assert.equal(f.call({action:'validate',target:op.target}).valid,true);
-  f.stage(op);f.commit(op);await f.settle();const view=f.makeCard(op);f.finish(view);await f.settle();
-  assert.equal(f.observe(op).state,'attached');assert.equal(f.input.inputCount,1);
-});
-
-test('persisted identity refuses non-UUID formats and inconsistent complete property groups', () => {
-  const id='12345678-1234-1234-1234-123456789ABC';
-  for(const invalid of ['not-a-uuid',id+'x',' '+id,id+'\n','chatgpt:'+id,'LOCAL-CHATGPT:'+id,id.replaceAll('-','')]) {
-    const f=fixture({thread:true});threadCommit(f,invalid);
-    assert.throws(()=>f.target(),/UNPROVEN_THREAD_IDENTITY/);assert.equal(f.input.inputCount,0);
-  }
-  for(const change of [
-    props=>{props.draftKey='local-chatgpt:'+id;},
-    props=>{props.draftKey=id.toLowerCase();},
-    props=>{props.conversationId='00000000-0000-0000-0000-000000000000';}
-  ]) {
-    const f=fixture({thread:true}),next=threadCommit(f,id);change(next.draftFiber.memoizedProps);
-    assert.throws(()=>f.target(),/UNPROVEN_THREAD_IDENTITY/);assert.equal(f.input.inputCount,0);
-  }
-});
-
-test('local and persisted profile transitions revoke original leases and cannot forge continuity', async () => {
-  for(const startsPersisted of [false,true]) {
-    const f=fixture({thread:true}),local=f.businessID,persisted=local.slice('local-chatgpt:'.length);
-    const originalID=startsPersisted?persisted:local,nextID=startsPersisted?local:persisted;
-    threadCommit(f,originalID);const op=f.bind();f.stage(op);f.commit(op);await f.settle();
-    const view=f.makeCard(op);f.finish(view);await f.settle();assert.equal(f.observe(op).state,'attached');
-    threadCommit(f,nextID);
-    assert.equal(f.call({action:'validate',target:op.target}).valid,false);
-    assert.equal(f.observe(op).state,'invalidated');assert.equal(f.observe(op).belongsToOriginalDraft,false);
-    const next=f.target();assert.notEqual(next.logicalDraftIdentity.profileID,op.target.logicalDraftIdentity.profileID);
-    assert.notEqual(next.draftGeneration,op.target.draftGeneration);
-    const forged={...op.target,logicalDraftIdentity:next.logicalDraftIdentity};
-    assert.equal(f.call({action:'validate',target:forged}).valid,false);
-    assert.equal(f.call({action:'observe',target:forged,identity:{...op.identity,target:forged}}).observation.state,'invalidated');
-    threadCommit(f,originalID);
-    assert.equal(f.call({action:'validate',target:op.target}).valid,false);
-    assert.equal(f.call({action:'validate',target:next}).valid,false);
-    assert.equal(f.observe(op).state,'invalidated');assert.equal(f.input.inputCount,1);
-  }
-});
-
-test('thread mode/identity is strict: absent, partial, inconsistent, Work, temporary and readonly refuse', () => {
-  const changes=[
-    f=>delete f.form.__reactFiber$fixture,
-    f=>delete f.fibers.modeFiber.memoizedProps.isWork,
-    f=>delete f.fibers.draftFiber.memoizedProps.draftKey,
-    f=>{f.fibers.modeFiber.memoizedProps.isWork=true;},
-    f=>{f.fibers.modeFiber.memoizedProps.isHome=true;},
-    f=>{f.fibers.modeFiber.memoizedProps.readOnly=true;},
-    f=>{f.fibers.draftFiber.memoizedProps.isWorkConversation=true;},
-    f=>{f.fibers.draftFiber.memoizedProps.isTemporaryChat=true;},
-    f=>{f.fibers.draftFiber.memoizedProps.readOnly=true;},
-    f=>{f.fibers.draftFiber.memoizedProps.surfacePlacement.kind='home';},
-    f=>{f.fibers.draftFiber.memoizedProps.draftKey='different';},
-    f=>{f.fibers.modeFiber.memoizedProps.conversationId='local-chatgpt:00000000-0000-0000-0000-000000000000';},
-    f=>{f.form.__reactFiber$other=f.fibers.leaf;}
-  ];
-  for(const change of changes){const f=fixture({thread:true});change(f);assert.throws(()=>f.target(),/UNPROVEN_THREAD_IDENTITY/);assert.equal(f.input.inputCount,0);}
-});
-
-test('current committed fiber is selected through alternate; stale or ambiguous roots and broken ancestry refuse', () => {
-  const f=fixture({thread:true}), current=f.fibers, stale=f.makeFibers('local-chatgpt:00000000-0000-0000-0000-000000000000');
-  stale.root.stateNode=current.root.stateNode;stale.leaf.alternate=current.leaf;current.leaf.alternate=stale.leaf;
-  f.form.__reactFiber$fixture=stale.leaf;
-  assert.equal(f.target().logicalDraftIdentity.id,f.businessID);
-  stale.modeFiber.memoizedProps.isWork=true;assert.equal(f.target().logicalDraftIdentity.id,f.businessID);
-  const invalids=[
-    g=>{g.fibers.root.stateNode.current={};},
-    g=>{g.fibers.modeFiber.child={};},
-    g=>{g.fibers.leaf.stateNode={};},
-    g=>{g.fibers.root.return=g.fibers.leaf;},
-    g=>{g.fibers.leaf.alternate=g.makeFibers().leaf;}
-  ];
-  for(const change of invalids){const g=fixture({thread:true});change(g);assert.throws(()=>g.target(),/UNPROVEN_THREAD_IDENTITY/);}
-});
-
-test('thread business identity change permanently ends original observation and never relabels its operation', async () => {
-  const f=fixture({thread:true}),old=f.bind();f.stage(old);f.commit(old);await f.settle();const view=f.makeCard(old);f.finish(view);await f.settle();
-  assert.equal(f.observe(old).state,'attached');
-  const freshFibers=f.makeFibers('local-chatgpt:00000000-0000-0000-0000-000000000000');f.form.__reactFiber$fixture=freshFibers.leaf;
-  assert.equal(f.observe(old).state,'invalidated');assert.equal(f.observe(old).belongsToOriginalDraft,false);
-  const fresh=f.target();assert.notEqual(fresh.logicalDraftIdentity.id,old.target.logicalDraftIdentity.id);
-  f.form.__reactFiber$fixture=f.fibers.leaf;
-  assert.equal(f.observe(old).state,'invalidated');assert.equal(f.input.inputCount,1);
-  const forged={...old.target,logicalDraftIdentity:{...old.target.logicalDraftIdentity,id:fresh.logicalDraftIdentity.id}};
-  const result=f.call({action:'observe',target:forged,identity:{...old.identity,target:forged}}).observation;
-  assert.equal(result.state,'invalidated');assert.equal(result.belongsToOriginalDraft,false);
-});
-
-test('background observation retains proof and correlated late error across input epoch rearm', async () => {
-  for(const thread of [false,true]) {
-    const f=fixture({thread}),op=f.bind();f.stage(op);f.commit(op);await f.settle();const view=f.makeCard(op);f.finish(view);await f.settle();
-    const ready=f.observe(op);assert.equal(ready.state,'attached');
-    f.focus(false);f.windowEvent('blur');f.document.visibilityState='hidden';for(const fn of f.events.get('visibilitychange')||[])fn();
-    assert.equal(f.call({action:'validate',target:op.target}).valid,false);
-    assert.equal(f.observe(op).state,'attached');assert.equal(f.observe(op).attachmentID,ready.attachmentID);
-    f.focus(true);f.windowEvent('focus');f.document.visibilityState='visible';for(const fn of f.events.get('visibilitychange')||[])fn();
-    const next=f.target();assert.notEqual(next.draftGeneration,op.target.draftGeneration);
-    assert.equal(next.logicalDraftIdentity?.id,op.target.logicalDraftIdentity?.id);
-    assert.equal(f.observe(op).state,'attached');assert.throws(()=>f.commit(op),/TARGET_INVALID/);
-    view.card.attrs['data-state']='error';f.mutate([{type:'attributes',target:view.card,attributeName:'data-state'}]);
-    const late=f.observe(op);assert.equal(late.hasError,true);assert.equal(late.belongsToOriginalDraft,true);
-    assert.equal(late.attachmentID,ready.attachmentID);assert.equal(late.exactImageIdentity,true);assert.equal(f.input.inputCount,1);
-  }
-});
-
-test('original upload can finish in background but new input cannot start there', async () => {
-  const f=fixture({thread:true}),op=f.bind();f.stage(op);f.commit(op);await f.settle();const view=f.makeCard(op);
-  f.focus(false);f.windowEvent('blur');f.document.visibilityState='hidden';for(const fn of f.events.get('visibilitychange')||[])fn();
-  f.finish(view);await f.settle();assert.equal(f.observe(op).state,'attached');
-  assert.throws(()=>f.target(),/PAGE_NOT_VISIBLE/);assert.equal(f.input.inputCount,1);
-  view.card.attrs['data-state']='error';f.mutate([{type:'attributes',target:view.card,attributeName:'data-state'}]);
-  assert.equal(f.observe(op).hasError,true);assert.equal(f.observe(op).exactImageIdentity,true);
-});
-
-test('thread business identity changed during async hash prevents input even when DOM nodes remain', async () => {
-  const f=fixture({thread:true,blockedDigest:true}),op=f.bind();f.stage(op);f.commit(op);
-  f.form.__reactFiber$fixture=f.makeFibers('local-chatgpt:00000000-0000-0000-0000-000000000000').leaf;
-  f.release();await f.settle();assert.equal(f.input.inputCount,0);assert.equal(f.observe(op).state,'invalidated');
-});
-
-
-test('observed 373-level current ancestry is accepted but chains above 512 remain refused', () => {
-  for(const count of [373,513]) {
-    const f=fixture({thread:true});let child=f.fibers.draftFiber;
-    for(let i=0;i<count-4;i++){const parent={memoizedProps:{},child,return:null};child.return=parent;child=parent;}
-    child.return=f.fibers.root;f.fibers.root.child=child;
-    if(count===373)assert.equal(f.target().logicalDraftIdentity.id,f.businessID);
-    else assert.throws(()=>f.target(),/UNPROVEN_THREAD_IDENTITY/);
-  }
-});
-
-
-test('trusted composer-external interaction does not hide a committed business ABA', async () => {
-  for(const type of ['pointerdown','click','keydown']) {
-    const f=fixture({thread:true}),op=f.bind();f.stage(op);f.commit(op);await f.settle();const view=f.makeCard(op);f.finish(view);await f.settle();
-    const ready=f.observe(op), original=f.form.__reactFiber$fixture;
-    f.documentEvent(type,f.body);
-    threadCommit(f,'local-chatgpt:00000000-0000-0000-0000-000000000000');
-    threadCommit(f);
-    assert.equal(f.call({action:'validate',target:op.target}).valid,false);
-    assert.equal(f.observe(op).state,'invalidated');
-    assert.equal(f.context.__riftletWebAcceptance20261027v13.tail.continuityEvents.outsideInteraction,1);
-    assert.equal(f.input.inputCount,1);
-  }
-});
-
-test('Navigation API events permanently end observation and input despite final business ABA', async () => {
-  for(const type of ['navigate','currententrychange']) {
-    const f=fixture({thread:true}),op=f.bind();f.stage(op);f.commit(op);await f.settle();const view=f.makeCard(op);f.finish(view);await f.settle();
-    const original=f.form.__reactFiber$fixture;assert.equal(f.observe(op).state,'attached');
-    f.navigationEvent(type);
-    f.form.__reactFiber$fixture=f.makeFibers('local-chatgpt:00000000-0000-0000-0000-000000000000').leaf;
-    f.form.__reactFiber$fixture=original;
-    assert.equal(f.call({action:'validate',target:op.target}).valid,false);
-    assert.equal(f.observe(op).state,'invalidated');assert.equal(f.observe(op).belongsToOriginalDraft,false);
-    assert.equal(f.context.__riftletWebAcceptance20261027v13.tail.continuityEvents[type],1);
-    assert.equal(f.input.inputCount,1);
-  }
-});
-
-test('trusted editor typing and untrusted external events do not revoke the input epoch', () => {
-  const f=fixture({thread:true}),t=f.target();
-  for(const type of ['pointerdown','click','keydown']){f.documentEvent(type,f.editor);f.documentEvent(type,f.body,false);}
-  assert.equal(f.call({action:'validate',target:t}).valid,true);
-  assert.equal(f.context.__riftletWebAcceptance20261027v13.tail.continuityEvents.outsideInteraction,0);
-});
-
-function threadCommit(f, id = f.businessID) {
-  const next=f.makeFibers(id),root=f.fibers.root.stateNode;
-  next.root.stateNode=root;f.form.__reactFiber$fixture=next.leaf;
-  root.current=next.root;
-  return next;
-}
-
-test('v7 root setter observes both real assignments in same-DOM business ABA and never revives old lease', () => {
-  const f=fixture({thread:true}),old=f.target(),root=f.fibers.root.stateNode;
-  const descriptor=Object.getOwnPropertyDescriptor(root,'current');assert.equal(typeof descriptor.set,'function');
-  threadCommit(f,'local-chatgpt:00000000-0000-0000-0000-000000000000');
-  threadCommit(f);
-  const registry=f.context.__riftletWebAcceptance20261027v13;
-  assert.equal([...registry.rootMonitors.values()][0].diagnostics.commits,2);
-  assert.equal(f.call({action:'validate',target:old}).valid,false);
-  const fresh=f.target();assert.notEqual(fresh.draftGeneration,old.draftGeneration);
-  assert.equal(fresh.logicalDraftIdentity.id,old.logicalDraftIdentity.id);
-  assert.equal(f.call({action:'validate',target:old}).valid,false);
-});
-
-test('v7 same-ID normal commits preserve input and perform one binding check per form across rearm', () => {
-  const f=fixture({thread:true}),old=f.target();
-  threadCommit(f);assert.equal(f.call({action:'validate',target:old}).valid,true);
-  f.windowEvent('blur');f.windowEvent('focus');const fresh=f.target();
-  const monitor=[...f.context.__riftletWebAcceptance20261027v13.rootMonitors.values()][0],before=monitor.diagnostics.checks;
-  threadCommit(f);assert.equal(monitor.diagnostics.checks-before,1);
-  assert.equal(f.call({action:'validate',target:fresh}).valid,true);
-  assert.equal(f.call({action:'validate',target:old}).valid,false);
-  assert.ok(monitor.diagnostics.elapsedMs>=0);assert.ok(monitor.diagnostics.maxElapsedMs>=0);
-});
-
-test('v7 checker exceptions and reentrant commits cannot escape into React or roll back its new tree', () => {
-  for(const reentrant of [false,true]) {
-    const f=fixture({thread:true}),old=f.target(),root=f.fibers.root.stateNode,next=f.makeFibers();
-    next.root.stateNode=root;f.form.__reactFiber$fixture=next.leaf;
-    const last={tag:3,stateNode:root,return:null};
-    Object.defineProperty(next.modeFiber.memoizedProps,'isWork',{get(){
-      if(reentrant){root.current=last;return false;}
-      throw Error('private-text-must-not-escape');
-    }});
-    assert.doesNotThrow(()=>{root.current=next.root;});
-    assert.equal(root.current,reentrant?last:next.root);
-    const monitor=[...f.context.__riftletWebAcceptance20261027v13.rootMonitors.values()][0];
-    assert.equal(monitor.diagnostics.reason,reentrant?'REENTRANT_COMMIT':'CHECK_FAILED');
-    assert.equal(monitor.diagnostics.stopped,true);
-    delete f.form.__reactFiber$fixture;
-    assert.equal(f.call({action:'validate',target:old}).valid,false);
-  }
-});
-
-test('v7 replaced or frozen root descriptor is permanently disqualified and cannot be reinstalled by capture', () => {
-  for(const freeze of [false,true]) {
-    const f=fixture({thread:true}),old=f.target(),root=f.fibers.root.stateNode,value=root.current;
-    if(freeze)Object.freeze(root);
-    else Object.defineProperty(root,'current',{value,writable:true,configurable:true,enumerable:true});
-    assert.equal(f.call({action:'validate',target:old}).valid,false);
-    assert.throws(()=>f.target(),/ROOT_MONITOR_LOST/);
-    const result=f.context.__riftletWebAcceptance20261027v13.stopRootMonitors();
-    assert.equal(result[0].restored,false);
-    assert.equal(root.current,value);
-  }
-});
-
-test('v7 explicit stop restores only its own descriptor with the latest committed value and cannot rearm old leases', () => {
-  const f=fixture({thread:true}),root=f.fibers.root.stateNode,original=Object.getOwnPropertyDescriptor(root,'current'),old=f.target();
-  const next=threadCommit(f);const result=f.context.__riftletWebAcceptance20261027v13.stopRootMonitors();
-  const restored=Object.getOwnPropertyDescriptor(root,'current');
-  assert.equal(result[0].restored,true);assert.equal(restored.value,next.root);
-  for(const key of ['enumerable','writable','configurable'])assert.equal(restored[key],original[key]);
-  assert.equal(restored.get,undefined);assert.equal(restored.set,undefined);
-  assert.equal(f.call({action:'validate',target:old}).valid,false);assert.throws(()=>f.target(),/ROOT_MONITOR_LOST/);
-});
-
-test('v7 ambiguous or replaced original form binding at commit revokes the original lease', () => {
-  for(const change of [f=>{f.fibers.modeFiber.memoizedProps.isWork=true;},
-    f=>{f.input.formOverride=new f.Node('form');},f=>{f.form.isConnected=false;},
-    f=>{f.fibers.draftFiber.memoizedProps.draftKey='ambiguous';}]) {
-    const f=fixture({thread:true}),old=f.target(),root=f.fibers.root.stateNode;change(f);
-    assert.doesNotThrow(()=>{root.current=root.current;});
-    assert.equal(f.call({action:'validate',target:old}).valid,false);
-  }
-});
-
-test('v7 Home does not instrument React roots; unmodifiable thread descriptors refuse before observer registration', () => {
-  const home=fixture();home.target();assert.equal(home.context.__riftletWebAcceptance20261027v13.rootMonitors.size,0);
-  const f=fixture({thread:true}),root=f.fibers.root.stateNode;
-  Object.defineProperty(root,'current',{value:root.current,writable:false,configurable:false});
-  assert.throws(()=>f.target(),/UNOBSERVED_ROOT_DESCRIPTOR/);
-  assert.equal(f.events.size,0);assert.equal(f.context.__riftletWebAcceptance20261027v13.count,0);
-});
-
-test('R01 body/sidebar interactions keep the original usable composer without focusing its editor', async () => {
-  for(const thread of [false,true]) for(const kind of ['body','sidebar']) {
-    const f=fixture({thread}),outside=kind==='body'?f.body:f.body.append(new f.Node('aside'));
-    const op=f.bind(),beforeText=f.editor.textContent;
-    f.document.activeElement=outside;
-    for(const type of ['pointerdown','click','keydown'])f.documentEvent(type,outside);
-    await Promise.resolve();
-    assert.equal(f.call({action:'validate',target:op.target}).valid,true);
-    assert.equal(f.target().draftGeneration,op.target.draftGeneration);
-    f.stage(op);f.commit(op);await f.settle();
-    assert.equal(f.input.inputCount,1);assert.equal(f.document.activeElement,outside);
-    assert.equal(f.editor.textContent,beforeText);
-    const view=f.makeCard(op);f.finish(view);await f.settle();assert.equal(f.observe(op).state,'attached');
-  }
-});
-
-// These sentinels exercise the unchanged v13 program in the controlled VM DOM.
-// There is no real React change handler, Selection implementation or ChatGPT
-// service here; this proves the program's own preservation boundary only.
-for(const thread of [false,true]) for(const kind of ['body','sidebar']) {
-  test(`v13 offline ${thread?'thread':'Home'} / ${kind} input preserves draft, Selection, focus and old attachment`, async () => {
-    const f=fixture({thread}),outside=kind==='body'?f.body:f.body.append(new f.Node('aside'));
-    const originalText=f.editor.textContent;
-    const textNode=f.editor.append(new f.Node('#text'));
-    textNode.nodeType=3;textNode.textContent=originalText;
-    const prior=f.form.append(new f.Node('div',{role:'button','aria-label':'existing.png','data-state':'ready'}));
-    const priorImage=prior.append(new f.Node('img',{alt:'existing.png',src:'blob:existing-attachment'}));
-    const priorAttributes={...prior.attrs},imageAttributes={...priorImage.attrs},priorChildren=prior.children;
-    const range={startContainer:textNode,startOffset:8,endContainer:textNode,endOffset:11,collapsed:false};
-    const selection={anchorNode:textNode,anchorOffset:8,focusNode:textNode,focusOffset:11,
-      isCollapsed:false,rangeCount:1,type:'Range',getRangeAt:index=>{assert.equal(index,0);return range;}};
-    const calls={textReads:0,textWrites:0,selectionReads:0,selectionWrites:0,focus:0,activeElementWrites:0,send:0,oldAttachmentWrites:0};
-    const reject=key=>()=>{calls[key]++;throw Error(`Unexpected v13 fixture side effect: ${key}`);};
-    const textSentinels=[f.editor,textNode].map(node=>{
-      const state={value:originalText};
-      const get=()=>{calls.textReads++;return state.value;};
-      const set=value=>{state.value=value;reject('textWrites')();};
-      Object.defineProperty(node,'textContent',{configurable:true,get,set});
-      return {node,state,get,set};
-    });
-    for(const property of ['innerText','innerHTML']) Object.defineProperty(f.editor,property,{set:reject('textWrites')});
-    for(const property of ['data','nodeValue']) Object.defineProperty(textNode,property,{set:reject('textWrites')});
-    f.document.execCommand=reject('textWrites');
-    for(const method of ['removeAllRanges','addRange','collapse','collapseToStart','collapseToEnd',
-      'extend','setBaseAndExtent','deleteFromDocument','selectAllChildren','empty','modify']) {
-      selection[method]=reject('selectionWrites');
-    }
-    for(const method of ['setStart','setEnd','setStartBefore','setStartAfter','setEndBefore','setEndAfter',
-      'collapse','deleteContents','extractContents','insertNode','surroundContents','selectNode','selectNodeContents']) {
-      range[method]=reject('selectionWrites');
-    }
-    f.document.getSelection=f.context.getSelection=()=>{calls.selectionReads++;return selection;};
-    vm.runInContext('globalThis.window=globalThis',f.context);
-    f.Node.prototype.focus=reject('focus');f.Node.prototype.blur=reject('focus');
-    Object.defineProperty(f.document,'activeElement',{configurable:true,get:()=>outside,set:reject('activeElementWrites')});
-    f.form.submit=reject('send');f.form.requestSubmit=reject('send');f.Node.prototype.click=reject('send');
-    f.Node.prototype.dispatchEvent=event=>{if(event.type==='submit')reject('send')();return true;};
-    for(const node of [prior,priorImage]) node.attrs=new Proxy(node.attrs,{
-      set:reject('oldAttachmentWrites'),deleteProperty:reject('oldAttachmentWrites'),defineProperty:reject('oldAttachmentWrites')
-    });
-    for(const node of [prior,priorImage]) for(const method of ['setAttribute','removeAttribute','remove','replaceWith']) {
-      node[method]=reject('oldAttachmentWrites');
-    }
-    for(const property of ['src','alt']) Object.defineProperty(priorImage,property,{
-      get:()=>imageAttributes[property],set:reject('oldAttachmentWrites')
-    });
-    const assertPreserved=()=>{
-      assert.deepEqual(calls,{textReads:0,textWrites:0,selectionReads:0,selectionWrites:0,focus:0,activeElementWrites:0,send:0,oldAttachmentWrites:0});
-      assert.equal(f.document.activeElement,outside);assert.notEqual(outside,f.editor);
-      assert.equal(f.editor.children.length,1);assert.equal(f.editor.children[0],textNode);
-      assert.equal(textNode.parentNode,f.editor);
-      assert.equal(selection.anchorNode,textNode);assert.equal(selection.focusNode,textNode);
-      assert.deepEqual([selection.anchorOffset,selection.focusOffset,selection.isCollapsed,selection.rangeCount],[8,11,false,1]);
-      assert.equal(selection.getRangeAt(0),range);
-      assert.equal(range.startContainer,textNode);assert.equal(range.endContainer,textNode);
-      assert.deepEqual([range.startOffset,range.endOffset,range.collapsed],[8,11,false]);
-      assert.ok(f.form.contains(prior));assert.equal(prior.parentNode,f.form);assert.equal(prior.isConnected,true);
-      assert.equal(prior.children,priorChildren);assert.equal(prior.children.length,1);assert.equal(prior.children[0],priorImage);
-      assert.equal(priorImage.parentNode,prior);assert.equal(priorImage.isConnected,true);
-      assert.deepEqual(prior.attrs,priorAttributes);assert.deepEqual(priorImage.attrs,imageAttributes);
-      for(const sentinel of textSentinels) {
-        assert.equal(sentinel.state.value,originalText);
-        const descriptor=Object.getOwnPropertyDescriptor(sentinel.node,'textContent');
-        assert.equal(descriptor.get,sentinel.get);assert.equal(descriptor.set,sentinel.set);
-      }
-    };
-    const op=f.bind();
-    for(const type of ['pointerdown','click','keydown'])f.documentEvent(type,outside);
-    await Promise.resolve();
-    assert.equal(f.call({action:'validate',target:op.target}).valid,true);
-    assert.equal(f.target().draftGeneration,op.target.draftGeneration);assertPreserved();
-    f.stage(op);f.commit(op);await f.settle();
-    assert.equal(f.input.inputCount,1);assert.equal(f.input.files.length,1);assert.equal(f.input.files[0].name,op.name);
-    assert.equal(digest(Buffer.from(await f.input.files[0].arrayBuffer())),op.identity.assetSHA256);
-    assert.equal(f.observe(op).state,'inputTriggered');assertPreserved();
-    const view=f.makeCard(op);f.finish(view);await f.settle();
-    assert.equal(f.observe(op).state,'attached');assert.equal(f.observe(op).exactImageIdentity,true);
-    f.observe(op);assert.equal(f.input.inputCount,1);assertPreserved();
-  });
-}
-
-test('R01 unavailable composer or attachment capability refuses capture without input', () => {
-  const changes=[
-    f=>{f.form.inert=true;}, f=>{f.body.attrs.inert='';}, f=>{f.editor.attrs['aria-hidden']='true';},
-    f=>{f.body.attrs.hidden='';}, f=>{f.editor.attrs['aria-disabled']='true';},
-    f=>{f.editor.attrs.contenteditable='false';},f=>{f.editor.rendered=false;},f=>{f.form.display='none';},
-    f=>{f.editor.visibility='hidden';},f=>{f.input.disabled=true;},f=>{f.input.disabledByFieldset=true;},
-    f=>{f.input.inert=true;},f=>{f.input.attrs['aria-disabled']='true';}
-  ];
-  for(const thread of [false,true])for(const change of changes){
-    const f=fixture({thread});change(f);assert.throws(()=>f.target(),/EDITOR_UNAVAILABLE|ATTACHMENT_INPUT_UNAVAILABLE|AMBIGUOUS_COMPOSER/);assert.equal(f.input.inputCount,0);
-  }
-});
-
-test('R01 native modal and visible semantic blocking dialog refuse while hidden nonblocking dialogs do not', () => {
-  for(const nativeModal of [false,true]){
-    const f=fixture(),dialog=f.body.append(new f.Node('dialog',{role:'dialog','aria-modal':'true'}));
-    dialog.nativeModal=nativeModal;
-    assert.throws(()=>f.target(),/EDITOR_UNAVAILABLE/);
-    dialog.attrs.hidden='';dialog.rendered=false;
-    if(nativeModal)assert.throws(()=>f.target(),/EDITOR_UNAVAILABLE/);
-    else assert.equal(f.target().surface,'webChat');
-  }
-  const f=fixture();f.body.append(new f.Node('dialog',{open:'',role:'dialog'}));
-  assert.equal(f.target().surface,'webChat');
-  const within=fixture();within.form.nativeModal=true;
-  assert.equal(within.target().surface,'webChat'); // A top-layer ancestor does not block its own composer.
-});
-
-test('R01 intentionally hidden unique file input stays usable but duplicate attachment entry refuses', async () => {
-  const f=fixture();f.input.attrs.hidden='';f.input.attrs['aria-hidden']='true';f.input.rendered=false;f.input.display='none';
-  const op=f.bind();f.stage(op);f.commit(op);await f.settle();assert.equal(f.input.inputCount,1);
-  const other=fixture();other.form.append(new other.Input());
-  assert.throws(()=>other.target(),/ATTACHMENT_INPUT_UNAVAILABLE/);assert.equal(other.input.inputCount,0);
-});
-
-test('R01 final asynchronous commit rechecks blockers and focus without redirecting the frozen target', async () => {
-  const changes=[f=>{f.form.inert=true;},f=>{f.input.disabled=true;},f=>{f.editor.rendered=false;},
-    f=>{f.body.append(new f.Node('div',{role:'alertdialog','aria-modal':'true'}));},f=>f.focus(false)];
-  for(const change of changes){
-    const f=fixture({blockedDigest:true}),op=f.bind();f.stage(op);f.commit(op);change(f);f.release();await f.settle();
-    assert.equal(f.input.inputCount,0);assert.equal(f.observe(op).state,'invalidated');
-  }
-});
-
-test('R01 interaction that actually opens a blocking dialog revokes only input, preserving committed observation', async () => {
-  const f=fixture({thread:true}),op=f.bind();f.stage(op);f.commit(op);await f.settle();const view=f.makeCard(op);f.finish(view);await f.settle();
-  const original=f.observe(op);assert.equal(original.state,'attached');
-  f.documentEvent('click',f.body);
-  const modal=f.body.append(new f.Node('div',{role:'dialog','aria-modal':'true'}));await Promise.resolve();
-  assert.equal(f.call({action:'validate',target:op.target}).valid,false);
-  assert.equal(f.observe(op).state,'attached');assert.equal(f.observe(op).attachmentID,original.attachmentID);
-  modal.attrs.hidden='';modal.rendered=false;
-  assert.equal(f.call({action:'validate',target:op.target}).valid,false);
-  const fresh=f.target();assert.notEqual(fresh.draftGeneration,op.target.draftGeneration);
-  assert.equal(fresh.logicalDraftIdentity.id,op.target.logicalDraftIdentity.id);assert.equal(f.input.inputCount,1);
-});
-
-test('unsupported unobserved business ABA: assert current limitation after ordinary outside interaction', async () => {
-  // Explicit counterexample, NOT fail-closed acceptance. A transient business
-  // change that bypasses the root.current setter, DOM mutation and Navigation
-  // events is indistinguishable from inert interaction at the final snapshot.
-  // Keep this limitation visible alongside the observed-commit ABA rejection.
-  for(const type of ['pointerdown','click','keydown']) {
-    const f=fixture({thread:true}),target=f.target(),original=f.form.__reactFiber$fixture;
-    const monitor=[...f.context.__riftletWebAcceptance20261027v13.rootMonitors.values()][0];
-    f.documentEvent(type,f.body);
-    f.form.__reactFiber$fixture=f.makeFibers('local-chatgpt:00000000-0000-0000-0000-000000000000').leaf;
-    f.form.__reactFiber$fixture=original;
-    await Promise.resolve(); // The outside-interaction recheck sees only final A.
-    assert.equal(monitor.diagnostics.commits,0);
-    assert.equal(f.call({action:'validate',target}).valid,true); // Known unsupported transition class.
-    assert.equal(f.context.__riftletWebAcceptance20261027v13.tail.continuityEvents.outsideInteraction,1);
-    assert.equal(f.input.inputCount,0); // The fixture does not perform an upload.
-  }
-});
-
-
-function setProgress(f, view, value) {
-  const oldValue=view.progress.getAttribute('aria-valuenow');
-  if(value===null)delete view.progress.attrs['aria-valuenow'];
-  else view.progress.attrs['aria-valuenow']=String(value);
-  f.mutate([{type:'attributes',target:view.progress,attributeName:'aria-valuenow',oldValue}]);
-}
-
-async function startedFixture(options={}) {
-  const f=fixture(options),op=f.bind();f.stage(op);f.commit(op);await f.settle();
-  const view=f.makeCard(op);setProgress(f,view,40);
-  assert.equal(f.observe(op).state,'uploadStarted');
-  return {f,op,view};
-}
-
-test('v9 correlated progress timeline proves start before independent final ready with exact original identity', async () => {
-  const f=fixture({thread:true}),op=f.bind();f.stage(op);
-  const pending=f.commit(op);assert.equal(pending.schemaVersion,2);assert.equal(pending.observation.uploadStart,undefined);
-  await f.settle();assert.equal(f.observe(op).state,'inputTriggered');
-  const view=f.makeCard(op);assert.equal(f.observe(op).uploadStart,undefined);
-  setProgress(f,view,40);
-  const start=f.observe(op),e=start.uploadStart;
-  assert.equal(start.state,'uploadStarted');assert.equal(start.exactImageIdentity,true);
-  assert.equal(start.belongsToOriginalDraft,true);assert.equal(start.hasError,false);assert.equal(start.isUploading,true);
-  assert.deepEqual(start.identity,op.identity);assert.ok(start.attachmentID);
-  assert.deepEqual(Object.keys(e).sort(),['version','signal','evidenceID','inputCount','inputSequence','startSequence','previousProgress','currentProgress','inputObservedAtMS','startObservedAtMS'].sort());
-  assert.equal(e.version,1);assert.equal(e.signal,'correlatedProgress');assert.equal(e.inputCount,1);
-  assert.match(e.evidenceID,/^[a-f0-9-]{36}$/i);assert.equal(e.previousProgress,20);assert.equal(e.currentProgress,40);
-  assert.ok(e.inputSequence>0 && e.startSequence>e.inputSequence);
-  assert.ok(Number.isFinite(e.inputObservedAtMS) && e.inputObservedAtMS>=0 && e.startObservedAtMS>e.inputObservedAtMS);
-  assert.equal(e.profileID,undefined);assert.equal(e.safeToRetry,undefined);
-  const repeated=f.observe(op);assert.deepEqual(repeated.uploadStart,e);
-  setProgress(f,view,60);assert.deepEqual(f.observe(op).uploadStart,e);
-  setProgress(f,view,100);assert.equal(f.observe(op).uploadStart,undefined);assert.notEqual(f.observe(op).state,'uploadStarted');
-  f.finish(view);await f.settle();const ready=f.observe(op);
-  assert.equal(ready.state,'attached');assert.equal(ready.attachmentID,start.attachmentID);assert.equal(ready.uploadStart,undefined);
-  const internal=f.context.__riftletWebAcceptance20261027v13.tail.operations.get(op.identity.operationID);
-  assert.ok(internal.proof.completed>e.startSequence);assert.equal(f.input.inputCount,1);
-});
-
-test('v9 files/change, placeholder, identical samples and a lone hundred percent never establish start', async () => {
-  const f=fixture(),op=f.bind();f.stage(op);f.commit(op);await f.settle();
-  assert.equal(f.input.files.length,1);assert.equal(f.observe(op).uploadStart,undefined);
-  const view=f.makeCard(op);
-  for(let i=0;i<5;i++){f.mutate([]);assert.equal(f.observe(op).state,'inputTriggered');assert.equal(f.observe(op).uploadStart,undefined);}
-  setProgress(f,view,100);assert.equal(f.observe(op).uploadStart,undefined);
-  f.finish(view);await f.settle();assert.equal(f.observe(op).state,'attached');assert.equal(f.observe(op).uploadStart,undefined);
-  const hundredOnly=fixture(),hundred=hundredOnly.bind();hundredOnly.stage(hundred);hundredOnly.commit(hundred);await hundredOnly.settle();
-  hundredOnly.makeCard(hundred,100);assert.equal(hundredOnly.observe(hundred).uploadStart,undefined);
-  const g=fixture(),other=g.bind();g.stage(other);g.commit(other);await g.settle();const placeholder=g.makeCard(other);
-  placeholder.card.children=placeholder.card.children.filter(n=>n!==placeholder.progress);placeholder.progress.isConnected=false;
-  g.mutate([]);assert.equal(g.observe(other).uploadStart,undefined);
-});
-
-test('v9 both progress samples must follow the original input and exact file hash must already verify', async () => {
-  const before=fixture(),op=before.bind();before.stage(op);const premature=before.makeCard(op);setProgress(before,premature,40);
-  before.commit(op);await before.settle();assert.equal(before.input.inputCount,0);assert.equal(before.observe(op).uploadStart,undefined);
-  const f=fixture({blockedInputDigest:true}),later=f.bind();f.stage(later);f.commit(later);
-  const deadline=Date.now()+1000;
-  while(!f.input.inputCount && Date.now()<deadline)await new Promise(resolve=>setTimeout(resolve,1));
-  assert.equal(f.input.inputCount,1);
-  const view=f.makeCard(later);setProgress(f,view,40);assert.equal(f.observe(later).uploadStart,undefined);
-  f.release();await f.settle();assert.equal(f.observe(later).uploadStart,undefined);
-  setProgress(f,view,60);assert.equal(f.observe(later).state,'uploadStarted');
-});
-
-test('v9 invalid numeric progress or regression permanently disqualifies start without fabricating failure', async () => {
-  for(const value of [null,'','NaN','Infinity','-1','101',' 30','30 ','1e2','0x20',10,100]) {
-    const f=fixture(),op=f.bind();f.stage(op);f.commit(op);await f.settle();const view=f.makeCard(op);
-    setProgress(f,view,value);assert.equal(f.observe(op).uploadStart,undefined);
-    setProgress(f,view,40);const result=f.observe(op);
-    assert.equal(result.uploadStart,undefined);assert.equal(result.hasError,false);assert.equal(f.input.inputCount,1);
-  }
-});
-
-test('v9 progress node replacement, transient detach and changed label cannot inherit start evidence', async () => {
-  for(const change of [
-    (f,v)=>{const replacement=new f.Node('div',{...v.progress.attrs,'aria-valuenow':'40'});v.card.children=v.card.children.filter(n=>n!==v.progress);v.progress.isConnected=false;v.card.append(replacement);v.progress=replacement;f.mutate([]);},
-    (f,v)=>f.mutate([{type:'childList',target:v.card,removedNodes:[v.progress],addedNodes:[v.progress]}]),
-    (f,v)=>f.mutate([{type:'attributes',target:v.progress,attributeName:'aria-label',oldValue:'unrelated'}]),
-    (f,v)=>{v.card.append(new f.Node('div',{...v.progress.attrs}));f.mutate([]);},
-    (f,v)=>{v.progress.attrs['aria-label']='正在上传 another.png';f.mutate([]);}
-  ]) {
-    const f=fixture(),op=f.bind();f.stage(op);f.commit(op);await f.settle();const view=f.makeCard(op);
-    change(f,view);setProgress(f,view,60);assert.equal(f.observe(op).uploadStart,undefined);assert.equal(f.input.inputCount,1);
-  }
-});
-
-test('v9 start disappears on original error, missing progress, navigation, card replacement or repeated input', async () => {
-  for(const change of [
-    (f,o,v)=>{v.card.attrs['data-state']='error';f.mutate([]);},
-    (f,o,v)=>{v.card.children=v.card.children.filter(n=>n!==v.progress);v.progress.isConnected=false;f.mutate([]);},
-    (f,o,v)=>{f.context.location.href='https://chatgpt.com/c/changed';},
-    (f,o,v)=>{f.form.children=f.form.children.filter(n=>n!==v.card);v.card.isConnected=false;f.makeCard(o);},
-    (f,o,v)=>f.documentEvent('change',f.input)
-  ]) {
-    const {f,op,view}=await startedFixture();change(f,op,view);
-    const result=f.observe(op);assert.notEqual(result.state,'uploadStarted');assert.equal(result.uploadStart,undefined);
-    assert.equal(result.automaticRetryExcluded,false);
-  }
-});
-
-test('v9 evidence is bound to full operation/attempt/asset/target and remains observation-only after blur', async () => {
-  const {f,op}=await startedFixture({thread:true});
-  for(const identity of [
-    {...op.identity,attempt:2}, {...op.identity,assetID:'33333333-3333-4333-8333-333333333333'},
-    {...op.identity,assetSHA256:'a'.repeat(64)}, {...op.identity,operationID:'33333333-3333-4333-8333-333333333333'},
-    {...op.identity,target:{...op.target,draftGeneration:'other'}}
-  ])assert.equal(f.call({action:'observe',target:identity.target,identity}).observation.uploadStart,undefined);
-  const start=f.observe(op);f.windowEvent('blur');f.focus(false);
-  assert.equal(f.call({action:'validate',target:op.target}).valid,false);
-  assert.deepEqual(f.observe(op).uploadStart,start.uploadStart);assert.equal(f.input.inputCount,1);
-});
-
-test('v9 registry does not inspect, mutate or stop an existing v8 observer', () => {
-  const f=fixture();let touched=0;
-  const legacy=new Proxy({}, {get(){touched++;throw Error('legacy observer accessed');},set(){touched++;throw Error('legacy observer mutated');}});
-  Object.defineProperty(f.context,'__riftletWebAcceptance20261027v8',{value:legacy,configurable:false,writable:false});
-  assert.ok(f.target());assert.ok(f.context.__riftletWebAcceptance20261027v13);assert.equal(touched,0);
-});
-
-
-test('v9 finite zero-to-fractional progress is valid and later regression cancels start permanently', async () => {
-  const f=fixture(),op=f.bind();f.stage(op);f.commit(op);await f.settle();const view=f.makeCard(op,0);
-  setProgress(f,view,0.5);const start=f.observe(op);
-  assert.equal(start.state,'uploadStarted');assert.equal(start.uploadStart.previousProgress,0);assert.equal(start.uploadStart.currentProgress,0.5);
-  setProgress(f,view,0.25);assert.equal(f.observe(op).uploadStart,undefined);
-  setProgress(f,view,50);assert.equal(f.observe(op).uploadStart,undefined);assert.equal(f.input.inputCount,1);
-});
-
-
-test('v9 equal input/start monotonic timestamps refuse start under the strict chronology contract', async () => {
-  const f=fixture();f.context.performance.now=()=>42;
-  const op=f.bind();f.stage(op);f.commit(op);await f.settle();const view=f.makeCard(op);
-  setProgress(f,view,40);const result=f.observe(op);
-  assert.equal(result.state,'inputTriggered');assert.equal(result.uploadStart,undefined);
-  assert.equal(result.hasError,false);assert.equal(f.input.inputCount,1);
-  f.context.performance.now=()=>43;setProgress(f,view,60);
-  assert.equal(f.observe(op).uploadStart,undefined);
-  f.finish(view);await f.settle();assert.equal(f.observe(op).state,'attached');
-});
-
-
-function queueProgressBatch(f, view, values) {
-  const records=[];
-  for(const value of values) {
-    const oldValue=view.progress.getAttribute('aria-valuenow');
-    if(value===null)delete view.progress.attrs['aria-valuenow'];
-    else view.progress.attrs['aria-valuenow']=String(value);
-    records.push({type:'attributes',target:view.progress,attributeName:'aria-valuenow',oldValue});
-  }
-  f.queueMutation(records);
-}
-
-test('v9 queued progress rollback, hundred-to-lower and illegal intermediate values permanently cancel start', async () => {
-  for(const alreadyStarted of [false,true])for(const values of [[80,10,40],[80,10,90],[100,40],['broken',40],[null,40]]) {
-    const f=fixture(),op=f.bind();f.stage(op);f.commit(op);await f.settle();const view=f.makeCard(op);
-    if(alreadyStarted){setProgress(f,view,30);assert.equal(f.observe(op).state,'uploadStarted');}
-    queueProgressBatch(f,view,values); // Final DOM snapshot alone is above the original 20/30.
-    const result=f.observe(op); // Must drain all oldValue records before publishing.
-    assert.equal(result.uploadStart,undefined);assert.notEqual(result.state,'uploadStarted');
-    assert.equal(result.hasError,false);assert.equal(f.input.inputCount,1);
-    setProgress(f,view,95);assert.equal(f.observe(op).uploadStart,undefined);
-    f.finish(view);await f.settle();assert.equal(f.observe(op).state,'attached');
-  }
-});
-
-test('v9 a monotonic coalesced progress batch retains start eligibility without inventing extra samples', async () => {
-  const f=fixture(),op=f.bind();f.stage(op);f.commit(op);await f.settle();const view=f.makeCard(op);
-  queueProgressBatch(f,view,[20,30,40,60]);const result=f.observe(op);
-  assert.equal(result.state,'uploadStarted');assert.equal(result.uploadStart.previousProgress,20);
-  assert.equal(result.uploadStart.currentProgress,60);assert.equal(result.uploadStart.inputCount,1);
-});
-
-
-test('v9 final proof keeps an internal diagnostic timestamp without adding receipt fields or a new completion gate', async () => {
-  const f=fixture();let clock=10;f.context.performance.now=()=>clock;
-  const op=f.bind();f.stage(op);f.commit(op);await f.settle();const view=f.makeCard(op);
-  clock=20;setProgress(f,view,40);const start=f.observe(op);
-  assert.equal(start.uploadStart.inputObservedAtMS,10);assert.equal(start.uploadStart.startObservedAtMS,20);
-  clock=30;f.finish(view);await f.settle();
-  const envelope=f.call(op.command('observe')),proof=f.context.__riftletWebAcceptance20261027v13.tail.operations.get(op.identity.operationID).proof;
-  assert.equal(envelope.observation.state,'attached');assert.equal(proof.completedAtMS,30);
-  assert.ok(proof.completedAtMS>start.uploadStart.startObservedAtMS);
-  assert.equal(envelope.completedAtMS,undefined);assert.equal(envelope.observation.completedAtMS,undefined);
-  assert.equal(envelope.observation.uploadStart,undefined);assert.equal(JSON.stringify(envelope).includes('completedAtMS'),false);
-  // Diagnostic data is deliberately not an additional ready criterion.
-  proof.completedAtMS=NaN;assert.equal(f.observe(op).state,'attached');
-});
-
-
-test('v10 real initial missing progress waits on its original node and two observed decimals establish start', async () => {
-  const f=fixture();let clock=10;f.context.performance.now=()=>clock;
-  const op=f.bind();f.stage(op);f.commit(op);await f.settle();const view=f.makeCard(op,null);
-  const internal=f.context.__riftletWebAcceptance20261027v13.tail.operations.get(op.identity.operationID);
-  assert.equal(internal.progressNode,view.progress);assert.equal(internal.progressValue,null);assert.equal(internal.startDisqualified,false);
-  for(let i=0;i<3;i++){f.mutate([]);assert.equal(f.observe(op).uploadStart,undefined);}
-  clock=20;setProgress(f,view,4.5378966329499795);
-  assert.equal(f.observe(op).uploadStart,undefined);assert.equal(internal.progressValue,4.5378966329499795);
-  clock=30;setProgress(f,view,9.075793265899959);const start=f.observe(op);
-  assert.equal(start.state,'uploadStarted');assert.equal(start.uploadStart.previousProgress,4.5378966329499795);
-  assert.equal(start.uploadStart.currentProgress,9.075793265899959);
-  assert.equal(start.uploadStart.inputObservedAtMS,10);assert.equal(start.uploadStart.startObservedAtMS,30);
-  assert.equal(f.input.inputCount,1);f.finish(view);await f.settle();assert.equal(f.observe(op).state,'attached');
-});
-
-test('v10 finite-then-missing and coalesced missing round trips permanently disqualify start', async () => {
-  for(const initial of [null,4.5378966329499795])for(const values of [[4.5378966329499795,null,9.075793265899959],[4.5378966329499795,null],[100,null,9.075793265899959],['',9.075793265899959]]) {
-    const f=fixture(),op=f.bind();f.stage(op);f.commit(op);await f.settle();const view=f.makeCard(op,initial);
-    queueProgressBatch(f,view,values);assert.equal(f.observe(op).uploadStart,undefined);
-    const internal=f.context.__riftletWebAcceptance20261027v13.tail.operations.get(op.identity.operationID);
-    assert.equal(internal.startDisqualified,true);
-    setProgress(f,view,20);setProgress(f,view,40);assert.equal(f.observe(op).uploadStart,undefined);assert.equal(f.input.inputCount,1);
-    f.finish(view);await f.settle();assert.equal(f.observe(op).state,'attached');
-  }
-  const f=fixture(),op=f.bind();f.stage(op);f.commit(op);await f.settle();const view=f.makeCard(op,null);
-  setProgress(f,view,4.5378966329499795);setProgress(f,view,null);setProgress(f,view,9.075793265899959);
-  assert.equal(f.observe(op).uploadStart,undefined);
-});
-
-test('v10 initial missing progress cannot survive replacement or transient removal', async () => {
-  for(const replace of [false,true]) {
-    const f=fixture(),op=f.bind();f.stage(op);f.commit(op);await f.settle();const view=f.makeCard(op,null),old=view.progress;
-    if(replace){view.card.children=view.card.children.filter(n=>n!==old);old.isConnected=false;view.progress=view.card.append(new f.Node('div',{role:'progressbar','aria-label':'正在上传 '+op.name}));}
-    f.mutate([{type:'childList',target:view.card,removedNodes:[old],addedNodes:[view.progress]}]);
-    setProgress(f,view,4.5378966329499795);setProgress(f,view,9.075793265899959);
-    assert.equal(f.observe(op).uploadStart,undefined);
-    assert.equal(f.context.__riftletWebAcceptance20261027v13.tail.operations.get(op.identity.operationID).startDisqualified,true);
-  }
-});
-
-test('v10 monotonic coalesced initial missing history cannot invent two sampled finite values', async () => {
-  const f=fixture(),op=f.bind();f.stage(op);f.commit(op);await f.settle();const view=f.makeCard(op,null);
-  queueProgressBatch(f,view,[4.5378966329499795,9.075793265899959]);
-  assert.equal(f.observe(op).uploadStart,undefined);
-  setProgress(f,view,13.61368989884994);const start=f.observe(op);
-  assert.equal(start.state,'uploadStarted');assert.equal(start.uploadStart.previousProgress,9.075793265899959);
-});
-
-test('v10 initial missing exception does not admit malformed numeric placeholders or access the old v9 registry', async () => {
-  for(const invalid of ['', 'NaN', 'Infinity', '-1', '101']) {
-    const f=fixture(),op=f.bind();f.stage(op);f.commit(op);await f.settle();const view=f.makeCard(op,invalid);
-    setProgress(f,view,4.5378966329499795);setProgress(f,view,9.075793265899959);assert.equal(f.observe(op).uploadStart,undefined);
-  }
-  const f=fixture();let touched=0;
-  Object.defineProperty(f.context,'__riftletWebAcceptance20261027v9',{value:new Proxy({}, {get(){touched++;throw Error('old v9 accessed');},set(){touched++;throw Error('old v9 mutated');}})});
-  assert.ok(f.target());assert.equal(touched,0);
-});
-
-
-test('v11 real NodeList-like callbacks finish original upload without any native observe after start', async () => {
-  const f=fixture(),op=f.bind();f.stage(op);f.commit(op);await f.settle();
-  const internal=f.context.__riftletWebAcceptance20261027v13.tail.operations.get(op.identity.operationID);
-  const view=f.makeCard(op,null);
-  setProgress(f,view,4.5378966329499795);assert.equal(internal.uploadStart,null);
-  setProgress(f,view,9.075793265899959);assert.ok(internal.uploadStart);
-  // No f.observe(), captureTarget(), drain(), or query drives progress below.
-  const startSequence=internal.uploadStart.startSequence;
-  setProgress(f,view,100);assert.ok(internal.hundred>startSequence);
-  view.card.children=view.card.children.filter(node=>node!==view.progress);view.progress.isConnected=false;
-  f.mutate([{type:'childList',target:view.card,removedNodes:[view.progress],addedNodes:[]}]);
-  assert.ok(internal.ended>internal.hundred);
-  view.image.src='data:image/png;base64,'+op.bytes.toString('base64');
-  f.mutate([{type:'attributes',target:view.image,attributeName:'src'}]);
-  for(const listener of f.events.get('load')||[])listener({type:'load',target:view.image});
-  await f.settle();assert.ok(internal.loaded>internal.hundred);assert.ok(internal.proof);
-  assert.ok(internal.proof.completed>internal.loaded);assert.equal(f.input.inputCount,1);
-  assert.equal(f.observe(op).state,'attached');
-});
-
-
-test('v11 never mutates or stops a historical v10 observer when installing a new registry', () => {
-  const f=fixture();let touched=0;
-  Object.defineProperty(f.context,'__riftletWebAcceptance20261027v10',{value:new Proxy({}, {get(){touched++;throw Error('old v10 accessed');},set(){touched++;throw Error('old v10 mutated');}})});
-  assert.ok(f.target());assert.equal(touched,0);assert.ok(f.context.__riftletWebAcceptance20261027v13);
-});
-
-
-test('v12 256 KiB chunks retain exact per-index ACK and one commit for the real-size fixture', async () => {
-  const bytes=Buffer.alloc(3147775,77);png.copy(bytes,0,0,8);
-  const f=fixture(),op=f.bind('11111111-1111-4111-8111-111111111111',bytes);
-  const begin=f.call({...op.command('begin'),uploadName:op.name,mediaType:'image/png',byteCount:bytes.length});
-  assert.equal(begin.nextChunk,0);
-  let index=0;
-  for(let offset=0;offset<bytes.length;offset+=256*1024,index++) {
-    const command={...op.command('chunk'),chunkIndex:index,chunkBase64:bytes.subarray(offset,offset+256*1024).toString('base64')};
-    const ack=f.call(command);assert.equal(ack.operationID,op.identity.operationID);assert.equal(ack.attempt,1);assert.equal(ack.nextChunk,index+1);
-    if(index===0)assert.throws(()=>f.call(command),/CHUNK_REFUSED/);
-  }
-  assert.equal(index,13);
-  f.call({...op.command('commit'),chunkIndex:index});await f.settle();assert.equal(f.input.inputCount,1);
-  assert.throws(()=>f.call({...op.command('commit'),chunkIndex:index}),/COMMIT_REFUSED/);
-  assert.throws(()=>f.call({...op.command('begin'),uploadName:op.name,mediaType:'image/png',byteCount:bytes.length}),/BEGIN_REFUSED/);
-  f.observe(op);f.observe(op);assert.equal(f.input.inputCount,1);
-});
-
-test('v12 decoded and encoded chunk bounds independently reject capacity overflow without input', () => {
-  for(const size of [256*1024+1,256*1024+3]) {
-    const bytes=Buffer.alloc(size,7);png.copy(bytes,0,0,8);
-    const f=fixture(),op=f.bind('11111111-1111-4111-8111-111111111111',bytes);
-    f.call({...op.command('begin'),uploadName:op.name,mediaType:'image/png',byteCount:size});
-    const expected=size===256*1024+1?/CHUNK_SIZE/:/CHUNK_REFUSED/;
-    assert.throws(()=>f.call({...op.command('chunk'),chunkIndex:0,chunkBase64:bytes.toString('base64')}),expected);
-    assert.equal(f.input.inputCount,0);
-  }
-  const f=fixture(),op=f.bind();
-  assert.throws(()=>f.call({...op.command('begin'),uploadName:op.name,mediaType:'image/png',byteCount:8*1024*1024+1}),/BEGIN_REFUSED/);
-  assert.equal(f.call({...op.command('begin'),uploadName:op.name,mediaType:'image/png',byteCount:8*1024*1024}).nextChunk,0);
-  assert.equal(f.input.inputCount,0);
-});
-
-test('v12 enlarged chunks still refuse changed full identity and fail a complete-hash mismatch before input', async () => {
-  const bytes=Buffer.alloc(256*1024,7);png.copy(bytes,0,0,8);
-  const f=fixture(),op=f.bind('11111111-1111-4111-8111-111111111111',bytes);
-  f.call({...op.command('begin'),uploadName:op.name,mediaType:'image/png',byteCount:bytes.length});
-  const command={...op.command('chunk'),chunkIndex:0,chunkBase64:bytes.toString('base64')};
-  assert.throws(()=>f.call({...command,identity:{...op.identity,attempt:2}}),/ORIGINAL_OPERATION_REQUIRED/);
-  const wrong=Buffer.from(bytes);wrong[wrong.length-1]^=1;
-  f.call({...command,chunkBase64:wrong.toString('base64')});f.commit(op);await f.settle();
-  assert.equal(f.input.inputCount,0);assert.equal(f.observe(op).state,'invalidated');
-  assert.throws(()=>f.commit(op),/COMMIT_REFUSED/);
-});
-
-test('v12 cannot acquire a new input lease for an old v11 operation or touch its registry', () => {
-  const f=fixture();let touched=0;
-  Object.defineProperty(f.context,'__riftletWebAcceptance20261027v11',{value:new Proxy({}, {get(){touched++;throw Error('old v11 accessed');},set(){touched++;throw Error('old v11 mutated');}})});
-  const op=f.bind(),old={...op.target,documentID:'original-v11-document'};
-  assert.equal(f.call({action:'validate',target:old}).valid,false);
-  assert.throws(()=>f.call({action:'commit',target:old,identity:{...op.identity,target:old},chunkIndex:1}),/TARGET_INVALID/);
-  assert.equal(touched,0);assert.equal(f.input.inputCount,0);
-});
-
-function historicalProgram(f, version) {
-  const file=path.join(__dirname,'../RiftletAdaptersTests/Fixtures/LegacyWeb',`v${version}.js`);
-  const program=vm.runInContext('('+fs.readFileSync(file,'utf8')+')',f.context);
-  return command=>program(command,native);
-}
-function installV10Owner(f) {
-  const call=historicalProgram(f,10),target=call({action:'captureTarget'});
-  const registry=f.context.__riftletWebAcceptance20261027v10,root=f.fibers.root.stateNode;
-  return {call,target,registry,root,monitor:registry.rootMonitors.get(root)};
-}
-
-test('v13 borrows the frozen v10 owner after actual v12 failure without changing its descriptor or old state', () => {
-  const f=fixture({thread:true}),old=installV10Owner(f),descriptor=Object.getOwnPropertyDescriptor(old.root,'current');
-  const oldHead=old.registry.head,oldOperations=oldHead.operations;
-  const v12=historicalProgram(f,12);
-  assert.throws(()=>v12({action:'captureTarget'}),/UNOBSERVED_ROOT_DESCRIPTOR/);
-  const failed=f.context.__riftletWebAcceptance20261027v12;
-  assert.equal(failed.count,0);assert.equal(failed.rootMonitors.size,0);
-  const fresh=f.target(),current=f.context.__riftletWebAcceptance20261027v13;
-  assert.notEqual(fresh.documentID,old.target.documentID);
-  assert.equal(fresh.logicalDraftIdentity.id,old.target.logicalDraftIdentity.id);
-  assert.deepEqual(Object.getOwnPropertyDescriptor(old.root,'current'),descriptor);
-  assert.equal(old.registry.head,oldHead);assert.equal(oldHead.operations,oldOperations);
-  assert.equal(old.registry.count,1);assert.equal(failed.count,0);
-  assert.equal(current.rootMonitors.get(old.root).diagnostics.borrowedFrom,10);
-  assert.equal(old.monitor.diagnostics.stopped,false);
-  assert.equal(f.call({action:'validate',target:fresh}).valid,true);
-  assert.equal(f.call({action:'validate',target:old.target}).valid,false);
-  const identity={operationID:'11111111-1111-4111-8111-111111111111',assetID:'22222222-2222-4222-8222-222222222222',attempt:1,assetSHA256:digest(png),target:old.target};
-  for(const action of ['begin','chunk','commit']) assert.throws(()=>f.call({action,target:old.target,identity}),/TARGET_INVALID/);
-  assert.equal(f.input.inputCount,0);
-});
-
-test('v13 private groups preserve both independent commit checks and bound repeated same-form rearming', () => {
-  const f=fixture({thread:true}),old=installV10Owner(f);let fresh=f.target();
-  const monitor=f.context.__riftletWebAcceptance20261027v13.rootMonitors.get(old.root);
-  const before=old.monitor.diagnostics.checks;
-  threadCommit(f);
-  assert.equal(old.monitor.diagnostics.checks-before,2);
-  assert.equal(old.call({action:'validate',target:old.target}).valid,true);
-  assert.equal(f.call({action:'validate',target:fresh}).valid,true);
-  for(let i=0;i<10;i++) { f.windowEvent('blur');f.windowEvent('focus');fresh=f.target(); }
-  assert.equal(monitor.diagnostics.groups,1);
-  const rearmed=old.monitor.diagnostics.checks;threadCommit(f);
-  assert.equal(old.monitor.diagnostics.checks-rearmed,2);
-  assert.equal(f.call({action:'validate',target:fresh}).valid,true);
-  threadCommit(f,'local-chatgpt:00000000-0000-0000-0000-000000000000');threadCommit(f);
-  assert.equal(old.call({action:'validate',target:old.target}).valid,false);
-  assert.equal(f.call({action:'validate',target:fresh}).valid,false);
-  const next=f.target();assert.notEqual(next.draftGeneration,fresh.draftGeneration);
-});
-
-test('v13 borrower stop never restores or stops owner and cannot rearm its own stopped wrapper', () => {
-  const f=fixture({thread:true}),old=installV10Owner(f),fresh=f.target();
-  const descriptor=Object.getOwnPropertyDescriptor(old.root,'current'),registry=f.context.__riftletWebAcceptance20261027v13;
-  const proof={sentinel:'retained-original-bookkeeping'};old.registry.head.operations.set('retained',{proof});
-  const result=registry.stopRootMonitors();
-  assert.equal(result[0].restored,false);assert.equal(old.monitor.diagnostics.stopped,false);
-  assert.deepEqual(Object.getOwnPropertyDescriptor(old.root,'current'),descriptor);
-  assert.equal(old.registry.head.operations.get('retained').proof,proof);
-  assert.equal(old.call({action:'validate',target:old.target}).valid,true);
-  assert.equal(f.call({action:'validate',target:fresh}).valid,false);
-  assert.throws(()=>f.target(),/ROOT_MONITOR_LOST/);
-  threadCommit(f);assert.equal(old.call({action:'validate',target:old.target}).valid,true);
-});
-
-test('v13 new checker exceptions cannot disqualify v10 owner or clear original proof bookkeeping', () => {
-  const f=fixture({thread:true}),old=installV10Owner(f),fresh=f.target();
-  const proof={sentinel:'retained-original-bookkeeping'};old.registry.head.operations.set('retained',{proof});
-  const original=f.form.querySelectorAll;let calls=0;
-  f.form.querySelectorAll=function(selector){
-    if(selector==='input[type=file][aria-label="附加文件"]' && ++calls===2) throw Error('new-check-only');
-    return original.call(this,selector);
-  };
-  assert.doesNotThrow(()=>threadCommit(f));f.form.querySelectorAll=original;
-  assert.equal(old.monitor.diagnostics.stopped,false);
-  assert.equal(old.registry.head.operations.get('retained').proof,proof);
-  assert.equal(old.call({action:'validate',target:old.target}).valid,true);
-  assert.equal(f.call({action:'validate',target:fresh}).valid,false);
-});
-
-test('v13 refuses stopped, incompatible, spoofed, ambiguous and replaced monitor owners', () => {
-  for(const scenario of ['stopped','bind-spoof','intact-spoof','descriptor-spoof','ambiguous','cycle']) {
-    const f=fixture({thread:true}),old=installV10Owner(f);
-    if(scenario==='stopped')old.registry.stopRootMonitors();
-    if(scenario==='bind-spoof')old.monitor.bind=()=>()=>true;
-    if(scenario==='intact-spoof')old.monitor.intact=()=>true;
-    if(scenario==='descriptor-spoof')Object.defineProperty(old.root,'current',{get:()=>f.fibers.root,set:()=>{},configurable:true});
-    if(scenario==='ambiguous')Object.defineProperty(f.context,'__riftletWebAcceptance20261027v11',{value:{rootMonitors:new Map([[old.root,old.monitor]])}});
-    if(scenario==='cycle')old.registry.head.next=old.registry.head;
-    assert.throws(()=>f.target(),/UNOBSERVED_ROOT_DESCRIPTOR|ROOT_MONITOR_LOST/);
-    assert.equal(f.context.__riftletWebAcceptance20261027v13.count,0);
-    assert.equal(f.input.inputCount,0);
-  }
-  const unknown=fixture({thread:true});historicalProgram(unknown,11)({action:'captureTarget'});
-  assert.throws(()=>unknown.target(),/UNOBSERVED_ROOT_DESCRIPTOR/);
-});
-
-test('v13 borrowed lease permanently loses authority after owner stop, function swap or root descriptor loss', () => {
-  for(const scenario of ['owner-stop','function-swap','descriptor-loss']) {
-    const f=fixture({thread:true}),old=installV10Owner(f),fresh=f.target();
-    if(scenario==='owner-stop')old.registry.stopRootMonitors();
-    if(scenario==='function-swap')old.monitor.bind=()=>()=>true;
-    if(scenario==='descriptor-loss')Object.defineProperty(old.root,'current',{value:old.root.current,writable:true,configurable:true});
-    assert.equal(f.call({action:'validate',target:fresh}).valid,false);
-    assert.throws(()=>f.target(),/ROOT_MONITOR_LOST/);
-    assert.equal(f.input.inputCount,0);
-  }
-});
-
-for (const ownerVersion of [9,10,12]) test(`v13 borrowed v${ownerVersion} fresh lease inputs once and finishes while old real proof and late-error observation stay original`, async () => {
-  // The frozen v10 DOM helper uses arrays, matching its original VM evidence;
-  // this does not repair or reclassify v10's separately recorded NodeList bug.
-  const frozen=fs.readFileSync(path.join(__dirname,`../RiftletAdaptersTests/Fixtures/LegacyWeb/v${ownerVersion}.js`),'utf8');
-  const f=require(`../RiftletAdaptersTests/Fixtures/LegacyWeb/v${ownerVersion}-dom-fixture.cjs`)(frozen,'v'+ownerVersion,{thread:true});
-  const old=f.bind();f.stage(old);f.commit(old);await f.settle();
-  const oldView=f.makeCard(old);f.finish(oldView);await f.settle();
-  assert.equal(f.observe(old).state,'attached');
-  const oldRegistry=f.context['__riftletWebAcceptance20261027v'+ownerVersion],oldOp=oldRegistry.head.operations.get(old.identity.operationID),proof=oldOp.proof;
-  const originalDescriptor=Object.getOwnPropertyDescriptor(f.fibers.root.stateNode,'current');
-  const program=vm.runInContext('('+source+')',f.context),call=command=>program(command,native);
-  const target=call({action:'captureTarget'}),identity={operationID:'33333333-3333-4333-8333-333333333333',assetID:'44444444-4444-4444-8444-444444444444',attempt:1,assetSHA256:digest(png),target};
-  const next={identity,target,name:'riftlet-'+identity.operationID+'.png',bytes:png,command:action=>({action,identity,target})};
-  call({...next.command('begin'),uploadName:next.name,mediaType:'image/png',byteCount:png.length});
-  call({...next.command('chunk'),chunkIndex:0,chunkBase64:png.toString('base64')});
-  call({...next.command('commit'),chunkIndex:1});
-  const current=f.context.__riftletWebAcceptance20261027v13,op=current.tail.operations.get(identity.operationID);
-  assert.equal(current.rootMonitors.get(f.fibers.root.stateNode).diagnostics.borrowedFrom,ownerVersion);
-  assert.deepEqual(Object.getOwnPropertyDescriptor(f.fibers.root.stateNode,'current'),originalDescriptor);
-  const wait=async predicate=>{for(let i=0;i<500;i++){if(predicate())return;await new Promise(r=>setTimeout(r,1));}assert.fail('bounded original operation observation did not settle');};
-  await wait(()=>op.fileHashVerified);assert.equal(f.input.inputCount,2);assert.equal(op.inputCount,1);
-  const newView=f.makeCard(next);f.finish(newView);await wait(()=>!!op.proof);
-  assert.equal(call(next.command('observe')).observation.state,'attached');
-  assert.equal(oldOp.proof,proof);assert.equal(f.observe(old).state,'attached');
-  assert.throws(()=>call({...next.command('commit'),chunkIndex:1}),/COMMIT_REFUSED/);
-  current.stopRootMonitors();
-  assert.equal(oldOp.proof,proof);assert.equal(f.observe(old).state,'attached');
-  const legacy=vm.runInContext('('+fs.readFileSync(path.join(__dirname,'../../Sources/RiftletAdapters/Resources/legacy-web-observe.js'),'utf8')+')',f.context);
-  assert.equal(legacy(old.command('observe'),native).observation.state,'attached');
-  oldView.card.attrs['data-state']='error';f.mutate([{type:'attributes',target:oldView.card,attributeName:'data-state'}]);
-  const late=legacy(old.command('observe'),native).observation;
-  assert.equal(late.hasError,true);assert.equal(late.exactImageIdentity,true);
-  assert.equal(late.identity.operationID,old.identity.operationID);assert.equal(f.input.inputCount,2);
-});
-
-test('v13 rejects accessor-valued owner diagnostics without invoking them', () => {
-  for(const field of ['stopped','restored','reason']) {
-    const f=fixture({thread:true}),old=installV10Owner(f);let reads=0;
-    Object.defineProperty(old.monitor.diagnostics,field,{get(){reads++;throw Error('unknown getter');},configurable:true});
-    assert.throws(()=>f.target(),/ROOT_MONITOR_LOST/);
-    assert.equal(reads,0);assert.equal(f.input.inputCount,0);
-  }
-});
-
-test('v13 rejects ordinary wrong-root map membership without restoring the current root', () => {
-  const f=fixture({thread:true}),old=installV10Owner(f),descriptor=Object.getOwnPropertyDescriptor(old.root,'current');
-  old.registry.rootMonitors.delete(old.root);old.registry.rootMonitors.set({},old.monitor);
-  assert.throws(()=>f.target(),/UNOBSERVED_ROOT_DESCRIPTOR/);
-  assert.deepEqual(Object.getOwnPropertyDescriptor(old.root,'current'),descriptor);
-  assert.equal(f.input.inputCount,0);
-});
-
-test('unsupported MAIN-world registry tampering: authentic cross-root monitor swap cannot be authenticated by source equality', () => {
-  const f=fixture({thread:true}),old=installV10Owner(f),originalFiber=f.form.__reactFiber$fixture;
-  const second=f.makeFibers();f.form.__reactFiber$fixture=second.leaf;
-  old.call({action:'captureTarget'});
-  const otherMonitor=old.registry.rootMonitors.get(second.root.stateNode);
-  assert.ok(otherMonitor);assert.notEqual(otherMonitor,old.monitor);
-  // This is deliberate corruption of a code-owned registry, outside the
-  // admitted same-world integrity assumption. The old protocol has no pure
-  // reader exposing its closed-over root/getter identity. Do not fake refusal.
-  old.registry.rootMonitors.set(old.root,otherMonitor);
-  f.form.__reactFiber$fixture=originalFiber;
-  const target=f.target();
-  threadCommit(f,'local-chatgpt:00000000-0000-0000-0000-000000000000');threadCommit(f);
-  assert.equal(f.call({action:'validate',target}).valid,true);
-  assert.equal(f.input.inputCount,0);
-});
-
-
-test('v9 owner protocol and full structural predicates match the explicitly reviewed v10 and v12 sources',()=>{
-  const frozen=version=>fs.readFileSync(path.join(__dirname,`../RiftletAdaptersTests/Fixtures/LegacyWeb/v${version}.js`),'utf8');
-  const block=(text,start,end)=>text.slice(text.indexOf(start),text.indexOf(end,text.indexOf(start)));
-  const v9=frozen(9);
-  for(const version of [10,12])for(const [start,end] of [
-    ['  function rootMonitor(', '\n  function install('],
-    ['  function readThreadBinding(', '\n  // This candidate'],
-    ['const checkBinding =', ';\n      monitorAlive']]) {
-    const expected=block(v9,start,end);assert.ok(expected.length>100);
-    assert.equal(block(frozen(version),start,end),expected);
-  }
-});
-
-test('v9 UNKNOWN stays on its original lease through prior v11/v13 failed capture and new v13 borrowing',async()=>{
-  const f=fixture({thread:true}),v9=historicalProgram(f,9);v9({action:'captureTarget'});
-  f.windowEvent('blur');f.windowEvent('focus');const oldTarget=v9({action:'captureTarget'});
-  const registry=f.context.__riftletWebAcceptance20261027v9,root=f.fibers.root.stateNode;
-  assert.equal(registry.count,2);
-  const descriptor=Object.getOwnPropertyDescriptor(root,'current'),originalState=registry.tail;
-  const identity={operationID:'55555555-5555-4555-8555-555555555555',assetID:'66666666-6666-4666-8666-666666666666',attempt:1,assetSHA256:digest(png),target:oldTarget};
-  const command=action=>({action,target:oldTarget,identity});
-  v9({...command('begin'),uploadName:'riftlet-'+identity.operationID+'.png',mediaType:'image/png',byteCount:png.length});
-  v9({...command('chunk'),chunkIndex:0,chunkBase64:png.toString('base64')});
-  v9({...command('commit'),chunkIndex:1});
-  const op=originalState.operations.get(identity.operationID);
-  for(let i=0;i<500&&!op.fileHashVerified;i++)await new Promise(r=>setTimeout(r,1));
-  assert.equal(op.inputCount,1);assert.equal(op.fileHashVerified,true);assert.equal(op.proof,null);
-  assert.throws(()=>historicalProgram(f,11)({action:'captureTarget'}),/UNOBSERVED_ROOT_DESCRIPTOR/);
-  // Reproduce the previous v13 allowlist refusal; all remaining code is the
-  // same program. Its already-created empty registry must not be reset.
-  const priorSource=source.replace('![9, 10, 12].includes(candidates[0].version)','![10, 12].includes(candidates[0].version)');
-  assert.notEqual(priorSource,source);
-  const prior=vm.runInContext('('+priorSource+')',f.context);
-  assert.throws(()=>prior({action:'captureTarget'},native),/UNOBSERVED_ROOT_DESCRIPTOR/);
-  const empty=f.context.__riftletWebAcceptance20261027v13;
-  assert.equal(empty.count,0);assert.equal(empty.rootMonitors.size,0);
-  const target=f.target();assert.equal(f.context.__riftletWebAcceptance20261027v13,empty);
-  assert.equal(empty.count,1);assert.equal(empty.rootMonitors.get(root).diagnostics.borrowedFrom,9);
-  assert.equal(registry.count,2);assert.equal(registry.tail,originalState);
-  assert.equal(originalState.operations.get(identity.operationID),op);
-  assert.equal(op.inputCount,1);assert.equal(op.proof,null);
-  assert.deepEqual(Object.getOwnPropertyDescriptor(root,'current'),descriptor);
-  assert.notEqual(target.documentID,oldTarget.documentID);
-  assert.equal(f.call({action:'validate',target:oldTarget}).valid,false);
-  for(const action of ['begin','chunk','commit'])assert.throws(()=>f.call(command(action)),/TARGET_INVALID/);
-  const legacy=vm.runInContext('('+fs.readFileSync(path.join(__dirname,'../../Sources/RiftletAdapters/Resources/legacy-web-observe.js'),'utf8')+')',f.context);
-  const observed=legacy(command('observe'),native);
-  assert.equal(observed.schemaVersion,1);assert.equal(observed.observation.identity.operationID,identity.operationID);
-  assert.equal(observed.observation.state,'inputTriggered');assert.equal(f.input.inputCount,1);
-});
-
-test('lifetime exceeds 40 completed inputs without retiring identities or late evidence', async () => {
-  for(const remove of [false,true]) {
-    const f=fixture({thread:true}),all=[];
-    for(let i=0;i<48;i++) {
-      const op=f.bind('abcd1234-1111-4111-8111-'+String(i).padStart(12,'0'));f.stage(op);f.commit(op);await f.settle();
-      const view=f.makeCard(op);f.finish(view);await f.settle();assert.equal(f.observe(op).state,'attached');all.push({op,view});
-      if(remove) {view.card.isConnected=false;f.form.children=f.form.children.filter(n=>n!==view.card);f.mutate([{type:'childList',target:f.form,removedNodes:[view.card]}]);}
-    }
-    assert.equal(f.input.inputCount,48);assert.equal(f.context.__riftletWebAcceptance20261027v13.tail.operations.size,48);
-    for(const {op} of all) {assert.throws(()=>f.stage(op),/BEGIN_REFUSED/);assert.throws(()=>f.commit(op),/COMMIT_REFUSED/);}
-    const {op,view}=all[0];
-    if(!remove) {const before=f.observe(op);view.card.attrs['data-state']='error';f.mutate([]);const late=f.observe(op);assert.equal(late.hasError,true);assert.equal(late.attachmentID,before.attachmentID);assert.equal(f.observe(all[47].op).state,'attached');}
-    else assert.equal(f.observe(op).state,'invalidated');
-    assert.equal(f.input.inputCount,48);
-  }
-});
-
-test('32 live byte payloads are bounded while discarded tombstones release slots', () => {
-  const f=fixture(),ops=[];
-  for(let i=0;i<32;i++){const op=f.bind('abcd1234-2222-4222-8222-'+String(i).padStart(12,'0'));f.stage(op);ops.push(op);}
-  const extra=f.bind('abcd1234-2222-4222-8222-999999999999');assert.throws(()=>f.stage(extra),/BEGIN_REFUSED/);
-  f.call(ops[0].command('discard'));f.stage(extra);
-  assert.throws(()=>f.stage(ops[0]),/BEGIN_REFUSED/);assert.throws(()=>f.commit(ops[0]),/COMMIT_REFUSED/);
-  assert.equal(f.input.inputCount,0);
-});
-
-test('48 true invalid generations retain original tombstones and no renewed input', () => {
-  const f=fixture({thread:true}),all=[];
-  for(let i=0;i<48;i++) {
-    const op=f.bind('abcd1234-3333-4333-8333-'+String(i).padStart(12,'0'));f.stage(op);all.push(op);
-    f.navigationEvent('navigate');
-  }
-  f.target();const registry=f.context.__riftletWebAcceptance20261027v13;assert.equal(registry.count,49);
-  for(const op of all){assert.equal(f.observe(op).state,'invalidated');assert.throws(()=>f.commit(op),/TARGET_INVALID/);assert.throws(()=>f.stage(f.bind(op.identity.operationID)),/BEGIN_REFUSED/);}
-  assert.equal(f.input.inputCount,0);
-  assert.equal(f.mutationObservers.filter(o=>o.observations.length).length,1);
-});
-
-test('pre-input retirement proof binds fresh invocation and never covers commit', async () => {
-  const f=fixture(),op=f.bind(),nonce='aaaa1111-1111-4111-8111-111111111111';
-  const ack=f.call({...op.command('begin'),invocationID:nonce,uploadName:op.name,mediaType:'image/png',byteCount:png.length});
-  assert.equal(ack.allocated,true);assert.equal(ack.identity,op.identity);assert.equal(ack.invocationID,nonce);
-  assert.throws(()=>f.call({...op.command('discard'),invocationID:'different'}),/INVOCATION_MISMATCH/);
-  const proof=f.call({...op.command('discard'),invocationID:nonce});assert.equal(proof.retiredBeforeInput,true);assert.equal(proof.commitInvoked,false);assert.equal(proof.inputCount,0);assert.equal(proof.identity,op.identity);
-  assert.throws(()=>f.stage(op),/BEGIN_REFUSED/);
-  const b=f.bind('bbbb1111-1111-4111-8111-111111111111');f.stage(b);f.commit(b);await f.settle();assert.equal(f.call(b.command('discard')).retiredBeforeInput,undefined);
-});
-
-test('original attachment completion and late failure survive focus aliases without moving identity', async () => {
-  const f=fixture({thread:true}),a=f.bind();f.stage(a);f.commit(a);await f.settle();const av=f.makeCard(a);
-  for(let i=0;i<48;i++){f.windowEvent('blur');f.windowEvent('focus');f.target();}
-  const b=f.bind('bbbbbbbb-1111-4111-8111-111111111111');f.stage(b);f.commit(b);await f.settle();const bv=f.makeCard(b);
-  f.finish(av);f.finish(bv);await f.settle();const ar=f.observe(a),br=f.observe(b);
-  assert.equal(ar.state,'attached');assert.equal(br.state,'attached');assert.ok(ar.attachmentID.startsWith(a.target.documentID+':'));assert.ok(br.attachmentID.startsWith(b.target.documentID+':'));assert.notEqual(ar.attachmentID,br.attachmentID);
-  av.card.attrs['data-state']='error';f.mutate([]);assert.equal(f.observe(a).attachmentID,ar.attachmentID);assert.equal(f.observe(a).hasError,true);assert.equal(f.observe(b).state,'attached');assert.equal(f.input.inputCount,2);
-});
-
-test('nonce-bearing staged inputs cannot be committed or altered by another invocation', async () => {
-  const f=fixture(),op=f.bind(),invocationID='aaaa1111-1111-4111-8111-111111111111';
-  f.call({...op.command('begin'),invocationID,uploadName:op.name,mediaType:'image/png',byteCount:png.length});
-  const chunk={...op.command('chunk'),chunkIndex:0,chunkBase64:png.toString('base64')};assert.throws(()=>f.call(chunk),/INVOCATION_MISMATCH/);
-  f.call({...chunk,invocationID});assert.throws(()=>f.call({...op.command('commit'),chunkIndex:1,invocationID:'wrong'}),/INVOCATION_MISMATCH/);assert.equal(f.input.inputCount,0);
-  f.call({...op.command('commit'),chunkIndex:1,invocationID});await f.settle();assert.equal(f.input.inputCount,1);
-  assert.equal(f.call({...op.command('discard'),invocationID}).retiredBeforeInput,undefined);
-});
-
-test('invalid generation becomes data-only audit tombstone, not a retained DOM binding', async () => {
-  const f=fixture({thread:true}),a=f.bind();f.stage(a);f.commit(a);await f.settle();const av=f.makeCard(a);f.finish(av);await f.settle();const ready=f.observe(a);
-  const state=f.context.__riftletWebAcceptance20261027v13.tail;
-  f.navigationEvent('navigate');assert.equal(state.retired,true);
-  for(const key of ['form','input','sampleStart','currentMember','nodeID','renewEmptyInputLease'])assert.equal(state[key],undefined);
-  const record=state.operations.get(a.identity.operationID);assert.equal(record.identity,a.identity);assert.ok(record.proofAudit);assert.equal(record.lastAttachmentID,ready.attachmentID);
-  for(const key of ['file','chunks','proof','card','image','progressNode'])assert.equal(record[key],undefined);
-  assert.equal([...f.events.values(),...f.globalEvents.values()].reduce((n,a)=>n+a.length,0),0);
-  assert.equal(f.observe(a).state,'invalidated');assert.throws(()=>f.commit(a),/TARGET_INVALID/);
-  f.target();assert.equal(f.mutationObservers.filter(o=>o.observations.length).length,1);
-});
-
-test('fresh capacity rejection atomically retires only its original identity and nonce', () => {
-  const f=fixture(),ops=[];
-  for(let i=0;i<32;i++){const op=f.bind('abcd1234-4444-4444-8444-'+String(i).padStart(12,'0'));f.stage(op);ops.push(op);}
-  const op=f.bind('bbbbbbbb-4444-4444-8444-111111111111'),invocationID='aaaaaaaa-4444-4444-8444-111111111111';
-  const command={...op.command('begin'),invocationID,uploadName:op.name,mediaType:'image/png',byteCount:png.length};
-  const result=f.call(command);assert.equal(result.rejectedBeforeBegin,true);assert.equal(result.reason,'ACTIVE_PAYLOAD_LIMIT');assert.equal(result.identity,op.identity);assert.equal(result.invocationID,invocationID);assert.equal(result.inputCount,0);assert.equal(result.commitInvoked,false);assert.equal(result.retiredBeforeInput,true);
-  assert.throws(()=>f.call(command),/BEGIN_REFUSED/);f.call(ops[0].command('discard'));
-  assert.throws(()=>f.call({...op.command('commit'),chunkIndex:0,invocationID}),/COMMIT_REFUSED/);
-  assert.throws(()=>f.stage(op),/BEGIN_REFUSED/);assert.equal(f.input.inputCount,0);
-});
-
-test('capacity proof never blesses malformed, legacy-capability or duplicate requests', () => {
-  const f=fixture(),ops=[];
-  for(let i=0;i<32;i++){const op=f.bind('abcd1234-5555-4555-8555-'+String(i).padStart(12,'0'));f.stage(op);ops.push(op);}
-  const op=f.bind('bbbbbbbb-5555-4555-8555-111111111111'),invocationID='aaaaaaaa-5555-4555-8555-111111111111';
-  const command={...op.command('begin'),invocationID,uploadName:op.name,mediaType:'image/png',byteCount:png.length};
-  for(const patch of [{invocationID:'-'.repeat(36)},{identity:{...op.identity,assetID:'-'.repeat(36)}},{byteCount:0}])assert.throws(()=>f.call({...command,...patch}),/BEGIN_REFUSED/);
-  assert.throws(()=>f.call({...ops[0].command('begin'),invocationID,uploadName:ops[0].name,mediaType:'image/png',byteCount:png.length}),/BEGIN_REFUSED/);
-  const state=f.context.__riftletWebAcceptance20261027v13.tail;delete state.lifecycleVersion;
-  assert.throws(()=>f.call(command),/BEGIN_REFUSED/);assert.equal(state.operations.has(op.identity.operationID),false);assert.equal(f.input.inputCount,0);
-});
-
-// Click capabilities belong to one already observed document, not a foreground
-// cache or a new input permit inferred from a later active tab.
-function pinnedOperation(f, id='11111111-1111-4111-8111-111111111111') {
-  const op=f.bind(id);
-  const target=f.call({action:'pinTarget',target:op.target,clickBindingID:webcrypto.randomUUID()});
-  op.target=target;op.identity={...op.identity,target};
-  op.command=action=>({action,target,identity:op.identity});
-  return op;
-}
-test('pinned A continues after blur or hidden; unaddressed B and original text stay untouched', async()=>{
-  for(const change of [f=>{f.focus(false);f.windowEvent('blur');},f=>{f.document.visibilityState='hidden';f.documentEvent('visibilitychange',f.document);}]){
-    const a=fixture({thread:true}),b=fixture({thread:true});
-    const original=a.editor.textContent,old=a.form.append(new a.Node('div',{role:'button','aria-label':'old.png'}));old.append(new a.Node('img'));
-    const op=pinnedOperation(a);change(a);
-    assert.equal(a.call({action:'validate',target:op.target}).valid,true);
-    a.stage(op);a.commit(op);await a.settle();assert.equal(a.input.inputCount,1);assert.equal(b.input.inputCount,0);
-    const view=a.makeCard(op,20);view.progress.attrs['aria-valuenow']='45';a.mutate([]);
-    assert.equal(a.observe(op).state,'uploadStarted');
-    a.finish(view);await a.settle();assert.equal(a.observe(op).state,'attached');
-    assert.equal(a.editor.textContent,original);assert.ok(a.form.contains(old));
-  }
-});
-test('pinned hash continuation survives switch but document destruction still refuses',async()=>{
-  for(const destroy of [false,true]){
-    const f=fixture({blockedDigest:true}),op=pinnedOperation(f);f.stage(op);f.commit(op);
-    f.focus(false);f.windowEvent('blur');f.document.visibilityState='hidden';f.documentEvent('visibilitychange',f.document);
-    if(destroy)f.windowEvent('pagehide');f.release();await f.settle();
-    assert.equal(f.input.inputCount,destroy?0:1);
-  }
-});
-test('pin cannot install missing observation, bind unfocused page or forge another capability',()=>{
-  const f=fixture();assert.throws(()=>f.call({action:'pinTarget',clickBindingID:webcrypto.randomUUID()}),/CLICK_ROUTE_UNOBSERVED/);
-  const base=f.target();f.focus(false);assert.throws(()=>f.call({action:'pinTarget',target:base,clickBindingID:webcrypto.randomUUID()}),/PAGE_UNFOCUSED/);
-  f.focus(true);const pin=f.call({action:'pinTarget',target:base,clickBindingID:webcrypto.randomUUID()});
-  assert.equal(f.call({action:'validate',target:{...pin,clickBindingID:webcrypto.randomUUID()}}).valid,false);
-  assert.throws(()=>f.call({action:'pinTarget',target:base,clickBindingID:pin.clickBindingID}),/CLICK_PIN_REFUSED/);
-  assert.throws(()=>f.call({action:'pinTarget',target:{...base,documentID:'later-document'},clickBindingID:webcrypto.randomUUID()}),/CLICK_ROUTE_UNOBSERVED/);
-});
-test('a pin is consumed by one operation and never reused for another image',async()=>{
-  const f=fixture(),op=pinnedOperation(f);f.stage(op);f.commit(op);await f.settle();
-  const another={...op.identity,operationID:'33333333-3333-4333-8333-333333333333'};
-  assert.throws(()=>f.call({action:'begin',target:op.target,identity:another,uploadName:'riftlet-'+another.operationID+'.png',mediaType:'image/png',byteCount:op.bytes.length}),/CLICK_PIN_SPENT/);
-  assert.throws(()=>f.commit(op),/COMMIT_REFUSED/);assert.equal(f.input.inputCount,1);
-});
-test('two distinct clicks retain their own original pin through focus lease renewal',async()=>{
-  const f=fixture(),a=pinnedOperation(f);
-  f.focus(false);f.windowEvent('blur');f.focus(true);f.windowEvent('focus');
-  const b=pinnedOperation(f,'33333333-3333-4333-8333-333333333333');
-  assert.notEqual(a.target.clickBindingID,b.target.clickBindingID);
-  assert.equal(f.call({action:'validate',target:a.target}).valid,true);
-  f.stage(a);f.commit(a);await f.settle();const av=f.makeCard(a);f.finish(av);await f.settle();
-  f.stage(b);f.commit(b);await f.settle();const bv=f.makeCard(b);f.finish(bv);await f.settle();
-  assert.equal(f.input.inputCount,2);assert.equal(f.observe(a).state,'attached');assert.equal(f.observe(b).state,'attached');
-});
-test('pin does not survive original editor loss, navigation or business A-B-A',()=>{
-  for(const destroy of [f=>{f.editor.isConnected=false;},f=>f.navigationEvent('navigate'),f=>{
-    const root=f.fibers.root.stateNode;const b=f.makeFibers('99999999-9999-4999-8999-999999999999');
-    b.root.stateNode=root;root.current=b.root;root.current=f.fibers.root;
-  }]){
-    const f=fixture({thread:true}),op=pinnedOperation(f);destroy(f);
-    assert.equal(f.call({action:'validate',target:op.target}).valid,false);
-    assert.throws(()=>f.stage(op),/TARGET_INVALID/);assert.equal(f.input.inputCount,0);
-  }
-});
-
-test('before pin, focus or visibility A-B-A cannot revive the original click route',()=>{
-  for(const transition of [f=>{f.focus(false);f.windowEvent('blur');f.focus(true);f.windowEvent('focus');},
-      f=>{f.document.visibilityState='hidden';f.documentEvent('visibilitychange',f.document);f.document.visibilityState='visible';f.documentEvent('visibilitychange',f.document);}]){
-    const f=fixture({thread:true}),original=f.target();transition(f);
-    assert.throws(()=>f.call({action:'pinTarget',target:original,clickBindingID:webcrypto.randomUUID()}),/CLICK_PIN_REFUSED/);
-    const fresh=f.target();assert.notEqual(fresh.draftGeneration,original.draftGeneration);
-    assert.throws(()=>f.call({action:'pinTarget',target:original,clickBindingID:webcrypto.randomUUID()}),/CLICK_ROUTE_UNOBSERVED/);
-    const pin=f.call({action:'pinTarget',target:fresh,clickBindingID:webcrypto.randomUUID()});
-    assert.equal(f.call({action:'validate',target:pin}).valid,true);assert.equal(f.input.inputCount,0);
-  }
-});
-
-// These are controlled original-File/request regressions. The platform append
-// behavior itself is supported separately by the archived real two/three-input
-// ChatGPT samples; this fixture does not stand in for that platform evidence.
-for (const count of [2,3,5]) test(`${count} same-draft click pins own distinct requests while prior uploads remain unfinished`, async () => {
-  const f=requestFixture({thread:true}), prior=f.form.append(new f.Node('div',{role:'button','aria-label':'user-old.png'}));
-  prior.append(new f.Node('img'));
-  const text=f.editor.textContent, all=[];
-  f.target();f.changed(file=>f.context.fetch('ignored',{body:file}));
-  for(let index=0;index<count;index++) {
-    const op=withInvocation(pinnedOperation(f,webcrypto.randomUUID()),webcrypto.randomUUID());
-    op.identity.assetID=webcrypto.randomUUID();
-    f.stage(op);f.commit(op);await f.settle();
-    const view=f.makeCard(op,10);setProgress(f,view,25);
-    const observed=f.observe(op), proof=observed.continuationEvidence;
-    assert.equal(observed.state,'uploadStarted');assert.ok(proof);
-    assert.equal(proof.taskIsolation,undefined,'no invented platform/server task identity');
-    assert.equal(proof.binding.operationID,op.identity.operationID);
-    assert.equal(proof.binding.invocationID,op.command('observe').invocationID);
-    assert.equal(proof.binding.target.clickBindingID,op.target.clickBindingID);
-    assert.equal(proof.binding.attachmentID,observed.attachmentID);
-    assert.equal(proof.inputIsolation.kind,'originalRequestBodyOwned');
-    assert.equal(proof.inputIsolation.originalSHA256,op.identity.assetSHA256);
-    assert.equal(proof.inputIsolation.originalByteCount,png.length);
-    assert.equal(proof.inputIsolation.requestID,observed.requestEvidence.requests[0].requestID);
-    assert.equal(proof.inputIsolation.requestSequence,observed.requestEvidence.requests[0].requestSequence);
-    assert.equal(proof.inputIsolation.inputSequence,observed.uploadStart.inputSequence);
-    assert.ok(proof.inputIsolation.callSettledSequence>proof.inputIsolation.inputSequence);
-    assert.ok(proof.inputIsolation.observedSequence>=proof.inputIsolation.startSequence);
-    assert.equal(f.input.files.length,1,'only the new File is set; older files are not replayed');
-    assert.equal(f.input.files[0].name,op.name);
-    all.push({op,view,proof,originalFile:f.input.files[0]});
-    for(const earlier of all) assert.equal(f.observe(earlier.op).state,'uploadStarted');
-  }
-  assert.equal(f.input.inputCount,count);assert.equal(f.fetchCalls.length,count);
-  assert.equal(new Set(all.map(a=>a.proof.inputIsolation.ownershipID)).size,count);
-  assert.equal(new Set(all.map(a=>a.proof.inputIsolation.requestID)).size,count);
-  assert.equal(new Set(all.map(a=>a.proof.binding.attachmentID)).size,count);
-  assert.equal(new Set(all.map(a=>a.proof.inputIsolation.inputElementID)).size,1);
-  for(let index=0;index<count;index++) assert.equal(f.fetchCalls[index].args[1].body,all[index].originalFile);
-  assert.equal(f.editor.textContent,text);assert.ok(f.form.contains(prior));
-  // B/C/D may complete first. A's delayed result only changes A's observation.
-  const last=all.at(-1);f.finish(last.view);await f.settle();
-  assert.equal(f.observe(last.op).state,'attached');assert.equal(f.observe(all[0].op).state,'uploadStarted');
-  f.finish(all[0].view);await f.settle();assert.equal(f.observe(all[0].op).state,'attached');
-  assert.equal(f.observe(last.op).state,'attached');assert.equal(f.input.inputCount,count);
-});
-
-test('scaled preview is UNKNOWN with an exact reason, retains START and does not invalidate B',async()=>{
-  const f=requestFixture({thread:true});f.target();f.changed(file=>f.context.fetch('ignored',{body:file}));
-  const a=withInvocation(pinnedOperation(f),webcrypto.randomUUID());f.stage(a);f.commit(a);await f.settle();
-  const av=f.makeCard(a,10);setProgress(f,av,40);const start=f.observe(a);
-  assert.ok(start.continuationEvidence);
-  const record=f.context.__riftletWebAcceptance20261027v13.tail.operations.get(a.identity.operationID);
-  const originalStart=record.uploadStart;av.image.naturalWidth=1;f.finish(av,Buffer.from([...png,99]));await f.settle();
-  const unknown=f.observe(a);
-  assert.equal(unknown.state,'unknown');assert.equal(unknown.reason,'previewDimensionsUnproven');
-  assert.equal(unknown.hasError,false);assert.equal(unknown.completionEvidence,undefined);
-  assert.equal(unknown.automaticRetryExcluded,false);assert.equal(record.invalid,false);
-  assert.equal(record.uploadStart,originalStart);assert.equal(record.file,null,'no retained preview payload after unprovable completion');
-  const b=withInvocation(pinnedOperation(f,webcrypto.randomUUID()),webcrypto.randomUUID());b.identity.assetID=webcrypto.randomUUID();
-  f.stage(b);f.commit(b);await f.settle();const bv=f.makeCard(b,10);setProgress(f,bv,40);
-  assert.ok(f.observe(b).continuationEvidence);f.finish(bv);await f.settle();assert.equal(f.observe(b).state,'attached');
-  const before=f.input.inputCount;for(let i=0;i<4;i++)assert.equal(f.observe(a).reason,'previewDimensionsUnproven');
-  assert.equal(f.input.inputCount,before);assert.equal(before,2);assert.equal(f.observe(b).state,'attached');
-});
-
-test('request ownership continuation cannot come from progress alone, cloned File, thrown request or replaced hook',async()=>{
-  for(const mode of ['noRequest','clone','throw','hook']){
-    const f=requestFixture(),op=withInvocation(pinnedOperation(f),webcrypto.randomUUID());
-    if(mode==='throw')f.setFetch(()=>{throw Error('synthetic throw');});
-    f.target();f.changed(file=>{
-      if(mode==='noRequest')return;
-      const body=mode==='clone'?new File([file],file.name,{type:file.type}):file;
-      try{f.context.fetch('ignored',{body});}catch{}
-    });
-    f.stage(op);f.commit(op);await f.settle();
-    if(mode==='hook')f.context.fetch=()=>Promise.resolve({status:200});
-    const view=f.makeCard(op,10);setProgress(f,view,40);const observation=f.observe(op);
-    assert.equal(observation.state,'uploadStarted');assert.equal(observation.continuationEvidence,undefined,mode);
-    assert.equal(f.input.inputCount,1);
-  }
-});
-
-test('continuation observes a current XHR response without confusing it with final completion or safe retry',async()=>{
-  const f=requestFixture(),op=withInvocation(pinnedOperation(f),webcrypto.randomUUID());let xhr;
-  f.target();f.changed(file=>{xhr=new f.context.XMLHttpRequest();xhr.open('PUT','ignored');xhr.send(file);});
-  f.stage(op);f.commit(op);await f.settle();const view=f.makeCard(op,10);setProgress(f,view,40);
-  const before=f.observe(op);assert.ok(before.continuationEvidence);
-  xhr.status=200;xhr.emit('load');const after=f.observe(op),proof=after.continuationEvidence;
-  assert.ok(proof);assert.equal(proof.evidenceID,before.continuationEvidence.evidenceID);
-  assert.ok(proof.inputIsolation.observedSequence>=after.requestEvidence.requests[0].terminalSequence);
-  assert.equal(after.state,'uploadStarted');assert.equal(after.completionEvidence,undefined);
-  assert.equal(after.terminationEvidence,undefined);assert.equal(after.automaticRetryExcluded,false);
-});
-
-test('A late attachment error and repeated input only invalidate A; B keeps its own original request',async()=>{
-  for(const mode of ['lateError','repeatInput']){
-    const f=requestFixture({thread:true});f.target();f.changed(file=>f.context.fetch('ignored',{body:file}));
-    const a=withInvocation(pinnedOperation(f),webcrypto.randomUUID());f.stage(a);f.commit(a);await f.settle();
-    const av=f.makeCard(a,10);setProgress(f,av,40);const aFile=f.input.files[0];assert.ok(f.observe(a).continuationEvidence);
-    const b=withInvocation(pinnedOperation(f,webcrypto.randomUUID()),webcrypto.randomUUID());b.identity.assetID=webcrypto.randomUUID();
-    f.stage(b);f.commit(b);await f.settle();const bv=f.makeCard(b,10);setProgress(f,bv,40);const bp=f.observe(b).continuationEvidence;
-    if(mode==='lateError'){av.card.attrs['data-state']='error';f.mutate([]);}
-    else {f.input.files=[aFile];f.input.dispatchEvent({type:'change'});}
-    const ar=f.observe(a),br=f.observe(b);
-    assert.equal(ar.state,'invalidated');assert.equal(ar.reason,mode==='lateError'?'attachmentError':'repeatedInput');
-    assert.equal(ar.continuationEvidence,undefined);assert.equal(br.state,'uploadStarted');
-    assert.equal(br.continuationEvidence.inputIsolation.ownershipID,bp.inputIsolation.ownershipID);
-    assert.equal(br.continuationEvidence.binding.operationID,b.identity.operationID);
-    assert.equal(br.terminationEvidence,undefined);
-  }
-});
-
-test('page refresh revokes each original operation without redirecting a late receipt into a fresh B',async()=>{
-  const old=requestFixture({thread:true});old.target();old.changed(file=>old.context.fetch('ignored',{body:file}));
-  const a=withInvocation(pinnedOperation(old),webcrypto.randomUUID());old.stage(a);old.commit(a);await old.settle();
-  const av=old.makeCard(a,10);setProgress(old,av,40);assert.ok(old.observe(a).continuationEvidence);old.windowEvent('pagehide');
-  assert.equal(old.observe(a).reason,'originalTargetInvalidated');assert.equal(old.observe(a).continuationEvidence,undefined);
-  const fresh=requestFixture({thread:true});fresh.target();fresh.changed(file=>fresh.context.fetch('ignored',{body:file}));
-  const b=withInvocation(pinnedOperation(fresh,webcrypto.randomUUID()),webcrypto.randomUUID());fresh.stage(b);fresh.commit(b);await fresh.settle();
-  const bv=fresh.makeCard(b,10);setProgress(fresh,bv,40);assert.ok(fresh.observe(b).continuationEvidence);
-  assert.equal(fresh.call(a.command('observe')).observation.state,'invalidated');assert.equal(fresh.input.inputCount,1);
-  assert.equal(fresh.observe(b).state,'uploadStarted');
-});
-
-test('an original-File request first observed after START cannot adopt an earlier upload',async()=>{
-  const f=requestFixture(),op=withInvocation(pinnedOperation(f),webcrypto.randomUUID());
-  f.stage(op);f.commit(op);await f.settle();const view=f.makeCard(op,10);setProgress(f,view,40);
-  assert.equal(f.observe(op).state,'uploadStarted');assert.equal(f.observe(op).continuationEvidence,undefined);
-  f.context.fetch('ignored',{body:f.input.files[0]});
-  assert.ok(f.observe(op).requestEvidence);assert.equal(f.observe(op).continuationEvidence,undefined);
-  assert.equal(f.input.inputCount,1);
-});
-
-test('upgrade captures a new observation capability without retrofitting original operation ownership',async()=>{
-  const f=requestFixture({thread:true}),a=withInvocation(pinnedOperation(f),webcrypto.randomUUID());
-  f.changed(file=>f.context.fetch('ignored',{body:file}));f.stage(a);f.commit(a);await f.settle();
-  const av=f.makeCard(a,10);setProgress(f,av,40);assert.ok(f.observe(a).continuationEvidence);
-  const oldState=f.context.__riftletWebAcceptance20261027v13.tail, original=oldState.operations.get(a.identity.operationID);
-  // Capability absence models a retained pre-increment observer; only new
-  // capture upgrades. Neither its original operation nor pin is rewritten.
-  delete oldState.inputIsolationVersion;delete oldState.continuationFor;
-  const fresh=f.target(),newState=f.context.__riftletWebAcceptance20261027v13.tail;
-  assert.notEqual(newState,oldState);assert.notEqual(fresh.documentID,a.target.documentID);
-  assert.equal(oldState.operations.get(a.identity.operationID),original);
-  assert.equal(f.observe(a).continuationEvidence,undefined);assert.equal(f.input.inputCount,1);
-  assert.throws(()=>f.commit(a),/COMMIT_REFUSED/);
-});
-
-// Current-resource migration regressions. The controlled application snapshots
-// each File then resets its native picker. This is synthetic behavior; archived
-// Home append observations do not certify the current live persisted-thread app.
-function prepareResource(f, op) {
-  const resource=f.call(op.command('prepareInputResource'));
-  const command=op.command;
-  op.command=action=>({...command(action),inputResourceID:resource.resourceID});
-  return resource;
-}
-function appResetsNativeInput(f, kind='cached') {
-  const tasks=[];
-  f.target(); // In the fixture install the capture observer before app bubbling.
-  f.changed(file=>{
-    const files=f.input.files;
-    let body=file;
-    if(kind==='formData'){body=new FormData();body.append('file',file);}
-    else if(kind==='blob')body=new Blob([file],{type:file.type});
-    // Cached transport is intentionally outside the original-File monitor.
-    const send=kind==='cached'?f.nativeFetch:f.context.fetch;
-    send('ignored',{body});
-    tasks.push({file,files,body});
-    f.input.value='';
-  });
-  return tasks;
-}
-for(const count of [2,3,5]) test(`legacy UNKNOWN with no request facts allows ${count} independent current empty-picker inputs`,async()=>{
-  for(const kind of ['cached','formData','blob']) {
-    const f=requestFixture({thread:true}),tasks=appResetsNativeInput(f,kind);
-    f.target();
-    const a=pinnedOperation(f),history=f.form.append(new f.Node('div',{role:'button','aria-label':'older-user-file.png'}));
-    history.append(new f.Node('img'));
-    f.stage(a);f.commit(a);await f.settle();
-    const av=f.makeCard(a,10);setProgress(f,av,40);
-    const legacy=f.context.__riftletWebAcceptance20261027v13.tail.operations.get(a.identity.operationID);
-    const start=legacy.uploadStart;
-    assert.equal(f.observe(a).state,'uploadStarted');assert.equal(f.observe(a).requestEvidence,undefined);
-    av.image.naturalWidth=1;f.finish(av,Buffer.from([...png,99]));await f.settle();
-    const before=f.observe(a),text=f.editor.textContent;
-    assert.equal(before.state,'unknown');assert.equal(before.continuationEvidence,undefined);
-    const all=[{op:a,view:av}];
-    for(let index=1;index<count;index++){
-      const op=withInvocation(pinnedOperation(f,webcrypto.randomUUID()),webcrypto.randomUUID());op.identity.assetID=webcrypto.randomUUID();
-      const resource=prepareResource(f,op);
-      assert.equal(resource.kind,'emptyNativeFileInput');assert.equal(resource.identity.operationID,op.identity.operationID);
-      assert.equal(resource.invocationID,op.command('begin').invocationID);
-      assert.equal(f.input.files.length,0,'preparation never sets or clears files');
-      f.stage(op);f.commit(op);await f.settle();
-      const view=f.makeCard(op,10);setProgress(f,view,40);
-      const observed=f.observe(op);assert.equal(observed.state,'uploadStarted');
-      assert.equal(observed.requestEvidence,undefined,'unobserved transformed/cached request is not inferred absent or owned');
-      assert.equal(observed.continuationEvidence,undefined);
-      f.finish(view);await f.settle();assert.equal(f.observe(op).state,'attached');
-      all.push({op,view});
-    }
-    assert.equal(f.input.inputCount,count);assert.equal(tasks.length,count);
-    assert.equal(new Set(tasks.map(task=>task.file)).size,count);
-    assert.equal(new Set(tasks.map(task=>task.files)).size,count);
-    for(let index=0;index<count;index++){
-      assert.equal(tasks[index].files.length,1);assert.equal(tasks[index].files[0],tasks[index].file);
-      assert.equal(tasks[index].file.name,all[index].op.name);assert.ok(f.form.contains(all[index].view.card));
-    }
-    assert.equal(legacy.inputCount,1);assert.equal(legacy.invocationID,undefined);
-    assert.equal(legacy.uploadStart,start);assert.deepEqual(f.observe(a),before);
-    assert.ok(f.form.contains(history));assert.equal(f.editor.textContent,text);
-    assert.throws(()=>f.commit(a),/COMMIT_REFUSED/);
-  }
-});
-
-test('empty-resource witness refuses occupied picker, fake own getters and original pending input',async()=>{
-  for(const fault of ['occupied','ownFiles','ownValue','pending']){
-    const f=requestFixture(),op=withInvocation(pinnedOperation(f),webcrypto.randomUUID());
-    if(fault==='occupied')f.input.files=[new File([png],'untouched.png',{type:'image/png'})];
-    if(fault==='ownFiles')Object.defineProperty(f.input,'files',{get:()=>[],configurable:true});
-    if(fault==='ownValue'){
-      f.input.files=[new File([png],'native-nonempty.png',{type:'image/png'})];
-      Object.defineProperty(f.input,'value',{get:()=>'',configurable:true});
-    }
-    if(fault==='pending'){
-      const a=withInvocation(pinnedOperation(f,webcrypto.randomUUID()),webcrypto.randomUUID());f.stage(a);
-    }
-    const before=f.input.inputCount;
-    const expected={occupied:'INPUT_RESOURCE_NATIVE_FILES_RETAINED',ownFiles:'INPUT_RESOURCE_NATIVE_ACCESS_UNVERIFIED',
-      ownValue:'INPUT_RESOURCE_NATIVE_FILES_RETAINED',pending:'INPUT_RESOURCE_GENERATION_BUSY'};
-    assert.throws(()=>prepareResource(f,op),{message:expected[fault]},fault);
-    assert.equal(f.input.inputCount,before);
-  }
-});
-
-test('prepared resource is bound to exact operation/invocation and releases without touching input',()=>{
-  const f=requestFixture(),op=withInvocation(pinnedOperation(f),webcrypto.randomUUID()),resource=prepareResource(f,op);
-  assert.equal(f.call({...op.command('releaseInputResource'),invocationID:webcrypto.randomUUID()}).released,false);
-  assert.equal(f.call(op.command('releaseInputResource')).released,true);
-  assert.equal(f.call(op.command('releaseInputResource')).released,false);
-  const rejected=f.call({...op.command('begin'),uploadName:op.name,mediaType:'image/png',byteCount:op.bytes.length});
-  assert.equal(rejected.rejectedBeforeBegin,true);assert.equal(rejected.reason,'INPUT_RESOURCE_UNAVAILABLE');
-  assert.equal(f.input.inputCount,0);assert.equal(f.input.files.length,0);
-  assert.equal(resource.identity.assetID,op.identity.assetID);
-});
-
-test('prepared resource rechecks native picker and every current attachment immediately before setter',async()=>{
-  for(const fault of ['occupied','removed','transient']){
-    const f=requestFixture(),op=withInvocation(pinnedOperation(f),webcrypto.randomUUID());
-    const card=f.form.append(new f.Node('div',{role:'button','aria-label':'keep.png'}));card.append(new f.Node('img'));
-    prepareResource(f,op);f.stage(op);
-    if(fault==='occupied')f.input.files=[new File([png],'user-picked.png',{type:'image/png'})];
-    else if(fault==='removed'){f.form.children=f.form.children.filter(node=>node!==card);card.isConnected=false;}
-    else f.queueMutation([{type:'childList',target:f.form,removedNodes:[card],addedNodes:[card]}]);
-    f.commit(op);await f.settle();
-    const observed=f.observe(op);assert.equal(f.input.inputCount,0,fault);
-    assert.equal(observed.preInputRetirement?.inputSideEffectEntered,false,fault);
-    assert.equal(observed.uploadStart,undefined);
-  }
-});
-
-test('current empty resource supports old settled v13 generation without upgrading its original operation',async()=>{
-  const f=requestFixture({thread:true}),tasks=appResetsNativeInput(f);
-  const a=pinnedOperation(f);f.stage(a);f.commit(a);await f.settle();
-  const av=f.makeCard(a,10);setProgress(f,av,40);
-  const registry=f.context.__riftletWebAcceptance20261027v13,oldState=registry.tail,old=oldState.operations.get(a.identity.operationID);
-  const identity=old.identity,start=old.uploadStart;
-  delete oldState.inputResourceVersion;delete oldState.prepareInputResource;
-  const b=withInvocation(pinnedOperation(f,webcrypto.randomUUID()),webcrypto.randomUUID());
-  assert.notEqual(registry.tail,oldState);
-  prepareResource(f,b);f.stage(b);f.commit(b);await f.settle();
-  const bv=f.makeCard(b,10);setProgress(f,bv,40);assert.equal(f.observe(b).state,'uploadStarted');
-  assert.equal(oldState.operations.get(a.identity.operationID),old);assert.equal(old.identity,identity);
-  assert.equal(old.uploadStart,start);assert.equal(old.inputCount,1);assert.equal(old.invocationID,undefined);
-  assert.equal(tasks.length,2);assert.equal(f.input.inputCount,2);
-});
-
-test('another source-owned legacy registry with a pending native input cannot be bypassed by an empty picker',()=>{
-  const f=requestFixture(),op=withInvocation(pinnedOperation(f),webcrypto.randomUUID());
-  const operation={committed:true,inputCount:0,commitWorkSettled:false,inputSideEffectEntered:false};
-  const generation={input:f.input,operations:new Map([['legacy',operation]]),next:null};
-  Object.defineProperty(f.context,'__riftletWebAcceptance20261027v12',{value:{head:generation,tail:generation,count:1},writable:false,configurable:false});
-  assert.throws(()=>prepareResource(f,op),/INPUT_RESOURCE_GENERATION_BUSY/);assert.equal(f.input.inputCount,0);
-  operation.commitWorkSettled=true;
-  assert.equal(prepareResource(f,op).kind,'emptyNativeFileInput');
-});
-
-test('resource input keeps text, selection and all prior attachments; handler mutations cannot become START',async()=>{
-  for(const fault of ['none','text','selection','attachment']){
-    const f=requestFixture({thread:true}),tasks=appResetsNativeInput(f),a=pinnedOperation(f);
-    const selection={anchorNode:f.editor,anchorOffset:2,focusNode:f.editor,focusOffset:5,rangeCount:1,isCollapsed:false};
-    f.document.getSelection=()=>selection;
-    f.stage(a);f.commit(a);await f.settle();const av=f.makeCard(a,10);setProgress(f,av,40);
-    const b=withInvocation(pinnedOperation(f,webcrypto.randomUUID()),webcrypto.randomUUID());prepareResource(f,b);f.stage(b);
-    const before={text:f.editor.textContent,anchor:selection.anchorOffset,focus:selection.focusOffset};
-    if(fault!=='none')f.changed(()=>{
-      if(fault==='text')f.editor.textContent+='application changed text';
-      if(fault==='selection')selection.focusOffset++;
-      if(fault==='attachment'){f.form.children=f.form.children.filter(node=>node!==av.card);av.card.isConnected=false;}
-    });
-    f.commit(b);await f.settle();
-    const bv=f.makeCard(b,10);setProgress(f,bv,40);const result=f.observe(b);
-    assert.equal(f.input.inputCount,2);assert.equal(tasks[0].file.name,a.name);assert.equal(tasks[1].file.name,b.name);
-    if(fault==='none'){
-      assert.equal(result.state,'uploadStarted');assert.equal(f.editor.textContent,before.text);
-      assert.equal(selection.anchorOffset,before.anchor);assert.equal(selection.focusOffset,before.focus);assert.ok(f.form.contains(av.card));
-    } else {assert.equal(result.state,'invalidated');assert.equal(result.uploadStart,undefined);}
-  }
-});
-
-test('React-style own value tracking cannot spoof native emptiness and is not invoked by preparation',()=>{
-  const f=requestFixture(),op=withInvocation(pinnedOperation(f),webcrypto.randomUUID());let reads=0,writes=0;
-  Object.defineProperty(f.input,'value',{get(){reads++;return 'tracking-only';},set(){writes++;},configurable:true});
-  assert.equal(prepareResource(f,op).kind,'emptyNativeFileInput');assert.equal(reads,0);assert.equal(writes,0);
-});
-
-test('lost prepare response can be superseded only before BEGIN and never releases a later token',()=>{
-  const f=requestFixture(),a=withInvocation(pinnedOperation(f),webcrypto.randomUUID()),ar=prepareResource(f,a);
-  const b=withInvocation(pinnedOperation(f,webcrypto.randomUUID()),webcrypto.randomUUID()),br=prepareResource(f,b);
-  assert.notEqual(ar.resourceID,br.resourceID);assert.equal(f.call(a.command('releaseInputResource')).released,false);
-  const rejection=f.call({...a.command('begin'),uploadName:a.name,mediaType:'image/png',byteCount:a.bytes.length});
-  assert.equal(rejection.rejectedBeforeBegin,true);assert.equal(f.input.inputCount,0);
-  f.stage(b);
-  const c=withInvocation(pinnedOperation(f,webcrypto.randomUUID()),webcrypto.randomUUID());
-  assert.throws(()=>prepareResource(f,c),/INPUT_RESOURCE_GENERATION_BUSY/);
-  assert.equal(f.call(a.command('releaseInputResource')).released,false);
-  assert.equal(f.call(b.command('discard')).discarded,true);
-  assert.equal(prepareResource(f,c).kind,'emptyNativeFileInput');
-});
-
-test('reentrant callback cannot reserve the same native input even if application has reset it',async()=>{
-  const f=requestFixture(),tasks=appResetsNativeInput(f),a=withInvocation(pinnedOperation(f),webcrypto.randomUUID());
-  prepareResource(f,a);f.stage(a);
-  const b=withInvocation(pinnedOperation(f,webcrypto.randomUUID()),webcrypto.randomUUID());
-  let refused=false;
-  f.changed(()=>{assert.throws(()=>prepareResource(f,b),/INPUT_RESOURCE_EXECUTION_BUSY/);refused=true;});
-  f.commit(a);await f.settle();assert.equal(refused,true);assert.equal(f.input.inputCount,1);assert.equal(tasks.length,1);
-});
-
-test('legacy A late error/removal cannot revoke B after B owns its own START on the empty-resource path',async()=>{
-  const f=requestFixture({thread:true});appResetsNativeInput(f);
-  const a=pinnedOperation(f);f.stage(a);f.commit(a);await f.settle();const av=f.makeCard(a,10);setProgress(f,av,40);
-  const b=withInvocation(pinnedOperation(f,webcrypto.randomUUID()),webcrypto.randomUUID());prepareResource(f,b);
-  f.stage(b);f.commit(b);await f.settle();const bv=f.makeCard(b,10);setProgress(f,bv,40);
-  const before=f.observe(b);assert.equal(before.state,'uploadStarted');
-  av.card.attrs['data-state']='error';f.mutate([{type:'attributes',target:av.card,attributeName:'data-state',oldValue:'closed'}]);
-  assert.equal(f.observe(a).hasError,true);assert.equal(f.observe(b).state,'uploadStarted');
-  f.form.children=f.form.children.filter(node=>node!==av.card);av.card.isConnected=false;
-  f.mutate([{type:'childList',target:f.form,removedNodes:[av.card],addedNodes:[]}]);
-  assert.equal(f.observe(b).state,'uploadStarted');assert.equal(f.observe(b).attachmentID,before.attachmentID);
-  f.finish(bv);await f.settle();assert.equal(f.observe(b).state,'attached');assert.equal(f.input.inputCount,2);
-});
-
-// Retained-picker regressions deliberately do not reset the selected files.
-// Native FileList behavior is separately checked by chrome-input-resource.test.cjs.
-for (const count of [2,3,5]) test(`settled retained picker appends ${count} independent files before prior COMPLETE`, async()=>{
-  const f=requestFixture({thread:true}),tasks=[];
-  f.target();f.changed(file=>tasks.push({file,files:f.input.files}));
-  const selection={anchorNode:f.editor,anchorOffset:2,focusNode:f.editor,focusOffset:6,rangeCount:1,isCollapsed:false};
-  f.document.getSelection=()=>selection;
-  const text=f.editor.textContent,prior=f.form.append(new f.Node('div',{role:'button','aria-label':'existing-user-attachment'}));
-  prior.append(new f.Node('img'));
-  const all=[];
-  for(let index=0;index<count;index++){
-    if(index)f.windowEvent('blur'); // Native click rebinds the same logical draft.
-    const op=withInvocation(pinnedOperation(f,webcrypto.randomUUID()),webcrypto.randomUUID());
-    op.identity.assetID=webcrypto.randomUUID();op.bytes=Buffer.from([...png,index]);op.identity.assetSHA256=digest(op.bytes);
-    if(index){
-      assert.notEqual(op.target.documentID,all[index-1].op.target.documentID);
-      const oldList=f.input.files,oldFile=oldList[0],resource=prepareResource(f,op);
-      assert.equal(resource.kind,'settledOwnedNativeFileInput');
-      assert.equal(f.input.files,oldList);assert.equal(f.input.files[0],oldFile,'reservation never clears or overwrites selected files');
-      assert.equal(f.observe(all[index-1].op).state,'uploadStarted');
-    }
-    f.stage(op);f.commit(op);await f.settle();
-    const view=f.makeCard(op,10);setProgress(f,view,40);
-    assert.equal(f.observe(op).state,'uploadStarted');
-    assert.equal(f.observe(op).requestEvidence,undefined,'no transport evidence is fabricated');
-    all.push({op,view});
-  }
-  assert.equal(tasks.length,count);assert.equal(f.input.inputCount,count);
-  for(let index=0;index<count;index++){
-    assert.equal(tasks[index].files.length,1);assert.equal(tasks[index].files[0],tasks[index].file);
-    assert.equal(tasks[index].file.name,all[index].op.name);
-    assert.deepEqual(Buffer.from(await tasks[index].file.arrayBuffer()),all[index].op.bytes,'late application consumption sees original independent bytes');
-    assert.ok(f.form.contains(all[index].view.card));
-    assert.equal(f.observe(all[index].op).state,'uploadStarted');
-  }
-  assert.equal(f.editor.textContent,text);assert.equal(selection.anchorOffset,2);assert.equal(selection.focusOffset,6);
-  assert.ok(f.form.contains(prior));
-  for(const {op,view} of all){f.finish(view,op.bytes);await f.settle();assert.equal(f.observe(op).state,'attached');}
-  assert.equal(f.input.inputCount,count);
-});
-
-test('main retained START upgrades in the same live document without replaying or rewriting its original operation',async()=>{
-  const priorSource=fs.readFileSync(path.join(__dirname,'fixtures/chatgpt-web-main-6c677f55.js'),'utf8');
-  assert.equal(digest(Buffer.from(priorSource)),'3f28f31208ff3c2786d5628c03ab6467a4ba3c26dfbf3432be724dac1649c457');
-  const f=requestFixture({thread:true,programSource:priorSource}),tasks=[];
-  f.target();f.changed(file=>tasks.push(file));
-  const a=withInvocation(pinnedOperation(f),webcrypto.randomUUID());f.stage(a);f.commit(a);await f.settle();
-  const av=f.makeCard(a,10);setProgress(f,av,40);
-  const registry=f.context.__riftletWebAcceptance20261027v13,oldState=registry.tail,old=oldState.operations.get(a.identity.operationID);
-  const start=old.uploadStart,identity=old.identity,file=f.input.files[0];
-  assert.equal(f.observe(a).state,'uploadStarted');assert.equal(oldState.retainedInputVersion,undefined);
-  const rejected=withInvocation(pinnedOperation(f,webcrypto.randomUUID()),webcrypto.randomUUID());
-  assert.throws(()=>prepareResource(f,rejected),/INPUT_RESOURCE_UNAVAILABLE/,'exact baseline is red with original FileList');
-  f.upgradeProgram(source);
-  const b=withInvocation(pinnedOperation(f,webcrypto.randomUUID()),webcrypto.randomUUID());
-  assert.notEqual(registry.tail,oldState);assert.notEqual(b.target.documentID,a.target.documentID);
-  assert.equal(prepareResource(f,b).kind,'settledOwnedNativeFileInput');
-  assert.equal(f.input.files[0],file);assert.equal(oldState.operations.get(a.identity.operationID),old);
-  assert.equal(old.identity,identity);assert.equal(old.uploadStart,start);
-  f.stage(b);f.commit(b);await f.settle();const bv=f.makeCard(b,10);setProgress(f,bv,40);
-  assert.equal(f.observe(b).state,'uploadStarted');assert.equal(f.observe(a).state,'uploadStarted');
-  assert.equal(tasks.length,2);assert.equal(tasks[0],file);assert.equal(f.input.inputCount,2);
-  assert.throws(()=>f.commit(a),/COMMIT_REFUSED/);
-});
-
-test('synchronous state retirement releases its exact native input owner and permits a fresh empty-resource input',async()=>{
-  const f=requestFixture({thread:true}),a=withInvocation(pinnedOperation(f),webcrypto.randomUUID());
-  const originalState=f.context.__riftletWebAcceptance20261027v13.tail;
-  f.changed(()=>{f.input.value='';originalState.invalidate();});
-  f.stage(a);f.commit(a);await f.settle();
-  const registry=f.context.__riftletWebAcceptance20261027v13;
-  assert.equal(originalState.retired,true);assert.equal(originalState.input,undefined);
-  assert.equal(registry.inputOwners.get(f.input),undefined,'finally releases the acquired node after state fields retire');
-  assert.equal(f.input.files.length,0);assert.equal(f.observe(a).state,'invalidated');
-  const oldAudit=JSON.stringify([...originalState.operations.values()]);
-  const b=withInvocation(pinnedOperation(f,webcrypto.randomUUID()),webcrypto.randomUUID());
-  assert.equal(prepareResource(f,b).kind,'emptyNativeFileInput');f.stage(b);f.commit(b);await f.settle();
-  const bv=f.makeCard(b,10);setProgress(f,bv,40);
-  assert.equal(f.observe(b).state,'uploadStarted');assert.equal(f.input.inputCount,2);
-  assert.equal(JSON.stringify([...originalState.operations.values()]),oldAudit);
-});
-
-test('retained resource refuses uncertain setter/change outcomes and does not release them by elapsed time',async()=>{
-  for(const fault of ['setter','change']){
-    const f=requestFixture({thread:true});
-    if(fault==='setter'){
-      const descriptor=Object.getOwnPropertyDescriptor(f.Input.prototype,'files');
-      Object.defineProperty(f.Input.prototype,'files',{...descriptor,set(value){descriptor.set.call(this,value);throw Error('synthetic setter throw after side effect');}});
-    }
-    const a=withInvocation(pinnedOperation(f),webcrypto.randomUUID());
-    if(fault==='change')f.changed(()=>{throw Error('synthetic synchronous change dispatch throw');});
-    f.stage(a);f.commit(a);await f.settle();
-    const state=f.context.__riftletWebAcceptance20261027v13.tail,old=state.operations.get(a.identity.operationID);
-    assert.equal(old.commitWorkSettled,true);assert.equal(old.inputSideEffectEntered,true);
-    assert.equal(old.callSettledSequence,null);assert.equal(f.context.__riftletWebAcceptance20261027v13.inputOwners.has(f.input),false);
-    const b=withInvocation(pinnedOperation(f,webcrypto.randomUUID()),webcrypto.randomUUID()),count=f.input.inputCount;
-    assert.throws(()=>prepareResource(f,b),/INPUT_RESOURCE_EXECUTION_UNCERTAIN/);
-    f.context.performance.now=()=>Number.MAX_SAFE_INTEGER/4;
-    const c=withInvocation(pinnedOperation(f,webcrypto.randomUUID()),webcrypto.randomUUID());
-    assert.throws(()=>prepareResource(f,c),/INPUT_RESOURCE_EXECUTION_UNCERTAIN/);
-    assert.equal(f.input.inputCount,count);
-  }
-});
-
-test('retained selection must be exact, START-owned and independently settled at prepare and final commit',async()=>{
-  for(const fault of ['noStart','sameBytesDifferentFile','multipleFiles','removedCard','missingReturn','pendingExecution','changedAfterPrepare']){
-    const f=requestFixture({thread:true}),a=withInvocation(pinnedOperation(f),webcrypto.randomUUID());
-    f.stage(a);f.commit(a);await f.settle();const av=f.makeCard(a,10);
-    if(fault!=='noStart')setProgress(f,av,40);
-    const registry=f.context.__riftletWebAcceptance20261027v13,state=registry.tail,old=state.operations.get(a.identity.operationID);
-    const b=withInvocation(pinnedOperation(f,webcrypto.randomUUID()),webcrypto.randomUUID());
-    if(fault==='sameBytesDifferentFile')f.input.files=[new File([png],a.name,{type:'image/png'})];
-    if(fault==='multipleFiles')f.input.files=[f.input.files[0],new File([png],'user-file',{type:'image/png'})];
-    if(fault==='removedCard'){f.form.children=f.form.children.filter(n=>n!==av.card);av.card.isConnected=false;}
-    if(fault==='missingReturn')old.callSettledSequence=null;
-    if(fault==='pendingExecution')registry.inputOwners.set(f.input,old);
-    if(fault==='changedAfterPrepare'){
-      prepareResource(f,b);f.stage(b);f.input.files=[new File([png],'user-file',{type:'image/png'})];
-      f.commit(b);await f.settle();const report=f.observe(b);
-      assert.equal(report.preInputRetirement?.inputSideEffectEntered,false);
-      assert.equal(report.resourceRefusalReason,'INPUT_RESOURCE_NATIVE_FILES_RETAINED');
-    } else {
-      const expected={noStart:'INPUT_RESOURCE_PRIOR_ATTACHMENT_UNPROVEN',sameBytesDifferentFile:'INPUT_RESOURCE_NATIVE_FILES_RETAINED',
-        multipleFiles:'INPUT_RESOURCE_NATIVE_FILES_RETAINED',removedCard:'INPUT_RESOURCE_PRIOR_ATTACHMENT_UNPROVEN',
-        missingReturn:'INPUT_RESOURCE_EXECUTION_UNCERTAIN',pendingExecution:'INPUT_RESOURCE_EXECUTION_BUSY'};
-      assert.throws(()=>prepareResource(f,b),{message:expected[fault]},fault);
-    }
-    assert.equal(f.input.inputCount,1,fault);
-  }
-});
-
-test('retained resource preserves an existing UNKNOWN and remains available after late completion drops the File payload',async()=>{
-  for(const result of ['unknown','complete']){
-    const f=requestFixture({thread:true}),a=withInvocation(pinnedOperation(f),webcrypto.randomUUID());
-    f.stage(a);f.commit(a);await f.settle();const av=f.makeCard(a,10);setProgress(f,av,40);
-    if(result==='unknown'){av.image.naturalWidth=1;f.finish(av,Buffer.from([...png,99]));}
-    else f.finish(av);
-    await f.settle();const old=f.context.__riftletWebAcceptance20261027v13.tail.operations.get(a.identity.operationID);
-    const before=f.observe(a),start=old.uploadStart;
-    assert.equal(before.state,result==='unknown'?'unknown':'attached');assert.equal(old.file,null);
-    const b=withInvocation(pinnedOperation(f,webcrypto.randomUUID()),webcrypto.randomUUID());
-    assert.equal(prepareResource(f,b).kind,'settledOwnedNativeFileInput');f.stage(b);f.commit(b);await f.settle();
-    const bv=f.makeCard(b,10);setProgress(f,bv,40);assert.equal(f.observe(b).state,'uploadStarted');
-    assert.equal(old.uploadStart,start);assert.deepEqual(f.observe(a),before);assert.equal(f.input.inputCount,2);
-    av.card.attrs['data-state']='error';f.mutate([]);assert.equal(f.observe(a).hasError,true);
-    assert.equal(f.observe(b).state,'uploadStarted');assert.equal(f.input.inputCount,2);
-  }
-});
-
-test('resource diagnostics distinguish native value, descriptor, registry and reservation failures without private identifiers',()=>{
-  for(const fault of ['value','descriptor','registry','reservation']){
-    const f=requestFixture();
-    if(fault==='value'){
-      const descriptor=Object.getOwnPropertyDescriptor(f.Input.prototype,'value');
-      Object.defineProperty(f.Input.prototype,'value',{...descriptor,get(){return 'synthetic-private-path';}});
-    }
-    const op=withInvocation(pinnedOperation(f),webcrypto.randomUUID());
-    if(fault==='descriptor')Object.defineProperty(f.input,'files',{get:()=>[],configurable:true});
-    if(fault==='registry')f.context.__riftletWebAcceptance20261027v13.inputOwners={};
-    if(fault==='reservation')prepareResource(f,op);
-    const expected={value:'INPUT_RESOURCE_NATIVE_VALUE_NONEMPTY',descriptor:'INPUT_RESOURCE_NATIVE_ACCESS_UNVERIFIED',
-      registry:'INPUT_RESOURCE_REGISTRY_UNVERIFIED',reservation:'INPUT_RESOURCE_RESERVATION_BUSY'};
-    assert.throws(()=>prepareResource(f,op),{message:expected[fault]});assert.equal(f.input.inputCount,0);
-  }
-});
-
-async function mainUnknownUpgrade(result='unknown') {
-  const priorSource=fs.readFileSync(path.join(__dirname,'fixtures/chatgpt-web-main-6c677f55.js'),'utf8');
-  const f=requestFixture({thread:true,programSource:priorSource});
-  const a=withInvocation(pinnedOperation(f),webcrypto.randomUUID());f.stage(a);f.commit(a);await f.settle();
-  const av=f.makeCard(a,10);setProgress(f,av,40);
-  if(result==='unknown'){av.image.naturalWidth=1;f.finish(av,Buffer.from([...png,99]));}else f.finish(av);
-  await f.settle();const oldState=f.context.__riftletWebAcceptance20261027v13.tail,old=oldState.operations.get(a.identity.operationID);
-  assert.equal(old.file,null);assert.ok(old.uploadStart);
-  f.upgradeProgram(source);const b=withInvocation(pinnedOperation(f,webcrypto.randomUUID()),webcrypto.randomUUID());
-  return {f,a,av,b,oldState,old};
-}
-async function prepareResourceEventually(f,op){
-  let result;
-  for(let attempt=0;attempt<50;attempt++){
-    result=f.call(op.command('prepareInputResource'));
-    if(result.pending!==true){const command=op.command;op.command=action=>({...command(action),inputResourceID:result.resourceID});return result;}
-    assert.deepEqual(Object.keys(result).sort(),['identity','invocationID','pending','version']);
-    assert.equal(result.identity.operationID,op.identity.operationID);assert.equal(result.invocationID,op.command('begin').invocationID);
-    await new Promise(resolve=>setTimeout(resolve,1));
-  }
-  assert.fail('bounded read-only retained selection qualification did not settle');
-}
-
-test('main UNKNOWN and COMPLETE with released original File upgrade through a bounded exact content check',async()=>{
-  for(const result of ['unknown','complete']){
-    const {f,a,av,b,old}=await mainUnknownUpgrade(result),before=f.observe(a);
-    const originalIdentity=old.identity,start=old.uploadStart,keys=Object.keys(old),file=f.input.files[0];
-    let reads=0;const read=file.arrayBuffer;file.arrayBuffer=async function(){reads++;return read.call(this);};
-    const pending=f.call(b.command('prepareInputResource'));
-    assert.equal(pending.pending,true);assert.equal(f.input.inputCount,1);assert.equal(f.input.files[0],file);
-    assert.equal((await prepareResourceEventually(f,b)).kind,'settledOwnedNativeFileInput');
-    assert.equal(reads,1);assert.equal(old.file,null);assert.equal(old.identity,originalIdentity);assert.equal(old.uploadStart,start);
-    assert.deepEqual(Object.keys(old),keys);assert.deepEqual(f.observe(a),before);
-    f.stage(b);f.commit(b);await f.settle();const bv=f.makeCard(b,10);setProgress(f,bv,40);
-    assert.equal(f.observe(b).state,'uploadStarted');assert.deepEqual(f.observe(a),before);assert.ok(f.form.contains(av.card));
-    assert.equal(f.input.inputCount,2);assert.throws(()=>f.commit(a),/COMMIT_REFUSED/);
-  }
-});
-
-test('legacy content qualification refuses mismatch, changed File, old attachment failure, reselection and live executors',async()=>{
-  for(const fault of ['mismatch','readError','changedFile','attachmentError','reselection','liveOwner','targetChange']){
-    const {f,a,av,b,old}=await mainUnknownUpgrade();
-    if(fault==='mismatch')f.input.files=[new File([Buffer.from([...png.slice(0,-1),99])],a.name,{type:'image/png'})];
-    if(fault==='readError')f.input.files[0].arrayBuffer=()=>Promise.reject(Error('synthetic private error must not escape'));
-    let release;const gate=new Promise(resolve=>{release=resolve;}),digestNow=f.context.crypto.subtle.digest;
-    f.context.crypto.subtle.digest=async(...args)=>{await gate;return digestNow(...args);};
-    assert.equal(f.call(b.command('prepareInputResource')).pending,true);
-    const count=f.input.inputCount;
-    if(fault==='changedFile')f.input.files=[new File([png],a.name,{type:'image/png'})];
-    if(fault==='attachmentError'){av.card.attrs['data-state']='error';f.mutate([]);}
-    if(fault==='reselection')f.input.dispatchEvent({type:'change'});
-    if(fault==='liveOwner')f.context.__riftletWebAcceptance20261027v13.inputOwners.set(f.input,{committed:true});
-    if(fault==='targetChange')f.windowEvent('pagehide');
-    release();await new Promise(resolve=>setTimeout(resolve,10));
-    const expected={mismatch:'INPUT_RESOURCE_QUALIFICATION_FAILED',readError:'INPUT_RESOURCE_QUALIFICATION_FAILED',changedFile:'INPUT_RESOURCE_NATIVE_FILES_RETAINED',
-      attachmentError:'INPUT_RESOURCE_PRIOR_ATTACHMENT_UNPROVEN',reselection:'INPUT_RESOURCE_PRIOR_ATTACHMENT_UNPROVEN',
-      liveOwner:'INPUT_RESOURCE_EXECUTION_BUSY',targetChange:'INPUT_RESOURCE_TARGET_CHANGED'};
-    assert.throws(()=>f.call(b.command('prepareInputResource')),{message:expected[fault]},fault);
-    assert.equal(f.input.inputCount,count+(fault==='reselection'?1:0));
-    if(fault!=='reselection')assert.equal(old.inputCount,1);
-    assert.equal(f.context.__riftletWebAcceptance20261027v13.tail.operations.has(b.identity.operationID),false,'qualification never stages or inputs');
-  }
-});
-
-test('superseding a read-only qualification spends only its unused attempt and shares one bounded File read',async()=>{
-  const {f,b}=await mainUnknownUpgrade();let release,reads=0;
-  const gate=new Promise(resolve=>{release=resolve;}),file=f.input.files[0],read=file.arrayBuffer;
-  file.arrayBuffer=async function(){reads++;await gate;return read.call(this);};
-  assert.equal(f.call(b.command('prepareInputResource')).pending,true);
-  const c=withInvocation(pinnedOperation(f,webcrypto.randomUUID()),webcrypto.randomUUID());
-  assert.equal(f.call(c.command('prepareInputResource')).pending,true);
-  assert.throws(()=>f.call(b.command('prepareInputResource')),/INPUT_RESOURCE_RESERVATION_BUSY/);
-  assert.equal(f.input.inputCount,1);release();
-  const resource=await prepareResourceEventually(f,c);
-  assert.equal(resource.kind,'settledOwnedNativeFileInput');assert.equal(reads,1);assert.equal(f.input.inputCount,1);
-  assert.throws(()=>f.call(b.command('prepareInputResource')),/INPUT_RESOURCE_RESERVATION_BUSY/);
-  f.stage(c);f.commit(c);await f.settle();const view=f.makeCard(c,10);setProgress(f,view,40);
-  assert.equal(f.observe(c).state,'uploadStarted');assert.equal(f.input.inputCount,2);
-});
-
-// Exact last-main source provides executable failure counterexamples. This is
-// controlled DOM evidence, not a claim about a live Project page or the private
-// failure's formerly collapsed predicate.
-const preTargetFixSource=fs.readFileSync(path.join(__dirname,'fixtures/chatgpt-web-main-1cd7bc90.js'),'utf8');
-const projectFixturePath='https://chatgpt.com/g/g-p-1234567890abcdef-fixture';
-const nativePressCommand=(target, clickBindingID=webcrypto.randomUUID())=>({
-  action:'pinTarget',target,clickBindingID,
-  nativePressProof:{kind:'observed-target-before-press',clickBindingID}
-});
-function operationForPin(target, bytes=png) {
-  const id=webcrypto.randomUUID(),identity={operationID:id,assetID:webcrypto.randomUUID(),attempt:1,assetSHA256:digest(bytes),target};
-  return {target,identity,name:'riftlet-'+id+'.png',bytes,command:action=>({action,target,identity})};
-}
-
-test('P1 precise surface refusals reproduce the exact collapsed main guard without private data',()=>{
-  assert.equal(digest(Buffer.from(preTargetFixSource)),'88bd99b9415c7c668fa7023874507e6e7abf9768186a11b5ca710d5e1fd59d32');
-  for(const [expected,change] of [
-    ['PAGE_ROUTE_UNSUPPORTED',f=>{f.context.location.href='https://chatgpt.com/share/private-session-id?private-query';}],
-    ['PAGE_NOT_TOP_LEVEL',f=>{f.context.top={};}],
-    ['PAGE_NOT_VISIBLE',f=>{f.document.visibilityState='hidden';}],
-    ['PAGE_UNFOCUSED',f=>f.focus(false)]
-  ]){
-    for(const [programSource,label] of [[preTargetFixSource,'UNSUPPORTED_TEST_SURFACE'],[source,expected]]){
-      const f=fixture({programSource});change(f);
-      assert.throws(()=>f.target(),error=>error.message===label);
-      assert.equal(f.input.inputCount,0);
-    }
-  }
-  for(const [expected,change] of [
-    ['EDITOR_UNAVAILABLE',f=>{f.editor.rendered=false;}],
-    ['ATTACHMENT_INPUT_UNAVAILABLE',f=>{f.input.disabled=true;}],
-    ['ATTACHMENT_INPUT_UNAVAILABLE',f=>{f.form.children=f.form.children.filter(n=>n!==f.input);f.input.isConnected=false;}]
-  ]){
-    const f=fixture();change(f);assert.throws(()=>f.target(),{message:expected});assert.equal(f.input.inputCount,0);
-  }
-});
-
-for(const [name,options] of [
-  ['Home with query', {route:'https://chatgpt.com/?model=fixture#composer'}],
-  ['Project candidate persisted thread',{route:projectFixturePath+'/c/12345678-1234-1234-1234-123456789abc',thread:true}],
-  ['Project candidate new chat',{route:projectFixturePath+'/project',businessHome:true}]
-]) test('P1 '+name+' requires the same exact composer identity and fixes the prior route counterexample',async()=>{
-  const old=fixture({...options,programSource:preTargetFixSource});
-  assert.throws(()=>old.target(),{message:'UNSUPPORTED_TEST_SURFACE'});assert.equal(old.input.inputCount,0);
-  const f=fixture(options);
-  if(options.thread)threadCommit(f,f.businessID.slice('local-chatgpt:'.length));
-  const base=f.target(),target=f.call(nativePressCommand(base));
-  if(options.thread)assert.equal(target.logicalDraftIdentity.profileID,'chatgpt-composer-react-persisted-20261027-v1');
-  if(options.businessHome)assert.equal(target.logicalDraftIdentity.profileID,'chatgpt-composer-react-20261027-v1');
-  const op=operationForPin(target),original=f.editor.textContent;f.stage(op);f.commit(op);await f.settle();
-  assert.equal(f.input.inputCount,1);assert.equal(f.editor.textContent,original);
-  assert.deepEqual(Buffer.from(await f.input.files[0].arrayBuffer()),png);
-});
-
-test('P1 ordinary /c is the same proved conversation contract for a Project-owned chat',()=>{
-  const f=fixture({thread:true});threadCommit(f,f.businessID.slice('local-chatgpt:'.length));
-  const base=f.target();assert.equal(base.logicalDraftIdentity.id,f.businessID.slice('local-chatgpt:'.length));
-  assert.equal(f.call({action:'validate',target:f.call(nativePressCommand(base))}).valid,true);
-});
-
-test('P1 candidate Project URLs cannot borrow legacy Home mode proof or ambiguous/non-Chat composers',()=>{
-  for(const route of [projectFixturePath+'/project',projectFixturePath+'/c/fixture']){
-    const legacy=fixture({route});assert.throws(()=>legacy.target(),{message:'EDITOR_UNAVAILABLE'});
-    for(const change of [
-      f=>{f.fibers.modeFiber.memoizedProps.isWork=true;},
-      f=>{f.fibers.draftFiber.memoizedProps.readOnly=true;},
-      f=>{f.form.append(new f.Input());},
-      f=>{f.form.append(new f.Node('div',{contenteditable:'true',role:'textbox','aria-label':'询问 ChatGPT'}));},
-      f=>{f.body.append(new f.Node('div',{contenteditable:'true',role:'textbox','aria-label':'询问 ChatGPT'}));}
-    ]){
-      const f=fixture({route,thread:true});change(f);
-      assert.throws(()=>f.target(),/UNPROVEN_THREAD_IDENTITY|AMBIGUOUS_COMPOSER|ATTACHMENT_INPUT_UNAVAILABLE/);
-      assert.equal(f.input.inputCount,0);
-    }
-  }
-  for(const route of ['https://chatgpt.com/settings','https://chatgpt.com/share/example',
-      'https://chatgpt.com/g/g-not-a-project/c/example','https://chatgpt.com.evil.invalid/',
-      'https://evil.invalid/?next=https://chatgpt.com/','http://chatgpt.com/']){
-    const f=fixture({route,thread:true});assert.throws(()=>f.target(),{message:'PAGE_ROUTE_UNSUPPORTED'});assert.equal(f.input.inputCount,0);
-  }
-});
-
-test('P1 native pre-press proof survives the real event ordering counterexample without unfocused discovery',async()=>{
-  for(const beforeBlurDelivery of [false,true]){
-    const old=fixture({programSource:preTargetFixSource}),oldTarget=old.target();old.focus(false);
-    if(!beforeBlurDelivery)old.windowEvent('blur');
-    assert.throws(()=>old.call(nativePressCommand(oldTarget)),{message:'CLICK_PIN_REFUSED'});
-    const f=fixture({thread:true}),base=f.target();f.focus(false);
-    if(!beforeBlurDelivery)f.windowEvent('blur');
-    assert.throws(()=>f.target(),{message:'PAGE_UNFOCUSED'});
-    const pin=f.call(nativePressCommand(base));assert.equal(pin.documentID,base.documentID);
-    assert.equal(pin.logicalDraftIdentity.id,base.logicalDraftIdentity.id);
-    const op=operationForPin(pin);f.stage(op);f.commit(op);await f.settle();assert.equal(f.input.inputCount,1);
-    const discovery=fixture();discovery.focus(false);
-    assert.throws(()=>discovery.target(),{message:'PAGE_UNFOCUSED'});
-    assert.throws(()=>discovery.call(nativePressCommand(base)),{message:'CLICK_ROUTE_UNOBSERVED'});
-    assert.equal(discovery.input.inputCount,0);
-  }
-});
-
-test('P1 focusless pin requires the exact native press proof, target and unused click ID',()=>{
-  for(const corrupt of [
-    command=>delete command.nativePressProof,
-    command=>{command.nativePressProof.kind='captured-after-press';},
-    command=>{command.nativePressProof.clickBindingID=webcrypto.randomUUID();},
-    command=>{command.clickBindingID='not-a-uuid';command.nativePressProof.clickBindingID=command.clickBindingID;}
-  ]){
-    const f=fixture(),base=f.target();f.focus(false);f.windowEvent('blur');const command=nativePressCommand(base);corrupt(command);
-    assert.throws(()=>f.call(command),/PAGE_UNFOCUSED|CLICK_PIN_REFUSED/);assert.equal(f.input.inputCount,0);
-  }
-  const f=fixture(),base=f.target();f.focus(false);f.windowEvent('blur');const command=nativePressCommand(base),pin=f.call(command);
-  assert.throws(()=>f.call(command),{message:'CLICK_PIN_REFUSED'});
-  assert.throws(()=>f.call(nativePressCommand({...base,documentID:webcrypto.randomUUID()})),{message:'CLICK_ROUTE_UNOBSERVED'});
-  const clock=f.context.performance.now();f.context.performance.now=()=>clock+30001;
-  assert.equal(f.call({action:'validate',target:pin}).valid,false);
-  assert.throws(()=>f.stage(operationForPin(pin)),/TARGET_INVALID/);assert.equal(f.input.inputCount,0);
-});
-
-test('P1 focusless press cannot cross visibility, frame, restoration, navigation, node or committed draft continuity',()=>{
-  for(const change of [
-    f=>{f.document.visibilityState='hidden';},
-    f=>{f.context.top={};},
-    f=>{f.focus(true);f.windowEvent('focus');f.focus(false);f.windowEvent('blur');},
-    f=>{f.document.visibilityState='hidden';f.documentEvent('visibilitychange',f.document);f.document.visibilityState='visible';f.documentEvent('visibilitychange',f.document);},
-    f=>f.windowEvent('pagehide'),f=>f.windowEvent('pageshow'),f=>f.navigationEvent('navigate'),
-    f=>{f.context.location.href=projectFixturePath+'/c/other';},
-    f=>{f.editor.isConnected=false;},f=>{f.input.isConnected=false;},
-    f=>{f.form.append(new f.Input());},
-    f=>{f.body.append(new f.Node('div',{contenteditable:'true',role:'textbox','aria-label':'询问 ChatGPT'}));},
-    f=>{f.queueMutation([{type:'childList',target:f.body,removedNodes:[f.form],addedNodes:[f.form]}]);},
-    f=>{threadCommit(f,'local-chatgpt:99999999-9999-4999-8999-999999999999');threadCommit(f);}
-  ]){
-    const f=fixture({route:projectFixturePath+'/c/fixture',thread:true}),base=f.target();f.focus(false);f.windowEvent('blur');change(f);
-    assert.throws(()=>f.call(nativePressCommand(base)),/CLICK_PIN_REFUSED|CLICK_ROUTE_UNOBSERVED|PAGE_NOT_VISIBLE|PAGE_NOT_TOP_LEVEL|EDITOR_UNAVAILABLE|ATTACHMENT_INPUT_UNAVAILABLE/);assert.equal(f.input.inputCount,0);
-  }
-});
-
-test('P1 two fresh presses in one continuously observed focus-loss epoch preserve retained FileList and independent bytes',async()=>{
-  const f=requestFixture({route:projectFixturePath+'/c/fixture',thread:true}),tasks=[];
-  const old=f.form.append(new f.Node('div',{role:'button','aria-label':'old.png'}));old.append(new f.Node('img'));
-  const selection={anchorNode:f.editor,anchorOffset:2,focusNode:f.editor,focusOffset:6,rangeCount:1,isCollapsed:false};
-  f.document.getSelection=()=>selection;
-  const text=f.editor.textContent,base=f.target();f.changed(file=>tasks.push({file,list:f.input.files}));
-  f.focus(false);f.windowEvent('blur');
-  // A screenshot/omnibox dwell is not an identity change. Freshness is the
-  // original native press's responsibility, never guessed from polling age.
-  const clock=f.context.performance.now;f.context.performance.now=()=>clock()+120000;
-  assert.throws(()=>f.target(),{message:'PAGE_UNFOCUSED'});
-  const ops=[];
-  for(let i=0;i<2;i++){
-    const pin=f.call(nativePressCommand(base));assert.equal(pin.documentID,base.documentID);
-    const op=withInvocation(operationForPin(pin,Buffer.from([...png,i])),webcrypto.randomUUID());
-    const priorList=f.input.files,priorFile=priorList[0];const resource=prepareResource(f,op);
-    assert.equal(resource.kind,i?'settledOwnedNativeFileInput':'emptyNativeFileInput');
-    assert.equal(f.input.files,priorList);if(i)assert.equal(f.input.files[0],priorFile);
-    f.stage(op);f.commit(op);await f.settle();const view=f.makeCard(op,10);setProgress(f,view,40);
-    assert.equal(f.observe(op).state,'uploadStarted');ops.push(op);
-  }
-  assert.equal(f.input.inputCount,2);assert.equal(tasks.length,2);assert.notEqual(ops[0].target.clickBindingID,ops[1].target.clickBindingID);
-  for(let i=0;i<2;i++){
-    assert.equal(tasks[i].list.length,1);assert.equal(tasks[i].list[0],tasks[i].file);
-    assert.deepEqual(Buffer.from(await tasks[i].file.arrayBuffer()),ops[i].bytes);
-    assert.equal(f.observe(ops[i]).state,'uploadStarted');
-  }
-  assert.equal(f.editor.textContent,text);assert.equal(selection.anchorOffset,2);assert.equal(selection.focusOffset,6);assert.ok(f.form.contains(old));
-});
-
-test('P1 an observed unavailable surface or attachment closes pre-press focus continuity after restoration',()=>{
-  for(const [change,restore,label] of [
-    [f=>{f.document.visibilityState='hidden';},f=>{f.document.visibilityState='visible';},'PAGE_NOT_VISIBLE'],
-    [f=>{f.context.top={};},f=>vm.runInContext('globalThis.top=globalThis',f.context),'PAGE_NOT_TOP_LEVEL'],
-    [f=>{f.editor.rendered=false;},f=>{f.editor.rendered=true;},'EDITOR_UNAVAILABLE'],
-    [f=>{f.input.disabled=true;},f=>{f.input.disabled=false;},'ATTACHMENT_INPUT_UNAVAILABLE']
-  ]){
-    const f=fixture({thread:true}),base=f.target();f.focus(false);f.windowEvent('blur');change(f);
-    assert.throws(()=>f.call(nativePressCommand(base)),{message:label});restore(f);
-    assert.throws(()=>f.call(nativePressCommand(base)),{message:'CLICK_PIN_REFUSED'});assert.equal(f.input.inputCount,0);
-  }
+  const refused=(await f.commit(op)).observation;
+  assert.equal(refused.preInputRetirement.reason,'attachmentEntryUnavailable');
+  assert.equal(refused.preInputRetirement.inputCount,0);
+  assert.equal(f.changes,0);assert.equal(f.setters,0);assert.equal(refused.uploadStart,undefined);
+ }
+});
+
+for(const state of ['disabled','removed'])test('accepted attachment starts immediately while change leaves its picker '+state,()=>{
+ const f=fixture(),op=f.bind();f.stage(op);
+ f.setChange(()=>{if(state==='disabled')f.input.disabled=true;else f.input.remove();});
+ const receipt=f.commit(op).observation;
+ assert.equal(receipt.state,'uploadStarted','START must not wait for the next input slot or upload completion');
+ accepted(f,op);assert.equal(f.setters,1);assert.equal(f.changes,1);
+ assert.equal(f.call({action:'validate',target:op.target}).valid,true,'target binding does not depend on the previous picker');
+ assert.ok(f.form.contains(f.oldCard));assert.equal(f.sends,0);
+});
+
+for(const state of ['disabled','removed'])test('an unsubmitted operation never starts from a matching card with its picker '+state,async()=>{
+ const f=fixture(),op=f.bind();f.stage(op);f.addCard(op.name);
+ if(state==='disabled')f.input.disabled=true;else f.input.remove();
+ const observed=f.observe(op);assert.equal(observed.state,'unknown');assert.equal(observed.uploadStart,undefined);
+ const refused=(await f.commit(op)).observation;
+ assert.equal(refused.preInputRetirement.reason,'attachmentEntryUnavailable');
+ assert.equal(refused.uploadStart,undefined);assert.equal(f.setters,0);assert.equal(f.changes,0);
+});
+
+test('a replacement in an untracked Home draft cannot start the original unconfirmed operation',()=>{
+ const f=fixture({accept:false,route:'https://chatgpt.com/'}),op=f.bind();f.stage(op);f.commit(op);
+ f.editor.remove();f.form.append(new f.Node('div',{id:'prompt-textarea',contenteditable:'true',role:'textbox'}));
+ f.addCard(op.name);
+ const observed=f.observe(op);assert.equal(observed.state,'inputTriggered');
+ assert.equal(observed.belongsToOriginalDraft,false);assert.equal(observed.uploadStart,undefined);
+ assert.equal(f.changes,1);
+});
+
+for(const route of [
+ 'https://chatgpt.com/',
+ 'https://chatgpt.com/c/ordinary-thread',
+ 'https://chatgpt.com/g/g-p-local-project/c/thread',
+ 'https://chatgpt.com/g/g-p-local-project/project',
+ 'https://chatgpt.com/a-valid-future-chat-path?model=example'
+])test(`usable composer accepts PNG at ${new URL(route).pathname}`,()=>{
+ const f=fixture({route}),op=f.bind();
+ assert.equal(op.target.logicalDraftIdentity,undefined,'no React identity required');
+ f.stage(op);f.commit(op);accepted(f,op);assert.equal(f.changes,1);
+});
+
+test('a first click initializes its fixed target after Chrome loses focus without any prior page capture',()=>{
+ const f=fixture({focused:false,visible:false});
+ const op=f.bind();f.stage(op);f.commit(op);accepted(f,op);
+ assert.equal(op.target.clickBindingID,undefined,'no earlier click proof or pin is required');
+ assert.equal(f.changes,1);
+});
+
+test('a changed route cannot receive the screenshot pinned to the previous chat',()=>{
+ const f=fixture(),op=f.bind();f.stage(op);
+ f.setRoute('https://chatgpt.com/c/different-chat');
+ const refused=f.commit(op).observation;
+ assert.equal(refused.state,'invalidated');
+ assert.equal(refused.preInputRetirement.reason,'targetInvalidBeforeInput');
+ assert.equal(f.changes,0);assert.equal(f.setters,0);
+ const newOp=f.bind();f.stage(newOp);f.commit(newOp);accepted(f,newOp);
+ assert.equal(f.changes,1);
+});
+
+test('a replacement Home editor cannot silently inherit an older captured target',()=>{
+ const f=fixture({route:'https://chatgpt.com/'}),op=f.bind();f.stage(op);f.editor.remove();
+ f.form.append(new f.Node('div',{id:'prompt-textarea',contenteditable:'true',role:'textbox'}));
+ const refused=f.commit(op).observation;
+ assert.equal(refused.state,'invalidated');
+ assert.equal(refused.preInputRetirement.reason,'targetInvalidBeforeInput');
+ assert.equal(f.changes,0);
+});
+
+test('multiple inputs do not invalidate the chat and discovery never picks an arbitrary tied input',async()=>{
+ const f=fixture();f.form.append(new f.context.HTMLInputElement());
+ const op=f.bind();f.stage(op);
+ const refused=(await f.commit(op)).observation;
+ assert.equal(refused.preInputRetirement.reason,'attachmentEntryUnavailable');assert.equal(f.changes,0);
+});
+
+test('a preferred current composer is independent of another unrelated editable region',()=>{
+ const g=fixture(),other=g.body.append(new g.Node('form'));
+ other.append(new g.Node('div',{contenteditable:'true',role:'textbox'}));
+ const unrelated=other.append(new g.context.HTMLInputElement());unrelated.applicationAccept=false;
+ const op=g.bind();g.stage(op);g.commit(op);accepted(g,op);
+ assert.equal(g.changes,1);assert.equal(unrelated.files.length,0);
+});
+
+test('disabled input permits discovery while non-ChatGPT host remains invalid',async()=>{
+ const f=fixture();f.input.disabled=true;
+ const op=f.bind();f.stage(op);const refused=(await f.commit(op)).observation;
+ assert.equal(refused.preInputRetirement.reason,'attachmentEntryUnavailable');assert.equal(f.changes,0);
+ const g=fixture({route:'https://example.invalid/c/ordinary-thread'});
+ assert.throws(()=>g.call({action:'captureTarget'}),/HOST|ROUTE|PAGE|TARGET/);assert.equal(g.changes,0);
+});
+
+test('malformed PNG fails before native input and cannot hold the next screenshot',()=>{
+ const f=fixture(),bad=f.bind({bytes:Buffer.from('not png')});
+ let failed=false;try{f.stage(bad);f.commit(bad);}catch{failed=true;}
+ assert.equal(failed,true);assert.equal(f.changes,0);
+ const good=f.bind({bytes:png});f.stage(good);f.commit(good);accepted(f,good);assert.equal(f.changes,1);
+});
+
+test('current File-derived preview starts even when the application omits visible filenames',()=>{
+ const f=fixture({accept:false}),op=f.bind();f.stage(op);f.commit(op);
+ const url=f.context.URL.createObjectURL(f.input.files[0]);
+ const card=f.addCard('application-preview-without-a-filename',{progress:false}),image=card.querySelector('img');
+ image.setAttribute('src',url);image.src=image.currentSrc=url;
+ accepted(f,op);assert.equal(f.changes,1);
+});
+
+for(const field of ['aria-label','title','alt','text'])test('new attachment can label the complete unique filename with surrounding text: '+field,()=>{
+ const f=fixture({accept:false}),op=f.bind();f.stage(op);f.commit(op);
+ const card=f.addCard('unrelated-placeholder',{progress:false}),image=card.querySelector('img');
+ for(const name of ['data-file-name','title','aria-label'])card.removeAttribute(name);
+ image.removeAttribute('alt');
+ const label='正在上传 '+op.name+' (PNG image)';
+ if(field==='alt')image.setAttribute('alt',label);
+ else if(field==='text')card.append(new f.Node('span')).textContent=label;
+ else card.setAttribute(field,label);
+ accepted(f,op);assert.equal(f.changes,1);
+});
+
+test('filename substrings and unrelated previews cannot falsely consume a screenshot',()=>{
+ const f=fixture({accept:false}),op=f.bind();f.stage(op);f.commit(op);
+ f.addCard('other-'+op.name);f.addCard(op.name+'.other');
+ const unrelated=f.addCard('another-file.png');unrelated.append(new f.Node('span')).textContent='Attachment preview';
+ assert.equal(f.observe(op).state,'inputTriggered');assert.equal(f.observe(op).uploadStart,undefined);
+ assert.equal(f.changes,1);
+});
+
+test('staging and discarding an unsubmitted click never dispatch an input',()=>{
+ const f=fixture(),op=f.bind();f.stage(op);
+ assert.equal(f.setters,0);assert.equal(f.changes,0);
+ const result=f.call(op.command('discard'));
+ assert.equal(result.discarded,true);assert.equal(result.inputCount,0);
+ assert.throws(()=>f.commit(op),/COMMIT_REFUSED/);assert.equal(f.changes,0);
+ const next=f.bind();f.stage(next);f.commit(next);accepted(f,next);assert.equal(f.changes,1);
+});
+
+for(const attrs of [{role:'alert'},{'data-state':'error'},{'data-state':'failed'}])test('an error attachment cannot masquerade as accepted START '+JSON.stringify(attrs),()=>{
+ const f=fixture({accept:false}),op=f.bind();f.stage(op);f.commit(op);
+ const card=f.addCard(op.name);card.remove();
+ const error=f.form.append(new f.Node('div',attrs));error.append(card);
+ assert.equal(f.observe(op).state,'inputTriggered');
+ assert.equal(f.observe(op).uploadStart,undefined);
+ assert.equal(f.changes,1);
+});
+
+test('an error beside a preview cannot bypass START rejection through the nested image',()=>{
+ const f=fixture({accept:false}),op=f.bind();f.stage(op);f.commit(op);
+ const card=f.addCard(op.name);
+ card.append(new f.Node('div',{role:'alert'})).textContent='Upload failed';
+ assert.equal(f.observe(op).state,'inputTriggered');
+ assert.equal(f.observe(op).uploadStart,undefined);
+ assert.equal(f.changes,1);
+});
+
+test('an error on an older attachment cannot suppress the new independent attachment START',()=>{
+ const f=fixture();
+ f.oldCard.append(new f.Node('div',{role:'alert'})).textContent='Previous upload failed';
+ const op=f.bind();f.stage(op);f.commit(op);accepted(f,op);
+ assert.ok(f.form.contains(f.oldCard));assert.equal(f.changes,1);
+});
+
+test('an empty img src is still a placeholder and cannot start the attachment',()=>{
+ const f=fixture({accept:false}),op=f.bind();f.stage(op);f.commit(op);
+ const card=f.addCard(op.name,{progress:false}),image=card.querySelector('img');
+ image.setAttribute('src','');image.src=image.currentSrc='';
+ assert.equal(f.observe(op).state,'inputTriggered');
+ assert.equal(f.observe(op).uploadStart,undefined);assert.equal(f.changes,1);
 });

@@ -1,9 +1,6 @@
 'use strict';
-// Hermetic native-Chrome/FileList/Blob/Request regression with a SYNTHETIC app.
-// No ChatGPT page, signed-in profile, external request, CDP, Apple Events or real
-// user screenshot is opened. Test status goes only to the temporary loopback
-// harness, separately from the synthetic application's zero network uploads.
-// This is not current-platform append acceptance.
+// Real native Chrome File/FileList/DataTransfer/Selection; controlled app only.
+// Isolated profile, loopback traffic, no real ChatGPT, CDP or Apple Events.
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
@@ -11,235 +8,400 @@ const os=require('node:os');
 const path=require('node:path');
 const http=require('node:http');
 const {spawn}=require('node:child_process');
+const {mountAttachmentEntryCase,readResidentV15Source}=require('./attachment-entry-application.cjs');
 const {bounded,cleanupOwnedChrome,closeLoopbackServer}=require('./native-chrome-cleanup.cjs');
-// Keep cleanup fault regressions in the existing required CI entry point.
 require('./native-chrome-cleanup.test.cjs');
 const binary=[process.env.RIFTLET_CHROME_BIN,
-  '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
-  '/usr/bin/google-chrome','/usr/bin/chromium','/usr/bin/chromium-browser'].find(p=>p&&fs.existsSync(p));
+ '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+ '/usr/bin/google-chrome','/usr/bin/chromium','/usr/bin/chromium-browser'].find(p=>p&&fs.existsSync(p));
 const required=process.env.RIFTLET_REQUIRE_CHROME==='1';
-const source=fs.readFileSync(path.join(__dirname,'../../Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js'),'utf8');
-const baselineSource=fs.readFileSync(path.join(__dirname,'fixtures/chatgpt-web-main-6c677f55.js'),'utf8');
-function browserFixture(options) {
-  return String.raw`<!doctype html><meta charset="utf-8"><title>Riftlet local synthetic input-resource fixture</title>
-<header><div role="group" aria-label="撰写器模式"><button type="button" aria-pressed="true">聊天</button><button type="button" aria-pressed="false">工作</button></div></header>
-<form><div contenteditable="true" role="textbox" style="width:500px;height:80px">Existing 中文 draft 👋 and selection</div><input type="file" aria-label="附加文件"></form><pre id="result">RUNNING</pre>
+const sourcePath=process.env.RIFTLET_WEB_SOURCE_OVERRIDE||process.env.SOURCE_OVERRIDE||path.join(__dirname,'../../Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js');
+const source=fs.readFileSync(sourcePath,'utf8');
+function browserFixture(options){
+ const previous=options.resident?readResidentV15Source():'';
+ const container=options.noForm?'section':'form';
+ return String.raw`<!doctype html><meta charset="utf-8"><title>Riftlet independent native input regression</title>
+<${container} data-harness-composer><div id="prompt-textarea" contenteditable="true" role="textbox" style="width:500px;height:80px">Existing 中文 draft 👋 and selection</div><input type="file" accept="image/*" style="display:none"><div role="button" data-file-name="existing.png"><img alt="existing.png"></div><button type="submit">Send</button></${container}><pre id="result">RUNNING</pre>
 <script>
 (async()=>{
- const options=__FIXTURE_OPTIONS__;
- const result=document.getElementById('result'),report={scope:'real Chrome primitives; synthetic local application; NOT live ChatGPT',passed:false};
+ const options=__OPTIONS__,report={scope:'real Chrome primitives; controlled local application; NOT live ChatGPT',passed:false};
  const harnessFetch=globalThis.fetch.bind(globalThis);
  const stage=async phase=>{report.phase=phase;await harnessFetch('/progress',{method:'POST',body:JSON.stringify({phase})});};
  const check=(ok,label)=>{if(!ok)throw Error(label);};
- const wait=async fn=>{for(let i=0;i<300;i++){if(fn())return;await new Promise(r=>setTimeout(r,10));}throw Error('bounded fixture wait expired');};
+ const wait=async fn=>{for(let i=0;i<300;i++){if(fn())return;await new Promise(r=>setTimeout(r,10));}throw Error('bounded observation wait expired');};
  const hash=async bytes=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),n=>n.toString(16).padStart(2,'0')).join('');
- try {
+ try{
   check(location.protocol==='http:'&&location.hostname==='127.0.0.1','fixture must stay on loopback');
   await stage('initializing');
-  const form=document.querySelector('form'),editor=form.querySelector('[contenteditable]'),input=form.querySelector('input');
-  // A controlled application model owns immutable per-attachment Files and
-  // request bodies. Retained mode models a persisted thread, without opening
-  // ChatGPT or claiming that this model is its current application handler.
-  let route='https://chatgpt.com/';
-  if(options.retained||options.businessHome){
-    const home=!!options.businessHome,placement=home?'home':'thread';
-    const id=(home?'local-chatgpt:':'')+'12345678-1234-4234-8234-123456789abc';
-    if(!home)route='https://chatgpt.com/c/'+id;
-    form.setAttribute('data-chatgpt-composer','');form.setAttribute('data-composer-placement',placement);form.setAttribute('data-thread-find-composer','true');
-    editor.setAttribute('aria-label','询问 ChatGPT');
-    const leaf={stateNode:form,memoizedProps:{},return:null};
-    const mode={memoizedProps:{conversationId:id,isHome:home,isWork:false,readOnly:false},child:leaf};leaf.return=mode;
-    const draft={memoizedProps:{conversationId:id,draftKey:id,isWorkConversation:false,isTemporaryChat:false,readOnly:false,surfacePlacement:{kind:placement}},child:mode};mode.return=draft;
-    const root={tag:3,child:draft,return:null,stateNode:{}};draft.return=root;root.stateNode.current=root;
-    form.__reactFiber$fixture=leaf;
+  const form=document.querySelector('[data-harness-composer]'),editor=document.querySelector('#prompt-textarea');
+  let input=form.querySelector('input');
+  if(options.unfamiliarAccept)input.accept='IMAGE/PNG; charset=binary,.PNG,image/x-png';
+  if(options.portalPicker)document.body.append(input);
+  const decoys=[];
+  let wrongInputChanges=0,wrongInputSetters=0,entryPointerDowns=0,menuSelections=0,createdPickers=0,pickerClicks=0,pickerCalls=0,pickerErrors=0,nativeAwaitContinuations=0;
+  let menusClosed=0,menuClosedBeforeInput=0,missingChooserCancellation=0;
+  if(options.multipleInputs){
+   for(let i=0;i<2;i++){
+    const otherForm=document.createElement('form'),other=document.createElement('input');
+    other.type='file';other.accept='image/*';other.hidden=true;other.addEventListener('change',()=>wrongInputChanges++);
+    otherForm.append(other);document.body.prepend(otherForm);decoys.push(other);
+   }
   }
-  // Candidate route forms are injected into a controlled, identity-proven
-  // composer. They do not assert that today's live Project DOM was inspected.
-  if(options.routeFlavor==='home-query')route='https://chatgpt.com/?model=synthetic-model';
-  if(options.routeFlavor==='project-thread')route='https://chatgpt.com/g/g-p-1234567890abcdef-fixture/c/12345678-1234-4234-8234-123456789abc';
-  if(options.routeFlavor==='project-home')route='https://chatgpt.com/g/g-p-1234567890abcdef-fixture/project';
-  // The route and optional explicitly modeled focus read are injected.
-  // File, FileList, DataTransfer, Event, native
-  // input descriptors, Selection, DOM, Blob, FormData, Request and WebCrypto
-  // are the actual Chrome implementations. No app source is modified.
-  const installProgram=source=>new Function('location','return ('+source+')')({href:route});
-  let program=installProgram(options.hotUpgrade?__BASELINE_SOURCE__:__CURRENT_SOURCE__);
+  if(options.avatarPickers){
+   for(let i=0;i<2;i++){
+    const avatar=document.createElement('input');avatar.type='file';avatar.accept='image/*';avatar.hidden=true;
+    avatar.setAttribute('aria-label','Profile avatar');avatar.addEventListener('change',()=>wrongInputChanges++);
+    (i===0?form:document.body).append(avatar);decoys.push(avatar);
+   }
+  }
+  if(options.liveComposerShape){
+   // Redacted structure observed on the ordinary Chinese ChatGPT Home page.
+   form.setAttribute('data-composer-placement','bottom');
+   editor.removeAttribute('id');editor.removeAttribute('role');editor.className='ProseMirror';
+   editor.setAttribute('aria-label','询问 ChatGPT');
+   const competing=document.createElement('div');competing.contentEditable='true';
+   competing.setAttribute('aria-label','询问 ChatGPT');competing.textContent='Other editable';document.body.append(competing);
+   for(const [accept,label] of [['image/*','拍照'],['image/*,video/*','附加照片或视频'],['image/*','添加照片']]){
+    const specialized=document.createElement('input');specialized.type='file';specialized.accept=accept;
+    specialized.hidden=true;specialized.setAttribute('aria-label',label);
+    if(label==='拍照')specialized.setAttribute('capture','environment');else specialized.multiple=true;
+    specialized.addEventListener('change',()=>wrongInputChanges++);form.insertBefore(specialized,input);decoys.push(specialized);
+   }
+   input.accept='';input.multiple=true;input.setAttribute('aria-label','附加文件');
+   const plus=document.createElement('button');plus.type='button';plus.setAttribute('aria-label','添加文件等内容');form.append(plus);
+   plus.addEventListener('click',()=>{report.unneededMenuOpens=(report.unneededMenuOpens||0)+1;});
+  }
+  if(options.entryMode)input.remove();
+  const makePickerUnavailable=()=>{if(options.unavailablePicker==='disabled')input.disabled=true;else input.remove();};
+  const restorePicker=()=>{input.disabled=false;if(!input.isConnected)(options.portalPicker?document.body:form).append(input);};
+  const priorCard=form.querySelector('[data-file-name]'),priorImage=priorCard.querySelector('img');
+  const canvas=document.createElement('canvas');canvas.width=canvas.height=2;
+  canvas.getContext('2d').fillRect(0,0,2,2);priorImage.src=canvas.toDataURL('image/png');
+  let applicationNetworkRequests=0;
+  globalThis.fetch=()=>{applicationNetworkRequests++;throw Error('application network requests forbidden in local fixture');};
+  XMLHttpRequest.prototype.send=function(){applicationNetworkRequests++;throw Error('application XHR forbidden in local fixture');};
+  const mockLocation={href:options.route};
+  const program=new Function('location','return ('+__SOURCE__+')')(mockLocation);
   const native={applicationID:'com.google.Chrome',sessionID:'synthetic-local-profile',windowID:'1',tabID:'1'};
   const call=command=>program(command,native);
-  const prepare=async command=>{
-    for(let poll=0;poll<16;poll++){
-      const reply=call(command);
-      if(reply.pending!==true)return reply;
-      check(reply.version===1&&reply.invocationID===command.invocationID
-        &&JSON.stringify(reply.identity)===JSON.stringify(command.identity)
-        &&reply.resourceID===undefined,'read-only pending qualification is bound and grants no token');
-      await new Promise(resolve=>setTimeout(resolve,20));
-    }
-    throw Error('bounded native selection qualification expired');
-  };
+  if(options.resident){
+   const oldProgram=new Function('location','return ('+__PREVIOUS__+')')(mockLocation);
+   const before=oldProgram({action:'captureTarget'},native);
+   check(!!before.documentID&&oldProgram({action:'validate',target:before},native).valid,'old version actually resident in the same document');
+   report.residentSourceVerified=true;
+  }
   editor.focus();const selection=getSelection(),range=document.createRange();range.setStart(editor.firstChild,2);range.setEnd(editor.firstChild,7);selection.removeAllRanges();selection.addRange(range);
-  const text=editor.textContent,anchor=selection.anchorNode,anchorOffset=selection.anchorOffset,focus=selection.focusNode,focusOffset=selection.focusOffset;
-  const sources=[];
-  for(let index=0;index<options.count;index++){
-    const canvas=document.createElement('canvas');canvas.width=2;canvas.height=1;
-    const ctx=canvas.getContext('2d');ctx.fillStyle='rgb('+(12+index*40)+','+(25+index*15)+','+(35+index*10)+')';ctx.fillRect(0,0,2,1);
-    const pixelURL=canvas.toDataURL('image/png'),base64=pixelURL.split(',')[1],bytes=Uint8Array.from(atob(base64),c=>c.charCodeAt(0));
-    const png=new Blob([bytes],{type:'image/png'});
-    sources.push({png,bytes,sha:await hash(bytes),base64,pixelURL});
-  }
-  check(new Set(sources.map(value=>value.sha)).size===options.count,'each operation has distinct image bytes');
-  const tasks=[],applicationAttachments=new Map();let changes=0,sends=0;
-  form.addEventListener('submit',event=>{sends++;event.preventDefault();});
-  const cachedTransport=body=>new Request('https://fixture.invalid/never-requested',{method:'POST',body});
-  const prePressTarget=call({action:'captureTarget'});
-  if(options.modeledFocusLoss){
-    // Model the native nonactivating click's focus ordering without pretending
-    // a loopback headless fixture is a physical macOS/Chrome focus experiment.
-    Object.defineProperty(document,'hasFocus',{value:()=>false,configurable:true});
-    globalThis.dispatchEvent(new Event('blur'));
-    let rejected=false;try{call({action:'captureTarget'});}catch(error){rejected=error.message==='PAGE_UNFOCUSED';}
-    check(rejected,'unfocused discovery still refuses and must not poison the prior capture');
-  }
-  const captureForClick=()=>options.modeledFocusLoss?prePressTarget:call({action:'captureTarget'});
-  const pinForClick=target=>{
-    const clickBindingID=crypto.randomUUID();
-    return call({action:'pinTarget',target,clickBindingID,...(options.modeledFocusLoss?
-      {nativePressProof:{kind:'observed-target-before-press',clickBindingID}}:{})});
+  if(options.liveComposerShape)editor.blur();
+  const text=editor.textContent,anchor=selection.anchorNode,focus=selection.focusNode,anchorOffset=selection.anchorOffset,focusOffset=selection.focusOffset;
+  let changes=0,setters=0,sends=0,reentrant=null,reentrantRefused=false,firstPendingCard=null;
+  let startBeforePickerRestored=false,noInputStartRejected=false;
+  const nativeFiles=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'files');
+  Object.defineProperty(HTMLInputElement.prototype,'files',{...nativeFiles,set(value){
+   setters++;if(decoys.includes(this))wrongInputSetters++;return Reflect.apply(nativeFiles.set,this,[value]);
+  }});
+  const tasks=[],ops=[],inputReceivers=new WeakSet();
+  form.addEventListener('submit',event=>{event.preventDefault();sends++;});
+  form.querySelector('button[type="submit"]').addEventListener('click',()=>sends++);
+  const changed=event=>{
+   changes++;
+   const submittedInput=event.currentTarget,list=submittedInput.files,file=list[0];
+   check(submittedInput===input,'the application receives its own chat picker, never another global input');
+   check(list instanceof FileList&&list.length===1&&file instanceof File,'one actual native FileList item');
+   inputReceivers.add(submittedInput);
+   if(options.collapseSelectionInChange){editor.focus();selection.collapse(editor.firstChild,editor.firstChild.textContent.length);}
+   if(options.replacePicker){
+    const replacement=submittedInput.cloneNode();submittedInput.replaceWith(replacement);input=replacement;
+    input.addEventListener('change',changed);
+   }
+   if(reentrant){
+    const next=reentrant;reentrant=null;
+    const refusal=call({...next.command('commit'),chunkIndex:1}).observation;
+    reentrantRefused=refusal.preInputRetirement?.reason==='inputExecutionBusy'&&refusal.preInputRetirement.inputCount===0;
+    check(reentrantRefused&&submittedInput.files[0]===file,'reentrant input cannot overwrite current native control');
+   }
+   const card=document.createElement('div');card.setAttribute('role','button');card.setAttribute('data-file-name',file.name);card.title=file.name;
+   const image=document.createElement('img');image.alt=file.name;image.src=URL.createObjectURL(file);card.append(image);
+   if(options.decoratedFilename){
+    card.removeAttribute('data-file-name');card.title='正在上传 '+file.name+' (PNG image)';
+    image.alt='Preview '+file.name+' (uploading)';image.src=canvas.toDataURL('image/png');
+   }
+   const progress=document.createElement('div');progress.setAttribute('role','progressbar');progress.setAttribute('aria-valuenow','10');card.append(progress);
+   const task={file,list,card,image,progress,state:'uploading'};tasks.push(task);
+   // The first acceptance is deliberately delayed; its input return is dropped.
+   // A second input is allowed while A has no observed START yet.
+   if(options.unavailablePicker){form.append(card);makePickerUnavailable();}
+   else if(changes===1)firstPendingCard=card;else{form.append(card);if(changes===2)setTimeout(()=>form.append(firstPendingCard),0);}
+   if(!options.retained)submittedInput.value='';
   };
-  input.addEventListener('change',event=>{
-    changes++;const files=event.target.files,file=files[0],index=tasks.length;check(file instanceof File,'native File required');
-    let body=file,kind='File';
-    if(index===1){kind='FormData';body=new FormData();body.append('file',file);}
-    if(index===2){kind='Blob';body=new Blob([file],{type:file.type});}
-    if(index===3)kind='cached Request constructor';
-    // Constructing a Request extracts a native body, but sends nothing.
-    const request=cachedTransport(body);
-    const card=document.createElement('div');card.setAttribute('role','button');card.setAttribute('aria-label',file.name);
-    const image=new Image();image.alt=file.name;image.src=URL.createObjectURL(file);card.append(image);
-    const progress=document.createElement('span');progress.setAttribute('role','progressbar');progress.setAttribute('aria-label','正在上传 '+file.name);progress.setAttribute('aria-valuenow','10');card.append(progress);form.append(card);
-    const task={files,file,body,request,kind,card,image,progress,sha:sources[index].sha,pixelURL:sources[index].pixelURL};
-    check(!applicationAttachments.has(file.name),'one application task per file');
-    applicationAttachments.set(file.name,task);tasks.push(task);
-    if(!options.retained)input.value=''; // Application-owned reset only in the empty-picker case.
-  });
-  const operations=[];
-  for(let index=0;index<options.count;index++){
-    await stage('input-'+index);
-    const {bytes,sha,base64}=sources[index];
-    if(options.hotUpgrade&&index===1)program=installProgram(__CURRENT_SOURCE__);
-    if(options.renewDocument&&index)globalThis.dispatchEvent(new Event('blur'));
-    const target=captureForClick(),pin=pinForClick(target);
-    if(options.retained){
-      check(!!target.logicalDraftIdentity,'persisted logical draft required');
-      if(index)check(JSON.stringify(target.logicalDraftIdentity)===JSON.stringify(operations[0].identity.target.logicalDraftIdentity),'same logical draft');
-      if(options.renewDocument&&index)check(target.documentID!==operations[index-1].identity.target.documentID,'document identity actually renewed');
-    }
-    const identity={operationID:crypto.randomUUID(),assetID:crypto.randomUUID(),attempt:1,assetSHA256:sha,target:pin};
-    const invocationID=index===0?undefined:crypto.randomUUID(),name='riftlet-'+identity.operationID+'.png';
-    const command=action=>({action,identity,target:pin,...(invocationID?{invocationID}:{})});
-    let resource;
-    if(index){resource=await prepare(command('prepareInputResource'));check(resource.kind===(options.retained?'settledOwnedNativeFileInput':'emptyNativeFileInput'),'fresh native resource kind');}
-    const begin=call({...command('begin'),uploadName:name,mediaType:'image/png',byteCount:bytes.length,...(resource?{inputResourceID:resource.resourceID}:{})});
-    check(begin.rejectedBeforeBegin!==true,'begin accepted');
-    call({...command('chunk'),chunkIndex:0,chunkBase64:base64});call({...command('commit'),chunkIndex:1});
-    const record=()=>globalThis.__riftletWebAcceptance20261027v13.tail.operations.get(identity.operationID);
-    await wait(()=>record().commitWorkSettled&&record().fileHashVerified);check(changes===index+1,'one change per operation');
-    const task=tasks[index];await task.image.decode();call(command('observe'));task.progress.setAttribute('aria-valuenow','40');
-    if(options.retained)check(input.files.length===1&&input.files[0]===task.file&&input.value!=='','native picker retains the exact most recent File');
-    else check(input.files.length===0&&input.value==='','actual app emptied native picker');
-    await wait(()=>call(command('observe')).observation.state==='uploadStarted');let observation=call(command('observe')).observation;
-    check(observation.state==='uploadStarted','own START '+index);check(!observation.requestEvidence,'no invented request observation');
-    await stage('started-'+index);
-    operations.push({identity,command,record:record(),start:record().uploadStart});
-    if(index===0&&(!options.retained||options.hotUpgradeAfterUnknown)){
-      // A real scaled preview in this synthetic app cannot prove the original
-      // pixels. Exercise the normal observer, without changing its records.
-      task.progress.setAttribute('aria-valuenow','100');call(command('observe'));task.progress.remove();
-      await new Promise(r=>setTimeout(r,0));
-      const small=document.createElement('canvas');small.width=1;small.height=1;small.getContext('2d').fillRect(0,0,1,1);
-      task.image.src=small.toDataURL('image/png');await task.image.decode();
-      await wait(()=>record().completionUnavailable);check(call(command('observe')).observation.state==='unknown','scaled original stays UNKNOWN');
-      if(options.hotUpgradeAfterUnknown)check(record().file===null,'baseline UNKNOWN has released its original File reference');
-      await stage('legacy-unknown');
-    }
-    for(const prior of tasks)check(form.contains(prior.card),'prior card retained');
-    for(const prior of tasks)check(applicationAttachments.get(prior.file.name)===prior,'application independently retains every accepted task');
-    if(options.retained)for(const op of operations)check(!op.record.proof&&!!op.record.uploadStart,'later input occurs after START before COMPLETE');
-    check(editor.textContent===text&&selection.anchorNode===anchor&&selection.anchorOffset===anchorOffset&&selection.focusNode===focus&&selection.focusOffset===focusOffset,'text/selection retained');
+  input.addEventListener('change',changed);
+  const handoff=options.handoff?(__MOUNT__)(options.handoff,form,input):null;
+  if(handoff)report.entryCounts=handoff.counts;
+  if(handoff?.rival)decoys.push(handoff.rival);
+  const nativeOrder=[],inputExecutionMS=[];
+  if(handoff){
+   input.addEventListener('input',event=>{
+    check(event.target===input&&!event.isTrusted&&event.composed&&event.bubbles&&event.target.files.length===1,'native input event on its own picker');
+    nativeOrder.push('input');
+   });
+   input.addEventListener('change',event=>{check(event.target===input,'change target');nativeOrder.push('change');});
   }
-  // The native body extractions and original immutable Files remain independent
-  // after four later native FileList submissions and application-owned resets.
-  await stage('verifying-independent-bodies');
-  for(const task of tasks){
-    check(task.files instanceof FileList,'native FileList object retained by application');
-    if(options.retained)check(task.files.length===1&&task.files[0]===task.file,'subsequent native setter does not mutate prior FileList');
-    else check(task.files.length===0,'application value reset clears its prior native FileList');
-    check(await hash(await task.file.arrayBuffer())===task.sha,'original File keeps its own distinct bytes');
-    const extracted=task.kind==='FormData'?(await task.request.formData()).get('file'):await task.request.blob();
-    check(await hash(await extracted.arrayBuffer())===task.sha,'native Request body keeps its own distinct bytes '+task.kind);
+  let foreignAction=null,foreignCalls=0,unmodifiedForeignDefaults=0;
+  if(options.foreignPickers){
+   for(const label of ['Profile avatar','Project files']){
+    const section=document.createElement('section'),picker=document.createElement('input'),button=document.createElement('button');
+    section.setAttribute('aria-label',label);picker.type='file';picker.hidden=true;picker.id='foreign-picker-'+decoys.length;
+    button.type='button';button.textContent=label;button.setAttribute('aria-controls',picker.id);
+    let event;picker.addEventListener('click',value=>{event=value;});
+    button.addEventListener('click',()=>{
+     foreignCalls++;picker.click();
+     if(event&&!event.defaultPrevented)unmodifiedForeignDefaults++;
+    });
+    section.append(button,picker);document.body.append(section);decoys.push(picker);
+    picker.addEventListener('change',()=>wrongInputChanges++);
+    const prior=foreignAction;foreignAction=()=>{prior?.();button.click();};
+   }
   }
-  // Only after every retained-picker append do we move A to UNKNOWN. This
-  // specifically proves that the next input never needed A's COMPLETE/UNKNOWN.
-  if(options.retained&&!options.hotUpgradeAfterUnknown){
-    const task=tasks[0],op=operations[0];
-    task.progress.setAttribute('aria-valuenow','100');call(op.command('observe'));task.progress.remove();
-    await new Promise(r=>setTimeout(r,0));
-    const small=document.createElement('canvas');small.width=1;small.height=1;small.getContext('2d').fillRect(0,0,1,1);
-    task.image.src=small.toDataURL('image/png');await task.image.decode();
-    await wait(()=>op.record.completionUnavailable);check(call(op.command('observe')).observation.state==='unknown','A becomes UNKNOWN only after later submissions');
+  if(!handoff&&(options.entryMode||options.linkedPicker||options.noForm||options.portalPicker)){
+   const entry=document.createElement('button');entry.type='button';entry.setAttribute('aria-label','Add files and photos');
+   entry.setAttribute('data-testid','composer-plus-button');entry.textContent='+';form.append(entry);
+   if(!options.entryMode&&(options.linkedPicker||options.noForm||options.portalPicker)){
+    input.id='current-chat-picker';entry.setAttribute('aria-controls',input.id);
+   }
+   if(!options.entryMode){entry.addEventListener('click',()=>input.click());}
+   else{
+    entry.setAttribute('aria-haspopup','menu');
+    entry.addEventListener('pointerdown',event=>{
+     if(event.button!==0||document.querySelector('[data-harness-attachment-menu]'))return;
+     entryPointerDowns++;
+     const menu=document.createElement('div');menu.setAttribute('role','menu');menu.setAttribute('data-harness-attachment-menu','');
+     let externalPickerForm=null;
+     const item=document.createElement('button');item.type='button';item.setAttribute('role','menuitem');item.textContent='Upload from computer';menu.append(item);
+     document.body.append(menu);item.focus();selection.removeAllRanges();
+     menu.addEventListener('keydown',key=>{
+      if(key.key!=='Escape')return;
+      if(input?.isConnected&&!inputReceivers.has(input))menuClosedBeforeInput++;
+      menusClosed++;menu.remove();if(input?.isConnected)input.remove();externalPickerForm?.remove();
+     });
+     item.addEventListener('click',async()=>{
+      menuSelections++;
+      // Real application rendering delay, with no File supplied by the fixture.
+      const createPicker=()=>{
+       if(!menu.isConnected)return;
+       const created=document.createElement('input');created.type='file';created.hidden=true;
+       created.accept='IMAGE/PNG; charset=binary,.PNG,image/x-png';
+       input=created;createdPickers++;created.addEventListener('change',changed);
+       created.addEventListener('click',event=>{pickerClicks++;if(!event.defaultPrevented)missingChooserCancellation++;});
+       if(options.nativeAwait){
+        externalPickerForm=document.createElement('form');document.body.append(externalPickerForm);externalPickerForm.append(created);
+       }else (options.menuOwnsInput?menu:document.body).append(created);
+       pickerCalls++;
+       try{if(options.entryMode==='showPicker')created.showPicker();else created.click();}
+       catch{pickerErrors++;}
+      };
+      if(options.nativeAwait){
+       // Native async/await continuation deliberately bypasses any replacement
+       // of Promise.prototype.then; only Chrome's real await semantics run here.
+       await Promise.resolve();
+       await new Promise(resolve=>setTimeout(resolve,75));
+       nativeAwaitContinuations++;createPicker();
+      }else setTimeout(createPicker,75);
+     });
+    });
+   }
   }
-  let independentCompletions=0;
-  for(let index=1;index<tasks.length;index++){
-    await stage('completing-'+index);
-    const task=tasks[index],op=operations[index];
-    task.progress.setAttribute('aria-valuenow','100');call(op.command('observe'));task.progress.remove();
-    await new Promise(r=>setTimeout(r,0));task.image.src=task.pixelURL;await task.image.decode();
-    await wait(()=>op.record.proof&&!op.record.proofPending);
-    check(call(op.command('observe')).observation.state==='attached','independent exact completion '+index);independentCompletions++;
+  async function operation(index){
+   const color='rgb('+(20+index*30)+',40,70)';canvas.getContext('2d').fillStyle=color;canvas.getContext('2d').fillRect(0,0,2,2);
+   const png=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));
+   const bytes=new Uint8Array(await png.arrayBuffer()),sha=await hash(bytes);
+   const target=call({action:'captureTarget'}),id=crypto.randomUUID();
+   const identity={operationID:id,assetID:crypto.randomUUID(),attempt:1,assetSHA256:sha,target},invocationID=crypto.randomUUID();
+   const op={identity,target,name:'riftlet-'+id+'.png',sha,command:action=>({action,identity,target,invocationID})};
+   call({...op.command('begin'),uploadName:op.name,mediaType:'image/png',byteCount:bytes.length});
+   call({...op.command('chunk'),chunkIndex:0,chunkBase64:btoa(String.fromCharCode(...bytes))});return op;
   }
-  const a=operations[0];check(a.record.inputCount===1&&a.record.uploadStart===a.start&&a.record.invocationID===undefined,'legacy operation untouched');
-  check(call(a.command('observe')).observation.state==='unknown','legacy final remains UNKNOWN');
-  check(changes===options.count,'one input per click; A never replayed');
-  const nextTarget=captureForClick(),nextPin=pinForClick(nextTarget);
-  const next={operationID:crypto.randomUUID(),assetID:crypto.randomUUID(),attempt:1,assetSHA256:sources[0].sha,target:nextPin};
-  const occupied=new DataTransfer();occupied.items.add(new File([sources[0].png],'user-selected.png',{type:'image/png'}));input.files=occupied.files;
-  let refused=false;try{call({action:'prepareInputResource',identity:next,target:nextPin,invocationID:crypto.randomUUID()});}catch(e){refused=/^INPUT_RESOURCE_(UNAVAILABLE|NATIVE_FILES_RETAINED)$/.test(e.message);}
-  check(refused&&changes===options.count&&input.files[0].name==='user-selected.png','unowned nonempty input refusal preserves selected file');
-  check(sends===0,'no automatic send');
-  Object.assign(report,{passed:true,phase:'complete',routeFlavor:options.routeFlavor||'ordinary',modeledFocusLoss:!!options.modeledFocusLoss,physicalFocusAcceptance:false,retainedNativeSelection:options.retained,nativeFileListBehavior:options.retained?'prior-list-unchanged':'app-reset-cleared-prior-list',renewedDocumentIdentity:options.renewDocument,hotUpgradedFromMain:!!options.hotUpgrade,baselineUnknownRecovered:!!options.hotUpgradeAfterUnknown,nativeChanges:changes,originalFileListsVerified:tasks.length,originalFileBodiesVerified:tasks.length,nativeRequestBodiesVerified:tasks.length,applicationIndependentTasksVerified:applicationAttachments.size,independentCompletions,legacyUnknownUnchanged:true,textSelectionCardsPreserved:true,occupiedPickerRefused:true,automaticSends:sends,networkRequests:0,harnessTransport:'loopback-only'});
- } catch(error){report.error=String(error?.stack||error);}
- result.textContent=JSON.stringify(report);
- await harnessFetch('/result',{method:'POST',body:JSON.stringify(report)});
+  for(let index=0;index<options.count;index++)ops.push(await operation(index));
+  const busyProbe=await operation(50);
+  let otherTab;
+  if(options.switchTabs){
+   // Capture/stage operations in A, then switch the isolated Chromium browser
+   // to a second real loopback document. A is the already-addressed JS realm.
+   otherTab=window.open('/other-draft','_blank');
+   check(!!otherTab,'headless Chrome opened tab B');
+   await wait(()=>otherTab.document.getElementById('other-input'));
+   otherTab.focus();
+   await wait(()=>otherTab.document.hasFocus()&&!document.hasFocus());
+   report.originalTabInBackground=true;
+  }
+  if(options.unavailablePicker){
+   const unsubmitted=await operation(51),card=document.createElement('div');card.setAttribute('role','button');card.title=unsubmitted.name;
+   const image=document.createElement('img');image.alt=unsubmitted.name;image.src=priorImage.src;card.append(image);form.append(card);
+   makePickerUnavailable();
+   const observed=call(unsubmitted.command('observe')).observation;
+   noInputStartRejected=observed.state==='unknown'&&!observed.uploadStart&&setters===0&&changes===0;
+   check(noInputStartRejected,'matching attachment without actual input never starts');
+   restorePicker();card.remove();call(unsubmitted.command('discard'));
+  }
+  for(let index=0;index<ops.length;index++){
+   await stage('input-'+(index+1));const op=ops[index];
+   if(index===0)reentrant=busyProbe;
+   if(index===2)tasks[0].state='unknown'; // Synthetic app lifecycle; deliberately irrelevant to native permission.
+   if(foreignAction)setTimeout(foreignAction,0);
+   const started=performance.now();
+   const receipt=await call({...op.command('commit'),chunkIndex:1});
+   inputExecutionMS.push(Math.round(performance.now()-started));
+   // Only transport counters are inspected for diagnostics. Recover the product
+   // receipt by observe, never by a second commit.
+   if(handoff)report.lastInput={stage:receipt.entryDiagnostics?.stage,reason:receipt.observation.preInputRetirement?.reason,
+    setters,changes,connected:input.isConnected};
+   check(changes===index+1,'one change per screenshot');
+   check(setters===index+1,'one native files setter per screenshot');
+   if(options.unavailablePicker){
+    const observed=call(op.command('observe')).observation;
+    check(input.disabled||!input.isConnected,'picker remains unavailable while START is observed');
+    check(observed.state==='uploadStarted'&&observed.belongsToOriginalDraft,'accepted START does not wait for picker restoration or COMPLETE');
+    check(call({action:'validate',target:op.target}).valid===true,'draft validation does not require an already-mounted enabled picker');
+    const unavailable=await operation(60+index);
+    const failed=(await call({...unavailable.command('commit'),chunkIndex:1})).observation;
+    check(failed.state==='invalidated'&&failed.preInputRetirement?.inputCount===0
+     &&['attachmentEntryUnavailable','attachmentInputNotCreated'].includes(failed.preInputRetirement.reason)
+     &&!failed.uploadStart&&setters===index+1&&changes===index+1,'actual unavailable execution is retained without input or START');
+    startBeforePickerRestored=true;restorePicker();
+   }else if(index===0)check(call(op.command('observe')).observation.state==='inputTriggered','first input completed before START');
+   if(index>0)await wait(()=>call(op.command('observe')).observation.state==='uploadStarted');
+   check(editor.textContent===text&&selection.anchorNode===anchor&&selection.focusNode===focus&&selection.anchorOffset===anchorOffset&&selection.focusOffset===focusOffset,'draft text and selection preserved');
+   check(form.contains(priorCard),'existing attachment preserved');
+  }
+  let busyRetired=false;try{call({...busyProbe.command('commit'),chunkIndex:1});}catch(error){busyRetired=error.message==='COMMIT_REFUSED';}
+  check(busyRetired,'retired concurrent operation cannot later submit');
+  await stage('observing-starts');
+  for(const op of ops){
+   await wait(()=>call(op.command('observe')).observation.state==='uploadStarted');
+   const observation=call(op.command('observe')).observation;
+   check(observation.identity.operationID===op.identity.operationID&&observation.uploadStart.signal==='attachmentAccepted'&&observation.uploadStart.inputCount===1,'current operation gets independent accepted START');
+   let rejected=false;try{call({...op.command('commit'),chunkIndex:1});}catch(error){rejected=error.message==='COMMIT_REFUSED';}
+   check(rejected&&changes===options.count,'duplicate commit never submits again');
+  }
+  for(let index=0;index<tasks.length;index++){
+   const task=tasks[index];check(form.contains(task.card),'all app attachments appended');
+   check(await hash(await task.file.arrayBuffer())===ops[index].sha,'accepted File bytes remain unchanged after later inputs');
+   check(task.list instanceof FileList,'application observed actual native FileList');
+   if(options.retained)check(task.list.length===1&&task.list[0]===task.file,'retained prior FileList independent from replacement');
+  }
+  if(otherTab){
+   check(otherTab.document.hasFocus()&&!document.hasFocus(),'input to A did not seize focus from B');
+   check(otherTab.changed===0&&otherTab.document.getElementById('other-input').files.length===0,
+    'tab B received no File');
+   report.fixedTabAInputs=changes;report.tabBInputs=otherTab.changed;
+   otherTab.close();
+  }
+  if(handoff){
+   check(handoff.counts.linkDefaultAllowed===0&&handoff.counts.closeClicks===0&&handoff.counts.cloudClicks===0&&handoff.counts.chooserDefaultAllowed===0,'unrelated cloud and native chooser were untouched');
+   check(nativeOrder.join(',')===Array(options.count).fill('input,change').join(','),'file event sequence after each setter');
+   if(['forced-noun','forced-no-role','reused-content','nested','short-label','plain-action','pointer-open','focusable-menu','anchor-action','localized-opener'].includes(options.handoff))
+    check(handoff.counts.menus===options.count,'the actual menu action executed per file');
+   if(options.handoff==='owned-async-mount'||options.handoff==='visible-empty-panel'){
+    check(handoff.counts.entry===options.count&&handoff.counts.pickerCalls===0,'each operation used a new mount in its controlled panel');
+    check(inputExecutionMS.every(ms=>ms<2200),'owned async panel waited for deadline');
+   }
+   if(options.handoff==='ready-direct')check(handoff.counts.entry===0,'direct input avoids the inert entry');
+   if(options.handoff==='nested')check(handoff.counts.submenus===options.count,'each submenu actually opened');
+   if(options.handoff==='reused-open')check(handoff.counts.menus===options.count&&handoff.counts.entry<options.count,
+    'already-open menu was used before any redundant trigger click');
+   if(['detached','detached-showPicker','detached-stop','implicit-submit','await-existing','await-detached-with-rival'].includes(options.handoff))
+    check(handoff.counts.pickerCalls===options.count,'the application actually invoked its picker for each file');
+   if(options.handoff.startsWith('detached')||options.handoff==='await-detached-with-rival')check(!input.isConnected,'object-local receipt on still detached picker');
+   if(options.foreignPickers)check(foreignCalls===options.count*2&&unmodifiedForeignDefaults===foreignCalls,
+    'independent avatar and project picker invocations retain their default behavior');
+   report.inputEventOrder=nativeOrder;report.unmodifiedForeignDefaults=unmodifiedForeignDefaults;
+  }
+  const stale=await operation(99);mockLocation.href='https://chatgpt.com/c/different-chat';
+  const refused=call({...stale.command('commit'),chunkIndex:1}).observation;
+  const wrongTargetRefused=refused.state==='invalidated'&&refused.preInputRetirement?.reason==='targetInvalidBeforeInput'&&refused.preInputRetirement.inputCount===0;
+  check(wrongTargetRefused&&changes===options.count,'changed target refuses before native input');
+  check(sends===0,'no automatic message send');
+  if(options.liveComposerShape)check(!report.unneededMenuOpens&&wrongInputSetters===0,'used the general direct attachment input');
+  check(wrongInputSetters===0&&wrongInputChanges===0&&decoys.every(picker=>picker.files.length===0),'unrelated file controls receive no setter/change and remain untouched');
+  if(options.entryMode){
+   // Only the picker inside the actual opened menu is known to be its own.
+   // Opaque external invocations arbitrate within the existing discovery budget.
+   if(options.menuOwnsInput)check(inputExecutionMS.every(ms=>ms<2200),'owned menu picker waited for deadline: '+JSON.stringify(inputExecutionMS));
+   else check(inputExecutionMS.every(ms=>ms<4400),'opaque async discovery did not settle within its bounded window: '+JSON.stringify(inputExecutionMS));
+   check(entryPointerDowns===options.count&&menuSelections===options.count&&createdPickers===options.count,'each click autonomously opens its menu and receives a new dynamic picker');
+   check(pickerCalls===options.count&&pickerErrors===0,'the actual input.click/showPicker path completes automatically');
+   check(options.entryMode!=='click'||pickerClicks===options.count,'normal application input click handlers still run');
+   check(missingChooserCancellation===0,'native chooser default is cancelled while input click handlers run');
+   check(menusClosed===options.count&&menuClosedBeforeInput===0,'menu-owned picker stays mounted until after native input');
+   if(options.nativeAwait)check(nativeAwaitContinuations===options.count,'every native await resumes and invokes its external-form picker');
+  }
+  Object.assign(report,{passed:true,phase:'complete',nativeChanges:changes,nativeSetters:setters,networkRequests:applicationNetworkRequests,automaticSends:sends,
+   observedStarts:ops.length,inputExecutionMS,originalFileListsVerified:tasks.length,applicationIndependentTasksVerified:tasks.length,
+   retainedNativeSelection:options.retained,reentrantInputRefused:reentrantRefused,wrongTargetRefused,
+   lostReplyRecoveredWithoutReplay:true,textSelectionCardsPreserved:true,
+   pickerReplacedEachChange:!!options.replacePicker,hiddenPortalPicker:!!options.portalPicker,
+   decoratedFilenameAccepted:!!options.decoratedFilename,
+   noForm:!!options.noForm,multipleInputs:!!options.multipleInputs,avatarPickers:!!options.avatarPickers,wrongInputChanges,wrongInputSetters,
+   entryMode:options.entryMode||'direct',entryPointerDowns,menuSelections,createdPickers,pickerCalls,pickerClicks,pickerErrors,
+   menuOwnsInput:!!options.menuOwnsInput,menusClosed,menuClosedBeforeInput,missingChooserCancellation,
+   nativeAwaitContinuations,nativeAwait:!!options.nativeAwait,
+   selectionCollapsedByApplication:!!options.collapseSelectionInChange,
+   startBeforePickerRestored,noInputStartRejected,
+   firstSyntheticUploadState:tasks[0].state,harnessTransport:'loopback-only'});
+ }catch(error){report.error=String(error?.stack||error);}
+ document.querySelector('#result').textContent=JSON.stringify(report);
+ const response=await harnessFetch('/result',{method:'POST',body:JSON.stringify(report)});
+ const next=await response.text();
+ if(next.startsWith('/case/'))location.replace(next);
 })();
-</script>`.replace('__FIXTURE_OPTIONS__',()=>JSON.stringify(options))
-    .replaceAll('__CURRENT_SOURCE__',()=>JSON.stringify(source).replace(/<\/script/gi,'<\\/script'))
-    .replace('__BASELINE_SOURCE__',()=>JSON.stringify(baselineSource).replace(/<\/script/gi,'<\\/script'));
+</script>`.replace('__OPTIONS__',()=>JSON.stringify(options)).replace('__MOUNT__',()=>String(mountAttachmentEntryCase))
+ .replace('__PREVIOUS__',()=>JSON.stringify(previous)).replace('__SOURCE__',()=>JSON.stringify(source).replace(/<\/script/gi,'<\\/script'));
 }
+const originalScenarios=[
+ {name:'actual-marked-zh-composer-four-direct-fields',count:5,retained:true,liveComposerShape:true,route:'https://chatgpt.com/'},
+ ...[2,3,5].map(count=>({count,retained:true,route:'https://chatgpt.com/c/ordinary-thread'})),
+ {count:3,retained:false,route:'https://chatgpt.com/'},
+ {count:3,retained:true,route:'https://chatgpt.com/g/g-p-project/c/project-thread'},
+ {count:2,retained:true,route:'https://chatgpt.com/g/g-p-project/project'},
+ {count:5,retained:true,replacePicker:true,portalPicker:true,decoratedFilename:true,route:'https://chatgpt.com/c/ordinary-thread'},
+ ...['disabled','removed'].map(unavailablePicker=>({count:2,retained:true,unavailablePicker,route:'https://chatgpt.com/c/ordinary-thread'})),
+ {name:'no-form-hidden-portal',count:5,retained:true,noForm:true,portalPicker:true,unfamiliarAccept:true,route:'https://chatgpt.com/'},
+ {name:'linked-correct-picker-among-many',count:5,retained:true,portalPicker:true,multipleInputs:true,linkedPicker:true,route:'https://chatgpt.com/c/ordinary-thread'},
+ {name:'dynamic-menu-click-portal',count:5,retained:true,noForm:true,multipleInputs:true,entryMode:'click',collapseSelectionInChange:true,route:'https://chatgpt.com/c/ordinary-thread'},
+ {name:'dynamic-menu-showpicker-owned',count:5,retained:true,multipleInputs:true,entryMode:'showPicker',menuOwnsInput:true,collapseSelectionInChange:true,route:'https://chatgpt.com/g/g-p-project/c/project-thread'},
+ {name:'dynamic-entry-ignores-local-and-global-avatar',count:5,retained:true,multipleInputs:true,avatarPickers:true,entryMode:'click',route:'https://chatgpt.com/c/ordinary-thread'},
+ {name:'native-await-menu-external-form-picker',count:5,retained:true,multipleInputs:true,avatarPickers:true,entryMode:'click',nativeAwait:true,collapseSelectionInChange:true,route:'https://chatgpt.com/c/ordinary-thread'},
+ {name:'direct-input-preserves-collapsed-selection',count:5,retained:true,collapseSelectionInChange:true,route:'https://chatgpt.com/c/ordinary-thread'}
+];
 
-for(const options of [{retained:false,count:5,renewDocument:false},
-  ...[2,3,5].map(count=>({retained:true,count,renewDocument:false})),
-  {retained:true,count:5,renewDocument:true},
-  {retained:true,count:3,renewDocument:true,hotUpgrade:true},
-  {retained:true,count:3,renewDocument:true,hotUpgrade:true,hotUpgradeAfterUnknown:true},
-  {retained:false,count:2,renewDocument:false,routeFlavor:'home-query'},
-  {retained:true,count:2,renewDocument:false,routeFlavor:'project-thread'},
-  {retained:false,count:2,renewDocument:false,routeFlavor:'project-home',businessHome:true},
-  {retained:true,count:2,renewDocument:false,modeledFocusLoss:true},
-  {retained:true,count:2,renewDocument:false,routeFlavor:'project-thread',modeledFocusLoss:true}])test('native Chrome '+JSON.stringify(options)+' preserves independent application File/request bodies',{
-  // The 30-second report limit is unchanged. Allow the separately bounded
-  // listen, group/root cleanup, server close and profile-removal retries to
-  // finish (about 50 seconds combined) before the outer test aborts them.
-  skip:!binary&&!required?'CHROME_NOT_RUN: no native Chrome binary in this executor':false,timeout:60000
+// Each new layout gets a fresh document. Run the batch in one owned headless
+// Chrome process and temporary profile, including a separate real tab for A→B.
+const handoffScenarios=['direct','connected','detached','verb-menu','noun-menu','no-role','await-existing',
+ 'forced-noun','forced-no-role','reused-open','reused-content','nested','short-label','plain-action','pointer-open','detached-showPicker',
+ 'renamed-action','ready-direct','implicit-submit','detached-stop','focusable-menu','anchor-action','localized-opener','await-detached-with-rival','owned-async-mount','visible-empty-panel'].map(handoff=>({handoff,name:'handoff-'+handoff,count:handoff==='detached'?5:2,
+   retained:true,route:'https://chatgpt.com/c/ordinary-thread',resident:handoff==='detached',
+   foreignPickers:handoff==='await-existing',switchTabs:handoff==='direct'}));
+const groups=[...originalScenarios.map(scenario=>[scenario]),handoffScenarios];
+for(const unfiltered of groups){
+ const group=unfiltered.filter(options=>!process.env.RIFTLET_NATIVE_CASE||JSON.stringify(options).includes(process.env.RIFTLET_NATIVE_CASE));
+ if(!group.length)continue;
+ test('native Chrome independent append '+(group.length===1?JSON.stringify(group[0]):group.map(item=>item.name).join(', ')),{
+ skip:!binary&&!required?'CHROME_NOT_RUN: no native Chrome binary in this executor':false,timeout:60000+4000*group.length
 },async t=>{
+
   assert.ok(binary,'CHROME_REQUIRED_BUT_UNAVAILABLE: native Chrome must run in this CI job');
   assert.ok(['darwin','linux'].includes(process.platform),'isolated Chrome process-group cleanup requires POSIX');
   const temp=fs.mkdtempSync(path.join(os.tmpdir(),'riftlet-native-input-'));
   let child,exit,stderr='',lastPhase='browser-not-started',completed=false,resolveReport,rejectReport;
   const failures=[],connections=new Set();
-  const html=browserFixture(options),finished=new Promise((resolve,reject)=>{resolveReport=resolve;rejectReport=reject;});
+  const reports=[],pages=group.map(browserFixture);
+  const finished=new Promise((resolve,reject)=>{resolveReport=resolve;rejectReport=reject;});
   const server=http.createServer((request,response)=>{
-    if(request.method==='GET'&&request.url==='/'){
-      response.writeHead(200,{'content-type':'text/html; charset=utf-8','cache-control':'no-store'});response.end(html);return;
+    if(request.method==='GET'&&request.url==='/other-draft'){
+      response.writeHead(200,{'content-type':'text/html; charset=utf-8'});
+      response.end('<!doctype html><textarea autofocus>Other draft</textarea><input type="file" id="other-input"><script>window.changed=0;document.querySelector("input").onchange=()=>window.changed++;</script>');return;
+    }
+    const caseIndex=request.url==='/'?0:Number(/^\/case\/(\d+)$/.exec(request.url)?.[1]);
+    if(request.method==='GET'&&pages[caseIndex]){
+      response.writeHead(200,{'content-type':'text/html; charset=utf-8','cache-control':'no-store'});response.end(pages[caseIndex]);return;
     }
     if(request.method!=='POST'||!['/progress','/result'].includes(request.url)){response.writeHead(404);response.end();return;}
     let body='',oversize=false;
@@ -247,9 +409,11 @@ for(const options of [{retained:false,count:5,renewDocument:false},
     request.on('end',()=>{
       if(oversize)return;
       try{
-        const value=JSON.parse(body);response.writeHead(200,{'content-type':'text/plain'});response.end('ok');
-        if(request.url==='/progress'){lastPhase=String(value.phase);return;}
-        completed=true;resolveReport(value);
+        const value=JSON.parse(body);response.writeHead(200,{'content-type':'text/plain'});
+        if(request.url==='/progress'){lastPhase=String(value.phase);response.end('ok');return;}
+        reports.push(value);
+        if(reports.length<pages.length){response.end('/case/'+reports.length);return;}
+        response.end('ok');completed=true;resolveReport(reports);
       }catch(error){response.writeHead(400);response.end();rejectReport(error);}
     });
     request.on('error',error=>rejectReport(error));
@@ -261,6 +425,7 @@ for(const options of [{retained:false,count:5,renewDocument:false},
     const address=server.address();assert.equal(address.address,'127.0.0.1');
     child=spawn(binary,['--headless=new','--no-sandbox','--disable-gpu','--disable-background-networking',
       '--disable-component-update','--disable-sync','--no-first-run','--no-default-browser-check',
+      ...(group.some(options=>options.switchTabs)?['--disable-popup-blocking']:[]),
       '--user-data-dir='+path.join(temp,'isolated-profile'),'http://127.0.0.1:'+address.port+'/'],
       {detached:true,stdio:['ignore','ignore','pipe']});
     child.stderr.setEncoding('utf8');child.stderr.on('data',part=>{stderr=(stderr+part).slice(-8000);});
@@ -268,13 +433,20 @@ for(const options of [{retained:false,count:5,renewDocument:false},
     exit=new Promise(resolve=>child.once('exit',(code,signal)=>{
       resolve();if(!completed)rejectReport(Error('Chrome exited before result; code='+code+' signal='+signal+' phase='+lastPhase+' stderr='+stderr));
     }));
-    const report=await bounded(finished,30000,()=> 'CHROME_FIXTURE_TIMEOUT phase='+lastPhase+' stderr='+stderr,t.signal);
-    assert.equal(report.passed,true,JSON.stringify(report));assert.equal(report.nativeChanges,options.count);assert.equal(report.networkRequests,0);
-    assert.equal(report.applicationIndependentTasksVerified,options.count);assert.equal(report.automaticSends,0);
-    assert.equal(report.originalFileListsVerified,options.count);assert.equal(report.hotUpgradedFromMain,!!options.hotUpgrade);
-    assert.equal(report.baselineUnknownRecovered,!!options.hotUpgradeAfterUnknown);
-    assert.equal(report.harnessTransport,'loopback-only');
-    console.log(JSON.stringify(report));
+    await bounded(finished,30000+4000*group.length,()=> 'CHROME_FIXTURE_TIMEOUT phase='+lastPhase+' stderr='+stderr,t.signal);
+    for(const [index,report] of reports.entries()){
+     const options=group[index];
+     try{
+      assert.equal(report.passed,true,JSON.stringify(report));assert.equal(report.nativeChanges,options.count);assert.equal(report.nativeSetters,options.count);assert.equal(report.networkRequests,0);
+      assert.equal(report.applicationIndependentTasksVerified,options.count);assert.equal(report.automaticSends,0);
+      assert.equal(report.originalFileListsVerified,options.count);assert.equal(report.observedStarts,options.count);
+      assert.equal(report.reentrantInputRefused,true);assert.equal(report.wrongTargetRefused,true);
+      assert.equal(report.lostReplyRecoveredWithoutReplay,true);
+      if(options.unavailablePicker){assert.equal(report.startBeforePickerRestored,true);assert.equal(report.noInputStartRejected,true);}
+      assert.equal(report.harnessTransport,'loopback-only');
+      console.log(JSON.stringify({scenario:options.name||options.route,...report}));
+     }catch(error){failures.push(Error((options.name||options.route)+': '+error.message));}
+    }
   }catch(error){failures.push(error);}
   finally{
     // detached:true creates a new session/process group owned solely by this
@@ -293,3 +465,4 @@ for(const options of [{retained:false,count:5,renewDocument:false},
   }
   if(failures.length)throw new AggregateError(failures,'native Chrome fixture or cleanup failed: '+failures.map(error=>error.message).join('; '));
 });
+}

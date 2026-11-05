@@ -284,6 +284,22 @@ final class RiftLifecycleTests: XCTestCase {
     }
 
 
+    @MainActor func testFreshCaptureRevealsItsPageAfterTheExistingPointerProtection() async throws {
+        let panel = try controller()
+        defer { panel.close() }
+        let old = (1...10).map { record($0) }
+        panel.render(old)
+        panel.setDetailPresented(true)
+        let fresh = record(11)
+        panel.render(old + [fresh])
+        XCTAssertFalse(panel.diagnosticSnapshot.rows.contains { $0.assetID == fresh.id })
+        panel.setDetailPresented(false)
+        let afterProtection = ProcessInfo.processInfo.systemUptime + 2
+        panel.evaluateRefillBoundary(now: afterProtection, pointer: CGPoint(x: -10000, y: -10000))
+        panel.evaluateRefillBoundary(now: afterProtection + 1, pointer: CGPoint(x: -10000, y: -10000))
+        XCTAssertTrue(panel.diagnosticSnapshot.rows.contains { $0.assetID == fresh.id })
+    }
+
     @MainActor func testFailureRebirthDoesNotAutoFollowNewestAndExplicitHistoryRevealFindsAnOldItem() async throws {
         let panel = try controller()
         defer { panel.close() }

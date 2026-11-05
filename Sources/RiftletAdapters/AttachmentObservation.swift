@@ -67,7 +67,8 @@ public struct ObservedUploadStart: Codable, Equatable, Sendable {
 /// change event does not prove that the file setter had no side effects.
 public struct ObservedPreInputRetirement: Codable, Equatable, Sendable {
     public enum Reason: String, Codable, Sendable {
-        case invalidPNGSignature, inputHashMismatch, targetInvalidBeforeInput, inputPreparationFailed
+        case invalidPNGSignature, inputHashMismatch, targetInvalidBeforeInput, inputPreparationFailed, inputExecutionBusy
+        case attachmentEntryUnavailable, attachmentInputNotCreated, attachmentInputAmbiguous, attachmentEntryFailed
     }
     public let version: Int
     public let invocationID: UUID
@@ -108,6 +109,9 @@ public struct AttachmentObservation: Codable, Equatable, Sendable {
     public let reason: AttachmentObservationReason?
     /// Closed local refusal label only; never eligibility or retry evidence.
     public let resourceRefusalReason: WebPageRejection?
+    /// Current command execution only. This does not describe upload progress,
+    /// authorize another operation, or upgrade historical observations.
+    public let inputExecutionPending: Bool?
 
     public init(identity: ObservationIdentity, state: AttachmentObservedState,
                 attachmentID: String? = nil, exactImageIdentity: Bool = false,
@@ -120,7 +124,7 @@ public struct AttachmentObservation: Codable, Equatable, Sendable {
                 terminationEvidence: ObservedAttachmentTermination? = nil,
                 continuationEvidence: ObservedAttachmentContinuation? = nil,
                 reason: AttachmentObservationReason? = nil,
-                resourceRefusalReason: WebPageRejection? = nil) {
+                resourceRefusalReason: WebPageRejection? = nil, inputExecutionPending: Bool? = nil) {
         self.identity = identity; self.state = state; self.attachmentID = attachmentID
         self.exactImageIdentity = exactImageIdentity
         self.belongsToOriginalDraft = belongsToOriginalDraft
@@ -135,6 +139,7 @@ public struct AttachmentObservation: Codable, Equatable, Sendable {
         self.continuationEvidence = continuationEvidence
         self.reason = reason
         self.resourceRefusalReason = resourceRefusalReason
+        self.inputExecutionPending = inputExecutionPending
     }
 }
 
@@ -160,10 +165,15 @@ public enum ObservationDecoder {
     public static let maximumPayloadBytes = 64 * 1024
 
     public static func decode(_ data: Data) throws -> AttachmentObservationEnvelope {
+        try decodeResponse(data, includeDiagnostics: false).envelope
+    }
+
+    static func decodeResponse(_ data: Data, includeDiagnostics: Bool) throws
+        -> (envelope: AttachmentObservationEnvelope, diagnostics: AttachmentEntryDiagnostics?) {
         guard data.count <= maximumPayloadBytes else { throw ObservationError.oversizedPayload }
         do {
             guard let root = try JSONSerialization.jsonObject(with: data) as? [String: Any],
-                  Set(root.keys) == Set(["schemaVersion", "provenance", "observation"]),
+                  Set(root.keys).isSubset(of: ["schemaVersion", "provenance", "observation", "entryDiagnostics"]),
                   let provenance = root["provenance"] as? [String: Any],
                   Set(provenance.keys) == Set(["source", "evidenceID"]),
                   let observation = root["observation"] as? [String: Any],
@@ -172,7 +182,7 @@ public enum ObservationDecoder {
                     "belongsToOriginalDraft", "hasError", "isUploading",
                     "attachmentAbsent", "automaticRetryExcluded", "uploadStart", "preInputRetirement",
                     "requestEvidence", "completionEvidence", "terminationEvidence", "continuationEvidence", "reason",
-                    "resourceRefusalReason"
+                    "resourceRefusalReason", "inputExecutionPending"
                   ])),
                   let identity = observation["identity"] as? [String: Any],
                   Set(identity.keys) == Set(["operationID", "assetID", "attempt", "assetSHA256", "target"]),
@@ -204,7 +214,8 @@ public enum ObservationDecoder {
             try ObservedAttachmentProofs.validateShape(observation)
             let envelope = try JSONDecoder().decode(AttachmentObservationEnvelope.self, from: data)
             try validate(envelope)
-            return envelope
+            let diagnostics = includeDiagnostics ? AttachmentEntryDiagnostics.read(root["entryDiagnostics"]) : nil
+            return (envelope, diagnostics)
         } catch let error as ObservationError { throw error }
         catch { throw ObservationError.invalidPayload }
     }
@@ -213,6 +224,11 @@ public enum ObservationDecoder {
         guard [1, 2, 3, 4].contains(envelope.schemaVersion) else { throw ObservationError.unsupportedSchema(envelope.schemaVersion) }
         let item = envelope.observation
         try ObservedAttachmentProofs.validate(envelope)
+        if item.inputExecutionPending == true {
+            guard item.state == .unknown, item.preInputRetirement == nil, item.uploadStart == nil else {
+                throw ObservationError.invalidField("input execution pending")
+            }
+        }
         if let reason = item.resourceRefusalReason {
             guard reason.isInputResourceRefusal,
                   item.preInputRetirement?.reason == .inputPreparationFailed else {
@@ -223,7 +239,7 @@ public enum ObservationDecoder {
             guard envelope.schemaVersion == 3, retirement.version == 1,
                   retirement.commitInvoked, retirement.commitWorkSettled, retirement.irreversiblyRetired,
                   !retirement.inputSideEffectEntered, retirement.inputCount == 0,
-                  item.state == .invalidated, item.belongsToOriginalDraft,
+                  item.state == .invalidated,
                   item.attachmentID == nil, !item.exactImageIdentity, !item.hasError,
                   !item.isUploading, !item.attachmentAbsent, !item.automaticRetryExcluded,
                   item.uploadStart == nil else { throw ObservationError.invalidField("pre-input retirement") }
@@ -237,17 +253,30 @@ public enum ObservationDecoder {
         }
         if item.state == .uploadStarted {
             guard [2, 4].contains(envelope.schemaVersion), let start = item.uploadStart,
-                  start.version == 1, start.signal == .correlatedProgress,
+                  start.version == 1,
                   start.evidenceID.utf8.count == 36, UUID(uuidString: start.evidenceID) != nil,
                   start.inputCount == 1, start.inputSequence > 0, start.startSequence > start.inputSequence,
-                  start.previousProgress.isFinite, start.currentProgress.isFinite,
-                  start.previousProgress >= 0, start.currentProgress > start.previousProgress,
-                  start.currentProgress < 100,
                   start.inputObservedAtMS.isFinite, start.startObservedAtMS.isFinite,
-                  start.inputObservedAtMS >= 0, start.startObservedAtMS > start.inputObservedAtMS,
+                  start.inputObservedAtMS >= 0, start.startObservedAtMS >= start.inputObservedAtMS,
                   item.attachmentID != nil, item.exactImageIdentity, item.belongsToOriginalDraft,
-                  item.isUploading, !item.hasError, !item.attachmentAbsent, !item.automaticRetryExcluded else {
+                  !item.hasError, !item.attachmentAbsent, !item.automaticRetryExcluded else {
                 throw ObservationError.invalidField("upload start")
+            }
+            switch start.signal {
+            case .attachmentAccepted:
+                // A newly added, current-file attachment in the original composer
+                // is the application's receipt. No progress, preview or server
+                // completion measurement is required for this handoff.
+                guard start.previousProgress == 0, start.currentProgress == 0 else {
+                    throw ObservationError.invalidField("attachment acceptance")
+                }
+            case .correlatedProgress:
+                guard start.previousProgress.isFinite, start.currentProgress.isFinite,
+                      start.previousProgress >= 0, start.currentProgress > start.previousProgress,
+                      start.currentProgress < 100, start.startObservedAtMS > start.inputObservedAtMS,
+                      item.isUploading else { throw ObservationError.invalidField("upload progress") }
+            case .correlatedByteRequest:
+                throw ObservationError.invalidField("unsupported upload signal")
             }
         } else if item.uploadStart != nil {
             throw ObservationError.invalidField("unexpected upload start")

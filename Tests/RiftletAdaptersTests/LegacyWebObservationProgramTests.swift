@@ -174,9 +174,10 @@ final class LegacyWebObservationProgramTests: XCTestCase {
     func testWrappingPreservesCurrentCodeOwnedChunkLimit() throws {
         for limit in [64 * 1024, 256 * 1024] {
             let current = WebPageProgram(sourceID: "current-fixture", functionSource: "function(){return null;}",
-                                         maximumChunkBytes: limit)
+                                         maximumChunkBytes: limit, inputDiscoveryTimeout: 3)
             let wrapped = try LegacyWebObservationProgram.wrapping(current)
             XCTAssertEqual(wrapped.maximumChunkBytes, limit)
+            XCTAssertEqual(wrapped.inputDiscoveryTimeout, 3)
             XCTAssertEqual(wrapped.sourceID, current.sourceID)
         }
     }

@@ -584,7 +584,7 @@ public final class RiftPanelController {
         guard !closed, let records = pendingRefillRecords else { refillTimer?.invalidate(); refillTimer = nil; return }
         refreshHoverFromPointer(point: pointer)
         let envelope = pagerLayout?.rows.reduce(CGRect.null) { $0.union($1.frame) } ?? .null
-        guard !gate.isHolding, !transitioning, !detailPresented, !interaction.snapshot.blocksAutomaticArchive,
+        guard !gate.isHolding, !transitioning, !detailPresented, peek.assetID == nil, !interaction.snapshot.blocksAutomaticArchive,
               !envelope.contains(pointer) else { refillOutsideSince = nil; return }
         if refillOutsideSince == nil { refillOutsideSince = now }
         guard now >= refillNotBefore, now - (refillOutsideSince ?? now) >= 0.35 else { return }
@@ -1037,6 +1037,20 @@ public final class RiftPanelController {
                 for id in removed { rowWindows.removeValue(forKey: id)?.close() }
                 deferRefill(records); return
             }
+        }
+        if !lastRecords.isEmpty, records.contains(where: {
+            $0.visibility == .visible && $0.visibilityReason == .capture
+                && $0.status == .pending && !known.contains($0.id)
+        }) {
+            // A fresh screenshot must be reachable without paging through old
+            // rows. Preserve a pointer/press/selection until it leaves the queue.
+            if !committingRefill { refreshHoverFromPointer(point: NSEvent.mouseLocation) }
+            if detailPresented || peek.assetID != nil || interaction.snapshot.blocksAutomaticArchive {
+                if pendingRefillRecords == nil { deferRefill(records) }
+                return
+            }
+            viewportAnchor = nil
+            firstVisibleIndex = records.filter { $0.visibility == .visible }.count
         }
         if swallowed.isEmpty, pendingRefillRecords != nil, !committingRefill { return }
         guard !swallowed.isEmpty else { apply(records, animateShift: committingRefill); return }

@@ -1,3 +1,36 @@
+# Current ordinary product closeout — 2026-11-05 evening
+
+Continue PR 41 from 9ee82114. Root owns native/Core/App and formal refs.
+Web and format contributors delivered changes; independent review stopped at
+a model-service usage limit before approval. Preserve that pending status.
+The latest user authorizes independent screenshots and an unsent real ChatGPT
+test draft, with full backups before installation. Source decisions and
+verification scope are in the existing handoff evidence. Do not merge until
+final review, CI and actual updated-App first/consecutive input agree.
+
+# Current PR #41 file handoff — 2026-11-05, second incident
+
+Existing PR #41 continues from `79994009` on main `cd9b6953`. Six real
+operations retired during commit before file input. See the
+[handoff evidence](../engineering/evidence/2026-11-05-file-handoff/README.md)
+for the incident window, reproduced causes and acceptance boundaries.
+The formal source, review, final CI, ordinary ARM64 package and installed
+identities are recorded on PR #41. An actual first and second attachment in
+the original ChatGPT draft require normal use of the updated App.
+
+# Current attachment-entry P0 repair — 2026-11-05
+
+Continue existing PR #41, base main cd9b6953, prior head e9ecafa7. Root owns the
+page discovery/input implementation, integration, admission, PR and artifacts;
+swift_input owns Promise relay/receipt and typed pre-input failures;
+browser_regressions owns counterexamples and controlled native Chrome coverage;
+independent_review is the non-author source reviewer. No new product or UI work.
+The supplied incident already proves ATTACHMENT_INPUT_UNAVAILABLE in capture.
+Do not ask the user to reproduce it again. Actual Mac filesystem is unavailable
+in this executor and Browser reports missing originating context. No production
+data or installed App has been touched. Finish independent source/CI/App work;
+record device installation and real ChatGPT acceptance separately and honestly.
+
 # Current page recognition and first-click P1 repair — 2026-11-04
 
 Actual base: main `1cd7bc9054b07ce6648a9f8bb42b2425b2c8aaad`, including merged
