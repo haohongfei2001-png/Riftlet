@@ -1,0 +1,1269 @@
+{
+  "schemaVersion": 1,
+  "runID": "20261106-v2-editing-final",
+  "startedAt": "2026-11-05T21:31:44.670Z",
+  "scope": "Actual headless Chromium DOM actions on revision-2 standalone HTML, using synthetic prototype data. Composition events are simulated DOM events, not a real OS input method. Native AppKit, disk persistence, permissions, displays, user Chrome and uploads NOT_RUN.",
+  "sourceHEAD": "6372bcf3fbeb71cb7ad2d930cad18528e2d54796",
+  "prototype": {
+    "file": "Riftlet-Settings-Prototype.html",
+    "sha256": "c58e4c7a3fa717a2fc5f68e8aaaf90e7950363a52c4047be182f9cb81fd67b58",
+    "bytes": 120030
+  },
+  "script": {
+    "file": "tests/editing-stability.cjs",
+    "sha256": "c630fa6eb3a2a3f2f1579c77c652d6c12b79e73c7a7a3b32b8f7025b9c53d01b"
+  },
+  "protectedFiles": [
+    {
+      "file": "../Riftlet-Settings-Prototype.html",
+      "expected": "aded9ed13cd5ff54c0f0a2172bbe78c720c2f03f41f16ed11a864a09ef45fabf"
+    },
+    {
+      "file": "../tests/browser-regression.cjs",
+      "expected": "7ede4386923b2f2aa3a7f6f4b3ff8718d627578330e966a6469991acb135fc83"
+    }
+  ],
+  "runtime": {
+    "node": "v26.8.2",
+    "platform": "darwin",
+    "arch": "arm64",
+    "playwright": "1.58.2",
+    "browser": "156.0.8078.4",
+    "browserExecutable": "chrome-headless-shell",
+    "browserExecutableSHA256": "77d8278b1ac9d0687fad4e817ea83023ede09b1deef36e1864b49ba194ac9634"
+  },
+  "viewport": {
+    "width": 1440,
+    "height": 1100,
+    "deviceScaleFactor": 1
+  },
+  "cases": [
+    {
+      "id": "E1",
+      "title": "布局输入保留原节点、精确文本和选区",
+      "steps": "正常保存反馈产生提示→编辑宽度96.250并选择末两位→等待真实提示到期",
+      "status": "PASS",
+      "observations": [
+        {
+          "label": "editor before",
+          "value": {
+            "value": "96.250",
+            "start": 4,
+            "end": 6,
+            "direction": "backward",
+            "focused": true
+          }
+        },
+        {
+          "label": "editor after",
+          "value": {
+            "connected": true,
+            "same": true,
+            "value": "96.250",
+            "start": 4,
+            "end": 6,
+            "direction": "backward",
+            "focused": true
+          }
+        }
+      ],
+      "durationMs": 6166
+    },
+    {
+      "id": "E2",
+      "title": "未完成数字不被刷新归零或规范化",
+      "steps": "宽度仅输入小数点→保持焦点等待真实提示到期→检查原节点/文本",
+      "status": "PASS",
+      "observations": [
+        {
+          "label": "editor before",
+          "value": {
+            "value": ".",
+            "start": 1,
+            "end": 1,
+            "direction": "none",
+            "focused": true
+          }
+        },
+        {
+          "label": "editor after",
+          "value": {
+            "connected": true,
+            "same": true,
+            "value": ".",
+            "start": 1,
+            "end": 1,
+            "direction": "none",
+            "focused": true
+          }
+        }
+      ],
+      "durationMs": 6160
+    },
+    {
+      "id": "E3",
+      "title": "归档文本及选区跨后台刷新不变",
+      "steps": "自定义归档输入2.750并选区→等待提示到期→尚未保存",
+      "status": "PASS",
+      "observations": [
+        {
+          "label": "editor before",
+          "value": {
+            "value": "2.750",
+            "start": 3,
+            "end": 5,
+            "direction": "backward",
+            "focused": true
+          }
+        },
+        {
+          "label": "editor after",
+          "value": {
+            "connected": true,
+            "same": true,
+            "value": "2.750",
+            "start": 3,
+            "end": 5,
+            "direction": "backward",
+            "focused": true
+          }
+        }
+      ],
+      "durationMs": 6170
+    },
+    {
+      "id": "E4",
+      "title": "反馈textarea跨后台刷新保持原节点",
+      "steps": "正常保存产生提示→重开反馈→编辑合成文字并选区→等待提示到期",
+      "status": "PASS",
+      "observations": [
+        {
+          "label": "editor before",
+          "value": {
+            "value": "合成编辑稳定性：甲乙丙丁",
+            "start": 10,
+            "end": 12,
+            "direction": "backward",
+            "focused": true
+          }
+        },
+        {
+          "label": "editor after",
+          "value": {
+            "connected": true,
+            "same": true,
+            "value": "合成编辑稳定性：甲乙丙丁",
+            "start": 10,
+            "end": 12,
+            "direction": "backward",
+            "focused": true
+          }
+        }
+      ],
+      "durationMs": 6211
+    },
+    {
+      "id": "E5",
+      "title": "布局 composition期间刷新和Enter不提前保存",
+      "steps": "准备合法数字草稿→DOM compositionstart/update→组合态Enter→真实提示到期→compositionend→普通Enter",
+      "status": "PASS",
+      "observations": [
+        {
+          "label": "editor before",
+          "value": {
+            "value": "96.250",
+            "start": 4,
+            "end": 6,
+            "direction": "backward",
+            "focused": true
+          }
+        },
+        {
+          "label": "editor after",
+          "value": {
+            "connected": true,
+            "same": true,
+            "value": "96.250",
+            "start": 4,
+            "end": 6,
+            "direction": "backward",
+            "focused": true
+          }
+        },
+        {
+          "label": "editor after",
+          "value": {
+            "connected": true,
+            "same": true,
+            "value": "96.250",
+            "start": 4,
+            "end": 6,
+            "direction": "backward",
+            "focused": true
+          }
+        },
+        {
+          "label": "composition scope",
+          "value": "Synthetic CompositionEvent and composing KeyboardEvent only; real OS IME NOT_RUN"
+        }
+      ],
+      "durationMs": 6187
+    },
+    {
+      "id": "E6",
+      "title": "归档 composition期间刷新和Enter不提前保存",
+      "steps": "准备合法数字草稿→DOM compositionstart/update→组合态Enter→真实提示到期→compositionend→普通Enter",
+      "status": "PASS",
+      "observations": [
+        {
+          "label": "editor before",
+          "value": {
+            "value": "2.750",
+            "start": 3,
+            "end": 5,
+            "direction": "backward",
+            "focused": true
+          }
+        },
+        {
+          "label": "editor after",
+          "value": {
+            "connected": true,
+            "same": true,
+            "value": "2.750",
+            "start": 3,
+            "end": 5,
+            "direction": "backward",
+            "focused": true
+          }
+        },
+        {
+          "label": "editor after",
+          "value": {
+            "connected": true,
+            "same": true,
+            "value": "2.750",
+            "start": 3,
+            "end": 5,
+            "direction": "backward",
+            "focused": true
+          }
+        },
+        {
+          "label": "composition scope",
+          "value": "Synthetic CompositionEvent and composing KeyboardEvent only; real OS IME NOT_RUN"
+        }
+      ],
+      "durationMs": 6157
+    },
+    {
+      "id": "E7",
+      "title": "动画结束刷新不替换正在输入的节点",
+      "steps": "选择磁力并预览→编辑按下时长→等待现有动画定时器结束",
+      "status": "PASS",
+      "observations": [
+        {
+          "label": "editor before",
+          "value": {
+            "value": "125.750",
+            "start": 5,
+            "end": 7,
+            "direction": "backward",
+            "focused": true
+          }
+        },
+        {
+          "label": "editor after",
+          "value": {
+            "connected": true,
+            "same": true,
+            "value": "125.750",
+            "start": 5,
+            "end": 7,
+            "direction": "backward",
+            "focused": true
+          }
+        }
+      ],
+      "durationMs": 854
+    },
+    {
+      "id": "E8",
+      "title": "减少动态不延长合法短时长",
+      "steps": "实际保存40ms及0ms吞噬时长→开启减少动态→预览并读取计算后时长",
+      "status": "PASS",
+      "observations": [
+        {
+          "label": "reduced duration",
+          "value": {
+            "milliseconds": 40,
+            "seconds": 0.04
+          }
+        },
+        {
+          "label": "reduced duration",
+          "value": {
+            "milliseconds": 0,
+            "seconds": 0
+          }
+        }
+      ],
+      "durationMs": 295
+    },
+    {
+      "id": "R1",
+      "title": "三停止域失败并存且无关成功不清错",
+      "steps": "同时暂停/隐藏/关闭入口写失败→解除注入→外观与登录偏好成功",
+      "status": "PASS",
+      "observations": [
+        {
+          "label": "three independent failed saves",
+          "value": {
+            "collection": {
+              "status": "unconfirmed",
+              "lastConfirmed": false,
+              "pending": true,
+              "error": "收录当前已暂停，但设置尚未保存，重启可能恢复原状态，实际持久化结果未确认。"
+            },
+            "visibility": {
+              "status": "unconfirmed",
+              "lastConfirmed": false,
+              "pending": true,
+              "error": "裂缝当前已隐藏，但设置尚未保存，重启可能恢复原状态，实际持久化结果未确认。"
+            },
+            "entry": {
+              "status": "unconfirmed",
+              "lastConfirmed": true,
+              "pending": false,
+              "error": "内置截图当前已关闭，但设置尚未保存，重启可能恢复原状态，实际持久化结果未确认。"
+            }
+          }
+        }
+      ],
+      "durationMs": 334
+    },
+    {
+      "id": "R2",
+      "title": "逐域同方向重试确实保存并依次清错",
+      "steps": "三域失败→解除注入→依次重试collection/visibility/entry，每次检查确认值与剩余错误",
+      "status": "PASS",
+      "observations": [
+        {
+          "label": "three independent failed saves",
+          "value": {
+            "collection": {
+              "status": "unconfirmed",
+              "lastConfirmed": false,
+              "pending": true,
+              "error": "收录当前已暂停，但设置尚未保存，重启可能恢复原状态，实际持久化结果未确认。"
+            },
+            "visibility": {
+              "status": "unconfirmed",
+              "lastConfirmed": false,
+              "pending": true,
+              "error": "裂缝当前已隐藏，但设置尚未保存，重启可能恢复原状态，实际持久化结果未确认。"
+            },
+            "entry": {
+              "status": "unconfirmed",
+              "lastConfirmed": true,
+              "pending": false,
+              "error": "内置截图当前已关闭，但设置尚未保存，重启可能恢复原状态，实际持久化结果未确认。"
+            }
+          }
+        },
+        {
+          "label": "confirmed collection",
+          "value": {
+            "confirmed": {
+              "collection": true,
+              "visibility": false,
+              "entry": true
+            },
+            "persistence": {
+              "collection": {
+                "status": "confirmed",
+                "lastConfirmed": true,
+                "pending": null,
+                "error": null
+              },
+              "visibility": {
+                "status": "unconfirmed",
+                "lastConfirmed": false,
+                "pending": true,
+                "error": "裂缝当前已隐藏，但设置尚未保存，重启可能恢复原状态，实际持久化结果未确认。"
+              },
+              "entry": {
+                "status": "unconfirmed",
+                "lastConfirmed": true,
+                "pending": false,
+                "error": "内置截图当前已关闭，但设置尚未保存，重启可能恢复原状态，实际持久化结果未确认。"
+              },
+              "layout": {
+                "status": "confirmed",
+                "lastConfirmed": {
+                  "fitWidth": 72,
+                  "fitHeight": 56,
+                  "hiddenFraction": 0,
+                  "rowPitch": 60,
+                  "lineWidth": 0.5,
+                  "lineExtension": 8,
+                  "emptyTraceLength": 24,
+                  "outerInset": 6,
+                  "firstCenterFromTop": 202,
+                  "screenPadding": 12,
+                  "numberFontSize": 11,
+                  "numberGap": 8,
+                  "leftPadding": 4,
+                  "minimumHitWidth": 44,
+                  "minimumHitHeight": 44,
+                  "arrivalDuration": 0.22,
+                  "pressDuration": 0.06,
+                  "inwardDistance": 1.5,
+                  "swallowDuration": 0.12,
+                  "shiftDuration": 0.16,
+                  "returnDuration": 0.18,
+                  "reducedMotionDuration": 0.08,
+                  "preferredDisplayID": null,
+                  "visibleCountPreference": 3,
+                  "placement": "leftMiddle",
+                  "placementSource": "initialRecommendation",
+                  "preferredDisplayUUID": null
+                },
+                "pending": null,
+                "error": null
+              },
+              "placement": {
+                "status": "confirmed",
+                "lastConfirmed": "leftMiddle",
+                "pending": null,
+                "error": null
+              },
+              "display": {
+                "status": "confirmed",
+                "lastConfirmed": {
+                  "id": null,
+                  "uuid": null
+                },
+                "pending": null,
+                "error": null
+              },
+              "archive": {
+                "status": "confirmed",
+                "lastConfirmed": 24,
+                "pending": null,
+                "error": null
+              },
+              "appearance": {
+                "status": "confirmed",
+                "lastConfirmed": "system",
+                "pending": null,
+                "error": null
+              },
+              "captureMode": {
+                "status": "confirmed",
+                "lastConfirmed": "window",
+                "pending": null,
+                "error": null
+              },
+              "arrival": {
+                "status": "confirmed",
+                "lastConfirmed": "none",
+                "pending": null,
+                "error": null
+              },
+              "login": {
+                "status": "confirmed",
+                "lastConfirmed": false,
+                "pending": null,
+                "error": null
+              }
+            }
+          }
+        },
+        {
+          "label": "confirmed visibility",
+          "value": {
+            "confirmed": {
+              "collection": true,
+              "visibility": true,
+              "entry": true
+            },
+            "persistence": {
+              "collection": {
+                "status": "confirmed",
+                "lastConfirmed": true,
+                "pending": null,
+                "error": null
+              },
+              "visibility": {
+                "status": "confirmed",
+                "lastConfirmed": true,
+                "pending": null,
+                "error": null
+              },
+              "entry": {
+                "status": "unconfirmed",
+                "lastConfirmed": true,
+                "pending": false,
+                "error": "内置截图当前已关闭，但设置尚未保存，重启可能恢复原状态，实际持久化结果未确认。"
+              },
+              "layout": {
+                "status": "confirmed",
+                "lastConfirmed": {
+                  "fitWidth": 72,
+                  "fitHeight": 56,
+                  "hiddenFraction": 0,
+                  "rowPitch": 60,
+                  "lineWidth": 0.5,
+                  "lineExtension": 8,
+                  "emptyTraceLength": 24,
+                  "outerInset": 6,
+                  "firstCenterFromTop": 202,
+                  "screenPadding": 12,
+                  "numberFontSize": 11,
+                  "numberGap": 8,
+                  "leftPadding": 4,
+                  "minimumHitWidth": 44,
+                  "minimumHitHeight": 44,
+                  "arrivalDuration": 0.22,
+                  "pressDuration": 0.06,
+                  "inwardDistance": 1.5,
+                  "swallowDuration": 0.12,
+                  "shiftDuration": 0.16,
+                  "returnDuration": 0.18,
+                  "reducedMotionDuration": 0.08,
+                  "preferredDisplayID": null,
+                  "visibleCountPreference": 3,
+                  "placement": "leftMiddle",
+                  "placementSource": "initialRecommendation",
+                  "preferredDisplayUUID": null
+                },
+                "pending": null,
+                "error": null
+              },
+              "placement": {
+                "status": "confirmed",
+                "lastConfirmed": "leftMiddle",
+                "pending": null,
+                "error": null
+              },
+              "display": {
+                "status": "confirmed",
+                "lastConfirmed": {
+                  "id": null,
+                  "uuid": null
+                },
+                "pending": null,
+                "error": null
+              },
+              "archive": {
+                "status": "confirmed",
+                "lastConfirmed": 24,
+                "pending": null,
+                "error": null
+              },
+              "appearance": {
+                "status": "confirmed",
+                "lastConfirmed": "system",
+                "pending": null,
+                "error": null
+              },
+              "captureMode": {
+                "status": "confirmed",
+                "lastConfirmed": "window",
+                "pending": null,
+                "error": null
+              },
+              "arrival": {
+                "status": "confirmed",
+                "lastConfirmed": "none",
+                "pending": null,
+                "error": null
+              },
+              "login": {
+                "status": "confirmed",
+                "lastConfirmed": false,
+                "pending": null,
+                "error": null
+              }
+            }
+          }
+        },
+        {
+          "label": "confirmed entry",
+          "value": {
+            "confirmed": {
+              "collection": true,
+              "visibility": true,
+              "entry": false
+            },
+            "persistence": {
+              "collection": {
+                "status": "confirmed",
+                "lastConfirmed": true,
+                "pending": null,
+                "error": null
+              },
+              "visibility": {
+                "status": "confirmed",
+                "lastConfirmed": true,
+                "pending": null,
+                "error": null
+              },
+              "entry": {
+                "status": "confirmed",
+                "lastConfirmed": false,
+                "pending": null,
+                "error": null
+              },
+              "layout": {
+                "status": "confirmed",
+                "lastConfirmed": {
+                  "fitWidth": 72,
+                  "fitHeight": 56,
+                  "hiddenFraction": 0,
+                  "rowPitch": 60,
+                  "lineWidth": 0.5,
+                  "lineExtension": 8,
+                  "emptyTraceLength": 24,
+                  "outerInset": 6,
+                  "firstCenterFromTop": 202,
+                  "screenPadding": 12,
+                  "numberFontSize": 11,
+                  "numberGap": 8,
+                  "leftPadding": 4,
+                  "minimumHitWidth": 44,
+                  "minimumHitHeight": 44,
+                  "arrivalDuration": 0.22,
+                  "pressDuration": 0.06,
+                  "inwardDistance": 1.5,
+                  "swallowDuration": 0.12,
+                  "shiftDuration": 0.16,
+                  "returnDuration": 0.18,
+                  "reducedMotionDuration": 0.08,
+                  "preferredDisplayID": null,
+                  "visibleCountPreference": 3,
+                  "placement": "leftMiddle",
+                  "placementSource": "initialRecommendation",
+                  "preferredDisplayUUID": null
+                },
+                "pending": null,
+                "error": null
+              },
+              "placement": {
+                "status": "confirmed",
+                "lastConfirmed": "leftMiddle",
+                "pending": null,
+                "error": null
+              },
+              "display": {
+                "status": "confirmed",
+                "lastConfirmed": {
+                  "id": null,
+                  "uuid": null
+                },
+                "pending": null,
+                "error": null
+              },
+              "archive": {
+                "status": "confirmed",
+                "lastConfirmed": 24,
+                "pending": null,
+                "error": null
+              },
+              "appearance": {
+                "status": "confirmed",
+                "lastConfirmed": "system",
+                "pending": null,
+                "error": null
+              },
+              "captureMode": {
+                "status": "confirmed",
+                "lastConfirmed": "window",
+                "pending": null,
+                "error": null
+              },
+              "arrival": {
+                "status": "confirmed",
+                "lastConfirmed": "none",
+                "pending": null,
+                "error": null
+              },
+              "login": {
+                "status": "confirmed",
+                "lastConfirmed": false,
+                "pending": null,
+                "error": null
+              }
+            }
+          }
+        }
+      ],
+      "durationMs": 398
+    },
+    {
+      "id": "R3",
+      "title": "仍有故障时重试不伪造确认或反转目标",
+      "steps": "三域失败→保持注入重试暂停→错误与确认值不变→解除注入再重试暂停",
+      "status": "PASS",
+      "observations": [
+        {
+          "label": "three independent failed saves",
+          "value": {
+            "collection": {
+              "status": "unconfirmed",
+              "lastConfirmed": false,
+              "pending": true,
+              "error": "收录当前已暂停，但设置尚未保存，重启可能恢复原状态，实际持久化结果未确认。"
+            },
+            "visibility": {
+              "status": "unconfirmed",
+              "lastConfirmed": false,
+              "pending": true,
+              "error": "裂缝当前已隐藏，但设置尚未保存，重启可能恢复原状态，实际持久化结果未确认。"
+            },
+            "entry": {
+              "status": "unconfirmed",
+              "lastConfirmed": true,
+              "pending": false,
+              "error": "内置截图当前已关闭，但设置尚未保存，重启可能恢复原状态，实际持久化结果未确认。"
+            }
+          }
+        }
+      ],
+      "durationMs": 370
+    },
+    {
+      "id": "R4",
+      "title": "权限恢复不清三域保存错误",
+      "steps": "先令文件夹未授权→三停止域失败→正常许可对话框恢复文件夹",
+      "status": "PASS",
+      "observations": [
+        {
+          "label": "three independent failed saves",
+          "value": {
+            "collection": {
+              "status": "unconfirmed",
+              "lastConfirmed": false,
+              "pending": true,
+              "error": "收录当前已暂停，但设置尚未保存，重启可能恢复原状态，实际持久化结果未确认。"
+            },
+            "visibility": {
+              "status": "unconfirmed",
+              "lastConfirmed": false,
+              "pending": true,
+              "error": "裂缝当前已隐藏，但设置尚未保存，重启可能恢复原状态，实际持久化结果未确认。"
+            },
+            "entry": {
+              "status": "unconfirmed",
+              "lastConfirmed": true,
+              "pending": false,
+              "error": "内置截图当前已关闭，但设置尚未保存，重启可能恢复原状态，实际持久化结果未确认。"
+            }
+          }
+        }
+      ],
+      "durationMs": 349
+    },
+    {
+      "id": "R5",
+      "title": "放弃失败布局只清本域不清三停止错误",
+      "steps": "三域失败→宽度96保存失败→关闭并放弃→重新打开",
+      "status": "PASS",
+      "observations": [
+        {
+          "label": "three independent failed saves",
+          "value": {
+            "collection": {
+              "status": "unconfirmed",
+              "lastConfirmed": false,
+              "pending": true,
+              "error": "收录当前已暂停，但设置尚未保存，重启可能恢复原状态，实际持久化结果未确认。"
+            },
+            "visibility": {
+              "status": "unconfirmed",
+              "lastConfirmed": false,
+              "pending": true,
+              "error": "裂缝当前已隐藏，但设置尚未保存，重启可能恢复原状态，实际持久化结果未确认。"
+            },
+            "entry": {
+              "status": "unconfirmed",
+              "lastConfirmed": true,
+              "pending": false,
+              "error": "内置截图当前已关闭，但设置尚未保存，重启可能恢复原状态，实际持久化结果未确认。"
+            }
+          }
+        }
+      ],
+      "durationMs": 434
+    },
+    {
+      "id": "R6",
+      "title": "清一个错误后其余重试仍可见并可执行",
+      "steps": "三域失败→先重试入口→页面切换→再重试隐藏及暂停",
+      "status": "PASS",
+      "observations": [
+        {
+          "label": "three independent failed saves",
+          "value": {
+            "collection": {
+              "status": "unconfirmed",
+              "lastConfirmed": false,
+              "pending": true,
+              "error": "收录当前已暂停，但设置尚未保存，重启可能恢复原状态，实际持久化结果未确认。"
+            },
+            "visibility": {
+              "status": "unconfirmed",
+              "lastConfirmed": false,
+              "pending": true,
+              "error": "裂缝当前已隐藏，但设置尚未保存，重启可能恢复原状态，实际持久化结果未确认。"
+            },
+            "entry": {
+              "status": "unconfirmed",
+              "lastConfirmed": true,
+              "pending": false,
+              "error": "内置截图当前已关闭，但设置尚未保存，重启可能恢复原状态，实际持久化结果未确认。"
+            }
+          }
+        }
+      ],
+      "durationMs": 468
+    },
+    {
+      "id": "A1",
+      "title": "归档首个物理单击即保存当前文本",
+      "steps": "输入2.500后不预先失焦，只发送一次鼠标down/up到保存按钮",
+      "status": "PASS",
+      "observations": [
+        {
+          "label": "single mouse click",
+          "value": [
+            {
+              "type": "click",
+              "action": "save-archive",
+              "trusted": true
+            }
+          ]
+        }
+      ],
+      "durationMs": 96
+    },
+    {
+      "id": "A2",
+      "title": "归档首个物理关闭单击立即询问",
+      "steps": "输入2.500后不预先失焦，只发送一次鼠标down/up到关闭按钮",
+      "status": "PASS",
+      "observations": [
+        {
+          "label": "single mouse click",
+          "value": [
+            {
+              "type": "click",
+              "action": "close-window",
+              "trusted": true
+            }
+          ]
+        }
+      ],
+      "durationMs": 116
+    },
+    {
+      "id": "K1",
+      "title": "历史sheet正反Tab包含两个下拉框",
+      "steps": "从初始原图按钮反向经过时间/状态/关闭，再正向完整返回",
+      "status": "PASS",
+      "observations": [
+        {
+          "label": "Shift+Tab",
+          "value": {
+            "value": "historyRange",
+            "inside": true
+          }
+        },
+        {
+          "label": "Shift+Tab",
+          "value": {
+            "value": "historyFilter",
+            "inside": true
+          }
+        },
+        {
+          "label": "Shift+Tab",
+          "value": {
+            "value": "cancel-modal",
+            "inside": true
+          }
+        },
+        {
+          "label": "Tab",
+          "value": {
+            "value": "historyFilter",
+            "inside": true
+          }
+        },
+        {
+          "label": "Tab",
+          "value": {
+            "value": "historyRange",
+            "inside": true
+          }
+        },
+        {
+          "label": "Tab",
+          "value": {
+            "value": "view-original",
+            "inside": true
+          }
+        }
+      ],
+      "durationMs": 110
+    },
+    {
+      "id": "K2",
+      "title": "反馈sheet焦点循环包括textarea与checkbox",
+      "steps": "从实际初始焦点正反各循环一周，四个控件均可达且不逃出sheet",
+      "status": "PASS",
+      "observations": [
+        {
+          "label": "Tab",
+          "value": [
+            "save-feedback",
+            "preview-feedback",
+            "feedback-draft",
+            "feedbackDiagnostics"
+          ]
+        },
+        {
+          "label": "Shift+Tab",
+          "value": [
+            "save-feedback",
+            "feedbackDiagnostics",
+            "feedback-draft",
+            "preview-feedback"
+          ]
+        }
+      ],
+      "durationMs": 121
+    },
+    {
+      "id": "L1",
+      "title": "七个非默认兼容字段跨实际应用保留",
+      "steps": "读取legacyPersonalized合成旧配置→改宽96和返回240ms→统一应用",
+      "status": "PASS",
+      "observations": [
+        {
+          "label": "simulated legacy read",
+          "value": {
+            "lineWidth": 1.25,
+            "lineExtension": 13.5,
+            "emptyTraceLength": 37,
+            "screenPadding": 23,
+            "arrivalDuration": 0.33,
+            "inwardDistance": 2.75,
+            "reducedMotionDuration": 0.19
+          }
+        }
+      ],
+      "durationMs": 205
+    },
+    {
+      "id": "L2",
+      "title": "恢复两页不会重置七个非默认兼容值",
+      "steps": "旧配置→选择屏幕/位置→修改并应用有效字段→两页分别恢复本页并应用",
+      "status": "PASS",
+      "observations": [
+        {
+          "label": "simulated legacy read",
+          "value": {
+            "lineWidth": 1.25,
+            "lineExtension": 13.5,
+            "emptyTraceLength": 37,
+            "screenPadding": 23,
+            "arrivalDuration": 0.33,
+            "inwardDistance": 2.75,
+            "reducedMotionDuration": 0.19
+          }
+        },
+        {
+          "label": "after reset/apply display",
+          "value": {
+            "lineWidth": 1.25,
+            "lineExtension": 13.5,
+            "emptyTraceLength": 37,
+            "screenPadding": 23,
+            "arrivalDuration": 0.33,
+            "inwardDistance": 2.75,
+            "reducedMotionDuration": 0.19
+          }
+        },
+        {
+          "label": "after reset/apply motion",
+          "value": {
+            "lineWidth": 1.25,
+            "lineExtension": 13.5,
+            "emptyTraceLength": 37,
+            "screenPadding": 23,
+            "arrivalDuration": 0.33,
+            "inwardDistance": 2.75,
+            "reducedMotionDuration": 0.19
+          }
+        }
+      ],
+      "durationMs": 547
+    },
+    {
+      "id": "Z1",
+      "title": "无页面异常及外部请求",
+      "steps": "检查全部独立用例运行期间的浏览器错误与网络拦截记录",
+      "status": "PASS",
+      "observations": [],
+      "durationMs": 32
+    }
+  ],
+  "screenshots": [
+    {
+      "file": "screenshots/E1.png",
+      "caseID": "E1",
+      "sha256": "91b77694e40acd9a911a18b3640a69f139b5f2e7cd3eabbf0f767600d531d1bb",
+      "format": "raw Chromium PNG, no editing",
+      "viewport": {
+        "width": 1440,
+        "height": 1100,
+        "deviceScaleFactor": 1
+      }
+    },
+    {
+      "file": "screenshots/E2.png",
+      "caseID": "E2",
+      "sha256": "066f62e87073143c57fc4e1797c664ee5a1225f7703e869877dcd5951ad9b7f6",
+      "format": "raw Chromium PNG, no editing",
+      "viewport": {
+        "width": 1440,
+        "height": 1100,
+        "deviceScaleFactor": 1
+      }
+    },
+    {
+      "file": "screenshots/E3.png",
+      "caseID": "E3",
+      "sha256": "61708ae599673f63d15c3cd0921b2d45f381407a80c5b7f3b764aa7a3930a2f1",
+      "format": "raw Chromium PNG, no editing",
+      "viewport": {
+        "width": 1440,
+        "height": 1100,
+        "deviceScaleFactor": 1
+      }
+    },
+    {
+      "file": "screenshots/E4.png",
+      "caseID": "E4",
+      "sha256": "ac06246d418ddb39797402df190fbee83d685a3b8fed81bf2013d8f36fa2e379",
+      "format": "raw Chromium PNG, no editing",
+      "viewport": {
+        "width": 1440,
+        "height": 1100,
+        "deviceScaleFactor": 1
+      }
+    },
+    {
+      "file": "screenshots/E5.png",
+      "caseID": "E5",
+      "sha256": "6b0eb10d3bfe4384fa20cd771f33aa20797c441a0e2a9d84d2de0b5aef965b67",
+      "format": "raw Chromium PNG, no editing",
+      "viewport": {
+        "width": 1440,
+        "height": 1100,
+        "deviceScaleFactor": 1
+      }
+    },
+    {
+      "file": "screenshots/E6.png",
+      "caseID": "E6",
+      "sha256": "a0aa48e1d71cfaa3ead959c1d4cad0955184dba78260b91a4672f6885e78bdd7",
+      "format": "raw Chromium PNG, no editing",
+      "viewport": {
+        "width": 1440,
+        "height": 1100,
+        "deviceScaleFactor": 1
+      }
+    },
+    {
+      "file": "screenshots/E7.png",
+      "caseID": "E7",
+      "sha256": "99d91aaaecab90d7c25ec66cf0ac606528bd9ab39d00f0b64c6d43913e73560f",
+      "format": "raw Chromium PNG, no editing",
+      "viewport": {
+        "width": 1440,
+        "height": 1100,
+        "deviceScaleFactor": 1
+      }
+    },
+    {
+      "file": "screenshots/E8.png",
+      "caseID": "E8",
+      "sha256": "0942802396f86a8f985098fc6e2fbc18c650926dec78be22f43f6747c41341a0",
+      "format": "raw Chromium PNG, no editing",
+      "viewport": {
+        "width": 1440,
+        "height": 1100,
+        "deviceScaleFactor": 1
+      }
+    },
+    {
+      "file": "screenshots/R1.png",
+      "caseID": "R1",
+      "sha256": "0e501dda04c55c909d752bd9abeec79b32d15013e76339cd4b3585a85b8d7b3e",
+      "format": "raw Chromium PNG, no editing",
+      "viewport": {
+        "width": 1440,
+        "height": 1100,
+        "deviceScaleFactor": 1
+      }
+    },
+    {
+      "file": "screenshots/R2.png",
+      "caseID": "R2",
+      "sha256": "9cccfbc8e82caa8d997009b1d4b78bdc33443584e8069f04ab39c5dbd8f6159e",
+      "format": "raw Chromium PNG, no editing",
+      "viewport": {
+        "width": 1440,
+        "height": 1100,
+        "deviceScaleFactor": 1
+      }
+    },
+    {
+      "file": "screenshots/R3.png",
+      "caseID": "R3",
+      "sha256": "f9d2e2af66a7fda91ca5b23be163af577d03bff2ea1d5941eb51a1396a57c8b6",
+      "format": "raw Chromium PNG, no editing",
+      "viewport": {
+        "width": 1440,
+        "height": 1100,
+        "deviceScaleFactor": 1
+      }
+    },
+    {
+      "file": "screenshots/R4.png",
+      "caseID": "R4",
+      "sha256": "d85b55e19638cabb7d62be7f78f783a3f6223a43205e188615e3050c8e4b2ccb",
+      "format": "raw Chromium PNG, no editing",
+      "viewport": {
+        "width": 1440,
+        "height": 1100,
+        "deviceScaleFactor": 1
+      }
+    },
+    {
+      "file": "screenshots/R5.png",
+      "caseID": "R5",
+      "sha256": "43cbfacf63fc75c966ffe560d8e10ff20b4cb6fba166f1cf610d37351d2da9ba",
+      "format": "raw Chromium PNG, no editing",
+      "viewport": {
+        "width": 1440,
+        "height": 1100,
+        "deviceScaleFactor": 1
+      }
+    },
+    {
+      "file": "screenshots/R6.png",
+      "caseID": "R6",
+      "sha256": "df9ed298ac7e45e8e4c79d03548e129a71cce7e8afa32e77cc9b27af8fa8d38a",
+      "format": "raw Chromium PNG, no editing",
+      "viewport": {
+        "width": 1440,
+        "height": 1100,
+        "deviceScaleFactor": 1
+      }
+    },
+    {
+      "file": "screenshots/A1.png",
+      "caseID": "A1",
+      "sha256": "7f4b83548366ae7bf47470e51c5df675c66942964805f442a23d8885c8e1a021",
+      "format": "raw Chromium PNG, no editing",
+      "viewport": {
+        "width": 1440,
+        "height": 1100,
+        "deviceScaleFactor": 1
+      }
+    },
+    {
+      "file": "screenshots/A2.png",
+      "caseID": "A2",
+      "sha256": "e08f4c8fce799ddab727a4821ddc7a9762f525934ed97fb3ad631ae4a36dd911",
+      "format": "raw Chromium PNG, no editing",
+      "viewport": {
+        "width": 1440,
+        "height": 1100,
+        "deviceScaleFactor": 1
+      }
+    },
+    {
+      "file": "screenshots/K1.png",
+      "caseID": "K1",
+      "sha256": "6fc887d684d8d71a1afed3f8b7c64db58910317b88bda374ce06305cf30ecdb3",
+      "format": "raw Chromium PNG, no editing",
+      "viewport": {
+        "width": 1440,
+        "height": 1100,
+        "deviceScaleFactor": 1
+      }
+    },
+    {
+      "file": "screenshots/K2.png",
+      "caseID": "K2",
+      "sha256": "dae39c84647f3172aee5490c0188f01fcb596d69adf23003a067745a5cb74eed",
+      "format": "raw Chromium PNG, no editing",
+      "viewport": {
+        "width": 1440,
+        "height": 1100,
+        "deviceScaleFactor": 1
+      }
+    },
+    {
+      "file": "screenshots/L1.png",
+      "caseID": "L1",
+      "sha256": "a0422313f51d92151f7414d43fa5f7c9daadf311bec2d731620f63efc93f43d2",
+      "format": "raw Chromium PNG, no editing",
+      "viewport": {
+        "width": 1440,
+        "height": 1100,
+        "deviceScaleFactor": 1
+      }
+    },
+    {
+      "file": "screenshots/L2.png",
+      "caseID": "L2",
+      "sha256": "4a3b5c709184a314e3d3bfc51fa68b369dd9eefab7925825373cfb0f9a7a593c",
+      "format": "raw Chromium PNG, no editing",
+      "viewport": {
+        "width": 1440,
+        "height": 1100,
+        "deviceScaleFactor": 1
+      }
+    },
+    {
+      "file": "screenshots/Z1.png",
+      "caseID": "Z1",
+      "sha256": "2b414635885d092e805bc11aeb3289d4638acdf79637714d844beeded8b8f9b0",
+      "format": "raw Chromium PNG, no editing",
+      "viewport": {
+        "width": 1440,
+        "height": 1100,
+        "deviceScaleFactor": 1
+      }
+    }
+  ],
+  "pageErrors": [],
+  "externalRequests": [],
+  "finishedAt": "2026-11-05T21:32:27.220Z",
+  "expectedCaseCount": 21,
+  "summary": {
+    "total": 21,
+    "pass": 21,
+    "fail": 0
+  },
+  "prototypeUnchanged": true,
+  "scriptUnchanged": true,
+  "protectedFilesUnchanged": true,
+  "success": true
+}

@@ -1,0 +1,222 @@
+[
+  {
+    "file": "screenshots/E1.png",
+    "caseID": "E1",
+    "sha256": "91b77694e40acd9a911a18b3640a69f139b5f2e7cd3eabbf0f767600d531d1bb",
+    "format": "raw Chromium PNG, no editing",
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    }
+  },
+  {
+    "file": "screenshots/E2.png",
+    "caseID": "E2",
+    "sha256": "066f62e87073143c57fc4e1797c664ee5a1225f7703e869877dcd5951ad9b7f6",
+    "format": "raw Chromium PNG, no editing",
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    }
+  },
+  {
+    "file": "screenshots/E3.png",
+    "caseID": "E3",
+    "sha256": "61708ae599673f63d15c3cd0921b2d45f381407a80c5b7f3b764aa7a3930a2f1",
+    "format": "raw Chromium PNG, no editing",
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    }
+  },
+  {
+    "file": "screenshots/E4.png",
+    "caseID": "E4",
+    "sha256": "ac06246d418ddb39797402df190fbee83d685a3b8fed81bf2013d8f36fa2e379",
+    "format": "raw Chromium PNG, no editing",
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    }
+  },
+  {
+    "file": "screenshots/E5.png",
+    "caseID": "E5",
+    "sha256": "6b0eb10d3bfe4384fa20cd771f33aa20797c441a0e2a9d84d2de0b5aef965b67",
+    "format": "raw Chromium PNG, no editing",
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    }
+  },
+  {
+    "file": "screenshots/E6.png",
+    "caseID": "E6",
+    "sha256": "b19e43f7939ca93a3c1a4b968cd78420df20513b3b36a8326e1a33158be82c67",
+    "format": "raw Chromium PNG, no editing",
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    }
+  },
+  {
+    "file": "screenshots/E7.png",
+    "caseID": "E7",
+    "sha256": "99d91aaaecab90d7c25ec66cf0ac606528bd9ab39d00f0b64c6d43913e73560f",
+    "format": "raw Chromium PNG, no editing",
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    }
+  },
+  {
+    "file": "screenshots/R1.png",
+    "caseID": "R1",
+    "sha256": "0e501dda04c55c909d752bd9abeec79b32d15013e76339cd4b3585a85b8d7b3e",
+    "format": "raw Chromium PNG, no editing",
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    }
+  },
+  {
+    "file": "screenshots/R2.png",
+    "caseID": "R2",
+    "sha256": "9cccfbc8e82caa8d997009b1d4b78bdc33443584e8069f04ab39c5dbd8f6159e",
+    "format": "raw Chromium PNG, no editing",
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    }
+  },
+  {
+    "file": "screenshots/R3.png",
+    "caseID": "R3",
+    "sha256": "f9d2e2af66a7fda91ca5b23be163af577d03bff2ea1d5941eb51a1396a57c8b6",
+    "format": "raw Chromium PNG, no editing",
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    }
+  },
+  {
+    "file": "screenshots/R4.png",
+    "caseID": "R4",
+    "sha256": "d85b55e19638cabb7d62be7f78f783a3f6223a43205e188615e3050c8e4b2ccb",
+    "format": "raw Chromium PNG, no editing",
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    }
+  },
+  {
+    "file": "screenshots/R5.png",
+    "caseID": "R5",
+    "sha256": "43cbfacf63fc75c966ffe560d8e10ff20b4cb6fba166f1cf610d37351d2da9ba",
+    "format": "raw Chromium PNG, no editing",
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    }
+  },
+  {
+    "file": "screenshots/R6.png",
+    "caseID": "R6",
+    "sha256": "df9ed298ac7e45e8e4c79d03548e129a71cce7e8afa32e77cc9b27af8fa8d38a",
+    "format": "raw Chromium PNG, no editing",
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    }
+  },
+  {
+    "file": "screenshots/A1.png",
+    "caseID": "A1",
+    "sha256": "7f4b83548366ae7bf47470e51c5df675c66942964805f442a23d8885c8e1a021",
+    "format": "raw Chromium PNG, no editing",
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    }
+  },
+  {
+    "file": "screenshots/A2.png",
+    "caseID": "A2",
+    "sha256": "e08f4c8fce799ddab727a4821ddc7a9762f525934ed97fb3ad631ae4a36dd911",
+    "format": "raw Chromium PNG, no editing",
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    }
+  },
+  {
+    "file": "screenshots/K1.png",
+    "caseID": "K1",
+    "sha256": "6fc887d684d8d71a1afed3f8b7c64db58910317b88bda374ce06305cf30ecdb3",
+    "format": "raw Chromium PNG, no editing",
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    }
+  },
+  {
+    "file": "screenshots/K2.png",
+    "caseID": "K2",
+    "sha256": "dae39c84647f3172aee5490c0188f01fcb596d69adf23003a067745a5cb74eed",
+    "format": "raw Chromium PNG, no editing",
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    }
+  },
+  {
+    "file": "screenshots/L1.png",
+    "caseID": "L1",
+    "sha256": "a0422313f51d92151f7414d43fa5f7c9daadf311bec2d731620f63efc93f43d2",
+    "format": "raw Chromium PNG, no editing",
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    }
+  },
+  {
+    "file": "screenshots/L2.png",
+    "caseID": "L2",
+    "sha256": "4a3b5c709184a314e3d3bfc51fa68b369dd9eefab7925825373cfb0f9a7a593c",
+    "format": "raw Chromium PNG, no editing",
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    }
+  },
+  {
+    "file": "screenshots/Z1.png",
+    "caseID": "Z1",
+    "sha256": "2b414635885d092e805bc11aeb3289d4638acdf79637714d844beeded8b8f9b0",
+    "format": "raw Chromium PNG, no editing",
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    }
+  }
+]

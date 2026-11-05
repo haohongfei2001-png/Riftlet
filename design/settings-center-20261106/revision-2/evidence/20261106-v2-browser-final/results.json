@@ -1,0 +1,1511 @@
+{
+  "schemaVersion": 1,
+  "runID": "20261106-v2-browser-final",
+  "startedAt": "2026-11-05T21:31:44.670Z",
+  "scope": "Real headless Chromium DOM interactions on saved standalone HTML; all data synthetic. Native AppKit, OS permissions, real displays, persistence and upload NOT_RUN.",
+  "firstVersion": {
+    "commit": "6372bcf3fbeb71cb7ad2d930cad18528e2d54796",
+    "sha256": "aded9ed13cd5ff54c0f0a2172bbe78c720c2f03f41f16ed11a864a09ef45fabf"
+  },
+  "inheritedCommit": "e1a7286d7eb14ff47686804718f61a2515a8fd12",
+  "baseMain": "b61fc46cf931bdbd14deec1b47d077e92db61e16",
+  "prototype": {
+    "file": "Riftlet-Settings-Prototype.html",
+    "sha256": "c58e4c7a3fa717a2fc5f68e8aaaf90e7950363a52c4047be182f9cb81fd67b58",
+    "bytes": 120030
+  },
+  "script": {
+    "file": "tests/browser-regression.cjs",
+    "sha256": "313493a8ceb2cf24ac30cd912e42da6058f10a469f57a19206d08702b9b33d30"
+  },
+  "runtime": {
+    "node": "v26.8.2",
+    "platform": "darwin",
+    "arch": "arm64",
+    "playwright": "1.58.2",
+    "browser": "156.0.8078.4",
+    "browserExecutable": "chrome-headless-shell",
+    "browserExecutableSHA256": "77d8278b1ac9d0687fad4e817ea83023ede09b1deef36e1864b49ba194ac9634"
+  },
+  "viewport": {
+    "width": 1440,
+    "height": 1100,
+    "deviceScaleFactor": 1
+  },
+  "cases": [
+    {
+      "id": "P1",
+      "title": "浅色六页：通用",
+      "steps": "点击侧栏 通用；核对唯一页面、标题和选择标记",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 113
+    },
+    {
+      "id": "D1",
+      "title": "深色六页：通用",
+      "steps": "点击深色切换，再点击 通用；核对主题、可见内容及原始截图",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 97
+    },
+    {
+      "id": "P2",
+      "title": "浅色六页：位置与显示",
+      "steps": "点击侧栏 位置与显示；核对唯一页面、标题和选择标记",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 61
+    },
+    {
+      "id": "D2",
+      "title": "深色六页：位置与显示",
+      "steps": "点击深色切换，再点击 位置与显示；核对主题、可见内容及原始截图",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 96
+    },
+    {
+      "id": "P3",
+      "title": "浅色六页：截图",
+      "steps": "点击侧栏 截图；核对唯一页面、标题和选择标记",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 65
+    },
+    {
+      "id": "D3",
+      "title": "深色六页：截图",
+      "steps": "点击深色切换，再点击 截图；核对主题、可见内容及原始截图",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 98
+    },
+    {
+      "id": "P4",
+      "title": "浅色六页：动效",
+      "steps": "点击侧栏 动效；核对唯一页面、标题和选择标记",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 62
+    },
+    {
+      "id": "D4",
+      "title": "深色六页：动效",
+      "steps": "点击深色切换，再点击 动效；核对主题、可见内容及原始截图",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 98
+    },
+    {
+      "id": "P5",
+      "title": "浅色六页：历史与存储",
+      "steps": "点击侧栏 历史与存储；核对唯一页面、标题和选择标记",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 63
+    },
+    {
+      "id": "D5",
+      "title": "深色六页：历史与存储",
+      "steps": "点击深色切换，再点击 历史与存储；核对主题、可见内容及原始截图",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 99
+    },
+    {
+      "id": "P6",
+      "title": "浅色六页：权限与帮助",
+      "steps": "点击侧栏 权限与帮助；核对唯一页面、标题和选择标记",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 62
+    },
+    {
+      "id": "D6",
+      "title": "深色六页：权限与帮助",
+      "steps": "点击深色切换，再点击 权限与帮助；核对主题、可见内容及原始截图",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 98
+    },
+    {
+      "id": "C1",
+      "title": "控制中心：normal",
+      "steps": "切换控制中心；选择评审状态 normal；核对主状态及保留的历史/设置入口",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 73
+    },
+    {
+      "id": "C2",
+      "title": "控制中心：paused",
+      "steps": "切换控制中心；选择评审状态 paused；核对主状态及保留的历史/设置入口",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 68
+    },
+    {
+      "id": "C3",
+      "title": "控制中心：hidden",
+      "steps": "切换控制中心；选择评审状态 hidden；核对主状态及保留的历史/设置入口",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 65
+    },
+    {
+      "id": "C4",
+      "title": "控制中心：attention",
+      "steps": "切换控制中心；选择评审状态 attention；核对主状态及保留的历史/设置入口",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 63
+    },
+    {
+      "id": "C5",
+      "title": "暂停与隐藏相互独立",
+      "steps": "通用依次暂停和隐藏，再转控制中心核对两个开关及组合说明",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 172
+    },
+    {
+      "id": "C6",
+      "title": "控制中心点击开关后保持打开",
+      "steps": "控制中心暂停ON再OFF，不关闭浮层、不修改隐藏",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 107
+    },
+    {
+      "id": "C7",
+      "title": "外部点击关闭控制中心",
+      "steps": "点击合成桌面空白，然后菜单栏图标再次打开",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 95
+    },
+    {
+      "id": "C8",
+      "title": "右键菜单同源状态",
+      "steps": "切右键菜单；暂停、隐藏；切回控制中心核对状态",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 170
+    },
+    {
+      "id": "C9",
+      "title": "打开历史关闭浮层",
+      "steps": "控制中心点击历史；核对历史对话框和浮层已关闭",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 74
+    },
+    {
+      "id": "F1",
+      "title": "新装建议与真实main默认明确区分",
+      "steps": "评审样本 current → recommendation，核对25%与0%，其余实际默认保留",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 12
+    },
+    {
+      "id": "F2",
+      "title": "旧JSON布局兼容",
+      "steps": "选legacy；核对14pt、旧绝对位置、未自动迁移；主动选择右下才迁移",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 130
+    },
+    {
+      "id": "F3",
+      "title": "六种位置全部可选",
+      "steps": "依次点击六个位置，每次核对config与aria-pressed，保留geometry",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 198
+    },
+    {
+      "id": "F4",
+      "title": "数字草稿与生效值分开",
+      "steps": "宽度编辑成96，失焦；草稿预览更新而生效值仍72；应用后才改变",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 163
+    },
+    {
+      "id": "F5",
+      "title": "空串编辑不自动变零",
+      "steps": "清空宽度输入，失焦再应用；原值保持、原始文本保留、显示校验错误",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 168
+    },
+    {
+      "id": "F6",
+      "title": "拒绝非有限与非法数字",
+      "steps": "依次输入NaN/Infinity/-1/257到宽度；每次应用均拒绝且不改生效值",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 209
+    },
+    {
+      "id": "F7",
+      "title": "计数整数约束",
+      "steps": "输入3.5再应用拒绝；输入10成功",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 62
+    },
+    {
+      "id": "F8",
+      "title": "精确输入保留有效上界",
+      "steps": "遮挡90%、宽256、高256、距边256，应用不夹断；90.1%拒绝",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 130
+    },
+    {
+      "id": "F9",
+      "title": "跨页保留草稿并统一应用",
+      "steps": "display改宽96，motion改吞噬200ms；来回切页保留；全局应用两项",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 198
+    },
+    {
+      "id": "F10",
+      "title": "即时位置不被数字草稿覆盖",
+      "steps": "改宽度草稿后选右下/外接屏再应用；三个值都保留",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 129
+    },
+    {
+      "id": "F11",
+      "title": "无变更不能重复应用",
+      "steps": "初始无dirty，应用动作不显示；改值应用后再次不显示",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 95
+    },
+    {
+      "id": "F12",
+      "title": "恢复本页只修改本页草稿",
+      "steps": "显示宽96和motion吞噬200草稿；恢复显示页不碰motion/屏幕/文件；尚未应用",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 241
+    },
+    {
+      "id": "F13",
+      "title": "Return提交数字草稿",
+      "steps": "宽96，真实键盘Enter提交，焦点仍在原字段",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 71
+    },
+    {
+      "id": "S1",
+      "title": "配置保存失败保留草稿",
+      "steps": "改宽96→注入保存失败→应用；生效72、草稿96、明确错误",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 168
+    },
+    {
+      "id": "S2",
+      "title": "配置保存失败后原意重试",
+      "steps": "同一宽96草稿失败，取消故障再点应用；无需改值即可成功",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 209
+    },
+    {
+      "id": "S3",
+      "title": "暂停写失败仍停止当前运行",
+      "steps": "暂停ON时注入失败；运行态true、持久态false，提示重启风险；反向恢复失败不得假恢复",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 197
+    },
+    {
+      "id": "S4",
+      "title": "隐藏写失败仍停止当前运行",
+      "steps": "隐藏ON时注入失败；运行态true、持久态false，提示重启风险；反向恢复失败不得假恢复",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 197
+    },
+    {
+      "id": "S5",
+      "title": "关闭内置入口写失败仍关闭运行",
+      "steps": "截图页关闭入口时注入失败；入口有效OFF、系统截图权限不变；启用失败仍OFF",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 197
+    },
+    {
+      "id": "S6",
+      "title": "普通偏好写失败不换生效值",
+      "steps": "截图默认模式由window改region时保存失败；依旧window",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 63
+    },
+    {
+      "id": "S7",
+      "title": "位置与显示器写失败保持原值",
+      "steps": "注入失败后选右下及外接屏；位置/显示器原样保留",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 64
+    },
+    {
+      "id": "W1",
+      "title": "关闭草稿默认继续编辑",
+      "steps": "编辑宽96→关闭；三个动作齐全，默认焦点继续编辑；Escape后草稿保留",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 158
+    },
+    {
+      "id": "W2",
+      "title": "不保存丢弃草稿并关闭",
+      "steps": "改宽96→关闭→不保存→重新打开；宽度72",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 166
+    },
+    {
+      "id": "W3",
+      "title": "应用并关闭覆盖所有待存域",
+      "steps": "布局宽96、归档2.5h草稿→Tab失焦→关闭→应用并关闭；均保存（未经失焦首击另见X13）",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 168
+    },
+    {
+      "id": "W4",
+      "title": "保存失败不能关闭丢草稿",
+      "steps": "宽96→注入失败→关闭→应用并关闭；仍在sheet、草稿96、运行72",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 220
+    },
+    {
+      "id": "W5",
+      "title": "关闭sheet键盘焦点循环",
+      "steps": "打开未保存sheet；末按钮Tab回首，首按钮Shift+Tab回末",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 100
+    },
+    {
+      "id": "M1",
+      "title": "显示器断开不清长期UUID",
+      "steps": "先选外接，再切断开；保留UUID和ID，仅使用临时落点",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 66
+    },
+    {
+      "id": "M2",
+      "title": "重连需显式回到已选屏",
+      "steps": "外接断开→重连；仍临时落点，点击回到已选显示器后才返回",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 128
+    },
+    {
+      "id": "M3",
+      "title": "断开后选择内建屏结束回退",
+      "steps": "外接断开→选内建屏；选中身份1、回退结束，但外接仍断开",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 33
+    },
+    {
+      "id": "A1",
+      "title": "归档自定义小数并保留关闭语义",
+      "steps": "输入2.5h未自动保存，Tab失焦后点击保存生效；选关闭仍需保存，最终null（首次点击另见X12）",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 95
+    },
+    {
+      "id": "A2",
+      "title": "归档非法输入与写失败不改生效值",
+      "steps": "空串/-1/Infinity分别拒绝；有效8h注入保存失败仍24h",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 197
+    },
+    {
+      "id": "A3",
+      "title": "清空只收起可见队列",
+      "steps": "控制中心清空→说明范围→确认；记录仍6条，文件/附件完全相同，无可见裂缝",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 130
+    },
+    {
+      "id": "A4",
+      "title": "清空取消不改变数据",
+      "steps": "打开清空确认后取消；记录、文件和附件不变",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 98
+    },
+    {
+      "id": "A5",
+      "title": "历史按状态和真实时间戳筛选",
+      "steps": "历史展开→unknown只显示sample6；3天范围排除该旧记录；all显示近三天四条",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 71
+    },
+    {
+      "id": "A6",
+      "title": "存储未检查不显示零",
+      "steps": "历史页初始尚未检查；点击检查后显示演示数据且不删除记录",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 60
+    },
+    {
+      "id": "T1",
+      "title": "关闭内置截图保留系统收录",
+      "steps": "关闭入口→控制中心内置按钮禁用；暂停和文件访问状态不变",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 99
+    },
+    {
+      "id": "T2",
+      "title": "首次内置截图按需请求权限",
+      "steps": "控制中心点截图→先说明录屏权限；取消不新增数据，再点允许才出现合成截图确认",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 228
+    },
+    {
+      "id": "T3",
+      "title": "截图默认方式三种保留",
+      "steps": "依次选window/region/fullScreen；状态与控件一致",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 38
+    },
+    {
+      "id": "T4",
+      "title": "隐藏不偷偷恢复截图入口",
+      "steps": "隐藏→控制中心截图禁用并说明；重新显示后恢复原开启入口，权限未被自动请求",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 140
+    },
+    {
+      "id": "V1",
+      "title": "动效仅无和磁力两种",
+      "steps": "motion核对两个radio；无入缝预览不播放，选择磁力有主动播放事件",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 160
+    },
+    {
+      "id": "V2",
+      "title": "减少动态不修改保存时长",
+      "steps": "motion→系统减少动态ON→预览吞噬；配置完全不变，动画≤80ms",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 141
+    },
+    {
+      "id": "V3",
+      "title": "设置ms与源码秒单位转换",
+      "steps": "motion吞噬填写250ms→Enter；config .25秒，控件仍250",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 73
+    },
+    {
+      "id": "O1",
+      "title": "引导第一步及稍后设置",
+      "steps": "首次使用step1→稍后设置；未完成、没有截图/附件变化",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 92
+    },
+    {
+      "id": "O2",
+      "title": "引导第二步可跳过未完成权限",
+      "steps": "attention→首次使用→继续到step2；不自动授予folder/screen；可继续",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 130
+    },
+    {
+      "id": "O3",
+      "title": "引导第三步保存位置并无自动操作",
+      "steps": "预先暂停+隐藏→引导继续两步→右下/内建屏→开始；保持暂停隐藏和全部数据",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 296
+    },
+    {
+      "id": "O4",
+      "title": "引导上一步与重新查看",
+      "steps": "step2返回step1，再完成；通用重新查看从step1开始且保持配置",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 298
+    },
+    {
+      "id": "H1",
+      "title": "权限仅主动按钮模拟",
+      "steps": "attention→权限页连接→取消不改变→再连接模拟允许才恢复",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 163
+    },
+    {
+      "id": "H2",
+      "title": "反馈草稿与诊断明确未发送",
+      "steps": "通用反馈→填合成文字、勾本次诊断→预览→保存关闭→重开，草稿和勾选保留",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 198
+    },
+    {
+      "id": "X1",
+      "title": "paused未保存事实不能被外观成功清除",
+      "steps": "pausedON写失败→取消故障注入→外观深色成功；未保存告警必须继续保留",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 133
+    },
+    {
+      "id": "X2",
+      "title": "hidden未保存事实不能被外观成功清除",
+      "steps": "hiddenON写失败→取消故障注入→外观深色成功；未保存告警必须继续保留",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 132
+    },
+    {
+      "id": "X3",
+      "title": "内置入口必须区分有效状态与持久意图",
+      "steps": "关闭入口保存失败；有效OFF，但必须可观察持久意图/未确认状态",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 91
+    },
+    {
+      "id": "X4",
+      "title": "文件授权成功不清除暂停保存失败",
+      "steps": "attention→暂停写失败→权限页允许访问→folder恢复；暂停未保存告警仍需存在",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 196
+    },
+    {
+      "id": "X5",
+      "title": "布局保存失败不被无关偏好成功清除",
+      "steps": "宽96草稿应用失败→外观成功；草稿仍未保存，必须保留写失败域",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 200
+    },
+    {
+      "id": "X6",
+      "title": "停止方向保存失败提供原意重试",
+      "steps": "暂停ON保存失败→取消注入→控制中心前往处理；必须可重试暂停ON保存，而非先恢复收录",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 197
+    },
+    {
+      "id": "X7",
+      "title": "兼容失效字段不能伪装有效旋钮",
+      "steps": "展开display和motion高级项；main未使用的兼容字段应保留数据但不提供有效编辑",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 158
+    },
+    {
+      "id": "X8",
+      "title": "清空不得承诺不存在的批量撤销后端",
+      "steps": "清空确认后，核对未呈现main不具备的undo-clear命令",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 99
+    },
+    {
+      "id": "X9",
+      "title": "选择主显示器保存当时具体身份",
+      "steps": "选外接再选主显示器；应保存真实屏幕ID/UUID，不等于清空为动态跟随",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 7
+    },
+    {
+      "id": "X10",
+      "title": "丢弃失败草稿后清除该域错误",
+      "steps": "宽96保存失败→关闭→不保存→重开；已无未保存差异，不应持续写失败",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 235
+    },
+    {
+      "id": "X11",
+      "title": "历史sheet下拉框键盘可达",
+      "steps": "控制中心打开历史，初始首个原图按钮Shift+Tab应到前方时间下拉框，不能被trap跳过",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 64
+    },
+    {
+      "id": "X12",
+      "title": "归档编辑后首次保存点击必须生效",
+      "steps": "自定义归档填写2.5，直接单击保存；不能要求先Tab或点两次",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 63
+    },
+    {
+      "id": "X13",
+      "title": "归档编辑后首次关闭点击必须询问",
+      "steps": "自定义归档填写2.5，直接单击关闭；必须立即出现未保存确认",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 64
+    },
+    {
+      "id": "Z1",
+      "title": "无脚本异常或外部网络",
+      "steps": "全部交互结束后，核对无pageerror且无外部HTTP(S)请求",
+      "status": "PASS",
+      "assertion": null,
+      "durationMs": 0
+    }
+  ],
+  "screenshots": [
+    {
+      "file": "screenshots/P1.png",
+      "sha256": "92dee38d3a1aef25701d2dd3efdbd4559e4c5e82c5f4d1f738284a8497836d30",
+      "caseID": "P1",
+      "page": "general",
+      "view": "settings",
+      "theme": "light",
+      "fixture": "recommendation",
+      "modal": null,
+      "paused": false,
+      "hidden": false,
+      "issue": null,
+      "onboardingStep": 0,
+      "viewport": {
+        "width": 1440,
+        "height": 1100,
+        "deviceScaleFactor": 1
+      },
+      "format": "raw Chromium PNG, no image editing"
+    },
+    {
+      "file": "screenshots/D1.png",
+      "sha256": "39b1348dad897e665128fe2688c486d6bac24ad42b7d61e26fd2110a53588b1a",
+      "caseID": "D1",
+      "page": "general",
+      "view": "settings",
+      "theme": "dark",
+      "fixture": "recommendation",
+      "modal": null,
+      "paused": false,
+      "hidden": false,
+      "issue": null,
+      "onboardingStep": 0,
+      "viewport": {
+        "width": 1440,
+        "height": 1100,
+        "deviceScaleFactor": 1
+      },
+      "format": "raw Chromium PNG, no image editing"
+    },
+    {
+      "file": "screenshots/P2.png",
+      "sha256": "83d55dd35026197275890b5c9382f853b05d4f9a1b0889bc534c115c9102e41b",
+      "caseID": "P2",
+      "page": "display",
+      "view": "settings",
+      "theme": "light",
+      "fixture": "recommendation",
+      "modal": null,
+      "paused": false,
+      "hidden": false,
+      "issue": null,
+      "onboardingStep": 0,
+      "viewport": {
+        "width": 1440,
+        "height": 1100,
+        "deviceScaleFactor": 1
+      },
+      "format": "raw Chromium PNG, no image editing"
+    },
+    {
+      "file": "screenshots/D2.png",
+      "sha256": "b90fedd2416a4dab9c619010077871f2beac4f62d1a1f3fd0c252ec225af581a",
+      "caseID": "D2",
+      "page": "display",
+      "view": "settings",
+      "theme": "dark",
+      "fixture": "recommendation",
+      "modal": null,
+      "paused": false,
+      "hidden": false,
+      "issue": null,
+      "onboardingStep": 0,
+      "viewport": {
+        "width": 1440,
+        "height": 1100,
+        "deviceScaleFactor": 1
+      },
+      "format": "raw Chromium PNG, no image editing"
+    },
+    {
+      "file": "screenshots/P3.png",
+      "sha256": "a58c79bd634c14cd2d6aff1ca5619d9464525a52515f02eaf71394172669599d",
+      "caseID": "P3",
+      "page": "capture",
+      "view": "settings",
+      "theme": "light",
+      "fixture": "recommendation",
+      "modal": null,
+      "paused": false,
+      "hidden": false,
+      "issue": null,
+      "onboardingStep": 0,
+      "viewport": {
+        "width": 1440,
+        "height": 1100,
+        "deviceScaleFactor": 1
+      },
+      "format": "raw Chromium PNG, no image editing"
+    },
+    {
+      "file": "screenshots/D3.png",
+      "sha256": "7e9cc6deed49df30fa28681555f2072ce8d93f962d450e44f4547a056bed1ed5",
+      "caseID": "D3",
+      "page": "capture",
+      "view": "settings",
+      "theme": "dark",
+      "fixture": "recommendation",
+      "modal": null,
+      "paused": false,
+      "hidden": false,
+      "issue": null,
+      "onboardingStep": 0,
+      "viewport": {
+        "width": 1440,
+        "height": 1100,
+        "deviceScaleFactor": 1
+      },
+      "format": "raw Chromium PNG, no image editing"
+    },
+    {
+      "file": "screenshots/P4.png",
+      "sha256": "bfaff5b195d7eeda6a37218910c4e72a966707539d5b6e776f3fdea44c56de8b",
+      "caseID": "P4",
+      "page": "motion",
+      "view": "settings",
+      "theme": "light",
+      "fixture": "recommendation",
+      "modal": null,
+      "paused": false,
+      "hidden": false,
+      "issue": null,
+      "onboardingStep": 0,
+      "viewport": {
+        "width": 1440,
+        "height": 1100,
+        "deviceScaleFactor": 1
+      },
+      "format": "raw Chromium PNG, no image editing"
+    },
+    {
+      "file": "screenshots/D4.png",
+      "sha256": "66328581dd48107126ac27f4e4824ab45b549c7ca0eae25563a14faf0ec04bcc",
+      "caseID": "D4",
+      "page": "motion",
+      "view": "settings",
+      "theme": "dark",
+      "fixture": "recommendation",
+      "modal": null,
+      "paused": false,
+      "hidden": false,
+      "issue": null,
+      "onboardingStep": 0,
+      "viewport": {
+        "width": 1440,
+        "height": 1100,
+        "deviceScaleFactor": 1
+      },
+      "format": "raw Chromium PNG, no image editing"
+    },
+    {
+      "file": "screenshots/P5.png",
+      "sha256": "11d52b909d6074eac0046643d69b66bae1ed146f1c01f603ffb253e342c1d215",
+      "caseID": "P5",
+      "page": "history",
+      "view": "settings",
+      "theme": "light",
+      "fixture": "recommendation",
+      "modal": null,
+      "paused": false,
+      "hidden": false,
+      "issue": null,
+      "onboardingStep": 0,
+      "viewport": {
+        "width": 1440,
+        "height": 1100,
+        "deviceScaleFactor": 1
+      },
+      "format": "raw Chromium PNG, no image editing"
+    },
+    {
+      "file": "screenshots/D5.png",
+      "sha256": "33a719741a3f4ed1ca70134deec37e8f984943ed74d0db29c1d18326f4233d9c",
+      "caseID": "D5",
+      "page": "history",
+      "view": "settings",
+      "theme": "dark",
+      "fixture": "recommendation",
+      "modal": null,
+      "paused": false,
+      "hidden": false,
+      "issue": null,
+      "onboardingStep": 0,
+      "viewport": {
+        "width": 1440,
+        "height": 1100,
+        "deviceScaleFactor": 1
+      },
+      "format": "raw Chromium PNG, no image editing"
+    },
+    {
+      "file": "screenshots/P6.png",
+      "sha256": "e87355c9579cad74e89b237c18156050d2cbaf3c506e224c2cb223d4ca2c2eea",
+      "caseID": "P6",
+      "page": "permissions",
+      "view": "settings",
+      "theme": "light",
+      "fixture": "recommendation",
+      "modal": null,
+      "paused": false,
+      "hidden": false,
+      "issue": null,
+      "onboardingStep": 0,
+      "viewport": {
+        "width": 1440,
+        "height": 1100,
+        "deviceScaleFactor": 1
+      },
+      "format": "raw Chromium PNG, no image editing"
+    },
+    {
+      "file": "screenshots/D6.png",
+      "sha256": "2b0a2515034201edc84c4dea480f9e816ea09eb677831184412cd47d648aa5ce",
+      "caseID": "D6",
+      "page": "permissions",
+      "view": "settings",
+      "theme": "dark",
+      "fixture": "recommendation",
+      "modal": null,
+      "paused": false,
+      "hidden": false,
+      "issue": null,
+      "onboardingStep": 0,
+      "viewport": {
+        "width": 1440,
+        "height": 1100,
+        "deviceScaleFactor": 1
+      },
+      "format": "raw Chromium PNG, no image editing"
+    },
+    {
+      "file": "screenshots/C1.png",
+      "sha256": "bd4c6a6e99e06f2e3a45cedafcff098776dce4852d0523d166d33abb1f5a0a89",
+      "caseID": "C1",
+      "page": "display",
+      "view": "control",
+      "theme": "light",
+      "fixture": "recommendation",
+      "modal": null,
+      "paused": false,
+      "hidden": false,
+      "issue": null,
+      "onboardingStep": 0,
+      "viewport": {
+        "width": 1440,
+        "height": 1100,
+        "deviceScaleFactor": 1
+      },
+      "format": "raw Chromium PNG, no image editing"
+    },
+    {
+      "file": "screenshots/C2.png",
+      "sha256": "c90719ad15dfa968d7bb174295625d875231935cc3c9f29f3f2fc89741c57ef8",
+      "caseID": "C2",
+      "page": "display",
+      "view": "control",
+      "theme": "light",
+      "fixture": "recommendation",
+      "modal": null,
+      "paused": true,
+      "hidden": false,
+      "issue": null,
+      "onboardingStep": 0,
+      "viewport": {
+        "width": 1440,
+        "height": 1100,
+        "deviceScaleFactor": 1
+      },
+      "format": "raw Chromium PNG, no image editing"
+    },
+    {
+      "file": "screenshots/C3.png",
+      "sha256": "118faaa0aad6cb3072af0128be457d8ffe3beb6f9e306977349fab0d3363b070",
+      "caseID": "C3",
+      "page": "display",
+      "view": "control",
+      "theme": "light",
+      "fixture": "recommendation",
+      "modal": null,
+      "paused": false,
+      "hidden": true,
+      "issue": null,
+      "onboardingStep": 0,
+      "viewport": {
+        "width": 1440,
+        "height": 1100,
+        "deviceScaleFactor": 1
+      },
+      "format": "raw Chromium PNG, no image editing"
+    },
+    {
+      "file": "screenshots/C4.png",
+      "sha256": "ea602b95736e2b30535f3f3384df192ceb8cf51f9f969278021716f0df0ee3af",
+      "caseID": "C4",
+      "page": "display",
+      "view": "control",
+      "theme": "light",
+      "fixture": "recommendation",
+      "modal": null,
+      "paused": false,
+      "hidden": false,
+      "issue": "folder",
+      "onboardingStep": 0,
+      "viewport": {
+        "width": 1440,
+        "height": 1100,
+        "deviceScaleFactor": 1
+      },
+      "format": "raw Chromium PNG, no image editing"
+    },
+    {
+      "file": "screenshots/C5.png",
+      "sha256": "1276179376f22a3a85dc862049914eb62b66d74497fe2f0dde15f53ac39e6ad2",
+      "caseID": "C5",
+      "page": "general",
+      "view": "control",
+      "theme": "light",
+      "fixture": "recommendation",
+      "modal": null,
+      "paused": true,
+      "hidden": true,
+      "issue": null,
+      "onboardingStep": 0,
+      "viewport": {
+        "width": 1440,
+        "height": 1100,
+        "deviceScaleFactor": 1
+      },
+      "format": "raw Chromium PNG, no image editing"
+    },
+    {
+      "file": "screenshots/C8.png",
+      "sha256": "1276179376f22a3a85dc862049914eb62b66d74497fe2f0dde15f53ac39e6ad2",
+      "caseID": "C8",
+      "page": "display",
+      "view": "control",
+      "theme": "light",
+      "fixture": "recommendation",
+      "modal": null,
+      "paused": true,
+      "hidden": true,
+      "issue": null,
+      "onboardingStep": 0,
+      "viewport": {
+        "width": 1440,
+        "height": 1100,
+        "deviceScaleFactor": 1
+      },
+      "format": "raw Chromium PNG, no image editing"
+    },
+    {
+      "file": "screenshots/F2-legacy-before.png",
+      "sha256": "8e9a890bb6509cae1b1199549b7e122f0c1c5fcf3fa4d7d35ab335f075964974",
+      "caseID": "F2",
+      "page": "display",
+      "view": "settings",
+      "theme": "light",
+      "fixture": "legacy",
+      "modal": null,
+      "paused": false,
+      "hidden": false,
+      "issue": null,
+      "onboardingStep": 0,
+      "viewport": {
+        "width": 1440,
+        "height": 1100,
+        "deviceScaleFactor": 1
+      },
+      "format": "raw Chromium PNG, no image editing"
+    },
+    {
+      "file": "screenshots/F4-draft.png",
+      "sha256": "3c788a1d51c76a044937c1e760796fb8ae19abc927df57c32f4e87776c1f2590",
+      "caseID": "F4",
+      "page": "display",
+      "view": "settings",
+      "theme": "light",
+      "fixture": "recommendation",
+      "modal": null,
+      "paused": false,
+      "hidden": false,
+      "issue": null,
+      "onboardingStep": 0,
+      "viewport": {
+        "width": 1440,
+        "height": 1100,
+        "deviceScaleFactor": 1
+      },
+      "format": "raw Chromium PNG, no image editing"
+    },
+    {
+      "file": "screenshots/F5.png",
+      "sha256": "9d6763ed9f7445884d3eb69eb1ee4ccd32a4020203c3d175279b1ccd93a0a991",
+      "caseID": "F5",
+      "page": "display",
+      "view": "settings",
+      "theme": "light",
+      "fixture": "recommendation",
+      "modal": null,
+      "paused": false,
+      "hidden": false,
+      "issue": null,
+      "onboardingStep": 0,
+      "viewport": {
+        "width": 1440,
+        "height": 1100,
+        "deviceScaleFactor": 1
+      },
+      "format": "raw Chromium PNG, no image editing"
+    },
+    {
+      "file": "screenshots/S1.png",
+      "sha256": "9b4a6f18bfeb5ab371d866f912921923f8e8a3c5b867e1d0644254d5e7cc054d",
+      "caseID": "S1",
+      "page": "display",
+      "view": "settings",
+      "theme": "light",
+      "fixture": "recommendation",
+      "modal": null,
+      "paused": false,
+      "hidden": false,
+      "issue": "write",
+      "onboardingStep": 0,
+      "viewport": {
+        "width": 1440,
+        "height": 1100,
+        "deviceScaleFactor": 1
+      },
+      "format": "raw Chromium PNG, no image editing"
+    },
+    {
+      "file": "screenshots/S3-stop-unsaved.png",
+      "sha256": "b1050120571153481ab6c261cbf743eee9e757338ad843d428f2bd9b9f4a3561",
+      "caseID": "S3",
+      "page": "general",
+      "view": "settings",
+      "theme": "light",
+      "fixture": "recommendation",
+      "modal": null,
+      "paused": true,
+      "hidden": false,
+      "issue": "write",
+      "onboardingStep": 0,
+      "viewport": {
+        "width": 1440,
+        "height": 1100,
+        "deviceScaleFactor": 1
+      },
+      "format": "raw Chromium PNG, no image editing"
+    },
+    {
+      "file": "screenshots/S3.png",
+      "sha256": "1a53b74c6922e5b8457c77d2c1b08d8d7a4558632902dada93c283c2ba36dceb",
+      "caseID": "S3",
+      "page": "general",
+      "view": "settings",
+      "theme": "light",
+      "fixture": "recommendation",
+      "modal": null,
+      "paused": true,
+      "hidden": false,
+      "issue": "write",
+      "onboardingStep": 0,
+      "viewport": {
+        "width": 1440,
+        "height": 1100,
+        "deviceScaleFactor": 1
+      },
+      "format": "raw Chromium PNG, no image editing"
+    },
+    {
+      "file": "screenshots/S4-stop-unsaved.png",
+      "sha256": "11652e09d74677c958149ba9ae49e4213a2617f81d6a2714599c703842d2aeb2",
+      "caseID": "S4",
+      "page": "general",
+      "view": "settings",
+      "theme": "light",
+      "fixture": "recommendation",
+      "modal": null,
+      "paused": false,
+      "hidden": true,
+      "issue": "write",
+      "onboardingStep": 0,
+      "viewport": {
+        "width": 1440,
+        "height": 1100,
+        "deviceScaleFactor": 1
+      },
+      "format": "raw Chromium PNG, no image editing"
+    },
+    {
+      "file": "screenshots/S4.png",
+      "sha256": "033b10543307bb8cbb389d745c8fe7b9e85bc03033ffe22026aae83371d9cb5e",
+      "caseID": "S4",
+      "page": "general",
+      "view": "settings",
+      "theme": "light",
+      "fixture": "recommendation",
+      "modal": null,
+      "paused": false,
+      "hidden": true,
+      "issue": "write",
+      "onboardingStep": 0,
+      "viewport": {
+        "width": 1440,
+        "height": 1100,
+        "deviceScaleFactor": 1
+      },
+      "format": "raw Chromium PNG, no image editing"
+    },
+    {
+      "file": "screenshots/S5-disabled-unsaved.png",
+      "sha256": "a6648c06d92b5c26e7d5ec307a3ad1d00ed5c1b16dd7d7492174e25779b76317",
+      "caseID": "S5",
+      "page": "capture",
+      "view": "settings",
+      "theme": "light",
+      "fixture": "recommendation",
+      "modal": null,
+      "paused": false,
+      "hidden": false,
+      "issue": "write",
+      "onboardingStep": 0,
+      "viewport": {
+        "width": 1440,
+        "height": 1100,
+        "deviceScaleFactor": 1
+      },
+      "format": "raw Chromium PNG, no image editing"
+    },
+    {
+      "file": "screenshots/S5.png",
+      "sha256": "57cfc090e21579a446d277e5b6b70676b833624f03ec820b6711e8d0fb43a1a6",
+      "caseID": "S5",
+      "page": "capture",
+      "view": "settings",
+      "theme": "light",
+      "fixture": "recommendation",
+      "modal": null,
+      "paused": false,
+      "hidden": false,
+      "issue": "write",
+      "onboardingStep": 0,
+      "viewport": {
+        "width": 1440,
+        "height": 1100,
+        "deviceScaleFactor": 1
+      },
+      "format": "raw Chromium PNG, no image editing"
+    },
+    {
+      "file": "screenshots/W1-close-confirmation.png",
+      "sha256": "a2cf47f11bf1b719e2ca57f86fc5adb041d0409bb0f1b93b81a04d1423c1a00c",
+      "caseID": "W1",
+      "page": "display",
+      "view": "settings",
+      "theme": "light",
+      "fixture": "recommendation",
+      "modal": "unsaved",
+      "paused": false,
+      "hidden": false,
+      "issue": null,
+      "onboardingStep": 0,
+      "viewport": {
+        "width": 1440,
+        "height": 1100,
+        "deviceScaleFactor": 1
+      },
+      "format": "raw Chromium PNG, no image editing"
+    },
+    {
+      "file": "screenshots/W4.png",
+      "sha256": "4b9523576e1a846ae4778673f87a6525bd9fb1c5dabc36789174b2e8b2755d42",
+      "caseID": "W4",
+      "page": "display",
+      "view": "settings",
+      "theme": "light",
+      "fixture": "recommendation",
+      "modal": "unsaved",
+      "paused": false,
+      "hidden": false,
+      "issue": "write",
+      "onboardingStep": 0,
+      "viewport": {
+        "width": 1440,
+        "height": 1100,
+        "deviceScaleFactor": 1
+      },
+      "format": "raw Chromium PNG, no image editing"
+    },
+    {
+      "file": "screenshots/M1.png",
+      "sha256": "5f953dffb3a0236ef2cddb9bfe54c693a34db45fa3d6cd38311944760f74b1c1",
+      "caseID": "M1",
+      "page": "display",
+      "view": "settings",
+      "theme": "light",
+      "fixture": "recommendation",
+      "modal": null,
+      "paused": false,
+      "hidden": false,
+      "issue": null,
+      "onboardingStep": 0,
+      "viewport": {
+        "width": 1440,
+        "height": 1100,
+        "deviceScaleFactor": 1
+      },
+      "format": "raw Chromium PNG, no image editing"
+    },
+    {
+      "file": "screenshots/M2-reconnected-awaiting-return.png",
+      "sha256": "7374ec94a2212e680b9a609c8984f2302704ec9ec5a40619eb2ef1be81f884ff",
+      "caseID": "M2",
+      "page": "display",
+      "view": "settings",
+      "theme": "light",
+      "fixture": "recommendation",
+      "modal": null,
+      "paused": false,
+      "hidden": false,
+      "issue": null,
+      "onboardingStep": 0,
+      "viewport": {
+        "width": 1440,
+        "height": 1100,
+        "deviceScaleFactor": 1
+      },
+      "format": "raw Chromium PNG, no image editing"
+    },
+    {
+      "file": "screenshots/A3.png",
+      "sha256": "68c6961ecb4c2a308d3647563ae1aed1b2dd66ba81c3edeb04cf72cf0a4d22a2",
+      "caseID": "A3",
+      "page": "display",
+      "view": "control",
+      "theme": "light",
+      "fixture": "recommendation",
+      "modal": null,
+      "paused": false,
+      "hidden": false,
+      "issue": null,
+      "onboardingStep": 0,
+      "viewport": {
+        "width": 1440,
+        "height": 1100,
+        "deviceScaleFactor": 1
+      },
+      "format": "raw Chromium PNG, no image editing"
+    },
+    {
+      "file": "screenshots/V2.png",
+      "sha256": "3adb383cc8fb0c39801112c85c791f37d9604bff0c3ddb064abd2989125bf26d",
+      "caseID": "V2",
+      "page": "motion",
+      "view": "settings",
+      "theme": "light",
+      "fixture": "recommendation",
+      "modal": null,
+      "paused": false,
+      "hidden": false,
+      "issue": null,
+      "onboardingStep": 0,
+      "viewport": {
+        "width": 1440,
+        "height": 1100,
+        "deviceScaleFactor": 1
+      },
+      "format": "raw Chromium PNG, no image editing"
+    },
+    {
+      "file": "screenshots/O1-step1.png",
+      "sha256": "f23b6dc628f1855ec75246ae4bf5f0b98cf75832161ca71b8b5d7074163704fb",
+      "caseID": "O1",
+      "page": "display",
+      "view": "onboarding",
+      "theme": "light",
+      "fixture": "recommendation",
+      "modal": null,
+      "paused": false,
+      "hidden": false,
+      "issue": null,
+      "onboardingStep": 0,
+      "viewport": {
+        "width": 1440,
+        "height": 1100,
+        "deviceScaleFactor": 1
+      },
+      "format": "raw Chromium PNG, no image editing"
+    },
+    {
+      "file": "screenshots/O2-step2-partial.png",
+      "sha256": "b9d1223ae461e3e34a7cdd226a7ef8bbca79c659e8c833724b0369b1cdd9fd6b",
+      "caseID": "O2",
+      "page": "display",
+      "view": "onboarding",
+      "theme": "light",
+      "fixture": "recommendation",
+      "modal": null,
+      "paused": false,
+      "hidden": false,
+      "issue": "folder",
+      "onboardingStep": 1,
+      "viewport": {
+        "width": 1440,
+        "height": 1100,
+        "deviceScaleFactor": 1
+      },
+      "format": "raw Chromium PNG, no image editing"
+    },
+    {
+      "file": "screenshots/O3-step3.png",
+      "sha256": "7a104c56b8b4205226b76f412cb05edd0438d5af9595c79f74ec077a9aec861d",
+      "caseID": "O3",
+      "page": "general",
+      "view": "onboarding",
+      "theme": "light",
+      "fixture": "recommendation",
+      "modal": null,
+      "paused": true,
+      "hidden": true,
+      "issue": null,
+      "onboardingStep": 2,
+      "viewport": {
+        "width": 1440,
+        "height": 1100,
+        "deviceScaleFactor": 1
+      },
+      "format": "raw Chromium PNG, no image editing"
+    }
+  ],
+  "pageErrors": [],
+  "externalRequests": [],
+  "inheritedFiles": [
+    {
+      "file": "design/settings-center-20261106/CONTROL-CENTER-DECISION.md",
+      "sha256": "18ac97568b9ca14a05a29dfad02c27fd35af3ef88b30fc32b092641b64aa5608"
+    },
+    {
+      "file": "design/settings-center-20261106/INTERACTION-SPEC.md",
+      "sha256": "ed82ad6237bd7d639416723b28766d8fb71245170ac6abcb47fa0ea148d17d8c"
+    },
+    {
+      "file": "design/settings-center-20261106/MENU-ACTION-MAP.md",
+      "sha256": "3c8dcd7bf151f535a6a4296a70238f0e84b17e48cdde034fb2fa1f4595951873"
+    },
+    {
+      "file": "design/settings-center-20261106/README.md",
+      "sha256": "c51d45c2019a0ae42e7610b7bbbd8dc854744bc44a1deb94e79662da4fc45515"
+    },
+    {
+      "file": "design/settings-center-20261106/RECOVERY.md",
+      "sha256": "1f82cdfff145981ec401898bde313f6650f4f568fd787930cad8afcdb5ad7138"
+    },
+    {
+      "file": "design/settings-center-20261106/Riftlet-Settings-Prototype.html",
+      "sha256": "aded9ed13cd5ff54c0f0a2172bbe78c720c2f03f41f16ed11a864a09ef45fabf"
+    },
+    {
+      "file": "design/settings-center-20261106/SOURCE-SNAPSHOT.json",
+      "sha256": "5efe8f375fa1ebfabf0b16b8e551a4623d1a96064ceee57200d0d6a862e98386"
+    },
+    {
+      "file": "design/settings-center-20261106/TOKENS.json",
+      "sha256": "46c1f1842d67e70691d8772517df76dd562310c3f85e31ca2c3df45f0f262280"
+    },
+    {
+      "file": "design/settings-center-20261106/prototype/README.md",
+      "sha256": "04faa4dd1dc31d1b7b30ce63d18055c9ad1b4565742928c8d777a36dbea3ee12"
+    },
+    {
+      "file": "design/settings-center-20261106/prototype/app.js",
+      "sha256": "f8d8ec9bd87edf07c5188ae13f638163943691f531818e75449b1cb3f0b8ecb8"
+    },
+    {
+      "file": "design/settings-center-20261106/prototype/build-manifest.json",
+      "sha256": "453253c0c1ba5e727a1fc5160a1495352c239d83bb3cc478ce18a277b6f2070c"
+    },
+    {
+      "file": "design/settings-center-20261106/prototype/build.py",
+      "sha256": "1ae026609f5244b2f7cb095fcbad32c2e9a4493424b3e011a7f19bfec3b26f6f"
+    },
+    {
+      "file": "design/settings-center-20261106/prototype/bundle.js",
+      "sha256": "4663899dbd238bc09381b919a75d9840f648651ecd6a9bcbe10fedc5e335bc45"
+    },
+    {
+      "file": "design/settings-center-20261106/prototype/index.html",
+      "sha256": "b90bb0f3e9e3ceb60760060ee309c1a100316c5850ea01cfdff5ebb38d0efd8c"
+    },
+    {
+      "file": "design/settings-center-20261106/prototype/inherited-helpers.js",
+      "sha256": "6dd07bcdc6e8445351a6cd56888b5cf511f301bdfb88238af29782576f8e4b4f"
+    },
+    {
+      "file": "design/settings-center-20261106/prototype/style.css",
+      "sha256": "4f423f89e55ae566fa337793b988918f9f8fa024d215fd71d6ede5d2cae584dc"
+    }
+  ],
+  "finishedAt": "2026-11-05T21:31:55.896Z",
+  "summary": {
+    "total": 82,
+    "pass": 82,
+    "fail": 0
+  },
+  "prototypeUnchanged": true,
+  "inheritedFilesUnchanged": true
+}

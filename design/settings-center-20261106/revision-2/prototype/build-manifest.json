@@ -1,0 +1,23 @@
+{
+  "schema": "riftlet-settings-prototype-build-v2",
+  "baseMain": "b61fc46cf931bdbd14deec1b47d077e92db61e16",
+  "inheritedDesignCommit": "6372bcf3fbeb71cb7ad2d930cad18528e2d54796",
+  "firstVersion": {
+    "path": "../Riftlet-Settings-Prototype.html",
+    "sha256": "aded9ed13cd5ff54c0f0a2172bbe78c720c2f03f41f16ed11a864a09ef45fabf"
+  },
+  "scope": "Synthetic design interaction corrections and limited visual refinements only",
+  "files": {
+    "inherited-helpers.js": "6dd07bcdc6e8445351a6cd56888b5cf511f301bdfb88238af29782576f8e4b4f",
+    "style.css": "c34b93583a63305152d3cb4088a911fb8eb4963fac514f5046df191867e250c6",
+    "app.js": "b0d5f5e4e7b87da68c5791f5e078fcba2b42c126ceff1a6fd8b40ecb7dc0ba34",
+    "index.html": "b90bb0f3e9e3ceb60760060ee309c1a100316c5850ea01cfdff5ebb38d0efd8c",
+    "build.py": "c35ba2c9805227105e5cc06346cb629e98bab59388c55f8415764116544b164e",
+    "bundle.js": "206657d39c23d5d3f85fa5a89073defa45360a0e6d4ef359b5019f1e7f4dcb8a"
+  },
+  "output": {
+    "path": "Riftlet-Settings-Prototype.html",
+    "bytes": 120030,
+    "sha256": "c58e4c7a3fa717a2fc5f68e8aaaf90e7950363a52c4047be182f9cb81fd67b58"
+  }
+}

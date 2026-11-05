@@ -1,3 +1,5 @@
+> **当前评审入口： [修正版 2 完整交互界面与交接](revision-2/README.md)** — X1–X13 已修复，原 82 项与补充 21 项全部通过。[直接打开新版 HTML](revision-2/Riftlet-Settings-Prototype.html)。以下内容保留为第一版验收记录；原型与失败证据未改写。
+
 # Riftlet｜设置中心与菜单栏控制中心
 
 2026-11-06｜最终评审候选 `settings-review-candidate-1`｜正式基线 `b61fc46cf931bdbd14deec1b47d077e92db61e16`

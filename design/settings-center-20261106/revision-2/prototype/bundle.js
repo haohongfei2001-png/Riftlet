@@ -1,0 +1,417 @@
+(function(){
+'use strict';
+/* Directly inherited from design/final-system-20261028/prototype/windows.js at main b61fc46.
+   Only product windows are supplemented below; original file is unchanged. */
+  const escape = value => String(value == null ? '' : value).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+  const attr = escape;
+  const checked = value => value ? ' checked' : '';
+  const selected = (a, b) => a === b ? ' selected' : '';
+  const disabled = value => value ? ' disabled' : '';
+  const icons = {
+    general: '<path d="M3 6h14M3 14h14M7 3v6M13 11v6"/>',
+    capture: '<path d="M3 6h4l2-2h4l2 2h2v11H3z"/><circle cx="10" cy="11" r="3"/>',
+    display: '<path d="M4 2v16M7 4h10v11H7z"/>',
+    privacy: '<path d="M10 2 3 5v5c0 4 7 8 7 8s7-4 7-8V5z"/><path d="m7 10 2 2 4-5"/>',
+    about: '<circle cx="10" cy="10" r="8"/><path d="M10 9v6M10 5v1"/>',
+    folder: '<path d="M2 5h6l2 2h8v10H2z"/>',
+    chrome: '<circle cx="10" cy="10" r="8"/><circle cx="10" cy="10" r="3"/><path d="m10 7 7 0M7 10 4 4M12 13 8 18"/>',
+    check: '<path d="m4 10 4 4 8-9"/>',
+    history: '<path d="M3 6a8 8 0 1 1-1 7M2 2v5h5M10 6v5l3 2"/>',
+    image: '<rect x="2" y="3" width="16" height="14" rx="2"/><circle cx="7" cy="8" r="1"/><path d="m3 15 5-4 3 2 3-5 3 7"/>',
+    clock: '<circle cx="10" cy="10" r="8"/><path d="M10 5v6l4 2"/>',
+    archive: '<path d="M3 6h14v12H3zM2 2h16v4H2zM8 10h4"/>',
+    removed: '<path d="M3 5h14M8 2h4M5 5l1 13h8l1-13M8 8v7M12 8v7"/>',
+    message: '<path d="M3 3h14v11H8l-5 4z"/>',
+    arrow: '<path d="M4 10h12m-5-5 5 5-5 5"/>',
+    chevron: '<path d="m8 5 5 5-5 5"/>',
+    dot: '<circle cx="10" cy="10" r="3"/>'
+  };
+  function glyph(name) {
+    return '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (icons[name] || icons.dot) + '</svg>';
+  }
+  function button(label, action, opts = {}) {
+    return `<button class="button${opts.primary ? ' primary' : ''}${opts.quiet ? ' quiet' : ''}${opts.danger ? ' destructive' : ''}" data-action="${attr(action)}"${opts.id ? ` data-id="${attr(opts.id)}"` : ''}${disabled(opts.disabled)}>${escape(label)}</button>`;
+  }
+  function toggle(key, value, label) {
+    return `<label class="native-switch"><input type="checkbox" data-setting="${attr(key)}" aria-label="${attr(label)}"${checked(value)}><span aria-hidden="true"></span></label>`;
+  }
+  function settingRow(title, description, control) {
+    return `<div class="setting-row"><div class="setting-description"><div class="setting-name">${escape(title)}</div>${description ? `<p>${escape(description)}</p>` : ''}</div><div class="setting-control">${control}</div></div>`;
+  }
+  function titlebar(title, label) {
+    return `<header class="native-titlebar"><div class="traffic"><button data-action="close-window" aria-label="关闭${attr(title)}" title="关闭"></button><i aria-hidden="true"></i><i aria-hidden="true"></i></div><span id="native-window-title">${escape(title)}</span><span class="native-build-label">${escape(label || 'Riftlet')}</span></header>`;
+  }
+  function frame(kind, title, body, label) {
+    return `<section class="native-window ${attr(kind)}" role="dialog" aria-modal="false" aria-labelledby="native-window-title">${titlebar(title, label)}${body}</section>`;
+  }
+
+/* Six-page supplement to the inherited Quiet Edge window primitives.
+   Design simulation only: memory state, no files, network, browser control,
+   capture, real permission calls, upload or message sending. */
+Object.assign(icons, {
+  motion:'<path d="M2 6h8M2 10h5M2 14h8"/><path d="m11 4 6 6-6 6"/>',
+  screen:'<rect x="2" y="3" width="16" height="11" rx="2"/><path d="M7 18h6M10 14v4"/>',
+  sun:'<circle cx="10" cy="10" r="3"/><path d="M10 1v2M10 17v2M1 10h2M17 10h2M4 4l1 1M15 15l1 1M4 16l1-1M15 5l1-1"/>',
+  moon:'<path d="M16 13A7.5 7.5 0 0 1 7 3a7.7 7.7 0 1 0 9 10Z"/>',
+  pause:'<path d="M7 4v12M13 4v12" stroke-width="2.5"/>',
+  eye:'<path d="M1.5 10S4.5 4 10 4s8.5 6 8.5 6-3 6-8.5 6S1.5 10 1.5 10Z"/><circle cx="10" cy="10" r="2.5"/>',
+  warning:'<path d="m10 2 9 16H1Z"/><path d="M10 7v5M10 15v.1"/>',
+  gear:'<path d="m8 2-1 3-3 .5.5 3-2 1.5 2 2-.5 3 3 .5 1 3h4l1-3 3-.5-.5-3 2-2-2-1.5.5-3-3-.5-1-3Z"/><circle cx="10" cy="10" r="2.5"/>',
+  plus:'<path d="M10 3v14M3 10h14"/>',
+  external:'<path d="M12 3h5v5M9 11l8-8M8 3H3v14h14v-5"/>',
+  back:'<path d="M16 10H4m5-5-5 5 5 5"/>',
+  power:'<path d="M10 2v8M5 4a7 7 0 1 0 10 0"/>',
+  keyboard:'<rect x="1.5" y="4" width="17" height="12" rx="2"/><path d="M5 8h1M9 8h1M13 8h1M5 12h9"/>'
+});
+const pages=[['general','通用','general'],['display','位置与显示','screen'],['capture','截图','capture'],['motion','动效','motion'],['history','历史与存储','history'],['permissions','权限与帮助','privacy']];
+const positions=[['leftTop','左上'],['rightTop','右上'],['leftMiddle','左中'],['rightMiddle','右中'],['leftBottom','左下'],['rightBottom','右下']];
+const defaultConfig={fitWidth:72,fitHeight:56,hiddenFraction:.25,rowPitch:60,lineWidth:.5,lineExtension:8,emptyTraceLength:24,outerInset:6,firstCenterFromTop:202,screenPadding:12,numberFontSize:11,numberGap:8,leftPadding:4,minimumHitWidth:44,minimumHitHeight:44,arrivalDuration:.22,pressDuration:.06,inwardDistance:1.5,swallowDuration:.12,shiftDuration:.16,returnDuration:.18,reducedMotionDuration:.08,preferredDisplayID:null,visibleCountPreference:3,placement:'leftMiddle',placementSource:'initialRecommendation',preferredDisplayUUID:null};
+// These are editable patches, not the complete Codable schema. Compatibility
+// fields remain in config/draft and are neither controls nor reset targets.
+const displayKeys=['fitWidth','fitHeight','hiddenFraction','rowPitch','outerInset','firstCenterFromTop','numberFontSize','numberGap','leftPadding','minimumHitWidth','minimumHitHeight','visibleCountPreference'];
+const motionKeys=['pressDuration','swallowDuration','shiftDuration','returnDuration'];
+const compatibilityKeys=['lineWidth','lineExtension','emptyTraceLength','screenPadding','arrivalDuration','inwardDistance','reducedMotionDuration'];
+const syntheticDisplays={builtin:{id:1,uuid:'01000000-0000-0000-0000-000000000001'},external:{id:21412,uuid:'02000000-0000-0000-0000-000000000002'}};
+// In this fixture the built-in screen is the current NSScreen.main equivalent.
+const syntheticPrimaryDisplay=syntheticDisplays.builtin;
+const limits={fitWidth:[0,256],fitHeight:[0,256],hiddenFraction:[0,.9],rowPitch:[0,Infinity],emptyTraceLength:[0,Infinity],lineWidth:[0,8],lineExtension:[0,Infinity],outerInset:[0,256],firstCenterFromTop:[0,Infinity],screenPadding:[0,256],numberFontSize:[0,32],numberGap:[0,Infinity],leftPadding:[0,Infinity],minimumHitWidth:[0,256],minimumHitHeight:[0,256],arrivalDuration:[0,3],pressDuration:[0,3],inwardDistance:[0,Infinity],swallowDuration:[0,3],shiftDuration:[0,3],returnDuration:[0,3],reducedMotionDuration:[0,3],visibleCountPreference:[1,10]};
+const strictlyPositive=new Set(['fitWidth','fitHeight','rowPitch','lineWidth','emptyTraceLength','numberFontSize','minimumHitWidth','minimumHitHeight']);
+const numericPattern=/^(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)(?:[eE][+-]?[0-9]+)?$/;
+const fieldLabels={fitWidth:'微图最大宽度',fitHeight:'微图最大高度',hiddenFraction:'静止时遮挡',rowPitch:'相邻微图中心间距',lineWidth:'裂缝线宽',lineExtension:'裂缝上下延伸',outerInset:'距屏幕边缘',firstCenterFromTop:'旧版顶部绝对位置',screenPadding:'屏幕安全留白',numberFontSize:'编号字号',numberGap:'编号与微图间距',leftPadding:'微图内侧留白',minimumHitWidth:'行最小宽度',minimumHitHeight:'行最小高度',pressDuration:'按下反馈',inwardDistance:'按下内移',swallowDuration:'收起',shiftDuration:'下方补位',returnDuration:'返回',reducedMotionDuration:'减少动态时淡变',visibleCountPreference:'每页显示'};
+const $=s=>document.querySelector(s);const app=$('#riftlet-design');
+const copy=v=>JSON.parse(JSON.stringify(v));
+let state,toastTimer,motionTimer,returnFocus;
+let renderedSurface=null,deferredRender=false,composingElement=null;
+const domainLabels={collection:'收录设置',visibility:'显示状态',entry:'内置截图入口',layout:'布局与动效草稿',placement:'裂缝位置',display:'显示器选择',archive:'归档设置',appearance:'外观',captureMode:'默认截图方式',arrival:'入缝动效',login:'登录后自动打开'};
+const preferenceDomains={paused:'collection',hidden:'visibility',entryEnabled:'entry',appearance:'appearance',defaultCaptureMode:'captureMode',arrival:'arrival',launchAtLogin:'login'};
+function confirmed(value){return{status:'confirmed',lastConfirmed:copy(value),pending:null,error:null};}
+function initialPersistence(config){return{
+ collection:confirmed(false),visibility:confirmed(false),entry:confirmed(true),
+ layout:confirmed(config),placement:confirmed(config.placement),
+ display:confirmed({id:config.preferredDisplayID,uuid:config.preferredDisplayUUID}),
+ archive:confirmed(24),appearance:confirmed('system'),captureMode:confirmed('window'),
+ arrival:confirmed('none'),login:confirmed(false)
+};}
+function refreshIssue(){state.issue=Object.values(state.persistence).some(domain=>domain.error)?'write':!state.permissions.folder?'folder':null;}
+function failSave(domain,intent,text){
+ // A failed write can have reached disk before a later permissions error.
+ // lastConfirmed is a knowledge boundary, never a claim about current bytes.
+ Object.assign(state.persistence[domain],{status:'unconfirmed',pending:copy(intent),error:text});
+ message(text,true);refreshIssue();
+}
+function confirmSave(domain,value){state.persistence[domain]=confirmed(value);refreshIssue();}
+function discardSave(domain){
+ const item=state.persistence[domain];
+ if(item.error){Object.assign(item,{status:'discarded',pending:null,error:null});}
+ refreshIssue();
+}
+function saveErrors(){
+ const errors=Object.entries(state.persistence).filter(([,entry])=>entry.error);
+ return `<div class="domain-save-errors" aria-live="polite">${errors.map(([domain,entry])=>`<div class="write-error" data-save-domain="${domain}"><strong>${domainLabels[domain]}尚未保存</strong><p>${escape(entry.error)}</p><p class="note">保存结果尚未确认。重试保存这次选择。</p><button class="button" data-action="retry-save" data-domain="${domain}">重试保存</button></div>`).join('')}</div>`;
+}
+function mark(){return '<span class="brandmark" aria-hidden="true"><svg viewBox="0 0 28 32" fill="none"><path d="M5 5h11c5 0 8 3 8 7s-3 7-8 7h-2l9 9h-8L5 18V5Z" fill="currentColor"/><path d="M7 2v28" stroke="var(--window)" stroke-width="2"/></svg></span>';}
+function makeRecords(){return [
+{id:'sample-1',fileId:'original-1',title:'今天 14:32',timestamp:'2026-11-06T06:32:00Z',status:'available',ageDays:0,visible:true},
+{id:'sample-2',fileId:'original-2',title:'今天 14:28',timestamp:'2026-11-06T06:28:00Z',status:'available',ageDays:0,visible:true},
+{id:'sample-3',fileId:'original-3',title:'今天 13:46',timestamp:'2026-11-06T05:46:00Z',status:'available',ageDays:0,visible:true},
+{id:'sample-4',fileId:'original-4',title:'昨天 20:14',timestamp:'2026-11-05T12:14:00Z',status:'attached',ageDays:1,visible:false},
+{id:'sample-5',fileId:'original-5',title:'11 月 2 日 10:07',timestamp:'2026-11-02T02:07:00Z',status:'archived',ageDays:4,visible:false},
+{id:'sample-6',fileId:'original-6',title:'10 月 28 日 09:41',timestamp:'2026-10-28T01:41:00Z',status:'unknown',ageDays:9,visible:false}];}
+function fresh(fixture='recommendation',theme='light'){
+ const config=copy(defaultConfig);if(fixture==='recommendation')config.hiddenFraction=0;
+ if(fixture==='legacy'||fixture==='legacyPersonalized'){config.placement=null;config.placementSource='legacy';config.outerInset=14;config.preferredDisplayID=21412;config.preferredDisplayUUID='02000000-0000-0000-0000-000000000002';}
+ if(fixture==='legacyPersonalized'){Object.assign(config,{lineWidth:1.25,lineExtension:13.5,emptyTraceLength:37,screenPadding:23,arrivalDuration:.33,inwardDistance:2.75,reducedMotionDuration:.19});}
+ return{view:'settings',page:'display',theme,fixture,config,draft:copy(config),editValues:{},systemTheme:'light',preferences:{appearance:'system',entryEnabled:true,defaultCaptureMode:'window',arrival:'none',launchAtLogin:false},paused:false,hidden:false,persistedPaused:false,persistedHidden:false,persistedEntryEnabled:true,persistence:initialPersistence(config),issue:null,displayMissing:false,externalDisplayMissing:false,usingFallback:false,displayRestoreAvailable:false,displayRestored:false,saveFailure:false,permissions:{folder:true,chrome:true,screen:false},archiveHours:24,archiveDraft:'24',archivePreset:'24',visibleCount:3,historyOpened:false,historyFilter:'all',historyRange:'30',historyNow:'2026-11-06T06:32:00Z',records:makeRecords(),files:makeRecords().map(r=>({id:r.fileId,kind:'synthetic-original',retained:true})),attachments:[{id:'attachment-4',fileId:'original-4',chat:'synthetic-chat'}],storageChecked:false,onboardingStep:0,onboardingCompleted:false,pendingCapture:false,modal:null,toast:null,undoQueue:null,feedbackDraft:'',feedbackIncludeDiagnostics:false,feedbackSaved:false,message:'',messageKind:'',closed:false,details:{},lastAction:null,events:[],motionPlaying:null,systemReduceMotion:false};
+}
+function log(action,detail){state.lastAction=action;state.events.push({action,detail:detail??null});if(state.events.length>80)state.events.shift();}
+function dirty(){return Object.keys(state.draft).some(k=>state.draft[k]!==state.config[k]);}
+function archiveDirty(){return String(state.archiveHours??0)!==state.archiveDraft;}
+function status(){
+ if(state.issue||!state.permissions.folder)return{key:'attention',title:state.issue==='write'?'部分设置尚未保存':'截图位置需要重新连接',description:state.issue==='write'?'当前生效状态已保留，请重试保存。':'已有截图仍可使用。重新连接后继续收录。',icon:'warning'};
+ if(state.paused)return{key:'paused',title:'收录已暂停',description:state.hidden?'裂缝也已隐藏，已有截图会保留。':'已有截图仍在手边，可继续附加。',icon:'pause'};
+ if(state.hidden)return{key:'hidden',title:'裂缝已隐藏',description:'新截图仍会收录，显示后即可使用。',icon:'eye'};
+ return{key:'normal',title:'正在收录截图',description:state.visibleCount?'截图后，点一下边缘微图即可附加。':'下一张截图出现时，裂缝会自然显现。',icon:'check'};
+}
+function settingsNav(){const st=status();return `<nav class="sidebar" aria-label="设置页面"><div class="sidebar-product">${mark()}<div>Riftlet<small>截图，就在手边</small></div></div>${pages.map(([id,title,ic])=>`<button class="sidebar-item${state.page===id?' selected':''}" data-page="${id}"${state.page===id?' aria-current="page"':''}>${glyph(ic)}<span>${title}</span></button>`).join('')}<div class="sidebar-rule"></div><button class="sidebar-item sidebar-extra" data-action="open-history">${glyph('folder')}<span>查看截图历史</span></button><div class="sidebar-bottom"><div class="sidebar-status ${st.key}"><span class="small-status-dot"></span>${st.key==='normal'?'正在收录':st.key==='hidden'?'仅隐藏裂缝':st.key==='paused'?'收录已暂停':'需要处理'}</div>${button('打开控制中心','open-control',{quiet:true})}</div></nav>`;}
+function heading(title,desc,action=''){return `<div class="page-heading"><div><h1>${title}</h1><p>${desc}</p></div>${action}</div>`;}
+function section(title){return `<h2 class="section-title">${title}</h2>`;}
+function details(id,title,subtitle,body){return `<details class="details" id="${id}"${state.details[id]?' open':''}><summary><span>${title}${subtitle?`<small>${subtitle}</small>`:''}</span>${glyph('chevron')}</summary>${body}</details>`;}
+function selectSetting(key,label,options,value,optionsAttr=''){return `<select data-setting="${key}" aria-label="${label}" ${optionsAttr}>${options.map(([v,t])=>`<option value="${v}"${selected(value,v)}>${t}</option>`).join('')}</select>`;}
+function factor(key){return key==='hiddenFraction'?100:key.endsWith('Duration')?1000:1;}
+function numberValue(key){return Object.hasOwn(state.editValues,key)?state.editValues[key]:String(Number((state.draft[key]*factor(key)).toPrecision(8)));}
+function numberInput(key,unit='pt'){return `<span class="number-wrap"><input type="text" inputmode="decimal" data-config="${key}" id="cfg-${key}" aria-label="${fieldLabels[key]}${unit?'（'+unit+'）':''}" value="${attr(numberValue(key))}" autocomplete="off" spellcheck="false"><small>${unit}</small></span>`;}
+function numberField(key,unit='pt'){return `<div class="numeric-field"><label for="cfg-${key}">${fieldLabels[key]}</label>${numberInput(key,unit)}</div>`;}
+function range(key,min,max,step,unit){return `<div class="range-control"><input type="range" data-range="${key}" aria-label="${fieldLabels[key]}滑块" min="${min}" max="${max}" step="${step}" value="${attr(numberValue(key))}">${numberInput(key,unit)}</div>`;}
+function placementButtons(){return `<div class="placement-grid" role="group" aria-label="裂缝位置">${positions.map(([id,label])=>`<button data-placement="${id}" aria-pressed="${state.config.placement===id}" aria-label="裂缝位置：${label}"><i aria-hidden="true"></i>${label}</button>`).join('')}</div>`;}
+function preview(){
+ const c=state.draft,placement=state.config.placement||'rightTop';const side=placement.startsWith('left')?'left':'right',vert=placement.endsWith('Top')?'top':placement.endsWith('Bottom')?'bottom':'middle';
+ const count=Math.max(1,Math.min(10,Number(c.visibleCountPreference)||1)),hidden=Math.max(0,Math.min(.9,Number(c.hiddenFraction)||0));
+ const rawW=Math.max(3,Math.min(44,(Number(c.fitWidth)||72)/4)),rawH=Math.max(3,Math.min(29,(Number(c.fitHeight)||56)/4));
+ const pitch=Math.max(rawH+1,Math.min(33,(Number(c.rowPitch)||60)/4)),fitting=Math.min(1,88/(pitch*count));
+ const w=rawW*fitting,h=rawH*fitting,gap=Math.max(1,(pitch-rawH)*fitting),outline=.5;
+ const title=positions.find(x=>x[0]===state.config.placement)?.[1]||'保留旧版位置';
+ return `<div class="layout-preview" data-testid="layout-preview"><div class="preview-monitor" aria-label="合成显示器布局预览"><div class="preview-menubar"><i></i><i></i><i></i><i></i></div><div class="preview-document"><header><i></i><i></i><i></i></header><article><b></b><i></i><i></i><i></i><i></i></article></div><div class="preview-rift ${side} ${vert}" style="${side}:${Math.min(40,Math.max(2,Number(c.outerInset||0)/3))}px;gap:${gap}px;border-${side}-width:${outline}px;${count>5?'top:24px;bottom:auto;':''}" data-count="${count}" data-placement="${attr(state.config.placement||'legacy')}">${Array.from({length:count},(_,i)=>`<div class="preview-thumbnail" style="height:${h}px;gap:${Math.max(2,(Number(c.numberGap)||8)/3)}px"><b style="width:${Math.max(1,w*(1-hidden))}px;height:${h}px"></b><span style="font-size:${Math.max(5,Math.min(9,(Number(c.numberFontSize)||11)/2))}px">${i+1}</span></div>`).join('')}</div></div><div class="preview-info"><strong>${title} · ${state.usingFallback?'临时主屏':state.config.preferredDisplayID?'已选显示器':'主显示器'}</strong><p>每页 ${count} 张<br>静止遮挡 ${Math.round(hidden*100)}%<br>${escape(c.fitWidth??'—')} × ${escape(c.fitHeight??'—')} pt · 等比缩放</p><span class="inline-badge">布局示意</span></div></div>`;
+}
+function statusSummary(){const st=status();return `<div class="status-summary ${st.key}"><span class="status-glyph">${glyph(st.icon)}</span><div><strong>${st.title}</strong><span>${st.description}</span></div>${st.key==='attention'?button('前往处理','fix-issue'): '<span class="inline-badge">Chrome · ChatGPT</span>'}</div>`;}
+function generalPage(){return heading('通用','让 Riftlet 按你的节奏工作。')+statusSummary()+section('日常使用')+`<div class="settings-group">${settingRow('暂停收录','暂停接收新截图，已有截图保留。',toggle('paused',state.paused,'暂停收录'))}${settingRow('隐藏裂缝','只隐藏边缘微图，不改变收录设置。',toggle('hidden',state.hidden,'隐藏裂缝'))}</div>`+section('启动与外观')+`<div class="settings-group">${settingRow('登录后自动打开','下次登录 Mac 时，Riftlet 就已待命。',toggle('launchAtLogin',state.preferences.launchAtLogin,'登录后自动打开'))}${settingRow('外观','让窗口与桌面保持一致。',selectSetting('appearance','外观',[['system','跟随系统'],['light','浅色'],['dark','深色']],state.preferences.appearance))}</div><p class="inline-help">暂停、隐藏与退出分别控制收录、显示和运行。你可以按需要独立使用。</p><div class="help-links">${button('重新查看使用引导','open-onboarding')}${button('反馈与建议…','open-feedback',{quiet:true})}</div>`;}
+function displayPage(){return heading('位置与显示','让截图停在顺手的位置，保留桌面的空间。')+`${state.fixture.startsWith('legacy')?'<div class="legacy-notice">已保留原来的位置与参数。选择新位置时，才会切换到新的布局方式。</div>':''}${preview()}<div class="settings-group">${settingRow('所在显示器',state.displayMissing?'已选显示器暂未连接，临时使用主屏。':state.usingFallback?'已选显示器已连接，当前仍在临时主屏。':'始终记住你的选择。',selectSetting('display','所在显示器',[['primary','使用主显示器'],['builtin','内建显示器'],['external',state.externalDisplayMissing?'外接显示器（未连接）':'外接显示器']],state.config.preferredDisplayID===1?'builtin':state.config.preferredDisplayID?'external':'primary'))}${state.displayRestoreAvailable&&!state.displayMissing?`<div class="setting-row"><div class="setting-description"><p>显示器已重新连接，可以回到原来的位置。</p></div>${button('回到已选显示器','restore-display')}</div>`:''}${settingRow('位置',state.config.placementSource==='initialRecommendation'?'初次推荐在左侧，中心约位于可用高度的 40%。':'位置由你选择，不会跟随窗口自动移动。',placementButtons())}${settingRow('每页显示','更多截图通过上下箭头翻页。',range('visibleCountPreference',1,10,1,'张'))}</div>`+details('custom-display','详细自定义','遮挡、距边与微图大小',`<div class="settings-group">${settingRow('静止时遮挡','0% 显示完整微图；也可保留更多藏入边缘的感觉。',range('hiddenFraction',0,90,1,'%'))}${settingRow('距屏幕边缘','调整裂缝与屏幕边缘之间的距离。',range('outerInset',0,256,1,'pt'))}</div><div class="numeric-grid">${numberField('fitWidth')}${numberField('fitHeight')}${numberField('rowPitch')}${numberField('numberFontSize')}</div>${details('fine-display','精细参数','编号、行尺寸与边缘细节',`<p class="note">这些设置会影响微图的细节。修改只作用于布局预览，点击“应用更改”后生效。</p><div class="numeric-grid">${numberField('numberGap')}${numberField('leftPadding')}${numberField('minimumHitWidth')}${numberField('minimumHitHeight')}${state.config.placement===null?numberField('firstCenterFromTop'):''}</div><p class="inline-help">行最小宽高影响排布；只有微图与编号响应点击。新布局使用上、中、下锚点，旧版绝对位置仅在保留旧布局时提供。</p>`)}`);}
+function capturePage(){return heading('截图','继续用熟悉的系统截图，也可以从 Riftlet 开始。')+`<div class="shortcut-flow"><div class="key-group"><kbd class="shortcut-key">⇧</kbd><kbd class="shortcut-key">⌘</kbd><kbd class="shortcut-key">4</kbd></div><span class="flow-word">截图</span>${glyph('arrow')}<span class="flow-word">微图出现在边缘</span>${glyph('arrow')}<span class="flow-word">点一下附加</span></div>`+section('系统截图')+`<div class="settings-group">${settingRow('截图位置',state.permissions.folder?'收录系统保存到这里的新截图。':'需要重新允许访问此位置。',`<span class="path-label">${glyph('folder')}桌面</span>`)}${settingRow('访问截图位置','由你在系统对话框中选择并允许访问。',button(state.permissions.folder?'查看位置':'允许访问…',state.permissions.folder?'open-source':'authorize-folder'))}</div>`+section('内置截图')+`<div class="settings-group">${settingRow('显示截图入口','打开后，可从边缘入口或控制中心发起截图。',toggle('entryEnabled',state.preferences.entryEnabled,'显示截图入口'))}${settingRow('默认截图方式','下次开始截图时生效，当前模式保持不变。',selectSetting('defaultCaptureMode','默认截图方式',[['window','窗口'],['region','区域'],['fullScreen','全屏']],state.preferences.defaultCaptureMode,state.preferences.entryEnabled?'':'disabled'))}</div><p class="inline-help">关闭内置截图入口，不影响你使用 macOS 系统截图。</p>`+details('capture-detail','更多截图选项','权限说明与原图保留',`<div class="settings-group">${settingRow('屏幕录制权限',state.permissions.screen?'已允许内置截图使用。':'仅在使用内置截图需要时请求。',button(state.permissions.screen?'查看权限':'了解并设置…','authorize-screen'))}</div><div class="privacy-strip">${glyph('image')}<span>截图按原始比例显示，原文件不会因附加或从边缘收起而删除。长图、宽图可以在微图上悬停查看，或使用“查看原图”。</span></div>`);}
+function motionPage(){return heading('动效','让动作交代去向，保持轻快。')+`<div class="arrival-choices" role="radiogroup" aria-label="新截图入缝动效">${[['none','无','直接出现在边缘'],['magnet','磁力吸引','从来源收束，轻轻入缝']].map(([id,title,desc])=>`<label class="arrival-option${state.preferences.arrival===id?' selected':''}"><input type="radio" name="arrival" data-setting="arrival" value="${id}"${checked(state.preferences.arrival===id)}><span class="arrival-mini ${id}" aria-hidden="true"><i></i><b></b></span><strong>${title}</strong><small>${desc}</small></label>`).join('')}</div><div class="motion-stage${state.motionPlaying?' play-'+state.motionPlaying:''}${state.systemReduceMotion?' reduced':''}" data-testid="motion-preview"><span class="motion-rift"></span><span class="motion-image" style="animation-duration:${state.systemReduceMotion?Math.min(.08,state.motionPlaying==='swallow'?Number(state.draft.swallowDuration)||0:.56):state.motionPlaying==='swallow'?Number(state.draft.swallowDuration)||0:.56}s"></span><span class="motion-caption">仅预览动画</span><div class="motion-controls">${button('入缝预览','preview-arrival')}${button('收起预览','preview-swallow')}</div></div><p class="inline-help">入缝动效只影响新截图出现。图片被聊天接收后，仍会快速收起。</p><div class="settings-group">${settingRow('跟随系统减少动态效果',state.systemReduceMotion?'系统已开启，当前取消空间位移。':'系统当前未开启，保留你选择的动效。',`<span class="inline-badge${state.systemReduceMotion?' good':''}">${state.systemReduceMotion?'已开启':'未开启'}</span>`)}</div>`+details('fine-motion','精细调整','按下、收起、补位与返回',`<p class="note">修改后可先预览，再应用。入缝磁力仍采用既有 560 ms 节奏。</p><div class="numeric-grid">${numberField('pressDuration','ms')}${numberField('swallowDuration','ms')}${numberField('shiftDuration','ms')}${numberField('returnDuration','ms')}</div><p class="inline-help">计时设置只影响视觉表现，不改变截图接收和附加的判断。</p>`);}
+function historyRows(){const labels={available:'待附加',attached:'已附加到聊天',archived:'已归档，原图保留',removed:'已从边缘收起',unknown:'结果待核实'};const records=state.records.filter(r=>(state.historyFilter==='all'||r.status===state.historyFilter)&&Date.parse(state.historyNow)-Date.parse(r.timestamp)<Number(state.historyRange)*86400000);return `<div class="history-preview-list" data-testid="history-records">${records.length?records.map(r=>`<div class="history-preview-row" data-record-id="${r.id}" data-record-status="${r.status}"><span class="thumb-art" aria-hidden="true"></span><div><strong>${r.title}</strong><small>${labels[r.status]}</small></div>${button('查看原图','view-original',{id:r.id})}</div>`).join(''):'<p class="note" style="padding:20px 0">这个范围内暂无记录。</p>'}</div>`;}
+function historyControls(){return `<div class="row" style="justify-content:space-between;flex-wrap:wrap;margin:12px 0 8px"><select class="control-select" data-setting="historyFilter" aria-label="历史状态">${[['all','全部状态'],['available','待附加'],['attached','已附加'],['archived','已归档'],['removed','已收起'],['unknown','待核实']].map(([id,title])=>`<option value="${id}"${selected(state.historyFilter,id)}>${title}</option>`).join('')}</select><select class="control-select" data-setting="historyRange" aria-label="历史时间范围">${[['3','最近 3 天'],['7','最近 7 天'],['30','最近 30 天']].map(([id,title])=>`<option value="${id}"${selected(state.historyRange,id)}>${title}</option>`).join('')}</select></div>`;}
+function historyPage(){return heading('历史与存储','让边缘保持清爽，需要时仍能找到原图。',button('查看历史','open-history'))+section('闲置截图')+`<div class="settings-group">${settingRow('闲置后自动归档','将长时间未用的微图收进历史，保留文件。',selectSetting('archivePreset','闲置后自动归档',[['0','关闭'],['1','1 小时'],['8','8 小时'],['24','24 小时'],['72','3 天'],['custom','自定义…']],state.archivePreset))}${state.archivePreset==='custom'?settingRow('自定义时间','支持小数小时，输入 0 关闭归档。',`<span class="number-wrap"><input type="text" inputmode="decimal" data-setting="archiveHours" aria-label="闲置归档小时数" value="${attr(state.archiveDraft)}"><small>小时</small></span>`):''}${archiveDirty()||state.archivePreset==='custom'?`<div class="setting-row"><span class="note">点击保存后生效。</span>${button('保存归档设置','save-archive',{primary:true})}</div>`:''}</div><p class="inline-help">正在悬停、按下或操作中的截图，会等你操作结束再归档。</p>`+section('本机存储')+`<div class="storage-card"><div class="storage-line"><span>Riftlet 私有副本</span><strong>${state.storageChecked?'36.8 MB':'尚未检查'}</strong></div>${state.storageChecked?'<div class="storage-meter" aria-hidden="true"><span></span></div>':''}<div class="note"><span>${state.storageChecked?'已检查 · 演示数据':'需要时检查，不自动清理。'}</span>${button(state.storageChecked?'重新检查':'检查用量','check-storage',{quiet:true})}</div></div><div class="settings-group">${settingRow('从边缘收起全部截图','只清空可见队列，聊天附件和原文件都保留。',button('收起全部…','clear-queue',{disabled:!state.visibleCount}))}</div>`+details('history-detail','查看最近记录','附加、归档与待核实状态',historyControls()+historyRows()+`<p class="inline-help">待核实记录会保留，不会自动再次附加。</p>`);}
+function permissionCard(icon,title,desc,allowed,action){return `<div class="permission-card"><span class="permission-icon">${glyph(icon)}</span><div><h2>${title}</h2><p>${desc}</p></div>${allowed?`<span class="inline-badge good">${glyph('check')}已连接</span>`:button('连接…',action)}</div>`;}
+function permissionsPage(){return heading('权限与帮助','连接所需的能力，遇到问题也能轻松恢复。')+permissionCard('folder','系统截图位置',state.permissions.folder?'可收录保存在桌面的新截图。':'重新允许访问后，继续收录新截图。',state.permissions.folder,'authorize-folder')+permissionCard('chrome','Chrome 自动化',state.permissions.chrome?'用于将你点击的截图附加到当前聊天。':'仅在你主动点击截图时向当前聊天附加图片。',state.permissions.chrome,'authorize-chrome')+`<div class="settings-group">${settingRow('屏幕录制',state.permissions.screen?'已允许内置截图使用。':'使用内置截图时，按需要请求。',button('查看说明','authorize-screen'))}${settingRow('重新检查连接','重新读取当前状态，不会发送截图。',button('重新检查','recheck'))}</div><div class="help-links">${button('使用引导','open-onboarding')}${button('反馈与建议…','open-feedback')}</div>`+details('support-diagnostics','支持与诊断','需要帮助时再展开',`<p class="diagnostic-note">只有你主动发送反馈并勾选时，才附带本次诊断摘要。可以先检查内容。</p><div class="diagnostic-grid"><span>应用版本</span><code>0.1.0 (1) · Personal Beta 1</code><span>截图来源</span><code>${state.permissions.folder?'已连接':'需要重新连接'}</code><span>内置截图入口</span><code>${state.preferences.entryEnabled?'已开启':'已关闭'}</code><span>当前附加状态</span><code>仅在点击时确认当前聊天</code></div>${button('预览诊断摘要','preview-diagnostics')}<p class="inline-help">诊断摘要不包含截图、聊天正文、浏览器凭据和完整文件路径。</p>`)+`<div class="about-line"><span><strong>Riftlet</strong><br>Personal Beta 1 · 0.1.0 (1)</span><span>从截图到输入。<br>点一下就够了。</span></div>`;}
+function renderPage(){return ({general:generalPage,display:displayPage,capture:capturePage,motion:motionPage,history:historyPage,permissions:permissionsPage}[state.page]||generalPage)();}
+function footer(){const isDirty=dirty();const text=state.message||(isDirty?'布局预览尚未应用。':'更改会保留，布局参数应用后生效。');return `<footer class="dirty-footer${isDirty?' dirty':''}"><span class="${state.message?'save-status '+(state.messageKind==='error'?'error':''):'note'}" role="status" aria-live="polite">${escape(text)}</span><div class="row">${['display','motion'].includes(state.page)?button('恢复本页…','reset-page',{quiet:true}):''}${isDirty?button('应用更改','apply-config',{primary:true}):'<span class="note">已应用</span>'}</div></footer>`;}
+function settingsWindow(){return frame('settings','Riftlet 设置',`<div class="native-body split-body">${settingsNav()}<div class="settings-main"><section class="settings-content" data-page-content="${state.page}" aria-label="${pages.find(p=>p[0]===state.page)?.[1]}设置">${saveErrors()}${renderPage()}</section>${footer()}</div></div>`,'设置');}
+function popover(){const st=status();const captureDisabled=!state.preferences.entryEnabled||state.hidden;return `<section class="popover" role="dialog" aria-label="Riftlet 控制中心"><div class="popover-content"><header class="popover-head"><div class="popover-brand">${mark()}Riftlet</div>${button('设置','control-settings',{quiet:true})}</header><div class="popover-status ${st.key}"><span class="status-glyph">${glyph(st.icon)}</span><div><strong>${st.title}</strong><p>${st.description}</p>${st.key==='attention'?`<button class="popover-alert-action" data-action="fix-issue">${state.issue==='write'?'查看未保存的设置':'重新连接截图位置'}${glyph('chevron')}</button>`:''}</div></div><div class="popover-primary"><button class="capture-wide" data-action="begin-capture"${disabled(captureDisabled)}>${glyph('capture')}截图…</button>${captureDisabled?`<p class="note" style="font-size:10px;margin:7px 1px 0">${state.hidden?'显示裂缝后，可以使用内置截图。':'开启内置截图后可用。系统截图照常收录。'} <button class="section-link" data-page="capture">${state.hidden?'查看设置':'设置'}${glyph('chevron')}</button></p>`:''}</div><div class="popover-divider"></div><div class="popover-toggles">${settingRow('暂停收录','保留已有截图',toggle('paused',state.paused,'暂停收录'))}${settingRow('隐藏裂缝','只隐藏边缘微图，不改变收录设置',toggle('hidden',state.hidden,'隐藏裂缝'))}</div><div class="popover-divider"></div><div class="popover-links"><button class="popover-action" data-action="open-history">${glyph('history')}截图历史${glyph('chevron')}</button><button class="popover-action" data-action="clear-queue"${disabled(!state.visibleCount)}>${glyph('archive')}从边缘收起全部<small>${state.visibleCount?'保留文件':'暂无截图'}</small></button><button class="popover-action" data-action="show-latest"${disabled(!state.visibleCount)}>${glyph('image')}定位最新截图${glyph('chevron')}</button></div><footer class="popover-bottom"><span class="subtle-label">${state.hidden?'裂缝已隐藏':state.paused?'已有截图仍可使用':'截图后点一下，即可附加'}</span>${button('退出','quit',{quiet:true})}</footer></div></section>`;}
+function contextMenu(){return `<section class="command-menu" role="menu" aria-label="Riftlet 快捷菜单"><strong>${status().title}</strong><button data-action="begin-capture"${disabled(!state.preferences.entryEnabled||state.hidden)}>截图…</button><hr><button data-action="toggle-pause">${state.paused?'继续收录':'暂停收录'}</button><button data-action="toggle-hidden">${state.hidden?'显示裂缝':'隐藏裂缝'}</button><button data-action="open-history">截图历史…</button><button data-action="show-oldest"${disabled(!state.visibleCount)}>定位最早截图</button><hr><button data-action="control-settings">设置…<span>⌘,</span></button><button data-action="quit">退出 Riftlet<span>⌘Q</span></button></section>`;}
+function desktop(){return `<div class="desktop-surface"><div class="desktop-menu"><div class="row"><strong>访达</strong><span>文件</span><span>编辑</span><span>显示</span></div><div class="row"><button class="status-button" data-action="status-click" aria-label="Riftlet 菜单栏图标" aria-expanded="${!state.closed}">${mark()}</button><span class="clock">周五 14:32</span></div></div><div class="desktop-subtle-window" aria-hidden="true"><header><i></i><i></i><i></i><span>ChatGPT</span></header><article><b>继续刚才的想法</b><i></i><i></i><i></i></article><div class="chat-input">有什么新想法？</div></div>${!state.closed?(state.view==='context'?contextMenu():popover()):''}<div class="desktop-caption">${state.view==='context'?'右键快捷菜单 · 与控制中心共用同一组动作和状态。':'左键控制中心 · 暂停收录与隐藏裂缝彼此独立。'}<br>Esc 关闭；已经应用的更改会保留。</div></div>`;}
+function setup(){const step=state.onboardingStep;const steps=['认识 Riftlet','连接工具','选择位置'];const progress=`<div class="setup-progress" aria-label="第${step+1}步，共3步">${steps.map((s,i)=>`<span class="${i===step?'current':i<step?'done':''}"><b>${i<step?'✓':i+1}</b>${s}</span>`).join('')}</div>`;let content='';if(step===0){content=`<div class="setup-intro"><h1>从截图到输入。<br>点一下就够了。</h1><p>截图轻轻停在桌面边缘。需要时，<br>点一下微图，就能附加到当前 ChatGPT 聊天。</p></div><div class="setup-illustration" aria-hidden="true"><div class="setup-paper"><span>一个想继续的想法</span><i></i><i></i><i></i></div><div class="setup-arrow">${glyph('arrow')}</div><div class="setup-rift"><span>1</span><i></i><b></b></div></div><div class="setup-principles"><div>${glyph('capture')}沿用你熟悉的 macOS 截图</div><div>${glyph('message')}由你决定何时发送聊天</div><div>${glyph('folder')}需要原图时，仍然找得到</div></div>`;}else if(step===1){content=`<div class="setup-intro"><h1>连接已经在用的工具。</h1><p>每项连接都由你主动允许，也可以稍后完成。</p></div>${permissionCard('folder','系统截图位置',state.permissions.folder?'已连接桌面上的系统截图。':'让新截图自动来到边缘。',state.permissions.folder,'authorize-folder')}${permissionCard('chrome','Chrome 中的 ChatGPT',state.permissions.chrome?'已允许连接当前聊天。':'把你点击的截图附加到当前聊天。',state.permissions.chrome,'authorize-chrome')}<div class="privacy-strip">${glyph('privacy')}<span>连接只用于截图收录和主动附加。内置截图需要的权限，会在你使用时再说明。</span></div>${!state.permissions.folder||!state.permissions.chrome?'<p class="inline-help">现在也可以先设置位置，稍后再连接。</p>':''}`;}else{content=`<div class="setup-intro"><h1>放在顺手的位置。</h1><p>推荐从左侧开始。之后，随时可以在设置里调整。</p></div>${preview()}<div class="settings-group">${settingRow('所在显示器','选择会保留。',selectSetting('display','所在显示器',[['primary','使用主显示器'],['builtin','内建显示器'],['external',state.externalDisplayMissing?'外接显示器（未连接）':'外接显示器']],state.config.preferredDisplayID===1?'builtin':state.config.preferredDisplayID?'external':'primary'))}${settingRow('裂缝位置','空队列时，裂缝会完全消失。',placementButtons())}</div><p class="inline-help">${state.permissions.folder&&state.permissions.chrome?'准备好后，正常截一张图，再点一下微图。':'连接尚未全部完成。你可以先开始，之后从“权限与帮助”继续连接。'}</p>`;}return frame('setup','开始使用 Riftlet',`<div class="native-body setup-body">${progress}${content}</div><footer class="native-footer"><div class="row">${step?button('上一步','setup-back',{quiet:true}):button('稍后设置','setup-later',{quiet:true})}</div><div class="row">${step?button('稍后设置','setup-later',{quiet:true}):''}${button(step===2?'开始使用':'继续','setup-next',{primary:true})}</div></footer>`,'');}
+function reviewBar(){return `<div class="review-bar"><div class="review-brand">${mark()}<div><strong>Riftlet · 设置与控制中心</strong><span>设计补齐稿 · 继承 Quiet Edge 与当前 main</span></div></div><div class="review-actions"><div class="review-tabs" role="group" aria-label="查看设计"><button data-view="settings" aria-pressed="${state.view==='settings'}">设置</button><button data-view="control" aria-pressed="${state.view==='control'}">控制中心</button><button data-view="onboarding" aria-pressed="${state.view==='onboarding'}">首次使用</button><button data-view="context" aria-pressed="${state.view==='context'}">右键菜单</button></div><button class="theme-toggle" data-action="toggle-theme" aria-label="切换到${state.theme==='dark'?'浅':'深'}色">${glyph(state.theme==='dark'?'sun':'moon')}</button></div></div><div class="review-tools" aria-label="设计评审控制，不属于产品"><label>状态<select id="scenario" aria-label="演示状态"><option value="normal"${selected(status().key,'normal')}>正常运行</option><option value="paused"${selected(status().key,'paused')}>暂停收录</option><option value="hidden"${selected(status().key,'hidden')}>仅隐藏</option><option value="attention"${selected(status().key,'attention')}>需要处理</option></select></label><label>设置样本<select id="fixture" aria-label="设置样本"><option value="recommendation"${selected(state.fixture,'recommendation')}>新装建议 · 0% 遮挡</option><option value="current"${selected(state.fixture,'current')}>当前 main 默认 · 25%</option><option value="legacy"${selected(state.fixture,'legacy')}>旧版保留 · 14 pt</option></select></label><label class="secondary-fixture"><input id="missing-display" type="checkbox"${checked(state.displayMissing)}>已选屏断开</label><label class="secondary-fixture"><input id="save-failure" type="checkbox"${checked(state.saveFailure)}>保存失败</label><label class="secondary-fixture"><input id="reduce-motion" type="checkbox"${checked(state.systemReduceMotion)}>系统减少动态</label><button class="review-reset" data-action="reset-demo">重置演示</button></div>`;}
+function modal(){if(!state.modal)return'';let title,body,actions;const kind=state.modal;const simulation='<p class="note">此处仅演示交互，不会访问系统、读取文件或提交数据。</p>';if(kind==='folder'){title='允许访问截图位置';body='<p>在原生 App 中，你将在系统选择器里确认 macOS 当前的截图保存位置。这里以“桌面”为例。</p>'+simulation;actions=button('取消','cancel-modal')+button('模拟允许访问','permit-folder',{primary:true});}else if(kind==='chrome'){title='连接 Chrome';body='<p>在原生 App 中，请允许 Riftlet 自动化 Chrome，并在 Chrome 的“显示 → 开发者”菜单中允许来自 Apple 事件的 JavaScript。</p><p>连接后，Riftlet 会在你点击微图时使用当前聊天。</p>'+simulation;actions=button('稍后','cancel-modal')+button('模拟连接完成','permit-chrome',{primary:true});}else if(kind==='screen'){title='内置截图的权限';body='<p>使用内置截图时，macOS 可能请求屏幕录制权限。系统截图的日常使用不因关闭内置入口而改变。</p>'+simulation;actions=button('关闭','cancel-modal')+button('模拟已允许','permit-screen',{primary:true});}else if(kind==='clear'){title='从边缘收起全部截图？';body=`<p>当前 ${state.visibleCount} 张微图会收进历史。原文件和 ChatGPT 中已有的附件会保留。</p>`;actions=button('取消','cancel-modal')+button('收起全部','confirm-clear',{primary:true});}else if(kind==='reset'){title=`恢复“${state.page==='motion'?'动效':'位置与显示'}”的默认设置？`;body='<p>只恢复本页可编辑的参数。显示器选择、截图文件、历史和权限会保留。恢复后先显示预览，应用时才生效。</p>';actions=button('取消','cancel-modal')+button('恢复本页','confirm-reset',{primary:true});}else if(kind==='unsaved'){title='保留未应用的布局更改？';body='<p>布局或归档设置还有未应用的更改。你可以继续编辑、放弃更改，或应用后关闭。</p>'+(state.messageKind==='error'?'<div class="write-error" role="alert">'+escape(state.message)+'</div>':'');actions=button('不保存','discard-changes')+button('应用并关闭','apply-and-close')+button('继续编辑','cancel-modal',{primary:true});}else if(kind==='capture'){title='准备截图';body=`<p>将以“${{window:'窗口',region:'区域',fullScreen:'全屏'}[state.preferences.defaultCaptureMode]}”模式开始。原生 App 会先关闭控制中心，再显示截图入口。</p>`+simulation;actions=button('取消','cancel-modal')+button('模拟新增截图','simulate-capture',{primary:true});}else if(kind==='history'){title='截图历史';body='<p>从这里查看原图，或按状态和时间查找。</p>'+historyControls()+historyRows();actions=button('关闭','cancel-modal');}else if(kind==='original'){title='查看原图';body='<p>原生 App 会打开所选截图的原文件。此原型使用合成图形，没有对应的本机文件。</p><div class="layout-preview" style="height:145px"><div class="setup-paper" style="transform:none;width:190px;height:110px"><span>一张合成截图</span><i></i><i></i><i></i></div></div>';actions=button('返回历史','open-history')+button('关闭','cancel-modal',{primary:true});}else if(kind==='feedback'){title='反馈与建议';body=`<p>说说你遇到的问题，或想让 Riftlet 变好的地方。</p><textarea id="feedback-draft" aria-label="反馈内容" placeholder="告诉我们发生了什么…" maxlength="4000">${escape(state.feedbackDraft)}</textarea><label><input type="checkbox" data-setting="feedbackDiagnostics"${checked(state.feedbackIncludeDiagnostics)}>本次附带诊断摘要</label><p class="note" style="margin-top:11px">关闭会保留本页演示草稿；这里不会发送反馈。</p>`;actions=button('保存并关闭','save-feedback')+button('预览提交内容','preview-feedback',{primary:true});}else if(kind==='feedback-preview'){title='检查反馈内容';body=`<p style="white-space:pre-wrap;overflow-wrap:anywhere">${escape(state.feedbackDraft)||'尚未填写反馈内容。'}</p><p>${state.feedbackIncludeDiagnostics?'已选择本次附带版本、收录状态与错误摘要。':'未附带诊断摘要。'}</p>${simulation}`;actions=button('返回编辑','open-feedback')+button('完成预览','save-feedback',{primary:true});}else if(kind==='diagnostics'){title='本次诊断摘要';body=`<div class="diagnostic-grid"><span>版本</span><code>0.1.0 (1)</code><span>收录</span><code>${state.paused?'已暂停':'正在收录'}</code><span>截图位置</span><code>${state.permissions.folder?'已连接':'需要处理'}</code><span>显示</span><code>${state.hidden?'已隐藏':'已显示'}</code></div><p>不含截图、聊天正文、浏览器凭据及完整路径。</p>${simulation}`;actions=button('关闭','cancel-modal');}else if(kind==='source'){title='系统截图位置';body='<p>当前示例位置：桌面。</p><p>原生 App 会打开当前截图位置，不会移动、重命名或删除截图。</p>'+simulation;actions=button('关闭','cancel-modal');}else{title='Riftlet';body=simulation;actions=button('关闭','cancel-modal');}return `<div class="modal-backdrop"><section class="dialog" role="dialog" aria-modal="true" aria-labelledby="dialog-title"><h2 id="dialog-title">${title}</h2>${body}<div class="row">${actions}</div></section></div>`;}
+function focusIdentity(element){
+ if(!element||!app.contains(element))return null;
+ const parts=[];
+ if(element.id)parts.push('#'+CSS.escape(element.id));
+ for(const key of ['config','range','setting','placement','action','page','view']){if(element.dataset?.[key]){let selector=element.tagName.toLowerCase()+'[data-'+key+'="'+CSS.escape(element.dataset[key])+'"]';if(element.type==='radio')selector+='[value="'+CSS.escape(element.value)+'"]';parts.push(selector);}}
+ if(!parts.length)return null;
+ const data={selectors:parts,start:null,end:null,direction:null};
+ try{data.start=element.selectionStart;data.end=element.selectionEnd;data.direction=element.selectionDirection;}catch{}
+ return data;
+}
+function restoreFocus(identity){
+ if(!identity)return false;let element=null;
+ for(const selector of identity.selectors){element=app.querySelector(selector);if(element)break;}
+ if(!element||element.disabled||element.closest('[hidden]'))return false;
+ element.focus({preventScroll:true});
+ if(identity.start!==null&&typeof element.setSelectionRange==='function'){try{element.setSelectionRange(identity.start,identity.end,identity.direction||'none');}catch{}}
+ return document.activeElement===element;
+}
+function surfaceIdentity(){
+ return [state.view,state.page,state.closed,state.modal,state.onboardingStep].join(':');
+}
+function isEditing(element){
+ return !!element&&app.contains(element)&&element.matches('textarea,select,input:not([type="checkbox"]):not([type="radio"]):not([type="button"]),[contenteditable="true"]');
+}
+function replaceNonEditingRegion(selector,markup){
+ const old=app.querySelector(selector);
+ if(old&&(old.contains(document.activeElement)||old.contains(composingElement)))return;
+ const template=document.createElement('template');template.innerHTML=markup;
+ const next=template.content.querySelector(selector);
+ if(old){if(next)old.replaceWith(next);else old.remove();}
+ else if(next&&selector==='.toast')app.querySelector('#scene')?.append(next);
+}
+function toastMarkup(){return state.toast?`<div class="toast" role="status" aria-live="polite">${escape(state.toast)}</div>`:'';}
+function refreshNonEditingRegions(){
+ // Never detach an editor, its ancestors, or a click target during blur/change.
+ // Timer/status refresh can update these independent siblings immediately.
+ replaceNonEditingRegion('.dirty-footer',footer());
+ replaceNonEditingRegion('.domain-save-errors',saveErrors());
+ replaceNonEditingRegion('.status-summary',statusSummary());
+ replaceNonEditingRegion('.sidebar-status',settingsNav());
+ replaceNonEditingRegion('[data-testid="layout-preview"]',preview());
+ if(state.page==='motion')replaceNonEditingRegion('.motion-stage',motionPage());
+ replaceNonEditingRegion('.toast',toastMarkup());
+ const failure=app.querySelector('#save-failure');if(failure)failure.checked=state.saveFailure;
+ const reduce=app.querySelector('#reduce-motion');if(reduce)reduce.checked=state.systemReduceMotion;
+ const scenario=app.querySelector('#scenario');if(scenario&&scenario!==document.activeElement)scenario.value=status().key;
+}
+function render(options={}){
+ refreshIssue();
+ const nextSurface=surfaceIdentity();
+ if(options.preserveOpen!==false){
+  for(const detail of app.querySelectorAll('details[id]')){
+   if(detail.isConnected)state.details[detail.id]=detail.open;
+  }
+ }
+ app.dataset.theme=state.theme;
+ // Background updates have no authority to end editing. Preserve the existing
+ // DOM subtree continuously, including marked text and selection. Explicit
+ // navigation, sheets, close/discard and fixture reset are separate surfaces.
+ if(options.preserveFocus!==false&&renderedSurface===nextSurface&&
+    ((isEditing(document.activeElement)&&!(options.committedControl&&document.activeElement.tagName==='SELECT'))||(composingElement?.isConnected&&app.contains(composingElement)))){
+  deferredRender=true;
+  refreshNonEditingRegions();
+  return;
+ }
+ const oldScroll=$('.settings-content')?.scrollTop||0;
+ const active=options.preserveFocus===false?null:focusIdentity(document.activeElement);
+ const previousDialog=$('.dialog');
+ app.innerHTML=reviewBar()+`<main class="scene" id="scene">${state.closed&&state.view==='settings'?`<div class="reopen">${mark()}<p>设置已关闭，更改已保留。</p>${button('重新打开设置','reopen-settings')}</div>`:state.view==='settings'?settingsWindow():state.view==='onboarding'?setup():desktop()}${modal()}${toastMarkup()}</main><div class="review-foot"><span>网页交互原型 · 全部为合成示例</span><span>刷新即复位，不修改 Mac、权限或生产数据</span><span>原生交互尚未验收</span></div>`;
+ renderedSurface=nextSurface;deferredRender=false;
+ if(!composingElement?.isConnected)composingElement=null;
+ const scroll=$('.settings-content');if(scroll)scroll.scrollTop=oldScroll;
+ if(state.modal){
+  if(!(previousDialog&&active&&restoreFocus(active))){
+   const preferred=state.modal==='unsaved'?$('.dialog [data-action="cancel-modal"]'):$('.dialog button');
+   preferred?.focus({preventScroll:true});
+  }
+ }else{restoreFocus(active);}
+ if(scroll)scroll.scrollTop=oldScroll;
+}
+function message(text,error=false){state.message=text;state.messageKind=error?'error':'ok';}
+function toast(text){state.toast=text;clearTimeout(toastTimer);toastTimer=setTimeout(()=>{state.toast=null;state.undoQueue=null;render();},6000);render();}
+function showModal(kind){returnFocus=document.activeElement;if(['control','context'].includes(state.view))state.closed=true;state.modal=kind;log('open-'+kind);render();}
+function closeModal(){state.modal=null;state.pendingCapture=false;render();if(returnFocus?.dataset?.action){document.querySelector(`[data-action="${returnFocus.dataset.action}"]`)?.focus();}}
+function navigate(page){if(!pages.some(p=>p[0]===page))return;state.page=page;state.view='settings';state.closed=false;state.modal=null;state.message='';log('navigate',page);render();const sc=$('.settings-content');if(sc)sc.scrollTop=0;}
+function setView(view){if(!['settings','control','onboarding','context'].includes(view))return;state.view=view;state.closed=false;state.modal=null;log('view',view);render();}
+function setScenario(name){
+ state.paused=name==='paused';state.hidden=name==='hidden';
+ state.persistedPaused=state.paused;state.persistedHidden=state.hidden;
+ confirmSave('collection',state.paused);confirmSave('visibility',state.hidden);
+ state.permissions.folder=name!=='attention';refreshIssue();state.message='';
+ log('scenario',name);render({committedControl:true});
+}
+function setFixture(name){if(!['recommendation','current','legacy','legacyPersonalized'].includes(name))return;const old=state;state=fresh(name,old.theme);state.view=old.view;state.page=old.page;log('fixture',name);render({preserveFocus:false,preserveOpen:false});}
+function validateConfig(){for(const [key,[min,max]] of Object.entries(limits)){const v=state.draft[key];if(typeof v!=='number'||!Number.isFinite(v)||v<min||v>max||(strictlyPositive.has(key)&&v===0))return `${fieldLabels[key]||key}请输入${strictlyPositive.has(key)?'大于 0':min===0?'不小于 0':'不小于 '+min}${max===Infinity?'':'，不大于 '+(max*factor(key))}的有效数值。`;if(key==='visibleCountPreference'&&!Number.isInteger(v))return'每页显示请输入 1–10 之间的整数。';}return null;}
+function applyConfig(){
+ if(!dirty()){discardSave('layout');message('设置没有变化。');render();return true;}
+ const error=validateConfig();
+ if(error){message(error,true);log('config-rejected',error);render();return false;}
+ if(state.saveFailure){
+  failSave('layout',state.draft,'未能保存。原设置仍然生效，预览更改保留，可稍后重试。');
+  log('config-save-failed');render();return false;
+ }
+ // Merge edited numeric keys into the latest successful instant choices.
+ // Never serialize an old whole-form snapshot over display/placement identity.
+ const candidate=copy(state.config);
+ for(const key of [...displayKeys,...motionKeys]){
+  if(key==='firstCenterFromTop'&&state.config.placement!==null)continue;
+  if(state.draft[key]!==state.config[key])candidate[key]=state.draft[key];
+ }
+ state.config=candidate;state.draft=copy(candidate);state.editValues={};
+ confirmSave('layout',candidate);message('布局与动效更改已应用。');log('config-applied');render();return true;
+}
+function updateDraft(key,raw){const normalized=String(raw).trim();state.editValues[key]=String(raw);const valid=numericPattern.test(normalized);state.draft[key]=valid?Number(normalized)/factor(key):null;state.message='';const other=$(`input[data-range="${key}"]`);if(other&&valid)other.value=normalized;const previewHost=$('[data-testid="layout-preview"]');if(previewHost){const holder=document.createElement('div');holder.innerHTML=preview();previewHost.replaceWith(holder.firstElementChild);}const f=$('.dirty-footer');if(f)f.outerHTML=footer();log('preview-edited',key);}
+function commitPreference(key,value){
+ const domain=preferenceDomains[key];if(!domain)return;
+ if(state.saveFailure){
+  let error='未能保存，仍保留当前生效的设置。请重试。';
+  if(key==='paused'||key==='hidden'){
+   // Stop/hide takes effect first; a failed resume/show must stay stopped.
+   if(value){state[key]=true;error=`${key==='paused'?'收录当前已暂停':'裂缝当前已隐藏'}，但设置尚未保存，重启可能恢复原状态，实际持久化结果未确认。`;}
+  }else if(key==='entryEnabled'&&!value){
+   state.preferences.entryEnabled=false;
+   error='内置截图当前已关闭，但设置尚未保存，重启可能恢复原状态，实际持久化结果未确认。';
+  }
+  failSave(domain,value,error);
+ }else{
+  if(key==='paused'||key==='hidden'){
+   state[key]=value;state[key==='paused'?'persistedPaused':'persistedHidden']=value;
+  }else{
+   state.preferences[key]=value;
+   if(key==='entryEnabled')state.persistedEntryEnabled=value;
+   if(key==='appearance')state.theme=value==='system'?state.systemTheme:value;
+  }
+  confirmSave(domain,value);message(`${domainLabels[domain]}已保存。`);
+ }
+ log('preference-'+key,value);render({committedControl:true});
+}
+function choosePlacement(value){
+ if(!positions.some(([id])=>id===value))return;
+ if(state.saveFailure){failSave('placement',value,'未能保存位置，保留当前生效的选择。');render();return;}
+ const wasLegacy=state.config.placement===null;
+ state.config.placement=value;state.config.placementSource='user';
+ state.draft.placement=value;state.draft.placementSource='user';
+ if(wasLegacy){state.draft.firstCenterFromTop=state.config.firstCenterFromTop;delete state.editValues.firstCenterFromTop;}
+ confirmSave('placement',value);message('位置已保存。');log('placement',value);render();
+}
+function chooseDisplay(value){
+ if(!['primary','builtin','external'].includes(value))return;
+ if(state.saveFailure){failSave('display',value,'未能保存显示器，保留当前生效的选择。');render({committedControl:true});return;}
+ const identity=value==='primary'?syntheticPrimaryDisplay:syntheticDisplays[value];
+ for(const config of [state.config,state.draft]){
+  config.preferredDisplayID=identity.id;config.preferredDisplayUUID=identity.uuid;config.placementSource='user';
+ }
+ state.displayMissing=value==='external'&&state.externalDisplayMissing;
+ state.usingFallback=state.displayMissing;state.displayRestoreAvailable=false;state.displayRestored=false;
+ confirmSave('display',identity);message('显示器选择已保存。');log('display',value);render({committedControl:true});
+}
+function saveArchive(){
+ const text=state.archiveDraft.trim();
+ if(!numericPattern.test(text)||!Number.isFinite(Number(text)*3600)){
+  message('请输入有效的非负小时数；0 表示关闭。',true);log('archive-rejected');render();return false;
+ }
+ const candidate=Number(text)===0?null:Number(text);
+ if(state.saveFailure){failSave('archive',candidate,'未能保存，仍保留当前生效的归档时间。');log('archive-save-failed');render();return false;}
+ state.archiveHours=candidate;state.archiveDraft=String(candidate??0);
+ confirmSave('archive',candidate);message('归档设置已保存。');log('archive-saved',state.archiveHours);render();return true;
+}
+function retrySave(domain){
+ const failed=state.persistence[domain];if(!failed?.error)return;
+ const target=copy(failed.pending);
+ log('retry-save',domain);
+ if(domain==='layout'){applyConfig();return;}
+ if(domain==='archive'){saveArchive();return;}
+ if(domain==='placement'){choosePlacement(target);return;}
+ if(domain==='display'){chooseDisplay(target);return;}
+ const key=Object.keys(preferenceDomains).find(key=>preferenceDomains[key]===domain);
+ if(key)commitPreference(key,target);
+}
+function closeSurface(){if(state.modal){closeModal();return;}if(state.view==='settings'&&(dirty()||archiveDirty())){showModal('unsaved');return;}state.closed=true;state.message='';log('surface-closed');if(state.view==='onboarding'){state.view='control';}render();}
+function action(name,el){switch(name){
+ case 'open-control':setView('control');break;
+ case 'control-settings':navigate('general');break;
+ case 'open-onboarding':if(state.onboardingCompleted){state.onboardingStep=0;state.onboardingCompleted=false;}setView('onboarding');break;
+ case 'close-window':closeSurface();break;
+ case 'reopen-settings':state.closed=false;render();break;
+ case 'toggle-theme':state.theme=state.theme==='dark'?'light':'dark';log('theme',state.theme);render();break;
+ case 'reset-demo':state=fresh('recommendation',state.theme);render({preserveFocus:false,preserveOpen:false});break;
+ case 'toggle-pause':commitPreference('paused',!state.paused);break;
+ case 'toggle-hidden':commitPreference('hidden',!state.hidden);break;
+ case 'status-click':state.closed=!state.closed;render();break;
+ case 'fix-issue':navigate(state.issue==='write'?'general':'permissions');break;
+ case 'authorize-folder':showModal('folder');break;
+ case 'authorize-chrome':showModal('chrome');break;
+ case 'authorize-screen':showModal('screen');break;
+ case 'permit-folder':state.permissions.folder=true;refreshIssue();state.modal=null;message('截图位置已重新连接。');log('simulated-folder-allowed');render();break;
+ case 'permit-chrome':state.permissions.chrome=true;state.modal=null;message('Chrome 已连接。');log('simulated-chrome-allowed');render();break;
+ case 'permit-screen':state.permissions.screen=true;state.modal=state.pendingCapture?'capture':null;state.pendingCapture=false;message('屏幕录制权限已允许。');log('simulated-screen-allowed');render();break;
+ case 'cancel-modal':closeModal();break;
+ case 'recheck':message(state.permissions.folder&&state.permissions.chrome?'连接已检查，当前可以继续使用。':'检查完成，仍有连接需要处理。',!(state.permissions.folder&&state.permissions.chrome));log('connection-rechecked');render();break;
+ case 'apply-config':applyConfig();break;
+ case 'retry-save':retrySave(el.dataset.domain);break;
+ case 'reset-page':showModal('reset');break;
+ case 'confirm-reset':{const defaults=copy(defaultConfig);const keys=state.page==='motion'?motionKeys:displayKeys.filter(k=>k!=='firstCenterFromTop'||state.config.placement===null);for(const k of keys){state.draft[k]=defaults[k];delete state.editValues[k];}state.modal=null;message('已恢复本页预览。点击“应用更改”后生效。');log('page-reset-preview',state.page);render();break;}
+ case 'discard-changes':discardSave('layout');discardSave('archive');state.message='';state.messageKind='';state.draft=copy(state.config);state.editValues={};state.archiveDraft=String(state.archiveHours??0);state.archivePreset=['0','1','8','24','72'].includes(state.archiveDraft)?state.archiveDraft:'custom';state.modal=null;state.closed=true;log('draft-discarded');render();break;
+ case 'apply-and-close':{if(dirty()&&!applyConfig())break;if(archiveDirty()&&!saveArchive())break;state.modal=null;state.closed=true;log('applied-and-closed');render();break;}
+ case 'restore-display':if(state.displayMissing||!state.displayRestoreAvailable)return;state.usingFallback=false;state.displayRestoreAvailable=false;state.displayRestored=true;message('已回到原来选择的显示器。');log('display-restored');render();break;
+ case 'save-archive':saveArchive();break;
+ case 'check-storage':state.storageChecked=true;log('synthetic-storage-checked');render();break;
+ case 'clear-queue':if(state.visibleCount)showModal('clear');break;
+ case 'confirm-clear':state.undoQueue=null;state.records.forEach(r=>{if(r.visible){r.visible=false;r.status='removed';}});state.visibleCount=0;state.modal=null;log('queue-cleared-files-retained');toast('已从边缘收起，原图与聊天附件保留。');break;
+ case 'open-history':state.historyOpened=true;state.closed=state.view==='control'||state.view==='context';showModal('history');break;
+ case 'view-original':showModal('original');break;
+ case 'show-latest':state.closed=true;log('latest-located');toast('已定位最新截图。');break;
+ case 'show-oldest':state.closed=true;log('oldest-located');toast('已定位最早截图。');break;
+ case 'open-source':showModal('source');break;
+ case 'open-feedback':state.closed=state.view==='control'||state.view==='context';showModal('feedback');break;
+ case 'save-feedback':state.feedbackSaved=true;state.modal=null;log('feedback-draft-kept');toast('草稿已在本页保留，未发送。');break;
+ case 'preview-feedback':showModal('feedback-preview');break;
+ case 'preview-diagnostics':showModal('diagnostics');break;
+ case 'begin-capture':if(!state.preferences.entryEnabled||state.hidden)return;state.closed=true;if(!state.permissions.screen){state.pendingCapture=true;showModal('screen');}else{showModal('capture');}break;
+ case 'simulate-capture':{const n=state.records.length+1;state.records.unshift({id:'sample-'+n,fileId:'original-'+n,title:'刚刚',timestamp:state.historyNow,status:'available',ageDays:0,visible:true});state.files.push({id:'original-'+n,kind:'synthetic-original',retained:true});state.visibleCount++;state.modal=null;log('synthetic-capture-added');toast('已新增一张合成微图。');break;}
+ case 'quit':state.closed=true;state.modal=null;log('quit-preview-only');toast('Riftlet 已退出（演示）。已保存的设置与文件保留。');break;
+ case 'setup-next':if(state.onboardingStep<2){state.onboardingStep++;log('onboarding-step',state.onboardingStep);render();}else{state.closed=true;state.view='control';state.onboardingCompleted=true;log('onboarding-finished');toast(state.permissions.folder&&state.permissions.chrome?'现在，正常截图后点一下微图。':'位置已保留。可以从权限与帮助继续连接。');}break;
+ case 'setup-back':state.onboardingStep=Math.max(0,state.onboardingStep-1);render();break;
+ case 'setup-later':state.view='control';state.closed=true;log('onboarding-deferred');render();break;
+ case 'preview-arrival':case 'preview-swallow':{const type=name==='preview-arrival'?'arrival':'swallow';clearTimeout(motionTimer);state.motionPlaying=null;render();requestAnimationFrame(()=>{if(type==='arrival'&&state.preferences.arrival==='none'){log('motion-preview-none');return;}state.motionPlaying=type;log('motion-preview',type);render();motionTimer=setTimeout(()=>{state.motionPlaying=null;render();},type==='arrival'?660:320);});break;}
+ }}
+app.addEventListener('click',event=>{const el=event.target.closest('button');if(!el||el.disabled)return;if(el.dataset.page){navigate(el.dataset.page);return;}if(el.dataset.view){setView(el.dataset.view);return;}if(el.dataset.placement){choosePlacement(el.dataset.placement);return;}if(el.dataset.action){action(el.dataset.action,el);}});
+app.addEventListener('click',event=>{if(state.modal||state.closed||!['control','context'].includes(state.view))return;if(event.target.closest('.desktop-surface')&&!event.target.closest('.popover,.command-menu,.status-button')){state.closed=true;log('outside-dismiss');render();}});
+app.addEventListener('input',event=>{const el=event.target;if(el.dataset.config){updateDraft(el.dataset.config,el.value);return;}if(el.dataset.range){const field=$(`input[data-config="${el.dataset.range}"]`);if(field)field.value=el.value;updateDraft(el.dataset.range,el.value);return;}if(el.id==='feedback-draft'){state.feedbackDraft=el.value;return;}if(el.dataset.setting==='archiveHours'){state.archiveDraft=el.value;state.message='';const f=$('.dirty-footer');if(f)f.outerHTML=footer();return;}});
+app.addEventListener('change',event=>{const el=event.target;if(el.id==='scenario'){setScenario(el.value);return;}if(el.id==='fixture'){setFixture(el.value);return;}if(el.id==='missing-display'){state.displayMissing=el.checked;state.externalDisplayMissing=el.checked;if(el.checked){state.usingFallback=true;state.displayRestoreAvailable=false;for(const c of[state.config,state.draft]){c.preferredDisplayID=21412;c.preferredDisplayUUID='02000000-0000-0000-0000-000000000002';}}else if(state.usingFallback){state.displayRestoreAvailable=true;}log(el.checked?'display-disconnected':'display-reconnected');render();return;}if(el.id==='save-failure'){state.saveFailure=el.checked;render();return;}if(el.id==='reduce-motion'){state.systemReduceMotion=el.checked;render();return;}const key=el.dataset.setting;if(!key)return;if(key==='display'){chooseDisplay(el.value);return;}if(key==='historyFilter'||key==='historyRange'){state[key]=el.value;log(key,el.value);render({committedControl:true});return;}if(key==='archivePreset'){state.archivePreset=el.value;if(el.value!=='custom')state.archiveDraft=el.value;state.message='';render({committedControl:true});return;}if(key==='archiveHours'){state.archiveDraft=el.value;return;}if(key==='feedbackDiagnostics'){state.feedbackIncludeDiagnostics=el.checked;return;}commitPreference(key,el.type==='checkbox'?el.checked:el.value);});
+app.addEventListener('compositionstart',event=>{if(isEditing(event.target))composingElement=event.target;});
+app.addEventListener('compositionend',event=>{if(composingElement===event.target)composingElement=null;});
+// Flush deferred structural work only after a real completed click/Tab. There
+// is no blur redraw and no synthetic replay of a swallowed pointer action.
+app.addEventListener('click',()=>{if(deferredRender&&!isEditing(document.activeElement)&&!composingElement)render();});
+document.addEventListener('keyup',event=>{if(event.key==='Tab'&&deferredRender&&!isEditing(document.activeElement)&&!composingElement)render();});
+app.addEventListener('toggle',event=>{if(event.target.isConnected&&event.target.matches('details[id]'))state.details[event.target.id]=event.target.open;},true);
+document.addEventListener('keydown',event=>{if(event.isComposing||event.keyCode===229||composingElement===event.target)return;if(event.key==='Escape'){event.preventDefault();closeSurface();}if(event.key==='Enter'&&event.target.dataset.config){event.preventDefault();applyConfig();}if(event.key==='Enter'&&event.target.dataset.setting==='archiveHours'){event.preventDefault();saveArchive();}if(state.modal&&event.key==='Tab'){const items=[...document.querySelectorAll('.dialog button:not(:disabled),.dialog input:not(:disabled),.dialog textarea:not(:disabled),.dialog select:not(:disabled),.dialog a[href],[role=dialog] [tabindex="0"]')];if(!items.length)return;const first=items[0],last=items[items.length-1];if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}}});
+window.RiftletDesign={getState:()=>copy(state),reset:(opts={})=>{clearTimeout(toastTimer);clearTimeout(motionTimer);state=fresh(opts.fixture||'recommendation',opts.theme||'light');render({preserveFocus:false,preserveOpen:false});return copy(state);},navigate,setView,setScenario,setFixture,setTheme:value=>{if(['light','dark'].includes(value)){state.theme=value;render();}},setFailure:value=>{state.saveFailure=!!value;render();},setReduceMotion:value=>{state.systemReduceMotion=!!value;render();},applyConfig,validateConfig,configKeys:Object.keys(defaultConfig),version:'settings-center-20261106'};
+state=fresh();render();
+
+})();
