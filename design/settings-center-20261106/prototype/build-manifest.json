@@ -6,14 +6,14 @@
   "files": {
     "inherited-helpers.js": "6dd07bcdc6e8445351a6cd56888b5cf511f301bdfb88238af29782576f8e4b4f",
     "style.css": "4f423f89e55ae566fa337793b988918f9f8fa024d215fd71d6ede5d2cae584dc",
-    "app.js": "2ae6e0c3a45036259614737855e3fa318faeb61e643993fa9dcae1a3e7ce69d0",
+    "app.js": "f8d8ec9bd87edf07c5188ae13f638163943691f531818e75449b1cb3f0b8ecb8",
     "index.html": "b90bb0f3e9e3ceb60760060ee309c1a100316c5850ea01cfdff5ebb38d0efd8c",
     "build.py": "1ae026609f5244b2f7cb095fcbad32c2e9a4493424b3e011a7f19bfec3b26f6f",
-    "bundle.js": "cf2db73946144e5fefa26e0c163421de9daa7921ef2a865e02ef5a5089d4d542"
+    "bundle.js": "4663899dbd238bc09381b919a75d9840f648651ecd6a9bcbe10fedc5e335bc45"
   },
   "output": {
     "path": "Riftlet-Settings-Prototype.html",
-    "bytes": 106773,
-    "sha256": "173385aa786076dc403210bade724a76a851b63ae14be3dfb52795bac5a2073d"
+    "bytes": 107129,
+    "sha256": "aded9ed13cd5ff54c0f0a2172bbe78c720c2f03f41f16ed11a864a09ef45fabf"
   }
 }
