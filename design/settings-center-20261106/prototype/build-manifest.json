@@ -5,15 +5,15 @@
   "supplement": "six settings pages, control center, onboarding, dark mode and memory-state interactions",
   "files": {
     "inherited-helpers.js": "6dd07bcdc6e8445351a6cd56888b5cf511f301bdfb88238af29782576f8e4b4f",
-    "style.css": "2add6b97cf2922ddf49511e1aa10d14ac0b6cf1ca03c3131025a8d220e845df9",
-    "app.js": "0d63b14e93d3ced66eab0711c71c15635bb54fda59e5de144bd012d643237453",
+    "style.css": "4f423f89e55ae566fa337793b988918f9f8fa024d215fd71d6ede5d2cae584dc",
+    "app.js": "55aa5c8e4af90aa5affebaed84db8f6783c1200bd938c1e5e9014df7fb93f154",
     "index.html": "b90bb0f3e9e3ceb60760060ee309c1a100316c5850ea01cfdff5ebb38d0efd8c",
     "build.py": "1ae026609f5244b2f7cb095fcbad32c2e9a4493424b3e011a7f19bfec3b26f6f",
-    "bundle.js": "e4fdf318954901ade26ea345dfb33678af254c2a9e0ba9bbf5c135f773d70bfb"
+    "bundle.js": "64f7ff56d225a0544a951d6adbd31da6b8407acb223c95984ecb8d22ec9c11a1"
   },
   "output": {
     "path": "Riftlet-Settings-Prototype.html",
-    "bytes": 97320,
-    "sha256": "a15e8dafaa38a5c336856985ee804a71b6fa8bef6db72cc58f143350573eb1c3"
+    "bytes": 104687,
+    "sha256": "d7c840f5fab2189226ae04bd14e491c6b17e12f6906364d43196cde230b9c1e8"
   }
 }
