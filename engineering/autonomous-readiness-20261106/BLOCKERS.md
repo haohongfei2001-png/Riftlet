@@ -9,3 +9,5 @@ These do not block independent engineering work.
 - RELEASE_DECISION: public distribution, support commitments and commercial/download publication remain unapproved.
 
 Record exact observed blockers rather than repeatedly retrying limited resources.
+
+- LOCAL_TOOLCHAIN: this Mac has only CommandLineTools Swift 6.4, no XCTest. Complete XCTest uses existing macOS CI; standalone native probes and product builds remain available locally. No Xcode installation/user action is requested.

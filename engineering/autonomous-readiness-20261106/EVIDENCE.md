@@ -13,3 +13,13 @@ Design branch `design/settings-control-center-20261106`, preserved start `6372bc
 Final headless browser runs: original 82 PASS, supplemental 21 PASS, 18 additional raw visual scenes. Full case results and screenshots live on the design branch under `design/settings-center-20261106/revision-2/evidence/`. Original 69 PASS / 13 FAIL and unsuccessful intermediate guard run remain intact. Native UI not implemented/tested by this prototype result.
 
 Further package results will be appended after execution, with scope and source identity.
+
+WP01 published design commit: `83b8ee478f13d3714697eda4cb3a7785576cb6e0`; existing branch pushed, v1 artifacts unchanged except README latest-candidate pointer.
+
+WP02 development evidence: actual Chrome in headless/isolated-profile mode passes 31/31 test groups (43 controlled scenarios within 18 browser groups plus 13 cleanup tests). Full headless-shell attempt had 30/31 groups PASS and a cross-tab focus wait failure; retained log, not a product failure claim. Same failed group and then the complete suite pass in full Chrome without source/test change.
+
+Local Swift XCTest is unavailable: CommandLineTools Swift 6.4 has no XCTest framework, both default and native build systems fail before tests. No tests skipped or represented as passing. Native storage probe compiles actual Core/Capture modules and passes a 160-image initial run; extended 1,200-image run in progress. Formal XCTest will execute in existing macOS CI.
+
+## WP03 completed
+
+`storage-recovery.py` implements health/backup/verify/restore with existing offline locks, byte-preserving SQLite/media/journal copies, logical checks on temporary copies, explicit incomplete receipts and new-directory-only restore. Independent root review and rerun: 25/25 PASS. See `evidence/WP03-review.json` and `evidence/storage-tests.log`. The running installed App's root returned `source-in-use` before any copying; that validates refusal, not production DB health. No production changes.

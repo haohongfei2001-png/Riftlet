@@ -1,0 +1,1 @@
+{"command": "health", "status": "refused-or-incomplete", "code": "source-in-use", "detail": "Riftlet or a sidecar still owns the source; no files were copied"}
