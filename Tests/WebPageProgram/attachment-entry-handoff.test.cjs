@@ -363,3 +363,100 @@ test('an independent composer reached during discovery gets its own input budget
   assert.equal(input.files[0].name, b.name);
   assert.equal(f.chooserOpens, 0);
 });
+
+test('two consecutive clicks receive Files on successive mounts in the actual controlled attachment panel', async () => {
+  const f = fixture(), app = mount(f, 'owned-async-mount');
+  const files = [];
+  app.input.addEventListener('change', event => files.push(event.target.files[0]));
+  for (let index = 0; index < 2; index++) {
+    const op = f.bind(); f.stage(op);
+    const {observation} = await f.commit(op);
+    assert.equal(observation.state, 'uploadStarted');
+    assert.equal(observation.identity.operationID, op.identity.operationID);
+    assert.equal(observation.uploadStart.inputCount, 1);
+    assert.equal(files[index].name, op.name);
+    assert.deepEqual(Buffer.from(await files[index].arrayBuffer()), op.bytes);
+    assert.equal(app.input.isConnected, false);
+    assert.equal(f.setters, index + 1);
+    assert.equal(f.changes, index + 1);
+  }
+  assert.equal(app.counts.entry, 2);
+  assert.equal(app.counts.pickerCalls, 0);
+  assert.equal(f.chooserOpens, 0);
+});
+
+for (const kind of ['menu-new-vs-existing', 'menu-both-new', 'empty-form-only', 'empty-form-vs-detached']) {
+  test('selected menu and independent empty form cannot hand off by timing alone: ' + kind, async () => {
+    const f = fixture({accept: false}), real = f.input;
+    real.remove();
+    real.applicationAccept = true;
+    if (kind === 'menu-new-vs-existing') f.body.append(real);
+    const section = f.body.append(new f.Node(kind.startsWith('empty-form') ? 'form' : 'section'));
+    let menuSelected, foreign;
+    const selected = new Promise(resolve => { menuSelected = resolve; });
+    // This independent application callback is registered before commit.
+    // Queue it only after the actual menu action has started, keeping the
+    // two operations' native call stacks separate.
+    const otherWork = selected.then(async () => {
+      await pause(5);
+      foreign = section.append(new f.context.HTMLInputElement());
+      foreign.applicationAccept = false;
+      if (kind.startsWith('menu-')) foreign.click();
+    });
+    let appWork, menuCalls = 0;
+    entryButton(f, f.form).addEventListener('click', () => {
+      const popup = f.body.append(new f.Node('div', {role: 'menu'}));
+      const action = popup.append(new f.Node('button', {type: 'button', role: 'menuitem'}));
+      action.textContent = 'Upload from computer';
+      action.addEventListener('click', () => {
+        menuCalls++;
+        menuSelected();
+        appWork = (async () => {
+          await otherWork; await pause(35);
+          if (kind === 'menu-both-new') f.body.append(real);
+          if (kind !== 'empty-form-only') real.click();
+        })();
+      });
+    });
+    const op = f.bind(); f.stage(op);
+    const {observation} = await f.commit(op);
+    assert.equal(menuCalls, 1, 'the actual local upload menu action executed');
+    await appWork;
+    assert.equal(foreign.setterCount, 0, 'another page task never receives the screenshot');
+    assert.equal(foreign.changeCount, 0);
+    if (kind === 'empty-form-vs-detached') {
+      assert.equal(observation.state, 'uploadStarted');
+      assert.equal(real.setterCount, 1);
+      assert.equal(real.changeCount, 1);
+      assert.deepEqual(Buffer.from(await real.files[0].arrayBuffer()), op.bytes);
+    } else {
+      assert.equal(observation.state, 'invalidated');
+      assert.equal(observation.preInputRetirement.reason,
+        kind === 'empty-form-only' ? 'attachmentInputNotCreated' : 'attachmentInputAmbiguous');
+      assert.equal(observation.preInputRetirement.inputCount, 0);
+      assert.equal(observation.uploadStart, undefined);
+      assert.equal(f.setters, 0);
+      assert.equal(f.changes, 0);
+    }
+  });
+}
+
+test('the composer attachment entry cannot be displaced by a labelled local subwidget', async () => {
+  const f = fixture(), input = f.body.append(f.input);
+  const widget = f.form.append(new f.Node('div')), other = widget.append(new f.context.HTMLInputElement());
+  other.setAttribute('id', 'branding-file');
+  widget.append(new f.Node('label', {for: other.id})).textContent = 'Organization logo';
+  let opened = 0;
+  const entry = f.form.append(new f.Node('button', {type: 'button',
+    'aria-label': 'Add files', 'data-testid': 'composer-plus-button'}));
+  entry.addEventListener('click', () => { opened++; input.click(); });
+  const op = f.bind(); f.stage(op);
+  const {observation} = await f.commit(op);
+  assert.equal(other.setterCount, 0);
+  assert.equal(other.changeCount, 0);
+  assert.equal(opened, 1);
+  assert.equal(input.setterCount, 1);
+  assert.equal(input.changeCount, 1);
+  assert.deepEqual(Buffer.from(await input.files[0].arrayBuffer()), op.bytes);
+  assert.equal(observation.state, 'uploadStarted');
+});

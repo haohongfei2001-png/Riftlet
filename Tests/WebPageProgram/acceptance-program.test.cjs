@@ -221,14 +221,27 @@ test('an external project upload entry and its aria-controls cannot preempt the 
  assert.equal(f.input.setterCount,1);assert.equal(f.input.files[0].name,op.name);assert.equal(f.changes,1);assert.equal(f.chooserOpens,0);
 });
 
-test('the activated entry can create its responsible input without click or showPicker synchronously or in its own timer',async()=>{
+test('the activated entry can mount its input synchronously, or later in its own controlled portal',async()=>{
  for(const delay of [0,35]){
   const f=fixture(),app=attachmentApplication(f,{dynamic:true,externalForm:true,method:'none',delay});
+  if(delay){
+   const portal=f.document.querySelector('[data-purpose="portal-root"]');
+   portal.setAttribute('id','attachment-portal');app.entry.setAttribute('aria-controls',portal.id);
+  }
   const op=f.bind();f.stage(op);await f.commit(op);accepted(f,op);
   assert.equal(app.entryCount,1);assert.equal(app.uploadCount,1);assert.equal(app.picker.setterCount,1);
   assert.equal(app.picker.files[0].name,op.name);assert.deepEqual(Buffer.from(await app.picker.files[0].arrayBuffer()),png);
   assert.equal(f.changes,1);assert.equal(f.chooserOpens,0);
  }
+});
+
+test('a bare asynchronous mount in an unlinked form cannot select a file recipient',async()=>{
+ const f=fixture(),app=attachmentApplication(f,{dynamic:true,externalForm:true,method:'none',delay:35});
+ const op=f.bind();f.stage(op);const result=(await f.commit(op)).observation;
+ assert.equal(app.entryCount,1);assert.equal(app.uploadCount,1);
+ assert.equal(result.state,'invalidated');assert.equal(result.preInputRetirement.inputCount,0);
+ assert.equal(result.uploadStart,undefined);assert.equal(app.picker.setterCount,0);
+ assert.equal(app.picker.changeCount,0);assert.equal(f.setters,0);assert.equal(f.changes,0);
 });
 
 test('readonly or disabled text editing does not disable an available chat attachment input',async()=>{

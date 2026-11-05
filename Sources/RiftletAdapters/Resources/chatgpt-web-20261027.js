@@ -175,7 +175,7 @@ function riftletWebAcceptance(command, native) {
   }
   function entryControls(binding) {
     const local = control => binding.form !== document.body && binding.form.contains(control);
-    return controls(document).filter(control => !binding.editor.contains(control) && !control.contains(binding.editor)
+    const candidates = controls(document).filter(control => !binding.editor.contains(control) && !control.contains(binding.editor)
       && !control.closest('[data-file-name],[role="menu"],[role="menuitem"]')
       && !outsidePurpose(control, binding)
       && (local(control) || /composer.*(?:plus|attach)/i.test(hints(control))
@@ -192,6 +192,13 @@ function riftletWebAcceptance(command, native) {
               || (control.hasAttribute('aria-haspopup') && (fileWords.test(control.getAttribute('aria-controls') || '')
                 || controlledElements(control).some(panel => fileWords.test(description(panel))))))));
       }).sort((a, b) => Number(local(b)) - Number(local(a)));
+    // A label's association proves which field that label owns. It does
+    // not make an independent subwidget the chat's attachment entry.
+    const primary = candidates.filter(node => /composer.*(?:plus|attach)|(?:plus|attach).*composer/i.test(hints(node))
+      || referenced(node, ['aria-controls']).includes(binding.editor));
+    if (primary.length) return primary;
+    const named = candidates.filter(node => attachmentWords.test(description(node)) || /^\s*\+\s*$/.test(node.textContent || ''));
+    return named.length ? named : candidates;
   }
   function otherOwner(input, binding, ownControls) {
     if (outsidePurpose(input, binding) || foreignPurpose.test(description(input))) return true;
@@ -205,8 +212,7 @@ function riftletWebAcceptance(command, native) {
       for (const control of document.querySelectorAll('[for],[aria-controls],[aria-owns]'))
         if (controlledElements(control).includes(input)) labels.push(control);
     }
-    return labels.some(label => !ownControls(label) && (outsidePurpose(label, binding)
-      || foreignPurpose.test(description(label)) || !binding.form.contains(label)));
+    return labels.some(label => !ownControls(label));
   }
   function directInput(binding, entries) {
     const own = node => entries.includes(node);
@@ -340,12 +346,13 @@ function riftletWebAcceptance(command, native) {
       && !node.closest('[data-file-name]') && !cloudFileWords.test(description(node))
       && !foreignPurpose.test(description(node)) && !nonFileAction.test(description(node));
     const items = [root, ...controls(root)].filter(node => node.matches(controlSelector) && safe(node)
-      && !node.matches('[role="menu"],[role="dialog"],[role="listbox"]'));
+      && !node.matches('form,[role="menu"],[role="dialog"],[role="listbox"]')
+      && (node !== root || node.matches('button,label,a[href],[role="button"],[role="menuitem"],[role="option"],[onclick]')));
     // Plain delegated rows may have neither tabindex nor a role. Dispatch at
     // their text so the application's own listener/default bubbling is used.
     const leaves = [root, ...root.querySelectorAll('*')].filter(node => !node.children.length
       && typeof node.click === 'function' && !items.some(item => item.contains(node))
-      && fileWords.test(description(node)) && safe(node));
+      && fileWords.test(node.textContent || '') && safe(node));
     items.push(...leaves);
     const actions = items.filter(node => !items.some(child => child !== node && node.contains(child)));
     const score = node => {
@@ -405,11 +412,9 @@ function riftletWebAcceptance(command, native) {
     const surfaces = entrySurfaces(binding), restoreSelection = preserveSelection(binding);
     const invoked = new Set(), entryAttempts = new Set(), usedRoots = new Set(), mutations = new Set();
     const captured = new Map(), syncMounted = new Set(), restores = [];
-    const emptyPickerForms = new Set([...document.querySelectorAll('form')]
-      .filter(form => !form.children.length && !outsidePurpose(form, binding)));
     const beforeInputs = new Set(document.querySelectorAll('input[type="file"]'));
     let lastEntryAt = 0, interrupted = false, insideControl = false, handlingForeignEvent = false;
-    let menuLocated = false, selectingLocalFile = false;
+    let menuLocated = false;
     let wake, changed = false;
     const signal = () => { changed = true; wake?.(); };
     const waitForChange = async () => {
@@ -427,17 +432,11 @@ function riftletWebAcceptance(command, native) {
       const owned = insideControl || surfaces.contains(input) || syncMounted.has(input)
         || [...invoked].some(control => relatedInputs(control).includes(input));
       if (!owned && otherOwner(input, binding, own)) return false;
-      // A positive local-file selection can mount and invoke its picker in an
-      // asynchronous render. The actual invocation matters, not mount alone.
-      const fromMenu = selectingLocalFile && input.isConnected && !beforeInputs.has(input);
-      const tied = owned || fromMenu;
-      const rivals = !tied && [...beforeInputs].some(other => other !== input && other.isConnected
-        && usableInput(other) && !otherOwner(other, binding, own));
       if (method === 'showPicker') diag.pickerShows++;
       else diag.pickerClicks++;
       diag.inputSeen = true; diag.inputConnected = input.isConnected;
       if (Date.now() < deadline) captured.set(input, {wasConnected: input.isConnected,
-        tied: tied || captured.get(input)?.tied, competing: !tied && rivals});
+        tied: owned || captured.get(input)?.tied});
       signal();
       return true;
     };
@@ -555,11 +554,12 @@ function riftletWebAcceptance(command, native) {
         const choices = tied.length ? tied : live;
         if (choices.length > 1) return retire('attachmentInputAmbiguous', 'picker', 'ambiguous');
         if (choices.length === 1) {
-          const [input, fact] = choices[0];
-          // If two anonymous pickers are independently possible, the first
-          // asynchronous callback to run does not win a race for this File.
-          // Resolve actual invocations within the existing discovery window.
-          if (tied.length || !fact.competing || ended) return execute(input, true);
+          const [input] = choices[0];
+          // An arbitrary renderer can create/call another picker later, even
+          // if there were no file inputs at click time. Without an observable
+          // connection to our action, arbitrate actual invocations within the
+          // original deadline. Never use attachment to the DOM as a tiebreak.
+          if (tied.length || ended) return execute(input, true);
           await waitForChange(); continue;
         }
         if (ended) break;
@@ -570,9 +570,7 @@ function riftletWebAcceptance(command, native) {
         const mounted = [...document.querySelectorAll('input[type="file"]')].filter(input =>
           !beforeInputs.has(input) && usableInput(input) && !otherOwner(input, binding, own));
         const inPopup = mounted.filter(input => surfaces.contains(input));
-        const mountedHere = inPopup.length ? inPopup : mounted.filter(input => syncMounted.has(input)
-          || (emptyPickerForms.has(input.form) && input.form.children.length === 1
-            && ![...beforeInputs].some(prior => prior.isConnected && usableInput(prior) && !otherOwner(prior, binding, own))));
+        const mountedHere = inPopup.length ? inPopup : mounted.filter(input => syncMounted.has(input));
         if (invoked.size && mountedHere.length === 1) return execute(mountedHere[0]);
         let next, menuRoot;
         for (const root of [...surfaces.roots].reverse()) {
@@ -580,14 +578,15 @@ function riftletWebAcceptance(command, native) {
           next = menuAction(root, binding, invoked);
           if (next) { menuRoot = root; menuLocated = true; diag.stage = 'menu'; break; }
         }
-        if (!next && !surfaces.roots.size && (!entryAttempts.size || Date.now() - lastEntryAt >= 200)
-          && entryAttempts.size < 2) {
-          next = entries.find(entry => !invoked.has(entry));
+        const canOpen = !surfaces.roots.size || (!invoked.size && entries.some(entry =>
+          entry.getAttribute('aria-expanded') !== 'true'));
+        if (!next && canOpen && (!entryAttempts.size || Date.now() - lastEntryAt >= 200) && entryAttempts.size < 2) {
+          next = entries.find(entry => !invoked.has(entry)
+            && (!surfaces.roots.size || entry.getAttribute('aria-expanded') !== 'true'));
           if (next) { entryAttempts.add(next); lastEntryAt = Date.now(); diag.entryActivations++; diag.stage = 'entry'; }
         }
         if (next) {
           invoked.add(next);
-          selectingLocalFile = !!menuRoot && !next.hasAttribute('aria-haspopup');
           const activated = await activate(next);
           if (menuRoot && activated) { usedRoots.add(menuRoot); diag.menuActivations++; }
           continue;

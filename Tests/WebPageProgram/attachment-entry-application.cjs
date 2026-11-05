@@ -71,6 +71,21 @@ function mountAttachmentEntryCase(name, form, input) {
     });
     return app;
   }
+  if (name === 'owned-async-mount' || name === 'visible-empty-panel') {
+    input.remove();
+    const initiallyEmpty = name === 'visible-empty-panel';
+    const panel = append(document.body, element(initiallyEmpty ? 'form' : 'section', {id: 'attachment-portal'}));
+    if (!initiallyEmpty) append(panel, element('span', {}, 'Files'));
+    entry.setAttribute('aria-controls', panel.id);
+    panel.hidden = !initiallyEmpty;
+    entry.addEventListener('click', () => {
+      counts.entry++; panel.hidden = false;
+      // The application owns this specific panel. Only mounting is required.
+      setTimeout(() => append(panel, input), 25);
+    });
+    input.addEventListener('change', () => { input.remove(); panel.hidden = !initiallyEmpty; });
+    return app;
+  }
   if (name === 'reused-content') {
     // Existing visible portal and existing DOM action. The application only
     // changes its text and callback state when this particular trigger runs.

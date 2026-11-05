@@ -76,7 +76,7 @@ source, review, CI and original ordinary ARM64 artifact identities are tracked
 on PR #41. Physical input and actual ChatGPT reception in the user's original
 chat remain separate from these fixtures.
 
-## Local candidate checks
+## Superseded local candidate and independent review
 
 * Candidate resource SHA-256 `82140ef950b557076a4b4c459e409634699961eef3936ac4209796d34bf8d6fa`.
   The original seven-layout study produced seven starts. The formal Node suite
@@ -91,3 +91,28 @@ chat remain separate from these fixtures.
 * The App emits the v16 page source identity for new inputs. Read-only native
   decoding covers pre-existing v15 registrations with their original fences.
   A newly registered v16 input cannot use an old registration as permission.
+
+The independent reviewer rejected source `ee84d8cc4ff2cc2e0b291b6666aa6ca125780141`
+before admission or remote CI. An unrelated renderer could mount and invoke a
+picker ahead of the real pending menu handler, or mount a lone input in an
+independent empty form without invoking it. That candidate wrote the screenshot
+to the wrong object in both controlled cases. Its short timings above describe
+the rejected implementation.
+
+The successor removes both shortcuts. A field changing during the selected
+control's synchronous dispatch, an explicitly linked field or an input in that
+control's owned popup can be used immediately. An anonymous external invocation
+is held for the existing discovery window. A single actual invocation can then
+receive its File, while competing opaque invocations retire without a setter.
+An asynchronously mounted field in an unrelated renderer never receives a File
+just because it is new or alone in a form. The mount-only positive regression
+uses the actual popover the attachment entry controls, including async render.
+
+The successor page resource SHA-256 is
+`768bb1cbd64733f012ef1ef58d467c92cc57510cc8a9551a837efcecb3e1022d`.
+A named composer attachment control takes precedence over a separate local
+widget's label. An empty but associated portal lets its opener populate it.
+A form ID alone is never treated as the visible text of a file action. The
+original five wrong-recipient counterexamples were retained and exercised on
+the rejected code and the successor. Final exact-tree review, test counts,
+PR merge checkout and installed hashes are reported in the PR delivery.

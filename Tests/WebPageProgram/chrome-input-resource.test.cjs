@@ -281,6 +281,10 @@ function browserFixture(options){
    check(nativeOrder.join(',')===Array(options.count).fill('input,change').join(','),'file event sequence after each setter');
    if(['forced-noun','forced-no-role','reused-content','nested','short-label','plain-action','pointer-open','focusable-menu','anchor-action','localized-opener'].includes(options.handoff))
     check(handoff.counts.menus===options.count,'the actual menu action executed per file');
+   if(options.handoff==='owned-async-mount'||options.handoff==='visible-empty-panel'){
+    check(handoff.counts.entry===options.count&&handoff.counts.pickerCalls===0,'each operation used a new mount in its controlled panel');
+    check(inputExecutionMS.every(ms=>ms<2200),'owned async panel waited for deadline');
+   }
    if(options.handoff==='ready-direct')check(handoff.counts.entry===0,'direct input avoids the inert entry');
    if(options.handoff==='nested')check(handoff.counts.submenus===options.count,'each submenu actually opened');
    if(options.handoff==='reused-open')check(handoff.counts.menus===options.count&&handoff.counts.entry<options.count,
@@ -299,10 +303,10 @@ function browserFixture(options){
   check(sends===0,'no automatic message send');
   check(wrongInputSetters===0&&wrongInputChanges===0&&decoys.every(picker=>picker.files.length===0),'unrelated file controls receive no setter/change and remain untouched');
   if(options.entryMode){
-   // These fixtures actually invoke a newly created picker after choosing the
-   // local menu action. In isolation the deliberate application delay is 75ms.
-   // An unrelated idle file input must not cost the entire 3s discovery budget.
-   check(inputExecutionMS.every(ms=>ms<2200),'identified menu picker waited for deadline: '+JSON.stringify(inputExecutionMS));
+   // Only the picker inside the actual opened menu is known to be its own.
+   // Opaque external invocations arbitrate within the existing discovery budget.
+   if(options.menuOwnsInput)check(inputExecutionMS.every(ms=>ms<2200),'owned menu picker waited for deadline: '+JSON.stringify(inputExecutionMS));
+   else check(inputExecutionMS.every(ms=>ms<4400),'opaque async discovery did not settle within its bounded window: '+JSON.stringify(inputExecutionMS));
    check(entryPointerDowns===options.count&&menuSelections===options.count&&createdPickers===options.count,'each click autonomously opens its menu and receives a new dynamic picker');
    check(pickerCalls===options.count&&pickerErrors===0,'the actual input.click/showPicker path completes automatically');
    check(options.entryMode!=='click'||pickerClicks===options.count,'normal application input click handlers still run');
@@ -352,7 +356,7 @@ const originalScenarios=[
 // Chrome process and temporary profile, including a separate real tab for A→B.
 const handoffScenarios=['direct','connected','detached','verb-menu','noun-menu','no-role','await-existing',
  'forced-noun','forced-no-role','reused-open','reused-content','nested','short-label','plain-action','pointer-open','detached-showPicker',
- 'renamed-action','ready-direct','implicit-submit','detached-stop','focusable-menu','anchor-action','localized-opener','await-detached-with-rival'].map(handoff=>({handoff,name:'handoff-'+handoff,count:handoff==='detached'?5:2,
+ 'renamed-action','ready-direct','implicit-submit','detached-stop','focusable-menu','anchor-action','localized-opener','await-detached-with-rival','owned-async-mount','visible-empty-panel'].map(handoff=>({handoff,name:'handoff-'+handoff,count:handoff==='detached'?5:2,
    retained:true,route:'https://chatgpt.com/c/ordinary-thread',resident:handoff==='detached',
    foreignPickers:handoff==='await-existing',switchTabs:handoff==='direct'}));
 const groups=[...originalScenarios.map(scenario=>[scenario]),handoffScenarios];
