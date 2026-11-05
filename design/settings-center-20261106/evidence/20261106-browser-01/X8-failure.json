@@ -1,0 +1,245 @@
+{
+  "caseID": "X8",
+  "title": "清空不得承诺不存在的批量撤销后端",
+  "steps": "清空确认后，核对未呈现main不具备的undo-clear命令",
+  "error": "main clearVisible没有成组恢复命令；撤销toast仅为未对齐的原型能力\n\n1 !== 0\n",
+  "state": {
+    "view": "control",
+    "page": "display",
+    "theme": "light",
+    "fixture": "recommendation",
+    "config": {
+      "fitWidth": 72,
+      "fitHeight": 56,
+      "hiddenFraction": 0,
+      "rowPitch": 60,
+      "lineWidth": 0.5,
+      "lineExtension": 8,
+      "emptyTraceLength": 24,
+      "outerInset": 6,
+      "firstCenterFromTop": 202,
+      "screenPadding": 12,
+      "numberFontSize": 11,
+      "numberGap": 8,
+      "leftPadding": 4,
+      "minimumHitWidth": 44,
+      "minimumHitHeight": 44,
+      "arrivalDuration": 0.22,
+      "pressDuration": 0.06,
+      "inwardDistance": 1.5,
+      "swallowDuration": 0.12,
+      "shiftDuration": 0.16,
+      "returnDuration": 0.18,
+      "reducedMotionDuration": 0.08,
+      "preferredDisplayID": null,
+      "visibleCountPreference": 3,
+      "placement": "leftMiddle",
+      "placementSource": "initialRecommendation",
+      "preferredDisplayUUID": null
+    },
+    "draft": {
+      "fitWidth": 72,
+      "fitHeight": 56,
+      "hiddenFraction": 0,
+      "rowPitch": 60,
+      "lineWidth": 0.5,
+      "lineExtension": 8,
+      "emptyTraceLength": 24,
+      "outerInset": 6,
+      "firstCenterFromTop": 202,
+      "screenPadding": 12,
+      "numberFontSize": 11,
+      "numberGap": 8,
+      "leftPadding": 4,
+      "minimumHitWidth": 44,
+      "minimumHitHeight": 44,
+      "arrivalDuration": 0.22,
+      "pressDuration": 0.06,
+      "inwardDistance": 1.5,
+      "swallowDuration": 0.12,
+      "shiftDuration": 0.16,
+      "returnDuration": 0.18,
+      "reducedMotionDuration": 0.08,
+      "preferredDisplayID": null,
+      "visibleCountPreference": 3,
+      "placement": "leftMiddle",
+      "placementSource": "initialRecommendation",
+      "preferredDisplayUUID": null
+    },
+    "editValues": {},
+    "preferences": {
+      "appearance": "system",
+      "entryEnabled": true,
+      "defaultCaptureMode": "window",
+      "arrival": "none",
+      "launchAtLogin": false
+    },
+    "paused": false,
+    "hidden": false,
+    "persistedPaused": false,
+    "persistedHidden": false,
+    "issue": null,
+    "displayMissing": false,
+    "externalDisplayMissing": false,
+    "usingFallback": false,
+    "displayRestoreAvailable": false,
+    "displayRestored": false,
+    "saveFailure": false,
+    "permissions": {
+      "folder": true,
+      "chrome": true,
+      "screen": false
+    },
+    "archiveHours": 24,
+    "archiveDraft": "24",
+    "archivePreset": "24",
+    "visibleCount": 0,
+    "historyOpened": false,
+    "historyFilter": "all",
+    "historyRange": "30",
+    "historyNow": "2026-11-06T06:32:00Z",
+    "records": [
+      {
+        "id": "sample-1",
+        "fileId": "original-1",
+        "title": "今天 14:32",
+        "timestamp": "2026-11-06T06:32:00Z",
+        "status": "removed",
+        "ageDays": 0,
+        "visible": false
+      },
+      {
+        "id": "sample-2",
+        "fileId": "original-2",
+        "title": "今天 14:28",
+        "timestamp": "2026-11-06T06:28:00Z",
+        "status": "removed",
+        "ageDays": 0,
+        "visible": false
+      },
+      {
+        "id": "sample-3",
+        "fileId": "original-3",
+        "title": "今天 13:46",
+        "timestamp": "2026-11-06T05:46:00Z",
+        "status": "removed",
+        "ageDays": 0,
+        "visible": false
+      },
+      {
+        "id": "sample-4",
+        "fileId": "original-4",
+        "title": "昨天 20:14",
+        "timestamp": "2026-11-05T12:14:00Z",
+        "status": "attached",
+        "ageDays": 1,
+        "visible": false
+      },
+      {
+        "id": "sample-5",
+        "fileId": "original-5",
+        "title": "11 月 2 日 10:07",
+        "timestamp": "2026-11-02T02:07:00Z",
+        "status": "archived",
+        "ageDays": 4,
+        "visible": false
+      },
+      {
+        "id": "sample-6",
+        "fileId": "original-6",
+        "title": "10 月 28 日 09:41",
+        "timestamp": "2026-10-28T01:41:00Z",
+        "status": "unknown",
+        "ageDays": 9,
+        "visible": false
+      }
+    ],
+    "files": [
+      {
+        "id": "original-1",
+        "kind": "synthetic-original",
+        "retained": true
+      },
+      {
+        "id": "original-2",
+        "kind": "synthetic-original",
+        "retained": true
+      },
+      {
+        "id": "original-3",
+        "kind": "synthetic-original",
+        "retained": true
+      },
+      {
+        "id": "original-4",
+        "kind": "synthetic-original",
+        "retained": true
+      },
+      {
+        "id": "original-5",
+        "kind": "synthetic-original",
+        "retained": true
+      },
+      {
+        "id": "original-6",
+        "kind": "synthetic-original",
+        "retained": true
+      }
+    ],
+    "attachments": [
+      {
+        "id": "attachment-4",
+        "fileId": "original-4",
+        "chat": "synthetic-chat"
+      }
+    ],
+    "storageChecked": false,
+    "onboardingStep": 0,
+    "onboardingCompleted": false,
+    "pendingCapture": false,
+    "modal": null,
+    "toast": "已从边缘收起，原图与聊天附件保留。",
+    "undoQueue": [
+      {
+        "id": "sample-1",
+        "status": "available"
+      },
+      {
+        "id": "sample-2",
+        "status": "available"
+      },
+      {
+        "id": "sample-3",
+        "status": "available"
+      }
+    ],
+    "feedbackDraft": "",
+    "feedbackIncludeDiagnostics": false,
+    "feedbackSaved": false,
+    "message": "",
+    "messageKind": "",
+    "closed": true,
+    "details": {
+      "custom-display": false,
+      "fine-display": false
+    },
+    "lastAction": "queue-cleared-files-retained",
+    "events": [
+      {
+        "action": "view",
+        "detail": "control"
+      },
+      {
+        "action": "open-clear",
+        "detail": null
+      },
+      {
+        "action": "queue-cleared-files-retained",
+        "detail": null
+      }
+    ],
+    "motionPlaying": null,
+    "systemReduceMotion": false
+  },
+  "visibleText": "Riftlet · 设置与控制中心\n设计补齐稿 · 继承 Quiet Edge 与当前 main\n设置\n控制中心\n首次使用\n右键菜单\n状态\n正常运行\n暂停收录\n仅隐藏\n需要处理\n设置样本\n新装建议 · 0% 遮挡\n当前 main 默认 · 25%\n旧版保留 · 14 pt\n已选屏断开\n保存失败\n系统减少动态\n重置演示\n访达\n文件\n编辑\n显示\n周五 14:32\nChatGPT\n继续刚才的想法\n有什么新想法？\n左键控制中心 · 暂停收录与隐藏裂缝彼此独立。\nEsc 关闭；已经应用的更改会保留。\n已从边缘收起，原图与聊天附件保留。\n撤销\n网页交互原型 · 全部为合成示例\n刷新即复位，不修改 Mac、权限或生产数据\n原生交互尚未验收"
+}

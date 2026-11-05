@@ -1,0 +1,1002 @@
+[
+  {
+    "file": "screenshots/P1.png",
+    "sha256": "de20da72e5a3ed45aa3fcc16054c4e464ba03c0abf7cc74c52709c408fda95be",
+    "caseID": "P1",
+    "page": "general",
+    "view": "settings",
+    "theme": "light",
+    "fixture": "recommendation",
+    "modal": null,
+    "paused": false,
+    "hidden": false,
+    "issue": null,
+    "onboardingStep": 0,
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    },
+    "format": "raw Chromium PNG, no image editing"
+  },
+  {
+    "file": "screenshots/D1.png",
+    "sha256": "a087aa838dee6f4dddd2943d1e31598a8b14c43625924f83653479aac5595c9a",
+    "caseID": "D1",
+    "page": "general",
+    "view": "settings",
+    "theme": "dark",
+    "fixture": "recommendation",
+    "modal": null,
+    "paused": false,
+    "hidden": false,
+    "issue": null,
+    "onboardingStep": 0,
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    },
+    "format": "raw Chromium PNG, no image editing"
+  },
+  {
+    "file": "screenshots/P2.png",
+    "sha256": "52b8275c6fa6ea5c56ef4ac473b18082b38f66d0ba859dc27fb63ebc17ffc28e",
+    "caseID": "P2",
+    "page": "display",
+    "view": "settings",
+    "theme": "light",
+    "fixture": "recommendation",
+    "modal": null,
+    "paused": false,
+    "hidden": false,
+    "issue": null,
+    "onboardingStep": 0,
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    },
+    "format": "raw Chromium PNG, no image editing"
+  },
+  {
+    "file": "screenshots/D2.png",
+    "sha256": "d34bcad41a68aee2d715296981dc0f99d9a552ecbe4049c5a4f0e2d60bbc221b",
+    "caseID": "D2",
+    "page": "display",
+    "view": "settings",
+    "theme": "dark",
+    "fixture": "recommendation",
+    "modal": null,
+    "paused": false,
+    "hidden": false,
+    "issue": null,
+    "onboardingStep": 0,
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    },
+    "format": "raw Chromium PNG, no image editing"
+  },
+  {
+    "file": "screenshots/P3.png",
+    "sha256": "a692fbad5a2c61847839be4389d26cf7a2a74928f4ba15a7444d3fb2827ae526",
+    "caseID": "P3",
+    "page": "capture",
+    "view": "settings",
+    "theme": "light",
+    "fixture": "recommendation",
+    "modal": null,
+    "paused": false,
+    "hidden": false,
+    "issue": null,
+    "onboardingStep": 0,
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    },
+    "format": "raw Chromium PNG, no image editing"
+  },
+  {
+    "file": "screenshots/D3.png",
+    "sha256": "ea3ce0349cf15e645092a1871779323d154fa6c2b502f7214879e3733349ee6c",
+    "caseID": "D3",
+    "page": "capture",
+    "view": "settings",
+    "theme": "dark",
+    "fixture": "recommendation",
+    "modal": null,
+    "paused": false,
+    "hidden": false,
+    "issue": null,
+    "onboardingStep": 0,
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    },
+    "format": "raw Chromium PNG, no image editing"
+  },
+  {
+    "file": "screenshots/P4.png",
+    "sha256": "92b93de6d91b9b1c4d7126fa9e3c2fbca3942ab9ee85c102abbf7d298df91b94",
+    "caseID": "P4",
+    "page": "motion",
+    "view": "settings",
+    "theme": "light",
+    "fixture": "recommendation",
+    "modal": null,
+    "paused": false,
+    "hidden": false,
+    "issue": null,
+    "onboardingStep": 0,
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    },
+    "format": "raw Chromium PNG, no image editing"
+  },
+  {
+    "file": "screenshots/D4.png",
+    "sha256": "b031648c664893c07b399611377083d11e1c075683931a67398bd8f40facc995",
+    "caseID": "D4",
+    "page": "motion",
+    "view": "settings",
+    "theme": "dark",
+    "fixture": "recommendation",
+    "modal": null,
+    "paused": false,
+    "hidden": false,
+    "issue": null,
+    "onboardingStep": 0,
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    },
+    "format": "raw Chromium PNG, no image editing"
+  },
+  {
+    "file": "screenshots/P5.png",
+    "sha256": "5935cb0f0385dadafac03096a796c3795f89fac6a673842f89973bd9b322a5a3",
+    "caseID": "P5",
+    "page": "history",
+    "view": "settings",
+    "theme": "light",
+    "fixture": "recommendation",
+    "modal": null,
+    "paused": false,
+    "hidden": false,
+    "issue": null,
+    "onboardingStep": 0,
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    },
+    "format": "raw Chromium PNG, no image editing"
+  },
+  {
+    "file": "screenshots/D5.png",
+    "sha256": "3acff1ea93d54e6dbfd9e64e2d628258113cbe455db8bc010f22700b19d5e94e",
+    "caseID": "D5",
+    "page": "history",
+    "view": "settings",
+    "theme": "dark",
+    "fixture": "recommendation",
+    "modal": null,
+    "paused": false,
+    "hidden": false,
+    "issue": null,
+    "onboardingStep": 0,
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    },
+    "format": "raw Chromium PNG, no image editing"
+  },
+  {
+    "file": "screenshots/P6.png",
+    "sha256": "0f876d0d605ea7b09dfe09a7dd8dd18a5b4aaf85f1326fabf0fd7ebd7acfe566",
+    "caseID": "P6",
+    "page": "permissions",
+    "view": "settings",
+    "theme": "light",
+    "fixture": "recommendation",
+    "modal": null,
+    "paused": false,
+    "hidden": false,
+    "issue": null,
+    "onboardingStep": 0,
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    },
+    "format": "raw Chromium PNG, no image editing"
+  },
+  {
+    "file": "screenshots/D6.png",
+    "sha256": "0bf2266b14a05f37d3c792f89806aacb81ed87572923bd572f59ececa2994791",
+    "caseID": "D6",
+    "page": "permissions",
+    "view": "settings",
+    "theme": "dark",
+    "fixture": "recommendation",
+    "modal": null,
+    "paused": false,
+    "hidden": false,
+    "issue": null,
+    "onboardingStep": 0,
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    },
+    "format": "raw Chromium PNG, no image editing"
+  },
+  {
+    "file": "screenshots/C1.png",
+    "sha256": "df8e5e2d583008cc263cfe4f0f6ed5f225e24a82c1fc54cba23819f949a35c0d",
+    "caseID": "C1",
+    "page": "display",
+    "view": "control",
+    "theme": "light",
+    "fixture": "recommendation",
+    "modal": null,
+    "paused": false,
+    "hidden": false,
+    "issue": null,
+    "onboardingStep": 0,
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    },
+    "format": "raw Chromium PNG, no image editing"
+  },
+  {
+    "file": "screenshots/C2.png",
+    "sha256": "8b0c00a2b24797292abf718fd5dd5e0d05c9a5c58d4452d9c3f905fce3a99e71",
+    "caseID": "C2",
+    "page": "display",
+    "view": "control",
+    "theme": "light",
+    "fixture": "recommendation",
+    "modal": null,
+    "paused": true,
+    "hidden": false,
+    "issue": null,
+    "onboardingStep": 0,
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    },
+    "format": "raw Chromium PNG, no image editing"
+  },
+  {
+    "file": "screenshots/C3.png",
+    "sha256": "993a6c2d496148f4c1cecff007ac0124b5e6f2b83e632f5601ae8a82c2e2fc05",
+    "caseID": "C3",
+    "page": "display",
+    "view": "control",
+    "theme": "light",
+    "fixture": "recommendation",
+    "modal": null,
+    "paused": false,
+    "hidden": true,
+    "issue": null,
+    "onboardingStep": 0,
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    },
+    "format": "raw Chromium PNG, no image editing"
+  },
+  {
+    "file": "screenshots/C4.png",
+    "sha256": "28b92989d0da3b7f79c3d1cb7d3960e96cb1a176e4052e2a2c652cda8e6e99e1",
+    "caseID": "C4",
+    "page": "display",
+    "view": "control",
+    "theme": "light",
+    "fixture": "recommendation",
+    "modal": null,
+    "paused": false,
+    "hidden": false,
+    "issue": "folder",
+    "onboardingStep": 0,
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    },
+    "format": "raw Chromium PNG, no image editing"
+  },
+  {
+    "file": "screenshots/C5.png",
+    "sha256": "3baa4c3e66f95223ffaaf8a82091ce60bb81c02d62f2f6acd2374e0e76a64e98",
+    "caseID": "C5",
+    "page": "general",
+    "view": "control",
+    "theme": "light",
+    "fixture": "recommendation",
+    "modal": null,
+    "paused": true,
+    "hidden": true,
+    "issue": null,
+    "onboardingStep": 0,
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    },
+    "format": "raw Chromium PNG, no image editing"
+  },
+  {
+    "file": "screenshots/C8.png",
+    "sha256": "3baa4c3e66f95223ffaaf8a82091ce60bb81c02d62f2f6acd2374e0e76a64e98",
+    "caseID": "C8",
+    "page": "display",
+    "view": "control",
+    "theme": "light",
+    "fixture": "recommendation",
+    "modal": null,
+    "paused": true,
+    "hidden": true,
+    "issue": null,
+    "onboardingStep": 0,
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    },
+    "format": "raw Chromium PNG, no image editing"
+  },
+  {
+    "file": "screenshots/F2-legacy-before.png",
+    "sha256": "56c2c781ff8f44a1557cd84f39ab729b06d913114357828847480dce6e373416",
+    "caseID": "F2",
+    "page": "display",
+    "view": "settings",
+    "theme": "light",
+    "fixture": "legacy",
+    "modal": null,
+    "paused": false,
+    "hidden": false,
+    "issue": null,
+    "onboardingStep": 0,
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    },
+    "format": "raw Chromium PNG, no image editing"
+  },
+  {
+    "file": "screenshots/F4-draft.png",
+    "sha256": "06a8d98106a757206b0fe546dbc34d828426169a397e60a5a193f3cb57dab8d7",
+    "caseID": "F4",
+    "page": "display",
+    "view": "settings",
+    "theme": "light",
+    "fixture": "recommendation",
+    "modal": null,
+    "paused": false,
+    "hidden": false,
+    "issue": null,
+    "onboardingStep": 0,
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    },
+    "format": "raw Chromium PNG, no image editing"
+  },
+  {
+    "file": "screenshots/F5.png",
+    "sha256": "09a32abcc2508c98c4802e9302200dfceba39294197d177ade46ed62489edf40",
+    "caseID": "F5",
+    "page": "display",
+    "view": "settings",
+    "theme": "light",
+    "fixture": "recommendation",
+    "modal": null,
+    "paused": false,
+    "hidden": false,
+    "issue": null,
+    "onboardingStep": 0,
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    },
+    "format": "raw Chromium PNG, no image editing"
+  },
+  {
+    "file": "screenshots/S1.png",
+    "sha256": "96914b08a98077124c447259b48aea37e7e16631c13ed79f09b58db33afe545c",
+    "caseID": "S1",
+    "page": "display",
+    "view": "settings",
+    "theme": "light",
+    "fixture": "recommendation",
+    "modal": null,
+    "paused": false,
+    "hidden": false,
+    "issue": "write",
+    "onboardingStep": 0,
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    },
+    "format": "raw Chromium PNG, no image editing"
+  },
+  {
+    "file": "screenshots/S3-stop-unsaved.png",
+    "sha256": "b6cfa0f7642989816e17c7dd4d49581dc9b46e1ec0bb51d608360901f9fa6e11",
+    "caseID": "S3",
+    "page": "general",
+    "view": "settings",
+    "theme": "light",
+    "fixture": "recommendation",
+    "modal": null,
+    "paused": true,
+    "hidden": false,
+    "issue": "write",
+    "onboardingStep": 0,
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    },
+    "format": "raw Chromium PNG, no image editing"
+  },
+  {
+    "file": "screenshots/S3.png",
+    "sha256": "b32f6a197c0aea7522f7b9b1cce396e4714e530cdb62163645c4604bf9231065",
+    "caseID": "S3",
+    "page": "general",
+    "view": "settings",
+    "theme": "light",
+    "fixture": "recommendation",
+    "modal": null,
+    "paused": true,
+    "hidden": false,
+    "issue": "write",
+    "onboardingStep": 0,
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    },
+    "format": "raw Chromium PNG, no image editing"
+  },
+  {
+    "file": "screenshots/S4-stop-unsaved.png",
+    "sha256": "41d788378c8dc6286c813f9d93ce35a55d2c82638ce61a36fa2078e989f18ad7",
+    "caseID": "S4",
+    "page": "general",
+    "view": "settings",
+    "theme": "light",
+    "fixture": "recommendation",
+    "modal": null,
+    "paused": false,
+    "hidden": true,
+    "issue": "write",
+    "onboardingStep": 0,
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    },
+    "format": "raw Chromium PNG, no image editing"
+  },
+  {
+    "file": "screenshots/S4.png",
+    "sha256": "b7f7ee140e6a9eb9eaa8bd88a5526cc2e88c6e64a4c42e9cebc58e43acd17c36",
+    "caseID": "S4",
+    "page": "general",
+    "view": "settings",
+    "theme": "light",
+    "fixture": "recommendation",
+    "modal": null,
+    "paused": false,
+    "hidden": true,
+    "issue": "write",
+    "onboardingStep": 0,
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    },
+    "format": "raw Chromium PNG, no image editing"
+  },
+  {
+    "file": "screenshots/S5-disabled-unsaved.png",
+    "sha256": "c11072f968fe3d453440d502ea3c4c8bf417a94785df4a08d0238df17a73fdb5",
+    "caseID": "S5",
+    "page": "capture",
+    "view": "settings",
+    "theme": "light",
+    "fixture": "recommendation",
+    "modal": null,
+    "paused": false,
+    "hidden": false,
+    "issue": "write",
+    "onboardingStep": 0,
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    },
+    "format": "raw Chromium PNG, no image editing"
+  },
+  {
+    "file": "screenshots/S5.png",
+    "sha256": "318abdbda3c97fbf165347c10299e65e67bce2664b189885691f6fc34a567fb1",
+    "caseID": "S5",
+    "page": "capture",
+    "view": "settings",
+    "theme": "light",
+    "fixture": "recommendation",
+    "modal": null,
+    "paused": false,
+    "hidden": false,
+    "issue": "write",
+    "onboardingStep": 0,
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    },
+    "format": "raw Chromium PNG, no image editing"
+  },
+  {
+    "file": "screenshots/W1-close-confirmation.png",
+    "sha256": "cbeb4ad45a10f2dd81adb93f2b0f59ead25ab923f419b38ac4b30548d850a6f8",
+    "caseID": "W1",
+    "page": "display",
+    "view": "settings",
+    "theme": "light",
+    "fixture": "recommendation",
+    "modal": "unsaved",
+    "paused": false,
+    "hidden": false,
+    "issue": null,
+    "onboardingStep": 0,
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    },
+    "format": "raw Chromium PNG, no image editing"
+  },
+  {
+    "file": "screenshots/W4.png",
+    "sha256": "c745ae69a9302f7988dd2974f8d14f9d5699c0babef94d27550e7c70d4d919bd",
+    "caseID": "W4",
+    "page": "display",
+    "view": "settings",
+    "theme": "light",
+    "fixture": "recommendation",
+    "modal": "unsaved",
+    "paused": false,
+    "hidden": false,
+    "issue": "write",
+    "onboardingStep": 0,
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    },
+    "format": "raw Chromium PNG, no image editing"
+  },
+  {
+    "file": "screenshots/M1.png",
+    "sha256": "4c36cf6f20992b8882a40a847141d67c94845ced6fd4caba6d6a33ed10a96af4",
+    "caseID": "M1",
+    "page": "display",
+    "view": "settings",
+    "theme": "light",
+    "fixture": "recommendation",
+    "modal": null,
+    "paused": false,
+    "hidden": false,
+    "issue": null,
+    "onboardingStep": 0,
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    },
+    "format": "raw Chromium PNG, no image editing"
+  },
+  {
+    "file": "screenshots/M2-reconnected-awaiting-return.png",
+    "sha256": "83359bcf2db3bb34f19b4b94a56829946129a63fbb5c54369c1a0d1d579b4357",
+    "caseID": "M2",
+    "page": "display",
+    "view": "settings",
+    "theme": "light",
+    "fixture": "recommendation",
+    "modal": null,
+    "paused": false,
+    "hidden": false,
+    "issue": null,
+    "onboardingStep": 0,
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    },
+    "format": "raw Chromium PNG, no image editing"
+  },
+  {
+    "file": "screenshots/A3.png",
+    "sha256": "f5d00dd8e538667ddd171137105496e8c3705f718c5dc78b89f8de460f22af23",
+    "caseID": "A3",
+    "page": "display",
+    "view": "control",
+    "theme": "light",
+    "fixture": "recommendation",
+    "modal": null,
+    "paused": false,
+    "hidden": false,
+    "issue": null,
+    "onboardingStep": 0,
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    },
+    "format": "raw Chromium PNG, no image editing"
+  },
+  {
+    "file": "screenshots/V2.png",
+    "sha256": "dccd1824a25f24e01928813f0a3e7c584964e751edcff2e58bb957f428c8d9be",
+    "caseID": "V2",
+    "page": "motion",
+    "view": "settings",
+    "theme": "light",
+    "fixture": "recommendation",
+    "modal": null,
+    "paused": false,
+    "hidden": false,
+    "issue": null,
+    "onboardingStep": 0,
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    },
+    "format": "raw Chromium PNG, no image editing"
+  },
+  {
+    "file": "screenshots/O1-step1.png",
+    "sha256": "e625e1d50949d31621248f45e9ef202dede1919322a422773c7a1cd1746050ec",
+    "caseID": "O1",
+    "page": "display",
+    "view": "onboarding",
+    "theme": "light",
+    "fixture": "recommendation",
+    "modal": null,
+    "paused": false,
+    "hidden": false,
+    "issue": null,
+    "onboardingStep": 0,
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    },
+    "format": "raw Chromium PNG, no image editing"
+  },
+  {
+    "file": "screenshots/O2-step2-partial.png",
+    "sha256": "e20a257c8475e655c44907a6a4626dedb1cb6345791c112bebcc964cded8d048",
+    "caseID": "O2",
+    "page": "display",
+    "view": "onboarding",
+    "theme": "light",
+    "fixture": "recommendation",
+    "modal": null,
+    "paused": false,
+    "hidden": false,
+    "issue": "folder",
+    "onboardingStep": 1,
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    },
+    "format": "raw Chromium PNG, no image editing"
+  },
+  {
+    "file": "screenshots/O3-step3.png",
+    "sha256": "b86471d4b874f513f7787a33503318046e7bd1b3f34cd852aa8dd8cdddda108a",
+    "caseID": "O3",
+    "page": "general",
+    "view": "onboarding",
+    "theme": "light",
+    "fixture": "recommendation",
+    "modal": null,
+    "paused": true,
+    "hidden": true,
+    "issue": null,
+    "onboardingStep": 2,
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    },
+    "format": "raw Chromium PNG, no image editing"
+  },
+  {
+    "file": "screenshots/X1-FAIL.png",
+    "sha256": "73e19202066e197a11978ad0b84e2d083668e17a810dcf092394c831806bc414",
+    "caseID": "X1",
+    "page": "general",
+    "view": "settings",
+    "theme": "dark",
+    "fixture": "recommendation",
+    "modal": null,
+    "paused": true,
+    "hidden": false,
+    "issue": null,
+    "onboardingStep": 0,
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    },
+    "format": "raw Chromium PNG, no image editing"
+  },
+  {
+    "file": "screenshots/X2-FAIL.png",
+    "sha256": "4d5616fd4c2364b4a68d4cecb42e5f9f2f64e2ec6e32c9c03d5c0e90112e87cf",
+    "caseID": "X2",
+    "page": "general",
+    "view": "settings",
+    "theme": "dark",
+    "fixture": "recommendation",
+    "modal": null,
+    "paused": false,
+    "hidden": true,
+    "issue": null,
+    "onboardingStep": 0,
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    },
+    "format": "raw Chromium PNG, no image editing"
+  },
+  {
+    "file": "screenshots/X3-FAIL.png",
+    "sha256": "c11072f968fe3d453440d502ea3c4c8bf417a94785df4a08d0238df17a73fdb5",
+    "caseID": "X3",
+    "page": "capture",
+    "view": "settings",
+    "theme": "light",
+    "fixture": "recommendation",
+    "modal": null,
+    "paused": false,
+    "hidden": false,
+    "issue": "write",
+    "onboardingStep": 0,
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    },
+    "format": "raw Chromium PNG, no image editing"
+  },
+  {
+    "file": "screenshots/X4-FAIL.png",
+    "sha256": "1e02c57f6f59141e4357bcaa4bd30f6e964b0b9652871ab4265f337930a68aed",
+    "caseID": "X4",
+    "page": "permissions",
+    "view": "settings",
+    "theme": "light",
+    "fixture": "recommendation",
+    "modal": null,
+    "paused": true,
+    "hidden": false,
+    "issue": null,
+    "onboardingStep": 0,
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    },
+    "format": "raw Chromium PNG, no image editing"
+  },
+  {
+    "file": "screenshots/X5-FAIL.png",
+    "sha256": "acdd46b205ea20e9a7ca3bcc556dd09aed99cf58bdb264ce889ab38e27d54383",
+    "caseID": "X5",
+    "page": "general",
+    "view": "settings",
+    "theme": "dark",
+    "fixture": "recommendation",
+    "modal": null,
+    "paused": false,
+    "hidden": false,
+    "issue": null,
+    "onboardingStep": 0,
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    },
+    "format": "raw Chromium PNG, no image editing"
+  },
+  {
+    "file": "screenshots/X6-FAIL.png",
+    "sha256": "946bf4a5476b995d16e0d524695406da573ed5406d08baa8f8ff3188bc0819b2",
+    "caseID": "X6",
+    "page": "general",
+    "view": "settings",
+    "theme": "light",
+    "fixture": "recommendation",
+    "modal": null,
+    "paused": true,
+    "hidden": false,
+    "issue": "write",
+    "onboardingStep": 0,
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    },
+    "format": "raw Chromium PNG, no image editing"
+  },
+  {
+    "file": "screenshots/X7-FAIL.png",
+    "sha256": "ef04d84295ac0fa02176b2da422eb1e09b1bae4a25a7f6fa050f6c5ff2bd9ffa",
+    "caseID": "X7",
+    "page": "motion",
+    "view": "settings",
+    "theme": "light",
+    "fixture": "recommendation",
+    "modal": null,
+    "paused": false,
+    "hidden": false,
+    "issue": null,
+    "onboardingStep": 0,
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    },
+    "format": "raw Chromium PNG, no image editing"
+  },
+  {
+    "file": "screenshots/X8-FAIL.png",
+    "sha256": "f5d00dd8e538667ddd171137105496e8c3705f718c5dc78b89f8de460f22af23",
+    "caseID": "X8",
+    "page": "display",
+    "view": "control",
+    "theme": "light",
+    "fixture": "recommendation",
+    "modal": null,
+    "paused": false,
+    "hidden": false,
+    "issue": null,
+    "onboardingStep": 0,
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    },
+    "format": "raw Chromium PNG, no image editing"
+  },
+  {
+    "file": "screenshots/X9-FAIL.png",
+    "sha256": "03ef9a4a0c28edf9c53bec087c21ae7937ec5a88eb954408aa5aaaebaae43357",
+    "caseID": "X9",
+    "page": "display",
+    "view": "settings",
+    "theme": "light",
+    "fixture": "recommendation",
+    "modal": null,
+    "paused": false,
+    "hidden": false,
+    "issue": null,
+    "onboardingStep": 0,
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    },
+    "format": "raw Chromium PNG, no image editing"
+  },
+  {
+    "file": "screenshots/X10-FAIL.png",
+    "sha256": "dd6513fca3287bed6a8a0ec22dfd247bbf789f8e6572700fd3daf44b459a2170",
+    "caseID": "X10",
+    "page": "display",
+    "view": "settings",
+    "theme": "light",
+    "fixture": "recommendation",
+    "modal": null,
+    "paused": false,
+    "hidden": false,
+    "issue": "write",
+    "onboardingStep": 0,
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    },
+    "format": "raw Chromium PNG, no image editing"
+  },
+  {
+    "file": "screenshots/X11-FAIL.png",
+    "sha256": "289b649316527edaea6c37b0d295d3a8384a330c5ca3b4f8cab7a621436f9407",
+    "caseID": "X11",
+    "page": "display",
+    "view": "control",
+    "theme": "light",
+    "fixture": "recommendation",
+    "modal": "history",
+    "paused": false,
+    "hidden": false,
+    "issue": null,
+    "onboardingStep": 0,
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    },
+    "format": "raw Chromium PNG, no image editing"
+  },
+  {
+    "file": "screenshots/X12-FAIL.png",
+    "sha256": "15ad077bc267742183958d70724a0bf7b1d3436421b9ed35601b0e0dc2e29d39",
+    "caseID": "X12",
+    "page": "history",
+    "view": "settings",
+    "theme": "light",
+    "fixture": "recommendation",
+    "modal": null,
+    "paused": false,
+    "hidden": false,
+    "issue": null,
+    "onboardingStep": 0,
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    },
+    "format": "raw Chromium PNG, no image editing"
+  },
+  {
+    "file": "screenshots/X13-FAIL.png",
+    "sha256": "09eedc9c64aad0260057457de071257c40016ea684f8a85baeb3613a2cfc9c9c",
+    "caseID": "X13",
+    "page": "history",
+    "view": "settings",
+    "theme": "light",
+    "fixture": "recommendation",
+    "modal": null,
+    "paused": false,
+    "hidden": false,
+    "issue": null,
+    "onboardingStep": 0,
+    "viewport": {
+      "width": 1440,
+      "height": 1100,
+      "deviceScaleFactor": 1
+    },
+    "format": "raw Chromium PNG, no image editing"
+  }
+]

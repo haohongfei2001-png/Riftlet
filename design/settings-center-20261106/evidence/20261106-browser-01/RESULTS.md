@@ -1,0 +1,116 @@
+# 本轮真实浏览器回归结果
+
+运行：`20261106-browser-01`
+
+结果：60 PASS / 18 FAIL / 78 项。
+
+HTML SHA-256：`aded9ed13cd5ff54c0f0a2172bbe78c720c2f03f41f16ed11a864a09ef45fabf`
+
+Real headless Chromium DOM interactions on saved standalone HTML; all data synthetic. Native AppKit, OS permissions, real displays, persistence and upload NOT_RUN.
+
+FAIL 为实际合同差异，未改写为预期成功；每项失败有原始 PNG 与状态记录。历史遗失的 41 PASS 未引用。
+
+| ID | 结果 | 验证目标 | 可复验操作 |
+| --- | --- | --- | --- |
+| P1 | PASS | 浅色六页：通用 | 点击侧栏 通用；核对唯一页面、标题和选择标记 |
+| D1 | PASS | 深色六页：通用 | 点击深色切换，再点击 通用；核对主题、可见内容及原始截图 |
+| P2 | PASS | 浅色六页：位置与显示 | 点击侧栏 位置与显示；核对唯一页面、标题和选择标记 |
+| D2 | PASS | 深色六页：位置与显示 | 点击深色切换，再点击 位置与显示；核对主题、可见内容及原始截图 |
+| P3 | PASS | 浅色六页：截图 | 点击侧栏 截图；核对唯一页面、标题和选择标记 |
+| D3 | PASS | 深色六页：截图 | 点击深色切换，再点击 截图；核对主题、可见内容及原始截图 |
+| P4 | PASS | 浅色六页：动效 | 点击侧栏 动效；核对唯一页面、标题和选择标记 |
+| D4 | PASS | 深色六页：动效 | 点击深色切换，再点击 动效；核对主题、可见内容及原始截图 |
+| P5 | PASS | 浅色六页：历史与存储 | 点击侧栏 历史与存储；核对唯一页面、标题和选择标记 |
+| D5 | PASS | 深色六页：历史与存储 | 点击深色切换，再点击 历史与存储；核对主题、可见内容及原始截图 |
+| P6 | PASS | 浅色六页：权限与帮助 | 点击侧栏 权限与帮助；核对唯一页面、标题和选择标记 |
+| D6 | PASS | 深色六页：权限与帮助 | 点击深色切换，再点击 权限与帮助；核对主题、可见内容及原始截图 |
+| C1 | PASS | 控制中心：normal | 切换控制中心；选择评审状态 normal；核对主状态及保留的历史/设置入口 |
+| C2 | PASS | 控制中心：paused | 切换控制中心；选择评审状态 paused；核对主状态及保留的历史/设置入口 |
+| C3 | PASS | 控制中心：hidden | 切换控制中心；选择评审状态 hidden；核对主状态及保留的历史/设置入口 |
+| C4 | PASS | 控制中心：attention | 切换控制中心；选择评审状态 attention；核对主状态及保留的历史/设置入口 |
+| C5 | PASS | 暂停与隐藏相互独立 | 通用依次暂停和隐藏，再转控制中心核对两个开关及组合说明 |
+| C6 | PASS | 控制中心点击开关后保持打开 | 控制中心暂停ON再OFF，不关闭浮层、不修改隐藏 |
+| C7 | PASS | 外部点击关闭控制中心 | 点击合成桌面空白，然后菜单栏图标再次打开 |
+| C8 | PASS | 右键菜单同源状态 | 切右键菜单；暂停、隐藏；切回控制中心核对状态 |
+| C9 | PASS | 打开历史关闭浮层 | 控制中心点击历史；核对历史对话框和浮层已关闭 |
+| F1 | PASS | 新装建议与真实main默认明确区分 | 评审样本 current → recommendation，核对25%与0%，其余实际默认保留 |
+| F2 | PASS | 旧JSON布局兼容 | 选legacy；核对14pt、旧绝对位置、未自动迁移；主动选择右下才迁移 |
+| F3 | FAIL | 六种位置全部可选 | 依次点击六个位置，每次核对config与aria-pressed，保留geometry |
+| F4 | PASS | 数字草稿与生效值分开 | 宽度编辑成96，失焦；草稿预览更新而生效值仍72；应用后才改变 |
+| F5 | PASS | 空串编辑不自动变零 | 清空宽度输入，失焦再应用；原值保持、原始文本保留、显示校验错误 |
+| F6 | PASS | 拒绝非有限与非法数字 | 依次输入NaN/Infinity/-1/257到宽度；每次应用均拒绝且不改生效值 |
+| F7 | PASS | 计数整数约束 | 输入3.5再应用拒绝；输入10成功 |
+| F8 | PASS | 精确输入保留有效上界 | 遮挡90%、宽256、高256、距边256，应用不夹断；90.1%拒绝 |
+| F9 | PASS | 跨页保留草稿并统一应用 | display改宽96，motion改吞噬200ms；来回切页保留；全局应用两项 |
+| F10 | PASS | 即时位置不被数字草稿覆盖 | 改宽度草稿后选右下/外接屏再应用；三个值都保留 |
+| F11 | FAIL | 无变更禁用应用 | 初始无dirty；应用按钮不可用；改值应用后再次禁用 |
+| F12 | PASS | 恢复本页只修改本页草稿 | 显示宽96和motion吞噬200草稿；恢复显示页不碰motion/屏幕/文件；尚未应用 |
+| F13 | PASS | Return提交数字草稿 | 宽96，真实键盘Enter提交，焦点仍在原字段 |
+| S1 | PASS | 配置保存失败保留草稿 | 改宽96→注入保存失败→应用；生效72、草稿96、明确错误 |
+| S2 | PASS | 配置保存失败后原意重试 | 同一宽96草稿失败，取消故障再点应用；无需改值即可成功 |
+| S3 | FAIL | 暂停写失败仍停止当前运行 | 暂停ON时注入失败；运行态true、持久态false，提示重启风险；反向恢复失败不得假恢复 |
+| S4 | FAIL | 隐藏写失败仍停止当前运行 | 隐藏ON时注入失败；运行态true、持久态false，提示重启风险；反向恢复失败不得假恢复 |
+| S5 | FAIL | 关闭内置入口写失败仍关闭运行 | 截图页关闭入口时注入失败；入口有效OFF、系统截图权限不变；启用失败仍OFF |
+| S6 | PASS | 普通偏好写失败不换生效值 | 截图默认模式由window改region时保存失败；依旧window |
+| S7 | PASS | 位置与显示器写失败保持原值 | 注入失败后选右下及外接屏；位置/显示器原样保留 |
+| W1 | PASS | 关闭草稿默认继续编辑 | 编辑宽96→关闭；三个动作齐全，默认焦点继续编辑；Escape后草稿保留 |
+| W2 | PASS | 不保存丢弃草稿并关闭 | 改宽96→关闭→不保存→重新打开；宽度72 |
+| W3 | FAIL | 应用并关闭覆盖所有待存域 | 布局宽96、归档2.5h草稿→关闭→应用并关闭；均保存 |
+| W4 | PASS | 保存失败不能关闭丢草稿 | 宽96→注入失败→关闭→应用并关闭；仍在sheet、草稿96、运行72 |
+| W5 | PASS | 关闭sheet键盘焦点循环 | 打开未保存sheet；末按钮Tab回首，首按钮Shift+Tab回末 |
+| M1 | PASS | 显示器断开不清长期UUID | 先选外接，再切断开；保留UUID和ID，仅使用临时落点 |
+| M2 | PASS | 重连需显式回到已选屏 | 外接断开→重连；仍临时落点，点击回到已选显示器后才返回 |
+| M3 | PASS | 断开后选择内建屏结束回退 | 外接断开→选内建屏；选中身份1、回退结束，但外接仍断开 |
+| A1 | FAIL | 归档自定义小数并保留关闭语义 | 输入2.5h未自动保存，点击保存生效；选关闭仍需保存，最终null |
+| A2 | FAIL | 归档非法输入与写失败不改生效值 | 空串/-1/Infinity分别拒绝；有效8h注入保存失败仍24h |
+| A3 | PASS | 清空只收起可见队列 | 控制中心清空→说明范围→确认；记录仍6条，文件/附件完全相同，无可见裂缝 |
+| A4 | PASS | 清空取消不改变数据 | 打开清空确认后取消；记录、文件和附件不变 |
+| A5 | FAIL | 历史按状态和真实时间戳筛选 | 历史展开→unknown只显示sample6；1天范围排除该旧记录；all显示当日三条 |
+| A6 | PASS | 存储未检查不显示零 | 历史页初始尚未检查；点击检查后显示演示数据且不删除记录 |
+| T1 | PASS | 关闭内置截图保留系统收录 | 关闭入口→控制中心内置按钮禁用；暂停和文件访问状态不变 |
+| T2 | PASS | 首次内置截图按需请求权限 | 控制中心点截图→先说明录屏权限；取消不新增数据，再点允许才出现合成截图确认 |
+| T3 | PASS | 截图默认方式三种保留 | 依次选window/region/fullScreen；状态与控件一致 |
+| T4 | PASS | 隐藏不偷偷恢复截图入口 | 隐藏→控制中心截图禁用并说明；重新显示后恢复原开启入口，权限未被自动请求 |
+| V1 | PASS | 动效仅无和磁力两种 | motion核对两个radio；无入缝预览不播放，选择磁力有主动播放事件 |
+| V2 | PASS | 减少动态不修改保存时长 | motion→系统减少动态ON→预览吞噬；配置完全不变，动画≤80ms |
+| V3 | PASS | 设置ms与源码秒单位转换 | motion吞噬填写250ms→Enter；config .25秒，控件仍250 |
+| O1 | PASS | 引导第一步及稍后设置 | 首次使用step1→稍后设置；未完成、没有截图/附件变化 |
+| O2 | PASS | 引导第二步可跳过未完成权限 | attention→首次使用→继续到step2；不自动授予folder/screen；可继续 |
+| O3 | PASS | 引导第三步保存位置并无自动操作 | 预先暂停+隐藏→引导继续两步→右下/内建屏→开始；保持暂停隐藏和全部数据 |
+| O4 | PASS | 引导上一步与重新查看 | step2返回step1，再完成；通用重新查看从step1开始且保持配置 |
+| H1 | PASS | 权限仅主动按钮模拟 | attention→权限页连接→取消不改变→再连接模拟允许才恢复 |
+| H2 | PASS | 反馈草稿与诊断明确未发送 | 通用反馈→填合成文字、勾本次诊断→预览→保存关闭→重开，草稿和勾选保留 |
+| X1 | FAIL | paused未保存事实不能被外观成功清除 | pausedON写失败→取消故障注入→外观深色成功；未保存告警必须继续保留 |
+| X2 | FAIL | hidden未保存事实不能被外观成功清除 | hiddenON写失败→取消故障注入→外观深色成功；未保存告警必须继续保留 |
+| X3 | FAIL | 内置入口必须区分有效状态与持久意图 | 关闭入口保存失败；有效OFF，但必须可观察持久意图/未确认状态 |
+| X4 | FAIL | 文件授权成功不清除暂停保存失败 | attention→暂停写失败→权限页允许访问→folder恢复；暂停未保存告警仍需存在 |
+| X5 | FAIL | 布局保存失败不被无关偏好成功清除 | 宽96草稿应用失败→外观成功；草稿仍未保存，必须保留写失败域 |
+| X6 | FAIL | 停止方向保存失败提供原意重试 | 暂停ON保存失败→取消注入→控制中心前往处理；必须可重试暂停ON保存，而非先恢复收录 |
+| X7 | FAIL | 兼容失效字段不能伪装有效旋钮 | 展开display和motion高级项；main未使用的兼容字段应保留数据但不提供有效编辑 |
+| X8 | FAIL | 清空不得承诺不存在的批量撤销后端 | 清空确认后，核对未呈现main不具备的undo-clear命令 |
+| X9 | FAIL | 选择主显示器保存当时具体身份 | 选外接再选主显示器；应保存真实屏幕ID/UUID，不等于清空为动态跟随 |
+| Z1 | PASS | 无脚本异常或外部网络 | 全部交互结束后，核对无pageerror且无外部HTTP(S)请求 |
+
+## 失败记录
+
+- **F3**：locator.getAttribute: Error: strict mode violation: locator('[data-placement="leftTop"]') resolved to 2 elements:     1) <div data-count="3" data-placement="leftTop" class="preview-rift left top">…</div> aka getByText('123')     2) <button aria-pressed="true" aria-label="裂缝位置：左上" data-placement="leftTop">…</button> aka getByRole('button', { name: '裂缝位置：左上' })  Call log: [2m  - waiting for locator('[data-placement="leftTop"]')[22m 。 [状态记录](F3-failure.json) · [原始画面](screenshots/F3-FAIL.png)
+- **F11**：locator.isDisabled: Timeout 4000ms exceeded. Call log: [2m  - waiting for locator('[data-action="apply-config"]')[22m 。 [状态记录](F11-failure.json) · [原始画面](screenshots/F11-FAIL.png)
+- **S3**：locator.setChecked: Timeout 4000ms exceeded. Call log: [2m  - waiting for locator('[data-setting="paused"]')[22m [2m    12 × locator resolved to <input checked type="checkbox" aria-label="暂停收录" data-setting="paused"/>[22m [2m     - attempting click action[22m [2m       - waiting for element to be visible, enabled and stable[22m [2m       - element is visible, enabled and stable[22m [2m       - scrolling into view if needed[22m [2m       - done scrolling[22m [2m       - performing click action[22m [2m       - click action done[22m [2m       - waiting for scheduled navigations to finish[22m [2m       - navigations have finished[22m 。 [状态记录](S3-failure.json) · [原始画面](screenshots/S3-FAIL.png)
+- **S4**：locator.setChecked: Timeout 4000ms exceeded. Call log: [2m  - waiting for locator('[data-setting="hidden"]')[22m [2m    12 × locator resolved to <input checked type="checkbox" aria-label="隐藏裂缝" data-setting="hidden"/>[22m [2m     - attempting click action[22m [2m       - waiting for element to be visible, enabled and stable[22m [2m       - element is visible, enabled and stable[22m [2m       - scrolling into view if needed[22m [2m       - done scrolling[22m [2m       - performing click action[22m [2m       - click action done[22m [2m       - waiting for scheduled navigations to finish[22m [2m       - navigations have finished[22m 。 [状态记录](S4-failure.json) · [原始画面](screenshots/S4-FAIL.png)
+- **S5**：locator.setChecked: Timeout 4000ms exceeded. Call log: [2m  - waiting for locator('[data-setting="entryEnabled"]')[22m [2m    12 × locator resolved to <input type="checkbox" aria-label="显示截图入口" data-setting="entryEnabled"/>[22m [2m     - attempting click action[22m [2m       - waiting for element to be visible, enabled and stable[22m [2m       - element is visible, enabled and stable[22m [2m       - scrolling into view if needed[22m [2m       - done scrolling[22m [2m       - performing click action[22m [2m       - click action done[22m [2m       - waiting for scheduled navigations to finish[22m [2m       - navigations have finished[22m 。 [状态记录](S5-failure.json) · [原始画面](screenshots/S5-FAIL.png)
+- **W3**：locator.click: Timeout 4000ms exceeded. Call log: [2m  - waiting for locator('[data-action="apply-and-close"]')[22m 。 [状态记录](W3-failure.json) · [原始画面](screenshots/W3-FAIL.png)
+- **A1**：The "message" argument must be one of type string or function. Received undefined。 [状态记录](A1-failure.json) · [原始画面](screenshots/A1-FAIL.png)
+- **A2**：The "message" argument must be one of type string or function. Received undefined。 [状态记录](A2-failure.json) · [原始画面](screenshots/A2-FAIL.png)
+- **A5**：locator.selectOption: Timeout 4000ms exceeded. Call log: [2m  - waiting for locator('[data-setting="historyRange"]')[22m [2m    - locator resolved to <select aria-label="历史时间范围" class="control-select" data-setting="historyRange">…</select>[22m [2m  - attempting select option action[22m [2m    2 × waiting for element to be visible and enabled[22m [2m      - did not find some options[22m [2m    - retrying select option action[22m [2m    - waiting 20ms[22m [2m    2 × waiting for element to be visible and enabled[22m [2m      - did not find some options[22m [2m    - retrying select option action[22m [2m      - waiting 100ms[22m [2m    8 × waiting for element to be visible and enabled[22m [2m      - did not find some options[22m [2m    - retrying select option action[22m [2m      - waiting 500ms[22m 。 [状态记录](A5-failure.json) · [原始画面](screenshots/A5-FAIL.png)
+- **X1**：未保存的运行偏好仍与持久意图不一致，无关成功不得清除提示  null !== 'write' 。 [状态记录](X1-failure.json) · [原始画面](screenshots/X1-FAIL.png)
+- **X2**：未保存的运行偏好仍与持久意图不一致，无关成功不得清除提示  null !== 'write' 。 [状态记录](X2-failure.json) · [原始画面](screenshots/X2-FAIL.png)
+- **X3**：原型未保存入口持久状态/保存结果域，无法独立核对运行与持久意图。 [状态记录](X3-failure.json) · [原始画面](screenshots/X3-FAIL.png)
+- **X4**：文件授权与偏好写入是独立错误域  null !== 'write' 。 [状态记录](X4-failure.json) · [原始画面](screenshots/X4-FAIL.png)
+- **X5**：外观成功不能标记布局保存错误已解决  null !== 'write' 。 [状态记录](X5-failure.json) · [原始画面](screenshots/X5-FAIL.png)
+- **X6**：没有可见的同方向重试保存动作，不能要求先OFF再ON。 [状态记录](X6-failure.json) · [原始画面](screenshots/X6-FAIL.png)
+- **X7**：这些字段已由main其他机制替代；原型旋钮会误导实际效果 + actual - expected  + [ +   'lineWidth', +   'lineExtension', +   'screenPadding', +   'inwardDistance', +   'reducedMotionDuration' + ] - [] 。 [状态记录](X7-failure.json) · [原始画面](screenshots/X7-FAIL.png)
+- **X8**：main clearVisible没有成组恢复命令；撤销toast仅为未对齐的原型能力  1 !== 0 。 [状态记录](X8-failure.json) · [原始画面](screenshots/X8-FAIL.png)
+- **X9**：main选择主屏会解析当时NSScreen身份；原型存null不等价。 [状态记录](X9-failure.json) · [原始画面](screenshots/X9-FAIL.png)
+
+原型保持：true；运行前后继承文件保持：true。
+浏览器进程已由脚本关闭。

@@ -1,0 +1,228 @@
+{
+  "caseID": "X9",
+  "title": "选择主显示器保存当时具体身份",
+  "steps": "选外接再选主显示器；应保存真实屏幕ID/UUID，不等于清空为动态跟随",
+  "error": "main选择主屏会解析当时NSScreen身份；原型存null不等价",
+  "state": {
+    "view": "settings",
+    "page": "display",
+    "theme": "light",
+    "fixture": "recommendation",
+    "config": {
+      "fitWidth": 72,
+      "fitHeight": 56,
+      "hiddenFraction": 0,
+      "rowPitch": 60,
+      "lineWidth": 0.5,
+      "lineExtension": 8,
+      "emptyTraceLength": 24,
+      "outerInset": 6,
+      "firstCenterFromTop": 202,
+      "screenPadding": 12,
+      "numberFontSize": 11,
+      "numberGap": 8,
+      "leftPadding": 4,
+      "minimumHitWidth": 44,
+      "minimumHitHeight": 44,
+      "arrivalDuration": 0.22,
+      "pressDuration": 0.06,
+      "inwardDistance": 1.5,
+      "swallowDuration": 0.12,
+      "shiftDuration": 0.16,
+      "returnDuration": 0.18,
+      "reducedMotionDuration": 0.08,
+      "preferredDisplayID": null,
+      "visibleCountPreference": 3,
+      "placement": "leftMiddle",
+      "placementSource": "user",
+      "preferredDisplayUUID": null
+    },
+    "draft": {
+      "fitWidth": 72,
+      "fitHeight": 56,
+      "hiddenFraction": 0,
+      "rowPitch": 60,
+      "lineWidth": 0.5,
+      "lineExtension": 8,
+      "emptyTraceLength": 24,
+      "outerInset": 6,
+      "firstCenterFromTop": 202,
+      "screenPadding": 12,
+      "numberFontSize": 11,
+      "numberGap": 8,
+      "leftPadding": 4,
+      "minimumHitWidth": 44,
+      "minimumHitHeight": 44,
+      "arrivalDuration": 0.22,
+      "pressDuration": 0.06,
+      "inwardDistance": 1.5,
+      "swallowDuration": 0.12,
+      "shiftDuration": 0.16,
+      "returnDuration": 0.18,
+      "reducedMotionDuration": 0.08,
+      "preferredDisplayID": null,
+      "visibleCountPreference": 3,
+      "placement": "leftMiddle",
+      "placementSource": "user",
+      "preferredDisplayUUID": null
+    },
+    "editValues": {},
+    "preferences": {
+      "appearance": "system",
+      "entryEnabled": true,
+      "defaultCaptureMode": "window",
+      "arrival": "none",
+      "launchAtLogin": false
+    },
+    "paused": false,
+    "hidden": false,
+    "persistedPaused": false,
+    "persistedHidden": false,
+    "issue": null,
+    "displayMissing": false,
+    "externalDisplayMissing": false,
+    "usingFallback": false,
+    "displayRestoreAvailable": false,
+    "displayRestored": false,
+    "saveFailure": false,
+    "permissions": {
+      "folder": true,
+      "chrome": true,
+      "screen": false
+    },
+    "archiveHours": 24,
+    "archiveDraft": "24",
+    "archivePreset": "24",
+    "visibleCount": 3,
+    "historyOpened": false,
+    "historyFilter": "all",
+    "historyRange": "30",
+    "historyNow": "2026-11-06T06:32:00Z",
+    "records": [
+      {
+        "id": "sample-1",
+        "fileId": "original-1",
+        "title": "今天 14:32",
+        "timestamp": "2026-11-06T06:32:00Z",
+        "status": "available",
+        "ageDays": 0,
+        "visible": true
+      },
+      {
+        "id": "sample-2",
+        "fileId": "original-2",
+        "title": "今天 14:28",
+        "timestamp": "2026-11-06T06:28:00Z",
+        "status": "available",
+        "ageDays": 0,
+        "visible": true
+      },
+      {
+        "id": "sample-3",
+        "fileId": "original-3",
+        "title": "今天 13:46",
+        "timestamp": "2026-11-06T05:46:00Z",
+        "status": "available",
+        "ageDays": 0,
+        "visible": true
+      },
+      {
+        "id": "sample-4",
+        "fileId": "original-4",
+        "title": "昨天 20:14",
+        "timestamp": "2026-11-05T12:14:00Z",
+        "status": "attached",
+        "ageDays": 1,
+        "visible": false
+      },
+      {
+        "id": "sample-5",
+        "fileId": "original-5",
+        "title": "11 月 2 日 10:07",
+        "timestamp": "2026-11-02T02:07:00Z",
+        "status": "archived",
+        "ageDays": 4,
+        "visible": false
+      },
+      {
+        "id": "sample-6",
+        "fileId": "original-6",
+        "title": "10 月 28 日 09:41",
+        "timestamp": "2026-10-28T01:41:00Z",
+        "status": "unknown",
+        "ageDays": 9,
+        "visible": false
+      }
+    ],
+    "files": [
+      {
+        "id": "original-1",
+        "kind": "synthetic-original",
+        "retained": true
+      },
+      {
+        "id": "original-2",
+        "kind": "synthetic-original",
+        "retained": true
+      },
+      {
+        "id": "original-3",
+        "kind": "synthetic-original",
+        "retained": true
+      },
+      {
+        "id": "original-4",
+        "kind": "synthetic-original",
+        "retained": true
+      },
+      {
+        "id": "original-5",
+        "kind": "synthetic-original",
+        "retained": true
+      },
+      {
+        "id": "original-6",
+        "kind": "synthetic-original",
+        "retained": true
+      }
+    ],
+    "attachments": [
+      {
+        "id": "attachment-4",
+        "fileId": "original-4",
+        "chat": "synthetic-chat"
+      }
+    ],
+    "storageChecked": false,
+    "onboardingStep": 0,
+    "onboardingCompleted": false,
+    "pendingCapture": false,
+    "modal": null,
+    "toast": null,
+    "undoQueue": null,
+    "feedbackDraft": "",
+    "feedbackIncludeDiagnostics": false,
+    "feedbackSaved": false,
+    "message": "显示器选择已保存。",
+    "messageKind": "ok",
+    "closed": false,
+    "details": {
+      "custom-display": false,
+      "fine-display": false
+    },
+    "lastAction": "display",
+    "events": [
+      {
+        "action": "display",
+        "detail": "external"
+      },
+      {
+        "action": "display",
+        "detail": "primary"
+      }
+    ],
+    "motionPlaying": null,
+    "systemReduceMotion": false
+  },
+  "visibleText": "Riftlet · 设置与控制中心\n设计补齐稿 · 继承 Quiet Edge 与当前 main\n设置\n控制中心\n首次使用\n右键菜单\n状态\n正常运行\n暂停收录\n仅隐藏\n需要处理\n设置样本\n新装建议 · 0% 遮挡\n当前 main 默认 · 25%\n旧版保留 · 14 pt\n已选屏断开\n保存失败\n系统减少动态\n重置演示\nRiftlet 设置\nRiftlet\n截图，就在手边\n通用\n位置与显示\n截图\n动效\n历史与存储\n权限与帮助\n查看截图历史\n正在收录\n打开控制中心\n位置与显示\n\n让截图停在顺手的位置，保留桌面的空间。\n\n1\n2\n3\n左中 · 主显示器\n\n每页 3 张\n静止遮挡 0%\n72 × 56 pt · 等比缩放\n\n布局示意\n所在显示器\n\n始终记住你的选择。\n\n使用主显示器\n内建显示器\n外接显示器\n位置\n\n位置由你选择，不会跟随窗口自动移动。\n\n左上\n右上\n左中\n右中\n左下\n右下\n每页显示\n\n更多截图通过上下箭头翻页。\n\n张\n详细自定义遮挡、距边与微图大小\n显示器选择已保存。\n恢复本页…\n已应用\n网页交互原型 · 全部为合成示例\n刷新即复位，不修改 Mac、权限或生产数据\n原生交互尚未验收"
+}

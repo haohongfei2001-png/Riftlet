@@ -1,0 +1,229 @@
+{
+  "caseID": "A5",
+  "title": "历史按状态和真实时间戳筛选",
+  "steps": "历史展开→unknown只显示sample6；1天范围排除该旧记录；all显示当日三条",
+  "error": "locator.selectOption: Timeout 4000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-setting=\"historyRange\"]')\u001b[22m\n\u001b[2m    - locator resolved to <select aria-label=\"历史时间范围\" class=\"control-select\" data-setting=\"historyRange\">…</select>\u001b[22m\n\u001b[2m  - attempting select option action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible and enabled\u001b[22m\n\u001b[2m      - did not find some options\u001b[22m\n\u001b[2m    - retrying select option action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible and enabled\u001b[22m\n\u001b[2m      - did not find some options\u001b[22m\n\u001b[2m    - retrying select option action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    8 × waiting for element to be visible and enabled\u001b[22m\n\u001b[2m      - did not find some options\u001b[22m\n\u001b[2m    - retrying select option action\u001b[22m\n\u001b[2m      - waiting 500ms\u001b[22m\n",
+  "state": {
+    "view": "settings",
+    "page": "history",
+    "theme": "light",
+    "fixture": "recommendation",
+    "config": {
+      "fitWidth": 72,
+      "fitHeight": 56,
+      "hiddenFraction": 0,
+      "rowPitch": 60,
+      "lineWidth": 0.5,
+      "lineExtension": 8,
+      "emptyTraceLength": 24,
+      "outerInset": 6,
+      "firstCenterFromTop": 202,
+      "screenPadding": 12,
+      "numberFontSize": 11,
+      "numberGap": 8,
+      "leftPadding": 4,
+      "minimumHitWidth": 44,
+      "minimumHitHeight": 44,
+      "arrivalDuration": 0.22,
+      "pressDuration": 0.06,
+      "inwardDistance": 1.5,
+      "swallowDuration": 0.12,
+      "shiftDuration": 0.16,
+      "returnDuration": 0.18,
+      "reducedMotionDuration": 0.08,
+      "preferredDisplayID": null,
+      "visibleCountPreference": 3,
+      "placement": "leftMiddle",
+      "placementSource": "initialRecommendation",
+      "preferredDisplayUUID": null
+    },
+    "draft": {
+      "fitWidth": 72,
+      "fitHeight": 56,
+      "hiddenFraction": 0,
+      "rowPitch": 60,
+      "lineWidth": 0.5,
+      "lineExtension": 8,
+      "emptyTraceLength": 24,
+      "outerInset": 6,
+      "firstCenterFromTop": 202,
+      "screenPadding": 12,
+      "numberFontSize": 11,
+      "numberGap": 8,
+      "leftPadding": 4,
+      "minimumHitWidth": 44,
+      "minimumHitHeight": 44,
+      "arrivalDuration": 0.22,
+      "pressDuration": 0.06,
+      "inwardDistance": 1.5,
+      "swallowDuration": 0.12,
+      "shiftDuration": 0.16,
+      "returnDuration": 0.18,
+      "reducedMotionDuration": 0.08,
+      "preferredDisplayID": null,
+      "visibleCountPreference": 3,
+      "placement": "leftMiddle",
+      "placementSource": "initialRecommendation",
+      "preferredDisplayUUID": null
+    },
+    "editValues": {},
+    "preferences": {
+      "appearance": "system",
+      "entryEnabled": true,
+      "defaultCaptureMode": "window",
+      "arrival": "none",
+      "launchAtLogin": false
+    },
+    "paused": false,
+    "hidden": false,
+    "persistedPaused": false,
+    "persistedHidden": false,
+    "issue": null,
+    "displayMissing": false,
+    "externalDisplayMissing": false,
+    "usingFallback": false,
+    "displayRestoreAvailable": false,
+    "displayRestored": false,
+    "saveFailure": false,
+    "permissions": {
+      "folder": true,
+      "chrome": true,
+      "screen": false
+    },
+    "archiveHours": 24,
+    "archiveDraft": "24",
+    "archivePreset": "24",
+    "visibleCount": 3,
+    "historyOpened": false,
+    "historyFilter": "unknown",
+    "historyRange": "30",
+    "historyNow": "2026-11-06T06:32:00Z",
+    "records": [
+      {
+        "id": "sample-1",
+        "fileId": "original-1",
+        "title": "今天 14:32",
+        "timestamp": "2026-11-06T06:32:00Z",
+        "status": "available",
+        "ageDays": 0,
+        "visible": true
+      },
+      {
+        "id": "sample-2",
+        "fileId": "original-2",
+        "title": "今天 14:28",
+        "timestamp": "2026-11-06T06:28:00Z",
+        "status": "available",
+        "ageDays": 0,
+        "visible": true
+      },
+      {
+        "id": "sample-3",
+        "fileId": "original-3",
+        "title": "今天 13:46",
+        "timestamp": "2026-11-06T05:46:00Z",
+        "status": "available",
+        "ageDays": 0,
+        "visible": true
+      },
+      {
+        "id": "sample-4",
+        "fileId": "original-4",
+        "title": "昨天 20:14",
+        "timestamp": "2026-11-05T12:14:00Z",
+        "status": "attached",
+        "ageDays": 1,
+        "visible": false
+      },
+      {
+        "id": "sample-5",
+        "fileId": "original-5",
+        "title": "11 月 2 日 10:07",
+        "timestamp": "2026-11-02T02:07:00Z",
+        "status": "archived",
+        "ageDays": 4,
+        "visible": false
+      },
+      {
+        "id": "sample-6",
+        "fileId": "original-6",
+        "title": "10 月 28 日 09:41",
+        "timestamp": "2026-10-28T01:41:00Z",
+        "status": "unknown",
+        "ageDays": 9,
+        "visible": false
+      }
+    ],
+    "files": [
+      {
+        "id": "original-1",
+        "kind": "synthetic-original",
+        "retained": true
+      },
+      {
+        "id": "original-2",
+        "kind": "synthetic-original",
+        "retained": true
+      },
+      {
+        "id": "original-3",
+        "kind": "synthetic-original",
+        "retained": true
+      },
+      {
+        "id": "original-4",
+        "kind": "synthetic-original",
+        "retained": true
+      },
+      {
+        "id": "original-5",
+        "kind": "synthetic-original",
+        "retained": true
+      },
+      {
+        "id": "original-6",
+        "kind": "synthetic-original",
+        "retained": true
+      }
+    ],
+    "attachments": [
+      {
+        "id": "attachment-4",
+        "fileId": "original-4",
+        "chat": "synthetic-chat"
+      }
+    ],
+    "storageChecked": false,
+    "onboardingStep": 0,
+    "onboardingCompleted": false,
+    "pendingCapture": false,
+    "modal": null,
+    "toast": null,
+    "undoQueue": null,
+    "feedbackDraft": "",
+    "feedbackIncludeDiagnostics": false,
+    "feedbackSaved": false,
+    "message": "",
+    "messageKind": "",
+    "closed": false,
+    "details": {
+      "custom-display": false,
+      "fine-display": false,
+      "history-detail": true
+    },
+    "lastAction": "historyFilter",
+    "events": [
+      {
+        "action": "navigate",
+        "detail": "history"
+      },
+      {
+        "action": "historyFilter",
+        "detail": "unknown"
+      }
+    ],
+    "motionPlaying": null,
+    "systemReduceMotion": false
+  },
+  "visibleText": "Riftlet · 设置与控制中心\n设计补齐稿 · 继承 Quiet Edge 与当前 main\n设置\n控制中心\n首次使用\n右键菜单\n状态\n正常运行\n暂停收录\n仅隐藏\n需要处理\n设置样本\n新装建议 · 0% 遮挡\n当前 main 默认 · 25%\n旧版保留 · 14 pt\n已选屏断开\n保存失败\n系统减少动态\n重置演示\nRiftlet 设置\nRiftlet\n截图，就在手边\n通用\n位置与显示\n截图\n动效\n历史与存储\n权限与帮助\n查看截图历史\n正在收录\n打开控制中心\n历史与存储\n\n让边缘保持清爽，需要时仍能找到原图。\n\n查看历史\n闲置截图\n闲置后自动归档\n\n将长时间未用的微图收进历史，保留文件。\n\n关闭\n1 小时\n8 小时\n24 小时\n3 天\n自定义…\n\n正在悬停、按下或操作中的截图，会等你操作结束再归档。\n\n本机存储\nRiftlet 私有副本\n尚未检查\n需要时检查，不自动清理。\n检查用量\n从边缘收起全部截图\n\n只清空可见队列，聊天附件和原文件都保留。\n\n收起全部…\n查看最近记录\n附加、归档与待核实状态\n全部状态\n待附加\n已附加\n已归档\n已收起\n待核实\n最近 3 天\n最近 7 天\n最近 30 天\n10 月 28 日 09:41\n结果待核实\n查看原图\n\n待核实记录会保留，不会自动再次附加。\n\n更改会保留，布局参数应用后生效。\n已应用\n网页交互原型 · 全部为合成示例\n刷新即复位，不修改 Mac、权限或生产数据\n原生交互尚未验收"
+}

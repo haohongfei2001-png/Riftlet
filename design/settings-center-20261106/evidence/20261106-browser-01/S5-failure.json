@@ -1,0 +1,277 @@
+{
+  "caseID": "S5",
+  "title": "关闭内置入口写失败仍关闭运行",
+  "steps": "截图页关闭入口时注入失败；入口有效OFF、系统截图权限不变；启用失败仍OFF",
+  "error": "locator.setChecked: Timeout 4000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-setting=\"entryEnabled\"]')\u001b[22m\n\u001b[2m    12 × locator resolved to <input type=\"checkbox\" aria-label=\"显示截图入口\" data-setting=\"entryEnabled\"/>\u001b[22m\n\u001b[2m     - attempting click action\u001b[22m\n\u001b[2m       - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m       - element is visible, enabled and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - performing click action\u001b[22m\n\u001b[2m       - click action done\u001b[22m\n\u001b[2m       - waiting for scheduled navigations to finish\u001b[22m\n\u001b[2m       - navigations have finished\u001b[22m\n",
+  "state": {
+    "view": "settings",
+    "page": "capture",
+    "theme": "light",
+    "fixture": "recommendation",
+    "config": {
+      "fitWidth": 72,
+      "fitHeight": 56,
+      "hiddenFraction": 0,
+      "rowPitch": 60,
+      "lineWidth": 0.5,
+      "lineExtension": 8,
+      "emptyTraceLength": 24,
+      "outerInset": 6,
+      "firstCenterFromTop": 202,
+      "screenPadding": 12,
+      "numberFontSize": 11,
+      "numberGap": 8,
+      "leftPadding": 4,
+      "minimumHitWidth": 44,
+      "minimumHitHeight": 44,
+      "arrivalDuration": 0.22,
+      "pressDuration": 0.06,
+      "inwardDistance": 1.5,
+      "swallowDuration": 0.12,
+      "shiftDuration": 0.16,
+      "returnDuration": 0.18,
+      "reducedMotionDuration": 0.08,
+      "preferredDisplayID": null,
+      "visibleCountPreference": 3,
+      "placement": "leftMiddle",
+      "placementSource": "initialRecommendation",
+      "preferredDisplayUUID": null
+    },
+    "draft": {
+      "fitWidth": 72,
+      "fitHeight": 56,
+      "hiddenFraction": 0,
+      "rowPitch": 60,
+      "lineWidth": 0.5,
+      "lineExtension": 8,
+      "emptyTraceLength": 24,
+      "outerInset": 6,
+      "firstCenterFromTop": 202,
+      "screenPadding": 12,
+      "numberFontSize": 11,
+      "numberGap": 8,
+      "leftPadding": 4,
+      "minimumHitWidth": 44,
+      "minimumHitHeight": 44,
+      "arrivalDuration": 0.22,
+      "pressDuration": 0.06,
+      "inwardDistance": 1.5,
+      "swallowDuration": 0.12,
+      "shiftDuration": 0.16,
+      "returnDuration": 0.18,
+      "reducedMotionDuration": 0.08,
+      "preferredDisplayID": null,
+      "visibleCountPreference": 3,
+      "placement": "leftMiddle",
+      "placementSource": "initialRecommendation",
+      "preferredDisplayUUID": null
+    },
+    "editValues": {},
+    "preferences": {
+      "appearance": "system",
+      "entryEnabled": false,
+      "defaultCaptureMode": "window",
+      "arrival": "none",
+      "launchAtLogin": false
+    },
+    "paused": false,
+    "hidden": false,
+    "persistedPaused": false,
+    "persistedHidden": false,
+    "issue": "write",
+    "displayMissing": false,
+    "externalDisplayMissing": false,
+    "usingFallback": false,
+    "displayRestoreAvailable": false,
+    "displayRestored": false,
+    "saveFailure": true,
+    "permissions": {
+      "folder": true,
+      "chrome": true,
+      "screen": false
+    },
+    "archiveHours": 24,
+    "archiveDraft": "24",
+    "archivePreset": "24",
+    "visibleCount": 3,
+    "historyOpened": false,
+    "historyFilter": "all",
+    "historyRange": "30",
+    "historyNow": "2026-11-06T06:32:00Z",
+    "records": [
+      {
+        "id": "sample-1",
+        "fileId": "original-1",
+        "title": "今天 14:32",
+        "timestamp": "2026-11-06T06:32:00Z",
+        "status": "available",
+        "ageDays": 0,
+        "visible": true
+      },
+      {
+        "id": "sample-2",
+        "fileId": "original-2",
+        "title": "今天 14:28",
+        "timestamp": "2026-11-06T06:28:00Z",
+        "status": "available",
+        "ageDays": 0,
+        "visible": true
+      },
+      {
+        "id": "sample-3",
+        "fileId": "original-3",
+        "title": "今天 13:46",
+        "timestamp": "2026-11-06T05:46:00Z",
+        "status": "available",
+        "ageDays": 0,
+        "visible": true
+      },
+      {
+        "id": "sample-4",
+        "fileId": "original-4",
+        "title": "昨天 20:14",
+        "timestamp": "2026-11-05T12:14:00Z",
+        "status": "attached",
+        "ageDays": 1,
+        "visible": false
+      },
+      {
+        "id": "sample-5",
+        "fileId": "original-5",
+        "title": "11 月 2 日 10:07",
+        "timestamp": "2026-11-02T02:07:00Z",
+        "status": "archived",
+        "ageDays": 4,
+        "visible": false
+      },
+      {
+        "id": "sample-6",
+        "fileId": "original-6",
+        "title": "10 月 28 日 09:41",
+        "timestamp": "2026-10-28T01:41:00Z",
+        "status": "unknown",
+        "ageDays": 9,
+        "visible": false
+      }
+    ],
+    "files": [
+      {
+        "id": "original-1",
+        "kind": "synthetic-original",
+        "retained": true
+      },
+      {
+        "id": "original-2",
+        "kind": "synthetic-original",
+        "retained": true
+      },
+      {
+        "id": "original-3",
+        "kind": "synthetic-original",
+        "retained": true
+      },
+      {
+        "id": "original-4",
+        "kind": "synthetic-original",
+        "retained": true
+      },
+      {
+        "id": "original-5",
+        "kind": "synthetic-original",
+        "retained": true
+      },
+      {
+        "id": "original-6",
+        "kind": "synthetic-original",
+        "retained": true
+      }
+    ],
+    "attachments": [
+      {
+        "id": "attachment-4",
+        "fileId": "original-4",
+        "chat": "synthetic-chat"
+      }
+    ],
+    "storageChecked": false,
+    "onboardingStep": 0,
+    "onboardingCompleted": false,
+    "pendingCapture": false,
+    "modal": null,
+    "toast": null,
+    "undoQueue": null,
+    "feedbackDraft": "",
+    "feedbackIncludeDiagnostics": false,
+    "feedbackSaved": false,
+    "message": "未能保存，仍保留当前生效的内置截图设置。",
+    "messageKind": "error",
+    "closed": false,
+    "details": {
+      "custom-display": false,
+      "fine-display": false,
+      "capture-detail": false
+    },
+    "lastAction": "preference-entryEnabled",
+    "events": [
+      {
+        "action": "navigate",
+        "detail": "capture"
+      },
+      {
+        "action": "preference-entryEnabled",
+        "detail": false
+      },
+      {
+        "action": "preference-entryEnabled",
+        "detail": true
+      },
+      {
+        "action": "preference-entryEnabled",
+        "detail": true
+      },
+      {
+        "action": "preference-entryEnabled",
+        "detail": true
+      },
+      {
+        "action": "preference-entryEnabled",
+        "detail": true
+      },
+      {
+        "action": "preference-entryEnabled",
+        "detail": true
+      },
+      {
+        "action": "preference-entryEnabled",
+        "detail": true
+      },
+      {
+        "action": "preference-entryEnabled",
+        "detail": true
+      },
+      {
+        "action": "preference-entryEnabled",
+        "detail": true
+      },
+      {
+        "action": "preference-entryEnabled",
+        "detail": true
+      },
+      {
+        "action": "preference-entryEnabled",
+        "detail": true
+      },
+      {
+        "action": "preference-entryEnabled",
+        "detail": true
+      },
+      {
+        "action": "preference-entryEnabled",
+        "detail": true
+      }
+    ],
+    "motionPlaying": null,
+    "systemReduceMotion": false
+  },
+  "visibleText": "Riftlet · 设置与控制中心\n设计补齐稿 · 继承 Quiet Edge 与当前 main\n设置\n控制中心\n首次使用\n右键菜单\n状态\n正常运行\n暂停收录\n仅隐藏\n需要处理\n设置样本\n新装建议 · 0% 遮挡\n当前 main 默认 · 25%\n旧版保留 · 14 pt\n已选屏断开\n保存失败\n系统减少动态\n重置演示\nRiftlet 设置\nRiftlet\n截图，就在手边\n通用\n位置与显示\n截图\n动效\n历史与存储\n权限与帮助\n查看截图历史\n需要处理\n打开控制中心\n截图\n\n继续用熟悉的系统截图，也可以从 Riftlet 开始。\n\n⇧\n⌘\n4\n截图\n微图出现在边缘\n点一下附加\n系统截图\n截图位置\n\n收录系统保存到这里的新截图。\n\n桌面\n访问截图位置\n\n由你在系统对话框中选择并允许访问。\n\n查看位置\n内置截图\n显示截图入口\n\n打开后，可从边缘入口或控制中心发起截图。\n\n默认截图方式\n\n下次开始截图时生效，当前模式保持不变。\n\n窗口\n区域\n全屏\n\n关闭内置截图入口，不影响你使用 macOS 系统截图。\n\n更多截图选项\n权限说明与原图保留\n未能保存，仍保留当前生效的内置截图设置。\n已应用\n网页交互原型 · 全部为合成示例\n刷新即复位，不修改 Mac、权限或生产数据\n原生交互尚未验收"
+}
