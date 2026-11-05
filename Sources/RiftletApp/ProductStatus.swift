@@ -32,7 +32,7 @@ enum ProductStatus {
     static func supportDescription(for admission: OrdinaryAttachmentAdmission) -> String {
         let attachmentScope = admission.usesUnifiedProduct ? """
         \(admission.supportText)
-        旧的待核实操作不补资格、不重传。尚未完成最终真实页面验收；当前构建不代表全场景支持。
+        旧的待核实操作不补资格、不重传。页面结构、账号功能和聊天模式可能影响兼容性；具体已验证范围见对应版本说明。
         """ : """
         \(admission.supportText) 真实截图内部候选需另行启动；受限 v2 开始与完成仅适用于新登记操作，旧的待核实操作不补资格、不重传。安全失败与重试仍未开放。
         受限候选仅附加非交错 8-bit RGBA PNG，≤8 MiB、≤16,777,216 像素；其他格式保留，不自动转换。
@@ -40,7 +40,7 @@ enum ProductStatus {
         """
         return """
     本地收录：系统保存的新截图，单帧 PNG / JPEG / HEIC / HEIF / TIFF；最多 128 MiB、1.6 亿像素、单边 50,000 像素。原始字节不转换；HDR 显示效果尚未验收。剪贴板截图、PDF、动图不在收录范围。
-    应用要求 macOS 13+；自动测试覆盖 macOS 14.8.9 / Apple silicon，其他平台仍需实测。
+    应用要求 macOS 13+；构建兼容范围与实机验证范围不同，请以对应版本说明为准。
     \(attachmentScope)
     此为开发构建，未公证、未发行。截图可能包含 Riftlet；需要时可先隐藏裂缝，收录仍可继续。
     """

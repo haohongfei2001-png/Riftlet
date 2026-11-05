@@ -23,3 +23,17 @@ Local Swift XCTest is unavailable: CommandLineTools Swift 6.4 has no XCTest fram
 ## WP03 completed
 
 `storage-recovery.py` implements health/backup/verify/restore with existing offline locks, byte-preserving SQLite/media/journal copies, logical checks on temporary copies, explicit incomplete receipts and new-directory-only restore. Independent root review and rerun: 25/25 PASS. See `evidence/WP03-review.json` and `evidence/storage-tests.log`. The running installed App's root returned `source-in-use` before any copying; that validates refusal, not production DB health. No production changes.
+
+## WP02 completed local evidence
+
+See `evidence/WP02-results.json` and `docs/RELIABILITY_BASELINE.md`. Page VM123/123, legacy61/61, complete Chrome31/31 groups including43 controlled scenarios/122native inputs/zero sends/zero application network requests. Native soak1200 captures/628.626seconds + separate160 collector burst captures, all originals/private bytes/UNKNOWN retained. Independent12child ownership lifecycle PASS. Installed App13sample one-minute observation RSS32864–32992KiB, maxCPU0.1%; activity uncontrolled, not idle certification.
+
+Long-run stable-file→durable-asset P50=3.628ms/P95=5.780ms; visible-queue SQL P95=0.180ms; history40 P95=4.552ms. Probe RSS19,890,176–25,968,640bytes; CPU sampled-interval delta≈1.953% of one core. Generated64×40images only; no UI/network/permanent-lifetime claim. Old burst timing starts after generation/start and is retained only as residual settle time; corrected short run begins before first write.
+
+Reanalysis of accepted final Beta cold-pair trace is metadata-only: click→START-report367.468/195.423ms, report→swallow-start11.545/4.629ms. No new ChatGPT operation; exact setter time and first animation close are unavailable.
+
+All original local logs remain in ignored `test-results/readiness`; public log copies replace local home prefixes. WP02-results binds both original and public hashes.
+
+## WP05/WP06 and independent WP02 review
+
+`evidence/WP02-WP05-WP06-review.json` is frozen non-author review of probes, actual logs and consumer-source/documentation corrections. It found and resolved timing semantics, cumulative CPU labeling, process failure receipts/path redaction, restored feedback diagnostic preference and oversized derived-PNG fallback wording. No remaining reviewed-scope blocker. Native UI/permission execution and public-release certification are explicitly excluded. Three existing product Swift files change only presentation strings; attachment implementation unchanged.

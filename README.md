@@ -1,75 +1,33 @@
 # Riftlet
 
-**Riftlet** is a proposed tiny, native macOS screenshot-to-chat bridge: **take a system screenshot, then click its micro-thumbnail once**. The intended result is an image appended to the correct ChatGPT draft—not a sent message.
+macOS 正常截图，图片停在桌面边缘；点一下微图，附加到当前 Chrome 的 ChatGPT 聊天。聊天开始接收图片时微图收起，可以继续附加下一张。Riftlet 不发送聊天消息。
 
-**Status (2026-10-28): Active native development.** This branch contains automatic screenshot-source rebinding, SQLite v3 capture/queue state, upload-start-driven visual exit, persistent hide/removal/archive, lightweight native history, isolated Web/Mac adapter foundations and a synthetic GUI acceptance helper. There is no approved final visual design or admitted production ChatGPT adapter yet. **Native tests, Release packaging/signature and synthetic executable self-checks run on macOS14 ARM64 CI; the latest exact tested input and outcome are recorded below.** Exact tested commits/counts and remaining real-environment cases are in [the verification record](docs/VERIFICATION.md); [the execution board](docs/EXECUTION_BOARD.md) is the continuation checkpoint.
+当前为个人 Beta，尚未公开发行。正式基线 `b61fc46cf931bdbd14deec1b47d077e92db61e16`，已验证安装身份 `personal-beta.1+004741f`。后续开发分支、设计候选或 CI 产物不自动成为已验证安装版。
 
-**Execution update:** routine engineering now proceeds autonomously with parallel module ownership and independent technical review; no per-increment user approval is required. The [v2 dependency plan](docs/ENGINEERING_PLAN.md) separates implementation from real-evidence admission, and the [live execution board](docs/EXECUTION_BOARD.md) identifies ready work, scoped waits and the next concrete actions. Production attachment profiles remain disabled until their evidence gates pass.
+## 使用与支持
 
-**Latest functional increment:** an explicit **system-screenshot Web candidate** now connects existing Capture to the existing Web v12 bridge in its own data directory. It accepts eligible original PNGs, preserves unsupported files locally, records bounded original observations in SQLite v3, and retains the same Coordinator, click ordering, permissions and original-operation recovery. **Ordinary capture remains upload-disabled. All three real-candidate start/completion/safe-failure policies are empty:** unadmitted observations remain UNKNOWN and visible, without swallow, success or replay. [Implemented candidate, format limits and genuine-evidence gates](docs/SYSTEM_SCREENSHOT_WEB_CANDIDATE.md).
+- [使用、安装及权限](docs/USER_GUIDE.md)
+- [隐私、截图历史及卸载](docs/PRIVACY_AND_DATA.md)
+- [问题排查与兼容范围](docs/SUPPORT.md)
+- [备份与恢复](docs/STORAGE_RECOVERY.md)
+- [发行构建、版本与手动更新](docs/RELEASE_ENGINEERING.md)
 
-**Web integration boundary:** a real generated-image/software-AX sample proves B waits until A finally succeeds, then each original operation inputs once. The same nonempty draft preserves text, selection and three old attachments. This is scoped sequential completion, not start-stage parallel upload. Missing-ACK cold click remains a product failure; CLEAR underlying click-through remains FAIL, GAP/IMAGE/NUMBER are software-only and physical GUI is unaccepted. Production screenshot upload and safe retry remain disabled. [Current interfaces](docs/ADAPTER_CONTRACT.md#第七轮已集成的原选择等待) · [handoff](docs/INTEGRATION_HANDOFF.md).
+收录单帧 PNG、JPEG、HEIC/HEIF、TIFF。原系统截图保留；PNG/JPEG 原样附加，其他支持格式通常生成等分辨率 PNG；派生 PNG 超出预算时会单次尝试原文件，接收仍取决于页面兼容性。空队列不显示裂缝。暂停收录、隐藏微图和关闭内置截图各自独立。清空可见队列不删除截图文件、历史或聊天附件。
 
-**Current tested source:** [`4d352c2`](https://github.com/haohongfei2001-png/Riftlet/commit/4d352c28dcb70e8f6dc42ef93d9df46042a9215d), implemented on formal `b839230` in `codex/system-capture-candidate-20261028`, then fast-forwarded into Draft PR #1. [Independent candidate macOS CI](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40551804340) passes **433 native tests**, 72 current-page/54 legacy, replay/fixtures/packaging, Release/signature and five App/helper self-checks. Fourteen detailed suites report 100 passed/0 skipped, already included in 433. The [formal combined CI](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40553084871) also passes all 17 steps on the PR test merge. Its actual checkout, [development App/helper/logs](https://github.com/haohongfei2001-png/Riftlet/actions/runs/40553084871/artifacts/12756447786) and non-author review are recorded in [permanent evidence](engineering/evidence/2026-10-28-system-screenshot-candidate/README.md). These generated-file/fake-bridge tests are not genuine system-screenshot or GUI acceptance. First ordinary launch opens first-use guidance. ARM64/ad-hoc, not a notarized public release. [Previous round-seven integration and real-evidence scope](engineering/evidence/2026-10-28-integration-round7/README.md) remain intact.
+个人 Beta 已取得真实 ChatGPT 五张连续附加及最终版冷启动两张成功证据。动态菜单备用分支有受控浏览器验证，尚无当前个人 Beta 的真实页面触发证据。冷启动 MAIN 交接可能将 Chrome 窗口前置。具体范围及外部验收缺口见 [支持说明](docs/SUPPORT.md)。
 
-## The distinctive interaction
+## 开发
 
-- Extremely fine vertical **spatial rift** at the screen edge; tiny, aspect-ratio-preserving, roughly coin-sized screenshots protrude partly from it.
-- Oldest at top. Everyday pending queue is normally **2–3 images**, occasionally 10+; each screenshot shows only the image and a simple number.
-- Normal use takes **exactly two user actions**: macOS screenshot; click its thumbnail. No upload shortcut, drag-and-drop, file picker, extra confirmation or manual paste.
-- On **positive evidence that this screenshot actually started uploading to the current click-time ChatGPT draft**, it **swallows and disappears very quickly**—without waiting for verified READY. Only explicit or extremely high-confidence actual failure makes it reappear. UNKNOWN after start is retained in internal local history without blind re-upload or indefinite visible queue blockage. Zero visible screenshots means **no visible rift**. Stale screenshots auto-archive; users can remove one or many. Core/UI/App implement this lifecycle; the isolated generated-image Web path has reviewed start evidence, while production start and safe-failure admission remain separate. **Further clarified:** no valid composer/attachment entry means no disappearance; classified failure rebirths as an ordinary clickable screenshot; no extra success Toast because the user sees the attachment in the ChatGPT draft; clearing queue never remotely removes attachments. Faster repeated clicks are conditional on reliability; hold-to-drag is only under consideration.
-- Never automatically send a ChatGPT message.
+正式产品源码只来自 main。构建要求 macOS 13+；完整 XCTest 需要含 XCTest 的 Xcode 开发环境。开发构建使用 ad-hoc 签名，不能作为已公证公开安装包。
 
-The **Screenshot Rift** name appears in the dated original studies; **Riftlet** is the present repository name. Initial repository wording about clipboard content and arbitrary applications is not an approved V1 requirement; those are potential later extensions.
-
-## Start here
-
-| Subject | Document |
-| --- | --- |
-| User product requirements | [docs/PRODUCT.md](docs/PRODUCT.md) |
-| Implemented upload-start interface and isolated demo | [docs/UPLOAD_STARTED_CONTRACT_V1.md](docs/UPLOAD_STARTED_CONTRACT_V1.md) |
-| Real system-screenshot internal candidate and admission gaps | [docs/SYSTEM_SCREENSHOT_WEB_CANDIDATE.md](docs/SYSTEM_SCREENSHOT_WEB_CANDIDATE.md) |
-| Latest fast-swallow / ephemeral-rift contract | [docs/INTERACTION_CONTRACT_2026-10-27.md](docs/INTERACTION_CONTRACT_2026-10-27.md) |
-| First-use implementation and real-Mac acceptance | [docs/FIRST_USE_ACCEPTANCE.md](docs/FIRST_USE_ACCEPTANCE.md) |
-| Consumer release UX baseline | [docs/RELEASE_UX_REQUIREMENTS_2026-10-27.md](docs/RELEASE_UX_REQUIREMENTS_2026-10-27.md) |
-| Pro focused feasibility review brief | [docs/PRO_FEASIBILITY_REVIEW_BRIEF_2026-10-27.md](docs/PRO_FEASIBILITY_REVIEW_BRIEF_2026-10-27.md) |
-| Pro feasibility conclusions and implementation handoff (research, not acceptance) | [docs/PRO_FEASIBILITY_REVIEW_FINDINGS_2026-10-27.md](docs/PRO_FEASIBILITY_REVIEW_FINDINGS_2026-10-27.md) |
-| Decided vs. proposed | [docs/DECISIONS.md](docs/DECISIONS.md) |
-| Executable engineering plan | [docs/ENGINEERING_PLAN.md](docs/ENGINEERING_PLAN.md) |
-| Autonomous parallel work queue | [docs/EXECUTION_BOARD.md](docs/EXECUTION_BOARD.md) |
-| Exact implemented reuse and licenses | [docs/REUSE_IMPLEMENTATION.md](docs/REUSE_IMPLEMENTATION.md) |
-| Code, CI and remaining acceptance evidence | [docs/VERIFICATION.md](docs/VERIFICATION.md) |
-| Current visual design brief | [docs/DESIGN_BRIEF.md](docs/DESIGN_BRIEF.md) |
-| Archived art direction and offline visual sample | [design/explorations/art-direction-2026-10-26/README.md](design/explorations/art-direction-2026-10-26/README.md) |
-| All archived visual studies | [design/README.md](design/README.md) |
-| Platform and upload research | [docs/TECHNICAL_BASELINE.md](docs/TECHNICAL_BASELINE.md) |
-| Reusable source research | [docs/REUSE_CANDIDATES.md](docs/REUSE_CANDIDATES.md) |
-| Questions that remain | [docs/OPEN_QUESTIONS.md](docs/OPEN_QUESTIONS.md) |
-| Full Pro response | [research/PRO_REVIEW_REPLY_2026-10-26.md](research/PRO_REVIEW_REPLY_2026-10-26.md) |
-| Full 23-page Pro PDF **text extraction** | [research/PRO_REVIEW_PDF_TEXT_2026-10-26.txt](research/PRO_REVIEW_PDF_TEXT_2026-10-26.txt) |
-| Codex first experiment evidence | [research/CODEX_EXPERIMENT_STATUS_2026-10-26.md](research/CODEX_EXPERIMENT_STATUS_2026-10-26.md) |
-| Original sources, limits | [research/SOURCES.md](research/SOURCES.md) |
-
-**Engineering proceeds on an isolated Draft PR; no unreviewed merge or release.** Please do not commit real user screenshots, private chats, credentials, unrelated project files or test browser profiles to this public repository.
-
-## Build the native foundation (macOS 13+)
-
-```bash
+```sh
 swift test --parallel
 bash scripts/build-macos.sh
 build/Riftlet.app/Contents/MacOS/Riftlet --self-check
-open build/Riftlet.app --args --simulate
 ```
 
-Simulation uses only synthetic images in its own data directory and never connects to ChatGPT. Run without `--simulate` to collect actual system screenshot files; the production upload adapter remains disabled, so clicks retain the screenshot. This is an engineering build with an ad-hoc signature, not a notarized release. [Real Mac acceptance](docs/MAC_ACCEPTANCE.md) lists the remaining GUI checks.
+[自动工程推进索引](engineering/autonomous-readiness-20261106/ROADMAP.md)记录当前专项状态、证据和接管入口；[mainline 治理](docs/MAINLINE_GOVERNANCE.md)规定独立源码审查及准入。设置与控制中心修正版在独立设计分支，尚未接入当前安装 App。
 
-The separate **Web acceptance mode** uses the real native bridge, generated images and an isolated queue. Its inherited page scope is the observed Chinese Home/ordinary Chat form and bounded PNG input; this increment does not broaden that scope or add a start/failure profile. See [the exact startup and acceptance steps](docs/MAC_ACCEPTANCE.md#w2-integrated-web-acceptance-entry--available-live-test-not_run). It never sends a message or retries an UNKNOWN input, and its development completion profile cannot consume system screenshots. Local Codex owns the next live test from the formal checkpoint; this remains a development-only adapter.
+[保留的早期 README](docs/history/README-20261028.md)及 `docs/`、`engineering/evidence/` 中带日期的工程记录描述当时事实；其中旧候选、上传关闭和 8 MiB 限制不能用于说明当前普通入口。
 
-The separate **real system-screenshot internal candidate** is available from the ordinary App's “打开真实截图内部候选…” menu or `--system-screenshot-candidate`. It uses `Riftlet-System-Screenshot-Candidate`, never the generated-image queue, and is visibly marked `Riftlet REAL TEST`. Original PNG input is bounded to 8 MiB and 16,777,216 pixels; other locally supported formats are retained with an explicit explanation. It does not yet admit real upload start/completion/retry or perform fast swallow. [Exact entry, evidence journal and next real-Mac acceptance](docs/SYSTEM_SCREENSHOT_WEB_CANDIDATE.md).
-
-
-## Prelaunch website (2026-10-27)
-
-The first prelaunch brand site has been prepared as a static GitHub Pages candidate: [index.html](index.html). It contains a wholly **simulated** screenshot-to-draft interaction. The website does **not** upload real screenshots, connect to ChatGPT, or offer a working app download. Neither the visual direction nor the product adapter has final user acceptance.
-
-See [website/README.md](website/README.md) for publication instructions and evidence boundaries. GitHub Pages and the custom domain `riftlet.com` must be configured through repository settings and the domain's DNS provider; committing files alone does not prove a live site.
+官网目录是独立受审视觉成果，本轮只准备发行接入规范，不发布下载。请勿向公开仓库提交真实截图、私人聊天、诊断原始数据、凭据或浏览器 profile。
