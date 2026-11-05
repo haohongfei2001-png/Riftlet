@@ -12,13 +12,13 @@ Design branch `design/settings-control-center-20261106`, preserved start `6372bc
 
 Final headless browser runs: original 82 PASS, supplemental 21 PASS, 18 additional raw visual scenes. Full case results and screenshots live on the design branch under `design/settings-center-20261106/revision-2/evidence/`. Original 69 PASS / 13 FAIL and unsuccessful intermediate guard run remain intact. Native UI not implemented/tested by this prototype result.
 
-Further package results will be appended after execution, with scope and source identity.
+Package results below retain their exact scope and source identity.
 
 WP01 published design commit: `83b8ee478f13d3714697eda4cb3a7785576cb6e0`; existing branch pushed, v1 artifacts unchanged except README latest-candidate pointer.
 
 WP02 development evidence: actual Chrome in headless/isolated-profile mode passes 31/31 test groups (43 controlled scenarios within 18 browser groups plus 13 cleanup tests). Full headless-shell attempt had 30/31 groups PASS and a cross-tab focus wait failure; retained log, not a product failure claim. Same failed group and then the complete suite pass in full Chrome without source/test change.
 
-Local Swift XCTest is unavailable: CommandLineTools Swift 6.4 has no XCTest framework, both default and native build systems fail before tests. No tests skipped or represented as passing. Native storage probe compiles actual Core/Capture modules and passes a 160-image initial run; extended 1,200-image run in progress. Formal XCTest will execute in existing macOS CI.
+Local Swift XCTest is unavailable: CommandLineTools Swift 6.4 has no XCTest framework, both default and native build systems fail before tests. No tests skipped or represented as passing. Native storage probes compile actual Core/Capture modules. The initial 160-image run and subsequent 1,200-image run are complete; see the final measurements below. Formal XCTest will execute in existing macOS CI.
 
 ## WP03 completed
 
@@ -41,3 +41,15 @@ All original local logs remain in ignored `test-results/readiness`; public log c
 ## WP04 completed
 
 `evidence/WP04-results.json` and non-author `evidence/WP04-review.json` bind the exact release tool/files and41+17+17 passing offline tests. Actual PREPARED arm64 smoke is exactb61/version0.1.0/build1, no credentials/installation, and retains its older preparation-tool receipt. Final tool independently verifies that unchanged package against its trusted manifest pin. `preflight` without supplied credentials returns BLOCKED_CREDENTIALS/exit3. Actual Developer ID, notary, staple, Gatekeeper and production updates remain NOT_RUN. No public download/feed or Sparkle framework enabled.
+
+## WP07 source complete
+
+`evidence/WP07-results.json` binds all nine source/test/handoff files. 21 asynchronous settings-model cases,15 isolated real-file appearance cases and20 fake login-service cases are authored. Actual RiftletUI/RiftletApp module builds and Swift parser checks passed locally; XCTest compilation/execution is local NOT_RUN and must be obtained from the formal macOS CI. The non-author reviewer inspected every new owner and test; exact G/tree review is embedded in the admission-only successor. No Main/view composition, actual NSApp appearance application or real login-service mutation occurred.
+
+Settings keeps nine existing persistence domains and draft edits independent, preserves all compatibility values, awaits actual owner receipts and retries the exact failed intent. Appearance has a separate strict file and save-before-apply semantics; login state is system-owned, with pending approval distinct from enabled. The two App owners are not a second geometry configuration or an attachment eligibility mechanism.
+
+## Final integration evidence location
+
+Source checkpoint G cannot contain a truthful result of CI run on its future admission child H. The exact reviewed G/tree and raw non-author report are in `engineering/mainline/source-admission.json` on H; the actual Draft PR delivery record binds H, the `[B,H]` merge tree, five checks, run IDs and artifacts. A current reader must inspect those actual results rather than interpreting this checkpoint as a CI PASS. Local/prepared and CI builds remain uninstalled/ad-hoc unless explicitly recorded otherwise.
+
+`git diff --check` reports trailing whitespace only in12 lines of retained original failed/development logs; their bytes are preserved as evidence. Source and documentation have no corresponding whitespace defects.

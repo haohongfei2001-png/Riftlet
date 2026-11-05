@@ -10,6 +10,10 @@ Updated 2026-11-06. Engineering branch `codex/autonomous-readiness-20261106`, ba
 | WP04 | DONE — 75 offline regressions; prepared build; independent review PASS | Developer ID/notary/staple/Gatekeeper remain external |
 | WP05 | DONE source audit/support corrections; independent review PASS | Actual new-user TCC/clean-device tests remain external |
 | WP06 | DONE — consumer docs and limited external acceptance plan; independent review PASS | Publication/privacy policy decisions remain external |
-| WP07 | ACTIVE — typed snapshot/commands adapter implementation | Native compile and full CI |
+| WP07 | DONE source — async state/draft model; appearance/login owners; independent review PASS | 56 new XCTest cases authored; native targets compile; full execution pending formal CI |
 
 The accepted installed personal Beta 1 is preserved. No production state or private screenshots have been committed.
+
+## Integration checkpoint
+
+All seven independent source work packages are complete. Formal G/H source admission, actual five PR-merge checks and final package verification are the remaining integration steps at this source checkpoint; their subsequent exact results are recorded in the branch Draft PR. Technical preparation is not public-release readiness. No main merge or installed-App change is authorized.
