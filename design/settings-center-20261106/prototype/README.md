@@ -49,3 +49,5 @@
 检查应使用实际 DOM 控件并观察呈现与状态，不把仅调用内部模型函数作为浏览器交互验收。原生 Mac 的焦点、菜单、材质、VoiceOver、权限与真实文件持久化均未由此原型验证。
 
 原型 `state.files` 与 `state.attachments` 是独立合成快照；清空队列仅修改 `records[].visible/status`，可通过前后深比较验证。该结果不代表 SQLite 或真实 ChatGPT 的原生验收。
+
+内置截图默认开启，继承当前 main 的 `Sources/RiftletApp/ScreenshotEntryPreferences.swift` 新建与旧字段缺失默认 `builtInScreenshotEnabled=true`。模拟屏幕权限未允许时，首次内置截图先出现说明和主动模拟授权；不会自行授予权限或自动新增截图。
