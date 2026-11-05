@@ -1,0 +1,247 @@
+{
+  "schema": "riftlet-settings-source-snapshot-v1",
+  "date": "2026-11-06",
+  "timezone": "Asia/Shanghai",
+  "repository": "haohongfei2001-png/Riftlet",
+  "main": "b61fc46cf931bdbd14deec1b47d077e92db61e16",
+  "mainTree": "f856eef318456546a8a08fe1f0783602086d51b0",
+  "initialBranchCount": 73,
+  "mainTreeEntries": 1321,
+  "mainTreeTruncated": false,
+  "branch": "design/settings-control-center-20261106",
+  "checkpoint": "d08f2f495af4e3e8a8d4e5ed74bc0e3336fe23b8",
+  "sources": [
+    {
+      "path": "Sources/RiftletUI/RiftConfiguration.swift",
+      "gitBlobSHA": "0b618fbf1c41e3fbbefc53a0fe252dc2a8a36bcf",
+      "sourceRef": "b61fc46cf931bdbd14deec1b47d077e92db61e16"
+    },
+    {
+      "path": "Sources/RiftletUI/RiftSettingsForm.swift",
+      "gitBlobSHA": "7511c08c28d2600a52a76ffdc363ee369a1acca8",
+      "sourceRef": "b61fc46cf931bdbd14deec1b47d077e92db61e16"
+    },
+    {
+      "path": "Sources/RiftletUI/RiftSetupController.swift",
+      "gitBlobSHA": "c7891017bfa8018e818952906c7aeb0bc1a89784",
+      "sourceRef": "b61fc46cf931bdbd14deec1b47d077e92db61e16"
+    },
+    {
+      "path": "Sources/RiftletUI/ArrivalMotionSettingsController.swift",
+      "gitBlobSHA": "1d360adbf49a018ceb742a2eefe88bc5c72cc3ad",
+      "sourceRef": "b61fc46cf931bdbd14deec1b47d077e92db61e16"
+    },
+    {
+      "path": "Sources/RiftletApp/RiftletMain.swift",
+      "gitBlobSHA": "e09695c415d7fdf3e3468b04f614172176234685",
+      "sourceRef": "b61fc46cf931bdbd14deec1b47d077e92db61e16"
+    },
+    {
+      "path": "Sources/RiftletApp/LifecycleSettings.swift",
+      "gitBlobSHA": "03594a047a758696c8a96bb415a5c721a0f12ded",
+      "sourceRef": "b61fc46cf931bdbd14deec1b47d077e92db61e16"
+    },
+    {
+      "path": "design/final-system-20261028/prototype/windows.js",
+      "gitBlobSHA": "4e5d9c9bc6c1c246cbf43ad171893a764206ef71",
+      "sourceRef": "b61fc46cf931bdbd14deec1b47d077e92db61e16"
+    },
+    {
+      "path": "design/final-system-20261028/prototype/windows.css",
+      "gitBlobSHA": "6fe65709bf45918c7a85ec54c6d5a1a16adde703",
+      "sourceRef": "b61fc46cf931bdbd14deec1b47d077e92db61e16"
+    },
+    {
+      "path": "design/final-system-20261028/TOKENS.json",
+      "gitBlobSHA": "49685d0c4e49868b3b35f2f8352248a5d9e7c9e1",
+      "sourceRef": "b61fc46cf931bdbd14deec1b47d077e92db61e16"
+    },
+    {
+      "path": "design/final-system-20261028/Riftlet-Product-Prototype.html",
+      "gitBlobSHA": "47525eb65a0400cab84cb7ecaff6dd2eb57bf35d",
+      "sourceRef": "b61fc46cf931bdbd14deec1b47d077e92db61e16"
+    }
+  ],
+  "designBranches": [
+    {
+      "branch": "design/arrival-none-magnet-20261028",
+      "sha": "0b73291652c11f5cb7b6e2792d001eb3340c988b",
+      "date": "2026-10-28T12:56:20Z",
+      "description": "design: freeze none and magnetic attraction modes with native integration contract",
+      "newRelevant": [
+        {
+          "path": "design/arrival-motion/two-modes/README.md",
+          "size": 8518
+        },
+        {
+          "path": "design/arrival-motion/two-modes/Riftlet-Arrival-Two-Modes.html",
+          "size": 84926
+        }
+      ],
+      "truncated": false
+    },
+    {
+      "branch": "design/brand-passage-20261030",
+      "sha": "eba1a4fc77648a665e1d5c1f2609df1314c3b079",
+      "date": "2026-10-27T07:48:24Z",
+      "description": "website: release entrance animation before the hero swallow transition",
+      "newRelevant": [],
+      "truncated": false
+    },
+    {
+      "branch": "design/craft-refinement-20261030",
+      "sha": "5386955483535a3c446aa5010a8990e56b211ab0",
+      "date": "2026-10-30T13:11:46Z",
+      "description": "website: refine V2 typography, scenes and continuous screenshot interaction",
+      "newRelevant": [],
+      "truncated": false
+    },
+    {
+      "branch": "design/full-experience-supplement-20261029",
+      "sha": "69600ab3c7fa9e373582613bd55d22075234b65a",
+      "date": "2026-10-28T19:18:39Z",
+      "description": "design: supplement complete experience, recovery states and first-use quality\n\nAdd independent evidence-based design deliverables only under",
+      "newRelevant": [
+        {
+          "path": "design/experience-quality-20261029/README.md",
+          "size": 8825
+        },
+        {
+          "path": "design/experience-quality-20261029/Riftlet-Experience-Prototype.html",
+          "size": 74032
+        },
+        {
+          "path": "design/experience-quality-20261029/evidence/prototype-checks-first-run.json",
+          "size": 3319
+        },
+        {
+          "path": "design/experience-quality-20261029/evidence/prototype-checks.json",
+          "size": 3517
+        },
+        {
+          "path": "design/experience-quality-20261029/evidence/prototype-renders.json",
+          "size": 49597
+        },
+        {
+          "path": "design/experience-quality-20261029/scripts/check-prototype.cjs",
+          "size": 12344
+        }
+      ],
+      "truncated": false
+    },
+    {
+      "branch": "design/interactive-rift-v1-20261027",
+      "sha": "8b2937e05c6ca2e4c33a7c59fd1dce0cca05f3aa",
+      "date": "2026-10-27T03:44:02Z",
+      "description": "design: add source-faithful interactive Riftlet review prototype v1",
+      "newRelevant": [
+        {
+          "path": "design/prototypes/interactive-rift-v1/README.md",
+          "size": 3857
+        },
+        {
+          "path": "design/prototypes/interactive-rift-v1/build.mjs",
+          "size": 847
+        },
+        {
+          "path": "design/prototypes/interactive-rift-v1/dist/Riftlet-Interactive-v1.html",
+          "size": 118163
+        },
+        {
+          "path": "design/prototypes/interactive-rift-v1/dist/index.html",
+          "size": 118163
+        },
+        {
+          "path": "design/prototypes/interactive-rift-v1/docs/REVIEW_NOTES.md",
+          "size": 2241
+        },
+        {
+          "path": "design/prototypes/interactive-rift-v1/docs/SOURCE_MAPPING.md",
+          "size": 5816
+        },
+        {
+          "path": "design/prototypes/interactive-rift-v1/package-source.py",
+          "size": 1107
+        },
+        {
+          "path": "design/prototypes/interactive-rift-v1/qa/Riftlet-Review-Immersive.jpg",
+          "size": 95750
+        },
+        {
+          "path": "design/prototypes/interactive-rift-v1/qa/Riftlet-Review-Workspace.jpg",
+          "size": 100166
+        },
+        {
+          "path": "design/prototypes/interactive-rift-v1/qa/VERIFICATION.md",
+          "size": 4062
+        },
+        {
+          "path": "design/prototypes/interactive-rift-v1/qa/check-geometry.cjs",
+          "size": 1880
+        },
+        {
+          "path": "design/prototypes/interactive-rift-v1/src/app.js",
+          "size": 12056
+        },
+        {
+          "path": "design/prototypes/interactive-rift-v1/src/assets.js",
+          "size": 9869
+        },
+        {
+          "path": "design/prototypes/interactive-rift-v1/src/desktop.css",
+          "size": 15056
+        },
+        {
+          "path": "design/prototypes/interactive-rift-v1/src/desktop.js",
+          "size": 30027
+        },
+        {
+          "path": "design/prototypes/interactive-rift-v1/src/review.css",
+          "size": 10679
+        },
+        {
+          "path": "design/prototypes/interactive-rift-v1/src/rift-engine.css",
+          "size": 2023
+        },
+        {
+          "path": "design/prototypes/interactive-rift-v1/src/rift-engine.js",
+          "size": 29610
+        },
+        {
+          "path": "design/prototypes/interactive-rift-v1/src/shell.html",
+          "size": 8861
+        }
+      ],
+      "truncated": false
+    },
+    {
+      "branch": "design/product-system-20261028",
+      "sha": "7e03bd2c26c6aa43dbac07b073e00d08d1951b71",
+      "date": "2026-10-28T16:02:07Z",
+      "description": "Design: deliver Quiet edge product system and interactive prototype\n\nAdd editable desktop and native-window boards, a standalone synthetic p",
+      "newRelevant": [],
+      "truncated": false
+    },
+    {
+      "branch": "design/refine-existing-site-20261030",
+      "sha": "eba1a4fc77648a665e1d5c1f2609df1314c3b079",
+      "date": "2026-10-27T07:48:24Z",
+      "description": "website: release entrance animation before the hero swallow transition",
+      "newRelevant": [],
+      "truncated": false
+    },
+    {
+      "branch": "design/riftlet-site-targeted-polish-20261030",
+      "sha": "eba1a4fc77648a665e1d5c1f2609df1314c3b079",
+      "date": "2026-10-27T07:48:24Z",
+      "description": "website: release entrance animation before the hero swallow transition",
+      "newRelevant": [],
+      "truncated": false
+    }
+  ],
+  "recovery": {
+    "originalInterruptedPrototype": "NOT_RECOVERED_FROM_ACCESSIBLE_SOURCES",
+    "original41Log": "NOT_RECOVERED",
+    "newNativeAcceptance": "NOT_RUN"
+  }
+}
