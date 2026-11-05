@@ -361,9 +361,12 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                             frontmostBundleID: NSWorkspace.shared.frontmostApplication?.bundleIdentifier, webAcceptance: true)
                         if self.setupIssue == .permissionDenied { self.applyAutomationPermission(.denied) }
                     }
-                    self.diagnosticTrace?.record(["event": "click_input_refused", "assetID": id.uuidString,
-                        "error": (error as? WebAdapterError)?.diagnosticLabel ?? "unclassified",
-                        "uptime": ProcessInfo.processInfo.systemUptime], critical: true)
+                    var refusal = BoundedDiagnosticTrace.clickFailureFields(error)
+                    refusal["event"] = "click_input_refused"
+                    refusal["assetID"] = id.uuidString
+                    refusal["phase"] = selection == nil ? "resolveSelection" : "submitSelection"
+                    refusal["uptime"] = ProcessInfo.processInfo.systemUptime
+                    self.diagnosticTrace?.record(refusal, critical: true)
                     feedback(!self.mode.usesWebAdapter && self.mode == .capture ? "此版本尚未启用真实截图附加；图片保留。"
                         : (ProductStatus.clickFeedback(error)?.text ?? self.setupIssue?.text
                            ?? "当前附件目标暂不可用；图片保留，可在运行状态中查看原因。"), .immediate)

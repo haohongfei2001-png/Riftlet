@@ -7,7 +7,7 @@ import RiftletCore
 /// remains separate. Generated acceptance and the explicitly isolated original-
 /// screenshot candidate use distinct native scopes; page provenance is unchanged.
 public enum ChatGPTWebPageProgram {
-    public static let sourceID = "chatgpt-web-attachment-entry-20261105-v15"
+    public static let sourceID = "chatgpt-web-attachment-handoff-20261105-v16"
     /// Candidate mapping only; ReceiptPolicy start registries remain separate.
     public static let acceptanceUploadStartProfileID = "chatgpt-web-zh-progress-start-development-20261027-v1"
     public static let acceptanceProfile = ObservationProfile(

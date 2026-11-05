@@ -8,6 +8,7 @@ const os=require('node:os');
 const path=require('node:path');
 const http=require('node:http');
 const {spawn}=require('node:child_process');
+const {mountAttachmentEntryCase,readResidentV15Source}=require('./attachment-entry-application.cjs');
 const {bounded,cleanupOwnedChrome,closeLoopbackServer}=require('./native-chrome-cleanup.cjs');
 require('./native-chrome-cleanup.test.cjs');
 const binary=[process.env.RIFTLET_CHROME_BIN,
@@ -17,6 +18,7 @@ const required=process.env.RIFTLET_REQUIRE_CHROME==='1';
 const sourcePath=process.env.RIFTLET_WEB_SOURCE_OVERRIDE||process.env.SOURCE_OVERRIDE||path.join(__dirname,'../../Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js');
 const source=fs.readFileSync(sourcePath,'utf8');
 function browserFixture(options){
+ const previous=options.resident?readResidentV15Source():'';
  const container=options.noForm?'section':'form';
  return String.raw`<!doctype html><meta charset="utf-8"><title>Riftlet independent native input regression</title>
 <${container} data-harness-composer><div id="prompt-textarea" contenteditable="true" role="textbox" style="width:500px;height:80px">Existing 中文 draft 👋 and selection</div><input type="file" accept="image/*" style="display:none"><div role="button" data-file-name="existing.png"><img alt="existing.png"></div><button type="submit">Send</button></${container}><pre id="result">RUNNING</pre>
@@ -65,6 +67,12 @@ function browserFixture(options){
   const program=new Function('location','return ('+__SOURCE__+')')(mockLocation);
   const native={applicationID:'com.google.Chrome',sessionID:'synthetic-local-profile',windowID:'1',tabID:'1'};
   const call=command=>program(command,native);
+  if(options.resident){
+   const oldProgram=new Function('location','return ('+__PREVIOUS__+')')(mockLocation);
+   const before=oldProgram({action:'captureTarget'},native);
+   check(!!before.documentID&&oldProgram({action:'validate',target:before},native).valid,'old version actually resident in the same document');
+   report.residentSourceVerified=true;
+  }
   editor.focus();const selection=getSelection(),range=document.createRange();range.setStart(editor.firstChild,2);range.setEnd(editor.firstChild,7);selection.removeAllRanges();selection.addRange(range);
   const text=editor.textContent,anchor=selection.anchorNode,focus=selection.focusNode,anchorOffset=selection.anchorOffset,focusOffset=selection.focusOffset;
   let changes=0,setters=0,sends=0,reentrant=null,reentrantRefused=false,firstPendingCard=null;
@@ -108,7 +116,34 @@ function browserFixture(options){
    if(!options.retained)submittedInput.value='';
   };
   input.addEventListener('change',changed);
-  if(options.entryMode||options.linkedPicker||options.noForm||options.portalPicker){
+  const handoff=options.handoff?(__MOUNT__)(options.handoff,form,input):null;
+  if(handoff)report.entryCounts=handoff.counts;
+  if(handoff?.rival)decoys.push(handoff.rival);
+  const nativeOrder=[],inputExecutionMS=[];
+  if(handoff){
+   input.addEventListener('input',event=>{
+    check(event.target===input&&!event.isTrusted&&event.composed&&event.bubbles&&event.target.files.length===1,'native input event on its own picker');
+    nativeOrder.push('input');
+   });
+   input.addEventListener('change',event=>{check(event.target===input,'change target');nativeOrder.push('change');});
+  }
+  let foreignAction=null,foreignCalls=0,unmodifiedForeignDefaults=0;
+  if(options.foreignPickers){
+   for(const label of ['Profile avatar','Project files']){
+    const section=document.createElement('section'),picker=document.createElement('input'),button=document.createElement('button');
+    section.setAttribute('aria-label',label);picker.type='file';picker.hidden=true;picker.id='foreign-picker-'+decoys.length;
+    button.type='button';button.textContent=label;button.setAttribute('aria-controls',picker.id);
+    let event;picker.addEventListener('click',value=>{event=value;});
+    button.addEventListener('click',()=>{
+     foreignCalls++;picker.click();
+     if(event&&!event.defaultPrevented)unmodifiedForeignDefaults++;
+    });
+    section.append(button,picker);document.body.append(section);decoys.push(picker);
+    picker.addEventListener('change',()=>wrongInputChanges++);
+    const prior=foreignAction;foreignAction=()=>{prior?.();button.click();};
+   }
+  }
+  if(!handoff&&(options.entryMode||options.linkedPicker||options.noForm||options.portalPicker)){
    const entry=document.createElement('button');entry.type='button';entry.setAttribute('aria-label','Add files and photos');
    entry.setAttribute('data-testid','composer-plus-button');entry.textContent='+';form.append(entry);
    if(!options.entryMode&&(options.linkedPicker||options.noForm||options.portalPicker)){
@@ -168,6 +203,17 @@ function browserFixture(options){
   }
   for(let index=0;index<options.count;index++)ops.push(await operation(index));
   const busyProbe=await operation(50);
+  let otherTab;
+  if(options.switchTabs){
+   // Capture/stage operations in A, then switch the isolated Chromium browser
+   // to a second real loopback document. A is the already-addressed JS realm.
+   otherTab=window.open('/other-draft','_blank');
+   check(!!otherTab,'headless Chrome opened tab B');
+   await wait(()=>otherTab.document.getElementById('other-input'));
+   otherTab.focus();
+   await wait(()=>otherTab.document.hasFocus()&&!document.hasFocus());
+   report.originalTabInBackground=true;
+  }
   if(options.unavailablePicker){
    const unsubmitted=await operation(51),card=document.createElement('div');card.setAttribute('role','button');card.title=unsubmitted.name;
    const image=document.createElement('img');image.alt=unsubmitted.name;image.src=priorImage.src;card.append(image);form.append(card);
@@ -181,7 +227,14 @@ function browserFixture(options){
    await stage('input-'+(index+1));const op=ops[index];
    if(index===0)reentrant=busyProbe;
    if(index===2)tasks[0].state='unknown'; // Synthetic app lifecycle; deliberately irrelevant to native permission.
-   await call({...op.command('commit'),chunkIndex:1}); // Await execution, then drop its receipt; never repeat commit.
+   if(foreignAction)setTimeout(foreignAction,0);
+   const started=performance.now();
+   const receipt=await call({...op.command('commit'),chunkIndex:1});
+   inputExecutionMS.push(Math.round(performance.now()-started));
+   // Only transport counters are inspected for diagnostics. Recover the product
+   // receipt by observe, never by a second commit.
+   if(handoff)report.lastInput={stage:receipt.entryDiagnostics?.stage,reason:receipt.observation.preInputRetirement?.reason,
+    setters,changes,connected:input.isConnected};
    check(changes===index+1,'one change per screenshot');
    check(setters===index+1,'one native files setter per screenshot');
    if(options.unavailablePicker){
@@ -216,6 +269,29 @@ function browserFixture(options){
    check(task.list instanceof FileList,'application observed actual native FileList');
    if(options.retained)check(task.list.length===1&&task.list[0]===task.file,'retained prior FileList independent from replacement');
   }
+  if(otherTab){
+   check(otherTab.document.hasFocus()&&!document.hasFocus(),'input to A did not seize focus from B');
+   check(otherTab.changed===0&&otherTab.document.getElementById('other-input').files.length===0,
+    'tab B received no File');
+   report.fixedTabAInputs=changes;report.tabBInputs=otherTab.changed;
+   otherTab.close();
+  }
+  if(handoff){
+   check(handoff.counts.linkDefaultAllowed===0&&handoff.counts.closeClicks===0&&handoff.counts.cloudClicks===0&&handoff.counts.chooserDefaultAllowed===0,'unrelated cloud and native chooser were untouched');
+   check(nativeOrder.join(',')===Array(options.count).fill('input,change').join(','),'file event sequence after each setter');
+   if(['forced-noun','forced-no-role','reused-content','nested','short-label','plain-action','pointer-open','focusable-menu','anchor-action','localized-opener'].includes(options.handoff))
+    check(handoff.counts.menus===options.count,'the actual menu action executed per file');
+   if(options.handoff==='ready-direct')check(handoff.counts.entry===0,'direct input avoids the inert entry');
+   if(options.handoff==='nested')check(handoff.counts.submenus===options.count,'each submenu actually opened');
+   if(options.handoff==='reused-open')check(handoff.counts.menus===options.count&&handoff.counts.entry<options.count,
+    'already-open menu was used before any redundant trigger click');
+   if(['detached','detached-showPicker','detached-stop','implicit-submit','await-existing','await-detached-with-rival'].includes(options.handoff))
+    check(handoff.counts.pickerCalls===options.count,'the application actually invoked its picker for each file');
+   if(options.handoff.startsWith('detached')||options.handoff==='await-detached-with-rival')check(!input.isConnected,'object-local receipt on still detached picker');
+   if(options.foreignPickers)check(foreignCalls===options.count*2&&unmodifiedForeignDefaults===foreignCalls,
+    'independent avatar and project picker invocations retain their default behavior');
+   report.inputEventOrder=nativeOrder;report.unmodifiedForeignDefaults=unmodifiedForeignDefaults;
+  }
   const stale=await operation(99);mockLocation.href='https://chatgpt.com/c/different-chat';
   const refused=call({...stale.command('commit'),chunkIndex:1}).observation;
   const wrongTargetRefused=refused.state==='invalidated'&&refused.preInputRetirement?.reason==='targetInvalidBeforeInput'&&refused.preInputRetirement.inputCount===0;
@@ -223,6 +299,10 @@ function browserFixture(options){
   check(sends===0,'no automatic message send');
   check(wrongInputSetters===0&&wrongInputChanges===0&&decoys.every(picker=>picker.files.length===0),'unrelated file controls receive no setter/change and remain untouched');
   if(options.entryMode){
+   // These fixtures actually invoke a newly created picker after choosing the
+   // local menu action. In isolation the deliberate application delay is 75ms.
+   // An unrelated idle file input must not cost the entire 3s discovery budget.
+   check(inputExecutionMS.every(ms=>ms<2200),'identified menu picker waited for deadline: '+JSON.stringify(inputExecutionMS));
    check(entryPointerDowns===options.count&&menuSelections===options.count&&createdPickers===options.count,'each click autonomously opens its menu and receives a new dynamic picker');
    check(pickerCalls===options.count&&pickerErrors===0,'the actual input.click/showPicker path completes automatically');
    check(options.entryMode!=='click'||pickerClicks===options.count,'normal application input click handlers still run');
@@ -231,7 +311,7 @@ function browserFixture(options){
    if(options.nativeAwait)check(nativeAwaitContinuations===options.count,'every native await resumes and invokes its external-form picker');
   }
   Object.assign(report,{passed:true,phase:'complete',nativeChanges:changes,nativeSetters:setters,networkRequests:applicationNetworkRequests,automaticSends:sends,
-   observedStarts:ops.length,originalFileListsVerified:tasks.length,applicationIndependentTasksVerified:tasks.length,
+   observedStarts:ops.length,inputExecutionMS,originalFileListsVerified:tasks.length,applicationIndependentTasksVerified:tasks.length,
    retainedNativeSelection:options.retained,reentrantInputRefused:reentrantRefused,wrongTargetRefused,
    lostReplyRecoveredWithoutReplay:true,textSelectionCardsPreserved:true,
    pickerReplacedEachChange:!!options.replacePicker,hiddenPortalPicker:!!options.portalPicker,
@@ -245,11 +325,14 @@ function browserFixture(options){
    firstSyntheticUploadState:tasks[0].state,harnessTransport:'loopback-only'});
  }catch(error){report.error=String(error?.stack||error);}
  document.querySelector('#result').textContent=JSON.stringify(report);
- await harnessFetch('/result',{method:'POST',body:JSON.stringify(report)});
+ const response=await harnessFetch('/result',{method:'POST',body:JSON.stringify(report)});
+ const next=await response.text();
+ if(next.startsWith('/case/'))location.replace(next);
 })();
-</script>`.replace('__OPTIONS__',()=>JSON.stringify(options)).replace('__SOURCE__',()=>JSON.stringify(source).replace(/<\/script/gi,'<\\/script'));
+</script>`.replace('__OPTIONS__',()=>JSON.stringify(options)).replace('__MOUNT__',()=>String(mountAttachmentEntryCase))
+ .replace('__PREVIOUS__',()=>JSON.stringify(previous)).replace('__SOURCE__',()=>JSON.stringify(source).replace(/<\/script/gi,'<\\/script'));
 }
-for(const options of [
+const originalScenarios=[
  ...[2,3,5].map(count=>({count,retained:true,route:'https://chatgpt.com/c/ordinary-thread'})),
  {count:3,retained:false,route:'https://chatgpt.com/'},
  {count:3,retained:true,route:'https://chatgpt.com/g/g-p-project/c/project-thread'},
@@ -263,8 +346,21 @@ for(const options of [
  {name:'dynamic-entry-ignores-local-and-global-avatar',count:5,retained:true,multipleInputs:true,avatarPickers:true,entryMode:'click',route:'https://chatgpt.com/c/ordinary-thread'},
  {name:'native-await-menu-external-form-picker',count:5,retained:true,multipleInputs:true,avatarPickers:true,entryMode:'click',nativeAwait:true,collapseSelectionInChange:true,route:'https://chatgpt.com/c/ordinary-thread'},
  {name:'direct-input-preserves-collapsed-selection',count:5,retained:true,collapseSelectionInChange:true,route:'https://chatgpt.com/c/ordinary-thread'}
-].filter(options=>!process.env.RIFTLET_NATIVE_CASE||JSON.stringify(options).includes(process.env.RIFTLET_NATIVE_CASE)))test('native Chrome independent append '+JSON.stringify(options),{
- skip:!binary&&!required?'CHROME_NOT_RUN: no native Chrome binary in this executor':false,timeout:60000
+];
+
+// Each new layout gets a fresh document. Run the batch in one owned headless
+// Chrome process and temporary profile, including a separate real tab for A→B.
+const handoffScenarios=['direct','connected','detached','verb-menu','noun-menu','no-role','await-existing',
+ 'forced-noun','forced-no-role','reused-open','reused-content','nested','short-label','plain-action','pointer-open','detached-showPicker',
+ 'renamed-action','ready-direct','implicit-submit','detached-stop','focusable-menu','anchor-action','localized-opener','await-detached-with-rival'].map(handoff=>({handoff,name:'handoff-'+handoff,count:handoff==='detached'?5:2,
+   retained:true,route:'https://chatgpt.com/c/ordinary-thread',resident:handoff==='detached',
+   foreignPickers:handoff==='await-existing',switchTabs:handoff==='direct'}));
+const groups=[...originalScenarios.map(scenario=>[scenario]),handoffScenarios];
+for(const unfiltered of groups){
+ const group=unfiltered.filter(options=>!process.env.RIFTLET_NATIVE_CASE||JSON.stringify(options).includes(process.env.RIFTLET_NATIVE_CASE));
+ if(!group.length)continue;
+ test('native Chrome independent append '+(group.length===1?JSON.stringify(group[0]):group.map(item=>item.name).join(', ')),{
+ skip:!binary&&!required?'CHROME_NOT_RUN: no native Chrome binary in this executor':false,timeout:60000+4000*group.length
 },async t=>{
 
   assert.ok(binary,'CHROME_REQUIRED_BUT_UNAVAILABLE: native Chrome must run in this CI job');
@@ -272,10 +368,16 @@ for(const options of [
   const temp=fs.mkdtempSync(path.join(os.tmpdir(),'riftlet-native-input-'));
   let child,exit,stderr='',lastPhase='browser-not-started',completed=false,resolveReport,rejectReport;
   const failures=[],connections=new Set();
-  const html=browserFixture(options),finished=new Promise((resolve,reject)=>{resolveReport=resolve;rejectReport=reject;});
+  const reports=[],pages=group.map(browserFixture);
+  const finished=new Promise((resolve,reject)=>{resolveReport=resolve;rejectReport=reject;});
   const server=http.createServer((request,response)=>{
-    if(request.method==='GET'&&request.url==='/'){
-      response.writeHead(200,{'content-type':'text/html; charset=utf-8','cache-control':'no-store'});response.end(html);return;
+    if(request.method==='GET'&&request.url==='/other-draft'){
+      response.writeHead(200,{'content-type':'text/html; charset=utf-8'});
+      response.end('<!doctype html><textarea autofocus>Other draft</textarea><input type="file" id="other-input"><script>window.changed=0;document.querySelector("input").onchange=()=>window.changed++;</script>');return;
+    }
+    const caseIndex=request.url==='/'?0:Number(/^\/case\/(\d+)$/.exec(request.url)?.[1]);
+    if(request.method==='GET'&&pages[caseIndex]){
+      response.writeHead(200,{'content-type':'text/html; charset=utf-8','cache-control':'no-store'});response.end(pages[caseIndex]);return;
     }
     if(request.method!=='POST'||!['/progress','/result'].includes(request.url)){response.writeHead(404);response.end();return;}
     let body='',oversize=false;
@@ -283,9 +385,11 @@ for(const options of [
     request.on('end',()=>{
       if(oversize)return;
       try{
-        const value=JSON.parse(body);response.writeHead(200,{'content-type':'text/plain'});response.end('ok');
-        if(request.url==='/progress'){lastPhase=String(value.phase);return;}
-        completed=true;resolveReport(value);
+        const value=JSON.parse(body);response.writeHead(200,{'content-type':'text/plain'});
+        if(request.url==='/progress'){lastPhase=String(value.phase);response.end('ok');return;}
+        reports.push(value);
+        if(reports.length<pages.length){response.end('/case/'+reports.length);return;}
+        response.end('ok');completed=true;resolveReport(reports);
       }catch(error){response.writeHead(400);response.end();rejectReport(error);}
     });
     request.on('error',error=>rejectReport(error));
@@ -297,6 +401,7 @@ for(const options of [
     const address=server.address();assert.equal(address.address,'127.0.0.1');
     child=spawn(binary,['--headless=new','--no-sandbox','--disable-gpu','--disable-background-networking',
       '--disable-component-update','--disable-sync','--no-first-run','--no-default-browser-check',
+      ...(group.some(options=>options.switchTabs)?['--disable-popup-blocking']:[]),
       '--user-data-dir='+path.join(temp,'isolated-profile'),'http://127.0.0.1:'+address.port+'/'],
       {detached:true,stdio:['ignore','ignore','pipe']});
     child.stderr.setEncoding('utf8');child.stderr.on('data',part=>{stderr=(stderr+part).slice(-8000);});
@@ -304,15 +409,20 @@ for(const options of [
     exit=new Promise(resolve=>child.once('exit',(code,signal)=>{
       resolve();if(!completed)rejectReport(Error('Chrome exited before result; code='+code+' signal='+signal+' phase='+lastPhase+' stderr='+stderr));
     }));
-    const report=await bounded(finished,30000,()=> 'CHROME_FIXTURE_TIMEOUT phase='+lastPhase+' stderr='+stderr,t.signal);
-    assert.equal(report.passed,true,JSON.stringify(report));assert.equal(report.nativeChanges,options.count);assert.equal(report.nativeSetters,options.count);assert.equal(report.networkRequests,0);
-    assert.equal(report.applicationIndependentTasksVerified,options.count);assert.equal(report.automaticSends,0);
-    assert.equal(report.originalFileListsVerified,options.count);assert.equal(report.observedStarts,options.count);
-    assert.equal(report.reentrantInputRefused,true);assert.equal(report.wrongTargetRefused,true);
-    assert.equal(report.lostReplyRecoveredWithoutReplay,true);
-    if(options.unavailablePicker){assert.equal(report.startBeforePickerRestored,true);assert.equal(report.noInputStartRejected,true);}
-    assert.equal(report.harnessTransport,'loopback-only');
-    console.log(JSON.stringify(report));
+    await bounded(finished,30000+4000*group.length,()=> 'CHROME_FIXTURE_TIMEOUT phase='+lastPhase+' stderr='+stderr,t.signal);
+    for(const [index,report] of reports.entries()){
+     const options=group[index];
+     try{
+      assert.equal(report.passed,true,JSON.stringify(report));assert.equal(report.nativeChanges,options.count);assert.equal(report.nativeSetters,options.count);assert.equal(report.networkRequests,0);
+      assert.equal(report.applicationIndependentTasksVerified,options.count);assert.equal(report.automaticSends,0);
+      assert.equal(report.originalFileListsVerified,options.count);assert.equal(report.observedStarts,options.count);
+      assert.equal(report.reentrantInputRefused,true);assert.equal(report.wrongTargetRefused,true);
+      assert.equal(report.lostReplyRecoveredWithoutReplay,true);
+      if(options.unavailablePicker){assert.equal(report.startBeforePickerRestored,true);assert.equal(report.noInputStartRejected,true);}
+      assert.equal(report.harnessTransport,'loopback-only');
+      console.log(JSON.stringify({scenario:options.name||options.route,...report}));
+     }catch(error){failures.push(Error((options.name||options.route)+': '+error.message));}
+    }
   }catch(error){failures.push(error);}
   finally{
     // detached:true creates a new session/process group owned solely by this
@@ -331,3 +441,4 @@ for(const options of [
   }
   if(failures.length)throw new AggregateError(failures,'native Chrome fixture or cleanup failed: '+failures.map(error=>error.message).join('; '));
 });
+}

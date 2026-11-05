@@ -123,6 +123,16 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
     private let productBindings: [AssetOrigin: (admission: SystemScreenshotCandidateAdmission, journal: SystemScreenshotObservationJournal)]
     private let onInputTransportFinished: (@Sendable () async -> Void)?
     private let diagnosticTrace: BoundedDiagnosticTrace?
+    // Read-only reconciliation may observe the same stopped or started input
+    // repeatedly. Keep one recent trace value per operation, outside product state.
+    private struct EntryResult: Equatable {
+        let diagnostics: AttachmentEntryDiagnostics?
+        let state: AttachmentObservedState
+        let startObserved: Bool
+        let retirement: ObservedPreInputRetirement.Reason?
+        let retirementObservationOnly: Bool
+    }
+    private var recentEntryResults: [(operation: UUID, result: EntryResult)] = []
     // The transport lease is released only by its own original append. A prior
     // observer finishing must never unlock a later operation's begin/commit.
     private var inputOwner: UUID?
@@ -428,15 +438,29 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
         var response = initial
         var didConfirmInput = false
         while true {
-            let envelope = try ObservationDecoder.decode(response)
+            let (envelope, diagnostics) = try ObservationDecoder.decodeResponse(response, includeDiagnostics: diagnosticTrace != nil)
+            let item = envelope.observation
             // Only the still-running original append may consume a positive
             // no-input retirement. Reconcile/restart never revives UNKNOWN.
             if liveAppend, let rejection = try WebPreInputRetirement.rejection(from: envelope, for: request) {
-                recordResourceRefusal(envelope.observation.resourceRefusalReason,
-                    action: .commit, operationID: request.operation.id)
+                recordEntryResult(.init(diagnostics: diagnostics, state: item.state, startObserved: false,
+                    retirement: item.preInputRetirement?.reason, retirementObservationOnly: false),
+                    identity: identity, resource: item.resourceRefusalReason)
                 throw rejection
             }
             let receipt = try await normalize(envelope, for: request, liveAppend: liveAppend)
+            // A restarted process may see the first response to the original
+            // commit only on reconcile. Keep the page's retirement in the
+            // failure trace; the read-only receipt and its UNKNOWN stay intact.
+            let reportedRetirement = item.preInputRetirement.flatMap { page in
+                envelope.provenance.source == .integratedDevelopment &&
+                    (request.invocationID == nil || request.invocationID == page.invocationID) ? page.reason : nil
+            }
+            if liveAppend || diagnostics != nil || reportedRetirement != nil {
+                recordEntryResult(.init(diagnostics: diagnostics, state: item.state,
+                    startObserved: receipt.outcome == .uploadStarted, retirement: reportedRetirement,
+                    retirementObservationOnly: reportedRetirement != nil), identity: identity, resource: item.resourceRefusalReason)
+            }
             if liveAppend, !didConfirmInput,
                receipt.outcome == .inputTriggered || receipt.outcome == .uploadStarted,
                receipt.operationID == request.operation.id, receipt.assetID == request.asset.id,
@@ -553,9 +577,9 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
             // SQLite, independently of the latest receipt and admitted starts.
             // Failure after commit remains UNKNOWN; this never retries input.
             if let originalScope, originalScope != journal.scope {
-                try await journal.recordForOriginalScope(envelope, for: request, originalScope: originalScope)
+                try await journal.recordForOriginalScope(envelope, for: request, originalScope: originalScope, readOnly: !liveAppend)
             } else {
-                try await journal.record(envelope, for: request)
+                try await journal.record(envelope, for: request, readOnly: !liveAppend)
             }
         }
         return receipt
@@ -615,10 +639,32 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
         }
     }
 
-    private func recordResourceRefusal(_ reason: WebPageRejection?, action: WebBridgeAction, operationID: UUID) {
-        guard let reason, reason.isInputResourceRefusal else { return }
-        diagnosticTrace?.record(["event": "input_resource_refused", "action": action.rawValue,
-            "operationID": operationID.uuidString, "resourceRefusalReason": reason.rawValue], critical: true)
+    private func recordEntryResult(_ result: EntryResult, identity: ObservationIdentity, resource: WebPageRejection? = nil) {
+        guard let diagnosticTrace else { return }
+        if let index = recentEntryResults.firstIndex(where: { $0.operation == identity.operationID }) {
+            guard recentEntryResults[index].result != result else { return }
+            recentEntryResults.remove(at: index)
+        } else if recentEntryResults.count >= BoundedDiagnosticTrace.recentCapacity {
+            recentEntryResults.removeFirst()
+        }
+        recentEntryResults.append((identity.operationID, result))
+
+        var fields = result.diagnostics?.traceFields ?? [:]
+        fields["event"] = resource == nil ? "attachment_entry_result" : "input_resource_refused"
+        fields["operationID"] = identity.operationID.uuidString
+        fields["assetID"] = identity.assetID.uuidString
+        fields["attempt"] = identity.attempt
+        fields["uptime"] = ProcessInfo.processInfo.systemUptime
+        fields["phase"] = result.state.rawValue
+        fields["entryDiagnosticsAvailable"] = result.diagnostics != nil
+        fields["startObserved"] = result.startObserved
+        if let reason = result.retirement {
+            fields["retirementReason"] = reason.rawValue
+            fields["retirementObservationOnly"] = result.retirementObservationOnly
+        }
+        if let resource { fields["resourceRefusalReason"] = resource.rawValue }
+        let deliveryUncertain = result.diagnostics.map { $0.cause == .exception || $0.cause == .deliveryUncertain } ?? false
+        diagnosticTrace.record(fields, critical: result.retirement != nil || (deliveryUncertain && !result.startObserved))
     }
 
     private struct ValidationReply: Decodable { let target: TargetLease; let valid: Bool }

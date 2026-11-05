@@ -18,6 +18,10 @@ public actor SystemScreenshotObservationJournal {
     public init(store: QueueStore, scope: SystemScreenshotAdmissionScope = .candidate) { self.store = store; self.scope = scope }
 
     public func record(_ envelope: AttachmentObservationEnvelope, for request: TransferRequest) async throws {
+        try await record(envelope, for: request, readOnly: false)
+    }
+
+    func record(_ envelope: AttachmentObservationEnvelope, for request: TransferRequest, readOnly: Bool) async throws {
         guard await store.mode == .production else { throw SystemScreenshotObservationJournalError.wrongStoreMode }
         try Self.validate(envelope, for: request, scope: scope)
         // A self-consistent request is not proof that this journal belongs to
@@ -57,9 +61,18 @@ public actor SystemScreenshotObservationJournal {
             // make a newer observation appear acceptable, even after restart.
             let original = try Self.decode(retained)
             try Self.validate(original.envelope, for: request, scope: scope)
-            guard Slot.classifyAll(original.envelope.observation).contains(slot),
-                  original.envelope.provenance == envelope.provenance else {
+            guard Slot.classifyAll(original.envelope.observation).contains(slot) else {
                 throw SystemScreenshotObservationJournalError.conflictingCheckpoint
+            }
+            if original.envelope.provenance != envelope.provenance {
+                // An upgraded observer can read an already journaled v15 slot.
+                // Its first observation keeps its original bytes and source.
+                guard readOnly,
+                      original.envelope.provenance == .init(source: .integratedDevelopment, evidenceID: "attachment-entry-20261105-v15"),
+                      envelope.provenance == .init(source: .integratedDevelopment, evidenceID: "attachment-handoff-20261105-v16"),
+                      try await SystemScreenshotCandidateAdmission(store: store, scope: scope).observesPreviousEntrySource(request) else {
+                    throw SystemScreenshotObservationJournalError.conflictingCheckpoint
+                }
             }
         }
     }
@@ -74,12 +87,12 @@ public actor SystemScreenshotObservationJournal {
     /// A new scope can preserve only an explicitly compatible original journal,
     /// using that exact registration. It never copies or upgrades an operation.
     func recordForOriginalScope(_ envelope: AttachmentObservationEnvelope, for request: TransferRequest,
-                                originalScope: SystemScreenshotAdmissionScope) async throws {
+                                originalScope: SystemScreenshotAdmissionScope, readOnly: Bool = false) async throws {
         guard scope.originalObservationScopes.contains(originalScope),
               try await SystemScreenshotCandidateAdmission(store: store, scope: originalScope).admits(request) else {
             throw SystemScreenshotObservationJournalError.invalidOperation
         }
-        try await SystemScreenshotObservationJournal(store: store, scope: originalScope).record(envelope, for: request)
+        try await SystemScreenshotObservationJournal(store: store, scope: originalScope).record(envelope, for: request, readOnly: readOnly)
     }
 
     /// These are code-owned audit categories, never values selected by page JSON.

@@ -1,3 +1,13 @@
+# Current PR #41 file handoff — 2026-11-05, second incident
+
+Existing PR #41 continues from `79994009` on main `cd9b6953`. Six real
+operations retired during commit before file input. See the
+[handoff evidence](../engineering/evidence/2026-11-05-file-handoff/README.md)
+for the incident window, reproduced causes and acceptance boundaries.
+The formal source, review, final CI, ordinary ARM64 package and installed
+identities are recorded on PR #41. An actual first and second attachment in
+the original ChatGPT draft require normal use of the updated App.
+
 # Current attachment-entry P0 repair — 2026-11-05
 
 Continue existing PR #41, base main cd9b6953, prior head e9ecafa7. Root owns the

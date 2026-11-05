@@ -5,6 +5,7 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const vm=require('node:vm');
 const {fixture,png}=require('./independent-input-fixture.cjs');
+require('./attachment-entry-handoff.test.cjs');
 
 function accepted(f,op) {
  const observation=f.observe(op);
@@ -510,7 +511,7 @@ for(const field of ['aria-label','title','alt','text'])test('new attachment can 
  image.removeAttribute('alt');
  const label='正在上传 '+op.name+' (PNG image)';
  if(field==='alt')image.setAttribute('alt',label);
- else if(field==='text')card.textContent=label;
+ else if(field==='text')card.append(new f.Node('span')).textContent=label;
  else card.setAttribute(field,label);
  accepted(f,op);assert.equal(f.changes,1);
 });
@@ -518,7 +519,7 @@ for(const field of ['aria-label','title','alt','text'])test('new attachment can 
 test('filename substrings and unrelated previews cannot falsely consume a screenshot',()=>{
  const f=fixture({accept:false}),op=f.bind();f.stage(op);f.commit(op);
  f.addCard('other-'+op.name);f.addCard(op.name+'.other');
- const unrelated=f.addCard('another-file.png');unrelated.textContent='Attachment preview';
+ const unrelated=f.addCard('another-file.png');unrelated.append(new f.Node('span')).textContent='Attachment preview';
  assert.equal(f.observe(op).state,'inputTriggered');assert.equal(f.observe(op).uploadStart,undefined);
  assert.equal(f.changes,1);
 });

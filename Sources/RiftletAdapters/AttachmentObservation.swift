@@ -165,10 +165,15 @@ public enum ObservationDecoder {
     public static let maximumPayloadBytes = 64 * 1024
 
     public static func decode(_ data: Data) throws -> AttachmentObservationEnvelope {
+        try decodeResponse(data, includeDiagnostics: false).envelope
+    }
+
+    static func decodeResponse(_ data: Data, includeDiagnostics: Bool) throws
+        -> (envelope: AttachmentObservationEnvelope, diagnostics: AttachmentEntryDiagnostics?) {
         guard data.count <= maximumPayloadBytes else { throw ObservationError.oversizedPayload }
         do {
             guard let root = try JSONSerialization.jsonObject(with: data) as? [String: Any],
-                  Set(root.keys) == Set(["schemaVersion", "provenance", "observation"]),
+                  Set(root.keys).isSubset(of: ["schemaVersion", "provenance", "observation", "entryDiagnostics"]),
                   let provenance = root["provenance"] as? [String: Any],
                   Set(provenance.keys) == Set(["source", "evidenceID"]),
                   let observation = root["observation"] as? [String: Any],
@@ -209,7 +214,8 @@ public enum ObservationDecoder {
             try ObservedAttachmentProofs.validateShape(observation)
             let envelope = try JSONDecoder().decode(AttachmentObservationEnvelope.self, from: data)
             try validate(envelope)
-            return envelope
+            let diagnostics = includeDiagnostics ? AttachmentEntryDiagnostics.read(root["entryDiagnostics"]) : nil
+            return (envelope, diagnostics)
         } catch let error as ObservationError { throw error }
         catch { throw ObservationError.invalidPayload }
     }
