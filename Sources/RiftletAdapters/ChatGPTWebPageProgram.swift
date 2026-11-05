@@ -7,7 +7,7 @@ import RiftletCore
 /// remains separate. Generated acceptance and the explicitly isolated original-
 /// screenshot candidate use distinct native scopes; page provenance is unchanged.
 public enum ChatGPTWebPageProgram {
-    public static let sourceID = "chatgpt-web-independent-input-20261104-v14"
+    public static let sourceID = "chatgpt-web-attachment-entry-20261105-v15"
     /// Candidate mapping only; ReceiptPolicy start registries remain separate.
     public static let acceptanceUploadStartProfileID = "chatgpt-web-zh-progress-start-development-20261027-v1"
     public static let acceptanceProfile = ObservationProfile(
@@ -30,7 +30,8 @@ public enum ChatGPTWebPageProgram {
         // Ordinary input never executes historical observers. Their registries
         // cannot veto a new handoff; the separate legacy reader remains available
         // only to explicit historical tooling.
-        return WebPageProgram(sourceID: sourceID, functionSource: source, maximumChunkBytes: 256 * 1024)
+        return WebPageProgram(sourceID: sourceID, functionSource: source,
+                              maximumChunkBytes: 256 * 1024, inputDiscoveryTimeout: 3)
     }
 }
 

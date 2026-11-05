@@ -68,6 +68,7 @@ public struct ObservedUploadStart: Codable, Equatable, Sendable {
 public struct ObservedPreInputRetirement: Codable, Equatable, Sendable {
     public enum Reason: String, Codable, Sendable {
         case invalidPNGSignature, inputHashMismatch, targetInvalidBeforeInput, inputPreparationFailed, inputExecutionBusy
+        case attachmentEntryUnavailable, attachmentInputNotCreated, attachmentInputAmbiguous, attachmentEntryFailed
     }
     public let version: Int
     public let invocationID: UUID
@@ -108,6 +109,9 @@ public struct AttachmentObservation: Codable, Equatable, Sendable {
     public let reason: AttachmentObservationReason?
     /// Closed local refusal label only; never eligibility or retry evidence.
     public let resourceRefusalReason: WebPageRejection?
+    /// Current command execution only. This does not describe upload progress,
+    /// authorize another operation, or upgrade historical observations.
+    public let inputExecutionPending: Bool?
 
     public init(identity: ObservationIdentity, state: AttachmentObservedState,
                 attachmentID: String? = nil, exactImageIdentity: Bool = false,
@@ -120,7 +124,7 @@ public struct AttachmentObservation: Codable, Equatable, Sendable {
                 terminationEvidence: ObservedAttachmentTermination? = nil,
                 continuationEvidence: ObservedAttachmentContinuation? = nil,
                 reason: AttachmentObservationReason? = nil,
-                resourceRefusalReason: WebPageRejection? = nil) {
+                resourceRefusalReason: WebPageRejection? = nil, inputExecutionPending: Bool? = nil) {
         self.identity = identity; self.state = state; self.attachmentID = attachmentID
         self.exactImageIdentity = exactImageIdentity
         self.belongsToOriginalDraft = belongsToOriginalDraft
@@ -135,6 +139,7 @@ public struct AttachmentObservation: Codable, Equatable, Sendable {
         self.continuationEvidence = continuationEvidence
         self.reason = reason
         self.resourceRefusalReason = resourceRefusalReason
+        self.inputExecutionPending = inputExecutionPending
     }
 }
 
@@ -172,7 +177,7 @@ public enum ObservationDecoder {
                     "belongsToOriginalDraft", "hasError", "isUploading",
                     "attachmentAbsent", "automaticRetryExcluded", "uploadStart", "preInputRetirement",
                     "requestEvidence", "completionEvidence", "terminationEvidence", "continuationEvidence", "reason",
-                    "resourceRefusalReason"
+                    "resourceRefusalReason", "inputExecutionPending"
                   ])),
                   let identity = observation["identity"] as? [String: Any],
                   Set(identity.keys) == Set(["operationID", "assetID", "attempt", "assetSHA256", "target"]),
@@ -213,6 +218,11 @@ public enum ObservationDecoder {
         guard [1, 2, 3, 4].contains(envelope.schemaVersion) else { throw ObservationError.unsupportedSchema(envelope.schemaVersion) }
         let item = envelope.observation
         try ObservedAttachmentProofs.validate(envelope)
+        if item.inputExecutionPending == true {
+            guard item.state == .unknown, item.preInputRetirement == nil, item.uploadStart == nil else {
+                throw ObservationError.invalidField("input execution pending")
+            }
+        }
         if let reason = item.resourceRefusalReason {
             guard reason.isInputResourceRefusal,
                   item.preInputRetirement?.reason == .inputPreparationFailed else {

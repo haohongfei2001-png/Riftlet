@@ -129,4 +129,68 @@ final class MainWorldCommandRelayTests: XCTestCase {
         XCTAssertEqual(js.evaluateScript("executions")?.toInt32(), 1)
     }
 
+    func testAsyncAttachmentDiscoverySettlesOriginalCommandWithoutSerializingPromiseOrReplaying() throws {
+        let js = try context()
+        js.evaluateScript("var resolveCommit;")
+        let asyncFunction = "function(){executions++;return new Promise(resolve=>{resolveCommit=resolve})}"
+        let relay = MainWorldCommandRelay(function: asyncFunction, contextJSON: native)
+        let e = envelope("{\"action\":\"commit\"}")
+        js.evaluateScript(relay.installer)
+        js.evaluateScript(relay.dispatch(e))
+        XCTAssertNil(js.exception)
+        XCTAssertEqual(js.evaluateScript(e.reader)?.toString(), "", "A Promise is not a settled input result")
+        XCTAssertEqual(js.evaluateScript("timers.length")?.toInt32(), 0, "Receipt TTL starts only after settlement")
+        js.evaluateScript(relay.dispatch(e))
+        XCTAssertEqual(js.evaluateScript("executions")?.toInt32(), 1, "Pending menu discovery cannot repeat commit")
+        js.evaluateScript("resolveCommit({inputCount:1,state:'inputTriggered'})")
+        XCTAssertNil(js.exception)
+        let raw = try XCTUnwrap(js.evaluateScript(e.reader)?.toString())
+        let payload = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(e.decode(raw).utf8)) as? [String: Any])
+        XCTAssertEqual(payload["inputCount"] as? Int, 1)
+        XCTAssertEqual(payload["state"] as? String, "inputTriggered")
+        XCTAssertEqual(js.evaluateScript("timers.length")?.toInt32(), 1)
+        js.evaluateScript(relay.dispatch(e))
+        XCTAssertEqual(js.evaluateScript("executions")?.toInt32(), 1)
+        XCTAssertEqual(js.evaluateScript(e.reader)?.toString(), raw)
+        js.evaluateScript("timers.forEach(f=>f())")
+        js.evaluateScript(relay.dispatch(e))
+        XCTAssertEqual(js.evaluateScript(e.reader)?.toString(), "")
+        XCTAssertEqual(js.evaluateScript("executions")?.toInt32(), 1)
+    }
+
+    func testRejectedAsyncCommandPublishesOnlyItsClosedFailureAndDoesNotRetry() throws {
+        for reason in ["TARGET_INVALID", "private-page-error"] {
+            let js = try context()
+            js.evaluateScript("var rejectCommit;")
+            let pending = "function(){executions++;return new Promise((resolve,reject)=>{rejectCommit=reject})}"
+            let relay = MainWorldCommandRelay(function: pending, contextJSON: native)
+            let e = envelope("{\"action\":\"commit\"}")
+            js.evaluateScript(relay.installer); js.evaluateScript(relay.dispatch(e))
+            js.evaluateScript("rejectCommit(Error('\(reason)'))")
+            XCTAssertNil(js.exception)
+            let raw = try XCTUnwrap(js.evaluateScript(e.reader)?.toString())
+            XCTAssertThrowsError(try e.decode(raw)) {
+                XCTAssertEqual($0 as? WebAdapterError,
+                    reason == "TARGET_INVALID" ? .pageRejected(.invalidTarget) : .invalidReply)
+            }
+            XCTAssertFalse(raw.contains("private-page-error"))
+            js.evaluateScript(relay.dispatch(e))
+            XCTAssertEqual(js.evaluateScript("executions")?.toInt32(), 1)
+        }
+    }
+
+    func testAsyncSettlementCannotPublishIntoAnotherDocument() throws {
+        let js = try context()
+        js.evaluateScript("var resolveCommit;")
+        let pending = "function(){executions++;return new Promise(resolve=>{resolveCommit=resolve})}"
+        let relay = MainWorldCommandRelay(function: pending, contextJSON: native), e = envelope()
+        js.evaluateScript(relay.installer); js.evaluateScript(relay.dispatch(e))
+        js.evaluateScript("var oldRoot=document.documentElement;document.documentElement=makeRoot();resolveCommit({inputCount:1})")
+        XCTAssertNil(js.exception)
+        XCTAssertEqual(js.evaluateScript(e.reader)?.toString(), "")
+        XCTAssertEqual(js.evaluateScript("Object.keys(document.documentElement.values).length")?.toInt32(), 0)
+        XCTAssertEqual(js.evaluateScript("timers.length")?.toInt32(), 0)
+        XCTAssertEqual(js.evaluateScript("executions")?.toInt32(), 1)
+    }
+
 }

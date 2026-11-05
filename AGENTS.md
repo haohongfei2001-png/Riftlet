@@ -1,3 +1,19 @@
+# Current attachment-entry repair — 2026-11-05
+
+Continue PR #41 on its existing branch. The observed current refusal is
+ATTACHMENT_INPUT_UNAVAILABLE before file input. Capture and validate bind the
+actual clicked Chrome tab/document/editor independently of picker availability.
+At commit, use a responsible direct input or activate the actual attachment
+entry, including dynamic/hidden/portalled/rebuilt pickers. Form containment,
+accept spelling and the number of file inputs are not upload permission gates.
+Never choose an arbitrary unrelated global input. Prevent an OS chooser that
+would require user assistance. Once a setter has been entered, never fall back
+to another input path. Promise discovery must settle through the original relay
+nonce before releasing execution; lost replies are observed, never reissued.
+Keep the editor, selection, prior attachments, original PNGs and production
+history intact. Source, controlled browser, CI, installed App, and real first/
+second ChatGPT clicks are separate results. No live-browser access workaround.
+
 # Current first-click repair — 2026-11-05
 
 Continue PR #41. An explicit screenshot click resolves its own Chrome target;

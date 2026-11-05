@@ -411,6 +411,7 @@ final class WebAttachmentAdapterTests: XCTestCase {
         let bundled = try ChatGPTWebPageProgram.load()
         XCTAssertEqual(bundled.sourceID, ChatGPTWebPageProgram.sourceID)
         XCTAssertEqual(bundled.maximumChunkBytes, 256 * 1024)
+        XCTAssertEqual(bundled.inputDiscoveryTimeout, 3)
         XCTAssertLessThan(bundled.functionSource.utf8.count, 128 * 1024)
         let (_, request, _) = try await fixture()
         let executor = FakeWebBridge(behavior: .pendingThenAttached)

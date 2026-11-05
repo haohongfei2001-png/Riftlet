@@ -38,10 +38,21 @@ struct MainWorldCommandRelay: Sendable {
           seen.add(q.nonce); // Lifetime nonce tombstone, before executing/reentrancy.
           const receiver=q.command.action==='observe'&&legacySession&&q.command.target?.sessionID===legacySession
             ?Object.freeze({...native,sessionID:legacySession}):native;
-          let r;try{r={nonce:q.nonce,ok:true,result:program(q.command,receiver)};}
-          catch(e){r={nonce:q.nonce,ok:false};const code=e?.message;if(\(codes).includes(code))r.rejection=code;}
-          const reply='data-riftlet-reply-'+q.nonce;root.setAttribute(reply,JSON.stringify(r));
-          setTimeout(()=>root.removeAttribute(reply),10000);
+          // Menu discovery can await a real application render. Invoke once,
+          // then publish only its settled result; serializing a Promise as {}
+          // would lose a successful input and release the host lane too early.
+          let replied=false;
+          const publish=r=>{if(replied)return;replied=true;
+            if(document.documentElement!==root)return;
+            const reply='data-riftlet-reply-'+q.nonce;root.setAttribute(reply,JSON.stringify(r));
+            setTimeout(()=>root.removeAttribute(reply),10000);};
+          const success=result=>publish({nonce:q.nonce,ok:true,result});
+          const failure=e=>{const r={nonce:q.nonce,ok:false},code=e?.message;
+            if(\(codes).includes(code))r.rejection=code;publish(r);};
+          try{const result=program(q.command,receiver);
+            if(result&&typeof result.then==='function')Promise.resolve(result).then(success,failure);
+            else success(result);
+          }catch(e){failure(e);}
         });
         root.setAttribute(attribute,marker);})()
         """

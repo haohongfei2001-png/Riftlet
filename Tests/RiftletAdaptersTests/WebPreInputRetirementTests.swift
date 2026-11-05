@@ -249,6 +249,41 @@ final class WebPreInputRetirementTests: XCTestCase {
         }
     }
 
+    func testAttachmentDiscoveryFailuresRetainTheirExecutionReasonAndPermitNoReplay() async throws {
+        for reason in ["attachmentEntryUnavailable", "attachmentInputNotCreated", "attachmentInputAmbiguous", "attachmentEntryFailed"] {
+            let (store, request) = try await fixture(), original = try envelope(request)
+            let packet = try mutate(original) { root in
+                var item = root["observation"] as! [String: Any]
+                var proof = item["preInputRetirement"] as! [String: Any]
+                proof["reason"] = reason
+                item["preInputRetirement"] = proof; root["observation"] = item
+            }
+            let bridge = PreInputRetirementBridge(request: request,
+                packet: try JSONEncoder().encode(packet), expectedBytes: png)
+            let client = adapter(bridge)
+            do { _ = try await client.append(request); XCTFail("A failed discovery cannot claim an input") }
+            catch let rejection as PreInputRejection {
+                XCTAssertEqual(rejection.reason, reason)
+                XCTAssertEqual(rejection.stage, .pageRetiredBeforeFileInput)
+                try await store.recordPreInputRejection(rejection)
+            }
+            let record = try await store.asset(id: request.asset.id)
+            let persisted = try await store.operationReason(for: request.operation.id)
+            let start = try await store.uploadStartReceipt(for: request.operation.id)
+            XCTAssertEqual(record?.visibility, .visible)
+            XCTAssertEqual(record?.status, .failed)
+            XCTAssertEqual(persisted, "Verified pre-input rejection: pageRetiredBeforeFileInput: " + reason)
+            XCTAssertNil(start)
+            let before = await bridge.actions()
+            do { _ = try await client.append(request); XCTFail("The same invocation was submitted twice") }
+            catch WebAdapterError.invalidRequest {}
+            let after = await bridge.actions(), inputs = await bridge.actualInputs()
+            XCTAssertEqual(before, after)
+            XCTAssertEqual(inputs, 0)
+            XCTAssertEqual(after.filter { $0 == .commit }.count, 1)
+        }
+    }
+
     func testWrongInvocationIdentityOrProvenanceCannotRetireCurrentOperation() async throws {
         let (_, request) = try await fixture(), packet = try envelope(request)
         let invocation = try mutate(packet) { root in

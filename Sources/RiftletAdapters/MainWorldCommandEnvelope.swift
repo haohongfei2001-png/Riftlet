@@ -77,10 +77,17 @@ struct MainWorldCommandEnvelope {
         let attribute = "data-riftlet-reply-" + nonce
         let codes = String(decoding: try! JSONEncoder().encode(WebPageRejection.allCases.map(\.rawValue)), as: UTF8.self)
         source = """
-        (()=>{let r;try{r={nonce:'\(nonce)',ok:true,result:(\(function))(\(commandJSON),\(contextJSON))};}
-        catch(e){r={nonce:'\(nonce)',ok:false};const code=e?.message;if(\(codes).includes(code))r.rejection=code;}
-        document.documentElement.setAttribute('\(attribute)',JSON.stringify(r));
-        setTimeout(()=>document.documentElement.removeAttribute('\(attribute)'),10000);})()
+        (()=>{const root=document.documentElement;let replied=false;
+        const publish=r=>{if(replied)return;replied=true;if(document.documentElement!==root)return;
+          root.setAttribute('\(attribute)',JSON.stringify(r));
+          setTimeout(()=>root.removeAttribute('\(attribute)'),10000);};
+        const success=result=>publish({nonce:'\(nonce)',ok:true,result});
+        const failure=e=>{const r={nonce:'\(nonce)',ok:false},code=e?.message;
+          if(\(codes).includes(code))r.rejection=code;publish(r);};
+        try{const result=(\(function))(\(commandJSON),\(contextJSON));
+          if(result&&typeof result.then==='function')Promise.resolve(result).then(success,failure);
+          else success(result);
+        }catch(e){failure(e);}})()
         """
         // Reading must not consume the receipt before its AppleEvent reply has
         // reached the host. A timed-out read may already have executed in Chrome.
@@ -132,13 +139,15 @@ struct MainWorldReceiptReadBudget: Sendable {
 /// an ACK or change the App's original-event/publication ordering contract.
 enum MainWorldReceiptReader {
     static func read(_ envelope: MainWorldCommandEnvelope,
+                     timeout: TimeInterval = 1,
                      clock: () -> TimeInterval = { ProcessInfo.processInfo.systemUptime },
                      sleep: (TimeInterval) -> Void = { Thread.sleep(forTimeInterval: $0) },
                      checkContinuation: () throws -> Void = {},
                      fetch: (MainWorldReceiptReadBudget) throws -> String)
         throws -> (text: String, receivedUptime: TimeInterval) {
-        let started = clock(), deadline = started + 1
-        guard started.isFinite, started >= 0, deadline.isFinite, deadline > started else {
+        let started = clock(), deadline = started + timeout
+        guard timeout.isFinite, timeout > 0, timeout <= 10,
+              started.isFinite, started >= 0, deadline.isFinite, deadline > started else {
             throw WebAdapterError.invalidReply
         }
         let budget = MainWorldReceiptReadBudget(deadlineUptime: deadline)
@@ -149,9 +158,12 @@ enum MainWorldReceiptReader {
             previous = now
             return now
         }
-        // The original 20 ms polling interval permits at most 50 ordinary reads
-        // per second. This separate cap also bounds a stalled/injected clock.
-        for attempt in 0..<50 {
+        // The 20 ms polling interval permits at most 50 reads per second.
+        // A commit may await the application's attachment-menu render, while
+        // other reads retain the one-second budget. This separate cap bounds a
+        // stalled/injected clock; no timeout ever executes the command again.
+        let maximumReads = Int(ceil(timeout / 0.02))
+        for attempt in 0..<maximumReads {
             try checkContinuation()
             _ = try budget.timeout(at: checkedUptime())
             let raw: String
@@ -168,7 +180,7 @@ enum MainWorldReceiptReader {
                 try checkContinuation()
                 return (text, received)
             }
-            guard attempt < 49 else { break }
+            guard attempt < maximumReads - 1 else { break }
             let beforeSleep = try checkedUptime()
             sleep(min(0.02, deadline - beforeSleep))
         }

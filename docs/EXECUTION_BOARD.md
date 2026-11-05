@@ -1,3 +1,16 @@
+# Current attachment-entry P0 repair — 2026-11-05
+
+Continue existing PR #41, base main cd9b6953, prior head e9ecafa7. Root owns the
+page discovery/input implementation, integration, admission, PR and artifacts;
+swift_input owns Promise relay/receipt and typed pre-input failures;
+browser_regressions owns counterexamples and controlled native Chrome coverage;
+independent_review is the non-author source reviewer. No new product or UI work.
+The supplied incident already proves ATTACHMENT_INPUT_UNAVAILABLE in capture.
+Do not ask the user to reproduce it again. Actual Mac filesystem is unavailable
+in this executor and Browser reports missing originating context. No production
+data or installed App has been touched. Finish independent source/CI/App work;
+record device installation and real ChatGPT acceptance separately and honestly.
+
 # Current page recognition and first-click P1 repair — 2026-11-04
 
 Actual base: main `1cd7bc9054b07ce6648a9f8bb42b2425b2c8aaad`, including merged

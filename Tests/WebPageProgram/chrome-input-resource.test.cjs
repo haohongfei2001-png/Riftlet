@@ -14,10 +14,12 @@ const binary=[process.env.RIFTLET_CHROME_BIN,
  '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
  '/usr/bin/google-chrome','/usr/bin/chromium','/usr/bin/chromium-browser'].find(p=>p&&fs.existsSync(p));
 const required=process.env.RIFTLET_REQUIRE_CHROME==='1';
-const source=fs.readFileSync(path.join(__dirname,'../../Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js'),'utf8');
+const sourcePath=process.env.RIFTLET_WEB_SOURCE_OVERRIDE||process.env.SOURCE_OVERRIDE||path.join(__dirname,'../../Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js');
+const source=fs.readFileSync(sourcePath,'utf8');
 function browserFixture(options){
+ const container=options.noForm?'section':'form';
  return String.raw`<!doctype html><meta charset="utf-8"><title>Riftlet independent native input regression</title>
-<form><div id="prompt-textarea" contenteditable="true" role="textbox" style="width:500px;height:80px">Existing 中文 draft 👋 and selection</div><input type="file" accept="image/*" style="display:none"><div role="button" data-file-name="existing.png"><img alt="existing.png"></div><button type="submit">Send</button></form><pre id="result">RUNNING</pre>
+<${container} data-harness-composer><div id="prompt-textarea" contenteditable="true" role="textbox" style="width:500px;height:80px">Existing 中文 draft 👋 and selection</div><input type="file" accept="image/*" style="display:none"><div role="button" data-file-name="existing.png"><img alt="existing.png"></div><button type="submit">Send</button></${container}><pre id="result">RUNNING</pre>
 <script>
 (async()=>{
  const options=__OPTIONS__,report={scope:'real Chrome primitives; controlled local application; NOT live ChatGPT',passed:false};
@@ -29,9 +31,28 @@ function browserFixture(options){
  try{
   check(location.protocol==='http:'&&location.hostname==='127.0.0.1','fixture must stay on loopback');
   await stage('initializing');
-  const form=document.querySelector('form'),editor=document.querySelector('#prompt-textarea');
+  const form=document.querySelector('[data-harness-composer]'),editor=document.querySelector('#prompt-textarea');
   let input=form.querySelector('input');
+  if(options.unfamiliarAccept)input.accept='IMAGE/PNG; charset=binary,.PNG,image/x-png';
   if(options.portalPicker)document.body.append(input);
+  const decoys=[];
+  let wrongInputChanges=0,wrongInputSetters=0,entryPointerDowns=0,menuSelections=0,createdPickers=0,pickerClicks=0,pickerCalls=0,pickerErrors=0,nativeAwaitContinuations=0;
+  let menusClosed=0,menuClosedBeforeInput=0,missingChooserCancellation=0;
+  if(options.multipleInputs){
+   for(let i=0;i<2;i++){
+    const otherForm=document.createElement('form'),other=document.createElement('input');
+    other.type='file';other.accept='image/*';other.hidden=true;other.addEventListener('change',()=>wrongInputChanges++);
+    otherForm.append(other);document.body.prepend(otherForm);decoys.push(other);
+   }
+  }
+  if(options.avatarPickers){
+   for(let i=0;i<2;i++){
+    const avatar=document.createElement('input');avatar.type='file';avatar.accept='image/*';avatar.hidden=true;
+    avatar.setAttribute('aria-label','Profile avatar');avatar.addEventListener('change',()=>wrongInputChanges++);
+    (i===0?form:document.body).append(avatar);decoys.push(avatar);
+   }
+  }
+  if(options.entryMode)input.remove();
   const makePickerUnavailable=()=>{if(options.unavailablePicker==='disabled')input.disabled=true;else input.remove();};
   const restorePicker=()=>{input.disabled=false;if(!input.isConnected)(options.portalPicker?document.body:form).append(input);};
   const priorCard=form.querySelector('[data-file-name]'),priorImage=priorCard.querySelector('img');
@@ -50,14 +71,18 @@ function browserFixture(options){
   let startBeforePickerRestored=false,noInputStartRejected=false;
   const nativeFiles=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'files');
   Object.defineProperty(HTMLInputElement.prototype,'files',{...nativeFiles,set(value){
-   setters++;return Reflect.apply(nativeFiles.set,this,[value]);
+   setters++;if(decoys.includes(this))wrongInputSetters++;return Reflect.apply(nativeFiles.set,this,[value]);
   }});
-  const tasks=[],ops=[];
+  const tasks=[],ops=[],inputReceivers=new WeakSet();
   form.addEventListener('submit',event=>{event.preventDefault();sends++;});
+  form.querySelector('button[type="submit"]').addEventListener('click',()=>sends++);
   const changed=event=>{
    changes++;
    const submittedInput=event.currentTarget,list=submittedInput.files,file=list[0];
+   check(submittedInput===input,'the application receives its own chat picker, never another global input');
    check(list instanceof FileList&&list.length===1&&file instanceof File,'one actual native FileList item');
+   inputReceivers.add(submittedInput);
+   if(options.collapseSelectionInChange){editor.focus();selection.collapse(editor.firstChild,editor.firstChild.textContent.length);}
    if(options.replacePicker){
     const replacement=submittedInput.cloneNode();submittedInput.replaceWith(replacement);input=replacement;
     input.addEventListener('change',changed);
@@ -83,6 +108,54 @@ function browserFixture(options){
    if(!options.retained)submittedInput.value='';
   };
   input.addEventListener('change',changed);
+  if(options.entryMode||options.linkedPicker||options.noForm||options.portalPicker){
+   const entry=document.createElement('button');entry.type='button';entry.setAttribute('aria-label','Add files and photos');
+   entry.setAttribute('data-testid','composer-plus-button');entry.textContent='+';form.append(entry);
+   if(!options.entryMode&&(options.linkedPicker||options.noForm||options.portalPicker)){
+    input.id='current-chat-picker';entry.setAttribute('aria-controls',input.id);
+   }
+   if(!options.entryMode){entry.addEventListener('click',()=>input.click());}
+   else{
+    entry.setAttribute('aria-haspopup','menu');
+    entry.addEventListener('pointerdown',event=>{
+     if(event.button!==0||document.querySelector('[data-harness-attachment-menu]'))return;
+     entryPointerDowns++;
+     const menu=document.createElement('div');menu.setAttribute('role','menu');menu.setAttribute('data-harness-attachment-menu','');
+     let externalPickerForm=null;
+     const item=document.createElement('button');item.type='button';item.setAttribute('role','menuitem');item.textContent='Upload from computer';menu.append(item);
+     document.body.append(menu);item.focus();selection.removeAllRanges();
+     menu.addEventListener('keydown',key=>{
+      if(key.key!=='Escape')return;
+      if(input?.isConnected&&!inputReceivers.has(input))menuClosedBeforeInput++;
+      menusClosed++;menu.remove();if(input?.isConnected)input.remove();externalPickerForm?.remove();
+     });
+     item.addEventListener('click',async()=>{
+      menuSelections++;
+      // Real application rendering delay, with no File supplied by the fixture.
+      const createPicker=()=>{
+       if(!menu.isConnected)return;
+       const created=document.createElement('input');created.type='file';created.hidden=true;
+       created.accept='IMAGE/PNG; charset=binary,.PNG,image/x-png';
+       input=created;createdPickers++;created.addEventListener('change',changed);
+       created.addEventListener('click',event=>{pickerClicks++;if(!event.defaultPrevented)missingChooserCancellation++;});
+       if(options.nativeAwait){
+        externalPickerForm=document.createElement('form');document.body.append(externalPickerForm);externalPickerForm.append(created);
+       }else (options.menuOwnsInput?menu:document.body).append(created);
+       pickerCalls++;
+       try{if(options.entryMode==='showPicker')created.showPicker();else created.click();}
+       catch{pickerErrors++;}
+      };
+      if(options.nativeAwait){
+       // Native async/await continuation deliberately bypasses any replacement
+       // of Promise.prototype.then; only Chrome's real await semantics run here.
+       await Promise.resolve();
+       await new Promise(resolve=>setTimeout(resolve,75));
+       nativeAwaitContinuations++;createPicker();
+      }else setTimeout(createPicker,75);
+     });
+    });
+   }
+  }
   async function operation(index){
    const color='rgb('+(20+index*30)+',40,70)';canvas.getContext('2d').fillStyle=color;canvas.getContext('2d').fillRect(0,0,2,2);
    const png=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));
@@ -108,14 +181,19 @@ function browserFixture(options){
    await stage('input-'+(index+1));const op=ops[index];
    if(index===0)reentrant=busyProbe;
    if(index===2)tasks[0].state='unknown'; // Synthetic app lifecycle; deliberately irrelevant to native permission.
-   call({...op.command('commit'),chunkIndex:1}); // Simulate a lost transport receipt by ignoring every reply.
+   await call({...op.command('commit'),chunkIndex:1}); // Await execution, then drop its receipt; never repeat commit.
    check(changes===index+1,'one change per screenshot');
    check(setters===index+1,'one native files setter per screenshot');
    if(options.unavailablePicker){
     const observed=call(op.command('observe')).observation;
     check(input.disabled||!input.isConnected,'picker remains unavailable while START is observed');
     check(observed.state==='uploadStarted'&&observed.belongsToOriginalDraft,'accepted START does not wait for picker restoration or COMPLETE');
-    check(call({action:'validate',target:op.target}).valid===false,'another input still needs a usable picker');
+    check(call({action:'validate',target:op.target}).valid===true,'draft validation does not require an already-mounted enabled picker');
+    const unavailable=await operation(60+index);
+    const failed=(await call({...unavailable.command('commit'),chunkIndex:1})).observation;
+    check(failed.state==='invalidated'&&failed.preInputRetirement?.inputCount===0
+     &&['attachmentEntryUnavailable','attachmentInputNotCreated'].includes(failed.preInputRetirement.reason)
+     &&!failed.uploadStart&&setters===index+1&&changes===index+1,'actual unavailable execution is retained without input or START');
     startBeforePickerRestored=true;restorePicker();
    }else if(index===0)check(call(op.command('observe')).observation.state==='inputTriggered','first input completed before START');
    if(index>0)await wait(()=>call(op.command('observe')).observation.state==='uploadStarted');
@@ -143,12 +221,26 @@ function browserFixture(options){
   const wrongTargetRefused=refused.state==='invalidated'&&refused.preInputRetirement?.reason==='targetInvalidBeforeInput'&&refused.preInputRetirement.inputCount===0;
   check(wrongTargetRefused&&changes===options.count,'changed target refuses before native input');
   check(sends===0,'no automatic message send');
+  check(wrongInputSetters===0&&wrongInputChanges===0&&decoys.every(picker=>picker.files.length===0),'unrelated file controls receive no setter/change and remain untouched');
+  if(options.entryMode){
+   check(entryPointerDowns===options.count&&menuSelections===options.count&&createdPickers===options.count,'each click autonomously opens its menu and receives a new dynamic picker');
+   check(pickerCalls===options.count&&pickerErrors===0,'the actual input.click/showPicker path completes automatically');
+   check(options.entryMode!=='click'||pickerClicks===options.count,'normal application input click handlers still run');
+   check(missingChooserCancellation===0,'native chooser default is cancelled while input click handlers run');
+   check(menusClosed===options.count&&menuClosedBeforeInput===0,'menu-owned picker stays mounted until after native input');
+   if(options.nativeAwait)check(nativeAwaitContinuations===options.count,'every native await resumes and invokes its external-form picker');
+  }
   Object.assign(report,{passed:true,phase:'complete',nativeChanges:changes,nativeSetters:setters,networkRequests:applicationNetworkRequests,automaticSends:sends,
    observedStarts:ops.length,originalFileListsVerified:tasks.length,applicationIndependentTasksVerified:tasks.length,
    retainedNativeSelection:options.retained,reentrantInputRefused:reentrantRefused,wrongTargetRefused,
    lostReplyRecoveredWithoutReplay:true,textSelectionCardsPreserved:true,
    pickerReplacedEachChange:!!options.replacePicker,hiddenPortalPicker:!!options.portalPicker,
    decoratedFilenameAccepted:!!options.decoratedFilename,
+   noForm:!!options.noForm,multipleInputs:!!options.multipleInputs,avatarPickers:!!options.avatarPickers,wrongInputChanges,wrongInputSetters,
+   entryMode:options.entryMode||'direct',entryPointerDowns,menuSelections,createdPickers,pickerCalls,pickerClicks,pickerErrors,
+   menuOwnsInput:!!options.menuOwnsInput,menusClosed,menuClosedBeforeInput,missingChooserCancellation,
+   nativeAwaitContinuations,nativeAwait:!!options.nativeAwait,
+   selectionCollapsedByApplication:!!options.collapseSelectionInChange,
    startBeforePickerRestored,noInputStartRejected,
    firstSyntheticUploadState:tasks[0].state,harnessTransport:'loopback-only'});
  }catch(error){report.error=String(error?.stack||error);}
@@ -163,8 +255,15 @@ for(const options of [
  {count:3,retained:true,route:'https://chatgpt.com/g/g-p-project/c/project-thread'},
  {count:2,retained:true,route:'https://chatgpt.com/g/g-p-project/project'},
  {count:5,retained:true,replacePicker:true,portalPicker:true,decoratedFilename:true,route:'https://chatgpt.com/c/ordinary-thread'},
- ...['disabled','removed'].map(unavailablePicker=>({count:2,retained:true,unavailablePicker,route:'https://chatgpt.com/c/ordinary-thread'}))
-])test('native Chrome independent append '+JSON.stringify(options),{
+ ...['disabled','removed'].map(unavailablePicker=>({count:2,retained:true,unavailablePicker,route:'https://chatgpt.com/c/ordinary-thread'})),
+ {name:'no-form-hidden-portal',count:5,retained:true,noForm:true,portalPicker:true,unfamiliarAccept:true,route:'https://chatgpt.com/'},
+ {name:'linked-correct-picker-among-many',count:5,retained:true,portalPicker:true,multipleInputs:true,linkedPicker:true,route:'https://chatgpt.com/c/ordinary-thread'},
+ {name:'dynamic-menu-click-portal',count:5,retained:true,noForm:true,multipleInputs:true,entryMode:'click',collapseSelectionInChange:true,route:'https://chatgpt.com/c/ordinary-thread'},
+ {name:'dynamic-menu-showpicker-owned',count:5,retained:true,multipleInputs:true,entryMode:'showPicker',menuOwnsInput:true,collapseSelectionInChange:true,route:'https://chatgpt.com/g/g-p-project/c/project-thread'},
+ {name:'dynamic-entry-ignores-local-and-global-avatar',count:5,retained:true,multipleInputs:true,avatarPickers:true,entryMode:'click',route:'https://chatgpt.com/c/ordinary-thread'},
+ {name:'native-await-menu-external-form-picker',count:5,retained:true,multipleInputs:true,avatarPickers:true,entryMode:'click',nativeAwait:true,collapseSelectionInChange:true,route:'https://chatgpt.com/c/ordinary-thread'},
+ {name:'direct-input-preserves-collapsed-selection',count:5,retained:true,collapseSelectionInChange:true,route:'https://chatgpt.com/c/ordinary-thread'}
+].filter(options=>!process.env.RIFTLET_NATIVE_CASE||JSON.stringify(options).includes(process.env.RIFTLET_NATIVE_CASE)))test('native Chrome independent append '+JSON.stringify(options),{
  skip:!binary&&!required?'CHROME_NOT_RUN: no native Chrome binary in this executor':false,timeout:60000
 },async t=>{
 

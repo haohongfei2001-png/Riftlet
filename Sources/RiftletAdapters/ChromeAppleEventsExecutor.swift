@@ -176,7 +176,11 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
                             try bridge.dispatchMainWorld(relay.dispatch(envelope), window: window, tab: tab)
                         }
                         phase = "receipt"
-                        let receipt = try MainWorldReceiptReader.read(envelope) { budget in
+                        // A first-use attachment entry can mount its picker
+                        // asynchronously. Read the same once-submitted commit
+                        // through that bounded discovery; never resend it.
+                        let receipt = try MainWorldReceiptReader.read(envelope,
+                            timeout: command.action == .commit ? 8 : 1) { budget in
                             try bridge.execute(envelope.reader, window: window, tab: tab, receiptBudget: budget)
                         }
                         guard identity.isCurrent(), receipt.text.utf8.count <= ObservationDecoder.maximumPayloadBytes else {
@@ -266,8 +270,9 @@ enum ChromeActiveTabDescriptor {
 
 /// Codes come from Chrome's installed scripting.sdef (Standard/Chromium suites),
 /// not undocumented browser internals. Submission and identity reads retain the
-/// five-second per-event timeout; receipt reads use their remaining one-second
-/// budget. This never activates or sends a ChatGPT message. The URL setter
+/// five-second per-event timeout; receipt reads use their remaining command
+/// budget (eight seconds for attachment discovery, one for other commands).
+/// This never activates or sends a ChatGPT message. The URL setter
 /// receives only a void JavaScript expression, not a navigation URL.
 private struct ChromePIDEvents {
     let pid: pid_t

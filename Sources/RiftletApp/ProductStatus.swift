@@ -99,6 +99,7 @@ enum ProductStatus {
         case independentAttachmentUnavailableBeforeInput
         case inputResourceUnavailableBeforeInput
         case inputExecutingBeforeInput, filePreparationFailedBeforeInput
+        case attachmentEntryUnavailable, attachmentInputNotCreated, attachmentInputAmbiguous, attachmentEntryFailed
 
         var text: String {
             switch self {
@@ -119,6 +120,14 @@ enum ProductStatus {
                 return "上一张的文件输入仍在执行；本次尚未附加，图片保留。"
             case .filePreparationFailedBeforeInput:
                 return "当前图片未能交给浏览器；本次尚未附加，图片保留。"
+            case .attachmentEntryUnavailable:
+                return "未找到当前聊天可执行的附件入口；本次未附加，图片保留。"
+            case .attachmentInputNotCreated:
+                return "已执行附件入口，但页面未提供文件输入；本次未附加，图片保留。"
+            case .attachmentInputAmbiguous:
+                return "附件入口未能确定当前聊天使用的文件控件；本次未附加，图片保留。"
+            case .attachmentEntryFailed:
+                return "执行当前聊天的附件入口时失败；本次未附加，图片保留。"
             case .imageMissingBeforeInput: return "找不到这张图片的本地副本；本次未上传。"
             case .resultUnconfirmed: return "附加结果暂不能确认，图片记录已保留；不会自动再次附加。"
             }
@@ -136,6 +145,14 @@ enum ProductStatus {
             return .targetChangedBeforeInput
         case "Verified pre-input rejection: pageRetiredBeforeFileInput: inputExecutionBusy":
             return .inputExecutingBeforeInput
+        case "Verified pre-input rejection: pageRetiredBeforeFileInput: attachmentEntryUnavailable":
+            return .attachmentEntryUnavailable
+        case "Verified pre-input rejection: pageRetiredBeforeFileInput: attachmentInputNotCreated":
+            return .attachmentInputNotCreated
+        case "Verified pre-input rejection: pageRetiredBeforeFileInput: attachmentInputAmbiguous":
+            return .attachmentInputAmbiguous
+        case "Verified pre-input rejection: pageRetiredBeforeFileInput: attachmentEntryFailed":
+            return .attachmentEntryFailed
         case "Verified pre-input rejection: localBeforeBegin",
              "Verified pre-input rejection: localBeforeBegin: fileInputCommandNotInvoked",
              "Verified pre-input rejection: pageRetiredBeforeCommit",

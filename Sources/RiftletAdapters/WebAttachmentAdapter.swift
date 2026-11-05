@@ -8,9 +8,10 @@ public enum WebBridgeAction: String, Codable, CaseIterable, Sendable {
     case captureTarget, pinTarget, validate, begin, chunk, commit, observe, discard
 }
 
-/// The sole page function is supplied from reviewed source. It must synchronously
-/// return a serializable observation, retain no chat text, and check the complete
-/// lease in the same execution that commits File/DataTransfer input. `discard`
+/// The sole page function is supplied from reviewed source. It returns a
+/// serializable observation, or a Promise while discovering an attachment entry,
+/// retains no chat text, and checks the original target immediately before
+/// File/DataTransfer input. `discard`
 /// clears only this operation's temporary byte buffer; it never removes attachments.
 public struct WebPageProgram: Sendable {
     public let sourceID: String
@@ -18,9 +19,15 @@ public struct WebPageProgram: Sendable {
     /// Code-owned transport capacity; never negotiated from page JSON. Older
     /// and generic programs retain their 64 KiB default.
     public let maximumChunkBytes: Int
-    public init(sourceID: String, functionSource: String, maximumChunkBytes: Int = 64 * 1024) {
+    /// The current program can await attachment-entry discovery before input.
+    /// This bounds recovery of that execution after a lost commit reply; it is
+    /// not an upload timeout or a permission to repeat an operation.
+    public let inputDiscoveryTimeout: TimeInterval
+    public init(sourceID: String, functionSource: String, maximumChunkBytes: Int = 64 * 1024,
+                inputDiscoveryTimeout: TimeInterval = 0) {
         self.sourceID = sourceID; self.functionSource = functionSource
         self.maximumChunkBytes = maximumChunkBytes
+        self.inputDiscoveryTimeout = inputDiscoveryTimeout.isFinite ? min(3, max(0, inputDiscoveryTimeout)) : 0
     }
 }
 
@@ -249,10 +256,9 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
             await onInputTransportFinished?()
             throw error
         }
-        // The input command has returned even when its receipt is UNKNOWN.
-        // Never keep the host lane while observing START. If a native reply was
-        // lost, Chrome's synchronous event loop and the page's short busy guard
-        // still prevent overlapping setters; this does not assert input/START.
+        // The command has settled even when the attachment result is UNKNOWN.
+        // A lost asynchronous commit first observes only its still-running
+        // discovery, below. Upload/START observation never holds this lane.
         releaseInput(ownedBy: operationID)
         await inputExecutionReturned?()
         await onInputTransportFinished?()
@@ -329,9 +335,11 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
                 // Recover only by observing this operation, never another commit.
                 _ = try ObservationDecoder.decode(response)
             } catch {
-                // Release execution ownership before reading the original
-                // operation. Receipt recovery cannot license the next input.
-                return (nil, identity)
+                // A lost native reply can leave asynchronous menu discovery
+                // running. Keep only this current execution's lane until it
+                // settles or its code-owned discovery deadline expires. Never
+                // repeat commit, inspect old uploads, or wait for START here.
+                return (await settleInterruptedInput(identity), identity)
             }
             return (response, identity)
         } catch {
@@ -352,6 +360,47 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
             // transport or retry commit after an uncertain external side effect.
             throw error
         }
+    }
+
+    private func settleInterruptedInput(_ identity: ObservationIdentity) async -> Data? {
+        guard let timeout = program?.inputDiscoveryTimeout, timeout > 0 else { return nil }
+        let deadline = ProcessInfo.processInfo.systemUptime + timeout + 0.5
+        var latest: Data?
+        while !Task.isCancelled, ProcessInfo.processInfo.systemUptime < deadline {
+            let slot = BoundedInputObservation()
+            // A transport read can itself stall. A late read remains read-only
+            // and cannot extend the absolute execution-recovery budget.
+            let read = Task {
+                let data = try? await self.perform(.init(action: .observe, target: identity.target, identity: identity))
+                await slot.finish(data)
+            }
+            let timer = Task {
+                let remaining = max(0, deadline - ProcessInfo.processInfo.systemUptime)
+                do { try await Task.sleep(nanoseconds: UInt64(remaining * 1_000_000_000)) }
+                catch { return }
+                await slot.finish(nil)
+            }
+            let data = await withTaskCancellationHandler(operation: { await slot.wait() }, onCancel: {
+                read.cancel(); timer.cancel()
+                Task { await slot.finish(nil) }
+            })
+            read.cancel(); timer.cancel()
+            if let data, let envelope = try? ObservationDecoder.decode(data), envelope.observation.identity == identity {
+                latest = data
+                let item = envelope.observation
+                if item.inputExecutionPending == false || item.preInputRetirement != nil
+                    || [.inputTriggered, .uploadStarted, .attached, .ready, .failed, .invalidated].contains(item.state) {
+                    return data
+                }
+            }
+            let remaining = deadline - ProcessInfo.processInfo.systemUptime
+            guard remaining > 0, !Task.isCancelled else { break }
+            do { try await Task.sleep(nanoseconds: UInt64(min(0.05, remaining) * 1_000_000_000)) }
+            catch { break }
+        }
+        // The current JS program checks its discovery deadline again before
+        // the setter. Expiry releases execution, never asserting input/START.
+        return latest
     }
 
     public func reconcile(_ request: TransferRequest) async throws -> TransferReceipt {
@@ -588,6 +637,23 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
     private func decode<T: Decodable>(_ type: T.Type, from data: Data) throws -> T {
         do { return try JSONDecoder().decode(type, from: data) }
         catch { throw WebAdapterError.invalidReply }
+    }
+}
+
+/// A single observation wins against its absolute deadline. Unlike a task group,
+/// this does not wait indefinitely for a transport that ignores cancellation.
+private actor BoundedInputObservation {
+    private var completed = false
+    private var value: Data?
+    private var waiter: CheckedContinuation<Data?, Never>?
+    func finish(_ value: Data?) {
+        guard !completed else { return }
+        completed = true; self.value = value
+        waiter?.resume(returning: value); waiter = nil
+    }
+    func wait() async -> Data? {
+        if completed { return value }
+        return await withCheckedContinuation { waiter = $0 }
     }
 }
 

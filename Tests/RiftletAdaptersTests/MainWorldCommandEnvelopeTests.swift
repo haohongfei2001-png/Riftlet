@@ -133,6 +133,31 @@ final class MainWorldCommandEnvelopeTests: XCTestCase {
         XCTAssertNil(context.exception)
     }
 
+    func testAsyncCommandReturnsSettledResultAndStartsExpiryAfterResolution() throws {
+        let context = try XCTUnwrap(JSContext())
+        context.evaluateScript("""
+            var attributes={}, timers=[], executions=0, resolveCommit, document={documentElement:{
+              setAttribute:function(k,v){attributes[k]=v},getAttribute:function(k){return attributes[k] || null},
+              removeAttribute:function(k){delete attributes[k]}}};
+            function setTimeout(callback,delay) { timers.push({callback:callback,delay:delay}); }
+            """)
+        let command = MainWorldCommandEnvelope(
+            function: "function(){executions++;return new Promise(resolve=>{resolveCommit=resolve})}",
+            commandJSON: "{\"action\":\"commit\"}", contextJSON: "{}")
+        context.evaluateScript(command.source)
+        XCTAssertNil(context.exception)
+        XCTAssertEqual(context.evaluateScript(command.reader)?.toString(), "")
+        XCTAssertEqual(context.evaluateScript("timers.length")?.toInt32(), 0)
+        context.evaluateScript("resolveCommit({inputCount:1})")
+        XCTAssertNil(context.exception)
+        let raw = try XCTUnwrap(context.evaluateScript(command.reader)?.toString())
+        let payload = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(command.decode(raw).utf8)) as? [String: Any])
+        XCTAssertEqual(payload["inputCount"] as? Int, 1)
+        XCTAssertEqual(context.evaluateScript("timers[0].delay")?.toInt32(), 10_000)
+        for _ in 0..<3 { XCTAssertEqual(context.evaluateScript(command.reader)?.toString(), raw) }
+        XCTAssertEqual(context.evaluateScript("executions")?.toInt32(), 1)
+    }
+
     func testPageExceptionProducesOnlyCodeOwnedFailureAndCannotDecodeSuccess() throws {
         let context = try XCTUnwrap(JSContext())
         context.evaluateScript("""

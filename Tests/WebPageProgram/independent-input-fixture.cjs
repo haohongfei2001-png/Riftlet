@@ -5,13 +5,18 @@ const vm=require('node:vm');
 const fs=require('node:fs');
 const path=require('node:path');
 const {webcrypto,createHash}=require('node:crypto');
-const source=fs.readFileSync(path.join(__dirname,'../../Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js'),'utf8');
+const source=fs.readFileSync(process.env.RIFTLET_PAGE_PROGRAM_SOURCE||path.join(__dirname,'../../Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js'),'utf8');
 const png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScLttAAAAABJRU5ErkJggg==','base64');
 const sha=bytes=>createHash('sha256').update(bytes).digest('hex');
 const native={applicationID:'com.google.Chrome',sessionID:'synthetic-local-session',windowID:'17',tabID:'19'};
-function fixture({route='https://chatgpt.com/c/ordinary-thread',accept=true,focused=true,visible=true}={}) {
+function fixture({route='https://chatgpt.com/c/ordinary-thread',accept=true,focused=true,visible=true,programSource=source,editorTag='div'}={}) {
  const observers=[],events=new Map();
- let changes=0,setters=0,sends=0,onChange=null,onSet=null;
+ let changes=0,setters=0,sends=0,chooserOpens=0,onChange=null,onSet=null;
+ class Event {
+  constructor(type,opts={}){this.type=type;this.defaultPrevented=false;this.isTrusted=false;Object.assign(this,opts);}
+  preventDefault(){if(this.cancelable)this.defaultPrevented=true;}
+  stopPropagation(){this.propagationStopped=true;}
+ }
  function matches(node,selector) {
   return selector.split(',').some(part=>{
    part=part.trim();
@@ -42,50 +47,70 @@ function fixture({route='https://chatgpt.com/c/ordinary-thread',accept=true,focu
   matches(selector){return matches(this,selector);}
   closest(selector){return this.matches(selector)?this:this.parentElement?.closest?.(selector)||null;}
   contains(node){return this===node||this.children.some(child=>child.contains(node));}
-  append(...nodes){for(const node of nodes){node.parentElement=this;node.isConnected=this.isConnected;this.children.push(node);}return nodes[0];}
+  append(...nodes){for(const node of nodes){if(node.parentElement)node.remove();node.parentElement=this;node.isConnected=this.isConnected;this.children.push(node);}return nodes[0];}
   appendChild(node){return this.append(node);}
-  remove(){if(this.parentElement)this.parentElement.children=this.parentElement.children.filter(node=>node!==this);this.isConnected=false;}
+  remove(){if(this.parentElement)this.parentElement.children=this.parentElement.children.filter(node=>node!==this);this.parentElement=null;this.isConnected=false;}
   querySelectorAll(selector){return this.children.flatMap(node=>[node,...node.querySelectorAll('*')]).filter(node=>node.matches(selector));}
   querySelector(selector){return this.querySelectorAll(selector)[0]||null;}
   getClientRects(){return this.rendered===false?[]:[{width:100,height:40}];}
   getBoundingClientRect(){return {width:100,height:40,top:0,left:0,bottom:40,right:100};}
-  addEventListener(type,fn){const list=this.listeners.get(type)||[];list.push(fn);this.listeners.set(type,list);}
-  removeEventListener(type,fn){this.listeners.set(type,(this.listeners.get(type)||[]).filter(f=>f!==fn));}
-  dispatchEvent(event){event.target=this;for(const fn of this.listeners.get(event.type)||[])fn(event);for(const fn of events.get(event.type)||[])fn(event);return true;}
+  addEventListener(type,fn,options=false){const list=this.listeners.get(type)||[];list.push({fn,capture:options===true||!!options.capture});this.listeners.set(type,list);}
+  removeEventListener(type,fn){this.listeners.set(type,(this.listeners.get(type)||[]).filter(item=>item.fn!==fn));}
+  dispatchEvent(event){
+   event.target=this;
+   const invoke=(list,capture)=>{for(const item of [...list])if(item.capture===capture){event.currentTarget=this;item.fn.call(this,event);}};
+   invoke(events.get(event.type)||[],true);
+   const ancestors=[];for(let node=this.parentElement;node;node=node.parentElement)ancestors.push(node);
+   for(const node of [...ancestors].reverse())invoke(node.listeners.get(event.type)||[],true);
+   invoke(this.listeners.get(event.type)||[],true);invoke(this.listeners.get(event.type)||[],false);
+   if(event.bubbles&&!event.propagationStopped)for(const node of ancestors)invoke(node.listeners.get(event.type)||[],false);
+   if(!event.propagationStopped)invoke(events.get(event.type)||[],false);
+   return !event.defaultPrevented;
+  }
+  click(){const allowed=this.dispatchEvent(new Event('click',{bubbles:true,cancelable:true}));if(allowed&&this.tagName==='LABEL')this.control?.click();if(allowed&&this.type==='file'){chooserOpens++;this.chooserOpens++;}}
+  focus(){document.activeElement=this;}
+  setSelectionRange(start,end,direction='none'){this.selectionStart=start;this.selectionEnd=end;this.selectionDirection=direction;}
+  get control(){return this.tagName==='LABEL'?(document.getElementById(this.getAttribute('for'))||this.querySelector('input')):null;}
  }
  class Input extends Node {
-  constructor(){super('input',{type:'file',accept:'image/*'});this._files=[];}
+  constructor(){super('input',{type:'file',accept:'image/*'});this._files=[];this.setterCount=0;this.changeCount=0;this.chooserOpens=0;}
   get files(){return this._files;}
-  set files(value){setters++;onSet?.();this._files=value;}
+  set files(value){setters++;this.setterCount++;onSet?.();this._files=value;}
   get form(){return this.closest('form');}
   get type(){return 'file';} get accept(){return this.attrs.accept||'';}
   get value(){return this._files.length?'C:\\fakepath\\'+this._files[0].name:'';}
   set value(value){if(value!=='')throw Error('InvalidStateError');this._files=[];}
-  dispatchEvent(event){if(event.type==='change'){changes++;onChange?.(this.files[0]);if(accept)addCard(this.files[0].name);}return super.dispatchEvent(event);}
+  showPicker(){chooserOpens++;this.chooserOpens++;}
+  dispatchEvent(event){if(event.type==='change'){changes++;this.changeCount++;onChange?.(this.files[0],this);if(this.applicationAccept??accept)addCard(this.files[0].name);}return super.dispatchEvent(event);}
  }
  const body=new Node('body'),form=body.append(new Node('form'));
- const editor=form.append(new Node('div',{id:'prompt-textarea',contenteditable:'true',role:'textbox'}));
+ const editor=form.append(new Node(editorTag,editorTag==='textarea'?{id:'prompt-textarea',role:'textbox'}:{id:'prompt-textarea',contenteditable:'true',role:'textbox'}));
  editor.textContent='Existing 中文 draft 👋 and selection';
+ if(editorTag==='textarea'){editor.value=editor.textContent;editor.setSelectionRange(2,7,'backward');}
  form.addEventListener('submit',()=>{sends++;});form.submit=()=>{sends++;};form.requestSubmit=()=>{sends++;};
  const input=form.append(new Input()),oldCard=form.append(new Node('div',{'data-file-name':'existing.png',role:'button',title:'existing.png'}));
  oldCard.append(new Node('img',{alt:'existing.png',src:'blob:old-image'}));
- const selection={anchorNode:editor,focusNode:editor,anchorOffset:2,focusOffset:7,isCollapsed:false,rangeCount:1,toString:()=>editor.textContent.slice(2,7)};
+ const selection={anchorNode:editor,focusNode:editor,anchorOffset:2,focusOffset:7,isCollapsed:false,rangeCount:1,toString:()=>editor.textContent.slice(2,7),
+  setBaseAndExtent(anchor,anchorOffset,focus,focusOffset){Object.assign(this,{anchorNode:anchor,anchorOffset,focusNode:focus,focusOffset,rangeCount:1,isCollapsed:anchor===focus&&anchorOffset===focusOffset});}};
  const document={body,documentElement:body,visibilityState:visible?'visible':'hidden',hasFocus:()=>focused,activeElement:editor,
   contains:node=>body.contains(node),querySelectorAll:selector=>body.querySelectorAll(selector),querySelector:selector=>body.querySelector(selector),
   getElementById:id=>body.querySelector('#'+id),getSelection:()=>selection,
-  addEventListener:(type,fn)=>{const list=events.get(type)||[];list.push(fn);events.set(type,list);},removeEventListener:()=>{}};
+  addEventListener:(type,fn,options=false)=>{const list=events.get(type)||[];list.push({fn,capture:options===true||!!options.capture});events.set(type,list);},
+  removeEventListener:(type,fn)=>{events.set(type,(events.get(type)||[]).filter(item=>item.fn!==fn));}};
  const blobFiles=new Map();let blobID=0;
  class NativeURL extends URL {static createObjectURL(file){const url='blob:fixture-'+(++blobID);blobFiles.set(url,file);return url;}static revokeObjectURL() {}}
  const context=vm.createContext({console,Uint8Array,Map,Set,WeakMap,WeakSet,Promise,File,Blob,atob,btoa,ArrayBuffer,TextDecoder,URL:NativeURL,
-  crypto:webcrypto,performance,setTimeout,clearTimeout,queueMicrotask,document,location:{href:route},HTMLInputElement:Input,HTMLElement:Node,Element:Node,Node,
+  crypto:webcrypto,performance,setTimeout,clearTimeout,queueMicrotask,
+  requestAnimationFrame:callback=>setTimeout(()=>callback(performance.now()),1),cancelAnimationFrame:clearTimeout,
+  document,location:{href:route},HTMLInputElement:Input,HTMLElement:Node,Element:Node,Node,
   getSelection:()=>selection,getComputedStyle:node=>({display:node.rendered===false?'none':'block',visibility:'visible',pointerEvents:'auto'}),
   MutationObserver:class{constructor(fn){this.fn=fn;observers.push(this);}observe(){}disconnect(){}takeRecords(){return []; }},
-  Event:class{constructor(type,opts={}){this.type=type;Object.assign(this,opts);}},
+  Event,PointerEvent:Event,KeyboardEvent:Event,
   DataTransfer:class{constructor(){this.files=[];this.items={add:file=>this.files.push(file)};}},
   addEventListener:()=>{},removeEventListener:()=>{},history:{pushState:()=>{}},CSS:{escape:value=>value},
   fetch:()=>{throw Error('network forbidden');}});
  vm.runInContext('globalThis.top=globalThis;globalThis.window=globalThis',context);
- const program=vm.runInContext('('+source+')',context);
+ const program=vm.runInContext('('+programSource+')',context);
  const call=command=>program(command,native);
  const notify=()=>{for(const observer of observers)observer.fn([{type:'childList',target:form,addedNodes:[],removedNodes:[]}]);};
  function addCard(name,{placeholder=false,progress=true}={}) {
@@ -104,7 +129,7 @@ function fixture({route='https://chatgpt.com/c/ordinary-thread',accept=true,focu
  const waitFor=async(fn,label='page result')=>{const deadline=Date.now()+2000;do{const value=fn();if(value)return value;await new Promise(r=>setTimeout(r,1));}while(Date.now()<deadline);throw Error('bounded wait expired: '+label);};
  return {call,bind,stage,commit,observe,waitFor,notify,addCard,body,form,editor,input,oldCard,selection,context,document,Node,
   setChange:fn=>{onChange=fn;},setSetter:fn=>{onSet=fn;},setAccept:value=>{accept=value;},
-  get changes(){return changes;},get setters(){return setters;},get sends(){return sends;},
+  get changes(){return changes;},get setters(){return setters;},get sends(){return sends;},get chooserOpens(){return chooserOpens;},
   setRoute:href=>{context.location.href=href;},setFocused:value=>{focused=value;}};
 }
 module.exports={fixture,png,sha,native};
