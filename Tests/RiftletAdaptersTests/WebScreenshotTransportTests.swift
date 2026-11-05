@@ -43,7 +43,7 @@ final class WebScreenshotTransportTests: XCTestCase {
                 productStore: store, productOrigins: [.systemScreenshot, .applicationScreenshot])
             try await adapter.preflight(asset: asset, fileURL: file)
             let prepared = try await store.prepare(assetID: asset.id, target: target)
-            let invocation = try await store.markDispatchIntent(prepared.id)
+            let invocation = try await store.markIndependentFileInputIntent(prepared.id, ownerID: UUID())
             let saved = try await store.operation(id: prepared.id)
             let request = TransferRequest(operation: try XCTUnwrap(saved), asset: asset, fileURL: file, invocationID: invocation)
             let receipt = try await adapter.append(request)

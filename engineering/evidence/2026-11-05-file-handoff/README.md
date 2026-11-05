@@ -167,3 +167,12 @@ explicit cancellation and no invented START. Full Swift/macOS CI and updated
 App acceptance must be read from the final PR delivery. The model service
 interrupted the independent reviewer before final source approval. A build
 success must not be recorded as that missing source approval.
+
+The first full ARM64/Intel run exposed the same three fixture mismatches:
+legacy global-lane expectations, exclusive registration in a multi-file
+ordinary transport test, and a stale support-copy assertion. The successor
+keeps the same-tab exclusion assertion and uses ordinary independent dispatch.
+Actual capture also exposed a new image being hidden behind old pages. New
+captures now reveal their page after existing pointer/selection protection;
+failure rebirth does not move the page. The production UI object-code probe
+passed both cases. No panel geometry or visual style was changed.

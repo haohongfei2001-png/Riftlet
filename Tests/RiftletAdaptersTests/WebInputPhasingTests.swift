@@ -210,7 +210,7 @@ final class WebInputPhasingTests: XCTestCase {
 
     func testOriginalObserverDeferCannotReleaseLaterInputOwner() async throws {
         let a = try await request(target(tab: "A")), b = try await request(target(tab: "B"))
-        let c = try await request(target(tab: "C"))
+        let c = try await request(target(tab: "B"))
         let bCommit = expectation(description: "B entered held commit")
         let bridge = PhasedInputBridge(onCommit: { if $0 == b.operation.id { bCommit.fulfill() } })
         let client = adapter(bridge), aInput = expectation(description: "A input confirmed")

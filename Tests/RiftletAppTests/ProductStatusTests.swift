@@ -97,7 +97,7 @@ final class ProductStatusTests: XCTestCase {
 
     func testUnifiedProductDoesNotDirectUserToAnotherProductOrClaimRealPageCertification() {
         let text = ProductStatus.supportDescription(for: .unifiedProduct)
-        for scope in ["ChatGPT 聊天", "系统和内置截图", "不补资格、不重传",
+        for scope in ["ChatGPT 新聊天及已有聊天", "系统和内置截图", "不补资格、不重传",
                       "PNG、JPEG 按原文件输入", "等分辨率 PNG 副本"] {
             XCTAssertTrue(text.contains(scope), scope)
         }
