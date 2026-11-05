@@ -7,7 +7,7 @@ import Foundation
 public final class AcceptedSelection: @unchecked Sendable {
     // Retained for source compatibility with archived acceptance fixtures.
     // These labels and timestamps no longer approve or reject a new click.
-    public enum Authorization: Sendable { case preEventAcknowledgement, nativeClickPin }
+    public enum Authorization: Sendable { case preEventAcknowledgement, nativeClickPin, currentClick }
     public let authorization: Authorization
     public let id: UUID
     public let assetID: UUID
@@ -30,7 +30,7 @@ public final class AcceptedSelection: @unchecked Sendable {
         self.init(id: id, assetID: assetID, target: target, hostEpoch: UUID(),
                   acknowledgedUptime: selectedAt, eventUptime: selectedAt,
                   acceptedUptime: selectedAt, visibilityRevision: visibilityRevision,
-                  deadlineUptime: selectedAt + 30)
+                  deadlineUptime: .infinity, authorization: .currentClick)
     }
 
     public init(id: UUID = UUID(), assetID: UUID, target: TargetLease, hostEpoch: UUID,
@@ -53,12 +53,12 @@ public final class AcceptedSelection: @unchecked Sendable {
     }
 
     private func valid(at uptime: TimeInterval) -> Bool {
-        !cancelled && !dispatched && acceptedUptime.isFinite
-            && deadlineUptime.isFinite && uptime.isFinite && acceptedUptime >= 0 && acceptedUptime <= uptime
-            // Match the App's acceptedUptime + 30 construction. Subtraction
-            // can round a valid boundary to 30.000000000000007 and refuse it.
-            && deadlineUptime > acceptedUptime && deadlineUptime <= acceptedUptime + 30
-            && uptime < deadlineUptime && visibilityRevision >= 0
+        guard !cancelled, !dispatched, acceptedUptime.isFinite, uptime.isFinite,
+              acceptedUptime >= 0, acceptedUptime <= uptime, visibilityRevision >= 0 else { return false }
+        // New clicks remain revocable until the exact draft is rechecked at dispatch.
+        if authorization == .currentClick { return true }
+        return deadlineUptime.isFinite && deadlineUptime > acceptedUptime
+            && deadlineUptime <= acceptedUptime + 30 && uptime < deadlineUptime
     }
 
     /// Serializes synchronous revocation with the final SQLite intent write,

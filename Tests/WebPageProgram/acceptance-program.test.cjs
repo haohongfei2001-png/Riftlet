@@ -6,6 +6,8 @@ const assert=require('node:assert/strict');
 const vm=require('node:vm');
 const {fixture,png}=require('./independent-input-fixture.cjs');
 require('./attachment-entry-handoff.test.cjs');
+require('./original-image-transport.test.cjs');
+require('./ordinary-composer.test.cjs');
 
 function accepted(f,op) {
  const observation=f.observe(op);
@@ -431,8 +433,8 @@ for(const state of ['disabled','removed'])test('an unsubmitted operation never s
  assert.equal(refused.uploadStart,undefined);assert.equal(f.setters,0);assert.equal(f.changes,0);
 });
 
-test('a new attachment in a replaced editor cannot start the original unconfirmed operation',()=>{
- const f=fixture({accept:false}),op=f.bind();f.stage(op);f.commit(op);
+test('a replacement in an untracked Home draft cannot start the original unconfirmed operation',()=>{
+ const f=fixture({accept:false,route:'https://chatgpt.com/'}),op=f.bind();f.stage(op);f.commit(op);
  f.editor.remove();f.form.append(new f.Node('div',{id:'prompt-textarea',contenteditable:'true',role:'textbox'}));
  f.addCard(op.name);
  const observed=f.observe(op);assert.equal(observed.state,'inputTriggered');
@@ -470,8 +472,8 @@ test('a changed route cannot receive the screenshot pinned to the previous chat'
  assert.equal(f.changes,1);
 });
 
-test('a replacement editor cannot silently inherit an older captured target',()=>{
- const f=fixture(),op=f.bind();f.stage(op);f.editor.remove();
+test('a replacement Home editor cannot silently inherit an older captured target',()=>{
+ const f=fixture({route:'https://chatgpt.com/'}),op=f.bind();f.stage(op);f.editor.remove();
  f.form.append(new f.Node('div',{id:'prompt-textarea',contenteditable:'true',role:'textbox'}));
  const refused=f.commit(op).observation;
  assert.equal(refused.state,'invalidated');

@@ -6,7 +6,6 @@ import RiftletCore
 /// recovery, old journal, argument or page JSON can create this registration.
 public actor SystemScreenshotCandidateAdmission {
     private let store: QueueStore
-    private static let previousEntrySourceID = "chatgpt-web-attachment-entry-20261105-v15"
 
     public nonisolated let scope: SystemScreenshotAdmissionScope
 
@@ -63,13 +62,9 @@ public actor SystemScreenshotCandidateAdmission {
         try await registeredObservationSource(for: request) != nil
     }
 
-    func observesPreviousEntrySource(_ request: TransferRequest) async throws -> Bool {
-        try await registeredObservationSource(for: request) == Self.previousEntrySourceID
-    }
-
-    // Only the read path accepts v15. New enrollment always uses today's page
+    // Only the read path accepts older source identities. New enrollment always uses today's page
     // program and the existing one-shot fence, including after a restart.
-    private func registeredObservationSource(for request: TransferRequest) async throws -> String? {
+    func registeredObservationSource(for request: TransferRequest) async throws -> String? {
         guard let data = try await store.checkpoint(for: Self.checkpointKey(for: request, scope: scope)) else { return nil }
         if scope != .candidate {
             guard try await store.checkpoint(for: Self.checkpointKey(for: request)) == data else {
@@ -80,7 +75,8 @@ public actor SystemScreenshotCandidateAdmission {
               let registration = try? JSONDecoder().decode(Registration.self, from: data),
               registration.version == (scope.isProduct ? 2 : 1),
               registration.assetOrigin == (scope.isProduct ? scope.origin : nil),
-              registration.sourceID == SystemScreenshotWebCandidate.sourceID || registration.sourceID == Self.previousEntrySourceID,
+              [SystemScreenshotWebCandidate.sourceID, ChatGPTWebPageProgram.priorEntrySource,
+               ChatGPTWebPageProgram.priorHandoffSource].contains(registration.sourceID),
               registration.startProfileID == scope.admittedProfile.uploadStartProfileID!,
               registration.completionProfileID == scope.admittedProfile.profileID,
               registration.identity == Self.identity(for: request),
@@ -97,7 +93,11 @@ public actor SystemScreenshotCandidateAdmission {
         }
         let encoder = JSONEncoder(); encoder.outputFormatting = [.sortedKeys]
         guard (try? encoder.encode(registration)) == data else { throw WebAdapterError.invalidRequest }
-        try scope.validateMetadata(request.asset)
+        if registration.sourceID == SystemScreenshotWebCandidate.sourceID {
+            try scope.validateMetadata(request.asset)
+        } else {
+            try SystemScreenshotWebCandidate.validateMetadata(request.asset, expectedOrigin: scope.origin)
+        }
         try scope.validateTarget(request.operation.target)
         return registration.sourceID
     }

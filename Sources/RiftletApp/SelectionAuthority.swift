@@ -28,7 +28,8 @@ final class SelectionAuthority {
 
     func insert(_ selection: AcceptedSelection, now: TimeInterval) -> Bool {
         selections = selections.filter { $0.value.isValid(at: now) }
-        guard selection.isValid(at: now), selections.count < 16,
+        guard selection.isValid(at: now),
+              selection.authorization == .currentClick || selections.count < 16,
               !selections.values.contains(where: { $0.assetID == selection.assetID }) else { return false }
         selections[selection.id] = selection
         return true

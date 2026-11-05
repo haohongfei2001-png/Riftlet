@@ -1,5 +1,12 @@
 import Foundation
 
+/// Capacity of an original screenshot accepted by the local collector.
+public enum ScreenshotImportLimits {
+    public static let bytes: Int64 = 128 * 1024 * 1024
+    public static let pixels: Int64 = 160_000_000
+    public static let dimension = 50_000
+}
+
 public enum StoreMode: String, Codable, Sendable { case production, simulation }
 public enum AssetOrigin: String, Codable, Sendable {
     case systemScreenshot, synthetic
@@ -164,6 +171,13 @@ public struct TargetLease: Codable, Equatable, Hashable, Sendable {
     /// original append may keep observing START while a different, recognized
     /// business draft in a different document takes the input lane. A new pin,
     /// window move, local/persisted transition or reused document is insufficient.
+    /// Synchronous file events operate on the picker in one addressed tab.
+    /// Another tab or Chrome process cannot share that native DOM object.
+    public func sharesInputTab(with other: TargetLease) -> Bool {
+        applicationID == other.applicationID && sessionID == other.sessionID
+            && windowID == other.windowID && tabID == other.tabID
+    }
+
     public func hasIndependentInputDocument(from other: TargetLease) -> Bool {
         guard surface == .webChat, other.surface == surface,
               applicationID == "com.google.Chrome", other.applicationID == applicationID,

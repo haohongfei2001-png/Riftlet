@@ -7,7 +7,7 @@
 function riftletWebAcceptance(command, native) {
   'use strict';
   const KEY = '__riftletIndependentFileInput20261104';
-  const MAX_BYTES = 8 * 1024 * 1024, MAX_CHUNK_BYTES = 256 * 1024;
+  const MAX_BYTES = 128 * 1024 * 1024, MAX_CHUNK_BYTES = 256 * 1024;
   const targetKeys = ['adapterID', 'surface', 'applicationID', 'sessionID', 'windowID', 'tabID',
     'documentID', 'composerID', 'draftGeneration'];
   const fail = code => { throw Error(code); };
@@ -64,39 +64,83 @@ function riftletWebAcceptance(command, native) {
     && !node.matches('input[type="submit"],button[type="submit"]')
     && (!node.matches('a[href]') || /^(?:#|$)/.test(node.getAttribute('href')))
     && !destructiveWords.test(description(node));
-  const editorNodes = () => [...document.querySelectorAll('#prompt-textarea,[contenteditable],[role="textbox"],textarea')]
-    .filter(node => visible(node)
-      && (node.isContentEditable || node.tagName === 'TEXTAREA' || node.id === 'prompt-textarea'
-        || node.getAttribute('role') === 'textbox'))
-    .filter((node, index, list) => !list.some(other => other !== node && other.contains(node)));
+  const composerSurface = '[data-composer-placement],[data-chatgpt-composer],[data-testid="composer"]';
+  const editorNodes = () => {
+    const visibleEditors = [...document.querySelectorAll('#prompt-textarea,[contenteditable],[role="textbox"],textarea')]
+      .filter(node => visible(node) && (node.isContentEditable || node.tagName === 'TEXTAREA'
+        || node.id === 'prompt-textarea' || node.getAttribute('role') === 'textbox'));
+    // A wrapper with role=textbox and its nested editable represent one editing
+    // surface. Use the real editing host instead of treating them as competitors.
+    return visibleEditors.filter(node => !visibleEditors.some(other => other !== node && node.contains(other)
+      && (other.isContentEditable || other.tagName === 'TEXTAREA' || other.id === 'prompt-textarea')));
+  };
+  function composerForm(editor, editors) {
+    const declared = editor.closest(composerSurface) || editor.closest('form');
+    if (declared) return declared;
+    for (let node = editor.parentElement; node && node !== document.body; node = node.parentElement) {
+      if (editors.some(other => other !== editor && node.contains(other))) break;
+      const siblingPicker = [...node.querySelectorAll('input[type="file"]')].some(input =>
+        input.parentElement === node && (!input.form || input.form.contains(editor)));
+      if (siblingPicker || controls(node).some(control =>
+        attachmentWords.test(description(control)) || /composer.*(?:plus|attach)/i.test(hints(control)))) return node;
+    }
+    return editor.parentElement || editor;
+  }
   function composer() {
     if (globalThis.top !== globalThis) fail('PAGE_NOT_TOP_LEVEL');
     route();
     const editors = editorNodes();
     if (!editors.length) fail('EDITOR_UNAVAILABLE');
-    const score = node => (node.id === 'prompt-textarea' ? 1000 : 0)
-      + (node === document.activeElement || node.contains(document.activeElement) ? 200 : 0)
-      + (node.getAttribute('role') === 'textbox' ? 20 : 0)
-      + (/message|prompt|ask|消息|提问/i.test(description(node)) ? 40 : 0)
-      + (node.closest('main,[role="main"]') ? 10 : 0);
-    const ranked = editors.map(editor => ({editor, score: score(editor)})).sort((a, b) => b.score - a.score);
-    // Multiple pickers never reject a target. Only genuinely indistinguishable
-    // live editors need disambiguation to avoid choosing a different draft.
-    if (ranked.length > 1 && ranked[0].score === ranked[1].score) fail('AMBIGUOUS_COMPOSER');
-    const editor = ranked[0].editor;
-    let form = editor.closest('form,[data-chatgpt-composer],[data-testid="composer"]');
-    if (!form) {
-      form = editor.parentElement;
-      for (let node = editor.parentElement; node && node !== document.body; node = node.parentElement) {
-        if (editors.some(other => other !== editor && node.contains(other))) break;
-        if (controls(node).some(control => attachmentWords.test(description(control))
-            || /composer.*(?:plus|attach)/i.test(description(control)))) { form = node; break; }
+    // First establish the actual chat surface. Search, settings, conversation
+    // transcript edits and focus proxies can all render visible textboxes.
+    // Focus is useful only among candidates, never required for a cold click.
+    const partsFor = editor => ({editor, form: composerForm(editor, editors), input: null});
+    if (editors.length === 1) return partsFor(editors[0]);
+    const pageControls = controls(document), pageInputs = [...document.querySelectorAll('input[type="file"]')];
+    const destinations = editors.map(editor => {
+      const parts = partsFor(editor);
+      const canonical = editor.id === 'prompt-textarea';
+      const marked = !!editor.closest(composerSurface);
+      const ancillary = !!editor.closest('aside,nav,header,article,[role="search"],[data-message-author-role]');
+      const ownedEntries = entryControls(parts, pageControls).filter(control => parts.form.contains(control)
+        || referenced(control, ['aria-controls', 'aria-owns']).includes(editor));
+      const attaches = ownedEntries.length > 0 || !!directInput(parts, ownedEntries, pageInputs);
+      const rank = (attaches ? 64 : 0) + (marked ? 32 : 0) + (canonical ? 16 : 0)
+        - (ancillary && !marked && !canonical ? 16 : 0)
+        + (editor === document.activeElement || editor.contains(document.activeElement) ? 8 : 0)
+        + (editor.isContentEditable || editor.tagName === 'TEXTAREA' ? 4 : 0)
+        + (/message|prompt|ask|消息|提问/i.test(hints(editor)) ? 2 : 0)
+        + (editor.closest('main,[role="main"]') ? 1 : 0);
+      return {parts, rank};
+    }).sort((a, b) => b.rank - a.rank);
+    const tied = destinations.filter(item => item.rank === destinations[0].rank).map(item => item.parts);
+    if (tied.length === 1) return tied[0];
+    // Two mounted layouts can look alike in markup while only one is actually
+    // shown. Use the visible editing surface as a tie-break, not a focus gate.
+    const displayed = tied.filter(({editor}) => {
+      if (typeof document.elementFromPoint !== 'function') return false;
+      const r = editor.getBoundingClientRect();
+      const left = Math.max(0, r.left), top = Math.max(0, r.top);
+      const right = Math.min(globalThis.innerWidth, r.right), bottom = Math.min(globalThis.innerHeight, r.bottom);
+      if (left >= right || top >= bottom) return false;
+      const hit = document.elementFromPoint((left + right) / 2, (top + bottom) / 2);
+      return !!hit && editor.contains(hit);
+    });
+    if (displayed.length === 1) return displayed[0];
+    // Mirrors within the same declared composer share its single attachment
+    // destination. Prefer the user's actual selection, even without focus.
+    const choices = displayed.length ? displayed : tied, form = choices[0].form;
+    if (form.matches(composerSurface) && choices.every(item => item.form === form)) {
+      const input = directInput(choices[0], entryControls(choices[0], pageControls), pageInputs);
+      if (input && choices.every(item => directInput(item, entryControls(item, pageControls), pageInputs) === input)) {
+        const anchor = document.getSelection?.()?.anchorNode;
+        return choices.find(item => anchor && item.editor.contains(anchor)) || choices[0];
       }
     }
-    return {form: form || editor, editor, input: null};
+    fail('AMBIGUOUS_COMPOSER');
   }
   const blank = (identity, state = 'unknown') => ({schemaVersion: 2,
-    provenance: {source: 'integratedDevelopment', evidenceID: 'attachment-handoff-20261105-v16'},
+    provenance: {source: 'integratedDevelopment', evidenceID: 'screenshot-handoff-20261105-v17'},
     observation: {identity, state, exactImageIdentity: false, belongsToOriginalDraft: false,
       hasError: false, isUploading: false, attachmentAbsent: false, automaticRetryExcluded: false}});
   let registry = globalThis[KEY];
@@ -146,7 +190,21 @@ function riftletWebAcceptance(command, native) {
     try {
       if (!binding || registry.root !== document.documentElement || binding.navigation !== registry.navigation
           || binding.route !== route() || !contextMatches(binding.target)) return false;
-      return binding.form.isConnected && binding.editor.isConnected && binding.form.contains(binding.editor);
+      if (binding.form.isConnected && binding.editor.isConnected && binding.form.contains(binding.editor)) return true;
+      // A live editing host can be moved into a rebuilt wrapper without
+      // changing its destination. For an entirely replaced editor, the same
+      // saved conversation and composer must both still identify the owner.
+      const current = composer();
+      if (binding.editor !== current.editor) {
+        const savedConversation = /\/c\/[^/]+\/?$/.test(new URL(binding.route).pathname);
+        const sameSurface = binding.form === current.form || (!binding.form.isConnected
+          && ((binding.form.matches(composerSurface) && current.form.matches(composerSurface))
+            || (binding.editor.id === 'prompt-textarea' && current.editor.id === binding.editor.id)));
+        if (!savedConversation || binding.editor.isConnected || !sameSurface
+            || current.editor.closest('aside,nav,header,article,[role="menu"],[role="search"],[data-message-author-role]')) return false;
+      }
+      binding.form = current.form; binding.editor = current.editor;
+      return true;
     } catch { return false; }
   }
   function validDraft(binding) {
@@ -173,11 +231,16 @@ function riftletWebAcceptance(command, native) {
     }
     return [...found].filter(usableInput);
   }
-  function entryControls(binding) {
+  function entryControls(binding, available = controls(document)) {
     const local = control => binding.form !== document.body && binding.form.contains(control);
-    const candidates = controls(document).filter(control => !binding.editor.contains(control) && !control.contains(binding.editor)
+    const belongsElsewhere = control => {
+      const owner = control.closest(composerSurface) || control.closest('form');
+      if (!owner || owner.contains(binding.editor) || referenced(control, ['aria-controls', 'aria-owns']).includes(binding.editor)) return false;
+      return editorNodes().some(editor => owner.contains(editor));
+    };
+    const candidates = available.filter(control => !binding.editor.contains(control) && !control.contains(binding.editor)
       && !control.closest('[data-file-name],[role="menu"],[role="menuitem"]')
-      && !outsidePurpose(control, binding)
+      && !outsidePurpose(control, binding) && !belongsElsewhere(control)
       && (local(control) || /composer.*(?:plus|attach)/i.test(hints(control))
         || referenced(control, ['aria-controls']).includes(binding.editor)
         || (binding.form.parentElement && binding.form.parentElement !== document.body
@@ -214,17 +277,23 @@ function riftletWebAcceptance(command, native) {
     }
     return labels.some(label => !ownControls(label));
   }
-  function directInput(binding, entries) {
+  function directInput(binding, entries, available = document.querySelectorAll('input[type="file"]')) {
     const own = node => entries.includes(node);
     const linked = new Set(entries.flatMap(relatedInputs).filter(input => input.isConnected && !otherOwner(input, binding, own)));
     if (linked.size === 1) return [...linked][0];
-    const local = [...document.querySelectorAll('input[type="file"]')].filter(input => input.isConnected
-      && usableInput(input) && binding.form !== document.body
-      && (binding.form.contains(input) || input.form === binding.form) && !otherOwner(input, binding, own));
+    const local = [...available].filter(input => input.isConnected
+      && usableInput(input) && !input.hasAttribute('capture') && binding.form !== document.body
+      && (input.form === binding.form || (binding.form.contains(input) && (!input.form || input.form.contains(binding.editor))))
+      && !otherOwner(input, binding, own));
     if (local.length === 1) return local[0];
-    // Multiple local fields are common. Prefer one labelled for the composer;
-    // otherwise the actual entry identifies the object rather than DOM order.
-    const named = local.filter(input => attachmentWords.test(description(input)));
+    // ChatGPT can expose camera, media library, photo-only and ordinary file
+    // inputs side by side. Prefer the named general file action when present.
+    // Accept is a chooser hint for comparing siblings, never a PNG permission.
+    const fields = linked.size ? [...linked] : local;
+    const general = fields.filter(input => !input.hasAttribute('capture')
+      && (!input.accept.trim() || input.accept.trim() === '*/*') && fileWords.test(description(input)));
+    if (general.length === 1) return general[0];
+    const named = fields.filter(input => !input.hasAttribute('capture') && attachmentWords.test(description(input)));
     return named.length === 1 ? named[0] : null;
   }
   function preserveSelection(binding) {
@@ -232,7 +301,7 @@ function riftletWebAcceptance(command, native) {
       const editor = binding.editor, value = editor.value, start = editor.selectionStart,
         end = editor.selectionEnd, direction = editor.selectionDirection, active = document.activeElement;
       return () => {
-        if (!sameDraft(binding) || editor.value !== value || !Number.isInteger(start) || !Number.isInteger(end)) return;
+        if (!sameDraft(binding) || binding.editor !== editor || editor.value !== value || !Number.isInteger(start) || !Number.isInteger(end)) return;
         if (active === editor && document.hasFocus()) editor.focus?.({preventScroll: true});
         editor.setSelectionRange?.(start, end, direction);
       };
@@ -632,13 +701,21 @@ function riftletWebAcceptance(command, native) {
         && (!node.closest('[role="menu"],[role="dialog"]')
           || node.closest('[role="dialog"]')?.contains(binding.editor)));
   }
+  const previewSelector = 'img[src],progress,[role="progressbar"]';
+  const previewValue = node => node.tagName === 'IMG' ? (node.getAttribute('src') || '').trim() : true;
+  const previewsOf = node => node.matches(previewSelector)
+    ? [node] : [...node.querySelectorAll(previewSelector)];
   function sample(op) {
     // The app may disable or remove its picker after accepting this file.
     // Observing that handoff needs the original draft, not another input slot.
     if (op.start || !op.changeReturned || !sameDraft(op.binding)) return;
-    const hasPreview = node => (node.tagName === 'IMG' && !!node.getAttribute('src')?.trim())
-      || [...node.querySelectorAll('img[src]')].some(image => !!image.getAttribute('src')?.trim())
-      || !!node.querySelector('progress,[role="progressbar"]');
+    const newPreview = node => previewsOf(node).some(preview => {
+      const value = previewValue(preview);
+      if (!value) return false;
+      // Original resident operations have a node-identity baseline. New
+      // handoffs also recognize a framework filling an existing preview slot.
+      return op.previewBaseline ? op.previewBaseline.get(preview) !== value : !op.baseline.has(node);
+    });
     const hasError = node => {
       const card = node.closest('[data-file-name],[role="button"],button') || node;
       const errors = '[role="alert"],[data-state="error"],[data-state="failed"]';
@@ -648,21 +725,20 @@ function riftletWebAcceptance(command, native) {
     const named = node => ['data-file-name', 'aria-label', 'title', 'alt'].some(key => filename.test(node.getAttribute(key) || ''))
       || ((node.hasAttribute('data-file-name') || node.getAttribute('role') === 'button' || node.tagName === 'BUTTON')
         && filename.test(node.textContent || ''));
-    const matches = attachmentNodes(op.binding).filter(node => !op.baseline.has(node) && node.isConnected
-      && hasPreview(node) && !hasError(node)
-      && (named(node)
-        || (node.tagName === 'IMG' && op.urls.has(node.getAttribute('src')))));
+    const identifiesFile = node => named(node) || (node.tagName === 'IMG' && op.urls.has(node.getAttribute('src')));
+    const identified = attachmentNodes(op.binding).filter(node => node.isConnected && identifiesFile(node));
+    if (identified.some(hasError)) return;
+    const matches = identified.filter(newPreview);
     if (!matches.length) return;
-    // A named card and its own img are one accepted attachment, not ambiguity.
-    const roots = matches.filter(node => !matches.some(other => other !== node && other.contains(node)));
-    if (roots.length !== 1) return;
-    const accepted = roots[0];
+    // A compact tray and expanded view can both present this same exact
+    // File. START needs one positive handoff; duplicate views are not inputs.
+    const accepted = matches.find(node => op.binding.form.contains(node)) || matches[0];
     op.attachmentID = registry.documentID + ':' + nodeID(accepted);
     op.start = {version: 1, signal: 'attachmentAccepted', evidenceID: crypto.randomUUID(), inputCount: 1,
       inputSequence: op.inputSequence, startSequence: tick(), previousProgress: 0, currentProgress: 0,
       inputObservedAtMS: op.inputTime, startObservedAtMS: Math.max(op.inputTime, performance.now())};
     // This handoff is finished. No load/progress/COMPLETE watcher owns resources.
-    op.baseline.clear(); op.urls.clear();
+    op.baseline.clear(); op.previewBaseline = null; op.urls.clear();
   }
   function observe(op) {
     sample(op);
@@ -708,12 +784,15 @@ function riftletWebAcceptance(command, native) {
   let op = registry?.operations.get(identity.operationID);
   if (command.action === 'begin') {
     if (!validDraft(binding)) fail('TARGET_INVALID');
+    const namePrefix = 'riftlet-' + identity.operationID + '.';
     if (op || !uuid(identity.operationID) || !uuid(identity.assetID) || !uuid(command.invocationID)
         || !Number.isSafeInteger(identity.attempt) || identity.attempt < 1 || !/^[a-f0-9]{64}$/.test(identity.assetSHA256)
-        || command.uploadName !== 'riftlet-' + identity.operationID + '.png' || command.mediaType !== 'image/png'
-        || !Number.isSafeInteger(command.byteCount) || command.byteCount < 8 || command.byteCount > MAX_BYTES) fail('BEGIN_REFUSED');
+        || typeof command.uploadName !== 'string' || !command.uploadName.startsWith(namePrefix)
+        || !/^[a-z0-9]{1,16}$/i.test(command.uploadName.slice(namePrefix.length))
+        || typeof command.mediaType !== 'string' || !/^image\/[a-z0-9][a-z0-9.+-]{0,63}$/i.test(command.mediaType)
+        || !Number.isSafeInteger(command.byteCount) || command.byteCount < 1 || command.byteCount > MAX_BYTES) fail('BEGIN_REFUSED');
     op = {identity: JSON.parse(JSON.stringify(identity)), invocationID: command.invocationID, binding,
-      name: command.uploadName, size: command.byteCount, chunks: [], received: 0, nextChunk: 0,
+      name: command.uploadName, mediaType: command.mediaType, size: command.byteCount, chunks: [], received: 0, nextChunk: 0,
       committed: false, discarded: false, inputCount: 0, changeReturned: false, retirement: null,
       baseline: new Set(), urls: new Set(), start: null};
     registry.operations.set(identity.operationID, op);
@@ -740,6 +819,14 @@ function riftletWebAcceptance(command, native) {
   }
   if (command.action !== 'commit') fail('UNKNOWN_ACTION');
   if (op.committed || op.discarded || op.received !== op.size || command.chunkIndex !== op.nextChunk) fail('COMMIT_REFUSED');
+  if ((op.mediaType || 'image/png') === 'image/png') {
+    const signature = [137, 80, 78, 71, 13, 10, 26, 10], header = [];
+    for (const part of op.chunks) {
+      for (const byte of part.subarray(0, 8 - header.length)) header.push(byte);
+      if (header.length === 8) break;
+    }
+    if (header.length !== 8 || header.some((byte, index) => byte !== signature[index])) fail('INVALID_FILE');
+  }
   op.committed = true; // Once-only before every possible file-input side effect.
   const diag = op.entryDiagnostics = {version: 1, entryCandidates: 0, entryActivations: 0,
     openedContainers: 0, menuActivations: 0, pickerClicks: 0, pickerShows: 0,
@@ -752,14 +839,12 @@ function riftletWebAcceptance(command, native) {
   };
   if (!validDraft(op.binding)) return retire('targetInvalidBeforeInput', 'prepare', 'targetChanged');
   if (registry.busy.has(op.binding.form)) return retire('inputExecutionBusy', 'prepare', 'executionBusy');
-  const bytes = new Uint8Array(op.size); let offset = 0;
-  for (const chunk of op.chunks) { bytes.set(chunk, offset); offset += chunk.length; }
-  op.chunks = [];
-  if (![137, 80, 78, 71, 13, 10, 26, 10].every((value, index) => bytes[index] === value))
-    return retire('invalidPNGSignature', 'prepare', 'invalidFile');
   let file, transfer, setter;
   try {
-    file = new File([bytes], op.name, {type: 'image/png'});
+    // File accepts the existing chunks. No full second contiguous allocation
+    // and no relabeling of JPEG bytes. Older staged product inputs were PNG.
+    file = new File(op.chunks, op.name, {type: op.mediaType || 'image/png'});
+    op.chunks = [];
     transfer = new DataTransfer(); transfer.items.add(file);
     setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'files').set;
     if (typeof setter !== 'function') return retire('inputPreparationFailed', 'prepare', 'unsupportedInput');
@@ -777,8 +862,12 @@ function riftletWebAcceptance(command, native) {
     if (!invoked && op.discoveryDeadline && Date.now() >= op.discoveryDeadline)
       return retire('attachmentInputNotCreated', 'handoff', 'timeout');
     op.binding.input = input;
-    op.baseline = new Set(attachmentNodes(op.binding));
+    op.previewBaseline = new WeakMap([...document.querySelectorAll(previewSelector)].map(node => [node, previewValue(node)]));
     registry.files.set(file, op);
+    const writingForm = op.binding.form;
+    registry.writingInputs ||= new WeakSet();
+    if (registry.busy.has(writingForm) || registry.writingInputs.has(input)) return retire('inputExecutionBusy', 'setter', 'executionBusy');
+    registry.busy.add(writingForm); registry.writingInputs.add(input);
     try {
       op.inputCount = 1; op.inputSequence = tick(); op.inputTime = performance.now();
       diag.stage = 'setter'; diag.setterEntered = true;
@@ -791,13 +880,14 @@ function riftletWebAcceptance(command, native) {
       // The native setter or a receiver can have taken effect. Never switch
       // paths after entering it, including after a dropped native receipt.
       diag.exceptionType = exceptionName(error); diag.cause = 'deliveryUncertain';
+    } finally {
+      registry.busy.delete(writingForm); registry.writingInputs.delete(input);
     }
     op.executionPending = false;
     return observe(op);
   };
-  registry.busy.add(op.binding.form);
-  let pending = false;
-  try {
+  const run = () => {
+    if (!validDraft(op.binding)) return retire('targetInvalidBeforeInput', 'prepare', 'targetChanged');
     const entries = entryControls(op.binding);
     diag.entryCandidates = entries.length;
     const input = directInput(op.binding, entries);
@@ -806,27 +896,26 @@ function riftletWebAcceptance(command, native) {
       try { diag.stage = 'direct'; return execute(input); }
       finally { restore(); }
     }
-    diag.stage = 'entry';
+    diag.stage = 'entry'; op.executionPending = true;
+    op.discoveryDeadline = Date.now() + 3000;
+    return discoverThroughEntry(op, entries, execute, retire);
+  };
+  // One active discovery may observe page-wide picker methods. Another
+  // screenshot queues its own original command; discovering the first picker
+  // is not a synchronous file write and does not retire the next click.
+  let result;
+  if (registry.entryTask) {
     op.executionPending = true;
-    // A page can replace its composer while an earlier entry is finishing.
-    // Only one operation intercepts that document's picker methods at a time.
-    // Other documents have independent registries. Network upload holds neither.
-    const run = () => {
-      op.discoveryDeadline = Date.now() + 3000;
-      return discoverThroughEntry(op, entries, execute, retire);
-    };
-    const task = registry.entryTask ? registry.entryTask.then(run, run) : run();
-    registry.entryTask = task; pending = true;
-    return task.catch(error => {
-      diag.exceptionType = exceptionName(error);
-      if (diag.setterEntered) { diag.cause = 'deliveryUncertain'; return observe(op); }
-      return retire('attachmentEntryFailed', diag.stage, 'exception');
-    }).finally(() => {
-      op.executionPending = false;
-      if (registry.entryTask === task) delete registry.entryTask;
-      registry.busy.delete(op.binding.form);
-    });
-  } finally {
-    if (!pending) registry.busy.delete(op.binding.form);
-  }
+    result = registry.entryTask.then(run, run);
+  } else result = run();
+  if (!result || typeof result.then !== 'function') return result;
+  registry.entryTask = result;
+  return result.catch(error => {
+    diag.exceptionType = exceptionName(error);
+    if (diag.setterEntered) { diag.cause = 'deliveryUncertain'; return observe(op); }
+    return retire('attachmentEntryFailed', diag.stage, 'exception');
+  }).finally(() => {
+    op.executionPending = false;
+    if (registry.entryTask === result) delete registry.entryTask;
+  });
 }

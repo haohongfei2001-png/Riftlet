@@ -1,3 +1,13 @@
+# Current ordinary product closeout — 2026-11-05 evening
+
+Continue PR 41 from 9ee82114. Root owns native/Core/App and formal refs.
+Web and format contributors delivered changes; independent review stopped at
+a model-service usage limit before approval. Preserve that pending status.
+The latest user authorizes independent screenshots and an unsent real ChatGPT
+test draft, with full backups before installation. Source decisions and
+verification scope are in the existing handoff evidence. Do not merge until
+final review, CI and actual updated-App first/consecutive input agree.
+
 # Current PR #41 file handoff — 2026-11-05, second incident
 
 Existing PR #41 continues from `79994009` on main `cd9b6953`. Six real

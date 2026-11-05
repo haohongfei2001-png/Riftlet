@@ -6,7 +6,7 @@ import RiftletCore
 /// start on the first click; no earlier page acknowledgement authorizes input.
 @MainActor
 public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
-    private static let scriptQueue = DispatchQueue(label: "com.riftlet.apple-events", qos: .userInitiated)
+    private static let scriptQueue = DispatchQueue(label: "com.riftlet.apple-events", qos: .userInitiated, attributes: .concurrent)
     private static let observationQueue = DispatchQueue(label: "com.riftlet.apple-events-observation", qos: .utility)
     private let relays = MainWorldRelayStore()
     private let trace: ChromeBridgeTrace
@@ -131,9 +131,8 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
                             guard identity.isCurrent() else { throw WebAdapterError.invalidTarget }
                             guard ChromeCommandRouting.requiresSelectionCheck(command.action) else { return }
                             guard let route else { throw WebAdapterError.invalidTarget }
-                            let active = try bridge.activeIdentity(check: "fixed_selection")
-                            let current = try ChromeClickRoute(window: active.window, tab: active.tab,
-                                url: bridge.url(window: active.window, tab: active.tab))
+                            let current = try ChromeClickRoute(window: route.window, tab: route.tab,
+                                url: bridge.url(window: route.window, tab: route.tab))
                             guard current == route else { throw WebAdapterError.nativeSelectionChanged }
                         }
                         phase = "selection"
@@ -144,7 +143,7 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
                         let legacySession = identity.legacyLaunchDate.flatMap { date in
                             date.timeIntervalSince1970.isFinite ? "\(identity.pid):\(date.timeIntervalSince1970)" : nil
                         }
-                        var relay = relays.relay(function: program.functionSource, contextJSON: context,
+                        var relay = command.target.flatMap { relays.bound(to: $0) } ?? relays.relay(function: program.functionSource, contextJSON: context,
                             allowCreate: false, legacyObservationSession: legacySession)
                         if relay == nil, command.action == .observe || command.action == .captureTarget {
                             let expected = MainWorldCommandRelay(function: program.functionSource,
@@ -159,7 +158,7 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
                             relay = relays.relay(function: program.functionSource, contextJSON: context,
                                 allowCreate: true, legacyObservationSession: legacySession)
                         }
-                        guard let relay else { throw WebAdapterError.pageRejected(.bridgeUnavailable) }
+                        guard var relay else { throw WebAdapterError.pageRejected(.bridgeUnavailable) }
                         phase = "submit"
                         var install = false
                         if command.action == .captureTarget {
@@ -170,8 +169,24 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
                         // thumbnail changed focus. It addresses this exact tab.
                         try checkSelection()
                         if install {
-                            let source = "(()=>{\(relay.installer);return \(relay.dispatch(envelope));})()"
-                            try bridge.submitMainWorld(source, window: window, tab: tab)
+                            // Setting a javascript: URL can foreground the addressed tab. If the
+                            // user already switched, bootstrap through the nonselecting command.
+                            let active = try? bridge.activeIdentity(check: "bootstrap_visibility")
+                            if active?.window == window, active?.tab == tab,
+                               NSWorkspace.shared.frontmostApplication?.processIdentifier == identity.pid {
+                                let source = "(()=>{\(relay.installer);return \(relay.dispatch(envelope));})()"
+                                try bridge.submitMainWorld(source, window: window, tab: tab)
+                            } else {
+                                // A direct DOM handoff still works from Chrome's scripting world.
+                                // Its prototypes are separate; a later foreground click must be
+                                // able to install the genuine MAIN hook for app-owned pickers.
+                                guard let background = relays.relay(function: program.functionSource + "\n/* isolated */",
+                                    contextJSON: context, allowCreate: true, legacyObservationSession: legacySession)
+                                else { throw WebAdapterError.pageRejected(.bridgeUnavailable) }
+                                relay = background
+                                let source = "(()=>{\(relay.installer);return \(relay.dispatch(envelope));})()"
+                                try bridge.dispatchMainWorld(source, window: window, tab: tab)
+                            }
                         } else {
                             try bridge.dispatchMainWorld(relay.dispatch(envelope), window: window, tab: tab)
                         }
@@ -186,7 +201,12 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
                         guard identity.isCurrent(), receipt.text.utf8.count <= ObservationDecoder.maximumPayloadBytes else {
                             throw WebAdapterError.invalidReply
                         }
-                        if command.action == .captureTarget { try checkSelection() }
+                        if command.action == .captureTarget {
+                            try checkSelection()
+                            if let target = try? JSONDecoder().decode(TargetLease.self, from: Data(receipt.text.utf8)) {
+                                relays.bind(relay, to: target)
+                            }
+                        }
                         phase = "complete"
                         return Data(receipt.text.utf8)
                     }

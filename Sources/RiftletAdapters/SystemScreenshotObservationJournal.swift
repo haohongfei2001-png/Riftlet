@@ -65,16 +65,27 @@ public actor SystemScreenshotObservationJournal {
                 throw SystemScreenshotObservationJournalError.conflictingCheckpoint
             }
             if original.envelope.provenance != envelope.provenance {
-                // An upgraded observer can read an already journaled v15 slot.
-                // Its first observation keeps its original bytes and source.
-                guard readOnly,
-                      original.envelope.provenance == .init(source: .integratedDevelopment, evidenceID: "attachment-entry-20261105-v15"),
-                      envelope.provenance == .init(source: .integratedDevelopment, evidenceID: "attachment-handoff-20261105-v16"),
-                      try await SystemScreenshotCandidateAdmission(store: store, scope: scope).observesPreviousEntrySource(request) else {
+                guard readOnly, try await canReadEarlierEntry(original.envelope.provenance,
+                    from: envelope.provenance, for: request) else {
                     throw SystemScreenshotObservationJournalError.conflictingCheckpoint
                 }
             }
         }
+    }
+
+    private func canReadEarlierEntry(_ saved: ObservationProvenance, from current: ObservationProvenance,
+                                     for request: TransferRequest) async throws -> Bool {
+        guard saved.source == .integratedDevelopment, current.source == .integratedDevelopment else { return false }
+        let versions = [(ChatGPTWebPageProgram.priorEntrySource, "attachment-entry-20261105-v15"),
+                        (ChatGPTWebPageProgram.priorHandoffSource, "attachment-handoff-20261105-v16"),
+                        (ChatGPTWebPageProgram.sourceID, "screenshot-handoff-20261105-v17")]
+        guard let previous = versions.firstIndex(where: { $0.1 == saved.evidenceID }),
+              let observed = versions.firstIndex(where: { $0.1 == current.evidenceID }), previous < observed,
+              let source = try await SystemScreenshotCandidateAdmission(store: store, scope: scope).registeredObservationSource(for: request),
+              let enrolled = versions.firstIndex(where: { $0.0 == source }) else { return false }
+        // Only a forward read of this operation's original, fenced registration
+        // may cross provenance. The first slot retains its exact earlier bytes.
+        return enrolled <= previous
     }
 
     /// Only an exact original ordinary registration can retain its historical

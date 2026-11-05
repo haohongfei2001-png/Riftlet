@@ -34,7 +34,6 @@ final class SelectionSubmissionQueue {
     func enqueue(selectionID: UUID?, deadline: TimeInterval?,
                  cancelled: @escaping @MainActor () -> Void,
                  run: @escaping @MainActor (UInt64) async -> Void) -> UInt64? {
-        guard pending.count + (active ? 1 : 0) < 16 else { return nil }
         let entry = Entry(id: UUID(), selectionID: selectionID, ordinal: nextOrdinal,
                           deadline: deadline, run: run, cancelled: cancelled)
         nextOrdinal += 1

@@ -53,15 +53,18 @@ final class ProductScreenshotScopeTests: XCTestCase {
         do { _ = try await body(); XCTFail("Unqualified source/operation accepted", file: file, line: line) } catch {}
     }
 
-    func testV15FencedRowsAndFirstJournalEntriesSurviveV16ReadOnlyReconciliation() async throws {
+    func testOlderFencedRowsAndFirstJournalEntriesSurviveV17ReadOnlyReconciliation() async throws {
         let program = try ChatGPTWebPageProgram.load()
-        XCTAssertEqual(program.sourceID, "chatgpt-web-attachment-handoff-20261105-v16")
-        for scope in [SystemScreenshotAdmissionScope.candidate, .ordinary, .ordinaryCurrentDraftInternal, .productSystem, .productApplication] {
+        XCTAssertEqual(program.sourceID, "chatgpt-web-screenshot-handoff-20261105-v17")
+        let scopes: [SystemScreenshotAdmissionScope] = [.candidate, .ordinary, .ordinaryCurrentDraftInternal, .productSystem, .productApplication]
+        let versions = [("chatgpt-web-attachment-entry-20261105-v15", "attachment-entry-20261105-v15"),
+                        ("chatgpt-web-attachment-handoff-20261105-v16", "attachment-handoff-20261105-v16")]
+        for (scope, (source, evidence)) in scopes.flatMap({ scope in versions.map { (scope, $0) } }) {
             let (store, request, database) = try await fixture(origin: scope.origin)
             let identity = envelope(request).observation.identity
             // The v15 writer encoded these fields using JSONEncoder.sortedKeys
             // into both the scoped key and the original cross-scope fence.
-            var registration: [String: Any] = ["version": scope.isProduct ? 2 : 1, "sourceID": "chatgpt-web-attachment-entry-20261105-v15",
+            var registration: [String: Any] = ["version": scope.isProduct ? 2 : 1, "sourceID": source,
                 "startProfileID": try XCTUnwrap(scope.admittedProfile.uploadStartProfileID),
                 "completionProfileID": scope.admittedProfile.profileID, "enrollmentID": UUID().uuidString,
                 "identity": try JSONSerialization.jsonObject(with: JSONEncoder().encode(identity))]
@@ -76,9 +79,9 @@ final class ProductScreenshotScopeTests: XCTestCase {
             await reject { try await admission.enroll(request) }
             let item = AttachmentObservation(identity: identity, state: .unknown, belongsToOriginalDraft: true)
             let prior = AttachmentObservationEnvelope(provenance: .init(source: .integratedDevelopment,
-                evidenceID: "attachment-entry-20261105-v15"), observation: item)
+                evidenceID: evidence), observation: item)
             let current = AttachmentObservationEnvelope(provenance: .init(source: .integratedDevelopment,
-                evidenceID: "attachment-handoff-20261105-v16"), observation: item)
+                evidenceID: "screenshot-handoff-20261105-v17"), observation: item)
             let journal = SystemScreenshotObservationJournal(store: store, scope: scope)
             try await journal.record(prior, for: request)
             let journalKey = SystemScreenshotObservationJournal.checkpointKey(request, slot: .unknown, scope: scope)
@@ -105,7 +108,7 @@ final class ProductScreenshotScopeTests: XCTestCase {
         }
     }
 
-    func testDistinctSourceProfilesPreserveStrictFileBounds() async throws {
+    func testProductUsesCollectorCapacityWhileRestrictedCandidateKeepsItsOwnBounds() async throws {
         let scopes: [SystemScreenshotAdmissionScope] = [.productSystem, .productApplication]
         XCTAssertNotEqual(scopes[0].admittedProfile.profileID, scopes[1].admittedProfile.profileID)
         XCTAssertNotEqual(scopes[0].admittedProfile.uploadStartProfileID, scopes[1].admittedProfile.uploadStartProfileID)
@@ -118,13 +121,15 @@ final class ProductScreenshotScopeTests: XCTestCase {
             let tooLarge = ImportedAsset(sourceKey: "large", fileName: "large.png", sha256: request.asset.sha256,
                 byteCount: SystemScreenshotWebCandidate.maximumBytes + 1, pixelWidth: 4, pixelHeight: 4,
                 mediaType: "image/png", origin: scope.origin)
-            XCTAssertThrowsError(try scope.validateMetadata(tooLarge)) {
+            XCTAssertNoThrow(try scope.validateMetadata(tooLarge))
+            XCTAssertThrowsError(try SystemScreenshotWebCandidate.validateMetadata(tooLarge, expectedOrigin: scope.origin)) {
                 XCTAssertEqual($0 as? SystemScreenshotInputError, .byteLimit)
             }
             let tooManyPixels = ImportedAsset(sourceKey: "pixels", fileName: "pixels.png", sha256: request.asset.sha256,
                 byteCount: request.asset.byteCount, pixelWidth: 4097, pixelHeight: 4096,
                 mediaType: "image/png", origin: scope.origin)
-            XCTAssertThrowsError(try scope.validateMetadata(tooManyPixels)) {
+            XCTAssertNoThrow(try scope.validateMetadata(tooManyPixels))
+            XCTAssertThrowsError(try SystemScreenshotWebCandidate.validateMetadata(tooManyPixels, expectedOrigin: scope.origin)) {
                 XCTAssertEqual($0 as? SystemScreenshotInputError, .pixelLimit)
             }
             var header = Array(png.prefix(33))
@@ -146,7 +151,7 @@ final class ProductScreenshotScopeTests: XCTestCase {
                 let saved = try await store.checkpoint(for: key), bytes = try XCTUnwrap(saved)
                 let object = try XCTUnwrap(JSONSerialization.jsonObject(with: bytes) as? [String: Any])
                 XCTAssertEqual(object["version"] as? Int, 2)
-                XCTAssertEqual(object["sourceID"] as? String, "chatgpt-web-attachment-handoff-20261105-v16")
+                XCTAssertEqual(object["sourceID"] as? String, "chatgpt-web-screenshot-handoff-20261105-v17")
                 XCTAssertEqual(object["assetOrigin"] as? String, scope.origin.rawValue)
                 let fence = try await store.checkpoint(for: SystemScreenshotCandidateAdmission.checkpointKey(for: request))
                 XCTAssertEqual(fence, bytes)

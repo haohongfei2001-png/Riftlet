@@ -1,5 +1,6 @@
 import Foundation
 import CryptoKit
+import RiftletCore
 
 /// A document-local MAIN closure, installed when an explicit click first resolves
 /// its fixed target. Later commands cross the shared DOM through execute-JavaScript; unlike
@@ -87,6 +88,15 @@ struct MainWorldCommandRelay: Sendable {
 final class MainWorldRelayStore: @unchecked Sendable {
     private let lock = NSLock()
     private var values: [String: MainWorldCommandRelay] = [:]
+    private var targetRelays: [String: MainWorldCommandRelay] = [:]
+    func bind(_ relay: MainWorldCommandRelay, to target: TargetLease) {
+        lock.lock(); defer { lock.unlock() }
+        targetRelays[target.stableKey] = relay
+    }
+    func bound(to target: TargetLease) -> MainWorldCommandRelay? {
+        lock.lock(); defer { lock.unlock() }
+        return targetRelays[target.stableKey]
+    }
     func adopt(function: String, contextJSON: String, channel: String,
                legacyObservationSession: String?) -> MainWorldCommandRelay? {
         guard let id = UUID(uuidString: channel), id.uuidString.lowercased() == channel else { return nil }

@@ -116,3 +116,54 @@ A form ID alone is never treated as the visible text of a file action. The
 original five wrong-recipient counterexamples were retained and exercised on
 the rejected code and the successor. Final exact-tree review, test counts,
 PR merge checkout and installed hashes are reported in the PR delivery.
+
+
+## Ordinary product simplification, 2026-11-05 evening
+
+The latest user authorizes removing ordinary-input qualification barriers,
+real Mac/Chrome tests with independent screenshots and an unsent test chat,
+packaging and installing. The final source still requires independent review
+and formal CI before admission or main integration.
+
+Historical audit found that f58b227 introduced the pre-event ACK and f6417c6
+retained a cold-click restriction despite successful two-image input.
+fff0e8c/9790cc3 introduced target exclusivity and upload lifecycle proof.
+PR 41 already removed old UNKNOWN and prior FileList as permission for a new
+input. Those older mechanisms are not reintroduced. The v16 production log
+also contains new captureTarget route/composer refusals before any operation.
+
+This successor removes the remaining thirty-second expiry and 12/16-click
+capacity refusal from the ordinary current-click path. Explicit cancellation,
+per-asset duplication and original-address checks remain. A busy addressed tab
+queues its own later inputs, while another addressed tab can execute. START
+observation never owns that execution lane. Native precommit checks read the
+original window/tab URL rather than requiring that tab to remain active.
+
+Page discovery prioritizes actual composer ownership over unrelated focused
+search widgets. It supports the current Chinese ChatGPT form with an id-less
+ProseMirror editor and four sibling file inputs, selecting the ordinary file
+entry rather than camera/photo/video controls. Same-chat editor rerenders,
+shared representations, reused real preview slots and asynchronous picker
+handoff are covered. Only real new correlated preview/progress authorizes START.
+
+The ordinary raster scope uses existing capture safety bounds (128 MiB,
+160 million pixels, 50,000 per side). PNG and JPEG retain their bytes; other
+already collected raster formats are rendered into a full-resolution,
+orientation-aware PNG while preserving their original queue/media identity.
+Restricted historical v15/v16 metadata and receipt decoding stay read-only.
+v17 denotes newly generated transport behavior.
+
+Observed before successor installation: an independent OS screenshot of a
+dedicated test window was collected as asset 83. One software mouse click in
+the ordinary installed v16 App produced operation 30, a real matching ChatGPT
+image preview/remove control, native START and swallow. It is a positive
+control for v16, not successor five-image acceptance. The private test tab has
+no sent message. Original private screenshots are never test payloads.
+
+Local successor verification: 123 controlled Web cases, 31 native isolated
+Chrome runner cases, successful native App compilation and an actual Core
+object-code probe covering queued A/A and independent B, delayed clicks,
+explicit cancellation and no invented START. Full Swift/macOS CI and updated
+App acceptance must be read from the final PR delivery. The model service
+interrupted the independent reviewer before final source approval. A build
+success must not be recorded as that missing source approval.

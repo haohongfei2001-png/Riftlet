@@ -143,18 +143,20 @@ public actor TransferCoordinator {
     /// Legacy callers retain their prior behavior and cannot manufacture a queued retry.
     public func select(_ selection: AcceptedSelection) async throws {
         guard selection.isValid(), acceptedSelections[selection.id] == nil,
-              acceptedSelections.count < maximumPendingSelections else { throw RiftletError.invalidTransition }
+              selection.authorization == .currentClick || acceptedSelections.count < maximumPendingSelections else { throw RiftletError.invalidTransition }
         acceptedSelections[selection.id] = selection
-        expiryTasks[selection.id] = Task { [weak self] in
-            // Task scheduling can itself be delayed. Compute the remaining
-            // interval when this task actually starts, so that delay is never
-            // added a second time to the original absolute selection deadline.
-            do {
-                try Task.checkCancellation()
-                let remaining = selection.deadlineUptime - ProcessInfo.processInfo.systemUptime
-                if remaining > 0 { try await Task.sleep(nanoseconds: UInt64(remaining * 1_000_000_000)) }
-            } catch { return }
-            try? await self?.cancelAcceptedSelection(selection.id, reason: "Accepted selection expired before input")
+        if selection.deadlineUptime.isFinite {
+            expiryTasks[selection.id] = Task { [weak self] in
+                // Task scheduling can itself be delayed. Compute the remaining
+                // interval when this task actually starts, so that delay is never
+                // added a second time to the original absolute selection deadline.
+                do {
+                    try Task.checkCancellation()
+                    let remaining = selection.deadlineUptime - ProcessInfo.processInfo.systemUptime
+                    if remaining > 0 { try await Task.sleep(nanoseconds: UInt64(remaining * 1_000_000_000)) }
+                } catch { return }
+                try? await self?.cancelAcceptedSelection(selection.id, reason: "Accepted selection expired before input")
+            }
         }
         do {
             try await select(selection.assetID, target: selection.target, allowCapture: false,
@@ -355,6 +357,24 @@ public actor TransferCoordinator {
         await onChange()
     }
 
+    /// Consider only contiguous original clicks. A busy A can hold its own later
+    /// clicks without head-of-line blocking an already addressed tab B.
+    private func nextDispatchTicket() async throws -> Int? {
+        var ticket = drainTicket
+        let occupied = inputExecutions.compactMap { activeAppends[$0]?.operation.target }
+        while true {
+            if skippedTickets.contains(ticket) { ticket += 1; continue }
+            guard let id = waiting[ticket] else { return nil }
+            guard usesIndependentFileInput, !occupied.isEmpty else { return ticket }
+            guard operationSelections[id]?.authorization == .currentClick else {
+                return ticket == drainTicket ? ticket : nil
+            }
+            guard let operation = try await store.operation(id: id), operation.phase == .prepared,
+                  occupied.contains(where: { $0.sharesInputTab(with: operation.target) }) else { return ticket }
+            ticket += 1
+        }
+    }
+
     private func drain() async throws {
         guard !isDraining else { drainRequested = true; return }
         isDraining = true
@@ -367,15 +387,15 @@ public actor TransferCoordinator {
         }
         while true {
             if skippedTickets.remove(drainTicket) != nil { drainTicket += 1; continue }
-            guard let id = waiting[drainTicket] else { break }
+            guard let ticket = try await nextDispatchTicket(), let id = waiting[ticket] else { break }
             let accepted = operationSelections[id]
             guard let op = try await store.operation(id: id), op.phase == .prepared else {
-                advanceWaiting(id, selection: accepted); continue
+                advanceWaiting(ticket: ticket, id: id, selection: accepted); continue
             }
             // Only a still-executing input occupies the normal file-input lane.
             // Background observers and persisted upload phases are not capacity.
             if usesIndependentFileInput {
-                guard inputExecutions.isEmpty else { return }
+                guard accepted?.authorization == .currentClick || inputExecutions.isEmpty else { return }
             } else {
                 guard activeAppends.count < maximumPendingSelections,
                       activeAppends.values.filter({ inputExecutions.contains($0.operation.id) })
@@ -384,7 +404,7 @@ public actor TransferCoordinator {
             if let accepted {
                 guard accepted.isValid(), await validateAcceptedSelection(accepted), accepted.isValid() else {
                     try await cancelIfPrepared(id, reason: "Original selection no longer authorized; no input occurred")
-                    advanceWaiting(id, selection: accepted); await onChange(); continue
+                    advanceWaiting(ticket: ticket, id: id, selection: accepted); await onChange(); continue
                 }
             }
             // Validation failure is before intent: safe to leave retryable, without any input.
@@ -394,23 +414,23 @@ public actor TransferCoordinator {
                 if try await store.operation(id: id)?.phase == .prepared {
                     try await cancelIfPrepared(id, reason: "Target validation unavailable before input")
                 }
-                advanceWaiting(id, selection: accepted); await onChange(); continue
+                advanceWaiting(ticket: ticket, id: id, selection: accepted); await onChange(); continue
             }
-            guard try await store.operation(id: id)?.phase == .prepared else { advanceWaiting(id, selection: accepted); await onChange(); continue }
+            guard try await store.operation(id: id)?.phase == .prepared else { advanceWaiting(ticket: ticket, id: id, selection: accepted); await onChange(); continue }
             guard targetValid else {
                 try await cancelIfPrepared(id, reason: "Original target changed before input")
-                advanceWaiting(id, selection: accepted); await onChange(); continue
+                advanceWaiting(ticket: ticket, id: id, selection: accepted); await onChange(); continue
             }
             let request = try await request(for: op)
             guard FileManager.default.fileExists(atPath: request.fileURL.path) else {
                 try await cancelIfPrepared(id, reason: "Private image is missing; no input occurred")
                 try await store.markMissingAsset(op.assetID)
-                advanceWaiting(id, selection: accepted); await onChange(); continue
+                advanceWaiting(ticket: ticket, id: id, selection: accepted); await onChange(); continue
             }
             if let accepted {
                 guard accepted.isValid(), await validateAcceptedSelection(accepted), accepted.isValid() else {
                     try await cancelIfPrepared(id, reason: "Original selection revoked before intent; no input occurred")
-                    advanceWaiting(id, selection: accepted); await onChange(); continue
+                    advanceWaiting(ticket: ticket, id: id, selection: accepted); await onChange(); continue
                 }
             }
             do {
@@ -422,15 +442,15 @@ public actor TransferCoordinator {
                 }
             } catch RiftletError.targetBusy {
                 try await cancelIfPrepared(id, reason: "This adapter still owns the target; no input occurred")
-                advanceWaiting(id, selection: accepted); await onChange(); continue
+                advanceWaiting(ticket: ticket, id: id, selection: accepted); await onChange(); continue
             }
             catch RiftletError.invalidTransition {
                 // A user removal may retire prepared work during preflight.
                 // No intent was committed; do not resurrect or dispatch it.
                 try await cancelIfPrepared(id, reason: "Selection retired before input intent")
-                advanceWaiting(id, selection: accepted); await onChange(); continue
+                advanceWaiting(ticket: ticket, id: id, selection: accepted); await onChange(); continue
             }
-            advanceWaiting(id, selection: accepted)
+            advanceWaiting(ticket: ticket, id: id, selection: accepted)
             let committedRequest: TransferRequest
             do {
                 guard let committed = try await store.operation(id: id) else { throw RiftletError.operationNotFound }
@@ -451,7 +471,7 @@ public actor TransferCoordinator {
                 activeAppends[id] = committedRequest
                 inputExecutions.insert(id)
                 Task { await self.runPhasedAppend(committedRequest, adapter: phased, boundary: boundary) }
-                try await boundary.wait()
+                if !usesIndependentFileInput || accepted?.authorization != .currentClick { try await boundary.wait() }
             } else {
                 try await finishOriginalAppend(committedRequest) { try await self.adapter.append(committedRequest) }
                 await onChange()
@@ -480,6 +500,7 @@ public actor TransferCoordinator {
         try? await store.recordInputExecutionReturned(operationID: id,
             invocationID: invocationID, ownerID: dispatchOwnerID)
         await boundary.finish()
+        try? await drain()
     }
 
     private func runPhasedAppend(_ request: TransferRequest, adapter: any InputPhasedAttachmentAdapter,
@@ -543,10 +564,10 @@ public actor TransferCoordinator {
         }
     }
 
-    private func advanceWaiting(_ id: UUID, selection: AcceptedSelection?) {
-        waiting.removeValue(forKey: drainTicket)
+    private func advanceWaiting(ticket: Int, id: UUID, selection: AcceptedSelection?) {
+        waiting.removeValue(forKey: ticket)
         operationSelections.removeValue(forKey: id)
-        drainTicket += 1
+        if ticket == drainTicket { drainTicket += 1 } else { skippedTickets.insert(ticket) }
         if let selection { finishAcceptedSelection(selection) }
     }
 

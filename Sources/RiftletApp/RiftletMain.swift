@@ -382,7 +382,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 return
             }
             let waitsForSubmission = self.selectionSubmissions.hasOutstandingSubmission
-            let ordinal = self.selectionSubmissions.enqueue(selectionID: selectionOwner, deadline: selectedAt + 30,
+            let ordinal = self.selectionSubmissions.enqueue(selectionID: selectionOwner, deadline: nil,
                 cancelled: { [weak self] in
                     feedback(ProductStatus.AttachmentFeedback.cancelledBeforeInput.text, .immediate)
                     press?.target.cancel()

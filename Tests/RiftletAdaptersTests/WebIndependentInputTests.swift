@@ -14,7 +14,7 @@ final class WebIndependentInputTests: XCTestCase {
     }
     override func tearDownWithError() throws { try FileManager.default.removeItem(at: directory) }
 
-    private func request(byteSeed: Int = 0) async throws -> TransferRequest {
+    private func request(byteSeed: Int = 0, tab: String = "1") async throws -> TransferRequest {
         let bytes = Data((0..<200).map { UInt8(($0 + byteSeed) % 251) })
         let file = directory.appendingPathComponent("\(UUID()).png")
         try bytes.write(to: file)
@@ -22,8 +22,8 @@ final class WebIndependentInputTests: XCTestCase {
             sha256: SHA256.hash(data: bytes).map { String(format: "%02x", $0) }.joined(),
             byteCount: Int64(bytes.count), pixelWidth: 4, pixelHeight: 4, mediaType: "image/png", origin: .synthetic)
         let target = TargetLease(adapterID: "chatgpt-web", surface: .webChat,
-            applicationID: "com.google.Chrome", sessionID: "same-session", windowID: "1", tabID: "1",
-            documentID: "same-document", composerID: "same-composer", draftGeneration: "same-draft",
+            applicationID: "com.google.Chrome", sessionID: "same-session", windowID: "1", tabID: tab,
+            documentID: "document-\(tab)", composerID: "same-composer", draftGeneration: "same-draft",
             clickBindingID: UUID())
         let store = try QueueStore(databaseURL: directory.appendingPathComponent("\(UUID()).sqlite"))
         _ = try await store.importAsset(asset)
@@ -175,6 +175,28 @@ final class WebIndependentInputTests: XCTestCase {
         XCTAssertEqual(second.outcome, .uploadStarted)
         do { _ = try await client.append(a); XCTFail("Uncertain commit replayed") }
         catch WebAdapterError.invalidRequest {}
+        let commands = await bridge.commands()
+        XCTAssertEqual(commands.filter { $0.action == .commit }.count, 2)
+    }
+
+    func testAnotherTabCanExecuteWhileOriginalTabCommitIsPending() async throws {
+        let a = try await request(), b = try await request(tab: "2")
+        let entered = expectation(description: "A commit held")
+        let bridge = IndependentInputBridge(onCommit: { if $0 == a.operation.id { entered.fulfill() } })
+        let client = adapter(bridge)
+        await bridge.holdCommit(a.operation.id)
+        let first = Task { try await client.append(a) }
+        await fulfillment(of: [entered], timeout: 2)
+        do {
+            let second = try await client.append(b)
+            XCTAssertEqual(second.outcome, .uploadStarted)
+        } catch {
+            await bridge.releaseCommit(a.operation.id)
+            _ = try? await first.value
+            throw error
+        }
+        await bridge.releaseCommit(a.operation.id)
+        _ = try await first.value
         let commands = await bridge.commands()
         XCTAssertEqual(commands.filter { $0.action == .commit }.count, 2)
     }

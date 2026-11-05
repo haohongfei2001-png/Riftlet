@@ -55,7 +55,15 @@ public enum SystemScreenshotAdmissionScope: Sendable, Equatable {
         }
     }
     func validateMetadata(_ asset: ImportedAsset) throws {
-        try SystemScreenshotWebCandidate.validateMetadata(asset, expectedOrigin: origin)
+        guard isProduct else { return try SystemScreenshotWebCandidate.validateMetadata(asset, expectedOrigin: origin) }
+        guard asset.origin == origin else { throw SystemScreenshotInputError.sourceNotAdmitted }
+        guard asset.mediaType.lowercased().hasPrefix("image/") else { throw SystemScreenshotInputError.unsupportedFormat }
+        guard asset.byteCount > 0, asset.byteCount <= ScreenshotImportLimits.bytes else { throw SystemScreenshotInputError.byteLimit }
+        guard asset.pixelWidth > 0, asset.pixelHeight > 0, asset.pixelWidth <= ScreenshotImportLimits.dimension,
+              asset.pixelHeight <= ScreenshotImportLimits.dimension,
+              Int64(asset.pixelWidth) * Int64(asset.pixelHeight) <= ScreenshotImportLimits.pixels else {
+            throw SystemScreenshotInputError.pixelLimit
+        }
     }
     func validateTarget(_ target: TargetLease) throws {
         guard self == .ordinaryCurrentDraftInternal || isProduct else {

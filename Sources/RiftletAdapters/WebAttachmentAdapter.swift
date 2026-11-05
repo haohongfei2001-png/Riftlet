@@ -135,7 +135,7 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
     private var recentEntryResults: [(operation: UUID, result: EntryResult)] = []
     // The transport lease is released only by its own original append. A prior
     // observer finishing must never unlock a later operation's begin/commit.
-    private var inputOwner: UUID?
+    private var inputOwners: [UUID: TargetLease] = [:]
     // Lightweight identity tombstones, never file buffers. A repeated request
     // must not turn an earlier external input into local-before-begin proof.
     private var enteredOperations = Set<UUID>()
@@ -185,9 +185,15 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
         if screenshotScope != nil {
             try requireEnabled()
             try checkOrigin(asset)
+            if mode == .ordinaryProduct {
+                guard let scope = productBindings[asset.origin]?.admission.scope else { throw SystemScreenshotInputError.sourceNotAdmitted }
+                try scope.validateMetadata(asset)
+                _ = try PrivateUploadFile(asset: asset, url: fileURL, mediaDirectory: mediaDirectory,
+                    maximumBytes: ScreenshotImportLimits.bytes)
+                return
+            }
             try SystemScreenshotWebCandidate.preflight(asset, fileURL: fileURL, mediaDirectory: mediaDirectory,
-                restrictedAdmission: candidateAdmission != nil || mode == .ordinaryProduct,
-                expectedOrigin: mode == .ordinaryProduct ? asset.origin : .systemScreenshot)
+                restrictedAdmission: candidateAdmission != nil)
         }
     }
 
@@ -250,10 +256,10 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
         try checkOrigin(request.asset)
         guard request.operation.assetID == request.asset.id,
               request.operation.phase == .dispatchIntent else { throw WebAdapterError.invalidRequest }
-        guard inputOwner == nil else { throw WebAdapterError.inputInFlight }
+        guard !inputOwners.values.contains(where: { $0.sharesInputTab(with: request.operation.target) }) else { throw WebAdapterError.inputInFlight }
         guard enteredOperations.insert(request.operation.id).inserted else { throw WebAdapterError.invalidRequest }
         let operationID = request.operation.id
-        inputOwner = operationID
+        inputOwners[operationID] = request.operation.target
         defer {
             releaseInput(ownedBy: operationID)
         }
@@ -286,23 +292,25 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
     }
 
     private func releaseInput(ownedBy operationID: UUID) {
-        if inputOwner == operationID { inputOwner = nil }
+        inputOwners.removeValue(forKey: operationID)
     }
 
     private func performFileInput(_ request: TransferRequest) async throws
         -> (response: Data?, identity: ObservationIdentity) {
         guard let maximumChunkBytes = program?.maximumChunkBytes else { throw WebAdapterError.programUnavailable }
-        let file: PrivateUploadFile
+        var file: WebUploadFile
         do {
             // No bridge command has occurred in this invocation. The durable
             // dispatch nonce is allocated by Core's one-shot intent claim.
             try await preflight(asset: request.asset, fileURL: request.fileURL)
-            file = try PrivateUploadFile(request: request, mediaDirectory: mediaDirectory)
-            let verifiedHeader = try file.verifyAndRewind()
+            file = try WebUploadFile(request: request, mediaDirectory: mediaDirectory, ordinary: mode == .ordinaryProduct,
+                validateCandidateHeader: mode != .ordinaryProduct && screenshotScope != nil && binding(for: request.asset) != nil)
             if screenshotScope != nil, let admission = binding(for: request.asset)?.admission {
-                try SystemScreenshotWebCandidate.validateHeader(Array(verifiedHeader), asset: request.asset,
-                    restrictedAdmission: true)
                 try await admission.enroll(request)
+            }
+            if file.derivedPNG {
+                diagnosticTrace?.record(["event": "attachment_image_prepared", "operationID": request.operation.id.uuidString,
+                    "source": "compatiblePNG", "originalBytes": request.asset.byteCount, "transmittedBytes": file.byteCount])
             }
         } catch {
             if let invocationID = request.invocationID {
@@ -314,12 +322,11 @@ public actor WebAttachmentAdapter: IndependentFileInputAdapter {
         }
         let identity = ObservationIdentity(operationID: request.operation.id, assetID: request.asset.id,
             attempt: request.operation.attempt, assetSHA256: request.asset.sha256, target: request.operation.target)
-        let suffix = request.fileURL.pathExtension
-        let uploadName = "riftlet-\(request.operation.id.uuidString).\(suffix)"
+        let uploadName = "riftlet-\(request.operation.id.uuidString).\(file.fileExtension)"
         var committing = false
         do {
             let begin = WebBridgeCommand(action: .begin, target: identity.target, identity: identity,
-                uploadName: uploadName, mediaType: request.asset.mediaType, byteCount: request.asset.byteCount,
+                uploadName: uploadName, mediaType: file.mediaType, byteCount: file.byteCount,
                 invocationID: request.invocationID)
             let beginReply = try await perform(begin)
             try acknowledge(beginReply, identity: identity, nextChunk: 0)
@@ -703,6 +710,56 @@ private actor BoundedInputObservation {
     }
 }
 
+private struct WebUploadFile {
+    let mediaType: String
+    let fileExtension: String
+    let byteCount: Int64
+    let derivedPNG: Bool
+    private let original: PrivateUploadFile
+    private let buffered: Data?
+    private var offset = 0
+
+    init(request: TransferRequest, mediaDirectory: URL, ordinary: Bool, validateCandidateHeader: Bool) throws {
+        let asset = request.asset, mime = asset.mediaType.lowercased()
+        let descriptor = try PrivateUploadFile(asset: asset, url: request.fileURL, mediaDirectory: mediaDirectory,
+            maximumBytes: ordinary ? ScreenshotImportLimits.bytes : SystemScreenshotWebCandidate.maximumBytes)
+        original = descriptor
+        if ordinary && mime != "image/png" && mime != "image/jpeg" {
+            let source = try descriptor.verifiedOriginal()
+            let png = try WebScreenshotPNG.encode(source, asset: asset)
+            derivedPNG = png != nil
+            let delivered = png ?? source
+            buffered = delivered
+            mediaType = derivedPNG ? "image/png" : mime
+            fileExtension = derivedPNG ? "png" : request.fileURL.pathExtension.lowercased()
+            byteCount = Int64(delivered.count)
+        } else {
+            let header = try descriptor.verifyAndRewind()
+            if validateCandidateHeader {
+                try SystemScreenshotWebCandidate.validateHeader(Array(header), asset: asset, restrictedAdmission: true)
+            }
+            derivedPNG = false; buffered = nil
+            mediaType = mime
+            fileExtension = mime == "image/png" ? "png" : mime == "image/jpeg" ? "jpg" : request.fileURL.pathExtension
+            byteCount = asset.byteCount
+        }
+    }
+
+    mutating func nextChunk(maximumBytes: Int) throws -> Data? {
+        guard let buffered else { return try original.nextChunk(maximumBytes: maximumBytes) }
+        guard offset < buffered.count else { return nil }
+        let end = min(buffered.count, offset + maximumBytes)
+        defer { offset = end }
+        return buffered.subdata(in: offset..<end)
+    }
+
+    func verifyAfterRead(hash: String) throws {
+        // The buffered rendition came from the already verified immutable
+        // original. A PNG rendering has different bytes from the source asset.
+        if buffered == nil { try original.verifyAfterRead(hash: hash) }
+    }
+}
+
 private final class PrivateUploadFile {
     private let fd: Int32
     private let expectedHash: String
@@ -710,21 +767,20 @@ private final class PrivateUploadFile {
     private let original: stat
     private var readCount: Int64 = 0
 
-    init(request: TransferRequest, mediaDirectory: URL) throws {
-        let url = request.fileURL.standardizedFileURL
-        guard url.isFileURL, url.lastPathComponent == request.asset.fileName,
+    init(asset: ImportedAsset, url originalURL: URL, mediaDirectory: URL, maximumBytes: Int64) throws {
+        let url = originalURL.standardizedFileURL
+        guard url.isFileURL, url.lastPathComponent == asset.fileName,
               url.deletingLastPathComponent().resolvingSymlinksInPath() == mediaDirectory.resolvingSymlinksInPath(),
-              !url.pathExtension.isEmpty, request.asset.byteCount > 0,
-              request.asset.byteCount <= 8 * 1024 * 1024 else { throw WebAdapterError.invalidPrivateFile }
+              asset.byteCount > 0, asset.byteCount <= maximumBytes else { throw WebAdapterError.invalidPrivateFile }
         let descriptor = open(url.path, O_RDONLY | O_NONBLOCK | O_NOFOLLOW | O_CLOEXEC)
         guard descriptor >= 0 else { throw WebAdapterError.invalidPrivateFile }
         var info = stat()
         guard fstat(descriptor, &info) == 0, (info.st_mode & mode_t(S_IFMT)) == mode_t(S_IFREG),
-              info.st_size == request.asset.byteCount else {
+              info.st_size == asset.byteCount else {
             close(descriptor); throw WebAdapterError.invalidPrivateFile
         }
-        fd = descriptor; original = info; expectedHash = request.asset.sha256
-        expectedSize = request.asset.byteCount
+        fd = descriptor; original = info; expectedHash = asset.sha256
+        expectedSize = asset.byteCount
     }
 
     deinit { close(fd) }
@@ -756,6 +812,13 @@ private final class PrivateUploadFile {
         guard lseek(fd, 0, SEEK_SET) == 0 else { throw WebAdapterError.invalidPrivateFile }
         readCount = 0
         return header
+    }
+
+    func verifiedOriginal() throws -> Data {
+        var bytes = Data(capacity: Int(expectedSize)), hash = SHA256()
+        while let chunk = try nextChunk() { bytes.append(chunk); hash.update(data: chunk) }
+        try verifyAfterRead(hash: hash.finalize().map { String(format: "%02x", $0) }.joined())
+        return bytes
     }
 
     func verifyAfterRead(hash: String) throws {

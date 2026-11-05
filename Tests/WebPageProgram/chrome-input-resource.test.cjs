@@ -54,6 +54,23 @@ function browserFixture(options){
     (i===0?form:document.body).append(avatar);decoys.push(avatar);
    }
   }
+  if(options.liveComposerShape){
+   // Redacted structure observed on the ordinary Chinese ChatGPT Home page.
+   form.setAttribute('data-composer-placement','bottom');
+   editor.removeAttribute('id');editor.removeAttribute('role');editor.className='ProseMirror';
+   editor.setAttribute('aria-label','询问 ChatGPT');
+   const competing=document.createElement('div');competing.contentEditable='true';
+   competing.setAttribute('aria-label','询问 ChatGPT');competing.textContent='Other editable';document.body.append(competing);
+   for(const [accept,label] of [['image/*','拍照'],['image/*,video/*','附加照片或视频'],['image/*','添加照片']]){
+    const specialized=document.createElement('input');specialized.type='file';specialized.accept=accept;
+    specialized.hidden=true;specialized.setAttribute('aria-label',label);
+    if(label==='拍照')specialized.setAttribute('capture','environment');else specialized.multiple=true;
+    specialized.addEventListener('change',()=>wrongInputChanges++);form.insertBefore(specialized,input);decoys.push(specialized);
+   }
+   input.accept='';input.multiple=true;input.setAttribute('aria-label','附加文件');
+   const plus=document.createElement('button');plus.type='button';plus.setAttribute('aria-label','添加文件等内容');form.append(plus);
+   plus.addEventListener('click',()=>{report.unneededMenuOpens=(report.unneededMenuOpens||0)+1;});
+  }
   if(options.entryMode)input.remove();
   const makePickerUnavailable=()=>{if(options.unavailablePicker==='disabled')input.disabled=true;else input.remove();};
   const restorePicker=()=>{input.disabled=false;if(!input.isConnected)(options.portalPicker?document.body:form).append(input);};
@@ -74,6 +91,7 @@ function browserFixture(options){
    report.residentSourceVerified=true;
   }
   editor.focus();const selection=getSelection(),range=document.createRange();range.setStart(editor.firstChild,2);range.setEnd(editor.firstChild,7);selection.removeAllRanges();selection.addRange(range);
+  if(options.liveComposerShape)editor.blur();
   const text=editor.textContent,anchor=selection.anchorNode,focus=selection.focusNode,anchorOffset=selection.anchorOffset,focusOffset=selection.focusOffset;
   let changes=0,setters=0,sends=0,reentrant=null,reentrantRefused=false,firstPendingCard=null;
   let startBeforePickerRestored=false,noInputStartRejected=false;
@@ -301,6 +319,7 @@ function browserFixture(options){
   const wrongTargetRefused=refused.state==='invalidated'&&refused.preInputRetirement?.reason==='targetInvalidBeforeInput'&&refused.preInputRetirement.inputCount===0;
   check(wrongTargetRefused&&changes===options.count,'changed target refuses before native input');
   check(sends===0,'no automatic message send');
+  if(options.liveComposerShape)check(!report.unneededMenuOpens&&wrongInputSetters===0,'used the general direct attachment input');
   check(wrongInputSetters===0&&wrongInputChanges===0&&decoys.every(picker=>picker.files.length===0),'unrelated file controls receive no setter/change and remain untouched');
   if(options.entryMode){
    // Only the picker inside the actual opened menu is known to be its own.
@@ -337,6 +356,7 @@ function browserFixture(options){
  .replace('__PREVIOUS__',()=>JSON.stringify(previous)).replace('__SOURCE__',()=>JSON.stringify(source).replace(/<\/script/gi,'<\\/script'));
 }
 const originalScenarios=[
+ {name:'actual-marked-zh-composer-four-direct-fields',count:5,retained:true,liveComposerShape:true,route:'https://chatgpt.com/'},
  ...[2,3,5].map(count=>({count,retained:true,route:'https://chatgpt.com/c/ordinary-thread'})),
  {count:3,retained:false,route:'https://chatgpt.com/'},
  {count:3,retained:true,route:'https://chatgpt.com/g/g-p-project/c/project-thread'},
