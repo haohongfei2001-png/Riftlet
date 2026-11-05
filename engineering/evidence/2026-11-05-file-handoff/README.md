@@ -196,3 +196,28 @@ retain bounded decoration, valid rows and every-asset reachability; dedicated
 capture/rebirth tests assert reveal versus stable failure return. Local actual
 UI object-code probes passed three/twelve captures and preview preservation.
 Private test media, full operation IDs and native/browser records remain local.
+
+Final independent review rejected the cold-background isolated installer at
+`2a1622d`: a real two-realm Chrome fixture produced one application picker
+invocation but zero change and no START. The same MAIN execution completed
+its single handoff. The final native source removes that isolated installer
+and performs one authorized MAIN bootstrap at the original process/window/tab.
+Warm commands retain their original target-bound relay; lost replies never
+fall back to a second installer or input. Fifteen actual JavaScriptCore relay
+probes passed, including prototype ownership and uncertain submission.
+
+Actual Apple Events marker probes on the owned ChatGPT draft establish that
+same-window background bootstrap preserves the active tab; cross-window cold
+bootstrap can raise the original Chrome window. This visible platform side
+effect is retained and disclosed rather than converted into an input refusal.
+A normal location.assign javascript navigation did not execute on ChatGPT;
+no CSP, browser setting or permission bypass was attempted. The final change
+keeps the foreground MAIN path used by the five-image acceptance, and changes
+the previously broken background cold path. It is not a new five-image real
+account run of the final SHA. A newly created follow-up tab contained non-fixture
+text, so no text was read/changed and no files were appended there.
+
+Native ARM64, Native Intel and Feedback native/service passed at `2a1622d`.
+Source admission intentionally failed for the unreviewed G. Those runs support
+the unchanged parts, not the final successor's formal G/H checks. Complete
+latest identities and actual acceptance limits belong in the PR delivery.

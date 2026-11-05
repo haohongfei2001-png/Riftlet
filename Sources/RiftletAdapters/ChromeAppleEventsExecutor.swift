@@ -158,7 +158,7 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
                             relay = relays.relay(function: program.functionSource, contextJSON: context,
                                 allowCreate: true, legacyObservationSession: legacySession)
                         }
-                        guard var relay else { throw WebAdapterError.pageRejected(.bridgeUnavailable) }
+                        guard let relay else { throw WebAdapterError.pageRejected(.bridgeUnavailable) }
                         phase = "submit"
                         var install = false
                         if command.action == .captureTarget {
@@ -168,28 +168,9 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
                         // Bootstrap is legal on the first click even when the
                         // thumbnail changed focus. It addresses this exact tab.
                         try checkSelection()
-                        if install {
-                            // Setting a javascript: URL can foreground the addressed tab. If the
-                            // user already switched, bootstrap through the nonselecting command.
-                            let active = try? bridge.activeIdentity(check: "bootstrap_visibility")
-                            if active?.window == window, active?.tab == tab,
-                               NSWorkspace.shared.frontmostApplication?.processIdentifier == identity.pid {
-                                let source = "(()=>{\(relay.installer);return \(relay.dispatch(envelope));})()"
-                                try bridge.submitMainWorld(source, window: window, tab: tab)
-                            } else {
-                                // A direct DOM handoff still works from Chrome's scripting world.
-                                // Its prototypes are separate; a later foreground click must be
-                                // able to install the genuine MAIN hook for app-owned pickers.
-                                guard let background = relays.relay(function: program.functionSource + "\n/* isolated */",
-                                    contextJSON: context, allowCreate: true, legacyObservationSession: legacySession)
-                                else { throw WebAdapterError.pageRejected(.bridgeUnavailable) }
-                                relay = background
-                                let source = "(()=>{\(relay.installer);return \(relay.dispatch(envelope));})()"
-                                try bridge.dispatchMainWorld(source, window: window, tab: tab)
-                            }
-                        } else {
-                            try bridge.dispatchMainWorld(relay.dispatch(envelope), window: window, tab: tab)
-                        }
+                        try ChromeMainWorldSubmission.submit(relay: relay, envelope: envelope, install: install,
+                            bootstrap: { try bridge.submitMainWorld($0, window: window, tab: tab) },
+                            dispatch: { try bridge.dispatchMainWorld($0, window: window, tab: tab) })
                         phase = "receipt"
                         // A first-use attachment entry can mount its picker
                         // asynchronously. Read the same once-submitted commit
@@ -218,6 +199,22 @@ public final class ChromeAppleEventsExecutor: WebClickTargetPinning {
                     succeeded: (try? result.get()) != nil, error: error)
                 continuation.resume(with: result)
             }
+        }
+    }
+}
+
+/// MAIN owns application-created pickers and their prototypes. Chrome's isolated
+/// execute-JavaScript world can dispatch to an existing MAIN relay, but cannot
+/// replace that relay's installer. A cold javascript: bootstrap can raise the
+/// original Chrome window; it must keep that target and must never retry through
+/// another world or restore focus after the user has moved elsewhere.
+enum ChromeMainWorldSubmission {
+    static func submit(relay: MainWorldCommandRelay, envelope: MainWorldCommandEnvelope, install: Bool,
+                       bootstrap: (String) throws -> Void, dispatch: (String) throws -> Void) throws {
+        if install {
+            try bootstrap("(()=>{\(relay.installer);return \(relay.dispatch(envelope));})()")
+        } else {
+            try dispatch(relay.dispatch(envelope))
         }
     }
 }
