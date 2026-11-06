@@ -31,7 +31,10 @@ final class SettingsReviewDriver {
     private var originalAppearance = SettingsAppearanceChoice.system
     private var initialAssetIDs: Set<UUID> = []
     private var presentationObservers: [NSObjectProtocol] = []
+    private var presentationMouseMonitor: Any?
     private var presentationTraceCount = 0
+    private var presentationMouseTraceCount = 0
+    private var presentationCloseStackCount = 0
 
     init(environment: SettingsReviewEnvironment, host: SettingsProductHost, store: QueueStore,
          statusItem: NSStatusItem, onRefresh: @escaping @MainActor () async -> Void,
@@ -95,6 +98,7 @@ final class SettingsReviewDriver {
         await runCase("history-real-records") { try await self.history() }
         await runCase("original-media-and-no-upload-operations") { try await self.integrity() }
 
+        recordPresentationEvent("driver.finalCloseIntent")
         host.control.close(); host.onboarding.closeForTeardown()
         host.center.closeForTeardown()
         if restorationFailures.isEmpty { await host.perform(.appearance(originalAppearance)) }
@@ -709,6 +713,7 @@ final class SettingsReviewDriver {
     private func closeControl() async throws {
         let start = ProcessInfo.processInfo.systemUptime
         defer { recordControlTransition("close", began: start) }
+        recordPresentationEvent("driver.explicitCloseIntent")
         host.control.close()
         try await wait { !self.host.control.isShown && self.host.control.window?.isVisible != true }
     }
@@ -744,18 +749,59 @@ final class SettingsReviewDriver {
                 }
             })
         }
+        for (name, event) in [(NSWindow.didBecomeKeyNotification, "popover.windowDidBecomeKey"),
+                              (NSWindow.didResignKeyNotification, "popover.windowDidResignKey")] {
+            presentationObservers.append(center.addObserver(forName: name, object: nil, queue: .main) { [weak self] notification in
+                MainActor.assumeIsolated {
+                    guard let self, let window = notification.object as? NSWindow,
+                          window === self.host.control.window,
+                          NSApp.windows.contains(where: { $0 === window }) else { return }
+                    self.recordPresentationEvent(event)
+                }
+            })
+        }
+        presentationMouseMonitor = NSEvent.addLocalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown, .otherMouseDown]) { [weak self] event in
+            MainActor.assumeIsolated {
+                guard let self, self.presentationMouseTraceCount < 64,
+                      var metadata = self.ownedMouseMetadata(event) else { return }
+                self.presentationMouseTraceCount += 1
+                metadata["kind"] = "ownPresentationMouseEvent"
+                metadata["elapsedSeconds"] = ProcessInfo.processInfo.systemUptime - self.beganUptime
+                self.artifacts.append(metadata)
+            }
+            return event
+        }
         recordPresentationEvent("traceStarted")
     }
 
     private func stopPresentationTrace() {
+        if let presentationMouseMonitor { NSEvent.removeMonitor(presentationMouseMonitor) }
+        presentationMouseMonitor = nil
         for observer in presentationObservers { NotificationCenter.default.removeObserver(observer) }
         presentationObservers.removeAll()
+    }
+
+    private func ownedMouseMetadata(_ event: NSEvent) -> [String: Any]? {
+        guard [.leftMouseDown, .rightMouseDown, .otherMouseDown, .leftMouseUp, .rightMouseUp, .otherMouseUp].contains(event.type),
+              let window = event.window, NSApp.windows.contains(where: { $0 === window }) else { return nil }
+        let role = window === statusItem.button?.window ? "statusItem"
+            : window === host.control.window ? "popover"
+            : window === host.center.window ? "settings"
+            : window === host.onboarding.window ? "onboarding" : "otherOwnWindow"
+        let insideStatus = statusItem.button.map { button in
+            window === button.window && button.bounds.contains(button.convert(event.locationInWindow, from: nil))
+        } ?? false
+        return ["type": event.type.rawValue, "eventNumber": event.eventNumber,
+            "timestamp": event.timestamp, "ageSeconds": ProcessInfo.processInfo.systemUptime - event.timestamp,
+            "windowNumber": window.windowNumber, "windowRole": role,
+            "buttonNumber": event.buttonNumber, "clickCount": event.clickCount,
+            "modifierFlags": event.modifierFlags.rawValue, "insideStatusButton": insideStatus]
     }
 
     private func recordPresentationEvent(_ event: String) {
         guard presentationTraceCount < 256 else { return }
         presentationTraceCount += 1
-        artifacts.append(["kind": "ownPresentationEvent", "event": event,
+        var record: [String: Any] = ["kind": "ownPresentationEvent", "event": event,
             "elapsedSeconds": ProcessInfo.processInfo.systemUptime - beganUptime,
             "applicationActive": NSApp.isActive,
             "frontmostPID": NSWorkspace.shared.frontmostApplication?.processIdentifier as Any? ?? NSNull(),
@@ -763,7 +809,22 @@ final class SettingsReviewDriver {
             "settingsVisible": host.center.window.isVisible, "settingsKey": host.center.window.isKeyWindow,
             "popoverShown": host.control.isShown, "popoverWindowVisible": host.control.window?.isVisible ?? false,
             "popoverWindowKey": host.control.window?.isKeyWindow ?? false,
-            "popoverWindowNumber": host.control.window?.windowNumber as Any? ?? NSNull()])
+            "popoverWindowNumber": host.control.window?.windowNumber as Any? ?? NSNull()]
+        if let current = NSApp.currentEvent, let metadata = ownedMouseMetadata(current) {
+            record["currentOwnedMouseEvent"] = metadata
+        }
+        if event == "popover.willClose" {
+            // Raw symbols remain in this explicitly invoked review's private
+            // artifact. Capture synchronously so a direct host/driver close is
+            // distinguishable from AppKit's native transient close path.
+            if presentationCloseStackCount < 16 {
+                presentationCloseStackCount += 1
+                record["privateCallStackSymbols"] = Thread.callStackSymbols.prefix(48).map { String($0.prefix(512)) }
+            } else {
+                record["privateCallStackOmitted"] = "boundedCloseStackLimit"
+            }
+        }
+        artifacts.append(record)
     }
 
     private func ownedWindowServerBounds(_ window: NSWindow) -> CGRect? {
