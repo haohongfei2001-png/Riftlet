@@ -224,6 +224,33 @@ final class RiftControlCenterControllerTests: XCTestCase {
         XCTAssertFalse(controller.isShown)
     }
 
+    @MainActor func testApplicationResignNotificationDoesNotExplicitlyCloseStatusPopover() async throws {
+        try prepareAppKit()
+        let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+        defer { NSStatusBar.system.removeStatusItem(item) }
+        var actions = 0
+        let controller = RiftControlCenterController(statusItem: item) { _ in actions += 1 }
+        defer { controller.close() }
+        controller.update(fixture())
+        let button = try XCTUnwrap(item.button)
+        guard button.window?.isVisible == true else { throw XCTSkip("No usable native status-bar anchor; real menu focus acceptance remains separate") }
+        button.performClick(nil)
+        let shown = await receive { controller.isShown && controller.window?.isVisible == true }
+        XCTAssertTrue(shown)
+        guard shown else { return }
+        let shownWindow = try XCTUnwrap(controller.window)
+
+        // A status-bar popover may hand application activation back without an
+        // outside click. This isolates our notification handler from AppKit's
+        // native transient interaction policy; it does not simulate OS focus.
+        NotificationCenter.default.post(name: NSApplication.didResignActiveNotification, object: NSApp)
+
+        XCTAssertTrue(controller.isShown, "A lifecycle notification alone must not invoke an unconditional close")
+        XCTAssertTrue(controller.window === shownWindow)
+        XCTAssertTrue(shownWindow.isVisible)
+        XCTAssertEqual(actions, 0)
+    }
+
     @MainActor func testSuspendedInteractionRejectsStatusAndStaleCommandsThenRestoresLatestState() async throws {
         try prepareAppKit()
         let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)

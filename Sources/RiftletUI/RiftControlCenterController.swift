@@ -12,7 +12,6 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
     private var snapshot: SettingsProductSnapshot?
     private var menuTracking = false
     private var localMonitor: Any?
-    private var resignObserver: NSObjectProtocol?
     private var pressBeganWhileShown = false
     private var interactionSuspended = false
     private var busy: Set<String> = []
@@ -68,15 +67,10 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
             }
             return event
         }
-        resignObserver = NotificationCenter.default.addObserver(forName: NSApplication.didResignActiveNotification,
-                                                                object: nil, queue: .main) { [weak self] _ in
-            MainActor.assumeIsolated { self?.close() }
-        }
     }
 
     deinit {
         if let localMonitor { NSEvent.removeMonitor(localMonitor) }
-        if let resignObserver { NotificationCenter.default.removeObserver(resignObserver) }
     }
 
     public func update(_ value: SettingsProductSnapshot) {
