@@ -106,6 +106,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private var recheckTask: Task<Void, Never>?
     private var collectionChangePending = false
     private var captureControlBusy: Bool { captureControl.isBusy || collectionChangePending }
+    private var canChangeCollection: Bool {
+        mode.collectsSystemScreenshots && initialized && !collectionChangePending && captureControl.acceptsCollectionIntent
+    }
     private var requestingPermission = false
     private var automationPermission: AutomationPermissionState = .notNeeded
     private var permissionPublication = AutomationPermissionPublication()
@@ -748,7 +751,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             defaultScreenshotMode: screenshotEntry?.defaultMode ?? .window)
         var capabilities = SettingsCapabilities()
         capabilities.initialized = initialized
-        capabilities.canChangeCollection = mode.collectsSystemScreenshots && initialized && !captureControlBusy
+        capabilities.canChangeCollection = canChangeCollection
         capabilities.canChangeVisibility = store != nil && !changingHidden
         capabilities.canCapture = mode != .settingsReview && screenshotEntry?.isEnabled == true && !userHidden
         capabilities.canRecheck = initialized && !captureControlBusy && !requestingPermission
@@ -1262,7 +1265,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private func updateControlTitles() {
         hideItem?.title = userHidden ? "显示裂缝" : "隐藏裂缝"
         pauseItem?.title = captureIsPaused ? "继续收录截图" : "暂停收录（保留已有图片）"
-        pauseItem?.isEnabled = mode.collectsSystemScreenshots && initialized && !captureControlBusy
+        pauseItem?.isEnabled = canChangeCollection
         if let interval = lifecycleSettings.archiveAfterSeconds {
             archiveItem?.title = String(format: "闲置归档：%.2g 小时…", interval / 3600)
         } else { archiveItem?.title = "闲置归档：已关闭…" }
@@ -1411,7 +1414,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     func validateMenuItem(_ item: NSMenuItem) -> Bool {
         if item.action == #selector(showSetup) { return !NSApp.windows.contains { $0.attachedSheet != nil } }
         if item.action == #selector(beginScreenshot) { return screenshotEntry?.isEnabled == true && !userHidden }
-        if item.action == #selector(toggleCollection) { return mode.collectsSystemScreenshots && initialized && !captureControlBusy }
+        if item.action == #selector(toggleCollection) { return canChangeCollection }
         if item.action == #selector(recheckSetup) || item.action == #selector(reload) {
             return initialized && !captureControlBusy && !requestingPermission
         }

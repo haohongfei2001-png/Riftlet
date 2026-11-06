@@ -12,6 +12,10 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
     private var snapshot: SettingsProductSnapshot?
     private var menuTracking = false
     private var localMonitor: Any?
+    private var outsideMouseMonitor: Any?
+    private var outsideMouseGeneration: UInt64 = 0
+    private let installOutsideMouseMonitor: (NSEvent.EventTypeMask, @escaping (NSEvent) -> Void) -> Any?
+    private let removeOutsideMouseMonitor: (Any) -> Void
     private var pressBeganWhileShown = false
     private var interactionSuspended = false
     private var busy: Set<String> = []
@@ -32,8 +36,21 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
     public var window: NSWindow? { body.view.window }
     public var contentView: NSView { body.view }
 
-    public init(statusItem: NSStatusItem, onAction: @escaping SettingsProductActionHandler) {
+    public convenience init(statusItem: NSStatusItem, onAction: @escaping SettingsProductActionHandler) {
+        self.init(statusItem: statusItem, onAction: onAction,
+                  installOutsideMouseMonitor: { mask, handler in
+                      NSEvent.addGlobalMonitorForEvents(matching: mask, handler: handler)
+                  }, removeOutsideMouseMonitor: { NSEvent.removeMonitor($0) })
+    }
+
+    // The narrow monitor seam lets tests deliver a retained old callback and
+    // verify cleanup without observing or sending real cross-application input.
+    init(statusItem: NSStatusItem, onAction: @escaping SettingsProductActionHandler,
+         installOutsideMouseMonitor: @escaping (NSEvent.EventTypeMask, @escaping (NSEvent) -> Void) -> Any?,
+         removeOutsideMouseMonitor: @escaping (Any) -> Void) {
         self.statusItem = statusItem; self.onAction = onAction
+        self.installOutsideMouseMonitor = installOutsideMouseMonitor
+        self.removeOutsideMouseMonitor = removeOutsideMouseMonitor
         super.init()
         configureContent()
         popover.contentViewController = body
@@ -71,6 +88,7 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
 
     deinit {
         if let localMonitor { NSEvent.removeMonitor(localMonitor) }
+        if let outsideMouseMonitor { removeOutsideMouseMonitor(outsideMouseMonitor) }
     }
 
     public func update(_ value: SettingsProductSnapshot) {
@@ -81,8 +99,34 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
     }
 
     public func close() {
+        stopOutsideMouseObservation()
         popover.close()
         statusItem.button?.highlight(false)
+    }
+
+    private func startOutsideMouseObservation() {
+        guard outsideMouseMonitor == nil, isShown else { return }
+        outsideMouseGeneration &+= 1
+        let generation = outsideMouseGeneration
+        // A status popover can open while another application stays active.
+        // Our local monitor cannot see its next click, and no resign-active
+        // transition is guaranteed. Observe only other applications' mouse-down
+        // events, without altering their delivery or changing focus.
+        outsideMouseMonitor = installOutsideMouseMonitor([.leftMouseDown, .rightMouseDown, .otherMouseDown]) { [weak self] _ in
+            MainActor.assumeIsolated {
+                guard let self, self.outsideMouseGeneration == generation, self.isShown else { return }
+                self.close()
+            }
+        }
+    }
+
+    private func stopOutsideMouseObservation() {
+        // Removing a monitor does not give an already queued callback authority
+        // over a later presentation of this same popover.
+        outsideMouseGeneration &+= 1
+        guard let monitor = outsideMouseMonitor else { return }
+        outsideMouseMonitor = nil
+        removeOutsideMouseMonitor(monitor)
     }
 
     /// The host uses this only after settings have approved App Quit. Keeping
@@ -306,6 +350,7 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
         popover.appearance = NSApp.appearance
         popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
         if popover.isShown {
+            startOutsideMouseObservation()
             statusItem.button?.highlight(true)
         }
     }
@@ -384,7 +429,10 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
     public func menuNeedsUpdate(_ menu: NSMenu) { refreshMenu() }
     public func menuWillOpen(_ menu: NSMenu) { menuTracking = true; close() }
     public func menuDidClose(_ menu: NSMenu) { menuTracking = false }
-    public func popoverDidClose(_ notification: Notification) { statusItem.button?.highlight(false) }
+    public func popoverDidClose(_ notification: Notification) {
+        stopOutsideMouseObservation()
+        statusItem.button?.highlight(false)
+    }
 
     private static func templateIcon() -> NSImage {
         let image = NSImage(size: NSSize(width: 18, height: 21), flipped: true) { _ in
