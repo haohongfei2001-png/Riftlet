@@ -1,0 +1,85 @@
+{
+  "schema": 1,
+  "source": "bc903f7141b1218dcd93964cc301fcb911a90bd3",
+  "binarySHA256": "b478590ab9bf2a3ef730a9a32e30df2ef6dd9ad08d1b99d5640bf6ba9dc4211c",
+  "originalRecordSHA256": {
+    "operatorObservations": "3c370174169138c9b4669a446e100afc69c5c65caf3fe0d0336f387b84a60afb",
+    "wrapperIdentity": "04c5464e94491656bd549acb850b78cabc61c26225ad483143fa2c842362a870",
+    "candidateManifest": "dfdb2cc7d28f832d5fb507d397864dc3a25a71e851e1a0c33032fc43e58abd09"
+  },
+  "result": "SCOPED_NATIVE_INTERACTION_WITH_KNOWN_FAILURES",
+  "productionReady": false,
+  "method": "Recorded CUA native controls and keyboard actions through a fixed isolated review wrapper; runtime executable bytes independently hash-matched, actions not replayed by summary author.",
+  "wrapper": {
+    "runtimeExecutableUnchanged": true,
+    "changedPackaging": [
+      "test-only CFBundle identity/executable launcher",
+      "ad-hoc signing"
+    ],
+    "scope": "Test-only launcher fixes isolated mode and distinguishes this candidate from the installed Beta 1."
+  },
+  "observations": [
+    {
+      "case": "Return advances onboarding steps 1 to 2 to 3",
+      "status": "PASS"
+    },
+    {
+      "case": "rightBottom explicit placement updates native selection",
+      "status": "PASS"
+    },
+    {
+      "case": "Command comma opens native settings",
+      "status": "PASS"
+    },
+    {
+      "case": "Custom archive receives typed 6.25",
+      "status": "PASS"
+    },
+    {
+      "case": "Command W closes draft via confirmation",
+      "status": "FAIL",
+      "reason": "No Close responder menu item exists; no sheet shown"
+    },
+    {
+      "case": "Command Q shows native close sheet",
+      "status": "PASS"
+    },
+    {
+      "case": "Continue editing preserves 6.25 and prevents quit",
+      "status": "PASS"
+    },
+    {
+      "case": "Command Q then Apply and Close saves and quits",
+      "status": "PASS"
+    },
+    {
+      "case": "onboarding first frame desired652x608",
+      "status": "FAIL",
+      "observedImagePixels": [
+        1124,
+        1216
+      ],
+      "backingScale": 2
+    }
+  ],
+  "postQuitReadback": {
+    "originalProcessRemaining": false,
+    "archiveAfterSeconds": 22500,
+    "configurationSHA256": "eaf80780bc4ecabb5108500b88e216767ddfa11418882c392044bc1007dc77fc"
+  },
+  "knownFailures": [
+    "Command-W had no standard Close responder menu item and did not show a sheet.",
+    "Onboarding first-frame observed image was 1124 x 1216 pixels at backing scale 2; desired outer width was not reached."
+  ],
+  "notRun": [
+    "physicalHumanInput",
+    "OSInputMethod",
+    "VoiceOver",
+    "realLoginRegistration",
+    "realTCCPrompt",
+    "multiDisplayHotplug",
+    "realChatGPTAttachment"
+  ],
+  "productionDataAccess": false,
+  "scope": "Separate from automated run02 and independent visual acceptance. Preserves all original FAIL observations; later source fixes require new exact-candidate verification."
+}

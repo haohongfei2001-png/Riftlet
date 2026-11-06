@@ -8,9 +8,11 @@
 
 `PENDING` 是尚未完成或尚未填入经过复核的结果，不代表通过。源码 `Resources/Info.plist` 已分配版本身份 **Beta 2 · 0.2.0（2）**；最终产物文件名与哈希仍待核对。
 
+最终 G / tree、直接 H、正式 PR 链接和 App / ZIP 身份由仓库外的私有 `final-manifest` 与正式 PR 交付记录绑定。本文件属于源码的一部分，不预填自身将来提交的 SHA；下表缺项由该交付记录收口。
+
 | 项目 | 最终值 / 状态 |
 | --- | --- |
-| 完整源码 G / tree、非作者独立审查 | PENDING，集成负责人补充 |
+| 完整源码 G / tree、非作者独立审查 | PENDING；以私有 final-manifest 和正式 PR 交付记录为准 |
 | 直接 admission-only 子提交 H、实际 PR checkout / base | PENDING |
 | 五项正式 CI | PENDING：Native source admission、Native ARM64、Native Intel、Feedback source admission、Feedback native and service |
 | 候选 version / build、实际架构 | 已分配 Beta 2 · 0.2.0（2）；最终架构 PENDING；macOS 13 是部署下限声明，不是已完成最低系统验收 |
@@ -21,11 +23,27 @@
 | 最终外观决定、正式 UI PR 合并、生产原位替换 | PENDING；不能由本表或构建工具自动批准 |
 | 已安装 Beta 1 与回退保留位置 / 身份 | 保持现状；实际路径、完整 App 及清单由最终升级记录补齐 |
 
+## 已取得的原生证据与待复验项
+
+首轮运行 `run01` 绑定源码 `45418bba9fb05e5c2649473c8c1f26a460fb54c5`。真实 AppKit 控件、既有 owner、文件和 SQLite 共 13 组功能检查通过，独立根有 3 张 fixture 图片、0 个附件操作、0 个 upload start，恢复失败列表为空。设置首次展示实际内容为 960×684 pt，六页浅/深原图未发现横向裁字。可分享的原始绑定见 [run01 证据](../engineering/beta2-product-20261106/evidence/native-run-01.json)。
+
+这次运行仍是 **PARTIAL_NATIVE_REVIEW / INCOMPLETE_TIMEOUT**：33 张预期窗口图只取得 30 张，`control-light`、`control-normal`、`control-paused-hidden` 明确为 `NOT_RUN`；报告生成后进程未正常退出，180 秒期限后 runner 只终止了其子进程。功能组通过没有覆盖这两个缺口。原报告、原图与超时结果全部保留。
+
+独立目视审查发现四项局部差异：控制中心说明过窄换行、布局说明压到左中示意卡、六位置当前选中不明显、引导初次窗口宽度不足。修复候选已分别调整说明列可用宽度、把布局说明移到画布外、加入勾选与强调色、在约束建立后恢复引导初始尺寸。原发现继续保留，各项修复按之后的原图与结果分别复核。
+
+退出生命周期也已形成修复候选：先询问设置草稿，保存失败保留原面板，继续编辑取消退出；设置获准关闭后，在 Feedback 异步清理期间阻止新设置命令和窗口，取消退出再恢复。原 AppKit 退出探针复现了旧路径挂起，修改后的独立探针正常结束。
+
+[run02](../engineering/beta2-product-20261106/evidence/native-run-02.json) 对应 `bc903f7`：完整进程 20.16 秒正常退出，功能 12/13 通过，唯一失败为 `onboardingOuterSizeMismatch`。27 个 PNG 文件中，7 张控制中心图被独立审查判定裁切/黑色或透明空区，不能作为布局通过证据；引导在尺寸断言失败后没有取得新图。布局说明与六位置勾选在这一二进制的浅/深/紧凑图中已获独立目视确认，另外两项仍需复验。因首轮功能失败，同包重启阶段正确保持 `NOT_RUN`。
+
+同一运行二进制的 [额外 CUA 原生记录](../engineering/beta2-product-20261106/evidence/cua-native-bc903f7.json) 单独证明 Return 推进引导、明确选右下、⌘, 打开设置、键入 6.25、⌘Q 后继续编辑保留草稿，以及再次 ⌘Q 应用后退出并读回 22500 秒归档值。同时保留 ⌘W 无 Close 菜单而未响应、引导尺寸仍不符这两项失败。
+
+[run03](../engineering/beta2-product-20261106/evidence/native-run-03.json) 对应 `ea312a6`，进程 14.99 秒正常退出，引导功能及六张浅/深窗口的 652×608 pt 外框已得到实际记录。本轮仍为 12/13 功能通过：暂停/隐藏序列在 driver 提前点击暂时禁用的控件时失败；控制中心捕获虽然已采用正确范围，部分帧还处于出现缩放阶段，尚不足以验证完整布局。原失败、29 张原图哈希与不同的 WindowServer/AppKit 尺寸均保留。driver 正在改为等待控件实际可用与完整稳定窗口尺寸，完整联合验收与同包重启等待 `run04`；⌘W 也仍需新候选真实键盘复验。当前不声明 `PRODUCT_READY`，已安装 Beta 1 保持不变。
+
 ## 已实现的界面与状态边界
 
 | 原生表面 | 本轮实现 |
 | --- | --- |
-| 通用 | 暂停收录、隐藏裂缝、登录启动、外观；四项布尔操作使用原生 switch，暂停为 `true` 就是暂停、隐藏为 `true` 就是隐藏。运行状态与保存结果分开显示 |
+| 通用 | 暂停收录、隐藏裂缝、登录启动、外观；相关开关使用原生 switch，暂停为 `true` 就是暂停、隐藏为 `true` 就是隐藏。运行状态与保存结果分开显示 |
 | 位置与显示 | 具体显示器身份、临时回退说明、左右两列六点位置、基本 / 详细 / 精细参数；兼容字段保留，不因本页恢复默认被清掉 |
 | 截图 | 系统截图习惯、实际来源位置与访问入口、独立内置入口开关、下一次截图的默认方式；屏幕录制只对应内置截图 |
 | 动效 | 原有入缝偏好、主动绘制示意预览、按毫秒编辑有效参数；选择偏好不自动播放，减少动态不延长原本更短的时长 |
@@ -36,7 +54,7 @@
 
 快照来自 `SettingsProductHost` 与既有持久化 owners。有效状态、参数原始文本草稿、已确认值、待重试意图分开维护；独立域保存成功不会清除另一域错误。重试保存原目标，不通过反转开关猜测意图。布局和动效参数共用配置草稿，归档独立提交；部分成功后不重复写已经成功的域。
 
-后台更新保留六页控件实例、编辑文本与 field editor；显式恢复默认/放弃才结束或取消对应编辑。用户关闭有草稿时显示“继续编辑 / 不保存 / 应用并关闭”，默认继续编辑。原生 marked-text 对象测试与真正系统中文输入法验收是不同证据。外观只影响 Riftlet；登录状态回读自系统，`requiresApproval` 明确仍在等待批准，系统异常与实际状态并存。
+后台更新保留六页控件实例、编辑文本与 field editor；显式恢复默认/放弃才结束或取消对应编辑。用户关闭或退出时有草稿，会显示“继续编辑 / 不保存 / 应用并关闭”，默认继续编辑。保存失败保留同一个面板；迟到保存回执不能把已取消的退出重新批准。原生 marked-text 对象测试与真正系统中文输入法验收是不同证据。外观只影响 Riftlet；登录状态回读自系统，`requiresApproval` 明确仍在等待批准，系统异常与实际状态并存。
 
 ## 隔离审核入口
 
@@ -60,6 +78,15 @@ RIFTLET_REVIEW_ID="$(uuidgen)"
 ```
 
 运行结束打印 `RIFTLET_SETTINGS_REVIEW_REPORT=<实际路径>`，报告位于该 review 根的 `evidence/run-<UUID>/report.json`；Main 在 driver 返回后退出本实例。保存完整报告、每个 case 的状态、原始窗口 PNG 与哈希、恢复失败列表。合成 collector 输入带明确测试标记，不是真实系统截图验收。`PASS_SCOPED_NATIVE_REVIEW` 只覆盖报告内实际执行的 native action / SQLite 场景；缺图、物理鼠标、OS IME、VoiceOver、多屏热拔、真实登录项等不能借用这个总状态。
+
+完整候选验收使用 [原生 runner](SETTINGS_REVIEW_DRIVER.md)：
+
+```sh
+sh scripts/run-settings-review.sh "$RIFTLET_CANDIDATE_APP" \
+  '/absolute/existing-private-parent/new-native-review-output'
+```
+
+runner 创建新 UUID，只在首次完整运行成功并正常退出后，使用**同一 App、同一 UUID 根、不同进程**做只读重启核对。报告通过、进程退出和重启数据相等分别判定；首次失败不会通过第二次启动掩盖。实际结果仍须绑定本轮最终候选。
 
 ## 候选构建与包核对
 

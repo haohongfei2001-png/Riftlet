@@ -312,7 +312,19 @@ final class SettingsReviewDriver {
         else if let action = control.action { NSApp.sendAction(action, to: control.target, from: control) }
         else { throw Failure.controlUnavailable(id) }
     }
-    private func setToggle(_ id: String, _ target: Bool) throws {
+    private func setToggle(_ id: String, _ target: Bool) async throws {
+        let start = ProcessInfo.processInfo.systemUptime
+        var ready = false
+        defer { artifacts.append(["kind": "nativeControlEnabledWait", "identifier": id,
+            "seconds": ProcessInfo.processInfo.systemUptime - start, "ready": ready]) }
+        // Showing the page may trigger an asynchronous owner refresh. A real
+        // disabled native switch is not yet an eligible user action target.
+        try await wait(timeout: 5) {
+            guard let value = self.find(id, in: self.host.center.window.contentView) as? NSControl else { return false }
+            return self.host.center.window.isVisible && value.isEnabled
+                && !value.isHiddenOrHasHiddenAncestor && value.window === self.host.center.window
+        }
+        ready = true
         let control = try control(id)
         if let toggle = control as? NSSwitch {
             guard (toggle.state == .on) != target else { return }
@@ -364,7 +376,7 @@ final class SettingsReviewDriver {
 
     private func collectFixture() async throws {
         host.show(page: .general)
-        try setToggle("settings.center.paused", false)
+        try await setToggle("settings.center.paused", false)
         try await wait { !self.host.snapshot.state.owner.collectionPaused }
         let fixtureSHA256 = try createFixture("first")
         try await wait(timeout: 10) { try await self.store.assets(includeUsed: true).contains { $0.image.sha256 == fixtureSHA256 } }
@@ -379,9 +391,9 @@ final class SettingsReviewDriver {
         for (name, paused, hidden) in [("normal", false, false), ("paused", true, false),
                                        ("paused-hidden", true, true), ("hidden", false, true)] {
             try await closeControl(); host.show(page: .general)
-            try setToggle("settings.center.paused", paused)
+            try await setToggle("settings.center.paused", paused)
             try await wait { self.host.snapshot.state.owner.collectionPaused == paused && self.host.snapshot.capabilities.canChangeCollection }
-            try setToggle("settings.center.hidden", hidden)
+            try await setToggle("settings.center.hidden", hidden)
             try await wait { self.host.snapshot.state.owner.isHidden == hidden && self.host.snapshot.capabilities.canChangeVisibility }
             let persistedPaused = try await store.capturePaused()
             let persistedHidden = try await store.userHidden()
@@ -394,7 +406,7 @@ final class SettingsReviewDriver {
             try await closeControl()
         }
         host.show(page: .general)
-        try setToggle("settings.center.hidden", false)
+        try await setToggle("settings.center.hidden", false)
         try await wait { !self.host.snapshot.state.owner.isHidden }
     }
 
@@ -669,6 +681,13 @@ final class SettingsReviewDriver {
             guard self.host.control.isShown, let window = self.host.control.window else { return false }
             return window.isVisible && window.windowNumber > 0 && NSApp.windows.contains { $0 === window }
         }
+        if let window = host.control.window {
+            do { try await waitForFullOwnedWindow(window, context: "popover-open") }
+            catch {
+                await capture("control-unsettled-\(frames.count)", window: window, verifyPresentation: false)
+                throw error
+            }
+        }
     }
 
     private func closeControl() async throws {
@@ -684,6 +703,54 @@ final class SettingsReviewDriver {
             "windowVisible": host.control.window?.isVisible ?? false,
             "windowNumber": host.control.window?.windowNumber as Any? ?? NSNull(),
             "ownedWindow": host.control.window.map { window in NSApp.windows.contains { $0 === window } } ?? false])
+    }
+
+    private func ownedWindowServerBounds(_ window: NSWindow) -> CGRect? {
+        guard NSApp.windows.contains(where: { $0 === window }), window.windowNumber > 0,
+              let id = CGWindowID(exactly: window.windowNumber), let scalar = UnsafeRawPointer(bitPattern: UInt(id)),
+              let ids = CFArrayCreateMutable(kCFAllocatorDefault, 0, nil) else { return nil }
+        CFArrayAppendValue(ids, scalar)
+        guard let descriptions = CGWindowListCreateDescriptionFromArray(ids) as? [[String: Any]],
+              let description = descriptions.first(where: {
+                  ($0[kCGWindowNumber as String] as? NSNumber)?.uint32Value == id
+                  && ($0[kCGWindowOwnerPID as String] as? NSNumber)?.int32Value == ProcessInfo.processInfo.processIdentifier
+              }), description[kCGWindowIsOnscreen as String] as? Bool == true,
+              let value = description[kCGWindowBounds as String] as? [String: Any] else { return nil }
+        return CGRect(dictionaryRepresentation: value as CFDictionary)
+    }
+
+    private func waitForFullOwnedWindow(_ window: NSWindow, context: String) async throws {
+        let start = ProcessInfo.processInfo.systemUptime
+        var previous: CGRect?
+        var previousTarget: NSSize?
+        var last: CGRect?
+        var samples = 0
+        var stableSamples = 0
+        var ready = false
+        defer { artifacts.append(["kind": "ownedWindowPresentationReadiness", "context": context,
+            "windowNumber": window.windowNumber, "seconds": ProcessInfo.processInfo.systemUptime - start,
+            "samples": samples, "consecutiveFullStableSamples": stableSamples, "ready": ready,
+            "expectedAppKitSize": [window.frame.width, window.frame.height],
+            "lastWindowServerBounds": last.map(rect) as Any? ?? NSNull()]) }
+        try await wait(timeout: 5) {
+            samples += 1
+            let target = window.frame.size
+            let tolerance = 1 / max(1, window.backingScaleFactor)
+            guard window.isVisible, let actual = self.ownedWindowServerBounds(window) else {
+                previous = nil; previousTarget = nil; stableSamples = 0; return false
+            }
+            last = actual
+            let full = abs(actual.width - target.width) <= tolerance && abs(actual.height - target.height) <= tolerance
+            let stable = previous.map { old in
+                abs(old.minX - actual.minX) <= tolerance && abs(old.minY - actual.minY) <= tolerance
+                    && abs(old.width - actual.width) <= tolerance && abs(old.height - actual.height) <= tolerance
+            } ?? false
+            let sameTarget = previousTarget == target
+            stableSamples = full ? (stable && sameTarget ? stableSamples + 1 : 1) : 0
+            previous = actual; previousTarget = target
+            ready = stableSamples >= 2
+            return ready
+        }
     }
 
     private func animationCount(_ layer: CALayer?) -> Int {
@@ -760,7 +827,7 @@ final class SettingsReviewDriver {
         return digest(data)
     }
 
-    private func capture(_ name: String, window: NSWindow?) async {
+    private func capture(_ name: String, window: NSWindow?, verifyPresentation: Bool = true) async {
         guard let window, window.isVisible, NSApp.windows.contains(where: { $0 === window }),
               window.windowNumber > 0, let firstScreen = NSScreen.screens.first,
               let id = CGWindowID(exactly: window.windowNumber), let scalar = UnsafeRawPointer(bitPattern: UInt(id)),
@@ -768,7 +835,13 @@ final class SettingsReviewDriver {
             frames.append(["name": name, "status": "NOT_RUN", "reason": "ownedWindowUnavailable"]); return
         }
         window.contentView?.layoutSubtreeIfNeeded(); window.displayIfNeeded()
-        await settle(100)
+        var presentationFailure: String?
+        if window === host.control.window {
+            if verifyPresentation {
+                do { try await waitForFullOwnedWindow(window, context: "capture:" + name) }
+                catch { presentationFailure = "ownedWindowPresentationDidNotSettle" }
+            } else { presentationFailure = "ownedWindowPresentationDidNotSettle" }
+        } else { await settle(100) }
         CFArrayAppendValue(ids, scalar)
         let frame = window.frame
         let appKitQuartz = CGRect(x: frame.minX, y: firstScreen.frame.maxY - frame.maxY, width: frame.width, height: frame.height)
@@ -801,6 +874,7 @@ final class SettingsReviewDriver {
             "keyWindowNumber": NSApp.keyWindow?.windowNumber as Any? ?? NSNull(),
             "appearance": window.effectiveAppearance.name.rawValue,
             "method": "WindowServer CGImage(windowArray), exactly one NSApp-owned window; no desktop/display capture"]
+        if window === host.control.window { result["presentationStable"] = presentationFailure == nil }
         guard let image = CGImage(windowListFromArrayScreenBounds: .null, windowArray: ids,
                                   imageOption: [.boundsIgnoreFraming, .bestResolution]) else {
             result["status"] = "NOT_RUN"; result["reason"] = "ownedWindowCaptureUnavailable"; frames.append(result); return
@@ -811,6 +885,7 @@ final class SettingsReviewDriver {
             try data.write(to: file, options: .withoutOverwriting)
             result["status"] = "RECORDED_NATIVE_WINDOWSERVER"; result["file"] = file.lastPathComponent
             result["sha256"] = digest(data); result["bytes"] = data.count; result["pixels"] = [image.width, image.height]
+            if let presentationFailure { result["status"] = "FAIL"; result["reason"] = presentationFailure }
         } catch { result["status"] = "FAIL"; result["reason"] = code(error) }
         frames.append(result)
     }

@@ -2,7 +2,16 @@
 
 macOS 正常截图，图片停在桌面边缘；点一下微图，附加到当前 Chrome 的 ChatGPT 聊天。聊天开始接收图片时微图收起，可以继续附加下一张。Riftlet 不发送聊天消息。
 
-当前为个人 Beta，尚未公开发行。正式基线 `b61fc46cf931bdbd14deec1b47d077e92db61e16`，已验证安装身份 `personal-beta.1+004741f`。后续开发分支、设计候选或 CI 产物不自动成为已验证安装版。
+当前已验证安装版为个人 Beta 1，尚未公开发行。该安装版对应已交付基线 `b61fc46cf931bdbd14deec1b47d077e92db61e16`，身份 `personal-beta.1+004741f`。后续 main 工程进展、开发分支、设计候选或 CI 产物不自动成为已验证安装版。
+
+## Beta 2 候选审核
+
+**Beta 2 · 0.2.0（2）** 已实现原生六页设置、菜单栏控制中心和三步引导，正在独立环境完成同包验收。已观察到正常退出与修正后的引导尺寸；此前失败保留，driver 控件时序、完整稳定窗口捕获及联合重启仍待通过。Beta 1 安装保持不变，当前不声明 `PRODUCT_READY`；重大 UI 合并与普通数据升级仍等待最终外观决定。
+
+- [候选范围、审核入口与升级/回退说明](docs/BETA2_CANDIDATE.md)
+- [原生验收矩阵与真实未运行项](engineering/beta2-product-20261106/NATIVE-ACCEPTANCE-MATRIX.md)
+- [隔离原生 driver 与同包重启验证](docs/SETTINGS_REVIEW_DRIVER.md)
+- [当前工程状态](engineering/beta2-product-20261106/STATUS.md)
 
 ## 使用与支持
 
@@ -26,7 +35,7 @@ bash scripts/build-macos.sh
 build/Riftlet.app/Contents/MacOS/Riftlet --self-check
 ```
 
-[自动工程推进索引](engineering/autonomous-readiness-20261106/ROADMAP.md)记录当前专项状态、证据和接管入口；[mainline 治理](docs/MAINLINE_GOVERNANCE.md)规定独立源码审查及准入。设置与控制中心修正版在独立设计分支，尚未接入当前安装 App。
+[自动工程推进索引](engineering/autonomous-readiness-20261106/ROADMAP.md)记录基础工程状态、证据和接管入口；[mainline 治理](docs/MAINLINE_GOVERNANCE.md)规定独立源码审查及准入。设置与控制中心 V2 设计已有本轮原生候选实现，尚未替换当前安装 App。
 
 [保留的早期 README](docs/history/README-20261028.md)及 `docs/`、`engineering/evidence/` 中带日期的工程记录描述当时事实；其中旧候选、上传关闭和 8 MiB 限制不能用于说明当前普通入口。
 
