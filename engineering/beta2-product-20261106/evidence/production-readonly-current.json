@@ -1,0 +1,56 @@
+{
+  "schema": 1,
+  "result": "PASS_SCOPED_RECORDED_CURRENT_INTEGRITY",
+  "originalRecordSHA256": "f919675b98af60e1e8d6990fd51b144437fe917192ffc5cc7e2abb26f3d5bbee",
+  "observedAtUTC": "2026-11-06T11:24:31.483814+00:00",
+  "recordedInspectionMethod": "SQLite read-only URI/query_only/read transaction; file hashing only",
+  "counts": {
+    "assets": 94,
+    "checkpoints": 106,
+    "metadata": 2,
+    "operations": 44,
+    "compensations": 0,
+    "upload_starts": 18,
+    "mediaFiles": 94
+  },
+  "installedBeta1BinarySHA256": "c0ca439023a2fa92fd1cc08d4acff79dd780dc559d8a4c579af76d6fd5a76ea4",
+  "mediaIntegrity": {
+    "referencedMediaCount": 94,
+    "digestVerifiedCount": 94,
+    "byteCountVerifiedCount": 94,
+    "allReferencedMediaMatchStoredDigestsAndSizes": true
+  },
+  "initialRecordedBaseline": {
+    "observedAtUTC": "2026-11-06T08:44:44.822808+00:00",
+    "tableCounts": {
+      "assets": 94,
+      "checkpoints": 106,
+      "metadata": 2,
+      "operations": 44,
+      "compensations": 0,
+      "upload_starts": 18
+    },
+    "mediaFileCount": 94,
+    "installedBinarySHA256": "c0ca439023a2fa92fd1cc08d4acff79dd780dc559d8a4c579af76d6fd5a76ea4"
+  },
+  "comparison": {
+    "tableCountsEqual": true,
+    "mediaFileCountEqual": true,
+    "installedBinaryHashEqual": true,
+    "initialRowHashesAvailable": false,
+    "exactPrePostRowByteEqualityVerified": false,
+    "initialIndividualMediaHashesAvailable": false,
+    "exactPrePostIndividualMediaBytesVerified": false,
+    "configurationBytePreservationVerified": false
+  },
+  "comparisonLimit": "Initial snapshot retained counts and binary only; no claim of exact pre/post row-byte equality",
+  "privacy": {
+    "assetDetailsPublished": false,
+    "individualMediaHashesPublished": false,
+    "configurationHashesPublished": false,
+    "privatePathsOrProcessIdentifiersPublished": false
+  },
+  "newProductionInspectionPerformedForThisBinding": false,
+  "productionWritesPerformedForThisBinding": false,
+  "scope": "Sanitized projection of an existing read-only production report: current 94 referenced media match stored digests and sizes; table/media counts and installed Beta1 binary hash match the earlier count-only baseline. There were no initial row hashes or individual-media hashes, so this does not prove unchanged historical row bytes, unchanged individual files across the interval, or configuration byte preservation. No asset identities, filenames, statuses or individual digests are published."
+}

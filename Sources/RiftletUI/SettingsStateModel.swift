@@ -203,6 +203,8 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
 
 /// Not wired into Main or an existing view. It never creates an OS effect itself.
 @MainActor public final class SettingsStateModel {
+    /// Host refreshes all surfaces without recreating controls or starting an effect.
+    public var onChange: (@MainActor (SettingsStateSnapshot) -> Void)?
     private let adapter: any SettingsPersistenceAdapter
     private let decimalSeparator: String
     private var owner: SettingsOwnerSnapshot
@@ -262,7 +264,7 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
     /// Dirty text remains byte-for-byte; all untouched values read the new owner.
     @discardableResult public func receive(_ value: SettingsOwnerSnapshot) -> Bool {
         guard value.revision > owner.revision, (try? Self.validate(value)) != nil else { return false }
-        owner = value; revision += 1; return true
+        owner = value; revision += 1; onChange?(snapshot); return true
     }
 
     public var hasLayoutDraft: Bool {
@@ -275,13 +277,24 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
         catch { return true }
     }
 
+    /// Text delegates must finish the draft edit before the first Save/Close click.
+    public func setDraftText(_ text: String, for field: SettingsField) {
+        layoutText[field] = text; revision += 1; layoutEditVersions[field] = revision
+        onChange?(snapshot)
+    }
+    public func setArchiveDraftText(_ text: String) {
+        archiveText = text; revision += 1; archiveEditVersion = revision
+        onChange?(snapshot)
+    }
+
     @discardableResult public func perform(_ command: SettingsCommand) async -> SettingsSubmission {
+        defer { onChange?(snapshot) }
         var result = SettingsSubmission()
         switch command {
         case .edit(let field, let text):
-            layoutText[field] = text; revision += 1; layoutEditVersions[field] = revision
+            setDraftText(text, for: field)
         case .editArchive(let text):
-            archiveText = text; revision += 1; archiveEditVersion = revision
+            setArchiveDraftText(text)
         case .restoreDefaults(let page):
             let defaults = RiftConfiguration()
             revision += 1
@@ -418,6 +431,7 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
         domains[domain]?.pending = intent; domains[domain]?.isSaving = true
         pendingTextVersions[domain] = prepared.textVersions
         domains[domain]?.validationFailure = nil; revision += 1
+        onChange?(snapshot)
         return SaveWork(prepared: prepared, request: request, writer: writer)
     }
 
@@ -428,7 +442,7 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
         let request = work.request
         let intent = prepared.intent
         let domain = intent.domain
-        defer { writes.remove(work.writer) }
+        defer { writes.remove(work.writer); onChange?(snapshot) }
         let outcome = await adapter.save(request)
         domains[domain]?.isSaving = false
         let observed: SettingsOwnerSnapshot?
@@ -553,7 +567,11 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
         return hours == 0 ? nil : (hours * 3600) / 3600
     }
     private func format(_ value: Double) -> String {
-        String(value).replacingOccurrences(of: ".", with: decimalSeparator)
+        let text = String(value)
+        // Only format values read from an owner or defaults. User-entered text
+        // stays in layoutText/archiveText, including decimal and IME drafts.
+        let display = text.hasSuffix(".0") ? String(text.dropLast(2)) : text
+        return display.replacingOccurrences(of: ".", with: decimalSeparator)
     }
     private static func validate(_ owner: SettingsOwnerSnapshot) throws {
         try owner.settings.configuration.validate()

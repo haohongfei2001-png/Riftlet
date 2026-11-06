@@ -11,7 +11,7 @@ final class SystemScreenshotCandidateIntegrationTests: XCTestCase {
         XCTAssertEqual(try ApplicationMode.resolve([]), .capture)
         XCTAssertTrue(ApplicationMode.capture.usesWebAdapter)
         XCTAssertTrue(ApplicationMode.capture.collectsSystemScreenshots)
-        XCTAssertEqual(Set(ApplicationMode.allCases.map(\.directoryName)).count, 4)
+        XCTAssertEqual(Set(ApplicationMode.allCases.map(\.directoryName)).count, 5)
         let flags = ["--simulate", "--web-acceptance", "--system-screenshot-candidate"]
         for a in 0..<flags.count {
             for b in (a + 1)..<flags.count {

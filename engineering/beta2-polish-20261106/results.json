@@ -1,0 +1,2110 @@
+{
+  "schema": "riftlet.beta2-polish.results.v1",
+  "result": "PASS_SCOPED_NATIVE_RESTART_AND_NORMAL_ORIGINAL_IMAGE_REVIEW",
+  "source": "a5aefd3d166156c74399b700fa9f167e6bc2408d",
+  "tree": "240ccc5f5192c3d6f2ac22192a5343f7ac4fb2e6",
+  "binarySHA256": "e0505af18b2828c3acf88477e6fbb382c975c9097b1de1a222a19e5383e36c39",
+  "finalGSourceAdmission": "PENDING",
+  "formalCI": "PENDING",
+  "finalUserAppearanceDecision": "PENDING",
+  "productReady": false,
+  "productionAppOrDataChanged": false,
+  "priorFailuresRetained": [
+    {
+      "publicEvidence": "../beta2-product-20261106/evidence/native-run-09-native-responder.json",
+      "result": "FAIL",
+      "passed": 12,
+      "failed": 1,
+      "failure": "orthogonal-pause-hidden-sqlite: conditionTimedOut",
+      "causation": "NOT_UNIQUELY_ATTRIBUTED"
+    },
+    {
+      "publicEvidence": "../beta2-product-20261106/evidence/native-run-10-pause-trace.json",
+      "result": "FAIL",
+      "passed": 12,
+      "failed": 1,
+      "failure": "six-pages-light-and-dark: pageNotPresented",
+      "causation": "OWNED_MOUSE_EVENT_ORIGIN_AND_CAUSE_UNATTRIBUTED"
+    }
+  ],
+  "chronology": [
+    {
+      "name": "before",
+      "source": "689259532c07e556de844887dc6e99130fc1e6ef",
+      "tree": "49c8659aa17e68d9255b8d41db163fced29bfb24",
+      "binarySHA256": "ce47be4fdee8424d0e892121b5f8ae37bf600c8339abe7c966aae6071245331b",
+      "buildIdentitySHA256": "cb99d0f19ec3456cdc4c6b25d7047f9046464291308732143ecf2e3b6d824a43",
+      "runnerSHA256": "4e3480d2bf588614708b31a26529a69731ab5d15c229e9858c345475e8ffee8b",
+      "reportSHA256": "0cd0038cfc27c2b6ac2a6fe3c3a4cb78a43ce02727c5ed6510223f94dfad8eec",
+      "result": "FAIL",
+      "completed": true,
+      "exitCode": 0,
+      "timedOut": false,
+      "runnerElapsedSeconds": 22.73887470806949,
+      "passed": 12,
+      "failed": 2,
+      "frameCount": 30,
+      "cases": [
+        {
+          "case": "environment-and-default-window",
+          "status": "PASS"
+        },
+        {
+          "case": "real-collector-synthetic-fixture",
+          "status": "PASS"
+        },
+        {
+          "case": "accepted-collection-during-recheck",
+          "status": "FAIL",
+          "reason": "acceptedCollectionRejectedByBackgroundRecheck"
+        },
+        {
+          "case": "six-pages-light-and-dark",
+          "status": "PASS"
+        },
+        {
+          "case": "orthogonal-pause-hidden-sqlite",
+          "status": "FAIL",
+          "reason": "conditionTimedOut"
+        },
+        {
+          "case": "archive-editor-first-save-discard",
+          "status": "PASS"
+        },
+        {
+          "case": "configuration-editor-refresh-defaults",
+          "status": "PASS"
+        },
+        {
+          "case": "close-sheet-continue-discard",
+          "status": "PASS"
+        },
+        {
+          "case": "independent-write-failures-and-retry",
+          "status": "PASS"
+        },
+        {
+          "case": "motion-explicit-play-and-navigation-stop",
+          "status": "PASS"
+        },
+        {
+          "case": "three-step-guidance-light-and-dark",
+          "status": "PASS"
+        },
+        {
+          "case": "resizing-and-reopen",
+          "status": "PASS"
+        },
+        {
+          "case": "history-real-records",
+          "status": "PASS"
+        },
+        {
+          "case": "original-media-and-no-upload-operations",
+          "status": "PASS"
+        }
+      ],
+      "browserAccess": false,
+      "networkUpload": false,
+      "productionDataAccess": false,
+      "notRun": [
+        "realChatGPTAttachment",
+        "physicalPointer",
+        "OSInputMethod",
+        "VoiceOver",
+        "realLoginRegistration",
+        "realTCCPrompt",
+        "multiDisplayHotplug"
+      ],
+      "restorationFailures": [],
+      "acceptedCollectionDuringRecheck": [
+        {
+          "target": true,
+          "nativeActionAccepted": true,
+          "recheckOwnedBeforeDeferredCommand": true,
+          "persistedBefore": false,
+          "persistedAfter": false,
+          "ownerPaused": false,
+          "pending": "collectionPaused(true)",
+          "failure": "writeUnconfirmed",
+          "sameDirectionCompletedWithoutRetry": false
+        },
+        {
+          "target": false,
+          "nativeActionAccepted": true,
+          "recheckOwnedBeforeDeferredCommand": true,
+          "persistedBefore": true,
+          "persistedAfter": true,
+          "ownerPaused": true,
+          "pending": "collectionPaused(false)",
+          "failure": "writeUnconfirmed",
+          "sameDirectionCompletedWithoutRetry": false
+        }
+      ],
+      "scope": "Prior H product behavior plus review-only synchronous recheck callback/native regression; not a byte-identical H package."
+    },
+    {
+      "name": "after-01",
+      "source": "c5dbc48f3e5e4156996a07841a7d7e30601bcfe9",
+      "tree": "9a40704c8cb4e0f574685086e3c61fc706f4d079",
+      "binarySHA256": "044c33bb6e1e27cedc7091008fb6ab91d2a8f18809b8ccb2264ebccd021657d0",
+      "buildIdentitySHA256": "ae475cc9142e43394c17f1a6c7bd5d6f7c7c668ecb1b34e4a06af7fd8b99d308",
+      "runnerSHA256": "951b90a22befa506eb2a9c9beeb2784801d4ce1927840213290dbeb22024dda0",
+      "reportSHA256": "4c891e3ddade94c4030fe2e35a2e92477d38ad3f738a306d3540e1b9bae7e6e9",
+      "result": "FAIL",
+      "completed": true,
+      "exitCode": 0,
+      "timedOut": false,
+      "runnerElapsedSeconds": 25.08132025017403,
+      "passed": 13,
+      "failed": 1,
+      "frameCount": 30,
+      "cases": [
+        {
+          "case": "environment-and-default-window",
+          "status": "PASS"
+        },
+        {
+          "case": "real-collector-synthetic-fixture",
+          "status": "PASS"
+        },
+        {
+          "case": "accepted-collection-during-recheck",
+          "status": "PASS"
+        },
+        {
+          "case": "six-pages-light-and-dark",
+          "status": "PASS"
+        },
+        {
+          "case": "orthogonal-pause-hidden-sqlite",
+          "status": "FAIL",
+          "reason": "conditionTimedOut"
+        },
+        {
+          "case": "archive-editor-first-save-discard",
+          "status": "PASS"
+        },
+        {
+          "case": "configuration-editor-refresh-defaults",
+          "status": "PASS"
+        },
+        {
+          "case": "close-sheet-continue-discard",
+          "status": "PASS"
+        },
+        {
+          "case": "independent-write-failures-and-retry",
+          "status": "PASS"
+        },
+        {
+          "case": "motion-explicit-play-and-navigation-stop",
+          "status": "PASS"
+        },
+        {
+          "case": "three-step-guidance-light-and-dark",
+          "status": "PASS"
+        },
+        {
+          "case": "resizing-and-reopen",
+          "status": "PASS"
+        },
+        {
+          "case": "history-real-records",
+          "status": "PASS"
+        },
+        {
+          "case": "original-media-and-no-upload-operations",
+          "status": "PASS"
+        }
+      ],
+      "browserAccess": false,
+      "networkUpload": false,
+      "productionDataAccess": false,
+      "notRun": [
+        "realChatGPTAttachment",
+        "physicalPointer",
+        "OSInputMethod",
+        "VoiceOver",
+        "realLoginRegistration",
+        "realTCCPrompt",
+        "multiDisplayHotplug"
+      ],
+      "restorationFailures": [],
+      "acceptedCollectionDuringRecheck": [
+        {
+          "target": true,
+          "nativeActionAccepted": true,
+          "recheckOwnedBeforeDeferredCommand": true,
+          "persistedBefore": false,
+          "persistedAfter": true,
+          "ownerPaused": true,
+          "pending": "none",
+          "failure": "none",
+          "sameDirectionCompletedWithoutRetry": true
+        },
+        {
+          "target": false,
+          "nativeActionAccepted": true,
+          "recheckOwnedBeforeDeferredCommand": true,
+          "persistedBefore": true,
+          "persistedAfter": false,
+          "ownerPaused": false,
+          "pending": "none",
+          "failure": "none",
+          "sameDirectionCompletedWithoutRetry": true
+        }
+      ],
+      "remainingFailureScope": "Driver pre-status-action foreground wait after collection observation; owner paused with no pending/failure. Original FAIL retained."
+    },
+    {
+      "name": "after-02",
+      "source": "108a709a7e5b44746946546a78f3af1b3b9d78ff",
+      "tree": "815cb523d0fbc1606df30d4dcc64ab82dab55db5",
+      "binarySHA256": "13a6b17e6191c01a9f096cbd13a030f15267ae0337e749deffbdd80511f849c8",
+      "buildIdentitySHA256": "73be8ba9c25bc2983af17df674b4a8f816b2655395f2008a37ad53462347f5a2",
+      "runnerSHA256": "cfe5df92451494ea53feb0ef64681b361d13322d8872042a3204571688d60210",
+      "reportSHA256": "ab75b01ab375c1458da5188fd16df26e2e849ecf88095fa7699694737783c8b9",
+      "result": "FAIL",
+      "completed": true,
+      "exitCode": 0,
+      "timedOut": false,
+      "runnerElapsedSeconds": 25.99572137510404,
+      "passed": 13,
+      "failed": 1,
+      "frameCount": 38,
+      "cases": [
+        {
+          "case": "environment-and-default-window",
+          "status": "PASS"
+        },
+        {
+          "case": "real-collector-synthetic-fixture",
+          "status": "PASS"
+        },
+        {
+          "case": "accepted-collection-during-recheck",
+          "status": "PASS"
+        },
+        {
+          "case": "six-pages-light-and-dark",
+          "status": "PASS"
+        },
+        {
+          "case": "orthogonal-pause-hidden-sqlite",
+          "status": "PASS"
+        },
+        {
+          "case": "archive-editor-first-save-discard",
+          "status": "PASS"
+        },
+        {
+          "case": "configuration-editor-refresh-defaults",
+          "status": "PASS"
+        },
+        {
+          "case": "close-sheet-continue-discard",
+          "status": "PASS"
+        },
+        {
+          "case": "independent-write-failures-and-retry",
+          "status": "PASS"
+        },
+        {
+          "case": "motion-explicit-play-and-navigation-stop",
+          "status": "PASS"
+        },
+        {
+          "case": "three-step-guidance-light-and-dark",
+          "status": "PASS"
+        },
+        {
+          "case": "resizing-and-reopen",
+          "status": "FAIL",
+          "reason": "controlUnavailable:settings.center.display.details"
+        },
+        {
+          "case": "history-real-records",
+          "status": "PASS"
+        },
+        {
+          "case": "original-media-and-no-upload-operations",
+          "status": "PASS"
+        }
+      ],
+      "browserAccess": false,
+      "networkUpload": false,
+      "productionDataAccess": false,
+      "notRun": [
+        "realChatGPTAttachment",
+        "physicalPointer",
+        "OSInputMethod",
+        "VoiceOver",
+        "realLoginRegistration",
+        "realTCCPrompt",
+        "multiDisplayHotplug"
+      ],
+      "restorationFailures": [],
+      "acceptedCollectionDuringRecheck": [
+        {
+          "target": true,
+          "nativeActionAccepted": true,
+          "recheckOwnedBeforeDeferredCommand": true,
+          "persistedBefore": false,
+          "persistedAfter": true,
+          "ownerPaused": true,
+          "pending": "none",
+          "failure": "none",
+          "sameDirectionCompletedWithoutRetry": true
+        },
+        {
+          "target": false,
+          "nativeActionAccepted": true,
+          "recheckOwnedBeforeDeferredCommand": true,
+          "persistedBefore": true,
+          "persistedAfter": false,
+          "ownerPaused": false,
+          "pending": "none",
+          "failure": "none",
+          "sameDirectionCompletedWithoutRetry": true
+        }
+      ],
+      "remainingFailureScope": "New minimum-window driver used settings.center.display.details instead of existing settings.center.disclosure.display.details; locator corrected, reachability assertion retained."
+    }
+  ],
+  "normalAfter03": {
+    "source": "a5aefd3d166156c74399b700fa9f167e6bc2408d",
+    "tree": "240ccc5f5192c3d6f2ac22192a5343f7ac4fb2e6",
+    "binarySHA256": "e0505af18b2828c3acf88477e6fbb382c975c9097b1de1a222a19e5383e36c39",
+    "buildIdentitySHA256": "da770ecc84168a66685baebab15e1879ee7d0198070538b9940c59168498ed09",
+    "runnerSHA256": "c52c768164816209ffe1a3bbb901c2a3e17935be8ed6f0a415e4564fec7b3ec4",
+    "reportSHA256": "a73b9285402a30bbb312d533b03f1d60ad9c59d0b48c28844c042b8e833432e9",
+    "result": "PASS_SCOPED_NATIVE_REVIEW",
+    "completed": true,
+    "exitCode": 0,
+    "timedOut": false,
+    "runnerElapsedSeconds": 26.78492062492296,
+    "passed": 14,
+    "failed": 0,
+    "frameCount": 39,
+    "cases": [
+      {
+        "case": "environment-and-default-window",
+        "status": "PASS"
+      },
+      {
+        "case": "real-collector-synthetic-fixture",
+        "status": "PASS"
+      },
+      {
+        "case": "accepted-collection-during-recheck",
+        "status": "PASS"
+      },
+      {
+        "case": "six-pages-light-and-dark",
+        "status": "PASS"
+      },
+      {
+        "case": "orthogonal-pause-hidden-sqlite",
+        "status": "PASS"
+      },
+      {
+        "case": "archive-editor-first-save-discard",
+        "status": "PASS"
+      },
+      {
+        "case": "configuration-editor-refresh-defaults",
+        "status": "PASS"
+      },
+      {
+        "case": "close-sheet-continue-discard",
+        "status": "PASS"
+      },
+      {
+        "case": "independent-write-failures-and-retry",
+        "status": "PASS"
+      },
+      {
+        "case": "motion-explicit-play-and-navigation-stop",
+        "status": "PASS"
+      },
+      {
+        "case": "three-step-guidance-light-and-dark",
+        "status": "PASS"
+      },
+      {
+        "case": "resizing-and-reopen",
+        "status": "PASS"
+      },
+      {
+        "case": "history-real-records",
+        "status": "PASS"
+      },
+      {
+        "case": "original-media-and-no-upload-operations",
+        "status": "PASS"
+      }
+    ],
+    "browserAccess": false,
+    "networkUpload": false,
+    "productionDataAccess": false,
+    "notRun": [
+      "realChatGPTAttachment",
+      "physicalPointer",
+      "OSInputMethod",
+      "VoiceOver",
+      "realLoginRegistration",
+      "realTCCPrompt",
+      "multiDisplayHotplug"
+    ],
+    "restorationFailures": [],
+    "acceptedCollectionDuringRecheck": [
+      {
+        "target": true,
+        "nativeActionAccepted": true,
+        "recheckOwnedBeforeDeferredCommand": true,
+        "persistedBefore": false,
+        "persistedAfter": true,
+        "ownerPaused": true,
+        "pending": "none",
+        "failure": "none",
+        "sameDirectionCompletedWithoutRetry": true
+      },
+      {
+        "target": false,
+        "nativeActionAccepted": true,
+        "recheckOwnedBeforeDeferredCommand": true,
+        "persistedBefore": true,
+        "persistedAfter": false,
+        "ownerPaused": false,
+        "pending": "none",
+        "failure": "none",
+        "sameDirectionCompletedWithoutRetry": true
+      }
+    ],
+    "frames": [
+      {
+        "name": "initial-general",
+        "sha256": "99efc0b31d2391d280e7e73f4b41b3541093ccfeef3f90a3a7c3ccd61fa857f4",
+        "pixels": [
+          1920,
+          1424
+        ],
+        "contentSizePoints": [
+          960,
+          684
+        ],
+        "windowSizePoints": [
+          960,
+          712
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameAqua"
+      },
+      {
+        "name": "settings-light-general",
+        "sha256": "08fa4aa5a0035a696f70e097fc8810b3821778849b3e5c953b4850b0e9796192",
+        "pixels": [
+          1920,
+          1424
+        ],
+        "contentSizePoints": [
+          960,
+          684
+        ],
+        "windowSizePoints": [
+          960,
+          712
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameAqua"
+      },
+      {
+        "name": "settings-light-display",
+        "sha256": "89249598bf072c5bf72ffe4299b6665d6707a8216c9153688769c06f779f4ccb",
+        "pixels": [
+          1920,
+          1424
+        ],
+        "contentSizePoints": [
+          960,
+          684
+        ],
+        "windowSizePoints": [
+          960,
+          712
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameAqua"
+      },
+      {
+        "name": "settings-light-capture",
+        "sha256": "6583160dda2432bc6714657287d940005a41410dcf716fa529527daffcdb2463",
+        "pixels": [
+          1920,
+          1424
+        ],
+        "contentSizePoints": [
+          960,
+          684
+        ],
+        "windowSizePoints": [
+          960,
+          712
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameAqua"
+      },
+      {
+        "name": "settings-light-motion",
+        "sha256": "8ee7fcc85a4aad6e471b571e052c1a2243c6147c66db890e986425b6c73f4f3c",
+        "pixels": [
+          1920,
+          1424
+        ],
+        "contentSizePoints": [
+          960,
+          684
+        ],
+        "windowSizePoints": [
+          960,
+          712
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameAqua"
+      },
+      {
+        "name": "settings-light-history",
+        "sha256": "67b551c0448c6c8088c013ef9040643765db92507d610a427902f7b97fceab5d",
+        "pixels": [
+          1920,
+          1424
+        ],
+        "contentSizePoints": [
+          960,
+          684
+        ],
+        "windowSizePoints": [
+          960,
+          712
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameAqua"
+      },
+      {
+        "name": "settings-light-help",
+        "sha256": "49cacb593da12f3cbce1f5081075360f7925c01508677db1c2e98209a394608d",
+        "pixels": [
+          1920,
+          1424
+        ],
+        "contentSizePoints": [
+          960,
+          684
+        ],
+        "windowSizePoints": [
+          960,
+          712
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameAqua"
+      },
+      {
+        "name": "control-light",
+        "sha256": "5f06f52668fd96d6b027c1b09be3cc7fc9e0246db53dad9dbc8a8a8e6521c71e",
+        "pixels": [
+          724,
+          952
+        ],
+        "contentSizePoints": [
+          336,
+          450
+        ],
+        "windowSizePoints": [
+          362,
+          476
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameAqua"
+      },
+      {
+        "name": "settings-dark-general",
+        "sha256": "a724f19f57e5778419dd75c970625b03c94b4f3d95f6401c992a52c8b2c09bf6",
+        "pixels": [
+          1920,
+          1424
+        ],
+        "contentSizePoints": [
+          960,
+          684
+        ],
+        "windowSizePoints": [
+          960,
+          712
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameDarkAqua"
+      },
+      {
+        "name": "settings-dark-display",
+        "sha256": "5a6597d2a3cf6b8d0962eaf2fd3f2de531b3c73a6ec390f25642a3be760520bd",
+        "pixels": [
+          1920,
+          1424
+        ],
+        "contentSizePoints": [
+          960,
+          684
+        ],
+        "windowSizePoints": [
+          960,
+          712
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameDarkAqua"
+      },
+      {
+        "name": "settings-dark-capture",
+        "sha256": "d46d22976a870afdb8f66192b843f404b7908a700535c21c6e09e3b512a65698",
+        "pixels": [
+          1920,
+          1424
+        ],
+        "contentSizePoints": [
+          960,
+          684
+        ],
+        "windowSizePoints": [
+          960,
+          712
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameDarkAqua"
+      },
+      {
+        "name": "settings-dark-motion",
+        "sha256": "bc5447e2b4fda152f910ad88240e6e7f6b6745e3d994552b3d3db3994f522c6d",
+        "pixels": [
+          1920,
+          1424
+        ],
+        "contentSizePoints": [
+          960,
+          684
+        ],
+        "windowSizePoints": [
+          960,
+          712
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameDarkAqua"
+      },
+      {
+        "name": "settings-dark-history",
+        "sha256": "04f2d83e63e6295da6f7fea5c90c7c5703f6a1f9ae7a505f435e66e78fa20b59",
+        "pixels": [
+          1920,
+          1424
+        ],
+        "contentSizePoints": [
+          960,
+          684
+        ],
+        "windowSizePoints": [
+          960,
+          712
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameDarkAqua"
+      },
+      {
+        "name": "settings-dark-help",
+        "sha256": "6d9f32bfca0467b7086f9a54fc044fdbe3e6466c7a4ddd93d8ca2dba5977fbda",
+        "pixels": [
+          1920,
+          1424
+        ],
+        "contentSizePoints": [
+          960,
+          684
+        ],
+        "windowSizePoints": [
+          960,
+          712
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameDarkAqua"
+      },
+      {
+        "name": "control-dark",
+        "sha256": "2131826e828f0b4167d240ec10b854fc52299e1b4bb01342ef9f105792970829",
+        "pixels": [
+          724,
+          952
+        ],
+        "contentSizePoints": [
+          336,
+          450
+        ],
+        "windowSizePoints": [
+          362,
+          476
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameDarkAqua"
+      },
+      {
+        "name": "control-normal",
+        "sha256": "f8bc7b933601be24b77f40edde6ff35d0a566ca6e5441459c7d2b52032c67e07",
+        "pixels": [
+          724,
+          952
+        ],
+        "contentSizePoints": [
+          336,
+          450
+        ],
+        "windowSizePoints": [
+          362,
+          476
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameAqua"
+      },
+      {
+        "name": "control-paused",
+        "sha256": "4d5aca13ab0ebdffa41b19fa279e506a6a889f4f4de8a7c977f4ea048d4dd719",
+        "pixels": [
+          724,
+          952
+        ],
+        "contentSizePoints": [
+          336,
+          450
+        ],
+        "windowSizePoints": [
+          362,
+          476
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameAqua"
+      },
+      {
+        "name": "control-paused-hidden",
+        "sha256": "016eaadfe0c3330c447d9bdc9f86a1b91849632f6a04c30609b2aba30e1b5aec",
+        "pixels": [
+          724,
+          952
+        ],
+        "contentSizePoints": [
+          336,
+          450
+        ],
+        "windowSizePoints": [
+          362,
+          476
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameAqua"
+      },
+      {
+        "name": "control-hidden",
+        "sha256": "882e2306b42c9c322a21f8260b67f4ca1b27f03a109ed1227dba2433a26fad22",
+        "pixels": [
+          724,
+          952
+        ],
+        "contentSizePoints": [
+          336,
+          450
+        ],
+        "windowSizePoints": [
+          362,
+          476
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameAqua"
+      },
+      {
+        "name": "archive-first-activation-save",
+        "sha256": "123e834be51c984b2e99f87c6a5b121fa8d9642c3a48823f1f07fea00ed4521f",
+        "pixels": [
+          1920,
+          1424
+        ],
+        "contentSizePoints": [
+          960,
+          684
+        ],
+        "windowSizePoints": [
+          960,
+          712
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameAqua"
+      },
+      {
+        "name": "display-defaults-after-active-edit",
+        "sha256": "b2d8821c6629e327e3f22233965cc24a631a4066cf3d9c82ee9950fdb59fd48d",
+        "pixels": [
+          1920,
+          1424
+        ],
+        "contentSizePoints": [
+          960,
+          684
+        ],
+        "windowSizePoints": [
+          960,
+          712
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameAqua"
+      },
+      {
+        "name": "close-draft-sheet",
+        "sha256": "3c585de0ccf8980fafc7ee4c298579cabca6120e4fd4539a00f44272c7247951",
+        "pixels": [
+          520,
+          446
+        ],
+        "contentSizePoints": [
+          260,
+          223
+        ],
+        "windowSizePoints": [
+          260,
+          223
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameAqua"
+      },
+      {
+        "name": "control-save-failure",
+        "sha256": "d54fe3aeb8b5bf59d6d419c44c231a6be51db5fd60cca222fb7594a55653dffa",
+        "pixels": [
+          724,
+          1002
+        ],
+        "contentSizePoints": [
+          336,
+          475
+        ],
+        "windowSizePoints": [
+          362,
+          501
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameAqua"
+      },
+      {
+        "name": "independent-errors-resolved",
+        "sha256": "0388f984de378ff0a072755f1150c2a998651e50f0dc9b04dbb8a2d259e005ac",
+        "pixels": [
+          1920,
+          1424
+        ],
+        "contentSizePoints": [
+          960,
+          684
+        ],
+        "windowSizePoints": [
+          960,
+          712
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameDarkAqua"
+      },
+      {
+        "name": "explicit-arrival-preview",
+        "sha256": "cde489bcf767fd6659108ed1172f6f179143e252914c75db7b119d5683d2ebc3",
+        "pixels": [
+          1920,
+          1424
+        ],
+        "contentSizePoints": [
+          960,
+          684
+        ],
+        "windowSizePoints": [
+          960,
+          712
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameDarkAqua"
+      },
+      {
+        "name": "onboarding-light-1",
+        "sha256": "9e0ccfb1b8624073cae9354eec91e25c7a39ac731a52a606d24881f2c227aa33",
+        "pixels": [
+          1304,
+          1216
+        ],
+        "contentSizePoints": [
+          652,
+          580
+        ],
+        "windowSizePoints": [
+          652,
+          608
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameAqua"
+      },
+      {
+        "name": "onboarding-light-2",
+        "sha256": "46dd05cd652b52e565dd3305c3dc587eae6bf4008dc461158eb93fed9da4f30b",
+        "pixels": [
+          1304,
+          1216
+        ],
+        "contentSizePoints": [
+          652,
+          580
+        ],
+        "windowSizePoints": [
+          652,
+          608
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameAqua"
+      },
+      {
+        "name": "onboarding-light-3",
+        "sha256": "4b42ddc8e81bc4ef32aaa2ac8b3ff737bc2a1c4d9c662c7c1c89b43224e17def",
+        "pixels": [
+          1304,
+          1216
+        ],
+        "contentSizePoints": [
+          652,
+          580
+        ],
+        "windowSizePoints": [
+          652,
+          608
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameAqua"
+      },
+      {
+        "name": "onboarding-dark-1",
+        "sha256": "c9dd9291184041da8764478099baef1c19ff9a43c7da155ffc941cda749f5cd9",
+        "pixels": [
+          1304,
+          1216
+        ],
+        "contentSizePoints": [
+          652,
+          580
+        ],
+        "windowSizePoints": [
+          652,
+          608
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameDarkAqua"
+      },
+      {
+        "name": "onboarding-dark-2",
+        "sha256": "3e591a7314a23c540756ae7fafa8b8f7e10de4b3424809b87c46a21050288701",
+        "pixels": [
+          1304,
+          1216
+        ],
+        "contentSizePoints": [
+          652,
+          580
+        ],
+        "windowSizePoints": [
+          652,
+          608
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameDarkAqua"
+      },
+      {
+        "name": "onboarding-dark-3",
+        "sha256": "59539164e1f5e23acf75ec890bea2c5bd26da04f26df8908575644f615ec2950",
+        "pixels": [
+          1304,
+          1216
+        ],
+        "contentSizePoints": [
+          652,
+          580
+        ],
+        "windowSizePoints": [
+          652,
+          608
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameDarkAqua"
+      },
+      {
+        "name": "settings-minimum-size",
+        "sha256": "80a04e2a1b46467f547e23b03bcdeded579400bc2a7c45f0c39c10485d14b332",
+        "pixels": [
+          1520,
+          1080
+        ],
+        "contentSizePoints": [
+          760,
+          512
+        ],
+        "windowSizePoints": [
+          760,
+          540
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameDarkAqua"
+      },
+      {
+        "name": "settings-minimum-general",
+        "sha256": "1fcffbd7972ba3e510c9bab27908fb2714fa29ff95bb21900225fe8dd94094ad",
+        "pixels": [
+          1520,
+          1080
+        ],
+        "contentSizePoints": [
+          760,
+          512
+        ],
+        "windowSizePoints": [
+          760,
+          540
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameDarkAqua"
+      },
+      {
+        "name": "settings-minimum-capture",
+        "sha256": "45d578650a8232c8816ba7c199ddf774b4f3869c21355672b62f12df168988e2",
+        "pixels": [
+          1520,
+          1080
+        ],
+        "contentSizePoints": [
+          760,
+          512
+        ],
+        "windowSizePoints": [
+          760,
+          540
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameDarkAqua"
+      },
+      {
+        "name": "settings-minimum-motion",
+        "sha256": "e549c510da1aaf3e43575c4424f6cf27cad5e394a5809a4504c3c4f4496e4e0e",
+        "pixels": [
+          1520,
+          1080
+        ],
+        "contentSizePoints": [
+          760,
+          512
+        ],
+        "windowSizePoints": [
+          760,
+          540
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameDarkAqua"
+      },
+      {
+        "name": "settings-minimum-history",
+        "sha256": "1b3f3618f45aa45d25efa39d3ad805fb3a83e86fccfadf17a2c761f345e8654a",
+        "pixels": [
+          1520,
+          1080
+        ],
+        "contentSizePoints": [
+          760,
+          512
+        ],
+        "windowSizePoints": [
+          760,
+          540
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameDarkAqua"
+      },
+      {
+        "name": "settings-minimum-help",
+        "sha256": "b0f81553195f9edf9aea872d38056b99d2af3edd60533c889cc4cf4487ce8cd1",
+        "pixels": [
+          1520,
+          1080
+        ],
+        "contentSizePoints": [
+          760,
+          512
+        ],
+        "windowSizePoints": [
+          760,
+          540
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameDarkAqua"
+      },
+      {
+        "name": "settings-minimum-display-scrolled",
+        "sha256": "545070a4091a818c2e5c973f56d76f4e6147170ba441714210f2a1a5f3cddf58",
+        "pixels": [
+          1520,
+          1080
+        ],
+        "contentSizePoints": [
+          760,
+          512
+        ],
+        "windowSizePoints": [
+          760,
+          540
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameDarkAqua"
+      },
+      {
+        "name": "history-real-isolated-records",
+        "sha256": "f69a805c7dc51baa1437fee05ddacb7374282695ba719bf3c56f046ce5ae2a0f",
+        "pixels": [
+          1516,
+          1116
+        ],
+        "contentSizePoints": [
+          760,
+          532
+        ],
+        "windowSizePoints": [
+          760,
+          560
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameDarkAqua"
+      }
+    ],
+    "allPNGHashesAndDimensionsVerified": true,
+    "restart": {
+      "runnerSHA256": "f28bf66a9aa023f42e6745be669872b13bd9ac4288c665ddbd820e992121f060",
+      "reportSHA256": "40021f34a5e53418e1c62cf2780346d2be2451b30ae0c8ad90e83bf0b42f875e",
+      "originalReportSHA256": "a73b9285402a30bbb312d533b03f1d60ad9c59d0b48c28844c042b8e833432e9",
+      "binarySHA256": "e0505af18b2828c3acf88477e6fbb382c975c9097b1de1a222a19e5383e36c39",
+      "result": "PASS_SCOPED_NATIVE_RESTART",
+      "completed": true,
+      "exitCode": 0,
+      "timedOut": false,
+      "elapsedSeconds": 0.4571156660094857,
+      "sameBinaryNewProcessSameIsolatedRoot": true,
+      "checks": [
+        {
+          "check": "same-binary-new-process-after-completed-run",
+          "status": "PASS"
+        },
+        {
+          "check": "persisted-json-and-loaded-owners",
+          "status": "PASS"
+        },
+        {
+          "check": "sqlite-pause-and-visibility",
+          "status": "PASS"
+        },
+        {
+          "check": "existing-first-use-not-presented-again",
+          "status": "PASS"
+        },
+        {
+          "check": "assets-media-and-operation-readback",
+          "status": "PASS"
+        },
+        {
+          "check": "verification-left-preference-bytes-unchanged",
+          "status": "PASS"
+        }
+      ],
+      "fiveConfigurationJSONBytesUnchanged": true,
+      "assetCountBeforeAfter": [
+        3,
+        3
+      ],
+      "mediaCountBeforeAfter": [
+        3,
+        3
+      ],
+      "assetMediaMapUnchanged": true,
+      "allMediaMatchAssets": true,
+      "operationTableCountBeforeAfter": [
+        0,
+        0
+      ],
+      "uploadStartTableCountBeforeAfter": [
+        0,
+        0
+      ],
+      "readbackScope": "Independent read-only SQLite snapshot after child exit; no production root access."
+    },
+    "independentOriginalImageReview": {
+      "reportSHA256": "c22b83c7bce5dd834f8a8e40ccc8129106643f8c6a64f963a3ad775ae1721bcc",
+      "reviewer": "readiness_independent",
+      "authorOfReviewedSource": false,
+      "result": "PASS_SCOPED_NATIVE_AND_ORIGINAL_IMAGE_REVIEW",
+      "reviewedSource": "a5aefd3d166156c74399b700fa9f167e6bc2408d",
+      "reviewedTree": "240ccc5f5192c3d6f2ac22192a5343f7ac4fb2e6",
+      "binarySHA256": "e0505af18b2828c3acf88477e6fbb382c975c9097b1de1a222a19e5383e36c39",
+      "originalPNGCount": 39,
+      "blockingVisualFindings": [],
+      "isFinalGSourceAdmission": false,
+      "scope": "All 39 normal-run original PNGs visually inspected; does not approve final user appearance or high-contrast token branches."
+    }
+  },
+  "actualSystemHighContrast": {
+    "source": "a5aefd3d166156c74399b700fa9f167e6bc2408d",
+    "tree": "240ccc5f5192c3d6f2ac22192a5343f7ac4fb2e6",
+    "binarySHA256": "e0505af18b2828c3acf88477e6fbb382c975c9097b1de1a222a19e5383e36c39",
+    "buildIdentitySHA256": "da770ecc84168a66685baebab15e1879ee7d0198070538b9940c59168498ed09",
+    "runnerSHA256": "6dd1527e36c77709eb961d84e8204582675386937410be48ef7c9b9448a14dec",
+    "reportSHA256": "0605b6179135cee8a4497800db3e0ed07c8f0beb134de4f64c6286941398ccf3",
+    "result": "PASS_SCOPED_NATIVE_REVIEW",
+    "completed": true,
+    "exitCode": 0,
+    "timedOut": false,
+    "runnerElapsedSeconds": 26.413531500147656,
+    "passed": 14,
+    "failed": 0,
+    "frameCount": 39,
+    "cases": [
+      {
+        "case": "environment-and-default-window",
+        "status": "PASS"
+      },
+      {
+        "case": "real-collector-synthetic-fixture",
+        "status": "PASS"
+      },
+      {
+        "case": "accepted-collection-during-recheck",
+        "status": "PASS"
+      },
+      {
+        "case": "six-pages-light-and-dark",
+        "status": "PASS"
+      },
+      {
+        "case": "orthogonal-pause-hidden-sqlite",
+        "status": "PASS"
+      },
+      {
+        "case": "archive-editor-first-save-discard",
+        "status": "PASS"
+      },
+      {
+        "case": "configuration-editor-refresh-defaults",
+        "status": "PASS"
+      },
+      {
+        "case": "close-sheet-continue-discard",
+        "status": "PASS"
+      },
+      {
+        "case": "independent-write-failures-and-retry",
+        "status": "PASS"
+      },
+      {
+        "case": "motion-explicit-play-and-navigation-stop",
+        "status": "PASS"
+      },
+      {
+        "case": "three-step-guidance-light-and-dark",
+        "status": "PASS"
+      },
+      {
+        "case": "resizing-and-reopen",
+        "status": "PASS"
+      },
+      {
+        "case": "history-real-records",
+        "status": "PASS"
+      },
+      {
+        "case": "original-media-and-no-upload-operations",
+        "status": "PASS"
+      }
+    ],
+    "browserAccess": false,
+    "networkUpload": false,
+    "productionDataAccess": false,
+    "notRun": [
+      "realChatGPTAttachment",
+      "physicalPointer",
+      "OSInputMethod",
+      "VoiceOver",
+      "realLoginRegistration",
+      "realTCCPrompt",
+      "multiDisplayHotplug"
+    ],
+    "restorationFailures": [],
+    "acceptedCollectionDuringRecheck": [
+      {
+        "target": true,
+        "nativeActionAccepted": true,
+        "recheckOwnedBeforeDeferredCommand": true,
+        "persistedBefore": false,
+        "persistedAfter": true,
+        "ownerPaused": true,
+        "pending": "none",
+        "failure": "none",
+        "sameDirectionCompletedWithoutRetry": true
+      },
+      {
+        "target": false,
+        "nativeActionAccepted": true,
+        "recheckOwnedBeforeDeferredCommand": true,
+        "persistedBefore": true,
+        "persistedAfter": false,
+        "ownerPaused": false,
+        "pending": "none",
+        "failure": "none",
+        "sameDirectionCompletedWithoutRetry": true
+      }
+    ],
+    "frames": [
+      {
+        "name": "initial-general",
+        "sha256": "daa81e7e05a1bab05dd93888db168695ae4797f7682c3690a89bb0d9c6c96ca0",
+        "pixels": [
+          1920,
+          1424
+        ],
+        "contentSizePoints": [
+          960,
+          684
+        ],
+        "windowSizePoints": [
+          960,
+          712
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameAqua"
+      },
+      {
+        "name": "settings-light-general",
+        "sha256": "6ed84eb330479a5844a240e58a2d1b6a93982386780a593e8ea00b81c8b3962b",
+        "pixels": [
+          1920,
+          1424
+        ],
+        "contentSizePoints": [
+          960,
+          684
+        ],
+        "windowSizePoints": [
+          960,
+          712
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameAqua"
+      },
+      {
+        "name": "settings-light-display",
+        "sha256": "bfa74e1d95eb0921dc80dc92046f4b42e272e95dbf844a5399623c48a87ba204",
+        "pixels": [
+          1920,
+          1424
+        ],
+        "contentSizePoints": [
+          960,
+          684
+        ],
+        "windowSizePoints": [
+          960,
+          712
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameAqua"
+      },
+      {
+        "name": "settings-light-capture",
+        "sha256": "7014bc0ebae27e525a3bbae43d5ab938a1eaab5187894c1ef66657d5084b5cd7",
+        "pixels": [
+          1920,
+          1424
+        ],
+        "contentSizePoints": [
+          960,
+          684
+        ],
+        "windowSizePoints": [
+          960,
+          712
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameAqua"
+      },
+      {
+        "name": "settings-light-motion",
+        "sha256": "d553bb7d67b4b249e8910329ed69fa4fdb7657173bf7f69807bdfa1977dfbc50",
+        "pixels": [
+          1920,
+          1424
+        ],
+        "contentSizePoints": [
+          960,
+          684
+        ],
+        "windowSizePoints": [
+          960,
+          712
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameAqua"
+      },
+      {
+        "name": "settings-light-history",
+        "sha256": "e36d934c27cc9678de509ee9fcf0274a7401ee1c0d09fd71e9da6f910b92f3de",
+        "pixels": [
+          1920,
+          1424
+        ],
+        "contentSizePoints": [
+          960,
+          684
+        ],
+        "windowSizePoints": [
+          960,
+          712
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameAqua"
+      },
+      {
+        "name": "settings-light-help",
+        "sha256": "c90e84950d90eab34eccc0751125d92244052a8c8860b302d46e9748c503d030",
+        "pixels": [
+          1920,
+          1424
+        ],
+        "contentSizePoints": [
+          960,
+          684
+        ],
+        "windowSizePoints": [
+          960,
+          712
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameAqua"
+      },
+      {
+        "name": "control-light",
+        "sha256": "34010f7d9a24ac4a67f8052decb816395e03d4772f20bc73964e71fcc980de0a",
+        "pixels": [
+          724,
+          952
+        ],
+        "contentSizePoints": [
+          336,
+          450
+        ],
+        "windowSizePoints": [
+          362,
+          476
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameAccessibilityAqua"
+      },
+      {
+        "name": "settings-dark-general",
+        "sha256": "045a625bc3fdf830d93764835765a9d2e179970baf21e84c11f996b73fa3005d",
+        "pixels": [
+          1920,
+          1424
+        ],
+        "contentSizePoints": [
+          960,
+          684
+        ],
+        "windowSizePoints": [
+          960,
+          712
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameDarkAqua"
+      },
+      {
+        "name": "settings-dark-display",
+        "sha256": "2234c74d762386c2b088e8157a93731c1f53105e30218125917234d710ec5739",
+        "pixels": [
+          1920,
+          1424
+        ],
+        "contentSizePoints": [
+          960,
+          684
+        ],
+        "windowSizePoints": [
+          960,
+          712
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameDarkAqua"
+      },
+      {
+        "name": "settings-dark-capture",
+        "sha256": "a48ed04eb16780a712b81220bb5f8a12705460e02741a5b3aa43741ccd5664f2",
+        "pixels": [
+          1920,
+          1424
+        ],
+        "contentSizePoints": [
+          960,
+          684
+        ],
+        "windowSizePoints": [
+          960,
+          712
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameDarkAqua"
+      },
+      {
+        "name": "settings-dark-motion",
+        "sha256": "2f42338f454db943ccaace751d0c4d386b73fbf091504b439bac62fecff6e420",
+        "pixels": [
+          1920,
+          1424
+        ],
+        "contentSizePoints": [
+          960,
+          684
+        ],
+        "windowSizePoints": [
+          960,
+          712
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameDarkAqua"
+      },
+      {
+        "name": "settings-dark-history",
+        "sha256": "09d77a34f2d0e9134cccb3ccbaa39d93868aaa1f39978abc0ae7a67b6a63ffa0",
+        "pixels": [
+          1920,
+          1424
+        ],
+        "contentSizePoints": [
+          960,
+          684
+        ],
+        "windowSizePoints": [
+          960,
+          712
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameDarkAqua"
+      },
+      {
+        "name": "settings-dark-help",
+        "sha256": "685edf11b416f969dedc9be46d9ddc48fb9b94ffb715e5365c585a1fef5653e9",
+        "pixels": [
+          1920,
+          1424
+        ],
+        "contentSizePoints": [
+          960,
+          684
+        ],
+        "windowSizePoints": [
+          960,
+          712
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameDarkAqua"
+      },
+      {
+        "name": "control-dark",
+        "sha256": "282b5e149d65c9af4ae736910028c59a5bd917ad9a7023914dd6fe39ca177598",
+        "pixels": [
+          724,
+          952
+        ],
+        "contentSizePoints": [
+          336,
+          450
+        ],
+        "windowSizePoints": [
+          362,
+          476
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameAccessibilityDarkAqua"
+      },
+      {
+        "name": "control-normal",
+        "sha256": "2e10bf3201efdfc35b2c9e541ee9463d6d8f7484490bbf7ef6cca94c64dec494",
+        "pixels": [
+          724,
+          952
+        ],
+        "contentSizePoints": [
+          336,
+          450
+        ],
+        "windowSizePoints": [
+          362,
+          476
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameAccessibilityAqua"
+      },
+      {
+        "name": "control-paused",
+        "sha256": "611db114bc4c426647c1a3230d23808d145392b84f596072107b90ccab020b9e",
+        "pixels": [
+          724,
+          952
+        ],
+        "contentSizePoints": [
+          336,
+          450
+        ],
+        "windowSizePoints": [
+          362,
+          476
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameAccessibilityAqua"
+      },
+      {
+        "name": "control-paused-hidden",
+        "sha256": "bff784b69f364b04bc516f5f915c26eeb3c169c5a8b4a9d5198f41cb6c334a9e",
+        "pixels": [
+          724,
+          952
+        ],
+        "contentSizePoints": [
+          336,
+          450
+        ],
+        "windowSizePoints": [
+          362,
+          476
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameAccessibilityAqua"
+      },
+      {
+        "name": "control-hidden",
+        "sha256": "bf03ca00686fe7d08c01461066f69d3329eb9b74cc77188cebee7d3e4997abce",
+        "pixels": [
+          724,
+          952
+        ],
+        "contentSizePoints": [
+          336,
+          450
+        ],
+        "windowSizePoints": [
+          362,
+          476
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameAccessibilityAqua"
+      },
+      {
+        "name": "archive-first-activation-save",
+        "sha256": "2c19c50541de9936a22f1d73a8b178608e0b3300bf6e901d2510df5c08e585ec",
+        "pixels": [
+          1920,
+          1424
+        ],
+        "contentSizePoints": [
+          960,
+          684
+        ],
+        "windowSizePoints": [
+          960,
+          712
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameAqua"
+      },
+      {
+        "name": "display-defaults-after-active-edit",
+        "sha256": "bd88a961b94c15d7d557f5cdd260b01eaa290a261ac3e8b0faeb7f490ff449a4",
+        "pixels": [
+          1920,
+          1424
+        ],
+        "contentSizePoints": [
+          960,
+          684
+        ],
+        "windowSizePoints": [
+          960,
+          712
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameAqua"
+      },
+      {
+        "name": "close-draft-sheet",
+        "sha256": "6a5047a27c06b797b30d5cc49dfbdd1e4a6e71258667161859c03ed6fdda1d43",
+        "pixels": [
+          520,
+          446
+        ],
+        "contentSizePoints": [
+          260,
+          223
+        ],
+        "windowSizePoints": [
+          260,
+          223
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameAccessibilityAqua"
+      },
+      {
+        "name": "control-save-failure",
+        "sha256": "3413fc0e32a82ab98207a35704baa329c40305f2b242793859f0bcd09636aa23",
+        "pixels": [
+          724,
+          1002
+        ],
+        "contentSizePoints": [
+          336,
+          475
+        ],
+        "windowSizePoints": [
+          362,
+          501
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameAccessibilityAqua"
+      },
+      {
+        "name": "independent-errors-resolved",
+        "sha256": "d8e396eaddbabf2742ba3daf48ff376212bd71b675b5d4fdb309ef5e74269f6b",
+        "pixels": [
+          1920,
+          1424
+        ],
+        "contentSizePoints": [
+          960,
+          684
+        ],
+        "windowSizePoints": [
+          960,
+          712
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameDarkAqua"
+      },
+      {
+        "name": "explicit-arrival-preview",
+        "sha256": "b2f82654a2b4a2ddb5c9b0a0c7f7742aa3fcf8f45c13133f347d1fae29f06d13",
+        "pixels": [
+          1920,
+          1424
+        ],
+        "contentSizePoints": [
+          960,
+          684
+        ],
+        "windowSizePoints": [
+          960,
+          712
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameDarkAqua"
+      },
+      {
+        "name": "onboarding-light-1",
+        "sha256": "20b85be542a2b8fd999dab3b49db63eed47f8aedb2a9e87b6a8709c2b2c149df",
+        "pixels": [
+          1304,
+          1216
+        ],
+        "contentSizePoints": [
+          652,
+          580
+        ],
+        "windowSizePoints": [
+          652,
+          608
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameAqua"
+      },
+      {
+        "name": "onboarding-light-2",
+        "sha256": "3120168972e8d86ca55c0f0c9d945955d532ff2d7411bea97ead12e0253f9108",
+        "pixels": [
+          1304,
+          1216
+        ],
+        "contentSizePoints": [
+          652,
+          580
+        ],
+        "windowSizePoints": [
+          652,
+          608
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameAqua"
+      },
+      {
+        "name": "onboarding-light-3",
+        "sha256": "883cd5f3946491ff041273dae4393a76ab6fe9c6b4256debcacb225dbad129ad",
+        "pixels": [
+          1304,
+          1216
+        ],
+        "contentSizePoints": [
+          652,
+          580
+        ],
+        "windowSizePoints": [
+          652,
+          608
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameAqua"
+      },
+      {
+        "name": "onboarding-dark-1",
+        "sha256": "e38236ffb6f78f69b6dac3363b6b8076d386eff88c6ab4344763d2fb88e496a4",
+        "pixels": [
+          1304,
+          1216
+        ],
+        "contentSizePoints": [
+          652,
+          580
+        ],
+        "windowSizePoints": [
+          652,
+          608
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameDarkAqua"
+      },
+      {
+        "name": "onboarding-dark-2",
+        "sha256": "275110ea8e0bb021706909900aba74e445ea3662bc2b9aa4542ea416379e880d",
+        "pixels": [
+          1304,
+          1216
+        ],
+        "contentSizePoints": [
+          652,
+          580
+        ],
+        "windowSizePoints": [
+          652,
+          608
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameDarkAqua"
+      },
+      {
+        "name": "onboarding-dark-3",
+        "sha256": "9914a5ed8ce7bdfa7a0582dadb47d0c13281acae43ac38842fbb56c5fb6803ab",
+        "pixels": [
+          1304,
+          1216
+        ],
+        "contentSizePoints": [
+          652,
+          580
+        ],
+        "windowSizePoints": [
+          652,
+          608
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameDarkAqua"
+      },
+      {
+        "name": "settings-minimum-size",
+        "sha256": "f1630474670b9452bf348e564326ff3c8dbd850c6e5e86a1c2d49d5b9830c35a",
+        "pixels": [
+          1520,
+          1080
+        ],
+        "contentSizePoints": [
+          760,
+          512
+        ],
+        "windowSizePoints": [
+          760,
+          540
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameDarkAqua"
+      },
+      {
+        "name": "settings-minimum-general",
+        "sha256": "d046ca804d774153fbfdfe9fa0f08b9234c836b1c20a593119176d35fc7975ee",
+        "pixels": [
+          1520,
+          1080
+        ],
+        "contentSizePoints": [
+          760,
+          512
+        ],
+        "windowSizePoints": [
+          760,
+          540
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameDarkAqua"
+      },
+      {
+        "name": "settings-minimum-capture",
+        "sha256": "c70f25194dccf5aff3bcd24a14c266f8faa022f8caa1ac1a49ea24c1ab2548ae",
+        "pixels": [
+          1520,
+          1080
+        ],
+        "contentSizePoints": [
+          760,
+          512
+        ],
+        "windowSizePoints": [
+          760,
+          540
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameDarkAqua"
+      },
+      {
+        "name": "settings-minimum-motion",
+        "sha256": "3a70ae1bfccc41a46ea07f8beace4cdd519b511c8763f9919e4c954501fd4914",
+        "pixels": [
+          1520,
+          1080
+        ],
+        "contentSizePoints": [
+          760,
+          512
+        ],
+        "windowSizePoints": [
+          760,
+          540
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameDarkAqua"
+      },
+      {
+        "name": "settings-minimum-history",
+        "sha256": "79e83245687fd593323ec5e884b907e356bd9385a41655d45783753371f0f011",
+        "pixels": [
+          1520,
+          1080
+        ],
+        "contentSizePoints": [
+          760,
+          512
+        ],
+        "windowSizePoints": [
+          760,
+          540
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameDarkAqua"
+      },
+      {
+        "name": "settings-minimum-help",
+        "sha256": "11dbf5b31d7ff05456c152417c7d24009e81e2e4ce22171c3514efe6f2eee277",
+        "pixels": [
+          1520,
+          1080
+        ],
+        "contentSizePoints": [
+          760,
+          512
+        ],
+        "windowSizePoints": [
+          760,
+          540
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameDarkAqua"
+      },
+      {
+        "name": "settings-minimum-display-scrolled",
+        "sha256": "6c2e86352b3f84a384deddab7bf28501c4f255001f263fabb2dd2802b8e0ab8b",
+        "pixels": [
+          1520,
+          1080
+        ],
+        "contentSizePoints": [
+          760,
+          512
+        ],
+        "windowSizePoints": [
+          760,
+          540
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameDarkAqua"
+      },
+      {
+        "name": "history-real-isolated-records",
+        "sha256": "c48fb080f69ef11f77b55bc32b9774f9674116121370789514f78de117c234b7",
+        "pixels": [
+          1516,
+          1116
+        ],
+        "contentSizePoints": [
+          760,
+          532
+        ],
+        "windowSizePoints": [
+          760,
+          560
+        ],
+        "reportedEffectiveAppearanceName": "NSAppearanceNameDarkAqua"
+      }
+    ],
+    "allPNGHashesAndDimensionsVerified": true,
+    "restart": {
+      "runnerSHA256": "66222be99737aeb8fea72ec12ad3fabd758dd01b988d5c3178c877d0c8be5b6d",
+      "reportSHA256": "ab3d44222c2fa6ff96cb5b97204746bcbe21f571f4c54f5efe3577643046ebcf",
+      "originalReportSHA256": "0605b6179135cee8a4497800db3e0ed07c8f0beb134de4f64c6286941398ccf3",
+      "binarySHA256": "e0505af18b2828c3acf88477e6fbb382c975c9097b1de1a222a19e5383e36c39",
+      "result": "PASS_SCOPED_NATIVE_RESTART",
+      "completed": true,
+      "exitCode": 0,
+      "timedOut": false,
+      "elapsedSeconds": 0.6155984168872237,
+      "sameBinaryNewProcessSameIsolatedRoot": true,
+      "checks": [
+        {
+          "check": "same-binary-new-process-after-completed-run",
+          "status": "PASS"
+        },
+        {
+          "check": "persisted-json-and-loaded-owners",
+          "status": "PASS"
+        },
+        {
+          "check": "sqlite-pause-and-visibility",
+          "status": "PASS"
+        },
+        {
+          "check": "existing-first-use-not-presented-again",
+          "status": "PASS"
+        },
+        {
+          "check": "assets-media-and-operation-readback",
+          "status": "PASS"
+        },
+        {
+          "check": "verification-left-preference-bytes-unchanged",
+          "status": "PASS"
+        }
+      ],
+      "fiveConfigurationJSONBytesUnchanged": true,
+      "assetCountBeforeAfter": [
+        3,
+        3
+      ],
+      "mediaCountBeforeAfter": [
+        3,
+        3
+      ],
+      "assetMediaMapUnchanged": true,
+      "allMediaMatchAssets": true,
+      "operationTableCountBeforeAfter": [
+        0,
+        0
+      ],
+      "uploadStartTableCountBeforeAfter": [
+        0,
+        0
+      ],
+      "readbackScope": "Independent read-only SQLite snapshot after child exit; no production root access."
+    },
+    "systemSettingEvidence": {
+      "operatorObservationsSHA256": "ea9e5647b6ac876e704de3f4a3d553338bfe84b5e3c18ac2b2140e775be6c684",
+      "increaseContrastBefore": "off",
+      "duringRun": "on",
+      "finalObserved": "off",
+      "restoredByOperator": true,
+      "scope": "Actual macOS System Settings toggle and readback, same binary. Reported effectiveAppearance.name is not the dynamic color provider bestMatch result; no per-token branch instrumentation or complete accessibility certification is claimed."
+    },
+    "independentVisualAndEvidenceReview": {
+      "reportSHA256": "a2c240c180a83a29467fac02d371a16496acc0ea91adc740c0b5e7c7441a336c",
+      "reviewer": "readiness_independent",
+      "authorOfReviewedSource": false,
+      "result": "PASS_SCOPED_HIGH_CONTRAST_VISUAL_AND_EVIDENCE_REVIEW",
+      "reviewedSource": "a5aefd3d166156c74399b700fa9f167e6bc2408d",
+      "binarySHA256": "e0505af18b2828c3acf88477e6fbb382c975c9097b1de1a222a19e5383e36c39",
+      "independentlyViewedOriginalPNGCount": 24,
+      "all39PNGHashesMatched": true,
+      "visualResult": "No new blocking clipping, overlap, lost controls or unreadable body/status text observed. Light and dark pages show stronger text/card borders. Full control-center error state, minimum placement page and scrolled bottom actions, close sheet, and all onboarding steps remain legible. Dark decorative workflow/preview strokes remain subdued while essential text and placement choices are clear.",
+      "isFinalGSourceAdmission": false,
+      "scope": "24 selected high-contrast original PNGs visually reviewed; all 39 hashes verified. CUA operator claims checked against notes/readback, not independently replayed. No contrast-ratio measurement or full accessibility certification."
+    }
+  },
+  "cuaEvidence": "cua-acceptance.json",
+  "notCertified": [
+    "physical status-bar input",
+    "physical input device acceptance",
+    "actual OS input-method composition",
+    "sustained VoiceOver navigation",
+    "real login-item registration",
+    "real TCC prompt",
+    "multi-display hotplug",
+    "real ChatGPT attachment",
+    "ordinary-root upgrade",
+    "public release"
+  ],
+  "sourceScope": "after-01 to after-03 changed only SettingsReviewDriver.swift and SettingsStateModelTests.swift; prior failing records were preserved.",
+  "productionReadOnlyFinal": {
+    "reportSHA256": "ff5cdb6713b165e26177d5e40a800161a3ee193b873936059fc1fa8ed6024b21",
+    "priorReportSHA256": "7eaed333851bb048d0c3126a20b78decceb965a7378aad684dc1ce2add3fdde4",
+    "method": "SQLite read-only URI, query_only and one read transaction; read-only media/configuration/installed-binary hash comparison.",
+    "assetCount": 94,
+    "mediaCount": 94,
+    "assetMediaDetailsEqualByID": true,
+    "allReferencedMediaMatchStoredDigestsAndSizes": true,
+    "configurationHashesEqual": true,
+    "configurationFilesPresent": 4,
+    "optionalConfigurationFilesAbsent": 1,
+    "installedBeta1BinarySHA256": "c0ca439023a2fa92fd1cc08d4acff79dd780dc559d8a4c579af76d6fd5a76ea4",
+    "installedBinaryEqual": true,
+    "operationsCount": 44,
+    "actualUploadStartsTableCount": 18,
+    "scope": "Asset/media IDs, details, status and operation associations compared without publishing them. Previous START count used a checkpoint-name proxy; no prior complete upload_starts row-identity claim."
+  }
+}

@@ -84,6 +84,42 @@ final class SettingsStateModelTests: XCTestCase {
     @MainActor private func model(_ owner: Owner, known: Bool = true) throws -> SettingsStateModel {
         try SettingsStateModel(owner: owner.value, confirmed: known ? owner.known : [:], decimalSeparator: ".", adapter: owner)
     }
+
+    @MainActor func testOwnerNumbersUseWholeNumberDisplayWithoutLosingFractionalPrecision() throws {
+        var configuration = RiftConfiguration()
+        configuration.fitWidth = 72.125
+        let owner = Owner(configuration: configuration)
+        let model = try SettingsStateModel(owner: owner.value, decimalSeparator: ",", adapter: owner)
+        XCTAssertEqual(model.text(for: .visibleCountPreference), "3")
+        XCTAssertEqual(model.text(for: .fitWidth), "72,125")
+        XCTAssertEqual(model.archiveDraftText, "24")
+        XCTAssertTrue(owner.requests.isEmpty)
+    }
+
+    @MainActor func testCompactOwnerFormattingNeverNormalizesActiveDraftsOnRefresh() async throws {
+        let owner = Owner()
+        let model = try SettingsStateModel(owner: owner.value, decimalSeparator: ",", adapter: owner)
+        model.setDraftText("3,0", for: .visibleCountPreference)
+        model.setDraftText("72,", for: .fitWidth)
+        model.setArchiveDraftText("2,500")
+        owner.advance { value in
+            value.settings.configuration.visibleCountPreference = 4
+            value.settings.configuration.fitWidth = 84
+            value.settings.archiveAfterHours = 8
+        }
+        XCTAssertTrue(model.receive(owner.value))
+        XCTAssertEqual(model.text(for: .visibleCountPreference), "3,0")
+        XCTAssertEqual(model.text(for: .fitWidth), "72,")
+        XCTAssertEqual(model.archiveDraftText, "2,500")
+        XCTAssertTrue(model.hasLayoutDraft)
+        XCTAssertTrue(model.hasArchiveDraft)
+        XCTAssertTrue(owner.requests.isEmpty)
+        await model.perform(.discardDrafts)
+        XCTAssertEqual(model.text(for: .visibleCountPreference), "4")
+        XCTAssertEqual(model.text(for: .fitWidth), "84")
+        XCTAssertEqual(model.archiveDraftText, "8")
+        XCTAssertTrue(owner.requests.isEmpty)
+    }
     private func personalized() throws -> RiftConfiguration {
         // Real legacy Codable path; no alternate migration implementation.
         try JSONDecoder().decode(RiftConfiguration.self, from: Data(#"{"lineWidth":1.25,"lineExtension":13.5,"emptyTraceLength":37,"screenPadding":23,"arrivalDuration":0.33,"inwardDistance":2.75,"reducedMotionDuration":0.19,"preferredDisplayID":2,"preferredDisplayUUID":"02000000-0000-0000-0000-000000000002"}"#.utf8))
@@ -120,7 +156,7 @@ final class SettingsStateModelTests: XCTestCase {
         }
         XCTAssertTrue(model.receive(owner.value))
         XCTAssertEqual(model.text(for: .fitWidth), "96.250")
-        XCTAssertEqual(model.text(for: .fitHeight), "88.0")
+        XCTAssertEqual(model.text(for: .fitHeight), "88")
         XCTAssertEqual(model.configurationDraft?.fitWidth, 96.25)
         XCTAssertEqual(model.configurationDraft?.fitHeight, 88)
         let latest = owner.value.settings.configuration
@@ -348,7 +384,7 @@ final class SettingsStateModelTests: XCTestCase {
         XCTAssertEqual(model.snapshot.owner.settings.configuration.fitHeight, 90)
         var confirmed = RiftConfiguration(); confirmed.fitWidth = 96
         XCTAssertEqual(model.snapshot.domains[.layout]?.lastConfirmed, .configuration(confirmed))
-        XCTAssertEqual(model.text(for: .fitWidth), "96.0")
+        XCTAssertEqual(model.text(for: .fitWidth), "96")
         XCTAssertEqual(owner.requests.count, 1)
     }
 
@@ -510,4 +546,48 @@ final class SettingsStateModelTests: XCTestCase {
         XCTAssertEqual(model.snapshot.domains[.layout]?.pending, .layout([.fitWidth: 96]))
         XCTAssertEqual(model.snapshot.domains[.layout]?.saveFailure, .writeUnconfirmed)
     }
+
+    @MainActor func testSynchronousDraftAndSavingNotificationsPrecedeDelayedOwnerReceipt() async throws {
+        let owner = Owner(); let model = try model(owner); let gate = Gate()
+        defer { gate.release() }
+        var observations: [SettingsStateSnapshot] = []
+        model.onChange = { observations.append($0) }
+        model.setDraftText("81.625", for: .fitWidth)
+        XCTAssertEqual(model.text(for: .fitWidth), "81.625")
+        XCTAssertEqual(observations.last?.layoutText[.fitWidth], "81.625")
+        owner.beforeReturn = { request, _ in if request.intent.domain == .layout { await gate.suspend() } }
+        let pending = Task { @MainActor in await model.perform(.applyLayout) }
+        await fulfillment(of: [gate.entered], timeout: 5)
+        XCTAssertEqual(observations.last?.domains[.layout]?.isSaving, true)
+        XCTAssertEqual(observations.last?.domains[.layout]?.pending, .layout([.fitWidth: 81.625]))
+        gate.release()
+        let result = await pending.value
+        XCTAssertEqual(result.confirmed, [.layout])
+        XCTAssertEqual(observations.last?.domains[.layout]?.isSaving, false)
+        XCTAssertNil(observations.last?.domains[.layout]?.pending)
+    }
+
+    @MainActor func testIndependentArchiveCompletionPublishesBeforeSlowerLayoutFinishes() async throws {
+        let owner = Owner(); let model = try model(owner); let gate = Gate()
+        defer { gate.release() }
+        let archivePublished = expectation(description: "Archive receipt published while layout still saving")
+        var fulfilled = false
+        model.onChange = { snapshot in
+            if !fulfilled, snapshot.domains[.archive]?.lastConfirmed == .archiveHours(2.5),
+               snapshot.domains[.layout]?.isSaving == true {
+                fulfilled = true; archivePublished.fulfill()
+            }
+        }
+        model.setDraftText("81.625", for: .fitWidth)
+        model.setArchiveDraftText("2.5")
+        owner.beforeReturn = { request, _ in if request.intent.domain == .layout { await gate.suspend() } }
+        let pending = Task { @MainActor in await model.perform(.applyDrafts) }
+        await fulfillment(of: [gate.entered, archivePublished], timeout: 5)
+        XCTAssertFalse(model.hasArchiveDraft)
+        XCTAssertTrue(model.snapshot.domains[.layout]?.isSaving == true)
+        gate.release()
+        let result = await pending.value
+        XCTAssertEqual(Set(result.confirmed), [.layout, .archive])
+    }
+
 }

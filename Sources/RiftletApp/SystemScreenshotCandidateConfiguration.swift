@@ -40,6 +40,7 @@ struct ApplicationAttachmentComposition {
                                 ordinary: OrdinaryAttachmentAdmission = OrdinaryCaptureConfiguration.admission) throws -> Self {
         let media = root.appendingPathComponent("media")
         switch mode {
+        case .settingsReview: return Self(adapter: UnavailableAdapter(), policy: .init())
         case .capture:
             // Closed means no Chrome executor, page load, permission probe or
             // registration. Test injection here is not a runtime switch.

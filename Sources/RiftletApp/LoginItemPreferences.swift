@@ -70,9 +70,10 @@ struct LoginItemSnapshot: Equatable, Sendable {
     func openSystemSettings()
 }
 
-/// Not wired into Main. All writes originate in an explicit setEnabled call.
+/// All writes originate in an explicit setEnabled call.
 /// Read/refresh never register, retry, open settings, or write a local Boolean.
 @MainActor final class LoginItemPreferences {
+    var onChange: (@MainActor (LoginItemSnapshot) -> Void)?
     private let service: (any LoginItemService)?
     private let availability: LoginItemAvailability
     private var status: LoginItemStatus?
@@ -135,6 +136,7 @@ struct LoginItemSnapshot: Equatable, Sendable {
     @discardableResult func refresh() -> LoginItemSnapshot {
         if let service { status = service.status; revision += 1 }
         // A status refresh is not an acknowledgement of an earlier call error.
+        onChange?(snapshot)
         return snapshot
     }
 
@@ -153,7 +155,7 @@ struct LoginItemSnapshot: Equatable, Sendable {
             return record(target, disposition: .unavailable, called: false)
         default: break
         }
-        inFlightTarget = target; revision += 1
+        inFlightTarget = target; revision += 1; onChange?(snapshot)
         var errorCode: Int?
         do {
             if target { try service.register() }
@@ -184,12 +186,12 @@ struct LoginItemSnapshot: Equatable, Sendable {
                         called: Bool) -> LoginItemCommandResult {
         let result = LoginItemCommandResult(target: target, status: status, disposition: disposition,
                                            serviceError: error, serviceCalled: called)
-        lastCommand = result; revision += 1; return result
+        lastCommand = result; revision += 1; onChange?(snapshot); return result
     }
 }
 
-/// This type is inaccessible to tests/other hosts. No live factory is called by
-/// the current App, and tests inject a fake instead of changing a real login item.
+/// This type is inaccessible to tests/other hosts. Tests inject a fake instead
+/// of changing a real login item.
 @MainActor private final class MainAppLoginItemService: LoginItemService {
     private let service = SMAppService.mainApp
     var status: LoginItemStatus { .init(systemStatus: service.status) }

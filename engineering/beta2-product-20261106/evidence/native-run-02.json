@@ -1,0 +1,662 @@
+{
+  "schema": 1,
+  "source": "bc903f7141b1218dcd93964cc301fcb911a90bd3",
+  "sourceTree": "e7afba08c9bf8d8c7ca409c626107d3888040869",
+  "binarySHA256": "b478590ab9bf2a3ef730a9a32e30df2ef6dd9ad08d1b99d5640bf6ba9dc4211c",
+  "originalRecordSHA256": {
+    "candidateManifest": "dfdb2cc7d28f832d5fb507d397864dc3a25a71e851e1a0c33032fc43e58abd09",
+    "runnerResult": "c456807e9c97af5359873a8136c35d8617090b796683e3bdbafcdfc7aa5a4f04",
+    "driverReport": "64729ad68526912d298296dad3f9a3c306de22f31bd8af78a3c69ba48cd8217c",
+    "independentVisualReview": "aab194b61e9e099ad93f0d5f24a0018dad6f4278521dd09e723989f5e5f76bbd"
+  },
+  "result": "FAIL",
+  "productionReady": false,
+  "runner": {
+    "status": "FAIL",
+    "exitCode": 0,
+    "timedOut": false,
+    "elapsedSeconds": 20.160421582870185,
+    "completed": true,
+    "caseCount": 13,
+    "frameCount": 27
+  },
+  "driver": {
+    "status": "FAIL",
+    "completed": true,
+    "passCount": 12,
+    "failCount": 1,
+    "restorationFailures": []
+  },
+  "functionalCases": [
+    {
+      "case": "environment-and-default-window",
+      "status": "PASS"
+    },
+    {
+      "case": "real-collector-synthetic-fixture",
+      "status": "PASS"
+    },
+    {
+      "case": "six-pages-light-and-dark",
+      "status": "PASS"
+    },
+    {
+      "case": "orthogonal-pause-hidden-sqlite",
+      "status": "PASS"
+    },
+    {
+      "case": "archive-editor-first-save-discard",
+      "status": "PASS"
+    },
+    {
+      "case": "configuration-editor-refresh-defaults",
+      "status": "PASS"
+    },
+    {
+      "case": "close-sheet-continue-discard",
+      "status": "PASS"
+    },
+    {
+      "case": "independent-write-failures-and-retry",
+      "status": "PASS"
+    },
+    {
+      "case": "motion-explicit-play-and-navigation-stop",
+      "status": "PASS"
+    },
+    {
+      "case": "three-step-guidance-light-and-dark",
+      "reason": "onboardingOuterSizeMismatch",
+      "status": "FAIL"
+    },
+    {
+      "case": "resizing-and-reopen",
+      "status": "PASS"
+    },
+    {
+      "case": "history-real-records",
+      "status": "PASS"
+    },
+    {
+      "case": "original-media-and-no-upload-operations",
+      "status": "PASS"
+    }
+  ],
+  "frames": [
+    {
+      "name": "initial-general",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "9aca4d8b8f2473450278c4b5411a2e401db4fcfc6af91352604b953995478c55",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        960,
+        684
+      ],
+      "windowSize": [
+        960,
+        712
+      ],
+      "independentVisualResult": "NOT_REVIEWED_THIS_RUN"
+    },
+    {
+      "name": "settings-light-general",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "f13c26c930ae0e5b13c03a01722fe4bc9d6a49ab39838b4b3f110d5b79408d7e",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        960,
+        684
+      ],
+      "windowSize": [
+        960,
+        712
+      ],
+      "independentVisualResult": "INSPECTED_NO_NEW_FINDING"
+    },
+    {
+      "name": "settings-light-display",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "b688f71130acbeca864ce5205c30e1f5254c98c44a5a9641ca7b6053bd003a31",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        960,
+        684
+      ],
+      "windowSize": [
+        960,
+        712
+      ],
+      "independentVisualResult": "INSPECTED_NO_NEW_FINDING"
+    },
+    {
+      "name": "settings-light-capture",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "0b85c88b095121ef0d00c4f2f0265ff5f23370f21ca4195ee926fa1aaf7e6de1",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        960,
+        684
+      ],
+      "windowSize": [
+        960,
+        712
+      ],
+      "independentVisualResult": "INSPECTED_NO_NEW_FINDING"
+    },
+    {
+      "name": "settings-light-motion",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "8641defb7db1b9f44c42905c079063276a8c277280aa8fe2f2e100ccaa2888bc",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        960,
+        684
+      ],
+      "windowSize": [
+        960,
+        712
+      ],
+      "independentVisualResult": "INSPECTED_NO_NEW_FINDING"
+    },
+    {
+      "name": "settings-light-history",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "7b9857d077b8f0e5f0ab77282012779c2b259d04fe203ed20572cf9593843620",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        960,
+        684
+      ],
+      "windowSize": [
+        960,
+        712
+      ],
+      "independentVisualResult": "INSPECTED_NO_NEW_FINDING"
+    },
+    {
+      "name": "settings-light-help",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "daeb5da703f3acc7589dd1d20c70fc4ae46f45a1d77eb07b8a8b8b04f928c884",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        960,
+        684
+      ],
+      "windowSize": [
+        960,
+        712
+      ],
+      "independentVisualResult": "INSPECTED_NO_NEW_FINDING"
+    },
+    {
+      "name": "control-light",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "344623f4e2f4b9b77134cfd2318057a417abc4661cd443f1cdc63317fe9c6453",
+      "pixels": [
+        724,
+        1078
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        336,
+        513
+      ],
+      "windowSize": [
+        362,
+        539
+      ],
+      "independentVisualResult": "REJECTED_INCOMPLETE_CAPTURE"
+    },
+    {
+      "name": "settings-dark-general",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "07041098b1437dcbef7ed833e191989a1ba8b672fe6292c56c741a2263f0cb70",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        960,
+        684
+      ],
+      "windowSize": [
+        960,
+        712
+      ],
+      "independentVisualResult": "INSPECTED_NO_NEW_FINDING"
+    },
+    {
+      "name": "settings-dark-display",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "6898e16039e1b8a02ca10f0154ba6852435696dfb9e88452ad311d23f051b219",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        960,
+        684
+      ],
+      "windowSize": [
+        960,
+        712
+      ],
+      "independentVisualResult": "INSPECTED_NO_NEW_FINDING"
+    },
+    {
+      "name": "settings-dark-capture",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "c7e635adfa2112d70bd61eb61b9c3959274af5a013fbd777a50804200647dbe6",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        960,
+        684
+      ],
+      "windowSize": [
+        960,
+        712
+      ],
+      "independentVisualResult": "INSPECTED_NO_NEW_FINDING"
+    },
+    {
+      "name": "settings-dark-motion",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "ab4c883b866be1384fef67cb5980603a07371d8e8e1dcf5efa5176061605df97",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        960,
+        684
+      ],
+      "windowSize": [
+        960,
+        712
+      ],
+      "independentVisualResult": "INSPECTED_NO_NEW_FINDING"
+    },
+    {
+      "name": "settings-dark-history",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "18f89e096c756e5b0558b3bea75adaddb9c139bc9829efad72e45d5131bb578f",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        960,
+        684
+      ],
+      "windowSize": [
+        960,
+        712
+      ],
+      "independentVisualResult": "INSPECTED_NO_NEW_FINDING"
+    },
+    {
+      "name": "settings-dark-help",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "debb03a6fa3096ff34f3e7a055a35579c7f750186825caa83d744e8c5e114e20",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        960,
+        684
+      ],
+      "windowSize": [
+        960,
+        712
+      ],
+      "independentVisualResult": "INSPECTED_NO_NEW_FINDING"
+    },
+    {
+      "name": "control-dark",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "a6d3cfb435fd57564426fd7228b9ae06c39e049d93c5c08815ef9b3cddc6ffa8",
+      "pixels": [
+        724,
+        1078
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        336,
+        513
+      ],
+      "windowSize": [
+        362,
+        539
+      ],
+      "independentVisualResult": "REJECTED_INCOMPLETE_CAPTURE"
+    },
+    {
+      "name": "control-normal",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "25f60fc349cd156c954df38230f261ef24b364831e5569844d751cbac3d85c3a",
+      "pixels": [
+        724,
+        1078
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        336,
+        513
+      ],
+      "windowSize": [
+        362,
+        539
+      ],
+      "independentVisualResult": "REJECTED_INCOMPLETE_CAPTURE"
+    },
+    {
+      "name": "control-paused",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "2c2cc43c3cac57d8f42b6f3c57537d37d212487373697af2d75690388c2625e8",
+      "pixels": [
+        724,
+        1078
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        336,
+        513
+      ],
+      "windowSize": [
+        362,
+        539
+      ],
+      "independentVisualResult": "REJECTED_INCOMPLETE_CAPTURE"
+    },
+    {
+      "name": "control-paused-hidden",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "b19ccbddf931378ab092c76a842a5b295a954d6ce44e008e26b9778ae5752029",
+      "pixels": [
+        724,
+        1078
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        336,
+        513
+      ],
+      "windowSize": [
+        362,
+        539
+      ],
+      "independentVisualResult": "REJECTED_INCOMPLETE_CAPTURE"
+    },
+    {
+      "name": "control-hidden",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "499658f90e8038c00b9a74fe2e5d3d5d5b8c6eb1554174eccf34fa88f32aca94",
+      "pixels": [
+        724,
+        1078
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        336,
+        513
+      ],
+      "windowSize": [
+        362,
+        539
+      ],
+      "independentVisualResult": "REJECTED_INCOMPLETE_CAPTURE"
+    },
+    {
+      "name": "archive-first-activation-save",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "ef17d6cc3dedf1718327fa7e09f06d1ac3f5edad44b81da920656035e17af4b7",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        960,
+        684
+      ],
+      "windowSize": [
+        960,
+        712
+      ],
+      "independentVisualResult": "NOT_REVIEWED_THIS_RUN"
+    },
+    {
+      "name": "display-defaults-after-active-edit",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "c2eb8b7739340b1a0425aee0399ff64a34af7059eae1a578cace33375db0334f",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        960,
+        684
+      ],
+      "windowSize": [
+        960,
+        712
+      ],
+      "independentVisualResult": "NOT_REVIEWED_THIS_RUN"
+    },
+    {
+      "name": "close-draft-sheet",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "3c585de0ccf8980fafc7ee4c298579cabca6120e4fd4539a00f44272c7247951",
+      "pixels": [
+        520,
+        446
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        260,
+        223
+      ],
+      "windowSize": [
+        260,
+        223
+      ],
+      "independentVisualResult": "NOT_REVIEWED_THIS_RUN"
+    },
+    {
+      "name": "control-save-failure",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "89d930a56089c6481d55c5117f0e63167a04b8a13b304398c2678939b6400dbd",
+      "pixels": [
+        724,
+        1128
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        336,
+        538
+      ],
+      "windowSize": [
+        362,
+        564
+      ],
+      "independentVisualResult": "REJECTED_INCOMPLETE_CAPTURE"
+    },
+    {
+      "name": "independent-errors-resolved",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "54074e059ef4550cf99c2dc573778ffb0c046d7a4bb9c89a38291b6680e9d01b",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        960,
+        684
+      ],
+      "windowSize": [
+        960,
+        712
+      ],
+      "independentVisualResult": "NOT_REVIEWED_THIS_RUN"
+    },
+    {
+      "name": "explicit-arrival-preview",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "d8100ecfac8cec1600c148dc3d4af0ebeb72c88a1dd98d270046ac753472e8ad",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        960,
+        684
+      ],
+      "windowSize": [
+        960,
+        712
+      ],
+      "independentVisualResult": "NOT_REVIEWED_THIS_RUN"
+    },
+    {
+      "name": "settings-minimum-size",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "6f833c77aeadb68e3373699f4fbd7c9f84617f8708f5766dc84ea6632af38ab0",
+      "pixels": [
+        1520,
+        1080
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        760,
+        512
+      ],
+      "windowSize": [
+        760,
+        540
+      ],
+      "independentVisualResult": "INSPECTED_NO_NEW_FINDING"
+    },
+    {
+      "name": "history-real-isolated-records",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "4d0aee6019e8cd64f75e111e64af456b700c3ff8648486b3327913d225b3635d",
+      "pixels": [
+        1520,
+        1120
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        760,
+        532
+      ],
+      "windowSize": [
+        760,
+        560
+      ],
+      "independentVisualResult": "NOT_REVIEWED_THIS_RUN"
+    }
+  ],
+  "independentVisualReview": {
+    "reviewer": "readiness_independent",
+    "result": "CHANGES_REQUIRED_VISUAL_REVIEW",
+    "finalSourceAdmission": false,
+    "closedForThisBinary": [
+      {
+        "id": "VIS02",
+        "status": "VISUALLY_CLOSED_FOR_THIS_BINARY"
+      },
+      {
+        "id": "VIS03",
+        "status": "VISUALLY_CLOSED_FOR_THIS_BINARY"
+      },
+      {
+        "id": "TERM_HANG",
+        "status": "NORMAL_EXIT_OBSERVED_BY_RUNNER"
+      }
+    ],
+    "openFindings": [
+      {
+        "id": "VIS05",
+        "status": "REJECTED_CAPTURE",
+        "reason": "Seven control-center PNGs contain clipped panel fragments and large black or transparent regions despite recorded status.",
+        "frames": [
+          "control-dark",
+          "control-hidden",
+          "control-light",
+          "control-normal",
+          "control-paused",
+          "control-paused-hidden",
+          "control-save-failure"
+        ]
+      },
+      {
+        "id": "VIS01",
+        "status": "VISUAL_RETEST_REQUIRED",
+        "reason": "Incomplete control captures cannot establish closure of the description-width finding."
+      },
+      {
+        "id": "VIS04",
+        "status": "FUNCTIONAL_FAIL",
+        "reason": "onboardingOuterSizeMismatch; no new onboarding frame captured."
+      }
+    ]
+  },
+  "restart": {
+    "status": "NOT_RUN",
+    "reason": "Original functional run failed; normal exit alone does not admit the restart stage."
+  },
+  "notRun": [
+    "realChatGPTAttachment",
+    "physicalPointer",
+    "OSInputMethod",
+    "VoiceOver",
+    "realLoginRegistration",
+    "realTCCPrompt",
+    "multiDisplayHotplug"
+  ],
+  "productionDataAccess": false,
+  "browserAccess": false,
+  "networkUpload": false,
+  "scope": "Sanitized bindings to preserved private run02 records and original PNG hashes. No raw image, local path, process ID, display identity, or substituted visual evidence. Normal process exit is observed; whole-run PASS and PRODUCT_READY are not granted."
+}

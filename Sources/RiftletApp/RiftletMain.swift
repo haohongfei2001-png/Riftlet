@@ -86,12 +86,13 @@ enum RiftletMain {
 
 @MainActor
 private final class ApplicationController: NSObject, NSApplicationDelegate, NSMenuItemValidation {
-    private lazy var feedback = FeedbackHost(modeDirectory: mode.directoryName)
+    private lazy var feedback = FeedbackHost(modeDirectory: mode.directoryName, isolatedRoot: reviewEnvironment?.root)
     private var statusItem: NSStatusItem?
     private var statusLine: NSMenuItem?
     private var storageLine: NSMenuItem?
     private var storageMeasurement: Task<Void, Never>?
-    private var setup: RiftSetupController?
+    private var settingsHost: SettingsProductHost?
+    private var settingsOwnerRevision: UInt64 = 0
     private var setupStorage: SetupStorageState = .notMeasured
     private var setupIssue: SetupIssue?
     private var visibilitySettingFailed = false
@@ -102,18 +103,24 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private var pendingResultCount = 0
     private var initialized = false
     private var captureControl = CaptureControlGate()
+    private var recheckTask: Task<Void, Never>?
+    private var collectionChangePending = false
+    private var captureControlBusy: Bool { captureControl.isBusy || collectionChangePending }
     private var requestingPermission = false
     private var automationPermission: AutomationPermissionState = .notNeeded
     private var permissionPublication = AutomationPermissionPublication()
     private var attachmentObservationStarted = false
     private var attachmentObservationStarting = false
     private var terminating = false
+    private var terminationPreparationPending = false
+    private var terminationApproved = false
     private var permissionResumer: PassivePermissionResume?
     private var permissionActivationObserver: NSObjectProtocol?
     private var permissionWakeObserver: NSObjectProtocol?
-    private let captureLocation = SystemCaptureLocationProvider()
-    private lazy var firstUse = FirstUsePreferences(modeName: mode.directoryName)
-    private lazy var folderAccess = ScreenshotFolderAccess(modeName: mode.directoryName)
+    private var reviewEnvironment: SettingsReviewEnvironment?
+    private lazy var captureLocation = reviewEnvironment?.captureLocation ?? SystemCaptureLocationProvider()
+    private lazy var firstUse = FirstUsePreferences(defaults: reviewEnvironment?.defaults ?? .standard, modeName: mode.directoryName)
+    private lazy var folderAccess = ScreenshotFolderAccess(defaults: reviewEnvironment?.defaults ?? .standard, modeName: mode.directoryName)
     private var permissionGate: AutomationPermissionGate { .init(requiresChrome: mode.usesWebAdapter) }
     private var hideItem: NSMenuItem?
     private var pauseItem: NSMenuItem?
@@ -174,7 +181,12 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         // state, open a sidecar, or pump an already queued feedback report.
         do {
             let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-            let owner = try ApplicationInstanceOwnership(root: base.appendingPathComponent(mode.directoryName, isDirectory: true))
+            if mode == .settingsReview {
+                let environment = SettingsReviewEnvironment(identifier: try SettingsReviewEnvironment.identifier(in: CommandLine.arguments), applicationSupport: base)
+                try environment.prepare(); reviewEnvironment = environment
+            }
+            let owner = try ApplicationInstanceOwnership(root: reviewEnvironment?.root ?? base.appendingPathComponent(mode.directoryName, isDirectory: true))
+            try reviewEnvironment?.prepareFixtures()
             instanceOwnership = owner; root = owner.root
             if mode.usesWebAdapter, CommandLine.arguments.contains("--acceptance-trace") {
                 diagnosticTrace = BoundedDiagnosticTrace(enabled: true,
@@ -191,10 +203,30 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         // The first ordinary launch explains collection before its first source
         // read. Acceptance mode must not steal the test browser's focus.
         if mode.collectsSystemScreenshots, firstUse.needsAutomaticPresentation {
-            updateSetup(); setup?.showOnboarding(); firstUse.recordPresentation()
+            updateSetup()
+            if settingsHost?.showOnboarding() == true { firstUse.recordPresentation() }
         }
-        Task {
-            do { try await start() }
+        Task { [self] in
+            do {
+                try await start()
+                if mode == .settingsReview,
+                   CommandLine.arguments.contains("--settings-review-run") || CommandLine.arguments.contains("--settings-review-restart-check"),
+                   let environment = reviewEnvironment, let settingsHost, let store, let statusItem {
+                    let driver = SettingsReviewDriver(environment: environment, host: settingsHost, store: store,
+                        statusItem: statusItem, onRefresh: { [weak self] in await self?.refresh() },
+                        onHistory: { [weak self] in self?.showHistory() },
+                        onRecheck: { [weak self] in
+                            guard let self, self.mode == .settingsReview else { return false }
+                            self.recheckSetup()
+                            return self.captureControl.action == .recheck
+                        })
+                    let report = CommandLine.arguments.contains("--settings-review-restart-check")
+                        ? await driver.verifyRestart() : await driver.run()
+                    if let report { print("RIFTLET_SETTINGS_REVIEW_REPORT=" + report.path) }
+                    else { fputs("RIFTLET_SETTINGS_REVIEW_FAILED: no report was produced\n", stderr) }
+                    NSApp.terminate(nil)
+                }
+            }
             catch {
                 feedback.diagnostics.record(.initializationIssue)
                 setupIssue = .initializationFailed
@@ -210,13 +242,35 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     func applicationDidBecomeActive(_ notification: Notification) {
         // Explicit return from settings/menu, not an idle timer. Recheck does
         // not grant permission or re-enable a paused collector.
-        if initialized, setup?.isVisible == true { recheckSetup() }
+        if initialized, settingsHost?.isVisible == true {
+            settingsHost?.refreshSystemFacts(); recheckSetup()
+        }
     }
 
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
         guard instanceOwnership != nil else { return .terminateNow }
-        feedback.prepareTermination { accepted in sender.reply(toApplicationShouldTerminate: accepted) }
-        return .terminateLater
+        if terminationApproved { return .terminateNow }
+        guard !terminationPreparationPending else { return .terminateCancel }
+        terminationPreparationPending = true
+        let afterSettings: @MainActor (Bool) -> Void = { [weak self] accepted in
+            guard let self else { return }
+            guard accepted else { self.terminationPreparationPending = false; return }
+            self.settingsHost?.beginTerminationPreparation()
+            self.feedback.prepareTermination { [weak self] ready in
+                guard let self else { return }
+                self.terminationPreparationPending = false
+                guard ready else { self.settingsHost?.cancelTerminationPreparation(); return }
+                self.terminationApproved = true
+                DispatchQueue.main.async { sender.terminate(nil) }
+            }
+        }
+        if let center = settingsHost?.center { center.requestCloseForTermination(afterSettings) }
+        else { afterSettings(true) }
+        // AppKit's terminateLater modal loop does not run the MainActor tasks
+        // used by our real feedback save/stop path in the native regression.
+        // Keep the normal loop alive, then terminate once cleanup has succeeded.
+        // Never force-exit or bypass an unsaved settings/feedback refusal.
+        return .terminateCancel
     }
 
     func applicationWillTerminate(_ notification: Notification) {
@@ -237,7 +291,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         arrivalCapture?.close()
         rift?.close()
         history?.close()
-        setup?.close()
+        settingsHost?.close()
         folderAccess.stop()
         if let sourceBinding { Task { await sourceBinding.stop() } }
         // The mode lock remains kernel-owned until all process-side stores exit.
@@ -458,7 +512,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 detectedSource = try await captureLocation.currentDirectory()
                 if let detectedSource { folderAccess.restore(for: detectedSource) }
             } catch { receiveCaptureDiagnostic(.classify(error, context: .locationPreference)) }
-            let service = CaptureService(store: store, privateRoot: root, sourceDirectory: detectedSource ?? CaptureSource.defaultDirectory(),
+            let service = CaptureService(store: store, privateRoot: root, sourceDirectory: detectedSource ?? reviewEnvironment?.source ?? CaptureSource.defaultDirectory(),
                                          onChange: { [weak self] in await self?.refresh() },
                                          onImported: { [weak self] record, observation in
                                              Task { @MainActor [weak self] in
@@ -494,7 +548,8 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             do {
                 screenshotEntry = try ScreenshotEntryHost(root: root, store: store, rift: rift,
                     onChange: { [weak self] in await self?.refresh() },
-                    onIssue: { [weak self] message in self?.showIssue(message) })
+                    onIssue: { [weak self] message in self?.showIssue(message) },
+                    allowsSystemCapture: mode != .settingsReview)
                 screenshotEntry?.onPreferencesChanged = { [weak self] in self?.updateSetup() }
                 screenshotEntry?.setHidden(userHidden)
             } catch { showIssue("截图入口暂不可用，已有截图收录和队列仍保留。") }
@@ -661,19 +716,15 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     }
 
     private func installSetup() {
-        setup = RiftSetupController(onRecheck: { [weak self] in self?.recheckSetup() },
-            onOpenSource: { [weak self] in self?.openScreenshotSource() },
-            onPermission: { [weak self] in self?.requestAutomationPermission() },
-            onDismiss: {},
-            onChooseSourceAccess: mode.collectsSystemScreenshots ? { [weak self] in self?.chooseSourceAccess() } : nil,
-            onToggleHidden: { [weak self] in self?.toggleHidden() },
-            onToggleCollection: mode.collectsSystemScreenshots ? { [weak self] in self?.toggleCollection() } : nil,
-            onOpenHistory: { [weak self] in self?.showHistory() },
-            onOpenFeedback: { [weak self] in self?.showFeedback() },
-            onSettingsChange: { [weak self] change in
-                guard let self else { throw CocoaError(.fileWriteUnknown) }
-                return try self.applySettings(change)
-            })
+        guard let root, let statusItem else { return }
+        do {
+            settingsHost = try SettingsProductHost(root: root, mode: mode, statusItem: statusItem,
+                owner: nextSettingsOwner(), adapter: SettingsPersistenceClosures { [weak self] request in
+                    guard let self else { return .unconfirmed(nil, .ownerUnavailable) }
+                    return await self.saveSettings(request)
+                }, onRefresh: { [weak self] in self?.updateSetup() },
+                onAction: { [weak self] in await self?.performSettingsAction($0) })
+        } catch { setupIssue = .configurationUnavailable }
         updateSetup()
     }
 
@@ -692,11 +743,24 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             attachment: attachment, permission: ProductStatus.permission(automationPermission),
             permissionDetail: mode.usesWebAdapter ? ProductStatus.chromeJavaScriptHelp : nil,
             storage: setupStorage, issue: issue, supportDescription: ProductStatus.supportDescription,
-            isChecking: captureControl.isBusy || requestingPermission || !initialized,
+            isChecking: captureControlBusy || requestingPermission || !initialized,
             builtInScreenshotEnabled: screenshotEntry?.isEnabled,
             defaultScreenshotMode: screenshotEntry?.defaultMode ?? .window)
-        if setup?.presentation.snapshot != snapshot { setup?.update(snapshot: snapshot) }
-        setup?.updateSettings(settingsSnapshot())
+        var capabilities = SettingsCapabilities()
+        capabilities.initialized = initialized
+        capabilities.canChangeCollection = mode.collectsSystemScreenshots && initialized && !captureControlBusy
+        capabilities.canChangeVisibility = store != nil && !changingHidden
+        capabilities.canCapture = mode != .settingsReview && screenshotEntry?.isEnabled == true && !userHidden
+        capabilities.canRecheck = initialized && !captureControlBusy && !requestingPermission
+        capabilities.canRequestAutomation = mode.usesWebAdapter && initialized && !requestingPermission
+        capabilities.canChooseSource = mode.collectsSystemScreenshots && initialized && mode != .settingsReview
+        capabilities.canOpenHistory = store != nil
+        capabilities.canClearVisible = store != nil && !visibleIDs.isEmpty
+        capabilities.canCheckStorage = root != nil && storageMeasurement == nil
+        capabilities.canEditPreferences = initialized
+        capabilities.canOpenConfiguration = root != nil
+        settingsHost?.update(owner: nextSettingsOwner(), setup: snapshot, capabilities: capabilities,
+            configurationDeferred: rift.map { $0.requestedConfiguration != $0.configuration } ?? false)
         let presentation = SetupPresentation(snapshot: snapshot)
         let summary = presentation.issueText ?? (mode.collectsSystemScreenshots ? presentation.collectionText : presentation.attachmentText)
         statusLine?.title = summary
@@ -721,15 +785,22 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     // panel: clicking its controls would otherwise create a screenshot.
     @objc private func showSetup() {
         guard !NSApp.windows.contains(where: { $0.attachedSheet != nil }) else { return }
-        screenshotEntry?.cancel(); updateSetup(); setup?.show()
+        showSettingsPage(.general)
     }
-    @objc private func showOnboarding() { screenshotEntry?.cancel(); updateSetup(); setup?.showOnboarding() }
+    private func showSettingsPage(_ page: SettingsPage) {
+        screenshotEntry?.cancel(); updateSetup(); settingsHost?.show(page: page)
+    }
+    @objc private func showOnboarding() {
+        screenshotEntry?.cancel(); updateSetup()
+        if settingsHost?.showOnboarding() == true { firstUse.recordPresentation() }
+    }
 
     @objc private func recheckSetup() {
-        guard initialized, !requestingPermission, let token = captureControl.begin(.recheck) else { return }
+        guard initialized, !requestingPermission, !collectionChangePending,
+              let token = captureControl.begin(.recheck) else { return }
         updateControlTitles()
-        Task {
-            defer { captureControl.finish(token); updateControlTitles() }
+        recheckTask = Task {
+            defer { captureControl.finish(token); recheckTask = nil; updateControlTitles() }
             if mode.collectsSystemScreenshots, let capture, let binding = sourceBinding {
                 do {
                     do { detectedSource = try await captureLocation.currentDirectory() }
@@ -767,7 +838,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     }
 
     private func chooseSourceAccess() {
-        guard mode.collectsSystemScreenshots, !captureControl.isBusy, let source = detectedSource else { return }
+        guard mode.collectsSystemScreenshots, !captureControlBusy, let source = detectedSource else { return }
         let panel = NSOpenPanel()
         panel.title = "允许 Riftlet 读取系统截图位置"
         panel.message = "请选择下方显示的系统截图文件夹。只授予读取权限，不更改系统保存位置，也不导入其他文件夹。"
@@ -789,7 +860,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     }
 
     private func requestAutomationPermission() {
-        guard mode.usesWebAdapter, !captureControl.isBusy, !requestingPermission else { return }
+        guard mode.usesWebAdapter, !captureControlBusy, !requestingPermission else { return }
         screenshotEntry?.cancel()
         if automationPermission == .denied { openPrivacySettings(automation: true); return }
         requestingPermission = true
@@ -1081,6 +1152,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 case .simulation: statusItem?.button?.toolTip = "Riftlet SIMULATION — synthetic only; start then delayed result"
                 case .systemScreenshotCandidate: statusItem?.button?.toolTip = "Riftlet REAL TEST · 原图候选 · 生产准入关闭 · 待核实不重传"
                 case .webAcceptance: statusItem?.button?.toolTip = "Riftlet WEB ACCEPTANCE · \(active.count) visible test images · unresolved records stay in local history"
+                case .settingsReview: statusItem?.button?.toolTip = "Riftlet 设置验收 · 独立本地数据 · 无上传"
                 }
                 if history?.isVisible == true { await refreshHistory() }
                 updateSetup()
@@ -1190,7 +1262,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private func updateControlTitles() {
         hideItem?.title = userHidden ? "显示裂缝" : "隐藏裂缝"
         pauseItem?.title = captureIsPaused ? "继续收录截图" : "暂停收录（保留已有图片）"
-        pauseItem?.isEnabled = mode.collectsSystemScreenshots && initialized && !captureControl.isBusy
+        pauseItem?.isEnabled = mode.collectsSystemScreenshots && initialized && !captureControlBusy
         if let interval = lifecycleSettings.archiveAfterSeconds {
             archiveItem?.title = String(format: "闲置归档：%.2g 小时…", interval / 3600)
         } else { archiveItem?.title = "闲置归档：已关闭…" }
@@ -1198,59 +1270,60 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     }
 
     @objc private func toggleHidden() {
-        guard let store, !changingHidden else { return }
-        changingHidden = true
-        let requested = !userHidden
-        // Hide immediately; showing requires the persistent change to succeed.
-        if requested {
-            cancelSelections(reason: "hidden")
-            frozenPress = nil
-            userHidden = true; screenshotEntry?.setHidden(true); rift?.setUserHidden(true); updateControlTitles()
-        }
-        Task {
-            defer { changingHidden = false; updateControlTitles() }
-            do {
-                try await store.setUserHidden(requested)
-                visibilitySettingFailed = false
-                userHidden = requested; rift?.setUserHidden(requested)
-                screenshotEntry?.setHidden(requested)
-                await refresh()
-            } catch { visibilitySettingFailed = true; updateSetup() }
-        }
+        let target = !userHidden
+        Task { await settingsHost?.perform(.settings(.setHidden(target))) }
     }
 
     @objc private func toggleCollection() {
-        guard mode.collectsSystemScreenshots, initialized, let store, let binding = sourceBinding,
-              let token = captureControl.begin(.changeCollection) else { return }
-        updateControlTitles()
-        let requested = !captureIsPaused
-        Task {
-            defer { captureControl.finish(token); updateControlTitles() }
-            if requested { await binding.stop(); captureIsPaused = true }
-            do {
-                try await store.setCapturePaused(requested)
-                collectionSettingFailed = false
-            } catch {
-                if let capture { captureStatus = await capture.statusSnapshot() }
-                collectionSettingFailed = true
-                updateSetup()
-                return
-            }
-            do {
-                // Persisted intent and actual running state are separate. A
-                // failed resume must not be displayed as an explicit Pause.
-                captureIsPaused = requested
-                if !requested { try await binding.start() }
-                if let capture { captureStatus = await capture.statusSnapshot() }
-                await refresh()
-            } catch {
-                if let capture { captureStatus = await capture.statusSnapshot() }
-                receiveCaptureDiagnostic(.classify(error, context: .source))
-            }
-        }
+        let target = !captureIsPaused
+        Task { await settingsHost?.perform(.settings(.setCollectionPaused(target))) }
     }
 
-    @objc private func configureArchive() { screenshotEntry?.cancel(); updateSetup(); setup?.show(section: .privacy) }
+    private func setHidden(_ requested: Bool) async throws {
+        guard let store, !changingHidden else { throw CocoaError(.fileWriteUnknown) }
+        changingHidden = true
+        defer { changingHidden = false; updateControlTitles() }
+        // Stop displaying immediately; resuming display waits for persistence.
+        if requested {
+            cancelSelections(reason: "hidden"); frozenPress = nil
+            userHidden = true; screenshotEntry?.setHidden(true); rift?.setUserHidden(true)
+            updateControlTitles()
+        }
+        do { try await store.setUserHidden(requested); visibilitySettingFailed = false }
+        catch { visibilitySettingFailed = true; throw error }
+        userHidden = requested; rift?.setUserHidden(requested); screenshotEntry?.setHidden(requested)
+        await refresh()
+    }
+
+    private func setCollectionPaused(_ requested: Bool) async throws {
+        guard mode.collectsSystemScreenshots, initialized, !collectionChangePending,
+              let store, let binding = sourceBinding else { throw CocoaError(.fileWriteUnknown) }
+        // A control can accept this immutable intent just before an activation
+        // recheck starts. Wait for that real check rather than reporting a disk
+        // failure, and reserve this turn so another recheck cannot cut ahead.
+        collectionChangePending = true
+        defer { collectionChangePending = false; updateControlTitles() }
+        if let recheckTask { await recheckTask.value }
+        try Task.checkCancellation()
+        guard !terminating else { throw CancellationError() }
+        guard let token = captureControl.begin(.changeCollection) else { throw CocoaError(.fileWriteUnknown) }
+        defer { captureControl.finish(token); updateControlTitles() }
+        updateControlTitles()
+        if requested { await binding.stop(); captureIsPaused = true }
+        do { try await store.setCapturePaused(requested); collectionSettingFailed = false }
+        catch {
+            if let capture { captureStatus = await capture.statusSnapshot() }
+            collectionSettingFailed = true; throw error
+        }
+        // A persisted resume intent does not claim the source is readable.
+        captureIsPaused = requested
+        do { if !requested { try await binding.start() } }
+        catch { receiveCaptureDiagnostic(.classify(error, context: .source)) }
+        if let capture { captureStatus = await capture.statusSnapshot() }
+        await refresh()
+    }
+
+    @objc private func configureArchive() { showSettingsPage(.history) }
 
     private func startArchiveScheduler() {
         archiveNotBefore = ProcessInfo.processInfo.systemUptime + 30
@@ -1292,54 +1365,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private func installMenu() {
         let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         item.button?.title = mode.menuTitle
-        let menu = NSMenu()
-        let heading = NSMenuItem(title: simulation ? "离线模拟 · 没有真实上传"
-            : (mode == .webAcceptance ? "Web 验收 · 仅生成图片" : "正在准备本地截图收录…"), action: nil, keyEquivalent: "")
-        menu.addItem(heading); statusLine = heading
-        add(menu, "设置…", #selector(showSetup), key: ",")
-        add(menu, "使用引导…", #selector(showOnboarding))
-        add(menu, "反馈与建议…", #selector(showFeedback))
-        add(menu, "入缝动效…", #selector(showArrivalSettings))
-        if mode.collectsSystemScreenshots { add(menu, "文件访问设置…", #selector(openFilePrivacySettings)) }
-        if mode == .webAcceptance {
-            menu.addItem(NSMenuItem(title: "Chrome · ChatGPT Chat · Chinese UI · PNG test images", action: nil, keyEquivalent: ""))
-            menu.addItem(NSMenuItem(title: "No message sending · UNKNOWN never retransmits", action: nil, keyEquivalent: ""))
-            add(menu, "Add 3 generated test images", #selector(addWebTestImages))
-        }
-        if mode == .systemScreenshotCandidate {
-            menu.addItem(NSMenuItem(title: "真实截图内部候选 · 未生产准入", action: nil, keyEquivalent: ""))
-            menu.addItem(NSMenuItem(title: "普通已有聊天 · RGBA8 PNG · 开始即吞噬 · 不重传", action: nil, keyEquivalent: ""))
-        }
-        if simulation { add(menu, "Add 3 synthetic demo images", #selector(addWebTestImages)) }
-        menu.addItem(.separator())
-        let hide = NSMenuItem(title: "隐藏裂缝", action: #selector(toggleHidden), keyEquivalent: "")
-        hide.target = self; menu.addItem(hide); hideItem = hide
-        if mode.collectsSystemScreenshots {
-            add(menu, "截图…", #selector(beginScreenshot))
-            let pause = NSMenuItem(title: "暂停收录", action: #selector(toggleCollection), keyEquivalent: "")
-            pause.target = self; menu.addItem(pause); pauseItem = pause
-        }
-        add(menu, "截图历史…", #selector(showHistory))
-        add(menu, "清空可见队列（保留文件）", #selector(clearVisible))
-        let archive = NSMenuItem(title: "自动归档…", action: #selector(configureArchive), keyEquivalent: "")
-        archive.target = self; menu.addItem(archive); archiveItem = archive
-        menu.addItem(.separator())
-        add(menu, "显示最新截图", #selector(showLatest))
-        add(menu, "显示最早截图", #selector(showOldest))
-        add(menu, "重新检查截图来源与权限", #selector(recheckSetup))
-        add(menu, "检查本机存储用量", #selector(checkStorage))
-        let storage = NSMenuItem(title: "私有存储：尚未检查", action: nil, keyEquivalent: "")
-        menu.addItem(storage); storageLine = storage
-        if !OrdinaryCaptureConfiguration.isInternalAcceptance && mode.collectsSystemScreenshots { add(menu, "打开离线合成演示…", #selector(launchSimulation)) }
-        if !OrdinaryCaptureConfiguration.isInternalAcceptance && mode == .capture { add(menu, "打开真实截图内部候选…", #selector(launchSystemScreenshotCandidate)) }
-        let advanced = NSMenu()
-        add(advanced, "重新载入几何参数", #selector(reload))
-        add(advanced, "打开工程几何参数文件", #selector(openGeometry))
-        let advancedItem = NSMenuItem(title: "工程调校", action: nil, keyEquivalent: "")
-        advancedItem.submenu = advanced; menu.addItem(advancedItem)
-        menu.addItem(.separator())
-        add(menu, "退出 Riftlet", #selector(quit), key: "q")
-        item.menu = menu; statusItem = item
+        statusItem = item
+        // SettingsProductHost installs a left-click popover and a right-click
+        // context menu using the same state and immutable command targets.
         // Standard application shortcuts are active only while Riftlet owns
         // the foreground application. No global monitor or hotkey is added.
         let applicationMenu = NSMenu(title: "Riftlet")
@@ -1366,6 +1394,14 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             let editItem = NSMenuItem(title: "编辑", action: nil, keyEquivalent: "")
             editItem.submenu = editMenu; mainMenu.addItem(editItem)
         }
+        if !mainMenu.items.contains(where: { $0.submenu?.items.contains(where: { $0.action == #selector(NSWindow.performClose(_:)) }) == true }) {
+            let windowMenu = NSMenu(title: "窗口")
+            // The native responder chain reaches the current window delegate,
+            // including the settings draft confirmation. No global shortcut.
+            windowMenu.addItem(NSMenuItem(title: "关闭窗口", action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w"))
+            let windowItem = NSMenuItem(title: "窗口", action: nil, keyEquivalent: "")
+            windowItem.submenu = windowMenu; mainMenu.addItem(windowItem)
+        }
         NSApp.mainMenu = mainMenu
     }
 
@@ -1375,9 +1411,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     func validateMenuItem(_ item: NSMenuItem) -> Bool {
         if item.action == #selector(showSetup) { return !NSApp.windows.contains { $0.attachedSheet != nil } }
         if item.action == #selector(beginScreenshot) { return screenshotEntry?.isEnabled == true && !userHidden }
-        if item.action == #selector(toggleCollection) { return mode.collectsSystemScreenshots && initialized && !captureControl.isBusy }
+        if item.action == #selector(toggleCollection) { return mode.collectsSystemScreenshots && initialized && !captureControlBusy }
         if item.action == #selector(recheckSetup) || item.action == #selector(reload) {
-            return initialized && !captureControl.isBusy && !requestingPermission
+            return initialized && !captureControlBusy && !requestingPermission
         }
         if item.action == #selector(toggleHidden) { return store != nil && !changingHidden }
         return true
@@ -1387,7 +1423,101 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     @objc private func showLatest() { rift?.showLatest() }
     @objc private func showOldest() { rift?.showOldest() }
     @objc private func quit() { NSApplication.shared.terminate(nil) }
-    @objc private func showArrivalSettings() { screenshotEntry?.cancel(); updateSetup(); setup?.show(section: .display) }
+    @objc private func showArrivalSettings() { showSettingsPage(.motion) }
+
+    private func nextSettingsOwner() -> SettingsOwnerSnapshot {
+        settingsOwnerRevision += 1
+        let mainID = (NSScreen.screens.first?.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.uint32Value
+        return SettingsOwnerSnapshot(revision: settingsOwnerRevision, settings: settingsSnapshot(),
+            collectionPaused: captureIsPaused, isHidden: userHidden, mainDisplayID: mainID,
+            effectiveDisplayID: rift?.arrivalDestinationDisplayID)
+    }
+
+    private func saveSettings(_ request: SettingsSaveRequest) async -> SettingsSaveOutcome {
+        guard initialized, let root else { return .unconfirmed(nextSettingsOwner(), .ownerUnavailable) }
+        do {
+            switch request.intent {
+            case .collectionPaused(let target): try await setCollectionPaused(target)
+            case .hidden(let target): try await setHidden(target)
+            case .entryEnabled(let target): _ = try applySettings(.entryEnabled(target))
+            case .captureMode(let target): _ = try applySettings(.defaultCaptureMode(target))
+            case .arrival(let target): _ = try applySettings(.arrivalMode(target))
+            case .archiveHours(let target): _ = try applySettings(.archiveAfterHours(target))
+            case .layout, .placement, .display:
+                guard let configuration = request.configuration, rift != nil else { throw CocoaError(.fileWriteUnknown) }
+                if case .display(let selected) = request.intent {
+                    guard settingsSnapshot().displays.contains(where: { $0.id == selected.id && $0.uuid == selected.uuid }) else {
+                        return .unconfirmed(nextSettingsOwner(), .ownerUnavailable)
+                    }
+                }
+                try persistRiftConfiguration(configuration, root: root, displayChanged: request.intent.domain == .display)
+                updateControlTitles()
+            }
+            if [.entry, .captureMode].contains(request.intent.domain), screenshotEntry?.preferenceSaveFailed == true {
+                return .unconfirmed(nextSettingsOwner(), .writeUnconfirmed)
+            }
+            return .confirmed(nextSettingsOwner())
+        } catch {
+            updateSetup()
+            return .unconfirmed(nextSettingsOwner(), .writeUnconfirmed)
+        }
+    }
+
+    private func performSettingsAction(_ action: SettingsProductAction) async {
+        if mode == .settingsReview {
+            switch action {
+            case .capture, .chooseSourceAccess, .requestAutomation, .openFilePrivacy, .openScreenRecordingPrivacy:
+                showIssue("设置验收环境不申请系统授权、不抓取屏幕。")
+                return
+            default: break
+            }
+        }
+        switch action {
+        case .openSettings(let page): showSettingsPage(page)
+        case .openOnboarding: showOnboarding()
+        case .capture: beginScreenshot()
+        case .openHistory: showHistory()
+        case .openFeedback: showFeedback()
+        case .clearVisible: confirmClearVisible()
+        case .recheck: recheckSetup()
+        case .openSource: openScreenshotSource()
+        case .chooseSourceAccess: chooseSourceAccess()
+        case .requestAutomation: requestAutomationPermission()
+        case .openFilePrivacy: openFilePrivacySettings()
+        case .openScreenRecordingPrivacy:
+            screenshotEntry?.cancel()
+            if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture") {
+                NSWorkspace.shared.open(url)
+            }
+        case .restorePreferredDisplay:
+            rift?.restorePreferredDisplay(); screenshotEntry?.configure(); updateSetup()
+        case .checkStorage: checkStorage()
+        case .reloadConfiguration: reload(); updateSetup()
+        case .openConfiguration: openGeometry()
+        case .showLatest: showLatest()
+        case .showOldest: showOldest()
+        case .quit: quit()
+        case .settings, .appearance, .retryAppearance, .loginEnabled, .retryLogin, .openLoginSettings, .finishOnboarding:
+            break // Owned by SettingsProductHost; never recursively dispatched.
+        }
+    }
+
+    private func confirmClearVisible() {
+        guard store != nil, !visibleIDs.isEmpty else { return }
+        screenshotEntry?.cancel(); settingsHost?.control.close()
+        let alert = NSAlert()
+        alert.messageText = "清空可见队列？"
+        alert.informativeText = "图片会移入本地历史，不会删除系统原图或 ChatGPT 附件，也不会重新上传。可在历史中按实际状态逐张恢复。"
+        alert.addButton(withTitle: "取消"); alert.addButton(withTitle: "清空队列")
+        if let window = settingsHost?.center.window, window.isVisible {
+            alert.beginSheetModal(for: window) { [weak self] response in
+                if response == .alertSecondButtonReturn { self?.clearVisible() }
+            }
+        } else {
+            NSApp.activate(ignoringOtherApps: true)
+            if alert.runModal() == .alertSecondButtonReturn { clearVisible() }
+        }
+    }
 
     private func settingsSnapshot() -> RiftSettingsSnapshot {
         let displays = NSScreen.screens.compactMap { screen -> RiftSettingsDisplay? in
@@ -1455,10 +1585,14 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         return settingsSnapshot()
     }
 
-    private func persistRiftConfiguration(_ config: RiftConfiguration, root: URL) throws {
+    private func persistRiftConfiguration(_ config: RiftConfiguration, root: URL, displayChanged: Bool = false) throws {
         try config.validate()
         let encoder = JSONEncoder(); encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
         try encoder.encode(config).write(to: root.appendingPathComponent("rift-configuration.json"), options: .atomic)
+        if displayChanged {
+            cancelSelections(reason: "displayPreferenceChanged"); frozenPress = nil
+            screenshotEntry?.cancel()
+        }
         arrivalCapture?.cancel()
         try rift?.updateConfiguration(config)
         screenshotEntry?.configure()

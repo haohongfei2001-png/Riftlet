@@ -1,0 +1,891 @@
+{
+  "schema": 1,
+  "source": "64ac68b1e4714a17e6f37d6634ec9ae42fe98efe",
+  "sourceTree": "a40990652dbcc79f76c8e6e988308195788a07c0",
+  "binarySHA256": "984856dc7aff3408df3478970d4196eeec9c282104c63707d852653a1167a25f",
+  "originalRecordSHA256": {
+    "candidateManifest": "f52159ef540aabd151af58e2d1700b3acf05eb93364106c5d77a89d0cb1ceabd",
+    "runnerResult": "bbd4f59430c606049440e3d20533eea98eaca1b7489b4da8f430c96a032df430",
+    "applicationLog": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "driverReport": "208b6e69f3f9c930bb5d89d479853d78de7caaaf32a8cf504490cc9f58e62d28",
+    "independentReview": "083d0c64f4f02a631d087c073a075d97af40cc9083433fc4dec25cb4a7322587"
+  },
+  "result": "FAIL",
+  "productionReady": false,
+  "runner": {
+    "status": "INCOMPLETE",
+    "exitCode": -15,
+    "timedOut": true,
+    "timeoutSeconds": 180,
+    "elapsedSeconds": 180.02911408385262,
+    "reportError": "ValueError"
+  },
+  "driver": {
+    "status": "FAIL",
+    "completed": true,
+    "elapsedSeconds": 30.730702499859035,
+    "passCount": 9,
+    "failCount": 4,
+    "frameRecordCount": 22,
+    "recordedPNGCount": 19,
+    "notRunFrameCount": 3,
+    "restorationFailures": []
+  },
+  "identityVerification": {
+    "sourceTreeVerified": true,
+    "sameReviewIdentityVerified": true,
+    "sameProcessIdentityVerified": true,
+    "binaryMatchesManifestRunnerAndReport": true
+  },
+  "functionalCases": [
+    {
+      "case": "environment-and-default-window",
+      "status": "PASS"
+    },
+    {
+      "case": "real-collector-synthetic-fixture",
+      "status": "PASS"
+    },
+    {
+      "case": "six-pages-light-and-dark",
+      "status": "FAIL",
+      "reason": "conditionTimedOut"
+    },
+    {
+      "case": "orthogonal-pause-hidden-sqlite",
+      "status": "FAIL",
+      "reason": "conditionTimedOut"
+    },
+    {
+      "case": "archive-editor-first-save-discard",
+      "status": "PASS"
+    },
+    {
+      "case": "configuration-editor-refresh-defaults",
+      "status": "PASS"
+    },
+    {
+      "case": "close-sheet-continue-discard",
+      "status": "PASS"
+    },
+    {
+      "case": "independent-write-failures-and-retry",
+      "status": "FAIL",
+      "reason": "conditionTimedOut"
+    },
+    {
+      "case": "motion-explicit-play-and-navigation-stop",
+      "status": "PASS"
+    },
+    {
+      "case": "three-step-guidance-light-and-dark",
+      "status": "PASS"
+    },
+    {
+      "case": "resizing-and-reopen",
+      "status": "FAIL",
+      "reason": "conditionTimedOut"
+    },
+    {
+      "case": "history-real-records",
+      "status": "PASS"
+    },
+    {
+      "case": "original-media-and-no-upload-operations",
+      "status": "PASS"
+    }
+  ],
+  "frames": [
+    {
+      "name": "initial-general",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "9aca4d8b8f2473450278c4b5411a2e401db4fcfc6af91352604b953995478c55",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        960,
+        684
+      ],
+      "appKitWindowSize": [
+        960,
+        712
+      ],
+      "windowServerSize": [
+        962,
+        712
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "settings-light-general",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "f13c26c930ae0e5b13c03a01722fe4bc9d6a49ab39838b4b3f110d5b79408d7e",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        960,
+        684
+      ],
+      "appKitWindowSize": [
+        960,
+        712
+      ],
+      "windowServerSize": [
+        960,
+        712
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "settings-light-display",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "b688f71130acbeca864ce5205c30e1f5254c98c44a5a9641ca7b6053bd003a31",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        960,
+        684
+      ],
+      "appKitWindowSize": [
+        960,
+        712
+      ],
+      "windowServerSize": [
+        960,
+        712
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "settings-light-capture",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "2b9207d20f4f6c50f9254da59ff678efd3b7cdf37c11f24c37c3c85a94499f84",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        960,
+        684
+      ],
+      "appKitWindowSize": [
+        960,
+        712
+      ],
+      "windowServerSize": [
+        960,
+        712
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "settings-light-motion",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "8641defb7db1b9f44c42905c079063276a8c277280aa8fe2f2e100ccaa2888bc",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        960,
+        684
+      ],
+      "appKitWindowSize": [
+        960,
+        712
+      ],
+      "windowServerSize": [
+        960,
+        712
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "settings-light-history",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "7b9857d077b8f0e5f0ab77282012779c2b259d04fe203ed20572cf9593843620",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        960,
+        684
+      ],
+      "appKitWindowSize": [
+        960,
+        712
+      ],
+      "windowServerSize": [
+        960,
+        712
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "settings-light-help",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "eedf13c883bf9008d5c0501aa9f6c3d663d6483bbf9bbe597b8190fb45bff343",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        960,
+        684
+      ],
+      "appKitWindowSize": [
+        960,
+        712
+      ],
+      "windowServerSize": [
+        960,
+        712
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "control-unsettled-7",
+      "status": "NOT_RUN",
+      "reason": "ownedWindowUnavailable"
+    },
+    {
+      "name": "control-unsettled-8",
+      "status": "NOT_RUN",
+      "reason": "ownedWindowUnavailable"
+    },
+    {
+      "name": "archive-first-activation-save",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "3c1aa0d700762fdfb59d3c85075218ab5559915a2a6fef6f270461214c507a05",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        960,
+        684
+      ],
+      "appKitWindowSize": [
+        960,
+        712
+      ],
+      "windowServerSize": [
+        960,
+        712
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "display-defaults-after-active-edit",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "ce5782d41ffc423514477ccd878965192b8de5a72b326b4772b512e041b76538",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        960,
+        684
+      ],
+      "appKitWindowSize": [
+        960,
+        712
+      ],
+      "windowServerSize": [
+        960,
+        712
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "close-draft-sheet",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "3c585de0ccf8980fafc7ee4c298579cabca6120e4fd4539a00f44272c7247951",
+      "pixels": [
+        520,
+        446
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        260,
+        223
+      ],
+      "appKitWindowSize": [
+        260,
+        223
+      ],
+      "windowServerSize": [
+        260,
+        223
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "control-unsettled-12",
+      "status": "NOT_RUN",
+      "reason": "ownedWindowUnavailable"
+    },
+    {
+      "name": "explicit-arrival-preview",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "d5bd18e3db68b71a7f9fa7add5f634f48bd003c170f18991da92b7c9e3b096e3",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        960,
+        684
+      ],
+      "appKitWindowSize": [
+        960,
+        712
+      ],
+      "windowServerSize": [
+        960,
+        712
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "onboarding-light-1",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "5fa540ac7458d00b9a1432565f64723fecb5b1c931763383a03aa975d068621c",
+      "pixels": [
+        1304,
+        1216
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        652,
+        580
+      ],
+      "appKitWindowSize": [
+        652,
+        608
+      ],
+      "windowServerSize": [
+        652,
+        608
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "onboarding-light-2",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "2fb44df7312e2697396cea5684d060bbf6e3e1c2753e84e0ccd13873f919335e",
+      "pixels": [
+        1304,
+        1216
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        652,
+        580
+      ],
+      "appKitWindowSize": [
+        652,
+        608
+      ],
+      "windowServerSize": [
+        652,
+        608
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "onboarding-light-3",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "507abdf9d89aa23121f008cae6e237d375cc10d359cf078bb2dbde44869bda13",
+      "pixels": [
+        1304,
+        1216
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        652,
+        580
+      ],
+      "appKitWindowSize": [
+        652,
+        608
+      ],
+      "windowServerSize": [
+        652,
+        608
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "onboarding-dark-1",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "3a944f902aa8f03b2c1d85811d1c999bb20ecfee1b23e29625622b22e99bd75b",
+      "pixels": [
+        1304,
+        1216
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        652,
+        580
+      ],
+      "appKitWindowSize": [
+        652,
+        608
+      ],
+      "windowServerSize": [
+        652,
+        608
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "onboarding-dark-2",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "9e88a44cafc483d912037602321a3cdfba916eb7f355208d16cbe34ba13511bf",
+      "pixels": [
+        1304,
+        1216
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        652,
+        580
+      ],
+      "appKitWindowSize": [
+        652,
+        608
+      ],
+      "windowServerSize": [
+        652,
+        608
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "onboarding-dark-3",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "0114940364788945291cdbbac507994d13634d64528ea47edd55c0fbc037b01d",
+      "pixels": [
+        1304,
+        1216
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        652,
+        580
+      ],
+      "appKitWindowSize": [
+        652,
+        608
+      ],
+      "windowServerSize": [
+        652,
+        608
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "settings-minimum-size",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "0cfd52b1de7f317c370de678020c908c46c56f951af6e88bb6083194d2a8e1d3",
+      "pixels": [
+        1520,
+        1080
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        760,
+        512
+      ],
+      "appKitWindowSize": [
+        760,
+        540
+      ],
+      "windowServerSize": [
+        760,
+        540
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "history-real-isolated-records",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "6f2383c41b4a2219b2d6579b55458b08d16039a80db629d78cd4b5ecceec182a",
+      "pixels": [
+        1516,
+        1120
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        760,
+        532
+      ],
+      "appKitWindowSize": [
+        760,
+        560
+      ],
+      "windowServerSize": [
+        758,
+        560
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    }
+  ],
+  "integrity": [
+    {
+      "allPrivateMediaDigestsMatch": true,
+      "assetCount": 1,
+      "assetsWithOperation": 0,
+      "kind": "integrity",
+      "successfulOperations": 0,
+      "unresolvedOperations": 0
+    }
+  ],
+  "restart": {
+    "status": "NOT_RUN",
+    "reason": "The initial functional run failed; same-package restart prerequisites were not met."
+  },
+  "notRun": [
+    "realChatGPTAttachment",
+    "physicalPointer",
+    "OSInputMethod",
+    "VoiceOver",
+    "realLoginRegistration",
+    "realTCCPrompt",
+    "multiDisplayHotplug"
+  ],
+  "productionDataAccess": false,
+  "browserAccess": false,
+  "networkUpload": false,
+  "reportRetrieval": {
+    "method": "actualSameReviewRootArtifactAfterRunnerTimeout",
+    "runnerReportedPathPresent": false,
+    "runnerOriginalReportError": "ValueError",
+    "actualArtifactCompleted": true,
+    "sameReviewIdentityVerified": true,
+    "sameProcessIdentityVerified": true,
+    "explanation": "The runner retained no stdout report path and an empty application log after SIGTERM. The actual report was read separately from the same isolated review root and matched the runner process and executable. This binding does not add a report path or successful completion to the original runner."
+  },
+  "observations": [
+    {
+      "case": "controlResignBoundary",
+      "status": "SOURCE_AND_TIMELINE_SUPPORT_MINIMAL_FIX_RETEST_REQUIRED",
+      "reviewer": "readiness_independent",
+      "originalReviewResult": "APPROVE_MINIMAL_FIX_SCOPE_PENDING_IMPLEMENTATION_AND_NATIVE_RECHECK",
+      "observedBoundary": "All three status actions begin and return while this process is active/frontmost. Shortly after, popover.didShow records inactive/previous foreground application; willClose precedes the later-registered diagnostic didResignActive observer. The production control had registered an unconditional didResignActive close observer before the diagnostic observer.",
+      "causalConfidence": "Source and timeline support an erroneous duplicate close on normal status-bar activation handback. Notification ordering alone is not a close-call stack and cannot prove the unique cause; the minimal patch must be checked in a real native run.",
+      "approvedChange": "Remove only the resignObserver property, unconditional NSApplication.didResignActive registration, and corresponding deinit removal. Keep NSPopover.behavior transient and all explicit native close paths unchanged.",
+      "preservedClosePaths": [
+        "native transient handling of outside UI interaction",
+        "existing app-local outside mouse events without swallowing/replaying events",
+        "Escape",
+        "second status-button click and pressBeganWhileShown handling",
+        "settings/history/feedback/quit action closes before dispatch",
+        "context-menu opening",
+        "host.close teardown",
+        "beginTerminationPreparation calls setInteractionSuspended(true), closes popover, disables status button and rejects stale commands"
+      ],
+      "verificationNeeded": [
+        "Targeted notification regression should demonstrate that a posted resign notification alone no longer invokes this controller close path; retain the existing native status toggle and suspension tests. This is not proof of OS activation behavior.",
+        "One bounded native rerun must show the owned popover remains visible through actual handback and has complete stable captures.",
+        "Actual outside-click/status-toggle dismissal must be observed separately; do not infer all dismissal gestures from the transient enum or synthetic notification."
+      ]
+    },
+    {
+      "case": "quitAfterFailedSaveCase",
+      "status": "INCOMPLETE_WITH_DRAFT_CONFIRMATION",
+      "integrationLeadObservation": "A draft left by the failed case kept the normal quit confirmation sheet pending. This is not evidence of a no-draft exit regression.",
+      "independentReviewLimit": "The source review preserved the draft-confirmation and termination-lock chain; its author did not independently inspect the live pending process. The timeout and exit -15 remain recorded."
+    }
+  ],
+  "presentationTimeline": [
+    {
+      "elapsedSeconds": 0.034962874837219715,
+      "event": "traceStarted",
+      "applicationActive": true,
+      "popoverShown": false,
+      "popoverWindowKey": false,
+      "popoverWindowVisible": false,
+      "settingsKey": false,
+      "settingsVisible": false
+    },
+    {
+      "elapsedSeconds": 2.659141541691497,
+      "event": "beforeStatusAction",
+      "applicationActive": true,
+      "popoverShown": false,
+      "popoverWindowKey": false,
+      "popoverWindowVisible": false,
+      "settingsKey": true,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 2.6862562915775925,
+      "event": "popover.willShow",
+      "applicationActive": true,
+      "popoverShown": false,
+      "popoverWindowKey": false,
+      "popoverWindowVisible": false,
+      "settingsKey": true,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 2.7706084582023323,
+      "event": "afterStatusAction",
+      "applicationActive": true,
+      "popoverShown": true,
+      "popoverWindowKey": false,
+      "popoverWindowVisible": true,
+      "settingsKey": true,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 2.786016749916598,
+      "event": "popover.didShow",
+      "applicationActive": false,
+      "popoverShown": true,
+      "popoverWindowKey": false,
+      "popoverWindowVisible": true,
+      "settingsKey": false,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 2.7865172082092613,
+      "event": "popover.willClose",
+      "applicationActive": false,
+      "popoverShown": true,
+      "popoverWindowKey": false,
+      "popoverWindowVisible": true,
+      "settingsKey": false,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 2.7870613331906497,
+      "event": "app.didResignActive",
+      "applicationActive": false,
+      "popoverShown": true,
+      "popoverWindowKey": false,
+      "popoverWindowVisible": false,
+      "settingsKey": false,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 3.306500041624531,
+      "event": "popover.didClose",
+      "applicationActive": false,
+      "popoverShown": false,
+      "popoverWindowKey": false,
+      "popoverWindowVisible": false,
+      "settingsKey": false,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 7.960371583234519,
+      "event": "app.didBecomeActive",
+      "applicationActive": true,
+      "popoverShown": false,
+      "popoverWindowKey": false,
+      "popoverWindowVisible": false,
+      "settingsKey": true,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 8.008250583196059,
+      "event": "beforeStatusAction",
+      "applicationActive": true,
+      "popoverShown": false,
+      "popoverWindowKey": false,
+      "popoverWindowVisible": false,
+      "settingsKey": true,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 8.009251749841496,
+      "event": "popover.willShow",
+      "applicationActive": true,
+      "popoverShown": false,
+      "popoverWindowKey": false,
+      "popoverWindowVisible": false,
+      "settingsKey": true,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 8.0261127082631,
+      "event": "afterStatusAction",
+      "applicationActive": true,
+      "popoverShown": true,
+      "popoverWindowKey": true,
+      "popoverWindowVisible": true,
+      "settingsKey": false,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 8.09621754172258,
+      "event": "popover.didShow",
+      "applicationActive": false,
+      "popoverShown": true,
+      "popoverWindowKey": false,
+      "popoverWindowVisible": true,
+      "settingsKey": false,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 8.096655374858528,
+      "event": "popover.willClose",
+      "applicationActive": false,
+      "popoverShown": true,
+      "popoverWindowKey": false,
+      "popoverWindowVisible": true,
+      "settingsKey": false,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 8.099727041553706,
+      "event": "app.didResignActive",
+      "applicationActive": false,
+      "popoverShown": true,
+      "popoverWindowKey": false,
+      "popoverWindowVisible": false,
+      "settingsKey": false,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 8.62228004168719,
+      "event": "popover.didClose",
+      "applicationActive": false,
+      "popoverShown": false,
+      "popoverWindowKey": false,
+      "popoverWindowVisible": false,
+      "settingsKey": false,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 13.18712545838207,
+      "event": "app.didBecomeActive",
+      "applicationActive": true,
+      "popoverShown": false,
+      "popoverWindowKey": false,
+      "popoverWindowVisible": false,
+      "settingsKey": true,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 16.83788283332251,
+      "event": "beforeStatusAction",
+      "applicationActive": true,
+      "popoverShown": false,
+      "popoverWindowKey": false,
+      "popoverWindowVisible": false,
+      "settingsKey": true,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 16.839609625050798,
+      "event": "popover.willShow",
+      "applicationActive": true,
+      "popoverShown": false,
+      "popoverWindowKey": false,
+      "popoverWindowVisible": false,
+      "settingsKey": true,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 16.863356416579336,
+      "event": "afterStatusAction",
+      "applicationActive": true,
+      "popoverShown": true,
+      "popoverWindowKey": true,
+      "popoverWindowVisible": true,
+      "settingsKey": false,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 16.93244595825672,
+      "event": "popover.didShow",
+      "applicationActive": false,
+      "popoverShown": true,
+      "popoverWindowKey": false,
+      "popoverWindowVisible": true,
+      "settingsKey": false,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 16.933428958291188,
+      "event": "popover.willClose",
+      "applicationActive": false,
+      "popoverShown": true,
+      "popoverWindowKey": false,
+      "popoverWindowVisible": true,
+      "settingsKey": false,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 16.94076770823449,
+      "event": "app.didResignActive",
+      "applicationActive": false,
+      "popoverShown": true,
+      "popoverWindowKey": false,
+      "popoverWindowVisible": false,
+      "settingsKey": false,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 17.46702616661787,
+      "event": "popover.didClose",
+      "applicationActive": false,
+      "popoverShown": false,
+      "popoverWindowKey": false,
+      "popoverWindowVisible": false,
+      "settingsKey": false,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 21.989400833379477,
+      "event": "app.didBecomeActive",
+      "applicationActive": true,
+      "popoverShown": false,
+      "popoverWindowKey": false,
+      "popoverWindowVisible": false,
+      "settingsKey": true,
+      "settingsVisible": true
+    }
+  ],
+  "scope": "Sanitized run05 failure bindings. The driver completed with nine PASS and four FAIL; the process runner timed out after 180 seconds and remains INCOMPLETE. Twenty-two frame records contain nineteen PNGs and three NOT_RUN entries. Report retrieval was independently verified from the actual same-review artifact, not reconstructed from missing stdout. The reviewed minimal popover observer fix still requires native revalidation."
+}

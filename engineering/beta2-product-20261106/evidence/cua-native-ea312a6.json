@@ -1,0 +1,76 @@
+{
+  "schema": 1,
+  "source": "ea312a6393cb49c0819269ef1bc19aac82ca0de4",
+  "binarySHA256": "306e6c482519fd04527a2ba3f0f97f5f05631ee7e7fd7b6951c9f17915bc3f33",
+  "originalRecordSHA256": {
+    "operatorObservations": "8f7cfbb520080382a5538b9744bf0b9020fee4f7ae215167854f770f201393f6",
+    "wrapperIdentity": "8356e6879dc0b4c672a2b12777eb3ede5930fdce0a7236a55bde7a9981118a73",
+    "candidateManifest": "54835987aa30f2dbc5b2cdff8082c46d97eb11554695d0fe4aa9c9679c9db300"
+  },
+  "result": "SCOPED_NATIVE_KEYBOARD_OBSERVATIONS_WITH_RETAINED_UNCERTAINTIES",
+  "productionReady": false,
+  "method": "Recorded CUA native keyboard and AX-control observations in a fixed isolated wrapper. Runtime executable hash verified; actions were not replayed by this summary author.",
+  "wrapper": {
+    "runtimeExecutableUnchanged": true,
+    "changedPackaging": [
+      "test-only CFBundle identity/executable launcher",
+      "ad-hoc signing"
+    ],
+    "scope": "Test-only launcher fixes isolated mode and distinguishes the candidate from installed Beta 1; package metadata/signature are not identical to the candidate package."
+  },
+  "observations": [
+    {
+      "case": "Escape dismisses onboarding and Command comma opens settings",
+      "status": "PASS"
+    },
+    {
+      "case": "Command W with independently observed existing dirty state invokes native close sheet",
+      "status": "PASS"
+    },
+    {
+      "case": "Continue editing after Command W retains dirty state",
+      "status": "PASS"
+    },
+    {
+      "case": "Command Q then Discard closes scoped process and retains 24-hour confirmed archive",
+      "status": "PASS"
+    }
+  ],
+  "uncertainties": [
+    {
+      "case": "Batched menu preset click immediately followed by Command W",
+      "status": "INCONCLUSIVE",
+      "note": "Selection/draft had not been observed before close; later reopening retained draft. No claim about a confirmed-draft close boundary. Source preset handler already sets draft synchronously."
+    },
+    {
+      "case": "Stale AX index after opening different window",
+      "status": "TOOL_ERROR_RECOVERED",
+      "note": "Invalid element ID rejected; refreshed AX before subsequent actions."
+    },
+    {
+      "case": "Tool reported user changed app",
+      "status": "REOBSERVED",
+      "note": "Refreshed current AX before sending further input."
+    },
+    {
+      "case": "First post-quit audit assertion",
+      "status": "AUDIT_ASSUMPTION_CORRECTED",
+      "note": "Did not establish the expected absent lifecycle file; checked the actual retained 86400-second value and process absence instead."
+    }
+  ],
+  "postQuitReadback": {
+    "originalProcessRemaining": false,
+    "archiveAfterSeconds": 86400
+  },
+  "notRun": [
+    "physicalHumanInput",
+    "OSInputMethod",
+    "VoiceOver",
+    "realLoginRegistration",
+    "realTCCPrompt",
+    "multiDisplayHotplug",
+    "realChatGPTAttachment"
+  ],
+  "productionDataAccess": false,
+  "scope": "Command-W PASS is limited to the sequence with an independently observed existing dirty state before the close action. The rapid batch remains INCONCLUSIVE, stale AX ID remains a recovered tool error, and corrected audit assumptions are retained. No new product FAIL is inferred from those uncertainties; no overall PRODUCT_READY conclusion."
+}

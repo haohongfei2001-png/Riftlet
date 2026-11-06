@@ -1,0 +1,62 @@
+{
+  "schema": 1,
+  "source": "d72f9665845c30910786558acb090dd72328ccd9",
+  "sourceTree": "f251acd536b3e649fb386749565cad2da50a28ca",
+  "binarySHA256": "54749ad5695a5edd6e2eb6077e4456be4498d02b43f7451fb911bb99bfedf545",
+  "originalRecordSHA256": {
+    "candidateManifest": "13189f7b4735185a217d26299973c649afcddf02f42fa7187bac48027863f763",
+    "identity": "1e7b73bc78574aa2fd3f861d8c45c7f3b8907279ac3f92072e95a62c18245fd2",
+    "cuaObservations": "d0e1e8800dac5488d15db63c28f460626c5f2d0fc05ced621982cb76c0102b2c"
+  },
+  "result": "LIMITED_NATIVE_CUA_OBSERVATION",
+  "productionReady": false,
+  "observedUTC": "2026-11-06T10:54:08.984881+00:00",
+  "identityVerification": {
+    "originalCandidatePackage": true,
+    "testWrapperUsed": false,
+    "allManifestFilesRechecked": true,
+    "runtimeMatchesManifestAndLaunchIdentity": true,
+    "explicitIsolatedReviewArgumentsVerified": true,
+    "automaticDriverArgumentAbsent": true
+  },
+  "observations": [
+    {
+      "action": "Open exact candidate App through CUA",
+      "status": "OBSERVED",
+      "result": "The candidate displayed its native onboarding first step and isolated-review capture wording."
+    },
+    {
+      "action": "Escape",
+      "status": "OBSERVED",
+      "result": "The guide closed; only the owned screenshot panel remained."
+    },
+    {
+      "action": "Control-F8 menu-bar attempt",
+      "status": "NOT_RUN_TOOL_SURFACE_UNAVAILABLE",
+      "result": "No accessibility-state change or status-bar coordinates became available."
+    },
+    {
+      "action": "Request SystemUIServer through CUA",
+      "status": "TOOL_TIMEOUT",
+      "result": "No menu-bar elements were returned; no status-item toggle was executed."
+    },
+    {
+      "action": "Command-Q",
+      "status": "PROCESS_ABSENCE_OBSERVED_EXIT_CODE_UNKNOWN",
+      "result": "The tool timed out, then a read-only exact-process check found the launched process absent. No normal exit code was available."
+    }
+  ],
+  "statusItemPhysicalToggle": "NOT_RUN_TOOL_SURFACE_UNAVAILABLE",
+  "recordedIsolation": {
+    "noExternalBrowserControl": true,
+    "productionProcessStillObserved": true,
+    "productionUnmodifiedByTest": true
+  },
+  "limits": [
+    "No real status-button opening, second click or outside-click dismissal was observed.",
+    "Tool-surface unavailability is not a passing product test or a newly established product failure.",
+    "The exact candidate process exit observation does not replace an exit-code record or validate every quit branch.",
+    "This record does not validate physical mouse input, OS IME, VoiceOver, system permission changes, login registration or browser attachment."
+  ],
+  "scope": "Original candidate package and runtime, explicitly isolated from production. CUA launch/guide and post-quit process observations are preserved separately from the unresolved status-item route. The complete run06 driver remains FAIL."
+}

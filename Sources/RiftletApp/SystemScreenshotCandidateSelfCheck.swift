@@ -21,7 +21,7 @@ enum SystemScreenshotCandidateSelfCheck {
         let mode = try ApplicationMode.resolve(["--system-screenshot-candidate"])
         guard mode == .systemScreenshotCandidate, mode.collectsSystemScreenshots,
               mode.usesWebAdapter, !mode.generatesSyntheticImages,
-              Set(ApplicationMode.allCases.map(\.directoryName)).count == 4,
+              Set(ApplicationMode.allCases.map(\.directoryName)).count == 5,
               SystemScreenshotCandidateConfiguration.uploadStartProfiles == [SystemScreenshotWebCandidate.admittedUploadStartProfileID: .webChat],
               SystemScreenshotCandidateConfiguration.completedAttachmentProfiles == [SystemScreenshotWebCandidate.admittedCompletionProfileID: .webChat],
               SystemScreenshotCandidateConfiguration.safeFailureProfiles.isEmpty else { throw Failure.configuration }

@@ -1,0 +1,66 @@
+{
+  "schema": 1,
+  "source": "974e0bcde40f3f4d25ef1f1bbe0acc7d74575dc0",
+  "sourceTree": "e23155e6ee5491b1493f89afccf107b107f71206",
+  "originalSummarySHA256": "e0e840f4e8640fc457e7949fb9514bc46029eefd837b00aeaf3dbb0e721754bb",
+  "nativeWorkflowRunID": 42205691399,
+  "result": "FAIL",
+  "nativeSourceAdmission": "FAIL_STALE_PR42_RECORD",
+  "sourceAdmissionScope": "Recorded first-run gate failure from the original summary; passing tests would not independently approve source.",
+  "architectures": {
+    "arm64": {
+      "architecture": "arm64",
+      "jobID": 127851623110,
+      "status": "FAIL",
+      "failedUniqueTestCases": 12,
+      "failedCases": [
+        "-[RiftletUITests.RiftControlCenterControllerTests testStatusActivationTogglesOnePopoverAndActionClosesBeforeDispatch]",
+        "-[RiftletUITests.RiftOnboardingControllerTests testDisconnectedSelectedDisplayAndOldSnapshotCannotChangePreference]",
+        "-[RiftletUITests.RiftOnboardingControllerTests testPlacementAndDisplayUseExistingExplicitCommandsAndPreserveLegacyValues]",
+        "-[RiftletUITests.RiftSettingsCenterTests testExplicitDefaultsAndDiscardRetireOldEditorBeforeReplacingDraft]",
+        "-[RiftletUITests.RiftSettingsCenterTests testExplicitDiscardCancelsMarkedInputWithoutSavingOrReintroducingIt]",
+        "-[RiftletUITests.RiftSettingsCenterTests testFirstClosePromptsForCurrentDraftAndContinuePreservesIt]",
+        "-[RiftletUITests.SettingsNativeStyleTests testCachedTextAndBorderUseProviderAppearanceForHighContrastMatchingFixture]",
+        "-[RiftletAppTests.SettingsReviewEnvironmentTests testClosedCompositionIgnoresWebExecutorAndAllProductAdmission]",
+        "-[RiftletAppTests.SettingsReviewEnvironmentTests testExistingOwnedDirectoryPreservesSyntheticQueueMediaAndConfiguration]",
+        "-[RiftletAppTests.SettingsReviewEnvironmentTests testFixtureProviderUsesOnlyItsExplicitLocationOrFixtureFallback]",
+        "-[RiftletAppTests.SettingsReviewEnvironmentTests testIdentityPreparationDoesNotChangeFixturesBeforeWholeAppLockIsWon]",
+        "-[RiftletAppTests.SettingsReviewEnvironmentTests testUUIDRootsAndDefaultsSuitesAreIndependentFromOrdinaryAndEachOther]"
+      ],
+      "originalRawLogSHA256": "4340194a340d4eeca830bf7862ad2b4564d5fabc5a8095df6f42b074fb8a78de",
+      "rawLogHashVerified": true,
+      "failedCaseSetVerifiedAgainstRawLog": true,
+      "existingFailuresPreserved": true
+    },
+    "intel": {
+      "architecture": "x86_64",
+      "jobID": 127851623352,
+      "status": "FAIL",
+      "failedUniqueTestCases": 12,
+      "failedCases": [
+        "-[RiftletUITests.RiftControlCenterControllerTests testStatusActivationTogglesOnePopoverAndActionClosesBeforeDispatch]",
+        "-[RiftletUITests.RiftOnboardingControllerTests testDisconnectedSelectedDisplayAndOldSnapshotCannotChangePreference]",
+        "-[RiftletUITests.RiftOnboardingControllerTests testPlacementAndDisplayUseExistingExplicitCommandsAndPreserveLegacyValues]",
+        "-[RiftletUITests.RiftSettingsCenterTests testExplicitDiscardCancelsMarkedInputWithoutSavingOrReintroducingIt]",
+        "-[RiftletUITests.RiftSettingsCenterTests testExplicitDefaultsAndDiscardRetireOldEditorBeforeReplacingDraft]",
+        "-[RiftletUITests.RiftSettingsCenterTests testFirstClosePromptsForCurrentDraftAndContinuePreservesIt]",
+        "-[RiftletUITests.SettingsNativeStyleTests testCachedTextAndBorderUseProviderAppearanceForHighContrastMatchingFixture]",
+        "-[RiftletAppTests.SettingsReviewEnvironmentTests testClosedCompositionIgnoresWebExecutorAndAllProductAdmission]",
+        "-[RiftletAppTests.SettingsReviewEnvironmentTests testExistingOwnedDirectoryPreservesSyntheticQueueMediaAndConfiguration]",
+        "-[RiftletAppTests.SettingsReviewEnvironmentTests testFixtureProviderUsesOnlyItsExplicitLocationOrFixtureFallback]",
+        "-[RiftletAppTests.SettingsReviewEnvironmentTests testIdentityPreparationDoesNotChangeFixturesBeforeWholeAppLockIsWon]",
+        "-[RiftletAppTests.SettingsReviewEnvironmentTests testUUIDRootsAndDefaultsSuitesAreIndependentFromOrdinaryAndEachOther]"
+      ],
+      "originalRawLogSHA256": "05fb1b6487ae9db1ad9540b1aca72d0fba86c129f1044611e7fa5dde012c83a7",
+      "rawLogHashVerified": true,
+      "failedCaseSetVerifiedAgainstRawLog": true,
+      "existingFailuresPreserved": true
+    }
+  },
+  "uniqueFailedCasesAcrossArchitectures": 12,
+  "failedExecutionsAcrossTwoArchitectures": 24,
+  "sameFailedCaseSetOnBothArchitectures": true,
+  "laterFixOrRerunStatus": "NOT_ESTABLISHED_BY_THIS_ORIGINAL_RUN",
+  "rawLogsPublished": false,
+  "scope": "Sanitized original first native CI failure at the recorded source. Each architecture failed the same 12 unique test cases. Both original raw log hashes and failed-case sets were checked; originals remain private and unchanged. This record is not overwritten by later fixes or reruns."
+}

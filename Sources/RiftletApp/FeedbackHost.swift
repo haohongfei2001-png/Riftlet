@@ -17,17 +17,19 @@ final class FeedbackHost {
     private let version = Bundle.main.object(forInfoDictionaryKey:"CFBundleShortVersionString") as? String ?? "0"
     // Set only in a reviewed deployment commit after actual private-repo E2E.
     static let endpoint: URL? = URL(string: "https://riftlet-feedback-receiver.haohongfei2001.workers.dev/v1/feedback")
-    init(modeDirectory: String) {
+    init(modeDirectory: String, isolatedRoot: URL? = nil) {
         diagnostics.record(.sessionStarted)
-        let root=FileManager.default.urls(for:.applicationSupportDirectory,in:.userDomainMask).first!
-            .appendingPathComponent(modeDirectory).appendingPathComponent("Feedback-v01")
+        let root=(isolatedRoot ?? FileManager.default.urls(for:.applicationSupportDirectory,in:.userDomainMask).first!
+            .appendingPathComponent(modeDirectory)).appendingPathComponent("Feedback-v01")
         initialization=Task { [weak self] in
             do {
                 let store=try await Task.detached(priority:.utility){try FeedbackStore(directory:root)}.value
                 guard let self else {return}
                 let transport:any FeedbackTransport
-                if let endpoint=Self.endpoint {transport=try HTTPSFeedbackTransport(endpoint:endpoint)} else {transport=DisabledFeedbackTransport()}
-                self.engine=FeedbackEngine(store:store,secrets:KeychainFeedbackSecrets(namespace:modeDirectory),transport:transport)
+                if isolatedRoot == nil, let endpoint=Self.endpoint {transport=try HTTPSFeedbackTransport(endpoint:endpoint)} else {transport=DisabledFeedbackTransport()}
+                let secrets: any FeedbackSecretStorage = isolatedRoot == nil
+                    ? KeychainFeedbackSecrets(namespace:modeDirectory) : MemoryFeedbackSecrets()
+                self.engine=FeedbackEngine(store:store,secrets:secrets,transport:transport)
                 if store.wasUnclean {self.diagnostics.record(.previousSessionUnclean)}
                 if self.wantsWindow {self.open()}
                 await self.engine?.pump()

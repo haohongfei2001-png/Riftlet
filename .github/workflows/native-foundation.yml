@@ -51,10 +51,12 @@ jobs:
         include:
           - runner: macos-15
             check: Native ARM64
+            timeout: 20
           - runner: macos-15-intel
             check: Native Intel
+            timeout: 30
     runs-on: ${{ matrix.runner }}
-    timeout-minutes: 20
+    timeout-minutes: ${{ matrix.timeout }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
@@ -252,6 +254,10 @@ jobs:
           defaults write com.apple.universalaccess increaseContrast -bool true
           riftlet_bin_dir="$(swift build -c release --show-bin-path)"
           "$riftlet_bin_dir/RiftletGUIAcceptance" --report-system-accessibility | tee test-results/accessibility-reduced.log
+          # Exercise the cached settings palette in a fresh process under the
+          # same actual CI-only accessibility state. Unavailable HC is reported
+          # by XCTest as skipped, never borrowed from a fabricated appearance.
+          swift test --skip-build --filter SettingsNativeStyleTests 2>&1 | tee test-results/settings-style-accessibility.log
           python3 -B scripts/capture-native-visual-evidence.py --helper "$riftlet_bin_dir/RiftletGUIAcceptance" --expected-system-accessibility reduced --only-case queue-dark --only-case entry-dark --only-case motion-magnet --output "$PWD/test-results/native-visual-accessibility" 2>&1 | tee test-results/native-visual-accessibility-capture.log
       - name: Reject actual screenshot output failures independently of software tests
         if: always()

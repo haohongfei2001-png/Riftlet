@@ -59,6 +59,22 @@ final class IndependentAttachmentLifecycleTests: XCTestCase {
         let op = try await store.operation(id: id); return try XCTUnwrap(op)
     }
 
+    private func returnedDispatchCall(_ operationID: UUID, _ store: QueueStore) async throws -> DispatchCallRecord {
+        // select() releases the input boundary before the original append task
+        // records its return. Await that durable fact, not a scheduler ordering.
+        let deadline = ProcessInfo.processInfo.systemUptime + 5
+        var observed: DispatchCallRecord?
+        repeat {
+            if let data = try await store.checkpoint(for: "transfer-dispatch-call-v1:" + operationID.uuidString) {
+                observed = try JSONDecoder().decode(DispatchCallRecord.self, from: data)
+                if observed?.returnedReceipt != nil { return try XCTUnwrap(observed) }
+            }
+            await Task.yield()
+        } while ProcessInfo.processInfo.systemUptime < deadline
+        XCTFail("Original append did not durably record its returned receipt within five seconds")
+        return try XCTUnwrap(observed)
+    }
+
     func testLateReceiptsCannotBorrowSiblingPinAttachmentOrInvocation() async throws {
         let store = try store(), adapter = IndependentLifecycleAdapter(), coordinator = coordinator(store, adapter)
         let a = try await asset(store), b = try await asset(store)
@@ -107,8 +123,7 @@ final class IndependentAttachmentLifecycleTests: XCTestCase {
             let coordinator = coordinator(store, adapter), a = try await asset(store), b = try await asset(store)
             try await coordinator.select(try await selection(a, store))
             let ao = try await operation(a, store)
-            let storedCall = try await store.checkpoint(for: "transfer-dispatch-call-v1:" + ao.id.uuidString)
-            let call = try JSONDecoder().decode(DispatchCallRecord.self, from: XCTUnwrap(storedCall))
+            let call = try await returnedDispatchCall(ao.id, store)
             let owner = try XCTUnwrap(call.ownerID)
             let originalStart = try XCTUnwrap(call.returnedReceipt)
             XCTAssertEqual(originalStart.continuationEvidence?.version, 3)

@@ -1,0 +1,175 @@
+{
+  "schema": 1,
+  "result": "SCOPED_REPAIR_VALIDATED_FULL_CI_PENDING",
+  "productionReady": false,
+  "initialCI": {
+    "head": "974e0bcde40f3f4d25ef1f1bbe0acc7d74575dc0",
+    "checkout": "73c3c6641427c14988b84b3b3a45859f9e73a513",
+    "nativeRun": 42205691399,
+    "feedbackRun": 42205691613,
+    "arm64Job": 127851623110,
+    "intelJob": 127851623352,
+    "nativeArchitectures": "FAIL",
+    "failedUniqueCasesPerArchitecture": 12,
+    "rawLogSHA256": {
+      "arm64": "4340194a340d4eeca830bf7862ad2b4564d5fabc5a8095df6f42b074fb8a78de",
+      "intel": "05fb1b6487ae9db1ad9540b1aca72d0fba86c129f1044611e7fa5dde012c83a7"
+    },
+    "originalSummarySHA256": "e0e840f4e8640fc457e7949fb9514bc46029eefd837b00aeaf3dbb0e721754bb",
+    "originalFailuresPreserved": true
+  },
+  "reviewLaneChanges": [
+    {
+      "case": "explicit defaults and discard",
+      "reason": "The owner formats Double values as 72.0 and 24.0. The earlier tests incorrectly required integer-form strings.",
+      "assertions": "Require the explicit expected numeric values, field/model text agreement, retired editor, no reintroduced draft and no save request. User-typed raw text/selection tests remain intact."
+    },
+    {
+      "case": "high-contrast fixture",
+      "reason": "The subclass initialized with the bundle-resource initializer. Its built-in-name resource was unavailable on macOS 15.8.2, although the newer local runtime accepted it. This is not a portable fixture or actual high-contrast proof.",
+      "assertions": "Retain cached ordinary light/dark eleven-token assertions. Check actual effectiveAppearance for high contrast; explicitly XCTSkip/NOT_RUN if unavailable, with no system preference mutation. Actual high-contrast color assertions remain when the condition exists."
+    },
+    {
+      "case": "close-sheet Escape and Return",
+      "reason": "The original native Alert order overwrote Escape with the default Return role. Reversing the order restored Escape but lost Return. Both failures were reproduced in owned attached key sheets.",
+      "implementation": "Keep the native default Continue button. Add an app-local keyDown monitor only while this exact pending sheet is attached; require event.window identity, Escape key/character and no modifiers. Other events pass through unchanged. Completion and teardown remove the monitor. Invalid responder-chain experiments are removed."
+    }
+  ],
+  "testMethodsAuthored": {
+    "RiftSettingsCenterTests": 41,
+    "SettingsNativeStyleTests": 2
+  },
+  "validation": {
+    "riftletUITargetBuild": {
+      "result": "PASS",
+      "logSHA256": "bf6e3ed154ef901cc882b51ec649f13cccab4d9877735b57756e06752ea952b8"
+    },
+    "swiftParser": {
+      "result": "PASS",
+      "logSHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "nativeObjectCodeProbe": {
+      "result": "PASS",
+      "sourceSHA256": "7616711a9ac0ea53dfec1d67854cc9d93e72ae39a58590d5cf8f6801d62f3f6d",
+      "binarySHA256": "b228cbb7bf4a1289861d442009d6ac55f816895245d9adad650deb9ac1c55bf0",
+      "rawLogSHA256": "5ab21221c252d8a546687e0bb98e0a32eb78eadc5f6c01755c2ea21f04a86f50",
+      "runnerSHA256": "43bf9fa6ab9c50b73e81d53eb1aebeb4e48842a2d67ec3ab56369bbce8355684",
+      "compileLogSHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "normalExit": true,
+      "observations": [
+        {
+          "attachedKeySheet": true,
+          "defaultContinue": true,
+          "draftAndSelectionPreserved": true,
+          "hostCommands": 0,
+          "key": "escape",
+          "ownerWrites": 0,
+          "result": "PASS"
+        },
+        {
+          "attachedKeySheet": true,
+          "defaultContinue": true,
+          "draftAndSelectionPreserved": true,
+          "hostCommands": 0,
+          "key": "return",
+          "ownerWrites": 0,
+          "result": "PASS"
+        },
+        {
+          "case": "teardownDetach",
+          "draftRetained": true,
+          "ownerWrites": 0,
+          "result": "PASS"
+        }
+      ],
+      "scope": "Actual compiled UI/model objects and synthetic owner. Native events target only the owned attached key sheet. This is not XCTest, a packaged App or physical keyboard validation.",
+      "rawFieldCorrection": "The retained raw probe has a legacy keyEquivalentConsumed=false placeholder after switching to NSApp.sendEvent. It was not measured and is excluded from accepted observations; PASS uses actual sheet completion, preserved draft/selection and zero write/host-command checks."
+    },
+    "originalAlertOrderingProbe": {
+      "logSHA256": "24ed19fb6e534047a98daf9b714511942bf16fdec0c6842237af2c31a3baaa8f",
+      "sourceSHA256": "d7ddae5a79e697138de1d7983aac200b33b41450340801462e8cbd2b6e434ee8",
+      "result": "Original Escape failed / Return passed; reversed-order Escape passed / Return failed"
+    },
+    "xctest": "NOT_RUN locally; patched tests require formal CI",
+    "actualOSHighContrast": "NOT_RUN in this lane; no preference changed",
+    "fullCandidate": "PENDING"
+  },
+  "retainedIntermediateEvidence": [
+    {
+      "fileLabel": "probe.log",
+      "sha256": "7414ee4fc1fa91b9c9744a19858528262e11e9529a70fb6c7dc0e71330fa0631"
+    },
+    {
+      "fileLabel": "cancel-probe.log",
+      "sha256": "640891f66d8d60a9419cc92d2e8d0be50848bb1644398a6601344a6fadb8fc10"
+    },
+    {
+      "fileLabel": "hidden-sheet-probe.log",
+      "sha256": "8c7929924f1cfeba25ef54852ed6b75f491585d64546e1c9d36fe9770498cd7d"
+    },
+    {
+      "fileLabel": "offscreen-probe.log",
+      "sha256": "54bb1c9daabc6bafb33214df9362f1c6b54fb83504824b546a9613f64f506ebf"
+    },
+    {
+      "fileLabel": "actual-probe.log",
+      "sha256": "ca9b0b29dd07c50d5f0b5543a40896cdb00c623c17fedf183fd0374fb6acbd5b"
+    },
+    {
+      "fileLabel": "actual-probe-v2.log",
+      "sha256": "74c0a4c459a3f44f7992d2c0435885fcfc622b5e348bb07e8ae1a36098a95f07"
+    },
+    {
+      "fileLabel": "actual-probe-v3.log",
+      "sha256": "74c0a4c459a3f44f7992d2c0435885fcfc622b5e348bb07e8ae1a36098a95f07"
+    },
+    {
+      "fileLabel": "actual-diagnostic.log",
+      "sha256": "12c0e37889e2d8af8f8ebbb2e9478639ad129c96c013810ab130a562bdd89474"
+    },
+    {
+      "fileLabel": "actual-probe-v5.log",
+      "sha256": "74c0a4c459a3f44f7992d2c0435885fcfc622b5e348bb07e8ae1a36098a95f07"
+    },
+    {
+      "fileLabel": "ui-build-local-monitor.log",
+      "sha256": "99cc88a70c58b942d8af04343d2d0d36b6c0f702e2d48fc7d6457d3b05a3d420"
+    },
+    {
+      "fileLabel": "actual-probe-monitor-compile.log",
+      "sha256": "87ea5368df6d9d643362b7fb9220a0f8a4e9c82d2d8324efd2b9352ee53fc924"
+    }
+  ],
+  "intermediateLimits": [
+    "Hidden-parent/offscreen guards did not dispatch keys and are not cancellation evidence.",
+    "The first actual-object harness had no edit capability and failed before input; it is not a product failure.",
+    "Intermediate responder routes failed actual Escape delivery; their logs remain, but no separate immutable product checkpoint is claimed for those experimental bytes.",
+    "Initial monitor compilation failed before execution; the corrected build/probe have separate records."
+  ],
+  "scope": "Exact source-file and evidence bindings for the assigned settings-test corrections and the proven Escape product defect. The original full CI failures and all native-run FAIL records remain unchanged. Final source review, CI, package and product acceptance are separate.",
+  "nativeProbeSourceVersionFileSHA256": {
+    "Sources/RiftletUI/RiftSettingsCenterController.swift": "11db6b98bf6facace687144e670d2056527c975c2499cee27f09e54481f25e0e",
+    "Tests/RiftletUITests/RiftSettingsCenterTests.swift": "69a36bad9bfe555eff483ed1908478cc24162c302b3c34fd9e251accd73c2b3f",
+    "Tests/RiftletUITests/SettingsNativeStyleTests.swift": "242bf4d2d6be8312688278055291650c7416d3b5d429414b35812e94723860cc"
+  },
+  "modifierStateFollowup": {
+    "currentFrozenFileSHA256": {
+      "Sources/RiftletUI/RiftSettingsCenterController.swift": "07dd22f17df52663356bbd45123ae411dd5b4d1280e5d037289e02ff1ed0a8cd",
+      "Tests/RiftletUITests/RiftSettingsCenterTests.swift": "efbe1f10bea25084ea129ead54d2bf37bc7c6202f1456b46e29f0a3ffb9cf9de",
+      "Tests/RiftletUITests/SettingsNativeStyleTests.swift": "242bf4d2d6be8312688278055291650c7416d3b5d429414b35812e94723860cc"
+    },
+    "change": "Treat only Command, Control, Option and Shift as operation modifiers. CapsLock and Function state do not disable this exact-sheet Escape action; all window/identity/key checks remain unchanged.",
+    "authoredAssertions": "The positive native event test covers ordinary, CapsLock and Function Escape. Negative cases retain Command/Control/Option/Shift, other keys and other windows. Forty-one settings-center methods and two style methods remain.",
+    "targetBuild": {
+      "result": "PASS",
+      "logSHA256": "c6cf16826a713e8b33609c141a9e52829db897bc1ed462e2f03994001e359927"
+    },
+    "parser": {
+      "result": "PASS",
+      "logSHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "xctest": "NOT_RUN locally; final cloud XCTest pending",
+    "guiProbeForThisIncrement": "NOT_RUN; no additional App/window launched for modifier-mask widening",
+    "priorProbeLimit": "The existing actual Escape/Return object-code PASS remains bound to the earlier strict-mask source version. It is not relabelled as a test of these successor bytes or of the final packaged App."
+  }
+}

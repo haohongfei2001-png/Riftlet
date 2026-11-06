@@ -1,0 +1,735 @@
+{
+  "schema": 1,
+  "source": "4174a04b6497c96b33424f772338e553a3db6525",
+  "sourceTree": "d0e1127ee59ecdb8f0f4609ce5c5acc7c8144991",
+  "binarySHA256": "c94924aec77c676f36e5db6130c766f78d0c68211f24a172e2fd6f70286710f5",
+  "originalRecordSHA256": {
+    "candidateManifest": "2ed4a3aed01f27c946b65c0516c624d33d8f1a1c8d9e03cd64c3b613659c74fc",
+    "runnerResult": "02ee1b102363a45869bfec827c38cff6aa6e74bd974ba7982aa36394fd215635",
+    "applicationLog": "e3d0a1788ba8443a455b24296ba39ba2760e5a804da9a858edc3c3c4326464a7",
+    "driverReport": "c67837759fc0bbf209c7251cdec78005e8f5a3bd7f54ae9830bb7fbb1cf095ee",
+    "independentReview": "581b1b85f342d66f1a436488af50c199862501d878f36cc065b7b6402c12cd4c"
+  },
+  "result": "FAIL",
+  "productionReady": false,
+  "runner": {
+    "status": "FAIL",
+    "exitCode": 0,
+    "timedOut": false,
+    "timeoutSeconds": 180,
+    "elapsedSeconds": 29.646143999882042,
+    "completed": true,
+    "caseCount": 13,
+    "frameCount": 25
+  },
+  "driver": {
+    "status": "FAIL",
+    "completed": true,
+    "elapsedSeconds": 28.39525879151188,
+    "passCount": 11,
+    "failCount": 2,
+    "frameRecordCount": 25,
+    "recordedPNGCount": 23,
+    "notRunFrameCount": 2,
+    "restorationFailures": []
+  },
+  "identityVerification": {
+    "sourceTreeVerified": true,
+    "sameReviewIdentityVerified": true,
+    "sameProcessIdentityVerified": true,
+    "binaryMatchesManifestRunnerAndReport": true
+  },
+  "functionalCases": [
+    {
+      "case": "environment-and-default-window",
+      "status": "PASS"
+    },
+    {
+      "case": "real-collector-synthetic-fixture",
+      "status": "PASS"
+    },
+    {
+      "case": "six-pages-light-and-dark",
+      "status": "FAIL",
+      "reason": "conditionTimedOut"
+    },
+    {
+      "case": "orthogonal-pause-hidden-sqlite",
+      "status": "FAIL",
+      "reason": "conditionTimedOut"
+    },
+    {
+      "case": "archive-editor-first-save-discard",
+      "status": "PASS"
+    },
+    {
+      "case": "configuration-editor-refresh-defaults",
+      "status": "PASS"
+    },
+    {
+      "case": "close-sheet-continue-discard",
+      "status": "PASS"
+    },
+    {
+      "case": "independent-write-failures-and-retry",
+      "status": "PASS"
+    },
+    {
+      "case": "motion-explicit-play-and-navigation-stop",
+      "status": "PASS"
+    },
+    {
+      "case": "three-step-guidance-light-and-dark",
+      "status": "PASS"
+    },
+    {
+      "case": "resizing-and-reopen",
+      "status": "PASS"
+    },
+    {
+      "case": "history-real-records",
+      "status": "PASS"
+    },
+    {
+      "case": "original-media-and-no-upload-operations",
+      "status": "PASS"
+    }
+  ],
+  "frames": [
+    {
+      "name": "initial-general",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "9aca4d8b8f2473450278c4b5411a2e401db4fcfc6af91352604b953995478c55",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        960,
+        684
+      ],
+      "appKitWindowSize": [
+        960,
+        712
+      ],
+      "windowServerSize": [
+        962,
+        712
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "settings-light-general",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "f13c26c930ae0e5b13c03a01722fe4bc9d6a49ab39838b4b3f110d5b79408d7e",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        960,
+        684
+      ],
+      "appKitWindowSize": [
+        960,
+        712
+      ],
+      "windowServerSize": [
+        960,
+        712
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "settings-light-display",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "b688f71130acbeca864ce5205c30e1f5254c98c44a5a9641ca7b6053bd003a31",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        960,
+        684
+      ],
+      "appKitWindowSize": [
+        960,
+        712
+      ],
+      "windowServerSize": [
+        960,
+        712
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "settings-light-capture",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "e9151f7259c069ecaf17252d64b07613d0806e3c784552ed12574157a4e8fa78",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        960,
+        684
+      ],
+      "appKitWindowSize": [
+        960,
+        712
+      ],
+      "windowServerSize": [
+        960,
+        712
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "settings-light-motion",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "8641defb7db1b9f44c42905c079063276a8c277280aa8fe2f2e100ccaa2888bc",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        960,
+        684
+      ],
+      "appKitWindowSize": [
+        960,
+        712
+      ],
+      "windowServerSize": [
+        960,
+        712
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "settings-light-history",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "7b9857d077b8f0e5f0ab77282012779c2b259d04fe203ed20572cf9593843620",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        960,
+        684
+      ],
+      "appKitWindowSize": [
+        960,
+        712
+      ],
+      "windowServerSize": [
+        960,
+        712
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "settings-light-help",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "e98a7fe7963a88c301554f560ef34ec406924dc0d089281b1e87155bf3e833bd",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        960,
+        684
+      ],
+      "appKitWindowSize": [
+        960,
+        712
+      ],
+      "windowServerSize": [
+        960,
+        712
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "control-unsettled-7",
+      "status": "NOT_RUN",
+      "reason": "ownedWindowUnavailable"
+    },
+    {
+      "name": "control-normal",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "b064cd3727f0ae57515fd822cd57fe271071f309d76f5f0cfdb29ceb0ef75482",
+      "pixels": [
+        724,
+        1078
+      ],
+      "backingScale": 2,
+      "presentationStable": true,
+      "contentSize": [
+        336,
+        513
+      ],
+      "appKitWindowSize": [
+        362,
+        539
+      ],
+      "windowServerSize": [
+        362,
+        539
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "SCOPED_PASS_BY_READINESS_INDEPENDENT"
+    },
+    {
+      "name": "control-paused",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "34dc3a0484d2ee7d8f8c7bbf1408d708dfae400ac08c7ad4c550d01f6fc0daf7",
+      "pixels": [
+        724,
+        1078
+      ],
+      "backingScale": 2,
+      "presentationStable": true,
+      "contentSize": [
+        336,
+        513
+      ],
+      "appKitWindowSize": [
+        362,
+        539
+      ],
+      "windowServerSize": [
+        362,
+        539
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "SCOPED_PASS_BY_READINESS_INDEPENDENT"
+    },
+    {
+      "name": "control-unsettled-10",
+      "status": "NOT_RUN",
+      "reason": "ownedWindowUnavailable"
+    },
+    {
+      "name": "archive-first-activation-save",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "f697288989dc499a47e28316a297fc27cd894907e0a5536790b811ffc5e16fe3",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        960,
+        684
+      ],
+      "appKitWindowSize": [
+        960,
+        712
+      ],
+      "windowServerSize": [
+        960,
+        712
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "display-defaults-after-active-edit",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "ce5782d41ffc423514477ccd878965192b8de5a72b326b4772b512e041b76538",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        960,
+        684
+      ],
+      "appKitWindowSize": [
+        960,
+        712
+      ],
+      "windowServerSize": [
+        960,
+        712
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "close-draft-sheet",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "3c585de0ccf8980fafc7ee4c298579cabca6120e4fd4539a00f44272c7247951",
+      "pixels": [
+        520,
+        446
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        260,
+        223
+      ],
+      "appKitWindowSize": [
+        260,
+        223
+      ],
+      "windowServerSize": [
+        260,
+        223
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "control-save-failure",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "b3ea10aa616be27763c7a5ea6f2ebec4fa085a4cce639b91b10873b345b81f4c",
+      "pixels": [
+        724,
+        1128
+      ],
+      "backingScale": 2,
+      "presentationStable": true,
+      "contentSize": [
+        336,
+        538
+      ],
+      "appKitWindowSize": [
+        362,
+        564
+      ],
+      "windowServerSize": [
+        362,
+        564
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "SCOPED_PASS_BY_READINESS_INDEPENDENT"
+    },
+    {
+      "name": "independent-errors-resolved",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "a6b6e2c1a025f4329f4a0209a10ffea754b081a913c6e5fb890214c2c253c05c",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        960,
+        684
+      ],
+      "appKitWindowSize": [
+        960,
+        712
+      ],
+      "windowServerSize": [
+        960,
+        712
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "explicit-arrival-preview",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "7155c285e719e4b24d26587f5d7bb167450ea252aa734a5ee256ad999fdbc501",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        960,
+        684
+      ],
+      "appKitWindowSize": [
+        960,
+        712
+      ],
+      "windowServerSize": [
+        960,
+        712
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "onboarding-light-1",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "eee05bd28021078cfc1f017058877b8d72f207c3dcc409cf5cb1bf0607499b08",
+      "pixels": [
+        1304,
+        1216
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        652,
+        580
+      ],
+      "appKitWindowSize": [
+        652,
+        608
+      ],
+      "windowServerSize": [
+        652,
+        608
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "onboarding-light-2",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "a29fc51c9f40df673b6b28b9f5891c40928711985ef54d5d97ca0235ba90fb7d",
+      "pixels": [
+        1304,
+        1216
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        652,
+        580
+      ],
+      "appKitWindowSize": [
+        652,
+        608
+      ],
+      "windowServerSize": [
+        652,
+        608
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "onboarding-light-3",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "476ef65ec3500b19f82230d7be6ab510c4c398de2e4d9beceb2b0e6e41168964",
+      "pixels": [
+        1304,
+        1216
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        652,
+        580
+      ],
+      "appKitWindowSize": [
+        652,
+        608
+      ],
+      "windowServerSize": [
+        652,
+        608
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "onboarding-dark-1",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "3a944f902aa8f03b2c1d85811d1c999bb20ecfee1b23e29625622b22e99bd75b",
+      "pixels": [
+        1304,
+        1216
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        652,
+        580
+      ],
+      "appKitWindowSize": [
+        652,
+        608
+      ],
+      "windowServerSize": [
+        652,
+        608
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "onboarding-dark-2",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "0e0cdbd907be545e5a12da186992a1cb31a71396d427c935eb79a7181e65e09b",
+      "pixels": [
+        1304,
+        1216
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        652,
+        580
+      ],
+      "appKitWindowSize": [
+        652,
+        608
+      ],
+      "windowServerSize": [
+        652,
+        608
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "onboarding-dark-3",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "0114940364788945291cdbbac507994d13634d64528ea47edd55c0fbc037b01d",
+      "pixels": [
+        1304,
+        1216
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        652,
+        580
+      ],
+      "appKitWindowSize": [
+        652,
+        608
+      ],
+      "windowServerSize": [
+        652,
+        608
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "settings-minimum-size",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "11b590e5ecde0afe8228615effeef9ebce907fefcbcfd5a38ccc80c162a28dd6",
+      "pixels": [
+        1520,
+        1080
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        760,
+        512
+      ],
+      "appKitWindowSize": [
+        760,
+        540
+      ],
+      "windowServerSize": [
+        760,
+        540
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "history-real-isolated-records",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "fb4e284b3a09b6c8cc1b0704975c851ad0e66fc3b60a3929cec9cf6707f54f17",
+      "pixels": [
+        1516,
+        1116
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        760,
+        532
+      ],
+      "appKitWindowSize": [
+        760,
+        560
+      ],
+      "windowServerSize": [
+        758,
+        558
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    }
+  ],
+  "integrity": [
+    {
+      "allPrivateMediaDigestsMatch": true,
+      "assetCount": 1,
+      "assetsWithOperation": 0,
+      "kind": "integrity",
+      "successfulOperations": 0,
+      "unresolvedOperations": 0
+    }
+  ],
+  "restart": {
+    "status": "NOT_RUN",
+    "reason": "The initial functional run failed; same-package restart prerequisites were not met."
+  },
+  "notRun": [
+    "realChatGPTAttachment",
+    "physicalPointer",
+    "OSInputMethod",
+    "VoiceOver",
+    "realLoginRegistration",
+    "realTCCPrompt",
+    "multiDisplayHotplug"
+  ],
+  "productionDataAccess": false,
+  "browserAccess": false,
+  "networkUpload": false,
+  "reportRetrieval": {
+    "method": "runnerReportedPath",
+    "runnerReportedPathPresent": true,
+    "runnerReportDigestVerified": true
+  },
+  "independentVisualReview": {
+    "reviewer": "readiness_independent",
+    "result": "PASS_SCOPED_THREE_CONTROL_RAW_PNGS",
+    "frames": [
+      "control-normal",
+      "control-paused",
+      "control-save-failure"
+    ],
+    "findings": [
+      {
+        "id": "VIS01",
+        "status": "CLOSED_FOR_THREE_LISTED_FRAMES",
+        "detail": "Pause and hide descriptions now use the row width and read naturally without the former four-character wrapping or empty gap. Titles, switches, actions and footer are legible."
+      },
+      {
+        "id": "VIS05",
+        "status": "CLOSED_FOR_THREE_LISTED_FRAMES",
+        "detail": "All three original PNGs show the complete control panel, native arrow, rounded edges and footer. No black clipped portion or partial animated panel is visible."
+      },
+      {
+        "id": "SAVE_FAILURE_PROJECTION",
+        "status": "VISUALLY_CONSISTENT",
+        "detail": "Save-failure frame retains independent pause/hide on states and displays the unconfirmed-save heading and recovery action. Visual evidence alone does not prove persistence."
+      }
+    ],
+    "limits": [
+      "Only the three listed original control PNGs were visually approved.",
+      "The overall run remains FAIL with eleven passing and two timed-out cases.",
+      "No closure for dark, hidden-only or paused-and-hidden normal control frames."
+    ]
+  },
+  "observations": [
+    {
+      "case": "controlOpenTimeouts",
+      "status": "FAIL",
+      "reason": "Two complete case paths timed out and the failed popover opens ended not shown and not visible. The actual cause was not established by run04 screenshots. Later timeline evidence is preserved separately in run05."
+    }
+  ],
+  "scope": "Sanitized run04 original failure bindings. Twenty-five frame records contain twenty-three PNGs and two NOT_RUN entries. Three complete control images received scoped independent visual approval; this does not make the whole run pass. Prior evidence is unchanged."
+}
