@@ -44,6 +44,8 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
     private(set) var pendingCloseAlert: NSAlert?
     private var suspendedEditor: (field: NSTextField, selection: NSRange)?
     private var closingAfterApply = false
+    private var closeSheetApproved = false
+    private var terminationCompletion: (@MainActor (Bool) -> Void)?
 
     public init(model: SettingsStateModel, onAction: @escaping SettingsProductActionHandler) {
         self.model = model; self.onAction = onAction
@@ -99,12 +101,32 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
 
     /// Host teardown is distinct from the user closing an edited form.
     public func closeForTeardown() {
+        resolveTermination(false)
         allowClose = true
-        if let sheet = window.attachedSheet { window.endSheet(sheet, returnCode: .abort) }
+        let sheet = window.attachedSheet
         pendingCloseAlert = nil
+        closingAfterApply = false
+        closeSheetApproved = false
         suspendedEditor = nil
+        if let sheet { window.endSheet(sheet, returnCode: .abort) }
         stopPreviews(); window.close()
         allowClose = false
+    }
+
+    /// Explicit App Quit shares the existing draft decision. A repeated request
+    /// cannot replace an unanswered callback; teardown never approves a Quit.
+    public func requestCloseForTermination(_ completion: @escaping @MainActor (Bool) -> Void) {
+        guard terminationCompletion == nil else { completion(false); return }
+        guard window.attachedSheet == nil || pendingCloseAlert != nil else { completion(false); return }
+        flushEditor()
+        if pendingCloseAlert == nil && !needsCloseConfirmation && !persistenceBusy {
+            completion(true)
+            return
+        }
+        terminationCompletion = completion
+        if !window.isVisible { show(page: selectedPage) }
+        presentCloseConfirmation()
+        refreshCloseButtons()
     }
 
     func buildWindow() {
@@ -294,6 +316,7 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
     public func windowShouldClose(_ sender: NSWindow) -> Bool {
         if allowClose { return true }
         flushEditor()
+        if pendingCloseAlert != nil { return false }
         guard needsCloseConfirmation else { stopPreviews(); return true }
         presentCloseConfirmation()
         return false
@@ -319,35 +342,74 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
         alert.buttons[0].keyEquivalentModifierMask = []
         alert.window.defaultButtonCell = alert.buttons[0].cell as? NSButtonCell
         pendingCloseAlert = alert
+        closeSheetApproved = false
         refreshCloseButtons()
-        alert.beginSheetModal(for: window) { [weak self] response in
-            Task { @MainActor [weak self] in
-                guard let self else { return }
+        alert.beginSheetModal(for: window) { [weak self, weak alert] response in
+            Task { @MainActor [weak self, weak alert] in
+                guard let self, let alert, pendingCloseAlert === alert else { return }
+                let approved = closeSheetApproved
                 pendingCloseAlert = nil
-                if response == .alertSecondButtonReturn {
-                    guard finishEditingForReplacement() else { return }
-                    await onAction(.settings(.discardDrafts))
-                    render()
-                    if !needsCloseConfirmation { finishUserClose() }
-                } else if response == .alertThirdButtonReturn {
-                    guard !closingAfterApply else { return }
-                    closingAfterApply = true
-                    await onAction(.settings(.applyDrafts))
-                    closingAfterApply = false
-                    render()
-                    if !needsCloseConfirmation { finishUserClose() }
-                } else { restoreEditor() }
+                closingAfterApply = false
+                closeSheetApproved = false
+                if approved && (response == .alertSecondButtonReturn || response == .alertThirdButtonReturn)
+                    && !needsCloseConfirmation && (terminationCompletion == nil || !persistenceBusy) {
+                    finishUserClose()
+                    resolveTermination(true)
+                } else {
+                    restoreEditor()
+                    resolveTermination(false)
+                }
             }
+        }
+        // Keep this exact sheet open while awaiting an owner. NSAlert's default
+        // button action ends it immediately, which would lose the Quit decision
+        // on a failed/partial save. Continue remains usable during that wait.
+        for button in alert.buttons { button.target = self; button.action = #selector(closeChoiceInvoked(_:)) }
+    }
+    @objc private func closeChoiceInvoked(_ sender: NSButton) {
+        guard let alert = pendingCloseAlert, let index = alert.buttons.firstIndex(where: { $0 === sender }) else { return }
+        if index == 0 {
+            window.endSheet(alert.window, returnCode: .alertFirstButtonReturn)
+            return
+        }
+        guard sender.isEnabled, !closingAfterApply else { return }
+        if index == 1 && !finishEditingForReplacement() { return }
+        closingAfterApply = true
+        refreshCloseButtons()
+        Task { @MainActor [weak self, weak alert] in
+            guard let self, let alert, pendingCloseAlert === alert, window.attachedSheet === alert.window else { return }
+            await onAction(.settings(index == 1 ? .discardDrafts : .applyDrafts))
+            // A continued edit, teardown, or newer sheet cannot be approved by
+            // a receipt for the earlier decision. The owner write still stands.
+            guard pendingCloseAlert === alert, window.attachedSheet === alert.window else { return }
+            closingAfterApply = false
+            render()
+            guard !needsCloseConfirmation, terminationCompletion == nil || !persistenceBusy else { return }
+            closeSheetApproved = true
+            window.endSheet(alert.window, returnCode: index == 1 ? .alertSecondButtonReturn : .alertThirdButtonReturn)
         }
     }
     func refreshCloseButtons() {
         guard let alert = pendingCloseAlert else { return }
-        let busy = [SettingsDomain.layout, .archive].contains { model.snapshot.domains[$0]?.isSaving == true }
+        let busy = closingAfterApply || [SettingsDomain.layout, .archive].contains { model.snapshot.domains[$0]?.isSaving == true }
+            || (terminationCompletion != nil && persistenceBusy)
+        let failed = [SettingsDomain.layout, .archive].contains { model.snapshot.domains[$0]?.saveFailure != nil }
         alert.buttons[1].isEnabled = !busy
         alert.buttons[2].isEnabled = !busy && product.capabilities.canEditPreferences
         alert.informativeText = busy
             ? "正在保存已有更改。请继续编辑或等待保存结束；关闭窗口不会取消已经开始的写入。"
+            : failed ? "更改尚未保存。可以重试“应用并关闭”，或继续编辑处理。未保存的草稿仍保留。"
             : "位置、动效参数与归档时限还有未确认的更改。已生效的即时开关不受影响。"
+    }
+    private var persistenceBusy: Bool {
+        // Appearance writes are synchronous on MainActor. Login registration
+        // and model owners can yield, and must finish before approving Quit.
+        model.snapshot.domains.values.contains(where: \.isSaving) || product.login.isBusy
+    }
+    private func resolveTermination(_ approved: Bool) {
+        let completion = terminationCompletion
+        terminationCompletion = nil
+        completion?(approved)
     }
     private func restoreEditor() {
         guard let context = suspendedEditor else { return }

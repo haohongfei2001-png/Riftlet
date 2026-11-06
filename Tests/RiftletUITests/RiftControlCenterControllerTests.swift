@@ -201,15 +201,57 @@ final class RiftControlCenterControllerTests: XCTestCase {
         guard button.window?.isVisible == true else { throw XCTSkip("No usable native status-bar anchor; real menu focus acceptance remains separate") }
         button.performClick(nil)
         XCTAssertTrue(controller.isShown)
+        await assertReceived { controller.isShown && controller.window?.isVisible == true }
+        controller.contentView.layoutSubtreeIfNeeded()
+        for id in ["control.pause", "control.hide"] {
+            let toggle = try XCTUnwrap(controller.control(identifier: id))
+            let row = try XCTUnwrap(toggle.superview as? NSStackView)
+            let copy = try XCTUnwrap(row.arrangedSubviews.first { $0.identifier?.rawValue == id + ".text" })
+            XCTAssertGreaterThan(copy.frame.width, 200, "Wrapping copy must use the open space to the left of its switch")
+            XCTAssertEqual(copy.frame.width + toggle.frame.width + row.spacing, row.bounds.width, accuracy: 1)
+        }
         let firstWindow = controller.window
         button.performClick(nil)
         XCTAssertFalse(controller.isShown)
+        await assertReceived { !controller.isShown && controller.window?.isVisible != true }
         button.performClick(nil)
         XCTAssertTrue(controller.isShown)
+        await assertReceived { controller.isShown && controller.window?.isVisible == true }
         XCTAssertTrue(controller.window === firstWindow)
         let settings = try XCTUnwrap(controller.control(identifier: "control.settings") as? NSButton)
         settings.performClick(nil)
         await assertReceived { openedSettings == 1 }
         XCTAssertFalse(controller.isShown)
+    }
+
+    @MainActor func testSuspendedInteractionRejectsStatusAndStaleCommandsThenRestoresLatestState() async throws {
+        try prepareAppKit()
+        let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+        defer { NSStatusBar.system.removeStatusItem(item) }
+        var actions = 0
+        let controller = RiftControlCenterController(statusItem: item) { _ in actions += 1 }
+        defer { controller.close() }
+        controller.update(fixture())
+        let status = try XCTUnwrap(item.button)
+        let pause = try XCTUnwrap(controller.control(identifier: "control.pause") as? NSSwitch)
+        let settings = try XCTUnwrap(controller.control(identifier: "control.settings") as? NSButton)
+        let staleMenu = try XCTUnwrap(controller.contextMenu.items.first { $0.title == "暂停收录" })
+        controller.setInteractionSuspended(true)
+        controller.update(fixture(revision: 2, paused: true, hidden: true, collection: .paused))
+        XCTAssertFalse(status.isEnabled); XCTAssertFalse(pause.isEnabled); XCTAssertFalse(settings.isEnabled)
+        XCTAssertTrue(controller.contextMenu.items.filter { $0.action != nil }.allSatisfy { !$0.isEnabled })
+        XCTAssertTrue(NSApp.sendAction(try XCTUnwrap(status.action), to: status.target, from: status))
+        XCTAssertTrue(NSApp.sendAction(try XCTUnwrap(pause.action), to: pause.target, from: pause))
+        XCTAssertTrue(NSApp.sendAction(try XCTUnwrap(settings.action), to: settings.target, from: settings))
+        XCTAssertTrue(NSApp.sendAction(try XCTUnwrap(staleMenu.action), to: staleMenu.target, from: staleMenu))
+        XCTAssertFalse(controller.isShown)
+        XCTAssertEqual(actions, 0)
+        controller.setInteractionSuspended(false)
+        XCTAssertTrue(status.isEnabled); XCTAssertTrue(pause.isEnabled); XCTAssertTrue(settings.isEnabled)
+        XCTAssertEqual(pause.state, .on, "Cancelling Quit keeps the latest owner state")
+        XCTAssertFalse(try XCTUnwrap(controller.control(identifier: "control.capture") as? NSButton).isEnabled)
+        settings.performClick(nil)
+        await assertReceived { actions == 1 }
+        XCTAssertEqual(actions, 1, "No command blocked during termination may be replayed after cancellation")
     }
 }

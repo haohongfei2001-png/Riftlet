@@ -64,15 +64,25 @@ final class RiftSettingsCenterTests: XCTestCase {
         host.controller.controlTextDidChange(Notification(name: NSControl.textDidChangeNotification, object: field))
         return editor
     }
-    @MainActor private func answerClose(_ host: SettingsCenterTestHost, _ response: NSApplication.ModalResponse) async throws {
+    @MainActor private func answerClose(_ host: SettingsCenterTestHost, _ response: NSApplication.ModalResponse,
+                                       remainsOpen: Bool = false) async throws {
         let alert = try XCTUnwrap(host.controller.pendingCloseAlert)
         let expected = host.startedActions + 1
         alert.window.animationBehavior = .none
-        host.controller.window.endSheet(alert.window, returnCode: response)
-        try await waitFor("native sheet completion") { host.controller.pendingCloseAlert == nil }
-        XCTAssertNil(host.controller.pendingCloseAlert, "Native sheet completion must arrive before asserting the selected outcome")
+        let index = response == .alertSecondButtonReturn ? 1 : response == .alertThirdButtonReturn ? 2 : 0
+        XCTAssertTrue(alert.buttons[index].isEnabled)
+        alert.buttons[index].performClick(nil)
         if response == .alertSecondButtonReturn || response == .alertThirdButtonReturn {
             try await waitFor("sheet action \(expected) completion") { host.completedActions.contains(expected) }
+        }
+        if remainsOpen {
+            try await waitFor("failed decision remains actionable in the same sheet") {
+                host.controller.pendingCloseAlert === alert && alert.buttons[2].isEnabled
+            }
+            XCTAssertTrue(host.controller.window.attachedSheet === alert.window)
+        } else {
+            try await waitFor("native sheet completion") { host.controller.pendingCloseAlert == nil }
+            XCTAssertNil(host.controller.pendingCloseAlert, "Native sheet completion must arrive before asserting the selected outcome")
         }
     }
 
@@ -142,6 +152,66 @@ final class RiftSettingsCenterTests: XCTestCase {
         let frame = RiftSettingsCenterController.firstPresentationFrame(proposed, visibleFrame: large)
         XCTAssertEqual(frame.size, proposed.size)
         XCTAssertEqual(frame.midX, large.midX); XCTAssertEqual(frame.midY, large.midY)
+    }
+
+    @MainActor func testLayoutCaptionStaysOutsideDrawingForAllPlacementsAndCompactWidth() throws {
+        let h = try host(); defer { h.controller.closeForTeardown() }
+        h.controller.show(page: .display)
+        let caption = try XCTUnwrap(h.controller.labels["layoutPreview.detail"])
+        let document = try XCTUnwrap(h.controller.pages[.display])
+        for size in [NSSize(width: 960, height: 684), NSSize(width: 760, height: 540)] {
+            h.controller.window.setContentSize(size)
+            for placement in RiftPlacement.allCases {
+                for count in [1, 3, 10] {
+                    var settings = h.owner.settings
+                    settings.configuration.placement = placement
+                    settings.configuration.visibleCountPreference = count
+                    h.receive(settings)
+                    h.controller.window.contentView?.layoutSubtreeIfNeeded()
+                    let drawingRect = h.controller.geometryPreview.convert(h.controller.geometryPreview.bounds, to: document)
+                    let captionRect = caption.convert(caption.bounds, to: document)
+                    XCTAssertGreaterThan(captionRect.height, 0)
+                    XCTAssertFalse(drawingRect.intersects(captionRect), "The caption must never cover a synthetic card, including left-middle")
+                    if document.isFlipped { XCTAssertGreaterThanOrEqual(captionRect.minY, drawingRect.maxY + 8) }
+                    else { XCTAssertLessThanOrEqual(captionRect.maxY, drawingRect.minY - 8) }
+                    XCTAssertTrue(caption.stringValue.contains(placement.title + " · \(count) 张"))
+                    XCTAssertEqual(h.controller.geometryPreview.accessibilityValue() as? String, h.controller.geometryPreview.geometrySummary)
+                    XCTAssertEqual(caption.stringValue.contains("示意前 4 张"), count > 4)
+                }
+            }
+        }
+        XCTAssertTrue(h.requests.isEmpty)
+    }
+
+    @MainActor func testPlacementHasOneVisibleCheckmarkAndFailureKeepsConfirmedSelection() async throws {
+        let h = try host(); defer { h.controller.closeForTeardown() }
+        h.controller.show(page: .display)
+        func assertSelection(_ expected: RiftPlacement) throws {
+            for placement in RiftPlacement.allCases {
+                let button: NSButton = try control(h, "placement.\(placement.rawValue)")
+                let selected = placement == expected
+                XCTAssertEqual(button.state, selected ? .on : .off)
+                XCTAssertEqual(button.image != nil, selected, "Selection must be visible without depending on bezel color")
+                XCTAssertEqual(button.bezelColor != nil, selected)
+                XCTAssertEqual(button.imagePosition, .imageLeading)
+                XCTAssertEqual(button.accessibilityLabel(), placement.title)
+            }
+        }
+        for placement in RiftPlacement.allCases {
+            try await clickAndWait(h, "placement.\(placement.rawValue)")
+            XCTAssertEqual(h.owner.settings.configuration.placement, placement)
+            try assertSelection(placement)
+        }
+        let confirmed = try XCTUnwrap(h.owner.settings.configuration.placement)
+        let pending: RiftPlacement = confirmed == .leftMiddle ? .rightMiddle : .leftMiddle
+        h.failures = [.placement]
+        try await clickAndWait(h, "placement.\(pending.rawValue)")
+        try assertSelection(confirmed)
+        XCTAssertTrue(h.model.snapshot.domains[.placement]!.hasIssue)
+        h.failures = []
+        try await clickAndWait(h, "retry.placement")
+        try assertSelection(pending)
+        XCTAssertFalse(h.model.snapshot.domains[.placement]!.hasIssue)
     }
 
     @MainActor func testNativeFieldsKeepIdentityRawTextAndSelectionAcrossOwnerRefresh() throws {
@@ -283,7 +353,7 @@ final class RiftSettingsCenterTests: XCTestCase {
         h.controller.show(page: .history)
         try change(h, "archive.preset", index: 1)
         h.controller.window.performClose(nil)
-        try await answerClose(h, .alertThirdButtonReturn)
+        try await answerClose(h, .alertThirdButtonReturn, remainsOpen: true)
         XCTAssertTrue(h.controller.isVisible)
         XCTAssertEqual(h.model.archiveDraftText, "1")
         XCTAssertTrue(h.model.snapshot.domains[.archive]?.hasIssue == true)
@@ -311,7 +381,7 @@ final class RiftSettingsCenterTests: XCTestCase {
         h.model.setArchiveDraftText("8")
         h.controller.show(page: .history)
         h.controller.window.performClose(nil)
-        try await answerClose(h, .alertThirdButtonReturn)
+        try await answerClose(h, .alertThirdButtonReturn, remainsOpen: true)
         XCTAssertEqual(h.owner.settings.configuration.fitWidth, 81)
         XCTAssertTrue(h.controller.isVisible)
         h.failures = []
@@ -320,6 +390,183 @@ final class RiftSettingsCenterTests: XCTestCase {
         XCTAssertFalse(h.controller.isVisible)
         XCTAssertEqual(h.requests.filter { $0.intent.domain == .layout }.count, 1)
         XCTAssertEqual(h.requests.filter { $0.intent.domain == .archive }.count, 2)
+    }
+
+    @MainActor func testTerminationWithoutDraftOrSaveAnswersImmediatelyWithoutOpeningOrWriting() throws {
+        let h = try host(); defer { h.controller.closeForTeardown() }
+        var answers: [Bool] = []
+        h.controller.requestCloseForTermination { answers.append($0) }
+        XCTAssertEqual(answers, [true])
+        XCTAssertFalse(h.controller.isVisible)
+        XCTAssertNil(h.controller.pendingCloseAlert)
+        XCTAssertTrue(h.requests.isEmpty)
+    }
+
+    @MainActor func testTerminationReusesExistingSheetAndContinueCancelsOnlyItsRequest() async throws {
+        let h = try host(); defer { h.controller.closeForTeardown() }
+        h.controller.show(page: .history)
+        h.model.setArchiveDraftText("8")
+        h.controller.window.performClose(nil)
+        let original = try XCTUnwrap(h.controller.pendingCloseAlert)
+        var answers: [Bool] = [], repeatedAnswers: [Bool] = []
+        h.controller.requestCloseForTermination { answers.append($0) }
+        h.controller.requestCloseForTermination { repeatedAnswers.append($0) }
+        XCTAssertTrue(h.controller.pendingCloseAlert === original)
+        XCTAssertTrue(answers.isEmpty)
+        XCTAssertEqual(repeatedAnswers, [false], "A new request cannot replace the unanswered original callback")
+        try await answerClose(h, .alertFirstButtonReturn)
+        XCTAssertEqual(answers, [false])
+        XCTAssertEqual(repeatedAnswers, [false])
+        XCTAssertTrue(h.controller.isVisible)
+        XCTAssertEqual(h.model.archiveDraftText, "8")
+        XCTAssertTrue(h.requests.isEmpty)
+    }
+
+    @MainActor func testTerminationApplyWaitsForOwnerReceiptAndApprovesOnce() async throws {
+        let h = try host(); defer { h.controller.closeForTeardown() }
+        h.controller.show(page: .history)
+        h.model.setArchiveDraftText("8")
+        h.delayDomain = .archive
+        var answers: [Bool] = []
+        h.controller.requestCloseForTermination { answers.append($0) }
+        let alert = try XCTUnwrap(h.controller.pendingCloseAlert)
+        alert.window.animationBehavior = .none
+        alert.buttons[2].performClick(nil)
+        try await waitFor("termination save is awaiting its owner receipt") { h.continuation != nil }
+        XCTAssertTrue(answers.isEmpty)
+        XCTAssertTrue(h.controller.pendingCloseAlert === alert)
+        XCTAssertFalse(alert.buttons[1].isEnabled)
+        XCTAssertFalse(alert.buttons[2].isEnabled)
+        h.publish()
+        XCTAssertTrue(answers.isEmpty, "A snapshot refresh must not approve Quit")
+        h.resumeSave()
+        try await waitFor("successful termination decision") { answers == [true] }
+        XCTAssertEqual(h.owner.settings.archiveAfterHours, 8)
+        XCTAssertFalse(h.controller.isVisible)
+        XCTAssertNil(h.controller.pendingCloseAlert)
+        h.publish(); h.controller.closeForTeardown()
+        XCTAssertEqual(answers, [true])
+        XCTAssertEqual(h.requests.count, 1)
+    }
+
+    @MainActor func testTerminationFailedApplyRetainsSameSheetAndCallbackUntilContinue() async throws {
+        let h = try host(); defer { h.controller.closeForTeardown() }
+        h.controller.show(page: .history)
+        h.model.setArchiveDraftText("8")
+        h.failures = [.archive]
+        var answers: [Bool] = []
+        h.controller.requestCloseForTermination { answers.append($0) }
+        let original = try XCTUnwrap(h.controller.pendingCloseAlert)
+        try await answerClose(h, .alertThirdButtonReturn, remainsOpen: true)
+        XCTAssertTrue(h.controller.pendingCloseAlert === original)
+        XCTAssertTrue(original.informativeText.contains("尚未保存"))
+        XCTAssertTrue(answers.isEmpty)
+        h.publish()
+        XCTAssertTrue(h.controller.pendingCloseAlert === original)
+        XCTAssertTrue(answers.isEmpty)
+        try await answerClose(h, .alertFirstButtonReturn)
+        XCTAssertEqual(answers, [false])
+        XCTAssertTrue(h.controller.isVisible)
+        XCTAssertEqual(h.model.archiveDraftText, "8")
+    }
+
+    @MainActor func testTerminationFailedApplyCanDiscardWithoutAnotherWrite() async throws {
+        let h = try host(); defer { h.controller.closeForTeardown() }
+        h.controller.show(page: .history)
+        h.model.setArchiveDraftText("8")
+        h.failures = [.archive]
+        var answers: [Bool] = []
+        h.controller.requestCloseForTermination { answers.append($0) }
+        let original = try XCTUnwrap(h.controller.pendingCloseAlert)
+        try await answerClose(h, .alertThirdButtonReturn, remainsOpen: true)
+        XCTAssertTrue(h.controller.pendingCloseAlert === original)
+        try await answerClose(h, .alertSecondButtonReturn)
+        XCTAssertEqual(answers, [true])
+        XCTAssertFalse(h.controller.isVisible)
+        XCTAssertFalse(h.model.hasArchiveDraft)
+        XCTAssertEqual(h.owner.settings.archiveAfterHours, 24)
+        XCTAssertEqual(h.requests.count, 1)
+    }
+
+    @MainActor func testTerminationPartialSaveRetriesOnlyUnconfirmedDomainInSameSheet() async throws {
+        let h = try host(); defer { h.controller.closeForTeardown() }
+        h.controller.show(page: .history)
+        h.model.setDraftText("81", for: .fitWidth)
+        h.model.setArchiveDraftText("8")
+        h.failures = [.archive]
+        var answers: [Bool] = []
+        h.controller.requestCloseForTermination { answers.append($0) }
+        let original = try XCTUnwrap(h.controller.pendingCloseAlert)
+        try await answerClose(h, .alertThirdButtonReturn, remainsOpen: true)
+        XCTAssertEqual(h.owner.settings.configuration.fitWidth, 81)
+        XCTAssertTrue(answers.isEmpty)
+        XCTAssertTrue(h.controller.pendingCloseAlert === original)
+        h.failures = []
+        try await answerClose(h, .alertThirdButtonReturn)
+        XCTAssertEqual(answers, [true])
+        XCTAssertEqual(h.requests.filter { $0.intent.domain == .layout }.count, 1)
+        XCTAssertEqual(h.requests.filter { $0.intent.domain == .archive }.count, 2)
+    }
+
+    @MainActor func testTerminationContinueAndTeardownCannotBeApprovedByLateSave() async throws {
+        for teardown in [false, true] {
+            let h = try host(); defer { h.controller.closeForTeardown() }
+            h.controller.show(page: .history)
+            h.model.setArchiveDraftText("8")
+            h.delayDomain = .archive
+            var answers: [Bool] = []
+            h.controller.requestCloseForTermination { answers.append($0) }
+            let alert = try XCTUnwrap(h.controller.pendingCloseAlert)
+            alert.window.animationBehavior = .none
+            let actionID = h.startedActions + 1
+            alert.buttons[2].performClick(nil)
+            try await waitFor("save before cancelling termination") { h.continuation != nil }
+            if teardown { h.controller.closeForTeardown() }
+            else { try await answerClose(h, .alertFirstButtonReturn) }
+            XCTAssertEqual(answers, [false])
+            h.resumeSave()
+            try await waitFor("late owner save completion") { h.completedActions.contains(actionID) }
+            XCTAssertEqual(answers, [false])
+            XCTAssertEqual(h.controller.isVisible, !teardown)
+            XCTAssertNil(h.controller.pendingCloseAlert)
+            XCTAssertEqual(h.owner.settings.archiveAfterHours, 8, "Cancelling Quit does not undo an already started owner write")
+            XCTAssertEqual(h.requests.count, 1)
+        }
+    }
+
+    @MainActor func testTerminationWaitsForImmediateDomainSaveWithoutInventingDraft() async throws {
+        let h = try host(); defer { h.controller.closeForTeardown() }
+        h.controller.show()
+        h.delayDomain = .collection
+        let actionID = h.startedActions + 1
+        try click(h, "paused")
+        try await waitFor("collection owner receipt") { h.continuation != nil }
+        XCTAssertFalse(h.model.hasLayoutDraft); XCTAssertFalse(h.model.hasArchiveDraft)
+        var answers: [Bool] = []
+        h.controller.requestCloseForTermination { answers.append($0) }
+        let alert = try XCTUnwrap(h.controller.pendingCloseAlert)
+        XCTAssertTrue(answers.isEmpty)
+        XCTAssertFalse(alert.buttons[1].isEnabled); XCTAssertFalse(alert.buttons[2].isEnabled)
+        h.resumeSave()
+        try await waitFor("collection completion") { h.completedActions.contains(actionID) }
+        XCTAssertTrue(answers.isEmpty, "Completing an unrelated save is not itself permission to close")
+        try await answerClose(h, .alertSecondButtonReturn)
+        XCTAssertEqual(answers, [true])
+        XCTAssertEqual(h.requests.map(\.intent), [.collectionPaused(true)])
+    }
+
+    @MainActor func testTerminationAlsoWaitsForHostLoginOperation() async throws {
+        let h = try host(); defer { h.controller.closeForTeardown() }
+        h.login.inFlightTarget = true
+        h.publish()
+        var answers: [Bool] = []
+        h.controller.requestCloseForTermination { answers.append($0) }
+        let alert = try XCTUnwrap(h.controller.pendingCloseAlert)
+        XCTAssertTrue(answers.isEmpty)
+        XCTAssertFalse(alert.buttons[1].isEnabled); XCTAssertFalse(alert.buttons[2].isEnabled)
+        try await answerClose(h, .alertFirstButtonReturn)
+        XCTAssertEqual(answers, [false])
+        XCTAssertTrue(h.requests.isEmpty)
     }
 
     @MainActor func testThreeStopErrorsStayIndependentAndRetryOriginalDirection() async throws {

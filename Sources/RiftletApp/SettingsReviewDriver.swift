@@ -99,6 +99,144 @@ final class SettingsReviewDriver {
         return directory.appendingPathComponent("report.json")
     }
 
+    /// A separate process verifies what the ordinary run actually left behind.
+    /// This path never presents a window, creates a fixture, or submits a setting.
+    func verifyRestart() async -> URL? {
+        let manager = FileManager.default
+        let output: URL
+        do {
+            try validateEnvironment()
+            let parent = environment.root.appendingPathComponent("evidence", isDirectory: true)
+            guard manager.fileExists(atPath: parent.path),
+                  parent.resolvingSymlinksInPath().standardizedFileURL == parent.standardizedFileURL else { throw Failure.unsafeEnvironment }
+            let folder = parent.appendingPathComponent("restart-" + UUID().uuidString.lowercased(), isDirectory: true)
+            try manager.createDirectory(at: folder, withIntermediateDirectories: false, attributes: [.posixPermissions: 0o700])
+            output = folder.appendingPathComponent("restart-report.json")
+        } catch {
+            fputs("Riftlet restart review requires an existing isolated evidence root.\n", stderr)
+            return nil
+        }
+
+        var checks: [[String: Any]] = []
+        var prior: [String: Any]?
+        let executableSHA = Bundle.main.executableURL.flatMap { try? Data(contentsOf: $0) }.map(digest)
+        var documentBytes: [String: Data] = [:]
+        func check(_ name: String, body: () async throws -> [String: Any]) async {
+            do {
+                var result = try await body(); result["check"] = name; result["status"] = "PASS"
+                checks.append(result)
+            } catch { checks.append(["check": name, "status": "FAIL", "reason": code(error)]) }
+        }
+        await check("same-binary-new-process-after-completed-run") {
+            try await self.wait { self.host.snapshot.capabilities.initialized }
+            try self.require(executableSHA != nil, "currentExecutableUnreadable")
+            let parent = self.environment.root.appendingPathComponent("evidence", isDirectory: true)
+            var matches: [(URL, [String: Any])] = []
+            for folder in try manager.contentsOfDirectory(at: parent, includingPropertiesForKeys: nil) {
+                guard folder.lastPathComponent.hasPrefix("run-"),
+                      UUID(uuidString: String(folder.lastPathComponent.dropFirst(4))) != nil,
+                      folder.resolvingSymlinksInPath().standardizedFileURL == folder.standardizedFileURL else { continue }
+                let file = folder.appendingPathComponent("report.json")
+                guard file.resolvingSymlinksInPath().standardizedFileURL == file.standardizedFileURL,
+                      let data = try? Data(contentsOf: file), data.count <= 2_097_152,
+                      let json = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any],
+                      json["reviewID"] as? String == self.environment.identifier.uuidString.lowercased(),
+                      json["completed"] as? Bool == true,
+                      json["executableSHA256"] as? String == executableSHA else { continue }
+                matches.append((file, json))
+            }
+            let latest = matches.max { ($0.1["beganUTC"] as? String ?? "") < ($1.1["beganUTC"] as? String ?? "") }
+            guard let latest, let previousPID = (latest.1["processPID"] as? NSNumber)?.int32Value else {
+                throw Failure.assertion("completedRunFromSameExecutableMissing")
+            }
+            try self.require(previousPID != ProcessInfo.processInfo.processIdentifier, "restartReusedOriginalProcess")
+            prior = latest.1
+            return ["priorReport": latest.0.path, "priorReportSHA256": self.digest(try Data(contentsOf: latest.0)),
+                    "priorProcessPID": previousPID, "priorStatus": latest.1["status"] as? String ?? "unknown"]
+        }
+        await check("persisted-json-and-loaded-owners") {
+            guard prior != nil else { throw Failure.assertion("priorRunRequired") }
+            let names = ["rift-configuration.json", "lifecycle-settings.json", "arrival-motion-settings.json",
+                         "capture-entry-settings.json", "app-presentation-settings.json"]
+            for name in names { documentBytes[name] = try self.reviewDocument(name) }
+            let settings = self.host.snapshot.state.owner.settings
+            let configuration = try JSONDecoder().decode(RiftConfiguration.self, from: documentBytes["rift-configuration.json"]!)
+            try configuration.validate()
+            try self.require(configuration == settings.configuration, "restartedConfigurationMismatch")
+            let lifecycle = try JSONDecoder().decode(LifecycleSettings.self, from: documentBytes["lifecycle-settings.json"]!)
+            try lifecycle.validate()
+            try self.require(lifecycle.archiveAfterSeconds.map { $0 / 3600 } == settings.archiveAfterHours, "restartedArchiveMismatch")
+            let arrival = ArrivalMotionPreferences(url: self.environment.root.appendingPathComponent("arrival-motion-settings.json"))
+            try self.require(arrival.loadState == .selected && arrival.mode == settings.arrivalMode && settings.hasArrivalSelection,
+                             "restartedArrivalMismatch")
+            let entry = try JSONDecoder().decode(ScreenshotEntryPreferences.self, from: documentBytes["capture-entry-settings.json"]!)
+            try self.require(entry.version == 1 && settings.entryAvailable && entry.builtInScreenshotEnabled == settings.entryEnabled
+                             && entry.defaultMode == settings.defaultCaptureMode, "restartedEntryMismatch")
+            let appearance = try JSONSerialization.jsonObject(with: documentBytes["app-presentation-settings.json"]!) as? [String: Any]
+            try self.require(appearance?["version"] as? Int == 1 && appearance?["appearance"] as? String == self.host.appearance.selection.rawValue
+                             && self.host.appearance.loadState == .selected && self.host.appearance.appliedSelection == self.host.appearance.selection
+                             && self.host.appearance.failure == nil, "restartedAppearanceMismatch")
+            return ["allConfigurationFieldsEqual": true, "archiveHours": settings.archiveAfterHours as Any? ?? NSNull(),
+                    "arrival": arrival.mode.rawValue, "entryEnabled": settings.entryEnabled,
+                    "captureMode": entry.defaultMode.rawValue, "appearance": self.host.appearance.selection.rawValue,
+                    "jsonSHA256": documentBytes.mapValues(self.digest)]
+        }
+        await check("sqlite-pause-and-visibility") {
+            let paused = try await self.store.capturePaused(), hidden = try await self.store.userHidden()
+            try self.require(paused == self.host.snapshot.state.owner.collectionPaused && hidden == self.host.snapshot.state.owner.isHidden,
+                             "restartedSQLiteOwnerMismatch")
+            return ["paused": paused, "hidden": hidden]
+        }
+        await check("existing-first-use-not-presented-again") {
+            let firstUse = FirstUsePreferences(defaults: self.environment.defaults,
+                modeName: SettingsReviewEnvironment.directoryName(for: self.environment.identifier))
+            try self.require(!firstUse.needsAutomaticPresentation && !self.host.onboarding.isVisible,
+                             "firstUsePresentedAgain")
+            return ["existingPresentedPreference": true, "onboardingVisible": false,
+                    "settingsVisible": self.host.center.isVisible, "controlVisible": self.host.control.isShown]
+        }
+        await check("assets-media-and-operation-readback") {
+            guard let prior else { throw Failure.assertion("priorRunRequired") }
+            let original = (prior["artifacts"] as? [[String: Any]])?.last { $0["kind"] as? String == "integrity" }
+            guard let priorCount = original?["assetCount"] as? Int else { throw Failure.assertion("priorIntegrityMissing") }
+            let records = try await self.store.assets(includeUsed: true)
+            try self.require(records.count >= priorCount, "assetsLostAcrossRestart")
+            try await self.integrity()
+            return ["priorAssetCount": priorCount, "assetCount": records.count, "mediaHashesMatch": true,
+                    "unresolvedOperations": 0, "successfulOperations": 0, "assetsWithOperation": 0,
+                    "operationScope": "Existing QueueStore queries; independent read-only SQL supplies the complete operation table count"]
+        }
+        await check("verification-left-preference-bytes-unchanged") {
+            try self.require(documentBytes.count == 5, "initialPreferenceReadIncomplete")
+            for (name, data) in documentBytes { try self.require(try self.reviewDocument(name) == data, "restartCheckChangedPreferenceBytes") }
+            return ["allFiveFilesUnchangedDuringCheck": true]
+        }
+        let report: [String: Any] = ["schema": 1, "reviewID": environment.identifier.uuidString.lowercased(),
+            "status": checks.contains { $0["status"] as? String == "FAIL" } ? "FAIL" : "PASS_SCOPED_NATIVE_RESTART",
+            "completed": true, "processPID": ProcessInfo.processInfo.processIdentifier,
+            "executableSHA256": executableSHA as Any? ?? NSNull(), "beganUTC": ISO8601DateFormatter().string(from: began),
+            "elapsedSeconds": ProcessInfo.processInfo.systemUptime - beganUptime,
+            "frontmostPID": NSWorkspace.shared.frontmostApplication?.processIdentifier as Any? ?? NSNull(),
+            "checks": checks, "driverChangedPreferences": false, "createdFixtures": 0,
+            "scope": "Readback after normal Main initialization of an existing UUID; only this restart evidence report is written",
+            "notRun": ["productionData", "browserAttachment", "systemPermissions", "loginRegistration", "completeOperationTableCount"]]
+        do {
+            try JSONSerialization.data(withJSONObject: report, options: [.prettyPrinted, .sortedKeys]).write(to: output, options: .atomic)
+            return output
+        } catch { fputs("Riftlet restart review could not save its report.\n", stderr); return nil }
+    }
+
+    private func reviewDocument(_ name: String) throws -> Data {
+        let url = environment.root.appendingPathComponent(name)
+        guard url.resolvingSymlinksInPath().standardizedFileURL == url.standardizedFileURL,
+              (try FileManager.default.attributesOfItem(atPath: url.path)[.type]) as? FileAttributeType == .typeRegular else {
+            throw Failure.unsafeEnvironment
+        }
+        let data = try Data(contentsOf: url)
+        try require(data.count <= 262_144, "reviewDocumentTooLarge")
+        return data
+    }
+
     private func validateEnvironment() throws {
         guard try SettingsReviewEnvironment.identifier(in: CommandLine.arguments) == environment.identifier,
               environment.root.lastPathComponent == SettingsReviewEnvironment.directoryName(for: environment.identifier),
@@ -218,9 +356,9 @@ final class SettingsReviewDriver {
                 try require(host.center.selectedPage == page && host.center.isVisible, "pageNotPresented")
                 await capture("settings-\(theme.rawValue)-\(page.rawValue)", window: host.center.window)
             }
-            try openControl(); await settle()
+            try await openControl()
             await capture("control-" + theme.rawValue, window: host.control.window)
-            host.control.close()
+            try await closeControl()
         }
     }
 
@@ -240,7 +378,7 @@ final class SettingsReviewDriver {
         try await appearance(.light)
         for (name, paused, hidden) in [("normal", false, false), ("paused", true, false),
                                        ("paused-hidden", true, true), ("hidden", false, true)] {
-            host.control.close(); host.show(page: .general)
+            try await closeControl(); host.show(page: .general)
             try setToggle("settings.center.paused", paused)
             try await wait { self.host.snapshot.state.owner.collectionPaused == paused && self.host.snapshot.capabilities.canChangeCollection }
             try setToggle("settings.center.hidden", hidden)
@@ -251,10 +389,9 @@ final class SettingsReviewDriver {
             if name == "paused" { try await observePausedCollector() }
             if name == "hidden" { try await observeResumedCollector() }
             await onRefresh()
-            try openControl()
-            await settle()
+            try await openControl()
             await capture("control-" + name, window: host.control.window)
-            host.control.close()
+            try await closeControl()
         }
         host.show(page: .general)
         try setToggle("settings.center.hidden", false)
@@ -409,10 +546,10 @@ final class SettingsReviewDriver {
             try self.require(self.host.snapshot.appearance.selection == beforeAppearance, "failedAppearanceChangedEffectiveValue")
         }
         try require(host.snapshot.state.domains[.layout]?.saveFailure != nil, "appearanceClearedLayoutError")
-        try openControl(); await settle()
+        try await openControl()
         try require(RiftControlCenterPresentation(host.snapshot).state == .attention, "saveFailureNotVisibleInControl")
         await capture("control-save-failure", window: host.control.window)
-        host.control.close()
+        try await closeControl()
         host.show(page: .history)
         try select("settings.center.archive.preset", index: 5)
         _ = try edit("settings.center.archive.hours", text: "1.75")
@@ -452,6 +589,11 @@ final class SettingsReviewDriver {
             for step in 0..<3 {
                 try require(host.onboarding.currentStep == step, "onboardingWrongStep")
                 await settle()
+                let window = host.onboarding.window
+                if let visible = window.screen?.visibleFrame, visible.width >= 652, visible.height >= 608 {
+                    try require(abs(window.frame.width - 652) <= 1 && abs(window.frame.height - 608) <= 1,
+                                "onboardingOuterSizeMismatch")
+                }
                 await capture("onboarding-\(theme.rawValue)-\(step + 1)", window: host.onboarding.window)
                 try click("onboarding.next", window: host.onboarding.window)
             }
@@ -480,7 +622,7 @@ final class SettingsReviewDriver {
 
     private func history() async throws {
         let old = Set(NSApp.windows.filter(\.isVisible).map(\.windowNumber))
-        host.control.close(); onHistory()
+        try await closeControl(); onHistory()
         try await wait { NSApp.windows.contains { $0.isVisible && !old.contains($0.windowNumber) && $0.styleMask.contains(.titled) } }
         let history = NSApp.windows.first { $0.isVisible && !old.contains($0.windowNumber) && $0.styleMask.contains(.titled) }
         await capture("history-real-isolated-records", window: history)
@@ -507,10 +649,33 @@ final class SettingsReviewDriver {
                           "successfulOperations": successful.count, "assetsWithOperation": 0])
     }
 
-    private func openControl() throws {
+    private func openControl() async throws {
         guard let button = statusItem.button, button.window?.isVisible == true else { throw Failure.controlUnavailable("statusItem") }
+        let start = ProcessInfo.processInfo.systemUptime
+        defer { recordControlTransition("open", began: start) }
+        // isShown reports presentation intent before the animated native window
+        // is attached/visible. One action, then wait for the actual owned window;
+        // never issue a second toggle to recover a missing screenshot.
         if !host.control.isShown { button.performClick(nil) }
-        try require(host.control.isShown, "controlCenterDidNotOpen")
+        try await wait {
+            guard self.host.control.isShown, let window = self.host.control.window else { return false }
+            return window.isVisible && window.windowNumber > 0 && NSApp.windows.contains { $0 === window }
+        }
+    }
+
+    private func closeControl() async throws {
+        let start = ProcessInfo.processInfo.systemUptime
+        defer { recordControlTransition("close", began: start) }
+        host.control.close()
+        try await wait { !self.host.control.isShown && self.host.control.window?.isVisible != true }
+    }
+
+    private func recordControlTransition(_ action: String, began: Double) {
+        artifacts.append(["kind": "controlPresentationTransition", "action": action,
+            "seconds": ProcessInfo.processInfo.systemUptime - began, "isShown": host.control.isShown,
+            "windowVisible": host.control.window?.isVisible ?? false,
+            "windowNumber": host.control.window?.windowNumber as Any? ?? NSNull(),
+            "ownedWindow": host.control.window.map { window in NSApp.windows.contains { $0 === window } } ?? false])
     }
 
     private func animationCount(_ layer: CALayer?) -> Int {

@@ -1,0 +1,762 @@
+{
+  "source": "45418bba9fb05e5c2649473c8c1f26a460fb54c5",
+  "binarySHA256": "403f62f2d1eb8f0232e6a69894d81e5eacd55eb5eca40a81f8d7bcad59cccb74",
+  "driverReportSHA256": "22073feae1d1c263ba126ad19a8e4fde4aef5455893968ed5454d06ef054429d",
+  "driverStatus": "PARTIAL_NATIVE_REVIEW",
+  "runnerStatus": "INCOMPLETE_TIMEOUT",
+  "functionalCases": [
+    {
+      "case": "environment-and-default-window",
+      "frontmostPID": 26758,
+      "seconds": 0.3334995415061712,
+      "status": "PASS"
+    },
+    {
+      "case": "real-collector-synthetic-fixture",
+      "frontmostPID": 26758,
+      "seconds": 0.3185389582067728,
+      "status": "PASS"
+    },
+    {
+      "case": "six-pages-light-and-dark",
+      "frontmostPID": 26758,
+      "seconds": 4.349392125150189,
+      "status": "PASS"
+    },
+    {
+      "case": "orthogonal-pause-hidden-sqlite",
+      "frontmostPID": 26758,
+      "seconds": 3.8120078332722187,
+      "status": "PASS"
+    },
+    {
+      "case": "archive-editor-first-save-discard",
+      "frontmostPID": 26758,
+      "seconds": 0.6296178332995623,
+      "status": "PASS"
+    },
+    {
+      "case": "configuration-editor-refresh-defaults",
+      "frontmostPID": 26758,
+      "seconds": 0.7892987916711718,
+      "status": "PASS"
+    },
+    {
+      "case": "close-sheet-continue-discard",
+      "frontmostPID": 26758,
+      "seconds": 1.5684114166069776,
+      "status": "PASS"
+    },
+    {
+      "case": "independent-write-failures-and-retry",
+      "frontmostPID": 26758,
+      "seconds": 1.888692416716367,
+      "status": "PASS"
+    },
+    {
+      "case": "motion-explicit-play-and-navigation-stop",
+      "frontmostPID": 26758,
+      "seconds": 0.29644399997778237,
+      "status": "PASS"
+    },
+    {
+      "case": "three-step-guidance-light-and-dark",
+      "frontmostPID": 26758,
+      "seconds": 2.183383291820064,
+      "status": "PASS"
+    },
+    {
+      "case": "resizing-and-reopen",
+      "frontmostPID": 26758,
+      "seconds": 0.3472154999617487,
+      "status": "PASS"
+    },
+    {
+      "case": "history-real-records",
+      "frontmostPID": 26758,
+      "seconds": 0.1432902084197849,
+      "status": "PASS"
+    },
+    {
+      "case": "original-media-and-no-upload-operations",
+      "frontmostPID": 26758,
+      "seconds": 0.005198666593059897,
+      "status": "PASS"
+    }
+  ],
+  "frames": [
+    {
+      "contentBounds": [
+        0,
+        0,
+        960,
+        684
+      ],
+      "name": "initial-general",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "sha256": "9aca4d8b8f2473450278c4b5411a2e401db4fcfc6af91352604b953995478c55",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "windowFrame": [
+        480,
+        184,
+        960,
+        712
+      ]
+    },
+    {
+      "contentBounds": [
+        0,
+        0,
+        960,
+        684
+      ],
+      "name": "settings-light-general",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "sha256": "f13c26c930ae0e5b13c03a01722fe4bc9d6a49ab39838b4b3f110d5b79408d7e",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "windowFrame": [
+        480,
+        184,
+        960,
+        712
+      ]
+    },
+    {
+      "contentBounds": [
+        0,
+        0,
+        960,
+        684
+      ],
+      "name": "settings-light-display",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "sha256": "99b6e0213efecef439a27c79cc455021656d836f7523cc19feccc56fbc565a7b",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "windowFrame": [
+        480,
+        184,
+        960,
+        712
+      ]
+    },
+    {
+      "contentBounds": [
+        0,
+        0,
+        960,
+        684
+      ],
+      "name": "settings-light-capture",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "sha256": "45266b6097fe85540ffd7bbcae9abd4b814522ddff205062af81a009dc250f67",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "windowFrame": [
+        480,
+        184,
+        960,
+        712
+      ]
+    },
+    {
+      "contentBounds": [
+        0,
+        0,
+        960,
+        684
+      ],
+      "name": "settings-light-motion",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "sha256": "8641defb7db1b9f44c42905c079063276a8c277280aa8fe2f2e100ccaa2888bc",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "windowFrame": [
+        480,
+        184,
+        960,
+        712
+      ]
+    },
+    {
+      "contentBounds": [
+        0,
+        0,
+        960,
+        684
+      ],
+      "name": "settings-light-history",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "sha256": "7b9857d077b8f0e5f0ab77282012779c2b259d04fe203ed20572cf9593843620",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "windowFrame": [
+        480,
+        184,
+        960,
+        712
+      ]
+    },
+    {
+      "contentBounds": [
+        0,
+        0,
+        960,
+        684
+      ],
+      "name": "settings-light-help",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "sha256": "ed627a23ea04c6db42289a7e97d8a1665d49050e98b45676f15a2cfd2e169864",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "windowFrame": [
+        480,
+        184,
+        960,
+        712
+      ]
+    },
+    {
+      "name": "control-light",
+      "reason": "ownedWindowUnavailable",
+      "status": "NOT_RUN"
+    },
+    {
+      "contentBounds": [
+        0,
+        0,
+        960,
+        684
+      ],
+      "name": "settings-dark-general",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "sha256": "07041098b1437dcbef7ed833e191989a1ba8b672fe6292c56c741a2263f0cb70",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "windowFrame": [
+        480,
+        184,
+        960,
+        712
+      ]
+    },
+    {
+      "contentBounds": [
+        0,
+        0,
+        960,
+        684
+      ],
+      "name": "settings-dark-display",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "sha256": "140b368a8d70c969a3a51368fceb4a8703d29f3469629b6eaec95119e0cb91ea",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "windowFrame": [
+        480,
+        184,
+        960,
+        712
+      ]
+    },
+    {
+      "contentBounds": [
+        0,
+        0,
+        960,
+        684
+      ],
+      "name": "settings-dark-capture",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "sha256": "243050c72682b4a07c6aa17a89f02d923ca948457d8d39fc87482d865ad3eba0",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "windowFrame": [
+        480,
+        184,
+        960,
+        712
+      ]
+    },
+    {
+      "contentBounds": [
+        0,
+        0,
+        960,
+        684
+      ],
+      "name": "settings-dark-motion",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "sha256": "ab4c883b866be1384fef67cb5980603a07371d8e8e1dcf5efa5176061605df97",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "windowFrame": [
+        480,
+        184,
+        960,
+        712
+      ]
+    },
+    {
+      "contentBounds": [
+        0,
+        0,
+        960,
+        684
+      ],
+      "name": "settings-dark-history",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "sha256": "18f89e096c756e5b0558b3bea75adaddb9c139bc9829efad72e45d5131bb578f",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "windowFrame": [
+        480,
+        184,
+        960,
+        712
+      ]
+    },
+    {
+      "contentBounds": [
+        0,
+        0,
+        960,
+        684
+      ],
+      "name": "settings-dark-help",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "sha256": "a95fb56de0e0081f1af55d0d213ef0d1821ef57d396b9776142f15203ea5411d",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "windowFrame": [
+        480,
+        184,
+        960,
+        712
+      ]
+    },
+    {
+      "contentBounds": [
+        0,
+        0,
+        336,
+        569
+      ],
+      "name": "control-dark",
+      "pixels": [
+        724,
+        1190
+      ],
+      "sha256": "7bdb329297ab8b2af03292f00a6f0e350f3350c2da55b40de941bd65e38d647e",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "windowFrame": [
+        0,
+        457,
+        362,
+        595
+      ]
+    },
+    {
+      "name": "control-normal",
+      "reason": "ownedWindowUnavailable",
+      "status": "NOT_RUN"
+    },
+    {
+      "contentBounds": [
+        0,
+        0,
+        336,
+        569
+      ],
+      "name": "control-paused",
+      "pixels": [
+        724,
+        1190
+      ],
+      "sha256": "8b8c42697a58a1be0852d10793881107d9da7c1fa26c1d4828fd229072c1b2fc",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "windowFrame": [
+        0,
+        457,
+        362,
+        595
+      ]
+    },
+    {
+      "name": "control-paused-hidden",
+      "reason": "ownedWindowUnavailable",
+      "status": "NOT_RUN"
+    },
+    {
+      "contentBounds": [
+        0,
+        0,
+        336,
+        569
+      ],
+      "name": "control-hidden",
+      "pixels": [
+        724,
+        1190
+      ],
+      "sha256": "f45c9af759f522ca0f92c35a0c409156a63a66a83832254d307ce8e1c162f9f5",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "windowFrame": [
+        0,
+        457,
+        362,
+        595
+      ]
+    },
+    {
+      "contentBounds": [
+        0,
+        0,
+        960,
+        684
+      ],
+      "name": "archive-first-activation-save",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "sha256": "ef17d6cc3dedf1718327fa7e09f06d1ac3f5edad44b81da920656035e17af4b7",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "windowFrame": [
+        480,
+        184,
+        960,
+        712
+      ]
+    },
+    {
+      "contentBounds": [
+        0,
+        0,
+        960,
+        684
+      ],
+      "name": "display-defaults-after-active-edit",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "sha256": "c2eb8b7739340b1a0425aee0399ff64a34af7059eae1a578cace33375db0334f",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "windowFrame": [
+        480,
+        184,
+        960,
+        712
+      ]
+    },
+    {
+      "contentBounds": [
+        0,
+        0,
+        260,
+        223
+      ],
+      "name": "close-draft-sheet",
+      "pixels": [
+        520,
+        446
+      ],
+      "sha256": "3c585de0ccf8980fafc7ee4c298579cabca6120e4fd4539a00f44272c7247951",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "windowFrame": [
+        830,
+        429,
+        260,
+        223
+      ]
+    },
+    {
+      "contentBounds": [
+        0,
+        0,
+        336,
+        594
+      ],
+      "name": "control-save-failure",
+      "pixels": [
+        724,
+        1240
+      ],
+      "sha256": "8cb3b1bd23443df529cef6b1ebad8e223ea25949bfa67f187fbae9f6eb1a7f13",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "windowFrame": [
+        0,
+        432,
+        362,
+        620
+      ]
+    },
+    {
+      "contentBounds": [
+        0,
+        0,
+        960,
+        684
+      ],
+      "name": "independent-errors-resolved",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "sha256": "73218026e73e95706253489148818f0dce88560dcacbafa9440fe077eb0db655",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "windowFrame": [
+        480,
+        184,
+        960,
+        712
+      ]
+    },
+    {
+      "contentBounds": [
+        0,
+        0,
+        960,
+        684
+      ],
+      "name": "explicit-arrival-preview",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "sha256": "6098071f3d40b56070775f0ff90191ca7c505c0ee6c2bc62dc3561f244b9b572",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "windowFrame": [
+        480,
+        184,
+        960,
+        712
+      ]
+    },
+    {
+      "contentBounds": [
+        0,
+        0,
+        562,
+        580
+      ],
+      "name": "onboarding-light-1",
+      "pixels": [
+        1124,
+        1216
+      ],
+      "sha256": "c17fb641b865b930189887172d1d02887f1ac23e52aa0897b94e128739a3e4d0",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "windowFrame": [
+        -681,
+        304,
+        562,
+        608
+      ]
+    },
+    {
+      "contentBounds": [
+        0,
+        0,
+        562,
+        580
+      ],
+      "name": "onboarding-light-2",
+      "pixels": [
+        1124,
+        1216
+      ],
+      "sha256": "8033d5d3416759464c9ed8d2204ab850fd341f8a314f9a245aee78b6b9707f3c",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "windowFrame": [
+        -681,
+        304,
+        562,
+        608
+      ]
+    },
+    {
+      "contentBounds": [
+        0,
+        0,
+        562,
+        580
+      ],
+      "name": "onboarding-light-3",
+      "pixels": [
+        1124,
+        1216
+      ],
+      "sha256": "b59729fb1ee82544ffd5e459680951a0df2174eb7449cf459aa27fb3212e5b77",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "windowFrame": [
+        -681,
+        304,
+        562,
+        608
+      ]
+    },
+    {
+      "contentBounds": [
+        0,
+        0,
+        562,
+        580
+      ],
+      "name": "onboarding-dark-1",
+      "pixels": [
+        1124,
+        1216
+      ],
+      "sha256": "92f5334c3748521f758be0ab8db83cf7489e068d4c39560330341c5827753bcd",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "windowFrame": [
+        -681,
+        304,
+        562,
+        608
+      ]
+    },
+    {
+      "contentBounds": [
+        0,
+        0,
+        562,
+        580
+      ],
+      "name": "onboarding-dark-2",
+      "pixels": [
+        1124,
+        1216
+      ],
+      "sha256": "a064b8e06c785da0b0a00470749f1d6485beffac33ff7325b799bcd5a5088f41",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "windowFrame": [
+        -681,
+        304,
+        562,
+        608
+      ]
+    },
+    {
+      "contentBounds": [
+        0,
+        0,
+        562,
+        580
+      ],
+      "name": "onboarding-dark-3",
+      "pixels": [
+        1124,
+        1216
+      ],
+      "sha256": "b8bde15e78031893643dcceaae5110d6d1f3ab276582e7ed559c28792e3f8041",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "windowFrame": [
+        -681,
+        304,
+        562,
+        608
+      ]
+    },
+    {
+      "contentBounds": [
+        0,
+        0,
+        760,
+        512
+      ],
+      "name": "settings-minimum-size",
+      "pixels": [
+        1520,
+        1080
+      ],
+      "sha256": "6c5c4262cd4c0224ac152b9c0ec879af4c7666f3521c520ac32af04ce80dedff",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "windowFrame": [
+        480,
+        184,
+        760,
+        540
+      ]
+    },
+    {
+      "contentBounds": [
+        0,
+        0,
+        760,
+        532
+      ],
+      "name": "history-real-isolated-records",
+      "pixels": [
+        1520,
+        1120
+      ],
+      "sha256": "3eb136a9298e61b468b6a956514726fbcad00d223f966280cf1590c206b509c3",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "windowFrame": [
+        -760,
+        340,
+        760,
+        560
+      ]
+    }
+  ],
+  "actualSQLCounts": {
+    "assets": 3,
+    "operations": 0,
+    "upload_starts": 0
+  },
+  "quitProbeOriginal": [
+    [
+      {
+        "mode": "task",
+        "timedOut": true,
+        "exitCode": -15,
+        "log": "before-terminate\nshould-terminate\n"
+      },
+      {
+        "mode": "queue",
+        "timedOut": true,
+        "exitCode": -15,
+        "log": "before-terminate\ntask-returned\nshould-terminate\n"
+      }
+    ]
+  ],
+  "quitProbeFixed": {
+    "mode": "cancel-turn",
+    "timedOut": false,
+    "exitCode": 0,
+    "log": "before-terminate\nshould-terminate\ntask-returned\nasync-cleanup\nshould-terminate\nwill-terminate\n"
+  },
+  "scope": "Original failure retained. Raw native images remain private. Not final product acceptance."
+}

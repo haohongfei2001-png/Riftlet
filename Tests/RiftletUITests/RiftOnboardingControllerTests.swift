@@ -70,6 +70,26 @@ final class RiftOnboardingControllerTests: XCTestCase {
         XCTAssertEqual(controller.window.identifier, RiftOnboardingController.windowIdentifier)
     }
 
+    @MainActor func testFirstPresentationRestoresIntendedOuterSizeAndReopenPreservesResize() throws {
+        try prepareAppKit()
+        let controller = RiftOnboardingController { _ in XCTFail("Presentation cannot save a setting") }
+        defer { controller.closeForTeardown() }
+        controller.update(fixture(try model()))
+        XCTAssertTrue(controller.show())
+        controller.window.contentView?.layoutSubtreeIfNeeded()
+        if let visible = controller.window.screen?.visibleFrame, visible.width >= 652, visible.height >= 608 {
+            XCTAssertEqual(controller.window.frame.width, 652, accuracy: 1)
+            XCTAssertEqual(controller.window.frame.height, 608, accuracy: 1)
+        }
+        var resized = controller.window.frame
+        resized.size = NSSize(width: 600, height: 560)
+        controller.window.setFrame(resized, display: true)
+        let accepted = controller.window.frame.size
+        controller.closeForTeardown()
+        XCTAssertTrue(controller.show())
+        XCTAssertEqual(controller.window.frame.size, accepted)
+    }
+
     @MainActor func testAllThreeStepsAllowIncompleteConnectionsAndFinishHasNoCaptureOrToggle() async throws {
         try prepareAppKit()
         let state = try model()

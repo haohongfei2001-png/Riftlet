@@ -70,9 +70,24 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
             currentStep = 0; finishedThisPresentation = false
             refreshStep()
         }
-        if !hasPresented { window.center() }
-        RiftVisualStyle.restoreWindowSize(window, size: hasPresented ? window.frame.size : SettingsNativeStyle.onboardingSize,
-                                          constrainOrigin: !hasPresented)
+        if !hasPresented {
+            // Establish the content constraints before restoring the intended
+            // first size. Restoring only an outer frame before the first native
+            // content sizing pass left this window at its 562-point fitting
+            // width on the actual multi-display review run.
+            window.contentView?.layoutSubtreeIfNeeded()
+            var outer = SettingsNativeStyle.onboardingSize
+            if let visible = (window.screen ?? NSScreen.main)?.visibleFrame {
+                outer.width = min(outer.width, visible.width)
+                outer.height = min(outer.height, visible.height)
+            }
+            let contentSize = window.contentRect(forFrameRect: NSRect(origin: .zero, size: outer)).size
+            window.setContentSize(contentSize)
+            window.center()
+            RiftVisualStyle.restoreWindowSize(window, size: window.frame.size, constrainOrigin: true)
+        } else {
+            RiftVisualStyle.restoreWindowSize(window, size: window.frame.size)
+        }
         window.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
         hasPresented = window.isVisible

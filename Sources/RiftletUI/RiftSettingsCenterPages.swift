@@ -73,6 +73,9 @@ extension RiftSettingsCenterController {
                     self?.dispatch(.settings(.selectPlacement(placement)))
                 }
                 button.setButtonType(.toggle)
+                button.setAccessibilityLabel(placement.title)
+                button.imagePosition = .imageLeading
+                button.imageHugsTitle = true
                 button.widthAnchor.constraint(equalToConstant: 88).isActive = true
                 return button
             })

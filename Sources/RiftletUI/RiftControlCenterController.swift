@@ -14,6 +14,7 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
     private var localMonitor: Any?
     private var resignObserver: NSObjectProtocol?
     private var pressBeganWhileShown = false
+    private var interactionSuspended = false
     private var busy: Set<String> = []
     private let title = SettingsNativeStyle.label("正在准备截图收录", role: "heading")
     private let detail = SettingsNativeStyle.label("正在读取当前状态。", role: "caption")
@@ -88,6 +89,22 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
     public func close() {
         popover.close()
         statusItem.button?.highlight(false)
+    }
+
+    /// The host uses this only after settings have approved App Quit. Keeping
+    /// the status item's direct event route closed prevents a fresh popover
+    /// while another owner completes asynchronous termination preparation.
+    public func setInteractionSuspended(_ suspended: Bool) {
+        guard interactionSuspended != suspended else { return }
+        interactionSuspended = suspended
+        if suspended {
+            pressBeganWhileShown = false
+            contextMenu.cancelTracking()
+            close()
+        }
+        statusItem.button?.isEnabled = !suspended
+        refreshControls()
+        if !menuTracking { refreshMenu() }
     }
 
     /// Read-only native control lookup for isolated UI verification.
@@ -193,7 +210,14 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
         control.widthAnchor.constraint(equalToConstant: 44).isActive = true
         control.heightAnchor.constraint(greaterThanOrEqualToConstant: 32).isActive = true
         for child in text.arrangedSubviews { child.widthAnchor.constraint(equalTo: text.widthAnchor).isActive = true }
-        return SettingsNativeStyle.stack([text, spacer(), control], vertical: false, spacing: 8)
+        text.identifier = .init(id + ".text")
+        text.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        let row = SettingsNativeStyle.stack([text, control], vertical: false, spacing: 8)
+        // The copy owns the space to the left of the fixed-width switch. A
+        // separate expanding spacer can otherwise compress wrapping labels to
+        // their shortest intrinsic width while leaving the row mostly blank.
+        text.widthAnchor.constraint(equalTo: row.widthAnchor, constant: -52).isActive = true
+        return row
     }
 
     private func spacer() -> NSView {
@@ -206,6 +230,7 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
 
     private func refreshControls() {
         guard let snapshot else { return }
+        buttons.values.forEach { $0.isEnabled = true }
         popover.appearance = NSApp.appearance
         let projection = RiftControlCenterPresentation(snapshot)
         title.stringValue = projection.title
@@ -234,6 +259,10 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
         statusItem.button?.toolTip = projection.title + "\n" + projection.detail
         statusItem.button?.setAccessibilityValue(projection.title)
         popover.animates = !snapshot.accessibility.reduceMotion
+        if interactionSuspended {
+            pause.isEnabled = false; hide.isEnabled = false
+            buttons.values.forEach { $0.isEnabled = false }
+        }
         if isShown { fitPopover() }
     }
 
@@ -253,6 +282,7 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
     }
 
     @objc private func statusPressed(_ sender: Any?) {
+        guard !interactionSuspended else { return }
         let event = NSApp.currentEvent
         if event?.type == .rightMouseUp
             || (event?.type == .leftMouseUp && event?.modifierFlags.contains(.control) == true) {
@@ -278,7 +308,7 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
     }
 
     @objc private func toggleChanged(_ sender: NSSwitch) {
-        guard let snapshot else { return }
+        guard !interactionSuspended, let snapshot else { return }
         let isPause = sender === pause
         let key = isPause ? "collection" : "visibility"
         guard !busy.contains(key), sender.isEnabled else { refreshControls(); return }
@@ -288,14 +318,14 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
         busy.insert(key); refreshControls()
         Task { [weak self] in
             guard let self else { return }
-            await self.onAction(action)
+            if !self.interactionSuspended { await self.onAction(action) }
             self.busy.remove(key)
             self.refreshControls()
         }
     }
 
     @objc private func buttonPressed(_ sender: NSButton) {
-        guard sender.isEnabled, let snapshot else { return }
+        guard !interactionSuspended, sender.isEnabled, let snapshot else { return }
         let action: SettingsProductAction
         switch sender.identifier?.rawValue {
         case "control.settings": action = .openSettings(.general)
@@ -311,7 +341,7 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
         default: return
         }
         close()
-        Task { await onAction(action) }
+        Task { if !interactionSuspended { await onAction(action) } }
     }
 
     private func refreshMenu() {
@@ -337,15 +367,15 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
 
     private func addMenu(_ title: String, _ action: SettingsProductAction, enabled: Bool = true, key: String = "") {
         let item = NSMenuItem(title: title, action: #selector(menuPressed(_:)), keyEquivalent: key)
-        item.target = self; item.isEnabled = enabled
+        item.target = self; item.isEnabled = enabled && !interactionSuspended
         item.representedObject = RiftControlCenterMenuAction(action)
         contextMenu.addItem(item)
     }
 
     @objc private func menuPressed(_ sender: NSMenuItem) {
-        guard sender.isEnabled, let action = sender.representedObject as? RiftControlCenterMenuAction else { return }
+        guard !interactionSuspended, sender.isEnabled, let action = sender.representedObject as? RiftControlCenterMenuAction else { return }
         close()
-        Task { await onAction(action.value) }
+        Task { if !interactionSuspended { await onAction(action.value) } }
     }
 
     public func menuNeedsUpdate(_ menu: NSMenu) { refreshMenu() }

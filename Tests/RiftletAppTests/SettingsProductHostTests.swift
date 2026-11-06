@@ -6,8 +6,9 @@ import RiftletCapture
 @testable import RiftletApp
 
 /// Tests the actual three-surface host with temporary appearance JSON and fake
-/// persistence/login boundaries. No window is ordered, no system login action
-/// or browser request is executed, and no ordinary application root is used.
+/// persistence/login boundaries. The termination cancellation case orders only
+/// its temporary native windows. No system login action or browser request is
+/// executed, and no ordinary application root is used.
 final class SettingsProductHostTests: XCTestCase {
     @MainActor private func fixture(rootExists: Bool = true) throws -> HostFixture {
         _ = NSApplication.shared
@@ -192,6 +193,68 @@ final class SettingsProductHostTests: XCTestCase {
         XCTAssertNil(f.host.login.onChange)
         XCTAssertEqual(f.host.center.product.revision, last)
         XCTAssertTrue(f.adapter.requests.isEmpty)
+    }
+
+    @MainActor func testTerminationPreparationBlocksNewActionsAndShowUntilCancelled() async throws {
+        let f = try fixture(); defer { f.close() }
+        let original = f.host.model.snapshot.owner
+        let refreshCalls = f.refreshCalls
+        let appearanceURL = f.root.appendingPathComponent(ApplicationPresentationPreferences.fileName)
+        f.host.beginTerminationPreparation(); f.host.beginTerminationPreparation()
+        XCTAssertTrue(f.host.isPreparingForTermination)
+        let blocked: [SettingsProductAction] = [.settings(.setCollectionPaused(true)), .settings(.setHidden(true)),
+            .appearance(.dark), .retryAppearance, .loginEnabled(true), .retryLogin, .openLoginSettings,
+            .clearVisible, .openHistory, .recheck, .openSettings(.display), .openOnboarding, .capture]
+        for action in blocked { await f.host.perform(action) }
+        f.host.show(page: .display)
+        XCTAssertFalse(f.host.showOnboarding())
+        f.publish(); f.host.refreshSystemFacts()
+        XCTAssertTrue(f.host.isPreparingForTermination, "Read-only owner refresh cannot release the termination lock")
+        XCTAssertEqual(f.host.model.snapshot.owner, original)
+        XCTAssertTrue(f.adapter.requests.isEmpty); XCTAssertTrue(f.actions.isEmpty)
+        XCTAssertFalse(FileManager.default.fileExists(atPath: appearanceURL.path))
+        XCTAssertEqual(f.loginService.registerCalls + f.loginService.unregisterCalls + f.loginService.openSettingsCalls, 0)
+        XCTAssertEqual(f.refreshCalls, refreshCalls)
+        XCTAssertFalse(f.host.isVisible); XCTAssertFalse(f.host.control.isShown)
+        XCTAssertFalse(try XCTUnwrap(f.item.button).isEnabled)
+
+        f.host.cancelTerminationPreparation(); f.host.cancelTerminationPreparation()
+        XCTAssertFalse(f.host.isPreparingForTermination)
+        XCTAssertTrue(try XCTUnwrap(f.item.button).isEnabled)
+        await f.host.perform(.settings(.setCollectionPaused(true)))
+        await f.host.perform(.appearance(.dark))
+        await f.host.perform(.loginEnabled(true))
+        await f.host.perform(.openHistory)
+        XCTAssertTrue(f.host.model.snapshot.owner.collectionPaused)
+        XCTAssertEqual(f.host.snapshot.appearance.selection, .dark)
+        XCTAssertTrue(FileManager.default.fileExists(atPath: appearanceURL.path))
+        XCTAssertEqual(f.loginService.registerCalls, 1)
+        XCTAssertEqual(f.actions, ["openHistory"])
+        f.host.show(page: .display)
+        XCTAssertTrue(f.host.center.isVisible)
+        XCTAssertEqual(f.host.center.selectedPage, .display)
+        XCTAssertTrue(f.host.showOnboarding())
+        f.host.beginTerminationPreparation()
+        XCTAssertFalse(f.host.isVisible, "Beginning termination closes both native windows synchronously")
+        XCTAssertFalse(f.host.control.isShown)
+    }
+
+    @MainActor func testTerminationPreparationDoesNotCancelAlreadyStartedOwnerSave() async throws {
+        let f = try fixture(); defer { f.close() }
+        let gate = HostSaveGate(); f.adapter.gate = gate; f.adapter.delayed = .collection
+        let task = Task { @MainActor in await f.host.perform(.settings(.setCollectionPaused(true))) }
+        await fulfillment(of: [gate.entered], timeout: 2)
+        XCTAssertTrue(f.host.model.snapshot.domains[.collection]!.isSaving)
+        f.host.beginTerminationPreparation()
+        await f.host.perform(.settings(.setHidden(true)))
+        gate.release(); await task.value
+        XCTAssertTrue(f.host.model.snapshot.owner.collectionPaused)
+        XCTAssertFalse(f.host.model.snapshot.owner.isHidden)
+        XCTAssertFalse(f.host.model.snapshot.domains[.collection]!.isSaving)
+        XCTAssertEqual(f.adapter.requests.map(\.intent), [.collectionPaused(true)])
+        f.host.cancelTerminationPreparation()
+        await f.host.perform(.settings(.setHidden(true)))
+        XCTAssertEqual(f.adapter.requests.map(\.intent), [.collectionPaused(true), .hidden(true)])
     }
 }
 

@@ -20,6 +20,7 @@ final class SettingsProductHost {
     private let reviewEnvironment: Bool
     private var accessibilityObserver: NSObjectProtocol?
     private var screenObserver: NSObjectProtocol?
+    private(set) var isPreparingForTermination = false
 
     init(root: URL, mode: ApplicationMode, statusItem: NSStatusItem,
          owner: SettingsOwnerSnapshot, adapter: any SettingsPersistenceAdapter,
@@ -111,16 +112,36 @@ final class SettingsProductHost {
     }
 
     func show(page: SettingsPage = .general) {
+        guard !isPreparingForTermination else { return }
         control.close(); login.refresh(); onRefresh(); center.show(page: page)
     }
 
     @discardableResult func showOnboarding() -> Bool {
+        guard !isPreparingForTermination else { return false }
         control.close(); onRefresh(); return onboarding.show()
+    }
+
+    /// Called synchronously after the settings close decision is accepted and
+    /// before Feedback's asynchronous termination preparation. Existing owner
+    /// writes are not cancelled; new UI actions cannot enter during that gap.
+    func beginTerminationPreparation() {
+        guard !isPreparingForTermination else { return }
+        isPreparingForTermination = true
+        control.setInteractionSuspended(true)
+        center.closeForTeardown()
+        onboarding.closeForTeardown()
+    }
+
+    func cancelTerminationPreparation() {
+        guard isPreparingForTermination else { return }
+        isPreparingForTermination = false
+        control.setInteractionSuspended(false)
     }
 
     func refreshSystemFacts() { login.refresh(); publish() }
 
     func perform(_ action: SettingsProductAction) async {
+        guard !isPreparingForTermination else { return }
         switch action {
         case .settings(let command): _ = await model.perform(command)
         case .appearance(let choice):

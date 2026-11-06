@@ -4,10 +4,10 @@
 | --- | --- |
 | PR42 integration | DONE standard merge c72fca78245a15a66ea6beaa980ec141f146bc1b; main push CI 4 success / 1 ARM64 test failure; original receipt timing failure retained |
 | Shared native state/commands | IMPLEMENTED; sync edits and per-domain save notifications; XCTest execution pending |
-| Six-page settings | IN_PROGRESS; new RiftSettingsCenter files owned by review |
-| Popover/menu/onboarding | IN_PROGRESS; new RiftControlCenter/RiftOnboarding files owned by diagnostics |
+| Six-page settings | IMPLEMENTED; native controls/owners, final native visual fixes under validation |
+| Popover/menu/onboarding | IMPLEMENTED; native controls/menu, final native visual fixes under validation |
 | Real host integration | IMPLEMENTED first pass; real Main owner receipts/appearance/login/actions; isolated settingsReview added |
-| Native/visual acceptance | NOT_RUN; real App driver being implemented |
+| Native/visual acceptance | First packaged run: 13 functional groups PASS, 30/33 frames, PARTIAL plus exit timeout; corrected candidate/restart verification pending |
 | Beta2 formal PR/CI/package | NOT_RUN |
 | Production install/UI merge | NOT_AUTHORIZED until final appearance decision; Beta1 preserved |
 
@@ -30,3 +30,13 @@ Inspection led to V2-alignment fixes: four native NSSwitch controls with consist
 Nonauthor source review also closed duplicate clear confirmation, independent login call errors, display-persistence ordering, instance-lock-before-fixture-writes, onboarding display-item identity/tracking, and active editor replacement. Native UI background refresh retains editing controls. New test helpers await actual actions, not a fixed short sleep.
 
 There are 67 methods in the five new UI/Host/environment test files, plus two new existing-model notification tests. Parser/native build success is not XCTest execution. The full same-App settings review driver is now implemented; automated raw-window/native persistence run still pending.
+
+## Checkpoint 3 original native failures and focused corrections
+
+The packaged `45418bba` ARM64 App was executed in a fresh UUID review root. Its 13 real native control/owner/SQLite groups passed, but three popover frames were unavailable and the process failed to exit. The runner correctly reported incomplete. The original report, 30 raw WindowServer PNGs and timeout remain unchanged; sanitized bindings are in `evidence/native-run-01.json`.
+
+Independent review found four visual corrections: popover switch labels had too little width, preview geometry text overlapped the next card, selected position lacked a visible native mark, and onboarding's first window opened at 562 rather than 652 pt. These are focused corrections to the existing V2 implementation, not a new design.
+
+A small actual AppKit reproduction confirmed that the previous `terminateLater` path did not run its MainActor cleanup; returning cancel while cleanup runs and explicitly requesting termination after success exits normally in the reproduction. Main now uses this flow, preserves the existing Feedback save decision, and asks the settings draft sheet before quitting. During approved cleanup the settings host blocks new edits/actions. Actual packaged exit and same-root fresh-process restoration still require the next run. System logout/shutdown acceptance is NOT_RUN; no system preference or logout is performed.
+
+The intermediate CUA observation did not independently prove its process exited. Its recorded persistence remains valid; the later packaged timeout is not erased by an earlier absence from the app inventory.

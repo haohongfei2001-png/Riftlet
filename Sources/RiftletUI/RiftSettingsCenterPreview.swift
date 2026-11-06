@@ -18,6 +18,13 @@ final class RiftSettingsCenterPreview: NSView {
     private let edge = CALayer()
     private var drawnBounds = NSRect.zero
     var isAnimating: Bool { tile.animation(forKey: "settings.preview") != nil }
+    var geometrySummary: String {
+        let count = min(configuration.visibleCountPreference, 4)
+        let title = configuration.placement?.title ?? "旧版位置"
+        let countText = configuration.visibleCountPreference > count
+            ? "\(configuration.visibleCountPreference) 张（示意前 \(count) 张）" : "\(count) 张"
+        return title + " · " + countText
+    }
 
     init(kind: Kind) {
         self.kind = kind
@@ -37,6 +44,7 @@ final class RiftSettingsCenterPreview: NSView {
     func update(configuration: RiftConfiguration, mode: ArrivalMotionMode, reduceMotion: Bool) {
         let changed = self.configuration != configuration || self.mode != mode || self.reduceMotion != reduceMotion
         self.configuration = configuration; self.mode = mode; self.reduceMotion = reduceMotion
+        if kind == .geometry { setAccessibilityValue(geometrySummary) }
         // An unrelated status refresh must neither restart nor stop a preview.
         if changed { stop(); positionLayers() }
         needsDisplay = true
@@ -137,10 +145,7 @@ final class RiftSettingsCenterPreview: NSView {
             NSBezierPath(roundedRect: rect, xRadius: 3, yRadius: 3).stroke()
         }
         NSGraphicsContext.restoreGraphicsState()
-        let title = configuration.placement?.title ?? "旧版位置"
-        let countText = configuration.visibleCountPreference > count ? " · \(configuration.visibleCountPreference) 张（示意前 \(count) 张）" : " · \(count) 张"
-        (title + countText).draw(at: NSPoint(x: screen.minX + 20, y: screen.midY - 6), withAttributes: [
-            .font: NSFont.systemFont(ofSize: 12), .foregroundColor: SettingsNativeStyle.color(.secondary)
-        ])
+        // The native caption lives outside this drawing, so a left/middle
+        // placement cannot put its text over the second synthetic thumbnail.
     }
 }

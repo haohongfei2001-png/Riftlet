@@ -147,8 +147,16 @@ extension RiftSettingsCenterController {
         hide("display.restore", !settings.displayRestoreAvailable)
         enable("display.restore", settings.displayRestoreAvailable && product.capabilities.canEditPreferences)
         for placement in RiftPlacement.allCases {
-            check("placement.\(placement.rawValue)", settings.configuration.placement == placement,
-                  enabled: product.capabilities.canEditPreferences && !configurationBusy)
+            let id = "placement.\(placement.rawValue)"
+            let selected = settings.configuration.placement == placement
+            check(id, selected, enabled: product.capabilities.canEditPreferences && !configurationBusy)
+            if let button = controls[id] as? NSButton {
+                // Native toggle bezels alone can look identical in both themes.
+                // A checkmark preserves selection even without color perception.
+                button.image = selected ? NSImage(systemSymbolName: "checkmark", accessibilityDescription: nil) : nil
+                button.contentTintColor = SettingsNativeStyle.color(selected ? .accent : .ink)
+                button.bezelColor = selected ? SettingsNativeStyle.color(.selection) : nil
+            }
         }
         legacyFieldRow.isHidden = settings.configuration.placement != nil
     }
@@ -205,7 +213,8 @@ extension RiftSettingsCenterController {
         geometryPreview.update(configuration: previewConfig, mode: state.owner.settings.arrivalMode, reduceMotion: product.accessibility.reduceMotion)
         arrivalPreview.update(configuration: previewConfig, mode: state.owner.settings.arrivalMode, reduceMotion: product.accessibility.reduceMotion)
         swallowPreview.update(configuration: previewConfig, mode: state.owner.settings.arrivalMode, reduceMotion: product.accessibility.reduceMotion)
-        text("layoutPreview.detail", !valid ? "输入尚未有效，示意图暂用当前生效参数。" : model.hasLayoutDraft ? "草稿示意 · 尚未应用" : "布局示意 · 不读取真实截图")
+        let previewNote = !valid ? "输入尚未有效，示意图暂用当前生效参数。" : model.hasLayoutDraft ? "草稿示意 · 尚未应用" : "布局示意 · 不读取真实截图"
+        text("layoutPreview.detail", geometryPreview.geometrySummary + " · " + previewNote)
         let duration = product.accessibility.reduceMotion ? min(0.08, previewConfig.swallowDuration) : previewConfig.swallowDuration
         text("motion.effective", "示意吞噬时长 \(formatMilliseconds(duration)) ms" + (model.hasLayoutDraft ? "（包含参数草稿）" : "") + (product.accessibility.reduceMotion ? "。减少动态不会延长原本更短的时长。" : "。"))
         let issues = state.domains.values.filter(\.hasIssue).count + (product.appearance.failure == nil ? 0 : 1) + (product.login.notConfirmed ? 1 : 0)
