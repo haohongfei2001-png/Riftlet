@@ -1,0 +1,11 @@
+{
+  "result": "TEST_SCOPE_CORRECTION_REQUIRED",
+  "originalResultsPreserved": true,
+  "unchangedHTML": true,
+  "primaryFailure": "Empty result intentionally renders a separate empty message in list and detail; the first test incorrectly counted both as one. Scope the same assertion to the list area.",
+  "dependentFailures": [
+    "Original-image modal absent because failed empty test did not clear the search.",
+    "Side-by-side records absent for the same retained empty search."
+  ],
+  "action": "Keep the result and exact runner; rerun after narrowing only the empty-list selector."
+}

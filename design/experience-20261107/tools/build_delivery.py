@@ -11,6 +11,9 @@ import hashlib
 import json
 import re
 import zipfile
+import platform
+from importlib.metadata import version
+from verify_delivery import expected_payloads, validate_html, check_javascript
 from PIL import Image, ImageDraw, ImageFont
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -18,6 +21,28 @@ P = ROOT / 'prototype'
 E = ROOT / 'evidence'
 OUT = ROOT / 'exports'
 OUT.mkdir(exist_ok=True)
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--inline', type=Path)
+parser.add_argument('--font', type=Path, help='CJK font used only for text on composite export plates')
+parser.add_argument('--node', default='node', help='Node executable for the required JavaScript syntax gate')
+args = parser.parse_args()
+font_candidates = ([args.font] if args.font else [
+    Path('/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc'),
+    Path('/System/Library/Fonts/PingFang.ttc'),
+    Path('/System/Library/Fonts/STHeiti Medium.ttc'),
+])
+font_path = next((path for path in font_candidates if path.is_file()), None)
+if font_path is None:
+    parser.error('No CJK font found. Pass --font /path/to/a/CJK-font; do not silently export missing-glyph labels.')
+
+def replace_once(text, marker, replacement):
+    if text.count(marker) != 1:
+        raise ValueError('Expected exactly one template marker: ' + marker)
+    return text.replace(marker, replacement, 1)
+
+def write_utf8(path, text):
+    path.write_text(text, encoding='utf-8')
+
 
 def data_image(im, width=None):
     im = im.copy()
@@ -63,29 +88,25 @@ for key, title, before_name, trim, after_name, after_size, bn, an in sources:
     baselines[key] = dict(title=title, before=bi, after=ai, beforeSize=bs, afterSize=ass,
                          beforeNote=bn, afterNote=an,
                          source='Before：a5aefd3d原生隔离审核；其UI/App源码与正式main 71d726c5一致。After：独立Mac Chrome实际渲染的设计原型。所有样例均非用户真实截图。')
-(P / 'baselines.js').write_text('/* Real captured images with explicit provenance. */\nwindow.RiftBaselines=' + json.dumps(baselines, ensure_ascii=False, separators=(',', ':')) + ';\n')
+write_utf8(P / 'baselines.js', '/* Real captured images with explicit provenance. */\nwindow.RiftBaselines=' + json.dumps(baselines, ensure_ascii=False, separators=(',', ':')) + ';\n')
 
-css = '\n'.join((P / n).read_text() for n in ['app.css', 'settings.css'])
-js = '\n'.join((P / n).read_text() for n in ['samples.js', 'baselines.js', 'settings.js', 'app.js'])
-favicon = 'data:image/svg+xml;base64,' + base64.b64encode((P / 'assets/riftlet.svg').read_bytes()).decode()
-js = js.replace('src="assets/riftlet.svg"', 'src="' + favicon + '"')
-document = (P / 'index.html').read_text()
-document = document.replace('href="assets/riftlet.svg"', 'href="' + favicon + '"')
-document = document.replace('<link rel="stylesheet" href="app.css">', '<style>\n' + css + '\n</style>')
-document = document.replace('  <link rel="stylesheet" href="settings.css">\n', '')
-document = document.replace('<script src="samples.js"></script>', '<script>\n' + js + '\n</script>')
+js, css, favicon = expected_payloads(P)
+document = (P / 'index.html').read_text(encoding='utf-8')
+document = replace_once(document, 'href="assets/riftlet.svg"', 'href="' + favicon + '"')
+document = replace_once(document, '<link rel="stylesheet" href="app.css">', '<style>\n' + css + '\n</style>')
+document = replace_once(document, '  <link rel="stylesheet" href="settings.css">\n', '')
+document = replace_once(document, '<script src="samples.js"></script>', '<script>\n' + js + '\n</script>')
 for n in ['baselines.js', 'settings.js', 'app.js']:
-    document = document.replace('  <script src="' + n + '"></script>\n', '')
-(OUT / 'Riftlet-Experience-Prototype.html').write_text(document)
+    document = replace_once(document, '  <script src="' + n + '"></script>\n', '')
+# Validate BEFORE replacing the last good artifact. In particular, $$ must be
+# preserved literally; the full source check also covers every other token.
+validation = validate_html(document, P, args.node)
+temporary = OUT / '.Riftlet-Experience-Prototype.html.tmp'
+write_utf8(temporary, document)
+temporary.replace(OUT / 'Riftlet-Experience-Prototype.html')
 
 def font(size):
-    candidates = [Path('/workspace/scratch/782909c86400/fonts/NotoSansCJKsc-Regular.otf'),
-                  Path('/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc'),
-                  Path('/System/Library/Fonts/PingFang.ttc')]
-    for candidate in candidates:
-        if candidate.exists():
-            return ImageFont.truetype(str(candidate), size)
-    return ImageFont.load_default(size=size)
+    return ImageFont.truetype(str(font_path), size)
 
 def paste_fit(canvas, image, box):
     image = image.convert('RGBA')
@@ -98,7 +119,7 @@ overview = Image.new('RGB', (2240, 1520), '#f3f2ef')
 d = ImageDraw.Draw(overview)
 d.text((72, 42), 'Riftlet', fill='#282b29', font=font(48))
 d.text((280, 62), '让截图属于边缘，让工作继续。', fill='#686f69', font=font(25))
-d.text((72, 124), '实际交互原型渲染 · 完整设计候选', fill='#686f69', font=font(20))
+d.text((72, 124), '历史原型实拍汇总 · 本轮新图见验证证据', fill='#686f69', font=font(20))
 panels = [
     ('桌面边缘 / 2×细节', 'desktop-edge-2x.png', (72, 205, 405, 650)),
     ('控制中心', 'control-light-crop.png', (540, 205, 395, 650)),
@@ -117,8 +138,8 @@ overview.save(OUT/'Riftlet-Design-Overview.png', optimize=True)
 # A genuine same-logical-scale before/after plate for the main settings page.
 plate = Image.new('RGB', (2160, 1060), '#f3f2ef')
 d=ImageDraw.Draw(plate)
-d.text((60,36), '位置与显示：真实原生基线 → 本轮设计', fill='#282b29', font=font(34))
-d.text((60,100), '两侧采用相同逻辑比例。Before为隔离原生审核；After为实际网页渲染。', fill='#686f69', font=font(20))
+d.text((60,36), '位置与显示：原生基线 → 历史网页设计', fill='#282b29', font=font(34))
+d.text((60,100), '两侧采用相同逻辑比例。保留历史 Before / After，不代表本轮新视觉验收。', fill='#686f69', font=font(20))
 d.text((60,170), 'Beta 2 · 原生截图', fill='#282b29', font=font(25))
 d.text((1140,170), '设计候选 · 交互原型', fill='#282b29', font=font(25))
 bi=Image.open(E/'native/settings-light-display.png').convert('RGBA')
@@ -131,9 +152,6 @@ d.text((60,988), '来源：a5aefd3d（UI/App与main 71d726c5无差异）', fill=
 d.text((1140,988), '完整16项参数保留 · 非生产App已实现', fill='#686f69', font=font(18))
 plate.save(OUT/'Riftlet-Before-After.png',optimize=True)
 
-parser=argparse.ArgumentParser()
-parser.add_argument('--inline', type=Path)
-args=parser.parse_args()
 if args.inline:
     import tinycss2
     # Product-specific, root-scoped CSS. Do not inherit host utility geometry.
@@ -177,17 +195,43 @@ if args.inline:
     shell=(ROOT/'tools/inline-shell.html').read_text()
     fragment=shell.replace('/* RIFTLET_INLINE_CSS */',inline_css).replace('/* RIFTLET_INLINE_JS */',inline_js)
     assert len(fragment.encode()) < 1_000_000, len(fragment.encode())
-    args.inline.write_text(fragment)
+    check_javascript(inline_js, args.node)
+    write_utf8(args.inline, fragment)
     print('Inline bytes:',len(fragment.encode()))
 
+# Historical PNG captures are recomposed, not relabelled as new UI renders.
+artifact_names = ['Riftlet-Experience-Prototype.html', 'Riftlet-Design-Overview.png', 'Riftlet-Before-After.png']
+report = {
+    'schemaVersion': 1, 'result': 'PASS', 'validation': validation,
+    'runtime': {'python': platform.python_version(), 'Pillow': version('Pillow'), 'tinycss2': version('tinycss2')},
+    'font': {'name': font_path.name, 'sha256': hashlib.sha256(font_path.read_bytes()).hexdigest()},
+    'builderSHA256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+    'validatorSHA256': hashlib.sha256((ROOT/'tools/verify_delivery.py').read_bytes()).hexdigest(),
+    'originalBrandSHA256': hashlib.sha256((P/'assets/riftlet.svg').read_bytes()).hexdigest(),
+    'artifacts': [{'path': 'exports/'+name, 'sha256': hashlib.sha256((OUT/name).read_bytes()).hexdigest()} for name in artifact_names],
+    'imageScope': 'Composite plates retain historical captured UI pixels; regeneration is not new native or current-prototype visual acceptance.'
+}
+write_utf8(OUT/'build-report.json', json.dumps(report, ensure_ascii=False, indent=2)+'\n')
+
+def delivery_files():
+    return [path for path in sorted(ROOT.rglob('*')) if path.is_file()
+            and '__pycache__' not in path.parts and path.name != '.DS_Store'
+            and not path.name.endswith('.tmp') and path.name != 'Riftlet-Design-Handoff.zip']
+
 manifest=[]
-for path in sorted(ROOT.rglob('*')):
-    if path.is_file() and path.name not in ['MANIFEST.json','Riftlet-Design-Handoff.zip']:
+for path in delivery_files():
+    if path.name != 'MANIFEST.json':
         manifest.append({'path':str(path.relative_to(ROOT)),'bytes':path.stat().st_size,'sha256':hashlib.sha256(path.read_bytes()).hexdigest()})
-(ROOT/'MANIFEST.json').write_text(json.dumps({'baseCommit':'71d726c5d6416346b84e1ac93047af5bb321d925','files':manifest},ensure_ascii=False,indent=2)+'\n')
+write_utf8(ROOT/'MANIFEST.json', json.dumps({'baseCommit':'71d726c5d6416346b84e1ac93047af5bb321d925','files':manifest},ensure_ascii=False,indent=2)+'\n')
+# Stable order, timestamp and regular-file mode make an unchanged delivery
+# byte-reproducible in the recorded dependency/font environment.
 with zipfile.ZipFile(OUT/'Riftlet-Design-Handoff.zip','w',zipfile.ZIP_DEFLATED,compresslevel=6) as z:
-    for path in sorted(ROOT.rglob('*')):
-        if path.is_file() and path.name!='Riftlet-Design-Handoff.zip':
-            z.write(path,'Riftlet-Design/'+str(path.relative_to(ROOT)))
+    for path in delivery_files():
+        info = zipfile.ZipInfo('Riftlet-Design/'+str(path.relative_to(ROOT)), date_time=(1980,1,1,0,0,0))
+        info.create_system = 3
+        info.external_attr = 0o100644 << 16
+        info.compress_type = zipfile.ZIP_DEFLATED
+        z.writestr(info, path.read_bytes(), compresslevel=6)
+print('Source-payload and JavaScript syntax gates: PASS')
 print('Offline bytes:',(OUT/'Riftlet-Experience-Prototype.html').stat().st_size)
 print('Bundle bytes:',(OUT/'Riftlet-Design-Handoff.zip').stat().st_size)

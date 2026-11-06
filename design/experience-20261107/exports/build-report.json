@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "result": "PASS",
+  "validation": {
+    "result": "PASS",
+    "sourcePayloadExact": true,
+    "stylesheetExact": true,
+    "scriptSHA256": "da92e27b08a53eb2bf3b714c9718d003b50474a95d78e913bbffa0c633ffd314",
+    "styleSHA256": "1abe6f599d8f9ab979eb9204ceb74ea869db05964b1b0f7179d95799f3337e88",
+    "doubleDollarOccurrences": 4,
+    "node": "v26.8.2"
+  },
+  "runtime": {
+    "python": "3.14.7",
+    "Pillow": "13.0.0",
+    "tinycss2": "1.5.1"
+  },
+  "font": {
+    "name": "STHeiti Medium.ttc",
+    "sha256": "2d37f927fb4c24a2ba4d318b903a607f6b7ad4e5f365c26aba6aaccb84038beb"
+  },
+  "builderSHA256": "b8dbb96e60993c40a9eff567e3a9012e3c790f05a9ce128b79e7b502bd4339c4",
+  "validatorSHA256": "d047b58da678430e43af05173a0089e7648de7775f92c8f75e11d367286cfee5",
+  "originalBrandSHA256": "f31d71318e1aaef2464bbcc25c5a105fa6959d10006eb7c64d30aac42fbb3e90",
+  "artifacts": [
+    {
+      "path": "exports/Riftlet-Experience-Prototype.html",
+      "sha256": "2c4afdf1aa7fb3b926f3060636c84e2c98f04d82ac7abf75c805e96dad2a33c5"
+    },
+    {
+      "path": "exports/Riftlet-Design-Overview.png",
+      "sha256": "cd7273b2a100693dcd9e7412f3bf526c66d3a1677649b6c9dce2b706696c8e5d"
+    },
+    {
+      "path": "exports/Riftlet-Before-After.png",
+      "sha256": "40b30082c44f6c35fb0c7fb14be3a4c9caaf08c0f40a4cf8dd2f596c3457266b"
+    }
+  ],
+  "imageScope": "Composite plates retain historical captured UI pixels; regeneration is not new native or current-prototype visual acceptance."
+}

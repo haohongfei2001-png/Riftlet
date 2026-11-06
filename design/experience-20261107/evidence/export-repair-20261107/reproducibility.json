@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "result": "PASS",
+  "consecutiveUnchangedBuilds": 2,
+  "exactEquality": true,
+  "outputs": [
+    {
+      "path": "prototype/baselines.js",
+      "firstSHA256": "e3937382bc4cccca9183e71fe99639cfe7d6bc4c85200fea6499b666565645fd",
+      "secondSHA256": "e3937382bc4cccca9183e71fe99639cfe7d6bc4c85200fea6499b666565645fd"
+    },
+    {
+      "path": "exports/Riftlet-Experience-Prototype.html",
+      "firstSHA256": "2c4afdf1aa7fb3b926f3060636c84e2c98f04d82ac7abf75c805e96dad2a33c5",
+      "secondSHA256": "2c4afdf1aa7fb3b926f3060636c84e2c98f04d82ac7abf75c805e96dad2a33c5"
+    },
+    {
+      "path": "exports/Riftlet-Design-Overview.png",
+      "firstSHA256": "cd7273b2a100693dcd9e7412f3bf526c66d3a1677649b6c9dce2b706696c8e5d",
+      "secondSHA256": "cd7273b2a100693dcd9e7412f3bf526c66d3a1677649b6c9dce2b706696c8e5d"
+    },
+    {
+      "path": "exports/Riftlet-Before-After.png",
+      "firstSHA256": "40b30082c44f6c35fb0c7fb14be3a4c9caaf08c0f40a4cf8dd2f596c3457266b",
+      "secondSHA256": "40b30082c44f6c35fb0c7fb14be3a4c9caaf08c0f40a4cf8dd2f596c3457266b"
+    },
+    {
+      "path": "exports/build-report.json",
+      "firstSHA256": "252fe4b9af3a0f37d0db49eabc2bb06579d926b9117e573e5d3191efd7550c76",
+      "secondSHA256": "252fe4b9af3a0f37d0db49eabc2bb06579d926b9117e573e5d3191efd7550c76"
+    },
+    {
+      "path": "MANIFEST.json",
+      "firstSHA256": "0a447a64a8c3ea9f12c07f863088bd9f873f427886d40491f51f825291e193c3",
+      "secondSHA256": "0a447a64a8c3ea9f12c07f863088bd9f873f427886d40491f51f825291e193c3"
+    },
+    {
+      "path": "exports/Riftlet-Design-Handoff.zip",
+      "firstSHA256": "e40932ee7698df4ece04ffb30f48000178c561a4932eff616c581979ac52eb0d",
+      "secondSHA256": "e40932ee7698df4ece04ffb30f48000178c561a4932eff616c581979ac52eb0d"
+    }
+  ],
+  "scope": "Same frozen source/dependencies/font. This report was written after the measured builds; the final packaging build incorporates it, so the final MANIFEST/ZIP hashes differ from these measured pre-report artifacts. No circular final-ZIP identity claim."
+}

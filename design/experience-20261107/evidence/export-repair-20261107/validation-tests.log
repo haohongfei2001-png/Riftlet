@@ -1,0 +1,10 @@
+test_current_export_matches_sources_and_parses (__main__.DeliveryValidationTests.test_current_export_matches_sources_and_parses) ... ok
+test_dollar_replacement_corruption_cannot_be_admitted (__main__.DeliveryValidationTests.test_dollar_replacement_corruption_cannot_be_admitted) ... ok
+test_even_exact_source_with_a_syntax_error_is_rejected (__main__.DeliveryValidationTests.test_even_exact_source_with_a_syntax_error_is_rejected) ... ok
+test_exact_historical_broken_export_is_rejected (__main__.DeliveryValidationTests.test_exact_historical_broken_export_is_rejected) ... ok
+test_unembedded_resource_and_stale_css_are_rejected (__main__.DeliveryValidationTests.test_unembedded_resource_and_stale_css_are_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.157s
+
+OK

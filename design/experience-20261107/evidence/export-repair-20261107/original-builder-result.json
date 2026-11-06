@@ -1,0 +1,9 @@
+{
+  "builder": "unmodified tools/build_delivery.py at 276574a44485c17821a5ce3e0195116e83e9fad8",
+  "result": "PASS",
+  "standaloneSHA256": "2c4afdf1aa7fb3b926f3060636c84e2c98f04d82ac7abf75c805e96dad2a33c5",
+  "doubleDollarOccurrences": 4,
+  "syntaxExitCode": 0,
+  "syntaxStderr": "",
+  "scope": "Canonical Python rebuild preserves literal $$. Historical committed HTML corruption is not reproduced by Python str.replace; exact historical producing process is unproven."
+}

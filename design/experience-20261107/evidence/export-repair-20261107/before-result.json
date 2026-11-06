@@ -1,0 +1,25 @@
+{
+  "source": "276574a44485c17821a5ce3e0195116e83e9fad8",
+  "target": "exports/Riftlet-Experience-Prototype.html",
+  "targetSHA256": "54b4dda6630916594a0e4d8e9f7fd08591e0ae1c7bf32f30f4081cddc918d892",
+  "runtime": {
+    "engine": "156.0.8078.4",
+    "playwright": "1.65.0",
+    "headless": true,
+    "ownedEphemeralProfile": true,
+    "userProfile": false,
+    "externalBrowserConnection": false
+  },
+  "errors": [
+    {
+      "name": "SyntaxError",
+      "message": "Identifier '$' has already been declared"
+    }
+  ],
+  "externalRequests": [],
+  "state": {
+    "rootChildren": 0,
+    "prototypeAvailable": false
+  },
+  "result": "REPRODUCED_STANDALONE_FAILURE"
+}

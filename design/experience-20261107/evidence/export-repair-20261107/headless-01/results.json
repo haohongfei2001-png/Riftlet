@@ -1,0 +1,157 @@
+{
+  "schemaVersion": 1,
+  "target": "exports/Riftlet-Experience-Prototype.html",
+  "targetSHA256": "2c4afdf1aa7fb3b926f3060636c84e2c98f04d82ac7abf75c805e96dad2a33c5",
+  "script": "tools/test_delivery.cjs",
+  "scriptSHA256": "1111fb76c97565db154d80add4ad2beed50508c18c7b2b4e1b1686153b3691ed",
+  "scope": "Offline synthetic web prototype only; no native App or real attachment verification.",
+  "runtime": {
+    "headless": true,
+    "ownedEphemeralProfile": true,
+    "userProfile": false,
+    "externalBrowserConnection": false,
+    "browser": "156.0.8078.4",
+    "playwright": "1.65.0"
+  },
+  "cases": [
+    {
+      "name": "standalone initializes without JavaScript errors",
+      "result": "PASS"
+    },
+    {
+      "name": "history default and both style options",
+      "result": "PASS"
+    },
+    {
+      "name": "selection and record identity survive round-trip style switches",
+      "result": "PASS"
+    },
+    {
+      "name": "status filter and real search input survive style switches",
+      "result": "PASS"
+    },
+    {
+      "name": "empty search remains empty in both styles",
+      "result": "FAIL",
+      "message": "Expected values to be strictly equal:\n\n2 !== 1\n"
+    },
+    {
+      "name": "all six settings pages remain reachable by their controls",
+      "result": "PASS"
+    },
+    {
+      "name": "settings and history selectors share the same preference both ways",
+      "result": "PASS"
+    },
+    {
+      "name": "original-image modal zoom and Escape preserve selection",
+      "result": "FAIL",
+      "message": "locator.click: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-action=\"original\"]')\u001b[22m\n"
+    },
+    {
+      "name": "feedback modal traps focus and closes with Escape",
+      "result": "PASS"
+    },
+    {
+      "name": "all historical comparison images load and fit through the double-dollar helper",
+      "result": "PASS"
+    },
+    {
+      "name": "side-by-side variants share selected record",
+      "result": "FAIL",
+      "message": "locator.getAttribute: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.history-variant-tile').nth(1)\u001b[22m\n"
+    },
+    {
+      "name": "light/dark history styles and settings render with original brand",
+      "result": "PASS"
+    },
+    {
+      "name": "offline delivery makes no external requests or JavaScript errors",
+      "result": "PASS"
+    }
+  ],
+  "screenshots": [
+    {
+      "file": "failure-5.png",
+      "sha256": "3c7c68651abbb95a833161430639c2f2860846847d918cc5f925db62fe596ff9",
+      "width": 1200,
+      "height": 1008,
+      "deviceScaleFactor": 1
+    },
+    {
+      "file": "failure-8.png",
+      "sha256": "68f47cb90e8965fbfb493fcfa16cb19fb0800c07fa71d5af30aa0ed9b6a490df",
+      "width": 1200,
+      "height": 1008,
+      "deviceScaleFactor": 1
+    },
+    {
+      "file": "failure-11.png",
+      "sha256": "aceb148359fa11ec5a52e5e3223cdeb4736b2a846f9ee0b54141ffe3cd9095fd",
+      "width": 1200,
+      "height": 1008,
+      "deviceScaleFactor": 1
+    },
+    {
+      "file": "history-current-light.png",
+      "sha256": "68f47cb90e8965fbfb493fcfa16cb19fb0800c07fa71d5af30aa0ed9b6a490df",
+      "width": 1200,
+      "height": 1008,
+      "deviceScaleFactor": 1
+    },
+    {
+      "file": "history-imageGrid-light.png",
+      "sha256": "8b17e4fb20bc7641e904ba49bd9a7e57cc6df32199d35e2f7eb29e6ae3c7edfe",
+      "width": 1200,
+      "height": 1008,
+      "deviceScaleFactor": 1
+    },
+    {
+      "file": "history-variants-light.png",
+      "sha256": "aceb148359fa11ec5a52e5e3223cdeb4736b2a846f9ee0b54141ffe3cd9095fd",
+      "width": 1200,
+      "height": 1008,
+      "deviceScaleFactor": 1
+    },
+    {
+      "file": "settings-history-light.png",
+      "sha256": "6f6cac156f750b2845d29d16e9a3763daa0ed4cff7c9d98cd56fbab1095c288c",
+      "width": 1200,
+      "height": 1022,
+      "deviceScaleFactor": 1
+    },
+    {
+      "file": "history-current-dark.png",
+      "sha256": "47f5e0e18a72f373b69b3810363bcaf512b179a9a3eb171ad408c469e86c68bb",
+      "width": 1200,
+      "height": 1008,
+      "deviceScaleFactor": 1
+    },
+    {
+      "file": "history-imageGrid-dark.png",
+      "sha256": "43ea988630931411fd9e35618c9c197242859fc088647d6ecb9028d480afa030",
+      "width": 1200,
+      "height": 1008,
+      "deviceScaleFactor": 1
+    },
+    {
+      "file": "history-variants-dark.png",
+      "sha256": "7133c5db30e546e929a5e9948a407f133731f0711d359773def6a34d145b0922",
+      "width": 1200,
+      "height": 1008,
+      "deviceScaleFactor": 1
+    },
+    {
+      "file": "settings-history-dark.png",
+      "sha256": "1ac9263f67a90fae8aa8ae217482bcbff6ed2f6845d3cedd36861fb77977ce3e",
+      "width": 1200,
+      "height": 1022,
+      "deviceScaleFactor": 1
+    }
+  ],
+  "pageErrors": [],
+  "externalRequests": [],
+  "passed": 10,
+  "failed": 3,
+  "result": "FAIL"
+}

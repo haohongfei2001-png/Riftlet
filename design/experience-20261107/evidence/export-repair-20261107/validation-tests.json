@@ -1,0 +1,13 @@
+{
+  "result": "PASS",
+  "passed": 5,
+  "failed": 0,
+  "python": "3.14.7",
+  "node": "v26.8.2",
+  "script": "tools/test_delivery_validation.py",
+  "scriptSHA256": "b886c9724856eddf65ae31938502db86add9a12bb306c77f9a8663934843f0d1",
+  "log": "validation-tests.log",
+  "logSHA256": "355a924a1d7b2ef509e7e7e92d8177bf5fed17a95b5605db5c478b770fa07503",
+  "targetSHA256": "2c4afdf1aa7fb3b926f3060636c84e2c98f04d82ac7abf75c805e96dad2a33c5",
+  "scope": "Actual unittest execution with preserved broken HTML and controlled in-memory/temp-directory fault injections; no browser/native acceptance inferred."
+}

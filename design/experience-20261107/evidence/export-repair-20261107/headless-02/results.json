@@ -1,0 +1,133 @@
+{
+  "schemaVersion": 1,
+  "target": "exports/Riftlet-Experience-Prototype.html",
+  "targetSHA256": "2c4afdf1aa7fb3b926f3060636c84e2c98f04d82ac7abf75c805e96dad2a33c5",
+  "script": "tools/test_delivery.cjs",
+  "scriptSHA256": "85e92fbea2ffa1d891ae1d00b8213c556556f3547ca9cf7ad897cf6702b5f95d",
+  "scope": "Offline synthetic web prototype only; no native App or real attachment verification.",
+  "runtime": {
+    "headless": true,
+    "ownedEphemeralProfile": true,
+    "userProfile": false,
+    "externalBrowserConnection": false,
+    "browser": "156.0.8078.4",
+    "playwright": "1.65.0"
+  },
+  "cases": [
+    {
+      "name": "standalone initializes without JavaScript errors",
+      "result": "PASS"
+    },
+    {
+      "name": "history default and both style options",
+      "result": "PASS"
+    },
+    {
+      "name": "selection and record identity survive round-trip style switches",
+      "result": "PASS"
+    },
+    {
+      "name": "status filter and real search input survive style switches",
+      "result": "PASS"
+    },
+    {
+      "name": "empty search remains empty in both styles",
+      "result": "PASS"
+    },
+    {
+      "name": "all six settings pages remain reachable by their controls",
+      "result": "PASS"
+    },
+    {
+      "name": "settings and history selectors share the same preference both ways",
+      "result": "PASS"
+    },
+    {
+      "name": "original-image modal zoom and Escape preserve selection",
+      "result": "PASS"
+    },
+    {
+      "name": "feedback modal traps focus and closes with Escape",
+      "result": "PASS"
+    },
+    {
+      "name": "all historical comparison images load and fit through the double-dollar helper",
+      "result": "PASS"
+    },
+    {
+      "name": "side-by-side variants share selected record",
+      "result": "PASS"
+    },
+    {
+      "name": "light/dark history styles and settings render with original brand",
+      "result": "PASS"
+    },
+    {
+      "name": "offline delivery makes no external requests or JavaScript errors",
+      "result": "PASS"
+    }
+  ],
+  "screenshots": [
+    {
+      "file": "history-current-light.png",
+      "sha256": "6be051a74ede0b25a628eb324bb4c02ee8b072f2560d80325fc6a2a46a4c23db",
+      "width": 1200,
+      "height": 1008,
+      "deviceScaleFactor": 1
+    },
+    {
+      "file": "history-imageGrid-light.png",
+      "sha256": "46026de9a06145c70cb4b17b0ca618248a4a9e3185bb832be6c58d0d50d05722",
+      "width": 1200,
+      "height": 1008,
+      "deviceScaleFactor": 1
+    },
+    {
+      "file": "history-variants-light.png",
+      "sha256": "8c62de75b4fc4a60888df1d9c6da5dcd1379be1e19acf048ae14020794489c13",
+      "width": 1200,
+      "height": 1008,
+      "deviceScaleFactor": 1
+    },
+    {
+      "file": "settings-history-light.png",
+      "sha256": "6f6cac156f750b2845d29d16e9a3763daa0ed4cff7c9d98cd56fbab1095c288c",
+      "width": 1200,
+      "height": 1022,
+      "deviceScaleFactor": 1
+    },
+    {
+      "file": "history-current-dark.png",
+      "sha256": "afd8840ff462d023b3538bee61e3a20aa44577b0122830fb84549cd8231d055e",
+      "width": 1200,
+      "height": 1008,
+      "deviceScaleFactor": 1
+    },
+    {
+      "file": "history-imageGrid-dark.png",
+      "sha256": "52028b4d5ee984c947ad36254c03eef96bdd587d6033556dcdd9da05ef72e9db",
+      "width": 1200,
+      "height": 1008,
+      "deviceScaleFactor": 1
+    },
+    {
+      "file": "history-variants-dark.png",
+      "sha256": "b49ea94ca08e0e0dbed9f89b2ee356dc885b1b034c73b8ca013ba50540347269",
+      "width": 1200,
+      "height": 1008,
+      "deviceScaleFactor": 1
+    },
+    {
+      "file": "settings-history-dark.png",
+      "sha256": "1ac9263f67a90fae8aa8ae217482bcbff6ed2f6845d3cedd36861fb77977ce3e",
+      "width": 1200,
+      "height": 1022,
+      "deviceScaleFactor": 1
+    }
+  ],
+  "pageErrors": [],
+  "externalRequests": [],
+  "passed": 13,
+  "failed": 0,
+  "result": "PASS"
+}
