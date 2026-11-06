@@ -104,6 +104,9 @@ final class HistoryDisplayStyleTests: XCTestCase {
         let renderer = HistoryGridRenderer(directory: dir, onSelection: { selections.append($0) },
             onPreview: { XCTFail("Geometry must not open an original") }, stateText: { _ in "待附加" }, mayLoad: { false })
         defer { renderer.clear() }
+        // Keep the fixture's exact clip widths independent of the user's
+        // scroller preference when these three rows require vertical scrolling.
+        renderer.scrollView.scrollerStyle = .overlay
         renderer.scrollView.frame = NSRect(x: 0, y: 0, width: 533, height: 400)
         renderer.setVisible(false)
         renderer.update(entries: entries, selection: images[1].id)
