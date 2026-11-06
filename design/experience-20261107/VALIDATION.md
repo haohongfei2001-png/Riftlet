@@ -78,3 +78,8 @@
 ### 空白 HTML 根因与修复（2026-11-07）
 
 Chromium 实测发现：离线导出文件的 app helper 被错误序列化为 `const $=..., $=...`，造成内联脚本解析错误 `Identifier '$' has already been declared`，因此原型根节点保持空白。已将第二个 helper 标识符恢复为 `$$`，并在构建脚本加入防回归规范化；验证流程增加四个源文件拼接后的 `node --check` 与 Chromium 实际打开/交互检查。此前交付的预览链接不应继续使用，以修复后的新浏览器检查结果为准。
+
+
+### 第二轮空白/交互故障修复
+
+浏览器堆栈进一步定位到导出文件中的三个 `querySelectorAll` 调用点也被错误写成单元素 `querySelector`：`fit()` 查询 `[data-compare-size]`，以及弹窗 inert 管理中的两组元素遍历。由于桌面场景没有 compare 节点，`fit()` 对 null 读取 `.length`，并中断后续 `bindSettings()`，造成设置选择看似可改但偏好不更新。现已恢复三个 `$$` 调用点；构建脚本对 helper 声明和全部调用点加入防回归规范化。

@@ -43,8 +43,8 @@
     },
     {
       "path": "VALIDATION.md",
-      "bytes": 7412,
-      "sha256": "ac82d47ef01065b5633f6950347a7c548a274e53013258d1997e7104262ab648"
+      "bytes": 7952,
+      "sha256": "7f112e2d5cf5061866d82da699a9dd17e5c20629385d02156ba121046639043d"
     },
     {
       "path": "evidence/native/control-dark.png",
@@ -193,8 +193,8 @@
     },
     {
       "path": "exports/Riftlet-Experience-Prototype.html",
-      "bytes": 367922,
-      "sha256": "f221c7b8b61064ee543163f31abca11d5322d077ae412d8fe39a6aa5eacb28e1"
+      "bytes": 367925,
+      "sha256": "ca349ecaf4dfb50474ce2f9b0f0f06265a88f47756a4d73ed4dc234109f1f651"
     },
     {
       "path": "exports/Riftlet-Motion.mp4",
@@ -253,8 +253,8 @@
     },
     {
       "path": "tools/build_delivery.py",
-      "bytes": 12375,
-      "sha256": "3c958b02401392a51d6ef0d8972d17f96e7bf42ea50da6d5814f99a5ed3e1e88"
+      "bytes": 12724,
+      "sha256": "b979bcac5eda663e347a872be9bcf671c7ddfeb95398e67f94a6e188d6956d1f"
     },
     {
       "path": "tools/inline-shell.html",
