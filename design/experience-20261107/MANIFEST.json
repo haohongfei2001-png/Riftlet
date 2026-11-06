@@ -193,8 +193,8 @@
     },
     {
       "path": "exports/Riftlet-Experience-Prototype.html",
-      "bytes": 360991,
-      "sha256": "29e5b335599abb46bbc71bb974e1782e69b64011804aebb8ee7ecbc2f91ff203"
+      "bytes": 361527,
+      "sha256": "edbd9a8bdf3e8231315e5a3181cd8cdb0ad7ed95fbc18ee3084ed95c999a44e7"
     },
     {
       "path": "exports/Riftlet-Motion.mp4",
@@ -253,8 +253,8 @@
     },
     {
       "path": "tools/build_delivery.py",
-      "bytes": 12131,
-      "sha256": "c1da520cc294d60eb7ec0ab62af9f13e81aef110e3d2facc8b4741c89d5896f6"
+      "bytes": 12200,
+      "sha256": "eb1263822caba2140d0fc64e3de6853e3d45d424647529b3e8447011fff00d39"
     },
     {
       "path": "tools/inline-shell.html",
