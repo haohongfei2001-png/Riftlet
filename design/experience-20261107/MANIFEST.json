@@ -8,18 +8,18 @@
     },
     {
       "path": "DESIGN-DECISION.md",
-      "bytes": 7436,
-      "sha256": "b15ddcc85d825db5070dadb5d9e86d1d60cf97096d0ba4b739b5efd8e65dc5e0"
+      "bytes": 8229,
+      "sha256": "69689d871a73223cb90dfed3e657489c1b98898f4bb859d5ea502cb82c188017"
     },
     {
       "path": "IMPLEMENTATION-SPEC.md",
-      "bytes": 15679,
-      "sha256": "c0e3b576e2279249b909299ba4d7d6647bf726c76a3626127fe8bde009495c82"
+      "bytes": 17579,
+      "sha256": "043d0e44b60258bca2ccd8552201ae1270645c41dfaa3398237cfdd4a19c55c7"
     },
     {
       "path": "README.md",
-      "bytes": 4602,
-      "sha256": "7313719fb20b09d2752c48edd2f4fa2605a68b2cd230e7f0f41ce154eb2bba9a"
+      "bytes": 5063,
+      "sha256": "db66c19c903c4060f04ba94fb9c04815ed2ffd73fbbbae499b3fbcb72cee1ff3"
     },
     {
       "path": "REFERENCES.md",
@@ -28,23 +28,23 @@
     },
     {
       "path": "SETTINGS-HANDOFF.md",
-      "bytes": 16811,
-      "sha256": "d4736a76d9d39939d429d14814d774372534430f361721a7285b4236cdc62c08"
+      "bytes": 18486,
+      "sha256": "6526862d39ff9755b0295893778ec6b11b1d25b2c1532354d2f6353cda42efd3"
     },
     {
       "path": "SETTINGS-MAP.md",
-      "bytes": 10476,
-      "sha256": "3c725fa22a998ca617a48c5488fdc1a39d21f657a4f90d29d382dca0bde5f207"
+      "bytes": 10964,
+      "sha256": "13463f9ac13f8d92b22407fa8633d02cbca130b6022b568424221710135e08e8"
     },
     {
       "path": "TOKENS.json",
-      "bytes": 4235,
-      "sha256": "308b9499127a5d89f938bafc53ee5e6a096bda6c1651cc4acdd027ecdd640849"
+      "bytes": 4908,
+      "sha256": "63d5276c897b55dba4e9fa05a5b87df1a4e8fefaffcc82a7a355651454dfe0f5"
     },
     {
       "path": "VALIDATION.md",
-      "bytes": 4822,
-      "sha256": "7b310e5c53cd762f6db9f76858eb0b32e2f67e9889e98e2bfe5a5fffaaef48ca"
+      "bytes": 6436,
+      "sha256": "503b81e502855ae493b2f79e507358512f8db6ffc047bc441d3fa5998affe00f"
     },
     {
       "path": "evidence/native/control-dark.png",
@@ -193,8 +193,8 @@
     },
     {
       "path": "exports/Riftlet-Experience-Prototype.html",
-      "bytes": 358140,
-      "sha256": "92ee45cb26ba1c9b64812e74842b65dc047539ab52698565fa06be7e03cca462"
+      "bytes": 360991,
+      "sha256": "29e5b335599abb46bbc71bb974e1782e69b64011804aebb8ee7ecbc2f91ff203"
     },
     {
       "path": "exports/Riftlet-Motion.mp4",
@@ -208,18 +208,18 @@
     },
     {
       "path": "prototype/app.css",
-      "bytes": 39807,
-      "sha256": "7c85f02cfa06506660987749c1103c256ac15e0c17ceb6b7818d00dfe32a9961"
+      "bytes": 41756,
+      "sha256": "13813d97bb01b546ad690ea3678b8a8588235a1b63b2a2e4ccdba8ba88e43b13"
     },
     {
       "path": "prototype/app.js",
-      "bytes": 60797,
-      "sha256": "f1481fa637689cf4ee3d78e37fad9297c6760a9d971252981f3c213d97b5ec58"
+      "bytes": 61340,
+      "sha256": "035deda29665be4f674574716283bf190b6c0a793b34597df9cbc9114d3c3382"
     },
     {
       "path": "prototype/assets/riftlet.svg",
-      "bytes": 342,
-      "sha256": "546d57a4d36d5f975a969f8a8bd73ffac35cc8271057767d246e81a1b7d19343"
+      "bytes": 343,
+      "sha256": "eb9d72aabcef784c5710f8467f45cddc0748e58e1b53e719e8690905374839f1"
     },
     {
       "path": "prototype/baselines.js",
@@ -243,8 +243,8 @@
     },
     {
       "path": "prototype/settings.js",
-      "bytes": 40439,
-      "sha256": "4d46fb43255b0f0948308c3d437f995f9734671733533b977037a314bb18970a"
+      "bytes": 40730,
+      "sha256": "dabca7c590b70f1fffc08a8ff5f06158d08b816e8680131b46c7cfc47d955d42"
     },
     {
       "path": "review/INDEPENDENT-REVIEW.md",
