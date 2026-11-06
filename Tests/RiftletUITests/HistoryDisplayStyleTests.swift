@@ -111,21 +111,37 @@ final class HistoryDisplayStyleTests: XCTestCase {
         renderer.collection.layoutSubtreeIfNeeded()
         XCTAssertEqual(renderer.collection.numberOfSections, 0, "Hidden geometry has no native items, but retains the shared metadata")
 
-        // Exercise real flow-layout attributes when the collection document
-        // has not yet caught up with the wider enclosing clip view, followed
-        // by normal widths. Checking frames tests AppKit's layout contract,
-        // rather than reproducing the renderer's column arithmetic.
+        // During a resize, the delegate must fit one item and its insets to
+        // the narrower document, even while the enclosing clip is still wide.
+        // Flow layout distributes whole rows using the viewport width, so its
+        // complete frames are checked separately once those widths agree.
         renderer.collection.setFrameSize(NSSize(width: 112, height: 400))
         renderer.setVisible(true)
         let layout = try XCTUnwrap(renderer.collection.collectionViewLayout)
+        for width: CGFloat in [1, 24, 112] {
+            renderer.collection.setFrameSize(NSSize(width: width, height: 400))
+            XCTAssertEqual(renderer.collection.bounds.width, width, accuracy: 1)
+            XCTAssertEqual(renderer.scrollView.contentView.bounds.width, 533, accuracy: 1)
+            let insets = renderer.collectionView(renderer.collection, layout: layout, insetForSectionAt: 0)
+            let size = renderer.collectionView(renderer.collection, layout: layout,
+                sizeForItemAt: IndexPath(item: 0, section: 0))
+            XCTAssertGreaterThanOrEqual(insets.left, 0)
+            XCTAssertGreaterThanOrEqual(insets.right, 0)
+            XCTAssertGreaterThan(size.width, 0)
+            XCTAssertLessThanOrEqual(insets.left + size.width + insets.right, renderer.collection.bounds.width + 1)
+        }
         for width: CGFloat in [112, 260, 533, 385] {
+            renderer.scrollView.setFrameSize(NSSize(width: width, height: 400))
+            renderer.scrollView.tile()
+            renderer.scrollView.layoutSubtreeIfNeeded()
             renderer.collection.setFrameSize(NSSize(width: width, height: 400))
             renderer.resize()
             renderer.collection.layoutSubtreeIfNeeded()
+            XCTAssertEqual(renderer.scrollView.contentView.bounds.width, width, accuracy: 1)
             XCTAssertEqual(renderer.collection.bounds.width, width, accuracy: 1)
             var frames: [NSRect] = []
             for item in entries.indices {
-                let attributes = try XCTUnwrap(layout.layoutAttributesForItem(at: IndexPath(item: item, section: 0)))
+                let attributes = try XCTUnwrap(renderer.collection.layoutAttributesForItem(at: IndexPath(item: item, section: 0)))
                 XCTAssertGreaterThan(attributes.frame.width, 0)
                 XCTAssertGreaterThanOrEqual(attributes.frame.minX, 0)
                 XCTAssertLessThanOrEqual(attributes.frame.maxX, renderer.collection.bounds.width + 1)

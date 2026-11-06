@@ -34,6 +34,8 @@ ARM64 App 二进制 SHA-256：`ded6da169ed4bacd0ca5eefec9f42c29f108c5ea08882ade5
 
 7 项原生控件用例全部通过，运行与重启日志均无已知 FlowLayout 警告。外部 GUI 操作后再次调用同一只读快照逻辑，全部 SQLite 表、媒体和偏好与重启后完全一致，operation / START 均为 0。正式 App 二进制仍为 `e0505af18b2828c3acf88477e6fbb382c975c9097b1de1a222a19e5383e36c39`。
 
+首次 PR CI 在 ARM64 和 Intel 上均记录了一个几何测试失败，原记录保留于 [CI 失败与原生探针证据](evidence/ci-layout-fixture-correction.json)。测试把 clip 固定为 533 点，却要求缩窄的 document 包含全部 FlowLayout 排列；无窗口 AppKit 探针精确复现四个失败数值。修正仅限测试：瞬态检查单项尺寸及边距安全，一致视口下继续检查全部真实 frame 包含、非重叠和 UUID 选择。没有放宽容差、删除断言或改产品布局；最终 CI 结果以 PR 的具体运行记录为准。此测试修正之后，候选 App 的全部源码、资源和构建脚本仍逐对象相同，无需重建或重新制作已验收窗口截图。
+
 ## 实际失败和有限修复
 
 保留旧候选的失败和仅限控件通过的结果，没有将通过范围扩大。

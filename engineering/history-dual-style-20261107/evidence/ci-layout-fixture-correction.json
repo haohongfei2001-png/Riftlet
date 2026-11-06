@@ -1,0 +1,214 @@
+{
+  "schema": 1,
+  "result": "CONFIRMED_TEST_FIXTURE_GEOMETRY_MISMATCH",
+  "sourceHead": "5fd3b074bb1a7d650e5cf043482b55cb299b0793",
+  "scope": "Standalone native AppKit structural probe; no product edits, no XCTest rerun, no production data, no GUI interaction. Not full product acceptance.",
+  "windowCount": 0,
+  "activationPolicyRequest": {
+    "requested": "prohibited",
+    "accepted": false
+  },
+  "explicitActivateOrOrderFrontCalls": 0,
+  "frontmostBeforeAfter": "NOT_MEASURED",
+  "ciOriginals": [
+    {
+      "log": "arm64.log",
+      "sha256": "ab98aae21600e6f80c383ae5e2fc453b2bf4b60561c72b5ed6503daf8957da30",
+      "failureAssertionCount": 4,
+      "case": "testNativeGridLayoutFitsActualDocumentWidthAndRestoresHiddenSelection",
+      "observedVsMaximum": [
+        [
+          "172.2",
+          "113.0"
+        ],
+        [
+          "256.4",
+          "113.0"
+        ],
+        [
+          "509.0",
+          "261.0"
+        ],
+        [
+          "509.0",
+          "386.0"
+        ]
+      ]
+    },
+    {
+      "log": "intel.log",
+      "sha256": "06150c6680c27f9eb5b00466a7b05cdcd3faeea817b1897a153d10c8f5efff48",
+      "failureAssertionCount": 4,
+      "case": "testNativeGridLayoutFitsActualDocumentWidthAndRestoresHiddenSelection",
+      "observedVsMaximum": [
+        [
+          "172.2",
+          "113.0"
+        ],
+        [
+          "256.4",
+          "113.0"
+        ],
+        [
+          "509.0",
+          "261.0"
+        ],
+        [
+          "509.0",
+          "386.0"
+        ]
+      ]
+    }
+  ],
+  "evidence": [
+    {
+      "file": "main.swift",
+      "sha256": "5ad19e344d61b9249372c35ae5b9ed7cd36323a16ce25f791c5912af8290b961"
+    },
+    {
+      "file": "result.json",
+      "sha256": "422c1b0bfa16174e77f59b0749341fc43d895c14f67560f148e3b4bce9b22f69"
+    },
+    {
+      "file": "run.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "runner-result.json",
+      "sha256": "701d5160983889bf430e6e2ee723d03b41d76cee3eaefdd1b597211217c28d5e"
+    }
+  ],
+  "samples": [
+    {
+      "scenario": "fixedViewport533",
+      "documentWidth": 112,
+      "clipWidth": 533,
+      "flowContentWidth": 533,
+      "frameMaxX": [
+        88,
+        172.2,
+        256.4
+      ],
+      "layoutAndCollectionAttributesEqual": true,
+      "sizeDelegateRequeried": true,
+      "selectedItems": [
+        1
+      ]
+    },
+    {
+      "scenario": "fixedViewport533",
+      "documentWidth": 260,
+      "clipWidth": 533,
+      "flowContentWidth": 533,
+      "frameMaxX": [
+        236,
+        509,
+        236
+      ],
+      "layoutAndCollectionAttributesEqual": true,
+      "sizeDelegateRequeried": true,
+      "selectedItems": [
+        1
+      ]
+    },
+    {
+      "scenario": "fixedViewport533",
+      "documentWidth": 533,
+      "clipWidth": 533,
+      "flowContentWidth": 533,
+      "frameMaxX": [
+        175,
+        342,
+        509
+      ],
+      "layoutAndCollectionAttributesEqual": true,
+      "sizeDelegateRequeried": true,
+      "selectedItems": [
+        1
+      ]
+    },
+    {
+      "scenario": "fixedViewport533",
+      "documentWidth": 385,
+      "clipWidth": 533,
+      "flowContentWidth": 533,
+      "frameMaxX": [
+        184,
+        509,
+        184
+      ],
+      "layoutAndCollectionAttributesEqual": true,
+      "sizeDelegateRequeried": true,
+      "selectedItems": [
+        1
+      ]
+    },
+    {
+      "scenario": "matchedViewportAndDocument",
+      "documentWidth": 112,
+      "clipWidth": 112,
+      "flowContentWidth": 112,
+      "frameMaxX": [
+        88,
+        88,
+        88
+      ],
+      "layoutAndCollectionAttributesEqual": true,
+      "sizeDelegateRequeried": true,
+      "selectedItems": [
+        1
+      ]
+    },
+    {
+      "scenario": "matchedViewportAndDocument",
+      "documentWidth": 260,
+      "clipWidth": 260,
+      "flowContentWidth": 260,
+      "frameMaxX": [
+        236,
+        236,
+        236
+      ],
+      "layoutAndCollectionAttributesEqual": true,
+      "sizeDelegateRequeried": true,
+      "selectedItems": [
+        1
+      ]
+    },
+    {
+      "scenario": "matchedViewportAndDocument",
+      "documentWidth": 533,
+      "clipWidth": 533,
+      "flowContentWidth": 533,
+      "frameMaxX": [
+        175,
+        342,
+        509
+      ],
+      "layoutAndCollectionAttributesEqual": true,
+      "sizeDelegateRequeried": true,
+      "selectedItems": [
+        1
+      ]
+    },
+    {
+      "scenario": "matchedViewportAndDocument",
+      "documentWidth": 385,
+      "clipWidth": 385,
+      "flowContentWidth": 385,
+      "frameMaxX": [
+        184,
+        361,
+        184
+      ],
+      "layoutAndCollectionAttributesEqual": true,
+      "sizeDelegateRequeried": true,
+      "selectedItems": [
+        1
+      ]
+    }
+  ],
+  "conclusion": "The fixed 533-point viewport plus forcibly narrowed document exactly reproduces all four CI maxX failures. AppKit re-queries delegate metrics at each width and both attributes APIs agree; stale metrics or choice of attributes API is not the demonstrated cause. Matching viewport and document widths contains all items without overlap and retains selection.",
+  "recommendedChange": "Test only: retain transient single-item-plus-insets safety and hidden/selection assertions; check whole-row frame containment/nonoverlap using a consistently resized scroll/clip/document and collection attributes. Preserve all widths and UUID assertions. No sleep, forced prepare, tolerance increase or product layout change.",
+  "initialProbeCompile": "First standalone compile failed for missing MainActor entry; preserved source/error. Corrected entry compiled; one process ran exit 0, stderr empty."
+}
