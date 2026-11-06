@@ -1,3 +1,12 @@
+# Current history dual-style native increment — 2026-11-07
+
+Packet **HDS-01** follows the user's explicit history implementation request, from actual main `41217b2`.
+Root owns integration, native GUI events, refs and delivery; diagnostics authored the renderer; readiness_independent authored the focused native driver; review is the non-author source reviewer.
+The existing controller owns both `current` (unchanged default) and `imageGrid`; one independent preference and UUID selection serve settings and history.
+Implementation and scoped native acceptance are complete: 7 control cases, same-binary restart, 9 external software-GUI checks, 19 raw windows and complete post-GUI data equality. Actual five-check PR CI and final admission are next, not predeclared PASS.
+See [the exact history candidate record](../engineering/history-dual-style-20261107/README.md). Original local implementation commits/raw evidence remain private; the public review branch contains identical source and metadata-only screenshot derivatives.
+Do not install, merge main, change screenshot attachment behavior, touch production history/media, or open a new design cycle for this packet. Public release, full spoken VoiceOver and physical hardware certification are not implied by these scoped tests.
+
 # Current Beta 2 autonomous real-environment acceptance — 2026-11-07
 
 Base main `71d726c`; branch `codex/beta2-real-acceptance-20261107`. The user owns product decisions; Codex owns all executable testing and repair. Visual approval is final. Root owns the sole foreground GUI/event lane, Main integration and refs; diagnostics owns the isolated ServiceManagement diagnosis; review owns control-center mouse lifecycle; readiness_independent owns exact non-author review. Production data/history/UNKNOWN and the installed baseline are protected. Browser-disabled surfaces are not bypassed. See `engineering/beta2-real-acceptance-20261107/README.md`; private raw evidence is retained separately. Source and candidate verification are IN_PROGRESS, not product acceptance.

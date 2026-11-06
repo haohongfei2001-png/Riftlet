@@ -87,6 +87,7 @@ public struct SettingsProductSnapshot: Equatable, Sendable {
     public var state: SettingsStateSnapshot
     public var appearance: SettingsAppearancePresentation = .init()
     public var login: SettingsLoginPresentation = .init()
+    public var historyDisplayStyle: HistoryDisplayStyle = .current
     public var capabilities: SettingsCapabilities = .init()
     public var accessibility: SettingsAccessibility = .init()
     public var screenRecording: SettingsScreenRecording = .notChecked
@@ -103,6 +104,7 @@ public struct SettingsProductSnapshot: Equatable, Sendable {
 public enum SettingsProductAction: Sendable {
     case settings(SettingsCommand)
     case appearance(SettingsAppearanceChoice), retryAppearance
+    case historyDisplayStyle(HistoryDisplayStyle)
     case loginEnabled(Bool), retryLogin, openLoginSettings
     case openSettings(SettingsPage), openOnboarding, finishOnboarding
     case capture, openHistory, openFeedback, clearVisible

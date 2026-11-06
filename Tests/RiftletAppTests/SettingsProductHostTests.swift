@@ -62,6 +62,32 @@ final class SettingsProductHostTests: XCTestCase {
         XCTAssertTrue(f.adapter.requests.isEmpty, "Appearance never enters geometric or queue persistence")
     }
 
+    @MainActor func testHistoryStyleSharesPreferenceAndPreservesDraftAndAllSettingsDomains() async throws {
+        let f = try fixture(); defer { f.close() }
+        let preference = f.host.historyDisplay
+        preference.onChange = { [weak host = f.host] _ in host?.refreshHistoryDisplayStyle() }
+        let popup = try XCTUnwrap(f.host.center.controls["history.displayStyle"] as? NSPopUpButton)
+        XCTAssertEqual(popup.indexOfSelectedItem, 0)
+        f.host.model.setDraftText("88.1250", for: .fitWidth)
+        let draft = f.host.model.snapshot
+        let configurationFiles = try FileManager.default.contentsOfDirectory(atPath: f.root.path)
+        await f.host.perform(.historyDisplayStyle(.imageGrid))
+        XCTAssertEqual(preference.selection, .imageGrid)
+        XCTAssertEqual(f.host.snapshot.historyDisplayStyle, .imageGrid)
+        XCTAssertEqual(f.host.center.product.historyDisplayStyle, .imageGrid)
+        XCTAssertEqual(popup.indexOfSelectedItem, 1)
+        XCTAssertTrue(f.host.center.controls["history.displayStyle"] === popup)
+        XCTAssertEqual(f.host.model.snapshot, draft)
+        // This is the same owner callback the history-window selector uses.
+        preference.select(.current)
+        XCTAssertEqual(f.host.center.product.historyDisplayStyle, .current)
+        XCTAssertEqual(popup.indexOfSelectedItem, 0)
+        XCTAssertEqual(f.host.model.snapshot, draft)
+        XCTAssertTrue(f.adapter.requests.isEmpty)
+        XCTAssertTrue(f.actions.isEmpty)
+        XCTAssertEqual(try FileManager.default.contentsOfDirectory(atPath: f.root.path), configurationFiles)
+    }
+
     @MainActor func testHostAppearanceWriteFailureRetainsPendingChoiceAndRetriesSameGoal() async throws {
         let f = try fixture(rootExists: false); defer { f.close() }
         await f.host.perform(.appearance(.light))
@@ -260,6 +286,7 @@ final class SettingsProductHostTests: XCTestCase {
 
 @MainActor
 private final class HostFixture {
+    let defaultsSuite = "com.riftlet.tests.settings-host." + UUID().uuidString
     let base: URL
     let root: URL
     let oldAppearance: NSAppearance?
@@ -280,7 +307,9 @@ private final class HostFixture {
         adapter = HostSettingsAdapter()
         let login = LoginItemPreferences(service: loginService)
         host = try SettingsProductHost(root: root, mode: .settingsReview, statusItem: item,
-            owner: adapter.owner, adapter: adapter, login: login, onRefresh: { [weak self] in self?.refreshCalls += 1 },
+            owner: adapter.owner, adapter: adapter, login: login,
+            historyDisplay: HistoryDisplayPreferences(defaults: UserDefaults(suiteName: defaultsSuite)!),
+            onRefresh: { [weak self] in self?.refreshCalls += 1 },
             onAction: { [weak self] action in
                 switch action {
                 case .clearVisible: self?.actions.append("clearVisible")
@@ -311,6 +340,7 @@ private final class HostFixture {
         guard !closed else { return }; closed = true
         host.close(); NSStatusBar.system.removeStatusItem(item); NSApp.appearance = oldAppearance
         adapter.gate?.release()
+        UserDefaults(suiteName: defaultsSuite)?.removePersistentDomain(forName: defaultsSuite)
         try? FileManager.default.removeItem(at: base)
     }
 }

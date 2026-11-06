@@ -171,6 +171,7 @@ jobs:
           swift test --skip-build --filter 'ScreenshotEntry|InteractiveScreenshot|CompletedScreenshotImporter|RiftCapturePresentation|BuiltInScreenshotHost|ScreenshotMarkupFidelity|RiftSetupController' 2>&1 | tee test-results/capture-entry-detailed.log
           swift test --skip-build --filter 'CaptureSourceBindingTests|CapturePreferenceObservationTests' 2>&1 | tee test-results/capture-source-binding-detailed.log
           swift test --skip-build --filter 'UnifiedSettingsTests|QuietEdgeInteractionTests|QuietEdgeWindowTests|RiftLayoutTests|RiftPeekGeometryTests|FeedbackVisualCandidateTests' 2>&1 | tee test-results/unified-product-detailed.log
+          swift test --skip-build --filter 'HistoryDisplayStyleTests|HistoryDisplayPreferencesTests' 2>&1 | tee test-results/history-display-detailed.log
       - name: Exercise the production screenshot engine and private import with an owned fixture
         env:
           RIFTLET_REAL_CAPTURE_FIXTURE: '1'
@@ -258,6 +259,7 @@ jobs:
           # same actual CI-only accessibility state. Unavailable HC is reported
           # by XCTest as skipped, never borrowed from a fabricated appearance.
           swift test --skip-build --filter SettingsNativeStyleTests 2>&1 | tee test-results/settings-style-accessibility.log
+          swift test --skip-build --filter HistoryDisplayStyleTests.testCachedGridTextAndBorderResolveActualHighContrastWithinItsAppearance 2>&1 | tee test-results/history-style-accessibility.log
           python3 -B scripts/capture-native-visual-evidence.py --helper "$riftlet_bin_dir/RiftletGUIAcceptance" --expected-system-accessibility reduced --only-case queue-dark --only-case entry-dark --only-case motion-magnet --output "$PWD/test-results/native-visual-accessibility" 2>&1 | tee test-results/native-visual-accessibility-capture.log
       - name: Reject actual screenshot output failures independently of software tests
         if: always()

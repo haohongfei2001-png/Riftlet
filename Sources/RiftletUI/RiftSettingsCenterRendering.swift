@@ -61,6 +61,8 @@ extension RiftSettingsCenterController {
         let count = product.setup.pendingCount
         text("history.detail", count > 0 ? "当前有 \(count) 张结果待核实。记录留在本机，不会自动再次附加。" : "查看已有记录与本地图片；不会自动重传或发送聊天。")
         enable("history.open", product.capabilities.canOpenHistory)
+        select("history.displayStyle", index: HistoryDisplayStyle.allCases.firstIndex(of: product.historyDisplayStyle) ?? 0)
+        enable("history.displayStyle", product.capabilities.canEditPreferences)
         enable("history.clear", product.capabilities.canClearVisible && product.setup.visibleCount > 0)
         text("storage", product.setup.storage == .notMeasured ? "尚未检查本地存储用量。" : presentation.storageText)
         enable("storage.check", product.capabilities.canCheckStorage && product.setup.storage != .measuring)

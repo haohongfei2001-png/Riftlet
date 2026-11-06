@@ -1,0 +1,729 @@
+{
+  "schema": 1,
+  "source": "a94fc6aea99455291bb85af16f1470c1517cb4e7",
+  "sourceTree": "c59e392f94350e170cbd3063542ed21246fc881b",
+  "binarySHA256": "ded6da169ed4bacd0ca5eefec9f42c29f108c5ea08882ade58cc70bd47c21c4c",
+  "inputLevel": "PROGRAMMATIC_NATIVE_CONTROLS",
+  "rawReportSHA256": "ad03c6a397d5529c31a128f34c0b5ec2dd11b21f54271455647b8e598ae38ef8",
+  "runnerFileSHA256": "ebed21b26769dace20607623c30ea47528f5cbf43505e975652476f404fd4fd1",
+  "applicationLogSHA256": "601d8b4f119400dc205aa2aa3a56f0dd37b5dda63f67dbfb7c0bd9bc9cfae449",
+  "layoutWarningCount": 0,
+  "cases": [
+    {
+      "case": "environment-and-default-window",
+      "seconds": 0.34544716659002006,
+      "status": "PASS"
+    },
+    {
+      "case": "history-default-and-three-collector-assets",
+      "seconds": 0.9240119582973421,
+      "status": "PASS"
+    },
+    {
+      "case": "history-two-window-style-search-filter-uuid",
+      "seconds": 0.48794408328831196,
+      "status": "PASS"
+    },
+    {
+      "case": "history-original-200-percent-survives-renderer-change",
+      "seconds": 0.6279306248761714,
+      "status": "PASS"
+    },
+    {
+      "case": "history-both-renderers-light-dark-minimum",
+      "seconds": 1.9535792083479464,
+      "status": "PASS"
+    },
+    {
+      "case": "history-one-asset-remove-and-restore",
+      "seconds": 0.7452892917208374,
+      "status": "PASS"
+    },
+    {
+      "case": "history-final-integrity-and-persisted-style",
+      "seconds": 0.04015220841392875,
+      "status": "PASS"
+    }
+  ],
+  "frames": [
+    {
+      "name": "history-settings-grid-synchronized",
+      "file": "history-settings-grid-synchronized.png",
+      "sha256": "b020e2640f25aa744ff4b5a65c882f9ffa208d764d26d8db9e330d753174118f",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "windowFrame": [
+        480,
+        184,
+        960,
+        712
+      ],
+      "windowServerBounds": [
+        480,
+        184,
+        960,
+        712
+      ],
+      "appearance": "NSAppearanceNameAqua",
+      "method": "WindowServer CGImage(windowArray), exactly one NSApp-owned window; no desktop/display capture",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "originalSHA256": "69c63444057e8bdf5249118737b387a99dfc8a877a7530328d8ee7f642a5cd28",
+      "publicDerivative": {
+        "originalSHA256": "69c63444057e8bdf5249118737b387a99dfc8a877a7530328d8ee7f642a5cd28",
+        "publicSHA256": "b020e2640f25aa744ff4b5a65c882f9ffa208d764d26d8db9e330d753174118f",
+        "removedChunks": [
+          "iCCP",
+          "eXIf"
+        ],
+        "IDATPreserved": true,
+        "compressedPixelStreamSHA256": "1db73fb95e6dd888c171057a47cfc033163c8d1e6f0831b0e94465b3f7ae4eda"
+      }
+    },
+    {
+      "name": "history-original-200-percent",
+      "file": "history-original-200-percent.png",
+      "sha256": "6f37b6c429e2a89e895fb89bdc7aeede5d98c040e1a176ed1461b2bffecdaad5",
+      "pixels": [
+        1284,
+        1016
+      ],
+      "windowFrame": [
+        640,
+        429,
+        640,
+        508
+      ],
+      "windowServerBounds": [
+        639,
+        143,
+        642,
+        508
+      ],
+      "appearance": "NSAppearanceNameAqua",
+      "method": "WindowServer CGImage(windowArray), exactly one NSApp-owned window; no desktop/display capture",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "originalSHA256": "da1cdf7c326206f00f87c7646b8f1f15f466df61d109904d7019fa2ec02861e1",
+      "publicDerivative": {
+        "originalSHA256": "da1cdf7c326206f00f87c7646b8f1f15f466df61d109904d7019fa2ec02861e1",
+        "publicSHA256": "6f37b6c429e2a89e895fb89bdc7aeede5d98c040e1a176ed1461b2bffecdaad5",
+        "removedChunks": [
+          "iCCP",
+          "eXIf"
+        ],
+        "IDATPreserved": true,
+        "compressedPixelStreamSHA256": "5a69984f3c578dfdacbc0e74d9025225c919d15e0fe9965345508648509ed741"
+      }
+    },
+    {
+      "name": "history-grid-with-original-still-open",
+      "file": "history-grid-with-original-still-open.png",
+      "sha256": "44748b934b4ab37b874baee0dba63084efc80bd2a0e25f88ad438d8fc9e2e4e8",
+      "pixels": [
+        1520,
+        1120
+      ],
+      "windowFrame": [
+        580,
+        390,
+        760,
+        560
+      ],
+      "windowServerBounds": [
+        580,
+        130,
+        760,
+        560
+      ],
+      "appearance": "NSAppearanceNameAqua",
+      "method": "WindowServer CGImage(windowArray), exactly one NSApp-owned window; no desktop/display capture",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "originalSHA256": "35cc5935f49427039d1f7414986d203991b106eb111ac1c1af3041b30939e584",
+      "publicDerivative": {
+        "originalSHA256": "35cc5935f49427039d1f7414986d203991b106eb111ac1c1af3041b30939e584",
+        "publicSHA256": "44748b934b4ab37b874baee0dba63084efc80bd2a0e25f88ad438d8fc9e2e4e8",
+        "removedChunks": [
+          "iCCP",
+          "eXIf"
+        ],
+        "IDATPreserved": true,
+        "compressedPixelStreamSHA256": "3ba5c2f44613ecc7c36bfb54b3f8ab13e32fd6e74e72bd3f4fc46a098ce27188"
+      }
+    },
+    {
+      "name": "history-grid-original-button",
+      "file": "history-grid-original-button.png",
+      "sha256": "7a4c7ad0e280d8595f639becfff9eea2c3405c9ef1ae352e76e616fd03d78111",
+      "pixels": [
+        1284,
+        1020
+      ],
+      "windowFrame": [
+        640,
+        429,
+        640,
+        508
+      ],
+      "windowServerBounds": [
+        639,
+        142,
+        642,
+        510
+      ],
+      "appearance": "NSAppearanceNameAqua",
+      "method": "WindowServer CGImage(windowArray), exactly one NSApp-owned window; no desktop/display capture",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "originalSHA256": "ae7ffd8e5246718a20481351036ca9b248bbbbedf30b65e369d69d116a0c2b40",
+      "publicDerivative": {
+        "originalSHA256": "ae7ffd8e5246718a20481351036ca9b248bbbbedf30b65e369d69d116a0c2b40",
+        "publicSHA256": "7a4c7ad0e280d8595f639becfff9eea2c3405c9ef1ae352e76e616fd03d78111",
+        "removedChunks": [
+          "iCCP",
+          "eXIf"
+        ],
+        "IDATPreserved": true,
+        "compressedPixelStreamSHA256": "ab5ec98c7dfa83e6d759349fa8fd3b5575ffb0fadb1d0763b8bab610a7dd1421"
+      }
+    },
+    {
+      "name": "history-light-current-standard",
+      "file": "history-light-current-standard.png",
+      "sha256": "f54c2c8c9eecc4da1b4866911580bb09bcb193619f26bb5b2c87a9cc2db9a1ef",
+      "pixels": [
+        1520,
+        1120
+      ],
+      "windowFrame": [
+        580,
+        390,
+        760,
+        560
+      ],
+      "windowServerBounds": [
+        580,
+        130,
+        760,
+        560
+      ],
+      "appearance": "NSAppearanceNameAqua",
+      "method": "WindowServer CGImage(windowArray), exactly one NSApp-owned window; no desktop/display capture",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "originalSHA256": "6e55abc9e76bc846b0a105c9963e0e42713bb733718e2b318792804f2bc4e140",
+      "publicDerivative": {
+        "originalSHA256": "6e55abc9e76bc846b0a105c9963e0e42713bb733718e2b318792804f2bc4e140",
+        "publicSHA256": "f54c2c8c9eecc4da1b4866911580bb09bcb193619f26bb5b2c87a9cc2db9a1ef",
+        "removedChunks": [
+          "iCCP",
+          "eXIf"
+        ],
+        "IDATPreserved": true,
+        "compressedPixelStreamSHA256": "1b215889e0446c3bf932d52fb0b9a4c7f804918a84712a55a8415c79ed1a005e"
+      }
+    },
+    {
+      "name": "history-light-current-minimum",
+      "file": "history-light-current-minimum.png",
+      "sha256": "0ccf7c7c4f83111ccd2483b14d0cd23157b38b93dbeee41577c3b536e1627ef9",
+      "pixels": [
+        1360,
+        960
+      ],
+      "windowFrame": [
+        580,
+        390,
+        680,
+        480
+      ],
+      "windowServerBounds": [
+        580,
+        210,
+        680,
+        480
+      ],
+      "appearance": "NSAppearanceNameAqua",
+      "method": "WindowServer CGImage(windowArray), exactly one NSApp-owned window; no desktop/display capture",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "originalSHA256": "f4e4531607b45ae3cf751f98b442c9ded34ba221f909b880e5d246159c979323",
+      "publicDerivative": {
+        "originalSHA256": "f4e4531607b45ae3cf751f98b442c9ded34ba221f909b880e5d246159c979323",
+        "publicSHA256": "0ccf7c7c4f83111ccd2483b14d0cd23157b38b93dbeee41577c3b536e1627ef9",
+        "removedChunks": [
+          "iCCP",
+          "eXIf"
+        ],
+        "IDATPreserved": true,
+        "compressedPixelStreamSHA256": "7fb65c75544af3207040a90d24fed49ef2d21a396d72c159a7e9660dd88a9987"
+      }
+    },
+    {
+      "name": "history-light-current-minimum-bottom-actions",
+      "file": "history-light-current-minimum-bottom-actions.png",
+      "sha256": "25fee231d04005bde7b41313aef4346cc86b6cbc05fa1c8986ec08a175dc5bd5",
+      "pixels": [
+        1360,
+        960
+      ],
+      "windowFrame": [
+        580,
+        390,
+        680,
+        480
+      ],
+      "windowServerBounds": [
+        580,
+        210,
+        680,
+        480
+      ],
+      "appearance": "NSAppearanceNameAqua",
+      "method": "WindowServer CGImage(windowArray), exactly one NSApp-owned window; no desktop/display capture",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "originalSHA256": "86c21db039e666aabe24b7afd35479db0b1256f45acb775c841ee3907d7277e0",
+      "publicDerivative": {
+        "originalSHA256": "86c21db039e666aabe24b7afd35479db0b1256f45acb775c841ee3907d7277e0",
+        "publicSHA256": "25fee231d04005bde7b41313aef4346cc86b6cbc05fa1c8986ec08a175dc5bd5",
+        "removedChunks": [
+          "iCCP",
+          "eXIf"
+        ],
+        "IDATPreserved": true,
+        "compressedPixelStreamSHA256": "c3fb06ca985490d66f1674e11a52e4620fac335c2c6803f61df2fc1a487b8742"
+      }
+    },
+    {
+      "name": "history-light-imageGrid-standard",
+      "file": "history-light-imageGrid-standard.png",
+      "sha256": "759ca47088694b77b1300bd8b606e04e5f21c09bc9a5cb9b1edfbbc5cb1517eb",
+      "pixels": [
+        1656,
+        1164
+      ],
+      "windowFrame": [
+        580,
+        390,
+        828,
+        582
+      ],
+      "windowServerBounds": [
+        580,
+        108,
+        828,
+        582
+      ],
+      "appearance": "NSAppearanceNameAqua",
+      "method": "WindowServer CGImage(windowArray), exactly one NSApp-owned window; no desktop/display capture",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "originalSHA256": "881a3b58fb7943a4177e72bf6b2402ba2b02655ccbd26f73a1bdeafcf5a81389",
+      "publicDerivative": {
+        "originalSHA256": "881a3b58fb7943a4177e72bf6b2402ba2b02655ccbd26f73a1bdeafcf5a81389",
+        "publicSHA256": "759ca47088694b77b1300bd8b606e04e5f21c09bc9a5cb9b1edfbbc5cb1517eb",
+        "removedChunks": [
+          "iCCP",
+          "eXIf"
+        ],
+        "IDATPreserved": true,
+        "compressedPixelStreamSHA256": "a94f9f3189df71bc4ea237c1de6e73ae30ba0420b428d01ea90fba16082bc6a3"
+      }
+    },
+    {
+      "name": "history-light-imageGrid-minimum",
+      "file": "history-light-imageGrid-minimum.png",
+      "sha256": "e9d3f400ff521686fad09f4e3e0ffcdfe92aa1bdaf598af7882e9841ee57ebe7",
+      "pixels": [
+        1360,
+        960
+      ],
+      "windowFrame": [
+        580,
+        390,
+        680,
+        480
+      ],
+      "windowServerBounds": [
+        580,
+        210,
+        680,
+        480
+      ],
+      "appearance": "NSAppearanceNameAqua",
+      "method": "WindowServer CGImage(windowArray), exactly one NSApp-owned window; no desktop/display capture",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "originalSHA256": "0a8fcda61f907297530e4fbce29ea93bb0dbfc0182cabe518aa0cbb0f60052ed",
+      "publicDerivative": {
+        "originalSHA256": "0a8fcda61f907297530e4fbce29ea93bb0dbfc0182cabe518aa0cbb0f60052ed",
+        "publicSHA256": "e9d3f400ff521686fad09f4e3e0ffcdfe92aa1bdaf598af7882e9841ee57ebe7",
+        "removedChunks": [
+          "iCCP",
+          "eXIf"
+        ],
+        "IDATPreserved": true,
+        "compressedPixelStreamSHA256": "344b012f638c6985e03e77a04e6dfb86bd3a62f76743d093796562be9463c596"
+      }
+    },
+    {
+      "name": "history-light-imageGrid-minimum-bottom-actions",
+      "file": "history-light-imageGrid-minimum-bottom-actions.png",
+      "sha256": "e0788c9f4461d07769e4cca9ec847b818d60ba48edccc2436bbd17e50386e84a",
+      "pixels": [
+        1360,
+        960
+      ],
+      "windowFrame": [
+        580,
+        390,
+        680,
+        480
+      ],
+      "windowServerBounds": [
+        580,
+        210,
+        680,
+        480
+      ],
+      "appearance": "NSAppearanceNameAqua",
+      "method": "WindowServer CGImage(windowArray), exactly one NSApp-owned window; no desktop/display capture",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "originalSHA256": "7b2fdd99460617258c3f1845af5250c449b5c4e66e5508919f037b90347e474c",
+      "publicDerivative": {
+        "originalSHA256": "7b2fdd99460617258c3f1845af5250c449b5c4e66e5508919f037b90347e474c",
+        "publicSHA256": "e0788c9f4461d07769e4cca9ec847b818d60ba48edccc2436bbd17e50386e84a",
+        "removedChunks": [
+          "iCCP",
+          "eXIf"
+        ],
+        "IDATPreserved": true,
+        "compressedPixelStreamSHA256": "7802088de8991f3d9de0abe5d43f3e87ef69000df806be5e483a514d17d4d785"
+      }
+    },
+    {
+      "name": "history-dark-current-standard",
+      "file": "history-dark-current-standard.png",
+      "sha256": "8a9945bb38cb9f8c2184ab955bf3bca4d40aab0f6b9710694a42029f7a1932ae",
+      "pixels": [
+        1520,
+        1120
+      ],
+      "windowFrame": [
+        580,
+        390,
+        760,
+        560
+      ],
+      "windowServerBounds": [
+        580,
+        130,
+        760,
+        560
+      ],
+      "appearance": "NSAppearanceNameDarkAqua",
+      "method": "WindowServer CGImage(windowArray), exactly one NSApp-owned window; no desktop/display capture",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "originalSHA256": "63a8ffed8c43137ffa15258f28a12a016c9fa5c32ad4bf04a70e8d231049b2eb",
+      "publicDerivative": {
+        "originalSHA256": "63a8ffed8c43137ffa15258f28a12a016c9fa5c32ad4bf04a70e8d231049b2eb",
+        "publicSHA256": "8a9945bb38cb9f8c2184ab955bf3bca4d40aab0f6b9710694a42029f7a1932ae",
+        "removedChunks": [
+          "iCCP",
+          "eXIf"
+        ],
+        "IDATPreserved": true,
+        "compressedPixelStreamSHA256": "bca9bb4e1ddffca980ef562b7ee9d3c5f8674f3e86c8138e59cb927f8d82fff2"
+      }
+    },
+    {
+      "name": "history-dark-current-minimum",
+      "file": "history-dark-current-minimum.png",
+      "sha256": "297d55ba2537e0d9c63fd13720ae81cb6fc1cb62dd9a16378af184a663998771",
+      "pixels": [
+        1360,
+        960
+      ],
+      "windowFrame": [
+        580,
+        390,
+        680,
+        480
+      ],
+      "windowServerBounds": [
+        580,
+        210,
+        680,
+        480
+      ],
+      "appearance": "NSAppearanceNameDarkAqua",
+      "method": "WindowServer CGImage(windowArray), exactly one NSApp-owned window; no desktop/display capture",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "originalSHA256": "e062fe405a27c204d7404168294b24820c3a3cc134192e1e8f0268f74526ca3f",
+      "publicDerivative": {
+        "originalSHA256": "e062fe405a27c204d7404168294b24820c3a3cc134192e1e8f0268f74526ca3f",
+        "publicSHA256": "297d55ba2537e0d9c63fd13720ae81cb6fc1cb62dd9a16378af184a663998771",
+        "removedChunks": [
+          "iCCP",
+          "eXIf"
+        ],
+        "IDATPreserved": true,
+        "compressedPixelStreamSHA256": "25dd5c7fc6f9ab27d68f7831a6c7be1873a78198d8879f676b4e77294e14f578"
+      }
+    },
+    {
+      "name": "history-dark-current-minimum-bottom-actions",
+      "file": "history-dark-current-minimum-bottom-actions.png",
+      "sha256": "aa04e65d4812bc2b480bafe19b5fe3cc8e89e4df62c25f038581607450516a7a",
+      "pixels": [
+        1360,
+        960
+      ],
+      "windowFrame": [
+        580,
+        390,
+        680,
+        480
+      ],
+      "windowServerBounds": [
+        580,
+        210,
+        680,
+        480
+      ],
+      "appearance": "NSAppearanceNameDarkAqua",
+      "method": "WindowServer CGImage(windowArray), exactly one NSApp-owned window; no desktop/display capture",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "originalSHA256": "9a09fca0b34fa496c39667a7fce141acb33ddc15f0cba9bd87ae24e51388d818",
+      "publicDerivative": {
+        "originalSHA256": "9a09fca0b34fa496c39667a7fce141acb33ddc15f0cba9bd87ae24e51388d818",
+        "publicSHA256": "aa04e65d4812bc2b480bafe19b5fe3cc8e89e4df62c25f038581607450516a7a",
+        "removedChunks": [
+          "iCCP",
+          "eXIf"
+        ],
+        "IDATPreserved": true,
+        "compressedPixelStreamSHA256": "1688bdb805fc8c90bef04e0fdb1ad8bb9f1f058f25e0dd7af593acc46f79fd0f"
+      }
+    },
+    {
+      "name": "history-dark-imageGrid-standard",
+      "file": "history-dark-imageGrid-standard.png",
+      "sha256": "7767871dc3e7b94341495b1f740276b4190d60b703bfe1cea85221ad4f075b23",
+      "pixels": [
+        1656,
+        1164
+      ],
+      "windowFrame": [
+        580,
+        390,
+        828,
+        582
+      ],
+      "windowServerBounds": [
+        580,
+        108,
+        828,
+        582
+      ],
+      "appearance": "NSAppearanceNameDarkAqua",
+      "method": "WindowServer CGImage(windowArray), exactly one NSApp-owned window; no desktop/display capture",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "originalSHA256": "3a04b215ce86e1997c31fb3a752ec5366f48b964a841ea021e1f0dbef4f1b313",
+      "publicDerivative": {
+        "originalSHA256": "3a04b215ce86e1997c31fb3a752ec5366f48b964a841ea021e1f0dbef4f1b313",
+        "publicSHA256": "7767871dc3e7b94341495b1f740276b4190d60b703bfe1cea85221ad4f075b23",
+        "removedChunks": [
+          "iCCP",
+          "eXIf"
+        ],
+        "IDATPreserved": true,
+        "compressedPixelStreamSHA256": "831935d1e957abd308595f401b9232e5aaab124350fe00ed4820f2a92df7a0d4"
+      }
+    },
+    {
+      "name": "history-dark-imageGrid-minimum",
+      "file": "history-dark-imageGrid-minimum.png",
+      "sha256": "dc119f40e462a581ea34c06d8ffa10fa3f9394cc9de8d3cca45c078c232f2a8e",
+      "pixels": [
+        1360,
+        960
+      ],
+      "windowFrame": [
+        580,
+        390,
+        680,
+        480
+      ],
+      "windowServerBounds": [
+        580,
+        210,
+        680,
+        480
+      ],
+      "appearance": "NSAppearanceNameDarkAqua",
+      "method": "WindowServer CGImage(windowArray), exactly one NSApp-owned window; no desktop/display capture",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "originalSHA256": "677e441da7905941586b9576cbf30bdd565f4b53cefc949937b9c57a30163fc1",
+      "publicDerivative": {
+        "originalSHA256": "677e441da7905941586b9576cbf30bdd565f4b53cefc949937b9c57a30163fc1",
+        "publicSHA256": "dc119f40e462a581ea34c06d8ffa10fa3f9394cc9de8d3cca45c078c232f2a8e",
+        "removedChunks": [
+          "iCCP",
+          "eXIf"
+        ],
+        "IDATPreserved": true,
+        "compressedPixelStreamSHA256": "ece0c3259976b391c0315a5f5d1ab088cce265c43273aaeb040da3144d17d64e"
+      }
+    },
+    {
+      "name": "history-dark-imageGrid-minimum-bottom-actions",
+      "file": "history-dark-imageGrid-minimum-bottom-actions.png",
+      "sha256": "5f12be6d31a6a1ee585ce31dcf67bf309ff600902d1a956dee127c442c08ebac",
+      "pixels": [
+        1360,
+        960
+      ],
+      "windowFrame": [
+        580,
+        390,
+        680,
+        480
+      ],
+      "windowServerBounds": [
+        580,
+        210,
+        680,
+        480
+      ],
+      "appearance": "NSAppearanceNameDarkAqua",
+      "method": "WindowServer CGImage(windowArray), exactly one NSApp-owned window; no desktop/display capture",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "originalSHA256": "e7dfbaa5805fd88620f519e1194ad32b755fae68f8f1c45ce41ea61a8b23fe3d",
+      "publicDerivative": {
+        "originalSHA256": "e7dfbaa5805fd88620f519e1194ad32b755fae68f8f1c45ce41ea61a8b23fe3d",
+        "publicSHA256": "5f12be6d31a6a1ee585ce31dcf67bf309ff600902d1a956dee127c442c08ebac",
+        "removedChunks": [
+          "iCCP",
+          "eXIf"
+        ],
+        "IDATPreserved": true,
+        "compressedPixelStreamSHA256": "b343f4892b31729ca4cc253a080b13ddadc54c8e97a2721d7017f71d8e649b85"
+      }
+    },
+    {
+      "name": "history-current-removed-minimum-bottom-actions",
+      "file": "history-current-removed-minimum-bottom-actions.png",
+      "sha256": "86d771270506548ee76aee25de8d5a6f364b8d8face5a88d8901d420967d3f4e",
+      "pixels": [
+        1360,
+        960
+      ],
+      "windowFrame": [
+        580,
+        390,
+        680,
+        480
+      ],
+      "windowServerBounds": [
+        580,
+        210,
+        680,
+        480
+      ],
+      "appearance": "NSAppearanceNameDarkAqua",
+      "method": "WindowServer CGImage(windowArray), exactly one NSApp-owned window; no desktop/display capture",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "originalSHA256": "0435027a6863bf16bb2cd505e8c831ad5f48a8f8565e3cdf4cbf98ffead882a1",
+      "publicDerivative": {
+        "originalSHA256": "0435027a6863bf16bb2cd505e8c831ad5f48a8f8565e3cdf4cbf98ffead882a1",
+        "publicSHA256": "86d771270506548ee76aee25de8d5a6f364b8d8face5a88d8901d420967d3f4e",
+        "removedChunks": [
+          "iCCP",
+          "eXIf"
+        ],
+        "IDATPreserved": true,
+        "compressedPixelStreamSHA256": "416117b22fd274fe71f8736ec54a217e65ba9060519fea3465d805aa99084e98"
+      }
+    },
+    {
+      "name": "history-imageGrid-removed-minimum-bottom-actions",
+      "file": "history-imageGrid-removed-minimum-bottom-actions.png",
+      "sha256": "5151583a32fe6bea8496a33c84058cc5c82f05afd06dacf11302c1d2c54d0092",
+      "pixels": [
+        1360,
+        960
+      ],
+      "windowFrame": [
+        580,
+        390,
+        680,
+        480
+      ],
+      "windowServerBounds": [
+        580,
+        210,
+        680,
+        480
+      ],
+      "appearance": "NSAppearanceNameDarkAqua",
+      "method": "WindowServer CGImage(windowArray), exactly one NSApp-owned window; no desktop/display capture",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "originalSHA256": "4c5ce5b1f86593f83dd0ceeb548641a5d84b07858077c186debf4d9c34c1fa92",
+      "publicDerivative": {
+        "originalSHA256": "4c5ce5b1f86593f83dd0ceeb548641a5d84b07858077c186debf4d9c34c1fa92",
+        "publicSHA256": "5151583a32fe6bea8496a33c84058cc5c82f05afd06dacf11302c1d2c54d0092",
+        "removedChunks": [
+          "iCCP",
+          "eXIf"
+        ],
+        "IDATPreserved": true,
+        "compressedPixelStreamSHA256": "62f0c0a55946fb02eb3e27617a0c8bc56a18d07cdbac517ffa6935839b729155"
+      }
+    }
+  ],
+  "restart": {
+    "status": "PASS_SCOPED_NATIVE_RESTART",
+    "allSnapshotFieldsEqual": true,
+    "allSQLiteTables": {
+      "assets": {
+        "allTypedRowsSHA256": "2fb54814000d21903c0fb23975551dc75cb694dd559899a2e63d0bbb049836a2",
+        "count": 3,
+        "schemaSHA256": "a1a24d5bedfb848bae83bc680ca5a6e8f4872a945efec48f1fde436bb37098dc"
+      },
+      "checkpoints": {
+        "allTypedRowsSHA256": "6022ddbb12e5b0bee51dd4f976626c36638fff8ec9adc529b099268fb0d529d5",
+        "count": 2,
+        "schemaSHA256": "963e7134b4633a5ab0aed6f711d86e2fc12c189fa99b3dd8aca9fcc6a4809ad8"
+      },
+      "compensations": {
+        "allTypedRowsSHA256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "count": 0,
+        "schemaSHA256": "7d80d3a08b48cd983f2cb1a0c02cd1c640e167f4821e6577f1bb4678489108d0"
+      },
+      "metadata": {
+        "allTypedRowsSHA256": "0c4bfcd980f81a4aeb7da6ca513b2523512769b0655671a583311940ccca8ac7",
+        "count": 2,
+        "schemaSHA256": "bb5fa2bab787bf0015da30a5b400bfea6a2beb49e47f1ef765b4d3bb4de7d66a"
+      },
+      "operations": {
+        "allTypedRowsSHA256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "count": 0,
+        "schemaSHA256": "ef7b71a0096ac3c7434a57eb6cd85d76967746016d766c48600049542065efde"
+      },
+      "upload_starts": {
+        "allTypedRowsSHA256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "count": 0,
+        "schemaSHA256": "1c706c817ea750fc4bb51ce5da03070cb0a2b7f159372e8b6521f60f20d06965"
+      }
+    },
+    "allMediaMatchAssets": true,
+    "assetCount": 3,
+    "operations": 0,
+    "uploadStarts": 0,
+    "historyDisplayStyle": "imageGrid",
+    "rawReportSHA256": "15168a6c9962bbe897a6cf4d6512672af529223f41c28def1fba3322356363bb"
+  },
+  "notCertified": [
+    "Physical mouse or keyboard hardware",
+    "Full spoken VoiceOver",
+    "Installed-production-data acceptance",
+    "Real-service screenshot attachment; attachment implementation unchanged"
+  ],
+  "privacy": "Public PNGs remove ICC/EXIF metadata containing a display serial. IHDR and IDAT chunks are unchanged. Raw original screenshots and reports remain private; public color-managed rendering can differ after ICC removal."
+}
