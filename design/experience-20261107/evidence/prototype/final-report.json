@@ -1,0 +1,48 @@
+{
+  "commit": "7d19037611c1228a2397cf44ed47bddd8f390213",
+  "runtime": "Mac Chrome headless independent ephemeral profile",
+  "errors": [],
+  "checks": [
+    {
+      "case": "history-footer-light",
+      "pass": true
+    },
+    {
+      "case": "history-footer-dark",
+      "pass": true
+    },
+    {
+      "case": "modal-focus-enters",
+      "pass": true
+    },
+    {
+      "case": "modal-close-restores-focus",
+      "pass": true
+    },
+    {
+      "case": "modal-escape-restores-focus",
+      "pass": true
+    },
+    {
+      "case": "system-reduce-and-contrast",
+      "pass": true
+    }
+  ],
+  "geometry_note": {
+    "window_bottom": 861.7904968261719,
+    "footer_bottom": 861.79052734375,
+    "overflow_css_px": 0.000030517578125,
+    "window_client_height": 582,
+    "window_offset_height": 582,
+    "window_scroll_height": 582,
+    "assertion_tolerance_css_px": 0.01,
+    "conclusion": "Footer physically visible. Strict comparison produced a floating-point false positive; rerun with 0.01 CSS px tolerance passes both themes."
+  },
+  "system_preference_note": "Media-query change events are asynchronous. Replaced fixed 80ms sampling with waitForFunction for the rendered class state; final rerun passes all three preferences.",
+  "passive_native_after": {
+    "UTC": "2026-11-06T17:39:58Z",
+    "frontBundle": "com.microsoft.edgemac",
+    "frontPID": 5750,
+    "note": "Read-only observation after headless capture; no GUI activation or production data changes were performed."
+  }
+}

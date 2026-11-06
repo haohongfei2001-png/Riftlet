@@ -152,7 +152,7 @@
     const [title, description] = pageNames[page];
     const subtitle = page==='general' ? (s.paused?'收录已暂停，已有图片保留。':s.hidden?'已隐藏裂缝，继续在后台收录。':'截图后，点一下边缘微图。') : description;
     const builders = {general, display, capture, motion, history, help};
-    return `<div class="st-page" data-st-page="${page}"><header class="st-page-heading"><h2>${title}</h2><p>${subtitle}</p></header>${s.saveError && !['display','motion'].includes(page) ? '<div class="st-inline-notice st-save-error" role="status">'+icon('info',14)+'<span>这次更改尚未保存，原设置仍然保留。</span>'+action('重试','retry')+'</div>':''}${builders[page](s)}<div class="st-local-feedback" aria-live="polite" hidden></div></div>`;
+    return `<div class="st-page" data-st-page="${page}"><header class="st-page-heading"><h2>${title}</h2><p>${subtitle}</p></header>${s.saveError && !['display','motion'].includes(page) ? '<div class="st-inline-notice st-save-error" role="status">'+icon('info',14)+'<span>这次保存尚未确认，请重试。</span>'+action('重试','retry')+'</div>':''}${builders[page](s)}<div class="st-local-feedback" aria-live="polite" hidden></div></div>`;
   }
 
   const fieldsFor = scope => scope==='display' ? displayFields : scope==='motion' ? motionFields : scope==='history' ? [] : [...displayFields,...motionFields];

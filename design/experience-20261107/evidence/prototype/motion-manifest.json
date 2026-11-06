@@ -1,0 +1,248 @@
+{
+  "commit": "7d19037611c1228a2397cf44ed47bddd8f390213",
+  "method": "CDP Page.startScreencast JPEG actual rendered prototype frames; timestamps retained; no native production app used",
+  "events": [
+    {
+      "timeMs": 602,
+      "label": "arrival"
+    },
+    {
+      "timeMs": 2190,
+      "label": "attach-start-swallow"
+    },
+    {
+      "timeMs": 3299,
+      "label": "two-concurrent"
+    },
+    {
+      "timeMs": 4408,
+      "label": "reset"
+    },
+    {
+      "timeMs": 5121,
+      "label": "failure-restores"
+    },
+    {
+      "timeMs": 8186,
+      "label": "no-target-preserves"
+    },
+    {
+      "timeMs": 9816,
+      "label": "reduced-motion"
+    }
+  ],
+  "frames": [
+    {
+      "file": "frame-0000.jpg",
+      "ms": 0
+    },
+    {
+      "file": "frame-0001.jpg",
+      "ms": 631.7088603973389
+    },
+    {
+      "file": "frame-0002.jpg",
+      "ms": 648.3747959136963
+    },
+    {
+      "file": "frame-0003.jpg",
+      "ms": 665.0409698486328
+    },
+    {
+      "file": "frame-0004.jpg",
+      "ms": 681.7069053649902
+    },
+    {
+      "file": "frame-0005.jpg",
+      "ms": 798.3689308166504
+    },
+    {
+      "file": "frame-0006.jpg",
+      "ms": 915.0309562683105
+    },
+    {
+      "file": "frame-0007.jpg",
+      "ms": 931.696891784668
+    },
+    {
+      "file": "frame-0008.jpg",
+      "ms": 948.3637809753418
+    },
+    {
+      "file": "frame-0009.jpg",
+      "ms": 1065.025806427002
+    },
+    {
+      "file": "frame-0010.jpg",
+      "ms": 1115.0248050689697
+    },
+    {
+      "file": "frame-0011.jpg",
+      "ms": 1181.6887855529785
+    },
+    {
+      "file": "frame-0012.jpg",
+      "ms": 1198.354959487915
+    },
+    {
+      "file": "frame-0013.jpg",
+      "ms": 4431.569814682007
+    },
+    {
+      "file": "frame-0014.jpg",
+      "ms": 5131.543874740601
+    },
+    {
+      "file": "frame-0015.jpg",
+      "ms": 5298.2048988342285
+    },
+    {
+      "file": "frame-0016.jpg",
+      "ms": 5314.870834350586
+    },
+    {
+      "file": "frame-0017.jpg",
+      "ms": 5364.868879318237
+    },
+    {
+      "file": "frame-0018.jpg",
+      "ms": 5398.199796676636
+    },
+    {
+      "file": "frame-0019.jpg",
+      "ms": 5414.866924285889
+    },
+    {
+      "file": "frame-0020.jpg",
+      "ms": 5481.5309047698975
+    },
+    {
+      "file": "frame-0021.jpg",
+      "ms": 5531.529903411865
+    },
+    {
+      "file": "frame-0022.jpg",
+      "ms": 5548.194885253906
+    },
+    {
+      "file": "frame-0023.jpg",
+      "ms": 5598.193883895874
+    },
+    {
+      "file": "frame-0024.jpg",
+      "ms": 5631.525993347168
+    },
+    {
+      "file": "frame-0025.jpg",
+      "ms": 5648.191928863525
+    },
+    {
+      "file": "frame-0026.jpg",
+      "ms": 5664.857864379883
+    },
+    {
+      "file": "frame-0027.jpg",
+      "ms": 5698.189973831177
+    },
+    {
+      "file": "frame-0028.jpg",
+      "ms": 5714.855909347534
+    },
+    {
+      "file": "frame-0029.jpg",
+      "ms": 5814.851999282837
+    },
+    {
+      "file": "frame-0030.jpg",
+      "ms": 5831.516981124878
+    },
+    {
+      "file": "frame-0031.jpg",
+      "ms": 6698.152780532837
+    },
+    {
+      "file": "frame-0032.jpg",
+      "ms": 6714.818954467773
+    },
+    {
+      "file": "frame-0033.jpg",
+      "ms": 6781.483888626099
+    },
+    {
+      "file": "frame-0034.jpg",
+      "ms": 6798.14887046814
+    },
+    {
+      "file": "frame-0035.jpg",
+      "ms": 6864.813804626465
+    },
+    {
+      "file": "frame-0036.jpg",
+      "ms": 6898.145914077759
+    },
+    {
+      "file": "frame-0037.jpg",
+      "ms": 6931.476831436157
+    },
+    {
+      "file": "frame-0038.jpg",
+      "ms": 8214.764833450317
+    },
+    {
+      "file": "frame-0039.jpg",
+      "ms": 8348.092794418335
+    },
+    {
+      "file": "frame-0040.jpg",
+      "ms": 8364.758968353271
+    },
+    {
+      "file": "frame-0041.jpg",
+      "ms": 8398.090839385986
+    },
+    {
+      "file": "frame-0042.jpg",
+      "ms": 8414.756774902344
+    },
+    {
+      "file": "frame-0043.jpg",
+      "ms": 8481.421947479248
+    },
+    {
+      "file": "frame-0044.jpg",
+      "ms": 8514.753818511963
+    },
+    {
+      "file": "frame-0045.jpg",
+      "ms": 8614.749908447266
+    },
+    {
+      "file": "frame-0046.jpg",
+      "ms": 8631.415843963623
+    },
+    {
+      "file": "frame-0047.jpg",
+      "ms": 9848.037958145142
+    },
+    {
+      "file": "frame-0048.jpg",
+      "ms": 9864.703893661499
+    },
+    {
+      "file": "frame-0049.jpg",
+      "ms": 9898.03695678711
+    },
+    {
+      "file": "frame-0050.jpg",
+      "ms": 9914.70193862915
+    },
+    {
+      "file": "frame-0051.jpg",
+      "ms": 10198.025941848755
+    },
+    {
+      "file": "frame-0052.jpg",
+      "ms": 10248.02279472351
+    }
+  ]
+}

@@ -1,0 +1,220 @@
+{
+  "commit": "251ee3e2098047cd87cde60073d4be87ea3cc0e5",
+  "runtime": "Mac Google Chrome headless with independent ephemeral Playwright context; no user profile; no foreground activation",
+  "errors": [],
+  "frames": [
+    "desktop-light",
+    "control-light",
+    "history-light",
+    "onboarding-light",
+    "settings-general-light",
+    "settings-display-light",
+    "settings-capture-light",
+    "settings-motion-light",
+    "settings-history-light",
+    "settings-help-light",
+    "desktop-dark",
+    "control-dark",
+    "history-dark",
+    "onboarding-dark",
+    "settings-general-dark",
+    "settings-display-dark",
+    "settings-capture-dark",
+    "settings-motion-dark",
+    "settings-history-dark",
+    "settings-help-dark",
+    "onboarding-step-1",
+    "onboarding-step-2",
+    "onboarding-step-3",
+    "control-save-error",
+    "desktop-hover",
+    "desktop-attached",
+    "desktop-no-target",
+    "desktop-failure",
+    "desktop-two-attached",
+    "desktop-zero-occlusion",
+    "settings-display-mobile",
+    "desktop-mobile"
+  ],
+  "checks": [
+    {
+      "case": "success",
+      "pass": true,
+      "before": {
+        "queue": [
+          1,
+          2,
+          3
+        ],
+        "attached": [],
+        "history": [
+          {
+            "id": 1,
+            "status": "waiting"
+          },
+          {
+            "id": 2,
+            "status": "waiting"
+          },
+          {
+            "id": 3,
+            "status": "waiting"
+          },
+          {
+            "id": 4,
+            "status": "archived"
+          },
+          {
+            "id": 5,
+            "status": "unknown"
+          },
+          {
+            "id": 6,
+            "status": "started"
+          }
+        ],
+        "draft": "请结合这几张截图，帮我看看哪里还可以改进。",
+        "pending": [],
+        "settings": {
+          "appearance": "light",
+          "paused": false,
+          "hidden": false,
+          "display": "main",
+          "displayDisconnected": false,
+          "placement": "leftMiddle",
+          "entryEnabled": true,
+          "captureMode": "window",
+          "arrival": "magnet",
+          "reduceMotion": false,
+          "reduceTransparency": false,
+          "increaseContrast": false,
+          "archiveHours": 0,
+          "archiveDraft": null,
+          "archiveCustom": false,
+          "sourcePermission": "granted",
+          "automationPermission": "granted",
+          "javascriptAllowed": true,
+          "screenPermission": "notChecked",
+          "storageMeasured": false,
+          "saveError": false,
+          "layout": {
+            "fitWidth": 72,
+            "fitHeight": 56,
+            "hiddenFraction": 25,
+            "rowPitch": 68,
+            "outerInset": 6,
+            "numberFontSize": 11,
+            "numberGap": 8,
+            "leftPadding": 4,
+            "minimumHitWidth": 44,
+            "minimumHitHeight": 44,
+            "firstCenterFromTop": 202,
+            "visibleCountPreference": 3,
+            "pressDuration": 60,
+            "swallowDuration": 120,
+            "shiftDuration": 160,
+            "returnDuration": 180
+          },
+          "draft": {},
+          "openGroups": []
+        }
+      },
+      "after": {
+        "queue": [
+          2,
+          3
+        ],
+        "attached": [
+          1
+        ],
+        "history": [
+          {
+            "id": 1,
+            "status": "started"
+          },
+          {
+            "id": 2,
+            "status": "waiting"
+          },
+          {
+            "id": 3,
+            "status": "waiting"
+          },
+          {
+            "id": 4,
+            "status": "archived"
+          },
+          {
+            "id": 5,
+            "status": "unknown"
+          },
+          {
+            "id": 6,
+            "status": "started"
+          }
+        ],
+        "draft": "请结合这几张截图，帮我看看哪里还可以改进。",
+        "pending": [],
+        "settings": {
+          "appearance": "light",
+          "paused": false,
+          "hidden": false,
+          "display": "main",
+          "displayDisconnected": false,
+          "placement": "leftMiddle",
+          "entryEnabled": true,
+          "captureMode": "window",
+          "arrival": "magnet",
+          "reduceMotion": false,
+          "reduceTransparency": false,
+          "increaseContrast": false,
+          "archiveHours": 0,
+          "archiveDraft": null,
+          "archiveCustom": false,
+          "sourcePermission": "granted",
+          "automationPermission": "granted",
+          "javascriptAllowed": true,
+          "screenPermission": "notChecked",
+          "storageMeasured": false,
+          "saveError": false,
+          "layout": {
+            "fitWidth": 72,
+            "fitHeight": 56,
+            "hiddenFraction": 25,
+            "rowPitch": 68,
+            "outerInset": 6,
+            "numberFontSize": 11,
+            "numberGap": 8,
+            "leftPadding": 4,
+            "minimumHitWidth": 44,
+            "minimumHitHeight": 44,
+            "firstCenterFromTop": 202,
+            "visibleCountPreference": 3,
+            "pressDuration": 60,
+            "swallowDuration": 120,
+            "shiftDuration": 160,
+            "returnDuration": 180
+          },
+          "draft": {},
+          "openGroups": []
+        }
+      }
+    },
+    {
+      "case": "no-target",
+      "pass": true
+    },
+    {
+      "case": "failure-restores",
+      "pass": true
+    },
+    {
+      "case": "unknown-retained-history-no-respawn",
+      "pass": true
+    },
+    {
+      "case": "two-in-flight",
+      "pass": true
+    }
+  ]
+}

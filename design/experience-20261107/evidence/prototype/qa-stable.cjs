@@ -1,0 +1,27 @@
+const {chromium}=require('/tmp/riftlet-headless-tools-20261107/node_modules/playwright-core');
+const fs=require('fs');const cp=require('child_process');
+(async()=>{
+const dir='/tmp/riftlet-design-qa-frames-251ee3e';fs.mkdirSync(dir,{recursive:true});
+const browser=await chromium.launch({headless:true,executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',args:['--no-first-run','--disable-default-apps','--disable-background-networking']});
+const page=await browser.newPage({viewport:{width:1440,height:1120},deviceScaleFactor:1});
+const errors=[],frames=[],checks=[];page.on('pageerror',e=>errors.push(String(e)));
+const base='file:///tmp/riftlet-design-qa-20261107-native/design/experience-20261107/prototype/index.html';
+async function shot(name){await page.screenshot({path:dir+'/'+name+'.png'});frames.push(name);const el=page.locator('.control-popover,.settings-window,.history-window,.onboarding-window').first();if(await el.count())await el.screenshot({path:dir+'/'+name+'-crop.png'});}
+async function route(query){await page.goto(base+query);await page.waitForTimeout(180);}
+for(const theme of ['light','dark']){
+ for(const scene of ['desktop','control','history','onboarding']){await route('?view='+scene+'&theme='+theme);await shot(scene+'-'+theme);}
+ for(const p of ['general','display','capture','motion','history','help']){await route('?view=settings&page='+p+'&theme='+theme);await shot('settings-'+p+'-'+theme);}
+}
+await route('?view=onboarding');for(let step=1;step<=3;step++){await page.evaluate(step=>{RiftPrototype.state.step=step;RiftPrototype.render()},step);await shot('onboarding-step-'+step);}
+await route('?view=control');await page.evaluate(()=>RiftPrototype.setScenario('save-error'));await shot('control-save-error');
+await route('?view=desktop');await page.locator('.thumb-hit').first().hover();await page.waitForTimeout(500);await shot('desktop-hover');
+await route('?view=desktop');let before=await page.evaluate(()=>RiftPrototype.exportState());await page.evaluate(()=>RiftPrototype.attach(1));let after=await page.evaluate(()=>RiftPrototype.exportState());checks.push({case:'success',pass:!after.queue.includes(1)&&after.attached.includes(1)&&after.draft===before.draft,before,after});await shot('desktop-attached');
+await route('?view=desktop');await page.evaluate(()=>RiftPrototype.setScenario('no-target'));await page.evaluate(()=>RiftPrototype.attach(1));after=await page.evaluate(()=>RiftPrototype.exportState());checks.push({case:'no-target',pass:after.queue.includes(1)&&after.attached.length===0});await shot('desktop-no-target');
+await route('?view=desktop');await page.evaluate(()=>RiftPrototype.setScenario('failure'));await page.evaluate(()=>RiftPrototype.attach(1));after=await page.evaluate(()=>RiftPrototype.exportState());checks.push({case:'failure-restores',pass:after.queue.includes(1)&&!after.attached.includes(1)&&after.history.find(r=>r.id===1).status==='failed'});await shot('desktop-failure');
+await route('?view=desktop');await page.evaluate(()=>RiftPrototype.setScenario('unknown'));await page.evaluate(()=>RiftPrototype.attach(1));after=await page.evaluate(()=>RiftPrototype.exportState());checks.push({case:'unknown-retained-history-no-respawn',pass:!after.queue.includes(1)&&after.history.find(r=>r.id===1).status==='unknown'});
+await route('?view=desktop');await page.evaluate(async()=>{await Promise.all([RiftPrototype.attach(1),RiftPrototype.attach(2)])});after=await page.evaluate(()=>RiftPrototype.exportState());checks.push({case:'two-in-flight',pass:after.attached.includes(1)&&after.attached.includes(2)&&!after.queue.includes(1)&&!after.queue.includes(2)});await shot('desktop-two-attached');
+await route('?view=desktop');await page.evaluate(()=>{RiftPrototype.state.settings.layout.hiddenFraction=100;RiftPrototype.render()});await shot('desktop-zero-occlusion');
+await page.setViewportSize({width:390,height:844});await route('?view=settings&page=display');await shot('settings-display-mobile');await route('?view=desktop');await shot('desktop-mobile');
+const report={commit:cp.execSync('git -C /tmp/riftlet-design-qa-20261107-native rev-parse HEAD').toString().trim(),runtime:'Mac Google Chrome headless with independent ephemeral Playwright context; no user profile; no foreground activation',errors,frames,checks};fs.writeFileSync(dir+'/full-report.json',JSON.stringify(report,null,2));
+for(const theme of ['light','dark']){const names=['desktop','control','settings-general','settings-display','settings-capture','settings-motion','settings-history','settings-help','history','onboarding'].map(n=>n+'-'+theme);await page.setViewportSize({width:1320,height:2320});await page.setContent('<body style="margin:0;background:#e8e7e3;font-family:Arial"><main style="padding:24px;display:grid;grid-template-columns:1fr 1fr;gap:20px">'+names.map(n=>{const crop=dir+'/'+n+'-crop.png',p=fs.existsSync(crop)?crop:dir+'/'+n+'.png';return '<section style="min-width:0;background:white;padding:12px;border-radius:12px"><h3 style="margin:0 0 12px;font-size:16px">'+n+'</h3><img style="width:100%;height:398px;object-fit:contain" src="data:image/png;base64,'+fs.readFileSync(p).toString('base64')+'"></section>'}).join('')+'</main></body>');await page.screenshot({path:dir+'/contact-'+theme+'.png',fullPage:true});}await browser.close();console.log(JSON.stringify({errors,frames:frames.length,checks:checks.map(c=>({case:c.case,pass:c.pass}))}));
+})().catch(e=>{console.error(e);process.exit(1)});

@@ -1,0 +1,60 @@
+{
+  "installed_version": "0.2.0 (2)",
+  "known_main": "71d726c5d6416346b84e1ac93047af5bb321d925",
+  "archive_capture_source": "a5aefd3d166156c74399b700fa9f167e6bc2408d",
+  "archive_status": "PASS_SCOPED_NATIVE_REVIEW",
+  "capture_method": "WindowServer native synthetic isolated review windows",
+  "live_passive_observation": {
+    "UTC": "2026-11-06T17:13:43Z",
+    "frontBundle": "com.openai.codex",
+    "AXTrusted": true,
+    "screenCaptureAllowed": true,
+    "note": "No target window returned in last passive inspection. No focus, click, production preference or data mutations."
+  },
+  "observed_archived_images": [
+    "settings-dark-display.png",
+    "control-light.png",
+    "history-real-isolated-records.png",
+    "onboarding-light-1.png",
+    "settings-light-display.png",
+    "control-dark.png"
+  ],
+  "not_observed": [
+    "live native motion",
+    "live thumbnail interaction",
+    "physical multiscreen transitions",
+    "hours-long fatigue",
+    "real current-version foreground interaction"
+  ],
+  "settings_pages": [
+    "通用",
+    "位置与显示",
+    "截图",
+    "动效",
+    "历史与存储",
+    "权限与帮助"
+  ],
+  "dimensions_pt": {
+    "settings_content": [
+      960,
+      684
+    ],
+    "settings_minimum_content": [
+      760,
+      540
+    ],
+    "sidebar_width": 184,
+    "control_content_width": 336,
+    "onboarding_content": [
+      652,
+      608
+    ]
+  },
+  "source": "current main Sources/RiftletUI/SettingsNativeStyle.swift and SettingsProductPresentation.swift",
+  "provenance": "Archived Beta 2 native captures are earlier captured source, not asserted to equal exact current main without source parity proof.",
+  "visual_source_parity": {
+    "checked_by": "root agent",
+    "result": "a5aefd3d to main71d726c5 Sources/RiftletUI and Sources/RiftletApp no diff",
+    "implication": "Archived synthetic visuals use same UI/App source as formal main; still isolated historical captures rather than live production interaction."
+  }
+}
