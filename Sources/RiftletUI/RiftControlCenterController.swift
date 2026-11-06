@@ -297,7 +297,6 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
         popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
         if popover.isShown {
             statusItem.button?.highlight(true)
-            body.view.window?.makeFirstResponder(buttons["control.settings"])
         }
     }
 
