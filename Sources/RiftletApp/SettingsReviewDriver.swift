@@ -590,11 +590,19 @@ final class SettingsReviewDriver {
                 try require(host.onboarding.currentStep == step, "onboardingWrongStep")
                 await settle()
                 let window = host.onboarding.window
+                artifacts.append(["kind": "onboardingGeometry", "theme": theme.rawValue, "step": step + 1,
+                    "windowFrame": rect(window.frame), "contentBounds": rect(window.contentView?.bounds ?? .zero),
+                    "minimumSize": [window.minSize.width, window.minSize.height],
+                    "contentMinimumSize": [window.contentMinSize.width, window.contentMinSize.height],
+                    "contentFittingSize": [window.contentView?.fittingSize.width ?? 0, window.contentView?.fittingSize.height ?? 0],
+                    "contentHasAmbiguousLayout": window.contentView?.hasAmbiguousLayout ?? false])
+                // Preserve the real frame and pixels even when the size check
+                // fails; an assertion must not erase the evidence it rejects.
+                await capture("onboarding-\(theme.rawValue)-\(step + 1)", window: window)
                 if let visible = window.screen?.visibleFrame, visible.width >= 652, visible.height >= 608 {
                     try require(abs(window.frame.width - 652) <= 1 && abs(window.frame.height - 608) <= 1,
                                 "onboardingOuterSizeMismatch")
                 }
-                await capture("onboarding-\(theme.rawValue)-\(step + 1)", window: host.onboarding.window)
                 try click("onboarding.next", window: host.onboarding.window)
             }
             try await wait { !self.host.onboarding.isVisible }
@@ -763,18 +771,37 @@ final class SettingsReviewDriver {
         await settle(100)
         CFArrayAppendValue(ids, scalar)
         let frame = window.frame
-        let quartz = CGRect(x: frame.minX, y: firstScreen.frame.maxY - frame.maxY, width: frame.width, height: frame.height)
+        let appKitQuartz = CGRect(x: frame.minX, y: firstScreen.frame.maxY - frame.maxY, width: frame.width, height: frame.height)
+        guard let descriptions = CGWindowListCreateDescriptionFromArray(ids) as? [[String: Any]],
+              let description = descriptions.first(where: {
+                  ($0[kCGWindowNumber as String] as? NSNumber)?.uint32Value == id
+                  && ($0[kCGWindowOwnerPID as String] as? NSNumber)?.int32Value == ProcessInfo.processInfo.processIdentifier
+              }), let bounds = description[kCGWindowBounds as String] as? [String: Any],
+              let quartz = CGRect(dictionaryRepresentation: bounds as CFDictionary),
+              quartz.width > 0, quartz.height > 0 else {
+            frames.append(["name": name, "status": "NOT_RUN", "reason": "ownedWindowServerIdentityUnavailable"]); return
+        }
+        let visibleArea = NSScreen.screens.reduce(CGFloat.zero) { total, screen in
+            let visible = screen.visibleFrame
+            let rect = CGRect(x: visible.minX, y: firstScreen.frame.maxY - visible.maxY, width: visible.width, height: visible.height)
+            let intersection = quartz.intersection(rect)
+            return total + (intersection.isNull ? 0 : intersection.width * intersection.height)
+        }
         var result: [String: Any] = ["name": name, "windowNumber": window.windowNumber,
             "processPID": ProcessInfo.processInfo.processIdentifier, "windowFrame": rect(frame),
             "contentBounds": rect(window.contentView?.bounds ?? .zero),
             "contentRect": rect(window.contentRect(forFrameRect: frame)),
             "screenVisibleFrame": rect(window.screen?.visibleFrame ?? .zero),
             "screenFrame": rect(window.screen?.frame ?? .zero), "backingScale": window.backingScaleFactor,
-            "quartzCaptureRect": rect(quartz), "frontmostPID": NSWorkspace.shared.frontmostApplication?.processIdentifier as Any? ?? NSNull(),
+            "quartzCaptureRect": rect(quartz), "windowServerBounds": rect(quartz), "appKitQuartzFrame": rect(appKitQuartz),
+            "windowServerOnscreen": description[kCGWindowIsOnscreen as String] as? Bool ?? false,
+            "windowServerVisibleAreaFraction": min(1, visibleArea / (quartz.width * quartz.height)),
+            "captureRectMode": "CGRect.null: automatic bounds of exactly the requested owned window",
+            "frontmostPID": NSWorkspace.shared.frontmostApplication?.processIdentifier as Any? ?? NSNull(),
             "keyWindowNumber": NSApp.keyWindow?.windowNumber as Any? ?? NSNull(),
             "appearance": window.effectiveAppearance.name.rawValue,
             "method": "WindowServer CGImage(windowArray), exactly one NSApp-owned window; no desktop/display capture"]
-        guard let image = CGImage(windowListFromArrayScreenBounds: quartz, windowArray: ids,
+        guard let image = CGImage(windowListFromArrayScreenBounds: .null, windowArray: ids,
                                   imageOption: [.boundsIgnoreFraming, .bestResolution]) else {
             result["status"] = "NOT_RUN"; result["reason"] = "ownedWindowCaptureUnavailable"; frames.append(result); return
         }

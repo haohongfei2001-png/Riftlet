@@ -65,28 +65,24 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
     /// This never writes a first-use/completion preference itself.
     @discardableResult
     public func show() -> Bool {
-        guard snapshot != nil, !NSScreen.screens.isEmpty else { return false }
+        guard snapshot != nil, let screen = window.screen ?? NSScreen.main ?? NSScreen.screens.first else { return false }
+        let previousFrame = window.frame
         if !isVisible {
             currentStep = 0; finishedThisPresentation = false
             refreshStep()
         }
         if !hasPresented {
-            // Establish the content constraints before restoring the intended
-            // first size. Restoring only an outer frame before the first native
-            // content sizing pass left this window at its 562-point fitting
-            // width on the actual multi-display review run.
-            window.contentView?.layoutSubtreeIfNeeded()
             var outer = SettingsNativeStyle.onboardingSize
-            if let visible = (window.screen ?? NSScreen.main)?.visibleFrame {
-                outer.width = min(outer.width, visible.width)
-                outer.height = min(outer.height, visible.height)
-            }
-            let contentSize = window.contentRect(forFrameRect: NSRect(origin: .zero, size: outer)).size
-            window.setContentSize(contentSize)
-            window.center()
-            RiftVisualStyle.restoreWindowSize(window, size: window.frame.size, constrainOrigin: true)
+            let visible = screen.visibleFrame
+            outer.width = min(outer.width, visible.width)
+            outer.height = min(outer.height, visible.height)
+            let frame = NSRect(x: visible.midX - outer.width / 2, y: visible.midY - outer.height / 2,
+                               width: outer.width, height: outer.height)
+            layout(keeping: frame)
         } else {
-            RiftVisualStyle.restoreWindowSize(window, size: window.frame.size)
+            let reachable = RiftVisualStyle.reachableWindowFrame(previousFrame,
+                visibleFrames: NSScreen.screens.map(\.visibleFrame), preferredFrame: window.screen?.visibleFrame)
+            layout(keeping: reachable)
         }
         window.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
@@ -96,6 +92,17 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
 
     public func closeForTeardown() { window.close() }
     public func control(identifier: String) -> NSView? { controls[identifier] }
+
+    private func layout(keeping frame: NSRect) {
+        // Wrapping text and hidden stack pages can change the native fitting
+        // width. Complete that pass first, then restore the explicit window
+        // size; never read a fitting result back as the user's resize choice.
+        // Do not run a second eager layout/center pass after applying this size.
+        window.contentView?.layoutSubtreeIfNeeded()
+        guard window.frame != frame else { return }
+        window.setContentSize(window.contentRect(forFrameRect: frame).size)
+        window.setFrame(frame, display: false)
+    }
 
     private func configureContent() {
         let root = SettingsSurfaceView(role: .window)
@@ -232,6 +239,8 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
 
     private func refreshFacts() {
         guard let snapshot else { return }
+        let preservedFrame = hasPresented ? window.frame : nil
+        defer { if let preservedFrame { layout(keeping: preservedFrame) } }
         let presentation = SetupPresentation(snapshot: snapshot.setup)
         introDescription.stringValue = presentation.firstUseDescription + "\n" + presentation.firstUseCapability
         introTitle.stringValue = snapshot.setup.attachment == .available
@@ -353,6 +362,8 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
     }
 
     private func refreshStep() {
+        let preservedFrame = hasPresented ? window.frame : nil
+        defer { if let preservedFrame { layout(keeping: preservedFrame) } }
         for (index, page) in pages.enumerated() { page.isHidden = index != currentStep }
         for (index, view) in progress.arrangedSubviews.enumerated() {
             guard let label = view as? NSTextField else { continue }

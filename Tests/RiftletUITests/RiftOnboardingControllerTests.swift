@@ -81,6 +81,14 @@ final class RiftOnboardingControllerTests: XCTestCase {
             XCTAssertEqual(controller.window.frame.width, 652, accuracy: 1)
             XCTAssertEqual(controller.window.frame.height, 608, accuracy: 1)
         }
+        let presented = controller.window.frame
+        controller.update(fixture(try model(), revision: 2, source: .accessible, permission: .granted))
+        try button(controller, "onboarding.next").performClick(nil)
+        try button(controller, "onboarding.next").performClick(nil)
+        XCTAssertEqual(controller.window.frame, presented, "Facts and stack page layout cannot replace the window size")
+        controller.closeForTeardown()
+        XCTAssertTrue(controller.show())
+        XCTAssertEqual(controller.window.frame.size, presented.size)
         var resized = controller.window.frame
         resized.size = NSSize(width: 600, height: 560)
         controller.window.setFrame(resized, display: true)

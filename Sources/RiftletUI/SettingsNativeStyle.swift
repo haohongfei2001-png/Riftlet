@@ -10,15 +10,26 @@ public enum SettingsColorRole: String, Sendable { case window, surface, sidebar,
     public static let controlCenterWidth: CGFloat = 336
     public static let onboardingSize = NSSize(width: 652, height: 608)
     public static func color(_ role: SettingsColorRole) -> NSColor {
-        if NSWorkspace.shared.accessibilityDisplayShouldIncreaseContrast {
-            switch role {
-            case .ink, .secondary: return .labelColor
-            case .border: return .separatorColor
-            default: break
-            }
-        }
         return NSColor(name: NSColor.Name("Riftlet.Settings." + role.rawValue)) { appearance in
-            let dark = appearance.bestMatch(from: [.aqua, .darkAqua]) == .darkAqua
+            // Decide each time this cached color resolves, using the appearance
+            // supplied by AppKit rather than the preference at label creation.
+            let match = appearance.bestMatch(from: [.accessibilityHighContrastAqua,
+                .accessibilityHighContrastDarkAqua, .aqua, .darkAqua])
+            let highContrast = match == .accessibilityHighContrastAqua || match == .accessibilityHighContrastDarkAqua
+            let dark = match == .darkAqua || match == .accessibilityHighContrastDarkAqua
+            if highContrast {
+                let system: NSColor?
+                switch role {
+                case .ink, .secondary: system = .labelColor
+                case .border: system = .separatorColor
+                default: system = nil
+                }
+                if let system {
+                    var resolved: NSColor?
+                    appearance.performAsCurrentDrawingAppearance { resolved = system.usingColorSpace(.sRGB) }
+                    if let resolved { return resolved }
+                }
+            }
             let hex: UInt32
             switch role {
             case .window: hex = dark ? 0x1c2420 : 0xf7f9f8

@@ -1376,6 +1376,14 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             let editItem = NSMenuItem(title: "编辑", action: nil, keyEquivalent: "")
             editItem.submenu = editMenu; mainMenu.addItem(editItem)
         }
+        if !mainMenu.items.contains(where: { $0.submenu?.items.contains(where: { $0.action == #selector(NSWindow.performClose(_:)) }) == true }) {
+            let windowMenu = NSMenu(title: "窗口")
+            // The native responder chain reaches the current window delegate,
+            // including the settings draft confirmation. No global shortcut.
+            windowMenu.addItem(NSMenuItem(title: "关闭窗口", action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w"))
+            let windowItem = NSMenuItem(title: "窗口", action: nil, keyEquivalent: "")
+            windowItem.submenu = windowMenu; mainMenu.addItem(windowItem)
+        }
         NSApp.mainMenu = mainMenu
     }
 
