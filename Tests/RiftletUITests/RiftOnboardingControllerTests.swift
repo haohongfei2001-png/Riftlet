@@ -3,12 +3,16 @@ import XCTest
 @testable import RiftletUI
 
 final class RiftOnboardingControllerTests: XCTestCase {
+    private static let mainDisplayUUID = "00000000-0000-4000-8000-000000000001"
+    private static let externalDisplayUUID = "00000000-0000-4000-8000-000000000002"
+    private static let disconnectedDisplayUUID = "00000000-0000-4000-8000-000000000099"
+
     @MainActor private func model(revision: UInt64 = 1, paused: Bool = true, hidden: Bool = true,
                                   configuration: RiftConfiguration = .init(),
                                   displays: [RiftSettingsDisplay]? = nil) throws -> SettingsStateModel {
         let settings = RiftSettingsSnapshot(entryAvailable: true, entryEnabled: false,
-            displays: displays ?? [.init(id: 1, name: "合成内建屏", uuid: "synthetic-main"),
-                       .init(id: 2, name: "合成外接屏", uuid: "synthetic-external")],
+            displays: displays ?? [.init(id: 1, name: "合成内建屏", uuid: Self.mainDisplayUUID),
+                       .init(id: 2, name: "合成外接屏", uuid: Self.externalDisplayUUID)],
             preferredDisplayID: configuration.preferredDisplayID, configuration: configuration)
         return try SettingsStateModel(owner: .init(revision: revision, settings: settings,
             collectionPaused: paused, isHidden: hidden, mainDisplayID: 1),
@@ -171,7 +175,8 @@ final class RiftOnboardingControllerTests: XCTestCase {
         var configuration = RiftConfiguration()
         configuration.placement = nil; configuration.placementSource = .legacy
         configuration.outerInset = 14; configuration.hiddenFraction = 0.57
-        configuration.preferredDisplayID = 2; configuration.preferredDisplayUUID = "synthetic-external"
+        configuration.preferredDisplayID = 2; configuration.preferredDisplayUUID = Self.externalDisplayUUID
+        try configuration.validate()
         let state = try model(configuration: configuration)
         var selected: [String] = []
         let controller = RiftOnboardingController { action in
@@ -238,7 +243,8 @@ final class RiftOnboardingControllerTests: XCTestCase {
     @MainActor func testDisconnectedSelectedDisplayAndOldSnapshotCannotChangePreference() throws {
         try prepareAppKit()
         var configuration = RiftConfiguration()
-        configuration.preferredDisplayID = 99; configuration.preferredDisplayUUID = "missing-display-uuid"
+        configuration.preferredDisplayID = 99; configuration.preferredDisplayUUID = Self.disconnectedDisplayUUID
+        try configuration.validate()
         let state = try model(configuration: configuration)
         let controller = RiftOnboardingController { _ in XCTFail("A refresh cannot save a fallback") }
         defer { controller.closeForTeardown() }
@@ -248,7 +254,7 @@ final class RiftOnboardingControllerTests: XCTestCase {
         XCTAssertFalse(try XCTUnwrap(display.selectedItem).isEnabled)
         controller.update(fixture(try model(), revision: 3))
         XCTAssertEqual(display.titleOfSelectedItem, "已选显示器（未连接）")
-        XCTAssertEqual(state.snapshot.owner.settings.configuration.preferredDisplayUUID, "missing-display-uuid")
+        XCTAssertEqual(state.snapshot.owner.settings.configuration.preferredDisplayUUID, Self.disconnectedDisplayUUID)
     }
 
     @MainActor func testBackAndForwardKeepSameNativeControlsAndAccessibleNames() throws {
@@ -273,8 +279,8 @@ final class RiftOnboardingControllerTests: XCTestCase {
 
     @MainActor func testDuplicateDisplayNamesKeepDistinctNativeItemIdentities() async throws {
         try prepareAppKit()
-        let state = try model(displays: [.init(id: 1, name: "Studio Display", uuid: "synthetic-one"),
-                                         .init(id: 2, name: "Studio Display", uuid: "synthetic-two")])
+        let state = try model(displays: [.init(id: 1, name: "Studio Display", uuid: Self.mainDisplayUUID),
+                                         .init(id: 2, name: "Studio Display", uuid: Self.externalDisplayUUID)])
         var selected: [UInt32?] = []
         let controller = RiftOnboardingController { action in
             if case .settings(.selectDisplay(let id)) = action { selected.append(id) }
@@ -306,7 +312,7 @@ final class RiftOnboardingControllerTests: XCTestCase {
         let menu = try XCTUnwrap(display.menu)
         let selectedItem = try XCTUnwrap(display.item(at: 2))
         controller.menuWillOpen(menu)
-        let changed = try model(revision: 2, displays: [.init(id: 1, name: "合成内建屏", uuid: "synthetic-main")])
+        let changed = try model(revision: 2, displays: [.init(id: 1, name: "合成内建屏", uuid: Self.mainDisplayUUID)])
         controller.update(fixture(changed, revision: 2))
         XCTAssertEqual(display.numberOfItems, 3)
         XCTAssertTrue(display.item(at: 2) === selectedItem)

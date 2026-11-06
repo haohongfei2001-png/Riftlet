@@ -1,0 +1,167 @@
+{
+  "schema": 1,
+  "kind": "PURE_APPKIT_DIAGNOSTIC",
+  "result": "LIMITED_OBSERVATION_NOT_PRODUCT_ACCEPTANCE",
+  "productionReady": false,
+  "sourceSHA256": "deb2358915bc8f9d129122cdd83edef43e31fdffdfb60040e37032fb957a3703",
+  "binarySHA256": "169df5ffc43a9f747ce4ee4525a621d09eaeb687c98562d057c0d6f5f4ab5d38",
+  "originalRecordSHA256": {
+    "probeReport": "210892c279483c25a4af096c93720478ebc47564bb43950db676807888b46805",
+    "runnerResult": "29f38a3672db497272694183922501157f9bf212be4121412e1bb37502f52cd4",
+    "analysis": "3621e762a7253b4257521b8a0e2b7910f51992330261ac280d302768714e3655",
+    "processLog": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "runner": {
+    "exitCode": 0,
+    "elapsedSeconds": 9.846850416855887,
+    "timedOut": false,
+    "requestedMaximumSeconds": 30,
+    "internalHardExitSeconds": 25,
+    "completed": true
+  },
+  "identityVerification": {
+    "reportProcessMatchesLaunchedChild": true,
+    "sourceAndBinaryHashesVerified": true,
+    "oneProcessOnly": true,
+    "processAbsentAfterExit": true
+  },
+  "environment": {
+    "osVersion": "Version 27.0 (Build 26A428)",
+    "activationPolicy": "accessory",
+    "uniquePrivateBundleIdentifier": true,
+    "popoverBehavior": "transient",
+    "animates": true
+  },
+  "method": {
+    "standardNativeTargetAction": true,
+    "explicitFirstResponderRequest": false,
+    "panelPropertiesModified": false,
+    "externalApplicationAction": false,
+    "productCodeUsed": false,
+    "productionDataAccess": false,
+    "physicalMouse": false,
+    "guiOverlapEvidence": "Parent confirmed the other private probe had exited before this process began; no independent monitoring of external windows was performed."
+  },
+  "observationCounts": {
+    "requestedShowSequences": 4,
+    "actuallyShown": 3,
+    "initialNotShown": 1,
+    "unexpectedCloseCount": 0,
+    "capturedPNGCount": 0
+  },
+  "cases": [
+    {
+      "phase": "no-explicit-activation-1",
+      "actionSent": true,
+      "settingsActivationRequested": false,
+      "settingsActivationConfirmed": null,
+      "observedSeconds": 1.2096709166653454,
+      "shownAtObservationEnd": false,
+      "unexpectedCloseCount": 0,
+      "explicitCloseCompleted": true,
+      "result": "NOT_SHOWN",
+      "nativeWindowFacts": {
+        "exists": false
+      }
+    },
+    {
+      "phase": "no-explicit-activation-2",
+      "actionSent": true,
+      "settingsActivationRequested": false,
+      "settingsActivationConfirmed": null,
+      "observedSeconds": 1.2044146249536425,
+      "shownAtObservationEnd": true,
+      "unexpectedCloseCount": 0,
+      "explicitCloseCompleted": true,
+      "result": "OBSERVED_REMAINED_SHOWN",
+      "nativeWindowFacts": {
+        "exists": true,
+        "class": "_NSPopoverWindow",
+        "isNSPanel": true,
+        "canBecomeKey": true,
+        "canBecomeMain": false,
+        "becomesKeyOnlyIfNeeded": false,
+        "hidesOnDeactivate": false,
+        "isKey": false,
+        "isVisible": true,
+        "styleMask": 128,
+        "level": 25,
+        "firstResponderClass": "_NSPopoverWindow"
+      }
+    },
+    {
+      "phase": "own-settings-activated-1",
+      "actionSent": true,
+      "settingsActivationRequested": true,
+      "settingsActivationConfirmed": true,
+      "observedSeconds": 1.2270629999693483,
+      "shownAtObservationEnd": true,
+      "unexpectedCloseCount": 0,
+      "explicitCloseCompleted": true,
+      "result": "OBSERVED_REMAINED_SHOWN",
+      "nativeWindowFacts": {
+        "exists": true,
+        "class": "_NSPopoverWindow",
+        "isNSPanel": true,
+        "canBecomeKey": true,
+        "canBecomeMain": false,
+        "becomesKeyOnlyIfNeeded": false,
+        "hidesOnDeactivate": false,
+        "isKey": false,
+        "isVisible": true,
+        "styleMask": 128,
+        "level": 25,
+        "firstResponderClass": "_NSPopoverWindow"
+      }
+    },
+    {
+      "phase": "own-settings-activated-2",
+      "actionSent": true,
+      "settingsActivationRequested": true,
+      "settingsActivationConfirmed": true,
+      "observedSeconds": 1.218605041736737,
+      "shownAtObservationEnd": true,
+      "unexpectedCloseCount": 0,
+      "explicitCloseCompleted": true,
+      "result": "OBSERVED_REMAINED_SHOWN",
+      "nativeWindowFacts": {
+        "exists": true,
+        "class": "_NSPopoverWindow",
+        "isNSPanel": true,
+        "canBecomeKey": true,
+        "canBecomeMain": false,
+        "becomesKeyOnlyIfNeeded": false,
+        "hidesOnDeactivate": false,
+        "isKey": false,
+        "isVisible": true,
+        "styleMask": 128,
+        "level": 25,
+        "firstResponderClass": "_NSPopoverWindow"
+      }
+    }
+  ],
+  "interpretation": {
+    "resignKeyCloseReproduced": false,
+    "firstNoShow": "The first target-action was handled but created no popover window and did not display it. Its cause was not observed; it is not counted as successful presentation.",
+    "comparisonLimit": "All three shown windows retained the window itself as first responder. The product explicitly makes a button first responder after showing. That omitted call and retained responder behavior on window reuse remain untested variables; this result cannot clear the product defect.",
+    "publicPanelMechanism": "The observed native window is an NSPanel and exposes public becomesKeyOnlyIfNeeded=false. The probe neither changed this property nor tested true, so it does not demonstrate a fix."
+  },
+  "primaryReferences": [
+    {
+      "title": "Apple NSPanel becomesKeyOnlyIfNeeded",
+      "url": "https://developer.apple.com/documentation/appkit/nspanel/becomeskeyonlyifneeded"
+    },
+    {
+      "title": "Apple NSView needsPanelToBecomeKey",
+      "url": "https://developer.apple.com/documentation/appkit/nsview/needspaneltobecomekey"
+    }
+  ],
+  "notRun": [
+    "Exact product makeFirstResponder sequence",
+    "becomesKeyOnlyIfNeeded=true comparison",
+    "Physical pointer",
+    "Production application or data",
+    "Any second probe execution"
+  ],
+  "scope": "Sanitized binding of one private pure-AppKit process. It completed normally in under ten seconds with four observations, only three actual displays, no unexpected close and an explicit method difference from the product. It is neither full native-product acceptance nor evidence that the product was fixed."
+}

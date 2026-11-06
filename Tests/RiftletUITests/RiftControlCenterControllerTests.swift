@@ -186,16 +186,27 @@ final class RiftControlCenterControllerTests: XCTestCase {
         try prepareAppKit()
         let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         defer { NSStatusBar.system.removeStatusItem(item) }
-        weak var observed: RiftControlCenterController?
         var openedSettings = 0
+        var transitions: [String] = []
         let controller = RiftControlCenterController(statusItem: item) { action in
             if case .openSettings = action {
-                XCTAssertFalse(observed?.isShown ?? true)
+                XCTAssertEqual(transitions, ["willClose"], "Native close must begin before the host action is dispatched")
+                transitions.append("openSettings")
                 openedSettings += 1
             }
         }
-        observed = controller
-        defer { controller.close() }
+        let closeObserver = NotificationCenter.default.addObserver(forName: NSPopover.willCloseNotification,
+                                                                   object: nil, queue: .main) { [weak controller] notification in
+            MainActor.assumeIsolated {
+                guard let controller, let popover = notification.object as? NSPopover,
+                      popover.contentViewController?.view === controller.contentView else { return }
+                transitions.append("willClose")
+            }
+        }
+        defer {
+            NotificationCenter.default.removeObserver(closeObserver)
+            controller.close()
+        }
         controller.update(fixture())
         let button = try XCTUnwrap(item.button)
         guard button.window?.isVisible == true else { throw XCTSkip("No usable native status-bar anchor; real menu focus acceptance remains separate") }
@@ -208,20 +219,33 @@ final class RiftControlCenterControllerTests: XCTestCase {
             let row = try XCTUnwrap(toggle.superview as? NSStackView)
             let copy = try XCTUnwrap(row.arrangedSubviews.first { $0.identifier?.rawValue == id + ".text" })
             XCTAssertGreaterThan(copy.frame.width, 200, "Wrapping copy must use the open space to the left of its switch")
-            XCTAssertEqual(copy.frame.width + toggle.frame.width + row.spacing, row.bounds.width, accuracy: 1)
+            // Auto Layout constrains alignment rects; the native switch's
+            // ornamental frame may extend beyond its constrained width.
+            let copyRect = copy.alignmentRect(forFrame: copy.frame)
+            let toggleRect = toggle.alignmentRect(forFrame: toggle.frame)
+            let rowWidth = row.alignmentRect(forFrame: row.frame).width
+            XCTAssertEqual(copyRect.width + toggleRect.width + row.spacing, rowWidth, accuracy: 1)
+            XCTAssertEqual(toggleRect.minX - copyRect.maxX, row.spacing, accuracy: 1)
         }
         let firstWindow = controller.window
         button.performClick(nil)
-        XCTAssertFalse(controller.isShown)
         await assertReceived { !controller.isShown && controller.window?.isVisible != true }
+        XCTAssertFalse(controller.isShown)
+        XCTAssertFalse(controller.window?.isVisible == true)
         button.performClick(nil)
         XCTAssertTrue(controller.isShown)
         await assertReceived { controller.isShown && controller.window?.isVisible == true }
         XCTAssertTrue(controller.window === firstWindow)
         let settings = try XCTUnwrap(controller.control(identifier: "control.settings") as? NSButton)
+        transitions.removeAll()
         settings.performClick(nil)
         await assertReceived { openedSettings == 1 }
+        XCTAssertEqual(transitions, ["willClose", "openSettings"])
+        // isShown can remain true during close animation. Separately verify
+        // both ordering above and the native window's eventual disappearance.
+        await assertReceived { !controller.isShown && controller.window?.isVisible != true }
         XCTAssertFalse(controller.isShown)
+        XCTAssertFalse(controller.window?.isVisible == true)
     }
 
     @MainActor func testApplicationResignNotificationDoesNotExplicitlyCloseStatusPopover() async throws {

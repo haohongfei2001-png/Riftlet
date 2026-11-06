@@ -1,0 +1,1284 @@
+{
+  "schema": 1,
+  "source": "5114b088091baa2f55f4f56de5a3356e75a2e6de",
+  "sourceTree": "d458605b8c327b5c26fb6b8dd2285bb71621005a",
+  "binarySHA256": "4e52cfc5248cf582c6a73a9cdc73b6b1684af2e8b353c48db662fac5158bac70",
+  "driverSourceSHA256": "70f4ad11bda36842422c695c383a580c002fb764505a083232a289082918ba60",
+  "controlCenterSourceSHA256": "8e3fb07265e69bb5d541510a81d71251f8cdeee45cf52667adb6b3cb00ef1c1b",
+  "originalRecordSHA256": {
+    "driverReport": "3f16e2acaab7e25aeab394fc4139c7a3618715f49e05bf39ce2e0426738e224d",
+    "applicationLog": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "runtimeIdentity": "3cfec187d8393c0f47c54c2322c111c491b9c696351cf2121a31f8229549a8b0",
+    "diagnosticResult": "716e5ece7b113c116d779ed2918b2cf0b234f8ccbe81d33e551a7391563e0d2b"
+  },
+  "result": "FAIL",
+  "productionReady": false,
+  "runner": {
+    "kind": "explicitDiagnosticRun",
+    "status": "DIAGNOSTIC_STOP_NOT_NORMAL_EXIT_ACCEPTANCE",
+    "originalStatusFieldPresent": false,
+    "exitCode": -15,
+    "elapsedSeconds": 38.63106125011109,
+    "termination": "Explicit diagnostic SIGTERM after the completed report; not the full runner timeout or normal Quit acceptance.",
+    "normalExitVerified": false
+  },
+  "driver": {
+    "status": "FAIL",
+    "completed": true,
+    "elapsedSeconds": 34.660260083153844,
+    "passCount": 9,
+    "failCount": 4,
+    "frameRecordCount": 29,
+    "recordedPNGCount": 26,
+    "notRunFrameCount": 3,
+    "restorationFailures": []
+  },
+  "identityVerification": {
+    "sourceTreeVerified": true,
+    "sameReviewIdentityVerified": true,
+    "sameProcessIdentityVerified": true,
+    "binaryMatchesStoredIdentityAndReport": true,
+    "allRecordedPNGBytesAndDimensionsVerified": true,
+    "noUnreferencedPNGInEvidenceDirectory": true
+  },
+  "reportRetrieval": {
+    "method": "diagnosticResultExplicitArtifactBinding",
+    "diagnosticRecordedPathPresent": true,
+    "diagnosticReportHashVerified": true,
+    "actualArtifactCompleted": true,
+    "sameReviewIdentityVerified": true,
+    "sameProcessIdentityVerified": true,
+    "explanation": "The diagnostic result directly binds the actual completed report and its digest. The process was explicitly stopped after collecting that report; this is not normal-exit acceptance."
+  },
+  "statusBarInvocation": {
+    "method": "NSStatusBarButton.performClick",
+    "scope": "Programmatic native control action; physical status-bar pointer NOT_RUN"
+  },
+  "functionalCases": [
+    {
+      "case": "environment-and-default-window",
+      "status": "PASS"
+    },
+    {
+      "case": "real-collector-synthetic-fixture",
+      "status": "PASS"
+    },
+    {
+      "case": "six-pages-light-and-dark",
+      "status": "FAIL",
+      "reason": "conditionTimedOut"
+    },
+    {
+      "case": "orthogonal-pause-hidden-sqlite",
+      "status": "FAIL",
+      "reason": "conditionTimedOut"
+    },
+    {
+      "case": "archive-editor-first-save-discard",
+      "status": "PASS"
+    },
+    {
+      "case": "configuration-editor-refresh-defaults",
+      "status": "PASS"
+    },
+    {
+      "case": "close-sheet-continue-discard",
+      "status": "PASS"
+    },
+    {
+      "case": "independent-write-failures-and-retry",
+      "status": "FAIL",
+      "reason": "conditionTimedOut"
+    },
+    {
+      "case": "motion-explicit-play-and-navigation-stop",
+      "status": "PASS"
+    },
+    {
+      "case": "three-step-guidance-light-and-dark",
+      "status": "PASS"
+    },
+    {
+      "case": "resizing-and-reopen",
+      "status": "FAIL",
+      "reason": "conditionTimedOut"
+    },
+    {
+      "case": "history-real-records",
+      "status": "PASS"
+    },
+    {
+      "case": "original-media-and-no-upload-operations",
+      "status": "PASS"
+    }
+  ],
+  "frames": [
+    {
+      "name": "initial-general",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "9aca4d8b8f2473450278c4b5411a2e401db4fcfc6af91352604b953995478c55",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        960,
+        684
+      ],
+      "appKitWindowSize": [
+        960,
+        712
+      ],
+      "windowServerSize": [
+        962,
+        712
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "settings-light-general",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "f13c26c930ae0e5b13c03a01722fe4bc9d6a49ab39838b4b3f110d5b79408d7e",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        960,
+        684
+      ],
+      "appKitWindowSize": [
+        960,
+        712
+      ],
+      "windowServerSize": [
+        960,
+        712
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "settings-light-display",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "b688f71130acbeca864ce5205c30e1f5254c98c44a5a9641ca7b6053bd003a31",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        960,
+        684
+      ],
+      "appKitWindowSize": [
+        960,
+        712
+      ],
+      "windowServerSize": [
+        960,
+        712
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "settings-light-capture",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "0a8074e59f7b707cae600f55dba4bba26d5fb9db92362616abe8f199311aedd2",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        960,
+        684
+      ],
+      "appKitWindowSize": [
+        960,
+        712
+      ],
+      "windowServerSize": [
+        960,
+        712
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "settings-light-motion",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "8641defb7db1b9f44c42905c079063276a8c277280aa8fe2f2e100ccaa2888bc",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        960,
+        684
+      ],
+      "appKitWindowSize": [
+        960,
+        712
+      ],
+      "windowServerSize": [
+        960,
+        712
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "settings-light-history",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "7b9857d077b8f0e5f0ab77282012779c2b259d04fe203ed20572cf9593843620",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        960,
+        684
+      ],
+      "appKitWindowSize": [
+        960,
+        712
+      ],
+      "windowServerSize": [
+        960,
+        712
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "settings-light-help",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "96363f2774ee1faf03c092b892aa6ecfe641a39043ffdc781975a6098fff3ffc",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        960,
+        684
+      ],
+      "appKitWindowSize": [
+        960,
+        712
+      ],
+      "windowServerSize": [
+        960,
+        712
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "control-light",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "8bc950b5b0d0874b824f17e728ea9d625f64159f2b9e4ccc01b92d9bde05c89b",
+      "pixels": [
+        724,
+        1078
+      ],
+      "backingScale": 2,
+      "presentationStable": true,
+      "contentSize": [
+        336,
+        513
+      ],
+      "appKitWindowSize": [
+        362,
+        539
+      ],
+      "windowServerSize": [
+        362,
+        539
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "settings-dark-general",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "07041098b1437dcbef7ed833e191989a1ba8b672fe6292c56c741a2263f0cb70",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        960,
+        684
+      ],
+      "appKitWindowSize": [
+        960,
+        712
+      ],
+      "windowServerSize": [
+        960,
+        712
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "settings-dark-display",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "6898e16039e1b8a02ca10f0154ba6852435696dfb9e88452ad311d23f051b219",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        960,
+        684
+      ],
+      "appKitWindowSize": [
+        960,
+        712
+      ],
+      "windowServerSize": [
+        960,
+        712
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "settings-dark-capture",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "c94ee9cfdf2c209fc2dadbbea49571d0be23e3bcefcc57fd17a841a0493ef6bc",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        960,
+        684
+      ],
+      "appKitWindowSize": [
+        960,
+        712
+      ],
+      "windowServerSize": [
+        960,
+        712
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "settings-dark-motion",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "ab4c883b866be1384fef67cb5980603a07371d8e8e1dcf5efa5176061605df97",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        960,
+        684
+      ],
+      "appKitWindowSize": [
+        960,
+        712
+      ],
+      "windowServerSize": [
+        960,
+        712
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "settings-dark-history",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "18f89e096c756e5b0558b3bea75adaddb9c139bc9829efad72e45d5131bb578f",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        960,
+        684
+      ],
+      "appKitWindowSize": [
+        960,
+        712
+      ],
+      "windowServerSize": [
+        960,
+        712
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "settings-dark-help",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "154156834f66d1812231573bf1d6d07c471e775c19b09ae52f753914218b4984",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        960,
+        684
+      ],
+      "appKitWindowSize": [
+        960,
+        712
+      ],
+      "windowServerSize": [
+        960,
+        712
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "control-unsettled-14",
+      "status": "NOT_RUN",
+      "reason": "ownedWindowUnavailable"
+    },
+    {
+      "name": "control-unsettled-15",
+      "status": "NOT_RUN",
+      "reason": "ownedWindowUnavailable"
+    },
+    {
+      "name": "archive-first-activation-save",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "892d005342a168d95c8e404ac338b5444904cbe28817ebe58e8de0f1b3ad2690",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        960,
+        684
+      ],
+      "appKitWindowSize": [
+        960,
+        712
+      ],
+      "windowServerSize": [
+        960,
+        712
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "display-defaults-after-active-edit",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "c2eb8b7739340b1a0425aee0399ff64a34af7059eae1a578cace33375db0334f",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        960,
+        684
+      ],
+      "appKitWindowSize": [
+        960,
+        712
+      ],
+      "windowServerSize": [
+        960,
+        712
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "close-draft-sheet",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "3c585de0ccf8980fafc7ee4c298579cabca6120e4fd4539a00f44272c7247951",
+      "pixels": [
+        520,
+        446
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        260,
+        223
+      ],
+      "appKitWindowSize": [
+        260,
+        223
+      ],
+      "windowServerSize": [
+        260,
+        223
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "control-unsettled-19",
+      "status": "NOT_RUN",
+      "reason": "ownedWindowUnavailable"
+    },
+    {
+      "name": "explicit-arrival-preview",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "736cfcf5155c130bdfc6b812d0f55955ae582f1a162d60a05c24d1220c3d0136",
+      "pixels": [
+        1920,
+        1424
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        960,
+        684
+      ],
+      "appKitWindowSize": [
+        960,
+        712
+      ],
+      "windowServerSize": [
+        960,
+        712
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "onboarding-light-1",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "eee05bd28021078cfc1f017058877b8d72f207c3dcc409cf5cb1bf0607499b08",
+      "pixels": [
+        1304,
+        1216
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        652,
+        580
+      ],
+      "appKitWindowSize": [
+        652,
+        608
+      ],
+      "windowServerSize": [
+        652,
+        608
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "onboarding-light-2",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "a92ed0098abdc969b67590ef7e4f6006d8ee497144f9bade4f1226d2e2387606",
+      "pixels": [
+        1304,
+        1216
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        652,
+        580
+      ],
+      "appKitWindowSize": [
+        652,
+        608
+      ],
+      "windowServerSize": [
+        652,
+        608
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "onboarding-light-3",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "476ef65ec3500b19f82230d7be6ab510c4c398de2e4d9beceb2b0e6e41168964",
+      "pixels": [
+        1304,
+        1216
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        652,
+        580
+      ],
+      "appKitWindowSize": [
+        652,
+        608
+      ],
+      "windowServerSize": [
+        652,
+        608
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "onboarding-dark-1",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "3a944f902aa8f03b2c1d85811d1c999bb20ecfee1b23e29625622b22e99bd75b",
+      "pixels": [
+        1304,
+        1216
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        652,
+        580
+      ],
+      "appKitWindowSize": [
+        652,
+        608
+      ],
+      "windowServerSize": [
+        652,
+        608
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "onboarding-dark-2",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "e905fc3a0648a8a7f215029a029b2ed027f337107984fac84f8ef852027f137f",
+      "pixels": [
+        1304,
+        1216
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        652,
+        580
+      ],
+      "appKitWindowSize": [
+        652,
+        608
+      ],
+      "windowServerSize": [
+        652,
+        608
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "onboarding-dark-3",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "0114940364788945291cdbbac507994d13634d64528ea47edd55c0fbc037b01d",
+      "pixels": [
+        1304,
+        1216
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        652,
+        580
+      ],
+      "appKitWindowSize": [
+        652,
+        608
+      ],
+      "windowServerSize": [
+        652,
+        608
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "settings-minimum-size",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "7247990a5e38270ae9f192d9fa3e8baba82416087d512751198e5e3980b644f8",
+      "pixels": [
+        1520,
+        1080
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        760,
+        512
+      ],
+      "appKitWindowSize": [
+        760,
+        540
+      ],
+      "windowServerSize": [
+        760,
+        540
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    },
+    {
+      "name": "history-real-isolated-records",
+      "status": "RECORDED_NATIVE_WINDOWSERVER",
+      "sha256": "30f9934bd3a16ea92c7ee9c8d1f235ba3a0b2e9a6adff431b0550aa7b35bfde8",
+      "pixels": [
+        1516,
+        1116
+      ],
+      "backingScale": 2,
+      "contentSize": [
+        760,
+        532
+      ],
+      "appKitWindowSize": [
+        760,
+        560
+      ],
+      "windowServerSize": [
+        758,
+        558
+      ],
+      "fileHashAndPixelSizeVerified": true,
+      "visualApproval": "NOT_GRANTED_BY_THIS_BINDING"
+    }
+  ],
+  "closeSourceSummary": {
+    "nativeResignKeyCloseCount": 3,
+    "driverExplicitCloseCount": 1,
+    "closeEvents": [
+      {
+        "elapsedSeconds": 3.3543312915135175,
+        "origin": "DriverExplicitClose",
+        "observedCallPathNames": [
+          "SettingsReviewDriver.closeControl",
+          "RiftControlCenterController.close",
+          "NSPopover.close"
+        ],
+        "riftletCloseMethodInObservedStack": true,
+        "rawStackPublished": false
+      },
+      {
+        "elapsedSeconds": 5.930586583213881,
+        "origin": "AppKitResignKeyHandling",
+        "observedCallPathNames": [
+          "_NSPopoverProcessResignKey_block_invoke",
+          "_NSPopoverClosePopoversStartingWithWindow"
+        ],
+        "riftletCloseMethodInObservedStack": false,
+        "rawStackPublished": false,
+        "secondsAfterOwnWindowResignedKey": 0.007520666578784585
+      },
+      {
+        "elapsedSeconds": 11.273300583241507,
+        "origin": "AppKitResignKeyHandling",
+        "observedCallPathNames": [
+          "_NSPopoverProcessResignKey_block_invoke",
+          "_NSPopoverClosePopoversStartingWithWindow"
+        ],
+        "riftletCloseMethodInObservedStack": false,
+        "rawStackPublished": false,
+        "secondsAfterOwnWindowResignedKey": 0.007903583347797394
+      },
+      {
+        "elapsedSeconds": 20.961707291658968,
+        "origin": "AppKitResignKeyHandling",
+        "observedCallPathNames": [
+          "_NSPopoverProcessResignKey_block_invoke",
+          "_NSPopoverClosePopoversStartingWithWindow"
+        ],
+        "riftletCloseMethodInObservedStack": false,
+        "rawStackPublished": false,
+        "secondsAfterOwnWindowResignedKey": 0.008151291869580746
+      }
+    ],
+    "ownedMouseEventCount": 1,
+    "ownedMouseEventRoles": {
+      "settings": 1
+    },
+    "scope": "Sanitized names from the observed synchronous closing stacks; this identifies the immediate close path, not the cause of application or window key resignation."
+  },
+  "diagnosticInterpretation": {
+    "result": "NATIVE_KEY_RESIGN_CLOSE_SOURCE_OBSERVED_FIX_UNRESOLVED",
+    "observations": [
+      "The first light control popover closed through the explicitly recorded driver close path.",
+      "The following three closes used AppKit key-resignation processing and contained no Riftlet controller close method in the observed closing stack.",
+      "The sole owned mouse event belonged to the settings window later in the test, rather than a status-item mouse-down at those close boundaries."
+    ],
+    "limitations": [
+      "The stack establishes the immediate native close source, not why the window/application resigned key.",
+      "No raw stack, runtime addresses, private path, process identifier or private PNG is published.",
+      "The four failed cases remain failed; no product repair or full acceptance is claimed."
+    ]
+  },
+  "presentationTimeline": [
+    {
+      "elapsedSeconds": 0.03212429163977504,
+      "event": "traceStarted",
+      "applicationActive": true,
+      "popoverShown": false,
+      "popoverWindowKey": false,
+      "popoverWindowVisible": false,
+      "settingsKey": false,
+      "settingsVisible": false
+    },
+    {
+      "elapsedSeconds": 2.7219087914563715,
+      "event": "beforeStatusAction",
+      "applicationActive": true,
+      "popoverShown": false,
+      "popoverWindowKey": false,
+      "popoverWindowVisible": false,
+      "settingsKey": true,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 2.7548856248613447,
+      "event": "popover.willShow",
+      "applicationActive": true,
+      "popoverShown": false,
+      "popoverWindowKey": false,
+      "popoverWindowVisible": false,
+      "settingsKey": true,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 2.8351424583233893,
+      "event": "afterStatusAction",
+      "applicationActive": true,
+      "popoverShown": true,
+      "popoverWindowKey": false,
+      "popoverWindowVisible": true,
+      "settingsKey": true,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 2.8455925832968205,
+      "event": "app.didResignActive",
+      "applicationActive": false,
+      "popoverShown": true,
+      "popoverWindowKey": false,
+      "popoverWindowVisible": true,
+      "settingsKey": false,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 3.2727518749888986,
+      "event": "popover.didShow",
+      "applicationActive": false,
+      "popoverShown": true,
+      "popoverWindowKey": false,
+      "popoverWindowVisible": true,
+      "settingsKey": false,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 3.3539860416203737,
+      "event": "driver.explicitCloseIntent",
+      "applicationActive": false,
+      "popoverShown": true,
+      "popoverWindowKey": false,
+      "popoverWindowVisible": true,
+      "settingsKey": false,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 3.3543312915135175,
+      "event": "popover.willClose",
+      "applicationActive": false,
+      "popoverShown": true,
+      "popoverWindowKey": false,
+      "popoverWindowVisible": true,
+      "settingsKey": false,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 3.8904929582495242,
+      "event": "popover.didClose",
+      "applicationActive": false,
+      "popoverShown": false,
+      "popoverWindowKey": false,
+      "popoverWindowVisible": false,
+      "settingsKey": false,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 4.009262083331123,
+      "event": "app.didBecomeActive",
+      "applicationActive": true,
+      "popoverShown": false,
+      "popoverWindowKey": false,
+      "popoverWindowVisible": false,
+      "settingsKey": true,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 5.840942583279684,
+      "event": "beforeStatusAction",
+      "applicationActive": true,
+      "popoverShown": false,
+      "popoverWindowKey": false,
+      "popoverWindowVisible": false,
+      "settingsKey": true,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 5.843269083183259,
+      "event": "popover.willShow",
+      "applicationActive": true,
+      "popoverShown": false,
+      "popoverWindowKey": false,
+      "popoverWindowVisible": false,
+      "settingsKey": true,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 5.845236041583121,
+      "event": "popover.windowDidBecomeKey",
+      "applicationActive": true,
+      "popoverShown": true,
+      "popoverWindowKey": true,
+      "popoverWindowVisible": true,
+      "settingsKey": false,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 5.866410208167508,
+      "event": "afterStatusAction",
+      "applicationActive": true,
+      "popoverShown": true,
+      "popoverWindowKey": true,
+      "popoverWindowVisible": true,
+      "settingsKey": false,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 5.923065916635096,
+      "event": "popover.windowDidResignKey",
+      "applicationActive": false,
+      "popoverShown": true,
+      "popoverWindowKey": false,
+      "popoverWindowVisible": true,
+      "settingsKey": false,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 5.92379912501201,
+      "event": "app.didResignActive",
+      "applicationActive": false,
+      "popoverShown": true,
+      "popoverWindowKey": false,
+      "popoverWindowVisible": true,
+      "settingsKey": false,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 5.930077416589484,
+      "event": "popover.didShow",
+      "applicationActive": false,
+      "popoverShown": true,
+      "popoverWindowKey": false,
+      "popoverWindowVisible": true,
+      "settingsKey": false,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 5.930586583213881,
+      "event": "popover.willClose",
+      "applicationActive": false,
+      "popoverShown": true,
+      "popoverWindowKey": false,
+      "popoverWindowVisible": true,
+      "settingsKey": false,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 6.459869833197445,
+      "event": "popover.didClose",
+      "applicationActive": false,
+      "popoverShown": false,
+      "popoverWindowKey": false,
+      "popoverWindowVisible": false,
+      "settingsKey": false,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 11.013452125014737,
+      "event": "app.didBecomeActive",
+      "applicationActive": true,
+      "popoverShown": false,
+      "popoverWindowKey": false,
+      "popoverWindowVisible": false,
+      "settingsKey": true,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 11.057670166483149,
+      "event": "driver.explicitCloseIntent",
+      "applicationActive": true,
+      "popoverShown": false,
+      "popoverWindowKey": false,
+      "popoverWindowVisible": false,
+      "settingsKey": true,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 11.178240583278239,
+      "event": "beforeStatusAction",
+      "applicationActive": true,
+      "popoverShown": false,
+      "popoverWindowKey": false,
+      "popoverWindowVisible": false,
+      "settingsKey": true,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 11.17952658329159,
+      "event": "popover.willShow",
+      "applicationActive": true,
+      "popoverShown": false,
+      "popoverWindowKey": false,
+      "popoverWindowVisible": false,
+      "settingsKey": true,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 11.18009787495248,
+      "event": "popover.windowDidBecomeKey",
+      "applicationActive": true,
+      "popoverShown": true,
+      "popoverWindowKey": true,
+      "popoverWindowVisible": true,
+      "settingsKey": false,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 11.190139666665345,
+      "event": "afterStatusAction",
+      "applicationActive": true,
+      "popoverShown": true,
+      "popoverWindowKey": true,
+      "popoverWindowVisible": true,
+      "settingsKey": false,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 11.26539699989371,
+      "event": "popover.windowDidResignKey",
+      "applicationActive": false,
+      "popoverShown": true,
+      "popoverWindowKey": false,
+      "popoverWindowVisible": true,
+      "settingsKey": false,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 11.26669849990867,
+      "event": "app.didResignActive",
+      "applicationActive": false,
+      "popoverShown": true,
+      "popoverWindowKey": false,
+      "popoverWindowVisible": true,
+      "settingsKey": false,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 11.272804083302617,
+      "event": "popover.didShow",
+      "applicationActive": false,
+      "popoverShown": true,
+      "popoverWindowKey": false,
+      "popoverWindowVisible": true,
+      "settingsKey": false,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 11.273300583241507,
+      "event": "popover.willClose",
+      "applicationActive": false,
+      "popoverShown": true,
+      "popoverWindowKey": false,
+      "popoverWindowVisible": true,
+      "settingsKey": false,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 11.809344166656956,
+      "event": "popover.didClose",
+      "applicationActive": false,
+      "popoverShown": false,
+      "popoverWindowKey": false,
+      "popoverWindowVisible": false,
+      "settingsKey": false,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 16.95269808312878,
+      "event": "app.didBecomeActive",
+      "applicationActive": true,
+      "popoverShown": false,
+      "popoverWindowKey": false,
+      "popoverWindowVisible": false,
+      "settingsKey": true,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 20.865812541684136,
+      "event": "beforeStatusAction",
+      "applicationActive": true,
+      "popoverShown": false,
+      "popoverWindowKey": false,
+      "popoverWindowVisible": false,
+      "settingsKey": true,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 20.867478833300993,
+      "event": "popover.willShow",
+      "applicationActive": true,
+      "popoverShown": false,
+      "popoverWindowKey": false,
+      "popoverWindowVisible": false,
+      "settingsKey": true,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 20.868224458303303,
+      "event": "popover.windowDidBecomeKey",
+      "applicationActive": true,
+      "popoverShown": true,
+      "popoverWindowKey": true,
+      "popoverWindowVisible": true,
+      "settingsKey": false,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 20.883568124845624,
+      "event": "afterStatusAction",
+      "applicationActive": true,
+      "popoverShown": true,
+      "popoverWindowKey": true,
+      "popoverWindowVisible": true,
+      "settingsKey": false,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 20.953555999789387,
+      "event": "popover.windowDidResignKey",
+      "applicationActive": false,
+      "popoverShown": true,
+      "popoverWindowKey": false,
+      "popoverWindowVisible": true,
+      "settingsKey": false,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 20.95480233314447,
+      "event": "app.didResignActive",
+      "applicationActive": false,
+      "popoverShown": true,
+      "popoverWindowKey": false,
+      "popoverWindowVisible": true,
+      "settingsKey": false,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 20.961226041661575,
+      "event": "popover.didShow",
+      "applicationActive": false,
+      "popoverShown": true,
+      "popoverWindowKey": false,
+      "popoverWindowVisible": true,
+      "settingsKey": false,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 20.961707291658968,
+      "event": "popover.willClose",
+      "applicationActive": false,
+      "popoverShown": true,
+      "popoverWindowKey": false,
+      "popoverWindowVisible": true,
+      "settingsKey": false,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 21.48803654150106,
+      "event": "popover.didClose",
+      "applicationActive": false,
+      "popoverShown": false,
+      "popoverWindowKey": false,
+      "popoverWindowVisible": false,
+      "settingsKey": false,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 25.99371691653505,
+      "event": "app.didBecomeActive",
+      "applicationActive": true,
+      "popoverShown": false,
+      "popoverWindowKey": false,
+      "popoverWindowVisible": false,
+      "settingsKey": true,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 34.46185804158449,
+      "event": "driver.explicitCloseIntent",
+      "applicationActive": true,
+      "popoverShown": false,
+      "popoverWindowKey": false,
+      "popoverWindowVisible": false,
+      "settingsKey": true,
+      "settingsVisible": true
+    },
+    {
+      "elapsedSeconds": 34.63234387501143,
+      "event": "driver.finalCloseIntent",
+      "applicationActive": true,
+      "popoverShown": false,
+      "popoverWindowKey": false,
+      "popoverWindowVisible": false,
+      "settingsKey": true,
+      "settingsVisible": true
+    }
+  ],
+  "integrity": [
+    {
+      "kind": "integrity",
+      "allPrivateMediaDigestsMatch": true,
+      "assetCount": 1,
+      "assetsWithOperation": 0,
+      "successfulOperations": 0,
+      "unresolvedOperations": 0
+    }
+  ],
+  "restart": {
+    "status": "NOT_RUN",
+    "reason": "No successful full-run and normal-exit prerequisite; any separate restart check requires its own evidence record."
+  },
+  "notRun": [
+    "realChatGPTAttachment",
+    "physicalPointer",
+    "OSInputMethod",
+    "VoiceOver",
+    "realLoginRegistration",
+    "realTCCPrompt",
+    "multiDisplayHotplug"
+  ],
+  "productionDataAccess": false,
+  "browserAccess": false,
+  "networkUpload": false,
+  "scope": "Sanitized run07 diagnostic failure binding: 9 PASS / 4 FAIL, 26 actual PNGs and 3 NOT_RUN frame records. The report completed; the process was explicitly SIGTERM-stopped after evidence collection. This is neither a normal-exit pass nor a timeout-runner success."
+}
