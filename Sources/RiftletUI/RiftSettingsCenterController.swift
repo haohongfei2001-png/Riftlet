@@ -45,6 +45,7 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
     private var suspendedEditor: (field: NSTextField, selection: NSRange)?
     private var closingAfterApply = false
     private var closeSheetApproved = false
+    private var closeKeyMonitor: Any?
     private var terminationCompletion: (@MainActor (Bool) -> Void)?
 
     public init(model: SettingsStateModel, onAction: @escaping SettingsProductActionHandler) {
@@ -104,6 +105,7 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
         resolveTermination(false)
         allowClose = true
         let sheet = window.attachedSheet
+        removeCloseKeyMonitor()
         pendingCloseAlert = nil
         closingAfterApply = false
         closeSheetApproved = false
@@ -338,8 +340,8 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
             button.identifier = .init("settings.center.close.\(id)")
             button.setAccessibilityLabel(name)
         }
-        alert.buttons[0].keyEquivalent = "\u{1b}"
-        alert.buttons[0].keyEquivalentModifierMask = []
+        // A default button owns Return. Escape is scoped to this exact sheet
+        // separately; assigning both keys to one button loses one of them.
         alert.window.defaultButtonCell = alert.buttons[0].cell as? NSButtonCell
         pendingCloseAlert = alert
         closeSheetApproved = false
@@ -348,6 +350,7 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
             Task { @MainActor [weak self, weak alert] in
                 guard let self, let alert, pendingCloseAlert === alert else { return }
                 let approved = closeSheetApproved
+                removeCloseKeyMonitor()
                 pendingCloseAlert = nil
                 closingAfterApply = false
                 closeSheetApproved = false
@@ -365,6 +368,21 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
         // button action ends it immediately, which would lose the Quit decision
         // on a failed/partial save. Continue remains usable during that wait.
         for button in alert.buttons { button.target = self; button.action = #selector(closeChoiceInvoked(_:)) }
+        closeKeyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self, weak alert] event in
+            let handled = MainActor.assumeIsolated {
+                guard let self, let alert, self.pendingCloseAlert === alert,
+                      self.window.attachedSheet === alert.window, event.window === alert.window,
+                      event.keyCode == 53, event.charactersIgnoringModifiers == "\u{1b}",
+                      event.modifierFlags.intersection([.command, .control, .option, .shift]).isEmpty else { return false }
+                alert.buttons[0].performClick(nil)
+                return true
+            }
+            return handled ? nil : event
+        }
+    }
+    private func removeCloseKeyMonitor() {
+        if let closeKeyMonitor { NSEvent.removeMonitor(closeKeyMonitor) }
+        closeKeyMonitor = nil
     }
     @objc private func closeChoiceInvoked(_ sender: NSButton) {
         guard let alert = pendingCloseAlert, let index = alert.buttons.firstIndex(where: { $0 === sender }) else { return }

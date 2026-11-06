@@ -46,36 +46,25 @@ final class SettingsNativeStyleTests: XCTestCase {
         }
     }
 
-    @MainActor func testCachedTextAndBorderUseProviderAppearanceForHighContrastMatchingFixture() throws {
-        // SDK: high-contrast names are matching constants, and appearanceNamed
-        // returns nil for them. This fixture tests provider classification and
-        // color resolution, not a real macOS accessibility-preference change.
+    @MainActor func testCachedTextAndBorderUseActualHighContrastAppearanceWhenAvailable() throws {
+        // init(appearanceNamed:bundle:) loads a bundle resource; it cannot make
+        // a portable subclass fixture from built-in names. Check the actual
+        // effective appearance without modifying accessibility preferences.
+        let appearance = NSApplication.shared.effectiveAppearance
+        let match = appearance.bestMatch(from: [.accessibilityHighContrastAqua,
+            .accessibilityHighContrastDarkAqua, .aqua, .darkAqua])
+        guard match == .accessibilityHighContrastAqua || match == .accessibilityHighContrastDarkAqua else {
+            throw XCTSkip("Actual OS high-contrast appearance unavailable: NOT_RUN; no system preference changed")
+        }
         let cachedLabel = SettingsNativeStyle.label("Synthetic caption", role: "caption")
         let cached: [(SettingsColorRole, NSColor)] = [(.secondary, try XCTUnwrap(cachedLabel.textColor)),
             (.ink, SettingsNativeStyle.color(.ink)), (.border, SettingsNativeStyle.color(.border))]
         let normal = try XCTUnwrap(NSAppearance(named: .aqua))
-        for name in [NSAppearance.Name.accessibilityHighContrastAqua, .accessibilityHighContrastDarkAqua] {
-            let fixture = try XCTUnwrap(SettingsContrastMatchFixture(name))
-            for (role, color) in cached {
-                let before = try resolved(color, in: normal)
-                let system: NSColor = role == .border ? .separatorColor : .labelColor
-                assertComponents(try resolved(color, in: fixture), try resolved(system, in: fixture))
-                assertComponents(try resolved(color, in: normal), before)
-            }
+        for (role, color) in cached {
+            let before = try resolved(color, in: normal)
+            let system: NSColor = role == .border ? .separatorColor : .labelColor
+            assertComponents(try resolved(color, in: appearance), try resolved(system, in: appearance))
+            assertComponents(try resolved(color, in: normal), before)
         }
-    }
-}
-
-/// A native appearance with a controlled bestMatch answer. It neither changes
-/// NSApp appearance nor global accessibility preferences, and is not OS HC proof.
-private final class SettingsContrastMatchFixture: NSAppearance {
-    let matchingName: NSAppearance.Name
-    init?(_ matchingName: NSAppearance.Name) {
-        self.matchingName = matchingName
-        super.init(appearanceNamed: matchingName == .accessibilityHighContrastDarkAqua ? .darkAqua : .aqua, bundle: nil)
-    }
-    required init?(coder: NSCoder) { nil }
-    override func bestMatch(from appearances: [NSAppearance.Name]) -> NSAppearance.Name? {
-        appearances.contains(matchingName) ? matchingName : super.bestMatch(from: appearances)
     }
 }

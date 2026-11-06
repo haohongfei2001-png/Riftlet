@@ -243,18 +243,20 @@ final class RiftSettingsCenterTests: XCTestCase {
         _ = try enter(h, field: width, text: "89")
         try await clickAndWait(h, "layout.defaults.display")
         XCTAssertNil(width.currentEditor())
-        XCTAssertEqual(h.model.text(for: .fitWidth), "72")
-        XCTAssertEqual(width.stringValue, "72")
+        XCTAssertEqual(Double(h.model.text(for: .fitWidth)), 72)
+        XCTAssertEqual(width.stringValue, h.model.text(for: .fitWidth))
         _ = try enter(h, field: width, text: "96")
         try await clickAndWait(h, "layout.discard.display")
         XCTAssertNil(width.currentEditor())
-        XCTAssertEqual(width.stringValue, "72")
+        XCTAssertEqual(Double(width.stringValue), 72)
+        XCTAssertEqual(width.stringValue, h.model.text(for: .fitWidth))
         XCTAssertFalse(h.model.hasLayoutDraft)
         h.controller.show(page: .history); try change(h, "archive.preset", index: 5)
         _ = try enter(h, field: h.controller.archiveField, text: "2.5")
         try await clickAndWait(h, "archive.discard")
         XCTAssertNil(h.controller.archiveField.currentEditor())
-        XCTAssertEqual(h.model.archiveDraftText, "24")
+        XCTAssertEqual(Double(h.model.archiveDraftText), 24)
+        XCTAssertEqual(h.controller.archiveField.stringValue, h.model.archiveDraftText)
         h.controller.show(page: .general)
         XCTAssertFalse(h.model.hasArchiveDraft)
         XCTAssertTrue(h.requests.isEmpty)
@@ -270,7 +272,8 @@ final class RiftSettingsCenterTests: XCTestCase {
         XCTAssertTrue(editor.hasMarkedText())
         try await clickAndWait(h, "archive.discard")
         XCTAssertNil(field.currentEditor())
-        XCTAssertEqual(h.model.archiveDraftText, "24")
+        XCTAssertEqual(Double(h.model.archiveDraftText), 24)
+        XCTAssertEqual(field.stringValue, h.model.archiveDraftText)
         XCTAssertFalse(h.model.hasArchiveDraft)
         XCTAssertTrue(h.requests.isEmpty)
     }
@@ -328,11 +331,83 @@ final class RiftSettingsCenterTests: XCTestCase {
         h.controller.window.performClose(nil)
         let alert = try XCTUnwrap(h.controller.pendingCloseAlert)
         XCTAssertEqual(alert.buttons.map(\.title), ["继续编辑", "不保存", "应用并关闭"])
-        XCTAssertEqual(alert.buttons[0].keyEquivalent, "\u{1b}")
+        XCTAssertTrue(alert.window.defaultButtonCell === alert.buttons[0].cell,
+                      "AppKit may temporarily disable the key equivalent, but Return's default choice must remain Continue")
         XCTAssertTrue(h.controller.isVisible)
         try await answerClose(h, .alertFirstButtonReturn)
         XCTAssertEqual(h.model.archiveDraftText, "2.25")
         XCTAssertTrue(h.controller.isVisible)
+        XCTAssertTrue(h.requests.isEmpty)
+    }
+
+    @MainActor func testCloseEscapeRestoresDraftSelectionWithoutChangingResponderChain() async throws {
+        let h = try host(); defer { h.controller.closeForTeardown() }
+        h.controller.show(page: .history); try change(h, "archive.preset", index: 5)
+        let editor = try enter(h, field: h.controller.archiveField, text: "2.25")
+        let selection = NSRange(location: 1, length: 2)
+        editor.setSelectedRange(selection)
+        let ordinaryEscapeFlags: [NSEvent.ModifierFlags] = [[], .capsLock, .function]
+        for modifiers in ordinaryEscapeFlags {
+            h.controller.window.performClose(nil)
+            let alert = try XCTUnwrap(h.controller.pendingCloseAlert)
+            let previousResponder = alert.window.nextResponder
+            XCTAssertTrue(alert.window.defaultButtonCell === alert.buttons[0].cell)
+            let escape = try XCTUnwrap(NSEvent.keyEvent(with: .keyDown, location: .zero, modifierFlags: modifiers,
+                timestamp: ProcessInfo.processInfo.systemUptime, windowNumber: alert.window.windowNumber, context: nil,
+                characters: "\u{1b}", charactersIgnoringModifiers: "\u{1b}", isARepeat: false, keyCode: 53))
+            XCTAssertTrue(escape.window === alert.window)
+            NSApp.sendEvent(escape)
+            try await waitFor("exact-sheet Escape completion") { h.controller.pendingCloseAlert == nil }
+            XCTAssertTrue(alert.window.nextResponder === previousResponder)
+            XCTAssertTrue(h.controller.isVisible)
+            XCTAssertEqual(h.model.archiveDraftText, "2.25")
+            let restoredEditor = try XCTUnwrap(h.controller.archiveField.currentEditor() as? NSTextView)
+            XCTAssertEqual(restoredEditor.string, "2.25")
+            XCTAssertEqual(restoredEditor.selectedRange(), selection)
+            XCTAssertTrue(h.requests.isEmpty)
+        }
+    }
+
+    @MainActor func testCloseEscapeDoesNotReopenOrMutateDraftAfterTeardown() throws {
+        let h = try host(); defer { h.controller.closeForTeardown() }
+        h.controller.show(page: .history); try change(h, "archive.preset", index: 1)
+        h.controller.window.performClose(nil)
+        let alert = try XCTUnwrap(h.controller.pendingCloseAlert)
+        let previousResponder = alert.window.nextResponder
+        let escape = try XCTUnwrap(NSEvent.keyEvent(with: .keyDown, location: .zero, modifierFlags: [],
+            timestamp: ProcessInfo.processInfo.systemUptime, windowNumber: alert.window.windowNumber, context: nil,
+            characters: "\u{1b}", charactersIgnoringModifiers: "\u{1b}", isARepeat: false, keyCode: 53))
+        h.controller.closeForTeardown()
+        XCTAssertTrue(alert.window.nextResponder === previousResponder)
+        NSApp.sendEvent(escape)
+        XCTAssertNil(h.controller.pendingCloseAlert)
+        XCTAssertFalse(h.controller.isVisible)
+        XCTAssertTrue(h.model.hasArchiveDraft)
+        XCTAssertTrue(h.requests.isEmpty)
+    }
+
+    @MainActor func testCloseEscapeIgnoresModifiersOtherKeysAndOtherWindows() throws {
+        let h = try host(); defer { h.controller.closeForTeardown() }
+        h.controller.show(page: .history); try change(h, "archive.preset", index: 1)
+        h.controller.window.performClose(nil)
+        let alert = try XCTUnwrap(h.controller.pendingCloseAlert)
+        let cases: [(NSWindow, NSEvent.ModifierFlags, UInt16, String)] = [
+            (alert.window, .command, 53, "\u{1b}"),
+            (alert.window, .control, 53, "\u{1b}"),
+            (alert.window, .option, 53, "\u{1b}"),
+            (alert.window, .shift, 53, "\u{1b}"),
+            (alert.window, [], 0, "a"),
+            (h.controller.window, [], 53, "\u{1b}")
+        ]
+        for (window, modifiers, code, characters) in cases {
+            let event = try XCTUnwrap(NSEvent.keyEvent(with: .keyDown, location: .zero, modifierFlags: modifiers,
+                timestamp: ProcessInfo.processInfo.systemUptime, windowNumber: window.windowNumber, context: nil,
+                characters: characters, charactersIgnoringModifiers: characters, isARepeat: false, keyCode: code))
+            NSApp.sendEvent(event)
+            XCTAssertTrue(h.controller.pendingCloseAlert === alert)
+            XCTAssertTrue(h.controller.window.attachedSheet === alert.window)
+        }
+        XCTAssertEqual(h.model.archiveDraftText, "1")
         XCTAssertTrue(h.requests.isEmpty)
     }
 

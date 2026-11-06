@@ -297,6 +297,13 @@ final class SettingsReviewDriver {
             if try await condition() { return }
             await settle(25)
         }
+        let collection = host.snapshot.state.domains[.collection]
+        artifacts.append(["kind": "nativeWaitTimeout", "timeoutSeconds": timeout,
+            "ownerPaused": host.snapshot.state.owner.collectionPaused,
+            "canChangeCollection": host.snapshot.capabilities.canChangeCollection,
+            "collectionSaving": collection?.isSaving ?? false,
+            "collectionPending": collection?.pending.map { String(describing: $0) } ?? "none",
+            "collectionFailure": collection?.saveFailure.map { String(describing: $0) } ?? "none"])
         throw Failure.assertion("conditionTimedOut")
     }
 
@@ -335,10 +342,22 @@ final class SettingsReviewDriver {
         ready = true
         let control = try control(id)
         if let toggle = control as? NSSwitch {
-            guard (toggle.state == .on) != target else { return }
+            let before = toggle.state.rawValue
+            guard (toggle.state == .on) != target else {
+                artifacts.append(["kind": "nativeSwitchAction", "identifier": id,
+                    "target": target, "stateBefore": before, "action": "alreadyAtTarget"])
+                return
+            }
             toggle.state = target ? .on : .off
+            let afterSet = toggle.state.rawValue
             guard let action = toggle.action else { throw Failure.controlUnavailable(id) }
-            NSApp.sendAction(action, to: toggle.target, from: toggle)
+            let dispatched = NSApp.sendAction(action, to: toggle.target, from: toggle)
+            artifacts.append(["kind": "nativeSwitchAction", "identifier": id, "target": target,
+                "stateBefore": before, "stateAfterSet": afterSet, "stateAfterAction": toggle.state.rawValue,
+                "dispatchReturned": dispatched, "enabledAfterAction": toggle.isEnabled,
+                "targetClass": toggle.target.map { String(describing: type(of: $0)) } ?? "nil",
+                "ownerPaused": host.snapshot.state.owner.collectionPaused,
+                "ownerHidden": host.snapshot.state.owner.isHidden])
         } else if let button = control as? NSButton {
             if (button.state == .on) != target { button.performClick(nil) }
         } else { throw Failure.controlUnavailable(id) }
