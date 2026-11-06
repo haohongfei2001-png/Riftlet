@@ -18,7 +18,7 @@
 | 位置与显示 | 选显示器与六位置；调数量及藏入比例；立即看示意 | 尺寸与留白；精细参数；适用时的旧版绝对位置 | `displayContent()`，`renderDisplay()`，`RiftSettingsCenterPreview` |
 | 截图 | 沿用系统截图；了解收录位置；启停独立截图入口；选默认方式 | 打开位置、授权或恢复权限；进入截图 | `captureContent()`，`RiftSettingsSnapshot` |
 | 动效 | 选“无／磁力吸引”；主动播放入缝及吞噬 | 轻按、吞噬、补位、回归的独立时长 | `motionContent()`，`ArrivalMotionMode` |
-| 历史与存储 | 浏览历史；设置归档；按需检查存储 | 小数小时；收起全部微图 | `historyContent()`，`LifecycleSettings` |
+| 历史与存储 | 浏览历史；设置归档；按需检查存储；选择历史显示方式 | 小数小时；收起全部微图 | `historyContent()`，`LifecycleSettings`；新增独立 `historyDisplayStyle` 展示偏好 |
 | 权限与帮助 | 看清每项权限的用途及下一步 | Chrome JavaScript 说明；版本和实际支持范围；诊断与配置 | `helpContent()`，`SetupPresentation` |
 
 页面函数位于 [RiftSettingsCenterPages.swift](../../Sources/RiftletUI/RiftSettingsCenterPages.swift)，状态呈现位于 [RiftSettingsCenterRendering.swift](../../Sources/RiftletUI/RiftSettingsCenterRendering.swift)。导航继续使用 [SettingsProductPresentation.swift](../../Sources/RiftletUI/SettingsProductPresentation.swift) 的 `SettingsPage`，不创建第二套页面路由。
@@ -40,6 +40,15 @@
 | 入缝选择 | `.setArrival`；`ArrivalMotionMode.none / magnet` | [ArrivalMotionMode.swift](../../Sources/RiftletUI/ArrivalMotionMode.swift)；保留 `hasArrivalSelection` 与未选择状态 |
 | 四项动效时长 | `pressDuration`、`swallowDuration`、`shiftDuration`、`returnDuration` | `SettingsField` → 同一 layout patch；界面 ms，持久化秒 |
 | 自动归档 | `archiveAfterHours`；`.editArchive`、`.applyArchive`；`SettingsIntent.archiveHours` | [LifecycleSettings.swift](../../Sources/RiftletApp/LifecycleSettings.swift)；UI 小时，owner 使用秒；0 对应关闭/null |
+
+### 新增：历史双样式偏好（独立于布局/归档设置）
+
+- 默认 `current`：严格保留 Beta 2 现有 `RiftHistoryController` 的 `NSTableView` 列表呈现、列宽、分页与既有操作，不重建一套近似列表。
+- 可选 `imageGrid`：新增图像网格 renderer。它消费同一 `displayed: [RiftHistoryEntry]`、`entries`、`pageOffset`、`hasEarlier` 和既有 `HistoryPresentation` 输出，不创建新的数据查询、分页器或 preview loader。
+- 独立偏好 key：`historyDisplayStyle`，值为 `current` / `imageGrid`，默认 `current`。建议放在 `UserDefaults.standard`，不加入 `RiftConfiguration`、`SettingsField`、`SettingsStateModel` 的布局 patch，也不写入数据库/截图记录。设置页的选择立即保存并通知已打开的 `RiftHistoryController`；历史窗口内的切换也立即保存，设置页再次打开时反映同一值。
+- 切换只替换列表/网格 renderer。必须保留当前 query、filter、pageOffset、selected `RiftHistoryEntry.id`、详情预览、preview zoom、恢复/移除/显示原图动作和 paging callbacks。样式切换不得调用重新载入全量历史或清空 `displayed`；切换时以 UUID 恢复选择。
+- `HistoryPreviewLoader`、文件身份校验、预览取消和原图显示流程保持原样。网格缩略图可使用同一受控预览缓存/加载入口；不得直接解码任意历史路径或绕过 file identity 校验。
+- 这项设置不进入「恢复本页默认值」、布局/动效草稿、归档保存事务，也不触发任何数据保留/删除行为。
 
 真实保存与跨窗口动作由 [RiftletMain.swift](../../Sources/RiftletApp/RiftletMain.swift) 的 `saveSettings()`、`performSettingsAction()` 执行。外观和登录项由 `SettingsProductHost` 自己持有，不能从 Main 递归分派同一动作。
 

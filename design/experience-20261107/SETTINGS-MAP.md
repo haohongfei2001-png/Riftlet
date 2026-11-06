@@ -62,6 +62,9 @@
 | `shiftDuration` | `layout.shiftDuration` | UI 0–3000 ms，原生秒 | 动效精细参数 |
 | `returnDuration` | `layout.returnDuration` | UI 0–3000 ms，原生秒 | 动效精细参数 |
 | `archiveHours` | `archiveHours` / `archiveDraft` | ≥0，支持小数；0 对应关闭/null | 历史与存储 |
+| `historyDisplayStyle` | `historyDisplayStyle` | `current`（默认）/ `imageGrid`；独立展示偏好 | 历史与存储 |
+
+`historyDisplayStyle` 不属于 `SettingsField` 或 layout patch，不参与布局草稿/恢复默认/归档保存。建议由 `RiftHistoryController` 与设置页共用一个轻量 UserDefaults key；读取缺省值为 `current`。它只控制同一页历史数据的 renderer，不得触发刷新数据源、清空筛选、重置分页或更改选中 UUID。
 
 所有显示器、权限、存储读数与截图均为演示样本。原型不读取用户电脑。
 

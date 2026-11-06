@@ -52,3 +52,19 @@
 真实物理菜单栏点按、原生动画与高刷帧节奏、全屏/Spaces/Stage Manager、两块真实显示器与断开恢复、Retina混合DPI、VoiceOver、原生中文输入、真实Chrome附件事务以及数小时持续使用。没有当前桌面原生Before录像，也没有臆造一个。
 
 这些是Codex接入本设计后的原生验收项目，不阻碍当前可评审设计的完整交付。当前安装版本、生产偏好、数据与截图链路均未改动。
+
+
+## 2026-11-07 品牌冻结与历史双样式修订核验
+
+| 项目 | 本轮状态 | 说明 |
+|---|---|---|
+| 正式 Logo | SOURCE_VERIFIED | `prototype/assets/riftlet.svg` 以正式 `website-assets/riftlet.svg` 原始内容替换；原型品牌、菜单栏与引导标记统一引用该文件。 |
+| 品牌色 | SOURCE_VERIFIED | Light/Dark accent 固定 `#19B7A4`；深色辅助 `#087C70` 写入品牌 token；旧 `#367B6B` / `#92CBB4` 不再作为主强调色。 |
+| 历史默认 | SOURCE_VERIFIED | `historyDisplayStyle` 默认 `current`；新图像网格为 `imageGrid`。 |
+| 设置入口 | SOURCE_VERIFIED | 「历史与存储」新增独立显示方式选择，不进入 layout/archive draft。 |
+| 共享数据路径 | SOURCE_DESIGN_SPECIFIED | 原生继续使用 `RiftHistoryController` 的 `entries` / `displayed` / `pageOffset`、`HistoryPresentation` 和 `HistoryPreviewLoader`；本轮未修改 Swift。 |
+| 离线高保真原型 | REBUILT | `exports/Riftlet-Experience-Prototype.html` 已从当前 prototype 源码重新内联生成。 |
+| 原生交互与截图验收 | NOT_RUN | 本轮未运行浏览器/Chromium QA、未生成新浅深截图或新动效录像；既有 PNG/MP4/WebM 属于前一设计版本，不能当作本轮品牌与双样式的验收证据。 |
+| 生产影响 | NONE | 未修改 main、Beta 2、数据库、用户截图或生产偏好。 |
+
+本节是源码与规格核对，不应标记为视觉实机 PASS。下一步由 Codex 在独立实现分支完成 AppKit 双 renderer、偏好同步、浅深截图与交互回归；不得把网页原型测试等同于原生验收。
