@@ -25,7 +25,8 @@ struct SettingsReviewEnvironment {
 
     init(identifier: UUID, applicationSupport: URL) {
         self.identifier = identifier
-        root = applicationSupport.appendingPathComponent(Self.directoryName(for: identifier), isDirectory: true)
+        root = applicationSupport.standardizedFileURL.resolvingSymlinksInPath()
+            .appendingPathComponent(Self.directoryName(for: identifier), isDirectory: true)
     }
 
     func prepare() throws {
@@ -40,10 +41,16 @@ struct SettingsReviewEnvironment {
             try manager.createDirectory(at: root, withIntermediateDirectories: true, attributes: [.posixPermissions: 0o700])
             try expected.write(to: marker, options: .withoutOverwriting)
         }
+    }
+
+    /// Call only after winning the existing whole-App ownership lock. A losing
+    /// second launch may validate identity but cannot change an in-use fixture.
+    func prepareFixtures() throws {
+        let manager = FileManager.default
         guard source.resolvingSymlinksInPath().standardizedFileURL == source.standardizedFileURL else { throw Failure.foreignDirectory }
         try manager.createDirectory(at: source, withIntermediateDirectories: true, attributes: [.posixPermissions: 0o700])
         // Never read the macOS Screenshot preference domain, even if a fixture
-        // preference is later absent or invalid: the provider falls back here.
+        // preference is later absent. A malformed preference fails closed.
         let preferences = root.appendingPathComponent("fixture-location.plist")
         let data = try PropertyListSerialization.data(fromPropertyList: ["location": source.path], format: .binary, options: 0)
         try data.write(to: preferences, options: .atomic)

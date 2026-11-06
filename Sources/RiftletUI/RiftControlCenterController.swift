@@ -206,6 +206,7 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
 
     private func refreshControls() {
         guard let snapshot else { return }
+        popover.appearance = NSApp.appearance
         let projection = RiftControlCenterPresentation(snapshot)
         title.stringValue = projection.title
         detail.stringValue = projection.detail

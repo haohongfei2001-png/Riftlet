@@ -28,14 +28,14 @@ extension RiftSettingsCenterController {
     }
 
     func generalContent() -> [NSView] {
-        let pause = checkbox("暂停收录", id: "paused") { [weak self] value in self?.dispatch(.settings(.setCollectionPaused(value))) }
-        let hidden = checkbox("隐藏裂缝", id: "hidden") { [weak self] value in self?.dispatch(.settings(.setHidden(value))) }
+        let pause = nativeSwitch("暂停收录", id: "paused") { [weak self] value in self?.dispatch(.settings(.setCollectionPaused(value))) }
+        let hidden = nativeSwitch("隐藏裂缝", id: "hidden") { [weak self] value in self?.dispatch(.settings(.setHidden(value))) }
         let status = card([
             namedLabel("status.title", role: "heading"), namedLabel("status.detail", role: "secondary"),
-            row("收录新截图", detail: "暂停后不收录新截图，已有图片保留。", control: pause), domainError(.collection),
-            row("显示边缘微图", detail: "只隐藏边缘微图，不改变收录设置。", control: hidden), domainError(.visibility)
+            row("暂停收录", detail: "暂停后不收录新截图，已有图片保留。", control: pause), domainError(.collection),
+            row("隐藏裂缝", detail: "只隐藏边缘微图，不改变收录设置。", control: hidden), domainError(.visibility)
         ])
-        let login = checkbox("登录后启动 Riftlet", id: "login") { [weak self] value in self?.dispatch(.loginEnabled(value)) }
+        let login = nativeSwitch("登录后启动 Riftlet", id: "login") { [weak self] value in self?.dispatch(.loginEnabled(value)) }
         let appearance = popup("外观", id: "appearance", titles: SettingsAppearanceChoice.allCases.map(\.title)) { [weak self] popup in
             guard SettingsAppearanceChoice.allCases.indices.contains(popup.indexOfSelectedItem) else { return }
             self?.dispatch(.appearance(SettingsAppearanceChoice.allCases[popup.indexOfSelectedItem]))
@@ -108,7 +108,7 @@ extension RiftSettingsCenterController {
     }
 
     func captureContent() -> [NSView] {
-        let entry = checkbox("启用内置截图", id: "entry") { [weak self] value in self?.dispatch(.settings(.setEntryEnabled(value))) }
+        let entry = nativeSwitch("启用内置截图", id: "entry") { [weak self] value in self?.dispatch(.settings(.setEntryEnabled(value))) }
         let mode = popup("默认截图方式", id: "captureMode", titles: ["窗口", "区域", "全屏"]) { [weak self] popup in
             let modes: [ScreenshotMode] = [.window, .region, .fullScreen]
             guard modes.indices.contains(popup.indexOfSelectedItem) else { return }
@@ -124,7 +124,7 @@ extension RiftSettingsCenterController {
                 makeButton("允许访问此位置…", id: "source.access.capture") { [weak self] in self?.dispatch(.chooseSourceAccess) }
             ])
         ]), card([
-            row("内置截图入口", detail: "关闭此入口不影响 macOS 系统截图和截图文件收录。", control: entry), domainError(.entry),
+            row("启用内置截图", detail: "关闭此入口不影响 macOS 系统截图和截图文件收录。", control: entry), domainError(.entry),
             row("默认方式", detail: "只影响下一次内置截图；当前截图会话保持原选择。", control: mode), domainError(.captureMode),
             namedLabel("screen.capture", role: "secondary"),
             makeButton("开始内置截图…", id: "capture.start") { [weak self] in self?.dispatch(.capture) },
@@ -176,7 +176,7 @@ extension RiftSettingsCenterController {
             archiveCustomRow, namedLabel("archive.detail", role: "secondary"), domainError(.archive),
             buttonRow([
                 makeButton("保存归档时限", id: "archive.save") { [weak self] in self?.flushEditor(); self?.dispatch(.settings(.applyArchive)) },
-                makeButton("放弃更改", id: "archive.discard") { [weak self] in self?.dispatch(.settings(.discardArchive)) }
+                makeButton("放弃更改", id: "archive.discard") { [weak self] in self?.replaceDrafts(.discardArchive) }
             ])
         ])
         return [card([
@@ -234,8 +234,8 @@ extension RiftSettingsCenterController {
             // Both pages project the same domain without sharing a view parent.
             page == .display ? domainError(.layout) : alternateLayoutError(),
             buttonRow([
-                makeButton("恢复本页默认值", id: "layout.defaults.\(suffix)") { [weak self] in self?.dispatch(.settings(.restoreDefaults(page))) },
-                makeButton("放弃参数更改", id: "layout.discard.\(suffix)") { [weak self] in self?.dispatch(.settings(.discardLayout)) },
+                makeButton("恢复本页默认值", id: "layout.defaults.\(suffix)") { [weak self] in self?.replaceDrafts(.restoreDefaults(page)) },
+                makeButton("放弃参数更改", id: "layout.discard.\(suffix)") { [weak self] in self?.replaceDrafts(.discardLayout) },
                 makeButton("应用参数", id: "layout.apply.\(suffix)") { [weak self] in self?.flushEditor(); self?.dispatch(.settings(.applyLayout)) }
             ])
         ])
@@ -265,14 +265,12 @@ extension RiftSettingsCenterController {
         control.target = self; control.action = #selector(invoked(_:))
         controls[id] = control; handlers[ObjectIdentifier(control)] = action
     }
-    func checkbox(_ title: String, id: String, action: @escaping (Bool) -> Void) -> NSButton {
-        let button = NSButton(checkboxWithTitle: title, target: nil, action: nil)
-        button.font = .systemFont(ofSize: 13)
-        button.setAccessibilityLabel(title)
-        button.refusesFirstResponder = false
-        configure(button, id: id) { [weak button] in guard let button else { return }; action(button.state == .on) }
-        button.heightAnchor.constraint(greaterThanOrEqualToConstant: 32).isActive = true
-        return button
+    func nativeSwitch(_ title: String, id: String, action: @escaping (Bool) -> Void) -> NSSwitch {
+        let toggle = NSSwitch()
+        toggle.setAccessibilityLabel(title)
+        configure(toggle, id: id) { [weak toggle] in guard let toggle else { return }; action(toggle.state == .on) }
+        toggle.heightAnchor.constraint(greaterThanOrEqualToConstant: 32).isActive = true
+        return toggle
     }
     func popup(_ label: String, id: String, titles: [String], action: @escaping (NSPopUpButton) -> Void) -> NSPopUpButton {
         let popup = NSPopUpButton(frame: .zero, pullsDown: false)

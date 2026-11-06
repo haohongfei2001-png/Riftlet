@@ -181,6 +181,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 try environment.prepare(); reviewEnvironment = environment
             }
             let owner = try ApplicationInstanceOwnership(root: reviewEnvironment?.root ?? base.appendingPathComponent(mode.directoryName, isDirectory: true))
+            try reviewEnvironment?.prepareFixtures()
             instanceOwnership = owner; root = owner.root
             if mode.usesWebAdapter, CommandLine.arguments.contains("--acceptance-trace") {
                 diagnosticTrace = BoundedDiagnosticTrace(enabled: true,
@@ -200,8 +201,19 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             updateSetup()
             if settingsHost?.showOnboarding() == true { firstUse.recordPresentation() }
         }
-        Task {
-            do { try await start() }
+        Task { [self] in
+            do {
+                try await start()
+                if mode == .settingsReview, CommandLine.arguments.contains("--settings-review-run"),
+                   let environment = reviewEnvironment, let settingsHost, let store, let statusItem {
+                    let driver = SettingsReviewDriver(environment: environment, host: settingsHost, store: store,
+                        statusItem: statusItem, onRefresh: { [weak self] in await self?.refresh() },
+                        onHistory: { [weak self] in self?.showHistory() })
+                    if let report = await driver.run() { print("RIFTLET_SETTINGS_REVIEW_REPORT=" + report.path) }
+                    else { fputs("RIFTLET_SETTINGS_REVIEW_FAILED: no report was produced\n", stderr) }
+                    NSApp.terminate(nil)
+                }
+            }
             catch {
                 feedback.diagnostics.record(.initializationIssue)
                 setupIssue = .initializationFailed

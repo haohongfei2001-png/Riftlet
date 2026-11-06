@@ -69,9 +69,32 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
 
     public func show(page: SettingsPage = .general) {
         navigate(to: page)
-        if !hasPositioned { window.center(); hasPositioned = true }
+        if !hasPositioned {
+            // Replacing contentView and establishing Auto Layout can change the
+            // constructor's size. Restore the V2 content size after that work,
+            // once only; owner refreshes and later shows preserve user resizing.
+            window.contentView?.layoutSubtreeIfNeeded()
+            var contentSize = SettingsNativeStyle.settingsSize
+            if let visible = (window.screen ?? NSScreen.main)?.visibleFrame {
+                let available = window.contentRect(forFrameRect: visible).size
+                contentSize.width = min(contentSize.width, max(1, available.width))
+                contentSize.height = min(contentSize.height, max(1, available.height))
+                window.setContentSize(contentSize)
+                window.setFrame(Self.firstPresentationFrame(window.frame, visibleFrame: visible), display: false)
+            } else {
+                window.setContentSize(contentSize); window.center()
+            }
+            hasPositioned = true
+        }
         window.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
+    }
+
+    static func firstPresentationFrame(_ proposed: NSRect, visibleFrame: NSRect) -> NSRect {
+        let size = NSSize(width: min(proposed.width, visibleFrame.width), height: min(proposed.height, visibleFrame.height))
+        return NSRect(x: visibleFrame.minX + (visibleFrame.width - size.width) / 2,
+                      y: visibleFrame.minY + (visibleFrame.height - size.height) / 2,
+                      width: size.width, height: size.height)
     }
 
     /// Host teardown is distinct from the user closing an edited form.
@@ -220,6 +243,30 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
         for field in numericFields.values where field.currentEditor() != nil { record(field) }
         if archiveField?.currentEditor() != nil { record(archiveField) }
     }
+    /// Explicit replacement is different from a background refresh. Retire the
+    /// old field editor first so its later end-edit notification cannot restore
+    /// text that the user has just chosen to discard or replace with defaults.
+    @discardableResult func finishEditingForReplacement() -> Bool {
+        let fields = Array(numericFields.values) + [archiveField].compactMap { $0 }
+        guard let field = fields.first(where: { $0.currentEditor() != nil }),
+              let editor = field.currentEditor() as? NSTextView else { return true }
+        if editor.hasMarkedText() {
+            // This explicit discard/default action cancels unconfirmed input
+            // through AppKit; it never treats a partial IME string as a Save.
+            guard field.abortEditing() else {
+                footerStatus.stringValue = "请先完成当前输入，再恢复或放弃更改。"
+                return false
+            }
+        } else {
+            record(field)
+            guard window.makeFirstResponder(nil) else { return false }
+        }
+        return field.currentEditor() == nil
+    }
+    func replaceDrafts(_ command: SettingsCommand) {
+        guard finishEditingForReplacement() else { return }
+        dispatch(.settings(command))
+    }
     func stopPreviews() { arrivalPreview.stop(); swallowPreview.stop() }
 
     public func menuWillOpen(_ menu: NSMenu) {
@@ -278,6 +325,7 @@ public final class RiftSettingsCenterController: NSObject, NSWindowDelegate, NST
                 guard let self else { return }
                 pendingCloseAlert = nil
                 if response == .alertSecondButtonReturn {
+                    guard finishEditingForReplacement() else { return }
                     await onAction(.settings(.discardDrafts))
                     render()
                     if !needsCloseConfirmation { finishUserClose() }

@@ -11,16 +11,45 @@ final class RiftSettingsCenterTests: XCTestCase {
         guard !NSScreen.screens.isEmpty else { throw XCTSkip("WindowServer unavailable; native settings interaction NOT_RUN") }
         return try SettingsCenterTestHost()
     }
-    @MainActor private func settle() async {
-        for _ in 0..<8 { await Task.yield() }
-        try? await Task.sleep(nanoseconds: 20_000_000)
+    private enum WaitFailure: Error { case deadline }
+    @MainActor private func waitFor(_ description: String, file: StaticString = #filePath, line: UInt = #line,
+                                   _ condition: () -> Bool) async throws {
+        let deadline = ProcessInfo.processInfo.systemUptime + 3
+        while !condition() {
+            guard ProcessInfo.processInfo.systemUptime < deadline else {
+                XCTFail("Timed out waiting for " + description, file: file, line: line)
+                throw WaitFailure.deadline
+            }
+            try await Task.sleep(nanoseconds: 5_000_000)
+        }
+    }
+    @MainActor private func actionAndWait(_ host: SettingsCenterTestHost, file: StaticString = #filePath, line: UInt = #line,
+                                          _ action: () throws -> Void) async throws {
+        let expected = host.startedActions + 1
+        try action()
+        try await waitFor("native host action \(expected) completion", file: file, line: line) { host.completedActions.contains(expected) }
+    }
+    @MainActor private func clickAndWait(_ host: SettingsCenterTestHost, _ id: String, file: StaticString = #filePath, line: UInt = #line) async throws {
+        try await actionAndWait(host, file: file, line: line) { try click(host, id) }
+    }
+    @MainActor private func changeAndWait(_ host: SettingsCenterTestHost, _ id: String, index: Int,
+                                         file: StaticString = #filePath, line: UInt = #line) async throws {
+        try await actionAndWait(host, file: file, line: line) { try change(host, id, index: index) }
     }
     @MainActor private func control<T: NSControl>(_ host: SettingsCenterTestHost, _ id: String, as type: T.Type = T.self) throws -> T {
         try XCTUnwrap(host.controller.controls[id] as? T)
     }
     @MainActor private func click(_ host: SettingsCenterTestHost, _ id: String) throws {
-        let button: NSButton = try control(host, id)
-        button.performClick(nil)
+        if let toggle = host.controller.controls[id] as? NSSwitch {
+            // The native switch action receives its newly selected state. This
+            // is an AppKit action test; physical mouse routing is separate.
+            guard toggle.isEnabled else { return }
+            toggle.state = toggle.state == .on ? .off : .on
+            XCTAssertTrue(toggle.sendAction(toggle.action, to: toggle.target))
+        } else {
+            let button: NSButton = try control(host, id)
+            button.performClick(nil)
+        }
     }
     @MainActor private func change(_ host: SettingsCenterTestHost, _ id: String, index: Int) throws {
         let popup: NSPopUpButton = try control(host, id)
@@ -37,14 +66,14 @@ final class RiftSettingsCenterTests: XCTestCase {
     }
     @MainActor private func answerClose(_ host: SettingsCenterTestHost, _ response: NSApplication.ModalResponse) async throws {
         let alert = try XCTUnwrap(host.controller.pendingCloseAlert)
+        let expected = host.startedActions + 1
         alert.window.animationBehavior = .none
         host.controller.window.endSheet(alert.window, returnCode: response)
-        for _ in 0..<100 {
-            if host.controller.pendingCloseAlert == nil { break }
-            try? await Task.sleep(nanoseconds: 10_000_000)
-        }
+        try await waitFor("native sheet completion") { host.controller.pendingCloseAlert == nil }
         XCTAssertNil(host.controller.pendingCloseAlert, "Native sheet completion must arrive before asserting the selected outcome")
-        await settle()
+        if response == .alertSecondButtonReturn || response == .alertThirdButtonReturn {
+            try await waitFor("sheet action \(expected) completion") { host.completedActions.contains(expected) }
+        }
     }
 
     @MainActor func testSixPagesShareOneWindowAndViewingNeverPersists() throws {
@@ -62,6 +91,57 @@ final class RiftSettingsCenterTests: XCTestCase {
         XCTAssertTrue(h.requests.isEmpty)
         h.controller.closeForTeardown(); h.publish()
         XCTAssertFalse(h.controller.isVisible, "Background updates do not open a closed settings window")
+    }
+
+    @MainActor func testNativeSwitchesKeepV2TitlesAccessibilityAndBooleanDirection() throws {
+        let h = try host(); defer { h.controller.closeForTeardown() }
+        let expected = [("paused", "暂停收录"), ("hidden", "隐藏裂缝"), ("login", "登录后启动 Riftlet"), ("entry", "启用内置截图")]
+        for (id, label) in expected {
+            let toggle: NSSwitch = try control(h, id)
+            XCTAssertEqual(toggle.identifier?.rawValue, "settings.center." + id)
+            XCTAssertEqual(toggle.accessibilityLabel(), label)
+        }
+        let paused: NSSwitch = try control(h, "paused"), hidden: NSSwitch = try control(h, "hidden"), entry: NSSwitch = try control(h, "entry")
+        XCTAssertEqual(paused.state, .off); XCTAssertEqual(hidden.state, .off); XCTAssertEqual(entry.state, .on)
+        func labels(in view: NSView) -> [String] {
+            (view as? NSTextField).map { [$0.stringValue] } ?? view.subviews.flatMap { labels(in: $0) }
+        }
+        let titles = labels(in: try XCTUnwrap(h.controller.pages[.general]))
+        XCTAssertTrue(titles.contains("暂停收录")); XCTAssertTrue(titles.contains("隐藏裂缝"))
+        XCTAssertFalse(titles.contains("收录新截图")); XCTAssertFalse(titles.contains("显示边缘微图"))
+    }
+
+    @MainActor func testFirstShowRestoresV2ContentSizeAndLaterShowsKeepUserResize() throws {
+        let h = try host(); defer { h.controller.closeForTeardown() }
+        let window = h.controller.window
+        let visible = try XCTUnwrap((window.screen ?? NSScreen.main)?.visibleFrame)
+        let available = window.contentRect(forFrameRect: visible).size
+        let expected = NSSize(width: min(960, available.width), height: min(684, available.height))
+        h.controller.show()
+        window.contentView?.layoutSubtreeIfNeeded()
+        let actual = window.contentRect(forFrameRect: window.frame).size
+        XCTAssertEqual(actual.width, expected.width, accuracy: 0.5)
+        XCTAssertEqual(actual.height, expected.height, accuracy: 0.5)
+        XCTAssertGreaterThanOrEqual(window.frame.minX, visible.minX - 0.5)
+        XCTAssertLessThanOrEqual(window.frame.maxX, visible.maxX + 0.5)
+        XCTAssertGreaterThanOrEqual(window.frame.minY, visible.minY - 0.5)
+        XCTAssertLessThanOrEqual(window.frame.maxY, visible.maxY + 0.5)
+        let smaller = NSSize(width: max(760, expected.width - 40), height: max(540, expected.height - 30))
+        window.setContentSize(smaller)
+        let resized = window.frame.size
+        h.publish(); h.controller.show(page: .capture)
+        XCTAssertEqual(window.frame.size.width, resized.width, accuracy: 0.5)
+        XCTAssertEqual(window.frame.size.height, resized.height, accuracy: 0.5)
+    }
+
+    @MainActor func testFirstPresentationFrameFitsSmallAndOffsetScreens() {
+        let proposed = NSRect(x: 0, y: 0, width: 960, height: 706)
+        let compact = NSRect(x: -800, y: 40, width: 800, height: 600)
+        XCTAssertEqual(RiftSettingsCenterController.firstPresentationFrame(proposed, visibleFrame: compact), compact)
+        let large = NSRect(x: 1200, y: -30, width: 1600, height: 1000)
+        let frame = RiftSettingsCenterController.firstPresentationFrame(proposed, visibleFrame: large)
+        XCTAssertEqual(frame.size, proposed.size)
+        XCTAssertEqual(frame.midX, large.midX); XCTAssertEqual(frame.midY, large.midY)
     }
 
     @MainActor func testNativeFieldsKeepIdentityRawTextAndSelectionAcrossOwnerRefresh() throws {
@@ -84,6 +164,45 @@ final class RiftSettingsCenterTests: XCTestCase {
         h.controller.window.makeFirstResponder(h.controller.navigation[.display])
         h.publish()
         XCTAssertEqual(field.stringValue, "83.2500", "Blurred drafts retain formatting, too")
+    }
+
+    @MainActor func testExplicitDefaultsAndDiscardRetireOldEditorBeforeReplacingDraft() async throws {
+        let h = try host(); defer { h.controller.closeForTeardown() }
+        h.controller.show(page: .display); try click(h, "disclosure.display.details")
+        let width = try XCTUnwrap(h.controller.numericFields[.fitWidth])
+        _ = try enter(h, field: width, text: "89")
+        try await clickAndWait(h, "layout.defaults.display")
+        XCTAssertNil(width.currentEditor())
+        XCTAssertEqual(h.model.text(for: .fitWidth), "72")
+        XCTAssertEqual(width.stringValue, "72")
+        _ = try enter(h, field: width, text: "96")
+        try await clickAndWait(h, "layout.discard.display")
+        XCTAssertNil(width.currentEditor())
+        XCTAssertEqual(width.stringValue, "72")
+        XCTAssertFalse(h.model.hasLayoutDraft)
+        h.controller.show(page: .history); try change(h, "archive.preset", index: 5)
+        _ = try enter(h, field: h.controller.archiveField, text: "2.5")
+        try await clickAndWait(h, "archive.discard")
+        XCTAssertNil(h.controller.archiveField.currentEditor())
+        XCTAssertEqual(h.model.archiveDraftText, "24")
+        h.controller.show(page: .general)
+        XCTAssertFalse(h.model.hasArchiveDraft)
+        XCTAssertTrue(h.requests.isEmpty)
+    }
+
+    @MainActor func testExplicitDiscardCancelsMarkedInputWithoutSavingOrReintroducingIt() async throws {
+        let h = try host(); defer { h.controller.closeForTeardown() }
+        h.controller.show(page: .history); try change(h, "archive.preset", index: 5)
+        let field = h.controller.archiveField!
+        let editor = try enter(h, field: field, text: "2")
+        editor.setMarkedText("2.5", selectedRange: NSRange(location: 2, length: 1), replacementRange: NSRange(location: 0, length: 1))
+        h.controller.controlTextDidChange(Notification(name: NSControl.textDidChangeNotification, object: field))
+        XCTAssertTrue(editor.hasMarkedText())
+        try await clickAndWait(h, "archive.discard")
+        XCTAssertNil(field.currentEditor())
+        XCTAssertEqual(h.model.archiveDraftText, "24")
+        XCTAssertFalse(h.model.hasArchiveDraft)
+        XCTAssertTrue(h.requests.isEmpty)
     }
 
     @MainActor func testMarkedCompositionSurvivesRefreshAndReturnDoesNotSave() throws {
@@ -112,8 +231,7 @@ final class RiftSettingsCenterTests: XCTestCase {
         // The active editor contains the newest text even if its notification
         // has not yet been delivered when the first Save action arrives.
         editor.string = "1.5"
-        try click(h, "archive.save")
-        await settle()
+        try await clickAndWait(h, "archive.save")
         XCTAssertEqual(h.requests.map(\.intent), [.archiveHours(1.5)])
         XCTAssertEqual(h.owner.settings.archiveAfterHours, 1.5)
         XCTAssertTrue(h.controller.isVisible)
@@ -126,7 +244,7 @@ final class RiftSettingsCenterTests: XCTestCase {
         XCTAssertTrue(h.requests.isEmpty)
         XCTAssertEqual(h.owner.settings.archiveAfterHours, 24)
         XCTAssertTrue(h.model.hasArchiveDraft)
-        try click(h, "archive.save"); await settle()
+        try await clickAndWait(h, "archive.save")
         XCTAssertEqual(h.requests.map(\.intent), [.archiveHours(nil)])
         XCTAssertNil(h.owner.settings.archiveAfterHours)
     }
@@ -208,21 +326,21 @@ final class RiftSettingsCenterTests: XCTestCase {
         let h = try host(); defer { h.controller.closeForTeardown() }
         h.failures = [.collection, .visibility, .entry]
         h.controller.show()
-        try click(h, "paused"); await settle()
-        try click(h, "hidden"); await settle()
+        try await clickAndWait(h, "paused")
+        try await clickAndWait(h, "hidden")
         h.controller.show(page: .capture)
-        try click(h, "entry"); await settle()
+        try await clickAndWait(h, "entry")
         XCTAssertTrue(h.owner.collectionPaused); XCTAssertTrue(h.owner.isHidden); XCTAssertFalse(h.owner.settings.entryEnabled)
         for domain in [SettingsDomain.collection, .visibility, .entry] { XCTAssertTrue(h.model.snapshot.domains[domain]?.hasIssue == true) }
         _ = await h.model.perform(.setArrival(.magnet))
         for domain in [SettingsDomain.collection, .visibility, .entry] { XCTAssertTrue(h.model.snapshot.domains[domain]?.hasIssue == true) }
         h.failures = []
-        try click(h, "retry.entry"); await settle()
+        try await clickAndWait(h, "retry.entry")
         XCTAssertFalse(h.model.snapshot.domains[.entry]!.hasIssue)
         XCTAssertTrue(h.model.snapshot.domains[.collection]!.hasIssue)
         h.controller.show()
-        try click(h, "retry.collection"); await settle()
-        try click(h, "retry.visibility"); await settle()
+        try await clickAndWait(h, "retry.collection")
+        try await clickAndWait(h, "retry.visibility")
         XCTAssertEqual(h.requests.filter { $0.intent.domain == .entry }.map(\.intent), [.entryEnabled(false), .entryEnabled(false)])
         XCTAssertEqual(h.requests.filter { $0.intent.domain == .collection }.map(\.intent), [.collectionPaused(true), .collectionPaused(true)])
         XCTAssertEqual(h.requests.filter { $0.intent.domain == .visibility }.map(\.intent), [.hidden(true), .hidden(true)])
@@ -233,12 +351,12 @@ final class RiftSettingsCenterTests: XCTestCase {
         _ = await h.model.perform(.setCollectionPaused(true))
         h.failures = [.collection]
         h.controller.show()
-        try click(h, "paused"); await settle()
-        let pause: NSButton = try control(h, "paused")
+        try await clickAndWait(h, "paused")
+        let pause: NSSwitch = try control(h, "paused")
         XCTAssertEqual(pause.state, .on)
         XCTAssertEqual(h.model.snapshot.domains[.collection]?.pending, .collectionPaused(false))
         XCTAssertTrue(h.controller.errorLabels[.collection]!.stringValue.contains("继续收录"))
-        h.failures = []; try click(h, "retry.collection"); await settle()
+        h.failures = []; try await clickAndWait(h, "retry.collection")
         XCTAssertFalse(h.owner.collectionPaused)
     }
 
@@ -253,7 +371,7 @@ final class RiftSettingsCenterTests: XCTestCase {
         let display: NSPopUpButton = try control(h, "display")
         XCTAssertEqual(display.titleOfSelectedItem, "已选显示器（未连接）")
         XCTAssertEqual(h.model.text(for: .fitWidth), "95.125")
-        try click(h, "layout.apply.display"); await settle()
+        try await clickAndWait(h, "layout.apply.display")
         XCTAssertEqual(h.owner.settings.configuration.preferredDisplayID, 1)
         XCTAssertEqual(h.owner.settings.configuration.numberGap, 14)
         XCTAssertEqual(h.owner.settings.configuration.fitWidth, 95.125)
@@ -272,8 +390,7 @@ final class RiftSettingsCenterTests: XCTestCase {
         XCTAssertTrue(display.item(at: 1) === old[1])
         display.selectItem(at: 1)
         h.controller.menuDidClose(menu)
-        _ = display.sendAction(display.action, to: display.target)
-        await settle()
+        try await actionAndWait(h) { _ = display.sendAction(display.action, to: display.target) }
         guard case .display(let preference) = try XCTUnwrap(h.requests.last?.intent) else { return XCTFail("Missing concrete display intent") }
         XCTAssertEqual(preference.id, 2)
     }
@@ -286,7 +403,7 @@ final class RiftSettingsCenterTests: XCTestCase {
         let display: NSPopUpButton = try control(h, "display")
         XCTAssertEqual(display.numberOfItems, 2)
         XCTAssertEqual(display.itemArray.compactMap { ($0.representedObject as? NSNumber)?.uint32Value }, [1, 2])
-        try change(h, "display", index: 1); await settle()
+        try await changeAndWait(h, "display", index: 1)
         XCTAssertEqual(h.owner.settings.configuration.preferredDisplayID, 2)
     }
 
@@ -300,8 +417,8 @@ final class RiftSettingsCenterTests: XCTestCase {
         h.receive(next)
         h.model.setDraftText("40", for: .swallowDuration)
         h.controller.show(page: .display)
-        try click(h, "layout.defaults.display"); await settle()
-        try click(h, "layout.apply.display"); await settle()
+        try await clickAndWait(h, "layout.defaults.display")
+        try await clickAndWait(h, "layout.apply.display")
         let config = h.owner.settings.configuration
         XCTAssertEqual(config.hiddenFraction, 0.25); XCTAssertEqual(config.outerInset, 6)
         XCTAssertEqual(config.swallowDuration, 0.04)
@@ -314,8 +431,8 @@ final class RiftSettingsCenterTests: XCTestCase {
         h.controller.show(page: .motion)
         h.controller.window.contentView?.layoutSubtreeIfNeeded()
         XCTAssertEqual(h.controller.arrivalPreview.playCount, 0)
-        try change(h, "arrival", index: ArrivalMotionMode.allCases.firstIndex(of: .magnet)!)
-        await settle(); h.publish()
+        try await changeAndWait(h, "arrival", index: ArrivalMotionMode.allCases.firstIndex(of: .magnet)!)
+        h.publish()
         XCTAssertEqual(h.controller.arrivalPreview.playCount, 0)
         try click(h, "arrival.preview")
         XCTAssertEqual(h.controller.arrivalPreview.playCount, 1)
@@ -334,7 +451,7 @@ final class RiftSettingsCenterTests: XCTestCase {
         let h = try host(); defer { h.controller.closeForTeardown() }
         h.login.available = true; h.login.status = .requiresApproval
         h.publish(); h.controller.show()
-        let login: NSButton = try control(h, "login")
+        let login: NSSwitch = try control(h, "login")
         XCTAssertEqual(login.state, .on)
         XCTAssertTrue(h.controller.labels["login.detail"]!.stringValue.contains("尚未获准"))
         XCTAssertFalse(h.controller.controls["login.system"]!.isHidden)
@@ -349,7 +466,7 @@ final class RiftSettingsCenterTests: XCTestCase {
         h.controller.show()
         for status in [SettingsLoginStatus.enabled, .requiresApproval] {
             h.login.status = status; h.login.failedTarget = nil; h.login.notConfirmed = false; h.publish()
-            let login: NSButton = try control(h, "login")
+            let login: NSSwitch = try control(h, "login")
             XCTAssertEqual(login.state, .on, "Actual system readback is not rolled back after an error")
             let detail = h.controller.labels["login.detail"]!.stringValue
             XCTAssertTrue(detail.contains("代码 7"))
@@ -365,8 +482,7 @@ final class RiftSettingsCenterTests: XCTestCase {
         h.controller.show(page: .history)
         XCTAssertTrue(h.controller.labels["storage"]!.stringValue.contains("尚未检查"))
         XCTAssertFalse(h.controller.labels["storage"]!.stringValue.contains("0 B"))
-        try click(h, "history.clear")
-        await settle()
+        try await clickAndWait(h, "history.clear")
         XCTAssertEqual(h.actions, ["clearVisible"])
         XCTAssertNil(h.controller.window.attachedSheet, "The shared host owns the only confirmation; this surface cannot clear a store")
         XCTAssertTrue(h.requests.isEmpty)
@@ -377,19 +493,22 @@ final class RiftSettingsCenterTests: XCTestCase {
         h.delayDomain = .layout
         h.model.setDraftText("80", for: .fitWidth)
         h.controller.show(page: .display)
-        try click(h, "layout.apply.display"); await settle()
+        let layoutAction = h.startedActions + 1
+        try click(h, "layout.apply.display")
+        try await waitFor("layout owner waiting on its actual receipt") { h.continuation != nil && h.model.snapshot.domains[.layout]!.isSaving }
         XCTAssertTrue(h.model.snapshot.domains[.layout]!.isSaving)
         h.model.setDraftText("89", for: .fitWidth)
         h.controller.show()
-        let pause: NSButton = try control(h, "paused")
+        let pause: NSSwitch = try control(h, "paused")
         XCTAssertTrue(pause.isEnabled)
-        try click(h, "paused"); await settle()
+        try await clickAndWait(h, "paused")
         XCTAssertTrue(h.owner.collectionPaused)
         h.controller.window.performClose(nil)
         let alert = try XCTUnwrap(h.controller.pendingCloseAlert)
         XCTAssertFalse(alert.buttons[1].isEnabled, "Discard cannot cancel an in-flight write")
         try await answerClose(h, .alertFirstButtonReturn)
-        h.resumeSave(); await settle()
+        h.resumeSave()
+        try await waitFor("the original layout action completion") { h.completedActions.contains(layoutAction) }
         XCTAssertEqual(h.model.text(for: .fitWidth), "89")
         XCTAssertTrue(h.model.hasLayoutDraft)
         XCTAssertEqual(h.requests.filter { $0.intent.domain == .layout }.count, 1)
@@ -419,6 +538,8 @@ private final class SettingsCenterTestHost {
     var controller: RiftSettingsCenterController!
     var requests: [SettingsSaveRequest] = []
     var actions: [String] = []
+    var startedActions = 0
+    var completedActions: Set<Int> = []
     var failures: Set<SettingsDomain> = []
     var delayDomain: SettingsDomain?
     var continuation: CheckedContinuation<Void, Never>?
@@ -439,6 +560,8 @@ private final class SettingsCenterTestHost {
         })
         controller = RiftSettingsCenterController(model: model) { [weak self] action in
             guard let self else { return }
+            startedActions += 1
+            let actionID = startedActions
             if case .settings(let command) = action { _ = await model.perform(command) }
             else {
                 switch action {
@@ -449,6 +572,7 @@ private final class SettingsCenterTestHost {
                 }
             }
             publish()
+            completedActions.insert(actionID)
         }
         model.onChange = { [weak self] _ in self?.publish() }
         publish()

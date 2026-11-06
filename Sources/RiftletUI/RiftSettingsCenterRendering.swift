@@ -261,7 +261,9 @@ extension RiftSettingsCenterController {
     func enable(_ id: String, _ enabled: Bool) { controls[id]?.isEnabled = enabled }
     func hide(_ id: String, _ hidden: Bool) { controls[id]?.isHidden = hidden }
     func check(_ id: String, _ on: Bool, enabled: Bool) {
-        (controls[id] as? NSButton)?.state = on ? .on : .off; enable(id, enabled)
+        if let toggle = controls[id] as? NSSwitch { toggle.state = on ? .on : .off }
+        else { (controls[id] as? NSButton)?.state = on ? .on : .off }
+        enable(id, enabled)
     }
     func select(_ id: String, index: Int) {
         guard let popup = controls[id] as? NSPopUpButton, popup.itemArray.indices.contains(index) else { return }

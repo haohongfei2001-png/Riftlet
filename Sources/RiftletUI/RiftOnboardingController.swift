@@ -3,7 +3,7 @@ import AppKit
 /// Three-step guidance uses the same host facts and explicit settings commands.
 /// Its only local state is navigation; it stores no permission/completion flags.
 @MainActor
-public final class RiftOnboardingController: NSObject, NSWindowDelegate {
+public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuDelegate {
     public static let windowIdentifier = NSUserInterfaceItemIdentifier("RiftletOnboarding")
     public let window: NSWindow
     public private(set) var currentStep = 0
@@ -31,7 +31,8 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate {
     private let sourceAccess = SettingsNativeStyle.button("允许访问…")
     private let automation = SettingsNativeStyle.button("检查 Chrome 权限…")
     private let display = NSPopUpButton(frame: .zero, pullsDown: false)
-    private var displayIDs: [UInt32?] = []
+    private var displayMenuTracking = false
+    private var displayRefreshPending = false
     private var displaySignature: [RiftSettingsDisplay] = []
     private var representedPreferredDisplayID: UInt32?
     private let placementPreview = RiftOnboardingPlacementPreview(frame: .zero)
@@ -146,6 +147,8 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate {
         ])
         display.identifier = .init("onboarding.display"); display.setAccessibilityLabel("裂缝所在显示器")
         display.target = self; display.action = #selector(displayChanged)
+        display.menu?.delegate = self
+        display.menu?.autoenablesItems = false
         display.font = .systemFont(ofSize: 13)
         display.heightAnchor.constraint(greaterThanOrEqualToConstant: 32).isActive = true
         controls["onboarding.display"] = display
@@ -235,20 +238,7 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate {
             : "内置截图的屏幕录制权限在使用时按需请求，不是普通系统截图的前置条件。"
         (controls["onboarding.recheck"] as? NSButton)?.isEnabled = snapshot.capabilities.canRecheck
         let settings = snapshot.state.owner.settings
-        let preferred = settings.configuration.preferredDisplayID ?? settings.preferredDisplayID
-        if displaySignature != settings.displays || representedPreferredDisplayID != preferred || display.numberOfItems == 0 {
-            displaySignature = settings.displays; representedPreferredDisplayID = preferred
-            display.removeAllItems(); displayIDs = [nil]
-            display.addItem(withTitle: "使用主显示器")
-            for screen in settings.displays { display.addItem(withTitle: screen.name); displayIDs.append(screen.id) }
-            if let preferred, !settings.displays.contains(where: { $0.id == preferred }) {
-                display.addItem(withTitle: "已选显示器（未连接）"); displayIDs.append(preferred)
-                display.lastItem?.isEnabled = false
-            }
-        }
-        display.selectItem(at: displayIDs.firstIndex(where: { $0 == preferred }) ?? 0)
-        display.isEnabled = snapshot.capabilities.canEditPreferences && !settings.displays.isEmpty
-            && snapshot.state.domains[.display]?.isSaving != true && !busy.contains(.display)
+        refreshDisplay()
         for (placement, button) in placements {
             button.state = settings.configuration.placement == placement ? .on : .off
             button.isEnabled = snapshot.capabilities.canEditPreferences
@@ -300,6 +290,53 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate {
         }
     }
 
+    private func refreshDisplay() {
+        guard let snapshot else { return }
+        guard !displayMenuTracking else { displayRefreshPending = true; return }
+        let settings = snapshot.state.owner.settings
+        let preferred = settings.configuration.preferredDisplayID ?? settings.preferredDisplayID
+        if displaySignature != settings.displays || representedPreferredDisplayID != preferred || display.numberOfItems == 0 {
+            displaySignature = settings.displays; representedPreferredDisplayID = preferred
+            display.removeAllItems()
+            let primary = NSMenuItem(title: "使用主显示器", action: nil, keyEquivalent: "")
+            primary.representedObject = NSNull(); display.menu?.addItem(primary)
+            for screen in settings.displays {
+                // addItem(withTitle:) deduplicates equal titles. Each physical
+                // display instead gets its own native item and stable identity.
+                let item = NSMenuItem(title: screen.name, action: nil, keyEquivalent: "")
+                item.representedObject = NSNumber(value: screen.id)
+                display.menu?.addItem(item)
+            }
+            if let preferred, !settings.displays.contains(where: { $0.id == preferred }) {
+                let item = NSMenuItem(title: "已选显示器（未连接）", action: nil, keyEquivalent: "")
+                item.representedObject = NSNumber(value: preferred); item.isEnabled = false
+                display.menu?.addItem(item)
+            }
+        }
+        if let item = display.itemArray.first(where: { item in
+            if let preferred { return (item.representedObject as? NSNumber)?.uint32Value == preferred }
+            return item.representedObject is NSNull
+        }) { display.select(item) }
+        display.isEnabled = snapshot.capabilities.canEditPreferences && !settings.displays.isEmpty
+            && snapshot.state.domains[.display]?.isSaving != true && !busy.contains(.display)
+    }
+
+    public func menuWillOpen(_ menu: NSMenu) {
+        if menu === display.menu { displayMenuTracking = true }
+    }
+
+    public func menuDidClose(_ menu: NSMenu) {
+        guard menu === display.menu else { return }
+        displayMenuTracking = false
+        // Let the native picker action read the item that was actually chosen
+        // before a queued background display-list refresh can replace it.
+        Task { @MainActor [weak self] in
+            await Task.yield()
+            guard let self, !displayMenuTracking, displayRefreshPending else { return }
+            displayRefreshPending = false; refreshDisplay()
+        }
+    }
+
     private func refreshStep() {
         for (index, page) in pages.enumerated() { page.isHidden = index != currentStep }
         for (index, view) in progress.arrangedSubviews.enumerated() {
@@ -341,8 +378,12 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate {
     }
 
     @objc private func displayChanged() {
-        guard display.isEnabled, displayIDs.indices.contains(display.indexOfSelectedItem) else { return }
-        let target = displayIDs[display.indexOfSelectedItem]
+        guard display.isEnabled, snapshot?.capabilities.canEditPreferences == true,
+              let item = display.selectedItem else { return }
+        let target: UInt32?
+        if item.representedObject is NSNull { target = nil }
+        else if let number = item.representedObject as? NSNumber { target = number.uint32Value }
+        else { return }
         send(.settings(.selectDisplay(target)), domain: .display)
     }
 

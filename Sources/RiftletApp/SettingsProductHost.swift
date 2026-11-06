@@ -98,7 +98,8 @@ final class SettingsProductHost {
         result.screenRecording = CGPreflightScreenCaptureAccess() ? .granted : .notGranted
         let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "开发版本"
         let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String
-        result.version = build.map { "\(version)（\($0)）" } ?? version
+        let label = Bundle.main.object(forInfoDictionaryKey: "RiftletVersionLabel") as? String
+        result.version = (label.map { $0 + " · " } ?? "") + (build.map { "\(version)（\($0)）" } ?? version)
         result.reviewEnvironment = reviewEnvironment
         return result
     }

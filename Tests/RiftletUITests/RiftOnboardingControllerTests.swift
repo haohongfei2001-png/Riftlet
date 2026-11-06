@@ -4,9 +4,10 @@ import XCTest
 
 final class RiftOnboardingControllerTests: XCTestCase {
     @MainActor private func model(revision: UInt64 = 1, paused: Bool = true, hidden: Bool = true,
-                                  configuration: RiftConfiguration = .init()) throws -> SettingsStateModel {
+                                  configuration: RiftConfiguration = .init(),
+                                  displays: [RiftSettingsDisplay]? = nil) throws -> SettingsStateModel {
         let settings = RiftSettingsSnapshot(entryAvailable: true, entryEnabled: false,
-            displays: [.init(id: 1, name: "合成内建屏", uuid: "synthetic-main"),
+            displays: displays ?? [.init(id: 1, name: "合成内建屏", uuid: "synthetic-main"),
                        .init(id: 2, name: "合成外接屏", uuid: "synthetic-external")],
             preferredDisplayID: configuration.preferredDisplayID, configuration: configuration)
         return try SettingsStateModel(owner: .init(revision: revision, settings: settings,
@@ -41,9 +42,11 @@ final class RiftOnboardingControllerTests: XCTestCase {
 
     @MainActor private func assertReceived(_ condition: @escaping () -> Bool,
                                            file: StaticString = #filePath, line: UInt = #line) async {
-        for _ in 0..<100 {
+        let deadline = ProcessInfo.processInfo.systemUptime + 5
+        while ProcessInfo.processInfo.systemUptime < deadline {
             if condition() { return }
-            await Task.yield()
+            if Task.isCancelled { break }
+            try? await Task.sleep(nanoseconds: 2_000_000)
         }
         XCTAssertTrue(condition(), file: file, line: line)
     }
@@ -238,5 +241,52 @@ final class RiftOnboardingControllerTests: XCTestCase {
         XCTAssertEqual(placement.accessibilityLabel(), "裂缝位置：左上")
         XCTAssertEqual((display as? NSPopUpButton)?.accessibilityLabel(), "裂缝所在显示器")
         XCTAssertEqual(try button(controller, "onboarding.later").keyEquivalent, "\u{1b}")
+    }
+
+    @MainActor func testDuplicateDisplayNamesKeepDistinctNativeItemIdentities() async throws {
+        try prepareAppKit()
+        let state = try model(displays: [.init(id: 1, name: "Studio Display", uuid: "synthetic-one"),
+                                         .init(id: 2, name: "Studio Display", uuid: "synthetic-two")])
+        var selected: [UInt32?] = []
+        let controller = RiftOnboardingController { action in
+            if case .settings(.selectDisplay(let id)) = action { selected.append(id) }
+            else { XCTFail("Unexpected command") }
+        }
+        defer { controller.closeForTeardown() }
+        controller.update(fixture(state))
+        let display = try XCTUnwrap(controller.control(identifier: "onboarding.display") as? NSPopUpButton)
+        XCTAssertEqual(display.numberOfItems, 3)
+        XCTAssertEqual(display.itemTitle(at: 1), display.itemTitle(at: 2))
+        XCTAssertEqual((display.item(at: 1)?.representedObject as? NSNumber)?.uint32Value, 1)
+        XCTAssertEqual((display.item(at: 2)?.representedObject as? NSNumber)?.uint32Value, 2)
+        display.selectItem(at: 2)
+        XCTAssertTrue(NSApp.sendAction(try XCTUnwrap(display.action), to: display.target, from: display))
+        await assertReceived { selected.count == 1 }
+        XCTAssertEqual(selected, [2])
+    }
+
+    @MainActor func testDisplayTrackingDefersRefreshUntilChosenNativeItemHasDispatched() async throws {
+        try prepareAppKit()
+        let state = try model()
+        var selected: [UInt32?] = []
+        let controller = RiftOnboardingController { action in
+            if case .settings(.selectDisplay(let id)) = action { selected.append(id) }
+        }
+        defer { controller.closeForTeardown() }
+        controller.update(fixture(state))
+        let display = try XCTUnwrap(controller.control(identifier: "onboarding.display") as? NSPopUpButton)
+        let menu = try XCTUnwrap(display.menu)
+        let selectedItem = try XCTUnwrap(display.item(at: 2))
+        controller.menuWillOpen(menu)
+        let changed = try model(revision: 2, displays: [.init(id: 1, name: "合成内建屏", uuid: "synthetic-main")])
+        controller.update(fixture(changed, revision: 2))
+        XCTAssertEqual(display.numberOfItems, 3)
+        XCTAssertTrue(display.item(at: 2) === selectedItem)
+        display.select(selectedItem)
+        controller.menuDidClose(menu)
+        XCTAssertTrue(NSApp.sendAction(try XCTUnwrap(display.action), to: display.target, from: display))
+        await assertReceived { selected.count == 1 }
+        XCTAssertEqual(selected, [2], "The original item identity reaches the host, which validates current availability")
+        await assertReceived { display.numberOfItems == 2 }
     }
 }

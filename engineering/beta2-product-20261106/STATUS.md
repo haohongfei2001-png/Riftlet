@@ -20,3 +20,13 @@ No existing production, historical UNKNOWN, accepted attachment source or origin
 - Independent early review fixes: one clear confirmation owned by Main; deferred geometry wording; configuration persistence before display cancellation; login system state retained alongside system call error.
 - Explicit `--settings-review UUID` uses the same binary and real ApplicationController/SQLite/collection/settings owners with a fresh identity-marked root, fixture source, separate defaults, disabled Web/Feedback transport/system capture/login. Normal capture build identity and policy stay unchanged.
 - Main push CI failure is not reported green: Native run 42184582609 / ARM64 job127781796945 failed on old `returnedReceipt` scheduling assumption. Raw log and source-order analysis retained privately.
+
+## Checkpoint 2 native inspection and review fixes
+
+The intermediate native workbench was actually opened via CUA. Pause and Hide remained independent and combined status was visible. Dark selection changed native window surfaces; after Quit, the isolated SQLite rows were `capture_paused=true`, `user_hidden=true`, and the appearance JSON was `dark`. Assets/operations remained zero. This was an intermediate debug binary, not final artifact acceptance. Original private observation JSON and launch hashes are retained.
+
+Inspection led to V2-alignment fixes: four native NSSwitch controls with consistent row labels; first settings presentation restores the target 960×684 content size then clamps to the actual screen. A white right-edge area in the CUA image remains unattributed until owned-window capture/frame metadata; it is not declared a product clipping failure or PASS.
+
+Nonauthor source review also closed duplicate clear confirmation, independent login call errors, display-persistence ordering, instance-lock-before-fixture-writes, onboarding display-item identity/tracking, and active editor replacement. Native UI background refresh retains editing controls. New test helpers await actual actions, not a fixed short sleep.
+
+There are 67 methods in the five new UI/Host/environment test files, plus two new existing-model notification tests. Parser/native build success is not XCTest execution. The full same-App settings review driver is now implemented; automated raw-window/native persistence run still pending.

@@ -1,0 +1,27 @@
+{
+  "scope": "interim native UI workbench, fixed review arguments, not final installer",
+  "executableSHA256": "216c6b95f6ec7220c0a3646f7c6c3cc7f021680e803dc41051e0d2fe26258da8",
+  "privateObservationSHA256": "3e3bc753e7ed268c7a1923ed97770c1846d701813ef16fc83ad25f33dc3417c9",
+  "observations": [
+    "CUA displayed actual three-step onboarding first page",
+    "Command-comma opened actual six-page settings navigation",
+    "Click display navigation showed actual monitor identity and six positions",
+    "Pause changed actual status to paused",
+    "Hide retained paused and changed only visibility; combined status displayed",
+    "Appearance native menu selected dark; actual native controls and surfaces rendered dark"
+  ],
+  "limitations": [
+    "Intermediate debug executable, not final release acceptance",
+    "Right-edge white strip in CUA image not attributed; owned-window driver capture and frame evidence required",
+    "Native switch labels and first-show dimensions sent for correction",
+    "Quit followed by AX lookup timed out; subsequent CUA inventory no longer contained the workbench"
+  ],
+  "readback": {
+    "capture_paused": true,
+    "user_hidden": true,
+    "appearance": "dark",
+    "assetCount": 0,
+    "operationCount": 0
+  },
+  "finalArtifactAcceptance": false
+}

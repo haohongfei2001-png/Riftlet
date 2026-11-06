@@ -31,9 +31,11 @@ final class RiftControlCenterControllerTests: XCTestCase {
     }
 
     @MainActor private func receive(_ condition: @escaping () -> Bool) async -> Bool {
-        for _ in 0..<100 {
+        let deadline = ProcessInfo.processInfo.systemUptime + 5
+        while ProcessInfo.processInfo.systemUptime < deadline {
             if condition() { return true }
-            await Task.yield()
+            if Task.isCancelled { return false }
+            try? await Task.sleep(nanoseconds: 2_000_000)
         }
         return condition()
     }
