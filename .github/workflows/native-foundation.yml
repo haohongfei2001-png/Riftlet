@@ -51,10 +51,12 @@ jobs:
         include:
           - runner: macos-15
             check: Native ARM64
+            timeout: 20
           - runner: macos-15-intel
             check: Native Intel
+            timeout: 30
     runs-on: ${{ matrix.runner }}
-    timeout-minutes: 20
+    timeout-minutes: ${{ matrix.timeout }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
