@@ -184,6 +184,10 @@ extension RiftSettingsCenterController {
     }
 
     func historyContent() -> [NSView] {
+        let displayStyle = popup("历史显示方式", id: "history.displayStyle", titles: HistoryDisplayStyle.allCases.map(\.title)) { [weak self] popup in
+            guard HistoryDisplayStyle.allCases.indices.contains(popup.indexOfSelectedItem) else { return }
+            self?.dispatch(.historyDisplayStyle(HistoryDisplayStyle.allCases[popup.indexOfSelectedItem]))
+        }
         let preset = popup("自动归档时限", id: "archive.preset", titles: ["不自动归档", "1 小时", "8 小时", "24 小时", "72 小时", "自定义…"]) { [weak self] popup in
             guard let self else { return }
             let values = ["0", "1", "8", "24", "72"]
@@ -205,6 +209,7 @@ extension RiftSettingsCenterController {
         ])
         return [card([
             SettingsNativeStyle.label("本地历史", role: "heading"), namedLabel("history.detail", role: "secondary"),
+            row("历史显示方式", detail: "只改变浏览方式，记录和原图保持不变。", control: displayStyle),
             makeButton("打开历史…", id: "history.open") { [weak self] in self?.dispatch(.openHistory) }
         ]), archive, card([
             SettingsNativeStyle.label("存储用量", role: "heading"), namedLabel("storage", role: "secondary"),

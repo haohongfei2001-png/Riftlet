@@ -17,6 +17,10 @@ final class SettingsReviewDriver {
     private let environment: SettingsReviewEnvironment
     private let host: SettingsProductHost
     private let store: QueueStore
+    private let historyController: RiftHistoryController?
+    private var historyStyleReview: Bool { CommandLine.arguments.contains("--history-style-review") }
+    private var historyFixtureIDs: [UUID] = []
+    private var historyReadOnlyBaseline: [AssetRecord] = []
     private let statusItem: NSStatusItem
     private let onRefresh: @MainActor () async -> Void
     private let onHistory: @MainActor () -> Void
@@ -39,10 +43,11 @@ final class SettingsReviewDriver {
 
     init(environment: SettingsReviewEnvironment, host: SettingsProductHost, store: QueueStore,
          statusItem: NSStatusItem, onRefresh: @escaping @MainActor () async -> Void,
-         onHistory: @escaping @MainActor () -> Void, onRecheck: @escaping @MainActor () -> Bool) {
+         onHistory: @escaping @MainActor () -> Void, onRecheck: @escaping @MainActor () -> Bool,
+         history: RiftHistoryController? = nil) {
         self.environment = environment; self.host = host; self.store = store
         self.statusItem = statusItem; self.onRefresh = onRefresh; self.onHistory = onHistory
-        self.onRecheck = onRecheck
+        self.onRecheck = onRecheck; self.historyController = history
     }
 
     /// A report is checkpointed after each case, including failures. Main owns
@@ -87,23 +92,28 @@ final class SettingsReviewDriver {
             await self.capture("initial-general", window: window)
         }
 
-        await runCase("real-collector-synthetic-fixture") { try await self.collectFixture() }
-        await runCase("accepted-collection-during-recheck") { try await self.collectionDuringRecheck() }
-        await runCase("six-pages-light-and-dark") { try await self.capturePages() }
-        await runCase("orthogonal-pause-hidden-sqlite") { try await self.pauseAndHide() }
-        await runCase("archive-editor-first-save-discard") { try await self.archiveEditing() }
-        await runCase("configuration-editor-refresh-defaults") { try await self.configurationEditing() }
-        await runCase("close-sheet-continue-discard") { try await self.closeEditing() }
-        await runCase("independent-write-failures-and-retry") { try await self.saveFailures() }
-        await runCase("motion-explicit-play-and-navigation-stop") { try await self.motion() }
-        await runCase("three-step-guidance-light-and-dark") { try await self.onboarding() }
-        await runCase("resizing-and-reopen") { try await self.resize() }
-        await runCase("history-real-records") { try await self.history() }
-        await runCase("original-media-and-no-upload-operations") { try await self.integrity() }
+        if historyStyleReview {
+            await runHistoryStyleCases()
+        } else {
+            await runCase("real-collector-synthetic-fixture") { try await self.collectFixture() }
+            await runCase("accepted-collection-during-recheck") { try await self.collectionDuringRecheck() }
+            await runCase("six-pages-light-and-dark") { try await self.capturePages() }
+            await runCase("orthogonal-pause-hidden-sqlite") { try await self.pauseAndHide() }
+            await runCase("archive-editor-first-save-discard") { try await self.archiveEditing() }
+            await runCase("configuration-editor-refresh-defaults") { try await self.configurationEditing() }
+            await runCase("close-sheet-continue-discard") { try await self.closeEditing() }
+            await runCase("independent-write-failures-and-retry") { try await self.saveFailures() }
+            await runCase("motion-explicit-play-and-navigation-stop") { try await self.motion() }
+            await runCase("three-step-guidance-light-and-dark") { try await self.onboarding() }
+            await runCase("resizing-and-reopen") { try await self.resize() }
+            await runCase("history-real-records") { try await self.history() }
+            await runCase("original-media-and-no-upload-operations") { try await self.integrity() }
+        }
 
         recordPresentationEvent("driver.finalCloseIntent")
         host.control.close(); host.onboarding.closeForTeardown()
         host.center.closeForTeardown()
+        if historyStyleReview { historyController?.close() }
         if restorationFailures.isEmpty { await host.perform(.appearance(originalAppearance)) }
         do { try saveReport(completed: true) }
         catch { fputs("Riftlet settings review final report write failed; prior checkpoint remains.\n", stderr) }
@@ -153,6 +163,7 @@ final class SettingsReviewDriver {
                       let json = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any],
                       json["reviewID"] as? String == self.environment.identifier.uuidString.lowercased(),
                       json["completed"] as? Bool == true,
+                      (!self.historyStyleReview || json["reviewMode"] as? String == "historyStyle"),
                       json["executableSHA256"] as? String == executableSHA else { continue }
                 matches.append((file, json))
             }
@@ -164,6 +175,9 @@ final class SettingsReviewDriver {
             prior = latest.1
             return ["priorReport": latest.0.path, "priorReportSHA256": self.digest(try Data(contentsOf: latest.0)),
                     "priorProcessPID": previousPID, "priorStatus": latest.1["status"] as? String ?? "unknown"]
+        }
+        if historyStyleReview {
+            return await verifyHistoryStyleRestart(output: output, initialChecks: checks, prior: prior, executableSHA: executableSHA)
         }
         await check("persisted-json-and-loaded-owners") {
             guard prior != nil else { throw Failure.assertion("priorRunRequired") }
@@ -756,6 +770,387 @@ final class SettingsReviewDriver {
         host.center.window.setFrame(original, display: true)
     }
 
+    // A focused mode in the same UUID-scoped App, using its actual owners and
+    // native control actions. No business callback is invoked directly by this suite.
+    private func runHistoryStyleCases() async {
+        await runCase("history-default-and-three-collector-assets") { try await self.historyFixtures() }
+        await runCase("history-two-window-style-search-filter-uuid") { try await self.historySynchronization() }
+        await runCase("history-original-200-percent-survives-renderer-change") { try await self.historyOriginal() }
+        await runCase("history-both-renderers-light-dark-minimum") { try await self.historyVisuals() }
+        await runCase("history-one-asset-remove-and-restore") { try await self.historyVisibilityActions() }
+        await runCase("history-final-integrity-and-persisted-style") {
+            let history = try self.reviewHistory()
+            self.host.show(page: .history)
+            try await self.chooseHistoryStyle(.imageGrid, fromSettings: true)
+            try self.require(history.displayStyle == .imageGrid, "historyFinalRendererMismatch")
+            try await self.integrity()
+            let records = try await self.store.assets(includeUsed: true)
+            let domain = try self.historyDomain()
+            try self.require(domain.value[HistoryDisplayPreferences.key] as? String == HistoryDisplayStyle.imageGrid.rawValue,
+                             "historyFinalRawPreferenceMismatch")
+            self.artifacts.append(["kind": "historyFinalState", "assetRowsSHA256": try self.assetRowsDigest(records),
+                "assetCount": records.count, "selectedStyle": self.host.historyDisplay.selection.rawValue,
+                "rawDomainSHA256": self.digest(domain.bytes), "rawDomain": domain.value,
+                "inputMethod": "PROGRAMMATIC_NATIVE_CONTROLS", "pageScope": "First real page with three collected fixtures; next/previous are disabled, no fabricated second page"])
+        }
+    }
+
+    private func reviewHistory() throws -> RiftHistoryController {
+        guard historyStyleReview, let historyController else { throw Failure.controlUnavailable("actualHistoryController") }
+        return historyController
+    }
+    private func allViews(_ view: NSView?) -> [NSView] {
+        guard let view else { return [] }; return [view] + view.subviews.flatMap { allViews($0) }
+    }
+    private func assetRowsDigest(_ records: [AssetRecord]) throws -> String {
+        let encoder = JSONEncoder(); encoder.outputFormatting = [.sortedKeys]
+        return digest(try encoder.encode(records.sorted { $0.id.uuidString < $1.id.uuidString }))
+    }
+    private func historyDomain() throws -> (value: [String: Any], bytes: Data) {
+        let name = HistoryDisplayPreferences.reviewSuiteName(root: environment.root)
+        guard name.hasPrefix("com.riftlet.history-display.review."), let defaults = UserDefaults(suiteName: name) else {
+            throw Failure.unsafeEnvironment
+        }
+        let value = defaults.persistentDomain(forName: name) ?? [:]
+        return (value, try JSONSerialization.data(withJSONObject: value, options: [.sortedKeys]))
+    }
+    private func assertHistoryReadOnly(_ phase: String) async throws {
+        let records = try await store.assets(includeUsed: true)
+        try require(!historyReadOnlyBaseline.isEmpty && records == historyReadOnlyBaseline, "historyReadOnlyChangedAssetRows:" + phase)
+        try await integrity()
+        artifacts.append(["kind": "historyReadOnlyAssets", "phase": phase,
+            "allAssetRowsEqual": true, "assetRowsSHA256": try assetRowsDigest(records)])
+    }
+    private func chooseHistoryStyle(_ style: HistoryDisplayStyle, fromSettings: Bool) async throws {
+        let history = try reviewHistory()
+        let window = fromSettings ? host.center.window : history.window
+        let id = fromSettings ? "settings.center.history.displayStyle" : "history.displayStyle"
+        guard let popup = try control(id, window: window) as? NSPopUpButton,
+              let index = HistoryDisplayStyle.allCases.firstIndex(of: style), let action = popup.action else {
+            throw Failure.controlUnavailable(id)
+        }
+        popup.selectItem(at: index)
+        try require(NSApp.sendAction(action, to: popup.target, from: popup), "historyPopupActionNotDispatched")
+        try await wait {
+            let settings = self.find("settings.center.history.displayStyle", in: self.host.center.window.contentView) as? NSPopUpButton
+            let local = self.find("history.displayStyle", in: history.window.contentView) as? NSPopUpButton
+            return self.host.historyDisplay.selection == style && history.displayStyle == style
+                && settings?.indexOfSelectedItem == index && local?.indexOfSelectedItem == index
+        }
+    }
+    private func historySearch(_ text: String) async throws {
+        let window = try reviewHistory().window
+        guard let field = try control("history.search", window: window) as? NSSearchField else { throw Failure.controlUnavailable("history.search") }
+        window.makeKeyAndOrderFront(nil); window.makeFirstResponder(field)
+        guard let editor = field.currentEditor() as? NSTextView else { throw Failure.assertion("historyNativeSearchEditorMissing") }
+        editor.insertText(text, replacementRange: NSRange(location: 0, length: (editor.string as NSString).length))
+        window.makeFirstResponder(nil)
+        try await wait { field.stringValue == text }
+    }
+    private func historyTable() throws -> NSTableView {
+        guard let table = find("history.current.table", in: try reviewHistory().window.contentView) as? NSTableView else {
+            throw Failure.controlUnavailable("history.current.table")
+        }
+        return table
+    }
+    private func selectHistoryFixture() async throws -> UUID {
+        guard let id = historyFixtureIDs.first else { throw Failure.assertion("historyFixtureIdentityMissing") }
+        let history = try reviewHistory()
+        if history.displayStyle != .current { try await chooseHistoryStyle(.current, fromSettings: false) }
+        try await historySearch(id.uuidString)
+        try await wait { try self.historyTable().numberOfRows == 1 }
+        let table = try historyTable(); table.selectRowIndexes(IndexSet(integer: 0), byExtendingSelection: false)
+        try await wait {
+            history.selectedRecordID == id && (self.find("history.detail.image", in: history.window.contentView) as? NSImageView)?.image?.cgImage(forProposedRect: nil, context: nil, hints: nil) != nil
+        }
+        try require(allViews(history.window.contentView).contains { $0.toolTip == id.uuidString }, "historyFullDetailUUIDMissing")
+        return id
+    }
+    private func historyFixtures() async throws {
+        let history = try reviewHistory()
+        try require(host.historyDisplay.selection == .current && history.displayStyle == .current, "freshHistoryDefaultNotCurrent")
+        try require(try historyDomain().value[HistoryDisplayPreferences.key] == nil, "freshHistoryDomainNotEmpty")
+        host.show(page: .general)
+        try await setToggle("settings.center.paused", false)
+        try await wait { !self.host.snapshot.state.owner.collectionPaused }
+        for (index, size) in [(640, 640), (320, 640), (800, 400)].enumerated() {
+            let hash = try createFixture("history-\(index)", width: size.0, height: size.1)
+            try await wait(timeout: 10) { try await self.store.assets(includeUsed: true).contains { $0.image.sha256 == hash } }
+            let records = try await store.assets(includeUsed: true)
+            guard let record = records.first(where: { $0.image.sha256 == hash }) else { throw Failure.assertion("collectedHistoryFixtureMissing") }
+            historyFixtureIDs.append(record.id)
+        }
+        await onRefresh(); onHistory()
+        try await wait {
+            let rows = try self.historyTable().numberOfRows
+            return history.window.isVisible && rows == self.initialAssetIDs.count + 3
+        }
+        historyReadOnlyBaseline = try await store.assets(includeUsed: true)
+        try require(historyReadOnlyBaseline.count == initialAssetIDs.count + 3 && Set(historyFixtureIDs).count == 3,
+                    "historyCollectorCountMismatch")
+        host.show(page: .history)
+        artifacts.append(["kind": "historyFixtures", "UUIDs": historyFixtureIDs.map(\.uuidString),
+            "source": "three synthetic PNGs through the real isolated collector", "assetRowsSHA256": try assetRowsDigest(historyReadOnlyBaseline)])
+    }
+    private func historySynchronization() async throws {
+        let history = try reviewHistory(), id = try await selectHistoryFixture()
+        let frame = history.window.frame
+        guard let count = find("history.count", in: history.window.contentView) as? NSTextField else { throw Failure.controlUnavailable("history.count") }
+        let page = count.stringValue
+        try require(page.contains("第 1 页"), "historyFirstPageNotPresented")
+        for key in ["history.previous", "history.next"] {
+            try require((find(key, in: history.window.contentView) as? NSControl)?.isEnabled == false, "historyUnexpectedPaginationEnabled")
+        }
+        // Both windows remain instantiated; each real popup updates the other.
+        try await chooseHistoryStyle(.imageGrid, fromSettings: true)
+        try require(history.selectedRecordID == id && history.window.frame == frame && count.stringValue == page,
+                    "settingsStyleChangedSelectionPageOrFrame")
+        try require((find("history.search", in: history.window.contentView) as? NSSearchField)?.stringValue == id.uuidString,
+                    "settingsStyleClearedSearch")
+        await capture("history-settings-grid-synchronized", window: host.center.window)
+        try await chooseHistoryStyle(.current, fromSettings: false)
+        try require(history.selectedRecordID == id && count.stringValue == page, "historyStyleLostUUIDOrPage")
+        try click("history.filter.3", window: history.window)
+        try await wait { try self.historyTable().numberOfRows == 0 }
+        try await chooseHistoryStyle(.imageGrid, fromSettings: true)
+        try require((find("history.grid.filter", in: history.window.contentView) as? NSPopUpButton)?.indexOfSelectedItem == 3,
+                    "historyStyleLostFilter")
+        try await chooseHistoryStyle(.current, fromSettings: false)
+        try require((find("history.filter.3", in: history.window.contentView) as? NSButton)?.state == .on, "historyCurrentFilterLost")
+        try click("history.filter.0", window: history.window)
+        _ = try await selectHistoryFixture()
+        try await assertHistoryReadOnly("search-filter-two-window-style")
+        artifacts.append(["kind": "historyTwoWindowState", "fullSelectedUUID": id.uuidString,
+            "searchPreserved": true, "filterPreserved": true, "firstPagePreserved": true,
+            "settingsToHistory": "imageGrid", "historyToSettings": "current"])
+    }
+    private func visibleGridImages(_ window: NSWindow) -> [NSImageView] {
+        allViews(window.contentView).filter {
+            $0.identifier?.rawValue.hasPrefix("history.grid.item.") == true && !$0.isHiddenOrHasHiddenAncestor && !$0.visibleRect.isEmpty
+        }.flatMap { allViews($0).compactMap { $0 as? NSImageView } }.filter { !$0.isHiddenOrHasHiddenAncestor && !$0.visibleRect.isEmpty }
+    }
+    private func historyOriginal() async throws {
+        let history = try reviewHistory(), id = try await selectHistoryFixture(), table = try historyTable()
+        guard let action = table.doubleAction else { throw Failure.controlUnavailable("history.table.doubleAction") }
+        try require(NSApp.sendAction(action, to: table.target, from: table), "historyOriginalActionNotDispatched")
+        try await wait { NSApp.windows.contains { $0.identifier?.rawValue == "RiftletHistoryPreview" && $0.isVisible } }
+        guard let preview = NSApp.windows.first(where: { $0.identifier?.rawValue == "RiftletHistoryPreview" && $0.isVisible }),
+              let image = find("history.preview.image", in: preview.contentView) as? NSImageView,
+              let zoom = try control("history.preview.zoom", window: preview) as? NSSegmentedControl, let action = zoom.action,
+              let record = historyReadOnlyBaseline.first(where: { $0.id == id }) else { throw Failure.controlUnavailable("history.preview") }
+        try await wait { image.image != nil }
+        zoom.selectedSegment = 2
+        try require(NSApp.sendAction(action, to: zoom.target, from: zoom), "historyZoomActionNotDispatched")
+        try await wait { image.image != nil && abs(image.frame.width - Double(record.image.pixelWidth * 2)) <= 1
+            && abs(image.frame.height - Double(record.image.pixelHeight * 2)) <= 1 }
+        let originalWindow = preview.windowNumber
+        for style in [HistoryDisplayStyle.imageGrid, .current, .imageGrid] {
+            try await chooseHistoryStyle(style, fromSettings: style != .current)
+            try require(history.selectedRecordID == id && preview.isVisible && preview.windowNumber == originalWindow
+                && zoom.selectedSegment == 2 && image.image != nil
+                && abs(image.frame.width - Double(record.image.pixelWidth * 2)) <= 1
+                && abs(image.frame.height - Double(record.image.pixelHeight * 2)) <= 1, "rendererChangeLostOriginalUUIDWindowZoom")
+            if style == .imageGrid {
+                try await wait { let images = self.visibleGridImages(history.window); return !images.isEmpty && images.allSatisfy { $0.image?.cgImage(forProposedRect: nil, context: nil, hints: nil) != nil } }
+                artifacts.append(["kind": "historyGridWithOriginal", "fullSelectedUUID": id.uuidString,
+                    "originalWindowNumber": originalWindow, "zoomSegment": 2, "loadedVisibleThumbnailCount": visibleGridImages(history.window).count])
+            }
+        }
+        await capture("history-original-200-percent", window: preview)
+        await capture("history-grid-with-original-still-open", window: history.window)
+        preview.performClose(nil)
+        try await wait { !preview.isVisible }
+        // Exercise the grid's own accessible item selection and its native
+        // original button as a second entry, not a direct controller method.
+        try await historySearch("")
+        guard historyFixtureIDs.count == 3 else { throw Failure.assertion("gridOriginalFixtureMissing") }
+        let gridID = historyFixtureIDs[1]
+        let cellID = "history.grid.item." + gridID.uuidString
+        try await wait { self.find(cellID, in: history.window.contentView)?.isHiddenOrHasHiddenAncestor == false }
+        guard let cell = find(cellID, in: history.window.contentView) else { throw Failure.controlUnavailable(cellID) }
+        try require(cell.accessibilityPerformPress(), "historyGridNativeAccessibilitySelectionRejected")
+        try await wait { history.selectedRecordID == gridID }
+        try click("history.original", window: history.window)
+        try await wait { NSApp.windows.contains { $0.identifier?.rawValue == "RiftletHistoryPreview" && $0.isVisible } }
+        guard let gridPreview = NSApp.windows.first(where: { $0.identifier?.rawValue == "RiftletHistoryPreview" && $0.isVisible }),
+              let gridImage = find("history.preview.image", in: gridPreview.contentView) as? NSImageView else {
+            throw Failure.controlUnavailable("history.grid.original")
+        }
+        try await wait { gridImage.image?.cgImage(forProposedRect: nil, context: nil, hints: nil) != nil }
+        try require(history.selectedRecordID == gridID && gridPreview.title.contains(String(gridID.uuidString.prefix(8)))
+            && allViews(history.window.contentView).contains { $0.toolTip == gridID.uuidString }, "gridOriginalIdentityMismatch")
+        artifacts.append(["kind": "historyGridOriginalEntry", "fullSelectedUUID": gridID.uuidString,
+            "selectionAction": "native item accessibilityPerformPress", "openAction": "native history.original NSButton", "bitmapLoaded": true])
+        await capture("history-grid-original-button", window: gridPreview)
+        gridPreview.performClose(nil)
+        try await wait { !gridPreview.isVisible }
+        try await assertHistoryReadOnly("original-and-renderer-changes")
+    }
+    private func historyDetailScroll(_ window: NSWindow) throws -> NSScrollView {
+        guard let image = find("history.detail.image", in: window.contentView),
+              let scroll = image.enclosingScrollView, scroll.window === window,
+              let document = scroll.documentView, image.isDescendant(of: document) else {
+            throw Failure.controlUnavailable("history.detail.scroll")
+        }
+        return scroll
+    }
+    private func historyDetailInitialViewport(_ window: NSWindow) throws {
+        let scroll = try historyDetailScroll(window)
+        guard let document = scroll.documentView else { throw Failure.controlUnavailable("history.detail.document") }
+        window.contentView?.layoutSubtreeIfNeeded(); scroll.tile()
+        let y = document.isFlipped ? document.bounds.minY : max(document.bounds.minY, document.bounds.maxY - scroll.contentView.bounds.height)
+        scroll.contentView.scroll(to: NSPoint(x: document.bounds.minX, y: y))
+        scroll.reflectScrolledClipView(scroll.contentView)
+    }
+    private func verifyHistoryDetailReachability(_ name: String, window: NSWindow) async throws {
+        let scroll = try historyDetailScroll(window)
+        guard let document = scroll.documentView else { throw Failure.controlUnavailable("history.detail.document") }
+        let ids = ["history.original", "history.reveal", "history.restore", "history.remove"]
+        let actions = ids.compactMap { find($0, in: document) as? NSControl }.filter {
+            !$0.isHiddenOrHasHiddenAncestor && $0.isEnabled
+        }
+        try require(!actions.isEmpty, "historyNoAvailableDetailActions")
+        do {
+            for action in actions {
+                let before = document.visibleRect
+                let target = document.convert(action.bounds, from: action)
+                let requested = document.scrollToVisible(target)
+                scroll.reflectScrolledClipView(scroll.contentView)
+                window.contentView?.layoutSubtreeIfNeeded()
+                let actual = document.convert(action.bounds, from: action)
+                let visible = document.visibleRect
+                let reachable = !actual.isEmpty && visible.insetBy(dx: -1, dy: -1).contains(actual)
+                artifacts.append(["kind": "historyDetailActionReachability", "frameName": name,
+                    "identifier": action.identifier?.rawValue ?? "", "enabled": action.isEnabled,
+                    "documentFrame": rect(document.frame), "documentFittingSize": [document.fittingSize.width, document.fittingSize.height],
+                    "visibleRectBefore": rect(before), "visibleRectAfter": rect(visible), "actionRectInDocument": rect(actual),
+                    "scrollRequestedMovement": requested, "fullyReachable": reachable,
+                    "method": "Existing detail NSScrollView document.scrollToVisible; no action invoked"])
+                try require(reachable, "historyDetailActionClippedAfterScroll:" + (action.identifier?.rawValue ?? "unknown"))
+            }
+            let y = document.isFlipped ? max(document.bounds.minY, document.bounds.maxY - scroll.contentView.bounds.height) : document.bounds.minY
+            scroll.contentView.scroll(to: NSPoint(x: document.bounds.minX, y: y))
+            scroll.reflectScrolledClipView(scroll.contentView)
+            await capture(name + "-bottom-actions", window: window)
+        } catch {
+            await capture(name + "-unreachable-actions", window: window)
+            throw error
+        }
+    }
+    private func historyVisuals() async throws {
+        let history = try reviewHistory()
+        try await chooseHistoryStyle(.current, fromSettings: false)
+        try await historySearch("")
+        try await wait { try self.historyTable().numberOfRows == self.historyReadOnlyBaseline.count }
+        let originalFrame = history.window.frame
+        for theme in [SettingsAppearanceChoice.light, .dark] {
+            try await appearance(theme); host.show(page: .history)
+            for style in HistoryDisplayStyle.allCases {
+                try await chooseHistoryStyle(style, fromSettings: true)
+                for minimum in [false, true] {
+                    let size = minimum ? history.window.minSize : NSSize(width: style == .current ? 760 : 828, height: style == .current ? 560 : 582)
+                    history.window.setFrame(NSRect(origin: originalFrame.origin, size: size), display: true)
+                    history.window.contentView?.layoutSubtreeIfNeeded()
+                    try await wait { abs(history.window.frame.width - size.width) <= 1 && abs(history.window.frame.height - size.height) <= 1 }
+                    if style == .imageGrid {
+                        try await wait { let images = self.visibleGridImages(history.window); return !images.isEmpty && images.allSatisfy { $0.image?.cgImage(forProposedRect: nil, context: nil, hints: nil) != nil } }
+                    } else {
+                        try await wait { (self.find("history.detail.image", in: history.window.contentView) as? NSImageView)?.image != nil }
+                    }
+                    let name = "history-" + theme.rawValue + "-" + style.rawValue + (minimum ? "-minimum" : "-standard")
+                    try historyDetailInitialViewport(history.window)
+                    await capture(name, window: history.window)
+                    guard let captured = frames.last, captured["name"] as? String == name,
+                          captured["status"] as? String == "RECORDED_NATIVE_WINDOWSERVER",
+                          let actual = captured["windowServerBounds"] as? [Double], actual.count == 4 else {
+                        throw Failure.assertion("historyOwnedWindowFrameNotCaptured")
+                    }
+                    try require(abs(actual[2] - size.width) <= 1 && abs(actual[3] - size.height) <= 1,
+                                "historyWindowServerSizeMismatch")
+                    if minimum { try await verifyHistoryDetailReachability(name, window: history.window) }
+                }
+            }
+        }
+        history.window.setFrame(originalFrame, display: true)
+        try await assertHistoryReadOnly("all-renderer-theme-size-presentations")
+    }
+    private func historyVisibilityActions() async throws {
+        let history = try reviewHistory(), id = try await selectHistoryFixture()
+        let initial = try await store.assets(includeUsed: true)
+        guard let original = initial.first(where: { $0.id == id }) else { throw Failure.assertion("historyRemoveTargetMissing") }
+        for style in HistoryDisplayStyle.allCases {
+            try await chooseHistoryStyle(style, fromSettings: true)
+            try require(history.selectedRecordID == id, "historyVisibilityActionLostUUID")
+            history.window.setFrame(NSRect(origin: history.window.frame.origin, size: history.window.minSize), display: true)
+            let before = try await store.assets(includeUsed: true)
+            guard let target = before.first(where: { $0.id == id }) else { throw Failure.assertion("historyRemoveTargetMissing") }
+            try require(target.visibility == .visible, "historyRemoveTargetNotVisible")
+            try click("history.remove", window: history.window)
+            try await wait { try await self.store.asset(id: id)?.visibility == .removed }
+            await onRefresh()
+            let removed = try await store.assets(includeUsed: true)
+            try require(removed.filter { $0.id != id } == before.filter { $0.id != id }, "historyRemoveChangedOtherAssets")
+            try await wait { (self.find("history.restore", in: history.window.contentView) as? NSControl)?.isEnabled == true }
+            try await verifyHistoryDetailReachability("history-" + style.rawValue + "-removed-minimum", window: history.window)
+            try click("history.restore", window: history.window)
+            try await wait { try await self.store.asset(id: id)?.visibility == .visible }
+            await onRefresh()
+            let restored = try await store.assets(includeUsed: true)
+            guard let after = restored.first(where: { $0.id == id }) else { throw Failure.assertion("historyRestoredTargetMissing") }
+            try require(restored.count == before.count && restored.filter { $0.id != id } == before.filter { $0.id != id }, "historyRestoreChangedOtherAssets")
+            try require(after.image == target.image && after.sequence == target.sequence && after.status == target.status
+                && after.activeOperationID == target.activeOperationID && after.visibilityRevision == target.visibilityRevision + 2,
+                "historyRemoveRestoreChangedImmutableState")
+            try await integrity()
+            artifacts.append(["kind": "historyRemoveRestore", "style": style.rawValue, "fullTargetUUID": id.uuidString,
+                "otherAssetRowsUnchanged": true, "mediaUnchanged": true, "visibilityPath": ["visible", "removed", "visible"],
+                "beforeVisibilityRevision": target.visibilityRevision, "afterVisibilityRevision": after.visibilityRevision,
+                "beforeAssetRowsSHA256": try assetRowsDigest(before), "afterAssetRowsSHA256": try assetRowsDigest(restored)])
+        }
+        let final = try await store.assets(includeUsed: true)
+        try require(final.first(where: { $0.id == id })?.visibilityRevision == original.visibilityRevision + 4
+            && final.filter { $0.id != id } == initial.filter { $0.id != id }, "historyBothStylesVisibilityRoundtripMismatch")
+    }
+
+    private func verifyHistoryStyleRestart(output: URL, initialChecks: [[String: Any]], prior: [String: Any]?, executableSHA: String?) async -> URL? {
+        var checks = initialChecks
+        var beforeDomain: Data?
+        do {
+            guard let prior, prior["status"] as? String == "PASS_SCOPED_NATIVE_REVIEW",
+                  let expected = (prior["artifacts"] as? [[String: Any]])?.last(where: { $0["kind"] as? String == "historyFinalState" }),
+                  let expectedRows = expected["assetRowsSHA256"] as? String,
+                  let expectedDomain = expected["rawDomainSHA256"] as? String else { throw Failure.assertion("successfulHistoryRunRequired") }
+            let history = try reviewHistory(), raw = try historyDomain(); beforeDomain = raw.bytes
+            try require(digest(raw.bytes) == expectedDomain && raw.value[HistoryDisplayPreferences.key] as? String == "imageGrid",
+                        "historyRestartRawPreferenceMismatch")
+            try require(host.historyDisplay.selection == .imageGrid && host.snapshot.historyDisplayStyle == .imageGrid
+                && history.displayStyle == .imageGrid, "historyRestartLoadedOwnerMismatch")
+            checks.append(["check": "history-raw-domain-and-actual-loaded-owner", "status": "PASS",
+                "selection": host.historyDisplay.selection.rawValue, "rawDomainSHA256": digest(raw.bytes)])
+            let records = try await store.assets(includeUsed: true)
+            try require(try assetRowsDigest(records) == expectedRows, "historyRestartChangedFullAssetRows")
+            try await integrity()
+            checks.append(["check": "history-full-asset-rows-and-media", "status": "PASS", "assetRowsSHA256": expectedRows,
+                "assetCount": records.count, "completeOperationTableCount": "runner read-only SQL" ])
+            try require(!history.window.isVisible && !host.center.isVisible && !host.onboarding.isVisible && !host.control.isShown,
+                        "historyRestartPresentedWindow")
+            checks.append(["check": "history-read-only-restart-no-window", "status": "PASS"])
+            try require(try historyDomain().bytes == beforeDomain, "historyRestartChangedRawDomain")
+            checks.append(["check": "history-preference-unchanged-during-readback", "status": "PASS"])
+        } catch { checks.append(["check": "history-restart", "status": "FAIL", "reason": code(error)]) }
+        let report: [String: Any] = ["schema": 1, "reviewID": environment.identifier.uuidString.lowercased(),
+            "reviewMode": "historyStyle", "status": checks.contains { $0["status"] as? String == "FAIL" } ? "FAIL" : "PASS_SCOPED_NATIVE_RESTART",
+            "completed": true, "processPID": ProcessInfo.processInfo.processIdentifier,
+            "executableSHA256": executableSHA as Any? ?? NSNull(), "beganUTC": ISO8601DateFormatter().string(from: began),
+            "checks": checks, "driverChangedPreferences": false, "createdFixtures": 0,
+            "scope": "Same binary, new process, exact prior report and UUID root; real loaded history owner and raw isolated suite readback; no window presentation",
+            "notRun": ["productionData", "browserAttachment", "physicalInput", "systemPermissions", "loginRegistration"]]
+        do {
+            try JSONSerialization.data(withJSONObject: report, options: [.prettyPrinted, .sortedKeys]).write(to: output, options: .atomic)
+            return output
+        } catch { return nil }
+    }
+
     private func history() async throws {
         let old = Set(NSApp.windows.filter(\.isVisible).map(\.windowNumber))
         try await closeControl(); onHistory()
@@ -1051,13 +1446,13 @@ final class SettingsReviewDriver {
         if let failure { throw failure }
     }
 
-    @discardableResult private func createFixture(_ suffix: String) throws -> String {
+    @discardableResult private func createFixture(_ suffix: String, width: Int = 160, height: Int = 100) throws -> String {
         try validateEnvironment()
         let name = "settings-review-synthetic-" + UUID().uuidString.lowercased() + "-" + suffix + ".png"
         let file = environment.source.appendingPathComponent(name)
-        guard let context = CGContext(data: nil, width: 160, height: 100, bitsPerComponent: 8, bytesPerRow: 160 * 4,
+        guard let context = CGContext(data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: width * 4,
             space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) else { throw Failure.encoding }
-        context.setFillColor(CGColor(red: 0.12, green: 0.44, blue: 0.35, alpha: 1)); context.fill(CGRect(x: 0, y: 0, width: 160, height: 100))
+        context.setFillColor(CGColor(red: 0.12, green: 0.44, blue: 0.35, alpha: 1)); context.fill(CGRect(x: 0, y: 0, width: width, height: height))
         context.setFillColor(CGColor(gray: 0.94, alpha: 1)); context.fill(CGRect(x: 15, y: 20, width: 112, height: 12))
         // Each generated fixture has distinct pixels as well as a distinct
         // source filename, so a later import cannot match an earlier image.
@@ -1072,7 +1467,7 @@ final class SettingsReviewDriver {
         let result = marker.withUnsafeBytes { setxattr(file.path, "com.apple.metadata:kMDItemIsScreenCapture", $0.baseAddress, $0.count, 0, 0) }
         try require(result == 0, "fixtureMetadataWriteFailed")
         artifacts.append(["kind": "syntheticCollectorInput", "file": "fixture-source/" + name,
-                          "sha256": digest(data), "pixels": [160, 100], "systemScreenshot": false,
+                          "sha256": digest(data), "pixels": [width, height], "systemScreenshot": false,
                           "testMetadataExplicitlyAdded": true])
         return digest(data)
     }
@@ -1164,7 +1559,8 @@ final class SettingsReviewDriver {
             "processPID": ProcessInfo.processInfo.processIdentifier,
             "frontmostPIDAtStart": beganPID as Any? ?? NSNull(),
             "executableSHA256": executable.map(digest) as Any? ?? NSNull(),
-            "inputMethod": "Native NSControl actions and NSTextView insertion; no physical pointer or OS IME claim",
+            "reviewMode": historyStyleReview ? "historyStyle" : "settings",
+            "inputMethod": historyStyleReview ? "PROGRAMMATIC_NATIVE_CONTROLS: NSControl actions, native selection/accessibility action and NSTextView insertion; not CGEvent or hardware" : "Native NSControl actions and NSTextView insertion; no physical pointer or OS IME claim",
             "scope": "UUID-isolated real host/model/SQLite/collector and AppKit windows in the same App binary",
             "notRun": ["realChatGPTAttachment", "physicalPointer", "OSInputMethod", "VoiceOver", "realLoginRegistration", "realTCCPrompt", "multiDisplayHotplug"],
             "productionDataAccess": false, "browserAccess": false, "networkUpload": false,

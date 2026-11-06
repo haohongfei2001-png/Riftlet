@@ -94,6 +94,22 @@ final class SettingsReviewEnvironmentTests: XCTestCase {
         XCTAssertFalse(FileManager.default.fileExists(atPath: base.appendingPathComponent(OrdinaryCaptureConfiguration.dataDirectoryName).path))
     }
 
+    func testHistoryReviewModifierNeverFallsThroughToOrdinaryCapture() throws {
+        let id = UUID().uuidString, flag = "--history-style-review"
+        for prefix in [[], ["--simulate"], ["--web-acceptance"], ["--settings-review", id]] {
+            XCTAssertThrowsError(try ApplicationMode.resolve(prefix + [flag]))
+        }
+        for action in ["--settings-review-run", "--settings-review-restart-check"] {
+            let arguments = ["--settings-review", id, action, flag]
+            #if RIFTLET_ORDINARY_ACCEPTANCE
+            XCTAssertThrowsError(try ApplicationMode.resolve(arguments))
+            #else
+            XCTAssertEqual(try ApplicationMode.resolve(arguments), .settingsReview)
+            #endif
+            XCTAssertThrowsError(try ApplicationMode.resolve(arguments + [flag]))
+        }
+    }
+
     func testIdentityPreparationDoesNotChangeFixturesBeforeWholeAppLockIsWon() throws {
         let base = try temporaryRoot(); defer { try? FileManager.default.removeItem(at: base) }
         let environment = SettingsReviewEnvironment(identifier: UUID(), applicationSupport: base)

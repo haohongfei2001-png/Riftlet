@@ -1,0 +1,297 @@
+{
+  "schemaVersion": 1,
+  "scope": "Preserved observed failures and implemented fixes; final successor candidate regression is pending. No production installation or data access is part of this record.",
+  "status": "CONFIRMED_FAILURES_FIXES_IMPLEMENTED_FINAL_REGRESSION_PENDING",
+  "candidate01": {
+    "source": "28aca618e459bb80e586fcea63d6409caeca2a5a",
+    "sourceTree": "0b32522378e69936cbf3c778585cab2499eb028a",
+    "binarySHA256": "34f0474182bf668698a19c3bd859dd8cc1cc706a31f9e31f94a6489e2cc30d32",
+    "manifest": {
+      "location": "private history dual-style evidence",
+      "relativeArtifact": "candidate-01/MANIFEST.json",
+      "sha256": "b185b3f7a1eec01b2eba4c0ec9f3e70f587f7594fbcc95d9b26f47c669cfd712"
+    },
+    "mode": "isolated settings review; six synthetic collector records",
+    "initialHistoryWindowSize": [
+      760,
+      560
+    ],
+    "laterHistoryWindowSize": [
+      1101,
+      560
+    ],
+    "initialBoundsEvidence": {
+      "location": "private history dual-style evidence",
+      "relativeArtifact": "gui/01-current-default-capture.json",
+      "sha256": "7d3a67f7684a1f07501a4d2e2dc80a3170ec659e05b20ee82c45cbab660954c7"
+    },
+    "laterAXAndWindowServerEvidence": {
+      "location": "private history dual-style evidence",
+      "relativeArtifact": "gui/11-ax-history-settings-state.json",
+      "sha256": "1fb7c107329674024046c6adaaa17f920acf957dd4bc54298a38458d8548d942"
+    }
+  },
+  "geometryProbe": {
+    "version": "v04",
+    "run": "run-02",
+    "sourceCheckpointObserved": "28aca618e459bb80e586fcea63d6409caeca2a5a",
+    "probeSourceSHA256": "17e17e7bd6e880ae9829dcee011c53abcb3ad3f832586212158224346120b7dd",
+    "probeBinarySHA256": "f2577a4b15c560955143ba88e2778593d2d6e72332e65b20306dfb5e93bcb612",
+    "productUIObjectSHA256": "394ed0579c129cc95fe6af30a80a877ac2102289099e921b1157ab6db5426b5a",
+    "buildManifest": {
+      "location": "private history dual-style evidence",
+      "relativeArtifact": "review/hc-probe/v04/build-manifest.json",
+      "sha256": "be9d2414dd03efbce832d8f6c18bea5878b42780b31a21472c823b303b6b5afa"
+    },
+    "originalReport": {
+      "location": "private history dual-style evidence",
+      "relativeArtifact": "review/hc-probe/run-02/report.json",
+      "sha256": "9619931628b1a361c87ec9bb9d8f083871fac62f749de2ef16de26f3c3b1da58"
+    },
+    "launchRecord": {
+      "location": "private history dual-style evidence",
+      "relativeArtifact": "review/hc-probe/run-02-launch.json",
+      "sha256": "ff138e4cf8eb1fc5164bbe0ee6f495005f9bd2e22e97ebdbe029acd76116bd19"
+    },
+    "exitCode": 0,
+    "elapsedSeconds": 5.815295333974063,
+    "reportStatus": "INCOMPLETE_OR_FAILED",
+    "failureStage": "wait_window_bounds",
+    "expectedOuterSize": [
+      680,
+      480
+    ],
+    "observedOuterSize": [
+      941,
+      480
+    ],
+    "fittingWidthEquation": "152 + 260 + 1 + 480 + 48 = 941",
+    "diagnosticTimeline": [
+      {
+        "phase": "before",
+        "stage": "wait_images",
+        "windowSize": [
+          680,
+          480
+        ],
+        "contentSize": [
+          680,
+          448
+        ],
+        "contentFittingSize": [
+          576,
+          122
+        ],
+        "detailImageIntrinsicContentSize": [
+          0,
+          0
+        ]
+      },
+      {
+        "phase": "settled",
+        "stage": "wait_images",
+        "windowSize": [
+          680,
+          480
+        ],
+        "contentSize": [
+          680,
+          448
+        ],
+        "contentFittingSize": [
+          941,
+          122
+        ],
+        "detailImageIntrinsicContentSize": [
+          480,
+          300
+        ]
+      },
+      {
+        "phase": "before",
+        "stage": "wait_window_bounds",
+        "windowSize": [
+          680,
+          480
+        ],
+        "contentSize": [
+          680,
+          448
+        ],
+        "contentFittingSize": [
+          941,
+          122
+        ],
+        "detailImageIntrinsicContentSize": [
+          480,
+          300
+        ]
+      },
+      {
+        "phase": "timeout",
+        "stage": "wait_window_bounds",
+        "windowSize": [
+          941,
+          480
+        ],
+        "contentSize": [
+          941,
+          448
+        ],
+        "contentFittingSize": [
+          941,
+          122
+        ],
+        "detailImageIntrinsicContentSize": [
+          480,
+          300
+        ]
+      }
+    ],
+    "rawImage": {
+      "file": "hc-light-current-minimum-wait_window_bounds-timeout.png",
+      "sha256": "bec8ba73dab50a33ca79de5eda3b87efa8bd62629ddf46468f8dfdd7e83804bd",
+      "rawBytesUnchanged": true,
+      "pixels": [
+        1882,
+        960
+      ],
+      "windowServerSize": [
+        941,
+        480
+      ],
+      "backingScale": 2,
+      "actualAppearance": "NSAppearanceNameAqua",
+      "actualBestMatch": "NSAppearanceNameAqua",
+      "status": "FAILURE_EVIDENCE_CAPTURED",
+      "visualPrivacyReview": "Viewed original: only the owned Riftlet history window and synthetic bar-chart fixtures; no private desktop, browser, menus or user data."
+    },
+    "systemIncreaseContrast": false,
+    "highContrastCertification": "NOT_ESTABLISHED: the hc-prefixed probe frame actually resolved to Aqua; this record proves geometry failure, not system high-contrast acceptance.",
+    "actionCallbacks": 0,
+    "productionAccess": false,
+    "browserAccess": false,
+    "globalPreferencesChanged": false,
+    "permissionRequested": false,
+    "notRun": [
+      "full App host",
+      "shared preference synchronization",
+      "restart",
+      "physical input",
+      "OS accessibility setting change",
+      "upload"
+    ]
+  },
+  "cuaArtifactContentCorrection": [
+    {
+      "image": {
+        "location": "private history dual-style evidence",
+        "relativeArtifact": "gui/03-current-selected-cua.png",
+        "sha256": "5a7f2c7b7ec341d93813d800306111cdec5b8139ae4dc5efcc4eebad273dd540"
+      },
+      "state": {
+        "location": "private history dual-style evidence",
+        "relativeArtifact": "gui/03-current-selected-cua.txt",
+        "sha256": "2dfee463438158acd08924dccd61bbb4dc9a34f3ccee1dc1f77926248232a1a8"
+      },
+      "actualContent": "Current three-column list, selected record, only top-left region visible and white elsewhere. Not an image-grid screenshot.",
+      "actualEncoding": "JPEG despite .png suffix",
+      "pixels": [
+        2202,
+        1120
+      ],
+      "attribution": "Partial CUA image is preserved; it does not by itself prove grid clipping or explain the partial pixel capture."
+    },
+    {
+      "image": {
+        "location": "private history dual-style evidence",
+        "relativeArtifact": "gui/05-settings-grid.png",
+        "sha256": "791cc42c7d1f4c8171a8e3e2a3c63c9b56ed014f234ea85594d14751ca1fc1fd"
+      },
+      "state": {
+        "location": "private history dual-style evidence",
+        "relativeArtifact": "gui/05-settings-grid.txt",
+        "sha256": "45e07ec276acadc6298f7f28b4d17d20e803e8531ffda4874050f512023148b7"
+      },
+      "actualContent": "Fully drawn image-grid history with six loading placeholders, selected UUID detail and style selector. Not the settings window.",
+      "actualEncoding": "JPEG despite .png suffix",
+      "pixels": [
+        2202,
+        1120
+      ]
+    },
+    {
+      "image": {
+        "location": "private history dual-style evidence",
+        "relativeArtifact": "gui/06-grid-first-observed-incomplete.png",
+        "sha256": "e7c1f18a7a9e71e59009931dcc8c94455465b5fd5a92082683f6a16b20f16dc8"
+      },
+      "state": {
+        "location": "private history dual-style evidence",
+        "relativeArtifact": "gui/06-grid-first-observed-incomplete.txt",
+        "sha256": "2ba8ffb80993f7bff296397a14b669bb15e452334c9dcb51ea40890a20713adf"
+      },
+      "actualContent": "Settings History and Storage page. Not the grid window.",
+      "actualEncoding": "JPEG despite .png suffix",
+      "pixels": [
+        1920,
+        1424
+      ]
+    }
+  ],
+  "failures": [
+    {
+      "id": "H01",
+      "status": "CONFIRMED",
+      "finding": "Loaded detail NSImageView intrinsic width increased current-view fitting width and the native window.",
+      "fix": "Reuse existing HistoryPreviewImageView with noIntrinsicMetric for detail; retain Fit and all constraints.",
+      "regression": "testLoadedLargeDetailDoesNotGrowMinimumWindowAcrossBothStyles"
+    },
+    {
+      "id": "H02",
+      "status": "CONFIRMED",
+      "finding": "External AX snapshot exposed collection containers/image/text but no intended per-item UUID identifier, aggregated label or selection. Plain NSView root did not explicitly participate in AX.",
+      "evidence": {
+        "location": "private history dual-style evidence",
+        "relativeArtifact": "gui/05-settings-grid.txt",
+        "sha256": "45e07ec276acadc6298f7f28b4d17d20e803e8531ffda4874050f512023148b7"
+      },
+      "fix": "Accessible cell root with explicit identifier, label and selected state; AX selection routes current UUID through native collection and existing controller. No image action is dispatched by selection.",
+      "regression": "testGridAccessibleCellsExposeIdentityAndSelectTheSameUUIDThroughNativeCollection"
+    },
+    {
+      "id": "H03",
+      "status": "CONFIRMED",
+      "finding": "Opening grid for the first time while original preview remained visible left all initial grid cards at loading placeholders because mayLoad explicitly rejected every visible original window.",
+      "evidence": {
+        "location": "private history dual-style evidence",
+        "relativeArtifact": "gui/05-settings-grid.png",
+        "sha256": "791cc42c7d1f4c8171a8e3e2a3c63c9b56ed014f234ea85594d14751ca1fc1fd"
+      },
+      "fix": "Grid creates an existing HistoryPreviewLoader instance with independent owner/cancellation state; original uses shared. Both instances use the unchanged private static serial decode queue and strict decoder. Remove original-visible veto and explicit grid suspension. No concurrent ImageIO lane was added.",
+      "regressions": [
+        "testFirstGridThumbnailsLoadWhileOriginalWindowRetainsBitmapAndZoom",
+        "testSeparateThumbnailAndOriginalOwnersStillShareOneSerialDecodeLane"
+      ],
+      "retainedRegression": "testOriginalOwnerPreemptsThumbnailsAndTheyStaySuspendedUntilPreviewCloses still verifies deliberately injected same-loader owner preemption."
+    }
+  ],
+  "implementedFileSHA256": {
+    "Sources/RiftletUI/RiftHistoryController.swift": "22a3603cd75249b66185122627dd7be64e2c2cbd422dbdc2c01927cfea5cdbab",
+    "Sources/RiftletUI/HistoryGridRenderer.swift": "f92f8e1193b1d61864bb1768ec5ecb773d1434641fc15af062258d7db46fb042",
+    "Sources/RiftletUI/HistoryPreviewLoader.swift": "e22d1354afff21cfbbcc7ea6f8794d13dd9cd4f4d40c56c44c02742e91e1cd48",
+    "Tests/RiftletUITests/HistoryDisplayStyleTests.swift": "ba7b93ed3f185c4707c32b98b67fa89db1c55aa213ae8d241409dc4282116464"
+  },
+  "validationAtRecord": {
+    "sourceParser": "PASS",
+    "gitDiffCheck": "PASS",
+    "historyStyleXCTestMethodCount": 16,
+    "localXCTest": "NOT_RUN: local command-line developer environment lacks XCTest",
+    "finalCandidateRuntimeRegression": "PENDING",
+    "finalExternalAXRegression": "PENDING",
+    "finalSourceCI": "PENDING",
+    "realChatGPT": "NOT_RUN",
+    "publicReleaseReadiness": "NOT_CLAIMED"
+  },
+  "privacy": "Only the reviewed synthetic owned-window PNG is copied byte for byte. Raw reports, CUA frames, AX dumps, process IDs, absolute private paths and menus remain private; their basenames and SHA-256 bindings are retained here."
+}

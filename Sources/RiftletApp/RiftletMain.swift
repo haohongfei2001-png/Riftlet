@@ -143,6 +143,8 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private var refreshWaiters: [CheckedContinuation<Void, Never>] = []
     private var historyGeneration: UInt64 = 0
     private var history: RiftHistoryController?
+    // Root ownership is established before installSetup first reads this owner.
+    private lazy var historyDisplayPreferences = HistoryDisplayPreferences.make(mode: mode, root: root)
     private var historyOffset = 0
     private var userHidden = false
     private var captureIsPaused = false
@@ -222,7 +224,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                             guard let self, self.mode == .settingsReview else { return false }
                             self.recheckSetup()
                             return self.captureControl.action == .recheck
-                        })
+                        }, history: history)
                     let report = CommandLine.arguments.contains("--settings-review-restart-check")
                         ? await driver.verifyRestart() : await driver.run()
                     if let report { print("RIFTLET_SETTINGS_REVIEW_REPORT=" + report.path) }
@@ -460,12 +462,19 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             arrivalCapture = ArrivalCaptureBridge(panel: rift,
                 allowsMetadata: ArrivalSourceProfile.allowsMetadata(arguments: CommandLine.arguments))
         }
+        let historyDisplay = historyDisplayPreferences
         history = RiftHistoryController(mediaDirectory: root.appendingPathComponent("media"),
             onRestore: { [weak self] id in self?.restoreHistory(id) },
             onRemove: { [weak self] id in self?.removeVisible(id) },
             onReveal: { [weak self] id in self?.revealHistory(id) },
             onNextPage: { [weak self] in self?.changeHistoryPage(1) },
-            onPreviousPage: { [weak self] in self?.changeHistoryPage(-1) })
+            onPreviousPage: { [weak self] in self?.changeHistoryPage(-1) },
+            displayStyle: historyDisplay.selection,
+            onDisplayStyleChanged: { [weak historyDisplay] style in historyDisplay?.select(style) })
+        historyDisplay.onChange = { [weak self] style in
+            self?.history?.updateDisplayStyle(style)
+            self?.settingsHost?.refreshHistoryDisplayStyle()
+        }
         history?.onPreviewVisibilityChanged = { [weak self] visible in self?.rift?.setDetailPresented(visible) }
         let composition = try ApplicationAttachmentComposition.make(mode: mode, root: root, store: store,
             traceEnabled: CommandLine.arguments.contains("--acceptance-trace"),
@@ -725,7 +734,8 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 owner: nextSettingsOwner(), adapter: SettingsPersistenceClosures { [weak self] request in
                     guard let self else { return .unconfirmed(nil, .ownerUnavailable) }
                     return await self.saveSettings(request)
-                }, onRefresh: { [weak self] in self?.updateSetup() },
+                }, historyDisplay: historyDisplayPreferences,
+                onRefresh: { [weak self] in self?.updateSetup() },
                 onAction: { [weak self] in await self?.performSettingsAction($0) })
         } catch { setupIssue = .configurationUnavailable }
         updateSetup()
@@ -1500,7 +1510,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         case .showLatest: showLatest()
         case .showOldest: showOldest()
         case .quit: quit()
-        case .settings, .appearance, .retryAppearance, .loginEnabled, .retryLogin, .openLoginSettings, .finishOnboarding:
+        case .settings, .appearance, .retryAppearance, .historyDisplayStyle, .loginEnabled, .retryLogin, .openLoginSettings, .finishOnboarding:
             break // Owned by SettingsProductHost; never recursively dispatched.
         }
     }

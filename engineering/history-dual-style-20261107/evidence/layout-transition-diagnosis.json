@@ -1,0 +1,786 @@
+{
+  "schema": 1,
+  "observedSourceParent": "dbd37419210015cc7ed8c97bc8ada6aed7d647a5",
+  "temporaryDiagnosticSourceSHA256": "e5ee031ade966c7d716842c04278d7e6578757817bd90b9ca10f0415388dcf5e",
+  "temporaryPatchSHA256": "cb0686366ab27cf5a415d0ff48973e98db9a796fd9eba172ea6d3e85a7bf10c1",
+  "rawTraceLogSHA256": "144a5abd24e64889f2ee04b807ef2b3d839813f5eeb337b3ac7f1fa204ab2d88",
+  "warningCount": 5,
+  "runnerResult": "FAIL_NATIVE_LAYOUT_WARNINGS",
+  "firstFailureTrace": [
+    {
+      "clipBounds": [
+        0,
+        0,
+        465,
+        412
+      ],
+      "clipInsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "collectionBounds": [
+        0,
+        0,
+        465,
+        412
+      ],
+      "collectionFrame": [
+        0,
+        0,
+        465,
+        412
+      ],
+      "event": "delegate.itemSize",
+      "hidden": false,
+      "insets": [
+        4,
+        24,
+        20,
+        24
+      ],
+      "path": [
+        0,
+        0
+      ],
+      "result": [
+        200,
+        144
+      ],
+      "scrollContentSize": [
+        465,
+        412
+      ],
+      "scrollFrame": [
+        0,
+        66,
+        465,
+        412
+      ],
+      "scrollInsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "sequence": 40,
+      "unixTime": 1793998707.48405,
+      "uptime": 1339879.209601375,
+      "visible": true
+    },
+    {
+      "clipBounds": [
+        0,
+        0,
+        465,
+        412
+      ],
+      "clipInsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "collectionBounds": [
+        0,
+        0,
+        465,
+        412
+      ],
+      "collectionFrame": [
+        0,
+        0,
+        465,
+        412
+      ],
+      "event": "delegate.sectionInsets",
+      "hidden": false,
+      "result": [
+        4,
+        24,
+        20,
+        24
+      ],
+      "scrollContentSize": [
+        465,
+        412
+      ],
+      "scrollFrame": [
+        0,
+        66,
+        465,
+        412
+      ],
+      "scrollInsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "section": 0,
+      "sequence": 41,
+      "unixTime": 1793998707.484072,
+      "uptime": 1339879.2096235834,
+      "visible": true
+    },
+    {
+      "clipBounds": [
+        0,
+        0,
+        465,
+        412
+      ],
+      "clipInsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "collectionBounds": [
+        0,
+        0,
+        465,
+        412
+      ],
+      "collectionFrame": [
+        0,
+        0,
+        465,
+        412
+      ],
+      "event": "flow.prepare.end",
+      "hidden": false,
+      "scrollContentSize": [
+        465,
+        412
+      ],
+      "scrollFrame": [
+        0,
+        66,
+        465,
+        412
+      ],
+      "scrollInsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "sequence": 42,
+      "unixTime": 1793998707.484098,
+      "uptime": 1339879.2096494585
+    },
+    {
+      "clipBounds": [
+        0,
+        0,
+        465,
+        412
+      ],
+      "clipInsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "collectionBounds": [
+        0,
+        0,
+        465,
+        412
+      ],
+      "collectionFrame": [
+        0,
+        0,
+        465,
+        412
+      ],
+      "event": "flow.returnAttributes",
+      "hidden": false,
+      "items": [
+        {
+          "frame": [
+            24,
+            32,
+            200,
+            144
+          ],
+          "path": [
+            0,
+            0
+          ]
+        }
+      ],
+      "scrollContentSize": [
+        465,
+        412
+      ],
+      "scrollFrame": [
+        0,
+        66,
+        465,
+        412
+      ],
+      "scrollInsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "sequence": 43,
+      "unixTime": 1793998707.4841309,
+      "uptime": 1339879.2096821251
+    },
+    {
+      "clipBounds": [
+        0,
+        0,
+        465,
+        412
+      ],
+      "clipInsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "collectionBounds": [
+        0,
+        0,
+        465,
+        412
+      ],
+      "collectionFrame": [
+        0,
+        0,
+        465,
+        412
+      ],
+      "event": "renderer.setVisible.end",
+      "hidden": false,
+      "scrollContentSize": [
+        465,
+        412
+      ],
+      "scrollFrame": [
+        0,
+        66,
+        465,
+        412
+      ],
+      "scrollInsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "sequence": 44,
+      "unixTime": 1793998707.4858751,
+      "uptime": 1339879.2114261668,
+      "visible": true
+    },
+    {
+      "clipBounds": [
+        0,
+        0,
+        194,
+        0
+      ],
+      "clipInsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "collectionBounds": [
+        0,
+        0,
+        194,
+        412
+      ],
+      "collectionFrame": [
+        0,
+        0,
+        194,
+        412
+      ],
+      "event": "flow.shouldInvalidateBounds",
+      "hidden": false,
+      "newBounds": [
+        0,
+        0,
+        194,
+        0
+      ],
+      "result": true,
+      "scrollContentSize": [
+        194,
+        0
+      ],
+      "scrollFrame": [
+        0,
+        66,
+        194,
+        0
+      ],
+      "scrollInsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "sequence": 45,
+      "unixTime": 1793998707.636269,
+      "uptime": 1339879.3618201667
+    },
+    {
+      "attributes": true,
+      "clipBounds": [
+        0,
+        0,
+        194,
+        0
+      ],
+      "clipInsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "collectionBounds": [
+        0,
+        0,
+        194,
+        412
+      ],
+      "collectionFrame": [
+        0,
+        0,
+        194,
+        412
+      ],
+      "contextClass": "NSCollectionViewFlowLayoutInvalidationContext",
+      "delegateMetrics": false,
+      "event": "flow.boundsContext",
+      "hidden": false,
+      "newBounds": [
+        0,
+        0,
+        194,
+        0
+      ],
+      "scrollContentSize": [
+        194,
+        0
+      ],
+      "scrollFrame": [
+        0,
+        66,
+        194,
+        0
+      ],
+      "scrollInsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "sequence": 46,
+      "unixTime": 1793998707.6363358,
+      "uptime": 1339879.3618876252
+    },
+    {
+      "clipBounds": [
+        0,
+        0,
+        194,
+        0
+      ],
+      "clipInsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "collectionBounds": [
+        0,
+        0,
+        194,
+        412
+      ],
+      "collectionFrame": [
+        0,
+        0,
+        194,
+        412
+      ],
+      "event": "flow.invalidateAll",
+      "hidden": false,
+      "scrollContentSize": [
+        194,
+        0
+      ],
+      "scrollFrame": [
+        0,
+        66,
+        194,
+        0
+      ],
+      "scrollInsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "sequence": 47,
+      "unixTime": 1793998707.6363912,
+      "uptime": 1339879.3619417918
+    },
+    {
+      "attributes": true,
+      "clipBounds": [
+        0,
+        0,
+        194,
+        0
+      ],
+      "clipInsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "collectionBounds": [
+        0,
+        0,
+        194,
+        412
+      ],
+      "collectionFrame": [
+        0,
+        0,
+        194,
+        412
+      ],
+      "contextClass": "NSCollectionViewFlowLayoutInvalidationContext",
+      "delegateMetrics": false,
+      "event": "flow.invalidateContext",
+      "hidden": false,
+      "scrollContentSize": [
+        194,
+        0
+      ],
+      "scrollFrame": [
+        0,
+        66,
+        194,
+        0
+      ],
+      "scrollInsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "sequence": 48,
+      "unixTime": 1793998707.63642,
+      "uptime": 1339879.3619715
+    },
+    {
+      "clipBounds": [
+        0,
+        0,
+        194,
+        0
+      ],
+      "clipInsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "collectionBounds": [
+        0,
+        0,
+        194,
+        412
+      ],
+      "collectionFrame": [
+        0,
+        0,
+        194,
+        412
+      ],
+      "event": "flow.prepare.begin",
+      "hidden": false,
+      "scrollContentSize": [
+        194,
+        0
+      ],
+      "scrollFrame": [
+        0,
+        66,
+        194,
+        0
+      ],
+      "scrollInsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "sequence": 49,
+      "unixTime": 1793998707.637065,
+      "uptime": 1339879.3626164168
+    },
+    {
+      "clipBounds": [
+        0,
+        0,
+        194,
+        0
+      ],
+      "clipInsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "collectionBounds": [
+        0,
+        0,
+        194,
+        412
+      ],
+      "collectionFrame": [
+        0,
+        0,
+        194,
+        412
+      ],
+      "event": "flow.prepare.end",
+      "hidden": false,
+      "scrollContentSize": [
+        194,
+        0
+      ],
+      "scrollFrame": [
+        0,
+        66,
+        194,
+        0
+      ],
+      "scrollInsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "sequence": 50,
+      "unixTime": 1793998707.637089,
+      "uptime": 1339879.3626401667
+    },
+    {
+      "clipBounds": [
+        0,
+        0,
+        194,
+        0
+      ],
+      "clipInsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "collectionBounds": [
+        0,
+        0,
+        194,
+        412
+      ],
+      "collectionFrame": [
+        0,
+        0,
+        194,
+        412
+      ],
+      "event": "renderer.setVisible.begin",
+      "hidden": false,
+      "requested": false,
+      "scrollContentSize": [
+        194,
+        0
+      ],
+      "scrollFrame": [
+        0,
+        66,
+        194,
+        0
+      ],
+      "scrollInsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "sequence": 51,
+      "unixTime": 1793998707.637445,
+      "uptime": 1339879.3629966667,
+      "visible": true
+    },
+    {
+      "clipBounds": [
+        0,
+        0,
+        194,
+        0
+      ],
+      "clipInsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "collectionBounds": [
+        0,
+        0,
+        194,
+        412
+      ],
+      "collectionFrame": [
+        0,
+        0,
+        194,
+        412
+      ],
+      "event": "flow.invalidateAll",
+      "hidden": true,
+      "scrollContentSize": [
+        194,
+        0
+      ],
+      "scrollFrame": [
+        0,
+        66,
+        194,
+        0
+      ],
+      "scrollInsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "sequence": 52,
+      "unixTime": 1793998707.637488,
+      "uptime": 1339879.3630395418
+    },
+    {
+      "attributes": true,
+      "clipBounds": [
+        0,
+        0,
+        194,
+        0
+      ],
+      "clipInsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "collectionBounds": [
+        0,
+        0,
+        194,
+        412
+      ],
+      "collectionFrame": [
+        0,
+        0,
+        194,
+        412
+      ],
+      "contextClass": "NSCollectionViewFlowLayoutInvalidationContext",
+      "delegateMetrics": true,
+      "event": "flow.invalidateContext",
+      "hidden": true,
+      "scrollContentSize": [
+        194,
+        0
+      ],
+      "scrollFrame": [
+        0,
+        66,
+        194,
+        0
+      ],
+      "scrollInsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "sequence": 53,
+      "unixTime": 1793998707.637533,
+      "uptime": 1339879.363084125
+    },
+    {
+      "clipBounds": [
+        0,
+        0,
+        194,
+        0
+      ],
+      "clipInsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "collectionBounds": [
+        0,
+        0,
+        194,
+        412
+      ],
+      "collectionFrame": [
+        0,
+        0,
+        194,
+        412
+      ],
+      "event": "renderer.setVisible.end",
+      "hidden": true,
+      "scrollContentSize": [
+        194,
+        0
+      ],
+      "scrollFrame": [
+        0,
+        66,
+        194,
+        0
+      ],
+      "scrollInsets": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "sequence": 54,
+      "unixTime": 1793998707.6375818,
+      "uptime": 1339879.363133,
+      "visible": false
+    }
+  ],
+  "facts": [
+    "The delegate last supplied width 200 at collection width 465 with 24-point side insets.",
+    "Before hiding the outgoing renderer, its collection becomes width 194 and viewport height zero.",
+    "The real bounds invalidation context has delegateMetrics=false. No new itemSize callback occurs before the warning.",
+    "The old 200-point item is wider than 194 minus 48. Only after the warning does renderer.setVisible(false) run."
+  ],
+  "correctedApproach": "Stop presenting outgoing grid items before replacing its constraints; retain the shared metadata and selected UUID. Verify original warning disappears in the same full candidate flow; not yet claimed here."
+}

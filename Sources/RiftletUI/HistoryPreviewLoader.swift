@@ -165,9 +165,10 @@ enum HistoryPreviewDecode {
     }
 }
 
-/// One process-wide decoding lane. There is one running decode and at most one
-/// latest request; superseded requests never build an unbounded dispatch queue.
-/// No high-resolution cache is retained here. Production uses shared only.
+/// One process-wide serial decoding lane. Each instance owns independent
+/// cancellation and at most one scheduled decode plus one latest request.
+/// Original windows use shared; a grid uses its own instance so thumbnails
+/// cannot invalidate an original preview. No high-resolution cache is retained.
 @MainActor
 final class HistoryPreviewLoader {
     static let shared = HistoryPreviewLoader()

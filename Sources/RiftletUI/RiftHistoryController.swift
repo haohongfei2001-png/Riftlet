@@ -51,6 +51,8 @@ private final class HistoryImageCell: NSTableCellView {
 /// The viewport must exist before a bitmap is decoded. An empty NSImageView's
 /// intrinsic height can otherwise collapse the image area and let the footer
 /// absorb the window, leaving no viewport from which to request that bitmap.
+/// Loaded bitmap dimensions must likewise not increase the window's fitting
+/// width; both the detail and original views fit inside their existing bounds.
 private final class HistoryPreviewImageView: NSImageView {
     override var intrinsicContentSize: NSSize {
         NSSize(width: NSView.noIntrinsicMetric, height: NSView.noIntrinsicMetric)
@@ -70,15 +72,34 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
     private let onReveal: (UUID) -> Void
     private let onNextPage: (() -> Void)?
     private let onPreviousPage: (() -> Void)?
+    private let onDisplayStyleChanged: (HistoryDisplayStyle) -> Void
+    public private(set) var displayStyle: HistoryDisplayStyle
+    public private(set) var selectedRecordID: UUID?
+    private var suppressSelection = false
+    private let styleSelector = NSPopUpButton()
+    private let gridFilter = NSPopUpButton()
+    private let gridTitle = NSTextField(labelWithString: "截图历史")
+    private var sidebar: NSView!
+    private var tableScroll: NSScrollView!
+    private var detailScroll: NSScrollView!
+    private var currentConstraints: [NSLayoutConstraint] = []
+    private var gridConstraints: [NSLayoutConstraint] = []
+    private lazy var grid = HistoryGridRenderer(directory: mediaDirectory,
+        onSelection: { [weak self] in self?.selectRecord($0) },
+        onPreview: { [weak self] in self?.previewSelected() }, stateText: Self.stateText,
+        mayLoad: { [weak self] in
+            self?.historyWindow.isVisible == true && self?.displayStyle == .imageGrid
+        })
     private let search = NSSearchField()
     private var filterIndex = 0
     private var filterButtons: [NSButton] = []
     private let table = HistoryTableView()
-    private let detailImage = NSImageView()
+    private let detailImage = HistoryPreviewImageView()
     private let detailTitle = NSTextField(wrappingLabelWithString: "选择一张截图")
     private let detailMetadata = NSTextField(wrappingLabelWithString: "")
     private let detailState = NSTextField(wrappingLabelWithString: "原图与本地记录始终保留。")
     private var detailID: UUID?
+    private var detailAsset: ImportedAsset?
     private var detailGeneration: UInt = 0
     private var previewWindow: NSWindow?
     private var previewImage: NSImageView?
@@ -96,6 +117,7 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
     private let restoreButton = NSButton(title: "放回裂缝", target: nil, action: nil)
     private let removeButton = NSButton(title: "移出可见队列", target: nil, action: nil)
     private let revealButton = NSButton(title: "在 Finder 中显示", target: nil, action: nil)
+    private let originalButton = NSButton(title: "查看原图", target: nil, action: nil)
     private let newerButton = NSButton(title: "上一页", target: nil, action: nil)
     private let olderButton = NSButton(title: "下一页", target: nil, action: nil)
     private let actionNote = RiftVisualStyle.label("放回裂缝不会立即上传。移出队列不会删除本地原图或聊天附件。", role: "secondary")
@@ -106,18 +128,23 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
     private var hasPresented = false
 
     public var isVisible: Bool { historyWindow.isVisible }
+    public var window: NSWindow { historyWindow }
 
     public init(mediaDirectory: URL, onRestore: @escaping (UUID) -> Void,
                 onRemove: @escaping (UUID) -> Void, onReveal: @escaping (UUID) -> Void,
-                onNextPage: (() -> Void)? = nil, onPreviousPage: (() -> Void)? = nil) {
+                onNextPage: (() -> Void)? = nil, onPreviousPage: (() -> Void)? = nil,
+                displayStyle: HistoryDisplayStyle = .current,
+                onDisplayStyleChanged: @escaping (HistoryDisplayStyle) -> Void = { _ in }) {
         self.cache = ThumbnailCache(directory: mediaDirectory)
         self.mediaDirectory = mediaDirectory
         self.onRestore = onRestore; self.onRemove = onRemove; self.onReveal = onReveal
         self.onNextPage = onNextPage; self.onPreviousPage = onPreviousPage
+        self.displayStyle = displayStyle; self.onDisplayStyleChanged = onDisplayStyleChanged
         historyWindow = RiftVisualStyle.window(outerSize: NSSize(width: 760, height: 560),
             minimum: NSSize(width: 680, height: 480), title: "Riftlet — 截图历史")
         super.init()
         historyWindow.title = "Riftlet — 截图历史"
+        historyWindow.identifier = .init("RiftletHistory")
         historyWindow.isReleasedWhenClosed = false
         historyWindow.minSize = NSSize(width: 680, height: 480)
         historyWindow.delegate = self
@@ -134,13 +161,40 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
     }
 
     public func show() {
-        let size = hasPresented ? historyWindow.frame.size : NSSize(width: 760, height: 560)
+        let size = hasPresented ? historyWindow.frame.size : initialSize(for: displayStyle)
+        applyRendererLayout()
         refresh()
         RiftVisualStyle.restoreWindowSize(historyWindow, size: size, constrainOrigin: !hasPresented)
         historyWindow.makeKeyAndOrderFront(nil)
         RiftVisualStyle.restoreWindowSize(historyWindow, size: size, constrainOrigin: !hasPresented)
         hasPresented = true
         NSApp.activate(ignoringOtherApps: true)
+        grid.refreshVisible()
+    }
+
+    /// Projection from the shared preference owner. It does not query history,
+    /// dispatch a preference callback, replace detail/preview state or activate.
+    public func updateDisplayStyle(_ style: HistoryDisplayStyle) {
+        guard style != displayStyle else { return }
+        let followsRenderer = historyWindow.firstResponder === table || historyWindow.firstResponder === grid.collection
+        let anchor: UUID?
+        if displayStyle == .current {
+            let rows = table.rows(in: table.visibleRect)
+            anchor = displayed.indices.contains(rows.location) ? displayed[rows.location].id : nil
+        } else { anchor = grid.firstVisibleID }
+        let size = historyWindow.frame.size
+        displayStyle = style
+        applyRendererLayout()
+        RiftVisualStyle.restoreWindowSize(historyWindow, size: size)
+        if followsRenderer { historyWindow.makeFirstResponder(style == .imageGrid ? grid.collection : table) }
+        if let anchor {
+            if style == .imageGrid { grid.scroll(to: anchor) }
+            else if let row = displayed.firstIndex(where: { $0.id == anchor }) { table.scrollRowToVisible(row) }
+        }
+    }
+
+    private func initialSize(for style: HistoryDisplayStyle) -> NSSize {
+        style == .current ? NSSize(width: 760, height: 560) : NSSize(width: 828, height: 582)
     }
 
     public func close() { previewWindow?.close(); historyWindow.close() }
@@ -151,17 +205,21 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         }
         guard notification.object as? NSWindow === historyWindow else { return }
         detailGeneration &+= 1
-        cache.clear(); detailID = nil; detailImage.image = nil; previewWindow?.close(); previewWindow = nil
+        grid.setVisible(false); grid.clear()
+        cache.clear(); detailID = nil; detailAsset = nil; selectedRecordID = nil
+        detailImage.image = nil; previewWindow?.close(); previewWindow = nil
         displayed.removeAll()
-        table.reloadData()
+        suppressSelection = true; table.reloadData(); suppressSelection = false
     }
 
     public func windowDidResize(_ notification: Notification) {
+        if notification.object as? NSWindow === historyWindow { grid.resize(); return }
         guard let previewWindow, notification.object as? NSWindow === previewWindow else { return }
         requestPreview(debounce: true)
     }
 
     public func windowDidChangeBackingProperties(_ notification: Notification) {
+        if notification.object as? NSWindow === historyWindow { grid.refreshVisible(); return }
         guard let previewWindow, notification.object as? NSWindow === previewWindow else { return }
         requestPreview(clearImage: true)
     }
@@ -176,11 +234,13 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         search.placeholderString = "搜索本页"; search.setAccessibilityLabel("搜索当前历史页")
         search.delegate = self; search.sendsSearchStringImmediately = true
         let sidebar = NSVisualEffectView(); sidebar.material = .sidebar; sidebar.blendingMode = .behindWindow
+        self.sidebar = sidebar
         let nav = RiftVisualStyle.vertical([RiftVisualStyle.label("本机截图", role: "heading")], spacing: 4)
         let symbols = ["photo.on.rectangle", "clock", "paperclip", "archivebox", "exclamationmark.circle", "minus.circle"]
         for (i, name) in ["全部截图", "待核实", "已附加", "已归档", "明确失败", "已移除"].enumerated() {
             let button = RiftSidebarButton(title: name, target: self, action: #selector(filterChanged(_:)))
             button.tag = i; button.symbolName = symbols[i]; button.setButtonType(.pushOnPushOff)
+            button.identifier = .init("history.filter.\(i)")
             button.font = RiftVisualStyle.bodyFont; button.alignment = .left
             button.heightAnchor.constraint(equalToConstant: 36).isActive = true
             button.widthAnchor.constraint(equalToConstant: 128).isActive = true
@@ -204,22 +264,60 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         table.onPreview = { [weak self] in self?.previewSelected() }
         table.setAccessibilityLabel("本机截图记录；空格查看预览")
         let scroll = NSScrollView(); scroll.hasVerticalScroller = true; scroll.autohidesScrollers = true
+        tableScroll = scroll
         scroll.drawsBackground = false; scroll.documentView = table
         let paging = NSStackView(views: [newerButton, olderButton]); paging.spacing = 8
-        for button in [restoreButton, removeButton, revealButton, newerButton, olderButton] {
+        for button in [restoreButton, removeButton, revealButton, originalButton, newerButton, olderButton] {
             RiftVisualStyle.style(button); button.target = self
         }
         restoreButton.action = #selector(restoreSelected); removeButton.action = #selector(removeSelected)
         revealButton.action = #selector(revealSelected); newerButton.action = #selector(previousPage); olderButton.action = #selector(nextPage)
+        originalButton.action = #selector(previewSelected)
+        for (button, identifier) in [(restoreButton, "restore"), (removeButton, "remove"), (revealButton, "reveal"),
+                                      (originalButton, "original"), (newerButton, "previous"), (olderButton, "next")] {
+            button.identifier = .init("history." + identifier)
+        }
+        search.identifier = .init("history.search"); table.identifier = .init("history.current.table")
+        countLabel.identifier = .init("history.count")
         countLabel.font = RiftVisualStyle.secondaryFont; countLabel.textColor = RiftVisualStyle.secondary
         for view in [search, scroll, paging, countLabel] { view.translatesAutoresizingMaskIntoConstraints = false; list.addSubview(view) }
-        NSLayoutConstraint.activate([search.leadingAnchor.constraint(equalTo: list.leadingAnchor, constant: 12),
+        currentConstraints += [search.leadingAnchor.constraint(equalTo: list.leadingAnchor, constant: 12),
             search.trailingAnchor.constraint(equalTo: list.trailingAnchor, constant: -12), search.topAnchor.constraint(equalTo: list.topAnchor, constant: 16),
+            countLabel.leadingAnchor.constraint(equalTo: list.leadingAnchor, constant: 12),
+            paging.leadingAnchor.constraint(equalTo: list.leadingAnchor, constant: 12)]
+        NSLayoutConstraint.activate([
             scroll.topAnchor.constraint(equalTo: search.bottomAnchor, constant: 12), scroll.leadingAnchor.constraint(equalTo: list.leadingAnchor),
             scroll.trailingAnchor.constraint(equalTo: list.trailingAnchor), scroll.bottomAnchor.constraint(equalTo: countLabel.topAnchor, constant: -8),
-            countLabel.leadingAnchor.constraint(equalTo: list.leadingAnchor, constant: 12),
             countLabel.bottomAnchor.constraint(equalTo: paging.topAnchor, constant: -8),
-            paging.leadingAnchor.constraint(equalTo: list.leadingAnchor, constant: 12), paging.bottomAnchor.constraint(equalTo: list.bottomAnchor, constant: -16)])
+            paging.bottomAnchor.constraint(equalTo: list.bottomAnchor, constant: -16)])
+        styleSelector.identifier = .init("history.displayStyle")
+        styleSelector.addItems(withTitles: HistoryDisplayStyle.allCases.map(\.title))
+        styleSelector.target = self; styleSelector.action = #selector(styleChanged(_:))
+        styleSelector.setAccessibilityLabel("历史显示方式")
+        gridFilter.identifier = .init("history.grid.filter")
+        gridFilter.addItems(withTitles: ["全部截图", "待核实", "已附加", "已归档", "明确失败", "已移除"])
+        gridFilter.target = self; gridFilter.action = #selector(gridFilterChanged(_:))
+        gridFilter.setAccessibilityLabel("筛选当前历史页")
+        gridTitle.font = .systemFont(ofSize: 20, weight: .semibold); gridTitle.textColor = HistoryGridStyle.ink
+        for view in [gridTitle, gridFilter, grid.scrollView] {
+            view.translatesAutoresizingMaskIntoConstraints = false; list.addSubview(view)
+        }
+        gridConstraints += [
+            gridTitle.leadingAnchor.constraint(equalTo: list.leadingAnchor, constant: 24),
+            gridTitle.centerYAnchor.constraint(equalTo: search.centerYAnchor),
+            search.topAnchor.constraint(equalTo: list.topAnchor, constant: 16),
+            search.trailingAnchor.constraint(equalTo: list.trailingAnchor, constant: -24),
+            search.widthAnchor.constraint(equalToConstant: 144),
+            gridFilter.trailingAnchor.constraint(equalTo: search.leadingAnchor, constant: -8),
+            gridFilter.centerYAnchor.constraint(equalTo: search.centerYAnchor),
+            gridFilter.widthAnchor.constraint(equalToConstant: 96),
+            gridTitle.trailingAnchor.constraint(lessThanOrEqualTo: gridFilter.leadingAnchor, constant: -8),
+            grid.scrollView.leadingAnchor.constraint(equalTo: list.leadingAnchor),
+            grid.scrollView.trailingAnchor.constraint(equalTo: list.trailingAnchor),
+            grid.scrollView.topAnchor.constraint(equalTo: search.bottomAnchor, constant: 16),
+            grid.scrollView.bottomAnchor.constraint(equalTo: countLabel.topAnchor, constant: -8),
+            countLabel.leadingAnchor.constraint(equalTo: list.leadingAnchor, constant: 24),
+            paging.trailingAnchor.constraint(equalTo: list.trailingAnchor, constant: -24)]
         detailTitle.font = RiftVisualStyle.titleFont; detailTitle.textColor = RiftVisualStyle.ink
         detailMetadata.font = RiftVisualStyle.secondaryFont; detailMetadata.textColor = RiftVisualStyle.secondary
         detailMetadata.isSelectable = true
@@ -232,34 +330,65 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         detailImage.identifier = .init("history.detail.image")
         detailImage.setAccessibilityLabel("完整比例截图预览")
         detailImage.heightAnchor.constraint(equalToConstant: 200).isActive = true
-        let detail = RiftVisualStyle.documentStack([detailImage, detailTitle, detailMetadata, detailState, revealButton, restoreButton, removeButton, actionNote], spacing: 12)
+        let detail = RiftVisualStyle.documentStack([detailImage, detailTitle, detailMetadata, detailState, originalButton, revealButton, restoreButton, removeButton, actionNote], spacing: 12)
         detail.edgeInsets = NSEdgeInsets(top: 24, left: 24, bottom: 24, right: 24)
         for view in detail.arrangedSubviews where !(view is NSButton) { view.widthAnchor.constraint(equalTo: detail.widthAnchor, constant: -48).isActive = true }
         let detailScroll = RiftVisualStyle.topAlignedScrollView()
+        self.detailScroll = detailScroll
         detailScroll.drawsBackground = false; detailScroll.documentView = detail; detail.translatesAutoresizingMaskIntoConstraints = false
         let separator = NSBox(); separator.boxType = .separator
-        for view in [sidebar, list, separator, detailScroll] { view.translatesAutoresizingMaskIntoConstraints = false; content.addSubview(view) }
+        for view in [sidebar, list, separator, detailScroll, styleSelector] { view.translatesAutoresizingMaskIntoConstraints = false; content.addSubview(view) }
+        currentConstraints += [sidebar.widthAnchor.constraint(equalToConstant: 152),
+            list.leadingAnchor.constraint(equalTo: sidebar.trailingAnchor), list.widthAnchor.constraint(equalToConstant: 260),
+            styleSelector.leadingAnchor.constraint(equalTo: sidebar.leadingAnchor, constant: 12)]
+        gridConstraints += [sidebar.widthAnchor.constraint(equalToConstant: 0),
+            list.leadingAnchor.constraint(equalTo: content.leadingAnchor), detailScroll.widthAnchor.constraint(equalToConstant: 294),
+            styleSelector.leadingAnchor.constraint(equalTo: list.leadingAnchor, constant: 24)]
         NSLayoutConstraint.activate([
             sidebar.leadingAnchor.constraint(equalTo: content.leadingAnchor), sidebar.topAnchor.constraint(equalTo: content.topAnchor),
-            sidebar.bottomAnchor.constraint(equalTo: content.bottomAnchor), sidebar.widthAnchor.constraint(equalToConstant: 152),
-            list.leadingAnchor.constraint(equalTo: sidebar.trailingAnchor), list.topAnchor.constraint(equalTo: content.topAnchor),
-            list.bottomAnchor.constraint(equalTo: content.bottomAnchor), list.widthAnchor.constraint(equalToConstant: 260),
+            sidebar.bottomAnchor.constraint(equalTo: content.bottomAnchor), list.topAnchor.constraint(equalTo: content.topAnchor),
+            list.bottomAnchor.constraint(equalTo: content.bottomAnchor),
             separator.leadingAnchor.constraint(equalTo: list.trailingAnchor), separator.widthAnchor.constraint(equalToConstant: 1),
             separator.topAnchor.constraint(equalTo: content.topAnchor), separator.bottomAnchor.constraint(equalTo: content.bottomAnchor),
             detailScroll.leadingAnchor.constraint(equalTo: separator.trailingAnchor), detailScroll.trailingAnchor.constraint(equalTo: content.trailingAnchor),
             detailScroll.topAnchor.constraint(equalTo: content.topAnchor), detailScroll.bottomAnchor.constraint(equalTo: content.bottomAnchor),
             detail.widthAnchor.constraint(equalTo: detailScroll.contentView.widthAnchor),
-            detail.leadingAnchor.constraint(equalTo: detailScroll.contentView.leadingAnchor), detail.topAnchor.constraint(equalTo: detailScroll.contentView.topAnchor)])
+            detail.leadingAnchor.constraint(equalTo: detailScroll.contentView.leadingAnchor), detail.topAnchor.constraint(equalTo: detailScroll.contentView.topAnchor),
+            styleSelector.widthAnchor.constraint(equalToConstant: 128), styleSelector.bottomAnchor.constraint(equalTo: content.bottomAnchor, constant: -16)])
+        applyRendererLayout()
         updateActions()
     }
 
+    private func applyRendererLayout() {
+        let isGrid = displayStyle == .imageGrid
+        // Retire native grid items before removing their viewport constraints.
+        // Otherwise AppKit lays out cached visible items in the collapsing view.
+        if !isGrid { grid.setVisible(false) }
+        NSLayoutConstraint.deactivate(currentConstraints + gridConstraints)
+        NSLayoutConstraint.activate(isGrid ? gridConstraints : currentConstraints)
+        sidebar.isHidden = isGrid; tableScroll.isHidden = isGrid
+        gridTitle.isHidden = !isGrid; gridFilter.isHidden = !isGrid
+        styleSelector.selectItem(at: isGrid ? 1 : 0)
+        originalButton.isHidden = !isGrid || selectedEntry == nil
+        originalButton.isEnabled = selectedEntry != nil
+        historyWindow.backgroundColor = isGrid ? HistoryGridStyle.surface : RiftVisualStyle.window
+        detailScroll.drawsBackground = isGrid
+        detailScroll.backgroundColor = HistoryGridStyle.secondarySurface
+        detailTitle.textColor = isGrid ? HistoryGridStyle.ink : RiftVisualStyle.ink
+        detailState.textColor = isGrid ? HistoryGridStyle.ink : RiftVisualStyle.ink
+        detailMetadata.textColor = isGrid ? HistoryGridStyle.secondary : RiftVisualStyle.secondary
+        for field in [detailTitle, detailState, detailMetadata] { RiftVisualStyle.applyTextStyle(field) }
+        historyWindow.contentView?.layoutSubtreeIfNeeded()
+        grid.select(selectedRecordID); grid.setVisible(isGrid)
+    }
+
     private var selectedEntry: RiftHistoryEntry? {
-        guard displayed.indices.contains(table.selectedRow) else { return nil }
-        return displayed[table.selectedRow]
+        guard let selectedRecordID else { return nil }
+        return displayed.first { $0.id == selectedRecordID }
     }
 
     private func refresh() {
-        let selectedID = selectedEntry?.id
+        let selectedID = selectedRecordID
         let filtered = entries.filter { entry in
             switch filterIndex {
             case 1: return entry.needsVerification
@@ -275,10 +404,15 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
             query.isEmpty || !HistoryPresentation.matching([entry], query: query).isEmpty || Self.stateText(entry).localizedCaseInsensitiveContains(query)
         }
         for button in filterButtons { button.state = button.tag == filterIndex ? .on : .off; button.contentTintColor = button.state == .on ? RiftVisualStyle.accent : RiftVisualStyle.ink }
+        gridFilter.selectItem(at: filterIndex)
+        selectedRecordID = selectedID.flatMap { id in displayed.contains(where: { $0.id == id }) ? id : nil }
+        suppressSelection = true
         table.reloadData()
         if let selectedID, let row = displayed.firstIndex(where: { $0.id == selectedID }) {
             table.selectRowIndexes(IndexSet(integer: row), byExtendingSelection: false)
         } else { table.deselectAll(nil) }
+        suppressSelection = false
+        grid.update(entries: displayed, selection: selectedRecordID)
         countLabel.stringValue = "本页 \(displayed.count) / \(entries.count) 条 · 第 \(pageOffset / HistoryPresentation.pageSize + 1) 页"
         updateActions()
     }
@@ -287,6 +421,8 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         restoreButton.isEnabled = selectedEntry?.canRestoreToRift == true
         removeButton.isEnabled = selectedEntry?.canRemoveFromRift == true
         revealButton.isEnabled = selectedEntry != nil
+        originalButton.isEnabled = selectedEntry != nil
+        originalButton.isHidden = displayStyle != .imageGrid || selectedEntry == nil
         restoreButton.isHidden = !restoreButton.isEnabled
         removeButton.isHidden = !removeButton.isEnabled
         revealButton.isHidden = selectedEntry == nil
@@ -315,12 +451,15 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         let generation = detailGeneration
         guard let entry = selectedEntry else {
             previewWindow?.close()
-            detailID = nil; detailImage.image = nil; detailImage.isHidden = true; detailTitle.stringValue = "截图会留在这里"
+            detailID = nil; detailAsset = nil; detailImage.image = nil; detailImage.isHidden = true; detailTitle.stringValue = "截图会留在这里"
             detailMetadata.stringValue = ""; detailState.stringValue = "选择一张截图，查看原比例预览与本地状态。"
             for field in [detailTitle, detailMetadata, detailState] { RiftVisualStyle.applyTextStyle(field) }
             return
         }
-        detailID = entry.id; detailImage.image = nil; detailImage.isHidden = false
+        let sameBitmap = detailID == entry.id && detailAsset == entry.record.image && detailImage.image != nil
+        detailID = entry.id; detailAsset = entry.record.image
+        if !sameBitmap { detailImage.image = nil }
+        detailImage.isHidden = false
         detailTitle.stringValue = Self.captureTitle(entry)
         detailMetadata.stringValue = "\(entry.record.image.pixelWidth) × \(entry.record.image.pixelHeight)\n编号 \(entry.id.uuidString.prefix(8))"
         detailMetadata.toolTip = entry.id.uuidString
@@ -330,11 +469,11 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         detailState.stringValue = Self.stateText(entry) + "\n" + explanation
         detailImage.setAccessibilityLabel(Self.previewDescription(entry))
         for field in [detailTitle, detailMetadata, detailState] { RiftVisualStyle.applyTextStyle(field) }
-        cache.image(for: entry.record.image, maxPixelSize: Int(320 * historyWindow.backingScaleFactor)) { [weak self] image in
+        if !sameBitmap { cache.image(for: entry.record.image, maxPixelSize: Int(320 * historyWindow.backingScaleFactor)) { [weak self] image in
             guard let self, self.detailID == entry.id, self.detailGeneration == generation,
                   self.historyWindow.isVisible else { return }
             self.detailImage.image = image.map { NSImage(cgImage: $0, size: .zero) }
-        }
+        } }
         if previewWindow != nil {
             let changed = previewEntry?.record.image != entry.record.image
             previewEntry = entry
@@ -496,6 +635,7 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         previewImage?.image = nil; previewImage = nil; previewStatus = nil
         previewEntry = nil; previewVerifiedAsset = nil; previewWindow = nil
         previewScroll = nil; previewZoom = nil; onPreviewVisibilityChanged?(false)
+        grid.refreshVisible()
     }
 
     @objc private func changePreviewZoom(_ sender: NSSegmentedControl) {
@@ -504,9 +644,28 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
     }
     @objc private func revealPreview() { if let entry = previewEntry { onReveal(entry.id) } }
 
+    @objc private func styleChanged(_ sender: NSPopUpButton) {
+        guard HistoryDisplayStyle.allCases.indices.contains(sender.indexOfSelectedItem) else { return }
+        let requested = HistoryDisplayStyle.allCases[sender.indexOfSelectedItem]
+        sender.selectItem(at: displayStyle == .current ? 0 : 1)
+        if requested != displayStyle { onDisplayStyleChanged(requested) }
+    }
+    @objc private func gridFilterChanged(_ sender: NSPopUpButton) { filterIndex = sender.indexOfSelectedItem; refresh() }
     @objc private func filterChanged(_ sender: NSButton) { filterIndex = sender.tag; refresh() }
     public func controlTextDidChange(_ obj: Notification) { refresh() }
-    public func tableViewSelectionDidChange(_ notification: Notification) { updateActions() }
+    public func tableViewSelectionDidChange(_ notification: Notification) {
+        guard !suppressSelection, displayStyle == .current else { return }
+        selectRecord(displayed.indices.contains(table.selectedRow) ? displayed[table.selectedRow].id : nil)
+    }
+    private func selectRecord(_ id: UUID?) {
+        selectedRecordID = id
+        suppressSelection = true
+        if let id, let row = displayed.firstIndex(where: { $0.id == id }) {
+            table.selectRowIndexes(IndexSet(integer: row), byExtendingSelection: false)
+        } else { table.deselectAll(nil) }
+        suppressSelection = false
+        grid.select(id); updateActions()
+    }
     public func numberOfRows(in tableView: NSTableView) -> Int { displayed.count }
 
     public func tableView(_ tableView: NSTableView, viewFor tableColumn: NSTableColumn?, row: Int) -> NSView? {

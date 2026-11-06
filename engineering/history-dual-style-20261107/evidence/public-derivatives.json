@@ -1,0 +1,16 @@
+{
+  "scope": "Public metadata-only derivatives; all raw files and unpublished implementation checkpoints are retained privately. No pixel decoding, resampling or drawing. Removing ICC may affect color-managed display; private originals remain authoritative for color.",
+  "files": [
+    {
+      "file": "engineering/history-dual-style-20261107/evidence/hc-light-current-minimum-wait_window_bounds-timeout.png",
+      "originalSHA256": "bec8ba73dab50a33ca79de5eda3b87efa8bd62629ddf46468f8dfdd7e83804bd",
+      "publicSHA256": "c0a1e13855e8bd62ab646b7f3fd9772b054b9fc86778db3854c7523a08c1cab9",
+      "removedChunks": [
+        "iCCP",
+        "eXIf"
+      ],
+      "IDATPreserved": true,
+      "compressedPixelStreamSHA256": "491e20afd375bb8bb708ddc1e2bf2feca8d5a42388feff3a98b8299fcf7a8321"
+    }
+  ]
+}

@@ -1,0 +1,161 @@
+{
+  "schema": 1,
+  "candidateSource": "db95f1aabd52412ebadddde4c90f628d04a0f011",
+  "binarySHA256": "e56d83dbb8f7f691d0d3591946524d4a053da54d91a2a7de3a6227c03134933c",
+  "inputLevel": "PROGRAMMATIC_NATIVE_CONTROLS",
+  "cases": [
+    {
+      "case": "environment-and-default-window",
+      "seconds": 0.36479200003668666,
+      "status": "PASS"
+    },
+    {
+      "case": "history-default-and-three-collector-assets",
+      "seconds": 0.9680936250369996,
+      "status": "PASS"
+    },
+    {
+      "case": "history-two-window-style-search-filter-uuid",
+      "seconds": 0.4894400832708925,
+      "status": "PASS"
+    },
+    {
+      "case": "history-original-200-percent-survives-renderer-change",
+      "seconds": 0.6245274583343416,
+      "status": "PASS"
+    },
+    {
+      "case": "history-both-renderers-light-dark-minimum",
+      "seconds": 1.3861622081603855,
+      "status": "PASS"
+    },
+    {
+      "case": "history-one-asset-remove-and-restore",
+      "seconds": 0.3585735000669956,
+      "status": "PASS"
+    },
+    {
+      "case": "history-final-integrity-and-persisted-style",
+      "seconds": 0.0386353749781847,
+      "status": "PASS"
+    }
+  ],
+  "rawReportSHA256": "78cdfb6ed60b53d6ad9000ac0ca5035279713a77bfb47adffade3e3e67f46e17",
+  "rawApplicationLogSHA256": "7b09f8f54e025ef9b0fc6bd4f2c10903afd1c89df04fe224510649bbe8a142d3",
+  "flowLayoutWarningCount": 3,
+  "restartStatus": "PASS_SCOPED_NATIVE_RESTART",
+  "restartFullSnapshotEqual": true,
+  "originalFrames": [
+    {
+      "file": "initial-general.png",
+      "sha256": "241782c6ccfa679ecdbad1e514e09eef5db0b8ac28b49e1e1e784c0b1ad1eebf",
+      "pixels": [
+        1920,
+        1424
+      ]
+    },
+    {
+      "file": "history-settings-grid-synchronized.png",
+      "sha256": "69c63444057e8bdf5249118737b387a99dfc8a877a7530328d8ee7f642a5cd28",
+      "pixels": [
+        1920,
+        1424
+      ]
+    },
+    {
+      "file": "history-original-200-percent.png",
+      "sha256": "bbdda2d99e822617b312b9e893a648d928feadf5af7473c822dfb004647cae6f",
+      "pixels": [
+        1284,
+        1016
+      ]
+    },
+    {
+      "file": "history-grid-with-original-still-open.png",
+      "sha256": "0db943f5af9874bb81683b27524aa71fea38cec82239b704f6e388581f7aeedb",
+      "pixels": [
+        1520,
+        1120
+      ]
+    },
+    {
+      "file": "history-grid-original-button.png",
+      "sha256": "db82d450cb2446e44a05f7e23c6b9c324773883464ca953c398f9a5f5a5c2570",
+      "pixels": [
+        1284,
+        1020
+      ]
+    },
+    {
+      "file": "history-light-current-standard.png",
+      "sha256": "cfdc52b7b08c0ba42e66105fac9ab9ee80a878f01e9b6f5bf15d1a241df1dad1",
+      "pixels": [
+        1520,
+        1120
+      ]
+    },
+    {
+      "file": "history-light-current-minimum.png",
+      "sha256": "7231ca0b1f4bca7be2e00380a9afc122a4dbaec4d7fbcf58e9be559d3876bace",
+      "pixels": [
+        1360,
+        960
+      ]
+    },
+    {
+      "file": "history-light-imageGrid-standard.png",
+      "sha256": "6c446955f5d9a7ff1c460631c78eec4f2907b28765662c365520cd0b6d733e3e",
+      "pixels": [
+        1656,
+        1164
+      ]
+    },
+    {
+      "file": "history-light-imageGrid-minimum.png",
+      "sha256": "cde80e7d3a1b2d47484980ff65c8bbe25440cb70a6f2453fed83f361fc44cd17",
+      "pixels": [
+        1360,
+        960
+      ]
+    },
+    {
+      "file": "history-dark-current-standard.png",
+      "sha256": "cdeacedbc8d85501e71873c2555c4ae4ab71423f00d220d5adeb72e424f8383b",
+      "pixels": [
+        1520,
+        1120
+      ]
+    },
+    {
+      "file": "history-dark-current-minimum.png",
+      "sha256": "ab2aea21cea99723c5b4b7942d4eda9ed7d788a84d8af49aed28b42bc0991203",
+      "pixels": [
+        1360,
+        960
+      ]
+    },
+    {
+      "file": "history-dark-imageGrid-standard.png",
+      "sha256": "ad7ebb7458c0e697a1648da0cb6d127167742374623d6573bbcd72ede061b9c0",
+      "pixels": [
+        1656,
+        1164
+      ]
+    },
+    {
+      "file": "history-dark-imageGrid-minimum.png",
+      "sha256": "3f0b622b23514def79f5e51213247e4b918c96a471874dcef5d1ed29e9acab1c",
+      "pixels": [
+        1360,
+        960
+      ]
+    }
+  ],
+  "observations": [
+    "Seven targeted control cases passed; the report does not assert absence of runtime warnings.",
+    "Three actual AppKit flow-layout width warnings require a precise successor.",
+    "Minimum-size screenshots clip initial detail viewport; the existing scroll container must be exercised before classifying reachability. No missing-scroll product defect is established.",
+    "Original raw reports and screenshots remain immutable in the private candidate archive."
+  ],
+  "finalAcceptance": false
+}

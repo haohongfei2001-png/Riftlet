@@ -1,0 +1,230 @@
+{
+  "schema": 1,
+  "source": "a94fc6aea99455291bb85af16f1470c1517cb4e7",
+  "binarySHA256": "ded6da169ed4bacd0ca5eefec9f42c29f108c5ea08882ade58cc70bd47c21c4c",
+  "method": "CGEvent cghidEventTap: actual software-generated OS mouse and key events; external Accessibility readback. Not physical hardware or spoken VoiceOver.",
+  "checks": [
+    {
+      "check": "native-mouse-selects-grid-UUID",
+      "status": "PASS"
+    },
+    {
+      "check": "arrow-selects-next-UUID",
+      "status": "PASS"
+    },
+    {
+      "check": "space-opens-same-UUID",
+      "status": "PASS"
+    },
+    {
+      "check": "escape-closes-shared-preview",
+      "status": "PASS"
+    },
+    {
+      "check": "history-popup-updates-both-windows",
+      "status": "PASS"
+    },
+    {
+      "check": "settings-popup-updates-both-windows",
+      "status": "PASS"
+    },
+    {
+      "check": "first-arrow-after-grid-to-list-works",
+      "status": "PASS"
+    },
+    {
+      "check": "list-space-opens-correct-new-UUID",
+      "status": "PASS"
+    },
+    {
+      "check": "grid-AX-cell-role-label-selection",
+      "status": "PASS"
+    }
+  ],
+  "keyboardFocus": {
+    "26-current-down": {
+      "actions": [],
+      "AXDescription": "本机截图记录；空格查看预览",
+      "AXEnabled": true,
+      "AXFocused": true,
+      "AXIdentifier": "history.current.table",
+      "AXPosition": [
+        731,
+        207
+      ],
+      "AXRole": "AXTable",
+      "AXSize": [
+        262,
+        440
+      ],
+      "index": 1
+    },
+    "29-tab": {
+      "actions": [],
+      "AXDescription": "本机截图记录；空格查看预览",
+      "AXEnabled": true,
+      "AXFocused": true,
+      "AXIdentifier": "history.current.table",
+      "AXPosition": [
+        731,
+        207
+      ],
+      "AXRole": "AXTable",
+      "AXSize": [
+        262,
+        440
+      ],
+      "index": 1
+    },
+    "30-shifttab": {
+      "actions": [
+        "AXShowMenu",
+        "AXConfirm"
+      ],
+      "AXDescription": "搜索当前历史页",
+      "AXEnabled": true,
+      "AXFocused": true,
+      "AXIdentifier": "history.search",
+      "AXPosition": [
+        743,
+        173
+      ],
+      "AXRole": "AXTextField",
+      "AXSize": [
+        238,
+        24
+      ],
+      "AXSubrole": "AXSearchField",
+      "AXValue": "",
+      "index": 1
+    }
+  },
+  "notes": [
+    "The immediate AX focus snapshot after a popup Return can still report the old semantic element; initial helper assertion preserved. Actual next Down moved the UUID and Space opened the matching original on candidate06. Candidate05 instead moved focus to search and left the record unchanged.",
+    "The helper first matched both NSCollectionView wrapper AXGroup and actionable child AXCell; refined role selector before posting events, not a product data/action change.",
+    "No browser, private conversation, production database or installed App was operated."
+  ],
+  "recordSHA256": {
+    "01-settings-event.json": "954d917e757c4a04bb5f06a23391083dcfd29bbe002a6d2db503513cf56f7fe4",
+    "01-settings-event.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "01-settings-state.json": "ee668c194d269d92659693c02e61abac9b4c4d3e0c811329fc05b2dffc424d68",
+    "01-settings-summary.json": "3f92d000d2cc97a3bdc7d850d6dfd7ea83e20b4bc6b0e9d1407a442980e525c3",
+    "02-history-page-event.json": "6f0ef883f64a14a45706f7c63c0c3a01567a5a142cef441c8c5ce7a7bdc53db1",
+    "02-history-page-event.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "02-history-page-state.json": "2d3d7c8aa70662b97ba39f90d75d1fa8beed682eadf157708c1dbaf50bc6e78c",
+    "02-history-page-summary.json": "3c2b45df6c0ab4325253cb229795c04ab6da17df85d956c41d018ef13cf2a7f2",
+    "03-history-open-event.json": "61c241ed4f1d6356a6342e6fe44de33beba017a235e8e36e8e44dcbb935ba058",
+    "03-history-open-event.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "03-history-open-state.json": "63d6d83785f2a4cd09a00123c2bf2356fd26afbdb44357b8215357270acd3e42",
+    "03-history-open-summary.json": "f195fb2004899e2892f29a87dcdde4d174aa819e4b2d9ba9db52f77a7252ac50",
+    "04-grid-click-event.json": "500f022a37eb72a66e42a1a72870f6a86094f80bc138c4dab19cf8344c2a5eed",
+    "04-grid-click-event.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "04-grid-click-state.json": "6a5e060155e6ab60ca0522107a385ab41cec996778d0813e46aad9d2a942a010",
+    "04-grid-click-summary.json": "5ac942390c95997a51b0f01e824a3e1236aeaa03d61a8eaf100307ce882d3404",
+    "05-grid-right-event.json": "ad7847ac25be26d3b585bc0a9e3aec6d3e9e0468a6a3ddc1190b3169993df000",
+    "05-grid-right-event.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "05-grid-right-state.json": "dcad84f5d931705ac1777305f4828bfc79f5df7f9a90aa8b3eed086453c12974",
+    "05-grid-right-summary.json": "4bd85c3877861c83a4e871f5ec20c4f9a754280a4d8c35b8d447423d02fd6d25",
+    "06-grid-space-event.json": "886f545f0bf038a8414a8e56bad0eaeaf6bf141fb74c4415c0e029da12889f2d",
+    "06-grid-space-event.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "06-grid-space-state.json": "1f0aa772b59ced7c1a8d28223f16ba8da708978f934ad1db9c78ebe731288a31",
+    "06-grid-space-summary.json": "dde26b972d097df075925844256eee467add245a7188e908eb6955253b2b134c",
+    "07-preview-escape-event.json": "b22857730c0f5a2bee695431dffd5cf6dfa4689d1b2dd361460cfbf98b51d7fd",
+    "07-preview-escape-event.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "07-preview-escape-state.json": "efbc25388253170406bcc4adf7bd0ba07fb9624d50d883ce868f5d8f7fa3c70d",
+    "07-preview-escape-summary.json": "41587cf4e989ebf5062aff27914a5564da0a70df64cb1fa8cd808804796596d1",
+    "08-history-popup-event.json": "cf38b01a7d0b806e140ff85651c155a403860e6720b6709f64f9bd618c9e7fda",
+    "08-history-popup-event.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "08-history-popup-state.json": "e8d33bf9a984afe82f0bb8b961b854bc96708b72496c54477eaeb2b39f998964",
+    "08-history-popup-summary.json": "fc8419899853b7d8214b48e3987652bab0b2c2f4a9cf4b3a5072f0ba79a2bbf9",
+    "09-history-up-event.json": "7cceba6287f5a3f6dcda48ff7c82912471223c29453b6af6b108577ee1498e4c",
+    "09-history-up-event.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "09-history-up-state.json": "768ccb09e9103e5d91a2d62ddf8ee997927fd9bd472262dd8b4f40218358717b",
+    "09-history-up-summary.json": "087db3584285b87451bf53c81eeb67a6e61261ecff9e309fb44be354689ebeb0",
+    "10-history-return-event.json": "90f43c9cd12763ea2e629524d21f0b415c77847cdb12289a791c6ef0be8f99b8",
+    "10-history-return-event.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "10-history-return-state.json": "d8f2935a2cfc7f1027439e691a8cdfce64ea2bba15d1cad4bb3e7721f06aa160",
+    "10-history-return-summary.json": "1074ccc640d93a00cc791d655b3617e83f77abac15c582d55e144c450ec21e46",
+    "16-settings-event.json": "ff326ef3049d600bda0f23400baa8d3b2584241c24f8974bbe3c26990247a705",
+    "16-settings-event.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "16-settings-state.json": "a8438f130d7402d156334adbf891adb91f73946a347f4fdf4feb656f660f4eaa",
+    "16-settings-summary.json": "8829a04f556962f48bc6fab24f44f117301e3c3cd255e7f2a44109a4f35cc9cd",
+    "17-history-page-event.json": "770c1aca1c29e5e5ea5ecba0c1f8f702cc2ec9148ff96fd6d6dc0eb5fbdbbc71",
+    "17-history-page-event.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "17-history-page-state.json": "d29de435cbf2cf6aa2fbb43d0e4e95fc672b44357d5ec5ceb71c38153476fc9d",
+    "17-history-page-summary.json": "b9a2fe091ea301b0d1f1a64d046661f5ea320213e35548634d9f622337a0c4e1",
+    "18-settings-popup-event.json": "9d1eec4cf5ab93471cb71a460483cd6d654e499d8ac5aa90a40e8e3b073b4328",
+    "18-settings-popup-event.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "18-settings-popup-state.json": "ad2747d7fed9f0c82f0c02b8f7d5d5bfa26e4f37d3795965fd4dc07040256745",
+    "18-settings-popup-summary.json": "b802f07520de590334072925ca535a347f8fa1f5a622c43855a3962c5587650c",
+    "19-settings-down-event.json": "d2fba5f5f4500e67e55f385a7b8b59c05bb56a2316b05fa45e27a3834a8111ef",
+    "19-settings-down-event.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "19-settings-down-state.json": "2361948ca478092f5725ea2feb4ed089002f1e111487444015eae16270a7f483",
+    "19-settings-down-summary.json": "a965b982646e32e1dfbca2ec867780c4bc074b830d90309afe53a651d9666ea6",
+    "20-settings-return-event.json": "0ae7b7700826429741a319780028804ff3900914b3b6b0eb1995002dd4cf66d5",
+    "20-settings-return-event.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "20-settings-return-state.json": "041ef7d37aa98bc0b1be42bc43a87ff26f1f00fdbca1e7bcf3e7670f4d8ea06c",
+    "20-settings-return-summary.json": "9647a51d36ef51d910405586e46f02926cf341f0811c1be96f40f5852ca5e9de",
+    "21-open-history-event.json": "25ad4b1977efd921e8da487063f34aeb7c51c173c4af6d2dfac79d1733d170b7",
+    "21-open-history-event.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "21-open-history-state.json": "fbf59597fde640259c4539ebb1848adbc230f5c16549f73ad1ff1a13816bb1f6",
+    "21-open-history-summary.json": "6254f5f2b40fce199abad6968eef9a173b506ddc07434c936de46cddeac4d63c",
+    "22-select-second-event.json": "6846b7e961082389982bd2d817a5a616aa4c68ecd24121fb197499afb2dd37c0",
+    "22-select-second-event.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "22-select-second-state.json": "fbf59597fde640259c4539ebb1848adbc230f5c16549f73ad1ff1a13816bb1f6",
+    "22-select-second-summary.json": "6254f5f2b40fce199abad6968eef9a173b506ddc07434c936de46cddeac4d63c",
+    "23-style-popup-event.json": "0886d440e268de82c4bc25d823d6cb682862f9e3e5721cb94ab243f2c0ff0297",
+    "23-style-popup-event.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "23-style-popup-state.json": "999b739607227fc52d5a0477531c9e9ff4ae023c4b2a2c11de2fd4fd870db4a2",
+    "23-style-popup-summary.json": "447f086c670b687f1f6dc386ddc0c7b2cd66521d86f5b18635d448aaa4b1c6a5",
+    "24-style-up-event.json": "a6d10a3f36aef29b58b1337e1267e6c0278ba7151f56420a5ec45490059c2651",
+    "24-style-up-event.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "24-style-up-state.json": "ba45e95a7cc4057709ea57e3e1a0c43dc4fd7b01aa085bc1b5182e9a3012ef2f",
+    "24-style-up-summary.json": "c94eb764e8423611396a83cc3c52276f20d472ddfdf0fbaa5b3f5600298c99d2",
+    "25-style-return-event.json": "0edd3ca3b91fe8703a24a363d037f7c3abe9a26df92f4657d04a38a92a36e1c0",
+    "25-style-return-event.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "25-style-return-state.json": "1cdbff4510c514d1238be9c57abbeefaa24d8bc5a032b63e0e6ef094c823061c",
+    "25-style-return-summary.json": "242e5f6acb6b36eedd74b2e44017d1ab253d42a7be2d359667c2541b22a6e097",
+    "26-current-down-event.json": "c1a1ec32ed088a66ebd28a905e1dc508d6b2f143c877807b6eb73743e53d1c3e",
+    "26-current-down-event.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "26-current-down-state.json": "69e44b426becacc7b769dbe2fa7582a8282cea9fe2c37d4934e541f49dd30e93",
+    "26-current-down-summary.json": "d369c98e2e58c147e5dca6de5c73e5492f119f840b3ce5d09a61a28536215d42",
+    "27-current-space-event.json": "1771df76aaef07b8c31683f7f9b3a1ffdf0faba0d1291d3c5d605ec0eb3c1368",
+    "27-current-space-event.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "27-current-space-state.json": "b977eec6a7929c907583a6355cd90f298b3bb727b1620ac7bee59e431e4b4b01",
+    "27-current-space-summary.json": "db608ba0a667e744100a65015a71a4d21fe4f4c7049f5df65bb3e1492d0663cb",
+    "28-preview-escape-event.json": "02d9a56c8e2e9e36128c25b4a31137cd7832cede3b43df05f85dc45c6e75e68e",
+    "28-preview-escape-event.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "28-preview-escape-state.json": "1f82c3fa8cc2adfbb2694cabdcad680ef33c61549aebf3344beb69bc61fc087c",
+    "28-preview-escape-summary.json": "8474b38a678f43ba9bdc180c1ef6a8b4cd37a974bc63030ca822a5c0c736ab15",
+    "29-tab-event.json": "8b10b6f188e63111242606c24489d26ce4f64dd3c5d3c5bf2af52979866762c1",
+    "29-tab-event.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "29-tab-state.json": "6fb377c780a171133dd68e09dfc9242ad318b65fda027dbee60b28b4f46ee891",
+    "29-tab-summary.json": "070f0e18dc29aa9119bab6c008ad0a6e92db32accbbcc8997ed7768b9470e23b",
+    "30-shifttab-event.json": "ab7591864f0d689e3947efc22c4b96f6974b37a38ea9c3d04774416d170167d0",
+    "30-shifttab-event.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "30-shifttab-state.json": "9c38e57cd159ff0f1bf47b9a40e5b2bf823dca6cacce137b4320aa755f2a3ba0",
+    "30-shifttab-summary.json": "b6c27dcadb4ceceea9f511f5cb984d6db1a6127124c5ebafad0fad239e5eb60d",
+    "31-settings-event.json": "03f981041e7785cc916552be65aeca9ba758dd48372c18aa4542e155189dd70f",
+    "31-settings-event.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "31-settings-state.json": "e871879d916c46cbec000c599c5866e6b0a566e80bd59706c2df0974b769825e",
+    "31-settings-summary.json": "2d873996b0f897a1505e73c758a8e17fc603f72618d7ca3ef1235d7c36d4d79f",
+    "32-history-page-event.json": "b6fb6e44102069b85a0cc648a30a6e39df0d18a825c05e8434ca1c9eda170216",
+    "32-history-page-event.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "32-history-page-state.json": "48de221c1c9e10ab7075aa770114c59f5ab06a602ebb260c8633a6a9571c0333",
+    "32-history-page-summary.json": "32f58e9b092f7bade24c1955e04c9002760bd4f78ee510059e5fd147e6d47179",
+    "33-settings-popup-event.json": "c5312553d0d6bbeffe1b591308c319d5c69a61dc4e3d466fc0378723898ce724",
+    "33-settings-popup-event.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "33-settings-popup-state.json": "b5f533b06ee8c109ef6b204f6a8129e812db8b0e0402f31c79a7f81822584ae6",
+    "33-settings-popup-summary.json": "1961e668877d63704c996c3443478bf2832f2c31e7fce48d22d68f4d77daf838",
+    "34-settings-down-event.json": "00ab4ee5b9184f1706a99bced9d15383cc61075f1253bb222c16825b18627092",
+    "34-settings-down-event.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "34-settings-down-state.json": "38e39105b2f2fa7610a06882f922a517e7fd387cfc18b01d794efde844c952fd",
+    "34-settings-down-summary.json": "d0323dc67e802a796554c3a06c419de21789942d43aa6ffa5b51fd73e308cfd6",
+    "35-settings-return-event.json": "b39c611b49964a422390dbc48c03b8cded625456cb410d2aed7d330cfbf7471a",
+    "35-settings-return-event.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "35-settings-return-state.json": "5cc5d95738c470a793ff9b79e354b033ca63bfb66f403a9f4a4c8fc20c64f07e",
+    "35-settings-return-summary.json": "09fbd7bce14f543d398f172b720b7589c43ab1725226a37365bbca921fb9d7bd"
+  },
+  "status": "PASS_SCOPED_SOFTWARE_GUI"
+}

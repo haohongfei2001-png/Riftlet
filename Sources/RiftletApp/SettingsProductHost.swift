@@ -11,6 +11,7 @@ final class SettingsProductHost {
     private(set) var onboarding: RiftOnboardingController!
     let appearance: ApplicationPresentationPreferences
     let login: LoginItemPreferences
+    let historyDisplay: HistoryDisplayPreferences
     private var setup = SetupSnapshot()
     private var capabilities = SettingsCapabilities()
     private var deferred = false
@@ -25,12 +26,14 @@ final class SettingsProductHost {
     init(root: URL, mode: ApplicationMode, statusItem: NSStatusItem,
          owner: SettingsOwnerSnapshot, adapter: any SettingsPersistenceAdapter,
          login: LoginItemPreferences? = nil,
+         historyDisplay: HistoryDisplayPreferences? = nil,
          onRefresh: @escaping @MainActor () -> Void,
          onAction: @escaping SettingsProductActionHandler) throws {
         model = try SettingsStateModel(owner: owner, adapter: adapter)
         reviewEnvironment = mode == .settingsReview || OrdinaryCaptureConfiguration.isInternalAcceptance
         self.onAction = onAction; self.onRefresh = onRefresh
         self.login = login ?? LoginItemPreferences.live(mode: mode)
+        self.historyDisplay = historyDisplay ?? HistoryDisplayPreferences.make(mode: mode, root: root)
         appearance = ApplicationPresentationPreferences(
             url: root.appendingPathComponent(ApplicationPresentationPreferences.fileName),
             applyAppearance: { NSApp.appearance = $0 })
@@ -65,6 +68,7 @@ final class SettingsProductHost {
         var result = SettingsProductSnapshot(revision: revision, setup: setup, state: model.snapshot)
         result.capabilities = capabilities
         result.configurationDeferred = deferred
+        result.historyDisplayStyle = historyDisplay.selection
         let workspace = NSWorkspace.shared
         result.accessibility = .init(reduceMotion: workspace.accessibilityDisplayShouldReduceMotion,
             reduceTransparency: workspace.accessibilityDisplayShouldReduceTransparency,
@@ -140,6 +144,8 @@ final class SettingsProductHost {
 
     func refreshSystemFacts() { login.refresh(); publish() }
 
+    func refreshHistoryDisplayStyle() { publish() }
+
     func perform(_ action: SettingsProductAction) async {
         guard !isPreparingForTermination else { return }
         switch action {
@@ -148,6 +154,7 @@ final class SettingsProductHost {
             if let value = ApplicationAppearanceChoice(rawValue: choice.rawValue) { try? appearance.select(value) }
             publish()
         case .retryAppearance: _ = try? appearance.retry(); publish()
+        case .historyDisplayStyle(let style): historyDisplay.select(style); publish()
         case .loginEnabled(let target): _ = await login.setEnabled(target); publish()
         case .retryLogin:
             if let target = snapshot.login.failedTarget { _ = await login.setEnabled(target); publish() }

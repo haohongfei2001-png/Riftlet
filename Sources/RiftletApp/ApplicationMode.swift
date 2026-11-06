@@ -20,6 +20,9 @@ enum ApplicationMode: CaseIterable, Equatable {
         guard reviewActions.isEmpty || (selected.first?.1 == .settingsReview && reviewActions.count == 1) else {
             throw RiftletError.modeMismatch
         }
+        let historyReviews = arguments.filter { $0 == "--history-style-review" }
+        guard historyReviews.isEmpty || (historyReviews.count == 1 && selected.first?.1 == .settingsReview
+                                         && reviewActions.count == 1) else { throw RiftletError.modeMismatch }
         if selected.first?.1 == .settingsReview { _ = try SettingsReviewEnvironment.identifier(in: arguments) }
         return selected.first?.1 ?? .capture
     }
