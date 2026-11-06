@@ -43,7 +43,9 @@ run02 完整运行是 FAIL，原图和原始结果不改写。
 
 唯一失败是 `orthogonal-pause-hidden-sqlite` 的 `controlUnavailable:settings.center.paused`；集成侧定位为 driver 在控件暂时禁用时提前发起下一动作。29 个原图文件已核对哈希，三个已取得的控制中心帧仍有 WindowServer 与 AppKit 尺寸差异，例如 210×311 对 362×539 pt，不能作为完整稳定视图验收。该失败 case 的另四张状态图未产生，同包重启没有执行。
 
-仅 driver 的实际可用/完整稳定窗口等待在修正，不能把旧失败重标 PASS。`run04` 需完整功能、原生捕获、正常退出与同包同根新进程重启共同满足；⌘W 的真实键盘复验、正式 CI、最终 App/ZIP 仍待实际结果。
+仅 driver 的实际可用/完整稳定窗口等待在修正，不能把旧失败重标 PASS。`run04` 需完整功能、原生捕获、正常退出与同包同根新进程重启共同满足；正式 CI、最终 App/ZIP 仍待实际结果。
+
+[ea312a6 的 CUA 键盘复验](evidence/cua-native-ea312a6.json)有四项有明确前置观察的 PASS：Escape 退出引导后 ⌘, 打开设置；先确认已有草稿后 ⌘W 显示关闭 sheet；继续编辑保留草稿；⌘Q 不保存后进程退出并保留 86400 秒已确认归档值。快速连批预设选择/关闭未先观测草稿，结果仍是 `INCONCLUSIVE`；失效 AX 索引是 `TOOL_ERROR_RECOVERED`，切换后重读是 `REOBSERVED`，退出后文件缺失假设改查真实保存值是 `AUDIT_ASSUMPTION_CORRECTED`。这些不确定性不新增为产品 FAIL，也不补成 PASS。
 
 ## 自动化与原生运行的对应关系
 
@@ -59,7 +61,7 @@ run02 完整运行是 FAIL，原图和原始结果不改写。
 | 原始文本、光标、控件 identity 不被后台刷新覆盖，非 dirty 字段跟随 owner | SettingsCenter：`NativeFieldsKeepIdentity…`；Host：`OwnerRefreshDuringDraft…` | `configuration-editor-refresh-defaults`；真实 NSTextView/owner 读回 | PENDING；不等于 OS IME |
 | 首击归档保存读取最后编辑，预设也是草稿，小数/0 正确；显式放弃/默认不被旧 editor 写回 | SettingsCenter：`ArchiveFirstSave…`、`ArchivePreset…`、`ExplicitDefaultsAndDiscard…` | `archive-editor-first-save-discard`、`configuration-editor-refresh-defaults` | PENDING |
 | IME marked text 保留；Return 组词不提交；明确放弃使用原生编辑取消 | SettingsCenter：`MarkedComposition…`、`ExplicitDiscardCancelsMarkedInput…` | driver 无真实 OS 输入法；不能给物理中文组词 PASS | 软件层待 CI；OS IME NOT_RUN |
-| 红关闭/⌘W：继续保留、放弃只影响草稿、应用等待真实保存；部分成功不重复成功域 | SettingsCenter：`FirstClose…`、`ApplyAndClose…`、`FailedApply…`、`DiscardClose…`、`PartialCloseSave…` | `close-sheet-continue-discard` 仅覆盖其实际两个分支；键盘红关闭/失败应用需另有实录 | PENDING；未执行分支不借用 driver PASS |
+| 红关闭/⌘W：继续保留、放弃只影响草稿、应用等待真实保存；部分成功不重复成功域 | SettingsCenter：`FirstClose…`、`ApplyAndClose…`、`FailedApply…`、`DiscardClose…`、`PartialCloseSave…` | `close-sheet-continue-discard` 仅覆盖其实际两个分支；ea312a6 CUA 已在先确认草稿后执行 ⌘W/继续编辑 | 该 ⌘W 分支已观察；其他未执行分支与最终候选仍 PENDING |
 | App Quit 复用关闭决策；保存失败保留同 sheet；Continue/teardown/晚回执不误批准；Feedback 清理期间不能打开新设置或发起命令 | SettingsCenter：9 个 `Termination…`；Host：2 个 `TerminationPreparation…`；ControlCenter：`SuspendedInteraction…` | 完整候选正常退出；草稿、失败应用、取消与新动作竞态按实际执行分开记 | run02 正常退出、CUA 继续/应用分支已观察；完整分支及最终候选 PENDING |
 | 保存开始即 busy，同域不重入、跨域仍可用，新编辑在延迟回执后保留 | SettingsCenter：`InFlightSave…`；Host：`BusyChangePublishes…`；StateModel 对应测试 | driver 以具体持久化回读判定，不用固定 sleep 当结果 | PENDING |
 | 显示器具体身份、同名屏不合并、菜单 tracking 中刷新不换目标、临时回退不改偏好 | SettingsCenter：`DisplayFallback…`、`DisplayMenuTracking…`、`SameNamedDisplays…`；[OnboardingTests](../../Tests/RiftletUITests/RiftOnboardingControllerTests.swift) | `three-step-guidance-light-and-dark` 只记录当时可用屏幕；热拔/跨屏另测 | 软件层待 CI；热拔 NOT_RUN |

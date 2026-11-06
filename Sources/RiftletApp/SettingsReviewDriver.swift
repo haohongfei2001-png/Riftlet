@@ -30,6 +30,8 @@ final class SettingsReviewDriver {
     private var beganPID: pid_t?
     private var originalAppearance = SettingsAppearanceChoice.system
     private var initialAssetIDs: Set<UUID> = []
+    private var presentationObservers: [NSObjectProtocol] = []
+    private var presentationTraceCount = 0
 
     init(environment: SettingsReviewEnvironment, host: SettingsProductHost, store: QueueStore,
          statusItem: NSStatusItem, onRefresh: @escaping @MainActor () async -> Void,
@@ -41,6 +43,7 @@ final class SettingsReviewDriver {
     /// A report is checkpointed after each case, including failures. Main owns
     /// process lifetime; the driver neither launches nor terminates an App.
     func run() async -> URL? {
+        defer { stopPresentationTrace() }
         do {
             try validateEnvironment()
             let parent = environment.root.appendingPathComponent("evidence", isDirectory: true)
@@ -53,6 +56,7 @@ final class SettingsReviewDriver {
             beganPID = NSWorkspace.shared.frontmostApplication?.processIdentifier
             originalAppearance = host.snapshot.appearance.selection
             initialAssetIDs = Set(try await store.assets(includeUsed: true).map(\.id))
+            startPresentationTrace()
             try saveReport(completed: false)
         } catch {
             fputs("Riftlet settings review could not establish its isolated evidence directory.\n", stderr)
@@ -673,10 +677,22 @@ final class SettingsReviewDriver {
         guard let button = statusItem.button, button.window?.isVisible == true else { throw Failure.controlUnavailable("statusItem") }
         let start = ProcessInfo.processInfo.systemUptime
         defer { recordControlTransition("open", began: start) }
+        // host.show() has already requested activation for our settings window.
+        // Wait for that asynchronous handoff before simulating its next native
+        // action. This is only driver sequencing, never a product focus gate.
+        var activeSamples = 0
+        try await wait(timeout: 5) {
+            let active = self.host.center.window.isVisible && NSApp.isActive
+                && NSWorkspace.shared.frontmostApplication?.processIdentifier == ProcessInfo.processInfo.processIdentifier
+            activeSamples = active ? activeSamples + 1 : 0
+            return activeSamples >= 2
+        }
+        recordPresentationEvent("beforeStatusAction")
         // isShown reports presentation intent before the animated native window
         // is attached/visible. One action, then wait for the actual owned window;
         // never issue a second toggle to recover a missing screenshot.
         if !host.control.isShown { button.performClick(nil) }
+        recordPresentationEvent("afterStatusAction")
         try await wait {
             guard self.host.control.isShown, let window = self.host.control.window else { return false }
             return window.isVisible && window.windowNumber > 0 && NSApp.windows.contains { $0 === window }
@@ -700,9 +716,54 @@ final class SettingsReviewDriver {
     private func recordControlTransition(_ action: String, began: Double) {
         artifacts.append(["kind": "controlPresentationTransition", "action": action,
             "seconds": ProcessInfo.processInfo.systemUptime - began, "isShown": host.control.isShown,
+            "applicationActive": NSApp.isActive,
+            "frontmostPID": NSWorkspace.shared.frontmostApplication?.processIdentifier as Any? ?? NSNull(),
             "windowVisible": host.control.window?.isVisible ?? false,
             "windowNumber": host.control.window?.windowNumber as Any? ?? NSNull(),
             "ownedWindow": host.control.window.map { window in NSApp.windows.contains { $0 === window } } ?? false])
+    }
+
+    private func startPresentationTrace() {
+        stopPresentationTrace()
+        let center = NotificationCenter.default
+        for (name, event) in [(NSApplication.didBecomeActiveNotification, "app.didBecomeActive"),
+                              (NSApplication.didResignActiveNotification, "app.didResignActive")] {
+            presentationObservers.append(center.addObserver(forName: name, object: NSApp, queue: .main) { [weak self] _ in
+                MainActor.assumeIsolated { self?.recordPresentationEvent(event) }
+            })
+        }
+        for (name, event) in [(NSPopover.willShowNotification, "popover.willShow"),
+                              (NSPopover.didShowNotification, "popover.didShow"),
+                              (NSPopover.willCloseNotification, "popover.willClose"),
+                              (NSPopover.didCloseNotification, "popover.didClose")] {
+            presentationObservers.append(center.addObserver(forName: name, object: nil, queue: .main) { [weak self] notification in
+                MainActor.assumeIsolated {
+                    guard let self, let popover = notification.object as? NSPopover,
+                          popover.contentViewController?.view === self.host.control.contentView else { return }
+                    self.recordPresentationEvent(event)
+                }
+            })
+        }
+        recordPresentationEvent("traceStarted")
+    }
+
+    private func stopPresentationTrace() {
+        for observer in presentationObservers { NotificationCenter.default.removeObserver(observer) }
+        presentationObservers.removeAll()
+    }
+
+    private func recordPresentationEvent(_ event: String) {
+        guard presentationTraceCount < 256 else { return }
+        presentationTraceCount += 1
+        artifacts.append(["kind": "ownPresentationEvent", "event": event,
+            "elapsedSeconds": ProcessInfo.processInfo.systemUptime - beganUptime,
+            "applicationActive": NSApp.isActive,
+            "frontmostPID": NSWorkspace.shared.frontmostApplication?.processIdentifier as Any? ?? NSNull(),
+            "processPID": ProcessInfo.processInfo.processIdentifier,
+            "settingsVisible": host.center.window.isVisible, "settingsKey": host.center.window.isKeyWindow,
+            "popoverShown": host.control.isShown, "popoverWindowVisible": host.control.window?.isVisible ?? false,
+            "popoverWindowKey": host.control.window?.isKeyWindow ?? false,
+            "popoverWindowNumber": host.control.window?.windowNumber as Any? ?? NSNull()])
     }
 
     private func ownedWindowServerBounds(_ window: NSWindow) -> CGRect? {
