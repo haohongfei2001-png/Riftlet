@@ -4,7 +4,15 @@
 
 范围与来源见 [本轮交接](../engineering/beta2-product-20261106/HANDOFF.md)、[状态记录](../engineering/beta2-product-20261106/STATUS.md)、[原生验收矩阵](../engineering/beta2-product-20261106/NATIVE-ACCEPTANCE-MATRIX.md)。这些记录保留中间失败；最终结果必须绑定下表的同一源码与工件，不能把旧原型浏览器测试或中间版截图当作最终候选通过。
 
-## 最终交付身份
+## 本轮有限精修候选
+
+本轮最新事实以[精修结果](../engineering/beta2-polish-20261106/README.md)和[验收记录](../engineering/beta2-polish-20261106/native-acceptance.md)为准：`a5aefd3d166156c74399b700fa9f167e6bc2408d` 的原生普通外观与实际系统高对比度环境各 14/14、各 39 张原图，同包重启各 6/6。可执行文件 SHA-256 为 `e0505af18b2828c3acf88477e6fbb382c975c9097b1de1a222a19e5383e36c39`。精确 G/H、正式 CI、ZIP 哈希由最终 PR 交付和包内清单补齐，不在源码中猜测未来的提交身份。
+
+新包单独命名为 `Riftlet-Beta-2-Polished-Review`，保留旧包和旧失败。用户可直接打开 `Native-Review-Before-After.html` 查看原图对照及高对比度图；需要实际原生窗口时使用包内 `Open Beta 2 Review.command`，它先校验候选哈希与签名，再使用独立 UUID 数据根启动。不要直接双击包内 App 进行普通模式启动。没有把这个审核包安装到生产路径。
+
+实体状态栏左/右/外部点击、系统 IME 组字和持续 VoiceOver 导航仍缺少可靠执行证据；工具尝试不转成 PASS。用户外观决定仍待完成，本轮不自动合并 main、不替换已安装 Beta 1。以下首次候选记录按当时状态保留，其中 PENDING 和旧 CI 失败不是本轮最终交付的实时状态；本轮后续结果查上述索引与 PR。
+
+## 首次候选的源码内冻结记录（历史）
 
 `PENDING` 是尚未完成或尚未填入经过复核的结果，不代表通过。源码 `Resources/Info.plist` 已分配版本身份 **Beta 2 · 0.2.0（2）**；最终产物文件名与哈希仍待核对。
 

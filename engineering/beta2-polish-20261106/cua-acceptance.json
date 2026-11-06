@@ -1,0 +1,94 @@
+{
+  "schema": "riftlet.beta2-polish.cua-acceptance.v1",
+  "source": "a5aefd3d166156c74399b700fa9f167e6bc2408d",
+  "tree": "240ccc5f5192c3d6f2ac22192a5343f7ac4fb2e6",
+  "binarySHA256": "e0505af18b2828c3acf88477e6fbb382c975c9097b1de1a222a19e5383e36c39",
+  "operatorObservationsSHA256": "ea9e5647b6ac876e704de3f4a3d553338bfe84b5e3c18ac2b2140e775be6c684",
+  "launchRecordSHA256": "f5e348e3d3d2cf6b193cd1e0a8fb4146d44378bc3ceeb1cfe48798aa84e05510",
+  "complete": true,
+  "result": "PASS_SCOPED_CUA_WITH_EXPLICIT_NOT_RUN",
+  "method": "Integration operator notes of actual native CUA outputs; this sanitized binding is not independent observation, tool replay or physical-device input.",
+  "checks": [
+    {
+      "case": "exact-candidate-and-review-isolation",
+      "status": "PASS_SCOPED",
+      "observed": "CUA selected the exact candidate App; onboarding identified isolated review with no browser connection or upload."
+    },
+    {
+      "case": "onboarding-escape-and-settings-shortcut",
+      "status": "PASS_SCOPED",
+      "observed": "Escape closed the guide; Command-comma opened six-page settings in the same App."
+    },
+    {
+      "case": "keyboard-focus-order",
+      "status": "PASS_SCOPED",
+      "observed": "With actual system keyboard navigation enabled, Tab moved archive input to Save, Discard, Storage Check, then the native scrollbar; the setting was restored off."
+    },
+    {
+      "case": "draft-close-Escape-and-Return",
+      "status": "PASS_SCOPED",
+      "observed": "Command-W followed by either Escape or Return kept the 2.25-hour draft. Return continued editing rather than applying or closing. Exact text-selection range was not certified."
+    },
+    {
+      "case": "first-save-with-active-field",
+      "status": "PASS_SCOPED",
+      "observed": "After saving 2.25, the active field was edited to 1.75 and Save clicked once without prior blur; draft cleared and save/discard disabled.",
+      "persistedArchiveAfterSeconds": 6300
+    },
+    {
+      "case": "ordinary-close-reopen-and-quit",
+      "status": "PASS_SCOPED",
+      "observed": "Command-W after save then Command-comma reopened a clean General page; Command-Q produced App quit and target-process absence on readback.",
+      "exitCodeCaptured": false
+    },
+    {
+      "case": "actual-system-high-contrast",
+      "status": "PASS_SCOPED",
+      "observed": "Actual increase-contrast setting was read back on; candidate showed stronger text/borders and effective accessibility state. Same binary completed 14/14 plus 39 PNG and restart 6/6. Setting was restored off.",
+      "nativeEvidence": "results.json"
+    },
+    {
+      "case": "physical-statusbar-access",
+      "status": "NOT_RUN",
+      "observed": "Required status-item surface was unavailable through CUA; a system surface lookup timed out. No substitute shell, Apple Event or CGEvent input was used."
+    },
+    {
+      "case": "actual-OS-IME-composition",
+      "status": "NOT_RUN",
+      "observed": "Limited key/input-switch attempts did not produce observable marked text or a composition candidate. No pasted text was counted as IME; no input-source installation or preference change. Current input-source identity was not established."
+    },
+    {
+      "case": "sustained-VoiceOver-navigation",
+      "status": "NOT_RUN",
+      "observed": "A system toggle briefly read on, but no reliable cursor/navigation or audio confirmation followed. A later independent readback was off; why it turned off was not established. No successful sustained VoiceOver session is claimed."
+    }
+  ],
+  "finalLifecycleFileSHA256": "b7df334d4601fa87b3688cf2d6b4c194aeee5985cbfc1bf748ced7f0b04719a3",
+  "finalPersistedArchiveAfterSeconds": 6300,
+  "productionAppOrDataChanged": false,
+  "finalObservedSystemState": {
+    "increaseContrast": "off; restored after temporary test",
+    "reduceTransparency": "off",
+    "keyboardNavigation": "off; restored after temporary test",
+    "VoiceOver": "off on later readback; transition cause not attributed"
+  },
+  "notCertified": [
+    "physical status-bar input",
+    "actual OS IME composition",
+    "sustained VoiceOver navigation",
+    "physical device input",
+    "exact selection range after keyboard close",
+    "normal production-root upgrade",
+    "final user appearance approval"
+  ],
+  "formalCI": "PENDING",
+  "finalGSourceAdmission": "PENDING",
+  "productReady": false,
+  "independentEvidenceReview": {
+    "reportSHA256": "a2c240c180a83a29467fac02d371a16496acc0ea91adc740c0b5e7c7441a336c",
+    "reviewer": "readiness_independent",
+    "authorOfReviewedSource": false,
+    "result": "PASS_SCOPED_HIGH_CONTRAST_VISUAL_AND_EVIDENCE_REVIEW",
+    "method": "Read operator notes and exact candidate/readback identities; no independent CUA replay or physical-input observation."
+  }
+}

@@ -6,12 +6,15 @@ macOS 正常截图，图片停在桌面边缘；点一下微图，附加到当�
 
 ## Beta 2 候选审核
 
-**Beta 2 · 0.2.0（2）** 已实现原生六页设置、菜单栏控制中心和三步引导，[PR #43](https://github.com/haohongfei2001-png/Riftlet/pull/43) 为 Draft。精确候选 `f0e5b99` 已完成 13/13 scoped 原生检查与同包新进程 6/6 自动重启检查，33 张窗口图与跨进程数据摘要已核对。33 张原图已获非作者 scoped 目视通过，精确候选 CUA 已验证草稿 Escape/Return；修正后的正式 CI 和最终源码/工件仍待收口；旧 FAIL 与未运行平台项保留。Beta 1 安装不变，当前不声明 `BETA2_REVIEW_READY` 或 `PRODUCT_READY`；重大 UI 合并与普通数据升级仍等待最终外观决定。
+**Beta 2 · 0.2.0（2）** 的六页原生设置、菜单栏控制中心和三步引导已完成有限精修，继续在 [PR #43](https://github.com/haohongfei2001-png/Riftlet/pull/43) 进行候选审核。实际构建源码 `a5aefd3` 的普通外观与真实系统高对比度环境各完成 14/14 隔离原生检查、39 张原始窗口图及同包新进程 6/6 重启检查。普通 39 张、提高对比度环境中的 24 张重点图已由非作者目视；实际键盘草稿关闭、Tab 顺序与首击保存有独立范围的 CUA 操作记录。
 
+本轮修复了已接受的暂停/恢复命令与后台检查竞争造成的误报保存失败，保留全部旧 FAIL。真实系统 IME 组字、持续 VoiceOver 导航和实体菜单栏点击仍为 NOT_RUN。正式 G/H、五项 CI 和最终工件身份在 PR 的精确交付记录与私有包清单中绑定，不由原型或截图数量代替。Beta 1 安装不变；本轮不合并、不生产替换，也不宣布 `PRODUCT_READY`。最终外观决定仍由用户完成。
+
+- [本轮精修结果与证据](engineering/beta2-polish-20261106/README.md)
+- [本轮原生验收及保留失败](engineering/beta2-polish-20261106/native-acceptance.md)
 - [候选范围、审核入口与升级/回退说明](docs/BETA2_CANDIDATE.md)
-- [原生验收矩阵与真实未运行项](engineering/beta2-product-20261106/NATIVE-ACCEPTANCE-MATRIX.md)
 - [隔离原生 driver 与同包重启验证](docs/SETTINGS_REVIEW_DRIVER.md)
-- [当前工程状态](engineering/beta2-product-20261106/STATUS.md)
+- [首次候选的历史记录](engineering/beta2-product-20261106/STATUS.md)
 
 ## 使用与支持
 

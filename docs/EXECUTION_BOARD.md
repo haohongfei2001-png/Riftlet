@@ -1,3 +1,30 @@
+# Current Beta 2 final native polish — 2026-11-06
+
+Continue existing PR #43 from `d1f4bef`; main remains `c72fca7`. The latest user
+explicitly authorizes limited consumer polish of the existing six settings pages,
+NSPopover and three-step guide, plus targeted native acceptance and evidence-based
+repair. Preserve V2 branding, all customization, the existing settings state and
+attachment architecture. No main merge, production installation or Beta1/data writes.
+
+- Root: shared model formatting, App recheck/collection attribution and minimal
+  confirmed repair, native tool lane, integration/CI/admission and package.
+- review: settings Pages/Rendering/Preview and assigned UI regressions.
+- diagnostics: ControlCenter/Onboarding and their UI regressions.
+- readiness_independent: non-author evidence, source, final native/CI review.
+
+GUI work is serialized through root. Existing 33 PNGs, all prior failures, exact
+Beta1 and the previous delivered ZIP remain immutable. New evidence lives under
+`engineering/beta2-polish-20261106/`; private raw native captures stay local.
+Unavailable physical tests remain NOT_RUN, not a reason to rewrite verified Core.
+
+Runtime checkpoint `a5aefd3` completed normal/actual-system-high-contrast isolated
+review: 14/14 and 39 original PNGs each, same-package restart 6/6 each. A controlled
+before proves the accepted collection/recheck race; the minimal existing-gate
+coordination resolves both directions without retry. CUA keyboard/save/close is
+scoped; system IME, sustained VoiceOver and physical status-item input remain
+NOT_RUN. Final G/H, five CI checks and package identity close through PR #43;
+no main merge or production replacement is authorized by those results.
+
 # Current ordinary product closeout — 2026-11-05 evening
 
 Continue PR 41 from 9ee82114. Root owns native/Core/App and formal refs.
