@@ -1,0 +1,632 @@
+{
+  "schema": "riftlet-real-acceptance-source-checkpoint-v1",
+  "PERSONAL_BETA_2_ACCEPTED": false,
+  "overall": "PARTIAL_ACCEPTANCE_WITH_REMAINING_REAL_SERVICE_AND_ACCESSIBILITY_VALIDATION",
+  "recordedUTC": "2026-11-06T18:17:02.465425+00:00",
+  "identities": {
+    "installed": {
+      "sourceSHA": "a5aefd3d166156c74399b700fa9f167e6bc2408d",
+      "binarySHA256": "e0505af18b2828c3acf88477e6fbb382c975c9097b1de1a222a19e5383e36c39"
+    },
+    "formalMainBeforeRepairs": {
+      "sourceSHA": "71d726c5d6416346b84e1ac93047af5bb321d925"
+    },
+    "candidate01": {
+      "sourceSHA": "1cfbe674f0439cd4446c527a98f716e3ac23a8af",
+      "binarySHA256": "7509a1b4ff9c9b7aef17bc75e9efa088e8f8f1b2b3ec35b512fb2023f5c411d3",
+      "scope": "ISOLATED_NATIVE_REVIEW_NOT_INSTALLED_UPGRADE",
+      "evidence": [
+        "candidate_identity"
+      ]
+    },
+    "loginOwnerBefore": {
+      "sourceFileSHA256": "c744515e34166dcedf0672cc30f6e20e50ce9e6b2b11d8f203515ed68106a6a3",
+      "binarySHA256": "5b3427b6e0a4e0880628ea2a2cfde7815f9fb0e4512b39805949c1c05587f6a5"
+    },
+    "loginOwnerAfter": {
+      "sourceFileSHA256": "a3f0402a4080b50ede45058763839cdc374faa6654ed24dbd5233252f7881253",
+      "binarySHA256": "ca997cf11d997ba915df2c00b93eacd0ffc46745b6e0d1e2d348da3c0f37eec6"
+    },
+    "escapeStandaloneNoEditor": {
+      "sourceFileSHA256": "e02de510c37cd0943531ef986a389f01aadb0491e8a9840b70868dfea9722612",
+      "binarySHA256": "8de5a477ea98f8b2ae453d3ec73c28df96bb2867530b50e56f0feb946652a14e"
+    },
+    "escapeStandaloneMakeKey": {
+      "sourceFileSHA256": "b6adbfb66fc36c37cd0a0fbcb487cbecc0b70d2dcdfcf174714d709f3bd1be54",
+      "binarySHA256": "7eed8e8c5e16b6d0f6073ed2f1f57620096e0b5b82c90a48afd06560b9d934b1"
+    },
+    "candidate02": {
+      "sourceSHA": "c3af6757634ad742a0988bc9dda87aad2a8b22e4",
+      "binarySHA256": "d41d0a819cb447f08a701713d68d7017683f2dabe0d5122ee7d084ec11a7e54f",
+      "scope": "ISOLATED_FULL_ARM64_APP_NOT_INSTALLED_UPGRADE"
+    }
+  },
+  "gradedResults": [
+    {
+      "id": "installed_status_mouse",
+      "identity": "installed",
+      "result": "PASS_SCOPED_GUI_MOUSE",
+      "scope": "Software OS mouse events opened the popover, closed it on repeated left click, and opened the right-click menu. Not human hardware input or certification of all menu commands.",
+      "evidence": [
+        "installed_left_open",
+        "installed_second_left_close",
+        "installed_right_menu"
+      ]
+    },
+    {
+      "id": "installed_outside_close",
+      "identity": "installed",
+      "result": "FAIL_RETAINED",
+      "scope": "Delivered mouse input in the owned external fixture did not close the installed popover after settling.",
+      "repairID": "outside_mouse_lifecycle",
+      "evidence": [
+        "installed_outside_fail"
+      ]
+    },
+    {
+      "id": "candidate_outside_close",
+      "identity": "candidate01",
+      "result": "PASS_SCOPED_GUI_OUTSIDE_CLICK",
+      "scope": "Native AXPress prepared the open popover; one guarded OS mouse down/up reached the owned fixture with matching event marker, and the candidate popover closed. AX opening is separate from mouse opening.",
+      "repairID": "outside_mouse_lifecycle",
+      "evidence": [
+        "candidate_outside_result",
+        "candidate_outside_input"
+      ]
+    },
+    {
+      "id": "candidate_pause_hide_and_routes",
+      "identity": "candidate01",
+      "result": "PASS_SCOPED_GUI_MOUSE_AND_AX_READBACK",
+      "scope": "One native pause click updated both UI surfaces; all four pause/hide combinations, settings/history routes, right-click menu, and one status-left closing transition were observed. Review mode, no upload.",
+      "evidence": [
+        "candidate_first_pause",
+        "candidate_paused_hidden",
+        "candidate_resumed_hidden",
+        "candidate_resumed_visible",
+        "candidate_settings_route",
+        "candidate_history_route",
+        "candidate_right_menu",
+        "candidate_left_close"
+      ]
+    },
+    {
+      "id": "candidate_further_status_cycle",
+      "identity": "candidate01",
+      "result": "NOT_SENT_SETUP_TARGET_MISMATCH",
+      "scope": "The next mouse attempt was rejected before posting because the hit belonged to the system window manager. No full additional open/close cycle is claimed.",
+      "evidence": [
+        "candidate_cycle_not_sent"
+      ]
+    },
+    {
+      "id": "actual_new_screenshot",
+      "identity": "installed",
+      "result": "PASS_EXACT_LOCAL_COLLECTION_ONLY",
+      "scope": "One real macOS screenshot was imported byte-for-byte and remained locally visible. Its first short no-file observation is retained. It was not attached, uploaded or sent.",
+      "evidence": [
+        "capture_initial_no_file",
+        "capture_late_original",
+        "capture_exact_asset",
+        "capture_independent_backup"
+      ]
+    },
+    {
+      "id": "historical_data",
+      "result": "PASS_INDEPENDENT_OFFLINE_BACKUP_COMPARISON",
+      "scope": "All prior asset rows, media, journals, operations, START and UNKNOWN history were preserved. Only the new capture and explicit pause/hide metadata changed logically. SQLite physical header/WAL changes are retained separately from logical equality.",
+      "evidence": [
+        "data_independent_review"
+      ]
+    },
+    {
+      "id": "login_old_owner",
+      "identity": "loginOwnerBefore",
+      "result": "EXPECTED_FAIL_REAL_ISOLATED_SERVICE",
+      "scope": "Actual old owner vetoed explicit enable from notFound without calling registration.",
+      "repairID": "login_notfound_explicit_enable",
+      "evidence": [
+        "login_owner_before"
+      ]
+    },
+    {
+      "id": "login_repaired_owner",
+      "identity": "loginOwnerAfter",
+      "result": "PASS_REAL_ISOLATED_SERVICE_WITH_CLEANUP",
+      "scope": "Actual repaired owner made one explicit dedicated-probe registration, read enabled, unregistered and read notRegistered. No production login item was changed; no fresh-login/reboot test.",
+      "repairID": "login_notfound_explicit_enable",
+      "evidence": [
+        "login_owner_after",
+        "login_cleanup_and_scope",
+        "login_fresh_status"
+      ]
+    },
+    {
+      "id": "actual_ime",
+      "identity": "candidate01",
+      "result": "PASS_SCOPED_ACTUAL_GUI_IME",
+      "scope": "Configured WeChat pinyin in an isolated Feedback draft: marked composition, Space/number candidate selection, mixed text, and refusing save/close until composition finished. CUA input and read-only AX marked-range observations are separate. This is not Apple built-in pinyin, all-IME coverage or feedback-send acceptance.",
+      "evidence": [
+        "ime_marked",
+        "ime_committed",
+        "ime_close_guard",
+        "ime_source"
+      ]
+    },
+    {
+      "id": "ime_final_save_reopen",
+      "identity": "candidate01",
+      "result": "PASS_CUA_REOPEN_AND_ISOLATED_DATABASE_READBACK",
+      "scope": "Actual CUA reopen showed the committed draft. Subsequent isolated database readback confirms one draft and zero reports/submissions; no production feedback or sending was tested.",
+      "evidence": [],
+      "privateEvidence": {
+        "basename": "isolated-feedback-after-ime.json",
+        "sha256": "35ed4939a6b7fd9b8204109a86e6560450e014433db98f19b2d259e39c5166d9"
+      }
+    },
+    {
+      "id": "archive_real_save_failure_and_retry",
+      "identity": "candidate01",
+      "result": "PASS_SCOPED_GUI_AND_REAL_FILESYSTEM_FAILURE",
+      "scope": "A blocker confined to the isolated review preference path caused a real save failure. Other-domain success retained the error. Retry saved the original failed choice while preserving a newer unapplied draft. The original file was preserved and its path restored before retry. Production was untouched.",
+      "evidence": [
+        "archive_fault_setup",
+        "archive_failure",
+        "archive_cross_domain_retention",
+        "archive_retry_original",
+        "archive_retry_newer_draft"
+      ]
+    },
+    {
+      "id": "archive_final_new_draft_save_reopen",
+      "identity": "candidate01",
+      "result": "PASS_GUI_REOPEN_AND_PERSISTED_VALUE",
+      "scope": "Actual reopening showed the new 4.5-hour value without a dirty draft or domain error; disk readback contains 16200 seconds.",
+      "evidence": [],
+      "privateEvidence": {
+        "basename": "archive-reopened-final.json",
+        "sha256": "f6d2791c244bd517680b5a04d06b42ac6fff0f44197851999ab8eb17f3db720c"
+      }
+    },
+    {
+      "id": "voiceover",
+      "identity": "candidate01",
+      "result": "PARTIAL_ACTUAL_SESSION_NOT_FULL_ACCEPTANCE",
+      "scope": "Normal System Settings enabled VoiceOver and readback confirmed it running. An initial owned-window focus announcement was observed. Navigation left the owned App and was stopped, so full routes/order/control announcements are not accepted. Earlier shortcut attempts did not enable VoiceOver.",
+      "evidence": [
+        "vo_shortcut_no_enable",
+        "vo_native_shortcut_no_enable",
+        "vo_system_enabled"
+      ]
+    },
+    {
+      "id": "voiceover_restoration",
+      "result": "PASS_KNOWN_STATE_WITH_CAPTION_BASELINE_LIMIT",
+      "scope": "VoiceOver was returned off and readback found no running process. The selected WeChat pinyin source matched the initial snapshot; AppleScript control and keyboard-navigation settings were reported unchanged. Caption baseline is unknown: a prior shortcut effect was not established and its checkbox was not clicked. Do not claim all accessibility preferences were restored to a known baseline.",
+      "evidence": [
+        "vo_restored"
+      ]
+    },
+    {
+      "id": "installed_popover_escape",
+      "identity": "installed",
+      "result": "FAIL_OBSERVED_ROUTE_DIAGNOSIS_IN_PROGRESS",
+      "scope": "The active installed popover remained after Escape. Exact event recipient was not originally traced; the historical failure remains separate from later standalone diagnosis.",
+      "repairID": "popover_escape_key_routing",
+      "evidence": [
+        "installed_escape_event",
+        "installed_escape_state",
+        "escape_original_analysis"
+      ]
+    },
+    {
+      "id": "escape_standalone_comparison",
+      "result": "PASS_SCOPED_DIAGNOSTIC_COMPARISON",
+      "scope": "Standalone no-editor run opened non-key and received Escape in its other window; a later mouse closed it before manual makeKey. The successor adds only public makeKey on show: the popover becomes key, actual Escape reaches it and it closes. Activation changed during makeKey despite no explicit NSApp.activate. This is diagnostic support, not formal repaired-candidate acceptance. The final_escape row separately records the later complete-App check.",
+      "repairID": "popover_escape_key_routing",
+      "evidence": [
+        "escape_no_editor_manifest",
+        "escape_no_editor_events",
+        "escape_make_key_manifest",
+        "escape_make_key_events"
+      ]
+    },
+    {
+      "id": "real_chatgpt",
+      "result": "NOT_RUN_BROWSER_ACCESS_DISABLED",
+      "scope": "Latest CUA browser inventory explicitly reports Local browser use disabled in Work settings. This round made zero real ChatGPT attempts. No alternate AE/AX/CDP/profile route or other browser-access bypass was used.",
+      "realChatGPTAttempts": 0,
+      "evidence": [],
+      "basis": "ROOT_CURRENT_CUA_TOOL_OBSERVATION"
+    },
+    {
+      "id": "final_escape",
+      "result": "PASS_CONTROLLED_GUI",
+      "scope": "AXPress opening then global Escape closed the shown complete App popover. No matching Escape marker was recorded by the owned external fixture.",
+      "privateEvidence": {
+        "basename": "candidate-02-escape-result.json",
+        "sha256": "3102cc059d4bf8b1c9b5a245884e05179aa24d08b1574e2d39e0e7c74108f9b2"
+      }
+    },
+    {
+      "id": "final_pause_resume",
+      "result": "PASS_CONTROLLED_GUI",
+      "scope": "Single actual mouse clicks paused then resumed; both settings and control-center projections agreed.",
+      "privateEvidence": {
+        "basename": "candidate-02-first-pause-summary.json",
+        "sha256": "d0e5f8836bfe387a6f780993908e3c7291003c8665a321ac1348131e90d2f6f9"
+      }
+    },
+    {
+      "id": "final_outside",
+      "result": "PASS_CONTROLLED_GUI",
+      "scope": "AXPress opening then global outside mouse closed the popover; the owned fixture received matching down/up marker.",
+      "privateEvidence": {
+        "basename": "candidate-02-outside03-result.json",
+        "sha256": "f6f183050a5183a96f80239ca39256c4010ad72ea3c9c926a8a5b3d2d9f44fc8"
+      }
+    },
+    {
+      "id": "final_right_menu",
+      "result": "PASS_CONTROLLED_GUI",
+      "scope": "An actual right mouse event opened the on-screen NSMenu.",
+      "privateEvidence": {
+        "basename": "candidate-02-right-final-summary.json",
+        "sha256": "c31a2586bc8f9eaccf5e643bca3d26f0cfd692ed7fc7668d8b0e4927f200df3f"
+      }
+    },
+    {
+      "id": "final_additional_cycle",
+      "result": "INCONCLUSIVE_NOT_PASS",
+      "scope": "Further AXPress actions did not establish alternating popover visibility. A separate hidden-menu mouse attempt was rejected before posting. No full additional cycle PASS.",
+      "privateEvidence": {
+        "basename": "candidate-02-toggle-results.json",
+        "sha256": "96406f18ddb3d82da8c6a3325e96df3dbed28f92906e53f42327c0e40405d933"
+      }
+    },
+    {
+      "id": "final_archive_final_reopen",
+      "result": "PASS_CONTROLLED_GUI_AND_DISK_READBACK",
+      "scope": "After real isolated write failure, retry persisted original 3.5 hours while keeping newer draft 4.5; normal save and reopening then showed 4.5.",
+      "privateEvidence": {
+        "basename": "archive-final-persisted.json",
+        "sha256": "c7fe0ba99f915d7ae74ab00f684e502daf6ebac7dead8287d8c319129ba66b02"
+      }
+    },
+    {
+      "id": "final_feedback_no_submission",
+      "result": "PASS_ISOLATED_DB_READBACK",
+      "scope": "The isolated draft remains; reports and submissions are empty. No production feedback transport was used.",
+      "privateEvidence": {
+        "basename": "isolated-feedback-after-ime.json",
+        "sha256": "35ed4939a6b7fd9b8204109a86e6560450e014433db98f19b2d259e39c5166d9"
+      }
+    }
+  ],
+  "failureRepairMapping": [
+    {
+      "id": "outside_mouse_lifecycle",
+      "before": "INSTALLED_CONFIRMED_OUTSIDE_CLOSE_FAIL",
+      "repair": "Lifecycle-scoped mouse-down observation with teardown and stale-presentation protection; no focus/activation rewrite.",
+      "after": "CANDIDATE01_OUTSIDE_CLOSE_PASS_AFTER_AX_OPEN",
+      "remaining": "Later complete status cycle was not sent due setup hit mismatch; installed package still has its retained failure.",
+      "evidence": [
+        "outside_source_repair",
+        "outside_after"
+      ]
+    },
+    {
+      "id": "login_notfound_explicit_enable",
+      "before": "ACTUAL_OWNER_VETO_BEFORE_REGISTER",
+      "repair": "Permit explicit enable from notFound and use real system readback/error; unknown remains unavailable. No automatic registration.",
+      "after": "DEDICATED_REAL_SERVICE_PROBE_PASS_AND_UNREGISTERED",
+      "remaining": "Actual product login-item roundtrip and a fresh login were not exercised; original OS-internal notFound cause is not established.",
+      "evidence": [
+        "login_fix_diagnosis"
+      ]
+    },
+    {
+      "id": "popover_escape_key_routing",
+      "before": "INSTALLED_ESCAPE_DID_NOT_CLOSE",
+      "repair": "Make only the explicitly opened popover window key, without global keyboard monitoring or a separate NSApp.activate call.",
+      "after": "COMPLETE_CANDIDATE02_CONTROLLED_ESCAPE_PASS",
+      "remaining": "Full accessibility and hardware acceptance are separate; standard CI/integration pending at this checkpoint.",
+      "evidence": [
+        "escape_run02",
+        "escape_run03"
+      ]
+    },
+    {
+      "id": "earlier_capture_source_status",
+      "before": "TRANSIENT_UNAVAILABLE_STATUS_AND_INITIAL_NO_FILE_OBSERVATION",
+      "repair": "NO_SOURCE_OR_PERMISSION_FIX_JUSTIFIED_BY_THIS_OBSERVATION",
+      "after": "LATER_REAL_SCREENSHOT_IMPORTED_EXACTLY_WITHOUT_REPORTED_PERMISSION_CHANGE",
+      "remaining": "Earlier transient and delay causality remain unattributed; no Downloads permission grant is prescribed.",
+      "evidence": [
+        "source_late_followup"
+      ]
+    }
+  ],
+  "remaining": {
+    "realChatGPT": "NOT_RUN_BROWSER_ACCESS_DISABLED",
+    "physicalHardware": "NOT_RUN_SOFTWARE_GUI_ONLY",
+    "voiceOver": "PARTIAL_NOT_FULL_NAVIGATION_OR_AUDIO",
+    "systemIME": "REAL_INSTALLED_WECHAT_PINYIN_EDITOR_COVERAGE_NOT_ALL_COMPOSITION_PATHS",
+    "sleepDisplayHotplugSpaces": "NOT_PHYSICALLY_CHANGED",
+    "productionLoginItem": "NOT_REGISTERED_SEPARATE_PROBE_ONLY",
+    "publicDistribution": "NOT_NOTARIZED_NO_PUBLIC_RELEASE",
+    "completeStatusCycles": "INCONCLUSIVE_ADDITIONAL_SEQUENCE"
+  },
+  "privacy": {
+    "absoluteUserPathsIncluded": false,
+    "screenshotOrDraftContentIncluded": false,
+    "systemScreenshotFilenameIncluded": false,
+    "unrelatedWindowTitlesIncluded": false,
+    "rawScreenshotsIncluded": false,
+    "voiceoverCaptionArtifactsExcludedEntirely": true,
+    "rawPrivateEvidenceToBePublished": false
+  },
+  "evidence": {
+    "candidate_identity": {
+      "basename": "candidate-01-identity.json",
+      "sha256": "ffca0bfef0715fa843761e14602be7141350928197317cde2e6fa394d601cc68",
+      "publication": "HASH_REFERENCE_ONLY_RAW_PRIVATE_EVIDENCE_NOT_INCLUDED"
+    },
+    "installed_left_open": {
+      "basename": "status-open-confirmed-summary.json",
+      "sha256": "f5023214b638023765171bae173fae8695826b54a40c2994bd42ef39ba484bf8",
+      "publication": "HASH_REFERENCE_ONLY_RAW_PRIVATE_EVIDENCE_NOT_INCLUDED"
+    },
+    "installed_second_left_close": {
+      "basename": "status-repeat-close-confirmed-summary.json",
+      "sha256": "f8fe1b42502a0ee0ef512ac5c815c05cbe7c0d836df294e832469f530173f41b",
+      "publication": "HASH_REFERENCE_ONLY_RAW_PRIVATE_EVIDENCE_NOT_INCLUDED"
+    },
+    "installed_right_menu": {
+      "basename": "status-right-menu-summary.json",
+      "sha256": "cf5d95d08a887c810dff13b14e9a677e09482fdbd50680b1a141555cf8c747f8",
+      "publication": "HASH_REFERENCE_ONLY_RAW_PRIVATE_EVIDENCE_NOT_INCLUDED"
+    },
+    "installed_outside_fail": {
+      "basename": "outside-proof-result.json",
+      "sha256": "4ee75d95f3d5921c3783e189b9deacc6c1f26673a97f38de7ba96710b04d4b23",
+      "publication": "HASH_REFERENCE_ONLY_RAW_PRIVATE_EVIDENCE_NOT_INCLUDED"
+    },
+    "candidate_outside_result": {
+      "basename": "candidate-01-outside-global-result.json",
+      "sha256": "b395cb6a59fe72a3ed8fa57716288e01cb9d2987a85f7ffb5427a4bd996304c9",
+      "publication": "HASH_REFERENCE_ONLY_RAW_PRIVATE_EVIDENCE_NOT_INCLUDED"
+    },
+    "candidate_outside_input": {
+      "basename": "candidate-01-outside-global-outside-event.json",
+      "sha256": "87418baba1cdfc6bdd3cc51031aca5f5e846ef008caa95aaf4cf0e852b6e7034",
+      "publication": "HASH_REFERENCE_ONLY_RAW_PRIVATE_EVIDENCE_NOT_INCLUDED"
+    },
+    "candidate_first_pause": {
+      "basename": "candidate-01-first-pause-summary.json",
+      "sha256": "a908396bfcf8839a583553201795c96f88cae6f0634d687b15b52426c15366f5",
+      "publication": "HASH_REFERENCE_ONLY_RAW_PRIVATE_EVIDENCE_NOT_INCLUDED"
+    },
+    "candidate_paused_hidden": {
+      "basename": "candidate-01-paused-hidden02-summary.json",
+      "sha256": "340b45d0b7014362b8e4e948cfd86f2db27b79dfbf0d0d6cdf03afcf0305a483",
+      "publication": "HASH_REFERENCE_ONLY_RAW_PRIVATE_EVIDENCE_NOT_INCLUDED"
+    },
+    "candidate_resumed_hidden": {
+      "basename": "candidate-01-resumed-hidden02-summary.json",
+      "sha256": "003897f32af30d638e8c730c64158fd2f5b8c3bdf978b70c3043b23518651da8",
+      "publication": "HASH_REFERENCE_ONLY_RAW_PRIVATE_EVIDENCE_NOT_INCLUDED"
+    },
+    "candidate_resumed_visible": {
+      "basename": "candidate-01-resumed-visible02-summary.json",
+      "sha256": "0d304e4168a02e442b4d2ba1594a3c3e580b9ae1af325877609d94f5e88b9b46",
+      "publication": "HASH_REFERENCE_ONLY_RAW_PRIVATE_EVIDENCE_NOT_INCLUDED"
+    },
+    "candidate_settings_route": {
+      "basename": "candidate-01-settings-route02-summary.json",
+      "sha256": "2fdbc40d9acdf7a84bbd10a91e8602b3f07cfc23f8c44e22d877a7064964c05c",
+      "publication": "HASH_REFERENCE_ONLY_RAW_PRIVATE_EVIDENCE_NOT_INCLUDED"
+    },
+    "candidate_history_route": {
+      "basename": "candidate-01-history-route-summary.json",
+      "sha256": "33a20e99406dd4ab5824d61401d810366f42c50e8ece4d4d2aaef28161ee5705",
+      "publication": "HASH_REFERENCE_ONLY_RAW_PRIVATE_EVIDENCE_NOT_INCLUDED"
+    },
+    "candidate_right_menu": {
+      "basename": "candidate-01-right-status-visible-summary.json",
+      "sha256": "8a34868a527acf065ebd323468de5ff397812f42b90b04a68529fec48de0859b",
+      "publication": "HASH_REFERENCE_ONLY_RAW_PRIVATE_EVIDENCE_NOT_INCLUDED"
+    },
+    "candidate_left_close": {
+      "basename": "candidate-01-left-cycle-0-summary.json",
+      "sha256": "ac9d22f82e0ed518db6394d989fe70952564450f33c6c2be40d78e26c415d944",
+      "publication": "HASH_REFERENCE_ONLY_RAW_PRIVATE_EVIDENCE_NOT_INCLUDED"
+    },
+    "candidate_cycle_not_sent": {
+      "basename": "candidate-01-left-cycle-1-summary.json",
+      "sha256": "a377371524482eec6a4ac3934143a915d60c021302885f443a8a768ba11be7a1",
+      "publication": "HASH_REFERENCE_ONLY_RAW_PRIVATE_EVIDENCE_NOT_INCLUDED"
+    },
+    "capture_initial_no_file": {
+      "basename": "capture2-result.json",
+      "sha256": "9c72cfbdf5690eaca7fe3015afbd81dbb5d9644b8ce8eccb45552b5ff9dddff4",
+      "publication": "HASH_REFERENCE_ONLY_RAW_PRIVATE_EVIDENCE_NOT_INCLUDED"
+    },
+    "capture_late_original": {
+      "basename": "capture2-late-result.json",
+      "sha256": "d8dbec4894bec091e299e483a4ec5dd4b17fcc0ba58c5aaa743d60c14fe8b6b2",
+      "publication": "HASH_REFERENCE_ONLY_RAW_PRIVATE_EVIDENCE_NOT_INCLUDED"
+    },
+    "capture_exact_asset": {
+      "basename": "capture2-asset-delta.json",
+      "sha256": "9165751faec23d5178ffcc0e8b81dddac5267150e14984274cc71776acf47730",
+      "publication": "HASH_REFERENCE_ONLY_RAW_PRIVATE_EVIDENCE_NOT_INCLUDED"
+    },
+    "capture_independent_backup": {
+      "basename": "production-after-gui-independent.json",
+      "sha256": "b5145cba6287f193f4d44186bffdbbc74a9bb376a9e8200d368f72f7b6628b09",
+      "publication": "HASH_REFERENCE_ONLY_RAW_PRIVATE_EVIDENCE_NOT_INCLUDED"
+    },
+    "data_independent_review": {
+      "basename": "production-after-gui-independent.json",
+      "sha256": "b5145cba6287f193f4d44186bffdbbc74a9bb376a9e8200d368f72f7b6628b09",
+      "publication": "HASH_REFERENCE_ONLY_RAW_PRIVATE_EVIDENCE_NOT_INCLUDED"
+    },
+    "login_owner_before": {
+      "basename": "owner-before-result.json",
+      "sha256": "6194c25c394b33a8a67bf3ef03f7fbd25112eef3d10d2b66f17e38dcda055976",
+      "publication": "HASH_REFERENCE_ONLY_RAW_PRIVATE_EVIDENCE_NOT_INCLUDED"
+    },
+    "login_owner_after": {
+      "basename": "owner-after-result.json",
+      "sha256": "82eb5b4524b72cb4600539b68582ace63c1dba9f27d8cea9634a4c93ce9e5d9e",
+      "publication": "HASH_REFERENCE_ONLY_RAW_PRIVATE_EVIDENCE_NOT_INCLUDED"
+    },
+    "login_cleanup_and_scope": {
+      "basename": "login-diagnosis.json",
+      "sha256": "d05d0580fb7f4e12bd5e5488ea1617a4208935f68984f988951d54415451a7fc",
+      "publication": "HASH_REFERENCE_ONLY_RAW_PRIVATE_EVIDENCE_NOT_INCLUDED"
+    },
+    "login_fresh_status": {
+      "basename": "fresh-process-status.json",
+      "sha256": "28e875a66e069ff9d4459ca2a8933de7d0baff6af81efe1f8b8b72d47b851191",
+      "publication": "HASH_REFERENCE_ONLY_RAW_PRIVATE_EVIDENCE_NOT_INCLUDED"
+    },
+    "ime_marked": {
+      "basename": "ime-nihao-marked.json",
+      "sha256": "f112c42f6d10df3576e880cd1d1d73f56e91e6c980e144cc99b8f75cc77e18eb",
+      "publication": "HASH_REFERENCE_ONLY_RAW_PRIVATE_EVIDENCE_NOT_INCLUDED"
+    },
+    "ime_committed": {
+      "basename": "ime-chinese-confirmed.json",
+      "sha256": "e943bc297cb767113ceb431b2fb01de6a2ddcfd239ddd4499cfe98a914a57e2f",
+      "publication": "HASH_REFERENCE_ONLY_RAW_PRIVATE_EVIDENCE_NOT_INCLUDED"
+    },
+    "ime_close_guard": {
+      "basename": "ime-close-marked-retained.json",
+      "sha256": "9ad0519d1d0f952c8d0480f72ee187e514f043c55a47fd9531b6565c8903eea6",
+      "publication": "HASH_REFERENCE_ONLY_RAW_PRIVATE_EVIDENCE_NOT_INCLUDED"
+    },
+    "ime_source": {
+      "basename": "candidate-01-platform-before.json",
+      "sha256": "b99321a62f78fdf5decc727c77ca004b7f64a7433f57d5b96aa4fc41570e5126",
+      "publication": "HASH_REFERENCE_ONLY_RAW_PRIVATE_EVIDENCE_NOT_INCLUDED"
+    },
+    "archive_fault_setup": {
+      "basename": "archive-save-failure-setup.json",
+      "sha256": "89f78d0397e4521359957362c44e8756b8dd65275f0162c5ba73eb2d50e60425",
+      "publication": "HASH_REFERENCE_ONLY_RAW_PRIVATE_EVIDENCE_NOT_INCLUDED"
+    },
+    "archive_failure": {
+      "basename": "archive-save-failure-state.json",
+      "sha256": "5c26575d6796ebed5338e52352f25ee804f1e9c53cd2a1797b241a47df37d01d",
+      "publication": "HASH_REFERENCE_ONLY_RAW_PRIVATE_EVIDENCE_NOT_INCLUDED"
+    },
+    "archive_cross_domain_retention": {
+      "basename": "archive-error-survives-other-success.json",
+      "sha256": "977c65b627c275e30762134773623047c79f03d20cc1544f6e54dc2b44a85af4",
+      "publication": "HASH_REFERENCE_ONLY_RAW_PRIVATE_EVIDENCE_NOT_INCLUDED"
+    },
+    "archive_retry_original": {
+      "basename": "archive-retry-original-result.json",
+      "sha256": "13f7bb268c613a5f8100208902a51caf38eb8bdeac67f4aa1e2b2a8bd5b10eff",
+      "publication": "HASH_REFERENCE_ONLY_RAW_PRIVATE_EVIDENCE_NOT_INCLUDED"
+    },
+    "archive_retry_newer_draft": {
+      "basename": "archive-retry-keeps-edited-draft.json",
+      "sha256": "a22347a0ae920679e1f9ba32a7b790236a0a699cf8f4475c11c7527155cfd994",
+      "publication": "HASH_REFERENCE_ONLY_RAW_PRIVATE_EVIDENCE_NOT_INCLUDED"
+    },
+    "vo_shortcut_no_enable": {
+      "basename": "voiceover-after-shortcut.json",
+      "sha256": "2b825caf053c6dc1a62e89949f754ffb0dc09e1e27ff73306112245ca1cc15ac",
+      "publication": "HASH_REFERENCE_ONLY_RAW_PRIVATE_EVIDENCE_NOT_INCLUDED"
+    },
+    "vo_native_shortcut_no_enable": {
+      "basename": "voiceover-native-settled.json",
+      "sha256": "c0065e86c235dcc4f851c22dffd8753d6850743bd6502a4667bf84d551d2929a",
+      "publication": "HASH_REFERENCE_ONLY_RAW_PRIVATE_EVIDENCE_NOT_INCLUDED"
+    },
+    "vo_system_enabled": {
+      "basename": "voiceover-system-ui-enabled.json",
+      "sha256": "d344e3a8a83be5297a3a2d307dc8181d5bdfd9da7193a4d66d8eff20c2c1dec7",
+      "publication": "HASH_REFERENCE_ONLY_RAW_PRIVATE_EVIDENCE_NOT_INCLUDED"
+    },
+    "vo_restored": {
+      "basename": "voiceover-restored.json",
+      "sha256": "b28ce8e430003e669a97f0f17d4f23b8e46ef19d8ab129452a6fc556a5445754",
+      "publication": "HASH_REFERENCE_ONLY_RAW_PRIVATE_EVIDENCE_NOT_INCLUDED"
+    },
+    "installed_escape_event": {
+      "basename": "active2-escape-event.json",
+      "sha256": "c15f32667446f81f834dcaefbfd4251bfa4b9a7570463ed01dbd06c807608d27",
+      "publication": "HASH_REFERENCE_ONLY_RAW_PRIVATE_EVIDENCE_NOT_INCLUDED"
+    },
+    "installed_escape_state": {
+      "basename": "active2-escape-state.json",
+      "sha256": "62d4fc65b35c804f729135df6cfc288bbb01e41353d6d7bc5ec1b164dacd35bb",
+      "publication": "HASH_REFERENCE_ONLY_RAW_PRIVATE_EVIDENCE_NOT_INCLUDED"
+    },
+    "escape_original_analysis": {
+      "basename": "control-center-escape-analysis.json",
+      "sha256": "6f4f082476d85b3499d3b57163a4d7ffced021182336f9774fdae8b2c4ad8106",
+      "publication": "HASH_REFERENCE_ONLY_RAW_PRIVATE_EVIDENCE_NOT_INCLUDED"
+    },
+    "escape_no_editor_manifest": {
+      "basename": "build-manifest.json",
+      "sha256": "c9d1406fba327ac703f0182fc5e29f805094b2c2e522dd81168dd7f89e4ba07d",
+      "publication": "HASH_REFERENCE_ONLY_RAW_PRIVATE_EVIDENCE_NOT_INCLUDED"
+    },
+    "escape_no_editor_events": {
+      "basename": "events-run02.jsonl",
+      "sha256": "81a8f29b7992056da3b14a1bf53969c70cb2a0b604560cd0a90673de948246da",
+      "publication": "HASH_REFERENCE_ONLY_RAW_PRIVATE_EVIDENCE_NOT_INCLUDED"
+    },
+    "escape_make_key_manifest": {
+      "basename": "build-manifest.json",
+      "sha256": "770b79cc0ce1433188068abe579a0768b972df72646a3eaad4d4a539e2e5eeb2",
+      "publication": "HASH_REFERENCE_ONLY_RAW_PRIVATE_EVIDENCE_NOT_INCLUDED"
+    },
+    "escape_make_key_events": {
+      "basename": "events-run03.jsonl",
+      "sha256": "92e1290ba077efdbb0f2f7d355744430da0940687dd7a42cab505744cba3ce8e",
+      "publication": "HASH_REFERENCE_ONLY_RAW_PRIVATE_EVIDENCE_NOT_INCLUDED"
+    },
+    "outside_source_repair": {
+      "basename": "outside-mouse-remediation.json",
+      "sha256": "7d59a88a0d673b0ae7bb819e3acd6fdbb1bfefc3a2f8d3d5a18498d452b0f7c1",
+      "publication": "HASH_REFERENCE_ONLY_RAW_PRIVATE_EVIDENCE_NOT_INCLUDED"
+    },
+    "outside_after": {
+      "basename": "candidate-01-outside-global-result.json",
+      "sha256": "b395cb6a59fe72a3ed8fa57716288e01cb9d2987a85f7ffb5427a4bd996304c9",
+      "publication": "HASH_REFERENCE_ONLY_RAW_PRIVATE_EVIDENCE_NOT_INCLUDED"
+    },
+    "login_fix_diagnosis": {
+      "basename": "login-diagnosis.json",
+      "sha256": "d05d0580fb7f4e12bd5e5488ea1617a4208935f68984f988951d54415451a7fc",
+      "publication": "HASH_REFERENCE_ONLY_RAW_PRIVATE_EVIDENCE_NOT_INCLUDED"
+    },
+    "escape_run02": {
+      "basename": "events-run02.jsonl",
+      "sha256": "81a8f29b7992056da3b14a1bf53969c70cb2a0b604560cd0a90673de948246da",
+      "publication": "HASH_REFERENCE_ONLY_RAW_PRIVATE_EVIDENCE_NOT_INCLUDED"
+    },
+    "escape_run03": {
+      "basename": "events-run03.jsonl",
+      "sha256": "92e1290ba077efdbb0f2f7d355744430da0940687dd7a42cab505744cba3ce8e",
+      "publication": "HASH_REFERENCE_ONLY_RAW_PRIVATE_EVIDENCE_NOT_INCLUDED"
+    },
+    "source_late_followup": {
+      "basename": "followup-late-capture.json",
+      "sha256": "2ed72d447b238329b8c88da39d03ee6a76ef07a5c0bed0fcffa2f2b91c4a64fc",
+      "publication": "HASH_REFERENCE_ONLY_RAW_PRIVATE_EVIDENCE_NOT_INCLUDED"
+    }
+  },
+  "candidate02Build": {
+    "result": "PASS_RELEASE_ARM64_BUILD_BUNDLE_VERIFY_ADHOC_SIGN",
+    "logSHA256": "effc335dd02a30708dfd361de18d3067e8a4a9c57861e55ea1fddf0dc92d0e79",
+    "localXCTest": "NOT_RUN_NO_XCODE_XCTEST_FRAMEWORK",
+    "formalFiveCI": "PENDING"
+  }
+}
