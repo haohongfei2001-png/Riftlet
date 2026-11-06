@@ -46,7 +46,7 @@ jobs:
             const browser = await chromium.launch({ headless: true });
             const page = await browser.newPage({ viewport: { width: 1440, height: 1100 } });
             const errors = [];
-            page.on('pageerror', error => errors.push('pageerror: '+error.message));
+            page.on('pageerror', error => errors.push('pageerror: '+error.message+'\n'+error.stack));
             page.on('console', message => { if (message.type() === 'error') errors.push('console: '+message.text()); });
             page.on('requestfailed', request => errors.push('requestfailed: '+request.url()+' '+request.failure()?.errorText));
             const file = path.resolve('design/experience-20261107/exports/Riftlet-Experience-Prototype.html');
@@ -62,11 +62,14 @@ jobs:
             await page.waitForFunction(() => !!window.RiftPrototype && !!document.querySelector('.viewer-header'), null, { timeout: 10000 });
             if (!await page.locator('#riftlet-design').innerText().then(t => t.includes('Riftlet'))) throw new Error('Prototype root rendered empty');
             await page.locator('[data-scene="history"]').click();
+            console.log('DIAG history selector count/value:', await page.locator('#history-style').count(), await page.locator('#history-style').inputValue());
             await page.locator('#history-style').selectOption('imageGrid');
             if (await page.locator('.history-grid-area').getAttribute('data-history-style') !== 'imageGrid') throw new Error('History view did not switch to imageGrid');
             await page.locator('[data-scene="settings"]').click();
             await page.locator('[data-setting-page="history"]').click();
+            console.log('DIAG settings selector count/value:', await page.locator('[data-st-key="historyDisplayStyle"]').count(), await page.locator('[data-st-key="historyDisplayStyle"]').inputValue());
             await page.locator('[data-st-key="historyDisplayStyle"]').selectOption('current');
+            console.log('DIAG after settings select:', await page.locator('[data-st-key="historyDisplayStyle"]').inputValue(), await page.evaluate(() => window.RiftPrototype.state.settings.historyDisplayStyle), 'errors:', errors);
             if (await page.evaluate(() => window.RiftPrototype.state.settings.historyDisplayStyle) !== 'current') throw new Error('Settings preference did not update');
             await page.locator('[data-scene="history"]').click();
             if (await page.locator('#history-style').inputValue() !== 'current') throw new Error('History view did not retain the settings preference');
