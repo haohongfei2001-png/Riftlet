@@ -510,4 +510,48 @@ final class SettingsStateModelTests: XCTestCase {
         XCTAssertEqual(model.snapshot.domains[.layout]?.pending, .layout([.fitWidth: 96]))
         XCTAssertEqual(model.snapshot.domains[.layout]?.saveFailure, .writeUnconfirmed)
     }
+
+    @MainActor func testSynchronousDraftAndSavingNotificationsPrecedeDelayedOwnerReceipt() async throws {
+        let owner = Owner(); let model = try model(owner); let gate = Gate()
+        defer { gate.release() }
+        var observations: [SettingsStateSnapshot] = []
+        model.onChange = { observations.append($0) }
+        model.setDraftText("81.625", for: .fitWidth)
+        XCTAssertEqual(model.text(for: .fitWidth), "81.625")
+        XCTAssertEqual(observations.last?.layoutText[.fitWidth], "81.625")
+        owner.beforeReturn = { request, _ in if request.intent.domain == .layout { await gate.suspend() } }
+        let pending = Task { @MainActor in await model.perform(.applyLayout) }
+        await fulfillment(of: [gate.entered], timeout: 5)
+        XCTAssertEqual(observations.last?.domains[.layout]?.isSaving, true)
+        XCTAssertEqual(observations.last?.domains[.layout]?.pending, .layout([.fitWidth: 81.625]))
+        gate.release()
+        let result = await pending.value
+        XCTAssertEqual(result.confirmed, [.layout])
+        XCTAssertEqual(observations.last?.domains[.layout]?.isSaving, false)
+        XCTAssertNil(observations.last?.domains[.layout]?.pending)
+    }
+
+    @MainActor func testIndependentArchiveCompletionPublishesBeforeSlowerLayoutFinishes() async throws {
+        let owner = Owner(); let model = try model(owner); let gate = Gate()
+        defer { gate.release() }
+        let archivePublished = expectation(description: "Archive receipt published while layout still saving")
+        var fulfilled = false
+        model.onChange = { snapshot in
+            if !fulfilled, snapshot.domains[.archive]?.lastConfirmed == .archiveHours(2.5),
+               snapshot.domains[.layout]?.isSaving == true {
+                fulfilled = true; archivePublished.fulfill()
+            }
+        }
+        model.setDraftText("81.625", for: .fitWidth)
+        model.setArchiveDraftText("2.5")
+        owner.beforeReturn = { request, _ in if request.intent.domain == .layout { await gate.suspend() } }
+        let pending = Task { @MainActor in await model.perform(.applyDrafts) }
+        await fulfillment(of: [gate.entered, archivePublished], timeout: 5)
+        XCTAssertFalse(model.hasArchiveDraft)
+        XCTAssertTrue(model.snapshot.domains[.layout]?.isSaving == true)
+        gate.release()
+        let result = await pending.value
+        XCTAssertEqual(Set(result.confirmed), [.layout, .archive])
+    }
+
 }

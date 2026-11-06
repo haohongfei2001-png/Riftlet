@@ -17,6 +17,7 @@ final class ScreenshotEntryHost {
     private let onChange: @MainActor () async -> Void
     private let onIssue: (String) -> Void
     private let savePreferences: (ScreenshotEntryPreferences, URL) throws -> Void
+    private let allowsSystemCapture: Bool
     var onPreferencesChanged: (() -> Void)?
     var isEnabled: Bool { preferences.builtInScreenshotEnabled }
     var defaultMode: ScreenshotMode { preferences.defaultMode }
@@ -36,9 +37,10 @@ final class ScreenshotEntryHost {
          onChange: @escaping @MainActor () async -> Void,
          onIssue: @escaping (String) -> Void,
          captureController: InteractiveScreenshotController? = nil,
+         allowsSystemCapture: Bool = true,
          savePreferences: @escaping (ScreenshotEntryPreferences, URL) throws -> Void = { try $0.save(to: $1) }) throws {
         self.rift = rift; self.onChange = onChange; self.onIssue = onIssue
-        self.savePreferences = savePreferences
+        self.savePreferences = savePreferences; self.allowsSystemCapture = allowsSystemCapture
         outputDirectory = root.appendingPathComponent("captures", isDirectory: true)
         preferencesURL = root.appendingPathComponent("capture-entry-settings.json")
         preferences = try ScreenshotEntryPreferences.load(from: preferencesURL)
@@ -134,6 +136,11 @@ final class ScreenshotEntryHost {
     }
 
     private func startCapture(mode: ScreenshotMode) {
+        guard allowsSystemCapture else {
+            entry.setExpanded(false)
+            onIssue("设置验收环境不会抓取屏幕；当前仅验证原生界面与本地设置。")
+            return
+        }
         guard isEnabled, !closed, !userHidden, !cancelling else { return }
         rift.setCaptureSessionActive(true)
         capture.start(mode: mode, options: entry.options)
