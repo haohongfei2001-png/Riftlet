@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "sourceBaseline": "2e779f646ac4874344fac94f79103e8ddf9b02c8",
-  "scope": "Source audit for consumer documentation; no runtime execution",
+  "sourceBaseline": "d46d47682d9ebe6df2928cebb69411ff8746604c",
+  "scope": "Consumer documentation source audit: unchanged main runtime plus independently reviewed release-tool successor; no runtime execution in this inheritance update",
   "files": [
     {
       "path": "Sources/RiftletApp/OrdinaryCaptureConfiguration.swift",
@@ -160,8 +160,8 @@
     },
     {
       "path": "scripts/release-tool.py",
-      "sha256": "3e4a1d50a8fb3b14c7200c1b93f29ba9f099cede4da8d71b2f114c4d81da612a",
-      "sourceBlob": "a0146879fdcc04c99c048c43475eb678a5c1de32"
+      "sha256": "2b4cd25440750dc49d168d889f4697d4bbce903f8b73b8ba2df6710f720842da",
+      "sourceBlob": "d476507b4d94c69a68d57066d6f7a2c28b0e0738"
     },
     {
       "path": "scripts/storage-recovery.py",
@@ -173,5 +173,11 @@
       "sha256": "a721e4e172f087dbb012b81b69494252df1424ef804f28d12330ebf4a9f3dbee",
       "sourceBlob": "d3cdd0d51ad937b1afb243cd866cf0071f408d49"
     }
-  ]
+  ],
+  "previousSourceBinding": {
+    "path": "source-bindings-01.json",
+    "sha256": "dadbd66ae4f592df6a9783c5366b1e675ed42f3a4d44e2840812694d4ea72e18",
+    "sourceBaseline": "2e779f646ac4874344fac94f79103e8ddf9b02c8"
+  },
+  "inheritanceAudit": "release-inheritance-audit.json"
 }

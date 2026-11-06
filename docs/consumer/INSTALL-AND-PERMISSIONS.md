@@ -6,9 +6,11 @@
 
 拿到获准测试包后，按该次交付清单确认版本、架构、SHA-256、签名状态和来源；文件名或散列本身不能证明来源可信。退出旧版，再按交付说明把 App 放在指定的 Applications 位置。不要同时运行指向同一数据目录的两个版本。升级已有数据前先按[更新与回退](RECOVERY-AND-FAQ.md)完成备份。
 
+标有 `REVIEW-NOT-NOTARIZED` 或 `REVIEW_ONLY` 的 ZIP/DMG 是私有评审材料。包内文件与候选清单匹配，只说明内容身份已核验，不代表安装、公证、Gatekeeper 或数据兼容性已通过。即使版本号和“Beta 3”标签相同，也应核对该次交付清单；这些标签不能替代精确包身份。
+
 如果 macOS 阻止打开，保留系统提示并联系包的提供者，不要关闭 Gatekeeper、移除 quarantine 或重置整套隐私权限。Apple 的[安全打开 App 说明](https://support.apple.com/en-nz/102445)解释了不同提示；尚未验证的测试包不能用终端绕过步骤包装成“下载即用”。
 
-**English:** Verify the approved delivery manifest, architecture, hash and signing status. Quit the old App and preserve its data before updating. A hash alone does not establish trust. If macOS blocks the App, report the exact alert to the maintainer; do not disable Gatekeeper or strip quarantine. The current personal package is not a notarized public installer.
+**English:** Verify the approved delivery manifest, architecture, hash and signing status. Quit the old App and preserve its data before updating. A hash alone does not establish trust. A `REVIEW-NOT-NOTARIZED` ZIP/DMG is private review material; matching contents or version labels do not prove installation, Gatekeeper or data compatibility. If macOS blocks the App, report the exact alert to the maintainer; do not disable Gatekeeper or strip quarantine. The current personal package is not a notarized public installer.
 
 ## 只为正在使用的功能授权
 

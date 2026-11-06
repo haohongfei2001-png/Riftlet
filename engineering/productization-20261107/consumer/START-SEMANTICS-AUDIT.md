@@ -15,7 +15,7 @@
 - `WebAttachmentAdapter.swift` 在 START 回执出现时结束本次等待（约第 485 行）。页面释放基线/URL 集合，没有 load/progress/COMPLETE watcher。
 - `QueueStore.swift` 610–624 行独立写入不可变首个 `upload_starts`，把 visible 改为 swallowed。它**不会仅因 START 设置 status=used / phase=succeeded**；只有另行认可的 verifiedReady 才做那件事。
 - `TransferCoordinator.swift` 537–539 行在普通独立输入取得 START 后移除 `currentFileInputs`；576–585 行让已有 START 不再进入 reconcile；638 行让普通路径 `observeCompleted` 返回 false。启动恢复也不会把旧 UNKNOWN 当成新输入。
-- 历史显示将未结束 operation 投影为 Checking attachment / Needs review，即使已有 START 事实。这不是持续监测最终状态的保证。旧完成/补偿能力和 policy 中的完成 profile 仍保留，不能据类型存在推断当前页面程序会产生终态。
+- 当前 `RiftHistoryController.stateText/updateDetail` 将未结束 operation 在两种视图的行、辅助功能和详情中显示为“结果待核实 · 不会再次附加”，即使已有 START 事实。`HistoryPresentation.stateText` 的 Checking attachment / Needs review 是另一层搜索文本投影，不能当成当前原生行标题。这些文案不是持续监测最终状态的保证。旧完成/补偿能力和 policy 中的完成 profile 仍保留，不能据类型存在推断当前页面程序会产生终态。
 - 普通 policy 没有开放一般上传安全重试。明确的 **pre-input rejection** 可以恢复可点击状态；已开始后网络失败是否可安全再传是另一项证明，当前普通路径不承诺自动发现或自动回归。
 
 ## 给集成负责人的最小建议

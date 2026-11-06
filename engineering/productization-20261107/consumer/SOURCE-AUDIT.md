@@ -1,6 +1,6 @@
 # 消费者文案源码审计
 
-审计人角色：消费者资料作者；本文件是作者事实核对，**不是本 lane 独立审查**。仅只读审计 main `2e779f646ac4874344fac94f79103e8ddf9b02c8`。源文件 SHA-256 见 [source-bindings.json](source-bindings.json)。当前包的后续真实验收与发行结论由集成负责人记录。
+审计人角色：消费者资料作者；本文件是作者事实核对，**不是本 lane 独立审查**。运行时审计基于 main `2e779f646ac4874344fac94f79103e8ddf9b02c8`；发行工具继承下述已审后继，其余 33 项源绑定未变。当前源文件 SHA-256 见 [source-bindings.json](source-bindings.json)，原绑定逐字保留为同目录 `source-bindings-01.json`。当前包的后续真实验收与发行结论由集成负责人记录。
 
 | 消费者结论 | 当前实现依据（仓库相对路径） | 必须保留的边界 |
 | --- | --- | --- |
@@ -10,7 +10,7 @@
 | START 不是最终完成 | 页面 sample/observe；`WebAttachmentAdapter.swift` 首次 START 返回；`TransferCoordinator.swift` 删除 currentFileInputs | 详见 [START 审计](START-SEMANTICS-AUDIT.md)；不能把系统层完成 profile 存在当成普通路径会产生完成 |
 | 未确认不自动重传，新的不同截图独立 | `TransferCoordinator.swift` 的 independent file input、original reconcile；`QueueStore.swift` markUnknown/canRestoreToQueue | 图片原件和历史可查，不等于 UNKNOWN 可一键重新附加 |
 | 移出/归档不删除图片或远端附件 | `QueueStore.swift` removeVisible/setVisibility/archiveIdle/restoreToQueue | 只恢复具资格的 archived/removed pending/failed；并非通用重试按钮 |
-| 历史“失败”不是所有异常 | `Sources/RiftletUI/HistoryPresentation.swift` isConfirmedFailure/needsVerification/filter | 找不着取消或不确定记录应查 All / Needs review；START 后仍可能显示 Checking/Needs review |
+| 历史“失败”不是所有异常 | `Sources/RiftletUI/HistoryPresentation.swift` isConfirmedFailure/needsVerification/filter；`RiftHistoryController.swift` stateText/updateDetail | 找不着取消或不确定记录应查“全部”或“待核实”；START 后仍可能显示“结果待核实 · 不会再次附加”，不代表持续跟踪最终状态 |
 | 双样式共用同一记录 | `HistoryDisplayStyle.swift`、`RiftHistoryController.swift`、`Sources/RiftletApp/HistoryDisplayPreferences.swift` | current 默认、imageGrid 可选，只改变显示；不能写新图库/迁移/状态清空 |
 | 文件收录只取系统新截图 | `Sources/RiftletCapture/CaptureService.swift` 首次 baseline；`PrivateAssetImporter.swift` 的来源标记与限额 | 仅把图片放入目录、改名或复制到剪贴板不等于系统新截图；不补导整个历史目录 |
 | 文件目录权限与系统保存位置不同 | `CaptureSourceBinding.swift` readDirectory；`RiftletMain.swift` chooseSourceAccess/recheckSetup | 读实际识别路径，不更改系统保存位置；基线只读 location 键/默认 Desktop，不泛化所有系统版本 |
@@ -22,6 +22,21 @@
 | 反馈诊断默认可选且有限 | `FeedbackModels.swift`、`FeedbackDiagnostics.swift`、`Sources/RiftletFeedbackUI/FeedbackWindowController.swift` | 新草稿无诊断；恢复草稿保留同意；自由文本不会自动脱敏；非“完全匿名” |
 | 页面会临时读取文本以保护草稿 | 页面 selection snapshot、控件描述及路由校验 | 不声称“从不读取页面内容”；不把临时页面文本等同于持久化/反馈导出 |
 | 当前不是签名公证公开包 | `scripts/release-tool.py`、`docs/RELEASE_ENGINEERING.md`，此前个人交付事实 | 有脚本/预检不代表 Developer ID/notary/Gatekeeper 成功；无下载或公开发行声明 |
+
+## 发行工具继承审计（2026-11-07）
+
+已逐项核对 `b9caabcb7fe02d9aae5521c3ada37fda9bd9143c` 与 `d46d47682d9ebe6df2928cebb69411ff8746604c`。后者的工具 SHA-256 为 `2b4cd25440750dc49d168d889f4697d4bbce903f8b73b8ba2df6710f720842da`，与集成工作树相同。下表是对真实实现的审计，不是仅因散列变化而更新绑定。
+
+| 实际变化 | 源码与验证依据 | 消费者文案处理 |
+| --- | --- | --- |
+| 新构建显式传入版本、build 和显示标签；保留源值及最终值 | `stage_version`、`validate_receipt`、`build --label`；历史源缺标签记录 null，旧 schema-1 回执保持兼容 | 同版本或 Beta 标签不能证明是同一份包；核对交付清单，不修改旧个人 Beta 身份 |
+| 新增私有评审 ZIP/DMG | `package_review` 只接受精确 pin 对应的 PREPARED；输出固定 REVIEW_ONLY / NOT_NOTARIZED / Gatekeeper NOT_RUN | 安装指南明确评审包不是已公证安装器，容器核验不证明数据兼容或首装成功 |
+| ZIP 必须来自指定候选 | `verify_archive` 比对包内原始 manifest 字节的 SHA；评审与正式打包都传入各自可信候选 pin | 保留散列不能证明来源可信的提醒；另一份内部合法 ZIP 不得冒充当前候选 |
+| 正式门禁及手动更新边界保持 | `package_candidate` 仍要求 STAPLED 及实际 Developer ID 校验；`docs/release/MANUAL_UPDATE_AND_RECOVERY.md` 保留双锁、完整备份、只换 App 和解锁后不自动二次交换 | 原恢复/更新/卸载指南仍准确；没有自动更新器、新安装许可或数据清理规则 |
+
+本资料作者是上述发行源码的非作者审查者，已独立复现旧 ZIP 错绑、确认修复后拒绝，并执行 4 项定向检查通过；发行作者的 54 项、既有两组各 17 项日志及真实评审容器另有原始记录。私有正式审查 `release-final-independent.json` 的 SHA-256 为 `c2b5daf085c87665501254eead8bcf9c52835bb587f254bb7e4881bde2b25b7d`，结论为 `PASS_SCOPED_RELEASE_INCREMENT_REVIEW`。这不使本消费者文案成为独立审查结果；本次文案增量仍交另一非作者审核。
+
+真实 ARM64 App 构建属于早先记录的工具 `10c2a2a0…` 和 source `b9caabc…`；最终工具只给同一份 PREPARED 内容重新生成并验证评审容器，没有重新构建、安装或运行 App。既有失败、阶段身份和范围保留于发行目录；本次不重跑这些已完成验收。原集成文案检查 89/90 的唯一失败及此次继承记录见同目录 `release-inheritance-audit.json`。
 
 ## 证据归属
 
