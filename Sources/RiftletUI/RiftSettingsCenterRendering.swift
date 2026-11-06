@@ -28,6 +28,7 @@ extension RiftSettingsCenterController {
              ? "外观保存结果尚未确认。重试会保存刚才选择的外观。"
              : product.appearance.unreadable ? "暂时无法读取外观偏好。当前显示不代表偏好已保存。"
              : product.appearance.applied == nil ? "外观尚未应用。" : "当前外观已应用。")
+        labels["appearance.detail"]?.isHidden = product.appearance.failure == nil && !product.appearance.unreadable && product.appearance.applied != nil
         hide("appearance.retry", product.appearance.failure == nil)
         enable("appearance.retry", product.appearance.available && product.appearance.pending != nil)
         var a11y: [String] = []
@@ -54,14 +55,14 @@ extension RiftSettingsCenterController {
         if product.accessibility.reduceMotion {
             motionText = "系统已开启“减少动态效果”：入缝静态呈现，保留已选偏好。"
         } else if !settings.hasArrivalSelection {
-            motionText = "尚未选择入缝偏好；当前以“无”呈现。选择后保存，但不会自动播放。"
+            motionText = "尚未选择入缝偏好，当前以“无”呈现。"
         } else { motionText = "当前入缝偏好：\(settings.arrivalMode.title)。" }
         text("motion.detail", motionText)
         let count = product.setup.pendingCount
         text("history.detail", count > 0 ? "当前有 \(count) 张结果待核实。记录留在本机，不会自动再次附加。" : "查看已有记录与本地图片；不会自动重传或发送聊天。")
         enable("history.open", product.capabilities.canOpenHistory)
         enable("history.clear", product.capabilities.canClearVisible && product.setup.visibleCount > 0)
-        text("storage", presentation.storageText)
+        text("storage", product.setup.storage == .notMeasured ? "尚未检查本地存储用量。" : presentation.storageText)
         enable("storage.check", product.capabilities.canCheckStorage && product.setup.storage != .measuring)
         text("automation", presentation.permissionText ?? "当前模式不需要 Chrome 自动化访问。")
         text("attachment", presentation.attachmentText)
@@ -144,6 +145,9 @@ extension RiftSettingsCenterController {
             text("display.detail", "已保留所选显示器。当前临时显示在\(current.map { "“\($0)”" } ?? "可用屏幕")，不会自动修改偏好。")
         } else if let current { text("display.detail", "当前显示在“\(current)”。") }
         else { text("display.detail", "显示器运行位置尚未确认。选择后保存具体显示器身份。") }
+        // The normal popup already names the active selected display. Retain
+        // the full extra explanation whenever that equality is not confirmed.
+        labels["display.detail"]?.isHidden = selected != nil && selected == owner.effectiveDisplayID && current != nil
         hide("display.restore", !settings.displayRestoreAvailable)
         enable("display.restore", settings.displayRestoreAvailable && product.capabilities.canEditPreferences)
         for placement in RiftPlacement.allCases {
@@ -190,6 +194,7 @@ extension RiftSettingsCenterController {
         enable("archive.preset", editable)
         let archiveIssue = state.domains[.archive]?.hasIssue == true
         text("archive.detail", busy(.archive) ? "正在保存这次归档时限…" : model.hasArchiveDraft ? "归档时限尚未应用；选择预设也需要点击保存。" : archiveIssue ? "归档时限还有未确认的保存结果。" : "当前归档时限已读取。")
+        labels["archive.detail"]?.isHidden = !busy(.archive) && !model.hasArchiveDraft && !archiveIssue
         enable("archive.save", editable && !busy(.archive) && (model.hasArchiveDraft || archiveIssue))
         enable("archive.discard", !busy(.archive) && (model.hasArchiveDraft || archiveIssue || state.archiveText != nil))
         let layoutIssue = state.domains[.layout]?.hasIssue == true
@@ -214,7 +219,7 @@ extension RiftSettingsCenterController {
         arrivalPreview.update(configuration: previewConfig, mode: state.owner.settings.arrivalMode, reduceMotion: product.accessibility.reduceMotion)
         swallowPreview.update(configuration: previewConfig, mode: state.owner.settings.arrivalMode, reduceMotion: product.accessibility.reduceMotion)
         let previewNote = !valid ? "输入尚未有效，示意图暂用当前生效参数。" : model.hasLayoutDraft ? "草稿示意 · 尚未应用" : "布局示意 · 不读取真实截图"
-        text("layoutPreview.detail", geometryPreview.geometrySummary + " · " + previewNote)
+        text("layoutPreview.detail", geometryPreview.geometrySummary + "\n" + previewNote)
         let duration = product.accessibility.reduceMotion ? min(0.08, previewConfig.swallowDuration) : previewConfig.swallowDuration
         text("motion.effective", "示意吞噬时长 \(formatMilliseconds(duration)) ms" + (model.hasLayoutDraft ? "（包含参数草稿）" : "") + (product.accessibility.reduceMotion ? "。减少动态不会延长原本更短的时长。" : "。"))
         let issues = state.domains.values.filter(\.hasIssue).count + (product.appearance.failure == nil ? 0 : 1) + (product.login.notConfirmed ? 1 : 0)

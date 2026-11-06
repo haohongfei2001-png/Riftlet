@@ -103,6 +103,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private var pendingResultCount = 0
     private var initialized = false
     private var captureControl = CaptureControlGate()
+    private var recheckTask: Task<Void, Never>?
+    private var collectionChangePending = false
+    private var captureControlBusy: Bool { captureControl.isBusy || collectionChangePending }
     private var requestingPermission = false
     private var automationPermission: AutomationPermissionState = .notNeeded
     private var permissionPublication = AutomationPermissionPublication()
@@ -211,7 +214,12 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                    let environment = reviewEnvironment, let settingsHost, let store, let statusItem {
                     let driver = SettingsReviewDriver(environment: environment, host: settingsHost, store: store,
                         statusItem: statusItem, onRefresh: { [weak self] in await self?.refresh() },
-                        onHistory: { [weak self] in self?.showHistory() })
+                        onHistory: { [weak self] in self?.showHistory() },
+                        onRecheck: { [weak self] in
+                            guard let self, self.mode == .settingsReview else { return false }
+                            self.recheckSetup()
+                            return self.captureControl.action == .recheck
+                        })
                     let report = CommandLine.arguments.contains("--settings-review-restart-check")
                         ? await driver.verifyRestart() : await driver.run()
                     if let report { print("RIFTLET_SETTINGS_REVIEW_REPORT=" + report.path) }
@@ -735,15 +743,15 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             attachment: attachment, permission: ProductStatus.permission(automationPermission),
             permissionDetail: mode.usesWebAdapter ? ProductStatus.chromeJavaScriptHelp : nil,
             storage: setupStorage, issue: issue, supportDescription: ProductStatus.supportDescription,
-            isChecking: captureControl.isBusy || requestingPermission || !initialized,
+            isChecking: captureControlBusy || requestingPermission || !initialized,
             builtInScreenshotEnabled: screenshotEntry?.isEnabled,
             defaultScreenshotMode: screenshotEntry?.defaultMode ?? .window)
         var capabilities = SettingsCapabilities()
         capabilities.initialized = initialized
-        capabilities.canChangeCollection = mode.collectsSystemScreenshots && initialized && !captureControl.isBusy
+        capabilities.canChangeCollection = mode.collectsSystemScreenshots && initialized && !captureControlBusy
         capabilities.canChangeVisibility = store != nil && !changingHidden
         capabilities.canCapture = mode != .settingsReview && screenshotEntry?.isEnabled == true && !userHidden
-        capabilities.canRecheck = initialized && !captureControl.isBusy && !requestingPermission
+        capabilities.canRecheck = initialized && !captureControlBusy && !requestingPermission
         capabilities.canRequestAutomation = mode.usesWebAdapter && initialized && !requestingPermission
         capabilities.canChooseSource = mode.collectsSystemScreenshots && initialized && mode != .settingsReview
         capabilities.canOpenHistory = store != nil
@@ -788,10 +796,11 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     }
 
     @objc private func recheckSetup() {
-        guard initialized, !requestingPermission, let token = captureControl.begin(.recheck) else { return }
+        guard initialized, !requestingPermission, !collectionChangePending,
+              let token = captureControl.begin(.recheck) else { return }
         updateControlTitles()
-        Task {
-            defer { captureControl.finish(token); updateControlTitles() }
+        recheckTask = Task {
+            defer { captureControl.finish(token); recheckTask = nil; updateControlTitles() }
             if mode.collectsSystemScreenshots, let capture, let binding = sourceBinding {
                 do {
                     do { detectedSource = try await captureLocation.currentDirectory() }
@@ -829,7 +838,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     }
 
     private func chooseSourceAccess() {
-        guard mode.collectsSystemScreenshots, !captureControl.isBusy, let source = detectedSource else { return }
+        guard mode.collectsSystemScreenshots, !captureControlBusy, let source = detectedSource else { return }
         let panel = NSOpenPanel()
         panel.title = "允许 Riftlet 读取系统截图位置"
         panel.message = "请选择下方显示的系统截图文件夹。只授予读取权限，不更改系统保存位置，也不导入其他文件夹。"
@@ -851,7 +860,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     }
 
     private func requestAutomationPermission() {
-        guard mode.usesWebAdapter, !captureControl.isBusy, !requestingPermission else { return }
+        guard mode.usesWebAdapter, !captureControlBusy, !requestingPermission else { return }
         screenshotEntry?.cancel()
         if automationPermission == .denied { openPrivacySettings(automation: true); return }
         requestingPermission = true
@@ -1253,7 +1262,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     private func updateControlTitles() {
         hideItem?.title = userHidden ? "显示裂缝" : "隐藏裂缝"
         pauseItem?.title = captureIsPaused ? "继续收录截图" : "暂停收录（保留已有图片）"
-        pauseItem?.isEnabled = mode.collectsSystemScreenshots && initialized && !captureControl.isBusy
+        pauseItem?.isEnabled = mode.collectsSystemScreenshots && initialized && !captureControlBusy
         if let interval = lifecycleSettings.archiveAfterSeconds {
             archiveItem?.title = String(format: "闲置归档：%.2g 小时…", interval / 3600)
         } else { archiveItem?.title = "闲置归档：已关闭…" }
@@ -1287,8 +1296,17 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     }
 
     private func setCollectionPaused(_ requested: Bool) async throws {
-        guard mode.collectsSystemScreenshots, initialized, let store, let binding = sourceBinding,
-              let token = captureControl.begin(.changeCollection) else { throw CocoaError(.fileWriteUnknown) }
+        guard mode.collectsSystemScreenshots, initialized, !collectionChangePending,
+              let store, let binding = sourceBinding else { throw CocoaError(.fileWriteUnknown) }
+        // A control can accept this immutable intent just before an activation
+        // recheck starts. Wait for that real check rather than reporting a disk
+        // failure, and reserve this turn so another recheck cannot cut ahead.
+        collectionChangePending = true
+        defer { collectionChangePending = false; updateControlTitles() }
+        if let recheckTask { await recheckTask.value }
+        try Task.checkCancellation()
+        guard !terminating else { throw CancellationError() }
+        guard let token = captureControl.begin(.changeCollection) else { throw CocoaError(.fileWriteUnknown) }
         defer { captureControl.finish(token); updateControlTitles() }
         updateControlTitles()
         if requested { await binding.stop(); captureIsPaused = true }
@@ -1393,9 +1411,9 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
     func validateMenuItem(_ item: NSMenuItem) -> Bool {
         if item.action == #selector(showSetup) { return !NSApp.windows.contains { $0.attachedSheet != nil } }
         if item.action == #selector(beginScreenshot) { return screenshotEntry?.isEnabled == true && !userHidden }
-        if item.action == #selector(toggleCollection) { return mode.collectsSystemScreenshots && initialized && !captureControl.isBusy }
+        if item.action == #selector(toggleCollection) { return mode.collectsSystemScreenshots && initialized && !captureControlBusy }
         if item.action == #selector(recheckSetup) || item.action == #selector(reload) {
-            return initialized && !captureControl.isBusy && !requestingPermission
+            return initialized && !captureControlBusy && !requestingPermission
         }
         if item.action == #selector(toggleHidden) { return store != nil && !changingHidden }
         return true

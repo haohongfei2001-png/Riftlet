@@ -4,16 +4,20 @@ import RiftletCapture
 @MainActor
 extension RiftSettingsCenterController {
     func buildPages() {
-        makePage(.general, subtitle: "运行状态与常用偏好。即时开关和需要应用的参数分开保存。", views: generalContent())
-        makePage(.display, subtitle: "选择裂缝出现的位置，再按需微调。参数草稿会保留到你应用或放弃。", views: displayContent())
+        makePage(.general, subtitle: "管理收录、显示与常用偏好。", views: generalContent())
+        makePage(.display, subtitle: "选择显示器和边缘位置，按需调整微图大小与排列。", views: displayContent())
         makePage(.capture, subtitle: "继续使用熟悉的 macOS 截图方式，也可使用 Riftlet 内置截图。", views: captureContent())
-        makePage(.motion, subtitle: "选择入缝方式，主动预览。动效不改变点击、附加或上传开始的判断。", views: motionContent())
+        makePage(.motion, subtitle: "选择截图到达时的呈现方式，并主动预览。", views: motionContent())
         makePage(.history, subtitle: "图片与记录保存在本机。收起微图和自动归档都不删除原图。", views: historyContent())
         makePage(.help, subtitle: "每项权限只用于对应功能，可以分别检查。", views: helpContent())
     }
 
     func makePage(_ page: SettingsPage, subtitle: String, views: [NSView]) {
-        let all = [SettingsNativeStyle.label(page.title, role: "title"), SettingsNativeStyle.label(subtitle, role: "secondary")] + views
+        let heading = SettingsNativeStyle.stack([
+            SettingsNativeStyle.label(page.title, role: "title"), SettingsNativeStyle.label(subtitle, role: "secondary")
+        ], spacing: 8)
+        for label in heading.arrangedSubviews { label.widthAnchor.constraint(equalTo: heading.widthAnchor).isActive = true }
+        let all: [NSView] = [heading] + views
         let stack = RiftVisualStyle.documentStack(all, spacing: 17)
         stack.identifier = .init("settings.center.page.\(page.rawValue)")
         stack.edgeInsets = NSEdgeInsets(top: 27, left: 31, bottom: 27, right: 26)
@@ -30,8 +34,12 @@ extension RiftSettingsCenterController {
     func generalContent() -> [NSView] {
         let pause = nativeSwitch("暂停收录", id: "paused") { [weak self] value in self?.dispatch(.settings(.setCollectionPaused(value))) }
         let hidden = nativeSwitch("隐藏裂缝", id: "hidden") { [weak self] value in self?.dispatch(.settings(.setHidden(value))) }
+        let statusHeading = SettingsNativeStyle.stack([
+            namedLabel("status.title", role: "heading"), namedLabel("status.detail", role: "secondary")
+        ], spacing: 6)
+        for label in statusHeading.arrangedSubviews { label.widthAnchor.constraint(equalTo: statusHeading.widthAnchor).isActive = true }
         let status = card([
-            namedLabel("status.title", role: "heading"), namedLabel("status.detail", role: "secondary"),
+            statusHeading,
             row("暂停收录", detail: "暂停后不收录新截图，已有图片保留。", control: pause), domainError(.collection),
             row("隐藏裂缝", detail: "只隐藏边缘微图，不改变收录设置。", control: hidden), domainError(.visibility)
         ])
@@ -45,7 +53,7 @@ extension RiftSettingsCenterController {
             makeButton("打开登录项设置…", id: "login.system") { [weak self] in self?.dispatch(.openLoginSettings) }
         ])
         let preferences = card([
-            row("登录启动", detail: "由 macOS 管理，只在明确操作时注册或取消。", control: login),
+            row("登录启动", detail: "登录 Mac 时自动启动 Riftlet。", control: login),
             namedLabel("login.detail", role: "secondary"), loginButtons,
             row("外观", detail: "跟随系统、浅色或深色。", control: appearance),
             namedLabel("appearance.detail", role: "secondary"),
@@ -76,16 +84,29 @@ extension RiftSettingsCenterController {
                 button.setAccessibilityLabel(placement.title)
                 button.imagePosition = .imageLeading
                 button.imageHugsTitle = true
-                button.widthAnchor.constraint(equalToConstant: 88).isActive = true
+                button.widthAnchor.constraint(equalToConstant: 76).isActive = true
                 return button
             })
         }
+        let positionGrid = SettingsNativeStyle.stack(positionRows, spacing: 6)
+        let selector = SettingsNativeStyle.stack([
+            SettingsNativeStyle.label("边缘位置", role: "rowTitle"),
+            SettingsNativeStyle.label("左右两列对应屏幕两侧。", role: "caption"), positionGrid
+        ], spacing: 8)
+        selector.widthAnchor.constraint(equalToConstant: 161).isActive = true
+        for view in selector.arrangedSubviews { view.widthAnchor.constraint(equalTo: selector.widthAnchor).isActive = true }
+        let preview = SettingsNativeStyle.stack([geometryPreview, namedLabel("layoutPreview.detail", role: "caption")], spacing: 8)
+        for view in preview.arrangedSubviews { view.widthAnchor.constraint(equalTo: preview.widthAnchor).isActive = true }
+        preview.widthAnchor.constraint(greaterThanOrEqualToConstant: 184).isActive = true
+        preview.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        let placement = SettingsNativeStyle.stack([selector, preview], vertical: false, spacing: 18)
+        placement.alignment = .top
+        placement.distribution = .fill
         let basic = card([
-            geometryPreview, namedLabel("layoutPreview.detail", role: "caption"),
-            row("显示器", detail: "保存具体显示器；临时回退不会更改你的选择。", control: display),
+            row("显示器", detail: "断开时临时回退，保留原选择。", control: display),
             namedLabel("display.detail", role: "secondary"), domainError(.display),
             makeButton("回到已选显示器", id: "display.restore") { [weak self] in self?.dispatch(.restorePreferredDisplay) },
-            row("边缘位置", detail: "左右两列对应屏幕两侧。", control: SettingsNativeStyle.stack(positionRows, spacing: 6)),
+            placement,
             domainError(.placement), numericRow(.visibleCountPreference, title: "可见数量", unit: "张", range: 1...10, step: 1)
         ])
         let detailed = SettingsNativeStyle.stack([
@@ -132,7 +153,7 @@ extension RiftSettingsCenterController {
             namedLabel("screen.capture", role: "secondary"),
             makeButton("开始内置截图…", id: "capture.start") { [weak self] in self?.dispatch(.capture) },
             SettingsNativeStyle.label("延迟、指针等选项属于每次截图会话，不新增全局偏好。", role: "caption")
-        ]), makeButton("查看权限与帮助…", id: "permissions.capture") { [weak self] in self?.navigate(to: .help) }]
+        ]), buttonRow([makeButton("查看权限与帮助…", id: "permissions.capture") { [weak self] in self?.navigate(to: .help) }])]
     }
 
     func motionContent() -> [NSView] {
@@ -151,12 +172,12 @@ extension RiftSettingsCenterController {
             SettingsNativeStyle.label("范围 0–3000 ms。这里只调整呈现时间，不修改附加、上传开始、完成或重试规则。", role: "caption")
         ], spacing: 13)
         return [card([
-            row("截图到达边缘时", detail: "选择立即保存；只在点击预览后播放示意动画。", control: mode), domainError(.arrival),
+            row("截图到达边缘时", detail: "选择立即保存。点击下方按钮预览。", control: mode), domainError(.arrival),
             namedLabel("motion.detail", role: "secondary"), arrivalPreview,
             makeButton("预览入缝", id: "arrival.preview") { [weak self] in self?.playArrival() }
         ]), card([
             SettingsNativeStyle.label("上传开始后的快速吞噬", role: "heading"),
-            SettingsNativeStyle.label("与入缝偏好独立。此处使用绘制的示意图，不读取或附加任何截图。", role: "secondary"),
+            SettingsNativeStyle.label("独立于入缝偏好；预览只播放示意图，不读取或附加截图。", role: "secondary"),
             swallowPreview, makeButton("预览吞噬", id: "swallow.preview") { [weak self] in self?.playSwallow() },
             namedLabel("motion.effective", role: "caption"), disclosure("精细参数", id: "motion.fine", content: fine)
         ]), layoutSaveArea(for: .motion)]
@@ -306,14 +327,15 @@ extension RiftSettingsCenterController {
     }
     func buttonRow(_ views: [NSView]) -> NSStackView { SettingsNativeStyle.stack(views, vertical: false, spacing: 9) }
     func row(_ title: String, detail: String, control: NSView) -> NSStackView {
-        let copy = SettingsNativeStyle.stack([SettingsNativeStyle.label(title, role: "rowTitle"),
-                                             SettingsNativeStyle.label(detail, role: "caption")], spacing: 3)
+        var copyViews = [SettingsNativeStyle.label(title, role: "rowTitle")]
+        if !detail.isEmpty { copyViews.append(SettingsNativeStyle.label(detail, role: "caption")) }
+        let copy = SettingsNativeStyle.stack(copyViews, spacing: 3)
         copy.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         let stack = SettingsNativeStyle.stack([copy, control], vertical: false, spacing: 18)
         stack.distribution = .fill
         copy.setContentHuggingPriority(.defaultLow, for: .horizontal)
         control.setContentHuggingPriority(.required, for: .horizontal)
-        stack.heightAnchor.constraint(greaterThanOrEqualToConstant: 48).isActive = true
+        stack.heightAnchor.constraint(greaterThanOrEqualToConstant: detail.isEmpty ? 36 : 48).isActive = true
         return stack
     }
     func card(_ views: [NSView]) -> NSView {

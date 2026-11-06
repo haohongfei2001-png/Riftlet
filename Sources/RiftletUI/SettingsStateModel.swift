@@ -567,7 +567,11 @@ public struct SettingsStateSnapshot: Equatable, Sendable {
         return hours == 0 ? nil : (hours * 3600) / 3600
     }
     private func format(_ value: Double) -> String {
-        String(value).replacingOccurrences(of: ".", with: decimalSeparator)
+        let text = String(value)
+        // Only format values read from an owner or defaults. User-entered text
+        // stays in layoutText/archiveText, including decimal and IME drafts.
+        let display = text.hasSuffix(".0") ? String(text.dropLast(2)) : text
+        return display.replacingOccurrences(of: ".", with: decimalSeparator)
     }
     private static func validate(_ owner: SettingsOwnerSnapshot) throws {
         try owner.settings.configuration.validate()

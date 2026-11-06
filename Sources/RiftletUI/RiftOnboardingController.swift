@@ -23,6 +23,7 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
     private let later = SettingsNativeStyle.button("稍后设置")
     private let introTitle = SettingsNativeStyle.label("从截图到输入。\n点一下就够了。", role: "title")
     private let introDescription = SettingsNativeStyle.label("")
+    private let introCapability = SettingsNativeStyle.label("", role: "secondary")
     private let sourceDetail = SettingsNativeStyle.label("", role: "secondary")
     private let sourcePath = SettingsNativeStyle.label("", role: "caption")
     private let automationDetail = SettingsNativeStyle.label("", role: "secondary")
@@ -146,10 +147,16 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
             footer.trailingAnchor.constraint(equalTo: root.trailingAnchor, constant: -38),
             footer.bottomAnchor.constraint(equalTo: root.bottomAnchor, constant: -22)
         ])
-        let intro = page([introTitle, introDescription, RiftFirstUseIllustration(frame: .zero),
-                          SettingsNativeStyle.label("沿用你熟悉的 macOS 截图"),
-                          SettingsNativeStyle.label("由你决定何时发送聊天"),
-                          SettingsNativeStyle.label("需要原图时，仍然找得到")])
+        introDescription.identifier = .init("onboarding.introDescription")
+        introCapability.identifier = .init("onboarding.capability")
+        controls["onboarding.introDescription"] = introDescription
+        controls["onboarding.capability"] = introCapability
+        let intro = page([introTitle, introDescription, RiftOnboardingWorkflowPreview(frame: .zero),
+                          introCapability,
+                          card("沿用你的习惯", [
+                            SettingsNativeStyle.label("照常截图，不需要新的每日快捷键。"),
+                            SettingsNativeStyle.label("只附加图片，何时发送仍由你决定。"),
+                            SettingsNativeStyle.label("系统原图和本机历史都会保留。")])])
         sourceAccess.identifier = .init("onboarding.sourceAccess")
         sourceAccess.target = self; sourceAccess.action = #selector(actionPressed(_:))
         controls["onboarding.sourceAccess"] = sourceAccess
@@ -160,10 +167,10 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
         automationDetail.identifier = .init("onboarding.automationStatus")
         scriptDetail.identifier = .init("onboarding.scriptStatus")
         let connections = page([
-            SettingsNativeStyle.label("连接已经在用的工具。", role: "title"),
+            SettingsNativeStyle.label("连接截图与 ChatGPT。", role: "title"),
             SettingsNativeStyle.label("每项连接都由你主动允许，也可以稍后完成。", role: "secondary"),
             card("系统截图位置", [sourceDetail, sourcePath, sourceAccess]),
-            card("Chrome 自动化", [automationDetail, automation]),
+            card("附加到 Chrome 中的 ChatGPT", [automationDetail, automation]),
             card("Chrome JavaScript 选项", [scriptDetail]),
             permissionHint, actionButton("重新检查连接", id: "onboarding.recheck")
         ])
@@ -192,12 +199,14 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
         }
         let displayRetry = actionButton("重试显示器选择", id: "onboarding.retryDisplay")
         let placementRetry = actionButton("重试位置选择", id: "onboarding.retryPlacement")
+        let positionChoice = SettingsNativeStyle.stack([placementPreview, grid], vertical: false, spacing: 16)
+        grid.widthAnchor.constraint(equalToConstant: 130).isActive = true
+        placementPreview.widthAnchor.constraint(equalTo: positionChoice.widthAnchor, constant: -146).isActive = true
         let placementPage = page([
             SettingsNativeStyle.label("放在顺手的位置。", role: "title"),
             SettingsNativeStyle.label("推荐从左侧开始；已有位置会保留，只有选择后才更改。", role: "secondary"),
-            placementPreview,
             card("所在显示器", [display, displayError, displayRetry]),
-            card("裂缝位置", [grid, placementHint, placementError, placementRetry]),
+            card("裂缝位置", [positionChoice, placementHint, placementError, placementRetry]),
             finishHint
         ])
         pages = [intro, connections, placementPage]
@@ -210,7 +219,7 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
     }
 
     private func page(_ views: [NSView]) -> NSView {
-        let value = SettingsNativeStyle.stack(views, spacing: 16)
+        let value = SettingsNativeStyle.stack(views, spacing: 12)
         for view in views { view.widthAnchor.constraint(equalTo: value.widthAnchor).isActive = true }
         return value
     }
@@ -242,9 +251,16 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
         let preservedFrame = hasPresented ? window.frame : nil
         defer { if let preservedFrame { layout(keeping: preservedFrame) } }
         let presentation = SetupPresentation(snapshot: snapshot.setup)
-        introDescription.stringValue = presentation.firstUseDescription + "\n" + presentation.firstUseCapability
-        introTitle.stringValue = snapshot.setup.attachment == .available
-            ? "从截图到输入。\n点一下就够了。" : presentation.firstUseTitle
+        if snapshot.setup.attachment == .available || snapshot.reviewEnvironment {
+            introTitle.stringValue = "照常截图。\n点一下，进入聊天。"
+            introDescription.stringValue = "正常使用时，截图停在桌面边缘。点一下微图，就能附加到当前 Chrome 的 ChatGPT 草稿。"
+        } else {
+            introTitle.stringValue = presentation.firstUseTitle
+            introDescription.stringValue = presentation.firstUseDescription
+        }
+        introCapability.stringValue = snapshot.reviewEnvironment
+            ? "当前为隔离审核：只演示本机流程，不连接浏览器或上传。"
+            : presentation.firstUseCapability
         sourceDetail.stringValue = presentation.sourceText
         sourcePath.stringValue = presentation.sourcePath
         sourcePath.isHidden = !presentation.hasSourceLocation
@@ -280,9 +296,13 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
         updateError(.placement, label: placementError, retryID: "onboarding.retryPlacement", name: "位置")
         let ready = snapshot.setup.source == .accessible
             && (snapshot.setup.permission == .granted || snapshot.setup.permission == .notNeeded)
-        finishHint.stringValue = ready
-            ? "截图位置和 macOS 自动化已可用；Chrome 脚本选项仍需按说明确认。开始使用不会自动截图或发送。"
-            : "有连接尚未确认。可以先开始，之后从“权限与帮助”继续处理；不会自动截图或发送。"
+        if snapshot.reviewEnvironment {
+            finishHint.stringValue = "完成后可继续查看设置。隔离审核不会真实截图、上传或发送聊天。"
+        } else if ready && snapshot.setup.attachment == .available {
+            finishHint.stringValue = "准备好后，照常截图，再点一下边缘微图。Chrome 页面选项需按说明确认；这里不会自动截图或发送。"
+        } else {
+            finishHint.stringValue = "可以先开始，之后从“权限与帮助”查看连接。当前能力保持原状，不会自动截图或发送。"
+        }
         if snapshot.state.owner.collectionPaused || snapshot.state.owner.isHidden {
             finishHint.stringValue += " 当前暂停和隐藏设置会保留。"
         }

@@ -84,6 +84,42 @@ final class SettingsStateModelTests: XCTestCase {
     @MainActor private func model(_ owner: Owner, known: Bool = true) throws -> SettingsStateModel {
         try SettingsStateModel(owner: owner.value, confirmed: known ? owner.known : [:], decimalSeparator: ".", adapter: owner)
     }
+
+    @MainActor func testOwnerNumbersUseWholeNumberDisplayWithoutLosingFractionalPrecision() throws {
+        var configuration = RiftConfiguration()
+        configuration.fitWidth = 72.125
+        let owner = Owner(configuration: configuration)
+        let model = try SettingsStateModel(owner: owner.value, decimalSeparator: ",", adapter: owner)
+        XCTAssertEqual(model.text(for: .visibleCountPreference), "3")
+        XCTAssertEqual(model.text(for: .fitWidth), "72,125")
+        XCTAssertEqual(model.archiveDraftText, "24")
+        XCTAssertTrue(owner.requests.isEmpty)
+    }
+
+    @MainActor func testCompactOwnerFormattingNeverNormalizesActiveDraftsOnRefresh() async throws {
+        let owner = Owner()
+        let model = try SettingsStateModel(owner: owner.value, decimalSeparator: ",", adapter: owner)
+        model.setDraftText("3,0", for: .visibleCountPreference)
+        model.setDraftText("72,", for: .fitWidth)
+        model.setArchiveDraftText("2,500")
+        owner.advance { value in
+            value.settings.configuration.visibleCountPreference = 4
+            value.settings.configuration.fitWidth = 84
+            value.settings.archiveAfterHours = 8
+        }
+        XCTAssertTrue(model.receive(owner.value))
+        XCTAssertEqual(model.text(for: .visibleCountPreference), "3,0")
+        XCTAssertEqual(model.text(for: .fitWidth), "72,")
+        XCTAssertEqual(model.archiveDraftText, "2,500")
+        XCTAssertTrue(model.hasLayoutDraft)
+        XCTAssertTrue(model.hasArchiveDraft)
+        XCTAssertTrue(owner.requests.isEmpty)
+        await model.perform(.discardDrafts)
+        XCTAssertEqual(model.text(for: .visibleCountPreference), "4")
+        XCTAssertEqual(model.text(for: .fitWidth), "84")
+        XCTAssertEqual(model.archiveDraftText, "8")
+        XCTAssertTrue(owner.requests.isEmpty)
+    }
     private func personalized() throws -> RiftConfiguration {
         // Real legacy Codable path; no alternate migration implementation.
         try JSONDecoder().decode(RiftConfiguration.self, from: Data(#"{"lineWidth":1.25,"lineExtension":13.5,"emptyTraceLength":37,"screenPadding":23,"arrivalDuration":0.33,"inwardDistance":2.75,"reducedMotionDuration":0.19,"preferredDisplayID":2,"preferredDisplayUUID":"02000000-0000-0000-0000-000000000002"}"#.utf8))

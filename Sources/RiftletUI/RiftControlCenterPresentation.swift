@@ -10,6 +10,7 @@ public struct RiftControlCenterPresentation {
     public let symbol: String
     public let primaryTitle = "截图…"
     public let primaryEnabled: Bool
+    public let captureHint: String?
     public let recoveryTitle: String?
     public let recoveryPage: SettingsPage?
 
@@ -19,6 +20,19 @@ public struct RiftControlCenterPresentation {
         let capabilities = snapshot.capabilities
         let usesAutomation = [.available, .syntheticWeb, .systemScreenshotCandidate].contains(setup.attachment)
         primaryEnabled = capabilities.canCapture
+        if capabilities.canCapture {
+            captureHint = nil
+        } else if snapshot.reviewEnvironment {
+            captureHint = "隔离审核不执行真实截图或上传。"
+        } else if !owner.settings.entryEnabled {
+            captureHint = "内置截图已关闭；系统截图收录保持原设置。"
+        } else if !owner.settings.entryAvailable {
+            captureHint = "内置截图当前不可用；可在设置查看状态。"
+        } else if owner.isHidden {
+            captureHint = "裂缝已隐藏；内置截图暂不可用。"
+        } else {
+            captureHint = "内置截图暂不可用；可在设置查看当前状态。"
+        }
         let hasSaveIssue = snapshot.state.hasSaveIssues || snapshot.appearance.failure != nil
             || snapshot.appearance.unreadable || snapshot.login.errorCode != nil || snapshot.login.notConfirmed
         if hasSaveIssue || [.visibilityPreferenceUnsaved, .collectionPreferenceUnsaved,
@@ -60,7 +74,11 @@ public struct RiftControlCenterPresentation {
             recoveryTitle = nil; recoveryPage = nil
         } else if setup.collection == .collecting {
             state = .collecting; title = "正在收录截图"
-            detail = setup.visibleCount == 0 ? "截图后，点一下边缘微图。" : "\(setup.visibleCount) 张截图在边缘，点一下即可附加。"
+            if snapshot.reviewEnvironment {
+                detail = setup.visibleCount == 0 ? "仅收录审核示例，不会上传。" : "\(setup.visibleCount) 张审核示例在边缘，不会上传。"
+            } else {
+                detail = setup.visibleCount == 0 ? "截图后，点一下边缘微图。" : "\(setup.visibleCount) 张截图在边缘，点一下即可附加。"
+            }
             symbol = "checkmark.circle"
             recoveryTitle = nil; recoveryPage = nil
         } else if !capabilities.initialized || setup.collection == .starting {

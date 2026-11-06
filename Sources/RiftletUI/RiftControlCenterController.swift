@@ -26,7 +26,7 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
     private let footer = SettingsNativeStyle.label("截图后点一下，即可附加", role: "caption")
     private var buttons: [String: NSButton] = [:]
     private let scroll = RiftVisualStyle.topAlignedScrollView()
-    private let stack = RiftVisualStyle.documentStack([], spacing: 12)
+    private let stack = RiftVisualStyle.documentStack([], spacing: 10)
 
     public var isShown: Bool { popover.isShown }
     public var window: NSWindow? { body.view.window }
@@ -152,22 +152,25 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
         capture.imagePosition = .imageLeading
         capture.heightAnchor.constraint(greaterThanOrEqualToConstant: 36).isActive = true
         buttons["control.capture"] = capture
-        append(capture)
         captureHint.isHidden = true
-        append(captureHint)
+        append(group([capture, captureHint], spacing: 5))
         append(separator())
-        append(toggleRow("暂停收录", detail: "保留已有截图", control: pause, id: "control.pause"))
-        append(toggleRow("隐藏裂缝", detail: "只隐藏边缘微图，不改变收录设置", control: hide, id: "control.hide"))
+        append(group([
+            toggleRow("暂停收录", detail: "保留已有截图", control: pause, id: "control.pause"),
+            toggleRow("隐藏裂缝", detail: "只隐藏边缘微图，不改变收录设置", control: hide, id: "control.hide")
+        ], spacing: 9))
         append(separator())
-        append(button("截图历史…", id: "control.history", symbol: "clock.arrow.circlepath"))
-        append(button("从边缘收起全部", id: "control.clear", symbol: "archivebox"))
-        append(button("定位最新截图", id: "control.latest", symbol: "photo"))
+        append(group([
+            button("截图历史…", id: "control.history", symbol: "clock.arrow.circlepath"),
+            button("从边缘收起全部", id: "control.clear", symbol: "archivebox"),
+            button("定位最新截图", id: "control.latest", symbol: "photo")
+        ], spacing: 2))
         let feedback = button("反馈与建议…", id: "control.feedback")
         feedback.font = .systemFont(ofSize: 11)
         let quit = button("退出", id: "control.quit")
         quit.font = .systemFont(ofSize: 11)
-        append(SettingsNativeStyle.stack([feedback, spacer(), quit], vertical: false, spacing: 8))
-        append(footer)
+        append(group([SettingsNativeStyle.stack([feedback, spacer(), quit], vertical: false, spacing: 8),
+                      footer], spacing: 5))
         let controls: [NSView] = [settings, recovery, capture, pause, hide,
                                   buttons["control.history"]!, buttons["control.clear"]!,
                                   buttons["control.latest"]!, feedback, quit]
@@ -181,6 +184,12 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
         view.widthAnchor.constraint(equalTo: stack.widthAnchor, constant: -34).isActive = true
     }
 
+    private func group(_ views: [NSView], spacing: CGFloat) -> NSStackView {
+        let value = SettingsNativeStyle.stack(views, spacing: spacing)
+        for view in views { view.widthAnchor.constraint(equalTo: value.widthAnchor).isActive = true }
+        return value
+    }
+
     private func button(_ title: String, id: String, symbol: String? = nil) -> NSButton {
         let value = SettingsNativeStyle.button(title)
         value.identifier = .init(id)
@@ -189,7 +198,9 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
         if let symbol {
             value.image = NSImage(systemSymbolName: symbol, accessibilityDescription: nil)
             value.imagePosition = .imageLeading; value.alignment = .left
-            value.heightAnchor.constraint(greaterThanOrEqualToConstant: 36).isActive = true
+            value.bezelStyle = .recessed
+            value.showsBorderOnlyWhileMouseInside = true
+            value.heightAnchor.constraint(greaterThanOrEqualToConstant: 32).isActive = true
         }
         buttons[id] = value
         return value
@@ -235,10 +246,8 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
         recovery.setAccessibilityLabel(recovery.title)
         recovery.isHidden = projection.recoveryPage == nil
         capture.isEnabled = projection.primaryEnabled
-        captureHint.isHidden = snapshot.capabilities.canCapture
-        captureHint.stringValue = snapshot.state.owner.isHidden ? "显示裂缝后，可以使用内置截图。"
-            : snapshot.state.owner.settings.entryEnabled ? "内置截图暂不可用；可在设置查看当前状态。"
-            : "内置截图已关闭；系统截图收录保持原设置。"
+        captureHint.isHidden = projection.captureHint == nil
+        captureHint.stringValue = projection.captureHint ?? ""
         pause.state = snapshot.state.owner.collectionPaused ? .on : .off
         hide.state = snapshot.state.owner.isHidden ? .on : .off
         pause.isEnabled = snapshot.capabilities.canChangeCollection
@@ -248,7 +257,8 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
         buttons["control.history"]?.isEnabled = snapshot.capabilities.canOpenHistory
         buttons["control.clear"]?.isEnabled = snapshot.capabilities.canClearVisible && snapshot.setup.visibleCount > 0
         buttons["control.latest"]?.isEnabled = snapshot.setup.visibleCount > 0
-        footer.stringValue = snapshot.state.owner.isHidden ? "裂缝已隐藏；文件与历史保留。"
+        footer.stringValue = snapshot.reviewEnvironment ? "审核示例留在本机，不连接浏览器。"
+            : snapshot.state.owner.isHidden ? "裂缝已隐藏；文件与历史保留。"
             : snapshot.state.owner.collectionPaused ? "已有截图仍可使用。" : "只附加图片，由你决定何时发送。"
         statusItem.button?.toolTip = projection.title + "\n" + projection.detail
         statusItem.button?.setAccessibilityValue(projection.title)

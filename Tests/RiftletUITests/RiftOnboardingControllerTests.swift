@@ -74,6 +74,49 @@ final class RiftOnboardingControllerTests: XCTestCase {
         XCTAssertEqual(controller.window.identifier, RiftOnboardingController.windowIdentifier)
     }
 
+    @MainActor func testReviewGuidanceKeepsProductFlowSeparateFromCurrentNoUploadCapability() throws {
+        try prepareAppKit()
+        let controller = RiftOnboardingController { _ in XCTFail("Reading guidance cannot issue a command") }
+        defer { controller.closeForTeardown() }
+        var value = fixture(try model(), source: .accessible, permission: .notNeeded)
+        value.reviewEnvironment = true
+        value.capabilities.canRequestAutomation = false
+        controller.update(value)
+        let description = try XCTUnwrap(controller.control(identifier: "onboarding.introDescription") as? NSTextField)
+        let capability = try XCTUnwrap(controller.control(identifier: "onboarding.capability") as? NSTextField)
+        XCTAssertTrue(description.stringValue.contains("正常使用时"))
+        XCTAssertTrue(description.stringValue.contains("微图"))
+        XCTAssertTrue(description.stringValue.contains("ChatGPT"))
+        XCTAssertTrue(capability.stringValue.contains("隔离审核"))
+        XCTAssertTrue(capability.stringValue.contains("不连接浏览器或上传"))
+        XCTAssertFalse(controller.isVisible)
+    }
+
+    @MainActor func testDefaultPlacementStepShowsAllSixChoicesWithoutScrolling() throws {
+        try prepareAppKit()
+        let controller = RiftOnboardingController { _ in XCTFail("Navigation cannot save a preference") }
+        defer { controller.closeForTeardown() }
+        controller.update(fixture(try model(paused: false, hidden: false), source: .accessible, permission: .granted))
+        XCTAssertTrue(controller.show())
+        guard let screen = controller.window.screen,
+              screen.visibleFrame.width >= SettingsNativeStyle.onboardingSize.width,
+              screen.visibleFrame.height >= SettingsNativeStyle.onboardingSize.height else {
+            throw XCTSkip("The intended onboarding size is unavailable on this display")
+        }
+        try button(controller, "onboarding.next").performClick(nil)
+        try button(controller, "onboarding.next").performClick(nil)
+        controller.window.contentView?.layoutSubtreeIfNeeded()
+        for placement in RiftPlacement.allCases {
+            let choice = try button(controller, "onboarding.placement." + placement.rawValue)
+            XCTAssertFalse(choice.isHiddenOrHasHiddenAncestor)
+            XCTAssertGreaterThan(choice.bounds.width, 0)
+            let viewport = try XCTUnwrap(choice.enclosingScrollView?.contentView)
+            let choiceInViewport = choice.convert(choice.bounds, to: viewport)
+            XCTAssertTrue(viewport.bounds.insetBy(dx: -1, dy: -1).contains(choiceInViewport),
+                          "Every placement choice must be reachable in the default first viewport")
+        }
+    }
+
     @MainActor func testFirstPresentationRestoresIntendedOuterSizeAndReopenPreservesResize() throws {
         try prepareAppKit()
         let controller = RiftOnboardingController { _ in XCTFail("Presentation cannot save a setting") }

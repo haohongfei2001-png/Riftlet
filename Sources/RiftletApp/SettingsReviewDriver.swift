@@ -20,6 +20,7 @@ final class SettingsReviewDriver {
     private let statusItem: NSStatusItem
     private let onRefresh: @MainActor () async -> Void
     private let onHistory: @MainActor () -> Void
+    private let onRecheck: @MainActor () -> Bool
     private var directory: URL!
     private var cases: [[String: Any]] = []
     private var frames: [[String: Any]] = []
@@ -38,9 +39,10 @@ final class SettingsReviewDriver {
 
     init(environment: SettingsReviewEnvironment, host: SettingsProductHost, store: QueueStore,
          statusItem: NSStatusItem, onRefresh: @escaping @MainActor () async -> Void,
-         onHistory: @escaping @MainActor () -> Void) {
+         onHistory: @escaping @MainActor () -> Void, onRecheck: @escaping @MainActor () -> Bool) {
         self.environment = environment; self.host = host; self.store = store
         self.statusItem = statusItem; self.onRefresh = onRefresh; self.onHistory = onHistory
+        self.onRecheck = onRecheck
     }
 
     /// A report is checkpointed after each case, including failures. Main owns
@@ -86,6 +88,7 @@ final class SettingsReviewDriver {
         }
 
         await runCase("real-collector-synthetic-fixture") { try await self.collectFixture() }
+        await runCase("accepted-collection-during-recheck") { try await self.collectionDuringRecheck() }
         await runCase("six-pages-light-and-dark") { try await self.capturePages() }
         await runCase("orthogonal-pause-hidden-sqlite") { try await self.pauseAndHide() }
         await runCase("archive-editor-first-save-discard") { try await self.archiveEditing() }
@@ -415,6 +418,59 @@ final class SettingsReviewDriver {
         let records = try await store.assets(includeUsed: true)
         try require(records.allSatisfy { $0.activeOperationID == nil }, "collectorCreatedOperation")
         artifacts.append(["kind": "collector", "input": "generatedPNGWithExplicitTestScreenshotMetadata", "assetCount": records.count])
+    }
+
+    /// Exercise the actual native callback/owner boundary in a fixed order:
+    /// accepted enabled switch, synchronous background recheck, deferred command.
+    /// No scheduling sleep, fake write receipt or production data is involved.
+    private func collectionDuringRecheck() async throws {
+        host.show(page: .general)
+        var rejectedTargets: [Bool] = []
+        for target in [true, false] {
+            try await wait { self.host.snapshot.capabilities.canChangeCollection }
+            guard let toggle = try control("settings.center.paused") as? NSSwitch,
+                  (toggle.state == .on) != target, let action = toggle.action else {
+                throw Failure.controlUnavailable("settings.center.paused")
+            }
+            let before = try await store.capturePaused()
+            let hiddenBefore = try await store.userHidden()
+            toggle.state = target ? .on : .off
+            let dispatched = NSApp.sendAction(action, to: toggle.target, from: toggle)
+            // This is synchronous: the enabled callback has captured target, but
+            // its MainActor Task has not yet called the persistence owner.
+            let recheckOwned = onRecheck()
+            try require(dispatched && recheckOwned, "collectionRaceOrderingNotEstablished")
+            try await wait {
+                let domain = self.host.snapshot.state.domains[.collection]
+                return domain?.isSaving == false &&
+                    (self.host.snapshot.state.owner.collectionPaused == target || domain?.saveFailure != nil)
+            }
+            let domain = host.snapshot.state.domains[.collection]
+            let persisted = try await store.capturePaused()
+            let accepted = persisted == target && host.snapshot.state.owner.collectionPaused == target
+                && domain?.saveFailure == nil && domain?.pending == nil
+            artifacts.append(["kind": "acceptedCollectionDuringRecheck", "target": target,
+                "nativeActionAccepted": dispatched, "recheckOwnedBeforeDeferredCommand": recheckOwned,
+                "persistedBefore": before, "persistedAfter": persisted,
+                "ownerPaused": host.snapshot.state.owner.collectionPaused,
+                "pending": domain?.pending.map { String(describing: $0) } ?? "none",
+                "failure": domain?.saveFailure.map { String(describing: $0) } ?? "none",
+                "sameDirectionCompletedWithoutRetry": accepted])
+            try require(try await store.userHidden() == hiddenBefore, "collectionRaceChangedVisibility")
+            if !accepted {
+                rejectedTargets.append(target)
+                // Retain the failed observation, then use the existing explicit
+                // same-direction retry to restore a known isolated test state.
+                try await wait { self.host.snapshot.capabilities.canChangeCollection }
+                await host.perform(.settings(.retry(.collection)))
+            }
+            try await wait {
+                self.host.snapshot.state.owner.collectionPaused == target
+                    && self.host.snapshot.capabilities.canChangeCollection
+                    && self.host.snapshot.state.domains[.collection]?.saveFailure == nil
+            }
+        }
+        try require(rejectedTargets.isEmpty, "acceptedCollectionRejectedByBackgroundRecheck")
     }
 
     private func pauseAndHide() async throws {

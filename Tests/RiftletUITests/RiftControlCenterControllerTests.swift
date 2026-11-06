@@ -6,8 +6,9 @@ final class RiftControlCenterControllerTests: XCTestCase {
     @MainActor private func fixture(revision: UInt64 = 1, paused: Bool = false, hidden: Bool = false,
                                     source: SetupSourceState = .accessible,
                                     collection: SetupCollectionState = .collecting,
-                                    issue: SetupIssue? = nil) -> SettingsProductSnapshot {
-        let settings = RiftSettingsSnapshot(entryAvailable: true, entryEnabled: true,
+                                    issue: SetupIssue? = nil, entryEnabled: Bool = true,
+                                    entryAvailable: Bool = true, review: Bool = false) -> SettingsProductSnapshot {
+        let settings = RiftSettingsSnapshot(entryAvailable: entryAvailable, entryEnabled: entryEnabled,
             displays: [.init(id: 1, name: "合成显示器", uuid: "synthetic-display")])
         let model = try! SettingsStateModel(owner: .init(revision: revision, settings: settings,
             collectionPaused: paused, isHidden: hidden, mainDisplayID: 1),
@@ -18,10 +19,11 @@ final class RiftControlCenterControllerTests: XCTestCase {
         value.capabilities.initialized = true
         value.capabilities.canChangeCollection = true
         value.capabilities.canChangeVisibility = true
-        value.capabilities.canCapture = !hidden
+        value.capabilities.canCapture = !hidden && entryEnabled && entryAvailable && !review
         value.capabilities.canOpenHistory = true
         value.capabilities.canClearVisible = true
         value.capabilities.canEditPreferences = true
+        value.reviewEnvironment = review
         return value
     }
 
@@ -82,6 +84,34 @@ final class RiftControlCenterControllerTests: XCTestCase {
         XCTAssertEqual(projection.recoveryPage, .general)
         XCTAssertTrue(projection.title.contains("确认保存"))
         XCTAssertFalse(projection.detail.contains("回滚"))
+    }
+
+    @MainActor func testCaptureHintRetainsDisabledEntryReasonWhenVisibilityAlsoBlocksCapture() {
+        for hidden in [false, true] {
+            for available in [false, true] {
+                let closed = RiftControlCenterPresentation(fixture(hidden: hidden,
+                    entryEnabled: false, entryAvailable: available))
+                XCTAssertFalse(closed.primaryEnabled)
+                XCTAssertTrue(closed.captureHint?.contains("已关闭") == true)
+                XCTAssertFalse(closed.captureHint?.contains("显示裂缝后，可以使用") == true)
+            }
+        }
+        let unavailable = RiftControlCenterPresentation(fixture(hidden: true, entryAvailable: false))
+        XCTAssertTrue(unavailable.captureHint?.contains("当前不可用") == true)
+        let hidden = RiftControlCenterPresentation(fixture(hidden: true))
+        XCTAssertTrue(hidden.captureHint?.contains("暂不可用") == true)
+        XCTAssertNil(RiftControlCenterPresentation(fixture()).captureHint)
+    }
+
+    @MainActor func testReviewStatusExplainsLocalExamplesWithoutPromisingAttachmentOrCapture() {
+        let value = RiftControlCenterPresentation(fixture(hidden: false, entryEnabled: false, review: true))
+        XCTAssertEqual(value.state, .collecting)
+        XCTAssertEqual(value.primaryTitle, "截图…")
+        XCTAssertFalse(value.primaryEnabled)
+        XCTAssertTrue(value.detail.contains("审核示例"))
+        XCTAssertTrue(value.detail.contains("不会上传"))
+        XCTAssertFalse(value.detail.contains("即可附加"))
+        XCTAssertTrue(value.captureHint?.contains("隔离审核") == true)
     }
 
     @MainActor func testUpdateIsPassivePreservesControlsAndRejectsOldRevisions() throws {

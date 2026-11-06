@@ -179,6 +179,20 @@ final class RiftSettingsCenterTests: XCTestCase {
                     XCTAssertEqual(caption.stringValue.contains("示意前 4 张"), count > 4)
                 }
             }
+            let visible = h.controller.scroll.contentView.documentVisibleRect
+            let drawingRect = h.controller.geometryPreview.convert(h.controller.geometryPreview.bounds, to: document)
+            for placement in RiftPlacement.allCases {
+                let button: NSButton = try control(h, "placement.\(placement.rawValue)")
+                let rect = button.convert(button.bounds, to: document)
+                XCTAssertGreaterThanOrEqual(rect.width, 62)
+                XCTAssertGreaterThanOrEqual(rect.height, 32)
+                XCTAssertTrue(visible.contains(rect), "All six choices must remain reachable without scrolling the basic group")
+                XCTAssertLessThanOrEqual(rect.maxX + 8, drawingRect.minX, "The selector belongs beside its preview")
+            }
+            if size.width == 960 {
+                let details = try XCTUnwrap(h.controller.disclosures["display.details"]?.button)
+                XCTAssertTrue(visible.contains(details.convert(details.bounds, to: document)), "Detailed customization must be discoverable on the initial standard-size page")
+            }
         }
         XCTAssertTrue(h.requests.isEmpty)
     }
@@ -187,6 +201,8 @@ final class RiftSettingsCenterTests: XCTestCase {
         let h = try host(); defer { h.controller.closeForTeardown() }
         h.controller.show(page: .display)
         func assertSelection(_ expected: RiftPlacement) throws {
+            XCTAssertEqual(h.controller.geometryPreview.configuration.placement, expected)
+            XCTAssertTrue(h.controller.geometryPreview.geometrySummary.hasPrefix(expected.title + " · "))
             for placement in RiftPlacement.allCases {
                 let button: NSButton = try control(h, "placement.\(placement.rawValue)")
                 let selected = placement == expected
