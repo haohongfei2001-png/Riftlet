@@ -18,10 +18,17 @@ and result. Each invocation creates a fresh UUID. The App uses its existing
 single-instance ownership lock on
 `Application Support/Riftlet-Settings-Review-<UUID>` and an isolated UserDefaults
 suite. The runner verifies the required review entry-point strings before
-launching the supplied executable, verifies report UUID and executable hash,
-and prints the exact result/report paths. It opens only the supplied App's
-native windows. On timeout it signals only its own child process, preserves
-the logs and data, and reports `INCOMPLETE`.
+launching the supplied executable, verifies report UUID, child PID and executable
+hash, and prints the exact result/report paths. It opens only the supplied App's
+native windows. The complete run has a 180-second deadline. On timeout the runner
+signals only its own child process, preserves the logs and data, and reports
+`INCOMPLETE`.
+
+Only after a complete `PASS_SCOPED_NATIVE_REVIEW` and normal process exit does the
+runner launch the same immutable executable with the same review UUID in a new
+process, passing `--settings-review-restart-check`. That check has a 30-second
+deadline and does not repeat the UI suite or create any fixture. A failed,
+partial, timed-out, or non-exiting first run does not start a restart check.
 
 The driver checks native control actions and real file/SQLite readback:
 
@@ -39,10 +46,15 @@ The driver checks native control actions and real file/SQLite readback:
   with test screenshot metadata. The real collector imports it. It is not a
   system screenshot or evidence of screen-capture permission. Window evidence
   is written under `evidence` and cannot become a collector input.
+- While paused, another distinct synthetic image is created and actual asset
+  counts are observed for a fixed two seconds, including a final read. After
+  resuming, a new image with distinct pixels must be imported by its exact SHA.
+  This proves the bounded observations recorded in the report, not a policy
+  about handling files created during the pause on a later resume.
 - Existing isolated records remain and all private media hashes match their
   records. Existing QueueStore reads check unresolved/successful operations and
-  asset operation identities; this does not replace an independent exact SQL
-  operation-table count.
+  asset operation identities. The runner additionally reads the complete SQL
+  `operations` and `upload_starts` counts after normal process exit.
 
 Fault injection is limited to an allowlist of JSON files in the validated UUID
 root. The original bytes are copied into the run evidence and moved aside; a
@@ -68,6 +80,36 @@ The driver does not claim physical mouse input, operating-system IME, VoiceOver,
 multi-display hotplug, real permission prompts, login registration, browser
 attachment acceptance, or production-data verification. Those remain separately
 scoped acceptance work. The driver does not fabricate an upload receipt or START.
+
+The restart driver writes a separate
+`evidence/restart-<UUID>/restart-report.json`. It requires a completed ordinary
+run from the same executable and a different process PID; compares all loaded
+configuration fields, lifecycle, arrival, screenshot entry and appearance with
+their five actual JSON documents; compares loaded pause/visibility with SQLite;
+checks that the existing first-use preference did not present onboarding again;
+and verifies media against stored hashes. It does not show a window, submit a
+preference action, or apply an appearance. Its byte comparison covers the driver
+check itself; the runner supplies the cross-process comparison below.
+
+After the first process exits and again after the restart process exits, the
+runner opens **only the validated UUID root's** `queue.sqlite` using SQLite URI
+`mode=ro`, `query_only`, and a read transaction. It records an aggregate SHA of
+the complete asset-ID-to-media mapping (without dumping database rows), exact
+`operations`/`upload_starts` counts, all five JSON byte hashes, and every media
+file's hash. Each asset must match its referenced media bytes and size. The
+`before`, `after`, and `equal` fields in `restart-runner-result.json` bind these
+observations. Any asset addition/loss, identity mapping change, media change or
+JSON rewrite fails the comparison. Operation and START counts must remain zero.
+Neither this snapshot nor the restart driver changes production data.
+
+The original `application.log`, `runner-result.json`, and App `report.json`
+remain intact. The second process has its own `restart-application.log` and
+`restart-runner-result.json`, including hashes of the original result/report and
+the new restart report. The runner verifies that the restart report references
+that exact original report and PID. Exit status zero requires both the original
+run and `PASS_SCOPED_NATIVE_RESTART`, normal exits, matching package/UUID/PID
+identities, and an equal cross-process data snapshot. A native restart readback
+alone does not override a failing data comparison.
 
 Raw screenshots and logs stay private: the capture/help pages can include this
 machine's isolated source path. Public evidence should contain only hashes and
