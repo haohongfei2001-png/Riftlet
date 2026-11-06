@@ -1,0 +1,37 @@
+{
+  "applicationLaunch": "NOT_RUN",
+  "architectures": [
+    "arm64"
+  ],
+  "artifacts": {
+    "dmg": {
+      "bytes": 3715888,
+      "name": "Riftlet-REVIEW-NOT-NOTARIZED-0.3.0-3-arm64.dmg",
+      "sha256": "e19b5ada435f9d6f300f3080c4c09871465e4faed74cf722ab9c2edbab9429e4"
+    },
+    "zip": {
+      "bytes": 3341556,
+      "name": "Riftlet-REVIEW-NOT-NOTARIZED-0.3.0-3-arm64.zip",
+      "sha256": "878b4466f5b1bf4f41e82bad61cae03a34d7527d98dc94e0fcd1b2565aae124e"
+    }
+  },
+  "build": "3",
+  "dataCompatibility": "NOT_ASSERTED",
+  "developerID": "NOT_SIGNED",
+  "dmgMountedContents": "MATCH_READ_ONLY_DETACHED",
+  "gatekeeper": "NOT_RUN",
+  "installation": "NOT_RUN",
+  "manifestSHA256": "43ececc413b70b4b5a5116a781afcab7e5d0f108adfd07ee3c02c47bf6d8fd12",
+  "network": "NOT_USED",
+  "notarization": "NOT_NOTARIZED",
+  "packagerSHA256": "10c2a2a0f99f9b2bbd1b22922fb9e3adc47c189beb3822d584f1d0007061a60d",
+  "publicReleaseApproval": "NOT_GRANTED_BY_TOOL",
+  "recordedStage": "PREPARED",
+  "reproducibility": "PINNED_INPUTS_AND_EXTRACTED_CONTENTS; NOT_BYTE_IDENTICAL_BUILD_OR_CONTAINER",
+  "schemaVersion": 1,
+  "source": "b9caabcb7fe02d9aae5521c3ada37fda9bd9143c",
+  "status": "REVIEW_ONLY",
+  "version": "0.3.0",
+  "versionLabel": "Beta 3",
+  "zipContents": "OFFLINE_ARCHIVE_IDENTITY_MATCH"
+}

@@ -1,0 +1,12 @@
+{
+  "result": "REPRODUCED_WRONG_VALID_ZIP_ACCEPTED",
+  "sourceSHA256": "7d9763b9f24c2807a8cde17fc9a2aa9935b8b5abb8be7353345f2f7da02aba30",
+  "candidateSource": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "zipSource": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "receiptSource": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "candidateManifestPin": "4160fdd5bdf36d93e3dcef3ab4bfd0efa9ff44b2629c2e44d946060e48ef0a9f",
+  "archiveEmbeddedManifestSHA256": "4fd59a2256ca0c22371d6841f70e055f2b1314ff5a078229eef25efafa9284c4",
+  "reportedStatus": "REVIEW_ONLY",
+  "successReceiptWritten": true,
+  "scope": "Only synthetic temporary files; ditto/hdiutil mocked; no GUI, mount, signing, network, production or App launch"
+}

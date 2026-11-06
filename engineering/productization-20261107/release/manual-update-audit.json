@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "role": "release-engineering-author audit of previously independently reviewed artifact; not fresh whole-algorithm independent approval",
+  "status": "AUDITED_NO_NEW_INSTALLER_CHANGE_REQUIRED",
+  "references": {
+    "scripts/install-verified-beta3.py": "f621c62d3192d95a7f70123d1c1e2de940bec86a34b5dab579a8044a774df975",
+    "scripts/install-verified-beta3-unbound-v2.py": "97ff8405f9165008e2104029fcbb7804d17caf79df56255c6e068a089e0b3bf7",
+    "scripts/test-installer-lock-boundary.py": "23f2d395b83c1aaf84e493b5118fa7aefb837aac621dab725989489c009a459e",
+    "installer-v2-fixture-run-01/results.json": "ff4ecab881d2c677de37198ca31175eecda6bf36035cef71364eba01f1d0f29e",
+    "review/installer-v2-source-review.json": "ae4c06bf2fb97d5f356b1aa7ac3ebe0de12290af017ae32439cfa30a092ba0af",
+    "review/installer-final-pins-review.json": "c7d2a5c34c2478327400b73058b92289bddd29699bbedb8e41db259cc7eb258d"
+  },
+  "existingFaultCases": 7,
+  "faultCasesRerunThisIncrement": false,
+  "findings": [
+    "The retained v2 sets lock_release_started before any release and never automatically swaps App paths again after that boundary.",
+    "Before release, App-only rollback keeps both existing data locks; rollback and original failure evidence are both retained.",
+    "A stopped/pending record after release requires fresh process, lock and App identity inspection before recovery.",
+    "Current data/UNKNOWN/media/Feedback/defaults must not be overwritten from a pre-upgrade backup for an App rollback.",
+    "Source/package/backup/CI pins and complete app file and mode identities remain separate requirements."
+  ],
+  "newInstallOrLaunch": false,
+  "productionDataAccess": false,
+  "publicDeveloperIDUpdateAcceptance": "NOT_RUN"
+}

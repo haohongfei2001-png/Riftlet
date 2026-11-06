@@ -24,7 +24,7 @@ python3 -B scripts/release-tool.py build \
 
 Add `--arch x86_64` only when intentionally building a universal candidate. The receipt reads actual Mach-O slices; it does not infer Intel execution from an Apple Silicon build. The build runs the ordinary early-exit build-information probe, not the normal App. It does not install, start screenshot collection, read production data or run XCTest.
 
-The source commit is exported independently of dirty worktree bytes. New receipts include `sourceVersion` and `versionLabel`; old schema-1 receipts remain readable without being rewritten. The preparation tool itself is separately pinned because it may differ from the product source commit. Historical commands without `--label` now fail during argument parsing instead of inheriting a misleading label.
+The source commit is exported independently of dirty worktree bytes. New receipts include `sourceVersion` and `versionLabel`; an old source with no display-label key records `null` for its source label and still uses the explicit new label. Old schema-1 receipts remain readable without being rewritten. The preparation tool itself is separately pinned because it may differ from the product source commit. Historical commands without `--label` now fail during argument parsing instead of inheriting a misleading label.
 
 ## Produce a local ZIP and DMG
 
@@ -43,7 +43,7 @@ This accepts only the tool's own `PREPARED` format. It does not import arbitrary
 The new `review-distribution/` contains ZIP, DMG and `review-artifacts.json`. It is created once; a failed or successful attempt is never overwritten. Logs and partial files remain available on failure. The tool:
 
 1. Checks the exact pin and complete candidate inventory.
-2. Creates a resource-preserving ZIP and verifies its contained files, modes, receipt and architecture without executing them.
+2. Creates a resource-preserving ZIP and verifies its contained files, modes, receipt and architecture without executing them. It also matches the embedded raw manifest SHA-256 to the intended candidate pin; another internally valid candidate archive cannot be substituted. The formal `package` path applies the same binding.
 3. Copies the same payload into a new image source and adds a clear review-only note.
 4. Creates an HFS+ UDZO image, verifies its image checksum, and mounts it read-only at a new owned path with `-nobrowse -noautoopen`.
 5. Rechecks the mounted manifest, every payload file/mode/stable extended attribute, and review note. It then normally detaches only that owned mount.

@@ -161,7 +161,8 @@ def stage_version(info, version, build, label):
     keys = ("CFBundleShortVersionString", "CFBundleVersion", "RiftletVersionLabel")
     source = {key: info.get(key) for key in keys}
     version_values(source[keys[0]], source[keys[1]])
-    version_label(source[keys[2]])
+    if source[keys[2]] is not None:
+        version_label(source[keys[2]])
     info.update(CFBundleShortVersionString=version, CFBundleVersion=build,
                 RiftletVersionLabel=label, RiftletBuildChannel="release-candidate")
     return source
@@ -257,7 +258,8 @@ def validate_receipt(receipt):
         require(isinstance(source_version, dict) and set(source_version) == {
             "CFBundleShortVersionString", "CFBundleVersion", "RiftletVersionLabel"}, "invalid_source_version")
         version_values(source_version["CFBundleShortVersionString"], source_version["CFBundleVersion"])
-        version_label(source_version["RiftletVersionLabel"])
+        if source_version["RiftletVersionLabel"] is not None:
+            version_label(source_version["RiftletVersionLabel"])
     require(receipt.get("bundleIdentifier") == "com.riftlet.app", "wrong_bundle_identifier")
     source = receipt.get("source", {})
     require(isinstance(source, dict) and isinstance(source.get("inputs"), dict), "invalid_source_inputs")
@@ -609,6 +611,7 @@ def package_candidate(args):
     value = verify_package(package)
     require(value["stage"] == "STAPLED", "distribution_requires_stapled_candidate")
     verify_package(package, native_team=value["signature"]["teamID"])
+    manifest_pin = digest(package / MANIFEST)
     distribution = workspace / "distribution"
     require(not distribution.exists(), "distribution_already_exists")
     distribution.mkdir()
@@ -616,9 +619,10 @@ def package_candidate(args):
     arch = "universal" if len(build["architectures"]) == 2 else build["architectures"][0]
     archive = distribution / ("Riftlet-" + build["version"] + "-" + build["build"] + "-" + arch + ".zip")
     run(["/usr/bin/ditto", "-c", "-k", "--sequesterRsrc", "--keepParent", package, archive])
-    verify_archive(archive, digest(archive))
+    verify_archive(archive, digest(archive), manifest_pin)
+    require(verify_package(package, manifest_pin) == value, "candidate_changed_during_packaging")
     identity = {"schemaVersion": SCHEMA, "archive": archive.name, "sha256": digest(archive), "bytes": archive.stat().st_size,
-                "manifestSHA256": digest(package / MANIFEST), "version": build["version"], "build": build["build"],
+                "manifestSHA256": manifest_pin, "version": build["version"], "build": build["build"],
                 "source": build["source"]["commit"], "architectures": build["architectures"],
                 "teamID": value["signature"]["teamID"], "stage": "STAPLED", "gatekeeper": "NOT_RUN",
                 "publicReleaseApproval": "NOT_GRANTED_BY_TOOL"}
@@ -674,7 +678,7 @@ def package_review(args):
     archive = distribution / (stem + ".zip")
     run(["/usr/bin/ditto", "-c", "-k", "--sequesterRsrc", "--keepParent", package, archive],
         log=workspace / "review-zip.log")
-    verify_archive(archive, digest(archive))
+    verify_archive(archive, digest(archive), args.manifest_sha256)
     image_root = workspace / "review-image-source"
     require(not image_root.exists(), "review_image_source_already_exists")
     image_root.mkdir(mode=0o700)
@@ -705,7 +709,7 @@ def package_review(args):
     return identity
 
 
-def verify_archive(path, expected_sha):
+def verify_archive(path, expected_sha, expected_manifest=None):
     path = safe_path(path)
     require(path.is_file(), "archive_file_required")
     require(re.fullmatch(r"[0-9a-f]{64}", expected_sha or "") is not None, "trusted_archive_pin_required")
@@ -732,7 +736,11 @@ def verify_archive(path, expected_sha):
                 rows[PurePosixPath(*p.parts[1:]).as_posix()] = item
         require(MANIFEST in rows, "archive_manifest_missing")
         require(rows[MANIFEST].file_size <= 8 * 1024 * 1024, "oversized_json")
-        manifest = decode_json(archive.read(rows.pop(MANIFEST)))
+        manifest_bytes = archive.read(rows.pop(MANIFEST))
+        if expected_manifest is not None:
+            require(hash_value(expected_manifest), "trusted_manifest_pin_required")
+            require(sha(manifest_bytes) == expected_manifest, "archive_manifest_pin_mismatch")
+        manifest = decode_json(manifest_bytes)
         validate_manifest(manifest)
         require(set(rows) == set(manifest.get("files", {})), "archive_inventory_mismatch")
         require({PurePosixPath(name).parts[0] for name in rows} == {APP, "INSTALL-zh-CN.txt"}, "archive_payload_layout_mismatch")
@@ -754,6 +762,7 @@ def verify_archive(path, expected_sha):
         require(macho_arches(archive.read(PAYLOAD + "/" + binary_name)) == receipt["architectures"], "archive_arch_mismatch")
         require({name for name in rows if name.startswith(APP + "/Contents/MacOS/")} == {binary_name}, "archive_unexpected_executable")
         return {"status": "OFFLINE_ARCHIVE_IDENTITY_MATCH", "source": receipt["source"]["commit"],
+                "manifestSHA256": sha(manifest_bytes),
                 "version": receipt["version"], "build": receipt["build"], "architectures": receipt["architectures"],
                 "recordedStage": manifest.get("stage"), "nativeSignatureCheck": "NOT_RUN", "gatekeeper": "NOT_RUN",
                 "xattrs": "transport_bound_by_whole_archive_pin; not extracted or applied"}
@@ -824,6 +833,7 @@ def parser():
     c = commands.add_parser("verify"); c.add_argument("--package", type=Path, required=True)
     c.add_argument("--manifest-sha256"); c.add_argument("--team", help="Also perform offline native Developer ID validation on macOS")
     c = commands.add_parser("verify-archive"); c.add_argument("--archive", type=Path, required=True); c.add_argument("--sha256", required=True)
+    c.add_argument("--manifest-sha256", help="Also bind the embedded manifest to an independently recorded candidate pin")
     c = commands.add_parser("update-plan"); c.add_argument("--package", type=Path, required=True)
     c.add_argument("--manifest-sha256", required=True); c.add_argument("--team", required=True); c.add_argument("--current-app", type=Path, required=True)
     return p
@@ -837,7 +847,7 @@ def main(argv=None):
             result = {"status": "OFFLINE_CONTENTS_MATCH", "recordedStage": value["stage"],
                       "manifestPin": "MATCH" if args.manifest_sha256 else "NOT_PROVIDED_NOT_AUTHENTICATED",
                       "nativeSignatureCheck": "PASS" if args.team else "NOT_RUN", "gatekeeper": "NOT_RUN"}
-        elif args.command == "verify-archive": result = verify_archive(args.archive, args.sha256)
+        elif args.command == "verify-archive": result = verify_archive(args.archive, args.sha256, args.manifest_sha256)
         else:
             result = {"preflight": preflight, "build": build_candidate, "sign": sign_candidate,
                       "notary-submit": notary_submit, "notary-status": notary_status,

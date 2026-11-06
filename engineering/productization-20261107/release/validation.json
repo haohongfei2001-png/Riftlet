@@ -1,0 +1,154 @@
+{
+  "actualPreparedBuild": {
+    "architectures": [
+      "arm64"
+    ],
+    "build": "3",
+    "buildLogSHA256": "244a9e47a0fce0af22e085a3739a97d51e56d6c10d8db92718b4c23915ab3097",
+    "compilerWarnings": "Existing CLT framework/library search paths were absent; build completed. This is not XCTest execution.",
+    "exitCode": 0,
+    "manifestSHA256": "43ececc413b70b4b5a5116a781afcab7e5d0f108adfd07ee3c02c47bf6d8fd12",
+    "preparationInputs": {
+      "packaging/release/Entitlements.plist": "732e602e2a3277069ad95ac8174fabd9d12e018f02b5ef222aa668074a15f6e9",
+      "packaging/release/INSTALL-zh-CN.txt": "f759e8d049ab5b67026189975f7405cb0a2179c876e73f02aac0c24895c2fd50",
+      "scripts/release-tool.py": "10c2a2a0f99f9b2bbd1b22922fb9e3adc47c189beb3822d584f1d0007061a60d",
+      "scripts/verify-app-bundle.py": "2a4cf1ccba09dd867bfd776d51dc480ed7df8ee96ae2c73c7a4f1fb28eede9f7"
+    },
+    "scope": "Real isolated ARM64 Swift release product build and ordinary early-exit build-info probe; no App GUI or production mode",
+    "source": {
+      "commit": "b9caabcb7fe02d9aae5521c3ada37fda9bd9143c",
+      "inputs": {
+        "Package.swift": "d3cdd0d51ad937b1afb243cd866cf0071f408d49",
+        "Resources": "b463736fbdebb877ba614523fd819be7da1471ea",
+        "Sources": "08f6222b3667941228c0c9a6601606345cf33d08",
+        "Tests": "8c5807c8d7622a5aa4eb1edf7edb090e0ee29d5b",
+        "ThirdPartyNotices": "89a07e01c183f61fca6bc7d7127322b00fa03ded"
+      },
+      "tree": "29291a0c69210e73945e85ada2d022698c857bac"
+    },
+    "sourceVersion": {
+      "CFBundleShortVersionString": "0.2.0",
+      "CFBundleVersion": "2",
+      "RiftletVersionLabel": "Beta 2"
+    },
+    "swiftBuildSeconds": 65.32,
+    "version": "0.3.0",
+    "versionLabel": "Beta 3"
+  },
+  "baseline": "2e779f646ac4874344fac94f79103e8ddf9b02c8",
+  "checks": [
+    {
+      "exitCode": 0,
+      "failures": 0,
+      "name": "ReleaseReadiness",
+      "rawLog": "release-tests-04.log",
+      "sha256": "2e45f4e15a1311864e747391823f28057852bfa641fe21c19c0d23cf3d2adab4",
+      "skipped": 0,
+      "tests": 54
+    },
+    {
+      "exitCode": 0,
+      "failures": 0,
+      "name": "Packaging",
+      "rawLog": "packaging-tests.log",
+      "sha256": "3a44ac792e380e6e7f544eaf658ba8d22361046bc0972e91f2c79d12f30a820f",
+      "skipped": 0,
+      "tests": 17
+    },
+    {
+      "exitCode": 0,
+      "failures": 0,
+      "name": "InternalBetaPackaging",
+      "rawLog": "internal-beta-tests.log",
+      "sha256": "30115744f79fc12eaac6ed7e5640b85a097855f8a1b476d4b6b66d804891c233",
+      "skipped": 0,
+      "tests": 17
+    }
+  ],
+  "finalTestsSHA256": "7cfe3d3280255bd9610725dc1b480b4111d62a9c399894c46200afe69a7469a1",
+  "finalToolReadOnlyVerification": {
+    "archive": {
+      "architectures": [
+        "arm64"
+      ],
+      "build": "3",
+      "gatekeeper": "NOT_RUN",
+      "manifestSHA256": "43ececc413b70b4b5a5116a781afcab7e5d0f108adfd07ee3c02c47bf6d8fd12",
+      "nativeSignatureCheck": "NOT_RUN",
+      "recordedStage": "PREPARED",
+      "source": "b9caabcb7fe02d9aae5521c3ada37fda9bd9143c",
+      "status": "OFFLINE_ARCHIVE_IDENTITY_MATCH",
+      "version": "0.3.0",
+      "xattrs": "transport_bound_by_whole_archive_pin; not extracted or applied"
+    },
+    "archiveReportSHA256": "1d3211b32db36fd35f01ab92703f5bb607c113c0b8f21a1fcf48c9643545e8d1",
+    "package": {
+      "gatekeeper": "NOT_RUN",
+      "manifestPin": "MATCH",
+      "nativeSignatureCheck": "NOT_RUN",
+      "recordedStage": "PREPARED",
+      "status": "OFFLINE_CONTENTS_MATCH"
+    },
+    "packageReportSHA256": "b3bf98576f72114153b744bcf9699a9e40641c90398ae5d23863b3c6a58d26b1"
+  },
+  "finalToolSHA256": "2b4cd25440750dc49d168d889f4697d4bbce903f8b73b8ba2df6710f720842da",
+  "independentFinding": {
+    "beforeResult": "REPRODUCED_WRONG_VALID_ZIP_ACCEPTED",
+    "originalCounterexample": "zip-candidate-binding-before-fix.json",
+    "originalCounterexampleSHA256": "9acd01487d027c81d1d57cf0a36ccfe6f1b120aac1934ae74ad09c060c02a5e0",
+    "regressions": [
+      "review container mismatch",
+      "formal distribution mismatch",
+      "direct optional manifest pin check"
+    ],
+    "repair": "Both packagers pass the intended candidate manifest pin into the archive verifier; a different internally valid archive cannot produce a success receipt."
+  },
+  "intermediateSuccessfulIterations": [
+    {
+      "rawLog": "release-tests-01.log",
+      "sha256": "57c4ae530a87dd5e240d6f77101421eb59f72b8eb795b9daa39308b54384cbd4",
+      "tests": 50
+    },
+    {
+      "rawLog": "release-tests-02.log",
+      "sha256": "108dc84dc92c3a4418797536569d40dcd201452bd5d451dddaa7c6a20941a019",
+      "tests": 51
+    },
+    {
+      "rawLog": "release-tests-03.log",
+      "sha256": "2e8edea5754a52aaf81b7a3fd70a30982d63661708a2bbd268ee374dd9420a3c",
+      "tests": 53
+    }
+  ],
+  "nativeContainers": {
+    "appLaunch": false,
+    "currentToolFlow": "prepared-review-artifacts-final.json",
+    "finalPackagerRealRun": "PASS from an exact read-only-verified private copy of the original PREPARED payload; no new Swift build or App execution.",
+    "historicalExactBeta3Container": "historical-beta3-dmg.json",
+    "installation": false,
+    "previousToolFlowRetained": "prepared-review-artifacts.json",
+    "sourceOrOriginalPackageChanged": false
+  },
+  "notRun": [
+    "Intel/universal build in this increment",
+    "Native XCTest",
+    "Signed/notarized DMG",
+    "Clean external download and Gatekeeper launch",
+    "Actual source/data update or rollback in this increment",
+    "Live ChatGPT attachments"
+  ],
+  "protectedDomains": {
+    "mainAndRemoteRefs": "UNCHANGED",
+    "productionApp": "UNTOUCHED",
+    "productionData": "NOT_READ_OR_WRITTEN",
+    "systemSettings": "UNTOUCHED",
+    "uploadArchitecture": "UNCHANGED"
+  },
+  "releaseReadiness": "PUBLIC_BETA_BLOCKED_OWNER_CREDENTIALS",
+  "reviewRole": "author validation; independent source review separately required",
+  "schemaVersion": 1,
+  "signingAndNotaryTestScope": "Mocked Apple command replies only. The real local inspection found zero valid identities; no Developer ID signature, Apple upload, ticket, Gatekeeper assessment or external distribution occurred.",
+  "status": "PASS_SCOPED_LOCAL_RELEASE_PREPARATION",
+  "subsequentCompatibilityOnlyDelta": "Final tool accepts a missing historical source display label as null while target label remains mandatory; it also binds embedded ZIP manifest bytes to the exact intended candidate pin in both packagers and rechecks the formal candidate. Neither change rebuilds the App or relabels the original preparation tool/source identity.",
+  "testedSourceCheckpoint": "b9caabcb7fe02d9aae5521c3ada37fda9bd9143c"
+}

@@ -245,6 +245,16 @@ class ReleaseTest(unittest.TestCase):
             with self.subTest(label=repr(label)):
                 self.error("invalid_version_label", R.version_label, label)
 
+    def test_old_source_without_display_label_is_recorded_without_inventing_one(self):
+        info = plistlib.loads((ROOT / "Resources/Info.plist").read_bytes())
+        info.pop("RiftletVersionLabel", None)
+        source = R.stage_version(info, "0.2.0", "2", "Beta 2")
+        self.assertIsNone(source["RiftletVersionLabel"])
+        self.assertEqual(info["RiftletVersionLabel"], "Beta 2")
+        self.receipt.update(versionLabel="Beta 2", sourceVersion=source)
+        R.write_json(self.app / R.RECEIPT, self.receipt); self.save()
+        self.assertEqual(R.verify_package(self.package)["build"]["sourceVersion"], source)
+
     def test_new_receipt_binds_label_and_both_version_provenances(self):
         self.receipt.update(versionLabel="Beta 2", sourceVersion={"CFBundleShortVersionString": "0.1.0",
                             "CFBundleVersion": "1", "RiftletVersionLabel": "Beta 1"})
@@ -258,12 +268,12 @@ class ReleaseTest(unittest.TestCase):
         del self.receipt["sourceVersion"]
         self.error("invalid_source_version", R.validate_receipt, self.receipt)
 
-    def review_native(self, *, corrupt_mount=False, fail_detach=False, change_source=False):
+    def review_native(self, *, corrupt_mount=False, fail_detach=False, change_source=False, wrong_archive=None):
         calls = []
         def native(args, **kwargs):
             calls.append([str(x) for x in args])
             if args[0] == "/usr/bin/ditto":
-                if "-c" in args: shutil.copyfile(self.archive(), args[-1])
+                if "-c" in args: shutil.copyfile(wrong_archive or self.archive(), args[-1])
                 else: shutil.copytree(args[-2], args[-1])
                 return result()
             self.assertEqual(args[0], "/usr/bin/hdiutil")
@@ -306,6 +316,21 @@ class ReleaseTest(unittest.TestCase):
                 patch.object(R, "run", side_effect=AssertionError("pin fails before subprocess")):
             self.error("manifest_pin_mismatch", R.package_review, self.args(manifest_sha256="0" * 64))
         self.assertFalse((self.workspace / "review-distribution").exists())
+
+    def test_internally_valid_other_candidate_zip_cannot_be_published_as_this_candidate(self):
+        self.receipt["source"]["commit"] = "b" * 40
+        R.write_json(self.app / R.RECEIPT, self.receipt); self.save()
+        other = self.root / "other-candidate.zip"
+        shutil.copyfile(self.archive(), other)
+        self.assertEqual(R.verify_archive(other, R.digest(other))["source"], "b" * 40)
+        self.receipt["source"]["commit"] = "a" * 40
+        R.write_json(self.app / R.RECEIPT, self.receipt); self.save()
+        calls, native = self.review_native(wrong_archive=other)
+        with patch.object(R.platform, "system", return_value="Darwin"), patch.object(R, "run", side_effect=native):
+            self.error("archive_manifest_pin_mismatch", R.package_review, self.review_args())
+        self.assertFalse(any(c[0] == "/usr/bin/hdiutil" for c in calls))
+        self.assertFalse((self.workspace / "review-distribution/review-artifacts.json").exists())
+        self.assertEqual(R.verify_package(self.package)["build"]["source"]["commit"], "a" * 40)
 
     def test_review_never_relabels_signed_or_failed_candidate_and_formal_gate_stays_closed(self):
         with patch.object(R.platform, "system", return_value="Darwin"), \
@@ -356,6 +381,13 @@ class ReleaseTest(unittest.TestCase):
         archive = self.archive()
         self.error("trusted_archive_pin_required", R.verify_archive, archive, None)
         self.error("archive_pin_mismatch", R.verify_archive, archive, "0" * 64)
+
+    def test_archive_also_binds_an_independently_pinned_candidate_manifest(self):
+        archive = self.archive(); pin = R.digest(self.package / R.MANIFEST)
+        answer = R.verify_archive(archive, R.digest(archive), pin)
+        self.assertEqual(answer["manifestSHA256"], pin)
+        self.error("archive_manifest_pin_mismatch", R.verify_archive, archive, R.digest(archive), "0" * 64)
+        self.error("trusted_manifest_pin_required", R.verify_archive, archive, R.digest(archive), "not-a-pin")
 
     @unittest.skipUnless(Path("/usr/bin/ditto").exists(), "native macOS ditto only")
     def test_native_ditto_archive_matches_read_only_verifier(self):
@@ -539,6 +571,22 @@ class ReleaseTest(unittest.TestCase):
         self.assertEqual(value["status"], "PACKAGED_NOT_PUBLISHED")
         self.assertEqual(artifact["gatekeeper"], "NOT_RUN")
         self.assertEqual(artifact["publicReleaseApproval"], "NOT_GRANTED_BY_TOOL")
+
+    def test_formal_distribution_also_rejects_another_valid_candidate_archive(self):
+        self.stage("STAPLED")
+        self.receipt["source"]["commit"] = "b" * 40
+        R.write_json(self.app / R.RECEIPT, self.receipt); self.save()
+        other = self.root / "other-stapled.zip"; shutil.copyfile(self.archive(), other)
+        self.receipt["source"]["commit"] = "a" * 40
+        R.write_json(self.app / R.RECEIPT, self.receipt); self.save()
+        def native(args, **kwargs):
+            self.assertEqual(args[0], "/usr/bin/ditto")
+            shutil.copyfile(other, args[-1]); return result()
+        with patch.object(R.platform, "system", return_value="Darwin"), \
+                patch.object(R, "verify_signature", return_value=signature()), patch.object(R, "run", side_effect=native):
+            self.error("archive_manifest_pin_mismatch", R.package_candidate, self.args())
+        self.assertFalse((self.workspace / "distribution/release-artifact.json").exists())
+        self.assertEqual(R.verify_package(self.package)["build"]["source"]["commit"], "a" * 40)
 
     def test_update_plan_does_not_copy_launch_or_claim_data_compatibility(self):
         self.stage("STAPLED")

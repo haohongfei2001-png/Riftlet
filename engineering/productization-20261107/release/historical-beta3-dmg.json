@@ -1,0 +1,20 @@
+{
+  "AppBinarySHA256": "fe5b09c4146a363e45685f8441d081fbd62a3238ed83b115287882b9158e29f3",
+  "AppLaunch": "NOT_RUN",
+  "DeveloperID": "NOT_SIGNED",
+  "Gatekeeper": "NOT_RUN",
+  "detached": true,
+  "dmgBytes": 3651083,
+  "dmgSHA256": "c229d02d46c926b6acf90f8ba79273e4a9d3171af6d9c9e25c6a22870b1b522e",
+  "installation": "NOT_RUN",
+  "mountedFileBytesAndModes": "MATCH",
+  "mountedReadOnly": true,
+  "nativeSignature": "AD_HOC_STRICT_PASS",
+  "network": "NOT_USED",
+  "notarization": "NOT_NOTARIZED",
+  "originalManifestSHA256": "31b66e0b12d7ac2072a50d4981afe3f02bef35376bfd6db11a0c5646ad0fd9f3",
+  "originalPackageUnchanged": true,
+  "publicRelease": "NOT_AUTHORIZED",
+  "sourceMain": "2e779f646ac4874344fac94f79103e8ddf9b02c8",
+  "status": "PASS_SCOPED_LOCAL_REVIEW_CONTAINER"
+}
