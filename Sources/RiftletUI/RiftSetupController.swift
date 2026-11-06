@@ -265,8 +265,8 @@ public final class RiftSetupController: NSObject, NSWindowDelegate {
         footer.addArrangedSubview(safetyNote); footer.addArrangedSubview(footerSpace)
         navigation.superview?.isHidden = onboardingStep != nil
         sidebarWidth?.constant = onboardingStep == nil ? 156 : 0
-        progress.stringValue = onboardingStep.map { "认识 Riftlet  ·  连接与权限  ·  开始使用    \($0 + 1) / 3" } ?? "内部候选"
-        setupWindow.title = onboardingStep == nil ? "Riftlet — 设置与运行状态" : "Riftlet — 开始使用 · 内部候选"
+        progress.stringValue = onboardingStep.map { "认识 Riftlet  ·  连接与权限  ·  开始使用    \($0 + 1) / 3" } ?? "设置与运行状态"
+        setupWindow.title = onboardingStep == nil ? "Riftlet — 设置与运行状态" : "Riftlet — 开始使用"
         var views: [NSView] = []
         let sourceCard = { [self] in RiftVisualStyle.card([RiftVisualStyle.label("系统截图位置", role: "heading"), source, path, buttons([sourceButton, accessButton])]) }
         let chromeCard = { [self] in RiftVisualStyle.card([RiftVisualStyle.label("当前 ChatGPT 草稿", role: "heading"), attachment, permission, permissionButton]) }
@@ -310,7 +310,7 @@ public final class RiftSetupController: NSObject, NSWindowDelegate {
             case 4:
                 views = [RiftVisualStyle.label("关于 Riftlet", role: "title"),
                     firstUseDescription,
-                    RiftVisualStyle.card([RiftVisualStyle.label("内部候选 · 薄界", role: "heading"), support]),
+                    RiftVisualStyle.card([RiftVisualStyle.label("支持范围与版本说明", role: "heading"), support]),
                     actionButton("反馈与建议…", action: #selector(openFeedback), available: onOpenFeedback != nil)]
             default:
                 views = [RiftVisualStyle.label("运行状态", role: "title"),

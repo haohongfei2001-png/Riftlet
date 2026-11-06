@@ -1,0 +1,43 @@
+{
+  "scope": "read-only running process observation; activity not controlled; not a leak/idle certification",
+  "startedAt": "2026-11-05T21:57:06.621313+00:00",
+  "pid": 50267,
+  "processIdentity": "Fri Nov  6 01:12:44 2026     Riftlet.app/Contents/MacOS/Riftlet",
+  "requestedSeconds": 2,
+  "elapsedSeconds": 2.0274997078813612,
+  "status": "complete",
+  "samples": [
+    {
+      "at": "2026-11-05T21:57:06.628039+00:00",
+      "percentCPU": 0.0,
+      "rssKiB": 24784,
+      "cumulativeCPU": "1:24.59"
+    },
+    {
+      "at": "2026-11-05T21:57:07.148632+00:00",
+      "percentCPU": 0.0,
+      "rssKiB": 24784,
+      "cumulativeCPU": "1:24.59"
+    },
+    {
+      "at": "2026-11-05T21:57:07.665745+00:00",
+      "percentCPU": 0.0,
+      "rssKiB": 24784,
+      "cumulativeCPU": "1:24.59"
+    },
+    {
+      "at": "2026-11-05T21:57:08.182032+00:00",
+      "percentCPU": 0.0,
+      "rssKiB": 24784,
+      "cumulativeCPU": "1:24.59"
+    },
+    {
+      "at": "2026-11-05T21:57:08.643113+00:00",
+      "percentCPU": 0.0,
+      "rssKiB": 24784,
+      "cumulativeCPU": "1:24.59"
+    }
+  ],
+  "redaction": "Removed user-specific installation prefix; original retained locally",
+  "originalSHA256": "67d37bac80cc87e327762d6ec1bab7e75715409cac2a567fe2bf1a7f90e071a5"
+}

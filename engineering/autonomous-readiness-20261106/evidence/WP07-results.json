@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "package": "WP07",
+  "scope": "Unconnected nonvisual settings state/owners; no existing Main/UI or production integration",
+  "files": {
+    "Sources/RiftletUI/SettingsStateModel.swift": "337b55867a6a96ee9868e8a4d00ed412f59f0c262bdc744ffd34d76c7ef5c311",
+    "Tests/RiftletUITests/SettingsStateModelTests.swift": "202e3c7ea45c75e16f91aa06100a90baf09e674855e57e4402e294795de3209d",
+    "docs/SETTINGS_FOUNDATION.md": "e04130087e0d5f14ebb67e525ac71cf172bc4dda947bfd2b26c7adcd5f7d81c7",
+    "Sources/RiftletApp/ApplicationPresentationPreferences.swift": "dfed72406da115743ce6277ab5e22c00b9c91197f726ea3ac2d7d3409ad97322",
+    "Tests/RiftletAppTests/ApplicationPresentationPreferencesTests.swift": "c30e687d70f1ca880f97bd399962380b8d39e6b8502663215fface78370f2bec",
+    "docs/SETTINGS_PRESENTATION_BACKEND.md": "5bf5c429968bd35d50fb89d83c89c38940a9583df0d1bc79311e59d2b4f7d9b9",
+    "Sources/RiftletApp/LoginItemPreferences.swift": "c148cd6882152205dafc519fd1b088991e6d2f6ac04ec18ea8c9175e971e8d04",
+    "Tests/RiftletAppTests/LoginItemPreferencesTests.swift": "07312416948ce8529d1b8badcf1f5d553f2d581ba7d004dda78177823f8822df",
+    "docs/SETTINGS_LOGIN_BACKEND.md": "020db95adcd785b32e4e8de9dc44f6b8531a20dfeb0aebbdc6f529d486e59deb"
+  },
+  "testsAuthored": {
+    "settingsState": 21,
+    "appearance": 15,
+    "loginItem": 20,
+    "total": 56
+  },
+  "localValidation": {
+    "actualNativeTargets": "PASS: RiftletUI and RiftletApp compiled with the available native Swift build system",
+    "swiftParser": "PASS: all three XCTest source files parsed; no test execution implied",
+    "XCTestCompileAndExecution": "NOT_RUN: local CommandLineTools has no XCTest.framework; full suite required in macOS CI",
+    "appearanceSystemMutation": "NOT_RUN; injected callbacks and temporary-file tests only",
+    "actualLoginItemMutation": "NOT_RUN; fake service tests only"
+  },
+  "sourceReview": {
+    "reviewer": "readiness_independent",
+    "result": "PASS",
+    "scope": "Non-author package source/test/docs review; exact final G/tree report is embedded only in the direct admission child"
+  },
+  "sourceMutationBoundaries": [
+    "Existing Main and settings UI unmodified",
+    "No capture/attachment input gate added",
+    "No production file or system-service changes",
+    "No installed App replacement"
+  ]
+}

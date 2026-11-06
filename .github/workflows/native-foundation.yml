@@ -123,6 +123,13 @@ jobs:
           set -o pipefail
           mkdir -p test-results
           swift test --parallel 2>&1 | tee test-results/swift-test.log
+      - name: Verify offline storage, release and process lifecycle readiness
+        run: |
+          set -o pipefail
+          python3 -B -m unittest discover -s Tests/StorageReadiness -v 2>&1 | tee test-results/storage-readiness.log
+          python3 -B -m unittest discover -s Tests/ReleaseReadiness -v 2>&1 | tee test-results/release-readiness.log
+          bash scripts/run-readiness-ownership.sh 2>&1 | tee test-results/ownership-readiness.log
+          bash scripts/run-readiness-soak.sh 2>&1 | tee test-results/storage-soak.log
       - name: Verify isolated arrival delta and report native motion outcomes
         if: github.head_ref == 'codex/arrival-none-magnet-native-20261028' || github.ref == 'refs/heads/codex/arrival-none-magnet-native-20261028'
         run: |

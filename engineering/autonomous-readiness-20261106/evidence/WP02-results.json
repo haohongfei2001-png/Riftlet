@@ -1,0 +1,157 @@
+{
+  "scope": "WP02 isolated native/controlled browser automation; not new real ChatGPT or physical UI acceptance",
+  "runtime": {
+    "swift": "Apple Swift version 6.4 (swiftlang-6.4.0.34.1 clang-2100.3.34.1)\nTarget: arm64-apple-macosx27.0.0",
+    "chrome": "Google Chrome 156.0.8078.80"
+  },
+  "runtimeSourceUnchangedFrom": "b61fc46cf931bdbd14deec1b47d077e92db61e16",
+  "pageVM": {
+    "pass": 123,
+    "fail": 0
+  },
+  "legacyObserve": {
+    "pass": 61,
+    "fail": 0
+  },
+  "chrome": {
+    "groupsPassed": 31,
+    "groupsFailed": 0,
+    "scenarios": 43,
+    "nativeInputs": 122,
+    "automaticSends": 0,
+    "applicationNetworkRequests": 0
+  },
+  "nativeSoak": {
+    "captures": 1200,
+    "additionalCollectorCaptures": 160,
+    "durationThroughLastSampleSeconds": 628.625964041,
+    "resourceSamples": 30,
+    "observedRSSBytes": {
+      "min": 19890176,
+      "max": 25968640
+    },
+    "sampleIntervalProcessCPUPercentOneCore": 1.952950222982627,
+    "metrics": [
+      {
+        "count": 40,
+        "max": 271.713333,
+        "name": "burst_40_to_collected_batch_0",
+        "p50": 271.713333,
+        "p95": 271.713333,
+        "samples": 1,
+        "scope": "isolated native storage; no UI or network",
+        "total": 271.713333,
+        "unit": "ms"
+      },
+      {
+        "count": 80,
+        "max": 217.589416,
+        "name": "burst_40_to_collected_batch_1",
+        "p50": 217.589416,
+        "p95": 217.589416,
+        "samples": 1,
+        "scope": "isolated native storage; no UI or network",
+        "total": 217.589416,
+        "unit": "ms"
+      },
+      {
+        "count": 120,
+        "max": 251.33775,
+        "name": "burst_40_to_collected_batch_2",
+        "p50": 251.33775,
+        "p95": 251.33775,
+        "samples": 1,
+        "scope": "isolated native storage; no UI or network",
+        "total": 251.33775,
+        "unit": "ms"
+      },
+      {
+        "count": 160,
+        "max": 228.563709,
+        "name": "burst_40_to_collected_batch_3",
+        "p50": 228.563709,
+        "p95": 228.563709,
+        "samples": 1,
+        "scope": "isolated native storage; no UI or network",
+        "total": 228.563709,
+        "unit": "ms"
+      },
+      {
+        "count": 1200,
+        "max": 24.91433310508728,
+        "name": "stable_file_to_durable_asset",
+        "p50": 3.627790927886963,
+        "p95": 5.780040979385376,
+        "samples": 1200,
+        "scope": "isolated native storage; no UI or network",
+        "total": 4185.562237977982,
+        "unit": "ms"
+      },
+      {
+        "count": 1200,
+        "max": 0.5197498798370361,
+        "name": "visible_queue_after_history_growth",
+        "p50": 0.08095884323120117,
+        "p95": 0.1797499656677246,
+        "samples": 1200,
+        "scope": "isolated native storage; no UI or network",
+        "total": 111.06224536895752,
+        "unit": "ms"
+      },
+      {
+        "count": 1200,
+        "max": 4.735375165939331,
+        "name": "history_page_40",
+        "p50": 2.551084041595459,
+        "p95": 4.552375078201294,
+        "samples": 30,
+        "scope": "isolated native storage; no UI or network",
+        "total": 77.20753908157349,
+        "unit": "ms"
+      }
+    ],
+    "warnings": [
+      "Old burst_40 metric starts after generation/start; only remaining settle latency. Corrected short-run timings separately stored.",
+      "RSS/CPU belong to isolated generated-small-image probe, not UI or installed App.",
+      "Ten minutes and 1,200 records are bounded evidence, not unlimited lifetime certification."
+    ]
+  },
+  "ownership": {
+    "isolatedChildLifetimes": 12,
+    "result": "PASS",
+    "scope": "actual lock implementation; synthetic marker preserved; no App startup"
+  },
+  "files": {
+    "chrome-input-resource.log": "3adaae7f4332e0407ba756d9894143d0a5cf76906d48c9a4571f8e125d351609",
+    "chrome-handoff-fullchrome.log": "1ef34700d25b997cfae6d6bd080c9c7640c742ddbfc3f1a61916c127f0abd31e",
+    "chrome-final.log": "282d661baaefab5aeec8e9cb2696261535780474d80955d07cba909b6851b1eb",
+    "page-vm.log": "18c3efd10b9d4a9ccdb95faa3c10e39e3b3aa378fc7b03aa6fcc26ee22912cda",
+    "legacy-observe.log": "eec68168713e8196824c9801156d67358e77968ac133c14d296b94fdcef51895",
+    "soak-development.log": "d41dd9f18ebcf42d5129946709469b32d32edec9a9ff07ccbe03e97ba87f2e1d",
+    "soak-native-buildsystem.log": "416b155a8c0e72525d2766e9991d9b811baecc0555d08618d34506cd10fa1522",
+    "soak-cli-development.log": "b77fc262f467c996467b614cd35d9e222b6a4163e9cac6bb22a2479b70e2395e",
+    "soak-1200-final.log": "9a1c1aa75438f8c1531a671ffbf9b36aa787073e40ff8a467abdc12f35b869cc",
+    "soak-short-corrected.log": "9a99379dc2e9fb1d26b43d084bee6c54804fcd0ad9db029163859424a9ff1128",
+    "ownership-final.log": "85ef5638aeaaa8863d527d84dd8991bc2e81c1a6b52f168506702f7071f0a539",
+    "installed-app-resources.json": "f088c73d3058fd9c57c05ce4b834c0b17f4354819d8e362871eec814375db04a",
+    "process-sampler-corrected.json": "7c2f673fb140fc47a9c5df10dfc470ef18d484067df59cfe601af554f37b56ec",
+    "process-sampler-missing.json": "5a9d28866c949facac62ca5cdae609fe76137c6ad51daf21d1c51b18b4d8a051"
+  },
+  "originalLocalLogSHA256": {
+    "chrome-input-resource.log": "a8fe7515df684d97bdf5c243da0d5f6b1a243d12492485d9ddfa221219c12776",
+    "chrome-handoff-fullchrome.log": "1ef34700d25b997cfae6d6bd080c9c7640c742ddbfc3f1a61916c127f0abd31e",
+    "chrome-final.log": "282d661baaefab5aeec8e9cb2696261535780474d80955d07cba909b6851b1eb",
+    "page-vm.log": "18c3efd10b9d4a9ccdb95faa3c10e39e3b3aa378fc7b03aa6fcc26ee22912cda",
+    "legacy-observe.log": "eec68168713e8196824c9801156d67358e77968ac133c14d296b94fdcef51895",
+    "soak-development.log": "ddc6505261366411813addd6cfa870231f69a42cc13f7c6308b4c9d6da86558a",
+    "soak-native-buildsystem.log": "2ece49f6945c2a9ea96d952a1f0e159aa770c2de08464b399ded2e4d1e50f4db",
+    "soak-cli-development.log": "8c6c68408fc8015fa6c55e723a4fa66b7edca74cfe184b0f18bfb7d715efd5c8",
+    "soak-1200-final.log": "72001d7e2a6e350c383e1850c47acc26a0f5c42680551ccbc7bb17d5b96b0d56",
+    "soak-short-corrected.log": "61456760e123707ed49631710f289ad853caa968b40c8dc85b510ef2d9bb0477",
+    "ownership-final.log": "85ef5638aeaaa8863d527d84dd8991bc2e81c1a6b52f168506702f7071f0a539",
+    "installed-app-resources.json": "f088c73d3058fd9c57c05ce4b834c0b17f4354819d8e362871eec814375db04a",
+    "process-sampler-corrected.json": "67d37bac80cc87e327762d6ec1bab7e75715409cac2a567fe2bf1a7f90e071a5",
+    "process-sampler-missing.json": "5a9d28866c949facac62ca5cdae609fe76137c6ad51daf21d1c51b18b4d8a051"
+  },
+  "publicEvidence": "Original logs retained in ignored test-results/readiness. Public copies replace local home prefixes; process identity retains executable basename and start time."
+}

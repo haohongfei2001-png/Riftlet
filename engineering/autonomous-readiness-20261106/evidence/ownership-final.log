@@ -1,0 +1,1 @@
+READINESS_OWNERSHIP_PASS: 12 isolated subprocess lifetimes; normal exit, termination retention, SIGTERM, SIGKILL; original history retained; no App launched

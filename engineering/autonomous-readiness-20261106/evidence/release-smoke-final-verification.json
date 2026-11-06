@@ -1,0 +1,7 @@
+{
+  "gatekeeper": "NOT_RUN",
+  "manifestPin": "MATCH",
+  "nativeSignatureCheck": "NOT_RUN",
+  "recordedStage": "PREPARED",
+  "status": "OFFLINE_CONTENTS_MATCH"
+}

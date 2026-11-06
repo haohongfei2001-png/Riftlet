@@ -1,0 +1,10 @@
+{
+  "scope": "read-only running process observation; activity not controlled; not a leak/idle certification",
+  "startedAt": "2026-11-05T21:57:08.697642+00:00",
+  "pid": 2147483647,
+  "processIdentity": null,
+  "requestedSeconds": 1,
+  "elapsedSeconds": 0.0023751661647111177,
+  "status": "incomplete:CalledProcessError",
+  "samples": []
+}

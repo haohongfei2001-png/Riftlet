@@ -1,0 +1,22 @@
+test_current_bundle_and_exact_source_resources (test_verify_app_bundle.BundleVerificationTests.test_current_bundle_and_exact_source_resources) ... ok
+test_false_public_release_metadata_rejected (test_verify_app_bundle.BundleVerificationTests.test_false_public_release_metadata_rejected) ... ok
+test_internal_binary_identity_rejects_wrong_root_mode_policy_and_types (test_verify_app_bundle.BundleVerificationTests.test_internal_binary_identity_rejects_wrong_root_mode_policy_and_types) ... ok
+test_internal_build_mocked_pipeline_preserves_product_and_previous_outputs (test_verify_app_bundle.BundleVerificationTests.test_internal_build_mocked_pipeline_preserves_product_and_previous_outputs) ... ok
+test_internal_ordinary_channel_is_explicit_and_exact (test_verify_app_bundle.BundleVerificationTests.test_internal_ordinary_channel_is_explicit_and_exact) ... ok
+test_mac_resource_bundle_layout_and_post_signing_directory (test_verify_app_bundle.BundleVerificationTests.test_mac_resource_bundle_layout_and_post_signing_directory) ... ok
+test_missing_and_duplicate_page_resources_rejected (test_verify_app_bundle.BundleVerificationTests.test_missing_and_duplicate_page_resources_rejected) ... ok
+test_missing_non_macho_and_non_executable_binary_rejected (test_verify_app_bundle.BundleVerificationTests.test_missing_non_macho_and_non_executable_binary_rejected) ... ok
+test_missing_or_malformed_plist_is_closed_failure (test_verify_app_bundle.BundleVerificationTests.test_missing_or_malformed_plist_is_closed_failure) ... ok
+test_missing_usage_description_and_wrong_minimum_os_rejected (test_verify_app_bundle.BundleVerificationTests.test_missing_usage_description_and_wrong_minimum_os_rejected) ... ok
+test_notices_must_be_present_and_unchanged (test_verify_app_bundle.BundleVerificationTests.test_notices_must_be_present_and_unchanged) ... ok
+test_ordinary_channel_does_not_accept_product_bundle_or_weaken_resources (test_verify_app_bundle.BundleVerificationTests.test_ordinary_channel_does_not_accept_product_bundle_or_weaken_resources) ... ok
+test_product_binary_identity_matches_sources_and_cannot_be_mislabeled (test_verify_app_bundle.BundleVerificationTests.test_product_binary_identity_matches_sources_and_cannot_be_mislabeled) ... ok
+test_renamed_executable_cannot_pass (test_verify_app_bundle.BundleVerificationTests.test_renamed_executable_cannot_pass) ... ok
+test_stale_page_resource_cannot_pass_source_comparison (test_verify_app_bundle.BundleVerificationTests.test_stale_page_resource_cannot_pass_source_comparison) ... ok
+test_symlinked_resource_and_bundle_root_rejected (test_verify_app_bundle.BundleVerificationTests.test_symlinked_resource_and_bundle_root_rejected) ... ok
+test_unexpected_executable_and_bundle_root_entries_rejected (test_verify_app_bundle.BundleVerificationTests.test_unexpected_executable_and_bundle_root_entries_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 17 tests in 3.007s
+
+OK
