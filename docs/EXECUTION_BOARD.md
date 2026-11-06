@@ -1,3 +1,7 @@
+# Current consumer productization sprint — 2026-11-07
+
+The latest user authorizes a ten-hour autonomous sprint, standard reviewed integration of objective fixes/release engineering, and protected personal installation. PR45 and Beta3 upgrade are already complete; current main2e779f6 / installed0.3.0(3). Root owns GUI/production/refs. Login, release and consumer lanes have separate worktrees. Current packet queue and expanded three-level readiness live in [productization roadmap](../engineering/productization-20261107/ROADMAP.md). Browser tool policy remains binding; unavailable live service verification must not stop independent native, performance, docs or packaging work. No public release/invitations/production reset or new visual language. Earlier packet-specific no-merge restrictions below remain historical for those packets.
+
 # Current history dual-style native increment — 2026-11-07
 
 Packet **HDS-01** follows the user's explicit history implementation request, from actual main `41217b2`.
