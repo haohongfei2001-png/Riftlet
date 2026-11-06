@@ -2,7 +2,7 @@
 
 本矩阵针对同一 App 中的新设置中心、控制中心与引导。实施代码、XCTest、真实 App 内部 action、WindowServer 图片、物理操作和用户最终外观决定分别记录，不互相替代。源码已分配版本身份 **Beta 2 · 0.2.0（2）**。最终源码 G / H、App SHA、报告 SHA、CI run / checkout、操作系统与架构：**PENDING，集成负责人在收口时填写**。
 
-作者已完成新 UI/Host/Environment 的实际 target 编译与语法检查；本机 CLT 缺少 XCTest，因此没有用 shim 冒充 XCTest。现有文件定义了设置中心 38 项、Host 12 项、环境 12 项、控制中心 9 项、动态样式 2 项测试；计数表示存在的测试方法，**不是本机已运行通过的数量**。引导与既有 model/login/appearance 测试也须以最终 CI 的实际执行、跳过和失败记录为准。
+作者已完成新 UI/Host/Environment 的实际 target 编译与语法检查；本机 CLT 缺少 XCTest，因此没有用 shim 冒充 XCTest。截至 run05 对应源码，测试文件定义了设置中心 38 项、Host 12 项、环境 12 项、控制中心 9 项、动态样式 2 项测试；计数表示存在的测试方法，**不是本机已运行通过的数量**。后续窄修新增回归、引导与既有 model/login/appearance 测试均须以最终 CI 的实际执行、跳过和失败记录为准。
 
 `PENDING` 表示待绑定精确候选的执行结果；`NOT_RUN` 表示尚无该类真实验收证据。中间 App 的实际窗口查看只能用于修正当前候选，不能提前填成最终通过。任何失败保留原 report/PNG/日志；修复后用新的源/工件身份复验受影响路径，不覆盖原文件。
 
@@ -43,9 +43,24 @@ run02 完整运行是 FAIL，原图和原始结果不改写。
 
 唯一失败是 `orthogonal-pause-hidden-sqlite` 的 `controlUnavailable:settings.center.paused`；集成侧定位为 driver 在控件暂时禁用时提前发起下一动作。29 个原图文件已核对哈希，三个已取得的控制中心帧仍有 WindowServer 与 AppKit 尺寸差异，例如 210×311 对 362×539 pt，不能作为完整稳定视图验收。该失败 case 的另四张状态图未产生，同包重启没有执行。
 
-仅 driver 的实际可用/完整稳定窗口等待在修正，不能把旧失败重标 PASS。`run04` 需完整功能、原生捕获、正常退出与同包同根新进程重启共同满足；正式 CI、最终 App/ZIP 仍待实际结果。
+后续 driver 修正实际可用/完整稳定窗口等待，不能把旧失败重标 PASS。完整功能、原生捕获、正常退出与同包同根新进程重启须共同满足；run04/run05 的实际结果另列如下，正式 CI、最终 App/ZIP 仍待完成。
 
 [ea312a6 的 CUA 键盘复验](evidence/cua-native-ea312a6.json)有四项有明确前置观察的 PASS：Escape 退出引导后 ⌘, 打开设置；先确认已有草稿后 ⌘W 显示关闭 sheet；继续编辑保留草稿；⌘Q 不保存后进程退出并保留 86400 秒已确认归档值。快速连批预设选择/关闭未先观测草稿，结果仍是 `INCONCLUSIVE`；失效 AX 索引是 `TOOL_ERROR_RECOVERED`，切换后重读是 `REOBSERVED`，退出后文件缺失假设改查真实保存值是 `AUDIT_ASSUMPTION_CORRECTED`。这些不确定性不新增为产品 FAIL，也不补成 PASS。
+
+## run04 / run05 与待执行 run06
+
+两轮各自新增原始绑定：[run04](evidence/native-run-04.json) 为 `4174a04`，[run05](evidence/native-run-05.json) 为 `64ac68b`。源码 tree、候选可执行文件、runner、实际 report、独立审查原记录及已产生 PNG 的哈希分别核对，未改写前轮证据。
+
+| 项目 | 实际结果 | 结论边界 |
+| --- | --- | --- |
+| run04 功能与退出 | 11 PASS / 2 FAIL；六页浅深、暂停/隐藏 case 为 `conditionTimedOut`；29.65 秒正常 exit 0 | 整轮 FAIL，同包重启 NOT_RUN |
+| run04 窗口记录 | 25 条中 23 PNG、2 NOT_RUN；normal / paused / save-failure 三张 control 原图获非作者局部视觉 PASS | 说明列与完整捕获只对这三张关闭发现；缺失状态与深色不借用通过 |
+| run05 磁盘报告 | `completed=true`，9 PASS / 4 FAIL；新增失败包含独立写失败恢复和 resize/reopen；22 条中 19 PNG、3 NOT_RUN | 报告完成不等于进程或 suite 成功 |
+| run05 runner | `INCOMPLETE`，180 秒超时，exit -15；日志为空且未取得 stdout 报告路径 | 从同一 review 根实际文件核对 UUID、进程与 binary 后单独绑定，不伪造 runner 报告回执 |
+| run05 退出等待 | 集成侧观察到失败 case 遗留草稿，正常 Quit sheet 等待决定 | 保留超时，不据此推断无草稿退出倒退；独立源码审查未直接查看该待决进程 |
+| 控制中心关闭时序 | 展示动作返回后，原生激活交回与无条件 `didResignActive` 关闭重叠；独立审查批准删除这一重复路径及窄回归 | 通知顺序不能单独证明唯一因果；不增加产品焦点门槛，等待 run06 实际复验 |
+
+run06 尚待完整功能、完整稳定控制中心各状态图、正常退出与同包重启结果；实际点外面、状态栏再次点击、Escape 的关闭仍须按执行证据记录，不能仅从 `.transient` 或合成通知测试推断。原 run04/run05 失败和 run05 报告/runner 的差异将继续保留。
 
 ## 自动化与原生运行的对应关系
 

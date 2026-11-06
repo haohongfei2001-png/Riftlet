@@ -37,9 +37,15 @@
 
 同一运行二进制的 [额外 CUA 原生记录](../engineering/beta2-product-20261106/evidence/cua-native-bc903f7.json) 单独证明 Return 推进引导、明确选右下、⌘, 打开设置、键入 6.25、⌘Q 后继续编辑保留草稿，以及再次 ⌘Q 应用后退出并读回 22500 秒归档值。同时保留 ⌘W 无 Close 菜单而未响应、引导尺寸仍不符这两项失败。
 
-[run03](../engineering/beta2-product-20261106/evidence/native-run-03.json) 对应 `ea312a6`，进程 14.99 秒正常退出，引导功能及六张浅/深窗口的 652×608 pt 外框已得到实际记录。本轮仍为 12/13 功能通过：暂停/隐藏序列在 driver 提前点击暂时禁用的控件时失败；控制中心捕获虽然已采用正确范围，部分帧还处于出现缩放阶段，尚不足以验证完整布局。原失败、29 张原图哈希与不同的 WindowServer/AppKit 尺寸均保留。driver 正在改为等待控件实际可用与完整稳定窗口尺寸，完整联合验收与同包重启等待 `run04`。
+[run03](../engineering/beta2-product-20261106/evidence/native-run-03.json) 对应 `ea312a6`，进程 14.99 秒正常退出，引导功能及六张浅/深窗口的 652×608 pt 外框已得到实际记录。本轮仍为 12/13 功能通过：暂停/隐藏序列在 driver 提前点击暂时禁用的控件时失败；控制中心捕获虽然已采用正确范围，部分帧还处于出现缩放阶段，尚不足以验证完整布局。原失败、29 张原图哈希与不同的 WindowServer/AppKit 尺寸均保留。随后 driver 增加实际可用与完整稳定窗口等待，结果继续按下列新运行单独记录。
 
 `ea312a6` 的 [单独 CUA 键盘记录](../engineering/beta2-product-20261106/evidence/cua-native-ea312a6.json) 已在**先独立观察到草稿存在**后，证实 ⌘W 打开原生关闭面板、继续编辑保留草稿；随后 ⌘Q 选择不保存，进程退出且已确认的 24 小时归档值仍为 86400 秒。快速连批预设点击后立刻 ⌘W 因未先确认草稿而保留 `INCONCLUSIVE`；失效 AX 索引和一次审计预期纠正也单列，不追加为产品失败或通过。当前不声明 `PRODUCT_READY`，已安装 Beta 1 保持不变。
+
+[run04](../engineering/beta2-product-20261106/evidence/native-run-04.json) 对应 `4174a04`，进程 29.65 秒正常退出，功能 11 PASS / 2 FAIL；六页浅深与暂停/隐藏两个完整 case 均在控制中心打开路径超时。25 条窗口记录中有 23 个实际 PNG 和 2 个 `NOT_RUN`。独立审查确认 `control-normal`、`control-paused`、`control-save-failure` 三张完整原图的说明宽度和捕获范围已改善；这个局部视觉结论不覆盖缺失的深色、仅隐藏、暂停且隐藏正常状态图，也不改变整轮 FAIL。
+
+[run05](../engineering/beta2-product-20261106/evidence/native-run-05.json) 对应 `64ac68b`，磁盘报告已完成，功能为 9 PASS / 4 FAIL，22 条窗口记录中有 19 个 PNG 和 3 个 `NOT_RUN`。runner 仍是 180 秒超时、exit -15、`INCOMPLETE`；SIGTERM 后空日志没有 stdout 报告路径，实际报告从同一 review 根读取，并核对了相同进程身份与可执行文件，不能补成 runner 已返回报告。集成侧观察到失败保存 case 遗留草稿，退出正在等待原生确认；这不构成无草稿正常退出倒退的证据。
+
+run05 的通知时序与源码指向控制中心额外的 `didResignActive` 无条件关闭路径：状态栏展示后发生原生激活交回时，它会与既有 transient 关闭机制重叠。独立审查只批准移除该 observer 并保留既有关闭路径、添加窄回归；通知先后不是调用栈，仍需 `run06` 实际复验。当前不新增产品焦点门槛，不把修复计划写成通过；完整功能、稳定状态图、正常退出和同包同根新进程重启均待新结果。
 
 ## 已实现的界面与状态边界
 
@@ -79,7 +85,7 @@ RIFTLET_REVIEW_ID="$(uuidgen)"
   --settings-review "$RIFTLET_REVIEW_ID" --settings-review-run
 ```
 
-运行结束打印 `RIFTLET_SETTINGS_REVIEW_REPORT=<实际路径>`，报告位于该 review 根的 `evidence/run-<UUID>/report.json`；Main 在 driver 返回后退出本实例。保存完整报告、每个 case 的状态、原始窗口 PNG 与哈希、恢复失败列表。合成 collector 输入带明确测试标记，不是真实系统截图验收。`PASS_SCOPED_NATIVE_REVIEW` 只覆盖报告内实际执行的 native action / SQLite 场景；缺图、物理鼠标、OS IME、VoiceOver、多屏热拔、真实登录项等不能借用这个总状态。
+driver 写入位于该 review 根 `evidence/run-<UUID>/report.json` 的报告，并打印 `RIFTLET_SETTINGS_REVIEW_REPORT=<实际路径>`；Main 随后请求正常退出，失败后仍有草稿时可能等待关闭确认。stdout 在异常终止时可能未刷新，实际文件与进程身份核对须单独记录，不能把找到文件等同于进程正常退出。保存完整报告、每个 case 的状态、原始窗口 PNG 与哈希、恢复失败列表。合成 collector 输入带明确测试标记，不是真实系统截图验收。`PASS_SCOPED_NATIVE_REVIEW` 只覆盖报告内实际执行的 native action / SQLite 场景；缺图、物理鼠标、OS IME、VoiceOver、多屏热拔、真实登录项等不能借用这个总状态。
 
 完整候选验收使用 [原生 runner](SETTINGS_REVIEW_DRIVER.md)：
 
