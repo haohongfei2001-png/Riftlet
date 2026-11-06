@@ -193,8 +193,8 @@
     },
     {
       "path": "exports/Riftlet-Experience-Prototype.html",
-      "bytes": 367211,
-      "sha256": "0090e602cee9c42f9c5e610fc9e5a6c629f4c781ede48baed49b9bd659fb42a6"
+      "bytes": 367921,
+      "sha256": "54b4dda6630916594a0e4d8e9f7fd08591e0ae1c7bf32f30f4081cddc918d892"
     },
     {
       "path": "exports/Riftlet-Motion.mp4",
@@ -208,13 +208,13 @@
     },
     {
       "path": "prototype/app.css",
-      "bytes": 45151,
-      "sha256": "bbff2146fb4c393585dc81c07f313e05f1774933291b52f5c46b001bc439f777"
+      "bytes": 45659,
+      "sha256": "a6c821422103def0cfdf970aaa7a7a47732a4dac67490a6b5367706c43018ecb"
     },
     {
       "path": "prototype/app.js",
-      "bytes": 63629,
-      "sha256": "3902d17814a12eafd9ee4fb035080fe8e776526144302bd32f83a0408f8c6c8e"
+      "bytes": 63831,
+      "sha256": "7283a1eff4f7a406e433114bbf4cfc9ae1110f6a898775de735d5262eb356733"
     },
     {
       "path": "prototype/assets/riftlet.svg",
