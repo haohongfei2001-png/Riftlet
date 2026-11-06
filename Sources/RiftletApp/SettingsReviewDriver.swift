@@ -729,9 +729,9 @@ final class SettingsReviewDriver {
             if page != .display { await capture("settings-minimum-" + page.rawValue, window: host.center.window) }
         }
         host.show(page: .display)
-        let details = try control("settings.center.display.details") as? NSButton
+        let details = try control("settings.center.disclosure.display.details") as? NSButton
         let wasExpanded = details?.state == .on
-        if !wasExpanded { try click("settings.center.display.details") }
+        if !wasExpanded { try click("settings.center.disclosure.display.details") }
         await settle()
         guard let scroll = find("settings.center.scroll", in: host.center.window.contentView) as? NSScrollView,
               let document = scroll.documentView,
@@ -747,7 +747,7 @@ final class SettingsReviewDriver {
             "documentHeight": document.bounds.height, "viewportHeight": scroll.contentView.bounds.height,
             "scrollOffset": scroll.contentView.bounds.origin.y, "applyFullyVisible": true])
         await capture("settings-minimum-display-scrolled", window: host.center.window)
-        if !wasExpanded { try click("settings.center.display.details") }
+        if !wasExpanded { try click("settings.center.disclosure.display.details") }
         scroll.contentView.scroll(to: .zero); scroll.reflectScrolledClipView(scroll.contentView)
         host.center.window.performClose(nil)
         try await wait { !self.host.center.isVisible }
