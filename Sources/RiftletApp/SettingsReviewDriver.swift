@@ -720,6 +720,35 @@ final class SettingsReviewDriver {
         await settle()
         let size = host.center.window.frame.size
         await capture("settings-minimum-size", window: host.center.window)
+        for page in SettingsPage.allCases {
+            host.show(page: page)
+            await settle()
+            guard let scroll = find("settings.center.scroll", in: host.center.window.contentView) as? NSScrollView,
+                  let document = scroll.documentView else { throw Failure.controlUnavailable("settingsScroll") }
+            try require(document.frame.width <= scroll.contentView.bounds.width + 1, "minimumWindowHorizontalOverflow")
+            if page != .display { await capture("settings-minimum-" + page.rawValue, window: host.center.window) }
+        }
+        host.show(page: .display)
+        let details = try control("settings.center.display.details") as? NSButton
+        let wasExpanded = details?.state == .on
+        if !wasExpanded { try click("settings.center.display.details") }
+        await settle()
+        guard let scroll = find("settings.center.scroll", in: host.center.window.contentView) as? NSScrollView,
+              let document = scroll.documentView,
+              let apply = find("settings.center.layout.apply.display", in: document) else {
+            throw Failure.controlUnavailable("minimumWindowScrollTarget")
+        }
+        scroll.contentView.scroll(to: NSPoint(x: 0, y: max(0, document.bounds.height - scroll.contentView.bounds.height)))
+        scroll.reflectScrolledClipView(scroll.contentView)
+        await settle()
+        let applyRect = apply.convert(apply.bounds, to: scroll.contentView)
+        try require(scroll.contentView.bounds.contains(applyRect), "minimumWindowApplyUnreachableByScrolling")
+        artifacts.append(["kind": "minimumWindowScroll", "page": "display", "detailsExpanded": true,
+            "documentHeight": document.bounds.height, "viewportHeight": scroll.contentView.bounds.height,
+            "scrollOffset": scroll.contentView.bounds.origin.y, "applyFullyVisible": true])
+        await capture("settings-minimum-display-scrolled", window: host.center.window)
+        if !wasExpanded { try click("settings.center.display.details") }
+        scroll.contentView.scroll(to: .zero); scroll.reflectScrolledClipView(scroll.contentView)
         host.center.window.performClose(nil)
         try await wait { !self.host.center.isVisible }
         host.show(page: .display)
@@ -761,9 +790,14 @@ final class SettingsReviewDriver {
               let action = button.action, let target = button.target else { throw Failure.controlUnavailable("statusItem") }
         let start = ProcessInfo.processInfo.systemUptime
         defer { recordControlTransition("open", began: start) }
-        // host.show() has already requested activation for our settings window.
-        // Wait for that asynchronous handoff before simulating its next native
-        // action. This is only driver sequencing, never a product focus gate.
+        // A collector observation can yield for seconds after host.show().
+        // Request our own window once if that earlier activation no longer
+        // holds, then retain the actual foreground/stability assertion. This
+        // is software-driver sequencing, never a product focus requirement.
+        if !NSApp.isActive || NSWorkspace.shared.frontmostApplication?.processIdentifier != ProcessInfo.processInfo.processIdentifier {
+            recordPresentationEvent("driver.activationBeforeStatusAction")
+            host.show(page: host.center.selectedPage)
+        }
         var activeSamples = 0
         try await wait(timeout: 5) {
             let active = self.host.center.window.isVisible && NSApp.isActive
