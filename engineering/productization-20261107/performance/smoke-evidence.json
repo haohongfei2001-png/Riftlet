@@ -1,0 +1,691 @@
+{
+  "schema": "riftlet.productization.high-resolution-smoke.v1",
+  "baseProductSource": "2e779f646ac4874344fac94f79103e8ddf9b02c8",
+  "productSourceChanged": false,
+  "longSoakStatus": "PENDING_ACTUAL_3600_SECONDS",
+  "environment": {
+    "os": "27.0",
+    "osBuild": "26A428",
+    "cpu": "Apple M5",
+    "physicalMemoryBytes": 25769803776,
+    "otherMachineActivity": "Not isolated; root GUI and release-container checks may occur. Only own-process CPU is measured."
+  },
+  "build": {
+    "mode": "release native Core/Capture/UI with enable-testing and optimized harness",
+    "originalModuleBuildSeconds": 47.5,
+    "originalBuildLogSHA256": "ebbb6cd020648727e3ada4edee0a60638a28dbbf5da7771a6fa0455bb439fecf",
+    "nativeModulesBuiltOnce": true,
+    "correctedHarnessBuildLogSHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "correctedSourceSHA256": "dea7fbdea8305c578873e4f51b0105786925482bd071036eca815b1fe2df375b",
+    "frozenRunnerScriptSHA256": "62783b0c0cd8887af218c8f504e940ab53f58dc1fa59dc4f9ec111d6f1b379ed",
+    "correctedHarnessBinarySHA256": "b964ee847fbddfe4bd2aca707268cb51f1a9e61d6277ac175f21c2352811a79b"
+  },
+  "runs": [
+    {
+      "name": "smoke-01",
+      "runnerResult": "FAIL",
+      "exitCode": 1,
+      "nativeResult": "FAIL_SCOPED_HIGH_RESOLUTION_READINESS",
+      "nativeFailure": "modeMismatch",
+      "binarySHA256": "11c2dc436e396598f76d224c09ff81e8b8428014fe1aa996d30c8a1574789dcb",
+      "actualRunSeconds": 0.8950841249898076,
+      "requestedMaintenanceSeconds": 0,
+      "actualMaintenanceSeconds": 0,
+      "initialHistoryCount": 100,
+      "finalCaptureCount": 10,
+      "cases": [],
+      "fixtures": [
+        {
+          "encodedBytes": 158756,
+          "height": 2160,
+          "name": "landscape-4k",
+          "sha256": "4987b187d144475243fc89d25d672a78fbdb80167edbffca410ad83de8c67b25",
+          "width": 3840
+        },
+        {
+          "encodedBytes": 166786,
+          "height": 3840,
+          "name": "portrait-4k",
+          "sha256": "04a40f70177e90579d27aafc7191a7374c9c31c8de37087326f5fce40635d0c4",
+          "width": 2160
+        },
+        {
+          "encodedBytes": 140002,
+          "height": 1440,
+          "name": "ultrawide",
+          "sha256": "af4ada4ab069ecbeaaf0621fb332ff28b487c6a3554e9d10381ee127e711e1bc",
+          "width": 5120
+        },
+        {
+          "encodedBytes": 602242,
+          "height": 4320,
+          "name": "landscape-8k",
+          "sha256": "20adffa1f7bfeb60aacd6e693ccbae922817e2b8e88c8a9b029883c04276ecab",
+          "width": 7680
+        }
+      ],
+      "metrics": {
+        "batch_first_write_to_durable_callbacks": {
+          "maximum": 558.134000049904,
+          "p50": 558.134000049904,
+          "p95": 558.134000049904,
+          "samples": 1,
+          "unit": "ms"
+        },
+        "file_write_to_durable_import_callback": {
+          "maximum": 536.1801665276289,
+          "p50": 401.5930835157633,
+          "p95": 536.1801665276289,
+          "samples": 10,
+          "unit": "ms"
+        },
+        "fixture_generation": {
+          "maximum": 172.037958400324,
+          "p50": 58.54566674679518,
+          "p95": 172.037958400324,
+          "samples": 4,
+          "unit": "ms"
+        }
+      },
+      "peakResidentBytesIncludesGenerator": 282935296,
+      "lastResidentBytes": 43433984,
+      "lastSyntheticLogicalBytes": 6443120,
+      "processCPUSecondsDelta": 0.6452439999999999,
+      "freshProcessRecovery": {
+        "result": "NOT_RUN"
+      },
+      "rawEvidence": [
+        {
+          "basename": "runner-result.json",
+          "sha256": "96a769719a9d3a255d7c0fec5bcb8eaa723f9c81f1dff48dba34c0339d33c75d"
+        },
+        {
+          "basename": "runtime.log",
+          "sha256": "4c9b80967b79b6c0f5009f9a2faa2e0c0d074aad23509deb68802ee763abb357"
+        },
+        {
+          "basename": "build-identity.json",
+          "sha256": "854cbb460b42382417b1df789de7018ee0bcf6b6ca62374df135d20eb548e2fd"
+        },
+        {
+          "basename": "report.json",
+          "sha256": "ad83d56328a52ba15bef71c678360c5a11021d2c487f5ed8f7452be65e9fb31b"
+        },
+        {
+          "basename": "NativeHighResolutionSoak.swift",
+          "sha256": "bd1fc792cdeb0dc808e4ceb4da438ffc48385d6b41387a2fd35df73030f45f07"
+        }
+      ],
+      "scope": {
+        "appWindowsCreated": false,
+        "browserOrNetwork": false,
+        "noClaim": "These are native data/cache/decode timings, not rendered UI, physical screenshot or upload timings. Database reopen is not process restart. Sources are bounded patterns, not adversarial image noise.",
+        "OSFileCacheControlled": false,
+        "processRestartMeasured": false,
+        "productionDataAccess": false,
+        "realCollectorImporterSQLiteImageIO": true,
+        "sleepWakeMeasured": false,
+        "syntheticFixtures": true,
+        "UIVisibleLatencyMeasured": false
+      },
+      "classification": "Harness setup error: simulation target violates real production-mode store contract. No product bug or relaxed guard; original failure retained."
+    },
+    {
+      "name": "smoke-02",
+      "runnerResult": "PASS_SCOPED_HIGH_RESOLUTION_READINESS",
+      "exitCode": 0,
+      "nativeResult": "PASS_SCOPED_HIGH_RESOLUTION_READINESS",
+      "nativeFailure": null,
+      "binarySHA256": "b964ee847fbddfe4bd2aca707268cb51f1a9e61d6277ac175f21c2352811a79b",
+      "actualRunSeconds": 17.18761633336544,
+      "requestedMaintenanceSeconds": 0,
+      "actualMaintenanceSeconds": 1.6670674085617065e-07,
+      "initialHistoryCount": 100,
+      "finalCaptureCount": 104,
+      "cases": [
+        {
+          "details": {
+            "historyCount": 100,
+            "visibleCount": 10
+          },
+          "name": "initial-history-and-ten-visible",
+          "result": "PASS"
+        },
+        {
+          "details": {
+            "records": 100
+          },
+          "name": "real-importer-deduplication",
+          "result": "PASS"
+        },
+        {
+          "details": {
+            "coldRequests": 10,
+            "OSFileCacheControlled": false,
+            "synchronousSameImageWarmHits": 10,
+            "warmRequests": 10
+          },
+          "name": "actual-thumbnail-cache",
+          "result": "PASS"
+        },
+        {
+          "details": {
+            "requests": 8
+          },
+          "name": "actual-history-preview-budget",
+          "result": "PASS"
+        },
+        {
+          "details": {
+            "processRestart": false,
+            "records": 100
+          },
+          "name": "store-reopen-full-records-and-unknown",
+          "result": "PASS"
+        },
+        {
+          "details": {
+            "negativeObservationSeconds": 0.41714304173365235,
+            "newFixtures": 4
+          },
+          "name": "stopped-arrivals-recovered",
+          "result": "PASS"
+        },
+        {
+          "details": {
+            "originalBytesRestored": true,
+            "scope": "Only owned synthetic media; collector stopped during reversible rename"
+          },
+          "name": "temporary-private-file-unavailability",
+          "result": "PASS"
+        },
+        {
+          "details": {
+            "actualSeconds": 1.6670674085617065e-07,
+            "cycleIntervalSeconds": 60,
+            "cycles": 0,
+            "requestedSeconds": 0,
+            "scope": "Live collector, periodic high-resolution files, native store/cache/decode; no App windows or browser"
+          },
+          "name": "bounded-maintenance-duration",
+          "result": "PASS"
+        },
+        {
+          "details": {
+            "assets": 104,
+            "mediaVerified": 104,
+            "syntheticDataLogicalBytes": 56989565,
+            "syntheticUnknownOperations": 1,
+            "uploadStarts": 0
+          },
+          "name": "all-originals-media-and-unknown-preserved",
+          "result": "PASS"
+        }
+      ],
+      "fixtures": [
+        {
+          "encodedBytes": 158756,
+          "height": 2160,
+          "name": "landscape-4k",
+          "sha256": "4987b187d144475243fc89d25d672a78fbdb80167edbffca410ad83de8c67b25",
+          "width": 3840
+        },
+        {
+          "encodedBytes": 166786,
+          "height": 3840,
+          "name": "portrait-4k",
+          "sha256": "04a40f70177e90579d27aafc7191a7374c9c31c8de37087326f5fce40635d0c4",
+          "width": 2160
+        },
+        {
+          "encodedBytes": 140002,
+          "height": 1440,
+          "name": "ultrawide",
+          "sha256": "af4ada4ab069ecbeaaf0621fb332ff28b487c6a3554e9d10381ee127e711e1bc",
+          "width": 5120
+        },
+        {
+          "encodedBytes": 602242,
+          "height": 4320,
+          "name": "landscape-8k",
+          "sha256": "20adffa1f7bfeb60aacd6e693ccbae922817e2b8e88c8a9b029883c04276ecab",
+          "width": 7680
+        }
+      ],
+      "metrics": {
+        "batch_first_write_to_durable_callbacks": {
+          "maximum": 643.7512498814613,
+          "p50": 619.583833264187,
+          "p95": 643.7512498814613,
+          "samples": 10,
+          "unit": "ms"
+        },
+        "file_write_to_durable_import_callback": {
+          "maximum": 3801.255499944091,
+          "p50": 418.3224583975971,
+          "p95": 617.0438332483172,
+          "samples": 104,
+          "unit": "ms"
+        },
+        "fixture_generation": {
+          "maximum": 181.6104999743402,
+          "p50": 60.96299993805587,
+          "p95": 181.6104999743402,
+          "samples": 4,
+          "unit": "ms"
+        },
+        "history_all_pages_40": {
+          "maximum": 1.4084998983889818,
+          "p50": 1.4084998983889818,
+          "p95": 1.4084998983889818,
+          "samples": 1,
+          "unit": "ms"
+        },
+        "history_preview_fit-retina": {
+          "maximum": 67.0375416520983,
+          "p50": 28.999875066801906,
+          "p95": 67.0375416520983,
+          "samples": 4,
+          "unit": "ms"
+        },
+        "history_preview_large-viewport-budget": {
+          "maximum": 127.27241683751345,
+          "p50": 28.544750064611435,
+          "p95": 127.27241683751345,
+          "samples": 4,
+          "unit": "ms"
+        },
+        "queue_read_ten": {
+          "maximum": 0.0685832928866148,
+          "p50": 0.0685832928866148,
+          "p95": 0.0685832928866148,
+          "samples": 2,
+          "unit": "ms"
+        },
+        "same_source_dedupe": {
+          "maximum": 0.11491659097373486,
+          "p50": 0.04466669633984566,
+          "p95": 0.0580416526645422,
+          "samples": 100,
+          "unit": "ms"
+        },
+        "store_and_collector_reopen": {
+          "maximum": 2994.404166471213,
+          "p50": 2994.404166471213,
+          "p95": 2994.404166471213,
+          "samples": 1,
+          "unit": "ms"
+        },
+        "thumbnail_app_cache_cold_128px": {
+          "maximum": 65.62416674569249,
+          "p50": 19.113833317533135,
+          "p95": 65.62416674569249,
+          "samples": 10,
+          "unit": "ms"
+        },
+        "thumbnail_app_cache_warm_128px": {
+          "maximum": 0.013333279639482498,
+          "p50": 0.008208444342017174,
+          "p95": 0.013333279639482498,
+          "samples": 10,
+          "unit": "ms"
+        }
+      },
+      "peakResidentBytesIncludesGenerator": 317407232,
+      "lastResidentBytes": 46563328,
+      "lastSyntheticLogicalBytes": 56989565,
+      "processCPUSecondsDelta": 14.166101,
+      "freshProcessRecovery": {
+        "result": "PASS_SCOPED_FRESH_PROCESS_RECOVERY",
+        "restartReportSHA256": "8a8b975dd5e9a003c46b8f5f78d308c1ce5f356c57b89cb46b32bc5d372dbf64",
+        "exitCode": 0,
+        "allTypedRowsAndSchemaUnchanged": true,
+        "tables": {
+          "assets": 104,
+          "checkpoints": 3,
+          "compensations": 0,
+          "metadata": 2,
+          "operations": 1,
+          "sqlite_sequence": 2,
+          "upload_starts": 0
+        },
+        "unknownFullRowSHA256": "5b27dc5f40fbaf330e99f76e346a97a3038398a75d85abdbd0a41c8885f60f9c"
+      },
+      "rawEvidence": [
+        {
+          "basename": "runner-result.json",
+          "sha256": "0af3b2c9b0b1c8f23aa1992858bc30d02cb590f6348e0161453547b24c77d8fc"
+        },
+        {
+          "basename": "runtime.log",
+          "sha256": "5cfa97d94a3dc94024e659ec217dbd097e75c73e7acd333afbae5fe351c50490"
+        },
+        {
+          "basename": "build-identity.json",
+          "sha256": "1aae638af342541a7d5bf8152c32a76f5cf8a2519b8494b0f9bb91e271175259"
+        },
+        {
+          "basename": "report.json",
+          "sha256": "55053dc43381c37a4df6654b2ca87c7562c0482a62e66645ac804dff372e2218"
+        },
+        {
+          "basename": "file-manifest.json",
+          "sha256": "cb24ddab61fe32c6a1e356dedafcf6ea47548ed3d98f8e0b62a5c7f5649b2bd0"
+        }
+      ],
+      "scope": {
+        "appWindowsCreated": false,
+        "browserOrNetwork": false,
+        "noClaim": "These are native data/cache/decode timings, not rendered UI, physical screenshot or upload timings. Database reopen is not process restart. Sources are bounded patterns, not adversarial image noise.",
+        "OSFileCacheControlled": false,
+        "processRestartMeasured": false,
+        "productionDataAccess": false,
+        "realCollectorImporterSQLiteImageIO": true,
+        "sleepWakeMeasured": false,
+        "syntheticFixtures": true,
+        "UIVisibleLatencyMeasured": false
+      },
+      "instrumentationLimit": "Overall file-to-callback latency includes four deliberately stopped arrivals and their recovery. Use normal batch metric separately. No process watchdog existed in this runner iteration; native callback and phase timeouts were already bounded."
+    },
+    {
+      "name": "smoke-03",
+      "runnerResult": "PASS_SCOPED_HIGH_RESOLUTION_READINESS",
+      "exitCode": 0,
+      "nativeResult": "PASS_SCOPED_HIGH_RESOLUTION_READINESS",
+      "nativeFailure": null,
+      "binarySHA256": "b964ee847fbddfe4bd2aca707268cb51f1a9e61d6277ac175f21c2352811a79b",
+      "actualRunSeconds": 16.584096666658297,
+      "requestedMaintenanceSeconds": 12,
+      "actualMaintenanceSeconds": 12.827362708281726,
+      "initialHistoryCount": 12,
+      "finalCaptureCount": 36,
+      "cases": [
+        {
+          "details": {
+            "historyCount": 12,
+            "visibleCount": 10
+          },
+          "name": "initial-history-and-ten-visible",
+          "result": "PASS"
+        },
+        {
+          "details": {
+            "records": 12
+          },
+          "name": "real-importer-deduplication",
+          "result": "PASS"
+        },
+        {
+          "details": {
+            "coldRequests": 10,
+            "OSFileCacheControlled": false,
+            "synchronousSameImageWarmHits": 10,
+            "warmRequests": 10
+          },
+          "name": "actual-thumbnail-cache",
+          "result": "PASS"
+        },
+        {
+          "details": {
+            "requests": 8
+          },
+          "name": "actual-history-preview-budget",
+          "result": "PASS"
+        },
+        {
+          "details": {
+            "processRestart": false,
+            "records": 12
+          },
+          "name": "store-reopen-full-records-and-unknown",
+          "result": "PASS"
+        },
+        {
+          "details": {
+            "negativeObservationSeconds": 0.4276474164798856,
+            "newFixtures": 4
+          },
+          "name": "stopped-arrivals-recovered",
+          "result": "PASS"
+        },
+        {
+          "details": {
+            "originalBytesRestored": true,
+            "scope": "Only owned synthetic media; collector stopped during reversible rename"
+          },
+          "name": "temporary-private-file-unavailability",
+          "result": "PASS"
+        },
+        {
+          "details": {
+            "coldRequests": 10,
+            "OSFileCacheControlled": false,
+            "synchronousSameImageWarmHits": 10,
+            "warmRequests": 10
+          },
+          "name": "actual-thumbnail-cache",
+          "result": "PASS"
+        },
+        {
+          "details": {
+            "requests": 16
+          },
+          "name": "actual-history-preview-budget",
+          "result": "PASS"
+        },
+        {
+          "details": {
+            "processRestart": false,
+            "records": 36
+          },
+          "name": "store-reopen-full-records-and-unknown",
+          "result": "PASS"
+        },
+        {
+          "details": {
+            "actualSeconds": 12.827362708281726,
+            "cycleIntervalSeconds": 2,
+            "cycles": 5,
+            "requestedSeconds": 12,
+            "scope": "Live collector, periodic high-resolution files, native store/cache/decode; no App windows or browser"
+          },
+          "name": "bounded-maintenance-duration",
+          "result": "PASS"
+        },
+        {
+          "details": {
+            "assets": 36,
+            "mediaVerified": 36,
+            "syntheticDataLogicalBytes": 20446439,
+            "syntheticUnknownOperations": 1,
+            "uploadStarts": 0
+          },
+          "name": "all-originals-media-and-unknown-preserved",
+          "result": "PASS"
+        }
+      ],
+      "fixtures": [
+        {
+          "encodedBytes": 158756,
+          "height": 2160,
+          "name": "landscape-4k",
+          "sha256": "4987b187d144475243fc89d25d672a78fbdb80167edbffca410ad83de8c67b25",
+          "width": 3840
+        },
+        {
+          "encodedBytes": 166786,
+          "height": 3840,
+          "name": "portrait-4k",
+          "sha256": "04a40f70177e90579d27aafc7191a7374c9c31c8de37087326f5fce40635d0c4",
+          "width": 2160
+        },
+        {
+          "encodedBytes": 140002,
+          "height": 1440,
+          "name": "ultrawide",
+          "sha256": "af4ada4ab069ecbeaaf0621fb332ff28b487c6a3554e9d10381ee127e711e1bc",
+          "width": 5120
+        },
+        {
+          "encodedBytes": 602242,
+          "height": 4320,
+          "name": "landscape-8k",
+          "sha256": "20adffa1f7bfeb60aacd6e693ccbae922817e2b8e88c8a9b029883c04276ecab",
+          "width": 7680
+        }
+      ],
+      "metrics": {
+        "batch_first_write_to_durable_callbacks": {
+          "maximum": 535.2385833393782,
+          "p50": 364.23629173077643,
+          "p95": 535.2385833393782,
+          "samples": 7,
+          "unit": "ms"
+        },
+        "file_write_to_durable_import_callback": {
+          "maximum": 1103.1194583047181,
+          "p50": 307.65020847320557,
+          "p95": 1039.153499994427,
+          "samples": 36,
+          "unit": "ms"
+        },
+        "fixture_generation": {
+          "maximum": 168.46866672858596,
+          "p50": 65.12033334001899,
+          "p95": 168.46866672858596,
+          "samples": 4,
+          "unit": "ms"
+        },
+        "history_all_pages_40": {
+          "maximum": 0.21195854060351849,
+          "p50": 0.21195854060351849,
+          "p95": 0.21195854060351849,
+          "samples": 1,
+          "unit": "ms"
+        },
+        "history_page_40_during_soak": {
+          "maximum": 0.9544582571834326,
+          "p50": 0.3782915882766247,
+          "p95": 0.9544582571834326,
+          "samples": 5,
+          "unit": "ms"
+        },
+        "history_preview_fit-retina": {
+          "maximum": 63.57216672040522,
+          "p50": 21.028916584327817,
+          "p95": 63.57216672040522,
+          "samples": 8,
+          "unit": "ms"
+        },
+        "history_preview_large-viewport-budget": {
+          "maximum": 119.79949986562133,
+          "p50": 20.797916688024998,
+          "p95": 119.79949986562133,
+          "samples": 8,
+          "unit": "ms"
+        },
+        "queue_read_ten": {
+          "maximum": 0.06333342753350735,
+          "p50": 0.05904166027903557,
+          "p95": 0.06333342753350735,
+          "samples": 7,
+          "unit": "ms"
+        },
+        "same_source_dedupe": {
+          "maximum": 0.0547084491699934,
+          "p50": 0.041416846215724945,
+          "p95": 0.0547084491699934,
+          "samples": 12,
+          "unit": "ms"
+        },
+        "store_and_collector_reopen": {
+          "maximum": 1067.6481667906046,
+          "p50": 1067.6481667906046,
+          "p95": 1067.6481667906046,
+          "samples": 2,
+          "unit": "ms"
+        },
+        "thumbnail_app_cache_cold_128px": {
+          "maximum": 74.31316655129194,
+          "p50": 19.535458413884044,
+          "p95": 74.31316655129194,
+          "samples": 20,
+          "unit": "ms"
+        },
+        "thumbnail_app_cache_warm_128px": {
+          "maximum": 0.01074979081749916,
+          "p50": 0.0076249707490205765,
+          "p95": 0.01074979081749916,
+          "samples": 20,
+          "unit": "ms"
+        }
+      },
+      "peakResidentBytesIncludesGenerator": 401440768,
+      "lastResidentBytes": 50954240,
+      "lastSyntheticLogicalBytes": 20446439,
+      "processCPUSecondsDelta": 5.040602000000001,
+      "freshProcessRecovery": {
+        "result": "PASS_SCOPED_FRESH_PROCESS_RECOVERY",
+        "restartReportSHA256": "9a5bd41f058801de70e234cc25acaa76530207874d9d23a0cfc488d522c8ba4c",
+        "exitCode": 0,
+        "allTypedRowsAndSchemaUnchanged": true,
+        "tables": {
+          "assets": 36,
+          "checkpoints": 3,
+          "compensations": 0,
+          "metadata": 2,
+          "operations": 1,
+          "sqlite_sequence": 2,
+          "upload_starts": 0
+        },
+        "unknownFullRowSHA256": "72d2b8e9707888332ca666630a422f8b41dd3f5b34f0c22f70ff1afa987eb537"
+      },
+      "rawEvidence": [
+        {
+          "basename": "runner-result.json",
+          "sha256": "522f423e614ba59635329c9f1655fa74ab5c1feca782c15061e99685a06ebed8"
+        },
+        {
+          "basename": "runtime.log",
+          "sha256": "993a8d1b003a12f0f3b4389c816d3d53fb1fa98b6cb91d9888474f55a376ac64"
+        },
+        {
+          "basename": "build-identity.json",
+          "sha256": "d4b24fd162ed8af0768b418bc1709717cecf9fc97e09da0a5ba94a653b612926"
+        },
+        {
+          "basename": "report.json",
+          "sha256": "7b1e1966aaa71e4bc486f19b40ee3302ff9db7071891af9125895100e0e86af4"
+        },
+        {
+          "basename": "process.json",
+          "sha256": "a710809210c13837a0376ff3d4d941ceb286851003d514c8462231c474a24292"
+        },
+        {
+          "basename": "file-manifest.json",
+          "sha256": "7e5087431db5e3a946e5e81d80ae7087d9e2850055899ef7b66ee810ec31948a"
+        }
+      ],
+      "scope": {
+        "appWindowsCreated": false,
+        "browserOrNetwork": false,
+        "noClaim": "These are native data/cache/decode timings, not rendered UI, physical screenshot or upload timings. Database reopen is not process restart. Sources are bounded patterns, not adversarial image noise.",
+        "OSFileCacheControlled": false,
+        "processRestartMeasured": false,
+        "productionDataAccess": false,
+        "realCollectorImporterSQLiteImageIO": true,
+        "sleepWakeMeasured": false,
+        "syntheticFixtures": true,
+        "UIVisibleLatencyMeasured": false
+      }
+    }
+  ],
+  "limits": [
+    "No installed App or production data opened.",
+    "No windows, physical screenshots, UI-visible latency, browser, upload or real system sleep measured.",
+    "Bounded patterned PNGs are not adversarial/noisy images or every supported image encoding.",
+    "No fixed performance SLA inferred from these small single-host samples.",
+    "Fresh process is this same native-module harness, not full product startup.",
+    "No complete XCTest or formal CI run performed by this packet."
+  ]
+}
