@@ -31,3 +31,13 @@ Runtime source `c3af6757634ad742a0988bc9dda87aad2a8b22e4` produces complete ARM6
 Additional status-cycle attempts remain inconclusive: one hidden-menu hit was refused before posting, and an AXPress sequence did not establish alternating visible windows. Those records are not converted into PASS. Earlier observed individual transitions and the independent AppKit key-window comparison remain separately identified.
 
 [The source-checkpoint summary](acceptance-summary.json) binds sanitized private evidence hashes, preserved failures, candidates and limitations. `PERSONAL_BETA_2_ACCEPTED` remains false: this round has no fresh real ChatGPT double attachment and no complete VoiceOver acceptance. Four bounded repairs are ready for independent exact-source review and the existing five-check CI; the production install is unchanged at this checkpoint. No new notarization, public distribution, hardware, service, sleep or monitor-hotplug execution is claimed.
+
+## First formal CI and test-lifecycle correction
+
+[The preserved CI failure record](CI-LIFECYCLE-REGRESSION.md) records the first
+PR #44 attempt, including the same immediate-deallocation assertion failure on
+both architectures. A bounded asynchronous release assertion retains the full
+cleanup checks without changing product source or the verified candidate App.
+Local probes did not reach the required shown state and are not passing
+lifecycle evidence. A new independently reviewed source checkpoint and all five
+formal checks are required; the old failed attempt is not relabeled as success.

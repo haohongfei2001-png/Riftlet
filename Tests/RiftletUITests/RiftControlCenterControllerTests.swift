@@ -454,6 +454,11 @@ final class RiftControlCenterControllerTests: XCTestCase {
         button.performClick(nil)
         await assertReceived { controller?.isShown == true && monitor.installed.count == 3 }
         controller = nil
+        // Dropping our owner does not guarantee same-turn destruction after
+        // native target-action/presentation work. Wait for actual deinit and
+        // cleanup without closing the popover or clearing any callback/target;
+        // a persistent retain cycle must still fail the bounded predicate.
+        await assertReceived { released == nil && monitor.removed.count == 3 }
         XCTAssertNil(released, "Monitor callbacks must not retain the controller")
         XCTAssertEqual(monitor.removed.count, 3, "Deinit retires a still-shown presentation's observer")
         // A retained callback after owner destruction is harmless.
