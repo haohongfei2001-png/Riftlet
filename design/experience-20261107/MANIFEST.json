@@ -18,8 +18,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 5063,
-      "sha256": "db66c19c903c4060f04ba94fb9c04815ed2ffd73fbbbae499b3fbcb72cee1ff3"
+      "bytes": 5242,
+      "sha256": "8277c1e6adf056cc691c9cac86be58747ba44dac5a87e51685710787ec67fb73"
     },
     {
       "path": "REFERENCES.md",
@@ -43,8 +43,8 @@
     },
     {
       "path": "VALIDATION.md",
-      "bytes": 6436,
-      "sha256": "503b81e502855ae493b2f79e507358512f8db6ffc047bc441d3fa5998affe00f"
+      "bytes": 6854,
+      "sha256": "4778888fdb73d5a680942ca50b73fc045968e38bc30bffe01154c9213b030eb7"
     },
     {
       "path": "evidence/native/control-dark.png",
@@ -193,8 +193,8 @@
     },
     {
       "path": "exports/Riftlet-Experience-Prototype.html",
-      "bytes": 361555,
-      "sha256": "09670ffa126e5bc0a048d5090037ed15f4f1f621d8712cb548c90fbe42982143"
+      "bytes": 367211,
+      "sha256": "0090e602cee9c42f9c5e610fc9e5a6c629f4c781ede48baed49b9bd659fb42a6"
     },
     {
       "path": "exports/Riftlet-Motion.mp4",
@@ -208,13 +208,13 @@
     },
     {
       "path": "prototype/app.css",
-      "bytes": 41784,
-      "sha256": "b53007cda19b8ac40459855b31f3c6e61bf886b595c57f084df76058625172d9"
+      "bytes": 45151,
+      "sha256": "bbff2146fb4c393585dc81c07f313e05f1774933291b52f5c46b001bc439f777"
     },
     {
       "path": "prototype/app.js",
-      "bytes": 61340,
-      "sha256": "035deda29665be4f674574716283bf190b6c0a793b34597df9cbc9114d3c3382"
+      "bytes": 63629,
+      "sha256": "3902d17814a12eafd9ee4fb035080fe8e776526144302bd32f83a0408f8c6c8e"
     },
     {
       "path": "prototype/assets/riftlet.svg",
