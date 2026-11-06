@@ -1,0 +1,56 @@
+{
+  "binarySHA256": "9c33fddcb93accb379e240385aac7fd7a27b66b0c68e75d2fa4b17c6aa7e0fd5",
+  "source": "f0e5b99c0945c59652559501585b87aacb3203dc",
+  "result": "PASS_SCOPED_NATIVE_KEYBOARD",
+  "tool": "cua_repl native AppKit AX/input; exact already-running candidate path",
+  "observations": [
+    {
+      "action": "Escape onboarding, Cmd+,",
+      "result": "native settings window shown, review login control disabled"
+    },
+    {
+      "action": "history/custom hours; type 2.25",
+      "result": "AX field 2.25, unsaved footer, save and discard enabled"
+    },
+    {
+      "action": "Cmd+W",
+      "result": "three-button unsaved sheet shown"
+    },
+    {
+      "action": "Escape",
+      "result": "sheet dismissed; same history page, field 2.25 focused, unsaved state preserved"
+    },
+    {
+      "action": "Cmd+W then Return",
+      "result": "sheet dismissed; same field 2.25 focused, unsaved state preserved"
+    },
+    {
+      "action": "Cmd+Q then Escape",
+      "result": "termination cancelled; same field 2.25, unsaved state preserved"
+    },
+    {
+      "action": "Cmd+Q then Apply and close",
+      "result": "AX read timed out after action; exact launched PID subsequently absent and owner JSON persisted 8100 seconds"
+    }
+  ],
+  "finalAXStatus": "timeoutReached after application terminated; not a successful AX read",
+  "processStillRunning": false,
+  "exitCode": "NOT_CAPTURED_ORPHAN_PROCESS",
+  "lifecycle": {
+    "archiveAfterSeconds": 8100
+  },
+  "lifecycleSHA256": "44ac1a371f071a653c0005fc215e1833963e3a3f74c9dff79f491b9b1a2a5e21",
+  "productionDataAccess": false,
+  "notRun": [
+    "physical status-item pointer",
+    "CapsLock/Function key state via CUA",
+    "VoiceOver",
+    "OS IME",
+    "real login registration",
+    "permission grant",
+    "browser attachment"
+  ],
+  "scope": "Tool transcript observations; not a recorded physical human keyboard session. Selection-range preservation is covered by the separate object-code probe, not measured here.",
+  "privateRecordSHA256": "9c38622ca4c8cc066f2cdecf521ce114ec6f4d6c6e11762902a73acd07c8e1f0",
+  "candidateManifestSHA256": "a5ecfae1749ac9fb7158a24619b90f73ee53130c34ddbbd5e47427780a1e788f"
+}

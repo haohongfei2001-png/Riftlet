@@ -1,0 +1,293 @@
+{
+  "schema": 1,
+  "source": "f0e5b99c0945c59652559501585b87aacb3203dc",
+  "sourceTree": "8245940fa12a0fbc19e42ff6a375878d0c045f50",
+  "binarySHA256": "9c33fddcb93accb379e240385aac7fd7a27b66b0c68e75d2fa4b17c6aa7e0fd5",
+  "beganUTC": "2026-11-06T11:44:03Z",
+  "originalRecordSHA256": {
+    "candidateManifest": "a5ecfae1749ac9fb7158a24619b90f73ee53130c34ddbbd5e47427780a1e788f",
+    "runnerResult": "6cfc370ab42e13e57439e8f6f1728c3f88d1429285581fd09b7271d2c0af0c89",
+    "applicationLog": "e5331be3e8f9496ea6e019e2cf8513bf54055bec31836e7d80c87333b2829374",
+    "driverReport": "8f42d02862d009af9becae4fd076bc5afa2f0305b615d6ca954199669cf0a377",
+    "restartRunnerResult": "e3ce892cffe3c7469e1e0d7f413b20981b05771fc77577135a595041ae80b9b4",
+    "restartReport": "eba66dd2aa9bf1829a184c7356b9e7d7fb8b5f321d7f2e98d6e485a608a4229e",
+    "restartApplicationLog": "0836ea271139de04d1944631149f2d220e3fbab282678635d201feac50b6c8e7"
+  },
+  "result": "PASS_SCOPED_NATIVE_REVIEW",
+  "productionReady": false,
+  "runner": {
+    "status": "PASS_SCOPED_NATIVE_REVIEW",
+    "exitCode": 0,
+    "timedOut": false,
+    "timeoutSeconds": 180,
+    "elapsedSeconds": 24.161739707924426,
+    "completed": true
+  },
+  "driver": {
+    "status": "PASS_SCOPED_NATIVE_REVIEW",
+    "completed": true,
+    "elapsedSeconds": 23.40629845834337,
+    "passCount": 13,
+    "failCount": 0,
+    "frameRecordCount": 33,
+    "recordedPNGCount": 33,
+    "notRunFrameCount": 0,
+    "restorationFailures": []
+  },
+  "identityVerification": {
+    "sourceTreeVerified": true,
+    "sameReviewIdentityVerified": true,
+    "sameProcessIdentityVerified": true,
+    "binaryMatchesManifestRunnerReportAndActualFile": true,
+    "allRecordedPNGBytesAndDimensionsVerified": true,
+    "noUnreferencedPNGInEvidenceDirectory": true,
+    "stdoutReportLocatorPresent": true
+  },
+  "functionalCases": [
+    {
+      "case": "environment-and-default-window",
+      "status": "PASS"
+    },
+    {
+      "case": "real-collector-synthetic-fixture",
+      "status": "PASS"
+    },
+    {
+      "case": "six-pages-light-and-dark",
+      "status": "PASS"
+    },
+    {
+      "case": "orthogonal-pause-hidden-sqlite",
+      "status": "PASS"
+    },
+    {
+      "case": "archive-editor-first-save-discard",
+      "status": "PASS"
+    },
+    {
+      "case": "configuration-editor-refresh-defaults",
+      "status": "PASS"
+    },
+    {
+      "case": "close-sheet-continue-discard",
+      "status": "PASS"
+    },
+    {
+      "case": "independent-write-failures-and-retry",
+      "status": "PASS"
+    },
+    {
+      "case": "motion-explicit-play-and-navigation-stop",
+      "status": "PASS"
+    },
+    {
+      "case": "three-step-guidance-light-and-dark",
+      "status": "PASS"
+    },
+    {
+      "case": "resizing-and-reopen",
+      "status": "PASS"
+    },
+    {
+      "case": "history-real-records",
+      "status": "PASS"
+    },
+    {
+      "case": "original-media-and-no-upload-operations",
+      "status": "PASS"
+    }
+  ],
+  "capture": {
+    "method": "WindowServer CGImage(windowArray), exactly one NSApp-owned window; no desktop/display capture",
+    "rawImagesPublished": false,
+    "visualApproval": "PASS_SCOPED by non-author review bound below; not final user appearance approval"
+  },
+  "collector": {
+    "paused": {
+      "requestedSeconds": 2,
+      "actualSeconds": 2.0436703332234174,
+      "samples": 40,
+      "baselineAssetCount": 1,
+      "finalAssetCount": 1,
+      "scope": "No added assets within this fixed interval; no claim about pause-era catch-up after resume"
+    },
+    "resumed": {
+      "newPostResumeFixtureImported": true,
+      "seconds": 0.2975635416805744,
+      "scope": "A newly created post-resume fixture was imported; pause-era fixture handling is not asserted"
+    }
+  },
+  "popover": {
+    "nativeTargetAction": "NSApplication.sendAction",
+    "showCount": 7,
+    "stableReadinessChecks": 14,
+    "allRecordedReadinessChecksPassed": true,
+    "allRecordedPopoverWindowStatesNonKey": true,
+    "willCloseCount": 7,
+    "allWillCloseStacksContainDriverExplicitClose": true,
+    "nativeResignKeyCloseCount": 0,
+    "rawStackPublished": false,
+    "physicalStatusBarInput": "NOT_RUN"
+  },
+  "ownedMouseEvents": {
+    "count": 0,
+    "events": [],
+    "eventOrigin": "NO_EVENT_RECORDED",
+    "causality": "No causal attribution is established by these events."
+  },
+  "integrity": {
+    "allPrivateMediaDigestsMatch": true,
+    "assetCount": 3,
+    "assetsWithOperation": 0,
+    "successfulOperations": 0,
+    "unresolvedOperations": 0
+  },
+  "notRun": [
+    "realChatGPTAttachment",
+    "physicalPointer",
+    "OSInputMethod",
+    "VoiceOver",
+    "realLoginRegistration",
+    "realTCCPrompt",
+    "multiDisplayHotplug"
+  ],
+  "productionDataAccess": false,
+  "browserAccess": false,
+  "networkUpload": false,
+  "sourceChange": {
+    "parent": "f0a03f74ac1e23041ef5ce93774bac94fa8779f6",
+    "onlyChangedFile": "Sources/RiftletApp/SettingsReviewDriver.swift",
+    "change": "Adds owned-page observations and owned-window hit metadata; no product implementation, wait threshold, click mechanism or acceptance assertion change.",
+    "productFilesUnchangedFromRun10": true
+  },
+  "pageObservations": {
+    "count": 12,
+    "allExpectedPagesVisible": true,
+    "themes": [
+      "dark",
+      "light"
+    ]
+  },
+  "restart": {
+    "status": "PASS_SCOPED_NATIVE_RESTART",
+    "exitCode": 0,
+    "timedOut": false,
+    "timeoutSeconds": 30,
+    "elapsedSeconds": 0.45972016686573625,
+    "completed": true,
+    "equal": true,
+    "sameBinaryAndReviewRoot": true,
+    "differentProcessVerified": true,
+    "priorStatus": "PASS_SCOPED_NATIVE_REVIEW",
+    "checks": [
+      {
+        "check": "same-binary-new-process-after-completed-run",
+        "status": "PASS"
+      },
+      {
+        "check": "persisted-json-and-loaded-owners",
+        "status": "PASS"
+      },
+      {
+        "check": "sqlite-pause-and-visibility",
+        "status": "PASS"
+      },
+      {
+        "check": "existing-first-use-not-presented-again",
+        "status": "PASS"
+      },
+      {
+        "check": "assets-media-and-operation-readback",
+        "status": "PASS"
+      },
+      {
+        "check": "verification-left-preference-bytes-unchanged",
+        "status": "PASS"
+      }
+    ],
+    "driverCreatedFixtures": 0,
+    "driverChangedPreferences": false,
+    "before": {
+      "assetCount": 3,
+      "assetIdentityMediaMapSHA256": "6912bcb4f88b9cf3b5986e923131af4f4978c385f5ff9ad6bdd7fddd363e88ba",
+      "jsonSHA256": {
+        "app-presentation-settings.json": "742208e47566b03bc6475badd9b0f7893e17fb88edc0c4a6971049105a37cfc1",
+        "arrival-motion-settings.json": "785c2ad2cfe504fc44509a78f96b5eb463965c265bf2acbceea3f2dd2b813338",
+        "capture-entry-settings.json": "4db67fc820c346cf02d75f5bfd9b9f6da4d329c8dada6193876e112bc7ede5b7",
+        "lifecycle-settings.json": "b7df334d4601fa87b3688cf2d6b4c194aeee5985cbfc1bf748ced7f0b04719a3",
+        "rift-configuration.json": "fc0b98b5a38ca40266737654d72ecd7347e173381c35f67fe0f410aff85e2edd"
+      },
+      "mediaFileCount": 3,
+      "mediaHashSetSHA256": "9251d05ed389f955377ef1e2766b6268b53351bd47c328f376dd3b8d497f4e2f",
+      "allMediaMatchAssets": true,
+      "operations": 0,
+      "uploadStarts": 0,
+      "databaseReadMode": "SQLite URI mode=ro; query_only; one read transaction; child already exited"
+    },
+    "after": {
+      "assetCount": 3,
+      "assetIdentityMediaMapSHA256": "6912bcb4f88b9cf3b5986e923131af4f4978c385f5ff9ad6bdd7fddd363e88ba",
+      "jsonSHA256": {
+        "app-presentation-settings.json": "742208e47566b03bc6475badd9b0f7893e17fb88edc0c4a6971049105a37cfc1",
+        "arrival-motion-settings.json": "785c2ad2cfe504fc44509a78f96b5eb463965c265bf2acbceea3f2dd2b813338",
+        "capture-entry-settings.json": "4db67fc820c346cf02d75f5bfd9b9f6da4d329c8dada6193876e112bc7ede5b7",
+        "lifecycle-settings.json": "b7df334d4601fa87b3688cf2d6b4c194aeee5985cbfc1bf748ced7f0b04719a3",
+        "rift-configuration.json": "fc0b98b5a38ca40266737654d72ecd7347e173381c35f67fe0f410aff85e2edd"
+      },
+      "mediaFileCount": 3,
+      "mediaHashSetSHA256": "9251d05ed389f955377ef1e2766b6268b53351bd47c328f376dd3b8d497f4e2f",
+      "allMediaMatchAssets": true,
+      "operations": 0,
+      "uploadStarts": 0,
+      "databaseReadMode": "SQLite URI mode=ro; query_only; one read transaction; child already exited"
+    },
+    "scope": "Automatic same-package same-UUID fresh-process check after the complete scoped run passed and exited. External read-only SQLite supplies complete operations/START counts; raw asset IDs, names and private paths are omitted."
+  },
+  "scope": "Sanitized run11: all 13 scoped native groups and 6 restart checks PASS, 33 verified PNGs, both processes exited normally. Product implementation is unchanged from run10; this pass does not establish the causes of prior intermittent failures. Independent original-image review is separately hash-bound; final source admission/CI/package and user appearance approval remain separate.",
+  "independentReview": {
+    "nonAuthor": true,
+    "result": "PASS_SCOPED_NATIVE_VISUAL_AND_RESTART_REVIEW_NOT_FINAL_ADMISSION",
+    "originalReportSHA256": "c574b00e0bed241d4ab7fa138c232e587443571ef6b00220eacd435d1999341f",
+    "originalPNGsIndependentlyViewed": 33,
+    "blockingFindings": [],
+    "earlierVisualFindingsClosed": "VIS01–VIS05 on corresponding current frames",
+    "restartChecksIndependentlyReviewed": 6,
+    "nonBlockingPolish": "Visible-count integer is shown as 3.0 张; no new implementation requested.",
+    "scope": "Independent original-image review and restart evidence review for this exact source/binary. Not final source admission, user visual approval, physical input, OS IME, VoiceOver or formal post-fix CI."
+  },
+  "frames": [
+    {"name":"initial-general","status":"RECORDED_NATIVE_WINDOWSERVER","sha256":"9aca4d8b8f2473450278c4b5411a2e401db4fcfc6af91352604b953995478c55","bytes":261307,"pixels":[1920,1424],"backingScale":2,"windowServerOnscreen":true,"windowServerVisibleAreaFraction":1,"contentSize":[960,684],"appKitWindowSize":[960,712],"windowServerSize":[962,712],"screenVisibleSize":[1920,1080]},
+    {"name":"settings-light-general","status":"RECORDED_NATIVE_WINDOWSERVER","sha256":"f13c26c930ae0e5b13c03a01722fe4bc9d6a49ab39838b4b3f110d5b79408d7e","bytes":259007,"pixels":[1920,1424],"backingScale":2,"windowServerOnscreen":true,"windowServerVisibleAreaFraction":1,"contentSize":[960,684],"appKitWindowSize":[960,712],"windowServerSize":[960,712],"screenVisibleSize":[1920,1080]},
+    {"name":"settings-light-display","status":"RECORDED_NATIVE_WINDOWSERVER","sha256":"b688f71130acbeca864ce5205c30e1f5254c98c44a5a9641ca7b6053bd003a31","bytes":223883,"pixels":[1920,1424],"backingScale":2,"windowServerOnscreen":true,"windowServerVisibleAreaFraction":1,"contentSize":[960,684],"appKitWindowSize":[960,712],"windowServerSize":[960,712],"screenVisibleSize":[1920,1080]},
+    {"name":"settings-light-capture","status":"RECORDED_NATIVE_WINDOWSERVER","sha256":"610db92369d27fb79477d50c2e8edb77967f4b0066e7e6e1eeb98cf5a64b282f","bytes":289364,"pixels":[1920,1424],"backingScale":2,"windowServerOnscreen":true,"windowServerVisibleAreaFraction":1,"contentSize":[960,684],"appKitWindowSize":[960,712],"windowServerSize":[960,712],"screenVisibleSize":[1920,1080]},
+    {"name":"settings-light-motion","status":"RECORDED_NATIVE_WINDOWSERVER","sha256":"8641defb7db1b9f44c42905c079063276a8c277280aa8fe2f2e100ccaa2888bc","bytes":221651,"pixels":[1920,1424],"backingScale":2,"windowServerOnscreen":true,"windowServerVisibleAreaFraction":1,"contentSize":[960,684],"appKitWindowSize":[960,712],"windowServerSize":[960,712],"screenVisibleSize":[1920,1080]},
+    {"name":"settings-light-history","status":"RECORDED_NATIVE_WINDOWSERVER","sha256":"7b9857d077b8f0e5f0ab77282012779c2b259d04fe203ed20572cf9593843620","bytes":251884,"pixels":[1920,1424],"backingScale":2,"windowServerOnscreen":true,"windowServerVisibleAreaFraction":1,"contentSize":[960,684],"appKitWindowSize":[960,712],"windowServerSize":[960,712],"screenVisibleSize":[1920,1080]},
+    {"name":"settings-light-help","status":"RECORDED_NATIVE_WINDOWSERVER","sha256":"321d7564f9e0cd20b08b3a732e5873a8a13435d954fb16eb5a9cb0f1404e368b","bytes":299618,"pixels":[1920,1424],"backingScale":2,"windowServerOnscreen":true,"windowServerVisibleAreaFraction":1,"contentSize":[960,684],"appKitWindowSize":[960,712],"windowServerSize":[960,712],"screenVisibleSize":[1920,1080]},
+    {"name":"control-light","status":"RECORDED_NATIVE_WINDOWSERVER","sha256":"8bc950b5b0d0874b824f17e728ea9d625f64159f2b9e4ccc01b92d9bde05c89b","bytes":117083,"pixels":[724,1078],"backingScale":2,"windowServerOnscreen":true,"windowServerVisibleAreaFraction":1,"contentSize":[336,513],"appKitWindowSize":[362,539],"windowServerSize":[362,539],"screenVisibleSize":[1920,1080]},
+    {"name":"settings-dark-general","status":"RECORDED_NATIVE_WINDOWSERVER","sha256":"07041098b1437dcbef7ed833e191989a1ba8b672fe6292c56c741a2263f0cb70","bytes":265515,"pixels":[1920,1424],"backingScale":2,"windowServerOnscreen":true,"windowServerVisibleAreaFraction":1,"contentSize":[960,684],"appKitWindowSize":[960,712],"windowServerSize":[960,712],"screenVisibleSize":[1920,1080]},
+    {"name":"settings-dark-display","status":"RECORDED_NATIVE_WINDOWSERVER","sha256":"d972ed1df89553abcabfed183e69507dd120e571b10afcb9c99006e4dca4006a","bytes":225113,"pixels":[1920,1424],"backingScale":2,"windowServerOnscreen":true,"windowServerVisibleAreaFraction":1,"contentSize":[960,684],"appKitWindowSize":[960,712],"windowServerSize":[960,712],"screenVisibleSize":[1920,1080]},
+    {"name":"settings-dark-capture","status":"RECORDED_NATIVE_WINDOWSERVER","sha256":"9028ba2e4a5cfdfa6bff5c750d702b7fbe19b50659aff70a37dc5a450883b4f3","bytes":296807,"pixels":[1920,1424],"backingScale":2,"windowServerOnscreen":true,"windowServerVisibleAreaFraction":1,"contentSize":[960,684],"appKitWindowSize":[960,712],"windowServerSize":[960,712],"screenVisibleSize":[1920,1080]},
+    {"name":"settings-dark-motion","status":"RECORDED_NATIVE_WINDOWSERVER","sha256":"169f004ac45df52779fd712755c898c7088f69a562209664c3c8b925e9d0385c","bytes":225823,"pixels":[1920,1424],"backingScale":2,"windowServerOnscreen":true,"windowServerVisibleAreaFraction":1,"contentSize":[960,684],"appKitWindowSize":[960,712],"windowServerSize":[960,712],"screenVisibleSize":[1920,1080]},
+    {"name":"settings-dark-history","status":"RECORDED_NATIVE_WINDOWSERVER","sha256":"2b8bd21d1c7d1f63d89bf2ac4c9f1e4e18c6142a8b70ab468d759c668657716d","bytes":257320,"pixels":[1920,1424],"backingScale":2,"windowServerOnscreen":true,"windowServerVisibleAreaFraction":1,"contentSize":[960,684],"appKitWindowSize":[960,712],"windowServerSize":[960,712],"screenVisibleSize":[1920,1080]},
+    {"name":"settings-dark-help","status":"RECORDED_NATIVE_WINDOWSERVER","sha256":"a1e12eceef9b251e2355648e811eaaee8d2c8b06c6c865faaa1c440e37387bb2","bytes":307207,"pixels":[1920,1424],"backingScale":2,"windowServerOnscreen":true,"windowServerVisibleAreaFraction":1,"contentSize":[960,684],"appKitWindowSize":[960,712],"windowServerSize":[960,712],"screenVisibleSize":[1920,1080]},
+    {"name":"control-dark","status":"RECORDED_NATIVE_WINDOWSERVER","sha256":"06877d621616e1f934f2b019a97c543e5b208b6bc2a205f2dc3df9130d1247b0","bytes":121247,"pixels":[724,1078],"backingScale":2,"windowServerOnscreen":true,"windowServerVisibleAreaFraction":1,"contentSize":[336,513],"appKitWindowSize":[362,539],"windowServerSize":[362,539],"screenVisibleSize":[1920,1080]},
+    {"name":"control-normal","status":"RECORDED_NATIVE_WINDOWSERVER","sha256":"1c1806a5397533c3282c431603c16043dd017529080107086db1bbc7e7b94fdd","bytes":119038,"pixels":[724,1078],"backingScale":2,"windowServerOnscreen":true,"windowServerVisibleAreaFraction":1,"contentSize":[336,513],"appKitWindowSize":[362,539],"windowServerSize":[362,539],"screenVisibleSize":[1920,1080]},
+    {"name":"control-paused","status":"RECORDED_NATIVE_WINDOWSERVER","sha256":"518a6618bad74d9d0cd7a53ac17d9c48a6ce7a9c6c227c983f44d4272f96f3d5","bytes":114258,"pixels":[724,1078],"backingScale":2,"windowServerOnscreen":true,"windowServerVisibleAreaFraction":1,"contentSize":[336,513],"appKitWindowSize":[362,539],"windowServerSize":[362,539],"screenVisibleSize":[1920,1080]},
+    {"name":"control-paused-hidden","status":"RECORDED_NATIVE_WINDOWSERVER","sha256":"9e46eff25c416ce8e76df0bafbe8fd94f4a3ef57c2cad60355bd1c2dc0756131","bytes":117193,"pixels":[724,1078],"backingScale":2,"windowServerOnscreen":true,"windowServerVisibleAreaFraction":1,"contentSize":[336,513],"appKitWindowSize":[362,539],"windowServerSize":[362,539],"screenVisibleSize":[1920,1080]},
+    {"name":"control-hidden","status":"RECORDED_NATIVE_WINDOWSERVER","sha256":"a425dc6c8a2cf962ededd76c219399b7b8df79137ab6bc639909720c04854d7b","bytes":116457,"pixels":[724,1078],"backingScale":2,"windowServerOnscreen":true,"windowServerVisibleAreaFraction":1,"contentSize":[336,513],"appKitWindowSize":[362,539],"windowServerSize":[362,539],"screenVisibleSize":[1920,1080]},
+    {"name":"archive-first-activation-save","status":"RECORDED_NATIVE_WINDOWSERVER","sha256":"917d09fbdb072eaa7dbc5622b85d3a52020d3e96de8eef07153fdd88974e6de0","bytes":266039,"pixels":[1920,1424],"backingScale":2,"windowServerOnscreen":true,"windowServerVisibleAreaFraction":1,"contentSize":[960,684],"appKitWindowSize":[960,712],"windowServerSize":[960,712],"screenVisibleSize":[1920,1080]},
+    {"name":"display-defaults-after-active-edit","status":"RECORDED_NATIVE_WINDOWSERVER","sha256":"6f8dfee3c42889a4dcfdbc98b763dfbaf1bc252b1eff245510734b21bab8523f","bytes":200636,"pixels":[1920,1424],"backingScale":2,"windowServerOnscreen":true,"windowServerVisibleAreaFraction":1,"contentSize":[960,684],"appKitWindowSize":[960,712],"windowServerSize":[960,712],"screenVisibleSize":[1920,1080]},
+    {"name":"close-draft-sheet","status":"RECORDED_NATIVE_WINDOWSERVER","sha256":"3c585de0ccf8980fafc7ee4c298579cabca6120e4fd4539a00f44272c7247951","bytes":52476,"pixels":[520,446],"backingScale":2,"windowServerOnscreen":true,"windowServerVisibleAreaFraction":1,"contentSize":[260,223],"appKitWindowSize":[260,223],"windowServerSize":[260,223],"screenVisibleSize":[1920,1080]},
+    {"name":"control-save-failure","status":"RECORDED_NATIVE_WINDOWSERVER","sha256":"0d316806de3b855d96d59d073d3918973a91efc89e8980067ee2349d138a14e8","bytes":127961,"pixels":[724,1128],"backingScale":2,"windowServerOnscreen":true,"windowServerVisibleAreaFraction":1,"contentSize":[336,538],"appKitWindowSize":[362,564],"windowServerSize":[362,564],"screenVisibleSize":[1920,1080]},
+    {"name":"independent-errors-resolved","status":"RECORDED_NATIVE_WINDOWSERVER","sha256":"73218026e73e95706253489148818f0dce88560dcacbafa9440fe077eb0db655","bytes":201182,"pixels":[1920,1424],"backingScale":2,"windowServerOnscreen":true,"windowServerVisibleAreaFraction":1,"contentSize":[960,684],"appKitWindowSize":[960,712],"windowServerSize":[960,712],"screenVisibleSize":[1920,1080]},
+    {"name":"explicit-arrival-preview","status":"RECORDED_NATIVE_WINDOWSERVER","sha256":"d7308dd90a4eda9878cdd836540eac15f5da244e319094ad8803d09c01e31697","bytes":218789,"pixels":[1920,1424],"backingScale":2,"windowServerOnscreen":true,"windowServerVisibleAreaFraction":1,"contentSize":[960,684],"appKitWindowSize":[960,712],"windowServerSize":[960,712],"screenVisibleSize":[1920,1080]},
+    {"name":"onboarding-light-1","status":"RECORDED_NATIVE_WINDOWSERVER","sha256":"87d8b1e7605f16d7ecb174885a601da09b28a078fdeb3210557d8b9244658b67","bytes":140985,"pixels":[1304,1216],"backingScale":2,"windowServerOnscreen":true,"windowServerVisibleAreaFraction":1,"contentSize":[652,580],"appKitWindowSize":[652,608],"windowServerSize":[652,608],"screenVisibleSize":[1920,1080]},
+    {"name":"onboarding-light-2","status":"RECORDED_NATIVE_WINDOWSERVER","sha256":"bcf50e779787227fe111c8ffee0cb55b28bde4714eea6040fae973b173fcea2f","bytes":192639,"pixels":[1304,1216],"backingScale":2,"windowServerOnscreen":true,"windowServerVisibleAreaFraction":1,"contentSize":[652,580],"appKitWindowSize":[652,608],"windowServerSize":[652,608],"screenVisibleSize":[1920,1080]},
+    {"name":"onboarding-light-3","status":"RECORDED_NATIVE_WINDOWSERVER","sha256":"52d00456db739869661fe3480d0ad235c439f765d2c4905136384bf2df19554e","bytes":133884,"pixels":[1304,1216],"backingScale":2,"windowServerOnscreen":true,"windowServerVisibleAreaFraction":1,"contentSize":[652,580],"appKitWindowSize":[652,608],"windowServerSize":[652,608],"screenVisibleSize":[1920,1080]},
+    {"name":"onboarding-dark-1","status":"RECORDED_NATIVE_WINDOWSERVER","sha256":"3a944f902aa8f03b2c1d85811d1c999bb20ecfee1b23e29625622b22e99bd75b","bytes":135665,"pixels":[1304,1216],"backingScale":2,"windowServerOnscreen":true,"windowServerVisibleAreaFraction":1,"contentSize":[652,580],"appKitWindowSize":[652,608],"windowServerSize":[652,608],"screenVisibleSize":[1920,1080]},
+    {"name":"onboarding-dark-2","status":"RECORDED_NATIVE_WINDOWSERVER","sha256":"f28fdab99bd15c64b10b7062620fb8c2849b5be43f1bbcd24d9d9c0cfd6c3aaf","bytes":190855,"pixels":[1304,1216],"backingScale":2,"windowServerOnscreen":true,"windowServerVisibleAreaFraction":1,"contentSize":[652,580],"appKitWindowSize":[652,608],"windowServerSize":[652,608],"screenVisibleSize":[1920,1080]},
+    {"name":"onboarding-dark-3","status":"RECORDED_NATIVE_WINDOWSERVER","sha256":"0114940364788945291cdbbac507994d13634d64528ea47edd55c0fbc037b01d","bytes":131418,"pixels":[1304,1216],"backingScale":2,"windowServerOnscreen":true,"windowServerVisibleAreaFraction":1,"contentSize":[652,580],"appKitWindowSize":[652,608],"windowServerSize":[652,608],"screenVisibleSize":[1920,1080]},
+    {"name":"settings-minimum-size","status":"RECORDED_NATIVE_WINDOWSERVER","sha256":"11b590e5ecde0afe8228615effeef9ebce907fefcbcfd5a38ccc80c162a28dd6","bytes":177586,"pixels":[1520,1080],"backingScale":2,"windowServerOnscreen":true,"windowServerVisibleAreaFraction":1,"contentSize":[760,512],"appKitWindowSize":[760,540],"windowServerSize":[760,540],"screenVisibleSize":[1920,1080]},
+    {"name":"history-real-isolated-records","status":"RECORDED_NATIVE_WINDOWSERVER","sha256":"4b5d101f8de3614a3185ca974f2950f009aa43e66ecb8de3c79a9e6b683a2205","bytes":168291,"pixels":[1516,1120],"backingScale":2,"windowServerOnscreen":true,"windowServerVisibleAreaFraction":1,"contentSize":[760,532],"appKitWindowSize":[760,560],"windowServerSize":[758,560],"screenVisibleSize":[1920,1080]}
+  ]
+}

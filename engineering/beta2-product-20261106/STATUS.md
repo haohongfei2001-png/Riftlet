@@ -1,68 +1,70 @@
-# Beta2 status
+# Beta 2 状态与证据索引
 
-| Stage | Current fact |
-| --- | --- |
-| PR42 integration | DONE standard merge c72fca78245a15a66ea6beaa980ec141f146bc1b; main push CI 4 success / 1 ARM64 test failure; original receipt timing failure retained |
-| Shared native state/commands | IMPLEMENTED; sync edits and per-domain save notifications; first formal Native XCTest jobs running |
-| Six-page settings | IMPLEMENTED; real native controls/owners; scoped visual and keyboard results retained; final acceptance pending |
-| Popover/menu/onboarding | IMPLEMENTED; guide sizing fixed; full programmatic popover run still FAIL, actual status-item input NOT_RUN through available tool |
-| Real host integration | IMPLEMENTED; real Main owner receipts/appearance/login/actions and isolated settingsReview; independent persistence restart PASS for exact d72 candidate |
-| Native/visual acceptance | run01–run06 retained separately; run06 9 PASS / 4 FAIL and runner timeout; scoped CUA/visual/restart results do not overwrite it |
-| Beta2 formal PR/CI/package | Draft PR43 opened at 974e0bc; initial CI active, inherited source gates FAIL; ARM64 intermediate packages exist; final G/H/CI/App/ZIP pending |
-| Production install/UI merge | NOT_AUTHORIZED until final appearance decision; Beta1 preserved |
+当前是候选审核进行中。**run11 为 13/13 scoped 原生组通过，33 张原始窗口图，正常退出；同包同隔离根自动新进程重启 6/6 通过。** run09 暂停超时与 run10 页面切换失败的原因仍未确定，原 FAIL 保留。 首次正式 ARM64/Intel CI 都已失败，修正后的批次仍待执行/收口。独立目视和精确候选 CUA 键盘已有 scoped PASS；最终 G/H、正式 CI 与工件尚未完成；已安装 Beta 1 未替换，不声明 `BETA2_REVIEW_READY` 或 `PRODUCT_READY`。
 
-No existing production, historical UNKNOWN, accepted attachment source or original design evidence is replaced. The chronological checkpoints below retain their facts at that time; the latest checkpoint and table describe current scope. No `BETA2_REVIEW_READY` or `PRODUCT_READY` claim is made.
+用户交付范围与操作说明见 [候选说明](../../docs/BETA2_CANDIDATE.md)，工程后续见 [交接](HANDOFF.md)，逐场景结论见 [验收矩阵](NATIVE-ACCEPTANCE-MATRIX.md)。下表只描述各自精确来源；后来的修改不继承早期整包通过。
 
-## Checkpoint 1 implementation
+## 当前可确认结果
 
-- Actual full `swift build --product Riftlet --scratch-path .build-beta2-local -j 4`: PASS, first host build 27.72s; isolated review context build 6.80s. Native XCTest still NOT_RUN locally (CLT does not contain XCTest); formal macOS CI remains required.
-- Native new source lanes are being finalized, not visual acceptance. Shared model notification tests and Core original-return receipt bounded wait added; no Core production source changed.
-- Independent early review fixes: one clear confirmation owned by Main; deferred geometry wording; configuration persistence before display cancellation; login system state retained alongside system call error.
-- Explicit `--settings-review UUID` uses the same binary and real ApplicationController/SQLite/collection/settings owners with a fresh identity-marked root, fixture source, separate defaults, disabled Web/Feedback transport/system capture/login. Normal capture build identity and policy stay unchanged.
-- Main push CI failure is not reported green: Native run 42184582609 / ARM64 job127781796945 failed on old `returnedReceipt` scheduling assumption. Raw log and source-order analysis retained privately.
+| 范围 | 已观察事实 | 未完成 / 限制 |
+| --- | --- | --- |
+| 六页与三步引导 | 真实 owners 接线；run11 六页浅深、三步浅深、编辑/默认/关闭/重试/预览/历史/resize 对应 case 通过；引导外框 652×608 pt、设置初始内容 960×684 pt | 33 原图已非作者目视，无阻断发现；最终用户外观决定独立 |
+| 控制中心 | run09 单行 responder 修正有局部对照；run11 七次展示/14 次 open-capture 稳定检查通过，包含四种暂停/隐藏状态，只有明确关闭 | 物理状态栏输入、外部点击仍 NOT_RUN；原图已获非作者 scoped 目视通过 |
+| 暂停/隐藏 | run10/run11 真实 SQLite/owner 与四组合通过；run11 暂停 2.044s 的 40 次采样无新增，恢复后新 fixture 0.298s 收录 | 不推断暂停期间图片的恢复策略；run09 timeout 仍 UNATTRIBUTED |
+| Escape/Return | 实际编译 UI/model 对象 + 合成 owner 的 attached/key sheet 探针通过；草稿/选区保持、0 写入/命令 | PASS 绑定旧严格 mask；f0e5b99 普通 Escape/Return 已另获 CUA PASS；CapsLock/Function 实际输入与正式 CI 待验证 |
+| 进程与重启 | run11 原生 run 正常 exit 0 / 24.162s，自动同包同根新进程 6 项检查 PASS / exit 0 / 0.460s；跨进程快照相等 | scoped 隔离根验证，不是 Beta 2 生产升级；旧 d72 独立重启证据保留 |
+| 正式 CI | 原 Native 两架构相同 12 case 失败；Feedback native/service 成功；两个 source gate 失败 | 修正后的批次与最终 G/H 五项结果 PENDING |
+| 生产与恢复 | 已安装 Beta 1 binary 未变；稳定 G004741f ZIP 已核验；现有只读记录 94 媒体完整 | 没有 Beta 2 生产升级或回退；初始无逐行摘要，不能证明全时段逐字不变 |
 
-## Checkpoint 2 native inspection and review fixes
+## 原始运行记录
 
-The intermediate native workbench was actually opened via CUA. Pause and Hide remained independent and combined status was visible. Dark selection changed native window surfaces; after Quit, the isolated SQLite rows were `capture_paused=true`, `user_hidden=true`, and the appearance JSON was `dark`. Assets/operations remained zero. This was an intermediate debug binary, not final artifact acceptance. Original private observation JSON and launch hashes are retained.
+这些是独立的真实运行，原 report、原图、日志和失败均保留。`PNG` 列是已产生文件数，不表示每张都经过视觉批准；`NOT_RUN` 仍为缺失证据。
 
-Inspection led to V2-alignment fixes: four native NSSwitch controls with consistent row labels; first settings presentation restores the target 960×684 content size then clamps to the actual screen. A white right-edge area in the CUA image remains unattributed until owned-window capture/frame metadata; it is not declared a product clipping failure or PASS.
+| 运行 / 源码 | 功能与图片 | 进程结果 | 当次边界 |
+| --- | --- | --- | --- |
+| [run01](evidence/native-run-01.json) / `45418bba` | 13 PASS，30 PNG / 3 NOT_RUN；整体 PARTIAL | runner 180s timeout | 缺图与退出挂起；另发现说明列过窄、caption 重叠、位置标记不足、引导宽 562 pt |
+| [run02](evidence/native-run-02.json) / `bc903f7` | 12 PASS / 1 FAIL，27 PNG；其中 7 张 control 图被独立审查否决为裁切/黑色空区 | 正常 exit 0，20.16s | 引导尺寸失败；caption 与选中勾选在该版目视闭环；文件存在不等于有效图 |
+| [run03](evidence/native-run-03.json) / `ea312a6` | 12 PASS / 1 FAIL，29 PNG | 正常 exit 0，14.99s | 引导六帧 652×608 pt；driver 提前点击禁用开关；部分 popover 帧仍处缩放阶段 |
+| [run04](evidence/native-run-04.json) / `4174a04` | 11 PASS / 2 FAIL，23 PNG / 2 NOT_RUN | 正常 exit 0，29.65s | 三张完整 control 图说明列获局部视觉通过；两次打开过早关闭 |
+| [run05](evidence/native-run-05.json) / `64ac68b` | 9 PASS / 4 FAIL，19 PNG / 3 NOT_RUN；磁盘 report completed | runner INCOMPLETE，180s timeout，exit -15；无 stdout 路径 | 原生激活交回与额外 resign observer 重叠；失败后草稿等待 Quit 决定；报告另经身份核对读取 |
+| [run06](evidence/native-run-06.json) / `d72f966` | 9 PASS / 4 FAIL，26 PNG / 3 NOT_RUN | runner INCOMPLETE，180s timeout，exit -15 | 删除额外 observer 后首次浅色稳定，后续仍原生提前关闭；原 FAIL 不覆盖 |
+| [run07](evidence/native-run-07-close-trace.json) / `5114b08` | 9 PASS / 4 FAIL，26 PNG / 3 NOT_RUN | completed 报告后有界诊断终止，38.63s / exit -15；不是 180s 超时，也不是正常 Quit | 三次意外关闭的立即调用链来自 AppKit resign-key，无 Riftlet 显式 close；私有原始栈不公开 |
+| [run08](evidence/native-run-08-target-action.json) / `a2ac417` | 9 PASS / 4 FAIL，20 PNG / 2 NOT_RUN | runner INCOMPLETE，180s timeout / exit -15；报告另由同根文件恢复并核对 | 改标准 `NSApp.sendAction` 仍失败，排除 performClick 特有 tracking 是完整解释；没有修好结论 |
+| [run09](evidence/native-run-09-native-responder.json) / `6796536` | 12 PASS / 1 FAIL，30 PNG / 0 NOT_RUN | 正常 exit 0，22.915s；stdout 回执完整 | 单行删除 show 后强制 responder，四次 popover 稳定；暂停/隐藏 timeout 未归因，整轮仍 FAIL |
+| [run10](evidence/native-run-10-pause-trace.json) / `f0a03f7` | 12 PASS / 1 FAIL，28 PNG | 正常 exit 0，23.695s | 暂停/隐藏与 collector 观察通过；深色 display 之后 `pageNotPresented`，own-window 鼠标事件来源及因果未确定 |
+| [run11](evidence/native-run-11-owned-page-trace.json) / `f0e5b99` | 13 PASS / 0 FAIL，33 PNG | 正常 exit 0，24.162s；自动 restart 6/6 PASS、exit 0 / 0.460s | 只增加 driver 页状态/hit trace，产品与 run10 相同；这次 scoped PASS 不归因前轮间歇失败 |
 
-Nonauthor source review also closed duplicate clear confirmation, independent login call errors, display-persistence ordering, instance-lock-before-fixture-writes, onboarding display-item identity/tracking, and active editor replacement. Native UI background refresh retains editing controls. New test helpers await actual actions, not a fixed short sleep.
+run09 的 driver 与其父 `a2ac417` 相同，只有一行产品变化；binary SHA-256 `599ef3884d3f89019f40a3e71a974f4123f233b13d16054b88c3a0bb1fd4e4f2`。这支持该次已观察 popover 问题的修复，不把一次内部 target-action 等同于物理输入。整轮 FAIL 时，自动 runner 不执行 restart 阶段。
 
-There are 67 methods in the five new UI/Host/environment test files, plus two new existing-model notification tests. Parser/native build success is not XCTest execution. The full same-App settings review driver is now implemented; automated raw-window/native persistence run still pending.
+run11 binary SHA-256 `9c33fddcb93accb379e240385aac7fd7a27b66b0c68e75d2fa4b17c6aa7e0fd5`；原生报告与两次进程/同根身份、33 张 PNG 的实际 SHA/尺寸均核对。自动重启前后五 JSON、完整资产 ID/媒体映射摘要、3 份媒体 hash、operations 0 / START 0 相等。重启没有制造 fixture、改偏好或重新弹出引导；该链与 d72 的独立 restart-only 分开记录。
 
-## Checkpoint 3 original native failures and focused corrections
+## 独立补充证据
 
-The packaged `45418bba` ARM64 App was executed in a fresh UUID review root. Its 13 real native control/owner/SQLite groups passed, but three popover frames were unavailable and the process failed to exit. The runner correctly reported incomplete. The original report, 30 raw WindowServer PNGs and timeout remain unchanged; sanitized bindings are in `evidence/native-run-01.json`.
+| 记录 | 已确认结果 | 限制 |
+| --- | --- | --- |
+| [bc903f7 CUA](evidence/cua-native-bc903f7.json) | Return 三步、位置选择、⌘,、归档 6.25、Quit 继续/应用后实际 22500 秒 | 同运行 binary 的隔离 wrapper；⌘W 和初窗尺寸当时失败，不是完整原包身份或 OS IME |
+| [ea312a6 CUA](evidence/cua-native-ea312a6.json) | 先确认草稿后 ⌘W/继续；Quit 不保存后进程退出、86400 秒保留 | 未先观察草稿的连批操作保持 INCONCLUSIVE；工具错误不算产品失败 |
+| [d72 原包 CUA](evidence/cua-native-exact-d72f966.json) | 精确原包隔离启动、引导 Escape；Quit 后原进程不在 | Quit 工具超时，无正常退出码；状态栏操作面不可用，实际点击 NOT_RUN |
+| [d72 独立重启](evidence/independent-restart-d72f966.json) | 同包同 UUID 新进程正常 exit 0 / 0.466s；五 JSON/owners、SQLite pause/hide、1 媒体/asset 映射相等，操作/START 0，引导不重弹 | `PASS_SCOPED_NATIVE_RESTART`；原 run06 FAIL/timeout 和自动重启 NOT_RUN 均保留；不是生产升级 |
+| [纯 AppKit 探针](evidence/pure-appkit-popover-key-probe.json) | 单个私有进程 9.847s 正常退出；后三次 popover 保持 non-key，只有明确关闭 | 第一次 action 后未展示；探针未做产品中的 `makeFirstResponder`，不能据此清除产品问题；无第二轮 |
+| [Escape/CI 窄修](evidence/ci-settings-repair.json) | 真编译对象的 attached/key sheet Escape/Return、草稿/选区和 teardown 观察通过 | 旧严格 mask 与最新增量分开绑定；不是 XCTest、最终包或物理键盘验收；旧中间失败日志保留 |
 
-Independent review found four visual corrections: popover switch labels had too little width, preview geometry text overlapped the next card, selected position lacked a visible native mark, and onboarding's first window opened at 562 rather than 652 pt. These are focused corrections to the existing V2 implementation, not a new design.
+实际对象探针原始记录中的 `keyEquivalentConsumed=false` 是未测量的历史占位字段，不用于通过结论。最新普通 Escape 接受 CapsLock/Function 状态的增量没有独立键盘 GUI 探针；run11 的普通关闭按钮流程不代替这项键盘验证。高对比度测试改读真实 effectiveAppearance；条件不足明确 XCTSkip/NOT_RUN，不再用不可移植的 bundle 初始化 fixture 假装实际高对比度。
 
-A small actual AppKit reproduction confirmed that the previous `terminateLater` path did not run its MainActor cleanup; returning cancel while cleanup runs and explicitly requesting termination after success exits normally in the reproduction. Main now uses this flow, preserves the existing Feedback save decision, and asks the settings draft sheet before quitting. During approved cleanup the settings host blocks new edits/actions. Actual packaged exit and same-root fresh-process restoration still require the next run. System logout/shutdown acceptance is NOT_RUN; no system preference or logout is performed.
+run11 的非作者审查已逐张查看全部 33 原 PNG，无阻断视觉发现；原报告 SHA-256 `c574b00e0bed241d4ab7fa138c232e587443571ef6b00220eacd435d1999341f` 已绑定到 [run11 摘要](evidence/native-run-11-owned-page-trace.json)。[精确候选 CUA 键盘](evidence/cua-final-keyboard-f0e5b99.json)另外记录：⌘W 后 Escape/Return 保留 2.25 草稿、焦点与 dirty；⌘Q→Escape 取消退出；最后应用后目标进程不存在，JSON 为 8100 秒。最后 AX read 是 timeout，退出码未捕获，不补成成功 AX 读取或正常 exit code。CUA 未测 selection 范围、CapsLock/Function、物理键盘；相应边界保持。
 
-The intermediate CUA observation did not independently prove its process exited. Its recorded persistence remains valid; the later packaged timeout is not erased by an earlier absence from the app inventory.
+## CI 与源码准入
 
-## Checkpoint 4 normal exit and remaining native findings
+[PR #43](https://github.com/haohongfei2001-png/Riftlet/pull/43) 为 Draft，初始源 `974e0bcde40f3f4d25ef1f1bbe0acc7d74575dc0`，正式基线 `c72fca78245a15a66ea6beaa980ec141f146bc1b`。首次 [Native 42205691399](https://github.com/haohongfei2001-png/Riftlet/actions/runs/42205691399) 两架构已结束：相同 12 个独立失败 case，共 24 次失败执行；原 ARM64/Intel 日志和 case 集合由 [首 CI 绑定](evidence/ci-974e0bc-first-failures.json) 保留。[Feedback 42205691613](https://github.com/haohongfei2001-png/Riftlet/actions/runs/42205691613) native/service SUCCESS，历史 composition 条件步骤 skipped。两项 source admission 因旧 PR42 记录 FAIL，不算准入完成。
 
-The exact `bc903f7141b1218dcd93964cc301fcb911a90bd3` ARM64 candidate (binary `b478590ab9bf2a3ef730a9a32e30df2ef6dd9ad08d1b99d5640bf6ba9dc4211c`) completed the second native run and exited normally in 20.16 seconds. Twelve of thirteen groups passed; onboarding size failed, so the runner correctly did not start the restart stage. All 27 requested frames were written, but independent visual inspection rejected the seven control-center images because the AppKit-to-WindowServer rectangle cropped them. File existence is not visual acceptance. Settings preview caption and selected-position marks were visually confirmed fixed.
+已针对发现修正无效 UUID fixture、原生 alignment rect 与异步关闭断言、数值格式/编辑器断言、review 环境 fixture 和平台高对比度前提，并修复真实 Escape/Return 冲突。target build、parser 与有限独立探针的结果分开记录；没有把这些局部检查说成 XCTest 全通过。修正后的正式批次与最终五项 CI 仍待结果，最终非作者审查/G/直接 H/最终 App/ZIP 尚未收口。
 
-CUA with an explicitly UUID-bound test wrapper and the unchanged candidate executable verified Return through onboarding, explicit position selection, Command-comma, custom archive editing, Command-Q confirmation, Continue preserving the draft, and Apply-and-close. The exact scoped process exited and the actual lifecycle file contained 22500 seconds (6.25 hours). Command-W did not trigger closing: the standard responder Close menu route was missing and is now added as a narrow native-menu correction. These observations do not claim physical mouse, real IME, browser upload or final wrapper/package identity.
+更早的 PR42 主线 push 为 4 success / 1 ARM64 receipt 时序失败（Native 42184582609 / Feedback 42184582764）。那个原失败及后来的有界回执等待修正继续保留；它不代替本轮 Native 结果。本机 CLT 不含 XCTest，未用 shim 冒充其执行。
 
-Onboarding sizing and exact-own-window capture coordinates are being corrected without changing the popover for screenshots. Cached settings colors also need their high-contrast choice resolved from each effective appearance rather than the preference at color creation. New native evidence must validate these corrections; the original run02 and CUA failures remain preserved.
+## 已安装版本与数据事实
 
-## Checkpoint 5 source corrections verified; driver activation evidence pending
+Beta 1 安装 binary SHA-256 `c0ca439023a2fa92fd1cc08d4acff79dd780dc559d8a4c579af76d6fd5a76ea4`，推荐稳定恢复 ZIP `Riftlet-personal-beta.1-arm64-004741f.zip` 的 SHA-256 为 `c474a72157a3a1e513fa48f0bed1f696bdf38b5c6af669d434749a63cecef2cd`。实际路径保存在私有清单中；旧 `2a1622d` 候选只留作历史。
 
-At `ea312a6`, all six onboarding frames reached the intended 652×608 pt and independent visual review closed the first-size finding. The same cached colors now resolve from the appearance supplied by AppKit; native light/dark tokens were checked, while high-contrast matching fixture tests remain distinct from an actual system preference switch. CUA confirmed Command-W invokes the native sheet after the dirty state was independently observed, Continue preserves it, and Quit/Discard exits while retaining the prior 24-hour archive value.
+[已归档只读记录](evidence/production-readonly-current.json)的两次计数均为 94 assets、106 checkpoints、2 metadata、44 operations、0 compensation、18 START、94 media；当前全部媒体长度/hash 符合库存摘要，安装 binary 未变。初始基线只有计数与安装 hash，没有逐行/逐媒体摘要，故没有完整历史字节不变结论。此公开绑定和文档更新均未新增生产访问或写入。
 
-Run03 retained a driver click-before-enabled failure. At `4174a04`, the driver now waits for actual enabled controls, and successful popover captures wait for a full-sized stable WindowServer window. Run04 produced complete normal/paused/save-failure popover images but two presentations closed before capture, so the full run remained FAIL and restart was not attempted. The available evidence does not establish why those two popovers closed. The next driver-only correction waits for the settings window's existing activation request and records bounded activation/popover notifications; it adds no product focus gate or repeated-click recovery.
-
-## Checkpoint 6 preserved failures, independent restart and formal Draft PR
-
-Separate sanitized bindings now preserve [run04](evidence/native-run-04.json), [run05](evidence/native-run-05.json) and [run06](evidence/native-run-06.json), including original report/runner/review hashes. Run04 has 11 PASS / 2 FAIL and normal exit, with scoped independent approval of three complete control images. Run05 has 9 PASS / 4 FAIL and a runner timeout; a draft left by its failed case awaited quit confirmation. The source/timeline review approved only removal of the unconditional resign observer and one regression, retaining native transient and explicit closure paths.
-
-Run06 executes that exact `d72f966` source. The first light popover remains visible through handback and is captured at full geometry; later programmatic opens still close prematurely. It remains 9 PASS / 4 FAIL, 26 PNG / 3 NOT_RUN, and runner INCOMPLETE after 180 seconds. Its actual completed report was retrieved from the same root and verified against process/runtime identity; the runner's missing stdout path is not fabricated. The remaining cause is unresolved; additional work is limited to bounded driver diagnostics.
-
-[CUA using the exact original d72 App](evidence/cua-native-exact-d72f966.json), without a wrapper, observed isolated startup, guide Escape and original process absence after Command-Q. The tool could not expose the status bar; real status-button opens, second-click closure and outside-click dismissal remain NOT_RUN. Quit's tool timeout supplies no normal exit code. This is a tool/evidence limitation, not a new proven product defect.
-
-[Independent restart-only verification](evidence/independent-restart-d72f966.json) used the same original package/root and a different process after the run06 process was absent. It exited 0 in 0.466 seconds; five JSON files and loaded owners, SQLite pause/visibility, one media/asset mapping, zero operations and zero START remained equal, and first-use UI did not reappear. This scoped PASS does not alter run06 FAIL or assert the formal runner's successful-first-run restart path passed. No UI action, browser, production root, login or permission mutation occurred.
-
-[PR #43](https://github.com/haohongfei2001-png/Riftlet/pull/43) is Draft, initial head `974e0bcde40f3f4d25ef1f1bbe0acc7d74575dc0`, base `c72fca78245a15a66ea6beaa980ec141f146bc1b`. At 2026-11-06 10:56 UTC the first [Native run 42205691399](https://github.com/haohongfei2001-png/Riftlet/actions/runs/42205691399) has source admission FAIL and ARM64/Intel unit steps in progress; [Feedback run 42205691613](https://github.com/haohongfei2001-png/Riftlet/actions/runs/42205691613) has source admission FAIL and native/service SUCCESS. The Feedback historical composition step is skipped. The source record is still inherited from PR42; final source review and admission-only H remain required. Independent build/CI/package work continues while native diagnosis remains accurately scoped.
+最终包、完整原生验收、外观决定、重大 UI 合并、普通根升级与公开发行是不同结果；当前只完成表中有证据的部分。后续按 [交接中的下一步](HANDOFF.md#下一步与责任)推进，保留所有未完成状态与历史证据。

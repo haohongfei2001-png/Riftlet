@@ -15,44 +15,42 @@
 | 完整源码 G / tree、非作者独立审查 | PENDING；以私有 final-manifest 和正式 PR 交付记录为准 |
 | 正式 PR | [PR #43](https://github.com/haohongfei2001-png/Riftlet/pull/43) 已开 Draft；初始 head `974e0bcde40f3f4d25ef1f1bbe0acc7d74575dc0`、base `c72fca78245a15a66ea6beaa980ec141f146bc1b` |
 | 直接 admission-only 子提交 H、实际 PR checkout / base | PENDING |
-| 五项正式 CI | 首次已启动；截至 2026-11-06 10:56 UTC，两项 source admission FAIL、Feedback native and service SUCCESS、Native ARM64 / Intel 仍运行；最终 G / H 的五项结果 PENDING |
+| 五项正式 CI | 首次已结束：两个 source admission FAIL；ARM64 / Intel 相同 12 case 失败；Feedback native/service SUCCESS。修正批次与最终 G/H 五项结果 PENDING |
 | 候选 version / build、实际架构 | 已分配 Beta 2 · 0.2.0（2）；最终架构 PENDING；macOS 13 是部署下限声明，不是已完成最低系统验收 |
 | App 路径、可执行文件 SHA-256、内含资源核对 | PENDING |
 | ZIP 路径 / SHA-256、独立身份清单 | PENDING；不把 App hash 当成 ZIP hash |
-| 精确候选原生报告、截图清单、恢复结果 | PENDING；逐项依据验收矩阵判定 |
+| 精确候选原生报告、截图清单、恢复结果 | `f0e5b99` 已有 13/13 scoped 原生 + 6/6 自动重启 PASS、33 PNG；最终 G 与该来源的关系、独立目视和 CUA 键盘已有 scoped PASS；最终源码/工件绑定 PENDING |
 | Developer ID / 公证 / staple / Gatekeeper | 本轮最终候选尚无完成证据，NOT_RUN / PENDING |
 | 最终外观决定、正式 UI PR 合并、生产原位替换 | PENDING；不能由本表或构建工具自动批准 |
-| 已安装 Beta 1 与回退保留位置 / 身份 | 保持现状；实际路径、完整 App 及清单由最终升级记录补齐 |
+| 已安装 Beta 1 与恢复基线 | 安装 binary 与 G004741f 原 ZIP 已只读核验；名称/hash 见下文，实际路径在私有清单。未安装 Beta 2，未执行回退 |
 
-## 已取得的原生证据与待复验项
+## 已取得的结果与剩余工作
 
-首轮运行 `run01` 绑定源码 `45418bba9fb05e5c2649473c8c1f26a460fb54c5`。真实 AppKit 控件、既有 owner、文件和 SQLite 共 13 组功能检查通过，独立根有 3 张 fixture 图片、0 个附件操作、0 个 upload start，恢复失败列表为空。设置首次展示实际内容为 960×684 pt，六页浅/深原图未发现横向裁字。可分享的原始绑定见 [run01 证据](../engineering/beta2-product-20261106/evidence/native-run-01.json)。
+最新 [run11](../engineering/beta2-product-20261106/evidence/native-run-11-owned-page-trace.json) 绑定 `f0e5b99c0945c59652559501585b87aacb3203dc`，可执行文件 SHA-256 `9c33fddcb93accb379e240385aac7fd7a27b66b0c68e75d2fa4b17c6aa7e0fd5`。这不是尚未形成的最终 G。
 
-这次运行仍是 **PARTIAL_NATIVE_REVIEW / INCOMPLETE_TIMEOUT**：33 张预期窗口图只取得 30 张，`control-light`、`control-normal`、`control-paused-hidden` 明确为 `NOT_RUN`；报告生成后进程未正常退出，180 秒期限后 runner 只终止了其子进程。功能组通过没有覆盖这两个缺口。原报告、原图与超时结果全部保留。
+| 交付内容 | 已取得结果 | 结论范围 |
+| --- | --- | --- |
+| 同一 App 原生流程 | 13/13 case PASS，33 张实际 owned-window PNG 哈希/尺寸核对，24.162s 正常 exit 0 | `PASS_SCOPED_NATIVE_REVIEW`；图片文件核对不代替独立目视或最终外观决定 |
+| 六页/引导/编辑/保存 | 浅深六页、三步引导、原始编辑刷新、首击归档保存、默认/放弃、按域失败重试、关闭按钮、预览/历史/resize 通过 | 真实 AppKit action 与 owners；物理键盘、OS IME、VoiceOver 另记 |
+| 暂停/隐藏与 collector | 四组合及 SQLite 读回通过；暂停时 2.044s / 40 次采样无新增，恢复后新合成 fixture 0.298s 收录 | 只证明已记录的观察区间及新 fixture；不推断暂停期间图片的追补策略 |
+| 控制中心 | 七次展示/14 次完整稳定尺寸检查通过，无意外关闭 | 标准 native target-action；真实状态栏指针/外部点击仍未验证 |
+| 自动重启 | 完整 run 后，同包同 UUID 新进程 6/6 PASS，0.460s 正常退出；五 JSON、3 资产/媒体映射及 hash、operations/START 0 前后相等 | `PASS_SCOPED_NATIVE_RESTART`；不重弹引导、不新建 fixture、不改变偏好，不是普通根升级 |
+| 最后 Escape 操作 | 实际编译对象探针曾验证旧严格 mask 的 Escape/Return、草稿/选区保留、零写入；最新 mask build/parser 通过 | 精确 f0e5b99 的 CUA 普通 Escape/Return/退出取消另获 PASS；CapsLock/Function、物理输入仍 NOT_RUN |
+| 正式 CI / 源码 / 最终包 | 初始 CI 原失败保留，针对性修正已有源码与局部验证 | 修正后批次、G/直接 H、最终非作者审查/App/ZIP 清单仍 PENDING |
 
-独立目视审查发现四项局部差异：控制中心说明过窄换行、布局说明压到左中示意卡、六位置当前选中不明显、引导初次窗口宽度不足。修复候选已分别调整说明列可用宽度、把布局说明移到画布外、加入勾选与强调色、在约束建立后恢复引导初始尺寸。原发现继续保留，各项修复按之后的原图与结果分别复核。
+run11 相对 run10 **只有 driver 页状态与 own-window hit trace 增量，没有产品实现、等待阈值或验收断言变化**。[run10](../engineering/beta2-product-20261106/evidence/native-run-10-pause-trace.json) 为 12/13：暂停/隐藏及 collector 检查已通过，但深色 display 之后 `pageNotPresented`；其 own-window 鼠标事件来源和因果未确定。run09 的暂停超时也未被追溯归因。当前一次完整 PASS 不把这两个原始 FAIL 改成通过或已解释。
 
-退出生命周期也已形成修复候选：先询问设置草稿，保存失败保留原面板，继续编辑取消退出；设置获准关闭后，在 Feedback 异步清理期间阻止新设置命令和窗口，取消退出再恢复。原 AppKit 退出探针复现了旧路径挂起，修改后的独立探针正常结束。
+此前控制中心缺图/裁切、引导初窗尺寸、退出挂起、关闭时序和正式 CI 失败均保留在 [状态与逐次证据索引](../engineering/beta2-product-20261106/STATUS.md)。run07 的有界诊断终止与 run08 的 180s timeout 分开记录；标准 `sendAction` 对照未解决 run08，后来的单行 responder 修正及 run09 有独立来源。d72 原包的 scoped CUA 与独立 restart-only 仍保留其原 SHA，不借用为最终包通过。
 
-[run02](../engineering/beta2-product-20261106/evidence/native-run-02.json) 对应 `bc903f7`：完整进程 20.16 秒正常退出，功能 12/13 通过，唯一失败为 `onboardingOuterSizeMismatch`。27 个 PNG 文件中，7 张控制中心图被独立审查判定裁切/黑色或透明空区，不能作为布局通过证据；引导在尺寸断言失败后没有取得新图。布局说明与六位置勾选在这一二进制的浅/深/紧凑图中已获独立目视确认，另外两项仍需复验。因首轮功能失败，同包重启阶段正确保持 `NOT_RUN`。
+首次 [Native CI](https://github.com/haohongfei2001-png/Riftlet/actions/runs/42205691399) 两架构是相同 12 个失败 case，共 24 次失败执行；[Feedback CI](https://github.com/haohongfei2001-png/Riftlet/actions/runs/42205691613) native/service 成功，历史 composition 条件步骤 skipped。两个 source gate 仍因继承 PR42 记录 FAIL。详见 [原失败绑定](../engineering/beta2-product-20261106/evidence/ci-974e0bc-first-failures.json)及 [窄修与实际对象探针](../engineering/beta2-product-20261106/evidence/ci-settings-repair.json)。当前不声明 `BETA2_REVIEW_READY` 或 `PRODUCT_READY`；下一步是修正后的正式 CI 批次与最终源码/工件收口。
 
-同一运行二进制的 [额外 CUA 原生记录](../engineering/beta2-product-20261106/evidence/cua-native-bc903f7.json) 单独证明 Return 推进引导、明确选右下、⌘, 打开设置、键入 6.25、⌘Q 后继续编辑保留草稿，以及再次 ⌘Q 应用后退出并读回 22500 秒归档值。同时保留 ⌘W 无 Close 菜单而未响应、引导尺寸仍不符这两项失败。
+同一候选的 [33 原图非作者审查](../engineering/beta2-product-20261106/evidence/native-run-11-owned-page-trace.json)没有阻断视觉发现，原报告 hash `c574b00e0bed241d4ab7fa138c232e587443571ef6b00220eacd435d1999341f`；这不是用户最终外观决定。[CUA 键盘记录](../engineering/beta2-product-20261106/evidence/cua-final-keyboard-f0e5b99.json)确认 ⌘W→Escape/Return 保留 2.25 草稿、焦点与 dirty，⌘Q→Escape 取消退出；最后应用后目标进程不存在、JSON 为 8100 秒。最后 AX 读取超时、退出码未捕获均保留，不能写成成功 AX 读取或正常退出码；物理键盘、CUA 选区范围、CapsLock/Function 状态未测。
 
-[run03](../engineering/beta2-product-20261106/evidence/native-run-03.json) 对应 `ea312a6`，进程 14.99 秒正常退出，引导功能及六张浅/深窗口的 652×608 pt 外框已得到实际记录。本轮仍为 12/13 功能通过：暂停/隐藏序列在 driver 提前点击暂时禁用的控件时失败；控制中心捕获虽然已采用正确范围，部分帧还处于出现缩放阶段，尚不足以验证完整布局。原失败、29 张原图哈希与不同的 WindowServer/AppKit 尺寸均保留。随后 driver 增加实际可用与完整稳定窗口等待，结果继续按下列新运行单独记录。
+## 已安装版本与恢复基线
 
-`ea312a6` 的 [单独 CUA 键盘记录](../engineering/beta2-product-20261106/evidence/cua-native-ea312a6.json) 已在**先独立观察到草稿存在**后，证实 ⌘W 打开原生关闭面板、继续编辑保留草稿；随后 ⌘Q 选择不保存，进程退出且已确认的 24 小时归档值仍为 86400 秒。快速连批预设点击后立刻 ⌘W 因未先确认草稿而保留 `INCONCLUSIVE`；失效 AX 索引和一次审计预期纠正也单列，不追加为产品失败或通过。当前不声明 `PRODUCT_READY`，已安装 Beta 1 保持不变。
+已安装个人 Beta 1 保持不变，可执行文件 SHA-256 为 `c0ca439023a2fa92fd1cc08d4acff79dd780dc559d8a4c579af76d6fd5a76ea4`。已核验稳定恢复 ZIP `Riftlet-personal-beta.1-arm64-004741f.zip`，SHA-256 `c474a72157a3a1e513fa48f0bed1f696bdf38b5c6af669d434749a63cecef2cd`，对应 `personal-beta.1+004741f`；实际私有路径保留在升级清单中。旧 `2a1622d` 候选只是历史备份，不推荐作为稳定恢复版本。核验 ZIP 不等于已回退，也不等于已证明升级后数据的旧版兼容性。
 
-[run04](../engineering/beta2-product-20261106/evidence/native-run-04.json) 对应 `4174a04`，进程 29.65 秒正常退出，功能 11 PASS / 2 FAIL；六页浅深与暂停/隐藏两个完整 case 均在控制中心打开路径超时。25 条窗口记录中有 23 个实际 PNG 和 2 个 `NOT_RUN`。独立审查确认 `control-normal`、`control-paused`、`control-save-failure` 三张完整原图的说明宽度和捕获范围已改善；这个局部视觉结论不覆盖缺失的深色、仅隐藏、暂停且隐藏正常状态图，也不改变整轮 FAIL。
-
-[run05](../engineering/beta2-product-20261106/evidence/native-run-05.json) 对应 `64ac68b`，磁盘报告已完成，功能为 9 PASS / 4 FAIL，22 条窗口记录中有 19 个 PNG 和 3 个 `NOT_RUN`。runner 仍是 180 秒超时、exit -15、`INCOMPLETE`；SIGTERM 后空日志没有 stdout 报告路径，实际报告从同一 review 根读取，并核对了相同进程身份与可执行文件，不能补成 runner 已返回报告。集成侧观察到失败保存 case 遗留草稿，退出正在等待原生确认；这不构成无草稿正常退出倒退的证据。
-
-run05 的通知时序与源码指向控制中心额外的 `didResignActive` 无条件关闭路径。`d72f966` 按独立审查移除这个 observer，保留原生 transient 及既有明确关闭路径，并添加一项窄回归。[run06](../engineering/beta2-product-20261106/evidence/native-run-06.json) 的首次浅色控制中心确实保持展示，达到完整稳定尺寸；后续程序化打开仍关闭过早，整轮是 9 PASS / 4 FAIL，26 个 PNG / 3 个 `NOT_RUN`，runner 180 秒超时。剩余原因尚未确定，不新增产品焦点门槛，也不把这一窄修写成整轮通过。
-
-对同一 `d72f966` **原包**的 [CUA 观察](../engineering/beta2-product-20261106/evidence/cua-native-exact-d72f966.json) 确认了精确候选隔离启动、Escape 关闭引导，以及 ⌘Q 工具超时后该进程已不在；没有取得正常退出码。工具未提供状态栏操作面，实际状态栏打开、再点关闭和外部点击仍为 `NOT_RUN_TOOL_SURFACE_UNAVAILABLE`，既不算通过，也不新增为产品失败。
-
-[独立重启核对](../engineering/beta2-product-20261106/evidence/independent-restart-d72f966.json) 已对原包、原隔离根、新进程取得 `PASS_SCOPED_NATIVE_RESTART`：进程 0.466 秒正常 exit 0，五个 JSON 与加载的 owner 相符，SQLite 暂停/隐藏值读回一致，1 张媒体及 asset 映射保持相同，完整操作表与 START 均为 0，既有引导没有再次出现。这是完成 FAIL 后单独执行的只读持久化核对；原 run06 的 FAIL、timeout 和完整 runner 的重启阶段 `NOT_RUN` 均不改写。
-
-首次正式 CI 为 [Native 42205691399](https://github.com/haohongfei2001-png/Riftlet/actions/runs/42205691399) 和 [Feedback 42205691613](https://github.com/haohongfei2001-png/Riftlet/actions/runs/42205691613)。当前仍继承 PR #42 的准入元数据，两项 source gate 已失败，最终审查 G / H 尚未生成；独立构建/测试继续执行。Feedback native and service 已成功，其历史 composition 条件步骤为 skipped，不能计作本轮执行通过。后续仅诊断 driver 的调用栈补充正在准备，不能借用已有 d72 工件结果。当前仍不声明 `BETA2_REVIEW_READY` 或 `PRODUCT_READY`。
+[既有只读数据记录](../engineering/beta2-product-20261106/evidence/production-readonly-current.json)确认两次记录均为 94 assets / 44 operations / 18 START，当前 94 份媒体长度与 hash 符合数据库库存，安装 binary 相同。初始仅有计数和安装 hash，没有逐行/逐媒体摘要，不能宣称观察期间全部历史字节或配置逐字不变。公开记录不含用户图片、资产身份或私有路径；文档整理没有再次访问生产数据。
 
 ## 已实现的界面与状态边界
 
