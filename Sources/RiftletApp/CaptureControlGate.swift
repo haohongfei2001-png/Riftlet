@@ -8,6 +8,10 @@ struct CaptureControlGate {
     private(set) var action: Action?
     private var owner: UUID?
     var isBusy: Bool { owner != nil }
+    // The owner queues an explicit Pause/Resume behind a recheck. Keep its
+    // control enabled during activation so mouse tracking can finish; execution
+    // remains exclusive through begin/finish below.
+    var acceptsCollectionIntent: Bool { action != .changeCollection }
 
     mutating func begin(_ action: Action) -> UUID? {
         guard owner == nil else { return nil }

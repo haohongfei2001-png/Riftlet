@@ -197,17 +197,64 @@ final class LoginItemPreferencesTests: XCTestCase {
         XCTAssertEqual(cancellation.status, .requiresApproval); XCTAssertFalse(cancellation.isSuccessful)
     }
 
-    @MainActor func testMissingAndUnknownServiceNeverInventOffOrInvokeRegistration() async {
-        for status in [LoginItemStatus.notFound, .unknown(91)] {
-            let service = Service(status); let owner = LoginItemPreferences(service: service)
-            let on = await owner.setEnabled(true); let off = await owner.setEnabled(false)
-            XCTAssertEqual(on.disposition, .unavailable); XCTAssertEqual(off.disposition, .unavailable)
-            XCTAssertNil(owner.snapshot.switchValue); XCTAssertNil(owner.snapshot.launchAllowed)
-            XCTAssertEqual(service.registerCount + service.unregisterCount, 0)
-            service.value = .notRegistered; owner.refresh()
-            let recovered = await owner.setEnabled(true)
-            XCTAssertTrue(recovered.isSuccessful); XCTAssertEqual(service.registerCount, 1)
+    @MainActor func testNotFoundOnlyRegistersOnExplicitEnableAndUsesActualReadback() async {
+        let service = Service(.notFound); let owner = LoginItemPreferences(service: service)
+        owner.refresh(); owner.refresh()
+        XCTAssertNil(owner.snapshot.switchValue); XCTAssertNil(owner.snapshot.launchAllowed)
+        XCTAssertEqual(service.registerCount, 0, "Reading notFound is not a registration request")
+        let enabled = await owner.setEnabled(true)
+        XCTAssertTrue(enabled.serviceCalled); XCTAssertTrue(enabled.isSuccessful)
+        XCTAssertEqual(enabled.status, .enabled); XCTAssertEqual(owner.snapshot.launchAllowed, true)
+        XCTAssertEqual(service.registerCount, 1); XCTAssertEqual(service.unregisterCount, 0)
+        let repeated = await owner.setEnabled(true)
+        XCTAssertFalse(repeated.serviceCalled); XCTAssertEqual(service.registerCount, 1)
+    }
+
+    @MainActor func testNotFoundRegistrationErrorRetainsUnknownStateAndRetriesSameExplicitTarget() async {
+        let service = Service(.notFound); service.registerNext = nil; service.registerError = error(106)
+        let owner = LoginItemPreferences(service: service)
+        let failed = await owner.setEnabled(true)
+        XCTAssertTrue(failed.serviceCalled); XCTAssertFalse(failed.isSuccessful)
+        XCTAssertEqual(failed.target, true); XCTAssertEqual(failed.status, .notFound)
+        XCTAssertEqual(failed.serviceError, 106); XCTAssertEqual(failed.disposition, .unavailable)
+        XCTAssertNil(owner.snapshot.switchValue); XCTAssertNil(owner.snapshot.launchAllowed)
+        owner.refresh(); owner.refresh()
+        XCTAssertEqual(owner.snapshot.lastCommand, failed); XCTAssertEqual(service.registerCount, 1)
+        service.registerError = nil; service.registerNext = .enabled
+        let retried = await owner.setEnabled(true)
+        XCTAssertTrue(retried.isSuccessful); XCTAssertEqual(service.registerCount, 2)
+        XCTAssertEqual(service.unregisterCount, 0)
+    }
+
+    @MainActor func testNotFoundRegistrationNormalReturnDoesNotInventEnabled() async {
+        for next in [LoginItemStatus.notFound, .requiresApproval, .notRegistered] {
+            let service = Service(.notFound); service.registerNext = next
+            let owner = LoginItemPreferences(service: service)
+            let result = await owner.setEnabled(true)
+            XCTAssertTrue(result.serviceCalled); XCTAssertEqual(result.status, next)
+            XCTAssertFalse(result.isSuccessful); XCTAssertNil(result.serviceError)
+            let expected: LoginItemDisposition = next == .requiresApproval ? .awaitingApproval :
+                next == .notFound ? .unavailable : .notConfirmed
+            XCTAssertEqual(result.disposition, expected)
+            XCTAssertNotEqual(owner.snapshot.launchAllowed, true)
+            XCTAssertEqual(service.registerCount, 1); XCTAssertEqual(service.unregisterCount, 0)
         }
+    }
+
+    @MainActor func testNotFoundDisableAndUnknownStatusNeverInventOffOrCallSystem() async {
+        let missing = Service(.notFound); let missingOwner = LoginItemPreferences(service: missing)
+        let off = await missingOwner.setEnabled(false)
+        XCTAssertEqual(off.disposition, .unavailable); XCTAssertFalse(off.serviceCalled)
+        XCTAssertNil(missingOwner.snapshot.switchValue); XCTAssertNil(missingOwner.snapshot.launchAllowed)
+        XCTAssertEqual(missing.registerCount + missing.unregisterCount, 0)
+        let service = Service(.unknown(91)); let owner = LoginItemPreferences(service: service)
+        let on = await owner.setEnabled(true); let unknownOff = await owner.setEnabled(false)
+        XCTAssertEqual(on.disposition, .unavailable); XCTAssertEqual(unknownOff.disposition, .unavailable)
+        XCTAssertNil(owner.snapshot.switchValue); XCTAssertNil(owner.snapshot.launchAllowed)
+        XCTAssertEqual(service.registerCount + service.unregisterCount, 0)
+        service.value = .notRegistered; owner.refresh()
+        let recovered = await owner.setEnabled(true)
+        XCTAssertTrue(recovered.isSuccessful); XCTAssertEqual(service.registerCount, 1)
     }
 
     @MainActor func testExternalApprovalAndRevocationRefreshNeverReregister() async {

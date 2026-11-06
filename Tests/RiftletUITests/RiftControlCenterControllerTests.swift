@@ -3,6 +3,30 @@ import XCTest
 @testable import RiftletUI
 
 final class RiftControlCenterControllerTests: XCTestCase {
+    @MainActor private final class OutsideMouseMonitorSpy {
+        final class Token: NSObject {
+            let mask: NSEvent.EventTypeMask
+            let handler: (NSEvent) -> Void
+            init(mask: NSEvent.EventTypeMask, handler: @escaping (NSEvent) -> Void) {
+                self.mask = mask; self.handler = handler
+            }
+        }
+        var installed: [Token] = []
+        var removed: [Token] = []
+        func install(_ mask: NSEvent.EventTypeMask, _ handler: @escaping (NSEvent) -> Void) -> Any? {
+            let token = Token(mask: mask, handler: handler)
+            installed.append(token)
+            return token
+        }
+        func remove(_ value: Any) { removed.append(value as! Token) }
+    }
+
+    @MainActor private func outsideMouseDown(_ type: NSEvent.EventType = .leftMouseDown) throws -> NSEvent {
+        try XCTUnwrap(NSEvent.mouseEvent(with: type, location: .zero, modifierFlags: [],
+            timestamp: ProcessInfo.processInfo.systemUptime, windowNumber: 0, context: nil,
+            eventNumber: 1, clickCount: 1, pressure: 1))
+    }
+
     @MainActor private func fixture(revision: UInt64 = 1, paused: Bool = false, hidden: Bool = false,
                                     source: SetupSourceState = .accessible,
                                     collection: SetupCollectionState = .collecting,
@@ -276,6 +300,170 @@ final class RiftControlCenterControllerTests: XCTestCase {
         await assertReceived { !controller.isShown && controller.window?.isVisible != true }
         XCTAssertFalse(controller.isShown)
         XCTAssertFalse(controller.window?.isVisible == true)
+    }
+
+    @MainActor func testExplicitShowMakesPopoverKeyAndNativeEscapeRetiresItsPresentation() async throws {
+        try prepareAppKit()
+        let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+        defer { NSStatusBar.system.removeStatusItem(item) }
+        let monitor = OutsideMouseMonitorSpy()
+        var actions = 0
+        let controller = RiftControlCenterController(statusItem: item, onAction: { _ in actions += 1 },
+            installOutsideMouseMonitor: monitor.install, removeOutsideMouseMonitor: monitor.remove)
+        defer { controller.close() }
+        var value = fixture()
+        value.accessibility.reduceMotion = true
+        controller.update(value)
+        let button = try XCTUnwrap(item.button)
+        guard button.window?.isVisible == true else { throw XCTSkip("No usable native status-bar anchor") }
+
+        button.performClick(nil)
+        await assertReceived { controller.isShown && controller.window?.isKeyWindow == true }
+        let window = try XCTUnwrap(controller.window)
+        XCTAssertTrue(window.canBecomeKey)
+        XCTAssertTrue(NSApp.keyWindow === window, "The explicitly opened popover must own its native keyboard route")
+        XCTAssertEqual(monitor.installed.count, 1)
+
+        // Route Escape through NSApplication/NSWindow rather than invoking the
+        // controller's close/cancel handler. Cross-App hardware routing remains
+        // a separate full-App acceptance check.
+        let escape = try XCTUnwrap(NSEvent.keyEvent(with: .keyDown, location: .zero, modifierFlags: [],
+            timestamp: ProcessInfo.processInfo.systemUptime, windowNumber: window.windowNumber,
+            context: nil, characters: "\u{1b}", charactersIgnoringModifiers: "\u{1b}",
+            isARepeat: false, keyCode: 53))
+        NSApp.sendEvent(escape)
+        await assertReceived { !controller.isShown && !window.isVisible }
+        XCTAssertFalse(window.isKeyWindow)
+        XCTAssertEqual(monitor.removed.count, 1, "Native keyboard dismissal retires the outside observer")
+        XCTAssertTrue(monitor.removed.first === monitor.installed.first)
+        XCTAssertEqual(actions, 0, "Dismissal must not issue a host command")
+
+        button.performClick(nil)
+        await assertReceived { controller.isShown && controller.window?.isKeyWindow == true }
+        XCTAssertTrue(NSApp.keyWindow === controller.window)
+        XCTAssertEqual(monitor.installed.count, 2)
+        button.performClick(nil)
+        await assertReceived { !controller.isShown && controller.window?.isVisible != true }
+        XCTAssertEqual(monitor.removed.count, 2, "Repeated status activation still closes the new presentation")
+        XCTAssertEqual(actions, 0)
+    }
+
+    @MainActor func testOutsideMouseObserverClosesWithoutCommandsAndExistsOnlyWhileShown() async throws {
+        try prepareAppKit()
+        let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+        defer { NSStatusBar.system.removeStatusItem(item) }
+        let monitor = OutsideMouseMonitorSpy()
+        var actions = 0
+        let controller = RiftControlCenterController(statusItem: item, onAction: { _ in actions += 1 },
+            installOutsideMouseMonitor: monitor.install, removeOutsideMouseMonitor: monitor.remove)
+        defer { controller.close() }
+        controller.update(fixture())
+        XCTAssertTrue(monitor.installed.isEmpty, "Passive snapshots must not start cross-application observation")
+        let button = try XCTUnwrap(item.button)
+        guard button.window?.isVisible == true else { throw XCTSkip("No usable native status-bar anchor") }
+        button.performClick(nil)
+        await assertReceived { controller.isShown && controller.window?.isVisible == true }
+        XCTAssertEqual(monitor.installed.count, 1)
+        let token = try XCTUnwrap(monitor.installed.first)
+        XCTAssertEqual(token.mask, [.leftMouseDown, .rightMouseDown, .otherMouseDown], "No keys, movement, or mouse-up observation")
+        controller.update(fixture(revision: 2))
+        XCTAssertEqual(monitor.installed.count, 1, "A shown snapshot refresh must not add another monitor")
+
+        // Deliver a copy through the installed callback. Real WindowServer
+        // cross-App delivery is separately verified by the owned native fixture.
+        token.handler(try outsideMouseDown())
+        XCTAssertEqual(monitor.removed.count, 1, "Close retires observation immediately, before any animation completes")
+        XCTAssertTrue(monitor.removed.first === token)
+        await assertReceived { !controller.isShown && controller.window?.isVisible != true }
+        controller.close()
+        controller.update(fixture(revision: 3))
+        XCTAssertEqual(monitor.removed.count, 1)
+        XCTAssertEqual(monitor.installed.count, 1)
+        XCTAssertEqual(actions, 0, "Outside dismissal cannot issue capture, preferences, or other host commands")
+    }
+
+    @MainActor func testQueuedOutsideMouseCallbackCannotCloseAReopenedPopover() async throws {
+        try prepareAppKit()
+        let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+        defer { NSStatusBar.system.removeStatusItem(item) }
+        let monitor = OutsideMouseMonitorSpy()
+        var actions = 0
+        let controller = RiftControlCenterController(statusItem: item, onAction: { _ in actions += 1 },
+            installOutsideMouseMonitor: monitor.install, removeOutsideMouseMonitor: monitor.remove)
+        defer { controller.close() }
+        controller.update(fixture())
+        let button = try XCTUnwrap(item.button)
+        guard button.window?.isVisible == true else { throw XCTSkip("No usable native status-bar anchor") }
+        button.performClick(nil)
+        await assertReceived { controller.isShown && controller.window?.isVisible == true }
+        let old = try XCTUnwrap(monitor.installed.first)
+        controller.close()
+        await assertReceived { !controller.isShown && controller.window?.isVisible != true }
+        button.performClick(nil)
+        await assertReceived { controller.isShown && controller.window?.isVisible == true }
+        XCTAssertEqual(monitor.installed.count, 2)
+        let current = try XCTUnwrap(monitor.installed.last)
+        XCTAssertFalse(old === current)
+
+        old.handler(try outsideMouseDown())
+        XCTAssertTrue(controller.isShown, "An asynchronously retained event belongs only to its old presentation")
+        XCTAssertTrue(controller.window?.isVisible == true)
+        XCTAssertEqual(monitor.removed.count, 1)
+        current.handler(try outsideMouseDown(.rightMouseDown))
+        await assertReceived { !controller.isShown && controller.window?.isVisible != true }
+        XCTAssertEqual(monitor.removed.count, 2)
+        XCTAssertTrue(monitor.removed.last === current)
+        XCTAssertEqual(actions, 0)
+    }
+
+    @MainActor func testNaturalCloseSuspensionAndDeinitRemoveOutsideMouseObservation() async throws {
+        try prepareAppKit()
+        let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+        defer { NSStatusBar.system.removeStatusItem(item) }
+        let monitor = OutsideMouseMonitorSpy()
+        var controller: RiftControlCenterController? = RiftControlCenterController(statusItem: item, onAction: { _ in },
+            installOutsideMouseMonitor: monitor.install, removeOutsideMouseMonitor: monitor.remove)
+        weak var released = controller
+        var nativePopover: NSPopover?
+        let observer = NotificationCenter.default.addObserver(forName: NSPopover.didShowNotification, object: nil, queue: .main) { notification in
+            MainActor.assumeIsolated {
+                guard let popover = notification.object as? NSPopover,
+                      popover.contentViewController?.view === controller?.contentView else { return }
+                nativePopover = popover
+            }
+        }
+        defer {
+            NotificationCenter.default.removeObserver(observer)
+            controller?.close(); nativePopover?.close()
+        }
+        controller?.update(fixture())
+        let button = try XCTUnwrap(item.button)
+        guard button.window?.isVisible == true else { throw XCTSkip("No usable native status-bar anchor") }
+        button.performClick(nil)
+        await assertReceived { controller?.isShown == true && nativePopover != nil }
+        let popover = try XCTUnwrap(nativePopover)
+        popover.close() // Exercise the native delegate path, not controller.close().
+        await assertReceived { controller?.isShown == false && monitor.removed.count == 1 }
+
+        button.performClick(nil)
+        await assertReceived { controller?.isShown == true && monitor.installed.count == 2 }
+        controller?.setInteractionSuspended(true)
+        XCTAssertEqual(monitor.removed.count, 2)
+        await assertReceived { controller?.isShown == false }
+        controller?.setInteractionSuspended(false)
+        button.performClick(nil)
+        await assertReceived { controller?.isShown == true && monitor.installed.count == 3 }
+        controller = nil
+        // Dropping our owner does not guarantee same-turn destruction after
+        // native target-action/presentation work. Wait for actual deinit and
+        // cleanup without closing the popover or clearing any callback/target;
+        // a persistent retain cycle must still fail the bounded predicate.
+        await assertReceived { released == nil && monitor.removed.count == 3 }
+        XCTAssertNil(released, "Monitor callbacks must not retain the controller")
+        XCTAssertEqual(monitor.removed.count, 3, "Deinit retires a still-shown presentation's observer")
+        // A retained callback after owner destruction is harmless.
+        try XCTUnwrap(monitor.installed.last).handler(try outsideMouseDown())
+        XCTAssertEqual(monitor.removed.count, 3)
     }
 
     @MainActor func testApplicationResignNotificationDoesNotExplicitlyCloseStatusPopover() async throws {

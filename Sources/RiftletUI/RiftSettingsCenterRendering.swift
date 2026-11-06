@@ -83,7 +83,7 @@ extension RiftSettingsCenterController {
 
     func renderLogin() {
         let login = product.login
-        check("login", login.switchValue, enabled: login.available && !login.isBusy && login.status != .unknown && login.status != .notFound && login.status != nil)
+        check("login", login.switchValue, enabled: login.available && !login.isBusy && login.status != .unknown && login.status != nil)
         let detail: String
         if login.isBusy { detail = "正在等待 macOS 更新登录项状态…" }
         else if !login.available { detail = "此运行环境不更改系统登录项。" }
@@ -93,7 +93,7 @@ extension RiftSettingsCenterController {
             switch login.status {
             case .enabled: detail = "macOS 已允许 Riftlet 在登录后启动。"
             case .notRegistered: detail = "未注册登录启动。"
-            case .notFound: detail = "macOS 未找到可用的应用登录项。"
+            case .notFound: detail = "macOS 暂未找到此应用的登录项。可以尝试开启。"
             case .unknown, nil: detail = "登录项状态暂时无法确认，不会据此注册或取消。"
             case .requiresApproval: detail = "等待系统批准。"
             }

@@ -1,3 +1,7 @@
+# Current Beta 2 autonomous real-environment acceptance — 2026-11-07
+
+Base main `71d726c`; branch `codex/beta2-real-acceptance-20261107`. The user owns product decisions; Codex owns all executable testing and repair. Visual approval is final. Root owns the sole foreground GUI/event lane, Main integration and refs; diagnostics owns the isolated ServiceManagement diagnosis; review owns control-center mouse lifecycle; readiness_independent owns exact non-author review. Production data/history/UNKNOWN and the installed baseline are protected. Browser-disabled surfaces are not bypassed. See `engineering/beta2-real-acceptance-20261107/README.md`; private raw evidence is retained separately. Source and candidate verification are IN_PROGRESS, not product acceptance.
+
 # Current Beta 2 final native polish — 2026-11-06
 
 Continue existing PR #43 from `d1f4bef`; main remains `c72fca7`. The latest user

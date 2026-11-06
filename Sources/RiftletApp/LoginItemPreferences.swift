@@ -151,7 +151,11 @@ struct LoginItemSnapshot: Equatable, Sendable {
             return record(target, disposition: .satisfied, called: false)
         case .requiresApproval? where target:
             return record(target, disposition: .awaitingApproval, called: false)
-        case .notFound?, .unknown?, nil:
+        // A first explicit registration can start at notFound. Let register()
+        // return the real system result; a read alone never attempts recovery.
+        case .notFound? where !target:
+            return record(target, disposition: .unavailable, called: false)
+        case .unknown?, nil:
             return record(target, disposition: .unavailable, called: false)
         default: break
         }

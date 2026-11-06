@@ -798,6 +798,27 @@ final class RiftSettingsCenterTests: XCTestCase {
         XCTAssertFalse(login.isEnabled)
     }
 
+    @MainActor func testNotFoundLoginCanRequestEnableWithoutInventingConfirmedState() async throws {
+        let h = try host(); defer { h.controller.closeForTeardown() }
+        h.login.available = true; h.login.status = .notFound
+        h.publish(); h.controller.show()
+        let login: NSSwitch = try control(h, "login")
+        XCTAssertTrue(login.isEnabled)
+        XCTAssertEqual(login.state, .off)
+        XCTAssertTrue(h.controller.labels["login.detail"]!.stringValue.contains("可以尝试开启"))
+        XCTAssertTrue(h.actions.isEmpty, "A missing service readback does not register automatically")
+        try await clickAndWait(h, "login")
+        XCTAssertEqual(h.actions, ["login:true"])
+        XCTAssertEqual(login.state, .off, "The synthetic host still reports notFound; a click is not confirmation")
+        h.login.inFlightTarget = true; h.publish()
+        XCTAssertFalse(login.isEnabled)
+        h.login.inFlightTarget = nil; h.login.status = .unknown; h.publish()
+        XCTAssertFalse(login.isEnabled)
+        h.login.status = .notFound; h.login.available = false; h.publish()
+        XCTAssertFalse(login.isEnabled)
+        XCTAssertEqual(h.actions, ["login:true"])
+    }
+
     @MainActor func testLoginOperationErrorDoesNotEraseEnabledOrPendingApprovalReadback() throws {
         let h = try host(); defer { h.controller.closeForTeardown() }
         h.login.available = true; h.login.errorCode = 7
