@@ -5,7 +5,7 @@
     "result": "PASS",
     "sourcePayloadExact": true,
     "stylesheetExact": true,
-    "scriptSHA256": "da92e27b08a53eb2bf3b714c9718d003b50474a95d78e913bbffa0c633ffd314",
+    "scriptSHA256": "d02fecc03bbab67cdfe3d17bdaefc62940892c8fca805cbe3f2fa80f78bb28db",
     "styleSHA256": "1abe6f599d8f9ab979eb9204ceb74ea869db05964b1b0f7179d95799f3337e88",
     "doubleDollarOccurrences": 4,
     "node": "v26.8.2"
@@ -25,7 +25,7 @@
   "artifacts": [
     {
       "path": "exports/Riftlet-Experience-Prototype.html",
-      "sha256": "2c4afdf1aa7fb3b926f3060636c84e2c98f04d82ac7abf75c805e96dad2a33c5"
+      "sha256": "4fe1a371bf50cbeafd59a97aef26fb6b81bc4462ee9fb9ca284346750815c512"
     },
     {
       "path": "exports/Riftlet-Design-Overview.png",

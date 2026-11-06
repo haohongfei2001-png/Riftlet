@@ -54,7 +54,7 @@
 - `7d19037…`：最终Fit落位、焦点/系统偏好与历史修复；动态和定向验证。
 - 后续提交：真实对照、完整规格、独立复核、离线导出和交付检查。最终hash以分支HEAD为准。
 
-离线导出的生成与验证已统一到 [tools/build_delivery.py](tools/build_delivery.py)。2026-11-07 的原始导出曾因 `$$` 被变为 `$` 而无法初始化，现已修复；保留的真实错误、原始 HTML、13 项无界面交互回归与新浅深截图见 [导出修复证据](evidence/export-repair-20261107/README.md)。原型界面源码、品牌 SVG 与颜色未改。
+离线导出的生成与验证已统一到 [tools/build_delivery.py](tools/build_delivery.py)。2026-11-07 的原始导出曾因 `$$` 被变为 `$` 而无法初始化，现已修复；保留的真实错误、原始 HTML、13 项无界面交互回归与新浅深截图见 [导出修复证据](evidence/export-repair-20261107/README.md)。该 604d5f4 修复阶段的原型界面源码、品牌 SVG 与颜色未改。
 
 在仓库根目录执行（虚拟环境放在设计目录外）：
 
@@ -76,3 +76,8 @@ node design/experience-20261107/tools/test_delivery.cjs --out /tmp/riftlet-desig
 脚本拒绝覆盖已有结果。验证/文档完成后再运行一次生成脚本，使 MANIFEST/交付 ZIP 包含最终证据。总览/Before-After 图版仅重排已保留的历史截图，当前品牌与双样式的新截图在本轮证据目录；不重绘原生 Before，也不把旧录像当作新验收。
 
 这是一份可以直接移交Codex的设计候选。物理菜单栏、真实附件、原生动画、多屏和长期体验需要在独立原生实现中验收；本轮没有用网页检查提前代替这些结论。
+
+
+### 并发修复的合并交付
+
+本地导出修复与远端七个修复/CI 提交按双亲历史合并，旧失败说明和原始证据保留。仅把「设计系统」里两处品牌色说明同步到 canonical `prototype/app.js`，再由正式管线生成 HTML，不手工修补产物。合并状态重新执行 13 项 headless 交互和 5 项生成门禁均通过；详见 [合并复验](evidence/export-merge-20261107/README.md)。正式合并提交与远端 workflow 结论以实际 Git/GitHub 记录为准。

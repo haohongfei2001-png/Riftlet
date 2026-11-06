@@ -1,0 +1,45 @@
+{
+  "parents": {
+    "HEAD": "604d5f4530690d534c975fd0a83759648a7c7f04",
+    "MERGE_HEAD": "ada4ade59b0d934e85a7f2ea373e46cb278ce855"
+  },
+  "retainedRemoteCommits": [
+    "8a65d3511ced911912a73d4c91f275ca0abd1887 ci: validate standalone design prototype in Chromium",
+    "335fc7e887a836db4d1d02eed4a55aa7d043fa34 ci: capture standalone preview diagnostics",
+    "e945e9cf59b8760b4d6489a73a82c5286ad9c1dd fix: restore standalone prototype query helper",
+    "ec19f56426c302c65a9a41c906f0a94dce205cdd ci: capture settings preference interaction diagnostics",
+    "1948b85e4ce2cdbfae6eff806c7eca7940637a9c ci: attach offline HTML for reproducible browser verification",
+    "912aaf1d23f3cdd527de21c1cc0277704bcd7692 fix: restore query-all selectors in standalone prototype",
+    "ada4ade59b0d934e85a7f2ea373e46cb278ce855 fix: repair history preview rendering and settings interaction in offline HTML"
+  ],
+  "sourceComparisons": [
+    {
+      "path": "prototype/app.js",
+      "bothParentsIdentical": true,
+      "parentSHA256": "7283a1eff4f7a406e433114bbf4cfc9ae1110f6a898775de735d5262eb356733",
+      "mergedSHA256": "953d53aa377147a5532582e96e67ec571e41cb1ea06d68959e2a5b8032f9657b"
+    },
+    {
+      "path": "prototype/settings.js",
+      "bothParentsIdentical": true,
+      "parentSHA256": "c70b7b3323e74d2b01954fe5a05d129d430f1c8add5a504e805d695a989f5de5",
+      "mergedSHA256": "c70b7b3323e74d2b01954fe5a05d129d430f1c8add5a504e805d695a989f5de5"
+    },
+    {
+      "path": "prototype/samples.js",
+      "bothParentsIdentical": true,
+      "parentSHA256": "b349043bf8e54fabdf62b5121ee15c2c68c7c8e54fe3a22c412b9862fda3442c",
+      "mergedSHA256": "b349043bf8e54fabdf62b5121ee15c2c68c7c8e54fe3a22c412b9862fda3442c"
+    },
+    {
+      "path": "prototype/baselines.js",
+      "bothParentsIdentical": true,
+      "parentSHA256": "e3937382bc4cccca9183e71fe99639cfe7d6bc4c85200fea6499b666565645fd",
+      "mergedSHA256": "e3937382bc4cccca9183e71fe99639cfe7d6bc4c85200fea6499b666565645fd"
+    }
+  ],
+  "canonicalChange": "Only the displayed system-panel text #367B6B / #92CBB4 becomes #19B7A4 / #087C70 in prototype/app.js; styling/palette/SVG and JS interaction logic are unchanged.",
+  "builderResolution": "Use literal payload + exact-source/Node/resource gates from 604d5f4; four remote JS replace patterns match no source occurrences and are not needed.",
+  "priorEvidence": "evidence/export-repair-20261107 remains byte-identical to 604d5f4. Historical failure explanations from both parents are retained in VALIDATION.md.",
+  "workflow": "Keep remote design-prototype-validation.yml unchanged; it is a cloud smoke, not the local 13-case detailed regression."
+}

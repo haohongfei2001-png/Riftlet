@@ -1,0 +1,11 @@
+{
+  "result": "PASS",
+  "passed": 5,
+  "failed": 0,
+  "script": "tools/test_delivery_validation.py",
+  "scriptSHA256": "b886c9724856eddf65ae31938502db86add9a12bb306c77f9a8663934843f0d1",
+  "log": "validation-tests.log",
+  "logSHA256": "6396662ee4e214eb007a37191bc83cf460b3f12c960115c874bc5c0fb88e8f1c",
+  "targetSHA256": "4fe1a371bf50cbeafd59a97aef26fb6b81bc4462ee9fb9ca284346750815c512",
+  "scope": "Actual execution against the merged canonical export, with original 5 assertions unchanged."
+}

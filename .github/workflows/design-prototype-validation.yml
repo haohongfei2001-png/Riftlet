@@ -1,0 +1,98 @@
+name: Design prototype validation
+
+on:
+  push:
+    branches:
+      - codex/design-experience-20261107
+    paths:
+      - "design/experience-20261107/**"
+      - ".github/workflows/design-prototype-validation.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  standalone-html:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Parse prototype JavaScript
+        run: |
+          node --check design/experience-20261107/prototype/samples.js
+          node --check design/experience-20261107/prototype/baselines.js
+          node --check design/experience-20261107/prototype/settings.js
+          node --check design/experience-20261107/prototype/app.js
+          cat design/experience-20261107/prototype/samples.js design/experience-20261107/prototype/baselines.js design/experience-20261107/prototype/settings.js design/experience-20261107/prototype/app.js > /tmp/riftlet-bundle.js
+          node --check /tmp/riftlet-bundle.js
+      - name: Install browser test runtime
+        run: |
+          mkdir -p /tmp/riftlet-prototype-qa
+          cd /tmp/riftlet-prototype-qa
+          npm init -y
+          npm install playwright
+          npx playwright install --with-deps chromium
+      - name: Open standalone HTML and exercise history styles
+        env:
+          NODE_PATH: /tmp/riftlet-prototype-qa/node_modules
+        run: |
+          node <<'NODE'
+          const { chromium } = require('playwright');
+          const path = require('path');
+          (async () => {
+            const browser = await chromium.launch({ headless: true });
+            const page = await browser.newPage({ viewport: { width: 1440, height: 1100 } });
+            const errors = [];
+            page.on('pageerror', error => errors.push('pageerror: '+error.message+'\n'+error.stack));
+            page.on('console', message => { if (message.type() === 'error') errors.push('console: '+message.text()); });
+            page.on('requestfailed', request => errors.push('requestfailed: '+request.url()+' '+request.failure()?.errorText));
+            const file = path.resolve('design/experience-20261107/exports/Riftlet-Experience-Prototype.html');
+            await page.goto('file://' + file, { waitUntil: 'load' });
+            await page.waitForTimeout(1500);
+            console.log('DIAG title:', await page.title());
+            console.log('DIAG root count:', await page.locator('#riftlet-design').count());
+            console.log('DIAG root text:', (await page.locator('#riftlet-design').innerText().catch(e=>'ERROR '+e.message)).slice(0,800));
+            console.log('DIAG prototype type:', await page.evaluate(() => typeof window.RiftPrototype));
+            console.log('DIAG scripts:', await page.locator('script').count(), 'inline bytes:', await page.locator('script').first().textContent().then(t=>t.length));
+            console.log('DIAG errors:', errors);
+            await page.screenshot({ path: '/tmp/riftlet-preview.png', fullPage: true }).catch(e=>console.log('screenshot error',e.message));
+            await page.waitForFunction(() => !!window.RiftPrototype && !!document.querySelector('.viewer-header'), null, { timeout: 10000 });
+            if (!await page.locator('#riftlet-design').innerText().then(t => t.includes('Riftlet'))) throw new Error('Prototype root rendered empty');
+            await page.locator('[data-scene="history"]').click();
+            console.log('DIAG history selector count/value:', await page.locator('#history-style').count(), await page.locator('#history-style').inputValue());
+            await page.locator('#history-style').selectOption('imageGrid');
+            if (await page.locator('.history-grid-area').getAttribute('data-history-style') !== 'imageGrid') throw new Error('History view did not switch to imageGrid');
+            await page.locator('[data-scene="settings"]').click();
+            await page.locator('[data-setting-page="history"]').click();
+            console.log('DIAG settings selector count/value:', await page.locator('[data-st-key="historyDisplayStyle"]').count(), await page.locator('[data-st-key="historyDisplayStyle"]').inputValue());
+            await page.locator('[data-st-key="historyDisplayStyle"]').selectOption('current');
+            console.log('DIAG after settings select:', await page.locator('[data-st-key="historyDisplayStyle"]').inputValue(), await page.evaluate(() => window.RiftPrototype.state.settings.historyDisplayStyle), 'errors:', errors);
+            if (await page.evaluate(() => window.RiftPrototype.state.settings.historyDisplayStyle) !== 'current') throw new Error('Settings preference did not update');
+            await page.locator('[data-scene="history"]').click();
+            if (await page.locator('#history-style').inputValue() !== 'current') throw new Error('History view did not retain the settings preference');
+            await page.locator('[data-scene="historyVariants"]').click();
+            if (await page.locator('.history-variant-window').count() !== 2) throw new Error('Side-by-side history comparison did not render both views');
+            if (errors.length) throw new Error('Browser errors: ' + errors.join(' | '));
+            console.log('PASS: standalone HTML rendered; current/imageGrid switching, settings persistence and side-by-side comparison passed.');
+            await browser.close();
+          })().catch(error => { console.error(error); process.exit(1); });
+          NODE
+
+      - name: Upload offline HTML prototype
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: riftlet-offline-html
+          path: design/experience-20261107/exports/Riftlet-Experience-Prototype.html
+          if-no-files-found: error
+
+      - name: Upload diagnostic screenshot
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: riftlet-prototype-diagnostic
+          path: /tmp/riftlet-preview.png
+          if-no-files-found: ignore

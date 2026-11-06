@@ -92,3 +92,29 @@
 | 原生/真实附件 | NOT_RUN | 网页结果不替代 AppKit、真实数据/附件、IME 或 VoiceOver 验收 |
 
 [证据索引与精确 hash](evidence/export-repair-20261107/README.md)。本轮使用单独的 Playwright 测试引擎与临时上下文，未启动可见浏览器、未使用用户 profile、未连接已有浏览器或访问生产 App。
+
+### 远端并发修复的当时记录（原文保留）
+
+以下两段描述远端当时的排查与规范化方式；合并后的实际生成策略及复验见下一节，不能把历史 no-op 替换视为当前管线。
+
+### 空白 HTML 根因与修复（2026-11-07）
+
+Chromium 实测发现：离线导出文件的 app helper 被错误序列化为 `const $=..., $=...`，造成内联脚本解析错误 `Identifier '$' has already been declared`，因此原型根节点保持空白。已将第二个 helper 标识符恢复为 `$$`，并在构建脚本加入防回归规范化；验证流程增加四个源文件拼接后的 `node --check` 与 Chromium 实际打开/交互检查。此前交付的预览链接不应继续使用，以修复后的新浏览器检查结果为准。
+
+
+### 第二轮空白/交互故障修复
+
+浏览器堆栈进一步定位到导出文件中的三个 `querySelectorAll` 调用点也被错误写成单元素 `querySelector`：`fit()` 查询 `[data-compare-size]`，以及弹窗 inert 管理中的两组元素遍历。由于桌面场景没有 compare 节点，`fit()` 对 null 读取 `.length`，并中断后续 `bindSettings()`，造成设置选择看似可改但偏好不更新。现已恢复三个 `$$` 调用点；构建脚本对 helper 声明和全部调用点加入防回归规范化。
+
+
+## 2026-11-07 并发修复合并复验
+
+待合并的两个精确父提交为本地 `604d5f4530690d534c975fd0a83759648a7c7f04` 与远端 `ada4ade59b0d934e85a7f2ea373e46cb278ce855`。远端从共同基线 `276574a` 起的七个修复/CI 提交保留在原历史中，不重写或丢弃；由主代理完成双亲合并。完整提交列表见 [merge-inputs.json](evidence/export-merge-20261107/merge-inputs.json)。
+
+合并前两侧四个 prototype JS 源文件逐字一致；远端四条“规范化” replacement 在这些正确源码上均不匹配。最终 builder 保留本地字面内联、源码一致性/Node/资源门禁，不以事后修改生成 HTML 代替规范源码。远端有效的新增色值说明修正已移入 `prototype/app.js`：「设计系统」中的 `#367B6B / #92CBB4` 改为 `#19B7A4 / #087C70`。本次 canonical 变更仅这两个展示字符串，实际颜色 token、SVG、交互逻辑与其他 prototype 源码保持原字节。
+
+这不修改或否定 604d5f4 阶段“prototype 原源未改”的事实；`evidence/export-repair-20261107/` 的所有记录保持原字节。上方远端两次故障说明也完整保留。远端新增 workflow 原逻辑保留，仍是较小的 cloud smoke；本轮没有扩大它或手动重复触发。
+
+合并文件状态下，隔离 headless **13/13 PASS**，页面错误 0、外网请求 0；原来的 5 项生成门禁测试 **5/5 PASS**，未删改断言。新导出 HTML SHA-256 为 `4fe1a371bf50cbeafd59a97aef26fb6b81bc4462ee9fb9ca284346750815c512`。新 8 张截图和精确 runner/HTML hash 记录在 [本轮结果](evidence/export-merge-20261107/headless-01/results.json)。这是一次新的实际网页检查，不引用先前 13/13 冒充本轮执行，也不声称原生测试。
+
+最终 HTML、MANIFEST、相关图版和 ZIP 由同一正式 builder 重建；清单覆盖当前文件，ZIP 内文件逐字与清单和目录核对。最终 commit/远端 workflow 结果由主代理在真实提交后记录，本文件不猜测未来 SHA 或 CI 结论。
