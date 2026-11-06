@@ -10,7 +10,7 @@
     shiftDuration: 160, returnDuration: 180
   };
   const defaults = {
-    appearance: 'system', paused: false, hidden: false,
+    appearance: 'system', paused: false, hidden: false, historyDisplayStyle: 'current',
     display: 'main', displayDisconnected: false, placement: 'leftMiddle',
     entryEnabled: true, captureMode: 'window', arrival: 'magnet',
     reduceMotion: false, reduceTransparency: false, increaseContrast: false,
@@ -133,6 +133,7 @@
     const custom = s.archiveCustom || !['0','1','8','24','72'].includes(String(hours));
     const dirty = s.archiveDraft !== null;
     return `<div class="st-history-intro"><div class="st-history-stack" aria-hidden="true">${sample(0)}${sample(1)}${sample(2)}</div><div><h3>用过，也留着</h3><p>已收起和归档的截图，都能在历史中浏览。</p><button type="button" class="st-action-button" data-st-action="history">${icon('history',15)}<span>打开截图历史</span></button></div></div>
+      ${section('历史显示方式',row('历史显示方式','只改变呈现方式，不改变截图记录。',select('historyDisplayStyle','历史显示方式',s.historyDisplayStyle||'current',[['current','当前视图'],['imageGrid','图像网格']]))) }
       ${section('边缘整理',row('自动归档', '一段时间未使用后，收入历史。',select('archivePreset','自动归档时限',custom?'custom':hours,presets)) + `<div class="st-archive-custom" ${custom?'':'hidden'}>${row('<label for="st-archive-hours">自定义时限</label>','支持小数小时；0 表示关闭。',`<span class="st-number-wrap"><input id="st-archive-hours" type="number" inputmode="decimal" min="0" step="0.25" data-st-archive value="${esc(hours)}" aria-label="自定义归档小时数"><span>小时</span></span>`)}</div><p class="st-footnote">鼠标悬停、按住或动画进行时，会等交互结束再整理。</p><div class="st-archive-save" ${dirty?'':'hidden'}><span class="st-detail" aria-live="polite">归档时限尚未保存</span><button type="button" class="st-discard" data-st-action="discardArchive">放弃</button><button type="button" class="st-apply" data-st-action="applyArchive">保存时限</button></div>`)}
       ${section('本机存储',row(s.storageMeasured?'已使用 18.6 MB':'存储用量',s.storageMeasured?'本地图片与记录':'按需检查，不打扰日常使用。',action(s.storageMeasured?'重新检查':'检查用量','storage')) + '<p class="st-footnote">收起与归档不会删除系统原图、本地副本或聊天附件。</p>')}
       <div class="st-clear-row"><div><div class="st-label">收起边缘的全部微图</div><div class="st-detail">只整理当前边缘，图片仍可在历史中找到。</div></div>${action('收起全部…', 'clearVisible')}</div>`;
