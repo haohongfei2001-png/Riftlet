@@ -15,8 +15,8 @@
     entryEnabled: true, captureMode: 'window', arrival: 'magnet',
     reduceMotion: false, reduceTransparency: false, increaseContrast: false,
     archiveHours: 0, archiveDraft: null, archiveCustom: false,
-    sourcePermission: 'granted', automationPermission: 'granted',
-    javascriptAllowed: true, screenPermission: 'granted',
+    sourcePermission: 'granted', automationPermission: 'notChecked',
+    javascriptAllowed: false, screenPermission: 'notChecked',
     storageMeasured: false, saveError: false,
     layout: layoutDefaults, draft: {}, openGroups: []
   };
@@ -49,6 +49,14 @@
   const positiveFields = new Set(['fitWidth','fitHeight','rowPitch','numberFontSize','minimumHitWidth','minimumHitHeight']);
   const motionFields = ['pressDuration', 'swallowDuration', 'shiftDuration', 'returnDuration'];
   const displayFields = Object.keys(layoutDefaults).filter(k => !motionFields.includes(k));
+  function miniature(s) {
+    const count = Math.max(1,Math.min(10,Math.round(num(s,'visibleCountPreference'))));
+    const width = Math.max(8,Math.min(42,num(s,'fitWidth')*.38));
+    const height = Math.max(6,Math.min(34,num(s,'fitHeight')*.38));
+    const gap = Math.max(1,Math.min(12,num(s,'rowPitch')*.38-height));
+    const scale = Math.min(1,103/(count*height+(count-1)*gap));
+    return {count, width:width*scale, height:height*scale, gap:gap*scale};
+  }
   const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const icon = (name, size = 16) => window.icon ? window.icon(name, size) : '<span class="st-icon-fallback" aria-hidden="true"></span>';
   const settings = state => ({
@@ -83,35 +91,32 @@
     return `<div class="st-save-area ${dirty || s.saveError ? 'st-is-dirty' : ''}" data-st-save-area><div class="st-save-copy"><span class="st-save-message" aria-live="polite">${s.saveError ? '这次更改尚未保存' : dirty ? '预览已更新，参数尚未应用' : '参数更改会先在这里预览'}</span><span class="st-validation" role="alert"></span></div><div class="st-save-buttons">${action('恢复默认', 'defaults')}<button type="button" class="st-discard" data-st-action="discard" ${!dirty && !s.saveError ? 'hidden' : ''}>放弃</button><button type="button" class="st-apply" data-st-action="apply" ${!dirty && !s.saveError ? 'disabled' : ''}>${s.saveError ? '重试保存' : '应用参数'}</button></div></div>`;
   }
   function general(s) {
-    const title = s.paused ? '收录已暂停' : s.hidden ? '在后台安静收录' : '随时待命';
-    const detail = s.paused ? '已有截图仍然保留。' : s.hidden ? '截图会收录，边缘暂不显示。' : '截图后，点一下边缘微图。';
     const themes = [['system', '跟随系统'], ['light', '浅色'], ['dark', '深色']];
-    return `<div class="st-status-line"><span class="st-status-symbol ${s.paused ? 'st-muted-symbol' : ''}">${icon(s.paused ? 'pause' : s.hidden ? 'eye' : 'check', 18)}</span><div><div class="st-status-title">${title}</div><p>${detail}</p></div></div>
-      ${section('外观', `<div class="st-themes" role="group" aria-label="外观">${themes.map(([key,label]) => `<button type="button" class="st-theme-choice ${s.appearance === key ? 'st-selected' : ''}" data-st-appearance="${key}" aria-pressed="${s.appearance === key}"><span class="st-theme-window st-theme-${key}" aria-hidden="true"><span class="st-theme-sidebar"><i></i><i></i><i></i></span><span class="st-theme-body"><i></i><i></i><i></i></span></span><span class="st-theme-caption">${label}<span class="st-choice-check">${s.appearance === key ? icon('check', 12) : ''}</span></span></button>`).join('')}</div>`)}
+    return `${section('外观', `<div class="st-themes" role="group" aria-label="外观">${themes.map(([key,label]) => `<button type="button" class="st-theme-choice ${s.appearance === key ? 'st-selected' : ''}" data-st-appearance="${key}" aria-pressed="${s.appearance === key}"><span class="st-theme-window st-theme-${key}" aria-hidden="true"><span class="st-theme-sidebar"><i></i><i></i><i></i></span><span class="st-theme-body"><i></i><i></i><i></i></span></span><span class="st-theme-caption">${label}<span class="st-choice-check">${s.appearance === key ? icon('check', 12) : ''}</span></span></button>`).join('')}</div>`)}
       ${section('收录与显示', row('暂停收录', '不收录新截图，已有图片保留。', toggle('paused','暂停收录',s.paused)) + row('暂时隐藏裂缝', '只隐藏边缘微图，继续按当前设置收录。', toggle('hidden','暂时隐藏裂缝',s.hidden)))}
-      ${section('', row('登录时启动', '当前 Beta 尚不能注册登录项。', toggle('login','登录时启动',false,true), 'st-disabled-row'))}
+      ${section('', row('登录时启动', '当前 Beta 尚不能注册登录项。', toggle('login','登录时启动',false,true), 'st-disabled-row'),'st-login-section')}
       <div class="st-subtle-note">${icon('info',14)}<span>遵循 macOS 的动态效果、透明度与对比度设置。</span></div>
       <div class="st-page-links">${action('使用引导', 'onboarding')}${action('反馈与建议', 'feedback')}</div>`;
   }
   function display(s) {
     const positions = [['leftTop','左上'], ['rightTop','右上'], ['leftMiddle','左中'], ['rightMiddle','右中'], ['leftBottom','左下'], ['rightBottom','右下']];
     const placement = s.placement || 'rightMiddle';
-    const count = Math.max(1, Math.min(10, Math.round(num(s,'visibleCountPreference'))));
-    const monitor = `<div class="st-placement-stage"><div class="st-monitor" role="img" aria-label="边缘位置预览，${positions.find(p=>p[0]===placement)?.[1] || '旧版位置'}，${count}张微图"><div class="st-monitor-top"><i></i><span></span><span></span></div><div class="st-monitor-content"><div class="st-monitor-document"><span class="st-doc-heading"></span><span></span><span></span><span class="st-doc-short"></span><div class="st-doc-chart"><i></i><i></i><i></i><i></i><i></i></div></div></div><div class="st-mini-queue st-${placement}" data-st-mini-queue style="--st-hidden:${num(s,'hiddenFraction') / 100};--st-row-gap:${Math.max(1,Math.min(12,(num(s,'rowPitch')-42)*.18))}px">${Array.from({length:Math.min(count,5)},(_,i)=>sample(i)).join('')}</div></div><div class="st-placement-options" role="group" aria-label="边缘位置">${positions.map(([key,label])=>`<button type="button" class="st-position st-position-${key} ${placement===key?'st-selected':''}" data-st-placement="${key}" aria-pressed="${placement===key}"><span class="st-position-mark" aria-hidden="true"></span><span>${label}</span></button>`).join('')}</div></div>`;
+    const mini = miniature(s), count=mini.count;
+    const monitor = `<div class="st-placement-stage"><div class="st-monitor" role="img" aria-label="边缘位置预览，${positions.find(p=>p[0]===placement)?.[1] || '旧版位置'}，${count}张微图"><div class="st-monitor-top"><i></i><span></span><span></span></div><div class="st-monitor-content"><div class="st-monitor-document"><span class="st-doc-heading"></span><span></span><span></span><span class="st-doc-short"></span><div class="st-doc-chart"><i></i><i></i><i></i><i></i><i></i></div></div></div><div class="st-mini-queue st-${placement}" data-st-mini-queue style="--st-hidden:${num(s,'hiddenFraction') / 100};--st-row-gap:${mini.gap}px;--st-mini-width:${mini.width}px;--st-mini-height:${mini.height}px">${Array.from({length:count},(_,i)=>sample(i)).join('')}</div></div><div class="st-placement-options" role="group" aria-label="边缘位置">${positions.map(([key,label])=>`<button type="button" class="st-position st-position-${key} ${placement===key?'st-selected':''}" data-st-placement="${key}" aria-pressed="${placement===key}"><span class="st-position-mark" aria-hidden="true"></span><span>${label}</span></button>`).join('')}</div></div>`;
     const displayOptions = [['main','主显示器'],['external','外接显示器']];
     if (s.displayDisconnected) displayOptions.push(['disconnected','已选显示器 · 未连接']);
     return `${row('显示器', '', select('display','显示器',s.display,displayOptions))}${s.displayDisconnected ? `<div class="st-inline-notice">${icon('info',14)}<span>当前临时显示在主屏，保留原来的选择。</span>${action('回到已选屏幕','restoreDisplay')}</div>`:''}
       ${monitor}
       <p class="st-preview-caption"><span data-st-placement-caption>${positions.find(p=>p[0]===placement)?.[1] || '旧版位置'}</span> · 示意图，实际微图保持原始比例</p>
       ${section('', numeric('visibleCountPreference',s,true) + numeric('hiddenFraction',s,true, '0% 时完整显示，不裁去画面。'))}
-      ${disclosure('display-details','尺寸与留白','调整微图、排列与编号。',numeric('outerInset',s)+numeric('fitWidth',s)+numeric('fitHeight',s)+numeric('rowPitch',s)+numeric('numberFontSize',s),s)}
-      ${disclosure('display-fine','精细参数','保留更细的个性化控制。',numeric('numberGap',s)+numeric('leftPadding',s)+numeric('minimumHitWidth',s)+numeric('minimumHitHeight',s)+(s.placement===null ? numeric('firstCenterFromTop',s) : '')+'<p class="st-footnote">最小行尺寸用于排列；点击区域仍只属于对应的截图。旧版绝对位置仅在尚未选择六点位置时可编辑。</p><p class="st-footnote">旧版兼容参数保留原值，可在配置文件中查看。</p>'+action('查看配置说明','configuration'),s)}
+      ${disclosure('display-details','尺寸与留白','',numeric('outerInset',s)+numeric('fitWidth',s)+numeric('fitHeight',s)+numeric('rowPitch',s)+numeric('numberFontSize',s),s)}
+      ${disclosure('display-fine','精细参数','',numeric('numberGap',s)+numeric('leftPadding',s)+numeric('minimumHitWidth',s)+numeric('minimumHitHeight',s)+(s.placement===null ? numeric('firstCenterFromTop',s) : '')+'<p class="st-footnote">最小行尺寸用于排列；点击区域仍只属于对应的截图。旧版绝对位置仅在尚未选择六点位置时可编辑。</p><p class="st-footnote">旧版兼容参数保留原值，可在配置文件中查看。</p>'+action('查看配置说明','configuration'),s)}
       ${saveArea(s,'display')}`;
   }
   function capture(s) {
     return `<div class="st-shortcut-strip"><div><span class="st-shortcut-label">区域截图</span><span class="st-keys"><kbd>⇧</kbd><kbd>⌘</kbd><kbd>4</kbd></span></div><div><span class="st-shortcut-label">全屏截图</span><span class="st-keys"><kbd>⇧</kbd><kbd>⌘</kbd><kbd>3</kbd></span></div><div><span class="st-shortcut-label">截图工具栏</span><span class="st-keys"><kbd>⇧</kbd><kbd>⌘</kbd><kbd>5</kbd></span></div></div>
-      ${section('截图保存位置', `<div class="st-location-row"><span class="st-folder-icon">${icon('folder',25)}</span><div class="st-location-copy"><div class="st-label">系统截图位置</div><div class="st-detail">${s.sourcePermission==='granted'?'已允许读取新保存的截图':'尚未允许访问此位置'}</div></div>${action('打开', 'source', `aria-label="打开系统截图位置"`)}</div>${s.sourcePermission!=='granted'?`<div class="st-inline-notice">${icon('info',14)}<span>已有截图保留，允许后继续收录。</span>${action('允许访问','sourceAccess')}</div>`:''}<p class="st-footnote">保存成文件的截图会进入 Riftlet。复制到剪贴板的画面不会被收录。</p>`)}
-      ${section('内置截图', row('启用截图入口', '从菜单栏或独立截图按钮开始。', toggle('entryEnabled','启用内置截图',s.entryEnabled)) + row('默认方式', '', select('captureMode','默认截图方式',s.captureMode,[['window','窗口'],['region','区域'],['fullScreen','全屏']],!s.entryEnabled)) + `<div class="st-capture-start"><button type="button" class="st-action-button" data-st-action="capture" ${!s.entryEnabled?'disabled':''}>${icon('camera',16)}<span>开始截图</span></button><span class="st-detail">延迟与指针，可在每次截图时选择。</span></div>`)}
+      ${section('截图保存位置', `<div class="st-location-row"><span class="st-folder-icon">${icon('folder',25)}</span><div class="st-location-copy"><div class="st-label">系统截图位置</div><div class="st-detail">${s.sourcePermission==='granted'?'已允许读取新保存的截图':'尚未允许访问此位置'}</div></div>${action('打开', 'source', `aria-label="打开系统截图位置"`)}</div>${s.sourcePermission!=='granted'?`<div class="st-inline-notice">${icon('info',14)}<span>已有截图保留，允许后继续收录。</span>${action('允许访问','sourceAccess')}</div>`:''}<p class="st-footnote">只收录保存成文件的截图，剪贴板中的画面不会进入 Riftlet。</p>`)}
+      ${section('内置截图', row('启用截图入口', '独立入口，不占用微图位置。', toggle('entryEnabled','启用内置截图',s.entryEnabled)) + row('默认方式', '', select('captureMode','默认截图方式',s.captureMode,[['window','窗口'],['region','区域'],['fullScreen','全屏']],!s.entryEnabled)) + `<div class="st-capture-start"><button type="button" class="st-action-button" data-st-action="capture" ${!s.entryEnabled?'disabled':''}>${icon('camera',16)}<span>开始截图</span></button><span class="st-detail">延迟与指针，可在每次截图时选择。</span></div>`)}
       <div class="st-subtle-note">${icon('info',14)}<span>关闭内置入口，不影响 macOS 截图与文件收录。</span></div><div class="st-page-links">${action('查看截图权限', 'help')}</div>`;
   }
   function motion(s) {
@@ -119,7 +124,7 @@
       <div class="st-motion-preview" data-st-motion-preview role="img" aria-label="截图入缝和点击后吞噬的动态示意"><div class="st-motion-canvas"><div class="st-motion-edge"></div><div class="st-motion-queue">${sample(0,'st-motion-first')}${sample(1,'st-motion-second')}${sample(2,'st-motion-third')}</div><div class="st-motion-origin">${sample(0)}<span>系统截图</span></div><div class="st-motion-copy"><span class="st-motion-state" data-st-motion-state>轻轻收进工作边缘</span><span class="st-motion-support">只在你需要时出现</span></div></div><div class="st-motion-toolbar"><button type="button" data-st-action="playArrival">${icon('play',13)}<span>预览入缝</span></button><button type="button" data-st-action="playSwallow">${icon('play',13)}<span>预览吞噬</span></button></div></div>
       <p class="st-footnote st-motion-explanation">图片开始进入聊天附件后，微图立即收起；其余截图自然补位。</p>
       <div class="st-reduced-note">${icon('motion',16)}<div><div class="st-label">${s.reduceMotion?'已减少动态效果':'跟随系统的动态效果设置'}</div><div class="st-detail">${s.reduceMotion?'以静态替换和短淡出呈现，保留你选择的入缝偏好。':'开启“减少动态效果”后，取消飞行与空间位移。'}</div></div></div>
-      ${disclosure('motion-fine','时间与节奏','按下、收起、补位与回归分别调整。',motionFields.map(key=>numeric(key,s)).join('')+'<p class="st-footnote">0–3000 ms，只调整视觉呈现。附加开始和失败的判断仍由原有流程决定。</p>',s)}
+      ${disclosure('motion-fine','时间与节奏','',motionFields.map(key=>numeric(key,s)).join('')+'<p class="st-footnote">0–3000 ms，只调整视觉呈现。附加开始和失败的判断仍由原有流程决定。</p>',s)}
       ${saveArea(s,'motion')}`;
   }
   function history(s) {
@@ -129,27 +134,64 @@
     const dirty = s.archiveDraft !== null;
     return `<div class="st-history-intro"><div class="st-history-stack" aria-hidden="true">${sample(0)}${sample(1)}${sample(2)}</div><div><h3>用过，也留着</h3><p>已收起和归档的截图，都能在历史中浏览。</p><button type="button" class="st-action-button" data-st-action="history">${icon('history',15)}<span>打开截图历史</span></button></div></div>
       ${section('边缘整理',row('自动归档', '一段时间未使用后，收入历史。',select('archivePreset','自动归档时限',custom?'custom':hours,presets)) + `<div class="st-archive-custom" ${custom?'':'hidden'}>${row('<label for="st-archive-hours">自定义时限</label>','支持小数小时；0 表示关闭。',`<span class="st-number-wrap"><input id="st-archive-hours" type="number" inputmode="decimal" min="0" step="0.25" data-st-archive value="${esc(hours)}" aria-label="自定义归档小时数"><span>小时</span></span>`)}</div><p class="st-footnote">鼠标悬停、按住或动画进行时，会等交互结束再整理。</p><div class="st-archive-save" ${dirty?'':'hidden'}><span class="st-detail" aria-live="polite">归档时限尚未保存</span><button type="button" class="st-discard" data-st-action="discardArchive">放弃</button><button type="button" class="st-apply" data-st-action="applyArchive">保存时限</button></div>`)}
-      ${section('本机存储',row(s.storageMeasured?'已使用 18.6 MB':'存储用量',s.storageMeasured?'演示中的本地图片与记录':'按需检查，不打扰日常使用。',action(s.storageMeasured?'重新检查':'检查用量','storage')) + '<p class="st-footnote">收起与归档不会删除系统原图、本地副本或聊天附件。</p>')}
+      ${section('本机存储',row(s.storageMeasured?'已使用 18.6 MB':'存储用量',s.storageMeasured?'本地图片与记录':'按需检查，不打扰日常使用。',action(s.storageMeasured?'重新检查':'检查用量','storage')) + '<p class="st-footnote">收起与归档不会删除系统原图、本地副本或聊天附件。</p>')}
       <div class="st-clear-row"><div><div class="st-label">收起边缘的全部微图</div><div class="st-detail">只整理当前边缘，图片仍可在历史中找到。</div></div>${action('收起全部…', 'clearVisible')}</div>`;
   }
   function help(s) {
-    const permission = (glyph, title, detail, good, actionLabel, key) => `<div class="st-permission-row"><span class="st-permission-icon">${icon(glyph,18)}</span><div class="st-permission-copy"><div class="st-label">${title}</div><div class="st-detail">${detail}</div></div><div class="st-permission-end"><span class="st-permission-state ${good?'st-granted':'st-needs-action'}">${good?icon('check',12):icon('info',12)}${good?'已允许':'待设置'}</span>${action(actionLabel,key)}</div></div>`;
-    return `<div class="st-permissions">${permission('folder','截图位置','收录系统新保存的截图。',s.sourcePermission==='granted','查看','sourceAccess')}${permission('shield','Chrome 自动化','将点击的截图放进当前聊天附件。',s.automationPermission==='granted','检查','automation')}${permission('camera','屏幕录制','仅用于 Riftlet 内置截图。',s.screenPermission==='granted','设置','screenPermission')}</div>
-      ${disclosure('chrome-detail','Chrome 连接说明',s.javascriptAllowed?'Apple 事件的 JavaScript 已在演示状态中开启。':'还需要允许 Apple 事件的 JavaScript。','<p class="st-footnote">在 Chrome「视图 → 开发者」中开启「允许来自 Apple 事件的 JavaScript」。macOS 自动化授权与这个选项是两项独立设置。</p><p class="st-footnote">请保持需要附加图片的聊天为 Chrome 当前标签页。Riftlet 不会猜测或切换到其他聊天。</p>'+action('重新检查连接','recheck'),s)}
+    const permission = (glyph, title, detail, status, actionLabel, key) => { const good=status==='granted'; const stateLabel=good?'已允许':status==='notChecked'?'未检查':status==='unavailable'?'未确认':'待设置'; return `<div class="st-permission-row"><span class="st-permission-icon">${icon(glyph,18)}</span><div class="st-permission-copy"><div class="st-label">${title}</div><div class="st-detail">${detail}</div></div><div class="st-permission-end"><span class="st-permission-state ${good?'st-granted':'st-needs-action'}">${good?icon('check',12):icon('info',12)}${stateLabel}</span>${action(actionLabel,key)}</div></div>`; };
+    return `<div class="st-permissions">${permission('folder','截图位置','收录系统新保存的截图。',s.sourcePermission,'查看','sourceAccess')}${permission('shield','Chrome 自动化','将点击的截图放进当前聊天附件。',s.automationPermission,'检查','automation')}${permission('camera','屏幕录制','仅用于 Riftlet 内置截图。',s.screenPermission,'设置','screenPermission')}</div>
+      ${disclosure('chrome-detail','Chrome 连接说明',s.javascriptAllowed?'已开启 Apple 事件的 JavaScript。':'还需要允许 Apple 事件的 JavaScript。','<p class="st-footnote">在 Chrome「视图 → 开发者」中开启「允许来自 Apple 事件的 JavaScript」。macOS 自动化授权与这个选项是两项独立设置。</p><p class="st-footnote">请保持需要附加图片的聊天为 Chrome 当前标签页。Riftlet 不会猜测或切换到其他聊天。</p>'+action('重新检查连接','recheck'),s)}
       ${section('关于', `<div class="st-about"><span class="st-about-wordmark">Riftlet<span class="st-about-dot"></span></span><span class="st-version">个人 Beta 2 · 0.2.0 (2)</span></div><p class="st-about-line">从截图到输入，点一下就够了。</p><div class="st-page-links">${action('使用引导','onboarding')}${action('反馈与建议','feedback')}</div>`)}
-      ${disclosure('diagnostics','诊断与配置','仅在排查问题时查看。','<p class="st-footnote">这里汇总设置和能力状态，不读取图片、聊天内容或浏览器会话。反馈是否附带诊断，由你主动选择。</p><dl class="st-diagnostics"><div><dt>截图收录</dt><dd>'+ (s.paused?'已暂停':'运行中') +'</dd></div><div><dt>边缘显示</dt><dd>'+ (s.hidden?'已隐藏':'开启') +'</dd></div><div><dt>配置</dt><dd>'+ (s.saveError?'有更改未保存':'已读取') +'</dd></div></dl><div class="st-page-links">'+action('重新读取配置','reloadConfiguration')+action('打开配置文件…','configuration')+'</div>',s)}`;
+      ${disclosure('diagnostics','诊断与配置','','<p class="st-footnote">这里汇总设置和能力状态，不读取图片、聊天内容或浏览器会话。反馈是否附带诊断，由你主动选择。</p><dl class="st-diagnostics"><div><dt>截图收录</dt><dd>'+ (s.paused?'已暂停':'运行中') +'</dd></div><div><dt>边缘显示</dt><dd>'+ (s.hidden?'已隐藏':'开启') +'</dd></div><div><dt>配置</dt><dd>'+ (s.saveError?'有更改未保存':'已读取') +'</dd></div></dl><div class="st-page-links">'+action('重新读取配置','reloadConfiguration')+action('打开配置文件…','configuration')+'</div>',s)}`;
   }
 
   function render(page, state = {}) {
     page = pageNames[page] ? page : 'general';
     const s = settings(state);
     if (state.scenario === 'save-error') s.saveError = true;
-    const [title, subtitle] = pageNames[page];
+    const [title, description] = pageNames[page];
+    const subtitle = page==='general' ? (s.paused?'收录已暂停，已有图片保留。':s.hidden?'已隐藏裂缝，继续在后台收录。':'截图后，点一下边缘微图。') : description;
     const builders = {general, display, capture, motion, history, help};
     return `<div class="st-page" data-st-page="${page}"><header class="st-page-heading"><h2>${title}</h2><p>${subtitle}</p></header>${s.saveError && !['display','motion'].includes(page) ? '<div class="st-inline-notice st-save-error" role="status">'+icon('info',14)+'<span>这次更改尚未保存，原设置仍然保留。</span>'+action('重试','retry')+'</div>':''}${builders[page](s)}<div class="st-local-feedback" aria-live="polite" hidden></div></div>`;
   }
 
+  const fieldsFor = scope => scope==='display' ? displayFields : scope==='motion' ? motionFields : scope==='history' ? [] : [...displayFields,...motionFields];
+  function validateDrafts(state = {}, scope = 'all') {
+    const s=settings(state), allowed=fieldsFor(scope), values={}, errors=[];
+    for (const key of allowed) {
+      if (!Object.hasOwn(s.draft,key)) continue;
+      const raw=s.draft[key], spec=fieldInfo[key], number=Number(String(raw).replace(',','.'));
+      if (String(raw).trim()==='' || !Number.isFinite(number) || number<spec[2] || (spec[3]!==null && number>spec[3]) || (positiveFields.has(key) && number<=0) || (key==='visibleCountPreference' && !Number.isInteger(number))) {
+        const message=positiveFields.has(key) ? `${spec[0]}应大于 0${spec[3]===null?'':`，且不超过 ${spec[3]}`} ${spec[1]}。` : `${spec[0]}应${spec[3]===null?'不小于 0':`为 ${spec[2]}–${spec[3]}`} ${spec[1]}${key==='visibleCountPreference'?'的整数':''}。`;
+        errors.push({key,page:motionFields.includes(key)?'motion':'display',message});
+      } else values[key]=number;
+    }
+    let archiveHours;
+    if ((scope==='all'||scope==='history') && s.archiveDraft!==null) {
+      const hours=Number(String(s.archiveDraft).replace(',','.'));
+      if (String(s.archiveDraft).trim()==='' || !Number.isFinite(hours) || hours<0) errors.push({key:'archiveHours',page:'history',message:'请输入不小于 0 的小时数。'});
+      else archiveHours=hours;
+    }
+    return {ok:errors.length===0,errors,values,archiveHours};
+  }
+  function applyDrafts(state = {}, scope = 'all') {
+    const result=validateDrafts(state,scope), s=settings(state);
+    if (!result.ok) return {...result,settings:s};
+    Object.entries(result.values).forEach(([key,v])=>{s.layout[key]=v;delete s.draft[key];});
+    if (result.archiveHours!==undefined) {s.archiveHours=result.archiveHours;s.archiveDraft=null;}
+    s.saveError=false;
+    return {...result,settings:s};
+  }
+  function discardDrafts(state = {}, scope = 'all') {
+    const s=settings(state);
+    fieldsFor(scope).forEach(key=>delete s.draft[key]);
+    if (scope==='all'||scope==='history') s.archiveDraft=null;
+    s.saveError=false;
+    return s;
+  }
+
   const activeBindings = new WeakMap();
+  const interactionModes = new WeakMap();
 
   function bind(container, state = {}, onChange = () => {}) {
     if (!container) return () => {};
@@ -173,11 +215,47 @@
     };
     const redraw = extra => {
       state.settings = s;
+      const active = document.activeElement;
+      const mode = interactionModes.get(container);
+      const keyboardFocus = active && container.contains(active) &&
+        (mode==='keyboard' || (mode!=='pointer' && active.matches(':focus-visible')));
+      let focusSelector, selection;
+      if (keyboardFocus) {
+        if (active.id) focusSelector=`#${CSS.escape(active.id)}`;
+        else {
+          const attribute=['data-st-key','data-st-appearance','data-st-placement','data-st-arrival',
+            'data-st-field','data-st-range','data-st-action','data-st-archive']
+            .find(name=>active.hasAttribute(name));
+          if (attribute) focusSelector=`[${attribute}="${CSS.escape(active.getAttribute(attribute))}"]`;
+          else if (active.matches('summary') && active.parentElement?.dataset.stGroup)
+            focusSelector=`[data-st-group="${CSS.escape(active.parentElement.dataset.stGroup)}"] > summary`;
+        }
+        // Number/range inputs do not expose a text selection. Keep raw text
+        // selection when a future text editor does, without coercing its type.
+        if (typeof active.selectionStart==='number' && typeof active.selectionEnd==='number')
+          selection={start:active.selectionStart,end:active.selectionEnd,direction:active.selectionDirection};
+      }
       let scrollable = container;
       while (scrollable.parentElement && scrollable.scrollHeight <= scrollable.clientHeight) scrollable = scrollable.parentElement;
       const scrollTop = scrollable.scrollTop;
       container.innerHTML = render(page,state);
       bind(container,state,onChange);
+      if (focusSelector) {
+        let target=container.querySelector(focusSelector);
+        const available=element=>element && !element.disabled && !element.closest('[hidden]') && element.getClientRects().length>0;
+        if (!available(target)) {
+          const fallback={apply:'[data-st-action="defaults"]',discard:'[data-st-action="defaults"]',
+            applyArchive:'[data-st-key="archivePreset"]',discardArchive:'[data-st-key="archivePreset"]',
+            restoreDisplay:'[data-st-key="display"]'}[active.dataset.stAction];
+          target=fallback ? container.querySelector(fallback) : null;
+        }
+        if (available(target)) {
+          target.focus({preventScroll:true});
+          if (selection && typeof target.setSelectionRange==='function') {
+            try { target.setSelectionRange(selection.start,selection.end,selection.direction); } catch { /* Non-text native control. */ }
+          }
+        }
+      }
       scrollable.scrollTop = scrollTop;
       onChange({settings:s,...(extra || {})});
     };
@@ -190,7 +268,7 @@
     const refreshDraft = () => {
       const area = container.querySelector('[data-st-save-area]');
       if (area) {
-        const dirty = Object.keys(s.draft).length > 0;
+        const dirty = fieldsFor(page).some(key=>Object.hasOwn(s.draft,key));
         area.classList.toggle('st-is-dirty',dirty || s.saveError);
         const label = area.querySelector('.st-save-message');
         if (label) label.textContent = s.saveError ? '这次更改尚未保存' : dirty ? '预览已更新，参数尚未应用' : '参数更改会先在这里预览';
@@ -201,10 +279,12 @@
       }
       const queue = container.querySelector('[data-st-mini-queue]');
       if (queue) {
-        const count = Math.max(1,Math.min(10,Math.round(num(s,'visibleCountPreference'))));
-        queue.innerHTML = Array.from({length:Math.min(count,5)},(_,i)=>sample(i)).join('');
+        const mini=miniature(s), count=mini.count;
+        queue.innerHTML = Array.from({length:count},(_,i)=>sample(i)).join('');
         queue.style.setProperty('--st-hidden',Math.max(0,Math.min(.9,num(s,'hiddenFraction') / 100)));
-        queue.style.setProperty('--st-row-gap',`${Math.max(1,Math.min(12,(num(s,'rowPitch')-42)*.18))}px`);
+        queue.style.setProperty('--st-row-gap',`${mini.gap}px`);
+        queue.style.setProperty('--st-mini-width',`${mini.width}px`);
+        queue.style.setProperty('--st-mini-height',`${mini.height}px`);
         const monitor = container.querySelector('.st-monitor');
         if (monitor) monitor.setAttribute('aria-label',`边缘位置预览，显示数量 ${count} 张`);
       }
@@ -286,6 +366,8 @@
       }
     };
 
+    listen('keydown',()=>interactionModes.set(container,'keyboard'),{capture:true});
+    listen('pointerdown',()=>interactionModes.set(container,'pointer'),{capture:true});
     listen('input',event=>{
       const input = event.target;
       if (!(input instanceof HTMLInputElement)) return;
@@ -306,7 +388,7 @@
       if (!key) return;
       if (key==='archivePreset') {
         s.archiveCustom = input.value==='custom';
-        s.archiveDraft = s.archiveCustom ? String(s.archiveDraft ?? (s.archiveHours || 1.5)) : input.value;
+        s.archiveDraft = s.archiveCustom ? String(s.archiveDraft ?? s.archiveHours ?? 1.5) : input.value;
         redraw(); return;
       }
       s[key] = input.type==='checkbox' ? input.checked : input.value;
@@ -339,24 +421,17 @@
         fields.forEach(key=>{if(key!=='firstCenterFromTop' || s.placement===null)s.draft[key]=String(layoutDefaults[key]);});
         redraw(); return;
       }
-      if (command==='discard') { s.draft={}; s.saveError=false; state.scenario=state.scenario==='save-error'?'default':state.scenario; redraw(); return; }
+      if (command==='discard') { s=discardDrafts(state,page); state.scenario=state.scenario==='save-error'?'default':state.scenario; redraw(); return; }
       if (command==='apply') {
-        let invalid;
-        for (const [key,raw] of Object.entries(s.draft)) {
-          const spec = fieldInfo[key];
-          if (!spec) continue;
-          const number = Number(String(raw).replace(',','.'));
-          if (String(raw).trim()==='' || !Number.isFinite(number) || number<spec[2] || (spec[3]!==null && number>spec[3]) || (positiveFields.has(key) && number<=0) || (key==='visibleCountPreference' && !Number.isInteger(number))) {invalid=key; break;}
-        }
-        if (invalid) {
-          const spec = fieldInfo[invalid];
+        const result=applyDrafts(state,page);
+        if (!result.ok) {
+          const invalid=result.errors[0];
           const error = container.querySelector('.st-validation');
-          if(error) error.textContent=positiveFields.has(invalid) ? `${spec[0]}应大于 0${spec[3]===null?'':`，且不超过 ${spec[3]}`} ${spec[1]}。` : `${spec[0]}应${spec[3]===null?'不小于 0':`为 ${spec[2]}–${spec[3]}`} ${spec[1]}${invalid==='visibleCountPreference'?'的整数':''}。`;
-          container.querySelector(`[data-st-field="${invalid}"]`)?.focus();
+          if(error) error.textContent=invalid.message;
+          container.querySelector(`[data-st-field="${invalid.key}"]`)?.focus();
           return;
         }
-        Object.entries(s.draft).forEach(([key,raw])=>{if(fieldInfo[key])s.layout[key]=Number(String(raw).replace(',','.'));});
-        s.draft={};s.saveError=false;
+        s=result.settings;
         if (state.scenario==='save-error') state.scenario='default';
         redraw({settingsSaved:true}); return;
       }
@@ -370,7 +445,7 @@
       if (command==='storage') {s.storageMeasured=true;redraw();return;}
       if (command==='restoreDisplay') {s.displayDisconnected=false;s.display='external';redraw();return;}
       if (command==='recheck' || command==='reloadConfiguration') {
-        showNote(command==='recheck'?'连接状态已在演示中重新检查。':'当前设置已重新读取；尚未应用的参数保持原样。');
+        showNote(command==='recheck'?'请分别确认 Chrome 自动化和 Apple 事件的 JavaScript 权限。':'当前配置已重新读取，未应用的参数仍然保留。');
         notify({settingsAction:command});return;
       }
       const details = {
@@ -386,5 +461,5 @@
     refreshDraft();
     return cleanup;
   }
-  window.RiftSettings = {render, bind, defaults, layoutDefaults, pageNames};
+  window.RiftSettings = {render, bind, defaults, layoutDefaults, pageNames, validateDrafts, applyDrafts, discardDrafts};
 })();
