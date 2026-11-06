@@ -952,7 +952,7 @@ window.RiftBaselines={"settings-display":{"title":"位置与显示 · 浅色","b
  let previewTimer,feedbackTimer;let timers=new Set();let sequenceId=0;let lastFocused=null;let modalWasOpen=false;const removedByUser=new Set();const attempts=new Map();state.captureOptions={pointer:false,delay:0,edit:false};state.captureMore=false;state.historyQuery='';
  const later=(fn,ms)=>{const t=setTimeout(()=>{timers.delete(t);fn();},ms);timers.add(t);return t};
  const delay=ms=>new Promise(r=>later(r,ms));
- const $=q=>root.querySelector(q),$=q=>Array.from(root.querySelectorAll(q));
+ const $=q=>root.querySelector(q),$$=q=>Array.from(root.querySelectorAll(q));
  const systemPreferences={motion:matchMedia('(prefers-reduced-motion: reduce)'),transparency:matchMedia('(prefers-reduced-transparency: reduce)'),contrast:matchMedia('(prefers-contrast: more)'),dark:matchMedia('(prefers-color-scheme: dark)')};
  const reduced=()=>!!state.settings.reduceMotion||systemPreferences.motion.matches;
  const focusSelector=el=>{if(!el||!root.contains(el))return null;if(el.id)return '#'+CSS.escape(el.id);const row=el.closest('.edge-row');if(row)return '.edge-row[data-id="'+row.dataset.id+'"] button';return ['data-action','data-st-action','data-scene','data-setting-page','data-history-id','data-placement','data-permission','data-filter','data-control','data-toggle'].map(k=>el.hasAttribute(k)?'['+k+'="'+CSS.escape(el.getAttribute(k))+'"]':null).find(Boolean)||null};

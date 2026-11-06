@@ -68,6 +68,7 @@ for key, title, before_name, trim, after_name, after_size, bn, an in sources:
 css = '\n'.join((P / n).read_text() for n in ['app.css', 'settings.css'])
 js = '\n'.join((P / n).read_text() for n in ['samples.js', 'baselines.js', 'settings.js', 'app.js'])
 favicon = 'data:image/svg+xml;base64,' + base64.b64encode((P / 'assets/riftlet.svg').read_bytes()).decode()
+js = js.replace('const $=q=>root.querySelector(q),$=q=>Array.from(root.querySelectorAll(q));', 'const $=q=>root.querySelector(q),$$=q=>Array.from(root.querySelectorAll(q));')
 js = js.replace('src="assets/riftlet.svg"', 'src="' + favicon + '"')
 document = (P / 'index.html').read_text()
 document = document.replace('href="assets/riftlet.svg"', 'href="' + favicon + '"')

@@ -26,6 +26,8 @@ jobs:
           node --check design/experience-20261107/prototype/baselines.js
           node --check design/experience-20261107/prototype/settings.js
           node --check design/experience-20261107/prototype/app.js
+          cat design/experience-20261107/prototype/samples.js design/experience-20261107/prototype/baselines.js design/experience-20261107/prototype/settings.js design/experience-20261107/prototype/app.js > /tmp/riftlet-bundle.js
+          node --check /tmp/riftlet-bundle.js
       - name: Install browser test runtime
         run: |
           mkdir -p /tmp/riftlet-prototype-qa
