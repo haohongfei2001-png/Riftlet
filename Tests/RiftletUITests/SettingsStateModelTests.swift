@@ -156,7 +156,7 @@ final class SettingsStateModelTests: XCTestCase {
         }
         XCTAssertTrue(model.receive(owner.value))
         XCTAssertEqual(model.text(for: .fitWidth), "96.250")
-        XCTAssertEqual(model.text(for: .fitHeight), "88.0")
+        XCTAssertEqual(model.text(for: .fitHeight), "88")
         XCTAssertEqual(model.configurationDraft?.fitWidth, 96.25)
         XCTAssertEqual(model.configurationDraft?.fitHeight, 88)
         let latest = owner.value.settings.configuration
@@ -384,7 +384,7 @@ final class SettingsStateModelTests: XCTestCase {
         XCTAssertEqual(model.snapshot.owner.settings.configuration.fitHeight, 90)
         var confirmed = RiftConfiguration(); confirmed.fitWidth = 96
         XCTAssertEqual(model.snapshot.domains[.layout]?.lastConfirmed, .configuration(confirmed))
-        XCTAssertEqual(model.text(for: .fitWidth), "96.0")
+        XCTAssertEqual(model.text(for: .fitWidth), "96")
         XCTAssertEqual(owner.requests.count, 1)
     }
 
