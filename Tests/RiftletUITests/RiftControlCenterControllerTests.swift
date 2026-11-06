@@ -302,6 +302,52 @@ final class RiftControlCenterControllerTests: XCTestCase {
         XCTAssertFalse(controller.window?.isVisible == true)
     }
 
+    @MainActor func testExplicitShowMakesPopoverKeyAndNativeEscapeRetiresItsPresentation() async throws {
+        try prepareAppKit()
+        let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+        defer { NSStatusBar.system.removeStatusItem(item) }
+        let monitor = OutsideMouseMonitorSpy()
+        var actions = 0
+        let controller = RiftControlCenterController(statusItem: item, onAction: { _ in actions += 1 },
+            installOutsideMouseMonitor: monitor.install, removeOutsideMouseMonitor: monitor.remove)
+        defer { controller.close() }
+        var value = fixture()
+        value.accessibility.reduceMotion = true
+        controller.update(value)
+        let button = try XCTUnwrap(item.button)
+        guard button.window?.isVisible == true else { throw XCTSkip("No usable native status-bar anchor") }
+
+        button.performClick(nil)
+        await assertReceived { controller.isShown && controller.window?.isKeyWindow == true }
+        let window = try XCTUnwrap(controller.window)
+        XCTAssertTrue(window.canBecomeKey)
+        XCTAssertTrue(NSApp.keyWindow === window, "The explicitly opened popover must own its native keyboard route")
+        XCTAssertEqual(monitor.installed.count, 1)
+
+        // Route Escape through NSApplication/NSWindow rather than invoking the
+        // controller's close/cancel handler. Cross-App hardware routing remains
+        // a separate full-App acceptance check.
+        let escape = try XCTUnwrap(NSEvent.keyEvent(with: .keyDown, location: .zero, modifierFlags: [],
+            timestamp: ProcessInfo.processInfo.systemUptime, windowNumber: window.windowNumber,
+            context: nil, characters: "\u{1b}", charactersIgnoringModifiers: "\u{1b}",
+            isARepeat: false, keyCode: 53))
+        NSApp.sendEvent(escape)
+        await assertReceived { !controller.isShown && !window.isVisible }
+        XCTAssertFalse(window.isKeyWindow)
+        XCTAssertEqual(monitor.removed.count, 1, "Native keyboard dismissal retires the outside observer")
+        XCTAssertTrue(monitor.removed.first === monitor.installed.first)
+        XCTAssertEqual(actions, 0, "Dismissal must not issue a host command")
+
+        button.performClick(nil)
+        await assertReceived { controller.isShown && controller.window?.isKeyWindow == true }
+        XCTAssertTrue(NSApp.keyWindow === controller.window)
+        XCTAssertEqual(monitor.installed.count, 2)
+        button.performClick(nil)
+        await assertReceived { !controller.isShown && controller.window?.isVisible != true }
+        XCTAssertEqual(monitor.removed.count, 2, "Repeated status activation still closes the new presentation")
+        XCTAssertEqual(actions, 0)
+    }
+
     @MainActor func testOutsideMouseObserverClosesWithoutCommandsAndExistsOnlyWhileShown() async throws {
         try prepareAppKit()
         let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)

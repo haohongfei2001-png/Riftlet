@@ -352,6 +352,10 @@ public final class RiftControlCenterController: NSObject, NSPopoverDelegate, NSM
         if popover.isShown {
             startOutsideMouseObservation()
             statusItem.button?.highlight(true)
+            // A button-only popover may stay non-key after show. Give this
+            // explicitly opened window the keyboard route so native Escape
+            // can dismiss it, without activating the application separately.
+            body.view.window?.makeKey()
         }
     }
 
