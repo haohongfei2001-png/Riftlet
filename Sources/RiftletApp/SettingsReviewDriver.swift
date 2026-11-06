@@ -678,7 +678,8 @@ final class SettingsReviewDriver {
     }
 
     private func openControl() async throws {
-        guard let button = statusItem.button, button.window?.isVisible == true else { throw Failure.controlUnavailable("statusItem") }
+        guard let button = statusItem.button, button.isEnabled, button.window?.isVisible == true,
+              let action = button.action, let target = button.target else { throw Failure.controlUnavailable("statusItem") }
         let start = ProcessInfo.processInfo.systemUptime
         defer { recordControlTransition("open", began: start) }
         // host.show() has already requested activation for our settings window.
@@ -695,7 +696,15 @@ final class SettingsReviewDriver {
         // isShown reports presentation intent before the animated native window
         // is attached/visible. One action, then wait for the actual owned window;
         // never issue a second toggle to recover a missing screenshot.
-        if !host.control.isShown { button.performClick(nil) }
+        if !host.control.isShown {
+            // Exercise the real target/action and popover, without asking
+            // NSStatusBarButton.performClick to simulate tracking. Its native
+            // activation handback was observed to close a reused key popover.
+            // This remains software native-action evidence, not pointer input.
+            artifacts.append(["kind": "statusBarInvocation", "method": "NSApplication.sendAction",
+                              "scope": "native target-action; physical status-bar pointer NOT_RUN"])
+            try require(NSApp.sendAction(action, to: target, from: button), "statusActionNotDispatched")
+        }
         recordPresentationEvent("afterStatusAction")
         try await wait {
             guard self.host.control.isShown, let window = self.host.control.window else { return false }

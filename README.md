@@ -6,7 +6,7 @@ macOS 正常截图，图片停在桌面边缘；点一下微图，附加到当�
 
 ## Beta 2 候选审核
 
-**Beta 2 · 0.2.0（2）** 已实现原生六页设置、菜单栏控制中心和三步引导，正在独立环境完成同包验收。已观察到正常退出、修正后的引导尺寸及部分完整控制中心原图；run04/run05 失败仍保留，控制中心重复关闭路径的窄修与完整联合重启等待 run06 复验。Beta 1 安装保持不变，当前不声明 `PRODUCT_READY`；重大 UI 合并与普通数据升级仍等待最终外观决定。
+**Beta 2 · 0.2.0（2）** 已实现原生六页设置、菜单栏控制中心和三步引导，[PR #43](https://github.com/haohongfei2001-png/Riftlet/pull/43) 已开 Draft 并启动正式 CI。精确候选的独立重启持久化已取得有限通过；run06 完整 driver 仍 FAIL，真实状态栏点击因工具操作面不可用尚未验证。历史失败保留，源码准入与最终包仍待完成。Beta 1 安装保持不变，当前不声明 `BETA2_REVIEW_READY` 或 `PRODUCT_READY`；重大 UI 合并与普通数据升级仍等待最终外观决定。
 
 - [候选范围、审核入口与升级/回退说明](docs/BETA2_CANDIDATE.md)
 - [原生验收矩阵与真实未运行项](engineering/beta2-product-20261106/NATIVE-ACCEPTANCE-MATRIX.md)

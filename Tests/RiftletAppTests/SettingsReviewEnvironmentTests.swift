@@ -52,6 +52,25 @@ final class SettingsReviewEnvironmentTests: XCTestCase {
         XCTAssertEqual(mode.attachmentState, .productionDisabled)
     }
 
+    func testReviewExecutionFlagsRequireOneExplicitIsolatedModeAndAction() throws {
+        let id = UUID().uuidString
+        let flags = ["--settings-review-run", "--settings-review-restart-check"]
+        for flag in flags {
+            for prefix in [[], ["--simulate"], ["--web-acceptance"], ["--system-screenshot-candidate"]] {
+                XCTAssertThrowsError(try ApplicationMode.resolve(prefix + [flag]))
+            }
+            XCTAssertThrowsError(try ApplicationMode.resolve(["--settings-review", flag]))
+            XCTAssertThrowsError(try ApplicationMode.resolve(["--settings-review", id, flag, flag]))
+            #if RIFTLET_ORDINARY_ACCEPTANCE
+            XCTAssertThrowsError(try ApplicationMode.resolve(["--settings-review", id, flag]))
+            #else
+            XCTAssertEqual(try ApplicationMode.resolve(["--settings-review", id, flag]), .settingsReview)
+            #endif
+        }
+        XCTAssertThrowsError(try ApplicationMode.resolve(["--settings-review", id] + flags))
+        XCTAssertEqual(try ApplicationMode.resolve([]), .capture)
+    }
+
     func testUUIDRootsAndDefaultsSuitesAreIndependentFromOrdinaryAndEachOther() async throws {
         let base = try temporaryRoot(); defer { try? FileManager.default.removeItem(at: base) }
         let a = SettingsReviewEnvironment(identifier: UUID(), applicationSupport: base)

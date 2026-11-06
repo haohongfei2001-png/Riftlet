@@ -34,8 +34,8 @@ struct SettingsReviewEnvironment {
         let marker = root.appendingPathComponent("settings-review-identity.txt")
         let expected = Data((identifier.uuidString.lowercased() + "\n").utf8)
         if manager.fileExists(atPath: root.path) {
-            guard root.resolvingSymlinksInPath().standardizedFileURL == root.standardizedFileURL,
-                  marker.resolvingSymlinksInPath().standardizedFileURL == marker.standardizedFileURL,
+            guard root.resolvingSymlinksInPath().standardizedFileURL.path == root.standardizedFileURL.path,
+                  marker.resolvingSymlinksInPath().standardizedFileURL.path == marker.standardizedFileURL.path,
                   try Data(contentsOf: marker) == expected else { throw Failure.foreignDirectory }
         } else {
             try manager.createDirectory(at: root, withIntermediateDirectories: true, attributes: [.posixPermissions: 0o700])
@@ -47,7 +47,10 @@ struct SettingsReviewEnvironment {
     /// second launch may validate identity but cannot change an in-use fixture.
     func prepareFixtures() throws {
         let manager = FileManager.default
-        guard source.resolvingSymlinksInPath().standardizedFileURL == source.standardizedFileURL else { throw Failure.foreignDirectory }
+        // Foundation may change a nonexistent directory URL's directory hint
+        // while resolving it. Compare canonical filesystem paths, not that
+        // metadata; actual links must still resolve to a different path.
+        guard source.resolvingSymlinksInPath().standardizedFileURL.path == source.standardizedFileURL.path else { throw Failure.foreignDirectory }
         try manager.createDirectory(at: source, withIntermediateDirectories: true, attributes: [.posixPermissions: 0o700])
         // Never read the macOS Screenshot preference domain, even if a fixture
         // preference is later absent. A malformed preference fails closed.

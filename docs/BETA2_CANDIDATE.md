@@ -13,8 +13,9 @@
 | 项目 | 最终值 / 状态 |
 | --- | --- |
 | 完整源码 G / tree、非作者独立审查 | PENDING；以私有 final-manifest 和正式 PR 交付记录为准 |
+| 正式 PR | [PR #43](https://github.com/haohongfei2001-png/Riftlet/pull/43) 已开 Draft；初始 head `974e0bcde40f3f4d25ef1f1bbe0acc7d74575dc0`、base `c72fca78245a15a66ea6beaa980ec141f146bc1b` |
 | 直接 admission-only 子提交 H、实际 PR checkout / base | PENDING |
-| 五项正式 CI | PENDING：Native source admission、Native ARM64、Native Intel、Feedback source admission、Feedback native and service |
+| 五项正式 CI | 首次已启动；截至 2026-11-06 10:56 UTC，两项 source admission FAIL、Feedback native and service SUCCESS、Native ARM64 / Intel 仍运行；最终 G / H 的五项结果 PENDING |
 | 候选 version / build、实际架构 | 已分配 Beta 2 · 0.2.0（2）；最终架构 PENDING；macOS 13 是部署下限声明，不是已完成最低系统验收 |
 | App 路径、可执行文件 SHA-256、内含资源核对 | PENDING |
 | ZIP 路径 / SHA-256、独立身份清单 | PENDING；不把 App hash 当成 ZIP hash |
@@ -45,7 +46,13 @@
 
 [run05](../engineering/beta2-product-20261106/evidence/native-run-05.json) 对应 `64ac68b`，磁盘报告已完成，功能为 9 PASS / 4 FAIL，22 条窗口记录中有 19 个 PNG 和 3 个 `NOT_RUN`。runner 仍是 180 秒超时、exit -15、`INCOMPLETE`；SIGTERM 后空日志没有 stdout 报告路径，实际报告从同一 review 根读取，并核对了相同进程身份与可执行文件，不能补成 runner 已返回报告。集成侧观察到失败保存 case 遗留草稿，退出正在等待原生确认；这不构成无草稿正常退出倒退的证据。
 
-run05 的通知时序与源码指向控制中心额外的 `didResignActive` 无条件关闭路径：状态栏展示后发生原生激活交回时，它会与既有 transient 关闭机制重叠。独立审查只批准移除该 observer 并保留既有关闭路径、添加窄回归；通知先后不是调用栈，仍需 `run06` 实际复验。当前不新增产品焦点门槛，不把修复计划写成通过；完整功能、稳定状态图、正常退出和同包同根新进程重启均待新结果。
+run05 的通知时序与源码指向控制中心额外的 `didResignActive` 无条件关闭路径。`d72f966` 按独立审查移除这个 observer，保留原生 transient 及既有明确关闭路径，并添加一项窄回归。[run06](../engineering/beta2-product-20261106/evidence/native-run-06.json) 的首次浅色控制中心确实保持展示，达到完整稳定尺寸；后续程序化打开仍关闭过早，整轮是 9 PASS / 4 FAIL，26 个 PNG / 3 个 `NOT_RUN`，runner 180 秒超时。剩余原因尚未确定，不新增产品焦点门槛，也不把这一窄修写成整轮通过。
+
+对同一 `d72f966` **原包**的 [CUA 观察](../engineering/beta2-product-20261106/evidence/cua-native-exact-d72f966.json) 确认了精确候选隔离启动、Escape 关闭引导，以及 ⌘Q 工具超时后该进程已不在；没有取得正常退出码。工具未提供状态栏操作面，实际状态栏打开、再点关闭和外部点击仍为 `NOT_RUN_TOOL_SURFACE_UNAVAILABLE`，既不算通过，也不新增为产品失败。
+
+[独立重启核对](../engineering/beta2-product-20261106/evidence/independent-restart-d72f966.json) 已对原包、原隔离根、新进程取得 `PASS_SCOPED_NATIVE_RESTART`：进程 0.466 秒正常 exit 0，五个 JSON 与加载的 owner 相符，SQLite 暂停/隐藏值读回一致，1 张媒体及 asset 映射保持相同，完整操作表与 START 均为 0，既有引导没有再次出现。这是完成 FAIL 后单独执行的只读持久化核对；原 run06 的 FAIL、timeout 和完整 runner 的重启阶段 `NOT_RUN` 均不改写。
+
+首次正式 CI 为 [Native 42205691399](https://github.com/haohongfei2001-png/Riftlet/actions/runs/42205691399) 和 [Feedback 42205691613](https://github.com/haohongfei2001-png/Riftlet/actions/runs/42205691613)。当前仍继承 PR #42 的准入元数据，两项 source gate 已失败，最终审查 G / H 尚未生成；独立构建/测试继续执行。Feedback native and service 已成功，其历史 composition 条件步骤为 skipped，不能计作本轮执行通过。后续仅诊断 driver 的调用栈补充正在准备，不能借用已有 d72 工件结果。当前仍不声明 `BETA2_REVIEW_READY` 或 `PRODUCT_READY`。
 
 ## 已实现的界面与状态边界
 

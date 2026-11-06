@@ -3,15 +3,15 @@
 | Stage | Current fact |
 | --- | --- |
 | PR42 integration | DONE standard merge c72fca78245a15a66ea6beaa980ec141f146bc1b; main push CI 4 success / 1 ARM64 test failure; original receipt timing failure retained |
-| Shared native state/commands | IMPLEMENTED; sync edits and per-domain save notifications; XCTest execution pending |
-| Six-page settings | IMPLEMENTED; native controls/owners, final native visual fixes under validation |
-| Popover/menu/onboarding | IMPLEMENTED; native controls/menu, final native visual fixes under validation |
-| Real host integration | IMPLEMENTED first pass; real Main owner receipts/appearance/login/actions; isolated settingsReview added |
-| Native/visual acceptance | First packaged run: 13 functional groups PASS, 30/33 frames, PARTIAL plus exit timeout; corrected candidate/restart verification pending |
-| Beta2 formal PR/CI/package | NOT_RUN |
+| Shared native state/commands | IMPLEMENTED; sync edits and per-domain save notifications; first formal Native XCTest jobs running |
+| Six-page settings | IMPLEMENTED; real native controls/owners; scoped visual and keyboard results retained; final acceptance pending |
+| Popover/menu/onboarding | IMPLEMENTED; guide sizing fixed; full programmatic popover run still FAIL, actual status-item input NOT_RUN through available tool |
+| Real host integration | IMPLEMENTED; real Main owner receipts/appearance/login/actions and isolated settingsReview; independent persistence restart PASS for exact d72 candidate |
+| Native/visual acceptance | run01–run06 retained separately; run06 9 PASS / 4 FAIL and runner timeout; scoped CUA/visual/restart results do not overwrite it |
+| Beta2 formal PR/CI/package | Draft PR43 opened at 974e0bc; initial CI active, inherited source gates FAIL; ARM64 intermediate packages exist; final G/H/CI/App/ZIP pending |
 | Production install/UI merge | NOT_AUTHORIZED until final appearance decision; Beta1 preserved |
 
-No existing production, historical UNKNOWN, accepted attachment source or original design evidence is replaced. Exact phase evidence will be appended in this directory and private beta2-product-20261106 receipts.
+No existing production, historical UNKNOWN, accepted attachment source or original design evidence is replaced. The chronological checkpoints below retain their facts at that time; the latest checkpoint and table describe current scope. No `BETA2_REVIEW_READY` or `PRODUCT_READY` claim is made.
 
 ## Checkpoint 1 implementation
 
@@ -54,3 +54,15 @@ Onboarding sizing and exact-own-window capture coordinates are being corrected w
 At `ea312a6`, all six onboarding frames reached the intended 652×608 pt and independent visual review closed the first-size finding. The same cached colors now resolve from the appearance supplied by AppKit; native light/dark tokens were checked, while high-contrast matching fixture tests remain distinct from an actual system preference switch. CUA confirmed Command-W invokes the native sheet after the dirty state was independently observed, Continue preserves it, and Quit/Discard exits while retaining the prior 24-hour archive value.
 
 Run03 retained a driver click-before-enabled failure. At `4174a04`, the driver now waits for actual enabled controls, and successful popover captures wait for a full-sized stable WindowServer window. Run04 produced complete normal/paused/save-failure popover images but two presentations closed before capture, so the full run remained FAIL and restart was not attempted. The available evidence does not establish why those two popovers closed. The next driver-only correction waits for the settings window's existing activation request and records bounded activation/popover notifications; it adds no product focus gate or repeated-click recovery.
+
+## Checkpoint 6 preserved failures, independent restart and formal Draft PR
+
+Separate sanitized bindings now preserve [run04](evidence/native-run-04.json), [run05](evidence/native-run-05.json) and [run06](evidence/native-run-06.json), including original report/runner/review hashes. Run04 has 11 PASS / 2 FAIL and normal exit, with scoped independent approval of three complete control images. Run05 has 9 PASS / 4 FAIL and a runner timeout; a draft left by its failed case awaited quit confirmation. The source/timeline review approved only removal of the unconditional resign observer and one regression, retaining native transient and explicit closure paths.
+
+Run06 executes that exact `d72f966` source. The first light popover remains visible through handback and is captured at full geometry; later programmatic opens still close prematurely. It remains 9 PASS / 4 FAIL, 26 PNG / 3 NOT_RUN, and runner INCOMPLETE after 180 seconds. Its actual completed report was retrieved from the same root and verified against process/runtime identity; the runner's missing stdout path is not fabricated. The remaining cause is unresolved; additional work is limited to bounded driver diagnostics.
+
+[CUA using the exact original d72 App](evidence/cua-native-exact-d72f966.json), without a wrapper, observed isolated startup, guide Escape and original process absence after Command-Q. The tool could not expose the status bar; real status-button opens, second-click closure and outside-click dismissal remain NOT_RUN. Quit's tool timeout supplies no normal exit code. This is a tool/evidence limitation, not a new proven product defect.
+
+[Independent restart-only verification](evidence/independent-restart-d72f966.json) used the same original package/root and a different process after the run06 process was absent. It exited 0 in 0.466 seconds; five JSON files and loaded owners, SQLite pause/visibility, one media/asset mapping, zero operations and zero START remained equal, and first-use UI did not reappear. This scoped PASS does not alter run06 FAIL or assert the formal runner's successful-first-run restart path passed. No UI action, browser, production root, login or permission mutation occurred.
+
+[PR #43](https://github.com/haohongfei2001-png/Riftlet/pull/43) is Draft, initial head `974e0bcde40f3f4d25ef1f1bbe0acc7d74575dc0`, base `c72fca78245a15a66ea6beaa980ec141f146bc1b`. At 2026-11-06 10:56 UTC the first [Native run 42205691399](https://github.com/haohongfei2001-png/Riftlet/actions/runs/42205691399) has source admission FAIL and ARM64/Intel unit steps in progress; [Feedback run 42205691613](https://github.com/haohongfei2001-png/Riftlet/actions/runs/42205691613) has source admission FAIL and native/service SUCCESS. The Feedback historical composition step is skipped. The source record is still inherited from PR42; final source review and admission-only H remain required. Independent build/CI/package work continues while native diagnosis remains accurately scoped.

@@ -2,7 +2,7 @@
 
 本矩阵针对同一 App 中的新设置中心、控制中心与引导。实施代码、XCTest、真实 App 内部 action、WindowServer 图片、物理操作和用户最终外观决定分别记录，不互相替代。源码已分配版本身份 **Beta 2 · 0.2.0（2）**。最终源码 G / H、App SHA、报告 SHA、CI run / checkout、操作系统与架构：**PENDING，集成负责人在收口时填写**。
 
-作者已完成新 UI/Host/Environment 的实际 target 编译与语法检查；本机 CLT 缺少 XCTest，因此没有用 shim 冒充 XCTest。截至 run05 对应源码，测试文件定义了设置中心 38 项、Host 12 项、环境 12 项、控制中心 9 项、动态样式 2 项测试；计数表示存在的测试方法，**不是本机已运行通过的数量**。后续窄修新增回归、引导与既有 model/login/appearance 测试均须以最终 CI 的实际执行、跳过和失败记录为准。
+作者已完成新 UI/Host/Environment 的实际 target 编译与语法检查；本机 CLT 缺少 XCTest，因此没有用 shim 冒充 XCTest。截至 run06 的 `d72f966`，测试文件定义了设置中心 38 项、Host 12 项、环境 12 项、控制中心 10 项、动态样式 2 项测试；计数表示存在的测试方法，**不是本机已运行通过的数量**。引导与既有 model/login/appearance 测试均须以最终 CI 的实际执行、跳过和失败记录为准。
 
 `PENDING` 表示待绑定精确候选的执行结果；`NOT_RUN` 表示尚无该类真实验收证据。中间 App 的实际窗口查看只能用于修正当前候选，不能提前填成最终通过。任何失败保留原 report/PNG/日志；修复后用新的源/工件身份复验受影响路径，不覆盖原文件。
 
@@ -47,7 +47,7 @@ run02 完整运行是 FAIL，原图和原始结果不改写。
 
 [ea312a6 的 CUA 键盘复验](evidence/cua-native-ea312a6.json)有四项有明确前置观察的 PASS：Escape 退出引导后 ⌘, 打开设置；先确认已有草稿后 ⌘W 显示关闭 sheet；继续编辑保留草稿；⌘Q 不保存后进程退出并保留 86400 秒已确认归档值。快速连批预设选择/关闭未先观测草稿，结果仍是 `INCONCLUSIVE`；失效 AX 索引是 `TOOL_ERROR_RECOVERED`，切换后重读是 `REOBSERVED`，退出后文件缺失假设改查真实保存值是 `AUDIT_ASSUMPTION_CORRECTED`。这些不确定性不新增为产品 FAIL，也不补成 PASS。
 
-## run04 / run05 与待执行 run06
+## run04 / run05 原始失败
 
 两轮各自新增原始绑定：[run04](evidence/native-run-04.json) 为 `4174a04`，[run05](evidence/native-run-05.json) 为 `64ac68b`。源码 tree、候选可执行文件、runner、实际 report、独立审查原记录及已产生 PNG 的哈希分别核对，未改写前轮证据。
 
@@ -60,7 +60,22 @@ run02 完整运行是 FAIL，原图和原始结果不改写。
 | run05 退出等待 | 集成侧观察到失败 case 遗留草稿，正常 Quit sheet 等待决定 | 保留超时，不据此推断无草稿退出倒退；独立源码审查未直接查看该待决进程 |
 | 控制中心关闭时序 | 展示动作返回后，原生激活交回与无条件 `didResignActive` 关闭重叠；独立审查批准删除这一重复路径及窄回归 | 通知顺序不能单独证明唯一因果；不增加产品焦点门槛，等待 run06 实际复验 |
 
-run06 尚待完整功能、完整稳定控制中心各状态图、正常退出与同包重启结果；实际点外面、状态栏再次点击、Escape 的关闭仍须按执行证据记录，不能仅从 `.transient` 或合成通知测试推断。原 run04/run05 失败和 run05 报告/runner 的差异将继续保留。
+原 run04/run05 失败和 run05 报告/runner 的差异继续保留。后续结果按以下精确工件与范围记录，不覆盖前轮。
+
+## run06、精确原包 CUA 与独立重启
+
+三份证据都绑定 `d72f9665845c30910786558acb090dd72328ccd9` / binary `54749ad5695a5edd6e2eb6077e4456be4498d02b43f7451fb911bb99bfedf545`；CUA 使用原候选包，未使用前轮包装 App。
+
+| 证据 | 已执行结果 | 保留限制 |
+| --- | --- | --- |
+| [run06](evidence/native-run-06.json) | 9 PASS / 4 FAIL；26 PNG / 3 NOT_RUN；首次浅色 popover 保持可见并达到完整尺寸 | 后续程序化打开仍关闭过早；runner 180 秒 timeout / exit -15；整轮 FAIL、完整 runner 重启阶段 NOT_RUN |
+| [精确原包 CUA](evidence/cua-native-exact-d72f966.json) | 精确候选隔离启动；Escape 关闭引导；⌘Q 工具超时后核对进程已不在 | 状态栏工具面不可用，打开/再点关闭/外部点击 NOT_RUN；没有正常退出码，不将工具限制判为产品失败 |
+| [独立 restart-only](evidence/independent-restart-d72f966.json) | 同包同根新进程，正常 exit 0 / 0.466 秒；五 JSON / owner / SQLite 暂停隐藏读回；1 媒体及 asset 映射相等；既有引导不再展示 | `PASS_SCOPED_NATIVE_RESTART`，不覆盖原 FAIL 或 full-runner 前置；不等于生产升级 |
+| 重启外部只读 SQL | 两次均在子进程退出后事务读取，完整 operation 表 0、START 0；前后媒体摘要一致 | 原 native report 自身的完整操作表计数仍标 NOT_RUN，外部 SQL 作为单独补充，不改原报告 |
+
+移除 `didResignActive` 的窄修已在 run06 的源和运行包中；独立审查确认原有关闭路径保留。首次与后续打开的 key-window 状态差异支持继续诊断，但还不是唯一原因证明。只补有界诊断调用栈；实际状态栏输入仍缺证据，不能从 `.transient`、合成通知或程序化 `performClick` 推断物理操作通过。
+
+[Draft PR #43](https://github.com/haohongfei2001-png/Riftlet/pull/43) 已开，初始 head `974e0bc` / base `c72fca7`。截至 2026-11-06 10:56 UTC，[Native](https://github.com/haohongfei2001-png/Riftlet/actions/runs/42205691399) 与 [Feedback](https://github.com/haohongfei2001-png/Riftlet/actions/runs/42205691613) 两项 source gate 均 FAIL（仍是 PR42 准入记录），ARM64 / Intel 正在执行 unit/integration 步骤，Feedback native and service 已 SUCCESS；其旧 composition 条件步骤 skipped 如实保留。最终独立源码审查、G / H、完整 CI、最终包和外观决定仍待完成；不声明 review-ready。
 
 ## 自动化与原生运行的对应关系
 
@@ -84,11 +99,11 @@ run06 尚待完整功能、完整稳定控制中心各状态图、正常退出�
 | 选择动效不自播、主动预览、切页停止；减少动态 `min(80ms, 原时长)` 不变慢 | SettingsCenter：`ExplicitPreviewOnly…`；StateModel 单位测试 | `motion-explicit-play-and-navigation-stop`；截图只是瞬时画面 | PENDING；真实系统减少动态切换另记 |
 | 外观先保存再应用，system 清除显式覆盖；错误/重试不串其他域 | Host：`HostAppearanceCreatesRealScopedJSON…`、`HostAppearanceWriteFailure…`；[AppearanceTests](../../Tests/RiftletAppTests/ApplicationPresentationPreferencesTests.swift) | `six-pages-light-and-dark`、失败 case 的真实 review JSON | PENDING；未改系统主题 |
 | 登录系统状态与调用错误并存；等待批准不是已生效，读取不注册，同目标幂等 | Host：`ActualLoginReadback…`、`LoginFailedTarget…`；[LoginTests](../../Tests/RiftletAppTests/LoginItemPreferencesTests.swift) | review 模式明确 unavailable；禁止 driver 注册/注销/打开系统登录设置 | fake 待 CI；真实登录启动 NOT_RUN |
-| 原生 popover 打开/关闭、点外面/Escape、右键菜单同一显式命令；不可用截图不误发 | ControlCenterTests | `orthogonal-pause-hidden-sqlite` 只证明实际执行的动作/图片；鼠标路由、Escape/键盘需原生输入实录 | PENDING |
+| 原生 popover 打开/关闭、点外面/Escape、右键菜单同一显式命令；不可用截图不误发 | ControlCenterTests | `orthogonal-pause-hidden-sqlite` 只证明实际执行的动作/图片；精确 d72 CUA 未取得状态栏操作面 | 程序化完整 case FAIL；真实状态栏操作 NOT_RUN；原因待定 |
 | 三步可前后切换、稍后完成；已有连接不重复授权、位置保存/失败重试，不制造 capture | OnboardingTests | `three-step-guidance-light-and-dark`；三步×浅深图 | PENDING；真实授权弹窗 NOT_RUN |
 | 真实历史、未测量不是 0 B；清空只有一次 Main 确认且保留所有内容 | SettingsCenter：`NoStorageMeasurement…`；Host：`ExternalActionsPassThrough…` | `history-real-records`；清空确认与原图保留需实录对应操作，未执行就单列 | PENDING |
 | review UUID、根/marker/symlink/锁、只fixture来源、默认域分离、无Web/真实登录项 | [EnvironmentTests](../../Tests/RiftletAppTests/SettingsReviewEnvironmentTests.swift) | `environment-and-default-window`、`real-collector-synthetic-fixture`、`original-media-and-no-upload-operations` | PENDING |
-| 同包同 UUID 正常退出后新进程重启；配置/SQLite/media 读回相同，不重跑 UI suite 或制造附件 | [原生 runner](../../scripts/run-settings-review.sh)、`SettingsReviewDriver.verifyRestart()` | 首轮 runner/report、restart runner/report、前后逻辑快照、两个 PID 和同一 executable hash | PENDING；进程退出与持久化相等都须满足 |
+| 同包同 UUID 新进程重启；配置/SQLite/media 读回相同，不重跑 UI suite 或制造附件 | [原生 runner](../../scripts/run-settings-review.sh)、`SettingsReviewDriver.verifyRestart()` | d72 独立 restart-only、前后逻辑快照、新旧进程及同一 executable hash；原 run06 超时记录保持 | d72 独立重启 PASS_SCOPED；完整 runner 成功首轮后联动重启 NOT_RUN；最终候选 PENDING |
 
 设置中心异步测试按**特定 host action 完成 ID**、实际保存 continuation 或 native sheet completion 作有界等待，结束后仍执行原结果断言。超时是失败，不通过增加 sleep、跳过断言或重跑到绿来替代状态确认。Host 的延迟 owner 使用明确 gate / expectation。
 

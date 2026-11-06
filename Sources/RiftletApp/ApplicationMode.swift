@@ -14,6 +14,12 @@ enum ApplicationMode: CaseIterable, Equatable {
         let selected = selections.filter { arguments.contains($0.0) }
         guard !OrdinaryCaptureConfiguration.isInternalAcceptance || selected.isEmpty else { throw RiftletError.modeMismatch }
         guard selected.count <= 1 else { throw RiftletError.modeMismatch }
+        let reviewActions = arguments.filter { $0 == "--settings-review-run" || $0 == "--settings-review-restart-check" }
+        // An incomplete review command must never fall through to ordinary
+        // capture or silently run a different test mode.
+        guard reviewActions.isEmpty || (selected.first?.1 == .settingsReview && reviewActions.count == 1) else {
+            throw RiftletError.modeMismatch
+        }
         if selected.first?.1 == .settingsReview { _ = try SettingsReviewEnvironment.identifier(in: arguments) }
         return selected.first?.1 ?? .capture
     }

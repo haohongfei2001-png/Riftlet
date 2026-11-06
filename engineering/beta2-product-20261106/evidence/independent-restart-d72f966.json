@@ -1,0 +1,167 @@
+{
+  "schema": 1,
+  "source": "d72f9665845c30910786558acb090dd72328ccd9",
+  "sourceTree": "f251acd536b3e649fb386749565cad2da50a28ca",
+  "binarySHA256": "54749ad5695a5edd6e2eb6077e4456be4498d02b43f7451fb911bb99bfedf545",
+  "originalRecordSHA256": {
+    "candidateManifest": "13189f7b4735185a217d26299973c649afcddf02f42fa7187bac48027863f763",
+    "independentRestartResult": "5511c901758a3459130266a2d1d03d4436cecdf34b057d63e5b427c4a3cb3f4c",
+    "restartReport": "79584eeff8258d2594cef691fcaa8fea3eb999c5d72781624aa2edf8cc45af87",
+    "beforeSnapshot": "b3d6c9ae16c2718b6f0abfe13ce7626709d27be3f13108184953be6750f9fee2",
+    "afterSnapshot": "b3d6c9ae16c2718b6f0abfe13ce7626709d27be3f13108184953be6750f9fee2",
+    "restartLog": "7743a7182e1a8fdc9de60a744d53cea8a141626227f444548a5a0a5e6ca2e3c3",
+    "independentHarness": "3aa7b1481e8f77bd437cfc74562e2cade34bfbf054f339b38f7eeaa96dc2700d",
+    "priorRun06Report": "350042c8268bbd568b4d7c95f35ce1839308c3e40f9141728736e3e30b6b2ed0",
+    "priorRun06Runner": "c56a745cff37af227e6339f3da7cc8faf0219f81f346ad84fd2e364447856e0d"
+  },
+  "result": "PASS_SCOPED_NATIVE_RESTART",
+  "productionReady": false,
+  "runner": {
+    "completed": true,
+    "elapsedSeconds": 0.46597183286212385,
+    "exitCode": 0,
+    "timedOut": false,
+    "timeoutSeconds": 30
+  },
+  "driver": {
+    "status": "PASS_SCOPED_NATIVE_RESTART",
+    "completed": true,
+    "elapsedSeconds": 0.062406208366155624,
+    "createdFixtures": 0,
+    "driverChangedPreferences": false,
+    "notRun": [
+      "productionData",
+      "browserAttachment",
+      "systemPermissions",
+      "loginRegistration",
+      "completeOperationTableCount"
+    ]
+  },
+  "identityVerification": {
+    "sameOriginalCandidatePackage": true,
+    "allManifestFilesRechecked": true,
+    "sameReviewRootVerified": true,
+    "differentProcessVerified": true,
+    "recordedPriorProcessAbsentBeforeLaunch": true,
+    "binaryUnchangedAfterExit": true,
+    "recordedStrictSignatureExitCode": 0
+  },
+  "checks": [
+    {
+      "check": "same-binary-new-process-after-completed-run",
+      "priorReportSHA256": "350042c8268bbd568b4d7c95f35ce1839308c3e40f9141728736e3e30b6b2ed0",
+      "priorStatus": "FAIL",
+      "status": "PASS"
+    },
+    {
+      "allConfigurationFieldsEqual": true,
+      "appearance": "system",
+      "archiveHours": 1.5,
+      "arrival": "magnet",
+      "captureMode": "window",
+      "check": "persisted-json-and-loaded-owners",
+      "entryEnabled": true,
+      "jsonSHA256": {
+        "app-presentation-settings.json": "742208e47566b03bc6475badd9b0f7893e17fb88edc0c4a6971049105a37cfc1",
+        "arrival-motion-settings.json": "785c2ad2cfe504fc44509a78f96b5eb463965c265bf2acbceea3f2dd2b813338",
+        "capture-entry-settings.json": "4db67fc820c346cf02d75f5bfd9b9f6da4d329c8dada6193876e112bc7ede5b7",
+        "lifecycle-settings.json": "e82b5e2777381328ec4b1673577d5cbc2fa80f06b273a3c71d90917838d0668f",
+        "rift-configuration.json": "a21e8a4721df99713502b8a1667ea49bf062ccc41ffcecd5a636d5b1c64f287f"
+      },
+      "status": "PASS"
+    },
+    {
+      "check": "sqlite-pause-and-visibility",
+      "hidden": false,
+      "paused": false,
+      "status": "PASS"
+    },
+    {
+      "check": "existing-first-use-not-presented-again",
+      "controlVisible": false,
+      "existingPresentedPreference": true,
+      "onboardingVisible": false,
+      "settingsVisible": false,
+      "status": "PASS"
+    },
+    {
+      "assetCount": 1,
+      "assetsWithOperation": 0,
+      "check": "assets-media-and-operation-readback",
+      "mediaHashesMatch": true,
+      "operationScope": "Existing QueueStore queries; independent read-only SQL supplies the complete operation table count",
+      "priorAssetCount": 1,
+      "status": "PASS",
+      "successfulOperations": 0,
+      "unresolvedOperations": 0
+    },
+    {
+      "allFiveFilesUnchangedDuringCheck": true,
+      "check": "verification-left-preference-bytes-unchanged",
+      "status": "PASS"
+    }
+  ],
+  "before": {
+    "allMediaMatchAssets": true,
+    "assetCount": 1,
+    "assetIdentityMediaMapSHA256": "e85be71a3cfabbd1c29f9215b17cbb57c2b2a81760245d31c06cae0a3604b726",
+    "databaseReadMode": "SQLite URI mode=ro; query_only; one read transaction; child already exited",
+    "jsonSHA256": {
+      "app-presentation-settings.json": "742208e47566b03bc6475badd9b0f7893e17fb88edc0c4a6971049105a37cfc1",
+      "arrival-motion-settings.json": "785c2ad2cfe504fc44509a78f96b5eb463965c265bf2acbceea3f2dd2b813338",
+      "capture-entry-settings.json": "4db67fc820c346cf02d75f5bfd9b9f6da4d329c8dada6193876e112bc7ede5b7",
+      "lifecycle-settings.json": "e82b5e2777381328ec4b1673577d5cbc2fa80f06b273a3c71d90917838d0668f",
+      "rift-configuration.json": "a21e8a4721df99713502b8a1667ea49bf062ccc41ffcecd5a636d5b1c64f287f"
+    },
+    "operations": 0,
+    "uploadStarts": 0,
+    "mediaSHA256": [
+      "6d410112b73df106db4147062a62366e5198676622004460a76b174c6fd3d3b4"
+    ]
+  },
+  "after": {
+    "allMediaMatchAssets": true,
+    "assetCount": 1,
+    "assetIdentityMediaMapSHA256": "e85be71a3cfabbd1c29f9215b17cbb57c2b2a81760245d31c06cae0a3604b726",
+    "databaseReadMode": "SQLite URI mode=ro; query_only; one read transaction; child already exited",
+    "jsonSHA256": {
+      "app-presentation-settings.json": "742208e47566b03bc6475badd9b0f7893e17fb88edc0c4a6971049105a37cfc1",
+      "arrival-motion-settings.json": "785c2ad2cfe504fc44509a78f96b5eb463965c265bf2acbceea3f2dd2b813338",
+      "capture-entry-settings.json": "4db67fc820c346cf02d75f5bfd9b9f6da4d329c8dada6193876e112bc7ede5b7",
+      "lifecycle-settings.json": "e82b5e2777381328ec4b1673577d5cbc2fa80f06b273a3c71d90917838d0668f",
+      "rift-configuration.json": "a21e8a4721df99713502b8a1667ea49bf062ccc41ffcecd5a636d5b1c64f287f"
+    },
+    "operations": 0,
+    "uploadStarts": 0,
+    "mediaSHA256": [
+      "6d410112b73df106db4147062a62366e5198676622004460a76b174c6fd3d3b4"
+    ]
+  },
+  "snapshotsEqual": true,
+  "externalReadOnlyAudit": {
+    "operationsBefore": 0,
+    "operationsAfter": 0,
+    "uploadStartsBefore": 0,
+    "uploadStartsAfter": 0,
+    "scope": "Read-only SQL counted the complete operation table after each process had exited. This supplements the native report, whose own completeOperationTableCount remains NOT_RUN."
+  },
+  "priorRun": {
+    "driverCompleted": true,
+    "driverStatus": "FAIL",
+    "runnerStatus": "INCOMPLETE",
+    "runnerExitCode": -15,
+    "runnerTimedOut": true,
+    "originalFullAcceptancePassed": false,
+    "reportAndRunnerHashesStillMatch": true
+  },
+  "uiActions": false,
+  "productionDataAccess": false,
+  "formalRunnerModified": false,
+  "driverSourceModifiedForThisRestart": false,
+  "limits": [
+    "This is an independent restart-only persistence check after a completed FAIL UI run. It does not satisfy or rewrite the full runner successful-initial-run prerequisite.",
+    "A new process used the same package and existing isolated root; this does not validate production upgrade or restore.",
+    "No status-item interaction, browser attachment, system permission or login registration occurred."
+  ],
+  "scope": "Exact d72 candidate restart-only verification: normal exit 0, unchanged five JSON files, loaded owners and SQLite pause/visibility, one unchanged media/asset mapping and zero operations/START. The run06 FAIL and timeout records remain unchanged."
+}
