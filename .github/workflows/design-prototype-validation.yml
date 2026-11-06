@@ -44,11 +44,20 @@ jobs:
             const browser = await chromium.launch({ headless: true });
             const page = await browser.newPage({ viewport: { width: 1440, height: 1100 } });
             const errors = [];
-            page.on('pageerror', error => errors.push(error.message));
-            page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
+            page.on('pageerror', error => errors.push('pageerror: '+error.message));
+            page.on('console', message => { if (message.type() === 'error') errors.push('console: '+message.text()); });
+            page.on('requestfailed', request => errors.push('requestfailed: '+request.url()+' '+request.failure()?.errorText));
             const file = path.resolve('design/experience-20261107/exports/Riftlet-Experience-Prototype.html');
             await page.goto('file://' + file, { waitUntil: 'load' });
-            await page.waitForFunction(() => !!window.RiftPrototype && !!document.querySelector('.viewer-header'), { timeout: 10000 });
+            await page.waitForTimeout(1500);
+            console.log('DIAG title:', await page.title());
+            console.log('DIAG root count:', await page.locator('#riftlet-design').count());
+            console.log('DIAG root text:', (await page.locator('#riftlet-design').innerText().catch(e=>'ERROR '+e.message)).slice(0,800));
+            console.log('DIAG prototype type:', await page.evaluate(() => typeof window.RiftPrototype));
+            console.log('DIAG scripts:', await page.locator('script').count(), 'inline bytes:', await page.locator('script').first().textContent().then(t=>t.length));
+            console.log('DIAG errors:', errors);
+            await page.screenshot({ path: '/tmp/riftlet-preview.png', fullPage: true }).catch(e=>console.log('screenshot error',e.message));
+            await page.waitForFunction(() => !!window.RiftPrototype && !!document.querySelector('.viewer-header'), null, { timeout: 10000 });
             if (!await page.locator('#riftlet-design').innerText().then(t => t.includes('Riftlet'))) throw new Error('Prototype root rendered empty');
             await page.locator('[data-scene="history"]').click();
             await page.locator('#history-style').selectOption('imageGrid');
@@ -66,3 +75,11 @@ jobs:
             await browser.close();
           })().catch(error => { console.error(error); process.exit(1); });
           NODE
+
+      - name: Upload diagnostic screenshot
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: riftlet-prototype-diagnostic
+          path: /tmp/riftlet-preview.png
+          if-no-files-found: ignore
