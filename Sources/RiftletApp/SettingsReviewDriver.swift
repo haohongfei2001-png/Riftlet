@@ -392,6 +392,10 @@ final class SettingsReviewDriver {
             try await appearance(theme)
             for page in SettingsPage.allCases {
                 host.show(page: page); await settle()
+                artifacts.append(["kind": "settingsPageObservation", "theme": theme.rawValue,
+                    "expectedPage": page.rawValue, "actualPage": host.center.selectedPage.rawValue,
+                    "visible": host.center.isVisible,
+                    "elapsedSeconds": ProcessInfo.processInfo.systemUptime - beganUptime])
                 try require(host.center.selectedPage == page && host.center.isVisible, "pageNotPresented")
                 await capture("settings-\(theme.rawValue)-\(page.rawValue)", window: host.center.window)
             }
@@ -819,11 +823,17 @@ final class SettingsReviewDriver {
         let insideStatus = statusItem.button.map { button in
             window === button.window && button.bounds.contains(button.convert(event.locationInWindow, from: nil))
         } ?? false
+        let hit = window.contentView.flatMap { view in
+            view.hitTest(view.convert(event.locationInWindow, from: nil))
+        }
         return ["type": event.type.rawValue, "eventNumber": event.eventNumber,
             "timestamp": event.timestamp, "ageSeconds": ProcessInfo.processInfo.systemUptime - event.timestamp,
             "windowNumber": window.windowNumber, "windowRole": role,
             "buttonNumber": event.buttonNumber, "clickCount": event.clickCount,
-            "modifierFlags": event.modifierFlags.rawValue, "insideStatusButton": insideStatus]
+            "modifierFlags": event.modifierFlags.rawValue, "insideStatusButton": insideStatus,
+            "ownHitIdentifier": hit?.identifier?.rawValue ?? "none",
+            "ownHitClass": hit.map { String(describing: type(of: $0)) } ?? "none",
+            "settingsPage": host.center.selectedPage.rawValue]
     }
 
     private func recordPresentationEvent(_ event: String) {
