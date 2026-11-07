@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "sourceBaseline": "153e77bf83366b96789b23fe4b48a1fe644ca42c",
-  "scope": "Consumer guidance for the exercised candidate. Updated six previous content bindings for first-use and recovery copy, folder selection, history and storage. Added five sources for picker validation, onboarding and settings actions. Other previously bound inputs remain identical, including attachment implementation and release tools.",
+  "sourceBaseline": "3f1340d73a438011fe6ab1aa1e2e4d1f72d185cf",
+  "scope": "Consumer first use, folder access, history, storage and direct-download guidance. Existing attachment, release, DMG and credential-tool sources are inherited from the reviewed main 4908dc79eb2e8af5ea3d53cfb81a719c7fdf5c9d. The changed runtime bindings cover consumer text, folder selection, history text fitting and settings actions. Checkpoint hashes below bind the current guide to the exercised sources.",
   "files": [
     {
       "path": "Sources/RiftletApp/OrdinaryCaptureConfiguration.swift",
-      "sha256": "d7740991940190ece6c30234a9dedafc80749f64851fd317fe8221690fa96621",
-      "sourceBlob": "96c5b22a6e80e57ccb21da590db49231a9c71b4c"
+      "sha256": "4cb78053707d9a58b68d1cec9c36ae086f33592cdbe53b526a0ba63af742b453",
+      "sourceBlob": "8beee947c990c6678c4d1367a8d44992ddc115bc"
     },
     {
       "path": "Sources/RiftletApp/ApplicationMode.swift",
@@ -95,8 +95,8 @@
     },
     {
       "path": "Sources/RiftletUI/RiftHistoryController.swift",
-      "sha256": "c8bff0b09d58e44cd83f76b1f5d86c979b9e0fae28037e8d21d1e9d6b8f6b3be",
-      "sourceBlob": "f25a6dc0db35633dbeee8957378536a7ba7ea334"
+      "sha256": "170a31fb1258ce99c33888e8001b619ee59a2c049f419fa93593c15bf53e6db6",
+      "sourceBlob": "a1bdcc21a39c5f8959b6554bf72b168dfb6a11dd"
     },
     {
       "path": "Sources/RiftletUI/RiftSettingsCenterPages.swift",
@@ -197,13 +197,33 @@
       "path": "Sources/RiftletUI/SettingsProductPresentation.swift",
       "sha256": "f49dbb0d0c62ab747e3443ee47ff95d7af8a6a5cf4e6561b8597ac67c8e1bf5f",
       "sourceBlob": "cfc3d64cfd1a0acf40db34478028e2bf62a2e73f"
+    },
+    {
+      "path": "scripts/release-macos.py",
+      "sha256": "067622218ee2e99f4ea3bee96a5cf2ff1f13afa8f05aa439edc247060b83e761",
+      "sourceBlob": "3cf599b3e1c89799bfa8b3eac47aeb6fd6d13e29"
+    },
+    {
+      "path": "scripts/release-dmg.py",
+      "sha256": "fad73dfa4a79ef3ff001a9a37bd6b5221ff062f06fc091ec404656cc97306aed",
+      "sourceBlob": "3ea755fd528e7729a19f63a4934f27af0ad89ef5"
+    },
+    {
+      "path": "scripts/configure-notary-profile.py",
+      "sha256": "e95fdf7542a2051227d237d351f6c1895a85c6759d0c96419756670251c08512",
+      "sourceBlob": "b05e263cd3212d101f1bf5b0d594639dfe8bf07d"
+    },
+    {
+      "path": "scripts/developer-id-request.swift",
+      "sha256": "38b34aaa148f2417af0f4b9858d23ba6d1412ca75c1a6d05778713ced07f40a6",
+      "sourceBlob": "f2502a5e263c3ae1219e4eafcd06f4d8dde664c8"
     }
   ],
   "previousSourceBinding": {
-    "path": "source-bindings-04.json",
-    "sha256": "3d2b2ee3894c11dc99c238682221e0aace7aa92d7bfbc5cfcc3272a3bb6c649f",
-    "sourceBaseline": "de4b841dcdeac964741dc9203017b315efa25dd6",
-    "archivedAt": "05abf6c2404055b0135e77585a10a47deea33a95"
+    "path": "source-bindings-05.json",
+    "sha256": "34bf85c01f5b519364d9b61798a1b7e87a3747498195a11547c1ce904f08a8e5",
+    "sourceBaseline": "05abf6c2404055b0135e77585a10a47deea33a95",
+    "archivedAt": "4908dc79eb2e8af5ea3d53cfb81a719c7fdf5c9d"
   },
   "inheritanceAudit": "../../consumer-readiness-20261107/README.md",
   "previousInheritanceAudits": [
