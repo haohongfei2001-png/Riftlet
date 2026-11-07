@@ -6,7 +6,9 @@ All evidence levels remain separate: observed complete-App CUA/AX/CGEvent, real 
 - [Production data, restore drill and logical storage](data-preservation/README.md): offline exact-byte/typed-row equality; no live database reads or cleanup.
 - [Current SMAppService lifecycle](login/README.md): unique isolated probe,7 stages; production login unchanged.
 - [Release validation](release/README.md): actual ARM64 PREPARED build and verified ZIP/DMG; mocks labelled;0 signing identities.
-- [High-resolution real native tests](performance/README.md): distinct from previous1200 small images; sustained run pending completion at this checkpoint.
+- [High-resolution real native tests](performance/README.md): distinct from previous1200 small images; actual3600s/340 media, fresh-process recovery, exact metrics and retained latency tails.
+- [Actual bounded disk-full recovery](storage/README.md): real copy and SQLite failures, five final cases, three earlier test failures retained.
+- [Original-logo App icon](icon/README.md): reproducible format conversion, ten native-decoded slots and both actual build inventories; no installed replacement.
 - [Consumer source audit](consumer/SOURCE-AUDIT.md), [START semantics](consumer/START-SEMANTICS-AUDIT.md), [release successor audit](consumer/release-inheritance-audit.json).
 - [Original helper exit defect](native-helper/exit-status-repair.json) and [actual native regression](native-helper/exit-status-regression.json): export/setup failure1, ordinary exit0; actual positive timeline remains NOT_RUN.
 
