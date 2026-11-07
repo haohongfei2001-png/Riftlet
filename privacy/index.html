@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#fcfbf8">
+  <meta name="robots" content="noindex">
+  <meta name="description" content="系统截图与 Riftlet 的私有副本保存在 Mac 上。你点选附加的图片会交给 ChatGPT，主动提交的反馈会交给维护者。">
+  <title>隐私与本地数据 · Riftlet</title>
+  <link rel="icon" href="../website-assets/riftlet.svg" type="image/svg+xml">
+  <link rel="alternate" hreflang="en" href="en.html">
+  <link rel="stylesheet" href="../website-v2.css">
+  <link rel="stylesheet" href="../website/consumer.css">
+</head>
+<body class="consumer">
+  <a class="skip-link" href="#main">跳转到正文</a>
+  <header class="consumer-header">
+    <div class="consumer-bar page-width">
+      <a class="brand" href="../index.html" aria-label="Riftlet 首页">
+        <img src="../website-assets/riftlet.svg" width="31" height="31" alt=""><span>Riftlet</span>
+      </a>
+      <nav class="page-nav" aria-label="主导航">
+        <a href="../download/index.html">下载与版本</a>
+        <a href="../guide/index.html">使用指南</a>
+        <a href="../privacy/index.html" aria-current="page">隐私与数据</a>
+      </nav>
+      <a class="language-link" href="en.html" hreflang="en" lang="en">English</a>
+    </div>
+  </header>
+  <main id="main" class="page-width" tabindex="-1">
+    <div class="title-block">
+      <h1>隐私与本地数据</h1>
+      <p class="intro">系统截图与 Riftlet 的私有副本保存在 Mac 上。你点选附加的图片会交给 ChatGPT，主动提交的反馈会交给维护者。</p>
+    </div>
+    <nav class="contents" aria-label="本页目录">
+      <a href="#storage">本地文件与用量</a>
+      <a href="#chatgpt">附加到 ChatGPT</a>
+      <a href="#reports">反馈与撤回</a>
+      <a href="#backup">备份、更新与回退</a>
+      <a href="#uninstall">卸载与数据清理</a>
+    </nav>
+
+    <section class="topic" id="storage" aria-labelledby="storage-title">
+      <h2 id="storage-title">本地文件与用量</h2>
+      <div class="copy">
+        <dl class="facts">
+          <dt>系统原图</dt>
+          <dd>macOS 把截图保存到你选择的文件夹。Riftlet 收录新截图时保存自己的副本，原始文件仍在原位置。</dd>
+          <dt>私有副本与历史</dt>
+          <dd>在 Finder 中按 ⇧⌘G，输入 <code>~/Library/Application Support/Riftlet/</code> 可找到普通安装的数据目录。其中包括媒体、历史、配置与反馈数据。系统偏好还保存截图目录的访问书签，反馈凭据在钥匙串中。</dd>
+          <dt>存储用量</dt>
+          <dd>「设置 → 历史与存储 → 检查用量」统计私有媒体、暂存、导入记录、内置截图、队列数据库及其配套文件的逻辑大小。系统原图、反馈和外部备份另计。实际可释放容量取决于文件系统。</dd>
+          <dt>收起与归档</dt>
+          <dd>从边缘收起单张或全部微图，以及自动归档，都只改变图片在 Riftlet 中的显示。系统原图、私有副本、历史和已附加到聊天的图片都会保留。当前没有在 App 内永久删除这些截图副本的操作。</dd>
+        </dl>
+      </div>
+    </section>
+
+    <section class="topic" id="chatgpt" aria-labelledby="chatgpt-title">
+      <h2 id="chatgpt-title">附加到 ChatGPT</h2>
+      <div class="copy">
+        <p>附加时，Riftlet 在当前 Chrome 页面检查草稿编辑器、相关控件和附件预览，并临时读取文字与选区，确认原稿得到保留。只有本次点选的图片会交给该网页。即使没有发送聊天消息，图片也可能已上传到 ChatGPT，适用你的账号与服务设置。</p>
+        <p>Riftlet 没有账号、截图云同步或后台使用率遥测。查看本地历史、收起和归档不会主动更改聊天附件。</p>
+      </div>
+    </section>
+
+    <section class="topic" id="reports" aria-labelledby="reports-title">
+      <h2 id="reports-title">反馈与撤回</h2>
+      <div class="copy">
+        <p>点「发送反馈」后，文字、类别、随机报告编号、版本和提交时间经 HTTPS 发往 Riftlet 的 Cloudflare 接收服务，可进入维护者的私有反馈中心。维护者和获授权的 AI 可辅助分析。你勾选的诊断只包含有限事件类别与计数。</p>
+        <p>提交后，待发送记录可能在联网或重启后继续投递。在反馈窗口查看每条记录的状态，使用对应的取消或删除申请。已尝试发送的报告需要等待服务确认删除。「已保存在本机」只确认本地保存。卸载 App 不会撤回已提交的反馈。</p>
+        <p><a href="../guide/index.html#feedback">如何提交一条反馈</a></p>
+      </div>
+    </section>
+
+    <section class="topic" id="backup" aria-labelledby="backup-title">
+      <h2 id="backup-title">备份、更新与回退</h2>
+      <div class="copy">
+        <ol>
+          <li><strong>先保存并退出。</strong>保存设置和反馈草稿，从菜单栏正常退出 Riftlet。备份完整数据目录，包括数据库及配套文件、媒体、导入记录、配置和反馈。按维护者的离线备份流程校验副本，单独保管原始截图和旧 App。</li>
+          <li><strong>按交付说明手动更新。</strong>Riftlet 当前采用手动更新。确认新版本能读取现有历史，再替换 App。代码签名身份变化后，macOS 可能需要你重新选择截图目录。用一张新样图确认实际收录。</li>
+          <li><strong>更新失败时保留现场。</strong>正常退出，保存最新数据及两个版本。在确认旧版能读取当前历史后，只回退 App。把旧备份覆盖到当前数据库会丢失期间新增的记录。</li>
+        </ol>
+        <p>目录备份不含 macOS 的全部偏好、权限、钥匙串或外部系统原图，请保管在自己的私有位置。</p>
+        <p><a href="https://github.com/haohongfei2001-png/Riftlet/blob/05abf6c2404055b0135e77585a10a47deea33a95/docs/STORAGE_RECOVERY.md">查看离线备份与校验步骤</a></p>
+      </div>
+    </section>
+
+    <section class="topic" id="uninstall" aria-labelledby="uninstall-title">
+      <h2 id="uninstall-title">卸载与数据清理</h2>
+      <div class="copy">
+        <p>正常退出 Riftlet，再将 App 移到废纸篓即可停止使用。私有媒体与历史、系统截图、备份、偏好与反馈凭据仍可能保留。磁盘不足时，可先暂停收录并查看用量。</p>
+        <p>若想清理数据，请先保留完整备份，并核对哪些记录仍待确认。手动移除单个媒体文件或数据库会破坏找回图片和核对待确认附件所需的记录。</p>
+      </div>
+    </section>
+  </main>
+  <footer class="consumer-footer page-width">
+    <span>© 2026 Riftlet</span>
+    <nav aria-label="相关页面">
+      <a href="../guide/index.html#feedback">反馈与建议</a>
+      <a href="../index.html">产品首页</a>
+    </nav>
+  </footer>
+</body>
+</html>
