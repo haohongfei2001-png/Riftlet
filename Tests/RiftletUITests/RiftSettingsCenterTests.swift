@@ -841,8 +841,11 @@ final class RiftSettingsCenterTests: XCTestCase {
         h.controller.show(page: .history)
         XCTAssertTrue(h.controller.labels["storage"]!.stringValue.contains("尚未检查"))
         XCTAssertFalse(h.controller.labels["storage"]!.stringValue.contains("0 B"))
+        XCTAssertTrue(h.actions.isEmpty)
+        try await clickAndWait(h, "storage.reveal")
+        XCTAssertEqual(h.actions, ["revealDataFolder"])
         try await clickAndWait(h, "history.clear")
-        XCTAssertEqual(h.actions, ["clearVisible"])
+        XCTAssertEqual(h.actions, ["revealDataFolder", "clearVisible"])
         XCTAssertNil(h.controller.window.attachedSheet, "The shared host owns the only confirmation; this surface cannot clear a store")
         XCTAssertTrue(h.requests.isEmpty)
     }
@@ -925,6 +928,7 @@ private final class SettingsCenterTestHost {
             else {
                 switch action {
                 case .clearVisible: actions.append("clearVisible")
+                case .revealDataFolder: actions.append("revealDataFolder")
                 case .loginEnabled(let value): actions.append("login:\(value)")
                 case .appearance(let value): actions.append("appearance:\(value.rawValue)")
                 default: actions.append("hostAction")

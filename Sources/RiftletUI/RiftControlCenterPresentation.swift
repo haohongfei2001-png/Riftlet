@@ -76,8 +76,11 @@ public struct RiftControlCenterPresentation {
             state = .collecting; title = "正在收录截图"
             if snapshot.reviewEnvironment {
                 detail = setup.visibleCount == 0 ? "仅收录审核示例，不会上传。" : "\(setup.visibleCount) 张审核示例在边缘，不会上传。"
+            } else if let issue = setup.issue, usesAutomation,
+                      issue == .unsupportedBrowser || issue == .targetUnavailable {
+                detail = issue.text
             } else {
-                detail = setup.visibleCount == 0 ? "截图后，点一下边缘微图。" : "\(setup.visibleCount) 张截图在边缘，点一下即可附加。"
+                detail = setup.visibleCount == 0 ? "截图后，点一下边缘微图。" : "\(setup.visibleCount) 张截图在边缘，打开要用的 Chrome 聊天草稿后点选。"
             }
             symbol = "checkmark.circle"
             recoveryTitle = nil; recoveryPage = nil

@@ -17,6 +17,8 @@ Riftlet keeps new screenshots at the edge of your Mac screen. Click a thumbnail 
 
 ## 当前交付范围
 
+本次从 main `05abf6c` 开始的消费者体验预览提供[下载状态与版本说明](../../download/index.html)、[首次使用与权限指南](../../guide/index.html)和[本地数据说明](../../privacy/index.html)。页面列出已安装的个人 Beta 3 与候选界面的差异。新文案、数据文件夹入口和目录恢复改进仅随此分支接受验证。
+
 这些指南的运行时源码基线为 main `2e779f646ac4874344fac94f79103e8ddf9b02c8`，并已核对发行工具后继 `d46d47682d9ebe6df2928cebb69411ff8746604c`，日期为 2026-11-07。发行增量提供明确版本标签和私有评审 ZIP/DMG，不改变运行时或授予安装许可。个人 Beta 3 的上一轮安装与历史双样式验收已经完成；这不等于本轮更广的 ChatGPT 附件验收、陌生用户干净安装或公开发行已经完成。当前个人包使用 ad-hoc 签名，不能称为已公证的公开下载版。
 
 本轮浏览器工具不允许操作真实服务，因此本指南没有新增真实 ChatGPT 通过声明。后续集成版本应由维护者重新核对指南中的实际菜单、权限和支持范围。精确审计依据和封闭测试准备见[消费者资料交接](../../engineering/productization-20261107/consumer/README.md)。

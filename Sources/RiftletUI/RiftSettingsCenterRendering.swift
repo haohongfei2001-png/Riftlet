@@ -66,6 +66,7 @@ extension RiftSettingsCenterController {
         enable("history.clear", product.capabilities.canClearVisible && product.setup.visibleCount > 0)
         text("storage", product.setup.storage == .notMeasured ? "尚未检查本地存储用量。" : presentation.storageText)
         enable("storage.check", product.capabilities.canCheckStorage && product.setup.storage != .measuring)
+        enable("storage.reveal", product.capabilities.initialized)
         text("automation", presentation.permissionText ?? "当前模式不需要 Chrome 自动化访问。")
         text("attachment", presentation.attachmentText)
         (controls["automation.request"] as? NSButton)?.title = presentation.permissionActionTitle

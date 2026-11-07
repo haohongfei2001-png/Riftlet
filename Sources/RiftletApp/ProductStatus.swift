@@ -32,7 +32,7 @@ enum ProductStatus {
     static func supportDescription(for admission: OrdinaryAttachmentAdmission) -> String {
         let attachmentScope = admission.usesUnifiedProduct ? """
         \(admission.supportText)
-        旧的待核实操作不补资格、不重传。页面结构、账号功能和聊天模式可能影响兼容性；具体已验证范围见对应版本说明。
+        结果不明的图片保留在历史里，不会自动再次附加。页面、账号功能和聊天模式都可能影响附件是否可用。
         """ : """
         \(admission.supportText) 真实截图内部候选需另行启动；受限 v2 开始与完成仅适用于新登记操作，旧的待核实操作不补资格、不重传。安全失败与重试仍未开放。
         受限候选仅附加非交错 8-bit RGBA PNG，≤8 MiB、≤16,777,216 像素；其他格式保留，不自动转换。
@@ -40,9 +40,9 @@ enum ProductStatus {
         """
         return """
     本地收录：系统保存的新截图，单帧 PNG / JPEG / HEIC / HEIF / TIFF；最多 128 MiB、1.6 亿像素、单边 50,000 像素。原始字节不转换；HDR 显示效果尚未验收。剪贴板截图、PDF、动图不在收录范围。
-    应用要求 macOS 13+；构建兼容范围与实机验证范围不同，请以对应版本说明为准。
+    需要 macOS 13 或更高版本。各版本的实测范围见版本说明。
     \(attachmentScope)
-    此为开发构建，未公证、未发行。截图可能包含 Riftlet；需要时可先隐藏裂缝，收录仍可继续。
+    截图可能包含 Riftlet。需要时可先隐藏裂缝，收录仍可继续。公开下载状态和版本说明见 Riftlet 官网。
     """
     }
 
@@ -109,8 +109,8 @@ enum ProductStatus {
             case .expiredBeforeInput: return "等待已超时，此次附加已取消；图片保留，本次未上传。"
             case .targetChangedBeforeInput: return "原聊天草稿已变化，此次附加已取消；图片保留，本次未上传。"
             case .targetValidationUnavailableBeforeInput: return "暂时无法核实原聊天草稿；图片保留，本次未上传。"
-            case .noClickTimeTarget: return "点击时页面尚未完成验证；图片保留，本次未上传。"
-            case .targetUnavailable: return "当前没有可验证的附件目标；图片记录保留，请在运行状态中查看原因。"
+            case .noClickTimeTarget: return "这次点击没有找到可用的聊天草稿，本次未上传。请把要用的 ChatGPT 草稿切到 Chrome 前台，再点边缘截图。"
+            case .targetUnavailable: return SetupIssue.targetUnavailable.text
             case .unresolvedDraftBeforeInput: return "原草稿中还有一张图片的附加结果待核实；本次未上传，图片保留。"
             case .independentAttachmentUnavailableBeforeInput:
                 return "暂不能确认当前页面能保留原附件并继续追加；本次未上传，图片保留。"
@@ -192,5 +192,5 @@ enum ProductStatus {
         return nil
     }
 
-    static let chromeJavaScriptHelp = "Chrome 还需在「显示 → 开发者 → 允许来自 Apple 事件的 JavaScript」中允许页面连接。Riftlet 不会代改这个设置；系统授权成功不代表该开关已开启。"
+    static let chromeJavaScriptHelp = "在 Chrome 的“显示”（View，部分版本译为“视图”）菜单打开“开发者”，勾选“允许来自 Apple 事件的 JavaScript”。这是 Chrome 自己的设置。"
 }

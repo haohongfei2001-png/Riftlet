@@ -246,7 +246,7 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
             button.widthAnchor.constraint(equalToConstant: 128).isActive = true
             filterButtons.append(button); nav.addArrangedSubview(button)
         }
-        nav.addArrangedSubview(RiftVisualStyle.label("原图始终保留", role: "secondary"))
+        nav.addArrangedSubview(RiftVisualStyle.label("收起不会删除图片", role: "secondary"))
         nav.translatesAutoresizingMaskIntoConstraints = false; sidebar.addSubview(nav)
         NSLayoutConstraint.activate([nav.leadingAnchor.constraint(equalTo: sidebar.leadingAnchor, constant: 12),
             nav.topAnchor.constraint(equalTo: sidebar.topAnchor, constant: 24)])

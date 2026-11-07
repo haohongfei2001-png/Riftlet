@@ -170,9 +170,7 @@ private final class Probe: NSObject, NSApplicationDelegate, NSOpenSavePanelDeleg
     }
 
     func panel(_ sender: Any, validate url: URL) throws {
-        guard SourceAccessSelection.matches(selected: url, actualSource: protectedFolder) else {
-            throw SourceAccessError.differentFolder
-        }
+        try SourceAccessSelection.validate(selected: url, actualSource: protectedFolder)
     }
 
     func finish() {

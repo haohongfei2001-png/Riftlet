@@ -130,7 +130,7 @@ struct OrdinaryAttachmentAdmission {
             return "普通启动仅本地收录；真实附加尚待最终 App 端到端验收及独立审查。授权浏览器不会开启上传。"
         }
         if usesUnifiedProduct {
-            return "在 Chrome 的 ChatGPT 新聊天及已有聊天中点一下微图即可附加。支持系统和内置截图。PNG、JPEG 按原文件输入，其他支持的截图格式通常生成等分辨率 PNG 副本；派生 PNG 超出预算时会单次尝试原文件，接收取决于页面兼容性。聊天开始接收图片时微图收起，可继续点击下一张。原图保留，Riftlet 不发送消息。"
+            return "在 Chrome 中打开可编辑的 ChatGPT 新聊天或已有聊天，再点边缘截图。聊天开始接收这张图时，微图会收起，此时可以点下一张。发送由你决定。系统和内置截图均可使用。PNG、JPEG 按原文件附加，其他支持格式通常转为相同分辨率的 PNG。如果转换后过大，会改用原文件，由聊天页面决定能否接收。"
         }
         let scope = purpose == .internalAcceptance ? "内部普通入口验收（非生产准入）" : "普通附加范围"
         let chats = internalCurrentDrafts ? "已识别业务身份的普通新聊天及已有聊天（含本地身份）" : "普通已有聊天"

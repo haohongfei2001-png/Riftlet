@@ -97,11 +97,12 @@ final class ProductStatusTests: XCTestCase {
 
     func testUnifiedProductDoesNotDirectUserToAnotherProductOrClaimRealPageCertification() {
         let text = ProductStatus.supportDescription(for: .unifiedProduct)
-        for scope in ["ChatGPT 新聊天及已有聊天", "系统和内置截图", "不补资格、不重传",
-                      "PNG、JPEG 按原文件输入", "等分辨率 PNG 副本"] {
+        for scope in ["ChatGPT 新聊天或已有聊天", "系统和内置截图", "不会自动再次附加",
+                      "PNG、JPEG 按原文件附加", "相同分辨率的 PNG"] {
             XCTAssertTrue(text.contains(scope), scope)
         }
         XCTAssertFalse(text.contains("内部候选需另行启动"))
         XCTAssertFalse(text.contains("普通启动仅本地收录"))
+        XCTAssertFalse(text.contains("未公证"), "The same executable is also used in release candidates. Signing and ticket evidence belong to the actual deliverable.")
     }
 }

@@ -213,8 +213,12 @@ extension RiftSettingsCenterController {
             makeButton("打开历史…", id: "history.open") { [weak self] in self?.dispatch(.openHistory) }
         ]), archive, card([
             SettingsNativeStyle.label("存储用量", role: "heading"), namedLabel("storage", role: "secondary"),
-            makeButton("检查用量", id: "storage.check") { [weak self] in self?.dispatch(.checkStorage) },
-            SettingsNativeStyle.label("收起与归档只影响 Riftlet 中的显示；不会删除原截图、本地副本或聊天附件。", role: "caption"),
+            buttonRow([
+                makeButton("检查用量", id: "storage.check") { [weak self] in self?.dispatch(.checkStorage) },
+                makeButton("在 Finder 中显示数据文件夹", id: "storage.reveal") { [weak self] in self?.dispatch(.revealDataFolder) }
+            ]),
+            SettingsNativeStyle.label("用量包括私有图片、内置截图、收录记录与队列数据库。系统截图目录、反馈和外部备份另计。", role: "caption"),
+            SettingsNativeStyle.label("从边缘收起或归档后，私有副本仍在这里。系统原图和聊天附件也会保留。退出并移除 App 后，本地数据文件夹仍会保留。", role: "caption"),
             // Main owns the single shared confirmation for every entry point.
             makeButton("收起全部微图…", id: "history.clear") { [weak self] in self?.dispatch(.clearVisible) }
         ])]
@@ -229,7 +233,9 @@ extension RiftSettingsCenterController {
                 makeButton("打开配置文件…", id: "configuration.open") { [weak self] in self?.dispatch(.openConfiguration) }
             ])
         ])
-        return [card([
+        return [buttonRow([
+            makeButton("重新检查", id: "recheck") { [weak self] in self?.dispatch(.recheck) }
+        ]), card([
             SettingsNativeStyle.label("截图保存位置", role: "heading"), namedLabel("source.help", role: "secondary"), namedLabel("sourcePath.help", role: "caption"),
             buttonRow([
                 makeButton("允许访问此位置…", id: "source.access.help") { [weak self] in self?.dispatch(.chooseSourceAccess) },
@@ -237,15 +243,13 @@ extension RiftSettingsCenterController {
             ])
         ]), card([
             SettingsNativeStyle.label("Chrome 自动化与 JavaScript", role: "heading"), namedLabel("automation", role: "secondary"),
-            SettingsNativeStyle.label("另需在 Chrome 菜单「视图 → 开发者」中允许来自 Apple 事件的 JavaScript。macOS 自动化授权不代表该项已开启，也不代表当前附件目标可用。", role: "secondary"),
             namedLabel("attachment", role: "secondary"),
             makeButton("检查 Chrome 权限…", id: "automation.request") { [weak self] in self?.dispatch(.requestAutomation) }
         ]), card([
             SettingsNativeStyle.label("内置截图的屏幕录制权限", role: "heading"), namedLabel("screen.help", role: "secondary"),
             SettingsNativeStyle.label("只影响内置截图；不会因此阻止系统截图文件的收录。", role: "caption"),
             buttonRow([
-                makeButton("屏幕录制设置…", id: "screen.privacy") { [weak self] in self?.dispatch(.openScreenRecordingPrivacy) },
-                makeButton("重新检查", id: "recheck") { [weak self] in self?.dispatch(.recheck) }
+                makeButton("屏幕录制设置…", id: "screen.privacy") { [weak self] in self?.dispatch(.openScreenRecordingPrivacy) }
             ])
         ]), card([
             SettingsNativeStyle.label("关于 Riftlet", role: "heading"), namedLabel("version", role: "secondary"), namedLabel("support", role: "secondary"),

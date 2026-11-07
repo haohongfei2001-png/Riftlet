@@ -1,5 +1,7 @@
 # 从个人签名过渡到 Developer ID
 
+账号获批后，从[发行接管清单](AFTER_DEVELOPER_APPROVAL.md)取得当前所需参数、各阶段结果和干净 Mac 验收步骤。
+
 个人 Beta 3 的实际安装为 0.3.0 (3)。一次真实升级中，macOS 用旧版的 ad-hoc 代码要求检查维护版并返回 `-67050`。恢复旧 App 后，用户通过读取文件夹的正常面板重新选定了系统截图目录。目录书签和真实收录状态在重启后持续可用。[先前的现场记录](../../engineering/productization-20261107/closeout/permission-continuity.json)
 
 ## 准备与发行包核对

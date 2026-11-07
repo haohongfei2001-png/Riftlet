@@ -1,5 +1,7 @@
 """Exercise the ordinary product in a fresh GitHub-hosted macOS account."""
 import argparse
+from contextlib import ExitStack
+import fcntl
 import hashlib
 import json
 import os
@@ -105,9 +107,8 @@ def exercise(old, new, report):
     # This setting belongs to the disposable account. The native privacy experiment
     # runs separately using Downloads; this ordinary flow uses an unprotected folder.
     previous = call("defaults", "read", "com.apple.screencapture", "location", check=False)
-    call("defaults", "write", "com.apple.screencapture", "location", "-string", source)
 
-    def run_version(expected, version, build):
+    def run_version(expected, version, build, expected_folder=source):
         call("codesign", "--verify", "--deep", "--strict", "--all-architectures", app)
         info = plistlib.loads((app / "Contents/Info.plist").read_bytes())
         assert (info["CFBundleIdentifier"], info["CFBundleShortVersionString"], info["CFBundleVersion"]) == ("com.riftlet.app", version, build)
@@ -117,12 +118,16 @@ def exercise(old, new, report):
             result = call(process, "pid", app, check=False)
             return int(result.stdout) if result.returncode == 0 else None
         current = wait_for(pid, "LaunchServices application identity")
-        wait_for(lambda: call("lsof", "-nP", "-a", "-p", current, "-Ffn", source, check=False).returncode == 0,
+        wait_for(lambda: call("lsof", "-nP", "-a", "-p", current, "-Ffn", expected_folder, check=False).returncode == 0,
                  "the ordinary collector holding the expected source folder")
         return current
 
     def stop():
         call(process, "quit", app)
+
+    def onboarding_observation():
+        value = call(process, "onboarding", app).stdout.decode().strip()
+        return value if value in {"OBSERVED", "AX_NOT_AVAILABLE"} else None
 
     def compare(candidate, result, code):
         checked = call(identity, "--installed", app, "--candidate", candidate, check=False)
@@ -132,12 +137,53 @@ def exercise(old, new, report):
 
     old_hash, new_hash = [sha(f / "Contents/MacOS/Riftlet") for f in (old, new)]
     assert old_hash != new_hash
+    first_use_source = scratch / "first-use-source"
+    first_use_source.mkdir()
+    call("defaults", "write", "com.apple.screencapture", "location", "-string", first_use_source)
     try:
+        # First exercise the current candidate before any App has run on this account.
+        # Use a separate fixture source for the subsequent old -> new -> old experiment.
+        call("ditto", new, app)
+        run_version(new_hash, "0.3.2", "5", first_use_source)
+        candidate_window = wait_for(onboarding_observation, "current candidate's first-use window")
+        first_use_key = "Riftlet.firstUse.presented.v1.Riftlet"
+        assert call("defaults", "read", "com.riftlet.app", first_use_key).stdout.strip() == b"1"
+        first_use_digest = collect_fixture(first_use_source, 63, root)
+        stop()
+        first_use = snapshot(root)
+        assert len(first_use["assets"]) == len(first_use["media"]) == len(first_use["journals"]) == 1
+        assert set(first_use["media"].values()) == {first_use_digest}
+        assert not first_use["operations"] and not first_use["upload_starts"]
+        build_source = json.loads((app / "Contents/Resources/release-build.json").read_text())["source"]["commit"]
+        assert build_source == os.environ["GITHUB_SHA"]
+        report["candidateFirstUse"] = {
+            "buildSource": build_source,
+            "executableSHA256": new_hash, "onboardingWindowAX": candidate_window,
+            "firstUsePresentationRecorded": True, "collectedAssets": 1,
+            "sourceAndPrivateMediaSHA256": first_use_digest, "attachmentOperations": 0, "starts": 0,
+        }
+        # Preserve the complete first run. Only the one key created above is cleared
+        # for the baseline's original first-use observation. Never touch system grants.
+        preserved_app = scratch / "candidate-first-use.app"
+        preserved_data = scratch / "candidate-first-use-data"
+        saved_preferences = scratch / "candidate-first-use.plist"
+        assert not any(os.path.lexists(p) for p in (preserved_app, preserved_data, saved_preferences))
+        assert call(process, "pid", app, check=False).returncode == 2
+        with ExitStack() as held:
+            for lock_path in (root / "instance.lock", root / "Feedback-v01/feedback.lock"):
+                lock = held.enter_context(lock_path.open("rb"))
+                fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            call("defaults", "export", "com.riftlet.app", saved_preferences)
+            assert plistlib.loads(saved_preferences.read_bytes())[first_use_key]
+            assert snapshot(root) == first_use and sha(app / "Contents/MacOS/Riftlet") == new_hash
+            app.rename(preserved_app)
+            root.rename(preserved_data)
+            call("defaults", "delete", "com.riftlet.app", first_use_key)
+        assert snapshot(preserved_data) == first_use and sha(preserved_app / "Contents/MacOS/Riftlet") == new_hash
+        call("defaults", "write", "com.apple.screencapture", "location", "-string", source)
+
         call("ditto", old, app)
         run_version(old_hash, "0.3.0", "3")
-        def onboarding_observation():
-            value = call(process, "onboarding", app).stdout.decode().strip()
-            return value if value in {"OBSERVED", "AX_NOT_AVAILABLE"} else None
         first_window = wait_for(onboarding_observation, "first-use window on the verified process")
         first = collect_fixture(source, 24, root)
         stop()
@@ -145,7 +191,8 @@ def exercise(old, new, report):
         assert len(baseline["assets"]) == len(baseline["media"]) == len(baseline["journals"]) == 1
         assert set(baseline["media"].values()) == {first} and not (baseline["operations"] or baseline["upload_starts"])
         assert call("defaults", "read", "com.riftlet.app", "Riftlet.firstUse.presented.v1.Riftlet").stdout.strip() == b"1"
-        report["firstOrdinaryLaunchAndImport"] = {"assetCount": 1, "sourceAndPrivateMediaSHA256": first,
+        report["firstOrdinaryLaunchAndImport"] = {"scope": "Legacy baseline with fresh fixture data on the same hosted account",
+            "assetCount": 1, "sourceAndPrivateMediaSHA256": first,
             "firstUsePresentationRecorded": True, "onboardingWindowAX": first_window}
         damaged = scratch / "Damaged.app"
         call("ditto", new, damaged)
@@ -175,7 +222,7 @@ def exercise(old, new, report):
         run_version(old_hash, "0.3.0", "3")
         stop()
         assert snapshot(root) == upgraded
-        report["normalLaunches"] = ["adHocBaseline", "hardenedAdHocUpdate", "restoredAdHocBaseline"]
+        report["normalLaunches"] = ["freshHardenedAdHocCandidate", "adHocBaseline", "hardenedAdHocUpdate", "restoredAdHocBaseline"]
         report["rollback"] = {"databaseRestored": False, "preservedAssetCount": 2, "mediaAndJournalsEach": 2,
                               "attachmentOperations": 0, "starts": 0, "allAssetColumnsMediaAndJournalsMatchAfterUpgrade": True}
         report["executableSHA256"] = {"old": old_hash, "new": new_hash, "restored": sha(app / "Contents/MacOS/Riftlet")}

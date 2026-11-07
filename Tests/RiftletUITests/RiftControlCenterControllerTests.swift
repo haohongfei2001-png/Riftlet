@@ -91,7 +91,12 @@ final class RiftControlCenterControllerTests: XCTestCase {
 
     @MainActor func testTransientAttachmentContextIsNotPersistentAttentionOrFalseRunning() {
         for issue in [SetupIssue.targetUnavailable, .unsupportedBrowser, .unsupportedFormat, .imageUnavailable] {
-            XCTAssertEqual(RiftControlCenterPresentation(fixture(issue: issue)).state, .collecting)
+            let projection = RiftControlCenterPresentation(fixture(issue: issue))
+            XCTAssertEqual(projection.state, .collecting)
+            if issue == .targetUnavailable || issue == .unsupportedBrowser {
+                XCTAssertEqual(projection.detail, issue.text)
+                XCTAssertNil(projection.recoveryPage)
+            }
         }
         let stopped = RiftControlCenterPresentation(fixture(collection: .stopped))
         XCTAssertEqual(stopped.state, .stopped)

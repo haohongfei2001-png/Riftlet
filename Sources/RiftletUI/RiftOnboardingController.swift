@@ -154,7 +154,7 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
         let intro = page([introTitle, introDescription, RiftOnboardingWorkflowPreview(frame: .zero),
                           introCapability,
                           card("沿用你的习惯", [
-                            SettingsNativeStyle.label("照常截图，不需要新的每日快捷键。"),
+                            SettingsNativeStyle.label("点菜单栏的 Riftlet 图标，可以打开设置和截图历史。"),
                             SettingsNativeStyle.label("只附加图片，何时发送仍由你决定。"),
                             SettingsNativeStyle.label("系统原图和本机历史都会保留。")])])
         sourceAccess.identifier = .init("onboarding.sourceAccess")
@@ -252,8 +252,8 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
         defer { if let preservedFrame { layout(keeping: preservedFrame) } }
         let presentation = SetupPresentation(snapshot: snapshot.setup)
         if snapshot.setup.attachment == .available || snapshot.reviewEnvironment {
-            introTitle.stringValue = "照常截图。\n点一下，进入聊天。"
-            introDescription.stringValue = "正常使用时，截图停在桌面边缘。点一下微图，就能附加到当前 Chrome 的 ChatGPT 草稿。"
+            introTitle.stringValue = "照常截图。\n从边缘点选。"
+            introDescription.stringValue = "照常截图，例如按 ⇧⌘4 选择区域。让要用的 ChatGPT 草稿显示在 Chrome 前台，再点屏幕边缘的微图。"
         } else {
             introTitle.stringValue = presentation.firstUseTitle
             introDescription.stringValue = presentation.firstUseDescription
@@ -266,7 +266,7 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
         sourcePath.isHidden = !presentation.hasSourceLocation
         sourceAccess.isHidden = !presentation.needsSourceAccess
         sourceAccess.isEnabled = snapshot.capabilities.canChooseSource && presentation.needsSourceAccess
-        automationDetail.stringValue = automationText(snapshot.setup.permission)
+        automationDetail.stringValue = presentation.automationStatusText ?? "当前模式不需要 Chrome 自动化。"
         automation.title = presentation.permissionActionTitle
         automation.setAccessibilityLabel(automation.title)
         automation.isEnabled = snapshot.capabilities.canRequestAutomation && presentation.canRequestPermission
@@ -297,11 +297,11 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
         let ready = snapshot.setup.source == .accessible
             && (snapshot.setup.permission == .granted || snapshot.setup.permission == .notNeeded)
         if snapshot.reviewEnvironment {
-            finishHint.stringValue = "完成后可继续查看设置。隔离审核不会真实截图、上传或发送聊天。"
+            finishHint.stringValue = "完成后，可从菜单栏的 Riftlet 图标打开设置和截图历史。隔离审核不会连接浏览器或上传。"
         } else if ready && snapshot.setup.attachment == .available {
-            finishHint.stringValue = "准备好后，照常截图，再点一下边缘微图。Chrome 页面选项需按说明确认；这里不会自动截图或发送。"
+            finishHint.stringValue = "打开要用的 Chrome 聊天草稿，截一张图，再点屏幕边缘的微图。需要帮助时，从菜单栏打开 Riftlet 设置。"
         } else {
-            finishHint.stringValue = "可以先开始，之后从“权限与帮助”查看连接。当前能力保持原状，不会自动截图或发送。"
+            finishHint.stringValue = "可以先开始。之后点菜单栏的 Riftlet 图标，打开“设置 → 权限与帮助”继续连接。"
         }
         if snapshot.state.owner.collectionPaused || snapshot.state.owner.isHidden {
             finishHint.stringValue += " 当前暂停和隐藏设置会保留。"
@@ -319,19 +319,6 @@ public final class RiftOnboardingController: NSObject, NSWindowDelegate, NSMenuD
         retry?.isHidden = state?.saveFailure == nil
         retry?.isEnabled = snapshot.capabilities.canEditPreferences && state?.pending != nil
             && state?.isSaving != true && !busy.contains(domain)
-    }
-
-    private func automationText(_ permission: SetupPermissionState) -> String {
-        switch permission {
-        case .notNeeded: return "当前模式不需要 Chrome 自动化。"
-        case .notChecked: return "尚未检查。只在你点击具体授权按钮时申请。"
-        case .notRequested: return "需要 macOS 自动化许可，用于你主动点击时附加图片。"
-        case .granted: return "macOS 已允许 Chrome 自动化；页面脚本选项仍需单独确认。"
-        case .denied: return "自动化访问被拒绝；可以在系统设置中重新允许。"
-        case .notRunning: return "请先打开 Chrome，再重新检查。"
-        case .browserUnavailable: return "暂未找到可用的 Chrome；其他本机功能仍可使用。"
-        case .unavailable: return "目前无法确认自动化权限，请重新检查。"
-        }
     }
 
     private func refreshDisplay() {
