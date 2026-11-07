@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "sourceBaseline": "5bd15e153fd92165b66f1f9d655eecfbf193e9dd",
-  "scope": "Consumer documentation source audit: unchanged main runtime plus explicit-label, archive-pin and original-logo icon packaging successors; source-only semantic review, no new runtime acceptance",
+  "sourceBaseline": "b1fa4329d66dcd632291c4d8bb7b18b5ec5ffbbc",
+  "scope": "Consumer documentation inheritance: 34 existing source bindings, with committed-media recovery validation optimization semantically re-audited; associated FileValidation owner separately pinned in capture-inheritance-audit.json. No installed-version change or new live-browser acceptance is asserted.",
   "files": [
     {
       "path": "Sources/RiftletApp/OrdinaryCaptureConfiguration.swift",
@@ -120,8 +120,8 @@
     },
     {
       "path": "Sources/RiftletCapture/PrivateAssetImporter.swift",
-      "sha256": "cdee375cfc148a934fd4a180d4192695512028b7935230045ef9b0da67f85191",
-      "sourceBlob": "6188017d1ad65f6620c7eb6cfaed6facf191c8e1"
+      "sha256": "178678bde1eb781f94b74ff881e39875008eee7bdb048d8ae01a3732f8a73ff2",
+      "sourceBlob": "9d057eda128657a7c4705e1569bb789c0e360a34"
     },
     {
       "path": "Sources/RiftletCapture/InteractiveScreenshotSystemCapture.swift",
@@ -175,9 +175,13 @@
     }
   ],
   "previousSourceBinding": {
-    "path": "source-bindings-01.json",
-    "sha256": "dadbd66ae4f592df6a9783c5366b1e675ed42f3a4d44e2840812694d4ea72e18",
-    "sourceBaseline": "2e779f646ac4874344fac94f79103e8ddf9b02c8"
+    "path": "source-bindings-03.json",
+    "sha256": "934b8dfe8d9f492b8be6fe1573ef55a6c9f3a8b286ea7381597a8721bc8a6261",
+    "sourceBaseline": "5bd15e153fd92165b66f1f9d655eecfbf193e9dd"
   },
-  "inheritanceAudit": "release-inheritance-audit.json"
+  "inheritanceAudit": "capture-inheritance-audit.json",
+  "previousInheritanceAudits": [
+    "release-inheritance-audit.json",
+    "icon-inheritance-audit.json"
+  ]
 }

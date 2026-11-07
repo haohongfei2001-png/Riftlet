@@ -1,0 +1,183 @@
+{
+  "schemaVersion": 1,
+  "sourceBaseline": "5bd15e153fd92165b66f1f9d655eecfbf193e9dd",
+  "scope": "Consumer documentation source audit: unchanged main runtime plus explicit-label, archive-pin and original-logo icon packaging successors; source-only semantic review, no new runtime acceptance",
+  "files": [
+    {
+      "path": "Sources/RiftletApp/OrdinaryCaptureConfiguration.swift",
+      "sha256": "0f0d2ce1d98e83854a2deb97073dc065872d560ddd0726c6ac20e698ceba58a9",
+      "sourceBlob": "59f7de2e88df21b40092f3b1b5fe4217d7f7b628"
+    },
+    {
+      "path": "Sources/RiftletApp/ApplicationMode.swift",
+      "sha256": "0113afbf70934708f165de0d0b49714ba4605d9dd76751d0facc47a55c6141af",
+      "sourceBlob": "3edf7691181301bf9d4ea9baa640d99d290bbc1d"
+    },
+    {
+      "path": "Sources/RiftletApp/RiftletMain.swift",
+      "sha256": "f4e1eb5e60b8d18fa84026aebdb448d2f4ac41193607c54d4d76e158934103ef",
+      "sourceBlob": "88e1b96763e94247705fb7f72b68947970126e0f"
+    },
+    {
+      "path": "Sources/RiftletApp/AutomationPermission.swift",
+      "sha256": "36f5bd576cb9f1307f59dcc270e818cd59b8e461ec2c7be09979e3efd7352fd1",
+      "sourceBlob": "5f2f329d3f41e360165a59dcb8e76e9a82b45eaf"
+    },
+    {
+      "path": "Sources/RiftletApp/LoginItemPreferences.swift",
+      "sha256": "a3f0402a4080b50ede45058763839cdc374faa6654ed24dbd5233252f7881253",
+      "sourceBlob": "d3b0ccb79ea8150a1ef6c61f1f138e8fd8a85d1d"
+    },
+    {
+      "path": "Sources/RiftletApp/ScreenshotEntryHost.swift",
+      "sha256": "766dafe90ee7ee5455db1b6517503e48523bf431206dba882ac14d74d5d132b6",
+      "sourceBlob": "987348fe168a27ad8707d71f0dfe00649268f922"
+    },
+    {
+      "path": "Sources/RiftletApp/FeedbackHost.swift",
+      "sha256": "d794d3520f7a453d2d928fa2ec07c8ff0e0618b3356b59261fd427ed12b58423",
+      "sourceBlob": "6468ce27ae9e4e68c30b6dfdcb00a7e87af544ec"
+    },
+    {
+      "path": "Sources/RiftletApp/HistoryDisplayPreferences.swift",
+      "sha256": "53ec31ae5080bd0529750430f1184823ff63449e0d9eeaca998fda0bb583bfee",
+      "sourceBlob": "2f99fdfe5eed67971a98805aea9e3abfa71446cb"
+    },
+    {
+      "path": "Sources/RiftletApp/ProductStatus.swift",
+      "sha256": "aeb84906b092470eb178396409fde59572d644800462549c0f5583b54e38665c",
+      "sourceBlob": "2ccc99c25cf13950ffe948efd0c8e849263b0fe8"
+    },
+    {
+      "path": "Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js",
+      "sha256": "0daf3f2763e340503b8c957c4ef35a619417c5e486ac48fccbcae3f657ff9a09",
+      "sourceBlob": "843219b7ee6ae13375a069bf4b312e39b8f4a1cc"
+    },
+    {
+      "path": "Sources/RiftletAdapters/ChatGPTWebPageProgram.swift",
+      "sha256": "0b8ca4ae034c953abc91d71db4bc337888497d8029e5a5a76c04b0b877d684c4",
+      "sourceBlob": "1b6d76d1cde8aba0dc1ef2051c2c3a4d3b227cbb"
+    },
+    {
+      "path": "Sources/RiftletAdapters/ChromeActivityObserver.swift",
+      "sha256": "af74b4e16be8f168c4841e81c89adbe162a383abaf6df9d998b0812ee88ff0f1",
+      "sourceBlob": "b3d8297c7d7eef1ae9e09e5095dbed90d94ff48a"
+    },
+    {
+      "path": "Sources/RiftletAdapters/WebAttachmentAdapter.swift",
+      "sha256": "95186df3529992fa2c59b00b82d874e30652b878054e1a99cd708cfe1726a470",
+      "sourceBlob": "d14b4e6bd2511f1c3c60d171e4ba1d081e90bd95"
+    },
+    {
+      "path": "Sources/RiftletCore/TransferCoordinator.swift",
+      "sha256": "390b2609a4b8b9cc0f683f51cf6f37d24a4ca19864494484269452d41679928d",
+      "sourceBlob": "303f574b79c84d6fe2e0940670d591882934a115"
+    },
+    {
+      "path": "Sources/RiftletCore/QueueStore.swift",
+      "sha256": "9709e0b3069e62ec3ea454d5f278d66155fc00c615ad8c0ab49800e66267f27a",
+      "sourceBlob": "e44e6e699961b8c1fc761880e9843ccf3e19699b"
+    },
+    {
+      "path": "Sources/RiftletCore/ReceiptPolicy.swift",
+      "sha256": "bf096264f14327b90d0dc9a2ef6b106b3556f29d02027757e6682ac7f6a64c2e",
+      "sourceBlob": "e618bcbfff850af1ee687a76e343c21ccae0b520"
+    },
+    {
+      "path": "Sources/RiftletUI/HistoryPresentation.swift",
+      "sha256": "eea832c3aab20659a2caacfb6b0f3c02d9bd351f2521d8d3f1b9d7aa01a075a8",
+      "sourceBlob": "9d3b950737f9f019919f88690be5ee0734e7fca4"
+    },
+    {
+      "path": "Sources/RiftletUI/HistoryDisplayStyle.swift",
+      "sha256": "5cb13df74bca338a65d50e9c893af200274dd32dc3446045f365e6acef4f209f",
+      "sourceBlob": "5cc2901511935562e75abc25186b35dca0f22cff"
+    },
+    {
+      "path": "Sources/RiftletUI/RiftHistoryController.swift",
+      "sha256": "27099e8ceb5873bdf571b3a85ed4459fd0062249e52fe89840f8cf2137259875",
+      "sourceBlob": "39e764e4c3e24d3a3266c47fc3d64341b7f92141"
+    },
+    {
+      "path": "Sources/RiftletUI/RiftSettingsCenterPages.swift",
+      "sha256": "a298f7a364c209694a38108a6afd1c9b92a10de6862c77e0dbae72fc746363dd",
+      "sourceBlob": "684fe6e990ab944af5d1c6f860e6a3f97474f1a0"
+    },
+    {
+      "path": "Sources/RiftletUI/RiftSettingsCenterRendering.swift",
+      "sha256": "6eb5face38085dec1a0a53583745d17fbb899131117e69c35d55bc532fc8791a",
+      "sourceBlob": "79b22df8d695f9cef594d6d8cca8cdb2cdb797b7"
+    },
+    {
+      "path": "Sources/RiftletCapture/CaptureService.swift",
+      "sha256": "42eaf464c9f2fd986f23687cc4e1793e1fdf86db4b9a936f9620b97c22c533f2",
+      "sourceBlob": "1fd9f9074c176d2c3d7329fdcb8e8bd4a1ba7735"
+    },
+    {
+      "path": "Sources/RiftletCapture/CaptureSourceBinding.swift",
+      "sha256": "bc3bddccc4e1614026fed4066ac990ac3d91f348c1667a5d5af452e019653905",
+      "sourceBlob": "0e91fbe564272f3f611d1e6f6f141b89f9b5e30a"
+    },
+    {
+      "path": "Sources/RiftletCapture/PrivateAssetImporter.swift",
+      "sha256": "cdee375cfc148a934fd4a180d4192695512028b7935230045ef9b0da67f85191",
+      "sourceBlob": "6188017d1ad65f6620c7eb6cfaed6facf191c8e1"
+    },
+    {
+      "path": "Sources/RiftletCapture/InteractiveScreenshotSystemCapture.swift",
+      "sha256": "b3e520e7ae2706a2bbe533b3d13cb09319a24e769e65e7e0b339214e7002c2a9",
+      "sourceBlob": "386f7b0121bd35581fb4386ac8882b7e48e16ddf"
+    },
+    {
+      "path": "Sources/RiftletCapture/StorageUsage.swift",
+      "sha256": "fe5ac068f07f16c7ba0c8b6b6431756d75df769498199a8f2b9cf9482af6aa30",
+      "sourceBlob": "3a35ec428f286fe2adcf42c55662efebfa088741"
+    },
+    {
+      "path": "Sources/RiftletFeedback/FeedbackModels.swift",
+      "sha256": "3c446e5957618146fc1168a1bbeb0c1c421d5c98fb023b358b5bcbce3bb54e74",
+      "sourceBlob": "736b9f9e1b4ff4ca03cef213107c91b8cc361c7b"
+    },
+    {
+      "path": "Sources/RiftletFeedback/FeedbackDiagnostics.swift",
+      "sha256": "1679b37ce237106f5870ffae1f7cd089463e19ebc030a716de61b1b263d16bd8",
+      "sourceBlob": "1e6a4578cc8571c650922f36f7046ffd3a5e2510"
+    },
+    {
+      "path": "Sources/RiftletFeedback/FeedbackEngine.swift",
+      "sha256": "6b77e8cd2e7f11f0625e8dc395662036d5068da2df919d80498d7813f30ff198",
+      "sourceBlob": "364bf1ad9f47ea820a82522ad7af3ab8a8ef7a91"
+    },
+    {
+      "path": "Sources/RiftletFeedback/FeedbackTransport.swift",
+      "sha256": "0d17876ac65a13b4d29292b4a0975857e632daac302922b71f7ce31930c42222",
+      "sourceBlob": "30cf617cec49f86b13790c233ea8018788ea292d"
+    },
+    {
+      "path": "Sources/RiftletFeedbackUI/FeedbackWindowController.swift",
+      "sha256": "ab768526432b4f00a016d156517b2aeefc8b80a74273d3ed9c07d4338893c5ec",
+      "sourceBlob": "1838795a735d4574e4f3c28d7d88e269a28b4eec"
+    },
+    {
+      "path": "scripts/release-tool.py",
+      "sha256": "0e0be6f27f5c6c17acc3d114da97f6e8e84dcaa61f2173ad7fdfcea042ecfa61",
+      "sourceBlob": "a1848b741dd85847e7fe7035da81572e8f1a2e2d"
+    },
+    {
+      "path": "scripts/storage-recovery.py",
+      "sha256": "52abdd9bbb8c51cd10faf32ecc2f934509e60cb5e2f31a5f3444ec77151edb83",
+      "sourceBlob": "f146c039a4b693a79bee6a35ec10586c247d0ec0"
+    },
+    {
+      "path": "Package.swift",
+      "sha256": "a721e4e172f087dbb012b81b69494252df1424ef804f28d12330ebf4a9f3dbee",
+      "sourceBlob": "d3cdd0d51ad937b1afb243cd866cf0071f408d49"
+    }
+  ],
+  "previousSourceBinding": {
+    "path": "source-bindings-01.json",
+    "sha256": "dadbd66ae4f592df6a9783c5366b1e675ed42f3a4d44e2840812694d4ea72e18",
+    "sourceBaseline": "2e779f646ac4874344fac94f79103e8ddf9b02c8"
+  },
+  "inheritanceAudit": "release-inheritance-audit.json"
+}
