@@ -1,0 +1,137 @@
+{
+  "source": "2d5f4e57f208b85d40bbe71fd41f01c976a08d6a",
+  "files": {
+    "Contents": {
+      "kind": "directory",
+      "mode": 493,
+      "xattrs": {}
+    },
+    "Contents/Info.plist": {
+      "kind": "file",
+      "mode": 420,
+      "xattrs": {},
+      "size": 2009,
+      "sha256": "5f1cc644162982ff4cebc16a71a09d523498de8fb897c3edeeafd2d6a63e27ff"
+    },
+    "Contents/MacOS": {
+      "kind": "directory",
+      "mode": 493,
+      "xattrs": {}
+    },
+    "Contents/MacOS/Riftlet": {
+      "kind": "file",
+      "mode": 493,
+      "xattrs": {},
+      "size": 11026064,
+      "sha256": "bfddb1ca2b9f5c102d45d85b75de9c4ac2ab790a176d9b295c8edcecd5580b90"
+    },
+    "Contents/Resources": {
+      "kind": "directory",
+      "mode": 493,
+      "xattrs": {}
+    },
+    "Contents/Resources/Riftlet.icns": {
+      "kind": "file",
+      "mode": 420,
+      "xattrs": {},
+      "size": 61888,
+      "sha256": "b84de92fab292cdf18b94f1aac79a0bd2ed4a373b2542fd985bbd6eaea91c048"
+    },
+    "Contents/Resources/Riftlet_RiftletAdapters.bundle": {
+      "kind": "directory",
+      "mode": 493,
+      "xattrs": {}
+    },
+    "Contents/Resources/Riftlet_RiftletAdapters.bundle/Contents": {
+      "kind": "directory",
+      "mode": 493,
+      "xattrs": {}
+    },
+    "Contents/Resources/Riftlet_RiftletAdapters.bundle/Contents/Info.plist": {
+      "kind": "file",
+      "mode": 420,
+      "xattrs": {},
+      "size": 1165,
+      "sha256": "ea180c9926ef7808a2448af38a9977990db72e5a8bb4cd4592f6a1a3c6b7be2d"
+    },
+    "Contents/Resources/Riftlet_RiftletAdapters.bundle/Contents/Resources": {
+      "kind": "directory",
+      "mode": 493,
+      "xattrs": {}
+    },
+    "Contents/Resources/Riftlet_RiftletAdapters.bundle/Contents/Resources/chatgpt-web-20261027.js": {
+      "kind": "file",
+      "mode": 420,
+      "xattrs": {},
+      "size": 56897,
+      "sha256": "0daf3f2763e340503b8c957c4ef35a619417c5e486ac48fccbcae3f657ff9a09"
+    },
+    "Contents/Resources/Riftlet_RiftletAdapters.bundle/Contents/Resources/legacy-web-observe.js": {
+      "kind": "file",
+      "mode": 420,
+      "xattrs": {},
+      "size": 4728,
+      "sha256": "9a60f99e806289213e9df8bd9812337ebf58e334cd996679ef3a5de394805848"
+    },
+    "Contents/Resources/ThirdPartyNotices": {
+      "kind": "directory",
+      "mode": 493,
+      "xattrs": {}
+    },
+    "Contents/Resources/ThirdPartyNotices/Screenshoss": {
+      "kind": "directory",
+      "mode": 493,
+      "xattrs": {}
+    },
+    "Contents/Resources/ThirdPartyNotices/Screenshoss/LICENSE": {
+      "kind": "file",
+      "mode": 420,
+      "xattrs": {},
+      "size": 1072,
+      "sha256": "ba6e7da08b1ae572908ac282b6ed1b5c2771ca7d619a9ad2bb173979e69df816"
+    },
+    "Contents/Resources/ThirdPartyNotices/Sukurini": {
+      "kind": "directory",
+      "mode": 493,
+      "xattrs": {}
+    },
+    "Contents/Resources/ThirdPartyNotices/Sukurini/LICENSE": {
+      "kind": "file",
+      "mode": 420,
+      "xattrs": {},
+      "size": 11340,
+      "sha256": "ef3e7d889124843952688376a12817992a6942190820005096ab71b17d703091"
+    },
+    "Contents/Resources/ThirdPartyNotices/Sukurini/NOTICE": {
+      "kind": "file",
+      "mode": 420,
+      "xattrs": {},
+      "size": 117,
+      "sha256": "ab71755fa2afdb52fc3f4e773f595241d86b19778c6f93a90335021c84566721"
+    },
+    "Contents/Resources/ThirdPartyNotices/Tendedero": {
+      "kind": "directory",
+      "mode": 493,
+      "xattrs": {}
+    },
+    "Contents/Resources/ThirdPartyNotices/Tendedero/LICENSE": {
+      "kind": "file",
+      "mode": 420,
+      "xattrs": {},
+      "size": 1580,
+      "sha256": "03543f9ce9dddb3f7e06afcda9f62386d364c357f897ee0ee7ad5d0fdb6b483d"
+    },
+    "Contents/_CodeSignature": {
+      "kind": "directory",
+      "mode": 493,
+      "xattrs": {}
+    },
+    "Contents/_CodeSignature/CodeResources": {
+      "kind": "file",
+      "mode": 420,
+      "xattrs": {},
+      "size": 4554,
+      "sha256": "6118cf7787074bcf9b64b2ca8fba0fa32aa008495260a189fa5ac56ce1088c92"
+    }
+  }
+}

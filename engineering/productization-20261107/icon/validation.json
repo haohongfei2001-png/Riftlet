@@ -1,0 +1,113 @@
+{
+  "schema": 1,
+  "result": "PASS_SCOPED_ICON_GENERATION_AND_TWO_BUILD_PATHS",
+  "author": "readiness_independent",
+  "independentReview": "Separate non-author final review required; this is author evidence",
+  "source": "2d5f4e57f208b85d40bbe71fd41f01c976a08d6a",
+  "sourceTree": "019dc9ecd8af9918037724a4936ea5daf9a6fb5a",
+  "svgSHA256": "f31d71318e1aaef2464bbcc25c5a105fa6959d10006eb7c64d30aac42fbb3e90",
+  "iconSHA256": "b84de92fab292cdf18b94f1aac79a0bd2ed4a373b2542fd985bbd6eaea91c048",
+  "generation": {
+    "manifestSHA256": "6c63fe6a6ec037e128eb97050c18f94942a77711182438af01904db6a4244fbb",
+    "secondManifestSHA256": "6c63fe6a6ec037e128eb97050c18f94942a77711182438af01904db6a4244fbb",
+    "nativeSlots": 10,
+    "decodedPixelsAllExactlyEqual": true,
+    "repeatICNSBytesEqual": true
+  },
+  "builds": {
+    "releasePrepared": {
+      "version": "0.3.0",
+      "build": "4",
+      "label": "Beta 3 Review",
+      "channel": "release-candidate",
+      "iconFile": "Riftlet.icns",
+      "iconSHA256": "b84de92fab292cdf18b94f1aac79a0bd2ed4a373b2542fd985bbd6eaea91c048",
+      "binarySHA256": "cda32498f1076182bc803f8115fc11cf597da327b7e8e85485954348192a9df4",
+      "architecture": [
+        "arm64"
+      ],
+      "inventorySHA256": "e75864ac826350a1e4dc5ff3fe7477e67869dab3264e2e14212b8631e4cf54e7",
+      "regularFiles": 11,
+      "signingCredentials": "NOT_USED"
+    },
+    "development": {
+      "version": "0.3.0",
+      "build": "3",
+      "label": "Beta 3",
+      "channel": "development",
+      "iconFile": "Riftlet.icns",
+      "iconSHA256": "b84de92fab292cdf18b94f1aac79a0bd2ed4a373b2542fd985bbd6eaea91c048",
+      "binarySHA256": "bfddb1ca2b9f5c102d45d85b75de9c4ac2ab790a176d9b295c8edcecd5580b90",
+      "architecture": [
+        "arm64"
+      ],
+      "inventorySHA256": "e5e784a8a3185cc7b2b8c7a0ebb6578dfc7d6be29749b85aa4f87ff419f8b1af",
+      "regularFiles": 11,
+      "nativeAdHocSignatureVerification": "PASS via actual build script; not Developer ID or Gatekeeper"
+    }
+  },
+  "releaseManifestSHA256": "e5b07778c4fc44bb78f85940eb76971cb6ec585557837da8ec61e9ce484fff54",
+  "releaseStage": "PREPARED",
+  "tests": {
+    "Packaging": {
+      "tests": 21,
+      "failures": 0,
+      "skipped": 0,
+      "exitCode": 0,
+      "sha256": "2b38f8be1b26ba9bc27225f81f569cda4cfe889c9148daa8ddd78f36cb82da9d"
+    },
+    "ReleaseReadiness": {
+      "tests": 56,
+      "failures": 0,
+      "skipped": 0,
+      "exitCode": 0,
+      "sha256": "988ad3abe28f72fc9014016c8b664b60bae971f2cdcfa2121bd55dbee02b9c9b"
+    },
+    "InternalBetaPackaging": {
+      "tests": 17,
+      "failures": 0,
+      "skipped": 0,
+      "exitCode": 0,
+      "sha256": "7a88c621e927864f498814a8d9f74959fe191462acb4cbacb2656d5a3ae246f6"
+    }
+  },
+  "commandEvidence": {
+    "release-build-final.log": {
+      "exitCode": 0,
+      "sha256": "c6174804597a0733567b990e59ae48e4106ce845446da2c6b490157519e9353e",
+      "logCreationUTC": "2026-11-07T00:42:47.325003+00:00",
+      "lastOutputUTC": "2026-11-07T00:43:57.704684+00:00",
+      "overlapWithHourSoakEnding004022Z": false
+    },
+    "development-build-final.log": {
+      "exitCode": 0,
+      "sha256": "29c6a57460749912709d9420ea33f2ca82bdb6b4b2c3da5c59118d04a9558a5f",
+      "logCreationUTC": "2026-11-07T00:43:30.923340+00:00",
+      "lastOutputUTC": "2026-11-07T00:44:41.423169+00:00",
+      "overlapWithHourSoakEnding004022Z": false
+    }
+  },
+  "timeDefinition": "Shell redirection creates logs immediately before commands; mtime is last recorded output, not exact scheduler exit time. Final builds overlapped each other approximately27s, both strictly after the hour run.",
+  "priorFailures": {
+    "nativeIconutilDecodeEvidenceSHA256": "b9e15c703e3fb69aa941cc53187e6139109125da1ce4dba349df05014e6823c7",
+    "originalSmallSlotsMismatch": true,
+    "pngSmallSlotExperimentFailed": true,
+    "firstSource": "5bd15e153fd92165b66f1f9d655eecfbf193e9dd",
+    "firstBuild": "PREPARED",
+    "firstIconVisual": "FAIL_SMALL_SLOT_ALPHA",
+    "shortSHAPreflightRejectionLogSHA256": "4e156070a1cd9a95e9c3e25a9dc8c5f00851f7611dba6a2ff33083b46abe59f5",
+    "scope": "Original build/PNG/raw failures retained, no relabeling."
+  },
+  "historicalIconlessCompatibilitySHA256": "c8974fb8b08421581314bc7573bd7fe0a7c14443c7a4e1e851c9d0617d3b184e",
+  "limits": [
+    "Development bundle0.3.0(3)/Beta3 is a new private source/binary; not installed fe5. Release PREPARED0.3.0(4)/Beta3Review is separate.",
+    "No Developer ID, notarization, public distribution, installation, App GUI, Finder/Dock/cache acceptance. iconutil is headless native decoding only.",
+    "No runtime source, Package, upload logic, production App/data/TCC, account or remote-ref change in this lane."
+  ],
+  "privateFullReportSHA256": "dc89064a575300b0559f75b34d5266f908deba39343d71a419fb715074b5dd6c",
+  "firstTestFailure": {
+    "logSHA256": "a331d11f2efd079e8a5e6fe19052c4f853e8086d2683bb9987675ee1fd2a92f9",
+    "result": "19PASS/1ERROR",
+    "cause": "Two original assertions were temporarily placed in a new method with no local result variable; moved back to original method, assertions retained. Original failure log retained."
+  }
+}

@@ -28,3 +28,11 @@ node scripts/icon-generator/generate.cjs /absolute/new/icon-output
 历史包若既无图标声明也无图标文件，仍按原合同验证；不得将新资源要求倒灌已安装 Beta 3 或回退包。带图标的新源码包必须保留声明和精确资源。已有 source/manifest pin、Developer ID、STAPLED、公证和数据兼容门槛不变。
 
 此增量不证明真实安装、Dock/Finder 缓存刷新、Gatekeeper、公证、公开分发或截图上传通过。两条实际构建记录和后续独立源审分别由正式交付证据绑定；既有失败日志不覆盖。
+
+## 已执行的有限验证
+
+固定源码 `2d5f4e57f208b85d40bbe71fd41f01c976a08d6a` 上，Packaging **21/21**、ReleaseReadiness **56/56**、InternalBetaPackaging **17/17** 通过，无 skip。测试涵盖声明后缺图标、错名、缺尺寸槽、源资源漂移、ZIP 清单自洽但遗漏已声明图标，以及历史无图标包兼容；不是 XCTest 或 UI 验收。
+
+两个 ARM64 实际构建都成功并保留原始日志与完整文件清单。development 是工作树输出 `0.3.0(3) / Beta 3`，已执行 ad-hoc 完整性检查，但不是已安装的 `fe5b09…`。release 工具输出是 `PREPARED 0.3.0(4) / Beta 3 Review`，未签 Developer ID、未公证；两者图标都精确为 `b84de92fab292cdf18b94f1aac79a0bd2ed4a373b2542fd985bbd6eaea91c048`，release manifest 已纳入资源。
+
+原生十槽解码和两次生成一致性均实际通过。旧的私有 Beta 3 副本和旧 PREPARED 包使用新校验器只读检查也通过，未更新旧回执。精确产物、全清单散列、原失败与边界见 [validation.json](validation.json)。这些是作者记录，独立审查另行绑定；本页后继仅补证据，不把先前构建重新标成后继源码构建。
