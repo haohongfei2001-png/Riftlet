@@ -16,7 +16,7 @@ private func isAutomationHeading(_ text: String, token: String) -> Bool {
                     sender + " wants access to control google chrome",
                     sender + " would like to control google chrome",
                     sender + " wants to control google chrome"]
-    return headings.contains { title == $0 || title.hasPrefix($0 + ".") || title.hasPrefix($0 + "?") }
+    return headings.contains { title == $0 || title == $0 + "." || title == $0 + "?" }
 }
 
 private func inspect(_ window: AXUIElement, token: String, kind: String) -> [String: Any]? {
