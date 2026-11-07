@@ -1,61 +1,191 @@
 name: Release identity on a fresh Mac
 on:
-  pull_request:
-    branches: [main]
-    paths:
-      - '.github/workflows/release-identity-host.yml'
-      - 'Tests/ReleaseIdentityHost/**'
-      - 'Tests/ReleaseUpgradeHost/**'
   workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  fresh_account:
-    name: Fresh-account upgrade and folder access
+  original_receiver:
+    name: Original signed Chrome Automation observation
+    if: github.repository == 'haohongfei2001-png/Riftlet' && github.ref_name == 'codex/verified-chrome-consent-experiment-20261107'
     runs-on: macos-15
-    timeout-minutes: 22
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           fetch-depth: 0
           persist-credentials: false
-      - name: Build the two ordinary versions in separate workspaces
+      - name: Verify a read-only vendor image and run only the reviewed Automation probe
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p test-results
-          previous=2e779f646ac4874344fac94f79103e8ddf9b02c8
-          # Test the same candidate tree whose workflow and host drivers we checked out.
-          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
-          python3 -B scripts/release-tool.py build --source "$previous" --version 0.3.0 --build 3 --label "Beta 3" --arch arm64 --workspace "$RUNNER_TEMP/baseline"
-          python3 -B scripts/release-tool.py build --source "$GITHUB_SHA" --version 0.3.2 --build 5 --label "Identity Rehearsal" --arch arm64 --workspace "$RUNNER_TEMP/next"
-          ditto "$RUNNER_TEMP/baseline/Riftlet-Release/Riftlet.app" "$RUNNER_TEMP/Old.app"
-          ditto "$RUNNER_TEMP/next/Riftlet-Release/Riftlet.app" "$RUNNER_TEMP/New.app"
-          codesign --force --sign - --timestamp=none "$RUNNER_TEMP/Old.app"
-          codesign --force --sign - --options runtime --timestamp=none --entitlements packaging/release/Entitlements.plist "$RUNNER_TEMP/New.app"
-          codesign --verify --deep --strict --all-architectures "$RUNNER_TEMP/Old.app"
-          codesign --verify --deep --strict --all-architectures "$RUNNER_TEMP/New.app"
-      - name: Exercise first ordinary launch, two imports and App-only rollback
-        run: python3 -B Tests/ReleaseUpgradeHost/run.py --old "$RUNNER_TEMP/Old.app" --new "$RUNNER_TEMP/New.app" --output test-results/ordinary-upgrade.json
-      - name: Observe permissions and bookmarks with a separate App identity
-        if: ${{ !cancelled() }}
-        run: python3 -B Tests/ReleaseIdentityHost/run.py --output test-results/release-identity-host.json
-      - name: Observe first Automation decisions on a disposable Chrome profile
-        if: ${{ !cancelled() }}
-        run: python3 -B Tests/ReleaseIdentityHost/automation.py --output test-results/automation-consent.json
-      - name: Exercise candidate settings and restart in an isolated profile
-        if: ${{ !cancelled() }}
-        run: bash scripts/run-settings-review.sh "$RUNNER_TEMP/New.app" "$PWD/test-results/settings-review"
+          umask 077
+          python3 -B - <<'PY'
+          import ctypes
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+          import plistlib
+          import subprocess
+          import sys
+          import tempfile
+          import time
+
+          WORKFLOW = ".github/workflows/release-identity-host.yml"
+          BASE = "357e1ebc7f37511f09520c55f62fb5ac6087285d"
+          URL = "https://dl.google.com/chrome/mac/universal/stable/GGRO/googlechrome.dmg"
+          REQ = 'anchor apple generic and identifier "com.google.Chrome" and certificate leaf[subject.OU] = "EQHXZ8M8AV"'
+          APP = Path("/Applications/Google Chrome.app")
+          RESULT = Path("test-results")
+          RESULT.mkdir(mode=0o700)
+          report = {"state": "STARTED", "base": BASE, "receiverSource": URL, "agreementAccepted": False,
+                    "policyOrTCCDatabaseChanged": False, "originalRestored": None}
+          class Stop(Exception):
+              pass
+          def require(condition, reason):
+              if not condition:
+                  raise Stop(reason)
+          def command(argv, timeout=45):
+              return subprocess.run(list(map(str, argv)), stdin=subprocess.DEVNULL, capture_output=True, timeout=timeout)
+          def checked(argv, reason, timeout=45):
+              result = command(argv, timeout)
+              require(result.returncode == 0, reason)
+              return result.stdout
+          def sha(path):
+              h = hashlib.sha256()
+              with path.open("rb") as stream:
+                  for chunk in iter(lambda:stream.read(1024 * 1024), b""):
+                      h.update(chunk)
+              return h.hexdigest()
+          def inode(path):
+              s = path.lstat()
+              return (s.st_dev, s.st_ino)
+          def signature(app):
+              integrity = command(["/usr/bin/codesign", "--verify", "--deep", "--strict", "--all-architectures", app])
+              owner = command(["/usr/bin/codesign", "--verify", "--strict", "--all-architectures", "-R=" + REQ, app])
+              display = command(["/usr/bin/codesign", "-d", "--verbose=4", app])
+              fields = {}
+              for line in display.stderr.decode(errors="replace").splitlines():
+                  k, sep, value = line.partition("=")
+                  if sep and k in {"Identifier", "TeamIdentifier", "CDHash"}:
+                      fields[k] = value
+              fields["deepStrictCode"] = integrity.returncode
+              fields["googleRequirementCode"] = owner.returncode
+              for key, relative in (("plistSHA256","Info.plist"), ("executableSHA256","MacOS/Google Chrome"),
+                                    ("sealSHA256","_CodeSignature/CodeResources")):
+                  path = app / "Contents" / relative
+                  fields[key] = sha(path) if path.is_file() else None
+              return fields
+          def vendor(app):
+              require(app.is_dir() and not app.is_symlink(), "UNEXPECTED_VENDOR_APP")
+              result = signature(app)
+              require(result["deepStrictCode"] == result["googleRequirementCode"] == 0
+                      and result.get("Identifier") == "com.google.Chrome" and result.get("TeamIdentifier") == "EQHXZ8M8AV"
+                      and all(result.get(k) for k in ("CDHash","plistSHA256","executableSHA256","sealSHA256")),
+                      "UNVERIFIED_VENDOR_APP")
+              return result
+          def chrome_running():
+              # Executable paths only, no URLs, command-line arguments or profiles.
+              lookup = ctypes.CDLL("/usr/lib/libproc.dylib").proc_pidpath
+              lookup.argtypes = [ctypes.c_int, ctypes.c_void_p, ctypes.c_uint32]
+              for word in checked(["/bin/ps","-axo","pid="], "UNAVAILABLE_PROCESS_INVENTORY").split():
+                  buf = ctypes.create_string_buffer(4096)
+                  if lookup(int(word), buf, len(buf)) > 0:
+                      if any(p.startswith("Google Chrome") and (p.endswith(".app") or p.startswith("Google Chrome Helper"))
+                             for p in Path(os.fsdecode(buf.value)).parts):
+                          return True
+              return False
+          def move(source, dest):
+              require(not os.path.lexists(dest) and source.parent.stat().st_dev == dest.parent.stat().st_dev, "UNSAFE_RENAME")
+              before = inode(source)
+              try:
+                  source.rename(dest)
+              except PermissionError:
+                  checked(["/usr/bin/sudo","-n","/bin/mv",source,dest], "SAME_VOLUME_RENAME_REFUSED")
+              require(inode(dest) == before and not os.path.lexists(source), "RENAME_IDENTITY_CHANGED")
+          def run():
+              require(sys.platform == "darwin" and os.getenv("GITHUB_EVENT_NAME") == "workflow_dispatch"
+                      and os.getenv("GITHUB_REPOSITORY") == "haohongfei2001-png/Riftlet" and os.getenv("RUNNER_ENVIRONMENT") == "github-hosted"
+                      and os.getenv("RUNNER_OS") == "macOS" and os.getuid() != 0 and os.stat("/dev/console").st_uid == os.getuid(),
+                      "NOT_DISPOSABLE_OWNED_MAC_SESSION")
+              checked(["git","merge-base","--is-ancestor",BASE,"HEAD"], "BASE_NOT_ANCESTOR")
+              changes = checked(["git","diff","--name-only",BASE,"HEAD"], "CANNOT_BIND_CHECKOUT").decode().splitlines()
+              require(changes == [WORKFLOW] and checked(["git","rev-parse","HEAD"],"CANNOT_BIND_CHECKOUT").decode().strip() == os.getenv("GITHUB_SHA"), "CHECKOUT_NOT_WORKFLOW_ONLY")
+              require(APP.is_dir() and not APP.is_symlink() and not chrome_running(), "HOST_BROWSER_MISSING_OR_BUSY")
+              folder = Path(tempfile.mkdtemp(prefix="riftlet-official-chrome-",dir=Path(os.environ["RUNNER_TEMP"]).resolve()))
+              image = folder / "googlechrome.dmg"
+              mount = folder / "readonly-volume"
+              mount.mkdir()
+              staged = folder / "verified.app"
+              saved = folder / "runner-image-original"
+              require(folder.stat().st_dev == APP.parent.stat().st_dev, "NO_PRIVATE_SAME_VOLUME_STAGING")
+              original = inode(APP)
+              report["imageBuiltIn"] = signature(APP)
+              status = checked(["/usr/bin/curl","--disable","--silent","--show-error","--fail","--proto","=https",
+                                "--tlsv1.2","--connect-timeout","10","--max-time","150","--max-filesize","524288000",
+                                "--write-out","%{http_code}","--output",image,URL], "DIRECT_VENDOR_DOWNLOAD_UNAVAILABLE", 160)
+              require(status == b"200" and 0 < image.stat().st_size <= 524288000, "DIRECT_DOWNLOAD_NOT_200")
+              report["download"] = {"httpStatus":200,"bytes":image.stat().st_size,"sha256":sha(image)}
+              detail=plistlib.loads(checked(["/usr/bin/hdiutil","imageinfo","-plist",image],"UNREADABLE_DMG_INFO"))
+              props=detail.get("Properties",{})
+              require(props.get("Software License Agreement") is False and props.get("Encrypted") is False,
+                      "STOP_DMG_REQUIRES_AGREEMENT_PASSWORD_OR_UNKNOWN")
+              checked(["/usr/bin/hdiutil","verify",image],"DMG_INTEGRITY_FAILED",60)
+              try:
+                  result=plistlib.loads(checked(["/usr/bin/hdiutil","attach","-readonly","-nobrowse","-noautoopen","-plist",
+                                   "-mountpoint",mount,image],"READ_ONLY_ATTACH_FAILED",60))
+                  mounts=[e["mount-point"] for e in result.get("system-entities",[]) if "mount-point" in e]
+                  require(mounts == [str(mount)] and os.statvfs(mount).f_flag & os.ST_RDONLY, "MOUNT_NOT_EXACT_READONLY")
+                  report["mountedReadOnly"] = True
+                  source=mount/"Google Chrome.app"
+                  report["vendorMounted"] = vendor(source)
+                  checked(["/usr/bin/ditto",source,staged],"PRIVATE_APP_COPY_FAILED",75)
+                  require(vendor(staged) == report["vendorMounted"], "COPY_IDENTITY_CHANGED")
+              finally:
+                  if os.path.ismount(mount):
+                      checked(["/usr/bin/hdiutil","detach",mount],"DETACH_FAILED")
+              candidate=inode(staged)
+              require(inode(APP)==original and not chrome_running(), "HOST_BROWSER_CHANGED_OR_BUSY")
+              try:
+                  move(APP,saved)
+                  move(staged,APP)
+                  require(vendor(APP)==report["vendorMounted"] and inode(APP)==candidate, "FIXTURE_BINDING_FAILED")
+                  result=command([sys.executable,"-B","Tests/ReleaseIdentityHost/automation.py","--output",
+                                  RESULT/"automation-consent.json"],timeout=210)
+                  report["probeExitCode"]=result.returncode
+                  require(result.returncode == 0 and (RESULT/"automation-consent.json").is_file(), "AUTOMATION_HARNESS_FAILED")
+                  report["state"]="COMPLETED_SCOPED_RECEIVER_TEST"
+              finally:
+                  if os.path.lexists(saved):
+                      require(inode(saved)==original,"PRESERVED_HOST_APP_IDENTITY_CHANGED")
+                      if os.path.lexists(APP):
+                          wait_until=time.monotonic()+8
+                          while chrome_running() and time.monotonic()<wait_until:
+                              time.sleep(.25)
+                          require(inode(APP)==candidate and not chrome_running(),"PRESERVED_BOTH_APPS_RESTORE_UNSAFE")
+                          move(APP,staged)
+                      move(saved,APP)
+                      report["originalRestored"] = inode(APP)==original and signature(APP)==report["imageBuiltIn"]
+                      require(report["originalRestored"], "ORIGINAL_RESTORE_MISMATCH")
+          try:
+              run()
+              code=0
+          except Exception as error:
+              report["state"]="STOPPED"
+              report["reason"]=str(error) if isinstance(error,Stop) else type(error).__name__
+              code=1
+          (RESULT/"receiver-evidence.json").write_text(json.dumps(report,sort_keys=True,indent=2)+"\n")
+          print(report["state"],report.get("reason",""))
+          sys.exit(code)
+          PY
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
-        if: ${{ !cancelled() }}
+        if: ${{ always() }}
         with:
-          name: release-identity-observations-${{ github.sha }}-${{ github.run_attempt }}
+          name: original-chrome-consent-${{ github.sha }}-${{ github.run_attempt }}
           path: |
-            test-results/ordinary-upgrade.json
-            test-results/release-identity-host.json
+            test-results/receiver-evidence.json
             test-results/automation-consent.json
-            test-results/settings-review/*runner-result.json
           if-no-files-found: error
           retention-days: 14
