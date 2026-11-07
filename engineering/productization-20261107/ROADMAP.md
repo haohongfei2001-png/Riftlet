@@ -15,6 +15,6 @@ User-authorized window: 2026-11-06 23:10:34 UTC to 2026-11-07 09:10:34 UTC, or e
 | P05b | release author + final non-author review | Official SVG unchanged → App icon; both packaging flows | DONE_SCOPED; native10/10 pixel identity, two actual builds |
 | P06 | consumer author + independent review | Source-bound install/privacy/support/START documentation | DONE; successor tool bindings must be reviewed after any further tool edit |
 | P07 | consumer author + independent review | Closed Beta10–20 protocol, no telemetry/invites | DONE_PREPARATION; no external outcomes claimed |
-| P08 | root + final non-author reviewer | Complete G/H, five CI, standard integration, final A/B/C decisions | WAITING_FOR_FROZEN_PACKETS |
+| P08 | root + final non-author reviewer | Complete G/H, five CI, standard integration, final A/B/C decisions | SOURCE_CHECKPOINT_FOR_EXACT_REVIEW |
 
 All source changes stay on short-lived branches from actual main. Each packet preserves evidence and commits a reviewable result. Root alone operates foreground GUI and production lifecycle. No GUI requests are assigned to the user. No public release, invitations, paid-plan changes, production reset or blind UNKNOWN replay. The installed fe5b09c… App is retained during review. The 0.3.1(4) candidate also includes the scoped committed-media recovery repair; safe replacement requires independent source admission, formal CI, isolated complete-App acceptance and verified backup.

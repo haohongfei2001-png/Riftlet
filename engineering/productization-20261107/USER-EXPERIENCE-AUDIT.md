@@ -24,3 +24,5 @@ A guarded software mouse reached a thumbnail and one popover pause control. Ordi
 True current-foreground desktop backgrounds, magnetic arrival, network START swallow and confirmed upload-failure rebirth were not captured this sprint. Browser access is disabled. Native synthetic projection refused an off-Space/occluded backdrop; its qualification was not weakened. Black/transparent regions in raw owned-window captures are not wallpaper trials, and recorder sampling is not App frame-rate evidence.
 
 Configured animation durations and actual panel geometry are supplied for Pro; no subjective redesign or changed upload prerequisite is proposed. Existing native high-contrast, page/search/UUID and restart evidence stays attributable to its original run rather than counted again.
+
+[Maintenance candidate native evidence](maintenance/README.md) adds actual 340-record history pagination and new-process startup, with unedited synthetic window captures and explicit evidence levels.

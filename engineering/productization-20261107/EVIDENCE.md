@@ -17,3 +17,5 @@ Private frozen evidence also contains full user request/clocks, whole-App hash/m
 The original installed source/runtime baseline is main2e779f646ac4874344fac94f79103e8ddf9b02c8 / installed binaryfe5b09c4146a363e45685f8441d081fbd62a3238ed83b115287882b9158e29f3. Prior PR45 native/CI/install evidence remains valid for its exact earlier scope and is not relabelled as newly executed live attachment acceptance.
 
 Maintenance candidate: [source scope at ca7e93f](source-scope-maintenance.json), [340-media recovery comparison](performance/RECOVERY-COST.md), [native regression cases and prior failures](performance/recovery-regression-evidence.json). The 0.3.1(4) candidate, the installed 0.3.0(3), and current-service evidence have distinct identities.
+
+[Complete maintenance App: 7 native history cases, two full-App launches on 340 high-resolution assets, and original pagination captures](maintenance/README.md).
