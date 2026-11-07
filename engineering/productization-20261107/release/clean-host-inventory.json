@@ -1,0 +1,22 @@
+{
+  "timeUTC": "2026-11-07T01:31:54.502771+00:00",
+  "method": "Read-only PATH and common /Applications bundle presence on this host; no inventory of unrelated user files. Not an exhaustive claim about possible remote hosts.",
+  "toolsOnPATH": {
+    "tart": null,
+    "utmctl": null,
+    "prlctl": null,
+    "vmrun": null,
+    "VBoxManage": null,
+    "anka": null,
+    "vfkit": null
+  },
+  "commonApplications": {
+    "UTM.app": false,
+    "Parallels Desktop.app": false,
+    "VirtualBuddy.app": false,
+    "VMware Fusion.app": false,
+    "Xcode.app": false
+  },
+  "cleanOSFlow": "NOT_RUN",
+  "reason": "No provided clean device or configured VM execution route was identified. An empty UUID App database does not imply fresh Gatekeeper or system permissions; production TCC was not changed."
+}

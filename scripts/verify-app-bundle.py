@@ -11,6 +11,7 @@ from pathlib import Path
 import plistlib
 import re
 import stat
+import struct
 import sys
 from xml.parsers.expat import ExpatError
 
@@ -20,6 +21,10 @@ class VerificationError(Exception):
 
 
 RESOURCE_NAMES = ("chatgpt-web-20261027.js", "legacy-web-observe.js")
+ICON_NAME = "Riftlet.icns"
+ICON_SLOTS = {b"ic04": 16, b"ic05": 32, b"ic07": 128, b"ic08": 256,
+              b"ic09": 512, b"ic10": 1024, b"ic11": 32, b"ic12": 64,
+              b"ic13": 256, b"ic14": 512}
 NOTICE_NAMES = (
     "Screenshoss/LICENSE", "Sukurini/LICENSE", "Sukurini/NOTICE", "Tendedero/LICENSE"
 )
@@ -47,6 +52,44 @@ def read_nonempty(path, code):
         raise VerificationError(code) from error
     require(bool(data), code)
     return data
+
+
+def verify_icon_data(info, data):
+    # Historical packages with neither declaration nor icon keep their original
+    # contract. A newly declared icon must never degrade silently to a generic one.
+    if "CFBundleIconFile" not in info:
+        require(data is None, "undeclared_app_icon")
+        return
+    require(info["CFBundleIconFile"] == ICON_NAME, "invalid_CFBundleIconFile")
+    require(isinstance(data, bytes) and 8 <= len(data) <= 4 * 1024 * 1024,
+            "missing_or_invalid_app_icon")
+    require(data[:4] == b"icns" and struct.unpack_from(">I", data, 4)[0] == len(data), "invalid_icon_container")
+    entries, offset = {}, 8
+    while offset < len(data):
+        require(offset + 8 <= len(data), "invalid_icon_entry")
+        kind, length = struct.unpack_from(">4sI", data, offset)
+        require(length > 8 and offset + length <= len(data) and kind not in entries, "invalid_icon_entry")
+        entries[kind] = data[offset + 8:offset + length]
+        offset += length
+    for kind, pixels in ICON_SLOTS.items():
+        require(kind in entries, "missing_icon_representation")
+        image = entries[kind]
+        if kind in {b"ic04", b"ic05"}:
+            require(image.startswith(b"ARGB") and len(image) > 4, "invalid_icon_representation")
+        else:
+            require(len(image) >= 24 and image[:8] == b"\x89PNG\r\n\x1a\n"
+                    and image[12:16] == b"IHDR" and struct.unpack_from(">II", image, 16) == (pixels, pixels),
+                    "invalid_icon_representation")
+
+
+def verify_app_icon(app, info, repository=None):
+    icon = Path(app) / "Contents/Resources" / ICON_NAME
+    data = read_nonempty(icon, "missing_or_invalid_app_icon") if icon.exists() or icon.is_symlink() else None
+    verify_icon_data(info, data)
+    if repository is not None:
+        source = Path(repository) / "Resources" / ICON_NAME
+        expected = read_nonempty(source, "missing_source_icon") if source.exists() or source.is_symlink() else None
+        require(data == expected, "icon_differs_from_source")
 
 
 ORDINARY_ACCEPTANCE_OVERRIDES = {
@@ -125,6 +168,7 @@ def verify_bundle(app, repository=None, channel="development"):
     require(set(p.name for p in binary.parent.iterdir()) == {"Riftlet"}, "unexpected_executable")
 
     resources = contents / "Resources"
+    verify_app_icon(app, info, repository)
     resource_bundle = resources / "Riftlet_RiftletAdapters.bundle"
     require(resource_bundle.is_dir(), "missing_adapter_bundle")
     packaged_resources = {}

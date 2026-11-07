@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "reviewerRole": "integration lead, non-author of icon packaging implementation; final non-author complete-source review remains separate",
+  "result": "PASS_SCOPED_SOURCE_SEMANTICS",
+  "reviewedIconSource": "5bd15e153fd92165b66f1f9d655eecfbf193e9dd",
+  "integrationCheckpoint": "11253b4",
+  "previousBindingSHA256": "8563d32fce240490d77b98b0908a51d5cdbfdba295b8424ffbbac88942a9ed05",
+  "currentBindingSHA256": "934b8dfe8d9f492b8be6fe1573ef55a6c9f3a8b286ea7381597a8721bc8a6261",
+  "changedSourceBindings": [
+    {
+      "before": {
+        "path": "scripts/release-tool.py",
+        "sha256": "2b4cd25440750dc49d168d889f4697d4bbce903f8b73b8ba2df6710f720842da",
+        "sourceBlob": "d476507b4d94c69a68d57066d6f7a2c28b0e0738"
+      },
+      "after": {
+        "path": "scripts/release-tool.py",
+        "sha256": "0e0be6f27f5c6c17acc3d114da97f6e8e84dcaa61f2173ad7fdfcea042ecfa61",
+        "sourceBlob": "a1848b741dd85847e7fe7035da81572e8f1a2e2d"
+      }
+    }
+  ],
+  "unchangedBoundFiles": 33,
+  "semanticFindings": [
+    "The only changed consumer-bound file is release-tool.py; its four additions copy and validate the declared original-logo icon during build, package verification and ZIP verification.",
+    "Existing consumer guidance on version/build/label, explicit manifest pin, review-only PREPARED containers and formal STAPLED/Developer ID release remains accurate.",
+    "Shared verifier accepts old packages with no icon declaration and no icon; new declared icons require valid named ICNS representations, and build verification additionally checks exact source bytes. This does not invalidate the unchanged installed/rollback artifact.",
+    "No settings/history, capture, target, attachment, START/final-completion, Feedback privacy, data deletion or update orchestration source was changed.",
+    "The official SVG is unmodified; its rasterizer is a development-only generator, not an App runtime dependency or new network capability."
+  ],
+  "previousEvidencePreserved": [
+    "source-bindings-01.json",
+    "source-bindings-02.json",
+    "release-inheritance-audit.json",
+    "validation-result.json",
+    "validation-result-02.json",
+    "validation-result-03.json"
+  ],
+  "checkerChanged": false,
+  "completeSourceAdmission": "PENDING_NON_AUTHOR_FINAL_REVIEW"
+}

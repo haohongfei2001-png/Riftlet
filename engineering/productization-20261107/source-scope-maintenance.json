@@ -1,0 +1,94 @@
+{
+  "schema": "riftlet.productization.source-scope.v2",
+  "base": "2e779f646ac4874344fac94f79103e8ddf9b02c8",
+  "candidateRuntimeCheckpoint": "ca7e93fe152f16781669e7c9915ad6cb9c94cd64",
+  "historicalProjection": "source-scope.json",
+  "method": "Git objects at the two fixed commits, including tracked tree modes. Source identity is not live service acceptance.",
+  "objects": [
+    {
+      "path": "Sources/RiftletApp",
+      "base": "7d6e8c6cb404d80c441f38ae106417205c097444",
+      "candidate": "7d6e8c6cb404d80c441f38ae106417205c097444",
+      "unchanged": true
+    },
+    {
+      "path": "Sources/RiftletCore",
+      "base": "39f8e1e846ce660ce3694ecff093c0b4e95baed2",
+      "candidate": "39f8e1e846ce660ce3694ecff093c0b4e95baed2",
+      "unchanged": true
+    },
+    {
+      "path": "Sources/RiftletCapture",
+      "base": "05af4cd34016facd50488ebbd86b15f8ea31c95a",
+      "candidate": "17e4c703159a819e48192aee534efca87d0fabbb",
+      "unchanged": false
+    },
+    {
+      "path": "Sources/RiftletUI",
+      "base": "c4d9ac4806efbb3dd0751d4245af247c88c132d4",
+      "candidate": "c4d9ac4806efbb3dd0751d4245af247c88c132d4",
+      "unchanged": true
+    },
+    {
+      "path": "Sources/RiftletAdapters",
+      "base": "b48b0ffce795bd8e560bed9ae040fefc1cd64fd6",
+      "candidate": "b48b0ffce795bd8e560bed9ae040fefc1cd64fd6",
+      "unchanged": true
+    },
+    {
+      "path": "Sources/CSQLite",
+      "base": "b09e2c80f8ca3beaacb84be61d257db6e3ce97b5",
+      "candidate": "b09e2c80f8ca3beaacb84be61d257db6e3ce97b5",
+      "unchanged": true
+    },
+    {
+      "path": "Package.swift",
+      "base": "d3cdd0d51ad937b1afb243cd866cf0071f408d49",
+      "candidate": "d3cdd0d51ad937b1afb243cd866cf0071f408d49",
+      "unchanged": true
+    },
+    {
+      "path": "website-assets/riftlet.svg",
+      "base": "8742e132f43b61819e8550ad24eb8552d8621d9f",
+      "candidate": "8742e132f43b61819e8550ad24eb8552d8621d9f",
+      "unchanged": true
+    },
+    {
+      "path": ".github/workflows",
+      "base": "819f08ecc650421d3b314bf80d3802ad80fe4990",
+      "candidate": "819f08ecc650421d3b314bf80d3802ad80fe4990",
+      "unchanged": true
+    },
+    {
+      "path": "Resources",
+      "base": "b463736fbdebb877ba614523fd819be7da1471ea",
+      "candidate": "abc1e1b3490ba18638d5cd0744fb209a445f7841",
+      "unchanged": false
+    },
+    {
+      "path": "Sources/RiftletGUIAcceptance",
+      "base": "ef4ca58b5a446aa9ca40c8dfb2db390e55e974b2",
+      "candidate": "e521c564956c16c364fe525dd5af1a52d8148b26",
+      "unchanged": false
+    },
+    {
+      "path": "engineering/mainline/source-admission.json",
+      "base": "32d24cc885d6a56b83263b40389417d04bf5d8a5",
+      "candidate": "32d24cc885d6a56b83263b40389417d04bf5d8a5",
+      "unchanged": true
+    },
+    {
+      "path": "Resources/Info.plist",
+      "base": "dbd0ac5f5e75d7eee16c8acd41aa765917cb0194",
+      "candidate": "c9036bd3bc5323fead55e75c373134b9306e2769",
+      "unchanged": false
+    }
+  ],
+  "changedSourceFiles": [
+    "Sources/RiftletCapture/FileValidation.swift",
+    "Sources/RiftletCapture/PrivateAssetImporter.swift",
+    "Sources/RiftletGUIAcceptance/AcceptanceMain.swift"
+  ],
+  "productDelta": "Two Capture files avoid redundant pixel decoding only on committed byte-identical media, with full hash, current metadata limits, tuple and post-metadata pathname identity checks. Separate acceptance helper reports setup/export failure via its exit code.",
+  "packaging": "0.3.1 (4), Beta 3; original SVG converted to ICNS; no changes to the website or attachment policy."
+}

@@ -1,0 +1,479 @@
+{
+  "schema": 1,
+  "result": "PASS_SCOPED_NATIVE_RECOVERY_COMPARISON",
+  "kind": "Sanitized projection of actual finite native before/after comparison; original private files retained",
+  "source": {
+    "baselineProduct": "2e779f646ac4874344fac94f79103e8ddf9b02c8",
+    "baselineToolCheckout": "37c190d2b0d976a900654ffebf0ecdf30426cea5",
+    "candidate": "b1fa4329d66dcd632291c4d8bb7b18b5ec5ffbbc",
+    "candidateTree": "ff18a6c82450fd13134d1b9757575d569bf8ae30",
+    "changedProductInputs": {
+      "Sources/RiftletCapture/FileValidation.swift": {
+        "beforeSHA256": "d3624ce64f360611286dabc09e15ba9140d5158a240a81e93d2d1eaeb09d4cd4",
+        "afterSHA256": "ecb31d013b07db4844a6d1fd4bda71fd65dba1a957c05df76fe1a1c756d64d28"
+      },
+      "Sources/RiftletCapture/PrivateAssetImporter.swift": {
+        "beforeSHA256": "cdee375cfc148a934fd4a180d4192695512028b7935230045ef9b0da67f85191",
+        "afterSHA256": "178678bde1eb781f94b74ff881e39875008eee7bdb048d8ae01a3732f8a73ff2"
+      }
+    },
+    "sameProbeSourceSHA256": "0f838dc7cccc40bfbf6c1c144e75488256cdb3c3b361ea72b7ebbcd36be6d051",
+    "probeCodeSharedBetweenBeforeAndAfter": true,
+    "baselineNativeProbeBinarySHA256": "0beeb0332a91585a830cbcf4256bedeb4fc6fe427e402408df8e2ea742cb2c2a",
+    "candidateNativeProbeBinarySHA256": "34b6e83763bb119ee694d9f6ef6ed4588bb31ffa555c63b82de6a530acfa214a",
+    "candidateBuildIdentitySHA256": "45f7478003d6b76b60a211d20c5f9146643ebbea072048423be97bd8b6fc19e4",
+    "candidateInputs26ObjectsAndModuleFilesMatchCompletedBuild": true,
+    "productSourceChangedByThisEvidenceAuthor": false
+  },
+  "preservedInitialFailure": {
+    "run": "recovery-primitive-01",
+    "phase": "private probe compilation",
+    "compileExitCode": 1,
+    "nativeRuntime": "NOT_RUN",
+    "reason": "CaptureService argument order did not match the actual initializer; async Thread.isMainThread also emitted a warning.",
+    "correction": "Only diagnostic probe initializer argument order and pthread_main_np observation changed. No product change.",
+    "rawCompileResultSHA256": "537784452736b3ce6a96bb62a86c0b9b8ce710ee43b54efeb07f5b7fc5bfc172",
+    "rawCompileLogSHA256": "9f09700164bcdf8b01c9b63932120d2e89614ed1795d524b0db548f150250a15"
+  },
+  "processes": [
+    {
+      "run": "recovery-primitive-02",
+      "startedUTC": "2026-11-07T00:56:40.336434+00:00",
+      "finishedUTC": "2026-11-07T00:57:13.340892+00:00",
+      "completed": true,
+      "timedOut": false,
+      "exitCode": 0,
+      "actualSeconds": 33.00433366699144,
+      "binarySHA256": "0beeb0332a91585a830cbcf4256bedeb4fc6fe427e402408df8e2ea742cb2c2a"
+    },
+    {
+      "run": "recovery-primitive-03",
+      "startedUTC": "2026-11-07T01:09:35.902819+00:00",
+      "finishedUTC": "2026-11-07T01:09:47.919321+00:00",
+      "completed": true,
+      "timedOut": false,
+      "exitCode": 0,
+      "actualSeconds": 12.01528187491931,
+      "binarySHA256": "34b6e83763bb119ee694d9f6ef6ed4588bb31ffa555c63b82de6a530acfa214a"
+    }
+  ],
+  "wholeStepComparisonMS": [
+    {
+      "step": "QueueStore.init",
+      "beforeMS": 4.491999978199601,
+      "afterMS": 4.720041761174798,
+      "ratioBeforeToAfter": 0.9516864903927379,
+      "reductionPercent": -5.076620304584156
+    },
+    {
+      "step": "recoverInterruptedOperations",
+      "beforeMS": 0.14495826326310635,
+      "afterMS": 0.23891660384833813,
+      "ratioBeforeToAfter": 0.6067316416197026,
+      "reductionPercent": -64.81751262064502
+    },
+    {
+      "step": "firstActualImporterRecover",
+      "beforeMS": 11764.493708265945,
+      "afterMS": 157.6824584044516,
+      "ratioBeforeToAfter": 74.6087664240388,
+      "reductionPercent": 98.6596749310711
+    },
+    {
+      "step": "CaptureService.startIncludingSecondRecoverAndRescan",
+      "beforeMS": 10722.303583519533,
+      "afterMS": 115.82320835441351,
+      "ratioBeforeToAfter": 92.57474158987026,
+      "reductionPercent": 98.91979174575474
+    },
+    {
+      "step": "knownSourceRescanOnly",
+      "beforeMS": 5.410666577517986,
+      "afterMS": 6.377999903634191,
+      "ratioBeforeToAfter": 0.848332809543472,
+      "reductionPercent": -17.878265316432508
+    },
+    {
+      "step": "collectorStopOutsideStartTiming",
+      "beforeMS": 0.02850010059773922,
+      "afterMS": 0.035958364605903625,
+      "ratioBeforeToAfter": 0.7925861175861176,
+      "reductionPercent": -26.169255026264835
+    }
+  ],
+  "baselineLaterWarmPrimitivePass": {
+    "decompositionElapsedMS": 10120.781208155677,
+    "summaries": {
+      "fullFileSHA256": {
+        "maxMS": 1.0182498954236507,
+        "p50MS": 0.11087511666119099,
+        "p95MS": 0.8332917932420969,
+        "samples": 340,
+        "totalMS": 77.00591813772917
+      },
+      "journalReadAndDecode": {
+        "maxMS": 2.283041598275304,
+        "p50MS": 0.0733332708477974,
+        "p95MS": 0.3847917541861534,
+        "samples": 340,
+        "totalMS": 59.902874985709786
+      },
+      "privateSignature": {
+        "maxMS": 0.0447083730250597,
+        "p50MS": 0.01858314499258995,
+        "p95MS": 0.02737506292760372,
+        "samples": 340,
+        "totalMS": 6.634833291172981
+      },
+      "storeAssetLookupIncludingActorHop": {
+        "maxMS": 0.15908339992165565,
+        "p50MS": 0.044791726395487785,
+        "p95MS": 0.08162506856024265,
+        "samples": 340,
+        "totalMS": 16.209710156545043
+      },
+      "ValidatedImageInspectIncluding64pxDecode": {
+        "maxMS": 113.35912509821355,
+        "p50MS": 17.86679169163108,
+        "p95MS": 65.77962497249246,
+        "samples": 340,
+        "totalMS": 9952.57600187324
+      }
+    },
+    "inspectFractionOfWholeDecomposition": 0.9833802151412095,
+    "inspectIncludes": "All current metadata/header/type/count/status/dimension/limit checks plus the forced64pxdecode;98.34percent is not a puredecoder timer.",
+    "dimensions": {
+      "5120x1440": {
+        "count": 85,
+        "primitiveTotalMS": {
+          "fullFileSHA256": 11.359957745298743,
+          "journalReadAndDecode": 11.001374339684844,
+          "privateSignature": 1.6240004915744066,
+          "storeAssetLookupIncludingActorHop": 4.05162526294589,
+          "ValidatedImageInspectIncluding64pxDecode": 1547.143958741799
+        }
+      },
+      "3840x2160": {
+        "count": 85,
+        "primitiveTotalMS": {
+          "fullFileSHA256": 15.6083342153579,
+          "journalReadAndDecode": 17.531458055600524,
+          "privateSignature": 1.6757927369326353,
+          "storeAssetLookupIncludingActorHop": 4.005501279607415,
+          "ValidatedImageInspectIncluding64pxDecode": 1479.633541079238
+        }
+      },
+      "2160x3840": {
+        "count": 85,
+        "primitiveTotalMS": {
+          "fullFileSHA256": 14.260709285736084,
+          "journalReadAndDecode": 15.66695817746222,
+          "privateSignature": 1.650998368859291,
+          "storeAssetLookupIncludingActorHop": 3.950291546061635,
+          "ValidatedImageInspectIncluding64pxDecode": 1307.3434180114418
+        }
+      },
+      "7680x4320": {
+        "count": 85,
+        "primitiveTotalMS": {
+          "fullFileSHA256": 35.77691689133644,
+          "journalReadAndDecode": 15.703084412962198,
+          "privateSignature": 1.6840416938066483,
+          "storeAssetLookupIncludingActorHop": 4.202292067930102,
+          "ValidatedImageInspectIncluding64pxDecode": 5618.455084040761
+        }
+      }
+    }
+  },
+  "laterWarmFullInspectControl": {
+    "scope": "Unchanged probe continues calling original fullinspect API for all340 records, so this separate later pass still forces64px pixels. Not the fastpath primitive and not measured concurrently with recover.",
+    "beforeTotalMS": 9952.57600187324,
+    "afterTotalMS": 10996.150164399296
+  },
+  "measurementOrder": [
+    "Hash and copy the completed synthetic340corpus to a new private root.",
+    "Start actual QueueStore, recoverInterruptedOperations, then first actual importer.recover.",
+    "Start actual CaptureService including its second importer.recover and source rescan;0imports.",
+    "Explicit known-source rescan and stop.",
+    "Separate later warm primitive pass across340journals using actual fullinspect API.",
+    "Verify all typedrows/schema using additional DB copies and rehash all originalfiles."
+  ],
+  "candidateBehavior": {
+    "condition": "Committed existing DBasset equals full journal tuple; private size and fullfileSHA still match.",
+    "kept": [
+      "FullbyteSHA256",
+      "Current sharedtype/header/frame/status/dimension/size limits",
+      "Exact storedmetadata comparison",
+      "Postmetadata pathname signature equal to prehashsignature",
+      "Fullpixeldecode for newimports/staging/uncommitted journaladoption",
+      "UNKNOWN and existingvisibility semantics"
+    ],
+    "omittedOnly": "Repeated64pxpixeldecode for alreadyvalidated byteidentical committedmedia",
+    "schemaMigration": false,
+    "mediaDeletion": false,
+    "mtimeOnlyCache": false
+  },
+  "dataIntegrity": {
+    "assetCount": 340,
+    "recordsByDimensions": {
+      "5120x1440": 85,
+      "3840x2160": 85,
+      "2160x3840": 85,
+      "7680x4320": 85
+    },
+    "statuses": {
+      "pending": 339,
+      "unknown": 1
+    },
+    "visibilities": {
+      "removed": 330,
+      "visible": 10
+    },
+    "allSevenTypedTablesAndSchemaEqualAcrossOriginalBaselineCopyAndCandidateCopy": true,
+    "tables": {
+      "assets": {
+        "count": 340,
+        "typedRowsSHA256": "04462a5bc66d0d2cf390de4903a4264481d459b823690f85730b3dce0ac00ba9"
+      },
+      "checkpoints": {
+        "count": 3,
+        "typedRowsSHA256": "f606846e5ccc6a837a29a8805a34e6b07e9f1e3b5be3ade147ed7ea5f9c42e15"
+      },
+      "compensations": {
+        "count": 0,
+        "typedRowsSHA256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "metadata": {
+        "count": 2,
+        "typedRowsSHA256": "b9862a5e87ce31a91ece8879bb02a2ba887689949267755b15989c38b529584e"
+      },
+      "operations": {
+        "count": 1,
+        "typedRowsSHA256": "b706a60f8f5960aae67d789207d8ba428c691064bcad0c098216b5585bfe5fe5"
+      },
+      "sqlite_sequence": {
+        "count": 2,
+        "typedRowsSHA256": "75fc6c0efc19cbdea3f66f8dab2c3bbeec4ebd6155ec583d72156e90479211de"
+      },
+      "upload_starts": {
+        "count": 0,
+        "typedRowsSHA256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    "unknownFullRowsSHA256": "b706a60f8f5960aae67d789207d8ba428c691064bcad0c098216b5585bfe5fe5",
+    "schemaSHA256": "04b043caf5f2b592719c1a5a7ef57e876ea2bb874462b01c6254a493d739f096",
+    "mediaFiles": 340,
+    "journalFiles": 340,
+    "mediaJournalBytesAndModesUnchanged": true,
+    "originalAllFilesRehashedPerRun": 1034,
+    "originalCorpusUnchanged": true,
+    "newImportCallbacks": 0,
+    "uploadStarts": 0,
+    "digestEncoding": "Canonical typedvalues; INTEGER distinct fromREAL, REAL encoded withPythonfloat.hex(), NULL/TEXT/BLOB preserved, sortedrows. Raw fullsnapshot remains private."
+  },
+  "originalHourLongTails": {
+    "nativeReportSHA256": "77dc2bb4afd8aa3cdbd3d909777f2f262371e76e7db0d946407c78148ab5dc80",
+    "reopenRecordCounts": [
+      100,
+      124,
+      144,
+      164,
+      184,
+      204,
+      224,
+      244,
+      264,
+      284,
+      304,
+      324
+    ],
+    "reopenP50MS": 7603.225417,
+    "reopenMaxMS": 25614.889083,
+    "reopenMaxRecordCount": 284,
+    "freshProcessFinal340RecoverMS": 10483.9998,
+    "coldThumbnailMaxMS": 2403.547583380714,
+    "coldThumbnailZeroBasedRequestIndex": 91,
+    "coldThumbnailCorpusRecordSequence": 276,
+    "coldThumbnailSourceDimensions": [
+      7680,
+      4320
+    ],
+    "coldThumbnailAtRoundRecordCount": 284,
+    "coldThumbnailCacheScope": "A new app ThumbnailCache for each10-visible request group. Each request sequentially awaited; warm hit immediately follows. OS file cache not controlled.",
+    "coldThumbnailLooseElapsedResourceBracketSeconds": [
+      2687.0771667917725,
+      2721.7762460000813
+    ],
+    "coldThumbnailBracketLimitation": "Enclosing adjacent resource samples only; no exact per-request UTC timestamp, so no confirmed assignment to a particular concurrent process.",
+    "noInference": "No multiplication ofCLIreopenmax to claimAppstart; no mainthreadUIfreeze or network latency measured."
+  },
+  "localTests": {
+    "xctest": {
+      "exitCode": 1,
+      "status": "NOT_RUN_XCTEST_MODULE_UNAVAILABLE",
+      "logSHA256": "836315dbfce9c6a29abc3cc98d6788f6403a859d5ee5ab450e636d9a6a82180f"
+    },
+    "nativeTargetBuild": "Actual optimized RiftletCapture target with-enable-testing passed; product App was not built or launched by this comparison.",
+    "fullMacOSCI": "NOT_ESTABLISHED_BY_THIS_EVIDENCE"
+  },
+  "repeatUsingExistingPublicTool": {
+    "command": "scripts/run-high-resolution-soak.sh /private/new-candidate-smoke 0 100 60",
+    "scope": "Run from a checkout containing the candidate, use a new outputdirectory. This regenerates a100initialasset corpus and exercises actual recovery/data invariants; it is not the exact340copy timing in this report.",
+    "oldPreparedBuildReuse": "Rejected when source hashes differ. Create one new candidate preparedbuild; no unnecessary hourrerun."
+  },
+  "limitations": [
+    "One before then one after run on independent copies of the same corpus, not a randomized benchmark.",
+    "Copied files and verification hashreads warm filesystem caches; no cachecontrol or exclusive hardware.",
+    "Candidate linked alreadycompleted authorbuild; current files/26objects/modulefiles independentlymatch its identity.",
+    "No Appwindow, real screenshot, UIlatency, installedAppstartup, browser/network or productiondata accessed.",
+    "Original hour12reopen measurements used100→324records; its25.615s max at284 and2.404s coldthumbnailmax remain unchanged originalfacts.",
+    "No onehour rerun; fullXCTest is not claimed by thisCLI comparison.",
+    "The initial hour maxthumbnail was not independently fixed by the recoverychange.",
+    "No exact perrequesttimestamp exists for that thumbnailmax; concurrent work cannot be assigned causally."
+  ],
+  "rawEvidence": [
+    {
+      "evidenceGroup": "recovery-primitive-01",
+      "basename": "RecoveryPrimitiveProbe.swift",
+      "sha256": "cb08b632b287b5668c3245e9eb6ecebf9531c12a463a8390544e49014fd76173",
+      "bytes": 8444
+    },
+    {
+      "evidenceGroup": "recovery-primitive-01",
+      "basename": "compile-result.json",
+      "sha256": "537784452736b3ce6a96bb62a86c0b9b8ce710ee43b54efeb07f5b7fc5bfc172",
+      "bytes": 281
+    },
+    {
+      "evidenceGroup": "recovery-primitive-01",
+      "basename": "compile.log",
+      "sha256": "9f09700164bcdf8b01c9b63932120d2e89614ed1795d524b0db548f150250a15",
+      "bytes": 2606
+    },
+    {
+      "evidenceGroup": "recovery-primitive-02",
+      "basename": "RecoveryPrimitiveProbe.swift",
+      "sha256": "0f838dc7cccc40bfbf6c1c144e75488256cdb3c3b361ea72b7ebbcd36be6d051",
+      "bytes": 8464
+    },
+    {
+      "evidenceGroup": "recovery-primitive-02",
+      "basename": "compile-result.json",
+      "sha256": "cad39c139fd6c8123c20ad31d60a78d80f921cd18f1bc4578fd628c76f268db3",
+      "bytes": 343
+    },
+    {
+      "evidenceGroup": "recovery-primitive-02",
+      "basename": "report.json",
+      "sha256": "57997e712dc176acf6cea0049dc4c5e67a7cce7774a5db198a58c223c2c20708",
+      "bytes": 167498
+    },
+    {
+      "evidenceGroup": "recovery-primitive-02",
+      "basename": "process.json",
+      "sha256": "1e4671dec508791ab344564ec9c921f5c2d57ff96011660f52316d683be223a1",
+      "bytes": 448
+    },
+    {
+      "evidenceGroup": "recovery-primitive-02",
+      "basename": "runtime.log",
+      "sha256": "8f468ff4f30ca1f71e7dc4e946f499ecde5abf92cfd012cdc239a7f701d32cab",
+      "bytes": 24
+    },
+    {
+      "evidenceGroup": "recovery-primitive-02",
+      "basename": "analysis.json",
+      "sha256": "e6239ef9072bc48cd144b7ae5e6ea8e1e6ead766f58522656ed525bdf40f3f40",
+      "bytes": 11298
+    },
+    {
+      "evidenceGroup": "recovery-primitive-02",
+      "basename": "typed-database-snapshot.json",
+      "sha256": "1f0b4e549a493fc17ea0b22781873fefd3716e9824c8c1c1afc2eb0b90e621b1",
+      "bytes": 474562
+    },
+    {
+      "evidenceGroup": "recovery-primitive-03",
+      "basename": "compile-result.json",
+      "sha256": "8b9fff8ed9bfbc69b4551e53d3a0301367c72119cfc31d57619dfcf2b7d68c0f",
+      "bytes": 5605
+    },
+    {
+      "evidenceGroup": "recovery-primitive-03",
+      "basename": "report.json",
+      "sha256": "224a45857be020f3d3f5a04807271bcb4d17618d373c18a4e81708e68e1bcd5a",
+      "bytes": 167297
+    },
+    {
+      "evidenceGroup": "recovery-primitive-03",
+      "basename": "process.json",
+      "sha256": "18148c8a97a0449302e630cda0aac864f5ad86ca7d617e8471497f04b7ddaa6d",
+      "bytes": 517
+    },
+    {
+      "evidenceGroup": "recovery-primitive-03",
+      "basename": "runtime.log",
+      "sha256": "8f468ff4f30ca1f71e7dc4e946f499ecde5abf92cfd012cdc239a7f701d32cab",
+      "bytes": 24
+    },
+    {
+      "evidenceGroup": "recovery-primitive-03",
+      "basename": "build-identity.json",
+      "sha256": "0ba3eae8c15c78b9430eb8d89a254a5a4060fbb116c28369f775dd49a11cd79e",
+      "bytes": 7367
+    },
+    {
+      "evidenceGroup": "recovery-primitive-03",
+      "basename": "analysis.json",
+      "sha256": "b0295795cdd0cea5d451ec028c0fd7e9e7afc6965c35ac7c63f57b1d15b2866d",
+      "bytes": 11308
+    },
+    {
+      "evidenceGroup": "recovery-primitive-03",
+      "basename": "typed-database-snapshot.json",
+      "sha256": "1f0b4e549a493fc17ea0b22781873fefd3716e9824c8c1c1afc2eb0b90e621b1",
+      "bytes": 474562
+    },
+    {
+      "evidenceGroup": "recovery-candidate-tests-01",
+      "basename": "build-identity.json",
+      "sha256": "45f7478003d6b76b60a211d20c5f9146643ebbea072048423be97bd8b6fc19e4",
+      "bytes": 7928
+    },
+    {
+      "evidenceGroup": "private-helper",
+      "basename": "run-recovery-comparison.py",
+      "sha256": "42acdc28547bb679bfa6cd1ebb3d05a9897948148a4f23138914700aee015d9c",
+      "bytes": 6302
+    },
+    {
+      "evidenceGroup": "private-helper",
+      "basename": "analyze-recovery-primitive.py",
+      "sha256": "71b92148bad8beb957b5caa1e5705c326d37d943a201a4874c5accb5f98065cc",
+      "bytes": 7572
+    },
+    {
+      "evidenceGroup": "private-helper",
+      "basename": "analyze-recovery-candidate.py",
+      "sha256": "08bc4e3432934b21a878fe9d7a0b450fb559644e0b612a0c45ff75ff5b095739",
+      "bytes": 7573
+    },
+    {
+      "evidenceGroup": "private-helper",
+      "basename": "recovery-long-tail-readonly.json",
+      "sha256": "09f2520130b2b891ec19b0874c22fb185c02eb4ec7fafcc22e18541a270929bb",
+      "bytes": 10521
+    },
+    {
+      "evidenceGroup": "private-helper",
+      "basename": "recovery-comparison-02-vs-03.json",
+      "sha256": "657d18bac8c90295d80cd547521a1336bfbb5629a0c009dd1e6c3e91260ed2f0",
+      "bytes": 8065
+    }
+  ],
+  "originalHourEvidenceUnmodified": true,
+  "oneHourRepeated": false,
+  "productionDataAccess": false,
+  "AppOrWindowLaunch": false,
+  "browserOrNetwork": false
+}

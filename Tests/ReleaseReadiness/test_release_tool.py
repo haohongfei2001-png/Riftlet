@@ -55,10 +55,11 @@ class ReleaseTest(unittest.TestCase):
         self.app = self.package / R.APP
         (self.app / "Contents/MacOS").mkdir(parents=True)
         (self.app / "Contents/Resources").mkdir()
+        shutil.copy2(ROOT / "Resources/Riftlet.icns", self.app / "Contents/Resources/Riftlet.icns")
         binary = self.app / "Contents/MacOS/Riftlet"
         binary.write_bytes(thin()); binary.chmod(0o755)
         info = plistlib.loads((ROOT / "Resources/Info.plist").read_bytes())
-        info.update(CFBundleShortVersionString="0.2.0", CFBundleVersion="2", RiftletBuildChannel="release-candidate")
+        info.update(CFBundleShortVersionString="0.2.0", CFBundleVersion="2", RiftletVersionLabel="Beta 2", RiftletBuildChannel="release-candidate")
         del info["RiftletDeveloperIDSigned"]; del info["RiftletNotarized"]
         (self.app / "Contents/Info.plist").write_bytes(plistlib.dumps(info))
         resources = self.app / "Contents/Resources/Riftlet_RiftletAdapters.bundle"
@@ -85,6 +86,29 @@ class ReleaseTest(unittest.TestCase):
 
     def tearDown(self):
         self.temporary.cleanup()
+
+    def test_icon_is_manifest_bound_and_verified_in_package_and_archive(self):
+        icon = self.app / "Contents/Resources/Riftlet.icns"
+        key = R.APP + "/Contents/Resources/Riftlet.icns"
+        self.assertEqual(self.manifest["files"][key]["sha256"], R.digest(ROOT / "Resources/Riftlet.icns"))
+        R.verify_package(self.package)
+        archive = self.archive()
+        R.verify_archive(archive, R.digest(archive), R.digest(self.package / R.MANIFEST))
+        icon.unlink()
+        self.save()  # Even a self-consistent manifest cannot omit a declared icon.
+        self.error("missing_or_invalid_app_icon", R.verify_package, self.package)
+        archive = self.archive()
+        self.error("missing_or_invalid_app_icon", R.verify_archive, archive, R.digest(archive))
+
+    def test_old_iconless_receipt_keeps_original_contract(self):
+        path = self.app / "Contents/Info.plist"
+        info = plistlib.loads(path.read_bytes()); del info["CFBundleIconFile"]
+        path.write_bytes(plistlib.dumps(info))
+        (self.app / "Contents/Resources/Riftlet.icns").unlink()
+        self.receipt["infoPlistSHA256"] = R.digest(path)
+        R.write_json(self.app / R.RECEIPT, self.receipt); self.save()
+        R.verify_package(self.package)
+        archive = self.archive(); R.verify_archive(archive, R.digest(archive))
 
     def save(self):
         R.save_manifest(self.package, self.manifest)
@@ -224,6 +248,151 @@ class ReleaseTest(unittest.TestCase):
         for build in ("0", "-1", "01", 2):
             with self.subTest(build=build): self.error("invalid_build", R.version_values, "0.2.0", build)
 
+    def test_staging_explicit_version_label_preserves_source_identity_and_other_keys(self):
+        original = plistlib.loads((ROOT / "Resources/Info.plist").read_bytes())
+        info = dict(original)
+        source = R.stage_version(info, "0.3.0", "3", "Beta 3")
+        self.assertEqual(source, {key: original[key] for key in
+                                  ("CFBundleShortVersionString", "CFBundleVersion", "RiftletVersionLabel")})
+        self.assertEqual(info["RiftletVersionLabel"], "Beta 3")
+        self.assertEqual(info["CFBundleShortVersionString"], "0.3.0")
+        self.assertEqual(info["CFBundleVersion"], "3")
+        changed = {"CFBundleShortVersionString", "CFBundleVersion", "RiftletVersionLabel", "RiftletBuildChannel"}
+        self.assertEqual({k: v for k, v in info.items() if k not in changed},
+                         {k: v for k, v in original.items() if k not in changed})
+
+    def test_label_is_explicit_and_rejects_empty_control_or_padded_text(self):
+        with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):
+            R.parser().parse_args(["build", "--source", "a" * 40, "--version", "0.3.0", "--build", "3",
+                                   "--arch", "arm64", "--workspace", str(self.root / "not-created")])
+        for label in (None, "", " ", "Beta 3\n", "Beta\t3", "x" * 65):
+            with self.subTest(label=repr(label)):
+                self.error("invalid_version_label", R.version_label, label)
+
+    def test_old_source_without_display_label_is_recorded_without_inventing_one(self):
+        info = plistlib.loads((ROOT / "Resources/Info.plist").read_bytes())
+        info.pop("RiftletVersionLabel", None)
+        source = R.stage_version(info, "0.2.0", "2", "Beta 2")
+        self.assertIsNone(source["RiftletVersionLabel"])
+        self.assertEqual(info["RiftletVersionLabel"], "Beta 2")
+        self.receipt.update(versionLabel="Beta 2", sourceVersion=source)
+        R.write_json(self.app / R.RECEIPT, self.receipt); self.save()
+        self.assertEqual(R.verify_package(self.package)["build"]["sourceVersion"], source)
+
+    def test_new_receipt_binds_label_and_both_version_provenances(self):
+        self.receipt.update(versionLabel="Beta 2", sourceVersion={"CFBundleShortVersionString": "0.1.0",
+                            "CFBundleVersion": "1", "RiftletVersionLabel": "Beta 1"})
+        R.write_json(self.app / R.RECEIPT, self.receipt); self.save()
+        R.verify_package(self.package)
+        info_path = self.app / "Contents/Info.plist"
+        info = plistlib.loads(info_path.read_bytes()); info["RiftletVersionLabel"] = "stale label"
+        info_path.write_bytes(plistlib.dumps(info)); self.receipt["infoPlistSHA256"] = R.digest(info_path)
+        R.write_json(self.app / R.RECEIPT, self.receipt); self.save()
+        self.error("invalid_release_RiftletVersionLabel", R.verify_package, self.package)
+        del self.receipt["sourceVersion"]
+        self.error("invalid_source_version", R.validate_receipt, self.receipt)
+
+    def review_native(self, *, corrupt_mount=False, fail_detach=False, change_source=False, wrong_archive=None):
+        calls = []
+        def native(args, **kwargs):
+            calls.append([str(x) for x in args])
+            if args[0] == "/usr/bin/ditto":
+                if "-c" in args: shutil.copyfile(wrong_archive or self.archive(), args[-1])
+                else: shutil.copytree(args[-2], args[-1])
+                return result()
+            self.assertEqual(args[0], "/usr/bin/hdiutil")
+            if args[1] == "create": Path(args[-1]).write_bytes(b"synthetic DMG, no Apple service")
+            elif args[1] == "attach":
+                self.assertTrue(all(flag in args for flag in ("-readonly", "-nobrowse", "-noautoopen")))
+                mount = Path(args[args.index("-mountpoint") + 1])
+                shutil.copytree(self.workspace / "review-image-source", mount, dirs_exist_ok=True)
+                if corrupt_mount: (mount / R.PAYLOAD / "INSTALL-zh-CN.txt").write_text("tampered")
+                if change_source: (self.package / "INSTALL-zh-CN.txt").write_text("changed while packaging")
+                return result(plistlib.dumps({"system-entities": [{"mount-point": str(mount)}]}))
+            elif args[1] == "detach":
+                if fail_detach: raise R.ReleaseError("synthetic_detach_failure")
+                self.mock_mounted = False
+            else: self.assertEqual(args[1], "verify")
+            return result()
+        self.mock_mounted = True
+        return calls, native
+
+    def review_args(self):
+        return self.args(manifest_sha256=R.digest(self.package / R.MANIFEST))
+
+    def test_review_container_checks_both_formats_without_promoting_candidate(self):
+        before = (self.package / R.MANIFEST).read_bytes(); calls, native = self.review_native()
+        with patch.object(R.platform, "system", return_value="Darwin"), patch.object(R, "run", side_effect=native), \
+                patch.object(R.os.path, "ismount", side_effect=lambda _: self.mock_mounted):
+            answer = R.package_review(self.review_args())
+        self.assertEqual(answer["status"], "REVIEW_ONLY")
+        self.assertEqual(answer["notarization"], "NOT_NOTARIZED")
+        self.assertEqual(answer["installation"], "NOT_RUN")
+        self.assertEqual(answer["gatekeeper"], "NOT_RUN")
+        self.assertEqual(set(answer["artifacts"]), {"zip", "dmg"})
+        self.assertEqual(before, (self.package / R.MANIFEST).read_bytes())
+        self.assertTrue(all(c[0] in {"/usr/bin/ditto", "/usr/bin/hdiutil"} for c in calls))
+        self.assertEqual(sum(c[1] == "detach" for c in calls), 1)
+        self.assertTrue((self.workspace / "review-distribution/review-artifacts.json").is_file())
+
+    def test_review_refuses_wrong_pin_before_native_tool_or_output(self):
+        with patch.object(R.platform, "system", return_value="Darwin"), \
+                patch.object(R, "run", side_effect=AssertionError("pin fails before subprocess")):
+            self.error("manifest_pin_mismatch", R.package_review, self.args(manifest_sha256="0" * 64))
+        self.assertFalse((self.workspace / "review-distribution").exists())
+
+    def test_internally_valid_other_candidate_zip_cannot_be_published_as_this_candidate(self):
+        self.receipt["source"]["commit"] = "b" * 40
+        R.write_json(self.app / R.RECEIPT, self.receipt); self.save()
+        other = self.root / "other-candidate.zip"
+        shutil.copyfile(self.archive(), other)
+        self.assertEqual(R.verify_archive(other, R.digest(other))["source"], "b" * 40)
+        self.receipt["source"]["commit"] = "a" * 40
+        R.write_json(self.app / R.RECEIPT, self.receipt); self.save()
+        calls, native = self.review_native(wrong_archive=other)
+        with patch.object(R.platform, "system", return_value="Darwin"), patch.object(R, "run", side_effect=native):
+            self.error("archive_manifest_pin_mismatch", R.package_review, self.review_args())
+        self.assertFalse(any(c[0] == "/usr/bin/hdiutil" for c in calls))
+        self.assertFalse((self.workspace / "review-distribution/review-artifacts.json").exists())
+        self.assertEqual(R.verify_package(self.package)["build"]["source"]["commit"], "a" * 40)
+
+    def test_review_never_relabels_signed_or_failed_candidate_and_formal_gate_stays_closed(self):
+        with patch.object(R.platform, "system", return_value="Darwin"), \
+                patch.object(R, "run", side_effect=AssertionError("no tools for wrong stage")):
+            self.error("distribution_requires_stapled_candidate", R.package_candidate, self.args())
+            for stage in ("SIGNED", "SIGN_FAILED", "NOTARIZED", "STAPLED"):
+                self.manifest.update(signature=None, notarization=None)
+                self.stage(stage)
+                self.error("review_package_requires_prepared_candidate", R.package_review, self.review_args())
+        self.assertFalse((self.workspace / "review-distribution").exists())
+
+    def test_review_mount_tamper_detaches_and_never_publishes_success_receipt(self):
+        calls, native = self.review_native(corrupt_mount=True)
+        with patch.object(R.platform, "system", return_value="Darwin"), patch.object(R, "run", side_effect=native), \
+                patch.object(R.os.path, "ismount", side_effect=lambda _: self.mock_mounted):
+            self.error("payload_inventory_mismatch", R.package_review, self.review_args())
+        self.assertTrue(any(c[1] == "detach" for c in calls))
+        self.assertFalse((self.workspace / "review-distribution/review-artifacts.json").exists())
+
+    def test_review_detach_failure_preserves_evidence_and_prevents_success(self):
+        calls, native = self.review_native(fail_detach=True)
+        with patch.object(R.platform, "system", return_value="Darwin"), patch.object(R, "run", side_effect=native), \
+                patch.object(R.os.path, "ismount", side_effect=lambda _: self.mock_mounted):
+            self.error("synthetic_detach_failure", R.package_review, self.review_args())
+        self.assertTrue(any(p.suffix == ".dmg" for p in (self.workspace / "review-distribution").iterdir()))
+        self.assertFalse((self.workspace / "review-distribution/review-artifacts.json").exists())
+
+    def test_review_rechecks_original_source_and_preserves_existing_output(self):
+        calls, native = self.review_native(change_source=True)
+        with patch.object(R.platform, "system", return_value="Darwin"), patch.object(R, "run", side_effect=native), \
+                patch.object(R.os.path, "ismount", side_effect=lambda _: self.mock_mounted):
+            self.error("payload_inventory_mismatch", R.package_review, self.review_args())
+        self.assertFalse((self.workspace / "review-distribution/review-artifacts.json").exists())
+        (self.package / "INSTALL-zh-CN.txt").write_bytes((ROOT / "packaging/release/INSTALL-zh-CN.txt").read_bytes())
+        with patch.object(R.platform, "system", return_value="Darwin"), \
+                patch.object(R, "run", side_effect=AssertionError("must preserve previous attempt")):
+            self.error("review_distribution_already_exists", R.package_review, self.review_args())
+
     def test_archive_pin_verifies_without_extracting_or_executing(self):
         archive = self.archive(); before = sorted(p.relative_to(self.root).as_posix() for p in self.root.rglob("*"))
         with patch.object(R, "run", side_effect=AssertionError("no subprocess for archive verification")):
@@ -236,6 +405,13 @@ class ReleaseTest(unittest.TestCase):
         archive = self.archive()
         self.error("trusted_archive_pin_required", R.verify_archive, archive, None)
         self.error("archive_pin_mismatch", R.verify_archive, archive, "0" * 64)
+
+    def test_archive_also_binds_an_independently_pinned_candidate_manifest(self):
+        archive = self.archive(); pin = R.digest(self.package / R.MANIFEST)
+        answer = R.verify_archive(archive, R.digest(archive), pin)
+        self.assertEqual(answer["manifestSHA256"], pin)
+        self.error("archive_manifest_pin_mismatch", R.verify_archive, archive, R.digest(archive), "0" * 64)
+        self.error("trusted_manifest_pin_required", R.verify_archive, archive, R.digest(archive), "not-a-pin")
 
     @unittest.skipUnless(Path("/usr/bin/ditto").exists(), "native macOS ditto only")
     def test_native_ditto_archive_matches_read_only_verifier(self):
@@ -419,6 +595,22 @@ class ReleaseTest(unittest.TestCase):
         self.assertEqual(value["status"], "PACKAGED_NOT_PUBLISHED")
         self.assertEqual(artifact["gatekeeper"], "NOT_RUN")
         self.assertEqual(artifact["publicReleaseApproval"], "NOT_GRANTED_BY_TOOL")
+
+    def test_formal_distribution_also_rejects_another_valid_candidate_archive(self):
+        self.stage("STAPLED")
+        self.receipt["source"]["commit"] = "b" * 40
+        R.write_json(self.app / R.RECEIPT, self.receipt); self.save()
+        other = self.root / "other-stapled.zip"; shutil.copyfile(self.archive(), other)
+        self.receipt["source"]["commit"] = "a" * 40
+        R.write_json(self.app / R.RECEIPT, self.receipt); self.save()
+        def native(args, **kwargs):
+            self.assertEqual(args[0], "/usr/bin/ditto")
+            shutil.copyfile(other, args[-1]); return result()
+        with patch.object(R.platform, "system", return_value="Darwin"), \
+                patch.object(R, "verify_signature", return_value=signature()), patch.object(R, "run", side_effect=native):
+            self.error("archive_manifest_pin_mismatch", R.package_candidate, self.args())
+        self.assertFalse((self.workspace / "distribution/release-artifact.json").exists())
+        self.assertEqual(R.verify_package(self.package)["build"]["source"]["commit"], "a" * 40)
 
     def test_update_plan_does_not_copy_launch_or_claim_data_compatibility(self):
         self.stage("STAPLED")

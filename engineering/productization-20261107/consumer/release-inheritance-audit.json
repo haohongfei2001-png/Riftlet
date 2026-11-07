@@ -1,0 +1,104 @@
+{
+  "schemaVersion": 1,
+  "result": "PASS_SOURCE_AND_COPY_REVIEW_AND_DOCUMENT_CHECKS",
+  "role": "consumer documentation author; non-author of reviewed release implementation",
+  "runtimeBaseline": "2e779f646ac4874344fac94f79103e8ddf9b02c8",
+  "reviewedReleaseSource": "d46d47682d9ebe6df2928cebb69411ff8746604c",
+  "inheritedCommits": [
+    "b9caabcb7fe02d9aae5521c3ada37fda9bd9143c",
+    "d46d47682d9ebe6df2928cebb69411ff8746604c"
+  ],
+  "integrationCheckpointCompared": "b394320174b14cfae03ff8c140f2bb1b67e311ce",
+  "previousBinding": {
+    "path": "source-bindings-01.json",
+    "sha256": "dadbd66ae4f592df6a9783c5366b1e675ed42f3a4d44e2840812694d4ea72e18"
+  },
+  "currentBindingSHA256": "8563d32fce240490d77b98b0908a51d5cdbfdba295b8424ffbbac88942a9ed05",
+  "auditedSourceFiles": 34,
+  "unchangedSourceFiles": 33,
+  "changedSourceBindings": [
+    {
+      "path": "scripts/release-tool.py",
+      "before": {
+        "path": "scripts/release-tool.py",
+        "sha256": "3e4a1d50a8fb3b14c7200c1b93f29ba9f099cede4da8d71b2f114c4d81da612a",
+        "sourceBlob": "a0146879fdcc04c99c048c43475eb678a5c1de32"
+      },
+      "after": {
+        "path": "scripts/release-tool.py",
+        "sha256": "2b4cd25440750dc49d168d889f4697d4bbce903f8b73b8ba2df6710f720842da",
+        "sourceBlob": "d476507b4d94c69a68d57066d6f7a2c28b0e0738"
+      }
+    }
+  ],
+  "independentReleaseReview": {
+    "basename": "release-final-independent.json",
+    "sha256": "c2b5daf085c87665501254eead8bcf9c52835bb587f254bb7e4881bde2b25b7d",
+    "result": "PASS_SCOPED_RELEASE_INCREMENT_REVIEW",
+    "reviewedSource": "d46d47682d9ebe6df2928cebb69411ff8746604c",
+    "reviewedTree": "b171cecd62f9ba349e606e397a84680b45c73090",
+    "reviewer": "review",
+    "authorOfReviewedSource": false
+  },
+  "semanticReview": [
+    {
+      "boundary": "version identity",
+      "finding": "New build requires explicit label and records source/final values. Missing historical source label is null; old schema-1 receipts remain readable. Equal labels do not prove equal artifacts."
+    },
+    {
+      "boundary": "private review containers",
+      "finding": "Exact PREPARED pin only; REVIEW_ONLY, NOT_NOTARIZED, Gatekeeper/installation/data compatibility not asserted. A ZIP or DMG is not consumer release approval."
+    },
+    {
+      "boundary": "ZIP candidate identity",
+      "finding": "Both review and formal packagers verify raw embedded manifest SHA against the intended candidate pin; original independently reproduced mismatch is rejected after repair."
+    },
+    {
+      "boundary": "formal release and recovery",
+      "finding": "STAPLED/Developer ID requirement retained. Existing manual update/backup guidance remains valid and no automatic updater or data cleanup is introduced."
+    },
+    {
+      "boundary": "history visible status wording",
+      "finding": "Current controller uses the Chinese needs-review wording for row/AX/detail. English Checking/Needs review belongs to search presentation, not the native row title; documentation corrected without source change."
+    }
+  ],
+  "preservedPriorFailure": {
+    "basename": "consumer-integrated-check-01.json",
+    "sha256": "1b9dd0b4570ea977a73b14172e86e2e19e9345b665f62caba1bdd4ed86944909",
+    "summary": {
+      "checks": 90,
+      "passed": 89,
+      "failed": 1
+    },
+    "failedChecks": [
+      "source:scripts/release-tool.py"
+    ],
+    "interpretation": "Expected stale source binding after reviewed release integration; original result retained, not a product runtime failure."
+  },
+  "preservedOriginalValidationSHA256": {
+    "validation-result.json": "dc849013febe8d3ce8698df31f40eb3de2e216f91b57304a12881610c0774619",
+    "validation-result-02.json": "b9e8963069185e22c5e4ef1b52bc4a22e9f84257ab67afa9649944a2e8e8f650"
+  },
+  "testReuse": {
+    "releaseAuthorSuite": 54,
+    "reviewerTargetedReleaseCases": 4,
+    "scope": "Previously completed exact release source review and recorded tests; not rerun or relabeled by this documentation update"
+  },
+  "limits": [
+    "Consumer document successor still requires non-author review",
+    "No new release build, package, installation, GUI or live ChatGPT execution",
+    "Current public Beta remains blocked on owner credentials and acceptance prerequisites"
+  ],
+  "sourceOrRuntimeEditsInConsumerSuccessor": false,
+  "documentValidation": {
+    "path": "validation-result-03.json",
+    "sha256": "c98eab56f352458a71a85ae10e9a031893002fd900fd5f926f5018697219002b",
+    "summary": {
+      "checks": 90,
+      "passed": 90,
+      "failed": 0
+    },
+    "checkerUnchanged": true,
+    "scope": "90 existing checks executed against the inherited source and revised consumer documents; no new runtime claim"
+  }
+}

@@ -1,0 +1,134 @@
+{
+  "schemaVersion": 1,
+  "reviewerRole": "readiness_independent: semantic documentation inheritance reviewer; author of accompanying RecoveryValidationTests, not final independent approval of that test/product increment",
+  "result": "PASS_SCOPED_CONSUMER_CAPTURE_SEMANTICS",
+  "reviewedProductSource": "b1fa4329d66dcd632291c4d8bb7b18b5ec5ffbbc",
+  "previousBindingSHA256": "934b8dfe8d9f492b8be6fe1573ef55a6c9f3a8b286ea7381597a8721bc8a6261",
+  "currentBindingSHA256": "38e56bae539f570da891c82c58b6ff062a982918f83bac8d3941c1928a5d61fd",
+  "changedSourceBindings": [
+    {
+      "before": {
+        "path": "Sources/RiftletCapture/PrivateAssetImporter.swift",
+        "sha256": "cdee375cfc148a934fd4a180d4192695512028b7935230045ef9b0da67f85191",
+        "sourceBlob": "6188017d1ad65f6620c7eb6cfaed6facf191c8e1"
+      },
+      "after": {
+        "path": "Sources/RiftletCapture/PrivateAssetImporter.swift",
+        "sha256": "178678bde1eb781f94b74ff881e39875008eee7bdb048d8ae01a3732f8a73ff2",
+        "sourceBlob": "9d057eda128657a7c4705e1569bb789c0e360a34"
+      }
+    }
+  ],
+  "unchangedBoundFiles": 33,
+  "boundFiles": 34,
+  "additionalOwningSource": {
+    "path": "Sources/RiftletCapture/FileValidation.swift",
+    "sha256": "ecb31d013b07db4844a6d1fd4bda71fd65dba1a957c05df76fe1a1c756d64d28",
+    "sourceBlob": "b31c7c54a7ee9aaf96ece6f9b80ad69cfb1360b3",
+    "reason": "The changed importer delegates current image metadata policy to this existing owner; separately reviewed and pinned without replacing any of the34 established bindings."
+  },
+  "semanticFindings": [
+    {
+      "topic": "Private originals and retained history",
+      "finding": "Existing committed-media recovery still requires matching complete journal/DB image identity, regular private path and size, full SHA256, current type/frame/completeness/dimension policy, exact width/height/MIME tuple, and final file signature. Only the already validated bitmap decode is omitted. Original screenshots, private bytes and durable records are not deleted or rewritten to achieve the speedup."
+    },
+    {
+      "topic": "Uncommitted recovery",
+      "finding": "First import and uncommitted journal/media/staging recovery retain default full inspect including the ImageIO thumbnail request before adoption. Existing used-history handling is unchanged; this increment does not newly certify or rehash every used record."
+    },
+    {
+      "topic": "UNKNOWN, START and retry",
+      "finding": "QueueStore, TransferCoordinator, receipt policy, adapter and page code bindings are byte-identical. UNKNOWN remains preserved; recovering a private file is not a new upload, retry authority, START or final completion. Consumer START and no-automatic-resend wording remains accurate."
+    },
+    {
+      "topic": "Capture controls and collection scope",
+      "finding": "CaptureService, CaptureSourceBinding, App source and entry control bindings are unchanged. The optimization does not import the whole source directory, broaden screenshot eligibility, change pause/hide semantics or create a new permission gate."
+    },
+    {
+      "topic": "Privacy, Feedback and safe update",
+      "finding": "Feedback owners, diagnostics, storage recovery and release tool bindings are unchanged. Existing network consent/outbox continuation, full backup, App-only update and no destructive database rollback guidance remains accurate."
+    },
+    {
+      "topic": "Performance scope",
+      "finding": "Actual isolated native corpus measurements support reduced recovery work. They do not establish a full App visible launch SLA, current real ChatGPT acceptance or universal image-decoder rejection behavior; no such claim is added to consumer guides."
+    }
+  ],
+  "reviewedConsumerDocuments": [
+    {
+      "path": "docs/consumer/QUICK-START.zh-CN.md",
+      "sha256": "a869087a3cf6d5297cad9b30422532b88d6cc5fc3564579aa8a55a0df119a4d0"
+    },
+    {
+      "path": "docs/consumer/QUICK-START.en.md",
+      "sha256": "8429ae33da8cf3db1c374d87ddc9f12e184432664c6c6ec65f706ea7f36bc55c"
+    },
+    {
+      "path": "docs/consumer/RECOVERY-AND-FAQ.md",
+      "sha256": "99ce1f567e9aa2018c1c97cefc25ef285e7db18772be196957b736946341cae8"
+    },
+    {
+      "path": "docs/consumer/PRIVACY.md",
+      "sha256": "982753bee1f646fb9793a96b875278473d29b54da9bc438e78f3d6df05c2e1fa"
+    },
+    {
+      "path": "docs/consumer/INSTALL-AND-PERMISSIONS.md",
+      "sha256": "9d72093a4297816622b58fd768bfc376aa83ef171a918c6ada61e314f0e54fd7"
+    },
+    {
+      "path": "engineering/productization-20261107/consumer/START-SEMANTICS-AUDIT.md",
+      "sha256": "2ae36c7a367987414a2926b32f6fdd178112bde66544ec26e12129f267854274"
+    }
+  ],
+  "validationEvidence": {
+    "beforeSuccessorBinding": {
+      "path": "validation-result-05-before-capture.json",
+      "sha256": "b447eb2fb57be6e74033c6c0541e425aa0793727af9a8a49e58bbe7afb81165b",
+      "result": "89 PASS / 1 FAIL",
+      "failure": "Expected source drift in PrivateAssetImporter.swift only"
+    },
+    "nextResultPath": "validation-result-06.json",
+    "checkerSHA256": "088591349566635a71bcd1d24ce9cc3f67aaba058be6eede9d1964be84c972fa",
+    "checkerChanged": false,
+    "afterSuccessorBinding": {
+      "path": "validation-result-06.json",
+      "sha256": "da969ed0616ebd96f7aafff7713af40813d62d06a884f204093f9f20abe8678a",
+      "result": "90 PASS / 0 FAIL",
+      "runtimeTests": "NOT_RUN",
+      "checkerChanged": false
+    }
+  },
+  "versionIdentity": {
+    "plannedCandidate": {
+      "version": "0.3.1",
+      "build": "4",
+      "label": "Personal Beta3 maintenance candidate",
+      "state": "PLANNED_NOT_INSTALLATION_EVIDENCE"
+    },
+    "currentlyInstalledAsReportedByIntegrationLead": {
+      "version": "0.3.0",
+      "build": "3",
+      "state": "UNCHANGED_BY_THIS_DOCUMENT_TASK"
+    },
+    "scope": "This semantic documentation task does not inspect or modify installed App, package identity or production data. Candidate plan is not installed-state proof."
+  },
+  "validationLimits": {
+    "localXCTest": "NOT_RUN: CommandLineTools lacks XCTest; formal CI remains required",
+    "standaloneNative": "9 checks passed with explicit standalone assertions, not XCTest",
+    "pixelOnlyDecodeFailureFixture": "NOT_AVAILABLE from bounded PNG/TIFF/JPEG samples; no runtime coverage claim for metadata-success/pixel-failure differential branch",
+    "historicalNativeFailure": "Original6 PASS/2 FAIL retained; ImageIO tolerance disproved initial synthetic fixture assumptions"
+  },
+  "priorEvidencePreserved": [
+    "source-bindings-01.json",
+    "source-bindings-02.json",
+    "source-bindings-03.json",
+    "validation-result-02.json",
+    "validation-result-03.json",
+    "validation-result-04.json",
+    "validation-result-05-before-capture.json",
+    "validation-result.json",
+    "release-inheritance-audit.json",
+    "icon-inheritance-audit.json"
+  ],
+  "mainConsumerDocumentsChanged": false,
+  "completeSourceAdmission": "SEPARATE_FINAL_NON_AUTHOR_REVIEW_REQUIRED"
+}

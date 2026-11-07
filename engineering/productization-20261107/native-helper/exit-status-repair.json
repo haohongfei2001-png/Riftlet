@@ -1,0 +1,95 @@
+{
+  "schemaVersion": 1,
+  "result": "COMPILED_SELF_CHECK_PASS_NATIVE_TERMINATION_VALIDATION_PENDING",
+  "kind": "acceptance-helper exit-status correction; no product behavior change",
+  "runtimeBaseline": "2e779f646ac4874344fac94f79103e8ddf9b02c8",
+  "compiledSourceParent": "7d0e12ae568cff0a1be8613f0fe0a6d2d382643a",
+  "changedHelper": {
+    "path": "Sources/RiftletGUIAcceptance/AcceptanceMain.swift",
+    "beforeSHA256": "53411ba88ed9728f4f9b4a6c24b4d700cef688bb4d2fc96fb7258280e03554d2",
+    "afterSHA256": "c514017c7a15ce7fc4b57bb89d70533e232f381ddf479fd75159b4564a3aa6dc"
+  },
+  "unchangedScope": [
+    "RiftletApp",
+    "RiftletUI",
+    "RiftletCore",
+    "Adapters",
+    "Capture",
+    "Resources",
+    "Package.swift",
+    "NativeVisualEvidence window readiness and export conditions"
+  ],
+  "originalFailure": {
+    "source": "2e779f646ac4874344fac94f79103e8ddf9b02c8",
+    "checkout": "2e779f646ac4874344fac94f79103e8ddf9b02c8",
+    "helperBinarySHA256": "d1511e7315099512d72a60541531491386341c345bd7bf1207b8a3c193960853",
+    "subprocessExitCode": 0,
+    "exitCodeEvidence": "Observed by the integration lead in the original subprocess result; retained stdout and capture manifest do not themselves encode the exit status",
+    "log": {
+      "basename": "light-3-timeline.log",
+      "sha256": "800156a0b6fdbd87fd4ad1705799a8d0506659ab0b43078baf551a3955fcb0f4"
+    },
+    "launch": {
+      "basename": "launch-01.json",
+      "sha256": "56e8e5d33ff09c167175b0724aef470b2238f8c7bd933d5064c58a875f0a09be"
+    },
+    "capture": {
+      "basename": "capture.json",
+      "sha256": "b2d6b603f8a7eca469bc9dda40d88ed927b1b7a852d264d80bdf205d0a461576",
+      "status": "FAIL",
+      "failureCase": "missingWindow",
+      "failureStage": "timelinePreparation",
+      "frames": 0
+    },
+    "windowConditions": {
+      "onActiveSpace": false,
+      "occlusionVisible": false
+    },
+    "timelineAcceptance": "NOT_RUN",
+    "interpretation": "The export failure was correctly recorded, but normal AppKit termination yielded a misleading zero process status. Original records remain unchanged."
+  },
+  "repair": {
+    "failureMarking": [
+      "applicationDidFinishLaunching setup catch",
+      "startNativeEvidence export catch"
+    ],
+    "termination": "Record EXIT_FAILURE, request existing NSApp termination, run the complete existing applicationWillTerminate cleanup, then exit nonzero only for that failure",
+    "unchanged": "Successful export, cancellation during normal user shutdown, and ordinary close retain normal AppKit exit behavior; no gate or window-visibility condition relaxed"
+  },
+  "authorValidation": {
+    "parser": {
+      "result": "PASS",
+      "command": "swiftc -frontend -parse Sources/RiftletGUIAcceptance/AcceptanceMain.swift"
+    },
+    "helperBuild": {
+      "result": "PASS",
+      "product": "RiftletGUIAcceptance",
+      "configuration": "debug",
+      "architecture": "arm64",
+      "exitCode": 0,
+      "buildSeconds": 39.92,
+      "logSHA256": "d4f6064b424e4182ae4794cdef6ea01fc4593627579a81712eb66950550311d1",
+      "warnings": "Original log retains pkg-config/sqlite3 lookup warnings, weak-capture and Sendable diagnostics in unchanged Capture/UI sources, and native build-system deprecation; not a warning-free build"
+    },
+    "selfCheck": {
+      "result": "PASS",
+      "args": [
+        "--self-check"
+      ],
+      "exitCode": 0,
+      "binarySHA256": "952f8a88acd9183e0ac8f863363f2e9d735b62120d9300d91ffb5b2288875616",
+      "stdoutSHA256": "425c5f85e0e3a9337b7a4d0a8c39c8d2251603657c976e81b1583eef76d4c1b4",
+      "stderrSHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "scope": "Existing 16 synthetic PNG/layout/status fixture checks; GUI_NOT_RUN"
+    },
+    "actualFailureExitAfterCleanup": "PENDING_INTEGRATION_LEAD_NATIVE_PROBE",
+    "actualSuccessOrUserCloseExit": "PENDING_INTEGRATION_LEAD_NATIVE_PROBE"
+  },
+  "limits": [
+    "No new timeline capture or visual acceptance",
+    "No browser, event injection, production App/data or permission actions by the patch author",
+    "Pure self-check does not verify the AppKit shutdown path; native regression is separately required",
+    "No new runtime state machine, test-only product bypass or global handler"
+  ],
+  "independentReview": "PENDING_NON_AUTHOR"
+}

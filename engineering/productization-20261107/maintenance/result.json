@@ -1,0 +1,177 @@
+{
+  "schema": 1,
+  "scope": "Actual complete ARM64 personal maintenance candidate, ad-hoc, launched only with isolated --settings-review UUID. No real ChatGPT, no production mutation or physical mouse claim.",
+  "candidate": {
+    "source": "ca7e93fe152f16781669e7c9915ad6cb9c94cd64",
+    "tree": "8b13976ddc305dc6e4ebc1fc7471bf3ede3d1e9a",
+    "sourceInputObjects": {
+      "Sources": "9a07d6d1cd86889d388fe74f958e50fed5afab41",
+      "Resources": "abc1e1b3490ba18638d5cd0744fb209a445f7841",
+      "Package.swift": "d3cdd0d51ad937b1afb243cd866cf0071f408d49",
+      "ThirdPartyNotices": "89a07e01c183f61fca6bc7d7127322b00fa03ded",
+      "scripts/build-macos.sh": "15ef0343d9fc3f63d2e5d4dbaf8e894fea3f0ff7",
+      "scripts/verify-app-bundle.py": "6da31bf919b0d4f9bf8a9dd33a942bd0a2376065"
+    },
+    "version": "0.3.1",
+    "build": "4",
+    "label": "Beta 3",
+    "arch": "arm64",
+    "binarySHA256": "d45e8b160b9969caaa423f1ac6ac7ef591391b81d76db2d2a53c91eb430c93ad",
+    "strictAdHocSignature": "PASS",
+    "files": {
+      "Contents/Info.plist": {
+        "mode": 384,
+        "size": 2009,
+        "sha256": "dd93a9807fd669cd1bab12217b392c122cbba74e044b35c613a5e533dab62047"
+      },
+      "Contents/MacOS/Riftlet": {
+        "mode": 448,
+        "size": 11025904,
+        "sha256": "d45e8b160b9969caaa423f1ac6ac7ef591391b81d76db2d2a53c91eb430c93ad"
+      },
+      "Contents/Resources/Riftlet.icns": {
+        "mode": 384,
+        "size": 61888,
+        "sha256": "b84de92fab292cdf18b94f1aac79a0bd2ed4a373b2542fd985bbd6eaea91c048"
+      },
+      "Contents/Resources/Riftlet_RiftletAdapters.bundle/Contents/Info.plist": {
+        "mode": 384,
+        "size": 1164,
+        "sha256": "8cd545c1a910993e74319957824d9d88485e0d7cca9cb28e8e4fdc08a0289844"
+      },
+      "Contents/Resources/Riftlet_RiftletAdapters.bundle/Contents/Resources/chatgpt-web-20261027.js": {
+        "mode": 384,
+        "size": 56897,
+        "sha256": "0daf3f2763e340503b8c957c4ef35a619417c5e486ac48fccbcae3f657ff9a09"
+      },
+      "Contents/Resources/Riftlet_RiftletAdapters.bundle/Contents/Resources/legacy-web-observe.js": {
+        "mode": 384,
+        "size": 4728,
+        "sha256": "9a60f99e806289213e9df8bd9812337ebf58e334cd996679ef3a5de394805848"
+      },
+      "Contents/Resources/ThirdPartyNotices/Screenshoss/LICENSE": {
+        "mode": 384,
+        "size": 1072,
+        "sha256": "ba6e7da08b1ae572908ac282b6ed1b5c2771ca7d619a9ad2bb173979e69df816"
+      },
+      "Contents/Resources/ThirdPartyNotices/Sukurini/LICENSE": {
+        "mode": 384,
+        "size": 11340,
+        "sha256": "ef3e7d889124843952688376a12817992a6942190820005096ab71b17d703091"
+      },
+      "Contents/Resources/ThirdPartyNotices/Sukurini/NOTICE": {
+        "mode": 384,
+        "size": 117,
+        "sha256": "ab71755fa2afdb52fc3f4e773f595241d86b19778c6f93a90335021c84566721"
+      },
+      "Contents/Resources/ThirdPartyNotices/Tendedero/LICENSE": {
+        "mode": 384,
+        "size": 1580,
+        "sha256": "03543f9ce9dddb3f7e06afcda9f62386d364c357f897ee0ee7ad5d0fdb6b483d"
+      },
+      "Contents/_CodeSignature/CodeResources": {
+        "mode": 384,
+        "size": 4554,
+        "sha256": "fe47bcc188b712a566c34b72b9b11a8f0a34e5746730801334aa92c02b5bdb01"
+      }
+    },
+    "buildLogSHA256": "5d77f78604c00e564cadd7d9635b9dd7f7d8324918a42b074653aa56acb64dc5"
+  },
+  "freshHistory": {
+    "method": "Existing programmatic AppKit controls and same-binary new-process restart on an empty dedicated root.",
+    "runnerResult": "PASS_SCOPED_NATIVE_REVIEW",
+    "restartResult": "PASS_SCOPED_NATIVE_RESTART",
+    "cases": [
+      {
+        "case": "environment-and-default-window",
+        "status": "PASS"
+      },
+      {
+        "case": "history-default-and-three-collector-assets",
+        "status": "PASS"
+      },
+      {
+        "case": "history-two-window-style-search-filter-uuid",
+        "status": "PASS"
+      },
+      {
+        "case": "history-original-200-percent-survives-renderer-change",
+        "status": "PASS"
+      },
+      {
+        "case": "history-both-renderers-light-dark-minimum",
+        "status": "PASS"
+      },
+      {
+        "case": "history-one-asset-remove-and-restore",
+        "status": "PASS"
+      },
+      {
+        "case": "history-final-integrity-and-persisted-style",
+        "status": "PASS"
+      }
+    ],
+    "frameCount": 19,
+    "restartAfterEqualsBefore": true,
+    "assets": 3,
+    "operations": 0,
+    "starts": 0,
+    "sha256": {
+      "runner": "ec2b1a5d4ca57b4e5f7868e9ae7a787871c9f2440535d6a8459a0f8e77cbd4e2",
+      "report": "5afe1c1022dd4dd6b2611642f5a0dae4a028ceeca7406df3fa1390204b204e22",
+      "restartRunner": "a70871b5cfba2ffadfe0acf61a2338e47c1afdf31d48dfde1e327cfa0aeb8a16",
+      "restartReport": "4344615f22f2b502f1c59aaa740649668452d9540ccba0544cf0e164937ee5de"
+    }
+  },
+  "retained340": {
+    "method": "Actual complete App on retained synthetic history in a dedicated UUID root; external AXPress on the real status control, history action and pagination buttons; WindowServer capture of the owned history window only. No private chat/production data.",
+    "startupOne": {
+      "pid": 18078,
+      "pageCounts": [
+        "本页 200 / 200 条 · 第 1 页",
+        "本页 140 / 140 条 · 第 2 页",
+        "本页 200 / 200 条 · 第 1 页"
+      ],
+      "normalQuitRequested": true,
+      "processAbsentConfirmed": true,
+      "firstHistoryRequest": "First delayed AX history action had no control (popover no longer visible); original refused attempt retained. Immediate AX reopen and history action succeeded."
+    },
+    "startupTwo": {
+      "pid": 19655,
+      "queueFirstObservationUpperBoundMS": 984.415833,
+      "scopeOfTiming": "One new process on this host on a previously used synthetic data set, inclusive of AX/AppKit observation overhead; not an OS cold-cache SLA.",
+      "historyCount": "本页 200 / 200 条 · 第 1 页",
+      "normalExit": 0,
+      "processAbsentConfirmed": true
+    },
+    "assets": 340,
+    "operations": 1,
+    "unknown": 1,
+    "starts": 0,
+    "media": 340,
+    "journals": 340,
+    "allOriginalMediaAndJournalBytesAndModesMatch": true,
+    "firstLaunchExtraCheckpoint": "One empty source-directory checkpoint was added for the new isolated fixture-source; all three original checkpoints remain exact.",
+    "allQueueTablesAndSchemaIdenticalAfterSecondLaunch": true,
+    "allSettingsPresenceAndBytesIdenticalAfterSecondLaunch": {
+      "rift-configuration.json": true,
+      "lifecycle-settings.json": true,
+      "arrival-motion-settings.json": true,
+      "capture-entry-settings.json": true,
+      "app-presentation-settings.json": true,
+      "fixture-location.plist": true
+    },
+    "physicalDifferences": "queue.sqlite-shm and the isolated feedback.sqlite changed physically between exits: Feedback integrity OK twice, same schema and all typed rows in all five tables unchanged.",
+    "screenshots": {
+      "large-01-page1.png": "2dd32ede551301c94d0534bbfbeab1789e78dbf1a85e3f7fababee5e1f2d6727",
+      "large-01-page2.png": "1d521a5a592a8b291fe89552af12ce65bc39524c0f5f1bdfa1c50d97ce961377"
+    },
+    "privateEvidenceSHA256": {
+      "initialStaging": "eda600c5c8211518fd24183d5308364ffa5e8767919a7b39cce6a045b0292dc5",
+      "afterFirst": "0adc99a4a975c0310ea9e8496e545085531022fba89c6adf06a6a62c5b45174a",
+      "afterSecond": "30806264c73d8d30a974d67de6767aca214e8199960ff4b20324a5801b68234f",
+      "feedbackLogical": "2da4f1d8fd13c4a2098f6930f524af7c60f2de6311f326c2b820e80495f7a15d",
+      "candidateAppReceipt": "29a4f365252ea9f1914f7c8a4195a0685fbefcb3de0726dd5ea90247df163266"
+    }
+  }
+}

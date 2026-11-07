@@ -1,0 +1,109 @@
+{
+  "schema": 1,
+  "result": "PASS_SCOPED_REUSE_INPUT_ENUMERATION_GUARD",
+  "finding": "Final review found that the first correction rehashed only the original filename list after binary copy; a new native input created during the copy was not enumerated.",
+  "currentHourAffected": false,
+  "hourRepeated": false,
+  "originalHourEvidencePreserved": true,
+  "previousWrapperSHA256": "09aa63e52810a8819fc5a4d7136c17e5759950ca73d97c57dcf93ec9d127d35f",
+  "fixedWrapperSHA256": "1e9d53854b9efc67efcf2dce6d6157801c1b3039447207f1209d5fa4000d1155",
+  "fix": "Re-enumerate the complete native input set at both ends of reuse, then compare names and bytes.",
+  "oldWrapperRegression": {
+    "result": "FAIL_SOURCE_BINDING_FIXTURES",
+    "passes": 7,
+    "failures": 1,
+    "newDuringCopyFileWasIncorrectlyAccepted": true,
+    "rawResultSHA256": "30f57d465978eddaf83da79b37d702962600f67901bc940fba6afc433679e76c"
+  },
+  "fixedWrapperRegression": {
+    "result": "PASS_SOURCE_BINDING_FIXTURES",
+    "passes": 8,
+    "failures": 0,
+    "rawResultSHA256": "9c2769f92b1e8ebace3a318d8a6bd5e9504601495998618c9c7395912a3f11e5"
+  },
+  "fixtureHarnessSHA256": "fdff75749a97b46745c6164b6a1c5f8e10dc750dc95012af597988b73037e0bb",
+  "scope": "Actual shell/Python guard branches in isolated stub repositories. Swift compiler, native executable and Git identity are explicitly stubbed. During the new case, a controlled sitecustomize wrapper performs the real copy2 then adds one CSQLite input. No native build/App/GUI/network ran.",
+  "cases": [
+    {
+      "case": "build-stable",
+      "result": "PASS",
+      "shellExitCode": 1,
+      "fakeNativeReached": true,
+      "expectedFakeNativeReached": true,
+      "expectedBindingGuardObserved": true,
+      "nativeProductExecuted": false,
+      "GUIExecuted": false
+    },
+    {
+      "case": "build-edited-during-compiler",
+      "result": "PASS",
+      "shellExitCode": 1,
+      "fakeNativeReached": false,
+      "expectedFakeNativeReached": false,
+      "expectedBindingGuardObserved": true,
+      "nativeProductExecuted": false,
+      "GUIExecuted": false
+    },
+    {
+      "case": "reuse-stable",
+      "result": "PASS",
+      "shellExitCode": 1,
+      "fakeNativeReached": true,
+      "expectedFakeNativeReached": true,
+      "expectedBindingGuardObserved": true,
+      "nativeProductExecuted": false,
+      "GUIExecuted": false
+    },
+    {
+      "case": "reuse-package-changed",
+      "result": "PASS",
+      "shellExitCode": 1,
+      "fakeNativeReached": false,
+      "expectedFakeNativeReached": false,
+      "expectedBindingGuardObserved": true,
+      "nativeProductExecuted": false,
+      "GUIExecuted": false
+    },
+    {
+      "case": "reuse-sqlite-shim-changed",
+      "result": "PASS",
+      "shellExitCode": 1,
+      "fakeNativeReached": false,
+      "expectedFakeNativeReached": false,
+      "expectedBindingGuardObserved": true,
+      "nativeProductExecuted": false,
+      "GUIExecuted": false
+    },
+    {
+      "case": "reuse-sqlite-added-file",
+      "result": "PASS",
+      "shellExitCode": 1,
+      "fakeNativeReached": false,
+      "expectedFakeNativeReached": false,
+      "expectedBindingGuardObserved": true,
+      "nativeProductExecuted": false,
+      "GUIExecuted": false
+    },
+    {
+      "case": "reuse-old-incomplete-manifest",
+      "result": "PASS",
+      "shellExitCode": 1,
+      "fakeNativeReached": false,
+      "expectedFakeNativeReached": false,
+      "expectedBindingGuardObserved": true,
+      "nativeProductExecuted": false,
+      "GUIExecuted": false
+    },
+    {
+      "case": "reuse-added-file-during-copy",
+      "result": "PASS",
+      "shellExitCode": 1,
+      "fakeNativeReached": false,
+      "expectedFakeNativeReached": false,
+      "expectedBindingGuardObserved": true,
+      "nativeProductExecuted": false,
+      "GUIExecuted": false
+    }
+  ],
+  "independentSuccessorReview": "PENDING_AT_THIS_CHECKPOINT"
+}

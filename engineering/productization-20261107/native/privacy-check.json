@@ -1,0 +1,53 @@
+{
+  "schema": "riftlet.native-materials.text-audit.v1",
+  "result": "PASS_SCOPED_TEXT_AUDIT",
+  "method": "Offline Apple Vision OCR, zh-Hans and en-US, of every public PNG; root read all distinct recognized strings and checked expected synthetic/product text",
+  "inputImages": 44,
+  "ocrNotRunForSmallImages": [
+    {
+      "file": "queue-1-window-141246.png",
+      "width": 2,
+      "height": 96,
+      "reason": "Vision refuses a dimension <=2 pixels; no OCR claim"
+    },
+    {
+      "file": "queue-10-after-click-window-141246.png",
+      "width": 2,
+      "height": 344,
+      "reason": "Vision refuses a dimension <=2 pixels; no OCR claim"
+    },
+    {
+      "file": "queue-10-page-last-window-141246.png",
+      "width": 2,
+      "height": 112,
+      "reason": "Vision refuses a dimension <=2 pixels; no OCR claim"
+    },
+    {
+      "file": "queue-3-window-141246.png",
+      "width": 2,
+      "height": 344,
+      "reason": "Vision refuses a dimension <=2 pixels; no OCR claim"
+    }
+  ],
+  "patternFindings": 0,
+  "movies": "Covered by prior owned-window identity/sample-frame review; not all frames OCR scanned",
+  "limits": [
+    "OCR is supplementary and can miss text; not proof of absence of every sensitive pixel.",
+    "Four two-pixel rift-edge images are outside Vision dimensions; no scaling/redaction/pixel edits were applied."
+  ],
+  "priorFailure": "Initial private OCR runner exited133 on first too-small image; original code/log preserved; successor catches per-image errors and records them instead of claiming recognition.",
+  "evidenceSHA256": {
+    "audit.swift": "95da282284c96df4bab401ce1bafcb6041372c33379966bbc6777c67af2a7ed0",
+    "run.log": "f329a86177df9552eeef595aa28890dcd2beb9a73f2b1c8210e2cf8c4d6ca3cf",
+    "audit-v2.swift": "9e4b47ab679eca3cac0879767c0a1f65e3c5186aaec6c6514578acab1e0c94e5",
+    "run-v2.log": "8b003065bc72e4acd8f95f9d5ddbaafc729320fa6b16658e002a5884981538a4",
+    "all-png-text-v2.json": "9bb58644071b291b7532008a20925800620c9de47a815dd5c62f8b68af5ce93b"
+  },
+  "processedWithoutOCRError": 40,
+  "imagesWithRecognizedText": 6,
+  "wordingCorrection": {
+    "priorRecord": "privacy-check-01.json",
+    "priorSHA256": "13bcbd492b4891a3c2d933d328b94109f79afb58c61cfc76020f198a91a0a685",
+    "reason": "40 images processed without OCR error; only6 yielded recognized strings. No findings or source images changed."
+  }
+}

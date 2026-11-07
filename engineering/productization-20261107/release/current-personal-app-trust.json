@@ -1,0 +1,25 @@
+{
+  "kind": "read-only installed ad-hoc personal beta trust assessment",
+  "binarySHA256": "fe5b09c4146a363e45685f8441d081fbd62a3238ed83b115287882b9158e29f3",
+  "permissionsChanged": false,
+  "quarantineBypassed": false,
+  "signatureChanged": false,
+  "rawReportSHA256": "a0658eb8cbc71618c1777281c3cfe68cdfa4a976a94312a6ef220973312692d3",
+  "results": [
+    {
+      "case": "formal-app-gatekeeper",
+      "exitCode": 3,
+      "durationSeconds": 0.3451845839153975,
+      "logSHA256": "bf7c059bc97a05f266ab3df1fc9aebac8d33c84521efdf121c94f78b19e2098c",
+      "observation": "Gatekeeper rejected current ad-hoc App"
+    },
+    {
+      "case": "formal-app-staple",
+      "exitCode": 65,
+      "durationSeconds": 0.11177458404563367,
+      "logSHA256": "cc33fe3b1b35d7d6d27a18be2dc281e6a4a4654ca3768508203f90dbed6acb7f",
+      "observation": "No stapled ticket"
+    }
+  ],
+  "assessment": "EXPECTED_PERSONAL_ADHOC_LIMIT; NOT_PUBLIC_DISTRIBUTION_PASS"
+}

@@ -151,6 +151,23 @@ def version_values(version, build):
     require(isinstance(build, str) and re.fullmatch(r"[1-9]\d*", build), "invalid_build")
 
 
+def version_label(value):
+    require(isinstance(value, str) and value == value.strip() and 1 <= len(value) <= 64
+            and all(character.isprintable() for character in value), "invalid_version_label")
+
+
+def stage_version(info, version, build, label):
+    version_values(version, build); version_label(label)
+    keys = ("CFBundleShortVersionString", "CFBundleVersion", "RiftletVersionLabel")
+    source = {key: info.get(key) for key in keys}
+    version_values(source[keys[0]], source[keys[1]])
+    if source[keys[2]] is not None:
+        version_label(source[keys[2]])
+    info.update(CFBundleShortVersionString=version, CFBundleVersion=build,
+                RiftletVersionLabel=label, RiftletBuildChannel="release-candidate")
+    return source
+
+
 def hash_value(value):
     return isinstance(value, str) and re.fullmatch(r"[0-9a-f]{64}", value) is not None
 
@@ -233,6 +250,16 @@ def inventory(root):
 def validate_receipt(receipt):
     require(isinstance(receipt, dict) and type(receipt.get("schemaVersion")) is int and receipt["schemaVersion"] == SCHEMA, "invalid_build_receipt")
     version_values(receipt.get("version"), receipt.get("build"))
+    # Existing schema-1 receipts remain verifiable; new builds always bind all
+    # three version fields. Do not rewrite old preparation evidence.
+    if "versionLabel" in receipt or "sourceVersion" in receipt:
+        version_label(receipt.get("versionLabel"))
+        source_version = receipt.get("sourceVersion")
+        require(isinstance(source_version, dict) and set(source_version) == {
+            "CFBundleShortVersionString", "CFBundleVersion", "RiftletVersionLabel"}, "invalid_source_version")
+        version_values(source_version["CFBundleShortVersionString"], source_version["CFBundleVersion"])
+        if source_version["RiftletVersionLabel"] is not None:
+            version_label(source_version["RiftletVersionLabel"])
     require(receipt.get("bundleIdentifier") == "com.riftlet.app", "wrong_bundle_identifier")
     source = receipt.get("source", {})
     require(isinstance(source, dict) and isinstance(source.get("inputs"), dict), "invalid_source_inputs")
@@ -310,6 +337,8 @@ def validate_release_info(info, receipt):
                 "LSApplicationCategoryType": "public.app-category.utilities", "RiftletBuildChannel": "release-candidate"}
     for key, value in expected.items():
         require(type(info.get(key)) is type(value) and info[key] == value, "invalid_release_" + key)
+    if "versionLabel" in receipt:
+        require(info.get("RiftletVersionLabel") == receipt["versionLabel"], "invalid_release_RiftletVersionLabel")
     require("RiftletDeveloperIDSigned" not in info and "RiftletNotarized" not in info, "plist_cannot_claim_signing_status")
     for key in (*BUNDLE.USAGE_KEYS, "NSScreenCaptureUsageDescription"):
         require(isinstance(info.get(key), str) and 10 <= len(info[key].strip()) <= 512, "invalid_usage_description")
@@ -332,6 +361,10 @@ def verify_package(package, expected_manifest=None, native_team=None):
     require(digest(package / "INSTALL-zh-CN.txt") == receipt["preparationInputs"]["packaging/release/INSTALL-zh-CN.txt"], "install_notes_receipt_mismatch")
     info = plistlib.loads((app / "Contents/Info.plist").read_bytes())
     validate_release_info(info, receipt)
+    try:
+        BUNDLE.verify_app_icon(app, info)
+    except BUNDLE.VerificationError as error:
+        require(False, str(error))
     require(sha((app / "Contents/Info.plist").read_bytes()) == receipt.get("infoPlistSHA256"), "plist_receipt_mismatch")
     binary = app / "Contents/MacOS/Riftlet"
     require(binary.stat().st_mode & stat.S_IXUSR, "binary_not_executable")
@@ -423,7 +456,7 @@ def export_source(repository, source, target):
 
 def build_candidate(args):
     require(platform.system() == "Darwin", "macos_build_required", "BLOCKED_PLATFORM")
-    full_sha(args.source); version_values(args.version, args.build)
+    full_sha(args.source); version_values(args.version, args.build); version_label(args.label)
     arches = sorted(set(args.arch))
     require(len(arches) == len(args.arch), "duplicate_requested_arch")
     workspace = fresh_workspace(args.workspace)
@@ -445,6 +478,8 @@ def build_candidate(args):
     (app / "Contents/Resources").mkdir()
     shutil.copy2(bin_dir / "Riftlet", app / "Contents/MacOS/Riftlet")
     shutil.copy2(source_dir / "Resources/Info.plist", app / "Contents/Info.plist")
+    if (source_dir / "Resources" / BUNDLE.ICON_NAME).exists():
+        shutil.copy2(source_dir / "Resources" / BUNDLE.ICON_NAME, app / "Contents/Resources" / BUNDLE.ICON_NAME)
     shutil.copytree(source_dir / "ThirdPartyNotices", app / "Contents/Resources/ThirdPartyNotices")
     shutil.copytree(bin_dir / "Riftlet_RiftletAdapters.bundle", app / "Contents/Resources/Riftlet_RiftletAdapters.bundle")
     # Preserve the old verifier's development contract before staging-only changes.
@@ -453,10 +488,11 @@ def build_candidate(args):
     ordinary = decode_json(run([app / "Contents/MacOS/Riftlet", "--ordinary-build-info"], timeout=10).stdout)
     BUNDLE.verify_ordinary_build_info(ordinary, "development")
     info = plistlib.loads((app / "Contents/Info.plist").read_bytes())
-    info.update(CFBundleShortVersionString=args.version, CFBundleVersion=args.build, RiftletBuildChannel="release-candidate")
+    source_version = stage_version(info, args.version, args.build, args.label)
     info.pop("RiftletDeveloperIDSigned"); info.pop("RiftletNotarized")
     (app / "Contents/Info.plist").write_bytes(plistlib.dumps(info, sort_keys=True))
     receipt = {"schemaVersion": SCHEMA, "source": source, "version": args.version, "build": args.build,
+               "versionLabel": args.label, "sourceVersion": source_version,
                "bundleIdentifier": "com.riftlet.app", "minimumMacOS": "13.0", "architectures": arches,
                "ordinaryBuildInfo": ordinary, "buildInfoExecutedOn": platform.machine(),
                "infoPlistSHA256": digest(app / "Contents/Info.plist"), "dataCompatibility": "NOT_ASSERTED",
@@ -468,7 +504,8 @@ def build_candidate(args):
                 "sourceAdmission": "INDEPENDENT_REVIEW_REQUIRED", "signature": None, "notarization": None}
     save_manifest(package, manifest); verify_package(package)
     return {"status": "PREPARED", "workspace": str(workspace), "credentials": "NOT_USED",
-            "source": args.source, "architectures": arches, "version": args.version, "build": args.build}
+            "source": args.source, "architectures": arches, "version": args.version, "build": args.build,
+            "versionLabel": args.label}
 
 
 def payload(workspace):
@@ -580,6 +617,7 @@ def package_candidate(args):
     value = verify_package(package)
     require(value["stage"] == "STAPLED", "distribution_requires_stapled_candidate")
     verify_package(package, native_team=value["signature"]["teamID"])
+    manifest_pin = digest(package / MANIFEST)
     distribution = workspace / "distribution"
     require(not distribution.exists(), "distribution_already_exists")
     distribution.mkdir()
@@ -587,9 +625,10 @@ def package_candidate(args):
     arch = "universal" if len(build["architectures"]) == 2 else build["architectures"][0]
     archive = distribution / ("Riftlet-" + build["version"] + "-" + build["build"] + "-" + arch + ".zip")
     run(["/usr/bin/ditto", "-c", "-k", "--sequesterRsrc", "--keepParent", package, archive])
-    verify_archive(archive, digest(archive))
+    verify_archive(archive, digest(archive), manifest_pin)
+    require(verify_package(package, manifest_pin) == value, "candidate_changed_during_packaging")
     identity = {"schemaVersion": SCHEMA, "archive": archive.name, "sha256": digest(archive), "bytes": archive.stat().st_size,
-                "manifestSHA256": digest(package / MANIFEST), "version": build["version"], "build": build["build"],
+                "manifestSHA256": manifest_pin, "version": build["version"], "build": build["build"],
                 "source": build["source"]["commit"], "architectures": build["architectures"],
                 "teamID": value["signature"]["teamID"], "stage": "STAPLED", "gatekeeper": "NOT_RUN",
                 "publicReleaseApproval": "NOT_GRANTED_BY_TOOL"}
@@ -597,7 +636,86 @@ def package_candidate(args):
     return {"status": "PACKAGED_NOT_PUBLISHED", **identity}
 
 
-def verify_archive(path, expected_sha):
+def verify_review_dmg(image, manifest_pin, workspace):
+    """Inspect only our newly created image, read-only, without Finder or App launch."""
+    run(["/usr/bin/hdiutil", "verify", image], log=workspace / "review-dmg-verify.log")
+    mount = Path(tempfile.mkdtemp(prefix="review-mount-", dir=workspace))
+    attached = False
+    try:
+        reply = run(["/usr/bin/hdiutil", "attach", "-readonly", "-nobrowse", "-noautoopen",
+                     "-mountpoint", mount, "-plist", image], log=workspace / "review-dmg-attach.log")
+        attached = True
+        description = plistlib.loads(reply.stdout)
+        points = [entry.get("mount-point") for entry in description.get("system-entities", [])
+                  if entry.get("mount-point")]
+        require(points == [str(mount)] and os.path.ismount(mount), "review_dmg_wrong_mount")
+        value = verify_package(mount / PAYLOAD, manifest_pin)
+        require(value["stage"] == "PREPARED", "review_dmg_stage_changed")
+        require((mount / "REVIEW-ONLY.txt").read_bytes() == REVIEW_NOTICE, "review_dmg_notice_mismatch")
+    finally:
+        # An unsuccessful attach can still leave its owned mount behind. Never
+        # force-eject or detach another volume; failure keeps logs and prevents a
+        # successful artifact receipt.
+        if attached or os.path.ismount(mount):
+            run(["/usr/bin/hdiutil", "detach", mount], log=workspace / "review-dmg-detach.log")
+        require(not os.path.ismount(mount), "review_dmg_still_mounted")
+
+
+REVIEW_NOTICE = ("Riftlet — local personal review only\n"
+                 "This PREPARED App is not Developer ID signed or notarized.\n"
+                 "This image is not a public distribution or an installer.\n"
+                 "Do not disable Gatekeeper or remove quarantine to bypass a warning.\n"
+                 "No App launch, installation, data migration or rollback is performed.\n"
+                 "Preserve the installed App and its data; follow the reviewed handoff.\n").encode("utf-8")
+
+
+def package_review(args):
+    require(platform.system() == "Darwin", "macos_packaging_required", "BLOCKED_PLATFORM")
+    require(hash_value(args.manifest_sha256), "trusted_manifest_pin_required")
+    workspace, package = payload(args.workspace)
+    value = verify_package(package, args.manifest_sha256)
+    require(value["stage"] == "PREPARED", "review_package_requires_prepared_candidate")
+    distribution = workspace / "review-distribution"
+    require(not distribution.exists(), "review_distribution_already_exists")
+    distribution.mkdir(mode=0o700)
+    build = value["build"]
+    arch = "universal" if len(build["architectures"]) == 2 else build["architectures"][0]
+    stem = "Riftlet-REVIEW-NOT-NOTARIZED-" + build["version"] + "-" + build["build"] + "-" + arch
+    archive = distribution / (stem + ".zip")
+    run(["/usr/bin/ditto", "-c", "-k", "--sequesterRsrc", "--keepParent", package, archive],
+        log=workspace / "review-zip.log")
+    verify_archive(archive, digest(archive), args.manifest_sha256)
+    image_root = workspace / "review-image-source"
+    require(not image_root.exists(), "review_image_source_already_exists")
+    image_root.mkdir(mode=0o700)
+    run(["/usr/bin/ditto", "--rsrc", "--extattr", package, image_root / PAYLOAD],
+        log=workspace / "review-dmg-copy.log")
+    verify_package(image_root / PAYLOAD, args.manifest_sha256)
+    (image_root / "REVIEW-ONLY.txt").write_bytes(REVIEW_NOTICE)
+    image = distribution / (stem + ".dmg")
+    run(["/usr/bin/hdiutil", "create", "-format", "UDZO", "-fs", "HFS+", "-volname", "Riftlet Review",
+         "-srcfolder", image_root, image], timeout=300, log=workspace / "review-dmg-create.log")
+    verify_review_dmg(image, args.manifest_sha256, workspace)
+    # Package preparation is a read-only operation on the candidate. A changed
+    # source invalidates both containers, even if an earlier copy was intact.
+    verify_package(package, args.manifest_sha256)
+    identity = {"schemaVersion": SCHEMA, "status": "REVIEW_ONLY", "recordedStage": "PREPARED",
+                "manifestSHA256": args.manifest_sha256, "source": build["source"]["commit"],
+                "version": build["version"], "build": build["build"],
+                "versionLabel": build.get("versionLabel", "LEGACY_RECEIPT_NOT_RECORDED"),
+                "architectures": build["architectures"], "packagerSHA256": digest(Path(__file__)),
+                "artifacts": {path.suffix[1:]: {"name": path.name, "sha256": digest(path),
+                                                "bytes": path.stat().st_size} for path in (archive, image)},
+                "zipContents": "OFFLINE_ARCHIVE_IDENTITY_MATCH", "dmgMountedContents": "MATCH_READ_ONLY_DETACHED",
+                "reproducibility": "PINNED_INPUTS_AND_EXTRACTED_CONTENTS; NOT_BYTE_IDENTICAL_BUILD_OR_CONTAINER",
+                "developerID": "NOT_SIGNED", "notarization": "NOT_NOTARIZED", "gatekeeper": "NOT_RUN",
+                "installation": "NOT_RUN", "applicationLaunch": "NOT_RUN", "network": "NOT_USED",
+                "dataCompatibility": "NOT_ASSERTED", "publicReleaseApproval": "NOT_GRANTED_BY_TOOL"}
+    write_json(distribution / "review-artifacts.json", identity)
+    return identity
+
+
+def verify_archive(path, expected_sha, expected_manifest=None):
     path = safe_path(path)
     require(path.is_file(), "archive_file_required")
     require(re.fullmatch(r"[0-9a-f]{64}", expected_sha or "") is not None, "trusted_archive_pin_required")
@@ -624,7 +742,11 @@ def verify_archive(path, expected_sha):
                 rows[PurePosixPath(*p.parts[1:]).as_posix()] = item
         require(MANIFEST in rows, "archive_manifest_missing")
         require(rows[MANIFEST].file_size <= 8 * 1024 * 1024, "oversized_json")
-        manifest = decode_json(archive.read(rows.pop(MANIFEST)))
+        manifest_bytes = archive.read(rows.pop(MANIFEST))
+        if expected_manifest is not None:
+            require(hash_value(expected_manifest), "trusted_manifest_pin_required")
+            require(sha(manifest_bytes) == expected_manifest, "archive_manifest_pin_mismatch")
+        manifest = decode_json(manifest_bytes)
         validate_manifest(manifest)
         require(set(rows) == set(manifest.get("files", {})), "archive_inventory_mismatch")
         require({PurePosixPath(name).parts[0] for name in rows} == {APP, "INSTALL-zh-CN.txt"}, "archive_payload_layout_mismatch")
@@ -638,7 +760,13 @@ def verify_archive(path, expected_sha):
         validate_receipt(receipt)
         require(receipt == manifest.get("build"), "archive_build_mismatch")
         plist_bytes = archive.read(PAYLOAD + "/" + APP + "/Contents/Info.plist")
-        validate_release_info(plistlib.loads(plist_bytes), receipt)
+        info = plistlib.loads(plist_bytes)
+        validate_release_info(info, receipt)
+        icon_name = APP + "/Contents/Resources/" + BUNDLE.ICON_NAME
+        try:
+            BUNDLE.verify_icon_data(info, archive.read(rows[icon_name]) if icon_name in rows else None)
+        except BUNDLE.VerificationError as error:
+            require(False, str(error))
         require(sha(plist_bytes) == receipt["infoPlistSHA256"], "archive_plist_receipt_mismatch")
         require(sha(archive.read(PAYLOAD + "/INSTALL-zh-CN.txt")) == receipt["preparationInputs"]["packaging/release/INSTALL-zh-CN.txt"], "archive_install_notes_mismatch")
         binary_name = APP + "/Contents/MacOS/Riftlet"
@@ -646,6 +774,7 @@ def verify_archive(path, expected_sha):
         require(macho_arches(archive.read(PAYLOAD + "/" + binary_name)) == receipt["architectures"], "archive_arch_mismatch")
         require({name for name in rows if name.startswith(APP + "/Contents/MacOS/")} == {binary_name}, "archive_unexpected_executable")
         return {"status": "OFFLINE_ARCHIVE_IDENTITY_MATCH", "source": receipt["source"]["commit"],
+                "manifestSHA256": sha(manifest_bytes),
                 "version": receipt["version"], "build": receipt["build"], "architectures": receipt["architectures"],
                 "recordedStage": manifest.get("stage"), "nativeSignatureCheck": "NOT_RUN", "gatekeeper": "NOT_RUN",
                 "xattrs": "transport_bound_by_whole_archive_pin; not extracted or applied"}
@@ -703,6 +832,7 @@ def parser():
     c = commands.add_parser("preflight"); credentials(c, True, True)
     c = commands.add_parser("build"); c.add_argument("--repository", type=Path, default=ROOT)
     c.add_argument("--source", required=True); c.add_argument("--version", required=True); c.add_argument("--build", required=True)
+    c.add_argument("--label", required=True, help="Explicit display label, e.g. Beta 3; never inherited from old source metadata")
     c.add_argument("--arch", action="append", choices=sorted(ARCHES.values()), required=True); c.add_argument("--workspace", type=Path, required=True)
     for command in ("sign", "notary-submit", "notary-status", "staple", "package"):
         c = commands.add_parser(command); c.add_argument("--workspace", type=Path, required=True)
@@ -710,9 +840,12 @@ def parser():
         if command == "sign": credentials(c, signing=True)
         if command.startswith("notary-"): credentials(c, notary=True)
         if command == "notary-status": c.add_argument("--submission-id")
+    c = commands.add_parser("package-review"); c.add_argument("--workspace", type=Path, required=True)
+    c.add_argument("--manifest-sha256", required=True, help="Trusted PREPARED manifest pin; produces local review ZIP/DMG only")
     c = commands.add_parser("verify"); c.add_argument("--package", type=Path, required=True)
     c.add_argument("--manifest-sha256"); c.add_argument("--team", help="Also perform offline native Developer ID validation on macOS")
     c = commands.add_parser("verify-archive"); c.add_argument("--archive", type=Path, required=True); c.add_argument("--sha256", required=True)
+    c.add_argument("--manifest-sha256", help="Also bind the embedded manifest to an independently recorded candidate pin")
     c = commands.add_parser("update-plan"); c.add_argument("--package", type=Path, required=True)
     c.add_argument("--manifest-sha256", required=True); c.add_argument("--team", required=True); c.add_argument("--current-app", type=Path, required=True)
     return p
@@ -726,11 +859,12 @@ def main(argv=None):
             result = {"status": "OFFLINE_CONTENTS_MATCH", "recordedStage": value["stage"],
                       "manifestPin": "MATCH" if args.manifest_sha256 else "NOT_PROVIDED_NOT_AUTHENTICATED",
                       "nativeSignatureCheck": "PASS" if args.team else "NOT_RUN", "gatekeeper": "NOT_RUN"}
-        elif args.command == "verify-archive": result = verify_archive(args.archive, args.sha256)
+        elif args.command == "verify-archive": result = verify_archive(args.archive, args.sha256, args.manifest_sha256)
         else:
             result = {"preflight": preflight, "build": build_candidate, "sign": sign_candidate,
                       "notary-submit": notary_submit, "notary-status": notary_status,
-                      "staple": staple_candidate, "package": package_candidate, "update-plan": update_plan}[args.command](args)
+                      "staple": staple_candidate, "package": package_candidate, "package-review": package_review,
+                      "update-plan": update_plan}[args.command](args)
     except ReleaseError as error:
         print(json.dumps({"status": error.status, "code": error.code}, sort_keys=True))
         return 3 if error.status.startswith("BLOCKED_") else 2

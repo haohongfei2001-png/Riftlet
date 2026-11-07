@@ -1,0 +1,39 @@
+# 隐私与数据 / Privacy and data
+
+Riftlet 的截图副本和历史保存在本机。**点击微图会把那张图片交给当前 ChatGPT 草稿；明确发送反馈则会把反馈内容发送到维护者的反馈服务。** 因此不能把 Riftlet 描述为“所有功能完全离线”。
+
+## 截图与页面访问
+
+- 系统截图原文件留在 macOS 的保存位置。Riftlet 在自己的数据目录保存私有副本、缩略图/必要派生文件、历史和操作记录。内置截图及编辑结果也可能分别占用空间。
+- 普通数据目录为 `~/Library/Application Support/Riftlet/`。设置还包括系统偏好中的来源授权、引导和历史视图偏好；反馈访问凭证存储在 macOS 钥匙串。App 数据目录不是整个系统偏好、钥匙串或权限的完整备份。
+- 为确定目标并保留原稿，页面程序在当前 ChatGPT 页面内检查编辑器、相关控件、附件预览及选区，并可临时读取编辑器值来判断是否被改动。它不是“不接触任何页面内容”。这些临时文本不会作为反馈诊断导出；不能把本地数据库、观察记录或原始诊断文件当成匿名材料。
+- 点击附加才把图片交给该网页。Riftlet 不自动发送聊天消息，不主动删除现有聊天附件，不上传整个截图目录。图片进入 ChatGPT 后由该服务处理，适用你自己的账号和服务设置。
+- 当前产品没有 Riftlet 账号、截图云同步或后台使用率埋点。日常收录本身不把截图发送到维护者；本轮测试方案也不新增遥测。
+
+## 反馈是什么时候联网的
+
+打开反馈窗口、编辑或关闭并保存草稿不会新提交报告。点「发送反馈」后，已授权的待发送项可在后台、网络恢复或下次启动时继续投递；这不会每次重新弹出确认。反馈的查询、取消/删除申请也可能联网。
+
+发送内容包括你填写的文字、问题/建议类别、随机报告编号、版本和提交时间。可选诊断只包含有限的事件类别和计数，不包含截图字节、图片路径/编号/散列、剪贴板、聊天正文、浏览器会话或原始工程日志。新草稿默认不附带诊断；重新打开已有草稿会保留你之前的选择，可在发送前预览或取消勾选。
+
+反馈通过 HTTPS 发往 Riftlet 的 Cloudflare 接收服务，并可进入维护者的私有反馈中心；不是公开 GitHub 源码仓库的 Issue。正文是你输入的内容，**不会自动识别并删除其中的隐私**。服务和基础网络提供方可能处理连接元数据，不能承诺匿名或端到端加密。
+
+“已保存在本机”不代表云端已收到；“已持久接收”也不等于维护者已经阅读。反馈窗口会区分这些状态。需要撤回时，使用对应记录的取消或删除动作；已经尝试发送的报告需要等待服务的删除确认，包括可能存在的私有维护副本。卸载 App 不会自动撤回此前反馈。
+
+## 图片保留与卸载
+
+收起、归档、移出微图和清空可见队列只改变本地显示，不删除系统原图、Riftlet 私有副本或远端附件。结果待核实的记录保留，不自动重传。当前没有自动清理截图的保留期限或永久删除策略。
+
+移除 App 不会自动清空这些数据、系统偏好、备份或反馈凭证。数据可能仍包含隐私，请按[恢复与卸载说明](RECOVERY-AND-FAQ.md)保管。不要把整个目录上传用于问题排查。
+
+## English essentials
+
+Screenshots and history are stored locally. A thumbnail click hands that image to the selected ChatGPT draft; ChatGPT then processes it under its own service/account settings. Riftlet inspects the current page’s editor, controls and attachment previews, and temporarily reads editor content/selection to preserve the draft. It does not export that text as feedback diagnostics.
+
+Feedback is optional. Pressing Send authorizes the queued report to be retried later, including after restart. Its text, category, report ID, version, time and any explicitly selected diagnostic snapshot go to the private feedback service. New drafts have diagnostics off; saved drafts retain your choice. Diagnostics use a closed list of counts/events, but free text is **not automatically redacted**. Do not include images, chats, credentials or raw databases. Local storage, receipt, delivery and deletion are different states.
+
+Archiving or retracting a thumbnail does not delete its file. Uninstalling the App does not erase local data or already received feedback. No screenshot cloud library, Riftlet account or usage telemetry is introduced by this packet.
+
+## 对外发布前仍需补齐
+
+这是当前实现说明，不是已完成的法律隐私政策。正式对外测试前，维护者需在交付资料中提供实际可联系的隐私/支持责任方、反馈处理和删除请求渠道、服务保留规则，以及测试参与同意说明。本轮不虚构邮箱、保留天数或响应时限；没有这些信息不应宣称隐私体系已经对外就绪。

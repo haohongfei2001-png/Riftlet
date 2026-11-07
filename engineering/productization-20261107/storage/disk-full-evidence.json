@@ -1,0 +1,413 @@
+{
+  "schema": 1,
+  "result": "PASS_SCOPED_REAL_DISK_FULL_RECOVERY",
+  "productSourceModified": false,
+  "source": {
+    "productBase": "2e779f646ac4874344fac94f79103e8ddf9b02c8",
+    "harnessSHA256": "86b108182f8d4d67a0daaa1c6828345125a9c7f2edc7d7f50a52542731f9b164",
+    "wrapperSHA256": "2ec99e2fcee10896e773b6713d60120f77f803e00c66faba7e4306d870019be5",
+    "finalBinarySHA256": "caa91df0d13ce8aec9e46b23cda7d4d9849193231747dbc113992de40d28c691"
+  },
+  "run": {
+    "startedUTC": "2026-11-07T00:40:42.553702+00:00",
+    "finishedUTC": "2026-11-07T00:41:23.321034+00:00",
+    "nativeActualSeconds": 1.6905889159534127,
+    "nativeExitCode": 0,
+    "timedOut": false,
+    "volumeDetached": true,
+    "detachExitCode": 0,
+    "requestedImageBytes": 134217728,
+    "maximumPermittedVolumeBytes": 268435456
+  },
+  "filesystem": "HFS+ on a dedicated synthetic 128MiB sparse image; no production APFS equivalence claim",
+  "cases": [
+    {
+      "error": "CaptureError.insufficientStorage",
+      "headroomBytes": 4194304,
+      "name": "real-full-volume-default-preflight",
+      "result": "PASS",
+      "scope": "Preflight refusal; not a failed product write"
+    },
+    {
+      "error": {
+        "diagnostic": "insufficientStorage",
+        "errno": 28,
+        "stage": "write-private-data",
+        "type": "CaptureError.io"
+      },
+      "name": "real-write-enospc-after-passed-preflight",
+      "result": "PASS",
+      "seam": "Existing stageOpened boundary fills only the verified volume; the unchanged product write reports real errno"
+    },
+    {
+      "assetCount": 3,
+      "name": "explicit-original-input-retry-after-free-space",
+      "result": "PASS",
+      "retryCount": 1
+    },
+    {
+      "error": {
+        "diagnostic": "privateWriteFailed",
+        "message": "database or disk is full",
+        "sqliteNumericCodeExposed": false,
+        "type": "RiftletError.database"
+      },
+      "name": "database-write-failure-after-durable-media",
+      "result": "PASS",
+      "seam": "Existing mediaSynced boundary fills only the verified volume before actual store.importAsset",
+      "walCheckpoint": {
+        "checkpointCode": 0,
+        "nCheckpoint": 0,
+        "nLog": 0,
+        "schemaReadCode": 0,
+        "walBytesAfter": 0,
+        "walBytesBefore": 255472
+      }
+    },
+    {
+      "assets": 4,
+      "name": "durable-journal-retry-and-original-unknown-preserved",
+      "newPrivateCopyDuringRecovery": false,
+      "operations": 1,
+      "result": "PASS",
+      "retryCount": 1,
+      "uploadStarts": 0
+    }
+  ],
+  "fillerMeasurements": [
+    {
+      "bytesWritten": 130727936,
+      "exhaustedRequests": [
+        {
+          "availableBytes": 704512,
+          "errno": 28,
+          "requestBytes": 1048576
+        },
+        {
+          "availableBytes": 49152,
+          "errno": 28,
+          "requestBytes": 65536
+        },
+        {
+          "availableBytes": 0,
+          "errno": 28,
+          "requestBytes": 4096
+        },
+        {
+          "availableBytes": 0,
+          "errno": 28,
+          "requestBytes": 1
+        }
+      ],
+      "finalAvailableBytes": 0,
+      "removed": true,
+      "syncErrno": 0,
+      "writeCalls": 150,
+      "writeErrno": 28
+    },
+    {
+      "bytesWritten": 130727936,
+      "exhaustedRequests": [
+        {
+          "availableBytes": 704512,
+          "errno": 28,
+          "requestBytes": 1048576
+        },
+        {
+          "availableBytes": 49152,
+          "errno": 28,
+          "requestBytes": 65536
+        },
+        {
+          "availableBytes": 0,
+          "errno": 28,
+          "requestBytes": 4096
+        },
+        {
+          "availableBytes": 0,
+          "errno": 28,
+          "requestBytes": 1
+        }
+      ],
+      "finalAvailableBytes": 0,
+      "removed": true,
+      "syncErrno": 0,
+      "writeCalls": 150,
+      "writeErrno": 28
+    },
+    {
+      "bytesWritten": 130859008,
+      "exhaustedRequests": [
+        {
+          "availableBytes": 835584,
+          "errno": 28,
+          "requestBytes": 1048576
+        },
+        {
+          "availableBytes": 49152,
+          "errno": 28,
+          "requestBytes": 65536
+        },
+        {
+          "availableBytes": 0,
+          "errno": 28,
+          "requestBytes": 4096
+        },
+        {
+          "availableBytes": 0,
+          "errno": 28,
+          "requestBytes": 1
+        }
+      ],
+      "finalAvailableBytes": 0,
+      "removed": true,
+      "syncErrno": 0,
+      "writeCalls": 152,
+      "writeErrno": 28
+    }
+  ],
+  "dataInvariants": {
+    "baselineAssets": 2,
+    "finalAssets": 4,
+    "unknownOperations": 1,
+    "uploadStarts": 0,
+    "sevenTypedTablesAndSchemaEqualAcrossEachFailure": true,
+    "priorAssetsAndAllOtherHistoryRowsPreservedAfterRecovery": true,
+    "allOriginalSourceBytesAndModesPreserved": true,
+    "allHistoricalMediaAndJournalBytesAndModesPreserved": true,
+    "sqlRetryReusedSameJournalAndPrivateCopy": true,
+    "retainedFilesRehashed": 16,
+    "finalDatabase": {
+      "quickCheck": "ok",
+      "foreignKeyViolations": 0,
+      "tables": {
+        "assets": 4,
+        "checkpoints": 1,
+        "compensations": 0,
+        "metadata": 2,
+        "operations": 1,
+        "sqlite_sequence": 2,
+        "upload_starts": 0
+      },
+      "unknownOperations": 1
+    }
+  },
+  "preservedImage": {
+    "basename": "test-1cc6d136-23f5-4577-841f-ba7cc5403f23.sparseimage",
+    "sha256": "11dd552d0c0f5bf50caf4288d47b2be1bcce15a908083132de184ed6c888a3f9",
+    "bytes": 134221824
+  },
+  "previousAttempts": [
+    {
+      "run": "run-01",
+      "result": "FAIL_SETUP_NATIVE_NOT_RUN",
+      "reason": "diskutil on this OS omitted Mounted; DeviceNode/mount/hdiutil/ismount checks replace that unsupported field assumption.",
+      "normalDetachExitCode": 0
+    },
+    {
+      "run": "run-02",
+      "result": "FAIL_NATIVE_TEST_EXPECTATION",
+      "reason": "1MiB filler write returned ENOSPC but 835584B remained; small product import succeeded. Read-only image inspection confirmed the remaining bytes and unchanged image SHA.",
+      "passed": [
+        "default full-volume capacity precheck"
+      ],
+      "normalDetachExitCode": 0
+    },
+    {
+      "run": "run-03",
+      "result": "FAIL_PROBE_CHECKPOINT_SETUP",
+      "reason": "Real precheck/mid-copy ENOSPC/retry passed. Fresh SQLite helper connection returned OK with uninitialized WAL state; zero-byte WAL assertion stopped before the product SQL phase.",
+      "passed": [
+        "default precheck",
+        "real product write errno28",
+        "one explicit same-source retry"
+      ],
+      "normalDetachExitCode": 0
+    }
+  ],
+  "confirmedProbeCorrections": [
+    "Record cleanupFailure in final completion condition so later image-hash failure cannot be overwritten by PASS.",
+    "Use actual DeviceNode/mount identity instead of an absent Mounted plist key.",
+    "Bounded filler steps from1MiB to64KiB to4KiB to1byte, recording actual write attempts, errno and free bytes.",
+    "Initialize only the checkpoint helper connection with a read of sqlite_master; then require main TRUNCATE code0/nLog0/nCkpt0 and WAL0."
+  ],
+  "sqliteCheckpointEvidence": {
+    "officialSource": "https://www.sqlite.org/c3ref/wal_checkpoint_v2.html",
+    "observedFreshConnection": {
+      "code": 0,
+      "nLog": -1,
+      "nCheckpoint": -1,
+      "walBytesBefore": 12392,
+      "walBytesAfter": 12392
+    },
+    "observedAfterReadOnlySchemaQuery": {
+      "code": 0,
+      "nLog": 0,
+      "nCheckpoint": 0,
+      "walBytesBefore": 12392,
+      "walBytesAfter": 0
+    },
+    "originalRetainedDBUnchanged": true,
+    "numericProductSQLiteErrorCodeExposed": false
+  },
+  "sourceIndependentReviewSHA256": "f33d9d9325f588629c4ca63ab0b13f0a568e9b253e593c00da4d4a6921f2f3a1",
+  "sourceReviewScope": "Initial source review plus subsequent narrow source reviews in task messages; final raw result review pending at this checkpoint.",
+  "finalIndependentResultReview": "PENDING_AT_THIS_CHECKPOINT",
+  "scope": {
+    "realPOSIXENOSPC": true,
+    "unchangedActualImporterAndQueueStore": true,
+    "existingFaultHookOnlySchedulesRealDiskExhaustion": true,
+    "productionDataAccess": false,
+    "AppOrGUI": false,
+    "browserNetworkOrUpload": false,
+    "systemPowerLoss": false,
+    "installedAppRestart": false,
+    "fullDiskPhysicalHardware": false
+  },
+  "rawEvidence": [
+    {
+      "run": "run-01",
+      "basename": "runner-result.json",
+      "sha256": "dc080ec44ff53af3c60ab0d256b7e08cfb7f263607d763b435bc33a0a27384b0",
+      "bytes": 768
+    },
+    {
+      "run": "run-01",
+      "basename": "build-identity.json",
+      "sha256": "5e18900717f6c24a7094c1eba47052596bd5087fbdc891fe116f41cb86c353de",
+      "bytes": 7422
+    },
+    {
+      "run": "run-01",
+      "basename": "volume-info.stdout",
+      "sha256": "e992eae8c7dab7ae0d3f6b7501e2ecd63ababbd3ed57c2cca3853484bb76f9e2",
+      "bytes": 2553
+    },
+    {
+      "run": "run-01",
+      "basename": "image-attach.stdout",
+      "sha256": "807612a933d9ad606e6075c99a7de88e361af096c43dfa4c6d86fc9bb172d545",
+      "bytes": 952
+    },
+    {
+      "run": "run-01",
+      "basename": "image-detach.stdout",
+      "sha256": "7a042615bf3722a3771413c5ae0834a1153311a88abad4deef4d8ad80a5c7273",
+      "bytes": 17
+    },
+    {
+      "run": "run-02",
+      "basename": "runner-result.json",
+      "sha256": "191b0d9c8e3cec6d86f0187c41df3030aae711f19d151074cbb0113232d581ae",
+      "bytes": 893
+    },
+    {
+      "run": "run-02",
+      "basename": "build-identity.json",
+      "sha256": "51c23a691f07280aa5a3bd4675d957eec4907922fad9ee9c0c1760760edcd6d1",
+      "bytes": 7422
+    },
+    {
+      "run": "run-02",
+      "basename": "runtime.log",
+      "sha256": "4ae97e433ae694c1d72f74719ab0f1361895664856919f3399179aa7fc20b843",
+      "bytes": 65
+    },
+    {
+      "run": "run-02",
+      "basename": "native-report.json",
+      "sha256": "4bed6abb2b0573aca1777ad4adbc75892797bc73c8a07be5a471546b0bbf2c21",
+      "bytes": 1307
+    },
+    {
+      "run": "run-02",
+      "basename": "readonly-space-inspection.json",
+      "sha256": "836b0a22345e4d2dd894b175c776b2b6875675cafae9ce5d53247ebec97d0140",
+      "bytes": 2160
+    },
+    {
+      "run": "run-03",
+      "basename": "runner-result.json",
+      "sha256": "8adf8bb822adbc5c5c750a07628828ede84f3f4b8aab50e3b3215a78b1728d5e",
+      "bytes": 893
+    },
+    {
+      "run": "run-03",
+      "basename": "build-identity.json",
+      "sha256": "14db7badd50ba595ff37a3cdc11b5015d00342eb3c864948092526784a599e05",
+      "bytes": 7422
+    },
+    {
+      "run": "run-03",
+      "basename": "runtime.log",
+      "sha256": "5ab1b5507ed1e84c5d7540a442714782a493e68d321c882fe4f07d3f5b1af7b0",
+      "bytes": 61
+    },
+    {
+      "run": "run-03",
+      "basename": "native-report.json",
+      "sha256": "3928b48428f66a538eae1ae38803b5600653469f4569d61cd7000d87fee3c29d",
+      "bytes": 2932
+    },
+    {
+      "run": "run-04",
+      "basename": "runner-result.json",
+      "sha256": "916923cfd015b45c392b176f2801008dd6948904736cd543a95058a0fbf2a733",
+      "bytes": 1274
+    },
+    {
+      "run": "run-04",
+      "basename": "build-identity.json",
+      "sha256": "fc8be23294bfbad4fe749d36cd08c9f986d9d38b56c8c221e075ce73f38bdeaa",
+      "bytes": 7422
+    },
+    {
+      "run": "run-04",
+      "basename": "runtime.log",
+      "sha256": "f321753ecebae2877df9610f353038c0f7dde83a94231dbfa0705ba1b6b1d9fe",
+      "bytes": 24
+    },
+    {
+      "run": "run-04",
+      "basename": "native-report.json",
+      "sha256": "fb89ff34d509a3ecaa631d7376cf83ee0c26412e273a8407e05f2360c0fa3d0b",
+      "bytes": 4551
+    },
+    {
+      "run": "run-04",
+      "basename": "wal-checkpoint.json",
+      "sha256": "5f46a8c16af7ad8f9e1372075e3bf48d8b1925c1cff0ef3416e3401d80327ec9",
+      "bytes": 137
+    },
+    {
+      "run": "run-04",
+      "basename": "retained-files.json",
+      "sha256": "77b6c234119b45d5c8f79b263620b4802a57fc504da679dfb5131fbad935e6ce",
+      "bytes": 2918
+    },
+    {
+      "run": "run-04",
+      "basename": "volume-files-before-detach.json",
+      "sha256": "77b6c234119b45d5c8f79b263620b4802a57fc504da679dfb5131fbad935e6ce",
+      "bytes": 2918
+    },
+    {
+      "run": "run-04",
+      "basename": "author-artifact-check.json",
+      "sha256": "20c90d35492e6e36de2029b8a0703c74417409707feb347ac5a4ed382a520de7",
+      "bytes": 697
+    },
+    {
+      "run": "checkpoint-api-01",
+      "basename": "result.json",
+      "sha256": "c8795f7c001e5b94dbe6760e19599ba289fa99f75c76157efb23269e11f48e23",
+      "bytes": 991
+    },
+    {
+      "run": "checkpoint-api-01",
+      "basename": "checkpoint-api-proof.json",
+      "sha256": "fa8e8cf74ac3e2e74dcc62e1591ee5b3fbc7add064e611538722109de3af0ee5",
+      "bytes": 1161
+    }
+  ]
+}

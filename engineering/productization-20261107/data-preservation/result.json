@@ -1,0 +1,31 @@
+{
+  "schema": "riftlet.productization.data-preservation.v1",
+  "result": "PASS_SCOPED_OFFLINE_COMPARISON_AND_RESTORE",
+  "beforeManifestSHA256": "9e804c8e868b186d23e763ea136c7e24c97f8be77d342ed17de1c34850bb6626",
+  "afterManifestSHA256": "db01b7071b5c7efbb3e14f6daba6e06abab139197747985a0d4a8cdcf70f3ecf",
+  "files": 204,
+  "assetCount": 96,
+  "mediaCount": 96,
+  "journalCount": 96,
+  "operationCount": 44,
+  "uploadStartCount": 18,
+  "unknownOperationSequences": [
+    1,
+    8,
+    14
+  ],
+  "beforeAfterBytesAndTypedRowsEqual": true,
+  "databaseIntegrity": "ok; zero foreign-key violations in both queue and Feedback databases",
+  "liveProductionSQLiteOpened": false,
+  "restore": "new private destination; exact externally pinned snapshot; verified, not launched",
+  "comparisonTiming": "two offline snapshots bracket isolated GUI; formal App then normally restarted at the unchanged installed identity",
+  "preferenceScope": "domain bytes equal prior Beta3-delivery baseline, not a separately captured sprint-start baseline",
+  "permissionModeScope": "209 current paths permission bits equal prior upgrade metadata baseline; no ACL/xattr equality claim",
+  "evidenceSHA256": {
+    "production-gui-isolation-comparison.json": "d95fcf6145c7d747c60408c949fe3a029af1ef77c0c4705a5026039c86bc4ca0",
+    "production-preferences-comparison.json": "ba592be4d7339788176a8774fee391442cd109cf6479b0bd70127cd1a76a6ba4",
+    "restore-drill-result.json": "9faf8f08311138393ccf4c3c719bf7089538c619af6ab08fc98bc6ebeaf08a0b",
+    "production-restored-runtime.json": "618dd3401b057ba8b93e208124aa1a51620b48e6972cde51a2df4dcf056ba4c2",
+    "production-storage-accounting.json": "2efa781a74347e8155824c0f6c70bbad19df2c22799999e48e97ba255af74948"
+  }
+}
