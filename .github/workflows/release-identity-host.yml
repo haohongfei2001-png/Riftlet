@@ -1,61 +1,26 @@
-name: Release identity on a fresh Mac
+name: Scoped folder and consent experiment
 on:
-  pull_request:
-    branches: [main]
-    paths:
-      - '.github/workflows/release-identity-host.yml'
-      - 'Tests/ReleaseIdentityHost/**'
-      - 'Tests/ReleaseUpgradeHost/**'
   workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  fresh_account:
-    name: Fresh-account upgrade and folder access
+  scoped:
+    name: Bookmarks and independent first permission decisions
     runs-on: macos-15
-    timeout-minutes: 22
+    timeout-minutes: 16
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           fetch-depth: 0
           persist-credentials: false
-      - name: Build the two ordinary versions in separate workspaces
-        shell: bash
-        run: |
-          set -euo pipefail
-          mkdir -p test-results
-          previous=2e779f646ac4874344fac94f79103e8ddf9b02c8
-          # Test the same candidate tree whose workflow and host drivers we checked out.
-          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
-          python3 -B scripts/release-tool.py build --source "$previous" --version 0.3.0 --build 3 --label "Beta 3" --arch arm64 --workspace "$RUNNER_TEMP/baseline"
-          python3 -B scripts/release-tool.py build --source "$GITHUB_SHA" --version 0.3.2 --build 5 --label "Identity Rehearsal" --arch arm64 --workspace "$RUNNER_TEMP/next"
-          ditto "$RUNNER_TEMP/baseline/Riftlet-Release/Riftlet.app" "$RUNNER_TEMP/Old.app"
-          ditto "$RUNNER_TEMP/next/Riftlet-Release/Riftlet.app" "$RUNNER_TEMP/New.app"
-          codesign --force --sign - --timestamp=none "$RUNNER_TEMP/Old.app"
-          codesign --force --sign - --options runtime --timestamp=none --entitlements packaging/release/Entitlements.plist "$RUNNER_TEMP/New.app"
-          codesign --verify --deep --strict --all-architectures "$RUNNER_TEMP/Old.app"
-          codesign --verify --deep --strict --all-architectures "$RUNNER_TEMP/New.app"
-      - name: Exercise first ordinary launch, two imports and App-only rollback
-        run: python3 -B Tests/ReleaseUpgradeHost/run.py --old "$RUNNER_TEMP/Old.app" --new "$RUNNER_TEMP/New.app" --output test-results/ordinary-upgrade.json
-      - name: Observe permissions and bookmarks with a separate App identity
-        if: ${{ !cancelled() }}
-        run: python3 -B Tests/ReleaseIdentityHost/run.py --output test-results/release-identity-host.json
-      - name: Observe first Automation decisions on a disposable Chrome profile
-        if: ${{ !cancelled() }}
-        run: python3 -B Tests/ReleaseIdentityHost/automation.py --output test-results/automation-consent.json
-      - name: Exercise candidate settings and restart in an isolated profile
-        if: ${{ !cancelled() }}
-        run: bash scripts/run-settings-review.sh "$RUNNER_TEMP/New.app" "$PWD/test-results/settings-review"
+      - name: Run disposable folder and permission protocols
+        run: python3 -B Tests/BookmarkLifecycleHost/run.py --product 2fbb0661d1aeb3126fea3537ece6625c16649124 --output test-results/scoped-folder-consent.json
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: ${{ !cancelled() }}
         with:
-          name: release-identity-observations-${{ github.sha }}-${{ github.run_attempt }}
-          path: |
-            test-results/ordinary-upgrade.json
-            test-results/release-identity-host.json
-            test-results/automation-consent.json
-            test-results/settings-review/*runner-result.json
+          name: scoped-folder-consent-${{ github.sha }}-${{ github.run_attempt }}
+          path: test-results/scoped-folder-consent.json
           if-no-files-found: error
-          retention-days: 14
+          retention-days: 7

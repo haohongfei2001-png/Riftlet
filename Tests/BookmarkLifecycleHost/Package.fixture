@@ -1,0 +1,9 @@
+// swift-tools-version: 5.9
+import PackageDescription
+
+let package = Package(name: "ScopedFolderLab", platforms: [.macOS(.v13)], targets: [
+    .systemLibrary(name: "CSQLite"),
+    .target(name: "RiftletCore", dependencies: ["CSQLite"]),
+    .target(name: "RiftletCapture", dependencies: ["RiftletCore"]),
+    .executableTarget(name: "Probe", dependencies: ["RiftletCapture", "RiftletCore"])
+])
