@@ -172,6 +172,25 @@ final class CaptureSourceBindingTests: XCTestCase {
         await restarted.stop()
     }
 
+    func testReadableUnconfirmedSourceStopsTheWatcherAndCanResumeOnAConfirmedSource() async throws {
+        let f = try Fixture(); defer { f.close() }
+        let provider = TestLocationProvider(f.first)
+        let service = CaptureService(store: f.store, privateRoot: f.privateRoot, sourceDirectory: f.first)
+        let binding = CaptureSourceBinding(service: service, provider: provider,
+            permitsSource: { $0.standardizedFileURL.path != f.second.standardizedFileURL.path })
+        try await binding.start()
+        await provider.change(to: f.second)
+        let blocked = await service.statusSnapshot()
+        XCTAssertFalse(blocked.isRunning)
+        let recordCount = try await f.store.assets(includeUsed: true).count
+        XCTAssertEqual(recordCount, 0)
+        await provider.change(to: f.first)
+        let resumed = await service.statusSnapshot()
+        XCTAssertTrue(resumed.isRunning)
+        XCTAssertTrue(resumed.sourceAccessible)
+        await binding.stop()
+    }
+
     func testFailedSwitchPreservesLastWorkingSource() async throws {
         let f = try Fixture(); defer { f.close() }
         let clock = SourceTestClock()

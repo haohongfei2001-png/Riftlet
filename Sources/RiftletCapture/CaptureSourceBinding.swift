@@ -203,6 +203,7 @@ public actor CaptureSourceBinding {
     }
     private let service: CaptureService
     private let provider: any CaptureLocationProviding
+    private let permitsSource: @Sendable (URL) async -> Bool
     private let onIssue: @Sendable (String) async -> Void
     private let onDiagnostic: @Sendable (CaptureDiagnostic) async -> Void
     private var generation = UUID()
@@ -213,9 +214,11 @@ public actor CaptureSourceBinding {
 
     public init(service: CaptureService,
                 provider: any CaptureLocationProviding = SystemCaptureLocationProvider(),
+                permitsSource: @escaping @Sendable (URL) async -> Bool = { _ in true },
                 onIssue: @escaping @Sendable (String) async -> Void = { _ in },
                 onDiagnostic: @escaping @Sendable (CaptureDiagnostic) async -> Void = { _ in }) {
         self.service = service; self.provider = provider; self.onIssue = onIssue; self.onDiagnostic = onDiagnostic
+        self.permitsSource = permitsSource
     }
 
     public func start() async throws {
@@ -281,6 +284,12 @@ public actor CaptureSourceBinding {
             do { next = try await provider.currentDirectory() }
             catch { throw BindingFailure(error: error, context: .locationPreference) }
             guard running, generation == token else { return }
+            let permitted = await permitsSource(next)
+            guard running, generation == token else { return }
+            if !permitted {
+                await service.stop()
+                throw BindingFailure(error: CocoaError(.fileReadNoPermission), context: .source)
+            }
             do { try await service.setSourceDirectory(next) }
             catch { throw BindingFailure(error: error, context: .source) }
             guard running, generation == token else { return }

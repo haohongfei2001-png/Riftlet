@@ -16,7 +16,7 @@ public enum SetupStorageState: Equatable, Sendable {
 /// Closed, local-only explanations. The presentation never displays an Error's
 /// description, file contents, browser identity, URL, or arbitrary remote text.
 public enum SetupIssue: Equatable, Sendable {
-    case sourceAccess, wrongScreenshotFolder, unsupportedFormat, unsupportedSize, invalidImage
+    case sourceAccess, wrongScreenshotFolder, screenshotFolderNeedsSelection, unsupportedFormat, unsupportedSize, invalidImage
     case insufficientSpace, privateWriteFailed, storageUnavailable
     case unsupportedBrowser, targetUnavailable, permissionDenied, imageUnavailable
     case initializationFailed, configurationUnavailable
@@ -38,6 +38,8 @@ public enum SetupIssue: Equatable, Sendable {
             return "无法读取截图保存位置。请确认文件夹仍存在，在系统设置「隐私与安全性 → 文件与文件夹」中检查 Riftlet，或允许访问当前截图位置；原截图没有被删除。"
         case .wrongScreenshotFolder:
             return "所选文件夹与当前系统截图位置不同。点“重新检查”，确认路径后再选择截图文件夹。"
+        case .screenshotFolderNeedsSelection:
+            return "此前选择的截图文件夹已无法确认。请重新选择下方的系统截图文件夹，确认后再继续收录。已有截图保留。"
         case .unsupportedFormat:
             return "这张截图的格式暂不支持，未收录。原文件保留，可在下方查看当前支持的格式。"
         case .unsupportedSize:
@@ -189,6 +191,7 @@ public struct SetupPresentation: Equatable, Sendable {
     }
 
     public var sourceText: String {
+        if snapshot.issue == .screenshotFolderNeedsSelection { return SetupIssue.screenshotFolderNeedsSelection.text }
         if snapshot.issue == .wrongScreenshotFolder { return SetupIssue.wrongScreenshotFolder.text }
         switch snapshot.source {
         case .checking: return "正在检查系统截图保存位置。"
@@ -201,7 +204,8 @@ public struct SetupPresentation: Equatable, Sendable {
     }
 
     public var needsSourceAccess: Bool {
-        hasSourceLocation && snapshot.source != .accessible && snapshot.source != .notApplicable
+        hasSourceLocation && snapshot.source != .notApplicable
+            && (snapshot.source != .accessible || snapshot.issue == .screenshotFolderNeedsSelection)
     }
 
     public var sourcePath: String {
