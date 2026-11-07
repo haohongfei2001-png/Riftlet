@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Riftlet · 第四与第五种呈放形式</title>
+<style>
+:root{color-scheme:light dark;font:14px -apple-system,BlinkMacSystemFont,sans-serif;color:#20352f;background:#eef1ed}
+*{box-sizing:border-box}body{margin:0;padding:28px;background:linear-gradient(135deg,#e8ece7,#f7f8f5 48%,#dfe8e3);min-height:100vh}
+header{max-width:980px;margin:auto auto 22px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+h1{font-size:24px;letter-spacing:-.6px;margin:0 0 5px}p{color:#687970;margin:0}
+main{max-width:980px;margin:auto;display:grid;grid-template-columns:1fr 260px;gap:18px}
+.stage{height:560px;border-radius:18px;position:relative;overflow:hidden;background:linear-gradient(130deg,#d9e5d8,#f9faf7 45%,#c7d4cf);border:1px solid #fff;box-shadow:0 18px 45px #193c3018}
+.wall{position:absolute;inset:0;background:radial-gradient(ellipse at 72% 25%,#f8eee0aa,transparent 34%),linear-gradient(120deg,#a5bcae55,#d8e0d9aa)}
+.base{position:absolute;left:-7px;top:115px;width:27px;height:330px;border-radius:18px;background:rgba(255,255,255,.77);border:1px solid rgba(255,255,255,.95);box-shadow:1px 3px 12px #102d281f,inset 0 1px #fff;backdrop-filter:blur(22px) saturate(155%);-webkit-backdrop-filter:blur(22px) saturate(155%);transition:height .35s,top .35s}
+.edge{position:absolute;left:13px;top:128px;width:1px;height:300px;background:linear-gradient(transparent,#087c7040,transparent)}
+.cards{position:absolute;left:10px;top:145px;display:flex;flex-direction:column;gap:10px;transition:all .35s cubic-bezier(.2,.8,.2,1)}
+.card{width:180px;height:74px;border-radius:10px;background:rgba(255,255,255,.9);border:1px solid #fff;box-shadow:0 5px 16px #183b3020;display:flex;align-items:center;padding:7px;gap:8px;transition:transform .24s,opacity .24s;cursor:pointer;overflow:hidden}
+.thumb{width:130px;height:58px;border-radius:5px;background:linear-gradient(135deg,#6d9c8b,#d7c7a6 52%,#7b9eb0);position:relative;overflow:hidden}
+.thumb:after{content:"";position:absolute;inset:8px 10px 8px 42px;border:1px solid #ffffffa0;border-radius:3px;background:linear-gradient(140deg,#ffffff55,#203b4b33)}
+.num{font-size:11px;color:#61756d;font-weight:650}
+.pocket .cards{left:10px;top:235px;gap:0}
+.pocket .card{position:absolute;top:0;transform-origin:left center}
+.pocket .card:nth-child(1){transform:rotate(-5deg) translateY(0)}
+.pocket .card:nth-child(2){transform:rotate(3deg) translateY(7px) translateX(7px)}
+.pocket .card:nth-child(3){transform:rotate(8deg) translateY(14px) translateX(13px)}
+.pocket.open .cards{top:145px;gap:10px}
+.pocket.open .card{position:relative;transform:none!important}
+.controls{background:#fff;border:1px solid #dce5df;border-radius:16px;padding:16px;box-shadow:0 8px 24px #1d3b3010;height:max-content}
+button{font:inherit;border:1px solid #d4dfd8;background:white;border-radius:9px;padding:9px 12px;cursor:pointer}button.active{background:#183b34;color:white;border-color:#183b34}
+.row{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0 17px}.note{font-size:12px;line-height:1.6;margin-top:12px}
+.label{font-size:10px;letter-spacing:1.3px;color:#829188;font-weight:700}
+@media(max-width:720px){main{grid-template-columns:1fr}.stage{height:440px}.controls{order:-1}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+<header><div><h1>Riftlet · 第四、第五种桌面呈放形式</h1><p>Edgefolio / 折页　·　Pocket / 口袋　·　macOS 白色毛玻璃底座</p></div><span class="label">DESIGN CANDIDATE</span></header>
+<main><section class="stage" id="stage"><div class="wall"></div><div class="base" id="base"></div><div class="edge"></div><div class="cards" id="cards"><div class="card"><div class="thumb"></div><span class="num">01</span></div><div class="card"><div class="thumb" style="background:linear-gradient(130deg,#7893b2,#d4dce1,#b6a27e)"></div><span class="num">02</span></div><div class="card"><div class="thumb" style="background:linear-gradient(130deg,#8ba995,#e1c6a5,#7e91a5)"></div><span class="num">03</span></div></div></section>
+<aside class="controls"><div class="label">PRESENTATION FORM</div><div class="row"><button id="folio" class="active">04 折页</button><button id="pocket">05 口袋</button></div><div class="label">QUEUE SIZE</div><div class="row"><button data-n="1">1</button><button data-n="3" class="active">3</button><button data-n="10">10</button></div><div class="label">WALLPAPER</div><div class="row"><button data-wall="light" class="active">浅色</button><button data-wall="dark">深色</button><button data-wall="white">纯白</button><button data-wall="complex">复杂</button></div><button id="expand">展开 / 收拢口袋</button><p class="note" id="note">折页：截图逐张可见，底座为轻薄白色毛玻璃。底座仅承托，不形成全局点击热区。</p><p class="note">网页 backdrop-filter 仅用于视觉预览；AppKit 必须以 NSVisualEffectView 实机验收。</p></aside></main>
+<script>
+const stage=document.querySelector('#stage'),cards=document.querySelector('#cards'),base=document.querySelector('#base'),note=document.querySelector('#note');let form='folio',n=3,wall='light',expanded=false;
+function render(){stage.className='stage '+form+(expanded?' open':'');cards.innerHTML='';for(let i=1;i<=n;i++){let c=document.createElement('div');c.className='card';c.innerHTML='<div class="thumb"></div><span class="num">'+String(i).padStart(2,'0')+'</span>';c.addEventListener('click',()=>{c.style.opacity='.15';c.style.transform='translateX(-180px)';note.textContent='演示：单张页片退出；真实 App 只有原始目标的正向 START 后才吞噬。'});cards.append(c)}base.style.height=form==='pocket'&&!expanded?'180px':Math.min(440,Math.max(140,n*84+40))+'px';base.style.top=form==='pocket'&&!expanded?'190px':'105px';stage.style.background=wall==='dark'?'linear-gradient(130deg,#142d2b,#203a4c)':wall==='white'?'#fff':wall==='complex'?'conic-gradient(#b66b4d,#314c73,#d4c5ad,#7fa99a,#b66b4d)':'linear-gradient(130deg,#d9e5d8,#f9faf7 45%,#c7d4cf)';note.textContent=form==='folio'?'折页：截图逐张可见，底座为轻薄白色毛玻璃。':'口袋：静止时紧凑叠放，展开后每张截图仍可独立点击。'}
+document.querySelector('#folio').onclick=()=>{form='folio';expanded=false;document.querySelector('#folio').classList.add('active');document.querySelector('#pocket').classList.remove('active');render()};
+document.querySelector('#pocket').onclick=()=>{form='pocket';expanded=false;document.querySelector('#pocket').classList.add('active');document.querySelector('#folio').classList.remove('active');render()};
+document.querySelectorAll('[data-n]').forEach(b=>b.onclick=()=>{n=+b.dataset.n;document.querySelectorAll('[data-n]').forEach(x=>x.classList.toggle('active',x===b));render()});
+document.querySelectorAll('[data-wall]').forEach(b=>b.onclick=()=>{wall=b.dataset.wall;document.querySelectorAll('[data-wall]').forEach(x=>x.classList.toggle('active',x===b));render()});
+document.querySelector('#expand').onclick=()=>{expanded=!expanded;render()};render();
+</script></html>
