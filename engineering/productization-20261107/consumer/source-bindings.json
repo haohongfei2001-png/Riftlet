@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "sourceBaseline": "558b62f54963cb48790597c94f8e4e85eeda7dd6",
+  "sourceBaseline": "f861a3a6d7300c548d9b1f33e04d98399488150c",
   "scope": "Consumer first use, folder access, history, storage and direct-download guidance. The previous binding is retained verbatim. This checkpoint updates the sources for restoring a selected folder, watching it, preserving the identity of files in a retiring folder and explaining how to select a folder again. Existing attachment and distribution sources are unchanged.",
   "files": [
     {
@@ -230,8 +230,8 @@
     },
     {
       "path": "Sources/RiftletCapture/RetiredCaptureDirectory.swift",
-      "sha256": "d5581190e31f3aeb1a309c18989a2da70e20333fd6664efdbc5ca093fc891fb0",
-      "sourceBlob": "d4b7e5a326baa6863bc73c1432bbdc16cf5126b7"
+      "sha256": "4637624ad1a0cfb3fe18a51d865c4194362ed16160e19c3101ecef1805fddb80",
+      "sourceBlob": "665eb779825527de41549abffb31a5a5caec6ed5"
     }
   ],
   "previousSourceBinding": {
