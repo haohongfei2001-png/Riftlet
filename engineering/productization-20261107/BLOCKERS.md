@@ -1,5 +1,7 @@
 # Scoped blockers and resumption
 
+> **合并后更新（2026-11-07）**：B03 的受控状态栏开关和自有视觉投影在后续采集成功。B01、B02、B04、B05 的外部缺口仍存在；维护包在正式安装上出现来源访问告警，不能据隔离通过认定可用。 [查看最终交付和证据](closeout/README.md)。以下为原始检查点。
+
 | ID | Evidence | Impact and next independent action |
 |---|---|---|
 | B01 | CUA inventory: Local browser use is disabled in Work settings | No safely identified fresh ChatGPT test draft; current-version attachment/START/final-state acceptance remains blocked. Resume with an authorized available browser surface. No shell/CDP/AppleEvents/native-browser workaround, no user testing assignment. |

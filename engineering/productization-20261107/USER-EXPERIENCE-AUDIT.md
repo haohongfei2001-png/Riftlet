@@ -1,5 +1,7 @@
 # Consumer experience audit
 
+> **合并后更新（2026-11-07）**：后续在可见的当前 Space 完成了控制中心的受控交互，以及明亮/复杂纹理两个原生视觉投影。投影中小编号的点击区实测约 7×13 点；未实测点击失败率。截图目录权限的升级差异另行记录。 [查看最终交付和证据](closeout/README.md)。以下为原始检查点。
+
 The current desktop visual language, official logo and brand colours are unchanged. The previously accepted six-page settings and history choices remain; no design or architecture restart.
 
 ## Current complete-App evidence

@@ -1,5 +1,7 @@
 # Release readiness — separate admission levels
 
+> **合并后更新（2026-11-07）**：当前个人版本不能据主线 CI 或隔离收录直接宣告扩大范围验收；对陌生用户还缺可信分发、干净系统授权及真实 ChatGPT 证据。维护包升级已实际暴露截图目录访问告警。 [查看最终交付和证据](closeout/README.md)。以下为原始检查点。
+
 This is an engineering preparation checkpoint, not permission to publish a download or invite participants. The exact installed personal build remains0.3.0(3), source2e779f6, ARM64 binaryfe5b09c…; the distinct 0.3.1(4) candidate adds the measured recovery fix and must pass the documented review, isolation and backup gates before replacement.
 
 | Level | Current result | Remaining evidence |

@@ -1,0 +1,524 @@
+{
+  "schemaVersion": 1,
+  "result": "PASS_DOCUMENT_CHECKS",
+  "sourceBaseline": "b1fa4329d66dcd632291c4d8bb7b18b5ec5ffbbc",
+  "scope": "Author checks of local links, source bytes and explicit scope wording only",
+  "runtimeTests": "NOT_RUN",
+  "liveChatGPT": "BLOCKED_TOOL_POLICY",
+  "invitationsSent": 0,
+  "networkOrProductionActions": false,
+  "independentReview": "PENDING",
+  "checks": [
+    {
+      "check": "source:Sources/RiftletApp/OrdinaryCaptureConfiguration.swift",
+      "result": "PASS",
+      "detail": "Exact bytes of audited source"
+    },
+    {
+      "check": "source:Sources/RiftletApp/ApplicationMode.swift",
+      "result": "PASS",
+      "detail": "Exact bytes of audited source"
+    },
+    {
+      "check": "source:Sources/RiftletApp/RiftletMain.swift",
+      "result": "PASS",
+      "detail": "Exact bytes of audited source"
+    },
+    {
+      "check": "source:Sources/RiftletApp/AutomationPermission.swift",
+      "result": "PASS",
+      "detail": "Exact bytes of audited source"
+    },
+    {
+      "check": "source:Sources/RiftletApp/LoginItemPreferences.swift",
+      "result": "PASS",
+      "detail": "Exact bytes of audited source"
+    },
+    {
+      "check": "source:Sources/RiftletApp/ScreenshotEntryHost.swift",
+      "result": "PASS",
+      "detail": "Exact bytes of audited source"
+    },
+    {
+      "check": "source:Sources/RiftletApp/FeedbackHost.swift",
+      "result": "PASS",
+      "detail": "Exact bytes of audited source"
+    },
+    {
+      "check": "source:Sources/RiftletApp/HistoryDisplayPreferences.swift",
+      "result": "PASS",
+      "detail": "Exact bytes of audited source"
+    },
+    {
+      "check": "source:Sources/RiftletApp/ProductStatus.swift",
+      "result": "PASS",
+      "detail": "Exact bytes of audited source"
+    },
+    {
+      "check": "source:Sources/RiftletAdapters/Resources/chatgpt-web-20261027.js",
+      "result": "PASS",
+      "detail": "Exact bytes of audited source"
+    },
+    {
+      "check": "source:Sources/RiftletAdapters/ChatGPTWebPageProgram.swift",
+      "result": "PASS",
+      "detail": "Exact bytes of audited source"
+    },
+    {
+      "check": "source:Sources/RiftletAdapters/ChromeActivityObserver.swift",
+      "result": "PASS",
+      "detail": "Exact bytes of audited source"
+    },
+    {
+      "check": "source:Sources/RiftletAdapters/WebAttachmentAdapter.swift",
+      "result": "PASS",
+      "detail": "Exact bytes of audited source"
+    },
+    {
+      "check": "source:Sources/RiftletCore/TransferCoordinator.swift",
+      "result": "PASS",
+      "detail": "Exact bytes of audited source"
+    },
+    {
+      "check": "source:Sources/RiftletCore/QueueStore.swift",
+      "result": "PASS",
+      "detail": "Exact bytes of audited source"
+    },
+    {
+      "check": "source:Sources/RiftletCore/ReceiptPolicy.swift",
+      "result": "PASS",
+      "detail": "Exact bytes of audited source"
+    },
+    {
+      "check": "source:Sources/RiftletUI/HistoryPresentation.swift",
+      "result": "PASS",
+      "detail": "Exact bytes of audited source"
+    },
+    {
+      "check": "source:Sources/RiftletUI/HistoryDisplayStyle.swift",
+      "result": "PASS",
+      "detail": "Exact bytes of audited source"
+    },
+    {
+      "check": "source:Sources/RiftletUI/RiftHistoryController.swift",
+      "result": "PASS",
+      "detail": "Exact bytes of audited source"
+    },
+    {
+      "check": "source:Sources/RiftletUI/RiftSettingsCenterPages.swift",
+      "result": "PASS",
+      "detail": "Exact bytes of audited source"
+    },
+    {
+      "check": "source:Sources/RiftletUI/RiftSettingsCenterRendering.swift",
+      "result": "PASS",
+      "detail": "Exact bytes of audited source"
+    },
+    {
+      "check": "source:Sources/RiftletCapture/CaptureService.swift",
+      "result": "PASS",
+      "detail": "Exact bytes of audited source"
+    },
+    {
+      "check": "source:Sources/RiftletCapture/CaptureSourceBinding.swift",
+      "result": "PASS",
+      "detail": "Exact bytes of audited source"
+    },
+    {
+      "check": "source:Sources/RiftletCapture/PrivateAssetImporter.swift",
+      "result": "PASS",
+      "detail": "Exact bytes of audited source"
+    },
+    {
+      "check": "source:Sources/RiftletCapture/InteractiveScreenshotSystemCapture.swift",
+      "result": "PASS",
+      "detail": "Exact bytes of audited source"
+    },
+    {
+      "check": "source:Sources/RiftletCapture/StorageUsage.swift",
+      "result": "PASS",
+      "detail": "Exact bytes of audited source"
+    },
+    {
+      "check": "source:Sources/RiftletFeedback/FeedbackModels.swift",
+      "result": "PASS",
+      "detail": "Exact bytes of audited source"
+    },
+    {
+      "check": "source:Sources/RiftletFeedback/FeedbackDiagnostics.swift",
+      "result": "PASS",
+      "detail": "Exact bytes of audited source"
+    },
+    {
+      "check": "source:Sources/RiftletFeedback/FeedbackEngine.swift",
+      "result": "PASS",
+      "detail": "Exact bytes of audited source"
+    },
+    {
+      "check": "source:Sources/RiftletFeedback/FeedbackTransport.swift",
+      "result": "PASS",
+      "detail": "Exact bytes of audited source"
+    },
+    {
+      "check": "source:Sources/RiftletFeedbackUI/FeedbackWindowController.swift",
+      "result": "PASS",
+      "detail": "Exact bytes of audited source"
+    },
+    {
+      "check": "source:scripts/release-tool.py",
+      "result": "PASS",
+      "detail": "Exact bytes of audited source"
+    },
+    {
+      "check": "source:scripts/storage-recovery.py",
+      "result": "PASS",
+      "detail": "Exact bytes of audited source"
+    },
+    {
+      "check": "source:Package.swift",
+      "result": "PASS",
+      "detail": "Exact bytes of audited source"
+    },
+    {
+      "check": "guide-set",
+      "result": "PASS",
+      "detail": "Eight explicit consumer guides present"
+    },
+    {
+      "check": "privacy:docs/consumer/FEEDBACK-TEMPLATE.md",
+      "result": "PASS",
+      "detail": "No real-home/private-evidence paths, bearer strings or placeholder contacts"
+    },
+    {
+      "check": "privacy:docs/consumer/INSTALL-AND-PERMISSIONS.md",
+      "result": "PASS",
+      "detail": "No real-home/private-evidence paths, bearer strings or placeholder contacts"
+    },
+    {
+      "check": "link:docs/consumer/INSTALL-AND-PERMISSIONS.md -> RECOVERY-AND-FAQ.md",
+      "result": "PASS",
+      "detail": "Local linked file exists within repository"
+    },
+    {
+      "check": "privacy:docs/consumer/PRIVACY.md",
+      "result": "PASS",
+      "detail": "No real-home/private-evidence paths, bearer strings or placeholder contacts"
+    },
+    {
+      "check": "link:docs/consumer/PRIVACY.md -> RECOVERY-AND-FAQ.md",
+      "result": "PASS",
+      "detail": "Local linked file exists within repository"
+    },
+    {
+      "check": "privacy:docs/consumer/QUICK-START.en.md",
+      "result": "PASS",
+      "detail": "No real-home/private-evidence paths, bearer strings or placeholder contacts"
+    },
+    {
+      "check": "link:docs/consumer/QUICK-START.en.md -> INSTALL-AND-PERMISSIONS.md",
+      "result": "PASS",
+      "detail": "Local linked file exists within repository"
+    },
+    {
+      "check": "link:docs/consumer/QUICK-START.en.md -> INSTALL-AND-PERMISSIONS.md",
+      "result": "PASS",
+      "detail": "Local linked file exists within repository"
+    },
+    {
+      "check": "link:docs/consumer/QUICK-START.en.md -> RECOVERY-AND-FAQ.md",
+      "result": "PASS",
+      "detail": "Local linked file exists within repository"
+    },
+    {
+      "check": "link:docs/consumer/QUICK-START.en.md -> FEEDBACK-TEMPLATE.md",
+      "result": "PASS",
+      "detail": "Local linked file exists within repository"
+    },
+    {
+      "check": "privacy:docs/consumer/QUICK-START.zh-CN.md",
+      "result": "PASS",
+      "detail": "No real-home/private-evidence paths, bearer strings or placeholder contacts"
+    },
+    {
+      "check": "link:docs/consumer/QUICK-START.zh-CN.md -> INSTALL-AND-PERMISSIONS.md",
+      "result": "PASS",
+      "detail": "Local linked file exists within repository"
+    },
+    {
+      "check": "link:docs/consumer/QUICK-START.zh-CN.md -> INSTALL-AND-PERMISSIONS.md",
+      "result": "PASS",
+      "detail": "Local linked file exists within repository"
+    },
+    {
+      "check": "link:docs/consumer/QUICK-START.zh-CN.md -> RECOVERY-AND-FAQ.md",
+      "result": "PASS",
+      "detail": "Local linked file exists within repository"
+    },
+    {
+      "check": "privacy:docs/consumer/README.md",
+      "result": "PASS",
+      "detail": "No real-home/private-evidence paths, bearer strings or placeholder contacts"
+    },
+    {
+      "check": "link:docs/consumer/README.md -> QUICK-START.zh-CN.md",
+      "result": "PASS",
+      "detail": "Local linked file exists within repository"
+    },
+    {
+      "check": "link:docs/consumer/README.md -> QUICK-START.en.md",
+      "result": "PASS",
+      "detail": "Local linked file exists within repository"
+    },
+    {
+      "check": "link:docs/consumer/README.md -> INSTALL-AND-PERMISSIONS.md",
+      "result": "PASS",
+      "detail": "Local linked file exists within repository"
+    },
+    {
+      "check": "link:docs/consumer/README.md -> SUPPORT-MATRIX.md",
+      "result": "PASS",
+      "detail": "Local linked file exists within repository"
+    },
+    {
+      "check": "link:docs/consumer/README.md -> RECOVERY-AND-FAQ.md",
+      "result": "PASS",
+      "detail": "Local linked file exists within repository"
+    },
+    {
+      "check": "link:docs/consumer/README.md -> PRIVACY.md",
+      "result": "PASS",
+      "detail": "Local linked file exists within repository"
+    },
+    {
+      "check": "link:docs/consumer/README.md -> FEEDBACK-TEMPLATE.md",
+      "result": "PASS",
+      "detail": "Local linked file exists within repository"
+    },
+    {
+      "check": "link:docs/consumer/README.md -> ../../engineering/productization-20261107/consumer/README.md",
+      "result": "PASS",
+      "detail": "Local linked file exists within repository"
+    },
+    {
+      "check": "privacy:docs/consumer/RECOVERY-AND-FAQ.md",
+      "result": "PASS",
+      "detail": "No real-home/private-evidence paths, bearer strings or placeholder contacts"
+    },
+    {
+      "check": "link:docs/consumer/RECOVERY-AND-FAQ.md -> FEEDBACK-TEMPLATE.md",
+      "result": "PASS",
+      "detail": "Local linked file exists within repository"
+    },
+    {
+      "check": "link:docs/consumer/RECOVERY-AND-FAQ.md -> ../STORAGE_RECOVERY.md",
+      "result": "PASS",
+      "detail": "Local linked file exists within repository"
+    },
+    {
+      "check": "privacy:docs/consumer/SUPPORT-MATRIX.md",
+      "result": "PASS",
+      "detail": "No real-home/private-evidence paths, bearer strings or placeholder contacts"
+    },
+    {
+      "check": "link:docs/consumer/SUPPORT-MATRIX.md -> ../../engineering/productization-20261107/consumer/SOURCE-AUDIT.md",
+      "result": "PASS",
+      "detail": "Local linked file exists within repository"
+    },
+    {
+      "check": "link:docs/consumer/SUPPORT-MATRIX.md -> ../../engineering/history-dual-style-20261107/README.md",
+      "result": "PASS",
+      "detail": "Local linked file exists within repository"
+    },
+    {
+      "check": "privacy:engineering/productization-20261107/consumer/CLOSED-BETA-PLAN.md",
+      "result": "PASS",
+      "detail": "No real-home/private-evidence paths, bearer strings or placeholder contacts"
+    },
+    {
+      "check": "link:engineering/productization-20261107/consumer/CLOSED-BETA-PLAN.md -> PARTICIPANT-PACKET.md",
+      "result": "PASS",
+      "detail": "Local linked file exists within repository"
+    },
+    {
+      "check": "privacy:engineering/productization-20261107/consumer/PARTICIPANT-PACKET.md",
+      "result": "PASS",
+      "detail": "No real-home/private-evidence paths, bearer strings or placeholder contacts"
+    },
+    {
+      "check": "link:engineering/productization-20261107/consumer/PARTICIPANT-PACKET.md -> ../../../docs/consumer/INSTALL-AND-PERMISSIONS.md",
+      "result": "PASS",
+      "detail": "Local linked file exists within repository"
+    },
+    {
+      "check": "link:engineering/productization-20261107/consumer/PARTICIPANT-PACKET.md -> ../../../docs/consumer/FEEDBACK-TEMPLATE.md",
+      "result": "PASS",
+      "detail": "Local linked file exists within repository"
+    },
+    {
+      "check": "privacy:engineering/productization-20261107/consumer/README.md",
+      "result": "PASS",
+      "detail": "No real-home/private-evidence paths, bearer strings or placeholder contacts"
+    },
+    {
+      "check": "link:engineering/productization-20261107/consumer/README.md -> ../../../docs/consumer/README.md",
+      "result": "PASS",
+      "detail": "Local linked file exists within repository"
+    },
+    {
+      "check": "link:engineering/productization-20261107/consumer/README.md -> SOURCE-AUDIT.md",
+      "result": "PASS",
+      "detail": "Local linked file exists within repository"
+    },
+    {
+      "check": "link:engineering/productization-20261107/consumer/README.md -> START-SEMANTICS-AUDIT.md",
+      "result": "PASS",
+      "detail": "Local linked file exists within repository"
+    },
+    {
+      "check": "link:engineering/productization-20261107/consumer/README.md -> CLOSED-BETA-PLAN.md",
+      "result": "PASS",
+      "detail": "Local linked file exists within repository"
+    },
+    {
+      "check": "link:engineering/productization-20261107/consumer/README.md -> PARTICIPANT-PACKET.md",
+      "result": "PASS",
+      "detail": "Local linked file exists within repository"
+    },
+    {
+      "check": "link:engineering/productization-20261107/consumer/README.md -> check_consumer_docs.py",
+      "result": "PASS",
+      "detail": "Local linked file exists within repository"
+    },
+    {
+      "check": "link:engineering/productization-20261107/consumer/README.md -> source-bindings.json",
+      "result": "PASS",
+      "detail": "Local linked file exists within repository"
+    },
+    {
+      "check": "privacy:engineering/productization-20261107/consumer/SOURCE-AUDIT.md",
+      "result": "PASS",
+      "detail": "No real-home/private-evidence paths, bearer strings or placeholder contacts"
+    },
+    {
+      "check": "link:engineering/productization-20261107/consumer/SOURCE-AUDIT.md -> source-bindings.json",
+      "result": "PASS",
+      "detail": "Local linked file exists within repository"
+    },
+    {
+      "check": "link:engineering/productization-20261107/consumer/SOURCE-AUDIT.md -> START-SEMANTICS-AUDIT.md",
+      "result": "PASS",
+      "detail": "Local linked file exists within repository"
+    },
+    {
+      "check": "link:engineering/productization-20261107/consumer/SOURCE-AUDIT.md -> ../../../docs/SUPPORT.md",
+      "result": "PASS",
+      "detail": "Local linked file exists within repository"
+    },
+    {
+      "check": "link:engineering/productization-20261107/consumer/SOURCE-AUDIT.md -> ../../history-dual-style-20261107/README.md",
+      "result": "PASS",
+      "detail": "Local linked file exists within repository"
+    },
+    {
+      "check": "privacy:engineering/productization-20261107/consumer/START-SEMANTICS-AUDIT.md",
+      "result": "PASS",
+      "detail": "No real-home/private-evidence paths, bearer strings or placeholder contacts"
+    },
+    {
+      "check": "scope-copy:QUICK-START.zh-CN.md",
+      "result": "PASS",
+      "detail": "Required scope/remediation language retained"
+    },
+    {
+      "check": "scope-copy:QUICK-START.en.md",
+      "result": "PASS",
+      "detail": "Required scope/remediation language retained"
+    },
+    {
+      "check": "scope-copy:INSTALL-AND-PERMISSIONS.md",
+      "result": "PASS",
+      "detail": "Required scope/remediation language retained"
+    },
+    {
+      "check": "scope-copy:PRIVACY.md",
+      "result": "PASS",
+      "detail": "Required scope/remediation language retained"
+    },
+    {
+      "check": "scope-copy:RECOVERY-AND-FAQ.md",
+      "result": "PASS",
+      "detail": "Required scope/remediation language retained"
+    },
+    {
+      "check": "scope-copy:CLOSED-BETA-PLAN.md",
+      "result": "PASS",
+      "detail": "Required scope/remediation language retained"
+    },
+    {
+      "check": "scope-copy:START-SEMANTICS-AUDIT.md",
+      "result": "PASS",
+      "detail": "Required scope/remediation language retained"
+    }
+  ],
+  "summary": {
+    "checks": 90,
+    "passed": 90,
+    "failed": 0
+  },
+  "sourceBindingSHA256": "38e56bae539f570da891c82c58b6ff062a982918f83bac8d3941c1928a5d61fd",
+  "checkerSHA256": "088591349566635a71bcd1d24ce9cc3f67aaba058be6eede9d1964be84c972fa",
+  "documents": [
+    {
+      "path": "docs/consumer/FEEDBACK-TEMPLATE.md",
+      "sha256": "ba6c47c6e94a334a8896402186a12ea0bc03effa4ae633ef605fc9ed242b2c41"
+    },
+    {
+      "path": "docs/consumer/INSTALL-AND-PERMISSIONS.md",
+      "sha256": "b38c30b5b11c88fab9840e8a681edad8740417abf51cb3611a310490f5f6f3c9"
+    },
+    {
+      "path": "docs/consumer/PRIVACY.md",
+      "sha256": "982753bee1f646fb9793a96b875278473d29b54da9bc438e78f3d6df05c2e1fa"
+    },
+    {
+      "path": "docs/consumer/QUICK-START.en.md",
+      "sha256": "01fa326cba216336ec607ff2155682fd1d36f06da3e690d0747a952a9c8aca50"
+    },
+    {
+      "path": "docs/consumer/QUICK-START.zh-CN.md",
+      "sha256": "01aad29fea93f4c95ba47156fee5a3155f9c232149c05fa93cb92ff2cc38d638"
+    },
+    {
+      "path": "docs/consumer/README.md",
+      "sha256": "e059f507e4bd31492e1231ee4ece44a800e4d0c89e06d3b78728c1fc4e1e8c3f"
+    },
+    {
+      "path": "docs/consumer/RECOVERY-AND-FAQ.md",
+      "sha256": "9bfb419364c7055e91ff41c2490682c2e7bc18538f3366c9c0d298871f86c6d6"
+    },
+    {
+      "path": "docs/consumer/SUPPORT-MATRIX.md",
+      "sha256": "0d037d0b893cf7c3b0e13d8101b9adf1d7ffdba2d8ecd9cd82bd23bd24ac9dec"
+    },
+    {
+      "path": "engineering/productization-20261107/consumer/CLOSED-BETA-PLAN.md",
+      "sha256": "09e30876f0f61d6cd945d5ae83c626a28dc575106d93098932c5d414d944291e"
+    },
+    {
+      "path": "engineering/productization-20261107/consumer/PARTICIPANT-PACKET.md",
+      "sha256": "9b9b1cc54ebe8bf711f746c6fda4b18e39dbd0c373f6e50263fbde31aede5fd4"
+    },
+    {
+      "path": "engineering/productization-20261107/consumer/README.md",
+      "sha256": "9f8ba2a66ce200bdf763dc712dc47c90b5b4379e2bac4405b33ab9454ad566c9"
+    },
+    {
+      "path": "engineering/productization-20261107/consumer/SOURCE-AUDIT.md",
+      "sha256": "d4541bcc0521e275b950eaaa23adcc52412018a956d75ff7bb74a08f984937f0"
+    },
+    {
+      "path": "engineering/productization-20261107/consumer/START-SEMANTICS-AUDIT.md",
+      "sha256": "2ae36c7a367987414a2926b32f6fdd178112bde66544ec26e12129f267854274"
+    }
+  ]
+}

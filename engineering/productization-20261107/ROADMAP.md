@@ -1,5 +1,7 @@
 # Productization sprint — 2026-11-07
 
+> **合并后更新（2026-11-07）**：工程集成、主线 CI 和维护包构建已经完成。安全升级出现了独立于源码 CI 的截图目录访问告警；按最终交付索引继续，不重复已合并的实现。 [查看最终交付和证据](closeout/README.md)。以下为原始检查点。
+
 User-authorized window: 2026-11-06 23:10:34 UTC to 2026-11-07 09:10:34 UTC, or earlier when all independently executable high-value work is complete. This is an active work plan, not a claim of ten hours already run.
 
 | Packet | Owner | Scope | State |
