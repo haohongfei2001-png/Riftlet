@@ -30,7 +30,7 @@ final class RiftControlCenterControllerTests: XCTestCase {
     @MainActor private func fixture(revision: UInt64 = 1, paused: Bool = false, hidden: Bool = false,
                                     source: SetupSourceState = .accessible,
                                     collection: SetupCollectionState = .collecting,
-                                    issue: SetupIssue? = nil, entryEnabled: Bool = true,
+                                    issue: SetupIssue? = nil, attachment: SetupAttachmentState = .available, entryEnabled: Bool = true,
                                     entryAvailable: Bool = true, review: Bool = false) -> SettingsProductSnapshot {
         let settings = RiftSettingsSnapshot(entryAvailable: entryAvailable, entryEnabled: entryEnabled,
             displays: [.init(id: 1, name: "合成显示器", uuid: "synthetic-display")])
@@ -39,7 +39,7 @@ final class RiftControlCenterControllerTests: XCTestCase {
             adapter: SettingsPersistenceClosures { _ in .unconfirmed(nil, .ownerUnavailable) })
         var value = SettingsProductSnapshot(revision: revision,
             setup: .init(source: source, collection: collection, isHidden: hidden, visibleCount: 3,
-                         attachment: .available, permission: .granted, issue: issue), state: model.snapshot)
+                         attachment: attachment, permission: .granted, issue: issue), state: model.snapshot)
         value.capabilities.initialized = true
         value.capabilities.canChangeCollection = true
         value.capabilities.canChangeVisibility = true
@@ -103,6 +103,15 @@ final class RiftControlCenterControllerTests: XCTestCase {
         XCTAssertFalse(stopped.title.contains("正在收录"))
         let waiting = RiftControlCenterPresentation(fixture(hidden: true, source: .notChecked, collection: .waitingForSource))
         XCTAssertFalse(waiting.detail.contains("仍在收录"))
+    }
+
+    @MainActor func testLocalCollectionModesPointToHistoryWithoutInvitingChromeInput() {
+        for mode in [SetupAttachmentState.productionDisabled, .offlineSimulation] {
+            let projection = RiftControlCenterPresentation(fixture(issue: .targetUnavailable, attachment: mode))
+            XCTAssertEqual(projection.state, .collecting)
+            XCTAssertTrue(projection.detail.contains("截图历史"))
+            XCTAssertFalse(projection.detail.contains("Chrome"))
+        }
     }
 
     @MainActor func testSaveIssueProjectsCompactRecoveryWithoutClaimingRollback() {

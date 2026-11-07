@@ -74,6 +74,9 @@ final class SetupPresentationTests: XCTestCase {
     }
 
     func testAutomationRecoveryIsActionableOnlyForTheCurrentCapability() {
+        let unchecked = SetupPresentation(snapshot: .init(attachment: .available, permission: .notChecked))
+        XCTAssertTrue(unchecked.automationStatusText?.contains("只有你点") == true)
+        XCTAssertFalse(unchecked.automationStatusText?.contains("macOS 会") == true)
         let denied = SetupPresentation(snapshot: .init(attachment: .syntheticWeb, permission: .denied))
         XCTAssertTrue(denied.canRequestPermission)
         XCTAssertEqual(denied.permissionActionTitle, "打开自动化设置…")

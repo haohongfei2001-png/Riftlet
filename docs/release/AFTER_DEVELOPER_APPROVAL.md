@@ -71,6 +71,7 @@ python3 -B scripts/release-tool.py verify-archive --archive "$ZIP" \
 以下为 DMG 另行准入后的操作顺序。用已核验的正式 `Riftlet-Release` 作输入，在新目录执行；每一步成功才继续。
 
 ```sh
+DMG="$WS/Riftlet-$VERSION-$BUILD.dmg"
 mkdir "$WS/dmg-input"
 ditto --rsrc --extattr "$PAYLOAD" "$WS/dmg-input/Riftlet-Release"
 python3 -B scripts/release-tool.py verify --package "$WS/dmg-input/Riftlet-Release" \

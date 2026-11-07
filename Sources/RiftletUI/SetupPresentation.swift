@@ -260,7 +260,7 @@ public struct SetupPresentation: Equatable, Sendable {
         guard hasAutomationCapability else { return nil }
         switch snapshot.permission {
         case .notNeeded: return nil
-        case .notChecked: return "尚未检查 Chrome 自动化权限。需要授权时，macOS 会在你点击权限按钮后询问。"
+        case .notChecked: return "尚未检查 Chrome 自动化权限。只有你点“检查 Chrome 权限…”，Riftlet 才会申请访问。"
         case .notRequested: return "点击“检查 Chrome 权限…”，允许 Riftlet 在你点截图时把图片交给 Chrome。"
         case .granted: return "macOS 已允许 Riftlet 与 Chrome 通信。"
         case .denied: return "Chrome 自动化访问被拒绝。打开“系统设置 → 隐私与安全性 → 自动化”，在 Riftlet 下允许 Google Chrome，再回到这里点“重新检查”。"
