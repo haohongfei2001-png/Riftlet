@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "kind": "actual native helper exit status regression",
+  "reviewedSourceFileSHA256": "c514017c7a15ce7fc4b57bb89d70533e232f381ddf479fd75159b4564a3aa6dc",
+  "candidateBinarySHA256": "952f8a88acd9183e0ac8f863363f2e9d735b62120d9300d91ffb5b2288875616",
+  "cases": [
+    {
+      "record": "fixed-exit-result.json",
+      "sha256": "af6178e57752e6d203f006d952691b409212aa904d6fb3fdae780dd942f7d6c8",
+      "result": {
+        "exitCode": 1,
+        "durationSeconds": 2.4102378750685602,
+        "binarySHA256": "952f8a88acd9183e0ac8f863363f2e9d735b62120d9300d91ffb5b2288875616",
+        "stderr": "NATIVE_EVIDENCE_EXPORT_FAIL case=missingWindow stage=timelinePreparation\n",
+        "stdoutSHA256": "8bd4584f0af932d59834a495a6c2f91767a7aa84e2e47a9ed4301fc2e313614e",
+        "stderrSHA256": "55f391601e5e2daa6c365e4f8498d20cc71c8773d769d7acaaf950bb932978ce",
+        "scope": "actual helper AppKit export invocation, no browser/upload or production data"
+      }
+    },
+    {
+      "record": "fixed-setup-refusal-result.json",
+      "sha256": "233661e7221b8bc7b139079a8eb3f8c20b66b1078494ed8cf8b75e7569f7d13c",
+      "result": {
+        "exitCode": 1,
+        "stderr": "GUI acceptance setup failed: existingOutput\n",
+        "existingEvidenceUnchanged": true,
+        "existingEvidenceFiles": 1,
+        "kind": "actual AppKit setup catch; existing export directory refused and preserved"
+      }
+    },
+    {
+      "record": "normal-quit-fixed-result.json",
+      "sha256": "fdeb3dcdc3587f2ecb3a03c0180e8ecc6204a330b6ecef22155d7858c2eef06a",
+      "result": {
+        "normalTerminationHelperExitCode": 0,
+        "terminationStdout": "normalTerminateRequested true\n",
+        "terminationStderr": "",
+        "candidateProcessExitCode": 0,
+        "candidatePID": 70706,
+        "renderAcceptance": "NOT_ASSESSED; normal shutdown path only"
+      }
+    }
+  ],
+  "positiveVisualTimeline": "NOT_RUN: native window missing/current Space occlusion prerequisite; unchanged readiness guard",
+  "shippingAppChanged": false,
+  "noBrowserOrProductionData": true
+}

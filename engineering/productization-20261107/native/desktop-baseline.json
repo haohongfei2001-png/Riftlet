@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "source": "runtime saved review configuration; no production configuration modification",
+  "parameters": {
+    "fitWidth": 72,
+    "fitHeight": 56,
+    "hiddenFraction": 0.25,
+    "rowPitch": 60,
+    "lineWidth": 0.5,
+    "lineExtension": 8,
+    "outerInset": 6,
+    "screenPadding": 12,
+    "numberFontSize": 11,
+    "numberGap": 8,
+    "minimumHitWidth": 44,
+    "minimumHitHeight": 44,
+    "arrivalDuration": 0.22,
+    "pressDuration": 0.06,
+    "swallowDuration": 0.12,
+    "shiftDuration": 0.16,
+    "returnDuration": 0.18,
+    "reducedMotionDuration": 0.08,
+    "visibleCountPreference": 3,
+    "placement": "leftMiddle"
+  },
+  "pointsNotPixels": true,
+  "timingValuesAreConfiguredNotMeasuredSuccessDurations": true,
+  "actualRecordedContentWindowsExamples": {
+    "oneImage": {
+      "x": 6,
+      "y": 456,
+      "width": 54,
+      "height": 48
+    },
+    "threeImages": [
+      "54x48",
+      "54x45",
+      "27x56"
+    ],
+    "minimumObservedImageInput": "53.25x64 points for portrait",
+    "defaultPagedVisibleCount": 3,
+    "queueCount10LastPageLabel": 10
+  },
+  "recording": "Original 2x WindowServer PNGs. Movies retain timestamps and no pixel resize. Capture frequency about11Hz is recorder overhead, not App FPS.",
+  "actualNetworkSTARTSwallowTiming": "NOT_RUN",
+  "wallpaperContrast": "NOT_RUN: safe native backdrop was off current Space; no raw foreign desktop pixels captured",
+  "designDecisions": "Current brand/logo/visual language unchanged. Any overall desktop visual redesign is for Pro."
+}

@@ -1,0 +1,201 @@
+{
+  "schema": 1,
+  "runtimeSource": "2e779f646ac4874344fac94f79103e8ddf9b02c8",
+  "installedVersion": "0.3.0(3) Personal Beta3",
+  "binarySHA256": "fe5b09c4146a363e45685f8441d081fbd62a3238ed83b115287882b9158e29f3",
+  "scope": "new complete-App isolated native acceptance; no production media imported or private browser inspected",
+  "evidenceLevelsAreNotInterchangeable": true,
+  "cases": [
+    {
+      "id": "N01",
+      "evidenceClass": "read-only identity",
+      "result": "PASS",
+      "detail": "Formal App and review clone have identical ten file hashes and modes, including binary and resources.",
+      "privateEvidenceSHA256": {
+        "case.json": "b759845194850ec9c6703d59088d29e6178c830112f35bfa1ac0559723f0c1c7"
+      }
+    },
+    {
+      "id": "N02",
+      "evidenceClass": "CUA native controls + raw WindowServer",
+      "result": "PASS_SCOPED",
+      "detail": "Three onboarding steps displayed and completed in a fresh isolated root. Existing system permissions and review-disabled browser capability; not clean-device permission acceptance.",
+      "privateEvidenceSHA256": {
+        "frames/onboarding-1-state.json": "1becbd6b5169b8221068c6b4fe3ea4de880818e032aaa5f07a17358735d00525",
+        "frames/onboarding-2-state.json": "b1946ceaffd7b3e3961422f126813cb9dd7565a5525fb8e7cc66de22c4a6136b",
+        "frames/onboarding-3-state.json": "2245b496d51ffac5a042cd38dbae249216310be0daeee55d0771bc7692a6cded"
+      }
+    },
+    {
+      "id": "N03",
+      "evidenceClass": "macOS screenshot CLI + actual collector",
+      "result": "PASS_SCOPED",
+      "detail": "Owned synthetic native window captured with system screencapture -l into isolated source, explicit screenshot metadata added; one private asset and visible thumbnail. Not physical CmdShift4.",
+      "privateEvidenceSHA256": {
+        "capture-01.json": "8e7ec4b5c83c75f31905b710e0839b165f7d7a868fc3285a5fd36efae6a71cbf",
+        "frames/queue-1-state.json": "bb2a70eacf10844ad14a4b004fed011cfa54c323b27f8c7fe5d22295de18a20a"
+      }
+    },
+    {
+      "id": "N04",
+      "evidenceClass": "actual App collector + native observation",
+      "result": "PASS",
+      "detail": "Real file collection and product rendering at 0,1,3,10 queued records; different aspect ratios. Empty queue has no rift; built-in screenshot bubble remains independently enabled.",
+      "privateEvidenceSHA256": {
+        "frames/queue-0-control-escape-state.json": "ebad649d750117f75b6e9dbbbad212c2706e6031c44c3c7c3512cb8aa28adb02",
+        "frames/queue-1-state.json": "bb2a70eacf10844ad14a4b004fed011cfa54c323b27f8c7fe5d22295de18a20a",
+        "frames/queue-3-state.json": "775464c590fd5a4789b32e10aaf714aa407110e92bb04c66f5f74ba7b4b634d7",
+        "frames/queue-10-after-click-state.json": "6d53df78a5f56d04889bfa4e28171f9ef4a5819a4602f9cc6f4a107b7f358574"
+      }
+    },
+    {
+      "id": "N05",
+      "evidenceClass": "CUA native controls + file observation",
+      "result": "PASS",
+      "detail": "Paused at3: new fixture4 remained unimported while paused. Hide preserved pause intent. Resume while hidden admitted subsequent inputs; showing revealed10. No production state changed.",
+      "privateEvidenceSHA256": {
+        "frames/paused-visible-state.json": "21d2a18ad81b29e90b66c3a19050547f0d3118c56bb0390e83b8df3f419d52e4",
+        "frames/paused-hidden-state.json": "06b4421ff0ef15dfe6e350f797313b9492660a7600be299b347e3b0a3fad242a",
+        "frames/collecting-hidden-state.json": "74e3cfa2f7f3a95d9c475df0aa65b90da8e129771435cf3afeaf3883c981e648",
+        "frames/collecting-visible-10-state.json": "ccb919fa3f9fa8685df8b44c52ebb3796956ca87273e49ce2163d8e8b0414b35"
+      }
+    },
+    {
+      "id": "N06",
+      "evidenceClass": "AX opening + CUA Escape",
+      "result": "PASS_SCOPED",
+      "detail": "Observed initial actual NSPopover and Escape closure. Not proof of ordinary status-bar left-click opening.",
+      "privateEvidenceSHA256": {
+        "isolated-status-ax-open.json": "96822f1f37a21d5e8a75f58618d20977a50515f16fd3554760b3280c0f5a89b3",
+        "frames/control-empty-open-state.json": "aca8c6e2039d7b5626dfca98d896ff96d0d4a54bd02bc5ff5110f9993380eec0",
+        "frames/queue-0-control-escape-state.json": "ebad649d750117f75b6e9dbbbad212c2706e6031c44c3c7c3512cb8aa28adb02"
+      }
+    },
+    {
+      "id": "N07",
+      "evidenceClass": "guarded CGEvent status mouse",
+      "result": "NOT_SENT",
+      "detail": "Fresh system hit tests resolved to another foreground process; native menu-bar clicks were correctly refused. Right-click/repeated-mouse/outside-click not completed.",
+      "privateEvidenceSHA256": {
+        "isolated-status-left.json": "49f0ec060cc673a5bcee9331434675473372a806b12b24f91fb294651a1c6291"
+      }
+    },
+    {
+      "id": "N08",
+      "evidenceClass": "guarded CGEvent popover control",
+      "result": "PASS_SCOPED",
+      "detail": "After AX opening, actual software mouse pause event hit the owned control; immediate AX showed paused1/hidden0. A later window disappeared during batch capture; raw failed capture retained.",
+      "privateEvidenceSHA256": {
+        "control-pause-mouse.json": "50f2e6b8d5eb2809dd8818b9e28ea437ab8b4f576b6dcb933cf1e92af9156fda",
+        "frames/control-fast-pause-state.json": "3b950c3c183ee94696db7295bc148caa217d7ba38e5382542691b725dfaf0743"
+      }
+    },
+    {
+      "id": "N09",
+      "evidenceClass": "AX + 68 WindowServer samples",
+      "result": "INCONCLUSIVE_LIFETIME",
+      "detail": "AX reopen produced the same popover during47 samples from0.810 to4.945s, then it closed; cause unresolved. Earlier snapshots missed it. No ordinary mouse or sustained VoiceOver PASS inferred.",
+      "privateEvidenceSHA256": {
+        "status-ax-reopen-temporal-analysis.json": "a42eaa913c56bad0cd520e2ed8fe882c80ffefaf0ece68c8ba95cbebeedcb9c3",
+        "movies/status-ax-reopen-observe/manifest.json": "2835bc35e0e5c549e4d31be40429489c632087f30707728d5fd5f053414daf9e"
+      }
+    },
+    {
+      "id": "N10",
+      "evidenceClass": "guarded CGEvent thumbnail click and hold",
+      "result": "PASS_SCOPED",
+      "detail": "Actual mouse click, hover and500ms press were sent to owned microimages. No usable attachment target in review mode: queue remained, final operation0/START0. Not real upload swallow/failure recovery.",
+      "privateEvidenceSHA256": {
+        "thumbnail-1-click.json": "e4df84d7316ad2e4cef725b163aee11acf6abd48e628c541cf0127cc314d739a",
+        "hover-ten.json": "80e6888c4637a2568ab28959570743507a7f29a0b04994738b129683e7a89d67",
+        "press-ten.json": "f94afdf60daa797edd579c267118e02da92b2221a971dbbd5a6a40e7cd76f896",
+        "frames/queue-10-after-click-state.json": "6d53df78a5f56d04889bfa4e28171f9ef4a5819a4602f9cc6f4a107b7f358574"
+      }
+    },
+    {
+      "id": "N11",
+      "evidenceClass": "native AX paging",
+      "result": "PASS_SCOPED",
+      "detail": "AX next-page actions reached screenshot10; raw WindowServer timeline retained. Initial software mouse page event was refused by fresh hit test and is NOT_SENT.",
+      "privateEvidenceSHA256": {
+        "queue-page-next-01.json": "49f0ec060cc673a5bcee9331434675473372a806b12b24f91fb294651a1c6291",
+        "queue-page-next-ax-01.json": "617d83f6b859472e44a64125f19185c528864ae56139919a67452932814bf06a",
+        "queue-page-ax-sequence-1.json": "2fdd9e763234dd39f9e90f95b09413a6fe3f80e58ffca2aa5e628b27315f0cc1",
+        "queue-page-ax-sequence-2.json": "3b1549162e0878cf5634744f559bd7836089f8b7ca4ca017d8988baf462c1a9d",
+        "frames/queue-10-page-last-state.json": "82784577201bb67b82ba3d7a0119d10b74361a26c73558157a2c5b5953861b4d"
+      }
+    },
+    {
+      "id": "N12",
+      "evidenceClass": "native AX menu + CUA readback",
+      "result": "PASS_SCOPED",
+      "detail": "Application dark appearance persisted and displayed. Current system high contrast/reduced-motion checks inherited from prior Beta3 evidence, not reexecuted here.",
+      "privateEvidenceSHA256": {
+        "appearance-dark-ax.json": "d0f7762d622f7d32fbe2c2f9d3f763f77ea2ae3816f6c0dc81d3e3541390bbd1",
+        "frames/settings-dark-state.json": "33d985251000e581345ec5451fae59fb0868ed779e62be7dabad32ad1522aa97"
+      }
+    },
+    {
+      "id": "N13",
+      "evidenceClass": "CUA + native AX history controls",
+      "result": "PASS_SCOPED",
+      "detail": "Fresh review root default current; settings selected imageGrid, history selected current; ten records and selected B58B154F detail stayed consistent. This supplements prior exhaustive native UUID/page/search regression.",
+      "privateEvidenceSHA256": {
+        "frames/history-current-10-state.json": "a40ff03078bc36ffd304670fdde4d0b3f75b18f7b65f30b7063d9d4d8c11f073",
+        "frames/history-grid-10-dark-state.json": "89979b6d1beb1262536cd9d9cc4fe7a760ea26fa90688af2991f2c349988c0c3",
+        "frames/history-grid-selected-dark-state.json": "ae526acde9b3ee8aaeaf56d85c706c27410ec9ff7839cb91fdf26a2acfee30f7",
+        "frames/history-current-selected-dark-state.json": "7928ab94afbc01ffe876f1ef2ada39617d483e9fd1455b2371816ca2f27b59b8"
+      }
+    },
+    {
+      "id": "N14",
+      "evidenceClass": "CUA native history actions",
+      "result": "PASS",
+      "detail": "Removed one synthetic record from visible queue then restored it; ten originals/private copies and history records preserved, no operation/START created.",
+      "privateEvidenceSHA256": {
+        "frames/history-removed-synthetic-state.json": "031f495cd96602848a5b1e3c50487131dfa4fdb9cbad468f9c6f1aff897b48e9",
+        "frames/history-restored-synthetic-state.json": "56219735d59961b9878f0596e7c1caee9b879243877f75893b092f2042fe743e"
+      }
+    },
+    {
+      "id": "N15",
+      "evidenceClass": "normal App termination + offline checks",
+      "result": "PASS_SCOPED",
+      "detail": "Isolated App quit normally. Formal App restored, same binary. Production data path/type/content and all typed rows equal pretest backup; preference domain bytes equal prior delivery.",
+      "privateEvidenceSHA256": {
+        "case.json": "b759845194850ec9c6703d59088d29e6178c830112f35bfa1ac0559723f0c1c7"
+      }
+    }
+  ],
+  "realChatGPT": "BLOCKED_TOOL_POLICY: Local browser use is disabled in Work settings",
+  "physicalInput": "NOT_RUN",
+  "newTCCGrantOrRevocation": "NOT_RUN_NO_PERMISSION_BYPASS",
+  "actualWallpaperAndFullDesktop": "NOT_RUN_CURRENT_SPACE_WINDOW_VISIBILITY_LIMIT",
+  "realUploadSwallowAndFinalFailure": "NOT_RUN_CURRENT_BROWSER_ACCESS_REQUIRED",
+  "publicRelease": false,
+  "data": {
+    "productionAssets": 96,
+    "productionOperations": 44,
+    "productionSTART": 18,
+    "unknownSequences": [
+      1,
+      8,
+      14
+    ],
+    "isolatedAssets": 10,
+    "isolatedOperations": 0,
+    "isolatedSTART": 0,
+    "productionByteAndTypedRowsComparisonSHA256": "d95fcf6145c7d747c60408c949fe3a029af1ef77c0c4705a5026039c86bc4ca0",
+    "productionPreferenceComparisonSHA256": "ba592be4d7339788176a8774fee391442cd109cf6479b0bd70127cd1a76a6ba4",
+    "wholeAppEqualitySHA256": "3fb3e5ee311705a89dc6034b0125ae8ec3c7cabc6d10fb814cf4541f6d2fbf3b",
+    "newRestoreDrillResultSHA256": "9faf8f08311138393ccf4c3c719bf7089538c619af6ab08fc98bc6ebeaf08a0b",
+    "comparisonTiming": "Both offline captures bracket isolated GUI; equality verified before formal App restart. No live SQLite read.",
+    "formalRestartIdentitySHA256": "618dd3401b057ba8b93e208124aa1a51620b48e6972cde51a2df4dcf056ba4c2"
+  },
+  "preservedFailures": [
+    "Strict mouse hit mismatches: no event sent",
+    "Partial raw capture lost a window during capture: not a stable-frame PASS",
+    "AX reopen lifetime inconclusive",
+    "Native projection original missingWindow/timelinePreparation returned0; candidate now returns1; actual projection remains NOT_RUN"
+  ]
+}

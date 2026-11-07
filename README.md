@@ -1,36 +1,34 @@
 # Riftlet
 
-macOS 正常截图，图片停在桌面边缘；点一下微图，附加到当前 Chrome 的 ChatGPT 聊天。聊天开始接收图片时微图收起，可以继续附加下一张。Riftlet 不发送聊天消息。
+macOS 正常截图，图片停在桌面边缘；点一下微图，附加到当前 Chrome 的 ChatGPT 草稿。页面开始接收图片后微图收起，可以继续附加下一张。Riftlet 不发送聊天消息。
 
-当前已验证安装版为个人 Beta 1，尚未公开发行。该安装版对应已交付基线 `b61fc46cf931bdbd14deec1b47d077e92db61e16`，身份 `personal-beta.1+004741f`。后续 main 工程进展、开发分支、设计候选或 CI 产物不自动成为已验证安装版。
+当前个人安装基线为 **Personal Beta 3 · 0.3.0（3）· ARM64**，来自已合并 PR #45 的 main `2e779f646ac4874344fac94f79103e8ddf9b02c8`。该版本已完成安全升级和历史双样式验收。后续文档、发行工具或 CI 工件不自动替代这个已验证安装包。
 
-## Beta 2 候选审核
-
-**Beta 2 · 0.2.0（2）** 的六页原生设置、菜单栏控制中心和三步引导已完成有限精修，继续在 [PR #43](https://github.com/haohongfei2001-png/Riftlet/pull/43) 进行候选审核。实际构建源码 `a5aefd3` 的普通外观与真实系统高对比度环境各完成 14/14 隔离原生检查、39 张原始窗口图及同包新进程 6/6 重启检查。普通 39 张、提高对比度环境中的 24 张重点图已由非作者目视；实际键盘草稿关闭、Tab 顺序与首击保存有独立范围的 CUA 操作记录。
-
-本轮修复了已接受的暂停/恢复命令与后台检查竞争造成的误报保存失败，保留全部旧 FAIL。真实系统 IME 组字、持续 VoiceOver 导航和实体菜单栏点击仍为 NOT_RUN。正式 G/H、五项 CI 和最终工件身份在 PR 的精确交付记录与私有包清单中绑定，不由原型或截图数量代替。Beta 1 安装不变；本轮不合并、不生产替换，也不宣布 `PRODUCT_READY`。最终外观决定仍由用户完成。
-
-- [本轮精修结果与证据](engineering/beta2-polish-20261106/README.md)
-- [本轮原生验收及保留失败](engineering/beta2-polish-20261106/native-acceptance.md)
-- [候选范围、审核入口与升级/回退说明](docs/BETA2_CANDIDATE.md)
-- [隔离原生 driver 与同包重启验证](docs/SETTINGS_REVIEW_DRIVER.md)
-- [首次候选的历史记录](engineering/beta2-product-20261106/STATUS.md)
+**尚未公开发行，也未达到陌生用户自行下载安装的准入条件。** 本轮当前版本 ChatGPT 真实附加验证受浏览器工具访问限制，不能由旧版本成功记录或合成测试替代；本机没有可用 Developer ID Application 身份，公开发行签名、公证和干净设备验收仍待完成。
 
 ## 使用与支持
 
-- [使用、安装及权限](docs/USER_GUIDE.md)
-- [隐私、截图历史及卸载](docs/PRIVACY_AND_DATA.md)
-- [问题排查与兼容范围](docs/SUPPORT.md)
-- [备份与恢复](docs/STORAGE_RECOVERY.md)
-- [发行构建、版本与手动更新](docs/RELEASE_ENGINEERING.md)
+- [消费者入口与当前限制](docs/consumer/README.md)
+- [中文快速开始](docs/consumer/QUICK-START.zh-CN.md) · [English quick start](docs/consumer/QUICK-START.en.md)
+- [安装与分步权限说明](docs/consumer/INSTALL-AND-PERMISSIONS.md)
+- [隐私、本地副本和卸载](docs/consumer/PRIVACY.md)
+- [失败恢复、历史和存储 FAQ](docs/consumer/RECOVERY-AND-FAQ.md)
+- [支持范围](docs/consumer/SUPPORT-MATRIX.md) · [反馈模板](docs/consumer/FEEDBACK-TEMPLATE.md)
 
-收录单帧 PNG、JPEG、HEIC/HEIF、TIFF。原系统截图保留；PNG/JPEG 原样附加，其他支持格式通常生成等分辨率 PNG；派生 PNG 超出预算时会单次尝试原文件，接收仍取决于页面兼容性。空队列不显示裂缝。暂停收录、隐藏微图和关闭内置截图各自独立。清空可见队列不删除截图文件、历史或聊天附件。
+截图原件与 Riftlet 本地副本均保留。`current` 列表是默认历史样式，`imageGrid` 图像网格可随时切换；共用搜索、筛选、分页、选中记录、预览和恢复动作。暂停收录、隐藏裂缝和关闭内置截图分别独立。收起队列、归档和卸载 App 都不自动删除本地截图数据。
 
-个人 Beta 已取得真实 ChatGPT 五张连续附加及最终版冷启动两张成功证据。动态菜单备用分支有受控浏览器验证，尚无当前个人 Beta 的真实页面触发证据。冷启动 MAIN 交接可能将 Chrome 窗口前置。具体范围及外部验收缺口见 [支持说明](docs/SUPPORT.md)。
+`START` 证明页面已开始接收本张附件，**不证明网络上传最终完成**。最终状态以 ChatGPT 中实际附件为准；结果待核实的记录不会自动重传，可以在历史中找回原图。
 
-## 开发
+## 发行与验证
 
-正式产品源码只来自 main。构建要求 macOS 13+；完整 XCTest 需要含 XCTest 的 Xcode 开发环境。开发构建使用 ad-hoc 签名，不能作为已公证公开安装包。
+- [本轮产品化进展与证据](engineering/productization-20261107/STATUS.md)
+- [个人包与正式发行包的区别、当前构建命令](docs/release/PERSONAL_BETA_PACKAGING.md)
+- [手动更新与完整回退](docs/release/MANUAL_UPDATE_AND_RECOVERY.md)
+- [离线备份与恢复工具](docs/STORAGE_RECOVERY.md)
+- [三层 Beta 准入](engineering/productization-20261107/RELEASE-READINESS.md)
+- [封闭 Beta 方案](engineering/productization-20261107/consumer/CLOSED-BETA-PLAN.md)：本轮未邀请外部人员、未公开下载、未添加遥测。
+
+开发要求 macOS 13+；完整 XCTest 需要含 XCTest 的 Xcode 环境。以下开发构建使用 ad-hoc 签名，不是已公证的公开安装包：
 
 ```sh
 swift test --parallel
@@ -38,8 +36,6 @@ bash scripts/build-macos.sh
 build/Riftlet.app/Contents/MacOS/Riftlet --self-check
 ```
 
-[自动工程推进索引](engineering/autonomous-readiness-20261106/ROADMAP.md)记录基础工程状态、证据和接管入口；[mainline 治理](docs/MAINLINE_GOVERNANCE.md)规定独立源码审查及准入。设置与控制中心 V2 设计已有本轮原生候选实现，尚未替换当前安装 App。
+正式产品源码来自 main，并遵守[独立源码审查与 mainline 准入](docs/MAINLINE_GOVERNANCE.md)。正式 Logo 与品牌色保持不变；桌面主体的重大视觉设计仍由正式设计方案决定。
 
-[保留的早期 README](docs/history/README-20261028.md)及 `docs/`、`engineering/evidence/` 中带日期的工程记录描述当时事实；其中旧候选、上传关闭和 8 MiB 限制不能用于说明当前普通入口。
-
-官网目录是独立受审视觉成果，本轮只准备发行接入规范，不发布下载。请勿向公开仓库提交真实截图、私人聊天、诊断原始数据、凭据或浏览器 profile。
+[本轮之前的 README 原文](docs/history/README-before-productization-20261107.md)以及带日期的工程记录保留历史事实，其中旧安装身份、旧构建命令和当时权限状态不代表当前状态。官网视觉成果继续保留，本轮不发布下载。请勿向公开仓库提交真实截图、私人聊天、诊断原始数据、凭据或浏览器 profile。
