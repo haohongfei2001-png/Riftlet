@@ -6,6 +6,23 @@
 import Foundation
 import Darwin
 
+struct WatchedFileIdentity: Codable, Equatable, Sendable {
+    let device: dev_t
+    let inode: ino_t
+    let birthSeconds: Int
+    let birthNanoseconds: Int
+
+    init(_ info: stat) {
+        device = info.st_dev; inode = info.st_ino
+        birthSeconds = info.st_birthtimespec.tv_sec; birthNanoseconds = info.st_birthtimespec.tv_nsec
+    }
+
+    func matchesDirectory(_ url: URL) -> Bool {
+        var info = stat()
+        return lstat(url.path, &info) == 0 && info.st_mode & mode_t(S_IFMT) == mode_t(S_IFDIR) && self == Self(info)
+    }
+}
+
 final class FolderWatcher: @unchecked Sendable {
     private let url: URL
     private let queue = DispatchQueue(label: "com.riftlet.capture.folder", qos: .utility)
@@ -22,8 +39,9 @@ final class FolderWatcher: @unchecked Sendable {
         self.onDirty = onDirty; self.onLost = onLost
     }
 
-    func start() async throws {
-        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+    @discardableResult
+    func start() async throws -> WatchedFileIdentity {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<WatchedFileIdentity, Error>) in
             queue.async {
                 guard !self.cancelled, self.source == nil else {
                     continuation.resume(throwing: CaptureError.io("watcher-already-started", EINVAL)); return
@@ -44,7 +62,7 @@ final class FolderWatcher: @unchecked Sendable {
                 live.setCancelHandler { Darwin.close(fd) }
                 self.source = live
                 live.resume()
-                continuation.resume()
+                continuation.resume(returning: WatchedFileIdentity(info))
             }
         }
     }

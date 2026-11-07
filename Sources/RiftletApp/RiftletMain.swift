@@ -527,6 +527,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 if let detectedSource { _ = restoreCaptureFolder(detectedSource) }
             } catch { receiveCaptureDiagnostic(.classify(error, context: .locationPreference)) }
             let service = CaptureService(store: store, privateRoot: root, sourceDirectory: detectedSource ?? reviewEnvironment?.source ?? CaptureSource.defaultDirectory(),
+                                         permitsRead: { [weak self] url in await self?.permitsCaptureRead(url) ?? false },
                                          onChange: { [weak self] in await self?.refresh() },
                                          onImported: { [weak self] record, observation in
                                              Task { @MainActor [weak self] in
@@ -818,6 +819,14 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         let needsSelection = folderAccess.restore(for: source) == .needsSelection
         folderNeedingSelection = needsSelection ? source : nil
         return !needsSelection
+    }
+
+    private func permitsCaptureRead(_ source: URL) -> Bool {
+        let allowed = folderAccess.permitsRead(of: source)
+        if !allowed, let detectedSource, SourceAccessSelection.matches(selected: source, actualSource: detectedSource) {
+            folderNeedingSelection = source
+        }
+        return allowed
     }
 
     @objc private func recheckSetup() {

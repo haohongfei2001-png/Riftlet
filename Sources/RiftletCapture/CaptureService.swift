@@ -16,7 +16,7 @@ private struct Observation {
     var stableSince: Date
 }
 
-private struct PendingSourceCapture: Codable, Sendable {
+private struct PendingSourceCapture: Codable, Equatable, Sendable {
     let url: URL
     var signature: FileSignature
     let firstSeenAt: Date
@@ -31,9 +31,11 @@ private struct CaptureEpoch: Codable {
 private struct DepartingCaptureSource: Codable, Sendable {
     let id: UUID
     let directory: URL
+    let directoryIdentity: WatchedFileIdentity?
     let baselineKeys: Set<String>
     let collectionBeganAt: Date
     let knownCandidates: [PendingSourceCapture]
+    var knownCandidatesQueued: Bool?
     var retiredAt: Date?
 }
 
@@ -54,6 +56,7 @@ public actor CaptureService {
     private let store: QueueStore
     public let importer: PrivateAssetImporter
     private var sourceDirectory: URL
+    private let permitsRead: (@Sendable (URL) async -> Bool)?
     private let onChange: @Sendable () async -> Void
     private let onImported: @Sendable (AssetRecord, ScreenshotSourceObservation) -> Void
     private let onIssue: @Sendable (String) async -> Void
@@ -67,6 +70,7 @@ public actor CaptureService {
     private var diagnosticRevision = UUID()
     private let now: @Sendable () -> Date
     private var watcher: FolderWatcher?
+    private var watchedIdentity: WatchedFileIdentity?
     private var parentWatcher: FolderWatcher?
     private var wakeObserver: NSObjectProtocol?
     private var retryTask: Task<Void, Never>?
@@ -91,6 +95,7 @@ public actor CaptureService {
     private let retryDelays: [UInt64] = [150_000_000, 350_000_000, 800_000_000, 2_000_000_000, 5_000_000_000]
 
     public init(store: QueueStore, privateRoot: URL, sourceDirectory: URL,
+                permitsRead: (@Sendable (URL) async -> Bool)? = nil,
                 onChange: @escaping @Sendable () async -> Void = {},
                 onImported: @escaping @Sendable (AssetRecord, ScreenshotSourceObservation) -> Void = { _, _ in },
                 onIssue: @escaping @Sendable (String) async -> Void = { _ in },
@@ -99,6 +104,7 @@ public actor CaptureService {
         self.store = store
         importer = PrivateAssetImporter(privateRoot: privateRoot, store: store)
         self.sourceDirectory = sourceDirectory.standardizedFileURL
+        self.permitsRead = permitsRead
         self.onChange = onChange; self.onIssue = onIssue; self.onDiagnostic = onDiagnostic
         self.onImported = onImported
         self.now = now
@@ -188,6 +194,7 @@ public actor CaptureService {
         scanningGeneration = nil
         departuresInProgress.removeAll()
         watcher?.cancel(); watcher = nil
+        watchedIdentity = nil
         parentWatcher?.cancel(); parentWatcher = nil
         retryTask?.cancel(); retryTask = nil
         if let wakeObserver { NSWorkspace.shared.notificationCenter.removeObserver(wakeObserver) }
@@ -257,7 +264,7 @@ public actor CaptureService {
         let nextGeneration = UUID()
         let next = makeWatcher(directory: destination, token: nextGeneration)
         do {
-            try await next.start()
+            let nextIdentity = try await next.start()
             guard running, generation == originalGeneration, rebindRequest == request else { next.cancel(); return }
             var nextBaseline: Set<String>?
             if let data = try await store.checkpoint(for: Self.checkpointKey(for: destination)) {
@@ -269,7 +276,7 @@ public actor CaptureService {
 
             // Persist the directory, not a finite early file list: captures may still arrive
             // while SQLite awaits. An interrupted handoff can therefore enumerate it later.
-            let departure = DepartingCaptureSource(id: request, directory: sourceDirectory,
+            let departure = DepartingCaptureSource(id: request, directory: sourceDirectory, directoryIdentity: watchedIdentity,
                 baselineKeys: baseline ?? [], collectionBeganAt: installationStart,
                 knownCandidates: observations.values.map {
                     PendingSourceCapture(url: $0.url, signature: $0.signature,
@@ -286,6 +293,7 @@ public actor CaptureService {
             let oldWatcher = watcher
             generation = nextGeneration
             watcher = next
+            watchedIdentity = nextIdentity
             parentWatcher?.cancel(); parentWatcher = nil
             retryTask?.cancel(); retryTask = nil
             sourceDirectory = destination
@@ -305,7 +313,10 @@ public actor CaptureService {
             guard running, generation == nextGeneration, rebindRequest == request else { return }
             // Final enumeration occurs only after retirement acknowledgement. There is no
             // await between enumeration/filtering and recording the complete candidate set.
-            try? finishDeparture(request)
+            if await permitsRead?(departure.directory) != false {
+                guard running, generation == nextGeneration, rebindRequest == request else { return }
+                _ = try? finishDeparture(request)
+            }
             try await saveHandoffs()
             try await rescan()
         } catch {
@@ -330,7 +341,9 @@ public actor CaptureService {
             try await recoverDepartures()
             guard running, generation == token else { return }
             let needsHandoffRetry = try await drainHandoffs()
-            if generation == token, needsHandoffRetry || !departingSources.isEmpty { scheduleRetry() }
+            if generation == token, needsHandoffRetry || departingSources.values.contains(where: { $0.directoryIdentity != nil }) {
+                scheduleRetry()
+            }
             passes += 1
         } while dirty && running && generation == token && passes < 2
         if dirty, generation == token { scheduleRetry() }
@@ -347,6 +360,7 @@ public actor CaptureService {
 
     private func scanOnce() async throws {
         let token = generation
+        guard try await confirmCurrentSource(generation: token) else { return }
         let key = checkpointKey
         let candidates: [(URL, FileSignature)]
         do { candidates = try candidateFiles(in: sourceDirectory) }
@@ -393,6 +407,7 @@ public actor CaptureService {
                 needsRetry = true; continue
             }
             do {
+                guard try await confirmCurrentSource(generation: token) else { return }
                 let record = try await importer.importStableFile(at: url, signature: signature,
                     firstSeenAt: observations[signature.sourceKey]?.firstSeenAt ?? now)
                 guard running, generation == token else { await onChange(); return }
@@ -459,15 +474,31 @@ public actor CaptureService {
         try await store.saveCheckpoint(try JSONEncoder().encode(checkpoint), for: Self.handoffCheckpoint)
     }
 
-    private func finishDeparture(_ id: UUID) throws {
-        guard var departure = departingSources[id] else { return }
+    @discardableResult
+    private func finishDeparture(_ id: UUID) throws -> Bool {
+        guard var departure = departingSources[id] else { return false }
+        var changed = false
         // On interrupted handoff, conservatively retain screenshots through this recovery
         // snapshot. Future old-directory writes are excluded once this snapshot is saved.
         if departure.retiredAt == nil {
             departure.retiredAt = Date()
             departingSources[id] = departure
+            changed = true
         }
         let cutoff = departure.retiredAt!
+        // Even an older checkpoint with no directory identity can recover its
+        // recorded file identities. Keep the departure until its directory is proven.
+        if departure.knownCandidatesQueued != true {
+            for candidate in departure.knownCandidates where pendingHandoffs[candidate.signature.sourceKey] == nil {
+                guard !departure.baselineKeys.contains(candidate.signature.sourceKey),
+                      candidate.signature.createdAt <= cutoff else { continue }
+                pendingHandoffs[candidate.signature.sourceKey] = candidate
+            }
+            departure.knownCandidatesQueued = true
+            departingSources[id] = departure
+            changed = true
+        }
+        guard departure.directoryIdentity?.matchesDirectory(departure.directory) == true else { return changed }
         var complete = true
         let candidates = try candidateFiles(in: departure.directory, onUnreadable: { complete = false })
         for (url, signature) in candidates {
@@ -479,25 +510,25 @@ public actor CaptureService {
             if let pending, pending.signature == signature { stableSince = pending.stableSince }
             else if let previous, previous.signature == signature { stableSince = previous.stableSince }
             else { stableSince = now() }
-            pendingHandoffs[signature.sourceKey] = PendingSourceCapture(url: url, signature: signature,
+            let next = PendingSourceCapture(url: url, signature: signature,
                 firstSeenAt: pending?.firstSeenAt ?? previous?.firstSeenAt ?? now(),
                 stableSince: stableSince)
+            if pending != next { pendingHandoffs[signature.sourceKey] = next; changed = true }
         }
-        for candidate in departure.knownCandidates where pendingHandoffs[candidate.signature.sourceKey] == nil {
-            guard !departure.baselineKeys.contains(candidate.signature.sourceKey),
-                  candidate.signature.createdAt <= cutoff else { continue }
-            pendingHandoffs[candidate.signature.sourceKey] = candidate
-        }
-        if complete { departingSources.removeValue(forKey: id) }
+        if complete { departingSources.removeValue(forKey: id); changed = true }
+        return changed
     }
 
     private func recoverDepartures() async throws {
+        let token = generation
         var changed = false
         for id in departingSources.keys.sorted(by: { $0.uuidString < $1.uuidString }) {
             guard !departuresInProgress.contains(id), let departure = departingSources[id] else { continue }
             // An interrupted request that never switched away is still the active source.
             guard departure.directory != sourceDirectory || departure.retiredAt != nil else { continue }
-            do { try finishDeparture(id); changed = true }
+            guard await permitsRead?(departure.directory) != false else { continue }
+            guard running, generation == token else { return }
+            do { if try finishDeparture(id) { changed = true } }
             catch { /* Keep the durable directory intent; access/next event can recover it. */ }
         }
         if changed { try await saveHandoffs() }
@@ -511,6 +542,7 @@ public actor CaptureService {
         var changed = false
         var imported = false
         var copyCount = 0
+        let token = generation
         for key in pendingHandoffs.keys.sorted() {
             guard running else { break }
             guard var item = pendingHandoffs[key] else { continue }
@@ -519,6 +551,8 @@ public actor CaptureService {
             }
             if copyCount >= 128 { break }
             do {
+                guard await permitsRead?(item.url.deletingLastPathComponent()) != false else { continue }
+                guard running, generation == token else { break }
                 let current = try FileSignature.read(at: item.url)
                 // A replaced inode is a new capture occurrence, not completion of this one.
                 guard current.sourceKey == key else { continue }
@@ -545,11 +579,27 @@ public actor CaptureService {
 
     private func attachWatcher() async throws {
         let token = generation
+        guard try await confirmCurrentSource(generation: token) else { return }
         let next = makeWatcher(directory: sourceDirectory, token: token)
-        try await next.start()
+        let identity = try await next.start()
         guard running, generation == token else { next.cancel(); return }
         watcher?.cancel(); watcher = next
+        watchedIdentity = identity
         parentWatcher?.cancel(); parentWatcher = nil
+    }
+
+    // A parent watch, wake or retry can arrive without a screenshot-location
+    // preference change. Never reopen or enumerate a replacement via that path.
+    private func confirmCurrentSource(generation token: UUID) async throws -> Bool {
+        let allowed = await permitsRead?(sourceDirectory) != false
+        guard running, generation == token else { return false }
+        guard allowed else {
+            stop()
+            let failure = CocoaError(.fileReadNoPermission)
+            await reportDiagnostic(.classify(failure, context: .source))
+            throw failure
+        }
+        return true
     }
 
     private func makeWatcher(directory: URL, token: UUID) -> FolderWatcher {

@@ -51,6 +51,16 @@ private actor CaptureLifecycleGate {
     }
 }
 
+private actor ConfirmedDirectory {
+    private var identity: WatchedFileIdentity?
+    func confirm(_ url: URL) throws {
+        var info = stat()
+        guard lstat(url.path, &info) == 0 else { throw CocoaError(.fileReadUnknown) }
+        identity = WatchedFileIdentity(info)
+    }
+    func allows(_ url: URL) -> Bool { identity?.matchesDirectory(url) ?? true }
+}
+
 final class CaptureSourceBindingTests: XCTestCase {
     private struct Fixture: Sendable {
         let root: URL
@@ -189,6 +199,71 @@ final class CaptureSourceBindingTests: XCTestCase {
         XCTAssertTrue(resumed.isRunning)
         XCTAssertTrue(resumed.sourceAccessible)
         await binding.stop()
+    }
+
+    func testLiveReplacementCannotImportBeforeReselectionAndAnUnselectedSourceCanRecover() async throws {
+        for hasSelection in [true, false] {
+            let f = try Fixture(); defer { f.close() }
+            let selection = ConfirmedDirectory()
+            if hasSelection { try await selection.confirm(f.first) }
+            let service = CaptureService(store: f.store, privateRoot: f.privateRoot, sourceDirectory: f.first,
+                                         permitsRead: { await selection.allows($0) })
+            try await service.start()
+            try FileManager.default.moveItem(at: f.first, to: f.root.appendingPathComponent("moved"))
+            try FileManager.default.createDirectory(at: f.first, withIntermediateDirectories: false)
+            let image = f.first.appendingPathComponent("replacement.png")
+            let bytes = try png()
+            try bytes.write(to: image); try mark(image)
+            // Both passive vnode events and explicit scans use the access boundary.
+            for _ in 0..<5 {
+                try? await service.rescan()
+                try await Task.sleep(nanoseconds: 150_000_000)
+            }
+            let before = try await f.store.assets(includeUsed: true)
+            XCTAssertEqual(before.count, hasSelection ? 0 : 1)
+            if hasSelection {
+                let status = await service.statusSnapshot()
+                XCTAssertFalse(status.isRunning); XCTAssertFalse(status.sourceAccessible)
+                try await selection.confirm(f.first)
+                try await service.recheck()
+                for _ in 0..<4 {
+                    try await service.rescan()
+                    try await Task.sleep(nanoseconds: 150_000_000)
+                }
+                let after = try await f.store.assets(includeUsed: true)
+                XCTAssertEqual(after.map(\.image.sourceKey), [try FileSignature.read(at: image).sourceKey])
+            }
+            XCTAssertEqual(try Data(contentsOf: image), bytes)
+            await service.stop()
+        }
+    }
+
+    func testLegacyDepartureWithoutDirectoryIdentityKeepsIntentAndOnlyRecoversKnownFile() async throws {
+        let f = try Fixture(); defer { f.close() }
+        let known = f.first.appendingPathComponent("known.png")
+        let unknown = f.first.appendingPathComponent("not-in-checkpoint.png")
+        for file in [known, unknown] { try png().write(to: file); try mark(file) }
+        let signature = try FileSignature.read(at: known)
+        let signatureJSON = try JSONSerialization.jsonObject(with: JSONEncoder().encode(signature))
+        let knownJSON: [String: Any] = ["url": known.absoluteString, "signature": signatureJSON,
+            "firstSeenAt": Date(timeIntervalSinceNow: -2).timeIntervalSinceReferenceDate,
+            "stableSince": Date(timeIntervalSinceNow: -2).timeIntervalSinceReferenceDate]
+        let departure: [String: Any] = ["id": UUID().uuidString, "directory": f.first.absoluteString,
+            "baselineKeys": [], "collectionBeganAt": Date(timeIntervalSinceNow: -30).timeIntervalSinceReferenceDate,
+            "knownCandidates": [knownJSON], "retiredAt": Date().timeIntervalSinceReferenceDate]
+        let key = "capture-pending-handoffs-v1"
+        let bytes = try JSONSerialization.data(withJSONObject: ["version": 2, "candidates": [], "departures": [departure]])
+        try await f.store.saveCheckpoint(bytes, for: key)
+        let service = CaptureService(store: f.store, privateRoot: f.privateRoot, sourceDirectory: f.second)
+        try await service.start(); try await service.rescan()
+        let rows = try await f.store.assets(includeUsed: true)
+        XCTAssertEqual(rows.map(\.image.sourceKey), [signature.sourceKey])
+        let raw = try await f.store.checkpoint(for: key)
+        let persisted = try XCTUnwrap(try JSONSerialization.jsonObject(with: XCTUnwrap(raw)) as? [String: Any])
+        let remaining = try XCTUnwrap(persisted["departures"] as? [[String: Any]])
+        XCTAssertEqual(remaining.map { $0["id"] as? String }, [departure["id"] as? String])
+        XCTAssertEqual(try Data(contentsOf: unknown), try Data(contentsOf: known))
+        await service.stop()
     }
 
     func testFailedSwitchPreservesLastWorkingSource() async throws {

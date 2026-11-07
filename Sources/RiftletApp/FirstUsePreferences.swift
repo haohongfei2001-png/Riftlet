@@ -47,6 +47,16 @@ final class ScreenshotFolderAccess {
     @discardableResult
     func restore(for source: URL) -> Restoration {
         stop()
+        return inspect(source, activate: true)
+    }
+
+    // Watch callbacks may outlive the directory that was originally selected.
+    // Revalidate before reading, without dropping the active security scope.
+    func permitsRead(of source: URL) -> Bool {
+        inspect(source, activate: false) != .needsSelection
+    }
+
+    private func inspect(_ source: URL, activate: Bool) -> Restoration {
         guard let stored = defaults.object(forKey: key) else { return .noApplicableBookmark }
         guard let data = stored as? Data else { return .needsSelection }
         let savedPath = NSURL.resourceValues(forKeys: [.pathKey], fromBookmarkData: data)?[.pathKey] as? String
@@ -67,7 +77,7 @@ final class ScreenshotFolderAccess {
         guard !stale else { return .needsSelection }
         // A false result is not a permission verdict (e.g. an unsandboxed app
         // may already have access). The collector performs the real read check.
-        if url.startAccessingSecurityScopedResource() { activeURL = url }
+        if activate && url.startAccessingSecurityScopedResource() { activeURL = url }
         return .matchingBookmark
     }
 
