@@ -4,14 +4,16 @@ User-authorized window: 2026-11-06 23:10:34 UTC to 2026-11-07 09:10:34 UTC, or e
 
 | Packet | Owner | Scope | State |
 |---|---|---|---|
-| P00 | root | Reconcile actual main/App, prior Beta3 delivery, open PRs/worktrees | DONE_BASELINE |
-| P01 | root | Current-version isolated ChatGPT acceptance and START/final semantics | Browser part BLOCKED_TOOL_POLICY; semantic audit ACTIVE |
-| P02 | root | Actual desktop/control center, isolated raw WindowServer baseline for Pro | ACTIVE |
-| P03 | diagnostics | Login service and first-use permission audit; repair only new confirmed defects | ACTIVE |
-| P04 | root then free lane | Real4K/different-aspect100-history performance, bounded long run/recovery | READY |
-| P05 | readiness_independent | Signing/notary prerequisite audit, ZIP/DMG/manual update | ACTIVE |
-| P06 | review | Consumer support/privacy/install docs, source-verified scope | ACTIVE |
-| P07 | review | Closed Beta10–20 participant package, no invites/telemetry/public download | ACTIVE |
-| P08 | root + non-author reviewer | Exact-source review/admission, fiveCI, safe integration, final A/B/C verdict | READY_AFTER_PACKETS |
+| P00 | root | Actual main/App and inherited PR45 upgrade/rollback reconciliation | DONE |
+| P01 | root + consumer reviewer | Current ChatGPT acceptance and START/final semantics | Semantic audit DONE; live service BLOCKED_TOOL_POLICY |
+| P02 | root | Complete-App desktop/control center and Pro native baseline | DONE_SCOPED; original 47 public native media; ordinary status mouse/wallpaper/timeline gaps retained |
+| P03 | diagnostics | Real isolated ServiceManagement lifecycle and first-use boundaries | DONE_SCOPED; seven stages; no production registration or fresh-login claim |
+| P04a | diagnostics | 4K/different-aspect100-history performance and sustained recovery | Smoke DONE; one-hour run ACTIVE |
+| P04b | diagnostics | Actual ENOSPC in bounded independent volume, data-preserving recovery | ACTIVE; no production or host-disk filler |
+| P05a | release author + independent review | Signing/cloud route, exact ZIP/DMG, manual update | DONE_SCOPED; no signing authority, no public package |
+| P05b | release author + final non-author review | Official SVG unchanged → App icon; both packaging flows | ACTIVE |
+| P06 | consumer author + independent review | Source-bound install/privacy/support/START documentation | DONE; successor tool bindings must be reviewed after any further tool edit |
+| P07 | consumer author + independent review | Closed Beta10–20 protocol, no telemetry/invites | DONE_PREPARATION; no external outcomes claimed |
+| P08 | root + final non-author reviewer | Complete G/H, five CI, standard integration, final A/B/C decisions | WAITING_FOR_FROZEN_PACKETS |
 
-All source changes stay on short-lived branches from actual main. Each packet preserves evidence and commits a reviewable result. Root alone operates foreground GUI/Chrome and production lifecycle. Do not queue GUI requests to the user. No automatic public release, invitations, paid-plan changes, production data reset or blind UNKNOWN replay.
+All source changes stay on short-lived branches from actual main. Each packet preserves evidence and commits a reviewable result. Root alone operates foreground GUI and production lifecycle. No GUI requests are assigned to the user. No public release, invitations, paid-plan changes, production reset or blind UNKNOWN replay. The installed fe5b09c… App is retained while packaging/tool-only work is prepared independently.

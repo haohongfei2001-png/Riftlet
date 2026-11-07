@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "scope": "read-only local identity plus same-repository already-configured signing path; not all Apple accounts or other devices",
+  "repository": "haohongfei2001-png/Riftlet",
+  "observedMain": "2e779f646ac4874344fac94f79103e8ddf9b02c8",
+  "repositoryActionsSecretCount": 0,
+  "githubPagesEnvironmentSecretCount": 0,
+  "currentMainWorkflows": 2,
+  "existingConfiguredDeveloperIDOrNotaryWorkflow": false,
+  "readOnlyRepositoryGETs": 6,
+  "retries": 0,
+  "secretValuesRead": false,
+  "credentialOrWorkflowChanges": false,
+  "rawInspectionSHA256": "f18afb9299904d14b7b5d59def8911fac61555e41795fffc883c985efe25ae02",
+  "result": "BLOCKED_OWNER_CREDENTIALS_AND_CONFIGURATION"
+}
