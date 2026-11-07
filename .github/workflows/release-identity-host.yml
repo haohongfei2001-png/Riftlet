@@ -28,6 +28,7 @@ jobs:
           import os
           from pathlib import Path
           import plistlib
+          import signal
           import subprocess
           import sys
           import tempfile
@@ -41,7 +42,7 @@ jobs:
           RESULT = Path("test-results")
           RESULT.mkdir(mode=0o700)
           report = {"state": "STARTED", "base": BASE, "receiverSource": URL, "agreementAccepted": False,
-                    "policyOrTCCDatabaseChanged": False, "originalRestored": None}
+                    "directTCCDatabaseAccess": False, "systemPolicyEdited": False, "originalRestored": None}
           class Stop(Exception):
               pass
           def require(condition, reason):
@@ -105,6 +106,53 @@ jobs:
               except PermissionError:
                   checked(["/usr/bin/sudo","-n","/bin/mv",source,dest], "SAME_VOLUME_RENAME_REFUSED")
               require(inode(dest) == before and not os.path.lexists(source), "RENAME_IDENTITY_CHANGED")
+          def stop_owned_group(child):
+              # Keep the original child unreaped between signals so its process
+              # group ID cannot be recycled. Never signal a Chrome by name.
+              if child.poll() is not None:
+                  return "LEADER_ALREADY_EXITED"
+              try:
+                  if os.getpgid(child.pid) != child.pid or os.getsid(child.pid) != child.pid:
+                      return "PRESERVED_UNPROVEN_GROUP"
+                  os.killpg(child.pid, signal.SIGTERM)
+                  time.sleep(2)
+                  try:
+                      os.killpg(child.pid, signal.SIGKILL)
+                  except ProcessLookupError:
+                      pass
+                  child.wait(timeout=5)
+                  return "OWN_GROUP_STOPPED"
+              except (OSError, subprocess.TimeoutExpired):
+                  return "CLEANUP_UNCONFIRMED"
+          def run_probe():
+              output = RESULT / "automation-consent.json"
+              child = subprocess.Popen([sys.executable, "-B", "Tests/ReleaseIdentityHost/automation.py", "--output", output],
+                                       stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                                       start_new_session=True)
+              try:
+                  code = child.wait(timeout=300)
+              except subprocess.TimeoutExpired:
+                  report["probeCleanup"] = stop_owned_group(child)
+                  raise Stop("AUTOMATION_TIMEOUT")
+              except BaseException:
+                  report["probeCleanup"] = stop_owned_group(child)
+                  raise
+              report["probeExitCode"] = code
+              require(output.is_file(), "MISSING_AUTOMATION_REPORT")
+              result = json.loads(output.read_bytes())
+              keys = ("state", "verifiedOwnedChrome", "allow", "deny", "deniedInFreshProcess", "recovery")
+              require(all(key in result for key in keys), "INVALID_AUTOMATION_REPORT")
+              report["probe"] = {key: result[key] for key in keys}
+              require(code == 0, "AUTOMATION_HARNESS_FAILED")
+              state = result["state"]
+              if state == "COMPLETED_SCOPED":
+                  require(result["verifiedOwnedChrome"] is True and result["deniedInFreshProcess"] is True
+                          and result["allow"] == result["deny"] == "OBSERVED_PROMPT_AND_DECISION"
+                          and result["recovery"] == "OBSERVED_SETTINGS_ACTION_AND_PASSIVE_GRANT", "INCONSISTENT_COMPLETION")
+              else:
+                  require(isinstance(state, str) and (state.startswith("NOT_RUN_") or state == "PARTIAL_AUTOMATION_CONSENT"),
+                          "UNRECOGNIZED_AUTOMATION_STATE")
+              report["state"] = state
           def run():
               require(sys.platform == "darwin" and os.getenv("GITHUB_EVENT_NAME") == "workflow_dispatch"
                       and os.getenv("GITHUB_REPOSITORY") == "haohongfei2001-png/Riftlet" and os.getenv("RUNNER_ENVIRONMENT") == "github-hosted"
@@ -150,13 +198,10 @@ jobs:
               require(inode(APP)==original and not chrome_running(), "HOST_BROWSER_CHANGED_OR_BUSY")
               try:
                   move(APP,saved)
+                  report["originalRestored"] = False
                   move(staged,APP)
                   require(vendor(APP)==report["vendorMounted"] and inode(APP)==candidate, "FIXTURE_BINDING_FAILED")
-                  result=command([sys.executable,"-B","Tests/ReleaseIdentityHost/automation.py","--output",
-                                  RESULT/"automation-consent.json"],timeout=210)
-                  report["probeExitCode"]=result.returncode
-                  require(result.returncode == 0 and (RESULT/"automation-consent.json").is_file(), "AUTOMATION_HARNESS_FAILED")
-                  report["state"]="COMPLETED_SCOPED_RECEIVER_TEST"
+                  run_probe()
               finally:
                   if os.path.lexists(saved):
                       require(inode(saved)==original,"PRESERVED_HOST_APP_IDENTITY_CHANGED")
@@ -169,6 +214,9 @@ jobs:
                       move(saved,APP)
                       report["originalRestored"] = inode(APP)==original and signature(APP)==report["imageBuiltIn"]
                       require(report["originalRestored"], "ORIGINAL_RESTORE_MISMATCH")
+          def interrupted(signum, frame):
+              raise Stop("SUPERVISOR_INTERRUPTED")
+          signal.signal(signal.SIGTERM, interrupted)
           try:
               run()
               code=0
