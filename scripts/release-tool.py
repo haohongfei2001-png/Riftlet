@@ -542,13 +542,48 @@ def notary_submit(args):
     require(value["stage"] == "SIGNED", "submit_requires_signed_once")
     verify_package(package, native_team=value["signature"]["teamID"])
     archive = workspace / "notary-upload.zip"
-    require(not archive.exists(), "notary_archive_already_exists")
-    run(["/usr/bin/ditto", "-c", "-k", "--sequesterRsrc", "--keepParent", package / APP, archive])
+    require(not os.path.lexists(archive), "notary_archive_already_exists")
+    attempt = Path(tempfile.mkdtemp(prefix="notary-prepare-", dir=workspace))
+    candidate = attempt / "candidate.zip"
+    run(["/usr/bin/ditto", "-c", "-k", "--sequesterRsrc", "--keepParent", package / APP, candidate],
+        log=attempt / "package.log")
+    archive_pin = verify_notary_upload(candidate, value, workspace)
+    # notarytool accepts a file path. Give it a separate private, read-only file:
+    # a later write or replacement at the canonical archive cannot change this inode.
+    upload = attempt / "submission.zip"
+    shutil.copyfile(candidate, upload)
+    upload.chmod(0o400)
+    claim = candidate.lstat()
+    upload_identity = upload.lstat()
+    # Keep each attempt for diagnosis. Atomically claim the already verified inode;
+    # competing submissions cannot overwrite it or reach the Apple invocation.
+    try:
+        os.link(candidate, archive, follow_symlinks=False)
+    except FileExistsError:
+        raise ReleaseError("notary_archive_already_exists") from None
     value["notarization"] = {"status": "SubmissionUnknown", "submissionID": None,
-                              "uploadSHA256": digest(archive), "stapled": False}
+                              "uploadSHA256": archive_pin, "stapled": False, "preparation": attempt.name}
     value["stage"] = "NOTARY_SUBMITTING"; save_manifest(package, value)
     try:
-        reply = run(["xcrun", "notarytool", "submit", archive, "--keychain-profile", args.profile, "--output-format", "json"], timeout=180,
+        require(os.path.samestat(archive.lstat(), claim) and digest(archive) == archive_pin
+                and os.path.samestat(upload.lstat(), upload_identity) and digest(upload) == archive_pin,
+                "notary_archive_changed_before_submit")
+    except (OSError, ReleaseError) as error:
+        # No client was invoked. Retain the attempt and its independent copy.
+        # A different claimant's path/state must never be removed or overwritten.
+        write_json(attempt / "not-submitted.json", {"status": "NOT_SUBMITTED", "uploadSHA256": archive_pin,
+                   "clientInvoked": False, "reason": "notary_archive_changed_before_submit"})
+        if read_json(package / MANIFEST) == value:
+            value.update(stage="SIGNED", notarization=None)
+            write_json(package / MANIFEST, value)
+            try:
+                if os.path.samestat(archive.lstat(), claim):
+                    archive.unlink()
+            except FileNotFoundError:
+                pass
+        raise ReleaseError("notary_archive_changed_before_submit", "NOT_SUBMITTED") from error
+    try:
+        reply = run(["xcrun", "notarytool", "submit", upload, "--keychain-profile", args.profile, "--output-format", "json"], timeout=180,
                     log=workspace / "notary-submit.log")
         (workspace / "notary-submit.json").write_bytes(reply.stdout)
         response = decode_json(reply.stdout)
@@ -625,13 +660,14 @@ def package_candidate(args):
     arch = "universal" if len(build["architectures"]) == 2 else build["architectures"][0]
     archive = distribution / ("Riftlet-" + build["version"] + "-" + build["build"] + "-" + arch + ".zip")
     run(["/usr/bin/ditto", "-c", "-k", "--sequesterRsrc", "--keepParent", package, archive])
-    verify_archive(archive, digest(archive), manifest_pin)
+    archive_pin = verify_distribution_zip(archive, manifest_pin, workspace, value["signature"]["teamID"])
     require(verify_package(package, manifest_pin) == value, "candidate_changed_during_packaging")
-    identity = {"schemaVersion": SCHEMA, "archive": archive.name, "sha256": digest(archive), "bytes": archive.stat().st_size,
+    identity = {"schemaVersion": SCHEMA, "archive": archive.name, "sha256": archive_pin, "bytes": archive.stat().st_size,
                 "manifestSHA256": manifest_pin, "version": build["version"], "build": build["build"],
                 "source": build["source"]["commit"], "architectures": build["architectures"],
                 "teamID": value["signature"]["teamID"], "stage": "STAPLED", "gatekeeper": "NOT_RUN",
                 "publicReleaseApproval": "NOT_GRANTED_BY_TOOL"}
+    require(digest(archive) == archive_pin, "archive_changed_after_verification")
     write_json(distribution / "release-artifact.json", identity)
     return {"status": "PACKAGED_NOT_PUBLISHED", **identity}
 
@@ -684,7 +720,7 @@ def package_review(args):
     archive = distribution / (stem + ".zip")
     run(["/usr/bin/ditto", "-c", "-k", "--sequesterRsrc", "--keepParent", package, archive],
         log=workspace / "review-zip.log")
-    verify_archive(archive, digest(archive), args.manifest_sha256)
+    archive_pin = verify_distribution_zip(archive, args.manifest_sha256, workspace)
     image_root = workspace / "review-image-source"
     require(not image_root.exists(), "review_image_source_already_exists")
     image_root.mkdir(mode=0o700)
@@ -699,14 +735,15 @@ def package_review(args):
     # Package preparation is a read-only operation on the candidate. A changed
     # source invalidates both containers, even if an earlier copy was intact.
     verify_package(package, args.manifest_sha256)
+    require(digest(archive) == archive_pin, "archive_changed_after_verification")
     identity = {"schemaVersion": SCHEMA, "status": "REVIEW_ONLY", "recordedStage": "PREPARED",
                 "manifestSHA256": args.manifest_sha256, "source": build["source"]["commit"],
                 "version": build["version"], "build": build["build"],
                 "versionLabel": build.get("versionLabel", "LEGACY_RECEIPT_NOT_RECORDED"),
                 "architectures": build["architectures"], "packagerSHA256": digest(Path(__file__)),
-                "artifacts": {path.suffix[1:]: {"name": path.name, "sha256": digest(path),
-                                                "bytes": path.stat().st_size} for path in (archive, image)},
-                "zipContents": "OFFLINE_ARCHIVE_IDENTITY_MATCH", "dmgMountedContents": "MATCH_READ_ONLY_DETACHED",
+                "artifacts": {"zip": {"name": archive.name, "sha256": archive_pin, "bytes": archive.stat().st_size},
+                              "dmg": {"name": image.name, "sha256": digest(image), "bytes": image.stat().st_size}},
+                "zipContents": "NATIVE_EXTRACTED_CONTENTS_MATCH", "dmgMountedContents": "MATCH_READ_ONLY_DETACHED",
                 "reproducibility": "PINNED_INPUTS_AND_EXTRACTED_CONTENTS; NOT_BYTE_IDENTICAL_BUILD_OR_CONTAINER",
                 "developerID": "NOT_SIGNED", "notarization": "NOT_NOTARIZED", "gatekeeper": "NOT_RUN",
                 "installation": "NOT_RUN", "applicationLaunch": "NOT_RUN", "network": "NOT_USED",
@@ -715,31 +752,74 @@ def package_review(args):
     return identity
 
 
+def checked_zip_members(archive, root):
+    """Check every path and type before native extraction, including metadata sidecars."""
+    rows, names, total = {}, set(), 0
+    require(len(archive.infolist()) <= 20000, "too_many_archive_entries")
+    for item in archive.infolist():
+        p = PurePosixPath(item.filename)
+        require(not p.is_absolute() and ".." not in p.parts and "\\" not in item.filename
+                and p.parts and p.parts[0] in {root, "__MACOSX"}
+                and item.filename == p.as_posix() + ("/" if item.is_dir() else "")
+                and "\x00" not in item.filename, "unsafe_archive_path")
+        canonical = p.as_posix().casefold()
+        require(canonical not in names, "duplicate_archive_path")
+        names.add(canonical)
+        mode = item.external_attr >> 16
+        require(not item.flag_bits & 1 and not stat.S_ISLNK(mode)
+                and (stat.S_IFMT(mode) in {0, stat.S_IFREG, stat.S_IFDIR}), "unsafe_archive_entry")
+        total += item.file_size
+        require(total <= 2 * 1024**3, "archive_expansion_too_large")
+        require(len(p.parts) != 1 or item.is_dir(), "archive_root_is_not_directory")
+        if p.parts[0] == root:
+            rows[p.as_posix()] = item
+    return rows
+
+
+def extract_checked_zip(archive, root, destination):
+    run(["/usr/bin/ditto", "-x", "-k", "--rsrc", "--extattr", archive, destination])
+    require({p.name for p in destination.iterdir()} == {root}, "extracted_archive_root_mismatch")
+
+
+def verify_notary_upload(archive, value, workspace):
+    archive_pin = digest(archive)
+    expected = {name: row for name, row in value["files"].items()
+                if name == APP or name.startswith(APP + "/")}
+    with zipfile.ZipFile(archive) as contents:
+        members = checked_zip_members(contents, APP)
+        require(set(members) == set(expected), "notary_archive_app_entries_mismatch")
+    with tempfile.TemporaryDirectory(prefix="notary-zip-check-", dir=workspace) as directory:
+        extracted = Path(directory)
+        extract_checked_zip(archive, APP, extracted)
+        require(inventory(extracted) == expected, "notary_archive_app_inventory_mismatch")
+    require(digest(archive) == archive_pin, "archive_changed_during_verification")
+    return archive_pin
+
+
+def verify_distribution_zip(archive, manifest_pin, workspace, team=None):
+    # Structural verification is read-only. Only our packaging operation extracts
+    # the new ZIP to verify what macOS actually restores, including stable xattrs.
+    archive_pin = digest(archive)
+    verify_archive(archive, archive_pin, manifest_pin)
+    with tempfile.TemporaryDirectory(prefix="distribution-zip-check-", dir=workspace) as directory:
+        extracted = Path(directory)
+        extract_checked_zip(archive, PAYLOAD, extracted)
+        verify_package(extracted / PAYLOAD, manifest_pin, native_team=team)
+        if team:
+            run(["xcrun", "stapler", "validate", "-v", extracted / PAYLOAD / APP],
+                log=workspace / "distribution-zip-staple-validate.log")
+    require(digest(archive) == archive_pin, "archive_changed_during_verification")
+    return archive_pin
+
+
 def verify_archive(path, expected_sha, expected_manifest=None):
     path = safe_path(path)
     require(path.is_file(), "archive_file_required")
     require(re.fullmatch(r"[0-9a-f]{64}", expected_sha or "") is not None, "trusted_archive_pin_required")
     require(digest(path) == expected_sha, "archive_pin_mismatch")
     with zipfile.ZipFile(path) as archive:
-        rows, names, total = {}, set(), 0
-        require(len(archive.infolist()) <= 20000, "too_many_archive_entries")
-        for item in archive.infolist():
-            p = PurePosixPath(item.filename)
-            require(not p.is_absolute() and ".." not in p.parts and "\\" not in item.filename
-                    and p.parts and p.parts[0] in {PAYLOAD, "__MACOSX"}
-                    and item.filename == p.as_posix() + ("/" if item.is_dir() else "")
-                    and "\x00" not in item.filename, "unsafe_archive_path")
-            canonical = p.as_posix().casefold()
-            require(canonical not in names, "duplicate_archive_path")
-            names.add(canonical)
-            mode = item.external_attr >> 16
-            require(not item.flag_bits & 1 and not stat.S_ISLNK(mode)
-                    and (stat.S_IFMT(mode) in {0, stat.S_IFREG, stat.S_IFDIR}), "unsafe_archive_entry")
-            total += item.file_size
-            require(total <= 2 * 1024**3, "archive_expansion_too_large")
-            require(len(p.parts) != 1 or item.is_dir(), "archive_root_is_not_directory")
-            if p.parts[0] == PAYLOAD and len(p.parts) > 1:
-                rows[PurePosixPath(*p.parts[1:]).as_posix()] = item
+        members = checked_zip_members(archive, PAYLOAD)
+        rows = {name[len(PAYLOAD) + 1:]: item for name, item in members.items() if name != PAYLOAD}
         require(MANIFEST in rows, "archive_manifest_missing")
         require(rows[MANIFEST].file_size <= 8 * 1024 * 1024, "oversized_json")
         manifest_bytes = archive.read(rows.pop(MANIFEST))

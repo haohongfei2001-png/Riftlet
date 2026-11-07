@@ -1,0 +1,53 @@
+name: Release identity on a fresh Mac
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/release-identity-host.yml'
+      - 'Tests/ReleaseIdentityHost/**'
+      - 'Tests/ReleaseUpgradeHost/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fresh_account:
+    name: Fresh-account upgrade and folder access
+    runs-on: macos-15
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Build the two ordinary versions in separate workspaces
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p test-results
+          previous=2e779f646ac4874344fac94f79103e8ddf9b02c8
+          # Each source revision is part of the build receipt. Tests run from the PR merge.
+          base="${{ github.event.pull_request.base.sha || github.sha }}"
+          python3 -B scripts/release-tool.py build --source "$previous" --version 0.3.0 --build 3 --label "Beta 3" --arch arm64 --workspace "$RUNNER_TEMP/baseline"
+          python3 -B scripts/release-tool.py build --source "$base" --version 0.3.2 --build 5 --label "Identity Rehearsal" --arch arm64 --workspace "$RUNNER_TEMP/next"
+          ditto "$RUNNER_TEMP/baseline/Riftlet-Release/Riftlet.app" "$RUNNER_TEMP/Old.app"
+          ditto "$RUNNER_TEMP/next/Riftlet-Release/Riftlet.app" "$RUNNER_TEMP/New.app"
+          codesign --force --sign - --timestamp=none "$RUNNER_TEMP/Old.app"
+          codesign --force --sign - --options runtime --timestamp=none --entitlements packaging/release/Entitlements.plist "$RUNNER_TEMP/New.app"
+          codesign --verify --deep --strict --all-architectures "$RUNNER_TEMP/Old.app"
+          codesign --verify --deep --strict --all-architectures "$RUNNER_TEMP/New.app"
+      - name: Exercise first ordinary launch, two imports and App-only rollback
+        run: python3 -B Tests/ReleaseUpgradeHost/run.py --old "$RUNNER_TEMP/Old.app" --new "$RUNNER_TEMP/New.app" --output test-results/ordinary-upgrade.json
+      - name: Observe permissions and bookmarks with a separate App identity
+        if: ${{ !cancelled() }}
+        run: python3 -B Tests/ReleaseIdentityHost/run.py --output test-results/release-identity-host.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: ${{ !cancelled() }}
+        with:
+          name: release-identity-observations-${{ github.sha }}-${{ github.run_attempt }}
+          path: |
+            test-results/ordinary-upgrade.json
+            test-results/release-identity-host.json
+          if-no-files-found: error
+          retention-days: 14

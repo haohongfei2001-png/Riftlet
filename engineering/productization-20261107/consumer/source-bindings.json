@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "sourceBaseline": "b1fa4329d66dcd632291c4d8bb7b18b5ec5ffbbc",
-  "scope": "Consumer documentation inheritance: 34 existing source bindings, with committed-media recovery validation optimization semantically re-audited; associated FileValidation owner separately pinned in capture-inheritance-audit.json. No installed-version change or new live-browser acceptance is asserted.",
+  "sourceBaseline": "de4b841dcdeac964741dc9203017b315efa25dd6",
+  "scope": "Consumer documentation continues to describe personal and public release separately. The release tool now verifies the App extracted from its upload ZIP and the complete distributable ZIP. All other 33 bound source files match the previously reviewed document inputs.",
   "files": [
     {
       "path": "Sources/RiftletApp/OrdinaryCaptureConfiguration.swift",
@@ -160,8 +160,8 @@
     },
     {
       "path": "scripts/release-tool.py",
-      "sha256": "0e0be6f27f5c6c17acc3d114da97f6e8e84dcaa61f2173ad7fdfcea042ecfa61",
-      "sourceBlob": "a1848b741dd85847e7fe7035da81572e8f1a2e2d"
+      "sha256": "1f60873e9fdbb2d51baa2a4ebc9f1b3f91a313dd3499a01a3aba74904b63968b",
+      "sourceBlob": "fe89c26aa48835dfb51579b0b2305b6be24b30aa"
     },
     {
       "path": "scripts/storage-recovery.py",
