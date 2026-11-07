@@ -1,0 +1,407 @@
+{
+  "schema": 1,
+  "result": "PASS_SCOPED_HIGH_RESOLUTION_NATIVE_READINESS",
+  "productSourceModified": false,
+  "realAppOrBrowserAcceptance": false,
+  "source": {
+    "productBase": "2e779f646ac4874344fac94f79103e8ddf9b02c8",
+    "productModuleSourceFilesMatchBase": true,
+    "executingCheckout": "018d67f81792590058c180e97bb480a4a1f80aca",
+    "buildCheckout": "832ef840f5212b342b6559ce8afa2b82eac066ae",
+    "harnessSHA256": "dea7fbdea8305c578873e4f51b0105786925482bd071036eca815b1fe2df375b",
+    "runtimeBinarySHA256": "b964ee847fbddfe4bd2aca707268cb51f1a9e61d6277ac175f21c2352811a79b",
+    "runtimeWrapperSHA256": "62783b0c0cd8887af218c8f504e940ab53f58dc1fa59dc4f9ec111d6f1b379ed",
+    "nativeBuildMeaning": "Optimized actual Core/Capture/UI modules with testing symbols. Build checkout is a baseline; exact sourceFiles and later executing checkout bind the harness."
+  },
+  "time": {
+    "startedUTC": "2026-11-06T23:40:05.457798+00:00",
+    "finishedUTC": "2026-11-07T00:40:22.562183+00:00",
+    "actualRunSeconds": 3616.456689083483,
+    "requestedMaintenanceSeconds": 3600,
+    "actualMaintenanceSeconds": 3600.017824333161
+  },
+  "fixtures": [
+    {
+      "encodedBytes": 158756,
+      "height": 2160,
+      "name": "landscape-4k",
+      "sha256": "4987b187d144475243fc89d25d672a78fbdb80167edbffca410ad83de8c67b25",
+      "width": 3840
+    },
+    {
+      "encodedBytes": 166786,
+      "height": 3840,
+      "name": "portrait-4k",
+      "sha256": "04a40f70177e90579d27aafc7191a7374c9c31c8de37087326f5fce40635d0c4",
+      "width": 2160
+    },
+    {
+      "encodedBytes": 140002,
+      "height": 1440,
+      "name": "ultrawide",
+      "sha256": "af4ada4ab069ecbeaaf0621fb332ff28b487c6a3554e9d10381ee127e711e1bc",
+      "width": 5120
+    },
+    {
+      "encodedBytes": 602242,
+      "height": 4320,
+      "name": "landscape-8k",
+      "sha256": "20adffa1f7bfeb60aacd6e693ccbae922817e2b8e88c8a9b029883c04276ecab",
+      "width": 7680
+    }
+  ],
+  "initialHistoryCount": 100,
+  "finalCaptureCount": 340,
+  "visibleQueueTarget": 10,
+  "caseOccurrences": 42,
+  "caseNames": {
+    "initial-history-and-ten-visible": 1,
+    "real-importer-deduplication": 1,
+    "actual-thumbnail-cache": 12,
+    "actual-history-preview-budget": 12,
+    "store-reopen-full-records-and-unknown": 12,
+    "stopped-arrivals-recovered": 1,
+    "temporary-private-file-unavailability": 1,
+    "bounded-maintenance-duration": 1,
+    "all-originals-media-and-unknown-preserved": 1
+  },
+  "metricsMS": {
+    "batch_first_write_to_durable_callbacks": {
+      "maximum": 1298.4965417999774,
+      "p50": 420.2911665197462,
+      "p95": 674.0252499002963,
+      "samples": 69,
+      "unit": "ms"
+    },
+    "file_write_to_durable_import_callback": {
+      "maximum": 3633.5690417326987,
+      "p50": 320.03616681322455,
+      "p95": 553.9919582661241,
+      "samples": 340,
+      "unit": "ms"
+    },
+    "fixture_generation": {
+      "maximum": 198.40141665190458,
+      "p50": 62.58579180575907,
+      "p95": 198.40141665190458,
+      "samples": 4,
+      "unit": "ms"
+    },
+    "history_all_pages_40": {
+      "maximum": 1.3956250622868538,
+      "p50": 1.3956250622868538,
+      "p95": 1.3956250622868538,
+      "samples": 1,
+      "unit": "ms"
+    },
+    "history_page_40_during_soak": {
+      "maximum": 1.8459584098309278,
+      "p50": 0.7048749830573797,
+      "p95": 1.5442916192114353,
+      "samples": 59,
+      "unit": "ms"
+    },
+    "history_preview_fit-retina": {
+      "maximum": 118.25579172000289,
+      "p50": 21.32062497548759,
+      "p95": 75.50387503579259,
+      "samples": 48,
+      "unit": "ms"
+    },
+    "history_preview_large-viewport-budget": {
+      "maximum": 218.58508326113224,
+      "p50": 18.450999865308404,
+      "p95": 141.07516664080322,
+      "samples": 48,
+      "unit": "ms"
+    },
+    "queue_read_ten": {
+      "maximum": 0.6009582430124283,
+      "p50": 0.06641657091677189,
+      "p95": 0.18004165031015873,
+      "samples": 61,
+      "unit": "ms"
+    },
+    "same_source_dedupe": {
+      "maximum": 0.07404154166579247,
+      "p50": 0.040499959141016006,
+      "p95": 0.048166606575250626,
+      "samples": 100,
+      "unit": "ms"
+    },
+    "store_and_collector_reopen": {
+      "maximum": 25614.88908343017,
+      "p50": 7603.225416736677,
+      "p95": 25614.88908343017,
+      "samples": 12,
+      "unit": "ms"
+    },
+    "thumbnail_app_cache_cold_128px": {
+      "maximum": 2403.547583380714,
+      "p50": 21.310791606083512,
+      "p95": 175.46945833601058,
+      "samples": 120,
+      "unit": "ms"
+    },
+    "thumbnail_app_cache_warm_128px": {
+      "maximum": 0.02966681495308876,
+      "p50": 0.00783335417509079,
+      "p95": 0.01504155807197094,
+      "samples": 120,
+      "unit": "ms"
+    }
+  },
+  "resources": {
+    "samples": 222,
+    "intervalSecondsFirstToLast": 3616.446278583491,
+    "processCPUSecondsDelta": 123.485949,
+    "oneCoreAveragePercent": 3.4145661095888764,
+    "maintenanceRSSBytes": {
+      "samples": 120,
+      "minimum": 15794176,
+      "median": 37322752,
+      "p95": 45039616,
+      "maximum": 49102848
+    },
+    "wholeProcessPeakRSSBytes": 434601984,
+    "syntheticLogicalBytes": {
+      "samples": 222,
+      "minimum": 0,
+      "median": 119645135,
+      "p95": 175600640,
+      "maximum": 183955899
+    },
+    "quietMaintenanceIntervals": 60,
+    "quietMaintenanceSeconds": 1666.7207826247904,
+    "quietMaintenanceCPUSecondsDelta": 0.3844839999999312,
+    "quietMaintenanceOneCoreAveragePercent": 0.023068290982394598,
+    "quietScope": "Adjacent maintenance samples with equal capture counts; collector remains active. Not full-App idle.",
+    "peakScope": "Includes 8K fixture generation and large preview decoding; not steady resident memory or per-image display budget."
+  },
+  "previewDecodeCount": 96,
+  "allPreviewDecodesWithinExistingBudgets": true,
+  "latencyInterpretation": {
+    "normalBatch": "69 batches of ten/four files, measured from first write to all actual durable import callbacks. Not first visible thumbnail.",
+    "allFileMetric": "340 files including four deliberately written while the collector was stopped. Its maximum is not a normal-arrival latency.",
+    "reopen": "12 store+collector reopens including real recovery; median 7.603s and max25.615s are retained, not hidden behind functional PASS.",
+    "thumbnail": "120 app-cache cold requests; p95 175.47ms and max2403.55ms. Warm requests do not control OS cache.",
+    "budget": "PASS verifies correctness, once-only records and existing decode budgets. It does not establish an overall consumer UI latency SLA."
+  },
+  "freshProcess": {
+    "allPriorFullAssetRecordsEqual": true,
+    "assetCount": 340,
+    "completed": true,
+    "mediaVerified": 340,
+    "productionDataAccess": false,
+    "recoveryElapsedSeconds": 10.483999833464622,
+    "result": "PASS_SCOPED_FRESH_PROCESS_RECOVERY",
+    "schema": 1,
+    "scope": "Same native probe binary in a new process; real QueueStore/importer recovery. Not an installed App restart or system login.",
+    "unknownFullOperationEqual": true,
+    "uploadStarts": 0
+  },
+  "database": {
+    "quickCheck": "ok",
+    "foreignKeyViolations": 0,
+    "tables": {
+      "assets": 340,
+      "checkpoints": 3,
+      "compensations": 0,
+      "metadata": 2,
+      "operations": 1,
+      "sqlite_sequence": 2,
+      "upload_starts": 0
+    },
+    "typedRowHashes": {
+      "assets": "28c4b4f2911cd48c7c41f0f421fe0762ed17bb3564498240c9f350b3df7b860b",
+      "checkpoints": "1e4e2e99134b7b065d4ffed2a4bc3e31bbd4e48ab14d76738b524f27952b91d7",
+      "compensations": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "metadata": "3926eaf8a4351b76f40e5a0c4ce887572cb017583ab3873d384885dcda57dacf",
+      "operations": "b0f6da725a3dfa43c49b8325fccae573484dc904273f1427b6d6be2ef6113e5c",
+      "sqlite_sequence": "3e9bf78bde472bf9ebd00f5cfbf4f9e02fb21703996c5846edf67865d4d5d78f",
+      "upload_starts": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "schemaSHA256": "04b043caf5f2b592719c1a5a7ef57e876ea2bb874462b01c6254a493d739f096",
+    "unknownFullRowSHA256": "89697df7670ef33af0d74e194ea0f48f2c29e85259f626a6aa3c3c994b6ce3e1"
+  },
+  "allTypedRowsAndSchemaUnchangedAcrossFreshProcess": true,
+  "allFileManifestEntriesRehashed": 1034,
+  "storageGrowth": {
+    "result": "COMPLETED_METADATA_SAMPLING",
+    "sampleCount": 44,
+    "firstUTC": "2026-11-06T23:57:28.400651+00:00",
+    "lastUTC": "2026-11-07T00:40:29.162649+00:00",
+    "databaseLogicalBytes": {
+      "queue.sqlite": {
+        "first": 225280,
+        "last": 364544,
+        "minimum": 225280,
+        "maximum": 364544,
+        "deltaFirstToLast": 139264
+      },
+      "queue.sqlite-wal": {
+        "first": 370832,
+        "last": 0,
+        "minimum": 0,
+        "maximum": 865232,
+        "deltaFirstToLast": -370832
+      },
+      "queue.sqlite-shm": {
+        "first": 32768,
+        "last": 32768,
+        "minimum": 32768,
+        "maximum": 32768,
+        "deltaFirstToLast": 0
+      }
+    },
+    "firstAssetsObserved": 172,
+    "lastAssetsObserved": 340,
+    "mediaLogicalBytesFirst": 45914798,
+    "mediaLogicalBytesLast": 90761810,
+    "scope": "Read-only stat began about17minutes after native start; earlier DB/WAL sizes were not measured. Samples are not atomic DB snapshots, APFS allocation, or reclaimable-space estimates."
+  },
+  "runtimeEnvironment": {
+    "schema": 1,
+    "recordedUTC": "2026-11-07T00:11:43.248428+00:00",
+    "scope": "Runtime environment sampled while the isolated probe was running; no host name, serial number, hardware UUID or user paths.",
+    "macOS": {
+      "productVersion": "27.0",
+      "buildVersion": "26A428"
+    },
+    "architecture": "arm64",
+    "hardware": {
+      "hw.model": "Mac17,3",
+      "hw.memsize": "25769803776",
+      "hw.ncpu": "10",
+      "hw.physicalcpu": "10",
+      "hw.logicalcpu": "10",
+      "machdep.cpu.brand_string": "Apple M5"
+    }
+  },
+  "concurrentWork": "Root is concurrently performing GUI acceptance and release container verification on this Mac; hardware is not isolated. Metrics attribute only this probe process CPU/RSS. Later included this lane's isolated Core/Capture build and bounded ENOSPC probe; supplemental context is pinned.",
+  "wrapperSourceBindingCorrection": {
+    "finding": "PERF-IDENTITY-01: original build/reuse manifest omitted Package.swift and two CSQLite inputs and only hashed after compilation.",
+    "runtimeEvidencePreserved": true,
+    "additionalInputsVerifiedAfterTheFact": true,
+    "sidecarSHA256": "e618a64ef2a012f4e8fdd6fe7ed62d5d5fe9e7d9d9e8c8bf18f72720072b86de",
+    "correctedWrapperSHA256": "09aa63e52810a8819fc5a4d7136c17e5759950ca73d97c57dcf93ec9d127d35f",
+    "appliedOnlyAfterOriginalShellExited": true,
+    "guardFixtures": {
+      "count": 7,
+      "result": "PASS_SCOPED_CONTROLLED_SOURCE_BINDING_FIXTURES",
+      "actualSwiftOrNativeRun": false,
+      "compilerAndNativeExecutable": "Explicit stubs; validates actual shell/Python source-binding branches, not native product behavior.",
+      "resultSHA256": "7933f9bbe1e0cdb70b2be55ac080f8873e7d7606182d6669ac02472585e219cf"
+    },
+    "independentFixReviewSHA256": "b18b5bcb451b722affac5af662189e7cfc5c52c30d32b981495654c78f414908"
+  },
+  "independentPreliminaryReviewSHA256": "bf8490755f2fbd10df55a320d9bf535d5b7d16d16f1208680f3a870f386412d6",
+  "finalIndependentResultReview": "PENDING_AT_THIS_CHECKPOINT",
+  "notMeasured": [
+    "Full App UI-visible latency",
+    "Physical screenshots",
+    "Browser/network/upload",
+    "Installed App restart",
+    "System sleep/wake",
+    "Disk full",
+    "Adversarial image noise"
+  ],
+  "xctest": "NOT_RUN_LOCAL_CLT",
+  "rawEvidence": [
+    {
+      "basename": "runner-result.json",
+      "sha256": "5d204d19932ba92605c1066cc3b85956bcd8f85086620ecc6b3c48ece70087b5",
+      "bytes": 2214
+    },
+    {
+      "basename": "process.json",
+      "sha256": "eee980e302a397da03ca0c276af9a61b7ebbec19d005114c88d671ff96eccd4b",
+      "bytes": 458
+    },
+    {
+      "basename": "build-identity.json",
+      "sha256": "4c194ed73cf47ba4cf142ca0431368ddaf74d7a77a5433833a73d408b2fc1940",
+      "bytes": 15759
+    },
+    {
+      "basename": "file-manifest.json",
+      "sha256": "6978be2b4a34748c29cc20970377b99a47265061f6393f455a7a2b57084a6bf6",
+      "bytes": 194414
+    },
+    {
+      "basename": "pre-restart-database.json",
+      "sha256": "de5da33d77c512019b3038d54930115522a224a23ca2abf9a5cfc2ed0e6478a8",
+      "bytes": 1041
+    },
+    {
+      "basename": "runtime.log",
+      "sha256": "cbb533c52ce4123ba5fb02969ea7a6406633409c91ac87964a5779d945e43e91",
+      "bytes": 52729
+    },
+    {
+      "basename": "restart-runtime.log",
+      "sha256": "995ce0d87696575d9721c618a4d93e2f9fa12d0c573006a1eff8f65bff0f5a76",
+      "bytes": 29
+    },
+    {
+      "basename": "additional-build-inputs-readonly.json",
+      "sha256": "e618a64ef2a012f4e8fdd6fe7ed62d5d5fe9e7d9d9e8c8bf18f72720072b86de",
+      "bytes": 1172
+    },
+    {
+      "basename": "report.json",
+      "sha256": "77dc2bb4afd8aa3cdbd3d909777f2f262371e76e7db0d946407c78148ab5dc80",
+      "bytes": 140222
+    },
+    {
+      "basename": "restart-report.json",
+      "sha256": "8fe9de28b9a209e839a5ca2150e2a7e3022bea7590bf902f99bc756a9261cf95",
+      "bytes": 480
+    },
+    {
+      "basename": "resources.jsonl",
+      "sha256": "d3b484b9b54beedb3f85352b333b80731db98fef82dde8fc44a1b7cfff2e21b6",
+      "bytes": 49294
+    },
+    {
+      "basename": "final-assets.json",
+      "sha256": "882d52ee6b1b605cace9be86e09cd3030c251b133efe79d1a0342da5c34dad4c",
+      "bytes": 190434
+    },
+    {
+      "basename": "unknown-operation.json",
+      "sha256": "f0d5c063429b964ae8a913028d6952d2153f49b926f266e9c85cf46dfdc480de",
+      "bytes": 416
+    },
+    {
+      "basename": "storage-usage.json",
+      "sha256": "a6514d2dd9b5d6ee0bb5a2295d85516588bdee0ae9f97b789b1c2d7afb637e1f",
+      "bytes": 671
+    },
+    {
+      "basename": "completed-artifact-check.json",
+      "sha256": "25c05aa4f6640d4b37a5645bd62a4347c0349b6d31b3bdabb42fc5db6710b3fd",
+      "bytes": 18396
+    },
+    {
+      "basename": "storage-growth.jsonl",
+      "sha256": "535e2c31fc819a10ba20417dc2a7ac07d14d089e80482d4ed09fdd2d0a2cdf31",
+      "bytes": 22275
+    },
+    {
+      "basename": "storage-growth-summary.json",
+      "sha256": "228c799b7422eee42622ee3afaf3b15aecfe4fd7df016ef2dd08bb1960f647e9",
+      "bytes": 570
+    },
+    {
+      "basename": "runtime-environment.json",
+      "sha256": "51e07a426870b74b78aa7f51be17ee71bf8ab25dfa79b233bf3b0ac750270301",
+      "bytes": 513
+    },
+    {
+      "basename": "additional-concurrency-context.json",
+      "sha256": "1a956022a647db84e0fd0888033545c0754ee2e2b6dc7c30a92d2994c9e0cac8",
+      "bytes": 534
+    }
+  ]
+}

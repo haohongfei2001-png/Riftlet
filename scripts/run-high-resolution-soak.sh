@@ -33,6 +33,16 @@ os.mkdir(p,0o700)
 (p/'runs').mkdir()
 PY
 
+python3 - "$riftlet_hires_output" <<'PYINPUTS'
+from pathlib import Path
+import hashlib,json,sys
+files=[p for area in ['RiftletCore','RiftletCapture','RiftletUI'] for p in Path('Sources',area).rglob('*') if p.is_file()]
+files += [Path('Tests/Readiness/NativeHighResolutionSoak.swift'), Path('Package.swift')]
+files += [p for p in Path('Sources/CSQLite').rglob('*') if p.is_file()]
+inputs={str(p):hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(files)}
+(Path(sys.argv[1])/'source-inputs-before.json').write_text(json.dumps(inputs,indent=2)+'\n')
+PYINPUTS
+
 riftlet_hires_runner="$riftlet_hires_output/high-resolution-soak"
 if [[ -n "$riftlet_hires_prepared" ]]; then
   python3 - "$riftlet_hires_prepared" "$riftlet_hires_output" <<'PY'
@@ -42,12 +52,16 @@ old,new=map(Path,sys.argv[1:])
 identity=json.loads((old/'build-identity.json').read_text())
 def sha(p): return hashlib.sha256(p.read_bytes()).hexdigest()
 files=[p for area in ['RiftletCore','RiftletCapture','RiftletUI'] for p in Path('Sources',area).rglob('*') if p.is_file()]
-files += [Path('Tests/Readiness/NativeHighResolutionSoak.swift')]
+files += [Path('Tests/Readiness/NativeHighResolutionSoak.swift'), Path('Package.swift')]
+files += [p for p in Path('Sources/CSQLite').rglob('*') if p.is_file()]
 current={str(p):sha(p) for p in sorted(files)}
+assert current==json.loads((new/'source-inputs-before.json').read_text()), 'Source inputs changed during preparation'
 assert current==identity['sourceFiles'], 'Prepared native modules do not match current source bytes'
 binary=old/'high-resolution-soak'
 assert not binary.is_symlink() and sha(binary)==identity['binarySHA256'], 'Prepared runner hash mismatch'
 shutil.copy2(binary,new/'high-resolution-soak')
+assert {str(p):sha(p) for p in sorted(files)}==current, 'Source inputs changed during reuse'
+identity['sourceInputsVerifiedBeforeAndAfterReuse']=True
 identity['reusedPreparedIdentitySHA256']=sha(old/'build-identity.json')
 identity['executingScriptSHA256']=sha(Path('scripts/run-high-resolution-soak.sh'))
 identity['executingCheckoutCommit']=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
@@ -68,9 +82,12 @@ import hashlib,json,subprocess,sys
 out=Path(sys.argv[1])
 def sha(p): return hashlib.sha256(p.read_bytes()).hexdigest()
 files=[p for area in ['RiftletCore','RiftletCapture','RiftletUI'] for p in Path('Sources',area).rglob('*') if p.is_file()]
-files += [Path('Tests/Readiness/NativeHighResolutionSoak.swift')]
-identity={'schema':1,'sourceCommit':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),
- 'sourceFiles':{str(p):sha(p) for p in sorted(files)},'binarySHA256':sha(out/'high-resolution-soak'),
+files += [Path('Tests/Readiness/NativeHighResolutionSoak.swift'), Path('Package.swift')]
+files += [p for p in Path('Sources/CSQLite').rglob('*') if p.is_file()]
+inputs={str(p):sha(p) for p in sorted(files)}
+assert inputs==json.loads((out/'source-inputs-before.json').read_text()), 'Source inputs changed during compilation; identity not published'
+identity={'schema':1,'sourceInputsVerifiedBeforeAndAfterBuild':True,'sourceCommit':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),
+ 'sourceFiles':inputs,'binarySHA256':sha(out/'high-resolution-soak'),
  'moduleBuild':'release optimization with -enable-testing; no product source modification',
  'harnessBuild':'swiftc -O; actual three native module object files',
  'scriptSHA256':sha(Path('scripts/run-high-resolution-soak.sh')),
