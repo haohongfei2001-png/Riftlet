@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "sourceBaseline": "d46d47682d9ebe6df2928cebb69411ff8746604c",
-  "scope": "Consumer documentation source audit: unchanged main runtime plus independently reviewed release-tool successor; no runtime execution in this inheritance update",
+  "sourceBaseline": "5bd15e153fd92165b66f1f9d655eecfbf193e9dd",
+  "scope": "Consumer documentation source audit: unchanged main runtime plus explicit-label, archive-pin and original-logo icon packaging successors; source-only semantic review, no new runtime acceptance",
   "files": [
     {
       "path": "Sources/RiftletApp/OrdinaryCaptureConfiguration.swift",
@@ -160,8 +160,8 @@
     },
     {
       "path": "scripts/release-tool.py",
-      "sha256": "2b4cd25440750dc49d168d889f4697d4bbce903f8b73b8ba2df6710f720842da",
-      "sourceBlob": "d476507b4d94c69a68d57066d6f7a2c28b0e0738"
+      "sha256": "0e0be6f27f5c6c17acc3d114da97f6e8e84dcaa61f2173ad7fdfcea042ecfa61",
+      "sourceBlob": "a1848b741dd85847e7fe7035da81572e8f1a2e2d"
     },
     {
       "path": "scripts/storage-recovery.py",
