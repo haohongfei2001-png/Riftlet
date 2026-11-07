@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "sourceBaseline": "2fbb0661d1aeb3126fea3537ece6625c16649124",
-  "scope": "Consumer first use, folder access, history, storage and direct-download guidance. The previous binding is retained verbatim. This checkpoint only updates the sources for restoring a selected folder, watching it and explaining how to select it again. Existing attachment and distribution sources are unchanged.",
+  "sourceBaseline": "558b62f54963cb48790597c94f8e4e85eeda7dd6",
+  "scope": "Consumer first use, folder access, history, storage and direct-download guidance. The previous binding is retained verbatim. This checkpoint updates the sources for restoring a selected folder, watching it, preserving the identity of files in a retiring folder and explaining how to select a folder again. Existing attachment and distribution sources are unchanged.",
   "files": [
     {
       "path": "Sources/RiftletApp/OrdinaryCaptureConfiguration.swift",
@@ -110,8 +110,8 @@
     },
     {
       "path": "Sources/RiftletCapture/CaptureService.swift",
-      "sha256": "386aee0743a344e38535adf5e337c5050570453a162f1bb2ea50adc55b4eb37f",
-      "sourceBlob": "a74fa458024d5b2781e89916bf4d214a227ff7c3"
+      "sha256": "afb9abbe96148f8dc4e6784c45d19f3020494d5e5eaa110b9ccde5a229664134",
+      "sourceBlob": "f3d164d35973418643dbf508d9d28c32823a72a4"
     },
     {
       "path": "Sources/RiftletCapture/CaptureSourceBinding.swift",
@@ -219,9 +219,19 @@
       "sourceBlob": "f2502a5e263c3ae1219e4eafcd06f4d8dde664c8"
     },
     {
+      "path": "Sources/RiftletCapture/FileValidation.swift",
+      "sha256": "a85861a32d587993fafb64820b224fc58f834beab15b97eb0e334335e9c6f4c8",
+      "sourceBlob": "85eb4d37f1802e0504655bfa0bb610ee9e95d9a5"
+    },
+    {
       "path": "Sources/RiftletCapture/FolderWatcher.swift",
       "sha256": "3a8e3ed69746467b7f506cce95e6f62c2554e2ac82265726bce52bf3efc5ca24",
       "sourceBlob": "fc89c7f93d674d29d557c2ea19ef71903cde948e"
+    },
+    {
+      "path": "Sources/RiftletCapture/RetiredCaptureDirectory.swift",
+      "sha256": "d5581190e31f3aeb1a309c18989a2da70e20333fd6664efdbc5ca093fc891fb0",
+      "sourceBlob": "d4b7e5a326baa6863bc73c1432bbdc16cf5126b7"
     }
   ],
   "previousSourceBinding": {
