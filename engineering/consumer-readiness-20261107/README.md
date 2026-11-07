@@ -30,3 +30,5 @@
 - 发布源 API 返回 `public: true`、`build_type: legacy`、`source: {branch: main, path: /}`。拆分前实际首页返回 200，SHA-256 为 `41ec2e00d28213f41113e7aa83196d6afdcffe4f7613aba00787e7220f3a7fc1`；三个目录及英文页各返回 404。已有未导航 Markdown 可以直接读取。因此不能以 `noindex` 或不链接代替访问限制。
 - 本轮只枚举 Chrome 连接，没有枚举私人标签。一个扩展要求新标签为活动状态，却不支持所需的可见性操作；另一条 Chrome 连接在 14 秒内没有应答。未取得能操作的专用草稿。首张、连续第二张、原有正文及附件、setter/change、真实 START、失败和 UNKNOWN 都是 **REAL_ACCEPTANCE_NOT_RUN**。没有发送消息或重试不确定的输入。
 - 现有 CSR 再次通过自签名和 SHA-256 检查，没有新建密钥或导入证书。对原通用演练包固定 manifest `30fef5518d10bfa36387496c476534e9f9266fe14dd5061962c36ce9079aa801` 运行离线校验，得到 `OFFLINE_CONTENTS_MATCH`、`PREPARED`；Gatekeeper 和正式签名未运行。这是原 `1b209ddf` 演练包的收据，不是本次合并提交的正式安装包。
+- 新账户作业另在一次性 GitHub 托管 Mac 上观察 macOS「自动化」：两个新身份分别触发真实产品权限检查，目标是唯一自建、空白 profile 的 Chrome 进程，不打开 ChatGPT。只把匹配请求方和接收方的系统 UI、实际动作和前后权限读值同时吻合的阶段记为观察到；拒绝后重启、在系统设置恢复分别记录。文件夹访问另有独立报告，不能由自动化权限推断。普通 App 首启、托管测试身份和个人 Beta 安装也分别计数。结果保存在同一次正式 fresh-account 归档的 `automation-consent.json`。
+- [隐私设计](../../docs/PRIVACY_AND_DATA.md)列出了旧导入器重建暂存媒体、旧 reader 拒绝未来 schema、旧备份还原图片的隔离结果。[闭测方案](../productization-20261107/consumer/CLOSED-BETA-PLAN.md)给出先 4 人、再增加 8 人的示例及发放、停发、退出条件；无邀请或收集参与者数据。

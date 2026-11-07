@@ -42,6 +42,9 @@ jobs:
       - name: Observe permissions and bookmarks with a separate App identity
         if: ${{ !cancelled() }}
         run: python3 -B Tests/ReleaseIdentityHost/run.py --output test-results/release-identity-host.json
+      - name: Observe first Automation decisions on a disposable Chrome profile
+        if: ${{ !cancelled() }}
+        run: python3 -B Tests/ReleaseIdentityHost/automation.py --output test-results/automation-consent.json
       - name: Exercise candidate settings and restart in an isolated profile
         if: ${{ !cancelled() }}
         run: bash scripts/run-settings-review.sh "$RUNNER_TEMP/New.app" "$PWD/test-results/settings-review"
@@ -52,6 +55,7 @@ jobs:
           path: |
             test-results/ordinary-upgrade.json
             test-results/release-identity-host.json
+            test-results/automation-consent.json
             test-results/settings-review/*runner-result.json
           if-no-files-found: error
           retention-days: 14
