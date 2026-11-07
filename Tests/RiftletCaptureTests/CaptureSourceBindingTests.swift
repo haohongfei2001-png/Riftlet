@@ -266,6 +266,36 @@ final class CaptureSourceBindingTests: XCTestCase {
         await service.stop()
     }
 
+    func testRetiredSnapshotEnumeratesTheOpenedDirectoryWhenItsNameIsReplaced() throws {
+        let f = try Fixture(); defer { f.close() }
+        var info = stat()
+        XCTAssertEqual(lstat(f.first.path, &info), 0)
+        let identity = WatchedFileIdentity(info)
+        let opened = try XCTUnwrap(RetiredCaptureDirectory(url: f.first, identity: identity))
+        // A late original, an unrelated file at the same name, and a link out.
+        let late = f.first.appendingPathComponent("late.png")
+        let decoy = f.second.appendingPathComponent("late.png")
+        let hidden = f.first.appendingPathComponent(".hidden.png")
+        let invisible = f.first.appendingPathComponent("invisible.png")
+        for file in [late, decoy, hidden, invisible] { try png().write(to: file); try mark(file) }
+        var finderInfo = [UInt8](repeating: 0, count: 32)
+        finderInfo[8] = 0x40
+        XCTAssertEqual(finderInfo.withUnsafeBytes { setxattr(invisible.path, "com.apple.FinderInfo", $0.baseAddress, $0.count, 0, 0) }, 0)
+        let original = try FileSignature.read(at: late)
+        let unrelated = try FileSignature.read(at: decoy)
+        try FileManager.default.createSymbolicLink(at: f.first.appendingPathComponent("linked.png"), withDestinationURL: decoy)
+        let moved = f.root.appendingPathComponent("moved", isDirectory: true)
+        try FileManager.default.moveItem(at: f.first, to: moved)
+        try FileManager.default.moveItem(at: f.second, to: f.first)
+        XCTAssertNil(RetiredCaptureDirectory(url: f.first, identity: identity))
+        let result = opened.candidates()
+        XCTAssertTrue(result.complete)
+        XCTAssertEqual(result.files.map { $0.1.sourceKey }, [original.sourceKey])
+        XCTAssertNotEqual(original.sourceKey, unrelated.sourceKey)
+        let file = try XCTUnwrap(result.files.first)
+        XCTAssertEqual(try FileSignature.read(at: file.0).sourceKey, original.sourceKey)
+    }
+
     func testFailedSwitchPreservesLastWorkingSource() async throws {
         let f = try Fixture(); defer { f.close() }
         let clock = SourceTestClock()
