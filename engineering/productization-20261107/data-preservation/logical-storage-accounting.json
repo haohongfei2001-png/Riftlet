@@ -1,0 +1,39 @@
+{
+  "schema": "riftlet.productization.storage-accounting.v1",
+  "capturedUTC": "2026-11-06T23:27:13.030762+00:00",
+  "source": "already verified offline production backup manifest; no live SQLite opened",
+  "manifestSHA256": "9e804c8e868b186d23e763ea136c7e24c97f8be77d342ed17de1c34850bb6626",
+  "categories": {
+    "feedback": {
+      "files": 2,
+      "logicalBytes": 36864
+    },
+    "configurationAndLocks": {
+      "files": 5,
+      "logicalBytes": 787
+    },
+    "diagnostics": {
+      "files": 2,
+      "logicalBytes": 70604
+    },
+    "journal": {
+      "files": 96,
+      "logicalBytes": 40390
+    },
+    "media": {
+      "files": 96,
+      "logicalBytes": 152190127
+    },
+    "queueDatabaseAndSidecars": {
+      "files": 3,
+      "logicalBytes": 833224
+    }
+  },
+  "totalFiles": 204,
+  "totalLogicalBytes": 153171996,
+  "limitations": [
+    "Logical bytes of the protected Riftlet data-root snapshot, not allocated filesystem blocks or current live size.",
+    "Original system screenshots outside the Riftlet root, UserDefaults, App bundle and separate backup packages are not included.",
+    "Local archive/queue removal retains media; no retention rule or deletion is introduced."
+  ]
+}

@@ -3,6 +3,7 @@
 All evidence levels remain separate: observed complete-App CUA/AX/CGEvent, real native framework/collector/storage tests, synthetic projections, formal CI, inherited records, and blocked/not-run paths. Passing a helper process is never sufficient by itself.
 
 - [Native complete-App result matrix](native/acceptance.json), [original screenshots/movies](native/visual/index.html), [exact artifact hashes](native/artifacts.json), [Pro desktop baseline](native/desktop-baseline.json).
+- [Production data, restore drill and logical storage](data-preservation/README.md): offline exact-byte/typed-row equality; no live database reads or cleanup.
 - [Current SMAppService lifecycle](login/README.md): unique isolated probe,7 stages; production login unchanged.
 - [Release validation](release/README.md): actual ARM64 PREPARED build and verified ZIP/DMG; mocks labelled;0 signing identities.
 - [High-resolution real native tests](performance/README.md): distinct from previous1200 small images; sustained run pending completion at this checkpoint.
