@@ -1,0 +1,68 @@
+{
+  "schema": "riftlet.productization.source-scope.v1",
+  "base": "2e779f646ac4874344fac94f79103e8ddf9b02c8",
+  "checkpoint": "07e865e725e6c04527104c999216187561a61c83",
+  "method": "Git object identity at the recorded commits, including tracked tree modes; no build or physical acceptance inferred",
+  "unchangedProductScopes": [
+    {
+      "path": "Sources/RiftletApp",
+      "baseObject": "7d6e8c6cb404d80c441f38ae106417205c097444",
+      "currentObject": "7d6e8c6cb404d80c441f38ae106417205c097444",
+      "unchanged": true
+    },
+    {
+      "path": "Sources/RiftletCore",
+      "baseObject": "39f8e1e846ce660ce3694ecff093c0b4e95baed2",
+      "currentObject": "39f8e1e846ce660ce3694ecff093c0b4e95baed2",
+      "unchanged": true
+    },
+    {
+      "path": "Sources/RiftletCapture",
+      "baseObject": "05af4cd34016facd50488ebbd86b15f8ea31c95a",
+      "currentObject": "05af4cd34016facd50488ebbd86b15f8ea31c95a",
+      "unchanged": true
+    },
+    {
+      "path": "Sources/RiftletUI",
+      "baseObject": "c4d9ac4806efbb3dd0751d4245af247c88c132d4",
+      "currentObject": "c4d9ac4806efbb3dd0751d4245af247c88c132d4",
+      "unchanged": true
+    },
+    {
+      "path": "Sources/RiftletAdapters",
+      "baseObject": "b48b0ffce795bd8e560bed9ae040fefc1cd64fd6",
+      "currentObject": "b48b0ffce795bd8e560bed9ae040fefc1cd64fd6",
+      "unchanged": true
+    },
+    {
+      "path": "Sources/CSQLite",
+      "baseObject": "b09e2c80f8ca3beaacb84be61d257db6e3ce97b5",
+      "currentObject": "b09e2c80f8ca3beaacb84be61d257db6e3ce97b5",
+      "unchanged": true
+    },
+    {
+      "path": "Package.swift",
+      "baseObject": "d3cdd0d51ad937b1afb243cd866cf0071f408d49",
+      "currentObject": "d3cdd0d51ad937b1afb243cd866cf0071f408d49",
+      "unchanged": true
+    },
+    {
+      "path": "website-assets/riftlet.svg",
+      "baseObject": "8742e132f43b61819e8550ad24eb8552d8621d9f",
+      "currentObject": "8742e132f43b61819e8550ad24eb8552d8621d9f",
+      "unchanged": true
+    },
+    {
+      "path": ".github/workflows",
+      "baseObject": "819f08ecc650421d3b314bf80d3802ad80fe4990",
+      "currentObject": "819f08ecc650421d3b314bf80d3802ad80fe4990",
+      "unchanged": true
+    }
+  ],
+  "changedSourceFiles": [
+    "Sources/RiftletGUIAcceptance/AcceptanceMain.swift"
+  ],
+  "helperChange": "Six lines make actual setup/export failure return1 after existing cleanup; normal termination returns0. No product executable source changed.",
+  "otherProductPackageChanges": "Info version/build/label aligned with already installed Beta3; approved original SVG converted to ICNS and declared/copied in two packaging routes. Candidate remains separate from installed App.",
+  "productionAdmission": "All existing fields unchanged; source review and actual formal CI remain required."
+}
