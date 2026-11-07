@@ -13,8 +13,11 @@ A guarded software mouse reached a thumbnail and one popover pause control. Ordi
 ## Objective fixes this sprint
 
 - Release ZIP packaging now binds extracted candidate identity to the expected external manifest pin; a separately reproduced wrong-valid-ZIP case is rejected.
-- Explicit version/build/label handling removes a Beta2 label from new Beta3 packaging; checked-in Info metadata now matches the already installed0.3.0(3) label.
+- Explicit version/build/label handling removes a Beta2 label from new Beta3 packaging; the installed baseline was identified as 0.3.0(3), while the maintenance candidate is explicitly 0.3.1(4).
 - Native evidence export/setup failure now returns nonzero after cleanup. The original window-readiness failure remains, with honest NOT_RUN visuals.
+
+- Committed-media recovery no longer repeats pixel decoding for byte-identical validated media. The measured 340-record improvement and independent cold-thumbnail limit are recorded [with exact boundaries](performance/RECOVERY-COST.md).
+- The approved, unchanged original SVG now supplies the packaged macOS icon. [All ten native representations](icon/README.md) were decoded and compared to the original raster.
 
 ## Remaining design evidence gaps
 
