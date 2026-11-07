@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#fcfbf8">
+  <meta name="robots" content="noindex">
+  <meta name="description" content="Start with a screenshot you’re comfortable sharing. The Riftlet icon in your Mac menu bar opens settings, history and feedback.">
+  <title>Getting started · Riftlet</title>
+  <link rel="icon" href="../website-assets/riftlet.svg" type="image/svg+xml">
+  <link rel="alternate" hreflang="zh-CN" href="index.html">
+  <link rel="stylesheet" href="../website-v2.css">
+  <link rel="stylesheet" href="../website/consumer.css">
+</head>
+<body class="consumer">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="consumer-header">
+    <div class="consumer-bar page-width">
+      <a class="brand" href="../index.html?lang=en" aria-label="Riftlet homepage">
+        <img src="../website-assets/riftlet.svg" width="31" height="31" alt=""><span>Riftlet</span>
+      </a>
+      <nav class="page-nav" aria-label="Main navigation">
+        <a href="../download/en.html">Downloads</a>
+        <a href="../guide/en.html" aria-current="page">Getting started</a>
+        <a href="../privacy/en.html">Privacy & data</a>
+      </nav>
+      <a class="language-link" href="index.html" hreflang="zh-CN" lang="zh-CN">中文</a>
+    </div>
+  </header>
+  <main id="main" class="page-width" tabindex="-1">
+    <div class="title-block">
+      <h1>Getting started</h1>
+      <p class="intro">Start with a screenshot you’re comfortable sharing. The Riftlet icon in your Mac menu bar opens settings, history and feedback.</p>
+    </div>
+    <nav class="contents" aria-label="On this page">
+      <a href="#start">Quick start</a>
+      <a href="#install">Installation</a>
+      <a href="#permissions">Permission recovery</a>
+      <a href="#faq">FAQ</a>
+      <a href="#feedback">Feedback</a>
+    </nav>
+
+    <section class="topic" id="start" aria-labelledby="start-title">
+      <h2 id="start-title">Quick start</h2>
+      <div class="copy">
+        <ol>
+          <li><strong>Check the save location.</strong> Open Settings → Permissions & Help (权限与帮助). If access is needed, choose 允许访问此位置… and select the screenshot folder shown there.</li>
+          <li><strong>Take a screenshot as usual.</strong> Use Shift-Command-4 for a region, or your usual macOS shortcut. Once the file is saved, look for the thumbnail at the screen edge. Clipboard-only captures are not collected.</li>
+          <li><strong>Click the edge thumbnail.</strong> Keep the intended chat active in Chrome, with an editable draft that accepts images. The text field does not need keyboard focus. The thumbnail retracts when the draft begins accepting that image.</li>
+        </ol>
+        <p>Check the new attachment, your text and any existing attachments in the original draft. You can click a different screenshot next. You decide when to send the message.</p>
+      </div>
+    </section>
+
+    <section class="topic" id="install" aria-labelledby="install-title">
+      <h2 id="install-title">Installation</h2>
+      <div class="copy">
+        <p>There is no public installer. If the maintainer supplies an approved test build, check its source, architecture, version and SHA-256 against the delivery instructions. If Riftlet is already installed, quit it first and keep the previous App and a verified backup.</p>
+        <p>If macOS blocks the App, keep the alert and contact the maintainer who supplied it. Leave system protections in place while you wait for a verified package.</p>
+        <p><a href="../privacy/en.html#backup">Backups, updates and rollback</a></p>
+      </div>
+    </section>
+
+    <section class="topic" id="permissions" aria-labelledby="permissions-title">
+      <h2 id="permissions-title">Permission recovery</h2>
+      <div class="copy">
+        <dl class="facts">
+          <dt>Screenshot folder</dt>
+          <dd>In 权限与帮助, select the folder shown. If needed, check System Settings → Privacy & Security → Files & Folders. Return to Riftlet and choose 重新检查 to check again. Riftlet leaves the macOS save location as you set it.</dd>
+          <dt>Automation permission</dt>
+          <dd>Open Chrome, then choose 检查 Chrome 权限… in Riftlet. If you previously denied access, open System Settings → Privacy & Security → Automation and allow Google Chrome under Riftlet. Return to the App and check again.</dd>
+          <dt>Chrome’s JavaScript setting</dt>
+          <dd>In Chrome, choose View → Developer → Allow JavaScript from Apple Events. This setting and macOS Automation are separate requirements for the browser handoff. You can continue collecting screenshots locally with the Chrome connection off.</dd>
+          <dt>Optional built-in capture</dt>
+          <dd>Riftlet’s own window, region and screen capture tools need screen recording permission. You can continue to use normal macOS screenshot files without granting it to Riftlet.</dd>
+        </dl>
+        <p><a href="https://www.chromium.org/developers/applescript/">See Chromium’s menu instructions</a></p>
+      </div>
+    </section>
+
+    <section class="topic" id="faq" aria-labelledby="faq-title">
+      <h2 id="faq-title">FAQ</h2>
+      <div class="copy">
+        <details>
+          <summary>Why did my screenshot not appear?</summary>
+          <p>Wait for the floating macOS preview to save as a file. In the menu bar check 暂停收录 (pause collection) and 隐藏裂缝 (hide thumbnails), then check folder access and free space. Eligible screenshots still in the folder may be collected when you resume.</p>
+        </details>
+        <details>
+          <summary>What if there is no chat ready?</summary>
+          <p>The thumbnail stays at the edge. Bring the intended chat to the front in Chrome and make sure its draft can accept an image. Click again only if the App explicitly says the image was not attached.</p>
+        </details>
+        <details>
+          <summary>If a thumbnail disappears, has the upload finished?</summary>
+          <p>After an attachment click, the thumbnail retracts when the draft starts accepting that image. Putting it away yourself or letting it archive only changes its local visibility. Check the original ChatGPT draft for upload progress, completion or an error. If the result is uncertain, keep the record and check the attachment there. Riftlet does not automatically submit it again.</p>
+        </details>
+        <details>
+          <summary>Where can I find an archived thumbnail?</summary>
+          <p>Open history from the menu bar, or go to Settings → 历史与存储 → 打开历史…. Viewing a record does not upload the image. Eligible records can return to the edge. Keep uncertain submissions with their original record.</p>
+        </details>
+      </div>
+    </section>
+
+    <section class="topic" id="feedback" aria-labelledby="feedback-title">
+      <h2 id="feedback-title">Feedback</h2>
+      <div class="copy">
+        <p>Open 反馈与建议… from the menu bar or from Settings → 权限与帮助. Include the version, the shortest steps and what you saw. Choose 发送反馈 to submit. Closing the window saves a draft.</p>
+        <p>Preview the optional diagnostics before sending. Your own text is not automatically redacted. Say whether a new image appeared and whether the draft and previous attachments stayed intact. Screenshots, chat text, full paths and account details are unnecessary.</p>
+        <p><a href="../privacy/en.html#reports">How delivery and withdrawal work</a></p>
+      </div>
+    </section>
+  </main>
+  <footer class="consumer-footer page-width">
+    <span>© 2026 Riftlet</span>
+    <nav aria-label="Related pages">
+      <a href="../guide/en.html#feedback">Feedback</a>
+      <a href="../index.html?lang=en">Product homepage</a>
+    </nav>
+  </footer>
+</body>
+</html>
