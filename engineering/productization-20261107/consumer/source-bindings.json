@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "sourceBaseline": "3f1340d73a438011fe6ab1aa1e2e4d1f72d185cf",
-  "scope": "Consumer first use, folder access, history, storage and direct-download guidance. Existing attachment, release, DMG and credential-tool sources are inherited from the reviewed main 4908dc79eb2e8af5ea3d53cfb81a719c7fdf5c9d. The changed runtime bindings cover consumer text, folder selection, history text fitting and settings actions. Checkpoint hashes below bind the current guide to the exercised sources.",
+  "sourceBaseline": "2fbb0661d1aeb3126fea3537ece6625c16649124",
+  "scope": "Consumer first use, folder access, history, storage and direct-download guidance. The previous binding is retained verbatim. This checkpoint only updates the sources for restoring a selected folder, watching it and explaining how to select it again. Existing attachment and distribution sources are unchanged.",
   "files": [
     {
       "path": "Sources/RiftletApp/OrdinaryCaptureConfiguration.swift",
@@ -15,8 +15,8 @@
     },
     {
       "path": "Sources/RiftletApp/RiftletMain.swift",
-      "sha256": "99773c1a66b74c836334992470b06fd8119160dcb37390b30c4d8420caae8b35",
-      "sourceBlob": "8a575031613a9d9246813d884983f3261fd24713"
+      "sha256": "9978a350992c60591af036dd177866f93942aa4b6952925ccfb1acc44d2fb886",
+      "sourceBlob": "fd9f5116fbeb9f30aeab4a6a957e670a0a17ac90"
     },
     {
       "path": "Sources/RiftletApp/AutomationPermission.swift",
@@ -110,13 +110,13 @@
     },
     {
       "path": "Sources/RiftletCapture/CaptureService.swift",
-      "sha256": "42eaf464c9f2fd986f23687cc4e1793e1fdf86db4b9a936f9620b97c22c533f2",
-      "sourceBlob": "1fd9f9074c176d2c3d7329fdcb8e8bd4a1ba7735"
+      "sha256": "386aee0743a344e38535adf5e337c5050570453a162f1bb2ea50adc55b4eb37f",
+      "sourceBlob": "a74fa458024d5b2781e89916bf4d214a227ff7c3"
     },
     {
       "path": "Sources/RiftletCapture/CaptureSourceBinding.swift",
-      "sha256": "bc3bddccc4e1614026fed4066ac990ac3d91f348c1667a5d5af452e019653905",
-      "sourceBlob": "0e91fbe564272f3f611d1e6f6f141b89f9b5e30a"
+      "sha256": "50e30574fd11996959e72010e0ce10e26b69c507821964211915c52d46658500",
+      "sourceBlob": "ff44a23715112ffca2d38acf5d08e992e7acdef9"
     },
     {
       "path": "Sources/RiftletCapture/PrivateAssetImporter.swift",
@@ -175,13 +175,13 @@
     },
     {
       "path": "Sources/RiftletApp/FirstUsePreferences.swift",
-      "sha256": "c3065006bad515e2024236aad24e745c964fa7cc24868599735365ae25bfa2aa",
-      "sourceBlob": "df0b33d088419ed9feab58ee6758f20f7dafe047"
+      "sha256": "01fd511cf4e1994e7a04dfd7644c80d1d1a93243be54a8428fb3747d7fb4eee6",
+      "sourceBlob": "aa544a83024b536b8839463abfe795085ad8ed97"
     },
     {
       "path": "Sources/RiftletUI/SetupPresentation.swift",
-      "sha256": "64471caa73c78c902d920bdfa01bea4b2125967f9372f63ebe87043457cc604e",
-      "sourceBlob": "4563bbd783ddaf49ae5facd3338657bf6863bf2d"
+      "sha256": "9de636f157aeee794613aadea44cb3a219cf2241d63c3f2ed345cf508134da59",
+      "sourceBlob": "e1dfca1ab8408a29b5672f53e3597986ea5d8d34"
     },
     {
       "path": "Sources/RiftletUI/RiftOnboardingController.swift",
@@ -190,8 +190,8 @@
     },
     {
       "path": "Sources/RiftletUI/RiftControlCenterPresentation.swift",
-      "sha256": "8fda4be1ccadf8a1ec0dc6653b9723f4ed982badcd8369f85dc04c6cabfa6465",
-      "sourceBlob": "efcad07b87988de8da2e77d4350c46fc84eb174f"
+      "sha256": "c546ed2e3516716e738053d9a49b05c9080682d5a05aab549292edecb930818d",
+      "sourceBlob": "17cea4c0fe0b830376a0bd5924c2dbdfa0854fd6"
     },
     {
       "path": "Sources/RiftletUI/SettingsProductPresentation.swift",
@@ -217,13 +217,18 @@
       "path": "scripts/developer-id-request.swift",
       "sha256": "38b34aaa148f2417af0f4b9858d23ba6d1412ca75c1a6d05778713ced07f40a6",
       "sourceBlob": "f2502a5e263c3ae1219e4eafcd06f4d8dde664c8"
+    },
+    {
+      "path": "Sources/RiftletCapture/FolderWatcher.swift",
+      "sha256": "3a8e3ed69746467b7f506cce95e6f62c2554e2ac82265726bce52bf3efc5ca24",
+      "sourceBlob": "fc89c7f93d674d29d557c2ea19ef71903cde948e"
     }
   ],
   "previousSourceBinding": {
-    "path": "source-bindings-05.json",
-    "sha256": "34bf85c01f5b519364d9b61798a1b7e87a3747498195a11547c1ce904f08a8e5",
-    "sourceBaseline": "05abf6c2404055b0135e77585a10a47deea33a95",
-    "archivedAt": "4908dc79eb2e8af5ea3d53cfb81a719c7fdf5c9d"
+    "path": "source-bindings-06.json",
+    "sha256": "6b36c868955497c3b84ee30e0a4b66b5cd6b9b98bfb74027e72c4ba59ac98022",
+    "sourceBaseline": "3f1340d73a438011fe6ab1aa1e2e4d1f72d185cf",
+    "archivedAt": "15b739823101a0994653cc8a28f935a80e21540e"
   },
   "inheritanceAudit": "../../consumer-readiness-20261107/README.md",
   "previousInheritanceAudits": [
