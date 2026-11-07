@@ -1,5 +1,7 @@
 # Current status
 
+> **合并后更新（2026-11-07）**：下文记录的是源代码准入之前的状态。PR #46 已标准合并，最终主线包完成隔离验收；正式升级遇到截图目录访问告警。当前运行身份以合并后的交付索引为准。 [查看最终交付和证据](closeout/README.md)。以下为原始检查点。
+
 Baseline main: `2e779f646ac4874344fac94f79103e8ddf9b02c8`. Formal installed App remains Personal Beta3 **0.3.0(3)** ARM64, binary `fe5b09c4146a363e45685f8441d081fbd62a3238ed83b115287882b9158e29f3`. The request’s Beta2 installed-version line was stale. PR45 integration, the previous five-check main CI and safe Beta3 upgrade were verified before this sprint; no second upgrade was needed.
 
 The current complete-App clone was byte/mode identical to the formal App. It completed scoped native collection and 0/1/3/10 queue, pause/hide, no-target retention, history style/selection and reversible synthetic queue actions. Production data snapshots before/after isolated GUI have identical paths, bytes and typed database rows; a fresh private restore drill passed. The formal App was normally restarted at the same identity. See [native results](native/acceptance.json).

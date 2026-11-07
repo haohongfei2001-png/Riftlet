@@ -1,0 +1,158 @@
+{
+  "schema": 1,
+  "sourceMain": "15490d8817e435e402ff0cba55fdb92078100ab6",
+  "productVersion": "0.3.1 (4)",
+  "sourceAppARM64SHA256": "5a7eb19885c2e252e5df556ee1af29311ef396c86ada5133846aa5ff619f6eac",
+  "projection": [
+    {
+      "appearance": "浅色",
+      "background": "自有浅色背景",
+      "captureKind": "NSApp-owned synthetic window composition captured through WindowServer",
+      "source": "15490d8817e435e402ff0cba55fdb92078100ab6",
+      "helperBinarySHA256": "20c5a4eb9d617fa4541d6a11c79801fd207a603ee623d269e8db2b84dac5b82e",
+      "captureRecordSHA256": "72a96d8a99aa57eed8fdb2f53d4e3a626ccafa34dbe680ab0723d88285b45b1e",
+      "movie": {
+        "file": "media/light-timeline.mov",
+        "sha256": "9e153a188161e9e260441b223d50e86e1ad15e1b955532d7c4f4cd89b0808101",
+        "bytes": 82591,
+        "codec": "H.264 / QuickTime MOV",
+        "pixels": [
+          1600,
+          2560
+        ],
+        "durationSeconds": 5.465,
+        "videoSamples": 142,
+        "audioTracks": 0,
+        "writerDrops": 0
+      },
+      "stills": [
+        {
+          "file": "media/light-queue.png",
+          "originalFrame": "frame-03.png",
+          "byteCount": 141218,
+          "sha256": "57889b4acbf2258b069aff55654f21a796cb2b50b047c664b2c8840d9d185675",
+          "pixels": [
+            1600,
+            2560
+          ],
+          "sRGBPremultipliedRGBAPixelSHA256": "f2997e54b69e06163bf330d8d7df0bddd377809998891ec7bbc3d8f3c5822c17",
+          "captureElapsedSeconds": 2.329,
+          "visibleProductDifferencePixels": 34946
+        },
+        {
+          "file": "media/light-swallow.png",
+          "originalFrame": "frame-12.png",
+          "byteCount": 119224,
+          "sha256": "89e561ccce9c718db367820a7d380518919a710207e927558a818c0c3c0445dd",
+          "pixels": [
+            1600,
+            2560
+          ],
+          "sRGBPremultipliedRGBAPixelSHA256": "b7a978b6a25114f31fdb64c0e1fc939cb288f622a8f9ef8edd1a98229eb1b7bd",
+          "captureElapsedSeconds": 3.794,
+          "visibleProductDifferencePixels": 16534
+        }
+      ],
+      "observedPresentationDurations": {
+        "swallowActualStartToCloseMS": 128.7
+      },
+      "realServiceSTART": false,
+      "hardwareInput": false,
+      "productionWallpaperOrFrameRateMeasurement": false
+    },
+    {
+      "appearance": "深色",
+      "background": "自有几何图案背景",
+      "captureKind": "NSApp-owned synthetic window composition captured through WindowServer",
+      "source": "15490d8817e435e402ff0cba55fdb92078100ab6",
+      "helperBinarySHA256": "20c5a4eb9d617fa4541d6a11c79801fd207a603ee623d269e8db2b84dac5b82e",
+      "captureRecordSHA256": "ee5b704b60439a78c17aeaeac0231d02efe6952b155f658736e05e94b71d5545",
+      "movie": {
+        "file": "media/dark-magnet-timeline.mov",
+        "sha256": "eec335994a206561530d472ddacc0f7a4b6d7359095937c28d19b6ba5428e2b2",
+        "bytes": 964313,
+        "codec": "H.264 / QuickTime MOV",
+        "pixels": [
+          1600,
+          2560
+        ],
+        "durationSeconds": 6.368,
+        "videoSamples": 140,
+        "audioTracks": 0,
+        "writerDrops": 0
+      },
+      "stills": [
+        {
+          "file": "media/dark-magnet-arrival.png",
+          "originalFrame": "frame-03.png",
+          "byteCount": 4216997,
+          "sha256": "167894b7c37b1f99096da173458435b9bbd688a4555178464d15169aeb9d9164",
+          "pixels": [
+            1600,
+            2560
+          ],
+          "sRGBPremultipliedRGBAPixelSHA256": "876b13d3ad5a513b6e161552c64ecc49c9f1b045139f61e5e8ce94e3776bca68",
+          "captureElapsedSeconds": 2.793,
+          "visibleProductDifferencePixels": 21667
+        },
+        {
+          "file": "media/dark-magnet-swallow.png",
+          "originalFrame": "frame-12.png",
+          "byteCount": 4210913,
+          "sha256": "88b2b05f7b40504afe8a5be2c99e3c3bab5294cf3d563ea53ecbb683e5c5993b",
+          "pixels": [
+            1600,
+            2560
+          ],
+          "sRGBPremultipliedRGBAPixelSHA256": "93ad5731fe1b2b993c9a86ecff59c044c288abf1ad2251f0ca26b82a4a5a1bdb",
+          "captureElapsedSeconds": 5.193,
+          "visibleProductDifferencePixels": 16346
+        }
+      ],
+      "observedPresentationDurations": {
+        "swallowActualStartToCloseMS": 125.5,
+        "magnetDelegateStartToStopMS": 550.7
+      },
+      "realServiceSTART": false,
+      "hardwareInput": false,
+      "productionWallpaperOrFrameRateMeasurement": false
+    }
+  ],
+  "nativeWindowCollection": {
+    "captureKind": "macOS screencapture -l of two owned onboarding windows in isolated review mode",
+    "originalResultSHA256": "357f212f90f14bcb247b63c6e1c819f7e0fd54c3d6e2584b25e865f15bca6c5d",
+    "images": [
+      {
+        "onboardingPage": 1,
+        "originalPNGByteCount": 193354,
+        "originalPNGSHA256": "92e8117d7aea656be004f74cda2c190d10a3d60487e97c0e5a111f1acb39825d",
+        "pixels": [
+          1304,
+          1216
+        ],
+        "privateMediaByteIdentical": true
+      },
+      {
+        "onboardingPage": 2,
+        "originalPNGByteCount": 204917,
+        "originalPNGSHA256": "f1406ffa79f076e9f4a753817799b0636634f4313577657f6902d91fa976cccd",
+        "pixels": [
+          1304,
+          1216
+        ],
+        "privateMediaByteIdentical": true
+      }
+    ],
+    "qualification": "Screenshot metadata marker verified or supplied by test; physical shortcut and automatic marker creation not exercised.",
+    "click": "Owner-checked software left down/up aimed at the first thumbnail; both remained available with no eligible browser target.",
+    "counts": {
+      "assets": 2,
+      "operations": 0,
+      "upload_starts": 0
+    },
+    "browserAcceptance": "REAL_ACCEPTANCE_NOT_RUN",
+    "rawScreenshotPublication": "HASHES_ONLY: both original PNGs remain private.",
+    "firstReadback": "An initial immutable SQLite read omitted the WAL; counts verified from a corrected temporary copy without repeating collection or the click."
+  },
+  "baseline": "../../native/visual/index.html"
+}

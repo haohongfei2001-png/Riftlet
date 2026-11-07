@@ -33,3 +33,7 @@
 “已请求登录启动、等待系统批准”不等于已经启用；“macOS 暂未找到此应用的登录项”也不能解释成成功。当前代码回读系统状态，不保存一个虚假的已启用值。登录启动的实际系统兼容性正在本轮专项验证；没有成功回读和真实登录启动证据时，以手动启动为可用方式。不要自行添加 LaunchAgent 替代它。
 
 **English navigation:** Settings → `权限与帮助` contains the folder, Chrome and screen-recording actions. `检查 Chrome 权限…` checks or requests Automation; the Chrome menu setting is separate. `重新检查` refreshes status after a change. `登录后启动 Riftlet` is optional; pending approval is not enabled, and “not found” is not success. Follow the operating system’s prompt, preserving local records.
+
+## 私人维护包升级后又显示“无法访问截图位置”
+
+同一个 App 名称、同一个安装位置，并不保证新版继承旧版对“下载”等目录的授权。未经 Developer ID 签名的个人构建尤其如此。不要反复重装或删除历史。保留旧 App 与最新数据备份，从“截图与收录”查看当前来源，在系统提供正常授权的条件下使用“重新检查”。如果无人值守升级后仍不能访问来源，应恢复可工作的旧 App，保留最新数据库和截图。无需关闭 Gatekeeper、重置隐私授权或授予完全磁盘访问权限。

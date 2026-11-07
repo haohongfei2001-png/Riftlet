@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>微图到达与收起 · Riftlet 原生视觉补充</title>
+<style>
+:root{color-scheme:light dark;--ink:#102a27;--muted:#435854;--teal:#087c70;--paper:#f5f7f5;--card:#fff;--line:#cdd8d5;--focus:#087c70;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:16px;line-height:1.55}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink)}main{max-width:1120px;margin:0 auto;padding:32px 24px 52px}a{color:var(--teal);text-decoration-thickness:1px;text-underline-offset:.18em}a:focus-visible,video:focus-visible{outline:3px solid var(--focus);outline-offset:4px}.top{display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:12px}.brand{font-weight:700;letter-spacing:.02em}.brand::before{display:inline-block;content:"";width:4px;height:1em;margin-right:9px;background:#19b7a4;border-radius:2px;vertical-align:-.08em}h1{font-size:clamp(27px,4vw,40px);line-height:1.2;margin:30px 0 12px}h2{font-size:21px;line-height:1.35;margin:0 0 7px}p{margin:0 0 12px}.lead{max-width:76ch;color:var(--muted)}.scenes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px;margin:24px 0}.scene,.collection{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px}.scene>p{color:var(--muted);min-height:3.1em}.movie{display:block;width:100%;height:min(54vh,520px);object-fit:contain;border:1px solid var(--line);border-radius:6px;background:#eef2ef}.dark .movie{background:#27302e}.meta{display:flex;flex-wrap:wrap;gap:4px 14px;margin:9px 0 15px;font-size:14px;color:var(--muted)}.frames{display:grid;grid-template-columns:1fr 1fr;gap:12px}.frames figure{margin:0;min-width:0}.frames img{width:100%;height:155px;object-fit:contain;display:block;background:var(--paper);border:1px solid var(--line);border-radius:4px}.frames figcaption{margin-top:5px;font-size:14px;color:var(--muted)}.collection{margin-top:22px}.tablewrap{overflow-x:auto}table{border-collapse:collapse;width:100%;text-align:left;font-size:14px;margin:12px 0}th,td{border-bottom:1px solid var(--line);padding:9px 8px;vertical-align:top}th{color:var(--muted);font-weight:600}.digest{font-family:ui-monospace,monospace;overflow-wrap:anywhere}.note{color:var(--muted);font-size:14px}footer{display:flex;gap:16px;flex-wrap:wrap;margin-top:20px;color:var(--muted);font-size:14px}
+@media(max-width:700px){main{padding:20px 14px 36px}.scenes{grid-template-columns:1fr;gap:16px}.scene,.collection{padding:15px}.scene>p{min-height:0}.movie{height:min(62vh,480px)}.frames img{height:125px}}
+@media(prefers-color-scheme:dark){:root{--ink:#e6efec;--muted:#b8cbc5;--teal:#76dcca;--paper:#18211f;--card:#202c29;--line:#43544f;--focus:#76dcca}.movie{background:#293330}}
+</style>
+</head>
+<body><main>
+<header>
+  <div class="top"><span class="brand">Riftlet · 原生视觉补充</span><a href="../../native/visual/index.html">既有基线 · 44 张图 / 3 段录像</a></div>
+  <h1>微图到达与收起</h1>
+  <p class="lead">同一份 main 源码在两个自有合成场景中驱动原生窗口。可播放录像，也可点开静帧按原始尺寸观察。页面下方另列正式 App 收录系统窗口截图的结果。</p>
+</header>
+
+<div class="scenes">
+  <section class="scene" aria-labelledby="light-title">
+    <h2 id="light-title">浅色背景 · 首项收起</h2>
+    <p>三张微图排在左侧。测试注入开始接收状态后，首项收起，其余两张继续显示。</p>
+    <video class="movie" controls playsinline preload="metadata" src="media/light-timeline.mov" poster="media/light-queue.png" aria-label="浅色合成场景中三张微图及首项收起的原生录像"></video>
+    <div class="meta"><a href="media/light-timeline.mov">打开原始 MOV</a><span>5.465 秒 · 142 帧</span></div>
+    <div class="frames">
+      <figure><a href="media/light-queue.png"><img src="media/light-queue.png" width="1600" height="2560" alt="浅色场景，左侧三张微图，第一张显示合成演示提示"></a><figcaption>三张微图已排好</figcaption></figure>
+      <figure><a href="media/light-swallow.png"><img src="media/light-swallow.png" width="1600" height="2560" alt="浅色场景首项正在淡出，第二和第三张仍在边缘"></a><figcaption>首项收起过程中</figcaption></figure>
+    </div>
+  </section>
+  <section class="scene dark" aria-labelledby="dark-title">
+    <h2 id="dark-title">深色图案 · 磁吸到达</h2>
+    <p>合成截图从画面中央移向左侧微图位置。原生动画回调记录的本次磁吸区间约为 551 毫秒。</p>
+    <video class="movie" controls playsinline preload="metadata" src="media/dark-magnet-timeline.mov" poster="media/dark-magnet-arrival.png" aria-label="深色合成图案背景下微图磁吸到达与收起的原生录像"></video>
+    <div class="meta"><a href="media/dark-magnet-timeline.mov">打开原始 MOV</a><span>6.368 秒 · 140 帧</span></div>
+    <div class="frames">
+      <figure><a href="media/dark-magnet-arrival.png"><img src="media/dark-magnet-arrival.png" width="1600" height="2560" alt="几何背景中，新微图位于合成截图上方，边缘有其他微图"></a><figcaption>磁吸到达过程中</figcaption></figure>
+      <figure><a href="media/dark-magnet-swallow.png"><img src="media/dark-magnet-swallow.png" width="1600" height="2560" alt="深色场景首项正在收起，第二和第三张仍在左侧"></a><figcaption>首项收起过程中</figcaption></figure>
+    </div>
+  </section>
+</div>
+<p class="note">两段录像均取自 WindowServer 的自有窗口合成，背景为测试图案。录制采样间隔可变。真实系统壁纸、硬件输入、应用帧率和 ChatGPT 附件接收均不在这两段录像的测量范围内。</p>
+
+<section class="collection" aria-labelledby="collection-title">
+  <h2 id="collection-title">两张系统窗口截图的实际收录</h2>
+  <p>正式 main 的 0.3.1 (4) ARM64 App 在隔离模式打开自己的两页引导。macOS 分别截取指定窗口，测试确认截图资格标记，原生收录后两份私有媒体均与对应原图逐字节一致。</p>
+  <div class="tablewrap"><table><thead><tr><th scope="col">来源</th><th scope="col">像素</th><th scope="col">原 PNG 的 SHA-256</th></tr></thead><tbody>
+    <tr><th scope="row">引导第一页</th><td>1304 × 1216</td><td class="digest">92e8117d7aea656be004f74cda2c190d10a3d60487e97c0e5a111f1acb39825d</td></tr>
+    <tr><th scope="row">引导第二页</th><td>1304 × 1216</td><td class="digest">f1406ffa79f076e9f4a753817799b0636634f4313577657f6902d91fa976cccd</td></tr>
+  </tbody></table></div>
+  <p>软件左键命中自有微图后，两张仍显示可附加。隔离库记录 <strong>2 个资产、0 个 operation、0 个 START</strong>。这次没有可用浏览器目标，真实 ChatGPT 附加验收状态为 <code>REAL_ACCEPTANCE_NOT_RUN</code>。</p>
+  <p class="note">系统原图保存在私有证据中，公开页仅列散列和尺寸。两段 MOV 和四张合成场景 PNG 保留原始字节。</p>
+</section>
+<footer><span>main <code>15490d8817e4</code></span><a href="manifest.json">完整散列及测量范围</a><a href="README.md">离线查看说明</a></footer>
+</main></body></html>

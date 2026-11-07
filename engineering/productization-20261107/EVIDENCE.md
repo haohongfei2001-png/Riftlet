@@ -1,5 +1,7 @@
 # Evidence index
 
+> **合并后更新（2026-11-07）**：后续证据包括主线 CI、最终 App 两张原生截图与无目标点击、340 图分页、两个当前 Space 的 WindowServer 录像，以及正式安装首次启动的来源访问异常。原始失败记录仍有效。 [查看最终交付和证据](closeout/README.md)。以下为原始检查点。
+
 All evidence levels remain separate: observed complete-App CUA/AX/CGEvent, real native framework/collector/storage tests, synthetic projections, formal CI, inherited records, and blocked/not-run paths. Passing a helper process is never sufficient by itself.
 
 - [Native complete-App result matrix](native/acceptance.json), [original screenshots/movies](native/visual/index.html), [exact artifact hashes](native/artifacts.json), [Pro desktop baseline](native/desktop-baseline.json).

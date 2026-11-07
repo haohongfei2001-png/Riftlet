@@ -6,6 +6,16 @@ Riftlet currently uses an explicitly reviewed App-only replacement, not an autom
 
 Confirm the exact reviewed source/merge and completed required CI; verify the actual candidate's full inventory, binary architecture, bundle ID, version/build/label and hash. For an external release, also verify the Developer ID team and notarized/stapled artifact. A release manifest inside an unknown download cannot authenticate that same download without an independently trusted pin.
 
+**Check whether macOS can recognize the previous code identity before planning an unattended personal update.** From a Mac with Swift, run the read-only [update identity check](../../scripts/check-update-identity.swift) against the exact currently installed App and the candidate:
+
+```sh
+swift scripts/check-update-identity.swift --installed "/path/to/current/Riftlet.app" --candidate "/path/to/candidate/Riftlet.app"
+```
+
+The tool verifies both bundles and tests the candidate against the installed App’s designated code requirement. Exit 0 means that requirement matched; it does **not** mean macOS grants the candidate any permission. Exit 2 identifies two different update identities or bundle identifiers. Exit 1 means the inputs or their signatures could not be verified. The check never opens the Apps or reads or edits privacy grants.
+
+If the current App relies on a protected screenshot folder such as Downloads and the check reports a mismatch, keep the working installation in place for an unattended update. Test the intended distribution identity and its normal permission flow in an authorized independent environment. A personal build may require explicit user consent again. Do not assume that two ad-hoc bundles sharing a bundle ID share the same grants; do not work around a missing grant by changing macOS security settings or launching from a privileged host. Even with a match, check source access on the normally launched installed App and preserve a verified rollback. [Apple DTS: file system permissions and code identity](https://developer.apple.com/forums/thread/678819).
+
 Normally quit every Riftlet instance and verify both process absence and ownership of the **existing** queue and Feedback locks. Do not delete or replace lock files. Backup verification is performed on private copies, and the live snapshot must be rechecked after acquiring both locks. An old backup is not sufficient if current data changed in between.
 
 Retain these domains together:

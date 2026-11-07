@@ -1,5 +1,7 @@
 # Live handoff
 
+> **合并后更新（2026-11-07）**：接手时先看合并后的交付索引、实际安装身份及失败记录，再决定恢复测试。不要按下文历史候选指令重新合并，也不要改动已验证的数据库或 UNKNOWN。 [查看最终交付和证据](closeout/README.md)。以下为原始检查点。
+
 Start with [STATUS](STATUS.md), [ROADMAP](ROADMAP.md), [EVIDENCE](EVIDENCE.md), [release levels](RELEASE-READINESS.md) and [scoped blockers](BLOCKERS.md). Base main is `2e779f646ac4874344fac94f79103e8ddf9b02c8`; integration branch is `codex/productization-integration-20261107`. Root owns production GUI/lifecycle, shared composition, remote refs and admission. The installed Personal Beta3 remains0.3.0(3), exact binaryfe5b09c…; no new candidate should be mistaken for the running build.
 
 Completed independent lanes: isolated seven-stage login lifecycle; release ZIP external-pin fix and review ZIP/DMG; source-bound consumer/closed Beta documents; complete-App native baseline; diagnostic helper honest failure status; offline production equality and restore drill. Original failed captures, tests and review records remain retained.

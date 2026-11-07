@@ -12,7 +12,7 @@ Use a build explicitly supplied by the maintainer and read [Installation and per
 
 ## Controls and recovery
 
-- **Pause collection (`暂停收录`)** stops collecting new system screenshots, keeping existing images.
+- **Pause collection (`暂停收录`)** stops collection while paused and keeps existing images. When you resume, eligible files still in the screenshot folder may be collected, including screenshots saved during the pause.
 - **Hide rift (`隐藏裂缝`)** hides edge thumbnails without changing collection.
 - **Enable built-in capture (`启用内置截图`)** controls Riftlet’s own capture entry, independently of macOS screenshots and file collection.
 - **History & Storage (`历史与存储`)** opens local history. `当前视图` is the default list; `图像网格` is the optional image grid. Both show the same records and preserve the selected image, search and filter when switching.
