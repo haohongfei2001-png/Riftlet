@@ -160,7 +160,9 @@ def prepare_marker(root, nonce):
 import os, sys
 from pathlib import Path
 downloads = Path.home() / 'Downloads'
-if downloads.is_symlink() or not downloads.is_dir(): sys.exit(2)
+if downloads.is_symlink(): sys.exit(2)
+downloads.mkdir(mode=0o700, exist_ok=True)
+if not downloads.is_dir(): sys.exit(2)
 folder = downloads / ('riftlet-host-' + sys.argv[1])
 folder.mkdir(mode=0o700)
 with (folder / 'marker').open('xb') as out: out.write(Path(sys.argv[2]).read_bytes())

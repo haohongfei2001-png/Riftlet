@@ -160,8 +160,8 @@
     },
     {
       "path": "scripts/release-tool.py",
-      "sha256": "54ee75aeb7be546550aa4c684e6fee9b267766480d42d329ef7f1d3a04081ceb",
-      "sourceBlob": "482fcf9969e00775e4df3eb95b747555b94c5ec6"
+      "sha256": "1f60873e9fdbb2d51baa2a4ebc9f1b3f91a313dd3499a01a3aba74904b63968b",
+      "sourceBlob": "fe89c26aa48835dfb51579b0b2305b6be24b30aa"
     },
     {
       "path": "scripts/storage-recovery.py",

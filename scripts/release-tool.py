@@ -548,6 +548,13 @@ def notary_submit(args):
     run(["/usr/bin/ditto", "-c", "-k", "--sequesterRsrc", "--keepParent", package / APP, candidate],
         log=attempt / "package.log")
     archive_pin = verify_notary_upload(candidate, value, workspace)
+    # notarytool accepts a file path. Give it a separate private, read-only file:
+    # a later write or replacement at the canonical archive cannot change this inode.
+    upload = attempt / "submission.zip"
+    shutil.copyfile(candidate, upload)
+    upload.chmod(0o400)
+    claim = candidate.lstat()
+    upload_identity = upload.lstat()
     # Keep each attempt for diagnosis. Atomically claim the already verified inode;
     # competing submissions cannot overwrite it or reach the Apple invocation.
     try:
@@ -555,10 +562,28 @@ def notary_submit(args):
     except FileExistsError:
         raise ReleaseError("notary_archive_already_exists") from None
     value["notarization"] = {"status": "SubmissionUnknown", "submissionID": None,
-                              "uploadSHA256": archive_pin, "stapled": False}
+                              "uploadSHA256": archive_pin, "stapled": False, "preparation": attempt.name}
     value["stage"] = "NOTARY_SUBMITTING"; save_manifest(package, value)
     try:
-        reply = run(["xcrun", "notarytool", "submit", archive, "--keychain-profile", args.profile, "--output-format", "json"], timeout=180,
+        require(os.path.samestat(archive.lstat(), claim) and digest(archive) == archive_pin
+                and os.path.samestat(upload.lstat(), upload_identity) and digest(upload) == archive_pin,
+                "notary_archive_changed_before_submit")
+    except (OSError, ReleaseError) as error:
+        # No client was invoked. Retain the attempt and its independent copy.
+        # A different claimant's path/state must never be removed or overwritten.
+        write_json(attempt / "not-submitted.json", {"status": "NOT_SUBMITTED", "uploadSHA256": archive_pin,
+                   "clientInvoked": False, "reason": "notary_archive_changed_before_submit"})
+        if read_json(package / MANIFEST) == value:
+            value.update(stage="SIGNED", notarization=None)
+            write_json(package / MANIFEST, value)
+            try:
+                if os.path.samestat(archive.lstat(), claim):
+                    archive.unlink()
+            except FileNotFoundError:
+                pass
+        raise ReleaseError("notary_archive_changed_before_submit", "NOT_SUBMITTED") from error
+    try:
+        reply = run(["xcrun", "notarytool", "submit", upload, "--keychain-profile", args.profile, "--output-format", "json"], timeout=180,
                     log=workspace / "notary-submit.log")
         (workspace / "notary-submit.json").write_bytes(reply.stdout)
         response = decode_json(reply.stdout)

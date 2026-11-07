@@ -650,6 +650,76 @@ class ReleaseTest(unittest.TestCase):
         self.assertEqual(sum(candidate.samefile(canonical) for candidate in attempts), 1)
         self.assertEqual(R.verify_package(self.package)["stage"], "NOTARY_IN_PROGRESS")
 
+    def notary_transport(self, client):
+        def native(args, **kwargs):
+            if args[0] == "/usr/bin/ditto":
+                if "-c" in args: self.app_archive(args[-1])
+                else: self.extract_fixture_zip(args[-2], args[-1])
+                return result()
+            self.assertEqual(args[:3], ["xcrun", "notarytool", "submit"])
+            return client(Path(args[3]))
+        return native
+
+    def test_changed_claim_before_submit_never_calls_client_and_allows_explicit_retry(self):
+        self.stage("SIGNED")
+        canonical = self.workspace / "notary-upload.zip"
+        real_save = R.save_manifest
+        uploads = []
+        def change_during_save(package, manifest):
+            real_save(package, manifest)
+            if manifest["stage"] == "NOTARY_SUBMITTING": canonical.write_bytes(b"changed during final manifest write")
+        def client(upload):
+            uploads.append(R.digest(upload))
+            return result(R.encoded({"id": JOB}))
+        with patch.object(R.platform, "system", return_value="Darwin"), patch.object(R, "verify_signature", return_value=signature()), \
+                patch.object(R, "run", side_effect=self.notary_transport(client)):
+            with patch.object(R, "save_manifest", side_effect=change_during_save):
+                err = self.error("notary_archive_changed_before_submit", R.notary_submit, self.args())
+            self.assertEqual(err.status, "NOT_SUBMITTED")
+            self.assertEqual(uploads, [])
+            self.assertFalse(canonical.exists())
+            self.assertEqual(R.verify_package(self.package)["stage"], "SIGNED")
+            failed, = self.workspace.glob("notary-prepare-*/not-submitted.json")
+            self.assertFalse(R.read_json(failed)["clientInvoked"])
+            self.assertEqual((failed.parent / "candidate.zip").read_bytes(), b"changed during final manifest write")
+            self.assertEqual(R.digest(failed.parent / "submission.zip"), R.read_json(failed)["uploadSHA256"])
+            self.assertEqual(R.notary_submit(self.args())["status"], "NOTARY_IN_PROGRESS")
+        self.assertEqual(uploads, [R.digest(canonical)])
+
+    def test_replaced_claim_is_preserved_when_submit_stops_locally(self):
+        self.stage("SIGNED")
+        canonical = self.workspace / "notary-upload.zip"
+        real_save = R.save_manifest
+        def replace_during_save(package, manifest):
+            real_save(package, manifest)
+            if manifest["stage"] == "NOTARY_SUBMITTING":
+                other = self.workspace / "foreign.zip"; other.write_bytes(b"replacement owned elsewhere")
+                os.replace(other, canonical)
+        with patch.object(R.platform, "system", return_value="Darwin"), patch.object(R, "verify_signature", return_value=signature()), \
+                patch.object(R, "run", side_effect=self.notary_transport(lambda _: self.fail("client called"))), \
+                patch.object(R, "save_manifest", side_effect=replace_during_save):
+            self.error("notary_archive_changed_before_submit", R.notary_submit, self.args())
+            self.error("notary_archive_already_exists", R.notary_submit, self.args())
+        self.assertEqual(canonical.read_bytes(), b"replacement owned elsewhere")
+        self.assertEqual(R.verify_package(self.package)["stage"], "SIGNED")
+
+    def test_client_receives_independent_readonly_copy_after_canonical_write(self):
+        self.stage("SIGNED")
+        canonical = self.workspace / "notary-upload.zip"
+        seen = []
+        def client(upload):
+            expected = R.digest(canonical)
+            self.assertFalse(upload.samefile(canonical))
+            self.assertEqual(stat.S_IMODE(upload.stat().st_mode), 0o400)
+            canonical.write_bytes(b"changed only the canonical during client handoff")
+            self.assertEqual(R.digest(upload), expected)
+            seen.append(expected)
+            return result(R.encoded({"id": JOB}))
+        with patch.object(R.platform, "system", return_value="Darwin"), patch.object(R, "verify_signature", return_value=signature()), \
+                patch.object(R, "run", side_effect=self.notary_transport(client)):
+            self.assertEqual(R.notary_submit(self.args())["status"], "NOTARY_IN_PROGRESS")
+        self.assertEqual(seen, [R.verify_package(self.package)["notarization"]["uploadSHA256"]])
+
     def test_unknown_submission_requires_original_id_without_any_network(self):
         self.stage("NOTARY_SUBMISSION_UNKNOWN")
         with patch.object(R.platform, "system", return_value="Darwin"), patch.object(R, "run", side_effect=AssertionError("no guessed job")):
