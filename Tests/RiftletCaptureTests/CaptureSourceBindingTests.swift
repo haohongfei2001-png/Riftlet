@@ -294,6 +294,14 @@ final class CaptureSourceBindingTests: XCTestCase {
         XCTAssertNotEqual(original.sourceKey, unrelated.sourceKey)
         let file = try XCTUnwrap(result.files.first)
         XCTAssertEqual(try FileSignature.read(at: file.0).sourceKey, original.sourceKey)
+
+        let anotherLate = moved.appendingPathComponent("after-first-scan.png")
+        let anotherDecoy = f.first.appendingPathComponent("after-first-scan.png")
+        for image in [anotherLate, anotherDecoy] { try png().write(to: image); try mark(image) }
+        let repeated = opened.candidates()
+        XCTAssertTrue(repeated.complete)
+        XCTAssertEqual(Set(repeated.files.map { $0.1.sourceKey }),
+                       Set([original.sourceKey, try FileSignature.read(at: anotherLate).sourceKey]))
     }
 
     func testFailedSwitchPreservesLastWorkingSource() async throws {

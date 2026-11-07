@@ -4,7 +4,7 @@ import Darwin
 /// An acknowledged old watch supplies the identity. The stream and all candidate
 /// lookups stay on that exact opened directory even if its pathname is replaced.
 final class RetiredCaptureDirectory {
-    private let stream: UnsafeMutablePointer<DIR>
+    private let directoryDescriptor: Int32
     private let identity: WatchedFileIdentity
     private let originalURL: URL
 
@@ -12,20 +12,27 @@ final class RetiredCaptureDirectory {
         let fd = Darwin.open(url.path, O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC)
         guard fd >= 0 else { return nil }
         var info = stat()
-        guard fstat(fd, &info) == 0, identity == WatchedFileIdentity(info),
-              let directory = fdopendir(fd) else {
+        guard fstat(fd, &info) == 0, identity == WatchedFileIdentity(info) else {
             Darwin.close(fd)
             return nil
         }
-        stream = directory
+        directoryDescriptor = fd
         self.identity = identity
         originalURL = url
     }
 
-    deinit { closedir(stream) }
+    deinit { Darwin.close(directoryDescriptor) }
 
     func candidates() -> (files: [(URL, FileSignature)], complete: Bool) {
-        let parent = dirfd(stream)
+        // fdopendir can snapshot names immediately on macOS. Open a fresh
+        // stream only now, relative to the verified directory, for each scan.
+        let parent = Darwin.openat(directoryDescriptor, ".", O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC)
+        guard parent >= 0 else { return ([], false) }
+        guard let stream = fdopendir(parent) else {
+            Darwin.close(parent)
+            return ([], false)
+        }
+        defer { closedir(stream) }
         var entries: [(String, FileSignature)] = []
         var complete = true
         while true {
