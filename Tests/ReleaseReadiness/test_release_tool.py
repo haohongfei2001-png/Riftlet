@@ -131,7 +131,12 @@ class ReleaseTest(unittest.TestCase):
             self.manifest["notarization"] = {"status": "SubmissionUnknown" if unknown else "In Progress" if stage == "NOTARY_IN_PROGRESS" else "Invalid" if stage == "NOTARY_REJECTED" else "Accepted",
                 "submissionID": None if unknown else JOB, "uploadSHA256": R.sha(b"upload"), "stapled": stage == "STAPLED"}
             if stage in {"NOTARY_REJECTED", "NOTARIZED", "STAPLED", "STAPLE_FAILED"}:
-                self.manifest["notarization"]["logSHA256"] = "e" * 64
+                note = self.manifest["notarization"]
+                relative = Path("notary-query-fixture") / (JOB + ".notary-log.json")
+                logfile = self.workspace / relative
+                logfile.parent.mkdir(exist_ok=True)
+                R.write_json(logfile, {"jobId": JOB, "status": note["status"], "sha256": note["uploadSHA256"]})
+                note.update(logPath=relative.as_posix(), logSHA256=R.digest(logfile))
         self.save()
 
     def args(self, **kwargs):
@@ -547,7 +552,11 @@ class ReleaseTest(unittest.TestCase):
             value = R.verify_signature(self.app, TEAM, ["arm64", "x86_64"])
         self.assertEqual(set(value["architectures"]), {"arm64", "x86_64"})
         self.assertEqual(len(commands), 5); self.assertIn("--all-architectures", commands[0])
-        self.assertIn("certificate leaf[subject.OU]", commands[0][5])
+        self.assertIn("--deep", commands[0])
+        requirement = commands[0][commands[0].index("-R") + 1]
+        self.assertIn("certificate leaf[subject.OU]", requirement)
+        self.assertIn("certificate leaf[field.1.2.840.113635.100.6.1.13] exists", requirement)
+        self.assertIn("certificate 1[field.1.2.840.113635.100.6.2.6] exists", requirement)
         for entitlements in ({**R.ENTITLEMENTS, "com.apple.security.get-task-allow": True}, {"com.apple.security.automation.apple-events": 1}):
             def unsafe(args, **kwargs):
                 return result(plistlib.dumps(entitlements)) if "--entitlements" in args else native(args, **kwargs)
@@ -756,6 +765,141 @@ class ReleaseTest(unittest.TestCase):
         self.stage("NOTARIZED")
         with patch.object(R.platform, "system", return_value="Darwin"), patch.object(R, "verify_signature", return_value=signature()), patch.object(R, "run", side_effect=R.ReleaseError("simulated_stapler_failure")):
             self.error("simulated_stapler_failure", R.staple_candidate, self.args())
+        self.assertEqual(R.verify_package(self.package)["stage"], "STAPLE_FAILED")
+
+    def test_failed_staple_can_resume_the_accepted_job_without_resubmitting(self):
+        self.stage("NOTARIZED")
+        with patch.object(R.platform, "system", return_value="Darwin"), patch.object(R, "verify_signature", return_value=signature()):
+            with patch.object(R, "run", side_effect=R.ReleaseError("stapler_unavailable")):
+                self.error("stapler_unavailable", R.staple_candidate, self.args())
+            with patch.object(R, "run", return_value=result()) as invoked:
+                self.assertEqual(R.staple_candidate(self.args())["status"], "STAPLED")
+            self.assertTrue(all(c.args[0][1] == "stapler" for c in invoked.call_args_list))
+            self.assertEqual(len(list(self.workspace.glob("app-staple-*"))), 2)
+
+    def test_nested_macho_in_resources_requires_an_explicit_signing_rule(self):
+        nested = self.app / "Contents/Resources/Riftlet_RiftletAdapters.bundle/Contents/embedded"
+        nested.parent.mkdir(exist_ok=True, parents=True)
+        nested.write_bytes((self.app / "Contents/MacOS/Riftlet").read_bytes())
+        self.save()
+        self.error("unreviewed_nested_code:Contents/Resources/Riftlet_RiftletAdapters.bundle/Contents/embedded",
+                   R.verify_package, self.package)
+
+    def test_nested_helper_script_and_its_declared_executable_are_rejected(self):
+        contents = self.app / "Contents/Resources/BundledTool.app/Contents"
+        binary = contents / "MacOS/tool"
+        binary.parent.mkdir(parents=True)
+        binary.write_text("#!/bin/sh\nexit 0\n")
+        binary.chmod(0o755)
+        self.save()
+        self.error("unreviewed_nested_code:Contents/Resources/BundledTool.app/Contents/MacOS/tool",
+                   R.verify_package, self.package)
+        binary.chmod(0o644)
+        (contents / "Info.plist").write_bytes(plistlib.dumps({"CFBundleExecutable": "tool"}))
+        self.save()
+        self.error("unreviewed_nested_code:Contents/Resources/BundledTool.app/Contents/Info.plist",
+                   R.verify_package, self.package)
+
+    def test_actual_stapler_file_location_is_retained_on_failure_and_on_resume(self):
+        self.stage("NOTARIZED")
+        ticket = self.app / "Contents/CodeResources"
+        calls = []
+        def first(command, **kwargs):
+            calls.append(command[2])
+            if command[2] == "staple":
+                ticket.write_bytes(b"test carrier, not an Apple ticket")
+                return result()
+            raise R.ReleaseError("simulated_stapler_validation_interrupted")
+        with patch.object(R.platform, "system", return_value="Darwin"), patch.object(R, "verify_signature", return_value=signature()):
+            with patch.object(R, "run", side_effect=first):
+                self.error("simulated_stapler_validation_interrupted", R.staple_candidate, self.args())
+            self.assertEqual(calls, ["staple", "validate"])
+            self.assertEqual(R.verify_package(self.package)["stage"], "STAPLE_FAILED")
+            with patch.object(R, "run", return_value=result()):
+                R.staple_candidate(self.args())
+            completed = R.verify_package(self.package)
+            self.assertEqual(completed["stage"], "STAPLED")
+            self.assertEqual(completed["files"]["Riftlet.app/Contents/CodeResources"]["sha256"], R.digest(ticket))
+        self.stage("SIGNED")
+        self.manifest["notarization"] = None
+        self.save()
+        self.error("unexpected_app_contents", R.verify_package, self.package)
+
+    def test_interrupted_staple_resumes_by_validating_only_the_ticket_carrier(self):
+        self.stage("NOTARIZED")
+        marker = self.app / "Contents/CodeResources"
+        original = (self.package / R.MANIFEST).read_bytes()
+        def interrupt(command, **kwargs):
+            self.assertEqual(command[2], "staple")
+            marker.write_bytes(b"fixture ticket")
+            raise KeyboardInterrupt
+        with patch.object(R.platform, "system", return_value="Darwin"), patch.object(R, "verify_signature", return_value=signature()):
+            with patch.object(R, "run", side_effect=interrupt), self.assertRaises(KeyboardInterrupt):
+                R.staple_candidate(self.args())
+            self.assertEqual((self.package / R.MANIFEST).read_bytes(), original)
+            self.error("payload_inventory_mismatch", R.verify_package, self.package)
+            self.assertEqual(R.load_package_for_resume(self.package, R.sha(original))["stage"], "NOTARIZED")
+            self.assertEqual((self.package / R.MANIFEST).read_bytes(), original)
+            with patch.object(R, "run", return_value=result()) as native:
+                self.assertEqual(R.staple_candidate(self.args())["status"], "STAPLED")
+            self.assertEqual([call.args[0][2] for call in native.call_args_list], ["validate"])
+        self.assertEqual(R.verify_package(self.package)["files"][R.TICKET_CARRIER]["sha256"], R.digest(marker))
+        self.assertEqual(len(list(self.workspace.glob("app-staple-*/input-manifest.json"))), 2)
+
+    def test_interrupted_staple_cannot_adopt_other_bytes_directory_modes_or_signature(self):
+        self.stage("NOTARIZED")
+        (self.app / "Contents/CodeResources").write_bytes(b"simulated carrier")
+        notice = self.package / "INSTALL-zh-CN.txt"; original = notice.read_bytes()
+        notice.write_bytes(original + b"modified")
+        with patch.object(R.platform, "system", return_value="Darwin"), \
+                patch.object(R, "run", side_effect=AssertionError("do not execute stapler")):
+            self.error("payload_inventory_mismatch", R.staple_candidate, self.args())
+            notice.write_bytes(original)
+            mode = stat.S_IMODE((self.app / "Contents").stat().st_mode)
+            (self.app / "Contents").chmod(mode ^ 0o020)
+            self.error("payload_inventory_mismatch", R.load_package_for_resume, self.package)
+            (self.app / "Contents").chmod(mode)
+            with patch.object(R, "verify_signature", return_value=signature() | {"teamID": "OTHERTEAM1"}):
+                self.error("signature_manifest_mismatch", R.load_package_for_resume, self.package)
+        self.assertEqual(R.read_json(self.package / R.MANIFEST)["stage"], "NOTARIZED")
+
+    def test_staple_rechecks_original_accepted_notary_log_before_any_apple_command(self):
+        self.stage("NOTARIZED")
+        note = self.manifest["notarization"]; logfile = self.workspace / note["logPath"]
+        with patch.object(R.platform, "system", return_value="Darwin"), \
+                patch.object(R, "run", side_effect=AssertionError("no Apple invocation")):
+            logfile.write_text('{"changed":true}')
+            self.error("accepted_app_log_digest_mismatch", R.staple_candidate, self.args())
+            for key, bad in (("jobId", "00000000-0000-0000-0000-000000000000"), ("status", "Invalid"), ("sha256", "0" * 64)):
+                with self.subTest(key=key):
+                    record = {"jobId": JOB, "status": "Accepted", "sha256": note["uploadSHA256"]}
+                    record[key] = bad; R.write_json(logfile, record)
+                    note["logSHA256"] = R.digest(logfile); self.save()
+                    self.error("accepted_app_log_artifact_mismatch", R.load_package_for_resume, self.package)
+            note["logPath"] = "../" + JOB + ".notary-log.json"
+            self.save()
+            self.error("invalid_accepted_app_log_path", R.load_package_for_resume, self.package)
+
+    def test_non_ticket_drift_during_staple_is_never_recorded_even_on_failure(self):
+        self.stage("NOTARIZED")
+        prior = (self.package / R.MANIFEST).read_bytes()
+        def tamper(command, **kwargs):
+            (self.package / "INSTALL-zh-CN.txt").write_text("unexpected replacement")
+            raise R.ReleaseError("simulated_apparent_stapler_failure")
+        with patch.object(R.platform, "system", return_value="Darwin"), patch.object(R, "verify_signature", return_value=signature()), \
+                patch.object(R, "run", side_effect=tamper):
+            self.error("payload_inventory_mismatch", R.staple_candidate, self.args())
+        self.assertEqual((self.package / R.MANIFEST).read_bytes(), prior)
+
+    def test_ticket_replaced_after_validation_is_not_certified(self):
+        self.stage("NOTARIZED")
+        ticket = self.app / "Contents/CodeResources"; ticket.write_bytes(b"ticket at restart")
+        def replace(command, **kwargs):
+            self.assertEqual(command[2], "validate"); ticket.write_bytes(b"different ticket")
+            return result()
+        with patch.object(R.platform, "system", return_value="Darwin"), patch.object(R, "verify_signature", return_value=signature()), \
+                patch.object(R, "run", side_effect=replace):
+            self.error("payload_changed_after_staple_validation", R.staple_candidate, self.args())
         self.assertEqual(R.verify_package(self.package)["stage"], "STAPLE_FAILED")
 
     def test_staple_success_retains_code_identity_and_updates_manifest(self):

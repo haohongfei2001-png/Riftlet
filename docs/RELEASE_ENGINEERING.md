@@ -6,6 +6,8 @@
 
 个人 ad-hoc 安装首次更换签名，以及同一 Developer ID 后续版本的升级，使用[身份过渡与授权验证流程](release/IDENTITY_TRANSITION.md)。
 
+官网正式 DMG、钥匙串 CSR、公证及断点恢复使用[直接分发手册](release/DIRECT_DOWNLOAD.md)。
+
 ## 现有能力与缺口
 
 | 项目 | 现有实现 | 本工作包 / 仍需条件 |
