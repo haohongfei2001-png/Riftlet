@@ -8,9 +8,7 @@ macOS 正常截图，图片停在桌面边缘；点一下微图，附加到当�
 
 ## 使用与支持
 
-- 官网发行资料（分支预览）：[下载与版本](download/index.html) · [使用指南](guide/index.html) · [隐私与数据](privacy/index.html)
 - [消费者入口与当前限制](docs/consumer/README.md)
-- 从分支根运行 `python3 website/preview-consumer.py`，打开输出的本机地址，可从官网首页「为 Mac 而来」进入发行资料。
 - [中文快速开始](docs/consumer/QUICK-START.zh-CN.md) · [English quick start](docs/consumer/QUICK-START.en.md)
 - [安装与分步权限说明](docs/consumer/INSTALL-AND-PERMISSIONS.md)
 - [隐私、本地副本和卸载](docs/consumer/PRIVACY.md)

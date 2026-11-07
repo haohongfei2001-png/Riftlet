@@ -17,12 +17,12 @@ Riftlet keeps new screenshots at the edge of your Mac screen. Click a thumbnail 
 
 ## 当前交付范围
 
-本次消费者体验预览沿用正式官网，提供[下载状态与版本说明](../../download/index.html)、[首次使用与权限指南](../../guide/index.html)和[本地数据说明](../../privacy/index.html)。页面列出已安装的个人 Beta 3 与候选界面的差异。新文案、数据文件夹入口和目录恢复改进仅随此分支接受验证。
+尚无公开安装包或报名入口。当前个人 Beta 3 与下一版的源码是两件事：本次改进的首次引导、目录恢复提示、Finder 数据文件夹入口尚未装入个人 Beta 3。[安装与权限](INSTALL-AND-PERMISSIONS.md)和[本地数据说明](PRIVACY.md)可在此阅读。
 
 个人 Beta 3 指南最初核对的运行时源码为 `2e779f646ac4874344fac94f79103e8ddf9b02c8`，后续发行工具 `d46d47682d9ebe6df2928cebb69411ff8746604c` 增加版本标签和私有评审 ZIP/DMG。个人安装与历史双样式已按该版本验收。当前个人包使用 ad-hoc 签名，公开下载仍待正式签名、公证和干净 Mac 安装验收。
 
-本次检查中，内置 Chrome 接口在建立专用草稿和查询连接时超时，未取得可操作的标签页。真实双图附加状态为 **REAL_ACCEPTANCE_NOT_RUN**。[当前验收记录](../../engineering/consumer-readiness-20261107/README.md) · [早期消费者资料与封闭测试准备](../../engineering/productization-20261107/consumer/README.md)
+本次检查没有取得可操作的专用 Chrome 草稿。真实双图附加状态为 **REAL_ACCEPTANCE_NOT_RUN**。[当前验收记录](../../engineering/consumer-readiness-20261107/README.md) · [早期消费者资料与封闭测试准备](../../engineering/productization-20261107/consumer/README.md)
 
 **阅读本文不表示已有公开下载或正在招募测试者。** 10–20 人测试方案已准备，尚未发送邀请。发布身份、支持渠道和安装包以获准交付的版本清单为准。
 
-These guides describe the audited source above. Personal Beta acceptance is narrower than closed or public Beta readiness. The current personal build is ad-hoc signed; no notarized public download or new live ChatGPT certification is claimed here.
+The first-run, folder recovery and Finder changes are in the candidate source; the installed Personal Beta 3 still uses its previous interface. The personal build is ad-hoc signed. No public download or signup is open, and the current two-image ChatGPT test has not run.

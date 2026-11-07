@@ -6,7 +6,7 @@
 | --- | --- |
 | 真实 ChatGPT | **REAL_ACCEPTANCE_NOT_RUN**。内置 Chrome 接口创建专用草稿、查询浏览器连接都超时，未取得可操作的标签页。没有进入私人历史、执行附件输入或发送消息。正确聊天、首张与连续第二张、原正文与旧附件、真实 START、失败和 UNKNOWN 均无本轮线上结果。恢复条件是正常可用的 Chrome 接口及可确认的专用可编辑草稿。 |
 | 首用、目录与无目标 | 本地完整 App 使用独立测试目录和偏好，见[原生实测](native/README.md)。托管账户按正常入口首启本次候选，另以独立目录演练旧版升级和回退。具体运行结果随本 PR 的 Actions 原始 JSON 记录，系统已有读取权限和出现过真实授权弹窗分别判断。 |
-| 官网 | GitHub Pages 来源为 main 根目录。官网首页返回 HTTP 200，内容与正式首页字节相同。新增[下载状态](../../download/index.html)、[使用指南](../../guide/index.html)与[隐私](../../privacy/index.html)的中英文页面，仅作分支预览。 |
+| 官网 | GitHub Pages 是公开的 `main:/` 部署，启用了 `.nojekyll`。此次集成从产品树移出下载、使用指南和隐私的六份 HTML、样式表和本机预览脚本。原稿保留在 `1b209ddf`，仅供独立官网草案复审；合并产品不会把这六个网址上线。公开仓库中的源文件不保密。 |
 | 存储 | 设置中的用量检查按已实现的五项范围统计；用户可显式在 Finder 定位当前数据根。卸载后的残留、备份覆盖范围和[单张私有副本删除提案](../../docs/PRIVACY_AND_DATA.md)都有明确说明。没有启用永久删除或保留期限。 |
 | 发行 | 本机有效 Developer ID Application 身份数为 0，notarytool 与 stapler 已安装。已验证既有公有 CSR 的自签名和原请求记录。在新 main 中，正式 DMG 的 App 与外层容器各自签名、公证、装订和核验。实际 Apple 任务、签名身份过渡和干净下载首启待凭据。[获批后的执行清单](../../docs/release/AFTER_DEVELOPER_APPROVAL.md) |
 
@@ -23,3 +23,10 @@
 [首轮原生 CI](https://github.com/haohongfei2001-png/Riftlet/actions/runs/42370036322) 在 PR 合成提交 `9ee82b7f` 发现两处回归。选中图片后，保留说明将历史视图的最小拟合宽度撑到 713 或 728 点，超过原 681 点断言。普通产品的说明还没有通过原有“新聊天及已有聊天”的检查。两种架构的失败保留在原运行中。
 
 同一提交的[新账户实验](https://github.com/haohongfei2001-png/Riftlet/actions/runs/42370036272)通过。普通入口首次启动后，经 AX 观察到引导；一张测试截图及私有副本字节匹配，0 个附加操作和 0 个 START。损坏包被拒绝，回退仅替换 App，保留两个资产及其媒体和收录日志。另一个隔离身份在选目录前就能读取 Downloads；真实系统允许、拒绝和拒绝后恢复均为 `NOT_RUN_OR_UNCONFIRMED`。当次报告归档 SHA-256 为 `0f583202a244f076c42214efc75b8e5b3ef49e78f64fd5c6ec3cf3e167beb53f`。最终 PR head 与其实测结果见 PR #50。
+
+### 正式集成复核
+
+- 拆分前的合成提交 `791ea057` 的父提交为 `4908dc79`、`1b209ddf`。六项检查均成功；[新账户运行](https://github.com/haohongfei2001-png/Riftlet/actions/runs/42372107716)的归档 SHA-256 为 `1b5cbff8216e5c188572dcf79ad091b32391af2fac51c32359d1e26911e643ec`。这是拆分前的结果，新源码的审查、正式 PR 与 main 检查见 [PR #50](https://github.com/haohongfei2001-png/Riftlet/pull/50)。
+- 发布源 API 返回 `public: true`、`build_type: legacy`、`source: {branch: main, path: /}`。拆分前实际首页返回 200，SHA-256 为 `41ec2e00d28213f41113e7aa83196d6afdcffe4f7613aba00787e7220f3a7fc1`；三个目录及英文页各返回 404。已有未导航 Markdown 可以直接读取。因此不能以 `noindex` 或不链接代替访问限制。
+- 本轮只枚举 Chrome 连接，没有枚举私人标签。一个扩展要求新标签为活动状态，却不支持所需的可见性操作；另一条 Chrome 连接在 14 秒内没有应答。未取得能操作的专用草稿。首张、连续第二张、原有正文及附件、setter/change、真实 START、失败和 UNKNOWN 都是 **REAL_ACCEPTANCE_NOT_RUN**。没有发送消息或重试不确定的输入。
+- 现有 CSR 再次通过自签名和 SHA-256 检查，没有新建密钥或导入证书。对原通用演练包固定 manifest `30fef5518d10bfa36387496c476534e9f9266fe14dd5061962c36ce9079aa801` 运行离线校验，得到 `OFFLINE_CONTENTS_MATCH`、`PREPARED`；Gatekeeper 和正式签名未运行。这是原 `1b209ddf` 演练包的收据，不是本次合并提交的正式安装包。

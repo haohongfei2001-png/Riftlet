@@ -36,6 +36,8 @@ Feedback is optional. Pressing Send authorizes the queued report to be retried l
 
 Archiving or retracting a thumbnail does not delete its file. Uninstalling the App does not erase local data or already received feedback. No screenshot cloud library, Riftlet account or usage telemetry is introduced by this packet.
 
+In the candidate, Settings → `历史与存储` → `在 Finder 中显示数据文件夹` reveals this copy of Riftlet’s data folder. The storage estimate covers image copies, built-in captures, import staging and journals, and the queue database; external originals, feedback, preferences and backups are separate. There is no per-image permanent delete control. Keep the complete data folder together for backup or recovery.
+
 ## 对外发布前仍需补齐
 
 这是当前实现说明，不是已完成的法律隐私政策。正式对外测试前，维护者需在交付资料中提供实际可联系的隐私/支持责任方、反馈处理和删除请求渠道、服务保留规则，以及测试参与同意说明。本轮不虚构邮箱、保留天数或响应时限；没有这些信息不应宣称隐私体系已经对外就绪。
