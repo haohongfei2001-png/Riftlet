@@ -344,7 +344,68 @@ def validate_release_info(info, receipt):
         require(isinstance(info.get(key), str) and 10 <= len(info[key].strip()) <= 512, "invalid_usage_description")
 
 
+def verify_code_layout(app):
+    """The current SwiftPM product has one executable and a resource-only bundle."""
+    main = app / "Contents/MacOS/Riftlet"
+    magics = {bytes.fromhex(m) for m in ("feedface", "cefaedfe", "feedfacf", "cffaedfe",
+                                         "cafebabe", "bebafeca", "cafebabf", "bfbafeca")}
+    for entry in app.rglob("*"):
+        if entry == main or not entry.is_file():
+            continue
+        reason = "unreviewed_nested_code:" + str(entry.relative_to(app))
+        require(not entry.stat().st_mode & 0o111, reason)
+        with entry.open("rb") as stream:
+            require(stream.read(4) not in magics, reason)
+        if entry.name == "Info.plist" and entry != app / "Contents/Info.plist":
+            info = plistlib.loads(entry.read_bytes())
+            require(isinstance(info, dict) and not info.get("CFBundleExecutable"), reason)
+
+
+TICKET_CARRIER = APP + "/Contents/CodeResources"
+
+
+def verify_accepted_app_log(workspace, value):
+    note = value["notarization"]
+    require(value["stage"] in {"NOTARIZED", "STAPLE_FAILED", "STAPLED"} and note["status"] == "Accepted",
+            "accepted_app_notary_job_required")
+    relative = PurePosixPath(note.get("logPath") or "")
+    require(len(relative.parts) == 2 and relative.parts[0].startswith("notary-query-")
+            and relative.parts[1] == note["submissionID"] + ".notary-log.json"
+            and relative.as_posix() == note.get("logPath"), "invalid_accepted_app_log_path")
+    logfile = safe_path(Path(workspace) / relative)
+    require(logfile.is_file() and logfile.stat().st_size <= 8 * 1024**2, "invalid_accepted_app_log_file")
+    raw = logfile.read_bytes()
+    require(sha(raw) == note["logSHA256"], "accepted_app_log_digest_mismatch")
+    log = decode_json(raw)
+    require(isinstance(log, dict) and log.get("jobId") == note["submissionID"]
+            and log.get("status") == "Accepted" and str(log.get("sha256", "")).lower() == note["uploadSHA256"],
+            "accepted_app_log_artifact_mismatch")
+
+
+def check_staple_inventory(original, current):
+    if original == current:
+        return
+    require({k: v for k, v in original.items() if k != TICKET_CARRIER}
+            == {k: v for k, v in current.items() if k != TICKET_CARRIER}, "payload_inventory_mismatch")
+    carrier = current.get(TICKET_CARRIER, {})
+    require(carrier.get("kind") == "file" and carrier["size"] > 0 and not carrier["mode"] & 0o111,
+            "invalid_ticket_carrier")
+    if TICKET_CARRIER in original:
+        prior = original[TICKET_CARRIER]
+        require(carrier["mode"] == prior["mode"] and carrier["xattrs"] == prior["xattrs"],
+                "ticket_carrier_metadata_changed")
+
+
+def load_package_for_resume(package, expected_manifest=None, native_team=None):
+    """Read the recorded stage without adopting changes or certifying a ticket."""
+    return _verify_package(package, expected_manifest, native_team, staple_resume=True)
+
+
 def verify_package(package, expected_manifest=None, native_team=None):
+    return _verify_package(package, expected_manifest, native_team, staple_resume=False)
+
+
+def _verify_package(package, expected_manifest, native_team, *, staple_resume):
     package = safe_path(package)
     require(package.is_dir() and {p.name for p in package.iterdir()} == {APP, MANIFEST, "INSTALL-zh-CN.txt"}, "invalid_payload_layout")
     require((package / MANIFEST).is_file() and not (package / MANIFEST).is_symlink(), "missing_or_linked_json")
@@ -353,7 +414,14 @@ def verify_package(package, expected_manifest=None, native_team=None):
                 and digest(package / MANIFEST) == expected_manifest, "manifest_pin_mismatch")
     value = read_json(package / MANIFEST)
     validate_manifest(value)
-    require(value.get("files") == inventory(package), "payload_inventory_mismatch")
+    current = inventory(package)
+    recovering = staple_resume and value["stage"] in {"NOTARIZED", "STAPLE_FAILED"}
+    if recovering:
+        verify_accepted_app_log(package.parent, value)
+        check_staple_inventory(value["files"], current)
+        native_team = native_team or value["signature"]["teamID"]
+    else:
+        require(value["files"] == current, "payload_inventory_mismatch")
     app = package / APP
     receipt = read_json(app / RECEIPT)
     validate_receipt(receipt)
@@ -370,8 +438,16 @@ def verify_package(package, expected_manifest=None, native_team=None):
     require(binary.stat().st_mode & stat.S_IXUSR, "binary_not_executable")
     require(macho_arches(binary.read_bytes()) == receipt["architectures"], "binary_arch_mismatch")
     require(set(p.name for p in app.iterdir()) == {"Contents"}, "unexpected_app_root")
-    require(set(p.name for p in (app / "Contents").iterdir()) <= {"Info.plist", "MacOS", "Resources", "_CodeSignature"}, "unexpected_app_contents")
+    contents = {"Info.plist", "MacOS", "Resources", "_CodeSignature"}
+    ticket = app / "Contents/CodeResources"
+    if (recovering or value["stage"] in {"STAPLED", "STAPLE_FAILED"}) and ticket.exists():
+        # stapler can add this ordinary file alongside the original sealed code.
+        # Acceptance is verified by stapler, never by the existence of the file.
+        require(ticket.is_file() and ticket.stat().st_size > 0, "invalid_ticket_carrier")
+        contents.add(ticket.name)
+    require(set(p.name for p in (app / "Contents").iterdir()) <= contents, "unexpected_app_contents")
     require(set(p.name for p in (app / "Contents/MacOS").iterdir()) == {"Riftlet"}, "unexpected_executable")
+    verify_code_layout(app)
     for name in BUNDLE.RESOURCE_NAMES:
         matches = list((app / "Contents/Resources/Riftlet_RiftletAdapters.bundle").rglob(name))
         require(len(matches) == 1 and matches[0].is_file() and matches[0].stat().st_size > 0, "missing_adapter_resource")
@@ -409,8 +485,10 @@ def identity_available(identity, team):
 def verify_signature(app, team, arches):
     team_value(team)
     require(platform.system() == "Darwin", "native_signature_check_requires_macos", "BLOCKED_PLATFORM")
-    requirement = 'anchor apple generic and identifier "com.riftlet.app" and certificate leaf[subject.OU] = "' + team + '"'
-    run(["/usr/bin/codesign", "--verify", "--strict", "--all-architectures", "-R", requirement, app])
+    requirement = ('anchor apple generic and identifier "com.riftlet.app" and certificate leaf[subject.OU] = "'
+                   + team + '" and certificate 1[field.1.2.840.113635.100.6.2.6] exists and '
+                   'certificate leaf[field.1.2.840.113635.100.6.1.13] exists')
+    run(["/usr/bin/codesign", "--verify", "--deep", "--strict", "--all-architectures", "-R", requirement, app])
     result = {"teamID": team, "hardenedRuntime": True, "entitlements": ENTITLEMENTS, "architectures": {}}
     for arch in arches:
         detail = run(["/usr/bin/codesign", "-d", "--verbose=4", "--arch", arch, app]).stderr.decode()
@@ -631,18 +709,37 @@ def notary_status(args):
 def staple_candidate(args):
     network_execution(args)
     workspace, package = payload(args.workspace)
-    value = verify_package(package)
-    require(value["stage"] == "NOTARIZED" and value["notarization"]["status"] == "Accepted", "staple_requires_accepted_job")
-    verify_package(package, native_team=value["signature"]["teamID"])
+    value = load_package_for_resume(package)
+    require(value["stage"] in {"NOTARIZED", "STAPLE_FAILED"}, "staple_requires_accepted_job")
+    recorded = value["files"]
+    actual = inventory(package)
+    check_staple_inventory(recorded, actual)
+    attempt = Path(tempfile.mkdtemp(prefix="app-staple-", dir=workspace))
+    original_manifest = (package / MANIFEST).read_bytes()
+    require(decode_json(original_manifest) == value, "app_manifest_changed_before_stapling")
+    (attempt / "input-manifest.json").write_bytes(original_manifest)
     try:
-        run(["xcrun", "stapler", "staple", "-v", package / APP], log=workspace / "staple.log")
-        run(["xcrun", "stapler", "validate", "-v", package / APP], log=workspace / "staple-validate.log")
+        # An interruption can leave a ticket for the original Accepted job on
+        # disk. Validate that carrier first; a failed validation leaves an
+        # explicit STAPLE_FAILED retry instead of silently replacing it.
+        if recorded == actual:
+            run(["xcrun", "stapler", "staple", "-v", package / APP], log=attempt / "staple.log")
+        validated = inventory(package)
+        check_staple_inventory(recorded, validated)
+        run(["xcrun", "stapler", "validate", "-v", package / APP], log=attempt / "staple-validate.log")
         require(verify_signature(package / APP, value["signature"]["teamID"], value["build"]["architectures"]) == value["signature"], "staple_changed_code_identity")
-        value["stage"] = "STAPLED"; value["notarization"]["stapled"] = True
+        verify_accepted_app_log(workspace, value)
+        final = inventory(package)
+        require(final == validated, "payload_changed_after_staple_validation")
     except Exception:
-        value["stage"] = "STAPLE_FAILED"; save_manifest(package, value)
+        failed = inventory(package)
+        check_staple_inventory(recorded, failed)
+        value.update(stage="STAPLE_FAILED", files=failed)
+        write_json(package / MANIFEST, value)
         raise
-    save_manifest(package, value)
+    value.update(stage="STAPLED", files=final)
+    value["notarization"]["stapled"] = True
+    write_json(package / MANIFEST, value)
     return {"status": "STAPLED", "gatekeeper": "NOT_RUN"}
 
 

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "sourceBaseline": "de4b841dcdeac964741dc9203017b315efa25dd6",
-  "scope": "Consumer documentation continues to describe personal and public release separately. The release tool now verifies the App extracted from its upload ZIP and the complete distributable ZIP. All other 33 bound source files match the previously reviewed document inputs.",
+  "sourceBaseline": "05abf6c2404055b0135e77585a10a47deea33a95",
+  "scope": "Public DMG tooling adds an explicit single-executable layout check and accepted App ticket verification/recovery. The existing source, signing, notarization, manual-update and consumer privacy statements continue to apply. The other 33 bound source inputs are unchanged.",
   "files": [
     {
       "path": "Sources/RiftletApp/OrdinaryCaptureConfiguration.swift",
@@ -160,8 +160,8 @@
     },
     {
       "path": "scripts/release-tool.py",
-      "sha256": "1f60873e9fdbb2d51baa2a4ebc9f1b3f91a313dd3499a01a3aba74904b63968b",
-      "sourceBlob": "fe89c26aa48835dfb51579b0b2305b6be24b30aa"
+      "sha256": "0df964f79889b3080709110576b733a69488d4e03e729b687c461d63eb69b06c",
+      "sourceBlob": "9665076f82fed93c46f70628c4e6841078f78bbd"
     },
     {
       "path": "scripts/storage-recovery.py",
