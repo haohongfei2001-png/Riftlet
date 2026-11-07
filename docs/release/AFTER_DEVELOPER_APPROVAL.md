@@ -1,6 +1,6 @@
 # 开发者账号获批后的发行接管清单
 
-正式 main `4908dc7` 已提供 SwiftPM 构建、钥匙串证书请求和双层公证的 DMG 发行工具。个人安装仍为 ARM64 的 0.3.0 (3)。本机尚无可用 Developer ID Application 身份。以下操作在签名机和隔离测试 Mac 上执行，成功结果随包记录，官网上线另行批准。[正式发行手册](DIRECT_DOWNLOAD.md)
+正式工具已随 [PR #49](https://github.com/haohongfei2001-png/Riftlet/pull/49) 合入 `4908dc7`，包括 SwiftPM 构建、钥匙串证书请求和双层公证的 DMG 流程。个人安装仍为 ARM64 的 0.3.0 (3)。截至本次复核，本机尚无可用 Developer ID Application 身份。以下操作在签名机和隔离测试 Mac 上执行，成功结果随包记录，官网上线另行批准。[正式发行手册](DIRECT_DOWNLOAD.md)
 
 ### 1. 用既有请求接入证书和公证
 
@@ -58,3 +58,5 @@ python3 -B scripts/release-macos.py --source "$SOURCE" \
 ### 4. 公开发行准入
 
 将实际支持的系统与架构、正式 DMG 的独立散列、版本说明、更新及卸载指引、可联系的支持与隐私渠道交给发行负责人。取得对**具体产物**的批准后才开放官网下载或邀请封闭测试参与者。
+
+`riftlet.com` 直接发布公开仓库的 `main` 根目录。待审 DMG、签名工作区、受限链接、邀请名单不得放进仓库；未链接的路径和带 `noindex` 的页面也能被访问。官网草案须与原生合并分开，在确认哪些页面和入口可公开之后再推进。
