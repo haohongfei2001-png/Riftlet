@@ -59,6 +59,17 @@ private final class HistoryPreviewImageView: NSImageView {
     }
 }
 
+/// Wrap the action hint inside its detail column when AppKit measures the window.
+private final class HistoryActionNote: NSTextField {
+    override func setFrameSize(_ newSize: NSSize) {
+        super.setFrameSize(newSize)
+        let textWidth = alignmentRect(forFrame: bounds).width
+        if textWidth > 0, preferredMaxLayoutWidth != textWidth {
+            preferredMaxLayoutWidth = textWidth
+        }
+    }
+}
+
 /// Explicitly opened local history, with one bounded metadata page and reused
 /// downsampled thumbnails. No adapter, upload, clipboard or deletion capability.
 @MainActor
@@ -120,7 +131,7 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
     private let originalButton = NSButton(title: "查看原图", target: nil, action: nil)
     private let newerButton = NSButton(title: "上一页", target: nil, action: nil)
     private let olderButton = NSButton(title: "下一页", target: nil, action: nil)
-    private let actionNote = RiftVisualStyle.label("", role: "secondary")
+    private let actionNote = HistoryActionNote(wrappingLabelWithString: "")
     private var entries: [RiftHistoryEntry] = []
     private var displayed: [RiftHistoryEntry] = []
     private var pageOffset = 0
@@ -322,7 +333,8 @@ public final class RiftHistoryController: NSObject, NSTableViewDataSource, NSTab
         detailMetadata.font = RiftVisualStyle.secondaryFont; detailMetadata.textColor = RiftVisualStyle.secondary
         detailMetadata.isSelectable = true
         detailState.font = RiftVisualStyle.bodyFont; detailState.textColor = RiftVisualStyle.ink
-        for field in [detailTitle, detailMetadata, detailState] {
+        actionNote.font = RiftVisualStyle.secondaryFont; actionNote.textColor = RiftVisualStyle.secondary
+        for field in [detailTitle, detailMetadata, detailState, actionNote] {
             field.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
             RiftVisualStyle.applyTextStyle(field)
         }

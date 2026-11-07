@@ -17,7 +17,7 @@ Riftlet keeps new screenshots at the edge of your Mac screen. Click a thumbnail 
 
 ## 当前交付范围
 
-本次从 main `05abf6c` 开始的消费者体验预览提供[下载状态与版本说明](../../download/index.html)、[首次使用与权限指南](../../guide/index.html)和[本地数据说明](../../privacy/index.html)。页面列出已安装的个人 Beta 3 与候选界面的差异。新文案、数据文件夹入口和目录恢复改进仅随此分支接受验证。
+本次消费者体验预览沿用正式官网，提供[下载状态与版本说明](../../download/index.html)、[首次使用与权限指南](../../guide/index.html)和[本地数据说明](../../privacy/index.html)。页面列出已安装的个人 Beta 3 与候选界面的差异。新文案、数据文件夹入口和目录恢复改进仅随此分支接受验证。
 
 个人 Beta 3 指南最初核对的运行时源码为 `2e779f646ac4874344fac94f79103e8ddf9b02c8`，后续发行工具 `d46d47682d9ebe6df2928cebb69411ff8746604c` 增加版本标签和私有评审 ZIP/DMG。个人安装与历史双样式已按该版本验收。当前个人包使用 ad-hoc 签名，公开下载仍待正式签名、公证和干净 Mac 安装验收。
 
